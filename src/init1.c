@@ -239,7 +239,7 @@ static cptr r_info_flags3[] =
 	"HURT_ROCK",
 	"CLIGHT",
 	"FEY",
-	"",
+	"NIGHTMARE",
 	"",
 	"",
 	"",
@@ -355,16 +355,16 @@ static cptr r_info_flags6[] =
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"S_SILVER",
+	"ILLUSION_CLONE",
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
 	"S_ANIMAL",
 	"S_SPIDER",
-	"S_HOUND",
-	"S_HYDRA",
-	"S_ANGEL",
+	"S_ILLUSION",
+	"S_ILLUSIONS",
+	"S_EXTRA",
 	"S_DEMON",
 	"S_UNDEAD",
 	"S_DRAGON",
@@ -635,9 +635,10 @@ static cptr a_info_act[ACT_MAX] =
 	"SNOWBALL",
 	"CHARM_ANIMAL",
 	"TUNNELDIG",
-	"SUN_HERO",
+	"SUN_HERO", /* SUN_HERO */
 	"HOLY_FIRE",
-	"WCLAIRVOYANCE"
+	"WCLAIRVOYANCE",
+	"PZAP" /* PZAP */
 };
 
 
@@ -1108,14 +1109,14 @@ errr parse_v_info(char *buf, header *head)
 	/* Process 'X' for "Extra info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int typ, rat, hgt, wid, dig, rarity, theme;
+		int typ, rat, hgt, wid, dig, rarity, vfloor;
 
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
 		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
-			            &typ, &rat, &hgt, &wid, &dig, &rarity, &theme)) return (PARSE_ERROR_GENERIC);
+			            &typ, &rat, &hgt, &wid, &dig, &rarity, &vfloor)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		v_ptr->typ = typ;
@@ -1124,7 +1125,8 @@ errr parse_v_info(char *buf, header *head)
 		v_ptr->wid = wid;
 		v_ptr->useMT = dig;
 		v_ptr->rare = rarity;
-		v_ptr->itheme = theme;
+		if (vfloor == 99) v_ptr->vfloor = 0;
+		else v_ptr->vfloor = vfloor;
 
 		/* Check for maximum vault sizes */
 		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
@@ -1132,6 +1134,24 @@ errr parse_v_info(char *buf, header *head)
 
 		if ((v_ptr->typ == 8) && ((v_ptr->wid > 66) || (v_ptr->hgt > 44)))
 			return (PARSE_ERROR_VAULT_TOO_BIG);
+	}
+	/* Process 't' for "themes" (one line only) */
+	else if (buf[0] == 't')
+	{
+		int theme, themeb, themec, themed;
+
+		/* There better be a current v_ptr */
+		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &theme, &themeb, &themec, &themed)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		v_ptr->itheme = theme;
+		v_ptr->ithemeb = themeb;
+		v_ptr->ithemec = themec;
+		v_ptr->ithemed = themed;
 	}
 	else
 	{
@@ -1472,17 +1492,17 @@ errr parse_k_info(char *buf, header *head)
 		}
 	}
 
-	/* Hack -- Process 'P' for "power" and such */
+	/* Hack -- Process 'P' for combat stats */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta, crc;
+		int ac, hd1, hd2, th, td, ta, crc, spdm;
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta, &crc)) return (PARSE_ERROR_GENERIC);
+		if (8 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d:%d",
+			            &ac, &hd1, &hd2, &th, &td, &ta, &crc, &spdm)) return (PARSE_ERROR_GENERIC);
 
 		k_ptr->ac = ac;
 		k_ptr->dd = hd1;
@@ -1491,6 +1511,7 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->to_d = td;
 		k_ptr->to_a = ta;
 		k_ptr->crc = crc;
+		k_ptr->spdm = spdm;
 	}
 
 	/* Hack -- Process '2' for double weapons (only double weapons have a "2" line) */
@@ -2070,6 +2091,7 @@ errr parse_e_info(char *buf, header *head)
 	/* Hack -- Process 'C' for "creation" */
 	else if (buf[0] == 'C')
 	{
+#if noxdice
 		int th, td, ta, pv;
 
 		/* There better be a current e_ptr */
@@ -2078,7 +2100,18 @@ errr parse_e_info(char *buf, header *head)
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
 			            &th, &td, &ta, &pv)) return (PARSE_ERROR_GENERIC);
+#else
+		int th, td, ta, xd, pv;
 
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &th, &td, &ta, &xd, &pv)) return (PARSE_ERROR_GENERIC);
+			            
+		e_ptr->xdicec = xd;
+#endif
 		e_ptr->max_to_h = th;
 		e_ptr->max_to_d = td;
 		e_ptr->max_to_a = ta;
@@ -2292,14 +2325,14 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp1, hp2, ac, mrsize, maxpop;
+		int spd, hp1, hp2, ac, mrsize, maxpop, champ;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &spd, &hp1, &hp2, &ac, &mrsize, &maxpop)) return (PARSE_ERROR_GENERIC);
+		if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
+			            &spd, &hp1, &hp2, &ac, &mrsize, &maxpop, &champ)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->speed = spd;
@@ -2308,6 +2341,7 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->ac = ac;
 		r_ptr->mrsize = mrsize;
 		r_ptr->maxpop = maxpop;
+		r_ptr->champ = champ;
 	}
 
 	/* Process 'A' for "Vision/alertness stats" (one line only) */
@@ -2363,7 +2397,7 @@ errr parse_r_info(char *buf, header *head)
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
 			            &Rchao, &Rdisen, &Rsilv, &Rtame, &lat1, &lat2)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -2372,7 +2406,7 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->Rsilver = Rsilv;
 		r_ptr->Rtaming = Rtame;
 		r_ptr->R4later = lat1;
-		r_ptr->R4later2 = lat2;
+		r_ptr->summex = lat2;
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
@@ -3546,12 +3580,11 @@ errr parse_flavor_info(char *buf, header *head)
 
 
 /*
- * Initialize the "s_info" array, by parsing an ascii "template" file
+ * Initialize the "s_info" array, by parsing an ascii "template" file (spell.txt)
  */
 errr parse_s_info(char *buf, header *head)
 {
 	int i;
-
 	char *s;
 
 	/* Current entry */
@@ -3596,21 +3629,23 @@ errr parse_s_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int tval, sval, snum;
+		int tval, sval, snum, spell_noise, school;
 
 		/* There better be a current s_ptr */
 		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &tval, &sval, &snum)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &tval, &sval, &snum, &spell_noise, &school)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		s_ptr->tval = tval;
 		s_ptr->sval = sval;
 		s_ptr->snum = snum;
+		s_ptr->spell_noise = spell_noise;    /* how much noise does this spell make */
+		s_ptr->school = school;              /* spell type (for later) */
 
-		/* Hack -- Use tval to calculate realm and spell index */
+		/* Use tval to calculate realm and spell index */
 		s_ptr->realm = tval - TV_MAGIC_BOOK;
 		s_ptr->spell_index = error_idx - (s_ptr->realm * PY_MAX_SPELLS);
 	}
@@ -3770,7 +3805,6 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
  * chance of casting spells and of spells failing,
  * chance of hitting in melee, and particularly speed.
  */
-
 static long eval_max_dam(monster_race *r_ptr)
 {
 	int hp, rlev, i;
@@ -3947,14 +3981,15 @@ static long eval_max_dam(monster_race *r_ptr)
 	if ((r_ptr->flags6 & RF6_S_DRAGON) && spell_dam < 25)
 		spell_dam = 25;
 	/* Can be quite dangerous */
-	if ((r_ptr->flags6 & RF6_S_HOUND) && spell_dam < 100)
-		spell_dam = 100;
-	/* Dangerous! */
-	if ((r_ptr->flags6 & RF6_S_HYDRA) && spell_dam < 150)
-		spell_dam = 150;
-	/* Can be quite dangerous */
-	if ((r_ptr->flags6 & RF6_S_ANGEL) && spell_dam < 150)
-		spell_dam = 150;
+	if ((r_ptr->flags6 & RF6_S_EXTRA) && spell_dam < 150)
+		spell_dam = 135;
+	/* new illusion spells */
+	if ((r_ptr->flags6 & RF6_S_ILLUSION) && spell_dam < 150)
+		spell_dam = 30;
+	if ((r_ptr->flags6 & RF6_S_ILLUSIONS) && spell_dam < 150)
+		spell_dam = 60;
+	if ((r_ptr->flags6 & RF6_ILLUSION_CLONE) && spell_dam < 150)
+		spell_dam = 90;
 	/* All of these more dangerous at higher levels */
 	if ((r_ptr->flags6 & RF6_S_DEMON) && spell_dam < (rlev * 3) / 2)
 		spell_dam = (rlev * 3) / 2;

@@ -2,7 +2,13 @@
 
 /*
  * Functions added by will_asher for DaJAngband.
- * (except for the wonder spell)
+ 
+ * (except for the wonder spell, this applies only to the wonder spell:)
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statxement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -1290,6 +1296,7 @@ void spell_affect_self(void)
     if (die < 12)
     {
          msg_print("You feel rather mundane.");
+         (void)clear_timed(TMD_IMAGE);
          (void)clear_timed(TMD_PROTEVIL);
          (void)clear_timed(TMD_HERO);
          (void)clear_timed(TMD_SHERO);
@@ -1446,186 +1453,6 @@ void spell_adjust_curse(void)
          msg_print("You fire a ball of destroy cursed objects.");
 		 fire_ball(GF_HOLY_ORB, dir, randint(plev/4), (plev/8));
     }
-}
-
-/* potluck stats tourist spell */
-void spell_potluck_stats(void)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-	int plev = p_ptr->lev;
-	int die, die2;
-    int max1, cur1, max2, cur2, ii, jj;
-
-    int jackpot = randint(5);
-    if ((spellswitch == 30) && (randint(100) < 34)) jackpot += randint(2);
-    if ((goodluck > 11) && (randint(100) > 90)) spellswitch = 30;
-        die = randint(100);
-        die2 = randint(99) + randint(plev/4) - randint(badluck);
-        if (spellswitch == 30) die2 += 3 + randint(7);
-        if (die < 33)
-        {
-           if (die2 < 5) dec_stat(A_CHR, 1, TRUE);     
-           else if (die2 < 34) do_dec_stat(A_CHR, 0);
-           if (die2 > 65) do_res_stat(A_CHR);
-           if ((die2 > 96) && (randint(5) == 1))
-           {
-              do_inc_stat(A_CHR);
-              jackpot -= 1;
-           }
-        }
-        die = randint(100);
-        die2 = randint(99) + randint(plev/4) - randint(badluck);
-        if (spellswitch == 30) die2 += 3 + randint(7);
-        if (die < 33)
-        {
-           if (die2 < 5) dec_stat(A_WIS, 1, TRUE);     
-           else if (die2 < 34) do_dec_stat(A_WIS, 0);
-           if (die2 > 65) do_res_stat(A_WIS);
-           if ((die2 > 96) && (randint(5) == 1) && (jackpot > 0))
-           {
-              do_inc_stat(A_WIS);
-              jackpot -= 1;
-           }
-        }
-        die = randint(100);
-        die2 = randint(99) + randint(plev/4) - randint(badluck);
-        if (spellswitch == 30) die2 += 3 + randint(7);
-        if (die < 33)
-        {
-           if (die2 < 5) dec_stat(A_INT, 1, TRUE);     
-           else if (die2 < 34) do_dec_stat(A_INT, 0);
-           if (die2 > 65) do_res_stat(A_INT);
-           if ((die2 > 96) && (randint(5) == 1) && (jackpot > 0))
-           {
-              do_inc_stat(A_INT);
-              jackpot -= 1;
-           }
-        }
-        die = randint(100);
-        die2 = randint(99) + randint(plev/4) - randint(badluck);
-        if (spellswitch == 30) die2 += 3 + randint(7);
-        if (die < 33)
-        {
-           if (die2 < 5) dec_stat(A_DEX, 1, TRUE);     
-           else if (die2 < 34) do_dec_stat(A_DEX, 0);
-           if (die2 > 65) do_res_stat(A_DEX);
-           if ((die2 > 96) && (randint(5) == 1) && (jackpot > 0))
-           {
-              do_inc_stat(A_DEX);
-              jackpot -= 1;
-           }
-        }
-        die = randint(100);
-        die2 = randint(99) + randint(plev/4) - randint(badluck);
-        if (spellswitch == 30) die2 += 3 + randint(7);
-        if (die < 33)
-        {
-           if (die2 < 5) dec_stat(A_CON, 1, TRUE);     
-           else if (die2 < 34) do_dec_stat(A_CON, 0);
-           if (die2 > 65) do_res_stat(A_CON);
-           if ((die2 > 96) && (randint(5) == 1) && (jackpot > 0))
-           {
-              do_inc_stat(A_CON);
-              jackpot -= 1;
-           }
-        }
-        die = randint(100);
-        die2 = randint(99) + randint(plev/4) - randint(badluck);
-        if (spellswitch == 30) die2 += 3 + randint(7);
-        if (die < 33)
-        {
-           if (die2 < 5) dec_stat(A_STR, 1, TRUE);     
-           else if (die2 < 34) do_dec_stat(A_STR, 0);
-           if (die2 > 65) do_res_stat(A_STR);
-           if ((die2 > 96) && (randint(5) == 1) && (jackpot > 0))
-           {
-              do_inc_stat(A_STR);
-              jackpot -= 1;
-           }
-        }
-	if (jackpot > 1)
-	{
-       die = randint(99) + randint(plev/4) - randint(badluck/2);
-       die2 = randint(100);
-       if (spellswitch == 30) die += 3 + randint(7);
-       if ((die < 9) && (die2 < 67) && (goodluck < 7))
-       {
-          dec_stat(A_DEX, randint(2), TRUE);
-		  dec_stat(A_WIS, randint(2), TRUE);
-		  dec_stat(A_CON, randint(2), TRUE);
-		  dec_stat(A_STR, randint(2), TRUE);
-		  dec_stat(A_CHR, randint(2), TRUE);
-		  dec_stat(A_INT, randint(2), TRUE);
-		  if (goodluck > 0) jackpot += 1;
-       }
-       else if ((die < 9) && (goodluck < 7))
-       {
-			msg_print("Your body starts to scramble...");
-
-			/* Pick a pair of stats */
-			ii = rand_int(A_MAX);
-			for (jj = ii; jj == ii; jj = rand_int(A_MAX)); /* loop */
-
-			max1 = p_ptr->stat_max[ii];
-			cur1 = p_ptr->stat_cur[ii];
-			max2 = p_ptr->stat_max[jj];
-			cur2 = p_ptr->stat_cur[jj];
-
-			p_ptr->stat_max[ii] = max2;
-			p_ptr->stat_cur[ii] = cur2;
-			p_ptr->stat_max[jj] = max1;
-			p_ptr->stat_cur[jj] = cur1;
-
-			p_ptr->update |= (PU_BONUS);
-		    if (goodluck > 1) jackpot += 1;
-       }
-       else if ((die < 12) && (goodluck < 17))
-       {
-          do_dec_stat(A_DEX, 0);
-          do_dec_stat(A_WIS, 0);
-          do_dec_stat(A_INT, 0);
-          do_dec_stat(A_STR, 0);
-          do_dec_stat(A_CHR, 0);
-		  do_dec_stat(A_CON, 0);
-		  if (goodluck > 6) jackpot += 1;
-       }
-       if (die > 90)
-       {
-	      do_res_stat(A_STR);
-		  do_res_stat(A_CON);
-		  do_res_stat(A_DEX);
-		  do_res_stat(A_WIS);
-		  do_res_stat(A_INT);
-		  do_res_stat(A_CHR);
-          jackpot -= 1;
-       }
-    }
-   	if (jackpot > 2)
-   	{
-       die = randint(99) + randint(plev/5) - randint(badluck/2);
-       if (die > 98)
-       {
-          do_inc_stat(A_CHR);
-          do_inc_stat(A_WIS);
-          do_inc_stat(A_INT);
-          do_inc_stat(A_DEX);
-          do_inc_stat(A_CON);
-          do_inc_stat(A_STR);
-          jackpot -= 2;
-       }
-       if (die < 16) jackpot -= 1;
-       if ((die < 67) && (jackpot > 3)) jackpot -= randint(2);
-    }
-    if ((jackpot > 4) && (randint(100) < 9))
-    {
-       /* DANGER: this function calls itself, though rarely */
-       spellswitch = 30;
-       spell_potluck_stats();
-    }
-    if ((jackpot > 1) && (randint(100) > 75)) p_ptr->luck += randint(jackpot);
-    if ((jackpot < 1) && (randint(100) < 10)) p_ptr->luck -= 1;
-    if ((jackpot < 0) && (randint(100) < 8)) p_ptr->luck -= 1;
 }
 
 /* affect surroundings tourist spell */
@@ -1811,9 +1638,11 @@ void spell_affect_other(int dir)
        if (randint(100) < 75 + goodluck/2) (void)unlite_area(4, (plev / (4 + randint(5))) + 1, TRUE);
 	   else (void)unlite_area(4, (plev / (4 + randint(5))) + 1, FALSE);
     }
-    if ((die < 80) && (randint(100) < 20)) map_area(FALSE);
-    if (die > 108) wiz_lite(TRUE);
-    else if (die > 100) wiz_lite(FALSE);
+    if (die == 109) wiz_lite(TRUE);
+    else if (die > 103) wiz_lite(FALSE);
+    else if (die > 98) map_area(200);
+	else if ((die < 78) && (rand_int(100) < 20)) 
+		map_area(40 + goodluck*2 - badluck + randint(goodluck + 4));
     
     /* other effects (may add more later if I think of them) */
     die = randint(99) + randint(plev/5);
@@ -1882,6 +1711,342 @@ void do_call_help(int r_idx)
 }
 
 
+/*
+ * choose a monster appropriate for an invasion
+ */
+static bool invasion_okay(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	
+	if ((p_ptr->depth > 3) && ((r_ptr->level < 2) || (r_ptr->level < p_ptr->depth / 6))) 
+		return (FALSE);
+	
+	/* dL1 monsters can come up the stairs to the town now, but forbid breeders */
+	if ((!p_ptr->depth) && (r_ptr->flags2 & (RF2_MULTIPLY))) return (FALSE);
+
+	/* NEVER_MOVE and WATER_ONLY monsters don't go up/down stairs */
+	if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) || (r_ptr->flags7 & (RF7_WATER_ONLY))) 
+		return (FALSE);
+	
+    /* restrict to appropriate theme */	
+	if (!theme_okay(r_idx, 1, FALSE))
+	
+	/* letting these monsters generate on the nearest stairs automatically is mean */
+	/* so only do it on deeper levels */
+	if (((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_INVISIBLE)) ||
+		(r_ptr->flags2 & (RF2_KILL_WALL))) && (p_ptr->depth < 56 - badluck - rand_int(31))) 
+			return (FALSE);
+
+	/* Require certain types */
+	if ((p_ptr->depth < 9) && (strchr("k", r_ptr->d_char))) return (TRUE);
+	if ((p_ptr->depth < 34) && (strchr("JRt", r_ptr->d_char))) return (TRUE);
+	if (strchr("CDEFIJQbdjkmt,", r_ptr->d_char)) return (FALSE);
+	if ((p_ptr->depth < 30) && (strchr("Xv%", r_ptr->d_char))) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/* invasion trap (creates some monsters on a nearby staircase) 
+ * (possibly later stagger this so monsters appear one at a time)
+ * mode == 0 check to see if we can do the invasion trap
+ * mode == 1 do the invasion trap
+ * mode == -1 check to see it we can place a randomly generated monster on a nearby staircase
+ * mode == 2 place a randomly generated monster on a nearby staircase
+ */
+bool invasion(int mode)
+{
+	int y, x, k, some, i = 0;
+    int stx = 0, sty = 0, stx2 = 0, sty2 = 0;
+	int x1, x2, y1, y2;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	bool groupmon = FALSE;
+	bool loner = FALSE;
+	bool sameroom = FALSE;
+	int r_idx;
+	int ilvl = p_ptr->depth;
+	monster_race *r_ptr;
+
+	/* Pick an area */
+	y1 = py - 21;
+	y2 = py + 21;
+	x1 = px - 25;
+	x2 = px + 25;
+
+	if ((mode == -1) || (mode == 2))
+	{
+		y1 = py - 28;
+		y2 = py + 28;
+		x1 = px - 32;
+		x2 = px + 32;
+	}
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+	
+	/* Scan the dungeon */
+	for (y = y1; y < y2; y++)
+	{
+		for (x = x1; x < x2; x++)
+		{
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* look for stairs */
+			if ((cave_feat[y][x] == FEAT_LESS) || (cave_feat[y][x] == FEAT_MORE))
+			{
+				/* only place a random monster on a visible staircase if we can place it exactly */
+				if (((mode == -1) || (mode == 2)) && (player_has_los_bold(y, x)) &&
+					(!cave_can_occupy_bold(y, x))) continue;
+				/* mode < 1 just checks to see if we can do the invasion */
+				if (mode < 1) return TRUE;
+				
+				if (stx > 0) /* if we've already found stairs check which one is closer */
+				{
+					int d = distance(p_ptr->py, p_ptr->px, y, x);
+					int db = distance(p_ptr->py, p_ptr->px, sty, stx);
+					if ((d < db) && ((!(mode == 2)) || (randint(100) < 45)))
+					{
+						stx = x;
+						sty = y;
+					}
+					break;
+				}
+				/* save the stairs */
+				stx = x;
+				sty = y;
+			}
+		}
+	}
+	if (stx < 1) return FALSE;
+				
+	if (cave_feat[sty][stx] == FEAT_MORE) ilvl += randint(2);
+	/* This will occationally allow town monsters to wander into the dungeon */
+	if ((cave_feat[sty][stx] == FEAT_LESS) && (randint(100) < 12)) ilvl--;
+	/* loner prevents whole groups of urchins going into the dungeon */
+	if (ilvl == 0) loner = TRUE;
+	/* remember if the stairs are in the same room as the PC */
+	if ((player_has_los_bold(sty, stx)) || (in_same_room(p_ptr->py, p_ptr->px, sty, stx)))
+		sameroom = TRUE;
+
+	/* Require appropriate monsters */
+	get_mon_num_hook = invasion_okay;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+		
+	while (i++ < 999)
+	{
+		r_idx = get_mon_num(ilvl, FALSE);
+		
+		if (!r_idx) continue;
+
+		/* check for maximum population */
+		r_ptr = &r_info[r_idx];
+		
+		/* maximum population */
+		if ((r_ptr->curpop + r_ptr->cur_num >= r_ptr->maxpop) && (r_ptr->maxpop)) continue;
+
+		if ((r_ptr->flags1 & (RF1_ESCORT)) ||
+			(r_ptr->flags2 & (RF2_ESCORT1)) ||
+			(r_ptr->flags1 & (RF1_FRIENDS)) ||
+			(r_ptr->flags2 & (RF2_FRIEND1))) groupmon = TRUE;
+		else groupmon = FALSE;
+		
+		if ((mode == 2) && (!p_ptr->depth) && (r_ptr->level > p_ptr->max_depth/6 + 1)) continue;
+		
+#if notimedinvasion /* all monsters placed at once */
+		/* don't randomly place a group all at once in view of the PC */
+		if ((mode == 2) && (groupmon) && (sameroom)) continue;
+#else
+		if ((mode == 2) && (sameroom) &&
+			((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags2 & (RF2_ESCORT1)))) 
+				continue;
+#endif
+		
+		break;
+	}
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* no need for timed invasions when the stairs are out of line of sight */
+	/* or if only one monster is appearing */
+	if ((loner) || ((mode == 2) && ((!sameroom) || (!groupmon))))
+	{
+		if (loner) (void)place_monster_aux(sty, stx, r_idx, FALSE, FALSE);
+		else (void)place_monster_aux(sty, stx, r_idx, FALSE, TRUE);
+		return TRUE;
+	}
+		
+	if (groupmon) some = 1;
+	else some = 4 + randint(2);
+
+#if notimedinvasion /* all monsters placed at once */
+	/* place the 1st monster (allow groups) */
+	(void)place_monster_aux(sty, stx, r_idx, FALSE, TRUE);
+
+    /* summon kin of the 1st monster */
+	summoner = r_idx;
+	for (k = 0; k < some; k++)
+	{
+		/* Hack -- tweak for ghouls */
+		if ((randint(100) < 58) && ((r_idx == 396) || (r_idx == 383))) summon_kin_type = 'z';
+		/* Hack -- Set the letter of the monsters to summon */
+		else summon_kin_type = r_ptr->d_char;
+		summon_specific(sty, stx, ilvl, SUMMON_KIN);
+	}
+#else /* one monster emerges from the stairs at a time */
+
+	/* place the 1st monster (don't allow groups) */
+	(void)place_monster_aux(sty, stx, r_idx, FALSE, FALSE);
+	if (groupmon) some = 4 + randint(5);
+	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags2 & (RF2_ESCORT1))) some += 1;
+
+	summoner = r_idx;
+	if (((r_idx == 396) || (r_idx == 383)) && (randint(100) < 58)) summon_kin_type = 'z';
+	/* Hack -- Set the letter of the monsters to summon */
+	else summon_kin_type = r_ptr->d_char;
+	/* just summon one for now, the rest will come later */
+	/* summon_nogroups(sty, stx, ilvl, SUMMON_KIN); */
+	/* invoke the others to come */
+	(void)inc_timed(TMD_INVASION, some);
+	invasionridx = r_idx;
+	invasiony = sty;
+	invasionx = stx;
+	/* mode 2 is monster groups of the same race only */
+	if (mode == 2) invasionmode = 2;
+	else invasionmode = 1;
+	
+#endif
+	
+	if (player_can_see_bold(sty, stx)) msg_print("More monsters emerge from the stairs.");
+	else msg_print("You hear the movement of monsters nearby.");
+	return TRUE;
+}
+
+
+/* line of sight polymorph trap
+ */
+bool lospolytrap(int mode, int mnum)
+{
+	int i, x, y, d, tmp;
+	monster_type *n_ptr;
+	monster_race *r_ptr;
+	char m_name[80];
+	int oldhp, oldmax, oldmin, oldlev;
+	bool change = FALSE;
+
+	/* check for nearby monsters */
+	for (i = 1; i < mon_max, mnum > 0; i++)
+	{
+		/* get target monster info */
+		n_ptr = &mon_list[i];
+		r_ptr = &r_info[n_ptr->r_idx];
+
+		/* Paranoia -- Skip dead monsters and NONMONSTERs */
+		if (!n_ptr->r_idx) continue;
+		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
+		
+		/* monster is temporarily dead (raise it now?) */
+		if (n_ptr->temp_death) continue;
+		
+		/* uniques can't be polymorphed (but semi-uniques can) */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+		/* Location of target */
+		y = n_ptr->fy;
+		x = n_ptr->fx;
+
+		/* Require line of sight */
+		d = distance(p_ptr->py, p_ptr->px, y, x);
+		if ((d > MAX_RANGE - 1) || (!los(p_ptr->py, p_ptr->px, y, x))) continue;
+
+		/* Get the monster name (BEFORE polymorphing) */
+		monster_desc(m_name, sizeof(m_name), n_ptr, 0);
+
+		/* these monsters resist (but don't prevent the trap from casting the spell) */
+		if (r_ptr->Rchaos >= 2)
+		{
+			msg_format("%^s is unaffected.", m_name);
+			mnum -= 1;
+			continue;
+		}
+
+		/* los polymorph trap allows the monsters no saving throw */
+		/* because it prefers to change them into tougher monsters unlike the PC-cast version */
+
+		/* Pick a new monster race */
+		tmp = poly_r_idx(n_ptr->r_idx, 1);
+		
+		/* try again once */
+		if (tmp == n_ptr->r_idx) tmp = poly_r_idx(n_ptr->r_idx + 1, 1);
+
+		/* Handle polymorph */
+		if (tmp != n_ptr->r_idx)
+		{
+			msg_format("%^s changes!", m_name);
+
+			/* "Kill" the "old" monster */
+			delete_monster_idx(cave_m_idx[y][x], FALSE);
+
+			/* Create a new monster (no groups) */
+			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
+			/* (fully heals, project() polymorph doesn't do this anymore) */
+			
+			change = TRUE;
+			mnum -= 1;
+		}
+		else mnum -= 1;
+	}
+	return change;
+}
+
+
+/* 
+ * returns number of monsters in line of sight
+ * mode is not yet used, but I imagine this function may be useful for other things in the future.
+ * (currently the only mode is for the LOS polymorph trap.)
+ */
+int anylosmon(int mode)
+{
+	int i, x, y, d, num = 0;
+	monster_type *n_ptr;
+	monster_race *r_ptr;
+
+	/* check for nearby monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		/* get target monster info */
+		n_ptr = &mon_list[i];
+		r_ptr = &r_info[n_ptr->r_idx];
+
+		/* Paranoia -- Skip dead monsters and NONMONSTERs */
+		if (!n_ptr->r_idx) continue;
+		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
+		
+		/* monster is temporarily dead (raise it now?) */
+		if (n_ptr->temp_death) continue;
+		
+		/* uniques can't be polymorphed (but semi-uniques can) */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) /* && (mode == )) */ continue;
+
+		/* Location of target */
+		y = n_ptr->fy;
+		x = n_ptr->fx;
+
+		/* Require line of sight */
+		d = distance(p_ptr->py, p_ptr->px, y, x);
+		if ((d > MAX_RANGE - 1) || (!los(p_ptr->py, p_ptr->px, y, x))) continue;
+		
+		num += 1;
+	}
+	return num;
+}
+
 
 /*
  * For the monster spells: HEAL_OTHR and HEAL_KIN (kinonly)
@@ -1940,8 +2105,9 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 		monster_desc(n_name, sizeof(n_name), n_ptr, 0);
 		monster_desc(n_poss, sizeof(n_poss), n_ptr, 0x22);
 
-		/* Paranoia -- Skip dead monsters */
+		/* Paranoia -- Skip dead monsters and NONMONSTERs */
 		if (!n_ptr->r_idx) continue;
+		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
 		
 		/* monster is temporarily dead (raise it now?) */
 		if (m_ptr->temp_death) continue;
@@ -1967,13 +2133,13 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 				monster_death(cave_m_idx[y][x]);
 
 				/* (healing it makes it less likely to come back) */
-				m_ptr->ninelives += 2;
+				n_ptr->ninelives += 2;
 
 				/* Delete the monster */
 				delete_monster_idx(cave_m_idx[y][x], TRUE);
 
 				/* Give detailed messages if destroyed */
-				msg_format("%^s is destroyed", n_name);
+				if (n_ptr->ml) msg_format("%^s is destroyed", n_name);
 			}
 
 			/* Damaged monster */
@@ -2038,19 +2204,29 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 			n_ptr->roaming = 0;
 		}
 
+#ifdef roomrunes /* healing tree */
+		if ((room_runes(cy, cx) == 24) && (!(r_ptr->flags3 & (RF3_NON_LIVING))))
+		{
+			if (n_ptr->maxhp/4 >= 800) n_ptr->hp += healmon + n_ptr->maxhp/5;
+			else if (n_ptr->maxhp/4 > 640) n_ptr->hp += healmon + (n_ptr->maxhp/4 + n_ptr->maxhp/5)/2;
+			else n_ptr->hp += healmon + n_ptr->maxhp/4;
+		}
+		else
+#endif
 		/* Heal */
+			n_ptr->hp += healmon;
 		healed = TRUE;
-		n_ptr->hp += healmon;
 
 		/* Message */
-		if (n_ptr->hp < n_ptr->maxhp) msg_format("%^s looks healthier", n_name);
+		if ((n_ptr->hp < n_ptr->maxhp) && (n_ptr->ml))
+			msg_format("%^s looks healthier", n_name);
 
 		/* No overflow */
 		if (n_ptr->hp >= n_ptr->maxhp)
 		{
 			n_ptr->hp = n_ptr->maxhp;
 			/* alternate message */
-			msg_format("%^s looks fully healthy", n_name);
+			if (n_ptr->ml) msg_format("%^s looks fully healthy", n_name);
 		}
 
 		/* Redraw (later) if needed */
@@ -2066,7 +2242,7 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 			n_ptr->monfear = 0;
 
 			/* Message */
-			msg_format("%^s recovers %s courage.", n_name, n_poss);
+			if (n_ptr->ml) msg_format("%^s recovers %s courage.", n_name, n_poss);
 		}
 	}
 
@@ -2477,7 +2653,7 @@ void do_something_annoying(object_type *o_ptr)
 	{
 		msg_format("Your %s creates some traps!", o_name);
 		disturb(0, 0);
-		trap_creation();
+		trap_creation(1);
 	}
 	else if (die < 28)
 	{
@@ -2566,7 +2742,7 @@ void do_something_annoying(object_type *o_ptr)
 		else if (die2 < 66) do_call_help(511); /* singing vyrm */
 		else if (die2 < 69) do_call_help(482); /* undying troll */
 		else if (die2 < 72) do_call_help(466); /* giant lightning bugs */
-		else if (die2 < 74) do_call_help(827); /* bone soldier */
+		else if (die2 < 74) do_call_help(522); /* bone soldier */
 		else if (die2 < 76) do_call_help(675); /* sleepy willow tree */
 		else if (die2 < 78) do_call_help(497); /* plague zombie */
 		else if (die2 < 80) do_call_help(545); /* master mind flayer */

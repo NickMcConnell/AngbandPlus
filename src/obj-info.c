@@ -847,7 +847,7 @@ int thrown_brand(void)
 
 	/* Examine the current rings */
     object_type *j_ptr = &inventory[INVEN_LEFT];
-    object_type *r_ptr = &inventory[INVEN_RIGHT];
+    object_type *r_ptr = &inventory[INVEN_RIGHT]; /* r_ptr should be for monster race only XX */
 
 	/* Extract the flags (left hand ring) */
 	object_flags(j_ptr, &f1, &f2, &f3, &f4);
@@ -901,17 +901,22 @@ int thrown_brand(void)
  * collect slays  for describe_attack()
  * list[] and mult[] must be > 11 in size (?)
  */
-static int collect_slays(const char *desc[], int mult[], u32b f1, u32b f2, u32b f3, bool weapon, int tbrand)
+static int collect_slays(const char *desc[], int mult[], u32b f1, u32b f2, u32b f3, u32b f4, bool weapon, int tbrand)
 {
 	int cnt = 0;
 	int isbrand = 0;
 	bool hasslay = FALSE;
 	bool exslay = FALSE;
 
-	/* Collect slays */
-	if (f2 & TR2_SLAY_ANIMAL) { mult[cnt] = 2; desc[cnt++] = "animals"; exslay = TRUE; }
+	/* Collect x2 slays */
+	/* exception for grenades of Slay animal */
+	/* hacky magical mult value 92 means x2.5 multiplier */
+	if ((f4 & TR4_EXPLODE_A) && (f2 & TR2_SLAY_ANIMAL) && (f3 & TR3_THROWN)) 
+    	{ mult[cnt] = 92; desc[cnt++] = "animals"; exslay = TRUE; }
+	else if (f2 & TR2_SLAY_ANIMAL) { mult[cnt] = 2; desc[cnt++] = "animals"; exslay = TRUE; }
 	if (f1 & TR1_SLAY_EVIL)   { mult[cnt] = 2; desc[cnt++] = "evil creatures"; exslay = TRUE; }
 
+	/* Collect x3 slays */
 	if (f1 & TR1_SLAY_WERE)   { mult[cnt] = 3; desc[cnt++] = "creatures vulnerable to silver"; hasslay = TRUE; }
 	if (f1 & TR1_SLAY_ORC)    { mult[cnt] = 3; desc[cnt++] = "orcs"; hasslay = TRUE; }
 	if (f1 & TR1_SLAY_TROLL)  { mult[cnt] = 3; desc[cnt++] = "trolls"; hasslay = TRUE; }
@@ -925,11 +930,16 @@ static int collect_slays(const char *desc[], int mult[], u32b f1, u32b f2, u32b 
 
     if (weapon)
     {
-	   if ((p_ptr->brand_acid) || (tbrand == 4))  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; isbrand++; }
-	   if ((p_ptr->brand_elec) || (tbrand == 3))  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; isbrand++; }
-	   if ((p_ptr->brand_fire) || (tbrand == 2))  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; isbrand++; }
-	   if ((p_ptr->brand_cold) || (tbrand == 1))  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; isbrand++; }
-	   if ((p_ptr->brand_pois) || (tbrand == 5))  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; isbrand++; }	   
+	   if ((f1 & TR1_BRAND_ACID) || (tbrand == 4))  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; isbrand++; }
+	   else if (p_ptr->brand_acid)  { mult[cnt] = 2; desc[cnt++] = "acid-vulnerable creatures"; }
+	   if ((f1 & TR1_BRAND_ELEC) || (tbrand == 3))  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; isbrand++; }
+	   else if (p_ptr->brand_elec)  { mult[cnt] = 2; desc[cnt++] = "electricity-vulnerable creatures"; }
+	   if ((f1 & TR1_BRAND_FIRE) || (tbrand == 2))  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; isbrand++; }
+	   else if (p_ptr->brand_fire)  { mult[cnt] = 2; desc[cnt++] = "fire-vulnerable creatures"; }
+	   if ((f1 & TR1_BRAND_COLD) || (tbrand == 1))  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; isbrand++; }
+	   else if (p_ptr->brand_cold)  { mult[cnt] = 2; desc[cnt++] = "frost-vulnerable creatures"; }
+	   if ((f1 & TR1_BRAND_POIS) || (tbrand == 5))  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; isbrand++; }
+	   else if (p_ptr->brand_pois)  { mult[cnt] = 2; desc[cnt++] = "poison-vulnerable creatures"; }
     }
     /* Get brands from rings for thrown weapons (ugly) */
     /* but if I use p_ptr->brand_xxxx it includes the brand from the wielded melee weapon */
@@ -952,7 +962,6 @@ static int collect_slays(const char *desc[], int mult[], u32b f1, u32b f2, u32b 
     else /* ammo */
     {
 	   if ((f1 & TR1_BRAND_ACID) || (tbrand == 4))  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; isbrand++; }
-	   if ((f2 & TR2_COAT_ACID) || (tbrand == 6))   { mult[cnt] = 2; desc[cnt++] = "acid-vulnerable creatures"; }
 	   if ((f1 & TR1_BRAND_ELEC) || (tbrand == 3))  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; isbrand++; }
 	   if ((f1 & TR1_BRAND_FIRE) || (tbrand == 2))  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; isbrand++; }
 	   if ((f1 & TR1_BRAND_COLD) || (tbrand == 1))  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; isbrand++; }
@@ -1138,11 +1147,44 @@ void describe_attack(const object_type *o_ptr)
 	   if (o_ptr->sbdd)
 	   {
 			object_type *oarm_ptr;
-			int str_index, dex_index, div, maxblows;
+			int str_index, dex_index, div, maxblows, wspdm;
 			bool yshield = FALSE;
+			bool staffbonus = FALSE;
+#if nextbreaksave
+#else
+			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+#endif
 			div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 			oarm_ptr = &inventory[INVEN_ARM];
 			if (oarm_ptr->k_idx) yshield = TRUE;
+			/* priest & druids get bonus with staffs (but are worse with icky double weapons) */
+			if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->icky_wield) && (o_ptr->sbdd))
+			{
+				if ((o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_STAFF)) staffbonus = TRUE;
+			}
+			/* new weapon speed modifier: modifies effective weapon weight for # of blows */
+#if nextbreaksave
+			wspdm = o_ptr->spdm;
+#else
+			wspdm = k_ptr->spdm;
+#endif
+			/* apply priest / druid bonus with double-weapon staffs */
+			if ((staffbonus) && (adj_str_blow[p_ptr->stat_ind[A_STR]] < 100)) wspdm += 2;
+			/* apply weapon speed modifier */
+			if (wspdm > 0)
+			{
+				while ((div >= 15) && (wspdm > 0))
+				{
+					div -= 10; /* (1lb) */
+					wspdm--;
+				}
+			}	
+			else if (wspdm < 0)
+			{
+				div += ABS(wspdm * 10);
+				wspdm = 0;
+			}
+	
 			if (yshield)
 			{
 				div = ((o_ptr->weight/3 < cp_ptr->min_weight/2) ? cp_ptr->min_weight/2 : o_ptr->weight/3);
@@ -1151,17 +1193,19 @@ void describe_attack(const object_type *o_ptr)
 			{
 				div = (div * 4) / 5;
 			}
-			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
+			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR] + wspdm] * cp_ptr->att_multiply / (div*10));
 			if (str_index > 11) str_index = 11;
 			dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-			if (dex_index > 11) dex_index = 11;
+			if (dex_index > 12) dex_index = 12;
 			tmpblow = blows_table[str_index][dex_index];
-			if (p_ptr->peace) tmpblow -= 1;
+			
 			if (yshield) maxblows = cp_ptr->max_attacks;
 			else maxblows = cp_ptr->max_attacks + 1;
 			if (tmpblow > maxblows) tmpblow = maxblows;
 			tmpblow += p_ptr->extra_blows;
+			
 			if (p_ptr->timed[TMD_XATTACK]) tmpblow += 1;
+			if (p_ptr->peace) tmpblow -= 1;
 			if (tmpblow < 1) tmpblow = 1;
 			if ((yshield) && (p_ptr->num_blow != tmpblow))
 			{
@@ -1229,19 +1273,16 @@ void describe_attack(const object_type *o_ptr)
 		p_text_out("Each blow will do an average damage of ");
 	    new_paragraph = FALSE;
 
-		/* not wielding a shield */
-		if ((!oarm_ptr->k_idx) && (!p_ptr->heavy_wield))
-		{
-			/* raises strength bonus */
-			if (wweight >= 10) wweight += 2;
-		}
+		/* not wielding a shield raises strength bonus */
+		if ((!oarm_ptr->k_idx) && (!p_ptr->heavy_wield) && (wweight >= 8))
+			wweight += 2;
 
 	   /* complex strength bonus by weight */
        strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	   if (wweight < 2) strb = strb / 6;
 	   else if (wweight < 3) strb = strb / 4;
 	   else if (wweight < 4) strb = strb / 2;
-	   else if (wweight < 5) strb = (strb * 2) / 3;
+	   else if (wweight < 5) strb = (strb * 3) / 5;
 	   else if (wweight < 6) strb = (strb * 3) / 4;
 	   else if (wweight < 7) strb = (strb * 5) / 6;
 	   /* barbarians & hulks like heavy weapons */
@@ -1338,8 +1379,8 @@ void describe_attack(const object_type *o_ptr)
     {
         /* Collect slays */
         if ((o_ptr->timedbrand) && (o_ptr->thisbrand))
-           cnt = collect_slays(desc, mult, f1, f2, f3, weapon, o_ptr->thisbrand);
-	    else cnt = collect_slays(desc, mult, f1, f2, f3, weapon, 0);
+           cnt = collect_slays(desc, mult, f1, f2, f3, f4, weapon, o_ptr->thisbrand);
+	    else cnt = collect_slays(desc, mult, f1, f2, f3, f4, weapon, 0);
 	   
 	    if (cnt)
 	    {
@@ -1548,8 +1589,8 @@ void describe_attack(const object_type *o_ptr)
 
         /* Collect slays */
         if ((o_ptr->timedbrand) && (o_ptr->thisbrand))
-           cnt = collect_slays(desc, mult, f1, f2, f3, weapon, o_ptr->thisbrand);
-	    else cnt = collect_slays(desc, mult, f1, f2, f3, weapon, 0);
+           cnt = collect_slays(desc, mult, f1, f2, f3, f4, weapon, o_ptr->thisbrand);
+	    else cnt = collect_slays(desc, mult, f1, f2, f3, f4, weapon, 0);
 	   
 	    /* have to do all this again for thrown weapons */
 	    /* because some weapons can be used both for melee and for throwing */
@@ -1567,13 +1608,14 @@ void describe_attack(const object_type *o_ptr)
 		       if (mult[i] == 9) slay_dam = dam / 4;
 		       if (mult[i] == 10) slay_dam = (dam / 4) * 2;
 		       if (mult[i] == 11) slay_dam = (dam / 4) * 3;
+		       if (mult[i] == 92) slay_dam = (dam / 4) * 10; /* x2.5 */
     
                /* strength bonus after multipliers for slings */
                /* but before multipliers for melee weapons */
                if ((o_ptr->tval == TV_SHOT) && (strdam))
                   slay_dam += strdam;
 
-			    if (mult[i] >= 9) text_out("+");
+			    if ((mult[i] >= 9) && (mult[i] < 90)) text_out("+");
 			    if (slay_dam <= 0)
 			    	text_out(format("%d", 0));
 			    else if (slay_dam % 10)
@@ -1589,7 +1631,7 @@ void describe_attack(const object_type *o_ptr)
 			       text_out(" on the 2nd hit)");
 		       }
 
-		       if (mult[i] >= 9) text_out(format(" %s, ", desc[i]));
+		       if ((mult[i] >= 9) && (mult[i] < 90)) text_out(format(" %s, ", desc[i]));
 		       else text_out(format(" against %s, ", desc[i]));
 		    }
 	        text_out("and ");
@@ -1816,6 +1858,7 @@ void device_chance(const object_type *o_ptr)
 	bool fluke = FALSE;
 	bool charged = FALSE;
 	bool allcharging = FALSE;
+	bool staticrune = FALSE;
 
 	/* Extract the flags (to check for activation) */
 	u32b f1, f2, f3, f4;
@@ -1871,14 +1914,22 @@ void device_chance(const object_type *o_ptr)
 	
 		/* cursed items are harder to use */
 		/* (currently only staffs are ever cursed but that will likely change) */
-		if (cursed_p(o_ptr)) lev += 5 + badluck/3;
+		if (cursed_p(o_ptr)) lev += 10 + (badluck+1)/3;
 
 		/* blessed items are easier to activate */
 		if ((o_ptr->blessed > 1) && (lev > 23)) lev -= 12;
 		else if ((o_ptr->blessed > 1) && (lev > 12)) lev = 12;
 		else if ((o_ptr->blessed) && (lev > 4)) lev -= 4;
+
+#ifdef roomrunes /* static rune */
+		if (p_ptr->roomeffect == 14)
+		{ 
+			if (!p_ptr->resist_static) { lev += 20 + (badluck+1)/2;  staticrune = TRUE; }
+			else if (p_ptr->resist_static < 2) lev += 5 + (badluck+2)/3;
+		}
+#endif
 	
-		/* Hack -- use artifact level instead (bless/curse doesn't effect artifact activation) */
+		/* Hack -- use artifact level instead (bless/curse doesn't affect artifact activation) */
 		/* if artstaff then it has two different difficulty levels */
 		if (artstaff) artstaff = a_info[o_ptr->name1].level;
 		else if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
@@ -1939,6 +1990,11 @@ void device_chance(const object_type *o_ptr)
 			/* text_out(format("  chance is %d", chance));
 			 * text_out(format("  lev is %d", lev));
 			 */
+		}
+		
+		if (staticrune)
+		{
+			text_out(" It would be easier to use anywhere but this room because this room is full of magical static.");
 		}
 
 		/* Done for almost every object */
@@ -2013,7 +2069,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_slay(o_ptr, f1, f2)) something = TRUE;
 	if (describe_brand(o_ptr, f1, f2)) something = TRUE;
 	/* acid coating */
-	if (f2 & (TR2_COAT_ACID))
+	if ((o_ptr->timedbrand) && (o_ptr->thisbrand == 6))
     {
        text_out(" It is coated with acid. ");
        something = TRUE;
@@ -2021,10 +2077,10 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_immune(o_ptr, f2)) something = TRUE;
     /* partial poison resistance */
 	if (f2 & (TR2_PR_POIS))
-    {
-       text_out(" It provides partial resistance to poison. ");
-       something = TRUE;
-    }
+	{
+		text_out(" It provides partial resistance to poison. ");
+		something = TRUE;
+	}
 	if (describe_resist(o_ptr, f2, f3, f4)) something = TRUE;
 	if (describe_sustains(o_ptr, f2)) something = TRUE;
 	if (describe_misc_magic(o_ptr, f2, f3, f4)) something = TRUE;

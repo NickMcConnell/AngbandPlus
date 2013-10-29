@@ -137,7 +137,7 @@ static cptr desc_insult[MAX_DESC_INSULT] =
 
 /*
  * Hack -- possible "moaning" messages
- * Currently these are set for Foul Ol' Ron, a unique from Discworld planned for DJA ALT
+ * Currently these are set for Foul Ol' Ron, a unique from Discworld which I haven't added yet
  */
 static cptr desc_moan[MAX_DESC_MOAN] =
 {
@@ -147,7 +147,7 @@ static cptr desc_moan[MAX_DESC_MOAN] =
 	"mumbles a nonstop flow of swearing",
 	"'s stench forms a tangible finger and pokes you in the nose.",
 	"reeks to high heaven.",
-	"wears a sign that says 'gimmie 100gold and I'll take my stink somewhere else.'",
+	"points to a pin on his jacket that says 'gimmie 100gold and I'll take my stink somewhere else.'",
 	"mumbles something about shrimp."
 };
 
@@ -164,6 +164,7 @@ bool make_attack_normal(int m_idx)
 	int ap_cnt;
 	int i, k, tmp, ac, rlev;
 	int do_cut, do_stun;
+	int champbon = 0;
 
 	s32b gold;
 	object_type *o_ptr;
@@ -194,6 +195,14 @@ bool make_attack_normal(int m_idx)
 	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_RUBBLE) &&
 		(cave_feat[m_ptr->fy][m_ptr->fx] != FEAT_RUBBLE))
 		pchigher = TRUE;
+	if ((cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_SMRUBBLE) && 
+		(cave_feat[p_ptr->py][p_ptr->px] != FEAT_SMRUBBLE) &&
+		(cave_feat[p_ptr->py][p_ptr->px] != FEAT_RUBBLE))
+		monhigher = TRUE;
+	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_SMRUBBLE) &&
+		(cave_feat[m_ptr->fy][m_ptr->fx] != FEAT_RUBBLE) && 
+        (cave_feat[m_ptr->fy][m_ptr->fx] != FEAT_SMRUBBLE))
+		pchigher = TRUE;
 
 	/* flying monsters never have an elevation problem */
 	if (r_ptr->flags2 & (RF2_FLY)) pchigher = FALSE;
@@ -219,6 +228,7 @@ bool make_attack_normal(int m_idx)
 		bool visible = FALSE;
 		bool obvious = FALSE;
 		bool do_break = FALSE;
+		bool strongwere = FALSE;
 
 		int power = 0;
 		int damage = 0;
@@ -294,7 +304,36 @@ bool make_attack_normal(int m_idx)
 			case RBE_STUDY:     power = 50; break;
 			case RBE_BHOLD:		power = 15; break;
 		}
-        trlev = rlev;
+		trlev = rlev;
+		/* certain room runes make certain monsters stronger */
+		if (strchr("X%", r_ptr->d_char))
+		{
+			/* elemental attacks from elementals */
+			if ((effect == RBE_FIRE) && (p_ptr->roomeffect == 4)) trlev = (trlev * 6) / 5;
+			if ((effect == RBE_COLD) && (p_ptr->roomeffect == 5)) trlev = (trlev * 6) / 5;
+			if ((effect == RBE_ACID) && (p_ptr->roomeffect == 6)) trlev = (trlev * 6) / 5;
+			if ((effect == RBE_ELEC) && (p_ptr->roomeffect == 7)) trlev = (trlev * 6) / 5;
+		}
+		if ((r_ptr->flags3 & (RF3_CLIGHT)) && (p_ptr->roomeffect == 21)) trlev = (trlev * 5) / 4;
+		if ((r_ptr->flags3 & (RF3_SILVER)) && (p_ptr->roomeffect == 22)) trlev = (trlev * 5) / 4;
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) && (p_ptr->roomeffect == 13)) trlev = (trlev * 6) / 5;
+		if ((r_ptr->flags3 & (RF3_DEMON)) && (p_ptr->roomeffect == 26)) trlev = (trlev * 5) / 4;
+		if ((method == RBM_CLAWB) && (p_ptr->roomeffect == 15)) trlev = (trlev * 5) / 4;
+		if ((effect == RBE_LOSE_CON) && (p_ptr->roomeffect == 2)) trlev = (trlev * 6) / 5;
+		/* sundial -this one's complicated */
+		if ((p_ptr->roomeffect == 10) && (p_ptr->theme == 7)) 
+		{
+			bool night = TRUE;
+			if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
+			if (night)
+			{
+				/* werebeasts more powerful under a visible full moon */
+				if (r_ptr->Rsilver < -2) trlev = (trlev * 4) / 3;
+				else if (r_ptr->Rsilver < -1) trlev = (trlev * 5) / 4; /* werebeasts: hurt by silver */
+				else if (r_ptr->Rsilver < 0) trlev = (trlev * 6) / 5;
+				strongwere = TRUE;
+			}
+		}
 
 		/* armor should not apply against GAZE, WAIL, INSULT attacks */
 		if ((method == RBM_GAZE) || (method == RBM_WAIL) || (method == RBM_INSULT))
@@ -309,9 +348,6 @@ bool make_attack_normal(int m_idx)
         if ((m_ptr->confused) && (m_ptr->stunned)) trlev = trlev/5;
         else if (m_ptr->stunned) trlev = trlev/2;
         else if (m_ptr->confused) trlev = (trlev*4)/5;
-		/* teleporter box hack (should always hit) */
-		if ((!r_ptr->level) && (r_ptr->flags7 & (RF7_BLOCK_LOS))) 
-			{ trlev = 120; power = 100; }
 
         /* monster has been caught off guard */
         if (m_ptr->roaming == 29)
@@ -325,8 +361,15 @@ bool make_attack_normal(int m_idx)
 		if (pchigher) trlev -= 5;
 
 		if (trlev < 1) trlev = 1;
+		
+		/* for pseudo-uniques: only boost the monster's 1st damaging attack */
+		/* This marks the 1st damaging attack, */
+		if ((maxroll(d_dice, d_side) > 2) && (!champbon)) champbon = 1;
+		/* This marks it as being past the 1st damaging attack */
+		/* it will only boost if champbon == 1 */
+		else if (champbon) champbon = 2;
 
-		/* Monster hits player */
+		/* Monster hits the PC */
 		if (!effect || check_hit(power, trlev, r_ptr, noarmor))
 		{
 			/* (almost) Always disturbing */
@@ -647,6 +690,32 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
+			
+			/* bonus for pseudo-uniques */
+			/* (champbon == 1 means it's the monster's 1st damaging attack) */
+			if ((m_ptr->champ) && (champbon == 1))
+			{
+				int minuu, maxrdam = maxroll(d_dice, d_side);
+				bool baldam = FALSE;
+				/* because 2d10 is still a lot better than 1d11 */
+				if (d_side > d_dice + 8) baldam = TRUE;
+                if (baldam) d_side--;
+				
+				if (rlev < 5) minuu = 6;
+				else if (rlev < 10) minuu = 9;
+				else if (rlev < 15) minuu = 12;
+				else if (rlev < 20) minuu = 15;
+				else if (rlev < 30) minuu = 20;
+				else if (rlev < 40) minuu = 25;
+				else minuu = rlev - 10;
+				/* boost low damage attacks for all pseudo-uniques */
+				if (maxrdam < minuu) d_dice++;
+				/* some pseudo-uniques always get a boost */
+				if ((m_ptr->champ == 4) || (m_ptr->champ == 11)) d_dice++;
+				/* baldam prevents turning 1d11 into 3d11 because that's too big a difference */
+				if ((m_ptr->champ == 6) && (!baldam)) d_dice += 2;
+				else if (m_ptr->champ == 6) { d_dice++; d_side += randint(2); }
+			}
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
@@ -655,7 +724,7 @@ bool make_attack_normal(int m_idx)
 			if (m_ptr->extra2)
 			{
 				/* XCONF is weaker for imaginary monsters */
-				if (effect == RBE_XCONF) effect = RBE_CONFUSE;
+				if ((effect == RBE_XCONF) && (m_ptr->extra2 > 2)) effect = RBE_CONFUSE;
 				/* imaginary monsters only have a couple effects allowed */
 				switch (effect)
 				{
@@ -672,16 +741,54 @@ bool make_attack_normal(int m_idx)
 						damage = 0;
 						break;
 					}
+					/* never any effect for these if monster is imaginary */
+					case RBE_PARALYZE:
+					case RBE_SILVER:
+					case RBE_SLIME:
+					case RBE_LOSE_STR:
+					case RBE_LOSE_DEX:
+					case RBE_LOSE_CON:
+					case RBE_LOSE_INT:
+					case RBE_LOSE_WIS:
+					case RBE_LOSE_CHR:
+					case RBE_LOSE_ALL:
+					case RBE_UN_POWER:
+					case RBE_UN_BONUS:
+					case RBE_SHATTER:
+					case RBE_EXP_10:
+					case RBE_EXP_20:
+					case RBE_EXP_40:
+					case RBE_EXP_80:
+					case RBE_FIREDARK:
+					case RBE_HATELIFE:
+					case RBE_BLOODWRATH:
+					case RBE_SPHCHARM:
+					case RBE_STUDY:
+					case RBE_ZIMPKISS:
+					case RBE_PIXIEKISS:
+					case RBE_ENTHELP:
+					case RBE_PURIFY:
+					{
+						return (TRUE);
+					}
 					default:
 					{
-						if (((method == RBM_KICK) || (method == RBM_BUTT)) &&
-							(rand_int(100) < 4 + badluck/3))
+						int rbmc = 4 + badluck/3;
+						if (m_ptr->extra2 > 2) rbmc = 9 + badluck/2;
+						if ((m_ptr->extra2 > 2) && (rand_int(100) < rbmc*4))
 						{
-							(void)inc_timed(TMD_STUN, 2);
+							damage = damage/5;
+							if (damage > p_ptr->lev*4/3) damage = p_ptr->lev*4/3;
+							break;
 						}
-						if ((method == RBM_CLAWB) && (rand_int(100) < 4 + badluck/3))
+						if (((method == RBM_KICK) || (method == RBM_BUTT)) &&
+							(rand_int(100) < rbmc))
 						{
-							(void)inc_timed(TMD_CUT, 2);
+							(void)inc_timed(TMD_STUN, 2 + rand_int(2));
+						}
+						if ((method == RBM_CLAWB) && (rand_int(100) < rbmc))
+						{
+							(void)inc_timed(TMD_CUT, 2 + rand_int(2));
 						}
 						return (TRUE);
 					}
@@ -745,11 +852,13 @@ bool make_attack_normal(int m_idx)
 				{
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
+					
+					if (p_ptr->roomeffect == 2) damage += damage/5 + 1; /* pestilence */
 
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Take "poison" effect */
+					/* poison the PC */
 					if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 					{
 						if (inc_timed(TMD_POISONED, randint(rlev) + 5)) obvious = TRUE;
@@ -819,13 +928,17 @@ bool make_attack_normal(int m_idx)
 						{
 							if (p_ptr->resist_static) rstatic += (k+1)/2;
 							if (m_ptr->stunned) rstatic += 2;
+							/* static resistance ego prevents draining charges */
+							if (o_ptr->name2 == EGO_ANTI_DRAIN) rstatic += 100;
 
 							if (randint(90) < rstatic)
 							{
 								/* Description */
 								object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
 								
-								if (p_ptr->resist_static) msg_format("You prevent your %s from being drained!", o_name);
+								if (o_ptr->name2 == EGO_ANTI_DRAIN) 
+									{ msg_format("Your %s is immune to being drained!", o_name); rstatic -= 98; }
+								else if (p_ptr->resist_static) msg_format("You prevent your %s from being drained!", o_name);
 								/* resisted even without static resistance (from luck, rare) */
 								else msg_format("You get lucky and your %s escapes being drained!", o_name);
 								/* second resist roll to prevent it draining something else */
@@ -878,7 +991,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_GOLD:
 				{
-					int catchthief;
+					int catchthief, erlev = r_ptr->level;
+					if (erlev > 50) erlev = 50;
 
 					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
@@ -889,23 +1003,24 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 					
-					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev;
+					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + (p_ptr->lev*4/5);
 
 					if ((m_ptr->confused) && (m_ptr->stunned)) catchthief += 20;
 					if ((m_ptr->confused) || (m_ptr->stunned)) catchthief += 8;
 
-					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 10;
+					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 15;
+					if (p_ptr->timed[TMD_PROT_THIEF]) catchthief += 18 + goodluck;
 					/* thieves don't want to be near you if you're stinky or zapping */
 					if ((p_ptr->timed[TMD_ZAPPING]) || (p_ptr->timed[TMD_STINKY])) 
-                        catchthief += 10;
+                        catchthief += 8;
 					if ((p_ptr->timed[TMD_STUN]) || (p_ptr->timed[TMD_BLIND])) 
-                        catchthief -= 10;
-                    if ((p_ptr->timed[TMD_CHARM]) || (p_ptr->timed[TMD_CURSE]))
-                        catchthief -= 10;
+                        catchthief -= 20;
+                    if ((p_ptr->timed[TMD_CURSE]) || (p_ptr->timed[TMD_FATIGUE])) 
+                        catchthief -= 13;
 					if (p_ptr->timed[TMD_PARALYZED]) catchthief = 0;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (rand_int(100) < catchthief)
+					if ((rand_int(94 + erlev/2) < catchthief) || (m_ptr->extra2))
 					{
 						/* Saving throw message */
 						msg_print("You quickly protect your money pouch!");
@@ -979,30 +1094,32 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_ITEM:
 				{
-					int catchthief;
+					int catchthief, erlev = r_ptr->level;
+					if (erlev > 50) erlev = 50;
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
-					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev;
+					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + (p_ptr->lev*4/5);
 
 					if ((m_ptr->confused) && (m_ptr->stunned)) catchthief += 20;
 					if ((m_ptr->confused) || (m_ptr->stunned)) catchthief += 8;
 
-					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 10;
+					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 15;
+					if (p_ptr->timed[TMD_PROT_THIEF]) catchthief += 18 + goodluck;
 					/* thieves don't want to be near you if you're stinky or zapping */
 					if ((p_ptr->timed[TMD_ZAPPING]) || (p_ptr->timed[TMD_STINKY])) 
-                        catchthief += 10;
+                        catchthief += 8;
 					if ((p_ptr->timed[TMD_STUN]) || (p_ptr->timed[TMD_BLIND])) 
-                        catchthief -= 10;
-                    if ((p_ptr->timed[TMD_CHARM]) || (p_ptr->timed[TMD_CURSE]))
-                        catchthief -= 10;
+                        catchthief -= 20;
+                    if ((p_ptr->timed[TMD_CURSE]) || (p_ptr->timed[TMD_FATIGUE])) 
+                        catchthief -= 13;
 					if (p_ptr->timed[TMD_PARALYZED]) catchthief = 0;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (rand_int(100) < catchthief)
+					if ((rand_int(94 + erlev/2) < catchthief) || (m_ptr->extra2))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -1085,6 +1202,7 @@ bool make_attack_normal(int m_idx)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+					if (m_ptr->extra2) break;
 
 					/* Steal some food */
 					for (k = 0; k < 10; k++)
@@ -1119,7 +1237,6 @@ bool make_attack_normal(int m_idx)
 						/* Done */
 						break;
 					}
-
 					break;
 				}
 
@@ -1132,6 +1249,7 @@ bool make_attack_normal(int m_idx)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+					if (m_ptr->extra2 > 2) break;
 
 					/* Get the lite, and its flags */
 					o_ptr = &inventory[INVEN_LITE];
@@ -1165,6 +1283,8 @@ bool make_attack_normal(int m_idx)
 				{
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
+					/* acid-strengthening room rune */
+					if (p_ptr->roomeffect == 6) damage += damage/5 + 1;
 
 					/* Obvious */
 					obvious = TRUE;
@@ -1190,6 +1310,8 @@ bool make_attack_normal(int m_idx)
 				{
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
+					/* lightning-strengthening room rune */
+					if (p_ptr->roomeffect == 7) damage += damage/5 + 1;
 
 					/* Obvious */
 					obvious = TRUE;
@@ -1215,6 +1337,8 @@ bool make_attack_normal(int m_idx)
 				{
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
+					/* fire-strengthening room rune */
+					if (p_ptr->roomeffect == 4) damage += damage/5 + 1;
 
 					/* Obvious */
 					obvious = TRUE;
@@ -1242,6 +1366,8 @@ bool make_attack_normal(int m_idx)
 				{
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
+					/* cold-strengthening room rune */
+					if (p_ptr->roomeffect == 5) damage += damage/5 + 1;
 
 					/* Obvious */
 					obvious = TRUE;
@@ -1268,18 +1394,17 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
-					/* get a saving throw only if the monster is stunned */
-					if ((m_ptr->stunned) && (rand_int(110 + rlev/5) < p_ptr->skills[SKILL_SAV]))
-						break;
+					/* get a saving throw only if the monster is stunned (or imaginary) */
+					if (((m_ptr->stunned) || (m_ptr->extra2)) && 
+						(rand_int(110 + rlev/5) < p_ptr->skills[SKILL_SAV])) break;
 
-					/* Increase "blind" */
+					/* Increase blindness */
 					if (!p_ptr->resist_blind)
 					{
-						if (inc_timed(TMD_BLIND, 10 + randint(rlev)))
-						{
-							if (m_ptr->extra2) (void)set_timed(TMD_BLIND, 3 + badluck/3);
-							obvious = TRUE;
-						}
+						int btime = 10 + randint(rlev);
+						if (m_ptr->extra2 <= 2) btime = btime/2;
+						else if (m_ptr->extra2) btime = 3 + badluck/3;
+						if (inc_timed(TMD_BLIND, btime)) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -1305,17 +1430,16 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					if (p_ptr->resist_blind) save += 35 + p_ptr->lev/2;
-					if (m_ptr->stunned) save += 11;
+					if ((m_ptr->stunned) || (m_ptr->extra2)) save += 11;
 					save += ((adj_wis_sav[p_ptr->stat_ind[A_DEX]] + 2) * 6) / 5;
 
 					/* Increase "blind" */
 					if (randint(100) > save)
 					{
-						if (inc_timed(TMD_BLIND, 3 + randint(rlev/2 + 2)))
-						{
-							if (m_ptr->extra2) (void)set_timed(TMD_BLIND, 1 + (badluck+2)/3);
-							obvious = TRUE;
-						}
+						int btime = 3 + randint(rlev/2 + 2);
+						if (m_ptr->extra2 <= 2) btime = btime/2;
+						else if (m_ptr->extra2) btime = 1 + (badluck+2)/3;
+						if (inc_timed(TMD_BLIND, btime)) obvious = TRUE;
 					}
 
 					/* Learn about the player if he doesn't resist */
@@ -1339,8 +1463,12 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->resist_confu) resist += 50;
 					xconfstr = 150;
 					if (r_ptr->flags2 & (RF2_POWERFUL)) xconfstr += 50;
-					if (m_ptr->stunned) xconfstr -= 25;
-					dur = rlev/10 + randint(rlev);
+					if ((m_ptr->stunned) || (m_ptr->extra2)) xconfstr -= 25;
+					/* pink elephant room rune */
+					if (p_ptr->roomeffect == 11) xconfstr += 30;
+
+					dur = rlev/10 + randint((rlev*3+1)/4);
+					if ((m_ptr->extra2) && (dur > 18)) dur = 2 + randint((rlev+5)/3);
 					if (p_ptr->resist_confu) dur -= 1 + randint(goodluck/3 + 1);
 					
 					if ((randint(xconfstr) > resist) && (dur))
@@ -1354,7 +1482,9 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->resist_silver) resist += 25;
 					if ((rand_int(xconfstr) < resist) && (randint(100) < 21))
 					{
-						if (inc_timed(TMD_IMAGE, 2 + randint(rlev / 3))) obvious = TRUE;
+						dur = 2 + randint(rlev / 3);
+						if (m_ptr->extra2) dur = dur*2/3;
+						if (inc_timed(TMD_IMAGE, dur)) obvious = TRUE;
 					}
 					if (obvious) resist -= 10;
 					if ((p_ptr->resist_chaos) || (p_ptr->timed[TMD_TSIGHT])) resist -= 75;
@@ -1362,7 +1492,9 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->peace) resist += 70;
 					if ((rand_int(xconfstr) < resist) && (randint(100) < 21))
 					{
-						if (inc_timed(TMD_FRENZY, 3 + randint((rlev / 2)))) obvious = TRUE;
+						dur = 3 + randint(rlev / 2);
+						if (m_ptr->extra2) dur = dur*2/3;
+						if (inc_timed(TMD_FRENZY, dur)) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -1373,24 +1505,29 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_CONFUSE:
 				{
-			        /* extra damage reduction from surrounding magic */
+					int csave = p_ptr->skills[SKILL_SAV]/5 + (goodluck+1)/3;
+					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
-					/* get a saving throw only if the monster is stunned */
-					if ((m_ptr->stunned) && (rand_int(110 + rlev/5) < p_ptr->skills[SKILL_SAV]))
-						break;
+					/* get a saving throw only sometimes */
+					if ((m_ptr->stunned) || (m_ptr->extra2)) csave += 20;
+					if ((p_ptr->timed[TMD_CLEAR_MIND]) || (p_ptr->timed[TMD_2ND_THOUGHT])) 
+						csave += 10 + goodluck/2;
+					if ((p_ptr->timed[TMD_FRENZY]) || (p_ptr->timed[TMD_CHARM])) csave = csave/2;
+					if (p_ptr->timed[TMD_CURSE]) csave -= (6 + badluck/2);
+					
+					if ((csave > 20) && (rand_int(110 + rlev/5) < csave)) break;
 
 					/* Increase "confused" */
 					if (!p_ptr->resist_confu)
 					{
-                        if (inc_timed(TMD_CONFUSED, 3 + randint(rlev)))
-						{
-							if (m_ptr->extra2) (void)set_timed(TMD_CONFUSED, 3 + badluck/3);
-							obvious = TRUE;
-						}
+						int dur = 3 + randint(rlev);
+						if (m_ptr->extra2 <= 2) dur = dur/2;
+						else if (m_ptr->extra2) dur = dur/3;
+                        if (inc_timed(TMD_CONFUSED, dur)) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -1427,9 +1564,11 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (inc_timed(TMD_AFRAID, 3 + randint(rlev)))
+						int dur = 3 + randint(rlev);
+						if (m_ptr->extra2 <= 2) dur = dur/2;
+						else if (m_ptr->extra2) dur = dur/3;
+						if (inc_timed(TMD_AFRAID, dur))
 						{
-							if (m_ptr->extra2) (void)set_timed(TMD_AFRAID, 3 + badluck/3);
             			    (void)clear_timed(TMD_CHARM);
 							obvious = TRUE;
 						}
@@ -1449,6 +1588,9 @@ bool make_attack_normal(int m_idx)
 					if (m_ptr->extra2) resistc += 16;
 					if (m_ptr->stunned) resistc += 16;
 					if (r_ptr->flags2 & (RF2_POWERFUL)) resistc -= 10;
+					/* fairy well room rune */
+					if ((p_ptr->roomeffect == 21) && (r_ptr->flags3 & (RF3_CLIGHT)))
+						resistc -= 16;
 
                     /* Take damage */
 					take_hit(damage, ddesc);
@@ -1468,7 +1610,8 @@ bool make_attack_normal(int m_idx)
 					{
 						int dur = 3 + randint(rlev);
                         if (p_ptr->timed[TMD_AMNESIA]) dur += 1 + ((badluck+2)/4);
-						if (m_ptr->extra2) dur = 4; /* always minimum */
+						if (m_ptr->extra2 > 2) dur = 4; /* always minimum */
+						else if ((m_ptr->extra2) && (dur > 5)) dur = dur/2;
                         if (inc_timed(TMD_CHARM, dur))
 						{
             			    (void)clear_timed(TMD_AFRAID);
@@ -1485,6 +1628,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_PARALYZE:
 				{
 			        int savedie;
+			        if (m_ptr->extra2) break;
 					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
@@ -1539,16 +1683,23 @@ bool make_attack_normal(int m_idx)
 						break;
 					}
 					
+					if ((m_ptr->extra2) && (p_ptr->food < PY_FOOD_WEAK + 300) &&
+						(p_ptr->roomeffect == 3)) p_ptr->food -= 100;
+					else if ((m_ptr->extra2) && (p_ptr->food < PY_FOOD_WEAK + 300))
+						p_ptr->food -= 50;
+					else if (m_ptr->extra2) p_ptr->food -= 2;
 					/* hunger */
 					if (p_ptr->slow_digest) /* partial resistance */
 					{
 			            if (p_ptr->food > PY_FOOD_ALERT + 200) (void)set_food(PY_FOOD_ALERT);
 			            else if ((p_ptr->food < PY_FOOD_WEAK + 400) && (p_ptr->food > PY_FOOD_WEAK + 200)) (void)set_food(PY_FOOD_WEAK);
+			            else if (p_ptr->roomeffect == 3) p_ptr->food -= (240 + randint(damage * 6)); /* famine */
 			            else p_ptr->food -= (220 + randint(damage * 4));
                     }
                     else
                     {
 			            if (p_ptr->food > PY_FOOD_WEAK + 240) (void)set_food(PY_FOOD_WEAK);
+			            else if (p_ptr->roomeffect == 3) p_ptr->food -= (250 + randint(damage * 8)); /* famine */
 			            else p_ptr->food -= (240 + randint(damage * 5));
                     }
 					msg_print("you feel unsatisfied.");
@@ -1566,11 +1717,13 @@ bool make_attack_normal(int m_idx)
                 {
 					/* Obvious */
 					obvious = TRUE;
+					/* grepse room rune */
+					if (p_ptr->roomeffect == 22) damage += damage/6 + 1;
 
 					if (p_ptr->resist_silver)
 					{
 						msg_print("you resist the silver magic!");
-						take_hit((damage*8)/9, ddesc);
+						take_hit((damage*6)/7, ddesc);
 						break;
 					}
 
@@ -1580,6 +1733,7 @@ bool make_attack_normal(int m_idx)
 					/* silver poison */
 					if (rlev >= 9) p_ptr->silver += randint(rlev / 9);
 					if (rlev < 9) p_ptr->silver += 1;
+					if ((p_ptr->roomeffect == 22) && (rlev > 40)) p_ptr->silver += 1;
 					
 					msg_print("you feel silver magic corrupting your mind!");
 
@@ -1714,6 +1868,7 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
+					if (p_ptr->roomeffect == 17) break;
 					/* Radius 8 earthquake centered at the monster */
 					if ((damage >= 25) && (randint(100) < 66))
 					{
@@ -1732,7 +1887,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_10:
 				{
-			        /* extra damage reduction from surrounding magic */
+					if ((strongwere) && (r_ptr->Rsilver < -1)) damage = (damage * 6) / 5;
+					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Obvious */
@@ -1764,6 +1920,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_20:
 				{
+					if ((strongwere) && (r_ptr->Rsilver < -1)) damage = (damage * 5) / 4;
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
@@ -1797,6 +1954,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_40:
 				{
+					if ((strongwere) && (r_ptr->Rsilver < -1)) damage = (damage * 5) / 4;
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
@@ -1879,7 +2037,8 @@ bool make_attack_normal(int m_idx)
 						if (idur < 10 + badluck) idur = 10 + badluck;
 
 						/* m_ptr->extra2 = it's an imaginary monster */
-						if (m_ptr->extra2) idur = (idur+2)/4;
+						if (m_ptr->extra2 <= 2) idur = (idur+1)/2;
+						else if (m_ptr->extra2) idur = (idur+2)/4;
 
 						if (inc_timed(TMD_IMAGE, idur)) obvious = TRUE;
 					}
@@ -1932,11 +2091,9 @@ bool make_attack_normal(int m_idx)
 					if ((!p_ptr->resist_charm) && (!p_ptr->peace))
 					{
 						int fdur = 4 + randint((rlev / 2));
-						if (m_ptr->extra2) fdur = 5;
-						if (inc_timed(TMD_FRENZY, fdur))
-						{
-							obvious = TRUE;
-						}
+						if ((m_ptr->extra2 <= 2) && (fdur > 8)) fdur = fdur*2/3;
+						else if (m_ptr->extra2) fdur = 5;
+						if (inc_timed(TMD_FRENZY, fdur)) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -1957,6 +2114,7 @@ bool make_attack_normal(int m_idx)
 					}
 					if ((goodluck < 9) && (holdfast < 25)) holdfast = 25;
 					if (m_ptr->stunned) holdfast -= 10;
+					if (m_ptr->extra2) holdfast -= 10;
 					wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck;
 					wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
 					if (p_ptr->free_act) wrestle += 40;
@@ -1973,7 +2131,8 @@ bool make_attack_normal(int m_idx)
 						if (time < 5) time = 2 + randint(3);
 						if (time > 9) time = 8 + randint((time-8)/2);
 						if ((!r_ptr->level) && (r_ptr->flags7 & (RF7_BLOCK_LOS))) time += 3;
-						msg_format("%^s grabs you and holds you tight!", m_name);
+						if ((m_ptr->extra2) && (time > 3)) time -= 2;
+						msg_format("%^s grabs you!", m_name);
 						if (p_ptr->timed[TMD_BEAR_HOLD])
 						{
 							/* don't increase time if was held by a different monster */
@@ -2032,7 +2191,6 @@ bool make_attack_normal(int m_idx)
                 {
 					/* conspicuous lack of damage */
 					/* <1d10>  */
-
 					obvious = TRUE;
 					if (damage < 3)
 					{
@@ -2318,7 +2476,7 @@ bool make_attack_normal(int m_idx)
 					{
                        (void)hp_player(damage);
                        (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
-                       if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= - 1;
+                       if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 1;
                        (void)inc_timed(TMD_WSHIELD, randint(20) + 5);
                        if (!p_ptr->timed[TMD_SUST_SPEED])
 					   {
@@ -2419,8 +2577,8 @@ bool make_attack_normal(int m_idx)
 			/* Hack -- only one of cut or stun */
 			if (do_cut && do_stun)
 			{
-				/* Cancel cut */
-				if (rand_int(100) < 50)
+				/* Cancel cut  (roomeffect 15 is the enchanted thornbush which makes cuts worse) */
+				if ((rand_int(100) < 50) && (!(p_ptr->roomeffect == 15)))
 				{
 					do_cut = 0;
 				}
@@ -2441,14 +2599,20 @@ bool make_attack_normal(int m_idx)
 				tmp = monster_critical(d_dice, d_side, damage);
 				
 				/* sharper claws have more chance to cut */
-				if ((tmp < 4) && (do_cut > 1))
+				if ((do_cut > 1) || ((strongwere) && (r_ptr->Rsilver < -1)) ||
+					(p_ptr->roomeffect == 15))
 				{
-                   if (randint(100) < 4 + (badluck/2 * (badluck/3 + 1))) tmp += 1;
-                }
-                else if (do_cut > 1)
-				{
-                   if (randint(100) < (badluck/2 + 2)) tmp += 1;
-                }
+					if (tmp < 4)
+					{
+						if (randint(100) < 4 + (badluck/2 * (badluck/3 + 1))) tmp += 1;
+						else if ((((strongwere) && (r_ptr->Rsilver < -1)) || 
+							(p_ptr->roomeffect == 15)) && (randint(100) < 30)) tmp += 1;
+					}
+					else
+					{
+            	       if (randint(100) < (badluck/2 + 2)) tmp += 1;
+					}
+				}
 
 				/* Roll for damage */
 				switch (tmp)
@@ -2469,6 +2633,15 @@ bool make_attack_normal(int m_idx)
 
 				/* Apply the cut */
 				if (k) (void)inc_timed(TMD_CUT, k);
+				
+				if (p_ptr->roomeffect == 2) /* pestilence */
+				{
+					int poch = 5;
+					if (p_ptr->timed[TMD_CUT]) poch += 15 + (p_ptr->timed[TMD_CUT] + 2)/5;
+					if (k > 60 + badluck) k = 60 + badluck;
+					if (k < 7) k = 6 + randint(5);
+					if (rand_int(100) < poch) (void)inc_timed(TMD_POISONED, k/2);
+				}
 			}
 
 			/* Handle stun */

@@ -179,6 +179,10 @@ void do_cmd_search(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+	/* Make noise (minimum 2, max 6) */
+	if (6 - p_ptr->skills[SKILL_STL]/4 > 1) 
+		make_noise(p_ptr->py, p_ptr->px, (6 - p_ptr->skills[SKILL_STL]/4), FALSE, TRUE);
+	else make_noise(p_ptr->py, p_ptr->px, 2, FALSE, TRUE);
 
 	/* Search */
 	search();
@@ -431,15 +435,14 @@ static void chest_death(int y, int x, s16b o_idx)
  * Exploding chest destroys contents (and traps).
  * Note that the chest itself is never destroyed.
  */
-static void chest_trap(int y, int x, s16b o_idx)
+static bool chest_trap(int y, int x, s16b o_idx)
 {
 	int i, trap;
 
 	object_type *o_ptr = &o_list[o_idx];
 
-
 	/* Ignore disarmed chests */
-	if (o_ptr->pval <= 0) return;
+	if (o_ptr->pval <= 0) return FALSE;
 
 	/* Obtain the traps */
 	trap = chest_traps[o_ptr->pval];
@@ -499,7 +502,13 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("Everything inside the chest is destroyed!");
 		o_ptr->pval = 0;
 		take_hit(damroll(5, 8), "an exploding chest");
+		/* Make noise */
+		make_noise(y, x, 16, FALSE, TRUE);
 	}
+	/* Make noise (any other trap besides explosion) */
+	else make_noise(y, x, 8, FALSE, TRUE);
+	
+	return TRUE;
 }
 
 
@@ -552,6 +561,8 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 			more = TRUE;
 			if (flush_failure) flush();
 			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
+			/* Make noise */
+			make_noise(y, x, 4 + rand_int(3), FALSE, TRUE);
 		}
 	}
 
@@ -559,7 +570,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	if (flag)
 	{
 		/* Apply chest traps, if any */
-		chest_trap(y, x, o_idx);
+		if (!chest_trap(y, x, o_idx))
+			/* Make noise (chest traps make noise of their own) */
+			make_noise(y, x, 5 + rand_int(2), FALSE, TRUE);
 
 		/* Let the Chest drop items */
 		chest_death(y, x, o_idx);
@@ -603,21 +616,15 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 
 	/* Must find the trap first. */
 	if (!object_known_p(o_ptr))
-	{
 		msg_print("I don't see any traps.");
-	}
 
 	/* Already disarmed/unlocked */
 	else if (o_ptr->pval <= 0)
-	{
 		msg_print("The chest is not trapped.");
-	}
 
 	/* No traps to find. */
 	else if (!chest_traps[o_ptr->pval])
-	{
 		msg_print("The chest is not trapped.");
-	}
 
 	/* Success (get a lot of experience) */
 	else if (rand_int(100) < j)
@@ -625,6 +632,8 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 		message(MSG_DISARM, 0, "You have disarmed the chest.");
 		gain_exp(o_ptr->pval);
 		o_ptr->pval = (0 - o_ptr->pval);
+		/* Make noise */
+		make_noise(y, x, 4, FALSE, TRUE);
 	}
 
 	/* Failure -- Keep trying */
@@ -634,6 +643,8 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 		more = TRUE;
 		if (flush_failure) flush();
 		msg_print("You failed to disarm the chest.");
+		/* Make noise */
+		make_noise(y, x, 4 + rand_int(2), FALSE, TRUE);
 	}
 
 	/* Failure -- Set off the trap */
@@ -641,6 +652,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	{
 		msg_print("You set off a trap!");
 		chest_trap(y, x, o_idx);
+		/* noise is made in chest_trap() */
 	}
 
 	/* Result */
@@ -839,7 +851,7 @@ static bool do_cmd_open_aux(int y, int x)
 		i = p_ptr->skills[SKILL_DIS];
 
 		/* Penalize some conditions */
-		if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 8;
+		if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 6;
 		if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 5;
 
 		/* Extract the lock power (now 16 levels of lock power) */
@@ -865,7 +877,7 @@ static bool do_cmd_open_aux(int y, int x)
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			/* Experience */
-			gain_exp(1);
+			if (p_ptr->depth > p_ptr->lev - 4) gain_exp(1);
 		}
 
 		/* Failure */
@@ -1006,6 +1018,8 @@ void do_cmd_open(void)
 	{
 		/* Open the door */
 		more = do_cmd_open_aux(y, x);
+		/* Make noise */
+		make_noise(y, x, 5 + rand_int(2), FALSE, TRUE);
 	}
 
 	/* Cancel repeat unless we may continue */
@@ -1163,6 +1177,9 @@ void do_cmd_close(void)
 	{
 		/* Close door */
 		more = do_cmd_close_aux(y, x);
+		/* Make noise */
+		if (badluck > 9) make_noise(y, x, 4 + rand_int(3 + badluck/6), FALSE, TRUE);
+		else make_noise(y, x, 4 + rand_int(3), FALSE, TRUE);
 	}
 
 	/* Cancel repeat unless told not to */
@@ -1200,6 +1217,22 @@ static bool do_cmd_tunnel_test(int y, int x)
 	return (TRUE);
 }
 
+#ifdef roomrunes
+bool titanium_room_rune(int y, int x)
+{
+	bool tium = FALSE;
+	if (room_runes(y, x) == 17) tium = TRUE;
+	if (room_runes(y+1, x) == 17) tium = TRUE;
+	if (room_runes(y-1, x) == 17) tium = TRUE;
+	if (room_runes(y, x+1) == 17) tium = TRUE;
+	if (room_runes(y, x-1) == 17) tium = TRUE;
+	if (room_runes(y+1, x+1) == 17) tium = TRUE;
+	if (room_runes(y-1, x+1) == 17) tium = TRUE;
+	if (room_runes(y+1, x-1) == 17) tium = TRUE;
+	if (room_runes(y-1, x-1) == 17) tium = TRUE;
+	return tium;
+}
+#endif /* roomrunes */
 
 /*
  * Tunnel through wall.  Assumes valid location.
@@ -1216,6 +1249,14 @@ bool twall(int y, int x)
 	/* Paranoia -- Require a wall or door or some such */
 	if (cave_floor_bold(y, x)) return (FALSE);
 
+#ifdef roomrunes
+	if (titanium_room_rune(y, x))
+	{
+		msg_print("There is a titanium rune nearby, making this grid undiggable.");
+		return (FALSE);
+	}
+#endif
+
 	/* Sound */
 	sound(MSG_DIG);
 
@@ -1223,7 +1264,8 @@ bool twall(int y, int x)
 	cave_info[y][x] &= ~(CAVE_MARK);
 
 	/* Remove the feature */
-	cave_set_feat(y, x, FEAT_FLOOR);
+	if (flood_grid(y, x, 0)) cave_set_feat(y, x, FEAT_WATER);
+	else cave_set_feat(y, x, FEAT_FLOOR);
 
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1235,6 +1277,22 @@ bool twall(int y, int x)
 	return (TRUE);
 }
 
+/* to easily set how hard it is to dig through each wall feature */
+/* (only hulks can dig through permanent walls) */
+#define HULKPERM_STR  55    /* was 50 */
+#define HULKPERM_DIE  2500  /* was 2000 */
+#define GRANITE_STR   42    /* was 40 */
+#define GRANITE_DIE   1800  /* was 1600 */
+#define DOORDIG_STR   26    /* was 30 */
+#define DOORDIG_DIE   1200  /* was 1200 */
+#define QUARTZ_STR    20    /* was 20 */
+#define QUARTZ_DIE    880   /* was 800 */
+#define MAGMA_STR     11    /* was 10 */
+#define MAGMA_DIE     440   /* was 400 */
+#define BIGRUBBLE_STR 8     /* was 8 */
+#define BIGRUBBLE_DIE 660   /* was 600 */
+#define SMRUBBLE_STR  4     /* was 4 */
+#define SMRUBBLE_DIE  200   /* was 190 */
 
 /*
  * Perform the basic "tunnel" command
@@ -1257,11 +1315,12 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Sound XXX XXX XXX */
 	/* sound(MSG_DIG); */
 
-	/* umber hulk can dig through permanent vault walls (but not easily) */
-	if ((cave_feat[y][x] == FEAT_PERM_INNER) && (p_ptr->prace == 17))
+	/* umber hulks can dig through permanent vault walls (but not easily) */
+	if (((cave_feat[y][x] == FEAT_PERM_INNER) || 
+		(cave_feat[y][x] == FEAT_PERM_OUTER)) && (p_ptr->prace == 17))
 	{
 	    /* Tunnel */
-	    if ((p_ptr->skills[SKILL_DIG] > 50 + rand_int(2000)) && twall(y, x))
+	    if ((p_ptr->skills[SKILL_DIG] > HULKPERM_STR + rand_int(HULKPERM_DIE)) && twall(y, x))
 	    {
 		   msg_print("You have finished the tunnel.");
 	    }
@@ -1276,13 +1335,13 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Titanium */
-	else if (cave_feat[y][x] >= FEAT_PERM_EXTRA)
+	else if ((cave_feat[y][x] >= FEAT_PERM_EXTRA) && (cave_feat[y][x] <= FEAT_PERM_SOLID))
 	{
 		msg_print("This seems to be permanent rock.");
 	}
 
 	/* Granite */
-	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
+	else if ((cave_feat[y][x] >= FEAT_WALL_EXTRA) && (cave_feat[y][x] < FEAT_SMRUBBLE))
 	{
         /* umber hulk never fails when digging */
 		if ((p_ptr->prace == 17) && twall(y, x))
@@ -1292,7 +1351,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
         else
         {
 		    /* Tunnel */
-		    if ((p_ptr->skills[SKILL_DIG] > 40 + rand_int(1600)) && twall(y, x))
+		    if ((p_ptr->skills[SKILL_DIG] > GRANITE_STR + rand_int(GRANITE_DIE)) && twall(y, x))
 		    {
 			   msg_print("You have finished the tunnel.");
 		    }
@@ -1308,7 +1367,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Quartz / Magma */
-	else if (cave_feat[y][x] >= FEAT_MAGMA)
+	else if ((cave_feat[y][x] >= FEAT_MAGMA) && (cave_feat[y][x] < FEAT_SMRUBBLE))
 	{
 		bool okay = FALSE;
 		bool gold = FALSE;
@@ -1329,20 +1388,20 @@ static bool do_cmd_tunnel_aux(int y, int x)
         /* umber hulk never fails when digging */
 		if (p_ptr->prace == 17)
         {
-			okay = ((p_ptr->skills[SKILL_DIG] + 21) > 1);
+			okay = ((p_ptr->skills[SKILL_DIG] + 21) > MAGMA_STR);
         }
         else
         {    
 		   /* Quartz */
            if (hard)
 		   {
-			  okay = (p_ptr->skills[SKILL_DIG] > 20 + rand_int(800));
+			  okay = (p_ptr->skills[SKILL_DIG] > QUARTZ_STR + rand_int(QUARTZ_DIE));
 		   }
 
 		   /* Magma */
 		   else
 		   {
-			   okay = (p_ptr->skills[SKILL_DIG] > 10 + rand_int(400));
+			   okay = (p_ptr->skills[SKILL_DIG] > MAGMA_STR + rand_int(MAGMA_DIE));
 		   }
         }
 
@@ -1386,20 +1445,22 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Rubble */
-	else if (cave_feat[y][x] == FEAT_RUBBLE)
+	else if ((cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_SMRUBBLE))
 	{
+		int rubdif = SMRUBBLE_STR + rand_int(SMRUBBLE_DIE);
+		if (cave_feat[y][x] == FEAT_RUBBLE) rubdif = BIGRUBBLE_STR + rand_int(BIGRUBBLE_DIE);
         /* umber hulk never fails when digging */
 		if ((p_ptr->prace == 17) && twall(y, x))
         {
             msg_print("You easily toss the rubble out of the way.");
         }
 		/* Remove the rubble (slightly harder than it used to be) */
-		else if ((p_ptr->skills[SKILL_DIG] > 4 + rand_int(200)) && twall(y, x))
+		else if ((p_ptr->skills[SKILL_DIG] > rubdif) && twall(y, x))
 		{
 			/* Message */
 			msg_print("You have removed the rubble.");
 
-#if old
+#if old /* objects are now placed when the rubble is placed and can be found without removing the rubble */
 			/* Hack -- place an object */
 			if (rand_int(100) < 10)
 			{
@@ -1436,7 +1497,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
         else
         {
 		    /* Tunnel */
-		    if ((p_ptr->skills[SKILL_DIG] > 30 + rand_int(1200)) && twall(y, x))
+		    if ((p_ptr->skills[SKILL_DIG] > DOORDIG_STR + rand_int(DOORDIG_DIE)) && twall(y, x))
 		    {
 			   msg_print("You have finished the tunnel.");
 		    }
@@ -1449,7 +1510,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			    more = TRUE;
 
 			    /* Occasional Search XXX XXX */
-			    if (rand_int(100) < 25) search();
+			    if (rand_int(100) < p_ptr->skills[SKILL_FOS] - 5) search();
             }
 		}
 	}
@@ -1464,7 +1525,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
             msg_print("You easily bash through the wall.");
         }
 		/* Tunnel */
-		else if ((p_ptr->skills[SKILL_DIG] > 30 + rand_int(1200)) && twall(y, x))
+		else if ((p_ptr->skills[SKILL_DIG] > DOORDIG_STR + rand_int(DOORDIG_DIE)) && twall(y, x))
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -1515,7 +1576,6 @@ void do_cmd_tunnel(void)
 
 	bool more = FALSE;
 
-
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
@@ -1523,10 +1583,8 @@ void do_cmd_tunnel(void)
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
 
-
 	/* Oops */
 	if (!do_cmd_tunnel_test(y, x)) return;
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1559,7 +1617,7 @@ void do_cmd_tunnel(void)
 		/* Message */
 		msg_print("There is a monster in the way!");
 
-		/* Attack */
+		/* Attack (noise is in py_attack() */
 		py_attack(y, x);
 	}
 
@@ -1568,6 +1626,8 @@ void do_cmd_tunnel(void)
 	{
 		/* Tunnel through walls */
 		more = do_cmd_tunnel_aux(y, x);
+		/* Make a lot of noise */
+		make_noise(y, x, 12 + rand_int(3), FALSE, TRUE);
 	}
 
 	/* Cancel repetition unless we can continue */
@@ -1639,6 +1699,12 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 	/* Extract trap "power" */
 	power = 5 + (p_ptr->depth-5)/5;
+	
+#ifdef roomrunes
+	/* titanium room rune prevent changing terrain except for disarming traps */
+	/* but it does increase difficulty */
+	if (room_runes(y, x) == 17) power += 4;
+#endif
 
 	/* Extract the difficulty */
 	j = i - power;
@@ -1657,9 +1723,12 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 		/* Forget the trap */
 		cave_info[y][x] &= ~(CAVE_MARK);
+
+		/* flood the grid if there's more adjacent water spaces than empty floor */
+		if (flood_grid(y, x, 0)) cave_set_feat(y, x, FEAT_WATER);
 		
 		/* pit traps often turn into open pits when disarmed */
-		if ((cave_feat[y][x] >= FEAT_TRAP_HEAD + 0x01) &&
+		else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD + 0x01) &&
 			(cave_feat[y][x] <= FEAT_TRAP_HEAD + 0x03) &&
 			(randint(100) < 50 + badluck/2))
 		{
@@ -1672,6 +1741,8 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 		/* Remove the trap */
 		else cave_set_feat(y, x, FEAT_FLOOR);
+		/* Make noise */
+		make_noise(y, x, 5, FALSE, TRUE);
 	}
 
 	/* Failure -- Keep trying */
@@ -1680,11 +1751,19 @@ static bool do_cmd_disarm_aux(int y, int x)
 		/* Failure */
 		if (flush_failure) flush();
 
+#ifdef roomrunes
+		/* titanium room rune prevent changing terrain except for disarming traps */
+		/* but it does increase difficulty */
+		if (room_runes(y, x) == 17) msg_format("The room is against you disarming the %s.", name);
+#endif
+
 		/* Message */
 		msg_format("You failed to disarm the %s.", name);
 
 		/* We may keep trying */
 		more = TRUE;
+		/* Make noise */
+		make_noise(y, x, 4 + rand_int(2), FALSE, TRUE);
 	}
 
 	/* Failure -- Set off the trap */
@@ -1692,6 +1771,12 @@ static bool do_cmd_disarm_aux(int y, int x)
 	{
 		int py = p_ptr->py;
 		int px = p_ptr->px;
+
+#ifdef roomrunes
+		/* titanium room rune prevent changing terrain except for disarming traps */
+		/* but it does increase difficulty */
+		if (room_runes(y, x) == 17) msg_format("The room is against you disarming the %s.", name);
+#endif
 
 		/* Message */
 		msg_format("You set off the %s!", name);
@@ -1701,8 +1786,10 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 		/* Don't stay a space away from the pit when you fall into it (pitfall) */
 		if (((cave_feat[py][px] == FEAT_TRAP_HEAD + 0x02) || (cave_feat[py][px] == FEAT_TRAP_HEAD + 0x03)) ||
-			((cave_feat[py][px] >= FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth <= 65)))
+			((cave_feat[py][px] >= FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth <= 55)))
 				monster_swap(py, px, y, x);
+		/* Make noise */
+		make_noise(y, x, 7, FALSE, TRUE);
 	}
 
 	/* Result */
@@ -1712,6 +1799,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 /*
  * Disarms a trap, or a chest
+ * we make noise in the subfunctions do_cmd_disarm_chest() and do_cmd_disarm_aux()
  */
 void do_cmd_disarm(void)
 {
@@ -1870,7 +1958,6 @@ static bool do_cmd_bash_aux(int y, int x)
 	int bash, temp;
 	bool more = FALSE;
 
-
 	/* Verify legality */
 	if (!do_cmd_bash_test(y, x)) return (FALSE);
 
@@ -1886,8 +1973,8 @@ static bool do_cmd_bash_aux(int y, int x)
 	/* Extract door power */
 	/* temp = ((cave_feat[y][x] - FEAT_DOOR_HEAD) & 0x07); */
 	if (p_ptr->depth < 10) temp = 1 + randint(5);
-	else if (p_ptr->depth < 20) temp = 1 + randint(7);
-	else if (p_ptr->depth < 80) temp = p_ptr->depth/10 + randint(8);
+	else if (p_ptr->depth < 20) temp = 2 + randint(6); /* was 1 + randint(7) */
+	else if (p_ptr->depth < 80) temp = p_ptr->depth/9 + randint(8); /* was p_ptr->depth/10 + randint(8) */
 	else temp = 8 + randint(8);
 
 	/* Compare bash power to door power XXX XXX XXX (was temp * 10) */
@@ -1922,8 +2009,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	}
 
 	/* Saving throw against stun */
-	else if (rand_int(95) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
+	else if (rand_int(95) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev)
 	{
 		/* Message */
 		msg_print("The door holds firm.");
@@ -1964,7 +2050,6 @@ static bool do_cmd_bash_aux(int y, int x)
 void do_cmd_bash(void)
 {
 	int y, x, dir;
-
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -2022,6 +2107,8 @@ void do_cmd_bash(void)
 			/* Cancel repeat */
 			disturb(0, 0);
 		}
+		/* Make a lot of noise */
+		make_noise(y, x, 10 + rand_int(4), FALSE, TRUE);
 	}
 }
 
@@ -2300,6 +2387,9 @@ void do_cmd_spike(void)
 		inven_item_increase(item, 0-spikes);
 		inven_item_describe(item);
 		inven_item_optimize(item);
+
+		/* Make noise */
+		make_noise(y, x, 5 + rand_int(2), FALSE, TRUE);
 	}
 }
 
@@ -2321,7 +2411,13 @@ bool do_cmd_walk_test(int y, int x, bool texts)
 		/* atttack ordinary trees only when you can see them */
 		if ((r_ptr->flags7 & (RF7_NONMONSTER)) && (!m_ptr->ml))
 		{
-			if (texts) message(MSG_HITWALL, 0, "You feel a tree in the way!");
+			if (texts) /* not all NONMONSTERs are trees */
+			{
+				char m_name[80];
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0x88);
+				msg_format("You feel %s in the way.", m_name);
+				message(MSG_HITWALL, 0, "");
+			}
 			return (FALSE);
 		}
 		return TRUE;
@@ -2341,7 +2437,7 @@ bool do_cmd_walk_test(int y, int x, bool texts)
 	if ((!cave_floor_bold(y, x)) || (cave_feat[y][x] == FEAT_OPEN_PIT))
 	{
 		/* Rubble */
-		if (cave_feat[y][x] == FEAT_RUBBLE)
+		if ((cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_SMRUBBLE))
 		{
 			/* rubble can be climbed over now */
             return (TRUE);
@@ -2402,6 +2498,12 @@ void do_cmd_walk(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Make noise (minimum 2, max 5) */
+	/* Most effect of stealth is how easily the monster notices the PC (not this) */
+	if (5 - p_ptr->skills[SKILL_STL]/6 > 1) 
+		make_noise(y, x, 5 - p_ptr->skills[SKILL_STL]/6, FALSE, TRUE);
+	else make_noise(y, x, 2, FALSE, TRUE);
+
 #ifdef thief
 	/* thieves' movement is faster (but not overall speed) */
 	if ((cp_ptr->flags & CF_CLASS_SPEED) && (p_ptr->lev >= 40)) p_ptr->energy_use = 77;
@@ -2433,7 +2535,8 @@ void do_cmd_walk(void)
 		(cave_feat[y][x] >= FEAT_DOOR_LOCKD) && (cave_feat[y][x] <= FEAT_DOOR_STUCK))
 			p_ptr->energy_use = 100; 
 	/* don't climb rubble fast */
-	else if (cave_feat[y][x] == FEAT_RUBBLE) p_ptr->energy_use = 100; 
+	else if ((cave_feat[y][x] == FEAT_RUBBLE) ||
+		(cave_feat[y][x] == FEAT_SMRUBBLE)) p_ptr->energy_use = 100; 
 	/* don't climb out of a pit fast */
 	else if (((cave_feat[p_ptr->py][p_ptr->px] == FEAT_OPEN_PIT) ||
 	/* pit trap is only pit trap if dL <= 65 */
@@ -2565,6 +2668,12 @@ void do_cmd_hold(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Make noise (minimum 2, max 5) */
+	/* Most effect of stealth is how easily the monster notices the PC (not this) */
+	if (4 - p_ptr->skills[SKILL_STL]/6 > 1) 
+		make_noise(p_ptr->py, p_ptr->px, 4 - p_ptr->skills[SKILL_STL]/6, FALSE, TRUE);
+	else make_noise(p_ptr->py, p_ptr->px, 2, FALSE, TRUE);
+
 	trapalert = p_ptr->skills[SKILL_FOS];
 	/* mainly to help dwarves who have darkvision but horrible alertness */
 	if (p_ptr->darkvis) trapalert += 6;
@@ -2620,6 +2729,9 @@ void do_cmd_pickup(void)
 		if (energy_cost > 90) energy_cost = 90;
 	}
 	else if (energy_cost > 100) energy_cost = 100;
+
+	/* Make noise */
+	make_noise(p_ptr->py, p_ptr->px, 1 + (energy_cost/33), FALSE, TRUE);
 
 	/* Charge this amount of energy. */
 	p_ptr->energy_use = energy_cost;
@@ -2776,6 +2888,11 @@ void do_cmd_rest(void)
 
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
+					
+	/* make (very little) noise */
+	if (p_ptr->skills[SKILL_STL] <= 0) make_noise(y, x, 3, FALSE, TRUE);
+	else if (p_ptr->skills[SKILL_STL] >= 6) make_noise(y, x, 1, FALSE, TRUE);
+	else make_noise(y, x, 2, FALSE, TRUE);
 
 	/* Save the rest code */
 	p_ptr->resting = p_ptr->command_arg;
@@ -2808,9 +2925,19 @@ void do_cmd_rest(void)
  *
  * Note that artifacts never break, see the "drop_near()" function.
  */
-static int breakage_chance(const object_type *o_ptr, bool hitwall)
+static int breakage_chance(const object_type *o_ptr, bool hitwall, bool waterlose)
 {
 	int defolt;
+	bool brandedammo = FALSE;
+
+	/* Extract the flags */
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	if ((f1 & (TR1_BRAND_COLD)) || (f1 & (TR1_BRAND_ACID)) || 
+		(f1 & (TR1_BRAND_FIRE)) || (f1 & (TR1_BRAND_ELEC)) || (f1 & (TR1_BRAND_POIS)))
+			brandedammo = TRUE;
+
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
@@ -2827,6 +2954,7 @@ static int breakage_chance(const object_type *o_ptr, bool hitwall)
 		case TV_FOOD:
 		{
 			if (hitwall) return (0);
+			else if (waterlose) return (80);
 			else return (75);
 		}
 
@@ -2835,6 +2963,7 @@ static int breakage_chance(const object_type *o_ptr, bool hitwall)
 		case TV_JUNK:
 		{
 			if (hitwall) return (0);
+			else if (waterlose) return (55);
 			else return (50);
 		}
 		
@@ -2842,12 +2971,15 @@ static int breakage_chance(const object_type *o_ptr, bool hitwall)
 		case TV_SCROLL: /* reduced chance */
 		{
 			if (hitwall) return (0);
+			else if (waterlose) return (55);
 			else return (40);
 		}
 
 		case TV_ARROW:
 		{
 			if (hitwall) return (0);
+			else if (brandedammo) return (65);
+			else if (waterlose) return (55);
 			else return (35);
 		}
 
@@ -2864,6 +2996,8 @@ static int breakage_chance(const object_type *o_ptr, bool hitwall)
 		case TV_BOLT:
 		{
 			if (hitwall) return (0);
+			else if (waterlose) return (55);
+			else if (brandedammo) return (50);
 			else return (25);
 		}
 	}
@@ -2916,12 +3050,16 @@ void do_cmd_fire(void)
 	int i, j, y, x, ty, tx, dy, dx;
 	int tdam, tdis, thits, tmul, noslip;
 	int bonus, chance, excrit;
+	bool waterlose = FALSE;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
 
 	object_type *i_ptr;
 	object_type object_type_body;
+	monster_type *m_ptr;
+	/* save the monsters race (because m_ptr gets erased if the monster dies) */
+	int ridx;
 
 	bool hit_body = FALSE;
 	bool hitwall = FALSE;
@@ -2949,22 +3087,12 @@ void do_cmd_fire(void)
 		msg_print("You have nothing to fire with.");
 		return;
 	}
-
-
-	/* Require proper missile */
-	item_tester_tval = p_ptr->ammo_tval;
-
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_QUIVER | USE_INVEN | USE_FLOOR))) return;
-	
 		
 	/* Handle player charm */
 	if (p_ptr->timed[TMD_CHARM])
 	{
 		/* Message */
-		msg_print("You are too good a mood to try to hurt anything!");
+		msg_print("You are feeling too nice to try to hurt anything!");
 
 		/* Done */
 		return;
@@ -2979,6 +3107,16 @@ void do_cmd_fire(void)
 		/* Done */
 		return;
 	}
+
+
+	/* Require proper missile */
+	item_tester_tval = p_ptr->ammo_tval;
+
+	/* Get an item */
+	q = "Fire which item? ";
+	s = "You have nothing to fire.";
+	if (!get_item(&item, q, s, (USE_QUIVER | USE_INVEN | USE_FLOOR))) return;
+	
 
 	/* Get the object */
 	if (item >= 0)
@@ -2997,6 +3135,13 @@ void do_cmd_fire(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* tornado runes disable missile weapons (except for seeker ammo which still gets a penalty) */
+	if ((p_ptr->roomeffect == 8) && 
+		(!((o_ptr->sval == 2) || (o_ptr->to_h >= 12) || (j_ptr->to_h >= 12))))
+	{
+		msg_print("It's too windy in here for missiles to do any good.");
+		return;
+	}
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -3046,7 +3191,7 @@ void do_cmd_fire(void)
 	/* Base damage from ammo plus launcher bonus */
 	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
 
-	/* Actually "fire" the object */
+	/* to hit chance */
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skills[SKILL_THB] + (bonus * BTH_PLUS_ADJ));
 
@@ -3130,7 +3275,8 @@ void do_cmd_fire(void)
 			hitwall = TRUE;
 
 			/* hard to hit monsters which are part way in a wall (unless the wall is rubble) */
-			if (!(cave_feat[ny][nx] == FEAT_RUBBLE)) chance = (chance * 3) / 4;
+			if (cave_feat[ny][nx] == FEAT_RUBBLE) chance = (chance * 6) / 7;
+			else if (!(cave_feat[ny][nx] == FEAT_SMRUBBLE)) chance = (chance * 3) / 4;
 		}
 		/* Hack -- Stop before hitting walls */
 		else if (!cave_floor_bold(ny, nx))
@@ -3149,7 +3295,7 @@ void do_cmd_fire(void)
 		x = nx;
 		y = ny;
 
-		/* Only do visuals if the player can "see" the missile */
+		/* Only do visuals if the PC can "see" the missile */
 		if (player_can_see_bold(y, x))
 		{
 			/* Visual effects */
@@ -3165,7 +3311,6 @@ void do_cmd_fire(void)
 			Term_fresh();
 			if (p_ptr->window) window_stuff();
 		}
-
 		/* Delay anyway for consistency */
 		else
 		{
@@ -3177,19 +3322,33 @@ void do_cmd_fire(void)
 		if (cave_m_idx[y][x] > 0)
 		{
 			char m_name[80];
-			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-			int sizediff, monac = r_ptr->ac;
+			monster_race *r_ptr;
+			monster_lore *l_ptr;
+			int sizediff, monac;
 
-			int visible = m_ptr->ml;
+			int visible;
 			int chance2;
+			m_ptr = &mon_list[cave_m_idx[y][x]];
+			r_ptr = &r_info[m_ptr->r_idx];
+			l_ptr = &l_list[m_ptr->r_idx];
+			visible = m_ptr->ml;
+			monac = r_ptr->ac;
+
+			/* info for how much noise to make */
+			ridx = m_ptr->r_idx;
+			if ((m_ptr->csleep) && (!m_ptr->roaming)) ridx = 0; /* asleep */
 
 			/* scale ac for monsters that scale with depth */
 			if ((r_ptr->flags3 & (RF3_SCALE)) && (p_ptr->depth > r_ptr->level + 5))
 			{
 				monac += rand_int((p_ptr->depth - r_ptr->level + 1)/2);
 			}
+            
+#ifdef roomrunes 
+			/* The tornado rune makes it hard to hit (may not be enough of a penalty?) */
+			if ((p_ptr->roomeffect == 8) || (room_runes(y, x) == 8)) 
+				chance = (chance * 2) / 3 - 1;
+#endif
 
 			/* harder to hit near max range (unless you have sniper's eye) */
 			if (!p_ptr->timed[TMD_SNIPER])
@@ -3217,7 +3376,7 @@ void do_cmd_fire(void)
 			}
 			
 			/* sniper's eye assassin spell (removes distance penalty, then +15) */
-            if ((visible) && (p_ptr->timed[TMD_SNIPER])) chance2 = chance + 15;
+			if ((visible) && (p_ptr->timed[TMD_SNIPER])) chance2 = chance + 15;
 
 			/* monster size is represented in its ac, but not always relative to the PC's size */
 			/* (PC races have different sizes now, ranging from size 3 (hobbit, gnomes, etc.) */
@@ -3249,6 +3408,11 @@ void do_cmd_fire(void)
 				chance2 = (chance2 * 3) / 4;
 			/* slightly hard to hit a monster outside of your light range */
 			else if (!visible) chance2 = (chance2 * 9) / 10;
+			
+			if (cave_feat[y][x] == FEAT_WATER) waterlose = TRUE;
+			/* hard to hit water monsters in water */
+			if ((waterlose) && ((r_ptr->flags7 & (RF7_WATER_HIDE)) ||
+				(r_ptr->flags7 & (RF7_WATER_ONLY)))) chance2 = (chance2 * 3) / 4;
 
 			/* Get "the monster" or "it" */
 			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -3281,7 +3445,6 @@ void do_cmd_fire(void)
 					/* Special note at death */
 					note_dies = " is destroyed.";
 				}
-
 
 				/* Handle unseen monster */
 				if (!visible)
@@ -3418,7 +3581,7 @@ void do_cmd_fire(void)
 			}
 			else /* miss */
 			{
-				if ((hitwall) && (!(cave_feat[y][x] == FEAT_RUBBLE)))
+				if ((hitwall) && (!(cave_feat[y][x] == FEAT_SMRUBBLE)))
 				{
 					msg_format("The %s hits the wall.", o_name);
 					/* less likely to break when hitting the wall */
@@ -3434,10 +3597,31 @@ void do_cmd_fire(void)
 			break;
 		}
 	}
+	
+	/* Make noise (y, x is still the grid where the projectile hit) */
+	if (hit_body)
+	{
+		/* hit_body but no r_idx means the PC killed the monster */
+		if (!m_ptr->r_idx)
+		{
+			/* good thing we saved the ridx so we know who the PC killed */
+			/* (ridx isn't saved if the monster is asleep because they don't fall when they die) */
+			if (ridx)
+            {
+				monster_race *r_ptr = &r_info[ridx];
+				/* the bigger they are the harder they fall */
+				make_noise(y, x, 6 + r_ptr->mrsize, FALSE, TRUE);
+			}
+			/* killed a sleeping monster */
+			else make_noise(y, x, 5, FALSE, TRUE);
+		}
+		make_noise(y, x, 7, FALSE, TRUE);
+	}
+	else make_noise(y, x, 4, FALSE, TRUE);
 
 	/* Chance of breakage (during attacks) */
 	/* (j is set to 100 when an exploding arrow explodes) */
-	if (!j) j = (hit_body ? breakage_chance(i_ptr, hitwall) : 0);
+	if (!j) j = (hit_body ? breakage_chance(i_ptr, hitwall, waterlose) : 0);
 
 	/* Drop (or break) near that location */
 	if (hitwall) drop_near(i_ptr, j, dy, dx);
@@ -3517,6 +3701,7 @@ void do_cmd_throw(void)
     bool hitwall = FALSE, rturner = FALSE;
 	bool curserturn = FALSE, fromquiv = FALSE;
 	int comechance, excrit, bonus, throwok;
+	bool waterlose = FALSE;
 
 	object_type *o_ptr;
 	object_type *g_ptr; /* g_ptr to check gloves */
@@ -3525,6 +3710,9 @@ void do_cmd_throw(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	monster_type *m_ptr;
+	/* save the monsters race (because m_ptr gets erased if the monster dies) */
+	int ridx;
 	bool hit_body = FALSE;
 
 	byte missile_attr;
@@ -3539,6 +3727,11 @@ void do_cmd_throw(void)
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
+	if (p_ptr->roomeffect == 8)
+	{
+		msg_print("It's too windy in here for thrown weapons to do any good.");
+		return;
+	}
 
 	/* Get an item */
 	q = "Throw which item? ";
@@ -3729,9 +3922,13 @@ void do_cmd_throw(void)
 		if (tdis > 12) tdis = 12;
 	}
 	else if (tdis > 10) tdis = 10;
+	
+	/* objects without combat stats */
+	if (((!i_ptr->dd) || (!i_ptr->ds)) && (randint(100) < 35)) tdam = 1 + i_ptr->to_d;
+	else if ((!i_ptr->dd) || (!i_ptr->ds)) tdam = i_ptr->to_d;
 
 	/* Hack -- Base damage from thrown object */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
+	else tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
 
 	/* add to_dam from gloves if appropriate */
 	if ((throwglove) && ((f3 & TR3_THROWN) || (f3 & TR3_PTHROW))) tdam += g_ptr->to_d;
@@ -3790,6 +3987,11 @@ void do_cmd_throw(void)
 	else if (o_ptr->weight >= 200)
 	{
 		tdam = tdam / 2;
+	}
+	/* ammo is not meant to be thrown */
+	else if (ammo)
+	{
+		tdam = (tdam * 4) / 5;
 	}
 
 	/* Chance of hitting */
@@ -3878,8 +4080,9 @@ void do_cmd_throw(void)
 			dx = x;
 			hitwall = TRUE;
 
-			/* hard to hit monsters which are part way in a wall */
-			if (!(cave_feat[ny][nx] == FEAT_RUBBLE)) chance = (chance * 3) / 4;
+			/* hard to hit monsters which are part way in a wall (unless the wall is rubble) */
+			if (cave_feat[ny][nx] == FEAT_RUBBLE) chance = (chance * 6) / 7;
+			else if (!(cave_feat[ny][nx] == FEAT_SMRUBBLE)) chance = (chance * 3) / 4;
 		}
 		/* Hack -- Stop before hitting walls */
 		else if (!cave_floor_bold(ny, nx))
@@ -3926,12 +4129,19 @@ void do_cmd_throw(void)
 		if (cave_m_idx[y][x] > 0)
 		{
 			int chance2, visible;
-			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+			monster_race *r_ptr;
+			monster_lore *l_ptr;
 			int num, tblows;
-			int sizediff, monac = r_ptr->ac;
+			int sizediff, monac;
 			char m_name[80];
+			m_ptr = &mon_list[cave_m_idx[y][x]];
+			r_ptr = &r_info[m_ptr->r_idx];
+			l_ptr = &l_list[m_ptr->r_idx];
+			monac = r_ptr->ac;
+
+			/* info for how much noise to make */
+			ridx = m_ptr->r_idx;
+			if ((m_ptr->csleep) && (!m_ptr->roaming)) ridx = 0; /* asleep */
 			
 			/* scale ac for monsters that scale with depth */
 			if ((r_ptr->flags3 & (RF3_SCALE)) && (p_ptr->depth > r_ptr->level + 5))
@@ -3941,10 +4151,9 @@ void do_cmd_throw(void)
 
 			/* Get "the monster" or "it" */
 			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+			visible = m_ptr->ml;
 
 			chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
-
-			visible = m_ptr->ml;
 			
 			/* sniper's eye assassin spell */
 			if ((visible) && (p_ptr->timed[TMD_SNIPER]) &&
@@ -3980,6 +4189,11 @@ void do_cmd_throw(void)
 				chance2 = (chance2 * 3) / 4;
 			/* slightly hard to hit a monster outside of your light range */
 			else if (!visible) chance2 = (chance2 * 8) / 9;
+			
+			if (cave_feat[y][x] == FEAT_WATER) waterlose = TRUE;
+			/* hard to hit water monsters in water */
+			if ((waterlose) && ((r_ptr->flags7 & (RF7_WATER_HIDE)) ||
+				(r_ptr->flags7 & (RF7_WATER_ONLY)))) chance2 = (chance2 * 3) / 4;
 
 			/* can't shoot or throw at a monster that has you in a hold */
 			if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx == cave_m_idx[y][x]))
@@ -4018,9 +4232,6 @@ void do_cmd_throw(void)
 	        /* Attack once for each legal blow (for dancing weapons) */
 	        while (num++ < tblows)
 	        {
-			    /* don't penalize range for extra hits of a dancing weapon */
-				if (num > 1) chance2 = chance;
-
 				/* Did we hit it (penalize range) */
 			    if (test_hit(chance2, monac, m_ptr->ml))
 			    {
@@ -4038,7 +4249,6 @@ void do_cmd_throw(void)
 					  /* Special note at death */
 					  note_dies = " is destroyed.";
 				   }
-
 
 				   /* Handle unseen monster */
 				   if (!visible)
@@ -4203,7 +4413,7 @@ void do_cmd_throw(void)
 				{
 					if (m_ptr->ml)
 				    {
-						if ((hitwall) && (!(cave_feat[y][x] == FEAT_RUBBLE)))
+						if ((hitwall) && (!(cave_feat[y][x] == FEAT_SMRUBBLE)))
 						{
 							msg_format("The %s hits the wall.", o_name);
 							/* much less likely to break when hitting the wall */
@@ -4264,7 +4474,28 @@ void do_cmd_throw(void)
 		/* failed to explode (which is usually a good thing if it missed) */
 		else j = 0;
 	}
-
+		
+	/* Make noise (y, x is still the grid where the projectile hit) */
+	if (hit_body)
+	{
+		/* hit_body but no r_idx means the PC killed the monster */
+		if (!m_ptr->r_idx)
+		{
+			/* good think we saved the ridx so we know who the PC killed */
+			/* (ridx isn't saved if the monster is asleep because they don't fall when they die) */
+			if (ridx)
+            {
+				monster_race *r_ptr = &r_info[ridx];
+				/* the bigger they are the harder they fall */
+				make_noise(y, x, 6 + r_ptr->mrsize, FALSE, TRUE);
+			}
+			/* killed a sleeping monster */
+			else make_noise(y, x, 5, FALSE, TRUE);
+		}
+		make_noise(y, x, 7, FALSE, TRUE);
+	}
+	else make_noise(y, x, 5, FALSE, TRUE);
+	
     if ((rturner) && (!comeback) && (randint(120 + badluck/2) < 50 + comechance))
     {
 	   /* Chance of breakage (during attacks) */
@@ -4272,7 +4503,7 @@ void do_cmd_throw(void)
 	   if ((hit_body) && (!j))
 	   {
 	      if (f3 & TR3_THROWN) j = 0;
-	      else j = breakage_chance(i_ptr, FALSE);
+	      else j = breakage_chance(i_ptr, FALSE, FALSE);
           /* j = (hit_body ? breakage_chance(i_ptr) : 0); */
 	      if (cursed_p(o_ptr)) j += 3;
 	      if (badluck > 9) j += (badluck-6) / 4;
@@ -4306,7 +4537,7 @@ void do_cmd_throw(void)
 	   if ((hit_body) && (!j))
 	   {
 	      if (f3 & TR3_THROWN) j = 1;
-	      else j = breakage_chance(i_ptr, FALSE);
+	      else j = breakage_chance(i_ptr, FALSE, waterlose);
           /* j = (hit_body ? breakage_chance(i_ptr) : 0); */
 	      if (cursed_p(o_ptr)) j += 3;
 	      if (badluck > 9) j += (badluck-6) / 4;
@@ -4314,7 +4545,7 @@ void do_cmd_throw(void)
        }
 		/* some objects have a chance to break when hitting a wall without a monster */
 		else if ((hitwall) && (!(f3 & TR3_THROWN)) && (!j)) 
-			j = breakage_chance(i_ptr, TRUE);
+			j = breakage_chance(i_ptr, TRUE, waterlose);
 		else if (!j) j = 0;
 
 		/* Drop (or break) near that location */

@@ -2490,7 +2490,6 @@ cptr describe_use(int i)
 
 
 
-
 /*
  * Check an item against the item tester info
  */
@@ -3430,7 +3429,6 @@ void toggle_inven_equip(void)
 
 
 
-
 /*
  * Verify the choice of an item.
  *
@@ -3439,9 +3437,7 @@ void toggle_inven_equip(void)
 bool verify_item(cptr prompt, int item)
 {
 	char o_name[80];
-
 	char out_val[160];
-
 	object_type *o_ptr;
 
 	/* Inventory */
@@ -3570,10 +3566,10 @@ static int get_tag(int *cp, char tag)
 				default:	group = QUIVER_GROUP_SHOTS;	break;
 			}
 		}
-		/* Hack - Everything else is a throwing weapon */
+		/* Hack - Everything else is a (semi) throwing weapon */
 		else
 		{
-		 	group = QUIVER_GROUP_THROWING_WEAPONS;
+		 	group = QUIVER_GROUP_SEMI_THROWER;
 		}
 
 		/* Iterate over the quiver */

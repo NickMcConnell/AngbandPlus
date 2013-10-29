@@ -897,7 +897,6 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 }
 
 
-
 /*
  * Play with an item. Options include:
  *   - Output statistics (via wiz_roll_item)
@@ -911,11 +910,9 @@ static void do_cmd_wiz_play(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
-
 	object_type *o_ptr;
 
 	char ch;
-
 	cptr q, s;
 
 	bool changed = FALSE;
@@ -1213,6 +1210,94 @@ static void do_cmd_wiz_cure_all(void)
 	do_cmd_redraw();
 }
 
+
+/* Create a chosen terrain type */
+static void wiz_terrain(void)
+{
+	char ppp[80];
+	char tmp_val[160];
+	s16b tcode;
+	int feat = 99;
+
+	/* Prompt */
+	strnfmt(ppp, sizeof(ppp), "Enter index of the terrain type to create (from terrain.txt):");
+	/* (add more options later) */
+	/*strnfmt(ppp, sizeof(ppp), "mode: 1=vault, 2=cavern, 3=force GV, 4=destroyed, or 20+theme code.");*/
+
+	/* Default */
+	strnfmt(tmp_val, sizeof(tmp_val), "1");
+
+	/* Ask for a level */
+	if (!get_string(ppp, tmp_val, 11)) return;
+
+	/* Extract request */
+	tcode = atoi(tmp_val);
+	
+	switch (tcode)
+	{
+		case 1: feat = FEAT_FLOOR;      break;
+		case 2: feat = FEAT_INVIS;      break;
+		case 3: feat = FEAT_GLYPH;      break;
+		case 4: feat = FEAT_OPEN;       break;
+		case 5: feat = FEAT_BROKEN;     break;
+		case 6: feat = FEAT_LESS;       break;
+		case 7: feat = FEAT_MORE;       break;
+		case 16: feat = FEAT_TRAP_HEAD + 0x00;     break; /* trap door */
+		case 17: feat = FEAT_TRAP_HEAD + 0x01;     break; /* pit/earthquake trap */
+		case 18: feat = FEAT_TRAP_HEAD + 0x02;     break; /* spiked pit/deep pit trap */
+		case 19: feat = FEAT_TRAP_HEAD + 0x03;     break; /* poisoned spiked pit trap */
+		case 20: feat = FEAT_TRAP_HEAD + 0x04;     break; /* summoning rune trap */
+		case 21: feat = FEAT_TRAP_HEAD + 0x05;     break; /* teleport trap */
+		case 22: feat = FEAT_TRAP_HEAD + 0x06;     break; /* fire trap */
+		case 23: feat = FEAT_TRAP_HEAD + 0x07;     break; /* acid trap */
+		case 24: feat = FEAT_TRAP_HEAD + 0x08;     break; /* dart (slow) trap */
+		case 25: feat = FEAT_TRAP_HEAD + 0x09;     break; /* dart (-STR) trap */
+		case 26: feat = FEAT_TRAP_HEAD + 0x0A;     break; /* dart (-DEX)/drain charges trap */
+		case 27: feat = FEAT_TRAP_HEAD + 0x0B;     break; /* dart (-CON) trap */
+		case 28: feat = FEAT_TRAP_HEAD + 0x0C;     break; /* blinding gas trap */
+		case 29: feat = FEAT_TRAP_HEAD + 0x0D;     break; /* confusion gas trap */
+		case 30: feat = FEAT_TRAP_HEAD + 0x0E;     break; /* poison gas/ grepse poison trap */
+		case 31: feat = FEAT_TRAP_HEAD + 0x0F;     break; /* sleep gas/ halucenation trap */
+		case 32: feat = FEAT_TRAP_HEAD + 0x10;     break; /* dart (mana drain) trap */
+		case 33: feat = FEAT_TRAP_HEAD + 0x11;     break; /* new trap */
+		case 43: feat = FEAT_OPEN_PIT;      break;
+		case 44: feat = FEAT_WATER;         break;
+		case 45: feat = FEAT_DOOR_CLOSE;    break;
+		case 46: feat = FEAT_DOOR_LOCKD;    break;
+		case 47: feat = FEAT_DOOR_STUCK;    break;
+		case 48: feat = FEAT_SECRET;        break;
+		case 49: feat = FEAT_RUBBLE;        break;
+		case 50: feat = FEAT_MAGMA;         break;
+		case 51: feat = FEAT_QUARTZ;        break;
+		case 52: feat = FEAT_MAGMA_H;       break;
+		case 53: feat = FEAT_QUARTZ_H;      break;
+		case 54: feat = FEAT_MAGMA_K;       break;
+		case 55: feat = FEAT_QUARTZ_K;      break;
+		case 56: feat = FEAT_WALL_EXTRA;    break;
+		case 57: feat = FEAT_WALL_INNER;    break;
+		case 58: feat = FEAT_WALL_OUTER;    break;
+		case 59: feat = FEAT_WALL_SOLID;    break;
+		case 60: feat = FEAT_PERM_EXTRA;    break;
+		case 61: feat = FEAT_PERM_INNER;    break;
+		case 62: feat = FEAT_PERM_OUTER;    break;
+		case 63: feat = FEAT_PERM_SOLID;    break;
+		case 64: feat = FEAT_SMRUBBLE;      break;
+	}
+	if ((tcode > 7) && (tcode < 16)) msg_print("You cannot create shops.");
+	else if (feat == 99) msg_print("There is no feature with that index.");
+
+	if (feat == 99) return;
+
+	cave_set_feat(p_ptr->py, p_ptr->px, feat);
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Update stuff */
+	update_stuff();
+}
+
+
 /* modify the jump to any level command */
 void cmd_wiz_jump_mod(void)
 {
@@ -1490,6 +1575,31 @@ static void do_cmd_wiz_unhide(int d)
 	}
 }
 
+#if blah
+/* test in_same_room() */
+static void wiztest_nsame_room(void)
+{
+	int dir, ty, tx;
+	
+	/* never use old target & target specific spot, not a direction */
+	spellswitch = 13;
+	if (!get_aim_dir(&dir)) return;
+	
+	ty = p_ptr->target_row;
+	tx = p_ptr->target_col;
+	
+	if (in_same_room(p_ptr->py, p_ptr->px, ty, tx))
+		msg_print("yes, that is in the same room.");
+	else
+		msg_print("no, not in the same room.");
+	
+	/* reset stuff */
+	p_ptr->target_row = 0;
+	p_ptr->target_col = 0;
+	spellswitch = 0;
+}
+#endif
+
 
 /*
  * Query the dungeon
@@ -1709,7 +1819,7 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Go up or down in the dungeon */
+		/* Go up or down in the dungeon (choose) */
 		case 'J':
 		{
 			cmd_wiz_jump_mod();
@@ -1740,7 +1850,7 @@ void do_cmd_debug(void)
 		/* Magic Mapping */
 		case 'm':
 		{
-			map_area(FALSE);
+			map_area(0);
 			break;
 		}
 
@@ -1786,6 +1896,22 @@ void do_cmd_debug(void)
 			teleport_player(100);
 			break;
 		}
+
+		/* create chosen terrain */
+		case 'T':
+		{
+			wiz_terrain();
+			break;
+		}
+
+#if blah
+		/* temporary wizmode command: test in_same_room() */
+		case 'R':
+		{
+			wiztest_nsame_room();
+			break;
+		}
+#endif
 
 		/* Un-hide all monsters */
 		case 'u':

@@ -321,7 +321,12 @@ void sense_inventory(void)
 		/* ??? This does not pick up jewelry -- good or bad? */
 		if (((feel == INSCRIP_AVERAGE) || (feel == INSCRIP_DECENT)) && 
 			(object_aware_p(o_ptr)))
-			object_known(o_ptr);
+				object_known(o_ptr);
+			
+		/* 1.3.3 average staffs with bad magic effects pseudo as worthless */	
+		if ((!ego_item_p(o_ptr)) && (feel == INSCRIP_WORTHLESS) &&
+			(object_aware_p(o_ptr)))
+				object_known(o_ptr);
 
 		if (o_ptr->tval == TV_STAFF)
 		{
@@ -569,13 +574,18 @@ static void return_monsters(void)
 	{
 		/* Check the i'th monster */
 		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr;
 
 		/* Skip all-the-way dead monsters */
 		if (!m_ptr->r_idx) continue;
 		
 		/* monster is not dead */
 		if (!m_ptr->temp_death) continue;
+
+		/* get race */
+		r_ptr = &r_info[m_ptr->r_idx];
+		/* Paranoia */
+		if (!r_ptr->name) continue;
 		
 		/* monster is temporarily dead */
 		if (m_ptr->temp_death > 1)
@@ -583,11 +593,12 @@ static void return_monsters(void)
 			/* returns later */
             m_ptr->temp_death -= 1;
 		}
-		/* Bring monster back to life */
-		else
+		/* Attempt to bring monster back to life */
+		else if (m_ptr->temp_death == 1)
 		{
 			int ny, nx;
 			bool nlos = FALSE;
+			m_ptr->temp_death = 0;
 			
 			/* can it come back in the same space where it died? */
 			/* if not, find a spot */
@@ -609,7 +620,8 @@ static void return_monsters(void)
 						msg_format("%^s failed to come back to life.", m_name);
 					}
 					
-					delete_dead_monster_idx(i);
+					/* finish killing the monster -doesn't get another change to come back */
+					delete_monster_idx(i, FALSE);
 					continue;
 				}
 			}
@@ -617,12 +629,12 @@ static void return_monsters(void)
 			if (m_ptr->maxhp > 1000) m_ptr->hp = m_ptr->maxhp - (m_ptr->ninelives*10);
 			else m_ptr->hp = m_ptr->maxhp - (m_ptr->ninelives-1)*2;
 			if (m_ptr->hp < 2) m_ptr->hp = 2;
-			m_ptr->temp_death = 0;
 			
 			/* check if PC is 'nlos' (either way) */
 			if (player_has_los_bold(m_ptr->fy, m_ptr->fx)) nlos = TRUE;
 			if ((projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) &&
-				(m_ptr->cdis <= MAX_RANGE)) nlos = TRUE;
+				(distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) <= MAX_RANGE)) 
+					nlos = TRUE;
 
 			/* ensure awake (with a chance of roaming if not 'nlos') */
 			if ((!nlos) && (randint(100) < (r_ptr->sleep+2)/4))
@@ -643,8 +655,15 @@ static void return_monsters(void)
 			m_ptr->tinvis = 0;
 			m_ptr->silence = 0;
 			m_ptr->truce = 0;
+
+			/* BLOCK_LOS monsters get the CAVE_WALL flag */
+			if (r_ptr->flags7 & (RF7_BLOCK_LOS))
+			{
+				cave_info[m_ptr->fy][m_ptr->fx] |= (CAVE_WALL);
+			}
 			
-			/* (m_ptr->energy hasn't changed since it died) */
+			/* monster has to reorient itself */
+			m_ptr->energy = 0;
 			if ((r_ptr->flags1 & (RF1_FORCE_SLEEP)) ||
 				(distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) < 3))
 			{
@@ -719,7 +738,8 @@ static void regen_monsters(void)
 		/* Allow regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)
 		{
-			/* Hack -- Base regeneration */
+			int roomeff = 0;
+            /* Hack -- Base regeneration */
 			int frac = m_ptr->maxhp / 100;
 			
 			/* Hack -- Some monsters regenerate quickly */
@@ -731,6 +751,56 @@ static void regen_monsters(void)
 			/* Hack -- Minimal regeneration rates */
 			if ((frac < 2) && (r_ptr->flags2 & (RF2_REGENERATE))) frac = 2;
 			else if (!frac) frac = 1;
+
+#ifdef roomrunes
+			roomeff = room_runes(m_ptr->fy, m_ptr->fx);
+			/* sundial regeneratinon effects */
+			if (roomeff == 10)
+			{
+				bool night = TRUE;
+				if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
+				/* werebeast in a sundial room on a full moon */
+				if ((night) && (r_ptr->Rsilver < -1) && (p_ptr->theme == 7))
+					frac += 2 + randint(4);
+				else if ((!night) && (!(p_ptr->theme == 7)))
+				{
+					/* HURT_LITE monsters do not regenerate under daylight and may take damage */
+					if ((m_ptr->hp > 0) && (((r_ptr->Rlite == -3) && (randint(100) < 55)) ||
+						((r_ptr->Rlite == -2) && (randint(100) < 22))))
+					{
+						frac = 0 - (m_ptr->maxhp / 100 + 1); /* damage instead */
+						if ((randint(100) < 11) && (m_ptr->hp <= m_ptr->maxhp/8) && (m_ptr->ml))
+						{
+							char m_name[80];
+							monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
+							msg_format("%^s cringes in the light.", m_name);
+						}
+					}
+					else if (r_ptr->Rlite < -1) frac = 0;
+					else if ((r_ptr->Rlite == -1) && (frac > 1)) frac--;
+				}
+				else if ((!night) && (r_ptr->Rlite < -1) && (frac > 1)) frac = frac/2;
+			}
+			/* necromantic room rune */
+			if ((roomeff == 13) && (r_ptr->flags3 & (RF3_UNDEAD)))
+				frac += (r_ptr->level+11)/12;
+			/* Fairy purewater */
+			if ((roomeff == 21) && (r_ptr->flags3 & (RF3_CLIGHT)))
+				frac += (r_ptr->level+11)/12;
+			/* Grepse silver roomrune */
+			if ((roomeff == 22) && (r_ptr->flags3 & (RF3_SILVER)))
+				frac += (r_ptr->level+11)/12;
+#if baseelements /* set a base element for each monster later */
+			if (strchr("X%", r_ptr->d_char)) /* elementals */
+			{
+				if ((...FIRE) && (roomeff == 4)) frac += (r_ptr->level+11)/12;
+				if ((...COLD) && (roomeff == 5)) frac += (r_ptr->level+11)/12;
+				if ((...ACID) && (roomeff == 6)) frac += (r_ptr->level+11)/12;
+				if ((...ELEC) && (roomeff == 7)) frac += (r_ptr->level+11)/12;
+				if ((...AIR) && (roomeff == 8)) frac += (r_ptr->level+11)/12;
+			}
+#endif /* baseelements */
+#endif /* roomrunes */
 
 			/* Hack -- Regenerate */
 			m_ptr->hp += frac;
@@ -1173,7 +1243,8 @@ void decrease_timeouts(void)
 
 				/* Create rubble (if there isn't already rubble there) */
 				if (cave_feat[y][x] == FEAT_OPEN_PIT) cave_set_feat(y, x, FEAT_FLOOR);
-			    else if (!(cave_feat[y][x] == FEAT_RUBBLE)) cave_set_feat(y, x, FEAT_RUBBLE);
+			    else if ((!(cave_feat[y][x] == FEAT_RUBBLE)) &&
+					(!(cave_feat[y][x] == FEAT_SMRUBBLE))) cave_set_feat(y, x, FEAT_SMRUBBLE);
 
 				/* Update the visuals */
 				p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1211,6 +1282,14 @@ void decrease_timeouts(void)
 			{
 				/* Hack -- check for truly "mortal" wound */
 				decr = (p_ptr->timed[i] > 1000) ? 0 : adjust;
+				/* room of thorns */
+				if ((p_ptr->roomeffect == 15) && (decr > 0))
+				{
+					decr = decr / 2 - 1;
+					if ((!decr) && (rand_int(200) < goodluck+1)) decr = 1;
+					/* chance to increase cut */
+					else if (rand_int(100) < (badluck+2) * 2) decr -= randint(2 + badluck/2);
+				}
 				break;
 			}
 
@@ -1252,6 +1331,7 @@ static void process_world(void)
 	object_type *o_ptr;
 	int maxhp = p_ptr->mhp;
 	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
+
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -1300,7 +1380,6 @@ static void process_world(void)
 		}
 	}
 
-
 	/* While in the dungeon */
 	else
 	{
@@ -1345,14 +1424,50 @@ static void process_world(void)
 			if (cheat_xtra) msg_print("Done.");
 		}
 	}
+	/* sundial (room is lit/unlit depending on whether it is night or day outside) */
+	if (p_ptr->roomeffect == 10) 
+	{
+		bool night = TRUE;
+		byte dawndusk = 0;
+		if (!(turn % ((10L * TOWN_DAWN) / 2)))
+		{
+			if (!(turn % (10L * TOWN_DAWN))) dawndusk = 2; /* dawn */
+			else dawndusk = 1; /* dusk */
+		}
+		/* night or day */
+		if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
+		if ((dawndusk == 2) || (!night))
+		{
+			if (dawndusk == 2) msg_print("The sun has risen.");
+			if ((!(cave_info[p_ptr->py][p_ptr->py] & (CAVE_GLOW))) || (dawndusk == 2))
+				lite_room(p_ptr->py, p_ptr->py, TRUE);
+		}
+		else
+		{
+			if (dawndusk == 1) msg_print("The sun has fallen.");
+			if ((cave_info[p_ptr->py][p_ptr->py] & (CAVE_GLOW)) || (dawndusk == 1))
+				unlite_room(p_ptr->py, p_ptr->py, 2);
+		}
+	}
 
 	/*** Process the monsters ***/
 
 	/* Check for creature generation */
 	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
 	{
+		int ichance = 31;
+		if ((!p_ptr->depth) && (p_ptr->max_depth < 3) && (p_ptr->lev < 3)) ichance = 0;
+		else if (!p_ptr->depth) ichance = 4 + p_ptr->max_depth/10;
+		else if (p_ptr->depth < 8) ichance = 5 + p_ptr->depth;
+		else if (p_ptr->depth < 16) ichance = p_ptr->depth * 2;
+		/* Maybe automatically generate the new monster on the stairs */
+		if ((randint(100) < ichance) && (invasion(-1)))
+		{
+			invasion(2);
+		}
+
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5 - ((badluck+1)/2), FALSE);
+		else (void)alloc_monster(MAX_SIGHT + 5 - ((badluck+1)/2), FALSE);
 	}
 
 	/* Hack -- Check for creature ressurrection */
@@ -1379,7 +1494,7 @@ static void process_world(void)
                      else if (die < 30) (p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1);
                      else if (die < 34) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
                      else if (die < 45) (void)inc_timed(TMD_AMNESIA, rand_int(3) + 4);
-                     else if (die < 56) (void)inc_timed(TMD_IMAGE, rand_int(4) + 4);
+                     else if ((die < 56) || (p_ptr->roomeffect == 11)) (void)inc_timed(TMD_IMAGE, rand_int(4) + 4);
                      else take_hit(1, "silver poison");
             }
             
@@ -1389,16 +1504,20 @@ static void process_world(void)
            	int rare = randint(1000 - p_ptr->silver);
       	    if (rare < 4)
       	    {
-                     int die = randint(100);
-                     if (die < 90) msg_print("The silver poison affects your mind.");
+                  int die = randint(100);
+                  if (die < 90) msg_print("The silver poison affects your mind.");
 
-                     if (die < 30) (p_ptr->stat_cur[A_WIS] = p_ptr->stat_cur[A_WIS] -1);
-                     else if (die < 45) (p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1);
-                     else if (die < 49) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
-                     else if (die < 54) (void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
-                     else if (die < 72) (void)inc_timed(TMD_AMNESIA, rand_int(6) + 4);
-                     else if (die < 90) (void)inc_timed(TMD_IMAGE, rand_int(6) + 5);
-                     else take_hit(randint(p_ptr->silver-4), "silver poison");
+                  if (die < 30) (p_ptr->stat_cur[A_WIS] = p_ptr->stat_cur[A_WIS] -1);
+                  else if (die < 45) (p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1);
+                  else if (die < 49) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
+                  else if (die < 54) (void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
+                  else if (die < 72) (void)inc_timed(TMD_AMNESIA, rand_int(6) + 4);
+                  else if (die < 90) (void)inc_timed(TMD_IMAGE, rand_int(6) + 5);
+                  else
+                  {
+                      take_hit(randint(p_ptr->silver-4), "silver poison");
+                      if (p_ptr->roomeffect == 11) (void)inc_timed(TMD_IMAGE, rand_int(6) + 5);
+                  }
             }
             
         }
@@ -1413,7 +1532,7 @@ static void process_world(void)
 		       take_hit(66 + randint(p_ptr->silver*6), "corruption from silver poison");
                if (notsorare < 16) (void)inc_timed(TMD_CONFUSED, randint(4) + 3);
                if (notsorare > 16) (void)inc_timed(TMD_AMNESIA, randint(6) + 6);
-               if (notsorare < 25) (void)inc_timed(TMD_IMAGE, randint(6) + 6);
+               if ((notsorare < 25) || (p_ptr->roomeffect == 11)) (void)inc_timed(TMD_IMAGE, randint(6) + 6);
         	   msg_print("Your mind is corrupted by silver poison!");
             }
         } 
@@ -1473,11 +1592,12 @@ static void process_world(void)
                        
     }
     
-    /* corruption from the One Ring */
-    corch = 5000; /* no effect at 5000 */
-    if (p_ptr->corrupt > 0) corch = randint(6000 - badluck);
-    if (corch < 4)
-    {
+	/* corruption from the One Ring or some other evil aligned items */
+	corch = 6000; /* no effect at 6000 */
+	if (p_ptr->corrupting) corch -= 120;
+	if ((p_ptr->corrupt > 0) || (p_ptr->corrupting)) corch = randint(corch - badluck);
+	if ((corch < 4) && (p_ptr->corrupting))
+	{
        p_ptr->corrupt += 1;
        if ((corch < 3) && (randint(100) > 20 + goodluck)) p_ptr->luck -= 1;
        /* corruption limit */
@@ -1492,21 +1612,26 @@ static void process_world(void)
           {
              msg_print("A Nazgul has sought you out.");
           }
-          else summon_specific(p_ptr->py, p_ptr->px, (p_ptr->max_depth*2)/3, SUMMON_DEMON);
+          else
+          {
+             summon_specific(p_ptr->py, p_ptr->px, (p_ptr->max_depth*2)/3, SUMMON_DEMON);
+             msg_print("Demons are attracted to your corrupted soul.");
+          }
        }
        else
        {
           summon_specific(p_ptr->py, p_ptr->px, p_ptr->max_depth-6, SUMMON_DEMON);
-          msg_print("Demons are attracted to the evil power you hold.");
+          msg_print("Demons are attracted to your corrupted soul.");
        }
     }
 
-    /* good magic items can remove corruption */
+	/* good magic items can remove corruption */
 	/* (as long as you're not still wearing the corrupting item) */
-    if ((goodweap) && (!badweap) && (p_ptr->corrupt > 0) && (rand_int(999) < goodweap + 1))
-    {
-       p_ptr->corrupt -= 1;
-    }
+	if ((goodweap) && (!badweap) && (!p_ptr->corrupting) && (p_ptr->corrupt > 0) && 
+		(rand_int(999) < goodweap + 1))
+	{
+		p_ptr->corrupt -= 1;
+	}
     
     /* attraction of demons by black magic or bad luck */
     if (((p_ptr->timed[TMD_WITCH]) || (badluck > 18)) && (randint(666) == 1))
@@ -1543,11 +1668,41 @@ static void process_world(void)
 
 #ifdef newhallu
 	/* new effects of hallucenation */
-	else if (rand_int(2250) < p_ptr->timed[TMD_IMAGE])
+	else if ((rand_int(2250) < p_ptr->timed[TMD_IMAGE]) || ((randint(200) == 1) &&
+		(!p_ptr->timed[TMD_TSIGHT])))
 	{
-		imaginary_friend(0);
+		if (p_ptr->timed[TMD_IMAGE]) imaginary_friend(0);
+#ifdef roomrunes
+		else
+		{ 
+			if (room_runes(p_ptr->py, p_ptr->px) == 11) 
+            {
+				imaginary_friend(1);
+				if ((!p_ptr->resist_chaos) && (rand_int(13) < badluck+1)) 
+					inc_timed(TMD_IMAGE, randint(8) + 5);
+			}
+			else
+			{
+				int i;
+	
+				/* browse monsters */
+				for (i = 1; i < mon_max; i++)
+				{
+					monster_type *m_ptr = &mon_list[i];
+
+					/* Paranoia -- Skip dead monsters */
+					if (!m_ptr->r_idx) continue;
+		
+					/* look for the pink elephant rune */
+					if ((m_ptr->r_idx == 1411) && (m_ptr->cdis <= 23))
+						imaginary_friend(1);
+					break;
+				}
+			}
+		}
+#endif /* roomrunes */
 	}
-#endif
+#endif /* newhallu */
     
     /* neutral class wielding both good object(s) and bad object(s) */
     if ((magicmod > 19) && (randint(999) == 1))
@@ -1572,7 +1727,7 @@ static void process_world(void)
        if (randint(100) < 60) (void)inc_timed(TMD_STUN, 1 + goodweap);
 	}
     
-	/* a nice effect of peacemaking equipment */
+	/* a nice (but rare) effect of peacemaking equipment */
 	if ((p_ptr->peace) && (randint(10000) < (goodluck+1) * 2))
 		inc_timed(TMD_SPHERE_CHARM, randint(10 + goodluck) + 15);
 
@@ -1635,18 +1790,67 @@ static void process_world(void)
 	{
 		/* Take damage (do not disturb unless below HP warning mark) */
 		take_hit_reallynow(1, "poison", FALSE);
+		
+		/* pestilence room effect makes poison worse */
+		if ((p_ptr->roomeffect == 2) && (rand_int(100) < 6 + badluck/2))
+		{
+			int sick = randint(6);
+	
+			/* golems have no CON score */
+			if ((p_ptr->prace == 16) && (sick < 3)) sick = randint(8) + 1;
+			if ((p_ptr->prace == 16) && (sick < 3)) /* skip */;
+	
+			else if (sick < 3) (void)do_dec_stat(A_CON, 0);
+			else if (sick == 3) (void)do_dec_stat(A_STR, 0);
+			else if (sick == 4) (void)do_dec_stat(A_DEX, 0);
+			else if (sick == 5) (void)do_dec_stat(A_CHR, 0);
+		}
 	}
 
 	/* Take damage from cuts */
 	if (p_ptr->timed[TMD_CUT])
 	{
+		bool bleed = FALSE;
+		
+        /* room of thorns (in addition to HP drain) */
+		if ((p_ptr->roomeffect == 15) && (rand_int(200) < (badluck + 1) * 2))
+		{
+			(void)do_dec_stat(A_CON, 0);
+			msg_print("You are bleeding profusely.");
+			bleed = TRUE;
+		}
+
+        /* Room of thorns severe cut */
+		if ((p_ptr->roomeffect == 15) && ((p_ptr->timed[TMD_CUT] > 260) || 
+			((p_ptr->timed[TMD_CUT] > 235) && (rand_int(100) < (badluck + 6) * 2))))
+		{
+			if (p_ptr->timed[TMD_CUT] > 310) i = 5;
+			else i = 4;
+			if (!bleed) msg_print("You are bleeding profusely.");
+		}
+
 		/* Mortal wound or Deep Gash */
-		if (p_ptr->timed[TMD_CUT] > 200)
+		else if (p_ptr->timed[TMD_CUT] > 200)
 			i = 3;
+
+		/* Room of thorns severe cut */
+		else if ((p_ptr->timed[TMD_CUT] > 150) && 
+			(p_ptr->roomeffect == 15) && (rand_int(100) < (badluck + 4) * 2))
+		{
+			i = 3;
+			if (!bleed) msg_print("Your cuts hurt badly.");
+		}
 
 		/* Severe cut */
 		else if (p_ptr->timed[TMD_CUT] > 100)
 			i = 2;
+
+		/* Room of thorns */
+		else if ((p_ptr->roomeffect == 15) && (rand_int(100) < (badluck + 2) * 2))
+		{
+			i = 2;
+			if (!bleed) msg_print("Your cuts hurt.");
+		}
 
 		/* Other cuts */
 		else
@@ -1673,9 +1877,12 @@ static void process_world(void)
 
 			/* digest faster when hasted */
 			if (p_ptr->timed[TMD_FAST]) i += 20;
+			
+			/* famine */
+			if (p_ptr->roomeffect == 3) i += 29 + randint(2 + badluck);
 
-			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 11;
+			/* Slow digestion takes less food (unless there's famine) */
+			else if (p_ptr->slow_digest) i -= 11;
 
 			/* Minimal digestion */
 			if (i < 1) i = 1;
@@ -1853,13 +2060,13 @@ static void process_world(void)
 	/*** Involuntary Movement ***/
 
 	/* Mega-Hack -- Random teleportation XXX XXX XXX */
-	if ((p_ptr->teleport) && (rand_int(100) < 1))
+	if ((p_ptr->teleport) && (rand_int(101) < 1))
 	{
         bool controlled = FALSE;
         /* controlled teleport (not easily controlled) */
 		if (p_ptr->telecontrol)
 		{
-            if (control_tport(0, 101)) controlled = TRUE;
+            if (control_tport(1 + badluck, 101)) controlled = TRUE;
 
             if (!controlled) msg_print("You fail to control the teleportation.");
         }
@@ -1870,6 +2077,55 @@ static void process_world(void)
             /* Teleport player randomly */
 		    teleport_player(40);
         }
+	}
+	/* blinking (basically short-range random teleportation) */
+	if ((p_ptr->blinker) && (rand_int(30) < 1)) /* was 35 */
+	{
+        bool controlled = FALSE;
+        /* controlled teleport (not easily controlled) */
+		if (p_ptr->telecontrol)
+		{
+            if (control_tport(111, 13)) controlled = TRUE;
+
+            /* if (!controlled) msg_print("You fail to control the teleportation."); */
+        }
+
+        /* check for controlled teleport before teleporting randomly */
+        if (!controlled)
+        {
+            /* Teleport player randomly (0 is special mode for involuntary blinking) */
+		    teleport_player(0);
+        }
+	}
+	/* see invasion() in spells3.c caused by the invasion trap in cmd1.c */
+	if (p_ptr->timed[TMD_INVASION])
+	{
+		bool groupmon = FALSE;
+		int sumlvl, gchance = 68;
+		/* the monster leading the invasion */
+		monster_race *r_ptr = &r_info[invasionridx];
+
+		if ((r_ptr->flags1 & (RF1_FRIENDS)) ||
+			(r_ptr->flags2 & (RF2_FRIEND1)) ||
+			(r_ptr->flags1 & (RF1_FRIEND))) groupmon = TRUE;
+		if (r_ptr->flags1 & (RF1_FRIEND)) gchance = 45;
+		/* invasionmode is groups of monsters all the same race */
+		if (invasionmode == 2) gchance = 100;
+		
+		if (r_ptr->level < p_ptr->depth) sumlvl = p_ptr->depth - 1;
+		else sumlvl = r_ptr->level;
+
+		if ((groupmon) && (randint(100) < gchance))
+			summon_really_specific(invasiony, invasionx, sumlvl, invasionridx);
+		else
+        { 
+			summoner = invasionridx;
+			/* Set the letter of the monsters to summon */
+			if ((randint(100) < 58) && ((invasionridx == 396) || (invasionridx == 383))) 
+				summon_kin_type = 'z';
+			else summon_kin_type = r_ptr->d_char;
+			summon_nogroups(invasiony, invasionx, sumlvl, SUMMON_KIN);
+		}
 	}
 
 	/* Delayed Word-of-Recall */
@@ -2145,7 +2401,6 @@ static void process_player(void)
 			item >= INVEN_PACK - p_ptr->pack_size_reduce; item--)
 		{
 			char o_name[80];
-
 			object_type *o_ptr;
 
 			/* Get the slot to be dropped */
@@ -2529,7 +2784,9 @@ static void dungeon(void)
 
 	/* Flush messages */
 	message_flush();
-
+		
+	/* save the location & types of room runes */
+	if (p_ptr->depth) save_runes();
 
 	/* Hack -- Increase "xtra" depth */
 	character_xtra++;
@@ -2614,6 +2871,8 @@ static void dungeon(void)
 		/* separating danger feeling from treasure feeling */
 		if (p_ptr->depth) do_cmd_danger_feeling();
 	}
+	/* */
+	check_roomeffect(0, 0);
 
 
 	/*** Process this dungeon level ***/
@@ -2683,6 +2942,10 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
+#ifdef noise	
+		/* monsters hear noises & have a chance to wake up (last parameter isn't used this time) */
+		make_noise(p_ptr->py, p_ptr->px, 1, TRUE, FALSE);
+#endif
 
 		/* Process all of the monsters */
 		process_monsters(100);

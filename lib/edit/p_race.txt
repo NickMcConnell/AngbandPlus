@@ -89,7 +89,7 @@ C:0|1|2|3|4|6|7|9|13|14|15|16|19
 #(intrinsic ac because of size and agility?)
 N:3:Hobbit
 S:-2:2:1:3:3:1
-R:10:12:17:4:12:10:-10:12:22
+R:10:12:17:4:12:9:-10:12:22
 X:7:111:3
 I:10:21:12
 H:36:3:33:3
@@ -168,7 +168,7 @@ C:0|1|2|4|6|7|9|13|14|16
 #kobold cannot be a mystic or red knight
 N:10:Kobold
 S:-1:-1:0:2:2:-2
-R:15:4:0:4:16:12:-4:15:12
+R:15:4:2:4:16:12:-5:15:13
 X:8:114:3
 I:23:15:10
 H:38:4:36:3
@@ -176,10 +176,10 @@ W:70:5:60:4
 F:PR_POIS
 C:0|3|4|6|8|10|11|12|13|14|15|18|19
 
-#hobligb can only be rogue, alchemist, healer, assassin, archer, tourist, thief, or necromancer
+# Hobglib has several classes they cannot chose.
 N:11:Hobglib
 S:1:2:-2:-1:2:-3
-R:3:13:8:0:13:4:4:-2:8
+R:3:13:8:0:13:4:3:-2:8
 X:10:125:4
 I:72:30:35
 H:68:5:63:4
@@ -191,7 +191,7 @@ C:3|6|7|9|13|14|15
 # chaos warrior, or any kind of knight
 N:12:Fairy_Gnome
 S:-2:1:4:2:0:1
-R:12:5:18:3:11:9:-5:4:4
+R:11:5:18:3:11:9:-5:4:2
 X:7:140:3
 I:70:80:35
 H:33:4:31:4
@@ -203,7 +203,7 @@ C:3|4|5|8|9|10|14
 #maybe move to half-elf slot (replacing half-elf)
 N:13:Dark_Elf
 S:0:2:-2:2:-1:-2
-R:8:12:6:3:10:14:6:12:11
+R:6:11:6:3:10:14:6:12:10
 X:9:125:4
 I:76:76:70
 H:63:4:59:4
@@ -212,9 +212,10 @@ F:RES_DARK | SUST_DEX
 C:0|1|2|3|4|6|7|12|13|14|15|16|19
 
 #living ghoul cannot be a tourist, ninja, or white, blue, or yellow knight
+# was S:1:0:2:0:-3:-2
 N:14:Living_Ghoul
-S:0:0:2:0:-3:-3
-R:2:8:9:2:3:11:1:-3:2
+S:0:0:2:0:-2:-2
+R:2:6:9:2:3:11:1:-3:2
 X:10:115:4
 I:82:16:16
 H:71:5:66:3
@@ -234,8 +235,10 @@ W:9:6:9:5
 F:RES_LITE | FEATHER | RES_FEAR
 C:0|5|8|11|12|14|18|19
 
-# Golem race has no CON score and always a neutral luck rating (hardcoded by race #)
-# also no need for food and feather falling has no effect.
+# Golem race has no CON score and always a neutral innate luck rating (but luck effects
+# from equipment and temporary bonuses still have an effect).
+# (Those things are hardcoded by race #)
+# also feather falling has no effect and no need for food.
 N:16:Golem
 S:3:0:0:-2:0:-2
 R:1:-6:10:-1:0:15:5:-15:3

@@ -45,6 +45,540 @@
 
 
 
+#ifdef MONSTER_FLOW
+
+static bool monster_can_flow(int m_idx)
+{
+	/* Hack -- Monsters can "smell" the player from far away */
+	if (adult_ai_sound)
+	{
+		monster_type *m_ptr = &mon_list[m_idx];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Monster location */
+		int fy = m_ptr->fy;
+		int fx = m_ptr->fx;
+
+		/* Check the flow (normal aaf is about 20) */
+		if ((cave_when[fy][fx] == cave_when[p_ptr->py][p_ptr->px]) &&
+		    (cave_cost[fy][fx] < MONSTER_FLOW_DEPTH) &&
+		    (cave_cost[fy][fx] < r_ptr->aaf))
+				return TRUE;
+	}
+
+	return FALSE;
+}
+
+#else /* MONSTER_FLOW */
+
+static bool monster_can_flow(int m_idx)
+{
+	/* Unused parameter */
+	(void)m_idx;
+
+	return FALSE;
+}
+
+#endif /* MONSTER_FLOW */
+
+
+
+/* 
+ * takes all the noise counted in m_ptr->noise and makes the monster hear it.
+ * returns TRUE if the monster wakes up.
+ * (This used to be contained in process_monster().)
+ * (this function is called only if the monster is unaware of the PC (m_ptr->csleep > 0)
+ *  and if the monster meets certain other criteria (in line of sight of loudest noise or
+ *  in detection range of the PC or monster_can_flow))
+ */
+static bool rouse_monster(monster_type *m_ptr, int y, int x, int loudness)
+{
+	bool nowake = FALSE;
+	u32b notice;
+	bool warrune = FALSE;
+	bool action = FALSE;
+	int malertrad, antistealth;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	char m_name[80];
+    int croam = 40;
+    
+	/* reset and use rnoise for the rest of the function */
+	int rnoise = m_ptr->hear_noise;
+	m_ptr->hear_noise = 0;
+    
+	/* aggravate only if monster is in line of sight or within detection range */
+	if ((m_ptr->cdis <= r_ptr->aaf) || (player_has_los_bold(m_ptr->fy, m_ptr->fx)))
+		action = TRUE;
+	
+	/* threshhold so that certain monsters never wake unless attacked */
+	if (r_ptr->sleep == 255) nowake = TRUE;
+	/* town monsters with an XP penalty don't get aggravated this way */
+	if ((r_ptr->level == 0) && (r_ptr->mexp < 0)) nowake = TRUE;
+
+#ifdef roomrunes
+	/* check for war rune */
+	if ((room_runes(m_ptr->fy, m_ptr->fx) == 1) && (p_ptr->roomeffect == 1)) warrune = TRUE;
+	if (warrune) nowake = FALSE;
+#endif
+	if (action)
+	{
+		/* Aggravation */
+		/* note: aggravation can now be nullifed by very high stealth, see calc_bonuses() */
+		if ((p_ptr->aggravate) || (warrune))
+		{
+			/* Notice the "waking up" */
+			if (m_ptr->ml)
+			{
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+				if ((m_ptr->roaming) && (!nowake)) msg_format("%^s notices you.", m_name);
+				else if (!m_ptr->roaming) msg_format("%^s wakes up.", m_name);
+
+				/* Hack -- Update the health bar */
+				/* (we don't have m_idx, and I don't know how to get it from m_ptr) */
+				/* if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH); */
+			}
+
+			/* non-aggressive monsters just start roaming */
+			if (nowake)
+			{
+				if (!m_ptr->roaming) m_ptr->roaming = 1;
+			}
+			else
+			{
+				/* notice the PC */
+				m_ptr->csleep = 0;
+
+				/* noticing the PC uses energy (much less when already awake) */
+				if (m_ptr->roaming) m_ptr->energy -= 10;
+				else m_ptr->energy -= 50;
+
+				/* stop roaming */
+				m_ptr->roaming = 0;
+			
+				return TRUE;
+			}
+		}
+		
+		/* reduced detection radius for special types of aggravation */
+		if (r_ptr->aaf > 2) malertrad = (r_ptr->aaf * 2) / 3;
+		else malertrad = r_ptr->aaf;
+
+		/* Liches aggravate animals and creatures of light */
+		if ((p_ptr->timed[TMD_BECOME_LICH]) && (m_ptr->cdis <= malertrad) &&
+		   ((r_ptr->flags3 & (RF3_CLIGHT)) || (r_ptr->flags3 & (RF3_ANIMAL))))
+		{
+			/* Notice the "waking up" */
+			if (m_ptr->ml)
+			{
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+				if (m_ptr->roaming) msg_format("%^s notices you.", m_name);
+				else msg_format("%^s wakes up.", m_name);
+
+				/* Hack -- Update the health bar */
+				/* if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH); */
+			}
+			/* Reset sleep counter */
+			m_ptr->csleep = 0;
+
+			/* noticing the PC uses energy (much less when already awake) */
+			if (m_ptr->roaming) m_ptr->energy -= 10;
+			else m_ptr->energy -= 50;
+
+			/* stop roaming since it's noticed you */
+			m_ptr->roaming = 0;
+			
+			return TRUE;
+		}
+		
+		/* Black magic aggravates demons */
+		if ((p_ptr->timed[TMD_WITCH]) && (m_ptr->cdis <= malertrad) && 
+		   (r_ptr->flags3 & (RF3_DEMON)))
+		{
+			/* Notice the "waking up" */
+			if (m_ptr->ml)
+			{
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+				if (m_ptr->roaming) msg_format("%^s notices you.", m_name);
+				else msg_format("%^s wakes up.", m_name);
+
+				/* Hack -- Update the health bar */
+				/* if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH); */
+			}
+			/* Reset sleep counter */
+			m_ptr->csleep = 0;
+
+			/* noticing the PC uses energy (much less when already awake) */
+			if (m_ptr->roaming) m_ptr->energy -= 10;
+			else m_ptr->energy -= 50;
+
+			/* stop roaming since it's noticed you */
+			m_ptr->roaming = 0;
+			
+			return TRUE;
+		}
+	}
+	/* done with aggravation, now do normal noise */
+	
+	/* in PC's line of sight and very much within monster's detection range */
+	if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) && 
+		(m_ptr->cdis <= r_ptr->aaf / 4) && (rnoise < 15)) 
+			rnoise++;
+	/* outside of monster's detection range and out of los */
+	else if ((m_ptr->cdis > r_ptr->aaf) &&
+		(!player_has_los_bold(m_ptr->fy, m_ptr->fx)) && (rnoise > 4))
+			rnoise -= 2;
+	/* outside of monster's detection range */
+	else if ((m_ptr->cdis > r_ptr->aaf) && (rnoise > 2))
+		rnoise--;
+	
+	/* affect chance to start roaming rather than noticing the PC */
+    /* (for if another monster made the loudest noise, croam is 40 to start with) */
+	if (!player_has_los_bold(m_ptr->fy, m_ptr->fx)) croam += 20;
+	if (m_ptr->cdis > r_ptr->aaf) croam += 20;
+
+	/* Mind flayers sense telepathic PCs */
+	if (p_ptr->telepathy)
+	{
+		cptr rname = (r_name + r_ptr->name);
+		if ((strstr(rname, "ind flayer")) && (rnoise < 16)) 
+			rnoise += 2;
+		/* Smart monsters can sense telepathy sometimes */
+		else if ((r_ptr->flags2 & (RF2_SMART)) && (randint(400) < r_ptr->level + badluck) &&
+			(rnoise < 14))
+			rnoise++;
+	}
+
+	/* awake in a dark space within the PC's light radius (very likely to notice the PC) */
+	if ((!(cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_GLOW))) && (m_ptr->roaming) &&
+		(m_ptr->cdis < p_ptr->cur_lite))
+	{
+		int litediff = p_ptr->cur_lite - m_ptr->cdis;
+		if (rnoise + litediff < 18) rnoise += litediff;
+		else if (rnoise < 17) rnoise++;
+	}
+
+	/* bounds check again just in case */
+	if (rnoise > 20) rnoise = 20;
+
+	/* Anti-stealth (originally: notice = rand_int(1024);  ) */
+	/* invert rnoise because it's higher=louder and antistealth is higher=quieter */
+	antistealth = 480 + (21 - rnoise)*55;
+	/* m_ptr->hear_noise / rnoise ranges from 1 to 20: */
+	/*                              500+ x50  480+ x55      */
+	/* rnoise == 1 then antistealth = 1500 		1580	*/
+	/* rnoise == 5 then antistealth = 1300      1360 	*/
+	/* rnoise == 10 then antistealth = 1050     1085   	*/
+	/* rnoise == 15 then antistealth = 800 		810		*/
+	/* rnoise == 20 then antistealth = 550 		535		*/
+
+	notice = rand_int(antistealth);
+
+	/* See if the monster notices the PC */
+	if (((notice * notice * notice) <= p_ptr->oppnoise) && (!nowake))
+	{
+		int d = 1;
+
+		/* Wake up faster near the player */
+		if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
+
+		/* niceness */
+		if ((p_ptr->nice) && (!m_ptr->evil) &&
+	       ((r_ptr->flags3 & (RF3_CLIGHT)) || (r_ptr->flags3 & (RF3_ANIMAL))))
+		{
+			if (d > 2) d = (d - 1) / 2;
+			/* takes no notice of PC */
+			else if (!m_ptr->roaming) /* d == 1 or 2 */ return FALSE;
+		}
+
+		/* roaming monsters notice the player easier */
+		if ((m_ptr->roaming) && (m_ptr->cdis < 60) &&
+			(player_has_los_bold(m_ptr->fy, m_ptr->fx)))
+			d = (150 / m_ptr->cdis);
+		else if ((m_ptr->roaming) && (m_ptr->cdis < 31) &&
+			(!player_has_los_bold(m_ptr->fy, m_ptr->fx)))
+			d += (50 - m_ptr->cdis) / 15;
+
+		/* Still asleep */
+		if (m_ptr->csleep > d)
+		{
+			/* Monster wakes up "a little bit" */
+			m_ptr->csleep -= d;
+
+			/* Notice the "not waking up" */
+			if ((m_ptr->ml) && (!m_ptr->extra2))
+			{
+				/* Hack -- Count the ignores */
+				if (l_ptr->ignore < MAX_UCHAR) l_ptr->ignore++;
+			}
+			return FALSE;
+		}
+
+		/* monster might feel nice and pay no attention to you */
+		else if ((p_ptr->nice) && (!m_ptr->evil) &&
+			(goodluck > 0) && (randint(100) < 34) &&
+			((r_ptr->flags3 & (RF3_CLIGHT)) || (r_ptr->flags3 & (RF3_ANIMAL))))
+		{
+			m_ptr->csleep = (goodluck + 1)*20 + r_ptr->sleep;
+			/* maybe start roaming */
+			if ((!m_ptr->roaming) && (randint(100) < 50)) m_ptr->roaming = 1;
+			return FALSE;
+		}
+	
+		/* another monster made the loudest noise, so the monster is more likely to */
+		/* just start roaming rather than becoming aware of the PC. */
+		else if ((!m_ptr->pcloud) && (!m_ptr->roaming) && (rand_int(100) < croam))
+		{
+			m_ptr->csleep = (goodluck + 1)*20 + r_ptr->sleep;
+			/* start roaming */
+			m_ptr->roaming = 1;
+			return FALSE;
+		}
+
+		/* Just noticed you */
+		else
+		{
+			/* Notice being noticed */
+			if (m_ptr->ml)
+			{
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+			    if (m_ptr->roaming) msg_format("%^s notices you.", m_name);
+			    else msg_format("%^s wakes up.", m_name);
+
+				/* Hack -- Update the health bar */
+				/* if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH); */
+
+				/* Hack -- Count the wakings */
+				if ((l_ptr->wake < MAX_UCHAR) || (!m_ptr->extra2)) l_ptr->wake++;
+			}
+			/* Reset sleep counter */
+			m_ptr->csleep = 0;
+
+			/* noticing the PC uses energy (much less when already awake) */
+			if (m_ptr->roaming) m_ptr->energy -= 10;
+			else m_ptr->energy -= 50;
+
+			/* stop roaming */
+			m_ptr->roaming = 0;
+			
+			return TRUE;
+		}
+	}
+	
+    /* asleep but displayed as awake in monster list */
+    if ((m_ptr->csleep) && (!m_ptr->display_sleep))
+    {
+	   /* update monster list */
+	   p_ptr->window |= PW_MONLIST;
+	   window_stuff();
+	}
+
+	/* Still sleeping */
+	if (m_ptr->csleep) return FALSE;
+
+	/* make sure monster stops roaming if it's noticed you */
+	m_ptr->roaming = 0;
+
+	/* Disturb when monster notices you */
+	if ((disturb_near) && (m_ptr->ml)) disturb(1, 0);
+
+    /* awake but displayed as asleep in monster list */
+	if (m_ptr->display_sleep)
+	{
+	   /* update monster list */
+	   p_ptr->window |= PW_MONLIST;
+	   window_stuff();
+	}
+}
+
+/*
+ * This function counts & records the noise that a monster hears.
+ *
+ *   Examples of loudness by action:  (loudest to softest)
+ * 18=exploding grenade
+ * 12=digging
+ * 10=fighting
+ * 7=stealthy fighting
+ * 4=move
+ * 2=waiting
+ * We will want a PC stealth mode when this is implemented to do certain things
+ * with less noise but with a speed penalty (will probably combine with search mode).
+ *
+ * y and x is the origin of the noise. If the origin is far away or not in los 
+ * of the sleeping monster, the loudness is reduced.
+ */
+static bool noise_monster(monster_type *m_ptr, int y, int x, int loudness, bool pcnoise)
+{
+	int my = m_ptr->fy;
+	int mx = m_ptr->fx;
+	int d = distance(y, x, my, mx);
+	int orune = 0, trune = 0;
+	
+	/* enforce bounds */
+	if (loudness < 1) loudness = 1;
+	if (loudness > 20) loudness = 20;
+	
+	/* distance is effectively doubled if not in monster's line of sight */
+	if (!projectable(my, my, y, x)) d = d * 2;
+	
+	/* reduce loudness by distance */
+	if ((loudness > 15) && (d > 5)) loudness -= (d-2)/4;
+	else if (d > 7) loudness -= (d/4 - 1);
+	
+	/* other monsters do less to make the monster aware of the PC */
+	if ((m_ptr->roaming) && (!pcnoise)) loudness--;
+	
+#ifdef roomrunes
+	orune = room_runes(y, x);
+	trune = room_runes(my, mx);
+	/* rune of silence */
+	if ((trune == 8) && (orune == 8) && (loudness > 3)) loudness -= 2;
+	else if ((trune == 8) && (loudness > 2)) loudness--;
+	else if ((pcnoise) && (p_ptr->roomeffect == 8) && (loudness > 2)) loudness--;
+#endif
+
+	/* keep the loudest noise */
+	if (loudness >= m_ptr->hear_noise)
+	{
+		/* keep track of whether the PC made the loudest noise */
+		if (pcnoise) m_ptr->pcloud = 1;
+		else if (loudness > m_ptr->hear_noise) m_ptr->pcloud = 0;
+		m_ptr->hear_noise = loudness;
+	}
+	/* combine very loud noises */
+	else if ((loudness + m_ptr->hear_noise >= 20) && (m_ptr->hear_noise < 20))
+		m_ptr->hear_noise++;
+}
+
+/* This is now the only function that makes noise
+ * This is called at the end of make_attack_spell() and
+ * process_monster() as well as on most types of PC actions.
+ */
+void make_noise(int y, int x, int loudness, bool finish, bool pcnoise)
+{
+	int i;
+	bool uselos = FALSE;
+	
+	/* browse monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* monster is temporarily dead */
+		if (m_ptr->temp_death) continue;
+		
+		/* skip NONMONSTERs */
+		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
+		
+		/* noise is coming from the PC */
+		if ((p_ptr->py == y) && (p_ptr->px == x))
+		{
+			if (player_has_los_bold(m_ptr->fy, m_ptr->fx)) uselos = TRUE;
+		}
+		else /* noise is not coming from the PC */
+		{
+			if (projectable(m_ptr->fy, m_ptr->fx, y, x)) uselos = TRUE;
+		}
+
+		/* use (almost) the same criteria as process_monsters */
+		if (!((m_ptr->cdis <= r_ptr->aaf) || (uselos) || monster_can_flow(i))) 
+			continue;
+		
+		/* skip monsters which are already awake */
+		if (!m_ptr->csleep) continue;
+		
+		/* call rouse_monster() or noise_monster() for each sleeping monster:
+		 * noise_monster() counts the loudest noise, rouse monster actually rouses the
+		 * monster according to the loudest noise it heard.
+		 * (noise_monster() may be called several times in a turn, rouse_monster()
+		 * only gets called once per turn) */
+		if (finish) rouse_monster(m_ptr, y, x, loudness);
+		else noise_monster(m_ptr, y, x, loudness, pcnoise);
+	}
+}
+
+
+/* return what type of monster to summon with S_EXTRA */
+static int gets_extra_type(const monster_type *m_ptr)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int typ = 0;
+	int sdie = rand_int(100);
+	
+	switch (r_ptr->summex)
+	{
+		/* (r_ptr->summex < 7) is simple */
+		case 1: return SUMMON_APE;
+		case 2: return SUMMON_SILVER;
+		case 3: return SUMMON_HOUND;
+		case 4: return SUMMON_HYDRA;
+		case 5: return SUMMON_DARK;
+		case 6: return SUMMON_NMARE;
+		
+		/* Decide what to summon */
+		case 7: /* the spy */
+		{
+			/* military monsters */
+			if (sdie < 65) typ = SUMMON_ARMY;
+			/* or single kin */
+			else
+			{
+				typ = SUMMON_ONEKIN;
+				summon_kin_type = r_ptr->d_char;
+			}
+			break;
+		}
+		
+		case 31: /* animated staff of summoning */
+		{
+			if (sdie < 50) typ = SUMMON_APE;
+			else typ = SUMMON_HOUND; 
+			break;
+		}
+		
+		case 32: /* rayem, veriety quylthulg */
+		{
+			if (sdie < 33) typ = SUMMON_APE;
+			else if (sdie < 66) typ = SUMMON_HYDRA;
+			else typ = SUMMON_HOUND;
+			break;
+		}
+		
+		case 33: /* Pandora's Box */
+		{
+			if (sdie < 35) typ = SUMMON_SILVER;
+			else if (sdie < 71) typ = SUMMON_HYDRA;
+			else typ = SUMMON_HOUND;
+			break;
+		}
+		
+		case 34: /* Saruman (always hydras for now, later I'll probably do something else with it) */
+		{
+			/* if (sdie < 16) typ = ...; */
+			typ = SUMMON_HYDRA;
+			break;
+		}
+	}
+	
+	return typ;
+}
+
 
 /*
  * Internal probability routine
@@ -90,7 +624,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		/* Use the memorized flags */
 		smart = m_ptr->smart;
 	}
-
 
 	/* Cheat if requested */
 	if (adult_ai_cheat)
@@ -220,7 +753,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BO_ICEE);
 	}
 
-
 	if ((smart & (SM_OPP_POIS)) && (smart & (SM_RES_POIS)))
 	{
 		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_POIS);
@@ -231,7 +763,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 27)) f4 &= ~(RF4_BR_POIS);
 		if (int_outof(r_ptr, 27)) f5 &= ~(RF5_BA_POIS);
 	}
-
 
 	if (smart & (SM_RES_FEAR))
 	{
@@ -320,7 +851,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	(*f6p) = f6;
 }
 
-
 #endif /* DRS_SMART_OPTIONS */
 
 
@@ -397,6 +927,188 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool okwall)
 }
 
 #endif /* MONSTER_AI */
+
+/*
+ * Remove some more ineffective spells from a spell list
+ */
+static void remove_bad_spells_two_the_sequel(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, bool noattack)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int roomeff = 0;
+	bool smartish = FALSE;
+	bool sometimes_smartish = FALSE;
+
+	u32b f4 = (*f4p);
+	u32b f5 = (*f5p);
+	u32b f6 = (*f6p);
+	
+	if ((adult_ai_smart && !(r_ptr->flags2 & (RF2_STUPID))) ||
+		(r_ptr->flags2 & (RF2_SMART))) smartish = TRUE;
+	
+	if (rand_int(100) < 40 + badluck) sometimes_smartish = TRUE;
+    
+	/* next to the PC and does not prefer ranged attacks (casts less often) */
+	if ((m_ptr->cdis == 1) && (!(r_ptr->flags2 & (RF2_RANGE))))
+	{
+		f5 &= ~(RF5_MISSILE);
+		if (randint(100) < 34) f4 &= ~(RF4_INNATE_MASK);
+		else /* monsters who don't prefer ranged attacks never fire arrows at melee range */
+		{
+			f4 &= ~(RF4_ARROW_1);
+			f4 &= ~(RF4_ARROW_2);
+			f4 &= ~(RF4_T_AXE);
+			f4 &= ~(RF4_BOULDER);
+		}
+	}
+
+	/* Check whether summons and bolts are worth it. */
+	if (smartish)
+	{
+		/* Check for a clean bolt shot */
+		if (((f4 & (RF4_BOLT_MASK) || f5 & (RF5_BOLT_MASK) ||
+			 f6 & (RF6_BOLT_MASK)) &&
+			!clean_shot(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, FALSE)) &&
+			(adult_ai_smart || sometimes_smartish))
+		{
+			/* Remove spells that will only hurt friends */
+			f4 &= ~(RF4_BOLT_MASK);
+			f5 &= ~(RF5_BOLT_MASK);
+			f6 &= ~(RF6_BOLT_MASK);
+		}
+
+		/* Check for a possible summon */
+		if (!(summon_possible(m_ptr->fy, m_ptr->fx)))
+		{
+			/* Remove summoning spells */
+			f4 &= ~(RF4_SUMMON_MASK);
+			f5 &= ~(RF5_SUMMON_MASK);
+			f6 &= ~(RF6_SUMMON_MASK);
+		}
+	}
+
+	/* imaginary monsters don't summon */
+	if (m_ptr->extra2)
+	{
+		/* Remove summoning spells */
+		f4 &= ~(RF4_SUMMON_MASK);
+		f5 &= ~(RF5_SUMMON_MASK);
+		f6 &= ~(RF6_SUMMON_MASK);
+	}
+
+	/* If monster has HEAL_OTHR or HEAL_KIN spell */
+	/* check to see if there are other monsters around to heal */
+	if ((f6 & (RF6_HEALO_MASK)) && !(r_ptr->flags2 & (RF2_STUPID)))
+	{
+		bool kin = TRUE;
+		if (r_ptr->flags6 & (RF6_HEAL_OTHR)) kin = FALSE;
+		else summoner = m_ptr->r_idx;
+
+		/* test run to the spell function */
+		if (!heal_monsters(0, m_ptr, kin))
+		{
+			/* don't cast it if there are no monsters to heal */
+			f6 &= ~(RF6_HEALO_MASK);
+		}
+	}
+	/* even stupid monsters don't cast heal others if there are no other monsters */
+	/* (but they will cast it when no nearby monsters need healing) */
+	else if (f6 & (RF6_HEALO_MASK))
+	{
+		bool kin = TRUE;
+		if (r_ptr->flags6 & (RF6_HEAL_OTHR)) kin = FALSE;
+		
+		/* test run to the spell function */
+		if (!heal_monsters(-1, m_ptr, kin))
+		{
+			/* don't cast it if there are no monsters to heal */
+			f6 &= ~(RF6_HEALO_MASK);
+		}
+	}
+
+	/* a monster shouldn't cast EXPLODE when it can be hurt in the explosion */
+	if ((r_ptr->flags4 & (RF4_EXPLODE)) && !(r_ptr->flags2 & (RF2_STUPID)))
+	{
+		bool immunewall = FALSE;
+		if ((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL)))
+			immunewall = TRUE;
+        if ((m_ptr->cdis < 3) && (!immunewall))
+		{
+            f4 &= ~(RF4_EXPLODE);
+		}
+	}
+
+	/* Alternate TRAPS effect (noattack) not possible if you can't set a trap in current space */
+	/* (but traps can coincide with objects now) */
+	if ((r_ptr->flags6 & (RF6_TRAPS)) && !(r_ptr->flags2 & (RF2_STUPID)) && (noattack))
+	{
+		if (!((cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_FLOOR) || 
+			(cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_OPEN_PIT)))
+            f6 &= ~(RF6_TRAPS);
+	}
+                	
+	/* Monsters shouldn't cast TELE_TO when they're afraid or already next to the PC */
+    if ((r_ptr->flags6 & (RF6_TELE_TO)) && !(r_ptr->flags2 & (RF2_STUPID)))
+	{
+		if ((m_ptr->cdis < 2) || ((m_ptr->monfear) && (m_ptr->monfear < 251)))
+		{
+			/* remove the spell only if afraid or if PC is not on a glyph of warding */
+            if ((!(cave_feat[p_ptr->py][p_ptr->px] == FEAT_GLYPH)) && (!m_ptr->monfear))
+				f6 &= ~(RF6_TELE_TO);
+		}
+	}
+
+	/* telelevel doesn't work in ironman games so don't waste a turn */
+	if (adult_ironman) f6 &= ~(RF6_TELE_LEVEL);
+
+	/* monsters should be less likely to cast darkness when already in a dark room */
+    if ((r_ptr->flags6 & (RF6_DARKNESS)) && !(r_ptr->flags2 & (RF2_STUPID)))
+	{
+		if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) &&     /* PC in a room*/
+			(!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))) &&  /* ..not lit */
+			(!m_ptr->csleep) &&                                /* monster aware of PC */
+			(randint(100) < 70)) f6 &= ~(RF6_DARKNESS);
+			
+		/* spell is centered on the monster when it isn't aware of the PC */
+		else if ((cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_ROOM)) &&   /* monster in a room*/
+			(!(cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_GLOW))) &&  /* ..not lit */
+			(m_ptr->csleep) &&                              /* monster not aware of PC */
+			(randint(100) < 70)) f6 &= ~(RF6_DARKNESS);
+	}
+
+#ifdef roomrunes 
+	roomeff = room_runes(m_ptr->fy, m_ptr->fx);
+#endif /* else roomeff = 0 */
+
+	/* tornado tune: no missile weapons */
+	if (roomeff == 8)
+	{
+		f4 &= ~(RF4_ARROW_1);
+		f4 &= ~(RF4_ARROW_2);
+		f4 &= ~(RF4_T_AXE);
+		f4 &= ~(RF4_THROW);
+	}
+	/* room of silence and silence summons spell have similar effects on monsters */
+	/* (if these spells aren't removed here, they fail & the monster wastes a turn) */
+	if (((roomeff == 16) || (m_ptr->silence)) && ((smartish) || 
+		((sometimes_smartish) && !(r_ptr->flags2 & (RF2_STUPID)))))
+	{
+		/* Remove summoning spells */
+		f4 &= ~(RF4_SUMMON_MASK);
+		f5 &= ~(RF5_SUMMON_MASK);
+		f6 &= ~(RF6_SUMMON_MASK);
+		/* and a few others */
+		f6 &= ~(RF6_HEAL_MASK);
+		f6 &= ~(RF6_HEALO_MASK);
+		f5 &= ~(RF5_DRAIN_MANA);
+		/* silence summons spell only prevents SHRIEK if you're lucky */
+		if (roomeff == 16) f4 &= ~(RF4_SHRIEK);
+	} 
+
+	(*f4p) = f4;
+	(*f5p) = f5;
+	(*f6p) = f6;
+}
 
 
 /*
@@ -491,6 +1203,42 @@ static void breath(int m_idx, int typ, int dam_hp, int isbreath)
 	(void)project(m_idx, rad, py, px, dam_hp, typ, flg, pflg);
 }
 
+/* caster of ILLUSION_CLONE swaps place with one of its illusions */
+/* (the return value is not currently used) */
+static bool illusion_swap(monster_type *m_ptr)
+{
+	int i;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Look for a clone */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *cm_ptr = &mon_list[i];
+		monster_race *cr_ptr = &r_info[cm_ptr->r_idx];
+
+		/* Paranoia -- skip "dead" monsters */
+		if (!cm_ptr->r_idx) continue;
+		
+		/* monster is temporarily dead */
+		if (cm_ptr->temp_death) continue;
+		
+		/* monster finds a clone of itself */
+		if (((cm_ptr->extra2 == 2) || (cm_ptr->extra2 == 4)) &&
+			(cm_ptr->r_idx == m_ptr->r_idx))
+		{
+			int min_d = 5;
+			if (projectable(m_ptr->fy, m_ptr->fx, cm_ptr->fy, cm_ptr->fx)) min_d = 6;
+			/* must be nearby */
+			if (distance(m_ptr->fy, m_ptr->fx, cm_ptr->fy, cm_ptr->fx) < min_d)
+			{
+				/* swap places */
+				monster_swap(m_ptr->fy, m_ptr->fx, cm_ptr->fy, cm_ptr->fx);
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
 
 /*
  * Offsets for the spell indices
@@ -525,11 +1273,20 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	byte spells[96];
 
 	int i, py = p_ptr->py, px = p_ptr->px;
+	int rlev = r_ptr->level;
 
 #ifdef MONSTER_AI
 
 	bool has_escape, has_attack, has_summon, has_tactic;
-	bool has_annoy, has_haste, has_heal;
+	bool has_annoy, has_haste, has_heal, has_bigdam;
+	bool outmatched = FALSE;
+	bool mafraid = FALSE;
+	int ogap = 8;
+	if (is_a_leader(m_ptr, 4)) ogap += 2;
+	if (((rlev + ogap < p_ptr->lev) && (rlev < 10)) || (rlev + ogap+4 < p_ptr->lev)) 
+		outmatched = TRUE;
+
+	if ((m_ptr->monfear) && (m_ptr->monfear < 251)) mafraid = TRUE;
 
 
 		/* What have we got? */
@@ -554,14 +1311,24 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		has_heal = ((f4 & (RF4_HEAL_MASK)) ||
 		            (f5 & (RF5_HEAL_MASK)) ||
 		            (f6 & (RF6_HEAL_MASK)));
+		has_bigdam = ((f4 & (RF4_BIGDAM_MASK)) ||
+		              (f5 & (RF5_BIGDAM_MASK)) ||
+		              (f6 & (RF6_BIGDAM_MASK)));
 
 	/* Smart monsters restrict their spell choices. */
 	if (adult_ai_smart && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
 		/*** Try to pick an appropriate spell type ***/
+		int sumchance = 50;
+		if (outmatched) sumchance = 65;
+		int lowhp = m_ptr->maxhp / 4;
+		if (m_ptr->maxhp > 2000) lowhp = m_ptr->maxhp/5 + 10;
+		else if (m_ptr->maxhp > 1600) lowhp = 402;
+		else if ((lowhp < 6) && (m_ptr->maxhp > 11)) lowhp = 6;
+		if (outmatched) lowhp = lowhp*6/5;
 
 		/* Hurt badly or afraid, attempt to flee */
-		if (has_escape && ((m_ptr->hp < m_ptr->maxhp / 4) || m_ptr->monfear))
+		if (has_escape && ((m_ptr->hp < lowhp) || mafraid))
 		{
 			/* Choose escape spell */
 			f4_mask = (RF4_ESCAPE_MASK);
@@ -570,12 +1337,21 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Still hurt badly, couldn't flee, attempt to heal */
-		else if (has_heal && m_ptr->hp < m_ptr->maxhp / 4)
+		else if ((has_heal) && (m_ptr->hp < lowhp))
 		{
 			/* Choose heal spell */
 			f4_mask = (RF4_HEAL_MASK);
 			f5_mask = (RF5_HEAL_MASK);
 			f6_mask = (RF6_HEAL_MASK);
+		}
+
+		/* hurt badly, can't flee or heal, so do as much damage as we can */
+		else if ((has_bigdam) && (m_ptr->hp < lowhp) && (rand_int(100) < 22))
+		{
+			/* Choose big damage spell */
+			f4_mask = (RF4_BIGDAM_MASK);
+			f5_mask = (RF5_BIGDAM_MASK);
+			f6_mask = (RF6_BIGDAM_MASK);
 		}
 
 		/* Player is close and we have attack spells, blink away */
@@ -598,8 +1374,8 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			f6_mask = (RF6_HEAL_MASK);
 		}
 
-		/* Summon if possible (sometimes) */
-		else if (has_summon && (rand_int(100) < 50))
+		/* Summon if possible (sometimes- chance increased if outmatched) */
+		else if (has_summon && (rand_int(100) < sumchance))
 		{
 			/* Choose summon spell */
 			f4_mask = (RF4_SUMMON_MASK);
@@ -657,11 +1433,15 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	else if ((r_ptr->flags2 & (RF2_SMART)) && (randint(100) < 40 + badluck))
 	{
 		bool chosen = FALSE;
+		int bdchance = 21;
 		int lowhp = m_ptr->maxhp / 4;
 		if (m_ptr->maxhp > 2000) lowhp = m_ptr->maxhp/5 + 10;
 		else if (m_ptr->maxhp > 1600) lowhp = 402;
+		else if ((lowhp < 6) && (m_ptr->maxhp > 11)) lowhp = 6;
+		if (outmatched) { lowhp = lowhp*6/5;  bdchance = 26; }
+
         /* Hurt badly or afraid, attempt to flee */
-		if (has_escape && ((m_ptr->hp < lowhp) || m_ptr->monfear))
+		if (has_escape && ((m_ptr->hp < lowhp) || mafraid))
 		{
 			/* Choose escape spell */
 			f4_mask = (RF4_ESCAPE_MASK);
@@ -679,6 +1459,14 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			f6_mask = (RF6_HEAL_MASK);
 			chosen = TRUE;
 		}
+		/* hurt badly, can't flee or heal, so do as much damage as we can */
+		else if ((has_bigdam) && (m_ptr->hp < lowhp) && (rand_int(100) < bdchance))
+		{
+			/* Choose big damage spell */
+			f4_mask = (RF4_BIGDAM_MASK);
+			f5_mask = (RF5_BIGDAM_MASK);
+			f6_mask = (RF6_BIGDAM_MASK);
+		}
 
 		/* Player is close and we prefer attack spells, blink away */
 		else if (has_tactic && (distance(py, px, m_ptr->fy, m_ptr->fx) < 4) &&
@@ -689,6 +1477,16 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			f4_mask = (RF4_TACTIC_MASK);
 			f5_mask = (RF5_TACTIC_MASK);
 			f6_mask = (RF6_TACTIC_MASK);
+			chosen = TRUE;
+		}
+
+		/* sometimes ensure summon if outmatched */
+		else if ((has_summon) && (outmatched) && (rand_int(100) < 16))
+		{
+			/* Choose summon spell */
+			f4_mask = (RF4_SUMMON_MASK);
+			f5_mask = (RF5_SUMMON_MASK);
+			f6_mask = (RF6_SUMMON_MASK);
 			chosen = TRUE;
 		}
 		/* else chose randomly */
@@ -787,9 +1585,12 @@ bool make_attack_spell(int m_idx)
 	int k, die, chance, thrown_spell, rlev;
 	int failrate, surround, bshield;
 	int mcdis, askill, savechance;
-    int dir, damage, basebr, brdie;
-	bool controlled, strong, innate, noattack = FALSE, nolosb = FALSE;
+    int dir, damage, basebr, brdie, roomeff = 0;
+	bool controlled, strong, innate, silenced = FALSE;
+	bool noattack = FALSE, nolosb = FALSE;
+	bool mondisguise = FALSE;
 	int some = 1;
+	int mnoise = 1;
 
 	u32b f4, f5, f6;
 
@@ -804,7 +1605,6 @@ bool make_attack_spell(int m_idx)
 
 	/* Summon count */
 	int count = 0;
-
 
 	/* Extract the blind-ness */
 	bool blind = (p_ptr->timed[TMD_BLIND] ? TRUE : FALSE);
@@ -826,6 +1626,14 @@ bool make_attack_spell(int m_idx)
 	   (!projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)))
 	   seen = FALSE;
 
+	/* monster disguised as another monster casts spells as its disguise */
+	/* but may cast their usual spells as long as the PC doesn't see them... */
+	if ((r_ptr->flags2 & (RF2_DISGUISE)) && (m_ptr->disguised) && (seen))
+	{
+		r_ptr = &r_info[m_ptr->disguised];
+		mondisguise = TRUE;
+	}
+
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_innate + r_ptr->freq_spell) / 2;
 
@@ -833,10 +1641,7 @@ bool make_attack_spell(int m_idx)
 	if (!chance) return (FALSE);
 	
 	/* dungeon monsters in town cast less often (illusionist) */
-	if ((r_ptr->level > 0) && (!p_ptr->depth))
-	{
-		chance = (chance * 2) / 3;
-	}
+	if ((r_ptr->level > 0) && (!p_ptr->depth)) chance = (chance * 2) / 3;
 
 	/* 1_IN_x  x = 2 then chance = 50, x = 4 then chance = 25, x = 6 then chance = 16 */
 	/* scale spell chance for monsters that scale with depth */
@@ -860,11 +1665,19 @@ bool make_attack_spell(int m_idx)
 		else if ((scalebase > 9) && (chance < 15)) chance += rand_int(3);
 	}
 
+	/* bonus for (some) pseudo-uniques */
+	if ((m_ptr->champ == 2) && (chance < 15)) chance += 5;
+	else if ((m_ptr->champ == 2) && (chance < 30)) chance = chance * 4 / 3;
+	if (((m_ptr->champ == 5) || (m_ptr->champ == 11)) && (chance < 11)) chance += 3;
+	else if (((m_ptr->champ == 5) || (m_ptr->champ == 11)) && (chance < 22)) 
+		chance = chance * 6 / 5;
+
 	/* Only do spells occasionally */
 	if (rand_int(100) >= chance) return (FALSE);
 
 	/* monsters which haven't noticed you should cast less often */
-	if (((m_ptr->csleep) || (m_ptr->extra2)) && (randint(100) < 50)) return (FALSE);
+	if (((m_ptr->csleep) || (m_ptr->extra2 > 2)) && (rand_int(100) < 50)) return (FALSE);
+	else if ((m_ptr->extra2) && (randint(100) < 35)) return (FALSE);
 	/* monsters which haven't noticed you have a much smaller spell selection */
 	else if (m_ptr->csleep) noattack = TRUE;
 
@@ -879,27 +1692,10 @@ bool make_attack_spell(int m_idx)
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
-    
-	/* next to the PC and does not prefer ranged attacks (cast less often) */
-	if ((m_ptr->cdis == 1) && (!(r_ptr->flags2 & (RF2_RANGE))) &&
-		(randint(100) < 31))
-	{
-		if (randint(100) < 50) return (FALSE);
-        f4 &= ~(RF4_INNATE_MASK);
-		f5 &= ~(RF5_MISSILE);
-	}
-	/* monsters which do not prefer ranged attacks never fire arrows at melee range */
-	else if ((m_ptr->cdis == 1) && (!(r_ptr->flags2 & (RF2_RANGE))))
-	{
-		f4 &= ~(RF4_ARROW_1);
-		f4 &= ~(RF4_ARROW_2);
-		f4 &= ~(RF4_T_AXE);
-		f4 &= ~(RF4_BOULDER);
-		f5 &= ~(RF5_MISSILE);
-	}
 
-	/* No spells left */
-	if (!f4 && !f5 && !f6) return (FALSE);
+	/* next to the PC and does not prefer ranged attacks (cast less often) */
+	if ((m_ptr->cdis == 1) && (!(r_ptr->flags2 & (RF2_RANGE))) && (rand_int(100) < 16))
+		return (FALSE);
 
 	/* Hack -- require projectable player */
 	/* why "if (normal)" when normal is always TRUE here? */
@@ -935,7 +1731,7 @@ bool make_attack_spell(int m_idx)
 		if ((!p_ptr->depth) && (m_ptr->cdis > MAX_TOWNR)) return (FALSE);
 
 		/* Check path */
-		if (!projectable(m_ptr->fy, m_ptr->fx, py, px))
+		if ((!projectable(m_ptr->fy, m_ptr->fx, py, px)) && (m_ptr->monfear < 251))
 		{
            /* DJA: Monsters should be able to blink */
            /* toward the player when not in LOS */
@@ -967,7 +1763,7 @@ bool make_attack_spell(int m_idx)
 	if (m_ptr->cdis > r_ptr->spr)
 	{
 		/* if PC is in LOS, prefer not to cast a non-agressive spell */
-		if ((!noattack) && (r_ptr->flags6 & (RF6_TRAPS)) && 
+		if ((!noattack) && (r_ptr->flags6 & (RF6_TRAPS)) && (!m_ptr->csleep) &&
 			(randint(100) < 70))
 		{
 			/* remove alternate version of TRAPS spell */
@@ -986,8 +1782,11 @@ bool make_attack_spell(int m_idx)
 	/* (or is out of LOS or out of range) */
 	/* (this allows BLINK, INVIS, TPORT, DARKNESS, HEAL, HEAL_KIN, and HEAL_OTHR) */
 	/* (now also allows alternate version of TRAPS spell) */
-    if ((m_ptr->roaming) || (m_ptr->truce) || (noattack))
+    if ((m_ptr->csleep) || (m_ptr->truce) || (noattack))
 	{
+		/* anything that can cast darkness storms can also darken the room */
+		if (r_ptr->flags5 & (RF5_BA_DARK)) f6 |= (RF6_DARKNESS);
+		
 		f4 &= (RF4_NONCOMBAT_MASK);
 		f5 &= (RF5_NONCOMBAT_MASK);
 		f6 &= (RF6_NONCOMBAT_MASK);
@@ -998,8 +1797,18 @@ bool make_attack_spell(int m_idx)
 		/* changes effect of certain monster spells */
 		noattack = TRUE;
 		nolosb = TRUE;
-    }
+	}
 
+	/* monster disguised as another monster is only allowed to cast certain spells */
+	if (mondisguise)
+	{
+		f4 &= (RF4_UNDERCOVER_MASK);
+		f5 &= (RF5_UNDERCOVER_MASK);
+		f6 &= (RF6_UNDERCOVER_MASK);
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6) return (FALSE);
+	}
 
 	/* Hack -- allow "desperate" spells */
 	if ((r_ptr->flags2 & (RF2_SMART)) &&
@@ -1023,122 +1832,8 @@ bool make_attack_spell(int m_idx)
 
 #endif /* DRS_SMART_OPTIONS */
 
-	/* Check whether summons and bolts are worth it. */
-	if ((adult_ai_smart && !(r_ptr->flags2 & (RF2_STUPID))) ||
-		(r_ptr->flags2 & (RF2_SMART)))
-	{
-		/* Check for a clean bolt shot */
-		if (((f4 & (RF4_BOLT_MASK) ||
-			 f5 & (RF5_BOLT_MASK) ||
-			 f6 & (RF6_BOLT_MASK)) &&
-			!clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE)) &&
-			(adult_ai_smart || (rand_int(100) < 40 + badluck)))
-		{
-			/* Remove spells that will only hurt friends */
-			f4 &= ~(RF4_BOLT_MASK);
-			f5 &= ~(RF5_BOLT_MASK);
-			f6 &= ~(RF6_BOLT_MASK);
-		}
-
-		/* Check for a possible summon */
-		if (!(summon_possible(m_ptr->fy, m_ptr->fx)))
-		{
-			/* Remove summoning spells */
-			f4 &= ~(RF4_SUMMON_MASK);
-			f5 &= ~(RF5_SUMMON_MASK);
-			f6 &= ~(RF6_SUMMON_MASK);
-		}
-	}
-
-	/* imaginary monsters don't summon */
-	if (m_ptr->extra2)
-	{
-		/* Remove summoning spells */
-		f4 &= ~(RF4_SUMMON_MASK);
-		f5 &= ~(RF5_SUMMON_MASK);
-		f6 &= ~(RF6_SUMMON_MASK);
-	}
-
-	/* If monster has HEAL_OTHR or HEAL_KIN spell */
-	/* check to see if there are other monsters around to heal */
-	if ((f6 & (RF6_HEALO_MASK)) && !(r_ptr->flags2 & (RF2_STUPID)))
-	{
-		bool kin = TRUE;
-		if (r_ptr->flags6 & (RF6_HEAL_OTHR)) kin = FALSE;
-		else summoner = m_ptr->r_idx;
-
-		/* test run to the spell function */
-		if (!heal_monsters(0, m_ptr, kin))
-		{
-			/* don't cast it if there are no monsters to heal */
-			f6 &= ~(RF6_HEALO_MASK);
-		}
-	}
-	/* even stupid monsters don't cast heal others if there are no other monsters */
-	/* (but they will cast it when no nearby monsters need healing) */
-	else if (f6 & (RF6_HEALO_MASK))
-	{
-		bool kin = TRUE;
-		if (r_ptr->flags6 & (RF6_HEAL_OTHR)) kin = FALSE;
-		
-		/* test run to the spell function */
-		if (!heal_monsters(-1, m_ptr, kin))
-		{
-			/* don't cast it if there are no monsters to heal */
-            f6 &= ~(RF6_HEALO_MASK);
-		}
-	}
-
-	/* a monster shouldn't cast EXPLODE when it can be hurt in the explosion */
-	if ((r_ptr->flags4 & (RF4_EXPLODE)) && !(r_ptr->flags2 & (RF2_STUPID)))
-	{
-		bool immunewall = FALSE;
-		if ((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL)))
-			immunewall = TRUE;
-        if ((m_ptr->cdis < 3) && (!immunewall))
-		{
-            f4 &= ~(RF4_EXPLODE);
-		}
-	}
-
-	/* Alternate TRAPS effect (noattack) not possible if you can't set a trap in current space */
-	/* (but traps can coincide with objects now) */
-	if ((r_ptr->flags6 & (RF6_TRAPS)) && !(r_ptr->flags2 & (RF2_STUPID)) &&
-		(noattack))
-	{
-		if (!((cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_FLOOR) || 
-			(cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_OPEN_PIT)))
-            f6 &= ~(RF6_TRAPS);
-	}
-                	
-	/* Monsters shouldn't cast TELE_TO when they're afraid or already next to the PC */
-    if ((r_ptr->flags6 & (RF6_TELE_TO)) && !(r_ptr->flags2 & (RF2_STUPID)))
-	{
-		if ((m_ptr->cdis < 2) || (m_ptr->monfear))
-		{
-			/* remove the spell only if PC is not on a glyph of warding */
-            if (!(cave_feat[p_ptr->py][p_ptr->px] == FEAT_GLYPH))
-				f6 &= ~(RF6_TELE_TO);
-		}
-	}
-
-	/* telelevel doesn't work in ironman games so don't waste a turn */
-	if (adult_ironman) f6 &= ~(RF6_TELE_LEVEL);
-
-	/* monsters should be less likely to cast darkness when already in a dark room */
-    if ((r_ptr->flags6 & (RF6_DARKNESS)) && !(r_ptr->flags2 & (RF2_STUPID)))
-	{
-		if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) &&     /* PC in a room*/
-			(!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))) &&  /* ..not lit */
-			(!m_ptr->csleep) &&                                /* monster aware of PC */
-			(randint(100) < 70)) f6 &= ~(RF6_DARKNESS);
-			
-		/* spell is centered on the monster when it isn't aware of the PC */
-		else if ((cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_ROOM)) &&   /* monster in a room*/
-			(!(cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_GLOW))) &&  /* ..not lit */
-			(m_ptr->csleep) &&                              /* monster not aware of PC */
-			(randint(100) < 70)) f6 &= ~(RF6_DARKNESS);
-	}
+	/* Remove more ineffective spells */
+	remove_bad_spells_two_the_sequel(m_idx, &f4, &f5, &f6, noattack);
 
 	/* No spells left */
 	if (!f4 && !f5 && !f6) return (FALSE);
@@ -1146,6 +1841,12 @@ bool make_attack_spell(int m_idx)
 	/* Handle "leaving" */
 	if (p_ptr->leaving) return (FALSE);
 
+#ifdef roomrunes 
+	roomeff = room_runes(m_ptr->fy, m_ptr->fx);
+#endif /* else roomeff = 0 */
+
+	/* is the monster silenced? */
+	if ((m_ptr->silence) || (roomeff == 16)) silenced = TRUE;
 
 	/* Get the monster possessive ("his"/"her"/"its") */
 	monster_desc(m_poss, sizeof(m_poss), m_ptr, 0x22);
@@ -1181,13 +1882,21 @@ bool make_attack_spell(int m_idx)
     if ((m_ptr->confused) && (m_ptr->stunned)) failrate = 100;
     if (m_ptr->confused) failrate += 84;
     else if (m_ptr->stunned) failrate += 67;
-	if (m_ptr->extra2) failrate += 14;
 
     /* innate attacks rarely fail (even if confused or stunned) */
     if (innate) failrate = failrate / 4;
+	
+	/* extra2 == 9 means dissapated illusion- almost always fails */
+	if (m_ptr->extra2 == 9) failrate += 85;
+	else if (m_ptr->extra2 > 2) failrate += 14;
+
 	/* The luck factor */
 	if ((badluck > 9) && (failrate > 5)) failrate -= (badluck-8) / 2;
 	if ((goodluck > 9) && (failrate) && (failrate < 80)) failrate += (goodluck-8) / 2;
+
+	/* even mimmics of staffs and wands have trouble activating in a room of static */
+    /* (currently there's no wand mimmic but just in case...) */
+	if ((roomeff == 14) && (strchr("-_", r_ptr->d_char))) failrate += 55;
 
 	/* Check for spell failure */
 	if ((rand_int(100) < failrate) && (!(thrown_spell == RF4_OFFSET+0)))
@@ -1209,6 +1918,8 @@ bool make_attack_spell(int m_idx)
 		}
 		else if (seen) msg_format("%^s tries to cast a spell, but fails.", m_name);
 
+		/* make noise */
+		if (innate) make_noise(m_ptr->fy, m_ptr->fx, 2, FALSE, FALSE);
 	    return (TRUE);
 	}
 /* #endif * MONSTER_AI */
@@ -1247,7 +1958,9 @@ bool make_attack_spell(int m_idx)
     /* breath should always do at least 1hp damage */
     if (basebr < 6) basebr = 6;
 	/* unless its an imaginary monster */
-	if (m_ptr->extra2) basebr = 1;
+	if (m_ptr->extra2 > 2) basebr = 1;
+	else if ((m_ptr->extra2) && (m_ptr->hp < 300)) basebr = m_ptr->hp / 10;
+	else if (m_ptr->extra2) basebr = 33;
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -1255,11 +1968,12 @@ bool make_attack_spell(int m_idx)
 		/* RF4_SHRIEK */
 		case RF4_OFFSET+0:
 		{
-			if ((m_ptr->silence) && (goodluck > 4)) return FALSE;
+			if (((m_ptr->silence) && (goodluck > 4)) || (silenced)) return FALSE;
 			if (!direct) break;
 			disturb(1, 0);
 			sound(MSG_SHRIEK);
 			if (seen) msg_format("%^s makes a high pitched shriek.", m_name);
+			if (mnoise < 13) mnoise = 13;
 			if (m_ptr->extra2) break;
 			aggravate_monsters(m_idx);
 			break;
@@ -1288,8 +2002,9 @@ bool make_attack_spell(int m_idx)
             {
 				if (blind) msg_format("%^s throws something.", m_name);
 				else msg_format("%^s throws a throwing axe at you!", m_name);
-				if (m_ptr->extra2) break;
-				if (rlev > 22) bolt(m_idx, GF_THROW, damroll(3, 4));
+				if (m_ptr->extra2 > 2) break;
+				else if (m_ptr->extra2) bolt(m_idx, GF_THROW, damroll(1, 2));
+				else if (rlev > 22) bolt(m_idx, GF_THROW, damroll(3, 4));
 				else bolt(m_idx, GF_THROW, damroll(2, 4));
             }
             else /* missed */
@@ -1309,12 +2024,17 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s throws something.", m_name);
 			else msg_format("%^s throws a piece of junk from the floor.", m_name);
-			if (m_ptr->extra2)
+			if (m_ptr->extra2 > 2)
 			{
 				(void)inc_timed(TMD_STUN, 1);
 				break;
 			}
-			if (rlev > 49)
+			else if (m_ptr->extra2)
+			{
+				bolt(m_idx, GF_THROW, damroll(1, 2));
+				(void)inc_timed(TMD_STUN, randint(3));
+			}
+			else if (rlev > 49)
 			{
 				bolt(m_idx, GF_THROW, damroll(6, 4));
 				(void)inc_timed(TMD_STUN, (randint(6) + 2));
@@ -1329,12 +2049,14 @@ bool make_attack_spell(int m_idx)
 				bolt(m_idx, GF_THROW, damroll(1, 4));
 				(void)inc_timed(TMD_STUN, (randint(3)));
 			}
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF4_ARROW_1 */
 		case RF4_OFFSET+4:
 		{
+			if ((r_ptr->flags3 & (RF3_SCALE)) && (p_ptr->depth > rlev+1)) rlev = (p_ptr->depth + rlev)/2;
 			disturb(1, 0);
 			mcdis = m_ptr->cdis;
 			if (mcdis > 2) mcdis -= 2;
@@ -1349,9 +2071,10 @@ bool make_attack_spell(int m_idx)
             {
                 if (blind) msg_format("%^s makes a strange noise.", m_name);
                 else msg_format("%^s fires an arrow.", m_name);
-				if (m_ptr->extra2) break;
                 damage = damroll(1, 6);
-                if ((rlev > 10) && (randint(100) < 35)) damage += damroll(1, 6);
+                if ((rlev > 10) && (rand_int(100) < 21 + rlev/2)) damage += damroll(1, 6);
+				if (m_ptr->extra2 > 2) break;
+				else if (m_ptr->extra2) damage = damroll(1, 2);
                 bolt(m_idx, GF_ARROW, damage);
             }
             else /* missed */
@@ -1368,10 +2091,13 @@ bool make_attack_spell(int m_idx)
 		/* RF4_ARROW_2 */
 		case RF4_OFFSET+5:
 		{
+			if ((r_ptr->flags3 & (RF3_SCALE)) && (p_ptr->depth > rlev+1)) rlev = (p_ptr->depth + rlev)/2;
 			disturb(1, 0);
 			mcdis = m_ptr->cdis;
 			if (mcdis > 3) mcdis -= 3;
 			else mcdis = 0;
+			/* for the high level adventurer town monster */
+			if (r_ptr->level == 0) rlev = p_ptr->max_depth;
 			/* monster arrows should not always hit */
 			askill = 85 + (rlev/5) - mcdis*2;
 			if (cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_OPEN_PIT) askill -= 15;
@@ -1379,13 +2105,15 @@ bool make_attack_spell(int m_idx)
 			/* dodge ac */
 			askill -= adj_dex_dis[p_ptr->stat_ind[A_DEX]] * 2;
 			if (randint(100) < askill)
-            {
-                if (blind) msg_format("%^s makes a strange noise.", m_name);
-                else msg_format("%^s fires an arrow.", m_name);
-				if (m_ptr->extra2) break;
-                damage = damroll(3, 6);
-                if ((rlev > 19) && (randint(100) < 35)) damage += randint((rlev-18)/2 + 1);
-                bolt(m_idx, GF_ARROW, damage);
+			{
+				if (blind) msg_format("%^s makes a strange noise.", m_name);
+				else msg_format("%^s fires an arrow.", m_name);
+				damage = damroll(3, 6);
+				if ((rlev > 22) && (randint(100) < 20 + rlev)) damage += damroll(1, 6);
+				if ((rlev > 19) && (randint(100) < 20 + rlev)) damage += randint((rlev-18)/2 + 1);
+				if (m_ptr->extra2 > 2) break;
+				else if (m_ptr->extra2) damage = damroll(1, 4);
+				bolt(m_idx, GF_ARROW, damage);
             }
             else /* missed */
             {
@@ -1395,6 +2123,7 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			if (r_ptr->level == 0) rlev = 1;
 			break;
 		}
 
@@ -1402,11 +2131,34 @@ bool make_attack_spell(int m_idx)
 		case RF4_OFFSET+6:
 		{
 			disturb(1, 0);
+#ifdef roomrunes /* tornado rune gives a failrate on missiles (ARROW_1 and ARROW_2 always fail) */
+			if (roomeff == 8)
+			{
+				int askill, mcdis = m_ptr->cdis;
+				if (mcdis > 2) mcdis -= 2;
+				else mcdis = 0;
+				/* tornado rune makes it hard to hit */
+				askill = 55 + (rlev/5) - mcdis*5;
+				if (cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_OPEN_PIT) askill -= 15;
+				if (r_ptr->flags2 & (RF2_RANGE)) askill += 20;
+				/* dodge ac */
+				askill -= adj_dex_dis[p_ptr->stat_ind[A_DEX]] * 4;
+				if (randint(100) < askill) /* hit */;
+				else /* missed */
+				{
+					if (blind) msg_format("%^s makes a frustrated noise.", m_name);
+					else msg_format("%^s fires a missile but misses.", m_name);
+					if (!m_ptr->monseen) m_ptr->monseen = 1;
+					break;
+				}
+			}
+#endif
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires a missile.", m_name);
-			if (m_ptr->extra2) break;
 			/* (always hit because these are like stronger magic missiles) */
 			damage = damroll(5, 6);
+			if (m_ptr->extra2 > 2) break;
+			else if (m_ptr->extra2) damage = damroll(1, 6);
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			bolt(m_idx, GF_ARROW, damage);
@@ -1420,10 +2172,33 @@ bool make_attack_spell(int m_idx)
 		case RF4_OFFSET+7:
 		{
 			disturb(1, 0);
+#ifdef roomrunes /* tornado rune gives a failrate on missiles (ARROW_1 and ARROW_2 always fail) */
+			if (roomeff == 8)
+			{
+				int askill, mcdis = m_ptr->cdis;
+				if (mcdis > 2) mcdis -= 2;
+				else mcdis = 0;
+				/* tornado rune makes it hard to hit */
+				askill = 65 + (rlev/5) - mcdis*5;
+				if (cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_OPEN_PIT) askill -= 15;
+				if (r_ptr->flags2 & (RF2_RANGE)) askill += 20;
+				/* dodge ac */
+				askill -= adj_dex_dis[p_ptr->stat_ind[A_DEX]] * 4;
+				if (randint(100) < askill) /* hit */;
+				else /* missed */
+				{
+					if (blind) msg_format("%^s makes a frustrated noise.", m_name);
+					else msg_format("%^s fires a missile but misses.", m_name);
+					if (!m_ptr->monseen) m_ptr->monseen = 1;
+					break;
+				}
+			}
+#endif
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires a missile!", m_name);
-			if (m_ptr->extra2) break;
 			damage = damroll(7, 6);
+			if (m_ptr->extra2 > 2) break;
+			else if (m_ptr->extra2) damage = damroll(2, 4);
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			bolt(m_idx, GF_ARROW, damage);
@@ -1451,8 +2226,11 @@ bool make_attack_spell(int m_idx)
             }
             else 
             {
-			   damage = ((basebr / 4) > 1200 ? 1200 : (basebr / 4));
+			   damage = ((basebr / 4) > 1150 ? 1150 : (basebr / 4));
             }
+			/* acid-strengthening room rune */
+			if (p_ptr->roomeffect == 6) damage += damage/5;
+			if (damage > 1600) damage = 1600;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1463,6 +2241,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 15) mnoise = 15;
 			break;
 		}
 
@@ -1484,8 +2264,11 @@ bool make_attack_spell(int m_idx)
             }
             else 
             {
-			   damage = ((basebr / 4) > 1200 ? 1200 : (basebr / 4));
+			   damage = ((basebr / 4) > 1150 ? 1150 : (basebr / 4));
             }
+			/* lightning-strengthening room rune */
+			if (p_ptr->roomeffect == 7) damage += damage/5;
+			if (damage > 1600) damage = 1600;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1496,6 +2279,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 15) mnoise = 15;
 			break;
 		}
 
@@ -1530,6 +2315,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 4) > 1200 ? 1200 : (basebr / 4));
             }
+			/* fire-strengthening room rune */
+			if (p_ptr->roomeffect == 4) damage += damage/5;
+			if (damage > 1600) damage = 1600;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1540,6 +2328,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 15) mnoise = 15;
 			break;
 		}
 
@@ -1563,6 +2353,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 4) > 1200 ? 1200 : (basebr / 4));
             }
+			/* cold-strengthening room rune */
+			if (p_ptr->roomeffect == 5) damage += damage/5;
+			if (damage > 1600) damage = 1600;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1573,6 +2366,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 15) mnoise = 15;
 			break;
 		}
 
@@ -1596,6 +2391,8 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 4) > 720 ? 720 : (basebr / 4));
             }
+			if (p_ptr->roomeffect == 2) damage += damage/5; /* pestilence */
+			if (damage > 800) damage = 800;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1606,6 +2403,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 15) mnoise = 15;
 			break;
 		}
 
@@ -1629,6 +2428,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 6) > 500 ? 500 : (basebr / 6));
             }
+			/* nether-strengthening room rune */
+			if (p_ptr->roomeffect == 13) damage += damage/5;
+			if (damage > 560) damage = 560;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1639,6 +2441,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 11) mnoise = 11;
 			break;
 		}
 
@@ -1695,6 +2499,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 6) > 300 ? 300 : (basebr / 6));
             }
+			/* dark-strengthening room rune */
+			if (p_ptr->roomeffect == 9) damage += damage/5;
+			if (damage > 410) damage = 410;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1738,6 +2545,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 13) mnoise = 13;
 			break;
 		}
 
@@ -1771,6 +2580,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 17) mnoise = 17;
 			break;
 		}
 
@@ -1794,6 +2605,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 6) > 430 ? 430 : (basebr / 6));
             }
+			/* chaos-strengthening room rune */
+			if (p_ptr->roomeffect == 11) damage += damage/5;
+			if (damage > 511) damage = 511;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1804,6 +2618,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 15) mnoise = 15;
 			break;
 		}
 
@@ -1982,6 +2798,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 6) > 350 ? 350 : (basebr / 6));
             }
+			/* shard-strengthening room rune */
+			if (p_ptr->roomeffect == 15) damage += damage/5;
+			if (damage > 510) damage = 510;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -1992,6 +2811,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 11) mnoise = 11;
 			break;
 		}
 
@@ -2015,6 +2836,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 6) > 150 ? 150 : (basebr / 6));
             }
+			/* fire-strengthening room rune */
+			if (p_ptr->roomeffect == 4) damage += damage/6;
+			if (damage > 215) damage = 215;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -2024,6 +2848,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 15) mnoise = 15;
 			break;
 		}
 
@@ -2051,6 +2877,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 13) mnoise = 13;
 			break;
 		}
 
@@ -2062,6 +2890,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_FORCE);
 			if ((blind) || (m_ptr->extra2)) msg_format("You hear an ominous rumbling.");
 			else msg_format("%^s causes an explosion!", m_name);
+			if (m_ptr->extra2 <= 2) breath(m_idx, GF_SHARD, rlev/10 + randint(3), 0);
 			if (m_ptr->extra2) break;
 			/* just in case the PC dodges the quake blast.. */
 			damage = damroll(4, rlev/10 + 1);
@@ -2069,12 +2898,16 @@ bool make_attack_spell(int m_idx)
 			if (surround > 0) damage -= (damage * (surround / 400));
 			breath(m_idx, GF_SHARD, damage, 0);
 			breath(m_idx, GF_BOULDER, damage, 0);
+			/* unchanging terrain room rune */
+			if (p_ptr->roomeffect == 17) break;
 			/* cause an earthquake on the PC's square which damages the PC */
 			if (m_ptr->cdis < 4) exploderad = 2;
 			else exploderad = 3;
 			/* this does 26d9 damage if there's no place to retreat to */
 			/* (one of the few spells that EMERGENCY_ESCAPE doesn't protect from) */
 			earthquake(p_ptr->py, p_ptr->px, exploderad, 40, 4, FALSE);
+			/* the earthquake function makes its own noise */
+			mnoise = 0;
 			break;
 		}
 
@@ -2093,6 +2926,8 @@ bool make_attack_spell(int m_idx)
             /* monster is now easier to notice */
             if (!m_ptr->monseen) m_ptr->monseen = 1;
             else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 13) mnoise = 13;
 			break;
 		}
 
@@ -2116,6 +2951,9 @@ bool make_attack_spell(int m_idx)
             {
 			   damage = ((basebr / 7) > 110 ? 110 : (basebr / 7));
             }
+			/* acid/slime-strengthening room rune */
+			if (p_ptr->roomeffect == 6) damage += damage/6;
+			if (damage > 146) damage = 146;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			/* breath shield effect */
@@ -2125,6 +2963,8 @@ bool make_attack_spell(int m_idx)
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 13) mnoise = 13;
 			break;
 		}
 
@@ -2137,6 +2977,8 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes amnesia.", m_name);
 			damage = ((basebr / 8) > 90 ? 90 : (basebr / 8));
+			/* grepse-strengthening room rune */
+			if ((p_ptr->roomeffect == 22) || (p_ptr->roomeffect == 20)) damage += damage/5;
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_AMNESIA, damage, 1);
@@ -2168,6 +3010,13 @@ bool make_attack_spell(int m_idx)
 			if (r_ptr->flags2 & (RF2_RANGE)) askill += 15;
 			/* dodge ac */
 			askill -= adj_dex_dis[p_ptr->stat_ind[A_DEX]] * 2;
+#ifdef roomrunes /* tornado rune gives a failrate on missiles and boulders (ARROW_1 and ARROW_2 always fail) */
+			if (roomeff == 8)
+			{
+				/* tornado rune makes it hard to hit */
+				askill -= (20 + mcdis*4);
+			}
+#endif
 			if (randint(100) < askill)
             {
 				if (blind) msg_format("You hear something grunt with exertion.", m_name);
@@ -2182,6 +3031,8 @@ bool make_attack_spell(int m_idx)
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* dragonbreath is loud */
+			if (mnoise < 10) mnoise = 10;
 			break;
 		}
 
@@ -2193,10 +3044,14 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts an acid ball.", m_name);
 			damage = randint(rlev * 3) + 15;
+			/* acid-strengthening room rune */
+			if (p_ptr->roomeffect == 6) damage += 30;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_ACID, damage, 0);
 			update_smart_learn(m_idx, DRS_RES_ACID);
+			/* spells make noise */
+			if (mnoise < 8) mnoise = 8;
 			break;
 		}
 
@@ -2207,10 +3062,14 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a lightning ball.", m_name);
 			damage = randint(rlev * 3 / 2) + 8;
+			/* lightning-strengthening room rune */
+			if (p_ptr->roomeffect == 7) damage += 24;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_ELEC, damage, 0);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
+			/* spells make noise */
+			if (mnoise < 8) mnoise = 8;
 			break;
 		}
 
@@ -2221,10 +3080,14 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a fire ball.", m_name);
 			damage = randint(rlev * 7 / 2) + 10;
+			/* fire-strengthening room rune */
+			if (p_ptr->roomeffect == 4) damage += 30;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_FIRE, damage, 0);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
+			/* spells make noise */
+			if (mnoise < 8) mnoise = 8;
 			break;
 		}
 
@@ -2235,10 +3098,14 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a frost ball.", m_name);
 			damage = randint(rlev * 3 / 2) + 10;
+			/* cold-strengthening room rune */
+			if (p_ptr->roomeffect == 5) damage += 28;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_COLD, damage, 0);
 			update_smart_learn(m_idx, DRS_RES_COLD);
+			/* spells make noise */
+			if (mnoise < 8) mnoise = 8;
 			break;
 		}
 
@@ -2250,8 +3117,11 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a cloud of poison.", m_name);
 			if (rlev < 25) damage = damroll(12, 2);
 			else damage = damroll(12, 2 + ((rlev-10)/15));
+			if (p_ptr->roomeffect == 2) damage += 3 + rand_int(rlev/3 + 1); /* pestilence */
 			breath(m_idx, GF_POIS, damage, 0);
 			update_smart_learn(m_idx, DRS_RES_POIS);
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2262,6 +3132,8 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a nether ball.", m_name);
 			damage = 50 + damroll(9, 10) + rlev;
+			/* nether-strengthening room rune */
+			if (p_ptr->roomeffect == 13) damage += 33;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_NETHER, damage, 0);
@@ -2280,6 +3152,8 @@ bool make_attack_spell(int m_idx)
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_WATER, damage, 0);
+			/* spells make noise */
+			if (mnoise < 9) mnoise = 9;
 			break;
 		}
 
@@ -2291,9 +3165,17 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s invokes a mana storm.", m_name);
 			if (rlev < 79) damage = (rlev * 4) + damroll(10, 8);
 			else damage = (rlev * 4) + damroll(10, 10);
+			/* magic-strengthening room rune */
+			if (p_ptr->roomeffect == 12)
+            {
+				int damb = (rlev * 4) + damroll(10, 10); /* reroll */
+				if (damb > damage) damage = damb;
+			}
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_MANA, damage, 0);
+			/* spells make noise */
+			if (mnoise < 6) mnoise = 6;
 			break;
 		}
 
@@ -2304,11 +3186,21 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a darkness storm.", m_name);
 			if (rlev == 126) damage = (rlev * 5) + damroll(10, 10); /* original damage */
-			else if (rlev < 79) damage = (rlev * 2) + damroll(10, 9) + randint(rlev*2+1);
+			/* was damroll(10, 9) -and still is if rlev is at least 70 */
+			else if (rlev < 79) damage = (rlev * 2) + damroll(10, rlev/10+2) + randint(rlev*2+1);
 			else damage = (rlev * 3) + damroll(10, 10) + randint(rlev+1);
+			/* dark-strengthening room rune */
+			if (p_ptr->roomeffect == 9)
+            {
+				int damb = (rlev * 3) + damroll(10, 10) + randint(rlev+1);
+				if (rlev < 79) damb = (rlev * 2) + damroll(10, rlev/10+2) + randint(rlev*2+1);
+				if (damb > damage) damage = damb;
+			}
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_DARK, damage, 0);
+			/* darken the room */
+			unlite_room(py, px, 0);
 			update_smart_learn(m_idx, DRS_RES_DARK);
 			break;
 		}
@@ -2316,7 +3208,7 @@ bool make_attack_spell(int m_idx)
 		/* RF5_DRAIN_MANA */
 		case RF5_OFFSET+9:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			if (!direct) break;
 			if (p_ptr->csp)
 			{
@@ -2326,6 +3218,7 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s draws psychic energy from you!", m_name);
 
 				/* still get the message from imaginary monsters but nothing happens */
+				if ((m_ptr->extra2 <= 2) && (p_ptr->csp > 2)) p_ptr->csp -= randint(2);
 				if (m_ptr->extra2) break;
 
 				/* Disturb if legal */
@@ -2414,15 +3307,11 @@ bool make_attack_spell(int m_idx)
 		case RF5_OFFSET+10:
 		{
 			if (!direct) break;
+			/* room rune 25 kills all telepathic effects */
+			if (p_ptr->roomeffect == 25) break;
 			disturb(1, 0);
-			if (!seen)
-			{
-				msg_print("You feel something focusing on your mind.");
-			}
-			else
-			{
-				msg_format("%^s gazes deep into your eyes.", m_name);
-			}
+			if (!seen) msg_print("You feel something focusing on your mind.");
+			else msg_format("%^s gazes deep into your eyes.", m_name);
 
 			/* 50% miss chance for monster spells */
 			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
@@ -2441,12 +3330,13 @@ bool make_attack_spell(int m_idx)
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
-				if (badluck) take_hit(randint(8), ddesc);
+				if ((badluck) && (!m_ptr->extra2)) take_hit(randint(8), ddesc);
 			}
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				if (m_ptr->extra2) (void)inc_timed(TMD_CONFUSED, 1); break;
+				if (m_ptr->extra2 <= 2) { (void)inc_timed(TMD_CONFUSED, randint(3)); break; }
+				if (m_ptr->extra2) { (void)inc_timed(TMD_CONFUSED, 1); break; }
 				if (!p_ptr->resist_confu)
 				{
 					(void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
@@ -2454,7 +3344,7 @@ bool make_attack_spell(int m_idx)
 				/* may bypass Rconf if you have telepathy and badluck */
 				else if ((p_ptr->telepathy) && (badluck > rand_int(5)))
 				{
-					(void)inc_timed(TMD_CONFUSED, 2);
+					(void)inc_timed(TMD_CONFUSED, 1 + randint(3));
 				}
 				damage = damroll(8, 8);
 				take_hit(damage, ddesc);
@@ -2466,15 +3356,11 @@ bool make_attack_spell(int m_idx)
 		case RF5_OFFSET+11:
 		{
 			if (!direct) break;
+			/* room rune 25 kills all telepathic effects */
+			if (p_ptr->roomeffect == 25) break;
 			disturb(1, 0);
-			if (!seen)
-			{
-				msg_print("You feel something focusing on your mind.");
-			}
-			else
-			{
-				msg_format("%^s looks deep into your eyes.", m_name);
-			}
+			if (!seen) msg_print("You feel something focusing on your mind.");
+			else msg_format("%^s looks deep into your eyes.", m_name);
 
 			/* 50% miss chance for monster spells */
 			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
@@ -2496,7 +3382,8 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				if (m_ptr->extra2) (void)inc_timed(TMD_CONFUSED, 1); break;
+				if (m_ptr->extra2 <= 2) { (void)inc_timed(TMD_CONFUSED, 1+randint(4)); break; }
+				if (m_ptr->extra2) { (void)inc_timed(TMD_CONFUSED, 1); break; }
 				damage = damroll(11, 15);
 				take_hit(damage, ddesc);
 				if (!p_ptr->resist_blind)
@@ -2539,9 +3426,10 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You resist the effects!");
 			}
-			else if (!m_ptr->extra2)
+			else
 			{
-				take_hit(damroll(3, 8), ddesc);
+				if (m_ptr->extra2 <= 2) take_hit(damroll(1, 3), ddesc);
+				if (!m_ptr->extra2) take_hit(damroll(3, 8), ddesc);
 			}
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
@@ -2572,12 +3460,14 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You resist the effects!");
 			}
-			else if (!m_ptr->extra2)
+			else
 			{
 				damage = damroll(7, 8);
 		        /* extra damage reduction from surrounding magic */
 				if (surround) damage -= (damage * (surround / 500));
-				take_hit(damage, ddesc);
+				
+				if (m_ptr->extra2 <= 2) take_hit(damage/7, ddesc);
+				if (!m_ptr->extra2) take_hit(damage, ddesc);
 			}
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
@@ -2608,14 +3498,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You resist the effects!");
 			}
-			else if (!m_ptr->extra2)
+			else
 			{
 				damage = damroll(9, 15);
 		        /* extra damage reduction from surrounding magic */
 				if (surround) damage -= (damage * (surround / 500));
-				take_hit(damage, ddesc);
+				if (m_ptr->extra2 <= 2) take_hit(damage/9, ddesc);
+				if (!m_ptr->extra2) take_hit(damage, ddesc);
 				/* added cuts */
-				if (!p_ptr->resist_shard)
+				if ((!p_ptr->resist_shard) && (!m_ptr->extra2))
 				{
 					int cdur = damroll(6, 3);
 					if (r_ptr->flags2 & (RF2_POWERFUL)) cdur += damage/8;
@@ -2625,6 +3516,9 @@ bool make_attack_spell(int m_idx)
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise.  ...CAUSE_1 and CAUSE_2 don't make extra noise- */
+            /* I figure if the blind message is just "mumbles" then it must be pretty quiet */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2658,23 +3552,26 @@ bool make_attack_spell(int m_idx)
                 }
 				else msg_print("You resist the effects!");
 			}
-			else if (!m_ptr->extra2)
+			else
 			{
 				if (rlev == 126) damage = damroll(20, 15) + 99; /* The Grim Reaper */
 				else if (rlev > 70) damroll(15, 15);
 				else damage = damroll(14, 15);
 		        /* extra damage reduction from surrounding magic */
 				if (surround) damage -= (damage * (surround / 500));
-				take_hit(damage, ddesc);
+				if (m_ptr->extra2 <= 2) take_hit(damage/14, ddesc);
+				if (!m_ptr->extra2) take_hit(damage, ddesc);
 				/* Rshards helps a little */
-				if ((!p_ptr->resist_shard) && (rlev < 126))
+				if ((!((p_ptr->resist_shard) && (rlev < 126))) && (!m_ptr->extra2))
 					(void)inc_timed(TMD_CUT, damroll(10, 10));
-				else
-					(void)inc_timed(TMD_CUT, damroll(8, 8));
+				else if (m_ptr->extra2 <= 2) (void)inc_timed(TMD_CUT, damroll(2, 8));
+				else if (!m_ptr->extra2) (void)inc_timed(TMD_CUT, damroll(8, 8));
 			}
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 8) mnoise = 8;
 			break;
 		}
 
@@ -2685,13 +3582,18 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a acid bolt.", m_name);
 			damage = damroll(7, 8) + (rlev / 3);
+			/* acid-strengthening room rune */
+			if (p_ptr->roomeffect == 6) damage += 8 + randint(rlev/4 + 1); 
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
-			bolt(m_idx, GF_ACID, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_ACID, damage/8);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_ACID, damage);
 			update_smart_learn(m_idx, DRS_RES_ACID);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2703,13 +3605,18 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a lightning bolt.", m_name);
 			if (rlev < 20) damage = damroll(3, 7) + (rlev / 2);
 			else damage = damroll(4, 8) + (rlev / 3);
+			/* lightning-strengthening room rune */
+			if (p_ptr->roomeffect == 7) damage += 8 + randint(rlev/4 + 1);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
-			bolt(m_idx, GF_ELEC, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_ELEC, damage/8);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_ELEC, damage);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2720,13 +3627,18 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a fire bolt.", m_name);
 			damage = damroll(9, 8) + (rlev / 3);
+			/* fire-strengthening room rune */
+			if (p_ptr->roomeffect == 4) damage += 10 + randint(rlev/4 + 1); 
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
-			bolt(m_idx, GF_FIRE, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_FIRE, damage/8);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_FIRE, damage);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2747,13 +3659,18 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a frost bolt.", m_name);
 			damage = damroll(6, 8) + (rlev / 3);
+			/* cold-strengthening room rune */
+			if (p_ptr->roomeffect == 5) damage += 8 + randint(rlev/4 + 1); 
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
-			bolt(m_idx, GF_COLD, damage);			     
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_COLD, damage/8);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_COLD, damage);
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2764,10 +3681,14 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a poison bolt.", m_name);
 			damage = 3 + damroll(7, 6) + (rlev / 3);
+			if (p_ptr->roomeffect == 2) damage += 5 + randint(rlev/3 + 1); /* pestilence */
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
-			bolt(m_idx, GF_POIS, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_POIS, damage/8);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_POIS, damage);
 			update_smart_learn(m_idx, DRS_RES_POIS);
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
    		}
 
@@ -2778,13 +3699,18 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a nether bolt.", m_name);
 			damage = 30 + damroll(5, 5) + (rlev * 3) / 2;
+			/* nether-strengthening room rune */
+			if (p_ptr->roomeffect == 13) damage += 10 + randint(rlev/3 + 1); 
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
-			bolt(m_idx, GF_NETHER, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_NETHER, damage/13);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_NETHER, damage);
 			update_smart_learn(m_idx, DRS_RES_NETHR);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
@@ -2804,10 +3730,13 @@ bool make_attack_spell(int m_idx)
                }
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 350));
-		    bolt(m_idx, GF_WATER, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_WATER, damage/10);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_WATER, damage);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 6) mnoise = 6;
 			break;
 		}
 
@@ -2833,12 +3762,18 @@ bool make_attack_spell(int m_idx)
 			/* damage for Morgoth's mana bolt is 61-330 instead of 51-350 */
 			if (rlev > 90) rlev = 90;
 			damage = randint(rlev * 3) + ((rlev * 2)/3);
+			/* magic-strengthening room rune */
+			if (p_ptr->roomeffect == 12) damage += 10 + randint(rlev/4 + 1); 
+			if (damage > 350) damage = 350;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 350));
-			bolt(m_idx, GF_MANA, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_MANA, damage/12);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_MANA, damage);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2849,12 +3784,17 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a plasma bolt.", m_name);
 			damage = 10 + damroll(8, 7) + (rlev);
+			/* fire-strengthening room rune */
+			if (p_ptr->roomeffect == 4) damage += 9 + randint(rlev/5 + 2);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 350));
-			bolt(m_idx, GF_PLASMA, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_PLASMA, damage/10);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_PLASMA, damage);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2864,14 +3804,19 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts an ice bolt.", m_name);
-			damage = damroll(6, 6) + (rlev/2 + randint(rlev/2));
+			damage = damroll(6, 6) + rlev/2 + randint(rlev/2);
+			/* cold-strengthening room rune */
+			if (p_ptr->roomeffect == 5) damage += 8 + randint(rlev/5 + 2);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 400));
-			bolt(m_idx, GF_ICE, damage);
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_ICE, damage/11);
+			else if (!m_ptr->extra2) bolt(m_idx, GF_ICE, damage);
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
@@ -2881,11 +3826,15 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a magic missile.", m_name);
-			bolt(m_idx, GF_MISSILE,
-			     damroll(2, 6) + (rlev / 3));
+			if (m_ptr->extra2 <= 2) bolt(m_idx, GF_MISSILE, randint(3 + rlev/9));
+			else if (!m_ptr->extra2) bolt(m_idx, GF_MISSILE, damroll(2, 6) + (rlev / 3));
+			/* magic-strengthening room rune */
+			if (p_ptr->roomeffect == 12) damage += 4 + randint(rlev/5 + 2);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 2) mnoise = 2;
 			break;
 		}
 
@@ -2919,15 +3868,18 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-            	(void)clear_timed(TMD_CHARM);
-				if (m_ptr->extra2) (void)inc_timed(TMD_AFRAID, 2);
-                else if (die > 100) (void)inc_timed(TMD_AFRAID, rand_int(6) + 6);
-                else (void)inc_timed(TMD_AFRAID, rand_int(4) + 4);
+				if (m_ptr->extra2 < 2) (void)clear_timed(TMD_CHARM);
+				if (m_ptr->extra2 > 2) (void)inc_timed(TMD_AFRAID, 2);
+				else if ((die > 100) && (!m_ptr->extra2)) 
+					(void)inc_timed(TMD_AFRAID, rand_int(6) + 6);
+				else (void)inc_timed(TMD_AFRAID, rand_int(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_RES_FEAR);
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 30)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
@@ -2940,12 +3892,10 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a spell, burning your eyes!", m_name);
 			if (p_ptr->timed[TMD_SAFET_GOGGLES]) save += 8;
-			if (p_ptr->resist_blind)
-			{
-				msg_print("You are unaffected!");
-			}
-			else if (m_ptr->extra2) break;
-			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			
+			if (p_ptr->resist_blind) msg_print("You are unaffected!");			
+			else if (m_ptr->extra2 > 2) break;
+			else if ((r_ptr->flags2 & (RF2_POWERFUL)) && (!m_ptr->extra2))
 	        {
                     if (rand_int(120) < save)
 				    {
@@ -2962,7 +3912,8 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)set_timed(TMD_BLIND, 11 + rand_int(2 + rlev/10)); /* was 12+rand_int(4) */
+				if (m_ptr->extra2) (void)set_timed(TMD_BLIND, 1 + rand_int(2 + rlev/10));
+				else (void)set_timed(TMD_BLIND, 11 + rand_int(2 + rlev/10)); /* was 12+rand_int(4) */
 			}
 			update_smart_learn(m_idx, DRS_RES_BLIND);
 			break;
@@ -2992,7 +3943,7 @@ bool make_attack_spell(int m_idx)
             } 
 
 			/* 50% miss chance for monster spells */
-			if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) &&	(randint(100) < 50))
+			if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) &&	(rand_int(100) < 50))
 			{
 				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
 				else msg_print("You feel a protective shimmer in the air.");
@@ -3007,8 +3958,8 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
-			else if (m_ptr->extra2) break;
-			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			else if (m_ptr->extra2 > 2) break;
+			else if ((r_ptr->flags2 & (RF2_POWERFUL)) && (!m_ptr->extra2))
 			{
                     if (rand_int(120) < p_ptr->skills[SKILL_SAV])
 				    {
@@ -3025,9 +3976,12 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
+				if (m_ptr->extra2) (void)inc_timed(TMD_CONFUSED, rand_int(4) + 2);
+				else (void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_RES_CONFU);
+			/* spells make noise */
+			if (mnoise < 2) mnoise = 2;
 			break;
 		}
 
@@ -3049,8 +4003,8 @@ bool make_attack_spell(int m_idx)
 				else msg_print("You feel a protective shimmer in the air.");
 				break;
 			}
-			else if (m_ptr->extra2) break;
-			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			else if (m_ptr->extra2 > 2) break;
+			else if ((r_ptr->flags2 & (RF2_POWERFUL)) && (!m_ptr->extra2))
 			{
                     if (rand_int(120) < p_ptr->skills[SKILL_SAV])
 				    {
@@ -3058,17 +4012,15 @@ bool make_attack_spell(int m_idx)
                     }
                     else
                     {
-                      (void)inc_timed(TMD_SLOW, rand_int(5) + 4);
+                      (void)inc_timed(TMD_SLOW, rand_int(5 + rlev/14) + 4);
                     }
             }
 			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
-			else
-			{
-				(void)inc_timed(TMD_SLOW, rand_int(4) + 4);
-			}
+			else if (m_ptr->extra2) (void)inc_timed(TMD_SLOW, rand_int(4) + 2);
+			else (void)inc_timed(TMD_SLOW, rand_int(4 + rlev/14) + 4);
 			update_smart_learn(m_idx, DRS_FREE);
 			break;
 		}
@@ -3124,7 +4076,6 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-
 		/* RF6_HASTE */
 		case RF6_OFFSET+0:
 		{
@@ -3169,6 +4120,8 @@ bool make_attack_spell(int m_idx)
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 2) mnoise = 2;
 			break;
 		}
 
@@ -3187,8 +4140,14 @@ bool make_attack_spell(int m_idx)
 			else if ((projectable(m_ptr->fy, m_ptr->fx, py, px)) &&
 				(m_ptr->cdis < 10)) msg_format("%^s mumbles.", m_name);
 
+#ifdef roomrunes
+			/* healing room rune */
+			if ((roomeff == 24) && (!(r_ptr->flags3 & (RF3_NON_LIVING))))
+				m_ptr->hp += (s32b)(rlev * 4) + 2 + randint(rlev * 4);
+			else 
+#endif
 			/* Heal some */
-			m_ptr->hp += (s32b)(rlev * 4) + randint(rlev * 2);
+				m_ptr->hp += (s32b)(rlev * 4) + randint(rlev * 2);
 
 			/* Fully healed */
 			if (m_ptr->hp >= m_ptr->maxhp)
@@ -3211,7 +4170,7 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Cancel fear */
-			if (m_ptr->monfear)
+			if ((m_ptr->monfear) && (m_ptr->monfear < 251))
 			{
 				/* Cancel fear */
 				m_ptr->monfear = 0;
@@ -3245,6 +4204,8 @@ bool make_attack_spell(int m_idx)
 			/* monster is now easier to notice */
 			if (!m_ptr->monseen) m_ptr->monseen = 1;
 			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			/* spells make noise */
+			if (mnoise < 2) mnoise = 2;
 			break;
 		}
 
@@ -3263,10 +4224,6 @@ bool make_attack_spell(int m_idx)
 		/* RF6_TPORT */
 		case RF6_OFFSET+5:
 		{
-			/* the teleporter box #914 tries to teleport with the PC */
-			if ((!r_ptr->level) && (randint(100) < 100) &&
-				(!((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx))))
-					break;
 			if ((seen) || (!noattack)) disturb(1, 0);
 			if (seen) msg_format("%^s teleports away.", m_name);
 			/* teleport_away mode 4 tries to take the PC along */
@@ -3370,29 +4327,23 @@ bool make_attack_spell(int m_idx)
 		/* RF6_TELE_LEVEL */
 		case RF6_OFFSET+10:
 		{
-			int tlvlmode = 1;
 			if (!direct) break;
-			/* the teleporter box #914 teleports you only while it holds you */
-			if ((!r_ptr->level) && (!((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx))))
-					break;
-			else if (!r_ptr->level) tlvlmode = 2;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
 			savechance = p_ptr->skills[SKILL_SAV] - badluck + (goodluck/2);
 			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance -= 5;
-			if (tlvlmode == 2) savechance = 0;
-			if ((p_ptr->resist_nexus) && (!(tlvlmode == 2)))
+			if (p_ptr->resist_nexus)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < savechance)
+			else if ((rand_int(100) < savechance) || (m_ptr->extra2))
 			{
 				msg_print("You resist the effects!");
 			}
-			else if (!m_ptr->extra2)
+			else
 			{
-				teleport_player_level(tlvlmode);
+				teleport_player_level(1);
 			}
 			update_smart_learn(m_idx, DRS_RES_NEXUS);
 			break;
@@ -3434,7 +4385,7 @@ bool make_attack_spell(int m_idx)
 				if (p_ptr->depth > rlevb+10) rlevb += (p_ptr->depth - (rlevb+9)) / 2;
 				diebad = randint(44 + (rlevb*2) + badluck - goodluck);
 				if (p_ptr->timed[TMD_BLESSED]) diebad -= 10;
-				if ((diebad >= 75) && (randint(100) < 35))
+				if ((diebad >= 75) && (randint(100) < 35) && (!m_ptr->extra2))
 				{
 					msg_print("You feel especially unlucky");
 					(void)inc_timed(TMD_WITCH, randint(diebad - 65) + 1);
@@ -3447,7 +4398,8 @@ bool make_attack_spell(int m_idx)
 				/* cap duration */
 				if (diebad > 70) diebad = 69 + randint(6);
 				if (diebad < 1) msg_print("You feel like you got lucky");
-				else if (m_ptr->extra2) (void)inc_timed(TMD_CURSE, 4);
+				else if (m_ptr->extra2 > 2) (void)inc_timed(TMD_CURSE, 4);
+				else if (m_ptr->extra2) (void)inc_timed(TMD_CURSE, 4 + randint(1+diebad/4));
 				else (void)inc_timed(TMD_CURSE, randint(diebad) + 25 + diebad/4);
 			}
 			break;
@@ -3471,7 +4423,7 @@ bool make_attack_spell(int m_idx)
 				/* fire a ball of weak darkess */
 				breath(m_idx, GF_DARK_WEAK, randint((rlev+4)/4), 4);
 				/* then darken the room where the PC is */
-				unlite_room(py, px, FALSE);
+				unlite_room(py, px, 0);
 				/* (very similar to old effect, but "who" in project() */
 				/* is now the monster as it should be for this. */
 			}
@@ -3484,21 +4436,21 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			/* Make it happen less often so corridors don't get full of traps */
 			/* From a monster who hasn't seen you yet */
-			if ((noattack) && (randint(100) < 22 + goodluck)) break;
+			if ((noattack) && ((randint(100) < 22 + goodluck) || (m_ptr->extra2))) break;
 			sound(MSG_CREATE_TRAP);
 			/* alternate version of the spell: */
 			/* can set trap without the PC (or the player) noticing. */
-			if ((m_ptr->extra2) && (noattack)) break;
-			else if (noattack)
+			if (noattack)
 			{
 				int tty = m_ptr->fy, ttx = m_ptr->fx;
 				/* can't set a trap here */
 				if (!((cave_feat[tty][ttx] == FEAT_FLOOR) || (cave_feat[tty][ttx] == FEAT_OPEN_PIT)))
 					break;
-				/* set the trap (whether PC notices or not) */
+				/* unchanging terrain room rune */
+				if (roomeff == 17) break;
+				/* set the trap (whether PC notices or not) (never a trap door) */
 				cave_set_feat(tty, ttx, FEAT_INVIS);
 				/* check if the PC notices the monster setting a trap */
-				/* (monsters never set trap doors this way) */
 				if ((alertness_check(m_ptr, 0, FALSE)) && (seen))
 				{
 					disturb(1, 0);
@@ -3508,10 +4460,15 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles, and then cackles evilly.", m_name);
+			/* unchanging terrain room rune */
+			if ((p_ptr->roomeffect == 17) && (seen))
+				{ msg_format("%^s tries to cast a spell but fails.", m_name); break; }
+			else if (blind) msg_format("%^s mumbles, and then cackles evilly.", m_name);
 			else msg_format("%^s casts a spell and cackles evilly.", m_name);
 			if (m_ptr->extra2) break;
-			(void)trap_creation();
+			(void)trap_creation(0);
+			/* spells make noise */
+			if (mnoise < 2) mnoise = 2;
 			break;
 		}
 
@@ -3524,13 +4481,14 @@ bool make_attack_spell(int m_idx)
 
             savechance = 100 - ((goodluck+1)/3);
             if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 10;
+            if (p_ptr->roomeffect == 20) savechance += 11; /* rune of forgetfullness */
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
-			else if (!m_ptr->extra2)
+			else if (m_ptr->extra2 <= 2)
 			{
-				if (rlev < 20) inc_timed(TMD_AMNESIA, 4 + randint(5));
+				if ((rlev < 20) || (m_ptr->extra2)) inc_timed(TMD_AMNESIA, 4 + randint(5));
 				else inc_timed(TMD_AMNESIA, (rlev/4) + randint(rlev/4));
 				/* re-added forgetting the map which had been removed (less than 50% chance) */
 				if (randint((200-savechance) + p_ptr->skills[SKILL_SAV]/2) < 45 + ((badluck+1)/2)) wiz_dark();
@@ -3538,37 +4496,39 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_SILVER */
+		/* RF6_ILLUSION_CLONE */
 		case RF6_OFFSET+15:
 		{
-			if (m_ptr->silence) return FALSE;
+			int someb = 16;
+			/* if (silenced) return FALSE; */
 			disturb(1, 0);
 			sound(MSG_SUM_ANGEL);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s summons silver grepse.", m_name);
-			/* how many monsters to summon */
-			if ((randint(100) < badluck*2) && (rlev >= 20)) 
-				some = randint(rlev/10) + 2;
-			else some = randint((rlev+6)/15 + 1);
-			/* cap */
-			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			else msg_format("%^s magically clones itself!", m_name);
+			/* how many clones to create */
+			some = 1 + rand_int(3 + rlev/15);
+			/* reroll to make it unlikely to be more than 5 or 6 */
+			if (some > 5) someb = 1 + rand_int(3 + rlev/15);
+			if (someb < some) some = someb;
+
 			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
 			for (k = 0; k < some; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_SILVER);
+				count += summon_illusion(m_ptr->fy, m_ptr->fx, rlev, 0, 24);
 			}
-			if (blind && count)
-			{
-				msg_print("You hear sweet deceitful singing.");
-			}
+			if (blind && count) msg_print("You hear several things appear nearby.");
+			/* swap places with one of the clones (usually) */
+			if (randint(100) < 86) illusion_swap(m_ptr);
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_KIN */
 		case RF6_OFFSET+16:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			/* no summoning kin in the town */
 			if (!p_ptr->depth) return FALSE;
 			disturb(1, 0);
@@ -3590,7 +4550,7 @@ bool make_attack_spell(int m_idx)
 				int sumlev = rlev;
 				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
 				/* Hack -- tweak for living ghouls */
-				if ((randint(100) < 58) && (strstr(m_name, "living ghoul"))) 
+				if ((randint(100) < 58) && (strstr(m_name, "ghoul"))) 
 					summon_kin_type = 'z';
 				/* Hack -- Set the letter of the monsters to summon */
 				else summon_kin_type = r_ptr->d_char;
@@ -3600,13 +4560,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_HI_DEMON */
 		case RF6_OFFSET+17:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_DEMON);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3634,13 +4596,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many evil things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
 		/* RF6_S_MONSTER */
 		case RF6_OFFSET+18:
 		{
-            if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_MONSTER);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3672,13 +4636,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear something appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_MONSTERS */
 		case RF6_OFFSET+19:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_MONSTER);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3706,13 +4672,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
 		/* RF6_S_ANIMAL */
 		case RF6_OFFSET+20:
 		{
-            if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_ANIMAL);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3739,13 +4707,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
 		/* RF6_S_SPIDER */
 		case RF6_OFFSET+21:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_SPIDER);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3772,91 +4742,23 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
-		/* RF6_S_HOUND */
+		/* RF6_S_ILLUSION (should be done) */
 		case RF6_OFFSET+22:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
-			sound(MSG_SUM_HOUND);
+			sound(MSG_SUM_MONSTER);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons hounds.", m_name);
+			else msg_format("%^s magically summons help!", m_name);
 			/* how many monsters to summon */
-			if ((randint(100) < badluck*2) && (rlev >= 20)) 
-				some = randint((rlev+10)/20 + 1) + 2;
-			else some = randint((rlev+10)/20 + 1) + 1;
-			/* cap */
-			if (some > 5 + badluck/4) some = 3 + badluck/4 + randint(2);
-
-			/* Summoning monster may affect what is summoned */
-			summoner = m_ptr->r_idx;
-
-			for (k = 0; k < some; k++)
-			{
-				/* (don't block groups because hounds are always in groups) */
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HOUND);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear many things appear nearby.");
-			}
-			break;
-		}
-
-		/* RF6_S_HYDRA */
-		case RF6_OFFSET+23:
-		{
-			if (m_ptr->silence) return FALSE;
-			disturb(1, 0);
-			sound(MSG_SUM_HYDRA);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons hydras.", m_name);
-			/* how many monsters to summon */
-			if ((randint(100) < badluck*2) && (rlev >= 20)) 
-				some = randint((rlev+10)/20 + 1) + 2;
-			else some = randint((rlev+10)/20 + 1) + 1;
-			/* cap */
-			if (some > 5 + badluck/4) some = 3 + badluck/4 + randint(2);
-
-			/* Summoning monster may affect what is summoned */
-			summoner = m_ptr->r_idx;
-
-			for (k = 0; k < some; k++)
-			{
-				count += summon_nogroups(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HYDRA);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear many things appear nearby.");
-			}
-			break;
-		}
-
-		/* RF6_S_ANGEL (summon ape) */
-		case RF6_OFFSET+24:
-		{
-			if (m_ptr->silence) return FALSE;
-			disturb(1, 0);
-			sound(MSG_SUM_ANIMAL);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons something hairy!", m_name);
-			/* how many monsters to summon (Humbaba is only 'A' after dL40) */
-			if ((rand_int(100) < (badluck+1)*2) && (rlev >= 20))
-			{
-				if ((badluck > 8) || (rlev >= 42)) some = randint(rlev/20 + 1) + 2;
-				else some = randint(rlev/20 + 2) + 1;
-			}
-			else if ((rand_int(100) < badluck + 10 + (rlev/2)) && (rlev >= 10))
-			{
-				if ((rand_int(100) < (rlev + 25)/2) && (rlev >= 30)) some = 3;
-				else some = 2;
-			}
+			if ((randint(100) < (badluck+1)*2) && (rlev >= 15)) some = randint(3);
 			else some = 1;
-			/* cap */
-			if (some > 4 + (badluck+4)/6) some = 2 + (badluck+4)/6 + randint(2);
-
+			
 			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
 			
@@ -3864,21 +4766,157 @@ bool make_attack_spell(int m_idx)
 			{
 				int sumlev = rlev;
 				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
-				/* not too many monster groups */
-				if (k < 2) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANGEL);
-				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANGEL);
+				/* possible to summon more than one but no more than one group */
+				if (k == 0) count += summon_illusion(m_ptr->fy, m_ptr->fx, sumlev, 0, 23);
+				else count += summon_illusion(m_ptr->fy, m_ptr->fx, sumlev, 0, 43);
 			}
 			if (blind && count)
 			{
-				msg_print("You hear something appear nearby ..and it spells like a monkey.");
+				msg_print("You hear something appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
+			break;
+		}
+
+		/* RF6_S_ILLUSIONS (should be done) */
+		case RF6_OFFSET+23:
+		{
+			if (silenced) return FALSE;
+			disturb(1, 0);
+			sound(MSG_SUM_MONSTER);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons monsters!", m_name);
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint((rlev+10)/15 + 1) + 2;
+			else some = randint((rlev+15)/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 2 + randint(2);
+
+			/* Summoning monster may affect what is summoned */
+			summoner = m_ptr->r_idx;
+
+			for (k = 0; k < some; k++)
+			{
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				/* not too many monster groups */
+				if (k < 3) count += summon_illusion(m_ptr->fy, m_ptr->fx, sumlev, 0, 23);
+				else count += summon_illusion(m_ptr->fy, m_ptr->fx, sumlev, 0, 43);
+			}
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
+			break;
+		}
+
+		/* RF6_S_EXTRA (I think it's done) */
+		case RF6_OFFSET+24:
+		{
+			int agroup = 6; /* allow groups by default */
+			int typ;
+			if ((r_ptr->flags3 & (RF3_SCALE)) && (p_ptr->depth > rlev+1)) rlev = (p_ptr->depth + rlev)/2;
+			if (silenced) return FALSE;
+			disturb(1, 0);
+			sound(MSG_SUM_ANIMAL);
+			/* Summoning monster chooses what is summoned */
+			summoner = m_ptr->r_idx;
+			/* Decide what type of monster to summon using r_ptr->summex */
+			typ = gets_extra_type(m_ptr);
+			
+			if (blind) msg_format("%^s mumbles.", m_name);
+			/* messages & amount of summons */
+			if ((typ == SUMMON_APE) || (typ == SUMMON_ONEKIN))
+			{
+				if (!blind)
+				{
+					if (r_ptr->summex == 7) msg_format("%^s summons help.", m_name);
+					else msg_format("%^s magically summons something hairy!", m_name);
+				}
+				if (rlev > 15) agroup = 2; /* maximum groups allowed */
+				else agroup = 1;
+				/* how many monsters to summon (Humbaba is only 'A' after dL40) */
+				if (rlev >= 42) { some = 2 + randint(4); agroup += 1; }
+				else if ((rand_int(100) < badluck + 10 + (rlev/2)) && (rlev >= 15))
+					some = 1 + randint(1 + rlev/15);
+				else if (rand_int(100) < (badluck+2) * 2) some = 2;
+				else some = 1;
+				if ((rand_int(100) < (badluck+2) * 2 + (rlev/4)) && (r_ptr->summex == 7) && (agroup < 3)) 
+					agroup += 1;
+				if (typ == SUMMON_ONEKIN) typ = SUMMON_KIN;
+			}
+			/* 2=silver, 3=hounds, 4=hydras, 31+ =various */
+			else
+			{
+				if (!blind)
+				{
+					if (typ == SUMMON_SILVER) msg_format("%^s summons silver grepse.", m_name);
+					else if (typ == SUMMON_HOUND) msg_format("%^s magically summons hounds!", m_name);
+					else if (typ == SUMMON_NMARE) msg_format("%^s summons nightmares.", m_name);
+					else if (typ == SUMMON_DARK) msg_format("%^s summons darkness demons.", m_name);
+					else if (typ == SUMMON_ARMY) msg_format("%^s summons help.", m_name);
+					else msg_format("%^s magically summons monsters!", m_name);
+					if (cheat_xtra) msg_format("(%^s casts summon extra!)", m_name);
+				}
+				some = 1 + rand_int((rlev+10)/20 + 2);
+				if ((randint(100) < (badluck+2)*2) && (rlev >= 20)) some += 1;
+				if ((randint(100) < (badluck+5)*2) && (rlev >= 30)) some += 1;
+				/* cap */
+				if (some > 5 + badluck/4) some = 3 + badluck/4 + randint(2);
+				if (typ == SUMMON_DARK)
+				{ 
+					if (some > 3) some -= 1;
+					agroup = 1;
+				}
+				if (typ == SUMMON_NMARE) agroup = 2;
+				if (typ == SUMMON_SILVER) agroup = 4;
+			}
+			/* paranoia/testing */
+			if ((!typ) && (cheat_hear)) msg_print("Warning: S_EXTRA cast without summon type.");
+
+			for (k = 0; k < some; k++)
+			{
+				bool illus_nm = FALSE;
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				if (typ == SUMMON_DARK) sumlev += 12;
+				if ((r_ptr->flags3 & (RF3_SCALE)) && (p_ptr->depth > r_ptr->level + 1)) 
+					sumlev += (p_ptr->depth - r_ptr->level) / 2;
+				if (r_ptr->summex == 7) sumlev += 2 + rand_int(3);
+				if ((typ == SUMMON_NMARE) && (randint(100) < 40)) illus_nm = TRUE;
+				if (illus_nm) /* S_NIGHTMARE sometimes summons illusions */
+				{
+					if (k < agroup) count += summon_illusion(m_ptr->fy, m_ptr->fx, sumlev+6, typ, 23);
+					else count += summon_illusion(m_ptr->fy, m_ptr->fx, sumlev+6, typ, 43);
+				}
+				else
+				{
+					/* sometimes limit monster groups */
+					if (k < agroup) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, typ);
+					else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, typ);
+				}
+			}
+			if (blind && count)
+			{
+				if (typ == SUMMON_SILVER) msg_print("You hear sweet deceitful singing.");
+				else if (typ == SUMMON_APE) msg_print("You hear something appear nearby ..and it spells like a monkey.");
+				else if (some > 2) msg_print("You hear many things appear nearby.");
+				else msg_print("You hear something appear nearby.");
+			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_DEMON */
 		case RF6_OFFSET+25:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_DEMON);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3893,13 +4931,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear something appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_UNDEAD */
 		case RF6_OFFSET+26:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_UNDEAD);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3915,13 +4955,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear something appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_DRAGON */
 		case RF6_OFFSET+27:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_DRAGON);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3937,13 +4979,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear something appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 4) mnoise = 4;
 			break;
 		}
 
 		/* RF6_S_HI_UNDEAD */
 		case RF6_OFFSET+28:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_UNDEAD);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3970,13 +5014,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many powerful creepy things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_HI_DRAGON */
 		case RF6_OFFSET+29:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_DRAGON);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4001,6 +5047,8 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many powerful things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 6) mnoise = 6;
 			break;
 		}
 
@@ -4010,7 +5058,7 @@ bool make_attack_spell(int m_idx)
 			int wraiths = 3 + rand_int((badluck+5)/2) + badluck/5;
 			if (wraiths > 9) wraiths = 9;
 			/* silence summons can't stop Sauron from summoning his ringwraiths */
-			if ((m_ptr->silence) && (rlev < 99)) return FALSE;
+			if ((silenced) && (!(rlev == 99))) return FALSE;
             
 			disturb(1, 0);
 			sound(MSG_SUM_WRAITH);
@@ -4039,13 +5087,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear mighty creepy things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 
 		/* RF6_S_UNIQUE */
 		case RF6_OFFSET+31:
 		{
-			if (m_ptr->silence) return FALSE;
+			if (silenced) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_UNIQUE);
 			summoner = m_ptr->r_idx;
@@ -4082,13 +5132,18 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You hear many powerful things appear nearby.");
 			}
+			/* spells make noise */
+			if (mnoise < 3) mnoise = 3;
 			break;
 		}
 	}
 
+	/* S_ILLUSION and S_ILLUSIONS */
+	if ((thrown_spell == RF6_OFFSET+22) || (thrown_spell == RF6_OFFSET+23))
+		/* not sure what to do with monster memory and illusions */;
 
 	/* Remember what the monster did to us */
-	if ((seen) && (!m_ptr->extra2))
+	else if ((seen) && (!m_ptr->extra2))
 	{
 		/* Innate spell */
 		if (thrown_spell < 32*4)
@@ -4121,6 +5176,8 @@ bool make_attack_spell(int m_idx)
 		l_ptr->deaths++;
 	}
 
+	/* make noise */
+	else if (mnoise) make_noise(m_ptr->fy, m_ptr->fx, mnoise, FALSE, FALSE);
 
 	/* A spell was cast */
 	return (TRUE);
@@ -4584,6 +5641,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 #ifdef MONSTER_FLOW
 
 	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
@@ -4615,8 +5673,8 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			/* Skip illegal locations */
 			if (!in_bounds_fully(y, x)) continue;
 
-			/* Skip locations in a wall */
-			if (!cave_floor_bold(y, x)) continue;
+			/* Skip locations in a wall (unless monster can pass walls) */
+			if ((!cave_floor_bold(y, x)) && (!(r_ptr->flags2 & (RF2_PASS_WALL)))) continue;
 
 			/* Check for "availability" (if monsters can flow) */
 			if (adult_ai_sound)
@@ -4762,7 +5820,7 @@ static bool get_random_des(int dy, int dx, int *toy, int *tox, bool water)
 
 	dis = 120;
     
-	/* if you're lucky, the destination is a spot far away from the player */
+	/* if you're lucky, the destination is a spot far away from the PC */
     if (randint(goodluck + 50) > 40)
     {
 		dy = p_ptr->py;
@@ -4944,9 +6002,12 @@ static bool get_moves(int m_idx, int mm[5])
            else if (strchr("oO", r_ptr->d_char)) roamgroup6 = groupdes;
            else if (strchr("C", r_ptr->d_char)) roamgroup7 = groupdes;
    	       else roamgroup8 = groupdes;
-   	    }
-    }
+		}
+	}
     
+	/* if it's not asleep, it shouldn't be roaming 23/11/11 */
+	if (!m_ptr->csleep) m_ptr->roaming = 0;
+
 	move_val = 0;
 	y2 = py;
 	x2 = px;
@@ -4960,7 +6021,7 @@ static bool get_moves(int m_idx, int mm[5])
 	/* stuff in cave.c is always directed at the PC) */
 	if ((adult_ai_sound) && (!m_ptr->roaming))
 	{
-		/* Flow towards the player */
+		/* Flow towards the PC */
 		/* doesn't use return bool value, but x2 & y2 don't change when it returns FALSE */
 		(void)get_moves_aux(m_idx, &y2, &x2);
 	}
@@ -5272,6 +6333,179 @@ static bool get_moves(int m_idx, int mm[5])
 }
 
 
+/* some monsters reluctant to leave (or enter) certain rooms
+ * returns a code int:
+ * 0 == doesn't matter
+ * 1 == reluctant to leave (will become afraid for a few turns to make to go out of LOS)
+ * 2 == reluctant to enter (not done yet)
+ * 3 == slightly reluctant to leave (won't leave LOS, more likely to use ranged attacks from the doorway)
+ * -1 == wants to leave (not used yet)
+ */
+static int wants_to_stay(const monster_type *m_ptr, int roomeff, int nroomeff)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    cptr rname = (r_name + r_ptr->name);
+	u32b f4, f5, f6;
+	
+	/* monster is not leaving a room with an effect */
+	/* (roomeff == nroomeff) is always true (both 0) when ifdef roomrunes is not defined */
+	if (roomeff == nroomeff) return 0;
+
+#if 0 /* changed my mind: even stupid monsters sense that they're leaving a place they like */
+	/* stupid monsters don't pay attention */
+	if (((r_ptr->flags2 & (RF2_EMPTY_MIND)) || (r_ptr->flags2 & (RF2_STUPID))) && 
+		(!(r_ptr->flags2 & (RF2_SMART)))) return 0;
+#endif
+
+	/* Extract the racial spell flags */
+	f4 = r_ptr->flags4;
+	f5 = r_ptr->flags5;
+	f6 = r_ptr->flags6;
+	
+	/* how attached are they to the room they're leaving? */
+	/* these check the opposite breath to avoid affecting things like multi-hued dragons */
+	switch (roomeff)
+	{
+		case 2: /* pestilence (poison) */
+		{
+			if (((r_ptr->flags4 & (RF4_BR_POIS)) && (!(r_ptr->flags4 & (RF4_BR_ELEC)))) || 
+				/* check for certain monsters with a poison attack */
+				(((r_ptr->flags3 & (RF3_BUG)) || (strchr("Jr", r_ptr->d_char))) && 
+				(check_melee(m_ptr, 2))))
+			{
+				if ((r_ptr->flags2 & (RF2_RANGE)) && (randint(100) < 70)) return 3;
+				return 1;
+			}
+			
+			break;
+		}
+
+		case 4: /* flame rune */
+		{
+			/* fire monsters */
+			if (((r_ptr->flags4 & (RF4_BR_FIRE)) && (!(r_ptr->flags4 & (RF4_BR_COLD)))) ||
+				(strstr(rname, "fire")) || (strstr(rname, "plasma")) ||
+				(strstr(rname, "tyerr")) || (strstr(rname, "salamander")) || 
+				(strstr(rname, "ifrit")) ||	(strstr(rname, "effretti")) || 
+				(strstr(rname, "bodak")) ||	(strstr(rname, "horned devil")) || 
+				(strstr(rname, "bronze idol")) || (strstr(rname, "lava")))
+			{
+				if (r_ptr->flags2 & (RF2_RANGE)) return 3;
+				return 1;
+			}
+			
+			/* WATER_ONLY monsters and monsters hurt by fire want to leave */
+			if ((r_ptr->flags7 & (RF7_WATER_ONLY)) || (r_ptr->Rfire < -1)) return -1;
+			break;
+		}
+
+		case 5: /* ice rune */
+		{
+/* yeti and white wolfs aren't here because they don't actually have any cold-based attacks */
+			if (((r_ptr->flags4 & (RF4_BR_COLD)) && (!(r_ptr->flags4 & (RF4_BR_FIRE)))) ||
+/* check CFOREST because there may be monster names with the letters I-C-E but not the word */
+				((strstr(rname, "ice")) && (r_ptr->flags7 & (RF7_CFOREST))) || 
+/* excluded frost giant because I don't picture them backing off from a fight because of this. */
+				/*(strstr(rname, "frost")) ||*/ (strstr(rname, "snow")) || 
+				(strstr(rname, "white witch")) || (strstr(rname, "flurry")))
+			{
+				if (r_ptr->flags2 & (RF2_RANGE)) return 3;
+				return 1;
+			}
+			
+			if ((strstr(rname, "frost")) && (randint(100) < 60)) return 3; /* frost giants */
+
+			/* fire monsters want to leave */
+			if (((r_ptr->flags4 & (RF4_BR_FIRE)) && (!(r_ptr->flags4 & (RF4_BR_COLD)))) ||
+				(strstr(rname, "fire")) || (strstr(rname, "plasma")) ||
+				(strstr(rname, "tyerr")) || (strstr(rname, "salamander")) || 
+				(strstr(rname, "ifrit")) ||	(strstr(rname, "effretti")) || 
+				(strstr(rname, "bodak")) ||	(strstr(rname, "lava"))) return -1;
+			break;
+		}
+
+		case 6: /* acid/ooze rune */
+		{
+			if ((((r_ptr->flags4 & (RF4_BR_ACID)) || (r_ptr->flags4 & (RF4_BR_SLIME))) && 
+				(!(r_ptr->flags4 & (RF4_BR_ELEC)))) ||
+				(strstr(rname, "ochre jelly")) || (strstr(rname, "gelatinous")) ||
+				(strstr(rname, "ooze")) || (strstr(rname, "pudding")) ||
+				(strstr(rname, "bloodshot icky")) || (r_ptr->d_char == 'N'))
+			{
+				if (r_ptr->flags2 & (RF2_RANGE)) return 3;
+				return 1;
+			}
+			
+			/* monsters hurt by acid want to leave */
+			if (r_ptr->Racid < -1) return -1;
+			break;
+		}
+
+		case 7: /* lightning rune */
+		{
+			/* storm giants don't have RANGE flag but they do have spells including TELE_TO */
+			if (strstr(rname, "storm giant")) return 3;
+			if ((strstr(rname, "storm cloud")) && (randint(100) < 70)) return 3;
+			
+			if (((r_ptr->flags4 & (RF4_BR_ELEC)) && (!(r_ptr->flags4 & (RF4_BR_ACID)))) ||
+				(strstr(rname, "tyerr")) || (strstr(rname, "storm cloud")) || 
+				(strstr(rname, "electric eel")))
+			{
+				if (r_ptr->flags2 & (RF2_RANGE)) return 3;
+				return 1;
+			}
+			
+			/* monsters hurt by lightning want to leave */
+			if (r_ptr->Relec < -1) return -1;
+			break;
+		}
+
+		case 8: /* tornado rune */
+		{
+			/* all archery-using monsters want to leave */
+			if ((r_ptr->flags2 & (RF2_RANGE)) && ((r_ptr->flags4 & (RF4_ARROW_1)) ||
+				(r_ptr->flags4 & (RF4_ARROW_2)) || (r_ptr->flags4 & (RF4_ARROW_3)) ||
+				(r_ptr->flags4 & (RF4_ARROW_4)))) return -1;
+			break;
+		}
+
+		case 10: /* sundial */
+		{
+			bool night = TRUE;
+			/* night or day */
+			if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
+			/* werebeasts (only at night under a full moon) */
+			if ((night) && (p_ptr->theme == 7) && 
+				(r_ptr->Rsilver < 0) && (strstr(rname, "were")))
+			{
+				if ((r_ptr->flags2 & (RF2_RANGE)) && (randint(100) < 70)) return 3;
+				return 1;
+			}
+			break;
+		}
+
+		case 13: /* necromancy rune */
+		{
+			if (r_ptr->flags3 & (RF3_UNDEAD))
+			{
+				if ((r_ptr->flags2 & (RF2_RANGE)) && (randint(100) < 70)) return 3;
+				return 1;
+			}
+			break;
+		}
+
+#if maybelater
+		case 9: /* enveloping dark rune */
+		{
+			
+			
+			break;
+		}
+#endif
+	}	
+	return 0;
+}
+
 
 /*
  * Hack -- compare the "strength" of two monsters XXX XXX XXX
@@ -5304,18 +6538,31 @@ static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr
 	/* Extract mexp */
 	mexp2 = nr_ptr->mexp;
 	
+	/* can't destroy/move room runes */
+	if (n_ptr->r_idx > 1400) return 0;
 	/* NONMONSTERS have no XP value (and trees are hard to trample/push past) */
 	if (nr_ptr->flags7 & (RF7_NONMONSTER)) mexp2 = 14000 + randint(16000);
+	/* anything which blocks line of sight is hard to trample/push past */
+	if (nr_ptr->flags7 & (RF7_BLOCK_LOS)) mexp2 += nr_ptr->level * 20;
 
 	/* always push past (or kill) imaginary monsters */
-	if ((n_ptr->extra2) && (!m_ptr->extra2)) return (1);
-	else if ((!n_ptr->extra2) && (m_ptr->extra2)) return (-1);
+	if ((n_ptr->extra2 <= 2) && (!m_ptr->extra2 <= 2)) return (1);
+	else if ((!n_ptr->extra2 <= 2) && (m_ptr->extra2 <= 2)) return (-1);
+	if (m_ptr->extra2) mexp1 = mexp1 / 2;
+	if (n_ptr->extra2) mexp2 = mexp2 / 2;
 
 	/* wall monsters and statues are especially hard to trample */
-	if ((killm) && (strchr("#", nr_ptr->d_char))) mexp2 += 8000 + randint(11000);
-
-	/* don't trample or push past monsters of the same race */
-	if (m_ptr->r_idx == n_ptr->r_idx) return (-1);
+	if ((killm) && (strchr("#", nr_ptr->d_char))) mexp2 += 8000 + randint(10000);
+	
+	/* monster is the same race */
+	if (m_ptr->r_idx == n_ptr->r_idx)
+	{
+		/* (usually) allow scared monsters to push past their peers to run away */
+		if ((m_ptr->monfear) && (!n_ptr->monfear) && (!killm) &&
+			(randint(100) < 75)) return (1);
+		/* else don't trample or push past monsters of the same race */
+		else return (-1);
+	}
 	
 	/* never trample uniques (will try again to push past) */
 	if ((killm) && ((nr_ptr->flags1 & (RF1_UNIQUE)) ||
@@ -5355,7 +6602,7 @@ static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr
 }
 
 /* Staff of zapping effect
- * returns TRUE is monster has been zapped to death.
+ * returns TRUE if monster has been zapped to death.
  * (more effective than it used to be)
  */
 static bool do_zapping(const monster_type *m_ptr)
@@ -5377,13 +6624,13 @@ static bool do_zapping(const monster_type *m_ptr)
 	x = m_ptr->fx;
 
 	/* less likely to zap sleeping monsters */
-	if ((m_ptr->csleep) && (m_ptr->roaming)) odds = 5;
-	else if (m_ptr->csleep) odds = 8;
+	if ((m_ptr->csleep) && (m_ptr->roaming)) odds = 5 + p_ptr->skills[SKILL_STL]/2;
+	else if (m_ptr->csleep) odds = 7 + p_ptr->skills[SKILL_STL]/2;
 	else odds = 4;
 	/* less likely to activate vs PASS_WALL monsters in a wall */
 	if (!cave_floor_bold(y, x)) odds += 2;
 	/* more likely to zap breeders */
-	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (odds > 6)) odds -= 2;
+	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (odds > 5)) odds -= 2;
 	else if (r_ptr->flags2 & (RF2_MULTIPLY)) odds -= 1;
 
 	/* Prepare death note */
@@ -5403,17 +6650,29 @@ static bool do_zapping(const monster_type *m_ptr)
      }
      else if ((randint(odds) == 1) && (player_has_los_bold(y, x)))
      {
+		object_type *o_ptr;
+		u32b f1, f2, f3, f4;
+		bool powerzap = FALSE;
 	     /* Get the monster name */
 		 char m_name[80];
 		 monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
          msg_format("%^s is zapped with electricity.", m_name);
+         
+         /* check for Stormwalker */
+         o_ptr = &inventory[INVEN_FEET];
+		 if (o_ptr->name1)
+		 {
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			if (a_ptr->activation == ACT_PZAP) powerzap = TRUE;
+		 }
 		 /* damage has been increased as of v1.3.0: */
 		 /* 2-4 damage at plev 1, 2-6 at plev 10, 3-6 at plev 12, 4-11 at plev 24 */
          if (p_ptr->lev >= 12) zap = randint(p_ptr->lev/3) + (p_ptr->lev/12) + 1;
          else zap = randint(3 + p_ptr->lev/5) + 1;
 
-		 if (p_ptr->immune_elec) zap += randint(p_ptr->lev/4 + 1) + 1;
+		 if (powerzap) zap += randint(p_ptr->lev/4 + 1) + 14 + randint(5);
+		 else if (p_ptr->immune_elec) zap += randint(p_ptr->lev/4 + 1) + 2;
          else if (p_ptr->resist_elec) zap += randint(p_ptr->lev/4 + 1);
          if (cp_ptr->flags & CF_POWER_SHIELD) zap += (goodluck/2) + (p_ptr->lev/10);
          if (r_ptr->flags3 & (RF3_BUG)) zap += randint(p_ptr->lev/3 + 1);
@@ -5811,8 +7070,14 @@ static void process_monster(int m_idx)
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 	
 	int ridx = m_ptr->r_idx;
-    int malertrad, noticerange;
+    int roomeff = 0, nroomeff = 0, wstay = 0;
 	bool allow_mult, pause, gonext, ifsmart, fishdie, nowake = FALSE;
+	bool sdoorway = FALSE;
+#ifdef noise
+#else
+    int malertrad, noticerange;
+#endif
+	int mnoise = 1;
 	char m_name[80], n_name[80];
 
 	int i, d, oy, ox, ny, nx;
@@ -5839,11 +7104,21 @@ static void process_monster(int m_idx)
 	bool invisible = FALSE;
 
 	/* ordinary trees don't do anything (no 'wakes up' messages) */
-	if (r_ptr->flags7 & (RF7_NONMONSTER)) return;
+	if (r_ptr->flags7 & (RF7_NONMONSTER))
+	{
+		/* new: a couple nonmonsters have spells */
+		make_attack_spell(m_idx);
+		return;
+	}
 
 	/* Get the origin */
 	oy = m_ptr->fy;
 	ox = m_ptr->fx;
+	
+#ifdef roomrunes
+	/* get room effect if any */
+	roomeff = room_runes(oy, ox);
+#endif
 
 	/* temporarily invisibility */
 	if (m_ptr->tinvis) m_ptr->tinvis -= 1;
@@ -5853,6 +7128,11 @@ static void process_monster(int m_idx)
 	/* town monsters with an XP penalty don't get aggravated this way */
 	if ((r_ptr->level == 0) && (r_ptr->mexp < 0)) nowake = TRUE;
 
+#ifdef noise
+	/* all this is moved to rouse_monster(). */
+	if ((m_ptr->csleep) && (!m_ptr->roaming)) return;
+#else 
+
 	/* Handle roaming or sleeping monsters (hasn't noticed the player yet) */
 	if (m_ptr->csleep)
 	{
@@ -5861,7 +7141,7 @@ static void process_monster(int m_idx)
 		/* Aggravation */
 		/* note: aggravation can now be nullifed by very high stealth */
 		/* see calc_bonuses() */
-		if (p_ptr->aggravate)
+		if ((p_ptr->aggravate) || (p_ptr->roomeffect == 1))
 		{
 			/* Notice the "waking up" */
 			if (m_ptr->ml)
@@ -5878,7 +7158,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* non-aggressive monsters just start roaming */
-			if (nowake)
+			if ((nowake) && (!(p_ptr->roomeffect == 1)))
 			{
 				if (!m_ptr->roaming) m_ptr->roaming = 1;
 			}
@@ -5998,7 +7278,7 @@ static void process_monster(int m_idx)
 		notice = rand_int(noticerange);
 
 		/* Hack -- See if monster "notices" player */
-		if (((notice * notice * notice) <= p_ptr->noise) && (!nowake))
+		if (((notice * notice * notice) <= p_ptr->oppnoise) && (!nowake))
 		{
 			int d = 1;
 
@@ -6037,10 +7317,7 @@ static void process_monster(int m_idx)
 				if ((m_ptr->ml) && (!m_ptr->extra2))
 				{
 					/* Hack -- Count the ignores */
-					if (l_ptr->ignore < MAX_UCHAR)
-					{
-						l_ptr->ignore++;
-					}
+					if (l_ptr->ignore < MAX_UCHAR) l_ptr->ignore++;
 				}
 			}
 
@@ -6075,9 +7352,7 @@ static void process_monster(int m_idx)
 
 					/* Hack -- Count the wakings */
 					if ((l_ptr->wake < MAX_UCHAR) || (!m_ptr->extra2))
-					{
 						l_ptr->wake++;
-					}
 				}
 			}
 		}
@@ -6111,199 +7386,7 @@ static void process_monster(int m_idx)
 	   p_ptr->window |= PW_MONLIST;
 	   window_stuff();
     }
-
-	/* Handle "stun" */
-	if (m_ptr->stunned)
-	{
-		int d = 1;
-
-		/* Make a "saving throw" against stun */
-		if (rand_int(5000) <= r_ptr->level * r_ptr->level)
-		{
-			/* Recover fully */
-			d = m_ptr->stunned;
-		}
-
-		/* Hack -- Recover from stun */
-		if (m_ptr->stunned > d)
-		{
-			/* Recover somewhat */
-			m_ptr->stunned -= d;
-		}
-
-		/* Fully recover */
-		else
-		{
-			/* Recover fully */
-			m_ptr->stunned = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				/* Get the monster name */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-				/* Dump a message */
-				msg_format("%^s is no longer stunned.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-		/* Still stunned (changed effect: */
-		/* shouldn't completely keep a monster from acting) */
-		/* if (m_ptr->stunned) return; */
-	}
-
-	/* Handle timed silence summons */
-	if (m_ptr->silence)
-	{
-        int d, msave;
-
-        /* monster saving throw to shake off the enchantment (lower is stronger) */
-        if ((r_ptr->flags2 & (RF2_SMART)) && (r_ptr->flags1 & (RF1_UNIQUE))) msave = 7;
-        else if (r_ptr->flags2 & (RF2_SMART)) msave = 10;
-        else if (r_ptr->flags1 & (RF1_UNIQUE)) msave = 12;
-        else msave = 15;
-
-        if ((r_ptr->level / msave) > 8) d = randint(5) + 1;
-        else if ((r_ptr->level / msave) > 6) d = randint(6);
-        else if ((r_ptr->level / msave) < 2) d = 1;
-        else d = randint(r_ptr->level / msave);
-
-		/* Still silenced */
-		if (m_ptr->silence > d)
-		{
-			/* Reduce the duration */
-			m_ptr->silence -= d;
-		}
-
-		/* Recovered */
-		else
-		{
-			/* No longer silenced */
-			m_ptr->silence = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				/* Get the monster name */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-				/* Dump a message */
-				msg_format("%^s is no longer silenced.", m_name);
-				
-				/* possible disturb */
-				if (disturb_minor) disturb(1, 0);				
-			}
-		}
-    }
-
-	/* Handle paladin truce spell */
-	if (m_ptr->truce)
-	{
-		int d = randint(r_ptr->level / 15 + 1);
-
-		/* Still peaceful */
-		if (m_ptr->truce > d)
-		{
-			/* Reduce the duration */
-			m_ptr->truce -= d;
-		}
-
-		/* Recovered */
-		else
-		{
-			/* No longer peaceful */
-			m_ptr->truce = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				/* Get the monster name */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-				/* Dump a message */
-				msg_format("%^s is no longer bound by your truce.", m_name);
-				
-				/* possible disturb */
-				if (disturb_minor) disturb(1, 0);				
-			}
-		}
-    }
-
-
-	/* Handle confusion */
-	if (m_ptr->confused)
-	{
-		int d = randint(r_ptr->level / 10 + 1);
-
-		/* Still confused */
-		if (m_ptr->confused > d)
-		{
-			/* Reduce the confusion */
-			m_ptr->confused -= d;
-		}
-
-		/* Recovered */
-		else
-		{
-			/* No longer confused */
-			m_ptr->confused = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				/* Get the monster name */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-				/* Dump a message */
-				msg_format("%^s is no longer confused.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
-
-
-	/* Handle "fear" */
-	if (m_ptr->monfear)
-	{
-		/* Amount of "boldness" */
-		int d = randint(r_ptr->level / 11 + 1);
-
-		/* Still afraid */
-		if (m_ptr->monfear > d)
-		{
-			/* Reduce the fear */
-			m_ptr->monfear -= d;
-		}
-
-		/* Recover from fear, take note if seen */
-		else
-		{
-			/* No longer afraid */
-			m_ptr->monfear = 0;
-
-			/* Visual note */
-			if (m_ptr->ml)
-			{
-				char m_poss[80];
-
-				/* Get the monster name/poss */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-				monster_desc(m_poss, sizeof(m_poss), m_ptr, 0x22);
-
-				/* Dump a message */
-				msg_format("%^s recovers %s courage.", m_name, m_poss);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
-
+#endif /* noise */
 
 	/* monster is currently in an open pit */
 	if (cave_feat[oy][ox] == FEAT_OPEN_PIT) openpit = TRUE;
@@ -6311,6 +7394,7 @@ static void process_monster(int m_idx)
 	
 	allow_mult = FALSE;
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) allow_mult = TRUE;
+	if (m_ptr->extra2) allow_mult = FALSE; /* illusion monsters don't breed */
 
 	/* multiply much less often when it hasn't noticed the player */
 	/* (just because that would be mean to have a room fill up with */
@@ -6356,15 +7440,16 @@ static void process_monster(int m_idx)
     /* sphere of charm */
 	m_ptr->charmed = FALSE;
 	
-    if ((p_ptr->timed[TMD_SPHERE_CHARM]) && (m_ptr->cdis < 5))
-    {
-        m_ptr->charmed = charm_sphere(m_ptr);
+	if ((p_ptr->roomeffect == 1) || (roomeff == 1)) /* no charming */;
+	else if ((p_ptr->timed[TMD_SPHERE_CHARM]) && (m_ptr->cdis < 5))
+	{
+		m_ptr->charmed = charm_sphere(m_ptr);
        
-       /* charmed and nice monsters might go back to sleep */
-       /* only time p_ptr->nice can apply to anything other than animals and creatures of light */
-       if ((p_ptr->nice) && (m_ptr->charmed) && (!m_ptr->evil) &&
+		/* charmed and nice monsters might go back to sleep */
+		/* only time p_ptr->nice can apply to anything other than animals and creatures of light */
+		if ((p_ptr->nice) && (m_ptr->charmed) && (!m_ptr->evil) &&
           (goodluck > 0) && (randint(100) < 16))
-	   {
+		{
 	      bool startroam;
 		  /* Get the monster name */
 	      monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -6423,7 +7508,10 @@ static void process_monster(int m_idx)
 			{
 				/* sometimes this takes up their whole turn */
 				/* (but never if nobody actually woke up) */
-				if (randint(100) < 16 + goodluck) return;
+				if (randint(100) < 16 + goodluck)
+				{
+					return;
+				}
 			}
 		}
 	}
@@ -6484,7 +7572,7 @@ static void process_monster(int m_idx)
 		}
 	}
 	/* imaginary monsters stagger sometimes */
-	else if ((m_ptr->extra2) && (rand_int(100) < 25))
+	else if ((m_ptr->extra2 > 2) && (rand_int(100) < 25))
 	{
 		stagger = TRUE;
 	}
@@ -6494,8 +7582,8 @@ static void process_monster(int m_idx)
     {
         if (rand_int(100) < 18) stagger = TRUE;
     }
-	/* stagger sometimes when roaming (or has truce) */
-	else if (((m_ptr->roaming) || (m_ptr->truce)) && 
+	/* stagger sometimes when roaming (or has truce or in a room of the pink elephant) */
+	else if (((m_ptr->roaming) || (m_ptr->truce) || (nroomeff == 11)) && 
 		(rand_int(100) < 9)) stagger = TRUE;
 	
 	/* make monster stagger sometimes if charmed or HELPER */
@@ -6546,7 +7634,7 @@ static void process_monster(int m_idx)
     pause = FALSE;
 
 	/* if it's a WATER_ONLY monster, it may suffocate if out of water */
-	if ((rand_int(100) < 9) && (m_ptr->extra2)) fishdie = TRUE;
+	if ((rand_int(100) < 8) && (m_ptr->extra2)) fishdie = TRUE;
 	else if ((rand_int(100) < 17) && (!m_ptr->extra2)) fishdie = TRUE;
 	else fishdie = FALSE;
 
@@ -6564,12 +7652,28 @@ static void process_monster(int m_idx)
 			(projectable(oy, ox, p_ptr->py, p_ptr->px)) &&
 			(randint(5) + 2 > m_ptr->cdis) && (!m_ptr->bold) &&
 			(!stagger) && (!m_ptr->csleep))  /* not staggering or roaming */
+		{
 			/* (reverse direction to move away from PC) */
-			d = 0 - d;
-
-		/* Get the destination */
-		ny = oy + ddy[d];
-		nx = ox + ddx[d];
+			/* d = 0 - d; */
+			ny = oy - ddy[d];
+			nx = ox - ddx[d];
+		}
+		else
+		{
+			/* Get the destination */
+			ny = oy + ddy[d];
+			nx = ox + ddx[d];
+		}
+		
+#ifdef roomrunes
+		/* get new room effect if any */
+		nroomeff = room_runes(ny, nx);
+		
+		/* some monsters like to stay in certain rooms */
+		wstay = wants_to_stay(m_ptr, roomeff, nroomeff);
+		if ((wstay == 3) && (rand_int(100) < 4) && 
+			(!projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px))) wstay = 1;
+#endif
 
 		/* WATER_ONLY monsters can't stand being out of water */
 		if ((r_ptr->flags7 & (RF7_WATER_ONLY)) && (fishdie) &&
@@ -6593,25 +7697,21 @@ static void process_monster(int m_idx)
 				if (m_ptr->hp > 4) m_ptr->hp -= (1 + randint((m_ptr->hp / 2) + 1));
 				if (m_ptr->hp <= 4) m_ptr->hp -= randint(2);
 				if (m_ptr->hp < 0)
-					{
-				if (m_ptr->ml) msg_format("%^s dies from being out of water!", m_name);
+				{
+					if (m_ptr->ml) msg_format("%^s dies from being out of water!", m_name);
 						delete_monster_idx(m_idx, FALSE);
 					return;
 				}
 				else if (m_ptr->ml)
-				{
 					msg_format("%^s is having trouble breathing out of water.", m_name);
-				}
 			}
 			/* don't hurt the monster more than once */
 			fishdie = FALSE;
 		}
 
-
 		/* Handle water first */
 		/* fire-based monsters will not go in water, or take damage if they do */
-		if ((cave_feat[ny][nx] == FEAT_WATER) && 
-				(r_ptr->flags7 & (RF7_HATE_WATER)))
+		if ((cave_feat[ny][nx] == FEAT_WATER) && (r_ptr->flags7 & (RF7_HATE_WATER)))
 		{
 			if ((i < 4) || (randint(100) < 75) || (m_ptr->hp < 10))
 			{
@@ -6637,20 +7737,28 @@ static void process_monster(int m_idx)
 				if (r_ptr->flags2 & (RF2_RANGE)) pause = TRUE;
 			}
 		}
+#if blah /* go to "Floor is open?" part /
 		/* most monsters ignore water */
 		else if (cave_feat[ny][nx] == FEAT_WATER)
 		{
 		    /* Go ahead and move */
 		    do_move = TRUE;
 		}
+#endif
 		/* WATER_ONLY monsters never leave the water */
 		/* (WATER_ONLY monsters should not also have WATER_HIDE) */
-		else if ((cave_feat[oy][ox] == FEAT_WATER) && (r_ptr->flags7 & (RF7_WATER_ONLY)) &&
-			(cave_m_idx[ny][nx] >= 0))
+		else if ((cave_feat[oy][ox] == FEAT_WATER) && (!(cave_feat[ny][nx] == FEAT_WATER)) &&
+			(r_ptr->flags7 & (RF7_WATER_ONLY)) && (cave_m_idx[ny][nx] >= 0))
 		{
 			do_move = FALSE;
 		}
-
+		/* monster doesn't want to leave the room it's in */
+		else if (wstay == 1)
+		{
+			do_move = FALSE;
+			/* monster may be stopped in a doorway (maybe make it scared so it'll get out of LOS) */
+			sdoorway = TRUE;
+		}
 		/* Floor is open? */
 		else if (cave_floor_bold(ny, nx))
 		{
@@ -6666,7 +7774,7 @@ static void process_monster(int m_idx)
 			/* prefer not going into a pit (unless it flies or is a climber) */
 			if ((cave_feat[ny][nx] == FEAT_OPEN_PIT) && (!(r_ptr->flags2 & (RF2_FLY))))
 			{
-				if ((m_ptr->roaming) && (!strchr("SXacr:%&", r_ptr->d_char)))
+				if ((m_ptr->roaming) && (!strchr("Xacrx:%&", r_ptr->d_char)))
 					do_move = FALSE;
 			}
 			/* does it move, but have no melee blows? */
@@ -6676,17 +7784,18 @@ static void process_monster(int m_idx)
 				nomelee = TRUE;
             }
 			/* moving would give away the disguise */
-			if (m_ptr->disguised) maystop = TRUE;
+			if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised)) maystop = TRUE;
 
 			/* Crude AI improvement: If it prefers shooting/casting to melee */
 			/* It might decide not to move (pause and shoot/cast later) */
-			if (((r_ptr->flags2 & (RF2_RANGE)) || (maystop)) &&
-				(!m_ptr->confused) && (!m_ptr->roaming))
+			if (((r_ptr->flags2 & (RF2_RANGE)) || (maystop) || (r_ptr->flags3 & (RF3_KEEP_DIST))) && 
+				(projectable(oy, ox, p_ptr->py, p_ptr->px)) &&
+				(!m_ptr->confused) && (!m_ptr->roaming) && (m_ptr->cdis <= r_ptr->spr))
 	        {
             	int py = p_ptr->py;
               	int px = p_ptr->px;
                 int stopodd = 20;
-                if (m_ptr->disguised) stopodd = 80;
+                if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised)) stopodd = 80;
 			    if (clean_shot(oy, ox, py, px, FALSE)) stopodd += 19;
 			    /* monsters who don't melee have no interest in coming closer to the PC */
 			    if ((m_ptr->cdis < 3) && (nomelee) && (closer)) stopodd += 55;
@@ -6696,9 +7805,10 @@ static void process_monster(int m_idx)
 			    else if ((m_ptr->cdis < 3) && (closer)) stopodd += 21;
 			    else if ((m_ptr->cdis < 4) && (closer)) stopodd += 9;
 			    else if ((m_ptr->cdis < 3) && (!further)) stopodd += 9;
+			    if ((r_ptr->flags3 & (RF3_KEEP_DIST)) && (further)) stopodd = 0;
 			    /* don't like to shoot from inside a pit (hurts to-hit) */
 				if (openpit) stopodd = stopodd/2;
-			    if ((randint(100) < stopodd) && (projectable(oy, ox, py, px)))
+			    if ((randint(100) < stopodd) || (wstay == 3))
                 {
                    do_move = FALSE;
                    pause = TRUE;
@@ -6710,7 +7820,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Permanent wall */
-		else if (cave_feat[ny][nx] >= FEAT_PERM_EXTRA)
+		else if ((cave_feat[ny][nx] >= FEAT_PERM_EXTRA) && (cave_feat[ny][nx] <= FEAT_PERM_SOLID))
 		{
             if ((m_ptr->roaming) && (m_ptr->roaming < 20))
             {
@@ -6746,6 +7856,7 @@ static void process_monster(int m_idx)
 
 			/* Monster destroyed a wall */
 			did_kill_wall = TRUE;
+			if (mnoise < 8) mnoise = 8;
 
 			/* Forget the wall */
 			cave_info[ny][nx] &= ~(CAVE_MARK);
@@ -6758,7 +7869,7 @@ static void process_monster(int m_idx)
 		}
 		
 		/* bump into the wall */
-		else if (cave_feat[ny][nx] >= FEAT_MAGMA)
+		else if ((cave_feat[ny][nx] >= FEAT_MAGMA) && (cave_feat[ny][nx] <= FEAT_WALL_SPEC))
 		{
             if ((m_ptr->roaming) && (m_ptr->roaming < 20))
             {
@@ -6768,21 +7879,21 @@ static void process_monster(int m_idx)
                }
                else if (i > 1) m_ptr->roaming += 1;
             }
-            /* not roarming, but haven't been able to find a move */
+            /* not roaming, but haven't been able to find a move */
             /* magic roaming number 30 */
             else if ((i == 4) && (randint(100) < 22)) m_ptr->roaming = 30;
 
             /* maybe stagger next time through the loop */
-			if (randint(100) < 10) stagger = TRUE;
+			if (randint(100) < 5) stagger = TRUE;
 		}
 
 		/* Handle PASS_DOOR monsters (imaginary monsters also pass through doors) */
 		else if ((((cave_feat[ny][nx] >= FEAT_DOOR_CLOSE) &&
 		          (cave_feat[ny][nx] <= FEAT_DOOR_STUCK)) ||
 		         /* (cave_feat[ny][nx] == FEAT_SECRET) || */
-				  (cave_feat[ny][nx] == FEAT_RUBBLE)) &&
-  				  ((r_ptr->flags2 & (RF2_PASS_DOOR)) || (m_ptr->extra2)))
-
+				  (cave_feat[ny][nx] == FEAT_SMRUBBLE) ||
+                  (cave_feat[ny][nx] == FEAT_RUBBLE)) &&
+  				  ((r_ptr->flags2 & (RF2_PASS_DOOR)) || (m_ptr->extra2 > 2)))
 		{
 			/* Pass through doors */
 			do_move = TRUE;
@@ -6820,9 +7931,8 @@ static void process_monster(int m_idx)
 			/* Creature can open doors. */
 			if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) && (may_open))
 			{
-				/* Closed doors and secret doors */
-				if ((cave_feat[ny][nx] == FEAT_DOOR_CLOSE) ||
-				    (cave_feat[ny][nx] == FEAT_SECRET))
+				/* Closed doors */
+				if (cave_feat[ny][nx] == FEAT_DOOR_CLOSE)
 				{
 					/* The door is open */
 					did_open_door = TRUE;
@@ -6831,30 +7941,32 @@ static void process_monster(int m_idx)
 					may_bash = FALSE;
 				}
 
-				/* Locked doors (not jammed) */
-				else if (cave_feat[ny][nx] == FEAT_DOOR_LOCKD)
+				/* Locked doors and secret doors (not jammed) */
+				else if ((cave_feat[ny][nx] == FEAT_DOOR_LOCKD) ||
+					(cave_feat[ny][nx] == FEAT_SECRET))
 				{
 					int k, rdlev;
 
 					/* Door power */
 					if (p_ptr->depth < 20) k = 2 + randint(9);
-					else if (p_ptr->depth < 70) k = p_ptr->depth/10 + randint(9);
-					else k = 7 + randint(9);
+					else if (p_ptr->depth < 72) k = p_ptr->depth/9 + randint(9);
+					else k = 8 + randint(9);
 
 					if ((m_ptr->confused) && (m_ptr->stunned)) k += 5;
 					else if ((m_ptr->confused) || (m_ptr->stunned)) k += 2;
 
 					/* roaming monsters don't bash doors so they should */
 					/* be able to open them easier so they don't just */
-					/* keep running into walls */
-					if (m_ptr->roaming) k -= 5;
+					/* keep running into walls (as long as it isn't in a vault) */
+					if ((m_ptr->roaming) && (!(cave_info[ny][nx] & (CAVE_ICKY)))) k -= 5;
 
 					/* Try to unlock it XXX XXX XXX */
-					rdlev = r_ptr->level*2;
+					if (r_ptr->level < 6) rdlev = r_ptr->level * 2;
+					else rdlev = (r_ptr->level * 7) / 4; /* was x2 for all monsters*/
 
 					/* needs to be a minimum of 5 to be able to open anything */
-					if ((rdlev < 5) && (randint(100) < rdlev*10)) rdlev = 5;
-					if (rand_int(rdlev) > k)
+					if ((rdlev <= k) && (randint(100) < rdlev*8)) rdlev = k+1;
+					if (randint(rdlev) > k) /* was rand_int(rdlev) */
 					{
 						/* Unlock the door */
 						cave_set_feat(ny, nx, FEAT_DOOR_CLOSE);
@@ -6881,8 +7993,8 @@ static void process_monster(int m_idx)
 				{
 					if (p_ptr->depth < 20) k = 2 + randint(9);
 					else if (p_ptr->depth < 56) k = p_ptr->depth/8 + randint(9);
-					else if (p_ptr->depth > 80) k = p_ptr->depth/8 + randint(8);
-					else k = 7 + randint(9);
+					else if (p_ptr->depth >= 80) k = p_ptr->depth/8 + randint(8);
+					else k = 8 + randint(9);
 				}
 				
 				/* monster's bashing power */
@@ -6937,18 +8049,18 @@ static void process_monster(int m_idx)
 
 					/* The door was bashed open */
 					did_bash_door = TRUE;
+					if (mnoise < 10) mnoise = 10;
 
 					/* Hack -- fall into doorway */
 					do_move = TRUE;
 				}
 			}
 
-
 			/* Deal with doors in the way */
 			if (did_open_door || did_bash_door)
 			{
 				/* Break down the door */
-				if (did_bash_door && (rand_int(100) < 50))
+				if (did_bash_door && (rand_int(100) < 51))
 				{
 					cave_set_feat(ny, nx, FEAT_BROKEN);
 				}
@@ -6964,15 +8076,17 @@ static void process_monster(int m_idx)
 			}
 		}
 		
-		/* if PCplayer is standing on rubble, don't try to climb it, just attack */
-		else if ((cave_feat[ny][nx] == FEAT_RUBBLE) && (cave_m_idx[ny][nx] < 0))
+		/* if PC is standing on rubble, don't try to climb it, just attack */
+		else if (((cave_feat[ny][nx] == FEAT_SMRUBBLE) ||
+			(cave_feat[ny][nx] == FEAT_RUBBLE)) && (cave_m_idx[ny][nx] < 0))
 		{
 			do_move = TRUE;
 		}
 		/* [DJA: added FLY flag: can fly over rubble] */
 		/* monsters that are too big to fly between the rubble and the ceiling */
 		/* don't get the FLY flag even if they can fly (like ancient dragons) */
-		else if ((cave_feat[ny][nx] == FEAT_RUBBLE) && (r_ptr->flags2 & (RF2_FLY)))
+		else if ((r_ptr->flags2 & (RF2_FLY)) && ((cave_feat[ny][nx] == FEAT_SMRUBBLE) ||
+			((cave_feat[ny][nx] == FEAT_RUBBLE) && (randint(100) < 36 - r_ptr->mrsize*8))))
 		{
 			do_move = TRUE;
 
@@ -6988,20 +8102,26 @@ static void process_monster(int m_idx)
 			}
         }
 		/* monsters can move or climb over rubble if they have BASH_DOOR */
-		/* but not easily  */
-		else if ((cave_feat[ny][nx] == FEAT_RUBBLE) && (r_ptr->flags2 & (RF2_BASH_DOOR)))
+		/* but not easily  (added (most) climbers who don't have BASH_DOOR) */
+		else if (((cave_feat[ny][nx] == FEAT_SMRUBBLE) ||
+			(cave_feat[ny][nx] == FEAT_RUBBLE)) && ((r_ptr->flags2 & (RF2_BASH_DOOR)) ||
+			(strchr("Jaclrx", r_ptr->d_char))))
 		{
            	int bashstr, perc, die;
            	bool aclimb = FALSE;
 			object_type *o_ptr;
 			cptr dname = (r_name + r_ptr->name);
 			/* hack for dwarves' digging */
-			if (strstr(dname, "dwarf")) bashstr = 60;
+			if (strstr(dname, "dwarf")) bashstr = 55;
 			/* some monsters are better at digging/bashing than others */
 			else if (strchr("XP:%", r_ptr->d_char)) bashstr = 70;
 			else if (strchr("DETg&", r_ptr->d_char)) bashstr = 50;
-			else if (strchr("ZOMdnox", r_ptr->d_char)) bashstr = 40;
+			else if ((strchr("OUd", r_ptr->d_char)) || (r_ptr->flags3 & (RF3_GIANT))) 
+				bashstr = 45; /* minotaurs have 'H' symbol and GIANT flag */
+			else if (strchr("ZMnox", r_ptr->d_char)) bashstr = 40;
 			else bashstr = 35;
+			if (r_ptr->flags2 & (RF2_KILL_BODY)) bashstr += 8;
+			else if (r_ptr->flags2 & (RF2_MOVE_BODY)) bashstr += 5;
             
 			/* Boulders can leave rubble, so monsters who throw them */
 			/* should climb/move the rubble easily */
@@ -7010,19 +8130,30 @@ static void process_monster(int m_idx)
 			/* hard to climb over rubble from inside of a pit (doesn't affect climbers) */
 			if (openpit) bashstr -= 10;
             
-            /* climbers */
-            if (strchr("JScra", r_ptr->d_char))
-            {
+			/* climbers */
+			if ((strchr("Jaclrwx$", r_ptr->d_char)) && (r_ptr->mrsize < 7))
+			{
                aclimb = TRUE; /* always climb, never remove rubble */
-               if (strchr("Sca", r_ptr->d_char)) bashstr = 70;
-               else if (strchr("J", r_ptr->d_char)) bashstr = 50;
+               if (strchr("acx", r_ptr->d_char)) bashstr = 70;
+               else if (strchr("l", r_ptr->d_char)) bashstr = 54;
+               else if (strchr("Jr", r_ptr->d_char)) bashstr = 44;
                else bashstr = 40;
             }
+            
+			/* minimum bashstr for climbing big rubble (before health modifier) */
+			if ((cave_feat[ny][nx] == FEAT_RUBBLE) && (bashstr < 43)) bashstr = 1;
 
 		    /* how well they dig/climb depends on monster's health and maxhps */
-		    /* average healthy L60 bone devil: bashstr = 81 */
-		    /* average healthy L15 light hound: bashstr = 48 */
-		    /* average healthy L12 black dwarf: bashstr = 72 */
+		    /* average healthy L9 yeti: bashstr = 46 (base35) */
+		    /* average healthy L15 light hound: bashstr = 52 (base40) */
+		    /* average healthy L12 black dwarf: bashstr = 67 (base55) */
+		    /* average healthy L25 werebear: bashstr = 55 (base35) */
+		    /* average healthy L25 hill giant: bashstr = 88 (base70) */
+		    /* average healthy L34 master thief: bashstr = 51 (base35) */
+		    /* average healthy L38 mature red drg.: 67 (base45) */
+		    /* average healthy L60 bone devil: bashstr = 96 (base45) */
+		    /* average fullHP L72 horned reaper: bashstr = 96 (base35) */
+		    /* average fullHP L66 silver idol: bashstr = 107 (base50) */
 		    perc = 100L * m_ptr->hp / m_ptr->maxhp;
 		    if (perc >= 60) bashstr += 9 + r_ptr->level/5;
 		    else if (perc >= 25) bashstr += 2 + r_ptr->level/6;
@@ -7032,15 +8163,18 @@ static void process_monster(int m_idx)
             if ((m_ptr->confused) && (m_ptr->stunned)) bashstr = bashstr/3;
             else if ((m_ptr->confused) || (m_ptr->stunned)) bashstr = (bashstr*2)/3;
            	
-            die = randint(920 + p_ptr->depth);
+            die = randint(800 + p_ptr->depth) + p_ptr->depth/12;
+			if (cave_feat[ny][nx] == FEAT_RUBBLE) 
+				die = randint(1100 + p_ptr->depth) + 35 + p_ptr->depth/10;
+            
             if (die < bashstr)
             {
                 /* dwarves dig rather than climb */
-  			    if (strstr(dname, "dwarf")) die -= 25;
+			    if (strstr(dname, "dwarf")) die -= 25;
 				/* even moreso for wall monsters */
 				else if (strchr("#", r_ptr->d_char)) die -= 30;
 				/* others that are more likely to remove rubble than climb it */
-                else if (strchr("DEMOPTXg%", r_ptr->d_char)) die -= 15;
+                else if (strchr("DEMOPTg", r_ptr->d_char)) die -= 15;
 
 				/* remove rubble */
                 if ((die < (bashstr * 2) / 5) && (!aclimb))
@@ -7071,6 +8205,7 @@ static void process_monster(int m_idx)
 						msg_format("%^s digs through the rubble.", m_name);
 					}
 					else msg_print("You hear rocks being moved.");
+					if (mnoise < 8) mnoise = 8;
                 }
                 /* climb over without removing it */
                 else if ((player_can_see_bold(ny, nx)) && (!invisible))
@@ -7084,16 +8219,16 @@ static void process_monster(int m_idx)
 
 				do_move = TRUE;
 
-				if (player_can_see_bold(ny, nx))
-                {
-                   do_view = TRUE;
+				if ((player_can_see_bold(ny, nx)) && (!invisible))
+				{
+					do_view = TRUE;
 
-                   /* remember BASH_DOOR flag */
-				   if (m_ptr->ml) did_bash_door = TRUE;
-                }
-            }
-        }
-
+					/* remember BASH_DOOR flag */
+					if ((m_ptr->ml) && (r_ptr->flags2 & (RF2_BASH_DOOR))) 
+						did_bash_door = TRUE;
+				}
+			}
+		}
 
 		/* Hack -- check for Glyph of Warding */
 		if (do_move && (cave_feat[ny][nx] == FEAT_GLYPH))
@@ -7118,7 +8253,10 @@ static void process_monster(int m_idx)
 
 				/* Allow movement */
 				do_move = TRUE;
+				if (mnoise < 3) mnoise = 3;
 			}
+			/* if it's blocked by a glyph, maybe make it get out of LOS */
+			if ((!do_move) && (!(r_ptr->flags2 & (RF2_RANGE)))) sdoorway = TRUE;
 		}
 
 		/* Some monsters never attack */
@@ -7132,7 +8270,7 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 		}
 		
-		/* stop roaming if about to move into the player */
+		/* stop roaming if about to move into the PC */
 		if ((do_move) && (m_ptr->roaming) && (cave_m_idx[ny][nx] < 0) && 
 			(!m_ptr->charmed) && (r_ptr->sleep < 240))
 		{
@@ -7147,8 +8285,9 @@ static void process_monster(int m_idx)
 				/* another magic roaming number: monster is caught off guard */
 				m_ptr->csleep = 0;
 				m_ptr->roaming = 29; /* monster gets penalty to-hit */
-            }
-            else m_ptr->roaming = 0;
+			}
+			else if ((m_ptr->roaming) && (m_ptr->csleep)) /* nonaggresive monsters */;
+			else m_ptr->roaming = 0;
         }
 		/* non-agressive monsters don't attack */
 		if ((m_ptr->roaming) && (m_ptr->roaming < 29) &&
@@ -7159,13 +8298,15 @@ static void process_monster(int m_idx)
 		if ((do_move && (cave_m_idx[ny][nx] < 0)) && (!nowake) &&
 			(!m_ptr->charmed) && (!m_ptr->truce))
 		{
-			/* can't stay disguised while attacking */
-			m_ptr->disguised = 0;
+			/* mimmics can't stay disguised while attacking */
+			if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised)) m_ptr->disguised = 0;
+
             /* Do the attack */
 			(void)make_attack_normal(m_idx);
 			
 			/* ensure not roaming */
 			m_ptr->roaming = 0;
+			if (mnoise < 8) mnoise = 8;
 
 			/* Do not move */
 			do_move = FALSE;
@@ -7219,6 +8360,7 @@ static void process_monster(int m_idx)
                 if ((m_ptr->ml) && (eaten)) msg_format("%^s eats %s.", m_name, n_name);
                 else if (m_ptr->ml) msg_format("%^s tramples %s.", m_name, n_name);
 				else if (n_ptr->ml) msg_format("%^s is trampled.", n_name);
+				if (mnoise < 4) mnoise = 4;
 
 				/* Kill the monster */
 				/* if it's eaten it can't return, otherwise it can */
@@ -7237,6 +8379,7 @@ static void process_monster(int m_idx)
 
 				/* Monster pushed past another monster */
 				did_move_body = TRUE;
+				if (mnoise < 2) mnoise = 2;
 
 				/* XXX XXX XXX Message */
 			}
@@ -7351,6 +8494,27 @@ static void process_monster(int m_idx)
                 }
             }
         }
+        /* sundial */
+		if (do_move && (nroomeff == 10))
+		{
+			bool night = TRUE;
+			if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
+			/* HURT_LITE monsters won't go into a room with true daylight unless the PC is there */
+			if ((!night) && (r_ptr->Rlite < -1) && (!in_same_room(ny, nx, p_ptr->py, p_ptr->px)))
+				do_move = FALSE;
+		}
+		/* rune of the enveloping dark or the enchaned skull */
+		if (do_move && ((nroomeff == 9) || (nroomeff == 13)) && (r_ptr->flags3 & (RF3_CLIGHT)))
+		{
+			/* Creatures of light will not go into one of these rooms unless the PC is there */
+			if (!in_same_room(ny, nx, p_ptr->py, p_ptr->px)) do_move = FALSE;
+		}
+		/* animated staff of summoning will not go into a room of static */
+		if (do_move && (nroomeff == 14) && (strchr("-_", r_ptr->d_char)))
+		{
+			/* not even if the PC is there */
+            do_move = FALSE;
+		}
 
 		/* Creature has been allowed move */
 		if (do_move)
@@ -7606,7 +8770,7 @@ static void process_monster(int m_idx)
 	/* fake flag for flexibility flapping froglegs freely */
 	ifsmart = FALSE;
 	if (adult_ai_smart) ifsmart = TRUE;
-	if ((pause) && (r_ptr->flags2 & (RF2_SMART)) && (randint(100) < 85))
+	if ((pause) && (r_ptr->flags2 & (RF2_SMART)) && (randint(100) < 90))
         ifsmart = TRUE;
 	else if ((pause) && (randint(100) < 67)) ifsmart = TRUE;
 	if ((m_ptr->stunned) || (m_ptr->confused)) ifsmart = FALSE;
@@ -7620,6 +8784,14 @@ static void process_monster(int m_idx)
 	{
 		/* Cast spell */
 		if (make_attack_spell(m_idx)) return;
+	}
+	/* monster may be stuck in a doorway (or behind a glyph), make it get out of LOS */
+	else if (!do_turn && !do_move && sdoorway && !m_ptr->monfear &&
+		(player_has_los_bold(m_ptr->fy, m_ptr->fx)) && !m_ptr->csleep &&
+		(!in_same_room(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)))
+	{
+		/* magic monfear number: stops being afraid if PC is ever in the same room */
+		m_ptr->monfear = 251;
 	}
 
 	/* lasting repugnance (not sure if m_ptr->cdis is updated at this point..) */
@@ -7672,9 +8844,8 @@ static void process_monster(int m_idx)
 		if (did_kill_wall) l_ptr->flags2 |= (RF2_KILL_WALL);
 	}
 
-
 	/* Hack -- get "bold" if out of options */
-	if (!do_turn && !do_move && m_ptr->monfear)
+	if (!do_turn && !do_move && m_ptr->monfear && !sdoorway)
 	{
 		/* No longer afraid */
 		m_ptr->monfear = 0;
@@ -7694,49 +8865,212 @@ static void process_monster(int m_idx)
 
 		/* XXX XXX XXX Actually do something now (?) */
 	}
+	
+	make_noise(ny, nx, mnoise, FALSE, FALSE);
 }
 
 
-#ifdef MONSTER_FLOW
-
-static bool monster_can_flow(int m_idx)
+/* Handle temporary monster effect separately */
+static void process_monster_timed(int m_idx)
 {
-	/* Hack -- Monsters can "smell" the player from far away */
-	if (adult_ai_sound)
+	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	int d, msave, roomeff = 0;
+	int fy, fx;
+
+	/* Get the monster name */
+	char m_name[80];
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+	/* Monster location */
+	fy = m_ptr->fy;
+	fx = m_ptr->fx;
+
+#ifdef roomrunes 
+	roomeff = room_runes(fy, fx);
+#endif /* else roomeff = 0 */
+
+	/* Handle stun */
+	if (m_ptr->stunned)
 	{
-		monster_type *m_ptr = &mon_list[m_idx];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		d = 1;
 
-		/* Monster location */
-		int fy = m_ptr->fy;
-		int fx = m_ptr->fx;
+		/* Make a saving throw against stun */
+		if (rand_int(4990 + m_ptr->stunned*2) <= r_ptr->level * r_ptr->level)
+		{
+			/* Recover fully */
+			d = m_ptr->stunned;
+		}
 
-		/* maybe should prevent flowing while asleep */
-		/* if ((m_ptr->csleep) && (!m_ptr->roaming)) return FALSE; */
+		/* Recover from stun */
+		if (m_ptr->stunned > d)
+		{
+			/* Recover somewhat */
+			m_ptr->stunned -= d;
+		}
+		/* Fully recover */
+		else
+		{
+			/* Recover fully */
+			m_ptr->stunned = 0;
 
-		/* Check the flow (normal aaf is about 20) */
-		if ((cave_when[fy][fx] == cave_when[p_ptr->py][p_ptr->px]) &&
-		    (cave_cost[fy][fx] < MONSTER_FLOW_DEPTH) &&
-		    (cave_cost[fy][fx] < r_ptr->aaf))
-				return TRUE;
+			/* Message if visible */
+			if (m_ptr->ml) msg_format("%^s is no longer stunned.", m_name);
+		}
 	}
 
-	return FALSE;
+	/* Handle timed silence summons */
+	if (m_ptr->silence)
+	{
+        /* monster saving throw to shake off the enchantment (lower is stronger) */
+        if ((r_ptr->flags2 & (RF2_SMART)) && (r_ptr->flags1 & (RF1_UNIQUE))) msave = 7;
+        else if (r_ptr->flags2 & (RF2_SMART)) msave = 10;
+        else if (r_ptr->flags1 & (RF1_UNIQUE)) msave = 12;
+        else msave = 15;
+
+        if ((r_ptr->level / msave) > 8) d = randint(5) + 1;
+        else if ((r_ptr->level / msave) > 6) d = randint(6);
+        else if ((r_ptr->level / msave) < 2) d = 1;
+        else d = randint(r_ptr->level / msave);
+
+		/* Still silenced */
+		if (m_ptr->silence > d)
+		{
+			/* Reduce the duration */
+			m_ptr->silence -= d;
+		}
+		/* Recovered */
+		else
+		{
+			/* No longer silenced */
+			m_ptr->silence = 0;
+
+			/* Message if visible */
+			if (m_ptr->ml)
+			{
+				/* Dump a message */
+				msg_format("%^s is no longer silenced.", m_name);
+				
+				/* possible disturb */
+				if (disturb_minor) disturb(1, 0);				
+			}
+		}
+    }
+
+	/* Handle paladin truce spell */
+	if (m_ptr->truce)
+	{
+		d = randint(r_ptr->level / 15 + 1);
+		/* roomeffect 1 is war- ends truce */
+		if (((p_ptr->roomeffect == 1) && (player_can_see_bold(fy, fx))) ||
+			(roomeff == 1)) d = m_ptr->truce;
+
+		/* Still peaceful */
+		if (m_ptr->truce > d)
+		{
+			/* Reduce the duration */
+			m_ptr->truce -= d;
+		}
+		/* Recovered */
+		else
+		{
+			/* No longer peaceful */
+			m_ptr->truce = 0;
+
+			/* Message if visible */
+			if (m_ptr->ml)
+			{
+				/* Dump a message */
+				msg_format("%^s is no longer bound by your truce.", m_name);
+				
+				/* possible disturb */
+				if (disturb_minor) disturb(1, 0);				
+			}
+		}
+    }
+
+	/* Handle confusion */
+	if (m_ptr->confused)
+	{
+		d = randint(r_ptr->level / 10 + 1);
+
+		/* Still confused */
+		if (m_ptr->confused > d)
+		{
+			/* Reduce the confusion */
+			m_ptr->confused -= d;
+		}
+		/* Recovered */
+		else
+		{
+			/* No longer confused */
+			m_ptr->confused = 0;
+
+			/* Message if visible */
+			if (m_ptr->ml)
+			{
+				/* Dump a message */
+				msg_format("%^s is no longer confused.", m_name);
+			}
+		}
+	}
+
+	/* Handle "fear" */
+	if (m_ptr->monfear)
+	{
+		/* Amount of "boldness" */
+		d = randint(r_ptr->level / 11 + 1);
+		/* recovers courage slower when outmatched */
+		if ((p_ptr->lev > r_ptr->level + 6) && (d > 2) && 
+			(!is_a_leader(m_ptr, 4)) && (randint(100) < 56)) d -= 1;
+		/* roomeffect 1 is war- ends fear */
+		if (((p_ptr->roomeffect == 1) && (player_can_see_bold(fy, fx))) ||
+			(roomeff == 1)) d = m_ptr->monfear;
+		
+		/* magic fear number */
+		if (m_ptr->monfear == 251)
+		{
+			int bchance = 1;
+			/* clear if in the same room as the PC or if PC is adjacent */
+			if ((in_same_room(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) || (m_ptr->cdis < 2))
+				m_ptr->monfear = 0;
+			/* sometimes clear if the monster is in a safe place */
+			if (!player_has_los_bold(m_ptr->fy, m_ptr->fx))
+			{
+				if (r_ptr->flags2 & (RF2_RANGE)) bchance += 20;
+				if (rand_int(200) < bchance) m_ptr->monfear = 0;
+			}
+		}
+
+		/* Still afraid */
+		else if (m_ptr->monfear > d)
+		{
+			/* Reduce the fear */
+			m_ptr->monfear -= d;
+		}
+		/* Recover from fear, take note if seen */
+		else
+		{
+			/* No longer afraid */
+			m_ptr->monfear = 0;
+
+			/* Visual note */
+			if (m_ptr->ml)
+			{
+				/* Get the monster poss */
+				char m_poss[80];
+				monster_desc(m_poss, sizeof(m_poss), m_ptr, 0x22);
+
+				/* Dump a message */
+				msg_format("%^s recovers %s courage.", m_name, m_poss);
+			}
+		}
+	}
+
+	/* Hack -- Update the health bar */
+	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 }
-
-#else /* MONSTER_FLOW */
-
-static bool monster_can_flow(int m_idx)
-{
-	/* Unused parameter */
-	(void)m_idx;
-
-	return FALSE;
-}
-
-#endif /* MONSTER_FLOW */
-
-
 
 
 /*
@@ -7770,7 +9104,6 @@ void process_monsters(byte minimum_energy)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
-
 	/* Process the monsters (backwards) */
 	for (i = mon_max - 1; i >= 1; i--)
 	{
@@ -7789,7 +9122,7 @@ void process_monsters(byte minimum_energy)
 		/* Not enough energy to move */
 		if (m_ptr->energy < minimum_energy) continue;
 
-		/* Use up "some" energy */
+		/* Use up some energy */
 		m_ptr->energy -= 100;
 
 		/* Heal monster? XXX XXX XXX */
@@ -7797,12 +9130,19 @@ void process_monsters(byte minimum_energy)
 		/* Get the race */
 		r_ptr = &r_info[m_ptr->r_idx];
 		
+		/* handle temporary monster effects separately */
+		/* (Otherwise you can confuse a monster, teleport away, and come back */
+		/* 1000 turns later and have the mosnter still be confused). */
+		if ((m_ptr->stunned) || (m_ptr->silence) || (m_ptr->truce) || 
+			(m_ptr->confused) || (m_ptr->monfear))
+				process_monster_timed(i);
+		
 		/*
 		 * Process the monster if the monster either:
-		 * - can "sense" the player
+		 * - can "sense" the PC
 		 * - is hurt
-		 * - can "see" the player (checked backwards)
-		 * - can "smell" the player from far away (flow)
+		 * - can be seen by the PC
+		 * - can "smell" the PC from far away (flow)
 		 */
 		if ((m_ptr->cdis <= r_ptr->aaf) ||
 		    (m_ptr->hp < m_ptr->maxhp) ||

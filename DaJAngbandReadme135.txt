@@ -1,7 +1,63 @@
 
 
 Thanks to:
-Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch among other things, Pav for maintaining a great *band website, those on the oook forums who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Buzzkill for the 32x32 tileset for DaJAngband and other feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or just plays DaJAngband.
+Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch among other things, Pav for maintaining a great *band website, those on the oook forums who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Buzzkill for the 32x32 tileset for DaJAngband and other feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or plays DaJAngband.
+------------------------------------------------------------------------------------------
+		Changes between 1.3.3 and 1.3.5:
+
+Fixed bugs:
+- fixed bug: "There's nothing to disarm there" when moving onto new terrain types with EASY_ALTER turned on.
+- fixed bug: grenades can get SLAY_ANIMAL ego, but it has no effect because grenades already get a x2 shards multiplier. -grenades of SLAY_ANIMAL now get a x2.5 multiplier against animals which are vulerable to shards.
+- fixed bug: entdraught (Ent from Call Help nature spell) can make slime level go up
+- fixed bug: display of stat bonuses/sustains is shifted wrong on character screen
+- fixed bug: double weapons don't keep double weapon dice when turned into a randart.  see the spear 'Nimar' here: http://angband.oook.cz/ladder-show.php?id=11364  (a non double weapon got turned into a double weapon -because it was based on a double weapon.)
+- fixed bug: the tunneling code sometimes has trouble making doors into rooms which are mostly corners (like "circle in a diamond") because it doesn't allow making a corner into an entrance.
+- fixed bug: damage display is wrong for call darkness spell
+- fixed bug involving monster resistance to light and dark.  The most noticable effect of the bug was that dark hounds and a few other monsters were hurt by light (or dark) more than they were supposed to be.
+- fixed bug: corruption increases even after you stop wearing/weilding the corrupting item
+- fixed bug: doors are placed one space away from the doorway instead of actually in the doorway.
+
+Dungeon terrain, design & traps:
+- separated big rubble and small rubble into two separate terrain features.
+- lesser vaults modified so that no lesser vault requires digging through granite to get into the main part of the vault. (May have had their granite entrance replaced by big rubble.  ...although a few still have certain inner parts of the vault which require digging through granite to get to).
+- traps tweaked again to be slightly more dangerous.  There's a couple new trap types including a LoS polymorph trap (which is not thoroughly tested...).
+- The teleporter box is more controllable and generally works better now.
+- Some flavor changes to themed levels.
+- room runes added, give a special effect to the whole room (tested only to make sure the mechanics of the room effects work.  Actual game play effects are still mostly untested. -It's hard to test gameplay in wizard mode...)
+- secret doors are now usually locked, locked doors are more common in general.
+- very shallow levels (<dL8) have bigger chance of being reduced size
+- chance for vault/room designs to be flipped (taken from Sil)
+
+Object changes:
+- a couple new minor objects, and object tweaks
+- rods & stuff more vulnerable to destruction when stacked.
+- added staff/wand ego which prevents charges being drained (This is the only ego wands can get)
+- tweaked some object/ego generation stuff (including: slightly reduced amount of floor items generated)
+- pseudo of "worthless" fully IDs the item (like average/decent does) as long as it's not an ego
+- missile launchers and ammo are less likely to have high +dam and +to hit bonuses, and it's harder to get high +dam and +to hit on launchers and ammo using enchant scrolls (higher failure chance).
+- ego extra chance for extra dice is now in ego_item.txt
+- implemented a weapon speed modifier in object.txt which makes weapons easier (or harder) to get multiple attacks with by modifiying their effective weight for the purpose of the blows calculation. Tweaked a few weapons accordingly.  (Removed the extra dice from the *thanc daggers because daggers are easier to multiple attacks with.)
+- fixed: objects placed underneath a statue should be hidden (but they show up on the object list)
+- ring brands are now x2 instead of x3. Also you can now get a brand from a weapon (like a main gauche) wielded in the shield slot, but it becomes a x2 brand.
+- branded ammo is much more likely to break on hitting a monster (see brandedammo in breakage_chance() )  Also ammo is much more likely to disappear when the destination is a water grid.
+- improved mushrooms of stoneskin (Rslime and Rshards among other things)
+
+Monster changes:
+- water-only monsters should hide better in water when the PC is not adjacent to them even if the PC has noticed them before.  Water monsters in water are harder to hit with range weapons.
+- tweaks made so that shallow monsters are less common in vaults, and groups are less likely to be big in vaults.
+- Different actions make different amounts of noise. (In the little time I've had to playtest, this seems to have less gameplay effect that I expected.)  Also, temporary monster effects (like confusion and stunning) are now handled in a separate process_monster funcion.
+- monster champions: certain monsters (captains/cheiftains, etc), have a % chance to be named & become a pseudo-unique (kindof like a randart). Many other monster types have a much smaller chance to be named.
+- scared monsters can pust past monsters of the same race to run away.
+- summon illusion monster spell, also clone self: Make several illusory copies of the monster casting the 
+spell. These illusions appear to have the same HP as the casting monster at all times. Upon casting, the caster immediately swaps places with one of the illusions.
+- <CENCORED> -This is a certain monster change I don't feel like warning people about beforehand...
+- monster trap-setting spell tweaked
+
+Spell changes:
+- more minor improvements to the chance magic realm (mainly for tourists).  new spells: awareness of thieves, celebrity watch (basically detect uniques and named monsters), travel journal. (replacing two useless spells and a redundant spell)  Also, tourists get reduced mana compared to other classes that get their 1st spell at clvl 1.
+
+	There are likely some changes not listed here that I have no record of anymore since I lost my old DaJAngband ideas text file.
+
 ------------------------------------------------------------------------------------------
 
 changes between 1.3.1 and 1.3.2:
@@ -141,38 +197,36 @@ notable changes between 1.2.2 and 1.2.1:
   if monster doesn't prefer ranged attacks/spells then range attacks are less common when in melee range
 
 notable changes between 1.2.0 / 1.2.1 and previous versions:
-  separate level feelings for danger & treasure
   The zap and 'aim' commands are combined into one (currently either 'a' or 'z' will work for both, but later I'll probably make it only 'z').  This eliminates the silliness that swaps the two commands between the roguelike and numpad keysets.
   Time display in minutes instead of game turns. Game turns are now completely hidden from the player (because they have no meaning in-game).
   Resting while poisoned or cut is now allowed as long as you are above your HP warning mark.  Also, there is now a minimum HP warning mark of  2 + (maxHP / 50)  (which obviously is still way too low for normal use).
   Your character may now take a nap at home to restock stores (to replace going to L1 to wait 1000 turns). This costs two hours of in-game time.
   "know complete monster race info" (cheat_know) no longer prevents scoring (but in other ways still acts as a cheat option (ie: it is marked on the character dump even if you turn it back off)). Functions of cheat_know which I consider cheating (any cheat-knowledge specific to an individual monster) now use cheat_hear.
   removed NO_SLEEP from most hounds
-  EXPLODE monster spell added
   Mimmics now actually mimmic stuff! (Object mimmics are indistinguishable from objects unless/until you recognise them with high alertness or the detect hidden spell. Lurkers and trappers are indistinguishable from floor spaces until you recognise them...)
-  Certain dungeon monsters now appear in town as weaker-than-average versions with removed (or reduced) experience reward. Also, distance range of monster spells is reduced in town.
-  certain monsters give off their own light (mostly sprites, town monsters, and fire-based monsters)
-  Monsters now have several spells they are allowed to cast before they have noticed you including heal, darkness, blink, teleport, and temporary invisibility.
-  Diggers (or anything with a tunneling bonus) will do extra damage to trees and statues.
   exploding ammo ego and grenades are added (also everburning torch/lantern)
   launchers "of power" or "of accuracy" always have appropriate bonus higher than the other
   Added race-specific ESP on some objects (like Sting and occationally on slaying egos).
-  Spikes are more useful: automatically uses up to 7 in one turn (now always uses 5 in 1.3.0), Bashing doors is slightly easier.
-  monsters usually don't bash down doors as easily as before.
-  create traps scroll / monster spell now may create traps on spaces with objects or monsters (but doesn't always).
-  Timed branding spells added. (but some of the ammo branding spells still use the old method).
+  Spikes are more useful: always uses 5 spikes, bashing doors is slightly easier for the PC, slightly harder for some monsters.
   Most high resists (namely Rshard, Rnether, Rconf, Rdisen, Rnexus, and Rchaos) reduce damage by a less random amount (higher minimum, lower maximum).
-  Even open doors stop magic illumination now. If you cast a light spell while standing in a doorway, it will illuminate in both directions.
   Lightning and cold do more damage in water, fire and acid do less damage in water (from UnAngband).
 
 Other notable features from before 1.2.0:
   added character history / notetaking from NPP
-  elven cloaks and elven leather caps only pseudo as splendid if they have something other than stealth (because they always have a stealth bonus).
-  always recognise egos on aware jewelry without ID (I thought this was already the case, but it seems I was wrong)
+  always recognise egos on aware jewelry without ID
   removing curses with enchant scrolls is no longer dependant on the success of the enchantment
-  can now recognise trap types on the map (usually..) (this has been improved since it was first implemented, now kobolds, alchemists, and rogues can actually see what stat would be drained by a dart trap by looking at it).
   object list added, and object list command ']'
   Cursed egos (as well as cursed artifacts) now psuedo as 'terrible'. Stuff which previously psuedoed as 'broken' now psuedos (more accurately) as 'worthless'.
-  monsters in groups sometimes wake up their friends
   themed levels added along with appropriate terrain (water for swamps, ponds for the forests, extra rubble for dwarf mine & earth cave). Ordinary trees are in as monsters but have several hacks which make them more like terrain features (They are detected by mapping, but not by detect monster.)
-  autosaves whenever a new level is generated
+  game autosaves whenever a new level is generated
+
+------------------------------------------------------------------------------------------
+
+notable future plans:	(If I ever get around to it...)
+- drastically reduce availability of magical trap disarming.
+- more terrains: deep water, lava, etc
+- wall & door mimics, creeping coins which are mimics, gargoyles which mimic statues, etc
+- possibly further reduce ranges for spells & range weapons
+- add monster morale level: have monsters who are running away flee towards stairs and take them. see post by half: http://angband.oook.cz/forum/showthread.php?p=63330#post63330 (monster morale)
+- Maybe get rid of ai_sound and ai_smell options (always on).
+

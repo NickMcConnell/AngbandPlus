@@ -1,0 +1,660 @@
+		Wizardry will be mostly same as in V (realm 0)
+except Wizard lock in 1st spellbook
+
+and Tenser's Transformations renamed to Enchantments Of War (mostly not for wizard)
+and instead of greater recharging it would have:
+mana bolt
+molten lightning (plasma beam)
+tsunami
+elemental brand ammo becomes elemental brand melee
+greater recharging added to Kelek's
+
+note: when doing formulas for an integer, C always rounds down
+ (when it's a positive number).
+
+	Magic for Beginners (0)
+Magic Missile
+Detect monsters
+phase door
+light area
+find traps/doors
+cure light wounds
+wizard lock
+stinking cloud
+	Conjurings and Tricks (1)
+Confuse monster
+lightning bolt
+Trap/Door Destruction
+cure poison
+sleep monster
+teleport self
+spear of light
+frost bolt
+wonder
+	Incantations and Illusions (2)
+satisfy hunger
+lesser recharging
+Turn stone to mud
+fire bolt
+polymorph
+Identify
+Detect Invisible
+acid bolt
+slow monster
+	Sorcery and Evocations (3)
+frost ball
+teleport other
+haste self
+mass sleep
+fire ball
+Detect Enchantment
+cloudkill
+elemental brand (melee, not for wizards)
+	Resistances of Scarabtarices (4)
+#mana defense (WSHIELD)
+Rcold
+Rfire
+Rpoison
+Resistance
+shield
+	Raal's Tome of Destruction (5)
+shock wave
+molten lightning
+explosion
+acid ball
+ice storm
+meteor swarm
+trigger tsunami
+rift
+	Mordenkainen's Escapes (6)
+door creation
+earthquake (was in 8)
+#sphere of charm (for wizards)
+stair creation
+teleport level
+word of recall
+rune of protection
+#summon demonic aid (war mage only)
+	Tenser's Transformations (7)
+#false life
+heroism
+berserker
+#sphere of charm (animals don't attack or breathe (until you attack an animal))
+enchant weapon
+enchant armor
+#elemental melee strike (effect like spirit of the balrog)
+#dragonfire (super fire bolt + fire ball)
+	Kelek's Grimoire of Power (8)
+bedlam
+rend soul
+word of destruction
+greater recharging (was in 7)
+banishment
+chaos strike
+mass banishment
+mana storm
+
+		Prayers (realm 1)
+	Minor Healings & Defences (0)
+cure light wounds
+detect evil
+bless
+boldness
+call light
+slow poison
+cure serious wounds
+spear of light
+satisfy hunger
+	Godly Insights (1)
+find traps
+find doors/stairs
+detect life
+remove curse
+sense invisible
+sense surroundings
+identify
+word of recall
+true sight (resist blindness/hal + see invisible)
+	Defences of Light (2)
+cure poison
+scare monster (not for paladin)
+resist heat & cold
+cure critical wounds
+chant
+portal
+sanctuary
+protection from evil
+heal (learned later than cmw)
+	Exorcism and Dispelling (not for healers) (3)
+turn undead
+cure mortal wounds (healers get this in P&H)
+prayer
+orb of draining
+dispel undead
+dispel evil
+holy word
+	Purifications & Healing (4)
+cure serious wounds
+cure mortal wounds
+curing
+purify (silver & slime)
+dispel curse
+healing
+restoration
+remembrance
+	Holy Infusions (5)
+unbarring ways
+recharging
+starlight
+haste (vhigh mana & fail for paladin)
+enchant armor
+enchant weapon (not for healer)
+santify for battle (not for healer)
+resistance (not for paladin)
+	Advanced Defences of Light (6)
+mass sleep
+prayer (for healers)
+teleport other
+dispel silver x3
+*protection from evil* (not for knight)
+banish evil
+glyph of warding
+	Sacred Words of Wisdom (7) (not for paladins)
+blink
+detection
+*identify*
+word of destruction
+telepathy
+alter reality
+	Wrath of God (8) (not for healers)
+earthquake
+holy lance
+dispel silver x4
+dispel undead x4
+dispel evil x4
+word of destruction
+annihilation
+
+		Nature (druid, ranger) (realm 2)
+	Call of the Wild (0)
+0detect animal
+1light
+2foraging (satisfy hunger)
+3slow poison
+4blink
+5lightning spark (short range elec beam)
+6ray of light
+7trap/door destruction
+8stone to mud
+	Communion with Nature (1)
+0cure poison
+1frost bolt
+2sleep creature
+3frighten creature
+4detect traps/doors
+5natural vitality
+6stun monster (mystic only)
+7bug spray
+	Gifts of Nature (2)
+0resist fire & cold
+1resist acid & lightning
+2detect life
+3remove curse
+4portal
+5herbal healing
+6earthquake
+7charm animals (sphere of charm)
+	Natural Combat (3)
+0fire spray < add
+1fire bolt (late for rangers, mave back to b2 if this book moves to dungeon)
+2nymph's blessing (like chant)
+3mighty throw
+4wither foe
+5lightning storm
+6thunderclap
+7blizzard
+	Druidic Lore (4)
+0sense invisible
+1sense surroundings
+2resist silver < replaces detect evil
+3resist poison
+4song of frightening
+5teleport other
+6identify
+7true sight
+	Bombadil's Songs (5)
+0song of lulling (slow + sleep monsters)
+1song of heroism (not for druid)
+2call help (pixie or unicorn)7
+3song of protection (weak shield + protection from evil)
+4song of dispelling (dispel monsters & dispel evil (x2))
+5song of warding
+6song of renewal (restore stats)
+	Primal Forces (6)
+0starlight
+1small hurled star (ba-fire + ba-light)
+2tsunami
+3molten lightning
+4volcanic eruption (plasma ball + earthquake)
+5rift
+	Spirits of Nature (7)
+0essence of speed
+1infusion (recharging)
+2banish unnatural (non-living & silver)
+3escape level
+4remembrance (restore exp)
+5extra melee attack (not for ranger, has conditions for mystic)
+6nature's intervention (heal + blessing + curing + dispel unnatural(x2))
+7elemental brand (ammo) (ranger only)
+8telepathy (not for ranger or blue knight)
+	Power of Enlightenment (8) (mystic only)
+chaos strike
+banishment
+hurled star
+mass banishment
+breathe fear & confusion
+breathe inertia & stunning
+breathe balance (chaos, disenchantment, shards or sound)
+*identify*
+
+
+		Luck/Escape (realm 3)  (tourist, chaos warrior, rogue)
+	Tourism & Travel (0)
+illumination
+door/stair detection
+treasure & object detection
+camera flash (short stun + hurt & scare HURT_LITE monsters and all eyes)
+	(no effect on stupid or non-living monsters (unless it has HURT_LITE))
+trap/door destruction
+identify
+door creation (random w/backfire chance [mini earthquake]) (tourist only)
+word of recall (tourist only)
+stair creation (random w/backfire chance [mini earthquake]) (tourist only)
+	Minor Charms for Vacationers (1)
+cure light wounds
+extra luck (bless or berserk or something else)
+resist cold
+disinfectant
+bug spray
+detect invisible
+resist poison
+awareness of thieves (3 effects: gives you much higher resistance to being robbed (but 	not immunity), nullifies the stealth of thieves, and raises listening by a lot.)
+wonder
+	Tricks & Detections (not for tourists) (2)
+blink
+confuse monster
+detect monsters
+detect traps
+slow monster
+dynamite blast
+burst of light (starlight + stuns monsters for short time & scares HURT_LITE monsters)
+stone to mud
+detect enchantment (tourists get this in Guidebook)
+	Guidebook for Tourists (only for tourists) (3)
+detect traps
+map of the area
+celebrity watch
+magic batteries
+telekinesis
+detect enchantment
+probing
+travel journal  (remembrance + LASTING_CURE + possible nostalgia)
+*idenitify*
+	Quick Getaways (4)	 (not for Tourists)
+hit & run (rogue & chaos warrior only: damage + blink))
+blink monster
+teleport self
+teleport other
+slow monsters
+mist of amnesia
+slip into the shadows
+haste
+	The Lottery (not for rogues) (5)
+polymorph
+adjust speed
+adjust curse (remove/dispel/cause)
+banish/summon monster(s)
+self-affecting lottery: heal 2d(clvl*3)/teleport self/gravity self/quick recall/
+	protection from evil/shield/vulnerbility..
+area-affecting lottery: dispel evil/ dispel undead/ dispel monsters/
+	destruction/summon monsters/LOS: GF_KILL_WALL/haste monsters..
+treasure hunt
+aquirement (nasty backfire effects)
+	Lucky Escapes (6)
+seal/open getaway-> one door in any LOS space (including a wall, anything except gold in ore)
+stair creation
+taming (not yet)
+lullaby
+word of destruction
+teleport control
+rune of protection
+	Rogue's Defences (not for tourists) (7)
+resist heat & lightning
+boomerang throw (TMD_RTURN for thrown weapons)
+sense surroundings
+curing
+super roguishness
+sustain speed (also restores DEX)
+resistance
+	The Spreading of Chaos (mostly for chaos warrior) (8)
+stink (stinking cloud/cloudkill/cause poison..)  (tourist can get this)
+berserker
+bedlam  (tourist can get this)
+rift
+chaos strike
+breathe chaos
+mass chaos (bedlam + chaos dmg + chance of slow,stun,gravity,blink monsters,scare monsters) < should have chance of affecting caster	(tourist can get this)
+bizzare effects  (tourist can get this)
+
+most luck spells have a chance of backfiring with a negative effect
+
+
+tv94		Alchemy (mixing with Archery & Theivery) (each class gets about 5.5 books)
+	Beginner's Mixing (0)
+cure light wounds
+stinking cloud (called poison cloud in ALT)
+disinfectant
+light area (not nessarily apply to whole room)
+phase door
+find traps/doors
+detect monsters
+cure poison
+acid arrow (clvl12 weak acid bolt in place of magic missile, never beam)(late for thief)
+	Potions (1)
+skill boost
+resist acid (alchemists only)
+cure moderate wounds (slightly better than csw)
+resist heat & cold
+satisfy hunger
+chemical imbalance of rage (berserk) (not for archer)
+restore memories (vlate for thief)
+resist poison
+heal (not for thief, weaker than heal prayer, but better than cmw)
+	Chemical Detections & Tools (2)
+detect treasure & objects
+trap/door destruction
+clear mind (temp. Rconf)
+detect hidden
+identify
+resistance (move to new book, replace with recharging)
+detect enchantment
+acid coat ammo (vlate, not for thieves)
+<space for 1 more, now 2 more>
+	Quick Getaways (3) (thieves start with this book, mostly for thieves)
+burst of speed (late for alchemists & archers)
+teleport self (late for archers)
+slow monsters (not for alchemists)
+mist of amnesia (vlate for archers)
+haste
+teleport other (vlate for alchemists)
+tunneldigging
+teleport level (not for archers, vlate for alchemists)
+rune of protection (replace with emergency getaway shield)
+  >>emergency getaway shield: +speed<stacks with haste>, +ac, 50% miss chance which applies even to breaths, whenever mon_take_hit is called, the spell ends (with a penalty?).
+	Missile Magic (only for archers) (4)
+0lightning bolt
+1rain of arrows (paranoia backfire)
+2chaos arrow (like weaker chaos strike (never beam)) (paranoia backfire)
+3enchant missile to-hit (easier to cast than enchant weapon spell)
+4enchant missile to-dam (easier to cast than enchant weapon spell)
+5poison brand ammo
+6rocket blast (like explosion but less damage & destroys walls) (paranoia backfire)
+7elemental brand ammo
+8meteor swarm
+	Chemical combat (mostly for alchemists, none for archers) (5)
+0mimmic wand (mimmic)
+1mimmic wand (zap)
+2enhance wand
+3repugnant odor
+4zombie flame
+5Lasting Repugnance
+6Make Grenade
+7Alchemical Dragonbreath (element ball of cold or fire) 
+8acid ball (alchemists only)
+	Safety Precautions (probably book 6)
+0safety goggles (protects from blindness only from light and Sblind, ac vs gaze attacks)
+1sustain health (susCON/DEX & resist slime)
+2breath shield
+3enchant armor
+4quiver protection
+5resistance
+6glyph of warding (chance of paranoia backfire for archers, spell is only for archers)
+	Advanced Thievery (thieves only) (7)
+hit & run
+slip into the shadows
+poison bolt
+cloudkill
+find vault
+Restore Cleverness (Int, DEX, CHA)
+telekinesis
+bedlam
+poison brand weapon
+	Core of Alchemy (alchmists only) (6) (change to book 8)
+0recharging
+1silver bullet
+2cloudkill
+3ice storm
+4explosion
+5poison brand weapon
+6restoration (stats only)
+7elixir of life (like potion of life, vhigh mana & fail%)
+<space for 1 more except this realm is at the max number of spells>
+
+	NEW: (everyone gets 1st 3 books)
+Archer: safetyP., ~1/2 of Getaways, and Missile Magic
+Thief: Getaways, Chemical Combat, Advanced Thievery
+Alchemist: ~1/2 of Getaways, SafetyP., Chemical Combat, & Core of Alchemy
+	OLD:
+Archer: first 3 books, about 1/2 of Quick Getaways, Missile Magic & Advanced Archer's T
+Thief: first 4 books, about 1/2 of Chemical Combat & Advanced Thievery
+Alchemist: first 3 books, about 1/2 of Quick Getaways, Chemical Combat & Core of Alchemy
+
+
+
+		Necromancer spells (Necromancer, Witch, Assassin, black knight)
+	Dark Initiation (0) (not for assassin)
+shadow sting (necromancer only)
+detect evil
+alertness
+call darkness
+horrify monster
+noxious fumes (stinking cloud w/chance of sleep also if at a certain level)
+sleep monster
+cure poison
+see invisible
+	Blood Novitiate (1) (not for witches)
+detect traps
+detect door/stair
+shadow shift (blink with small damage)
+witch's disenfectant (gives you cuts)
+drain charges (heal hps from draining wand/staff charges)
+trap/door destruction (mainly for assassin, late for witch)
+detect living
+stink (more like chance realm spell than noxious fumes)
+step into darkness (darkvision + lower light radius + light vernerability + +1stealth)
+	Mysteries of Shadow (2)
+shadow warp (teleport with small damage)
+wizard lock (necromancer only)
+shadow mapping
+break curse (later than in O)
+recharging
+probing
+identify
+exorcise demons (dispel demons)
+detect enchantment
+	Frightful Realms (3)
+bo-pois (mainly for assassin, late for witch)
+spear of dark
+ice spear (bolt or beam but better chance of beam than most)
+beam of destruction (not for assassin, vlate for witch) (not sure if I can do this)
+scare monsters
+ball of destruction (shards ball plus very small earthquake, r-3)
+mighty venom bolt (strong bo_pois, with small chance of sleep monster) (assassin only)
+circle of flame (fire spread effect)
+chaos strike (not for witch, vlate for assassin)
+	Advanced Necromancy (4)
+demon ward
+wither foe (weak mana bolt + slow and confuse)
+death bolt (almost like drain life, but affects everything that doesn't have
+  NON_LIVING flag, so does affect demons)
+turn undead
+protection from the lifeless (works like protection from evil against stuff
+  with non_living flag)
+dispel undead x3
+stench of death (weak dispel life + confuse monsters + ba-pois (+ ba_elec), also damages self)
+	Unholy Protection (not for assassin) (5)
+boldness (cure fear and (usually) charm, sometimes gives temporary resist fear
+  -always if on a very high clvl) -not for assassin)
+false life (temporarily raises maxHP)
+resist poison
+undead skin (resist cold and nether)
+haste
+summon demonic aid (demon with helpful melee effect)
+unholy resistance (temp rst to fire,cold,poison,dark,nether) (also stench in alt)
+  (higher level spell than resistance spell of other realms)
+shadow barrier (shield)
+spirit of the balrog (resistance to fire and dark + add fire and dark damage
+  to your melee attacks for a limited time (2/3 dam for each -dam before multipliers))
+  (necromancer only, also resistance to fear and charm)
+	Life Force Mastery (not for assassin) (6)
+detect all monsters (detect monsters + detect invisible)
+orb of death (ball spell like death bolt)
+rend soul
+teleport other
+dispel life
+vampiric drain (death bolt + heal + nourishment)
+hold life force (temporary hold life)
+genocide (banishment)
+	Metamorphoses (7)
+slip into the shadows (mainly for assassin, vlate for witch)
+darkvision
+see all foes (cure blindness, see invisible + good chance of short lasting telepathy) 
+resist poison
+bloodwrath (shero + speed, assassin only)
+sniper's eye
+poison ammo (assassin only)
+	Necronomicon (8) (mostly not for assassin)
+	 (these should be all later for witch than nec.)
+draw mana (turn hps into mana)
+word of destruction
+hold (like sleep monsters except ignores no_sleep flag -doesn't affect light fairies)
+dispel undead x4 (x3.5 for witch)
+breathe fear and confusion
+wall of hellfire (Wshield plus temporary fire immunity) (mainly for witch, even harder for necromancer, maybe let assassin use it with shorter duration)
+nether ball
+darkness storm (ba_dark)
+become lich (temporary im-cold and rst-nether and dark, heals, cures, and lowers luck, charisma and/or wisdom, light does extra damage, aggravates animals and HURT_DARK monsters) (mainly for necromancer, even harder for witch)
+
+(some black spells activate timed demon aggravation, some others activate timed "taint" which occationally summons a witch's shadow "Demons are attracted your tainted soul")
+
+		Mind spells (8 books)
+	Try To Concentrate (0)
+cure light wounds
+remove fear
+blink
+mind light (expands light radius by 1 for a while)
+door/stair detection
+bless
+trap detection
+disinfectant
+portal
+	First and Second Sight (1)
+alertness
+detect life
+detect objects
+sense invisible
+beam of light
+detect monsters
+clear mind
+resist light and dark (high levels add Rblind?)
+	Control Your Surroundings (2)
+illumination
+unbarring ways
+confuse monster
+scare monster
+sanctuary
+stone to mud
+telekinesis
+earthquake
+teleport other
+	Expand Your Horizons (3)
+natural vitality (csw,slow po & weaken cuts & stunning)
+mental guard (wshield (like mana defence))
+remove curse
+satisfy hunger
+identify
+sense surroundings
+haste
+detect enchantment
+probing or meditate (paralyzes self but continually scares monsters (or monster amnesia), probes, and has good chance of having extra effect: healing, cure silverpo, restore WIS and/or INT..
+  also protects from slime and silver poison while paralyzed, maybe also telepathy)
+	Healing Meditations (4)
+curing
+cure critical wounds
+sustain mind (sustain WIS & INT)
+resist silver
+purify
+healing
+restoration
+remembrance
+	Battle of Wits (5)
+mist of amnesia
+repel monsters (scare monsters plus turn undead)
+bolt of stupidity (less damage to WEIRD_MIND, no damage to EMPTY_MIND,
+  see if you can make it prevent monsters from casting spells)
+heroism
+protection from evil
+mind control (mass confuse + stun + chance of scaring or sleeping or
+  keeping them from casting spells)
+shock wave
+drain life
+glyph of warding
+	Mastermind Solutions (6)
+dispel curse
+true sight
+resistance
+preserve life force (temp. hold life)
+*protection from evil*
+telepathy
+*identify*
+discover dungeon (like old clairvoyance)
+	Power of Enlightenment (7)
+banishment
+star ball
+dissolve enemy minds (mass monster amnesia + silence summons)
+mass banishment
+breathe fear & confusion
+breathe balance
+alter reality
+
+
+
+	notes on monster stealth:
+
+perception skill:
+
+
+
+	minimum amount healed for cure_xxxx spells/potions
+
+WIZD_CURE_light  	10%	2d8
+PRAY_CURE_light 	12%	2d10
+PRAY_CURE_serious	18%	4d10
+PRAY_CURE_critical	25%	6d10
+PRAY_CURE_mortal	30%	8d10
+PRAY_CURE_serious2	20%	4d10
+PRAY_CURE_mortal2	33%	8d10
+LUCK_CURE_light		11%	damroll(2, 2 + (p_ptr->luck/4)) + randint(plev / 4)
+CHEM_CURE_light		11%	2d9
+CHEM_CURE_moderate	20%	6d8
+CHEM_     HEAL 		33%	(clvl/2)d8
+DARK_CURE_mortal		10d(5+(clvl/10))
+DARK_CURE_mortal:  curep = (p_ptr->mhp * (25 + (plev / 5))) / 100; /* 26% - 35% */
+	potions:
+cure light		10%	2d8
+cure serious		18%	4d8
+cure critical		23%	6d8
+	food:
+shroom of cure serious	20%	4d9
+elven waybread		17%	4d8
+

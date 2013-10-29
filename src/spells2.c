@@ -72,6 +72,14 @@ bool warding_glyph(void)
 	object_type *o_ptr;
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	
+	/* titanium room rune prevent changing terrain except for disarming traps */
+	/* but it does increase difficulty */
+	if (p_ptr->roomeffect == 17)
+	{
+		msg_print("A titanium room rune prevents you creating the warding glyph.");
+		return FALSE;
+	}
 
 	/* (can't make a glyph while standing on rubble) */
 	if (cave_feat[py][px] != FEAT_FLOOR)
@@ -282,9 +290,9 @@ void identify_pack(void)
  */
 static const int enchant_table[16] =
 {
-	0, 10,  50, 100, 200,
-	300, 400, 500, 700, 950,
-	990, 992, 995, 997, 999,
+	  0,  11,  50, 100, 200, /* was 0, 10,  50, 100, 200, */
+	301, 402, 504, 700, 944, /* was 300, 400, 500, 700, 950, */
+	988, 991, 994, 997, 999, /* was 990, 992, 995, 997, 999, */
 	1000
 };
 
@@ -580,6 +588,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are desperate to escape!!!";
 	}
+	if (p_ptr->timed[TMD_FATIGUE])
+	{
+		info[i++] = "You are fatigued.";
+	}
 	if (p_ptr->timed[TMD_IMAGE])
 	{
 		info[i++] = "You are hallucinating.";
@@ -603,6 +615,10 @@ void self_knowledge(bool spoil)
 	else if (f2 & TR2_TELEPORT)
 	{
 		info[i++] = "Your position is very uncertain.";
+	}
+	if (p_ptr->timed[TMD_BLINKER])
+	{
+		info[i++] = "You are blinking.";
 	}
 	if (p_ptr->timed[TMD_SKILLFUL])
 	{
@@ -729,6 +745,14 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your alertness is slightly enhanced.";
 	}
+	if (p_ptr->timed[TMD_PROT_THIEF])
+	{
+		info[i++] = "You are on the watch against thieves.";
+	}
+	if (p_ptr->timed[TMD_LISTENING])
+	{
+		info[i++] = "You ears are especially sensitive.";
+	}
 	if (p_ptr->timed[TMD_SAFET_GOGGLES])
 	{
 		info[i++] = "Your eyes are protected from light and poking.";
@@ -840,6 +864,10 @@ void self_knowledge(bool spoil)
 		if (sensegolem)
 		{
 			info[i++] = "You sense the presense of contructs.";
+		}
+		if (p_ptr->timed[TMD_CELEB_WATCH])
+		{
+			info[i++] = "You keep watch on uniques and leaders.";
 		}
 	}
 	
@@ -1216,7 +1244,7 @@ void self_knowledge(bool spoil)
 		}
 		else if (p_ptr->brand_acid)
 		{
-			info[i++] = "Your ring adds caustic damage to your blows.";
+			info[i++] = "Your equipment adds caustic damage to your blows.";
 		}
 		if (f1 & (TR1_BRAND_ELEC))
 		{
@@ -1224,7 +1252,7 @@ void self_knowledge(bool spoil)
 		}
 		else if (p_ptr->brand_elec)
 		{
-			info[i++] = "Your ring adds lightning to your blows.";
+			info[i++] = "Your equipment adds lightning to your blows.";
 		}
 		if (f1 & (TR1_BRAND_FIRE))
 		{
@@ -1232,7 +1260,7 @@ void self_knowledge(bool spoil)
 		}
 		else if (p_ptr->brand_fire)
 		{
-			info[i++] = "Your ring adds fire to your blows.";
+			info[i++] = "Your equipment adds fire to your blows.";
 		}
 		if (f1 & (TR1_BRAND_COLD))
 		{
@@ -1240,7 +1268,7 @@ void self_knowledge(bool spoil)
 		}
 		else if (p_ptr->brand_cold)
 		{
-			info[i++] = "Your ring adds a freezing chill to your blows.";
+			info[i++] = "Your equipment adds a freezing chill to your blows.";
 		}
 		if (f1 & (TR1_BRAND_POIS))
 		{
@@ -1248,7 +1276,7 @@ void self_knowledge(bool spoil)
 		}
 		else if (p_ptr->brand_pois) /* may add a ring of poison */
 		{
-			info[i++] = "Your ring adds poison to your blows.";
+			info[i++] = "Your equipment adds poison to your blows.";
 		}
 
 		if (f2 & (TR2_EXTRA_CRIT))
@@ -1330,67 +1358,48 @@ void self_knowledge(bool spoil)
 		}		
 	}
 
-	if (p_ptr->theme == 1)
-	{
-		info[i++] = "You are currently in a cold forest.";
-	}		
-	if (p_ptr->theme == 2)
-	{
-		info[i++] = "You are currently in a fairy forest.";
-	}		
-	if (p_ptr->theme == 3)
-	{
-		info[i++] = "You are currently in an icky place.";
-	}		
-	if (p_ptr->theme == 4)
-	{
-		info[i++] = "You are currently in a volcano cave.";
-	}		
-	if (p_ptr->theme == 5)
-	{
-		info[i++] = "You are currently in a earthy cave.";
-	}		
-	if (p_ptr->theme == 6)
-	{
-		info[i++] = "You are currently in a windy cave.";
-	}		
-	if (p_ptr->theme == 7)
-	{
-		info[i++] = "You are currently under a full moon.";
-	}		
-	if (p_ptr->theme == 8)
-	{
-		info[i++] = "You are currently in the haunted ruins of a castle.";
-	}		
-	if (p_ptr->theme == 9)
-	{
-		info[i++] = "You are currently in a swamp.";
-	}		
-	if (p_ptr->theme == 10)
-	{
-		info[i++] = "You are currently in a dwarf mine.";
-	}		
-	if (p_ptr->theme == 11)
-	{
-		info[i++] = "You are currently in a bug cave.";
-	}		
-	if (p_ptr->theme == 12)
-	{
-		info[i++] = "You are currently in the domain of the grepse.";
-	}		
-	if (p_ptr->theme == 13)
-	{
-		info[i++] = "You are currently in a dark fairy city of nightmares.";
-	}		
-	if (p_ptr->theme == 14)
-	{
-		info[i++] = "You are currently in a hell hall.";
-	}		
-	if (p_ptr->theme == 15)
-	{
-		info[i++] = "You are currently in an army barracks.";
-	}		
+	if (p_ptr->theme == 1) info[i++] = "You are currently in a cold forest.";
+	if (p_ptr->theme == 2) info[i++] = "You are currently in a fairy forest.";
+	if (p_ptr->theme == 3) info[i++] = "You are currently in an icky place. (acid)";
+	if (p_ptr->theme == 4) info[i++] = "You are currently in a volcano level. (fire)";
+	if (p_ptr->theme == 5) info[i++] = "You are currently in a themed level which shouldn't exist.";
+	if (p_ptr->theme == 6) info[i++] = "You are currently in a cloud giant vs titan battlezone. (air)";
+	if (p_ptr->theme == 7) info[i++] = "You are currently under a full moon. (elec)";
+	if (p_ptr->theme == 8) info[i++] = "You are currently in the haunted ruins of an ancient temple.";
+	if (p_ptr->theme == 9) info[i++] = "You are currently in a swamp. (water)";
+	if (p_ptr->theme == 10) info[i++] = "You are currently in a dwarf mine. (earth)";
+	if (p_ptr->theme == 11) info[i++] = "You are currently in a bug cave.";
+	if (p_ptr->theme == 12) info[i++] = "You are currently in the domain of the grepse.";
+	if (p_ptr->theme == 13) info[i++] = "You are currently in a dark fairy city of nightmares.";
+	if (p_ptr->theme == 14) info[i++] = "You are currently in a hell hall.";
+	if (p_ptr->theme == 15) info[i++] = "You are currently in a castle army barracks.";
 
+	if (p_ptr->roomeffect == 1) info[i++] = "There is a war rune in this room.";
+	if (p_ptr->roomeffect == 2) info[i++] = "There is a pestilence rune in this room.";
+	if (p_ptr->roomeffect == 3) info[i++] = "There is a famine rune in this room.";
+	if (p_ptr->roomeffect == 4) info[i++] = "There is a flame rune in this room.";
+	if (p_ptr->roomeffect == 5) info[i++] = "There is an ice rune in this room.";
+	if (p_ptr->roomeffect == 6) info[i++] = "There is an ooze rune in this room.";
+	if (p_ptr->roomeffect == 7) info[i++] = "There is a lightning rune in this room.";
+	if (p_ptr->roomeffect == 8) info[i++] = "There is a tornado rune in this room.";
+	if (p_ptr->roomeffect == 9) info[i++] = "There is a darkness rune in this room.";
+	if (p_ptr->roomeffect == 10) info[i++] = "There is a sundial rune in this room.";
+	if (p_ptr->roomeffect == 11) info[i++] = "There is a pink elephant rune in this room.";
+	if (p_ptr->roomeffect == 12) info[i++] = "There is a magic sceptre rune in this room.";
+	if (p_ptr->roomeffect == 13) info[i++] = "There is a skull rune in this room.";
+	if (p_ptr->roomeffect == 14) info[i++] = "There is a static rune in this room.";
+	if (p_ptr->roomeffect == 15) info[i++] = "There is a thorny rune in this room.";
+	if (p_ptr->roomeffect == 16) info[i++] = "There is a silence rune in this room.";
+	if (p_ptr->roomeffect == 17) info[i++] = "There is a titanium rune in this room.";
+	if (p_ptr->roomeffect == 18) info[i++] = "There is a rising dead rune in this room.";
+	if (p_ptr->roomeffect == 19) info[i++] = "There is an instability rune in this room.";
+	if (p_ptr->roomeffect == 20) info[i++] = "There is a forgetfulness rune in this room.";
+	if (p_ptr->roomeffect == 21) info[i++] = "There is a fairy fountain in this room.";
+	if (p_ptr->roomeffect == 22) info[i++] = "There is a grepse rune in this room.";
+	if (p_ptr->roomeffect == 23) info[i++] = "There is a prison bars rune in this room.";
+	if (p_ptr->roomeffect == 24) info[i++] = "There is a healing tree in this room.";
+	if (p_ptr->roomeffect == 25) info[i++] = "There is a blind inner eye rune in this room.";
+	if (p_ptr->roomeffect == 26) info[i++] = "There is a demon rune in this room.";
 
 	/* luck level (see end of function) */
     if (goodluck > 16)
@@ -1658,7 +1667,7 @@ bool detect_traps(void)
 	/* occationally there are times when a trap is created underneath the PC */
 	/* (pitfall) */
 	if (((cave_feat[py][px] == FEAT_TRAP_HEAD + 0x02) || (cave_feat[py][px] == FEAT_TRAP_HEAD + 0x03)) ||
-		((cave_feat[py][px] == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth <= 65)))
+		((cave_feat[py][px] == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth <= 55)))
 	{
 		int pac, traphit = 15 + badluck;
 		if (p_ptr->depth > 56) traphit = 56 + badluck*2 + (p_ptr->depth-50)/5;
@@ -1729,7 +1738,7 @@ bool detect_doorstairs(bool staironly)
 			{
 				/* Detect secret doors */
 				if (cave_feat[y][x] == FEAT_SECRET)
-					place_closed_door(y, x);
+					place_closed_door(y, x, 3);
 	
 				/* Detect doors */
 				if (((cave_feat[y][x] >= FEAT_DOOR_CLOSE) &&
@@ -1900,11 +1909,9 @@ bool detect_treasure(void)
 	}
 
 	/* Describe */
-	if (gold_object)
-		msg_print("You sense the presence of treasure!");
+	if (gold_object) msg_print("You sense the presence of treasure!");
 
-	if (gold_buried)
-		msg_print("You sense the presence of buried treasure!");
+	if (gold_buried) msg_print("You sense the presence of buried treasure!");
 
 	/* Result */
 	return (gold_object || gold_buried);
@@ -1968,7 +1975,8 @@ bool detect_objects_normal(bool full)
 			o_ptr->marked = TRUE;
 
 			/* (never show objects buried in granite, quartz, or magma) */
-			if ((o_ptr->hidden) && ((cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_FLOOR)))
+			if ((o_ptr->hidden) && ((cave_feat[y][x] == FEAT_SMRUBBLE) || 
+				(cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_FLOOR)))
 			{
 				/* always unhide rubble objects when using powerful detection spell */
 				if (full) o_ptr->hidden = 0;
@@ -2091,7 +2099,8 @@ bool detect_objects_magic(void)
 			o_ptr->marked = TRUE;
 
 			/* (never show objects buried in granite, quartz, or magma) */
-			if ((o_ptr->hidden) && ((cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_FLOOR)))
+			if ((o_ptr->hidden) && ((cave_feat[y][x] == FEAT_SMRUBBLE) || 
+				(cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_FLOOR)))
 			{
 				/* normally unhide rubble objects only if in LOS */
 				if (player_can_see_bold(y, x)) o_ptr->hidden = 0;
@@ -2169,6 +2178,7 @@ bool detect_objects_magic(void)
  * full will always be 3.
  *
  * changed strong from bool to int
+ * strong == 99 is special for tourist's celebrity watch spell.
  */
 bool detect_monsters_normal(int strong)
 {
@@ -2218,8 +2228,29 @@ bool detect_monsters_normal(int strong)
 		/* ordinary trees aren't detected as monsters */
 		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
 		
+		/* Tourist's celebrity watch spell */
+		if (strong == 99)
+		{
+			if (is_a_leader(m_ptr, 1))
+			{
+				/* Optimize -- Repair flags */
+				repair_mflag_mark = repair_mflag_show = TRUE;
+
+				/* Hack -- Detect the monster */
+				m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+				/* Update the monster */
+				update_mon(i, 0);
+
+				/* Detect */
+				flag = TRUE;
+			}
+			continue;
+		}
+		
 		/* don't detect disguised monsters (unless very near) */
-		if ((m_ptr->disguised) && (strong < 2) && (m_ptr->cdis > 2)) continue;
+		if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) && 
+			(strong < 2) && (m_ptr->cdis > 2)) continue;
 
 		/* stealthy monsters don't always get detected */
         if ((!m_ptr->ml) && (m_ptr->monseen < 3) && (m_ptr->cdis > 4) &&
@@ -2249,8 +2280,12 @@ bool detect_monsters_normal(int strong)
 	if (flag)
 	{
 		/* Describe result */
-		msg_print("You sense the presence of monsters!");
+		if ((strong == 99) && ((p_ptr->timed[TMD_CONFUSED]) || (p_ptr->timed[TMD_IMAGE])))
+			msg_print("You see stars.");
+		else if (strong == 99) msg_print("You sense the presence of famous figures!");
+		else msg_print("You sense the presence of monsters!");
 	}
+	else if (strong == 99) msg_print("I guess there aren't any stars around here.");
 
 	/* Result */
 	return (flag);
@@ -2299,13 +2334,29 @@ bool reveal_monsters(bool showmes)
 		if ((x < x1 || y < y1 || x > x2 || y > y2) && 
 			(!player_has_los_bold(y, x))) continue;
 
-		/* Reveal only nearby disguised monsters */
+		/* Reveal only nearby disguised monsters (either CHAR_MULTI or DISGUISE) */
 		if ((m_ptr->disguised) && ((m_ptr->cdis < 11 + goodluck/2) || 
 			(player_has_los_bold(y, x))))
 		{
 			m_ptr->disguised = 0;
+			if ((m_ptr->ml) && (r_ptr->flags2 & (RF2_DISGUISE))) 
+				l_ptr->flags2 |= (RF2_DISGUISE);
 
 			showme = TRUE;
+		}
+		else if ((m_ptr->extra2) && ((m_ptr->cdis < 11 + goodluck/2) || 
+			(player_has_los_bold(y, x))))
+		{
+			int discernc = 6;
+			/* recognise illusion clones */
+			if (m_ptr->extra2 == 2) discernc = 16;
+			if (m_ptr->extra2 == 4) discernc = 40;
+
+			if (rand_int(100) < discernc)
+			{
+				m_ptr->extra2 = 9; /* dissapate the illusion */
+				showme = TRUE;
+			}
 		}
 		/* reveal stealthy monsters which are hiding, but not invisible */
 		/* (possible for them to still escape notice) */
@@ -2479,7 +2530,8 @@ bool detect_monsters_evil(void)
 		if (m_ptr->temp_death) continue;
 		
 		/* (Usually) don't detect disguised monsters */
-		if ((m_ptr->disguised) && (rand_int(100) > goodluck/2 + 1)) continue;
+		if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) && 
+			(rand_int(100) > goodluck/2 + 1)) continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -2587,7 +2639,8 @@ bool detect_monsters_life(void)
 		/* if (!panel_contains(y, x)) continue; */
 		
 		/* (Usually) don't detect disguised monsters */
-		if ((m_ptr->disguised) && (rand_int(100) > goodluck/2 + 1)) continue;
+		if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) && 
+			(rand_int(100) > goodluck/2 + 1)) continue;
 
 		/* stealthy monsters don't always get detected */
         if ((!m_ptr->ml) && (m_ptr->monseen < 2) && (m_ptr->cdis > 4) &&
@@ -3006,9 +3059,10 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
 bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 {
 	int i, chance, prob, lift, minlift;
+	int etoh = o_ptr->to_h;
+	int etod = o_ptr->to_d;
 
 	bool res = FALSE;
-
 	bool a = artifact_p(o_ptr);
 
 	u32b f1, f2, f3, f4;
@@ -3032,6 +3086,14 @@ bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 	{
 		prob = prob / (5 + randint(4) + ((goodluck+2)/3));
 	}
+	/* ammo and bows harder to get high bonuses */
+	if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) ||
+	    (o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_BOW))
+	{
+		/* raise bonus value used to determine odds of success  */
+		if ((etoh > rand_int(3)) && (randint(100) < 70)) etoh += randint(2);
+		if ((etod > rand_int(3)) && (randint(100) < 70)) etod += randint(2);
+	}
 
 	/* Try "n" times */
 	for (i=0; i<n; i++)
@@ -3044,12 +3106,12 @@ bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 		{
 			if (o_ptr->to_h < 0) chance = 0;
 			else if (o_ptr->to_h > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_h];
+			else chance = enchant_table[etoh];
 
 			/* has it been disenchanted? */
 			if ((a) && (big))
 			{
-				/* much more likely to work */
+				/* much more likely to work if the object has been disenchanted */
 				if (o_ptr->to_h < a_ptr->to_h)
 				{
 					chance = chance/5;
@@ -3073,7 +3135,7 @@ bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 		{
 			if (o_ptr->to_d < 0) chance = 0;
 			else if (o_ptr->to_d > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_d];
+			else chance = enchant_table[etod];
 
 			/* has it been disenchanted? */
 			if ((a) && (big))
@@ -3187,11 +3249,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac, bool archer, bool big)
 {
 	int item;
 	bool okay = FALSE;
-
 	object_type *o_ptr;
-
 	char o_name[80];
-
 	cptr q, s;
 
 
@@ -3991,6 +4050,14 @@ void destroy_area(int y1, int x1, int r, bool full)
 		msg_print("The ground shakes for a moment.");
 		return;
 	}
+#ifdef roomrunes
+	/* titanium room rune prevents quakes and destruction */
+	if (room_runes(y1, x1) == 17)
+	{
+		msg_print("The ground shakes for a moment.");
+		return;
+	}
+#endif
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)
@@ -4002,7 +4069,9 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 			/* do not affect vaults */
 			if (cave_info[y][x] & (CAVE_ICKY)) continue;
-			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) continue;
+			if ((cave_feat[y][x] >= FEAT_PERM_EXTRA) && (cave_feat[y][x] <= FEAT_PERM_SOLID)) 
+				continue;
+			if (room_runes(y, x) == 17) continue;
 
 			/* Extract the distance */
 			k = distance(y1, x1, y, x);
@@ -4058,7 +4127,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 				}
 
 				/* Magma */
-				else if (t < 100)
+				else if (t < 95)
 				{
 					/* Create magma vein */
 					feat = FEAT_MAGMA;
@@ -4068,7 +4137,8 @@ void destroy_area(int y1, int x1, int r, bool full)
 				else if (t < 110)
 				{
 					/* Create rubble */
-					feat = FEAT_RUBBLE;
+					if (t < 102) feat = FEAT_SMRUBBLE;
+					else feat = FEAT_RUBBLE;
 					big_rocks(y, x);
 				}
 
@@ -4101,6 +4171,9 @@ void destroy_area(int y1, int x1, int r, bool full)
 		}
 	}
 
+	
+	/* make noise */
+	make_noise(y1, x1, 15, FALSE, FALSE);
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
@@ -4130,6 +4203,7 @@ void explode_grenade(int y, int x, const object_type *o_ptr, int accident, int d
 	u32b f1, f2, f3, f4;
 	int rad, bigrad, firstdam, notice = FALSE;
 	int kaboom = GF_SHARD;
+	int blastnoise = 18;
 	
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -4203,6 +4277,7 @@ void explode_grenade(int y, int x, const object_type *o_ptr, int accident, int d
 		/* doesn't do actual damage, dam value is power for GF_TURN_ALL */
 		if (accident) project(0, rad, y, x, dam/2, GF_TURN_ALL, flg, pflg);
 		else project(-1, rad, y, x, dam/2, GF_TURN_ALL, flg, pflg);
+		blastnoise = 20;
 	}
 	
 	/* Escape Smoke: stun & amnesia (amnesia after all explosions) */
@@ -4215,6 +4290,7 @@ void explode_grenade(int y, int x, const object_type *o_ptr, int accident, int d
 		if (accident) project(0, rad, y, x, dam, GF_SOUND, flg, pflg);
 		else project(-1, rad, y, x, dam, GF_SOUND, flg, pflg);
 	}
+	if (o_ptr->name2 == EGO_XPLODE_ESCAPE) blastnoise = 16;
 
 	/* if it explodes by accident, it may damage the PC */
     if (accident)
@@ -4240,6 +4316,9 @@ void explode_grenade(int y, int x, const object_type *o_ptr, int accident, int d
 		/* make monsters forget you (after doing damage) */
 		mass_amnesia(dam, y, x);
 	}
+	
+	/* make noise (blastnoise is usually 18 here) */
+	make_noise(y, x, blastnoise, FALSE, TRUE);
 
 	return;
 }
@@ -4391,6 +4470,14 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 		msg_print("The ground shakes for a moment.");
 		return;
 	}
+#ifdef roomrunes
+	/* titanium room rune prevents quakes and destruction */
+	if (room_runes(cy, cx) == 17)
+	{
+		msg_print("The ground shakes for a moment.");
+		return;
+	}
+#endif
 
 	/* default strength */
 	if (strength == 0) strength = 85;
@@ -4437,7 +4524,11 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 				(cave_feat[yy][xx] > FEAT_RUBBLE)) edist *= 2;
 			/* otherwise do not affect vaults */
 			else if ((cave_info[yy][xx] & (CAVE_ICKY)) || 
-				(cave_feat[yy][xx] >= FEAT_PERM_EXTRA)) continue;
+				((cave_feat[yy][xx] >= FEAT_PERM_EXTRA) && (cave_feat[y][x] <= FEAT_PERM_SOLID))) 
+					continue;
+#ifdef roomrunes
+			if (room_runes(yy, xx) == 17) continue; /* titanium rune */
+#endif
 
 			/* Skip distant grids */
 			if (edist > r) continue;
@@ -4768,7 +4859,8 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 				else if ((t < 100) || ((t >= 105) && (t < 110)))
 				{
 					/* Create rubble */
-					feat = FEAT_RUBBLE;
+					if ((t >= 105) && (t < 110)) feat = FEAT_SMRUBBLE;
+					else feat = FEAT_RUBBLE;
 					big_rocks(yy, xx);
 				}
 
@@ -4824,7 +4916,8 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 					sn = 0;
 
 					/* no need to move if on rubble (but still takes some damage) */
-					if (cave_feat[yy][xx] == FEAT_RUBBLE) noflee = TRUE;
+					if ((cave_feat[yy][xx] == FEAT_RUBBLE) || 
+						(cave_feat[yy][xx] == FEAT_SMRUBBLE)) noflee = TRUE;
 
 					/* Monster can move to escape the wall */
 					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
@@ -4862,7 +4955,8 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 					if (!allowxp) msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
-					if (noflee) damage = damroll(3, 8);
+					if ((noflee) && (cave_feat[yy][xx] == FEAT_RUBBLE)) damage = damroll(3, 9);
+					else if (noflee) damage = damroll(3, 8);
 					else if ((!sn) && (randint(100) < 45))
 					{
 						damage = damroll(6, 8);
@@ -4934,7 +5028,10 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 			}
 		}
 	}
-
+	
+	/* make noise */
+	if (r >= 9) make_noise(y, x, 19, FALSE, FALSE);
+	else make_noise(y, x, 16 + r/3, FALSE, FALSE);
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
@@ -4955,15 +5052,12 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 }
 
 
-
 /*
  * This routine clears the entire "temp" set.
  *
  * This routine will Perma-Lite all "temp" grids.
- *
- * This routine is used (only) by "lite_room()"
- *
  * Dark grids are illuminated.
+ * This routine is used (only) by "lite_room()"
  *
  * Also, process all affected monsters.
  *
@@ -5151,6 +5245,8 @@ static void cave_temp_room_unlite(bool pccast)
  * if (mode == 1) return TRUE if next to a room grid
  *  (This makes it so the walls don't have to have CAVE_ROOM)
  * if (mode == 2) return TRUE if next to a lit space
+ * if (mode == 3) return TRUE if within 8 spaces of requested feature
+ *  (prevent stairs of the same type being near each other for cavern levels)
  */
 bool next_to(int y1, int x1, int mode, int feat)
 {
@@ -5164,14 +5260,43 @@ bool next_to(int y1, int x1, int mode, int feat)
 		y = y1 + ddy_ddd[i];
 		x = x1 + ddx_ddd[i];
 
-		/* Next to the feature */
-		if ((mode == 0) && (cave_feat[y][x] == feat)) nextto = TRUE;
-
 		/* Next to a room */
 		if ((mode == 1) && (cave_info[y][x] & (CAVE_ROOM))) nextto = TRUE;
 
 		/* Next to a lit space */
-		if ((mode == 2) && (cave_info[y][x] & (CAVE_GLOW))) nextto = TRUE;
+		else if ((mode == 2) && (cave_info[y][x] & (CAVE_GLOW))) nextto = TRUE;
+
+		/* Next to the feature */
+		else if /* (mode 0 or 3) */ (cave_feat[y][x] == feat) nextto = TRUE;
+	}
+	if (nextto) return TRUE;
+	
+	/* check 2 spaces away for stairs */
+	if ((mode == 3) || ((mode == 0) && ((feat == FEAT_LESS) || (feat == FEAT_MORE))))
+	{
+		int x3, x2, y3, y2;
+		int sdis = 2;
+		if (mode == 3) sdis = 8;
+
+		/* Pick an area to check */
+		y3 = y1 - sdis;
+		y2 = y1 + sdis;
+		x3 = x1 - sdis;
+		x2 = x1 + sdis;
+
+		if (y3 < 0) y3 = 0;
+		if (x3 < 0) x3 = 0;
+
+		/* Scan the dungeon */
+		for (y = y3; y < y2; y++)
+		{
+			for (x = x3; x < x2; x++)
+			{				
+				if (!in_bounds_fully(y, x)) continue;
+				
+				if (cave_feat[y][x] == feat) nextto = TRUE;
+			}
+		}
 	}
 
 	/* return TRUE if next to a room grid */
@@ -5204,14 +5329,19 @@ static void cave_temp_room_aux(int y, int x)
 }
 
 
-
 /*
  * Illuminate any room containing the given location.
  */
-void lite_room(int y1, int x1)
+void lite_room(int y1, int x1, bool doitanyway)
 {
 	int i, x, y;
 	bool second = FALSE;
+
+	if ((p_ptr->roomeffect == 9) || ((p_ptr->roomeffect == 10) && (!doitanyway)))
+	{
+		if (!p_ptr->timed[TMD_BLIND]) msg_print("The illumination magic failed.");
+			return;
+	}
 
 	/* Add the initial grid */
 	cave_temp_room_aux(y1, x1);
@@ -5255,11 +5385,20 @@ void lite_room(int y1, int x1)
 
 /*
  * Darken all rooms containing the given location
+ * mode 0 = pccast is false, mode 1 = pccast is TRUE, mode 2 = do it anyway
  */
-void unlite_room(int y1, int x1, bool pccast)
+void unlite_room(int y1, int x1, int mode)
 {
 	int i, x, y;
+	bool pccast = FALSE;
+	if (mode == 1) pccast = TRUE;
 
+	/* sundial (mode 2 is when the sundial causes the room to be darkened) */
+	if ((p_ptr->roomeffect == 10) && (!(mode == 2))) 
+	{
+		if (!p_ptr->timed[TMD_BLIND]) msg_print("The darkening magic failed.");
+			return;
+	}
 	/* Add the initial grid */
 	cave_temp_room_aux(y1, x1);
 
@@ -5306,6 +5445,13 @@ bool lite_area(int dam, int rad)
 
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
+	/* rune of the enveloping dark */
+	if ((p_ptr->roomeffect == 9) || (p_ptr->roomeffect == 10))
+	{
+		if (!p_ptr->timed[TMD_BLIND]) msg_print("The illumination magic failed.");
+		return (TRUE);
+	}
+
 	/* Hack -- Message */
 	if (!p_ptr->timed[TMD_BLIND])
 	{
@@ -5313,7 +5459,7 @@ bool lite_area(int dam, int rad)
 	}
 
 	/* Lite up the room */
-	if (spellswitch != 4) lite_room(py, px);
+	if (spellswitch != 4) lite_room(py, px, FALSE);
 
 	/* bigger area of effect in caverns */
 	/* (this means I have to put speclev in the savefiles which will break them) */
@@ -5335,8 +5481,8 @@ bool unlite_area(int dam, int rad, bool strong)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	int pflg = 0;
 
+	int pflg = PROJO_SPRED; /* added for 1.3.3 */
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
 	/* Hack -- Message */
@@ -5358,9 +5504,9 @@ bool unlite_area(int dam, int rad, bool strong)
 	/* necromancer's 'call dark' only sometimes darkens the whole room */
 	if (strong)
 	{
-       if (randint(100) < 16) unlite_room(py, px, TRUE);
+       if (randint(100) < 16) unlite_room(py, px, 1);
     }
-    else unlite_room(py, px, TRUE);
+    else unlite_room(py, px, 1);
 
 	/* Assume seen */
 	return (TRUE);
@@ -5380,14 +5526,16 @@ bool mon_unlite_area(int dam, int rad, int m_idx)
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
 	/* Hook into the "project()" function */
+	if ((projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) ||
+		(in_same_room(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)))
 	(void)project(m_idx, rad, my, mx, dam, GF_DARK_WEAK, flg, pflg);
 
 	/* Darken the room where the monster is */
 	/* (most things in this function assume the PC is casting the spell */
-	/*  so the way this works is slightly messy -but it was always that */
-	/*  way with the DARKNESS monster spell.) */
+	/*  so the way this works is slightly messy -but it was always that way */
+	/*  with the DARKNESS monster spell.) */
 	/* At least this way it centers around the monster. */
-	unlite_room(my, mx, FALSE);
+	unlite_room(my, mx, 0);
 	/* XXX This will damage the monster who cast the spell if it */
     /* is vulnerable to dark.  ..but that's probably okay because */
     /* no dark-vulnerable monsters should have the DARKNESS spell */
@@ -5748,14 +5896,55 @@ bool door_creation(int mode)
 	return (project(-1, 1, py, px, mode, GF_MAKE_DOOR, flg, pflg));
 }
 
-bool trap_creation(void)
+/* why is this a bool when GF_MAKE_TRAP never returns true? */
+/* mode 0 is for the monster spell */
+/* mode 1 is for the trap creation scroll */
+bool trap_creation(int mode)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 	int pflg = 0;
+	bool trapset = FALSE;
+	int die = rand_int(100);
+	
+	if (mode == 1) /* scroll of trap creation */
+	{
+		if (randint(100) < 12) die = 65;
+		die = 99;
+	}
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg, pflg));
+	/* dam is X in 15 chance of not creating a trap in each grid */
+	if (die < 30)
+	{
+		if (project(-3, 3, py, px, 12, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+		if (project(-1, 1, py, px, 12, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+	}
+	else if (die < 50)
+	{
+		if (project(-3, 3, py, px, 13, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+		if (project(-2, 2, py, px, 14, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+		if (project(-1, 1, py, px, 12, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+	}
+	else if (die < 60)
+	{
+		if (project(-3, 3, py, px, 11, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+	}
+	else if (die < 70)
+	{
+		if (project(-2, 2, py, px, 10, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+	}
+	else if (die < 75)
+	{
+		if (project(-4, 4, py, px, 14, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+		if (project(-2, 2, py, px, 12, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+	}
+	else /* (die < 100) *//* old effect */
+	{
+		if (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg, pflg)) trapset = TRUE;
+	}
+
+	return trapset;
 }
 
 /* added mode */

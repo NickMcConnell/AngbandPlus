@@ -37,6 +37,7 @@ int distance(int y1, int x1, int y2, int x2)
 }
 
 
+
 /*
  * A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
  * 4116 Brewster Drive, Raleigh NC 27606.  Email to jnh@ecemwl.ncsu.edu.
@@ -291,6 +292,92 @@ bool los(int y1, int x1, int y2, int x2)
 	return (TRUE);
 }
 
+
+
+/*
+ * Aux function -- see below 
+ * (copied from the lighting code in spells2.c)
+ */
+static void cave_temp_room_aux(int y, int x)
+{
+	/* Avoid infinite recursion */
+	if (cave_info[y][x] & (CAVE_TEMP)) return;
+
+	/* Do not "leave" the current room */
+	/* if (!(cave_info[y][x] & (CAVE_ROOM))) return; */
+	/* (next_to() mode 1 checks to see if y,x is next to a grid with the CAVE_ROOM flag) */
+	/* (walls of a room no longer have the CAVE_ROOM flag) */
+	if (!next_to(y, x, 1, 0)) return;
+
+	/* Paranoia -- verify space */
+	if (temp_n == TEMP_MAX) return;
+
+	/* Mark the grid as "seen" */
+	cave_info[y][x] |= (CAVE_TEMP);
+
+	/* Add it to the "seen" set */
+	temp_y[temp_n] = y;
+	temp_x[temp_n] = x;
+	temp_n++;
+}
+
+
+/*
+ * Check to see if point A is in the same room as point B
+ * using the CAVE_TEMP flag and stuff copied from the lighting code.
+ * (uses a slightly broader definition of 'room' as the lighting code
+ *  -doors stop light, but do not stop points from being in the same room.)
+ */
+bool in_same_room(int y1, int x1, int y2, int x2)
+{
+	int i, x, y;
+	bool sameroom = FALSE;
+	
+	/* Add the initial grid */
+	cave_temp_room_aux(y1, x1);
+
+	/* While grids are in the queue, add their neighbors */
+	for (i = 0; i < temp_n; i++)
+	{
+		x = temp_x[i], y = temp_y[i];
+
+		/* Don't leave the room (ignore walls or lack thereof) */
+		if (!(cave_info[y][x] & (CAVE_ROOM))) continue;
+		/* if (!cave_floor_bold(y, x)) continue; */
+
+		/* Spread adjacent */
+		cave_temp_room_aux(y + 1, x);
+		cave_temp_room_aux(y - 1, x);
+		cave_temp_room_aux(y, x + 1);
+		cave_temp_room_aux(y, x - 1);
+
+		/* Spread diagonal */
+		cave_temp_room_aux(y + 1, x + 1);
+		cave_temp_room_aux(y - 1, x - 1);
+		cave_temp_room_aux(y - 1, x + 1);
+		cave_temp_room_aux(y + 1, x - 1);
+	}
+
+	/* check for 2nd location & clear temp grids */
+
+	/* Apply flag changes */
+	for (i = 0; i < temp_n; i++)
+	{
+		int y = temp_y[i];
+		int x = temp_x[i];
+		
+		/* check for point B */
+		if ((y == y2) && (x == x2)) sameroom = TRUE;
+
+		/* No longer in the array */
+		cave_info[y][x] &= ~(CAVE_TEMP);
+	}
+
+	/* None left */
+	temp_n = 0;
+	
+	return sameroom;
+}
 
 
 
@@ -797,16 +884,14 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				else monasobj = TRUE;
 		    }
 		}
-		/* Currently the only non-CHAR_MULTI monsters which use the disguised flag */
-		/* are monsters which are both invisible AND give off their own light */
+		/* Handle monsters which are both invisible AND give off their own light */
 		/* (which partly defeats the purpose of being invisible but kindof makes a */
 		/* cool effect for will o' wisps), this has the effect of mimmicking whatever */
 		/* the monster is standing on (even if the space is out of range of the */
 		/* PC's light source). */
-		else if ((m_ptr->disguised) && (r_ptr->flags2 & (RF2_MONGLOW)) &&
-				(player_has_los_bold(y, x)))
+		else if ((r_ptr->flags2 & (RF2_MONGLOW)) && (m_ptr->disguised) && 
+			(player_has_los_bold(y, x)))
 		{
-    	    /* don't show the monster (just show whatever is underneath it) */
 			m_idx = 0;
 		
 			/* light up the square where the monster is */
@@ -988,7 +1073,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		{
 			byte da;
 			char dc;
-			r_ptr = &r_info[m_ptr->r_idx];
+			
+			/* monster disguised as another monster */
+			if ((r_ptr->flags2 & (RF2_DISGUISE)) && (m_ptr->disguised))
+				r_ptr = &r_info[m_ptr->disguised];
+			else r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Desired attr */
 			da = r_ptr->x_attr;
@@ -1651,7 +1740,7 @@ void prt_map(void)
  *
  * Note that all walls always look like secret doors (see "map_info()").
  */
-static const int priority_table[18][2] =
+static const int priority_table[19][2] =
 {
 	/* Dark */
 	{ FEAT_NONE, 2 },
@@ -1670,6 +1759,7 @@ static const int priority_table[18][2] =
 
 	/* Rubble */
 	{ FEAT_RUBBLE, 13 },
+	{ FEAT_SMRUBBLE, 13 },
 
 	/* New features */
 	{ FEAT_OPEN_PIT, 13 },
@@ -1973,15 +2063,15 @@ void do_cmd_view_map(void)
  * function.  This was such a nasty bottleneck that a lot of silly things
  * were done to reduce the dependancy on "line of sight", for example, you
  * could not "see" any grids in a lit room until you actually entered the
- * room, at which point every grid in the room became "illuminated" and
- * all of the grids in the room were "memorized" forever.  Other major
+ * room, at which point every grid in the room became illuminated and
+ * all of the grids in the room were memorized forever.  Other major
  * bottlenecks involved the determination of whether a grid was lit by the
  * player's torch, and whether a grid blocked the player's line of sight.
  * These bottlenecks led to the development of special new functions to
  * optimize issues involved with "line of sight" and "torch lit grids".
  * These optimizations led to entirely new additions to the game, such as
  * the ability to display the player's entire field of view using different
- * colors than were used for the "memorized" portions of the dungeon, and
+ * colors than were used for the memorized portions of the dungeon, and
  * the ability to memorize dark floor grids, but to indicate by the way in
  * which they are displayed that they are not actually illuminated.  And
  * of course many of them simply made the game itself faster or more fun.
@@ -3467,8 +3557,9 @@ void update_flow(void)
 			/* Ignore "pre-stamped" entries */
 			if (cave_when[y][x] == flow_n) continue;
 
-			/* Ignore "walls" and "rubble" */
-			if (cave_feat[y][x] >= FEAT_RUBBLE) continue;
+			/* Ignore walls and rubble */
+			if ((cave_feat[y][x] >= FEAT_RUBBLE) &&
+				(cave_feat[y][x] < FEAT_SMRUBBLE)) continue;
 
 			/* Save the time-stamp */
 			cave_when[y][x] = flow_n;
@@ -3502,16 +3593,18 @@ void update_flow(void)
 #define DETECT_DIST_Y	22	/* top & bottom (was 23) */
 
 /*
- * Map the current panel (plus some) ala "magic mapping"
+ * Map the area surrounding the PC (magic mapping)
  *
  * We must never attempt to map the outer dungeon walls, or we
  * might induce illegal cave grid references.
+ *
+ * replaced "bool full" with "int mapsize" to better accomodate chance realm magic.
  */
-void map_area(bool full)
+void map_area(int mapsize)
 {
 	int i, x, y, y1, y2, x1, x2;
 
-    if (full)
+    if (mapsize >= 200)
     {
 		/* map the whole level (without light & detection) */
 		y1 = Term->offset_y - 1000;
@@ -3519,13 +3612,22 @@ void map_area(bool full)
 		x1 = Term->offset_x - 1000;
 		x2 = Term->offset_x + 1000;
     }
-    else
+    else if (!mapsize) /* no size specified (this is usual) */
     {
 		/* Pick an area to map */
 		y1 = p_ptr->py - DETECT_DIST_Y;
 		y2 = p_ptr->py + DETECT_DIST_Y;
 		x1 = p_ptr->px - DETECT_DIST_X;
-		x2 = p_ptr->px + DETECT_DIST_X;
+		x2 = p_ptr->px + DETECT_DIST_X; /* (45 -standard mapsize) */
+    }
+    else
+    {
+		if (mapsize < 14) mapsize = 14; /* (paranoia) */
+		/* Pick an area to map */
+		y1 = p_ptr->py - mapsize/2;
+		y2 = p_ptr->py + mapsize/2;
+		x1 = p_ptr->px - mapsize;
+		x2 = p_ptr->px + mapsize;
     }
 
 	/* Efficiency -- shrink to fit legal bounds */
@@ -3549,7 +3651,7 @@ void map_area(bool full)
 					cave_info[y][x] |= (CAVE_MARK);
 				}
 
-				/* ordinary trees and certain wall monsters are detected on a map */
+				/* ordinary trees and BLOCK_LOS NONMONSTERs are marked on maps */
 				if (cave_m_idx[y][x] > 0)
 				{
                     monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
@@ -3558,8 +3660,7 @@ void map_area(bool full)
 					/* (only if it blocks LOS and never moves) */
 					if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) && 
 						(r_ptr->flags7 & (RF7_BLOCK_LOS)) &&
-						((strchr("#", r_ptr->d_char)) ||
-						(r_ptr->flags7 & (RF7_NONMONSTER))))
+						(r_ptr->flags7 & (RF7_NONMONSTER)))
 					{
 						/* make sure you know that they never move */
 						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
@@ -3642,7 +3743,8 @@ void wiz_lite(bool wizard)
 			if (o_ptr->held_m_idx) continue;
 
 			/* never show objects buried in granite, quartz, or magma */
-			if ((o_ptr->hidden) && ((cave_feat[oy][ox] == FEAT_RUBBLE) || (cave_feat[oy][ox] == FEAT_FLOOR)))
+			if ((o_ptr->hidden) && ((cave_feat[oy][ox] == FEAT_SMRUBBLE) || 
+				(cave_feat[oy][ox] == FEAT_RUBBLE) || (cave_feat[oy][ox] == FEAT_FLOOR)))
 			{
 				/* always unhide rubble objects if cheating */
 				if (cheat_peek) o_ptr->hidden = 0;
@@ -3703,8 +3805,12 @@ void wiz_lite(bool wizard)
 					int yy = y + ddy_ddd[i];
 					int xx = x + ddx_ddd[i];
 
+#ifdef roomrunes
+					if (room_runes(yy, xx) == 9) /* no light */;
+					else
+#endif
 					/* Perma-lite the grid */
-					cave_info[yy][xx] |= (CAVE_GLOW);
+						cave_info[yy][xx] |= (CAVE_GLOW);
 
 					/* ordinary trees are detected on a map */
 					if (cave_m_idx[y][x] > 0)
@@ -3759,7 +3865,6 @@ void wiz_lite(bool wizard)
 void wiz_dark(void)
 {
 	int i, y, x;
-
 
 	/* Forget every grid */
 	for (y = 0; y < DUNGEON_HGT; y++)

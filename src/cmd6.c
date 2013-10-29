@@ -121,9 +121,11 @@ void do_cmd_eat_food(void)
 	/* Sound */
 	sound(MSG_EAT);
 
-
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	/* Make noise */
+	make_noise(p_ptr->py, p_ptr->px, 3 + rand_int(3), FALSE, TRUE);
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -181,7 +183,6 @@ void do_cmd_quaff_potion(void)
 	object_type *o_ptr;
 	cptr q, s;
 
-
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
 
@@ -206,9 +207,11 @@ void do_cmd_quaff_potion(void)
 	/* Sound */
 	sound(MSG_QUAFF);
 
-
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	/* Make noise */
+	make_noise(p_ptr->py, p_ptr->px, 2 + rand_int(2), FALSE, TRUE);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -286,7 +289,6 @@ void do_cmd_read_scroll(void)
 
 	cptr q, s;
 
-
 	/* Check some conditions */
 	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
@@ -311,6 +313,14 @@ void do_cmd_read_scroll(void)
 	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		msg_print("You are too confused!");
+		return;
+	}
+	
+	/* silence room rune prevents reading scrolls */
+	/* (because they must be read out loud unless you have TMD_BRAIL) */
+	if ((!p_ptr->timed[TMD_BRAIL]) && (p_ptr->roomeffect == 16))
+	{
+		msg_print("You can't read scrolls here: this room is magically silenced.");
 		return;
 	}
 
@@ -340,7 +350,6 @@ void do_cmd_read_scroll(void)
 	}
 
 
-
 	/* Check for amnesia */
 	if (rand_int(2) != 0 && p_ptr->timed[TMD_AMNESIA])
 	{
@@ -363,6 +372,9 @@ void do_cmd_read_scroll(void)
 
 	/* Take a turn */
 	if ((used_up) || (ident)) p_ptr->energy_use = 100;
+
+	/* Make noise */
+	make_noise(p_ptr->py, p_ptr->px, 2 + rand_int(2), FALSE, TRUE);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -403,11 +415,11 @@ void do_cmd_read_scroll(void)
 
 
 
-
 /*
  * Use a staff
  *
  * One charge of one staff disappears.
+ * (Why is chance of success here for staffs but in use-obj.c for wands and rods?)
  *
  * Hack -- staffs of identify can be "cancelled".
  */
@@ -488,12 +500,20 @@ void do_cmd_use_staff(void)
 	lev = k_info[o_ptr->k_idx].extra;
 
 	/* cursed staffs are harder to use */
-	if (cursed_p(o_ptr)) lev += 5 + badluck/3;
+	if (cursed_p(o_ptr)) lev += 10 + (badluck+1)/3;
 
 	/* blessed devices are easier to use */
 	if ((o_ptr->blessed > 1) && (lev > 23)) lev -= 12;
 	else if ((o_ptr->blessed > 1) && (lev > 12)) lev = 12;
 	else if ((o_ptr->blessed) && (lev > 4)) lev -= 4;
+	
+#ifdef roomrunes /* static rune */
+	if (p_ptr->roomeffect == 14)
+    {
+		if (!p_ptr->resist_static) lev += 20 + (badluck+1)/2;
+		else if (p_ptr->resist_static < 2) lev += 5 + (badluck+2)/3;
+	}
+#endif
 
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
@@ -762,7 +782,6 @@ void do_cmd_zap_wandorrod(void)
 	bool ident;
 	object_type *o_ptr;
 	cptr q, s;
-
 
 	/* Restrict choices to wands or rods */
 	/* item_tester_tval = TV_ROD; */

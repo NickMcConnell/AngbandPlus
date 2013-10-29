@@ -85,10 +85,7 @@ static errr init_names(void)
 	}
 
 	C_MAKE(a_base, name_size, char);
-#ifdef EFGH
-	/* EFGchange keep old name on randarts */
-	FREE(a_base);
-#else
+
 	if (!adult_randnames)
 	{
 		FREE(a_base);
@@ -108,7 +105,6 @@ static errr init_names(void)
 		/* Free the old names */
 		FREE(a_name);
 	}
-#endif
 
 	for (i = 0; i < z_info->a_max; i++)
 	{
@@ -118,9 +114,6 @@ static errr init_names(void)
 	/* Free the "names" array */
 	FREE(names);
 
-#ifdef EFGH
-	/* EFGchange keep old name on randarts */
-#else
 	if (!adult_randnames)
 	{
 		/* keep old names */;
@@ -132,7 +125,6 @@ static errr init_names(void)
 		a_head.name_ptr = a_base;
 		a_head.name_size = name_size;
 	}
-#endif
 
 	/* Success */
 	return (0);
@@ -868,6 +860,8 @@ static void choose_item(int a_idx, bool forbid_thrower)
 	a_ptr->to_a = k_ptr->to_a;
 	a_ptr->ac = k_ptr->ac;
 	a_ptr->dd = k_ptr->dd;
+	a_ptr->sbdd = k_ptr->sbdd;
+	a_ptr->sbds = k_ptr->sbds;
 	a_ptr->ds = k_ptr->ds;
 	a_ptr->weight = k_ptr->weight;
 	a_ptr->flags1 = k_ptr->flags1;

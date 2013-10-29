@@ -149,9 +149,9 @@ static void wr_item(const object_type *o_ptr)
 	/* Stinkin! finally got it to work to have a string in o_ptr */
 	/* for these and I can't put them in the savefile. */
 	/* This should work, but don't uncomment until you fix the crash bug */
-#ifdef saveegoname
+/* #ifdef saveegoname */
     wr_string(o_ptr->randego_name);
-#endif
+/* #endif */
 
 	/* random stuff */
 	wr_byte(o_ptr->randsus);
@@ -223,6 +223,8 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_s16b(m_ptr->ninelives);
 	wr_s16b(m_ptr->extra2);
 	wr_s16b(m_ptr->extra3);
+	wr_s16b(m_ptr->champ);
+    wr_string(m_ptr->champion_name);
 }
 
 
@@ -539,9 +541,7 @@ static void wr_extra(void)
 	int i;
 
 	wr_string(op_ptr->full_name);
-
 	wr_string(p_ptr->died_from);
-
 	wr_string(p_ptr->history);
 
 	/* Race/Class/Gender/Spells */
@@ -617,6 +617,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->danger_turn);
 	wr_s32b(p_ptr->game_score);
 	wr_byte(p_ptr->warned);
+	wr_s16b(p_ptr->speclev);
 
 	/* Find the number of timed effects */
 	wr_byte(TMD_MAX);
@@ -782,10 +783,8 @@ static void wr_dungeon(void)
 	int i, y, x;
 
 	byte tmp8u;
-
 	byte count;
 	byte prev_char;
-
 
 	/*** Basic info ***/
 

@@ -7,11 +7,14 @@
 /* but 1.2.0 breaks savefiles anyway.. */
 #define yes_c_history
 
-#define saveegoname
 /* I'll get rid of the ifdefs for this once I test it and decide for 
    sure whether to keep it */
 #define thief
 #define newhallu
+/* room effects */
+#define roomrunes
+/* new system of waking monsters according to noise */
+#define noise
 /* an experiment with cavern level generation */
 /* #define experm */
 
@@ -54,7 +57,7 @@
  * Name of the version/variant and its version string
  */
 #define VERSION_NAME   "DaJAngband"
-#define VERSION_STRING "v1.3.2"
+#define VERSION_STRING "v1.3.5"
 
 
 /*
@@ -529,7 +532,8 @@ enum
 	TMD_OPP_SILV, TMD_FALSE_LIFE, TMD_STINKY, TMD_DEMON_WARD, TMD_TMPBOOST,
 	TMD_SNIPER, TMD_THROW_RETURN, TMD_ACID_BLOCK, TMD_DARKSTEP, 
 	TMD_TELECONTROL, TMD_LASTING_CURE, TMD_EMERGENCY_ESCAPE, TMD_FATIGUE,
-	TMD_SAFET_GOGGLES, TMD_SUSTAIN_HEALTH,
+	TMD_SAFET_GOGGLES, TMD_SUSTAIN_HEALTH, TMD_BLINKER, TMD_INVASION,
+	TMD_CELEB_WATCH, TMD_LISTENING, TMD_PROT_THIEF,
 
 	TMD_MAX
 };
@@ -589,11 +593,15 @@ enum
 #define SUMMON_SPIDER       12
 #define SUMMON_HOUND        13
 #define SUMMON_HYDRA        14
-#define SUMMON_ANGEL        15
+#define SUMMON_APE          15 /* these now combined into S_EXTRA spell */
 #define SUMMON_DEMON        16
 #define SUMMON_UNDEAD       17
 #define SUMMON_DRAGON       18
 #define SUMMON_SILVER		19
+#define SUMMON_DARK         20 /*  */
+#define SUMMON_NMARE        21 /* sometimes summons illusions */
+#define SUMMON_ONEKIN       22 /* not actually used in summon_specific_okay() */
+#define SUMMON_ARMY         23 /* summons army monsters */
 /* xxx */
 #define SUMMON_HI_DEMON     26
 #define SUMMON_HI_UNDEAD    27
@@ -602,6 +610,7 @@ enum
 #define SUMMON_WRAITH       31
 #define SUMMON_UNIQUE       32
 #define SUMMON_KIN          33
+#define CHOOSE_DISGUISE     34 /* to choose a disguise ridx for monsters with DISGUISE flag */
 
 #if removed
 /* The next few are for the normal S_MONSTER spell but so */
@@ -745,7 +754,7 @@ enum
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
 /* If you add more traps remember to tweak pick_trap() so it'll be generated */
-#define FEAT_TRAP_TAIL	0x20
+#define FEAT_TRAP_TAIL	0x21
 
 #define FEAT_OPEN_PIT	0x2B    /* */
 #define FEAT_WATER		0x2C	/* */
@@ -778,6 +787,10 @@ enum
 #define FEAT_PERM_INNER	0x3D
 #define FEAT_PERM_OUTER	0x3E
 #define FEAT_PERM_SOLID	0x3F
+#define FEAT_WALL_SPEC  0x40
+
+/* added features */
+#define FEAT_SMRUBBLE   0x41
 
 /* all these limited (and already full) arrays are such a pain */
 /* makes it very hard to add certain features like terrain */
@@ -1022,6 +1035,7 @@ enum
 /* #define EGO_DF_STAFF        156 * defender */
 #define EGO_CONSTANT1		159 /* only staffs with timed effects */
 #define EGO_CONSTANT2		160 /* only staffs with timed effects */
+#define EGO_ANTI_DRAIN      170 /* cannot have its charges drained */
 
 
 /*** Object "tval" and "sval" codes ***/
@@ -1795,7 +1809,7 @@ enum
 
  /*
   * Let's try this:
-  * New bit flags for project() function
+  * New bit flags for project() function (pflg)
   */
 #define PROJO_BRETH		0x01 /* for monster breath */
 #define PROJO_SPRED		0x02 /* for spread effect spells */
@@ -2145,7 +2159,7 @@ enum
 #define TR2_SUST_CON        0x00000010L /* Sustain CON */
 #define TR2_SUST_CHR        0x00000020L /* Sustain CHR */
 #define TR2_LIGHTNESS       0x00000040L /* ego weight is subtracted instead of added */
-#define TR2_COAT_ACID       0x00000080L /* no longer used (acid coat spell uses o_ptr->timedbrand now) */
+#define TR2_XXX080          0x00000080L /* no longer used (acid coat spell uses o_ptr->timedbrand now) */
 #define TR2_KILL_DRAGON     0x00000100L /* Weapon kills dragons */
 #define TR2_KILL_DEMON      0x00000200L /* Weapon kills demons */
 #define TR2_KILL_UNDEAD     0x00000400L /* Weapon "kills" undead */
@@ -2462,7 +2476,7 @@ enum
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
 #define RF3_CLIGHT		    0x00004000	/* creature of light */
 #define RF3_FEY			    0x00008000	/* fairy */
-#define RF3_XA				0x00010000	/* Resist acid a lot */
+#define RF3_NIGHTMARE		0x00010000	/* nightmare */
 #define RF3_XE				0x00020000	/* Resist elec a lot */
 #define RF3_XF				0x00040000	/* Resist fire a lot */
 #define RF3_XC				0x00080000	/* Resist cold a lot */
@@ -2570,16 +2584,16 @@ enum
 #define RF6_DARKNESS        0x00001000 /* Create Darkness */
 #define RF6_TRAPS           0x00002000 /* Create Traps */
 #define RF6_FORGET          0x00004000 /* Cause amnesia */
-#define RF6_S_SILVER        0x00008000 /* Summon Silver (maybe remove or replace) */
+#define RF6_ILLUSION_CLONE  0x00008000 /* was Summon Silver */
 #define RF6_S_KIN           0x00010000 /* Summon Kin */
 #define RF6_S_HI_DEMON      0x00020000 /* Summon Greater Demons */
 #define RF6_S_MONSTER       0x00040000 /* Summon Monster */
 #define RF6_S_MONSTERS      0x00080000 /* Summon Monsters */
 #define RF6_S_ANIMAL        0x00100000 /* Summon Animals */
 #define RF6_S_SPIDER        0x00200000 /* Summon Spiders */
-#define RF6_S_HOUND         0x00400000 /* Summon Hounds (maybe remove or replace) */
-#define RF6_S_HYDRA         0x00800000 /* Summon Hydras (maybe remove or replace) */
-#define RF6_S_ANGEL         0x01000000 /* Summon an Ape */
+#define RF6_S_ILLUSION      0x00400000 /* was Summon Hounds */
+#define RF6_S_ILLUSIONS     0x00800000 /* was Summon Hydras */
+#define RF6_S_EXTRA         0x01000000 /* was Summon an Ape (S_ANGEL) */
 #define RF6_S_DEMON         0x02000000 /* Summon Demon */
 #define RF6_S_UNDEAD        0x04000000 /* Summon Undead */
 #define RF6_S_DRAGON        0x08000000 /* Summon Dragon */
@@ -2600,7 +2614,7 @@ enum
 #define RF7_THEME_ONLY      0x00000001 /* only can appear on its themed level */
 #define RF7_ICKY_PLACE      0x00000002 /* slime, theme3 */
 #define RF7_VOLCANO         0x00000004 /* fire, theme4 */
-#define RF7_EARTHY_CAVE     0x00000008 /* earth, theme5 */
+#define RF7_EARTHY_CAVE     0x00000008 /* earth, theme5 -no longer used */
 #define RF7_WINDY_CAVE      0x00000010 /* air, theme6 */
 #define RF7_FFOREST         0x00000020 /* fairy forest, theme2 */
 #define RF7_GREPSE          0x00000040 /* domain of the grepse (silver), theme12 */
@@ -2621,7 +2635,7 @@ enum
 #define RF7_XX721        0x00200000 /*   */
 #define RF7_XX722         0x00400000 /*   */
 #define RF7_XX723         0x00800000 /*   */
-#define RF7_XX724         0x01000000 /*   */
+#define RF7_XX724           0x01000000 /*   */
 #define RF7_NONMONSTER      0x02000000 /* This monster is not a monster (ordinary tree) */
 #define RF7_TOWNOK          0x04000000 /* dungeon monster which can appear in town */
 #define RF7_LUCKY_KILL      0x08000000 /* has a chance to raise your luck when killed */
@@ -2632,7 +2646,7 @@ enum
 
 
 /*
- * Some flags are obvious
+ * Some flags are obvious (as well as everything in RF7)
  */
 #define RF1_OBVIOUS_MASK \
 	(RF1_UNIQUE | RF1_QUESTOR | RF1_MALE | RF1_FEMALE | \
@@ -2643,7 +2657,7 @@ enum
  * "race" flags
  */
 #define RF2_RACE_MASK \
-	(RF2_S_EVIL1 | RF2_S_EVIL1)
+	(RF2_S_EVIL1 | RF2_S_EVIL2)
 
 #define RF3_RACE_MASK \
 	(RF3_ORC | RF3_TROLL | RF3_GIANT | RF3_DRAGON | RF3_BUG |\
@@ -2667,10 +2681,10 @@ enum
 
 #define RF6_INT_MASK \
 	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
+	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | RF6_ILLUSION_CLONE | \
 	 RF6_S_ANIMAL | RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
-	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_SILVER | \
-	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
+	 RF6_S_SPIDER | RF6_S_ILLUSION | RF6_S_ILLUSIONS | \
+	 RF6_S_EXTRA | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
 	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
 	 RF6_S_WRAITH | RF6_S_UNIQUE)
 
@@ -2689,6 +2703,21 @@ enum
 
 #define RF6_BOLT_MASK \
 	(0L)
+
+/*
+ * Spells that a disguised monster is allowed to cast using its disguise
+ * (this temporarily gives Harowen a bigger selection of spells
+ *  depending on which disguise he chooses.)
+ */
+#define RF4_UNDERCOVER_MASK \
+	(RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_THROW | RF4_T_AXE)
+
+#define RF5_UNDERCOVER_MASK \
+	(RF5_DRAIN_MANA | RF5_CAUSE_1 | RF5_CAUSE_2 | RF5_SCARE | \
+	 RF5_SLOW | RF5_MISSILE | RF5_BO_POIS | RF5_BA_POIS)
+
+#define RF6_UNDERCOVER_MASK \
+	(RF6_BLINK | RF6_INVIS | RF6_DARKNESS | RF6_TRAPS | RF6_S_ILLUSION)
 
 /*
  * Spells that allow the caster to escape  (INVIS ?)
@@ -2728,6 +2757,7 @@ enum
 
 /*
  * Summoning spells
+ * (includes spells that summon illusions)
  */
 #define RF4_SUMMON_MASK \
 	(0L)
@@ -2737,10 +2767,10 @@ enum
 
 #define RF6_SUMMON_MASK \
 	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | \
-	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
+	 RF6_S_SPIDER | RF6_S_ILLUSION | RF6_S_ILLUSIONS | RF6_S_EXTRA | \
 	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
 	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE | \
-	 RF6_S_SILVER)
+	 RF6_ILLUSION_CLONE)
 
 
 /*
@@ -2753,7 +2783,7 @@ enum
 	(0L)
 
 #define RF6_TACTIC_MASK \
-	(RF6_BLINK | RF6_INVIS)
+	(RF6_BLINK | RF6_INVIS | RF6_ILLUSION_CLONE)
 
 /*
  * Spells that a monster can use before it has noticed the PC
@@ -2769,7 +2799,8 @@ enum
 
 #define RF6_NONCOMBAT_MASK \
 	(RF6_BLINK | RF6_INVIS | RF6_TPORT | RF6_DARKNESS | \
-	 RF6_TRAPS | RF6_HEAL_KIN | RF6_HEAL | RF6_HEAL_OTHR)
+	 RF6_TRAPS | RF6_HEAL_KIN | RF6_HEAL | RF6_HEAL_OTHR | \
+	 RF6_S_ILLUSION)
 
 
 /*
@@ -2783,7 +2814,8 @@ enum
 	 RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
 
 #define RF6_ANNOY_MASK \
-	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET | RF6_HEAL_OTHR)
+	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET | RF6_HEAL_OTHR | \
+	 RF6_S_ILLUSION)
 
 
 /*
@@ -2831,7 +2863,7 @@ enum
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
-	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_MCONTROL | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | \
 	 RF4_BOULDER | RF4_THROW | RF4_BR_AMNS | RF4_T_AXE | RF4_BR_FEAR)
 
 #define RF5_INNATE_MASK \
@@ -2840,6 +2872,22 @@ enum
 #define RF6_INNATE_MASK \
 	(0L)
 
+
+/*
+ * Spells that hurt the player directly (a lot)
+ * breaths should only count if monster has BR_STRONG, but I don't know how to do that.
+ */
+#define RF4_BIGDAM_MASK \
+	(RF4_BOULDER | RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_SOUN | RF4_BR_CHAO | RF4_BR_GRAV | RF4_BR_SHAR)
+
+#define RF5_BIGDAM_MASK \
+	(RF5_BA_ACID | RF5_BA_FIRE | RF5_BA_NETH | RF5_BA_WATE | RF5_BA_MANA | \
+	 RF5_BA_DARK | RF5_BRAIN_SMASH | RF5_CAUSE_4 | \
+	 RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | RF5_BO_PLAS | RF5_BO_ICEE)
+
+#define RF6_BIGDAM_MASK \
+	(0L)
 
 
 /*** Option Definitions ***/
@@ -3333,11 +3381,14 @@ enum
  * (allow rubble)
  *
  * Line 1-3 -- force floor, rubble, or open pit
+ *  (doesn't need the line about open pits because cave_floor_bold just checks for
+ *   CAVE_WALL flag, but rubble has the CAVE_WALL flag so we need that.)
  * Line 4 -- forbid player/monsters
  */
 #define cave_can_occupy_bold(Y,X) \
 	(((cave_floor_bold(Y,X)) || \
 	 (cave_feat[Y][X] == FEAT_RUBBLE) || \
+	 (cave_feat[Y][X] == FEAT_SMRUBBLE) || \
 	 (cave_feat[Y][X] == FEAT_OPEN_PIT)) && \
 	 (cave_m_idx[Y][X] == 0))
 
@@ -3350,7 +3401,8 @@ enum
  * Line 4-5 -- shop doors
  */
 #define cave_perma_bold(Y,X) \
-	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
+	(((cave_feat[Y][X] >= FEAT_PERM_EXTRA) && \
+	 (cave_feat[Y][X] <= FEAT_PERM_SOLID)) || \
 	 ((cave_feat[Y][X] == FEAT_LESS) || \
 	  (cave_feat[Y][X] == FEAT_MORE)) || \
 	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
@@ -3641,8 +3693,9 @@ enum
 #define ACT_SUN_HERO            53
 #define ACT_HOLY_FIRE           54
 #define ACT_WCLAIRVOYANCE       55
+#define ACT_PZAP                56
 
-#define ACT_MAX                 56
+#define ACT_MAX                 57
 
 #ifdef EFG
 #define NUM_PVALS		10

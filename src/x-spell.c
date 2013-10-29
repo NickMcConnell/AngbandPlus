@@ -311,7 +311,7 @@
 #define LUCK_BUG_SPRAY                 13
 #define LUCK_DETECT_INVISIBLE          14
 #define LUCK_RESIST_POISON             15
-#define LUCK_CURE_CAUSE                16
+#define LUCK_AWARENESS                 16 /* replaces curing or causing */
 #define LUCK_WONDER                    17
 
 /* Tricks & Detections 2(not for tourists)*/
@@ -327,12 +327,12 @@
 /* Guidebook for Tourists 3(only for tourists)*/
 #define LUCK_DETECT_TRAPS              27
 #define LUCK_MAP_AREA                  29
-#define LUCK_ADJUST_CURSE              30
+#define LUCK_CELEB_WATCH               34 /* replaces map of the level */
 #define LUCK_RECHARGING                12
 #define LUCK_TELEKINESIS2              31
 #define LUCK_DETECT_ENCHANTMENT2       32
 #define LUCK_PROBING                   33
-#define LUCK_MAP_LEVEL                 34
+#define LUCK_TRAVEL_JOURNAL            49 /* replaces potluck stats */
 #define LUCK_FULL_IDENTIFY             35
 
 /* Quick Getaways 4(not for tourists)*/
@@ -345,14 +345,14 @@
 #define LUCK_SLIP_INTO_SHADOWS         42
 #define LUCK_HASTE_SELF                43
 
-/* The Lottery 5(not for rogues)*/
+/* The Lottery 5(mostly not for rogues)*/
 #define LUCK_LUCK_BOLT				   74
 #define LUCK_POLYMORPH_OTHER           44
 #define LUCK_ADJUST_SPEED              45
+#define LUCK_ADJUST_CURSE              30 /* was in guidebook */
 #define LUCK_BANISH_SUMMON             46
 #define LUCK_AFFECT_SELF               47
 #define LUCK_AFFECT_OTHER              48
-#define LUCK_POTLUCK_STATS             49
 #define LUCK_TREASURE_MAP              73
 #define LUCK_AQUIREMENT                50
 
@@ -360,7 +360,7 @@
 #define LUCK_DOOR_CREATION2            52 /* renamed to seal/open getaway */
 #define LUCK_STAIR_CREATION2           53
 #define LUCK_LULLABY                   24
-#define LUCK_TELEPORT_LEVEL            54 /* change to taming */
+#define LUCK_TELEPORT_LEVEL            54 /* replace with taming */
 #define LUCK_WORD_OF_DESTRUCTION       55
 #define LUCK_TELEPORT_CONTROL          56
 #define LUCK_RUNE_OF_PROTECTION        57
@@ -584,7 +584,7 @@ int get_spell_index(const object_type *o_ptr, int index)
 	if ((index < 0) || (index >= SPELLS_PER_BOOK)) return -1;
 	if ((sval < 0) || (sval >= BOOKS_PER_REALM)) return -1;
 
-	/* Which spell school? */
+	/* Which spell realm? */
 	if (cp_ptr->spell_book == TV_MAGIC_BOOK)
 		realm = 0;
 	else if (cp_ptr->spell_book == TV_NEWM_BOOK)
@@ -1021,15 +1021,19 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 				strnfmt(p, len, " dam 1d%d", (plev / 2));
 				break; 
 		    case LUCK_CAMERA_FLASH:
-			    strnfmt(p, len, " dam 1d%d", (plev / 4) + 1);
+				if (plev < 9) strnfmt(p, len, " dam 1d%d", (plev / 4) + 1);
+			    else strnfmt(p, len, " dam 1+1d%d", (plev / 4) + 1);
 				break;
 		    case LUCK_BUG_SPRAY:
 				if (plev >= 9) strnfmt(p, len, " dam %d+d%d", plev/3, plev / 2 + 1);
-			    else my_strcpy(p, " dur 3+d4", len);
+			    else my_strcpy(p, " dam 3+d4", len);
 			    break;
 			case LUCK_DISINFECTANT:
 				strnfmt(p, len, " dam %d + d%d", 2 + (plev+3)/6, (plev+2)/3);
 			    break;
+			case LUCK_CELEB_WATCH:
+				strnfmt(p, len, " dur 21+d%d", plev);
+				break;
 		    case LUCK_HIT_N_RUN:
 				strnfmt(p, len, " dam 2d%d+1", (plev / 3) + 1);
 				break;
@@ -1200,12 +1204,11 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			    break;
 		    case DARK_CALL_DARK:
 		    {
-                if ((!p_ptr->darkvis) && (plev < 11)) strnfmt(p, len, " dam 10+d%d", plev+2);
-		        else if (!p_ptr->darkvis) strnfmt(p, len, " dam 12+d%d", plev-3);
-		        /* slight extra alertness if the player already has darkvision */
-		        else if (plev < 11) strnfmt(p, len, " dam 4+d%d", plev+2);
-                else strnfmt(p, len, " dam 6+d%d", plev-3);
-                break;
+				int ifrad = (plev / 3);
+				if (plev > 11) ifrad = 3 + randint(plev / 6);
+				if (ifrad < 2) ifrad = 2;
+				strnfmt(p, len, " dam 2d%d + d%d", (plev+3)/2, ifrad+1);
+				break;
             }
 			case DARK_WITCH_DISINFECTANT:
 				strnfmt(p, len, " dam %d + d%d", 3 + plev/8, (plev+1)/2);
@@ -1375,6 +1378,13 @@ static bool cast_mage_spell(int spell)
 	/* Hack -- chance of "beam" instead of "bolt" */
 	/* plev with beam flag, plev/2 otherwise */
 	int beam = beam_chance();
+	
+	/* a couple effects block divination magic */
+    bool nodivining = FALSE;
+    /* first sight and second thoughts blocks second sight (& all divination) */
+	if (p_ptr->timed[TMD_2ND_THOUGHT]) nodivining = TRUE;
+	/* rune of the blind inner eye */
+	if (p_ptr->roomeffect == 25) nodivining = TRUE;
 
     /* spellcasting bonus */	
 	if (p_ptr->timed[TMD_BRAIL])
@@ -1389,6 +1399,12 @@ static bool cast_mage_spell(int spell)
        beam += 1;
     }
 
+	if (p_ptr->roomeffect == 12) /* sceptre of power rune -on top of other bonuses */
+	{
+       plev += 8;
+       beam += 4;
+	}
+
 	/* Spells. */
 	switch (spell)
 	{
@@ -1402,7 +1418,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_DETECT_MONSTERS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -1437,7 +1453,8 @@ static bool cast_mage_spell(int spell)
 			if (cure < curep) cure = curep;
 			if (cure > 39) cure = 39; /* maximum */
 			(void)hp_player(cure);
-			(void)dec_timed(TMD_CUT, 15);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT])) /* no curing cuts */;
+			else (void)dec_timed(TMD_CUT, 15);
 			break;
 		}
 
@@ -1453,7 +1470,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_FIND_TRAPS_DOORS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -1758,20 +1775,19 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_DETECT_INVISIBLE:
 		{
-			(void)detect_monsters_invis();
+            if (nodivining)
+               msg_print("Your first sight supresses detection.");
+            else 
+			  (void)detect_monsters_invis();
 			break;
 		}
 
 		case SPELL_DETECT_ENCHANTMENT:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
-            {
+            if (nodivining)
                msg_print("Your first sight supresses detection.");
-            }
             else 
-            {
 			  (void)detect_objects_magic();
-            }
 			break;
 		}
 
@@ -1940,6 +1956,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_REND_SOUL: /* rend soul */
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
+			if (p_ptr->roomeffect == 13) plev += 10;
 			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(11, plev));
             if (randint(100) + badluck > 75 + goodluck)
             {
@@ -1983,8 +2000,14 @@ static bool cast_priest_spell(int spell)
 	int px = p_ptr->px;
 
 	int dir, die, dis;
-
 	int plev = p_ptr->lev;
+	
+	/* a couple effects block divination magic */
+    bool nodivining = FALSE;
+    /* first sight and second thoughts blocks second sight (& all divination) */
+	if (p_ptr->timed[TMD_2ND_THOUGHT]) nodivining = TRUE;
+	/* rune of the blind inner eye */
+	if (p_ptr->roomeffect == 25) nodivining = TRUE;
 
     /* spellcasting bonus */	
 	if (p_ptr->timed[TMD_BRAIL])
@@ -2000,7 +2023,7 @@ static bool cast_priest_spell(int spell)
 	{
 		case PRAYER_DETECT_EVIL:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2013,7 +2036,7 @@ static bool cast_priest_spell(int spell)
 		
 		case PRAYER_DETECT_LIFE:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2031,7 +2054,8 @@ static bool cast_priest_spell(int spell)
 			if (cure < curep) cure = curep;
 			if (cure > 49) cure = 49; /* maximum */
 			(void)hp_player(cure);
-			(void)dec_timed(TMD_CUT, 10);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT])) /* no curing cuts */;
+			else (void)dec_timed(TMD_CUT, 10);
 			break;
 		}
 
@@ -2062,7 +2086,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_FIND_TRAPS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2075,7 +2099,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_DETECT_DOORS_STAIRS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2138,7 +2162,12 @@ static bool cast_priest_spell(int spell)
 			if (cure < curep) cure = curep;
 			if (cure > 62) cure = 62; /* maximum */
 			(void)hp_player(cure);
-			(void)set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 2) - 20);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]))
+			{
+				msg_print("Your cuts don't heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 2 + 1);
+			}
+			else (void)set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 2) - 20);
 			break;
 		}
 
@@ -2274,14 +2303,19 @@ static bool cast_priest_spell(int spell)
 			int curep = (p_ptr->mhp * 25) / 100;
 			if (cure < curep) cure = curep;
 			(void)hp_player(cure);
-			(void)clear_timed(TMD_CUT);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]))
+			{
+				msg_print("Your cuts don't quite heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 4 + 1);
+			}
+			else (void)clear_timed(TMD_CUT);
 			(void)clear_timed(TMD_STUN);
 			break;
 		}
 
 		case PRAYER_SENSE_INVISIBLE:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2296,7 +2330,8 @@ static bool cast_priest_spell(int spell)
         {
 			(void)clear_timed(TMD_BLIND);
 			(void)clear_timed(TMD_IMAGE);
-			(void)clear_timed(TMD_2ND_THOUGHT);
+			/* true sight bypasses 2ND_THOUGHT but shouldn't cancel it */
+			/* (void)clear_timed(TMD_2ND_THOUGHT); */
 			(void)detect_traps();
 			(void)detect_doorstairs(FALSE);
 			(void)detect_monsters_evil();
@@ -2325,7 +2360,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_SENSE_SURROUNDINGS:
 		{
-			map_area(FALSE);
+			map_area(0);
 			break;
 		}
 
@@ -2336,7 +2371,12 @@ static bool cast_priest_spell(int spell)
 			if (cure < curep) cure = curep;
 			(void)hp_player(cure);
 			(void)clear_timed(TMD_STUN);
-			(void)clear_timed(TMD_CUT);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]) && (rand_int(100 + plev) < (badluck+4)*4))
+			{
+				msg_print("Your cuts don't quite heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 3 + 1);
+			}
+			else (void)clear_timed(TMD_CUT);
 			break;
 		}
 
@@ -2374,6 +2414,11 @@ static bool cast_priest_spell(int spell)
 			if (cure < curep) cure = curep;
 			(void)hp_player(cure);
 			(void)clear_timed(TMD_STUN);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]) && (rand_int(100 + plev) < (badluck+3)*4))
+			{
+				msg_print("Your cuts don't quite heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 4 + 1);
+			}
 			(void)clear_timed(TMD_CUT);
 			break;
 		}
@@ -2447,7 +2492,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_DETECTION:
 		{
-			if (p_ptr->timed[TMD_2ND_THOUGHT])
+			if (nodivining)
 			{
 				msg_print("Your first sight supresses detection.");
 			}
@@ -2476,7 +2521,12 @@ static bool cast_priest_spell(int spell)
 			int curep = (p_ptr->mhp * 20) / 100;
 			if (cure < curep) cure = curep;
 			(void)hp_player(cure);
-			(void)clear_timed(TMD_CUT);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]) && (rand_int(100 + plev/2) < (badluck+5)*5))
+			{
+				msg_print("Your cuts don't quite heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 2 + 1);
+			}
+			else (void)clear_timed(TMD_CUT);
 			break;
 		}
 
@@ -2748,11 +2798,17 @@ static bool cast_newm_spell(int spell)
 
     int die, dir, dis, pwr;
 	int toolow;
+	int plev = p_ptr->lev;
 
 	/* Hack -- chance of "beam" instead of "bolt" */
 	int beam = beam_chance();
-
-	int plev = p_ptr->lev;
+	
+	/* a couple effects block divination magic */
+    bool nodivining = FALSE;
+    /* first sight and second thoughts blocks second sight (& all divination) */
+	if (p_ptr->timed[TMD_2ND_THOUGHT]) nodivining = TRUE;
+	/* rune of the blind inner eye */
+	if (p_ptr->roomeffect == 25) nodivining = TRUE;
 
     /* spellcasting bonus */	
 	if (p_ptr->timed[TMD_BRAIL])
@@ -2765,7 +2821,7 @@ static bool cast_newm_spell(int spell)
 	{
 		case NEWM_DETECT_ANIMAL:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2876,7 +2932,7 @@ static bool cast_newm_spell(int spell)
 		
 		case NEWM_FIND_TRAPS_DOORS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2948,7 +3004,7 @@ static bool cast_newm_spell(int spell)
 		
 		case NEWM_DETECT_LIFE:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -2963,6 +3019,11 @@ static bool cast_newm_spell(int spell)
         {
 			(void)set_timed(TMD_POISONED, (3 * p_ptr->timed[TMD_POISONED] / 4) - 5);
 			(void)hp_player(9 + (damroll(plev / 3, 4)));
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]) && (rand_int(50 + plev) < (badluck+5)*5))
+			{
+				msg_print("Your cuts don't quite heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 2 + 1);
+			}
 			(void)clear_timed(TMD_CUT);
             break;
         }
@@ -3026,6 +3087,11 @@ static bool cast_newm_spell(int spell)
 		case NEWM_HERBAL_HEALING:
         {
 			(void)clear_timed(TMD_POISONED);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]) && (rand_int(100 + plev) < (badluck+5)*4))
+			{
+				msg_print("Your cuts don't quite heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 4 + 1);
+			}
 			(void)clear_timed(TMD_CUT);
 			(void)set_timed(TMD_STUN, p_ptr->timed[TMD_STUN] - 3);
 			(void)hp_player(30 + damroll((plev * 3 / 4), 5));
@@ -3034,7 +3100,7 @@ static bool cast_newm_spell(int spell)
 
 		case NEWM_SENSE_INVISIBLE:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -3047,13 +3113,13 @@ static bool cast_newm_spell(int spell)
 
 		case NEWM_SENSE_SURROUNDINGS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
             else
             {
-			  map_area(FALSE);
+			  map_area(0);
             }
 			break;
 		}
@@ -3062,7 +3128,7 @@ static bool cast_newm_spell(int spell)
         {
 			(void)clear_timed(TMD_BLIND);
 			(void)clear_timed(TMD_IMAGE);
-			(void)clear_timed(TMD_2ND_THOUGHT);
+			/* (void)clear_timed(TMD_2ND_THOUGHT); */
 			(void)detect_traps();
 			(void)detect_monsters_life();
 			(void)detect_monsters_invis();
@@ -3380,6 +3446,13 @@ static bool cast_luck_spell(int spell)
 	int beam = beam_chance();
 
 	int plev = p_ptr->lev + (goodluck/4) - (badluck/4);
+	
+	/* a couple effects block divination magic */
+    bool nodivining = FALSE;
+    /* first sight and second thoughts blocks second sight (& all divination) */
+	if (p_ptr->timed[TMD_2ND_THOUGHT]) nodivining = TRUE;
+	/* rune of the blind inner eye */
+	if (p_ptr->roomeffect == 25) nodivining = TRUE;
 
     /* spellcasting bonus */	
 	if (p_ptr->timed[TMD_BRAIL])
@@ -3387,6 +3460,11 @@ static bool cast_luck_spell(int spell)
        plev += 10;
        beam += 5;
     }
+	if (p_ptr->roomeffect == 12) /* sceptre of power rune -on top of other bonuses */
+	{
+       plev += 8;
+       beam += 4;
+	}
 
 	switch (spell)
 	{
@@ -3398,7 +3476,7 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_DETECT_DOORS_STAIRS:
 		{
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            if ((nodivining) && (goodluck < 14))
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -3411,7 +3489,7 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_DETECT_TREASURE:
         {
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            if ((nodivining) && (goodluck < 14))
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -3495,13 +3573,11 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_STAIR_CREATION:
 		{
-            die = randint(99) + randint(plev/4);
-            if (die < 8)
-            {
-                 trap_creation();
-			     msg_print("You hear the floor shifting.");
-            }
-            else if (die < 13) (void)teleport_player_level(0);
+			die = randint(99) + randint(plev/4);
+			if (die < 9) msg_print("You hear the floor shifting.");
+			if (die < 6) trap_creation(0);
+			else if (die < 9) trap_creation(1);
+			else if (die < 14) (void)teleport_player_level(0);
             else if (die < 18) (void)destroy_doors_touch(0);
             else if (die < 28) 
             {
@@ -3557,7 +3633,8 @@ static bool cast_luck_spell(int spell)
 			if (cure < curep) cure = curep;
 			if ((cure > 44) && (randint(80) > goodluck*2)) cure = 44; /* maximum */
 			(void)hp_player(cure);
-			(void)dec_timed(TMD_CUT, 10 + (goodluck/3));
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT])) /* no curing cuts*/;
+			else (void)dec_timed(TMD_CUT, 10 + (goodluck/3));
 			break;
 		}
 		
@@ -3610,7 +3687,8 @@ static bool cast_luck_spell(int spell)
             else if (die < 90)
             {
                  (void)hp_player((die / 2) + 10);
-                 (void)clear_timed(TMD_CUT);
+				if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT])) /* no curing cuts*/;
+                else (void)clear_timed(TMD_CUT);
                  (void)clear_timed(TMD_STUN);
 			     (void)clear_timed(TMD_POISONED);
                  (void)inc_timed(TMD_PROTEVIL, randint(die / 2) + (25));
@@ -3722,7 +3800,7 @@ static bool cast_luck_spell(int spell)
 		case LUCK_DETECT_INVISIBLE:
 		{
             die = randint(91) + plev/5 + goodluck - badluck;
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14) && (die < 106))
+            if ((nodivining) && (goodluck < 14) && (die < 106))
             {
                msg_print("Your first sight supresses detection.");
                break;
@@ -3783,92 +3861,12 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
         
-        case LUCK_CURE_CAUSE:
+        case LUCK_AWARENESS:
         {
-            die = randint(92) + randint(plev/4) + goodluck - badluck;
-            if (die < 5)
-            {
-               (void)inc_timed(TMD_CUT, randint(40) + 10);
-               (void)inc_timed(TMD_STUN, randint(15) + 10);
-            }
-            else if (die < 10)
-            {
-               (void)inc_timed(TMD_CONFUSED, randint(10) + 10);
-               (void)inc_timed(TMD_AMNESIA, randint(10) + 10);
-			   msg_print("You feel your life slipping away!");
-			   lose_exp(100 + randint(die * 100));
-            }
-            else if (die < 15) (void)inc_timed(TMD_CHARM, randint(14) + 11);
-            else if (die < 19) (void)inc_timed(TMD_CONFUSED, randint(14) + 11);
-            else if (die < 24) (void)inc_timed(TMD_BLIND, randint(26) + 24);
-            else if (die < 29) (void)inc_timed(TMD_AFRAID, randint(14) + 11);
-            else if (die < 33) (void)inc_timed(TMD_IMAGE, randint(14) + 11);
-            else if (die < 40) (void)inc_timed(TMD_POISONED, randint(24) + 11);
-            else if (die < 50)
-            {
-                 (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
-                 (void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 2);
-                 (void)set_timed(TMD_STUN, p_ptr->timed[TMD_STUN] / 2);
-                 (void)set_timed(TMD_IMAGE, p_ptr->timed[TMD_IMAGE] / 2);
-				 (void)clear_timed(TMD_CONFUSED);
-            }
-            else if (die < 55) (void)clear_timed(TMD_POISONED);
-            else if (die < 60)
-            {
-                 (void)clear_timed(TMD_CUT);
-                 (void)clear_timed(TMD_STUN);
-                 (void)clear_timed(TMD_BLIND);
-                 (void)clear_timed(TMD_FRENZY);
-                 (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
-            }
-            else if (die < 80)
-            {
-                 (void)hp_player(1 + randint(plev - 2));
-                 (void)clear_timed(TMD_CUT);
-                 (void)clear_timed(TMD_STUN);
-                 (void)clear_timed(TMD_CONFUSED);
-                 (void)clear_timed(TMD_CHARM);
-                 (void)clear_timed(TMD_AMNESIA);
-                 (void)clear_timed(TMD_BLIND);
-                 (void)clear_timed(TMD_FRENZY);
-                 (void)clear_timed(TMD_POISONED);
-            }
-            else /* die > 79 */
-            {
-                 (void)hp_player(plev);
-                 (void)clear_timed(TMD_CUT);
-                 (void)clear_timed(TMD_STUN);
-                 (void)clear_timed(TMD_CONFUSED);
-                 (void)clear_timed(TMD_CHARM);
-                 (void)clear_timed(TMD_IMAGE);
-                 (void)clear_timed(TMD_AMNESIA);
-                 (void)clear_timed(TMD_BLIND);
-                 (void)clear_timed(TMD_FRENZY);
-                 (void)clear_timed(TMD_POISONED);
-			     if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 2;
-			     if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-                 if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 4;
-			     if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
-            }
-            if (die > 95)
-            {
-                 (void)set_food(p_ptr->food + plev + die + 100);  
-                 (void)hp_player(randint(plev / 2));
-			     if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 2;
-			     if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-                 if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 4;
-			     if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
-            }
-            if (die > 105)
-            {
-			     p_ptr->silver = PY_SILVER_HEALTHY;
-			     p_ptr->slime = PY_SLIME_HEALTHY;
-            }
-            if (die > 110)
-            {
-                 (void)set_food(p_ptr->food + ((plev + die) * 2) + 100);  
-                 (void)hp_player(randint(plev / 2));
-            }
+			die = 15 + randint(goodluck*2 + 20) + plev/2;
+			if (badluck) die -= randint(badluck*4/3);
+			(void)inc_timed(TMD_PROT_THIEF, die);
+			(void)inc_timed(TMD_LISTENING, die);
 			break;
         }
 
@@ -3904,11 +3902,11 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_DETECT_MONSTERS:
 		{
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            if ((nodivining) && (goodluck < 14))
             {
                msg_print("Your first sight supresses detection.");
             }
-            else if ((!p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck > 11))
+            else if ((!nodivining) && (goodluck > 11))
             {
 			  (void)detect_monsters_normal(2);
             }
@@ -3918,7 +3916,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_DETECT_TRAPS_OBJ: /* just detect traps */
 		{
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            if ((nodivining) && (goodluck < 14))
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -3969,20 +3967,20 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_SENSE_SURROUNDINGS:
 		{
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 12))
+            if ((nodivining) && (goodluck < 12))
             {
                msg_print("Your first sight supresses detection.");
             }
             else
             {
-			   map_area(FALSE);
+			   map_area(0);
             }
 			break;
 		}
 
 		case LUCK_DETECT_ENCHANTMENT:
 		{
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            if ((nodivining) && (goodluck < 14))
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -3996,7 +3994,7 @@ static bool cast_luck_spell(int spell)
 		case LUCK_DETECT_TRAPS:
 		{
             die = randint(99) + randint(plev/4);
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            if ((nodivining) && (goodluck < 14))
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -4016,7 +4014,8 @@ static bool cast_luck_spell(int spell)
 		{
             spellswitch = 16; /* damage slime in GF_bug_spray */
 			(void)dec_timed(TMD_POISONED, plev/4 + randint((plev+1)/2));
-			(void)dec_timed(TMD_CUT, plev/3 + randint((plev+2)/3));
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT])) /* */;
+			else (void)dec_timed(TMD_CUT, plev/3 + randint((plev+2)/3));
 			(void)dec_timed(TMD_STUN, plev/5 + randint((plev+2)/3));
 			fire_spread(GF_BUG_SPRAY, 2 + ((plev+3)/6) + randint((plev+2)/3 + goodluck), 6 + plev/6);
             if ((randint(100) < 25+(plev/2)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
@@ -4036,7 +4035,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_MAP_AREA:
 		{
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 12))
+            if ((nodivining) && (goodluck < 12))
             {
                msg_print("Your first sight supresses detection.");
                break;
@@ -4048,17 +4047,17 @@ static bool cast_luck_spell(int spell)
                (void)lite_area(damroll(2, (plev / 6)), (plev / 5));
                spellswitch = 0;
             }
-            else if (die < 90) map_area(FALSE);
+            else if (die < 87) map_area(39 + goodluck + rand_int(9));
             else if (die < 100)
             {
-               (void)lite_area(damroll(2, (plev / 4)), (plev / 5));
-			   if (die == 94) map_area(TRUE);
-			   else map_area(FALSE);
+               (void)lite_area(damroll(2, (plev / 4)), (plev / 4));
+			   if (die == 97) map_area(200);
+			   else map_area(die/2 + goodluck + rand_int(7));
             }
             else
             {
                (void)lite_area(damroll(2, (plev / 3)), (plev / 5));
-			   map_area(TRUE);
+			   map_area(200);
             }
 			break;
 		}
@@ -4066,12 +4065,12 @@ static bool cast_luck_spell(int spell)
 		case LUCK_ADJUST_CURSE: /* add chance to make the weapon blessed */
 		{
             (void)spell_adjust_curse();
-			break; /* (direction is unused) */
+			break;
         }
         
         case LUCK_DETECT_ENCHANTMENT2:
 		{
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            if ((nodivining) && (goodluck < 14))
             {
                msg_print("Your first sight supresses detection.");
                break;
@@ -4093,26 +4092,52 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
 
-		case LUCK_MAP_LEVEL:
+		case LUCK_CELEB_WATCH:
 		{
-			int mapstr = randint((plev - 2)*2 + goodluck);
-            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 12))
-            {
-               msg_print("Your first sight supresses detection.");
-               break;
-            }
-            if (mapstr > 100) wiz_lite(TRUE);
-			else if (mapstr > 94) wiz_lite(FALSE);
-			else
+			(void)detect_monsters_normal(99);
+			(void)inc_timed(TMD_CELEB_WATCH, randint(plev + goodluck) + 21);
+			break;
+		}
+        
+		case LUCK_TRAVEL_JOURNAL:
+		{
+			die = 5 + rand_int(20) + randint(goodluck*2) - randint(badluck + 1);
+			(void)clear_timed(TMD_CONFUSED);
+			(void)clear_timed(TMD_AMNESIA);
+			(void)clear_timed(TMD_IMAGE);
+			(void)clear_timed(TMD_FRENZY);
+			(void)restore_level();
+			if (die > 16) msg_print("The memories clear your mind.");
+			if (die > 26)
 			{
-                if (randint(plev * 2 + goodluck - badluck) > 4) 
-                    map_area(TRUE);
-                else
-                {
-                    msg_print("The map seems to be incomplete..");
-			        map_area(FALSE);
-			    }
-            }
+				die = randint(die-2) + plev/2;
+				(void)inc_timed(TMD_BRAIL, die);
+				(void)inc_timed(TMD_LASTING_CURE, die);
+			}
+			else if (die > 16)
+			{
+				(void)inc_timed(TMD_LASTING_CURE, randint(die) + plev/2);
+			}
+			else if (die == 7)
+				(void)inc_timed(TMD_2ND_THOUGHT, randint(die) + plev/2);
+			else if ((die < 14) && (!(die == 7)))
+			{
+				die = randint(10) + randint(badluck*2) - randint(goodluck+1);
+				if (die <= 20) msg_print("You feel nostalgic.");
+				if (die > 20) (void)inc_timed(TMD_CURSE, randint(die+2) + plev/2);
+				else if (die > 15) (void)inc_timed(TMD_CHARM, randint(die/2) + plev/3);
+				else if (die < 5) (void)inc_timed(TMD_SPHERE_CHARM, randint(die*2) + plev/3);
+				die = randint(10) + randint(badluck*2) - randint(goodluck+1);
+				if (die > 5)
+				{
+					p_ptr->spadjust = 0 - (die/6);
+					(void)inc_timed(TMD_ADJUST, randint(die+5) + plev/3);
+				}
+				(void)clear_timed(TMD_WSINFRA);
+				(void)clear_timed(TMD_SINFRA);
+				(void)clear_timed(TMD_2ND_THOUGHT);
+				(void)clear_timed(TMD_SKILLFUL);
+			}
 			break;
 		}
 
@@ -4406,7 +4431,7 @@ static bool cast_luck_spell(int spell)
             else if (die < 30)
             {
                msg_print("You summon something hairy.");
-               summon_specific(py, px, dep, SUMMON_ANGEL);
+               summon_specific(py, px, dep, SUMMON_APE);
             }
             else if (die < 35)
             {
@@ -4447,12 +4472,12 @@ static bool cast_luck_spell(int spell)
             die = randint(99) + randint(plev/5);
             if (die > 108) wiz_lite(TRUE);
             else if (die > 105) wiz_lite(FALSE);
-            else if (die > 100) return identify_fully();
-            else if (die > 95) map_area(FALSE);
+            else if (die > 95) return identify_fully();
             else if (die > 85) return ident_spell();
             else if (die > 80) restore_level();
             else if (die > 77) gain_exp(randint(plev * 3));
             else if (die > 70) p_ptr->luck = p_ptr->luck + randint(2);
+            else if (die > 67) map_area(7 + goodluck*2);
             if (die < 8) p_ptr->luck = p_ptr->luck - randint(2);
             break;  
         }
@@ -4461,12 +4486,6 @@ static bool cast_luck_spell(int spell)
         {
 			if (!get_aim_dir(&dir)) return (FALSE);
             (void)spell_affect_other(dir);
-			break;
-        }
-        
-        case LUCK_POTLUCK_STATS:
-        {
-            (void)spell_potluck_stats();
 			break;
         }
         
@@ -4514,7 +4533,8 @@ static bool cast_luck_spell(int spell)
             if (die < 20)
             {
                msg_print("A broken bottle appears and shatters violently.");
-               (void)inc_timed(TMD_CUT, 4);
+				if (p_ptr->roomeffect == 15) (void)inc_timed(TMD_CUT, 13);
+               else (void)inc_timed(TMD_CUT, 4);
             }
             else if (die < 35)
             {
@@ -4694,12 +4714,11 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_SUPER_ROGUE:
 		{
-			int time;
+			int time = 11 + randint(18);
 			(void)clear_timed(TMD_FRENZY);
 			if (goodluck > 0) time = 11 + (goodluck * 4) + randint(19);
-			else time = 10 + randint(18);
 			(void)inc_timed(TMD_SUPER_ROGUE, time);
-			if (randint(50) == 1) p_ptr->luck += 1;
+			if (randint(777) == 1) p_ptr->luck += 1;
 			break;
 		}
         
@@ -4862,11 +4881,11 @@ static bool cast_luck_spell(int spell)
             {
 			   msg_print("You are surrounded by a malignant aura.");
 			   /* Decrease all stats (permanently) */
-			   (void)dec_stat(A_STR, 2 + randint(11), TRUE);
-			   (void)dec_stat(A_INT, 2 + randint(11), TRUE);
-			   (void)dec_stat(A_WIS, 2 + randint(11), TRUE);
-			   (void)dec_stat(A_DEX, 2 + randint(11), TRUE);
-			   (void)dec_stat(A_CON, 2 + randint(11), TRUE);
+			   (void)dec_stat(A_STR, 2 + randint(10), TRUE);
+			   (void)dec_stat(A_INT, 2 + randint(10), TRUE);
+			   (void)dec_stat(A_WIS, 2 + randint(10), TRUE);
+			   (void)dec_stat(A_DEX, 2 + randint(10), TRUE);
+			   (void)dec_stat(A_CON, 2 + randint(10), TRUE);
 			   (void)dec_stat(A_CHR, 3 + randint(12), TRUE);
             }
             else if (die < 2)
@@ -4949,9 +4968,8 @@ static bool cast_luck_spell(int spell)
             /* the following four effects have both good and bad possibilities */
             /* but the good ones happen more often */
             else if (die < 45) (void)spell_adjust_curse();
-            else if (die < 55) (void)spell_affect_self();
-            else if (die < 65) (void)spell_potluck_stats();
-            else if (die < 85)
+            else if (die < 59) (void)spell_affect_self();
+            else if (die < 83)
             {
 			     if (!get_aim_dir(&dir)) return (FALSE);
                  (void)spell_affect_other(dir);
@@ -5007,6 +5025,13 @@ static bool cast_chem_spell(int spell)
 	/* Hack -- chance of "beam" instead of "bolt" */
 	/* plev with beam flag, plev/2 otherwise */
 	int beam = beam_chance();
+	
+	/* a couple effects block divination magic */
+    bool nodivining = FALSE;
+    /* first sight and second thoughts blocks second sight (& all divination) */
+	if (p_ptr->timed[TMD_2ND_THOUGHT]) nodivining = TRUE;
+	/* rune of the blind inner eye */
+	if (p_ptr->roomeffect == 25) nodivining = TRUE;
 
     /* spellcasting bonus */	
 	if (p_ptr->timed[TMD_BRAIL])
@@ -5024,7 +5049,8 @@ static bool cast_chem_spell(int spell)
 			if (cure < curep) cure = curep;
 			if (cure > 43) cure = 43; /* maximum */
 			(void)hp_player(cure);
-			(void)dec_timed(TMD_CUT, 10);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT])) /* */;
+			else (void)dec_timed(TMD_CUT, 10);
 			break;
 		}
 		
@@ -5085,7 +5111,8 @@ static bool cast_chem_spell(int spell)
             spellswitch = 16; /* damage slime in GF_bug_spray */
 			fire_spread(GF_BUG_SPRAY, 3 + plev/8 + randint((plev+1)/2), 6 + plev/6);
 			(void)dec_timed(TMD_POISONED, plev/4 + randint((plev+2)/3));
-			(void)dec_timed(TMD_CUT, plev/3 + randint((plev+2)/3));
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT])) /* */;
+			else (void)dec_timed(TMD_CUT, plev/3 + randint((plev+2)/3));
 			(void)dec_timed(TMD_STUN, plev/5 + randint((plev+2)/3));
             if ((randint(100) < 25+(plev/2)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
             if ((randint(100) < 10) && (plev > 9))
@@ -5128,7 +5155,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_FIND_TRAPS_DOORS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -5142,7 +5169,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_DETECT_MONSTERS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -5197,7 +5224,12 @@ static bool cast_chem_spell(int spell)
 			if (cure < curep) cure = curep;
 			if (cure > 68) cure = 68; /* maximum */
 			(void)hp_player(cure);
-			(void)set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 3) - 2);
+			if ((p_ptr->roomeffect == 15) && (p_ptr->timed[TMD_CUT]))
+			{
+				msg_print("Your cuts don't heal properly.");
+				(void)set_timed(TMD_CUT, p_ptr->timed[TMD_CUT] / 2 + 1);
+			}
+			else (void)set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 3) - 2);
 			break;
 		}
 
@@ -5263,7 +5295,7 @@ static bool cast_chem_spell(int spell)
 		
 		case CHEM_DETECT_TREASURE:
         {
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -5300,7 +5332,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_DETECT_INVISIBLE:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -5324,7 +5356,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_DETECT_ENCHANTMENT:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -5500,7 +5532,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_CHAOS_ARROW:
 		{
-            /* Make sure player is wielding a bow */
+            /* Make sure PC is wielding a bow */
             if ((p_ptr->ammo_tval != TV_ARROW))
             {
                msg_print("You must be wielding a bow to fire a chaos arrow.");
@@ -5508,6 +5540,8 @@ static bool cast_chem_spell(int spell)
             }
 			if (!get_aim_dir(&dir)) return (FALSE);
 			arrowdmg = damroll(plev/4, 7) + 1;
+			/* chaos-strengthening room rune */
+			if (p_ptr->roomeffect == 11) arrowdmg += arrowdmg/5;
 			fire_bolt(GF_CHAOS, dir, arrowdmg);
             /* paranoia backfire to remind archer to use range weapon */
             if ((randint(100) < 20) && (!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
@@ -5962,6 +5996,13 @@ static bool cast_dark_spell(int spell)
 
 	/* Hack -- chance of "beam" instead of "bolt" */
 	int beam = beam_chance();
+	
+	/* a couple effects block divination magic */
+    bool nodivining = FALSE;
+    /* first sight and second thoughts blocks second sight (& all divination) */
+	if (p_ptr->timed[TMD_2ND_THOUGHT]) nodivining = TRUE;
+	/* rune of the blind inner eye */
+	if (p_ptr->roomeffect == 25) nodivining = TRUE;
 
     /* spellcasting bonus */	
 	if (p_ptr->timed[TMD_BRAIL])
@@ -5973,13 +6014,20 @@ static bool cast_dark_spell(int spell)
     {
        plev += badweap;
     }
+	/* sceptre of power rune -on top of other bonuses */
+	if ((p_ptr->roomeffect == 12) || (p_ptr->roomeffect == 13)) 
+	{
+		if (p_ptr->roomeffect == 13) plev += 10;
+		else plev += 8;
+		beam += 5;
+	}
 
 	/* Spells. */
 	switch (spell)
 	{
 		case DARK_DETECT_EVIL:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -5997,6 +6045,7 @@ static bool cast_dark_spell(int spell)
             if (randint(30 + goodluck + badweap*2 - goodweap*3) > 25) dmod = 9;
             if (randint(plev + goodluck + badweap*2 - goodweap*3) > 46) dmod = 10;
             if ((badluck > 10) && (badweap < 1)) dmod = 8;
+			if (p_ptr->roomeffect == 13) plev += 5; /* extra bonus */
 			if (plev < 4) fire_bolt(GF_NETHER, dir, damroll(3, (plev * 3)/2 ));
 			else if (plev < 7) fire_bolt(GF_NETHER, dir, damroll(3, plev));
 			else if (plev < 11) fire_bolt(GF_NETHER, dir, damroll(3, 6));
@@ -6019,6 +6068,7 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_CALL_DARK:
 		{
+			if (p_ptr->roomeffect == 13) plev += 5; /* extra bonus */
             if ((!p_ptr->darkvis) && (plev < 11)) (void)inc_timed(TMD_DARKVIS, 10 + randint(plev+2));
 		    else if (!p_ptr->darkvis) (void)inc_timed(TMD_DARKVIS, 12 + randint(plev-3));
 		    /* slight extra alertness if the player already has darkvision */
@@ -6028,7 +6078,7 @@ static bool cast_dark_spell(int spell)
             if (plev > 11) ifrad = 3 + randint(plev / 6);
             if (ifrad < 2) ifrad = 2;
             if (randint(100) < 11 + badweap*2 + goodluck - ifrad) ifrad += 1;
-			(void)unlite_area(damroll(2, ((plev+1) / 2)) + randint(ifrad + 1) + 1, ifrad, TRUE);
+			(void)unlite_area(damroll(2, (plev+3)/2) + randint(ifrad + 1), ifrad, TRUE);
 			/* in unlite_area function if from call dark spell: */
 			/* if (rand_int(8) < p_ptr->lev) spellswitch = 23; */
 			/* (spellswitch 23 damages monsters without them noticing) */
@@ -6088,7 +6138,7 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_SEE_INVISIBLE:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -6101,7 +6151,7 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_FIND_TRAPS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -6114,7 +6164,7 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_DETECT_DOORS_STAIRS:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -6127,7 +6177,7 @@ static bool cast_dark_spell(int spell)
 		
 		case DARK_DETECT_LIVING:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -6149,6 +6199,7 @@ static bool cast_dark_spell(int spell)
             }
 
             if (!controlled) teleport_player(10);
+			if (p_ptr->roomeffect == 13) break;
 			die = randint(100 - badluck);
 			if (plev <= 20) die += (25-plev);
 			if (die < 74)
@@ -6281,6 +6332,7 @@ static bool cast_dark_spell(int spell)
 		case DARK_DEATH_BOLT:
         {
 			if (!get_aim_dir(&dir)) return (FALSE);
+			if (p_ptr->roomeffect == 13) plev += 5; /* extra bonus */
 			if (plev < 13) drain_life(dir, damroll(3 + ((plev) / 5), 6));
 			else drain_life(dir, (plev*8)/5 + randint(plev));
             if (randint(100) + badluck > 80 + goodluck)
@@ -6346,6 +6398,7 @@ static bool cast_dark_spell(int spell)
 			int dam = 31 + ((plev+2)/4) + randint((plev*9)/4);
 			int rad = 5;
 			if (plev >= 40) rad += 1;
+			if (p_ptr->roomeffect == 13) dam += 5; /* extra bonus */
 			/* spread effect doesn't need a direction */
 			/* if (!get_aim_dir(&dir)) return (FALSE); */
 			fire_spread(GF_FIRE, dam, rad);
@@ -6419,6 +6472,7 @@ static bool cast_dark_spell(int spell)
             }
 
             if (!controlled) teleport_player(plev * 5);
+			if (p_ptr->roomeffect == 13) break;
 
 			die = randint(100 + plev/8 + ((goodluck+1)/2) - badluck);
 			shifthit = 1 + randint((plev + 2) / 4);
@@ -6446,7 +6500,7 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_SHADOW_MAPPING:
 		{
-			map_area(FALSE);
+			map_area(0);
 			break;
 		}
 
@@ -6482,7 +6536,7 @@ static bool cast_dark_spell(int spell)
              
         case DARK_DETECT_ENCHANTMENT:
 		{
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -6687,7 +6741,7 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_DETECT_ALL_MONSTERS:
         {
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            if (nodivining)
             {
                msg_print("Your first sight supresses detection.");
             }
@@ -6711,6 +6765,7 @@ static bool cast_dark_spell(int spell)
         case DARK_ORB_OF_DEATH:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
+			if (p_ptr->roomeffect == 13) plev += 5; /* extra bonus */
 			fire_ball(GF_OLD_DRAIN, dir,
 			          (damroll(3, 6) + plev + (plev / 2)),
 			          ((plev < 30) ? 2 : 3));
@@ -6740,6 +6795,7 @@ static bool cast_dark_spell(int spell)
 		{
 			int healmuch = 0;
 			if (!get_aim_dir(&dir)) return (FALSE);
+			if (p_ptr->roomeffect == 13) plev += 5; /* extra bonus */
 			drainmuch = damroll(plev / 3, 11);
 			/* caps */
 			if (drainmuch < (plev * 3) / 4) drainmuch = (plev * 3) / 4;
@@ -6774,6 +6830,7 @@ static bool cast_dark_spell(int spell)
 		case DARK_REND_SOUL:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
+			if (p_ptr->roomeffect == 13) plev += 5; /* extra bonus */
 			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(11, plev));
             if (randint(100) + badluck > 75 + goodluck)
             {
@@ -6887,7 +6944,7 @@ static bool cast_dark_spell(int spell)
 		case DARK_SEE_ALL_FOES:
 		{
 			int time = randint(35) + 35;
-			if (p_ptr->timed[TMD_2ND_THOUGHT])
+			if (nodivining)
 			{
 				msg_print("Your first sight supresses detection.");
 				break;
@@ -7028,7 +7085,7 @@ static bool cast_dark_spell(int spell)
             (void)clear_timed(TMD_OPP_FIRE);
             (void)clear_timed(TMD_IMM_FIRE);
             if (randint(99 + goodluck) < 81) p_ptr->luck -= 1;
-            if (randint(80) + badluck > plev)
+            if ((randint(80) + badluck > plev) && (!(p_ptr->roomeffect == 13)))
             {
                die = randint(100 + goodluck);
                if (die < 20)
@@ -7107,34 +7164,71 @@ static bool cast_dark_spell(int spell)
 
 bool cast_spell(int tval, int index)
 {
+	bool toreturn = FALSE;
+	
 	if (tval == TV_MAGIC_BOOK)
 	{
-		return cast_mage_spell(index);
+		/* silence room rune */
+		if ((p_ptr->roomeffect == 16) && 
+			((index == SPELL_SHOCK_WAVE) || (index == SPELL_SUMMON_DEMONIC_AID)))
+		{
+			msg_print("You can't cast that spell because this room is magically silenced.");
+			return FALSE;
+		}
+		toreturn = cast_mage_spell(index);
 	}
 	else if (tval == TV_NEWM_BOOK)
 	{
-		return cast_newm_spell(index);
+		/* silence room rune (affects nature casters more than any other realm) */
+		if ((p_ptr->roomeffect == 16) && 
+			((index == NEWM_THUNDERCLAP) || (index == NEWM_CALL_HELP) ||
+			(index == NEWM_SONG_LULLING) || (index == NEWM_SONG_HEROISM) ||
+			(index == NEWM_SONG_PROTECTION) || 
+            (index == NEWM_SONG_DISPELLING) || (index == NEWM_RENEWAL)))
+		{
+			msg_print("You can't cast that spell because this room is magically silenced.");
+			return FALSE;
+		}
+		toreturn = cast_newm_spell(index);
 	}
 	else if (tval == TV_LUCK_BOOK)
 	{
-		return cast_luck_spell(index);
+		/* silence room rune */
+		if ((p_ptr->roomeffect == 16) && (index == LUCK_BANISH_SUMMON))
+		{
+			msg_print("You can't cast that spell because this room is magically silenced.");
+			return FALSE;
+		}
+		toreturn = cast_luck_spell(index);
 	}
 	else if (tval == TV_CHEM_BOOK)
 	{
-		return cast_chem_spell(index);
+		/* (no CHEM spells affected by the silence room rune) */
+		toreturn = cast_chem_spell(index);
 	}
 	else if (tval == TV_DARK_BOOK)
 	{
-		return cast_dark_spell(index);
+		/* silence room rune */
+		if ((p_ptr->roomeffect == 16) && (index == DARK_SUMMON_DEMONIC_AID))
+		{
+			msg_print("You can't cast that spell because this room is magically silenced.");
+			return FALSE;
+		}
+		toreturn = cast_dark_spell(index);
 	}
 /*	else if (tval == TV_MIND_BOOK)
 	{
-		return cast_mind_spell(index);
+		toreturn = cast_mind_spell(index);
 	} */
 	else
 	{
-		return cast_priest_spell(index);
+		toreturn = cast_priest_spell(index);
 	}
+
+	/* make noise (noise for each spell is in spell.txt) */
+	make_noise(p_ptr->py, p_ptr->px, s_info[index].spell_noise, FALSE, TRUE);
+	
+	return toreturn;
 }
 
 

@@ -345,28 +345,28 @@ void do_cmd_wield_reallynow(bool toquiver)
 	char o_name[80];
 	char out_val[160];
 
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_hook_wear;
-	
-	/* wield straight to quiver */
-    if (toquiver) item_tester_hook = item_tester_hook_quiverwield;
-
-	/* Get an item */
-	q = "Wear/Wield which item? ";
-	s = "You have nothing you can wear or wield.";
-	if (toquiver)
+	if (!toquiver)
     {
+		/* Restrict the choices */
+		item_tester_hook = item_tester_hook_wear;
+
+		/* Get an item */
+		q = "Wear/Wield which item? ";
+		s = "You have nothing you can wear or wield.";
+
+		/* USE_QUIVER: can now wield items straight from the quiver to weapon slot */
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_QUIVER))) return;
+	}
+	else /* to quiver */
+	{
+		/* wield straight to quiver */
+		item_tester_hook = item_tester_hook_quiverwield;
+
         q = "Put which item into the quiver? ";
         s = "You have nothing you can put in the quiver.";
         
 		/* USE_EQUIP: can now put items into quiver straight from weapon slot */
 		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
-	}
-	else
-	{
-		/* USE_QUIVER: can now wield items straight from the quiver to weapon slot */
-		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_QUIVER))) return;
 	}
 
 	/* Get the item (in the pack) */
@@ -524,6 +524,9 @@ void do_cmd_wield_reallynow(bool toquiver)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+	
+	/* Make noise */
+	make_noise(p_ptr->py, p_ptr->px, 3 + (o_ptr->weight/50), FALSE, TRUE);
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
@@ -733,7 +736,6 @@ void do_cmd_takeoff(void)
 	object_type *o_ptr;
 	cptr q, s;
 
-
 	/* Get an item */
 	q = "Take off which item? ";
 	s = "You are not wearing anything to take off.";
@@ -775,6 +777,9 @@ void do_cmd_takeoff(void)
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
+	
+	/* Make noise */
+	make_noise(p_ptr->py, p_ptr->px, 2 + (o_ptr->weight/50), FALSE, TRUE);
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
@@ -789,7 +794,6 @@ void do_cmd_drop(void)
 	int item, amt;
 	object_type *o_ptr;
 	cptr q, s;
-
 
 	/* Get an item */
 	q = "Drop which item? ";
@@ -845,6 +849,9 @@ void do_cmd_drop(void)
 		else if (p_ptr->lev >= 5) p_ptr->energy_use = 40;
 		else p_ptr->energy_use = 45;
 	}
+	
+	/* Make noise */
+	make_noise(p_ptr->py, p_ptr->px, 2 + (o_ptr->weight/50) + rand_int(2), FALSE, TRUE);
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
@@ -1103,9 +1110,7 @@ void do_cmd_fstack(void)
 	item_tester_hook = item_tester_hook_enchstaff;
 	
 	if (!get_check("This will remove all weapon bonuses, are you sure? "))
-	{
         return;
-    }
 
 	/* Get an item */
 	q = "Un-enchant which item? ";
@@ -1168,10 +1173,12 @@ void do_cmd_fstack(void)
     o_ptr->randlowr2 = 0;
     o_ptr->randact = 0;
 	o_ptr->esprace = 0;
+	/* erase record of where you found this object */
+	o_ptr->vcode = 0;
 	/* remove bonus damage dice */
 	if (o_ptr->dd > k_ptr->dd) o_ptr->dd = k_ptr->dd;
 
-	/* you now know that it's average */
+	/* you now know that it's completely average */
 	object_known(o_ptr);
 
 	/* Combine the pack */
@@ -1270,15 +1277,10 @@ void do_cmd_uninscribe(void)
 void do_cmd_inscribe(void)
 {
 	int item;
-
 	object_type *o_ptr;
-
 	char o_name[80];
-
 	char tmp[80];
-
 	cptr q, s;
-
 
 	/* Get an item */
 	q = "Inscribe which item? ";
@@ -1620,6 +1622,8 @@ void do_cmd_refill(void)
 
 	else if (!(f3 & TR3_NO_FUEL))
 	{
+		/* Make noise */
+		make_noise(p_ptr->py, p_ptr->px, 5, FALSE, TRUE);
 		/* It's a lamp */
 		if (o_ptr->sval == SV_LITE_LANTERN)
 		{
@@ -1639,8 +1643,6 @@ void do_cmd_refill(void)
 		msg_print("Your light cannot be refilled.");
 	}
 }
-
-
 
 
 

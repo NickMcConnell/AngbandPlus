@@ -588,6 +588,7 @@ static void player_wipe(bool really_wipe)
 	p_ptr->game_score = 0;
 	p_ptr->lastfullmoon = 0;
 	p_ptr->last_nap = 0;
+	p_ptr->roomeffect = 0;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
@@ -1298,7 +1299,6 @@ static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 }
 static int player_birth_aux_2(bool start_at_end)
 {
 	int i;
-
 	int row = 3;
 	int col = 42;
 
@@ -1309,7 +1309,6 @@ static int player_birth_aux_2(bool start_at_end)
 	int cost, humanstat;
 
 	char ch;
-
 	char buf[80];
 
 	bool first_time = FALSE;

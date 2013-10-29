@@ -138,6 +138,18 @@ int roamgroup6 = 0;
 int roamgroup7 = 0;
 int roamgroup8 = 0;
 bool bugsearch = FALSE;
+/* these four for the invasion trap */
+int invasionridx = 0;
+int invasiony = 0;
+int invasionx = 0;
+byte invasionmode = 0;
+/* save the location & types of room runes */
+int r_rune1;
+int r_rune2;
+int r_rune3;
+s16b r_rune1typ;
+s16b r_rune2typ;
+s16b r_rune3typ;
 
 /*
  * TRUE if process_command() is a repeated call.
@@ -156,6 +168,8 @@ bool good_item_flag;	/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
+/* new for generation */
+byte room_design_theme;
 
 /*
  * Player info
@@ -358,7 +372,7 @@ const cptr angband_sound_name[MSG_MAX] =
 	"breathe_plasma", 
 	"breathe_force", 
 	"summon_monster", 
-	"summon_angel", 
+	"summon_ape", 
 	"summon_undead", 
 	"summon_animal", 
 	"summon_spider", 
@@ -893,6 +907,7 @@ quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
 	{'f', TERM_L_GREEN},
 	{'f', TERM_YELLOW},
 	{'v', TERM_ORANGE},
+	{'v', TERM_L_UMBER},
 };
 
 #ifdef yes_c_history

@@ -22,8 +22,7 @@ s16b spell_chance(int spell)
 
 	const magic_type *s_ptr;
 
-
-	/* Paranoia -- must be literate */
+	/* Paranoia -- must be able to cast spells */
 	if (!cp_ptr->spell_book) return (100);
 
 	/* Get the spell */
@@ -785,7 +784,6 @@ void do_cmd_browse(void)
 
 
 
-
 /*
  * Study a book to gain a new spell/prayer
  */
@@ -1003,18 +1001,15 @@ bool do_cmd_cast(void)
 {
 	int item, spell;
 	int chance;
-
 	object_type *o_ptr;
-
 	const magic_type *s_ptr;
-
 	cptr q, s;
 
 
 	/* Require spell ability */
 	if (cp_ptr->spell_book != TV_MAGIC_BOOK)
 	{
-		msg_print("You cannot cast spells in this school!");
+		msg_print("You cannot cast spells in this realm!");
 		return FALSE;
 	}
 
@@ -1208,11 +1203,8 @@ bool do_cmd_cast(void)
 bool do_cmd_pray(void)
 {
 	int item, spell, chance;
-
 	object_type *o_ptr;
-
 	const magic_type *s_ptr;
-
 	cptr q, s;
 
 
@@ -1411,18 +1403,15 @@ bool do_cmd_pray(void)
 bool do_cmd_castnew(void)
 {
 	int item, spell, chance;
-
 	object_type *o_ptr;
-
 	const magic_type *s_ptr;
-
 	cptr q, s;
 
 
 	/* Must use correct books */
 	if (cp_ptr->spell_book != TV_NEWM_BOOK)
 	{
-		msg_print("You cannot cast spells in this school!");
+		msg_print("You cannot cast spells in this realm!");
 		return FALSE;
 	}
 
@@ -1615,18 +1604,15 @@ bool do_cmd_castnew(void)
 bool do_cmd_castluck(void)
 {
 	int item, spell, chance;
-
 	object_type *o_ptr;
-
 	const magic_type *s_ptr;
-
 	cptr q, s;
 
 
 	/* Must use correct books */
 	if (cp_ptr->spell_book != TV_LUCK_BOOK)
 	{
-		msg_print("You cannot cast spells in this school!");
+		msg_print("You cannot cast spells in this realm!");
 		return FALSE;
 	}
 
@@ -1828,16 +1814,14 @@ bool do_cmd_castchem(void)
 	int item, spell, chance;
 	bool toohard = FALSE;
 	object_type *o_ptr;
-
 	const magic_type *s_ptr;
-
 	cptr q, s;
 
 
 	/* Must use correct books */
 	if (cp_ptr->spell_book != TV_CHEM_BOOK)
 	{
-		msg_print("You cannot cast spells in this school!");
+		msg_print("You cannot cast spells in this realm!");
 		return FALSE;
 	}
 
@@ -2047,17 +2031,14 @@ bool do_cmd_castblack(void)
 {
 	int item, spell;
 	int chance;
-
 	object_type *o_ptr;
-
 	const magic_type *s_ptr;
-
 	cptr q, s;
 
 	/* Require spell ability */
 	if (cp_ptr->spell_book != TV_DARK_BOOK)
 	{
-		msg_print("You cannot cast spells in this school!");
+		msg_print("You cannot cast spells in this realm!");
 		return FALSE;
 	}
 

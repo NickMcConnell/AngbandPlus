@@ -5019,12 +5019,8 @@ s16b get_danger_feeling(void)
 		   ((r_ptr->flags6 & (RF6_S_DEMON)) && (randint(100) < 20+cheatluck)))
 		     mon_danger += 1;
 
-		if ((l_ptr->flags6 & (RF6_S_HOUND)) ||
-		   ((r_ptr->flags6 & (RF6_S_HOUND)) && (randint(100) < 20+cheatluck)))
-		     mon_danger += 1;
-
-		if ((l_ptr->flags6 & (RF6_S_HYDRA)) ||
-		   ((r_ptr->flags6 & (RF6_S_HYDRA)) && (randint(100) < 20+cheatluck)))
+		if ((l_ptr->flags6 & (RF6_S_EXTRA)) ||
+		   ((r_ptr->flags6 & (RF6_S_EXTRA)) && (randint(100) < 20+cheatluck)))
 		     mon_danger += 1;
 		     
 		mon_danger += nasty_melee(i);
@@ -5188,10 +5184,10 @@ void do_cmd_feeling(void)
 	else if (p_ptr->theme == 2) msg_print("The walls here are decorated with green trees and sprites.");
 	else if (p_ptr->theme == 3) msg_print("This level is a slimy, icky place..");
 	else if (p_ptr->theme == 4) msg_print("The walls here are decorated with fire and veins of molten lava.");
-	else if (p_ptr->theme == 5) msg_print("The walls here have crystal and other types of rocks showing between the granite.");
-	else if (p_ptr->theme == 6) msg_print("This level has high ceilings and windy tunnels.");
+	else if (p_ptr->theme == 5) msg_print("Warning, you have arrived at a themed level which is out of order.");
+	else if (p_ptr->theme == 6) msg_print("A sky with clouds is painted on the walls and you hear the thundering of giants.");
 	else if (p_ptr->theme == 7) msg_print("Though deep underground, you inexplicably sense a full moon in the sky.");
-	else if (p_ptr->theme == 8) msg_print("This level is filled with the ruins of an ancient haunted castle.");
+	else if (p_ptr->theme == 8) msg_print("This level is filled with the ruins of a haunted ancient temple.");
 	else if (p_ptr->theme == 9) msg_print("The ground is very wet here and there are puddles of brown water.");
 	else if (p_ptr->theme == 10) msg_print("You recognise a symbol on the wall as a mark to the entrance of a dwarf mine.");
 	else if (p_ptr->theme == 11) msg_print("The ground and walls here are nearly covered with ants and other tiny bugs.");

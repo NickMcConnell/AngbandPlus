@@ -29,8 +29,6 @@ static cptr wd_his[3] =
 
 
 
-
-
 /*
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
@@ -330,7 +328,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	int vn;
 	cptr vp[64];
 
-
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
@@ -469,18 +466,34 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_TRAPS)       vp[vn++] = "create traps";
 	if (l_ptr->flags6 & RF6_FORGET)      vp[vn++] = "cause amnesia";
 	if (l_ptr->flags6 & RF6_INVIS)       vp[vn++] = "temporarily turn itself invisible";
-	if (l_ptr->flags6 & RF6_S_SILVER)    vp[vn++] = "summon grepse (silver beings)";
+	if (l_ptr->flags6 & RF6_ILLUSION_CLONE)  vp[vn++] = "clone itself with illusions";
 	if (l_ptr->flags6 & RF6_S_KIN)       vp[vn++] = "summon similar monsters";
 	if (l_ptr->flags6 & RF6_S_MONSTER)   vp[vn++] = "summon a monster";
 	if (l_ptr->flags6 & RF6_S_MONSTERS)  vp[vn++] = "summon monsters";
 	if (l_ptr->flags6 & RF6_S_ANIMAL)    vp[vn++] = "summon animals";
 	if (l_ptr->flags6 & RF6_S_SPIDER)    vp[vn++] = "summon spiders";
-	if (l_ptr->flags6 & RF6_S_HOUND)     vp[vn++] = "summon hounds";
-	if (l_ptr->flags6 & RF6_S_HYDRA)     vp[vn++] = "summon hydras";
-	if (l_ptr->flags6 & RF6_S_ANGEL)     vp[vn++] = "summon an ape";
+	if (l_ptr->flags6 & RF6_S_ILLUSION)  vp[vn++] = "summon an illusory monster";
+	if (l_ptr->flags6 & RF6_S_ILLUSIONS) vp[vn++] = "summon illusory monsters";
 	if (l_ptr->flags6 & RF6_S_DEMON)     vp[vn++] = "summon a demon";
 	if (l_ptr->flags6 & RF6_S_UNDEAD)    vp[vn++] = "summon an undead";
 	if (l_ptr->flags6 & RF6_S_DRAGON)    vp[vn++] = "summon a dragon";
+	if (l_ptr->flags6 & RF6_S_EXTRA)
+	{
+		switch (r_ptr->summex)
+		{
+			case 1: vp[vn++] = "summon an ape";
+			case 2: vp[vn++] = "summon silver monsters";
+			case 3: vp[vn++] = "summon hounds";
+			case 4: vp[vn++] = "summon hydras";
+			case 5: vp[vn++] = "summon dwarvish darkness demons";
+			case 6: vp[vn++] = "summon nightmares";
+			case 7: vp[vn++] = "summon military monsters";
+			case 31: vp[vn++] = "summon an ape or hounds";
+			case 34: vp[vn++] = "summon hydras";
+			/* 31, 32, 33 */
+			default: vp[vn++] = "summon chosen monsters";
+		}
+	}
 	if (l_ptr->flags6 & RF6_S_HI_UNDEAD) vp[vn++] = "summon Greater Undead";
 	if (l_ptr->flags6 & RF6_S_HI_DRAGON) vp[vn++] = "summon Ancient Dragons";
 	if (l_ptr->flags6 & RF6_S_HI_DEMON)  vp[vn++] = "summon Greater Demons";
@@ -494,14 +507,8 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		magic = TRUE;
 
 		/* Intro */
-		if (breath)
-		{
-			text_out(", and is also");
-		}
-		else
-		{
-			text_out(format("%^s is", wd_he[msex]));
-		}
+		if (breath) text_out(", and is also");
+		else text_out(format("%^s is", wd_he[msex]));
 
 		/* Verb Phrase */
 		text_out(" magical, casting spells");
@@ -909,6 +916,10 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 
 	/* Describe special abilities. */
+	if (l_ptr->flags2 & RF2_DISGUISE)
+	{
+		text_out(format("%^s may disguise as another monster.  ", wd_he[msex]));
+	}
 	if (l_ptr->flags2 & RF2_INVISIBLE)
 	{
 		text_out(format("%^s is invisible.  ", wd_he[msex]));
@@ -1251,16 +1262,12 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 static void describe_monster_kills(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
-
 	int msex = 0;
-
 	bool out = TRUE;
-
 
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
-
 
 	/* Treat uniques differently */
 	if (l_ptr->flags1 & RF1_UNIQUE)
@@ -1364,7 +1371,6 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 	const monster_race *r_ptr = &r_info[r_idx];
 
 	int msex = 0;
-
 
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
@@ -1473,17 +1479,22 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	/* knowevil: 2=discern evil, 3=discern not evil, 4=detected evil, 6=known evil by cheating, 7=known not evil by cheating */
 	if (m_ptr) knowevil = m_ptr->meet;
 	else knowevil = 0;
+	if ((knowevil >= 5) && (knowevil <= 10)) knowevil -= 5; /* scale down */
 	if ((r_ptr->flags2 & RF2_S_EVIL1) || (r_ptr->flags2 & RF2_S_EVIL2)) evilflag = TRUE;
 	if ((r_ptr->flags3 & RF3_EVIL) && (!(l_ptr->flags3 & RF3_EVIL))) evilflag = TRUE;
 	if ((r_ptr->flags2 & RF2_STUPID) && (knowevil == 3)) knowevil = 0;
 
-	/* changed from cheat_know to cheat_hear because cheat_know (know_races) */
-	/* is no longer considered cheating. So monster-related stuff which */
-	/* is considered cheating (or testing) should use cheat_hear. */
+   /* Extract a gender (if applicable) */
+   msex = 0;
+   if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
+   else if (r_ptr->flags1 & RF1_MALE) msex = 1;
+
+	/* cheating info */
     if ((cheat_hear) && (m_ptr))
 	{
 		int rmspeed;
-        text_out(format("This monster has %d hps out of %d max hit points.  ", m_ptr->hp, m_ptr->maxhp));
+
+		text_out(format("This monster has %d hps out of %d max hit points.  ", m_ptr->hp, m_ptr->maxhp));
 		/* know evil or not by cheating */
 		if ((m_ptr->evil) && (!knowevil)) knowevil = 6;
 		else if ((!m_ptr->evil) && (!knowevil) && (evilflag)) knowevil = 7;
@@ -1511,6 +1522,24 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 			if (!atpc) text_out(format("The PC's grid location is %d, %d. ", p_ptr->py, p_ptr->px));
 		}
 #endif
+	}
+	if (m_ptr)
+	{
+		if (m_ptr->champ)
+		{
+			text_out(format("This monster is named %s and is generally a little tougher than others of its race. ", m_ptr->champion_name));
+			if (cheat_hear) /* -not sure if this stuff should require cheat_hear */
+			{
+				if ((m_ptr->champ == 2) || (m_ptr->champ == 5)) text_out(format("%^s may cast spells faster than others of its race. ", wd_he[msex]));
+				if ((m_ptr->champ == 4) || (m_ptr->champ == 6)) text_out(format("%^s may do more damage in melee than others of its race. ", wd_he[msex]));
+				if (m_ptr->champ == 3) text_out(format("%^s has better armor than others of its race. ", wd_he[msex]));
+				if (m_ptr->champ == 7) text_out(format("%^s moves faster than most others of its race. ", wd_he[msex]));
+				if (m_ptr->champ == 11) text_out(format("%^s moves faster, casts faster, and can do more damage than others of its race. ", wd_he[msex]));
+				text_out("(Other info ");
+			}
+			else text_out("(Info ");
+			text_out("listed here is typical for the race, not specific to this individual.)  ");
+		}
 	}
 
     /* most of this description is irrevelent for NONMONSTERs */
@@ -1542,9 +1571,9 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
        else if (l_ptr->flags2 & RF2_S_EVIL2) text_out(" though monsters of its type usually are.  ");
     }
 	/* separate individual monster info from race info */
-	if ((knowevil) || (cheat_hear)) text_out("\n");
+	if (((knowevil) || (cheat_hear)) && (m_ptr)) text_out("\n");
 
-	text_out("This");
+	text_out("   This");
 
 	if (r_ptr->mrsize == 1) text_out(" diminutive");
 	else if (r_ptr->mrsize == 2) text_out(" tiny");
@@ -1616,11 +1645,6 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
     {
        text_out(" never appears outside of its home.  ");
 
-	   /* Extract a gender (if applicable) */
-	   msex = 0;
-	   if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
-	   else if (r_ptr->flags1 & RF1_MALE) msex = 1;
-
 	   text_out(format("%^s moves", wd_he[msex]));
     }                  
     else if (r_ptr->flags1 & RF1_UNIQUE)
@@ -1643,17 +1667,11 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	   /* note about THEME_ONLY and TOWNOK monsters */
 		if (r_ptr->flags7 & RF7_TOWNOK)
 		{
-			text_out("It also may appear in the town ");
+			text_out(format("%^s also may appear in the town ", wd_he[msex]));
 			if (r_ptr->level > 10) text_out("(but the town version has a greatly reduced XP reward).  ");
 			else text_out("(but the town version isn't worth any experience).  ");
 		}
-	   if (r_ptr->flags7 & RF7_THEME_ONLY) text_out("It never appears outside of its home.  ");
-	
-	   msex = 0;
-
-	   /* Extract a gender (if applicable) */
-	   if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
-	   else if (r_ptr->flags1 & RF1_MALE) msex = 1;
+	   if (r_ptr->flags7 & RF7_THEME_ONLY) text_out(format("%^s never appears outside of its home. ", wd_he[msex]));
 
 	   text_out(format("%^s moves", wd_he[msex]));
     }	   
@@ -1715,7 +1733,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 
 	if (r_ptr->flags7 & (RF7_NONMONSTER))
 	{
-		text_out(format("%^s is not hostile.  ", wd_he[msex]));
+		text_out("It is not hostile.  ");
 	}
 	/* non aggressive monsters */
 	else if (r_ptr->sleep == 255)
@@ -1822,6 +1840,14 @@ void describe_monster(int r_idx, bool spoilers, monster_type *m_ptr)
 	/* Get the race and lore */
 	const monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
+	
+	/* monster is disguised as another monster */
+	if ((r_ptr->flags2 & (RF2_DISGUISE)) && (m_ptr->disguised))
+	{
+		r_idx = m_ptr->disguised;
+		r_ptr = &r_info[r_idx];
+		l_ptr = &l_list[r_idx];
+	}
 
 	/* Hack -- create a copy of the monster-memory */
 	COPY(&lore, l_ptr, monster_lore);
@@ -1940,6 +1966,8 @@ void roff_top(int r_idx)
  */
 void screen_roff(int r_idx, monster_type *m_ptr)
 {
+	monster_race *r_ptr = &r_info[r_idx];
+	
 	/* Flush messages */
 	message_flush();
 
@@ -1951,6 +1979,10 @@ void screen_roff(int r_idx, monster_type *m_ptr)
 
 	/* Recall monster */
 	describe_monster(r_idx, FALSE, m_ptr);
+
+	/* monster in disguised */
+	if ((r_ptr->flags2 & (RF2_DISGUISE)) && (m_ptr->disguised))
+		r_idx = m_ptr->disguised;
 
 	/* Describe monster */
 	roff_top(r_idx);

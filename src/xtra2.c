@@ -119,6 +119,11 @@ static timed_effect effects[] =
 	{ "You feel very tired.", "You get a second wind.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_FATIGUE */
 	{ "Your eyes are protected.", "Your eyes are no longer protected.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SAFET_GOGGLES */
 	{ "You feel resilient.", "Your feel less resilient.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SUSTAIN_HEALTH */
+	{ "You can't stop blinking.", "You are no longer involuntarily blinking.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_BLINKER */
+	{ "", "", 0, 0, 0, MSG_GENERIC }, /* TMD_INVASION */
+	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_CELEB_WATCH */
+	{ "Your ears perk up.", "", 0, 0, 0, MSG_GENERIC }, /* TMD_LISTENING */
+	{ "You keep your eyes peeled.", "You are no longer on the watch for thieves.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_PROT_THIEF */
 };
 
 /*
@@ -1132,8 +1137,6 @@ bool set_food(int v)
 
 
 
-
-
 /*
  * Advance experience levels and print experience
  */
@@ -1480,7 +1483,35 @@ void monster_death(int m_idx)
 	p_ptr->window |= PW_MONLIST;
 	
 	/* done if the monster has died before (already dropped its treasure) */
-    if (m_ptr->ninelives) return;
+	if (m_ptr->ninelives) return;
+    
+	/* unhide treasure hidden inside statues */
+	if (r_ptr->flags7 & (RF7_NONMONSTER))
+	{
+		object_type *o_ptr;
+
+		/* Scan all objects in the grid */
+		for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+		{
+			/* Find objects hidden in the statue */
+			if (o_ptr->hidden)
+			{
+				o_ptr->hidden = 0;
+				if (!squelch_hide_item(o_ptr))
+				{
+					/* Extract monster name */
+					char m_name[80];
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+					msg_format("There was an object inside the %s.", m_name);
+
+					/* Notice & redraw */
+					disturb(0, 0);
+					note_spot(y, x);
+					lite_spot(y, x);
+				}
+			}
+		}
+	}
 
 
 	/* Mega-Hack -- drop "winner" treasures */
@@ -1527,8 +1558,8 @@ void monster_death(int m_idx)
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 	}
-	/* 6% chance for deep uniques to drop a treasure map */
-	else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (rand_int(100) < 6) && 
+	/* 5% chance for deep uniques to drop a treasure map */
+	else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (rand_int(100) < 5 + (goodluck+3)/6) && 
 		(r_ptr->level >= 35))
 	{
 		/* Get object base type (tval 4, sval 2) */
@@ -1556,7 +1587,7 @@ void monster_death(int m_idx)
 	/* chance to drop it */
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 33)) number++;
+	if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 32)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
 	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
@@ -1735,25 +1766,6 @@ void monster_death(int m_idx)
 	}
 }
 
-/* find out if a given monster is able to grab */
-/* (grabbing monsters are much less likely to run away because of low HP) */
-static bool itgrabs(int m_idx)
-{
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	int ap_cnt;
-
-	/* Scan through all blows */
-	for (ap_cnt = 0; ap_cnt < MONSTER_BLOW_MAX; ap_cnt++)
-	{
-		int effect = r_ptr->blow[ap_cnt].effect;
-		if (effect == RBE_BHOLD) return TRUE;
-	}
-
-	/* not a grabber */
-	return FALSE;
-}
-
 
 /*
  * Decrease a monster's hit points, handle monster death.
@@ -1793,20 +1805,56 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 	/* undisguise mimmics */
 	if ((m_ptr->disguised) && (dam > 0) && (player_can_see_bold(m_ptr->fy, m_ptr->fx)))
 	{
-		m_ptr->disguised = 0;
-		m_ptr->ml = TRUE;
-		wasdisguised = TRUE;
+		if (r_ptr->flags2 & (RF2_DISGUISE))
+		{
+			int minbreak = m_ptr->maxhp - 101;
+			if ((m_ptr->hp - dam < m_ptr->maxhp * 8 / 9) || (m_ptr->hp - dam < minbreak))
+			{
+				char dr_name[80];
+
+    			/* Extract monster name -before removing disguise */
+				monster_desc(dr_name, sizeof(dr_name), m_ptr, 0x04);
+
+				m_ptr->disguised = 0;
+				m_ptr->ml = TRUE;
+				l_ptr->flags2 |= (RF2_DISGUISE);
+
+				/* and after removing disguise */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+				
+				msg_format("%^s was really %s in disguise!", dr_name, m_name);
+				/* stop acting like the monster he's disguised as */
+				/* (see end of disguise_mimmics() */
+				if (m_ptr->mspeed < r_ptr->speed)
+				{
+					int die = rand_int(100);
+					m_ptr->mspeed = r_ptr->speed;
+					/* racial variety in speed */
+					if ((die < 15) && (!(r_ptr->flags1 & (RF1_UNIQUE)))) 
+						m_ptr->mspeed += 2;
+					else if ((die < 30) && (!(r_ptr->flags1 & (RF1_UNIQUE))))
+						m_ptr->mspeed -= 2;
+				}
+				update_mon(m_idx, 0);
+			}
+		}
+		else if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised))
+		{
+			m_ptr->disguised = 0;
+			m_ptr->ml = TRUE;
+			wasdisguised = TRUE;
+		}
 	}
 	
 	seen = ((m_ptr->ml) || (r_ptr->flags1 & RF1_UNIQUE));
 	if ((m_ptr->ml) || (los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx))) nomess = FALSE;
 	else nomess = TRUE;
 
-	/* Redraw (later) if needed */
-	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
     /* Extract monster name */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+	/* Redraw (later) if needed */
+	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
@@ -1815,6 +1863,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 	if ((m_ptr->extra2) && (m_ptr->hp < 0))
 	{
 		message_format(MSG_KILL, m_ptr->r_idx, "%^s wasn't really there!", m_name);
+		
+		/* semi-real illusions give slight XP */
+		if ((m_ptr->extra2 <= 2) && (r_ptr->level > 8))
+		{
+			if ((r_ptr->level > p_ptr->lev) && (r_ptr->mexp > 400)) gain_exp(r_ptr->mexp/200);
+			else if (r_ptr->level > p_ptr->lev) gain_exp(2);
+			else if (r_ptr->level > p_ptr->lev * 2 / 3) gain_exp(1);
+		}
 
 		/* Delete the monster */
 		delete_monster_idx(m_idx, TRUE);
@@ -1924,8 +1980,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 		
 		/* most TOWNOK versions of monsters aren't worth any experience */
 		if ((!p_ptr->depth) && (r_ptr->flags1 & (RF1_UNIQUE))) racexp = racexp/2;
-		else if ((!p_ptr->depth) && (r_ptr->level > 10)) racexp = racexp/3; /* reduced */
-        else if ((!p_ptr->depth) && (r_ptr->level > 0)) racexp = 0;
+		else if ((!p_ptr->depth) && ((r_ptr->level > 10) || (m_ptr->champ))) 
+			racexp = racexp/3; /* reduced */
+		else if ((!p_ptr->depth) && (r_ptr->level > 0)) racexp = 0;
+		/* xp for pseudo-unique monster champions */
+		else if ((m_ptr->champ) && (racexp > 200)) racexp = racexp * 6 / 5;
+		else if ((m_ptr->champ) && (racexp < 22)) racexp = racexp * 4 / 3;
+		else if (m_ptr->champ) racexp = racexp * 5 / 4;
         
 		/* negative XP rewards should increase with clvl, not decrease */
         if (r_ptr->mexp < 0)
@@ -1968,6 +2029,17 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 		/*** new scoring ***/
 		/* base score = monlevel/5 rounded up */
 		killscore = (r_ptr->level+4)/5;
+		/* Sauron & Morgoth */
+		if (r_ptr->flags1 & RF1_DROP_CHOSEN) killscore = 1000;
+		else if (r_ptr->flags1 & (RF1_QUESTOR)) killscore = 300;
+		/* other uniques */
+		else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 5)) killscore = 5;
+		else if (r_ptr->flags1 & (RF1_UNIQUE)) killscore = r_ptr->level + 1;
+		/* no score for NONMONSTERs */
+		else if (r_ptr->flags7 & (RF7_NONMONSTER)) killscore = 0;
+		/* score for pseudo-unique monster champions */
+		else if ((m_ptr->champ) && (r_ptr->level < 5)) killscore = 3;
+		else if (m_ptr->champ) killscore = (r_ptr->level+2)/3;
 
 		/* compare to character level (part1) */
 		if ((p_ptr->lev - 25 > r_ptr->level) && (killscore < 3)) killscore = 0;
@@ -1978,15 +2050,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 		/* THEME_ONLY monsters worth a little extra */
 		if ((r_ptr->flags7 & (RF7_THEME_ONLY)) && (killscore < 8)) killscore += 2;
 		else if (r_ptr->flags7 & (RF7_THEME_ONLY)) killscore = (killscore * 5) / 4;
-		/* Sauron & Morgoth */
-		if (r_ptr->flags1 & RF1_DROP_CHOSEN) killscore = 1000;
-		else if (r_ptr->flags1 & (RF1_QUESTOR)) killscore = 300;
-		/* other uniques */
-		else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 5)) killscore = 5;
-		else if (r_ptr->flags1 & (RF1_UNIQUE)) killscore = r_ptr->level + 1;
-
+		
 		/* Get extra score for killing the first monster of each race */
 		/* (if not unique) */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) /* skip */;
 		else if (!l_ptr->pkills)
 		{
 			if (r_ptr->flags7 & (RF7_THEME_ONLY)) killscore += r_ptr->rarity;
@@ -2144,7 +2211,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 	}
 	if (estl >= m_ptr->csleep) wakemon = TRUE;
 
-    /* disturb the monster (not automatic wakeup) */
+    /* disturb the monster */
     if (wakemon)
     {
         m_ptr->roaming = 0;
@@ -2155,8 +2222,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
         m_ptr->csleep -= estl;
     }
 
-	/* Hack -- Pain cancels fear */
-	if (m_ptr->monfear && (dam > 0))
+	/* Hack -- Pain cancels fear (DAJXXX) */
+	/* weird: cancel fear, then scare the monster */
+	if (m_ptr->monfear == 251) /* skip magic number */;
+	else if (m_ptr->monfear && (dam > 0))
 	{
 		int tmp = randint(dam);
 
@@ -2180,10 +2249,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 
 	/* Sometimes a monster gets scared by damage */
 	/* never gets scared by damage after recovering from fear by running out of options */
+	/* (looks like fear can be cured here then brought back in the next part of the function) */
 	if (!m_ptr->monfear && !m_ptr->bold && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
 	{
 		int percentage, fleechance;
-		bool grabber = itgrabs(m_idx);
+		bool grabber = check_melee(m_ptr, 3);
 
 		/* Percentage of fully healthy */
 		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
@@ -2195,9 +2265,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 		if (r_ptr->flags7 & (RF7_NONMONSTER)) return (FALSE);
 
 		/* grabber monsters rarely run away from low HP */
-		if (grabber) fleechance = 33;
+		if (grabber) fleechance = 35;
 		/* other undead less likely to flee */
 		else if (r_ptr->flags3 & (RF3_UNDEAD)) fleechance = 50;
+		else if (is_a_leader(m_ptr, 0)) fleechance = 76; /* unique flag or leader keywords */
+		else if (is_a_leader(m_ptr, 2)) fleechance = 86; /* monsters with escorts */
 		else fleechance = 96;
 		if (6 > percentage) fleechance += (6-percentage) * 4;
 
@@ -2225,7 +2297,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool spell)
 			}
 		}
 	}
-
 
 	/* Not dead yet */
 	return (FALSE);
@@ -2463,10 +2534,20 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool living = TRUE;
+	bool rfdisguise = FALSE;
+	
+	if ((r_ptr->flags2 & (RF2_DISGUISE)) && (m_ptr->disguised))
+	{
+		r_ptr = &r_info[m_ptr->disguised];
+		rfdisguise = TRUE;
+	}
 
 	/* Determine if the monster is "living" (vs "undead") */
 	if (r_ptr->flags3 & (RF3_NON_LIVING)) living = FALSE;
 	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
+
+	/* recognised illusions */
+	if (m_ptr->extra2 == 9) my_strcat(buf, "(known illusion) ", max);
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
@@ -2501,6 +2582,10 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if (m_ptr->confused) my_strcat(buf, ", confused", max);
 	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
 	if (m_ptr->charmed) my_strcat(buf, ", charmed", max);
+	
+	/* skip speed for monsters disguised as other monsters */
+	if (rfdisguise) return;
+
 	if (m_ptr->mspeed > r_ptr->speed + 5)  my_strcat(buf, ", hasted", max);
 	if (m_ptr->mspeed < r_ptr->speed - 5)  my_strcat(buf, ", slowed", max);
 }
@@ -2701,8 +2786,8 @@ bool target_able(int m_idx)
 	/* Monster must be visible */
 	if ((!m_ptr->ml) && (!m_ptr->heard)) return (FALSE);
 	
-	/* You must know that it is a monster (for CHAR_MULTI) */
-	if (m_ptr->disguised) return (FALSE);
+	/* You must know that it is a monster */
+	if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised)) return (FALSE);
 
 	/* Monster must be projectable */
 	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
@@ -2952,7 +3037,7 @@ static bool target_set_interactive_accept(int y, int x)
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 		
 		/* don't know that it's a monster */
-		if (m_ptr->disguised)
+		if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised))
 		{
 			/* monster disguised as whatever is underneath it */
 			if ((strchr(".", r_ptr->d_char)) && 
@@ -3010,8 +3095,9 @@ static bool target_set_interactive_accept(int y, int x)
 
 		/* Notice misc features */
 		if (cave_feat[y][x] == FEAT_RUBBLE) return (TRUE);
+		if (cave_feat[y][x] == FEAT_SMRUBBLE) return (TRUE);
 		if (cave_feat[y][x] == FEAT_OPEN_PIT) return (TRUE); /* ? */
-		if (cave_feat[y][x] == FEAT_WATER) return (TRUE); /* ? */
+		/* if (cave_feat[y][x] == FEAT_WATER) return (TRUE); /* ? */
 
 		/* Notice veins with treasure */
 		if (cave_feat[y][x] == FEAT_MAGMA_K) return (TRUE);
@@ -3776,7 +3862,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			if ((m_ptr->disguised) && (strchr("#%:.", r_ptr->d_char)))
+			if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) && (strchr("#%:.", r_ptr->d_char)))
 			{
 				monaswall = r_ptr->d_char;
 				lookslikeswall = TRUE;
@@ -3789,22 +3875,25 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			bool seedisguise = FALSE;
-			if ((m_ptr->disguised) && (m_ptr->meet == 11)) seedisguise = TRUE;
-			if ((m_ptr->disguised) && (player_can_see_bold(y, x))) seedisguise = TRUE;
+			/* mimmic */
+			if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) && 
+				((m_ptr->meet == 11) || (player_can_see_bold(y, x)))) seedisguise = TRUE;
+			/* monster diguised as another monster (get fake r_ptr) */
+			else if ((r_ptr->flags2 & (RF2_DISGUISE)) && (m_ptr->disguised))
+				r_ptr = &r_info[m_ptr->disguised];
 
 			/* Visible (or heard or detected disguised monster) */
 			if ((m_ptr->ml) || (m_ptr->heard) || (seedisguise))
 			{
 				bool recall = FALSE;
 				cptr heartype;
-
 				char m_name[80];
 
 				/* Not boring */
 				boring = FALSE;
 
 				/* monster disguised as an object */
-                if (m_ptr->disguised)
+                if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised))
 				{
 			        monasobj = TRUE;
 				}
@@ -4012,7 +4101,8 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* objects can now be in the same space as a trap */
                 if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 		         (cave_feat[y][x] <= FEAT_TRAP_TAIL)) s3 = ", and a trap.";
-		        else if (cave_feat[y][x] == FEAT_RUBBLE) s3 = " (on a pile of rubble)";
+		        else if ((cave_feat[y][x] == FEAT_SMRUBBLE) ||
+				 (cave_feat[y][x] == FEAT_RUBBLE)) s3 = " (on a pile of rubble)";
 
 				/* Describe the pile */
 				if (p_ptr->wizard)
@@ -4072,7 +4162,8 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* objects can now be in the same space as a trap */
                 if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 		         (cave_feat[y][x] <= FEAT_TRAP_TAIL)) s3 = ", and a trap.";
-		        else if (cave_feat[y][x] == FEAT_RUBBLE) s3 = " (on a pile of rubble)";
+		        else if ((cave_feat[y][x] == FEAT_SMRUBBLE) ||
+				 (cave_feat[y][x] == FEAT_RUBBLE)) s3 = " (on a pile of rubble)";
 
 				/* Describe the object */
 				if (p_ptr->wizard)
@@ -4119,7 +4210,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 		if (lookslikeswall)
         {
 			if (strchr("%", monaswall)) feat = FEAT_QUARTZ;
-			else if (strchr(":", monaswall)) feat = FEAT_RUBBLE;
+			else if (strchr(":", monaswall)) feat = FEAT_SMRUBBLE;
 			else if (strchr(".", monaswall)) feat = FEAT_FLOOR;
 			else feat = FEAT_WALL_INNER;
 		}
@@ -4140,7 +4231,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* handle earthquake trap (don't call it a pit) */
-			if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 65))
+			if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 55))
 				name = "earthquake trap";
 				
 			/* rogues, alchemists, and kobolds can get more detail about traps */

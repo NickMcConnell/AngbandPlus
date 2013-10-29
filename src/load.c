@@ -324,9 +324,10 @@ static errr rd_item(object_type *o_ptr)
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
 
-#ifdef saveegoname
+/* #ifdef saveegoname */
+    /* psuedo-randart name */
     rd_string(o_ptr->randego_name, sizeof(o_ptr->randego_name));
-#endif
+/* #endif */
 
 	/* random stuff */
 	rd_byte(&o_ptr->randsus);
@@ -573,6 +574,8 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->ninelives);
 	rd_s16b(&m_ptr->extra2);
 	rd_s16b(&m_ptr->extra3);
+	rd_s16b(&m_ptr->champ);
+    rd_string(m_ptr->champion_name, sizeof(m_ptr->champion_name));
 }
 
 
@@ -1116,11 +1119,8 @@ static errr rd_extra(void)
 	byte num;
 	u16b tmp16u;
 
-
 	rd_string(op_ptr->full_name, sizeof(op_ptr->full_name));
-
 	rd_string(p_ptr->died_from, 80);
-
 	rd_string(p_ptr->history, 250);
 
 	/* Player race */
@@ -1170,7 +1170,6 @@ static errr rd_extra(void)
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
 	rd_u16b(&p_ptr->exp_frac);
-
 	rd_s16b(&p_ptr->lev);
 
 	/* Verify player level */
@@ -1231,6 +1230,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->danger_turn);
 	rd_s32b(&p_ptr->game_score);
 	rd_byte(&p_ptr->warned);
+	rd_s16b(&p_ptr->speclev);
 
 	/* Find the number of timed effects */
 	rd_byte(&num);
@@ -2245,11 +2245,8 @@ static errr rd_savefile(void)
 bool load_player(bool *character_loaded, bool *reusing_savefile)
 {
 	int fd = -1;
-
 	errr err = 0;
-
 	byte vvv[4];
-
 	cptr what = "generic";
 
 

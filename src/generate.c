@@ -13,6 +13,8 @@
 #include "script.h"
 #include "z-queue.h"
 
+/* global for this file */
+
 /*
  * Note that Level generation is *not* an important bottleneck,
  * though it can be annoyingly slow on older machines...  Thus
@@ -115,8 +117,8 @@
 #define DUN_TUN_RND	10	/* Chance of random direction */
 #define DUN_TUN_CHG	29	/* Chance of changing direction */
 #define DUN_TUN_CON	15	/* Chance of extra tunneling */
-#define DUN_TUN_PEN	30	/* Chance of doors at room entrances (was 25) */
-#define DUN_TUN_JCT	80	/* Chance of doors at tunnel junctions (was 90) */
+#define DUN_TUN_PEN	35	/* Chance of doors at room entrances (was 25) */
+#define DUN_TUN_JCT	75	/* Chance of doors at tunnel junctions (was 90) */
 
 /*
  * Dungeon streamer generation values
@@ -130,8 +132,9 @@
 
 /*
  * Dungeon treausre allocation values
+ * (DUN_AMT_ROOM was 9, more objects placed in room designs now, so less placed randomly)
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
+#define DUN_AMT_ROOM	7	/* Amount of objects for rooms  */
 #define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
 #define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
 
@@ -154,6 +157,7 @@
 #define ALLOC_TYP_TREES		8   /* trees */
 #define ALLOC_TYP_STATUE    9   /* statues */
 #define ALLOC_TYP_FOUNT     10  /* fountain */
+#define ALLOC_TYP_RUNE      11  /* room rune */
 
 
 /*
@@ -348,12 +352,14 @@ static void new_player_spot(void)
  *
  * mode 0: original use: only counts granite walls and permanent walls.
  * mode 1: counts all walls in all eight directions
+ * mode 2: counts all non-water floor spaces
+ * mode 3: counts water spaces
  */
 static int next_to_walls(int y, int x, int mode)
 {
 	int k = 0;
 	
-	if (mode == 1)
+	if (mode)
 	{
 		int yb, xb, i;
 		/* Scan adjacent grids */
@@ -364,7 +370,15 @@ static int next_to_walls(int y, int x, int mode)
 			xb = x + ddx_ddd[i];
 
 			/* count walls */
-			if (cave_feat[yb][xb] >= FEAT_MAGMA) k++;
+			if ((mode == 1) && ((cave_feat[yb][xb] >= FEAT_MAGMA) &&
+				(cave_feat[yb][xb] < FEAT_SMRUBBLE))) k++;
+				
+			/* count non-water floors */
+			if ((mode == 2) && ((cave_floor_bold(y, x)) &&
+				(!(cave_feat[yb][xb] == FEAT_WATER)))) k++;
+				
+			/* count water */
+			if ((mode == 3) && (cave_feat[yb][xb] == FEAT_WATER)) k++;
 		}
 	}
 	else /* count only four directions */
@@ -379,33 +393,51 @@ static int next_to_walls(int y, int x, int mode)
 	return (k);
 }
 
+/* returns whether we should flood the grid 
+ * when digging there
+ * (mode is not yet used)
+ */
+bool flood_grid(int y, int x, int mode)
+{
+	/* flood if next to more water spaces than non-water floor spaces */
+	if ((next_to_walls(y, x, 3)) > (next_to_walls(y, x, 2)))
+		return TRUE;
+	
+    return FALSE;
+}
 
 
 /*
  * Convert existing terrain type to rubble
  */
-static void place_rubble(int y, int x)
+static void place_rubble(int y, int x, bool bigrubble)
 {
+    int rubobj = 8;
 	/* Create rubble */
-	cave_set_feat(y, x, FEAT_RUBBLE);
+	if (bigrubble)
+    {
+		cave_set_feat(y, x, FEAT_RUBBLE);
+		rubobj = 3;
+	}
+    else cave_set_feat(y, x, FEAT_SMRUBBLE);
 
-	/* 9% chance of rubble object */
-	/* (was 10%, changed because rubble is more common now) */
+	/* 8% chance of rubble object (was 10%) */
 	/* (previously was not created until the rubble was dug up */
 	/* now you can find it by searching as well as by digging) */
-	if (rand_int(100) < 9)
+	if (rand_int(100) < rubobj)
 	{
 		object_type *o_ptr;
 
 		/* create the object */
 		if (randint(100) < 70) place_object(y, x, FALSE, FALSE);
 		else place_gold(y, x);
-
-		/* now hide it in the rubble */
-		o_ptr = &o_list[cave_o_idx[y][x]];
-		o_ptr->hidden = 1;
-
+		
+		/* the object is hidden now in bury_object() */
+		/* which is called by place_object() and place_gold() */
+		/* if (!cave_floor_bold(y, x)) */
+		
 		/* only track certain categories of items */
+		o_ptr = &o_list[cave_o_idx[y][x]];
 		if ((ego_item_p(o_ptr)) || (artifact_p(o_ptr)) ||
 			(o_ptr->tval == TV_SPECIAL) || (o_ptr->tval == TV_CHEST) ||
 			(do_rating(o_ptr, TRUE)))
@@ -626,6 +658,15 @@ static void alloc_stairs(int feat, int num, int walls)
 
 				/* Require a certain number of adjacent walls */
 				if (next_to_walls(y, x, 0) < walls) continue;
+				
+				/* in caverns require not within 8 spaces of another stairs of the same type */
+				if (p_ptr->speclev == 1)
+				{
+					if (next_to(y, x, 0, feat)) continue;
+				}
+
+				/* else require not within 2 spaces of another stairs of the same type */
+				else if (next_to(y, x, 0, feat)) continue;
 
 				/* Town -- must go down */
 				if (!p_ptr->depth)
@@ -707,8 +748,8 @@ static void alloc_object(int set, int typ, int num)
 			if (((typ == ALLOC_TYP_OBJECT) || (typ == ALLOC_TYP_GOLD)) &&
 				(next_to_walls(y, x, 1) < walls)) continue;
 
-			/* never randomly put puddles or trees in a vault */
-			if (((typ == ALLOC_TYP_WATER) || (typ == ALLOC_TYP_TREES)) && 
+			/* never randomly put puddles, trees, or runes in a vault */
+			if (((typ == ALLOC_TYP_WATER) || (typ == ALLOC_TYP_TREES) || (typ == ALLOC_TYP_RUNE)) && 
 				(cave_info[y][x] & (CAVE_ICKY)))
 				continue;
 
@@ -724,9 +765,9 @@ static void alloc_object(int set, int typ, int num)
 		/* Place something */
 		switch (typ)
 		{
-			case ALLOC_TYP_RUBBLE:
+			case ALLOC_TYP_RUBBLE: /* (small rubble) */
 			{
-				place_rubble(y, x);
+				place_rubble(y, x, FALSE);
 				break;
 			}
 
@@ -794,6 +835,14 @@ static void alloc_object(int set, int typ, int num)
 					place_monster_aux(y, x, 911, FALSE, FALSE);
 				}
                 break;
+			}
+
+			case ALLOC_TYP_RUNE:
+			{
+				/* level arg. doesn't do anything for mode 7 */
+				int thismon = get_mon_match(55, 7, TRUE);
+				place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+				break;
 			}
 		}
 	}
@@ -1022,7 +1071,8 @@ static void destroy_level(void)
 					else if ((t < 100) || ((t > 105) && (t < 110)))
 					{
 						/* Create rubble (no chance for buried object) */
-						cave_set_feat(y, x, FEAT_RUBBLE);
+						if ((t > 105) && (t < 110)) cave_set_feat(y, x, FEAT_RUBBLE);
+						else cave_set_feat(y, x, FEAT_SMRUBBLE);
 						big_rocks(y, x);
 					}
 
@@ -1703,7 +1753,7 @@ static void build_type3(int y0, int x0)
 
 
 /*
- * Type 4 -- Large room with an inner room
+ * Type 4 -- Large room with an inner room (moated room)
  *
  * Possible sub-types:
  *	1 - An inner room
@@ -2604,17 +2654,17 @@ static void build_type5(int y0, int x0)
 
 	/* if it's a themed level, make sure the nest is appropriate */
 	if (p_ptr->theme == 3) nesttyp = 1; /* ICKY_PLACE- always jelly nest */
-	else if ((p_ptr->theme == 11) && (randint(100) < 34)) nesttyp = 4; /* BUG_CAVE- evil humanoids (dark elves) */
+	else if ((p_ptr->theme == 11) && (randint(100) < 35)) nesttyp = 4; /* BUG_CAVE- evil humanoids (dark elves) */
 	else if (p_ptr->theme == 11) nesttyp = 2; /* BUG_CAVE- always creepy crawly nest or evil humanoids */
 	else if ((p_ptr->theme == 2) && (randint(100) < 85)) nesttyp = 5; /* FFOREST- usually imp/fairy nest */
 	else if ((p_ptr->theme < 3) && (randint(100) < 65)) nesttyp = 7; /* FFOREST & CFOREST- animal nest */
 	else if ((p_ptr->theme == 2) || (p_ptr->theme == 1)) nesttyp = 8; /* FFOREST & CFOREST- great beast nest */
-	else if (((p_ptr->theme == 8) || (p_ptr->theme == 7)) && (randint(100) < 35))
-		nesttyp = 8; /* CASTLE & FULL_MOON- great beasts, */
-	else if (((p_ptr->theme == 8) || (p_ptr->theme == 7) || (p_ptr->theme == 13)) &&
-		(randint(100) < 50)) nesttyp = 9; /* CASTLE, DARK_CITY, FULL_MOON- undead */
-	else if ((p_ptr->theme == 9) && (randint(100) < 78)) nesttyp = randint(2); /* swamp- creepy crawlies or jelly */
-	else if ((p_ptr->theme == 9) && (randint(100) < 25)) nesttyp = 6; /* swamp- water monsters */
+	else if ((p_ptr->theme == 7) && (randint(100) < 35)) nesttyp = 8; /* FULL_MOON- great beasts, */
+	else if ((p_ptr->theme == 8) && (randint(100) < 70)) nesttyp = 8; /* CASTLE- undead */
+	else if (((p_ptr->theme == 7) || (p_ptr->theme == 13)) && (randint(100) < 40)) 
+		nesttyp = 9; /* DARK_CITY, FULL_MOON- undead (different odds) */
+	else if ((p_ptr->theme == 9) && (randint(100) < 65)) nesttyp = randint(2); /* swamp- creepy crawlies or jelly */
+	else if ((p_ptr->theme == 9) && (randint(100) < 45)) nesttyp = 6; /* swamp- water monsters */
 	else if ((p_ptr->theme == 13) && (randint(100) < 40)) nesttyp = 5; /* hob city: usually fairy nest */
 	else if (p_ptr->theme == 13) /* other nests are okay for DARK_CTY also */;
 	else if ((p_ptr->theme == 10) && (randint(100) < 35)) nesttyp = 4; /* evil humanoids (black dwarves) */
@@ -2623,7 +2673,6 @@ static void build_type5(int y0, int x0)
 	/* CASTLE, HELL_HALL, GREPSE, DWARF_MINE - never animal */
 	else if ((p_ptr->theme == 8) || (p_ptr->theme == 14) ||
 		 (p_ptr->theme == 12) || (p_ptr->theme == 10)) special = TRUE;
-	else if ((p_ptr->theme == 5) && (randint(100) < 40)) nesttyp = 2; /* EARTHY- creepy crawly */
 	else if ((nesttyp == 8) || (nesttyp == 7)) /* animal/beast nests okay for most themes */;
 	else if ((p_ptr->theme == 15) && (randint(100) < 86)) return; /* else often just fail in BARRACKS */
 	else if (p_ptr->theme) special = TRUE;
@@ -3096,37 +3145,35 @@ static bool build_type6(int y0, int x0)
 	/* pits less common on themed levels */
 	failp = 12;
 	/* some themes usually just fail to make a pit */
-	if ((p_ptr->theme == 13) && (rand_int(100) < 20)) pittyp = 3;
-	else if ((p_ptr->theme == 13) || (p_ptr->theme == 2)) failp = 82;
-	else if ((p_ptr->theme == 12) || (p_ptr->theme == 11)) failp = 65;
+	if ((p_ptr->theme == 13) || (p_ptr->theme == 2) || (p_ptr->theme == 8)) failp = 82;
+	else if ((p_ptr->theme == 12) || (p_ptr->theme == 11) || (p_ptr->theme == 6)) failp = 65;
 	else if (p_ptr->theme == 10) failp = 30;
 
 	/* if it's a themed level, make sure the pit is appropriate */
-	if ((p_ptr->theme == 8) && (pittyp == 1))
-	{
-		special = TRUE;
-		failp = 55;
-	}
 	if (((p_ptr->theme == 1) || (p_ptr->theme == 4) || (p_ptr->theme == 9)) &&
 		randint(100) < 70) pittyp = 8; /* VOLCANO, CFOREST, SWAMP - always (appropriate) dragon pit or special */
-	else if ((p_ptr->theme == 10) && (randint(100) < 10)) pittyp = 9; /* occationally allow demon pits in dwarf mines */
 	else if ((p_ptr->theme == 1) || (p_ptr->theme == 4) || (p_ptr->theme == 9) || 
 		(p_ptr->theme == 10)) special = TRUE;
-	else if ((p_ptr->theme == 13) && (randint(100) < 10)) pittyp = 3; /* lesser undead in the nightmare theme */
-	else if ((p_ptr->theme == 5) && (randint(100) < 75)) pittyp = 2; /* EARTHY - troll pit */
-	else if ((p_ptr->theme == 8) && (randint(100) < 23)) pittyp = 4 + rand_int(2); /* CASTLE - golems or military */
+	else if ((p_ptr->theme == 10) && (p_ptr->depth > 55) && (randint(100) < 12)) 
+		pittyp = 9; /* occationally allow demon pits in dwarf mines */
+	else if ((p_ptr->theme == 10) && (p_ptr->depth < 45) && (randint(100) < 61-p_ptr->depth)) pittyp = 1; /* DWARF_MINE - possible orc pit */
+	else if ((p_ptr->theme == 10) && (randint(100) < 22)) pittyp = 2; /* DWARF_MINE - possible troll pit */
+	else if ((p_ptr->theme == 13) && (randint(100) < 50)) pittyp = 3; /* lesser undead in the nightmare theme */
+	else if ((p_ptr->theme == 8) && (randint(100) < 55)) pittyp = 3; /* CASTLE - lesser undead */
 	else if ((p_ptr->theme == 4) && (randint(100) < 23) && (p_ptr->depth > 47)) pittyp = 7 + rand_int(2); /* VOLCANO- hydras or (red)dragons */
 	else if ((p_ptr->theme == 3) && (randint(100) < 45)) pittyp = 8; /* ICKY - dragons or special */
-	else if ((p_ptr->theme == 3) && (randint(100) < 5)) pittyp = 7; /* ICKY - or hydras */
+	else if ((p_ptr->theme == 3) && (randint(100) < 6)) pittyp = 7; /* ICKY - or hydras */
+	else if ((p_ptr->theme == 6) && (randint(100) < 70)) pittyp = 6; /* Giants in the giant vs titan theme (WINDY_CAVE) */
+	else if ((p_ptr->theme == 6) && (pittyp > 5) && (randint(100) < 40)) /*keep*/; /* hydra/dragons/demons allowed in titan theme (WINDY_CAVE) */
 	else if ((p_ptr->theme == 14) && (randint(100) < 80)) pittyp = 9; /* HELL_HALL usually demons */
-	else if ((p_ptr->theme == 15) && (randint(100) < 35)) pittyp = 5; /* BARRACKS - usually army pit */
+	else if ((p_ptr->theme == 15) && (randint(100) < 60)) pittyp = 5; /* BARRACKS - usually army pit */
 	else if (p_ptr->theme == 15) /* normal pit */;/* never do special theme pit for BARRACKS because that's what the ARMY pit is */
 	else if (((p_ptr->theme == 7)) && (randint(100) < 40)) pittyp = 9; /* FULL_MOON - demons or special */
 	else if ((p_ptr->theme) && (randint(100) < failp)) return FALSE; /* sometimes just fail */
 	else if ((p_ptr->theme) && (randint(100) < 68)) special = TRUE;
 
 	/* fail to make dragons/ demon pits too shallow */
-	if ((p_ptr->depth < 57) && ((pittyp == 8) || (pittyp == 9))) return (FALSE);
+	if ((p_ptr->depth < 55) && ((pittyp == 8) || (pittyp == 9))) return (FALSE);
 	/* hydra pits have a soft level cap */
 	if ((p_ptr->depth < 43) && (pittyp == 7) && (randint(100) < 86-badluck)) return (FALSE);
 
@@ -3221,13 +3268,14 @@ static bool build_type6(int y0, int x0)
 		else if (p_ptr->theme == 4) whichd = 2; /* fire dragons in VOLCANO */
 		else if ((p_ptr->theme == 9) && (randint(100) < 70)) whichd = 4; /* poison dragons in SWAMP usually */
 		else if ((p_ptr->theme == 9) || (p_ptr->theme == 3)) whichd = 0; /* acid dragons in ICKY_PLACE or SWAMP */
-		else if ((p_ptr->theme == 7) && (randint(100) < 75)) whichd = 1;
+		else if ((p_ptr->theme == 7) && (randint(100) < 77)) whichd = 1;
 		else if (p_ptr->theme == 7) whichd = 5; /* electric or multi-hued dragons in FULL_MOON */
 		else if ((p_ptr->theme == 6) && (randint(100) < 22)) whichd = 6; /* orange dragons sometimes in WINDY_CAVE */
-		else if ((p_ptr->theme == 12) && (randint(100) < 20)) whichd = 5; /* multi-hued sometimes in GREPSE */
+		else if ((p_ptr->theme == 12) && (randint(100) < 16)) whichd = 5; /* multi-hued sometimes in GREPSE */
 		else if ((p_ptr->theme == 12) && (randint(100) < 67)) whichd = 9; /* confusion in GREPSE */
-		else if ((p_ptr->theme == 6) || (p_ptr->theme == 12)) whichd = 7; /* silver dragons in WINDY_CAVE or GREPSE */
-		else if (p_ptr->theme == 5) whichd = 8; /* grey dragons in EARTHY_CAVE */
+		/* violet dragons in WINDY_CAVE or GREPSE */
+		else if ((p_ptr->theme == 6) && (randint(100) < 40)) whichd = 7; 
+        else if (p_ptr->theme == 12) whichd = 7; 
 
 		/* Pick dragon type */
 		switch (whichd)
@@ -3394,8 +3442,9 @@ static bool build_type6(int y0, int x0)
 			int r_idx, outd = 10;
 			monster_race *r_ptr;
 			if (p_ptr->depth < 5) outd = 3;
-			else if (p_ptr->depth < 17) outd = (p_ptr->depth + 1) / 2;
-			else if (p_ptr->depth < 20) outd = 9;
+			else if (p_ptr->depth < 16) outd = (p_ptr->depth + 1) / 2;
+			else if (p_ptr->depth < 20) outd = 8;
+			else if (p_ptr->depth < 25) outd = 9;
 
 			/* Get a (hard) monster type */
 			what[i] = get_mon_num(p_ptr->depth + outd, TRUE);
@@ -3408,6 +3457,13 @@ static bool build_type6(int y0, int x0)
 				
 				/* maximum population */
 				if ((r_ptr->curpop + r_ptr->cur_num >= r_ptr->maxpop) && (r_ptr->maxpop)) continue;
+				
+				/* move cheat_hear message here so player doesn't get ~30 of them in a row */
+				if ((r_ptr->level > p_ptr->depth) && (cheat_hear))
+				{
+					cptr name = (r_name + r_ptr->name);
+					msg_format("Deep Monster(s) (%s) in a pit.", name);
+				}
 			}
 			
 			/* accept */
@@ -3512,51 +3568,51 @@ static bool build_type6(int y0, int x0)
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
 	{
-		place_monster_aux(y0 - 2, x, what[0], TRUE, FALSE);
-		place_monster_aux(y0 + 2, x, what[0], TRUE, FALSE);
+		place_monster_aux_pit(y0 - 2, x, what[0], TRUE, FALSE);
+		place_monster_aux_pit(y0 + 2, x, what[0], TRUE, FALSE);
 	}
 
 	/* Middle columns */
 	for (y = y0 - 1; y <= y0 + 1; y++)
 	{
-		place_monster_aux(y, x0 - 9, what[0], FALSE, FALSE);
-		place_monster_aux(y, x0 + 9, what[0], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 9, what[0], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 9, what[0], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 8, what[1], FALSE, FALSE);
-		place_monster_aux(y, x0 + 8, what[1], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 8, what[1], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 8, what[1], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 7, what[1], FALSE, FALSE);
-		place_monster_aux(y, x0 + 7, what[1], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 7, what[1], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 7, what[1], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 6, what[2], FALSE, FALSE);
-		place_monster_aux(y, x0 + 6, what[2], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 6, what[2], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 6, what[2], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 5, what[2], FALSE, FALSE);
-		place_monster_aux(y, x0 + 5, what[2], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 5, what[2], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 5, what[2], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 4, what[3], FALSE, FALSE);
-		place_monster_aux(y, x0 + 4, what[3], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 4, what[3], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 4, what[3], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 3, what[3], FALSE, FALSE);
-		place_monster_aux(y, x0 + 3, what[3], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 3, what[3], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 3, what[3], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 2, what[4], FALSE, FALSE);
-		place_monster_aux(y, x0 + 2, what[4], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 - 2, what[4], FALSE, FALSE);
+		place_monster_aux_pit(y, x0 + 2, what[4], FALSE, FALSE);
 	}
 
 	/* Above/Below the center monster */
 	for (x = x0 - 1; x <= x0 + 1; x++)
 	{
-		place_monster_aux(y0 + 1, x, what[5], FALSE, FALSE);
-		place_monster_aux(y0 - 1, x, what[5], FALSE, FALSE);
+		place_monster_aux_pit(y0 + 1, x, what[5], FALSE, FALSE);
+		place_monster_aux_pit(y0 - 1, x, what[5], FALSE, FALSE);
 	}
 
 	/* Next to the center monster */
-	place_monster_aux(y0, x0 + 1, what[6], FALSE, FALSE);
-	place_monster_aux(y0, x0 - 1, what[6], FALSE, FALSE);
+	place_monster_aux_pit(y0, x0 + 1, what[6], FALSE, FALSE);
+	place_monster_aux_pit(y0, x0 - 1, what[6], FALSE, FALSE);
 
 	/* Center monster */
-	place_monster_aux(y0, x0, what[7], FALSE, FALSE);
+	place_monster_aux_pit(y0, x0, what[7], FALSE, FALSE);
 
 	return TRUE;
 }
@@ -3567,10 +3623,11 @@ static bool build_type6(int y0, int x0)
  */
 static int temple_theme(int level)
 {
-	int ridx;
+	int ridx = 0;
 	int die = randint(100);
 	monster_race *r_ptr;
 	monster_race *ar_ptr;
+	monster_race *br_ptr;
 
 	switch (p_ptr->theme)
 	{
@@ -3674,6 +3731,7 @@ static int temple_theme(int level)
 				else ridx = 794; /* ancient lava xorn */
 			}
 		}
+#if 0 /* EARTHY_CAVE combined with DWARF_MINE #10 */
 		case 5: /* earthy cave */
 		{
 			if (level < 22)
@@ -3707,41 +3765,53 @@ static int temple_theme(int level)
 				else ridx = 794; /* ancient lava xorn */
 			}
 		}
-		case 6: /* windy cave */
+#endif
+		case 6: /* titan vs giant (air) theme */
 		{
 			if (level < 25)
 			{
-				if (die < 40) ridx = 299; /* gargoyle */
+				if ((die < 30) && (level < 21)) ridx = 256; /* griffon */
+				else if (die < 50) ridx = 299; /* gargoyle */
 				else ridx = 877; /* arrowhawk */
 			}
+			else if ((level > 32) && (level < 42) && (randint(100) < 80))
+            {
+                if (die < 20) ridx = 564; /* air elemental */
+                else if (die < 30) ridx = 571; /* wyvern */
+                else ridx = 575; /* cloud giant */
+            }
 			else if (level < 34)
 			{
-				if (die < 65) ridx = 428; /* colbran */
-				else ridx = 480; /* invisible stalker */
+				if ((die < 35) || (level > 32)) ridx = 480; /* invisible stalker */
+				else ridx = 428; /* colbran */
 			}
 			else if (level < 47)
 			{
-				if ((die < 50) && (level < 41)) ridx = 575; /* cloud giant */
-				else if (die < 50) ridx = 627; /* storm giant */
-				else if (die < 64) ridx = 612; /* ancient silver dragon */
-				else ridx = 564; /* air elemental */
+				if (die < 70) ridx = 627; /* storm giant */
+				else if (die < 88) ridx = 612; /* ancient violet dragon */
+				else ridx = 639; /* ethereal dragon */
 			}
 			else if (level < 65)
 			{
 				r_ptr = &r_info[700]; /* check for the Phoenix */
 				if ((die < 45) && (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) ridx = 700;
-				else if ((die < 60) && (level < 58)) ridx = 694; /* fallen archon */
-				else if (die < 60) ridx = 719; /* great storm wyrm */
+				else if ((level < 59) && (die < 50) && (randint(100) < 85)) ridx = 692; /* lesser titan */
+				else if ((die < 25) && (level > 62)) ridx = 732; /* great wyrm of thunder */
+				else if (die < 50) ridx = 719; /* great storm wyrm */
 				else ridx = 716; /* greater air e. */
 			}
+			else if ((level < 76) && (randint(100) < 22)) ridx = 737; /* titan */
 			else
 			{
 				r_ptr = &r_info[758]; /* check for Pazuzu */
-				if ((die < 55) && (level < 76))  ridx = 737; /* titan */
-				else if (die < 55) ridx = 766; /* greater titan */
-				else if (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num) ridx = 758; /* Pazuzu */
-				else if (level < 93) ridx = 752; /* great wyrm of physics */
-				else ridx = 795; /* ancient torrent e. */
+				ar_ptr = &r_info[749]; /* check for Fafner the Giant */
+				if ((die < 35) && (ar_ptr->curpop + ar_ptr->cur_num < ar_ptr->max_num)) ridx = 749; /*Fafner*/
+				else if ((randint(100) < 50) && (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) 
+					ridx = 758; /* Pazuzu */
+				else if ((level > 74) && (die < 65)) ridx = 766; /* greater titan */
+				else if ((level < 80) && (die < 75)) ridx = 752; /* great wyrm of physics */
+				else if (level > 69) ridx = 780; /* sky dragon */
+				else ridx = 737; /* titan */
 			}
 		}
 		case 7: /* full moon */
@@ -3788,19 +3858,22 @@ static int temple_theme(int level)
 		}
 		case 8: /* haunted castle */
 		{
-			if (level < 24)
+			if ((level < 15) && (rand_int(100) < (20-level)*6)) ridx = 197; /* greater poltergeist */
+			else if (level < 24)
 			{
 				if (die < 20) ridx = 339; /* human mummy */
+				else if ((die < 50) && (randint(26) < (level-18)*3)) ridx = 378; /* pukelman */
 				else ridx = 353; /* gory ghost */
 			}
 			else if (level < 41)
 			{
-				if ((die < 25) && (level < 31)) ridx = 467; /* crypt wight */
-				else if (die < 25) ridx = 510; /* lich */
-				else if ((die < 35) && (level > 33)) ridx = 571; /* wyvern */
-				else if ((die < 75) && (level < 35)) ridx = 449; /* golden naga */
-				else if ((die > 80) && (level < 37)) ridx = 474; /* shadow drake */
-				else if (die < 50) ridx = 559; /* black wraith */
+				if ((die < 25) && (level < 34)) ridx = 467; /* (solo) barrow wight */
+				else if ((die < 35) && (level < 39)) ridx = 510; /* lich */
+				else if ((die < 45) && (level > 33)) ridx = 571; /* wyvern */
+				else if ((die < 60) && (level < 35)) ridx = 449; /* golden naga */
+				else if ((die > 75) && (level < 37)) ridx = 474; /* shadow drake */
+				else if ((die > 88) && (level > 38)) ridx = 601; /* vampire lord */
+				else if (randint(100) < 50) ridx = 559; /* black wraith */
 				else ridx = 542; /* greater mummy */
 			}
 			else if (level < 44)
@@ -3815,7 +3888,7 @@ static int temple_theme(int level)
 				else if ((die < 40) && (level < 51)) ridx = 659; /* gorgon */
 				else if (die < 30) ridx = 847; /* barrow wight king */
 				else if ((die < 70) && (level < 58)) ridx = 686; /* elder vampire */
-				else if (level < 58) ridx = 685; /* demilich */
+				else if (level < 57) ridx = 685; /* demilich */
 				else if (die < 70) ridx = 689; /* dracolich */
 				else if (die > 94) ridx = 726; /* archlich */
 				else ridx = 847; /* barrow wight king */
@@ -3823,20 +3896,14 @@ static int temple_theme(int level)
 			else
 			{
 				r_ptr = &r_info[771]; /* check for Vecna */
-				ar_ptr = &r_info[762]; /* check for Ancalagon */
+				ar_ptr = &r_info[733]; /* check for Thuringwthil */
+				br_ptr = &r_info[826]; /* check for Lord of the Shadow Host */
 				if ((level > 85) && (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) ridx = 771;
-				else if ((die < 40) && (level > 78) &&
-					(ar_ptr->curpop + ar_ptr->cur_num < ar_ptr->max_num)) ridx = 762;
-				else if (level < 80)
-				{
-					r_ptr = &r_info[734]; /* check for silent watchers (left) */
-					ar_ptr = &r_info[735]; /* check for (right) */
-					if (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num) ridx = 734;
-					else if (ar_ptr->curpop + ar_ptr->cur_num < ar_ptr->max_num) ridx = 735;
-					else ridx = 737; /* titan */
-				}
-				else if (die < 25) ridx = 795; /* ancient torrent e. */
-				else ridx = 766; /* greater titan */
+				else if ((level < 74) && (die < 65)) ridx = 726; /* archlich */
+				else if ((level < 77) && (ar_ptr->curpop + ar_ptr->cur_num < ar_ptr->max_num)) ridx = 733;
+				else if ((die > 80) && (br_ptr->curpop + br_ptr->cur_num < br_ptr->max_num)) ridx = 826;
+				else if (die < 16) ridx = 725; /* jabberwock */
+				else ridx = 746; /* golden idol (not in-theme but close) */
 			}
 		}
 		case 9: /* swamp */
@@ -3880,19 +3947,25 @@ static int temple_theme(int level)
 		}
 		case 10: /* dwarf mine */
 		{
-			if (level < 44)
+			if (level < 27)
+			{
+				if ((die < 40) && (level < 17)) ridx = 25; /* behir */
+				else if ((die > 60) && (level < 23)) ridx = 310; /* zhelung */
+				else if (die < 50) ridx = 851; /* The waiting dark */
+				else if (level > 24) ridx = 439; /* xreek */
+				else ridx = 350; /* black dwarf grag */
+			}
+			else if (level < 44)
 			{
 				r_ptr = &r_info[523]; /* check for the Watcher in the Water */
-				if ((die < 60) && (level > 22)) ridx = 839; /* grag high priest */
-				else if ((die < 60) && (level > 31) &&
-					(r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) ridx = 523;
-				else if ((die < 40) && (level < 26)) ridx = 310; /* zhelung */
-				else if ((die < 40) && (level < 35)) ridx = 456; /* blinking zhelung */
-				else if ((die < 65) && (level < 43)) ridx = 486; /* mithril golem */
-				else if (die < 79) ridx = 846; /* the summoning dark */
-				else if (die < 90) ridx = 536; /* rock troll */
-				else if (level < 30) ridx = 830; /* blood diamond */
-				else ridx = 838; /* ironwood tree */
+				if ((die < 60) && (randint(100) < 80) && (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) 
+					ridx = 523; /* Watcher in the water */
+				else if ((die > 80) && (level < 37)) ridx = 839; /* grag high priest */
+				else if ((die < 30) && (level < 35)) ridx = 456; /* blinking zhelung */
+				else if ((die < 40) && (level < 43)) ridx = 486; /* mithril golem */
+				else if ((die > 70) && (level < 41)) ridx = 777; /* black dwarf king */
+				else if (randint(100) < 70) ridx = 846; /* the summoning dark */
+				else ridx = 565; /* earth elemental */
 			}
 			else if (level < 70)
 			{
@@ -3901,16 +3974,24 @@ static int temple_theme(int level)
 				if ((die < 50) && (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) ridx = 672;
 				else if ((die > 65) && (level > 49) &&
 					(ar_ptr->curpop + ar_ptr->cur_num < ar_ptr->max_num)) ridx = 705;
-				else if (die < 90) ridx = 666; /* lesser balrog */
-				else ridx = 846; /* the summoning dark */
+				else if (die < 50) ridx = 666; /* lesser balrog */
+				else if ((die < 80) && (level < 67)) ridx = 782; /* enveloping dark */
+				else if (die < 90) ridx = 717; /* greater earth elemental */
+				else if (level < 54) ridx = 846; /* the summoning dark */
+				else ridx = 727; /* silver idol */
 			}
 			else
 			{
 				r_ptr = &r_info[749]; /* check for Fafner */
-				if ((die > 60) && (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) ridx = 749;
-				else if (die < 50) ridx = 756; /* greater balrog */
-				else if (level < 97) ridx = 727; /* silver idol */
-				else ridx = 794; /* ancient lava xorn */
+				if ((die > 60) && (level < 91) && (r_ptr->curpop + r_ptr->cur_num < r_ptr->max_num)) 
+					ridx = 749; /* Fafner */
+				else if ((level < 75) && (die > 75)) ridx = 717; /* greater earth elemental */
+				else if (level < 74) ridx = 782; /* enveloping dark */
+				else if (die < 60) ridx = 756; /* greater balrog */
+				else if (die > 80) ridx = 746; /* golden idol */
+				else if (level < 87) ridx = 727; /* silver idol */
+				else if (level > 92) ridx = 794; /* ancient lava xorn */
+				else ridx = 756; /* greater balrog */
 			}
 		}
 		case 11: /* bug cave */
@@ -4066,6 +4147,17 @@ static int temple_theme(int level)
 				else ridx = 755; /* pit fiend */
 			}
 		}
+		case 15: /* barracks */
+		{
+			if ((level > 30) && (level < 47) && (die < 30)) ridx = 557; /* death knight */
+			else if ((level > 34) && (level < 49) && (die > 77)) ridx = 600; /* berserker */
+			else if ((level > 34) && (level < 53) && (die > 58)) ridx = 614; /* valkyrie */
+			else if ((level > 34) && (level < 56) && (die < 50)) ridx = 619; /* knight templar */
+			else if ((level > 48) && (level < 76) && (die >= 50)) ridx = 688; /* barbazu */
+			else if ((level > 55) && (level < 90) && (randint(100) < 45)) ridx = 713; /* horned devil lord */
+			else if ((level > 65) && (randint(100) < 80)) ridx = 755; /* pit fiend */
+			/* else pick one randomly */
+		}
 	}
 
 	return ridx;
@@ -4108,6 +4200,7 @@ static bool vault_aux_launcher(int r_idx)
 
 /*
  * machines (certain monsters qualify)
+ * (alarm systems, golems, wall monsters, and the teleporter box)
  */
 static bool machine_okay(int r_idx)
 {
@@ -4115,7 +4208,12 @@ static bool machine_okay(int r_idx)
 	cptr dname = (r_name + r_ptr->name);
 
 	/* certain monsters */
-	if ((strchr("M", r_ptr->d_char)) && (r_ptr->level > 70)) return (TRUE);
+	if ((strchr("m", r_ptr->d_char)) && (r_ptr->level >= 65)) return (TRUE);
+	
+	if ((strchr("g", r_ptr->d_char)) && (randint(100) < 12 + p_ptr->depth/8)) return (TRUE);
+	if ((strchr("#", r_ptr->d_char)) && (r_ptr->level >= 58) && (randint(100) < 35)) 
+		return (TRUE);
+	else if ((strstr(dname, "pillar m")) && (randint(100) < 16)) return (TRUE);
 	if (strstr(dname, "teleporter box")) return (TRUE);
 
 	return (FALSE);
@@ -4199,12 +4297,12 @@ bool match_okay(int r_idx)
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->maxpop == 1)) return (FALSE);
 
 	/* okay to have umber hulks in vaults, but should never force multiple hulks */
-	/* (allow in earth cave only unless deep) */
-	if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (!(p_ptr->theme == 5)) && (p_ptr->depth < 80)) return (FALSE);
+	if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (p_ptr->depth < 101)) return (FALSE);
 
 	/* minimum level */
 	if (p_ptr->depth > 38) minl = (p_ptr->depth / 3) + 1;
 	else if (p_ptr->depth >= 14) minl = 14;
+	else if (p_ptr->depth < 2) minl = -2;
 	if (r_ptr->level <= (minl / 2) + 1) return (FALSE);
 
 	/* Hack -- Require certain types */
@@ -4227,6 +4325,156 @@ bool match_okay(int r_idx)
 	return (FALSE);
 }
 
+#ifdef roomrunes
+/* returns the r_idx of a room rune appropriate to the theme */
+int choose_rune(void)
+{
+	/* default is random */
+	int rune = randint(17); /* will be randint(26) but the later ones aren't done yet */
+	int ttheme = p_ptr->theme;
+	if ((!p_ptr->theme) && (room_design_theme)) ttheme = room_design_theme;
+
+	/* CFOREST - cold rune */
+	if (ttheme == 1)
+	{
+		if (randint(100) < 75) rune = 5;
+		/* runes incompatible with the theme */
+		if ((rune == 4) || (rune == 21) || (rune == 22)) rune = 5;
+	}
+	/* FFOREST - fairy purewater rune or healing tree */
+	else if (ttheme == 2)
+	{
+		if (randint(100) < 58) rune = 21;
+		else if (randint(100) < 12) rune = 24;
+		/* runes incompatible with the theme */
+		if ((rune == 4) || (rune == 5) || (rune == 22) || (rune == 1) || (rune == 3) ||
+			(rune == 9) || (rune == 13) || (rune == 26)) rune = 21;
+	}
+	/* ICKY_PLACE - acid rune */
+	else if (ttheme == 3)
+	{
+		if (randint(100) < 70) rune = 6; 
+		/* runes incompatible with the theme */
+		if ((rune == 10) || (rune == 21) || (rune == 17) || (rune == 24)) rune = 6;
+	}
+	/* VOLCANO - flame rune */
+	else if (ttheme == 4)
+	{
+		if (randint(100) < 70) rune = 4; 
+		/* runes incompatible with the theme */
+		if ((rune == 5) || (rune == 6) || (rune == 15) || (rune == 17) || 
+			(rune == 24) || (rune == 21)) rune = 4;
+	}
+	/* if ((p_ptr->theme == 5) && (randint(100) < 70)) rune = 5; * EARTH_CAVE (removed) */
+	/* WINDY_CAVE / giant battlefield - tornado rune (or titanium rune) */
+	else if (ttheme == 6)
+	{
+		if (randint(100) < 70) rune = 8;
+		else if (randint(100) < 26) rune = 17;
+		/* runes incompatible with the theme */
+		if (rune == 4) rune = 8;
+	}
+	/* FULL_MOON - lightning rune & a few others */
+	else if (ttheme == 7)
+	{
+		if (randint(100) < 40) rune = 7;
+		else if (randint(100) < 68) rune = 10;
+		else if (randint(100) < 16) rune = 14;
+		else if (randint(100) < 22) rune = 15;
+		/* runes incompatible with the theme */
+		if ((rune == 6) || (rune == 1) || (rune == 17) || (rune == 24) || (rune == 21)) rune = 7;
+	}
+	/* CASTLE - necromancy rune */
+	else if (ttheme == 8)
+	{
+		if (randint(100) < 60) rune = 13;
+		else if (randint(100) < 25) rune = 23;
+		/* runes incompatible with the theme */
+		if ((rune == 4) || (rune == 10) || (rune == 11) || (rune == 24) || (rune == 21)) rune = 13;
+	}
+	/* SWAMP - pestilence rune */
+	else if (ttheme == 9)
+	{
+		if (randint(100) < 65) rune = 2;
+		/* runes incompatible with the theme */
+		if ((rune == 7) || (rune == 16) || (rune == 17) || (rune == 23) || (rune == 21)) rune = 2;
+	}
+	/* DWARF_MINE - darkness rune */
+	else if (ttheme == 10)
+	{
+		if (randint(100) < 68) rune = 9;
+		else if (randint(100) < 22) rune = 23;
+		/* runes incompatible with the theme */
+		if ((rune == 6) || (rune == 10) || (rune == 15) || (rune == 18) || 
+			(rune == 21) || (rune == 24) || (rune == 1)) rune = 9;
+	}
+	/* BUG_CAVE (no really appropriate runes, but a couple kinda close) */
+	else if (ttheme == 11)
+	{
+		if (randint(100) < 26) rune = 15;
+		else if (randint(100) < 30) rune = 2;
+		/* runes incompatible with the theme */
+		if ((rune == 4) || (rune == 8) || (rune == 13) || (rune == 18) || 
+			(rune == 21) || (rune == 22) || (rune == 23) || (rune == 26))
+		{ if (randint(100) < 51) rune = 15; else rune = 2; }
+	}
+	/* GREPSE - grepse rune & a few others */
+	else if (ttheme == 12)
+	{
+		if (randint(100) < 58) rune = 22;
+		else if (randint(100) < 16) rune = 3;
+		else if (randint(100) < 20) rune = 11;
+		else if (randint(100) < 22) rune = 20;
+		/* runes incompatible with the theme */
+		if ((rune == 1) || (rune == 10) || (rune == 17) || (rune == 18) || 
+			(rune == 21) || (rune == 24)) rune = 22;
+	}
+	/* DARK_CITY (no really appropriate theme, but a couple kinda close) */
+	else if (ttheme == 13)
+	{
+		if (randint(100) < 60) rune = 25;
+		else if (randint(100) < 26) rune = 23;
+		else if (randint(100) < 26) rune = 14;
+		else if (randint(100) < 28) rune = 15;
+		/* runes incompatible with the theme */
+		if ((rune == 1) || (rune == 16) || (rune == 17) || (rune == 22) || 
+			(rune == 24)) rune = 14 + rand_int(2);
+		/* mostly innappropriate but allow sometimes */
+		if ((rune == 21) && (randint(100) < 55)) rune = 23;
+	}
+	/* HELL_HALL - demon rune or magic sceptre rune */
+	else if (ttheme == 14)
+	{
+		if (randint(100) < 70) rune = 26;
+		else if (randint(100) < 22) rune = 12;
+		/* runes incompatible with the theme */
+		if ((rune == 16) || (rune == 10) || (rune == 21) || (rune == 18) || (rune == 24)) 
+			rune = 26;
+	}
+	/* BARRACKS - war rune */
+	else if (ttheme == 15)
+	{
+		if (randint(100) < 70) rune = 1;
+		else if (randint(100) < 20) rune = 23;
+		else if (randint(100) < 20) rune = 18;
+		else if (randint(100) < 20) rune = 17;
+		/* runes incompatible with the theme */
+		if ((rune == 3) || (rune == 8) || (rune == 16) || (rune == 24) || (rune == 25)) 
+			rune = 1;
+	}
+	else /* no theme */
+	{
+		/* certain runes should be rare unless forced by the theme */
+        if (((rune == 21) || (rune == 22) || (rune == 24) || (rune == 26)) &&
+			(randint(100) < 70)) rune = randint(17); /* reroll -will be 26 later */
+	}
+	
+	if (cheat_room) msg_format("Room rune %d created.", rune);
+	rune += 1400;
+	return rune;
+}
+#endif
+
 /*
  * Certain types of monsters more likely to be matching monsters in a vault
  * mode = 0 (default) gets a monster to be the matching vault monsters
@@ -4236,6 +4484,7 @@ bool match_okay(int r_idx)
  * mode = 4 gets a tree monster
  * mode = 5 gets a missile launcher
  * mode = 6 -machine
+ * mode = 7 gets a room rune
  */
 int get_mon_match(int level, int mode, bool vault)
 {
@@ -4245,7 +4494,9 @@ int get_mon_match(int level, int mode, bool vault)
 
 	if ((p_ptr->theme) && (mode == 3))
 	{
-		return temple_theme(level);
+		int themetemplemon = temple_theme(level);
+		if (themetemplemon) return themetemplemon;
+		else get_mon_num_hook = temple_okay;
 	}
 	else if (mode == 3)
 	{
@@ -4262,9 +4513,16 @@ int get_mon_match(int level, int mode, bool vault)
 		/* Require appropriate monsters */
 		get_mon_num_hook = zoo_okay;
 	}
+#ifdef roomrunes
+	else if (mode == 7)
+	{
+		/* choose room rune appropriate for the theme (these aren't really monsters at all) */
+		return choose_rune();
+	}
+#endif
 	else if (mode == 6)
 	{
-		if (randint(100) < 35) forcecomm = TRUE;
+		if (randint(100) < 34) forcecomm = TRUE;
 		/* Require appropriate monsters */
 		else get_mon_num_hook = machine_okay;
 	}
@@ -4400,9 +4658,10 @@ int get_mon_match(int level, int mode, bool vault)
  * P: pillar mimmic
  * M: machine (includes teleporter box, some missile launchers & stuff)
  */
-static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool greater)
+static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, byte vfloor, bool greater, bool flip_v, bool flip_h)
 {
 	int dx, dy, x, y;
+	int ax, ay;
 	int dr_idx, bigdr_idx;
 	bool bedoor = FALSE;
 
@@ -4410,22 +4669,45 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 	
 	/* better chance for good stuff in vaults */
 	uniqdrop = 2; /* 'T' and '8' raises uniqdrop to 3 */
+	
+	if ((vfloor > 0) && (vfloor < 10))
+	{
+		int flood = (vfloor * 3);
+		if (p_ptr->theme == 9) flood = (vfloor * 6);
+		else if ((p_ptr->theme == 3) || (p_ptr->theme == 11)) flood = (vfloor * 4);
+		else if ((p_ptr->theme == 2) || (p_ptr->theme == 12)) /* don't change flood */;
+		else if (p_ptr->theme) flood = 0;
+		if ((vfloor == 9) && (flood)) vfloor = 2; /* 9 means always flood */
+		else if ((vfloor == 8) && (p_ptr->theme == 9)) vfloor = 2; /* 8 means always flood if it's a swamp level */
+		else if (rand_int(100) < flood) vfloor = 2;
+		else vfloor = 0; /* no flooding */
+	}
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - 1 - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
 			bool statu = FALSE;
+			int ifdoor = 0;
+
+			if (flip_h) ax = xmax - 1 - dx;
+			else ax = dx;
+
 			/* Extract the location */
-			x = x0 - (xmax / 2) + dx;
-			y = y0 - (ymax / 2) + dy;
+			x = x0 - (xmax / 2) + ax;
+			y = y0 - (ymax / 2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
 
+			/* a couple vaults have an alternate default terrain as a floor */
+			if (vfloor == 2) cave_set_feat(y, x, FEAT_WATER);
 			/* Lay down a floor */
-			cave_set_feat(y, x, FEAT_FLOOR);
+			else cave_set_feat(y, x, FEAT_FLOOR);
 
 			/* Part of a vault */
 			cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY);
@@ -4436,7 +4718,11 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 				/* Granite wall (outer) */
 				case '%':
 				{
+#if old
 					cave_set_feat(y, x, FEAT_WALL_OUTER);
+#else
+					cave_set_feat(y, x, FEAT_WALL_SPEC);
+#endif
 					/* outer room walls shouldn't have CAVE_ROOM */
 					cave_info[y][x] &= ~(CAVE_ROOM);
 					break;
@@ -4458,8 +4744,11 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 
 				/* Rubble */
 				case 'R':
+				case 'r':
 				{
-					place_rubble(y, x);
+					bool bigrub = TRUE;
+					if (*t == 'r') bigrub = FALSE;
+					place_rubble(y, x, bigrub);
 					break;
 				}
 
@@ -4492,11 +4781,19 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 				}
 
 				/* Secret doors */
+				case '"': /* secret door, granite, or rubble */
 				case '+':
 				case '_': /* (this should only be used for empty vault designs, but included here just in case) */
 				{
-					if ((*t == '_') && (rand_int(100) < 33)) place_random_door(y, x, TRUE);
-					else place_secret_door(y, x);
+					int ifmod = 34;
+					if (ifdoor) ifmod = 54 + (9 * ifdoor);
+					if (ifmod > 95) ifmod = 95;
+					if ((*t == '"') && (rand_int(100) < ifmod)) cave_set_feat(y, x, FEAT_WALL_INNER);
+					else if ((*t == '_') && (rand_int(100) < 33)) place_closed_door(y, x, 3);
+					else if ((!(*t == '"')) || (rand_int(100) < 55))
+						{ place_secret_door(y, x); ifdoor++; }
+					else /* (*t == '"') */
+						{ place_rubble(y, x, TRUE); ifdoor++; }
 					break;
 				}
 
@@ -4507,14 +4804,14 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 					break;
 				}
 
-				/* Place the following monsters before other monsters */
-				/* to make sure other monster groups don't keep them */
-				/* from being placed: tree or tree monster */
+				/* Place the following monsters before other monsters to make */
+				/* sure other monster groups don't keep them from being placed */
 				case 'E':
 				{
 					int thismon;
+					/* NONMONSTER tree */
 					if ((randint(100) < 94) || (p_ptr->depth < 12)) place_monster_aux_real(y, x, 834, TRUE, 0, 1);
-					else
+					else /* or chance for tree monster */
 					{
 						thismon = get_mon_match(p_ptr->depth + randint(9), 4, TRUE);
 						place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
@@ -4522,14 +4819,134 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 					break;
 				}
 
+				/* theme-appropriate terrain */
+				/* 1=trap, 2=tree, 3=water, 4=open pit, 5=random door, 6=rubble */
+				/* 7=rune, 8=magma, 9=quartz, 10=granite, 0=empty floor */
+				case 't':
+				{
+					int thismon, tmptheme, ttrain = 0; /* default is empty floor */
+					if (!p_ptr->theme) tmptheme = room_design_theme;
+					else tmptheme = p_ptr->theme;
+					if (!tmptheme) 
+					{
+						tmptheme = randint(14);
+						if (tmptheme >= 12) tmptheme++; /* skip grepse if random */
+					}
+					if (tmptheme < 3) /* CFOREST, FFOREST */
+					{
+						ttrain = 2; /* tree */
+						/* if (p_ptr->theme == 1) chance for ice */
+					}
+					if (tmptheme == 3) /* ICKY */
+					{
+						if (randint(100) < 65) ttrain = 3; /* water */
+						else if (randint(100) < 12) ttrain = 10; /* granite */
+					}
+					if ((tmptheme == 4) || (tmptheme == 14)) /* VOLCANO, HELL_HALL */
+					{
+						ttrain = 8; /* magma, later usually lava */
+						if (randint(100) < 22) ttrain = 10; /* granite */
+						else if (randint(100) < 25) ttrain = 6; /* rubble */
+						else if (randint(100) < 11) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 6) /* WINDY_CAVE */
+					{
+						ttrain = 6; /* rubble, later chance for chasm */
+						if (randint(100) < 22) ttrain = 4; /* open pit */
+						else if (randint(100) < 15) ttrain = 10; /* granite */
+					}
+					if (tmptheme == 7) /* FULL_MOON */
+					{
+						if (randint(100) < 30) ttrain = 6; /* rubble */
+						else if (randint(100) < 20) ttrain = 1; /* trap */
+						else if (randint(100) < 10) ttrain = 10; /* granite */
+					}
+					if (tmptheme == 8) /* CASTLE */
+					{
+						if (randint(100) < 22) ttrain = 6; /* rubble */
+						else if (randint(100) < 22) ttrain = 10; /* granite */
+					}
+					if (tmptheme == 9) /* SWAMP */
+					{
+						ttrain = 3; /* water */
+						if (randint(100) < 20) ttrain = 2; /* tree */
+					}
+					if (tmptheme == 10) /* DWARF_MINE */
+					{
+						ttrain = 6; /* rubble, later chance for chasm */
+						if (randint(100) < 20) ttrain = 9; /* quartz */
+						else if (randint(100) < 15) ttrain = 10; /* granite */
+						else if (randint(100) < 15) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 11) /* BUG_CAVE */
+					{
+						if (randint(100) < 36) ttrain = 3; /* water */
+						else if (randint(100) < 16) ttrain = 4; /* open pit */
+						else if (randint(100) < 16) ttrain = 1; /* trap */
+					}
+					if (tmptheme == 12) /* GREPSE */
+					{
+						if (randint(100) < 8) ttrain = 2; /* tree */
+						else if (randint(100) < 12) ttrain = 6; /* rubble */
+						else if (randint(100) < 11) ttrain = 10; /* granite */
+						else if (randint(100) < 12) ttrain = 5; /* door */
+						else if (randint(100) < 11) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 13) /* DARK_CITY */
+					{
+						if (randint(100) < 12) ttrain = 2; /* tree */
+						else if (randint(100) < 18) ttrain = 1; /* trap */
+						else if (randint(100) < 12) ttrain = 6; /* rubble */
+						else if (randint(100) < 11) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 15) /* BARRACKS */
+					{
+						if (randint(100) < 30) ttrain = 10; /* granite */
+						else if (randint(100) < 20) ttrain = 1; /* trap */
+						else if (randint(100) < 6) ttrain = 4; /* open pit */
+					}
+					/* small chance for room rune (if there isn't one already) */
+					if ((randint(110) == 1) && (!room_runes(y, x))) ttrain = 7; /* rune */
+
+					if (ttrain == 1) place_trap(y, x);
+					else if (ttrain == 2) /* tree */
+					{
+						if ((randint(100) < 97) || (p_ptr->depth < 19)) place_monster_aux_real(y, x, 834, TRUE, 0, 1);
+						else /* or chance for tree monster */
+						{
+							thismon = get_mon_match(p_ptr->depth + randint(9), 4, TRUE);
+							place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+						}
+					}
+					else if (ttrain == 3) cave_set_feat(y, x, FEAT_WATER);
+					else if (ttrain == 4) cave_set_feat(y, x, FEAT_OPEN_PIT);
+					else if (ttrain == 5) place_closed_door(y, x, 2);
+					else if ((ttrain == 6) && (randint(100) < 50)) place_rubble(y, x, TRUE);
+					else if (ttrain == 6) place_rubble(y, x, FALSE);
+					else if (ttrain == 7) /* room rune */
+					{
+						/* level arg. doesn't do anything for mode 7 */
+						int thismon = get_mon_match(55, 7, TRUE);
+						place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+					}
+					else if ((ttrain == 8) && (randint(125) == 1)) cave_set_feat(y, x, FEAT_MAGMA_K);
+					else if (ttrain == 8) cave_set_feat(y, x, FEAT_MAGMA);
+					else if ((ttrain == 9) && (randint(88) == 1)) cave_set_feat(y, x, FEAT_QUARTZ_K);
+					else if (ttrain == 9) cave_set_feat(y, x, FEAT_QUARTZ);
+					else if (ttrain == 10) cave_set_feat(y, x, FEAT_WALL_INNER);
+					/* else leave as empty floor */
+					break;
+				}
+
 				/* machine (or various other stuff) */
 				case 'M':
 				{
 					int mode = 0, die = rand_int(80 - (128-p_ptr->depth)/4);
-					if (die < 20) cave_set_feat(y, x, FEAT_WALL_INNER);
-					else if (die < 22) place_rubble(y, x);
-					else if (die < 25) statu = TRUE;
-					else if (die < 28) place_chest(y, x, 2);
+					if (die < 15) cave_set_feat(y, x, FEAT_WALL_INNER);
+					else if (die < 17) place_rubble(y, x, FALSE);
+					else if (die < 19) place_rubble(y, x, TRUE);
+					else if (die < 22) statu = TRUE;
+					else if (die < 26) place_chest(y, x, 2);
 					else if (die < 30)
 					{
 						/* occational chest mimmic */
@@ -4546,6 +4963,40 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 					{
 						if (randint(100) < 70) place_monster_aux(y, x, 900, TRUE, FALSE);
 						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					else if (die < 35) /* random other mimmic */
+					{
+						int mdie = randint(70 + (p_ptr->depth*5/9));
+						if (p_ptr->depth < 9)
+                        {
+							mdie = randint(p_ptr->depth);
+							if (p_ptr->depth > 8) mdie = randint(7) + 4;
+							if (mdie == 1) place_monster_aux(y, x, 76, TRUE, FALSE); /* photoplasm3 */
+							else if (mdie < 3) place_monster_aux(y, x, 76, TRUE, FALSE); /* violet fungi4 */
+							else if (mdie < 4) place_monster_aux(y, x, 80, TRUE, FALSE); /* blue jelly4 */
+							else if (mdie < 6) place_monster_aux(y, x, 80, TRUE, FALSE); /* rot jelly6 */
+							else place_monster_aux(y, x, 184, TRUE, FALSE); /* potion mimmic11 */
+							break;
+						}
+						else if (p_ptr->depth < 22) mdie = randint(30 + (p_ptr->depth*4/3));
+						else if (p_ptr->depth > 110) mdie = randint(125) + 6;
+						
+						if (mdie < 15) place_monster_aux(y, x, 184, TRUE, FALSE); /* potion mimmic11 */
+						else if (mdie < 25) place_monster_aux(y, x, 215, TRUE, FALSE); /* mine mirage13 */
+						else if (mdie < 40) place_monster_aux(y, x, 234, TRUE, FALSE); /* scroll mimmic14 */
+						else if (mdie < 53) place_monster_aux(y, x, 240, TRUE, FALSE); /* lurker14 */
+						else if (mdie < 70) place_monster_aux(y, x, 245, TRUE, FALSE); /* rubble mimmic19 */
+						else if (mdie < 85) place_monster_aux(y, x, 342, TRUE, FALSE); /* ring mimmic24 */
+						else if (mdie < 100) place_monster_aux(y, x, 516, TRUE, FALSE); /* trapper36 */
+						else if (mdie < 110) place_monster_aux(y, x, 708, TRUE, FALSE); /* wall closing in60 */
+						else if (mdie < 112) place_monster_aux(y, x, 698, TRUE, FALSE); /* hand druj57 */
+						else if (mdie < 114) place_monster_aux(y, x, 701, TRUE, FALSE); /* eye druj58 */
+						else if (mdie < 116) place_monster_aux(y, x, 703, TRUE, FALSE); /* skull druj59 */
+						else place_monster_aux(y, x, 805, TRUE, FALSE); /* walls closing in118 */
+					}
+					else if (die < 37) /* object */
+					{
+						place_object(y, x, FALSE, FALSE);
 					}
 					else /* machine (usually teleporter box) */
 					{
@@ -4580,11 +5031,49 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 					}
                     else if (die < 35) place_monster_aux_real(y, x, 910, FALSE, 0, 1);
 					else if (die < 45) place_monster_aux_real(y, x, 909, FALSE, 0, 1);
-					else if (die < 50) place_rubble(y, x);
+					else if (die < 50) place_rubble(y, x, FALSE);
                     else if (die < 52) place_monster_aux_real(y, x, 910, TRUE, 0, 1);
 					else if (die < 55) place_monster_aux_real(y, x, 909, TRUE, 0, 1);
 					else if (die < 60) place_monster_aux_real(y, x, 911, TRUE, 0, 1);
 					break;
+				}
+
+				/* room runes */
+				case 'A':
+				case 'a':
+				{
+					int die = randint(100);
+					bool dofount = FALSE;
+#ifdef roomrunes
+					if ((!room_runes(y, x)) && ((*t == 'A') || (die < 40)))
+					{
+						/* level arg. doesn't do anything for mode 7 */
+						int thismon = get_mon_match(55, 7, TRUE);
+						place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+					}
+					else if (die < 75)
+#else
+					die = randint(65) + 35;
+					if ((*t == 'A') || (die < 75)) 
+#endif
+					{ /* statue */
+						/* the slp parameter for statues says if it's ruined or not */
+    	                if (randint(100) < 30) place_monster_aux_real(y, x, 910, FALSE, 0, 1);
+						else place_monster_aux_real(y, x, 909, FALSE, 0, 1);
+						if (rand_int(100) < 10 + goodluck) place_object(y, x, TRUE, FALSE);
+					}
+					else if (die < 83) /* pillar mimmic (usually) */
+					{
+						if ((randint(100) < 70) && (p_ptr->depth > 23)) 
+							place_monster_aux(y, x, 900, TRUE, FALSE);
+						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					else if (die < 93)
+					{
+						place_rubble(y, x, TRUE);
+					}
+					else dofount = TRUE;
+					if (!dofount) break;
 				}
 
 				/* Fountain (Later: chance for riverflow gargoyle mimmicking a fountain) */
@@ -4648,11 +5137,17 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 	/* Place dungeon monsters and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - 1 - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
+			if (flip_h) ax = xmax - 1 - dx;
+			else ax = dx;
+
 			/* Extract the grid */
-			x = x0 - (xmax/2) + dx;
-			y = y0 - (ymax/2) + dy;
+			x = x0 - (xmax/2) + ax;
+			y = y0 - (ymax/2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -4669,7 +5164,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 						if ((possible_doorway(y, x, FALSE)) &&
 							((!bedoor) || (randint(100) < 20)))
 						{
-							place_random_door(y, x, FALSE);
+							place_closed_door(y, x, 2);
 							bedoor = TRUE;
 						}
 					}
@@ -4852,6 +5347,48 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 					break;
 				}
 
+				/* Monster and/or object and/or trap and/or... */
+				case '?':
+				{
+					int die = randint(100);
+					if (die < 22)
+					{
+						place_trap(y, x);
+					}
+					else if (die < 35)
+					{
+						object_level = p_ptr->depth + 7;
+						place_object(y, x, FALSE, FALSE);
+						object_level = p_ptr->depth;
+					}
+					else if (die < 42)
+					{
+						place_chest(y, x, randint(3));
+					}
+					else if (die < 47)
+					{
+						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					if ((rand_int(100) < 9) && (cave_can_occupy_bold(y, x)))
+					{ /* statue */
+						/* the slp parameter for statues says if it's ruined or not */
+						if (randint(100) < 45) place_monster_aux_real(y, x, 910, FALSE, 0, 1);
+						else place_monster_aux_real(y, x, 909, FALSE, 0, 1);
+					}
+					if ((rand_int(100) < 10) && (cave_can_occupy_bold(y, x)))
+					{
+						if (randint(100) < 60) place_rubble(y, x, TRUE);
+						else place_rubble(y, x, FALSE);
+					}
+					if ((rand_int(100) < 26) && (cave_can_occupy_bold(y, x)))
+					{
+						monster_level = p_ptr->depth + 4;
+						place_monster(y, x, TRUE, TRUE, TRUE);
+						monster_level = p_ptr->depth;
+					}
+					break;
+				}
+
 				/* chests */
 				case '$':
 				case 'c':
@@ -4889,9 +5426,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
  * design = 7 designed as lesser vault, emptied.
  * design = 9 designed as empty vault, emptied.
  */
-static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int design)
+static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, byte vfloor, int design, bool flip_v, bool flip_h)
 {
 	int dx, dy, x, y, dsg, die;
+	int ax, ay;
 	int goods = 0; /* don't create too many treasures in an empty vault */
 	bool permwall = FALSE;
 	bool light = FALSE;
@@ -4919,17 +5457,25 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - 1 - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
+			if (flip_h) ax = xmax - 1 - dx;
+			else ax = dx;
+
             /* Extract the location */
-			x = x0 - (xmax / 2) + dx;
-			y = y0 - (ymax / 2) + dy;
+			x = x0 - (xmax / 2) + ax;
+			y = y0 - (ymax / 2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
 
+			/* a couple vaults have an alternate default terrain as a floor */
+			if (vfloor == 2) cave_set_feat(y, x, FEAT_WATER);
 			/* Lay down a floor */
-			cave_set_feat(y, x, FEAT_FLOOR);
+			else cave_set_feat(y, x, FEAT_FLOOR);
 
 			/* CAVE_ICKY only if made as designed */
 			if ((light) && (vicky))
@@ -4944,7 +5490,11 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 				/* Granite wall (outer) */
 				case '%':
 				{
+#if old
 					cave_set_feat(y, x, FEAT_WALL_OUTER);
+#else
+					cave_set_feat(y, x, FEAT_WALL_SPEC);
+#endif
 					/* outer room walls shouldn't have CAVE_ROOM */
 					cave_info[y][x] &= ~(CAVE_ROOM);
 					break;
@@ -4959,7 +5509,7 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					if (rand_int(100) < dsg) /* about 1/16 */
 					{
 						if (design == 1) cave_set_feat(y, x, FEAT_PERM_INNER);
-						else place_rubble(y, x);
+						else place_rubble(y, x, TRUE);
 					}
 					else
 					{
@@ -4978,7 +5528,7 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					if (design == 1) dsg = 1;
 					/* usually if there were permanent walls originally, */
 					/* then the granite was meant like a door, */
-					/* so make it rubble (or a door) instead of granite. */
+					/* so make it rubble instead of granite. */
 					else if (permwall) dsg = 80;
 					/* lesser vault design like original */
 					else if ((design == 2) || (design == 9)) dsg = 4;
@@ -4991,17 +5541,14 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 						place_monster_aux(y, x, 900, TRUE, FALSE);
 						cave_set_feat(y, x, FEAT_WALL_INNER);
 					}
-					else if (((die < dsg/2) && (permwall)) || ((die < dsg/5) && (!permwall)))
+					else if (((die < dsg/3) && (permwall)) || ((die < dsg/5) && (!permwall)))
 					{
-						cave_set_feat(y, x, FEAT_FLOOR);
+						if (rand_int(100) < 25) place_rubble(y, x, FALSE);
+						else cave_set_feat(y, x, FEAT_FLOOR);
 					}
 					else if (die < dsg)
 					{
-						place_rubble(y, x);
-					}
-					else if ((die < dsg/4) && (permwall) && ((design == 7) || (design == 2)))
-					{
-						place_random_door(y, x, TRUE);
+						place_rubble(y, x, TRUE);
 					}
 					else
 					{
@@ -5012,19 +5559,28 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 
 				/* Rubble */
 				case 'R':
+				case 'r':
 				{
 					if (design == 1) dsg = 96;
 					else if (design == 2) dsg = 80;
 					else dsg = 65;
-					if (rand_int(100) < dsg) place_rubble(y, x);
+					if (*t == 'R') dsg += 2;
+					if (rand_int(100) < dsg) 
+					{
+						if ((*t == 'R') && (randint(100) < (dsg*4/5)+2))
+							place_rubble(y, x, TRUE);
+						else place_rubble(y, x, FALSE);
+					}
 					break;
 				}
 
 				/* doors */
+				case '"': /* secret door, granite, or rubble */
 				case '+': /* secret door */
 				case '_': /* (usually) not secret door used for empty vault designs only */
 				{
 					if (*t == '_') dsg = 15;
+					else if (*t == '"') dsg = 34;
 					else if ((design == 2) || (design == 9)) dsg = 75;
 					else if (design == 1) dsg = 96;
 					else dsg = 35;
@@ -5032,9 +5588,18 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					{
 						place_secret_door(y, x);
 					}
+					else if (*t == '"')
+					{
+						int die = randint(100);
+						if (die < 38) place_rubble(y, x, TRUE);
+						else if (die < 85) cave_set_feat(y, x, FEAT_WALL_INNER);
+						else if (die < 96) place_closed_door(y, x, 1);
+						else place_random_door(y, x, TRUE);
+					}
 					else
 					{
-						place_random_door(y, x, TRUE);
+						if (design == 9) place_random_door(y, x, FALSE);
+						else place_random_door(y, x, TRUE);
 					}
 					break;
 				}
@@ -5043,9 +5608,9 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 				case '*':
 				{
 					if (design == 1) dsg = randint(8);
-					else if (design == 2) dsg = randint(60);
-					else if (design == 9) dsg = randint(80);
-					else dsg = randint(100);
+					else if (design == 2) dsg = randint(55);
+					else if (design == 9) dsg = randint(75);
+					else dsg = randint(99);
 					if ((goods > 2) && (randint(100) < 67)) dsg += randint(goods-1);
 					if (dsg < 5)
 					{
@@ -5137,12 +5702,192 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					}
 					break;
 				}
-				
-				/* machine */
+
+				/* theme-appropriate terrain */
+				/* 1=trap, 2=tree, 3=water, 4=open pit, 5=random door, 6=rubble */
+				/* 7=rune, 8=magma, 9=quartz, 10=granite, 0=empty floor */
+				case 't':
+				{
+					int thismon, tmptheme, ttrain = 0; /* default is empty floor */
+					if (!p_ptr->theme) tmptheme = room_design_theme;
+					else tmptheme = p_ptr->theme;
+					if (!tmptheme) 
+					{
+						tmptheme = randint(14);
+						if (tmptheme >= 12) tmptheme++; /* skip */
+					}
+					if (tmptheme < 3) /* CFOREST, FFOREST */
+					{
+						ttrain = 2; /* tree */
+						/* if (p_ptr->theme == 1) chance for ice */
+					}
+					if (tmptheme == 3) /* ICKY */
+					{
+						if (randint(100) < 50) ttrain = 3; /* water */
+						else if (randint(100) < 12) ttrain = 10; /* granite */
+					}
+					if ((tmptheme == 4) || (tmptheme == 14)) /* VOLCANO, HELL_HALL */
+					{
+						ttrain = 8; /* magma, later usually lava */
+						if (randint(100) < 22) ttrain = 10; /* granite */
+						else if (randint(100) < 25) ttrain = 6; /* rubble */
+						else if (randint(100) < 11) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 6) /* WINDY_CAVE */
+					{
+						ttrain = 6; /* rubble, later chance for chasm */
+						if (randint(100) < 22) ttrain = 4; /* open pit */
+						else if (randint(100) < 15) ttrain = 10; /* granite */
+					}
+					if (tmptheme == 7) /* FULL_MOON */
+					{
+						if (randint(100) < 30) ttrain = 6; /* rubble */
+						else if (randint(100) < 15) ttrain = 1; /* trap */
+						else if (randint(100) < 10) ttrain = 10; /* granite */
+					}
+					if (tmptheme == 8) /* CASTLE */
+					{
+						if (randint(100) < 22) ttrain = 6; /* rubble */
+						else if (randint(100) < 22) ttrain = 10; /* granite */
+					}
+					if (tmptheme == 9) /* SWAMP */
+					{
+						ttrain = 3; /* water */
+						if (randint(100) < 20) ttrain = 2; /* tree */
+					}
+					if (tmptheme == 10) /* DWARF_MINE */
+					{
+						ttrain = 6; /* rubble, later chance for chasm */
+						if (randint(100) < 20) ttrain = 9; /* quartz */
+						else if (randint(100) < 15) ttrain = 10; /* granite */
+						else if (randint(100) < 15) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 11) /* BUG_CAVE */
+					{
+						if (randint(100) < 34) ttrain = 3; /* water */
+						else if (randint(100) < 15) ttrain = 4; /* open pit */
+						else if (randint(100) < 16) ttrain = 1; /* trap */
+					}
+					if (tmptheme == 12) /* GREPSE */
+					{
+						if (randint(100) < 8) ttrain = 2; /* tree */
+						else if (randint(100) < 12) ttrain = 6; /* rubble */
+						else if (randint(100) < 11) ttrain = 10; /* granite */
+						else if (randint(100) < 10) ttrain = 5; /* door */
+						else if (randint(100) < 8) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 13) /* DARK_CITY */
+					{
+						if (randint(100) < 12) ttrain = 2; /* tree */
+						else if (randint(100) < 16) ttrain = 1; /* trap */
+						else if (randint(100) < 10) ttrain = 6; /* rubble */
+						else if (randint(100) < 8) ttrain = 4; /* open pit */
+					}
+					if (tmptheme == 15) /* BARRACKS */
+					{
+						if (randint(100) < 30) ttrain = 10; /* granite */
+						else if (randint(100) < 20) ttrain = 1; /* trap */
+					}
+					/* small chance for room rune (if there isn't one already) */
+					if ((randint(110) == 1) && (!room_runes(y, x))) ttrain = 7; /* rune */
+
+					if (ttrain == 1) place_trap(y, x);
+					else if (ttrain == 2) /* tree */
+					{
+						if ((randint(100) < 96) || (p_ptr->depth < 18)) place_monster_aux_real(y, x, 834, TRUE, 0, 1);
+						else /* or chance for tree monster */
+						{
+							thismon = get_mon_match(p_ptr->depth + randint(9), 4, TRUE);
+							place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+						}
+					}
+					else if (ttrain == 3) cave_set_feat(y, x, FEAT_WATER);
+					else if (ttrain == 4) cave_set_feat(y, x, FEAT_OPEN_PIT);
+					else if (ttrain == 5) place_random_door(y, x, TRUE);
+					else if ((ttrain == 6) && (randint(100) < 45)) place_rubble(y, x, TRUE);
+					else if (ttrain == 6) place_rubble(y, x, FALSE);
+					else if (ttrain == 7) /* room rune */
+					{
+						/* level arg. doesn't do anything for mode 7 */
+						int thismon = get_mon_match(55, 7, TRUE);
+						place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+					}
+					else if ((ttrain == 8) && (randint(130) == 1)) cave_set_feat(y, x, FEAT_MAGMA_K);
+					else if (ttrain == 8) cave_set_feat(y, x, FEAT_MAGMA);
+					else if ((ttrain == 9) && (randint(90) == 1)) cave_set_feat(y, x, FEAT_QUARTZ_K);
+					else if (ttrain == 9) cave_set_feat(y, x, FEAT_QUARTZ);
+					else if (ttrain == 10) cave_set_feat(y, x, FEAT_WALL_INNER);
+					/* else leave as empty floor */
+					break;
+				}
+
+				/* machine (or various other stuff) */
 				case 'M':
 				{
-					int thismon = get_mon_match(p_ptr->depth + 3, 6, TRUE);
-					place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+					int mode = 0, die = rand_int(80 - (128-p_ptr->depth)/4);
+					if (die < 15) cave_set_feat(y, x, FEAT_WALL_INNER);
+					else if (die < 17) place_rubble(y, x, FALSE);
+					else if (die < 19) place_rubble(y, x, TRUE);
+					else if (die < 22)
+					{
+						/* the slp parameter for statues says if it's ruined or not */
+						if (randint(100) < 30) place_monster_aux_real(y, x, 910, FALSE, 0, 1);
+						else place_monster_aux_real(y, x, 909, FALSE, 0, 1);
+						if (rand_int(100) < 10 + goodluck) place_object(y, x, TRUE, FALSE);
+					}
+					else if (die < 26) place_chest(y, x, 2);
+					else if (die < 30)
+					{
+						/* occational chest mimmic */
+						if (p_ptr->depth > 19 - badluck/2) place_monster_aux(y, x, 377, TRUE, FALSE);
+						/* weaker version of chest mimmic */
+						else if (rand_int(100) < 65) place_monster_aux(y, x, 912, TRUE, FALSE);
+						else 
+						{
+							if (rand_int(100) < (goodluck+1) * 2) mode = randint(2);
+							place_chest(y, x, mode); /* default mode 0 == ruined chest */
+						}
+					}
+					else if ((die < 33) && (p_ptr->depth > 35)) /* pillar mimmic */
+					{
+						if (randint(100) < 70) place_monster_aux(y, x, 900, TRUE, FALSE);
+						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					else if (die < 35) /* random other mimmic */
+					{
+						int mdie = randint(70 + (p_ptr->depth*5/9));
+						if (p_ptr->depth < 9)
+                        {
+							mdie = randint(p_ptr->depth);
+							if (p_ptr->depth > 8) mdie = randint(7) + 4;
+							if (mdie == 1) place_monster_aux(y, x, 76, TRUE, FALSE); /* photoplasm3 */
+							else if (mdie < 3) place_monster_aux(y, x, 76, TRUE, FALSE); /* violet fungi4 */
+							else if (mdie < 4) place_monster_aux(y, x, 80, TRUE, FALSE); /* blue jelly4 */
+							else if (mdie < 6) place_monster_aux(y, x, 80, TRUE, FALSE); /* rot jelly6 */
+							else place_monster_aux(y, x, 184, TRUE, FALSE); /* potion mimmic11 */
+							break;
+						}
+						else if (p_ptr->depth < 22) mdie = randint(30 + (p_ptr->depth*4/3));
+						else if (p_ptr->depth > 110) mdie = randint(125) + 6;
+						
+						if (mdie < 15) place_monster_aux(y, x, 184, TRUE, FALSE); /* potion mimmic11 */
+						else if (mdie < 25) place_monster_aux(y, x, 215, TRUE, FALSE); /* mine mirage13 */
+						else if (mdie < 40) place_monster_aux(y, x, 234, TRUE, FALSE); /* scroll mimmic14 */
+						else if (mdie < 53) place_monster_aux(y, x, 240, TRUE, FALSE); /* lurker14 */
+						else if (mdie < 70) place_monster_aux(y, x, 245, TRUE, FALSE); /* rubble mimmic19 */
+						else if (mdie < 85) place_monster_aux(y, x, 342, TRUE, FALSE); /* ring mimmic24 */
+						else if (mdie < 100) place_monster_aux(y, x, 516, TRUE, FALSE); /* trapper36 */
+						else if (mdie < 110) place_monster_aux(y, x, 708, TRUE, FALSE); /* wall closing in60 */
+						else if (mdie < 112) place_monster_aux(y, x, 698, TRUE, FALSE); /* hand druj57 */
+						else if (mdie < 114) place_monster_aux(y, x, 701, TRUE, FALSE); /* eye druj58 */
+						else if (mdie < 116) place_monster_aux(y, x, 703, TRUE, FALSE); /* skull druj59 */
+						else place_monster_aux(y, x, 805, TRUE, FALSE); /* walls closing in118 */
+					}
+					else /* >= 35 machine (usually teleporter box) */
+					{
+						int thismon = get_mon_match(p_ptr->depth + 3, 6, TRUE);
+						place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+					}
 					break;
 				}
 
@@ -5162,9 +5907,47 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					/* the slp parameter for statues says if it's ruined or not */
 					else if (dieb < 50) place_monster_aux_real(y, x, 910, TRUE, 0, 1);
 					else if (dieb < 70) place_monster_aux_real(y, x, 909, TRUE, 0, 1);
-					else if (dieb < 90) place_rubble(y, x);
+					else if (dieb < 90) place_rubble(y, x, FALSE);
 					if ((dieb < 70) && (randint(100) < 23-goods) && (*t == 's')) place_object(y, x, TRUE, FALSE);
 					break;
+				}
+
+				/* room runes */
+				case 'A':
+				case 'a':
+				{
+					int die = randint(100);
+					bool dofount = FALSE;
+#ifdef roomrunes
+					if ((!room_runes(y, x)) && ((*t == 'A') && (die < 54)) || (die < 30))
+					{
+						/* level arg. doesn't do anything for mode 7 */
+						int thismon = get_mon_match(55, 7, TRUE);
+						place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+					}
+					else if ((*t == 'A') || (die < 75))
+#else
+					die = randint(75) + 25;
+					if ((*t == 'A') || (die < 75))
+#endif
+					{ /* statue */
+						/* the slp parameter for statues says if it's ruined or not */
+    	                if (randint(100) < 30) place_monster_aux_real(y, x, 910, FALSE, 0, 1);
+						else place_monster_aux_real(y, x, 909, FALSE, 0, 1);
+						if (rand_int(100) < 16 + goodluck) place_object(y, x, TRUE, FALSE);
+					}
+					else if (die < 83) /* pillar mimmic (usually) */
+					{
+						if ((randint(100) < 70) && (p_ptr->depth > 23)) 
+							place_monster_aux(y, x, 900, TRUE, FALSE);
+						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					else if (die < 93)
+					{
+						place_rubble(y, x, TRUE);
+					}
+					else dofount = TRUE;
+					if (!dofount) break;
 				}
 
 				/* Fountain (Later: chance for riverflow gargoyle mimmicking a fountain) */
@@ -5184,13 +5967,72 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					}
 					/* the slp parameter for statues says if it's ruined or not */
 					else if (die < dsg+10) place_monster_aux_real(y, x, 911, TRUE, 0, 1);
-					else if (die < dsg+20) place_rubble(y, x);
+					else if (die < dsg+20) place_rubble(y, x, FALSE);
 					/* only 'f's turn into statues sometimes */
 					else if (*t == 'F') break;
 					else if (die < dsg+23) place_monster_aux_real(y, x, 910, TRUE, 0, 1);
 					else if (die < dsg+28) place_monster_aux_real(y, x, 909, TRUE, 0, 1);
 					else if (die < dsg+31) place_monster_aux_real(y, x, 910, FALSE, 0, 1);
 					else if (die < dsg+35) place_monster_aux_real(y, x, 909, FALSE, 0, 1);
+					break;
+				}
+
+				/* Monster and/or object (usually empty floor) */
+				case '?':
+				{
+					int die = randint(100);
+					if ((design == 1) || (design == 2)) dsg = 7;
+					else if (design == 8) dsg = 3;
+					else dsg = 4;
+					if (die < dsg)
+					{
+						place_trap(y, x);
+					}
+					else if (die < dsg * 2 + 1)
+					{
+						object_level = p_ptr->depth + 7;
+						place_object(y, x, FALSE, FALSE);
+						object_level = p_ptr->depth;
+					}
+					else if (die < dsg * 3 + 1)
+					{
+						if (randint(100) < 25)
+						{
+							if (p_ptr->depth > 18 + rand_int(5) - badluck/2) 
+								place_monster_aux(y, x, 377, TRUE, FALSE);
+							/* weaker version of chest mimmic */
+							else if (rand_int(100) < 65) place_monster_aux(y, x, 912, TRUE, FALSE);
+							else if (randint(100) < 4) place_chest(y, x, rand_int(2));
+							else if (randint(100) < 40) place_trap(y, x);
+						}
+						else place_chest(y, x, rand_int(3));
+					}
+					else if (die < dsg * 4 + 1)
+					{
+						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					if ((rand_int(100) < 4) && (cave_can_occupy_bold(y, x)))
+					{
+						/* the slp parameter for statues says if it's ruined or not */
+						if (randint(100) < 45) place_monster_aux_real(y, x, 910, FALSE, 0, 1);
+						else place_monster_aux_real(y, x, 909, FALSE, 0, 1);
+					}
+					if ((rand_int(100) < 5) && (cave_can_occupy_bold(y, x)))
+					{
+						if (randint(100) < 60) place_rubble(y, x, TRUE);
+						else place_rubble(y, x, FALSE);
+					}
+					if ((rand_int(100) < dsg * 2 + 1) && (cave_can_occupy_bold(y, x)))
+					{
+						monster_level = p_ptr->depth + 3;
+						place_monster(y, x, TRUE, TRUE, TRUE);
+						monster_level = p_ptr->depth;
+					}
+					if ((rand_int(100) < 2) && (cave_can_occupy_bold(y, x)))
+					{
+						int thismon = get_mon_match(p_ptr->depth + 3, 6, TRUE);
+						place_monster_aux_real(y, x, thismon, TRUE, 0, 1);
+					}
 					break;
 				}
 
@@ -5263,11 +6105,17 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 	/*  placed among other things.) */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - 1 - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
+			if (flip_h) ax = xmax - 1 - dx;
+			else ax = dx;
+
 			/* Extract the location */
-			x = x0 - (xmax / 2) + dx;
-			y = y0 - (ymax / 2) + dy;
+			x = x0 - (xmax / 2) + ax;
+			y = y0 - (ymax / 2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -5409,6 +6257,10 @@ static void build_type7(int y0, int x0, bool medium)
 {
 	vault_type *v_ptr;
 	int rarity, tries = 0;
+	bool flip_v = FALSE;
+	bool flip_h = FALSE;
+	bool flipped = FALSE;
+	bool hastheme = FALSE;
 
 	/* Pick a lesser vault */
 	while (TRUE)
@@ -5427,7 +6279,9 @@ static void build_type7(int y0, int x0, bool medium)
 		rarity = v_ptr->rare;
 
 		/* never reject vault ideal for the theme */
-		if ((p_ptr->theme) && (v_ptr->itheme == p_ptr->theme)) break;
+		if ((p_ptr->theme) && ((v_ptr->itheme == p_ptr->theme) ||
+			(v_ptr->ithemeb == p_ptr->theme) || (v_ptr->ithemec == p_ptr->theme) ||
+			(v_ptr->ithemed == p_ptr->theme))) break;
 		/* bias toward vaults whicth are ideal for the theme */
 		else if (p_ptr->theme) rarity = (rarity * 3) / 2;
 
@@ -5438,12 +6292,50 @@ static void build_type7(int y0, int x0, bool medium)
 		break;
 	}
 
+	/* Flip the vault (sometimes) */
+	if (randint(100) < 33) flip_v = TRUE;
+	if (randint(100) < 33) flip_h = TRUE;
+	if ((flip_v) || (flip_h)) flipped = TRUE;
+
 	/* Message */
-	if ((cheat_room) && (medium)) msg_format("Medium vault (%s)", v_name + v_ptr->name);
+	if ((cheat_room) && (medium) && (flipped)) msg_format("Medium vault (%s) (flipped)", v_name + v_ptr->name);
+	else if ((cheat_room) && (medium)) msg_format("Medium vault (%s)", v_name + v_ptr->name);
+	else if ((cheat_room) && (flipped)) msg_format("Lesser vault (%s) (flipped)", v_name + v_ptr->name);
 	else if (cheat_room) msg_format("Lesser vault (%s)", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
+	
+	   /* save the theme of the current room */
+	/* does the room have any theme */
+	if ((v_ptr->itheme) || (v_ptr->ithemeb) || (v_ptr->ithemec) || (v_ptr->ithemed)) hastheme = TRUE;
+	/* do any of the room's themes match the level theme */
+	if ((hastheme) && (p_ptr->theme) && ((v_ptr->itheme == p_ptr->theme) || 
+		(v_ptr->ithemeb == p_ptr->theme) || (v_ptr->ithemed == p_ptr->theme) || 
+		(v_ptr->ithemec == p_ptr->theme))) room_design_theme = p_ptr->theme;
+	else if ((p_ptr->theme) && ((!hastheme) || (rand_int(100) < 65))) 
+		room_design_theme = p_ptr->theme;
+	else room_design_theme = v_ptr->itheme;
+	if ((v_ptr->ithemec) || (v_ptr->ithemed))
+	{
+		int die = randint(100);
+		if (v_ptr->ithemed) die = randint(126);
+		if ((die < 32) && (v_ptr->ithemeb)) room_design_theme = v_ptr->ithemeb;
+		else if ((die < 61) && (v_ptr->ithemec)) room_design_theme = v_ptr->ithemec;
+		else if ((die > 100) && (v_ptr->ithemed)) room_design_theme = v_ptr->ithemed;
+	}
+	else if ((v_ptr->ithemeb) && (!v_ptr->itheme) && (randint(100) < 32))
+		room_design_theme = v_ptr->ithemeb;
+	else if ((v_ptr->itheme) && (v_ptr->ithemeb) && (randint(100) < 45)) 
+		room_design_theme = v_ptr->ithemeb;
+	/* rarely use grepse theme outside of grepse-themed level */
+	if ((room_design_theme == 12) && (!(p_ptr->theme == 12)) &&
+		(randint(100) < 35)) room_design_theme = 0;
+	/* room design themes less common */
+	else if ((!p_ptr->theme) && (randint(100) < 45)) room_design_theme = 0;
+	if ((cheat_room) && (!(room_design_theme == p_ptr->theme)) && (room_design_theme))
+		msg_format("Room design theme %d used.", room_design_theme);
+
 
 #if nomore
 	/* (Sometimes) Cause a special feeling */
@@ -5455,7 +6347,7 @@ static void build_type7(int y0, int x0, bool medium)
 #endif
 
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE);
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, v_ptr->vfloor, FALSE, flip_v, flip_h);
 }
 
 
@@ -5475,6 +6367,10 @@ static void build_type9(int y0, int x0, int great)
 	vault_type *v_ptr;
 	byte mtv;
 	int rarity, tries = 0;
+	bool flip_v = FALSE;
+	bool flip_h = FALSE;
+	bool flipped = FALSE;
+	bool hastheme = FALSE;
 
 	/* Pick a vault design */
 	while (TRUE)
@@ -5489,7 +6385,9 @@ static void build_type9(int y0, int x0, int great)
 		rarity = v_ptr->rare;
 
 		/* never reject vault ideal for the theme (if it's an empty vault design)*/
-		if ((p_ptr->theme) && (v_ptr->itheme == p_ptr->theme) &&
+		if ((p_ptr->theme) && ((v_ptr->itheme == p_ptr->theme) ||
+			(v_ptr->ithemec == p_ptr->theme) || (v_ptr->ithemeb == p_ptr->theme) ||
+			(v_ptr->ithemed == p_ptr->theme)) &&
 			(((v_ptr->typ == 7) && (v_ptr->useMT == 2)) ||
 			(v_ptr->typ == 9)) && (!great)) break;
 
@@ -5546,12 +6444,21 @@ static void build_type9(int y0, int x0, int great)
 		}
 	}
 
+	/* Flip the vault (sometimes) */
+	if (randint(100) < 33) flip_v = TRUE;
+	if (randint(100) < 33) flip_h = TRUE;
+	if ((flip_v) || (flip_h)) flipped = TRUE;
+
 	/* Message */
 	if (cheat_room)
 	{
-		if (great == 2) msg_format("Empty greater vault (%s)", v_name + v_ptr->name);
-		else if (great == 1)  msg_format("Empty medium vault (%s)", v_name + v_ptr->name);
+		if ((great == 2) && (flipped)) msg_format("Empty greater vault (%s) (flipped)", v_name + v_ptr->name);
+		else if (great == 2) msg_format("Empty greater vault (%s)", v_name + v_ptr->name);
+		else if ((great == 1) && (flipped)) msg_format("Empty medium vault (%s) (flipped)", v_name + v_ptr->name);
+		else if (great == 1) msg_format("Empty medium vault (%s)", v_name + v_ptr->name);
+        else if ((v_ptr->typ == 7) && (flipped)) msg_format("Empty vault (%s) (flipped)", v_name + v_ptr->name);
         else if (v_ptr->typ == 7) msg_format("Empty vault (%s)", v_name + v_ptr->name);
+        else if (flipped) msg_format("Room design (%s) (flipped)", v_name + v_ptr->name);
         else msg_format("Room design (%s)", v_name + v_ptr->name);
 	}
 
@@ -5559,14 +6466,15 @@ static void build_type9(int y0, int x0, int great)
 	/* because it's too big to technically be a lesser vault */
 	if ((v_ptr->typ == 9) && (v_ptr->rat == 11))
 	{
-		if (rand_int(100) < 46)
+		int die = rand_int(100);
+		if (die < 46)
 		{
 			/* make as true lesser vault */
 			rating += v_ptr->rat;
-			build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE);
+			build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, v_ptr->vfloor, FALSE, flip_v, flip_h);
 			return;
 		}
-		else if (rand_int(100) < 40) mtv = 2;
+		else if (die < 72) mtv = 2;
 		else mtv = 7; /* make as emptied lesser vault */
 	}
     /* type9 has a chance to be built (almost) exactly as designed because */
@@ -5602,10 +6510,39 @@ static void build_type9(int y0, int x0, int great)
 	/* type9 design with a rating made as designed- mark as cave_icky */
 	if ((mtv == 1) && (v_ptr->rat > 1)) mtv = 11;
 
+	   /* save the theme of the current room */
+	/* does the room have any theme */
+	if ((v_ptr->itheme) || (v_ptr->ithemeb) || (v_ptr->ithemec) || (v_ptr->ithemed)) hastheme = TRUE;
+	/* do any of the room's themes match the level theme */
+	if ((hastheme) && (p_ptr->theme) && ((v_ptr->itheme == p_ptr->theme) || 
+		(v_ptr->ithemeb == p_ptr->theme) || (v_ptr->ithemed == p_ptr->theme) || 
+		(v_ptr->ithemec == p_ptr->theme))) room_design_theme = p_ptr->theme;
+	else if ((p_ptr->theme) && ((!hastheme) || (rand_int(100) < 65))) 
+		room_design_theme = p_ptr->theme;
+	else room_design_theme = v_ptr->itheme;
+	if ((v_ptr->ithemec) || (v_ptr->ithemed))
+	{
+		int die = randint(100);
+		if (v_ptr->ithemed) die = randint(126);
+		if ((die < 32) && (v_ptr->ithemeb)) room_design_theme = v_ptr->ithemeb;
+		else if ((die < 61) && (v_ptr->ithemec)) room_design_theme = v_ptr->ithemec;
+		else if ((die > 100) && (v_ptr->ithemed)) room_design_theme = v_ptr->ithemed;
+	}
+	else if ((v_ptr->ithemeb) && (!v_ptr->itheme) && (randint(100) < 32))
+		room_design_theme = v_ptr->ithemeb;
+	else if ((v_ptr->itheme) && (v_ptr->ithemeb) && (randint(100) < 45)) 
+		room_design_theme = v_ptr->ithemeb;
+	/* do not use grepse theme in empty vault outside of grepse-themed level */
+	if ((room_design_theme == 12) && (!(p_ptr->theme == 12))) room_design_theme = 0;
+	/* room design themes less common */
+	else if ((!p_ptr->theme) && (randint(100) < 45)) room_design_theme = 0;
+	if ((cheat_room) && (!(room_design_theme == p_ptr->theme)) && (room_design_theme))
+		msg_format("Room design theme %d used.", room_design_theme);
+
 	/* Hack -- Build the empty vault */
 	/* (Has chance to retain some aspects of original design, but not nearly */
 	/*  as much monsters, treasure, and traps.) */
-	build_empty(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, mtv);
+	build_empty(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, v_ptr->vfloor, mtv, flip_v, flip_h);
 }
 
 
@@ -5616,6 +6553,7 @@ static void build_type8(int y0, int x0)
 {
 	vault_type *v_ptr;
 	int rarity, tries = 0;
+	bool hastheme = FALSE;
 
 	/* Pick a lesser vault */
 	while (TRUE)
@@ -5633,7 +6571,9 @@ static void build_type8(int y0, int x0)
 		if (!(v_ptr->typ == 8)) continue;
 
 		/* never reject vault ideal for the theme */
-		if ((p_ptr->theme) && (v_ptr->itheme == p_ptr->theme)) break;
+		if ((p_ptr->theme) && ((v_ptr->itheme == p_ptr->theme) ||
+			(v_ptr->ithemec == p_ptr->theme) || (v_ptr->ithemeb == p_ptr->theme) ||
+			(v_ptr->ithemed == p_ptr->theme))) break;
 		else if (p_ptr->theme) rarity += 10;
 
 		/* roll for vault design rarity */
@@ -5656,8 +6596,38 @@ static void build_type8(int y0, int x0)
 		good_item_flag = TRUE;
 	}
 
+	   /* save the theme of the current room */
+	/* does the room have any theme */
+	if ((v_ptr->itheme) || (v_ptr->ithemeb) || (v_ptr->ithemec) || (v_ptr->ithemed)) hastheme = TRUE;
+	/* do any of the room's themes match the level theme */
+	if ((hastheme) && (p_ptr->theme) && ((v_ptr->itheme == p_ptr->theme) || 
+		(v_ptr->ithemeb == p_ptr->theme) || (v_ptr->ithemed == p_ptr->theme) || 
+		(v_ptr->ithemec == p_ptr->theme))) room_design_theme = p_ptr->theme;
+	else if ((p_ptr->theme) && ((!hastheme) || (rand_int(100) < 65))) 
+		room_design_theme = p_ptr->theme;
+	else room_design_theme = v_ptr->itheme;
+	if ((v_ptr->ithemec) || (v_ptr->ithemed))
+	{
+		int die = randint(100);
+		if (v_ptr->ithemed) die = randint(126);
+		if ((die < 32) && (v_ptr->ithemeb)) room_design_theme = v_ptr->ithemeb;
+		else if ((die < 61) && (v_ptr->ithemec)) room_design_theme = v_ptr->ithemec;
+		else if ((die > 100) && (v_ptr->ithemed)) room_design_theme = v_ptr->ithemed;
+	}
+	else if ((v_ptr->ithemeb) && (!v_ptr->itheme) && (randint(100) < 32))
+		room_design_theme = v_ptr->ithemeb;
+	else if ((v_ptr->itheme) && (v_ptr->ithemeb) && (randint(100) < 45)) 
+		room_design_theme = v_ptr->ithemeb;
+	/* rarely use grepse theme outside of grepse-themed level */
+	if ((room_design_theme == 12) && (!(p_ptr->theme == 12)) &&
+		(randint(100) < 25)) room_design_theme = 0;
+	/* room design themes less common */
+	if ((!p_ptr->theme) && (randint(100) < 20)) room_design_theme = 0;
+	if ((cheat_room) && (!(room_design_theme == p_ptr->theme)) && (room_design_theme))
+		msg_format("Room design theme %d used.", room_design_theme);
+
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, TRUE);
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, v_ptr->vfloor, TRUE, FALSE, FALSE);
 }
 
 
@@ -5770,19 +6740,55 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_SOLID) continue;
 
 		/* Pierce "outer" walls of rooms */
-		if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_OUTER)
+        /* (FEAT_WALL_SPEC is walls of room designs and vaults - allow corner doors) */
+		if ((cave_feat[tmp_row][tmp_col] == FEAT_WALL_OUTER) ||
+			(cave_feat[tmp_row][tmp_col] == FEAT_WALL_SPEC))
 		{
-			/* Get the "next" location */
+			bool wall_spec = FALSE;
+            if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_SPEC) wall_spec = TRUE;
+            /* Get the "next" location */
 			y = tmp_row + row_dir;
 			x = tmp_col + col_dir;
 
-			/* Hack -- Avoid outer/solid permanent walls */
-			if (cave_feat[y][x] == FEAT_PERM_SOLID) continue;
-			if (cave_feat[y][x] == FEAT_PERM_OUTER) continue;
+/* #if letssee */
+			if (!wall_spec)
+			{
+				/* Hack -- Avoid outer/solid permanent walls */
+				if (cave_feat[y][x] == FEAT_PERM_SOLID) continue;
+				if (cave_feat[y][x] == FEAT_PERM_OUTER) continue;
 
-			/* Hack -- Avoid outer/solid granite walls */
-			if (cave_feat[y][x] == FEAT_WALL_OUTER) continue;
-			if (cave_feat[y][x] == FEAT_WALL_SOLID) continue;
+				/* Hack -- Avoid outer/solid granite walls */
+				if (cave_feat[y][x] == FEAT_WALL_OUTER) continue;
+				if (cave_feat[y][x] == FEAT_WALL_SOLID) continue;
+			}
+			else
+			{
+/* #else */
+				/* try to allow making doors in the corner of a room */
+				/* (because some rooms are mostly corners) */
+				if ((cave_feat[y][x] == FEAT_PERM_SOLID) ||
+					(cave_feat[y][x] == FEAT_PERM_OUTER) ||
+					(cave_feat[y][x] == FEAT_WALL_SPEC))
+				{
+					int spacey = 0;
+					/* Forbid re-entry near this piercing */
+					for (y = row1 - 1; y <= row1 + 1; y++)
+					{
+						for (x = col1 - 1; x <= col1 + 1; x++)
+						{
+							/* count non-wall spaces */
+							if (cave_feat[y][x] < FEAT_DOOR_CLOSE)
+							{
+								spacey += 1;
+							}
+						}
+					}
+					/* Since tunnels aren't turned into floor until later, corners should */
+					/* have exactly 1 floor space adjacent to them (inside the room) */
+					if (!(spacey == 1)) continue;
+				}
+			}
+/* #endif */
 
 			/* Accept this location */
 			row1 = tmp_row;
@@ -5802,7 +6808,8 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 				for (x = col1 - 1; x <= col1 + 1; x++)
 				{
 					/* Convert adjacent "outer" walls as "solid" walls */
-					if (cave_feat[y][x] == FEAT_WALL_OUTER)
+					if ((cave_feat[y][x] == FEAT_WALL_OUTER) ||
+						(cave_feat[y][x] == FEAT_WALL_SPEC))
 					{
 						/* Change the wall to a "solid" wall */
 						cave_set_feat(y, x, FEAT_WALL_SOLID);
@@ -5893,6 +6900,8 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 	/* Apply the piercings that we found */
 	for (i = 0; i < dun->wall_n; i++)
 	{
+		int spacey = 0;
+		
 		/* Get the grid */
 		y = dun->wall[i].y;
 		x = dun->wall[i].x;
@@ -5900,16 +6909,96 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		/* Convert to floor grid */
 		cave_set_feat(y, x, FEAT_FLOOR);
 
-		/* Occasional doorway */
-		if (rand_int(100) < DUN_TUN_PEN)
+#if blah
+/* (this is commented out because somehow I broke this door-making code so that */
+/* it never actually makes a door in a doorway, but instead will make doors one */
+/* space away from the doorway.  I couldn't figure out how to fix it right, so I */
+/* stuck in a hacky fix outside this function.) */
+		/* Forbid re-entry near this piercing */
+		for (y = row1 - 1; y <= row1 + 1; y++)
+		{
+			for (x = col1 - 1; x <= col1 + 1; x++)
+			{
+				/* count non-wall spaces */
+				if (cave_feat[y][x] < FEAT_DOOR_CLOSE)
+				{
+					if (cave_info[y][x] & (CAVE_ROOM)) /* don't count room spaces */;
+					else spacey += 1;
+				}
+			}
+		}
+
+		/* Occasional doorway (doors should have only two open spaces adjacent to them */
+		/* (one on either side of the door  */
+        /* -that was for tunnel doors, but this code is for room doors) */
+		if ((rand_int(100) < DUN_TUN_PEN) && (spacey == 1))
 		{
 			/* Place a random door */
 			place_random_door(y, x, FALSE);
+			/* (testing) msg_print("Room door made."); */
 		}
+#endif
 	}
 }
 
 
+/*
+ * Make doors in doorways of rooms
+ * (this is the hacky fix for something I broke in the tunneling code).
+ */
+static int doors_in_doorways(void)
+{
+	int i, x, y, x2, y2;
+	int roomgrid, corgrid;
+
+	/* Search the dungeon foor doorways */
+	for (y = 1; y < DUNGEON_HGT - 1; y++)
+	{
+		for (x = 1; x < DUNGEON_WID - 1; x++)
+		{
+			bool badgrid = FALSE;
+			roomgrid = 0;
+			corgrid = 0;
+
+			/* Doorways are not inside a room, they're at the edge */
+			if (cave_info[y][x] & (CAVE_ROOM)) continue;
+			/* We can only put doors in a floor grid */
+			if (!(cave_feat[y][x] == FEAT_FLOOR)) continue;
+
+			/* Scan adjacent grids */
+			for (i = 0; i < 8; i++)
+			{
+				/* Extract the location */
+				y2 = y + ddy_ddd[i];
+				x2 = x + ddx_ddd[i];
+
+				/* grid is next to a room floor grid */
+				if (cave_info[y2][x2] & (CAVE_ROOM)) 
+				{
+					if (cave_floor_bold(y2, x2)) roomgrid++;
+				}
+				/* grid is next to corridor grid */
+				else if (cave_feat[y2][x2] == FEAT_FLOOR) corgrid++;
+				/* doors shouldn't be placed next to another door */
+				if ((cave_feat[y2][x2] >= FEAT_DOOR_CLOSE) &&
+					(cave_feat[y2][x2] <= FEAT_SECRET)) badgrid = TRUE;
+			}
+			if (badgrid) continue;
+			/* doorways are next to at least 1, but no more than than 5 room floor grids */
+			/* and are next to one or two corridor grids. */
+			if ((roomgrid > 0) && (roomgrid <= 5) && (corgrid >= 1) && (corgrid <= 2))
+			{
+				/* we've found a doorway */
+				if (rand_int(100) < DUN_TUN_PEN)
+				{
+					/* Place a random door */
+					place_random_door(y, x, FALSE);
+					/* (testing) msg_print("Room door made."); */
+				}
+			}
+		}
+	}
+}
 
 
 /*
@@ -5939,7 +7028,7 @@ static int next_to_corr(int y1, int x1)
 		if ((cave_feat[y][x] == FEAT_LESS) || (cave_feat[y][x] == FEAT_MORE))
 			k++;
 
-		/* Skip non "empty floor" grids */
+		/* Skip non empty floor grids */
 		if (cave_feat[y][x] != FEAT_FLOOR) continue;
 
 		/* Skip grids inside rooms */
@@ -6033,6 +7122,8 @@ static bool room_build(int by0, int bx0, int typ)
 	int by1, bx1, by2, bx2;
 	int rtyp = typ;
 	if (typ == 12) typ = 10;
+
+	room_design_theme = 0; /* reset */
 
 	/* Restrict level */
 	if (p_ptr->depth < room[typ].level) return (FALSE);
@@ -6131,6 +7222,8 @@ static bool room_build(int by0, int bx0, int typ)
 		if (typ == 6) dun->crowded = TRUE;
 	}
 
+	room_design_theme = 0; /* reset */
+
 	/* Success */
 	return (TRUE);
 }
@@ -6150,7 +7243,7 @@ static void alloc_terrain(int k, int cavernmod)
 	if (cavernmod) treec += 3;
 
 	/* Place some traps in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k + 1));
+	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k) + 1);
 
 	if (!p_ptr->theme)
 	{
@@ -6320,9 +7413,9 @@ static void alloc_terrain(int k, int cavernmod)
 		alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, rub);
 	}
 	/* These themed levels have extra rubble (EARTH_CAVE, CASTLE, and DWARF_MINE) */
-	else if ((p_ptr->theme == 5) || (p_ptr->theme == 8) || (p_ptr->theme == 10))
+	else if ((p_ptr->theme == 8) || (p_ptr->theme == 10))
 	{
-		if (p_ptr->theme == 5) amt += randint(2);
+		if (p_ptr->theme == 10) amt += rand_int(3);
 		if ((cavernmod == 3) || (cavernmod == 2)) amt += 1 + randint(cavernmod);
 		else if (cavernmod) amt += randint(2);
 		/* Put some rubble in corridors */
@@ -6359,8 +7452,7 @@ void init_cavern(int dhei, int dwid, int density)
 	{
 		int y = randint(dhei - 2);
 		int x = randint(dwid - 2);
-		if ((cave_feat[y][x] == FEAT_WALL_SOLID) ||
-			(cave_feat[y][x] == FEAT_WALL_EXTRA))
+		if (cave_feat[y][x] == FEAT_WALL_EXTRA)
 		{
 			cave_set_feat(y, x, FEAT_FLOOR);
 			count--;
@@ -6482,7 +7574,7 @@ int ignore_point(int dhei, int dwid, int colors[], int y, int x)
 	if (((cave_feat[y][x] >= FEAT_DOOR_CLOSE) && (cave_feat[y][x] <= FEAT_DOOR_STUCK)) ||
 		(cave_feat[y][x] == FEAT_OPEN) || (cave_feat[y][x] == FEAT_BROKEN) ||
 		(cave_feat[y][x] == FEAT_SECRET) || (cave_feat[y][x] == FEAT_WATER) ||
-        (cave_feat[y][x] == FEAT_RUBBLE)) return FALSE;
+        (cave_feat[y][x] == FEAT_SMRUBBLE)) return FALSE;
 	if (cave_feat[y][x] != FEAT_FLOOR) return TRUE;
 	return FALSE;
 }
@@ -6758,10 +7850,9 @@ bool cavern_gen(void)
 	else if (mutdie < 38) mutmod = 3; /* 6 */
 	if (mutmod == 4) density = 26 + randint(10);
 
-	/* dwarf mine and earth cave shouldn't be wide open */
-	if (((p_ptr->theme == 5) || (p_ptr->theme == 10)) && 
-		((mutmod == 3) || (mutmod == 2))) mutmod = 1;
-	else if (((p_ptr->theme == 5) || (p_ptr->theme == 10)) && (density > 34)) density = 25 + randint(10);
+	/* dwarf mine shouldn't be wide open */
+	if ((p_ptr->theme == 10) && ((mutmod == 3) || (mutmod == 2))) mutmod = 1;
+	else if ((p_ptr->theme == 10) && (density > 34)) density = 25 + randint(10);
 	/* forests shouldn't be dense (at least not with rock, trees will be added later) */
 	if (((p_ptr->theme == 1) || (p_ptr->theme == 2)) && 
 		((mutmod == 5) || (mutmod == 1) || (mutmod == 4))) mutmod = 2 + rand_int(2);
@@ -6802,7 +7893,8 @@ bool cavern_gen(void)
 	/* 2 here means wide open cavern */
 	if ((mutmod == 3) || ((mutmod == 2) && (density > 34))) 
 		p_ptr->speclev = 2;
-
+		
+	/* chance for a room in a cavern */
 	if (rand_int(100) < 36)
 	{
 		int by, bx, usedepth, roomno = 1, whilst = 0, ndroom = 9;
@@ -6838,7 +7930,7 @@ bool cavern_gen(void)
 				k = rand_int(100);
 
 				/* Attempt a very unusual room */
-				if (rand_int(165) < usedepth)
+				if (rand_int(160) < usedepth)
 				{
 					/* Type 8 -- Lesser vault (25%) */
 					if ((k < 25) && room_build(by, bx, 7))
@@ -6897,17 +7989,16 @@ bool cavern_gen(void)
 		((mutmod == 4) && (randint(100) < 16))) /* and sometimes the random mode */
 	{
 		/* Don't know why streamers weren't in caverns originally */
-		/* more veins to mine in a mine */
 		smag = DUN_STR_MAG - rand_int(2);
 		sqtz = DUN_STR_QUA - rand_int(2);
 
-		/* Hack -- Add some magma streamers */
+		/* Add some magma streamers */
 		for (i = 0; i < smag; i++)
 		{
 			build_streamer(FEAT_MAGMA, DUN_STR_MC, 0, 0);
 		}
 
-		/* Hack -- Add some quartz streamers */
+		/* Add some quartz streamers */
 		for (i = 0; i < sqtz; i++)
 		{
 			build_streamer(FEAT_QUARTZ, DUN_STR_QC, 0, 0);
@@ -6926,7 +8017,7 @@ bool cavern_gen(void)
 	k = (p_ptr->depth / 3);
 	/* Basic amount (made more random) */
 	if (k > 8) k = 6 + rand_int(k-7); /* was randint(4)*/
-	else if (k < 5) k = 1 + randint(3);
+	else if (k < 4) k = 1 + randint(3);
 	if (k > 10) k = 9 + rand_int(3); /* cap */
 	/* k = MAX(MIN(p_ptr->depth / 3, 10), 2);  original from V code */
 
@@ -6950,11 +8041,11 @@ bool cavern_gen(void)
 	else if ((k <= 9) && (k > 3)) k = 2;
 	/* Put some monsters in the dungeon */
 	for (i = MIN_M_ALLOC_LEVEL + randint(8) + k; i > 0; i--)
-		alloc_monster(rand_int(5), TRUE);
+		alloc_monster(rand_int(6), TRUE);
 
 	/* Put some objects/gold in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, 3 + randint(7));
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, 3 + randint(5));
+	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
+	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
 
 	/* chance for shallow caverns to be lit (max dL28) */
 	if (litcave) 
@@ -6985,7 +8076,7 @@ static void cave_gen(void)
 {
 	int i, k, y, x, y1, x1;
 	int by, bx, evg, smag, sqtz;
-	int usedepth, roomnum, smsize = 0;
+	int usedepth, roomnum, smzchance, smsize = 0;
 
 	bool destroyed = FALSE;
 
@@ -7014,10 +8105,8 @@ static void cave_gen(void)
 	/* don't destroy themed levels (unless appropriate) */
 	/* only icky place, volcano, earth cave & dwarf mine are allowed to be destroyed */
 	if ((p_ptr->theme) && (!(p_ptr->theme == 3)) && (!(p_ptr->theme == 4)) &&
-		(!(p_ptr->theme == 5)) && (!(p_ptr->theme == 10)))
-	{
-		destroyed = FALSE;
-	}
+		(!(p_ptr->theme == 10)))
+			destroyed = FALSE;
 
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = DUNGEON_HGT / BLOCK_HGT;
@@ -7025,46 +8114,63 @@ static void cave_gen(void)
 	
 	/* vary the size of the dungeon (occationally) */
 	roomnum = DUN_ROOMS;
-	if (randint(100) < 6) /* 6 to 8, 100 only while testing */
+	if ((p_ptr->depth < 34) && (p_ptr->depth > 7)) smzchance = 5 + ((45-p_ptr->depth)/6);
+	else if ((p_ptr->depth > 7) && (p_ptr->depth < 45)) smzchance = 7;
+	else if (p_ptr->depth > 70) smzchance = 5;
+	else smzchance = 6;
+	/* very shallow levels are more often small */
+	if (p_ptr->depth < 8)
 	{
-		if (randint(100) < 65)
+		int blh = 9 - p_ptr->depth;
+		if (p_ptr->depth < 6) smzchance += blh * (blh+5);
+		/* (dL1 is always reduced size 104, dL2 84, dL3 66, dL4 50, dL5 36, dL6 24, dL7 14) */
+	}
+	if (randint(100) < smzchance)
+	{
+		int zdie = randint(100);
+		smzchance = randint(smzchance+2); /* for shallow levels (usually smzchance is 6) */
+		if (smzchance > 64) zdie = 85; /* 67 */
+		else if (smzchance > 44) zdie = 75; /* 75 */
+		else if (smzchance > 22) zdie = 1; /* 80 */
+		else if (smzchance > 9) zdie = 95; /* 83 */
+		if (zdie < 65)
 		{
 			roomnum = (roomnum * 4) / 5;
 			dun->row_rooms = (dun->row_rooms * 4) / 5;
 			dun->col_rooms = (dun->col_rooms * 4) / 5;
-			if (cheat_room) msg_print("(smaller level: 4/5)");
+			if (cheat_room) msg_print("(smaller level: ~80%)"); /* 4/5 */
 			smsize = 2;
 		}
-		else if (randint(100) < 34)
+		else if (zdie < 77)
 		{
 			roomnum = (roomnum * 3) / 4;
 			dun->row_rooms = (dun->row_rooms * 3) / 4;
 			dun->col_rooms = (dun->col_rooms * 3) / 4;
-			if (cheat_room) msg_print("(smaller level: 3/4)");
+			if (cheat_room) msg_print("(smaller level: ~75%)"); /* 3/4 */
 			smsize = 3;
 		}
-		else if (randint(100) < 12) 
+		else if (zdie < 82) 
 		{
 			roomnum = (roomnum * 6) / 7;
 			dun->row_rooms = (dun->row_rooms * 7) / 8;
 			dun->col_rooms = (dun->col_rooms * 7) / 8;
-			if (cheat_room) msg_print("(smaller level: 6/7)");
+			if (cheat_room) msg_print("(smaller level: ~86%)"); /* 6/7 */
 		}
-		else if (randint(100) < 12) 
+		else if (zdie < 87) 
 		{
 			roomnum = (roomnum * 2) / 3;
 			dun->row_rooms = (dun->row_rooms * 3) / 5;
 			dun->col_rooms = (dun->col_rooms * 3) / 5;
-			if (cheat_room) msg_print("(smaller level: 2/3)");
+			if (cheat_room) msg_print("(smaller level: ~67%)"); /* 2/3 */
 			smsize = 4;
 			destroyed = FALSE;
 		}
-		else if (randint(100) < 12) 
+		else if (zdie < 92) 
 		{
 			roomnum = roomnum / 2;
 			dun->row_rooms = (dun->row_rooms * 6) / 10;
 			dun->col_rooms = (dun->col_rooms * 6) / 10;
-			if (cheat_room) msg_print("(smaller level: half");
+			if (cheat_room) msg_print("(smaller level: 50%");
 			smsize = 4;
 			destroyed = FALSE;
 		}
@@ -7073,7 +8179,7 @@ static void cave_gen(void)
 			roomnum = (roomnum * 5) / 6;
 			dun->row_rooms = (dun->row_rooms * 5) / 6;
 			dun->col_rooms = (dun->col_rooms * 5) / 6;
-			if (cheat_room) msg_print("(smaller level: 5/6)");
+			if (cheat_room) msg_print("(smaller level: ~83%)");
 			smsize = 1;
 		}
 	}
@@ -7098,6 +8204,7 @@ static void cave_gen(void)
 	for (i = 0; i < roomnum; i++)
 	{
 		int roomodds = DUN_UNUSUAL;
+
 		/* Pick a block for the room */
 		by = rand_int(dun->row_rooms);
 		bx = rand_int(dun->col_rooms);
@@ -7152,7 +8259,7 @@ static void cave_gen(void)
 		
 		usedepth = p_ptr->depth; /* only used for rolling against roomodds */
         /* occationally use deeper fake room depth for more randomness */
-        if ((p_ptr->depth > 4) && (p_ptr->depth < 99) && (rand_int(100) < 2))
+        if ((p_ptr->depth > 4) && (p_ptr->depth < 99) && (rand_int(100) < 3))
         {
             if (p_ptr->depth < 45) usedepth = 50;
             else usedepth += 2 + rand_int(9);
@@ -7174,11 +8281,14 @@ static void cave_gen(void)
 			else if (usedepth >= 55) gvchance = p_ptr->depth + 10;
 			else if (p_ptr->depth >= 10) gvchance = p_ptr->depth - 5;
 
-			if (p_ptr->seek_vault) 
-				gvchance += (p_ptr->find_vault * 2) / 3;
+			if (p_ptr->seek_vault) gvchance += (p_ptr->find_vault * 3) / 4;
 
 			/* roll to attempt a greater vault */
-			if ((rand_int(1000) < gvchance) && room_build(by, bx, 8)) continue;
+			if (rand_int(1000) < gvchance)
+			{ 
+				if (room_build(by, bx, 8)) continue;
+				else if (room_build(by, bx, 8)) continue; /* try a second time */
+			}
 		}
         
 		/* Attempt an unusual room */
@@ -7267,11 +8377,11 @@ static void cave_gen(void)
 			/* rare empty medium vault */
 			if ((k == 2) && (rand_int(100) < evg+42) && (p_ptr->depth > 15) && room_build(by, bx, 12)) continue;
 
-			/* empty vault */
-			if ((k < 35) && room_build(by, bx, 9)) continue;
+			/* empty vault (was 35) */
+			if ((k < 40) && room_build(by, bx, 9)) continue;
 
 			/* another chance for overlapping room */
-			if ((k < 38) && room_build(by, bx, 2)) continue;
+			if ((k < 42) && room_build(by, bx, 2)) continue;
 		}
 
 		/* Attempt a trivial room */
@@ -7347,6 +8457,9 @@ static void cave_gen(void)
 		x = dun->cent[i].x;
 	}
 
+	/* generate doors in doorways of rooms */
+	doors_in_doorways();
+
 	/* Place intersection doors */
 	for (i = 0; i < dun->door_n; i++)
 	{
@@ -7400,30 +8513,32 @@ static void cave_gen(void)
 		else build_streamer(FEAT_QUARTZ, DUN_STR_QC, 0, 0);
 	}
 
-
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
 
 
+	/* small levels don't need as many staircases */
+	if (smsize > 1) alloc_stairs(FEAT_MORE, 3, 3);
 	/* Place 3 or 4 down stairs near some walls */
-	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
+	else alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);		
 
 	/* Place 1 or 2 up stairs near some walls */
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
 	k = (p_ptr->depth / 3);
+	if (k > 15) k = 15;
 	/* Basic amount (made more random) */
 	if (k > 9) k = 7 + rand_int(k-6); /* was randint(4)*/
-	else if (k < 6) k = 1 + randint(3);
+	else if (k < 5) k = 1 + randint(3);
 	
 	/* reduce amount slightly for smaller levels */
-	if ((smsize > 1) && (k > 12)) k -= 2 + rand_int(smsize);
-	else if (smsize > 1) k -= 1 + rand_int(smsize);
+	if ((smsize > 1) && (k > 10)) k = 11 - rand_int(smsize+1);
+	if (smsize > 1) k -= randint(smsize);
 	else if ((smsize) && (randint(100) < 50)) k -= 1;
 	if (k < 2) k = 2;
 
 	/* separated into another function */
-	/* (makes terrain appropriate for the theme, if any) */
+	/* (makes terrain appropriate for the theme, if any. includes traps, rubble, trees, etc) */
 	alloc_terrain(k, 0);
 
 	/* Determine the character location */
@@ -7807,11 +8922,9 @@ void generate_cave(void)
 		/* Mega-Hack -- no player yet */
 		p_ptr->px = p_ptr->py = 0;
 
-
 		/* Hack -- illegal panel */
 		Term->offset_y = DUNGEON_HGT;
 		Term->offset_x = DUNGEON_WID;
-
 
 		/* Reset the monster generation level */
 		monster_level = p_ptr->depth;
@@ -7831,7 +8944,7 @@ void generate_cave(void)
 		{
 			bool do_theme = FALSE;
 			/* usually 7% chance */
-			int themechance = 7;
+			int themechance = 7; /* */
 			/* for testing *** themechance = 75; */
 			/* less likely close to Morgoth */
 			if ((p_ptr->depth > 95) && (p_ptr->depth < 99)) themechance -= 2;
@@ -7847,24 +8960,26 @@ void generate_cave(void)
 			if ((do_theme) || (p_ptr->speclev == 20) || 
 				(p_ptr->speclev == 40) || (p_ptr->speclev == 60))
 			{
-				int dieth = rand_int(91 + ((p_ptr->depth*3)/4) + ((badluck+1)/2));
+				int dieth = rand_int(91 + (p_ptr->depth*3)/4 + (badluck+1)/2);
 				/* occationally randomize more */
-				if (randint(100) < 10) dieth = rand_int(136) + 2;
+				if (randint(100) < 10) dieth = randint(137) + 1;
 				/* icky place and bug cave meant for earlier levels */
-				if ((p_ptr->depth > 64) && (dieth < 21)) dieth = rand_int(136) + 4;
+				if ((p_ptr->depth > 64) && (dieth < 21)) dieth = rand_int(118) + 20;
 				if (dieth < 10) p_ptr->theme = 3; /* ICKY_PLACE */
 				else if (dieth < 20) p_ptr->theme = 11; /* BUG_CAVE */
 				else if (dieth < 31) p_ptr->theme = 2;  /* FFOREST */
 				else if (dieth < 43) p_ptr->theme = 1; /* CFOREST */
-				else if (dieth < 51) p_ptr->theme = 10; /* DWARF_MINE */
-				else if (dieth < 54) p_ptr->theme = 15; /* BARRACKS (less common) */
-				else if (dieth < 65) p_ptr->theme = 7; /* FULL_MOON */
+				else if (dieth < 55) p_ptr->theme = 10; /* DWARF_MINE */
+				else if (dieth < 58) p_ptr->theme = 15; /* BARRACKS (less common) */
+				else if (dieth < 69) p_ptr->theme = 7; /* FULL_MOON */
+#if 0 /* (removed) */
 				else if (dieth < 72) p_ptr->theme = 5; /* EARTHY_CAVE */
+#endif
 				else if (dieth < 79) p_ptr->theme = 6; /* WINDY_CAVE */
 				else if (dieth < 87) p_ptr->theme = 4; /* VOLCANO */
 				else if (dieth < 98) p_ptr->theme = 9; /* SWAMP */
 				else if (dieth < 110) p_ptr->theme = 8; /* CASTLE */
-				else if (dieth < 120) p_ptr->theme = 13; /* NIGHTMARE */
+				else if (dieth < 120) p_ptr->theme = 13; /* DARK_CITY */
 				else if (dieth < 130) p_ptr->theme = 12; /* GREPSE */
 				/* hell hall rare after dl105 */
 				else if ((dieth < 140) && (p_ptr->depth < 105)) p_ptr->theme = 14; /* hell hall */
@@ -7872,33 +8987,34 @@ void generate_cave(void)
 				else p_ptr->theme = randint(14);
 				/* reset theme die */
 				dieth = rand_int(91 + ((p_ptr->depth*3)/4) + ((badluck+1)/2));
-				/* scariest two themes never appear early */
-				if (((p_ptr->theme == 14) && (p_ptr->depth < 30)) ||
-					(((p_ptr->theme == 12) || (p_ptr->theme == 15)) && (p_ptr->depth < 15)))
+				/* scariest two themes never appear too early */
+				if ((((p_ptr->theme == 14) || (p_ptr->theme == 12)) && (p_ptr->depth < 15)) || 
+					((p_ptr->theme == 15) && (p_ptr->depth < 9)))
 				{
-					if (dieth < 9) p_ptr->theme = 1 + rand_int(3);
-					else if (dieth < 17) p_ptr->theme = 9 + rand_int(3);
-					else if ((dieth < 24) && (p_ptr->depth > 10)) p_ptr->theme = 7; /* FULL_MOON */
-					else if ((dieth < 32) && (p_ptr->depth > 9)) p_ptr->theme = 15; /* BARRACKS */
+					if (dieth < 15) p_ptr->theme = 1 + rand_int(3);
+					else if (dieth < 30) p_ptr->theme = 9 + rand_int(3);
+					else if ((dieth < 45) && (p_ptr->depth > 5)) p_ptr->theme = 7; /* FULL_MOON */
 	                else p_ptr->theme = 0;
 				}
 				/* These not meant for very deep levels */
-				if (((p_ptr->theme == 2) || (p_ptr->theme == 10) ||
-					(p_ptr->theme == 15)) && (p_ptr->depth > 79))
+				if (((p_ptr->theme == 2) || (p_ptr->theme == 9)) && 
+					(p_ptr->depth > 79) && (randint(100) < 80))
 				{
 					if (dieth > 110) p_ptr->theme = 12 + rand_int(3);
 					else if (dieth > 68) p_ptr->theme = 0;
-					else if ((dieth > 59) && (p_ptr->theme == 2)) p_ptr->theme = 16;
+					else if (dieth > 59) p_ptr->theme = 4;
+					else if (dieth > 49) p_ptr->theme = 6;
 				}
 				/* the very last levels have restricted themes (50% EARTHY_CAVE) */
 				if (p_ptr->depth > 121)
 				{
-					int blah = randint(8);
+					int blah = randint(7);
 					if (blah == 1) p_ptr->theme = 13; /* NIGHTMARE */
 					else if (blah == 2) p_ptr->theme = 12; /* GREPSE */
 					else if (blah == 3) p_ptr->theme = 4; /* VOLCANO */
 					else if (blah == 4) p_ptr->theme = 9; /* SWAMP */
-					else p_ptr->theme = 5; /* EARTHY_CAVE */
+					else if (blah == 7) p_ptr->theme = 6; /* giants & titans (air) */
+					else p_ptr->theme = 10; /* EARTHY_CAVE (DWARF_MINE minus dwarves, orcs & gnomes) */
 				}
 			}
 			else p_ptr->theme = 0;			
@@ -7933,10 +9049,10 @@ void generate_cave(void)
 		/* barracks are never caverns */
 		if (p_ptr->theme == 15) cavernodd = 0;
 		/* forests are caverns with a lot of trees (dwarf mines also very likely) */
-		if ((p_ptr->theme == 1) || (p_ptr->theme == 2) || (p_ptr->theme == 10)) cavernodd = 20;
-		/* icky place, earth cave, windy cave, volcano, swamp more likely */
-		if ((p_ptr->theme == 4) || (p_ptr->theme == 5) || (p_ptr->theme == 9)) cavernodd = 15;
-		if ((p_ptr->theme == 6) || (p_ptr->theme == 3)) cavernodd = 14;
+		if ((p_ptr->theme == 1) || (p_ptr->theme == 2) || (p_ptr->theme == 10)) cavernodd = 22;
+		/* icky place, windy cave, volcano, swamp more likely */
+		if ((p_ptr->theme == 4) || (p_ptr->theme == 9)) cavernodd = 15;
+		if ((p_ptr->theme == 6) || (p_ptr->theme == 3)) cavernodd = 12;
 		/* castle, hell hall, full moon less likely */
 		if ((p_ptr->theme == 8) || (p_ptr->theme == 14) || (p_ptr->theme == 7)) cavernodd = 5;
 
@@ -7956,13 +9072,26 @@ void generate_cave(void)
 		if (!p_ptr->depth) town_gen();
 		/* 9 chance, (90 only while testing) */
 		else if ((p_ptr->depth > 8) && (rand_int(100) < cavernodd) && 
-			(!(p_ptr->seek_vault)) && (!is_quest(p_ptr->depth)))
+			(!p_ptr->seek_vault) && (!is_quest(p_ptr->depth)))
 		{
 			/* in case of failure */
 			if (!cavern_gen()) cave_gen(); 
 		}
 		/* Build a normal dungeon */
 		else cave_gen();
+		
+		/* If there's no room rune on the level, maybe create one */
+		if ((!save_runes()) && (p_ptr->depth > 5))
+		{
+			int runec = 4;
+			/* no runes in caverns (they'll be allowed later rarely, but I'll have to tweak a few things first) */
+			if (p_ptr->speclev == 1) runec = 0;
+			else if (p_ptr->depth < 12) runec -= 1;
+			if (rand_int(100) < runec)
+			{
+				alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_RUNE, 1);
+			}
+		}
 
 		/* Extract the feeling (tentative scale) */
 		if (rating > 100) feeling = 2;
@@ -8067,7 +9196,7 @@ void generate_cave(void)
 		}
 		
 		/* removing level feelings also turns on a much milder version of auto-scum */
-		else if (((level_numb) || (randint(100) < 50)) && (num < 100) && (p_ptr->depth > 9))
+		else if (((level_numb) || (randint(100) < 40)) && (num < 100) && (p_ptr->depth > 9))
 		{
 			/* Usually require at least a little "goodness" */
 			if ((randint(100) < 68 + goodluck - badluck) && ((feeling > 9) ||
@@ -8086,12 +9215,14 @@ void generate_cave(void)
 				okay = FALSE;
 			}
 		}
+#if notsure
 		/* occationally have a false feeling */
 		if ((rand_int(105) < badluck + 1) && (feeling > 1) && (!cheat_noid))
 		{
             if (feeling < 6) feeling += randint(5);
             else feeling -= randint(3);
         }
+#endif
 
 		/* Accept */
 		if (okay) break;
@@ -8118,7 +9249,7 @@ void generate_cave(void)
     }
     else if (p_ptr->find_vault >= 5) p_ptr->find_vault -= 5;
 
-	/* Remember when this level was "created" */
+	/* Remember when this level was created */
 	old_turn = turn;
 	p_ptr->danger_turn = turn;
 }

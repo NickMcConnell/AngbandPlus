@@ -1410,6 +1410,9 @@ static void display_player_sust_info(void)
 	/* Header */
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
 
+	/* Equippy */
+	display_player_equippy(row, col);
+
 	/* Process equipment */
 	for (i = INVEN_WIELD; i < END_EQUIPMENT; ++i)
 	{
@@ -1467,7 +1470,7 @@ static void display_player_sust_info(void)
 			}
 
 			/* Dump proper character */
-			Term_putch(col, row+stat, a, c);
+			Term_putch(col, row+stat+1, a, c);
 		}
 
 		/* Advance */
@@ -1493,17 +1496,14 @@ static void display_player_sust_info(void)
 		}
 
 		/* Dump */
-		Term_putch(col, row+stat, a, c);
+		Term_putch(col, row+stat+1, a, c);
 	}
 
 	/* Column */
 	col = 26;
 
 	/* Footer */
-	c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col);
-
-	/* Equippy */
-	display_player_equippy(row+7, col);
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row+7, col);
 }
 
 

@@ -2844,7 +2844,7 @@ bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, char
 	{
 		case '*':
 		{
-			*len = randname_make(RANDNAME_TOLKIEN, 4, 8, buf, buflen);
+			*len = randname_make(RANDNAME_TOLKIEN, 4 + rand_int(3), 9, buf, buflen);
 			buf[0] = toupper((unsigned char) buf[0]);
 			*curs = 0;
 			result = FALSE;
@@ -2852,7 +2852,7 @@ bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, char
 		}
 		case '@':
 		{
-			*len = randname_make(RANDNAME_SILLY, 4, 9, buf, buflen);
+			*len = randname_make(RANDNAME_SILLY, 4 + rand_int(3), 10, buf, buflen);
 			buf[0] = toupper((unsigned char) buf[0]);
 			*curs = 0;
 			result = FALSE;

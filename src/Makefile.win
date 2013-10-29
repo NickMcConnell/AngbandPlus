@@ -7,24 +7,24 @@ WINDRES = windres.exe
 RES  = DaJAngband1.3_private.res
 OBJ  = birth.o cave.o cmd0.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o spells3.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o win/readdib.o z-queue.o $(RES)
 LINKOBJ  = birth.o cave.o cmd0.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o spells3.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o win/readdib.o z-queue.o $(RES)
-LIBS =  -L"C:/Users/Public/Games/DJAdev/Dev-Cpp/lib" -lmingw32 -lwinmm -mwindows  -g3 
-INCS =  -I"C:/Users/Public/Games/DJAdev/Dev-Cpp/include" 
-CXXINCS =  -I"C:/Users/Public/Games/DJAdev/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Users/Public/Games/DJAdev/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Users/Public/Games/DJAdev/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Users/Public/Games/DJAdev/Dev-Cpp/include/c++/3.4.2"  -I"C:/Users/Public/Games/DJAdev/Dev-Cpp/include" 
-BIN  = ../DaJAngband130.exe
-CXXFLAGS = $(CXXINCS)   -g3
-CFLAGS = $(INCS) -mwindows -DWINDOWS -I   -g3
+LIBS =  -L"C:/Users/Public/Games/DaJAngbanddev/Dev-Cpp/lib" -lmingw32 -lwinmm -mwindows -lmingw32 -lwinmm -mwindows  -g3 
+INCS =  -I"C:/Users/Public/Games/DaJAngbanddev/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Users/Public/Games/DaJAngbanddev/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Users/Public/Games/DaJAngbanddev/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Users/Public/Games/DaJAngbanddev/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Users/Public/Games/DaJAngbanddev/Dev-Cpp/include/c++/3.4.2"  -I"C:/Users/Public/Games/DaJAngbanddev/Dev-Cpp/include" 
+BIN  = ../DaJAngband135.exe
+CXXFLAGS = $(CXXINCS)   -mwindows -DWINDOWS -I -g3
+CFLAGS = $(INCS) -mwindows -DWINDOWS -I   -mwindows -DWINDOWS -I -g3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before ../DaJAngband130.exe all-after
+all: all-before ../DaJAngband135.exe all-after
 
 
 clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CC) $(LINKOBJ) -o "..\DaJAngband130.exe" $(LIBS)
+	$(CC) $(LINKOBJ) -o "..\DaJAngband135.exe" $(LIBS)
 
 birth.o: birth.c
 	$(CC) -c birth.c -o birth.o $(CFLAGS)

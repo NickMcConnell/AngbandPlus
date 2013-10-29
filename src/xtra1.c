@@ -1446,7 +1446,6 @@ void window_stuff(void)
 
 
 
-
 /*** Update flag handler functions ***/
 
 /*
@@ -1461,9 +1460,7 @@ static void calc_spells(void)
 	int i, j, k, levels;
 	int num_allowed, num_known;
 	int percent_spells;
-
 	const magic_type *s_ptr;
-
 	s16b old_spells;
 
 	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
@@ -1688,6 +1685,10 @@ static void calc_mana(void)
 	/* Extract total mana */
 	msp = (long)adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 100;
 	
+	/* tourists get 1st spell at clvl 1, but shouldn't get as much mana */
+	if ((cp_ptr->spell_book == TV_LUCK_BOOK) && (cp_ptr->flags & CF_ALTERNATE_XP))
+		msp = (long)adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 125;
+	
 	/* war mages get 1.5x mana */
 	if ((cp_ptr->flags & CF_POWER_SHIELD) && (cp_ptr->spell_book == TV_MAGIC_BOOK))
     {
@@ -1874,11 +1875,9 @@ static void calc_torch(void)
 	s16b new_lite = 0;
 	int extra_lite = 0;
 
-
 	/* Ascertain lightness if in the town */
 	if (!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
 		burn_light = FALSE;
-
 
 	/* Examine all wielded objects, use the brightest */
 	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
@@ -1969,6 +1968,10 @@ static void calc_torch(void)
 	if (p_ptr->timed[TMD_DAYLIGHT]) new_lite = MIN(new_lite, 6);
 	else new_lite = MIN(new_lite, 5);
 	new_lite = MAX(new_lite, 0);
+
+	/* rune of the enveloping dark */
+	if ((p_ptr->roomeffect == 9) && (new_lite > 4)) new_lite = 4;
+	else if ((p_ptr->roomeffect == 9) && (new_lite > 1)) new_lite--;
 	
 	/* DARKSTEP sets light range to 1 */
 	if (p_ptr->timed[TMD_DARKSTEP]) new_lite = 1;
@@ -2126,6 +2129,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	p_ptr->peace = FALSE;
 	p_ptr->throwmult = 0;
 	p_ptr->telepathy = FALSE;
+	p_ptr->listening = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
 	p_ptr->sustain_wis = FALSE;
@@ -2164,6 +2168,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
     p_ptr->brand_elec = FALSE;
     p_ptr->brand_pois = FALSE;
     p_ptr->accident = FALSE;
+	p_ptr->blinker = FALSE;
+	p_ptr->corrupting = FALSE;
     goodweap = 0; /* goodweap & badweap should probably be in the p_ptr thing */
     badweap = 0;
 
@@ -2218,7 +2224,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += 2;
 	if (f3 & (TR3_BR_SHIELD)) p_ptr->breath_shield = TRUE;
 
-	/* wierd flags */
+	/* wierd flags (this is never used here) */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
 	/* Bad flags */
@@ -2369,10 +2375,10 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (i == INVEN_ARM) yshield = TRUE;
 
         /* DJA: melee branding from elemental rings */
-        /* (no getting a brand from something wielded in off-hand */
-        /*  since you can use a main gauche as a shield now) */
-        if ((i == INVEN_WIELD) || (i == INVEN_LEFT) || (i == INVEN_RIGHT))
+/* (now getting a brand from something wielded in off-hand is allowed because it's only x2) */
+        if ((i == INVEN_ARM) || (i == INVEN_LEFT) || (i == INVEN_RIGHT) || (i == INVEN_HANDS))
         { 
+			/* these are for x2 brands only now */
 	       if (f1 & (TR1_BRAND_POIS)) p_ptr->brand_pois = TRUE;
 	       if (f1 & (TR1_BRAND_FIRE)) p_ptr->brand_fire = TRUE;
 	       if (f1 & (TR1_BRAND_ACID)) p_ptr->brand_acid = TRUE;
@@ -2380,15 +2386,17 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	       if (f1 & (TR1_BRAND_COLD)) p_ptr->brand_cold = TRUE;
         }
 
-	    /* Sentient Object & BLESSED flags */
-	    if ((f3 & (TR3_BLESSED)) && (i == INVEN_WIELD)) p_ptr->bless_blade = TRUE;
-	    if (f3 & (TR3_GOOD_WEAP)) goodweap += 1;
-	    if ((f3 & (TR3_BAD_WEAP)) && (!o_ptr->blessed)) badweap += 1;
-	    if ((f2 & (TR2_CORRUPT)) && (!o_ptr->blessed))
-	    {
-           if (p_ptr->corrupt < 1) p_ptr->corrupt = 1;
+		/* Sentient Object & BLESSED flags */
+		if ((f3 & (TR3_BLESSED)) && (i == INVEN_WIELD)) p_ptr->bless_blade = TRUE;
+		if (f3 & (TR3_GOOD_WEAP)) goodweap += 1;
+		if ((f3 & (TR3_BAD_WEAP)) && (!o_ptr->blessed)) badweap += 1;
+		if ((f2 & (TR2_CORRUPT)) && (!o_ptr->blessed))
+		{
+			/* if (p_ptr->corrupt < 1) p_ptr->corrupt = 1; */
            if (p_ptr->corrupt > 45) badweap += 1;
            else if ((p_ptr->corrupt > 35) && (badweap < 1)) badweap += 1;
+           /* weilding a corrupting weapon */
+           p_ptr->corrupting = TRUE;
         }
 
 		/* Bad flags */
@@ -2399,6 +2407,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f2 & (TR2_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
   	    if (f2 & (TR2_STOPREGEN)) p_ptr->stopregen = TRUE;
 		if (f2 & (TR2_DANGER)) p_ptr->accident = TRUE;
+		/* if () p_ptr->blinker = TRUE; (doesn't have an object flag yet) */
         /* perma-cursed items re-curse themselves */
   	    if (f3 & (TR3_PERMA_CURSE))
   	    {
@@ -2511,10 +2520,38 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/* check niceness */
 	if (cp_ptr->spell_book == TV_DARK_BOOK) p_ptr->nice = FALSE;
-	if ((!o_ptr->blessed) && (f3 & (TR3_BAD_WEAP)))
+	if ((!o_ptr->blessed) && (f3 & (TR3_BAD_WEAP))) p_ptr->nice = FALSE;
+
+
+	/*** Luck check ***/
+	if (p_ptr->luck > PY_LUCKCHECK_MAX) p_ptr->luck = PY_LUCKCHECK_MAX;
+	if (p_ptr->luck < PY_LUCKCHECK_MIN) p_ptr->luck = PY_LUCKCHECK_MIN;
+	/* black magic users have a lower max luck */
+    /* and those who pray don't rely on luck as much */
+	if (((cp_ptr->spell_book == TV_DARK_BOOK) || (cp_ptr->spell_book == TV_PRAYER_BOOK)) && 
+       (p_ptr->luck > PY_LUCKCHECK_MAX - 2))
 	{
-		p_ptr->nice = FALSE;
-	}
+       p_ptr->luck = PY_LUCKCHECK_MAX - 2;
+    }
+	/* set maximum luck */
+	if (p_ptr->maxluck < p_ptr->luck) p_ptr->maxluck = p_ptr->luck;
+	/* golems always have neutral base luck rating */
+	if (p_ptr->prace == 16) p_ptr->luck = 20;
+
+    /* reset goodluck and badluck (p_ptr->luck == 20 is neutral) */
+	/* (some timed effects (below) give temporary goodluck or badluck) */
+    goodluck = 0;
+    if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
+    badluck = 0;
+    if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
+    
+    /* luck from equipment (not applied to permanent luck) */
+    if (eqluck > 0) goodluck += eqluck;
+    if (eqluck < 0) badluck += ABS(eqluck);
+
+	/* check silver & slime */
+	if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+	if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 
 
     /*** track sentient equipment ***/    
@@ -2529,7 +2566,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
           if (goodweap < badweap) magicmod = 0;
        }
     }
-	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
+	else if (cp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
        if (goodweap > 0) magicmod = 6;
        if (badweap > 0) magicmod = 9;
@@ -2539,8 +2576,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
           if (goodweap > badweap) magicmod = 7;
           if (goodweap < badweap) magicmod = 8;
        }
-    }          
-    if ((cp_ptr->spell_book != TV_PRAYER_BOOK) && (cp_ptr->spell_book != TV_DARK_BOOK))
+    }
+    else
 	{
        if (badweap > 0) magicmod = 18;
        if (goodweap > 0) magicmod = 19;
@@ -2551,6 +2588,13 @@ void calc_bonuses(object_type inventory[], bool killmess)
           if (goodweap > badweap) magicmod = 22;
        }
     }
+    
+	/* conflicting equipment may raise bad luck */
+	if ((magicmod == 2) || (magicmod == 3) || (magicmod == 8) || (magicmod == 9) ||
+		(magicmod == 20))  badluck += 2;
+	if (magicmod == 21) badluck += 1;
+	/* co-aligned equipment */
+	if (((magicmod == 4) || (magicmod == 6)) && (goodluck < 8)) goodluck += 1;
 
 	/*** Handle stats ***/
 
@@ -2593,36 +2637,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Save the new index */
 		p_ptr->stat_ind[i] = ind;
 	}
-
-	/*** Luck check ***/
-	if (p_ptr->luck > PY_LUCKCHECK_MAX) p_ptr->luck = PY_LUCKCHECK_MAX;
-	if (p_ptr->luck < PY_LUCKCHECK_MIN) p_ptr->luck = PY_LUCKCHECK_MIN;
-	/* black magic users have a lower max luck */
-    /* and those who pray don't rely on luck as much */
-	if (((cp_ptr->spell_book == TV_DARK_BOOK) || (cp_ptr->spell_book == TV_PRAYER_BOOK)) && 
-       (p_ptr->luck > PY_LUCKCHECK_MAX - 2))
-	{
-       p_ptr->luck = PY_LUCKCHECK_MAX - 2;
-    }
-	/* set maximum luck */
-	if (p_ptr->maxluck < p_ptr->luck) p_ptr->maxluck = p_ptr->luck;
-	/* golems always have neutral base luck rating */
-	if (p_ptr->prace == 16) p_ptr->luck = 20;
-
-    /* reset goodluck and badluck (p_ptr->luck == 20 is neutral) */
-	/* (some timed effects (below) give temporary goodluck or badluck) */
-    goodluck = 0;
-    if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
-    badluck = 0;
-    if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
-    
-    /* luck from equipment (not applied to permanent luck) */
-    if (eqluck > 0) goodluck += eqluck;
-    if (eqluck < 0) badluck += ABS(eqluck);
-
-	/* check silver & slime */
-	if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-	if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 
 	/*** Temporary flags ***/
 
@@ -2700,6 +2714,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
 		p_ptr->telecontrol = TRUE;
 	}
+	
+	/* involuntary blinking */
+	if (p_ptr->timed[TMD_BLINKER])
+	{
+		p_ptr->blinker = TRUE;
+	}
 
 	/* being held by a monster makes it hard to do a lot of things */
 	if (p_ptr->timed[TMD_BEAR_HOLD])
@@ -2748,6 +2768,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* also nullifies speed adjustment of TERROR, STONESKIN, and SUPER_ROGUE */
 	if ((p_ptr->timed[TMD_SUST_SPEED]) && (!killmess))
 	{
+		/* (paranoia: SUST_SPEED should prevent SLOW before it happens) */
 		if (p_ptr->timed[TMD_SLOW]) (void)clear_timed(TMD_SLOW);
 		p_ptr->sustain_dex = TRUE;
 	}
@@ -2790,6 +2811,11 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (p_ptr->timed[TMD_WSHIELD])
     {
         p_ptr->skills[SKILL_STL] += 1;
+    }
+    /* being stinky lowers stealth */
+	if (p_ptr->timed[TMD_STINKY])
+    {
+        p_ptr->skills[SKILL_STL] -= 2;
     }
 
 	/* Temporary "Hero" */
@@ -2846,9 +2872,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Temporary "stoneskin" */
 	if (p_ptr->timed[TMD_STONESKIN])
 	{
-        if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->pspeed -= 5;
+        if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->pspeed -= 4;
 		p_ptr->to_a += 30;
 		p_ptr->dis_to_a += 30;
+		/* added a couple good effects to stoneskin to make it possibly worthwhile */
+		p_ptr->resist_shard = TRUE;
+		p_ptr->resist_slime = TRUE;
 	}
 
 	/* water slows you down */
@@ -2861,7 +2890,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
     /* Temporary "desperate to escape" (cannot melee, shoot, or cast) */
 	if (p_ptr->timed[TMD_TERROR])
 	{
-        if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->pspeed += 11;
+		(void)clear_timed(TMD_FATIGUE); /* adrenaline */
+		if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->pspeed += 11;
 		p_ptr->to_a += 30;
 		p_ptr->dis_to_a += 27;
 	    p_ptr->skills[SKILL_FOS] -= 2;
@@ -2881,8 +2911,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->pspeed += 5;
 	}
 
-	/* current only used if you violate the emergency escape shield */
-	/* may be used for other things later */
+	/* currently only used if you violate the emergency escape shield */
+	/* may be used for other things later (also drain energy trap for non-casting classes) */
 	if (p_ptr->timed[TMD_FATIGUE])
 	{
 		if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->pspeed -= 5;
@@ -3076,6 +3106,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	else if (p_ptr->timed[TMD_WSINFRA])
 	{
 		p_ptr->skills[SKILL_FOS] += 5;
+	}
+
+	/* */
+	if (p_ptr->timed[TMD_LISTENING])
+	{
+		p_ptr->listening = TRUE;
 	}
 	
     /* Peace reduces number of blows by 1, makes criticals less likely */
@@ -3291,9 +3327,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/*** Modify skills ***/
 
 	/* Affect Skill -- stealth (bonus one) */
-	p_ptr->skills[SKILL_STL] += 1;
+	/* removing the extra +1 because most actions make less noise than before. */
+	/* p_ptr->skills[SKILL_STL] += 1; */
 	/* quieter when you are searching and moving slowly */
 	if (p_ptr->searching) p_ptr->skills[SKILL_STL] += 1;
+	/* room of silence is silent */
+	if (p_ptr->roomeffect == 16) p_ptr->skills[SKILL_STL] += 1;
 	/* Tourist's stealth by charisma (base class stealth 0) */
 	if ((cp_ptr->flags & CF_ALTERNATE_XP) && (!(cp_ptr->flags & CF_CLASS_SPEED)))
 	{
@@ -3309,7 +3348,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		else if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] < 14) p_ptr->skills[SKILL_STL] -= 1; 
 
 		/* also (minor) luck bonus to saving throw- their class saving throw is very low  */
-		if (goodluck) p_ptr->skills[SKILL_SAV] += goodluck/3;
+		if (goodluck) p_ptr->skills[SKILL_SAV] += (goodluck+1)/3;
 	}
 
 	/* Affect Skill -- stealth (Level, by Class) */
@@ -3376,7 +3415,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (p_ptr->skills[SKILL_STL] < 0) p_ptr->skills[SKILL_STL] = 0;
 
 	/* Apply Skill -- Extract noise from stealth */
-	p_ptr->noise = (1L << (30 - p_ptr->skills[SKILL_STL]));
+	p_ptr->oppnoise = (1L << (30 - p_ptr->skills[SKILL_STL]));
 
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
@@ -3558,7 +3597,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
     /* can't put this under 'Analyze equipment' because */
     /* other types of items can be blessed the same way */
     if (o_ptr->blessed > 1) p_ptr->bless_blade = TRUE;
-    
+
 	/* Priest weapon penalty for non-blessed edged weapons */
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
 	   ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
@@ -3625,7 +3664,11 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
 		int str_index, dex_index;
 		bool staffbonus = FALSE;
-		int div;
+		int div, wspdm, estr;
+#if nextbreaksave
+#else
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+#endif
 
 		/* Enforce a minimum weight (tenth pounds) */
 		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
@@ -3637,31 +3680,42 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			if ((o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_STAFF)) staffbonus = TRUE;
 		}
 
+		/* new weapon speed modifier: modifies effective weapon weight for # of blows */
+#if nextbreaksave
+		wspdm = o_ptr->spdm;
+#else
+		wspdm = k_ptr->spdm;
+#endif
+		/* apply priest / druid bonus with double-weapon staffs */
+		if ((staffbonus) && (adj_str_blow[p_ptr->stat_ind[A_STR]] < 100)) wspdm += 2;
+
+		if (wspdm > 0)
+		{
+			while ((div >= 15) && (wspdm > 0))
+			{
+				div -= 10; /* (1lb) */
+				wspdm--;
+			}
+		}
+		else if (wspdm < 0)
+		{
+			div += ABS(wspdm * 10);
+			wspdm = 0;
+		}
+
 		/* Double weapons are easy to get more attacks with if not using a shield */
 		if ((o_ptr->sbdd) && (!yshield) && (!p_ptr->icky_wield))
 		{
-			div = ((o_ptr->weight/3 < cp_ptr->min_weight/2) ? cp_ptr->min_weight/2 : o_ptr->weight/3);
+			div = ((div/3 < cp_ptr->min_weight/2) ? cp_ptr->min_weight/2 : div/3);
 		}
 		/* slightly easier multiple attacks even with a shield */
 		else if ((o_ptr->sbdd) && (div > cp_ptr->min_weight))
 		{
 			div = (div * 3) / 4;
 		}
-		
-		/* harder to get multiple blows with diggers */
-		/* except for dwarven shovels/picks (they're heavier anyway) */
-		if ((o_ptr->tval == TV_DIGGING) && 
-			(!((o_ptr->sval == SV_DWARVEN_MATTOCK) ||
-			(o_ptr->sval == SV_DWARVEN_SHOVEL))))
-		{
-			div = (div * 5) / 4;
-		}
 
-		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
-
-		/* apply priest / druid bonus with double-weapon staffs */
-		if ((staffbonus) && (str_index < 6)) str_index += 1;
+		/* Get the strength vs weight (div is *10 now because att_multiply is two digits now) */
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR] + wspdm] * cp_ptr->att_multiply / (div*10));
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
@@ -3670,11 +3724,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
 
 		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
+		if (dex_index > 12) dex_index = 12;
 
 		/* Use the blows table */
 		p_ptr->num_blow = blows_table[str_index][dex_index];
-		
+
+#if shouldnolongerbeneeded		
 		/* very light weapons are very easy to get 2nd attack with */
 		if ((o_ptr->weight <= 30) && 
 			(dex_index >= 2) && (adj_str_blow[p_ptr->stat_ind[A_STR]] >= 15) &&
@@ -3688,6 +3743,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		{
 			p_ptr->num_blow = 2;
 		}
+#endif
 
 		/* Maximal value (+1 when using a double weapon with no shield) */
 		if ((o_ptr->sbdd) && (!yshield))
@@ -3713,7 +3769,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 		/* Boost digging skill by weapon weight. */
 		/* DJA: blades don't dig well unless they're branded with acid. */
-		if (p_ptr->brand_acid) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 9);
+		if (p_ptr->brand_acid) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);
 		else if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 22);
 		else if (o_ptr->tval == TV_HAFTED) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 15);
 		else p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);

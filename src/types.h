@@ -135,10 +135,8 @@ struct feature_type
 
 	s16b unused;		/* Extra bytes (unused) */
 
-
 	byte d_attr;		/* Default feature attribute */
 	char d_char;		/* Default feature character */
-
 
 	byte x_attr;		/* Desired feature attribute */
 	char x_char;		/* Desired feature character */
@@ -169,6 +167,7 @@ struct object_kind
 	byte dd, ds;		/* Damage dice/sides */
 	byte sbdd, sbds;	/* 2nd blow damage dice/sides for double weapons */
 	byte crc;			/* weapon crit chance (5 is +0) */
+	s16b spdm;          /* weapon speed modifier (finesse) */
 
 	s16b weight;		/* Weight */
 
@@ -296,6 +295,10 @@ struct ego_item_type
 	s16b max_to_h;		/* Maximum to-hit bonus */
 	s16b max_to_d;		/* Maximum to-dam bonus */
 	s16b max_to_a;		/* Maximum to-ac bonus */
+#if noxdice
+#else
+	s16b xdicec;        /* % chance for automatic +1 damage dice */
+#endif
 	s16b max_pval;		/* Maximum pval */
 
 	/* holds how many random attributes in its set */
@@ -404,6 +407,7 @@ struct monster_race
 	/* curpop is only ever incremented when a monster is killed */
 	/* cur_num keeps track of living monsters on the current level */
 	/* so when you check population always check curpop + cur_num */
+	s16b champ;             /* ~1 in N chance of becoming a pseudo-unique 'champion' */
 	
 	/* monster resistances */
 	s16b Rfire;
@@ -421,7 +425,7 @@ struct monster_race
 	s16b Rsilver;
 	s16b Rtaming;
 	s16b R4later;
-	s16b R4later2;
+	s16b summex; /* used for S_EXTRA spell */
 
 	byte d_attr;			/* Default monster attribute */
 	char d_char;			/* Default monster character */
@@ -512,7 +516,11 @@ struct vault_type
 	byte useMT;			/* can be used for empty vault */
 
 	byte rare;			/* rarity of vault design (lower = more common) */
+	byte vfloor;        /* possible alternate default floor terrain (usually water) */
 	byte itheme;		/* ideal theme for vault design */
+	byte ithemeb;		/* ideal theme for vault design */
+	byte ithemec;		/* ideal theme for vault design */
+	byte ithemed;		/* ideal theme for vault design */
 };
 
 
@@ -634,6 +642,9 @@ struct object_type
 	byte dd, ds;		/* Damage dice/sides */
 	byte sbdd, sbds;	/* 2nd blow damage dice/sides for double weapons */
 	byte crc;			/* weapon crit chance (5 is +0) */
+#if nextbreaksave
+	s16b spdm;          /* weapon speed modifier */
+#endif
 	
 	s16b blessed;       /* temporary blessing */
 	s16b enhance;		/* alchemically enhanced magic items */
@@ -711,6 +722,8 @@ struct monster_type
 	byte truce;			/* for paladin truce spell */
 	s16b disguised;		/* monster disguised as another monster or object */
 	/* (disguised is extracted for now, may need to add to savefiles later) */
+	s16b hear_noise;    /* counts the noise level that the monster hears */
+	byte pcloud;        /* 1 if the PC made the loudest noise, otherwise 0 */
 
 	byte cdis;			/* Current distance from player */
 
@@ -723,7 +736,19 @@ struct monster_type
 	s16b temp_death;    /* Monsters is only temporarily dead */
 	s16b ninelives;     /* counts how many times the monster has died temporarily */
 	s16b extra2;        /* for new hallucenation-> monster is an imaginary monster */
-	s16b extra3;        /* to prevent breaking savefiles later */
+	/* extra2 was either yes or no, now has different levels: */
+	/* 1= semi-real illusory monster (slightly more potent than normal illusion) */
+	/* 2= a semi-real illusory clone */
+	/* 3= normal illusory monsters (from hallucenation or summon illusion(s) spell) */
+	/* 4= an illsory clone of the monster who cast ILLUSION_CLONE (these cannot dissipate without true seeing) */
+	/* 9= dissipated illusory monsters (these have been recognised by the PC as an illusion) */
+	/* 10= static illusory monster (these never wake up -currently unused) */
+
+	/* extra3 is now used to hold the m_idx of the monster whose clone this is (for extra2 == 2 or 4) */
+	s16b extra3; /* that way it can clone aspects of the individual monster */
+	
+	s16b champ;         /* marks this monster as a pseudo-unique 'champion' */
+	char champion_name[40];	/* psuedo-unique names */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
@@ -822,7 +847,8 @@ struct store_type
 
 
 /*
- * A structure to hold class-dependent information on spells.
+ * A structure to hold class-dependent information on spells. (s_ptr)
+ * This is taken from p_class.txt (not spell.txt)
  */
 struct magic_type
 {
@@ -830,13 +856,14 @@ struct magic_type
 	byte smana;			/* Required mana (to cast) */
 	byte sfail;			/* Minimum chance of failure */
 	byte sexp;			/* Encoded experience bonus */
+	/* s16b difficulty */               /* for later */
 };
 
 
 /*
  * Information about the player's "magic"
  *
- * Note that a player with a "spell_book" of "zero" is illiterate.
+ * Note that a player with a spell_book of zero can't cast spells.
  */
 struct player_magic
 {
@@ -845,7 +872,7 @@ struct player_magic
 
 
 /*
- * And here's the structure for the "fixed" spell information
+ * And here's the structure for the fixed spell information (s_info, from spell.txt)
  */
 struct spell_type
 {
@@ -857,6 +884,8 @@ struct spell_type
 	byte tval;			/* Item type for book this spell is in */
 	byte sval;			/* Item sub-type for book (= book number) */
 	byte snum;			/* Position of spell within book */
+	byte spell_noise;   /* how much noise does this spell make */
+	s16b school;        /* spell type (for later) */
 
 	byte spell_index;	/* Index into player_magic array */
 };
@@ -1093,6 +1122,7 @@ struct player_type
 	s16b luck;          /* DJA: luck */
 	s16b maxluck;		/* DJA: maximum luck (so can restore lost luck) */
 	byte corrupt;       /* level of corruption */
+	bool corrupting;    /* weilding a corrupting item (extracted, not in savefiles) */
 	s16b spadjust;       /* amount of nonstandard speed adjustment */
 	byte learnedcontrol; /* teleport control skill */
 	s16b mimmic;		/* wand/rod sval to mimmic, +100 if rod (alchemy spell) */
@@ -1146,7 +1176,14 @@ struct player_type
 	bool leaving;			/* True if player is leaving */
 	bool seek_vault;        /* look for a vault on next level if TRUE */
 	byte find_vault;        /* how likely to find a vault (in savefile) */
-	int manafree;           /* activate staff of mana-free casting */ 
+	int manafree;           /* activate staff of mana-free casting */
+	/* room effects (ridx-1400) : 1=war, 2=pestilence, 3=famine, 4=flame, 5=ice, */
+	/* 6=acid, 7=lightning, 8=wind(no missiles), 9=darkness, 10=sundial, 11=hallu, */
+	/* 12=magic, 13=skull, 14=static, 15=cuts, 16=silence, 17=Titanium door, */
+	/* 18=rising dead, 19=blinker, 20=drainXP, 21=purewater, 22=grepse, 23=prison */
+	/* 24=healing, 25=blind 2nd sight (see end of monster.txt) */
+	s16b roomeffect;
+	/* byte roomeffectb; */
 
 	s16b held_m_idx;		/* Monster holding you (if any) */
 
@@ -1265,9 +1302,10 @@ struct player_type
 	bool darkvis;       /* darkvision */
 	bool nice;          /* nice */
 	bool peace;         /* less agressive */
+	bool listening;     /* much more likely to hear unseen monsters */
 	s16b throwmult;		/* multiplier for throwing weapons (uses pval (max4, min2)) */
 
-         /* branding damage from elemental rings: */
+	/* branding damage from elemental rings: (these are now x2, not x3) */
 	bool brand_cold;	/* */
 	bool brand_acid;	/* */
 	bool brand_elec;	/* */
@@ -1280,6 +1318,7 @@ struct player_type
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
 	bool exp_drain;		/* Experience draining */
+	bool blinker;       /* involuntary blinking */
 
 	bool telecontrol;   /* teleport control */
 
@@ -1303,7 +1342,7 @@ struct player_type
 	s16b skills[SKILL_MAX];	/* Skills */
 	
 	s16b palert;        /* Player alertness based on FOS skill (used to be global) */
-	u32b noise;			/* Derived from stealth */
+	u32b oppnoise;			/* Derived from stealth */
 
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
