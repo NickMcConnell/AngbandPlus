@@ -51,6 +51,8 @@ typedef struct
  * Would be really nice to move this to an edit file.
  *
  * Hack: weight of -1 => can't refine
+ *
+ * This is going to throw up a ton of warnings about compound literals.  It's okay.
  */
 const static recipe_type recipes[] =
 {																				/* <target>  	    <- {<component> (<weight>)}* */
@@ -58,10 +60,10 @@ const static recipe_type recipes[] =
 	{{33,  1}, 2, (component_type[]){{565, 2}, {567, 1}}, (int[]){20, 1}},		/* 1 Short Sword 	<- 2 iron, 1 leather */
 	{{37,  1}, 2, (component_type[]){{565, 3}, {567, 1}}, (int[]){30, 1}},		/* 1 Long Sword 	<- 3 iron, 1 leather */
 	{{50,  1}, 2, (component_type[]){{567, 2}, {569, 1}}, (int[]){20, 1}},		/* 1 Whip		 	<- 2 leather, 1 ash   */
-	{{90,  1}, 1, (component_type[]){{567, 2}		   }, (int[]){1}   },		/* 1 Sling		 	<- 2 leather          */
+	{{90,  1}, 1, (component_type[]){{567, 2}		   }, (int[]){1}    },		/* 1 Sling		 	<- 2 leather          */
 	{{91,  1}, 2, (component_type[]){{569, 2}, {567, 1}}, (int[]){20, 1}},		/* 1 Short Bow   	<- 2 ash, 1 leather   */
 	{{100, 5}, 1, (component_type[]){{569, 1} 	       }, (int[]){-1}   },		/* 5 Arrows  	 	<- 1 ash			  */
-	{{111, 5}, 1, (component_type[]){{565, 1}          }, (int[]){1}   },		/* 5 Iron Shot	 	<- 1 iron			  */
+	{{111, 5}, 1, (component_type[]){{565, 1}          }, (int[]){1}    },		/* 5 Iron Shot	 	<- 1 iron			  */
 	{{131, 1}, 1, (component_type[]){{567, 2}          }, (int[]){1}    },		/* 1 P. Leath. Bts 	<- 2 leather		  */
 	{{141, 1}, 2, (component_type[]){{565, 2}, {567, 1}}, (int[]){20, 1}},		/* 1 Metal Cap  	<- 2 iron, 1 leather */
 };
@@ -69,7 +71,8 @@ const static recipe_type recipes[] =
 /* Find the first recipe with this target.*/
 const recipe_type * lookup_recipe_target(int kind)
 {
-	for (int i = 0; i < N_ELEMENTS(recipes); ++i)
+	int i;
+	for (i = 0; i < N_ELEMENTS(recipes); ++i)
 	{
 		if (recipes[i].target.kind == kind)
 			return &recipes[i];
@@ -90,6 +93,15 @@ bool crafting_item_tester_hook_recipe_target(const object_type* o_ptr)
 void do_crafting_refine(void)
 {
 	int item_selected = -1;
+	int sum = 0;
+	int i;
+	int c = 0;
+	int r;
+	int kind;
+	object_type* o_ptr;
+	char objname_source[80];
+	char objname_extract[80];
+	const recipe_type* the_recipe;
 
 	/* Only display items we have a recipe for */
 	item_tester_hook = crafting_item_tester_hook_recipe_target;
@@ -98,14 +110,13 @@ void do_crafting_refine(void)
 	get_item(&item_selected, "Select an item to refine:", "You have nothing to refine.", USE_INVEN);
 	if (item_selected == -1)
 		return;
-	object_type* o_ptr = &(inventory[item_selected]);
-	char objname_source[80];
+	o_ptr = &(inventory[item_selected]);
 	object_desc(objname_source, 80, o_ptr, TRUE, ODESC_FULL);
 
 	/* Look up the recipe
 	 * Assumes that the first recipe with this item as the target is the refining recipe
 	 */
-	const recipe_type* the_recipe = lookup_recipe_target(o_ptr->k_idx);
+	the_recipe = lookup_recipe_target(o_ptr->k_idx);
 
 	/* Check for quantity */
 	if (o_ptr->number < the_recipe->target.quantity) {
@@ -123,8 +134,7 @@ void do_crafting_refine(void)
 	 * Right now, we spawn exactly one item.
 	 */
 	/* Calculate total weight */
-	int sum = 0;
-	for (int i = 0; i < the_recipe->num_components; ++i)
+	for (i = 0; i < the_recipe->num_components; ++i)
 	{
 		sum += the_recipe->weights[i];
 	}
@@ -132,20 +142,18 @@ void do_crafting_refine(void)
 	/* We choose a number between 0 and sum.  Then we start summing items from the beginnng
 	 * The first item to add enough weight to the pool that it exceeds our chosen int will be the one we choose.
 	 */
-	int r = randint0(sum);
-	int c = 0;
-	for (int i = 0; i < the_recipe->num_components; ++i)
+	r = randint0(sum);
+	for (i = 0; i < the_recipe->num_components; ++i)
 	{
 		c += the_recipe->weights[i];
 		if (the_recipe->weights[i] == 0) continue; /* Don't allow creations with 0 weight */
-		int kind = the_recipe->components[i].kind;
+		kind = the_recipe->components[i].kind;
 		if (c > r)
 		{
 			object_type* j_ptr = &o_list[o_pop()]; /* TODO: Handle failure of this routine gracefully */
 			object_prep(j_ptr, kind);
 			j_ptr->origin = ORIGIN_CRAFTED;
 			inven_carry(j_ptr);
-			char objname_extract[80];
 			object_desc(objname_extract, 80, j_ptr, TRUE, ODESC_FULL);
 			msg_format("You extract %s from %s.", objname_extract, objname_source);
 			break;
@@ -173,17 +181,20 @@ static void craft_recipe(const recipe_type* the_recipe)
 {
 	/* Holders for the selected ingredients */
 	int items_selected[MAX_COMPONENTS];
+	char prompt[80], error[80];
+	char o_name[80];
+	char objname[80];
+	int i;
+	object_type* j_ptr;
 
 	/* Choose the components -- make the user do this even if there's only one option.
 	 * That way, they'll have a harder time "accidentally" crafting stuff.
 	 */
-	for (int i = 0; i < the_recipe->num_components; ++i) /* N_ELEMENTS doesn't like the components array - I suspect it's stored oddly by c */
+	for (i = 0; i < the_recipe->num_components; ++i) /* N_ELEMENTS doesn't like the components array - I suspect it's stored oddly by c */
 	{
 		items_selected[i] = -1;
 		crafting_item_tester_recipe_ingredient_kind = the_recipe->components[i].kind;
 		item_tester_hook = crafting_item_tester_hook_recipe_ingredient;
-		char prompt[80], error[80];
-		char o_name[80];
 		object_kind_name(o_name, 80, the_recipe->components[i].kind, TRUE);
 		strnfmt(prompt, 80, "Select %s:", o_name);
 		strnfmt(error, 80, "Could not find %s.", o_name);
@@ -191,16 +202,21 @@ static void craft_recipe(const recipe_type* the_recipe)
 		/* TODO: verify that the user has enough quantity! */
 		if (items_selected[i] < 0)
 			return;
+
+		if (inventory[items_selected[i]].number < the_recipe->components[i].quantity) {
+			msg_format("Not enough %s - you need %d.", o_name, the_recipe->components[i].quantity);
+			return;
+		}
 	}
 
 	/* Now that all the components have been chosen, consume them */
-	for (int i = 0; i < the_recipe->num_components; ++i) {
+	for (i = 0; i < the_recipe->num_components; ++i) {
 		inventory[items_selected[i]].number -= the_recipe->components[i].quantity;
 		inven_item_optimize(items_selected[i]);
 	}
 
 	/* Now make the item. */
-	object_type* j_ptr = &o_list[o_pop()];
+	j_ptr = &o_list[o_pop()];
 	object_prep(j_ptr, the_recipe->target.kind);
 	j_ptr->origin = ORIGIN_CRAFTED;
 	j_ptr->number = the_recipe->target.quantity;
@@ -208,7 +224,6 @@ static void craft_recipe(const recipe_type* the_recipe)
 	object_known(j_ptr);
 	object_aware(j_ptr);
 	inven_carry(j_ptr);
-	char objname[80];
 	object_desc(objname, 80, j_ptr, TRUE, ODESC_FULL);
 	msg_format("You succesfully craft %s.", objname);
 }
