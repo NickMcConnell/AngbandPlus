@@ -188,6 +188,11 @@ void do_cmd_pyro()
 			screen_load();
 			return;
 		}
+
+		if (pyro_spell_info[A2I(tolower(choice))].level > p_ptr->lev)
+		{
+			continue;
+		}
 		
 		if (isupper(choice) && A2I(tolower(choice)) <= PYRO_PHOENIX)
 		{
@@ -196,11 +201,6 @@ void do_cmd_pyro()
 		}
 		
 		else if (A2I(choice) < 0 || A2I(choice) > PYRO_PHOENIX)
-		{
-			continue;
-		}
-		
-		if (pyro_spell_info[A2I(choice)].level > p_ptr->lev)
 		{
 			continue;
 		}

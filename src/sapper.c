@@ -61,13 +61,13 @@ bool cast_sapper_spell(int spell)
 	{
 		case SAP_FLARE:
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_LIGHT_WEAK, dir, 0, 10);
 			fire_ball(GF_FIRE, dir, damroll(4, 4), 1);
+			fire_ball(GF_LIGHT_WEAK, dir, 0, 10);
 			break;
 		case SAP_SMOKEBOMB:
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_DARK_WEAK, dir, 0, 10);
 			fire_ball(GF_POIS, dir, damroll(5, 15), 3);
+			fire_ball(GF_DARK_WEAK, dir, 0, 10);
 			break;
 		case SAP_BRAND_AMMO:
 			if (!brand_ammo()) return FALSE;
@@ -112,12 +112,6 @@ int get_sapper_fail(int spell)
 	
 	/* Stat adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->state.stat_ind[cp_ptr->spell_stat]] - 1);
-	
-	/* Mana adjustment */
-	if (p_ptr->csp < sapper_spell_info[spell].cost)
-	{
-		chance += 5 * (p_ptr->csp - sapper_spell_info[spell].cost);
-	}
 	
 	/* Get the minimum fail rate */
 	minfail = adj_mag_fail[p_ptr->state.stat_ind[cp_ptr->spell_stat]];
@@ -197,14 +191,21 @@ void do_cmd_sapper(void)
 			screen_load();
 			return;
 		}
+
+		
+		if (sapper_spell_info[A2I(tolower(choice))].level > p_ptr->lev)
+		{
+			continue;
+		}
 		
 		if (A2I(choice) < 0 || A2I(choice) > SAP_CONCUSSOR)
 		{
 			continue;
 		}
-		
-		if (sapper_spell_info[A2I(choice)].level > p_ptr->lev)
+
+		if (p_ptr->csp < sapper_spell_info[A2I(choice)].cost)
 		{
+			msg_print("You are too tired to use this recipe.");
 			continue;
 		}
 		
@@ -212,7 +213,6 @@ void do_cmd_sapper(void)
 		if (fail_sapper_spell(A2I(choice)) || cast_sapper_spell(A2I(choice)))
 		{
 			p_ptr->csp -= sapper_spell_info[A2I(choice)].cost;
-			if (p_ptr->csp < 0) p_ptr->csp = 0;
 			p_ptr->redraw |= (PR_MANA);
 			p_ptr->energy_use = 100;
 		}

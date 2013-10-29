@@ -65,7 +65,7 @@ bool cast_avatar_spell(int spell)
 			(void)clear_timed(TMD_CUT, TRUE);
 			break;
 		case AV_WEIGH_MAGIC:
-			if (!ident_spell()) return;
+			if (!ident_spell()) return FALSE;
 			break;
 		case AV_DIVINE_FURY:
 			(void)inc_timed(TMD_SHERO, randint1(50) + plev, TRUE);
@@ -81,7 +81,7 @@ bool cast_avatar_spell(int spell)
 			break;
 		case AV_DELUGE:
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_WATER, dir, 9 * plev, plev);
+			fire_ball(GF_WATER, dir, 9 * plev, plev / 2);
 			break;
 	}
 
@@ -132,7 +132,7 @@ void print_avatar_stat(int spell)
 			msg_format("damage %d * 2", 3 * plev);
 			break;
 		case AV_DELUGE:
-			msg_format("damage %d radius %d", 9 * plev, plev);
+			msg_format("damage %d radius %d", 9 * plev, plev / 2);
 			break;
 		default:
 			break;
@@ -174,6 +174,12 @@ void do_cmd_avatar()
 			return;
 		}
 
+		/* Don't allow casting or info for unknown spells */
+		if (avatar_spell_info[A2I(tolower(choice))].level > p_ptr->lev)
+		{
+			continue;
+		}
+
 		/* Uppercase input gets spell info */
 		if (isupper(choice) && A2I(tolower(choice)) <= AV_DELUGE)
 		{
@@ -183,12 +189,6 @@ void do_cmd_avatar()
 
 		/* Ignore nonsensical input */
 		else if (A2I(choice) < 0 || A2I(choice) > AV_DELUGE)
-		{
-			continue;
-		}
-		
-		/* Don't allow the casting of unknown spells */
-		if (avatar_spell_info[A2I(choice)].level > p_ptr->lev)
 		{
 			continue;
 		}
