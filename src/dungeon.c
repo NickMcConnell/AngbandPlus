@@ -65,7 +65,28 @@ static Bool excellent_jewelry_p(const object_type *o_ptr)
  */
 int value_check_aux1(const object_type *o_ptr)
 {
-	/* Artifacts */
+	int good = 3;
+	int psskill; /* pseudo-skill */
+	
+	/* (none of this makes any difference if lower than level 13) */
+    if (p_ptr->lev >= 13)
+	{
+	    /* check cp_ptr->sense_base (lower is better) */
+		psskill = cp_ptr->sense_base / 6000;
+		/* knights are picky about which weapons they consider 'good' */
+		/* (and they tend to have slow pseudo) */
+		if (cp_ptr->flags & CF_KNIGHT) psskill -= 1;
+		/* limits */
+		if (psskill > 10) psskill = 10; /* priest, wizard & war mage */
+		if (psskill < 3) psskill = 3; /* warrior, barbarian & rogue */
+	
+		/* new: definition of 'good' changes with experience */
+		/* (it auto-IDs everything which pseudos as 'average' or 'decent' */
+		/* so this should make ID less tedious later in the game) */
+		good += (p_ptr->lev - 10) / psskill;
+	}
+    
+	/* Artifacts (doesn't matter because they auto-ID on pseudo) */
 	if (artifact_p(o_ptr))
 	{
 		/* Cursed/Broken */
@@ -99,11 +120,23 @@ int value_check_aux1(const object_type *o_ptr)
 	/* Broken items */
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
-	/* Good "armor" bonus */
-	if (o_ptr->to_a > 2) return (INSCRIP_GOOD);
-
 	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 2) return (INSCRIP_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d >= good) return (INSCRIP_GOOD);
+	
+	/* slightly scale down for armor */
+	if (good > 5)
+	{
+		good = (good * 3) / 4;
+		if (good < 5) good = 5;
+	}
+
+	/* Good "armor" bonus */
+	if (o_ptr->to_a >= good) return (INSCRIP_GOOD);
+
+	/* Good but not good enough to be called 'good' */
+/* (gets auto-IDed as if it were average and squelched as if it were good) */
+    if (o_ptr->to_h + o_ptr->to_d >= 3) return (INSCRIP_DECENT);
+	if (o_ptr->to_a >= 3) return (INSCRIP_DECENT);
 	
 	/* Default to "average" */
 	return (INSCRIP_AVERAGE);
@@ -132,11 +165,11 @@ static int value_check_aux2(const object_type *o_ptr)
 	/* Ego-Items -- except cursed/broken ones */
 	if (ego_item_p(o_ptr)) return (INSCRIP_GOOD);
 
-	/* Good armor bonus */
-	if (o_ptr->to_a > 2) return (INSCRIP_GOOD);
-
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 2) return (INSCRIP_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d >= 3) return (INSCRIP_GOOD);
+
+	/* Good armor bonus */
+	if (o_ptr->to_a >= 3) return (INSCRIP_GOOD);
 
 	/* No feeling */
 	return (0);
@@ -147,18 +180,16 @@ static int value_check_aux2(const object_type *o_ptr)
 /*
  * Sense the inventory
  */
-static void sense_inventory(void)
+void sense_inventory(void)
 {
-	int i;
+	int i, plevb;
 #ifdef EFG
 	bool sensedany;
 	int phase;
 #endif
 
 	int plev = p_ptr->lev;
-
 	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
-
 	int feel;
 
 	object_type *o_ptr;
@@ -171,29 +202,29 @@ static void sense_inventory(void)
 	/* No sensing when confused */
 	if (p_ptr->timed[TMD_CONFUSED]) return;
 
-	if (cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
+    /* plevb makes it a little faster (esp in the early game) */
+    if (cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
 	{
-		if (0 != rand_int(cp_ptr->sense_base / (plev * plev + cp_ptr->sense_div)))
+		if (plev + 3 < 6) plevb = 6;
+		else plevb = plev + 3;
+		if (0 != rand_int(cp_ptr->sense_base / (plev * plevb + cp_ptr->sense_div)))
 			return;
 	}
 	else
 	{
-		if (0 != rand_int(cp_ptr->sense_base / (plev + cp_ptr->sense_div)))
+		if (plev / 2 < 4) plevb = 4;
+		else plevb = plev / 2;
+        if (0 != rand_int(cp_ptr->sense_base / (plev * plevb + cp_ptr->sense_div)))
 			return;
 	}
 
 
 	/*** Sense everything ***/
 
-#ifdef EFG
 	/* EFGchange know non-pseudoed wielded items average when anything pseudos */
 	sensedany = FALSE;
 	phase;
 	for (phase = 0; phase <= 1; phase++) for (i = phase*INVEN_WIELD; i < INVEN_TOTAL; i++)
-#else
-	/* Check everything */
-	for (i = 0; i < INVEN_TOTAL; i++)
-#endif
 	{
 		bool okay = FALSE;
 
@@ -225,12 +256,10 @@ static void sense_inventory(void)
                  /* staffs and tusks can get egos so they should pseudo */
 			case TV_STAFF:
 			case TV_SKELETON:
-#ifdef EFG
 			/* EFGchange allow pseudo on jewelry */
 			case TV_LITE:
 			case TV_AMULET:
 			case TV_RING:
-#endif
 			{
 				okay = TRUE;
 				break;
@@ -240,17 +269,21 @@ static void sense_inventory(void)
 		/* Skip non-sense machines */
 		if (!okay) continue;
 
-#ifdef EFG
 		/* EFGchange know non-pseudoed wielded items average when anything pseudos */
 		/* anything that is fully pseudoed should have IDENT_SENSE */
 		/* semi pseudo like INDESTRUCTIBLE or SPLENDID does not */
-#else
+#if old
 		/* It's already been pseudo-ID'd */
 		if (o_ptr->pseudo &&
 		    o_ptr->pseudo != INSCRIP_INDESTRUCTIBLE) continue;
 #endif
 
-		/* It has already been sensed, do not sense it again */
+		/* egos on aware jewelry are automatically recognised so no need for pseudo */
+        if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) &&
+			(object_aware_p(o_ptr)) && (ego_item_p(o_ptr)))
+			o_ptr->ident |= (IDENT_SENSE);
+        
+        /* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
 
 		/* It is known, no information needed */
@@ -259,7 +292,7 @@ static void sense_inventory(void)
 		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* always sense if weight is different */
-		if (o_ptr->weight < k_ptr->weight) /* okay */;
+		if (o_ptr->weight != k_ptr->weight) /* okay */;
 		/* Occasional failure on inventory items */
 		else if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 
@@ -334,18 +367,19 @@ static void sense_inventory(void)
 		}
 		/* EFGchange make stuff that pseudos as average be as if identified */
 		/* ??? This does not pick up jewelry -- good or bad? */
-		if ((feel == INSCRIP_AVERAGE) && (object_aware_p(o_ptr)))
-			/* so you don't have to remember how many times enchanted "avg" longbow */
+		if (((feel == INSCRIP_AVERAGE) || (feel == INSCRIP_DECENT)) && 
+			(object_aware_p(o_ptr)))
 			object_known(o_ptr);
 
 		if (o_ptr->tval == TV_STAFF)
 		{
-           /* no squelching magic staffs by quality */
-        }
+			/* no squelching good magic staffs by quality */
+			if ((object_value(o_ptr) < 1) && (i < INVEN_WIELD))
+				p_ptr->notice |= PN_SQUELCH;
+		}
 		/* Set squelch flag as appropriate */
 		else if (i < INVEN_WIELD)
 			p_ptr->notice |= PN_SQUELCH;
-
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -355,6 +389,119 @@ static void sense_inventory(void)
 	}
 }
 
+#ifdef instantpseudo
+/*
+ * Get pseudo on one item
+ */
+bool sense_one(object_type *o_ptr)
+{
+	int i = 0;
+	int plevb, plev = p_ptr->lev;
+	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
+	int feel;
+	bool okay = FALSE;
+
+	object_kind *k_ptr;
+	char o_name[80];
+
+
+	/*** Check for "sensing" ***/
+
+	/* No sensing when confused */
+	if (p_ptr->timed[TMD_CONFUSED]) return FALSE;
+
+	/* It is known, no information needed */
+	if (object_known_p(o_ptr)) return FALSE;
+
+
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_BOW:
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		/* staffs and tusks can get egos so they should pseudo */
+		case TV_STAFF:
+		case TV_SKELETON:
+		{
+			okay = TRUE;
+			break;
+		}
+	}
+
+	/* Skip */
+	if (!okay) return FALSE;
+        
+	/* It has already been sensed, do not sense it again */
+	if (o_ptr->ident & (IDENT_SENSE)) return FALSE;
+
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	/* always sense if weight is different */
+	if (o_ptr->weight != k_ptr->weight) /* okay */;
+
+	/* Check for a feeling */
+	feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+
+	/* Skip non-feelings */
+	if (!feel) return FALSE;
+
+	/* Stop everything */
+	if (disturb_minor) disturb(0, 0);
+
+	/* Get an object description */
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+
+	/* Message (equipment) */
+	sound(MSG_PSEUDOID);
+
+	msg_format("You feel the %s (%c) you are %s %s %s...",
+	           o_name, index_to_label(i), describe_use(i),
+	           ((o_ptr->number == 1) ? "is" : "are"),
+	           inscrip_text[feel - INSCRIP_NULL]);
+
+	/* Sense the object */
+	o_ptr->pseudo = feel;
+
+	/* The object has been "sensed" */
+	o_ptr->ident |= (IDENT_SENSE);
+
+	if (o_ptr->name1)
+	{
+		/* EFGchange remove need for identify wrto preserving artifacts */
+		object_known(o_ptr);
+		msg_print("You recognize a legendary item!");
+
+		/* artifact powers shouldn't be hidden */
+		o_ptr->ident |= (IDENT_MENTAL);
+	}
+
+	/* EFGchange make stuff that pseudos as average be as if identified */
+	if (((feel == INSCRIP_AVERAGE) || (feel == INSCRIP_DECENT)) && 
+		(object_aware_p(o_ptr)))
+		object_known(o_ptr);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+}
+#endif
 
 
 /*
@@ -458,17 +605,139 @@ static void regenmana(int percent)
 
 
 
+/*
+ * Bring temporarily dead monsters back to life when it's time.
+ * every 40 game turns (4 normal speed player turns)
+ */
+static void return_monsters(void)
+{
+	int i;
 
+	/* Check all monsters to see if any are temporarily dead */
+	for (i = 1; i < mon_max; i++)
+	{
+		/* Check the i'th monster */
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip all-the-way dead monsters */
+		if (!m_ptr->r_idx) continue;
+		
+		/* monster is not dead */
+		if (!m_ptr->temp_death) continue;
+		
+		/* monster is temporarily dead */
+		if (m_ptr->temp_death > 1)
+		{
+			/* returns later */
+            m_ptr->temp_death -= 1;
+		}
+		/* Bring monster back to life */
+		else
+		{
+			int ny, nx;
+			bool nlos = FALSE;
+			
+			/* can it come back in the same space where it died? */
+			/* if not, find a spot */
+			if (!cave_can_occupy_bold(m_ptr->fy, m_ptr->fx))
+			{
+				if (get_nearby(m_ptr->fy, m_ptr->fy, &ny, &nx, 5))
+				{
+					m_ptr->fy = ny;
+					m_ptr->fx = nx;
+				}
+				else
+				{
+					/* Monster failed to come back to life */
+					delete_monster_idx(i, FALSE);
+					continue;
+				}
+			}
+			/* Monster comes back to life */
+			if (m_ptr->maxhp > 1000) m_ptr->hp = m_ptr->maxhp - (m_ptr->ninelives*10);
+			else m_ptr->hp = m_ptr->maxhp - m_ptr->ninelives;
+			if (m_ptr->hp < 2) m_ptr->hp = 2;
+			m_ptr->temp_death = 0;
+			
+			/* check if PC is 'nlos' (either way) */
+			if (player_has_los_bold(m_ptr->fy, m_ptr->fx)) nlos = TRUE;
+			if ((projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) &&
+				(m_ptr->cdis <= MAX_RANGE)) nlos = TRUE;
+
+			/* ensure awake (with a chance of roaming if not 'nlos') */
+			if ((!nlos) && (randint(100) < (r_ptr->sleep+2)/4))
+			{
+				m_ptr->csleep = r_ptr->sleep + randint(r_ptr->sleep*2);
+				m_ptr->roaming = 1;
+			}
+			else 
+			{
+				m_ptr->csleep = 0;
+				m_ptr->roaming = 0;
+			}
+
+			/* ensure healthy */
+			m_ptr->confused = 0;
+			m_ptr->stunned = 0;
+			m_ptr->monfear = 0;
+			m_ptr->tinvis = 0;
+			m_ptr->silence = 0;
+			m_ptr->truce = 0;
+			
+			/* (m_ptr->energy hasn't changed since it died) */
+            if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
+			{
+				/* Monster is still being nice */
+				m_ptr->mflag |= (MFLAG_NICE);
+
+				/* Optimize -- Repair flags */
+				repair_mflag_nice = TRUE;
+			}
+			
+			/* Put the monster back in the dungeon */
+			cave_m_idx[m_ptr->fy][m_ptr->fx] = i;
+
+			/* Update the monster */
+			update_mon(i, 1);
+
+			/* Hack -- Count the number of "reproducers" */
+			if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro++;
+
+			/* Count racial occurances */
+			r_ptr->cur_num++;
+			
+			/* message:  m_ptr->ml is set in update_mon() */
+			if (m_ptr->ml)
+			{
+				/* get monster name */
+				char m_name[80];
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* remember that it can rise from the dead */
+				monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+				l_ptr->flags2 |= (RF2_RETURNS);
+				
+				/* message */
+				if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_NON_LIVING)) ||
+					(strchr("T", r_ptr->d_char)))
+					msg_format("%^s reassembles itself!", m_name);
+				else msg_format("%^s rises from the dead!", m_name);
+			}
+		}
+	}
+}
 
 
 /*
- * Regenerate the monsters (once per 100 game turns)
+ * Regenerate the monsters
+ * (once per 100 game turns which is 10 normal speed player turns)
  *
  * XXX XXX XXX Should probably be done during monster turns.
  */
 static void regen_monsters(void)
 {
-	int i, frac;
+	int i;
 
 	/* Regenerate everyone */
 	for (i = 1; i < mon_max; i++)
@@ -480,6 +749,9 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 		
+		/* monster is temporarily dead */
+		if (m_ptr->temp_death) continue;
+		
 		/* DJA: make HELPER monsters leave (only if not too far from the PC) */
 		/* because they can occationally be placed on themed levels */
 		/* without being summoned. */
@@ -487,20 +759,24 @@ static void regen_monsters(void)
 			(m_ptr->cdis <= MAX_RANGE))
 		{
            if (m_ptr->ml) msg_print("Your helper leaves.");
-           delete_monster_idx(i);
+           delete_monster_idx(i, FALSE);
         }
 
 		/* Allow regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)
 		{
 			/* Hack -- Base regeneration */
-			frac = m_ptr->maxhp / 100;
-
-			/* Hack -- Minimal regeneration rate */
-			if (!frac) frac = 1;
-
+			int frac = m_ptr->maxhp / 100;
+			
 			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
+			if ((r_ptr->flags2 & (RF2_REGENERATE)) && (m_ptr->maxhp < 200))
+				frac = m_ptr->maxhp / 40;
+			else if (r_ptr->flags2 & (RF2_REGENERATE)) 
+				frac = m_ptr->maxhp / 50 + rand_int(m_ptr->maxhp / 75);
+
+			/* Hack -- Minimal regeneration rates */
+			if ((frac < 2) && (r_ptr->flags2 & (RF2_REGENERATE))) frac = 2;
+			else if (!frac) frac = 1;
 
 			/* Hack -- Regenerate */
 			m_ptr->hp += frac;
@@ -520,7 +796,7 @@ static void regen_monsters(void)
  * recharged. -LM-
  * Also inform player when first item of a stack has recharged. -HK-
  */
-static void recharged_notice(const object_type *o_ptr, bool all)
+static void recharged_notice(object_type *o_ptr, bool all)
 {
 	char o_name[120];
 
@@ -571,23 +847,25 @@ static void recharged_notice(const object_type *o_ptr, bool all)
 
 
 /*
- * Recharge activatable objects in the player's equipment
- * and rods in the inventory and on the ground.
+ * Recharge activatable objects in the player's equipment,
+ * rods in the inventory and on the ground, and
+ * handle other object timeouts.
+ * (every 10 game turns)
  */
-static void recharge_objects(void)
+void recharge_objects(void)
 {
 	int i;
 	int charged = 0;
-	bool chargeokay = TRUE;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
 
-	/* Process equipment */
+	/* Process equipment (scans wielded equipment and quiver) */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		u32b f1, f2, f3, f4;
+		bool chargeokay = TRUE;
 
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -603,8 +881,9 @@ static void recharge_objects(void)
 		/* other light sources use timeout for fuel */
 		else if (o_ptr->tval == TV_LITE) chargeokay = FALSE;
 
+
 		/* Recharge activatable objects */
-		if (o_ptr->timeout > 0 && (chargeokay))
+		if ((o_ptr->timeout > 0) && (chargeokay))
 		{
 			/* Recharge */
 			o_ptr->timeout--;
@@ -614,6 +893,16 @@ static void recharge_objects(void)
 
 			/* Message if item is recharged, if inscribed with "!!" */
 			if (!(o_ptr->timeout)) recharged_notice(o_ptr, TRUE);
+		}
+		
+		/* handle annoyances (separate chance for each object that has R_ANNOY) */
+		if ((f2 & (TR2_R_ANNOY)) && (goodluck < 20))
+		{
+			int uglychance = 4 + (badluck+1)/3;
+			if (goodluck > 11) uglychance -= 3;
+			else if (goodluck > 4) uglychance -= 2;
+			else if (goodluck > 1) uglychance -= 1;
+			if (rand_int(1000) < uglychance) do_something_annoying(o_ptr);
 		}
 
 		/* handle constant activation */
@@ -642,6 +931,41 @@ static void recharge_objects(void)
 #endif
 			}
 		}
+	
+		/* Handle timed weapon blessing */
+		if ((o_ptr->blessed > 1) && ((!p_ptr->resting) || (randint(100) < 33)))
+		{
+			if (o_ptr->blessed == 2)
+			{
+				/* get the object name */
+				char o_name[80];
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+				msg_format("The blessing on your %s has faded.", o_name);
+			}
+			o_ptr->blessed -= 1;
+			/* o_ptr->blessed remains at 1 to nullify badweap flag */
+		}
+		
+		/* Handle temporary branding spells */
+		if (o_ptr->timedbrand == 1)
+		{
+			/* get the object name */
+			char o_name[80];
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+			if (o_ptr->thisbrand == 5)
+				msg_format("The poison brand on your %s has worn off.", o_name);
+			else msg_format("The elemental brand on your %s has worn off.", o_name);
+
+			/* remove the temporary brand */
+            o_ptr->timedbrand = 0;
+			o_ptr->thisbrand = 0;
+		}
+		else if (o_ptr->timedbrand)
+		{
+			o_ptr->timedbrand -= 1;
+		}
 	}
 
 	/* Notice changes */
@@ -653,7 +977,7 @@ static void recharge_objects(void)
 
 	charged = 0;
 
-	/* Recharge rods */
+	/* Recharge rods (scans pack) */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
@@ -688,6 +1012,41 @@ static void recharge_objects(void)
 				else if (temp == o_ptr->number) recharged_notice(o_ptr, FALSE);
 			}
 		}
+	
+		/* Handle timed weapon blessing */
+		if ((o_ptr->blessed > 1) && ((!p_ptr->resting) || (randint(100) < 33)))
+		{
+			if (o_ptr->blessed == 2)
+			{
+				/* get the object name */
+				char o_name[80];
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+				msg_format("The blessing on your %s has faded.", o_name);
+			}
+			o_ptr->blessed -= 1;
+			/* o_ptr->blessed remains at 1 to nullify badweap flag */
+		}
+		
+		/* Handle temporary branding spells */
+		if (o_ptr->timedbrand == 1)
+		{
+			/* get the object name */
+			char o_name[80];
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+			if (o_ptr->thisbrand == 5)
+				msg_format("The poison brand on your %s has worn off.", o_name);
+			else msg_format("The elemental brand on your %s has worn off.", o_name);
+
+			/* remove the temporary brand */
+            o_ptr->timedbrand = 0;
+			o_ptr->thisbrand = 0;
+		}
+		else if (o_ptr->timedbrand)
+		{
+			o_ptr->timedbrand -= 1;
+		}
 	}
 
 	/* Notice changes */
@@ -720,6 +1079,46 @@ static void recharge_objects(void)
 
 			/* Boundary control */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+		}
+
+		/* Handle timed weapon blessing */
+		if ((o_ptr->blessed > 1) && ((!p_ptr->resting) || (randint(100) < 33)))
+		{
+			if ((o_ptr->blessed == 2) && (o_ptr->iy == p_ptr->py) &&
+				(o_ptr->ix == p_ptr->px))
+			{
+				/* get the object name */
+				char o_name[80];
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+				msg_format("The blessing on the %s has faded.", o_name);
+			}
+			else if (o_ptr->blessed > 2) o_ptr->blessed -= 1;
+			/* o_ptr->blessed remains at 1 to nullify badweap flag */
+		}
+		
+		/* Handle temporary branding spells */
+		if (o_ptr->timedbrand == 1)
+		{
+			/* remove the temporary brand */
+			o_ptr->timedbrand = 0;
+			o_ptr->thisbrand = 0;
+
+			/* message only if the player is there */
+            if ((o_ptr->iy == p_ptr->py) && (o_ptr->ix == p_ptr->px))
+			{
+				/* get the object name */
+				char o_name[80];
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+				if (o_ptr->thisbrand == 5)
+					msg_format("The poison brand on your %s has worn off.", o_name);
+				else msg_format("The elemental brand on your %s has worn off.", o_name);
+			}
+		}
+		else if (o_ptr->timedbrand)
+		{
+			o_ptr->timedbrand -= 1;
 		}
 	}
 }
@@ -779,7 +1178,7 @@ static void play_ambient_sound(void)
  * Helper for process_world -- decrement p_ptr->timed[] fields.
  * timed effects
  */
-static void decrease_timeouts(void)
+void decrease_timeouts(void)
 {
 	int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 	int i;
@@ -794,23 +1193,8 @@ static void decrease_timeouts(void)
 		if (goodluck) adjust += 1;
 	}
 	
-	/* timed weapon blessing */
-	o_ptr = &inventory[INVEN_WIELD];
-    if ((o_ptr->blessed > 1) && ((!p_ptr->resting) || (randint(100) < 33)))
-    {
-	   if (o_ptr->blessed == 2)
-       {
-	      /* get the object name */
-          char o_name[80];
-	      object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
-
-          msg_format("The blessing on your %s has faded", o_name);
-       }
-	   o_ptr->blessed -= 1;
-	   /* o_ptr->blessed remains at 1 to nullify badweap flag */
-    }
     /* find vault spell wears off after awhile if not used */
-    if ((p_ptr->find_vault) && (!p_ptr->resting) && (randint(35+goodluck) == 2))
+    if ((p_ptr->find_vault) && (!p_ptr->resting) && (randint(30+goodluck) == 2))
         p_ptr->find_vault -= 1;
 
 	/* Turn big rocks into rubble when MIGHTY_HURL expires */
@@ -841,6 +1225,9 @@ static void decrease_timeouts(void)
 			}
 		}
 	}
+
+	/* clear p_ptr->held_m_idx when mind control (mcontrol) expires */
+    if (p_ptr->timed[TMD_MIND_CONTROL] == 1) p_ptr->held_m_idx = 0;
 
 	/* clear p_ptr->held_m_idx when you pull free of the hold */
 	if (p_ptr->timed[TMD_BEAR_HOLD] == 1) p_ptr->held_m_idx = 0;
@@ -893,6 +1280,7 @@ static void decrease_timeouts(void)
                     decr = 0;
             }
 		}
+		
 		/* Decrement the effect */
 		if (decr) dec_timed(i, decr);
 	}
@@ -941,11 +1329,21 @@ static void process_world(void)
 
 			/* Day breaks */
 			if (dawn)
+			{
 				msg_print("The sun has risen.");
-
+			}
 			/* Night falls */
 			else
+			{
 				msg_print("The sun has fallen.");
+				/* Let the player know about a full moon (and add a monster) */
+				if (p_ptr->theme == 7)
+				{
+					do_cmd_feeling();
+					if (rand_int(100) < 16 + (badluck*6))
+						(void)alloc_monster(MAX_SIGHT + 1, FALSE);
+				}
+			}
 
 			/* Illuminate */
 			town_illuminate(dawn);
@@ -1006,6 +1404,9 @@ static void process_world(void)
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
+
+	/* Hack -- Check for creature ressurrection */
+	if (!(turn % 40)) return_monsters();
 
 	/* Hack -- Check for creature regeneration */
 	if (!(turn % 100)) regen_monsters();
@@ -1224,6 +1625,8 @@ static void process_world(void)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			if ((r_ptr->flags7 & (RF7_WATER_HIDE)) || (r_ptr->flags7 & (RF7_WATER_ONLY)))
 				waterhold = TRUE;
+			/* nulls are water monsters even if they are too large to have WATER_HIDE */
+			if (strchr("N", r_ptr->d_char)) waterhold = TRUE;
 		}
 		
 		/* paralyzed, stunned, or held underwater */
@@ -1248,10 +1651,11 @@ static void process_world(void)
 				else msg_print("You are too stunned to keep your head above water: ");
 				p_ptr->warned = 1;
 				/* be easy on the PC the first time */
-				if (drown > p_ptr->chp) drown = p_ptr->chp - randint(3);
+				if (drown >= p_ptr->chp) drown = p_ptr->chp - randint(3);
 				else if (drown > 18) drown -= randint(2);
 			}
-			msg_print("You start to drown!");
+			if (drown < p_ptr->chp) msg_print("You start to drown!");
+			else msg_print("You drown in the water!");
 			take_hit(drown, "drowning");
 		}
 	}
@@ -1259,8 +1663,8 @@ static void process_world(void)
 	/* Take damage from poison */
 	if (p_ptr->timed[TMD_POISONED])
 	{
-		/* Take damage */
-		take_hit(1, "poison");
+		/* Take damage (do not disturb unless below HP warning mark) */
+		take_hit_reallynow(1, "poison", FALSE);
 	}
 
 	/* Take damage from cuts */
@@ -1278,8 +1682,8 @@ static void process_world(void)
 		else
 			i = 1;
 
-		/* Take damage */
-		take_hit(i, "a fatal wound");
+		/* Take damage (do not disturb unless below HP warning mark) */
+		take_hit_reallynow(i, "a fatal wound", FALSE);
 	}
 
 
@@ -1298,7 +1702,7 @@ static void process_world(void)
 			if (p_ptr->regenerate) i += 28;
 
 			/* digest faster when hasted */
-			if (p_ptr->timed[TMD_SUST_SPEED]) i += 20;
+			if (p_ptr->timed[TMD_FAST]) i += 20;
 
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 11;
@@ -1384,10 +1788,10 @@ static void process_world(void)
 
 	/* Various things interfere with healing */
 	if (p_ptr->timed[TMD_PARALYZED]) regen_amount /= 3;
-	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
 	if (p_ptr->timed[TMD_STUN]) regen_amount /= 4;
-	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
 	if (p_ptr->timed[TMD_BECOME_LICH]) regen_amount /= 2;
+	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
+	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
 	if (p_ptr->stopregen) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
@@ -1623,6 +2027,7 @@ static void process_player_aux(void)
 		}
 	}
 }
+
 
 
 /*
@@ -1927,6 +2332,9 @@ static void process_player(void)
 					/* Skip dead monsters */
 					if (!m_ptr->r_idx) continue;
 
+					/* monster is temporarily dead */
+					if (m_ptr->temp_death) continue;
+
 					/* Get the monster race */
 					r_ptr = &r_info[m_ptr->r_idx];
 
@@ -1997,7 +2405,7 @@ static void process_player(void)
 						m_ptr->mflag &= ~(MFLAG_MARK);
 
 						/* Update the monster */
-						update_mon(i, FALSE);
+						update_mon(i, 0);
 					}
 				}
 			}
@@ -2221,7 +2629,12 @@ static void dungeon(void)
 
 
 	/* Announce (or repeat) the feeling */
-	if (p_ptr->depth) do_cmd_feeling();
+	if (!level_numb)
+	{
+		do_cmd_feeling();
+		/* separating danger feeling from treasure feeling */
+		if (p_ptr->depth) do_cmd_danger_feeling();
+	}
 
 
 	/*** Process this dungeon level ***/
@@ -2352,6 +2765,9 @@ static void dungeon(void)
 			/* Ignore "dead" monsters */
 			if (!m_ptr->r_idx) continue;
 
+			/* monster is temporarily dead */
+        	if (m_ptr->temp_death) continue;
+
 			/* Give this monster some energy */
 			m_ptr->energy += extract_energy[m_ptr->mspeed];
 
@@ -2365,6 +2781,9 @@ static void dungeon(void)
 
 		/* Count game turns */
 		turn++;
+		
+		/* update game time (replaces equippy chars) */
+		if (show_gtime) p_ptr->redraw |= (PR_EQUIPPY);
 	}
 }
 
@@ -2386,6 +2805,9 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);
+	
+	/* mymacs.prf */
+	(void)process_pref_file("mymacs.prf");
 }
 
 
@@ -2571,6 +2993,7 @@ void play_game(bool new_game)
 
 
 	/* Process some user pref files */
+	/* now automatically loads mymacs.prf */
 	process_some_user_pref_files();
 
 

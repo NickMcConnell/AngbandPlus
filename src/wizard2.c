@@ -536,8 +536,8 @@ static void wiz_tweak_item(object_type *o_ptr)
 	char tmp_val[80];
 
 
-	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr)) return;
+	/* Hack -- leave artifacts alone (why? it's wizard mode) */
+	/* if (artifact_p(o_ptr)) return; */
 
 	p = "Enter new 'pval' setting: ";
 	strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->pval);
@@ -574,13 +574,10 @@ static void wiz_reroll_item(object_type *o_ptr)
 	object_type object_type_body;
 
 	char ch;
-
 	bool changed = FALSE;
-
 
 	/* Hack -- leave artifacts alone */
 	if (artifact_p(o_ptr)) return;
-
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -703,10 +700,8 @@ static void wiz_reroll_item(object_type *o_ptr)
 static void wiz_statistics(object_type *o_ptr)
 {
 	long i, matches, better, worse, other;
-
 	char ch;
 	cptr quality;
-
 	bool good, great;
 
 	object_type *i_ptr;
@@ -859,9 +854,7 @@ static void wiz_statistics(object_type *o_ptr)
 static void wiz_quantity_item(object_type *o_ptr, bool carried)
 {
 	int tmp_int;
-
 	char tmp_val[3];
-
 
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr)) return;
@@ -1006,6 +999,16 @@ static void do_cmd_wiz_play(void)
 
 		/* Change */
 		object_copy(o_ptr, i_ptr);
+		
+		/* cheat: completely identify it */
+		/* but not artifacts because the note about when you find an */
+		/* artifact is activated in the identify function */
+		if ((cheat_noid) && (!artifact_p(o_ptr)))
+		{
+			object_aware(o_ptr);
+			object_known(o_ptr);
+			o_ptr->ident |= (IDENT_MENTAL);
+		}
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1075,6 +1078,14 @@ static void wiz_create_item(void)
 		i_ptr->pval = (base + (8L * randint(base)) + randint(8));
 	}
 
+	/* cheat: completely identify it */
+	if ((cheat_noid) && (!artifact_p(i_ptr)))
+	{
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		i_ptr->ident |= (IDENT_MENTAL);
+	}
+
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
 
@@ -1124,9 +1135,18 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->to_h = a_ptr->to_h;
 	i_ptr->to_d = a_ptr->to_d;
 	i_ptr->weight = a_ptr->weight;
+	i_ptr->esprace = a_ptr->esprace;
 
-        /* Mark that the artifact has been created. */
+    /* Mark that the artifact has been created. */
 	a_ptr->cur_num = 1;
+		
+	/* cheat: completely identify it */
+	if (cheat_noid)
+	{
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		i_ptr->ident |= (IDENT_MENTAL);
+	}
 
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
@@ -1380,14 +1400,14 @@ static void do_cmd_wiz_zap(int d)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Skip ordinary trees */
-		if (m_ptr->r_idx == 834) continue;
+		/* Skip nonmonsters (like ordinary trees) */
+		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > d) continue;
 
 		/* Delete the monster */
-		delete_monster_idx(i);
+		delete_monster_idx(i, FALSE);
 	}
 
 	/* Update monster list window */
@@ -1409,6 +1429,9 @@ static void do_cmd_wiz_unhide(int d)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+		
+		/* monster is temporarily dead */
+		if (m_ptr->temp_death) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > d) continue;
@@ -1420,7 +1443,7 @@ static void do_cmd_wiz_unhide(int d)
 		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
 		/* Update the monster */
-		update_mon(i, FALSE);
+		update_mon(i, 0);
 	}
 }
 
@@ -1579,7 +1602,7 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Create any object */
+		/* Create chosen object */
 		case 'c':
 		{
 			wiz_create_item();
@@ -1594,9 +1617,16 @@ void do_cmd_debug(void)
 		}
 
 		/* Detect everything */
+		case 'D':
+		{
+			detect_all(TRUE);
+			break;
+		}
+
+		/* Detect (almost) everything */
 		case 'd':
 		{
-			detect_all();
+			detect_all(FALSE);
 			break;
 		}
 

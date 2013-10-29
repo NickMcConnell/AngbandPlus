@@ -102,6 +102,9 @@ static void wr_item(const object_type *o_ptr)
 	wr_s16b(o_ptr->pval);
 
 	wr_byte(o_ptr->pseudo);
+#ifdef instantpseudo
+	wr_byte(o_ptr->hadinstant);
+#endif
 
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
@@ -111,11 +114,8 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_s16b(o_ptr->timeout);
 	wr_s16b(o_ptr->blessed);
-#if nobreaksave
-#else
 	wr_s16b(o_ptr->enhance);  /* DJA new: breaks savefiles for 1.1.0 */
 	wr_s16b(o_ptr->enhancenum);  
-#endif
 
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
@@ -140,9 +140,51 @@ static void wr_item(const object_type *o_ptr)
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
 
-	/* Extra information */
+#ifdef new_random_stuff
+	/* names for psuedo-randart ego items */
+	/* Stinkin! finally got it to work to have a string in o_ptr */
+	/* for these and I can't put them in the savefile. */
+	/* This should work, but don't uncomment until you fix the crash bug */
+#ifdef saveegoname
+    wr_string(o_ptr->randego_name);
+#endif
+
+	/* random stuff */
+	wr_byte(o_ptr->randsus);
+	wr_byte(o_ptr->randsus2);
+	wr_byte(o_ptr->randres);
+	wr_byte(o_ptr->randres2);
+	wr_byte(o_ptr->randres3);
+	wr_byte(o_ptr->randpow);
+	wr_byte(o_ptr->randpow2);
+	wr_byte(o_ptr->randslay);
+	wr_byte(o_ptr->randslay2);
+	wr_byte(o_ptr->randslay3);
+	wr_byte(o_ptr->randbon);
+	wr_byte(o_ptr->randbon2);
+	wr_byte(o_ptr->randplu);
+	wr_byte(o_ptr->randplu2);
+	wr_byte(o_ptr->randdrb);
+	wr_byte(o_ptr->randdrb2);
+	wr_byte(o_ptr->randimm);
+	wr_byte(o_ptr->randlowr);
+	wr_byte(o_ptr->randlowr2);
+	wr_byte(o_ptr->randbran);
+	wr_byte(o_ptr->randact);
+
+	wr_byte(o_ptr->esprace);
+#else
+	/* Special powers */
 	wr_byte(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
+	
+	/* new stuff */
+	wr_byte(o_ptr->xtra3);
+#endif
+	wr_byte(o_ptr->thisbrand);
+	wr_s16b(o_ptr->timedbrand);
+	wr_s16b(o_ptr->extra1);
+	wr_s16b(o_ptr->extra2);
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -176,9 +218,14 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->silence);
 	wr_byte(m_ptr->monseen);
 	wr_s16b(m_ptr->meet);
+	wr_s16b(m_ptr->disguised);
 	wr_s16b(m_ptr->roaming);
 	wr_byte(m_ptr->evil);
 	wr_byte(m_ptr->truce);
+	wr_s16b(m_ptr->temp_death);
+	wr_s16b(m_ptr->ninelives);
+	wr_s16b(m_ptr->extra2);
+	wr_s16b(m_ptr->extra3);
 }
 
 
@@ -522,12 +569,16 @@ static void wr_extra(void)
 
 	/* More info */
 	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
+	wr_s16b(p_ptr->extra1);
+	wr_s16b(p_ptr->extra2);
+	wr_s16b(p_ptr->extra3);
 	wr_s16b(p_ptr->sc);
 	wr_s16b(0);	/* oops */
 
+#ifdef new_random_stuff
+	wr_s32b(p_ptr->lastfullmoon);
+	wr_s32b(p_ptr->last_nap);
+#endif
 	wr_s16b(p_ptr->food);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->word_recall);
@@ -540,16 +591,17 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->luck);
 	wr_s16b(p_ptr->maxluck);
 	wr_byte(p_ptr->corrupt);
+	wr_s16b(p_ptr->spadjust);
 	wr_byte(p_ptr->learnedcontrol);
 	wr_byte(p_ptr->find_vault);
 	wr_s16b(p_ptr->held_m_idx);
 	wr_s16b(p_ptr->mimmic);
 	wr_s16b(p_ptr->menhance);
 
-#if nobreaksave
-#else
+	wr_s32b(p_ptr->control_des);
+	wr_s16b(p_ptr->danger_turn);
+	wr_s32b(p_ptr->game_score);
 	wr_byte(p_ptr->warned);
-#endif
 
 	/* Find the number of timed effects */
 	wr_byte(TMD_MAX);
@@ -637,10 +689,13 @@ static void wr_randarts(void)
 		wr_u32b(a_ptr->flags3);
 		wr_u32b(a_ptr->flags4);
 
+#ifdef new_random_stuff
+        wr_byte(a_ptr->esprace);
+#endif
 		wr_byte(a_ptr->level);
 		wr_byte(a_ptr->rarity);
 #if breaksave
- 		wr_byte(a_ptr->maxlvl);
+        wr_byte(a_ptr->maxlvl);
 #endif
 
 		wr_byte(a_ptr->activation);

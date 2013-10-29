@@ -1,5 +1,5 @@
 # File: spell.txt 
-# DaJAngband 1.1.2
+# DaJAngband 1.2.0
 
 
 # This file is used to initialize the "lib/data/spell.raw" file, which is
@@ -58,8 +58,11 @@ D:  The chance to get a beam goes up with your character level.
 
 N:1:Detect Monsters
 I:90:0:1
-D:Detects all non-invisible monsters in the immediate area,
-D: for one turn only.
+D:Detects all easy to detect monsters in the immediate area,
+D: for one turn only.  This spell does not detect invisible
+D: monsters, disguised monsters (mimmics), and may not detect all
+D: stealthy monsters.  Its odds of detecting stealthy monsters go
+D: up with your character level.
 
 N:2:Phase Door
 I:90:0:2
@@ -105,10 +108,13 @@ N:8:Identify
 I:90:2:5
 D:Reveals all normal (magical but non-hidden) powers of one object.
 
-N:9:Detect Invisible
+N:9:Detect Hidden
 I:90:2:6
-D:Detects all invisible monsters in the immediate area,
-D: for one turn only.
+D:Reveals all hidden monsters and detects all invisible monsters in the
+D: immediate area, for one turn only.  The range for revealing hidden
+D: monsters (like mimmics) is smaller than the range for detecting
+D: invisible monsters, but any hidden monsters within your line of sight
+D: will always be revealed.
 
 N:10:Detect Enchantment
 I:90:3:5
@@ -303,7 +309,7 @@ D: have resistance to blindness or light.
 D:  This spell has no effect when used in the town.
 
 N:43:Chaos Strike
-I:90:8:5
+I:90:8:6
 D:Fires a chaos bolt that always hits its target.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.
@@ -364,13 +370,16 @@ D: but are overall much better than for the spell Lesser Recharging.
 D:  A failed attempt to recharge destroys one wand or staff from the stack.
 
 N:54:Elemental Brand (melee)
-I:90:3:6
-D:Brands the currently wielded melee weapon with fire (25%) or cold (75%),
-D: and at the same time attempts to improve the to-hit bonus and the
-D: to-dam bonus of the same weapon.
-D:  The spell has no effect if the weapon is an artifact or ego item,
-D: is already branded, has a slay, is broken, or is cursed.
-# make it 50% for each fire or cold
+I:90:8:5
+D:Temporarily brands the currently wielded melee weapon with fire (1/3 chance)
+D: or cold (2/3 chance), and at the same time attempts to improve the
+D: to-hit bonus and the to-dam bonus of the same weapon.  The branding effect
+D: lasts 500 game turns.  (A player turn takes 10 game turns at normal speed.)
+D:  The spell may fail if the item is an artifact, a cursed item, or if it
+D: is already branded.  The spell will always fail if the item is already
+D: branded with both fire and frost.
+#The spell will always fail if the item already has the same type of brand that the spell is trying to add.
+#(but I will probably make it automatically try to add fire if the weapon has a frost brand or vice versa.)
 
 N:55:Frost Ball
 I:90:3:0
@@ -405,7 +414,7 @@ D:  If this kills the monster that blocked the path to the target
 D: location, the next meteor may continue to find another target.
 
 N:61:Mass Banishment
-I:90:8:6
+I:90:8:7
 D:Removes all monsters within 20 squares of you.
 D:  Uniques are not affected.
 D:  You take 1d3 points of damage for every monster removed.
@@ -416,7 +425,7 @@ D:Fires a gravity beam that hurts each monster in its path
 D: and has a chance of teleporting it away.
 
 N:63:Mana Storm
-I:90:8:7
+I:90:8:8
 D:Shoots a radius-3 mana ball that does unresistable
 D: damage to each monster in its area of effect.
 
@@ -459,10 +468,15 @@ D:  There are certain evil bugs including all driders and araneas can
 D: never be affected by this spell.
 D: If you attack and hit any charmed animal, the effects end immediately.
 
-N:68:Elemental Melee Strike
+N:68:Elemental Brand (melee)
 I:90:7:6
-D:Enforces all of your melee hits with an elemental brand making your hits
-D: do extra damage. This is separate from any brand your weapon might have.
+D:Temporarily brands the currently wielded melee weapon with fire (1/3 chance)
+D: or cold (2/3 chance), and at the same time attempts to improve the
+D: to-hit bonus and the to-dam bonus of the same weapon.  The branding effect
+D: lasts 500 game turns.  (A player turn takes 10 game turns at normal speed.)
+D:  The spell may fail if the item is an artifact, a cursed item, or if it
+D: is already branded.  The spell will always fail if the item is already
+D: branded with both fire and frost.
 
 N:69:Dragonfire
 I:90:7:7
@@ -540,6 +554,7 @@ D:  Heavy or permanent curses are not affected.
 N:89:Sense Invisible
 I:91:1:4
 D:Enables you to see invisible monsters for 24+1d24 turns.
+D: This effect does not reveal disguised monsters (mimmics).
 
 N:90:Sense Surroundings
 I:91:1:5
@@ -563,9 +578,11 @@ D: stairs and recall is set, unless Morgoth is dead.
 N:93:True Sight
 I:91:1:8
 D:Detects traps, doors, stairs, and invisible and evil monsters, and
-D: enables you to see invisible monsters for 35+1d35 turns. Plus, it
-D: gives you temporary resistance to blindness and halucenation, raises
-D: your alertness significantly, and expands your light radius by 1.
+D: gives you true sight for 35+1d35 turns.  True sight allows you to
+D: see invisible and recognise disguised monsters (like mimmics) as well
+D: as significantly raising your alertness, giving you temporary
+D: resistance to blindness and halucenation, and expanding your light
+D: radius by 1.
 
 N:94:Neutralize Poison
 I:91:2:0
@@ -575,6 +592,8 @@ N:95:Scare Monster
 I:91:2:1
 D:Attempts to scare a single monster for a level-dependant duration.
 D:  Uniques and monsters that resist fear are not affected.
+D: With high character level and/or charisma, it has a chance to
+D: fire a radius-2 ball of scare monsters, affecting up to 9 monsters.
 
 #20
 N:96:Resist Heat and Cold
@@ -598,7 +617,12 @@ D:Teleports you randomly over a short distance.
 N:100:Sanctuary
 I:91:2:6
 D:Attempts to put to sleep each monster directly adjacent to you.
-D:  Uniques and monsters that resist sleep are not affected.
+D:  Monsters that resist sleep are not affected.
+D:  Beginning at character level 19 for paladins and 10 for priests 
+D: and healers, this spell has a (more than 50%) chance to have a
+D: wider radius which goes up with your character level.
+D:  Priests and healers have a minimum spell radius of 2 at level 20,
+D: and a minimum radius of 3 at level 30.
 
 #25
 N:101:Protection from Evil
@@ -995,6 +1019,8 @@ N:164:Frighten Creature
 I:92:1:3
 D:Attempts to scare a single monster for a level-dependant duration.
 D:  Uniques and monsters that resist fear are not affected.
+D: With high character level and/or charisma, it has a chance to
+D: fire a radius-2 ball of scare monsters, affecting up to 9 monsters.
 
 N:165:Find Hidden Traps/Doors
 I:92:1:4
@@ -1083,6 +1109,7 @@ D: character level. (Healing is 30 + (clvl*3/4)d5.)
 N:181:Sense Invisible
 I:92:4:0
 D:Enables you to see invisible monsters for 24+1d24 turns.
+D: This effect does not reveal disguised monsters (mimmics).
 
 #30
 N:182:Sense Surroundings
@@ -1092,9 +1119,11 @@ D:Maps out a portion of the level around you.
 N:183:True Sight
 I:92:4:6
 D:Detects traps, doors, stairs, and invisible and evil monsters, and
-D: enables you to see invisible monsters for 35+1d35 turns. Plus, it
-D: gives you temporary resistance to blindness and halucenation, raises
-D: your alertness significantly, and expands your light radius by 1.
+D: gives you true sight for 35+1d35 turns.  True sight allows you to
+D: see invisible and recognise disguised monsters (like mimmics) as well
+D: as significantly raising your alertness, giving you temporary
+D: resistance to blindness and halucenation, and expanding your light
+D: radius by 1.
 
 N:184:Nymph's Blessing
 I:92:3:2
@@ -1245,11 +1274,11 @@ D:Restores experience points to maximum if it is currently below maximum.
 
 N:208:Elemental Brand (ammo)
 I:92:7:7
-D:Brands one stack of ammunition with fire, cold, or electricity
+D:Permanently brands one stack of ammunition with fire, cold, or electricity
 D: (selected at random) and at the same time attempts to improve
 D: the to-hit bonus and the to-dam bonus of the same ammunition.
-D:  The spell has no effect if the ammunition is already branded, has a
-D: slay, is broken, or is cursed.
+D:  The spell has no effect if the ammunition already has ego powers
+D: or is cursed.
 
 N:209:Telepathy
 I:92:7:8
@@ -1441,8 +1470,8 @@ D:(Minimum hp healing is 10% of your max hit points.)
 
 N:238:Extra Luck
 I:93:1:1
-D:Possible effects include: (the first 5 effects are equal in how often they
-D: happen, and the others each have a small chance to happen.)
+D:Possible effects include: (in order of likiness, 1) being the most common
+D: effect.)
 D: 1) heal 20 hps, cure fear and charm, and give you heroism for 26-50 turns.
 D: 2) heal hps = to your clvl, cure blindness and poison, and give you blessing
 D: for 26-94 turns and extra alertness for 26-50 turns.
@@ -1458,7 +1487,7 @@ D: 8) heals 1-10 hps and that's it.
 D: 9) summon a monster.
 D: 10) summon an undead.
 D: 11) heals 93-97 hps, cures all poison, cuts and stunning, and gives you temporary
-D: resistance for about 36 turns, and heroism for about 59 turns.
+D: resistance to the basic four elements for about 36 turns, and heroism for about 59 turns.
 D: 12) heals about 100 hps, cures amnesia, halucenation, blindness, and poison, and
 D: all slime and silver poison. Also gives you telepathy, true sight, and blessing for
 D: 26-60 turns. (extremely small chance)
@@ -1466,8 +1495,8 @@ D:   (higher character level makes the better effects more likely)
 D: *Blessing gives a bonus of +5 to AC and +10 to-hit.
 D: *Heroism gives you +12 to-hit and resistance to fear.
 D: *Berserk rage gives you +24 to-hit, resistance to fear and -10ac.
-D: *True Sight gives you see invisible, resistance to blindness and halucenation, and
-D: increases your light radius by 1.
+D: *True Sight gives you see invisible, automatic recognise disguises, resistance to
+D: blindness and halucenation, and increases your light radius by 1.
 
 #11
 N:239:Resist Cold
@@ -1528,8 +1557,11 @@ D:  Uniques and monsters that resist confusion are not affected.
 #20
 N:248:Detect Monsters
 I:93:2:2
-D:Detects all non-invisible monsters in the immediate area,
-D: for one turn only.
+D:Detects all easy to detect monsters in the immediate area,
+D: for one turn only.  This spell does not detect invisible
+D: monsters, disguised monsters (mimmics), and may not detect all
+D: stealthy monsters.  Its odds of detecting stealthy monsters go
+D: up with your character level.
 
 N:249:Detect Traps
 I:93:2:3
@@ -1605,6 +1637,7 @@ D:Allows you to pick up an item from a distance as long as it is
 D: either in line of sight or within the max range.  The max range
 D: is usually 8, but can be higher with good luck, and may be reduced with
 D: very bad luck.
+D:  This does not work on the special vault chests with silver or gold locks.
 D: You must target an object or pile of objects in order for this spell to work.
 D: Very useful if there's a tough monster between you and a valuble object.
 
@@ -1944,8 +1977,11 @@ D:Detects all traps, doors, and stairs in the immediate area.
 
 N:310:Detect Monsters
 I:94:0:6
-D:Detects all non-invisible monsters in the immediate area,
-D: for one turn only.
+D:Detects all easy to detect monsters in the immediate area,
+D: for one turn only.  This spell does not detect invisible
+D: monsters, disguised monsters (mimmics), and may not detect all
+D: stealthy monsters.  Its odds of detecting stealthy monsters go
+D: up with your character level.
 
 N:311:Cure Poison
 I:94:0:7
@@ -1965,6 +2001,9 @@ D: throwing, and saving throw for a level-dependant duration.
 N:314:Resist Acid
 I:94:1:1
 D:Gives you temporary resistance to acid, for 15+1d(clvl/2) turns.
+D:  It also has a chance (minimum 1 in 6) to protect your inventory
+D: from acid as well.  It will always protect your inventory if you
+D: are at least character level 32 and have decent intelligence.
 
 N:315:Cure Moderate Wounds
 I:94:1:2
@@ -2024,10 +2063,13 @@ N:325:Identify
 I:94:2:2
 D:Reveals all normal (magical but non-hidden) powers of one object.
 
-N:326:Detect Invisible
+N:326:Detect Hidden
 I:94:2:3
-D:Detects all invisible monsters in the immediate area,
-D: for one turn only.
+D:Reveals all hidden monsters and detects all invisible monsters in the
+D: immediate area, for one turn only.  The range for revealing hidden
+D: monsters (like mimmics) is smaller than the range for detecting
+D: invisible monsters, but any hidden monsters within your line of sight
+D: will always be revealed.
 
 N:327:Resistance
 I:94:2:5
@@ -2047,13 +2089,12 @@ D: not in line of sight will sometimes, but not always, be detected.
 #25
 N:329:Acid Coat Ammo
 I:94:2:7
-D:Coats one stack of ammunition with acid and at the same time
-D: attempts to slightly improve the to-hit bonus and the to-dam bonus
-D: of the same ammunition.
+D:Temporarily coats one stack of ammunition with acid.  Sometimes it also
+D: attempts to improve the to-hit bonus and the to-dam bonus
+D: of the same ammunition. The acid coating wears off after 500 game turns.
 D:  The spell has no effect if the ammunition is already branded, has a
-D: slay, is broken, or is cursed.
-D: Note: Acid coating is weaker than acid brand or other brands.
-D: (x2 multiplier instead of x3)
+D: slay, or is cursed.  Note: Acid coating is weaker than acid brand or
+D: other brands. (x2 multiplier instead of x3)
 
 N:330:Burst of Speed
 I:94:3:0
@@ -2158,19 +2199,19 @@ D:Attempts to improve the to-dam bonus of a bow or stack of arrows.
 
 N:345:Poison Brand Ammo
 I:94:4:5
-D:Brands one stack of ammunition with poison and at the same time
-D: attempts to improve the to-hit bonus and the to-dam bonus of
+D:Permanently brands one stack of ammunition with poison and at the same
+D: time attempts to improve the to-hit bonus and the to-dam bonus of
 D: the same ammunition. (less enchanting than elemental brand spell)
-D:  The spell has no effect if the ammunition is already branded, has a
-D: slay, is broken, or is cursed.
+D:  The spell has no effect if the ammunition already has ego powers
+D: or is cursed.
 
 N:346:Elemental Brand Ammo
 I:94:4:7
-D:Brands one stack of ammunition with fire, cold, or electricity
+D:Permanently brands one stack of ammunition with fire, cold, or electricity
 D: (selected at random) and at the same time attempts to improve
 D: the to-hit bonus and the to-dam bonus of the same ammunition.
-D:  The spell has no effect if the ammunition is already branded, has a
-D: slay, is broken, or is cursed.
+D:  The spell has no effect if the ammunition already has ego powers
+D: or is cursed.
 
 #N:347:Confuse Monster
 #I:94:5:0
@@ -2185,7 +2226,6 @@ D: slay, is broken, or is cursed.
 #Could combine these into one spell, but then we'd have to ask
 # "mimmic a new wand, check on current mimmicked wand, or zap mimmicked wand?"
 # and I only know how to code yes or no questions.
-# code is done except for putting p_ptr->mimmic and p_ptr->menhance into save.c and load.c
 N:347:Mimmic Wand (Mimmic)
 I:94:5:0
 D:With the mimmic wand spell, you choose a wand whose effect you
@@ -2351,11 +2391,13 @@ D:Restores to maximum all stats that are currently below maximum.
 #60
 N:364:Poison Brand Weapon
 I:94:6:5
-D:Brands the currently wielded melee weapon with poison,
+D:Temporarily brands the currently wielded melee weapon with poison,
 D: and at the same time attempts to improve the to-hit bonus and the
-D: to-dam bonus of the same weapon.
-D:  The spell has no effect if the weapon is an artifact or ego item,
-D: is already branded, has a slay, is broken, or is cursed.
+D: to-dam bonus of the same weapon.  The branding effect
+D: lasts 500 game turns.  (A player turn takes 10 game turns at normal speed.)
+D:  The spell may fail if the item is an artifact, a cursed item, or if it
+D: is already branded.  The spell will always fail if the item is already
+D: branded with poison.
 
 N:365:Hit and Run
 I:94:7:0
@@ -2398,11 +2440,13 @@ D: only much more likely.
 
 N:371:Poison Brand Weapon
 I:94:7:8
-D:Brands the currently wielded melee weapon with poison,
+D:Temporarily brands the currently wielded melee weapon with poison,
 D: and at the same time attempts to improve the to-hit bonus and the
-D: to-dam bonus of the same weapon.
-D:  The spell has no effect if the weapon is an artifact or ego item,
-D: is already branded, has a slay, is broken, or is cursed.
+D: to-dam bonus of the same weapon.  The branding effect
+D: lasts 500 game turns.  (A player turn takes 10 game turns at normal speed.)
+D:  The spell may fail if the item is an artifact, a cursed item, or if it
+D: is already branded.  The spell will always fail if the item is already
+D: branded with poison.
 
 N:372:Recharging
 I:94:8:0
@@ -2448,6 +2492,7 @@ I:94:7:6
 D:Allows you to pick up an item from a distance as long as it is
 D: either in line of sight or within the max range.  The max range
 D: is usually 8, but can be higher with good luck.
+D:  This does not work on the special vault chests with silver or gold locks.
 D: You must target an object or pile of objects in order for this spell to work.
 D: Very useful if there's a tough monster between you and a valuble object.
 
@@ -2643,6 +2688,8 @@ N:406:Scare Monsters
 I:95:3:4
 D:Attempts to scare each monster in line of sight.
 D:  Uniques and monsters that resist fear are not affected.
+D: With high character level and/or charisma, it has a chance to
+D: fire a radius-2 ball of scare monsters, affecting up to 9 monsters.
 
 N:407:Spear of Dark
 I:95:3:1
@@ -2794,7 +2841,7 @@ D:Grants you +50 to AC for 30+1d20 turns.
 N:429:Detect All Monsters
 I:95:6:1
 D:Detects all monsters in the immediate area, for one turn only.
-D: (includes invisible monsters)
+D: (includes invisible and hidden monsters)
 
 #50
 N:430:Orb of Death
@@ -2852,9 +2899,10 @@ D:  A failed attempt to recharge destroys one wand or staff from the stack.
 
 #(cure mortal wounds removed: drain charges is good enough to be the assassin's only healing spell)
 N:438:Sniper's Eye
-I:95:7:5
-D:Temporarily raises your missile weapon and throwing weapon to-hit
-D: by 20, also increasing critical shot chance. The to-hit bonus only
+I:95:7:3
+D:Temporarily increases your missile weapon and throwing weapon to-hit
+D: by 15 in addition to preventing distance from lowering your hit chance
+D: and increasing critical shot chance. The to-hit bonus only
 D: applies if you can see the monster you're shooting at.
 
 N:439:Detect Living
@@ -2877,7 +2925,7 @@ D:Hastes you (+10 to speed) for a level-dependant duration.
 D: (minimum is clvl + 1 turns.)
 
 N:442:Bloodwrath
-I:95:7:4
+I:95:7:5
 D:Heals you 6-15 hit points, cures fear, gives you +5-10 speed,
 D: and gives you berserk rage. (rage usually lasts longer than speed
 D: bonus).
@@ -2885,15 +2933,16 @@ D: (plus to speed calculation is 4 + d(1 + (clvl/10)).    )
 
 N:443:Poison Ammo
 I:95:7:6
-D:Brands one stack of ammunition with poison and at the same time
-D: attempts to improve the to-hit bonus and the to-dam bonus of
-D: the same ammunition. (less enchanting than elemental brand spell)
-D:  The spell has no effect if the ammunition is already branded, has a
-D: slay, is broken, or is cursed.
+D:Temporarily brands one stack of ammunition with poison and at the
+D: same time attempts to slightly improve the to-hit bonus and the
+D: to-dam bonus of the same ammunition.
+D:  The spell has no effect if the ammunition already has ego powers
+D: or is cursed.
 
 N:444:See Invisible
 I:95:7:2
 D:Enables you to see invisible monsters for clvl + d24 turns.
+D: This effect does not reveal disguised monsters (mimmics).
 
 #65
 N:445:Draw Mana
@@ -2961,7 +3010,7 @@ D: most unicorns, and tree monsters.)
 
 #assassin version
 N:453:Resist Poison
-I:95:7:3
+I:95:7:4
 D:Grants you resistance to poison for 20+1d20 turns.
 
 N:454:Wall of Hellfire

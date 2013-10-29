@@ -90,7 +90,7 @@ static timed_effect effects[] =
 	{ "You gain extra speed in melee!", "Your melee is back to normal speed.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_XATTACK */
 	{ "You feel like nothing can slow you down!", "Your speed is no longer sustained.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SUST_SPEED */
 	{ "A sphere of green light surrounds you!", "The sphere of charm dissapears.", 0, 0, 0, MSG_GENERIC }, /* TMD_SPHERE_CHARM */
-	{ "Your attacks are reinforced by the elements.", "You no longer strike with the elements.", 0, 0, 0, MSG_GENERIC }, /* TMD_HIT_ELEMENT */
+	{ "Your attacks are reinforced by the elements.", "You no longer strike with the elements.", 0, 0, 0, MSG_GENERIC }, /* TMD_HIT_ELEMENT (unused) */
 	{ "You can see monsters without light!", "You can no longer see without light.", PR_OPPOSE_ELEMENTS, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DARKVIS */
 	{ "You feel very sneaky.", "You no longer feel especially sneaky.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_SUPER_ROGUE */
 	{ "Are electrical field surrounds you.", "The electric field dissapates.", PR_BLIND, 0, PU_BONUS, MSG_GENERIC }, /* TMD_ZAPPING */
@@ -101,7 +101,7 @@ static timed_effect effects[] =
 	{ "You feel forsaken.", "The curse wears off.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_CURSE */
 	{ "You feel very skillfull!", "The skill boost wears off.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_SKILLFUL */
 	{ "You have the throwing strength of a giant.", "You feel like you just shrunk back to your usual size.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_MIGHTY_HURL */
-	{ "", "You pull free.", PR_STATE, 0, PU_BONUS, MSG_PARALYZED }, /* TMD_BEAR_HOLD (start message is triggered by attack: RBE_BHOLD) */
+	{ "", "", PR_STATE, 0, PU_BONUS, MSG_PARALYZED }, /* TMD_BEAR_HOLD (messages are elseware, attack: RBE_BHOLD) */
 	{ "a faint glow surrounds your quiver.", "your quiver is no longer protected.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_QUIVERGUARD */
 	{ "You begin to give off light.", "You no longer give off light.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MINDLIGHT */
 	{ "You feel resistant to silver magic.", "You are no longer resistant to silver magic.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_GENERIC }, /* TMD_OPP_SILV */
@@ -109,7 +109,9 @@ static timed_effect effects[] =
 	{ "You begin to give off a disgusting smell.", "You no longer smell any worse than usual..", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_STINKY */
 	{ "You make a symbol to ward off demons.", "The demon-warding symbol dissapears.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_DEMON_WARD */
 	{ "", "", 0, 0, 0, 0 },  /* TMD_TMPBOOST -- handled seperately */
-	{ "Your aim is especially good.", "The sniper's eye effect has worn off.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DARKVIS */
+	{ "Your aim is especially good.", "The sniper's eye effect has worn off.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_SNIPER */
+	{ "An outside force is trying to control your body!", "You regain control.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_MIND_CONTROL (unused) */
+	{ "You inventory is protected from acid.", "You inventory is no longer protected.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_ACID_BLOCK */
 };
 
 /*
@@ -1182,7 +1184,7 @@ void check_experience(void)
                 sprintf(buf, "Reached level %d", p_ptr->lev);
 
                 /* Write message */
-                do_cmd_note(buf,  p_ptr->depth);
+                do_cmd_note(buf,  p_ptr->depth, FALSE);
            	}
 #endif
         }
@@ -1350,6 +1352,9 @@ static void build_quest_stairs(int y, int x)
  *
  * Note that monsters can now carry objects, and when a monster dies,
  * it drops all of its objects, which may disappear in crowded rooms.
+ * 
+ * If the monster has died before and come back to life, it only
+ * drops any items it has picked up, it does not drop its treasure again.
  */
 void monster_death(int m_idx)
 {
@@ -1365,7 +1370,6 @@ void monster_death(int m_idx)
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &mon_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
@@ -1416,6 +1420,12 @@ void monster_death(int m_idx)
 
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
+
+	/* Update monster list window */
+	p_ptr->window |= PW_MONLIST;
+	
+	/* done if the monster has died before (already dropped its treasure) */
+    if (m_ptr->ninelives) return;
 
 
 	/* Mega-Hack -- drop "winner" treasures */
@@ -1491,6 +1501,21 @@ void monster_death(int m_idx)
 
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	
+	/* sometimes vary the object level a bit more */
+	if (!(p_ptr->depth == r_ptr->level))
+	{
+		int oltwo;
+        if (p_ptr->depth < r_ptr->level)
+			oltwo = p_ptr->depth + randint(r_ptr->level - p_ptr->depth);
+		else
+			oltwo = r_ptr->level + rand_int(p_ptr->depth - r_ptr->level + 1);
+			
+		if ((oltwo < object_level) && (rand_int(100) < 8 + badluck/2 - goodluck)) 
+			object_level = oltwo;
+		if ((oltwo > object_level) && (rand_int(100) < 8 + goodluck/2 - badluck)) 
+			object_level = oltwo;
+	}
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -1556,9 +1581,6 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-
-	/* Update monster list window */
-	p_ptr->window |= PW_MONLIST;
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
@@ -1660,10 +1682,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	s32b div, new_exp, new_exp_frac, racexp;
-	bool wakemon, seen;
-	int estl;
+	bool wakemon, seen, wasdisguised = FALSE;
+	int estl, killscore;
 	char m_name[80];
+	char dm_name[80];
 
+	/* undisguise mimmics */
+	if ((m_ptr->disguised) && (player_can_see_bold(m_ptr->fy, m_ptr->fx)))
+	{
+		m_ptr->disguised = 0;
+		m_ptr->ml = TRUE;
+		wasdisguised = TRUE;
+	}
+	
 	seen = ((m_ptr->ml) || (r_ptr->flags1 & RF1_UNIQUE));
 
 	/* Redraw (later) if needed */
@@ -1672,7 +1703,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Hurt it */
 	m_ptr->hp -= dam;
 
-	/* Extract monster name */
+    /* Extract monster name */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 	/* It is dead now */
@@ -1680,6 +1711,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	{
 		/* Assume normal death sound */
 		int soundfx = MSG_KILL;
+		
+		bool lottakills = FALSE;
+		/* These are monsters that you are more likely to kill a lot of */
+		if ((r_ptr->flags2 & (RF2_FRIEND1)) || (r_ptr->flags1 & (RF1_FRIENDS)) || 
+			(r_ptr->flags2 & (RF2_MULTIPLY))) lottakills = TRUE;
 
 		/* Uniques */
 		if (r_ptr->flags1 & RF1_UNIQUE) 
@@ -1687,17 +1723,20 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 #ifdef yes_c_history
 		    char note2[120];
 
+			/* Extract monster name */
+			monster_desc(dm_name, sizeof(dm_name), m_ptr, 0x80);
+
 			/* Write note */
 		    if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_NON_LIVING)) ||
 		         (r_ptr->flags2 & (RF2_STUPID)))
 		    {
-       		    my_strcpy(note2, format("Destroyed %s", m_name), sizeof (note2));
+       		    my_strcpy(note2, format("Destroyed %s", dm_name), sizeof (note2));
             }
 			else
             {
-                my_strcpy(note2, format("Killed %s", m_name), sizeof (note2));
+                my_strcpy(note2, format("Killed %s", dm_name), sizeof (note2));
             }
- 		    do_cmd_note(note2, p_ptr->depth);
+ 		    do_cmd_note(note2, p_ptr->depth, FALSE);
 #endif
 
 			/* Mega-Hack -- Morgoth -- see monster_death() */
@@ -1707,8 +1746,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 				soundfx = MSG_KILL_UNIQUE;
 		}
 
-		/* Death by Missile/Spell attack */
-		if (note)
+		/* always the same death message for NONMONSTERs */
+        if (r_ptr->flags7 & (RF7_NONMONSTER))
+		{
+			message_format(soundfx, m_ptr->r_idx, "You have destroyed %s.", m_name);
+		}
+
+        /* Death by Missile/Spell attack */
+		else if (note)
 		{
 			message_format(soundfx, m_ptr->r_idx, "%^s%s", m_name, note);
 		}
@@ -1744,27 +1789,92 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         {
             racexp = (racexp * 24) / 25; /* (only slightly) */
         }
-
-		/* Give some experience for the kill */
-		new_exp = ((long)racexp * r_ptr->level) / div;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
+		
+		/* most TOWNOK versions of monsters aren't worth any experience */
+		if ((!p_ptr->depth) && (r_ptr->flags1 & (RF1_UNIQUE))) racexp = racexp/2;
+		else if ((!p_ptr->depth) && (r_ptr->level > 10)) racexp = racexp/3; /* reduced */
+        else if ((!p_ptr->depth) && (r_ptr->level > 0)) racexp = 0;
+        
+		/* negative XP rewards should increase with clvl, not decrease */
+        if (r_ptr->mexp < 0)
 		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+			/* Make the negative positive so you can subtract it. */
+			s32b losethis = 0 - ((long)r_ptr->mexp * (1 + (p_ptr->lev/8)));
+			/* xp penalty for killing townspeople doesn't apply to */
+			/* evil character classes (the only demons with a negative XP */
+			/* are the ones called by the summon demonic aid spell). */
+			if ((!(cp_ptr->spell_book == TV_DARK_BOOK)) ||
+				(r_ptr->flags3 & (RF3_DEMON)))
+			{
+				lose_exp(losethis);
+			}
 		}
-		else
+		else if (racexp)
 		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
+			/* Give some experience for the kill */
+			new_exp = ((long)racexp * r_ptr->level) / div;
+
+			/* Handle fractional experience */
+			new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+			                * 0x10000L / div) + p_ptr->exp_frac;
+			/* Keep track of experience */
+			if (new_exp_frac >= 0x10000L)
+			{
+				new_exp++;
+				p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+			}
+			else
+			{
+				p_ptr->exp_frac = (u16b)new_exp_frac;
+			}
+
+			/* Gain experience */
+			gain_exp(new_exp);
 		}
 
-		/* Gain experience */
-		gain_exp(new_exp);
+
+		/*** new scoring ***/
+		/* base score = monlevel/5 rounded up */
+		killscore = (r_ptr->level+4)/5;
+		/* THEME_ONLY monsters worth a little extra */
+		if ((r_ptr->flags7 & (RF7_THEME_ONLY)) && (killscore < 8)) killscore += 2;
+		else if (r_ptr->flags7 & (RF7_THEME_ONLY)) killscore = (killscore * 5) / 4;
+		/* Sauron & Morgoth */
+		if (r_ptr->flags1 & RF1_DROP_CHOSEN) killscore = 1000;
+		else if (r_ptr->flags1 & (RF1_QUESTOR)) killscore = 500;
+		/* other uniques */
+		else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 5)) killscore = 5;
+		else if (r_ptr->flags1 & (RF1_UNIQUE)) killscore = r_ptr->level + 1;
+
+		/* Get extra score for killing the first monster of each race */
+		/* (if not unique) */
+		else if (!l_ptr->pkills)
+		{
+			if (r_ptr->flags7 & (RF7_THEME_ONLY)) killscore += r_ptr->rarity;
+			else killscore += (r_ptr->rarity + 1) / 2;
+		}
+		/* reduced score for killing a lot of the same monster */
+		else if ((l_ptr->pkills > 75) && (lottakills))
+		{
+             killscore -= (l_ptr->pkills - 70) / 5;
+             /* If you kill enough of the same monster, they stop giving score */
+             if (killscore < 0) killscore = 0;
+		}
+		else if ((l_ptr->pkills > 50) && (!lottakills))
+		{
+             killscore -= (l_ptr->pkills - 48) / 3;
+             /* If you kill enough of the same monster, they stop giving score */
+             if (killscore < 0) killscore = 0;
+		}
+		/* no score for town monsters or ordinary trees */
+		if (racexp < 1) killscore = 0;
+		
+		/* if it comes back to life, you have to kill it twice */
+		/* to get full score */
+		if (r_ptr->flags2 & (RF2_RETURNS)) killscore = (killscore + 1) / 2;
+
+		/* count score */
+        p_ptr->game_score += killscore;
 
 		/* Generate treasure */
 		monster_death(m_idx);
@@ -1812,21 +1922,30 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
 
-		/* Recall even invisible uniques or winners */
-		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
+		/* if you've killed the monster before, don't increment the count */
+		if (m_ptr->ninelives < 3)
 		{
-			/* Count kills this life */
-			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
+			/* Recall even invisible uniques or winners */
+			if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
+			{
+				/* Count kills this life */
+				if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
 
-			/* Count kills in all lives */
-			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
+				/* Count kills in all lives */
+				if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
 
-			/* Hack -- Auto-recall */
-			monster_race_track(m_ptr->r_idx);
+				/* Hack -- Auto-recall */
+				monster_race_track(m_ptr->r_idx);
+			}
+			else if (!l_ptr->pkills)
+			{
+				/* always count the first kill, visible or not */
+            	if (l_ptr->pkills < 1) l_ptr->pkills++;
+			}
 		}
 
 		/* Delete the monster */
-		delete_monster_idx(m_idx);
+		delete_monster_idx(m_idx, TRUE);
 
 		/* Not afraid */
 		(*fear) = FALSE;
@@ -1834,6 +1953,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Monster is dead */
 		return (TRUE);
 	}
+
+	/* update visual of disguised monster (if not dead) */
+	if (wasdisguised) lite_spot(m_ptr->fy, m_ptr->fx);
 
 	/* effective stealth (lower the better) */
     estl = 108 - (p_ptr->skills[SKILL_STL] * 6);
@@ -1904,6 +2026,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* mindless undead should never run away (unless turn undead is used) */
 		/* (paranoia: they should all have NO_FEAR) */
 		if ((r_ptr->flags3 & (RF3_UNDEAD)) && (r_ptr->flags2 & (RF2_STUPID))) return (FALSE);
+		
+		if (r_ptr->flags7 & (RF7_NONMONSTER)) return (FALSE);
 
 		/* grabber monsters rarely run away from low HP */
 		if (grabber) fleechance = 33;
@@ -1928,8 +2052,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			                   20 : ((11 - percentage) * 5)));
 
 			/* monster lets go of the player when it becomes afraid */
-			p_ptr->held_m_idx = 0;
-			clear_timed(TMD_BEAR_HOLD);
+			if (p_ptr->timed[TMD_BEAR_HOLD])
+			{
+				p_ptr->held_m_idx = 0;
+				msg_print("You pull free.");
+				clear_timed(TMD_BEAR_HOLD);
+			}
 		}
 	}
 
@@ -2196,13 +2324,13 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 			my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
-	/* status stuff is irrevelent for ordinary trees */
-	if (m_ptr->r_idx == 834) return;
+	/* status stuff is irrevelent for nonmonsters (like ordinary trees) */
+	if (r_ptr->flags7 & (RF7_NONMONSTER)) return;
 
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
 	if ((m_ptr->truce) && (!m_ptr->csleep)) my_strcat(buf, ", peaceful", max);
 	if ((m_ptr->csleep) && (m_ptr->roaming) && (m_ptr->roaming < 20)) my_strcat(buf, ", awake but hasn't noticed you", max);
-	else if ((m_ptr->roaming) && (cheat_know)) my_strcat(buf, ", temporarily roaming", max);
+	else if ((m_ptr->roaming) && (cheat_hear)) my_strcat(buf, ", temporarily roaming", max);
 	else if (m_ptr->csleep) my_strcat(buf, ", asleep", max);
 	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx == m_idx)) my_strcat(buf, ", holding you", max);
 	if (m_ptr->confused) my_strcat(buf, ", confused", max);
@@ -2319,11 +2447,8 @@ int motion_dir(int y1, int x1, int y2, int x2)
 int target_dir(char ch)
 {
 	int d = 0;
-
 	int mode;
-
 	cptr act;
-
 	cptr s;
 
 
@@ -2399,18 +2524,23 @@ bool target_able(int m_idx)
 	int px = p_ptr->px;
 
 	monster_type *m_ptr;
+	monster_race *r_ptr;
 
 	/* No monster */
 	if (m_idx <= 0) return (FALSE);
 
 	/* Get monster */
 	m_ptr = &mon_list[m_idx];
+	r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Monster must be alive */
 	if (!m_ptr->r_idx) return (FALSE);
 
 	/* Monster must be visible */
 	if ((!m_ptr->ml) && (!m_ptr->heard)) return (FALSE);
+	
+	/* You must know that it is a monster (for CHAR_MULTI) */
+	if (m_ptr->disguised) return (FALSE);
 
 	/* Monster must be projectable */
 	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
@@ -2418,8 +2548,8 @@ bool target_able(int m_idx)
 	/* Hack -- no targeting hallucinations */
 	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
 
-	/* Don't target ordinary trees */
-	if (m_ptr->r_idx == 834) return (FALSE);
+	/* Don't target nonmonsters (like ordinary trees) */
+	if (r_ptr->flags7 & (RF7_NONMONSTER)) return (FALSE);
 
 	/* Hack -- Never target trappers XXX XXX XXX */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -2655,6 +2785,24 @@ static bool target_set_interactive_accept(int y, int x)
 	if (cave_m_idx[y][x] > 0)
 	{
 		monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		
+		/* don't know that it's a monster */
+		if (m_ptr->disguised)
+		{
+			/* monster disguised as whatever is underneath it */
+			if ((strchr(".", r_ptr->d_char)) && 
+				(r_ptr->flags1 & (RF1_CHAR_CLEAR))) /* skip */;
+			/* monster disguised as a wall or floor (uninteresting) */
+			else if (strchr("#%.", r_ptr->d_char)) return (FALSE);
+			/* Rubble counts as interesting */
+			if (strchr(":", r_ptr->d_char)) return (TRUE);
+			/* else monster disguised as object (objects are interesting) */
+			if ((m_ptr->meet == 100) || (player_can_see_bold(y, x))) return (TRUE);
+			/* (TRUE if visible) */
+			if ((cave_info[y][x] & (CAVE_MARK)) && (strchr("!,-_~=?$", r_ptr->d_char)))
+				return (TRUE);
+		}
 
 		/* Visible monsters */
 		if (m_ptr->ml) return (TRUE);
@@ -2767,6 +2915,602 @@ static void target_set_interactive_prepare(int mode)
 }
 
 
+/*** had to copy this stuff from object1.c ***/
+/*
+ * Efficient version of '(T) += sprintf((T), "%c", (C))'
+ */
+#define object_desc_chr_macro(T,C) do { \
+ \
+	/* Copy the char */ \
+	*(T)++ = (C); \
+ \
+} while (0)
+
+
+
+/*
+ * Efficient version of '(T) += sprintf((T), "%s", (S))'
+ */
+#define object_desc_str_macro(T,S) do { \
+ \
+	cptr s = (S); \
+ \
+	/* Copy the string */ \
+	while (*s) *(T)++ = *s++; \
+ \
+} while (0)
+
+
+
+/*
+ * Efficient version of '(T) += sprintf((T), "%u", (N))'
+ */
+#define object_desc_num_macro(T,N) do { \
+ \
+	int n = (N); \
+ \
+	int p; \
+ \
+	/* Find "size" of "n" */ \
+	for (p = 1; n >= p * 10; p = p * 10) /* loop */; \
+ \
+	/* Dump each digit */ \
+	while (p >= 1) \
+	{ \
+		/* Dump the digit */ \
+		*(T)++ = I2D(n / p); \
+ \
+		/* Remove the digit */ \
+		n = n % p; \
+ \
+		/* Process next digit */ \
+		p = p / 10; \
+	} \
+ \
+} while (0)
+
+
+
+/*
+ * Efficient version of '(T) += sprintf((T), "%+d", (I))'
+ */
+#define object_desc_int_macro(T,I) do { \
+ \
+	int i = (I); \
+ \
+	/* Negative */ \
+	if (i < 0) \
+	{ \
+		/* Take the absolute value */ \
+		i = 0 - i; \
+ \
+		/* Use a "minus" sign */ \
+		*(T)++ = '-'; \
+	} \
+ \
+	/* Positive (or zero) */ \
+	else \
+	{ \
+		/* Use a "plus" sign */ \
+		*(T)++ = '+'; \
+	} \
+ \
+	/* Dump the number itself */ \
+	object_desc_num_macro(T, i); \
+ \
+} while (0)
+
+/* 
+ * Abridged version of object_desc for monsters disguised as objects.
+ * This version cannot use o_ptr since there is no real object.
+ *
+ *   I removed any code used for artifacts, egos or IDed items since the
+ * fake object that a monster is disguised as is never any of those things.
+ *   XXX A player will be able to recognise a mimmic which appears as
+ * a squelched kind.  I can't think of a good way to prevent this.
+ *   I left in some code which isn't currently used to allow for possible
+ * added mimmic monsters (like a sword mimmic or spellbook mimmic)
+ *
+ *   The only use for this function is when player (l)ooks at a monster
+ * while it is disguised, so there's no need for the pref and mode parameters.
+ */
+void disguise_object_desc(char *buf, size_t max, int fkidx)
+{
+	cptr basenm;
+	cptr modstr;
+
+	int power, ftval, fsval, fpval, fnumber, wvar;
+	bool aware, flavor;
+	bool append_name = FALSE;
+
+	char *b;
+	char *t;
+
+	cptr s;
+	cptr u;
+	cptr v;
+
+	char p1 = '(', p2 = ')';
+	char b1 = '[', b2 = ']';
+	char c1 = '{', c2 = '}';
+
+	char tmp_buf[128];
+
+	/* get the fake object */
+    object_kind *k_ptr = &k_info[fkidx];
+	ftval = k_ptr->tval;
+	fsval = k_ptr->sval;
+	/* a weird variable (because we can't use randint or the player will catch on) */
+	if (p_ptr->depth > 20) wvar = ((p_ptr->depth+1)/2 - (((int)(p_ptr->depth/20)) * 10));
+	else wvar = p_ptr->depth / 4;
+	if ((wvar > 8) && (p_ptr->depth < 80)) wvar = p_ptr->depth/10;
+	else if (wvar > 8) wvar = p_ptr->depth/17;
+	/* fake pval */
+	if ((ftval == TV_WAND) || (ftval == TV_STAFF)) fpval = 3 + wvar;
+	else fpval = 2;
+	/* fake amount */
+	if ((ftval == TV_SHOT) || (ftval == TV_BOLT) || (ftval == TV_ARROW))
+		fnumber = 21 + (wvar * 3) / 2;
+	else if (ftval == TV_SPIKE) fnumber = 11 + (wvar * 2);
+	else fnumber = 1;
+
+	/* See if the object is "aware" (these fake objects are never known) */
+	if (k_info[fkidx].aware) aware = TRUE;
+	else aware = FALSE;
+
+	/* See if the object is flavored */
+	flavor = (k_ptr->flavor ? TRUE : FALSE);
+
+	/* Allow flavors to be hidden when aware */
+	if (aware && !show_flavors) flavor = FALSE;
+
+	/* Extract default "base" string */
+	basenm = (k_name + k_ptr->name);
+
+	/* Assume no "modifier" string */
+	modstr = "";
+
+	/* Analyze the object */
+	switch (ftval)
+	{
+		/* Some objects are easy to describe */
+		case TV_SKELETON:
+		case TV_BOTTLE:
+		case TV_JUNK:
+		case TV_SPIKE:
+		case TV_FLASK:
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_BOW:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_SHIELD:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_LITE:
+		case TV_CHEST:
+		{
+			break;
+		}
+
+		/* Amulets */
+		case TV_AMULET:
+		{
+			/* Color the object */
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Amulet" : "& Amulet");
+
+			break;
+		}
+
+		/* Rings */
+		case TV_RING:
+		{
+			/* Color the object */
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Ring" : "& Ring");
+
+			break;
+		}
+
+		/* Staffs */
+		case TV_STAFF:
+		{
+			/* Color the object */
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Staff" : "& Staff");
+
+			break;
+		}
+
+		/* Wands */
+		case TV_WAND:
+		{
+			/* Color the object */
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Wand" : "& Wand");
+
+			break;
+		}
+
+		/* Rods */
+		case TV_ROD:
+		{
+			/* Color the object */
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Rod" : "& Rod");
+
+			break;
+		}
+
+		/* Scrolls */
+		case TV_SCROLL:
+		{
+            /* Color the object */
+		    modstr = scroll_adj[fsval];
+		    if (aware) append_name = TRUE;
+		    basenm = (flavor ? "& Scroll titled \"#\"" : "& Scroll");
+			break;
+		}
+
+		/* Potions */
+		case TV_POTION:
+		{
+			/* Color the object */
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Potion" : "& Potion");
+			break;
+		}
+
+		/* Food */
+		case TV_FOOD:
+		{
+			/* Ordinary food is "boring" */
+			if (fsval >= SV_FOOD_MIN_FOOD) break;
+
+			/* Color the object */
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Mushroom" : "& Mushroom");
+
+			break;
+		}
+
+		/* Magic Books */
+		case TV_MAGIC_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book of Magic Spells #";
+			break;
+		}
+		/* Prayer Books */
+		case TV_PRAYER_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Holy Book of Prayers #";
+			break;
+		}
+		/* New school */
+		case TV_NEWM_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book of Nature Magic #";
+			break;
+		}
+		/* Chance realm */
+		case TV_LUCK_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book of Chance Magic #";
+			break;
+		}
+		/* Alchemy realm */
+		case TV_CHEM_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book of Alchemy #";
+			break;
+		}
+		/* Black Magic realm */
+		case TV_DARK_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book of Black Magic #";
+			break;
+		}
+#if 0 /* for later */
+		/* Mind Magic realm */
+		case TV_MIND_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book of Mind Powers #";
+			break;
+		}
+#endif
+
+		/* Hack -- Gold/Gems */
+		case TV_GOLD:
+		{
+			my_strcpy(buf, basenm, max);
+			return;
+		}
+
+		/* Hack -- Default */
+		default:
+		{
+			my_strcpy(buf, "(nothing)", max);
+			return;
+		}
+	}
+
+	/* Start dumping the result */
+	t = b = tmp_buf;
+
+	/* Begin */
+	s = basenm;
+
+	/* Handle objects which sometimes use "a" or "an" */
+	if (*s == '&')
+	{
+		/* Skip the ampersand and the following space */
+		s += 2;
+
+		if (fnumber > 1)
+		{
+			object_desc_num_macro(t, fnumber);
+			object_desc_chr_macro(t, ' ');
+		}
+
+		/* Hack -- A single one, and next character will be a vowel */
+		else if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
+		{
+			object_desc_str_macro(t, "an ");
+		}
+
+		/* A single one, and next character will be a non-vowel */
+		else
+		{
+			object_desc_str_macro(t, "a ");
+		}
+	}
+
+	/* Handle objects which never use "a" or "an" */
+	else
+	{
+		/* Prefix a number if required */
+		if (fnumber > 1)
+		{
+			object_desc_num_macro(t, fnumber);
+			object_desc_chr_macro(t, ' ');
+		}
+
+		/* Hack -- A single item, so no prefix needed */
+		else
+		{
+			/* Nothing */
+		}
+	}
+
+	/* Copy the string */
+	for (; *s; s++)
+	{
+		if (*s == '~')
+		{
+			/* Add a plural if needed */
+			if (fnumber != 1)
+			{
+				char k = t[-1];
+
+				/* Hack -- "Cutlass-es" and "Torch-es" */
+				if ((k == 's') || (k == 'h')) *t++ = 'e';
+
+				/* Add an 's' */
+				*t++ = 's';
+			}
+		}
+
+		/* Pluralizer for irregular plurals */
+		else if (*s == '|')
+		{
+			bool singular = (fnumber == 1);
+
+			/* Process singular part */
+			for (s++; *s != '|'; s++)
+			{
+				if (singular) *t++ = *s;
+			}
+
+			/* Process plural part */
+			for (s++; *s != '|'; s++)
+			{
+				if (!singular) *t++ = *s;
+			}
+		}
+
+		else if (*s == '#')
+		{
+			/* Append the modifier */
+			cptr m = (modstr);
+
+			for (; *m; m++)
+			{
+				/* Handle pluralization in the modifier */
+				if (*m != '|')
+				{
+					/* Normal character - copy */
+					*t++ = *m;
+				}
+				else
+				{
+					/* Pluralizer */
+					bool singular = (fnumber == 1);
+
+					/* Process singular part */
+					for (m++; *m != '|'; m++)
+					{
+						if (singular) *t++ = *m;
+					}
+
+					/* Process plural part */
+					for (m++; *m != '|'; m++)
+					{
+						if (!singular) *t++ = *m;
+					}
+				}
+			}
+		}
+
+		/* Normal */
+		else
+		{
+			/* Copy */
+			*t++ = *s;
+		}
+	}
+
+	/* Append the "kind name" to the "base name" */
+	if (append_name)
+	{
+		object_desc_str_macro(t, " of ");
+		object_desc_str_macro(t, (k_name + k_ptr->name));
+	}
+
+	/* Dump base weapon info */
+	switch (ftval)
+	{
+		/* Missiles */
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		{
+			/* Fall through */
+		}
+
+		/* Weapons */
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		case TV_SKELETON: /* tusks */
+		case TV_STAFF: /* staffs are weapons now */
+		{
+			/* Append a "damage" string */
+			object_desc_chr_macro(t, ' ');
+			object_desc_chr_macro(t, p1);
+			object_desc_num_macro(t, k_ptr->dd);
+			object_desc_chr_macro(t, 'd');
+			object_desc_num_macro(t, k_ptr->ds);
+
+			if (k_ptr->sbdd)
+			{
+				object_desc_chr_macro(t, '/');
+				object_desc_num_macro(t, k_ptr->sbdd);
+				object_desc_chr_macro(t, 'd');
+				object_desc_num_macro(t, k_ptr->sbds);
+			}
+			object_desc_chr_macro(t, p2);
+
+			/* All done */
+			break;
+		}
+
+		/* Bows */
+		case TV_BOW:
+		{
+/* ML for 'multiplier level' because actual mutlplier is wierd now */
+			/* Hack -- Extract the "base power" */
+			power = (fsval % 10);
+
+			/* Append a "power" string */
+			object_desc_chr_macro(t, ' ');
+			object_desc_chr_macro(t, p1);
+			object_desc_chr_macro(t, 'M');
+			object_desc_chr_macro(t, 'L');
+			object_desc_num_macro(t, power);
+			object_desc_chr_macro(t, p2);
+
+			/* All done */
+			break;
+		}
+	}
+
+	/* Fuelled light sources get number of remaining turns appended */
+	if (ftval == TV_LITE)
+	{
+		s32b minute, hour, sec, toturns;
+		int blah = p_ptr->depth;
+		if (blah < 15) blah = blah * 9;
+		else if (blah < 21) blah = blah * 7;
+		else blah = blah * 3;
+        int ftimeout = 820 + (p_ptr->depth * wvar * ((wvar+3)/2));
+
+		/* timeout decrements every 10 game turns */
+		toturns = ftimeout * 10;
+		/* translate turns to time */
+		if (toturns >= 60) minute = toturns / 60;
+		else minute = 0;
+		if (minute >= 60) hour = minute / 60;
+		else hour = 0;
+		if (toturns >= 60) sec = toturns - (minute * 60);
+		else sec = toturns;
+		if (minute >= 60) minute -= hour * 60;
+
+		object_desc_str_macro(t, " (");
+#if old
+		/* Turns of light for normal lites */
+		object_desc_num_macro(t, ftimeout);
+		object_desc_str_macro(t, " turns)");
+#else
+		if (hour) object_desc_num_macro(t, hour);
+		if (hour) object_desc_str_macro(t, ":");
+		if (minute < 10) object_desc_str_macro(t, "0");
+		if (minute) object_desc_num_macro(t, minute);
+		object_desc_str_macro(t, ":");
+		if (sec < 10) object_desc_str_macro(t, "0");
+		object_desc_num_macro(t, sec);
+		object_desc_str_macro(t, ")");
+#endif
+	}
+
+	/* Hack -- Wands and Staffs have charges */
+	/* EFGchange show charges if aware without id */
+	if (aware && ((ftval == TV_STAFF) || (ftval == TV_WAND)))
+	{
+		/* Dump " (N charges)" */
+		object_desc_chr_macro(t, ' ');
+		object_desc_chr_macro(t, p1);
+		object_desc_num_macro(t, fpval);
+		object_desc_str_macro(t, " charge");
+		if (fpval != 1)
+		{
+			object_desc_chr_macro(t, 's');
+		}
+		object_desc_chr_macro(t, p2);
+	}
+
+	/* Terminate */
+	*t = '\0';
+
+	/* Copy the string over */
+	my_strcpy(buf, tmp_buf, max);
+}
+
+
 /*
  * Examine a grid, return a keypress.
  *
@@ -2791,11 +3535,12 @@ static void target_set_interactive_prepare(int mode)
 static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 {
 	s16b this_o_idx = 0, next_o_idx = 0;
+	char monaswall;
+	bool monasobj = FALSE;
 
 	cptr s1, s2, s3;
 
 	bool boring;
-
 	bool floored;
 
 	int feat;
@@ -2862,15 +3607,31 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			continue;
 		}
 
-
-		/* Actual monsters */
-		if (cave_m_idx[y][x] > 0)
+		/* monster disguised as a wall */
+        if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			if (m_ptr->disguised)
+			{
+				if (strchr("#%:.", r_ptr->d_char))
+				{
+					monaswall = r_ptr->d_char;
+				}
+			}
+		}
 
-			/* Visible (or heard) */
-			if ((m_ptr->ml) || (m_ptr->heard))
+		/* Actual monsters */
+		if ((cave_m_idx[y][x] > 0) && (!monaswall))
+		{
+			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			bool seedisguise = FALSE;
+			if ((m_ptr->disguised) && (m_ptr->meet == 100)) seedisguise = TRUE;
+			if ((m_ptr->disguised) && (player_can_see_bold(y, x))) seedisguise = TRUE;
+
+			/* Visible (or heard or detected disguised monster) */
+			if ((m_ptr->ml) || (m_ptr->heard) || (seedisguise))
 			{
 				bool recall = FALSE;
 				cptr heartype;
@@ -2880,8 +3641,13 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Not boring */
 				boring = FALSE;
 
-				/* Get the monster name ("a kobold") */
-				if (m_ptr->ml)
+				/* monster disguised as an object */
+                if (m_ptr->disguised)
+				{
+			        monasobj = TRUE;
+				}
+                /* Get the monster name ("a kobold") */
+				else if (m_ptr->ml)
 				{
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
 
@@ -2907,7 +3673,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				while (1)
 				{
 					/* Recall */
-					if ((recall) && (m_ptr->ml))
+					if ((recall) && (m_ptr->ml) && (!monasobj))
 					{
 						/* Save screen */
 						screen_save();
@@ -2926,6 +3692,29 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 						screen_load();
 					}
 
+					/* monster in disguise */
+                    else if (monasobj)
+					{
+						char o_name[80];
+						/* get the description of the object that */
+						/* the monster is disguised as */
+						disguise_object_desc(o_name, sizeof(o_name), m_ptr->disguised);
+
+    	                /* objects can now be in the same space as a trap */
+    		            if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+				         (cave_feat[y][x] <= FEAT_TRAP_TAIL)) s3 = ", and a trap.";
+
+						strnfmt(out_val, sizeof(out_val),
+						        "%s%s%s [%s]%s", s1, s2, o_name, info, s3);
+
+						prt(out_val, 0, 0);
+
+						/* Place cursor */
+						move_cursor_relative(y, x);
+
+						/* Command */
+						query = inkey_ex();
+					}
 					/* Normal */
 					else
 					{
@@ -2978,8 +3767,8 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Sometimes stop at "space" key */
 				if ((query.key == ' ') && !(mode & (TARGET_LOOK))) break;
 
-				/* don't show carried stuff for unseen monsters */
-				if (!m_ptr->ml) break;
+				/* don't show carried stuff for unseen or disguised monsters */
+				if ((!m_ptr->ml) || (monasobj)) break;
 
 				/* Change the intro */
 				s1 = "It is ";
@@ -3047,8 +3836,8 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 		floored = FALSE;
 
 		/* Scan all marked objects in the grid */
-		if ((scan_floor(floor_list, &floor_num, y, x, 0x02)) &&
-		    (!(p_ptr->timed[TMD_BLIND]) || (y == p_ptr->py && x == p_ptr->px)))
+		if ((!monasobj) && ((scan_floor(floor_list, &floor_num, y, x, 3)) &&
+		    (!(p_ptr->timed[TMD_BLIND]) || (y == p_ptr->py && x == p_ptr->px))))
 		{
 			/* Not boring */
 			boring = FALSE;
@@ -3061,6 +3850,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* objects can now be in the same space as a trap */
                 if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 		         (cave_feat[y][x] <= FEAT_TRAP_TAIL)) s3 = ", and a trap.";
+		        else if (cave_feat[y][x] == FEAT_RUBBLE) s3 = " (on a pile of rubble)";
 
 				/* Describe the pile */
 				if (p_ptr->wizard)
@@ -3120,6 +3910,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* objects can now be in the same space as a trap */
                 if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 		         (cave_feat[y][x] <= FEAT_TRAP_TAIL)) s3 = ", and a trap.";
+		        else if (cave_feat[y][x] == FEAT_RUBBLE) s3 = " (on a pile of rubble)";
 
 				/* Describe the object */
 				if (p_ptr->wizard)
@@ -3162,6 +3953,15 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Feature (apply "mimic") */
 		feat = f_info[cave_feat[y][x]].mimic;
 
+		/* monster disguising as a wall */
+		if (monaswall)
+        {
+			if (strchr("%", monaswall)) feat = FEAT_QUARTZ;
+			else if (strchr(":", monaswall)) feat = FEAT_RUBBLE;
+			else if (strchr(".", monaswall)) feat = FEAT_FLOOR;
+			else feat = FEAT_WALL_INNER;
+		}
+
 		/* Require knowledge about grid, or ability to see grid */
 		if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y,x))
 		{
@@ -3178,9 +3978,21 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* handle earthquake trap (don't call it a pit) */
-			if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 65) &&
-				(!(cave_info[y][x] & (CAVE_ICKY))))
+			if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 65))
 				name = "earthquake trap";
+				
+			/* rogues, alchemists, and kobolds can get more detail about traps */
+            if ((p_ptr->pclass == 3) || (p_ptr->pclass == 7) ||
+				(p_ptr->prace == 10) || ((p_ptr->pclass == 15) && 
+				(p_ptr->luck > (p_ptr->depth / 10) + 1)))
+			{
+				if (feat == FEAT_TRAP_HEAD + 0x02) name = "spiked pit";
+				if (feat == FEAT_TRAP_HEAD + 0x03) name = "poisoned spiked pit";
+				if (feat == FEAT_TRAP_HEAD + 0x08) name = "dart trap (slowing)";
+				if (feat == FEAT_TRAP_HEAD + 0x09) name = "dart trap (strength drain)";
+				if (feat == FEAT_TRAP_HEAD + 0x0A) name = "dart trap (dexterity drain)";
+				if (feat == FEAT_TRAP_HEAD + 0x0B) name = "dart trap (constitution drain)";
+			}
 				
 			/* differenciate locked or jammed doors from unlocked doors */
             if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&

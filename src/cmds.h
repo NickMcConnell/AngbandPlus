@@ -60,10 +60,12 @@ extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
-extern void do_cmd_note(char *note, int what_depth);
+extern void do_cmd_note(char *note, int what_depth, bool printme);
 extern void do_cmd_note_old(void);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
+extern s16b get_danger_feeling(void);
+extern void do_cmd_danger_feeling(void);
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
@@ -88,7 +90,7 @@ extern void do_cmd_quaff_potion(void);
 extern void do_cmd_read_scroll(void);
 extern void do_cmd_use_staff(void);
 extern void do_cmd_aim_wand(void);
-extern void do_cmd_zap_rod(void);
+extern void do_cmd_zap_wandorrod(void);
 extern void do_cmd_activate(void);
 
 

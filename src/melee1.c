@@ -232,8 +232,8 @@ bool make_attack_normal(int m_idx)
 		{
 			case RBE_HURT:      power = 60; break;
 			case RBE_POISON:    power =  6; break;
-			case RBE_UN_BONUS:  power = 20; break;
-			case RBE_UN_POWER:  power = 15; break;
+			case RBE_UN_BONUS:  power = 20; break; /* disenchant */
+			case RBE_UN_POWER:  power = 15; break; /* drain charges */
 			case RBE_EAT_GOLD:  power =  5; break;
 			case RBE_EAT_ITEM:  power =  5; break;
 			case RBE_EAT_FOOD:  power =  5; break;
@@ -244,6 +244,7 @@ bool make_attack_normal(int m_idx)
 			case RBE_COLD:      power = 10; break;
 			case RBE_BLIND:     power =  2; break;
 			case RBE_CONFUSE:   power = 10; break;
+			case RBE_XCONF:     power =  9; break;
 			case RBE_TERRIFY:   power = 10; break;
 			case RBE_PARALYZE:  power =  2; break;
 			case RBE_LOSE_STR:  power =  0; break;
@@ -309,7 +310,7 @@ bool make_attack_normal(int m_idx)
 
                /* update visual */
 	           /* p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS); */
-	           update_mon(m_idx, TRUE);
+	           update_mon(m_idx, 1);
 
                /* Extract monster name (not just "it" anymore) */
 	           monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -839,6 +840,10 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 					
 					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev;
+
+					if ((m_ptr->confused) && (m_ptr->stunned)) catchthief += 20;
+					if ((m_ptr->confused) || (m_ptr->stunned)) catchthief += 8;
+
 					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 10;
 					/* thieves don't want to be near you if you're stinky or zapping */
 					if ((p_ptr->timed[TMD_ZAPPING]) || (p_ptr->timed[TMD_STINKY])) 
@@ -932,6 +937,10 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 					
 					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev;
+
+					if ((m_ptr->confused) && (m_ptr->stunned)) catchthief += 20;
+					if ((m_ptr->confused) || (m_ptr->stunned)) catchthief += 8;
+
 					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 10;
 					/* thieves don't want to be near you if you're stinky or zapping */
 					if ((p_ptr->timed[TMD_ZAPPING]) || (p_ptr->timed[TMD_STINKY])) 
@@ -1206,6 +1215,61 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				/* chance for confusion, hallu & frenzy*/
+                case RBE_XCONF:
+				{
+			        int resist, xconfstr, dur;
+                    /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* XCONF has a change to bypass resist but still gets a saving throw */
+					resist = p_ptr->skills[SKILL_SAV] + goodluck;
+					if (p_ptr->resist_confu) resist += 50;
+					xconfstr = 140;
+					if (r_ptr->flags2 & (RF2_POWERFUL)) xconfstr += 50;
+					dur = rlev/10 + randint(rlev);
+					if (p_ptr->resist_confu) dur -= 1 + randint(goodluck/3 + 1);
+					
+					if ((rand_int(xconfstr) < resist) && (dur))
+					{
+                        if (inc_timed(TMD_CONFUSED, dur))
+						{
+							obvious = TRUE;
+						}
+					}
+					if (obvious) resist -= 10;
+					if (p_ptr->resist_confu) resist -= 50;
+					if ((p_ptr->resist_chaos) || (p_ptr->timed[TMD_TSIGHT]) ||
+						(p_ptr->resist_charm)) resist += 75;
+					if (p_ptr->resist_silver) resist += 25;
+					if ((rand_int(xconfstr) < resist) && (randint(100) < 21))
+					{
+						if (inc_timed(TMD_IMAGE, 2 + randint(rlev / 3)))
+						{
+							obvious = TRUE;
+						}
+					}
+					if (obvious) resist -= 10;
+					if ((p_ptr->resist_chaos) || (p_ptr->timed[TMD_TSIGHT])) resist -= 75;
+					if (p_ptr->resist_silver) resist -= 25;
+					if (p_ptr->peace) resist += 70;
+					if ((rand_int(xconfstr) < resist) && (randint(100) < 21))
+					{
+						if (inc_timed(TMD_FRENZY, 3 + randint((rlev / 2))))
+						{
+							obvious = TRUE;
+						}
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_RES_CONFU);
+
+					break;
+				}
+
 				case RBE_CONFUSE:
 				{
 			        /* extra damage reduction from surrounding magic */
@@ -1217,7 +1281,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "confused" */
 					if (!p_ptr->resist_confu)
 					{
-						if (inc_timed(TMD_CONFUSED, 3 + randint(rlev)))
+                        if (inc_timed(TMD_CONFUSED, 3 + randint(rlev)))
 						{
 							obvious = TRUE;
 						}
@@ -1265,7 +1329,10 @@ bool make_attack_normal(int m_idx)
 				
 				case RBE_CHARM:
 				{
-					/* Take damage */
+					int resistc = p_ptr->skills[SKILL_SAV];
+					if (p_ptr->timed[TMD_AMNESIA]) resistc -= 16;
+					if (p_ptr->timed[TMD_CLEAR_MIND]) resistc += 8;
+                    /* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Increase "charm" */
@@ -1274,14 +1341,16 @@ bool make_attack_normal(int m_idx)
 						msg_print("You resist its charms.");
 						obvious = TRUE;
 					}
-					else if (rand_int(125) < p_ptr->skills[SKILL_SAV])
+					else if (rand_int(125) < resistc)
 					{
 						msg_print("You resist its charms.");
 						obvious = TRUE;
 					}
 					else
 					{
-						if (inc_timed(TMD_CHARM, 3 + randint(rlev)))
+						int dur = 3 + randint(rlev);
+                        if (p_ptr->timed[TMD_AMNESIA]) dur += 1 + ((badluck+2)/4);
+                        if (inc_timed(TMD_CHARM, dur))
 						{
             			    (void)clear_timed(TMD_AFRAID);
 							obvious = TRUE;
@@ -1378,7 +1447,7 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					if (p_ptr->timed[TMD_OPP_SILV])
+					if (p_ptr->resist_silver)
 					{
 						msg_print("you resist the silver magic!");
 						take_hit((damage*8)/9, ddesc);
@@ -1399,17 +1468,26 @@ bool make_attack_normal(int m_idx)
                 
                 case RBE_SLIME:
                 {
-			        /* extra damage reduction from surrounding magic */
-					if (surround > 0) damage -= (damage * (surround / 250));
-
 					/* Obvious */
 					obvious = TRUE;
+
+					if (p_ptr->resist_slime)
+					{
+						msg_print("you resist the sliming!");
+						take_hit((damage*8)/9, ddesc);
+						break;
+					}
+
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* slimed */
 					if (rlev >= 18) p_ptr->slime += randint(rlev / 9);
+					else if ((rlev >= 15) && (randint(100) < 15 + badluck)) 
+						p_ptr->slime += 2;
 					else p_ptr->slime += 1;
 
 					msg_print("you are slimed!");
@@ -1703,6 +1781,7 @@ bool make_attack_normal(int m_idx)
                        if (p_ptr->luck > 21) msg_print("You feel less lucky.");
                        else if (p_ptr->luck < 9) msg_print("You feel very unlucky.");
                        else msg_print("You feel unlucky.");
+						obvious = TRUE;
                     }
 
 					break;
@@ -1735,7 +1814,13 @@ bool make_attack_normal(int m_idx)
 				{
 					int holdfast = (rlev * 2) + randint(damage);
 					int wrestle;
-					if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast += damage;
+					if (r_ptr->flags1 & (RF1_UNIQUE))
+					{
+						holdfast += damage*2;
+						if (holdfast < 41) holdfast += 4 + randint(6);
+						else if (holdfast < 50) holdfast = 50;
+					}
+					else if ((goodluck < 9) && (holdfast < 25)) holdfast = 25;
 					wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck;
 					wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
 					if (p_ptr->free_act) wrestle += 50;
@@ -1759,6 +1844,7 @@ bool make_attack_normal(int m_idx)
 						}
 						(void)inc_timed(TMD_BEAR_HOLD, time);
 						p_ptr->held_m_idx = m_idx;
+						obvious = TRUE;
 					}
 
 					/* Take damage */
@@ -1772,6 +1858,7 @@ bool make_attack_normal(int m_idx)
 					/* conspicuous lack of damage */
 					/* <1d10>  */
 					
+					obvious = TRUE;
 					if (damage < 2)
 					{
                        int time = randint(5);
@@ -1809,6 +1896,7 @@ bool make_attack_normal(int m_idx)
 					/* conspicuous lack of damage */
 					/* <1d10>  */
 
+					obvious = TRUE;
 					if (damage < 3)
 					{
                        int die = damroll(3, 10);
@@ -1874,6 +1962,7 @@ bool make_attack_normal(int m_idx)
                 {
 					/* conspicuous lack of damage */
 					/* <1d10>  */
+					obvious = TRUE;
 
 					/* Take damage */
 					if (p_ptr->peace)
@@ -1923,6 +2012,7 @@ bool make_attack_normal(int m_idx)
                 {
 					/* conspicuous lack of damage */
 					/* <1d10>  */
+					obvious = TRUE;
 
 					if (damage < 2)
 					{
@@ -1949,6 +2039,7 @@ bool make_attack_normal(int m_idx)
                 {
 					/* conspicuous lack of damage */
 					/* <1d20>  */
+					obvious = TRUE;
 
                     (void)hp_player(damage);
 					if (damage < 8)
@@ -1996,6 +2087,7 @@ bool make_attack_normal(int m_idx)
 				{
 					/* conspicuous lack of damage */
 					/* <1d10>  */
+					obvious = TRUE;
 
 					if (damage < 4)
 					{
@@ -2038,6 +2130,7 @@ bool make_attack_normal(int m_idx)
 					/* conspicuous lack of damage */
 					/* <1d30> */
 					int iden = 0;
+					obvious = TRUE;
 
 					if (damage < 10)
 					{
@@ -2074,6 +2167,7 @@ bool make_attack_normal(int m_idx)
 				{
 					/* conspicuous lack of damage */
 					/* <1d22> */
+					obvious = TRUE;
 					msg_print("You take some entdraught..");
 
 					if (damage < 10)
@@ -2110,6 +2204,7 @@ bool make_attack_normal(int m_idx)
 				{
 					/* conspicuous lack of damage */
 					/* <1d25>  */
+					obvious = TRUE;
 
                     if (damage < 6)
                     {

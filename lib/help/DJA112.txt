@@ -5,9 +5,9 @@ Misc. interface changes
 -----------------------
 
 	If blunt weapons are set to squelch "all but spendid" in the quality 
-squelch menu, then non-splendid ego-staffs (of types which you have squelched) will 
-be squelched also.  Otherwise ego-staffs will never be squelched, even if you have 
-that type of staff set to squelch.
+squelch menu, then non-splendid ego-staffs (of types which you have squelched) 
+will be squelched also.  Otherwise ego-staffs will never be squelched, even if 
+you have that type of staff set to squelch.
 
 Quality squelch is now available for jewelry. The quality choices are:
 	1) nonego of squelched type (default) - squelches only non-ego jewelry of 
@@ -40,8 +40,8 @@ the options menu, then 'W' to control subwindow displays.)
 
 Display object list (']')
   This command displays a list of currently visible or detected objects in a 
-one-column display on the main terminal.  This list is also available in a separate 
-term window.
+one-column display on the main terminal.  This list is also available in a 
+separate term window.
 
 Command lists ("Enter" key)
   This brings up a little window in the middle of the screen, in which you can 
@@ -58,16 +58,18 @@ More differences from vanilla Angband and
 in-depth explaination of some DaJAngband features:
 --------------------------------------------------
 
+---IDing stuff:
+
 	There are now ego lanterns and jewelry.  No ID is required to recognise 
 an ego on lanterns or jewelry (as long as you are aware of the jewelry type).
-
-	Magic staves are wieldable and can receive weapon bonuses and egos.
 
 	Traps can now occupy the same space as an object. This will only ever 
 happen either by a monster's treasure drops, or by a monster's create traps 
 spell (they will never be generated in the same space when you enter the level).  
 The map will show the symbol of the object, but if you (l)ook at the space, it 
 will tell you that there is a trap there.
+
+---Weapons & Combat:
 
 	A NPP-style quiver has been added to hold ammo and throwing weapons.  
 Each missile (an arrow, bolt, pebble, or shot) takes up one slot in the quiver.  
@@ -77,9 +79,9 @@ takes up 8 slots).  Each 99 quiver slots takes up one slot in your inventory.
 
 	Missile launchers (slings, bows & crossbows) are slightly nerfed from 
 vanilla Angband:  Instead of having a x2 or x3 multiplier, launchers have a 
-multiplier level (ML). A sling has a multiplier level of 2 which multiplies damage 
-by x1.75 instead of x2, a long bow has an ML of 3 which multiplies damage 
-by x2.625, and a heavy crossbow with ML4 multiplies damage by x3.5.
+multiplier level (ML). A sling has a multiplier level of 2 which multiplies 
+damage by x1.75 instead of x2, a long bow has an ML of 3 which multiplies 
+damage by x2.625, and a heavy crossbow with ML4 multiplies damage by x3.5.
 
 	Weapons which are meant for throwing (throwing dagger, javelin, etc) have 
 a damage multipler of x1.4 when thrown at a monster and get the full to-dam bonus 
@@ -105,111 +107,134 @@ says 1d8/1d5). The 1st and 3rd attacks with the weapon use the 1st set of damage
 dice and the 2nd and 4th attacks with the weapon use the second set of damage dice.  
 (This attempts to imitate the double weapons of DND 3.5.)
 
+	Magic staves are now wieldable and can receive weapon bonuses and egos.
+
 	Digging without digging tools:  Digging while wielding a sword or staff is 
 not as effective as digging while wielding a polearm or axe (unless the sword or 
 staff has an acid brand).
+
+	Brands can (partially) stack in DaJAngband.  If you're fighting with an
+artifact which is branded with both cold and fire against a monster that is 
+vulnerable to both, it will do the usual x3 damage for the 1st brand with an 
+additional 25% of the original damage for the second brand.  So if it would do
+10 pts of damage not including the brands, it will do 32 point of damage.
+	Any x3 slays may also stack (slay evil and slay animal are x2, the 
+kill/excecute slays are x5, all others are x3). So if you're fighting a troll
+skeleton with a slay-undead, slay-troll, fire-branded weapon, it will do x3.5 
+the original damage (x3 for the first, plus x.25 twice for the other two 
+multipliers).
+
+---Special levels, rooms, and dungeon features:
 
 	Rubble can be climbed over (or dug up) by both the player and by monsters, 
 but it takes some effort (like opening a stuck door).  Small flying monsters can 
 fly over the rubble effortlessly (but not bigger flying monsters like dragons, 
 they're too big to fly between the rubble and the ceiling).  Also, if there is an 
 object hidden in the rubble, you can find it by searching and pick it up without 
-digging up the rubble, so there is often no need to dig up rubble.
+digging up the rubble, so there is often no need to dig up rubble and it may be 
+useful to slow down monsters you're running away from.
+	Also, be aware that (unlike in vanilla) you are able to target monsters 
+which are in a wall space with spells or projectiles (although projectiles have
+a reduced chance to hit in that situation).
 
 	Water: You'll now find ponds and puddles occationally.  There is no deep 
-water in the game, so it's easy to wade through. There's no risk of drowning in it 
-unless you're paralyzed, grabbed by a water monster, or heavily stunned.  Weaker 
-fire-based monsters (and some other water-hating monsters) will not pass water 
-while stronger fire-based monsters will dry it up.
+water in the game, so it's easy to wade through. There's no risk of drowning in 
+it unless you're 1) paralyzed, 2) grabbed by a null or water monster, or 3) 
+heavily stunned. Weaker fire-based monsters (and some other water-hating monsters) 
+will not pass water, while stronger fire-based monsters will dry it up.
+	Now when the target is in water, lightning and cold will do extra damage 
+while acid and fire will do reduced damage.  This applies both to the PC and to 
+monsters. (new in 1.2.0, idea from UnAngband except it doesn't modify damage as 
+drastically as in Un.)
 
 	Empty Vaults:  In addition to lesser and greater vaults like vanilla has, 
-you will sometimes find ruined empty vaults.  Empty vaults do not have out-of-depth 
-monsters or treasures and (usually) do not raise the level feeling. They are only 
-for flavor.
+you will sometimes find ruined empty vaults.  Empty vaults may still have some 
+monsters or treasures, but it won't be as much and they won't be out-of-depth.
+Also, emtpy vaults (usually) do not raise the level feeling.  Most empty vaults
+take the design of a lesser vault and remove most of the monsters and treasure
+and sometimes destroy some parts of the walls. Empty greater vaults are 
+exceedingly rare, but are possible in the deep dungeon.
 	There is one (and I may add more later) rare vault design which is in the 
 code as an empty vault, but it is more like a large lesser vault (it was too big 
-for the size limits on lesser vaults).  It is the size of a greater vault, but 
-doesn't have the difficulty or treasure of a greater vault.
+for the size limits on lesser vaults).  It is the size of most greater vaults, but 
+its difficulty and treasure level are more like a lesser vault.
 
 	Themed levels:  Occationally you will get another message after the level 
 feeling, letting you know that you're on a themed level.  Themed levels are 
 primarily populated by certain types of monsters. (A couple examples: a fairy 
 forest has fairies and forest animals, a full moon level has more werebeasts, 
 thieves, and magic cats, and the haunted castle has knights, gargoyles, and undead.  
-There are also themed levels for fire-based, air-based, and earth-based monsters.)  
-Certain monsters are never found outside of their themed level.  Because of the 
-addition of themed levels, monster pits and nests have been made slightly less 
-common.
+	There are also themed levels for fire-based, air-based, and earth-based 
+monsters.)  Certain monsters are never found outside of their themed level.  
+Because of the addition of themed levels, monster pits and nests have been made 
+slightly less common.
+	There are a couple dungeon features (like trees and statues) which are 
+primarily for the appropriate themed levels, but they may also appear in the 
+normal dungeon levels occationally.
 
-	Treasure Maps: Any unique monsters which are native to level 35 (1750') or 
-deeper have a 6% chance to drop a treasure map.  Reading a treasure map makes it 
-much more likely to find vault(s) on the next level you get to by going down stairs.  
-This will not help you find a vault when you get to another level by any other way 
-than going down stairs.  If a significant amount of time passes between reading the 
-map and going down stairs, you may forget the map and it will end up having no 
-effect.  This does not guarantee finding a vault, and it has no effect when your 
-new depth is less then level 5 (250').  The tourist class gets a spell in a dungeon 
-book which creates a treasure map.
 
-	A note about magicbooks: Not all classes which are able to cast spells 
+---Magic Realms:
+
+	Not all classes which are able to cast spells 
 start out with a spellbook, but the class' spell realm is now noted on the birth 
 screen when you're chosing you're character. Also, you probably won't be able to 
 read every book in your magic realm. When in doubt, try to browse a book before 
 buying it: If it shows you the list of spells in the book, then you can use that 
-book, otherwise that book is worthless to you. With the chance realm, the tourist's 
-books are in the general store. The one chance realm book which is sold in the 
-magic store is not useable by tourists, but is of more interest to rogues.
-	A note about the Nature and Necromancy realms: These two realms are largely 
+book, otherwise that book is worthless to you. With the chance realm, the 
+tourist's books are in the general store. The one chance realm book which is sold 
+in the magic store is not useable by tourists, but is of more interest to rogues.
+
+	About the Nature and Necromancy realms: These two realms are largely 
 borrowed from OAngband, but if you've played OAngband, it's important to remember 
 that some of the spells that may have the same name as one in OAngband doesn't 
-nessesarily have exactly the save effects. Browse a book and chose a spell to see 
+nessesarily have exactly the same effects. Browse a book and chose a spell to see 
 that's spell's description.
-	A further note about the Necromancy realm: The necromancy realm has some 
-very powerful spells, but that realm also has more drawbacks than other realms. 
-(Except maybe the chance realm, but the drawbacks are more obvious in the chance 
-realm.) Several necromancy spells have a chance to leave an aura around you which 
-aggravates demons.
+
+	Demon aggravation: The necromancy realm has some very powerful spells, but 
+that realm also has more drawbacks than other realms.  Many necromancy spells 
+have a chance to leave an aura around you which aggravates demons.  Two spells in 
+the wizardry realm also have a chance to make you aggravate demons for a while: 
+summon demonic aid and rend soul.
 
 
-In-game effects and stats which are not in vanilla:
----------------------------------------------------
+---In-game effects and stats which are not in vanilla:
 
-	Charm-type effects (confuse, slow, sleep, scare) are at minimum slightly 
-more effective than in vanilla Angband, and can be much more effective with high 
-charisma.
+	The effectiveness of charm-type effects (confuse, slow, sleep, scare) are 
+now modified by charisma.  They are at minimum slightly more effective than in 
+vanilla Angband, and can be much more effective with high charisma.
+	confusion: you (and monsters) are still able to cast spells while confused,
+only with a much higher fail rate.
 
 	Silver & Slime: Infections which have no effect in small amounts, but can 
 have nasty effects if you let them accumulate to high levels. Cure wounds potions 
 have no effect on them.  The two most effective things to fight these effects are 
 elven waybread and the potion or spell of purity. Mushrooms of cure serious wounds 
-also has a small anti-silver and slime effect. Mushrooms of health cure a little 
+also have a small anti-silver and slime effect. Mushrooms of health cure a little 
 sliming and mushrooms of clear mind cure a little silver poison.  Only a couple 
 very rare monsters can cause sliming or silver poison from a distance, normally 
 they are caused as melee attacks.
 	Sliming slowly turns a person's body into a mindless blob of slime, 
 starting by lowering thier constitution. Danger levels for slime: at 20 begins to 
 have occational minor effects, at 40 slime starts to have serious effects, and at 
-55 slime will be fatal if not cured very quickly. There are more monsters which 
-cause sliming than there are that cause silver poison.
+55 slime will be fatal if not cured very quickly. Monsters which cause sliming are
+more common than monsters that cause silver poison.
 	Silver poison makes a person forget who he is and corrupts the mind so that 
 he is no longer able to think about anything that matters. Its first effects are 
 reduction of wisdom and randomly activated amnesia or hallucenation. Danger levels 
 for silver: at 5-14 has rare minor effects, at 15-24 can have very serious effects, 
 and at 25 silver poison will be fatal if not cured within a few turns of getting to 
 this level.
+	Ego-items which have random resistances may now have slime resistance or
+silver resistance.
 
 	Charm: A few monsters can charm you. This timed effect prevents melee, 
 shooting, and casting, but only reduces to-hit for throwing. Monsters can only 
 charm you in melee, never from a distance.
 	Frenzy: A few monsters can put you into a mad, careless frenzy, this has 
-several effects: it lowers your to-hit and armor class, just slightly lowers your 
+several effects: it lowers your to-hit and armor class, slightly lowers your 
 alertness, stealth and saving throw, sometimes makes you hit yourself with your 
 weapon, and slightly raises your to-damage bonus. Resistance to charm also 
 protects from the frenzy effect.
-
-	Monster curse spell: Some monsters can cast a spell which curses you.  This 
-is a timed condition which lowers your armor class, lowers most of your skills, and 
-temporarily raises your bad luck.
 
 	Luck: Every character starts with a luck rating which is separated into 
 good luck and bad luck (because with some effects, you can have both good luck and 
@@ -238,6 +263,93 @@ broken sword 'Narsil' is forever tainted by Isildur's decision to keep the One R
 for himself instead of having it destroyed.  Because of this, it can cause 
 corruption even though it is not evil-aligned.
 
+
+---Monster Stuff:
+
+	Several dungeon monsters may now sometimes appear in town as a weaker-than-
+average specimen of its race.  At the very beginning of the game, no dungeon
+monsters native deeper than level 1 will appear, but later, more dungeon monsters
+will show up in the town.
+
+	Roaming monsters: Many monsters are now created awake but unaware of the PC
+(player character).  You will see them walking around before they have noticed you.
+
+	Non-agressive monsters: A few types of town monsters and one or two types of 
+dungeon monsters are non-agressive, meaning they will not take notice of you unless 
+they are attacked or aggravated.  (Although recently there has been a bug which 
+does allow non-agressive monsters to attack you sometimes even before they have
+taken notice of you. I think this is fixed, but I'm not completely sure.)
+
+	Monster curse spell: Some monsters can cast a spell which curses you.  This 
+is a timed condition which lowers your armor class, lowers most of your skills, and 
+temporarily raises your bad luck.
+
+
+---Novelty Races & Classes
+
+	Living Ghoul - A living ghoul is a human (or similar humanoid monster)
+which he or his ancestors have been subjected to the effects of necromantic magic 
+enough that they have been permanently altered, though they are not true undead.
+They have very poor constitution, but have intrinsic see invisibile and resistance 
+to nether.  Many living ghouls decide to become clerics to battle against the
+necromantic magic which has made them what they are.
+
+	Power Sprite - Tinkerbell can throw an ogre across the room.  That doesn't
+translate perfectly into the game (you can't actually throw monsters), but that sums
+up what the power sprite is about: massive brute strength in a very small body.  
+They come with resistance to light and fear, but because of their diminutive size, 
+they also have the lowest hit die of any player race.
+
+	Golem - Golems are contructs so they never get tired and never need to eat.
+They also do not regenerate hit points naturally.  They have no constitution score,
+no luck rating (except from equipment or temporary effects), and they resist fire, 
+poison, and shards.  Feather falling has no effect on golems, they will always take
+damage when falling into a pit.
+
+	Umber Hulk - The most unbalanced of all races, the umber hulk has innate
+perfect digging ability, unmatched melee power, confusion resistance, and confuse 
+monsters with their attacks.  They also have big drawbacks: They may cause 
+earthquakes with their attacks and they aggravate monsters.  You must be the matching
+hulk class when you choose the umber hulk race.  They are not fit for spellcasting
+or other professions.
+
+	The Tourist - A very difficult class to play, the tourist hears of the 
+challenge to kill Morgoth and gets excited about the interesting sights to see in
+the dungeon on the way.  He's obviously not a good fighter, he doesn't choose which 
+spells he learns, and his magic mostly consists of divination spells (treasure 
+detection mapping, and identifying), and random-effect spells.  At the beginning of
+the game, his primary defence is the camera flash spell which stuns opponents for a
+couple turns and his best combat skill is in throwing weapons.  The luck stat has 
+more effect for the tourist than it does for any other class, he is also more likely
+to start with high luck.
+
+	The Knight classes - The knight classes (White knight, Black knight, Chaos 
+Warrior) are all pretty similar to each other except they each use a different magic 
+realm.  They are very tough fighters with mediocure skills and a little bit of magic.  
+They are horrible at stealth and do not like to run away from a fight.  They can wear 
+more armor than any other class without having their magic hindered.  There is planned 
+to be a knight class for each magic realm eventually.  (The Chaos Warrior is the 
+knight class of the chance magic realm. It is not called a knight because the chance 
+realm is chaotic and knights are lawful).
+
+
+---Options which aren't in vanilla or have been changed:
+
+		Interface options:
+	Allow themed levels (themed_levels) - allows you to disable themed levels. defaults to ON.
+	Remove level feelings (level_numb) - removes level feelings and at the same time activates a much milder version of the auto-scummer.  You will still get messages letting you know when you arrive on a themed level, and you may still request a danger feeling with CTRL-G. (It's only the treasure-related feelings which are completely removed). defaults to OFF.
+	Stop autoinscribe from overwriting old inscription (prevent_overwrite) - prevents autoinscriptions from replacing an inscription already on the item. defaults to ON.
+		Display option:
+	Show time in main window (show_gtime) - replaces the "equippy characters" with the game time display (which is always shown in the (c)haracter screen anyway). defaults to ON.
+		Disturbance option:
+	Disturb when ESP detects a new monster (disturb_move) - when you have telepathy, this disturbs when you detect a new monster coming within your ESP-detection range. defaults to OFF.
+	Disturb whenever viewable monster moves (disturb_near) has been changed so that monsters which are not aware of you don't disturb you unless they are within five spaces of you or unless they are just coming into your line of sight.
+		Birth options:
+	Randomize randart names (birth_randnames) - Decides whether randarts get random names or keep the names from the standard artifact list.  Often the names from the standard artifact list don't fit with the randomized artifacts. defaults to ON.
+	Enable selling to shops (birth_cansell) - allows you to sell dungeon items to the shops for gold and reduces the gold value of dungeon coins. defaults of OFF.
+		Cheat options:
+	Everything is IDed (cheat_noid) - All objects are automatically fully identified on creation except artifacts. Artifacts are excluded because the score from finding an artifact is given when you identify it, and you shouldn't get this score until you gain possession of the item (then again, having the cheat option on disables scoring anyway..).
+	The Know complete monster race info (cheat_know) option no longer prevents the game from being scored, but otherwise still acts like a cheat option.
 
 Here are details on a few of the new monster types:
 ---------------------------------------------------
@@ -293,30 +405,37 @@ of its body.  It has no wings, but it can fly and it swings its body back and fo
 to bite with each head. It most commonly appears when summoned to plague and poison 
 someone with a curse.
 
-	(w) The Grepse (silver beings): The domain of the grepse is a shadowy realm 
+	The Grepse (silver beings): The domain of the grepse is a shadowy realm 
 full of illusions designed to make you comfortable and forget everything and 
-everyone you used to know.  The most common type of grepse are the vyrms.  Their 
-true form is like a flying worm, but they usually wear an illusion making them 
-look like a pleasant songbird. Their song creates illusions in people's minds and 
-make them forget what they care about.  The silverworm is a weaker form of a vyrm. 
-(The domain of the grepse is one of the themed level types).
-	Wemu Vyrm: The lord of the grepse, its form is a tiny humanoid made of 
+everyone you used to know.  The most common type of grepse are the (w)vyrms.  
+Their true form is like a flying worm, but they usually wear an illusion making 
+them look like a pleasant songbird. Their song creates illusions in people's minds 
+and make them forget what they care about.  The silverworm is a weaker form of a 
+vyrm. (The domain of the grepse is one of the themed level types).
+	(w) Wemu Vyrm: The lord of the grepse, its form is a tiny humanoid made of 
 silver slime. It usually wears an illusion making it look like the same size and 
 race as its victim.
 
-	(x) Goyley and Groyle: These are lesser types of gargoyles. The groyle is 
+	(T) Goyley and Groyle: These are lesser types of gargoyles. The groyle is 
 sometimes mistaken for a winged orc, though they are usually loners and do not get 
 along with orcs. Goyleys are the smallest type of gargoyles are often mistaken for 
 winged gremlins.
+	Gargoyles are related closely enough to trolls that any weapons which slays 
+trolls also slays gargoyles.
 
 	(y) Light Fairies: These creatures of light (which means they take extra 
 damage from magical darkness) tend to be small and look harmless, but some of them 
 are very powerful with fairy magic. The most common light fairies are types of 
-sprites and gnomes.  Fairy gnomes (as opposed to the magic gnome player race) are fairies of wisdom and cannot be confused by normal means*.  Bright sprites give 
-off light as they fly, which can be bright enough to blind you.
+sprites and gnomes.  Fairy gnomes (as opposed to the magic gnome player race) are 
+fairies of wisdom and cannot be confused by normal means*.  Bright sprites give 
+off light as they fly which can be bright enough to blind you.
 	*Poison has a different effect on light fairies as it does on mortals.  It 
 inflicts much less physical damage in light fairies, but it causes confusion for 
 them instead.
+
+
+
+
 
 
 
@@ -330,6 +449,16 @@ to be spoiler information.  Read on only if you hate surprises.
 
 
 
+
+
+
+
+
+
+
+
+
+
 Details on the Themed Levels:
 -----------------------------
 
@@ -338,8 +467,8 @@ common there.  This list is in rough order of difficulty, so that you are more
 likely to find a bug cave on earlier levels and a hell hall on later levels.
 	Themed levels have a chance to let in monsters which are not native to the
 theme, except that certain themes have conflicting monsters which will never 
-appear there.  Some certain monsters will never appear outside of their theme-
-type. Uniques often have certain theme(s) that they are associated with also.
+appear there.  Some certain monsters will never appear outside of their home
+theme. Uniques often have certain theme(s) that they are associated with also.
 
 The Icky Place
   "This level is a slimy, icky place.."
@@ -398,14 +527,14 @@ Draugluin (Sire of all Werewolves), Liart (Master of Torments).
 The Earth Cave
   "The walls here have crystal and other types of rocks showing between the 
 granite."
-	Inhabitants: zhelung lizards, grey dragons and other crystal, rock and 
-earth-themed monsters.
+	Inhabitants: zhelung lizards, grey (stone/force) dragons and other 
+crystal, rock and earth-themed monsters.
 	Uniques: No uniques are native to the Earth cave.
 
 The Windy Cave
   "This level has high ceilings and windy tunnels."
-	Inhabitants: various flying monsters, vortexes, silver dragons, and 
-other air-themed monsters.
+	Inhabitants: various flying monsters, vortexes, violet (wind/nexus) dragons, 
+and other air-themed monsters.
 	Uniques: The Phoenix, Fafner the Giant, Pazuzu (Lord of Air)
 
 The Volcano
@@ -462,3 +591,39 @@ The Hell Halls
 	Uniques: Draebor (the Imp), The Skeezix, The Cerberus, The Balrog of Moria, 
 Leviathon, Baphomet (the Goat of Mendes), Lungorthin (Balrog of White Fire), 
 Gothmog (the High Captain of the Balrogs).
+
+
+Selected Magic Item and Effect Spoilers:
+----------------------------------------
+
+Docile Dust Bunnies
+	Docile dust bunnies are cute and harmless, but they might make you sneeze.
+They are basically useless 'junk objects' which I'm not even sure why I added them.
+I will likely think up some somewhat obscure but interesting use for them at some
+point.
+
+Telekinesis (staff or spell)
+	Telekinesis allows you to pick up objects from a distance.  If your inventory
+is currently full, it will instead move the target object to the space at your feet. 
+The restriction on telekinesis is that the target object must be either in line of
+sight and/or within the range limit of the spell (usually about 9).  Only the thief
+and tourist classes get telekinesis as a spell.
+
+Teleport control
+	Rarely, you will find an item which gives teleport control (most often on
+a cursed item which also gives random teleporation).  Teleport control is risky 
+on such an item because you don't always succeed in controlling the teleporation.
+Odds of controlling teleportation with teleport control are based on your magic
+device skill and luck.  Also, the more you use the teleport control ability, the
+easier it gets for that character.
+
+Treasure Maps
+	Any unique monsters which are native to level 35 (1750') or deeper
+have a 6% chance to drop a treasure map.  Reading a treasure map makes it much
+more likely to find vault(s) on the next level you get to by going down stairs.  
+This will not help you find a vault when you get to another level by any other way 
+than going down stairs.  If a significant amount of time passes between reading the 
+map and going down stairs, you may forget the map and it will end up having no 
+effect.  This does not guarantee finding a vault, and it has no effect when your 
+new depth is less then level 5 (250').  The tourist class gets a spell in a dungeon 
+book which creates a treasure map.

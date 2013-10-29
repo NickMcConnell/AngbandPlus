@@ -741,28 +741,72 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	object_type *o_ptr;
 
 	s16b m_idx;
+	bool monasobj = FALSE;
+	bool wisplight = FALSE;
 
 	s16b image = p_ptr->timed[TMD_IMAGE];
 
 	int floor_num = 0;
 	monster_type *m_ptr;
+	monster_race *r_ptr;
+	
+	/* temporary light (haven't gotten it to work) */
+	/* if (spellswitch == 9) wisplight = TRUE; */
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
-
-	/* doppleganger (change tile to copy the player if easily visible) */
-	m_ptr = &mon_list[m_idx];
-	if ((m_ptr->r_idx == 631) && (m_ptr->mflag & (MFLAG_VIEW)))
-	{
-	   m_idx = -1;
-	}
-	/* map_info() doesn't use m_ptr again so don't need to reset it */
 
 	/* Feature */
 	feat = cave_feat[y][x];
 
 	/* Cave flags */
 	info = cave_info[y][x];
+
+	/* disguised monsters */
+    m_ptr = &mon_list[m_idx];
+	r_ptr = &r_info[m_ptr->r_idx];
+	/* doppleganger (change tile to copy the player if easily visible) */
+	if ((m_ptr->r_idx == 631) && (m_ptr->mflag & (MFLAG_VIEW)))
+	{
+		m_idx = -1;
+	}
+	/* mimmics */
+	else if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) &&
+			((m_ptr->meet == 100) || (player_can_see_bold(y, x))))
+/*			((m_ptr->mflag & (MFLAG_SHOW)) || (player_can_see_bold(y, x)))) */
+	{
+		/* These are currently the only symbols which work for CHAR_MULTI */
+        if (strchr("!,-_~=?#%:.$", r_ptr->d_char))
+		{
+	        /* don't show the monster */
+			m_idx = 0;
+			/* monster is disguised as a wall */
+			if (strchr("#", r_ptr->d_char)) feat = FEAT_WALL_INNER;
+			else if (strchr("%", r_ptr->d_char)) feat = FEAT_QUARTZ;
+			else if (strchr(":", r_ptr->d_char)) feat = FEAT_RUBBLE;
+			/* monster is disguised as a floor space */
+			else if ((strchr(".", r_ptr->d_char)) && 
+				(!(r_ptr->flags1 & (RF1_CHAR_CLEAR)))) feat = FEAT_FLOOR;
+			/* monster is disguised as whatever is underneath it */
+			else if (strchr(".", r_ptr->d_char)) /* */;
+			/* monster is disguised as an object */
+			else monasobj = TRUE;
+	    }
+	}
+	/* Currently the only non-CHAR_MULTI monsters which use the disguised flag */
+	/* are monsters which are both invisible AND give off their own light */
+	/* (which partly defeats the purpose of being invisible but kindof makes a */
+	/* cool effect for will o' wisps), this has the effect of mimmicking whatever */
+	/* the monster is standing on (even if the space is out of range of the */
+	/* PC's light source). */
+	else if ((m_ptr->disguised) && (r_ptr->flags2 & (RF2_MONGLOW)))
+	{
+        /* don't show the monster (just show whatever is underneath it) */
+		m_idx = 0;
+		
+		/* light up the square where the monster is */
+		wisplight = TRUE;
+	}
 
 	/* Hack -- rare random hallucination on non-outer walls */
 	if (image && (!rand_int(256)) && (feat < FEAT_PERM_SOLID))
@@ -777,9 +821,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	else if (feat <= FEAT_INVIS)
 	{
 		/* Memorized (or seen) floor */
-		/* spellswitch 9: temporary light */
-		if ((info & (CAVE_MARK)) ||
-		    (info & (CAVE_SEEN)) /* || (spellswitch == 9) */ )
+		if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)) || (wisplight))
 		{
 			/* Get the floor feature */
 			f_ptr = &f_info[FEAT_FLOOR];
@@ -812,7 +854,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	else
 	{
 		/* Memorized grids */
-		if (info & (CAVE_MARK))
+		if ((info & (CAVE_MARK)) || (wisplight))
 		{
 			/* Apply "mimic" field */
 			feat = f_info[feat].mimic;
@@ -851,7 +893,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	/* Objects */
 	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		/* Memorized objects */
+		/* a monster has lit up the space with the object */
+        if (wisplight) o_ptr->marked = TRUE;
+        
+        /* Memorized objects */
 		if (o_ptr->marked && !squelch_hide_item(o_ptr))
 		{
 			/* Hack -- object hallucination */
@@ -892,17 +937,46 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 		}
 	}
+	/* monsters disguised as objects */
+	if (monasobj)
+	{
+		/* Hack -- object hallucination */
+		if (image)
+		{
+			int i = image_object();
+
+			a = PICT_A(i);
+			c = PICT_C(i);
+		}
+		else
+		{
+			/* stuff from object_attr() and object_char() without an o_ptr */
+            int fkidx = m_ptr->disguised;
+            if (((k_info[fkidx].tval == TV_SCROLL) && 
+				(k_info[fkidx].aware)) || (!(k_info[fkidx].flavor)) &&
+                (k_info[fkidx].tval))
+			{
+				a = (k_info[fkidx].x_attr);
+				c = (k_info[fkidx].x_char);
+            }
+            else if (k_info[fkidx].tval)
+			{
+				a = flavor_info[k_info[fkidx].flavor].x_attr;
+				c = flavor_info[k_info[fkidx].flavor].x_char;
+            }
+		}
+	}
 
 
 	/* Monsters */
 	if (m_idx > 0)
 	{
-		monster_type *m_ptr = &mon_list[m_idx];
+		m_ptr = &mon_list[m_idx];
 
 		/* Visible monster */
 		if ((m_ptr->ml) || (m_ptr->heard))
 		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			r_ptr = &r_info[m_ptr->r_idx];
 
 			byte da;
 			char dc;
@@ -954,7 +1028,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/* Normal monster (not "clear" in any way) */
-			else if ((!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR))) && (m_ptr->ml))
+			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
 			{
 				/* Use attr */
 				a = da;
@@ -981,7 +1055,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/* Normal attr, Clear char, monster */
-			else if ((!(r_ptr->flags1 & (RF1_ATTR_CLEAR))) || (!m_ptr->ml))
+			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)))
 			{
 				/* Normal attr */
 				a = da;
@@ -989,17 +1063,17 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		}
 	}
 
-	/* Handle "player" */
+	/* Handle the PC */
 	else if (m_idx < 0)
 	{
-		monster_race *r_ptr = &r_info[0];
+		r_ptr = &r_info[0];
 
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;
 		if ((hp_changes_color) && (arg_graphics == GRAPHICS_NONE))
 		{
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
-				{
+			{
 				case 10:
 				case  9:	a = TERM_WHITE  ;	break;
 				case  8:
@@ -1012,17 +1086,17 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				case  1:
 				case  0:	a = TERM_RED    ;	break;
 				default:	a = TERM_WHITE  ;	break;
-				}
+			}
 		}
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;
 	}
 
-	/* Players */
+	/* Players?? */
 	else if (m_idx < 0)
 	{
-		monster_race *r_ptr = &r_info[0];
+		r_ptr = &r_info[0];
 
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;
@@ -2949,10 +3023,6 @@ void update_view(void)
 
 						
     /* figure seen radius for dim light (min 7) (see L3093) */
-#if EXPM
-	srad = radius + 5;
-	if (radius < 2) srad = 7;
-#else	
 	srad = radius + 6;
 	if (radius < 2) srad = 8;
 	/* no dimness with daylight spell */
@@ -2962,7 +3032,6 @@ void update_view(void)
 	if (radmod < 20) srad += 3;
 	else if (radmod < 70) srad += 2;
 	else if (radmod > 100) srad -= 1;
-#endif
 
 
 	/*** Step 2 -- octants ***/
@@ -3111,15 +3180,6 @@ void update_view(void)
 							/* Mark as "CAVE_LITE" */
 							/* info |= (CAVE_LITE); */
 						}
-
-#if EXPM
-                        /* figure seen radius for dim light (min 7) */
-						if (info & (DLIT_DIMA)) srad += 3;
-						else if (info & (DLIT_DIMB)) srad += 2;
-						else if (info & (DLIT_DIMC)) srad += 1;
-						else if (info & (DLIT_DIMD)) srad += 0;
-						else /* (DLIT_FULL) */ srad += 100;
-#endif
 
 						/* Perma-lit grids */
 						/* DJA: dim light: do not show whole rooms in a large room */
@@ -3300,11 +3360,8 @@ void update_flow(void)
 
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-
 	int ty, tx;
-
 	int y, x;
-
 	int n, d;
 
 	int flow_n;
@@ -3471,11 +3528,17 @@ void map_area(void)
 					cave_info[y][x] |= (CAVE_MARK);
 				}
 
-				/* ordinary trees are detected on a map */
+				/* ordinary trees and certain wall monsters are detected on a map */
 				if (cave_m_idx[y][x] > 0)
 				{
-					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-					if (m_ptr->r_idx == 834)
+                    monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+                    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+					/* (only if it blocks LOS and never moves) */
+					if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) && 
+						(r_ptr->flags7 & (RF7_BLOCK_LOS)) &&
+						((strchr("#", r_ptr->d_char)) ||
+						(r_ptr->flags7 & (RF7_NONMONSTER))))
 					{
 						/* make sure you know that they never move */
 						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
@@ -3563,6 +3626,35 @@ void wiz_lite(void)
 		/* Memorize */
 		if (!o_ptr->hidden) o_ptr->marked = TRUE;
 	}
+	
+	/* Check for mimmics */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Paranoia -- skip "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+		
+		/* monster is temporarily dead */
+		if (m_ptr->temp_death) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* detect mimmics as objects */
+        if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised > 1))
+		{
+			if (strchr("!,-_~=?", r_ptr->d_char))
+			{
+				/* mark as detected as object */
+				m_ptr->meet = 100;
+				/* Redraw */
+				lite_spot(y, x);
+			}
+		}
+	}
 
 	/* Scan all normal grids */
 	for (y = 1; y < DUNGEON_HGT-1; y++)
@@ -3581,15 +3673,16 @@ void wiz_lite(void)
 
 					/* Perma-lite the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
-#if EXPM
-					cave_info[yy][xx] |= (DLIT_DIMA);
-#endif
 
 					/* ordinary trees are detected on a map */
 					if (cave_m_idx[y][x] > 0)
 					{
 						monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-						if (m_ptr->r_idx == 834)
+						monster_race *r_ptr = &r_info[m_ptr->r_idx];
+						
+						if ((r_ptr->flags7 & (RF7_NONMONSTER)) && 
+							(r_ptr->flags1 & (RF1_NEVER_MOVE)) &&
+							(r_ptr->flags7 & (RF7_BLOCK_LOS)))
 						{
 							/* make sure you know that they never move */
 							monster_lore *l_ptr = &l_list[m_ptr->r_idx];
@@ -3691,9 +3784,6 @@ void town_illuminate(bool daytime)
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
-#if EXPM
-                cave_info[y][x] |= (DLIT_FULL);
-#endif
 
 				/* Memorize the grid */
 				cave_info[y][x] |= (CAVE_MARK);
@@ -3704,9 +3794,6 @@ void town_illuminate(bool daytime)
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
-#if EXPM
-                cave_info[y][x] |= (DLIT_FULL);
-#endif
 
 				/* Hack -- Memorize grids */
 				if (view_perma_grids)
@@ -3747,9 +3834,6 @@ void town_illuminate(bool daytime)
 
 					/* Illuminate the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
-#if EXPM
-					cave_info[yy][xx] |= (DLIT_FULL);
-#endif
 
 					/* Hack -- Memorize grids */
 					if (view_perma_grids)
@@ -3789,20 +3873,25 @@ void cave_set_feat(int y, int x, int feat)
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
+	
+	/* check for a BLOCK_LOS monster in that space */
+    else if (cave_m_idx[y][x] > 0)
+	{
+		monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		
+		/* don't remove CAVE_WALL if monster has BLOCK_LOS */
+        if (!(r_ptr->flags7 & (RF7_BLOCK_LOS)))
+		{
+			cave_info[y][x] &= ~(CAVE_WALL);
+		}
+	}
 
 	/* Handle "floor"/etc grids */
 	else
 	{
 		cave_info[y][x] &= ~(CAVE_WALL);
 	}
-
-#if shouldntneedthis
-	/* paranoia: make sure new features don't have the CAVE_WALL flag */
-	if ((feat == FEAT_WATER) || (feat == FEAT_OPEN_PIT))
-	{
-		cave_info[y][x] &= ~(CAVE_WALL);
-	}
-#endif
 
 	/* Notice/Redraw */
 	if (character_dungeon)

@@ -637,6 +637,19 @@ void do_cmd_use_staff(void)
 
 
 /*
+ * Hook to specify wand or rod
+ */
+static bool item_tester_hook_zap(const object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_WAND) return TRUE;
+	if (o_ptr->tval == TV_ROD) return TRUE;
+
+	return (FALSE);
+}
+
+
+#if nolongerneeded
+/*
  * Aim a wand (from the pack or floor).
  *
  * Use a single charge from a single item.
@@ -659,11 +672,8 @@ void do_cmd_use_staff(void)
 void do_cmd_aim_wand(void)
 {
 	int item, lev;
-
 	bool ident;
-
 	object_type *o_ptr;
-
 	cptr q, s;
 
 
@@ -729,8 +739,7 @@ void do_cmd_aim_wand(void)
 		floor_item_charges(0 - item);
 	}
 }
-
-
+#endif
 
 
 
@@ -742,7 +751,8 @@ void do_cmd_aim_wand(void)
  * Hack -- rods of identify can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
  */
-void do_cmd_zap_rod(void)
+/* void do_cmd_zap_rod(void) */
+void do_cmd_zap_wandorrod(void)
 {
 	int item;
 	bool ident;
@@ -750,12 +760,13 @@ void do_cmd_zap_rod(void)
 	cptr q, s;
 
 
-	/* Restrict choices to rods */
-	item_tester_tval = TV_ROD;
+	/* Restrict choices to wands or rods */
+	/* item_tester_tval = TV_ROD; */
+	item_tester_hook = item_tester_hook_zap;
 
 	/* Get an item */
-	q = "Zap which rod? ";
-	s = "You have no rod to zap.";
+	q = "Zap which wand or rod? ";
+	s = "You have no wand or rod to zap.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -792,6 +803,25 @@ void do_cmd_zap_rod(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	
+	/* For rods, this is done in use-obj.c */
+    if (o_ptr->tval == TV_WAND)
+	{
+		/* Use a single charge */
+		o_ptr->pval--;
+
+		/* Describe the charges in the pack */
+		if (item >= 0)
+		{
+			inven_item_charges(item);
+		}
+
+		/* Describe the charges on the floor */
+		else
+		{
+			floor_item_charges(0 - item);
+		}
+	}
 }
 
 
@@ -958,6 +988,6 @@ void do_cmd_activate(void)
        /* exp drain is much more likely when */
        /* activating an object with the DRAIN_EXP flag */
        /* (two chances to kick in: here and in project() function) */
-       if ((f3 & (TR3_DRAIN_EXP)) && (p_ptr->exp_drain)) rxp_drain(25);
+       if ((f2 & (TR2_DRAIN_EXP)) && (p_ptr->exp_drain)) rxp_drain(25);
     }
 }

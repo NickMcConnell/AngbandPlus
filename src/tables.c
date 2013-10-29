@@ -273,8 +273,8 @@ const byte adj_chr_charm[] =
 	56	/* 18/170-18/179 */,
 	58	/* 18/180-18/189 */,
 	60	/* 18/190-18/199 */,
-	63	/* 18/200-18/209 */,
-	66	/* 18/210-18/219 */,
+	62	/* 18/200-18/209 */,
+	65  /* 18/210-18/219 */,
 	70	/* 18/220+ */
 };
 
@@ -368,6 +368,53 @@ const byte adj_int_dev[] =
 	18	/* 18/200-18/209 */,
 	19	/* 18/210-18/219 */,
 	20	/* 18/220+ */
+};
+
+
+/*
+ * Stat Table (usually INT, sometimes WIS) -- Spell skills
+ * (based on Magic devices table)
+ */
+const byte adj_int_spsk[] =
+{
+	0	/* 3 */,
+	0	/* 4 */,
+	0	/* 5 */,
+	0	/* 6 */,
+	0	/* 7 */,
+	1	/* 8 */,
+	1	/* 9 */,
+	1	/* 10 */,
+	1	/* 11 */,
+	2	/* 12 */,
+	2	/* 13 */,
+	3	/* 14 */,
+	3	/* 15 */,
+	4	/* 16 */,
+	4	/* 17 */,
+	5	/* 18/00-18/09 */,
+	5	/* 18/10-18/19 */,
+	6	/* 18/20-18/29 */,
+	6	/* 18/30-18/39 */,
+	7	/* 18/40-18/49 */,
+	7	/* 18/50-18/59 */,
+	8	/* 18/60-18/69 */,
+	8	/* 18/70-18/79 */,
+	9	/* 18/80-18/89 */,
+	9	/* 18/90-18/99 */,
+	10	/* 18/100-18/109 */,
+	10	/* 18/110-18/119 */,
+	11	/* 18/120-18/129 */,
+	11	/* 18/130-18/139 */,
+	12	/* 18/140-18/149 */,
+	13	/* 18/150-18/159 */,
+	13	/* 18/160-18/169 */,
+	14	/* 18/170-18/179 */,
+	15	/* 18/180-18/189 */,
+	15	/* 18/190-18/199 */,
+	16	/* 18/200-18/209 */,
+	17	/* 18/210-18/219 */,
+	18	/* 18/220+ */
 };
 
 
@@ -1232,9 +1279,9 @@ const byte extract_energy[200] =
 
 
 
-
 /*
  * Base experience levels, may be adjusted up for race and/or class
+ * MAX XP is 99,999,999
  */
 const s32b player_exp[PY_MAX_LEVEL] =
 {
@@ -1500,9 +1547,9 @@ cptr option_text[OPT_MAX] =
 	"pickup_inven",				/* OPT_pickup_inven */
 	"depth_in_feet",			/* OPT_depth_in_feet */
 	"themed_levels",			/* OPT_themed_levels */
-	NULL,						/* xxx stack_force_costs */
+	"level_numb",	            /* OPT_level_numb */
 	"show_labels",				/* OPT_show_labels */
-	NULL,						/* xxx show_weights */
+	"prevent_overwrite",		/* OPT_prevent_overwrite */
 	NULL,						/* xxx show_choices */
 	NULL,						/* xxx show_details */
 	"ring_bell",				/* OPT_ring_bell */
@@ -1531,7 +1578,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
 	"view_torch_grids",			/* OPT_view_torch_grids */
-	NULL,						/* xxx dungeon_align */
+	"show_gtime",	            /* OPT_show_gtime */
 	NULL,						/* xxx dungeon_stair */
 	NULL,						/* xxx flow_by_sound */
 	NULL,						/* xxx flow_by_smell */
@@ -1570,7 +1617,7 @@ cptr option_text[OPT_MAX] =
 	"squelch_worthless",			/* OPT_squelch_worthless */
 	"mouse_movement",			/* OPT_mouse_movement */
 	"always show lists",		/* OPT_show_lists */
-	NULL,						/* xxx */
+	NULL,	                    /* OPT_xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1656,8 +1703,8 @@ cptr option_text[OPT_MAX] =
 	"cheat_room",				/* OPT_cheat_room */
 	"cheat_xtra",				/* OPT_cheat_xtra */
 	"cheat_know",				/* OPT_cheat_know */
+	"cheat_noid",				/* OPT_cheat_noid */
 	"cheat_live",				/* OPT_cheat_live */
-	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1720,8 +1767,8 @@ cptr option_text[OPT_MAX] =
 	"score_room",				/* OPT_score_room */
 	"score_xtra",				/* OPT_score_xtra */
 	"score_know",				/* OPT_score_know */
+	"score_noid",				/* OPT_score_noid */
 	"score_live",				/* OPT_score_live */
-	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1764,9 +1811,9 @@ cptr option_desc[OPT_MAX] =
 	"Always pickup items matching inventory",	/* OPT_pickup_inven */
 	"Show dungeon level in feet",				/* OPT_depth_in_feet */
 	"Allow themed levels",						/* OPT_themed_levels */
-	NULL,										/* xxx stack_force_costs */
+	"Remove level feelings",					/* OPT_level_numb */
 	"Show labels in equipment listings",		/* OPT_show_labels */
-	NULL,										/* xxx show_weights */
+	"Stop autoinscribe from overwriting old inscription",	/* OPT_prevent_overwrite */
 	NULL,										/* xxx show_choices */
 	NULL,										/* xxx show_details */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
@@ -1795,7 +1842,7 @@ cptr option_desc[OPT_MAX] =
 	NULL, 										/* xxx expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
-	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
+	"Show time in main window",	                /* OPT_show_gtime */
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (slow)",	/* OPT_adult_ai_sound */
 	"Monsters chase recent locations (slow)",	/* OPT_adult_ai_smell */
@@ -1834,7 +1881,7 @@ cptr option_desc[OPT_MAX] =
 	"Automatically squelch worthless items",	/* OPT_squelch_worthless */
 	"Allow mouse clicks to move the player",	/* OPT_mouse_movement */
 	"Always show lists",						/* OPT_show_lists */
-	NULL,										/* xxx */
+	NULL,					                    /* OPT_xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1902,7 +1949,8 @@ cptr option_desc[OPT_MAX] =
 	"Monsters learn from their mistakes",
 	"Monsters exploit player's weaknesses",
 	"Monsters behave more intelligently (broken)",
-	NULL,										/* xxx */	NULL,										/* xxx */
+	NULL,										/* xxx */
+    NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1915,12 +1963,12 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	"Cheat: Peek into object creation",			/* OPT_cheat_peek */
-	"Cheat: Peek into monster creation",		/* OPT_cheat_hear */
+	"Cheat: Peek into monster creation and knowledge",	/* OPT_cheat_hear */
 	"Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
 	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
-	"Cheat: Know complete monster info",		/* OPT_cheat_know */
+	"Know complete monster race info (allows scoring)",	/* OPT_cheat_know */
+	"Cheat: Everything is IDed (except artifacts)",	/* OPT_cheat_noid */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
-	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1983,8 +2031,8 @@ cptr option_desc[OPT_MAX] =
 	"Score: Peek into dungeon creation",		/* OPT_score_room */
 	"Score: Peek into something else",			/* OPT_score_xtra */
 	"Score: Know complete monster info",		/* OPT_score_know */
+	"Score: Everything is already IDed",		/* OPT_score_noid */
 	"Score: Allow player to avoid death",		/* OPT_score_live */
-	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2027,9 +2075,9 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_pickup_inven */
 	FALSE,		/* OPT_depth_in_feet */
 	TRUE,		/* OPT_themed_levels */
-	FALSE,		/* xxx stack_force_costs */
+	FALSE,		/* OPT_level_numb */
 	TRUE,		/* OPT_show_labels */
-	FALSE,		/* xxx show_weights */
+	TRUE,		/* OPT_prevent_overwrite */
 	FALSE,		/* xxx show_choices */
 	FALSE,		/* xxx show_details */
 	FALSE,		/* OPT_ring_bell */
@@ -2058,7 +2106,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
-	TRUE,		/* OPT_dungeon_align */
+	TRUE,		/* OPT_show_gtime */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* xxx adult_ai_sound */
 	FALSE,		/* xxx adult_ai_smell */
@@ -2149,7 +2197,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* birth_maximise */
 	FALSE,		/* birth_randarts */
 	TRUE,		/* burth_randnames */
-	TRUE,		/* birth_autoscum */
+	FALSE,		/* birth_autoscum */
 	FALSE,		/* birth_ironman */
 	FALSE,		/* birth_no_stores */
 	FALSE,		/* birth_no_artifacts */
@@ -2183,8 +2231,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_cheat_room */
 	FALSE,		/* OPT_cheat_xtra */
 	FALSE,		/* OPT_cheat_know */
+	FALSE,		/* OPT_cheat_noid */
 	FALSE,		/* OPT_cheat_live */
-	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2247,8 +2295,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_score_room */
 	FALSE,		/* OPT_score_xtra */
 	FALSE,		/* OPT_score_know */
+	FALSE,		/* OPT_score_noid */
 	FALSE,		/* OPT_score_live */
-	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2297,8 +2345,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_mouse_movement,
 		OPT_show_lists,
 		OPT_themed_levels,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_level_numb,
+		OPT_prevent_overwrite,
 		OPT_NONE,
 	},
 
@@ -2317,7 +2365,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_special_lite,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
-		OPT_NONE,
+		OPT_show_gtime,
 		OPT_NONE,
 		OPT_NONE,
 	},
@@ -2370,8 +2418,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_room,
 		OPT_cheat_xtra,
 		OPT_cheat_know,
+		OPT_cheat_noid,
 		OPT_cheat_live,
-		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2385,12 +2433,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 };
 
 
-#ifdef EFG
 /* EFGchange code cleaning */
 cptr inscrip_text[INSCRIP_MAX] =
-#else
-cptr inscrip_text[MAX_INSCRIP] =
-#endif
 {
 	NULL,
 	"terrible",
@@ -2398,6 +2442,7 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"cursed",
 	"worthless", /* changed: was 'broken' */
 	"average",
+	"decent",
 	"good",
 	"excellent",
 	"special",

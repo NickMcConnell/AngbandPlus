@@ -107,7 +107,7 @@
  */
 #define DUN_ROOMS	50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL	200	/* Level/chance of unusual room */
-#define DUN_DEST	40	/* 1/chance of having a destroyed level */
+#define DUN_DEST	40	/* 1/chance of having a destroyed level (was 30) */
 
 /*
  * Dungeon tunnel generation values
@@ -152,6 +152,8 @@
 #define ALLOC_TYP_WATER		6	/* water */
 #define ALLOC_TYP_OPEN_PIT	7	/* open pit */
 #define ALLOC_TYP_TREES		8   /* trees */
+#define ALLOC_TYP_STATUE    9   /* statues */
+#define ALLOC_TYP_FOUNT     10  /* fountain */
 
 
 /*
@@ -389,8 +391,11 @@ static void place_rubble(int y, int x)
 
 /*
  * Convert existing terrain type to water and make a puddle around it
+ * mode == 0 normal puddle
+ * mode == 1 puddle in vault
+ * mode == 2 fountain (just water in the spaces adjacent)
  */
-void place_puddle(int y, int x, bool vault)
+void place_puddle(int y, int x, int mode)
 {
 	int yb, xb;
 	int i, spoty, spotx;
@@ -398,7 +403,7 @@ void place_puddle(int y, int x, bool vault)
 	bool finished = FALSE;
 	
 	/* (no enlarged puddles in vaults) */
-	if (!vault)
+	if (!mode)
 	{
 		/* sometimes allow bigger puddles in a swamp */
 		if ((p_ptr->theme == 9) && (randint(100) < 13)) puddle_size += 3 + randint(7);
@@ -408,12 +413,41 @@ void place_puddle(int y, int x, bool vault)
 		else if ((p_ptr->theme == 1) && (p_ptr->theme == 2))
 			puddle_size += 6 + randint(8);
 	}
+	else if (mode == 2) puddle_size = 8 + rand_int(3);
 
 	/* water */
 	cave_set_feat(y, x, FEAT_WATER);
+	
+	/* fountain */
+    if ((mode == 2) || ((puddle_size > 5) && (puddle_size < 14) && (randint(100) < 3)))
+	{
+		/* Put water in adjacent grids */
+		for (i = 0; i < 8; i++)
+		{
+			/* Extract the location */
+			yb = y + ddy_ddd[i];
+			xb = x + ddx_ddd[i];
+
+			/* out of bounds */
+			if (!in_bounds_fully(yb, xb)) continue;
+
+			/* don't flood the stairs (but can flood traps) */
+			if ((cave_feat[yb][xb] == FEAT_LESS) || (cave_feat[yb][xb] == FEAT_MORE))
+			    continue;
+
+			/* make water */
+			if (cave_floor_bold(yb, xb))
+			{
+				cave_set_feat(yb, xb, FEAT_WATER);
+				puddle_size -= 1;
+			}
+			else if (randint(100) < 80) puddle_size -= 1;
+		}
+	}
 
 	/* make a puddle (method 1) */
-	if (((puddle_size > 6) && (randint(100) < 90)) || (randint(100) < 41))
+	if (((puddle_size > 6) && (randint(100) < 90)) || 
+		((puddle_size) && (randint(100) < 41)))
 	{
 		for (yb = (y - 2); yb <= (y + 2); yb++)
 		{
@@ -425,7 +459,7 @@ void place_puddle(int y, int x, bool vault)
 					if (!in_bounds_fully(yb, xb)) continue;
 
 					/* don't flood the stairs (but can flood traps) */
-					if ((cave_feat[y][x] == FEAT_LESS) || (cave_feat[y][x] == FEAT_MORE))
+					if ((cave_feat[yb][xb] == FEAT_LESS) || (cave_feat[yb][xb] == FEAT_MORE))
 					    continue;
 
 					/* occationally skip a spot so that the shape isn't too predicatble */
@@ -487,7 +521,6 @@ static void place_down_stairs(int y, int x)
 	/* Create down stairs */
 	cave_set_feat(y, x, FEAT_MORE);
 }
-
 
 
 
@@ -581,7 +614,7 @@ static void alloc_stairs(int feat, int num, int walls)
 
 
 /*
- * Allocates some objects (using "place" and "type")
+ * Allocates some objects/terrain (using "place" and "type")
  */
 static void alloc_object(int set, int typ, int num)
 {
@@ -604,10 +637,12 @@ static void alloc_object(int set, int typ, int num)
 			{
 				if (!cave_clean_bold(y, x)) continue;
 			}
-			/* Require "naked" floor grid */
+			/* otherwise Require "naked" floor grid */
 			else if (!cave_naked_bold(y, x)) continue;
 
-			/* Check for "room" */
+			/* Check for room */
+			/* doorways no longer have CAVE_ROOM so that trees and statues */
+			/* (which use ALLOC_SET_ROOM) will never be placed in doorways */
 			room = (cave_info[y][x] & (CAVE_ROOM)) ? TRUE : FALSE;
 
 			/* Require corridor? */
@@ -620,6 +655,11 @@ static void alloc_object(int set, int typ, int num)
 			if (((typ == ALLOC_TYP_WATER) || (typ == ALLOC_TYP_TREES)) && 
 				(cave_info[y][x] & (CAVE_ICKY)))
 				continue;
+
+			/* don't put statues or trees in pits */
+            if ((cave_feat[y][x] == FEAT_OPEN_PIT) &&
+				((typ == ALLOC_TYP_STATUE) || (typ == ALLOC_TYP_TREES) ||
+                (typ == ALLOC_TYP_FOUNT))) continue;
 
 			/* Accept it */
 			break;
@@ -648,7 +688,7 @@ static void alloc_object(int set, int typ, int num)
 
 			case ALLOC_TYP_WATER:
 			{
-				place_puddle(y, x, FALSE);
+				place_puddle(y, x, 0);
 				break;
 			}
 
@@ -670,6 +710,34 @@ static void alloc_object(int set, int typ, int num)
 				if (randint(100) < 67) place_monster_aux(y, x, 834, TRUE, TRUE);
 				else place_monster_aux(y, x, 834, TRUE, FALSE);
 				break;
+			}
+
+			case ALLOC_TYP_STATUE:
+			{
+				int smallchance = 40;
+				/* small (dwarf) statues more common in DWARF_MINE */
+				if (p_ptr->theme == 10) smallchance = 70;
+				/* slp flag for statues is used to tell if it's ruined */
+				if (randint(100) < 2) place_monster_aux(y, x, 910, TRUE, FALSE);
+				else if (randint(100) < 2) place_monster_aux(y, x, 909, TRUE, FALSE);
+				/* 909 statue blocks line of sight, 910 (small) statue doesn't */
+				else if (randint(100) < smallchance) 
+					place_monster_aux(y, x, 910, FALSE, FALSE);
+				else place_monster_aux(y, x, 909, FALSE, FALSE);
+				break;
+			}
+			
+			case ALLOC_TYP_FOUNT:
+			{
+				/* slp flag for statues is used to tell if it's ruined */
+				if (randint(100) < 2) place_monster_aux(y, x, 911, TRUE, FALSE);
+				else
+				{
+					/* mode 2 is for fountains: place water in adjacent spaces */
+					place_puddle(y, x, 2);
+					place_monster_aux(y, x, 911, FALSE, FALSE);
+				}
+                break;
 			}
 		}
 	}
@@ -717,6 +785,9 @@ static void build_streamer(int feat, int chance)
 			/* Only convert "granite" walls */
 			if (cave_feat[ty][tx] < FEAT_WALL_EXTRA) continue;
 			if (cave_feat[ty][tx] > FEAT_WALL_SOLID) continue;
+			
+			/* Pillar mimmics are generated in granite, don't add a mineral here */
+            if (cave_m_idx[ty][tx]) continue;
 
 			/* Clear previous contents, add proper vein type */
 			cave_set_feat(ty, tx, feat);
@@ -768,7 +839,7 @@ static void destroy_level(void)
 				if (k >= 16) continue;
 
 				/* Delete the monster (if any) */
-				delete_monster(y, x);
+				delete_monster(y, x, FALSE);
 
 				/* Destroy valid grids */
 				if (cave_valid_bold(y, x))
@@ -968,32 +1039,31 @@ static void vault_monsters(int y1, int x1, int num)
  */
 static void generate_room(int y1, int x1, int y2, int x2, int light)
 {
-	int y, x, dimness;
+	int y, x;
 
-    /* how dim is the room's light? */
-    int lmod = randint(50 - goodluck/2 + p_ptr->depth * 2 + p_ptr->corrupt);
-    if (p_ptr->depth == 0) dimness = 0;
-    else if ((lmod < 33) && (p_ptr->depth < 26)) dimness = 1;
-    else if ((lmod < 66) && ((p_ptr->depth < 55) || (goodluck > 10))) dimness = 2;
-    else if (lmod < 100) dimness = 3;
-    else dimness = 4;
+	if (light)
+	{
+	    for (y = y1; y <= y2; y++)
+		{
+			for (x = x1; x <= x2; x++)
+			{
+				/* cave_info[y][x] |= (CAVE_ROOM); */
+				/* if (light) */ cave_info[y][x] |= (CAVE_GLOW);
+			}
+		}
+	}
+	/* Room walls & doorways shouldn't be considered part of the room */
+	/* (see temp_aux_aux() in spells2.c) */
+	y1 += 1;
+	y2 -= 1;
+	x1 += 1;
+	x2 -= 1;
 
 	for (y = y1; y <= y2; y++)
 	{
 		for (x = x1; x <= x2; x++)
 		{
 			cave_info[y][x] |= (CAVE_ROOM);
-			if (light)
-            {
-                 cave_info[y][x] |= (CAVE_GLOW);
-#if EXPM
-                 if (dimness == 0) cave_info[y][x] |= (DLIT_FULL);
-                 else if (dimness == 1) cave_info[y][x] |= (DLIT_DIMA);
-                 else if (dimness == 2) cave_info[y][x] |= (DLIT_DIMB);
-                 else if (dimness == 3) cave_info[y][x] |= (DLIT_DIMC);
-                 else /* dimness 4 */ cave_info[y][x] |= (DLIT_DIMD);
-#endif
-            }
 		}
 	}
 }
@@ -1174,13 +1244,23 @@ static void build_type1(int y0, int x0)
 	generate_fill(y1, x1, y2, x2, FEAT_FLOOR);
 
 
-	/* Hack -- Occasional pillar room */
+	/* Occasional pillar room */
 	if (rand_int(20) == 0)
 	{
-		for (y = y1; y <= y2; y += 2)
+		bool pmimmic = FALSE;
+        for (y = y1; y <= y2; y += 2)
 		{
 			for (x = x1; x <= x2; x += 2)
 			{
+				/* possible pillar mimmic */
+				int mchance = 500;
+				if (p_ptr->depth >= 75) mchance -= (p_ptr->depth - 70) * 2;
+                if ((randint(mchance) == 1) && (p_ptr->depth >= 40) && (!pmimmic)) 
+				{
+					place_monster_aux(y, x, 900, TRUE, FALSE);
+					/* usually forbid a second in the same room */
+					if (randint(100) < 90) pmimmic = TRUE;
+				}
 				cave_set_feat(y, x, FEAT_WALL_INNER);
 			}
 		}
@@ -1402,9 +1482,13 @@ static void build_type3(int y0, int x0)
 			/* Occasionally put a "pillar" in the center */
 			else if (rand_int(3) == 0)
 			{
+				/* possible pillar mimmic */
+                if ((randint(500) == 1) && (p_ptr->depth >= 50)) 
+				{
+					place_monster_aux(y, x, 900, TRUE, FALSE);
+				}
 				cave_set_feat(y0, x0, FEAT_WALL_INNER);
 			}
-
 			break;
 		}
 	}
@@ -1570,6 +1654,7 @@ static void build_type4(int y0, int x0)
 		/* An inner room with a checkerboard */
 		case 4:
 		{
+			bool pmimmic = FALSE;
 			/* Open the inner room with a secret door */
 			generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 
@@ -1580,6 +1665,15 @@ static void build_type4(int y0, int x0)
 				{
 					if ((x + y) & 0x01)
 					{
+						int mchance = 500;
+						if (p_ptr->depth >= 75) mchance -= (p_ptr->depth - 70) * 2;
+                        /* possible pillar mimmic */
+						if ((randint(mchance) == 1) && (p_ptr->depth >= 40) && (!pmimmic)) 
+						{
+							place_monster_aux(y, x, 900, TRUE, FALSE);
+							/* usually forbid a second in the same room */
+							if (randint(100) < 90) pmimmic = TRUE;
+						}
 						cave_set_feat(y, x, FEAT_WALL_INNER);
 					}
 				}
@@ -1726,11 +1820,18 @@ static bool vault_aux_bugs(int r_idx)
 static bool vault_aux_fairy(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
+	cptr dname = (r_name + r_ptr->name);
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "iy" monsters */
+	/* Decline HELPER monsters */
+	if (r_ptr->flags3 & (RF3_HELPER)) return (FALSE);
+	
+	/* include unicorns */
+    if (strstr(dname, "unicorn")) return (TRUE);
+
+	/* otherwise require "iy" monsters */
 	if (!strchr("iy", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
@@ -1763,9 +1864,23 @@ static bool vault_aux_beast(int r_idx)
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	
+	/* don't allow wimpy monsters */
+    if (r_ptr->level < 5) return (FALSE);
+	
+	/* allow only deep monsters of some types */
+	/* (allows hellhound, greater werewolf, behemoths) */
+    if ((strchr("CR", r_ptr->d_char)) && (r_ptr->level >= 35)) return (TRUE);
+	/* (allows giant python- only snake of L27 or deeper. we should have more IMO.) */
+    if ((strchr("J", r_ptr->d_char)) && (r_ptr->level >= 27)) return (TRUE);
+	/* (allows wereraven & winged horror) */
+    if ((strchr("B", r_ptr->d_char)) && (r_ptr->level >= 46)) return (TRUE);
+	/* (allows behir, guardian naga & goldern naga) */
+    if ((strchr("n", r_ptr->d_char)) && (r_ptr->level >= 15)) return (TRUE);
 
-	/* Hack -- Require "RMHlqN" monsters */
-	if (!strchr("RMHlqN", r_ptr->d_char)) return (FALSE);
+	/* Otherwise require "MHlqN" monsters */
+	/* (hydras, hybrids, lizards, quadrapeds & nulls) */
+	if (!strchr("MHlqN", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1815,6 +1930,24 @@ static bool vault_aux_orc(int r_idx)
 
 
 /*
+ * Helper function for "monster pit (barracks)"
+ */
+static bool vault_aux_army(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require army monsters */
+	if (!(r_ptr->flags7 & (RF7_ARMY))) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
  * Helper function for "monster pit (troll)"
  */
 static bool vault_aux_troll(int r_idx)
@@ -1824,8 +1957,8 @@ static bool vault_aux_troll(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "T" monsters */
-	if (!strchr("Tx", r_ptr->d_char)) return (FALSE);
+	/* Hack -- Require 'T' monsters */
+	if (!strchr("T", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1869,6 +2002,8 @@ static bool vault_aux_dragon(int r_idx)
 	/* Hack -- Require "d" or "D" monsters */
 	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
 
+	/* how can I allow BR_FEAR here? */
+	/* (because great wyrms should breathe fear rather than casting SCARE) */
 	/* Hack -- Require correct "breath attack" */
 	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
 
@@ -1887,7 +2022,7 @@ static bool vault_aux_demon(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "U" monsters */
+	/* require "uU&" monsters */
 	if (!strchr("uU&", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
@@ -1925,9 +2060,10 @@ static bool vault_aux_demon(int r_idx)
  */
 static void build_type5(int y0, int x0)
 {
-	int y, x, y1, x1, y2, x2;
-
-	int tmp, i;
+	int y, x, y1, x1, y2, x2, xfac, yfac, yfacb;
+	int tmp, i, nsize;
+	/* at least one nest uses a fake theme */
+	byte realtheme = p_ptr->theme;
 
 	s16b what[64];
 
@@ -1938,13 +2074,92 @@ static void build_type5(int y0, int x0)
 
 	int light = FALSE;
 
-
-	/* Large room */
-	y1 = y0 - 4;
-	y2 = y0 + 4;
-	x1 = x0 - 11;
-	x2 = x0 + 11;
-
+	/* new: variable sized nests */
+    int size = rand_int(100);
+    if (size < 8)
+	{
+		/* very small room */
+		y1 = y0 - 2;
+		y2 = y0 + 3;
+		x1 = x0 - 3;
+		x2 = x0 + 3;
+		yfac = 0;
+		yfacb = 1;
+		xfac = 1;
+		nsize = 0;
+	}
+    else if (size < 30)
+	{
+		/* small room */
+		y1 = y0 - 3;
+		y2 = y0 + 3;
+		x1 = x0 - 4;
+		x2 = x0 + 4;
+		yfac = 1;
+		yfacb = 1;
+		xfac = 2;
+		nsize = 1;
+	}
+	else if (size < 38)
+	{
+		/* medium-small room */
+		y1 = y0 - 4;
+		y2 = y0 + 3;
+		x1 = x0 - 5;
+		x2 = x0 + 5;
+		yfac = 2;
+		yfacb = 1;
+		xfac = 3;
+		nsize = 2;
+	}
+	else if (size < 56)
+	{
+		/* medium-sized room */
+		y1 = y0 - 4;
+		y2 = y0 + 4;
+		x1 = x0 - 6;
+		x2 = x0 + 6;
+		yfac = 2;
+		yfacb = 2;
+		xfac = 4;
+		nsize = 3;
+	}
+	else if (size < 71)
+	{
+		/* vertical medium-sized room */
+		y1 = y0 - 7;
+		y2 = y0 + 6;
+		x1 = x0 - 3;
+		x2 = x0 + 3;
+		yfac = 5;
+		yfacb = 4;
+		xfac = 1;
+		nsize = 4;
+	}
+	else if (size < 87)
+	{
+		/* medium-large room */
+		y1 = y0 - 5;
+		y2 = y0 + 4;
+		x1 = x0 - 7;
+		x2 = x0 + 7;
+		yfac = 3;
+		yfacb = 2;
+		xfac = 5;
+		nsize = 5;
+	}
+	else /* size >= 85 */
+	{
+		/* Large room */
+		y1 = y0 - 4;
+		y2 = y0 + 4;
+		x1 = x0 - 11;
+		x2 = x0 + 11;
+		yfac = 2;
+		yfacb = 2;
+		xfac = 9;
+		nsize = 6;
+	}
 
 	/* Generate new room */
 	generate_room(y1-1, x1-1, y2+1, x2+1, light);
@@ -1978,15 +2193,15 @@ static void build_type5(int y0, int x0)
        int tmpb;
        if (p_ptr->depth < 70) tmpb = randint(p_ptr->depth+20);
        else tmpb = randint(90);
-       if ((tmpb > tmp) && (randint(50) < 5 + badluck - goodluck)) tmp = tmpb;
-       else if (tmpb > tmp) tmp = (tmp + tmpb) / 2;
-       else if (tmpb < tmp) tmp = (tmp + tmpb) / 2 + 1;
+       if ((tmpb > tmp) && (rand_int(50) < 5 + badluck - goodluck)) tmp = tmpb;
+       else if (tmpb > tmp) tmp = (tmp + tmpb) / 2 + 1;
+       else if (tmpb < tmp) tmp = (tmp + tmpb) / 2;
     }
 
 	/* if it's a themed level, make sure the nest is appropriate */
 	if (p_ptr->theme == 3) tmp = 10; /* ICKY_PLACE- always jelly nest */
 	else if (p_ptr->theme == 11) tmp = 20; /* BUG_CAVE- always creepy crawly nest */
-	else if ((p_ptr->theme == 2) && (randint(100) < 85)) tmp = 24; /* FFOREST- usually imp/fairy nest */
+	else if ((p_ptr->theme == 2) && (randint(100) < 85)) tmp = 23; /* FFOREST- usually imp/fairy nest */
 	else if ((p_ptr->theme < 3) && (randint(100) < 65)) tmp = 30; /* FFOREST & CFOREST- animal nest */
 	else if (p_ptr->theme < 3) tmp = 40; /* FFOREST & CFOREST- great beast nest */
 	else if (((p_ptr->theme == 8) || (p_ptr->theme == 7)) && (randint(100) < 35))
@@ -1994,39 +2209,47 @@ static void build_type5(int y0, int x0)
 	else if (((p_ptr->theme == 8) || (p_ptr->theme == 7) || (p_ptr->theme == 13)) &&
 		(randint(100) < 50)) tmp = 60; /* CASTLE, NIGHTMARE, FULL_MOON- undead */
 	else if ((p_ptr->theme == 9) && (randint(100) < 60)) tmp = 20; /* swamp- creepy crawlies or jelly */
+	else if ((p_ptr->theme == 16) && (randint(100) < 60)) tmp = 23; /* hob city: usually fairy nest */
+	else if (p_ptr->theme == 16) /* other nests are okay for DARK_CTY also */;
 	/* CASTLE, NIGHTMARE, HELL_HALL, GREPSE, DWARF_MINE - never animal */
 	else if ((p_ptr->theme == 8) || (p_ptr->theme == 13) || (p_ptr->theme == 14) ||
 		 (p_ptr->theme == 12) || (p_ptr->theme == 10)) special = TRUE;
 	else if ((p_ptr->theme == 5) && (randint(100) < 40)) tmp = 20; /* EARTHY- creepy crawly */
 	else if ((tmp > 25) && (tmp < 50)) /* animal/beast nests okay for most themes */;
+	else if ((p_ptr->theme == 15) && (randint(100) < 86)) return; /* often just fail in BARRACKS */
 	else if (p_ptr->theme) special = TRUE;
 
 	/* special nest for themed levels */
 	if ((special) && (p_ptr->theme))
 	{
 		name = "special theme";
-		special = TRUE;
 		get_mon_num_hook = vault_aux_theme; /* special */
-	    if (p_ptr->depth < 40) rating += 10;
-	    else rating += 5;
+	    if (p_ptr->depth < 40) rating += 4; /* was 10 */
+	    else rating += 2; /* was 5 */
 	}
 
 	/* Monster nest (jelly) */
-	if (tmp < 15)
+	else if (tmp < 15)
 	{
-		/* Describe */
+		/* temporarily set theme to icky place to allow icky things in jelly pits only */
+		p_ptr->theme = 3;
+		
+        /* Describe */
 		name = "jelly";
 
 		/* Restrict to jelly */
 		get_mon_num_hook = vault_aux_jelly;
 
 	    /* Increase the level rating (depending on nest type) */
-	    if (p_ptr->depth < 40) rating += 3;
+	    if (p_ptr->depth < 40) rating += 1; /* was 3 */
 	}
 
 	/* Monster nest (creepy crawly) */
 	else if (tmp < 22)
 	{
+		/* allow theme_only bugs */
+		p_ptr->theme = 11;
+
 		/* Describe */
 		name = "creepy crawly";
 
@@ -2034,23 +2257,26 @@ static void build_type5(int y0, int x0)
 		get_mon_num_hook = vault_aux_bugs;
 
 	    /* Increase the level rating (depending on nest type) */
-	    rating += 6;
+	    rating += 1; /* was 6 */
 	}
 
 	/* Monster nest (imp and fairy) */
 	else if (tmp < 25)
 	{
+		/* allow theme_only fairies (?) */
+		/* p_ptr->theme = 2; */
+
 		/* Describe */
 		name = "imp and fairy";
 
 		/* most fairies like light */
-		if (randint(100) > p_ptr->depth + 15) light = TRUE;
+		if (randint(101 + goodluck) > (p_ptr->depth * 3)/4 + 20) light = TRUE;
 
 		/* Restrict to imp or fairy */
 		get_mon_num_hook = vault_aux_fairy;
 
 	    /* Increase the level rating (depending on nest type) */
-	    rating += 10;
+	    rating += 2; /* was 10 */
 	}
 
 	/* Monster nest (animal) */
@@ -2063,12 +2289,15 @@ static void build_type5(int y0, int x0)
 		get_mon_num_hook = vault_aux_animal;
 
 	    /* Increase the level rating (depending on nest type) */
-	    rating += 10;
+	    rating += 2; /* was 10 */
 	}
 
 	/* Monster nest (great beast) */
 	else if (tmp < 50)
 	{
+		/* often allow greater werewolf and weremumak */
+		if (randint(100) < 40) p_ptr->theme = 7;
+
 		/* Describe */
 		name = "great beast";
 
@@ -2076,12 +2305,15 @@ static void build_type5(int y0, int x0)
 		get_mon_num_hook = vault_aux_beast;
 
 	    /* Increase the level rating (depending on nest type) */
-	    rating += 12;
+	    rating += 3; /* was 12 */
 	}
 
 	/* Monster nest (undead) */
 	else
 	{
+		/* often allow theme_only haunted castle undead */
+		if (randint(100) < 40) p_ptr->theme = 8;
+
 		/* Describe */
 		name = "undead";
 
@@ -2089,7 +2321,7 @@ static void build_type5(int y0, int x0)
 		get_mon_num_hook = vault_aux_undead;
 
 	    /* Increase the level rating (depending on nest type) */
-	    rating += 13;
+	    rating += 4; /* was 13 */
 	}
 
 	/* Prepare allocation table */
@@ -2104,9 +2336,16 @@ static void build_type5(int y0, int x0)
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
+		
+		/* sometimes set the theme back early  (this hopefully should prevent  */
+		/*  too many THEME_ONLY monsters appearing out of theme or at least */
+        /*  make it extremely rare) */
+        if ((i > 8) && (randint(100) < 23)) p_ptr->theme = realtheme;
 	}
 
-
+	/* set theme back to what the level really is */
+	p_ptr->theme = realtheme;
+	
 	/* Remove restriction */
 	get_mon_num_hook = NULL;
 
@@ -2122,22 +2361,22 @@ static void build_type5(int y0, int x0)
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster nest (%s)", name);
+		msg_format("Monster nest (%s, size %d)", name, nsize);
 	}
 
-
+#if nomore
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
 	if ((p_ptr->depth <= 40) &&
 	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
 	{
 		good_item_flag = TRUE;
 	}
-
+#endif
 
 	/* Place some monsters */
-	for (y = y0 - 2; y <= y0 + 2; y++)
+	for (y = y0 - yfac; y <= y0 + yfacb; y++)
 	{
-		for (x = x0 - 9; x <= x0 + 9; x++)
+		for (x = x0 - xfac; x <= x0 + xfac; x++)
 		{
 			int r_idx = what[rand_int(64)];
 
@@ -2196,7 +2435,7 @@ static void build_type6(int y0, int x0)
 {
 	int tmp, what[16];
 
-	int i, j, y, x, y1, x1, y2, x2;
+	int i, j, y, x, y1, x1, y2, x2, failp;
 
 	bool empty = FALSE;
 	bool special = FALSE;
@@ -2238,20 +2477,29 @@ static void build_type6(int y0, int x0)
 
 	/* Choose a pit type */
 	tmp = randint(p_ptr->depth);
+	
+	/* */
+	failp = 12;
+	/* some themes usually just fail to make a pit */
+	if ((p_ptr->theme == 16) || (p_ptr->theme == 2)) failp = 80;
 
-	/* if it's a themed level, make sure the nest is appropriate */
+	/* if it's a themed level, make sure the pit is appropriate */
 	if ((p_ptr->theme == 8) && (randint(100) < 75)) tmp = 50 + rand_int(20); /* CASTLE- always giant or dragon or special */
 	else if (((p_ptr->theme == 1) || (p_ptr->theme == 4) || (p_ptr->theme == 9)) &&
 		randint(100) < 70) tmp = 70; /* VOLCANO, CFOREST, SWAMP - always (appropriate) dragon pit or special */
-	else if ((p_ptr->theme == 10) && (randint(100) < 60)) tmp = randint(39); /* DWARF_MINE - always orc, troll or special */
+	else if ((p_ptr->theme == 10) && (randint(100) < 60)) tmp = randint(39); /* DWARF_MINE - never giant or dragon pit */
+	else if ((p_ptr->theme == 10) && (tmp > 55) && (randint(100) < 11)) tmp = 90; /* occationally allow demon pits in dwarf mines */
 	else if ((p_ptr->theme == 1) || (p_ptr->theme == 4) || (p_ptr->theme == 9) || 
 		(p_ptr->theme == 10)) special = TRUE;
 	else if ((p_ptr->theme == 8) && (randint(100) < 75)) tmp = 30; /* EARTHY - troll pit */
 	else if ((p_ptr->theme == 3) && (randint(100) < 45)) tmp = 70; /* ICKY - dragons or special */
 	else if (p_ptr->theme == 14) tmp = 90; /* HELL_HALL always demons */
+	else if ((p_ptr->theme == 15) && (randint(100) < 35)) tmp = 42; /* BARRACKS - usually army pit */
+	else if (p_ptr->theme == 15) /* normal pit */;/* never do special theme pit for BARRACKS because that's what the ARMY pit is */
 	else if (((p_ptr->theme == 13) || (p_ptr->theme == 7)) && (randint(100) < 40))
 		tmp = 90; /* NIGHTMARE / FULL_MOON - demons or special */
-	else if ((p_ptr->theme) && (randint(100) < 80)) special = TRUE;
+	else if ((p_ptr->theme) && (randint(100) < failp)) return; /* sometimes just fail */
+	else if ((p_ptr->theme) && (randint(100) < 68)) special = TRUE;
 
 	/* special theme pit */
 	/* paranoia- seems like I got a special pit on a non-themed level a time or two */
@@ -2284,8 +2532,18 @@ static void build_type6(int y0, int x0)
 		get_mon_num_hook = vault_aux_troll;
 	}
 
+	/* Army pit */
+	else if (tmp < 45)
+	{
+		/* Message */
+		name = "military";
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_army;
+	}
+
 	/* Giant pit */
-	else if (tmp < 60)
+	else if (tmp < 61)
 	{
 		/* Message */
 		name = "giant";
@@ -2298,7 +2556,7 @@ static void build_type6(int y0, int x0)
 	else if (tmp < 80)
 	{
 		int whichd = rand_int(6);
-		if (randint(100) < 33) whichd = rand_int(7); /* includes sound dragons */
+		if (randint(100) < 30) whichd = rand_int(7); /* includes sound dragons */
 		/* if it's a themed level, make sure the dragon type is appropriate */
 		if (p_ptr->theme == 1) whichd = 3; /* cold dragons in CFOREST */
 		else if (p_ptr->theme == 4) whichd = 2; /* fire dragons in VOLCANO */
@@ -2306,7 +2564,7 @@ static void build_type6(int y0, int x0)
 		else if ((p_ptr->theme == 9) || (p_ptr->theme == 3)) whichd = 0; /* acid dragons in ICKY_PLACE or SWAMP */
 		else if ((p_ptr->theme == 7) && (randint(100) < 75)) whichd = 1;
 		else if (p_ptr->theme == 7) whichd = 5; /* electric or multi-hued dragons in FULL_MOON */
-		else if ((p_ptr->theme == 6) && (randint(100) < 20)) whichd = 6; /* orange dragons sometimes in WINDY_CAVE */
+		else if ((p_ptr->theme == 6) && (randint(100) < 22)) whichd = 6; /* orange dragons sometimes in WINDY_CAVE */
 		else if ((p_ptr->theme == 12) && (randint(100) < 20)) whichd = 5; /* multi-hued sometimes in GREPSE */
 		else if ((p_ptr->theme == 12) && (randint(100) < 67)) whichd = 9; /* confusion in GREPSE */
 		else if ((p_ptr->theme == 6) || (p_ptr->theme == 12)) whichd = 7; /* silver dragons in WINDY_CAVE or GREPSE */
@@ -2532,20 +2790,21 @@ static void build_type6(int y0, int x0)
 	/* Increase the level rating (orc pits decrease in rating with depth) */
 	if ((tmp < 20) && (p_ptr->depth >= 9))
 	{
-		rating += 11 - (p_ptr->depth/9);
+		rating += 2 - (p_ptr->depth/42); /* was 11 - (p_ptr->depth/9) */
 	}
 	else
 	{
-		rating += 10;
-
-		/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-		if ((p_ptr->depth <= 40) &&
-		    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
-		{
-			good_item_flag = TRUE;
-		}
+		rating += 3; /* was 10 */
 	}
 
+#if nomore
+	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
+	if ((p_ptr->depth <= 40) &&
+	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+	{
+		good_item_flag = TRUE;
+	}
+#endif
 
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
@@ -3121,6 +3380,22 @@ static bool temple_okay(int r_idx)
 	return (FALSE);
 }
 
+/*
+ * Helper function for build_vault() to choose a missile launcher
+ */
+static bool vault_aux_launcher(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "m" monsters */
+	if (!strchr("m", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
 
 /*
  * Require zoo monster
@@ -3187,7 +3462,7 @@ static bool tree_okay(int r_idx)
 /*
  * Helper function for get_mon_match()
  */
-static bool match_okay(int r_idx)
+bool match_okay(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 	int minl;
@@ -3231,6 +3506,7 @@ static bool match_okay(int r_idx)
  * mode = 2 gets a zoo appropriate monster
  * mode = 3 gets a monster temple monster
  * mode = 4 gets a tree monster
+ * mode = 5 gets a missile launcher
  */
 int get_mon_match(int level, int mode)
 {
@@ -3254,6 +3530,11 @@ int get_mon_match(int level, int mode)
 	{
 		/* Require appropriate monsters */
 		get_mon_num_hook = zoo_okay;
+	}
+	else if (mode == 5)
+	{
+		/* Require appropriate monsters */
+		get_mon_num_hook = vault_aux_launcher;
 	}
 	else if (mode == 1)
 	{
@@ -3292,6 +3573,9 @@ int get_mon_match(int level, int mode)
  * ~: water, W: WATER_HIDE monster in water
  * T: monster temple monster
  * Z: zoo monster (non-bug animal)
+ * m: missile launcher
+ * @: statue
+ * P: pillar mimmic
  */
 static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool greater)
 {
@@ -3325,6 +3609,8 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 				case '%':
 				{
 					cave_set_feat(y, x, FEAT_WALL_OUTER);
+					/* outer room walls shouldn't have CAVE_ROOM */
+					cave_info[y][x] &= ~(CAVE_ROOM);
 					break;
 				}
 
@@ -3398,8 +3684,61 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 				case 'E':
 				{
 					int thismon = get_mon_match(p_ptr->depth + randint(9), 4);
-					if (randint(100) < 94) place_monster_aux(y, x, 834, TRUE, FALSE);
-					else place_monster_aux(y, x, thismon, TRUE, FALSE);
+					if (randint(100) < 94) place_monster_aux_real(y, x, 834, TRUE, FALSE, TRUE);
+					else place_monster_aux_real(y, x, thismon, TRUE, FALSE, TRUE);
+					break;
+				}
+
+				/* Statue (Later: chance for a monster mimmicking a statue) */
+				case 'S':
+				{
+					/* the slp parameter for statues says if it's ruined or not */
+                    if (randint(100) < 45) place_monster_aux_real(y, x, 910, FALSE, FALSE, TRUE);
+					else place_monster_aux_real(y, x, 909, FALSE, FALSE, TRUE);
+					break;
+				}
+
+				/* possible fountain, statue, rubble, or nothing */
+				/* (only thing which can be ruined in a non-emptied vault) */
+				case 'f':
+				{
+					int die = randint(100);
+					if (die < 30)
+					{
+						place_puddle(y, x, 2);
+						place_monster_aux_real(y, x, 911, FALSE, FALSE, TRUE);
+					}
+                    else if (die < 35) place_monster_aux_real(y, x, 910, FALSE, FALSE, TRUE);
+					else if (die < 45) place_monster_aux_real(y, x, 909, FALSE, FALSE, TRUE);
+					else if (die < 50) place_rubble(y, x);
+                    else if (die < 52) place_monster_aux_real(y, x, 910, TRUE, FALSE, TRUE);
+					else if (die < 55) place_monster_aux_real(y, x, 909, TRUE, FALSE, TRUE);
+					else if (die < 60) place_monster_aux_real(y, x, 911, TRUE, FALSE, TRUE);
+					break;
+				}
+
+				/* Fountain (Later: chance for riverflow gargoyle mimmicking a fountain) */
+				case 'F':
+				{
+					place_puddle(y, x, 2);
+					place_monster_aux_real(y, x, 911, FALSE, FALSE, TRUE);
+					break;
+				}
+
+				/* Pillar mimmic (usually) */
+				case 'P':
+				{
+					if (randint(100) < 70) place_monster_aux(y, x, 900, TRUE, FALSE);
+					cave_set_feat(y, x, FEAT_WALL_INNER);
+					break;
+				}
+
+				/* missile launcher (usually) */
+				case 'm':
+				{
+					int thismon = get_mon_match(p_ptr->depth + rand_int(3), 5);
+					if (randint(100) < 80) place_monster_aux(y, x, thismon, TRUE, FALSE);
+					else if (randint(100) < 35) place_trap(y, x);
 					break;
 				}
 
@@ -3415,7 +3754,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 					place_monster_aux(y, x, thismon, TRUE, TRUE);
 					/* If it picked a WATER_HIDE monster, sometimes add a puddle */
 					if ((r_ptr->flags7 & (RF7_WATER_HIDE)) && (randint(100) < 40))
-						place_puddle(y, x, TRUE);
+						place_puddle(y, x, 1);
 					object_level = p_ptr->depth + 15;
 					place_object(y, x, TRUE, TRUE);
 					object_level = p_ptr->depth;
@@ -3428,7 +3767,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 
 	 /*  Matching monsters:  (requires appropriate theme monster if there's a theme) */
 	/* Pick a monster for 'd' */
-	dr_idx = get_mon_match(p_ptr->depth + 4, 0);
+	dr_idx = get_mon_match(p_ptr->depth + 3, 0);
 
 	/* Pick a monster for 'D' */
 	bigdr_idx = get_mon_match(p_ptr->depth + 10, 0);
@@ -3609,7 +3948,6 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 
 	cptr t;
 
-
 	/* Occasional light */
 	if (p_ptr->depth < 14)
 	{
@@ -3626,7 +3964,9 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 	{
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
-			/* Extract the location */
+			bool vicky = FALSE;
+			
+            /* Extract the location */
 			x = x0 - (xmax / 2) + dx;
 			y = y0 - (ymax / 2) + dy;
 
@@ -3635,9 +3975,15 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 
 			/* Lay down a floor */
 			cave_set_feat(y, x, FEAT_FLOOR);
+			
+			/* CAVE_ICKY only if made as designed (or empty greater vault) */
+			if ((design == 8) || (design == 1) || (design == 2)) vicky = TRUE;
 
-			/* empty vault does not get cave_icky */
-			if (light) cave_info[y][x] |= (CAVE_ROOM | CAVE_GLOW);
+			/* CAVE_ICKY only if made as designed */
+			if ((light) && (vicky))
+               cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY | CAVE_GLOW);
+			else if (vicky) cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY);
+			else if (light) cave_info[y][x] |= (CAVE_ROOM | CAVE_GLOW);
 			else cave_info[y][x] |= (CAVE_ROOM);
 
 			/* Analyze the grid */
@@ -3647,6 +3993,8 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 				case '%':
 				{
 					cave_set_feat(y, x, FEAT_WALL_OUTER);
+					/* outer room walls shouldn't have CAVE_ROOM */
+					cave_info[y][x] &= ~(CAVE_ROOM);
 					break;
 				}
 
@@ -3671,6 +4019,7 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 				}
 
 				/* Granite wall (inner), chance to become rubble */
+				case 'P':
 				case '#':
 				{
 					die = rand_int(100);
@@ -3683,10 +4032,17 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					else if ((design == 2) || (design == 9)) dsg = 4;
 					/* about 1/6 chance to become rubble for lesser vault designs */
 					else dsg = 15;
-					if ((die < dsg/3) && (permwall) && 
-						((design == 7) || (design == 2)))
+					if ((die < dsg/3) && ((permwall) && 
+						((design == 7) || (design == 2))) || 
+                        ((*t == 'P') && (p_ptr->depth >= 35)))
 					{
-						place_random_door(y, x);
+						/* 'P' for Pillar mimmic */
+						if ((*t == 'P') && (p_ptr->depth >= 35))
+						{ 
+							place_monster_aux(y, x, 900, TRUE, FALSE);
+							cave_set_feat(y, x, FEAT_WALL_INNER);
+						}
+						else place_random_door(y, x);
 					}
 					else if (((die < dsg/2) && (permwall)) || ((die < dsg/5) && (!permwall)))
 					{
@@ -3815,8 +4171,69 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					int thismon = get_mon_match(p_ptr->depth, 4);
 					dsg = 97;
 					if ((design == 2) || (design == 8)) dsg = 94;
-					if (rand_int(100) < dsg) place_monster_aux(y, x, 834, TRUE, FALSE);
-					else place_monster_aux(y, x, thismon, TRUE, FALSE);
+					if (rand_int(100) < dsg) place_monster_aux_real(y, x, 834, TRUE, FALSE, TRUE);
+					else place_monster_aux_real(y, x, thismon, TRUE, FALSE, TRUE);
+					break;
+				}
+
+				/* Statue (Later: chance for a monster mimmicking a statue) */
+				case 'S':
+				{
+					int dieb = randint(100);
+					if (design == 1) dsg = 90;
+					else if ((design == 2) || (design == 9)) dsg = 35;
+					else dsg = 10;
+					die = randint(100);
+					if ((dieb < 15) || (die < (dsg+1)/2)) 
+						place_monster_aux_real(y, x, 910, FALSE, FALSE, TRUE);
+					else if ((dieb < 30) || (die < dsg)) 
+						place_monster_aux_real(y, x, 909, FALSE, FALSE, TRUE);
+					/* the slp parameter for statues says if it's ruined or not */
+					else if (dieb < 50) place_monster_aux_real(y, x, 910, TRUE, FALSE, TRUE);
+					else if (dieb < 70) place_monster_aux_real(y, x, 909, TRUE, FALSE, TRUE);
+					else if (dieb < 90) place_rubble(y, x);
+					break;
+				}
+
+				/* Fountain (Later: chance for riverflow gargoyle mimmicking a fountain) */
+				case 'F':
+				case 'f':
+				{
+					if (design == 1) dsg = 85;
+					else if (design == 2) dsg = 35;
+					else if (design == 9) dsg = 30;
+					else dsg = 10;
+					if (*t == 'f') dsg = dsg / 2;
+					die = randint(100);
+					if (die < dsg)
+					{
+						place_puddle(y, x, 2);
+						place_monster_aux_real(y, x, 911, FALSE, FALSE, TRUE);
+					}
+					/* the slp parameter for statues says if it's ruined or not */
+					else if (die < dsg+10) place_monster_aux_real(y, x, 911, TRUE, FALSE, TRUE);
+					else if (die < dsg+20) place_rubble(y, x);
+					/* only 'f's turn into statues sometimes */
+					else if (*t == 'F') break;
+					else if (die < dsg+23) place_monster_aux_real(y, x, 910, TRUE, FALSE, TRUE);
+					else if (die < dsg+28) place_monster_aux_real(y, x, 909, TRUE, FALSE, TRUE);
+					else if (die < dsg+31) place_monster_aux_real(y, x, 910, FALSE, FALSE, TRUE);
+					else if (die < dsg+35) place_monster_aux_real(y, x, 909, FALSE, FALSE, TRUE);
+					break;
+				}
+
+				/* missile launcher */
+				case 'm':
+				{
+					if (design == 1) dsg = 85;
+					else if (design == 2) dsg = 34;
+					else if (design == 9) dsg = 12;
+					else dsg = 10;
+					if (randint(100) < dsg)
+					{
+						int thismon = get_mon_match(p_ptr->depth + rand_int(3), 5);
+						place_monster_aux(y, x, thismon, TRUE, FALSE);
+					}
 					break;
 				}
 
@@ -3827,11 +4244,12 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 				case 'G':
 				{
 					int mode = randint(2); /* normal small or large chest */
+					die = randint(100);
 					if (design == 1) dsg = 70;
 					else if (design == 2) dsg = 20;
 					else dsg = 10;
 					dsg -= goods; /* prevent too much treasure in empty vault */
-					if (rand_int(100) < dsg/10) /* small chance for special chest */
+					if (die < dsg/10) /* small chance for special chest */
 					{
 						if ((*t == 'G') && (randint(100) < 12)) mode = 4;
 						else if ((*t == 'C') || (*t == 'G')) mode = 3;
@@ -3841,12 +4259,17 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 						if (mode == 4) goods += 3;
 						else goods += mode;
 					}
-					else if (randint(100) < dsg)
+					else if (die < dsg)
 					{
 						place_chest(y, x, mode);
 						goods += mode;
 					}
-					else if (randint(100) < dsg + 21)
+					else if (die < dsg + 6)
+					{
+						/* occational chest mimmic */
+                        place_monster_aux(y, x, 377, TRUE, FALSE);
+					}
+					else if (die < dsg + 22)
 					{
 						mode = 0; /* ruined chest */
 						place_chest(y, x, mode);
@@ -3905,8 +4328,9 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 				case '9':
 				case '8':
 				{
-					if (design == 1) dsg = 70;
-					else if ((design == 2) || (design == 9)) dsg = 16;
+					if (design == 1) dsg = 80;
+					else if (design == 2) dsg = 20;
+					else if (design == 9) dsg = 16;
 					else if (design == 8) dsg = 7;
 					else dsg = 9;
 					dsg -= (randint(goods) - 1); /* prevent too much treasure in empty vault */
@@ -3928,7 +4352,8 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 				{
 					if (design == 1) dsg = 80;
 					else if (design == 2) dsg = 20;
-					else if (design == 9) dsg = 12;
+					else if (design == 9) dsg = 16;
+					else if (design == 8) dsg = 7;
 					else dsg = 9;
 					die = randint(100);
 					if ((die < dsg/2) && (*t == 'T') && ((design == 2) || (design == 8)))
@@ -3939,7 +4364,7 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 
 						/* If it picked a WATER_HIDE monster, sometimes add a puddle */
 						if ((r_ptr->flags7 & (RF7_WATER_HIDE)) && (randint(100) < 33))
-								place_puddle(y, x, TRUE);
+								place_puddle(y, x, 1);
 					}
 					else if (die < dsg/2)
 					{
@@ -4020,12 +4445,14 @@ static void build_type7(int y0, int x0)
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
+#if nomore
 	/* (Sometimes) Cause a special feeling */
 	if ((p_ptr->depth <= 50) ||
 	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
 	{
 		good_item_flag = TRUE;
 	}
+#endif
 
 	/* Hack -- Build the vault */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE);
@@ -4116,9 +4543,23 @@ static void build_type9(int y0, int x0, bool great)
         else msg_format("Room design (%s)", v_name + v_ptr->name);
 	}
 
-	/* type9 has a chance to be built (almost) exactly as designed because */
+	/* special case for minetown: lesser vault with an empty vault index */
+	/* because it's too big to technically be a lesser vault */
+	if ((v_ptr->typ == 9) && (v_ptr->rat == 10))
+	{
+		if (rand_int(100) < 45)
+		{
+			/* make as true lesser vault */
+			rating += v_ptr->rat;
+			build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE);
+			return;
+		}
+		else if (rand_int(100) < 40) mtv = 2;
+		else mtv = 7; /* make as emptied lesser vault */
+	}
+    /* type9 has a chance to be built (almost) exactly as designed because */
 	/* type9 rooms are not designed to be vaults */
-	if ((v_ptr->typ == 9) && (rand_int(100) < 50))
+	else if ((v_ptr->typ == 9) && (rand_int(100) < 50))
 	{
 		mtv = 1;
 	}
@@ -4127,17 +4568,19 @@ static void build_type9(int y0, int x0, bool great)
 	{
 		mtv = 2;
 	}
+	else mtv = v_ptr->typ;
 
 	/* Boost the rating if it's an empty greater vault because it's still going to have some stuff */
 	if (mtv == 8) rating += v_ptr->rat/6;
-
 	/* empty vaults created just as designed often have guaranteed treasure */
 	/* (v_ptr->rat is often 0 for type9 designs anyway, but not always) */
 	else if (mtv == 1) rating += v_ptr->rat;
-
 	/* version of lesser vault deisgn, mostly emptied, but more like original design */
 	else if (mtv == 2) rating += v_ptr->rat/4;
-
+	/* emptied lesser vault */
+	else if (mtv == 7) rating += v_ptr->rat/8;
+	/* room design (rat is usually 0) */
+	else /* mtv == 9 */ rating += v_ptr->rat/2;
 
 	/* Hack -- Build the empty vault */
 	/* (Has chance to retain some aspects of original design, but not nearly */
@@ -4463,7 +4906,6 @@ static int next_to_corr(int y1, int x1)
 {
 	int i, y, x, k = 0;
 
-
 	/* Scan adjacent grids */
 	for (i = 0; i < 4; i++)
 	{
@@ -4495,10 +4937,14 @@ static int next_to_corr(int y1, int x1)
  *
  * Assumes "in_bounds_fully(y,x)"
  */
-static bool possible_doorway(int y, int x)
+bool possible_doorway(int y, int x, bool trees)
 {
-	/* Count the adjacent corridors */
-	if (next_to_corr(y, x) >= 2)
+	int nextto;
+	if (trees) nextto = next_to_floor(y, x);
+	else nextto = next_to_corr(y, x);
+	
+    /* Count the adjacent corridors */
+	if (nextto >= 2)
 	{
 		/* Check Vertical */
 		if ((cave_feat[y-1][x] >= FEAT_MAGMA) &&
@@ -4535,7 +4981,7 @@ static void try_door(int y, int x)
 	if (cave_info[y][x] & (CAVE_ROOM)) return;
 
 	/* Occasional door (if allowed) */
-	if ((rand_int(100) < DUN_TUN_JCT) && possible_doorway(y, x))
+	if ((rand_int(100) < DUN_TUN_JCT) && possible_doorway(y, x, FALSE))
 	{
 		/* Place a door */
 		place_random_door(y, x);
@@ -4641,7 +5087,7 @@ static bool room_build(int by0, int bx0, int typ)
  */
 static void alloc_terrain(int k)
 {
-	int puddles, pits;
+	int puddles, pits, statue;
 	int amt = k;
 
 	/* Place some traps in the dungeon */
@@ -4670,7 +5116,7 @@ static void alloc_terrain(int k)
 			if (cheat_room) msg_print("(random pits placed)");
 		}
 		/* Sometimes allow random trees (rarer) */
-		if ((amt > 6) && (randint(100) < 10 - (p_ptr->depth/9)))
+		if ((amt > 6) && (randint(100) < 11 - (p_ptr->depth/9)))
 		{
 			/* Put some trees in the dungeon */
 			int trees = 2 + randint(3);
@@ -4680,11 +5126,11 @@ static void alloc_terrain(int k)
 			if (cheat_room) msg_print("(random trees placed)");
 		}
 	}
-	/* put several puddles in the swamp (at least 6) */
+	/* put several puddles in the swamp (at least 7) */
 	else if (p_ptr->theme == 9)
 	{
 		if (amt > 7) puddles = 5 + randint(amt-3);
-		else puddles = 5 + randint(4);
+		else puddles = 6 + randint(4);
 		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_WATER, puddles);
 		/* (replaces some rubble) */
 		amt -= puddles;
@@ -4719,17 +5165,45 @@ static void alloc_terrain(int k)
 	if ((p_ptr->theme == 1) || (p_ptr->theme == 2))
 	{
 		/* Put some trees in the dungeon */
-		int trees = 5 + randint(12);
+		int trees = 8 + randint(12);
+		if ((p_ptr->depth > 40) && (rand_int(20) < p_ptr->depth/20 + 2)) 
+			trees -= rand_int(p_ptr->depth/20);
 		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_TREES, trees);
 		/* (don't replace rubble because forests already have reduced rubble) */
 	}
-
+	
+	/* Statues (most common in CASTLE and DARK_CITY) */
+	if (((p_ptr->theme == 8) || (p_ptr->theme == 16)) &&
+		(randint(100) < 80)) statue = 2 + randint(5);
+	/* also often in the DWARF_MINE and BARRACKS */
+	else if (((p_ptr->theme == 10) || (p_ptr->theme == 15)) && 
+		(randint(100) < 35)) statue = randint(5);
+	/* occationally on normal levels */
+	else if ((!p_ptr->theme) && (rand_int(100) < 5)) statue = 2 + randint(4);
+	else statue = 0;
+    
+	/* Place the statues */
+    if (statue)
+	{
+		/* possibly make one of them a fountain */
+        if (randint(100) < 5)
+		{
+			alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_FOUNT, 1);
+			statue -= 1;
+		}
+		if (statue) alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_STATUE, statue);
+		if ((!p_ptr->theme) && (cheat_room)) msg_print("(random statues placed)");
+		/* */
+		if (statue > 3) amt -= rand_int(statue - 2);
+		if (amt < 1) amt = 1;
+	}
+	
 	/* These themed levels have less rubble */
 	if ((p_ptr->theme == 1) || (p_ptr->theme == 2) || (p_ptr->theme == 6))
 	{
 		/* Put some rubble in corridors (less) */
 		amt -= (2 + randint(3));
-		/* (sometimes none at all) */
+		/* (often none at all) */
 		if (amt > 1) alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(amt));
 		if (amt < 1) amt = 1;
 	}
@@ -4768,7 +5242,7 @@ static void cave_gen(void)
 {
 	int i, k, y, x, y1, x1;
 	int by, bx, evg, smag, sqtz;
-	int usedepth;
+	int usedepth, roomnum, smsize = 0;
 
 	bool destroyed = FALSE;
 
@@ -4820,27 +5294,49 @@ static void cave_gen(void)
 		{
 			int dieth = rand_int(91 + ((p_ptr->depth*3)/4) + ((badluck+1)/2));
 			/* occationally randomize more */
-			if (randint(100) < 9) dieth = rand_int(136) + 2;
+			if (randint(100) < 10) dieth = rand_int(136) + 2;
 			/* icky place and bug cave meant for earlier levels */
 			if ((p_ptr->depth > 64) && (dieth < 21)) dieth = rand_int(136) + 4;
 			if (dieth < 10) p_ptr->theme = 3; /* ICKY_PLACE */
-			else if (dieth < 21) p_ptr->theme = 11; /* BUG_CAVE */
-			else if (dieth < 32) p_ptr->theme = 2;  /* FFOREST */
-			else if (dieth < 43) p_ptr->theme = 1; /* CFOREST */
-			else if (dieth < 50) p_ptr->theme = 10; /* DWARF_MINE */
-			else if (dieth < 61) p_ptr->theme = 7; /* FULL_MOON */
-			else if (dieth < 70) p_ptr->theme = 5; /* EARTHY_CAVE */
-			else if (dieth < 78) p_ptr->theme = 6; /* WINDY_CAVE */
+			else if (dieth < 20) p_ptr->theme = 11; /* BUG_CAVE */
+			else if (dieth < 31) p_ptr->theme = 2;  /* FFOREST (29 when you add DARK_CITY) */
+			/* else if (dieth < 33) p_ptr->theme = 16; *//* DARK_CITY (less common, need to add erlbolds before adding DARK_CITY) */
+			else if (dieth < 43) p_ptr->theme = 1; /* CFOREST (44 when you add DARK_CITY) */
+			else if (dieth < 51) p_ptr->theme = 10; /* DWARF_MINE */
+			else if (dieth < 54) p_ptr->theme = 15; /* BARRACKS (less common) */
+			else if (dieth < 65) p_ptr->theme = 7; /* FULL_MOON */
+			else if (dieth < 72) p_ptr->theme = 5; /* EARTHY_CAVE */
+			else if (dieth < 79) p_ptr->theme = 6; /* WINDY_CAVE */
 			else if (dieth < 87) p_ptr->theme = 4; /* VOLCANO */
 			else if (dieth < 98) p_ptr->theme = 9; /* SWAMP */
 			else if (dieth < 110) p_ptr->theme = 8; /* CASTLE */
-			else if (dieth < 120) p_ptr->theme = 13; /* NIGHTMARE */
-			else if (dieth < 130) p_ptr->theme = 12; /* GREPSE */
+			else if (dieth < 120) p_ptr->theme = 12; /* NIGHTMARE */
+			else if (dieth < 130) p_ptr->theme = 13; /* GREPSE */
 			/* hell hall rare after dl105 */
 			else if ((dieth < 140) && (p_ptr->depth < 105)) p_ptr->theme = 14; /* hell hall */
+			else if (dieth < 146) p_ptr->theme = randint(16);
 			else p_ptr->theme = randint(14);
+			/* reset theme die */
+			dieth = rand_int(91 + ((p_ptr->depth*3)/4) + ((badluck+1)/2));
 			/* scariest three themes never appear early */
-			if ((p_ptr->theme >= 12) && (p_ptr->depth < 35)) p_ptr->theme = 0;
+			if (((p_ptr->theme >= 13) && (p_ptr->depth < 30)) ||
+				((p_ptr->theme == 12) && (p_ptr->depth < 15)))
+			{
+				if (dieth < 9) p_ptr->theme = 1 + rand_int(3);
+				else if (dieth < 17) p_ptr->theme = 9 + rand_int(3);
+				else if ((dieth < 24) && (p_ptr->depth > 10)) p_ptr->theme = 7; /* FULL_MOON */
+				else if ((dieth < 33) && (p_ptr->depth > 5)) p_ptr->theme = 16; /* DARK_CITY */
+				else if ((dieth < 50) && (p_ptr->depth > 9)) p_ptr->theme = 15; /* BARRACKS */
+                else p_ptr->theme = 0;
+			}
+			/* These not meant for very deep levels */
+			if (((p_ptr->theme == 2) || (p_ptr->theme == 10) ||
+				(p_ptr->theme == 15)) && (p_ptr->depth > 79))
+			{
+				if (dieth > 110) p_ptr->theme = 12 + rand_int(3);
+				else if (dieth > 68) p_ptr->theme = 0;
+				else if ((dieth > 59) && (p_ptr->theme == 2)) p_ptr->theme = 16;
+			}
 			/* the very last levels have restricted themes (50% EARTHY_CAVE) */
 			if (p_ptr->depth > 121)
 			{
@@ -4858,18 +5354,73 @@ static void cave_gen(void)
 
 	/* consistant themed level: dl 105 is always hell */
 	if ((themed_levels) && (p_ptr->depth == 105)) p_ptr->theme = 14;
-	
+
 	/* don't destroy themed levels (unless appropriate) */
 	/* only icky place, volcano, earth cave & dwarf mine are allowed to be destroyed */
-    if ((p_ptr->theme) && (!(p_ptr->theme == 3)) && (!(p_ptr->theme == 4)) &&
-       (!(p_ptr->theme == 5)) && (!(p_ptr->theme == 10)))
-    {
-        destroyed = FALSE;
-    }
+	if ((p_ptr->theme) && (!(p_ptr->theme == 3)) && (!(p_ptr->theme == 4)) &&
+		(!(p_ptr->theme == 5)) && (!(p_ptr->theme == 10)))
+	{
+		destroyed = FALSE;
+	}
 
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = DUNGEON_HGT / BLOCK_HGT;
 	dun->col_rooms = DUNGEON_WID / BLOCK_WID;
+	
+	/* vary the size of the dungeon (occationally) */
+	roomnum = DUN_ROOMS;
+	if (randint(100) < 6) /* 6 to 8, 100 only while testing */
+	{
+		if (randint(100) < 65)
+		{
+			roomnum = (roomnum * 4) / 5;
+			dun->row_rooms = (dun->row_rooms * 4) / 5;
+			dun->col_rooms = (dun->col_rooms * 4) / 5;
+			if (cheat_room) msg_print("(smaller level: 4/5)");
+			smsize = 2;
+		}
+		else if (randint(100) < 34)
+		{
+			roomnum = (roomnum * 3) / 4;
+			dun->row_rooms = (dun->row_rooms * 3) / 4;
+			dun->col_rooms = (dun->col_rooms * 3) / 4;
+			if (cheat_room) msg_print("(smaller level: 3/4)");
+			smsize = 3;
+		}
+		else if (randint(100) < 12) 
+		{
+			roomnum = (roomnum * 6) / 7;
+			dun->row_rooms = (dun->row_rooms * 7) / 8;
+			dun->col_rooms = (dun->col_rooms * 7) / 8;
+			if (cheat_room) msg_print("(smaller level: 6/7)");
+		}
+		else if (randint(100) < 12) 
+		{
+			roomnum = (roomnum * 2) / 3;
+			dun->row_rooms = (dun->row_rooms * 3) / 5;
+			dun->col_rooms = (dun->col_rooms * 3) / 5;
+			if (cheat_room) msg_print("(smaller level: 2/3)");
+			smsize = 4;
+			destroyed = FALSE;
+		}
+		else if (randint(100) < 12) 
+		{
+			roomnum = roomnum / 2;
+			dun->row_rooms = (dun->row_rooms * 6) / 10;
+			dun->col_rooms = (dun->col_rooms * 6) / 10;
+			if (cheat_room) msg_print("(smaller level: half");
+			smsize = 4;
+			destroyed = FALSE;
+		}
+		else 
+		{
+			roomnum = (roomnum * 5) / 6;
+			dun->row_rooms = (dun->row_rooms * 5) / 6;
+			dun->col_rooms = (dun->col_rooms * 5) / 6;
+			if (cheat_room) msg_print("(smaller level: 5/6)");
+			smsize = 1;
+		}
+	}
 
 	/* Initialize the room table */
 	for (by = 0; by < dun->row_rooms; by++)
@@ -4884,29 +5435,16 @@ static void cave_gen(void)
 	/* No "crowded" rooms yet */
 	dun->crowded = FALSE;
 
-
 	/* No rooms yet */
 	dun->cent_n = 0;
 
 	/* Build some rooms */
-	for (i = 0; i < DUN_ROOMS; i++)
+	for (i = 0; i < roomnum; i++)
 	{
 		int roomodds;
 		/* Pick a block for the room */
 		by = rand_int(dun->row_rooms);
 		bx = rand_int(dun->col_rooms);
-
-#if 0
-		/* Align dungeon rooms */
-		if (dungeon_align)
-		{
-			/* Slide some rooms right */
-			if ((bx % 3) == 0) bx++;
-
-			/* Slide some rooms left */
-			if ((bx % 3) == 2) bx--;
-		}
-#endif
 
         roomodds = DUN_UNUSUAL;
 		/* make >100 levels more interesting */
@@ -4973,11 +5511,19 @@ static void cave_gen(void)
 			else k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			/* (pits & nests are less common than before because of themed levels) */
+			/* (pits & nests are slightly less common than before because of themed levels) */
 			if (rand_int(roomodds) < usedepth)
 			{
-			    int endgamechaos, nestodd = 44 + (p_ptr->depth/12 - 2);
-				if (nestodd > 50) nestodd = 50;
+			    int endgamechaos, nestodd, pitodd, evodd;
+                nestodd = 45 + ((p_ptr->depth+2)/10 - 1); /* was -2 */
+				if ((p_ptr->theme) && (nestodd > 51)) nestodd = 51;
+				else if (nestodd > 52) nestodd = 52;
+				
+				if (nestodd > 50) evodd = nestodd + 1;
+				else evodd = 51;
+				
+				if (p_ptr->theme) pitodd = 38;
+				else pitodd = 39;
 				
 				/* find vault shouldn't find pits and nests as often */
 			    if ((p_ptr->seek_vault) && (k < 50) && (k > 25) && (randint(100) < 55))
@@ -4987,22 +5533,24 @@ static void cave_gen(void)
 				/* handy for testing as well as making the >100 levels more interesting */
 				if (p_ptr->depth == 101) endgamechaos = 30;
 				else if (p_ptr->depth > 101) endgamechaos = p_ptr->depth - 99;
+				else if (p_ptr->depth >= 75) endgamechaos = rand_int(4);
+				else if (p_ptr->depth >= 55) endgamechaos = rand_int(2);
 				else endgamechaos = 0;
 
-				/* Type 8 -- Greater vault (10%) */
-				if ((k < 11 + endgamechaos) && room_build(by, bx, 8)) continue;
+				/* Type 8 -- Greater vault (10-12%, was always 10%) */
+				if ((k < 10 + endgamechaos) && room_build(by, bx, 8)) continue;
 
 				/* Type 7 -- Lesser vault (15%) */
 				if ((k < 26 + endgamechaos) && room_build(by, bx, 7)) continue;
 
-				/* Type 6 -- Monster pit (13%, was 15%) */
-				if ((k < 39 + endgamechaos) && room_build(by, bx, 6)) continue;
+				/* Type 6 -- Monster pit (12/13%, was 15%) */
+				if ((k < pitodd + endgamechaos) && room_build(by, bx, 6)) continue;
 
 				/* Type 5 -- Monster nest (6%, 8% or 9%, was 10%) */
 				if ((k < nestodd + endgamechaos) && room_build(by, bx, 5)) continue;
 
 				/* type 9 -- empty vault */
-				if ((k < 51 + endgamechaos) && room_build(by, bx, 9)) continue;
+				if ((k < evodd + endgamechaos) && room_build(by, bx, 9)) continue;
 			}
 
 			/* Type 4 -- Large room (25%) */
@@ -5162,10 +5710,15 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
 
-	/* Basic "amount" (made more random) */
+	/* Basic amount (made more random) */
 	k = (p_ptr->depth / 3);
-	if (k > 9) k = 7 + randint(4);
+	if (k > 9) k = 7 + rand_int(k-6); /* was randint(4)*/
 	if (k < 3) k = 1 + randint(2);
+	
+	/* reduce amount slightly for smaller levels */
+	if ((smsize > 1) && (k > 12)) k -= 2 + rand_int(smsize);
+	else if (smsize > 1) k -= 1 + rand_int(smsize);
+	else if ((smsize) && (randint(100) < 50)) k -= 1;
 
 	/* separated into another function */
 	/* (makes terrain appropriate for the theme, if any) */
@@ -5174,10 +5727,15 @@ static void cave_gen(void)
 	/* Determine the character location */
 	new_player_spot();
 
-	/* Pick a base number of monsters */
+	/* reset low 'k' amounts (to prevent having more monsters on early levels) */
+    if (k <= 9) k = (p_ptr->depth / 3);
+    /* Pick a base number of monsters */
 	i = MIN_M_ALLOC_LEVEL + randint(8);
 	/* themed levels more likely to have more monsters */
 	if ((i < MIN_M_ALLOC_LEVEL + 7) && (p_ptr->theme)) i += randint(2);
+	/* reduce population slightly for smaller levels */
+	if (smsize > 1) i -= randint(smsize);
+	else if ((smsize) && ((p_ptr->depth < 11) || (randint(100) < 50))) i -= 1;
 
 	/* Put some monsters in the dungeon */
 	for (i = i + k; i > 0; i--)
@@ -5279,7 +5837,7 @@ static void build_store(int n, int yy, int xx)
 	tmp = rand_int(4);
 
 	/* Re-roll "annoying" doors */
-	if (((tmp == 0) && (yy == 1)) ||
+	while (((tmp == 0) && (yy == 1)) ||
 	    ((tmp == 1) && (yy == 0)) ||
 	    ((tmp == 2) && (xx == 3)) ||
 	    ((tmp == 3) && (xx == 0)))
@@ -5332,7 +5890,7 @@ static void build_store(int n, int yy, int xx)
 
 
 /*
- * Generate the "consistent" town features, and place the player
+ * Generate the consistent town features, and place the player
  *
  * Hack -- play with the R.N.G. to always yield the same town
  * layout, including the size and shape of the buildings, the
@@ -5341,7 +5899,6 @@ static void build_store(int n, int yy, int xx)
 static void town_gen_hack(void)
 {
 	int y, x, k, n;
-
 	int rooms[MAX_STORES];
 
 
@@ -5371,6 +5928,10 @@ static void town_gen_hack(void)
 			rooms[k] = rooms[--n];
 		}
 	}
+	
+	/* place some trees  ..The problem with this is */
+	/* that they'll grow back real fast if you destroy one of them. */
+    alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TREES, 2 + randint(6));
 
 
 	/* Place the stairs */
@@ -5386,7 +5947,6 @@ static void town_gen_hack(void)
 
 	/* Clear previous contents, add down stairs */
 	cave_set_feat(y, x, FEAT_MORE);
-
 
 	/* Place the player */
 	player_place(y, x);
@@ -5419,10 +5979,28 @@ static void town_gen(void)
 {
 	int i, y, x;
 	int residents;
-	bool daytime;
+	bool daytime, forbidfullmoon;
+	
+	/* force some time between full moons in the town */
+	if (((turn - p_ptr->lastfullmoon < 65000) &&
+		(p_ptr->lastfullmoon)) ||
+        (turn < 2500)) forbidfullmoon = TRUE;
+	else forbidfullmoon = FALSE;
 
-	/* never a theme in the town */
-	p_ptr->theme = 0;
+	/* same night as last visit to town */
+    if ((turn - p_ptr->lastfullmoon < 5000) && (p_ptr->lastfullmoon))
+	{
+		p_ptr->theme = 7;
+	}
+	/* FULL_MOON theme is rarely allowed in town */
+	else if ((rand_int(100 + goodluck) < ((p_ptr->max_depth+9)/20) + (badluck/3)) &&
+		(p_ptr->max_depth > 8) && (p_ptr->lev > 5) && (!forbidfullmoon))
+	{
+		p_ptr->theme = 7;
+		p_ptr->lastfullmoon = turn;
+	}
+	/* otherwise never a theme in the town */
+	else p_ptr->theme = 0;
 
 	/* Day time */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
@@ -5490,20 +6068,18 @@ static void town_gen(void)
  */
 void generate_cave(void)
 {
-	int y, x, num;
-
+	int y, x, num, maxfeel;
+	s16b danger_lev;
+	bool feelagain = FALSE;
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
-
 
 	/* Generate */
 	for (num = 0; TRUE; num++)
 	{
 		bool okay = TRUE;
-
 		cptr why = NULL;
-
 
 		/* Reset */
 		o_max = 1;
@@ -5573,7 +6149,7 @@ void generate_cave(void)
 			cave_gen();
 		}
 
-		/* Extract the feeling */
+		/* Extract the feeling (tentative scale) */
 		if (rating > 100) feeling = 2;
 		else if (rating > 80) feeling = 3;
 		else if (rating > 60) feeling = 4;
@@ -5590,11 +6166,47 @@ void generate_cave(void)
 #endif
 
 		/* It takes 1000 game turns for "feelings" to recharge */
-		if (((turn - old_turn) < 1000) && (old_turn > 1)) feeling = 0;
+		if (((turn - old_turn) < 1000) && (old_turn > 1) && (!cheat_noid)) feeling = 0;
 
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) feeling = 0;
 
+		/* get the level of danger (cmd4.c) */
+        danger_lev = get_danger_feeling();
+		
+		/* very high treasure level and low danger level: add a monster or three */
+		if ((feeling > 0) && (feeling < 4) && (danger_lev > 7))
+		{
+			(void)alloc_monster(0, TRUE);
+			if (rand_int(100) < 70) (void)alloc_monster(0, TRUE);
+			if (rand_int(100) < 30) (void)alloc_monster(0, TRUE);
+			feelagain = TRUE;
+        }
+        /* kindof high treasure, very low danger: add a monster or two (usually) */
+        else if ((feeling > 0) && (feeling < 5) && (danger_lev > 8))
+		{
+			if (rand_int(100) < 70) { (void)alloc_monster(0, TRUE); feelagain = TRUE; }
+			if (rand_int(100) < 30) { (void)alloc_monster(0, TRUE); feelagain = TRUE; }
+        }
+        else if ((feeling > 0) && (feeling < 6) && (danger_lev > 9))
+		{
+			if (rand_int(100) < 67) { (void)alloc_monster(0, TRUE); feelagain = TRUE; }
+        }
+
+		/* Re-Extract the feeling (tentative scale) */
+		/* (might have changed after adding monsters */
+		if (feelagain)
+		{
+			if (rating > 100) feeling = 2;
+			else if (rating > 80) feeling = 3;
+			else if (rating > 60) feeling = 4;
+			else if (rating > 40) feeling = 5;
+			else if (rating > 30) feeling = 6;
+			else if (rating > 20) feeling = 7;
+			else if (rating > 10) feeling = 8;
+			else if (rating > 0) feeling = 9;
+			else feeling = 10;
+		}
 
 		/* Prevent object over-flow */
 		if (o_max >= z_info->o_max)
@@ -5638,6 +6250,33 @@ void generate_cave(void)
 				okay = FALSE;
 			}
 		}
+		
+		/* removing level feelings also turns on a much milder version of auto-scum */
+		else if (level_numb && (num < 100) && (p_ptr->depth > 9))
+		{
+			/* Usually require at least a little "goodness" */
+			if ((randint(100) < 68 + goodluck - badluck) && ((feeling > 9) ||
+			    ((p_ptr->depth >= 20) && (feeling > 8)) ||
+			    ((p_ptr->depth > 35) && (feeling > 7))))
+			{
+				/* Give message to cheaters */
+				if (cheat_room || cheat_hear ||
+				    cheat_peek || cheat_xtra)
+				{
+					/* Message */
+					why = "boring level";
+				}
+
+				/* Try again */
+				okay = FALSE;
+			}
+		}
+		/* occationally have a false feeling */
+		if ((rand_int(105) < badluck + 1) && (feeling > 1) && (!cheat_noid))
+		{
+            if (feeling < 6) feeling += randint(5);
+            else feeling -= randint(3);
+        }
 
 		/* Accept */
 		if (okay) break;
@@ -5659,7 +6298,5 @@ void generate_cave(void)
 
 	/* Remember when this level was "created" */
 	old_turn = turn;
+	p_ptr->danger_turn = turn;
 }
-
-
-

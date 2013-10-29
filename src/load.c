@@ -272,6 +272,9 @@ static errr rd_item(object_type *o_ptr)
 
 	/* Pseudo-ID bit */
 	rd_byte(&o_ptr->pseudo);
+#ifdef instantpseudo
+	rd_byte(&o_ptr->hadinstant);
+#endif
 
 	/* Fix the field */
 	if (o_ptr->pseudo > 99)
@@ -285,11 +288,8 @@ static errr rd_item(object_type *o_ptr)
 
 	rd_s16b(&o_ptr->timeout);
 	rd_s16b(&o_ptr->blessed);
-#if nobreaksave
-#else
 	rd_s16b(&o_ptr->enhance);  /* DJA new: breaks savefiles for 1.1.0 */
 	rd_s16b(&o_ptr->enhancenum);
-#endif 
 
 	rd_s16b(&o_ptr->to_h);
 	rd_s16b(&o_ptr->to_d);
@@ -314,9 +314,48 @@ static errr rd_item(object_type *o_ptr)
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
 
+#ifdef new_random_stuff
+
+#ifdef saveegoname
+    rd_string(o_ptr->randego_name, sizeof(o_ptr->randego_name));
+#endif
+
+	/* random stuff */
+	rd_byte(&o_ptr->randsus);
+	rd_byte(&o_ptr->randsus2);
+	rd_byte(&o_ptr->randres);
+	rd_byte(&o_ptr->randres2);
+	rd_byte(&o_ptr->randres3);
+	rd_byte(&o_ptr->randpow);
+	rd_byte(&o_ptr->randpow2);
+	rd_byte(&o_ptr->randslay);
+	rd_byte(&o_ptr->randslay2);
+	rd_byte(&o_ptr->randslay3);
+	rd_byte(&o_ptr->randbon);
+	rd_byte(&o_ptr->randbon2);
+	rd_byte(&o_ptr->randplu);
+	rd_byte(&o_ptr->randplu2);
+	rd_byte(&o_ptr->randdrb);
+	rd_byte(&o_ptr->randdrb2);
+	rd_byte(&o_ptr->randimm);
+	rd_byte(&o_ptr->randlowr);
+	rd_byte(&o_ptr->randlowr2);
+	rd_byte(&o_ptr->randbran);
+	rd_byte(&o_ptr->randact);
+
+	rd_byte(&o_ptr->esprace);
+#else
 	/* Special powers */
 	rd_byte(&o_ptr->xtra1);
 	rd_byte(&o_ptr->xtra2);
+
+	/* new stuff */
+	rd_byte(&o_ptr->xtra3);
+#endif
+	rd_byte(&o_ptr->thisbrand);
+	rd_s16b(&o_ptr->timedbrand);
+	rd_s16b(&o_ptr->extra1);
+	rd_s16b(&o_ptr->extra2);
 
 	/* Inscription */
 	rd_string(buf, sizeof(buf));
@@ -544,9 +583,14 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->silence);
 	rd_byte(&m_ptr->monseen);
 	rd_s16b(&m_ptr->meet);
+	rd_s16b(&m_ptr->disguised);
 	rd_s16b(&m_ptr->roaming);
 	rd_byte(&m_ptr->evil);
 	rd_byte(&m_ptr->truce);
+	rd_s16b(&m_ptr->temp_death);
+	rd_s16b(&m_ptr->ninelives);
+	rd_s16b(&m_ptr->extra2);
+	rd_s16b(&m_ptr->extra3);
 }
 
 
@@ -1152,13 +1196,18 @@ static errr rd_extra(void)
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
 	/* More info */
-	strip_bytes(8);
+	strip_bytes(2);
+	rd_s16b(&p_ptr->extra1);
+	rd_s16b(&p_ptr->extra2);
+	rd_s16b(&p_ptr->extra3);
 	rd_s16b(&p_ptr->sc);
 	strip_bytes(2);
 
 	/* Read the flags */
-	/* int i; */
-
+#ifdef new_random_stuff
+	rd_s32b(&p_ptr->lastfullmoon);
+	rd_s32b(&p_ptr->last_nap);
+#endif
 	rd_s16b(&p_ptr->food);
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->word_recall);
@@ -1171,16 +1220,17 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->luck);
 	rd_s16b(&p_ptr->maxluck);
 	rd_byte(&p_ptr->corrupt);
+	rd_s16b(&p_ptr->spadjust);
 	rd_byte(&p_ptr->learnedcontrol);
 	rd_byte(&p_ptr->find_vault);
 	rd_s16b(&p_ptr->held_m_idx);
 	rd_s16b(&p_ptr->mimmic);
 	rd_s16b(&p_ptr->menhance);
 
-#if nobreaksave
-#else
+	rd_s32b(&p_ptr->control_des);
+	rd_s16b(&p_ptr->danger_turn);
+	rd_s32b(&p_ptr->game_score);
 	rd_byte(&p_ptr->warned);
-#endif
 
 	/* Find the number of timed effects */
 	rd_byte(&num);
@@ -1337,11 +1387,14 @@ static errr rd_randarts(void)
 				rd_u32b(&a_ptr->flags2);
 				rd_u32b(&a_ptr->flags3);
 				rd_u32b(&a_ptr->flags4);
+#ifdef new_random_stuff
+				rd_byte(&a_ptr->esprace);
+#endif
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
 #if breaksave
-		 		rd_byte(&a_ptr->maxlvl);
+                rd_byte(&a_ptr->maxlvl);
 #endif
 
 				rd_byte(&a_ptr->activation);
@@ -1378,9 +1431,7 @@ static errr rd_randarts(void)
 				rd_u32b(&tmp32u);  /*  a_ptr->flags4 */
 
 				rd_byte(&tmp8u); /* a_ptr->level */
-#if breaksave
 				rd_byte(&tmp8u); /* a_ptr->rarity */
-#endif
 				rd_byte(&tmp8u); /* a_ptr->maxlvl */
 
 				rd_byte(&tmp8u); /* a_ptr->activation */
@@ -1515,8 +1566,7 @@ static bool rd_notes(void)
 
 			rd_string(tmpstr, sizeof(tmpstr));
 			/* Found the end? */
-			if (strstr(tmpstr, NOTES_MARK))
-			break;
+			if (strstr(tmpstr, NOTES_MARK)) break;
 			fprintf(notes_file, "%s\n", tmpstr);
 		}
 

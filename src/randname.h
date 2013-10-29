@@ -24,6 +24,7 @@
 typedef enum 
 {
   RANDNAME_TOLKIEN = 1,
+  RANDNAME_SILLY,
   RANDNAME_SCROLL,
 
   /* End of type marker - not a valid name type */

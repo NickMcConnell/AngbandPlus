@@ -2850,6 +2850,14 @@ bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, char
 			result = FALSE;
 			break;
 		}
+		case '@':
+		{
+			*len = randname_make(RANDNAME_SILLY, 4, 9, buf, buflen);
+			buf[0] = toupper((unsigned char) buf[0]);
+			*curs = 0;
+			result = FALSE;
+			break;
+		}
 		
 		
 		default:
@@ -2879,7 +2887,7 @@ bool get_name(bool sf)
 	message_flush();
 
 	/* Display prompt */
-	prt("Enter a name for your character (* for a random name): ", 0, 0);
+	prt("Enter a name for your character (* or @ for a random name): ", 0, 0);
 
 	/* Save the player name */
 	my_strcpy(tmp, op_ptr->full_name, sizeof(tmp));
@@ -3074,7 +3082,6 @@ int get_check_other(cptr prompt, char other)
 bool get_check(cptr prompt)
 {
 	char ch;
-
 	char buf[80];
 
 	/* Paranoia XXX XXX XXX */

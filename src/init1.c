@@ -134,6 +134,7 @@ static cptr r_info_blow_effect[] =
 	"SPHCHARM",
 	"STUDY",
 	"BHOLD",
+	"XCONF",
 	NULL
 };
 
@@ -187,12 +188,12 @@ static cptr r_info_flags2[] =
 	"FRIEND1",
 	"ESCORT1",
 	"INVISIBLE",
-	"COLD_BLOOD",
+	"MONGLOW",
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
+	"RETURNS",
 	"XXX4X2",
 	"POWERFUL",
 	"BR_WEAK",
@@ -261,7 +262,7 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"XXX2X4",
+	"MCONTROL",
 	"T_AXE",
 	"THROW",
 	"ARROW_1",
@@ -287,7 +288,7 @@ static cptr r_info_flags4[] =
 	"BR_SHAR",
 	"BR_PLAS",
 	"BR_WALL", /* breathe force */
-	"BR_MANA",
+	"EXPLODE",
 	"BR_FEAR",
 	"BR_SLIME",
 	"BR_AMNS",
@@ -387,7 +388,7 @@ static cptr r_info_flags7[] =
 	"GREPSE",
 	"CASTLE",
 	"TEMPLE",
-	"ZOO",
+	"BARRACKS",
 	"CFOREST",
 	"SWAMP",
 	"FULL_MOON",
@@ -395,16 +396,16 @@ static cptr r_info_flags7[] =
 	"DWARF_MINE",
 	"BUG_CAVE",
 	"NIGHTMARE",
-	"XX717",
-	"XX718",
+	"DARK_CITY",
+	"ARMY",
 	"XX719",
 	"XX720",
 	"XX721",
 	"XX722",
 	"XX723",
 	"XX724",
-	"XX725",
-	"XX726",
+	"NONMONSTER",
+	"TOWNOK",
 	"LUCKY_KILL",
 	"WATER_ONLY",
 	"BLOCK_LOS",
@@ -425,7 +426,7 @@ static cptr k_info_flags1[] =
 	"CON",
 	"CHR",
 	"XXX1",
-	"XXX2",
+	"MAGIC_MASTERY",
 	"STEALTH",
 	"EQLUCK",
 	"INFRA",
@@ -434,17 +435,17 @@ static cptr k_info_flags1[] =
 	"BLOWS",
 	"SHOTS",
 	"MIGHT",
-	"SLAY_ANIMAL",
 	"SLAY_EVIL",
+	"SLAY_WERE",
 	"SLAY_UNDEAD",
 	"SLAY_DEMON",
 	"SLAY_ORC",
 	"SLAY_TROLL",
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
-	"KILL_DRAGON",
-	"KILL_DEMON",
-	"KILL_UNDEAD",
+	"SLAY_SILVER",
+	"SLAY_BUG",
+	"SLAY_LITE",
 	"BRAND_POIS",
 	"BRAND_ACID",
 	"BRAND_ELEC",
@@ -463,11 +464,11 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"MAGIC_MASTERY",
+	"LIGHTNESS",
 	"COAT_ACID",
-	"SLAY_SILVER",
-	"SLAY_BUG",
-	"SLAY_LITE",
+	"KILL_DRAGON",
+	"KILL_DEMON",
+	"KILL_UNDEAD",
 	"PR_POIS",
 	"IM_ACID",
 	"IM_ELEC",
@@ -478,17 +479,17 @@ static cptr k_info_flags2[] =
 	"RES_FIRE",
 	"RES_COLD",
 	"EXTRA_CRIT",
-	"DANGER",
+	"SLAY_ANIMAL",
 	"CONSTANTA",
-	"SLAY_WERE",
+	"DANGER",
 	"CORRUPT",
 	"IMPACT",
-	"PTHROW",
-	"RTURN",
-	"THROWN",
-	"LIGHTNESS",
 	"PEACE",
-	"NICE"
+	"STOPREGEN",
+	"TELEPORT",
+	"AGGRAVATE",
+	"DRAIN_EXP",
+	"R_ANNOY"
 };
 
 /*
@@ -508,10 +509,10 @@ static cptr k_info_flags3[] =
 	"BR_SHIELD",
 	"TCONTROL",
 	"THROWMULT",
-    "STOPREGEN",              /* was XXX4 */
-	"TELEPORT",
-	"AGGRAVATE",
-	"DRAIN_EXP",
+    "XXXEMPTY",
+	"RTURN",
+	"THROWN",
+	"PTHROW",
 	"IGNORE_ACID",
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
@@ -549,8 +550,8 @@ static cptr k_info_flags4[] =
 	"RES_DISEN",
 	"RES_CHARM",
 	"RES_STATC",
-	"XXX15",
-	"XXX16",
+	"RES_SILVR",
+	"RES_SLIME",
 	"XXX17",
 	"XXX18",
 	"XXX19",
@@ -562,9 +563,9 @@ static cptr k_info_flags4[] =
 	"XXX25",
 	"XXX26",
 	"XXX27",
-	"XXX28",
-	"XXX29",
-	"XXX30",
+	"NICE",
+	"KEEP_BONUS",
+	"EXPLODE_A",
 	"DRUID",
 	"WIELD_SHIELD"
 };
@@ -1738,19 +1739,21 @@ SAVED_H_PTR = (artifact_type*)head->info_ptr;
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int tval, sval, pval;
+		int tval, sval, pval, arat, esprace;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &tval, &sval, &pval)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &tval, &sval, &pval, &arat, &esprace)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		a_ptr->tval = tval;
 		a_ptr->sval = sval;
 		a_ptr->pval = pval;
+		a_ptr->artrat = arat;
+		a_ptr->esprace = esprace;
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
@@ -1980,36 +1983,88 @@ errr parse_e_info(char *buf, header *head)
 	{
 		int level, rarity, wgt;
 		long cost;
+#ifdef new_random_stuff
+		int rating;
+#endif
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
+#ifdef new_random_stuff
+		/* Scan for the values */
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld",
+			            &level, &rarity, &rating, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
+#else
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
 			            &level, &rarity, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
+#endif
 
 		/* Save the values */
 		e_ptr->level = level;
 		e_ptr->rarity = rarity;
 		e_ptr->weight = wgt;
 		e_ptr->cost = cost;
+#ifdef new_random_stuff
+		e_ptr->rating = rating;
+#endif
 	}
 
-	/* Process 'X' for "Xtra" (one line only) */
+	/* New: Process 'X' for extra (changed old X to R) */
 	else if (buf[0] == 'X')
 	{
-		int rating, xtra;
+#ifdef new_random_stuff
+		int randact, esprace, blahyeah;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &rating, &xtra))
+		if (3 != sscanf(buf+2, "%d:%d:%d", &esprace, &randact, &blahyeah)) 
 			return (PARSE_ERROR_GENERIC);
 
+		e_ptr->randact = randact;
+		e_ptr->esprace = esprace;
+		e_ptr->unused1 = blahyeah;
+	}
+
+	/* Process 'R' for random stuff (one (long) line only) */
+	else if (buf[0] == 'R')
+	{
+		int randsus, randres, randpow, randslay, randbon, randplu, randdrb;
+		int randlowr, randbran;
+#else
+		int xtra, rating;
+#endif
+
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+#ifdef new_random_stuff
+		/* Scan for the values */
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d", 
+			&randsus, &randres, &randlowr, &randpow, &randslay, &randbran, &randbon, &randplu, &randdrb))
+			return (PARSE_ERROR_GENERIC);
+#else
+		/* Scan for the values */
+		if (2 != sscanf(buf+2, "%d:%d", &rating, &xtra))
+			return (PARSE_ERROR_GENERIC);
+#endif
+
 		/* Save the values */
+#ifdef new_random_stuff
+		e_ptr->randsus = randsus;
+		e_ptr->randres = randres;
+		e_ptr->randpow = randpow;
+		e_ptr->randslay = randslay;
+		e_ptr->randbon = randbon;
+		e_ptr->randplu = randplu;
+		e_ptr->randbran = randbran;
+		e_ptr->randdrb = randdrb;
+		e_ptr->randlowr = randlowr;
+#else
 		e_ptr->rating = rating;
 		e_ptr->xtra = xtra;
+#endif
 	}
 
 	/* Process 'T' for "Types allowed" (up to five lines (was 3)) */
@@ -3612,6 +3667,8 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		case RBE_LOSE_WIS:
 		case RBE_LOSE_DEX:
 		case RBE_HALLU:
+		case RBE_SILVER:
+        case RBE_SLIME:
 		{
 			atk_dam += 20;
 			break;
@@ -3620,17 +3677,12 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		case RBE_UN_BONUS:
 		case RBE_UN_POWER:
 		case RBE_LOSE_CON:
+		case RBE_XCONF:
+		case RBE_MCONTROL:
 		{
 			atk_dam += 30;
 			break;
 		}
-		/*new bad effects: silver & slime */
-		case RBE_SILVER:
-        case RBE_SLIME:
-        {
-			atk_dam += 700 / (rlev);
-			break;
-        }
 		/*other bad effects - major*/
 		case RBE_PARALYZE:
 		case RBE_LOSE_ALL:
@@ -4056,15 +4108,12 @@ static long eval_hp_adjust(monster_race *r_ptr)
 
 	/* Miscellaneous improvements */
 	if (r_ptr->flags2 & RF2_REGENERATE) {hp *= 10; hp /= 9;}
+	if (r_ptr->flags2 & RF2_RETURNS) 	{hp *= 3; hp /= 2;}
 	if (r_ptr->flags2 & RF2_PASS_WALL) 	{hp *= 3; hp /= 2;}
 
 	/* Calculate hide bonus */
 	if (r_ptr->flags2 & RF2_EMPTY_MIND) hide_bonus += 2;
-	else
-	{
-		if (r_ptr->flags2 & RF2_COLD_BLOOD) hide_bonus += 1;
-		if (r_ptr->flags2 & RF2_WEIRD_MIND) hide_bonus += 1;
-	}
+	else if (r_ptr->flags2 & RF2_WEIRD_MIND) hide_bonus += 1;
 
 	/* Invisibility */
 	if (r_ptr->flags2 & RF2_INVISIBLE)

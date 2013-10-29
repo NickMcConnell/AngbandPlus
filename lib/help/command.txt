@@ -49,7 +49,7 @@ Drop an item (d)
         determining if the space is occupied.  This command may take
         a quantity, and takes some energy.
 
-Destroy an item (k) or Destroy an item (^D)
+Destroy an item (k) or (^D) for roguelike
         This destroys an item in your inventory or on the dungeon floor.
         If the selected pile contains multiple objects, you may specify
         a quantity.  You must always (currently) verify this command.
@@ -63,7 +63,17 @@ Wear/Wield equipment (w)
         there is no room for it in your inventory.  This command takes
         some energy.
 
-Take off equipment (t) or Take off equipment (T)
+Wield directly to quiver (Ctrl-Q) or (^Q)
+	  This command allows you to wield an item directly to the quiver.
+	  For most ammo and primary throwing weapons, this won't make any
+	  difference because they get wielded straight to the quiver anyway
+	  with the (w) command, but there are other objects which can be
+	  thrown for damage (like a long dagger or spear) and this is the 
+	  only way to put that kind of item into the quiver. Note: nothing 
+	  which is heavier than a spear can be put into the quiver even if
+	  it can be thrown.
+
+Take off equipment (t) or (T) for roguelike
         Use this command to take off a piece of equipment and return it
         to your inventory.  Occasionally, you will run into a cursed item
         which cannot be removed.  These items normally penalize you in some
@@ -160,7 +170,7 @@ Search (s)
         stops as soon as anything is found.  This command may take a count,
         and takes some energy.
 
-Toggle search mode (S) or Toggle search mode (#)
+Toggle search mode (S) or (#) for roguelike
         This command will take you into and out of search mode.  When
         first pressed, the message "Searching" will appear at the bottom
         of the screen.  You are now taking two turns for each command, one
@@ -172,7 +182,7 @@ Toggle search mode (S) or Toggle search mode (#)
 
 --- Alter Commands ---
 
-Tunnel (T) or Tunnel (^T)
+Tunnel (T) or (^T) for roguelike
         Tunnelling or mining is a very useful art.  There are many kinds of
         rock, with varying hardness, including permanent rock (permanent),
         granite (very hard), quartz veins (hard), magma veins (soft), and
@@ -202,7 +212,7 @@ Close a door (c)
         is affected by the "always_repeat" option, requires a direction, and 
         takes some energy.
 
-Jam a door (j) or Spike a door (S)
+Jam/Spike a door (j) or (S) for roguelike
         Many monsters can simply open closed doors, and can eventually
         get through a locked door.  You may therefore occasionally want
         to jam a door shut with iron spikes.  Each spike used on the door
@@ -211,7 +221,7 @@ Jam a door (j) or Spike a door (S)
         use this command, you must be carrying iron spikes.  This command
         requires a direction, and takes some energy.
 
-Bash a door (B) or Force a door (f)
+Bash/Force a door (B) or (f) for roguelike
         This command allows you to bash down jammed doors.  Your bashing
         ability increases with strength.  Bashing open a door can (briefly)
         throw you off balance.  Doors that are stuck, or which have been
@@ -241,7 +251,7 @@ Alter (+)
 
 --- Spell and Prayer Commands ---
 
-Browse a book (b) or Peruse a book (P)
+Browse/Peruse a book (b) or (P) for roguelike
         Only mages, rogues, and rangers can read magic books, and only
         priests and paladins can read prayer books.  Warriors cannot read
         any books.  When this command is used, all of the spells or prayers
@@ -283,6 +293,9 @@ Pray a prayer (p)
         or confused while praying, and there must be some light present.
         This command takes some energy.
 
+	  Note: the 'p' and 'm' commands are interchangable (either one
+	  will work for any magic realm).
+
 --- Object Manipulation Commands ---
 
 Eat some food (E)
@@ -314,6 +327,10 @@ Read a scroll (r)
         takes effect.  Most scrolls which prompt for more information can be
         aborted (by pressing escape), which will stop reading the scroll
         before it disintegrates.  This command takes some energy.
+
+Unenchant a staff (&)
+	  This command will remove all combat bonuses and ego powers from a
+	  staff to allow it to stack with other staffs of the same type.
  
 Inscribe an object ({) 
         This command inscribes a string on an object.  The inscription is
@@ -353,6 +370,10 @@ Uninscribe an object (})
         This command removes the inscription on an object.  This command will
         have no effect on "fake" inscriptions added by the game itself.
 
+Mark an item to squelch (K) or (O) for roguelike
+	  This command will mark an item type for squelching without having to 
+	  go to the squelch menu.
+
 --- Magical Object Commands ---
 
 Activate an artifact (A)
@@ -363,8 +384,8 @@ Activate an artifact (A)
         ability.  Special abilities can only be used if you are wearing or
         wielding the item.  This command takes some energy.
 
-Aim a wand (a) or Zap a wand (z)
-        Wands must be aimed in a direction to be used.  Wands are magical
+Zap a wand or rod (z)
+           Wands must be aimed in a direction to be used.  Wands are magical
         devices, and therefore there is a chance you will not be able to
         figure out how to use them if you aren't good with magical
         devices.  They will fire a shot that affects the first object or
@@ -373,16 +394,7 @@ Aim a wand (a) or Zap a wand (z)
         door or wall will generally stop the effects from traveling any
         farther.  This command requires a direction and can use a target.
         This command takes some energy.
-
-Use a staff (u) or Zap a staff (Z)
-        This command will use a staff.  A staff is normally very similar
-        to a scroll, in that they normally either have an area effect or
-        affect a specific object.  Staves are magical devices, and there
-        is a chance you will not be able to figure out how to use them.
-        This command takes some energy.
- 
-Zap a rod (z) or Activate a rod (a)
-        Rods are extremely powerful magical items, which cannot be burnt
+           Rods are extremely powerful magical items, which cannot be burnt
         or shattered, and which can have either staff-like or wand-like
         effects, but unlike staves and wands, they don't have charges.
         Instead, they draw on the ambient magical energy to recharge
@@ -392,9 +404,16 @@ Zap a rod (z) or Activate a rod (a)
         rod, and whether you are aware of its type) and can use a target.
         This command takes some energy.
 
+Use a staff (u) or (Z) for rogulike
+        This command will use a staff.  A staff is normally very similar
+        to a scroll, in that they normally either have an area effect or
+        affect a specific object.  Staves are magical devices, and there
+        is a chance you will not be able to figure out how to use them.
+        This command takes some energy.
+ 
 --- Throwing and Missile Weapons ---
 
-Fire an item (f) or Fire an item (t)
+Fire an item (f) or (t) for rogulike
         You may throw any object carried by your character.  Depending on
         the weight, it may travel across the room or drop down beside you.
         Only one object from a pile will be thrown at a time.  Note that
@@ -471,7 +490,7 @@ Full screen map (M)
         in locating where the stairs are relative to your current
         position, or for identifying unexplored areas of the dungeon.
 
-Locate player on map (L) or Where is the player (W)
+Locate player/Whereis on map (L) or (W) for rogulike
         This command lets you scroll your map around, looking at all sectors
         of the current dungeon level, until you press escape, at which point
         the map will be re-centered on the player if necessary.  To scroll
@@ -479,7 +498,7 @@ Locate player on map (L) or Where is the player (W)
         line will display the sector location, and the offset from your
         current sector.
 
-Look around (l) or Examine things (x)
+Look around/examine (l) or (x) for rogulike
         This command is used to look around at nearby monsters (to determine
         their type and health) and objects (to determine their type).  It is
         also used to find out what objects (if any) are under monsters, and
@@ -537,14 +556,10 @@ Check knowledge (~)
         Certain "objects" come in "flavors", and you must determine the
         effect of each "flavor" once for each such type of object, and
         this command will allow you to display all "known" flavors.
-
-Interact with the system (!)
-        Allow the user to interact with the underlying visual system.
-        This command is currently unused.
  
 --- Saving and Exiting Commands ---
 
-Save and Quit (Ctrl-X)
+Save and Exit (Ctrl-X)
         To save your game so that you can return to it later, use this
         command.  Save files will also be generated (hopefully) if the
         game crashes due to a system error.  After you die, you can use
@@ -555,10 +570,10 @@ Save (Ctrl-S)
         frequently if you are paranoid about having your computer crash
         (or your power go out) while you are playing.
 
-Quit (commit suicide) (Q)
-        Kills your character and exits Angband.  You will be prompted to
-        make sure you really want to do this, and then asked to verify
-        that choice.  Note that dead characters are dead forever.
+Quit (abort the quest) (Q)
+        Delete your current character and exits Angband.  You will be 
+        prompted to make sure you really want to do this, and then asked 
+        to verify that choice.  You cannot undo this decision.
 
 --- User pref file commands ---
 

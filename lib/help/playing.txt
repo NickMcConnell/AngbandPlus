@@ -90,20 +90,20 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  h  (unused)                             H  (unused)
  i  Inventory list                       I  Observe an item
  j  Jam a door                           J  (unused)
- k  Destroy an item                      K  (unused)
+ k  Destroy an item                      K  Mark item as squelch
  l  Look around                          L  Locate player on map
  m  Cast a spell                         M  Full dungeon map
  n  (unused)                             N  (unused)
  o  Open a door or chest                 O  (unused)
  p  Pray a prayer                        P  (unused)
- q  Quaff a potion                       Q  Quit (commit suicide)
+ q  Quaff a potion                       Q  Quit (delete current character)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
  t  Take off equipment                   T  Dig a tunnel
  u  Use a staff                          U  (unused)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
- x  (unused)                             X  (unused)
+ x  (unused)                             X  Switch between weapons inscribed @0
  y  (unused)                             Y  (unused)
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
@@ -112,17 +112,17 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  $  (unused)                            ^D  (unused)
  %  (unused)                            ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  (unused)                            ^G  (unused)
+ &  Unenchant a staff (for stacking)    ^G  Get danger feeling for the level
  *  Target monster or location          ^H  (unused)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (special - linefeed)
  {  Inscribe an object                  ^K  (unused)
  }  Uninscribe an object                ^L  (unused)
- [  (unused)                            ^M  (special - return)
- ]  (unused)                            ^N  (unused)
+ [  Display monster list                ^M  (special - return)
+ ]  Display object list                 ^N  (unused)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  (unused)
+ +  Alter grid                          ^Q  Wield direct to quiver
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
  :  Take notes                          ^T  (unused)
@@ -156,14 +156,14 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  (unused)
  p  Pray a prayer                        P  Browse a book
- q  Quaff a potion                       Q  Quit (commit suicide)
+ q  Quaff a potion                       Q  Quit (delete current character)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Jam a door (Spike)
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  Locate player on map (Where)
- x  Look around                          X  (unused)
+ x  Look around                          X  Switch between weapons inscribed @0
  y  (walk - north west)                  Y  (run - north west)
  z  Aim a wand (Zap)                     Z  Use a staff (Zap)
  !  Interact with system                ^A  (special - debug command)
@@ -172,17 +172,17 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  $  (unused)                            ^D  Destroy item
  %  (unused)                            ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  (unused)                            ^G  (unused)
+ &  Unenchant a staff (for stacking)    ^G  Get danger feeling for the level
  *  Target monster or location          ^H  (alter - west)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (alter - south)
  {  Inscribe an object                  ^K  (alter - north)
  }  Uninscribe an object                ^L  (alter - east)
- [  (unused)                            ^M  (special - return)
- ]  (unused)                            ^N  (alter - south east)
+ [  Display monster list                ^M  (special - return)
+ ]  Display object list                 ^N  (alter - south east)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  (unused)
+ +  Alter grid                          ^Q  Wield direct to quiver
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
  :  Take notes                          ^T  Dig a Tunnel

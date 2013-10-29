@@ -202,13 +202,10 @@ static void prt_level(int row, int col)
 static void prt_exp(int row, int col)
 {
 	char out_val[32];
-	bool lev50 = (p_ptr->lev == 50);
-
 	long xp = (long)p_ptr->exp;
 
-
 	/* Calculate XP for next level */
-	if (!lev50)
+	if (p_ptr->lev < 50)
 		xp = (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp;
 
 	/* Format XP */
@@ -217,12 +214,12 @@ static void prt_exp(int row, int col)
 
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
-		put_str((lev50 ? "EXP" : "NXT"), row, col);
+		put_str(((p_ptr->lev >= 50) ? "EXP" : "NXT"), row, col);
 		c_put_str(TERM_L_GREEN, out_val, row, col + 4);
 	}
 	else
 	{
-		put_str((lev50 ? "Exp" : "Nxt"), row, col);
+		put_str(((p_ptr->lev >= 50) ? "Exp" : "Nxt"), row, col);
 		c_put_str(TERM_YELLOW, out_val, row, col + 4);
 	}
 }
@@ -247,14 +244,58 @@ static void prt_gold(int row, int col)
 static void prt_equippy(int row, int col)
 {
 	int i;
-
 	byte a;
 	char c;
 
 	object_type *o_ptr;
 
+	s32b hour, minute, sec, day;
+	char time[17];
+
 	/* No equippy chars in bigtile mode */
-	if (use_bigtile) return;
+	if ((use_bigtile) && (!show_gtime)) return;
+	
+	/* optionally show game time instead of equippy characters */
+	if (show_gtime)
+	{
+		/* Dump 13 spaces to clear */
+		c_put_str(TERM_WHITE, "             ", row, col);
+
+		/* convert turns to time (60 turns = 1 minute) */
+		if (turn >= 60) minute = turn / 60;
+		else minute = 0;
+		if (minute >= 60) hour = minute / 60;
+		else hour = 0;
+		if (hour >= 24) day = (hour / 24) + 1;
+		else day = 0;
+		if (turn >= 60) sec = turn - (minute * 60);
+		else sec = turn;
+		if (minute >= 60) minute -= hour * 60;
+		if (hour >= 24) hour -= (day-1) * 24;
+
+		/* convert to time display 00:00:00 */
+		if ((day) && (day < 10) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), " D%d %d:0%d:0%d", day, hour, minute, sec);
+		else if ((day) && (day < 10) && (minute < 10)) strnfmt(time, sizeof(time), " D%d %d:0%d:%d", day, hour, minute, sec);
+		else if ((day) && (day < 10) && (sec < 10)) strnfmt(time, sizeof(time), " D%d %d:%d:0%d", day, hour, minute, sec);
+		else if ((day) && (day < 10)) strnfmt(time, sizeof(time), " D%d %d:%d:%d", day, hour, minute, sec);
+		else if ((day) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "D%d %d:0%d:0%d", day, hour, minute, sec);
+		else if ((day) && (minute < 10)) strnfmt(time, sizeof(time), "D%d %d:0%d:%d", day, hour, minute, sec);
+		else if ((day) && (sec < 10)) strnfmt(time, sizeof(time), "D%d %d:%d:0%d", day, hour, minute, sec);
+		else if (day) strnfmt(time, sizeof(time), "D%d %d:%d:%d", day, hour, minute, sec);
+		else if ((hour) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), " D1 %d:0%d:0%d", hour, minute, sec);
+		else if ((hour) && (minute < 10)) strnfmt(time, sizeof(time), " D1 %d:0%d:%d", hour, minute, sec);
+		else if ((hour) && (sec < 10)) strnfmt(time, sizeof(time), " D1 %d:%d:0%d", hour, minute, sec);
+		else if (hour) strnfmt(time, sizeof(time), " D1 %d:%d:%d", hour, minute, sec);
+		else if ((minute) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), " D1 00:0%d:0%d", minute, sec);
+		else if ((minute) && (minute < 10)) strnfmt(time, sizeof(time), " D1 00:0%d:%d", minute, sec);
+		else if ((minute) && (sec < 10)) strnfmt(time, sizeof(time), " D1 00:%d:0%d", minute, sec);
+		else if (minute) strnfmt(time, sizeof(time), " D1 00:%d:%d", minute, sec);
+		else if (sec < 10) strnfmt(time, sizeof(time), " D1 00:00:0%d", sec);
+		else strnfmt(time, sizeof(time), " D1 00:00:%d", sec);
+
+		c_put_str(TERM_L_BLUE, time, row, col);
+		return;
+	}
 
 	/* Dump equippy chars */
 	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
@@ -309,7 +350,8 @@ static void prt_hp(int row, int col)
 	if (p_ptr->chp >= maxhps)
 		color = TERM_L_GREEN;
 	/* (warning based on true max hp, not including FALSE_LIFE) */
-	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
+	else if ((p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10) &&
+		(p_ptr->chp > 2 + p_ptr->mhp / 50))
 		color = TERM_YELLOW;
 	else
 		color = TERM_RED;
@@ -406,8 +448,6 @@ static void prt_slime(int row, int col)
     
 	put_str("Slime", row, col);
 
-	/* what is strnfmt? let's see if copying it will be good enough */
-	/* ..cool, it is */
 	strnfmt(cur_slime, sizeof(cur_slime), "%4d", p_ptr->slime);
 
 	if (p_ptr->slime >= PY_SLIME_LEVELTWO)
@@ -682,7 +722,7 @@ static void display_sidebar(void)
 /*
  * Prints depth in stat area
  */
-static void prt_depth(int row, int col)
+static void prt_depth(int row, int col, bool subw)
 {
 	char depths[32];
 
@@ -707,7 +747,7 @@ static void prt_depth(int row, int col)
 /*
  * Prints status of hunger
  */
-static void prt_hunger(int row, int col)
+static void prt_hunger(int row, int col, bool subw)
 {
 	/* golems have no need for food */
 	if (p_ptr->prace == 16) p_ptr->food = PY_FOOD_FULL - 1;
@@ -753,7 +793,7 @@ static void prt_hunger(int row, int col)
 /*
  * Prints Blind status
  */
-static void prt_blind(int row, int col)
+static void prt_blind(int row, int col, bool subw)
 {
 	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
 	{
@@ -777,7 +817,7 @@ static void prt_blind(int row, int col)
 /*
  * Prints Confusion status
  */
-static void prt_confused(int row, int col)
+static void prt_confused(int row, int col, bool subw)
 {
 	bool confused = p_ptr->timed[TMD_CONFUSED] ? TRUE : FALSE;
 	bool forget   = p_ptr->timed[TMD_AMNESIA]  ? TRUE : FALSE;
@@ -802,7 +842,7 @@ static void prt_confused(int row, int col)
 /*
  * Prints Fear & Charm status
  */
-static void prt_afraid(int row, int col)
+static void prt_afraid(int row, int col, bool subw)
 {
 	if (p_ptr->timed[TMD_TERROR])
 	{
@@ -810,7 +850,8 @@ static void prt_afraid(int row, int col)
 	}
 	else if (p_ptr->timed[TMD_FRENZY])
 	{
-		c_put_str(TERM_ORANGE, "Frenzy", row, col);
+        if (p_ptr->timed[TMD_FRENZY] > 19) c_put_str(TERM_ORANGE, "XFrnzy", row, col);
+		else c_put_str(TERM_L_UMBER, "Frenzy", row, col);
 	}
 	else if (p_ptr->timed[TMD_BECOME_LICH])
 	{
@@ -834,7 +875,7 @@ static void prt_afraid(int row, int col)
 /*
  * Prints Poisoned status
  */
-static void prt_poisoned(int row, int col)
+static void prt_poisoned(int row, int col, bool subw)
 {
 	if (p_ptr->timed[TMD_POISONED])
 	{
@@ -858,7 +899,7 @@ static void prt_poisoned(int row, int col)
  * This function was a major bottleneck when resting, so a lot of
  * the text formatting code was optimized in place below.
  */
-static void prt_state(int row, int col)
+static void prt_state(int row, int col, bool subw)
 {
 	byte attr = TERM_WHITE;
 
@@ -975,7 +1016,7 @@ static void prt_state(int row, int col)
 /*
  * Prints the speed of a character.
  */
-static void prt_speed(int row, int col)
+static void prt_speed(int row, int col, bool subw)
 {
 	int i = p_ptr->pspeed;
 
@@ -1018,7 +1059,7 @@ static void prt_speed(int row, int col)
 /*
  * Print whether a character is studying or not.
  */
-static void prt_study(int row, int col)
+static void prt_study(int row, int col, bool subw)
 {
 	if (p_ptr->new_spells > 0)
 	{
@@ -1031,15 +1072,15 @@ static void prt_study(int row, int col)
 }
 
 
-static void prt_elements(int row, int col)
+static void prt_elements(int row, int col, bool subw)
 {
 	int wid, n;
 
 	/* Number of resists to display */
 	int count = 5;
 
-	/* XXX Ignore column setting */
-	col = 80;
+	/* XXX Ignore column setting unless in a subwindow */
+	if (!subw) col = 80;
 	wid = Term->wid - col;
 
 	/* Print up to 5 letters of the resist */
@@ -1093,12 +1134,17 @@ static void prt_elements(int row, int col)
 
 /*
  * Struct of status line indicators.
+ * subw is currently only used in the prt_elements() function
  */
 static const struct status_handler_t
 {
 	u32b flag;							/* p_ptr->redraw flag this entry is for */
 	int column;							/* Column to display at */
+#if old
 	void (*hook)(int row, int col);		/* Display function */
+#else
+	void (*hook)(int row, int col, bool subw);	/* Display function */
+#endif
 } status_handlers[] =
 {
 	{ PR_HUNGER,    0, prt_hunger },   /* "Weak" / "Hungry" / "Full" / "Gorged" */
@@ -1130,7 +1176,7 @@ static void display_statusline(void)
 		//if (p_ptr->redraw & hnd->flag)
 		{
 			p_ptr->redraw &= ~(hnd->flag);
-			hnd->hook(row, hnd->column);
+			hnd->hook(row, hnd->column, FALSE);
 		}
 	}
 
@@ -1298,9 +1344,10 @@ static void fix_status(void)
 	int row = 0;
 	size_t i;
 
-	for (i = 0; i < N_ELEMENTS(status_handlers) - 1; i++)
+	/* for (i = 0; i < N_ELEMENTS(status_handlers) - 1; i++) */
+	for (i = 0; i < N_ELEMENTS(status_handlers); i++)
 	{
-		status_handlers[i].hook(row, 0);
+		status_handlers[i].hook(row, 0, TRUE);
 		row++;
 	}
 }
@@ -1646,7 +1693,7 @@ static void calc_mana(void)
     }
 
 	/* Hack -- usually add one mana */
-	if (msp) msp++;
+	else if (msp) msp++;
 
 	/* Process gloves for those disturbed by them */
 	if (cp_ptr->flags & CF_CUMBER_GLOVE)
@@ -1665,7 +1712,7 @@ static void calc_mana(void)
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
 		    !(f3 & (TR3_FREE_ACT)) &&
-		    !(f2 & (TR2_MAGIC_MASTERY)) &&
+		    !(f1 & (TR1_MAGIC_MASTERY)) &&
 		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
@@ -1752,7 +1799,7 @@ static void calc_mana(void)
 		/* Message */
 		if (p_ptr->cumber_armor)
 		{
-			msg_print("The weight of your armor encumbers your movement.");
+			msg_print("The weight of your armor encumbers your casting ability.");
 		}
 		else
 		{
@@ -1970,7 +2017,7 @@ static int weight_limit(void)
 /* static void calc_bonuses(object_type inventory[]) */
 void calc_bonuses(object_type inventory[], bool killmess)
 {
-    int i, j, hold;
+    int i, j, hold, strb, strdec;
 
 	int old_speed;
 
@@ -1997,7 +2044,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	bool throwgloves = FALSE;
 
 	object_type *o_ptr;
-
 	u32b f1, f2, f3, f4;
 
 
@@ -2099,6 +2145,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	p_ptr->resist_nexus = FALSE;
 	p_ptr->resist_nethr = FALSE;
 	p_ptr->resist_static = 0; /* multiple items with the flag stack */
+	p_ptr->resist_silver = FALSE;
+	p_ptr->resist_slime = FALSE;
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
@@ -2158,7 +2206,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 	if (f3 & (TR3_DARKVIS)) p_ptr->darkvis = TRUE;
-	if (f2 & (TR2_NICE)) p_ptr->nice = TRUE;
+	if (f4 & (TR4_NICE)) p_ptr->nice = TRUE;
 	if (f2 & (TR2_PEACE)) p_ptr->peace = TRUE;
 	if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += 2;
 	if (f3 & (TR3_BR_SHIELD)) p_ptr->breath_shield = TRUE;
@@ -2168,15 +2216,15 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/* Bad flags */
 	/* only umber hulk has racial AGGRAVATE and IMPACT */
-	if (f3 & (TR3_AGGRAVATE)) aggra += 1;
+	if (f2 & (TR2_AGGRAVATE)) aggra += 1;
 	if (f2 & (TR2_IMPACT)) p_ptr->impact = TRUE;
 	/* used for golem race */
-	if (f3 & (TR3_STOPREGEN)) p_ptr->stopregen = TRUE;
+	if (f2 & (TR2_STOPREGEN)) p_ptr->stopregen = TRUE;
 	/* the rest of these are hypothetical */
 	if (f2 & (TR2_DANGER)) p_ptr->accident = TRUE;
-	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+	if (f2 & (TR2_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_TCONTROL)) p_ptr->telecontrol = TRUE;
-	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+	if (f2 & (TR2_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2204,6 +2252,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (f4 & (TR4_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
 	if (f4 & (TR4_RES_DISEN)) p_ptr->resist_disen = TRUE;
 	if (f4 & (TR4_RES_STATC)) p_ptr->resist_static += 1;
+	if (f4 & (TR4_RES_SILVR)) p_ptr->resist_silver = TRUE;
+	if (f4 & (TR4_RES_SLIME)) p_ptr->resist_slime = TRUE;
 
 	/* Sustain flags */
 	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2217,7 +2267,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/*** Analyze equipment ***/
 
 	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -2226,6 +2276,9 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		
+		/* include quiver only if the item has the THROWN flag */
+        if ((!(f3 & (TR3_THROWN))) && (IS_QUIVER_SLOT(i))) continue;
 
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skills[SKILL_STL] += o_ptr->pval;
@@ -2250,7 +2303,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		
 		/* affect magic device mastery (now uses pval) */
 		/* test to see if a MAGIC_MASTERY pval of 3-4 is too strong */
-		if (f2 & (TR2_MAGIC_MASTERY))
+		if (f1 & (TR1_MAGIC_MASTERY))
 		{
 			if (o_ptr->pval == 1) p_ptr->skills[SKILL_DEV] += 8;
 			else if (o_ptr->pval >= 4) p_ptr->skills[SKILL_DEV] += 23 + o_ptr->pval;
@@ -2288,7 +2341,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 	    if (f3 & (TR3_DARKVIS)) p_ptr->darkvis = TRUE;
-	    if (f2 & (TR2_NICE)) p_ptr->nice = TRUE;
+	    if (f4 & (TR4_NICE)) p_ptr->nice = TRUE;
 	    if (f3 & (TR3_BR_SHIELD)) p_ptr->breath_shield = TRUE;
 	    if (f3 & (TR3_TCONTROL)) p_ptr->telecontrol = TRUE;
 
@@ -2327,20 +2380,20 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Bad flags */
 		if (f2 & (TR2_IMPACT)) p_ptr->impact = TRUE;
 		/* multiple objects with aggravation have cumulative penalty */
- 	    if (f3 & (TR3_AGGRAVATE)) aggra += 1;
-	    if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
-		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
-  	    if (f3 & (TR3_STOPREGEN)) p_ptr->stopregen = TRUE;
+ 	    if (f2 & (TR2_AGGRAVATE)) aggra += 1;
+	    if (f2 & (TR2_TELEPORT)) p_ptr->teleport = TRUE;
+		if (f2 & (TR2_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+  	    if (f2 & (TR2_STOPREGEN)) p_ptr->stopregen = TRUE;
 		if (f2 & (TR2_DANGER)) p_ptr->accident = TRUE;
         /* perma-cursed items re-curse themselves */
   	    if (f3 & (TR3_PERMA_CURSE))
   	    {
-           if ((!o_ptr->ident & (IDENT_CURSED)) && (randint(100) < 5 + badluck/2))
+           if ((!o_ptr->ident & (IDENT_CURSED)) && (randint(100) < 3 + badluck/2))
            {
               o_ptr->ident |= (IDENT_CURSED);
               
               if (o_ptr->pseudo == INSCRIP_UNCURSED) o_ptr->pseudo = INSCRIP_NULL;
-              if (randint(100) < 4) p_ptr->luck -= 1;
+              if (randint(100) == 6) p_ptr->luck -= 1;
            }
         }
 		/* Immunity flags */
@@ -2369,6 +2422,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f4 & (TR4_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
 		if (f4 & (TR4_RES_DISEN)) p_ptr->resist_disen = TRUE;
 		if (f4 & (TR4_RES_STATC)) p_ptr->resist_static += 1;
+		if (f4 & (TR4_RES_SILVR)) p_ptr->resist_silver = TRUE;
+		if (f4 & (TR4_RES_SLIME)) p_ptr->resist_slime = TRUE;
 
 		/* Sustain flags */
 		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2630,7 +2685,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->to_h += 10;
 		p_ptr->dis_to_h += 10;
 		p_ptr->skills[SKILL_FOS] += 2;
-		if (goodluck < 20) goodluck += 2;
+		if (goodluck < 12) goodluck += 1;
 	}
 	
 	/* Temporary curse (opposite of blessing) */
@@ -2724,16 +2779,20 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Temporary "Frenzy" */
 	if (p_ptr->timed[TMD_FRENZY])
 	{
-		p_ptr->to_d += 5;
-		p_ptr->dis_to_d += 5;
-		p_ptr->to_h -= 5;
-		p_ptr->dis_to_h -= 5;
-		p_ptr->to_a -= 12;
-		p_ptr->dis_to_a -= 12;
+		int extreme;
+        if (p_ptr->timed[TMD_FRENZY] > 19) extreme = 10;
+        else if (p_ptr->timed[TMD_FRENZY] > 9) extreme = 7;
+		else extreme = 5;
+		p_ptr->to_d += extreme;
+		p_ptr->dis_to_d += extreme;
+		p_ptr->to_h -= extreme;
+		p_ptr->dis_to_h -= extreme;
+		p_ptr->to_a -= extreme * 2;
+		p_ptr->dis_to_a -= extreme * 2;
 	    p_ptr->accident = TRUE;
-	    p_ptr->skills[SKILL_FOS] -= 5;
-        p_ptr->skills[SKILL_SAV] -= 4;
-        if (p_ptr->skills[SKILL_STL] > 0) p_ptr->skills[SKILL_STL] -= 1;
+	    p_ptr->skills[SKILL_FOS] -= extreme;
+        p_ptr->skills[SKILL_SAV] -= (extreme * 3) / 5;
+        if (p_ptr->skills[SKILL_STL] > 0) p_ptr->skills[SKILL_STL] -= extreme/5;
     }
 
 	/* Temporary "fast" */
@@ -2804,8 +2863,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
         else if (p_ptr->skills[SKILL_STL] > 1) p_ptr->skills[SKILL_STL] -= 1;
 	}
 	
-	/* timed "sanctify for battle " */
-	/* gives slay demon and slay evil */
+	/* timed "sanctify for battle" gives slay demon and slay evil */
 	if (p_ptr->timed[TMD_SANCTIFY])
 	{
         p_ptr->resist_fear = TRUE;
@@ -2818,18 +2876,13 @@ void calc_bonuses(object_type inventory[], bool killmess)
         p_ptr->resist_fear = TRUE;
         p_ptr->resist_charm = TRUE;
 	}
-	
-	/* timed partial poison resistance */
-	if (p_ptr->timed[TMD_WOPP_POIS])
-	{
-        p_ptr->weakresist_pois = TRUE;
-	}
 
-	/* Resist Silver */
-	/* also resist silver poison, amnesia, and melee hallucenation */
+	/* Resist Silver, the only thing it does which isn't included in */
+	/* Rcharm and Rsilver is resist melee hallucenation */
 	if (p_ptr->timed[TMD_OPP_SILV])
 	{
         p_ptr->resist_charm = TRUE;
+        p_ptr->resist_silver = TRUE;
 	}
 
 	/* timed confusion resistance (resist amnesia also? -partial for now) */
@@ -2838,6 +2891,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
         p_ptr->resist_confu = TRUE;
         /* hallucenation wears off faster */
         if (randint(100) < 17) (void)dec_timed(TMD_IMAGE, randint(2 + goodluck/3));
+	}
+	
+	/* timed partial poison resistance */
+	if (p_ptr->timed[TMD_WOPP_POIS])
+	{
+        p_ptr->weakresist_pois = TRUE;
 	}
 	
 	/* timed nether resistance */
@@ -3025,8 +3084,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 /* (spellswitch9999 prevents skill numbers from changing on birth screen) */
     if (spellswitch != 9999)
     {
-       p_ptr->to_h += randint(goodluck / 4);
-       p_ptr->to_h -= randint(badluck / 4);
+       if (randint(100) < 50) p_ptr->to_h += randint(goodluck / 4);
+       if (randint(100) < 50) p_ptr->to_h -= randint(badluck / 4);
        if (randint(100) < 80) p_ptr->skills[SKILL_THT] += goodluck / 3;
        if (randint(100) < 50) p_ptr->skills[SKILL_THT] -= badluck / 3;
 	   if ((goodluck > 10) && (randint(100) < 66))
@@ -3035,16 +3094,14 @@ void calc_bonuses(object_type inventory[], bool killmess)
        }
     }
 
-    /*** Player alertness to monsters (palert) ***/
+    /*** Player alertness to monsters (p_ptr->palert) ***/
     /* how alert to monsters is the player? */
-    /* get rid of palert later and just use SKILL_FOS */
     if (p_ptr->timed[TMD_CONFUSED]) p_ptr->skills[SKILL_FOS] -= 4;	
 	if (p_ptr->silver >= PY_SILVER_LEVELTWO) p_ptr->skills[SKILL_FOS] -= 6;
 	else if (p_ptr->silver >= PY_SILVER_LEVELONE) p_ptr->skills[SKILL_FOS] -= 3;
 
-    palert = p_ptr->skills[SKILL_FOS] + randint(goodluck/2);
-	if ((spellswitch > 90) && (spellswitch < 96)) palert += (spellswitch - 90) * 2;
-	if (palert < 2) palert = 2;
+    p_ptr->palert = p_ptr->skills[SKILL_FOS] + randint(goodluck/2);
+	if (p_ptr->palert < 2) p_ptr->palert = 2;
 
 	/* feather falling has no effect for golems */
 	if (p_ptr->prace == 16) p_ptr->ffall = FALSE;
@@ -3090,6 +3147,54 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+	
+	/* modify do_to_d according to weapon weight */
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/*** figure complex strength bonus by weight ***/
+	/* (for dis_to_dam only, this is done for actual damage in cmd1.c) */
+	strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+	if ((o_ptr->weight / 10) < 2) strb = strb / 6;
+	else if ((o_ptr->weight / 10) < 3) strb = strb / 4;
+	else if ((o_ptr->weight / 10) < 4) strb = strb / 2;
+	else if ((o_ptr->weight / 10) < 5) strb = (strb * 2) / 3;
+	else if ((o_ptr->weight / 10) < 6) strb = (strb * 3) / 4;
+	else if ((o_ptr->weight / 10) < 7) strb = (strb * 5) / 6;
+	if (cp_ptr->flags & CF_HEAVY_BONUS) /* barbarians like heavy weapons */
+	{
+		if ((o_ptr->weight / 10) > 26) strb = (strb * 13) / 6;
+		else if ((o_ptr->weight / 10) > 20) strb = strb * 2;
+		else if ((o_ptr->weight / 10) > 17) strb = (strb * 7) / 4;
+		else if ((o_ptr->weight / 10) > 15) strb = (strb * 3) / 2;
+		else if ((o_ptr->weight / 10) > 12) strb = (strb * 4) / 3;
+		else if ((o_ptr->weight / 10) > 10) strb = (strb * 5) / 4;
+		else if ((o_ptr->weight / 10) == 10) strb = (strb * 6) / 5;
+		if ((o_ptr->weight / 10) > 10) strb += 1;
+	}
+	else
+	{
+		if ((o_ptr->weight / 10) > 25) strb = strb * 2;
+		else if ((o_ptr->weight / 10) > 21) strb = (strb * 7) / 4;
+		else if ((o_ptr->weight / 10) > 17) strb = (strb * 3) / 2;
+		else if ((o_ptr->weight / 10) > 15) strb = (strb * 4) / 3;
+		else if ((o_ptr->weight / 10) > 12) strb = (strb * 5) / 4;
+		else if ((o_ptr->weight / 10) > 10) strb = (strb * 6) / 5;
+	}
+	strdec = (strb / 10);
+	p_ptr->dis_to_d += strdec;
+
+#if oldbreak
+    /* no strength bonus for light weapons */
+    if ((o_ptr->weight / 10) <= 4)
+    {
+       dam -= ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+    }
+    /* double strength bonus for heavy weapons */
+    if ((o_ptr->weight / 10) > 15)
+    {
+       dam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+    }
+#endif
 
 	/*** Modify skills ***/
 
@@ -3418,6 +3523,15 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		else if ((o_ptr->sbdd) && (div > cp_ptr->min_weight))
 		{
 			div = (div * 3) / 4;
+		}
+		
+		/* harder to get multiple blows with diggers */
+		/* except for dwarven shovels/picks (they're heavier anyway) */
+		if ((o_ptr->tval == TV_DIGGING) && 
+			(!((o_ptr->sval == SV_DWARVEN_MATTOCK) ||
+			(o_ptr->sval == SV_DWARVEN_SHOVEL))))
+		{
+			div = (div * 5) / 4;
 		}
 
 		/* Get the strength vs weight */

@@ -47,7 +47,7 @@ C:0:8
 A:;9
 C:0:9
 
-# Hack -- Commit suicide
+# Hack -- Quit game
 A:Q
 C:0:^C
 
@@ -84,6 +84,7 @@ C:1:8
 A:;9
 C:1:9
 
+# (stupid)
 # Run
 A:.
 C:1:,
@@ -190,6 +191,7 @@ C:1:f
 A:l
 C:1:x
 
+# This is really stupid...
 # Aim a wand (Zap)
 A:a
 C:1:z
@@ -198,7 +200,7 @@ C:1:z
 A:z
 C:1:a
 
-# Hack -- Commit suicide
+# Hack -- Quit game
 A:Q
 C:1:^C
 
@@ -210,6 +212,10 @@ C:1:X
 A:^V
 C:1:'
 
+# Mark an item as squelch
+# -There was no roguelike command for this in V3.0.9
+A:K
+C:1:O
 
 # Message colors
 %:message.prf

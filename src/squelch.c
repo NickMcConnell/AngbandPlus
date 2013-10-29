@@ -194,8 +194,8 @@ static const char *quality_names[SQUELCH_MAX] =
 	"average",						/* SQUELCH_AVERAGE */
 	/* EFGchange new pseudo level SPLENDID */
 	"good",					/* SQUELCH_GOOD_STRONG */
-	"average (keep worthless)",		/* SQUELCH_BORING */
-	"good    (keep worthless)",		/* SQUELCH_NONEGO */
+	"average (keep cursed egos)",		/* SQUELCH_BORING */
+	"good    (keep cursed egos)",		/* SQUELCH_NONEGO */
 	"all but splendid",			/* SQUELCH_UNSPLENDID */
 };
 
@@ -286,7 +286,11 @@ const char *get_autoinscription(s16b kind_idx)
 	return 0;
 }
 
-/* Put the autoinscription on an object */
+/*
+ * Put the autoinscription on an object 
+ * An autoinscription will no longer replace an insciption manually 
+ * put there by the player.
+ */
 int apply_autoinscription(object_type *o_ptr)
 {
 	char o_name[80];
@@ -294,8 +298,11 @@ int apply_autoinscription(object_type *o_ptr)
 	cptr existing_inscription = quark_str(o_ptr->note);
 
 	/* Don't inscribe unaware objects */
-	if (!note || !object_aware_p(o_ptr))
-		return 0;
+	if (!note || !object_aware_p(o_ptr)) return 0;
+		
+	/* option: prevent autoinscription from replacing an */
+	/* inscription manually put there by the player. */
+    if ((prevent_overwrite) && (existing_inscription)) return 0;
 
 	/* Don't re-inscribe if it's already correctly inscribed */
 	if (existing_inscription && streq(note, existing_inscription))
@@ -454,7 +461,8 @@ bool squelch_item_ok(const object_type *o_ptr)
 				feel = INSCRIP_WORTHLESS;
 			else if ((feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_TERRIBLE))
 				feel = feel;
-			else if ((feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD))
+			else if ((feel == INSCRIP_AVERAGE) ||
+				(feel == INSCRIP_DECENT) || (feel == INSCRIP_GOOD))
 				/* ??? should we allow uncursed? */
 				feel = INSCRIP_EXCELLENT;
 	}
@@ -694,7 +702,8 @@ bool squelch_item_ok(const object_type *o_ptr)
 			if ((feel == INSCRIP_BROKEN) ||
 			    (((fullid) || (cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) &&
 			     ((feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
-			      (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD))))
+			      (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD) ||
+                  (feel == INSCRIP_DECENT))))
 			{
 				return TRUE;
 			}
@@ -708,7 +717,8 @@ bool squelch_item_ok(const object_type *o_ptr)
 			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
 			    (feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
 			    (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD) ||
-			    (feel == INSCRIP_EXCELLENT) || (feel == INSCRIP_WORTHLESS))
+			    (feel == INSCRIP_EXCELLENT) || (feel == INSCRIP_DECENT) ||
+			    (feel == INSCRIP_WORTHLESS))
 			{
 				return TRUE;
 			}
@@ -720,7 +730,8 @@ bool squelch_item_ok(const object_type *o_ptr)
 		{
 			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
 			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED) ||
-			    (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD))
+			    (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD) ||
+			    (feel == INSCRIP_DECENT))
 			{
 				return TRUE;
 			}
@@ -733,7 +744,7 @@ bool squelch_item_ok(const object_type *o_ptr)
 		{
 			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
 			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED) ||
-			    (feel == INSCRIP_AVERAGE) ||
+			    (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_DECENT) ||
 #ifdef EFG
 			    /* EFGchange treat UNCURSED same as CURSED for squelch purposes */
 			    (feel == INSCRIP_UNCURSED) ||
@@ -803,7 +814,7 @@ void squelch_items(void)
 
 	/* Set the hook and scan the floor */
 	item_tester_hook = squelch_item_ok;
-	(void)scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 0x01);
+	(void)scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 2);
 
 	if (floor_num)
 	{
@@ -814,7 +825,9 @@ void squelch_items(void)
 			/* Avoid artifacts */
 			if (artifact_p(o_ptr)) continue;
 
-			if (item_tester_okay(o_ptr))
+			/* TRUE normally means it's on the floor */
+			/* but that would exclude sqeulchable items */
+            if (item_tester_okay(o_ptr, FALSE))
 			{
 				/* Destroy item */
 				floor_item_increase(floor_list[n], -o_ptr->number);
@@ -833,7 +846,7 @@ void squelch_items(void)
 		if (!o_ptr->k_idx) continue;
 		if (artifact_p(o_ptr)) continue;
 
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, FALSE))
 		{
 			/* Destroy item */
 			inven_item_increase(n, -o_ptr->number);
@@ -1177,6 +1190,7 @@ static bool sval_menu(int tval, const char *desc)
 
 		/* Skip empty objects, unseen objects, and incorrect tvals */
 		if (!k_ptr->name) continue;
+		
 #ifdef EFG
 		/* EFGchange allow squelch of unaware objects */
 		if (k_ptr->tval != tval) continue;
@@ -1427,17 +1441,14 @@ void do_cmd_options_item(void *unused, cptr title)
 		}
 	}
 
-#ifdef EFG
 	/* EFGchange bugfix */
 	p_ptr->notice |= PN_SQUELCH;
 
-#endif
 	/* Load screen and finish */
 	screen_load();
 	return;
 }
 
-#ifdef EFG
 void squelch_clear(s16b k_idx)
 {
 	/* ??? should be testing if k_idx is valid */
@@ -1456,4 +1467,3 @@ void squelch_kind(s16b k_idx, bool aware)
 	else
 		k_ptr->squelch |= SQUELCH_UNAWARE_FLAG;
 }
-#endif

@@ -2015,8 +2015,8 @@ R:3:0x98/0x8B
 # Scruffy little dog
 R:4:0x8E/0x9D
 
-# small rat
-R:5:0x9D/0x8F
+# decorative plant
+R:5:0xCF/0x82
 
 # X Blubbering idiot
 #R:5:0x9B/0x8C		9B is row 28, starts with half-orc pic
@@ -2066,10 +2066,10 @@ R:17:0x8E/0x85
 R:18:0x93/0x8C
 
 # newt
-R:19:0x99/0x8C
+R:19:0x99/0x8E
 
-# vossar
-R:20:0x99/0x8D
+# sullen drunkard
+R:20:0x9B/0x89
 
 # garter snake
 R:21:0x93/0x89
@@ -2146,7 +2146,7 @@ R:44:0x9B/0x98
 # Novice mage
 R:45:0x9B/0x99
 
-# Novice rogue (rare version)
+# garden gnome
 R:46:0x9C/0x80
 
 # Grip, Farmer Maggot's dog
@@ -2167,7 +2167,7 @@ R:51:0x90/0x96
 # Spotted mushroom patch
 R:52:0x8E/0x88
 
-# Giant white rat
+# white rat
 R:53:0x9D/0x90
 
 # Radiation eye
@@ -2182,16 +2182,17 @@ R:56:0x96/0x90
 # tabby cat
 R:57:0x98/0x90
 
-# Yellow mold
+# lemon jelly
 R:58:0x9A/0x89
 
 # photoplasm (Silver jelly)
 R:59:0x99/0x95
 
-# cave vossar
-R:60:0x99/0x8E
+# novice archer
+R:60:0xBF/0x87
 
-# R:61  (there is no monster 61)
+# novice alchemist
+R:61:0x8D/0x9D
 
 # Kobold shaman
 R:62:0xC7/0x81
@@ -2220,8 +2221,8 @@ R:69:0xB0/0x83
 # Black naga
 R:70:0x9A/0x91
 
-# dingo
-R:71:0x95/0x9D
+# arrow launcher
+R:71:0x99/0x8B
 
 # clear cat		(in the new 0xAF row after the fairies)
 R:72:0xAF/0x96
@@ -2320,8 +2321,8 @@ R:102:0x9B/0x99
 # large brown bat
 R:103:0xC1/0x97
 
-# purple mushroom patch
-R:104:0x8E/0x89
+# hobgoblin
+R:104:0xCA/0x92
 
 # clear eye
 R:105:0x9A/0x88
@@ -2383,8 +2384,8 @@ R:123:0x98/0x87
 # cave orc
 R:124:0x9A/0x98
 
-# spectre
-R:125:0x91/0x84
+# wolf
+R:125:0x8F/0x81
 
 # Lost soul
 R:126:0x90/0x9F
@@ -2485,7 +2486,7 @@ R:157:0x9A/0x8A
 # The boar of Everholt
 R:158:0x9E/0x94
 
-# baby blueish-white dragon
+# baby white dragon
 R:159:0x97/0x87
 
 # baby orange dragon
@@ -2506,20 +2507,20 @@ R:164:0x97/0x88
 # baby black dragon
 R:165:0x97/0x89
 
-# baby flashing yellow dragon
-R:166:0xB0/0x8A
+# cave bear
+R:166:0xB0/0x82
 
 # baby grey dragon
 R:167:0xB3/0x80
 
-# baby silver dragon
+# baby violet dragon
 R:168:0xB3/0x81
 
 # giant fruit fly
 R:169:0x90/0x95
 
-# disenchanter mold
-R:170:0x9A/0x8D
+# scorn cat 
+R:170:0xB0/0x8C
 
 # silverworm
 R:171:0xC7/0x94
@@ -2870,7 +2871,7 @@ R:290:0x90/0x9C
 # evil eye
 R:291:0xB0/0x8B
 
-# red mold
+# red musroom patch
 R:292:0x9A/0x8E
 
 # blink dog
@@ -2908,10 +2909,10 @@ R:303:0x8E/0x8A
 R:304:0x9B/0x9A
 
 # neekerbreeker
-R:305:0xBE/0x86
+R:305:0xBE/0x8A
 
 # giant orange dragonfly
-R:306:0x9D/0x9C
+R:306:0x90/0x9B
 
 # warhorse
 R:307:0xB4/0x95
@@ -3030,8 +3031,8 @@ R:344:0xC0/0x81
 # soothing moss
 R:345:0x9A/0x8F
 
-# giant flashing yellow dragonfly
-R:346:0x90/0x9B
+# snakeman
+R:346:0x95/0x9D
 
 # cold vortex
 R:347:0x9E/0x80
@@ -3108,7 +3109,7 @@ R:370:0x94/0x8F
 # Hill giant
 R:371:0x92/0x96
 
-# giant silver dragonfly
+# giant violet dragonfly
 R:372:0x9D/0x9D
 
 # werebear
@@ -3258,8 +3259,8 @@ R:420:0x93/0x98
 # hag
 R:421:0x9B/0x9E
 
-# large ogre
-R:422:0x92/0x93
+# regenerating zombie
+R:422:0x9D/0x9C
 
 # purple worm
 R:423:0x9E/0x90
@@ -3291,8 +3292,8 @@ R:431:0x97/0x8F
 # young blueish-white dragon
 R:432:0x97/0x8E
 
-# young flashing yellow dragon
-R:433:0x97/0x99
+# snakeman sorcerer
+R:433:0x92/0x93
 
 # soldier ant
 R:434:0x96/0x95
@@ -3330,8 +3331,8 @@ R:444:0xB3/0x99
 # Old Man Willow
 R:445:0xC5/0x96
 
-# shadow wisp
-R:446:0xB3/0x9A
+# spectre
+R:446:0x91/0x84
 
 # banshee
 R:447:0x91/0x81
@@ -3351,7 +3352,7 @@ R:451:0x97/0x96
 # young red dragon
 R:452:0x97/0x9D
 
-# young silver dragon
+# young violet dragon
 R:453:0xB3/0x83
 
 # young grey dragon
@@ -3384,7 +3385,8 @@ R:462:0x9D/0x97
 # nightmare doctor
 R:463:0x9C/0x9A
 
-#R:464: (there is no monster #464)
+# waking dead
+R:464:0xA2/0x94
 
 # Ulbandi the Ogre Chieftain
 R:465:0x92/0x94
@@ -3392,7 +3394,7 @@ R:465:0x92/0x94
 # giant lightning bug (groups use same pic)
 R:466:0x92/0x86
 
-# crypt wight
+# barrow wight (left it with same tile as crypt wight)
 R:467:0x95/0x85
 
 # ice troll
@@ -3437,7 +3439,7 @@ R:480:0x90/0x89
 # master thief
 R:481:0x9C/0x98
 
-# troll mummy
+# undying troll
 R:482:0x92/0x8F
 
 # black skeleton
@@ -3473,7 +3475,7 @@ R:492:0xC6/0x8E
 # mature bronze dragon
 R:493:0x97/0x9C
 
-# mature blueish-white dragon
+# mature white dragon
 R:494:0x97/0x97
 
 # mature green dragon
@@ -3482,8 +3484,8 @@ R:495:0x97/0x9B
 # mature blue dragon
 R:496:0x97/0x9A
 
-# mature flashing yellow dragon
-R:497:0x97/0x9F
+# plague zombie
+R:497:0xA2/0x94
 
 # Tom the Stone Troll
 R:498:0x94/0x97
@@ -3572,7 +3574,7 @@ R:525:0x98/0x81
 # mature red dragon
 R:526:0x97/0x9E
 
-# mature silver dragon
+# mature violet dragon
 R:527:0xB3/0x86
 
 # mature grey dragon
@@ -3728,7 +3730,7 @@ R:577:0x8E/0x9A
 # minotaur
 R:578:0x91/0x93
 
-# ancient blueish-white dragon
+# ancient white dragon
 R:579:0x8F/0x8D
 
 # ancient blue dragon
@@ -3773,8 +3775,8 @@ R:592:0xC8/0x88
 # hezrou
 R:593:0x9E/0x9C
 
-# ancient flashing yellow dragon
-R:594:0x8F/0x92
+# sphinx
+R:594:0xA2/0x98
 
 # ancient black dragon
 R:595:0x8F/0x8F
@@ -3827,7 +3829,7 @@ R:610:0xA2/0x83
 # screaming reaper
 R:611:0xB3/0x95
 
-# ancient silver dragon
+# ancient violet dragon
 R:612:0xB3/0x89
 
 # ancient grey dragon
@@ -3966,7 +3968,7 @@ R:656:0x8F/0x97
 R:657:0x95/0x82
 
 # erinyes
-R:658:0x9E/0x9A
+R:658:0xB3/0x9A
 
 # gorgon
 R:659:0xC8/0x9A
@@ -3983,8 +3985,8 @@ R:662:0x9D/0x86
 # Eol, the Dark Elf
 R:663:0xB2/0x8A
 
-# master mystic
-R:664:0x9D/0x85
+# spectral pudding
+R:664:0x9A/0x8D
 
 # white unicorn
 R:665:0xB4/0x9C
@@ -4316,18 +4318,20 @@ R:773:0x9D/0x8A
 # Morgoth, Lord of Darkness
 R:774:0x92/0x9E
 
-# locust (town monster)
-R:775:0x91/0x89
+# busy artist
+R:775:0x9D/0x85
 
-# novice alchemist
-R:776:0x8D/0x9D
+# cute fluffy bunny
+R:776:0xC0/0x85
 
-# novice archer (alone and in groups)
-R:777:0xBF/0x87
-R:778:0xBF/0x87
+# black dwarf king
+R:777:0xA2/0x9A
 
-# cave bear
-R:779:0xB0/0x82
+# sniper
+R:778:0x9E/0x9A
+
+# mammoth bullfrog
+R:779:0xBE/0x86
 
 # nether worm mass
 R:780:0x9E/0x8E
@@ -4444,7 +4448,10 @@ R:820:0x9C/0x91
 R:821:0x9C/0x99
 
 # Uldor the Accursed
-R:822:0x9C/0x93
+#R:822:0x9C/0x93
+
+# pandemonium fiend
+R:822:0xC2/0x99
 
 # Lorgan, Chief of the Easterlings
 R:823:0x9C/0x9C
@@ -4458,7 +4465,8 @@ R:825:0xC8/0x8E
 # Lord of the Shadow Host
 R:826:0xC8/0x8D
 
-# no #827
+# bone soldier
+R:827:0xBD/0x99
 
 # Carcharoth, the Jaws of Thirst
 R:828:0x8F/0x89
@@ -4535,6 +4543,90 @@ R:851:0xCA/0x90
 # following dark (DWARF_MINE theme only)
 R:852:0xCA/0x91
 
+# siren
+R:853:0xC8/0x8F
+
+# balloon scammer grepse
+R:854:0xCA/0x99
+
+# trinket peddler grepse
+R:855:0xCA/0x9A
+
+# lukewarm drinks peddler grepse
+R:856:0xCA/0x9B
+
+# fortune teller grepse
+R:857:0xCA/0x9C
+
+# faceless grepse
+R:858:0xCA/0x98
+
+# haradrim warrior
+R:859:0xBF/0x93
+
+# haradrim captain
+R:860:0xA0/0x93
+
+# erlbold runt
+R:861:0xCA/0x93
+
+# city erlbold
+R:862:0xCA/0x94
+
+# erlbold hob
+R:863:0xCA/0x95
+
+# erlbold ogre
+R:864:0xCA/0x96
+
+# erlbold hag
+R:865:0xCA/0x97
+
+# line knives cat
+R:866:0xB0/0x8A
+
+# wererabbit
+R:867:0xC0/0x80
+
+# pillar mimmic
+R:900:0xA0/0x92
+
+# unused: 0x91/0x89 (locust), 0x8E/0x89 (purple mushroom patch), 
+# flashing yellow dragons: 0x97/0x99, 0x97/0x9F, 0x8F/0x92
+
+# hidden arrow launcher
+R:901:0x99/0x8C
+
+# invisible turret
+R:902:0x99/0x8D
+
+# flame thrower
+R:903:0xBB/0x92
+
+# camoflauged cannon
+R:904:0xBB/0x93
+
+# geyser
+R:905:0xBB/0x94
+
+# alarm system
+R:906:0xBB/0x95
+
+# advanced defence mechanism
+R:907:0xBC/0x99
+
+# supreme defence mechanism
+R:908:0xBC/0x98
+
+# statue (big)
+R:909:0xB0/0x9C
+
+# statue (small)
+R:910:0xB0/0x9B
+
+# fountain
+R:911:0xB0/0x9D
+
 # water moccasin (SWAMP water only)
 R:950:0xC6/0x8B
 
@@ -4585,9 +4677,6 @@ R:997:0xB4/0x9C
 # Time vortex
 #R:409:0x9E/0x84
 
-# Shimmering vortex
-#R:410:0x9E/0x85
-
 # Emperor wight
 #R:414:0x95/0x88
 
@@ -4597,14 +4686,8 @@ R:997:0xB4/0x9C
 # Glabrezu
 #R:456:0x9E/0x9D
 
-# Fundin Bluecloak
-#R:508:0x99/0x8B
-
 # Giant silver ant
 #R:551:0xB0/0x87
-
-# Disenchanter bat
-#R:553:0xB0/0x9B
 
 # Shimmering mold
 #R:554:0xA2/0x93

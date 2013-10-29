@@ -112,7 +112,7 @@ static cptr tolkien_names[] =
 	"romenna", "rudh", "rumil", "saeros", "salmar", "saruman", "sauron",
 	"serech", "seregon", "serinde", "shelob", "silmarien", "silmaril",
 	"silpion", "sindar", "singollo", "sirion", "soronume", "sul", "sulimo",
-	"talath", "taniquetil", "tar", "taras", "tarn", "tathren", "taur",
+	"talath", "taniquetil", "tar", "taras", "tarn", "tatahren", "taur",
 	"tauron", "teiglin", "telchar", "telemnar", "teleri", "telperion",
 	"telumendil", "thalion", "thalos", "thangorodrim", "thargelion",
 	"thingol", "thoronath", "thorondor", "thranduil", "thuringwethil",
@@ -124,6 +124,61 @@ static cptr tolkien_names[] =
 	"valaroma", "valier", "valimar", "valinor", "valinoreva", "valmar",
 	"vana", "vanyar", "varda", "vasa", "vilya", "vingilot", "vinyamar",
 	"voronwe", "wethrin", "wilwarin", "yavanna",
+	NULL
+};
+
+/* alternate pseudo randart name stuff
+ * mostly random silly words and names of characters
+ * to thoroughly confuse the name generator with.
+ */
+static cptr silly_names[] =
+{
+	"aardvark", "abe", "alice", "almond", "appleseed", 
+    "arthur", "ascii", "asphalt", "ather", 
+    "babamvillo", "bartholemew", "basket", "bagel", 
+    "bean", "bob", "boppo", "bordgak", 
+    "bowlegged", "brown", "bryan", "bubble", "butter", 
+    "cake", "callmeal", "candlestick", "cheese", 
+    "chocolate", "cookingham", "chuck", "clamity",
+    "cubbins", "deeboing", "derrena", "diddly", "dilbert",
+    "doofus", "dotty", "eater", "eggnog", "elbow", "ernest", 
+    "feral", "ferret", "fish", "flopsided", "football", 
+    "frankfurter", "frizbee", "froglegs", "frye",
+    "furry", "gafbop", "garret", "garlittle", "gatlin", 
+    "gershtahlinpoheimmer", "gesundheit", "ghostbuster",
+    "goober", "gordon", "gork", "gammuth", "geewizz",
+    "gilbert", "ginormus", "glover", "grasshopper", "greebo", "griff", 
+    "grinnedhisgrin", "grisbonk", "groovybacon", "hal", 
+    "heavymetal", "helmanns", "herekitty",
+    "herman", "hillofbeans", "hippopotamus", "homer", "hompart",
+    "hubert", "ian", "ichabod", "igor", "ihop", 
+    "insight", "insectoid", "jazzhands", "jackalope", 
+    "jammin", "jeffersonfred", "jeremy", "jenkins", "joe",
+    "johnjacob", "jingleheimerschmidt", "juibazzle",
+    "kawahawawa", "kettle", "kirdil", "krusty", "kyoobert",
+    "lemonscent", "lenny", "levurna", "lynn", 
+    "madester", "magrat", "marbaaz", "marcua", "mascot", 
+    "maxwell", "mayonnaise", "melvin", "mildew", "misleading", 
+    "moist", "monkey", "mullet", "mutant", "nababa", "nate", 
+    "neppvilsania", "nickel", "nigel", "ninja",
+    "norman", "oliphaunt", "orpiphus", "oscar",
+    "oswald", "panhead", "panic", "paraskeets",
+    "peanut", "peppermint", "perambulator", "peskon", 
+    "plop", "pickle", "pinefresh", "pits",
+    "ponfusion", "proudfeet", "puffle", "quasimodo", "quick", 
+    "randorf", "robin", "ribbet", "ricardo", "rubert", 
+    "salamoonder", "sammy", "saveferris", 
+    "scarecrow", "shorts",
+    "simpson", "skillet", "slappy", "slimer", "snicket", 
+    "socks", "stank", "sugarlumps", "susie", "swingin",
+    "teaspoon", "ted", "tiddlywink", "toadstool", "toby", 
+    "tophat", "tourbagit", "turtle", "tweedledum",
+    "twist", "ugluk", "underarm",
+    "unicycle", "vandal", "vanhalen", "vincent", "vulture",
+    "wacko", "warmwoolenmittens",
+    "waffle", "walrus", "wendel", "windmill",
+    "wizzard", "william", "yakkity",
+    "yelloworange", "zaigus", "zoe",
 	NULL
 };
 
@@ -304,6 +359,11 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 			case RANDNAME_TOLKIEN:
 			{
 				wordlist = tolkien_names;
+				break;
+			}
+			case RANDNAME_SILLY:
+			{
+				wordlist = silly_names;
 				break;
 			}
 			case RANDNAME_SCROLL:

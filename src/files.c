@@ -1239,7 +1239,10 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 /* ??? should double resists have a separate color? */
 /* ??? would that solve kobolds with temp rPoison? */
 #endif
-			else if(res && name_attr == TERM_WHITE) name_attr = TERM_L_BLUE;
+			else if ((res) && (i == 0) && (p_ptr->timed[TMD_ACID_BLOCK])) 
+				name_attr = TERM_BLUE;
+            else if (res && name_attr == TERM_WHITE) name_attr = TERM_L_BLUE;
+            else if ((i == 0) && (p_ptr->timed[TMD_ACID_BLOCK])) name_attr = TERM_UMBER;
 			sym = imm ? '*' : ( res ? '+' : '.' );
 			Term_addch(attr, sym);
 		}
@@ -1517,7 +1520,8 @@ static const char *show_title(void)
 
 static const char *show_adv_exp(void)
 {
-	if (p_ptr->lev < PY_MAX_LEVEL)
+	/* doesn't use PY_MAX_LEVEL anymore becuase if I add a L51 it will be hidden */
+    if (p_ptr->lev < 50)
 	{
 		static char buffer[30];
 		s32b advance = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
@@ -1572,17 +1576,6 @@ static const char *show_melee_weapon(const object_type *o_ptr)
 	int hit = p_ptr->dis_to_h;
 	int dam = p_ptr->dis_to_d;
 
-    /* no strength bonus for light weapons */
-    if ((o_ptr->weight / 10) <= 4)
-    {
-       dam -= ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-    }
-    /* double strength bonus for heavy weapons */
-    if ((o_ptr->weight / 10) > 15)
-    {
-       dam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-    }
-
 	if (object_known_p(o_ptr))
 	{
 		hit += o_ptr->to_h;
@@ -1622,9 +1615,40 @@ static byte max_color(int val, int max)
 
 int get_panel(int oid, data_panel *panel, size_t size)
 {
-  int ret = (s32b) size;
+	int ret = (s32b) size;
 	int maxhp = p_ptr->mhp;
+	s32b hour, minute, sec, day;
+	char time[17];
 	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
+	
+	/* convert turns to time (60 turns = 1 minute) */
+	if (turn >= 60) minute = turn / 60;
+	else minute = 0;
+	if (minute >= 60) hour = minute / 60;
+	else hour = 0;
+	if (hour >= 24) day = (hour / 24) + 1;
+	else day = 0;
+	if (turn >= 60) sec = turn - (minute * 60);
+	else sec = turn;
+	if (minute >= 60) minute -= hour * 60;
+	if (hour >= 24) hour -= (day-1) * 24;
+	
+	/* convert to time display 00:00:00 */
+	if ((day) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "Day %d, %d:0%d:0%d", day, hour, minute, sec);
+	else if ((day) && (minute < 10)) strnfmt(time, sizeof(time), "Day %d, %d:0%d:%d", day, hour, minute, sec);
+	else if ((day) && (sec < 10)) strnfmt(time, sizeof(time), "Day %d, %d:%d:0%d", day, hour, minute, sec);
+	else if (day) strnfmt(time, sizeof(time), "Day %d, %d:%d:%d", day, hour, minute, sec);
+	else if ((hour) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, %d:0%d:0%d", hour, minute, sec);
+	else if ((hour) && (minute < 10)) strnfmt(time, sizeof(time), "Day 1, %d:0%d:%d", hour, minute, sec);
+	else if ((hour) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, %d:%d:0%d", hour, minute, sec);
+	else if (hour) strnfmt(time, sizeof(time), "Day 1, %d:%d:%d", hour, minute, sec);
+	else if ((minute) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, 00:0%d:0%d", minute, sec);
+	else if ((minute) && (minute < 10)) strnfmt(time, sizeof(time), "Day 1, 00:0%d:%d", minute, sec);
+	else if ((minute) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, 00:%d:0%d", minute, sec);
+	else if (minute) strnfmt(time, sizeof(time), "Day 1, 00:%d:%d", minute, sec);
+	else if (sec < 10) strnfmt(time, sizeof(time), "Day 1, 00:00:0%d", sec);
+	else strnfmt(time, sizeof(time), "Day 1, 00:00:%d", sec);
+	
   switch(oid)
  {
   case 1:
@@ -1653,7 +1677,10 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(TERM_L_GREEN, "Max Exp",	"%y",	i2u(p_ptr->max_exp), END  );
 	P_I(TERM_L_GREEN, "Adv Exp",	"%y",	s2u(show_adv_exp()), END  );
 	P_I(TERM_L_GREEN, "MaxDepth",	"%y",	s2u(show_depth()), END  );
+	P_I(TERM_L_GREEN, "",		"%y",	s2u(time), END  );
+#if notime
 	P_I(TERM_L_GREEN, "Turns",		"%y",	i2u(turn), END  );
+#endif
 	P_I(TERM_L_GREEN, "Gold",		"%y",	i2u(p_ptr->au), END  );
 	P_I(TERM_L_GREEN, "Burden",	"%.1y lbs",	f2u(p_ptr->total_weight/10.0), END  );
 	assert(i == boundaries[2].page_rows);
@@ -1799,7 +1826,7 @@ static void display_player_xtra_info(void)
 }
 
 /*
- * Display the character on the screen (two different modes)
+ * Display the character screen (two different modes)
  *
  * The top two lines, and the bottom line (or two) are left blank.
  *
@@ -1810,7 +1837,6 @@ void display_player(int mode)
 {
 	/* Erase screen */
 	clear_from(0);
-
 
 	/* Stat info */
 	display_player_stat_info();
@@ -2816,11 +2842,31 @@ void do_cmd_save_game(void)
 
 
 /*
- * Hack -- Calculates the total number of points earned
+ * Calculates the total number of points earned
  */
 long total_points(void)
 {
+#if usetheoldstupidscoringcalculation
 	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+#else
+	/* Most aspects of scoring are counted elsewhere */
+	int tscore = p_ptr->game_score;
+	int fakeclvl = 1;
+
+	/* use character level with 100% xp factor for scoring */
+	/* instead of actual XP because I don't like having scores */
+	/* with rediculous high numbers */
+	while ((fakeclvl < PY_MAX_LEVEL) &&
+			(p_ptr->exp >= player_exp[fakeclvl-1])) fakeclvl++;
+
+	tscore += fakeclvl * 10;
+	tscore += p_ptr->max_depth * 4;
+	
+	/* decrease score with turncount */
+    if (turn >= 20000) tscore -= (turn / 20000);
+
+	return tscore;
+#endif
 }
 
 
@@ -3560,6 +3606,9 @@ static errr enter_score(void)
 	for (j = OPT_SCORE; j < OPT_MAX; ++j)
 	{
 		if (!op_ptr->opt[j]) continue;
+		
+		/* knowing monster info shouldn't mark you as a cheater (?) */
+		if (j == OPT_SCORE+4) continue; /* CHEAT_KNOW */
 
 		msg_print("Score not registered for cheaters.");
 		message_flush();
@@ -4045,7 +4094,7 @@ static void close_game_aux(void)
 			case 'a':
 			case 'A':
 			{
-				do_cmd_note("",  p_ptr->depth);
+				do_cmd_note("",  p_ptr->depth, FALSE);
 				break;
 			}
 #endif
@@ -4115,7 +4164,8 @@ void close_game(void)
 		/* Save the game */
 		do_cmd_save_game();
 
-		if(Term->mapped_flag) {
+		if (Term->mapped_flag)
+        {
 			/* Prompt for scores XXX XXX XXX */
 			prt("Press Return (or Escape).", 0, 40);
 
@@ -4123,7 +4173,6 @@ void close_game(void)
 			if (inkey() != ESCAPE) predict_score();
 		}
 	}
-
 
 	/* Shut the high score file */
 	fd_close(highscore_fd);

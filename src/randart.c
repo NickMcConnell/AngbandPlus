@@ -246,18 +246,18 @@ static s32b artifact_power(int a_idx)
 			p += (a_ptr->dd * a_ptr->ds + 1) / 2;
 			if (a_ptr->sbdd) p+= 2;
 			if (a_ptr->flags1 & TR1_SLAY_EVIL) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_KILL_DRAGON) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_KILL_DEMON) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_KILL_UNDEAD) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_SLAY_ANIMAL) p = (p * 4) / 3;
+			if (a_ptr->flags2 & TR2_KILL_DRAGON) p = (p * 3) / 2;
+			if (a_ptr->flags2 & TR2_KILL_DEMON) p = (p * 3) / 2;
+			if (a_ptr->flags2 & TR2_KILL_UNDEAD) p = (p * 3) / 2;
+			if (a_ptr->flags2 & TR2_SLAY_ANIMAL) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_UNDEAD) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_DRAGON) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_DEMON) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_TROLL) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 5) / 4;
-			if (a_ptr->flags2 & TR2_SLAY_BUG) p = (p * 6) / 5;
-			if (a_ptr->flags2 & TR2_SLAY_SILVER) p = (p * 6) / 5;
-			if (a_ptr->flags2 & TR2_SLAY_LITE) p = (p * 6) / 5;
+			if (a_ptr->flags1 & TR1_SLAY_BUG) p = (p * 6) / 5;
+			if (a_ptr->flags1 & TR1_SLAY_SILVER) p = (p * 6) / 5;
+			if (a_ptr->flags1 & TR1_SLAY_LITE) p = (p * 6) / 5;
 			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
 
 			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
@@ -377,7 +377,7 @@ static s32b artifact_power(int a_idx)
 	if (immunities > 2) p += 16;
 	if (immunities > 3) p += 20000;		/* inhibit */
 	if (a_ptr->flags3 & TR3_FREE_ACT) p += 8;
-	if (a_ptr->flags2 & TR2_MAGIC_MASTERY) p += 6;
+	if (a_ptr->flags1 & TR1_MAGIC_MASTERY) p += 6;
 	if (a_ptr->flags3 & TR3_HOLD_LIFE) p += 10;
 	if (a_ptr->flags2 & TR2_RES_ACID) p += 6;
 	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
@@ -408,14 +408,14 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags3 & TR3_TELEPATHY) p += 20;
 	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 4;
 	if (a_ptr->flags3 & TR3_THROWMULT) p += 10;
-	if ((a_ptr->flags3 & TR3_TCONTROL) && (a_ptr->flags3 & TR3_TELEPORT)) p += 12;
+	if ((a_ptr->flags3 & TR3_TCONTROL) && (a_ptr->flags2 & TR2_TELEPORT)) p += 10;
 	else if (a_ptr->flags3 & TR3_TCONTROL) p += 16;
-	else if (a_ptr->flags3 & TR3_TELEPORT) p -= 16;
+	else if (a_ptr->flags2 & TR2_TELEPORT) p -= 16;
 	if (a_ptr->flags3 & TR3_REGEN) p += 10;
 	if (a_ptr->flags2 & TR2_DANGER) p -= 10;
-	if (a_ptr->flags3 & TR3_DRAIN_EXP) p -= 16;
-	if (a_ptr->flags3 & TR3_STOPREGEN) p -= 20;
-	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 12;
+	if (a_ptr->flags2 & TR2_DRAIN_EXP) p -= 16;
+	if (a_ptr->flags2 & TR2_STOPREGEN) p -= 20;
+	if (a_ptr->flags2 & TR2_AGGRAVATE) p -= 12;
 	if (a_ptr->flags2 & TR2_CORRUPT) p -= 12;
 	if (a_ptr->flags3 & TR3_BLESSED) p += 4;
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE) p -= 4;
@@ -792,7 +792,7 @@ static void do_pval(artifact_type *a_ptr)
 static int remove_contradictory(artifact_type *a_ptr)
 {
 	int which = 14 + randint(72); /* higher = more likely to be good */
-    if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
+    if (a_ptr->flags2 & TR2_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
 	if (a_ptr->flags2 & TR2_IM_ACID) a_ptr->flags2 &= ~(TR2_RES_ACID);
 	if (a_ptr->flags2 & TR2_IM_ELEC) a_ptr->flags2 &= ~(TR2_RES_ELEC);
 	if (a_ptr->flags2 & TR2_IM_FIRE) a_ptr->flags2 &= ~(TR2_RES_FIRE);
@@ -816,47 +816,54 @@ static int remove_contradictory(artifact_type *a_ptr)
     }
 	if (a_ptr->flags3 & TR3_BLESSED)
 	{
-       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+       a_ptr->flags1 &= ~(TR1_SLAY_LITE);
        which += 25;
     }
-	if (a_ptr->flags1 & TR1_KILL_DRAGON) a_ptr->flags1 &= ~(TR1_SLAY_DRAGON);
-	if (a_ptr->flags1 & TR1_KILL_DEMON)
+	if (a_ptr->flags2 & TR2_KILL_DRAGON) a_ptr->flags1 &= ~(TR1_SLAY_DRAGON);
+	if (a_ptr->flags2 & TR2_KILL_DEMON)
 	{
        which += 15;
        a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
-       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+       a_ptr->flags1 &= ~(TR1_SLAY_LITE);
     }
 	if (a_ptr->flags1 & TR1_SLAY_DEMON)
     {
        which += 5;
-       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+       a_ptr->flags1 &= ~(TR1_SLAY_LITE);
     }
-	if (a_ptr->flags1 & TR1_KILL_UNDEAD)
+	if (a_ptr->flags2 & TR2_KILL_UNDEAD)
     {
        which += 15;
        a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
-       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+       a_ptr->flags1 &= ~(TR1_SLAY_LITE);
     }
 	if (a_ptr->flags1 & TR1_SLAY_UNDEAD) which += 5;
-	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
-	if (a_ptr->flags3 & TR3_REGEN) a_ptr->flags3 &= ~(TR3_STOPREGEN);
+	if (a_ptr->flags2 & TR2_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
+	if (a_ptr->flags3 & TR3_REGEN) a_ptr->flags2 &= ~(TR2_STOPREGEN);
 	if (a_ptr->flags2 & TR2_EXTRA_CRIT) which -= 5;
 	if (a_ptr->flags4 & TR4_RES_CHARM) which -= 7;
 	if (a_ptr->flags4 & TR4_RES_NETHR) which += 7;
 	if (a_ptr->flags4 & TR4_RES_LITE) which -= 4;
 	if (a_ptr->flags4 & TR4_RES_DARK) which += 4;
-	if (a_ptr->flags2 & TR2_SLAY_LITE)
+	if (a_ptr->flags1 & TR1_SLAY_LITE)
 	{
        which -= 20;
-       a_ptr->flags2 &= ~(TR2_SLAY_SILVER);
+       a_ptr->flags1 &= ~(TR1_SLAY_SILVER);
        a_ptr->flags4 &= ~(TR4_RES_LITE);
     }
-	if (a_ptr->flags1 & TR1_SLAY_ANIMAL)
+	if (a_ptr->flags2 & TR2_SLAY_ANIMAL)
     {
        which -= 5;
-       a_ptr->flags2 &= ~(TR2_SLAY_SILVER);
-    }
-	if (a_ptr->flags2 & TR2_SLAY_SILVER) which += 15;
+       a_ptr->flags1 &= ~(TR1_SLAY_SILVER);
+	}
+	/* both these slays are good aligned but they are contradictory */
+	/* because SLAY_WERE is silver, but silver heals silver monsters */
+	if (a_ptr->flags1 & TR1_SLAY_SILVER)
+	{
+       a_ptr->flags1 &= ~(TR1_SLAY_WERE);
+	}
+	if (a_ptr->flags1 & TR1_SLAY_WERE) which += 3;
+	if (a_ptr->flags1 & TR1_SLAY_SILVER) which += 15;
 	
 	return which;
 }
@@ -875,7 +882,7 @@ static void add_ability(artifact_type *a_ptr)
 
 	/* thrown weapons can't be wielded which makes a lot of flags useless */
 	/* so this should always depend on item type for thrown weapons */
-	if (a_ptr->flags2 & TR2_THROWN) r = rand_int(5);
+	if (a_ptr->flags3 & TR3_THROWN) r = rand_int(5);
 	else r = rand_int(10);
 
 	if (r < 5)		/* Pick something dependent on item type. */
@@ -889,10 +896,10 @@ static void add_ability(artifact_type *a_ptr)
 		/* because THROWN flag makes it so you can't wield it */
 		/* also maybe add RTURN flag which is only for thrown weapons */
 		/* (most artifact thrown weapons should get RTURN) */
-	    if (a_ptr->flags2 & TR2_THROWN)
+	    if (a_ptr->flags3 & TR3_THROWN)
         {
            ftval = 16;
-           if (randint(15) > 4) a_ptr->flags2 |= TR2_RTURN;
+           if (randint(15) > 4) a_ptr->flags3 |= TR3_RTURN;
         }
 
 		switch (ftval)
@@ -913,18 +920,18 @@ static void add_ability(artifact_type *a_ptr)
 				{
 					/* new slays */
 					int what = randint(100);
-					if (what < 33) a_ptr->flags2 |= TR2_SLAY_BUG;
-					else if (what < 67) a_ptr->flags2 |= TR2_SLAY_LITE;
-					else a_ptr->flags2 |= TR2_SLAY_SILVER;
+					if (what < 33) a_ptr->flags1 |= TR1_SLAY_BUG;
+					else if (what < 67) a_ptr->flags1 |= TR1_SLAY_LITE;
+					else a_ptr->flags1 |= TR1_SLAY_SILVER;
 				}
-				else if (r < 39) a_ptr->flags1 |= TR1_KILL_DRAGON;
+				else if (r < 39) a_ptr->flags2 |= TR2_KILL_DRAGON;
 				else if (r < 43) a_ptr->flags1 |= TR1_SLAY_DRAGON;
 				else if (r < 49) a_ptr->flags1 |= TR1_SLAY_EVIL;
 
-				else if (r < 55) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
-				else if (r < 58) a_ptr->flags1 |= TR1_KILL_UNDEAD;
+				else if (r < 55) a_ptr->flags2 |= TR2_SLAY_ANIMAL;
+				else if (r < 58) a_ptr->flags2 |= TR2_KILL_UNDEAD;
 				else if (r < 62) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
-				else if (r < 65) a_ptr->flags1 |= TR1_KILL_DEMON;
+				else if (r < 65) a_ptr->flags2 |= TR2_KILL_DEMON;
 				else if (r < 69) a_ptr->flags1 |= TR1_SLAY_DEMON;
 				else if (r < 75) a_ptr->flags1 |= TR1_SLAY_ORC;
 				else if (r < 81) a_ptr->flags1 |= TR1_SLAY_TROLL;
@@ -945,10 +952,10 @@ static void add_ability(artifact_type *a_ptr)
 					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
 					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_DRAGON;
 					if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_EVIL;
-					if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
-					if (rand_int(10) == 0) a_ptr->flags2 |= TR2_SLAY_SILVER;
-					if (rand_int(10) == 0) a_ptr->flags2 |= TR2_SLAY_LITE;
-					if (rand_int(10) == 0) a_ptr->flags2 |= TR2_SLAY_BUG;
+					if (rand_int(5) == 0) a_ptr->flags2 |= TR2_SLAY_ANIMAL;
+					if (rand_int(10) == 0) a_ptr->flags1 |= TR1_SLAY_SILVER;
+					if (rand_int(10) == 0) a_ptr->flags1 |= TR1_SLAY_LITE;
+					if (rand_int(10) == 0) a_ptr->flags1 |= TR1_SLAY_BUG;
 					if (rand_int(5) == 0) a_ptr->flags2 |= TR2_EXTRA_CRIT;
 					if (rand_int(5) == 0)
 				    {
@@ -1017,25 +1024,25 @@ static void add_ability(artifact_type *a_ptr)
 					
 					/* new slays */
 					what = randint(100);
-					if (what < 25) a_ptr->flags2 |= TR2_SLAY_LITE;
-					else if (what < 50) a_ptr->flags2 |= TR2_SLAY_BUG;
-					else if (what < 75) a_ptr->flags2 |= TR2_SLAY_SILVER;
+					if (what < 25) a_ptr->flags1 |= TR1_SLAY_LITE;
+					else if (what < 50) a_ptr->flags1 |= TR1_SLAY_BUG;
+					else if (what < 75) a_ptr->flags1 |= TR1_SLAY_SILVER;
 					else a_ptr->flags2 |= TR2_EXTRA_CRIT;
 				}
-				else if (r < 31) a_ptr->flags1 |= TR1_KILL_DRAGON;
+				else if (r < 31) a_ptr->flags2 |= TR2_KILL_DRAGON;
 				else if (r < 35) a_ptr->flags1 |= TR1_SLAY_DRAGON;
 				else if (r < 40) a_ptr->flags1 |= TR1_SLAY_EVIL;
-				else if (r < 45) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+				else if (r < 45) a_ptr->flags2 |= TR2_SLAY_ANIMAL;
 				else if (r < 50)
 				{
-					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_KILL_UNDEAD;
+					if (rand_int(4) == 0) a_ptr->flags2 |= TR2_KILL_UNDEAD;
 					else a_ptr->flags1 |= TR1_SLAY_UNDEAD;
 
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
 				}
 				else if (r < 54)
 				{
-					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_KILL_DEMON;
+					if (rand_int(4) == 0) a_ptr->flags2 |= TR2_KILL_DEMON;
 					else a_ptr->flags1 |= TR1_SLAY_DEMON;
 
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
@@ -1128,7 +1135,7 @@ static void add_ability(artifact_type *a_ptr)
 				}
 				else if (r < 50)
 				{
-					a_ptr->flags2 |= TR2_MAGIC_MASTERY;
+					a_ptr->flags1 |= TR1_MAGIC_MASTERY;
 					do_pval(a_ptr);
 				}
 				else if (r < 55)
@@ -1341,7 +1348,7 @@ static void add_ability(artifact_type *a_ptr)
 				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_COLD;
 				else
 				{
-					a_ptr->flags2 |= TR2_MAGIC_MASTERY;
+					a_ptr->flags1 |= TR1_MAGIC_MASTERY;
 					do_pval(a_ptr);
 				}
 				break;
@@ -1389,10 +1396,10 @@ static void add_ability(artifact_type *a_ptr)
 						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
 						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
 						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_DRAGON;
-						if (rand_int(8) == 0) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
-						if (rand_int(16) == 0) a_ptr->flags2 |= TR2_SLAY_SILVER;
-						if (rand_int(16) == 0) a_ptr->flags2 |= TR2_SLAY_LITE;
-						if (rand_int(16) == 0) a_ptr->flags2 |= TR2_SLAY_BUG;
+						if (rand_int(8) == 0) a_ptr->flags2 |= TR2_SLAY_ANIMAL;
+						if (rand_int(16) == 0) a_ptr->flags1 |= TR1_SLAY_SILVER;
+						if (rand_int(16) == 0) a_ptr->flags1 |= TR1_SLAY_LITE;
+						if (rand_int(16) == 0) a_ptr->flags1 |= TR1_SLAY_BUG;
                     }
                     else
                     {
@@ -1437,15 +1444,15 @@ static void add_ability(artifact_type *a_ptr)
 static void do_curse(artifact_type *a_ptr)
 {
 	if (rand_int(5) == 0)
-		a_ptr->flags3 |= TR3_AGGRAVATE;
+		a_ptr->flags2 |= TR2_AGGRAVATE;
 	if (rand_int(5) == 0)
-		a_ptr->flags3 |= TR3_DRAIN_EXP;
+		a_ptr->flags2 |= TR2_DRAIN_EXP;
 	if (rand_int(7) == 0)
-		a_ptr->flags3 |= TR3_TELEPORT;
+		a_ptr->flags2 |= TR2_TELEPORT;
 	if (rand_int(5) == 0)
 		a_ptr->flags2 |= TR2_DANGER;
 	if (rand_int(9) == 0)
-		a_ptr->flags3 |= TR3_STOPREGEN;
+		a_ptr->flags2 |= TR2_STOPREGEN;
 
 	if ((a_ptr->pval > 0) && (rand_int(2) == 0))
 		a_ptr->pval = -a_ptr->pval;
@@ -1480,7 +1487,9 @@ static void scramble_artifact(int a_idx)
 	bool aggravate_me = FALSE;
 
 	/* XXX XXX XXX Special cases -- don't randomize these! */
+/* (no reason to randomize the phial, it always ends up the same anyway) */	
 	if ((a_idx == ART_POWER) ||
+	    (a_idx == ART_PHIAL) ||
 #ifdef EFG
 	    (a_idx == ART_NARYA) ||
 	    (a_idx == ART_NENYA) ||
@@ -1591,7 +1600,7 @@ static void scramble_artifact(int a_idx)
 
 		if (aggravate_me)
 		{
-			a_ptr->flags3 |= TR3_AGGRAVATE;
+			a_ptr->flags2 |= TR2_AGGRAVATE;
 			remove_contradictory(a_ptr);
 			ap = artifact_power(a_idx);
 		}
@@ -1612,8 +1621,8 @@ static void scramble_artifact(int a_idx)
 		/* EFGchange remove aggravation from randarts (usually) */
 		if (randint(100) < 90)
 		{
-			a_ptr->flags3 |= TR3_AGGRAVATE;
-			a_ptr->flags3 ^= TR3_AGGRAVATE;
+			a_ptr->flags2 |= TR2_AGGRAVATE;
+			a_ptr->flags2 ^= TR2_AGGRAVATE;
 		}
 
 		/* ??? should add plite if not splendid */

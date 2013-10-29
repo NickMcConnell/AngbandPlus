@@ -140,7 +140,7 @@ static struct
 	{ "c",		"Centipedes" },
 	{ "uU&",	"Demons or Devils" },
 	{ "dD",		"Dragons" },
-	{ "vX%",	"Elementals/Vortices" },
+	{ "vX%",	"Elementals and Vortices" },
 	{ "E",      "Ents and Tree Monsters" },
 	{ "e",		"Eyes/Beholders" },
 	{ "f",		"Felines" },
@@ -148,17 +148,19 @@ static struct
 	{ "OP",		"Giants/Ogres" },
 	{ "g",		"Golems" },
 	{ "H",		"Hybrids" },
-	{ "xh",		"Humanoid Monsters (Hobbits/Dwarves/Gargoyles)" },
+	{ "h",		"Humanoid Monsters (Hobbits/Dwarves/Gargoyles)" },
+	{ "@",		"Dark Elves" },
 	{ "M",		"Hydras" },
 	{ "i",		"Imptype demons and Dark Fairies" },
 	{ "FI",	    "Insects" },
 	{ "l",      "Lizards" },
-	{ "j",		"Jellies" },
+	{ "jS",		"Jellies, slimes, and puddings" },
 	{ "k",		"Kobolds" },
 	{ "L",		"Lichs" },
 	{ "tpK",	"Humans and inhuman Knights" },
-	{ ".$?!_",	"Mimics and Dust Bunnies" },
-	{ "m,",		"Fungi" },
+	{ "$?!_-~:.#", "Mimics and Dust Bunnies" },
+	{ "m",		"Missile launchers" },
+	{ ",",		"Fungi" },
 	{ "n",		"Nagas" },
 	{ "N",      "Nulls" },
 	{ "o",		"Orcs" },
@@ -166,10 +168,10 @@ static struct
 	{ "Q",		"Quylthulgs" },
 	{ "R",		"Amphibians" },
 	{ "r",		"Rodents" },
-	{ "S",		"Scorpions/Spiders" },
+	{ "x",		"Scorpions/Spiders" },
 	{ "s",		"Skeletons/Drujs" },
 	{ "J",		"Snakes" },
-	{ "T",		"Trolls" },
+	{ "T",		"Trolls and Gargoyles" },
 	{ "V",		"Vampires" },
 	{ "W",		"Wights/Wraiths" },
 	{ "w",		"Worms/Worm Masses" },
@@ -1369,7 +1371,10 @@ static void desc_ego_fake(int oid)
 {
 	/* Hack: dereference the join */
 	const char *cursed[] = { "powerfully cursed", "heavily cursed", "cursed" };
+#ifdef new_random_stuff
+#else
 	const char *xtra[] = { "sustain", "higher resistance", "ability" };
+#endif
 	int f3, i;
 
 	int e_idx = default_join[oid].oid;
@@ -1405,8 +1410,31 @@ static void desc_ego_fake(int oid)
 	object_info_out_flags = object_flags;
 	object_info_out(&dummy);
 
+#ifdef new_random_stuff
+	if (e_ptr->randsus == 2) text_out(" It provides two random sustains.");
+	else if (e_ptr->randsus) text_out(" It provides one random sustain.");
+	if (e_ptr->randres == 3) text_out(" It provides three random high resistances.");
+	else if (e_ptr->randres > 1) text_out(" It provides two random high resistances.");
+	else if (e_ptr->randres) text_out(" It provides one random high resistance.");
+	if (e_ptr->randlowr == 2) text_out(" It provides two random elemental resistances.");
+	else if (e_ptr->randlowr) text_out(" It provides one random elemental resistance.");
+	if (e_ptr->randpow == 2) text_out(" It provides two random abilities.");
+	else if (e_ptr->randpow) text_out(" It provides one random ability.");
+	if (e_ptr->randslay == 3) text_out(" It provides three random slays.");
+	else if (e_ptr->randslay > 1) text_out(" It provides two random slays.");
+	else if (e_ptr->randslay) text_out(" It provides one random slay.");
+	else if (e_ptr->randbran) text_out(" It provides one random elemental brand.");
+	if (e_ptr->randbon == 2) text_out(" It provides two random skill bonuses.");
+	else if (e_ptr->randbon) text_out(" It provides one random skill bonus.");
+	if (e_ptr->randplu == 2) text_out(" It provides two random stat bonuses.");
+	else if (e_ptr->randplu) text_out(" It provides one random stat bonus.");
+	if (e_ptr->randdrb > 1) text_out(" It carries two random drawbacks.");
+	else if (e_ptr->randdrb) text_out(" It carries one random drawback.");
+	if (e_ptr->randdrb == 3) text_out(" It provides one random immunity.");
+#else
 	if (e_ptr->xtra)
 		text_out(format("It provides one random %s.", xtra[e_ptr->xtra - 1]));
+#endif
 
 	for (i = 0, f3 = TR3_PERMA_CURSE; i < 3 ; f3 >>= 1, i++)
 	{
@@ -1451,7 +1479,7 @@ static void do_cmd_knowledge_ego_items(void *obj, const char *name)
 	int e_count = 0;
 	int i, j;
 
-	/* HACK: currently no more than 3 tvals for one ego type */
+	/* HACK: currently no more than 3 (now 5) tvals for one ego type */
 	C_MAKE(egoitems, z_info->e_max * EGO_TVALS_MAX, int);
 	C_MAKE(default_join, z_info->e_max * EGO_TVALS_MAX, join_t);
 
@@ -1520,7 +1548,7 @@ static void display_object(int col, int row, bool cursor, int oid)
 	char o_name[80];
 
 	/* Choose a color */
-	bool aware = (!k_ptr->flavor || k_ptr->aware);
+	bool aware = (!k_ptr->flavor || k_ptr->aware || k_ptr->everseen);
 	byte attr = curs_attrs[(int)aware][(int)cursor];
 
 	/* Find graphics bits -- versions of the object_char and object_attr defines */
@@ -1537,7 +1565,8 @@ static void display_object(int col, int row, bool cursor, int oid)
 	else
 	{
 		/* Tidy name */
-	        object_kind_name(o_name, sizeof(o_name), k_idx, cheat_know);
+		if (aware) object_kind_name(o_name, sizeof(o_name), k_idx, TRUE);
+		else object_kind_name(o_name, sizeof(o_name), k_idx, cheat_know);
 	}
 
 	/* Display the name */
@@ -1603,17 +1632,22 @@ static int o_cmp_tval(const void *a, const void *b)
 {
 	object_kind *k_a = &k_info[*(int*)a];
 	object_kind *k_b = &k_info[*(int*)b];
+	bool aware = FALSE, baware = FALSE;
 
 	/* Group by */
 	int ta = obj_group_order[k_a->tval];
 	int tb = obj_group_order[k_b->tval];
 	int c = ta - tb;
 	if (c) return c;
+	
+	/* If you've seen it in a shop, you should be able to autoinscribe it  */
+    if (k_a->aware || k_a->everseen) aware = TRUE;
+	if (k_b->aware || k_b->everseen) baware = TRUE;
 
 	/* Order by */
-	c = k_a->aware - k_b->aware;
+	c = aware - baware;
 	if (c) return -c; /* aware has low sort weight */
-	if (!k_a->aware)
+	if (!aware)
 	{
 		return strcmp(flavor_text + flavor_info[k_a->flavor].text,
 									flavor_text +flavor_info[k_b->flavor].text);
@@ -1630,7 +1664,7 @@ static char *o_xchar(int oid)
 {
 	object_kind *k_ptr = &k_info[oid];
 
-	if (!k_ptr->flavor || k_ptr->aware)
+	if (!k_ptr->flavor || k_ptr->aware || k_ptr->everseen)
 		return &k_ptr->x_char;
 	else
 		return &flavor_info[k_ptr->flavor].x_char;
@@ -1640,7 +1674,7 @@ static byte *o_xattr(int oid)
 {
 	object_kind *k_ptr = &k_info[oid];
 
-	if (!k_ptr->flavor || k_ptr->aware)
+	if (!k_ptr->flavor || k_ptr->aware || k_ptr->everseen)
 		return &k_ptr->x_attr;
 	else
 		return &flavor_info[k_ptr->flavor].x_attr;
@@ -1659,7 +1693,7 @@ static const char *o_xtra_prompt(int oid)
 
 
 	/* Forget it if we've never seen the thing */
-	if (k_ptr->flavor && !k_ptr->aware)
+	if (k_ptr->flavor && !k_ptr->aware && !k_ptr->everseen)
 		return "";
 
 	/* If it's already inscribed */
@@ -1678,7 +1712,7 @@ static void o_xtra_act(char ch, int oid)
 	s16b idx = get_autoinscription_index(oid);
 
 	/* Forget it if we've never seen the thing */
-	if (k_ptr->flavor && !k_ptr->aware)
+	if (k_ptr->flavor && !k_ptr->aware && !k_ptr->everseen)
 		return;
 
 	/* Uninscribe */
@@ -4015,6 +4049,7 @@ static void do_cmd_delay(void)
 
 /*
  * Set hitpoint warning level
+ * minimal HP warning (not set here) is (maxHP / 50 + 2)
  */
 static void do_cmd_hp_warn(void)
 {
@@ -4415,11 +4450,13 @@ FILE *create_notes_file(char path[], size_t max)
 /*
  * Note something in the message recall
  */
-void do_cmd_note(char *note, int what_depth)
+void do_cmd_note(char *note, int what_depth, bool printme)
 {
 	char tmp[120];
 #ifdef yes_c_history
 	int length, length_info;
+	s32b hour, minute, sec, day;
+	char time[17];
     char info_note[40];
   	char depths[10];
 #endif
@@ -4439,8 +4476,7 @@ void do_cmd_note(char *note, int what_depth)
 	if (!tmp[0] || (tmp[0] == ' ')) return;
 
 	/* Add the note to the message recall */
-	/* (not if it's the final words) */
-	if (!p_ptr->is_dead) msg_format("Note: %s", tmp);
+	if (printme) msg_format("Note: %s", tmp);
 
 #ifdef yes_c_history
 	/*Artifacts use depth artifact created.  All others
@@ -4462,9 +4498,53 @@ void do_cmd_note(char *note, int what_depth)
     {
 	    strnfmt(depths, sizeof(depths), " %4d", what_depth);
 	}
-
+	
+	/* convert turns to time (60 turns = 1 minute) */
+	if (turn >= 60) minute = turn / 60;
+	else minute = 0;
+	if (minute >= 60) hour = minute / 60;
+	else hour = 0;
+	if (hour >= 24) day = (hour / 24) + 1;
+	else day = 0;
+	if (turn >= 60) sec = turn - (minute * 60);
+	else sec = turn;
+	if (minute >= 60) minute -= hour * 60;
+	if (hour >= 24) hour -= (day-1) * 24;
+	
+	/* convert to time display 00:00:00 */
+	if ((day) && (day < 10) && (minute < 10) && (sec < 10) && (hour < 10)) strnfmt(time, sizeof(time), " %d, 0%d:0%d:0%d", day, hour, minute, sec);
+	else if ((day) && (day < 10) && (minute < 10) && (hour < 10)) strnfmt(time, sizeof(time), " %d, 0%d:0%d:%d", day, hour, minute, sec);
+	else if ((day) && (day < 10) && (sec < 10) && (hour < 10)) strnfmt(time, sizeof(time), " %d, 0%d:%d:0%d", day, hour, minute, sec);
+	else if ((day) && (day < 10) && (hour < 10)) strnfmt(time, sizeof(time), " %d, 0%d:%d:%d", day, hour, minute, sec);
+	else if ((day) && (day < 10) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), " %d, %d:0%d:0%d", day, hour, minute, sec);
+	else if ((day) && (day < 10) && (minute < 10)) strnfmt(time, sizeof(time), " %d, %d:0%d:%d", day, hour, minute, sec);
+	else if ((day) && (day < 10) && (sec < 10)) strnfmt(time, sizeof(time), " %d, %d:%d:0%d", day, hour, minute, sec);
+	else if ((day) && (day < 10)) strnfmt(time, sizeof(time), " %d, %d:%d:%d", day, hour, minute, sec);
+	else if ((day) && (minute < 10) && (sec < 10) && (hour < 10)) strnfmt(time, sizeof(time), "%d, 0%d:0%d:0%d", day, hour, minute, sec);
+	else if ((day) && (minute < 10) && (hour < 10)) strnfmt(time, sizeof(time), "%d, 0%d:0%d:%d", day, hour, minute, sec);
+	else if ((day) && (sec < 10) && (hour < 10)) strnfmt(time, sizeof(time), "%d, 0%d:%d:0%d", day, hour, minute, sec);
+	else if ((day) && (hour < 10)) strnfmt(time, sizeof(time), "%d, 0%d:%d:%d", day, hour, minute, sec);
+	else if ((day) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "%d, %d:0%d:0%d", day, hour, minute, sec);
+	else if ((day) && (minute < 10)) strnfmt(time, sizeof(time), "%d, %d:0%d:%d", day, hour, minute, sec);
+	else if ((day) && (sec < 10)) strnfmt(time, sizeof(time), "%d, %d:%d:0%d", day, hour, minute, sec);
+	else if (day) strnfmt(time, sizeof(time), "%d, %d:%d:%d", day, hour, minute, sec);
+	else if ((hour) && (hour < 10) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), " 1, 0%d:0%d:0%d", hour, minute, sec);
+	else if ((hour) && (hour < 10) && (minute < 10)) strnfmt(time, sizeof(time), " 1, 0%d:0%d:%d", hour, minute, sec);
+	else if ((hour) && (hour < 10) && (sec < 10)) strnfmt(time, sizeof(time), " 1, 0%d:%d:0%d", hour, minute, sec);
+	else if ((hour) && (hour < 10)) strnfmt(time, sizeof(time), " 1, 0%d:%d:%d", hour, minute, sec);
+	else if ((hour) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), " 1, %d:0%d:0%d", hour, minute, sec);
+	else if ((hour) && (minute < 10)) strnfmt(time, sizeof(time), " 1, %d:0%d:%d", hour, minute, sec);
+	else if ((hour) && (sec < 10)) strnfmt(time, sizeof(time), " 1, %d:%d:0%d", hour, minute, sec);
+	else if (hour) strnfmt(time, sizeof(time), " 1, %d:%d:%d", hour, minute, sec);
+	else if ((minute) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), " 1, 00:0%d:0%d", minute, sec);
+	else if ((minute) && (minute < 10)) strnfmt(time, sizeof(time), " 1, 00:0%d:%d", minute, sec);
+	else if ((minute) && (sec < 10)) strnfmt(time, sizeof(time), " 1, 00:%d:0%d", minute, sec);
+	else if (minute) strnfmt(time, sizeof(time), " 1, 00:%d:%d", minute, sec);
+	else if (sec < 10) strnfmt(time, sizeof(time), " 1, 00:00:0%d", sec);
+	else strnfmt(time, sizeof(time), " 1, 00:00:%d", sec);
+	
   	/* Make preliminary part of note */
-   	strnfmt(info_note, sizeof(info_note), "|%9lu| %s | %2d  | ", turn, depths, p_ptr->lev);
+   	strnfmt(info_note, sizeof(info_note), "|%s | %s | %2d  | ", time, depths, p_ptr->lev);
 
 	/*write the info note*/
 	fprintf(notes_file, info_note);
@@ -4472,7 +4552,6 @@ void do_cmd_note(char *note, int what_depth)
 	/*get the length of the notes*/
 	length_info = strlen(info_note);
 	length = strlen(tmp);
-
 	/*break up long notes*/
 	if ((length + length_info) > LINEWRAP)
 	{
@@ -4513,7 +4592,7 @@ void do_cmd_note(char *note, int what_depth)
 			}
 
 			/*make a continued note if applicable*/
-			if (startpoint) fprintf(notes_file, "|  continued...   |     |  ");
+			if (startpoint) fprintf(notes_file, "|    continued...     |     |  ");
 
 			/* Write that line to file */
 			for (n = startpoint; n <= endpoint; n++)
@@ -4549,7 +4628,7 @@ void do_cmd_note(char *note, int what_depth)
 /* just calls do_cmd_note with parameters */
 do_cmd_note_old(void)
 {
-    do_cmd_note("", p_ptr->depth);
+    do_cmd_note("", p_ptr->depth, TRUE);
 }
 
 
@@ -4607,6 +4686,418 @@ void do_cmd_pref(void)
 }
 
 
+/*
+ * Array of danger feeling strings
+ */
+static const char *danger_feeling[] =
+{
+	"", /* for some special message (currently unused) */
+	"", /* for some special message (currently unused) */
+	/* feeling == 2 (highest danger w/Rfear) */
+	"You feel you're knocking on death's door at every turn ..and loving it!", 
+	"You are nearly paralyzed with terror.", /* feeling == 3 (highest danger) */
+	"You laugh in the face of danger.", /* feeling == 4 (high danger with Rfear) */
+	"You have a powerful urge to run away.", /* feeling == 5 (high danger) */
+	"It may be difficult just to survive here..", /* feeling == 6 */
+	"You have a feeling there are very challenging monsters on the level.", /* feeling == 7 */
+	"This level appears to be a fun challenge.", /* feeling == 8 */
+	"This place doesn't seem too dangerous.", /* feeling == 9 */
+	"This level feels rather safe.", /* feeling == 10 */
+	"You feel you could take a nap without fear of harm here." /* feeling == 11 */
+};
+
+/* Check for nasty melee attacks to help determine danger feelings */
+static int nasty_melee(int m_idx)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	int ap_cnt, effect;
+	int nastiness = 0;
+	bool sensereal = FALSE;
+	
+	/* If it never moves or it's very slow, melee shouldn't matter */
+    if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) || 
+		(m_ptr->mspeed < p_ptr->pspeed - 4)) return 0;
+		
+	/* only sometimes get a feeling about distant monsters for melee */
+    if ((m_ptr->cdis >= 100) && (randint(100) < 35)) return 0;
+	
+	/* sometimes use real attacks, sometimes use only known attacks */
+	if (randint(100) < 40 + goodluck*2) sensereal = TRUE;
+    if (m_ptr->cdis >= 100) sensereal = FALSE;
+
+	/* Scan through all blows */
+	for (ap_cnt = 0; ap_cnt < MONSTER_BLOW_MAX; ap_cnt++)
+	{
+		/* Skip unknown attacks (sometimes) */
+		if ((!l_ptr->blows[ap_cnt]) && (!l_ptr->xtra1) && (!sensereal)) 
+			continue;
+		effect = r_ptr->blow[ap_cnt].effect;
+		if ((effect == RBE_CONFUSE) && (!p_ptr->resist_confu)) nastiness++;
+		if (effect == RBE_XCONF) nastiness++;
+		if ((effect == RBE_UN_BONUS) && (!p_ptr->resist_disen)) nastiness++;
+		if ((effect == RBE_UN_POWER) && (!p_ptr->resist_static)) nastiness++;
+		if ((effect == RBE_PARALYZE) && (!p_ptr->free_act)) nastiness++;
+		if ((effect == RBE_SHATTER) || (effect == RBE_LOSE_ALL)) nastiness++;
+		/* Only afraid of silver or slime if you're already affected */
+		/* because it's only dangerous at significant levels */
+		if ((effect == RBE_SILVER) && (!p_ptr->resist_silver) &&
+			(p_ptr->silver >= PY_SILVER_LEVELONE)) nastiness++;
+		if ((effect == RBE_SLIME) && (!p_ptr->resist_slime) &&
+			(p_ptr->slime >= PY_SLIME_LEVELONE)) nastiness++;
+	}
+	
+	/* PASS_WALL / KILL_WALL makes melee more likely */
+	if (((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))) &&
+		(nastiness)) nastiness++;
+    /* dangerous melee is nastier on a fast monster */
+    else if ((m_ptr->mspeed > p_ptr->pspeed + 3) && (nastiness)) nastiness++;
+	/* melee of one monster shouldn't affect danger feeling too much */
+	if (nastiness > 3) nastiness = 3;
+
+	return nastiness;
+}
+
+/*
+ * Scans all the monsters on the level to find the danger feeling.
+ * This is done when the level is generated, and re-done
+ * whenever the player asks for a new danger feeling.
+ *
+ * Counts up to three monsters of the same race. If there are
+ * more than three, we'll assume they are in a pit, nest, or group
+ * of monsters and shouldn't stack towards the danger feeling.
+ */         
+s16b get_danger_feeling(void)
+{
+	int i, ap_cnt, dep, rlev, hplev, cheatluck;
+	int mon_danger = 0;
+	s16b danger_text = 0;
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	monster_lore *l_ptr;
+	u16b *race_count;
+	u32b f4, f5, f6, lf4, lf5, lf6;
+
+	/* Allocate the array (from display_monlist()) */
+	C_MAKE(race_count, z_info->r_max, u16b);
+
+	/* Scan monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		m_ptr = &mon_list[i];
+		r_ptr = &r_info[m_ptr->r_idx];
+		l_ptr = &l_list[m_ptr->r_idx];
+		bool strongbr = FALSE;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* NONMONSTERs aren't dangerous.. */
+        if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
+		
+		/* don't count more than 3 of the same race (except very early) */
+		if ((race_count[m_ptr->r_idx] >= 3) && (p_ptr->depth > 3)) continue;
+		/* count up to three */
+        race_count[m_ptr->r_idx]++;
+        
+		/* rate for native level */
+		dep = p_ptr->depth;
+		/* monsters seem easier or tougher compared to your character level */
+		if (p_ptr->lev > dep + 4) dep += (p_ptr->lev - dep) / 4;
+		else if ((dep <= 45) && (p_ptr->lev < dep - 10)) dep -= (dep - p_ptr->lev)/5;
+		else if ((dep > 45) && (p_ptr->lev < 35)) dep -= (dep - p_ptr->lev)/5;
+		rlev = r_ptr->level;
+
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			if (rlev > dep + 10) mon_danger += 15 + ((rlev - dep + 10)/2);
+			else if (rlev > dep) mon_danger += rlev - dep + 3;
+			else if (rlev >= dep - 2) mon_danger += 3;
+			else if ((rlev > dep - 6) && (rlev > 18)) mon_danger += 2;
+			else if (((rlev > dep - 11) && (rlev > 30)) || 
+                     ((rlev > dep - 6) && (rlev > 3))) mon_danger += 1;
+		}
+		else
+		{
+			if (rlev > dep + 10) mon_danger += 10 + ((rlev - dep + 10)/4);
+			/* try to get decent feeling even for very early depths */
+			else if ((p_ptr->depth < 3) && (rlev >= dep) && (p_ptr->lev <= dep))
+			{
+				 if (r_ptr->mexp > dep*2) mon_danger += (rlev + 1) - p_ptr->lev;
+				 else if (race_count[m_ptr->r_idx] > 5) mon_danger += 1;
+			}
+			else if (rlev > dep) mon_danger += (rlev - dep)/2 + 3;
+			else if ((rlev == dep) && (rlev >= 29)) mon_danger += 2;
+			else if ((rlev > dep - 5) && (rlev >= 29)) mon_danger += 1;
+			else if ((rlev >= 60) && (dep < 90)) mon_danger += 1;
+		}
+		
+		/* Extract the racial spell flags to check for certain things */
+		f4 = r_ptr->flags4;
+		f5 = r_ptr->flags5;
+		f6 = r_ptr->flags6;
+		/* Known flags give a more accurate feeling */
+		lf4 = l_ptr->flags4;
+		lf5 = l_ptr->flags5;
+		lf6 = l_ptr->flags6;
+		
+		if (cheat_know) cheatluck = 110;
+		else cheatluck = goodluck + 4 + randint((goodluck+2)*2);
+		
+		if ((r_ptr->flags2 & (RF2_INVISIBLE)) && (!p_ptr->see_inv))
+		{
+		   if ((p_ptr->telepathy) && 
+              ((r_ptr->flags2 & (RF2_EMPTY_MIND)) || (r_ptr->flags2 & (RF2_WEIRD_MIND))))
+                mon_danger += 2;
+           else if ((!p_ptr->telepathy) && (!m_ptr->evil)) mon_danger += 2;
+           else if (!p_ptr->telepathy) mon_danger += 1;
+        }
+		
+		if (m_ptr->mspeed > p_ptr->pspeed + 14) mon_danger += 2;
+		else if (m_ptr->mspeed > p_ptr->pspeed + 4) mon_danger += 1;
+		   
+		if ((l_ptr->flags2 & (RF2_BR_STRONG)) ||
+		   ((r_ptr->flags2 & (RF2_BR_STRONG)) && (randint(100) < 20+cheatluck)))
+		    strongbr = TRUE;
+		/* on the very early levels any breath is dangerous */
+		if (dep < 6) strongbr = TRUE;
+		/* with a lot of hp, any breath is dangerous */
+		if (m_ptr->hp >= 1200) strongbr = TRUE;
+
+		if (m_ptr->hp >= 900) hplev = 4;
+		else if (m_ptr->hp >= 270) hplev = 2;
+		/* on the very early levels any breath is dangerous */
+		else if (dep < 10) hplev = 1;
+		else hplev = 0;
+		
+		/* sense danger from breath weapons */
+        if ((strongbr) && (hplev))
+		{
+			if (((l_ptr->flags4 & (RF4_BR_ACID)) ||
+			   ((r_ptr->flags4 & (RF4_BR_ACID)) && (randint(100) < 20+cheatluck))) &&
+			   (!p_ptr->resist_acid)) mon_danger += hplev;
+
+			if (((l_ptr->flags4 & (RF4_BR_ELEC)) ||
+			   ((r_ptr->flags4 & (RF4_BR_ELEC)) && (randint(100) < 20+cheatluck))) &&
+			   (!p_ptr->resist_elec)) mon_danger += hplev;
+
+			if (((l_ptr->flags4 & (RF4_BR_FIRE)) ||
+			   ((r_ptr->flags4 & (RF4_BR_FIRE)) && (randint(100) < 20+cheatluck))) &&
+			   (!p_ptr->resist_fire)) mon_danger += hplev;
+
+			if (((l_ptr->flags4 & (RF4_BR_COLD)) ||
+			   ((r_ptr->flags4 & (RF4_BR_COLD)) && (randint(100) < 20+cheatluck))) &&
+			   (!p_ptr->resist_cold)) mon_danger += hplev;
+
+			if (((l_ptr->flags4 & (RF4_BR_POIS)) ||
+			   ((r_ptr->flags4 & (RF4_BR_POIS)) && (randint(100) < 20+cheatluck))) &&
+			   (!p_ptr->resist_pois)) mon_danger += hplev;
+		}
+			   
+		/* these are scary whether monster has BR_STRONG or not */
+		if (((l_ptr->flags4 & (RF4_BR_CONF)) ||
+		   ((r_ptr->flags4 & (RF4_BR_CONF)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_confu))
+		{
+			if (hplev) mon_danger += hplev;
+			else mon_danger += 1;
+		}
+		if ((l_ptr->flags5 & (RF5_BRAIN_SMASH)) ||
+		        ((r_ptr->flags5 & (RF5_BRAIN_SMASH)) && (randint(100) < 20+cheatluck)))
+		{
+			if (!p_ptr->resist_confu) mon_danger += 2;
+			else mon_danger += 1;
+		}
+		else if (((l_ptr->flags5 & (RF5_MIND_BLAST)) ||
+		        ((r_ptr->flags5 & (RF5_MIND_BLAST)) && (randint(100) < 20+cheatluck))) &&
+		        (!p_ptr->resist_confu)) mon_danger += 1;
+
+		if ((l_ptr->flags4 & (RF4_BR_TIME)) ||
+		   ((r_ptr->flags4 & (RF4_BR_TIME)) && (randint(100) < 20+cheatluck)))
+		{
+			if (hplev > 2) mon_danger += 3;
+			else mon_danger += 1;
+		}
+
+		if ((l_ptr->flags4 & (RF4_BR_NEXU)) ||
+		   ((r_ptr->flags4 & (RF4_BR_NEXU)) && (randint(100) < 20+cheatluck)))
+		{
+			if (hplev) mon_danger += 2;
+			else mon_danger += 1;
+		}
+
+		if (((l_ptr->flags4 & (RF4_BR_SHAR)) ||
+		   ((r_ptr->flags4 & (RF4_BR_SHAR)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_shard) && (hplev > 2)) mon_danger += 2;
+
+		if (((l_ptr->flags4 & (RF4_BR_DISE)) ||
+		   ((r_ptr->flags4 & (RF4_BR_DISE)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_disen))
+        {
+			if (hplev > 2) mon_danger += 3;
+			else mon_danger += 1;
+		}
+
+		if (((l_ptr->flags4 & (RF4_BR_CHAO)) ||
+		   ((r_ptr->flags4 & (RF4_BR_CHAO)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_chaos) && (hplev)) mon_danger += 2;
+		   
+		/* update when resist silver & resist slime are added */
+		if (((l_ptr->flags4 & (RF4_BR_AMNS)) ||
+		   ((r_ptr->flags4 & (RF4_BR_AMNS)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_silver) && (hplev))
+             mon_danger += 2;
+
+		if (((l_ptr->flags4 & (RF4_BR_SLIME)) ||
+		   ((r_ptr->flags4 & (RF4_BR_SLIME)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_slime) && (hplev)) mon_danger += 2;
+
+		if ((l_ptr->flags4 & (RF4_BR_GRAV)) ||
+		   ((r_ptr->flags4 & (RF4_BR_GRAV)) && (randint(100) < 20+cheatluck)))
+		{
+			if ((!p_ptr->resist_sound) && (hplev)) mon_danger += hplev;
+			else if ((!p_ptr->resist_sound) || (hplev)) mon_danger += hplev-1;
+			else mon_danger += 1;
+        }
+
+		if ((l_ptr->flags5 & (RF5_BA_MANA)) ||
+		   ((r_ptr->flags5 & (RF5_BA_MANA)) && (randint(100) < 20+cheatluck)))
+		    mon_danger += 2;
+
+		if ((l_ptr->flags5 & (RF5_BA_WATE)) ||
+		   ((r_ptr->flags5 & (RF5_BA_WATE)) && (randint(100) < 20+cheatluck)))
+		{
+			if ((!p_ptr->resist_sound) && (!p_ptr->resist_confu)) mon_danger += 3;
+			else if ((!p_ptr->resist_sound) || (!p_ptr->resist_confu)) mon_danger += 2;
+        }
+
+		if (((l_ptr->flags5 & (RF5_BA_DARK)) ||
+		   ((r_ptr->flags5 & (RF5_BA_DARK)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_dark)) mon_danger += 2;
+
+		if (((l_ptr->flags5 & (RF5_BA_NETH)) ||
+		   ((r_ptr->flags5 & (RF5_BA_NETH)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->resist_nethr)) mon_danger += 2;
+
+		if ((l_ptr->flags5 & (RF5_CAUSE_4)) ||
+		   ((r_ptr->flags5 & (RF5_CAUSE_4)) && (randint(100) < 20+cheatluck)))
+		{
+			if (p_ptr->skills[SKILL_SAV] < 101) mon_danger += 2;
+			else if ((p_ptr->skills[SKILL_SAV] < 126) && (r_ptr->flags2 & (RF2_POWERFUL)))
+                     mon_danger += 1;
+        }
+
+		if (((l_ptr->flags5 & (RF5_HOLD)) ||
+		   ((r_ptr->flags5 & (RF5_HOLD)) && (randint(100) < 20+cheatluck))) &&
+		   (!p_ptr->free_act)) mon_danger += 2;
+
+		if ((l_ptr->flags6 & (RF6_S_MONSTERS)) ||
+		   ((r_ptr->flags6 & (RF6_S_MONSTERS)) && (randint(100) < 20+cheatluck)))
+		     mon_danger += 2;
+
+		if ((l_ptr->flags6 & (RF6_S_HI_UNDEAD)) ||
+		   ((r_ptr->flags6 & (RF6_S_HI_UNDEAD)) && (randint(100) < 20+cheatluck)))
+		     mon_danger += 2;
+
+		if ((l_ptr->flags6 & (RF6_S_HI_DRAGON)) ||
+		   ((r_ptr->flags6 & (RF6_S_HI_DRAGON)) && (randint(100) < 20+cheatluck)))
+		     mon_danger += 1;
+
+		if ((l_ptr->flags6 & (RF6_S_DEMON)) ||
+		   ((r_ptr->flags6 & (RF6_S_DEMON)) && (randint(100) < 20+cheatluck)))
+		     mon_danger += 1;
+
+		if ((l_ptr->flags6 & (RF6_S_HOUND)) ||
+		   ((r_ptr->flags6 & (RF6_S_HOUND)) && (randint(100) < 20+cheatluck)))
+		     mon_danger += 1;
+
+		if ((l_ptr->flags6 & (RF6_S_HYDRA)) ||
+		   ((r_ptr->flags6 & (RF6_S_HYDRA)) && (randint(100) < 20+cheatluck)))
+		     mon_danger += 1;
+		     
+		mon_danger += nasty_melee(i);
+	}
+	
+	/* It's always dangerous on deep levels so scale down a little */
+	if ((mon_danger > 50) && (p_ptr->depth >= 45)) mon_danger -= 4;
+	else if ((mon_danger > 30) && (p_ptr->depth >= 45)) mon_danger -= 2;
+	if ((mon_danger > 20) && (p_ptr->depth >= 45) && (p_ptr->resist_fear))
+		mon_danger -= 2;
+
+    /* use the danger level to decide on a danger message */
+    if ((mon_danger > 95) && (p_ptr->resist_fear)) danger_text = 2;
+    else if (mon_danger > 95) danger_text = 3;
+    else if ((mon_danger > 77) && (p_ptr->resist_fear)) danger_text = 4;
+    else if (mon_danger > 77) danger_text = 5;
+    else if (mon_danger > 65) danger_text = 6;
+    else if (mon_danger > 50) danger_text = 7;
+    else if (mon_danger > 35) danger_text = 8;
+    else if (mon_danger > 19) danger_text = 9;
+    else if (mon_danger > 5) danger_text = 10;
+    else if ((mon_danger > 2) && (p_ptr->depth < 10)) danger_text = 10;
+    else danger_text = 11;
+
+#if nottesting
+	/* sometimes have a more inaccuarate feeling */
+	/* (not sure if I want this) */
+	if (rand_int(100) < (badluck+3)/2)
+	{
+		int falsebold = 41;
+		/* level is more likely to seem falsely easy if you are fearless */
+		if (p_ptr->resist_fear) falsebold = 70;
+		/* level seems less dangerous than it is */
+		if ((danger_text < 4) || ((rand_int(100) < falsebold) && (danger_text < 9)))
+		{
+			if (danger_text == 2) danger_text = 4;
+			else if (danger_text == 3) danger_text = 5;
+			else if (danger_text == 4) danger_text = 6;
+			else danger_text += randint(2);
+		}
+		/* level seems more dangerous than it is */
+        else
+        {
+            if (danger_text == 4) danger_text = 2;
+			else if (danger_text == 5) danger_text = 3;
+			else danger_text -= randint(2);
+        }
+	}
+#endif
+	
+	/* save the danger_feeling and the last time you got a danger feeling */
+	p_ptr->danger_turn = turn;
+	p_ptr->danger_text = danger_text;
+	
+	/* Free the race counter */
+	FREE(race_count);
+	
+	return danger_text;
+}
+
+/*
+ * Gets a danger feeling & prints the danger feeling text
+ */
+void do_cmd_danger_feeling(void)
+{
+	/* has it been long enough? (if turn==danger_turn then PC has just entered the level) */
+	/* you can always get a danger feeling on entering the level, but some time has to */
+	/* pass before you can get a new feeling for the same level. */
+	if ((turn - p_ptr->danger_turn < 300) && (turn > p_ptr->danger_turn))
+	{
+		/* Display the old danger feeling */
+		if (p_ptr->danger_text) msg_print(danger_feeling[p_ptr->danger_text]);
+		
+		/* minimum 300 game turns (30 player turns at normal speed) */
+		msg_print("(You don't sense anything new)");
+		return;
+	}
+	
+	/* this sets p_ptr->danger_text */
+	get_danger_feeling();
+
+	/* Display the danger feeling */
+	msg_print(danger_feeling[p_ptr->danger_text]);
+}
 
 /*
  * Array of feeling strings
@@ -4615,15 +5106,15 @@ static const char *feeling_text[] =
 {
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
-	"You have a superb feeling about this level.",
-	"You have an excellent feeling...",
-	"You have a very good feeling...",
-	"You have a good feeling...",
-	"You feel strangely lucky...",
-	"You feel your luck is turning...",
-	"You like the look of this place...",
-	"This level can't be all bad...",
-	"What a boring place..."
+	"You have a superb feeling about this level.", /* feeling == 2 */
+	"You can smell the treasure on this level.", /* feeling == 3 */
+	"You have a very good feeling...", /* feeling == 4 */
+	"You have a good feeling...", /* feeling == 5 */
+	"This looks like an interesting place.", /* feeling == 6 */
+	"You like the look of this place...", /* feeling == 7 */
+	"This level can't be all bad...", /* feeling == 8 */
+	"This place doesn't look very interesting.", /* feeling == 9 */
+	"What a boring place..." /* feeling == 10 */
 };
 
 
@@ -4633,20 +5124,33 @@ static const char *feeling_text[] =
  */
 void do_cmd_feeling(void)
 {
-	/* Verify the feeling */
+    /* Verify the feeling */
 	if (feeling >= N_ELEMENTS(feeling_text))
 		feeling = N_ELEMENTS(feeling_text) - 1;
-
-	/* No useful feeling in town */
+		
+	/* option to turn off level feelings */
+    if (!level_numb)
+	{
+		/* (usually) no useful feeling in town */
+		if (p_ptr->depth)
+		{
+			/* Display the feeling */
+			msg_print(feeling_text[feeling]);
+		}
+	}
 	if (!p_ptr->depth)
 	{
-		msg_print("Looks like a typical town.");
+		/* night or day */
+		bool night;
+		if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
+		else night = TRUE;
+		/* often you can notice a full moon in the afternoon (daytime) */
+		if ((p_ptr->theme == 7) && (rand_int(100) < 22)) night = TRUE;
+
+		/* Let the player know about a full moon in the town (rare) */
+		/* (XXX Doesn't always let the player know) */
+		if ((p_ptr->theme == 7) && (night)) msg_print("You notice a full moon in the sky tonight.");
 		return;
-	}
-	else
-	{
-		/* Display the feeling */
-		msg_print(feeling_text[feeling]);
 	}
 
 	/* also give a feeling about the themed level (if any) */
@@ -4664,6 +5168,12 @@ void do_cmd_feeling(void)
 	else if (p_ptr->theme == 12) msg_print("A silver mist hangs in the air here; you sense that you have entered the domain of the grepse.");
 	else if (p_ptr->theme == 13) msg_print("This level gives you the creeps, images come to your mind from nightmares you had as a child.");
 	else if (p_ptr->theme == 14) msg_print("Extra shadows and demonic symbols line the walls. It's very hot in here..");
+	else if (p_ptr->theme == 15) msg_print("You find yourself in one of Morgoth's army barracks.");
+	else if (p_ptr->theme == 16)
+	{
+		msg_print("Grotesque carvings and the sounds of sadistic chuckling let you know ");
+		msg_print("that you have found a city of the hobs.");
+	}
 }
 
 

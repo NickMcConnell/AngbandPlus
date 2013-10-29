@@ -1,5 +1,5 @@
 # File: terrain.txt
-# DaJAngband 1.1.2
+# DaJAngband 1.2.0
 
 
 # This file is used to initialize the "lib/data/terrain.raw" file, which is
@@ -50,9 +50,9 @@ G: :w
 N:1:open floor
 G:.:w
 
-# 0x02 --> invisible trap (drawn as open floor)
+# 0x02 --> hidden trap (drawn as open floor)
 
-N:2:invisible trap
+N:2:hidden trap
 G:.:w
 M:1
 
@@ -133,12 +133,12 @@ G:^:s
 
 # 0x12 --> visible trap -- spiked pit
 
-N:18:pit
+N:18:spiked pit
 G:^:s
 
 # 0x13 --> visible trap -- poison pit
 
-N:19:pit
+N:19:spiked pit
 G:^:s
 
 # 0x14 --> visible trap -- rune -- summon
@@ -368,23 +368,23 @@ M:56
 # 0x3C --> permanent wall -- basic (perm)
 
 N:60:permanent wall
-G:#:w
+G:#:u
 
 # 0x3D --> permanent wall -- inner (perm)
 
 N:61:permanent wall
-G:#:w
+G:#:u
 M:60
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
-G:#:w
+G:#:u
 M:60
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
-G:#:w
+G:#:u
 M:60
 

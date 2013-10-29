@@ -25,11 +25,14 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			{
 				if (inc_timed(TMD_POISONED, randint(15) + 15))
 				{
-                    if (p_ptr->weakresist_pois)
-                    {
-                       take_hit(damroll(2, 6), "poisonous food");
-                    }
-			        else take_hit(damroll(6, 6), "poisonous food");
+                    int dds = o_ptr->ds; /* damroll(o_ptr->dd, o_ptr->ds) == 9d4 */
+                    int ddd = o_ptr->dd;
+					/* ID-by use should not be a killer if you're careful to eat with near-full HP */
+					if ((p_ptr->lev < 6) && (dds >= 4)) dds = dds / 2;
+					else if ((p_ptr->lev < 6) && (dds == 3)) dds -= 1;
+					if ((p_ptr->weakresist_pois) && (ddd >= 4)) ddd = (ddd+1)/2;
+					take_hit(damroll(ddd, dds), "poisonous food");
+					/* else take_hit(damroll(6, 6), "poisonous food"); */
 					*ident = TRUE;
 				}
 			}
@@ -41,7 +44,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             (void)inc_timed(TMD_MESP, randint(580) + 400);
 			if (inc_timed(TMD_BLIND, randint(240) + 240))
 			{
-                if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 250);
+                if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 240);
 				*ident = TRUE;
 			}
 			break;
@@ -52,14 +55,14 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			if ((!p_ptr->resist_charm))
 			{
-				   if (inc_timed(TMD_CHARM, rand_int(11) + 10)) *ident = TRUE;
+				   if (inc_timed(TMD_CHARM, randint(8) + 10)) *ident = TRUE;
 			}
 			break;
 		}
 
 		case SV_FOOD_TERROR:
 		{
-			if (inc_timed(TMD_TERROR, randint(15) + 15)) *ident = TRUE;
+			if (inc_timed(TMD_TERROR, randint(12) + 18)) *ident = TRUE;
 			break;
 		}
 
@@ -78,13 +81,13 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 			if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
 			{
-				if (inc_timed(TMD_IMAGE, rand_int(200 + badluck*2) + 200))
+				if (inc_timed(TMD_IMAGE, rand_int(210 + badluck*2) + 210))
 				{
 				   *ident = TRUE;
                    if (randint(100) < 3)
                    {
                       p_ptr->luck += 1;
-                      inc_timed(TMD_IMAGE, randint(21) + randint(21));
+                      inc_timed(TMD_IMAGE, randint(18) + randint(18));
                       if (die < 10) msg_print("You never felt so high in your life!");
                       else msg_print("Wow, this stuff is groovy, man!");
                    }
@@ -95,35 +98,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_STONE_SKIN:
 		{
-			if (inc_timed(TMD_STONESKIN, randint(100) + 100)) *ident = TRUE;
-			break;
-		}
-
-		/* changed to 'Idiocy' but name not changed in the code */
-        case SV_FOOD_DISEASE:
-		{
-			if (randint((badluck*2)+10) >= 20)
-			{
-               (void)do_dec_stat(A_INT, 0);
-               (void)do_dec_stat(A_WIS, 0);
-            }
-            /* drain according to spell stat */
-            else if ((randint(badluck/2 + 10) > 4) && (cp_ptr->spell_book))
-            {
-               if (cp_ptr->spell_stat == A_INT) (void)do_dec_stat(A_INT, 0);
-               else (void)do_dec_stat(A_WIS, 0);
-            }
-			else if (randint(100) < 50) (void)do_dec_stat(A_INT, 0);
-			else (void)do_dec_stat(A_WIS, 0);
-			p_ptr->silver += 3;
-			/* confusion or amnesia */
-			if (randint(badluck/2 + 10) > 5)
-			{
-               if (randint(100) < 50) inc_timed(TMD_AMNESIA, randint(50) + 25 + badluck);
-               else inc_timed(TMD_CONFUSED, randint(50) + 25 + badluck);
-            }
-			take_hit(damroll(8, 8), "poisonous food");
-			*ident = TRUE;
+			if (inc_timed(TMD_STONESKIN, randint(120) + 90)) *ident = TRUE;
 			break;
 		}
 
@@ -223,7 +198,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
                int time = randint(150) + 150;
                inc_timed(TMD_WOPP_POIS, time);
                inc_timed(TMD_SUST_SPEED, time);
-               if (!p_ptr->resist_blind) inc_timed(TMD_BLIND, time);
+               if (!p_ptr->resist_blind) inc_timed(TMD_BLIND, time-10);
             }
             else if (die < 50) /* charm & zap */
             {
@@ -276,7 +251,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             else if (die < 100) /* dragonfighter */
             {
                int time = randint(200) + 200;
-               inc_timed(TMD_HIT_ELEMENT, time);
+               inc_timed(TMD_QUIVERGUARD, time);
                inc_timed(TMD_BR_SHIELD, time);
                inc_timed(TMD_ESP, time);
             }
@@ -300,6 +275,37 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+		/* changed to 'Idiocy' but name not changed in the code */
+        case SV_FOOD_DISEASE:
+		{
+			if (randint((badluck*2)+10) >= 20)
+			{
+               (void)do_dec_stat(A_INT, 0);
+               (void)do_dec_stat(A_WIS, 0);
+            }
+            /* drain according to spell stat */
+            else if ((randint(badluck/2 + 10) > 4) && (cp_ptr->spell_book))
+            {
+               if (cp_ptr->spell_stat == A_INT) (void)do_dec_stat(A_INT, 0);
+               else (void)do_dec_stat(A_WIS, 0);
+            }
+			else if (randint(100) < 50) (void)do_dec_stat(A_INT, 0);
+			else (void)do_dec_stat(A_WIS, 0);
+			p_ptr->silver += 3;
+			/* confusion or amnesia */
+			if (randint(badluck/2 + 10) > 5)
+			{
+               if (randint(100) < 50) inc_timed(TMD_AMNESIA, randint(50) + 25 + badluck);
+               else inc_timed(TMD_CONFUSED, randint(50) + 25 + badluck);
+            }
+			/* ID-by use should not be a killer if you're careful to eat with near-full HP */
+            if (p_ptr->lev < 15) take_hit(damroll(o_ptr->dd, o_ptr->ds-2), "poisonous food");
+			else take_hit(damroll(o_ptr->dd, o_ptr->ds), "poisonous food");
+			/* take_hit(damroll(8, 8), "poisonous food"); */
+			*ident = TRUE;
+			break;
+		}
+
 		case SV_FOOD_UNHEALTH:
 		{
 			if (randint((badluck*2)+10) >= 20)
@@ -314,7 +320,11 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			{
                inc_timed(TMD_CUT, randint(25) + 25 + badluck);
             }
-			take_hit(damroll(10, 10), "poisonous food");
+            
+			/* ID-by use should not be a killer if you're careful to eat with near-full HP */
+            if (p_ptr->lev < 15) take_hit(damroll(o_ptr->dd, o_ptr->ds/2), "poisonous food");
+			else take_hit(damroll(o_ptr->dd, o_ptr->ds), "poisonous food");
+			/* take_hit(damroll(10, 10), "poisonous food"); */
 			*ident = TRUE;
 			break;
 		}
@@ -338,12 +348,12 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             }
 			else if (randint(100) < 60) (void)do_dec_stat(A_DEX, 10 + badluck);
 			else (void)do_dec_stat(A_CHR, 15 + badluck);
-			if (randint(badluck/2 + 10) > 4)
+			if (randint((badluck+1)/2 + 10) > 4)
 			{
                msg_print("The mushroom screams for help as you eat it!");
                aggravate_monsters(0);
             }
-			if ((randint(badluck/2 + 10) > 5) && (!p_ptr->timed[TMD_SUST_SPEED]))
+			if ((randint((badluck+1)/2 + 10) > 5) && (!p_ptr->timed[TMD_SUST_SPEED]))
             {
                if (p_ptr->spadjust) p_ptr->spadjust -= randint(4);
                else
@@ -354,7 +364,10 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             }
 			/* possibly lower charisma twice */
 			if (randint(badluck/2 + 10) > 7) (void)do_dec_stat(A_CHR, 15 + badluck);
-			take_hit(damroll(3, 11), "poisonous food");
+			/* ID-by use should not be a killer if you're careful to eat with near-full HP */
+            if (p_ptr->lev < 15) take_hit(damroll(o_ptr->dd, o_ptr->ds-2), "poisonous food");
+			else take_hit(damroll(o_ptr->dd, o_ptr->ds), "poisonous food");
+			/* take_hit(damroll(3, 11), "poisonous food"); */
 			*ident = TRUE;
 			break;
 		}
@@ -391,10 +404,15 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 				addemer = TRUE;
 			}
 			else if (p_ptr->luck < 13) p_ptr->luck += 2;
+			else if (p_ptr->slime >= PY_SLIME_LEVELONE) p_ptr->slime -= 2;
+			else if (p_ptr->silver >= PY_SILVER_LEVELONE) p_ptr->silver -= 1;
+			else if (p_ptr->corrupt > 15) p_ptr->corrupt -= 1;
 			/* helping an additional emergency has an additional cost */
 			if (addemer)
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0)) *ident = TRUE;
+				int dep = p_ptr->depth;
+				if (!dep) dep = 1;
+                if (summon_specific(p_ptr->py, p_ptr->px, dep, 0)) *ident = TRUE;
 			}
 			break;
 		}
@@ -425,7 +443,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			int curep = (p_ptr->mhp * 20) / 100;
 			if (cure < curep) cure = curep;
 			if (hp_player(cure)) *ident = TRUE;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 1;
+			if (p_ptr->slime >= PY_SLIME_LEVELONE) p_ptr->slime -= 2;
+            else if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 1;
 			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 1;
 			break;
 		}
@@ -437,7 +456,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_IMAGE)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID)) *ident = TRUE;
 			if (p_ptr->silver > PY_SILVER_HEALTHY) *ident = TRUE;
-			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 2;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 1 + randint(2);
 			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
 			if (inc_timed(TMD_CLEAR_MIND, randint(30 + goodluck/2) + 10 + goodluck/4)) *ident = TRUE;
 			if (do_res_stat(A_WIS)) *ident = TRUE;
@@ -452,7 +471,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (inc_timed(TMD_OPP_POIS, randint(30 + goodluck/2) + 10 + goodluck/4)) *ident = TRUE;
 			if (p_ptr->slime > PY_SLIME_HEALTHY) *ident = TRUE;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 2 + randint(2);
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 3 + randint(2);
 			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			if (do_res_stat(A_STR)) *ident = TRUE;
 			if (do_res_stat(A_CON)) *ident = TRUE;
@@ -494,9 +513,9 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			curep = (p_ptr->mhp * 17) / 100;
 			if (cure < curep) cure = curep;
 			(void)hp_player(cure);
-			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 5;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 5;
 			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 3;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 5;
 			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			*ident = TRUE;
 			break;
@@ -514,7 +533,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 	/* Food can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
-    /* Waybread is supposed to be the perfect food and shouldn't satiate */
+    /* Waybread is supposed to be the perfect food and shouldn't satiate so easily */
     if ((o_ptr->sval == SV_FOOD_WAYBREAD) && (goodluck > 0))
     {
        if (p_ptr->food > PY_FOOD_MAX) p_ptr->food = PY_FOOD_MAX;
@@ -591,8 +610,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			{
 				msg_print("Your pace falters for a moment, but doesn't change.");
 				*ident = TRUE;
+				break;
 			}
-			if (inc_timed(TMD_SLOW, randint(25) + 15)) *ident = TRUE;
+			if (inc_timed(TMD_SLOW, randint(22) + 18)) *ident = TRUE;
 			break;
 		}
 
@@ -641,7 +661,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			}
 			else if (!p_ptr->resist_blind)
 			{
-				inc_timed(TMD_BLIND, randint(200) + 100);
+				inc_timed(TMD_BLIND, randint(180) + 120);
 			    *ident = TRUE;
             }
 			break;
@@ -651,7 +671,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_confu)
 			{
-				if (inc_timed(TMD_CONFUSED, rand_int(20) + 15))
+				if (inc_timed(TMD_CONFUSED, rand_int(24) + 12))
 				{
 					*ident = TRUE;
 				}
@@ -667,7 +687,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
             }
 			else
 			{
-				inc_timed(TMD_PARALYZED, rand_int(4) + 4);
+				inc_timed(TMD_PARALYZED, rand_int(6) + 3);
 			}
 			*ident = TRUE;
 			break;
@@ -680,7 +700,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			cptr act = NULL;
 
 			/* message to let the player know why he didn't get the effect he was expecting.. */
-            msg_print("Ack! It's a potion of Multi-hued Poison disguised as another potion! -more-");
+			msg_print("Ack! It's a potion of Multi-hued Poison disguised as another potion!");
+			if (inkey() == ESCAPE) ;/* do nothing (just a -more- to make sure player has a chance to read the message) */
 
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
@@ -698,8 +719,18 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			}
 			msg_format("You're not as %s as you used to be...", act);
 			/* lower the stat */
-			if (badluck > 3) p_ptr->stat_cur[sick] -= 2;
-			else p_ptr->stat_cur[sick] -= randint(2);
+			if (badluck >= 3)
+			{
+				if (p_ptr->stat_cur[sick] >= 18+60) p_ptr->stat_cur[sick] = (p_ptr->stat_cur[sick] * 3) / 4;
+				else if (p_ptr->stat_cur[sick] > 18+10) p_ptr->stat_cur[sick] = (p_ptr->stat_cur[sick] * 4) / 5;
+                else p_ptr->stat_cur[sick] -= 2;
+            }
+			else
+            {
+				if (p_ptr->stat_cur[sick] >= 18+60) p_ptr->stat_cur[sick] = (p_ptr->stat_cur[sick] * 4) / 5;
+				else if (p_ptr->stat_cur[sick] > 18+10) p_ptr->stat_cur[sick] = (p_ptr->stat_cur[sick] * 5) / 6;
+                else p_ptr->stat_cur[sick] -= randint(2);
+            }
 			if (p_ptr->stat_cur[sick] < 3) p_ptr->stat_cur[sick] = 3;
 			*ident = TRUE;
 			break;
@@ -745,12 +776,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 	        (void)clear_timed(TMD_SHERO);
 	        (void)clear_timed(TMD_BLESSED);
 	        (void)clear_timed(TMD_SANCTIFY);
-	        (void)clear_timed(TMD_SHADOW);
 	        (void)clear_timed(TMD_MIGHTY_HURL);
-	        (void)clear_timed(TMD_SKILLFUL);
 	        (void)clear_timed(TMD_DAYLIGHT);
+	        (void)clear_timed(TMD_SKILLFUL);
+	        (void)clear_timed(TMD_SHADOW);
 	        (void)clear_timed(TMD_SUPER_ROGUE);
-	        (void)clear_timed(TMD_BRAIL);
 	        (void)clear_timed(TMD_2ND_THOUGHT);
 	        (void)clear_timed(TMD_BECOME_LICH);
 	        (void)clear_timed(TMD_BALROG);
@@ -758,6 +788,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 	        (void)clear_timed(TMD_HOLDLIFE);
 	        (void)clear_timed(TMD_STONESKIN);
 	        (void)clear_timed(TMD_ESP);
+	        (void)clear_timed(TMD_BRAIL);
 	        (void)clear_timed(TMD_TSIGHT);
 	        (void)clear_timed(TMD_SINVIS);
 	        (void)clear_timed(TMD_SHIELD);
@@ -806,9 +837,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_DETONATIONS:
 		{
 			msg_print("Massive explosions rupture your body!");
-			take_hit(damroll(50, 20), "a potion of Detonation");
+			take_hit(damroll(99, 5), "a potion of Detonation");
 			(void)inc_timed(TMD_STUN, 75);
-			(void)inc_timed(TMD_CUT, 5000);
+			(void)inc_timed(TMD_CUT, 2000 + randint(2000));
 			*ident = TRUE;
 			break;
 		}
@@ -852,7 +883,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_AUTO_BRAIL:
+		/* Super spellcasting */
+        case SV_POTION_AUTO_BRAIL:
 		{
 			/* partially restores mana also */
             if (p_ptr->csp + (p_ptr->msp/10) + 1 < p_ptr->msp)
@@ -863,7 +895,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				*ident = TRUE;
 			}
-            if (inc_timed(TMD_BRAIL, 75 + randint(75)))
+            if (inc_timed(TMD_BRAIL, 72 + randint(84)))
 			{
 				*ident = TRUE;
 			}
@@ -878,7 +910,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 				*ident = TRUE;
 				break;
 			}
-			time = p_ptr->skills[SKILL_DEV] / 2;
+			time = (p_ptr->skills[SKILL_DEV] + ((goodluck+1)/2)) / 2;
 			if (time < 12) time = 12;
 			if (time > 35) time = 34 + ((time - 34) / 2);
 			if (inc_timed(TMD_SINVIS, time + randint(time)))
@@ -896,7 +928,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
             }
             else
             {
-				if (detect_monsters_normal()) *ident = TRUE;
+				if (detect_monsters_normal(TRUE)) *ident = TRUE;
 				if (detect_monsters_invis()) *ident = TRUE;
 			}
 			break;
@@ -907,7 +939,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			int bonus = 0;
 			if (!badluck) bonus = 1;
 			bonus = (goodluck + bonus) * 10;
-			if (inc_timed(TMD_TMPBOOST, 100 + randint(110 + bonus)))
+			if (inc_timed(TMD_TMPBOOST, 101 + randint(110 + bonus)))
 			{
 				*ident = TRUE;
 			}
@@ -945,18 +977,18 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			}
 			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
-				if (set_timed(TMD_FAST, randint(25) + 15)) *ident = TRUE;
+				if (set_timed(TMD_FAST, randint(22) + 18)) *ident = TRUE;
 			}
 			else
 			{
-				(void)inc_timed(TMD_FAST, 5);
+				(void)inc_timed(TMD_FAST, 6);
 			}
 			break;
 		}
 
 		case SV_POTION_RESIST_ELEC_ACID:
 		{
-            int time = randint(10) + 10;
+            int time = rand_int(12) + 12;
 			if (inc_timed(TMD_OPP_ACID, time))
 			{
 				*ident = TRUE;
@@ -970,7 +1002,21 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RESIST_HEAT:
 		{
-			if (inc_timed(TMD_OPP_FIRE, randint(10) + 10))
+			if (inc_timed(TMD_OPP_FIRE, rand_int(12) + 12))
+			{
+				*ident = TRUE;
+			}
+			break;
+		}
+		
+        case SV_POTION_RESIST_POISON:
+		{
+			if ((rand_int(100) < (badluck - 1) * 2) &&
+				(inc_timed(TMD_WOPP_POIS, randint(12) + 12)))
+			{
+				*ident = TRUE;
+			}
+			if (inc_timed(TMD_OPP_POIS, rand_int(12) + 12))
 			{
 				*ident = TRUE;
 			}
@@ -979,7 +1025,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RESIST_COLD:
 		{
-			if (inc_timed(TMD_OPP_COLD, randint(10) + 10))
+			if (inc_timed(TMD_OPP_COLD, rand_int(12) + 12))
 			{
 				*ident = TRUE;
 			}
@@ -996,7 +1042,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                  *ident = TRUE;
                  break;
                }
-			if (inc_timed(TMD_HERO, randint(25) + 25)) *ident = TRUE;
+			if (inc_timed(TMD_HERO, randint(26) + 24)) *ident = TRUE;
 			break;
 		}
 
@@ -1016,7 +1062,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                }
             else
                {
-			     if (inc_timed(TMD_SHERO, randint(25) + 25)) *ident = TRUE;
+			     if (inc_timed(TMD_SHERO, randint(26) + 24)) *ident = TRUE;
                }
                
 			break;
@@ -1096,9 +1142,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
 			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
-			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 20;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 15;
 			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 22;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 18;
 			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			break;
 		}
@@ -1161,9 +1207,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			{
 				*ident = TRUE;
 				/* try to pull free if being held */
-				if (20 + adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2 > randint(100))
+				if ((p_ptr->timed[TMD_BEAR_HOLD]) &&
+					(20 + adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2 > randint(100)))
 				{
 					p_ptr->held_m_idx = 0;
+					msg_print("You pull free.");
 					clear_timed(TMD_BEAR_HOLD);
 				}
 			}
@@ -1218,9 +1266,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 				(void)inc_timed(TMD_MIGHTY_HURL, randint(30) + 30);
 			}
 			/* try to pull free if being held */
-			if (20 + adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2 > randint(100))
+			if ((p_ptr->timed[TMD_BEAR_HOLD]) &&
+				(20 + adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2 > randint(100)))
 			{
 				p_ptr->held_m_idx = 0;
+				msg_print("You pull free.");
 				clear_timed(TMD_BEAR_HOLD);
 			}
 			break;
@@ -1495,7 +1545,9 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				int dep = p_ptr->depth;
+				if (!dep) dep = 1;
+                if (summon_specific(py, px, dep, 0))
 				{
 					*ident = TRUE;
 				}
@@ -1508,7 +1560,9 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_UNDEAD);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				int dep = p_ptr->depth;
+				if (dep < 3) dep = 3;
+				if (summon_specific(py, px, dep, SUMMON_UNDEAD))
 				{
 					*ident = TRUE;
 				}
@@ -1768,13 +1822,13 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_HOLY_CHANT:
 		{
-			if (inc_timed(TMD_BLESSED, randint(24) + 12)) *ident = TRUE;
+			if (inc_timed(TMD_BLESSED, randint(19) + 17)) *ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_PRAYER:
 		{
-			if (inc_timed(TMD_BLESSED, randint(48) + 24)) *ident = TRUE;
+			if (inc_timed(TMD_BLESSED, randint(42) + 30)) *ident = TRUE;
 			break;
 		}
 
@@ -1786,6 +1840,12 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 				p_ptr->confusing = TRUE;
 				*ident = TRUE;
 			}
+			break;
+		}
+		
+		case SV_SCROLL_BRAND_WEAPON:
+		{
+			brand_weapon(3);
 			break;
 		}
 
@@ -1877,7 +1937,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 				(cp_ptr->spell_book != TV_PRAYER_BOOK)) strongdark = TRUE;
 			if (!p_ptr->resist_blind)
 			{
-				(void)inc_timed(TMD_BLIND, 3 + randint(5));
+				(void)inc_timed(TMD_BLIND, 3 + randint(6));
 			}
 			if (unlite_area(10, 3, strongdark)) *ident = TRUE;
 			break;
@@ -1902,7 +1962,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			{
 				msg_print("Your pace falters for a moment, but doesn't change.");
 			}
-			if (inc_timed(TMD_SLOW, randint(30) + 15)) *ident = TRUE;
+			if (inc_timed(TMD_SLOW, randint(25) + 17)) *ident = TRUE;
 			break;
 		}
 #endif
@@ -2039,7 +2099,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		{
 			*ident = TRUE;
 			/* pick up objects from a distance (in cmd2.c) */
-			if (!do_telekinesis(8 + goodluck/2))
+			if (!do_telekinesis(9 + goodluck/2))
 			{
 				/* returns FALSE only if no direction was entered */
 				use_charge = FALSE;
@@ -2169,11 +2229,11 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			}
 			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
-				if (set_timed(TMD_FAST, randint(30) + 15)) *ident = TRUE;
+				if (set_timed(TMD_FAST, randint(25) + 17)) *ident = TRUE;
 			}
 			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
-				(void)inc_timed(TMD_FAST, 5);
+				(void)inc_timed(TMD_FAST, 6);
 			}
 			break;
 		}
@@ -2384,7 +2444,15 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
             pwr += adj_chr_charm[p_ptr->stat_ind[A_CHR]] + enhanced;
 			if (randint(p_ptr->skills[SKILL_DEV] + goodluck + enhanced) > 70)
 				pwr += 7;
-			if (fear_monster(dir, pwr)) *ident = TRUE;
+			/* sometimes fire a ball instead */
+			if (randint(p_ptr->skills[SKILL_DEV] + goodluck + enhanced) > 70)
+			{
+				if (fire_ball(GF_TURN_ALL, dir, pwr, 2)) *ident = TRUE;
+			}
+			else
+			{
+				if (fear_monster(dir, pwr)) *ident = TRUE;
+			}
 			break;
 		}
 
@@ -2828,7 +2896,7 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
             }
             else
             {
-			  detect_all();
+			  detect_all(TRUE);
             }
 			*ident = TRUE;
 			break;
@@ -2879,11 +2947,11 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 			}
 			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
-				if (set_timed(TMD_FAST, randint(30) + 15)) *ident = TRUE;
+				if (set_timed(TMD_FAST, randint(31) + 17)) *ident = TRUE;
 			}
 			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
-				(void)inc_timed(TMD_FAST, 5);
+				(void)inc_timed(TMD_FAST, 6);
 			}
 			break;
 		}
@@ -3221,11 +3289,11 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				}
 				if (!p_ptr->timed[TMD_FAST])
 				{
-					(void)set_timed(TMD_FAST, randint(75) + 75);
+					(void)set_timed(TMD_FAST, randint(90) + 60);
 				}
 				else
 				{
-					(void)inc_timed(TMD_FAST, 5);
+					(void)inc_timed(TMD_FAST, 6);
 				}
 				break;
 			}
@@ -3277,13 +3345,13 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				(void)clear_timed(TMD_CHARM);
 				(void)clear_timed(TMD_FRENZY);
 	            if (p_ptr->peace) /* prevents rage */;
-	            else (void)inc_timed(TMD_SHERO, randint(50) + 50);
-				(void)inc_timed(TMD_BLESSED, randint(50) + 50);
-				(void)inc_timed(TMD_OPP_ACID, randint(50) + 50);
-				(void)inc_timed(TMD_OPP_ELEC, randint(50) + 50);
-				(void)inc_timed(TMD_OPP_FIRE, randint(50) + 50);
-				(void)inc_timed(TMD_OPP_COLD, randint(50) + 50);
-				(void)inc_timed(TMD_OPP_POIS, randint(50) + 50);
+	            else (void)inc_timed(TMD_SHERO, randint(60) + 30);
+				(void)inc_timed(TMD_BLESSED, randint(60) + 30);
+				(void)inc_timed(TMD_OPP_ACID, randint(60) + 30);
+				(void)inc_timed(TMD_OPP_ELEC, randint(60) + 30);
+				(void)inc_timed(TMD_OPP_FIRE, randint(60) + 30);
+				(void)inc_timed(TMD_OPP_COLD, randint(60) + 30);
+				(void)inc_timed(TMD_OPP_POIS, randint(60) + 30);
 				break;
 			}
 
@@ -3329,7 +3397,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s glows bright white...", o_name);
 				msg_print("An image forms in your mind...");
-				detect_all();
+				detect_all(TRUE);
 				break;
 			}
 
@@ -3344,19 +3412,23 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 
 			case ACT_RESIST:
 			{
-				msg_format("Your %s glows many colours...", o_name);
-				(void)inc_timed(TMD_OPP_ACID, randint(20) + 20);
-				(void)inc_timed(TMD_OPP_ELEC, randint(20) + 20);
-				(void)inc_timed(TMD_OPP_FIRE, randint(20) + 20);
-				(void)inc_timed(TMD_OPP_COLD, randint(20) + 20);
-				(void)inc_timed(TMD_OPP_POIS, randint(20) + 20);
+				int dura = randint(18) + 24;
+                msg_format("Your %s glows many colours...", o_name);
+				(void)inc_timed(TMD_OPP_ACID, dura);
+				(void)inc_timed(TMD_OPP_ELEC, dura);
+				(void)inc_timed(TMD_OPP_FIRE, dura);
+				(void)inc_timed(TMD_OPP_COLD, dura);
+				(void)inc_timed(TMD_OPP_POIS, dura);
 				break;
 			}
 
 			case ACT_SLEEP:
 			{
+				int pwr = p_ptr->lev + 2 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
 				msg_format("Your %s glows deep blue...", o_name);
-				sleep_monsters_touch();
+				/* now has a radius of (at least) 3 */
+				fire_spread(GF_OLD_SLEEP, pwr, 3 + (goodluck/4));
+				/* sleep_monsters_touch(); */
 				break;
 			}
 
@@ -3447,11 +3519,11 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				}
 				if (!p_ptr->timed[TMD_FAST])
 				{
-					(void)set_timed(TMD_FAST, randint(20) + 20);
+					(void)set_timed(TMD_FAST, randint(18) + 24);
 				}
 				else
 				{
-					(void)inc_timed(TMD_FAST, 5);
+					(void)inc_timed(TMD_FAST, 6);
 				}
 				break;
 			}
@@ -3461,7 +3533,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("Your %s glows deep blue...", o_name);
 				(void)clear_timed(TMD_AFRAID);
 				(void)clear_timed(TMD_POISONED);
-				if (randint(100) < 30) (void)clear_timed(TMD_CHARM);
+				if (randint(100) < 33) (void)clear_timed(TMD_CHARM);
 				break;
 			}
 
@@ -3629,9 +3701,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_TUNNELDIG:
 		    {
 			    /* spellswitch 31 makes it not stop at the first wall */
+			    /* set in golem_to_mud() */
 				msg_format("Your %s pulsates powerfully...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-			    spellswitch = 31;
+				golem_to_mud(dir);
 			    break;
 		    }
 
@@ -3728,7 +3801,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_ELEC);
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(540) + 360;
 				break;
 			}
 
@@ -3737,7 +3810,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_FROST);
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(540) + 360;
 				break;
 			}
 
@@ -3746,7 +3819,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_ACID);
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(540) + 360;
 				break;
 			}
 
@@ -3755,7 +3828,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_GAS);
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(540) + 360;
 				break;
 			}
 
@@ -3764,7 +3837,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_FIRE);
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(540) + 360;
 				break;
 			}
 
@@ -3785,7 +3858,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(225) + 225;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3794,16 +3867,16 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_CONF);
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(540) + 360;
 				break;
 			}
 
-			case SV_DRAGON_GOLD:
+			case SV_DRAGON_GOLD: /* */
 			{
 				sound(MSG_BR_SOUND);
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(540) + 360;
 				break;
 			}
 
@@ -3848,7 +3921,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_print("You breathe nexus.");
 				fire_ball(GF_NEXUS, dir, 110, 2);
 #endif
-				o_ptr->timeout = rand_int(350) + 350;
+				o_ptr->timeout = rand_int(270) + 360;
 				break;
 			}
 
@@ -3913,32 +3986,32 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case SV_RING_ACID:
 			{
 				fire_ball(GF_ACID, dir, 70 + enhanced, 2);
-				inc_timed(TMD_OPP_ACID, randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				inc_timed(TMD_OPP_ACID, randint(24) + 18);
+				o_ptr->timeout = rand_int(30) + 60;
 				break;
 			}
 
 			case SV_RING_FLAMES:
 			{
 				fire_ball(GF_FIRE, dir, 80 + enhanced, 2);
-				inc_timed(TMD_OPP_FIRE, randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				inc_timed(TMD_OPP_FIRE, randint(24) + 18);
+				o_ptr->timeout = rand_int(30) + 60;
 				break;
 			}
 
 			case SV_RING_ICE:
 			{
 				fire_ball(GF_COLD, dir, 75 + enhanced, 2);
-				inc_timed(TMD_OPP_COLD, randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				inc_timed(TMD_OPP_COLD, randint(24) + 18);
+				o_ptr->timeout = rand_int(30) + 60;
 				break;
 			}
 
 			case SV_RING_LIGHTNING:
 			{
 				fire_ball(GF_ELEC, dir, 85 + enhanced, 2);
-				inc_timed(TMD_OPP_ELEC, randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				inc_timed(TMD_OPP_ELEC, randint(24) + 18);
+				o_ptr->timeout = rand_int(30) + 60;
 				break;
 			}
 		}
@@ -4042,8 +4115,8 @@ static cptr act_description[ACT_MAX] =
 	"heal (500)",
 	"heal (1000)",
 	"cure wounds (4d8)",
-	"haste self (20+d20 turns)",
-	"haste self (75+d75 turns)",
+	"haste self (4+d3 minutes)",
+	"haste self (10+d15 minutes)",
 	"fire bolt (9d8)",
 	"fire ball (72)",
 	"large fire ball (120)",
@@ -4068,7 +4141,7 @@ static cptr act_description[ACT_MAX] =
 	"phase door",
 	"door and trap destruction",
 	"detection",
-	"resistance (20+d20 turns)",
+	"resistance (4+d3 minutes)",
 	"teleport",
 	"restore life levels",
 	"magic missile (2d6)",
@@ -4083,8 +4156,8 @@ static cptr act_description[ACT_MAX] =
 	"fire branding of bolts",
 	"starlight (10d8)",
 	"mana bolt (12d8)",
-	"berserk rage (50+d50 turns)",
-	"cold resistance (20+d20 turns)",
+	"berserk rage (10+d5 minutes)",
+	"cold resistance (4+d4 minutes)",
 	"sphere of animal charming",
 	"tunneldigging",
 	"daylight and berserk rage",
@@ -4099,6 +4172,7 @@ static cptr act_description[ACT_MAX] =
 void describe_item_activation(const object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
+	s32b minute, rminute, sec, rsec;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -4116,14 +4190,50 @@ void describe_item_activation(const object_type *o_ptr)
 
 		/* Some artifacts can be activated */
 		text_out(act_description[a_ptr->activation]);
+		
+		/* convert recharge time to minutes.  I don't want to */
+		/* show anything to the player in game turns anymore */
+		/* remember that the timeout only decrements once every 10 game turns */
+		if (a_ptr->time >= 5) minute = (a_ptr->time + 1) / 6;
+		else if (a_ptr->time) sec = a_ptr->time * 10;
+		/* estimate random recharge time */
+		if (((a_ptr->randtime >= 11) && (a_ptr->time)) || (a_ptr->randtime >= 17))
+			rminute = (a_ptr->randtime + 1) / 6;
+		else rsec = a_ptr->randtime * 10;
 
-		/* Output the number of turns */
+		/* Output the number of minutes/seconds to recharge */
+		/* (round to nearest minute or 30 seconds) */
 		if (a_ptr->time && a_ptr->randtime)
-			text_out(format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime));
+		{
+			if ((minute) && (rminute))
+				text_out(format(" about every %d+d%d minutes", minute, rminute));
+			else if ((minute) && (rsec >= 30))
+				text_out(format(" about every %d minutes", minute + 1));
+			else if (minute > 1)
+				text_out(format(" about every %d minute", minute));
+			else text_out(" about every minute");
+		}
 		else if (a_ptr->time)
-			text_out(format(" every %d turns", a_ptr->time));
+		{
+			if (minute > 114)
+			{
+				s32b halfhour = (minute + 4) / 30; /* estimate */
+				s16b hour = halfhour / 2;
+				halfhour = (int)(halfhour - hour * 2);
+				if (halfhour == 1) text_out(format(" about every %d and a half hours", hour));
+				else text_out(format(" about every %d hours", hour));
+			}
+			else if (minute > 1) text_out(format(" about every %d minutes", minute));
+			else if ((minute) || (sec >= 50)) text_out(format(" about every minute", minute));
+			else text_out(format(" every %d seconds", sec));
+		}
 		else if (a_ptr->randtime)
-			text_out(format(" every d%d turns", a_ptr->randtime));
+		{
+			if (rminute) text_out(format(" about every d%d minutes", rminute));
+			else if (rsec >= 80) text_out(" about every 2 minutes");
+			else if (rsec >= 40) text_out(" about every minute");
+			else text_out(" every 30 seconds");
+		}
 
 		return;
 	}
@@ -4136,23 +4246,23 @@ void describe_item_activation(const object_type *o_ptr)
 		{
 			case SV_RING_ACID:
 			{
-				text_out("acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns");
+				text_out("acid resistance (3+d4 minutes) and acid ball (70) every 10+d5 minutes");
 				break;
 			}
 			case SV_RING_FLAMES:
 			{
-				text_out("fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns");
+				text_out("fire resistance (3+d4 minutes) and fire ball (80) every 10+d5 minutes");
 				break;
 			}
 			case SV_RING_ICE:
 			{
-				text_out("cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns");
+				text_out("cold resistance (3+d4 minutes) and cold ball (75) every 10+d5 minutes");
 				break;
 			}
 
 			case SV_RING_LIGHTNING:
 			{
-				text_out("electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns");
+				text_out("electricity resistance (3+d4 minutes) and electricity ball (85) every 10+d5 minutes");
 				break;
 			}
 		}
@@ -4168,72 +4278,72 @@ void describe_item_activation(const object_type *o_ptr)
 	{
 		case SV_DRAGON_BLUE:
 		{
-			text_out("breathe lightning (100) every 450+d450 turns");
+			text_out("breathe lightning (100) every 60+d90 minutes");
 			break;
 		}
 		case SV_DRAGON_WHITE:
 		{
-			text_out("breathe frost (110) every 450+d450 turns");
+			text_out("breathe frost (110) every 60+d90 minutes");
 			break;
 		}
 		case SV_DRAGON_BLACK:
 		{
-			text_out("breathe acid (130) every 450+d450 turns");
+			text_out("breathe acid (130) every 60+d90 minutes");
 			break;
 		}
 		case SV_DRAGON_GREEN:
 		{
-			text_out("breathe poison gas (150) every 450+d450 turns");
+			text_out("breathe poison gas (150) every 60+d90 minutes");
 			break;
 		}
 		case SV_DRAGON_RED:
 		{
-			text_out("breathe fire (200) every 450+d450 turns");
+			text_out("breathe fire (200) every 60+d90 minutes");
 			break;
 		}
 		case SV_DRAGON_MULTIHUED:
 		{
-			text_out("breathe multi-hued (250) every 225+d225 turns");
+			text_out("breathe multi-hued (250) every 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_BRONZE:
 		{
-			text_out("breathe confusion (120) every 450+d450 turns");
+			text_out("breathe confusion (120) every 60+d90 minutes");
 			break;
 		}
 		case SV_DRAGON_GOLD:
 		{
-			text_out("breathe sound (130) every 450+d450 turns");
+			text_out("breathe sound (130) every 60+d90 minutes");
 			break;
 		}
 		case SV_DRAGON_CHAOS:
 		{
-			text_out("breathe chaos/disenchant (220) every 300+d300 turns");
+			text_out("breathe chaos/disenchant (220) every 50+d50 minutes");
 			break;
 		}
 		case SV_DRAGON_LAW:
 		{
-			text_out("breathe sound/shards (230) every 300+d300 turns");
+			text_out("breathe sound/shards (230) every 50+d50 minutes");
 			break;
 		}
 		case SV_DRAGON_BALANCE:
 		{
-			text_out("breathe balance (250) every 300+d300 turns");
+			text_out("breathe balance (250) every 50+d50 minutes");
 			break;
 		}
 		case SV_DRAGON_SHINING:
 		{
-			text_out("breathe light/darkness (200) every 300+d300 turns");
+			text_out("breathe light/darkness (200) 50+d50 minutes");
 			break;
 		}
 		case SV_DRAGON_POWER:
 		{
-			text_out("breathe the elements (300) every 300+d300 turns");
+			text_out("breathe the elements (300) every 50+d50 minutes");
 			break;
 		}
 		case SV_DRAGON_ETHEREAL:
 		{
-			text_out("breathe light, dark, confusion, or nexus (230) every 300+d300 turns");
+			text_out("breathe light, dark, confusion, or nexus (230) every 50+d50 minutes");
 			break;
 		}
 	}

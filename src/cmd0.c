@@ -56,14 +56,14 @@ typedef struct
 
 /* XXX These lists show only original keyset commands even if
  * roguelike commands is turned on.
- * I don't know how to fix this.
+ * I don't know how to fix this but it should be fixed.
  */
 
 /* Magic use */
 static command_type cmd_magic[] =
 {
 	{ "Gain new spells or prayers", 'G', do_cmd_study },
-	{ "Browse a book",              'b', do_cmd_browse },
+	{ "Browse a book (P for roguelike)", 'b', do_cmd_browse },
 	{ "Cast a spell",               'm', do_cmd_cast_or_pray },
 	{ "Pray a prayer",              'p', do_cmd_cast_or_pray }
 };
@@ -74,16 +74,16 @@ static command_type cmd_action[] =
 	{ "Search for traps/doors",     's', do_cmd_search },
 	{ "Disarm a trap or chest",     'D', do_cmd_disarm },
 	{ "Rest for a while",           'R', do_cmd_rest },
-	{ "Look around",                'l', do_cmd_look },
+	{ "Look around (x for roguelike)", 'l', do_cmd_look },
 	{ "Target monster or location", '*', do_cmd_target },
-	{ "Dig a tunnel",               'T', do_cmd_tunnel },
+	{ "Dig a tunnel (^T for roguelike)", 'T', do_cmd_tunnel },
 	{ "Go up staircase",            '<', do_cmd_go_up },
 	{ "Go down staircase",          '>', do_cmd_go_down },
-	{ "Toggle search mode",         'S', do_cmd_toggle_search },
+	{ "Toggle search mode (# for roguelike)", 'S', do_cmd_toggle_search },
 	{ "Open a door or a chest",     'o', do_cmd_open },
 	{ "Close a door",               'c', do_cmd_close },
-	{ "Jam a door shut",            'j', do_cmd_spike },
-	{ "Bash a door open",           'B', do_cmd_bash }
+	{ "Jam/Spike a door (S for roguelike)", 'j', do_cmd_spike },
+	{ "Bash/Force a door open (f for roguelike)", 'B', do_cmd_bash }
 };
 
 /* Item use commands */
@@ -91,13 +91,15 @@ static command_type cmd_item_use[] =
 {
 	{ "Read a scroll",            'r', do_cmd_read_scroll },
 	{ "Quaff a potion",           'q', do_cmd_quaff_potion },
-	{ "Use a staff",              'u', do_cmd_use_staff },
+	{ "Use a staff (Z for roguelike)", 'u', do_cmd_use_staff },
+#if nolongerneeded
 	{ "Aim a wand",               'a', do_cmd_aim_wand },
-	{ "Zap a rod",                'z', do_cmd_zap_rod },
+#endif
+	{ "Zap a wand or rod",        'z', do_cmd_zap_wandorrod },
 	{ "Activate an object",       'A', do_cmd_activate },
 	{ "Eat some food",            'E', do_cmd_eat_food },
 	{ "Fuel your light source",   'F', do_cmd_refill },
-	{ "Fire your missile weapon", 'f', do_cmd_fire },
+	{ "Fire your missile weapon (t for roguelike)", 'f', do_cmd_fire },
 	{ "Throw an item",            'v', do_cmd_throw }
 };
 
@@ -108,10 +110,10 @@ static command_type cmd_item_manage[]  =
 	{ "Display inventory listing", 'i', do_cmd_inven },
 	{ "Pick up objects",           'g', do_cmd_pickup },
 	{ "Wear/wield an item",        'w', do_cmd_wield },
-	{ "Take/unwield off an item",  't', do_cmd_takeoff },
+	{ "Take/unwield off an item (T for roguelike)", 't', do_cmd_takeoff },
 	{ "Drop an item",              'd', do_cmd_drop },
-	{ "Destroy an item",           'k', do_cmd_destroy },
-	{ "Mark an item as squelch",   'K', do_cmd_mark_squelch },
+	{ "Destroy an item (^D for roguelike)", 'k', do_cmd_destroy },
+	{ "Mark an item as squelch (O for roguelike)", 'K', do_cmd_mark_squelch },
 	{ "Examine an item",           'I', do_cmd_observe },
 	{ "Inscribe an object",        '{', do_cmd_inscribe },
 	{ "Uninscribe an object",      '}', do_cmd_uninscribe },
@@ -125,12 +127,13 @@ static command_type cmd_info[] =
 	{ "Full dungeon map",             'M', do_cmd_view_map },
 	{ "Display visible monster list", '[', do_cmd_monlist },
 	{ "Display visible object list",  ']', do_cmd_itemlist },
-	{ "Locate player on map",         'L', do_cmd_locate },
+	{ "Locate player on map (W for roguelike)", 'L', do_cmd_locate },
 	{ "Help",                         '?', do_cmd_help },
 	{ "Identify symbol",              '/', do_cmd_query_symbol },
 	{ "Character description",        'C', do_cmd_change_name },
 	{ "Check knowledge",              '~', do_cmd_knowledge },
 	{ "Repeat level feeling",   KTRL('F'), do_cmd_feeling },
+	{ "Get danger feeling",     KTRL('G'), do_cmd_danger_feeling },
 	{ "Show previous message",  KTRL('O'), do_cmd_message_one },
 	{ "Show previous messages", KTRL('P'), do_cmd_messages }
 };
@@ -141,8 +144,8 @@ static command_type cmd_util[] =
 	{ "Interact with options",        '=', do_cmd_xxx_options },
 	{ "Port-specific preferences",    '!', do_cmd_port },
 
-	{ "Save and don't quit",  KTRL('S'), do_cmd_save_game },
-	{ "Save and quit",        KTRL('X'), do_cmd_quit },
+	{ "Save and don't exit",  KTRL('S'), do_cmd_save_game },
+	{ "Save and exit",        KTRL('X'), do_cmd_quit },
 	{ "Quit",                 'Q', do_cmd_quitendgame },
 	{ "Redraw the screen",    KTRL('R'), do_cmd_redraw },
 
@@ -167,6 +170,8 @@ static command_type cmd_hidden[] =
 	{ "Check knowledge",          '|', do_cmd_knowledge },
 	{ "Display menu of actions", '\n', do_cmd_menu },
 	{ "Display menu of actions", '\r', do_cmd_menu },
+	/* extra so that either a or z will work (for now at least) */
+	{ "Zap a wand or rod",        'a', do_cmd_zap_wandorrod },
 
 	{ "Toggle wizard mode",  KTRL('W'), do_cmd_wizard },
 
@@ -521,7 +526,7 @@ static bool cmd_menu(command_list *list, void *selection_p)
 
 	/* Set up the screen */
 	screen_save();
-	window_make(21, 3, 62, 17);
+	window_make(21, 3, 70, 17);
 
 	/* Select an entry */
 	evt = menu_select(&menu, &cursor, 0);

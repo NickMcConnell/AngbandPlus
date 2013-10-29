@@ -52,19 +52,8 @@ Be verbose when picking things up             [pickup_detail]
      up objects.  When walking, you always take a second partial turn to
      pick up objects; each object picked up takes 1/10th of a turn.
 
-***** <hide_squelchable>
-Hide items set as squelchable		[hide_squelchable]
-	Any items you have set to squelch will be completely invisible if this 
-option is set to on (unless the item is in your inventory).
-
-***** <squelch_worthless>
-Automatically squelch worthless items	[squelch_worthless]
-	If this option is on, all items which are worth 0 gold will 
-automatically be set to squelch.  Note that several of these items do have 
-some use.
-
 ***** <easy_alter>
-Open/Disarm doors/traps on movement    [easy_alter]
+Open/Disarm doors/traps on movement.    [easy_alter]
      Moving into a closed door will attempt once to open it, and moving 
      into a trap will attempt once to disarm it. If the player ever wishes
      to leave a known teleport trap as a guaranteed escape route, this 
@@ -273,16 +262,7 @@ Randomize some of the artifacts    [birth_randarts]
      ones. This is intended primarily for people who have played enough to
      know what most of the standard artifacts do and have got bored with
      them.  Note that savefiles with random artifacts are not guaranteed
-     to be compatible between different versions!
-
-***** <birth_randnames>
-Randomize randart names (if randarts is on)	[birth_randnames]
-	If this option is turned off, every randart will have the same name as 
-the standard artifact it is based on. This is mainly for testing and can be a 
-little weird (you could get something like "The Robe of Snowballs" which has 
-no cold-themed attributes except the cold resistance activation from the 
-standard artifact (the Sling of Snowballs)).
-	This has no effect if the randarts option is turned off.
+     to be compatible between different Angband versions!
 
 ***** <birth_autoscum>
 Auto-scum for good levels    [birth_autoscum]
@@ -332,12 +312,6 @@ Don't stack objects on the floor   [birth_no_stacking]
 Don't generate connected stairs    [birth_no_stairs]
     Never generate a staircase back to the level you came from, if you used
     a staircase to get to the level.
-
-***** <birth_cansell>
-Enable selling to shops (also affects gold)	[birth_cansell]
-	When this option is on, the game allows you to sell items to shops 
-for gold like you can in vanilla Angband. It also greatly reduces the value 
-of gold found in the dungeon and makes you start with slightly less gold.
 
 --- Monster Intelligence ---
 

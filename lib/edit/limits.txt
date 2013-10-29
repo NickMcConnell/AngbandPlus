@@ -1,5 +1,5 @@
 # File: limits.txt (DJA 1.1.0)
-# DaJangband 1.1.2
+# DaJAngband 1.1.0
 
 
 # This file is used to initialize the "lib/data/limits.raw" file, which is

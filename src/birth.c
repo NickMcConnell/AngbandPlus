@@ -574,6 +574,9 @@ static void player_wipe(bool really_wipe)
     p_ptr->corrupt = 0; /* no corruption */
     p_ptr->learnedcontrol = 0; /* no teleport control skill */
 	p_ptr->warned = 0;
+	p_ptr->game_score = 0;
+	p_ptr->lastfullmoon = 0;
+	p_ptr->last_nap = 0;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
@@ -1377,15 +1380,12 @@ static int player_birth_aux_2(bool start_at_end)
 		}
 
 		/* Gold is inversely proportional to cost */
-#ifdef EFG
         /* EFGchange unified character generation */
         /* DAJ: start with less gold if you can sell to shops
            but still enough to buy a WoR */
         if (adult_cansell) p_ptr->au = 100 * (MAX_BIRTH_COST + humanstat - cost) + 320;
         else p_ptr->au = 100 * (MAX_BIRTH_COST + humanstat - cost) + 500;
-#else
-		p_ptr->au = (100 * (48 - cost)) + 320;
-#endif
+
         /* DJA: social class should still affect starting gold */
         if ((p_ptr->sc == 1) && (adult_cansell)) p_ptr->au -= 19 + randint(35);
         else if (p_ptr->sc == 1) p_ptr->au -= 34 + randint(50);
@@ -2017,14 +2017,15 @@ for (;clash < 50;)
 				    /* restrict certain race/class combos */
                     clash = 51;
                     /* hobglib can only be rogue, alchemist, healer, necromancer or chaos warrior */
-                    /* can now also be: archer, assassin, thief, war mage */
+                    /* can now also be: archer, assassin, tourist, thief, wizard, war mage */
                     if (p_ptr->prace == 11)
                       {
                          if ((p_ptr->pclass != 7) && (p_ptr->pclass != 3) &&
                             (p_ptr->pclass != 6) && (p_ptr->pclass != 13) &&
-                            (p_ptr->pclass != 9) && (p_ptr->pclass != 2) &&
-                            (p_ptr->pclass != 16) && (p_ptr->pclass != 19) && (p_ptr->pclass != 14))
-                         clash = 11;
+                            (p_ptr->pclass != 9) && (p_ptr->pclass != 2) && (p_ptr->pclass != 1) && 
+                            (p_ptr->pclass != 16) && (p_ptr->pclass != 19) && 
+                            (p_ptr->pclass != 15) && (p_ptr->pclass != 14))
+                              clash = 11;
                       }
                     /* hobbit cannot be necromancer, war mage, barbarian, mystic, or red or yellow knight */
                     if (p_ptr->prace == 3)
@@ -2173,10 +2174,10 @@ spellswitch = 0;
 							c_name + cp_ptr->name);
   	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
   	fprintf(notes_file, "============================================================\n");
-    fprintf(notes_file, "                   CHAR.  \n");
-	fprintf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");
+    fprintf(notes_file, "                       CHAR.  \n");
+	fprintf(notes_file, "| DAY,  TIME  | DEPTH |LEVEL| EVENT\n");
 	fprintf(notes_file, "============================================================\n");
-
+/*                        "1, 00:00:%d"*/
 	/* Paranoia. Remove the notes from memory */
 	fflush(notes_file);
 #endif

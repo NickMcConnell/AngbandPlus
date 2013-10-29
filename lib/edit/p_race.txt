@@ -1,5 +1,5 @@
 # File: p_race.txt
-# DaJAngband 1.1.2
+# DaJAngband 1.1.0
 
 
 # This file is used to initialize the "lib/data/p_race.raw" file, which is
@@ -178,7 +178,7 @@ W:70:5:60:4
 F:PR_POIS
 C:0|3|4|6|8|10|11|12|13|14|15|18|19
 
-#hobligb can only be rogue, alchemist, healer, assassin, archer, thief, or necromancer
+#hobligb can only be rogue, alchemist, healer, assassin, archer, tourist, thief, or necromancer
 N:11:Hobglib
 S:1:2:-2:-1:2:-3
 R:3:13:8:0:13:4:4:-2:8
@@ -187,7 +187,7 @@ I:72:30:35
 H:68:5:63:4
 W:190:10:185:10
 F:PR_POIS
-C:3|7|9|13|14
+C:3|6|7|9|13|14|15
 
 #fairy gnome cannot be a warrior, necromancer, assassin, witch,
 # chaos warrior, or any kind of knight

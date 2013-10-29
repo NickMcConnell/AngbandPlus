@@ -1,5 +1,5 @@
 # File: p_hist.txt
-# DaJAngband 1.1.2
+# DaJAngband 1.2.0
 
 # This file is used to initialize the "lib/data/p_hist.raw" file, which is
 # used to initialize the "player history" information for the Angband game.
@@ -7,8 +7,6 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/p_hist.raw" file.
-
-# Maia history copied from OAngband
 
 # Background information (see below)
 
@@ -528,9 +526,9 @@ D:You have pale green eyes,
 N:78:79:90:50
 D:You have dark green eyes, 
 N:78:79:95:50
-D:You have piercing blue eyes.
+D:You have piercing blue eyes,
 N:78:79:100:50
-D:You have piercing green eyes.
+D:You have piercing green eyes,
 
 N:79:80:75:50
 D:straight 

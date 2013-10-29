@@ -1,5 +1,5 @@
 # File: object.txt
-# DaJAngband 1.1.2
+# DaJAngband 1.2.0
 
 
 # This file is used to initialize the "lib/data/object.raw" file, which is
@@ -95,11 +95,9 @@ I:80:1:500
 W:5:0:1:60
 A:5/1
 F:EASY_KNOW
-D:It causes blindness that lasts for 200+1d200 turns, or if you have
-D: resistance to blindness it only blinds you for 1d200 turns.
-D:It also grants telepathy which only works while you're blind.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:It causes blindness that lasts for 40+1d40 minutes, or if you have
+D: resistance to blindness it only blinds you for d40 minutes.
+D:  Most mushrooms also provide some nourishment.
 
 N:2:Good Mood
 G:,:d
@@ -107,10 +105,9 @@ I:80:2:500
 W:5:0:1:0
 A:5/1
 F:EASY_KNOW
-D:It induces charm that keeps you from attacking for 9+1d10 turns,
+D:It induces charm that keeps you from attacking for 2-3 minutes,
 D: unless you have resistance to charm.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:3:Terror
 G:,:d
@@ -119,10 +116,9 @@ W:8:0:1:0
 A:8/2
 F:EASY_KNOW
 D:It induces extreme terror (+11 speed, plus some ac, but cannot melee,
-D: shoot, or cast) that lasts for 15+1d15 turns, bypassing
+D: shoot, or cast) that lasts for 3+d2 minutes, bypassing
 D: resistance to fear.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:4:Hallucination
 G:,:d
@@ -130,11 +126,10 @@ I:80:4:333
 W:10:0:1:0
 A:10/1
 F:EASY_KNOW
-D:It causes you to hallucinate for 249+1d250 turns, unless you have
+D:It causes you to hallucinate for 35 +d35 minutes, unless you have
 D: true sight or resistance to chaos. Also has a 9% chance of raising
 D: your luck.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 #partially cures extreme bad luck, sliming, or silver poison with a cost (summons a monster)
 # but only if you are in dire need (high levels of sliming or silver poison)
@@ -147,8 +142,7 @@ F:EASY_KNOW
 D:When ingested, it grants temporary resistance to fire and cold,
 D: cures 200HP, but also makes you hallucinate wildly.  May also
 D: help out in some other emergencies as well..
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 #replaces cure blindess
 N:6:First Sight and Second Thoughts
@@ -161,8 +155,7 @@ D:It cures blindness, gives you resistance to blindness, strengthens your
 D: natural sight (alertness) and your second thoughts (saving throw), but
 D: it also supresses second sight (telepathy) and most divination magic
 D: (detection spells/items and see invisible).
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:7:Fast Attacks
 G:,:d
@@ -172,8 +165,7 @@ A:10/10:80/10
 F:EASY_KNOW
 D:It increases your melee attack speed by 1, but also severely
 D: penalizes your missile weapon skill.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:8:Extreme Irritation
 G:,:d
@@ -182,9 +174,10 @@ W:10:0:1:0
 A:8/2
 F:EASY_KNOW
 D:It drives you into a mad, careless frenzy.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
+#if (p_ptr->lev < 15) take_hit(damroll(o_ptr->dd, o_ptr->ds-2)
+#else take_hit(damroll(o_ptr->dd, o_ptr->ds)
 N:9:Idiocy
 G:,:d
 I:80:6:250
@@ -198,10 +191,12 @@ D: and also reduces intelligence or wisdom unless you have the
 D: appropriate sustain. If you're
 D: very unlucky, it'll reduce both intelligence and wisdom.
 D: It also might cause confusion or amnesia.
+D: (8d6 damage if eaten before clvl 15)
 D:  It may also be thrown to inflict 8d8 points of damage.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
+#if (p_ptr->lev < 15) take_hit(damroll(o_ptr->dd, o_ptr->ds/2)
+#else take_hit(damroll(o_ptr->dd, o_ptr->ds)
 N:10:Unhealth
 G:,:d
 I:80:10:250
@@ -214,9 +209,9 @@ D: and also reduces constitution or strength unless you have
 D: the appropriate sustain. If you're very unlucky, it'll reduce
 D: both constitution and strength.
 D: It also might cause cuts.
+D: (10d5 damage if eaten before clvl 15)
 D:  It may also be thrown to inflict 10d10 points of damage.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:11:Health
 G:,:d
@@ -224,12 +219,11 @@ I:80:18:500
 W:22:0:1:1400
 A:22/2:60/5
 F:EASY_KNOW
-D:It cures poison, blindness, 3-4 points of sliming, and all cuts, and
+D:It cures poison, blindness, 4-5 points of sliming, and all cuts, and
 D: grants you short-lasting poison resistance.
 D: It also restores strength and constitution to maximum if they are
 D: currently below maximum.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:12:Sneakiness
 G:,:d
@@ -241,21 +235,7 @@ D:It cures amnesia, charm, slowing, and all stunning, and grants
 D: you temporary super sneakiness (which includes bonuses to
 D: stealth, speed, and alertness). It also restores dexterity and
 D: charisma to maximum if they are currently below maximum.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
-
-#N:18:Clear Mind (copied here to compare to similar ones easier)
-#G:,:d
-#I:80:17:500
-#W:22:0:1:1400
-#A:22/2:60/5
-#F:EASY_KNOW
-#D:It cures confusion, hallucenation, charm, frenzy, fear, and 2
-#D: points of silver poison, and grants short-lasting resistance to
-#D: confusion. It also restores wisdom and intelligence to maximum
-#D: if they are currently below maximum.
-#D:  Mushrooms provide nourishment for about 250 turns under normal
-#D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:13:Potluck
 G:,:d
@@ -265,8 +245,7 @@ A:11/3:61/11
 F:EASY_KNOW
 D:Has a random effect, may be good or bad.  Luck may have an effect on
 D: what it does.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:14:Unlucky Munchkin
 G:,:d
@@ -279,21 +258,23 @@ D: and enchanced spellcasting, including the ability to read scrolls and books
 D: while blind. If not, it gives you multiple combat buffs (heroism, berserker,
 D: and blessing).
 D: Either way, it lowers your luck by 2 or 3.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
+#if (p_ptr->lev < 6) take_hit(damroll(o_ptr->dd, o_ptr->ds/2)
+#else take_hit(damroll(o_ptr->dd, o_ptr->ds)
+# added BRAND_POIS and took damage from 9d4 to 3d4
 N:15:Poison
 G:,:d
 I:80:0:250
 W:5:0:1:0
 A:10/1
-P:0:3d9:0:0:0:3
-F:EASY_KNOW | PTHROW
-D:It poisons you (doing 6d6 damage and adding 15+1d15 points to the
+P:0:3d4:0:0:0:3
+F:EASY_KNOW | PTHROW | BRAND_POIS
+D:It poisons you (doing 9d4 damage and adding 15+1d15 points to the
 D: poison counter), unless you have resistance to poison.
+D: (9d2 damage if eaten before clvl 6)
 D:  It may also be thrown to inflict 6d6 points of damage.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:16:Pricy Luckfinding
 G:,:d
@@ -303,8 +284,7 @@ A:7/7:77/7
 F:EASY_KNOW
 D:It raises your luck by 1d3 and lowers one of your stats, with a chance
 D: to ignore sustains.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:17:Stone Skin
 G:,:d
@@ -312,9 +292,8 @@ I:80:5:500
 W:20:0:1:0
 A:18/2
 F:EASY_KNOW
-D:It gives you stone skin (-5 speed, +30ac) for 100 + d100 turns.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:It gives you stone skin (-5 speed, +30ac) for 15 +d20 minutes.
+D:  Most mushrooms also provide some nourishment.
 
 N:18:Clear Mind
 G:,:d
@@ -322,13 +301,14 @@ I:80:17:500
 W:22:0:1:1500
 A:22/2:60/5
 F:EASY_KNOW
-D:It cures confusion, hallucenation, charm, frenzy, fear, and 2
+D:It cures confusion, hallucenation, charm, frenzy, fear, and 2-3
 D: points of silver poison, and grants short-lasting resistance to
 D: confusion. It also restores wisdom and intelligence to maximum
 D: if they are currently below maximum.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
+#if (p_ptr->lev < 15) take_hit(damroll(o_ptr->dd, o_ptr->ds-2)
+#else take_hit(damroll(o_ptr->dd, o_ptr->ds)
 N:19:the Singing Drunk
 G:,:d
 I:80:11:260
@@ -342,9 +322,9 @@ D:  It inflicts 6d6 points of damage, cancels temporary haste, reduces
 D: dexterity and/or charisma, sometimes bypassing sustains. More than
 D: half the time, it also aggravates monsters when you eat it and has
 D: a chance to slow you down a little bit.
+D: (6d4 damage if eaten before clvl 15)
 D:  It may also be thrown to inflict 6d6 points of damage.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 N:20:Cure Serious Wounds
 G:,:d
@@ -354,8 +334,7 @@ A:15/1
 F:EASY_KNOW
 D:It cures 4d8 points of damage (or 1/5 of your maxhps, whichever is more).
 D: Also cures 1 point of silver poison and 1 point of sliming.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:  Most mushrooms also provide some nourishment.
 
 ##### Normal Food #####
 
@@ -365,59 +344,57 @@ I:80:35:5000
 W:0:0:10:3
 A:0/1:10/1
 F:EASY_KNOW
-D:It provides nourishment for about 2500 turns under normal conditions.
+D:It provides nourishment for about 7 hours under normal conditions.
 
-# It's hard enough to double as a throwing weapon (hehe)
+# It's hard enough to double as a weak throwing weapon (hehe)
 N:22:& hard biscuit~
 G:,:U
-I:80:32:500
+I:80:32:535
 W:0:0:2:1
 F:EASY_KNOW | PTHROW
-P:0:1d2:0:0:0:4
-D:It provides nourishment for about 250 turns under normal conditions.
+P:0:1d1:0:0:0:4
+D:It provides nourishment for about an hour and a half under normal conditions.
 
 N:23:& strip~ of beef jerky
 G:,:u
-I:80:33:1500
+I:80:33:1450
 W:0:0:2:2
 A:0/5
 M:60:1d3
 F:EASY_KNOW
-D:It provides nourishment for about 750 turns under normal conditions.
+D:It provides nourishment for about 2 hours under normal conditions.
 
 N:24:& slime mold~
 G:,:g
-I:80:36:3000
+I:80:36:2880
 W:1:0:5:2
 A:3/1
 F:EASY_KNOW
-D:It provides nourishment for about 1500 turns under normal conditions.
+D:It provides nourishment for about 4 hours under normal conditions.
 
 N:25:& piece~ of elvish waybread
 G:,:B
-I:80:37:7500
+I:80:37:7400
 W:5:0:3:120
 A:10/2:25/2
 F:EASY_KNOW
 D:It cures 4d8 points of damage (or 17% of your max hps, whichever is more),
-D: neutralizes poison, cures 5 points
-D: of silver poison, and 3 points of sliming.
-D:  It provides nourishment for about 3750 turns under normal
-D: conditions.
+D: neutralizes poison, cures 5 points of silver poison, and 5 points of sliming.
+D:  It provides nourishment for over 10 hours under normal conditions.
 
 N:26:& pint~ of fine ale
 G:,:y
-I:80:38:500
+I:80:38:480
 W:0:0:5:1
 F:EASY_KNOW
-D:It provides nourishment for about 250 turns under normal conditions.
+D:It provides nourishment for about 40 minutes under normal conditions.
 
 N:27:& pint~ of fine wine
 G:,:r
-I:80:39:900
+I:80:39:720
 W:0:0:10:2
 F:EASY_KNOW
-D:It provides nourishment for about 500 turns under normal conditions.
+D:It provides nourishment for about an hour under normal conditions.
 
 
 ##### Edged Weapons tval 23 #####
@@ -427,7 +404,7 @@ G:/:U
 I:22:1:0
 W:5:0:25:40
 A:5/2
-M:50:1d5
+M:60:1d5
 P:0:1d5:0:0:0:6
 F:SHOW_MODS | THROWN
 D:A small axe balanced for throwing.
@@ -1022,7 +999,7 @@ W:20:0:60:100
 A:20/3
 P:0:1d2:0:0:0:4
 F:SHOW_MODS | TUNNEL
-#D:A small spade forged of steel with gnomish craftmanship.
+D:A small spade forged of steel with gnomish craftmanship.
 
 N:86:& dwarven shovel~
 G:\:B
@@ -1038,7 +1015,7 @@ G:\:s
 I:20:4:1
 W:5:0:150:50
 A:10/2
-P:0:1d3:0:0:0:7
+P:0:1d4:0:0:0:9
 F:SHOW_MODS | TUNNEL
 D:A heavy mining tool with a long, slightly curved head that tapers 
 D:to chisel points on both ends.
@@ -1048,7 +1025,7 @@ G:\:g
 I:20:5:2
 W:30:0:180:300
 A:30/3
-P:0:1d3:0:0:0:7
+P:0:1d4:0:0:0:9
 F:SHOW_MODS | TUNNEL
 D:A crude, ugly but effective pickaxe.  Made in enormous quantities for 
 D:the slave-mines of Durthang.
@@ -1058,7 +1035,7 @@ G:\:b
 I:20:6:4
 W:50:0:250:700
 A:46/3
-P:0:1d8:0:0:0:7
+P:0:2d4:0:0:0:9
 F:SHOW_MODS | TUNNEL
 D:A short but heavy pick, like those that delved deep Moria, with runes to 
 D:break the sinews of mountains.
@@ -1067,8 +1044,8 @@ N:90:& broken pick~
 G:\:s
 I:20:8:0
 W:5:0:110:3
-A:11/15
-P:0:1d3:0:0:0:6
+A:11/14
+P:0:1d3:0:0:0:8
 F:SHOW_MODS | TUNNEL
 
 ##### Armor #####
@@ -1095,6 +1072,7 @@ I:30:6:0
 W:20:0:80:50
 A:20/1
 P:6:1d2:0:0:0:2
+F:IGNORE_FIRE
 D:A set of double-lined leather boots, with toes and heels reinforced with iron.
 
 N:94:& hard leather cap~
@@ -1224,8 +1202,8 @@ D:leather.
 N:108:metal scale mail~
 G:[:s
 I:37:3:0
-W:23:0:250:550
-A:23/1
+W:20:0:250:500
+A:20/1
 P:13:1d4:-2:0:0:1
 D:A heavy shirt of overlapping steel scales backed by leather, with 
 D:matching skirt and sleeves.
@@ -1235,16 +1213,16 @@ G:[:s
 I:37:4:0
 W:25:0:220:750
 A:25/1
-P:14:1d4:-2:0:0:1
+P:15:1d4:-2:0:0:1
 D:A hauberk, leggings, and sleeves of interlocking steel rings, well padded 
 D:with leather.
 
 N:110:rusty chain mail~
 G:[:r
 I:37:1:0
-W:25:0:200:35
-A:25/2
-P:14:1d4:-5:0:-8:1
+W:24:0:200:15
+A:24/2
+P:15:1d4:-5:0:-8:2
 D:Each link of this suit is brittle with rust, and the corroded rings 
 D:are stiff and weakened.
 
@@ -1253,27 +1231,28 @@ G:[:s
 I:37:6:0
 W:28:0:250:900
 A:28/1
-P:16:1d4:-2:0:0:1
+P:18:1d4:-2:0:0:1
 D:A hauberk, leggings, and sleeves of interlocking steel rings, 
 D:strategically reinforced at vital locations with a second layer 
 D:of chain, all over a layer of heavy padding.
 
-N:112:bar chain mail~
-G:[:s
-I:37:8:0
-W:35:0:280:950
-A:35/2
-P:18:1d4:-2:0:0:1
-D:A hauberk, leggings, and sleeves of interlocking steel rings, 
-D:reinforced around the shoulders with segmented plates of steel, 
-D:all over a layer of heavy padding.
+#N:112:unused now
+#N:112:bar chain mail~
+#G:[:s
+#I:37:8:0
+#W:35:0:280:950
+#A:35/2
+#P:18:1d4:-2:0:0:1
+#D:A hauberk, leggings, and sleeves of interlocking steel rings, 
+#D:reinforced around the shoulders with segmented plates of steel, 
+#D:all over a layer of heavy padding.
 
 N:113:metal brigandine armour~
 G:[:s
 I:37:9:0
 W:35:0:290:1100
 A:35/2
-P:19:1d4:-3:0:0:1
+P:21:1d4:-3:0:0:1
 D:A stiff suit of armour composed of small metal plates sewn to an 
 D:inner layer of heavy canvas, and covered with a second layer of 
 D:cloth.
@@ -1281,52 +1260,53 @@ D:cloth.
 N:114:partial plate armour~
 G:[:W
 I:37:12:0
-W:45:0:260:1200
-A:45/1
-P:22:1d6:-3:0:0:1
+W:40:0:260:1200
+A:40/1
+P:23:1d6:-3:0:0:1
 D:A steel corselet and vambraces over a skirt and leggings of chain.
 
 N:115:metal lamellar armour~
 G:[:W
 I:37:13:0
-W:45:0:340:1250
-A:45/2
-P:23:1d6:-3:0:0:1
+W:40:0:340:1250
+A:40/2
+P:24:1d6:-3:0:0:1
 D:a suit of laced and overlapping metal plates.
 
 N:116:full plate armour~
 G:[:W
 I:37:15:0
-W:45:0:380:1350
+W:45:0:380:1400
 A:45/1
-P:25:2d4:-3:0:0:1
+P:28:2d4:-3:0:0:1
 D:A full suit of carefully fitted plates, with hinged joints backed 
 D:by chain, and light padding underneath.
 
-N:117:ribbed plate armour~
-G:[:W
-I:37:18:0
-W:50:0:380:1500
-A:50/2
-P:28:2d4:-3:0:0:1
-D:A full suit of finely fitted metal armour consisting of steel plates 
-D:reinforced ridging.
+#N:117:unused now
+#N:117:ribbed plate armour~
+#G:[:W
+#I:37:18:0
+#W:50:0:380:1500
+#A:50/2
+#P:28:2d4:-3:0:0:1
+#D:A full suit of finely fitted metal armour consisting of steel plates 
+#D:reinforced ridging.
 
 N:118:adamantite plate mail~
 G:[:G
 I:37:30:0
 W:70:0:420:20000
 A:70/4
-P:40:2d4:-4:0:0:1
+P:45:2d4:-4:0:0:1
 F:IGNORE_ACID
 D:An exquisite suit of nearly impenetrable adamantite.
 
 N:119:mithril plate mail~
 G:[:B
 I:37:25:0
-W:60:0:300:15000
+W:60:0:300:14000
 A:60/3
-P:35:2d4:-3:0:0:1
+P:38:2d4:-3:0:0:1
 F:IGNORE_ACID
 D:A shimmering suit of true-silver, forged long ago by dwarven smiths of 
 D:legend.  It gleams with purest white as you gaze upon it.
@@ -1336,7 +1316,7 @@ G:[:B
 I:37:20:0
 W:52:0:150:7000
 A:52/3
-P:28:1d4:-1:0:0:1
+P:29:1d4:-1:0:0:1
 F:IGNORE_ACID
 D:This wondrous suit of fine-linked chain shimmers as though of pure silver.
 
@@ -1350,15 +1330,33 @@ D:This wondrous suit of fine-linked chain shimmers as though of pure silver.
 #D:A suit of chainmail with a full second layer of reinforcement. It 
 #D:weighs heavily on the shoulders.
 
-# This shield does not belong here
+#exploding throwing weapons (one use only,  uses FLASK tval)
+N:121:& hand grenade~
+G:!:D
+I:77:4:0
+W:15:0:20:163
+A:16/4:44/4
+P:0:8d3:0:1:0:7
+M:65:2d4
+F:SHOW_MODS | THROWN | EXPLODE_A | IGNORE_COLD
+D:A makeshift grenade made from a compact container of oil, explosive, and
+D: shrapnel with a fuse attached.
 
-N:122:& Shield~ of Deflection
-G:):B
-I:34:10:0
-W:70:0:80:10000
-A:70/4
-P:12:1d5:0:0:10:3
-F:IGNORE_ACID
+#8d4 + throwing multiplier (normal x1.4 but may get higher) + brand
+# As a quick estimate I'm guessing it won't be junk, but it still
+# probably won't be carried around for long.
+N:122:& firebomb~
+G:~:R
+I:77:6:0
+W:36:0:30:536
+A:36/6:64/6
+P:0:9d4:0:0:0:5
+M:56:2d3
+F:THROWN | EXPLODE_A | BRAND_FIRE | BRAND_ACID | 
+F:SHOW_MODS | BAD_WEAP
+F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
+D: This piece of dark magic will explode in a blast of fire and acid when
+D: thrown at an enemy.
 
 
 ### The Cloaks ###
@@ -1573,7 +1571,7 @@ F:HEAVY_CURSE | TELEPORT | WIS | CHR | INFRA | HIDE_TYPE
 N:150:Nether Resistance
 G:=:d
 I:45:13:0
-W:56:6:2:4000
+W:56:6:2:3000
 A:56/6
 F:RES_NETHR | EASY_KNOW
 D:it provides resistance to nether forces.
@@ -1581,21 +1579,21 @@ D:it provides resistance to nether forces.
 N:151:Damage
 G:=:d
 I:45:29:0
-W:20:0:2:500
+W:20:0:2:550
 A:20/1
 D:It boosts your to-dam value.
 
 N:152:Accuracy
 G:=:d
 I:45:28:0
-W:20:0:2:500
-A:20/1
+W:20:0:2:450
+A:18/1
 D:It boosts your to-hit value.
 
 N:153:Protection
 G:=:d
 I:45:16:0
-W:10:0:2:500
+W:10:0:2:400
 A:10/1
 D:It increases your armor class.
 
@@ -1803,7 +1801,19 @@ D: if you are currently in one.
 D:  This inflicts 2d8 points of damage on any light-sensitive creatures
 D: within the radius of the spell.
 
-## XXX 182 XXX ##
+N:182:Brand Weapon
+G:?:w
+I:70:43:0
+W:28:0:5:550
+A:28/3:56/3
+F:EASY_KNOW
+D:Temporarily brands the currently wielded melee weapon with fire (1/3 chance)
+D: cold (1/2 chance), or lightning (1/6 chance or more with good luck), and at
+D: the same time attempts to improve the to-hit bonus and the to-dam bonus of
+D: the same weapon.  The branding effect lasts 500 game turns.  (A player turn
+D: takes 10 game turns at normal speed.)
+D:  The spell may fail if the item is an artifact, a cursed item, or if it
+D: is already branded.
 
 ## XXX 183 XXX ##
 
@@ -1878,11 +1888,12 @@ D: still be attacked if you are standing on the glyph!
 N:191:*Remove Curse*
 G:?:w
 I:70:15:0
-W:50:0:5:8000
+W:50:0:5:7000
 A:50/2:95/1
 F:EASY_KNOW
 D:It removes all ordinary and heavy curses from all equipped objects.
-D:  Permanent curses are unaffected.
+D:  It might even remove a permanent curse, but be warned that items
+D: with permanent curses will re-curse themselves after a short time.
 
 #(combined with object detection)
 #N:192:Treasure Detection
@@ -2013,7 +2024,7 @@ W:1:0:5:0
 A:1/1
 F:EASY_KNOW
 D:It darkens all squares within 3 squares of you, plus the entire room
-D: if you are currently in one; and blinds you for 3+1d5 turns unless
+D: if you are currently in one; and blinds you for about a minute unless
 D: you have resistance to blindness.
 D: It also damages any creatures of light who are in the darkened area.
 
@@ -2101,7 +2112,7 @@ W:1:0:5:15
 A:1/1
 F:EASY_KNOW
 D:It blesses you (a bonus of +5 to armor class and +10 to-hit) for
-D: 6+1d12 turns.
+D: 1-3 minutes.
 
 N:218:Holy Chant
 G:?:w
@@ -2110,7 +2121,7 @@ W:10:0:5:40
 A:10/1
 F:EASY_KNOW
 D:It blesses you (a bonus of +5 to armor class and +10 to-hit) for
-D: 12+1d24 turns.
+D: 3-6 minutes.
 
 N:219:Holy Prayer
 G:?:w
@@ -2119,7 +2130,7 @@ W:25:0:5:80
 A:25/1
 F:EASY_KNOW
 D:It blesses you (a bonus of +5 to armor class and +10 to-hit) for
-D: 24+1d48 turns.
+D: 5-12 minutes.
 
 N:220:Word of Recall
 G:?:w
@@ -2142,19 +2153,19 @@ D:It destroys a circular area centered at you with a radius of 15
 D: squares, randomly placing new walls and floor space (stairs are
 D: immune).  All monsters and objects (excluding artifacts) are removed
 D: from the affected area.
-D:  This effect will also cause blindness lasting for 10+1d10 turns
+D:  This effect will also cause blindness lasting for about 2-3 minutes
 D: unless you have resistance to either blindness or light.
 
 ##### Potions #####
 
 N:222:Pepsi
 G:!:d
-I:75:2:300
+I:75:2:360
 W:0:0:4:2
 A:0/2:45/4
 P:0:1d1:0:0:0:3
 F:EASY_KNOW
-D:It provides nourishment for about 200 turns under normal conditions.
+D:It provides nourishment for half an hour under normal conditions.
 D: It also has a 2% chance of raising your luck.
 D:  Note: These are always Caramel Color Potions.
 
@@ -2165,7 +2176,7 @@ W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It has no effect apart from providing nourishment (for about 125 turns
+D:It has no effect apart from providing nourishment (for about 20 minutes
 D: under normal conditions).
 D:  Note: These are always Light Brown Potions.
 
@@ -2176,7 +2187,7 @@ W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It has no effect apart from providing nourishment (for about 100 turns
+D:It has no effect apart from providing nourishment (for about 15 minutes
 D: under normal conditions).
 D:  Note: These are always Clear Potions.
 
@@ -2311,14 +2322,14 @@ D: are currently below maximum.
 
 N:237:Cure Light Wounds
 G:!:d
-I:75:34:50
+I:75:34:48
 W:0:0:4:15
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It cures 2d8 points of damage (or 10% of your maxhps, whichever is
 D: more), heals 10 points worth of cuts, and cures blindness.
-D:  It also provides nourishment for about 25 turns under normal
+D:  It also provides nourishment for about 5 minutes under normal
 D: conditions.
 
 N:238:Clumsiness
@@ -2341,7 +2352,7 @@ D:It reduces constitution (unless you have sustain constitution).
 
 N:240:Cure Serious Wounds
 G:!:d
-I:75:35:100
+I:75:35:96
 W:3:0:4:42
 A:3/1
 P:0:1d1:0:0:0:0
@@ -2349,12 +2360,12 @@ F:EASY_KNOW
 D:It cures 4d8 points of damage (or 18% of your maxhps, whichever
 D: is more), heals half of all cut damage plus
 D: another 50 points, and cures blindness and confusion.
-D:  It also provides nourishment for about 50 turns under normal
+D:  It also provides nourishment for about 8 minutes under normal
 D: conditions.
 
 N:241:Cure Critical Wounds
 G:!:d
-I:75:36:100
+I:75:36:96
 W:5:0:4:105
 A:5/1
 P:0:1d1:0:0:0:0
@@ -2362,20 +2373,20 @@ F:EASY_KNOW
 D:It cures 6d8 points of damage (or 23% of your maxhps, whichever
 D: is more), cures all stunning, heals all cut
 D: damage, neutralizes poison, and cures blindness and confusion.
-D:  It also provides nourishment for about 50 turns under normal
+D:  It also provides nourishment for about 8 minutes under normal
 D: conditions.
 
 N:242:Healing
 G:!:d
-I:75:37:500
+I:75:37:400
 W:15:0:4:300
 A:15/1:60/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It cures 300 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, cures blindness and confusion, and
-D: cures 5 points of silver poison.
-D:  It also provides nourishment for about 100 turns under normal
+D: cures 4 points of silver poison and 6 points of slime.
+D:  It also provides nourishment for about half an hour under normal
 D: conditions.
 
 #added more allocation lines to let divers find stat potions deeper
@@ -2403,44 +2414,40 @@ D: experience point total plus 10, whichever is less.
 
 N:245:Sleep
 G:!:d
-I:75:11:100
+I:75:11:60
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It induces paralyzation for 3+1d4 turns, unless you have free action.
-D:  It also provides nourishment for about 50 turns under normal
-D: conditions.
+D:It induces paralyzation for 30-90 seconds, unless you have free action.
 
 N:246:Blindness
 G:!:d
-I:75:7:50
+I:75:7:36
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It induces blindness for 99+1d100 turns, unless you have resistance to
+D:It induces blindness for 20+d30 minutes, unless you have resistance to
 D: blindness.
 
 N:247:Confusion
 G:!:d
-I:75:9:50
+I:75:9:36
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It induces confusion for 14+1d20 turns, unless you have resistance to
+D:It induces confusion for 2-6 minutes, unless you have resistance to
 D: confusion.
-D:  It also provides nourishment for about 25 turns under normal
-D: conditions.
 
 N:248:Poison
 G:!:d
 I:75:6:0
 W:3:0:4:0
 A:3/1
-P:0:1d5:0:0:0:5
-F:EASY_KNOW | PTHROW
+P:0:1d3:0:0:0:5
+F:EASY_KNOW | PTHROW | BRAND_POIS
 D:It poisons you (adding 9+1d15 points to the poison counter), unless
 D: you have resistance to poison.  It also sometimes lowers either
 D: strength, dexterity, or constitution unless you have the stat
@@ -2453,7 +2460,7 @@ W:1:0:4:75
 A:2/1:40/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It hastes you (+10 to speed) for 15+1d25 turns (or 5 additional turns
+D:It hastes you (+10 to speed) for about 3-6 minutes (or 1 additional minute
 D: if you already are under the effect of a temporary haste
 D: enchantment).
 
@@ -2464,10 +2471,8 @@ W:1:0:4:0
 A:1/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It slows you down (-10 to speed) for 15+1d25 turns; this duration is
+D:It slows you down (-10 to speed) for about 3-6 minutes; this duration is
 D: cumulative with other temporary slowing enchantments.
-D:  It also provides nourishment for about 25 turns under normal
-D: conditions.
 
 #added more allocation lines to let divers find stat potions deeper
 N:251:Dexterity
@@ -2491,6 +2496,19 @@ D: effect.
 #F:EASY_KNOW
 #D:It restores dexterity to maximum if it is currently below maximum.
 
+N:252:Poison Resistance
+G:!:d
+I:75:47:21
+W:30:0:4:160
+A:30/3
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:It grants you temporary resistance to poison for 2-4 minutes.
+D: If you are unlucky, it may give only weak poison resistance instead.
+D:  Temporary resistance is cumulative with permanent resistance, if one
+D: of your equipped items provides that.  The duration is cumulative
+D: with other magic providing temporary poison resistance.
+
 #N:253:Restore Constitution
 #G:!:d
 #I:75:46:25
@@ -2511,26 +2529,17 @@ M:33:1d3
 F:EASY_KNOW
 D:It detects all monsters (including invisible monsters) for one turn.
 
-#this potion was nothing but an annoyance
-#N:254:Lose Memories
-#G:!:d
-#I:75:13:30
-#W:10:0:4:0
-#A:10/1
-#P:0:1d1:0:0:0:0
-#F:EASY_KNOW
-#D:It drains 25% of your experience total, unless you have hold life.
-
+#!Lose memories was nothing but an annoyance
 #..so let's replace it with something even more annoying <evil chuckle>
 N:254:Multi-hued Poison
 G:!:d
-I:75:13:222
+I:75:13:3
 W:50:0:4:0
 A:40/2:90/5
 P:0:1d10:0:0:0:9
 D:It disguises itself as another random type of potion, so it can be
 D: dangerous even when it's been identified.  When drunk, it poisons
-D: you and lowers a random stat by 1d2, ignoring sustains. Poison
+D: you and lowers a random stat, ignoring sustains. Poison
 D: resistance protects against the poison but not the stat drain.
 D:  Chaos resistance or true sight prevent it from disguising itself
 D: as another type of potion.
@@ -2546,7 +2555,7 @@ P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It induces vomiting, which will result in severe hunger but will also
 D: clear away all poison.
-D:  This will also cause 4 turns of paralysis, even if you have free
+D:  This will also cause 40 seconds of paralysis, even if you have free
 D: action.
 
 N:256:Enlightenment
@@ -2566,7 +2575,7 @@ A:1/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It cures 10 points of damage, removes fear and grants you heroism
-D: (resistance to fear, and a bonus of +12 to-hit) for 25+1d25 turns.
+D: (resistance to fear, and a bonus of +12 to-hit) for about 4-8 minutes.
 
 N:258:Berserk Strength
 G:!:d
@@ -2577,7 +2586,7 @@ P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It cures 30 points of damage, removes fear and grants you berserk
 D: strength (resistance to fear, a bonus of +12 to-hit, and a penalty of
-D: -10 to AC) for 25+1d25 turns.
+D: -10 to AC) for about 4-8 minutes.
 
 #replaces boldness (which is unnesesary when we have !heroism)
 N:259:Dragonbreath
@@ -2606,7 +2615,7 @@ W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It grants you temporary resistance to fire for 10+1d10 turns.
+D:It grants you temporary resistance to fire for about 2-4 minutes.
 D:  Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
 D: with other magic providing temporary fire resistance.
@@ -2618,7 +2627,7 @@ W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It grants you temporary resistance to cold for 10+1d10 turns.
+D:It grants you temporary resistance to cold for about 2-4 minutes.
 D:  Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
 D: with other magic providing temporary cold resistance.
@@ -2630,7 +2639,8 @@ W:3:0:4:50
 A:3/1:25/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
-D:It enables you to see invisible creatures for 12+1d12 turns.
+D:It enables you to see invisible creatures for a duration depending
+D: on your magic device skill.
 
 N:264:Temporary Boost
 G:!:d
@@ -2640,7 +2650,7 @@ A:15/3:45/6
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It gives one stat a temporary boost of +4 for a minimum of
-D: 101 turns.  Good luck extends the duration. It chooses which
+D: 17 minutes up to 35 minutes or more with good luck. It chooses which
 D: stat to boost like this:
 D:  1) If your class is decent at casting spells (you can learn your
 D: first spell before character level 4), then its first choice is
@@ -2694,7 +2704,7 @@ D:It lowers your fail rate by 5% for all spells and your spells have an effect
 D: based on +10 to your character level wherever a spell's effect depends on your
 D: clvl, and for most spell realms, it raises the chance of a bolt/beam spell to have
 D: a beam effect.  It also lets you be able to read scrolls and cast spells while
-D: blind.  This potion's effect lasts 75 + 1d75 turns.
+D: blind.  This potion's effect lasts 12 + d14 minutes.
 
 ##### Wands #####
 
@@ -3150,7 +3160,7 @@ D:It destroys a circular area centered at you with a radius of 15
 D: squares, randomly placing new walls and floor space (stairs are
 D: immune).  All monsters and objects (excluding artifacts) are removed
 D: from the affected area.
-D:  This effect will also cause blindness lasting for 10+1d10 turns
+D:  This effect will also cause blindness lasting for about 2-3 minutes
 D: unless you have resistance to either blindness or light.
 
 N:308:Starlight
@@ -3230,7 +3240,7 @@ A:40/1
 P:0:1d5:0:0:0:5
 C:4+d3
 F:SHOW_MODS
-D:It hastes you (+10 to speed) for 15+1d30 turns (or 5 additional turns
+D:It hastes you (+10 to speed) for 3-7 minutes (or 1 additional minute
 D: if you already are under the effect of a temporary haste
 D: enchantment).
 
@@ -3242,7 +3252,7 @@ D: enchantment).
 #P:0:1d5:0:0:0:5
 #C:8+d8
 #F:SHOW_MODS
-#D:It slows you down (-10 to speed) for 15+1d30 turns; this duration is
+#D:It slows you down (-10 to speed) for 3-7 minutes; this duration is
 #D: cumulative with other temporary slowing enchantments.
 
 N:315:Telekinesis
@@ -3256,6 +3266,7 @@ F:SHOW_MODS
 D:It allows you to pick up objects from a distance.  The object must be
 D: either in line of sight or within the maximum range which is usually
 D: 8 spaces (but may be higher with good luck).
+D:  This does not work on the special vault chests with silver or gold locks.
 
 N:316:Door/Stair Location
 G:_:d
@@ -3332,7 +3343,7 @@ P:0:1d5:0:0:0:5
 C:8+d8
 F:SHOW_MODS
 D:It darkens all squares within 3 squares of you, plus the entire room
-D: if you are currently in one; and blinds you for 3+1d5 turns, unless
+D: if you are currently in one; and blinds you for 40-90 seconds, unless
 D: you have resistance to blindness.
 D: It also damages any creatures of light who are in the darkened area.
 
@@ -3540,10 +3551,10 @@ P:0:1d8:0:0:0:1
 N:345:& iron spike~
 G:~:W
 I:5:0:0
-W:1:0:10:1
+W:1:0:6:1
 M:100:4d7
 A:1/2
-P:0:1d3:0:0:0:2
+P:0:1d2:0:0:0:2
 F:EASY_KNOW | PTHROW
 D:These can be placed in doors to make them harder to open.  Multiple
 D: spikes may be used on a single door.  Each of the first 7 spikes will
@@ -3563,7 +3574,7 @@ P:0:1d3:0:0:0:4
 F:EASY_KNOW
 D:It is equippable as a light source with a radius of 2 square (or 1 square
 D: if low on fuel).  It may also be used to fuel another torch, up to a
-D: maximum of 5000 turns of light.
+D: maximum of about 16.5 hours of light.
 
 N:347:& brass lantern~
 G:~:U
@@ -3582,8 +3593,8 @@ W:1:0:10:3
 A:1/1
 P:0:1d6:0:0:0:2
 F:EASY_KNOW | PTHROW | BRAND_FIRE
-D:It can be used to fuel a brass lantern with 7500 turns of light, up to
-D: a maximum of 15000 turns of light.
+D:It can be used to fuel a brass lantern with about 21 hours of light, up to
+D: a maximum of about 41.5 hours of light.
 D:  When thrown, it is considered lit, so it does more than nominal
 D: damage to creatures vulnerable to fire.
 
@@ -3880,7 +3891,7 @@ W:90:50:15:50000
 A:90/12
 P:0:1d1:0:0:0:2
 F:EASY_KNOW | IGNORE_ELEC
-D:It hastes you (+10 to speed) for 15+1d30 turns (or 5 additional turns
+D:It hastes you (+10 to speed) for 3-8 minutes (or 1 additional minute
 D: if you already are under the effect of a temporary haste
 D: enchantment).
 
@@ -4035,9 +4046,9 @@ P:0:2d8:-2:0:0:8
 F:SHOW_MODS
 D:A valuble piece of ivory which can be used as a lance except it's more cumbersome.
 
+#G:::s
 N:394:& manticore tail spike~
-#G:~:w
-G:::s
+G:~:w
 I:1:11:0
 W:30:4:20:90
 A:30/4
@@ -4104,7 +4115,7 @@ P:30:2d4:-2:0:10:1
 F:RES_ACID | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:401:Bright Blue Dragon Scale Mail~
+N:401:Blue Dragon Scale Mail~
 G:[:b
 I:38:2:0
 W:50:30:200:40000
@@ -4113,7 +4124,7 @@ P:30:2d4:-2:0:10:1
 F:RES_ELEC | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:402:Blueish White Dragon Scale Mail~
+N:402:White Dragon Scale Mail~
 G:[:B
 I:38:3:0
 W:50:30:200:40000
@@ -4149,17 +4160,18 @@ P:30:2d4:-2:0:10:1
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:406:Flashing Yellow Dragon Scale Mail~
-G:[:y
-I:38:10:0
-W:65:37:200:60000
-A:65/16
-P:30:2d4:-2:0:10:1
-F:RES_LITE | RES_DARK | EASY_KNOW
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+#replace
+#N:406:Flashing Yellow Dragon Scale Mail~
+#G:[:y
+#I:38:10:0
+#W:65:37:200:60000
+#A:65/16
+#P:30:2d4:-2:0:10:1
+#F:RES_LITE | RES_DARK | EASY_KNOW
+#F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:407:Bronze Dragon Scale Mail~
-G:[:o
+G:[:U
 I:38:14:0
 W:50:45:200:40000
 A:50/8
@@ -4168,7 +4180,7 @@ F:RES_CONFU | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:408:Orange Dragon Scale Mail~
-G:[:y
+G:[:o
 I:38:16:0
 W:50:45:200:40000
 A:50/8
@@ -4177,14 +4189,14 @@ F:RES_SOUND | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #Changed to have appropriate nexus breath (should I remove Rshard now?)
-N:409:Silver Dragon Scale Mail~
-G:[:B
+N:409:Violet Dragon Scale Mail~
+G:[:v
 I:38:12:5
 W:70:37:170:80000
 A:70/16
 P:26:2d4:-1:0:10:1
-F:RES_NEXUS | RES_SHARD | EASY_KNOW
-F:SPEED | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:RES_NEXUS | RES_SHARD | SPEED | EASY_KNOW
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:410:Chaos Dragon Scale Mail~
 G:[:v
@@ -4197,10 +4209,10 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #no activation and only partial poision resist - rarer because it's less useful
 N:411:Wyvern Scale Mail~
-G:[:B
+G:[:g
 I:38:13:1
-W:50:0:200:30000
-A:50/12
+W:42:0:200:30000
+A:42/12
 P:40:2d4:-2:0:15:1
 F:PR_POIS | INFRA | EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4216,7 +4228,7 @@ F:RES_LITE | RES_DARK | RES_CONFU | RES_BLIND | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:413:Balance Dragon Scale Mail~
-G:[:v
+G:[:u
 I:38:20:0
 W:92:55:200:100000
 A:92/31
@@ -4225,7 +4237,7 @@ F:RES_SOUND | RES_CHAOS | RES_DISEN | RES_CONFU | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:414:Power Dragon Scale Mail~
-G:[:v
+G:[:D
 I:38:30:0
 W:100:60:200:300000
 A:100/64
@@ -4244,7 +4256,7 @@ W:55:0:4:900
 A:30/2:70/3
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
-D: Cures all halucenation, amnesia, slime, and silver poison,
+D: Cures all hallucination, amnesia, slime, and silver poison,
 D: and also halves stunning and poison.
 
 #replaces ruination
@@ -4295,7 +4307,7 @@ P:0:1d1:0:0:0:1
 F:EASY_KNOW
 D:It cures 1200 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, cures blindness and confusion, and
-D: cures 20 points of silver poison.
+D: cures 15 points of silver poison and 18 points of sliming.
 
 N:420:Life
 G:!:d
@@ -4391,7 +4403,13 @@ A:70/8
 F:DEX | SUST_DEX | STEALTH | SPEED | INFRA | 
 F:RES_NEXUS | RES_POIS | HIDE_TYPE
 
-#N:429:unused
+N:429:& Shield~ of Deflection
+G:):B
+I:34:10:0
+W:70:0:80:10000
+A:70/4
+P:12:1d5:0:0:10:3
+F:IGNORE_ACID
 
 N:430:Resist Lightning
 G:":d
@@ -4450,13 +4468,13 @@ D:It can be shot with a crossbow.
 N:477:& silver-locked chest~
 G:~:W
 I:7:8:0
-W:35:0:1000:400
+W:35:0:1000:1000
 P:0:2d6:0:0:0:3
 
 N:478:& gold-locked chest~
 G:~:y
 I:7:9:0
-W:55:0:1000:600
+W:55:0:1000:2500
 P:0:2d6:0:0:0:3
 
 #N:479: unused
@@ -4771,7 +4789,7 @@ D:An offhand dagger with a wide handguard for defence.
 N:519:& fur cloak~
 G:(:w
 I:35:2:0
-W:12:0:70:230
+W:12:0:60:230
 A:12/9
 P:2:0d0:0:0:0:0
 F:RES_COLD
@@ -4931,7 +4949,7 @@ F:THROWN | RTURN | DANGER | SHOW_MODS
 D:A disk with five curved blades slicing from its sides.
 D: It can be dangerous to use if you are not very skilled with it.
 
-N:536:mini crossbow
+N:536:& hand crossbow~
 G:{:s
 I:19:22:0
 W:7:0:60:145
@@ -5280,8 +5298,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:574:& dragonslayer shield~
 G:):r
 I:34:11:0
-W:60:0:80:5000
-A:60/16
+W:55:0:90:5000
+A:55/14
 P:9:1d3:0:0:0:3
 F:BR_SHIELD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -5364,7 +5382,7 @@ W:4:0:4:55
 A:6/3
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
-D:It grants you temporary resistance to acid and electricity for 10+1d10 turns.
+D:It grants you temporary resistance to acid and electricity for 2-4 minutes.
 D:  Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
 D: with other magic providing temporary acid or electricity resistance.
@@ -5391,7 +5409,7 @@ D: never be affected by this spell.
 D: If you attack and hit any charmed animal, the effects end immediately.
 
 #tval 4 is unused
-#not sure if it works yet
+#not sure if it works yet (hard to tell)
 N:585:the class object (should never appear)
 G:*:R
 I:4:1:0

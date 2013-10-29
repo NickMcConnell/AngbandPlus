@@ -206,12 +206,12 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 		if (to_print)
 			msg_format("%s provides permanent light.", o_name);
 	}
-	if (f3 & (TR3_DRAIN_EXP))
+	if (f2 & (TR2_DRAIN_EXP))
 	{
 		if (to_print)
 			msg_format("%s drains experience.", o_name);
 	}
-	if (f3 & (TR3_STOPREGEN))
+	if (f2 & (TR2_STOPREGEN))
 	{
 		if (to_print)
 			msg_format("%s prevents hit point regeneration.", o_name);
@@ -322,8 +322,10 @@ static int quiver_wield(int item, object_type *o_ptr)
 void do_cmd_wield_reallynow(bool toquiver)
 {
 	int item, slot;
-	bool is_splendid;
-
+	bool is_splendid, new_lite;
+#ifdef instantpseudo	
+	bool instant = FALSE;
+#endif
 	object_type *o_ptr;
 
 	object_type *i_ptr;
@@ -333,7 +335,6 @@ void do_cmd_wield_reallynow(bool toquiver)
 	object_type *equip_o_ptr;
 
 	cptr act;
-
 	cptr q, s;
 
 	char o_name[80];
@@ -388,7 +389,10 @@ void do_cmd_wield_reallynow(bool toquiver)
        {
           slot = INVEN_ARM;
        }
-    }
+	}
+    
+	/* are we wielding a light source when we don't currently have a light source? */
+	if ((o_ptr->tval == TV_LITE) && (!inventory[INVEN_LITE].k_idx)) new_lite = TRUE;
 
 	/* Ask for ring to replace */
 	if ((o_ptr->tval == TV_RING) &&
@@ -449,9 +453,6 @@ void do_cmd_wield_reallynow(bool toquiver)
 		}
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
 	/* Ammo goes in quiver slots, which have special rules. */
 	if (IS_QUIVER_SLOT(slot))
 	{
@@ -509,6 +510,9 @@ void do_cmd_wield_reallynow(bool toquiver)
 		p_ptr->equip_cnt++;
 	}
 
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
 	{
@@ -521,6 +525,12 @@ void do_cmd_wield_reallynow(bool toquiver)
 	else if (slot == INVEN_LITE)
 	{
 		act = "Your light source is";
+		/* fully update visuals when wielding a light source */
+		if (new_lite)
+        {
+			p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+		}
 	}
 	else if (!IS_QUIVER_SLOT(slot))
 	{
@@ -555,8 +565,6 @@ void do_cmd_wield_reallynow(bool toquiver)
 		is_splendid = obviously_excellent(o_ptr, TRUE, o_name);
 	/* EFGchange some jewelry should self-id */
 	/* ??? should this be in a table somewhere? */
-	/* ??? should we id unaware weakness/stupidity for neg pval when
-		matching strength/int is aware? */
 	/* ??? should be a separate function, so can be called upon pseudo? */
 	switch(o_ptr->tval)
 	{
@@ -567,48 +575,68 @@ void do_cmd_wield_reallynow(bool toquiver)
 				case SV_AMULET_CHARISMA:
 				case SV_AMULET_DEVOTION:
 				case SV_AMULET_TRICKERY:
+				case SV_AMULET_ALERTNESS:
+				{
 				/* no weaponmastery until +hit/+dam is apparent */
 					object_aware(o_ptr);
 					object_known(o_ptr);
+				}
 				break;
 			}
 			break;
 		case TV_RING:
 			switch(o_ptr->sval)
 			{
-				/* ??? MAGIC NUMBERS */
-				case SV_RING_WEAKNESS:
-					if (k_info[132].aware)
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;
 				case SV_RING_STR:
-					if ((o_ptr->pval > 0) || (k_info[145].aware))
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;
 				case SV_RING_INT:
-					if ((o_ptr->pval > 0) || (k_info[150].aware))
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;
-
 				case SV_RING_WOE:
 				case SV_RING_DEX:
 				case SV_RING_CON:
 				case SV_RING_SPEED:
+				case SV_RING_ALERTNESS:
+				{
 					object_aware(o_ptr);
 					object_known(o_ptr);
+				}
 				break;
 			}
 			break;
 	}
+
+#ifdef instantpseudo	
+	/* Sometimes do instant pseudo on pickup (wielding from the floor) */
+	if ((!o_ptr->hadinstant) && (p_ptr->lev >= 10))
+	{
+		int pschance = cp_ptr->sense_base / 1000;
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+		/* invert to make it higher the better */
+		if (pschance < 100) pschance = 101 - pschance;
+		else pschance = 0;
+
+		/* factor how easy it is to recognise the item */
+		if (artifact_p(o_ptr)) pschance += 25;
+		else if (is_splendid) pschance += 12;
+		else if ((f1 & TR1_BRAND_COLD) || (f1 & TR1_BRAND_FIRE) ||
+			(f1 & TR1_BRAND_ELEC) || (f1 & TR1_BRAND_ACID) ||
+			(f1 & TR1_BRAND_POIS)) pschance += 10;
+		else if (o_ptr->weight != k_ptr->weight) pschance += 8;
+		else if (ego_item_p(o_ptr)) pschance += 6;
+		
+		/* factor character level */
+		pschance = (pschance * p_ptr->lev) / 100;
+		
+		/* not having heavy pseudo is a handicap */
+        if (!(cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) pschance /= 2;
+
+		/* roll for instant pseudo on pickup */
+        if (randint(100) < pschance) instant = TRUE;
+		
+		/* item has had a chance at instead pseudo */
+		o_ptr->hadinstant = 1;
+	}
+#endif
+	
 	/* Cursed! */
 	if (cursed_p(o_ptr))
 	{
@@ -622,20 +650,22 @@ void do_cmd_wield_reallynow(bool toquiver)
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
-#ifdef EFG
 		/* EFGchange remove need for identify wrto preserving artifacts */
 		/* since cannot sense for pseudo, learn artifact now */
 		if (o_ptr->name1)
 			/* ??? should print message, make a function */
 			object_known(o_ptr);
-
-/* EFGchange bugfix */
-/* you cannot squelch what you are wearing! */
-#else
-		/* Set squelched status */
-		p_ptr->notice |= PN_SQUELCH;
-#endif
 	}
+#ifdef instantpseudo	
+	/* DJA: really notice obvious effects.. */
+	else if ((((is_splendid) && (o_ptr->name1)) || 
+		(instant)) && (!object_known_p(o_ptr)) &&
+		(!(o_ptr->ident & IDENT_SENSE)))
+	{
+		/* instant pseudo (sometimes) */
+        sense_one(o_ptr);
+	}
+#endif
 	/* EFGchange notice obvious effects */
 	else 
 	{
@@ -802,6 +832,58 @@ void do_cmd_drop(void)
 
 
 /*
+ * Verify destroying an object with an option to squelch
+ */
+bool get_destroy_check(cptr prompt, object_type *o_ptr)
+{
+	char ch;
+	char buf[80];
+
+	/* Paranoia XXX XXX XXX */
+	message_flush();
+
+	/* Hack -- Build a "useful" prompt */
+	strnfmt(buf, 78, "%.80s", prompt);
+
+	/* Prompt for it */
+	prt(buf, 0, 0);
+
+	/* Get an acceptable answer */
+	while (TRUE)
+	{
+		ch = inkey();
+		if (quick_messages) break;
+		if (ch == ESCAPE) break;
+		if (strchr("YyNnSs", ch)) break;
+		bell("Illegal response");
+	}
+
+	/* Erase the prompt */
+	prt("", 0, 0);
+
+	/* confirm destruction */
+	if ((ch == 'Y') || (ch == 'y')) return (TRUE);
+
+	/* option to squelch */
+	if ((ch == 'S') || (ch == 's'))
+	{
+		/* set to squelch */
+		squelch_kind(o_ptr->k_idx, object_aware_p(o_ptr));
+
+		/* notice it */
+		p_ptr->notice |= PN_SQUELCH;
+		
+		/* finished (squelched, so no need to destroy also) */
+		return (FALSE);
+	}
+
+	/* assume not */
+	return (FALSE);
+}
+
+
+
+/*
  * Destroy an item
  */
 void do_cmd_destroy(void)
@@ -869,8 +951,12 @@ void do_cmd_destroy(void)
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 	/* Verify destruction */
+	strnfmt(out_val, sizeof(out_val), "Really destroy (or (s)quelch) %s? ", o_name);
+	if (!get_destroy_check(out_val, o_ptr)) return;
+#if old
 	strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
 	if (!get_check(out_val)) return; 
+#endif
 
 	/* Artifacts cannot be destroyed */
 #ifdef EFG
@@ -887,14 +973,14 @@ void do_cmd_destroy(void)
 		/* It has already been sensed */
 		if (o_ptr->ident & (IDENT_SENSE))
 		{
+#ifdef EFG
+			/* EFGchange failed destruction ids artifacts */
+			object_known(o_ptr);
+#else
 			/* Already sensed objects always get improved feelings */
 			if (cursed_p(o_ptr) || broken_p(o_ptr))
 				o_ptr->pseudo = INSCRIP_TERRIBLE;
 			else
-#ifdef EFG
-				/* EFGchange failed destruction ids artifacts */
-				object_known(o_ptr);
-#else
 				o_ptr->pseudo = INSCRIP_SPECIAL;
 #endif
 		}
@@ -1040,8 +1126,32 @@ void do_cmd_fstack(void)
 	o_ptr->to_d = 0;
 	o_ptr->to_a = 0;
 	/* remove possible random stuff from egos like defender */
+#ifdef new_random_stuff
+    o_ptr->randsus = 0;
+    o_ptr->randsus2 = 0;
+    o_ptr->randres = 0;
+    o_ptr->randres2 = 0;
+    o_ptr->randres3 = 0;
+    o_ptr->randpow = 0;
+    o_ptr->randpow2 = 0;
+    o_ptr->randslay = 0;
+    o_ptr->randslay2 = 0;
+    o_ptr->randslay3 = 0;
+    o_ptr->randbon = 0;
+    o_ptr->randbon2 = 0;
+    o_ptr->randplu = 0;
+    o_ptr->randplu2 = 0;
+    o_ptr->randdrb = 0;
+    o_ptr->randdrb2 = 0;
+    o_ptr->randimm = 0;
+    o_ptr->randlowr = 0;
+    o_ptr->randlowr2 = 0;
+    o_ptr->randact = 0;
+	o_ptr->esprace = 0;
+#else
     o_ptr->xtra1 = 0;
     o_ptr->xtra2 = 0;
+#endif
 	/* remove bonus damage dice */
 	if (o_ptr->dd > k_ptr->dd) o_ptr->dd = k_ptr->dd;
 
@@ -1062,9 +1172,7 @@ void do_cmd_fstack(void)
 void do_cmd_observe(void)
 {
 	int item;
-
 	object_type *o_ptr;
-
 	cptr q, s;
 
 
@@ -1211,10 +1319,12 @@ void do_cmd_inscribe(void)
  */
 static bool item_tester_refill_lantern(const object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
-
 	/* Get flags */
+	u32b f1, f2, f3, f4;
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	/* grenades use TV_FLASK also (normal flasks of oil only have PTHROW) */
+    if (f3 & TR3_THROWN) return (FALSE);
 
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);

@@ -668,27 +668,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit65]
-FileName=DaJAngband1098_private.h
-CompileCpp=0
-Folder=DaJAngband
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit66]
-FileName=defines.h
-CompileCpp=0
-Folder=DaJAngband
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit67]
 FileName=externs.h
 CompileCpp=0
 Folder=DaJAngband
@@ -698,7 +678,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit68]
+[Unit67]
 FileName=h-basic.h
 CompileCpp=0
 Folder=DaJAngband
@@ -708,7 +688,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit69]
+[Unit68]
 FileName=init.h
 CompileCpp=0
 Folder=DaJAngband
@@ -718,7 +698,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit70]
+[Unit69]
 FileName=maid-x11.h
 CompileCpp=0
 Folder=DaJAngband
@@ -728,7 +708,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit71]
+[Unit70]
 FileName=main.h
 CompileCpp=0
 Folder=DaJAngband
@@ -738,7 +718,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit72]
+[Unit71]
 FileName=randname.h
 CompileCpp=0
 Folder=DaJAngband
@@ -748,7 +728,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit73]
+[Unit72]
 FileName=script.h
 CompileCpp=0
 Folder=DaJAngband
@@ -758,7 +738,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit74]
+[Unit73]
 FileName=types.h
 CompileCpp=0
 Folder=DaJAngband
@@ -768,7 +748,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit75]
+[Unit74]
 FileName=ui.h
 CompileCpp=0
 Folder=DaJAngband
@@ -778,7 +758,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit76]
+[Unit75]
 FileName=z-file.h
 CompileCpp=0
 Folder=DaJAngband
@@ -788,7 +768,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit77]
+[Unit76]
 FileName=z-form.h
 CompileCpp=0
 Folder=DaJAngband
@@ -798,7 +778,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit78]
+[Unit77]
 FileName=z-rand.h
 CompileCpp=0
 Folder=DaJAngband
@@ -808,7 +788,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit79]
+[Unit78]
 FileName=z-term.h
 CompileCpp=0
 Folder=DaJAngband
@@ -818,7 +798,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit80]
+[Unit79]
 FileName=z-type.h
 CompileCpp=0
 Folder=DaJAngband
@@ -828,7 +808,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit81]
+[Unit80]
 FileName=z-util.h
 CompileCpp=0
 Folder=DaJAngband
@@ -838,7 +818,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit82]
+[Unit81]
 FileName=z-virt.h
 CompileCpp=0
 Folder=DaJAngband
@@ -848,8 +828,9 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit83]
+[Unit82]
 FileName=win\angband.ico
+CompileCpp=0
 Folder=DaJAngband
 Compile=0
 Link=0
@@ -857,7 +838,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit84]
+[Unit83]
 FileName=win\angband.rc
 Folder=DaJAngband
 Compile=1
@@ -866,7 +847,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit85]
+[Unit84]
 FileName=win\DaJAngband110.ico
 Folder=DaJAngband
 Compile=0
@@ -875,17 +856,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit86]
+[Unit85]
 FileName=win\readdib.c
-CompileCpp=0
 Folder=DaJAngband
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
-[Unit87]
+[Unit86]
 FileName=win\readdib.h
 CompileCpp=0
 Folder=DaJAngband
@@ -912,4 +893,24 @@ OriginalFilename=
 ProductName=
 ProductVersion=
 AutoIncBuildNr=0
+
+[Unit65]
+FileName=defines.h
+CompileCpp=0
+Folder=DaJAngband
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit87]
+FileName=spells3.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 

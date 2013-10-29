@@ -207,11 +207,7 @@ struct object_kind
 	bool aware;		/* The player is "aware" of the item's effects */
 	bool tried;		/* The player has "tried" one of the items */
 
-#ifdef EFG
 	byte squelch;		/* Squelch this item? */
-#else
-	bool squelch;		/* Squelch this item? */
-#endif
 	bool everseen;		/* Used to despoilify squelch menus */
 };
 
@@ -255,6 +251,15 @@ struct artifact_type
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 	byte maxlvl;		/* Maximum object level to create this artifact */
+	s16b artrat;        /* Artifact rating */
+
+#ifdef new_random_stuff
+	/* code for an item which gives race-specifix ESP: */
+	/* 0-none, 1=orcs, 2=trolls, 3=giants, 4=undead, 5=dragons, 6=demons */
+	/* 7=fairies, 8=bugs, 9=grepse, 10=(most)animals,.. */
+	/* 70 = short-ranged ESP for everything */
+	byte esprace;       /* race-specific ESP (see o_ptr declaration below) */
+#endif
 
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
@@ -294,7 +299,24 @@ struct ego_item_type
 	byte max_to_a;		/* Maximum to-ac bonus */
 	byte max_pval;		/* Maximum pval */
 
+#ifdef new_random_stuff
+	/* holds how many random attributes in its set */
+	byte randsus;		/* random sustain 0, 1 or 2 */
+	byte randres;		/* random resist 0, 1, 2, or 3 */
+	byte randpow;       /* random power 0, 1 or 2 */
+	byte randslay;      /* random slay 0, 1 or 2 */
+	byte randbon;       /* random bonus 0, 1 or 2 */
+	byte randplu;       /* random plus (stats) 0, 1 or 2 */
+	byte randdrb;       /* random drawback 0, 1 or 2 (3 special) */
+	byte randlowr;      /* random low resist 0, 1, or 2 */
+	byte randbran;      /* random brand 0 or 1 */
+	byte randact;       /* random activation (for future) */
+	
+	byte esprace;       /* race-specific ESP (see o_ptr declaration below) */
+	byte unused1;        /* saving a spot for future use */
+#else
 	byte xtra;			/* Extra sustain/resist/power */
+#endif
 
 	bool everseen;		/* Do not spoil squelch menus */
 };
@@ -427,6 +449,7 @@ struct monster_lore
 	u32b flags4;			/* Observed racial flags */
 	u32b flags5;			/* Observed racial flags */
 	u32b flags6;			/* Observed racial flags */
+	/* u32b flags7;			 Observed racial flags (new) */
 };
 
 
@@ -494,6 +517,9 @@ struct object_type
 	s16b pval;			/* Item extra-parameter */
 
 	byte pseudo;		/* Pseudo-ID marker */
+#ifdef instantpseudo
+	byte hadinstant;    /* marks whether you've had a chance for instant pseudo */
+#endif
 
 	byte number;		/* Number of items */
 
@@ -502,8 +528,55 @@ struct object_type
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
+#ifdef new_random_stuff
+	char randego_name[40];	/* psuedo-randart names */
+	/* holds indexes of random attribute in its set */
+	byte randsus;		/* random sustain */
+	byte randsus2;		/* 2nd random sustain */
+	byte randres;		/* random resist */
+	byte randres2;		/* 2nd random resist */
+	byte randres3;		/* 3rd random resist */
+	byte randpow;       /* random power */
+	byte randpow2;      /* 2nd random power */
+	/* the following are obvious if the object is known */
+	/* (the only ones which are hidden are sustains, high resists, and powers) */
+	byte randslay;      /* random slay */
+	byte randslay2;     /* 2nd random slay */
+	byte randslay3;     /* 2nd random slay */
+	byte randbon;       /* random bonus */
+	byte randbon2;      /* 2nd random bonus */
+	byte randplu;       /* random plus (stats) */
+	byte randplu2;      /* 2nd random plus (stats) */
+	byte randdrb;       /* random drawback */
+	byte randdrb2;      /* 2nd random drawback */
+	byte randimm;       /* random immunity */
+	byte randlowr;      /* random low resist */
+	byte randlowr2;     /* 2nd random low resist */
+	byte randbran;      /* random brand */
+	byte randact;       /* random activation (for future) */
+	
+	/* code for an item which gives race-specifix ESP: */
+	/* 0-none, 1=orcs, 2=trolls, 3=giants, 4=undead, 5=dragons, 6=demons */
+	/* 7=fairies, 8=bugs, 9=grepse, 10=(most)animals,.. */
+	/* 11=constructs (golems), 12=dwarves, 13=dark elves */
+	/* 30 = 35% chance of ESP for (most) animals */
+	/* 31 = 35% chance of ESP for orcs */
+	/* 34 = 35% chance of ESP for undead (54 = 10%) */
+	/* 35 = 35% chance of ESP for dragons, 36 = 35% chance of ESP for demons (56 = 10%) */
+	/* 37 = 35% chance of ESP for fairies */
+	/* 46 = 35% chance of ESP for HURT_SILV (werebeasts & such), 16 = 100% HURT_SILV */
+	/* 40 = random esprace (43 = 35% chance of random esprace) */
+	/* 41 = matches one of the random slays (42 = 35% chance of that) */
+	/* 70 = short ranged ESP of everything (artifacts only) */
+	/* 15 = special for Sting (orcs and spiders) */
+	/* 71 = special for Ratagast (ESP for wizards) */
+	/* 75 = special for Thranduil */
+    byte esprace;       /* */
+#else
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
+	byte xtra3;         /* For egos which have two random resistances */
+#endif
 
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
@@ -525,6 +598,14 @@ struct object_type
 
 	byte marked;		/* Object is marked */
 	byte hidden;		/* Object is buried in rubble */
+
+	/* still need to code the temporary branding spell */
+    s16b timedbrand;    /* temporary branding spell duration */
+	byte thisbrand;     /* which brand for temporary brand */
+	/* thisbrand:  1=frost, 2=fire, 3=elec, 4=acid, 5=poison */
+	/* 6=acid coat(x2) */
+	s16b extra1;        /* to prevent breaking savefiles later */
+	s16b extra2;        /* to prevent breaking savefiles later */
 
 	u16b note;			/* Inscription index */
 
@@ -575,19 +656,27 @@ struct monster_type
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
     bool bold;		    /* Monster has become bold */
+    /* hack: tinvis is also used for the NONMONSTER statue for its description. */
+    /* since normally NONMONSTERS can never use tinvis */
 	s16b tinvis;        /* temporary invisibility */
 	bool charmed;       /* monster is charmed */
 	byte silence;       /* monster is silenced (stops summoning spells) */
 	byte truce;			/* for paladin truce spell */
-/*	s16b disguised;		* monster disguised as another monster or object */
+	s16b disguised;		/* monster disguised as another monster or object */
+	/* (disguised is extracted for now, may need to add to savefiles later) */
 
-	byte cdis;			/* Current dis from player */
+	byte cdis;			/* Current distance from player */
 
 	byte mflag;			/* Extra monster flags */
 
 	byte monseen;       /* monster has been seen (>=2) or heard(==1) */
 	bool ml;			/* Monster is "visible" */
-	bool heard;         /* Monster has been heard */
+	bool heard;         /* Monster has been heard recently */
+	
+	s16b temp_death;    /* Monsters is only temporarily dead */
+	s16b ninelives;     /* counts how many times the monster has died temporarily */
+	s16b extra2;        /* to prevent breaking savefiles later */
+	s16b extra3;        /* to prevent breaking savefiles later */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
@@ -911,7 +1000,7 @@ struct player_type
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
 
-	s16b age;			/* Character's age (used to count wizmode deaths) */
+	s16b age;			/* Character's age (also used to count wizmode deaths) */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
@@ -952,14 +1041,26 @@ struct player_type
 	s16b luck;          /* DJA: luck */
 	s16b maxluck;		/* DJA: maximum luck (so can restore lost luck) */
 	byte corrupt;       /* DJA: level of corruption*/
-	int spadjust;       /* amount of nonstandard speed adjustment */
+	s16b spadjust;       /* amount of nonstandard speed adjustment */
 	byte learnedcontrol; /* teleport control skill */
 	s16b mimmic;		/* wand/rod sval to mimmic, +100 if rod (alchemy spell) */
 	s16b menhance;		/* mimmiced wand is enhanced */
+	s32b control_des;   /* stores destination while being controlled (like monster roaming) */
+	
+	s16b danger_turn;   /* last time you got a danger feeling */
+	s32b game_score;    /* game score, (redone, now counted as you play) */
 
-	byte warned;		/* has been warned (about drowning) */
+	s16b danger_text;   /* last danger feeling (temporary, not in savefile) */
+    byte warned;		/* has been warned (about drowning) */
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
+
+	s16b extra1;         /* to prevent breaking savefiles later */
+	s16b extra2;        /* to prevent breaking savefiles later */
+	s16b extra3;        /* to prevent breaking savefiles later */
+	
+	s32b lastfullmoon;   /* turn of last full moon in town */
+	s32b last_nap;
 
 	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
 
@@ -1086,6 +1187,8 @@ struct player_type
 	bool resist_chaos;	/* Resist chaos */
 	bool resist_disen;	/* Resist disenchant */
 	s16b resist_static; /* Resist static (drain charges) */
+	bool resist_silver; /* Resist silver (grepse) poison */
+	bool resist_slime;  /* Resist slime */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
@@ -1140,7 +1243,8 @@ struct player_type
 	s16b see_infra;		/* stat modified by !temporary boost */
 
 	s16b skills[SKILL_MAX];	/* Skills */
-
+	
+	s16b palert;        /* Player alertness based on FOS skill (used to be global) */
 	u32b noise;			/* Derived from stealth */
 
 	s16b num_blow;		/* Number of blows */

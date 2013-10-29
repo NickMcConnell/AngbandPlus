@@ -15,7 +15,7 @@
 /*
  * Max sizes of the following arrays.
  */
-#define MAX_TITLES     50       /* Used with scrolls (min 48) */
+/* #define MAX_TITLES     50       * Used with scrolls (min 48) */
 
 /* taken from V3.1.1 (I don't know where this number comes from..) */
 #define MAX_ITEMLIST 256
@@ -26,7 +26,7 @@
  * Also keep an array of scroll colors (always WHITE for now).
  */
 
-static char scroll_adj[MAX_TITLES][16];
+char scroll_adj[MAX_TITLES][16];
 
 
 static void flavor_assign_fixed(void)
@@ -349,18 +349,15 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		(*f3) = k_ptr->flags3;
 		(*f4) = k_ptr->flags4;
 
-		if (mode == OBJECT_FLAGS_FULL)
+		/* Artifact (no longer need *ID*) */
+		if (o_ptr->name1)
 		{
-			/* Artifact */
-			if (o_ptr->name1)
-			{
-				artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-				(*f1) = a_ptr->flags1;
-				(*f2) = a_ptr->flags2;
-				(*f3) = a_ptr->flags3;
-				(*f4) = a_ptr->flags4;
-			}
+			(*f1) = a_ptr->flags1;
+			(*f2) = a_ptr->flags2;
+			(*f3) = a_ptr->flags3;
+			(*f4) = a_ptr->flags4;
 		}
 
 		/* Ego-item */
@@ -372,6 +369,98 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			(*f2) |= e_ptr->flags2;
 			(*f3) |= e_ptr->flags3;
 			(*f4) |= e_ptr->flags4;
+
+#ifdef new_random_stuff
+			/* only the random sustains, powers, and high resists are hidden */
+			if (o_ptr->randslay)
+			{
+				/* OBJECT_XTRA_WHAT_SLAY == 1 */
+				(*f1) |= (OBJECT_XTRA_BASE_SLAY << (o_ptr->randslay - 1));
+				/* maybe add another */
+				if (o_ptr->randslay2)
+					(*f1) |= (OBJECT_XTRA_BASE_SLAY << (o_ptr->randslay2 - 1));
+				if (o_ptr->randslay3)
+					(*f1) |= (OBJECT_XTRA_BASE_SLAY << (o_ptr->randslay3 - 1));
+			}
+
+			if (o_ptr->randbon)
+			{
+				/* OBJECT_XTRA_WHAT_BONUS == 1 */
+				(*f1) |= (OBJECT_XTRA_BASE_BONUS << (o_ptr->randbon - 1));
+				/* maybe add another */
+				if (o_ptr->randbon2)
+					(*f1) |= (OBJECT_XTRA_BASE_BONUS << (o_ptr->randbon2 - 1));
+			}
+
+			if (o_ptr->randbran)
+			{
+				/* OBJECT_XTRA_WHAT_BRAND == 1 */
+				(*f1) |= (OBJECT_XTRA_BASE_BRAND << (o_ptr->randbran - 1));
+			}
+
+			if (o_ptr->randplu)
+			{
+				/* OBJECT_XTRA_WHAT_PLUS == 1 */
+				(*f1) |= (OBJECT_XTRA_BASE_PLUS << (o_ptr->randplu - 1));
+				/* maybe add another */
+				if (o_ptr->randplu2)
+					(*f1) |= (OBJECT_XTRA_BASE_PLUS << (o_ptr->randplu2 - 1));
+			}
+
+			if (o_ptr->randdrb)
+			{
+				/* OBJECT_XTRA_WHAT_DRAWBACK == 2 */
+				(*f2) |= (OBJECT_XTRA_BASE_DRAWBACK << (o_ptr->randdrb - 1));
+				/* maybe add another */
+				if (o_ptr->randdrb2)
+					(*f2) |= (OBJECT_XTRA_BASE_DRAWBACK << (o_ptr->randdrb2 - 1));
+				/* can only have a random immunity if it also has drawbacks */
+				if (o_ptr->randimm)
+					(*f2) |= (OBJECT_XTRA_BASE_IMMU << (o_ptr->randimm - 1));
+			}
+
+			if (o_ptr->randlowr)
+			{
+				/* OBJECT_XTRA_WHAT_LOWRES == 2 */
+				(*f2) |= (OBJECT_XTRA_BASE_LOWRES << (o_ptr->randlowr - 1));
+				/* maybe add another */
+				if (o_ptr->randlowr2)
+					(*f2) |= (OBJECT_XTRA_BASE_LOWRES << (o_ptr->randlowr2 - 1));
+			}
+			/* psuedo randarts don't need *ID* */
+			if (is_ego_randart(o_ptr))
+			{
+				if (o_ptr->randsus)
+				{
+					/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
+					(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << (o_ptr->randsus - 1));
+					/* maybe add another */
+					if (o_ptr->randsus2)
+						(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << (o_ptr->randsus2 - 1));
+				}
+
+			    if (o_ptr->randres)
+				{
+					/* OBJECT_XTRA_WHAT_RESIST == 4 */
+					(*f4) |= (OBJECT_XTRA_BASE_RESIST << (o_ptr->randres - 1));
+					/* maybe add another */
+					if (o_ptr->randres2)
+						(*f4) |= (OBJECT_XTRA_BASE_RESIST << (o_ptr->randres2 - 1));
+					/* and another */
+					if (o_ptr->randres3)
+						(*f4) |= (OBJECT_XTRA_BASE_RESIST << (o_ptr->randres3 - 1));
+				}
+
+				if (o_ptr->randpow)
+				{
+					/* OBJECT_XTRA_WHAT_POWER == 3 */
+					(*f3) |= (OBJECT_XTRA_BASE_POWER << (o_ptr->randpow - 1));
+					/* maybe add another */
+					if (o_ptr->randpow2)
+						(*f3) |= (OBJECT_XTRA_BASE_POWER << (o_ptr->randpow2 - 1));
+				}
+			}
+#endif
 		}
 
 		if (mode == OBJECT_FLAGS_KNOWN)
@@ -427,6 +516,40 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		if (!(o_ptr->ident & IDENT_MENTAL)) return;
 	}
 
+#ifdef new_random_stuff
+	if (!is_ego_randart(o_ptr))
+	{
+		if (o_ptr->randsus)
+		{
+			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
+			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << (o_ptr->randsus - 1));
+			/* maybe add another */
+			if (o_ptr->randsus2)
+				(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << (o_ptr->randsus2 - 1));
+		}
+
+	    if (o_ptr->randres)
+		{
+			/* OBJECT_XTRA_WHAT_RESIST == 4 */
+			(*f4) |= (OBJECT_XTRA_BASE_RESIST << (o_ptr->randres - 1));
+			/* maybe add another */
+			if (o_ptr->randres2)
+				(*f4) |= (OBJECT_XTRA_BASE_RESIST << (o_ptr->randres2 - 1));
+			/* and another */
+			if (o_ptr->randres3)
+				(*f4) |= (OBJECT_XTRA_BASE_RESIST << (o_ptr->randres3 - 1));
+		}
+
+		if (o_ptr->randpow)
+		{
+			/* OBJECT_XTRA_WHAT_POWER == 3 */
+			(*f3) |= (OBJECT_XTRA_BASE_POWER << (o_ptr->randpow - 1));
+			/* maybe add another */
+			if (o_ptr->randpow2)
+				(*f3) |= (OBJECT_XTRA_BASE_POWER << (o_ptr->randpow2 - 1));
+		}
+	}
+#else
 	/* Extra powers */
 	switch (o_ptr->xtra1)
 	{
@@ -439,7 +562,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 
 		case OBJECT_XTRA_TYPE_RESIST:
 		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 (should be 4) */
+			/* OBJECT_XTRA_WHAT_RESIST == 4 */
 			(*f4) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
 			break;
 		}
@@ -451,6 +574,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			break;
 		}
 	}
+#endif /* new_random_stuff */
 }
 
 
@@ -556,8 +680,8 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, 
 	/* no hidden properties of artifacts */
 	if (o_ptr->name1) object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3, f4);
 	else object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
-	
-#if shouldbeunneedednow
+
+#if notneededanymore
 #ifdef EFG
 	/* EFGchange give description of artifact activations without IDENT_MENTAL */
 	if (object_known_p(o_ptr) && o_ptr->name1 && a_info[o_ptr->name1].flags3 & TR3_ACTIVATE)
@@ -712,6 +836,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, 
  *   2 -- An Amulet of Death [1,+3] (+2 to Stealth)
  *   3 -- 5 Rings of Death [1,+3] (+2 to Stealth) {nifty} (squelch)
  *   4 -- 5 Rings of Death [1,+3] (+2 to Stealth) {nifty}
+ *   5 -- 5 Rings of Death [1,+3] {nifty} (squelch)
  *
  * Modes ("pref" is FALSE):
  *   0 -- Chain Mail of Death
@@ -719,8 +844,9 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, 
  *   2 -- Amulet of Death [1,+3] (+2 to Stealth)
  *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty} (squelch)
  *   4 -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
+ *   5 -- Rings of Death [1,+3] {nifty} (squelch)
  */
-void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
+void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 {
 	cptr basenm;
 	cptr modstr;
@@ -829,6 +955,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_FLASK:
 		case TV_CHEST:
 		{
+			/* grenades use TV_FLASK */
+			/* (iron spikes have PTHROW but never have combat bonuses) */
+			if (f3 & TR3_THROWN) show_weapon = TRUE;
 			break;
 		}
 		
@@ -1116,7 +1245,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && artifact_p(o_ptr))
+		else if ((known) && ((artifact_p(o_ptr)) || (is_ego_randart(o_ptr))))
 		{
 			object_desc_str_macro(t, "The ");
 		}
@@ -1179,7 +1308,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		if (*s == '~')
 		{
 			/* Add a plural if needed */
-			if ((o_ptr->number != 1) && !(known && artifact_p(o_ptr)))
+			if (o_ptr->number != 1)
 			{
 				char k = t[-1];
 
@@ -1285,9 +1414,50 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		else if (o_ptr->name2)
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			bool singleslay = FALSE;
+			/* treating 'of slaying' as single slay if it only ended up with one */
+			if ((o_ptr->name2 == EGO_SLAY_ONE) || ((o_ptr->name2 == EGO_SLAY_TWO) &&
+            (o_ptr->randslay == o_ptr->randslay2))) singleslay = TRUE;
 
 			object_desc_chr_macro(t, ' ');
+#ifdef new_random_stuff
+			/* get slay name (this ego has one random slay and nothing else) */
+			/* replaces old "slay undead", "slay orc" etc */
+			if (singleslay)
+			{
+				/* non-metal weapons are prevented from getting SLAY_WERE */
+                if (f1 & TR1_SLAY_WERE)
+					object_desc_str_macro(t, "(silver-bladed)");
+				if (f1 & TR1_SLAY_ORC)
+					object_desc_str_macro(t, "of Slay Orc");
+				if (f1 & TR1_SLAY_TROLL)
+					object_desc_str_macro(t, "of Slay Troll");
+				if (f1 & TR1_SLAY_GIANT)
+					object_desc_str_macro(t, "of Slay Giant");
+				if (f1 & TR1_SLAY_UNDEAD)
+					object_desc_str_macro(t, "of Slay Undead");
+				if (f1 & TR1_SLAY_DEMON)
+					object_desc_str_macro(t, "of Slay Demon");
+				if (f1 & TR1_SLAY_DRAGON)
+					object_desc_str_macro(t, "of Slay Dragon");
+				if (f1 & TR1_SLAY_SILVER)
+					object_desc_str_macro(t, "of Slay Grepse");
+				if (f1 & TR1_SLAY_BUG)
+					object_desc_str_macro(t, "of Slay Bugs");
+				if (f1 & TR1_SLAY_LITE)
+					object_desc_str_macro(t, "of Slay Light");
+			}
+			else if ((is_ego_randart(o_ptr)) && (o_ptr->randego_name))
+			{
+				object_desc_str_macro(t, (o_ptr->randego_name));
+			}
+			else
+			{
+				object_desc_str_macro(t, (e_name + e_ptr->name));
+			}
+#else
 			object_desc_str_macro(t, (e_name + e_ptr->name));
+#endif
 
 			/* chance for double ego 'of lightness' on heavy armor */
 			if ((o_ptr->tval == TV_HARD_ARMOR) && (!(o_ptr->name2 == EGO_LIGHTNESS)) &&
@@ -1403,6 +1573,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Dump base weapon info */
 	switch (o_ptr->tval)
 	{
+		case TV_FLASK:
+		{
+			/* only show weapon info for grenades */
+            if (!(f3 & TR3_THROWN)) break;
+			/* Fall through */
+		}
+
 		/* Missiles */
 		case TV_SHOT:
 		case TV_BOLT:
@@ -1534,16 +1711,44 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* No more details wanted */
 	if (mode < 2) goto object_desc_done;
 
-	/* Fuelled light sources get number of remaining turns appended */
+	/* No need to show (+x to yskill) when you're showing the full */
+	/* object description */
+	if (mode == 5) goto object_desc_fifth;
+
+	/* Fuelled light sources get amount of remaining fuel appended */
 	if ((o_ptr->tval == TV_LITE) && !(f3 & TR3_NO_FUEL))
 	{
-		/* Turns of light for normal lites */
+		s32b minute, hour, sec, toturns;
+		/* timeout decrements every 10 game turns */
+		toturns = o_ptr->timeout * 10;
+		/* translate turns to time */
+		if (toturns >= 60) minute = toturns / 60;
+		else minute = 0;
+		if (minute >= 60) hour = minute / 60;
+		else hour = 0;
+		if (toturns >= 60) sec = toturns - (minute * 60);
+		else sec = toturns;
+		if (minute >= 60) minute -= hour * 60;
+
 		object_desc_str_macro(t, " (");
+#if old
+        /* Turns of light for normal lites */
 		object_desc_num_macro(t, o_ptr->timeout);
 		object_desc_str_macro(t, " turns)");
+#else
+		if (hour) object_desc_num_macro(t, hour);
+		if (hour) object_desc_str_macro(t, ":");
+		if (minute < 10) object_desc_str_macro(t, "0");
+		if (minute) object_desc_num_macro(t, minute);
+		object_desc_str_macro(t, ":");
+		if (sec < 10) object_desc_str_macro(t, "0");
+		object_desc_num_macro(t, sec);
+		object_desc_str_macro(t, ")");
+#endif
 	}
 
-	if ((f1 & (TR1_PVAL_MASK)) || (f2 & (TR2_PVAL_MASK)) || (f3 & (TR3_PVAL_MASK)))
+	if ((f1 & (TR1_PVAL_MASK)) || /* (f2 & (TR2_PVAL_MASK)) || */
+		(f3 & (TR3_PVAL_MASK)))
 		haspval = TRUE;
 
 	/* Dump "pval" flags for wearable items */
@@ -1579,17 +1784,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			tail = " to alertness";
 		}
 
-#if 0
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Dump " to digging" */
-			tail = " to digging";
-		}
-
-#endif
-
 		/* Speed */
 		else if (f1 & (TR1_SPEED))
 		{
@@ -1608,6 +1802,12 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 #if 0
+		/* Tunneling */
+		else if (f1 & (TR1_TUNNEL))
+		{
+			/* Dump " to digging" */
+			tail = " to digging";
+		}
 
 		/* Shots */
 		else if (f1 & (TR1_SHOTS))
@@ -1620,7 +1820,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		{
 			/* Nothing */
 		}
-
 #endif
 
 		/* Add the descriptor */
@@ -1698,6 +1897,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* No more details wanted */
 	if (mode < 3) goto object_desc_done;
 
+object_desc_fifth:
 
 	/* Use standard inscription */
 	if (o_ptr->note)
@@ -1777,7 +1977,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		*t++ = c2;
 	}
 
-
 	/* Add squelch marker unless mode == 4 (in-store) */
 	if (mode != 4 && !hide_squelchable && squelch_item_ok(o_ptr))
 		object_desc_str_macro(t, " (squelch)");
@@ -1841,14 +2040,14 @@ void identify_random_gen(const object_type *o_ptr)
 	/* get object flags */
 	object_info_out_flags(o_ptr, &f1, &f2, &f3, &f4);
 	attacks = FALSE;
-    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f2 & TR2_THROWN)) attacks = TRUE;
+    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f3 & TR3_THROWN)) attacks = TRUE;
 	
 	/* Dump the info */
 	if ((object_info_out(o_ptr)) && (!attacks))
 		text_out("\n");
 
     /* describe weapon attacks */
-    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f2 & TR2_THROWN))
+    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f3 & TR3_THROWN))
     {
 	    describe_attack(o_ptr);
     }
@@ -1945,7 +2144,7 @@ s16b wield_slot(const object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* anything with the THROWN flag goes in the quiver */
-	if (f2 & TR2_THROWN) return (INVEN_QUIVER);
+	if (f3 & TR3_THROWN) return (INVEN_QUIVER);
 
 	/* Slot for equipment */
 	switch (o_ptr->tval)
@@ -2221,7 +2420,7 @@ cptr describe_use(int i)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(const object_type *o_ptr)
+bool item_tester_okay(const object_type *o_ptr, bool floor)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);
@@ -2231,6 +2430,10 @@ bool item_tester_okay(const object_type *o_ptr)
 
 	/* Hack -- ignore "gold" */
 	if (o_ptr->tval == TV_GOLD) return (FALSE);
+
+    /* squelched or hidden items should be as good as non-existant */
+    /* this shouldn't apply to items in inventory */
+    if ((floor) && (squelch_hide_item(o_ptr))) return (FALSE);
 
 	/* Check the tval */
 	if (item_tester_tval)
@@ -2256,9 +2459,10 @@ bool item_tester_okay(const object_type *o_ptr)
  * Return the number of object indexes acquired.
  *
  * Valid flags are any combination of the bits:
- *   0x01 -- Verify item tester
- *   0x02 -- Marked/visible items only
- *   0x04 -- Only the top item
+ *   1 (was 0x01) -- Verify item tester (exclude squelchables)
+ *   2    -- Verify item tester (include squelchables)
+ *   3 (was 0x02) -- Marked/visible items only
+ *   4 (was 0x04) -- Only the top item
  */
 bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 {
@@ -2283,17 +2487,20 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Item tester */
-		if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
+		if ((mode == 1) && !item_tester_okay(o_ptr, TRUE)) continue;
+
+		/* Item tester */
+		if ((mode == 2) && !item_tester_okay(o_ptr, FALSE)) continue;
 
 		/* Marked */
-		if ((mode & 0x02) && (!o_ptr->marked || squelch_hide_item(o_ptr)))
+		if ((mode == 3) && (!o_ptr->marked || squelch_hide_item(o_ptr)))
 			continue;
 
 		/* Accept this item */
 		items[num++] = this_o_idx;
 
 		/* Only one */
-		if (mode & 0x04) break;
+		if (mode == 4) break;
 
 		/* XXX Hack -- Enforce limit */
 		if (num == MAX_FLOOR_STACK) break;
@@ -2346,7 +2553,7 @@ void display_inven(void)
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
 		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, FALSE))
 		{
 			/* Prepare an "index" */
 			tmp_val[0] = index_to_label(i);
@@ -2524,7 +2731,7 @@ void display_equip(void)
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
 		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, FALSE))
 		{
 			/* Prepare an "index" */
 			tmp_val[0] = index_to_label(i);
@@ -2647,7 +2854,7 @@ void show_inven(void)
 		o_ptr = &inventory[i];
 
 		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
+		if (!item_tester_okay(o_ptr, FALSE)) continue;
 
 		/* Describe the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -2872,7 +3079,7 @@ void show_equip(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
+		if (!item_tester_okay(o_ptr, FALSE)) continue;
 
 		/* Store pseudo-tag data in the arrays */
 		ptag_len[q] = get_pseudo_tag(i, ptag_desc[q],
@@ -2894,7 +3101,7 @@ void show_equip(void)
 		if (!o_ptr->k_idx && IS_QUIVER_SLOT(i)) continue;
 
 		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
+		if (!item_tester_okay(o_ptr, FALSE)) continue;
 
 		/* Description */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -3034,7 +3241,7 @@ void show_floor(const int *floor_list, int floor_num, bool gold)
 		if ((o_ptr->tval != TV_GOLD) || (!gold))
 		{
 			/* Is this item acceptable?  (always rejects gold) */
-			if (!item_tester_okay(o_ptr)) continue;
+			if (!item_tester_okay(o_ptr, TRUE)) continue;
 		}
 
 		/* Describe the object */
@@ -3229,20 +3436,19 @@ static bool get_item_okay(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Verify the item (FALSE: not on floor) */
+		return (item_tester_okay(o_ptr, FALSE));
 	}
 
 	/* Floor */
 	else
 	{
 		o_ptr = &o_list[0 - item];
-		
-	    /* squelched or hidden items should be as good as non-existant */
-	    /* this was in item_tester_okay, but shouldn't apply to items in inventory */
-	    if (squelch_hide_item(o_ptr)) return (FALSE);
-	}
 
-	/* Verify the item */
-	return (item_tester_okay(o_ptr));
+		/* Verify the item (TRUE: on the floor) */
+		return (item_tester_okay(o_ptr, TRUE));
+	}
 }
 
 
@@ -3542,7 +3748,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Scan all non-gold objects in the grid */
-	(void)scan_floor(floor_list, &floor_num, py, px, 0x01);
+	(void)scan_floor(floor_list, &floor_num, py, px, 1);
 
 	/* Full floor */
 	f1 = 0;
@@ -4195,6 +4401,7 @@ static int compare_items(const object_type *o1, const object_type *o2)
 {
 	bool arta = (artifact_p(o1) && (object_known_p(o1)));
 	bool artb = (artifact_p(o2) && (object_known_p(o2)));
+	int sortvala, sortvalb;
 
 	/* known artifacts will sort first */
 	if ((arta) && (artb)) return compare_types(o1, o2);
@@ -4210,6 +4417,23 @@ static int compare_items(const object_type *o1, const object_type *o2)
 	/* if only one of them is worthless, the other comes first */
 	if (object_is_worthless(o1) && !object_is_worthless(o2)) return 1;
 	if (!object_is_worthless(o1) && object_is_worthless(o2)) return -1;
+	
+	/* sort aware objects by value */
+	sortvala = object_value(o1);
+	sortvalb = object_value(o2);
+	/* chests are likely to have valuable stuff in them */
+	if ((o1->tval == TV_CHEST) && (o1->sval >= SV_LG_WOODEN_CHEST)) 
+		sortvala += 20 * p_ptr->depth;
+	else if (o1->tval == TV_CHEST) sortvala += 2 * p_ptr->depth;
+	if ((o2->tval == TV_CHEST) && (o2->sval >= SV_LG_WOODEN_CHEST)) 
+		sortvalb += 20 * p_ptr->depth;
+	else if (o2->tval == TV_CHEST) sortvala += 2 * p_ptr->depth;
+	/* object_value() assumes quantity is 1 */
+	if (o1->number > 1) sortvala *= o1->number;
+	if (o2->number > 1) sortvalb *= o2->number;
+	
+    if (sortvala > sortvalb) return -1;
+    else if (sortvala < sortvalb) return 1;
 
 	/* otherwise, just compare tvals and svals */
 	/* NOTE: arguably there could be a better order than this */
@@ -4217,7 +4441,7 @@ static int compare_items(const object_type *o1, const object_type *o2)
 }
 
 /*
- * Display visible items, similar to display_monlist
+ * Display visible items, similar to display_monlist (the object list)
  * copied from V3.1.1
  */
 void display_itemlist(void)
@@ -4231,9 +4455,14 @@ void display_itemlist(void)
 	byte a;
 	char c;
 
-	object_type *types[MAX_ITEMLIST];
-	int counts[MAX_ITEMLIST];
+	object_type *types[MAX_ITEMLIST+2];
+	int counts[MAX_ITEMLIST+2];
 	unsigned counter = 0;
+	/* for fake objects */
+	object_type *i_ptr;
+	/* object_type object_type_body; */
+	object_type mimic_object_type_body[MAX_MIMICS];
+	int num_mimics = 0;
 
 	int dungeon_hgt = p_ptr->depth == 0 ? TOWN_HGT : DUNGEON_HGT;
 	int dungeon_wid = p_ptr->depth == 0 ? TOWN_WID : DUNGEON_WID;
@@ -4260,8 +4489,8 @@ void display_itemlist(void)
 	{
 		for (mx = 0; mx < dungeon_wid; mx++)
 		{
-			(void)scan_floor(floor_list, &num, my, mx, 0x02);
-			/* num = scan_floor(floor_list, MAX_FLOOR_STACK, my, mx, 0x02); */
+			(void)scan_floor(floor_list, &num, my, mx, 3);
+			/* num = scan_floor(floor_list, MAX_FLOOR_STACK, my, mx, 3); */
 
 			/* Iterate over all the items found on this square */
 			for (i = 0; i < num; i++)
@@ -4309,6 +4538,89 @@ void display_itemlist(void)
 					counter++;
 				}
 			}
+
+			/* check for object mimmics */
+            if (cave_m_idx[my][mx] > 0)
+			{
+				monster_type *m_ptr = &mon_list[cave_m_idx[my][mx]];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+				/* disguised == 1 means it's mimmicking a terrain, not an object */
+				if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised > 1) &&
+					((m_ptr->meet == 100) || (player_can_see_bold(my, mx))))
+/*					((m_ptr->mflag & (MFLAG_SHOW)) || (player_can_see_bold(my, mx)))) */
+				{
+					unsigned j;
+					int wvar;
+
+					/* Get local object */
+					i_ptr = &mimic_object_type_body[num_mimics];
+					if (num_mimics < MAX_MIMICS - 1) num_mimics++;
+					/* i_ptr = &object_type_body; */
+
+					/* Create the item */
+					object_prep(i_ptr, m_ptr->disguised);
+					
+					/* mark item as a disguised monster */
+					i_ptr->thisbrand = 77;
+
+					/* a weird variable (because we can't use randint or the player will catch on) */
+					if (p_ptr->depth > 20) wvar = ((p_ptr->depth+1)/2 - (((int)(p_ptr->depth/20)) * 10));
+					else wvar = p_ptr->depth / 4;
+					if ((wvar > 8) && (p_ptr->depth < 80)) wvar = p_ptr->depth/10;
+					else if (wvar > 8) wvar = p_ptr->depth/17;
+					/* fake amount */
+					if ((i_ptr->tval == TV_SHOT) || (i_ptr->tval == TV_BOLT) || (i_ptr->tval == TV_ARROW))
+						i_ptr->number = 21 + (wvar * 3) / 2;
+					else if (i_ptr->tval == TV_SPIKE) i_ptr->number = 11 + (wvar * 2);
+					else i_ptr->number = 1;
+
+					/* Skip gold/squelched */
+					if (i_ptr->tval == TV_GOLD)	continue;
+					/* we'll need this if you uncomment the squelch bit */
+					/* if (i_ptr->tval == TV_CHEST) i_ptr->pval = randint(5); */
+
+					/* skip squelched only if hide_squelchable is on */
+					/* (if you can see an object, but it's not on the object */
+					/* list then it's obvious that something's up.  If you see */
+                    /* an object that you have squelched, you may forget that */
+                    /* it's squelched.) */
+					/* if ((squelch_item_ok(i_ptr)) && (hide_squelchable)) continue; */
+
+					/* See if we've already seen a similar item; if so, just add */
+					/* to its count */
+					for (j = 0; j < counter; j++)
+					{
+						if (object_similar(i_ptr, types[j]))
+						{
+							counts[j] += i_ptr->number;
+							break;
+						}
+					}
+
+					/* We saw a new item. So insert it at the end of the list and */
+					/* then sort it forward using compare_items(). The types list */
+					/* is always kept sorted. */
+					if (j == counter)
+					{
+						types[counter] = i_ptr;
+						counts[counter] = i_ptr->number;
+
+						while (j > 0 && compare_items(types[j - 1], types[j]) > 0)
+						{
+							object_type *tmp_o = types[j - 1];
+							int tmpcount;
+
+							types[j - 1] = types[j];
+							types[j] = tmp_o;
+							tmpcount = counts[j - 1];
+							counts[j - 1] = counts[j];
+							counts[j] = tmpcount;
+							j--;
+						}
+						counter++;
+					}
+				}
+			}
 		}
 	}
 
@@ -4341,10 +4653,14 @@ void display_itemlist(void)
 		object_type *o_ptr = types[i];
 
 		/* We shouldn't list coins or squelched items */
-		if (o_ptr->tval == TV_GOLD || squelch_item_ok(o_ptr))
-			continue;
+		if (o_ptr->tval == TV_GOLD)	continue;
+					
+		/* skep squelched only if hide_squelchable is on */
+		/* if ((squelch_item_ok(o_ptr)) && (hide_squelchable)) continue; */
+		
+		if (o_ptr->thisbrand == 77) disguise_object_desc(o_name, sizeof(o_name), o_ptr->k_idx);
+		else object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
-		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 		if (counts[i] > 1)
 			sprintf(o_desc, "%s (x%d)", o_name, counts[i]);
 		else
@@ -4375,7 +4691,7 @@ void display_itemlist(void)
 			continue;
 		}
 
-		/* Note that the number of items actually displayed */
+		/* Note the number of items actually displayed */
 		disp_count++;
 
 		if (artifact_p(o_ptr) && (object_known_p(o_ptr)))

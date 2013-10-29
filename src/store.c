@@ -621,7 +621,29 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	if (o_ptr->name2 != j_ptr->name2) return (0);
 
 	/* Hack -- Never stack "powerful" items */
+#ifdef new_random_stuff
+	if (o_ptr->randsus != j_ptr->randsus) return (0);
+	if (o_ptr->randsus2 != j_ptr->randsus2) return (0);
+	if (o_ptr->randres != j_ptr->randres) return (0);
+	if (o_ptr->randres2 != j_ptr->randres2) return (0);
+	if (o_ptr->randres3 != j_ptr->randres3) return (0);
+	if (o_ptr->randpow != j_ptr->randpow) return (0);
+	if (o_ptr->randpow2 != j_ptr->randpow2) return (0);
+	if (o_ptr->randslay != j_ptr->randslay) return (0);
+	if (o_ptr->randslay2 != j_ptr->randslay2) return (0);
+	if (o_ptr->randbon != j_ptr->randbon) return (0);
+	if (o_ptr->randbon2 != j_ptr->randbon2) return (0);
+	if (o_ptr->randplu != j_ptr->randplu) return (0);
+	if (o_ptr->randplu2 != j_ptr->randplu2) return (0);
+	if (o_ptr->randdrb != j_ptr->randdrb) return (0);
+	if (o_ptr->randdrb2 != j_ptr->randdrb2) return (0);
+	if (o_ptr->randimm != j_ptr->randimm) return (0);
+	if (o_ptr->randlowr != j_ptr->randlowr) return (0);
+	if (o_ptr->randlowr2 != j_ptr->randlowr2) return (0);
+	if (o_ptr->randact != j_ptr->randact) return (0);
+#else
 	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
+#endif
 
 	/* Hack -- Never stack recharging items */
 	if ((o_ptr->timeout || j_ptr->timeout) && o_ptr->tval != TV_LITE)
@@ -1070,7 +1092,7 @@ static bool black_market_ok(object_type *o_ptr)
 	/* Good items are normally fine */
 	if (o_ptr->to_a > 2) return (TRUE);
 	if (((o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_ARROW) ||
-		(o_ptr->tval == TV_BOLT)) && (o_ptr->to_h + o_ptr->to_d > 2)) return (TRUE);
+		(o_ptr->tval == TV_BOLT)) && (o_ptr->to_h + o_ptr->to_d > 3)) return (TRUE);
 	else if (o_ptr->to_h + o_ptr->to_d > 4) return (TRUE);
 
 	/* minimum pval on stat rings / amulets */
@@ -1178,17 +1200,124 @@ static s16b store_get_choice(int st)
 }
 
 
+
+/* good luck may cause something you need to appear in the black market */
+static int get_lucky(void)
+{
+	int i, luckidx = 0, needmost = 0;
+	bool iscurse = FALSE;
+	object_type *o_ptr;
+	u32b f1, f2, f3, f4;
+
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		
+		/* check for heavy curses */
+		if (((f3 & (TR3_PERMA_CURSE)) || (f3 & (TR3_HEAVY_CURSE))) &&
+			(o_ptr->ident & (IDENT_CURSED)))
+			iscurse = TRUE;
+	}
+
+	/* check for hard-to-cure bad stuff */
+    if (p_ptr->corrupt > 15) needmost = 3;
+    if (p_ptr->slime >= PY_SLIME_LEVELONE) needmost = 1;
+	if (p_ptr->silver >= PY_SILVER_LEVELONE) needmost = 2;
+	if (p_ptr->corrupt > 30) needmost = 3;
+	if (iscurse) needmost = 4;
+	if (p_ptr->slime >= PY_SLIME_LEVELTWO) needmost = 1;
+	if (p_ptr->silver >= PY_SILVER_LEVELTWO) needmost = 2;
+	if (p_ptr->slime >= PY_SLIME_VERYBAD) needmost = 1;
+	if (p_ptr->corrupt > 45) needmost = 3;
+	
+	if (needmost == 1) /* need slime cure */
+	{
+		switch (randint(6))
+		{
+			case 1: luckidx = 25; /* waybread */
+			case 2: luckidx = 242; /* !healing */
+			case 3: luckidx = 419; /* !*healing* */
+			case 4: luckidx = 11; /* mushroom of health */
+			case 5: luckidx = 415; /* !purity */
+			case 6:
+			{
+				if (p_ptr->slime > PY_SLIME_LEVELTWO) luckidx = 415;
+				else luckidx = 20; /* mushroom of csw */
+			}
+		}
+		return luckidx;
+	}
+	
+	if (needmost == 2) /* need cure for silver poison */
+	{
+		switch (randint(7))
+		{
+			case 1: luckidx = 25; /* waybread */
+			case 2: luckidx = 242; /* !healing */
+			case 3: luckidx = 419; /* !*healing* */
+			case 4: luckidx = 18; /* mushroom of clear mind */
+			case 5: luckidx = 415; /* !purity */
+			case 6:
+			{
+				if (p_ptr->silver > PY_SILVER_LEVELTWO) luckidx = 415;
+				else luckidx = 421; /* !self knowledge */
+			}
+			case 7:
+			{
+				if (p_ptr->silver >= PY_SILVER_LEVELTWO) luckidx = 415;
+				else luckidx = 20; /* mushroom of csw */
+			}
+		}
+		return luckidx;
+	}
+
+	if (needmost == 3) /* need cure for corruption */
+	{
+		if ((randint(4) == 1) && (p_ptr->corrupt > 45))
+		{
+			luckidx = 5; /* mushroom of emergency */
+		}
+		else luckidx = 415; /* !purity */
+
+		return luckidx;
+	}
+	
+	if (needmost == 4) /* need way to remove a heavy curse */
+	{
+		luckidx = 191; /* *remove curse* */
+
+		return luckidx;
+	}
+	
+	/* this only happens with temporary or equipment good luck effects */
+	/* because otherwise you only have goodluck if p_ptr->luck > 20 */
+    if ((p_ptr->luck <= 20) && (goodluck) && (rand_int(250) < goodluck))
+		return 578; /* 4-leaf clover juice */
+		
+	return 0;
+}
+
+
 /*
  * Creates a random object and gives it to store 'st'
  */
 static bool store_create_random(int st)
 {
 	int k_idx, tries, level, tval, sval;
+	int min_level, max_level;
+	bool luckfail = FALSE;
+	bool lucktry = FALSE;
 
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	int min_level, max_level;
 
 	/*
 	 * Decide min/max levels 
@@ -1197,7 +1326,7 @@ static bool store_create_random(int st)
 	{
 		min_level = 25;
 		max_level = 50;
-        if (p_ptr->max_depth > 70) max_level += (p_ptr->max_depth - 45)/5;
+        if (p_ptr->max_depth > 60) max_level += (p_ptr->max_depth - 45)/5;
 	}
 	else
 	{
@@ -1217,7 +1346,23 @@ static bool store_create_random(int st)
         if (level > 2) level -= 1;
 
 		/* Black Markets have a random object, of a given level */
-		if (st == STORE_B_MARKET) k_idx = get_obj_num(level);
+		if (st == STORE_B_MARKET)
+		{
+			k_idx = get_obj_num(level);
+			
+			if ((k_idx == 420) && (p_ptr->corrupt < 35)) /* save a !life */;
+            /* luck may come through for you */
+			else if ((rand_int(200) < (goodluck + 3) / 2) && (!luckfail))
+			{
+				int luckidx = get_lucky();
+				/* if get_lucky didn't return anything, then don't change the k_idx */
+				if (luckidx)
+				{
+					k_idx = luckidx;
+					lucktry = TRUE;
+				}
+			}
+		}
 
 		/* Normal stores use a big table of choices */
 		else k_idx = store_get_choice(st);
@@ -1227,6 +1372,7 @@ static bool store_create_random(int st)
 		if (!lookup_reverse(k_idx, &tval, &sval))
 		{
 			msg_format("Invalid object index in store_create_random()! store %d", st);
+			if (lucktry) luckfail = TRUE;
 			continue;
 		}
 
@@ -1251,8 +1397,9 @@ static bool store_create_random(int st)
 		/* Apply some "low-level" magic (no artifacts) */
 		apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
 		
-		/* The object is "known" and belongs to a store */
+		/* The object is fully "known" and belongs to a store */
 		object_known(i_ptr);
+		if (st == STORE_B_MARKET) i_ptr->ident |= IDENT_MENTAL;
 		i_ptr->ident |= IDENT_STORE;
 
 
@@ -1264,9 +1411,15 @@ static bool store_create_random(int st)
         else if (((tval == TV_STAFF) || (tval == TV_RING)) && (i_ptr->name2) && (st != STORE_B_MARKET))
              continue;
         /* no "of randomness" or "Natural" egos in stores */
-        else if ((i_ptr->name2 >= EGO_RANDOM1) && (i_ptr->name2 <= EGO_UPS_N_DOWNS))
+        else if (((i_ptr->name2 >= EGO_RANDOM1) && (i_ptr->name2 <= EGO_NATURAL_LITE)) ||
+        ((i_ptr->name2 >= EGO_CONSTANT1) && (i_ptr->name2 <= EGO_CONSTANT2)) ||
+        ((i_ptr->name2 >= EGO_RANDOM_AC1) && (i_ptr->name2 <= EGO_RANDOM_BOW)))
              continue;
-			
+
+		/* dungeon books should normally be found in the dungeon */
+		/* instead of being aquired from the black market. */
+		if ((i_ptr->tval >= TV_MAGIC_BOOK) && (i_ptr->tval < TV_GOLD) && 
+			(i_ptr->sval >= SV_BOOK_MIN_GOOD) && (randint(100) < 44 - goodluck/2)) continue;
 
 		/* No "worthless" items */
 		if (object_value(i_ptr) < 1) continue;
@@ -1277,6 +1430,9 @@ static bool store_create_random(int st)
 		{
 			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->timeout = FUEL_TORCH / 2;
 			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->timeout = FUEL_LAMP / 2;
+
+			/* to prevent it saying (charging) in the description) */
+			if (i_ptr->name2 == EGO_EVERBURNING) i_ptr->timeout = 0;
 		}
 
 		/* Mass produce and/or apply discount */
@@ -1327,6 +1483,7 @@ static struct staple_type
 /*
  * Helper function: create an item with the given tval,sval pair, add it to the
  * store st.  Return the slot in the inventory.
+ * (only used for the general store)
  */
 static int store_create_item(int st, int tval, int sval, create_mode mode)
 {
@@ -1815,15 +1972,19 @@ static void store_redraw(void)
 		if (store_flags & STORE_SHOW_HELP)
 			store_display_help();
 		else
+		{
+			if (store_current == STORE_HOME)
+				prt("Press '?' to take a nap (wait for stores to restock).", scr_places_y[LOC_HELP_PROMPT], 1);
 #ifdef EFG
-			/* EFGchange new command to buy out a store */
+            /* EFGchange new command to buy out a store */
 			/* snagged '?' for buying out store since could not */
 			/* figure out how to use a new command character */
 			if (store_current != STORE_HOME)
 				prt("Press '?' to restock store.", scr_places_y[LOC_HELP_PROMPT], 1);
 #else
-			prt("Press '?' for help.", scr_places_y[LOC_HELP_PROMPT], 1);
+			else prt("Press '?' for help.", scr_places_y[LOC_HELP_PROMPT], 1);
 #endif
+		}
 
 		store_flags &= ~(STORE_FRAME_CHANGE);
 	}
@@ -2251,7 +2412,7 @@ static void store_sell(void)
  	else
 		o_ptr = &o_list[0 - item];
 		
-// #ifdef EFG
+/* #ifdef EFG */
 	/* See if the object is "aware" */
 	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
 
@@ -2266,7 +2427,7 @@ static void store_sell(void)
 		     store_flags |= STORE_KEEP_PROMPT;
 		     return;
           }
-          else if (((o_ptr->tval > 39) && (o_ptr->tval < 77)) || 
+          else if (((o_ptr->tval >= 40) && (o_ptr->tval < 77)) || 
                   (o_ptr->tval == 80))
           {
              /* allow donating to shops for ID */
@@ -2280,7 +2441,7 @@ static void store_sell(void)
           }
 	   }
     }
-// #endif
+/* #endif */
 
 	/* Hack -- Cannot remove cursed objects */
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
@@ -2540,6 +2701,132 @@ bool store_overflow(void)
 	return FALSE;
 }
 
+
+/* sleep at home to force stores to restock */
+static void take_a_nap(void)
+{
+	int i = 0, n = 0;
+	int bbluck = badluck;
+	bool daytimea, daytimeb;
+	if (p_ptr->theme == 7) bbluck += 5;
+    if (p_ptr->food < PY_FOOD_ALERT)
+	{
+		msg_print("You're too hungry to take a nap.");
+		return;
+	}
+	if (p_ptr->timed[TMD_CUT] || p_ptr->timed[TMD_POISONED])
+	{
+		msg_print("You need first aid before napping.");
+		return;
+	}
+	if (turn - p_ptr->last_nap < 500)
+	{
+		msg_print("You're not tired.");
+		return;
+	}
+	if (p_ptr->word_recall)
+	{
+		msg_print("You'd get pulled into the dungeon in the middle of your nap!");
+		return;
+	}
+
+	if (rand_int(100) < bbluck)
+	{
+		msg_print("You can't seem to get to sleep.");
+		p_ptr->last_nap = turn - 400;
+		return;
+	}
+	
+    if (p_ptr->chp < p_ptr->mhp) msg_print("You feel refreshed after your nap.");
+	else msg_print("You enjoy your nap.");
+	
+ 
+	/* remember whether it was daytime or not when we went to bed */
+	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) daytimea = TRUE;
+	else daytimea = FALSE;
+
+	/* take a 2-hour nap */
+	turn += 7200;
+	p_ptr->last_nap = turn;
+	(void)set_food(p_ptr->food - 200);
+
+	/* takes the place of going to level 1 to rest x number of turns */
+    while (i < 360)
+	{
+		decrease_timeouts();
+		recharge_objects();
+		sense_inventory();
+		i++;
+	}
+	
+	/* that should be plenty of time to heal up */
+	if (((p_ptr->timed[TMD_FALSE_LIFE]) && (p_ptr->chp >= p_ptr->mhp)) ||
+		(!p_ptr->stopregen))
+	{
+		p_ptr->chp = p_ptr->mhp;
+		p_ptr->chp_frac = 0;
+	}
+
+	/* update game time (replaces equippy chars) */
+	if (show_gtime) p_ptr->redraw |= (PR_EQUIPPY);
+	
+	/* all monsters in the town forget about you */
+	/* Scan monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		/* get the monster */
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+		
+		/* monster is temporarily dead */
+		if (m_ptr->temp_death) continue;
+
+		if (!m_ptr->csleep)
+		{
+			m_ptr->csleep = r_ptr->sleep * 10;
+			if ((r_ptr->flags1 & (RF1_FRIENDS)) || (r_ptr->flags2 & (RF2_FRIEND1)))
+				m_ptr->roaming = 11;
+			m_ptr->roaming = 1;
+		}
+	}
+
+	/* Maintain each shop (except home) */
+	for (n = 0; n < MAX_STORES; n++)
+	{
+		/* Skip the home */
+		if (n == STORE_HOME) continue;
+
+		/* Maintain */
+		store_maint(n);
+	}
+
+	/* Sometimes, shuffle the shop-keepers */
+	if (rand_int(STORE_SHUFFLE + 10) == 0)
+	{
+		/* Message */
+		if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
+
+		/* Pick a random shop (except home) */
+		while (1)
+		{
+			n = rand_int(MAX_STORES);
+			if (n != STORE_HOME) break;
+		}
+
+		/* Shuffle it */
+		store_shuffle(n);
+	}
+
+	/* do this here, or else the sun won't rise in the morning.. */
+	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) daytimeb = TRUE;
+	else daytimeb = FALSE;
+	if (daytimea != daytimeb) town_illuminate(daytimeb);
+}
+
+
 /*
  * Process a command in a store
  *
@@ -2672,7 +2959,7 @@ static bool store_process_command(char cmd, void *db, int oid)
 		/* Take notes */
 		case ':':
 		{
-			do_cmd_note("",  p_ptr->depth);
+			do_cmd_note("",  p_ptr->depth, TRUE);
 			break;
 		}
 
@@ -2709,7 +2996,6 @@ static bool store_process_command(char cmd, void *db, int oid)
 			break;
 		}
 
-
 		/*** Help and Such ***/
 
 		/* Character description */
@@ -2724,14 +3010,22 @@ static bool store_process_command(char cmd, void *db, int oid)
 		/* EFGchange new command to buy out a store */
 		    /* ??? could not figure out how to use a new letter */
 		{
-			if (!p_ptr->fakehome)
+			/* new command to take a nap while in the home */
+			if ((store_current == STORE_HOME) && (!p_ptr->fakehome)) 
 			{
-                if (store_purchase_all())
-				    return TRUE;
+				take_a_nap();
+				/* make sure the player can see the message */
+				message_flush();
+				return TRUE;
+			}
+			else if (!p_ptr->fakehome)
+			{
+                if (store_purchase_all()) return TRUE;
             }
 			break;
 		}
 #else
+
 		{
 			/* Toggle help */
 			if (store_flags & STORE_SHOW_HELP)

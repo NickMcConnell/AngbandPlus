@@ -9,11 +9,11 @@
 				
 		          David A. Justiss (aka Will_Asher)
 			report bug reports on angband.oook.cz
-		     		   DJA v1.1.2
+		     		   DJA v1.2.0
                 Based on Angband Version 3.0.9e (with Eddie Grove's patch)
 
    				    Website:
-	   http://will2asher.awardspace.biz/MonsterDic/DaJAngbandmain.html
+		http://sites.google.com/site/dajangbandwebsite/home
 
    Angband based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
@@ -23,4 +23,4 @@
             2.9.0 - 3.0.6:   Robert Ruehlmann
 		  3.0.8 -:   Andrew Sidwell
 
-  Please read the summary of changes available in the "DaJAngbandReadme112.txt" file!
+  Please read the summary of changes available in the "DaJAngbandReadme120.txt" file!

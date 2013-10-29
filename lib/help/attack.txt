@@ -1,13 +1,13 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in Angband.  If you move into a creature, you attack him.
+Attacking is simple in Angband.  If you move into a creature, you attack it.
 You can attack from a distance by firing a missile or by magical means (such
 as aiming a wand).  Creatures attack in the same way.  If they move into you,
 they attack you.  Some creatures can also cast spells from a distance, and
 others can use various breath weapons (such as fire) on you from a distance.
 
-Creatures in walls can not be attacked by wands or other magic attacks
-normally stopped by walls, nor can they be shot at with bows and arrows.
+Creatures in walls can be attacked by projectiles or magic attacks normally 
+stopped by walls, but they are harder to hit with projectiles.
 Tunnelling into the wall (using the "tunnel" or "alter" command) will allow 
 you to attack any creature in the wall. This applies to creatures which 
 "pass through" walls: if they "bore through" walls, the wall is no longer
@@ -40,7 +40,7 @@ actually occurs.
 
 === Monster Memories ===
 
-There are hundreds of different creatures in the pits of Angband, many of
+There are hundreds of different creatures in the pits of Angband, some of
 which have the same letter symbol and color on the screen.  The exact species
 of a creature can be discovered by looking at it.  It is also very difficult
 to keep track of the capabilities of various creatures.  Luckily, Angband
@@ -168,13 +168,13 @@ Weapons of Slaying enemies.
 Weapons of *Slaying* enemies.
      These weapons, in addition to doing extra damage to your enemies, have
      extra powers as well. In each case, one stat is increased. Weapons of 
-     *Slay Dragon* are also more powerful against their opponents, doing
-     five times their base damage rather than the normal three.
+     *Slay* Dragon, demon, or undead are also more powerful against their
+     opponents, doing five times their base damage rather than the normal three.
 
 Weapon of Morgul.
      These blades are so foully cursed with evil, it is rumored that it is
      nearly impossible to remove them without a special curse-removing spell,
-     much stronger than normal Remove Curse. 
+     much stronger than normal Remove Curse.
 
 Shovels of Digging.
      These powerful diggers will dig through granite as if it were mere wood, 
@@ -221,7 +221,7 @@ Ammo of Backbiting.
     to be false.
 
 These are the most common types of ego-weapon: note that they are not the 
-ONLY ego-items available in the dungeon, there may be more.
+ONLY ego-items available in the dungeon, there are others.
 
 Apart from these there are some very rare and well made weapons in the
 dungeon with not necessarily any special abilities. These include Blades
@@ -411,6 +411,11 @@ Gauntlets of Power.
 Gauntlets of Magic Mastery.
 	These gauntlets will raise your skill with using magic devices.
 
+Gauntlets of Throwing.
+	These gauntlets will raise your throwing might so that using throwing
+      weapons can do just as much damage as using a long bow or crossbow
+	(or possibly even more).
+
 Gauntlets of Weakness.
      These gauntlets sap your strength.
 
@@ -432,6 +437,10 @@ Boots of Free Action.
 Boots of Speed.
      The wearer of these boots will become unnaturally fast.
 
+Dwarven Boots.
+	These useful boots provide both free action and darkvision as well 
+	as boosts to strength and constitution.
+
 Boots of Slowness.
      They seem to be stuck to the ground, and you can hardly move at all 
      while wearing these things.
@@ -451,9 +460,8 @@ quality metals they contain.
 There are rumors of unique "artifact" items in the dungeon - weapons and 
 armor of all types. Many of these are more powerful than even the greatest 
 ego-items: some are weak and have little more than a name to recommend them. 
-In all cases, and indeed if the player desires to find out the powers of an 
-ego-item with random powers, use of a scroll of *Identify* will reveal all 
-the powers of any given item.
+You will normally recognise artifacts after a little while of having them in
+your inventory or wielded equipment.
 
 === Non-melee attacks and resistances ===
 
@@ -472,7 +480,7 @@ resistances to fear, blindness and confusion, and the power of "free
 action" prevents magical paralysis and most slowing attacks (the player may 
 still be paralyzed by being "knocked out" in melee or by a stunning attack,
 but this is very rare.) It should also be noticed that unique monsters 
-automatically pass their saving throws, and some monsters are naturally 
+get a significatn bonus to their saving throws, and some monsters are naturally 
 resistant to confusion, fear and sleep-monster attacks. Monster spells 
 to "cause wounds" are included in this category, of attacks which do no 
 damage if a saving throw is made, or full damage if it is failed.
@@ -580,7 +588,7 @@ and 6/12.
 It should be noted that not all of these are actually vital to completing 
 the game: indeed, of the above list, only fire, cold, acid, lightning, poison 
 and confusion resists are regarded as truly vital, with blindness, chaos and
-nether the next most desirable. Some attack forms are not resistable, but 
+sound the next most desirable. Some attack forms are not resistable, but 
 thankfully these are rare: resist shards will prevent all other magical 
 attacks which cut (namely ice bolts), and resist sound will prevent all 
 magical stunning (force breath, water bolts and balls, ice bolts, gravity and

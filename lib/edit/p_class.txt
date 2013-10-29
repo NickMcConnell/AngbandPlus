@@ -1,5 +1,5 @@
 # File: p_class.txt
-# DaJAngband 1.1.2
+# DaJAngband 1.2.0
 
 
 # This file is used to initialize the "lib/data/p_class.raw" file, which is
@@ -180,7 +180,7 @@ B:50:9:7:75:10	#recharging1
 B:51:99:0:0:0	#enchant armor
 B:52:99:0:0:0	#enchant weapon
 B:53:30:30:94:90	#recharging2
-B:54:35:80:90:75	#elemental brand
+B:54:36:80:85:75	#elemental brand (melee, temporary and now works on ego/artifact weapons)
 B:55:19:12:58:8	#ba-cold
 B:56:21:15:70:20	#ba-acid
 B:57:27:18:70:12	#ba-fire
@@ -194,7 +194,7 @@ B:64:99:0:0:0	#summon demonic aid (war mage only, escapes book)
 B:65:14:8:40:8	#mana defence (WSHIELD +1-2 slight stealth, resistace book)
 B:66:21:12:55:10	#sphere of charm (escape book, for wizards)
 B:67:99:0:0:0	#sphere of charm (Tenser's, for war mage)
-B:68:99:0:0:0	#elemental melee strike (like spirit of the balrog) (Tenser's)
+B:68:99:0:0:0	#elemental brand (war mage version 1 book earlier (same effect))
 B:69:99:0:0:0	#dragonfire (Tenser's)
 
 #tentatively done
@@ -336,25 +336,25 @@ B:6:99:0:0:0	#door creation 			/ (tourist version)
 B:7:99:0:0:0	#word of recall			/ (tourist version)
 B:8:99:0:0:0	#stair creation			/ (tourist version)
 B:9:11:4:60:1	#cure light wounds (B2)		11
-B:10:17:13:75:3	#extra luck				17
+B:10:17:13:67:3	#extra luck				17
 B:11:15:11:50:2	#resist cold			15
 B:12:99:0:0:0	#extra batteries			/ (moved to tourist only book)
 B:13:16:8:58:1	#bug spray				16
 B:14:18:9:46:2	#detect invisible			18
 B:15:30:21:78:4	#resist poison			30
-B:16:23:13:67:13	#curing or causing		23
+B:16:23:13:56:13	#curing or causing		23
 B:17:20:10:70:21	#wonder				20
 B:18:7:2:49:1	#blink (B3)				7
-B:19:15:5:73:2	#confuse monster			15
-B:20:6:1:44:1	#detect monsters			6
+B:19:15:5:70:2	#confuse monster			15
+B:20:6:1:43:1	#detect monsters			6
 B:21:7:3:40:1	#detect traps			7
-B:22:23:16:65:4	#slow monster			23
+B:22:23:16:60:4	#slow monster			23
 B:23:22:14:60:4	#mini destruction			22
 B:24:24:12:70:3	#stone to mud			24
 B:25:29:20:75:5	#sense surroundings		29 (moved to book 8)
 B:26:27:10:50:10	#detect enchantment		27
 B:27:99:0:0:0	#detect traps (B4)		/ (tourist only book)
-B:28:13:5:50:2	#disinfectant			13 (in book 2)
+B:28:13:5:45:2	#disinfectant			13 (in book 2)
 B:29:99:0:0:0	#map of the area			/
 B:30:99:0:0:0	#adjust curse			/
 B:31:99:0:0:0	#telekinesis2			/
@@ -362,7 +362,7 @@ B:32:99:0:0:0	#detect enchantment2		/
 B:33:99:0:0:0	#probing				/
 B:34:99:0:0:0	#map of the level			/
 B:35:99:0:0:0	#full identify			/
-B:36:8:5:63:3	#hit and run (B5)			8
+B:36:8:5:55:3	#hit and run (B5)			8
 B:37:21:9:50:3	#teleport self			21
 B:38:31:25:65:5	#teleport other			31
 B:39:25:15:70:8	#slow monsters			25
@@ -377,8 +377,8 @@ B:47:99:0:0:0	#affect self			/
 B:48:99:0:0:0	#affect surroundings		/
 B:49:33:27:39:19	#potluck stats			33
 B:50:99:0:0:0	#aquirement				/
-B:51:12:13:54:6	#blink monster (B7)		12 (moved to book 5)
-B:52:17:7:35:17	#door creation2			17
+B:51:12:12:54:6	#blink monster			12 (moved to book 5)
+B:52:17:7:35:17	#door creation2 (B7)		17
 B:53:25:13:44:25	#stair creation2			25
 B:54:26:21:60:25	#teleport level			26
 B:55:45:30:95:35	#word of destruction		45
@@ -506,7 +506,7 @@ N:5:Paladin
 S:3:-2:1:0:1:2
 C:21:20:27:0:12:10:62:42:50
 X:12:9:12:0:0:18:37:30:30
-I:5:35:55000:10
+I:5:35:52000:10
 A:5:35:5
 M:91:2:1:420
 #Starting objects: short sword, ring mail, 1st Prayer book, 1 ?Protection from evil
@@ -704,7 +704,7 @@ N:7:Alchemist
 S:-1:2:-1:0:-1:-1
 C:21:22:20:1:20:6:39:31:32
 X:9:12:12:0:0:10:20:16:21
-I:1:29:16500:6
+I:1:29:24100:6
 A:4:34:3
 M:94:1:1:335
 #Starting objects: set of leather gloves, 1 !ccw, 1 !Restore mana, and 1st Alchemy book
@@ -786,7 +786,7 @@ B:56:14:11:95:15	#recharging				14
 B:57:34:30:65:75	#tunneldigging			34
 B:58:29:21:50:50	#explosion				29  (28-29(?)
 B:59:43:38:92:100	#restoration			43
-B:60:34:60:92:85	#poison brand weapon		34  (33-37(?)
+B:60:34:65:90:85	#poison brand weapon		34  (33-37(?)
 B:61:99:0:0:0	#hit and run (B8)			/  (thief only book)
 B:62:99:0:0:0	#slip into the shadows		/
 B:63:99:0:0:0	#poison bolt			/
@@ -1006,7 +1006,7 @@ N:10:Druid
 S:-2:1:2:1:-1:0
 C:32:27:26:4:17:16:44:38:45
 X:11:10:11:0:1:16:23:23:25
-I:3:30:35000:16
+I:3:30:34000:16
 A:4:40:3
 M:92:2:1:290
 #Starting objects: druid robe, walking staff, and 1st nature book
@@ -1103,8 +1103,8 @@ B:71:10:9:40:5	#fire spray				10 (in B4)
 
 N:11:White Knight
 S:4:-1:1:1:1:3
-C:15:14:15:-1:14:10:65:38:40
-X:11:8:14:0:0:20:46:32:35
+C:15:14:15:-1:14:10:65:38:39
+X:11:8:14:0:0:20:46:32:37
 I:7:25:40000:10
 A:5:35:5
 M:91:2:5:430
@@ -1248,7 +1248,7 @@ B:20:22:15:75:2	#trap/door destruction		22
 B:21:24:13:75:2	#poison bolt			14
 B:22:99:0:0:0	#slip into the shadows		/
 B:23:99:0:0:0	#cause mortal wounds (unused)	/
-B:24:39:24:73:9	#venom bolt				39
+B:24:39:23:73:9	#venom bolt				39
 B:25:99:0:0:0	#breathe withering (unused)	/
 B:26:41:16:68:19	#scare monsters  (B4)		41
 B:27:28:11:65:5	#spear of dark			28
@@ -1265,7 +1265,7 @@ B:37:99:0:0:0	#probing				/
 B:38:99:0:0:0	#identify				/
 B:39:43:26:90:35	#summon demonic aid		43 (in 6th book)
 B:40:99:0:0:0	#exorcize demons			/
-B:41:37:19:80:12	#detect enchantment		37
+B:41:99:0:0:0	#detect enchantment		/
 B:42:11:4:64:4	#boldness (6th book)		11
 B:43:99:0:0:0	#false life 			/
 B:44:34:23:81:14	#resist poison			34
@@ -1386,12 +1386,12 @@ B:54:99:0:0:0	#vampiric drain			/
 B:55:99:0:0:0	#hold life				/
 B:56:99:0:0:0	#genocide				/
 B:57:26:15:95:8	#recharging				26
-B:58:32:22:50:17	#sniper's eye			32
+B:58:28:20:45:17	#sniper's eye			28
 B:59:11:4:30:3	#detect living			11 (B2)
 B:60:99:0:0:0	#spirit of the balrog		/ (in B6)
 B:61:99:0:0:0	#haste				/ (in B6)
 B:62:31:26:75:56	#bloodwrath				31
-B:63:39:60:95:45	#poison ammo			39
+B:63:40:64:91:45	#poison ammo			40
 B:64:26:16:60:30	#see invisible			30
 B:65:16:2:60:11	#draw mana (9th book)		16
 B:66:35:28:88:40	#word of destruction		35
@@ -1499,7 +1499,7 @@ B:63:20:15:65:15	#poison bolt			20
 B:64:23:16:70:30	#cloudkill2				23
 B:65:28:26:70:60	#bedlam1				28
 B:66:25:50:75:50	#find vault				25 (needs testing)
-B:67:35:70:70:120	#poison brand weapon2		35
+B:67:37:70:75:120	#poison brand weapon2		37
 B:68:99:0:0:0	#recharging2 (B9)			/ (archer only book)
 B:69:99:0:0:0	#shield				/
 B:70:99:0:0:0	#bedlam2				/
@@ -1617,7 +1617,7 @@ N:16:War Mage
 S:-4:3:-1:1:-2:-1
 C:20:38:30:1:10:12:45:15:25
 X:9:13:9:0:0:9:25:15:26
-I:2:26:70000:12
+I:2:26:65000:12
 A:4:40:2
 M:90:1:1:300
 #Starting objects: staff of zapping, 1st magicbook, and 1-3 !Super spellcasting
@@ -1692,7 +1692,7 @@ B:50:10:10:80:11	#recharging1			10
 B:51:36:50:90:40	#enchant armor			36
 B:52:34:50:90:50	#enchant weapon			34
 B:53:38:42:94:80	#recharging2			38
-B:54:28:60:92:30	#elemental brand			28
+B:54:99:0:0:0	#elemental brand melee		28 (temporary and now works on ego/artifact weapons)
 B:55:15:11:55:8	#ba-cold				15
 B:56:19:14:65:21	#ba-acid				19
 B:57:24:12:66:13	#ba-fire				24
@@ -1706,7 +1706,7 @@ B:64:36:21:80:45	#summon demonic aid		36 (war mage only, escapes book)
 B:65:99:0:0:0	#mana defence			/ (WSHIELD +1-2 slight stealth, resistace book)
 B:66:99:0:0:0	#sphere of charm			/ (escape book, for wizards)
 B:67:22:24:70:12	#sphere of charm			22 (B8, for war mage)
-B:68:33:40:85:70	#elemental melee strike		33 (like spirit of the balrog) (B8)
+B:68:34:60:89:70	#elemental brand melee		34 (temporary and now works on ego/artifact weapons)
 B:69:36:30:70:100	#dragonfire				36 (B8)
 
 #N:17:Red Knight (wizardry)
@@ -1922,19 +1922,24 @@ B:74:16:15:70:7	#luck bolt				16
 #T:High Mystic
 #T:Mystic Lord
 
-#N:22:Loser (chance)
+#N:22:Loser (chance) (probably not going to do this one)
 
-#N:23:Witch/Warlock (black)
+#N:23:Witch/Warlock (black) (probably not going to do this one)
 
 #N:24:Stone Slinger (nature)
 
-#N:26:Meditation Ninja (mind)
+#N:26:Ninja (mind)
 
-#N:27:Holy Rogue (prayers)
+#N:27:Holy Rogue (not going to do this one)
 
 #N:28:Green Knight (alchemy)
 
 #N:29:Red Knight (wizardry)
+#S:4:1:-1:1:1:2
+#C:
+#X:
+#I:7:25:45000:10
+#A:5:35:5
 
 #N:30:Blue Knight (nature)
 

@@ -122,7 +122,6 @@ int badluck = 0;
 int goodweap = 0;      /* magic modifiers for sentient objects */
 int badweap = 0;       /* magic modifiers for sentient objects */
 int magicmod = 5;      /* magic modifiers for sentient objects */
-int palert = 0;        /* this should be in the p_ptr type */
 int qSTR;           /* strength modifier (like in DND), defined in xtra1.c */
 int cotval = 0;     /* class object tval */
 int cosval = 0;     /* class object sval */
@@ -940,9 +939,12 @@ char notes_fname[1024];
  * 28 = (no longer used)
  * 29 = makes GF_OLD_SLEEP more powerful (ignoring NO_SLEEP flags)
  * 30 = for gravity effect on nether ball, also used for bizzare effects spell
- * 31 = for tunneldigger wand
+ * 31 = for tunneldigger wand/spell
+ * 40 = for the Wicked witch of the west summoning winged monkeys
  *  ** spellswitch resets at the end of the project() function which is used in
  * every bolt/beam/ball/breath spell. **
+ * 9999 = used during birth process to prevent skill numbers from changing as
+ *  you roll up stats because of variable influence from luck.
  * 
  *  sentient weapons:
  *    goodweap counts good weapons
