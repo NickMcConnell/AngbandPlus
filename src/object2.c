@@ -929,6 +929,9 @@ void object_known(object_type *o_ptr)
 		else if (a_ptr->maxlvl < 90) ascore -= 1;
 		p_ptr->game_score += ascore;
 	}
+	
+	/* pseudo-randart egos */
+	else if (is_ego_randart(o_ptr)) p_ptr->game_score += 1;
 
 #ifdef yes_c_history
 	/*
@@ -1364,8 +1367,8 @@ s32b object_value(const object_type *o_ptr)
 	/* Unknown items -- acquire a base value */
 	if (object_known_p(o_ptr))
 	{
-		/* Broken items -- worthless */
-		if (broken_p(o_ptr)) return (0L);
+		/* Broken items -- worthless unless ego */
+		if ((!ego_item_p(o_ptr)) && (broken_p(o_ptr))) return (0L);
 
 		/* Cursed items -- worthless (?) */
 		if (cursed_p(o_ptr)) return (0L);
@@ -1490,6 +1493,12 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_STAFF:
 		{
 			/* Fall through */
+		}
+
+		case TV_FLASK:
+		{
+			if (o_ptr->sval == 0) break; /* oil always stacks */
+			/* otherwies fall through */
 		}
 
 		/* Rings, Amulets, Lites */
@@ -1722,8 +1731,10 @@ s16b lookup_kind(int tval, int sval)
 		if ((k_ptr->tval == tval) && (k_ptr->sval == sval)) return (k);
 	}
 
-	/* Oops */
-	msg_format("No object (%d,%d)", tval, sval);
+	/* Oops (don't give message if not testing?) */
+	/* if ((p_ptr->wizard) || (cheat_peek) || (cheat_noid) ||
+		(p_ptr->noscore & NOSCORE_DEBUG)) */
+		msg_format("No object (%d,%d)", tval, sval);
 
 	/* Oops */
 	return (0);

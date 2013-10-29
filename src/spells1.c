@@ -326,6 +326,10 @@ void teleport_player(int dis)
 
 			/* Require "can occupy" floor space */
 			if (!cave_can_occupy_bold(y, x)) continue;
+			
+			/* make sure you don't teleport onto a trap door */
+			if ((cave_feat[y][x] == FEAT_INVIS) || 
+				(cave_feat[y][x] == FEAT_TRAP_HEAD + 0x00)) continue;
 
 			/* No teleporting into vaults and such */
 			if (cave_info[y][x] & (CAVE_ICKY)) continue;
@@ -349,6 +353,8 @@ void teleport_player(int dis)
 
 	/* Move player */
 	monster_swap(py, px, y, x);
+	
+	disturb(0, 0);
 
 	/* Handle stuff XXX XXX XXX */
 	handle_stuff();
@@ -3296,12 +3302,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				if ((seen) && (r_ptr->flags3 & (RF3_RES_NETH))) 
 					l_ptr->flags3 |= (RF3_RES_NETH);
 			}
+#if grepseresistnether
 			else if (r_ptr->flags3 & (RF3_SILVER))
 			{
 				dam = (dam * 3) / 4;
 				note = " resists somewhat.";
 				if (seen) l_ptr->flags3 |= (RF3_SILVER);
 			}
+#endif
 			/* only inherently evil monsters resist nether */
 			/* not races which are sometimes evil and sometimes not */
 			else if (r_ptr->flags3 & (RF3_EVIL)) 
@@ -3976,13 +3984,19 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 		{
 			/* NONMONSTERS are unaffected */
 			if (r_ptr->flags7 & (RF7_NONMONSTER)) { dam = 0; break; }
+			
+			/* Monsters which are already asleep can't resist */
+			if ((m_ptr->csleep) && (!m_ptr->roaming))
+			{
+				do_sleep = 400 + randint(100);
+			}
 
 			erlev = r_ptr->level + 1;
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level > 70)) erlev += 50;
 			else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 22)) erlev += 9;
 			else if (r_ptr->flags1 & (RF1_UNIQUE)) erlev += 9 + randint((erlev/2) - 9);
 			/* make it not quite as strong as it was in 1.0.99 */
-			if (randint(100) < 34) erlev += rand_int(10);
+			if (randint(100) < 33) erlev += rand_int(10);
 
 			if (seen) obvious = TRUE;
 
@@ -4872,7 +4886,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 	/* Mega-Hack -- Handle "polymorph" -- monsters got a saving throw */
 	else if (do_poly)
 	{
-		bool gotpoly = FALSE;
 		int oldhp, oldmax, oldmin, oldlev;
 
 		/* Default -- assume no polymorph */
@@ -6719,8 +6732,7 @@ bool get_nearby(int dy, int dx, int *toy, int *tox, int mode)
 		/* Verify max distance */
 		if (dis > 200) dis = 200;
 		
-		if (dis < 5) tries = 100;
-		else if (dis < 30) tries = 200;
+		if (dis < 5) tries = 200;
 		else tries = 300;
 
 		/* Try several locations */
@@ -6777,6 +6789,7 @@ bool get_nearby(int dy, int dx, int *toy, int *tox, int mode)
 		/* Increase the maximum distance */
 		if ((dis < 50) && (mode == 3)) dis *= 2;
 		else if (mode == 4) return FALSE;
+		else if ((mode == 5) && (dis < 25)) dis += 3;
 		else if ((dis < 5) && (randint(100) < 75)) dis += 2;
 		else if ((dis < 10) && (mode == 5)) dis += 2;
 		else /* fail */ return FALSE;

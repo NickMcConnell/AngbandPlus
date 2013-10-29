@@ -4626,7 +4626,7 @@ void do_cmd_note(char *note, int what_depth, bool printme)
 
 
 /* just calls do_cmd_note with parameters */
-do_cmd_note_old(void)
+void do_cmd_note_old(void)
 {
     do_cmd_note("", p_ptr->depth, TRUE);
 }
@@ -4701,7 +4701,7 @@ static const char *danger_feeling[] =
 	"It may be difficult just to survive here..", /* feeling == 6 */
 	"You have a feeling there are very challenging monsters on the level.", /* feeling == 7 */
 	"This level appears to be a fun challenge.", /* feeling == 8 */
-	"This place doesn't seem too dangerous.", /* feeling == 9 */
+	"This level doesn't seem very threatening.", /* feeling == 9 */
 	"This level feels rather safe.", /* feeling == 10 */
 	"You feel you could take a nap without fear of harm here." /* feeling == 11 */
 };
@@ -5030,9 +5030,9 @@ s16b get_danger_feeling(void)
     else if (mon_danger > 95) danger_text = 3;
     else if ((mon_danger > 77) && (p_ptr->resist_fear)) danger_text = 4;
     else if (mon_danger > 77) danger_text = 5;
-    else if (mon_danger > 65) danger_text = 6;
-    else if (mon_danger > 50) danger_text = 7;
-    else if (mon_danger > 35) danger_text = 8;
+    else if (mon_danger > 62) danger_text = 6;
+    else if (mon_danger > 46) danger_text = 7;
+    else if (mon_danger > 30) danger_text = 8;
     else if (mon_danger > 19) danger_text = 9;
     else if (mon_danger > 5) danger_text = 10;
     else if ((mon_danger > 2) && (p_ptr->depth < 10)) danger_text = 10;

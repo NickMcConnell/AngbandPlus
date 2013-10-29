@@ -129,20 +129,21 @@ static cptr tolkien_names[] =
 
 /* alternate pseudo randart name stuff
  * mostly random silly words and names of characters
- * to thoroughly confuse the name generator with.
+ * to thoroughly confuse the name generator.
  */
 static cptr silly_names[] =
 {
-	"aardvark", "abe", "alice", "almond", "appleseed", 
-    "arthur", "ascii", "asphalt", "ather", 
-    "babamvillo", "bartholemew", "basket", "bagel", 
-    "bean", "bob", "boppo", "bordgak", 
-    "bowlegged", "brown", "bryan", "bubble", "butter", 
+	"aardvark", "abe", "alice", "almond", "anole", "appleseed", 
+    "arthur", "ascii", "asphalt", "ather", "auklepog",
+    "babamvillo", "bartholemew", "basket", 
+    "bagel", "bean", "blodderjop", "bob", "bokpaddle",
+    "bonderbiff", "boppo", "bordgak", "borkaloot",
+    "bowlegged", "brown", "bryan", "bubble", "butter", "bwahahaha",
     "cake", "callmeal", "candlestick", "cheese", 
     "chocolate", "cookingham", "chuck", "clamity",
-    "cubbins", "deeboing", "derrena", "diddly", "dilbert",
+    "cubbins", "deeboing", "derrena", "diddly", "dilbert", "dogulhat",
     "doofus", "dotty", "eater", "eggnog", "elbow", "ernest", 
-    "feral", "ferret", "fish", "flopsided", "football", 
+    "feral", "ferret", "fish", "flopsided", "football", "forbgik",
     "frankfurter", "frizbee", "froglegs", "frye",
     "furry", "gafbop", "garret", "garlittle", "gatlin", 
     "gershtahlinpoheimmer", "gesundheit", "ghostbuster",
@@ -156,7 +157,7 @@ static cptr silly_names[] =
     "jammin", "jeffersonfred", "jeremy", "jenkins", "joe",
     "johnjacob", "jingleheimerschmidt", "juibazzle",
     "kawahawawa", "kettle", "kirdil", "krusty", "kyoobert",
-    "lemonscent", "lenny", "levurna", "lynn", 
+    "lemonscent", "lenny", "levurna", "lyndandom", 
     "madester", "magrat", "marbaaz", "marcua", "mascot", 
     "maxwell", "mayonnaise", "melvin", "mildew", "misleading", 
     "moist", "monkey", "mullet", "mutant", "nababa", "nate", 
@@ -172,13 +173,14 @@ static cptr silly_names[] =
     "simpson", "skillet", "slappy", "slimer", "snicket", 
     "socks", "stank", "sugarlumps", "susie", "swingin",
     "teaspoon", "ted", "tiddlywink", "toadstool", "toby", 
-    "tophat", "tourbagit", "turtle", "tweedledum",
+    "tophat", "tourbagit", "tortoise", "turnip", "tweedledum",
     "twist", "ugluk", "underarm",
     "unicycle", "vandal", "vanhalen", "vincent", "vulture",
     "wacko", "warmwoolenmittens",
     "waffle", "walrus", "wendel", "windmill",
-    "wizzard", "william", "yakkity",
-    "yelloworange", "zaigus", "zoe",
+    "wizzard", "william", "wubble", "yakkity",
+    "yelloworange", "zaigus", "zalzivit", "zarka", 
+    "zelbibon", "zilvatoid", "zoe",
 	NULL
 };
 

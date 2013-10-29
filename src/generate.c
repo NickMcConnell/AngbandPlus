@@ -400,7 +400,6 @@ void place_puddle(int y, int x, int mode)
 	int yb, xb;
 	int i, spoty, spotx;
 	int puddle_size = 3 + randint(3);
-	bool finished = FALSE;
 	
 	/* (no enlarged puddles in vaults) */
 	if (!mode)
@@ -1740,7 +1739,7 @@ static void build_type4(int y0, int x0)
  *
  * None of the pits/nests are allowed to include "unique" monsters,
  * or monsters which can "multiply".
- * (DJA: I can't find where it checks for the MULTIPLY flag?)
+ * (DJA: actually it doesn't appear to check for the MULTIPLY flag?)
  *
  * Some of the pits/nests are asked to avoid monsters which can blink
  * away or which are invisible.  This is probably a hack.
@@ -1764,7 +1763,7 @@ static bool vault_aux_jelly(int r_idx)
 	if (!strchr("wjm,", r_ptr->d_char)) return (FALSE);
 	
 	/* grepse (silver monsters) less common in jelly nests */
-    if ((r_ptr->flags3 & (RF3_SILVER)) && (rand_int(100) < 50))
+    if ((r_ptr->flags3 & (RF3_SILVER)) && (rand_int(100) < 52))
        return (FALSE);
 
 	/* Okay */
@@ -4393,7 +4392,6 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					if (randint(100) < dsg)
 					{
 						int thismon = get_mon_match(depth, 0);
-						monster_race *r_ptr = &r_info[thismon];
 
 						place_monster_aux(y, x, thismon, TRUE, TRUE);
 					}
@@ -6068,7 +6066,7 @@ static void town_gen(void)
  */
 void generate_cave(void)
 {
-	int y, x, num, maxfeel;
+	int y, x, num;
 	s16b danger_lev;
 	bool feelagain = FALSE;
 
@@ -6156,7 +6154,7 @@ void generate_cave(void)
 		else if (rating > 40) feeling = 5;
 		else if (rating > 30) feeling = 6;
 		else if (rating > 20) feeling = 7;
-		else if (rating > 10) feeling = 8;
+		else if (rating > 9) feeling = 8;
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
 

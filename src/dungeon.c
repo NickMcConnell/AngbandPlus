@@ -264,6 +264,12 @@ void sense_inventory(void)
 				okay = TRUE;
 				break;
 			}
+			case TV_FLASK:
+			{
+				/* oil is sval 0 */
+                if (o_ptr->sval > 0) okay = TRUE;
+				break;
+			}
 		}
 
 		/* Skip non-sense machines */
@@ -650,7 +656,15 @@ static void return_monsters(void)
 				else
 				{
 					/* Monster failed to come back to life */
-					delete_monster_idx(i, FALSE);
+					if (cheat_hear)
+					{
+						char m_name[80];
+						monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
+					
+						msg_format("%^s failed to come back to life.", m_name);
+					}
+					
+					delete_dead_monster_idx(i);
 					continue;
 				}
 			}
@@ -700,12 +714,6 @@ static void return_monsters(void)
 
 			/* Update the monster */
 			update_mon(i, 1);
-
-			/* Hack -- Count the number of "reproducers" */
-			if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro++;
-
-			/* Count racial occurances */
-			r_ptr->cur_num++;
 			
 			/* message:  m_ptr->ml is set in update_mon() */
 			if (m_ptr->ml)
@@ -1582,7 +1590,7 @@ static void process_world(void)
 		   sy = p_ptr->py;
 		   sx = p_ptr->px;
 	   }
-	   if (p_ptr->max_depth < 3) /* no summon */;
+	   if (p_ptr->lev + p_ptr->max_depth < 7) /* no summon */;
 	   /* these summons don't allow groups */
        else if ((randint(100) < (p_ptr->lev + p_ptr->max_depth)/3) && 
 		   (p_ptr->lev + p_ptr->max_depth >= 46)) do_call_help(560);

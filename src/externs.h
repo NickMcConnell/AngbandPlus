@@ -431,6 +431,7 @@ extern void display_roff(int r_idx);
 /* monster2.c */
 extern void delete_monster_idx(int i, bool cancomeback);
 extern void delete_monster(int y, int x, bool cancomeback);
+extern void delete_dead_monster_idx(int i);
 extern void compact_monsters(int size);
 extern void wipe_mon_list(void);
 extern s16b mon_pop(void);
@@ -458,6 +459,7 @@ extern bool summon_specific(int y1, int x1, int lev, int type);
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
+extern bool summon_nogroups(int y1, int x1, int lev, int type);
 
 /* obj-info.c */
 extern bool object_info_out(const object_type *o_ptr);
@@ -668,6 +670,7 @@ extern bool fire_swarm(int num, int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
+extern bool blast_a_wall(int dir);
 extern bool project_los(int typ, int dam);
 extern bool lite_line(int dir);
 extern bool strong_lite_line(int dir);

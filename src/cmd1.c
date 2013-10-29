@@ -269,6 +269,9 @@ int tot_dam_aux(object_type *o_ptr, int tdam, int strd, monster_type *m_ptr)
 			if (ringbrand > 10) brandodd += 10;
 			/* semi throwing weapons */
 			if (!(f3 & (TR3_THROWN))) brandodd = brandodd/2;
+			/* grenades never get branded from rings */
+			if (o_ptr->tval == TV_FLASK) brandodd = 0;
+			
 			if (randint(100) < brandodd)
 			{
 				/* get brand from ring(s) */
@@ -2185,9 +2188,9 @@ void py_attack(int y, int x)
 	
 	/** easier to hit if it hasn't noticed you **/
 	/* assassin bonus */
-	if ((m_ptr->csleep) && (cp_ptr->flags & CF_ASSASSIN)) chance += 18;
+	if ((m_ptr->csleep) && (cp_ptr->flags & CF_ASSASSIN)) chance += 16;
 	/* asleep */
-	else if ((m_ptr->csleep) && (!m_ptr->roaming)) chance += 10;
+	else if ((m_ptr->csleep) && (!m_ptr->roaming)) chance += 12;
 	/* awake but hasn't noticed you */
 	else if (m_ptr->csleep) chance += 2;
 	/* to balance: a little penalty if monster is aware of you */
@@ -2209,9 +2212,11 @@ void py_attack(int y, int x)
 		pchigher = TRUE;
 
 	if (r_ptr->flags2 & (RF2_FLY)) pchigher = FALSE;
+	/* power sprites can fly */
+	if (p_ptr->prace == 15) monhigher = FALSE;
 
 	/* hard to miss a tree.. */
-	if (r_ptr->flags7 & (RF7_NONMONSTER)) chance += 16;
+	if (r_ptr->flags7 & (RF7_NONMONSTER)) chance += 20;
 	else if (monhigher) chance -= 8;
 	else if (pchigher) chance += 8;
 
@@ -2223,6 +2228,12 @@ void py_attack(int y, int x)
 	else excrit = o_ptr->crc - 5;
 	if (f2 & TR2_EXTRA_CRIT) excrit += 14; /* was 11 */
 	if (bonus-1 > 10) excrit += (bonus-1)/10;
+
+	if ((m_ptr->csleep) && (!m_ptr->roaming) && (cp_ptr->flags & CF_ASSASSIN)) 
+		excrit += 7;
+	/* asleep */
+	else if ((m_ptr->csleep) && (!m_ptr->roaming)) excrit += 4;
+	else if ((m_ptr->csleep) && (cp_ptr->flags & CF_ASSASSIN)) excrit += 3;
 	
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
@@ -2697,7 +2708,7 @@ void move_player(int dir)
 				if (climb > 0) climb = climb + randint(climb);
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
-				if (randint(100) < (90-climb))
+				if ((randint(100) < (90-climb)) && (p_ptr->prace != 15))
 				{
 					message(MSG_HITWALL, 0, "You fall into a pit!");
 					if (p_ptr->depth >= 72) take_hit(damroll(2, 9), "a pit");
@@ -2706,8 +2717,9 @@ void move_player(int dir)
 				}
 				else
 				{
+					if (p_ptr->prace == 15) /* */;
 					/* no damage */
-					message(MSG_HITWALL, 0, "You slide into a pit.");
+					else message(MSG_HITWALL, 0, "You slide into a pit.");
 				}
 				moveit = TRUE;
 			}
@@ -2750,7 +2762,7 @@ void move_player(int dir)
 				if (p_ptr->timed[TMD_MIND_CONTROL]) 
 					climb = 95 - (adj_wis_sav[p_ptr->stat_ind[A_DEX]] * 2);
 				/* small chance of damage */
-				if (roll < (15-climb))
+				if ((roll < (15-climb)) && (p_ptr->prace != 15))
 				{
 					message(MSG_HITWALL, 0, "You fall into the pit!");
 					if (roll > 60) roll = 60;
@@ -2758,8 +2770,9 @@ void move_player(int dir)
 				}
 				else
 				{
+					if (p_ptr->prace == 15) /* */;
 					/* no damage */
-					message(MSG_HITWALL, 0, "You slide into the pit.");
+					else message(MSG_HITWALL, 0, "You slide into the pit.");
 				}
 				moveit = TRUE;
 			}
@@ -2825,6 +2838,7 @@ void move_player(int dir)
     {
         bool climbit = FALSE;
         if (p_ptr->timed[TMD_MIND_CONTROL]) climbit = TRUE;
+        else if (p_ptr->prace == 15) climbit = TRUE;
         else if (get_check("Try to climb over the rubble? ")) climbit = TRUE;
         if (climbit)
         {
@@ -2850,7 +2864,13 @@ void move_player(int dir)
 			if (mighty) climbstr += 200;
             /* give weak characters a chance */
             if (climbstr < 200) climbstr += (200 - climbstr) / 2;
-            if (climbstr < climbdif + 2)
+            /* power sprites can fly */
+            if (p_ptr->prace == 15)
+            {
+               msg_print("You fly over the rubble.");
+                moveit = TRUE;
+            } 
+            else if (climbstr < climbdif + 2)
             {
                msg_print("You're too weak to climb over the rubble.");
             } 
@@ -2906,7 +2926,11 @@ void move_player(int dir)
 		if (mighty) climbstr += 200;
         /* give weak characters a chance */
         if (climbstr < 160) climbstr += (160 - climbstr) / 2;
-        if (climbstr < climbdif + 2)
+        if (p_ptr->prace == 15)
+        {
+            /* power sprites can fly over pits */;
+        } 
+        else if (climbstr < climbdif + 2)
         {
 			msg_print("You're too weak to climb out of the pit.");
 			moveit = FALSE;

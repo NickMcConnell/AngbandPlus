@@ -1419,7 +1419,7 @@ static bool store_create_random(int st)
 		/* dungeon books should normally be found in the dungeon */
 		/* instead of being aquired from the black market. */
 		if ((i_ptr->tval >= TV_MAGIC_BOOK) && (i_ptr->tval < TV_GOLD) && 
-			(i_ptr->sval >= SV_BOOK_MIN_GOOD) && (randint(100) < 44 - goodluck/2)) continue;
+			(i_ptr->sval >= SV_BOOK_MIN_GOOD) && (randint(100) < 42 - goodluck/2)) continue;
 
 		/* No "worthless" items */
 		if (object_value(i_ptr) < 1) continue;
@@ -2766,6 +2766,7 @@ static void take_a_nap(void)
 		p_ptr->chp = p_ptr->mhp;
 		p_ptr->chp_frac = 0;
 	}
+	p_ptr->csp = p_ptr->msp;
 
 	/* update game time (replaces equippy chars) */
 	if (show_gtime) p_ptr->redraw |= (PR_EQUIPPY);

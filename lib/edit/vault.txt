@@ -574,7 +574,7 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #Huge - modified looked boring and too much like Huge so I replaced it
 N:25:Forest Path
-X:8:20:16:39:2:10:2
+X:8:20:16:40:2:10:2
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%..#####XXXXXXXXXXXXXXXXXXXXXXXX#####..%
 D:%.EE,EE.E.E..#.^,999,^.#.REE.,.EE.EEEE.%

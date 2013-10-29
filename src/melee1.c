@@ -181,6 +181,8 @@ bool make_attack_normal(int m_idx)
 
 	/* flying monsters never have an elevation problem */
 	if (r_ptr->flags2 & (RF2_FLY)) pchigher = FALSE;
+	/* power sprites can fly */
+	if (p_ptr->prace == 15) monhigher = FALSE;
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;

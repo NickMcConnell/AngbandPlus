@@ -3178,7 +3178,11 @@ void do_cmd_fire(void)
 				{
 					msg_format("The %s hits the wall.", o_name);
 					/* less likely to break when hitting the wall */
-					if (randint(100) < 40) hit_body = FALSE;
+					if (!hit_body)
+					{
+						if (randint(100) < 35) hitwall = FALSE;
+					}
+					else if (randint(100) < 40) hit_body = FALSE;
 				}
 			}
 

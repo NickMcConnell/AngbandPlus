@@ -1620,6 +1620,7 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	s32b hour, minute, sec, day;
 	char time[17];
 	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
+	int current_game_score = total_points();
 	
 	/* convert turns to time (60 turns = 1 minute) */
 	if (turn >= 60) minute = turn / 60;
@@ -1775,11 +1776,14 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(TERM_L_BLUE, "Height",		"%y",	i2u(p_ptr->ht), END  );
 	P_I(TERM_L_BLUE, "Weight",		"%y",	i2u(p_ptr->wt), END  );
 	P_I(TERM_L_BLUE, "Status",		"%y",	i2u(p_ptr->sc), END  );
-	P_I(TERM_L_BLUE, "Maximize",	"%y",	c2u(adult_maximize ? 'Y' : 'N'), END);
+	P_I(TERM_L_BLUE, "Score",		"%y",	i2u(current_game_score), END  );
 #if 0
+	/* No reason to show maximize option here (birth options are at end of dump) */
+	P_I(TERM_L_BLUE, "Maximize",	"%y",	c2u(adult_maximize ? 'Y' : 'N'), END);
 	/* Preserve mode deleted */
 	P_I(TERM_L_BLUE, "Preserve",	"%y",	c2u(adult_preserve ? 'Y' : 'N'), END);
 #endif
+
 #ifdef EFG
 	/* EFGchange show energy rather than speed on 'C' screen */
 #else
@@ -2863,7 +2867,7 @@ long total_points(void)
 	tscore += p_ptr->max_depth * 4;
 	
 	/* decrease score with turncount */
-    if (turn >= 20000) tscore -= (turn / 20000);
+    if (turn >= 10000) tscore -= (turn / 10000);
 
 	return tscore;
 #endif
@@ -4094,7 +4098,7 @@ static void close_game_aux(void)
 			case 'a':
 			case 'A':
 			{
-				do_cmd_note("",  p_ptr->depth, FALSE);
+				do_cmd_note("", p_ptr->depth, FALSE);
 				break;
 			}
 #endif

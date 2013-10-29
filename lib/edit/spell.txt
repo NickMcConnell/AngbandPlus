@@ -1152,8 +1152,6 @@ D:  (A spread effect is like a wide radius ball spell centered on the
 D: caster, except that ball spells do half damage one space away from the center,
 D: but the damage of spread effects diminishes much slower.  It does full
 D: damage to all monsters within 2 spaces.)
-D: Spread effects only rarely destroy objects on the floor (1/4 as much chance
-D: as a ball spell).
 
 N:188:Blizzard
 I:92:3:7

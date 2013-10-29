@@ -3029,7 +3029,7 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_HI_DEMON */
+		/* RF6_S_HI_DEMON */
 		case RF6_OFFSET+17:
 		{
 			if (m_ptr->silence) return FALSE;
@@ -3067,7 +3067,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				/* exception for Scroll of Aquirement town mimmic */
-                if ((r_ptr->level == 0) && (p_ptr->max_depth > 4)) count += summon_specific(m_ptr->fy, m_ptr->fx, p_ptr->max_depth/4, styp);
+                if ((r_ptr->level == 0) && (p_ptr->max_depth > 4)) count += summon_specific(m_ptr->fy, m_ptr->fx, p_ptr->max_depth/4 + 1, styp);
                 else count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, styp);
 			}
 			if (blind && count)
@@ -4157,7 +4157,6 @@ static bool get_moves(int m_idx, int mm[5])
         /* do we need a destination? */
    	    bool roam_to = FALSE;
        	int groupdes = 0;
-        int rdes = 0;
         
         if (m_ptr->roaming == 9)
    	    {

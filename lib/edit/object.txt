@@ -3308,7 +3308,8 @@ P:0:1d5:0:0:0:5
 C:3+d3
 F:SHOW_MODS
 D:It cures all stunning, heals all cut damage, neutralizes poison, and
-D: cures blindness and confusion.
+D: cures blindness and confusion.  If you're lucky, it will also cure
+D: 1 point of silver point and 2 points of sliming.
 
 N:320:Dispel Evil
 G:_:d

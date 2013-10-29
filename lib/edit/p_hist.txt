@@ -625,17 +625,17 @@ N:88:89:100:75
 D:You are the child of the leader of a tribe of 
 
 N:89:54:6:47
-D:poison sprites
+D:poison sprites. 
 N:89:54:26:48
-D:barbaric sprites
+D:barbaric sprites. 
 N:89:54:38:51
-D:playful careless sprites
+D:playful careless sprites. 
 N:89:54:60:60
-D:bright sprites
+D:bright sprites. 
 N:89:54:80:75
-D:guide sprites
+D:guide sprites. 
 N:89:54:100:85
-D:guardian sprites
+D:guardian sprites. 
 
 #	Golem
 N:90:91:10:30

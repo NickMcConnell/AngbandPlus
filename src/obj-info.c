@@ -1644,7 +1644,7 @@ void describe_attack(const object_type *o_ptr)
 			if (o_ptr->pval > 1) text_out(format("  This weapon attacks your foe %d times when you throw it.", o_ptr->pval + 1));
 			else if (o_ptr->pval == 1) text_out("  This weapon attacks your foe twice when you throw it.");
 		}
-		if (ringbrand)
+		if ((ringbrand) && (o_ptr->tval != TV_FLASK))
 		{
 			text_out("  Thrown weapons often get the brand from an elemental ring");
 			text_out(" but not always. It depends on luck and skill with throwing");
@@ -2171,7 +2171,7 @@ static bool obvious_excellent(const object_type *o_ptr)
 void object_info_screen(object_type *o_ptr)
 {
 	bool has_description, has_info;
-	bool weapon, ammo, mfake = FALSE;
+	bool weapon, ammo;
 	object_type *j_ptr;
     u32b f1, f2, f3, f4;
 

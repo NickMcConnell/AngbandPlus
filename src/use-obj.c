@@ -41,12 +41,12 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_SECOND_SIGHT:
 		{
-            (void)inc_timed(TMD_MESP, randint(580) + 400);
 			if (inc_timed(TMD_BLIND, randint(240) + 240))
 			{
-                if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 240);
+                if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 240 - badluck);
 				*ident = TRUE;
 			}
+            (void)inc_timed(TMD_MESP, randint(580) + 400);
 			break;
 		}
 
@@ -1930,7 +1930,6 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 	{
 		case SV_STAFF_DARKNESS:
 		{
-			int joedark = randint(p_ptr->skills[SKILL_DEV] + goodluck);
 			bool strongdark = FALSE;
 			/* occationally use GF_DARK instead of DARK_WEAK */
 			if ((randint(p_ptr->skills[SKILL_DEV] + (goodluck*2)) > 60) &&
@@ -2180,6 +2179,21 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
+			if (rand_int(25) < 5 + goodluck*2)
+			{
+				if (p_ptr->silver > PY_SILVER_HEALTHY)
+				{
+					p_ptr->silver -= 1;
+					if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+					*ident = TRUE;
+				}
+            	if (p_ptr->slime > PY_SLIME_HEALTHY)
+				{
+					p_ptr->slime -= 2;
+					if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+					*ident = TRUE;
+				}
+			}
 			break;
 		}
 

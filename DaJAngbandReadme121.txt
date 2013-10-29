@@ -4,6 +4,14 @@ Thanks to:
 Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch, Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or just plays DaJAngband.
 ------------------------------------------------------------------------------------------
 
+version 1.2.1 fixes the following bugs:
+  monster generation messiness (including very few >L50 monsters, inappropriate escorts & pit monsters, etc)
+  crash when recalling non-specific statue (like from knowledge menu)
+  sometimes when monsters come back from the dead, the PC goes into limbo.
+  pseudo and stacking for grenades doesn't work correctly
+  possible to randomly teleport onto a trap door
+  sleep monster wakes up sleeping monsters that resist
+
 Changelist for DaJAngband 1.2.0
 
 	Information / Interface Stuff:

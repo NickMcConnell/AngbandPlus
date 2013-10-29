@@ -1,5 +1,5 @@
 # File: p_race.txt
-# DaJAngband 1.1.0
+# DaJAngband 1.2.0
 
 
 # This file is used to initialize the "lib/data/p_race.raw" file, which is

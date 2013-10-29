@@ -1871,7 +1871,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		
 		/* if it comes back to life, you have to kill it twice */
 		/* to get full score */
-		if (r_ptr->flags2 & (RF2_RETURNS)) killscore = (killscore + 1) / 2;
+		if (r_ptr->flags2 & (RF2_RETURNS)) killscore = killscore / 2;
 
 		/* count score */
         p_ptr->game_score += killscore;
@@ -1978,6 +1978,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	if (randint(100) < estl) wakemon = TRUE;
     if (estl > 50) estl = 50;
     if (estl >= m_ptr->csleep) wakemon = TRUE;
+    if (dam <= 0) wakemon = FALSE;
 
     /* disturb the monster (not automatic wakeup) */
     if (wakemon)

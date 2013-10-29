@@ -2238,16 +2238,13 @@ bool reveal_monsters(bool showmes)
 		if ((x < x1 || y < y1 || x > x2 || y > y2) && 
 			(!player_can_see_bold(y, x))) continue;
 
-		/* Reveal disguised monsters (but only show them if they're in LOS) */
-        if (m_ptr->disguised)
+		/* Reveal only nearby disguised monsters */
+		if ((m_ptr->disguised) && ((m_ptr->cdis < 11 + goodluck/2) || 
+			(player_can_see_bold(y, x))))
 		{
 			m_ptr->disguised = 0;
 
-            /* Update the monster */
-			if (player_can_see_bold(y, x))
-			{
-				showme = TRUE;
-			}
+			showme = TRUE;
 		}
 		/* reveal stealthy monsters which are hiding, but not invisible */
 		/* (possible for them to still escape notice) */
@@ -2800,6 +2797,11 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 		case TV_SKELETON:
 		{
 			return (TRUE);
+		}
+		case TV_FLASK:
+		{
+			if ((o_ptr->sval == SV_OIL_GRENADE) || (o_ptr->sval == SV_FIREBOMB)) 
+				return (TRUE);
 		}
 	}
 
@@ -4397,7 +4399,6 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 		/* Destroy the grid, and push the player to safety */
 		else
 		{
-			bool dodgeblast = FALSE;
 			int howhard = randint(2) + 1;
 			int blastthis = 14;
 			if (allowcrush == 4) blastthis *= 2;

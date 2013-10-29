@@ -6388,7 +6388,7 @@ S:DARKNESS | BR_FEAR
 D:A mad alchemist with a specialty in bad dreams. He summons nightmares from smoking
 D: vials of mysterious liquids.
 
-#new
+#new (maybe should be slightly slower)
 N:464:waking dead
 G:z:U
 I:106:13d8:20:36:15
@@ -11728,7 +11728,7 @@ D: of losing the perfect angle on what he's drawing.
 N:776:cute fluffy bunny
 G:q:w
 I:110:6d8:12:28:24
-W:8:12:1:8
+W:8:12:1:12
 B:GAZE:CHARM
 #B:GAZEB:CHARM
 B:TOUCH:CHARM

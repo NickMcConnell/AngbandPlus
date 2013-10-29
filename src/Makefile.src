@@ -47,6 +47,7 @@ ANGFILES = \
 	save.o \
 	spells1.o \
 	spells2.o \
+	spells3.o \
 	squelch.o \
 	store.o \
 	tables.o \

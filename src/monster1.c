@@ -104,12 +104,16 @@ static void describe_monster_desc(int r_idx, const monster_type *m_ptr)
 	const monster_race *r_ptr = &r_info[r_idx];
 	char buf[2048];
 	cptr mon_text = (r_text + r_ptr->text);
+	int statue_descidx;
+	
+	if (m_ptr) statue_descidx = m_ptr->tinvis;
+	else statue_descidx = 0;
 	
 	/* These statues are larger than life (bigger than the average man) */
-	if ((strstr(mon_text, "statue special")) && (m_ptr->tinvis))
+	if ((strstr(mon_text, "statue special")) && (statue_descidx))
 	{
 		/* hack: tinvis used to remember this statue's decription */
-		switch (m_ptr->tinvis)
+		switch (statue_descidx)
 		{
 			/* #1-7 are historical(Tolkien) / military figures */
             case 1: 
@@ -160,10 +164,10 @@ static void describe_monster_desc(int r_idx, const monster_type *m_ptr)
 		}
 	}
 	/* These are man-sized statues or smaller */
-	else if ((strstr(mon_text, "small statue")) && (m_ptr->tinvis))
+	else if ((strstr(mon_text, "small statue")) && (statue_descidx))
 	{
 		/* hack: tinvis used to remember this statue's decription */
-		switch (m_ptr->tinvis)
+		switch (statue_descidx)
 		{
 			/* The first several statues should be dwarves & gnomes */
 			case 1: 
@@ -262,10 +266,10 @@ static void describe_monster_desc(int r_idx, const monster_type *m_ptr)
 		}
 	}
 	/* Fountain statue descriptions (also have BLOCK_LOS) */
-	else if ((strstr(mon_text, "fountain special")) && (m_ptr->tinvis))
+	else if ((strstr(mon_text, "fountain special")) && (statue_descidx))
 	{
 		/* hack: tinvis used to remember this statue's decription */
-		switch (m_ptr->tinvis)
+		switch (statue_descidx)
 		{
             case 1: text_out("It's a fountain with the water pouring out of a gargoyle's mouth. \n"); break;
 			case 2: text_out("Water pours from the mouth of this giant serpent made of stone. \n"); break;
@@ -939,25 +943,28 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		text_out(format("%^s may rise from the dead.  ", wd_he[msex]));
 	}
 
-	stl = r_ptr->stealth;
-	/* WATER_ONLY monsters get automatic stealth bonus unless out of water (which is rare) */
-	if ((stl < 4) && (r_ptr->flags7 & (RF7_WATER_ONLY))) stl += 2;
-
-    if (stl == 2) text_out(format("%^s is slightly stealthy", wd_he[msex]));
-    else if (stl == 3) text_out(format("%^s is stealthy", wd_he[msex]));
-    else if (stl == 4) text_out(format("%^s is very stealthy", wd_he[msex]));
-    else if (stl == 5) text_out(format("%^s is extremely stealthy", wd_he[msex]));
-    else if (stl > 5) text_out(format("%^s is extremely stealthy!  ", wd_he[msex]));
-    else if (stl == 0) text_out(format("%^s is not at all stealthy", wd_he[msex]));
-    else text_out(format("%^s is not very stealthy", wd_he[msex]));
-
-	if (r_ptr->stealth <= 5)
+	if (!(r_ptr->flags7 & (RF7_NONMONSTER)))
 	{
-		if ((r_ptr->stealth < 3) && (r_ptr->flags7 & (RF7_WATER_HIDE)))
-			text_out(", but can hide better in water.  ");
-		else if (r_ptr->flags7 & (RF7_WATER_HIDE))
-			text_out(", and can hide even better in water.  ");
-		else text_out(".  ");
+		stl = r_ptr->stealth;
+		/* WATER_ONLY monsters get automatic stealth bonus unless out of water (which is rare) */
+		if ((stl < 4) && (r_ptr->flags7 & (RF7_WATER_ONLY))) stl += 2;
+
+	    if (stl == 2) text_out(format("%^s is slightly stealthy", wd_he[msex]));
+	    else if (stl == 3) text_out(format("%^s is stealthy", wd_he[msex]));
+	    else if (stl == 4) text_out(format("%^s is very stealthy", wd_he[msex]));
+	    else if (stl == 5) text_out(format("%^s is extremely stealthy", wd_he[msex]));
+	    else if (stl > 5) text_out(format("%^s is extremely stealthy!  ", wd_he[msex]));
+	    else if (stl == 0) text_out(format("%^s is not at all stealthy", wd_he[msex]));
+    	else text_out(format("%^s is not very stealthy", wd_he[msex]));
+
+		if (r_ptr->stealth <= 5)
+		{
+			if ((r_ptr->stealth < 3) && (r_ptr->flags7 & (RF7_WATER_HIDE)))
+				text_out(", but can hide better in water.  ");
+			else if (r_ptr->flags7 & (RF7_WATER_HIDE))
+				text_out(", and can hide even better in water.  ");
+			else text_out(".  ");
+		}
 	}
 
 	if (r_ptr->flags7 & (RF7_HATE_WATER))
@@ -1690,7 +1697,7 @@ void describe_monster(int r_idx, bool spoilers, monster_type *m_ptr)
 	if (cheat_know || spoilers) cheat_monster_lore(r_idx, &lore);
 
 	/* Show kills of monster vs. player(s) */
-	if (!spoilers)
+	if ((!spoilers) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) 
 		describe_monster_kills(r_idx, &lore);
 
 	/* Monster description */
