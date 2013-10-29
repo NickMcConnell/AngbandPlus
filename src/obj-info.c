@@ -492,29 +492,26 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
 #ifdef EFG
 static bool describe_success_rate(const object_type *o_ptr, u32b f3)
 {
-	/* ??? someday success rates for activations
-	if (f3 & TR3_ACTIVATE)
-	{
-		p_text_out("It activates for ");
-		describe_item_activation(o_ptr);
-		p_text_out(".  ");
-
-		return (TRUE);
-	}
-	*/
-
 	int thousandths, conf_thousandths;
-	switch(o_ptr->tval)
+
+	bool activatable = FALSE;
+	if (f3 & TR3_ACTIVATE)
+		activatable = TRUE;
+	else switch(o_ptr->tval)
 	{
 		case TV_WAND:
 		case TV_ROD:
 		case TV_STAFF:
-			thousandths = object_success_permillage(o_ptr, FALSE);
-			conf_thousandths = object_success_permillage(o_ptr, TRUE);
-			/* ??? should not do this if unaware, probably -- or should that be from calling function? */
-			p_text_out(format("Your success rate is %d.%d%%, if confused %d.%d%%.\n", 
-					thousandths/10, thousandths % 10, conf_thousandths /10, conf_thousandths % 10));
-			return TRUE;
+			activatable = TRUE;
+	}
+
+	if (activatable)
+	{
+		thousandths = object_success_permillage(o_ptr, USE_NORMAL);
+		conf_thousandths = object_success_permillage(o_ptr, USE_IMPAIRED);
+		/* ??? should not do this if unaware, probably -- or should that be from calling function? */
+		p_text_out(format("Your success rate is %d.%d%%, if confused %d.%d%%.\n", thousandths/10, thousandths % 10, conf_thousandths /10, conf_thousandths % 10));
+		return TRUE;
 	}
 
 	/* No success rates to report */
@@ -582,10 +579,12 @@ bool object_info_out(const object_type *o_ptr)
 					/* ??? should check for things like gondolin with LITE + power */
 				}
 				else
+				{
 					p_text_out("It has a random power from { ");
 					/* ??? this should be a loop looking for flags that are not splendid */
 					p_text_out("S.Dig FF SI FA HLife ");
 					p_text_out("}.");
+				}
 				break;
 			default:
 				p_text_out("It might have hidden powers.");

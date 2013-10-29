@@ -67,11 +67,448 @@ gcc: '-V' option must have argument
 configure:2104: $? = 1
 configure:2127: checking for C compiler default output file name
 configure:2154: gcc    conftest.c  >&5
+configure:2157: $? = 0
+configure:2195: result: a.out
+configure:2212: checking whether the C compiler works
+configure:2222: ./a.out
+configure:2225: $? = 0
+configure:2242: result: yes
+configure:2249: checking whether we are cross compiling
+configure:2251: result: no
+configure:2254: checking for suffix of executables
+configure:2261: gcc -o conftest    conftest.c  >&5
+configure:2264: $? = 0
+configure:2288: result: 
+configure:2294: checking for suffix of object files
+configure:2320: gcc -c   conftest.c >&5
+configure:2323: $? = 0
+configure:2346: result: o
+configure:2350: checking whether we are using the GNU C compiler
+configure:2379: gcc -c   conftest.c >&5
+configure:2385: $? = 0
+configure:2402: result: yes
+configure:2407: checking whether gcc accepts -g
+configure:2437: gcc -c -g  conftest.c >&5
+configure:2443: $? = 0
+configure:2542: result: yes
+configure:2559: checking for gcc option to accept ISO C89
+configure:2633: gcc  -c -g -O2  conftest.c >&5
+configure:2639: $? = 0
+configure:2662: result: none needed
+configure:2727: checking for a BSD-compatible install
+configure:2783: result: /usr/bin/install -c
+configure:2794: checking whether ln -s works
+configure:2798: result: yes
+configure:2805: checking whether make sets $(MAKE)
+configure:2826: result: yes
+configure:2838: checking for rm
+configure:2856: found /bin/rm
+configure:2868: result: /bin/rm
+configure:2878: checking for mv
+configure:2896: found /bin/mv
+configure:2908: result: /bin/mv
+configure:2918: checking for cp
+configure:2936: found /bin/cp
+configure:2948: result: /bin/cp
+configure:3053: checking for initscr in -lcurses  
+configure:3088: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   conftest.c -lcurses     >&5
+/usr/lib/gcc/i586-suse-linux/4.0.2/../../../../i586-suse-linux/bin/ld: cannot find -lcurses
+collect2: ld returned 1 exit status
+configure:3094: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| /* end confdefs.h.  */
+| 
+| /* Override any GCC internal prototype to avoid an error.
+|    Use char because int might match the return type of a GCC
+|    builtin and then its argument prototype would still apply.  */
+| #ifdef __cplusplus
+| extern "C"
+| #endif
+| char initscr ();
+| int
+| main ()
+| {
+| return initscr ();
+|   ;
+|   return 0;
+| }
+configure:3112: result: no
+configure:3120: checking for initscr in -lncurses 
+configure:3155: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   conftest.c -lncurses    >&5
+configure:3161: $? = 0
+configure:3179: result: yes
+configure:3187: checking for initscr in -lpdcurses
+configure:3222: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   conftest.c -lpdcurses   >&5
+/usr/lib/gcc/i586-suse-linux/4.0.2/../../../../i586-suse-linux/bin/ld: cannot find -lpdcurses
+collect2: ld returned 1 exit status
+configure:3228: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| /* end confdefs.h.  */
+| 
+| /* Override any GCC internal prototype to avoid an error.
+|    Use char because int might match the return type of a GCC
+|    builtin and then its argument prototype would still apply.  */
+| #ifdef __cplusplus
+| extern "C"
+| #endif
+| char initscr ();
+| int
+| main ()
+| {
+| return initscr ();
+|   ;
+|   return 0;
+| }
+configure:3246: result: no
+configure:3338: checking how to run the C preprocessor
+configure:3378: gcc -E  conftest.c
+configure:3384: $? = 0
+configure:3415: gcc -E  conftest.c
+conftest.c:14:28: error: ac_nonexistent.h: No such file or directory
+configure:3421: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| #define USE_CURSES 0
+| #define USE_NCURSES 1
+| #define USE_GCU 1
+| /* end confdefs.h.  */
+| #include <ac_nonexistent.h>
+configure:3454: result: gcc -E
+configure:3483: gcc -E  conftest.c
+configure:3489: $? = 0
+configure:3520: gcc -E  conftest.c
+conftest.c:14:28: error: ac_nonexistent.h: No such file or directory
+configure:3526: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| #define USE_CURSES 0
+| #define USE_NCURSES 1
+| #define USE_GCU 1
+| /* end confdefs.h.  */
+| #include <ac_nonexistent.h>
+configure:3564: checking for X
+configure:3799: result: libraries /usr/X11R6/lib, headers /usr/X11R6/include
+configure:3821: checking whether -R must be followed by a space
+configure:3847: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses conftest.c  -R/usr/X11R6/lib >&5
+gcc: unrecognized option '-R/usr/X11R6/lib'
+configure:3853: $? = 0
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| #define USE_CURSES 0
+| #define USE_NCURSES 1
+| #define USE_GCU 1
+| /* end confdefs.h.  */
+| 
+| int
+| main ()
+| {
+| 
+|   ;
+|   return 0;
+| }
+configure:3888: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses conftest.c  -R /usr/X11R6/lib >&5
+gcc: unrecognized option '-R'
+/usr/X11R6/lib: file not recognized: Is a directory
+collect2: ld returned 1 exit status
+configure:3894: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| #define USE_CURSES 0
+| #define USE_NCURSES 1
+| #define USE_GCU 1
+| /* end confdefs.h.  */
+| 
+| int
+| main ()
+| {
+| 
+|   ;
+|   return 0;
+| }
+configure:3907: result: neither works
+configure:3960: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses conftest.c   -L/usr/X11R6/lib -lX11 >&5
+configure:3966: $? = 0
+configure:4123: checking for gethostbyname
+configure:4179: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses conftest.c  >&5
+configure:4185: $? = 0
+configure:4202: result: yes
+configure:4347: checking for connect
+configure:4403: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses conftest.c  >&5
+configure:4409: $? = 0
+configure:4426: result: yes
+configure:4498: checking for remove
+configure:4554: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses conftest.c  >&5
+configure:4560: $? = 0
+configure:4577: result: yes
+configure:4649: checking for shmat
+configure:4705: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses conftest.c  >&5
+configure:4711: $? = 0
+configure:4728: result: yes
+configure:4809: checking for IceConnectionNumber in -lICE
+configure:4844: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce   -lncurses -L/usr/X11R6/lib conftest.c -lICE   >&5
+configure:4850: $? = 0
+configure:4868: result: yes
+configure:5559: checking for Mix_OpenAudio in -lSDL_mixer
+configure:5594: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include   -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11  conftest.c -lSDL_mixer   >&5
+/usr/lib/gcc/i586-suse-linux/4.0.2/../../../../i586-suse-linux/bin/ld: cannot find -lSDL_mixer
+collect2: ld returned 1 exit status
+configure:5600: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| #define USE_CURSES 0
+| #define USE_NCURSES 1
+| #define USE_GCU 1
+| #define USE_X11 1
+| /* end confdefs.h.  */
+| 
+| /* Override any GCC internal prototype to avoid an error.
+|    Use char because int might match the return type of a GCC
+|    builtin and then its argument prototype would still apply.  */
+| #ifdef __cplusplus
+| extern "C"
+| #endif
+| char Mix_OpenAudio ();
+| int
+| main ()
+| {
+| return Mix_OpenAudio ();
+|   ;
+|   return 0;
+| }
+configure:5618: result: no
+configure:5641: checking for grep that handles long lines and -e
+configure:5715: result: /usr/bin/grep
+configure:5720: checking for egrep
+configure:5798: result: /usr/bin/grep -E
+configure:5803: checking for ANSI C header files
+configure:5833: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:5839: $? = 0
+configure:5938: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include   -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11  conftest.c  >&5
+configure:5941: $? = 0
+configure:5947: ./conftest
+configure:5950: $? = 0
+configure:5967: result: yes
+configure:5991: checking for sys/types.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for sys/stat.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for stdlib.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for string.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for memory.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for strings.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for inttypes.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for stdint.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:5991: checking for unistd.h
+configure:6012: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6018: $? = 0
+configure:6034: result: yes
+configure:6063: checking fcntl.h usability
+configure:6080: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6086: $? = 0
+configure:6100: result: yes
+configure:6104: checking fcntl.h presence
+configure:6119: gcc -E  conftest.c
+configure:6125: $? = 0
+configure:6139: result: yes
+configure:6172: checking for fcntl.h
+configure:6180: result: yes
+configure:6053: checking for stdint.h
+configure:6059: result: yes
+configure:6063: checking dirent.h usability
+configure:6080: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6086: $? = 0
+configure:6100: result: yes
+configure:6104: checking dirent.h presence
+configure:6119: gcc -E  conftest.c
+configure:6125: $? = 0
+configure:6139: result: yes
+configure:6172: checking for dirent.h
+configure:6180: result: yes
+configure:6193: checking for stdbool.h that conforms to C99
+configure:6286: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6292: $? = 0
+configure:6307: result: yes
+configure:6309: checking for _Bool
+configure:6339: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+configure:6345: $? = 0
+configure:6360: result: yes
+configure:6379: checking for an ANSI C-conforming const
+configure:6454: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+conftest.c: In function 'main':
+conftest.c:59: warning: 't' is used uninitialized in this function
+conftest.c:75: warning: 'b' is used uninitialized in this function
+conftest.c:81: warning: 'cs[0]' is used uninitialized in this function
+configure:6460: $? = 0
+configure:6475: result: yes
+configure:6485: checking return type of signal handlers
+configure:6513: gcc -c -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include  conftest.c >&5
+conftest.c: In function 'main':
+conftest.c:36: error: void value not ignored as it ought to be
+configure:6519: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| #define PACKAGE_NAME "Angband"
+| #define PACKAGE_TARNAME "angband"
+| #define PACKAGE_VERSION "3.0.9"
+| #define PACKAGE_STRING "Angband 3.0.9"
+| #define PACKAGE_BUGREPORT "bugs@rephial.org"
+| #define PACKAGE "angband"
+| #define VERSION "3.0.9"
+| #define DEFAULT_PATH "./lib/"
+| #define USE_CURSES 0
+| #define USE_NCURSES 1
+| #define USE_GCU 1
+| #define USE_X11 1
+| #define STDC_HEADERS 1
+| #define HAVE_SYS_TYPES_H 1
+| #define HAVE_SYS_STAT_H 1
+| #define HAVE_STDLIB_H 1
+| #define HAVE_STRING_H 1
+| #define HAVE_MEMORY_H 1
+| #define HAVE_STRINGS_H 1
+| #define HAVE_INTTYPES_H 1
+| #define HAVE_STDINT_H 1
+| #define HAVE_UNISTD_H 1
+| #define HAVE_FCNTL_H 1
+| #define HAVE_STDINT_H 1
+| #define HAVE_DIRENT_H 1
+| #define HAVE__BOOL 1
+| #define HAVE_STDBOOL_H 1
+| /* end confdefs.h.  */
+| #include <sys/types.h>
+| #include <signal.h>
+| 
+| int
+| main ()
+| {
+| return *(signal (0, 0)) (0) == 1;
+|   ;
+|   return 0;
+| }
+configure:6534: result: void
+configure:6549: checking for mkstemp
+configure:6605: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include   -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11  conftest.c  >&5
+configure:6611: $? = 0
+configure:6629: result: yes
+configure:6549: checking for setresgid
+configure:6605: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include   -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11  conftest.c  >&5
+configure:6611: $? = 0
+configure:6629: result: yes
+configure:6549: checking for setegid
+configure:6605: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include   -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11  conftest.c  >&5
+configure:6611: $? = 0
+configure:6629: result: yes
+configure:6549: checking for can_change_color
+configure:6605: gcc -o conftest -g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include   -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11  conftest.c  >&5
+configure:6611: $? = 0
+configure:6629: result: yes
+configure:6744: creating ./config.status
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by Angband config.status 3.0.9, which was
+generated by GNU Autoconf 2.61.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status 
+
+on dhcppc1
+
+config.status:617: creating mk/rules.mk
+config.status:617: creating src/autoconf.h
+config.status:852: src/autoconf.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##
 ## ---------------- ##
 
+ac_cv_c_compiler_gnu=yes
+ac_cv_c_const=yes
 ac_cv_env_CC_set=
 ac_cv_env_CC_value=
 ac_cv_env_CFLAGS_set=
@@ -92,39 +529,79 @@ ac_cv_env_host_alias_set=
 ac_cv_env_host_alias_value=
 ac_cv_env_target_alias_set=
 ac_cv_env_target_alias_value=
+ac_cv_func_can_change_color=yes
+ac_cv_func_connect=yes
+ac_cv_func_gethostbyname=yes
+ac_cv_func_mkstemp=yes
+ac_cv_func_remove=yes
+ac_cv_func_setegid=yes
+ac_cv_func_setresgid=yes
+ac_cv_func_shmat=yes
+ac_cv_have_x='have_x=yes	ac_x_includes='\''/usr/X11R6/include'\''	ac_x_libraries='\''/usr/X11R6/lib'\'''
+ac_cv_header_dirent_h=yes
+ac_cv_header_fcntl_h=yes
+ac_cv_header_inttypes_h=yes
+ac_cv_header_memory_h=yes
+ac_cv_header_stdbool_h=yes
+ac_cv_header_stdc=yes
+ac_cv_header_stdint_h=yes
+ac_cv_header_stdlib_h=yes
+ac_cv_header_string_h=yes
+ac_cv_header_strings_h=yes
+ac_cv_header_sys_stat_h=yes
+ac_cv_header_sys_types_h=yes
+ac_cv_header_unistd_h=yes
+ac_cv_lib_ICE_IceConnectionNumber=yes
+ac_cv_lib_SDL_mixer_Mix_OpenAudio=no
+ac_cv_lib_curses___initscr=no
+ac_cv_lib_ncurses__initscr=yes
+ac_cv_lib_pdcurses_initscr=no
+ac_cv_objext=o
+ac_cv_path_CP=/bin/cp
+ac_cv_path_EGREP='/usr/bin/grep -E'
+ac_cv_path_GREP=/usr/bin/grep
+ac_cv_path_MV=/bin/mv
+ac_cv_path_RM=/bin/rm
+ac_cv_path_install='/usr/bin/install -c'
+ac_cv_prog_CPP='gcc -E'
 ac_cv_prog_ac_ct_CC=gcc
+ac_cv_prog_cc_c89=
+ac_cv_prog_cc_g=yes
+ac_cv_prog_make_make_set=yes
+ac_cv_type__Bool=yes
+ac_cv_type_signal=void
 
 ## ----------------- ##
 ## Output variables. ##
 ## ----------------- ##
 
 CC='gcc'
-CFLAGS=''
-CP=''
-CPP=''
+CFLAGS='-g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include'
+CP='/bin/cp'
+CPP='gcc -E'
 CPPFLAGS=''
-DATA_PATH=''
-DEFS=''
+DATA_PATH='./lib/'
+DEFS='-DHAVE_CONFIG_H'
 ECHO_C=''
 ECHO_N='-n'
 ECHO_T=''
-EGREP=''
+EGREP='/usr/bin/grep -E'
 EXEEXT=''
 GLIB_CFLAGS=''
 GLIB_LIBS=''
-GREP=''
+GREP='/usr/bin/grep'
 GTK_CFLAGS=''
 GTK_LIBS=''
-INSTALL_DATA=''
-INSTALL_PROGRAM=''
-INSTALL_SCRIPT=''
-LDFLAGS=''
+INSTALL_DATA='${INSTALL} -m 644'
+INSTALL_PROGRAM='${INSTALL}'
+INSTALL_SCRIPT='${INSTALL}'
+LDFLAGS=' -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11 '
 LIBOBJS=''
 LIBS=''
-LN_S=''
+LN_S='ln -s'
 LTLIBOBJS=''
-MV=''
-OBJEXT=''
+MV='/bin/mv'
+OBJEXT='o'
 PACKAGE='angband'
 PACKAGE_BUGREPORT='bugs@rephial.org'
 PACKAGE_NAME='Angband'
@@ -133,7 +610,7 @@ PACKAGE_TARNAME='angband'
 PACKAGE_VERSION='3.0.9'
 PATH_SEPARATOR=':'
 PKG_CONFIG=''
-RM=''
+RM='/bin/rm'
 SDL_CFLAGS=''
 SDL_CONFIG=''
 SDL_LIBS=''
@@ -142,18 +619,18 @@ SET_MAKE=''
 SHELL='/bin/sh'
 VERSION='3.0.9'
 XMKMF=''
-X_CFLAGS=''
+X_CFLAGS=' -I/usr/X11R6/include'
 X_EXTRA_LIBS=''
-X_LIBS=''
-X_PRE_LIBS=''
+X_LIBS=' -L/usr/X11R6/lib'
+X_PRE_LIBS=' -lSM -lICE'
 ac_ct_CC='gcc'
-bindir='${exec_prefix}/bin'
+bindir='..'
 build_alias=''
 datadir='${datarootdir}'
 datarootdir='${prefix}/share'
 docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
 dvidir='${docdir}'
-exec_prefix='NONE'
+exec_prefix='${prefix}'
 host_alias=''
 htmldir='${docdir}'
 includedir='${prefix}/include'
@@ -165,7 +642,7 @@ localstatedir='${prefix}/var'
 mandir='${datarootdir}/man'
 oldincludedir='/usr/include'
 pdfdir='${docdir}'
-prefix='NONE'
+prefix='/usr/local'
 program_transform_name='s,x,x,'
 psdir='${docdir}'
 sbindir='${exec_prefix}/sbin'
@@ -184,6 +661,30 @@ target_alias=''
 #define PACKAGE_BUGREPORT "bugs@rephial.org"
 #define PACKAGE "angband"
 #define VERSION "3.0.9"
+#define DEFAULT_PATH "./lib/"
+#define USE_CURSES 0
+#define USE_NCURSES 1
+#define USE_GCU 1
+#define USE_X11 1
+#define STDC_HEADERS 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_SYS_STAT_H 1
+#define HAVE_STDLIB_H 1
+#define HAVE_STRING_H 1
+#define HAVE_MEMORY_H 1
+#define HAVE_STRINGS_H 1
+#define HAVE_INTTYPES_H 1
+#define HAVE_STDINT_H 1
+#define HAVE_UNISTD_H 1
+#define HAVE_FCNTL_H 1
+#define HAVE_STDINT_H 1
+#define HAVE_DIRENT_H 1
+#define HAVE__BOOL 1
+#define HAVE_STDBOOL_H 1
+#define RETSIGTYPE void
+#define HAVE_MKSTEMP 1
+#define HAVE_SETRESGID 1
+#define HAVE_SETEGID 1
+#define HAVE_CAN_CHANGE_COLOR 1
 
-configure: caught signal 2
-configure: exit 1
+configure: exit 0

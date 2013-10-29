@@ -1,5 +1,9 @@
 /* EFGchange try to get away from stupid TR1/TR2/TR3 */
 
+/* parameter to pass to object_success_permillage */
+#define USE_NORMAL FALSE
+#define USE_IMPAIRED TRUE
+
 /* for now, these have to be in the same order as the TR?_FLAGS in defines.h */
 enum object_flag
 {

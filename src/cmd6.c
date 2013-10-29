@@ -720,8 +720,8 @@ void do_cmd_activate(void)
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
 
 #ifdef EFG
-/* ??? should replace this with device skill code */
-#endif
+	/* EFGchange separate out device activation code */
+#else
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
 
@@ -737,6 +737,7 @@ void do_cmd_activate(void)
 	{
 		chance = USE_DEVICE;
 	}
+#endif
 
 	/* Check for amnesia */
 	if (rand_int(2) != 0 && p_ptr->timed[TMD_AMNESIA])
@@ -747,7 +748,14 @@ void do_cmd_activate(void)
 	}
 
 	/* Roll for usage */
+#ifdef EFG
+	bool usage = USE_NORMAL;
+	if (p_ptr->timed[TMD_CONFUSED])
+		usage = USE_IMPAIRED;
+	if (rand_range(1, 1000) > object_success_permillage(o_ptr, usage))
+#else
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+#endif
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to activate it properly.");

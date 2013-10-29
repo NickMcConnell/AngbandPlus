@@ -384,7 +384,11 @@ errr path_parse(char *buf, size_t max, cptr file)
 	}
 
 	/* Look up the "current" user */
+#ifdef EFG
+	if (u[0] == '\0') u = cuserid(NULL);
+#else
 	if (u[0] == '\0') u = getlogin();
+#endif
 
 	/* Look up a user (or "current" user) */
 	if (u) pw = getpwnam(u);

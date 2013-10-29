@@ -1763,6 +1763,20 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_DARK_WEAK:
 		case GF_DARK:
 		{
+#ifdef EFG
+			/* ??? need a function for daytime */
+			if (!(!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))) {
+				/* Turn off the light */
+				cave_info[y][x] &= ~(CAVE_GLOW);
+
+				/* Hack -- Forget "boring" grids */
+				if (cave_feat[y][x] <= FEAT_INVIS)
+				{
+					/* Forget */
+					cave_info[y][x] &= ~(CAVE_MARK);
+				}
+			}
+#else
 			/* Turn off the light */
 			cave_info[y][x] &= ~(CAVE_GLOW);
 
@@ -1772,6 +1786,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Forget */
 				cave_info[y][x] &= ~(CAVE_MARK);
 			}
+#endif
 
 			/* Grid is in line of sight */
 			if (player_has_los_bold(y, x))

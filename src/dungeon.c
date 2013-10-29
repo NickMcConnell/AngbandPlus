@@ -91,9 +91,7 @@ int value_check_aux1(const object_type *o_ptr)
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
 #ifdef EFG
-	/* ??? should check pval against flags */
 	if (o_ptr->pval > 0) return (INSCRIP_GOOD);
-	/* ??? now diggers are never average, but how can you check besides name1 ? */
 #endif
 
 	/* Default to "average" */
@@ -147,8 +145,6 @@ static void sense_inventory(void)
 #ifdef EFG
 	/* The way average items are given heavy id for weak pseudo chars
            after something else pseudos requires that this be set for each item */
-	/* There was a bug previously with indestructible items giving chars
-           with weak pseudo strong pseudo for the rest of the routine */
 #else
 	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
 #endif
@@ -335,8 +331,6 @@ static void sense_inventory(void)
 		if ((feel == INSCRIP_AVERAGE) && (object_aware_p(o_ptr)))
 			/* so you don't have to remember how many times enchanted "avg" longbow */
 			{
-/* ??? to avoid id on searching, currently considered average, should change searching to good/bad not average/bad */
-			/* ??? picks make this no good */
 			if ((o_ptr->pval == 0) || (o_ptr->tval = TV_DIGGING))
 				object_known(o_ptr);
 			}
@@ -1127,6 +1121,10 @@ static void process_world(void)
 			/* Determine the level */
 			if (p_ptr->depth)
 			{
+#ifdef EFG
+				/* EFGchange recall resets level where it kicks in */
+				p_ptr->max_depth = p_ptr->depth;
+#endif
 				msg_print("You feel yourself yanked upwards!");
 
 				/* New depth */
@@ -1961,6 +1959,11 @@ static void process_some_user_pref_files(void)
 
 	/* Get the "PLAYER.prf" filename */
 	(void)strnfmt(buf, sizeof(buf), "%s.prf", op_ptr->base_name);
+#ifdef EFG
+/*
+	printf("base is %s\n", op_ptr->base_name);
+*/
+#endif
 
 	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);

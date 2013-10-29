@@ -337,7 +337,7 @@ Copyright (C) 2006 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/media/Lexar/eband'
+ac_pwd='/home/jgrove/ef2'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 # If no file are specified by the user, then we need to provide default
@@ -523,8 +523,8 @@ s,@target_alias@,|#_!!_#|,g
 s,@PACKAGE@,|#_!!_#|angband,g
 s,@VERSION@,|#_!!_#|3.0.9,g
 s,@CC@,|#_!!_#|gcc,g
-s,@CFLAGS@,|#_!!_#|-g -O2 -Wall -pipe -g -fno-strength-reduce ,g
-s,@LDFLAGS@,|#_!!_#| -lncurses  -lSM -lICE  -lX11 ,g
+s,@CFLAGS@,|#_!!_#|-g -O2 -Wall -pipe -g -fno-strength-reduce  -I/usr/X11R6/include,g
+s,@LDFLAGS@,|#_!!_#| -lncurses  -lSM -lICE  -L/usr/X11R6/lib -lX11 ,g
 s,@CPPFLAGS@,|#_!!_#|,g
 s,@ac_ct_CC@,|#_!!_#|gcc,g
 s,@EXEEXT@,|#_!!_#|,g
@@ -532,7 +532,7 @@ s,@OBJEXT@,|#_!!_#|o,g
 s,@INSTALL_PROGRAM@,|#_!!_#|${INSTALL},g
 s,@INSTALL_SCRIPT@,|#_!!_#|${INSTALL},g
 s,@INSTALL_DATA@,|#_!!_#|${INSTALL} -m 644,g
-s,@LN_S@,|#_!!_#|cp -p,g
+s,@LN_S@,|#_!!_#|ln -s,g
 s,@SET_MAKE@,|#_!!_#|,g
 s,@RM@,|#_!!_#|/bin/rm,g
 s,@MV@,|#_!!_#|/bin/mv,g
@@ -541,9 +541,9 @@ s,@SETEGID@,|#_!!_#|,g
 s,@DATA_PATH@,|#_!!_#|./lib/,g
 s,@XMKMF@,|#_!!_#|,g
 s,@CPP@,|#_!!_#|gcc -E,g
-s,@X_CFLAGS@,|#_!!_#|,g
+s,@X_CFLAGS@,|#_!!_#| -I/usr/X11R6/include,g
 s,@X_PRE_LIBS@,|#_!!_#| -lSM -lICE,g
-s,@X_LIBS@,|#_!!_#|,g
+s,@X_LIBS@,|#_!!_#| -L/usr/X11R6/lib,g
 s,@X_EXTRA_LIBS@,|#_!!_#|,g
 s,@SDL_CONFIG@,|#_!!_#|,g
 s,@SDL_CFLAGS@,|#_!!_#|,g

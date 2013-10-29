@@ -164,7 +164,7 @@ void do_cmd_wield(void)
 
 
 #ifdef EFG
-	/* ??? if known and cursed, should also inquire */
+	/* EFGchange prompt before wield of unsafe items */
 	if (!o_ptr->pseudo)
 	{
 		if (!object_known_p(o_ptr))
@@ -303,22 +303,9 @@ void do_cmd_wield(void)
 	bool is_splendid = FALSE;
 	if (!object_known_p(o_ptr))
 	{
-/* ??? once you already auto-aware a unique ego, do not really want this to print obvious stuff */
-		is_splendid = obviously_excellent(o_ptr, TRUE, o_name);
+		is_splendid = obviously_excellent(o_ptr, OBJECT_PRINT_OBVIOUS, o_name);
 
-		/* EFGchange some jewelry should self-id 
-		if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))
-		{
-			if ((!object_aware_p(o_ptr)) && (obvious_kind(o_ptr)))
-				object_aware(o_ptr);
-			if (object_aware_p(o_ptr))
-			{
-				object_kind *k_ptr = &k_info[o_ptr->k_idx];
-				if ((k_ptr->to_h == 0) && (k_ptr->to_d == 0) && (k_ptr->to_a == 0))
-					object_known(o_ptr);
-			}
-		}
-		*/
+		/* EFGchange some jewelry should self-id */
 		object_auto_id(o_ptr);
 	}
 #endif
@@ -339,17 +326,11 @@ void do_cmd_wield(void)
 		/* EFGchange remove need for identify wrto preserving artifacts */
 		/* since cannot sense for pseudo, learn artifact now */
 		if (o_ptr->name1)
-			/* ??? should print message, make a function */
-			object_known(o_ptr);
+			recognize_artifact(o_ptr);
 
-/* EFGchange bugfix */
-/* you cannot squelch what you are wearing! */
-/* ??? should this get "tried" status? */
-/* ??? squelch status for item removed? */
-#else
+#endif
 		/* Set squelched status */
 		p_ptr->notice |= PN_SQUELCH;
-#endif
 	}
 #ifdef EFG
 	/* EFGchange notice obvious effects */
@@ -358,7 +339,7 @@ void do_cmd_wield(void)
 		/* keep track if you have tried something on, know not cursed */
 		if (!object_known_p(o_ptr) && !(o_ptr->ident & IDENT_SENSE))
 		{
-			/* ??? this is not pseudoed, inscrip might confuse that 
+			/* ??? this is not pseudoed, inscrip might confuse that, not fair to chars with weak pseudo to grant instant pseudo losing chance to learn avg items upon pseudo
 			if (is_splendid)
 				o_ptr->pseudo = INSCRIP_SPLENDID;
 			else
@@ -490,7 +471,7 @@ void do_cmd_drop(void)
 #ifdef EFG
 void do_cmd_destroy_all_floor(void)
 {
-	/* ??? */
+	/* ??? Need to code "delete all on the floor" command */
 	printf("Need to delete all on the floor here.\n");
 }
 #endif
@@ -542,6 +523,7 @@ void do_cmd_destroy(void)
 	/* Allow user abort */
 	if (amt <= 0) return;
 #ifdef EFG
+	/* EFGchange squelch through do_cmd_destroy */
 	if (squelch_object_interactive(o_ptr))
 	{
 		p_ptr->notice |= PN_SQUELCH;
@@ -575,7 +557,7 @@ void do_cmd_destroy(void)
 
 	/* Artifacts cannot be destroyed */
 #ifdef EFG
-/* ??? why not?  do_cmd_destroy is about ignoring, not actual destruction */
+/* ??? why not delete artifacts?  do_cmd_destroy is about ignoring, not actual destruction */
 #endif
 	if (artifact_p(o_ptr))
 	{
@@ -594,7 +576,7 @@ void do_cmd_destroy(void)
 			else
 #ifdef EFG
 				/* EFGchange failed destruction ids artifacts */
-				object_known(o_ptr);
+				recognize_artifact(o_ptr);
 #else
 				o_ptr->pseudo = INSCRIP_SPECIAL;
 #endif
@@ -604,7 +586,7 @@ void do_cmd_destroy(void)
 			/* Mark the object as indestructible */
 #ifdef EFG
 			/* EFGchange failed destruction ids artifacts */
-			object_known(o_ptr);
+			recognize_artifact(o_ptr);
 #else
 			o_ptr->pseudo = INSCRIP_INDESTRUCTIBLE;
 #endif

@@ -855,3 +855,35 @@ void (*sound_hook)(int sound);
  */
 autoinscription *inscriptions = 0;
 u16b inscriptions_count = 0;
+#ifdef EFG
+	/* 
+	   This stuff ought to go in a new file, player.c, containing
+           all of the variables in the p_ptr structure, with static
+	   variables for each field accessed only through function calls.
+	*/
+
+void player_set_max(player_field f, s32b value)
+{
+	const s16b *const_s16_ptr;
+	s16b *s16_ptr;
+	s16b diff = 0;
+
+	switch(f)
+	{
+		case PLAYER_HP:
+			diff = value - p_ptr->mhp;
+			const_s16_ptr = &(p_ptr->mhp);
+			s16_ptr = (s16b *) const_s16_ptr;
+			*s16_ptr = value;
+
+			/* EFGchange adders add */
+			p_ptr->chp += diff;
+
+			break;
+		default:
+			printf ("called player_set with field %d and value %d\n", f, value);
+			exit(0);
+	}
+}
+
+#endif

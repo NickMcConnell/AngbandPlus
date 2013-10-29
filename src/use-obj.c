@@ -1036,24 +1036,30 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 	return (used_up);
 }
 #ifdef EFG
-int object_success_permillage(const object_type *o_ptr, bool confused)
+int object_success_permillage(const object_type *o_ptr, bool impaired)
 {
 	int successes, total;
 	int lev = k_info[o_ptr->k_idx].level;
+
+        /* Hack -- use artifact level instead */
+        if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+
 	int chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (confused)
+	if (impaired)
 		chance = chance / 2;
 
 	/* Reduce by object level, but only up to 50 */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
+/*
 	switch(o_ptr->tval)
 	{
 		case TV_WAND:
 		case TV_ROD:
 		case TV_STAFF:
+*/
 			if (chance < USE_DEVICE)
 			{
 				successes = USE_DEVICE - 1;
@@ -1064,11 +1070,13 @@ int object_success_permillage(const object_type *o_ptr, bool confused)
 				successes = chance - 1;
 				total = chance;
 			}
+/*
 			break;
 		default:
 			successes = 1;
 			total = 1;
 	}
+*/
 	return (int) (1000.0 * successes / total);
 }
 #endif
@@ -1085,7 +1093,10 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 	/* this stuff moved in from do_cmd_use_staff where it did not belong */
 
 	/* Roll for usage */
-	if (rand_range(1, 1000) > object_success_permillage(o_ptr, p_ptr->timed[TMD_CONFUSED]))
+        bool usage = USE_NORMAL;
+        if (p_ptr->timed[TMD_CONFUSED])
+                usage = USE_IMPAIRED;
+        if (rand_range(1, 1000) > object_success_permillage(o_ptr, usage))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the staff properly.");
@@ -1381,7 +1392,10 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 #ifdef EFG
         /* Roll for usage */
-	if (rand_range(1, 1000) > object_success_permillage(o_ptr, p_ptr->timed[TMD_CONFUSED]))
+        bool usage = USE_NORMAL;
+        if (p_ptr->timed[TMD_CONFUSED])
+                usage = USE_IMPAIRED;
+        if (rand_range(1, 1000) > object_success_permillage(o_ptr, usage))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the wand properly.");
@@ -1690,7 +1704,10 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 #ifdef EFG
         /* Roll for usage */
-	if (rand_range(1, 1000) > object_success_permillage(o_ptr, p_ptr->timed[TMD_CONFUSED]))
+        bool usage = USE_NORMAL;
+        if (p_ptr->timed[TMD_CONFUSED])
+                usage = USE_IMPAIRED;
+        if (rand_range(1, 1000) > object_success_permillage(o_ptr, usage))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the rod properly.");

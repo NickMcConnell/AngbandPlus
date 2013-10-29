@@ -617,7 +617,7 @@ bool make_attack_normal(int m_idx)
 						}
 #ifdef EFG
 						/* EFGchange stolen gold does not evaporate */
-						long maxpval = (u16b) ((s16b) -1);  /* ??? should go elsewhere */
+						long maxpval = (u16b) ((s16b) -1);
 						long maxnum = 99;
 						long maxgold = maxnum * maxpval;
 						object_type object_type_body;

@@ -187,6 +187,9 @@ void print_spells(const byte *spells, int num, int y, int x)
 		}
 
 		/* Dump the spell --(-- */
+#ifdef EFG
+		comment = help;
+#endif
 		strnfmt(out_val, sizeof(out_val), "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), get_spell_name(cp_ptr->spell_book, spell),
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
@@ -524,6 +527,9 @@ static void browse_spell(int spell)
 	}
 
 	/* Show spell name and comment (if any) on first line of screen */
+#ifdef EFG
+	comment = "";
+#endif
 	if (streq(comment, ""))
 	{
 		strnfmt(out_val, sizeof(out_val), "%^s",

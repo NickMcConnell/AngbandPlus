@@ -2704,6 +2704,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->to_d = a_ptr->to_d;
 		o_ptr->weight = a_ptr->weight;
 #ifdef EFG
+		/* EFGchange add LITE to otherwise non-splendid randarts */
 		if (!obviously_excellent(o_ptr, FALSE, NULL))
 		{
 			/* would be better to do this at birth */
@@ -2839,6 +2840,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 				{
 #ifdef EFG
 /* ??? this code should be used for sustain/resist as well, in case e.g. new ego offers rChaos on chaos blades */
+/* ??? need it now for preservation giving random resist rDis */
 					int i;
 					int available = 0;
 					int to_skip;
@@ -2847,7 +2849,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 						if (!((k_info[o_ptr->k_idx].flags3 & (OBJECT_XTRA_BASE_POWER << i)) ||
 						      (e_ptr->flags3 & (OBJECT_XTRA_BASE_POWER << i))))
 							available++;
-else printf("skipping power %d for ego %s\n", i, e_name + e_ptr->name); /* ??? debug code to check for a while */
 					}
 					to_skip = (byte)rand_int(available);
 					o_ptr->xtra2 = 0; /* paranoia */
@@ -3186,6 +3187,24 @@ bool make_gold(object_type *j_ptr)
 
 
 
+#ifdef EFG
+s16b floor_get_idx_oldest_squelched(int y, int x)
+{
+	s16b squelch_idx = 0;
+	s16b this_o_idx;
+        object_type *o_ptr = NULL;
+        for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = o_ptr->next_o_idx)        {
+                o_ptr = &o_list[this_o_idx];
+
+		if (squelch_hide_item(o_ptr))
+		{
+			squelch_idx = this_o_idx;
+		}
+
+	}
+	return squelch_idx;
+}
+#endif
 /*
  * Let the floor carry an object
  */
@@ -3223,11 +3242,25 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 		n++;
 	}
 
+#ifdef EFG
+	/* Option -- disallow stacking */
+	if (adult_no_stacking && n) return (0);
+
+	if (n >= MAX_FLOOR_STACK) /* it appears the old comparison was buggy */
+	{
+		s16b squelch_idx = floor_get_idx_oldest_squelched(y, x);
+		if (squelch_idx)
+			delete_object_idx(squelch_idx);
+		else
+			return (0);
+	}
+#else
 	/* The stack is already too large */
 	if (n > MAX_FLOOR_STACK) return (0);
 
 	/* Option -- disallow stacking */
 	if (adult_no_stacking && n) return (0);
+#endif
 
 	/* Make an object */
 	o_idx = o_pop();
@@ -3384,8 +3417,12 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Option -- disallow stacking */
 			if (adult_no_stacking && (k > 1)) continue;
 			
+#ifdef EFG
+			if (((k + n) > MAX_FLOOR_STACK) && (!(floor_get_idx_oldest_squelched(ty, tx)))) continue;
+#else
 			/* Paranoia? */
 			if ((k + n) > MAX_FLOOR_STACK) continue;
+#endif
 
 			/* Calculate score */
 			s = 1000 - (d + k * 5);
@@ -3415,9 +3452,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle lack of space */
 	if (!flag && !artifact_p(j_ptr))
 	{
-#ifdef EFG
-/* ??? what if filled with squelched objects ??? */
-#endif
 		/* Message */
 		msg_format("The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));
@@ -3465,9 +3499,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Give it to the floor */
 	if (!floor_carry(by, bx, j_ptr))
 	{
-#ifdef EFG
-/* ??? what if filled with squelched objects ??? */
-#endif
 		/* Message */
 		msg_format("The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));

@@ -38,7 +38,7 @@
  */
 #define VERSION_NAME   "Angband"
 #ifdef EFG
-#define VERSION_STRING "3.0.9ef"
+#define VERSION_STRING "3.0.9ef2"
 #include "object.h"
 #else
 #define VERSION_STRING "3.0.9"
@@ -3149,6 +3149,8 @@ enum
 #ifdef EFG
 
 /* ??? these belong in object.h */
+#define OBJECT_PRINT_OBVIOUS TRUE
+#define OBJECT_PRINT_NOTHING FALSE
 #define object_is_known(X) object_known_p(X)
 #define object_is_aware(X) object_aware_p(X)
 #define object_is_cursed(X) cursed_p(X)

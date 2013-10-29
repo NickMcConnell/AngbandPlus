@@ -1637,7 +1637,12 @@ static void calc_hitpoints(void)
 	if (p_ptr->mhp != mhp)
 	{
 		/* Save new limit */
+#ifdef EFG
+		/* EFGchange adders add */
+		player_set_max(PLAYER_HP, mhp);
+#else
 		p_ptr->mhp = mhp;
+#endif
 
 		/* Enforce new limit */
 		if (p_ptr->chp >= mhp)
@@ -1678,6 +1683,12 @@ static void calc_torch(void)
 	/* Ascertain lightness if in the town */
 	if (!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
 		burn_light = FALSE;
+#ifdef EFG
+	/* partial fix for lights in town, does not illuminate adjacent dark squares 
+	if (!cave_info[p_ptr->py][p_ptr->px] & CAVE_GLOW)
+		burn_light = TRUE;
+	*/
+#endif
 
 
 	/* Examine all wielded objects, use the brightest */

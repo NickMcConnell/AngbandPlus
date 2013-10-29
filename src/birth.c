@@ -123,8 +123,12 @@ static void load_prev_data(void)
 	/* Load the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
+#ifdef EFG
+		player_set_max(PLAYER_MIN_STAT + i, prev.stat[i]);
+#else
 		p_ptr->stat_max[i] = prev.stat[i];
 		p_ptr->stat_cur[i] = prev.stat[i];
+#endif
 	}
 
 	/* Load the history */
@@ -291,7 +295,12 @@ static void get_extra(void)
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
 
 	/* Initial hitpoints */
+#ifdef EFG
+	/* EFGchange adders add */
+	player_set_max(PLAYER_HP, p_ptr->hitdie);
+#else
 	p_ptr->mhp = p_ptr->hitdie;
+#endif
 
 	/* Minimum hitpoints at highest level */
 	min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;

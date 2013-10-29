@@ -1235,7 +1235,7 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			{
 				player_flags(&f[1], &f[2], &f[3]);
 				/* hack -- these really belong on a status line */
-				/* things out to be set up so this is a loop */
+				/* things ought to be set up so this is a loop */
 				if (p_ptr->timed[TMD_SINFRA])
 					f[1] |= TR1_INFRA;
 				if (p_ptr->timed[TMD_FAST])

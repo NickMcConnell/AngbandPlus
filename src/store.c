@@ -667,15 +667,23 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
  * it cannot hold.  Before, one could "nuke" objects this way, by
  * adding them to a pile which was already full.
  */
+#ifdef EFG
+static bool store_check_num(int st, object_type *o_ptr)
+#else
 static bool store_check_num(int st, const object_type *o_ptr)
+#endif
 {
 	int i;
 	object_type *j_ptr;
 
 	store_type *st_ptr = &store[st];
 
+#ifdef EFG
+	/* Need to know if can absorb for store refund purposes */
+#else
 	/* Free space is always usable */
 	if (st_ptr->stock_num < st_ptr->stock_size) return TRUE;
+#endif
 
 	/* The "home" acts like the player */
 	if (st == STORE_HOME)
@@ -701,10 +709,22 @@ static bool store_check_num(int st, const object_type *o_ptr)
 			j_ptr = &st_ptr->stock[i];
 
 			/* Can the new object be combined with the old one? */
+#ifdef EFG
+			if (store_object_similar(j_ptr, o_ptr))
+			{
+				o_ptr->marked = j_ptr->marked;
+				return (TRUE);
+			}
+#else
 			if (store_object_similar(j_ptr, o_ptr)) return (TRUE);
+#endif
 		}
 	}
 
+#ifdef EFG
+	/* Free space is always usable */
+	if (st_ptr->stock_num < st_ptr->stock_size) return TRUE;
+#endif
 	/* But there was no room at the inn... */
 	return (FALSE);
 }
@@ -844,6 +864,14 @@ static int store_carry(int st, object_type *o_ptr)
 		/* Can the existing items be incremented? */
 		if (store_object_similar(j_ptr, o_ptr))
 		{
+#ifdef EFG
+			/* reduce quantity refundable */
+			/* ??? perhaps this belongs in absorb */
+			if (j_ptr->marked < o_ptr->marked)
+				j_ptr->marked = 0;
+			else
+				j_ptr->marked -= o_ptr->marked;
+#endif
 			/* Absorb (some of) the object */
 			store_object_absorb(j_ptr, o_ptr);
 
@@ -1629,9 +1657,13 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 	/* EFGchange show awareness status of flavored objects for sale */
 	if (store_current != STORE_HOME)
 	{
+		/* ??? supposed to use *band specific string functions */
+		/* ??? this probably should be an option in obj-info */
 		int l = strlen(o_name);
 		if (!object_aware_p(o_ptr) && (l + 10 < sizeof(o_name)))
 			sprintf (&o_name[l], " (unaware)");
+		else if ((o_ptr->marked) && (l + 16 < sizeof(o_name)))
+			sprintf (&o_name[l], " [%2d refundable]", o_ptr->marked);
 	}
 #endif
 
@@ -1975,6 +2007,12 @@ static bool store_purchase(int item)
 			o_ptr->pval -= i_ptr->pval;
 		}
 
+#ifdef EFG
+		if (o_ptr->marked + amt > 99)
+			o_ptr->marked = 99;
+		else
+			o_ptr->marked += amt;
+#endif
 		/* Handle stuff */
 		handle_stuff();
 
@@ -2040,8 +2078,8 @@ static bool store_purchase(int item)
 	/* Not kicked out */
 #ifdef EFG
 	/* don't squelch items you buy */
-	/* ??? message if changes value?  particularly for unaware? */
-	/* ??? should test if squelched, print a message, also might be generalized squelch */
+	/* ??? message if buying changes squelch value?  particularly for unaware? */
+	/* ??? should test if item bought is generalized squelched */
 	squelch_clear(inventory[item_new].k_idx);
 #endif
 	return TRUE;
@@ -2285,10 +2323,16 @@ static void store_sell(void)
 		u32b price, dummy, value;
 
 		/* Extract the value of the items */
-		price = price_item(i_ptr, TRUE) * amt;
 #ifdef EFG
-		/* EFGchange store buys, but pays 0 gold */
-		price = 0;
+		/* EFGchange store buys, but pays 0 gold except refunds of prev bought items */
+		/* store_check_num set i_ptr->marked to number sellable */
+		int sell_amt = amt;
+		if (i_ptr->marked < sell_amt)
+			sell_amt = i_ptr->marked;
+		i_ptr->marked = 0;
+		price = price_item(i_ptr, TRUE) * sell_amt;
+#else
+		price = price_item(i_ptr, TRUE) * amt;
 #endif
 
 		screen_save();
@@ -2336,6 +2380,10 @@ static void store_sell(void)
 
 		/* Modify quantity */
 		i_ptr->number = amt;
+#ifdef EFG
+		/* note the change in refundable */
+		i_ptr->marked = sell_amt;
+#endif
 
 		/*
 		 * Hack -- Allocate charges between those wands, staves, or rods
@@ -2354,8 +2402,11 @@ static void store_sell(void)
 		           o_name, index_to_label(item), (long)price);
 		store_flags |= STORE_KEEP_PROMPT;
 
+#ifdef EFG
+#else
 		/* Analyze the prices (and comment verbally) */
 		purchase_analyze(price, value, dummy);
+#endif
 
 		/* Set squelch flag */
 		p_ptr->notice |= PN_SQUELCH;
@@ -2651,7 +2702,6 @@ static bool store_process_command(char cmd, void *db, int oid)
 #ifdef EFG
 		case 'K':
 		/* EFGchange new command to buy out a store */
-		/* ??? could not figure out how to use a new letter */
 		{
 			if (store_purchase_all())
 				return TRUE;

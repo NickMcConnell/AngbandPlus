@@ -34,6 +34,9 @@
 #include "types.h"
 #include "ui.h"
 #include "z-type.h"
+#ifdef EFG
+#include "player.h"
+#endif
 #include "externs.h"
 
 

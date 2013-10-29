@@ -80,6 +80,9 @@ static obvious_struct obvious_list[] =
 	{ BRAND_COLD, "%s is branded with cold", OBVIOUS_FORMAT_NAME },
 };
 
+/* ??? should add squelch_init() which at a minimum checks that the
+       above and below lists have unique first fields */
+
 static enum object_flag excellent_list[] =
 {
 /* currently considered average
@@ -680,6 +683,7 @@ size_t squelch_size = TYPE_MAX;
 #define MAX_SQUELCH_LEN 1000
 object_type gen_squelch_list[TYPE_MAX][MAX_SQUELCH_LEN];
 int	gen_squelch_used[TYPE_MAX];
+bool	gen_track_squelch[MAX_SQUELCH_LEN];
 
 static int get_squelch_type(const object_type *o_ptr, bool combine_weapons)
 {
@@ -747,6 +751,9 @@ bool dominates(const object_type *s1, const object_type *s2)
 	{
 		return FALSE;
 	}
+/* ??? how did this become necessary, and what else is missing */
+	if ((s1->pseudo == INSCRIP_GOOD) && (s2->pseudo == INSCRIP_TRIED))
+		return FALSE;
 	if ((s2->name2) || /* ??? what about average or good egos? */
 	    ((!(cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) && (!object_is_known(s2)) && (!object_is_known_bad(s2))))
 	{
@@ -1011,7 +1018,6 @@ void squelch_object(const object_type *o_ptr)
 			if (dominates(o_ptr, &gen_squelch_list[l][i]))
 {
 				gen_squelch_list[l][i] = gen_squelch_list[l][--gen_squelch_used[l]];
-printf("removed item %d from squelch for type %d\n", i, l);
 }
 			else
 				i++;
@@ -1019,7 +1025,6 @@ printf("removed item %d from squelch for type %d\n", i, l);
 
 		/* add the new item to the list */
         	gen_squelch_list[l][gen_squelch_used[l]++] = *o_ptr;
-		printf ("squelch list %d now has size %d\n", l, gen_squelch_used[l]);
 	}
 	else
 	{
@@ -1901,11 +1906,8 @@ static void gen_squelch_display(menu_type *menu, int oid, bool cursor, int row, 
 
 	/* Print it */
 	c_put_str(attr, format("[ ] %s", o_name), row, col);
-/*
-	if (((k_info[idx].squelch & SQUELCH_AWARE_FLAG) && choice[oid].aware) ||
-	    ((k_info[idx].squelch & SQUELCH_UNAWARE_FLAG) && !choice[oid].aware))
+	if (gen_track_squelch[oid])
 		c_put_str(TERM_L_RED, "*", row, col + 1);
-*/
 }
 #endif
 
@@ -2008,6 +2010,7 @@ static bool gen_squelch_action(char cmd, void *db, int oid)
 	/* Toggle */
 	if (cmd == '\n' || cmd == '\r')
 	{
+		gen_track_squelch[oid] = !gen_track_squelch[oid];
 		return TRUE;
 	}
 
@@ -2056,6 +2059,7 @@ static bool gen_squelch_menu(int tval_ty, const char *desc)
 	event_type evt = { EVT_NONE, 0, 0, 0, 0 };
 	int cursor = 0;
 
+
 	/*
 	int num = 0;
 	size_t i;
@@ -2091,7 +2095,7 @@ static bool gen_squelch_menu(int tval_ty, const char *desc)
 	text_out_c(TERM_L_GREEN, "ESC");
 	text_out(" to return to the previous menu.  ");
 	text_out_c(TERM_L_BLUE, "Enter");
-	text_out(" toggles the current setting.");
+	text_out(" toggles the current squelch setting.");
 
 	text_out_indent = 0;
 
@@ -2099,12 +2103,27 @@ static bool gen_squelch_menu(int tval_ty, const char *desc)
 	WIPE(&menu, menu);
 	menu.cmd_keys = " \n\r";
 	menu.count = gen_squelch_used[tval_ty];
+	if (gen_squelch_used[tval_ty] >= MAX_SQUELCH_LEN)
+		printf("DOOM -- somehow think list is too long.\n");
+	int i;
+	for (i = 0; i < gen_squelch_used[tval_ty]; i++)
+		gen_track_squelch[i] = TRUE;
 	menu.menu_data = gen_squelch_list[tval_ty];
 	menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
 
 	/* Select an entry */
 	while (evt.key != ESCAPE)
 		evt = menu_select(&menu, &cursor, 0);
+
+	int rem_count = 0;
+	for (i = 0; i < gen_squelch_used[tval_ty]; i++)
+	{
+		if (gen_track_squelch[i])
+			gen_squelch_list[tval_ty][i - rem_count] = gen_squelch_list[tval_ty][i];
+		else
+			rem_count++;
+	}
+	gen_squelch_used[tval_ty] -= rem_count;
 
 	/* Load screen */
 	screen_load();

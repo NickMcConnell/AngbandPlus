@@ -413,6 +413,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 		/* Squelch chest if autosquelch calls for it */
 		p_ptr->notice |= PN_SQUELCH;
+#ifdef EFG
+p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_AUTOINSCRIBE);
+#endif
 	}
 
 	/* Result */
@@ -3045,7 +3048,6 @@ static bool squelchable_hook(const object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 #ifdef EFG
-/* ??? check for !k here? */
         /* EFGchange allow squelching unaware objects */
         /* EFGchange code cleaning */
 	if (squelch_item_ok(o_ptr)) return FALSE;

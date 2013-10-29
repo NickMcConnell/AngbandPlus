@@ -1281,26 +1281,6 @@ static void scramble_artifact(int a_idx)
 		/* EFGchange remove aggravation from randarts */
 		a_ptr->flags3 |= TR3_AGGRAVATE;
 		a_ptr->flags3 ^= TR3_AGGRAVATE;
-
-		/* ??? should add plite if not splendid */
-/*
-this does not work
-                int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-        	object_type object_type_body;
-        	object_type *i_ptr = &object_type_body;
-
-                object_wipe(i_ptr);
-
-                object_prep(i_ptr, k_idx);
-
-                i_ptr->name1 = a_idx;
-		if (!obviously_excellent(i_ptr, FALSE, NULL))
-		{
-			a_ptr->flags3 |= TR3_LITE;
-		}
-*/
-
 #endif
 	}
 

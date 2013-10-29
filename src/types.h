@@ -878,6 +878,10 @@ struct player_type
 	s32b exp;			/* Cur experience */
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
 
+#ifdef EFG
+	/* EFGchange adders add */
+	const
+#endif
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
 	u16b chp_frac;		/* Cur hit frac (times 2^16) */
@@ -886,6 +890,11 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
+#ifdef EFG
+	/* EFGchange adders add 
+	const
+*/
+#endif
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
 
