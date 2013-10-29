@@ -1741,8 +1741,10 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_METEOR_SWARM:
 		{
+            int swarmrad = 1;
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev/2 + randint(plev/2), 1);
+			if (plev + (goodluck+1)/2 + rand_int(6) > 49) swarmrad = 2;
+			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev/2 + randint(plev/2), swarmrad);
 			break;
 		}
 
@@ -4374,7 +4376,7 @@ static bool cast_luck_spell(int spell)
         {
             int dep = p_ptr->depth;
             die = randint(99 - badluck) + goodluck;
-            if (randint(100) > badluck) die += plev/3;
+            if (randint(100) > badluck + 1) die += plev/3;
             if (!dep) dep = 1;
             if (die < 5)
             {
@@ -5566,7 +5568,7 @@ static bool cast_chem_spell(int spell)
 			power = power + randint((power + p_ptr->skills[SKILL_DEV] - 1) / 2);
 			/* max power */
 			if ((plev >= 20) && (power > plev * 2 - 1)) power = plev * 2 - 1;
-			else if (power > 39) power = 39;
+			else if ((plev < 20) && (power > 39)) power = 39;
 
 			/* msg_format("enhance wand power is %d.", power); (testing) */
 
@@ -5931,8 +5933,10 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_METEOR_SWARM:
 		{
+            int swarmrad = 1;
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev/2 + randint(plev/3), 1);
+			if (plev + (goodluck+1)/2 + rand_int(5) > 49) swarmrad = 2;
+			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev/2 + randint(plev/3), swarmrad);
 			break;
 		}
 
@@ -6531,7 +6535,7 @@ static bool cast_dark_spell(int spell)
 			fire_spread(GF_POIS, 13, 4);
 			if (p_ptr->resist_nethr) take_hit(randint(3), "the stench of death");
 			else take_hit(randint(13), "the stench of death");
-			if (p_ptr->resist_pois) (void)inc_timed(TMD_POISONED, randint(8) + 5);
+			if (p_ptr->resist_pois) (void)inc_timed(TMD_POISONED, randint(6) + 5);
 			else (void)inc_timed(TMD_POISONED, randint(9) + 12);
             if (randint(100) + badluck > 80 + goodluck)
             {

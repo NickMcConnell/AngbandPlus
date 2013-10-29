@@ -1097,10 +1097,11 @@ struct player_type
 	byte learnedcontrol; /* teleport control skill */
 	s16b mimmic;		/* wand/rod sval to mimmic, +100 if rod (alchemy spell) */
 	s16b menhance;		/* mimmiced wand is enhanced */
+
 	s32b control_des;   /* stores destination while being controlled */
 						/* (like monster roaming -didn't get it to work) */
-	/* currently only used for caverns and extracted by checking if there are any spaces */
-	/* on the level with the CAVE_ROOM flag.  This will change next time I break savefiles. */
+	/* currently only used for caverns (during level generation) and gets lost when */
+	/* the game is saved and exited. I'll add it to the savefile next time I break savefiles. */
 	s16b speclev;		/* hold code for something special about the level (caverns, etc) */
 	/* speclev: 1=cavern, ... */
 	
@@ -1144,7 +1145,7 @@ struct player_type
 
 	bool leaving;			/* True if player is leaving */
 	bool seek_vault;        /* look for a vault on next level if TRUE */
-	byte find_vault;        /* how likely to find a vault */
+	byte find_vault;        /* how likely to find a vault (in savefile) */
 	int manafree;           /* activate staff of mana-free casting */ 
 
 	s16b held_m_idx;		/* Monster holding you (if any) */

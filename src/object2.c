@@ -863,9 +863,6 @@ s16b get_obj_num(int level)
 
 
 
-
-
-
 /*
  * Known is true when the "attributes" of an object are "known".
  *
@@ -945,7 +942,7 @@ void object_known(object_type *o_ptr)
        	sprintf(note, "Found %s", shorter_desc);
 
 		/* Record the depth where the artifact was created */
-		artifact_depth = o_ptr->randres3;
+		artifact_depth = o_ptr->dlevel;
 
        	do_cmd_note(note, artifact_depth, FALSE);
 
@@ -1189,12 +1186,14 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (!o_ptr->pval) break;
 
 			/* Give credit for stat bonuses */
+			/* raise values of STR and CON DAJXXX */
 			if (f1 & (TR1_STR)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_INT)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_CON)) value += (o_ptr->pval * 200L);
 			/* CHR used to be the same as the others */
+			/* (maybe should be higher than this becuase it does have a use now) */
 			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 50L);
 
 			/* Give credit for stealth */
@@ -1203,14 +1202,30 @@ static s32b object_value_real(const object_type *o_ptr)
 			/* Give credit for alertness and tunneling */
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
 			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 40L);
+			/* (luck should be higher valued than this) */
 			if (f1 & (TR1_EQLUCK)) value += (o_ptr->pval * 35L);
 
 			/* Give credit for extra attacks */
 			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
 
-			/* Give credit for speed bonus */
-			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 20000L);
-
+			if (f1 & (TR1_SPEED))
+			{
+#if new
+				/* Give credit for speed bonus */
+				/* (worth slightly less than they used to be) */
+				if (o_ptr->pval > 4)
+				{
+					value += ((o_ptr->pval-4) * 20000L);
+					value += (4 * 17500L);
+				}
+				else
+				{
+					value += (o_ptr->pval * 17500L);
+				}
+#else
+				value += (o_ptr->pval * 20000L);
+#endif
+			}
 			break;
 		}
 	}
@@ -1942,7 +1957,7 @@ static int make_ego_item(object_type *o_ptr, int ogood)
 	/* so they get ammo egos instead of normal weapon egos */
 	/* (gets a fake sval with TV_SHOT for the purpose of chosing an ego) */
 	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_VASP_STING) && 
-		(randint(100) < 35 + (100-level)))
+		(randint(100) < 34 + (100-level)))
     {
        /* (usually) prevent vasp stingers from getting branded egos */
        /* because they already have a poison brand */
@@ -2378,19 +2393,19 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				int bbig = 0;
 				/* certain egos have a bigger chance for extra dice */
 				/* (influenced by depth of creation) */
-                if (o_ptr->name2 == EGO_CRITICAL_WEIGHT) bbig = 35 + (level/10);
+                if (o_ptr->name2 == EGO_CRITICAL_WEIGHT) bbig = 35 + (level/9);
 				
 				/* throwing weapons of critical weight */
                 if (o_ptr->name2 == EGO_CRITICAL_AMMO) bbig = 20 + (level/10);
 				
 				/* bone-weapon goring ego (has EXTRA_CRIT) */	
-				if (o_ptr->name2 == EGO_GORING) bbig = 9 + (level/15);
+				if (o_ptr->name2 == EGO_GORING) bbig = 9 + (level/14);
 					
 				/* rare stiletto ego (has EXTRA_CRIT) */
 				if (o_ptr->name2 == EGO_ASSASSIN) bbig = 16 + (level/10);
 				
 				/* pseudo-randarts ("of randomness" egos) */
-				if (is_ego_randart(o_ptr)) bbig = 10 + (level/10);
+				if (is_ego_randart(o_ptr)) bbig = 10 + (level/8);
 					
 				/* roll for ego chance of extra dice */
 				if ((o_ptr->dd == k_ptr->dd) && (rand_int(100) < bbig))
@@ -2965,7 +2980,7 @@ byte convert_racialesp(byte egocode, const object_type *o_ptr)
 	if ((egocode) && (egocode <= 13)) return egocode;
 	if ((egocode == 16) || (egocode == 15)) return egocode;
 
-	if (rand_int(100) < 35 + goodluck/3) threefive = TRUE;
+	if (rand_int(100) < 35 + (goodluck+2)/3) threefive = TRUE;
 	if (rand_int(100) < 10 + goodluck/3) rarer = TRUE;
 	
 	/* 10 = animals */
@@ -2984,18 +2999,19 @@ byte convert_racialesp(byte egocode, const object_type *o_ptr)
 	/* random racial ESP */
     if ((egocode == 40) || ((egocode == 43) &&
 		(threefive))) return (byte)randint(13);
-		
+	
+	/* a little more likely than it was */
 	if ((egocode == 41) || ((egocode == 42) && 
-		(threefive))) matchslay = TRUE;
+		(rand_int(100) < 40 + (goodluck+2)/3))) matchslay = TRUE;
 
     if ((matchslay) && (o_ptr->randslay))
 	{
-		int die = rand_int(99);
-		if (!o_ptr->randslay3) die = rand_int(66);
-		if (!o_ptr->randslay2) die = rand_int(33);
+		int die = rand_int(100);
+		if (!o_ptr->randslay3) die = rand_int(67);
+		if (!o_ptr->randslay2) die = 1;
 		
-		if (die < 33) useslay = o_ptr->randslay;
-		else if (die < 66) useslay = o_ptr->randslay2;
+		if (die < 34) useslay = o_ptr->randslay;
+		else if (die < 67) useslay = o_ptr->randslay2;
 		else useslay = o_ptr->randslay3;
 		
 		if (useslay == 1) return 16; /* HURT_SILV */
@@ -3100,7 +3116,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-     /* increased odds */
 	/* Base chance of being "good" */
 	g1 = lev + 11 + goodluck/2;
 
@@ -3124,6 +3139,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (lev < 69) g1 += 2;
 		else g1 += lev/23;
 	}
+	if (o_ptr->tval == TV_CROWN)
+	{
+		g1 += 2; 
+		g2 += 1;
+		if (o_ptr->sval == SV_POINTY_HAT) g2 += 9;
+	}
 	
 	/* uniques, vaults, and special chests are more likely */
 	/* to have good stuff */
@@ -3138,9 +3159,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	{
 		/* Assume "good" */
 		power = 1;
-
-		/* Roll for "great" */
-		if (great || (rand_int(100) < g2)) power = 2;
 	}
 
 	/* Roll for "cursed" */
@@ -3149,10 +3167,14 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Assume "cursed" */
 		power = -1;
 
-		/* Roll for "broken" (more likely if forced cursed) */
+		/* Roll for "terrible" (more likely if forced cursed) */
 		if ((rand_int(100) < 33) && (curseit)) power = -2;
 		if (rand_int(100) < g2) power = -2;
 	}
+
+	/* Roll for "great" */
+	if (((g2 > 25) || (power == 1)) && (rand_int(100) < g2)) power = 2;
+	if ((power > -2) && (great)) power = 2;
 
 	/* Assume no rolls */
 	rolls = 0;
@@ -3372,8 +3394,8 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		case TV_RING:
 		case TV_AMULET:
 		{
-			/* ego jewelry less common (was 70 instead of 63) */
-			if (((power > 1) || (power < -1)) && (randint(100) < 62))
+			/* ego jewelry less common (was 70, then 63, now 60) */
+			if (((power > 1) || (power < -1)) && (randint(100) < 60))
 			{
 				int ego_power;
 
@@ -3496,7 +3518,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 			if (e_ptr->randslay == 9) howmanywow = randint(3);
 			/* The old slays should still be more common than others */
 			/* ~1/3 chance to restrict the 1st slay to orc/troll/giant/undead/demon/dragon */
-            if (rand_int(100) < 33) 
+            if (rand_int(100) < 35) 
 				o_ptr->randslay = 2 + (byte)rand_int(6);
 			/* only edged weapons can get SLAY_WERE (silver-bladed) */
 			else if (edgedw)
@@ -3521,11 +3543,11 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		/* chance of switching to kill slay for pseudo-randarts */
 		if (is_ego_randart(o_ptr))
 		{
-			if ((o_ptr->randslay == 2) && (randint(100) < 25 + (p_ptr->depth/10))) 
+			if ((o_ptr->randslay == 2) && (rand_int(100) < 25 + (p_ptr->depth/8))) 
     	        o_ptr->randslay = 53;
-			if ((o_ptr->randslay == 3) && (randint(100) < 25 + (p_ptr->depth/10))) 
+			if ((o_ptr->randslay == 3) && (rand_int(100) < 25 + (p_ptr->depth/8))) 
         	    o_ptr->randslay = 52;
-			if ((o_ptr->randslay == 7) && (randint(100) < 25 + (p_ptr->depth/10))) 
+			if ((o_ptr->randslay == 7) && (rand_int(100) < 25 + (p_ptr->depth/8))) 
             	o_ptr->randslay = 51;
 		}
 		/* An object should never have both SLAY_SILVER and SLAY_WERE */
@@ -3604,6 +3626,12 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 			if ((e_ptr->randplu == 2) || ((e_ptr->randplu == 9) && (rand_int(100) < 50)) ||
 				(xrandplu == 2)) o_ptr->randplu2 = 1 + (byte)rand_int(OBJECT_XTRA_SIZE_PLUS);
+
+			if ((o_ptr->name2 == EGO_MANA_DRAW) && (o_ptr->randplu == 2))
+			{
+				o_ptr->randplu = 1 + (byte)rand_int(OBJECT_XTRA_SIZE_PLUS-1);
+				if (o_ptr->randplu >= 2) o_ptr->randplu += 1;
+			}
 		}
 		/* randdrb == 11 means often have a drawback */
 		/* randdrb == 12 means rarely have a drawback */
@@ -3645,7 +3673,8 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				}
 			}
 			/* if it has SLAY_LITE or two random slays, it shouldn't have PEACE */
-			if ((o_ptr->randslay == 10) || (o_ptr->randslay2))
+			if ((o_ptr->randslay == 10) || ((o_ptr->randslay2) && 
+				(!(o_ptr->randslay == o_ptr->randslay2))))
 			{
 				if (o_ptr->randdrb == 4) /* PEACE is drb #4 */
 				{
@@ -3667,8 +3696,9 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				}
 			}
 		}
-		/* must be done after o_ptr->randslay is assigned */
-		if (e_ptr->esprace)
+		/* must be done after o_ptr->randslay is assigned  (thrown weapons */
+		/* (can get at least one ego that has esprace, but they shouldn't get esprace) */
+		if ((e_ptr->esprace) && (!(f3 & TR3_THROWN)))
 		{
 			o_ptr->esprace = convert_racialesp(e_ptr->esprace, o_ptr);
 		}
@@ -3799,15 +3829,26 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				if (!o_ptr->pval) o_ptr->pval = randint(3);
 			}
 
-			/* chance for double ego 'of lightness' on heavy armor */
+			/* chance for double ego 'of lightness' on heavy armor and shields */
 			/* (because otherwise a full plate mail of resist cold is worthless) */
-			if ((o_ptr->tval == TV_HARD_ARMOR) && (rand_int(100) < 2 + (goodluck+1)/3))
+			if ((o_ptr->tval == TV_HARD_ARMOR) && (rand_int(100) < lev/12 + (goodluck+1)/3))
 			{
 				if (!((o_ptr->name2 == EGO_LIGHTNESS) || (o_ptr->name2 == EGO_ARMR_DWARVEN)))
 				{
 					/* 10lb weight reduction */
 					o_ptr->weight -= 100;
 					if (o_ptr->to_h < -1) o_ptr->to_h += 1;
+				}
+			}
+			if ((o_ptr->tval == TV_SHIELD) && (rand_int(100) < lev/12 + (goodluck+1)/3))
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+				if ((!(o_ptr->name2 == EGO_LIGHTNESS)) && (k_ptr->weight > 70))
+				{
+					/* 6lb weight reduction for shields */
+					if (k_ptr->weight < 100) o_ptr->weight = 40;
+					else o_ptr->weight -= 60;
+					if (o_ptr->to_h < 0) o_ptr->to_h += 1;
 				}
 			}
 		}
@@ -4098,7 +4139,7 @@ bool do_rating(object_type *j_ptr, bool tracking)
 			{
 				case SV_RING_SPEED:
 				{
-					rboost = 15 + (j_ptr->pval * 2);
+					rboost = 14 + (j_ptr->pval * 2);
 					if (rboost > 31) rboost = 31;
 					break;
 				}
@@ -4117,12 +4158,13 @@ bool do_rating(object_type *j_ptr, bool tracking)
 				case SV_RING_STR:
 				case SV_RING_CON:
 				{
-                    if (j_ptr->pval > 1) rboost = j_ptr->pval-1;
+					if (j_ptr->pval > 3) rboost = j_ptr->pval;
+					else if (j_ptr->pval > 1) rboost = j_ptr->pval-1;
 					break;
 				}
 			}
 			break;
-        }
+		}
 		case TV_AMULET:
 		{
 			switch (j_ptr->sval)
@@ -4352,11 +4394,23 @@ bool do_rating(object_type *j_ptr, bool tracking)
 	/* tracking means this function was only called to decide whether to track the item */
 	if ((!notrack) && (rboost >= 4) && (tracking)) return TRUE;
 	else if (tracking) return FALSE;
+	
+	/* unaware items are kindof exciting */
+	if ((j_ptr->tval >= TV_AMULET) && (j_ptr->tval <= TV_POTION) &&
+    (!object_aware_p(j_ptr)) && (!cursed_p(j_ptr)) && (!rboost)) 
+       rboost = 1;
 
 	/* object has gotten boring at this depth */
 	/* (rating gets to a certain level before it starts penalizing for this) */
-    if ((p_ptr->depth > nlev + 15) && (((rating > 9) && (randint(100) < 40)) || (rating > 20)))
+	if (nlev < 20)
+	{
+		if ((p_ptr->depth > nlev + 10) && (((rating > 9) && (randint(100) < 45)) || (rating > 20)))
+		rboost -= (p_ptr->depth - nlev) / 10;
+	}
+    else if ((p_ptr->depth > nlev + 15) && (((rating > 9) && (randint(100) < 45)) || (rating > 20)))
+	{
 		rboost -= (p_ptr->depth - nlev) / 15;
+	}
     /* make sure we don't lower the rating */
     if (rboost < 0) rboost = 0;
     
@@ -4752,8 +4806,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Describe object */
 	object_desc(o_name, sizeof(o_name), j_ptr, FALSE, 0);
 	
-	/* Even artifacts break if they explode  */
     if (artifact_p(j_ptr)) unbreakable = TRUE;
+	/* Even artifacts break if they explode  */
     if (f4 & TR4_EXPLODE_A) unbreakable = FALSE;
 
 	/* Handle normal "breakage" */
@@ -4806,7 +4860,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (!los(y, x, ty, tx)) continue;
 
 			/* object can be dropped in a doorway */
-			if (cave_feat[ty][tx] == FEAT_RUBBLE) /* okay */;
+			/* if (cave_feat[ty][tx] == FEAT_RUBBLE) ;/* okay */
 			/* object can be in the same space as rubble */
 			if (cave_feat[ty][tx] == FEAT_RUBBLE)
 			{
@@ -4822,6 +4876,19 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
         	    ((cave_feat[ty][tx] >= FEAT_LESS) &&
 				(cave_feat[ty][tx] <= FEAT_SHOP_TAIL))) continue;
 			/* (traps and doorways CAN have objects on them now) */
+			
+			/* check for statues */
+			if (cave_m_idx[y][x] > 0)
+			{
+				monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+				/* don't drop under a tree or statue */
+				/* trees & large statues have BLOCK_LOS which adds CAVE_WALL */
+				/* (which would already be rejected in cave_floor_bold() ) */
+				/* but small statues don't have BLOCK_LOS */
+				if (r_ptr->flags7 & (RF7_NONMONSTER))
+						continue;
+			}
 
 			/* No objects */
 			k = 0;

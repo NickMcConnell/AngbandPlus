@@ -1153,10 +1153,16 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 #define RES_COLS (5 + 2 + END_EQUIPMENT - INVEN_WIELD)
 static const region resist_region[] =
 {
+	{  0*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
+	{  1*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
+	{  2*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
+	{  3*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
+#if old
 	{  0*(RES_COLS+1), 11, RES_COLS, RES_ROWS+2 },
 	{  1*(RES_COLS+1), 11, RES_COLS, RES_ROWS+2 },
 	{  2*(RES_COLS+1), 11, RES_COLS, RES_ROWS+2 },
 	{  3*(RES_COLS+1), 11, RES_COLS, RES_ROWS+2 },
+#endif
 };
 
 static void display_resistance_panel(const struct player_flag_record *resists,
@@ -1255,7 +1261,7 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 	display_player_equippy(row++, col+6);
 }
 
-static void display_player_flag_info(void)
+static void display_player_flag_info()
 {
 	int i;
 	for (i = 0; i < 4; i++)
@@ -1393,7 +1399,10 @@ static void display_player_sust_info(void)
 
 
 	/* Row */
+	row = 2;
+#if old
 	row = 3;
+#endif	
 
 	/* Column */
 	col = 26;
@@ -1498,14 +1507,57 @@ static void display_player_sust_info(void)
 }
 
 
+static void display_panel(const data_panel *panel, int count, bool left_adj, const region *bounds)
+{
+	int i;
+	char buffer[50];
+	int col = bounds->col;
+	int row = bounds->row;
+	int w = bounds->width;
+	int offset = 0;
+	if (left_adj)
+	{
+		for (i = 0; i < count; i++)
+		{
+			int len = panel[i].label ? strlen(panel[i].label) : 0;
+			if (offset < len) offset = len;
+		}
+		offset += 2;
+	}
+
+	for (i = 0; i < count; i++, row++)
+	{
+		int len;
+		if (!panel[i].label) continue;
+		Term_putstr(col, row, strlen(panel[i].label), TERM_WHITE, panel[i].label);
+
+		strnfmt(buffer, sizeof(buffer), panel[i].fmt, panel[i].value[0], panel[i].value[1]);
+
+		len = strlen(buffer);
+		len = len < w - offset ? len : w - offset - 1;
+		if (left_adj)
+			Term_putstr(col+offset, row, len, panel[i].color, buffer);
+		else
+			Term_putstr(col+w-len, row, len, panel[i].color, buffer);
+	}
+}
+
 static const region boundaries [] =
 {
+	{ 0,	0,		0,		0 },
+	{ 1,	2,		40,		8 }, /* Name, Class, ... */
+	{ 1,	10,		22,		8 }, /* Cur Exp, Max Exp, ... */
+	{ 26,	10,		17,		8 }, /* AC, melee, ... */
+	{ 48, 	10,		24,		8 }, /* skills */
+	{ 26,	3,		13,		5 }, /* Age, ht, wt, ... */
+#if old
 	{ 0,	0,		0,		0 },
 	{ 1,	2,		40,		8 }, /* Name, Class, ... */
 	{ 1,	10,		18,		8 }, /* Cur Exp, Max Exp, ... */
 	{ 26,	10,		17,		8 }, /* AC, melee, ... */
 	{ 48, 	10,		24,		8 }, /* skills */
 	{ 26,	3,		13,		5 }, /* Age, ht, wt, ... */
+#endif
 
 };
 
@@ -1535,16 +1587,23 @@ static const char *show_adv_exp(void)
 	}
 }
 
-static const char *show_depth(void)
+static const char *show_depth(bool dump)
 {
-	static char buffer[10];
+	static char buffer[13];
 	if (p_ptr->max_depth == 0) return "Town";
+	else if (dump)
+	{
+		/* show both in dumps */
+		strnfmt(buffer, sizeof(buffer), "L%d (%d')", p_ptr->max_depth, p_ptr->max_depth * 50);
+		return buffer;
+	}
 	else if (depth_in_feet)
 	{
 		strnfmt(buffer, sizeof(buffer), "%d ft", p_ptr->max_depth * 50);
 		return buffer;
 	}
-	else {
+	else 
+    {
 		strnfmt(buffer, sizeof(buffer), "Lev %d", p_ptr->max_depth);
 		return buffer;
 	}
@@ -1653,7 +1712,7 @@ static byte max_color(int val, int max)
 	 panel[i].value[0] = val1; panel[i].value[1] = val2; \
 	 i++; }
 
-int get_panel(int oid, data_panel *panel, size_t size)
+int get_panel(int oid, data_panel *panel, size_t size, bool dump)
 {
 	int ret = (s32b) size;
 	int maxhp = p_ptr->mhp;
@@ -1687,11 +1746,11 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(max_color(p_ptr->exp, p_ptr->max_exp), "Cur Exp", "%y", i2u(p_ptr->exp), END  );
 	P_I(TERM_L_GREEN, "Max Exp",	"%y",	i2u(p_ptr->max_exp), END  );
 	P_I(TERM_L_GREEN, "Adv Exp",	"%y",	s2u(show_adv_exp()), END  );
-	P_I(TERM_L_GREEN, "MaxDepth",	"%y",	s2u(show_depth()), END  );
+	P_I(TERM_L_GREEN, "MaxDepth",	"%y",	s2u(show_depth(dump)), END  );
 #if notime
 	P_I(TERM_L_GREEN, "Turns",		"%y",	i2u(turn), END  );
 #else
-	P_I(TERM_L_GREEN, "   Day ",	"%y",	s2u(show_time()), END  );
+	P_I(TERM_L_GREEN, "     Day ",	"%y",	s2u(show_time()), END  );
 #endif
 	P_I(TERM_L_GREEN, "Gold",		"%y",	i2u(p_ptr->au), END  );
 	P_I(TERM_L_GREEN, "Burden",	"%.1y lbs",	f2u(p_ptr->total_weight/10.0), END  );
@@ -1807,7 +1866,7 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	return 0;
 }
 
-static void display_player_xtra_info(void)
+static void display_player_xtra_info(bool dump)
 {
 	int i;
 	int panels [] = { 1, 2, 3, 4, 5};
@@ -1817,7 +1876,7 @@ static void display_player_xtra_info(void)
 	for (i = 0; i < (int)N_ELEMENTS(panels); i++)
 	{
 		int oid = panels[i];
-		int rows = get_panel(oid, data, N_ELEMENTS(data));
+		int rows = get_panel(oid, data, N_ELEMENTS(data), dump);
 
 		/* Hack:  Don't show 'Level' in the name, class ...  panel */
 		if (oid == 1) rows -= 1;
@@ -1848,7 +1907,7 @@ static void display_player_xtra_info(void)
  * Mode 0 = standard display with skills/history
  * Mode 1 = special display with equipment flags
  */
-void display_player(int mode)
+void display_player(int mode, bool dump)
 {
 	/* Erase screen */
 	clear_from(0);
@@ -1859,7 +1918,7 @@ void display_player(int mode)
 	if (mode)
 	{
 		data_panel data[MAX_PANEL];
-		int rows = get_panel(1, data, N_ELEMENTS(data));
+		int rows = get_panel(1, data, N_ELEMENTS(data), dump);
 
 		display_panel(data, rows, 1, &boundaries[1]);
 
@@ -1874,7 +1933,7 @@ void display_player(int mode)
 	else
 	{
 		/* Extra info */
-		display_player_xtra_info();
+		display_player_xtra_info(dump);
 	}
 }
 
@@ -1943,7 +2002,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Display player */
-	display_player(0);
+	display_player(0, TRUE);
 
 	/* Dump part of the screen */
 	for (y = 2; y < 23; y++)
@@ -1972,7 +2031,7 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "\n");
 
 	/* Display player */
-	display_player(1);
+	display_player(1, TRUE);
 
 	/* Dump part of the screen */
 	for (y = 11; y < 21; y++)
@@ -2175,10 +2234,8 @@ errr file_character(cptr name, bool full)
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
-
 	/* Close it */
 	my_fclose(fff);
-
 
 	/* Success */
 	return (0);
@@ -3134,7 +3191,7 @@ static void show_info(void)
 
 
 	/* Display player */
-	display_player(0);
+	display_player(0, FALSE);
 
 	/* Prompt for inventory */
 	prt("Hit any key to see more information (ESC to abort): ", 23, 0);

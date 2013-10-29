@@ -233,14 +233,11 @@ bool make_attack_normal(int m_idx)
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
 
-
 		/* Hack -- no more attacks */
 		if (!method) break;
 
-
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
@@ -821,6 +818,7 @@ bool make_attack_normal(int m_idx)
 						    (o_ptr->tval == TV_WAND)) && (o_ptr->charges))
 						{
 							if (p_ptr->resist_static) rstatic += (k+1)/2;
+							if (m_ptr->stunned) rstatic += 2;
 
 							if (randint(90) < rstatic)
 							{
@@ -1142,6 +1140,9 @@ bool make_attack_normal(int m_idx)
 					/* Drain fuel where applicable */
 					if (!(f3 & TR3_NO_FUEL) && (o_ptr->timeout > 0))
 					{
+						/* torches/lanterns of darkvision resist light drain */
+						if (f3 & TR3_DARKVIS) break;
+						
 						/* Reduce fuel */
 						o_ptr->timeout -= (250 + randint(250));
 						if (o_ptr->timeout < 1) o_ptr->timeout = 1;
@@ -1266,13 +1267,17 @@ bool make_attack_normal(int m_idx)
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
+					
+					/* get a saving throw only if the monster is stunned */
+					if ((m_ptr->stunned) && (rand_int(110 + rlev/5) < p_ptr->skills[SKILL_SAV]))
+						break;
 
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind)
 					{
 						if (inc_timed(TMD_BLIND, 10 + randint(rlev)))
 						{
-							if (m_ptr->extra2) (void)set_timed(TMD_BLIND, 6 + badluck/3);
+							if (m_ptr->extra2) (void)set_timed(TMD_BLIND, 3 + badluck/3);
 							obvious = TRUE;
 						}
 					}
@@ -1300,6 +1305,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					if (p_ptr->resist_blind) save += 35 + p_ptr->lev/2;
+					if (m_ptr->stunned) save += 11;
 					save += ((adj_wis_sav[p_ptr->stat_ind[A_DEX]] + 2) * 6) / 5;
 
 					/* Increase "blind" */
@@ -1331,12 +1337,13 @@ bool make_attack_normal(int m_idx)
 					/* XCONF has a chance to bypass resist but still gets a saving throw */
 					resist = p_ptr->skills[SKILL_SAV] + goodluck;
 					if (p_ptr->resist_confu) resist += 50;
-					xconfstr = 140;
+					xconfstr = 150;
 					if (r_ptr->flags2 & (RF2_POWERFUL)) xconfstr += 50;
+					if (m_ptr->stunned) xconfstr -= 25;
 					dur = rlev/10 + randint(rlev);
 					if (p_ptr->resist_confu) dur -= 1 + randint(goodluck/3 + 1);
 					
-					if ((rand_int(xconfstr) < resist) && (dur))
+					if ((randint(xconfstr) > resist) && (dur))
 					{
                         if (inc_timed(TMD_CONFUSED, dur)) obvious = TRUE;
 					}
@@ -1371,6 +1378,10 @@ bool make_attack_normal(int m_idx)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+					
+					/* get a saving throw only if the monster is stunned */
+					if ((m_ptr->stunned) && (rand_int(110 + rlev/5) < p_ptr->skills[SKILL_SAV]))
+						break;
 
 					/* Increase "confused" */
 					if (!p_ptr->resist_confu)
@@ -1399,8 +1410,9 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 					
 					if (p_ptr->timed[TMD_FRENZY]) frenz += 10;
-					if (r_ptr->flags2 & (RF2_POWERFUL)) frenz -= 5 + rand_int(10);
 					if (m_ptr->extra2) frenz += 10;
+					if (m_ptr->stunned) frenz += 10;
+					if (r_ptr->flags2 & (RF2_POWERFUL)) frenz -= 5 + rand_int(10);
 
 					/* Increase "afraid" */
 					if (p_ptr->resist_fear)
@@ -1435,6 +1447,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->timed[TMD_AMNESIA]) resistc -= 16;
 					if (p_ptr->timed[TMD_CLEAR_MIND]) resistc += 8;
 					if (m_ptr->extra2) resistc += 16;
+					if (m_ptr->stunned) resistc += 16;
 					if (r_ptr->flags2 & (RF2_POWERFUL)) resistc -= 10;
 
                     /* Take damage */
@@ -1483,7 +1496,8 @@ bool make_attack_normal(int m_idx)
 					
 					savedie = 100 + (badluck/2) - (goodluck/4);
 					/* less likely to work if already paralyzed */
-					if (p_ptr->timed[TMD_PARALYZED]) savedie -= 25;
+					if (p_ptr->timed[TMD_PARALYZED]) savedie -= 50;
+					if (m_ptr->stunned) savedie -= 25;
 
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
@@ -1882,8 +1896,9 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
-                    savechance = 111 + badluck - (goodluck/2);
-                    if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 9 + randint(4);
+                    savechance = 115 + badluck - (goodluck/2);
+                    if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 13;
+                    if (m_ptr->stunned) savechance -= 12;
 			        if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 					{
                        msg_print("You resist the effects.");
@@ -1891,7 +1906,7 @@ bool make_attack_normal(int m_idx)
                     else
                     {
 						/* imaginary monsters can make you think you're losing luck when you're not */
-						if (!(m_ptr->extra2))
+						if (!m_ptr->extra2)
 						{
 						   if (r_ptr->flags2 & (RF2_POWERFUL)) p_ptr->luck -= randint(3);
 						   else p_ptr->luck -= randint(2);
@@ -1940,10 +1955,11 @@ bool make_attack_normal(int m_idx)
 						if (holdfast < 41) holdfast += 4 + randint(6);
 						else if (holdfast < 50) holdfast = 50;
 					}
-					else if ((goodluck < 9) && (holdfast < 25)) holdfast = 25;
+					if ((goodluck < 9) && (holdfast < 25)) holdfast = 25;
+					if (m_ptr->stunned) holdfast -= 10;
 					wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck;
 					wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
-					if (p_ptr->free_act) wrestle += 50;
+					if (p_ptr->free_act) wrestle += 40;
 					wrestle = (wrestle/4) + randint((wrestle*3)/4);
 
 					if (wrestle > holdfast)

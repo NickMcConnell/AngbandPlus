@@ -4,6 +4,30 @@ Thanks to:
 Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch among other things, Pav for maintaining a great *band website, those on the oook forums who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Buzzkill for the 32x32 tileset for DaJAngband and other feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or just plays DaJAngband.
 ------------------------------------------------------------------------------------------
 
+changes between 1.3.1 and 1.3.2:
+  the HASTE monster spell is slightly weaker for shallow monsters (hastens the monster by a smaller amount)
+  randart code updated a bit (forgot to do it when I first added the flags). Only certain (weaker) activations are allowed from the quiver.  Artifacts with powerful activations are prevented from becoming randart throwing weapons.
+  When a monster with KILL_BODY would otherwise trample a unique, it instead attempts to push past it. (previously, attempts to trample uniques simply failed).
+  fixed BUG: <omitted description of easily exploited bug -reported by Hudstone>
+  fixed BUG: randarts with powerful activations can (in theory) become throwing weapons -and activations are allowed from the quiver.
+  can no longer get free action or similar flags from weapons in the quiver.
+  torches/lanterns with darkvision ego resist light draining
+  illumination spells have bigger area of effect in caverns
+  monster stunning is slightly more powerful (mainly for the tourist's camera flash spell)
+  character dumps now always show depth by both dungeon level and feet. depth_in_feet option still applies for in-game uses.
+  fixed BUG: objects sometimes drop in the same grid as a small statue
+  fixed BUG: earthquakes sometimes cause hit points to go up (above max) instead of down, causing death by overflow.
+
+changes between 1.3.0 and 1.3.1:
+  meteor swarm spell no longer destroys objects, and has a chance for each meteor being a radius 2 ball (instead of radius 1) at very high character levels.
+  no stores ironman option no longer closes the home
+  fixed a minor bug which made the alchemist's enhance wand spell slightly weaker
+  earlier cavern levels have a chance to be lit
+  now up to 3 rooms may appear on cavern levels (3 is rare) (not all cavern levels get room(s))
+  new wizard mode command: ^a then 'J' jump to any level with a mod: can force cavern level, seek vault, or themed level.
+  bug fixed: doesn't display resist silver or resist slime in the description of an object. (Made it look like egos with a random resist didn't get any resist).
+
+
 --- Changelist for DaJAngband v1.3.0 ---
 
 Version 1.3.0 fixes the following bugs:
@@ -21,7 +45,7 @@ Version 1.3.0 fixes the following bugs:
   bone weapons are now in the knowledge menu, also there's now a chance for bone weapon randarts.
   ai_packs now defaults to ON. And certain of its effects only happen before the monster has met the PC.
   view_perma_grids now has no effect when using tiles (because it prevents seeing where your light radius ends).
-  Tracking origin of items is implemented.
+  Tracking origin of items is implemented. (The game only tracks the origin of artifacts, egos, chests, treasure maps, and maybe a couple other item types)
 
 	Dungeon Feature changes:
   Medium vaults added.
@@ -53,7 +77,7 @@ Version 1.3.0 fixes the following bugs:
 
 	Monster Stuff:
   SMART monsters only have a ~50% chance of choosing a spell as if AI_SMART was on (used to be always).
-  NONCOMBAT spells normally are spells a monster can cast while not yet aware of the PC, but monsters are also limited to NONCOMBAT spells whenever the PC is outside of its racial spell range (but within MAX_RANGE), or when the PC is out of its LOS. TRAPS is now also a NONCOMBAT spell with an alternate effect of setting one trap in its own space (often without the PC noticing).
+  Noncombat spells normally are spells a monster can cast while not yet aware of the PC, but monsters are also limited to noncombat spells whenever the PC is outside of its racial spell range (but within MAX_RANGE which is 20 spaces), or when the PC is out of its LOS. TRAPS is now also a noncombat spell with an alternate effect of setting one trap in its own space (often without the PC noticing).
   Effect of DARKNESS monster spell altered to be more effective (still no damage unless the PC somehow becomes vulnerable to weak darkness -which possibly may happen later as an item drawback or something). Also has an alternate effect when cast as a NON_COMBAT spell (darkens the room or area around the monster instead of the PC).
   Monster size implemented, one effect being that monsters size 6 or bigger (hydras and most giants are size 6) effectively have no stealth when they are in your line of sight (their stealth value only affects how often you hear them and how easily they are detected by magic).
   Monster resistance levels: monsters can now be a little resistant, a lot resistant, immune, or especially vulnerable to most elements.  Some monsters (skeletons, creeping coins, etc) have resistance to missile weapon damage (but nothing is completely immune to missile weapon damage).

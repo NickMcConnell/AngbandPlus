@@ -409,9 +409,12 @@ D:Shoots a swarm of 3 or 4 meteors.
 D:  Meteors will travel until hitting a wall, a monster,
 D: or reaching the target location.
 D:  Meteors will explode as a radius-1 ball that does unresistable
-D: damage to each monster in its area of effect.
+D: damage to each monster in its area of effect. If your charater 
+D: level + half your goodluck + d5 is at least 50, then each meteor
+D: will explode as a radius 2 ball.
 D:  If this kills the monster that blocked the path to the target
 D: location, the next meteor may continue to find another target.
+D: (This spell no longer destroys objects.)
 
 N:61:Mass Banishment
 I:90:8:7
@@ -1515,8 +1518,13 @@ D:  A failed attempt to recharge destroys one wand or staff from the stack.
 
 N:241:Bug Spray
 I:93:1:4
-D:Does minor damage to all bugs in line of sight and half the damage to all
-D: rodents in line of sight. (usually enough to kill breeding bugs)
+D:Fires a spread effect which does damage to all bugs with the
+D: radius, and half damage to all rodents in the radius.
+D: Radius is 7 + character level/6.
+D:  (A spread effect is like a wide radius ball spell centered on the
+D: caster, except that ball spells do half damage one space away from the center,
+D: but the damage of spread effects diminishes much slower.  It does full
+D: damage to all monsters within 2 spaces.)
 
 N:242:Detect Invisible
 I:93:1:5
@@ -1584,7 +1592,7 @@ D:  Artifacts will not be destroyed by this spell.
 D:  This spell has no effect when used in the town.
 
 N:252:Lullaby
-#I:93:6:2
+I:93:6:2
 D:Attempts to slow and put to sleep monsters within a level-
 D:dependant radius.
 
@@ -2495,9 +2503,12 @@ D:Shoots a swarm of 3 or 4 meteors.
 D:  Meteors will travel until hitting a wall, a monster,
 D: or reaching the target location.
 D:  Meteors will explode as a radius-1 ball that does unresistable
-D: damage to each monster in its area of effect.
+D: damage to each monster in its area of effect. If your charater 
+D: level + half your goodluck + d4 is at least 50, then each meteor
+D: will explode as a radius 2 ball.
 D:  If this kills the monster that blocked the path to the target
 D: location, the next meteor may continue to find another target.
+D: (This spell no longer destroys objects.)
 
 N:378:Telekinesis
 I:94:7:6

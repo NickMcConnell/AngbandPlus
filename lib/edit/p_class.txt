@@ -1004,7 +1004,7 @@ B:70:31:25:70:30	#truce				31 (new in B7)
 
 #changed bless_weapon to a milder penalty because of less weapons with that tval
 N:10:Druid
-S:-2:1:2:1:-1:0
+S:-2:1:2:1:-1:1
 C:32:27:26:4:17:16:43:38:45
 X:11:10:11:0:1:16:23:24:27
 I:3:30:34000:8
@@ -1546,10 +1546,10 @@ B:6:10:9:67:3	#door creation 			10
 B:7:20:25:67:10	#word of recall			20
 B:8:22:22:67:14	#stair creation			22
 B:9:6:3:50:1	#cure light wounds (B2)		6
-B:10:14:13:61:3	#extra luck				14 (was 67%fail)
+B:10:14:12:60:3	#extra luck				14 (was 67%fail, 13mana)
 B:11:7:12:67:2	#resist cold			7
 B:12:21:20:91:6	#new batteries			21 (moved to book 4)
-B:13:8:7:67:2	#bug spray				8
+B:13:8:7:61:2	#bug spray				8 (was 67%fail)
 B:14:24:11:55:4	#detect invisible			24
 B:15:32:28:75:30	#resist poison			32
 B:16:26:20:33:24	#curing or causing		26

@@ -3124,11 +3124,24 @@ void do_cmd_store_reallynow(void)
 	    }
     }
 
+	/*** Set up state ***/
 
-	/* Check if we can enter the store */
-	if (adult_no_stores)
+    if (p_ptr->fakehome) store_current = STORE_HOME;
+    
+	/* XXX Take note of the store number from the terrain feature */
+	else store_current = (cave_feat[py][px] - FEAT_SHOP_HEAD);
+
+	/* Check if we can enter the store (now allows the home) */
+	if ((adult_no_stores) && (store_current != STORE_HOME))
 	{
 		msg_print("The doors are locked.");
+		return;
+	}
+
+	/* you stink */
+	if ((p_ptr->timed[TMD_STINKY]) && (store_current != STORE_HOME))
+	{
+		msg_print("The shopkeeper kicks you out and tells you to take a bath.");
 		return;
 	}
 
@@ -3142,19 +3155,6 @@ void do_cmd_store_reallynow(void)
 	p_ptr->command_new = 0;
 
 
-	/*** Set up state ***/
-
-    if (p_ptr->fakehome) store_current = STORE_HOME;
-    
-	/* XXX Take note of the store number from the terrain feature */
-	else store_current = (cave_feat[py][px] - FEAT_SHOP_HEAD);
-
-	/* you stink */
-	if ((p_ptr->timed[TMD_STINKY]) && (store_current != STORE_HOME))
-	{
-		msg_print("The shopkeeper kicks you out and tells you to take a bath.");
-		return;
-	}
 
 	/*** Display ***/
 

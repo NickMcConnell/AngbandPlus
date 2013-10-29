@@ -1213,6 +1213,26 @@ static void do_cmd_wiz_cure_all(void)
 	do_cmd_redraw();
 }
 
+/* modify the jump to any level command */
+void cmd_wiz_jump_mod(void)
+{
+	char ppp[80];
+	char tmp_val[160];
+
+	/* Prompt */
+	strnfmt(ppp, sizeof(ppp), "mode: 1=vault, 2=cavern, 20=random theme, or 20+theme code.");
+	/* (add more options later) */
+	/*strnfmt(ppp, sizeof(ppp), "mode: 1=vault, 2=cavern, 3=force GV, 4=destroyed, or 20+theme code.");*/
+
+	/* Default */
+	strnfmt(tmp_val, sizeof(tmp_val), "1");
+
+	/* Ask for a level */
+	if (!get_string(ppp, tmp_val, 11)) return;
+
+	/* Extract request */
+	p_ptr->speclev = atoi(tmp_val);
+}
 
 /*
  * Go to any level
@@ -1253,9 +1273,9 @@ void do_cmd_wiz_jump(bool limited)
 	if (limited)
 	{
 		if (p_ptr->command_arg == p_ptr->depth) return; /* no alter reality */
-		else if ((p_ptr->command_arg > p_ptr->max_depth) && (p_ptr->max_depth < 99)) 
+		else if ((p_ptr->command_arg > p_ptr->max_depth + 1) && (p_ptr->max_depth < 99)) 
 			p_ptr->command_arg = p_ptr->depth + 1;
-		else if (p_ptr->command_arg > p_ptr->max_depth) p_ptr->command_arg = p_ptr->depth - 1;
+		else if (p_ptr->command_arg > p_ptr->max_depth + 1) p_ptr->command_arg = p_ptr->depth - 1;
 	}
 
 	/* Accept request */
@@ -1687,6 +1707,13 @@ void do_cmd_debug(void)
 		{
 			(void)ident_spell();
 			break;
+		}
+
+		/* Go up or down in the dungeon */
+		case 'J':
+		{
+			cmd_wiz_jump_mod();
+			/* fall through */
 		}
 
 		/* Go up or down in the dungeon */

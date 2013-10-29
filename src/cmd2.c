@@ -1388,8 +1388,13 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Rubble */
 	else if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
+        /* umber hulk never fails when digging */
+		if ((p_ptr->prace == 17) && twall(y, x))
+        {
+            msg_print("You easily toss the rubble out of the way.");
+        }
 		/* Remove the rubble (slightly harder than it used to be) */
-		if ((p_ptr->skills[SKILL_DIG] > 4 + rand_int(200)) && twall(y, x))
+		else if ((p_ptr->skills[SKILL_DIG] > 4 + rand_int(200)) && twall(y, x))
 		{
 			/* Message */
 			msg_print("You have removed the rubble.");
@@ -1452,8 +1457,14 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Doors */
 	else
 	{
+        /* umber hulk never fails when digging */
+		if (p_ptr->prace == 17)
+        {
+            twall(y, x);
+            msg_print("You easily bash through the wall.");
+        }
 		/* Tunnel */
-		if ((p_ptr->skills[SKILL_DIG] > 30 + rand_int(1200)) && twall(y, x))
+		else if ((p_ptr->skills[SKILL_DIG] > 30 + rand_int(1200)) && twall(y, x))
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -2791,9 +2802,6 @@ void do_cmd_rest(void)
 
 
 
-
-
-
 /*
  * Determines the odds of an object breaking when thrown at a monster
  * (Hitwall means there was no collision with a monster but still chance to break)
@@ -3504,7 +3512,8 @@ void do_cmd_throw(void)
 	int i, y, x, ty, tx, dy, dx, j = 0;
 	int chance, tdam, tdis, noslip, thits;
 	int mul, div, boom;
-	bool comeback, tooheavy, throwglove, strong_throw, throwerw, ammo;
+	bool comeback, tooheavy, strong_throw, throwerw, ammo;
+	bool throwglove = FALSE;
     bool hitwall = FALSE, rturner = FALSE;
 	bool curserturn = FALSE, fromquiv = FALSE;
 	int comechance, excrit, bonus, throwok;
@@ -3558,7 +3567,7 @@ void do_cmd_throw(void)
 	}
 
 	tooheavy = FALSE;
-	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (!(p_ptr->prace == 17)) && (o_ptr->weight >= 200))
+	if (!((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)) && (o_ptr->weight >= 200))
 		tooheavy = TRUE;
 	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
 		tooheavy = TRUE;
@@ -3575,7 +3584,7 @@ void do_cmd_throw(void)
 	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
 		tooheavy = TRUE;
 
-	/*** Hacky: Check for to_dam bonus from gauntlets of throwing ***/
+	/* Check for to_dam bonus from gauntlets of throwing */
 	g_ptr = &inventory[INVEN_HANDS];
 	if (g_ptr->k_idx)
 	{
@@ -3588,7 +3597,6 @@ void do_cmd_throw(void)
 		/* reset flags before getting thrown object flags */
 		f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
 	}
-	else throwglove = FALSE;
 
 	/* Get local object */
 	i_ptr = &object_type_body;

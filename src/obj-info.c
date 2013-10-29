@@ -322,7 +322,7 @@ static bool describe_brand(const object_type *o_ptr, u32b f1, u32b f2)
 /*
  * Describe immunities granted by an object.
  *
- * ToDo - Merge intro describe_resist() below.
+ * ToDo - Merge into describe_resist() below.
  */
 static bool describe_immune(const object_type *o_ptr, u32b f2)
 {
@@ -382,6 +382,8 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3, u32b f4)
 	if (f3 & (TR3_HOLD_LIFE)) vp[vn++] = "life draining";
 	if (f4 & (TR4_RES_CHARM)) vp[vn++] = "charming";
 	if (f4 & (TR4_RES_STATC)) vp[vn++] = "static";
+	if (f4 & (TR4_RES_SLIME)) vp[vn++] = "slime";
+	if (f4 & (TR4_RES_SILVR)) vp[vn++] = "silver";
 
 	/* Describe resistances */
 	output_desc_list("It provides resistance to ", vp, vn);
@@ -1839,17 +1841,16 @@ void device_chance(const object_type *o_ptr)
 		if (power >= o_ptr->number) allcharging = TRUE;
 	}
 
-	new_paragraph = TRUE;
 	/* 100% chance of failure */
 	if ((charged) && (o_ptr->charges <= 0))
 	{
 	    p_text_out("  This device is out of charges.");
-		new_paragraph = FALSE;
 		if (artstaff) artstaff = 2;
 		else return;
 	}
 	if (((!charged) || (artstaff)) && (o_ptr->timeout) && (allcharging))
 	{
+		new_paragraph = TRUE;
 	    p_text_out("  This device is charging.");
 		new_paragraph = FALSE;
 
@@ -1986,7 +1987,6 @@ void device_chance(const object_type *o_ptr)
 		
 		text_out(format("  You have about a %d percent chance of failure when using the activation on this device.", odds));
 	}
-	new_paragraph = FALSE;
 	return;
 }
 
@@ -2049,8 +2049,7 @@ bool object_info_out(const object_type *o_ptr)
 		((o_ptr->esprace) && (!bigslay))))
 	{
 		/* Hack -- Put this in a separate paragraph if screen dump */
-		if (text_out_hook == text_out_to_screen)
-			new_paragraph = TRUE;
+		if (text_out_hook == text_out_to_screen) new_paragraph = TRUE;
 
 		p_text_out("It might have hidden powers.");
 		something = TRUE;
@@ -2337,6 +2336,12 @@ void object_info_screen(object_type *o_ptr)
 	if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND) || 
 		(o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
 	{
+        if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
+        {
+           	new_paragraph = TRUE;
+            p_text_out(format("  This device has %d charges left.", o_ptr->charges));
+           	new_paragraph = FALSE;
+        }                 
 		if (object_known_p(o_ptr)) device_chance(o_ptr);
 		/* wand/rod enhancement */
 		dsc_enhance(o_ptr);

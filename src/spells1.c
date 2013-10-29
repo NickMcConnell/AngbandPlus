@@ -486,6 +486,12 @@ void teleport_player_level(int mode)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
+	/* the teleporter box lets you choose where you go */
+	else if (mode == 2)
+	{
+		do_cmd_wiz_jump(TRUE);
+		return;
+	}
 
 	else if (rand_int(100) < 50)
 	{
@@ -619,7 +625,7 @@ bool control_tport(int resistcrtl, int enforcedist)
          {
              p_ptr->learnedcontrol += 1;
 
- 		     /* message for testing purposes only */
+ 		     /* message mainly for testing purposes */
 	         msg_print("You feel slightly more in control.");
          }
 
@@ -780,11 +786,11 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 
 
 /*
- * Decreases players hit points and sets death flag if necessary
+ * Decreases PC's hit points and sets death flag if necessary
  *
  * Hack -- this function allows the user to save (or quit) the game
  * when he dies, since the "You die." message is shown before setting
- * the player to "dead".
+ * the PC to dead.
  *
  * New disturbnow parameter allows you to rest without being disturbed
  * while poisoned or cut as long as you are above your HP warning mark.
@@ -800,14 +806,13 @@ void take_hit_reallynow(int dam, cptr kb_str, bool disturbnow)
 	/* Paranoia */
 	if (p_ptr->is_dead) return;
 
-
 	/* Disturb */
 	if (disturbnow) disturb(1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" */
 	/* if (p_ptr->timed[TMD_INVULN] && (dam < 9000)) return; */
 
-	/* Hurt the player */
+	/* Hurt the PC */
 	p_ptr->chp -= dam;
 
 	/* Display the hitpoints */
@@ -2858,6 +2863,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ, bool sprea
 			/* Fire + Cold */
 			case GF_METEOR:
 			{
+#if 0 /* meteor swarm shouldn't damage items */
 				if (hates_fire(o_ptr))
 				{
 					do_kill = TRUE;
@@ -2871,6 +2877,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ, bool sprea
 					note_kill = (plural ? " shatter!" : " shatters!");
 					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
 				}
+#endif
 				break;
 			}
 
@@ -5013,7 +5020,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				
 				if ((r_ptr->d_char == 'R') || (r_ptr->d_char == 'S'))
 				{
-                   dam = (dam / 3);
+                   dam = (dam / 2);
 			       note = " cringes.";
 				   note_dies = " dies!";
                 }
@@ -6489,8 +6496,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 	/* Return "Anything seen?" */
 	return (obvious);
 }
-
-
 
 
 

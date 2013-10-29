@@ -645,7 +645,8 @@ static void return_monsters(void)
 			m_ptr->truce = 0;
 			
 			/* (m_ptr->energy hasn't changed since it died) */
-            if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
+			if ((r_ptr->flags1 & (RF1_FORCE_SLEEP)) ||
+				(distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) < 3))
 			{
 				/* Monster is still being nice */
 				m_ptr->mflag |= (MFLAG_NICE);
@@ -3040,11 +3041,10 @@ void play_game(bool new_game)
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
 		{
-			maxhp = p_ptr->mhp;
-
 			/* Mega-Hack -- Allow player to cheat death */
 			if ((p_ptr->wizard || cheat_live) && !get_confirm("Die? "))
 			{
+				maxhp = p_ptr->mhp;
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
 

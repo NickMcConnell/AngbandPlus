@@ -1006,12 +1006,12 @@ F:ANIMAL
 D:a large plant-eating lizard with a serrated fringe or crest running along its back from
 D: head to tail.  It has a grumpy look.
 
-# 	maybe put wasp back to L2
+# 	maybe put wasp back to L2 (was rarity 2, may remove later)
 N:51:wasp
 G:F:s
 I:120:1d9:11:1:110
 A:5:16:8
-W:3:2:0:4
+W:3:3:0:4
 B:STING:HURT:1d2
 B:STING:HURT:1d1
 F:BUG | FRIENDS | CFOREST
@@ -13728,9 +13728,9 @@ R:2:-3:-1:3:-2:0:0:-1:0:1 # Racid 1
 F:NEVER_BLOW | BASH_DOOR | RAND_50
 F:DROP_3D2 | DROP_GREAT
 #For testing targeting monsters in walls:
-F:PASS_WALL | 
+#F:PASS_WALL | 
 #Testing silence summon spell and S_SILVER monster spell: S_SILVER
-S:1_IN_10 | S_MONSTER
+#S:1_IN_10 | S_MONSTER
 D:A huge mound of flesh which exists only to be hit with various weapons to
 D: test certain things. (Dummy monster)
 D: Never appears (unless summoned by the wizard mode command).

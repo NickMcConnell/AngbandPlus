@@ -1430,7 +1430,7 @@ static int player_birth_aux_2(bool start_at_end)
 		p_ptr->csp = p_ptr->msp;
 
 		/* Display the player */
-		display_player(0);
+		display_player(0, FALSE);
 
 		/* Display the costs header */
 		put_str("Cost", row - 1, col + 32);
@@ -1834,7 +1834,7 @@ static int player_birth_aux_3(bool start_at_end, bool autoroll)
 			p_ptr->csp = p_ptr->msp;
 
 			/* Display the player */
-			display_player(0);
+			display_player(0, FALSE);
 
 			/* Prepare a prompt (must squeeze everything in) */
 			Term_gotoxy(2, 23);
@@ -1974,7 +1974,7 @@ static void player_birth_aux(void)
 			case BIRTH_FINAL_APPROVAL:
 			{
 				/* Display the player */
-				display_player(0);
+				display_player(0, FALSE);
 
 				/* Prompt for it */
 				prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);

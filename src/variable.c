@@ -926,7 +926,7 @@ char notes_fname[1024];
  * 13 = target prompt and prevents using old target for teleport control. 
  *	HELPER monster spells also use it to prevent using old target.
  * 14 = (no longer used)
- * 15 = used to let place_puddle know that we're in a cavern
+ * 15 = (no longer used)
  * 16 = disinfectant in GF_BUG_SPRAY (damage to j,m,",",R and S)
  * 17 = (no longer used)
  * 18 = (no longer used)

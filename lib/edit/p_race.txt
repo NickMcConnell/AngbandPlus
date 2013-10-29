@@ -252,7 +252,7 @@ C:0|5|11|12|13|18
 # because several special hulk race effects are hard-coded by race index
 N:17:Umber_Hulk
 S:5:-5:-4:0:2:-8
-R:-9:-10:13:-4:1:4:16:-15:8
+R:-9:-10:13:-4:1:4:16:-15:7
 X:11:145:6
 I:62:52:300
 H:96:10:84:8

@@ -820,12 +820,23 @@ bool make_attack_spell(int m_idx)
 
 	/* Cannot cast spells when nice */
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
+	
+	/* shouldn't get spell messages for monsters only detected by ESP */
+	if ((!player_has_los_bold(m_ptr->fy, m_ptr->fx)) &&
+	   (!projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)))
+	   seen = FALSE;
 
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_innate + r_ptr->freq_spell) / 2;
 
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
+	
+	/* dungeon monsters in town cast less often (illusionist) */
+	if ((r_ptr->level > 0) && (!p_ptr->depth))
+	{
+		chance = (chance * 2) / 3;
+	}
 
 	/* 1_IN_x  x = 2 then chance = 50, x = 4 then chance = 25, x = 6 then chance = 16 */
 	/* scale spell chance for monsters that scale with depth */
@@ -3128,7 +3139,11 @@ bool make_attack_spell(int m_idx)
 			if (m_ptr->mspeed < r_ptr->speed + 8)
 			{
 				msg_format("%^s starts moving faster.", m_name);
-				m_ptr->mspeed += 8 + rand_int(3);
+				if ((r_ptr->level < 6) && (p_ptr->depth < r_ptr->level*3))
+					m_ptr->mspeed += 2 + rand_int(3);
+				else if ((r_ptr->level/3 < 8) && (p_ptr->depth < r_ptr->level*2+1))
+					m_ptr->mspeed += r_ptr->level/3 + rand_int(3);
+				else m_ptr->mspeed += 8 + rand_int(3);
 			}
 
 			/* Allow small speed increases to base+20 */
@@ -3442,6 +3457,8 @@ bool make_attack_spell(int m_idx)
 		case RF6_OFFSET+12:
 		{
 			if (!direct) break;
+			/* don't cast this spell in town */
+			if (!p_ptr->depth) break;
 			if ((m_ptr->extra2) && ((noattack) || (randint(100) < 85-badluck/2))) break;
 			if ((seen) || (!noattack)) disturb(1, 0);
 			if ((blind) && (m_ptr->cdis < 8)) msg_format("%^s mumbles.", m_name);
@@ -5262,12 +5279,19 @@ static bool get_moves(int m_idx, int mm[5])
  * (If this function returns greater than 0, then monster 1 can 
  *  eat/trample or push past monster 2)
  */
-static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr, bool killm, bool shoofly)
+static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr, int mode)
 {
 	monster_race *r_ptr;
 	monster_race *nr_ptr;
 	u32b mexp1, mexp2;
 	int bigger = 0;
+	bool shoofly = FALSE;
+	bool killm = FALSE;
+	
+	/* small flying monster trying to fly past another monster */
+	if (mode == 1) shoofly = TRUE;
+	/* trying to trample/eat instead of push past */
+	if (mode == 5) killm = TRUE;
 
 	/* Race 1 */
 	r_ptr = &r_info[m_ptr->r_idx];
@@ -5283,18 +5307,28 @@ static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr
 	/* NONMONSTERS have no XP value (and trees are hard to trample/push past) */
 	if (nr_ptr->flags7 & (RF7_NONMONSTER)) mexp2 = 14000 + randint(16000);
 
-	/* always push past imaginary monsters */
+	/* always push past (or kill) imaginary monsters */
 	if ((n_ptr->extra2) && (!m_ptr->extra2)) return (1);
 	else if ((!n_ptr->extra2) && (m_ptr->extra2)) return (-1);
 
 	/* wall monsters and statues are especially hard to trample */
 	if ((killm) && (strchr("#", nr_ptr->d_char))) mexp2 += 8000 + randint(11000);
-	
-	/* never trample uniques */
-	if ((killm) && (nr_ptr->flags1 & (RF1_UNIQUE))) return (-1);
 
 	/* don't trample or push past monsters of the same race */
 	if (m_ptr->r_idx == n_ptr->r_idx) return (-1);
+	
+	/* never trample uniques (will try again to push past) */
+	if ((killm) && ((nr_ptr->flags1 & (RF1_UNIQUE)) ||
+		(nr_ptr->maxpop == 1))) return (-1);
+	
+	/* mode 2 means 1st monster has KILL_BODY but failed to trample */
+	/* because second monster is unique.  Now trying to push past */
+	if (mode == 2)
+	{
+		mexp2 = (mexp2 * 3) / 2;
+		if (r_ptr->flags1 & (RF1_UNIQUE)) mexp1 = (mexp1 * 5) / 4;
+		else if (r_ptr->maxpop == 1) mexp1 = (mexp1 * 6) / 5;
+	}
 	
 	/* monster size (shoofly = smaller the better) */
 	if ((r_ptr->mrsize > nr_ptr->mrsize))
@@ -5576,6 +5610,7 @@ static bool wakeup_friends(int m_idx, bool dowake)
 	bool leader = FALSE;
 	char m_name[80];
 	char om_name[80];
+	bool scream = FALSE;
 	
 	/* get the monster who is looking for friends */
 	monster_type *m_ptr = &mon_list[m_idx];
@@ -5601,28 +5636,6 @@ static bool wakeup_friends(int m_idx, bool dowake)
 	else loud = 85 + randint(52);
 	loud -= (p_ptr->skills[SKILL_STL]*2);
 	if (rand_int(100) < ((badluck/2)+1) * 4) loud = loud*2;
-
-	if (dowake)
-	{
-		/* get monster name */
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-		/* message appropriate to type */
-		if (strchr("hiknoptuxyKOPTUVY@&", r_ptr->d_char))
-		{
-		    if (leader) msg_format("%^s yells for its escorts to wake up!", m_name);
-		    else msg_format("%^s yells for its friends to wake up!", m_name);
-		}
-		else if (strchr("CZ", r_ptr->d_char))
-		{
-			msg_format("%^s barks at its pack to wake up!", m_name);
-		}
-		else 
-		{
-		    if (leader) msg_format("%^s wakes up its escorts!", m_name);
-		    else msg_format("%^s wakes up its friends!", m_name);
-		}
-	}
 
 	/* Look for sleeping buddies */
 	for (i = 1; i < mon_max; i++)
@@ -5672,6 +5685,31 @@ static bool wakeup_friends(int m_idx, bool dowake)
 			om_ptr->csleep = 0;
 			om_ptr->roaming = 0;
 			wokeup = TRUE;
+
+			/* This shouldn't give a message unless monsters actually wake up */
+			if (!scream)
+			{
+				/* get monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* message appropriate to type */
+				if (strchr("hiknoptuyKOPTUVY@&", r_ptr->d_char))
+				{
+				    if (leader) msg_format("%^s yells for its escorts to wake up!", m_name);
+				    else msg_format("%^s yells for its friends to wake up!", m_name);
+				}
+				else if (strchr("CZ", r_ptr->d_char))
+				{
+					msg_format("%^s barks at its pack to wake up!", m_name);
+				}
+				else 
+				{
+				    if (leader) msg_format("%^s wakes up its escorts!", m_name);
+				    else msg_format("%^s wakes up its friends!", m_name);
+				}
+				/* monster has screamed, don't scream again */
+				scream = TRUE;
+			}
 
 			if (om_ptr->ml)
 			{
@@ -7163,7 +7201,7 @@ static void process_monster(int m_idx)
 			/* (not if confused or stunned, and don't kill trees) */
 			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
                (!m_ptr->stunned) && (!m_ptr->confused) &&
-			    (compare_monsters(m_ptr, n_ptr, TRUE, FALSE) > 0))
+			    (compare_monsters(m_ptr, n_ptr, 5) > 0))
 			{
 				/* Allow movement */
 				do_move = TRUE;
@@ -7177,15 +7215,30 @@ static void process_monster(int m_idx)
 				monster_desc(n_name, sizeof(n_name), n_ptr, 0);
 
 				/* message */
-				if (strchr("RDMHNvw", r_ptr->d_char)) eaten = TRUE;
+				if (strchr("RDMHNw", r_ptr->d_char)) eaten = TRUE;
                 if ((m_ptr->ml) && (eaten)) msg_format("%^s eats %s.", m_name, n_name);
                 else if (m_ptr->ml) msg_format("%^s tramples %s.", m_name, n_name);
 				else if (n_ptr->ml) msg_format("%^s is trampled.", n_name);
 
 				/* Kill the monster */
 				/* if it's eaten it can't return, otherwise it can */
-				if (eaten) delete_monster(ny, nx, FALSE);
+				if (eaten) delete_monster(ny, nx, 2);
 				else delete_monster(ny, nx, TRUE);
+			}
+			/* Don't let weak uniques get in the way of powerful monsters */
+			else if ((nr_ptr->flags1 & (RF1_UNIQUE)) &&
+				(r_ptr->flags2 & (RF2_KILL_BODY)) &&
+				(!m_ptr->stunned) && (!m_ptr->confused) &&
+				(compare_monsters(m_ptr, n_ptr, 2) > 0) &&
+				(cave_floor_bold(m_ptr->fy, m_ptr->fx)))
+			{
+				/* Allow movement */
+				do_move = TRUE;
+
+				/* Monster pushed past another monster */
+				did_move_body = TRUE;
+
+				/* XXX XXX XXX Message */
 			}
 		}
 
@@ -7194,14 +7247,14 @@ static void process_monster(int m_idx)
 		if (gonext && (cave_m_idx[ny][nx] > 0))
 		{
 			monster_type *n_ptr = &mon_list[cave_m_idx[ny][nx]];
-			bool shoofly;
+			int shoofly = 0;
 			bool movepast = FALSE;
 			if (r_ptr->flags2 & (RF2_MOVE_BODY)) movepast = TRUE;
 			/* small flying monsters can fly past other monsters */
 			if ((r_ptr->flags2 & (RF2_FLY)) && (r_ptr->mrsize < 3))
 			{
 				movepast = TRUE;
-				shoofly = TRUE;
+				shoofly = 1;
 			}
 			/* WATER_ONLY monsters moving into water will pust past other monsters */
 			if ((r_ptr->flags7 & (RF7_WATER_ONLY)) && 
@@ -7214,8 +7267,9 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 
 			/* Push past weaker monsters (unless leaving a wall) */
+			/* (shoofly is 0 or 1) */
 			if ((movepast) &&
-			    (compare_monsters(m_ptr, n_ptr, FALSE, shoofly) > 0) &&
+			    (compare_monsters(m_ptr, n_ptr, shoofly) > 0) &&
                 (!m_ptr->stunned) && (!m_ptr->confused) &&
 			    (cave_floor_bold(m_ptr->fy, m_ptr->fx)))
 			{

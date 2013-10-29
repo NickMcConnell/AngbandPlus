@@ -390,7 +390,7 @@ extern s16b tokenize(char *buf, s16b num, char **tokens);
 extern errr process_pref_file_command(char *buf);
 extern errr process_pref_file(cptr name);
 extern void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4);
-extern void display_player(int mode);
+extern void display_player(int mode, bool dump);
 extern errr file_character(cptr name, bool full);
 extern bool show_file(cptr name, cptr what, int line, int mode);
 extern void do_cmd_help(void);
@@ -495,7 +495,7 @@ extern s16b label_to_equip(int c);
 extern s16b wield_slot(const object_type *o_ptr);
 extern cptr mention_use(int i);
 extern cptr describe_use(int i);
-extern bool item_tester_okay(const object_type *o_ptr, bool floor);
+extern bool item_tester_okay(object_type *o_ptr, bool floor);
 extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
 extern void display_inven(void);
 extern void display_equip(void);
@@ -779,8 +779,8 @@ extern bool do_cmd_castchem(void);
 extern bool do_cmd_castblack(void);
 
 /* typeutils.c */
-void display_panel(const data_panel *panel, int count,
-					bool left_adj, const region *bounds);
+/*void display_panel(const data_panel *panel, int count,
+ 					bool left_adj, const region *bounds); */
 
 /* util.c */
 extern void text_to_ascii(char *buf, size_t len, cptr str);

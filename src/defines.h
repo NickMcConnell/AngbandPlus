@@ -12,6 +12,8 @@
    sure whether to keep it */
 #define thief
 #define newhallu
+/* an experiment with cavern level generation */
+/* #define experm */
 
 /* chance for instant pseudo on pickup (untested, breaks savefiles) */
 /* #define instantpseudo */
@@ -52,7 +54,7 @@
  * Name of the version/variant and its version string
  */
 #define VERSION_NAME   "DaJAngband"
-#define VERSION_STRING "v1.3.0"
+#define VERSION_STRING "v1.3.2"
 
 
 /*
@@ -1203,7 +1205,7 @@ enum
 #define SV_LARGE_METAL_SHIELD		5
 #define SV_KNIGHT_SHIELD            6
 #define SV_SHIELD_OF_DEFLECTION		10
-#define SV_DRAGONSCALE_SHIELD       11
+#define SV_DRAGONSCALE_SHIELD       11 /* (removed) */
 
 /* The "sval" codes for TV_HELM (32/33) */
 #define SV_HARD_LEATHER_CAP		2
@@ -1212,6 +1214,7 @@ enum
 #define SV_IRON_HELM			5
 #define SV_STEEL_HELM			6
 #define SV_ELVEN_LEATHER_CAP    7
+#define SV_POINTY_HAT           9
 #define SV_IRON_CROWN			10
 #define SV_GOLDEN_CROWN			11
 #define SV_JEWELED_CROWN		12

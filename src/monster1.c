@@ -143,6 +143,7 @@ static void describe_monster_desc(int r_idx, const monster_type *m_ptr)
 			case 13: text_out("It's a statue of an ogre chieftain. \n"); break;
 			case 14: text_out("It's a statue of a Rohirrim knight on horseback. \n"); break;
 			/* gargoyles can mimmic these few statues (they BLOCK_LOS only while mimmicing) */
+			/* at least they will, not yet */
 			case 15: text_out("It's a stone troll turned to stone by a previous hero's magical light. \n"); break;
 			case 16: text_out("It's a statue of a gargoyle about to swing his axe. \n"); break;
 			case 17: text_out("It's a statue of a gargoyle with wings spread. \n"); break;
@@ -1061,7 +1062,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if ((l_ptr->know_MRelec) &&	(r_ptr->Relec > 0))
 	{
 		drastic[vn] = r_ptr->Relec;
-		vp[vn++] = "lightning";
+		vp[vn++] = "electricity";
 	}
 	if ((l_ptr->know_MRfire) &&	(r_ptr->Rfire > 0))
 	{

@@ -861,10 +861,10 @@ void do_cmd_activate(void)
 	bool ident;
 	bool forget = FALSE;
 	bool fluke = FALSE;
+	bool actiquiver = FALSE;
 	object_type *o_ptr;
 
 	cptr q, s;
-
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
@@ -879,6 +879,7 @@ void do_cmd_activate(void)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+		if (IS_QUIVER_SLOT(item)) actiquiver = TRUE;
 	}
 
 	/* Get the item (on the floor) */
@@ -892,6 +893,38 @@ void do_cmd_activate(void)
 	{
 		msg_print("It whines, glows and fades...");
 		return;
+	}
+		
+	/* preliminary check: only allow certain activations from the quiver */
+	/* (see also scramble_artifact() in randart.c) */
+	if ((o_ptr->name1) && (actiquiver))
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		switch (a_ptr->activation)
+		{
+			/* allow these: */
+			case ACT_MISSILE:
+			case ACT_FIRE1:
+			case ACT_FROST1:
+			case ACT_LIGHTNING_BOLT:
+			case ACT_ACID1:
+			case ACT_STINKING_CLOUD:
+			/* unsure about these: (allow for now) */
+			case ACT_ILLUMINATION:
+			case ACT_PHASE:
+			case ACT_TRAP_DOOR_DEST:
+			case ACT_PROT_EVIL:
+			case ACT_CHARM_ANIMAL:
+			case ACT_HASTE1: /* (short-lasting) */
+			case ACT_CONFUSE:
+				break; /* allow */
+			/* disallow all others (without taking a turn) */
+			default:
+			{
+				msg_print("This artifact cannot be activated from the quiver.");
+				return;
+			}
+		}
 	}
 
 	/* Take a turn */

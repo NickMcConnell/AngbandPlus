@@ -1,5 +1,5 @@
 # File: object.txt
-# for DaJAngband 1.3.0
+# for DaJAngband 1.3.2
 
 
 # This file is used to initialize the "lib/data/object.raw" file, which is
@@ -1402,7 +1402,7 @@ G:):U
 I:34:4:0
 W:15:0:100:120
 A:15/1
-P:4:1d2:0:0:0:2
+P:4:1d2:-1:0:0:2
 
 N:130:& small metal shield~
 G:):s
@@ -1416,7 +1416,7 @@ G:):s
 I:34:5:0
 W:30:0:125:200
 A:30/1
-P:6:1d5:0:0:0:3
+P:6:1d5:-1:0:0:4
 
 ##### Rings #####
 
@@ -2476,6 +2476,7 @@ I:75:29:0
 W:1:0:4:77
 A:2/1:40/1
 P:0:1d1:0:0:0:0
+#M:1:1d2
 F:EASY_KNOW
 D:It hastes you (+10 to speed) for about 3-6 minutes (or 1 additional minute
 D: if you already are under the effect of a temporary haste
@@ -2807,7 +2808,7 @@ I:65:0:0
 W:3:3:10:210
 A:3/1
 P:0:1d1:0:0:0:1
-C:6+d15
+C:6+d12
 F:EASY_KNOW
 D:It cures a single monster for 4d6 points of damage.
 D: If the monster is undead is does 4d6 damage instead of healing it.
@@ -2865,7 +2866,7 @@ C:3+d3
 F:EASY_KNOW
 D:It inflicts 150 points of damage on a single living monster.
 
-N:281:Tunnel-digging
+N:281:Tunneldigging
 G:-:d
 I:65:5:0
 W:40:38:10:1300
@@ -3637,8 +3638,7 @@ P:0:1d4:0:0:0:3
 F:EASY_KNOW | PTHROW | BRAND_FIRE
 D:It can be used to fuel a brass lantern with about 20 hours of light, up to
 D: a maximum of 40 hours of light.
-D:  When thrown, it is considered lit, so it does more than nominal
-D: damage to creatures vulnerable to fire.
+D:  When thrown, it is automatically lit and can burn enemies.
 
 # Empty Bottles are no longer generated (no 'A'llocation line)
 # Keep the entry for savefile compatibility
@@ -4228,6 +4228,15 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 #P:30:2d4:-2:0:10:1
 #F:RES_LITE | RES_DARK | EASY_KNOW
 #F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+# maybe with:
+#N:406:Death Drake Scale Mail~
+#G:[:r
+#I:38:10:0
+#W:65:37:200:60000
+#A:65/16
+#P:30:2d4:-2:0:10:1
+#F:RES_NETHR | RES_DARK | BAD_WEAP | EASY_KNOW
+#F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:407:Bronze Dragon Scale Mail~
 G:[:U
@@ -4247,12 +4256,12 @@ P:30:2d4:-2:0:10:1
 F:RES_SOUND | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#Changed to have appropriate nexus breath (should I remove Rshard now?)
+#Changed to have appropriate nexus breath (should I remove Rshard now?) (rarity was 21)
 N:409:Violet Dragon Scale Mail~
 G:[:v
 I:38:12:5
 W:70:37:170:80000
-A:70/16
+A:70/24
 P:26:2d4:-1:0:10:1
 F:RES_NEXUS | RES_SHARD | SPEED | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4267,11 +4276,12 @@ F:RES_CHAOS | RES_DISEN | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #no activation and only partial poision resist - rarer because it's less useful
+#maybe add a x2 off-weapon poison brand when I add x2 brands
 N:411:Wyvern Scale Mail~
 G:[:g
 I:38:13:1
-W:42:0:200:30000
-A:42/12
+W:41:0:200:30000
+A:41/12
 P:40:2d4:-2:0:15:1
 F:PR_POIS | INFRA | EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4289,7 +4299,7 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:413:Balance Dragon Scale Mail~
 G:[:u
 I:38:20:0
-W:92:55:200:100000
+W:92:55:200:120000
 A:92/31
 P:30:2d4:-2:0:10:1
 F:RES_SOUND | RES_CHAOS | RES_DISEN | RES_CONFU | EASY_KNOW
@@ -4341,8 +4351,8 @@ W:60:0:4:10000
 A:60/8
 P:0:25d5:0:0:0:5
 F:EASY_KNOW | PTHROW | EXPLODE_A
-D:It inflicts 50d20 points of damage from massive explosions, severe
-D: cuts (+5000 to the cut counter), and stunning (+75 to the stun
+D:It inflicts 99d5 points of damage from massive explosions, severe
+D: cuts (+4000 to the cut counter), and stunning (+75 to the stun
 D: counter).
 D:  It can also be thrown for 25d5 points of damage.
 
@@ -4822,7 +4832,7 @@ F:SHOW_MODS
 N:516:& walking staff~
 G:\:u
 I:21:3:0
-W:4:0:60:28
+W:4:0:50:28
 A:2/2
 P:0:1d5:0:0:0:2
 F:SHOW_MODS
@@ -5343,22 +5353,33 @@ P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:574:& dragonslayer shield~
-G:):r
-I:34:11:0
-W:55:0:90:5000
-A:55/14
-P:9:1d3:0:0:0:3
-F:BR_SHIELD
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:A shield magically reinforced to give the wearer protection from dragon's breath.
+# this is redundant with the dragonbreath blocking ego
+#N:574:& dragonslayer shield~
+#G:):r
+#I:34:11:0
+#W:55:0:90:5000
+#A:55/14
+#P:9:1d3:-1:0:0:3
+#F:BR_SHIELD
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+#D:A shield magically reinforced to give the wearer protection from dragon's breath.
+
+# a place for crown egos to be found earlier
+N:574:& pointy wizard hat~
+G:]:s
+I:33:9:-1
+W:11:0:10:90
+A:11/9:65/6
+P:1:0d0:0:0:0:0
+F:CHR
+D:A pointy purple hat. Wizards love this sort of thing, but no one else does.
 
 N:575:& knight shield~
 G:):W
 I:34:6:0
 W:50:0:160:500
 A:50/2
-P:11:1d7:0:0:0:3
+P:11:1d7:-1:0:0:3
 D:A kite-shaped shield with rounded corners that covers the wearer from chest 
 D:to toe, emblazoned with heraldic symbols.
 

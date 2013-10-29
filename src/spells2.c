@@ -944,15 +944,15 @@ void self_knowledge(bool spoil)
 
 	if (f2 & TR2_IM_ELEC)
 	{
-		info[i++] = "You are completely immune to lightning.";
+		info[i++] = "You are completely immune to electricity.";
 	}
 	else if ((f2 & TR2_RES_ELEC) && (p_ptr->timed[TMD_OPP_ELEC]))
 	{
-		info[i++] = "You resist lightning exceptionally well.";
+		info[i++] = "You resist electricity exceptionally well.";
 	}
 	else if ((f2 & TR2_RES_ELEC) || (p_ptr->timed[TMD_OPP_ELEC]))
 	{
-		info[i++] = "You are resistant to lightning.";
+		info[i++] = "You are resistant to electricity.";
 	}
 
 	if ((f2 & TR2_IM_FIRE) || (p_ptr->timed[TMD_IMM_FIRE]))
@@ -4609,15 +4609,15 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
         /* extra damage reduction from surrounding magic */
 		if (cp_ptr->flags & CF_POWER_SHIELD)
         {
-           damage -= (damage * ((p_ptr->lev + 5) / 250));
+           damage -= damage * ((p_ptr->lev + 5) / 250);
         }
 		else if (goodluck > 16)
         {
-           damage -= (damage * (goodluck + 3 / 250));
+           damage -= damage * ((goodluck + 3) / 250);
         }
             
 		/* Take some damage */
-		if (damage) take_hit(damage, "an earthquake");
+		if (damage > 0) take_hit(damage, "an earthquake");
 	}
 
 
@@ -5061,6 +5061,12 @@ static void cave_temp_room_lite(void)
 		}
 	}
 
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Update stuff */
+	update_stuff();
+
 	/* None left */
 	temp_n = 0;
 }
@@ -5309,6 +5315,10 @@ bool lite_area(int dam, int rad)
 	/* Lite up the room */
 	if (spellswitch != 4) lite_room(py, px);
 
+	/* bigger area of effect in caverns */
+	/* (this means I have to put speclev in the savefiles which will break them) */
+	if (p_ptr->speclev == 1) rad += 2;
+
 	/* Hook into the "project()" function */
 	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg, pflg);
 
@@ -5442,7 +5452,7 @@ bool fire_spread(int typ, int dam, int rad)
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 	int pflg = PROJO_SPRED;
 
-	/* Analyze the "dir" and the "target".  Sometimes hurt items on floor. */
+	/* Analyze the dir and the target.  Sometimes hurt items on floor. */
 	return (project(-1, rad, p_ptr->py, p_ptr->px, dam, typ, flg, pflg));
 }
 
@@ -5477,7 +5487,7 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
 
 	while (num--)
 	{
-		/* Analyze the "dir" and the "target".  Hurt items on floor. */
+		/* Analyze the "dir" and the target.  Hurt items on floor. */
 		if (project(-1, rad, ty, tx, dam, typ, flg, pflg)) noticed = TRUE;
 	}
 

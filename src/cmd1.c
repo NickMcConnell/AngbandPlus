@@ -319,6 +319,7 @@ int tot_dam_aux(object_type *o_ptr, int tdam, int strd, monster_type *m_ptr)
 	}
 
 	/* handle light sources with slays / brands */
+	/* (currently only one which has SLAY_WERE) */
 	if (brandlite)
 	{
 		u32b f[4];

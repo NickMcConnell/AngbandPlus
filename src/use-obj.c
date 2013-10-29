@@ -902,7 +902,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_DETONATIONS:
 		{
 			msg_print("Massive explosions rupture your body!");
-			take_hit(damroll(99, 5), "a potion of Detonation");
+			if (p_ptr->max_depth < 20) take_hit(damroll(46, 3), "a potion of Detonation");
+			else if (p_ptr->max_depth < 50) take_hit(damroll(99, p_ptr->max_depth/10), "a potion of Detonation");
+			else take_hit(damroll(99, 5), "a potion of Detonation");
 			(void)inc_timed(TMD_STUN, 75);
 			(void)inc_timed(TMD_CUT, 2000 + randint(2000));
 			*ident = TRUE;
@@ -2261,7 +2263,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
             }
             else
             {
-			  if (detect_monsters_invis()) *ident = TRUE;
+				if (detect_monsters_invis()) *ident = TRUE;
             }
 			break;
 		}
@@ -3451,6 +3453,8 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
  *
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
+ *
+ * We allow only certain activations from the quiver.
  */
 static bool activate_object(object_type *o_ptr, bool *ident)
 {
@@ -3469,6 +3473,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 		/* Get the basic name of the object */
 		char o_name[80];
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+		
 
 		switch (a_ptr->activation)
 		{
@@ -3997,6 +4002,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_BERSERKER:
 			{
 				(void)clear_timed(TMD_CHARM);
+				(void)clear_timed(TMD_AFRAID);
                 if (p_ptr->peace)
         	    {
                    msg_format("Your %s glows in anger, but is stifled by peaceful magic.", o_name);
@@ -4010,6 +4016,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_SUN_HERO:
 			{
 				int time = randint(45) + 45;
+				(void)clear_timed(TMD_AFRAID);
                 if (p_ptr->peace)
         	    {
 				   msg_format("Your %s shines like the sun...", o_name);
@@ -4430,7 +4437,7 @@ static cptr act_description[ACT_MAX] =
 	"berserk rage (10+d5 minutes)",
 	"cold resistance (4+d4 minutes)",
 	"sphere of animal charming",
-	"tunneldigging",
+	"tunneldigging and 80-130 damage to monsters hurt by rock remover",
 	"daylight and berserk rage",
 	"fire bolt (9d8) and light beam (3d8)",
 	"weak clairvoyance (no object detection and usually doesn't map the whole level)"

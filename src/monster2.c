@@ -57,6 +57,8 @@ void delete_monster_idx(int i, bool cancomeback)
 		}
 		/* town version less likely to come back */
 		if (!p_ptr->depth) remonchance = 1;
+		/* imaginary monsters less likely to come back */
+		if (m_ptr->extra2) remonchance = 1;
 		/* if remonchance == 2 (normal) then */
         /* always if first death, 2/3 chance if 2nd death, then 50% chance.. */
         if (rand_int(m_ptr->ninelives + 2) < remonchance) comeback = TRUE;
@@ -3141,6 +3143,7 @@ bool alertness_check(monster_type *m_ptr, int mode, bool darkvs)
 	{
 		/* Rchaos helps recognise mimmics */
 		if ((mstealth < 5) && (!p_ptr->resist_chaos)) mstealth = 5;
+		else if (mstealth < 2) mstealth += 2;
 	}
 	/* WATER_HIDE monsters get stealth bonus when in water */
 	if (((r_ptr->flags7 & (RF7_WATER_HIDE)) || (r_ptr->flags7 & (RF7_WATER_ONLY))) &&
@@ -4548,8 +4551,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, int
 	}
 	else if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (!(spccode == 2)))
 	{
-		/* mimmics induce messages now */
-		if (cheat_hear) msg_format("Mimmic (%s).", name);
+		/* mimmics induce messages now (only if you really want them to) */
+		if ((cheat_hear) && (cheat_xtra)) msg_format("Mimmic (%s).", name);
 	}
 	
 	/* only sometimes count drops if the monster doesn't always drop */
@@ -4967,7 +4970,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, int
 	}
 
 	/* Force monster to wait for player */
-	if ((r_ptr->flags1 & (RF1_FORCE_SLEEP)) || (weakenme))
+	if ((r_ptr->flags1 & (RF1_FORCE_SLEEP)) || (weakenme) ||
+		(distance(y, x, p_ptr->py, p_ptr->px) < 3))
 	{
 		/* Monster is still being nice */
 		n_ptr->mflag |= (MFLAG_NICE);
@@ -5008,6 +5012,8 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 	/* Pick a group size */
 	total = randint(13);
+	/* slightly smaller groups in caverns */
+	if ((p_ptr->speclev == 1) || (p_ptr->speclev == 2)) total = randint(10);
 
 	/* Hard monsters, small groups */
 	if (r_ptr->level > p_ptr->depth)
@@ -5027,6 +5033,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 		extra = p_ptr->depth - r_ptr->level;
 		if ((r_ptr->flags2 & RF2_FRIEND1) && (!(r_ptr->flags3 & RF3_SCALE))) 
 			extra = randint((extra+1)/2);
+		/* slightly smaller groups in caverns */
+		else if ((p_ptr->speclev == 1) || (p_ptr->speclev == 2)) 
+			extra = randint((extra*3)/4);
 		else extra = randint(extra);
 	}
 
@@ -5045,13 +5054,6 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
        	if ((extra > 10) && (randint(100) < 60)) total = 4;
        	else if ((extra > 7) && (randint(100) < 25)) total = 3;
        	else total = 2;
-
-#if shouldntneedthis
-		/* placing trees in a cavern (rarely do more than 2 or 3) */
-		if ((r_ptr->flags7 & (RF7_NONMONSTER)) && (spellswitch == 15) &&
-			((total > 2) && (randint(100) < 68)))
-				total -= 1;
-#endif
     }
 
 	/* small groups (max max is 16) */

@@ -1342,17 +1342,16 @@ static int get_coin_type(const monster_race *r_ptr)
 		if (strstr(name, " copper ")) return (3);
 		if (strstr(name, " silver ")) return (6);
 		if (strstr(name, " gold ")) return (11);
-		if (strstr(name, "gold ")) return (11);
 		if (strstr(name, " mithril ")) return (18);
 		if (strstr(name, " adamantite ")) return (19);
 		if (strstr(name, " diamond")) return (15);
 
 		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (3);
-		if (strstr(name, "Silver ")) return (6);
-		if (strstr(name, "Gold ")) return (11);
-		if (strstr(name, "Mithril ")) return (18);
-		if (strstr(name, "Adamantite ")) return (19);
+		if (strstr(name, "copper ")) return (3);
+		if (strstr(name, "silver ")) return (6);
+		if (strstr(name, "gold ")) return (11);
+		if (strstr(name, "mithril ")) return (18);
+		if (strstr(name, "adamantite ")) return (19);
 	}
 
 	/* Assume nothing */
@@ -2680,9 +2679,6 @@ int target_dir(char ch)
  * Currently, a monster is "target_able" if it is visible, and if
  * the player can hit it with a projection, and the player is not
  * hallucinating.  This allows use of "use closest target" macros.
- *
- * Future versions may restrict the ability to target "trappers"
- * and "mimics", but the semantics is a little bit weird.
  */
 bool target_able(int m_idx)
 {
@@ -2719,9 +2715,6 @@ bool target_able(int m_idx)
 
 	/* Don't target nonmonsters (like ordinary trees) */
 	if (r_ptr->flags7 & (RF7_NONMONSTER)) return (FALSE);
-
-	/* Hack -- Never target trappers XXX XXX XXX */
-	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
 
 	/* Assume okay */
 	return (TRUE);

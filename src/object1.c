@@ -1438,9 +1438,9 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 				object_desc_str_macro(t, (e_name + e_ptr->name));
 			}
 
-			/* chance for double ego 'of lightness' on heavy armor */
-			if ((o_ptr->tval == TV_HARD_ARMOR) && (!(o_ptr->name2 == EGO_LIGHTNESS)) &&
-				(o_ptr->weight < k_ptr->weight))
+			/* chance for double ego 'of lightness' on heavy armor and shields */
+			if (((o_ptr->tval == TV_HARD_ARMOR) || (o_ptr->tval == TV_SHIELD)) && 
+				(!(o_ptr->name2 == EGO_LIGHTNESS)) && (o_ptr->weight < k_ptr->weight))
 			{
 				object_desc_str_macro(t, " of Lightness");
 			}
@@ -2494,7 +2494,7 @@ cptr describe_use(int i)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(const object_type *o_ptr, bool floor)
+bool item_tester_okay(object_type *o_ptr, bool floor)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);

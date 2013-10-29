@@ -11,7 +11,7 @@
 #include "angband.h"
 
 #include "script.h"
-
+#include "z-queue.h"
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -348,13 +348,12 @@ static void new_player_spot(void)
  *
  * mode 0: original use: only counts granite walls and permanent walls.
  * mode 1: counts all walls in all eight directions
- * mode 2: counts water spaces in eight directions
  */
 static int next_to_walls(int y, int x, int mode)
 {
 	int k = 0;
 	
-	if ((mode == 1) || (mode == 2))
+	if (mode == 1)
 	{
 		int yb, xb, i;
 		/* Scan adjacent grids */
@@ -364,16 +363,8 @@ static int next_to_walls(int y, int x, int mode)
 			yb = y + ddy_ddd[i];
 			xb = x + ddx_ddd[i];
 
-			if (mode == 2)
-			{
-				/* count water */
-				if (cave_feat[yb][xb] == FEAT_WATER) k++;
-			}
-			else
-			{
-				/* count walls */
-				if (cave_feat[yb][xb] >= FEAT_MAGMA) k++;
-			}
+			/* count walls */
+			if (cave_feat[yb][xb] >= FEAT_MAGMA) k++;
 		}
 	}
 	else /* count only four directions */
@@ -443,6 +434,9 @@ void place_puddle(int y, int x, int mode)
 	int yb, xb;
 	int i, spoty, spotx;
 	int puddle_size = 3 + randint(3);
+	/* cavern level */
+	bool cavernlvl = FALSE;
+	if ((p_ptr->speclev >= 1) && (p_ptr->speclev <= 2)) cavernlvl = TRUE;
 	
 	/* (no enlarged puddles in vaults) */
 	if (!mode)
@@ -452,13 +446,13 @@ void place_puddle(int y, int x, int mode)
 		/* bigger usual puddle size in swamps */
 		else if ((p_ptr->theme == 9) && (randint(100) < 75)) puddle_size += 1 + randint(4);
 		/* in forests, they are ponds, not puddles (bigger and only 1-2 of them) */
-		else if ((p_ptr->theme == 1) && (p_ptr->theme == 2) && (spellswitch == 15))
+		else if ((p_ptr->theme == 1) && (p_ptr->theme == 2) && (cavernlvl))
 			puddle_size += 10 + randint(8);
 		else if ((p_ptr->theme == 1) && (p_ptr->theme == 2))
 			puddle_size += 6 + randint(8);
 		/* in a cavern with more open space, make puddles bigger */
-		else if (spellswitch == 15) puddle_size += 2 + rand_int(3);
-		if ((p_ptr->theme == 9) && (spellswitch == 15)) puddle_size += 1 + randint(4);
+		else if (cavernlvl) puddle_size += 2 + rand_int(3);
+		if ((p_ptr->theme == 9) && (cavernlvl)) puddle_size += 1 + randint(4);
 	}
 	else if (mode == 2) puddle_size = 8 + rand_int(3);
 	/* else mode is 1, puddle is in a vault */
@@ -672,8 +666,11 @@ static void alloc_stairs(int feat, int num, int walls)
 static void alloc_object(int set, int typ, int num)
 {
 	int y, x, k, walls = 0;
+	/* cavern level */
+	bool cavernlvl = FALSE;
+	if ((p_ptr->speclev >= 1) && (p_ptr->speclev <= 2)) cavernlvl = TRUE;
 	/* in a cavern */
-	if (spellswitch == 15) walls = 3;
+	if (cavernlvl) walls = 3;
 
 	/* Place some objects */
 	for (k = 0; k < num; k++)
@@ -1254,6 +1251,61 @@ static void generate_draw(int y1, int x1, int y2, int x2, int feat)
 		cave_set_feat(y1, x, feat);
 		cave_set_feat(y2, x, feat);
 	}
+	
+	/* for rooms in caverns */
+	if ((p_ptr->speclev >= 1) && (p_ptr->speclev <= 2) &&
+		(feat == FEAT_WALL_OUTER))
+	{
+		bool doorsa = FALSE;
+		bool doorsb = FALSE;
+		bool anydoor = FALSE;
+		int nddoor = 11;
+		if (p_ptr->speclev == 2) nddoor = 7;
+
+        /* create extra walls to help door placement */
+		for (y = y1; y <= y2; y++)
+		{
+			cave_set_feat(y, x1+1, feat);
+			cave_set_feat(y, x2-1, feat);
+		}
+	
+		for (x = x1; x <= x2; x++)
+	 	{
+	 		cave_set_feat(y1+1, x, feat);
+	  		cave_set_feat(y2-1, x, feat);
+	  	}
+
+	  	
+		for (y = y1+1; y <= y2; y++)
+		{
+            if (!in_bounds_fully(y, x1)) continue;
+			if ((next_to_floor(y, x1)) && (!doorsa))
+				{ place_random_door(y, x1, FALSE); doorsa = TRUE; }
+            if (!in_bounds_fully(y, x2)) continue;
+			if ((next_to_floor(y, x2)) && (!doorsb))
+				{ place_random_door(y, x2, FALSE); doorsb = TRUE; }
+			if (doorsa || doorsb) anydoor = TRUE;
+			if (randint(100) < nddoor) { doorsa = FALSE; doorsb = FALSE; }
+		}
+		doorsa = FALSE;
+		doorsb = FALSE;
+
+		for (x = x1+1; x <= x2; x++)
+		{
+            if (!in_bounds_fully(y1, x)) continue;
+			if ((next_to_floor(y1, x)) && (!doorsa))
+				{ place_random_door(y1, x, FALSE); doorsa = TRUE; }
+            if (!in_bounds_fully(y2, x)) continue;
+			if ((next_to_floor(y2, x)) && (!doorsb))
+				{ place_random_door(y2, x, FALSE); doorsb = TRUE; }
+			if (doorsa || doorsb) anydoor = TRUE;
+			if (randint(100) < nddoor) { doorsa = FALSE; doorsb = FALSE; }
+		}
+		/* alert no door */
+		if (!anydoor) p_ptr->speclev = 3;
+		/* if we're making an overlapping room */
+		else if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+    }
 }
 
 
@@ -1385,7 +1437,7 @@ static void build_type1(int y0, int x0)
 	{
 		y1 = y0 - randint(5);
 		x1 = x0 - randint(8);
-		y2 = y0 + randint(4);
+		y2 = y0 + (1 + randint(3));
 		x2 = x0 + randint(9);
 	}
 
@@ -2433,6 +2485,7 @@ static void build_type5(int y0, int x0)
 
 	/* new: variable sized nests */
     int size = rand_int(100);
+    if ((p_ptr->speclev >= 1) && (p_ptr->speclev <= 2)) size = rand_int(87);
     if (size < 8)
 	{
 		/* very small room */
@@ -2931,7 +2984,8 @@ static void build_type5(int y0, int x0)
 	}
 
 	/* count crowded rooms (don't count very small nests) */
-	if (nsize >= 2) dun->crowded = TRUE;
+	if ((nsize >= 2) && (!((p_ptr->speclev >= 1) && (p_ptr->speclev <= 2))))
+		dun->crowded = TRUE;
 }
 
 
@@ -4350,6 +4404,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 {
 	int dx, dy, x, y;
 	int dr_idx, bigdr_idx;
+	bool bedoor = FALSE;
 
 	cptr t;
 	
@@ -4605,6 +4660,21 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool grea
 			/* Analyze the symbol */
 			switch (*t)
 			{
+				/* Granite wall (outer) */
+				case '%':
+				{
+					/* try to make an entrance if we're in a cavern */
+					if ((p_ptr->speclev >= 1) && (p_ptr->speclev <= 3))
+					{
+						if ((possible_doorway(y, x, FALSE)) &&
+							((!bedoor) || (randint(100) < 20)))
+						{
+							place_random_door(y, x, FALSE);
+							bedoor = TRUE;
+						}
+					}
+					break;
+				}
 				/* Monster */
 				case '&':
 				{
@@ -4826,8 +4896,9 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 	bool permwall = FALSE;
 	bool light = FALSE;
 	bool vicky = FALSE;
+	bool bedoor = FALSE;
 	cptr t;
-
+	
 	/* Occasional light */
 	if (p_ptr->depth < 14)
 	{
@@ -4842,7 +4913,8 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 	if (design == 10) design = 2;
 			
 	/* CAVE_ICKY only if made as designed (or empty greater vault) */
-	if ((design == 8) || (design == 1) || (design == 2)) vicky = TRUE;
+	if ((design == 8) || (design == 2)) vicky = TRUE;
+	if (design == 11) { vicky = TRUE; design = 1; }
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
@@ -5205,6 +5277,21 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 			/* Analyze the grid */
 			switch (*t)
 			{
+				/* Granite wall (outer) */
+				case '%':
+				{
+					/* try to make an entrance if we're in a cavern */
+					if ((p_ptr->speclev >= 1) && (p_ptr->speclev <= 3))
+					{
+						if ((possible_doorway(y, x, FALSE)) &&
+							((!bedoor) || (randint(100) < 20)))
+						{
+							place_random_door(y, x, FALSE);
+							bedoor = TRUE;
+						}
+					}
+					break;
+				}
 				/* Treasure, sometimes monster */
 				case 'h':
 				case '1':
@@ -5484,14 +5571,18 @@ static void build_type9(int y0, int x0, int great)
 	}
     /* type9 has a chance to be built (almost) exactly as designed because */
 	/* type9 rooms are not designed to be vaults */
-	else if ((v_ptr->typ == 9) && (rand_int(100) < 70))
+	else if ((v_ptr->typ == 9) && (rand_int(100) < 70) &&
+		((v_ptr->rat == 0) || (p_ptr->depth > 3)))
 	{
 		mtv = 1;
 	}
 	/* version of lesser vault deisgn, mostly emptied, but more like original design */
-	else if ((v_ptr->typ == 7) && (v_ptr->useMT == 2) && (rand_int(100) < 15))
+	else if (v_ptr->typ == 7)
 	{
-		mtv = 2;
+		int mtvc = 6;
+		if (v_ptr->useMT == 2) mtvc = 20;
+		if ((rand_int(100) < mtvc) && (p_ptr->depth > v_ptr->rat-1)) mtv = 2;
+		else mtv = v_ptr->typ;
 	}
 	else mtv = v_ptr->typ;
 
@@ -5507,6 +5598,9 @@ static void build_type9(int y0, int x0, int great)
 	else if (mtv == 7) rating += v_ptr->rat/8;
 	/* room design (rat is usually 0) */
 	else /* mtv == 9 */ rating += v_ptr->rat/2;
+	
+	/* type9 design with a rating made as designed- mark as cave_icky */
+	if ((mtv == 1) && (v_ptr->rat > 1)) mtv = 11;
 
 	/* Hack -- Build the empty vault */
 	/* (Has chance to retain some aspects of original design, but not nearly */
@@ -5944,7 +6038,10 @@ static bool room_build(int by0, int bx0, int typ)
 	if (p_ptr->depth < room[typ].level) return (FALSE);
 
 	/* Restrict "crowded" rooms */
-	if (dun->crowded && ((typ == 5) || (typ == 6))) return (FALSE);
+	if (!((p_ptr->speclev >= 1) && (p_ptr->speclev <= 3)))
+	{
+ 	   if (dun->crowded && ((typ == 5) || (typ == 6))) return (FALSE);
+    }
 
 	/* Extract blocks */
 	by1 = by0 + room[typ].dy1;
@@ -5952,16 +6049,25 @@ static bool room_build(int by0, int bx0, int typ)
 	by2 = by0 + room[typ].dy2;
 	bx2 = bx0 + room[typ].dx2;
 
-	/* Never run off the screen */
-	if ((by1 < 0) || (by2 >= dun->row_rooms)) return (FALSE);
-	if ((bx1 < 0) || (bx2 >= dun->col_rooms)) return (FALSE);
-
-	/* Verify open space */
-	for (by = by1; by <= by2; by++)
+	if ((p_ptr->speclev >= 1) && (p_ptr->speclev <= 3))
 	{
-		for (bx = bx1; bx <= bx2; bx++)
+		/* Never run off the screen */
+		if ((by1 < 0) || (by2 >= DUNGEON_HGT-12)) return (FALSE);
+		if ((bx1 < 0) || (bx2 >= DUNGEON_WID-12)) return (FALSE);
+	}
+	else
+	{
+		/* Never run off the screen */
+		if ((by1 < 0) || (by2 >= dun->row_rooms)) return (FALSE);
+		if ((bx1 < 0) || (bx2 >= dun->col_rooms)) return (FALSE);
+
+		/* Verify open space */
+		for (by = by1; by <= by2; by++)
 		{
-			if (dun->room_map[by][bx]) return (FALSE);
+			for (bx = bx1; bx <= bx2; bx++)
+			{
+				if (dun->room_map[by][bx]) return (FALSE);
+			}
 		}
 	}
 
@@ -5998,26 +6104,32 @@ static bool room_build(int by0, int bx0, int typ)
 		default: return (FALSE);
 	}
 
-	/* Save the room location */
-	if (dun->cent_n < CENT_MAX)
+	/* creating a room in a cavern failed */
+	if (p_ptr->speclev == 3) return (FALSE);
+	
+	if (!((p_ptr->speclev >= 1) && (p_ptr->speclev <= 2)))
 	{
-		dun->cent[dun->cent_n].y = y;
-		dun->cent[dun->cent_n].x = x;
-		dun->cent_n++;
-	}
-
-	/* Reserve some blocks */
-	for (by = by1; by <= by2; by++)
-	{
-		for (bx = bx1; bx <= bx2; bx++)
+		/* Save the room location */
+		if (dun->cent_n < CENT_MAX)
 		{
-			dun->room_map[by][bx] = TRUE;
+			dun->cent[dun->cent_n].y = y;
+			dun->cent[dun->cent_n].x = x;
+			dun->cent_n++;
 		}
-	}
 
-	/* Count "crowded" rooms (pits) */
-	/* (nests are done in the build_type5 function and are not counted if it is a very small nest) */
-	if (typ == 6) dun->crowded = TRUE;
+		/* Reserve some blocks */
+		for (by = by1; by <= by2; by++)
+		{
+			for (bx = bx1; bx <= bx2; bx++)
+			{
+				dun->room_map[by][bx] = TRUE;
+			}
+		}
+
+		/* Count "crowded" rooms (pits) */
+		/* (nests are done in the build_type5 function and are not counted if it is a very small nest) */
+		if (typ == 6) dun->crowded = TRUE;
+	}
 
 	/* Success */
 	return (TRUE);
@@ -6034,6 +6146,8 @@ static void alloc_terrain(int k, int cavernmod)
 {
 	int puddles, pits, statue;
 	int amt = k;
+	int treec = 11;
+	if (cavernmod) treec += 3;
 
 	/* Place some traps in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k + 1));
@@ -6065,7 +6179,7 @@ static void alloc_terrain(int k, int cavernmod)
 			if (cheat_room) msg_print("(random pits placed)");
 		}
 		/* Sometimes allow random trees (rarer) */
-		if ((amt > 6) && (randint(100) < 11 - (p_ptr->depth/9)))
+		if ((amt > 6) && (randint(100) < treec - (p_ptr->depth/9)))
 		{
 			/* Put some trees in the dungeon */
 			int trees = 2 + randint(3);
@@ -6073,7 +6187,7 @@ static void alloc_terrain(int k, int cavernmod)
 			if (cavernmod) alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TREES, trees);
 			else alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_TREES, trees);
 			/* (replaces some rubble) */
-			amt -= (trees-1);
+			if (!((cavernmod == 3) || (cavernmod == 2))) amt -= (trees-1);
 			if (cheat_room) msg_print("(random trees placed)");
 		}
 	}
@@ -6307,7 +6421,7 @@ void mutate_cavern(int dhei, int dwid, int mutmod, int density)
 				temp[y][x] = cave_feat[y][x];
 
 			/* try to prevent mutmod 4 from being too wide open */
-			if (((mutmod == 4) && (density > 32) && (rand_int(100) < 1)) &&
+			if (((mutmod == 4) && (density > 32) && (rand_int(102) < 2)) &&
 				((modea < 112) && (modeb > 8)) || (modea < 105 || modeb > 13))
 			{
 				if ((modea < 110) || (modeb > 11) || ((modea < 105) && (modeb > 13)))
@@ -6363,7 +6477,13 @@ int ignore_point(int dhei, int dwid, int colors[], int y, int x)
 	int n = lab_toi(y, x, dwid);
 
 	if (y < 0 || x < 0 || y >= dhei || x >= dwid) return TRUE;
-	if ((cave_feat[y][x] != FEAT_FLOOR) || colors[n]) return TRUE;
+	if (colors[n]) return TRUE;
+	if (cave_info[y][x] & (CAVE_ICKY)) return TRUE;
+	if (((cave_feat[y][x] >= FEAT_DOOR_CLOSE) && (cave_feat[y][x] <= FEAT_DOOR_STUCK)) ||
+		(cave_feat[y][x] == FEAT_OPEN) || (cave_feat[y][x] == FEAT_BROKEN) ||
+		(cave_feat[y][x] == FEAT_SECRET) || (cave_feat[y][x] == FEAT_WATER) ||
+        (cave_feat[y][x] == FEAT_RUBBLE)) return FALSE;
+	if (cave_feat[y][x] != FEAT_FLOOR) return TRUE;
 	return FALSE;
 }
 
@@ -6371,11 +6491,11 @@ int ignore_point(int dhei, int dwid, int colors[], int y, int x)
 static int xds[] = {0, 0, 1, -1};
 static int yds[] = {1, -1, 0, 0};
 
-void glow_point(int y, int x) 
+void glow_point(int y, int x) /* was i = -1; i <= -1 (for i and j) */
 {
 	int i, j;
-	for (i = -1; i <= -1; i++)
-		for (j = -1; j <= -1; j++)
+	for (i = -2; i <= 3; i++)
+		for (j = -2; j <= 3; j++)
 			cave_info[y + i][x + j] |= (CAVE_GLOW);
 }
 
@@ -6432,13 +6552,14 @@ void build_colors(int dhei, int dwid, int colors[], int counts[])
 {
 	int y, x;
 	int color = 1;
+	bool lit = FALSE;
 
 	for (y = 0; y < dhei; y++) 
 	{
 		for (x = 0; x < dwid; x++) 
 		{
 			if (ignore_point(dhei, dwid, colors, y, x)) continue;
-			build_color_point(dhei, dwid, colors, counts, y, x, color, TRUE);
+			build_color_point(dhei, dwid, colors, counts, y, x, color, lit);
 			color++;
 		}
 	}
@@ -6471,7 +6592,9 @@ void clear_small_regions(int dhei, int dwid, int colors[], int counts[])
 			int x, y;
 			lab_toyx(i, dwid, &y, &x);
 			colors[i] = 0;
-			cave_set_feat(y, x, FEAT_WALL_SOLID);
+			/* don't modify if it's in a room */
+			if (!(cave_info[y][x] & (CAVE_ROOM)))
+				cave_set_feat(y, x, FEAT_WALL_EXTRA);
 		}
 	}
 }
@@ -6543,7 +6666,9 @@ void join_region(int dhei, int dwid, int colors[], int counts[], int color)
 				int x, y;
 				lab_toyx(n, dwid, &y, &x);
 				colors[n] = color;
-				cave_set_feat(y, x, FEAT_FLOOR);
+				/* don't modify if it's in a room */
+				if (!(cave_info[y][x] & (CAVE_ROOM)))
+					cave_set_feat(y, x, FEAT_FLOOR);
 				n = previous[n];
 			}
 			fix_colors(colors, counts, color2, color, size);
@@ -6604,13 +6729,13 @@ bool cavern_gen(void)
 {
 	int i, k, y, x, smag, sqtz;
  	int fmod, mutmod = 1, mutdie = rand_int(100);
-	bool river = FALSE;
+	bool river = FALSE, litcave = FALSE;
 
 	int dhei = randint(DUNGEON_HGT / 3 + 1) + (DUNGEON_HGT*2) / 3 - 2;
 	int dwid = randint(DUNGEON_WID / 2) + DUNGEON_WID / 2 - 1;
 	int size = dhei * dwid;
 
-	/* the bigger the density number, the more open space (backwords) (26-41) */
+	/* the bigger the density number, the more open space (backwords) */
 	int density = 26 + randint(12); /* was 24 + randint(16) (19) (27-38) */
 	int times = 2 + randint(4); /* times to mutate the cavern */
 
@@ -6622,12 +6747,16 @@ bool cavern_gen(void)
 	/* If we're too shallow then don't do it */
 	if (p_ptr->depth < 8) return FALSE;
 
+	/* chance for shallow caverns to be lit */
+	if (rand_int(100) < 65-((p_ptr->depth - 7)*3)) litcave = TRUE;
+
 	/* modes of mutating caverns (added for DAJ) mutmod default is 1 (62 chance) */
 	/* mutmods: 5 is most dense, then 1, then 2, and 3 is least dense (4 is really random) */
 	if (mutdie < 5) mutmod = 5; /* 5 */
 	else if (mutdie < 17) mutmod = 4; /* 14 */
 	else if (mutdie < 32) mutmod = 2; /* 15 */
 	else if (mutdie < 38) mutmod = 3; /* 6 */
+	if (mutmod == 4) density = 26 + randint(10);
 
 	/* dwarf mine and earth cave shouldn't be wide open */
 	if (((p_ptr->theme == 5) || (p_ptr->theme == 10)) && 
@@ -6649,8 +6778,8 @@ bool cavern_gen(void)
 
 	/* check density */
 	if ((mutmod == 5) && (density > 35)) density = 25 + randint(11); /* 25-36 */
-	if ((mutmod == 2) && (density < 29)) density = 27 + randint(13); /* 28-40 */
-	if ((mutmod == 3) && (density < 31)) density = 29 + randint(12); /* 30-41 */
+	if ((mutmod == 2) && (density < 28)) density = 27 + randint(12); /* 28-39 */
+	if ((mutmod == 3) && (density < 30)) density = 28 + randint(12); /* 29-40 */
 
 	array_filler(colors, 0, size);
 	array_filler(counts, 0, size);
@@ -6668,36 +6797,102 @@ bool cavern_gen(void)
 	/* If we couldn't make a big enough cavern then fail */
 	if (tries == 10) return FALSE;
 
+	/* mark that the current level is a cavern */
+	p_ptr->speclev = 1;
+	/* 2 here means wide open cavern */
+	if ((mutmod == 3) || ((mutmod == 2) && (density > 34))) 
+		p_ptr->speclev = 2;
+
+	if (rand_int(100) < 36)
+	{
+		int by, bx, usedepth, roomno = 1, whilst = 0, ndroom = 9;
+		if ((mutmod == 5) || (mutmod == 3)) ndroom += 2;
+		if (mutmod == 4) ndroom = 5 + randint(4);
+		
+		usedepth = p_ptr->depth; /* only used for rolling against roomodd */
+        /* occationally use deeper fake room depth for more randomness */
+        if ((p_ptr->depth > 4) && (p_ptr->depth < 99) && (rand_int(100) < 5))
+        {
+            if (p_ptr->depth < 45) usedepth = 50;
+            else usedepth += 2 + rand_int(9);
+        }
+		if ((usedepth > 15) && (randint(100) < 40)) usedepth = (usedepth + 20 + randint(79))/2;
+		if (usedepth > 105) usedepth = 105;
+		/* small chance for up to three rooms */
+		if (rand_int(100) < ndroom) roomno += 1;
+		if ((roomno > 1) && (rand_int(100) < ndroom)) roomno += 1;
+
+		while (whilst < roomno)
+		{
+            if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+			by = rand_int(dhei / BLOCK_HGT);
+			bx = rand_int(dwid / BLOCK_WID);
+			/* Attempt an unusual room */
+			if (rand_int(125) < usedepth)
+			{
+				int nestodd, echan, mchan = 26 + p_ptr->depth/8;
+				if (mchan > 35) mchan = 35;
+				nestodd = mchan + 6 + p_ptr->depth/8;
+				if (nestodd > mchan + 13) nestodd = mchan + 13;
+				echan = nestodd + 42;
+				k = rand_int(100);
+
+				/* Attempt a very unusual room */
+				if (rand_int(165) < usedepth)
+				{
+					/* Type 8 -- Lesser vault (25%) */
+					if ((k < 25) && room_build(by, bx, 7))
+						{ whilst += 1; continue; }
+
+					/* Type 7 -- Medium vault (~7%) */
+					if ((k < mchan) && room_build(by, bx, 10))
+						{ whilst += 1; continue; }
+
+					/* Type 5 -- Monster nest (~9-10%) */
+					if ((k < nestodd) && room_build(by, bx, 5))
+						{ whilst += 1; continue; }
+					if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+
+					/* type 9 -- empty vault (30%) */
+					if ((k < echan) && room_build(by, bx, 9))
+						{ whilst += 1; continue; }
+					if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+				}
+
+				/* Type 4 -- Large room (10%) */
+				if ((k < 10) && room_build(by, bx, 4))
+					{ whilst += 1; continue; }
+				if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+
+				/* Type 3 -- Cross room (6%) */
+				if ((k < 16) && room_build(by, bx, 3))
+					{ whilst += 1; continue; }
+				if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+
+				/* Type 2 -- Overlapping (39%) */
+				if ((k < 35) && room_build(by, bx, 2))
+					{ whilst += 1; continue; }
+				if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+
+				/* type 9 -- empty vault (38%) */
+				if ((k < 93) && room_build(by, bx, 9))
+					{ whilst += 1; continue; }
+				if (p_ptr->speclev == 3) p_ptr->speclev = 1;
+			}
+
+			/* Attempt a trivial room */
+			if (room_build(by, bx, 1))
+				{ whilst += 1; continue; }
+		}
+	}
+
 	build_colors(dhei, dwid, colors, counts);
 	clear_small_regions(dhei, dwid, colors, counts);
 	join_regions(dhei, dwid, colors, counts);
 
 #if togglestreamers
 #else
-#ifdef allow_rivers
-	/* try using build_streamer to create an underground river */
-	if (((p_ptr->theme == 1) || (p_ptr->theme == 2) || (p_ptr->theme == 9)) &&
-		(randint(100) < 22))
-	{
-		/* (was supposed to help build cavern rivers better) */
-		for (y = 1; y < dhei - 1; y++) 
-		{
-			for (x = 1; x < dwid - 1; x++) 
-			{
-				int count = next_to_walls(y, x, 1);
-				/* more than 2 open spaces (just changes wall feature to wall feature) */
-				if ((count < 7) && (cave_feat[y][x] == FEAT_WALL_EXTRA))
-					cave_set_feat(y, x, FEAT_WALL_SOLID);
-			}
-		}
-		/* see how this works to make an underground river */
-		build_streamer(FEAT_WATER, 0, dhei, dwid);
-		river = TRUE;
-	}
-	else if ((mutmod == 5) || (mutmod == 1) || /* the two most dense modes */
-#else
 	if ((mutmod == 5) || (mutmod == 1) || /* the two most dense modes */
-#endif /* allow_rivers */
 		(p_ptr->theme == 10) ||			  /* dwarf mines */
 		((mutmod == 4) && (randint(100) < 16))) /* and sometimes the random mode */
 	{
@@ -6735,7 +6930,7 @@ bool cavern_gen(void)
 	if (k > 10) k = 9 + rand_int(3); /* cap */
 	/* k = MAX(MIN(p_ptr->depth / 3, 10), 2);  original from V code */
 
-	/* Scale number of monsters items by cavern size */
+	/* Scale number of monsters & items by cavern size */
 	k = (2 * k * (dhei *  dwid)) / (DUNGEON_HGT * DUNGEON_WID);
 
 	/* if it's a wide open dungeon place trees as if it's mutmod 3 (least dense mod) */
@@ -6743,12 +6938,9 @@ bool cavern_gen(void)
 	else if (density > 36) fmod = 3;
 	else if ((density > 33) && (!(mutmod == 3))) fmod = 2;
 	else fmod = mutmod;
-	/* hack to let place_puddle know that we're in a cavern */
-	/* (don't want to add an argument to alloc_object() ) */
-	spellswitch = 15;
+
 	/* place traps, rubble, and maybe trees, statues, puddles, & pits */
 	alloc_terrain(k, fmod);
-	spellswitch = 0; /* reset */
 
 	/* Determine the character location */
 	new_player_spot();
@@ -6764,28 +6956,22 @@ bool cavern_gen(void)
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, 3 + randint(7));
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, 3 + randint(5));
 
-	/* mark that the current level is a cavern */
-	p_ptr->speclev = 1;
-	if (cheat_room) msg_format("cavern level (mutmod %d, density %d)", mutmod, density);
-
-#ifdef allow_rivers
-	if (river)
+	/* chance for shallow caverns to be lit (max dL28) */
+	if (litcave) 
 	{
-		/* even rivers out a little */
-		for (y = 1; y < dhei - 1; y++) 
+		for (y = 0; y < dhei; y++) 
 		{
-			for (x = 1; x < dwid - 1; x++) 
+			for (x = 0; x < dwid; x++) 
 			{
-				int count = next_to_walls(y, x, 2); /* mode 2 counts water spaces */
-			/* next to more than 3 water spaces and not in a vault, make it a water space as well */
-				if ((count > 3) && (cave_feat[y][x] == FEAT_FLOOR) &&
-					(!(cave_info[y][x] & (CAVE_ICKY))))
-						cave_set_feat(y, x, FEAT_WATER);
+				cave_info[y][x] |= (CAVE_GLOW);
 			}
 		}
 	}
-#endif
 
+	if (cheat_room) msg_format("cavern level (mutmod %d, density %d)", mutmod, density);
+	/* mark that the level is a cavern (again- reset to 1) */
+	p_ptr->speclev = 1;
+	
 	return TRUE;
 }
 #endif
@@ -6807,7 +6993,6 @@ static void cave_gen(void)
 
 	/* Global data */
 	dun = &dun_body;
-
 
 	/* Hack -- Start with basic granite */
 	for (y = 0; y < DUNGEON_HGT; y++)
@@ -6989,7 +7174,8 @@ static void cave_gen(void)
 			else if (usedepth >= 55) gvchance = p_ptr->depth + 10;
 			else if (p_ptr->depth >= 10) gvchance = p_ptr->depth - 5;
 
-			if (p_ptr->seek_vault) gvchance += (p_ptr->find_vault * 2) / 3;
+			if (p_ptr->seek_vault) 
+				gvchance += (p_ptr->find_vault * 2) / 3;
 
 			/* roll to attempt a greater vault */
 			if ((rand_int(1000) < gvchance) && room_build(by, bx, 8)) continue;
@@ -7032,8 +7218,8 @@ static void cave_gen(void)
 				else pitodd = 39;
 				
 				/* find vault shouldn't find pits and nests as often */
-			    if ((p_ptr->seek_vault) && (k < 48) && (k > 25) && (randint(100) < 55))
-                   k = rand_int(20) + goodluck/4;
+				if ((p_ptr->seek_vault) && (k < 48) && (k > 25) && 
+					(randint(100) < 55)) k = rand_int(20) + goodluck/4;
 
 				/* Type 8 -- Lesser vault (15%) */
 				if ((k < 15) && room_build(by, bx, 7)) continue;
@@ -7296,15 +7482,6 @@ static void cave_gen(void)
 	/* Put some objects/gold in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
-
-    /* reset vault seeking */
-	if (p_ptr->seek_vault)
-    {
-       p_ptr->seek_vault = FALSE;
-       p_ptr->find_vault = 0;
-    }
-    else if (p_ptr->find_vault >= 5) p_ptr->find_vault -= 5;
-
 }
 
 
@@ -7586,9 +7763,6 @@ void generate_cave(void)
 	s16b danger_lev;
 	bool feelagain = FALSE;
 
-	/* reset special level holder */
-	p_ptr->speclev = 0;
-
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
@@ -7670,7 +7844,8 @@ void generate_cave(void)
 			if (rand_int(100) < themechance) do_theme = TRUE;
 
 			/* chose type: 15 types of themed levels */
-			if (do_theme)
+			if ((do_theme) || (p_ptr->speclev == 20) || 
+				(p_ptr->speclev == 40) || (p_ptr->speclev == 60))
 			{
 				int dieth = rand_int(91 + ((p_ptr->depth*3)/4) + ((badluck+1)/2));
 				/* occationally randomize more */
@@ -7726,12 +7901,26 @@ void generate_cave(void)
 					else p_ptr->theme = 5; /* EARTHY_CAVE */
 				}
 			}
-			else p_ptr->theme = 0;
+			else p_ptr->theme = 0;			
+
+			/* speclev 60+ = themed level with vault(s) */
+			if (p_ptr->speclev >= 60)
+			{
+				if (p_ptr->speclev > 60) p_ptr->theme = p_ptr->speclev - 60;
+				p_ptr->speclev = 1;
+			}
+			/* speclev 40+ = themed cavern */
+			else if (p_ptr->speclev >= 40)
+			{
+				if (p_ptr->speclev > 40) p_ptr->theme = p_ptr->speclev - 40;
+				p_ptr->speclev = 2;
+			}
+			/* speclev 20+ = chosen theme */
+			else if (p_ptr->speclev > 20) p_ptr->theme = p_ptr->speclev - 20;
+			/* persistant themed level: dL105 is always hell */
+			else if (p_ptr->depth == 105) p_ptr->theme = 14;
 		}
 		else p_ptr->theme = 0;
-
-		/* consistant themed level: dl 105 is always hell */
-		if ((themed_levels) && (p_ptr->depth == 105)) p_ptr->theme = 14;
 
 #ifdef allow_rivers_testing
 		/* for testing rivers (always a forest or swamp) */
@@ -7751,11 +7940,23 @@ void generate_cave(void)
 		/* castle, hell hall, full moon less likely */
 		if ((p_ptr->theme == 8) || (p_ptr->theme == 14) || (p_ptr->theme == 7)) cavernodd = 5;
 
+		/* wizmode force cavern command */
+		if (p_ptr->speclev == 2) cavernodd = 100;
+		/* wizmode seek vault command */
+		if (p_ptr->speclev == 1)
+		{
+			p_ptr->seek_vault = TRUE;
+			p_ptr->find_vault = 55;
+		}
+
+		/* reset special level holder */
+		p_ptr->speclev = 0;
+
 		/* Build the town */
 		if (!p_ptr->depth) town_gen();
 		/* 9 chance, (90 only while testing) */
 		else if ((p_ptr->depth > 8) && (rand_int(100) < cavernodd) && 
-			(!p_ptr->seek_vault) && (!is_quest(p_ptr->depth)))
+			(!(p_ptr->seek_vault)) && (!is_quest(p_ptr->depth)))
 		{
 			/* in case of failure */
 			if (!cavern_gen()) cave_gen(); 
@@ -7906,9 +8107,16 @@ void generate_cave(void)
 		wipe_mon_list();
 	}
 
-
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
+
+    /* reset vault seeking */
+	if (p_ptr->seek_vault)
+    {
+       p_ptr->seek_vault = FALSE;
+       p_ptr->find_vault = 0;
+    }
+    else if (p_ptr->find_vault >= 5) p_ptr->find_vault -= 5;
 
 	/* Remember when this level was "created" */
 	old_turn = turn;

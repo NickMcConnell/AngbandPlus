@@ -2155,19 +2155,6 @@ static errr rd_savefile_new_aux(void)
 			return (-1);
 		}
 
-		/* Check if we're in a cavern */
-		/* will just save in the savefile next time I break savefiles */
-		p_ptr->speclev = 1; /* 1 means a cavern level */
-		for (dy = 0; dy < DUNGEON_HGT; dy++)
-		{
-			for (dx = 0; dx < DUNGEON_WID; dx++)
-			{
-				/* if there's any rooms, then it's not a cavern */
-				if (cave_info[dy][dx] & (CAVE_ROOM)) p_ptr->speclev = 0;
-			}
-		}
-	
-
 		/* Read the ghost info */
 		rd_ghost();
 	}

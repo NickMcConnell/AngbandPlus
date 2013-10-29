@@ -2004,7 +2004,7 @@ void do_cmd_change_name(void)
 	while (1)
 	{
 		/* Display the player */
-		display_player(mode);
+		display_player(mode, FALSE);
 
 		/* Prompt */
 		Term_putstr(2, 23, -1, TERM_WHITE, p);

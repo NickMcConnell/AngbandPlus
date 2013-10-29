@@ -622,7 +622,8 @@ bool enhance_wand(int power)
 	/* minimum resistance */
 	if ((lev < 20) && ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)))
 		lev += (23 - lev) / 3;
-	if ((lev < 25) && (o_ptr->tval != TV_WAND)) lev += (26 - lev) / 2;
+	if ((lev < 25) && (!((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)))) 
+        lev += (26 - lev) / 2;
 
 	/* amount of enhancement */
 	gain = power - lev;

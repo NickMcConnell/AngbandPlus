@@ -1197,7 +1197,7 @@ static void display_statusline(void)
 static void fix_player_0(void)
 {
 	/* Display player */
-	display_player(0);
+	display_player(0, FALSE);
 }
 
 
@@ -1207,7 +1207,7 @@ static void fix_player_0(void)
 static void fix_player_1(void)
 {
 	/* Display flags */
-	display_player(1);
+	display_player(1, FALSE);
 }
 
 
@@ -2273,8 +2273,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/*** Analyze equipment ***/
 
-	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	/* Scan the equipment (now excludes quiver) */
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -2283,9 +2283,11 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3, &f4);
-		
+
+#if old	/* quiver is always excluded now */
 		/* include quiver only if the item has the THROWN flag */
         if ((!(f3 & (TR3_THROWN))) && (IS_QUIVER_SLOT(i))) continue;
+#endif
 
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skills[SKILL_STL] += o_ptr->pval;
@@ -2329,18 +2331,27 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* weapon in shield shot should not add blows */
 		if ((i == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) /* */;
 		/* dancing (thrown) weapons don't add blows to melee */
-		else if (IS_QUIVER_SLOT(i)) /* */;
+		/* else if (IS_QUIVER_SLOT(i)) ;/* no longer nesesary */
 		/* Affect blows */
 		else if (f1 & (TR1_BLOWS)) p_ptr->extra_blows += o_ptr->pval;
 
 		/* Affect speed */
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
 
-		/* Affect shots */
-		if (f1 & (TR1_SHOTS)) extra_shots += o_ptr->pval;
+		/* Affect shots (on bows only) */
+		if ((f1 & (TR1_SHOTS)) && (i == INVEN_BOW)) extra_shots += o_ptr->pval;
 
-		/* Affect Might */
-		if (f1 & (TR1_MIGHT)) extra_might += o_ptr->pval;
+		/* Affect Might (on bows only) */
+		if ((f1 & (TR1_MIGHT)) && (i == INVEN_BOW)) extra_might += o_ptr->pval;
+		/* could use the same flag to do different things depending on */
+		/* which slot it's in, which means MIGHT could be used for both */
+		/* missile weapons and throwing might. think about it. */
+
+	    /* NOTE: THROWMULT will be positive even if the pval is negative */
+		if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2) && (p_ptr->throwmult < 2)) 
+			p_ptr->throwmult += 2;
+		else if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2)) p_ptr->throwmult += 1;
+        else if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += o_ptr->pval;
 
 		/* Good flags */
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
@@ -2353,12 +2364,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	    if (f4 & (TR4_NICE)) p_ptr->nice = TRUE;
 	    if (f3 & (TR3_BR_SHIELD)) p_ptr->breath_shield = TRUE;
 	    if (f3 & (TR3_TCONTROL)) p_ptr->telecontrol = TRUE;
-
-	    /* NOTE: THROWMULT will be positive even if the pval is negative */
-		if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2) && (p_ptr->throwmult < 2)) 
-			p_ptr->throwmult += 2;
-		else if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2)) p_ptr->throwmult += 1;
-        else if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += o_ptr->pval;
 
 		/* wearing something in the shield slot */
 		if (i == INVEN_ARM) yshield = TRUE;
@@ -2402,9 +2407,10 @@ void calc_bonuses(object_type inventory[], bool killmess)
               o_ptr->ident |= (IDENT_CURSED);
               
               if (o_ptr->pseudo == INSCRIP_UNCURSED) o_ptr->pseudo = INSCRIP_NULL;
-              if (randint(100) == 6) p_ptr->luck -= 1;
+              /* if (randint(100) == 6) p_ptr->luck -= 1; */
            }
         }
+        
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
 		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
@@ -2464,9 +2470,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Check for gauntlets of throwing */
 		/* (because they give to_dam bonus to thrown weapons instead of melee) */
 		if ((i == INVEN_HANDS) && (f3 & (TR3_THROWMULT)))
-		{
 			throwgloves = TRUE;
-		}
 
 		/* Apply the bonuses to hit/damage */
 		p_ptr->to_h += o_ptr->to_h;
@@ -3086,8 +3090,11 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	   p_ptr->skills[SKILL_SAV] += 4;
        p_ptr->dis_to_h -= 2;
        p_ptr->to_h -= 2;
-       if ((p_ptr->skills[SKILL_STL] < 1) && (goodluck > 6)) p_ptr->skills[SKILL_STL] = 1;
-       else if (p_ptr->skills[SKILL_STL] < 0) p_ptr->skills[SKILL_STL] = 0;
+       /* fixed so that it may nullify aggravation correctly */
+       /* (I don't think it worked previously) */
+       if ((aggra) && (goodluck > 6)) aggra = 0;
+       else if (aggra > 1) aggra -= 1;
+       else if (p_ptr->skills[SKILL_STL] < 1) p_ptr->skills[SKILL_STL] += 1;
     }
 
 	/*** Special flags ***/
@@ -3599,7 +3606,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
 
-    if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (!(p_ptr->prace == 17)))
+    if (!((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)))
     {
 	   /* It is hard to hold a heavy weapon */
 	   if (hold < o_ptr->weight / 10)
