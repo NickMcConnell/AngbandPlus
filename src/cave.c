@@ -817,7 +817,15 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 		/* Get the "player" attr */
 		//a = r_ptr->x_attr;
 		/* Changed to look up what monster the player's supposed to look like -Simon */
-		a = r_info[rp_ptr->p_monster_index].x_attr;
+		/* Multi-hued monster */
+		if (rf_has(r_info[rp_ptr->p_monster_index].flags, RF_ATTR_MULTI) || rf_has(r_info[rp_ptr->p_monster_index].flags, RF_ATTR_FLICKER))
+		{
+			/* Multi-hued attr */
+			a = p_ptr->state.attr ? p_ptr->state.attr : 1;
+		}
+		else
+			a = r_info[rp_ptr->p_monster_index].x_attr;
+	
 		if ((OPT(hp_changes_color)) && (arg_graphics == GRAPHICS_NONE))
 		{
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
@@ -863,7 +871,7 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 
 		/* Get the "player" char */
 		//c = r_ptr->x_char;
-		/* As above, changed for reposband */
+		/* As above, changed for reposband -Simon */
 		c = r_info[rp_ptr->p_monster_index].x_char;
 	}
 

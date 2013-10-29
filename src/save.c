@@ -133,8 +133,8 @@ void wr_options(void)
 {
 	int i, k;
 
-	u32b flag[8];
-	u32b mask[8];
+	//u32b flag[8];
+	//u32b mask[8];
 	u32b window_flag[REPOSBAND_TERM_MAX];
 	u32b window_mask[REPOSBAND_TERM_MAX];
 

@@ -1339,8 +1339,8 @@ int rd_stores(void)
 				i_ptr->ident |= IDENT_STORE;
 			
 			/* Accept any valid items */
-			if ((st_ptr->stock_num < STORE_INVEN_MAX) &&
-				(i_ptr->k_idx))
+			if //((st_ptr->stock_num < STORE_INVEN_MAX) &&
+				(i_ptr->k_idx)
 			{
 				int k = st_ptr->stock_num++;
 

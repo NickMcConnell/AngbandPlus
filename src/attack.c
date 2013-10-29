@@ -402,6 +402,9 @@ bool py_attack_real(int y, int x)
 				/* Add to-dam bonus only if did some damage */
 				if (k) k += p_ptr->state.to_d;
 				if (k < 0) k = 0;
+				
+				/* Learn by use for other equipped items */
+				wieldeds_notice_on_attack();
 					
 				/* If there is an extra effect, project it also, using 4*level as power */
 				if (type2)
@@ -420,19 +423,18 @@ bool py_attack_real(int y, int x)
 				/* Confusion attack */
 				if (p_ptr->confusing)
 				{
+					/* Message */
+					msg_print("Your limbs stop glowing.");
+				
 					/* Cancel glowing hands */
 					p_ptr->confusing = FALSE;
 
-					/* Message */
-					/* XXX Most monsters don't have hands! */
-					msg_print("Your limbs stop glowing.");
-
 					/* Confuse the monster */
-					if (r_ptr->flags[RF_NO_CONF])
+					if (rf_has(r_ptr->flags, RF_NO_CONF))
 					{
 						if (m_ptr->ml)
 						{
-							l_ptr->flags[RF_NO_CONF] = TRUE;
+							rf_on(l_ptr->flags, RF_NO_CONF);
 						}
 						msg_format("%^s is unaffected.", m_name);
 					}

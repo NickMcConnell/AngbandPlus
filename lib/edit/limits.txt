@@ -31,13 +31,13 @@ M:R:618
 M:V:71
 
 # Maximum number of player races
-M:P:44
+M:P:99
 
 # Maximum number of player classes
 M:C:7
 
 # Maximum number of player history lines
-M:H:165
+M:H:1650
 
 # Maximum number of owners per store
 M:B:4

@@ -2187,10 +2187,8 @@ bool make_attack_normal_mon(monster_type *m_ptr, monster_type *t_ptr)
 					t_ptr->hp -= dam;
 
 					/* Set sleep */
-					if (!(((tr_ptr->flags[RF_UNIQUE]) && (one_in_(2))) ||
-		                            (tr_ptr->flags[RF_NO_SLEEP]) ||
-                                            ((tr_ptr->level + randint0(MAX(4, tr_ptr->level / 2))) >
-                                            (randint0(dam)))))
+					if (!(((tr_ptr->flags[RF_UNIQUE]) && (one_in_(2))) || (tr_ptr->flags[RF_NO_SLEEP]) || 
+					((tr_ptr->level + randint0(MAX(4, tr_ptr->level / 2))) > (randint0(dam)))))
 					{
 						t_ptr->csleep = 500;
 					}

@@ -174,21 +174,21 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "rElec",	OF_RES_ELEC,    OF_IM_ELEC, OF_VULN_ELEC },
 	{ "rFire",	OF_RES_FIRE,    OF_IM_FIRE, OF_VULN_FIRE },
 	{ "rCold",	OF_RES_COLD,    OF_IM_COLD, OF_VULN_COLD },
-	{ "rPois",	OF_RES_POIS,    FLAG_END,   FLAG_END },
-	{ "rFear",	OF_RES_FEAR,    FLAG_END,   FLAG_END },
+	{ "rPois",	OF_RES_POIS,    FLAG_END,	FLAG_END },
 	{ "rLite",	OF_RES_LIGHT,   FLAG_END,   FLAG_END },
 	{ "rDark",	OF_RES_DARK,    FLAG_END,   FLAG_END },
-	{ "rBlnd",	OF_RES_BLIND,   FLAG_END,   FLAG_END },
-
-	{ "rConf",	OF_RES_CONFU,   FLAG_END,   FLAG_END },
 	{ "Sound",	OF_RES_SOUND,   FLAG_END,   FLAG_END },
 	{ "Shard",	OF_RES_SHARD,   FLAG_END,   FLAG_END },
+
 	{ "Nexus",	OF_RES_NEXUS,   FLAG_END,   FLAG_END },
 	{ "Nethr",	OF_RES_NETHR,   FLAG_END,   FLAG_END },
 	{ "Chaos",	OF_RES_CHAOS,   FLAG_END,   FLAG_END },
 	{ "Disen",	OF_RES_DISEN,   FLAG_END,   FLAG_END },
 	{ "S.Dig",	OF_SLOW_DIGEST, FLAG_END,   FLAG_END },
 	{ "Feath",	OF_FEATHER,     FLAG_END,   FLAG_END },
+	{ "pFear",	OF_RES_FEAR,    FLAG_END,   FLAG_END },
+	{ "pBlnd",	OF_RES_BLIND,   FLAG_END,   FLAG_END },
+	{ "pConf",	OF_RES_CONFU,   FLAG_END,   FLAG_END },
 
 	{ "Light",	OF_LIGHT,       FLAG_END,   FLAG_END },
 	{ "Regen",	OF_REGEN,       FLAG_END,   FLAG_END },
@@ -196,37 +196,39 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "Invis",	OF_SEE_INVIS,   FLAG_END,   FLAG_END },
 	{ "FrAct",	OF_FREE_ACT,    FLAG_END,   FLAG_END },
 	{ "HLife",	OF_HOLD_LIFE,   FLAG_END,   FLAG_END },
-	{ "ImpHP",	OF_IMPAIR_HP,   FLAG_END,   FLAG_END },
-	{ "ImpSP",	OF_IMPAIR_MANA, FLAG_END,   FLAG_END },
-	{ " Fear",	OF_AFRAID,      FLAG_END,   FLAG_END },
-
-	{ "Aggrv",	OF_AGGRAVATE,   FLAG_END,   FLAG_END },
 	{ "Stea.",	OF_STEALTH,     FLAG_END,   FLAG_END },
 	{ "Sear.",	OF_SEARCH,      FLAG_END,   FLAG_END },
 	{ "Infra",	OF_INFRA,       FLAG_END,   FLAG_END },
+
 	{ "Tunn.",	OF_TUNNEL,      FLAG_END,   FLAG_END },
 	{ "Speed",	OF_SPEED,       FLAG_END,   FLAG_END },
 	{ "Blows",	OF_BLOWS,       FLAG_END,   FLAG_END },
 	{ "Shots",	OF_SHOTS,       FLAG_END,   FLAG_END },
 	{ "Might",	OF_MIGHT,       FLAG_END,   FLAG_END },
+	{ "ImpHP",	OF_IMPAIR_HP,   FLAG_END,   FLAG_END },
+	{ "ImpSP",	OF_IMPAIR_MANA, FLAG_END,   FLAG_END },
+	{ " Fear",	OF_AFRAID,      FLAG_END,   FLAG_END },
+	{ "Aggrv",	OF_AGGRAVATE,   FLAG_END,   FLAG_END },
 };
 
-#define RES_COLS (5 + 2 + INVEN_TOTAL - INVEN_WIELD)
-static const region resist_region[] =
+/*the "30" represents # of slots -Simon */
+#define RES_COLS (5 + 2 + 30)
+static region resist_region[] =
 {
 	{  0*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
 	{  1*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
-	{  2*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
-	{  3*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
+	//{  2*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
+	//{  3*(RES_COLS+1), 10, RES_COLS, RES_ROWS+2 },
 };
 
 static void display_resistance_panel(const struct player_flag_record *resists,
 									size_t size, const region *bounds) 
 {
-	size_t i, j;
+	size_t i;
+	int j;
 	int col = bounds->col;
 	int row = bounds->row;
-	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      @abcdefghijkl");
+	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      @abcdefghijklmnopqrstuvwxyz{|}");
 	for (i = 0; i < size-3; i++, row++)
 	{
 		byte name_attr = TERM_WHITE;
@@ -244,7 +246,8 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			||	((j >= INVEN_ARM) && (j < INVEN_ARM + rp_ptr->shield_slots))
 			||	((j >= INVEN_HEAD) && (j < INVEN_HEAD + rp_ptr->helm_slots))
 			||	((j >= INVEN_HANDS) && (j < INVEN_HANDS + rp_ptr->glove_slots))
-			||	((j >= INVEN_FEET) && (j < INVEN_FEET + rp_ptr->boot_slots)))
+			||	((j >= INVEN_FEET) && (j < INVEN_FEET + rp_ptr->boot_slots))
+			||	(j == INVEN_WIELD - 1))
 			{
 				object_type *o_ptr = &p_ptr->inventory[j];
 				bitflag f[OF_SIZE];
@@ -291,21 +294,30 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 		}
 		Term_putstr(col, row, 6, name_attr, format("%5s:", resists[i].name));
 	}
-	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      @abcdefghijkl");
+	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      @abcdefghijklmnopqrstuvwxyz{|}");
 	/* Equippy */
-	display_player_equippy(row++, col+6);
+	display_player_equippy(row++, col+7);
 }
 
-static void display_player_flag_info(void)
+static void display_player_flag_info_1(void)
 {
 	int i;
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 2; i++)
 	{
 		display_resistance_panel(player_flag_table+(i*RES_ROWS), RES_ROWS+3,
 								&resist_region[i]);
 	}
 }
 
+static void display_player_flag_info_2(void)
+{
+	int i;
+	for (i = 2; i < 4; i++)
+	{
+		display_resistance_panel(player_flag_table+(i*RES_ROWS), RES_ROWS+3,
+								&resist_region[i - 2]);
+	}
+}
 
 /*
  * Special display, part 2b
@@ -429,10 +441,11 @@ static void display_player_sust_info(void)
 	sustain_flags[A_CHR] = OF_SUST_CHR;
 
 	/* Header */
-	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
+	c_put_str(TERM_WHITE, "@abcdefghijklmnopqrstuvwxyz{|}", row-1, col);
+
 
 	/* Process equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD - 1; i < INVEN_TOTAL; ++i)
 	{
 		if (((i >= INVEN_WIELD) && (i < INVEN_WIELD + rp_ptr->melee_slots))
 		||	((i >= INVEN_BOW) && (i < INVEN_BOW + rp_ptr->range_slots))
@@ -444,14 +457,24 @@ static void display_player_sust_info(void)
 		||	((i >= INVEN_ARM) && (i < INVEN_ARM + rp_ptr->shield_slots))
 		||	((i >= INVEN_HEAD) && (i < INVEN_HEAD + rp_ptr->helm_slots))
 		||	((i >= INVEN_HANDS) && (i < INVEN_HANDS + rp_ptr->glove_slots))
-		||	((i >= INVEN_FEET) && (i < INVEN_FEET + rp_ptr->boot_slots)))
+		||	((i >= INVEN_FEET) && (i < INVEN_FEET + rp_ptr->boot_slots))
+		||	(i == INVEN_WIELD - 1))
 		{
-			/* Get the object */
-			o_ptr = &p_ptr->inventory[i];
+			/* Player flags */
+			if (i < INVEN_WIELD)
+			{
+				player_flags(f);
+				o_ptr = NULL;
+			}
+			else
+			{
+				/* Get the object */
+				o_ptr = &p_ptr->inventory[i];
 
-			/* Get the "known" flags */
-			object_flags_known(o_ptr, f);
-
+				/* Get the "known" flags */
+				object_flags_known(o_ptr, f);
+			}
+			
 			/* Initialize color based of sign of pval. */
 			for (stat = 0; stat < A_MAX; stat++)
 			{
@@ -460,7 +483,7 @@ static void display_player_sust_info(void)
 				c = '.';
 
 				/* Boost */
-				if (of_has(f, stat_flags[stat]))
+				if (of_has(f, stat_flags[stat]) && (o_ptr != NULL))
 				{
 					/* Default */
 					c = '*';
@@ -496,7 +519,7 @@ static void display_player_sust_info(void)
 					if (c == '.') c = 's';
 				}
 
-				if ((c == '.') && o_ptr->k_idx && !object_flag_is_known(o_ptr, sustain_flags[stat]))
+				if ((c == '.') && (o_ptr != NULL) && o_ptr->k_idx && !object_flag_is_known(o_ptr, sustain_flags[stat]))
 					c = '?';
 
 				/* Dump proper character */
@@ -507,9 +530,6 @@ static void display_player_sust_info(void)
 			col++;
 		}
 	}
-
-	/* Player flags */
-	player_flags(f);
 
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; ++stat)
@@ -534,10 +554,10 @@ static void display_player_sust_info(void)
 	col = 26;
 
 	/* Footer */
-	c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col);
+	c_put_str(TERM_WHITE, "@abcdefghijklmnopqrstuvwxyz{|}", row+6, col);
 
 	/* Equippy */
-	display_player_equippy(row+7, col);
+	display_player_equippy(row+7, col+1);
 }
 
 
@@ -897,7 +917,7 @@ static int get_panel(int oid, data_panel *panel, size_t size)
 void display_player_xtra_info(void)
 {
 	int i;
-	int panels [] = { 1, 2, 3, 4, 5};
+	int panels [] = { 1, 2, 3, 4};
 	bool left_adj [] = { 1, 0, 0, 0, 0 };
 	data_panel data[MAX_PANEL];
 
@@ -933,7 +953,8 @@ void display_player_xtra_info(void)
  * The top two lines, and the bottom line (or two) are left blank.
  *
  * Mode 0 = standard display with skills/history
- * Mode 1 = special display with equipment flags
+ * Mode 1 = special display with resist flags
+ * Mode 2 = special display with other flags
  */
 void display_player(int mode)
 {
@@ -944,7 +965,7 @@ void display_player(int mode)
 	/* Stat info */
 	display_player_stat_info();
 
-	if (mode)
+	if (mode == 1)
 	{
 		data_panel data[MAX_PANEL];
 		int rows = get_panel(1, data, N_ELEMENTS(data));
@@ -955,7 +976,21 @@ void display_player(int mode)
 		display_player_sust_info();
 
 		/* Other flags */
-		display_player_flag_info();
+		display_player_flag_info_1();
+	}
+
+	else if (mode == 2)
+	{
+		data_panel data[MAX_PANEL];
+		int rows = get_panel(5, data, N_ELEMENTS(data));
+
+		display_panel(data, rows, 1, &boundaries[1]);
+
+		/* Stat/Sustain flags */
+		display_player_sust_info();
+
+		/* Other flags */
+		display_player_flag_info_2();
 	}
 
 	/* Standard */
@@ -1045,7 +1080,7 @@ errr file_character(const char *path, bool full)
 	for (y = 11; y < 20; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 39; x++)
+		for (x = 0; x < 77; x++)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
@@ -1066,15 +1101,18 @@ errr file_character(const char *path, bool full)
 
 	/* Skip a line */
 	file_putf(fp, "\n");
-
+	
+	/* Display player */
+	display_player(2);
+	
 	/* Dump part of the screen */
 	for (y = 11; y < 20; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 39; x++)
+		for (x = 0; x < 77; x++)
 		{
 			/* Get the attr/char */
-			(void)(Term_what(x + 40, y, &a, &c));
+			(void)(Term_what(x, y, &a, &c));
 
 			/* Dump it */
 			buf[x] = c;

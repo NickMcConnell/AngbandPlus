@@ -4086,10 +4086,10 @@ N:308:Basilisk
 G:R:s
 I:120:310:15:90:30
 W:28:3:0:300
+B:BITE:HURT:2d12
+B:BITE:HURT:2d12
+B:BITE:HURT:2d12
 B:GAZE:PARALYZE
-B:BITE:HURT:2d12
-B:BITE:HURT:2d12
-B:BITE:HURT:2d12
 F:ANIMAL
 F:DROP_1 | ONLY_ITEM
 F:OPEN_DOOR | BASH_DOOR
@@ -8579,7 +8579,7 @@ S:BR_COLD | BR_LIGHT | BR_SHAR | BR_SOUN
 D:The wolfhound of the Valar, Huan has served many masters in his time, from
 D: Celegorm son of Feanor to Beren son of Barahir: but now he runs wild and
 D: acknowledges no master save himself, as he hunts alone for his nemesis -
-D: Carcharoth, the terrible wolf of angband.
+D: Carcharoth, the terrible wolf of Angband.
 
 N:544:Carcharoth, the Jaws of Thirst
 G:C:p
@@ -8597,7 +8597,7 @@ F:FORCE_SLEEP
 S:1_IN_3
 S:BR_DARK | BR_FIRE | BR_NETH | BR_POIS
 S:S_HOUND
-D:The first guard of angband, Carcharoth, also known as 'The Red Maw', is the
+D:The first guard of Angband, Carcharoth, also known as 'The Red Maw', is the
 D: greatest wolf to ever walk the earth.  He is highly intelligent and a deadly
 D: opponent in combat.
 
@@ -8672,7 +8672,7 @@ S:BRAIN_SMASH
 S:BA_MANA | BA_NETH
 S:BO_MANA
 S:S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE | S_WRAITH
-D:He is the Master of the Pits of angband.  His figure is like a black mountain
+D:He is the Master of the Pits of Angband.  His figure is like a black mountain
 D: crowned with lightning.  He rages with everlasting anger, his body scarred by
 D: Fingolfin's eight mighty wounds.  He can never rest from his pain, but seeks
 D: forever to dominate all that is light and good in the world.  He is the
@@ -9449,9 +9449,9 @@ N:589:Spectator
 G:e:B
 I:110:171:30:1:5
 W:28:2:0:150
-B:GAZE:PARALYZE:1d4
 B:GAZE:CONFUSE:1d4
 B:BITE:HURT:1d8
+B:GAZE:PARALYZE:1d4
 F:NO_FEAR | NO_CONF | NO_SLEEP
 F:FORCE_SLEEP
 S:1_IN_6
@@ -9487,9 +9487,9 @@ G:e:b
 I:120:3080:30:80:10
 W:67:3:0:17000
 B:BITE:EXP_80:6d6
-B:GAZE:PARALYZE:5d5
 B:GAZE:LOSE_INT:5d5
 B:GAZE:UN_POWER:5d5
+B:GAZE:PARALYZE:5d5
 F:FEMALE | EVIL | SMART
 F:BASH_DOOR
 F:IM_POIS | NO_CONF | NO_SLEEP
@@ -9609,9 +9609,9 @@ G:g:r
 I:110:1040:42:80:10
 W:35:3:0:800
 B:GAZE:TERRIFY
-B:GAZE:PARALYZE
 B:GAZE:LOSE_STR
 B:GAZE:HALLU
+B:GAZE:PARALYZE
 F:EVIL | COLD_BLOOD | EMPTY_MIND
 F:NEVER_MOVE
 F:HURT_ROCK | HURT_LIGHT | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS
@@ -9641,9 +9641,9 @@ N:599:Ghoul
 G:z:U
 I:110:83:30:30:20
 W:26:2:0:95
-B:CLAW:PARALYZE:1d4
-B:CLAW:PARALYZE:1d4
 B:BITE:POISON:1d6
+B:CLAW:PARALYZE:1d4
+B:CLAW:PARALYZE:1d4
 F:UNDEAD | EVIL | COLD_BLOOD | FRIENDS
 F:DROP_40
 F:OPEN_DOOR | BASH_DOOR
@@ -9658,10 +9658,10 @@ N:600:Ghast
 G:z:u
 I:120:165:30:50:20
 W:30:3:0:130
-B:CLAW:PARALYZE:2d4
-B:CLAW:PARALYZE:2d4
 B:BITE:LOSE_CON:2d4
 B:BITE:LOSE_CHR:2d4
+B:CLAW:PARALYZE:2d4
+B:CLAW:PARALYZE:2d4
 F:UNDEAD | EVIL | COLD_BLOOD | ESCORT
 F:DROP_40
 F:OPEN_DOOR | BASH_DOOR
@@ -9677,10 +9677,10 @@ N:601:Greater basilisk
 G:R:D
 I:120:1010:25:100:15
 W:45:2:0:10000
-B:GAZE:PARALYZE:3d12
-B:GAZE:PARALYZE:3d12
 B:BITE:POISON:2d12
 B:BITE:POISON:2d12
+B:GAZE:PARALYZE:3d12
+B:GAZE:PARALYZE:3d12
 F:EVIL | ANIMAL | POWERFUL | ATTR_FLICKER
 F:DROP_1 | DROP_GOOD | ONLY_ITEM
 F:OPEN_DOOR | BASH_DOOR

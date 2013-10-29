@@ -58,7 +58,8 @@ typedef struct
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
 	bool immune_cold;	/* Immunity to cold */
-
+	//bool immune_pois;	/* Immunity to poison */
+	
 	bool resist_acid;	/* Resist acid */
 	bool resist_elec;	/* Resist lightning */
 	bool resist_fire;	/* Resist fire */
@@ -76,11 +77,12 @@ typedef struct
 	bool resist_nethr;	/* Resist nether */
 	bool resist_chaos;	/* Resist chaos */
 	bool resist_disen;	/* Resist disenchant */
+	bool resist_stun;	/* Resist stunning */
 
 	bool slow_digest;	/* Slower digestion */
-	bool impair_hp;   /* Slow HP regeneration */
-	bool impair_mana; /* Slow mana regeneration */
-	bool ffall;			/* Feather falling */
+	bool impair_hp;   	/* Slow HP regeneration */
+	bool impair_mana; 	/* Slow mana regeneration */
+	bool ffall;		/* Feather falling */
 	bool regenerate;	/* Regeneration */
 	bool telepathy;		/* Telepathy */
 	bool see_inv;		/* See invisible */
@@ -94,6 +96,8 @@ typedef struct
 	bool exp_drain;		/* Experience draining */
 
 	bool bless_blade;	/* Blessed blade */
+	
+	byte attr;			/* attr last used for drawing player -Simon */
 } player_state;
 
 

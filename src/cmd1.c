@@ -606,8 +606,8 @@ void move_player(int dir, bool disarm)
 		do_cmd_alter_aux(dir);
 	}
 
-	/* Cannot walk through walls */
-	else if (!cave_floor_bold(y, x))
+	/* Cannot walk through walls if you don't have pass_wall or it's perma */
+	else if ((!cave_floor_bold(y, x) && !player_has(PF_PASS_WALL)) || (cave_feat[y][x] >= FEAT_PERM_EXTRA))
 	{
 		/* Disturb the player */
 		disturb(0, 0);

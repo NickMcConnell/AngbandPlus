@@ -2726,6 +2726,7 @@ void update_smart_learn(int m_idx, int what)
 		{
 			if (p_ptr->state.resist_pois) m_ptr->smart |= (SM_RES_POIS);
 			if (p_ptr->timed[TMD_OPP_POIS]) m_ptr->smart |= (SM_OPP_POIS);
+			//if (p_ptr->state.immune_pois) m_ptr->smart |= (SM_IMM_POIS);
 			break;
 		}
 

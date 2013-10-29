@@ -228,20 +228,28 @@ void textui_obj_wield(object_type *o_ptr, int item)
 	 * want to replace */
 	if (p_ptr->inventory[slot].k_idx)
 	{
-		if (o_ptr->tval == TV_RING)
-		{
-			cptr q = "Replace which ring? ";
-			cptr s = "Error in obj_wield, please report";
-			item_tester_hook = obj_is_ring;
-			if (!get_item(&slot, q, s, CMD_WIELD, USE_EQUIP)) return;
-		}
-
-		if (obj_is_ammo(o_ptr) && !object_similar(&p_ptr->inventory[slot],
-			o_ptr, OSTACK_QUIVER))
+		if (obj_is_ammo(o_ptr) && !object_similar(&p_ptr->inventory[slot], o_ptr, OSTACK_QUIVER))
 		{
 			cptr q = "Replace which ammunition? ";
 			cptr s = "Error in obj_wield, please report";
 			item_tester_hook = obj_is_ammo;
+			if (!get_item(&slot, q, s, CMD_WIELD, USE_EQUIP)) return;
+		}
+		else if (((slot == INVEN_WIELD) && (rp_ptr->melee_slots > 1))
+				|| ((slot = INVEN_BOW) && (rp_ptr->range_slots > 1))
+				|| ((slot = INVEN_FINGER) && (rp_ptr->ring_slots > 1))
+				|| ((slot == INVEN_NECK) && (rp_ptr->amulet_slots > 1))
+				|| ((slot == INVEN_LIGHT) && (rp_ptr->light_slots > 1))
+				|| ((slot == INVEN_BODY) && (rp_ptr->body_slots > 1))
+				|| ((slot == INVEN_OUTER) && (rp_ptr->cloak_slots > 1))
+				|| ((slot == INVEN_ARM) && (rp_ptr->shield_slots > 1))
+				|| ((slot == INVEN_HEAD) && (rp_ptr->helm_slots > 1))
+				|| ((slot == INVEN_HANDS) && (rp_ptr->glove_slots > 1))
+				|| ((slot == INVEN_FEET) && (rp_ptr->boot_slots > 1)))
+		{
+			cptr q = "Replace which item? ";
+			cptr s = "Error in obj_wield, please report";
+			//item_tester_hook = obj_is_ring;
 			if (!get_item(&slot, q, s, CMD_WIELD, USE_EQUIP)) return;
 		}
 	}

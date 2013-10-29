@@ -1302,6 +1302,17 @@ void do_animation(void)
 		m_ptr->attr = attr;
 		p_ptr->redraw |= (PR_MAP | PR_MONLIST);
 	}
+	
+	if (rf_has(r_info[rp_ptr->p_monster_index].flags, RF_ATTR_FLICKER) || rf_has(r_info[rp_ptr->p_monster_index].flags, RF_ATTR_MULTI))
+	{
+		byte attr;
+		if (rf_has(r_info[rp_ptr->p_monster_index].flags, RF_ATTR_MULTI))
+			attr = randint1(BASIC_COLORS - 1);
+		else
+			attr = get_flicker(r_info[rp_ptr->p_monster_index].x_attr);
+		p_ptr->state.attr = attr;
+		p_ptr->redraw |= (PR_MAP);
+	}
 	flicker++;
 }
 

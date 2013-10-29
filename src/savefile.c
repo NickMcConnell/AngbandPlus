@@ -315,9 +315,7 @@ static bool try_save(ang_file *file)
 		savers[i].save();
 
 		/* 16-byte block name */
-		pos = my_strcpy((char *)savefile_head,
-				savers[i].name,
-				sizeof savefile_head);
+		pos = my_strcpy((char *)savefile_head, savers[i].name, sizeof savefile_head);
 		while (pos < 16)
 			savefile_head[pos++] = 0;
 
@@ -371,7 +369,7 @@ bool savefile_save(const char *path)
 	safe_setuid_grab();
 	file = file_open(new_savefile, MODE_WRITE, FTYPE_SAVE);
 	safe_setuid_drop();
-
+	
 	if (file)
 	{
 		file_write(file, (char *) &savefile_magic, 4);
@@ -405,7 +403,7 @@ bool savefile_save(const char *path)
 
 		return err ? FALSE : TRUE;
 	}
-
+	
 	/* Delete temp file */
 	safe_setuid_grab();
 	file_delete(new_savefile);

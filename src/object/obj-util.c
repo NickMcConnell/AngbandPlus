@@ -733,7 +733,35 @@ bool slot_can_wield_item(int slot, const object_type *o_ptr)
 	if (obj_is_ammo(o_ptr))
 		return (slot >= QUIVER_START && slot < QUIVER_END) ? TRUE : FALSE;
 	else
-		return (wield_slot(o_ptr) == slot) ? TRUE : FALSE;
+	{
+		/* If it's above foot slots then no, else if it's above glove slots then is it in the foot slot range, else ... -Simon */
+		if (slot >= (INVEN_FEET + rp_ptr->boot_slots))
+			return FALSE;
+		else if (slot >= (INVEN_HANDS + rp_ptr->glove_slots))
+			return ((slot >= INVEN_FEET) ? TRUE : FALSE);
+		else if (slot >= (INVEN_HEAD + rp_ptr->helm_slots))
+			return ((slot >= INVEN_HANDS) ? TRUE : FALSE);
+		else if (slot >= (INVEN_ARM + rp_ptr->shield_slots))
+			return ((slot >= INVEN_HEAD) ? TRUE : FALSE);
+		else if (slot >= (INVEN_OUTER + rp_ptr->cloak_slots))
+			return ((slot >= INVEN_ARM) ? TRUE : FALSE);
+		else if (slot >= (INVEN_BODY + rp_ptr->body_slots))
+			return ((slot >= INVEN_OUTER) ? TRUE : FALSE);
+		else if (slot >= (INVEN_LIGHT + rp_ptr->light_slots))
+			return ((slot >= INVEN_BODY) ? TRUE : FALSE);
+		else if (slot >= (INVEN_NECK + rp_ptr->amulet_slots))
+			return ((slot >= INVEN_LIGHT) ? TRUE : FALSE);
+		else if (slot >= (INVEN_FINGER + rp_ptr->ring_slots))
+			return ((slot >= INVEN_NECK) ? TRUE : FALSE);
+		else if (slot >= (INVEN_BOW + rp_ptr->range_slots))
+			return ((slot >= INVEN_FINGER) ? TRUE : FALSE);
+		else if (slot >= (INVEN_WIELD + rp_ptr->melee_slots))
+			return ((slot >= INVEN_BOW) ? TRUE : FALSE);
+		else if (slot >= INVEN_WIELD)
+			return TRUE;
+		else
+			return FALSE;
+	}
 }
 
 
@@ -2367,10 +2395,102 @@ void acquirement(int y1, int x1, int level, int num, bool great)
 		/* Make a good (or great) object (if possible) */
 		if (!make_object(i_ptr, level, TRUE, great)) continue;
 		i_ptr->origin = ORIGIN_ACQUIRE;
-		i_ptr->origin_depth = p_ptr->depth;
-
-		/* Drop the object */
-		drop_near(i_ptr, 0, y1, x1, TRUE);
+		i_ptr->origin_depth = p_ptr->max_depth;
+		
+		/* Gives a chance at rerolling based on how many slots player has -Simon */
+		switch(i_ptr->tval)
+		{
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+				if (one_in_(rp_ptr->melee_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_SHOT:
+			case TV_BOLT:
+			case TV_ARROW:
+			case TV_BOW:
+				if (one_in_(rp_ptr->range_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_BOOTS:
+				if (one_in_(rp_ptr->boot_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_GLOVES:
+				if (one_in_(rp_ptr->glove_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_HELM:
+			case TV_CROWN:
+				if (one_in_(rp_ptr->helm_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_SHIELD:
+				if (one_in_(rp_ptr->shield_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_CLOAK:
+				if (one_in_(rp_ptr->cloak_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+				if (one_in_(rp_ptr->body_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_LIGHT:
+				if (one_in_(rp_ptr->light_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_AMULET:
+				if (one_in_(rp_ptr->amulet_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			case TV_RING:
+				if (one_in_(rp_ptr->ring_slots + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			default:
+				/* Drop the object */	
+				drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+		}
 	}
 }
 

@@ -131,6 +131,7 @@ static void remove_bad_spells(int m_idx, bitflag f[RSF_SIZE])
 		if (p_ptr->state.immune_elec) smart |= (SM_IMM_ELEC);
 		if (p_ptr->state.immune_fire) smart |= (SM_IMM_FIRE);
 		if (p_ptr->state.immune_cold) smart |= (SM_IMM_COLD);
+		//if (p_ptr->state.immune_pois) smart |= (SM_IMM_POIS);
 
 		/* Know oppositions */
 		if (p_ptr->timed[TMD_OPP_ACID]) smart |= (SM_OPP_ACID);
@@ -926,17 +927,6 @@ bool make_attack_spell(int m_idx)
 			breath(m_idx, GF_DARK,
 			       ((m_ptr->hp / BR_DARK_DIVISOR) > BR_DARK_MAX ? BR_DARK_MAX : (m_ptr->hp / BR_DARK_DIVISOR)));
 			update_smart_learn(m_idx, DRS_RES_DARK);
-			break;
-		}
-
-		case RSF_BR_CONF:
-		{
-			disturb(1, 0);
-			if (blind) message_format(MSG_BR_ELEMENTS, 0, "%^s breathes.", m_name);
-			else message_format(MSG_BR_CONF, 0, "%^s breathes confusion.", m_name);
-			breath(m_idx, GF_CONFUSION,
-			       ((m_ptr->hp / BR_CONF_DIVISOR) > BR_CONF_MAX ? BR_CONF_MAX : (m_ptr->hp / BR_CONF_DIVISOR)));
-			update_smart_learn(m_idx, DRS_RES_CONFU);
 			break;
 		}
 

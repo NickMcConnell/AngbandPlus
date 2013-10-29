@@ -1120,9 +1120,8 @@ void player_birth(bool quickstart_allowed)
 		else if (cmd->command == CMD_CHOOSE_CLASS)
 		{
 			/* test to see if player is a monster; if so then make them monster class -Simon */
-			/* TODO: Change "11" and "6" into constants like MAX_CLASSIC_RACES */
-			if(p_ptr->prace >= 11)
-				p_ptr->pclass = 6;
+			if(p_ptr->prace > DEMIHUMAN_RACE_MAX)
+				p_ptr->pclass = DEMIHUMAN_CLASS_MAX + 1;
 			else p_ptr->pclass = cmd->arg[0].choice;
 			player_generate(p_ptr, NULL, NULL, NULL);
 

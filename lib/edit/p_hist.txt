@@ -418,9 +418,9 @@ N:70:83:100:65
 D:You are the offspring of Glaurung himself.
 
 N:71:72:33:5
-D:You are the tall sentient elemental. 
+D:You are a tall sentient elemental. 
 N:71:72:66:5
-D:You are the being of Water element. 
+D:You are a being of the water element. 
 N:71:72:100:5
 D:You are the mass of sentient water. 
 
@@ -439,11 +439,11 @@ N:73:74:100:30
 D:You are a tall, terrible-looking skeleton in black robes.
 
 N:74:0:33:5
-D:You were an apprentice of an archmage. Your mentor was slain by undeads, and you became a Lich.
+D:You were an apprentice of an archmage. Your mentor was slain by the undead, and you became a Lich.
 N:74:0:66:15
 D:Before your undeath, you were the court sorceror in a small kingdom.
 N:74:0:100:35
-D:You are so old that you do not remember your life. You are now mighty undead being.
+D:You are so old that you do not remember your life. You are now a mighty undead being.
 
 N:75:76:20:5
 D:You are the offspring of a red dragon. 
@@ -465,7 +465,7 @@ D:Your scales shimmer in everchanging hues.
 N:76:77:66:5
 D:Your scales chaotically flash many colours. 
 N:76:77:100:5
-D:Your scales are glowing in thousands colors. 
+D:Your scales glow in thousands of colors. 
 
 N:77:0:100:5
 D:Your shape in this world is very uncertain.
@@ -504,30 +504,30 @@ N:80:81:100:30
 D:You are the offspring of Ungoliant the Unlight herself. 
 
 N:81:82:33:5
-D:You have huge black body
+D:You have a huge black body 
 N:81:82:66:5
-D:You have tiny red body
+D:You have a tiny red body 
 N:81:82:100:5
-D:You have ugly brown body
+D:You have an ugly brown body 
 
 N:82:0:100:5
 D:and hairy, disgusting legs.
 
 N:83:84:33:5
-D:You have red weathered scales,
+D:You have red weathered scales, 
 N:83:84:66:5
-D:You have dark red scales,
+D:You have dark red scales, 
 N:83:84:99:5
-D:You have light red scales,
+D:You have light red scales, 
 N:83:84:100:20
-D:You have glowing red scales,
+D:You have glowing red scales, 
 
 N:84:85:33:5
-D:deep black eyes
+D:deep black eyes 
 N:84:85:66:5
-D:large yellow eyes
+D:large yellow eyes 
 N:84:85:100:5
-D:glowing red eyes
+D:glowing red eyes 
 
 N:85:0:100:5
 D:and nasty fiery breath.
@@ -623,25 +623,25 @@ N:100:101:100:5
 D:You are the shadow of
 
 N:101:102:15:5
-D:the red dragon. 
+D:a red dragon. 
 N:101:102:30:5
-D:the white dragon. 
+D:a white dragon. 
 N:101:102:45:5
-D:the black dragon. 
+D:a black dragon. 
 N:101:102:60:5
-D:the blue dragon. 
+D:a blue dragon. 
 N:101:102:75:15
-D:the green dragon. 
+D:a green dragon. 
 N:101:102:85:35
-D:the multi-hued dragon. 
+D:a multi-hued dragon. 
 N:101:102:90:45
-D:the chaos dragon. 
+D:a chaos dragon. 
 N:101:102:95:45
-D:the law dragon. 
+D:a law dragon. 
 N:101:102:98:60
-D:the balance dragon. 
+D:a balance dragon. 
 N:101:102:100:80
-D:the power dragon. 
+D:a power dragon. 
 
 N:102:103:33:5
 D:You have ghostly white form
@@ -679,27 +679,27 @@ N:106:107:100:5
 D:You died in an accident,
 
 N:107:108:100:5
-D:and were turned into the skeleton by
+D:and were turned into a skeleton by
 
 N:108:0:20:5
-D:the apprentice necromancer.
+D:an apprentice necromancer.
 N:108:0:40:15
-D:the necromancer.
+D:a necromancer.
 N:108:0:60:25
-D:the experienced necromancer.
+D:an experienced necromancer.
 N:108:0:80:35
-D:the great necromancer.
+D:a great necromancer.
 N:108:0:90:45
-D:the lich.
+D:a lich.
 N:108:0:98:55
-D:the archlich.
+D:an archlich.
 N:108:0:99:90
 D:Vecna himself.
 N:108:0:100:120
 D:Sauron himself.
 
 N:109:110:100:30
-D:You are the Maia. 
+D:You are Maia. 
 
 N:110:111:25:30
 D:You were the servant of Melkor once, but now you fight for the Valar. 
@@ -720,11 +720,11 @@ N:111:0:100:30
 D:Now Eru has appointed you for the final battle with Melkor.
 
 N:112:113:33:5
-D:You are the tall sentient elemental. 
+D:You are a tall sentient elemental. 
 N:112:113:66:5
-D:You are the being of Fire element. 
+D:You are a being of the Fire element. 
 N:112:113:100:5
-D:You are the mass of sentient fire. 
+D:You are a mass of sentient fire. 
 
 N:113:0:33:5
 D:You were created by mighty sorcerer to protect him.
@@ -748,11 +748,11 @@ N:115:0:100:15
 D:You have several ugly heads and nasty venomous breath.
 
 N:116:117:33:5
-D:You are the tall sentient elemental. 
+D:You are a tall sentient elemental. 
 N:116:117:66:5
-D:You are the being of Air element. 
+D:You are a being of the Air element. 
 N:116:117:100:5
-D:You are the mass of sentient fogs and fumes. 
+D:You are a mass of sentient fogs and fumes. 
 
 N:117:0:33:5
 D:You were created by mighty sorcerer to protect him.
@@ -791,11 +791,11 @@ N:124:0:100:5
 D:You are surrounded by dense darkness and pillars of fire.
 
 N:125:126:33:5
-D:You are the demon from the Nine Hells. 
+D:You are a demon from the Nine Hells. 
 N:125:126:66:5
-D:You are the demon from the Abyss. 
+D:You are a demon from the Abyss. 
 N:125:126:100:5
-D:You are the demon from the Gehenna. 
+D:You are a demon from the Gehenna. 
 
 N:126:127:33:5
 D:You have black eyes,

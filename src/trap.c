@@ -221,7 +221,7 @@ void hit_trap(int y, int x)
 					dam = dam * 2;
 					(void)inc_timed(TMD_CUT, randint1(dam), TRUE);
 
-					if (p_ptr->state.resist_pois || p_ptr->timed[TMD_OPP_POIS])
+					if (p_ptr->state.resist_pois || p_ptr->timed[TMD_OPP_POIS]) //p_ptr->state.immune_pois))
 					{
 						msg_print("The poison does not affect you!");
 					}
@@ -366,7 +366,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x0E:
 		{
 			msg_print("You are surrounded by a pungent green gas!");
-			if (!p_ptr->state.resist_pois && !p_ptr->timed[TMD_OPP_POIS])
+			if (!p_ptr->state.resist_pois && !p_ptr->timed[TMD_OPP_POIS])//&& !p_ptr->state.immune_pois)
 				(void)inc_timed(TMD_POISONED, randint0(20) + 10, TRUE);
 			wieldeds_notice_flag(OF_RES_POIS);
 

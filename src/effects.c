@@ -174,7 +174,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam,
 	{
 		case EF_POISON:
 		{
-			if (!p_ptr->state.resist_pois)
+			if (!p_ptr->state.resist_pois)// && !p_ptr->state.immune_pois)
 			{
 				if (!p_ptr->timed[TMD_OPP_POIS] &&
 					inc_timed(TMD_POISONED, damroll(2, 7)

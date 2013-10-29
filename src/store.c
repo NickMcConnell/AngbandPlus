@@ -210,7 +210,7 @@ static struct store *store_new(int idx) {
 	s->stock_size = STORE_INVEN_MAX;
 	//if you go past D) in home, things go bananas -Simon
 	//if(idx == STORE_HOME)
-	//	s->stock_size = 256;
+	//	s->stock_size = 128;
 	return s;
 }
 
@@ -2863,7 +2863,7 @@ static void store_menu_set_selections(menu_type *menu, bool knowledge_menu)
 		{
 			/* These two can't intersect! */
 			menu->cmd_keys = "\x04\x10?={}~CEIPTdegilpswx"; /* \x10 = ^p , \x04 = ^D */
-			menu->selections = "abcfmnoqrtuvyz13456790ABDFGH";
+			menu->selections = "abcfmnoqrtuvyz13456790ABDFGHJKLMNOQRSTUVWXYZabcfmnoqrtuvyz13456790ABDFGHJKLMNOQRSTUVWXYZabcfmnoqrtuvyz13456790ABDFGHJKLMNOQRSTUVWXYZ";
 		}
 
 		/* Original */
@@ -2871,7 +2871,7 @@ static void store_menu_set_selections(menu_type *menu, bool knowledge_menu)
 		{
 			/* These two can't intersect! */
 			menu->cmd_keys = "\x010?={}~CEIbdegiklpstwx"; /* \x10 = ^p */
-			menu->selections = "acfhjmnoqruvyz13456790ABDFGH";
+			menu->selections = "acfhjmnoqruvyz13456790ABDFGHIJKLMNOPQRSTUVWXYZacfhjmnoqruvyz13456790ABDFGHIJKLMNOPQRSTUVWXYZacfhjmnoqruvyz13456790ABDFGHIJKLMNOPQRSTUVWXYZ";
 		}
 	}
 }

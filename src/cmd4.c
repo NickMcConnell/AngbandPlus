@@ -34,7 +34,7 @@
 
 
 
-#define INFO_SCREENS 2 /* Number of screens in character info mode */
+#define INFO_SCREENS 3 /* Number of screens in character info mode */
 
 
 

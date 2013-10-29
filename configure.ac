@@ -1,9 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-<<<<<<< HEAD
-AC_INIT([reposband], [3.1.2], [bugs@rephial.org], [reposband])
-=======
-AC_INIT([Angband], [3.2.0], [bugs@rephial.org], [angband])
->>>>>>> 3015a7677d044c178bb49aac9035e0a6ff588b76
+AC_INIT([Reposband], [3.1.2], [bugs@rephial.org], [Reposband])
 AC_PREREQ([2.59])
 
 AC_CONFIG_HEADER(src/autoconf.h)
@@ -16,7 +12,7 @@ AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [Name of package])
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [Version number of package])
 
 AC_ARG_WITH(setgid,
-	[  --with-setgid=NAME      install reposband as group NAME],
+	[  --with-setgid=NAME      install Reposband as group NAME],
 	[wsetgid=yes])
 AC_ARG_WITH(private_dirs,
 	[  --with-private-dirs     use private scorefiles/savefiles])
