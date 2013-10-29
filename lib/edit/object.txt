@@ -1,5 +1,5 @@
 # File: object.txt
-# for DaJAngband 1.2.2
+# for DaJAngband 1.3.0
 
 
 # This file is used to initialize the "lib/data/object.raw" file, which is
@@ -558,7 +558,7 @@ D: evidence of the hero's might.
 N:43:& dagger~
 G:|:W
 I:23:4:0
-W:0:0:14:40
+W:0:0:14:38
 A:0/1:5/1:15/1:20/1
 P:0:1d4:0:0:0:6
 F:SHOW_MODS | PTHROW | DRUID
@@ -729,7 +729,7 @@ I:22:2:0
 W:5:0:60:35
 A:3/1
 P:0:1d5:0:0:0:4
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW
 D:A small axe not primarily made for fighting.
 
 # was 2d6, 363
@@ -865,6 +865,7 @@ F:SHOW_MODS | DRUID
 D:A magical scythe sharp enough to effortlessly slice through bone or even metal.
 
 ##### Bows, Crossbows, Slings #####
+# range on range weapons is currently set in the code, not here.
 
 N:73:& short bow~
 G:}:U
@@ -1320,8 +1321,8 @@ G:!:D
 I:77:4:0
 W:15:0:20:163
 A:16/4:44/4
-P:0:8d3:0:1:0:7
-M:65:2d4
+P:0:8d3:0:1:0:5
+M:68:2d4
 F:SHOW_MODS | THROWN | EXPLODE_A | IGNORE_COLD
 D:A makeshift grenade made from a compact container of oil, explosive, and
 D: shrapnel with a fuse attached.
@@ -1334,11 +1335,10 @@ G:~:R
 I:77:6:0
 W:36:0:30:536
 A:36/6:64/6
-P:0:9d4:0:0:0:5
+P:0:9d4:0:0:0:4
 M:56:2d2
 F:THROWN | EXPLODE_A | BRAND_FIRE | BRAND_ACID | 
-F:SHOW_MODS | BAD_WEAP
-F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
+F:SHOW_MODS | IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 D: This piece of dark magic will explode in a blast of fire and acid when
 D: thrown at an enemy.
 
@@ -1599,7 +1599,7 @@ F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
 N:155:See Invisible
 G:=:d
 I:45:22:0
-W:30:0:2:1400
+W:30:0:2:2600
 A:45/2
 F:SEE_INVIS | EASY_KNOW
 
@@ -1781,7 +1781,7 @@ D:  (The spell may be aborted without using up the scroll.)
 N:179:Deep Descent
 G:?:w
 I:70:40:0
-W:10:0:5:250
+W:10:0:5:240
 A:10/1
 F:EASY_KNOW
 D:Teleports you 1 or 2 levels past the deepest level you've been to
@@ -1848,15 +1848,17 @@ G:?:w
 I:70:9:0
 W:10:0:5:44
 A:10/1
-M:6:1d2
+M:8:1d2
 F:EASY_KNOW
 D:It teleports you randomly up to 100 squares away.
 
+#was A:20/1 with no M: line
 N:187:Teleport Level
 G:?:w
 I:70:10:0
 W:20:0:5:55
-A:20/1
+A:20/2
+M:8:1d2
 F:EASY_KNOW
 D:It teleports you 1 level up or down (chosen at random).
 D:  The direction will always be down from the town level, and up from
@@ -2063,8 +2065,8 @@ I:70:42:0
 W:40:0:5:200
 A:40/1
 F:EASY_KNOW
-D:It inflicts 60 points of damage on all undead creatures within line of
-D: sight.
+D:It inflicts 60 points of damage and attempts to scare all undead
+D: creatures within line of sight.
 
 N:212:*Enchant Weapon*
 G:?:w
@@ -2172,7 +2174,7 @@ D: unless you have resistance to either blindness or light.
 
 N:222:Pepsi
 G:!:d
-I:75:2:360
+I:75:2:350
 W:0:0:4:2
 A:0/2:45/4
 P:0:1d1:0:0:0:3
@@ -2315,7 +2317,7 @@ D: effect.
 
 N:235:Ugliness
 G:!:d
-I:75:21:35
+I:75:21:25
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0:0
@@ -2324,7 +2326,7 @@ D:It reduces charisma (unless you have sustain charisma).
 
 N:236:Restore Sneakiness
 G:!:d
-I:75:44:10
+I:75:44:25
 W:20:0:4:450
 A:20/1
 P:0:1d1:0:0:0:0
@@ -2334,7 +2336,7 @@ D: are currently below maximum.
 
 N:237:Cure Light Wounds
 G:!:d
-I:75:34:48
+I:75:34:25
 W:0:0:4:16
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0:0
@@ -2347,7 +2349,7 @@ D: conditions.
 
 N:238:Clumsiness
 G:!:d
-I:75:19:5
+I:75:19:15
 W:5:0:4:0
 A:5/1
 P:0:1d1:0:0:0:0
@@ -2365,7 +2367,7 @@ D:It reduces constitution (unless you have sustain constitution).
 
 N:240:Cure Serious Wounds
 G:!:d
-I:75:35:96
+I:75:35:30
 W:3:0:4:45
 A:3/1
 P:0:1d1:0:0:0:0
@@ -2379,7 +2381,7 @@ D: conditions.
 
 N:241:Cure Critical Wounds
 G:!:d
-I:75:36:96
+I:75:36:35
 W:5:0:4:115
 A:5/1
 P:0:1d1:0:0:0:0
@@ -2393,7 +2395,7 @@ D: conditions.
 
 N:242:Healing
 G:!:d
-I:75:37:400
+I:75:37:40
 W:15:0:4:300
 A:15/1:60/1
 P:0:1d1:0:0:0:0
@@ -2429,7 +2431,7 @@ D: experience point total plus 10, whichever is less.
 
 N:245:Sleep
 G:!:d
-I:75:11:60
+I:75:11:36
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0:0
@@ -2481,7 +2483,7 @@ D: enchantment).
 
 N:250:Slowness
 G:!:d
-I:75:4:50
+I:75:4:36
 W:1:0:4:0
 A:1/1
 P:0:1d1:0:0:0:0
@@ -2596,7 +2598,7 @@ D: (resistance to fear, and a bonus of +12 to-hit) for about 4-8 minutes.
 
 N:258:Berserk Strength
 G:!:d
-I:75:33:25
+I:75:33:15
 W:3:0:4:100
 A:3/1
 P:0:1d1:0:0:0:0
@@ -2695,7 +2697,7 @@ D:It neutralizes poison.
 
 N:266:Restore Mana
 G:!:d
-I:75:40:25
+I:75:40:15
 W:25:0:4:350
 A:25/1:70/1
 P:0:1d1:0:0:0:0
@@ -2705,7 +2707,7 @@ D: maximum.
 
 N:267:Alertness
 G:!:d
-I:75:24:25
+I:75:24:20
 W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0:0
@@ -2724,6 +2726,9 @@ D: based on +10 to your character level wherever a spell's effect depends on you
 D: clvl, and for most spell realms, it raises the chance of a bolt/beam spell to have
 D: a beam effect.  It also lets you be able to read scrolls and cast spells while
 D: blind.  This potion's effect lasts 12 + d14 minutes.
+D:  If you are a warrior, it has an alternate effect: It significantly raises
+D: your magic device skill and allows you to read scrolls while blind for the
+D: duration.
 
 ##### Wands #####
 
@@ -2788,7 +2793,7 @@ D: beam, it will take 20+1d30 points of damage.
 N:274:Polymorph
 G:-:d
 I:65:13:0
-W:20:20:10:400
+W:20:19:10:400
 A:20/1
 P:0:1d1:0:0:0:1
 C:6+d8
@@ -2810,7 +2815,7 @@ D: If the monster is undead is does 4d6 damage instead of healing it.
 N:276:Haste Monster
 G:-:d
 I:65:1:0
-W:3:3:10:0
+W:3:2:10:0
 A:3/1
 P:0:1d1:0:0:0:1
 C:6+d15
@@ -2863,7 +2868,7 @@ D:It inflicts 150 points of damage on a single living monster.
 N:281:Tunnel-digging
 G:-:d
 I:65:5:0
-W:40:40:10:1300
+W:40:38:10:1300
 A:40/5
 P:0:1d1:0:0:0:1
 C:2+d4
@@ -2900,7 +2905,7 @@ D: be created.
 N:284:Scare Monster
 G:-:d
 I:65:11:0
-W:10:10:10:400
+W:10:9:10:400
 A:10/4
 P:0:1d1:0:0:0:1
 C:3+d5
@@ -2911,10 +2916,10 @@ D:  Uniques are unaffected.
 N:285:Teleport Other
 G:-:d
 I:65:3:0
-W:20:15:10:500
+W:20:20:10:500
 A:20/1
 P:0:1d1:0:0:0:1
-C:6+d5
+C:4+d5
 F:EASY_KNOW
 D:It produces a beam that teleports all monsters caught in it up to 100
 D: squares away.
@@ -2929,11 +2934,13 @@ C:4+d5
 F:EASY_KNOW
 D:It produces a beam that disarms all traps, unlocks all locked doors
 D: and reveals all secret doors.
+D: Trap disarming also damages mimmics and launchers within its area
+D: of effect.
 
 N:287:Lightning Balls
 G:-:d
 I:65:21:0
-W:35:32:10:1200
+W:35:31:10:1200
 A:35/1
 P:0:1d1:0:0:0:2
 C:4+d8
@@ -2955,7 +2962,7 @@ D: its center.
 N:289:Fire Balls
 G:-:d
 I:65:22:0
-W:50:44:10:1800
+W:50:45:10:1800
 A:50/1
 P:0:1d1:0:0:0:2
 C:2+d5
@@ -2977,7 +2984,7 @@ D: its center.
 N:291:Acid Balls
 G:-:d
 I:65:20:0
-W:50:40:10:1650
+W:50:42:10:1650
 A:50/1
 P:0:1d1:0:0:0:2
 C:2+d5
@@ -3003,7 +3010,7 @@ D: Annihilation.
 N:294:Acid Bolts
 G:-:d
 I:65:16:0
-W:30:24:10:950
+W:30:26:10:950
 A:30/1
 P:0:1d1:0:0:0:2
 C:6+d8
@@ -3065,8 +3072,8 @@ D: or a maximum of 750 damage.
 N:299:Storms
 G:-:d
 I:65:29:0
-W:50:55:10:2500
-A:50/5
+W:51:55:10:2500
+A:51/5
 P:0:1d1:0:0:0:2
 C:1+d3
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -3091,16 +3098,21 @@ C:6+d5
 F:SHOW_MODS
 D:It detects all traps in the immediate area.
 
+# _zapping is now more effective. It should now be very helpful vs breeders.
 N:301:Zapping
 G:_:d
 I:55:10:0
-W:7:8:50:200
+W:7:8:50:290
 A:7/5
 P:0:1d5:0:0:0:6
 C:4+d5
 F:SHOW_MODS
 D:It creates an electrical field around you which zaps nearby monsters
-D: for minor damage.
+D: for minor damage.  It zaps sleeping monsters less often and breeding
+D: monsters more often.  Minimum damage is your level/12 + 2 (so 2 at
+D: character level 1, 3 at level 12, and 4 at level 24, etc.).
+D: Damage is increased by a minimum of 1 if you are resistant to
+D: electricity and/or if the monster is a bug.
 
 N:302:Treasure & Object Location
 G:_:d
@@ -3167,11 +3179,12 @@ D: if you are currently in one.
 D:  This inflicts 2d8 points of damage on any light-sensitive creatures
 D: within the radius of the spell.
 
+#was A:50/1:70/1
 N:307:*Destruction*
 G:_:d
 I:55:29:0
 W:50:50:50:2500
-A:50/1:70/1
+A:49/2:70/1
 P:0:2d4:0:0:0:8
 C:1+d3
 F:SHOW_MODS
@@ -3185,7 +3198,7 @@ D: unless you have resistance to either blindness or light.
 N:308:Starlight
 G:_:d
 I:55:7:0
-W:20:15:50:820
+W:20:17:50:820
 A:20/1
 P:0:1d5:0:0:0:5
 C:6+d5
@@ -3211,7 +3224,7 @@ D:It hastes all monsters within line of sight.
 N:310:Slow Monsters
 G:_:d
 I:55:21:0
-W:10:10:50:800
+W:11:10:50:800
 A:10/1
 P:0:1d5:0:0:0:5
 C:6+d5
@@ -3222,7 +3235,7 @@ D:  Uniques are unaffected.
 N:311:Sleep Monsters
 G:_:d
 I:55:20:0
-W:10:10:50:700
+W:10:9:50:700
 A:10/1
 P:0:1d5:0:0:0:5
 C:6+d5
@@ -3233,7 +3246,7 @@ D:  Uniques are unaffected.
 N:312:Cure Light Wounds
 G:_:d
 I:55:16:0
-W:5:5:50:320
+W:5:4:50:320
 A:5/1
 P:0:1d5:0:0:0:5
 C:6+d6
@@ -3254,7 +3267,7 @@ D:It detects all invisible monsters in the immediate area.
 N:314:Speed
 G:_:d
 I:55:22:0
-W:40:40:50:1000
+W:40:41:50:1000
 A:40/1
 P:0:1d5:0:0:0:5
 C:4+d3
@@ -3277,7 +3290,7 @@ D: enchantment).
 N:315:Telekinesis
 G:_:d
 I:55:3:0
-W:40:25:50:500
+W:40:26:50:500
 A:40/3
 P:0:1d5:0:0:0:5
 C:4+d4
@@ -3318,16 +3331,19 @@ C:8+d15
 F:SHOW_MODS
 D:It detects all evil monsters in the immediate area.
 
+# was 3+d3 charges before adding new effect
 N:319:Curing
 G:_:d
 I:55:17:0
-W:22:17:50:400
-A:22/2
+W:21:12:50:400
+A:21/3
 P:0:1d5:0:0:0:5
-C:3+d3
+C:2+d3
 F:SHOW_MODS
 D:It cures all stunning, heals all cut damage, neutralizes poison, and
-D: cures blindness and confusion.  If you're lucky, it will also cure
+D: cures blindness and confusion.  It also gives you very short lasting 
+D: resistance to blindness and confusion.
+D:  If you're lucky, it will also cure
 D: 1 point of silver point and 2 points of sliming.
 
 N:320:Dispel Evil
@@ -3358,7 +3374,7 @@ N:322:Darkness
 G:_:d
 I:55:0:0
 W:5:5:50:0
-A:5/1:50/1
+A:5/1:50/2
 P:0:1d5:0:0:0:5
 C:8+d8
 F:SHOW_MODS
@@ -3366,18 +3382,18 @@ D:It darkens all squares within 3 squares of you, plus the entire room
 D: if you are currently in one; and blinds you for 40-90 seconds, unless
 D: you have resistance to blindness.
 D: If you are a black magic user, it does darkness damage to all creatures
-D:   within thirteen spaces of you (and in line of sight) depending on your
-D:   device skill.  (does 5d(device skill/10) damage)
+D:  within thirteen spaces of you (and in line of sight) depending on your
+D:  device skill.  (does 5d(device skill/10) damage)
 D: Otherwise, it does 10 damage only to creatures of light who are within
 D: eight spaces of you. Or, if you are not a prayer-realm caster, it has a
 D:  small chance depending on device skill and luck to do darkness damage
 D:  to all monsters within ten spaces of you.
-D:  (does 2d(device skill/10) damage)
+D:  (does 3d(device skill/12) damage)
 
 N:323:Banishment
 G:_:d
 I:55:27:0
-W:70:50:50:3500
+W:70:51:50:3500
 A:70/4
 P:0:1d5:0:0:0:5
 C:1+d3
@@ -3399,7 +3415,7 @@ D:It inflicts 120 points of damage on all monsters within line of sight.
 N:325:the Magi
 G:_:d
 I:55:19:0
-W:70:50:50:4500
+W:70:51:50:4500
 A:70/2
 P:0:1d5:0:0:0:5
 C:2+d2
@@ -3410,7 +3426,7 @@ D: both are currently below maximum.
 N:326:Identify
 G:_:d
 I:55:5:0
-W:10:10:50:375
+W:10:11:50:375
 A:10/1
 P:0:1d5:0:0:0:5
 C:5+d15
@@ -3435,7 +3451,7 @@ D: three times your character level.
 N:328:Mapping
 G:_:d
 I:55:9:0
-W:20:20:50:750
+W:20:22:50:750
 A:20/1
 P:0:1d5:0:0:0:5
 C:5+d5
@@ -3519,7 +3535,6 @@ W:30:0:30:900
 A:30/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
-D:This spellbook is not readable by healers.
 
 ##### Chests #####
 
@@ -3583,10 +3598,8 @@ M:100:4d7
 A:1/2
 P:0:1d2:0:0:0:2
 F:EASY_KNOW | PTHROW
-D:These can be placed in doors to make them harder to open.  Multiple
-D: spikes may be used on a single door.  Each of the first 7 spikes will
-D: increase the door's resistance to bashing.  Placing more than 7
-D: spikes in one door will not have any further effect.
+D:These can be placed in doors to make them harder to open.  It takes
+D: 5 spikes to spike a door.
 
 # torch was 4000, lantern was 7500
 #Torches and lanterns shouldn't get a pval.  Their amount of fuel is hard-coded, and
@@ -3601,7 +3614,7 @@ P:0:1d3:0:0:0:4
 F:EASY_KNOW
 D:It is equippable as a light source with a radius of 2 square (or 1 square
 D: if low on fuel).  It may also be used to fuel another torch, up to a
-D: maximum of about 16.5 hours of light.
+D: maximum of 16 hours of light.
 
 N:347:& brass lantern~
 G:~:U
@@ -3611,17 +3624,19 @@ A:3/1
 P:0:1d1:0:0:0:3
 F:EASY_KNOW | IGNORE_FIRE
 D:It is equippable as a light source with a radius of 2 squares.
-D:  It may also be used to fuel another lantern.
+D:  It may also be used to fuel another lantern and holds a maximum
+D: of 40 hours worth of oil.
 
+# if you implement the x2 brands, use that for this and change back to 1d6
 N:348:& flask~ of oil
 G:!:y
-I:77:0:7500
+I:77:0:7200
 W:1:0:10:3
 A:1/1
-P:0:1d6:0:0:0:2
+P:0:1d4:0:0:0:3
 F:EASY_KNOW | PTHROW | BRAND_FIRE
-D:It can be used to fuel a brass lantern with about 21 hours of light, up to
-D: a maximum of about 41.5 hours of light.
+D:It can be used to fuel a brass lantern with about 20 hours of light, up to
+D: a maximum of 40 hours of light.
 D:  When thrown, it is considered lit, so it does more than nominal
 D: damage to creatures vulnerable to fire.
 
@@ -3648,8 +3663,6 @@ F:EASY_KNOW
 D:A rather cute ball of dust that refuses to be swept up.
 
 ##### Here are the Rods #####
-
-## XXX 350 XXX ##
 
 N:351:Door/Stair Location
 G:-:d
@@ -3747,7 +3760,7 @@ N:360:Polymorph
 G:-:d
 I:66:19:25
 W:35:33:15:1200
-A:35/1
+A:33/1
 P:0:1d1:0:0:0:2
 F:EASY_KNOW
 D:It attempts to polymorph a single monster.
@@ -3775,16 +3788,18 @@ N:363:Drain Life
 G:-:d
 I:66:18:23
 W:75:50:15:3600
-A:75/4
+A:70/4
 P:0:1d1:0:0:0:2
 F:EASY_KNOW
 D:It inflicts 150 points of damage on a single living monster.
+D: It has a chance of getting a bonus to damage with good device skill.
 
+# was A:45/2, cost 2200
 N:364:Teleport Other
 G:-:d
 I:66:13:25
-W:45:40:15:2100
-A:45/2
+W:44:42:15:3100
+A:44/3
 P:0:1d1:0:0:0:2
 F:EASY_KNOW
 D:It produces a beam that teleports all monsters caught in it up to 100
@@ -3799,22 +3814,27 @@ P:0:1d1:0:0:0:2
 F:EASY_KNOW
 D:It produces a beam that disarms all traps, unlocks all locked doors
 D: and reveals all secret doors.
+D: If you are currently in a vault then it instead fires a ball of
+D: trap disarming with radius depending on your magic device skill.
+D: Trap disarming also damages mimmics and launchers within its area
+D: of effect.
 
+# was native deeper
 N:366:Lightning Balls
 G:-:d
 I:66:25:23
-W:55:44:15:4000
-A:48/1
+W:50:43:15:4000
+A:46/1
 P:0:1d1:0:0:0:2
 F:EASY_KNOW | IGNORE_ELEC
-D:It shoots a radius-2 lightning ball that inflicts 64 points of damage
+D:It shoots a radius-2 lightning ball that inflicts 72 points of damage
 D: at its center.
 
 N:367:Cold Balls
 G:-:d
 I:66:27:25
-W:58:46:15:4500
-A:58/1
+W:58:45:15:4500
+A:57/1
 P:0:1d1:0:0:0:2
 F:EASY_KNOW
 D:It shoots a radius-2 frost ball that inflicts 96 points of damage at
@@ -3878,7 +3898,8 @@ A:55/8
 P:0:1d1:0:0:0:2
 F:EASY_KNOW | IGNORE_ELEC
 D:It cures all stunning, heals all cut damage, neutralizes poison, and
-D: cures blindness and confusion.
+D: cures blindness and confusion.  It has about a 1/3 chance of also 
+D: giving short lasting resistance to blindness and confusion.
 
 N:374:Healing
 G:-:d
@@ -3895,7 +3916,7 @@ N:375:Detection
 G:-:d
 I:66:6:90
 W:30:29:15:7500
-A:30/7:72/7
+A:30/8:72/7
 P:0:1d1:0:0:0:2
 F:EASY_KNOW | IGNORE_ELEC
 D:It detects all treasure, objects, secret doors, stairs, traps, and
@@ -3914,7 +3935,7 @@ D: are below maximum.
 # was A:90/11, I:66:11:99
 N:377:Speed
 G:-:d
-I:66:11:78
+I:66:11:76
 W:90:50:15:50000
 A:90/11
 P:0:1d1:0:0:0:2
@@ -3922,6 +3943,18 @@ F:EASY_KNOW | IGNORE_ELEC
 D:It hastes you (+10 to speed) for 3-8 minutes (or 1 additional minute
 D: if you already are under the effect of a temporary haste
 D: enchantment).
+
+N:378:Rift
+G:-:d
+I:66:28:65
+W:65:56:15:11500
+A:65/11
+P:0:1d1:0:0:0:2
+F:EASY_KNOW | IGNORE_ELEC
+D:Fires a gravity beam that hurts each monster in its path and has a
+D: chance of teleporting it away.  Minimum damage is
+D: one fifth of your device skill + 35.  The damage formula is
+D: (device skill/5 + 5)d3 + 30.
 
 
 ##### Special Books (note resistances) #####
@@ -3933,7 +3966,6 @@ A:40/1
 P:0:1d1:0:0:0:1
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This spellbook is not readable by war mages.
 
 N:380:[Raal's Tome of Destruction]
 G:?:r
@@ -3961,7 +3993,6 @@ A:65/2
 P:0:1d1:0:0:0:1
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This spellbook is not readable by wizards.
 
 N:383:[Kelek's Grimoire of Power]
 G:?:r
@@ -3998,7 +4029,6 @@ A:60/2
 P:0:1d1:0:0:0:9
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This spellbook is not readable by priests.
 
 N:387:[Sacred Words of Wisdom]
 G:?:g
@@ -4008,7 +4038,6 @@ A:65/2
 P:0:1d1:0:0:0:1
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This spellbook is not readable by paladins.
 
 # was native to 100, then 95
 N:388:[Wrath of God]
@@ -4019,7 +4048,6 @@ A:90/4
 P:0:1d1:0:0:0:9
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This spellbook is not readable by healers or paladins.
 
 ##### Junk #####
 
@@ -4144,6 +4172,7 @@ A:50/8
 P:30:2d4:-2:0:10:1
 F:RES_ACID | EASY_KNOW
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+# o_ptr->randimm: 1=acid, 2=elec, 3=fire, 4=cold
 
 N:401:Blue Dragon Scale Mail~
 G:[:b
@@ -4281,7 +4310,7 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:415:Purity
 G:!:d
-I:75:23:120
+I:75:23:40
 W:55:0:4:900
 A:30/2:70/3
 P:0:1d1:0:0:0:1
@@ -4292,7 +4321,7 @@ D: and also halves stunning and poison.
 #replaces ruination
 N:416:Mediocrity
 G:!:d
-I:75:15:0
+I:75:15:10
 W:40:0:4:0
 A:40/8
 P:0:1d9:0:0:0:1
@@ -4331,7 +4360,7 @@ D: effect.
 
 N:419:*Healing*
 G:!:d
-I:75:38:750
+I:75:38:40
 W:40:0:4:1500
 A:40/4:80/2
 P:0:1d1:0:0:0:1
@@ -4342,7 +4371,7 @@ D: cures 15 points of silver poison and 18 points of sliming.
 
 N:420:Life
 G:!:d
-I:75:39:250
+I:75:39:50
 W:60:0:4:5000
 A:60/4:100/4
 P:0:1d1:0:0:0:1
@@ -4587,6 +4616,8 @@ N:494:diamonds
 G:$:w
 I:100:15:0
 W:1:0:0:27
+
+# (Jade is sval 16, N:586, base value 30)
 
 N:495:emeralds
 G:$:g
@@ -4900,7 +4931,6 @@ A:60/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This book is not readable by rangers.
 
 N:529:[Spirits of Nature]
 G:?:b
@@ -4920,7 +4950,6 @@ W:5:0:30:75000
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is only readable by mystics.
 
 N:531:& walking stick~
 G:\:u
@@ -4985,6 +5014,7 @@ I:19:22:0
 W:6:0:60:145
 A:6/3
 F:SHOW_MODS
+D: It has a range of 15 spaces. (extra might adds to range as well as ML)
 
 #cannot get most of the more powerful egos (like extra shots or extra might)
 N:537:great bow
@@ -4993,6 +5023,7 @@ I:19:34:0
 W:70:0:140:3700
 A:70/5
 F:SHOW_MODS
+D: It has a range of 21 spaces.
 
 ##### Chance Books (LUCK) #####
 
@@ -5003,7 +5034,6 @@ W:5:0:30:25
 A:5/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
-D:This spellbook is not for chaos warriors.
 
 N:539:[Minor Charms for Vacationers]
 G:?:U
@@ -5020,7 +5050,6 @@ W:15:0:30:65
 A:15/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
-D:This spellbook is not for tourists.
 
 N:541:[Guidebook for Tourists]
 G:?:U
@@ -5029,7 +5058,6 @@ W:20:0:30:1000
 A:20/1
 P:0:1d2:0:0:0:1
 F:EASY_KNOW
-D:This spellbook is not for rogues.
 
 N:542:[Quick Getaways]
 G:?:u
@@ -5039,36 +5067,33 @@ A:25/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for tourists.
 
 N:543:[The Lottery]
 G:?:u
 I:93:5:0
-W:45:0:30:17777
-A:45/1
+W:35:0:30:17777
+A:35/2
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:544:[Mordenkainen's Escapes: Rogue's Edition]
+N:544:[Lucky Escapes]
 G:?:u
 I:93:6:0
-W:60:0:30:30000
-A:60/2
+W:45:0:30:30000
+A:45/2
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for tourists.
 
 N:545:[Rogue's Buffs and Defences]
 G:?:u
 I:93:7:0
-W:65:0:30:30000
-A:65/2
+W:45:0:30:30000
+A:45/2
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is for rogues only.
 
 N:546:[The Spreading of Chaos]
 G:?:u
@@ -5108,22 +5133,12 @@ F:EASY_KNOW
 N:550:[Quick Getaways: Thieves' edition]
 G:?:W
 I:94:3:0
-W:24:0:30:1000
-A:24/1
+W:25:0:30:1000
+A:25/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 
-N:551:[Missile Magic]
-G:?:W
-I:94:4:0
-W:27:0:30:7500
-A:27/1
-P:0:1d1:0:0:0:1
-F:EASY_KNOW
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is for archers only.
-
-N:552:[Chemical Combat]
+N:551:[Chemical Combat]
 G:?:y
 I:94:5:0
 W:27:0:30:7500
@@ -5131,37 +5146,44 @@ A:27/1
 P:0:1d1:0:0:0:8
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for archers.
 
-N:553:[The Core of Alchemy]
-G:?:y
+# was Advanced Archer's Tactics, sval 8
+N:552:[Safety Precautions]
+G:?:W
 I:94:6:0
-W:55:0:30:30000
-A:55/2
+W:40:0:30:15000
+A:40/2
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is for alchemists only.
+
+N:553:[Missile Magic]
+G:?:W
+I:94:4:0
+W:44:0:30:20000
+A:44/2
+P:0:1d1:0:0:0:1
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:554:[Advanced Thievery]
 G:?:W
 I:94:7:0
-W:55:0:30:30000
+W:55:0:30:35000
 A:55/2
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is for thieves only.
 
-N:555:[Advanced Archer's Tactics]
-G:?:W
+# sval was 6
+N:555:[The Core of Alchemy]
+G:?:y
 I:94:8:0
-W:55:0:30:30000
+W:55:0:30:35000
 A:55/2
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is for archers only.
 
 ##### Black Magic Books (DARK) #####
 
@@ -5172,7 +5194,6 @@ W:5:0:30:30
 A:5/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
-D:This spellbook is not for assassins.
 
 N:557:[Blood Novitiate]
 G:?:s
@@ -5215,7 +5236,6 @@ A:50/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for assassins.
 
 N:562:[Life Force Mastery]
 G:?:D
@@ -5225,7 +5245,6 @@ A:60/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for assassins.
 
 N:563:[Metamorphoses]
 G:?:D
@@ -5235,7 +5254,6 @@ A:60/1
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for necromancers.
 
 N:564:[Necronomicon]
 G:?:D
@@ -5362,7 +5380,7 @@ D:neck.
 
 N:578:Four-Leaf Clover Juice
 G:!:d
-I:75:14:0
+I:75:14:7
 W:10:0:4:777
 A:10/37:77/77
 M:1:1d2
@@ -5483,3 +5501,17 @@ A:30/7:70/20
 P:0:1d2:0:0:0:2
 F:NICE
 D:A crown from the fairy realm made of leafy vines.
+
+# mainly for green knight to start with and a spell to create
+N:589:& junk grenade~
+G:!:o
+I:77:3:0
+W:15:0:18:83
+A:5/53
+P:0:3d5:0:2:0:8
+M:82:1d10
+F:SHOW_MODS | THROWN | EXPLODE_A | IGNORE_COLD
+D:An even more crudely made makeshift grenade made from a leftover
+D: flask of oil, explosive, and some sharp things found in the trash
+D: with a fuse attached.
+D: It doesn't explode as reliably as better-made grenades.

@@ -25,6 +25,7 @@
 #include "z-virt.h"
 #include "z-rand.h"
 #include "z-term.h"
+#include "z-queue.h"
 
 /*
  * Include the high-level includes.

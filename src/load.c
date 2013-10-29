@@ -271,7 +271,10 @@ static errr rd_item(object_type *o_ptr)
 	/* Type/Subtype */
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
+
+	/* pval and charges */
 	rd_s16b(&o_ptr->pval);
+	rd_s16b(&o_ptr->charges);
 
 	/* Pseudo-ID bit */
 	rd_byte(&o_ptr->pseudo);
@@ -282,6 +285,10 @@ static errr rd_item(object_type *o_ptr)
 	/* Fix the field */
 	if (o_ptr->pseudo > 99)
 	    o_ptr->pseudo -= 100;
+
+	rd_s16b(&o_ptr->dlevel);
+	rd_s16b(&o_ptr->drop_ridx);
+	rd_byte(&o_ptr->vcode);
 
 	rd_byte(&o_ptr->number);
 	rd_s16b(&o_ptr->weight);
@@ -317,8 +324,6 @@ static errr rd_item(object_type *o_ptr)
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
 
-#ifdef new_random_stuff
-
 #ifdef saveegoname
     rd_string(o_ptr->randego_name, sizeof(o_ptr->randego_name));
 #endif
@@ -347,17 +352,10 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->randact);
 
 	rd_byte(&o_ptr->esprace);
-#else
-	/* Special powers */
-	rd_byte(&o_ptr->xtra1);
-	rd_byte(&o_ptr->xtra2);
 
-	/* new stuff */
-	rd_byte(&o_ptr->xtra3);
-#endif
 	rd_byte(&o_ptr->thisbrand);
 	rd_s16b(&o_ptr->timedbrand);
-	rd_s16b(&o_ptr->extra1);
+	rd_s16b(&o_ptr->charges);
 	rd_s16b(&o_ptr->extra2);
 
 	/* Inscription */
@@ -375,7 +373,8 @@ static errr rd_item(object_type *o_ptr)
 
 
 	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
+    /* WHY????  I don't see the purpose of the IDENT_BROKEN flag */
+	/* if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN); */
 
 
 	/*
@@ -390,22 +389,13 @@ static errr rd_item(object_type *o_ptr)
 	 * -JG-
 	 */
 	if ((o_ptr->tval == TV_ROD) &&
-	    (o_ptr->pval - (k_ptr->pval * o_ptr->number) != 0))
+	    (o_ptr->charges - (k_ptr->pval * o_ptr->number) != 0))
 	{
-		o_ptr->timeout = o_ptr->pval;
-		o_ptr->pval = k_ptr->pval * o_ptr->number;
+		o_ptr->timeout = o_ptr->charges;
+		o_ptr->charges = k_ptr->pval * o_ptr->number;
 	}
 
 #if noneed
-	if (older_than(3, 0, 4))
-	{
-		/* Recalculate charges of stacked wands and staves */
-		if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
-		{
-			o_ptr->pval = o_ptr->pval * o_ptr->number;
-		}
-	}
-
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
 	{
@@ -474,7 +464,7 @@ static errr rd_item(object_type *o_ptr)
 	o_ptr->weight = k_ptr->weight;
 
 	/* Hack -- extract the "broken" flag */
-	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+	/* if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN); */
 
 
 	/* Artifacts */
@@ -588,7 +578,7 @@ static void rd_monster(monster_type *m_ptr)
 
 
 /*
- * Read the monster lore
+ * Read the monster lore and race info
  */
 static void rd_lore(int r_idx)
 {
@@ -625,6 +615,23 @@ static void rd_lore(int r_idx)
 	for (i = 0; i < MONSTER_BLOW_MAX; i++)
 		rd_byte(&l_ptr->blows[i]);
 
+	rd_byte(&l_ptr->know_MRfire);
+	rd_byte(&l_ptr->know_MRcold);
+	rd_byte(&l_ptr->know_MRelec);
+	rd_byte(&l_ptr->know_MRacid);
+	rd_byte(&l_ptr->know_MRpois);
+	rd_byte(&l_ptr->know_MRlite);
+	rd_byte(&l_ptr->know_MRdark);
+	rd_byte(&l_ptr->know_MRwatr);
+	rd_byte(&l_ptr->know_MRnexu);
+	rd_byte(&l_ptr->know_MRmisl);
+	rd_byte(&l_ptr->know_MRchao);
+	rd_byte(&l_ptr->know_MRdise);
+	rd_byte(&l_ptr->know_MRsilv);
+	rd_byte(&l_ptr->know_MRtame);
+	rd_byte(&l_ptr->know_R4latr);
+	rd_byte(&l_ptr->know_R4lat2);
+
 	/* Memorize flags */
 	rd_u32b(&l_ptr->flags1);
 	rd_u32b(&l_ptr->flags2);
@@ -637,10 +644,8 @@ static void rd_lore(int r_idx)
 	/* Read the racial monster limit per level */
 	rd_byte(&r_ptr->max_num);
 
-#ifdef newrst
 	/* Race population so far this game */
-	rd_byte(&r_ptr->curpop);
-#endif
+	rd_s16b(&r_ptr->curpop);
 
 	/* Later (?) */
 	rd_byte(&tmp8u);
@@ -1101,7 +1106,7 @@ static int rd_squelch(void)
 
 
 /*
- * Read the "extra" information
+ * Read the "extra" information (includes PC info)
  */
 static errr rd_extra(void)
 {
@@ -1201,10 +1206,8 @@ static errr rd_extra(void)
 	strip_bytes(2);
 
 	/* Read the flags */
-#ifdef new_random_stuff
 	rd_s32b(&p_ptr->lastfullmoon);
 	rd_s32b(&p_ptr->last_nap);
-#endif
 	rd_s16b(&p_ptr->food);
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->word_recall);
@@ -1384,15 +1387,10 @@ static errr rd_randarts(void)
 				rd_u32b(&a_ptr->flags2);
 				rd_u32b(&a_ptr->flags3);
 				rd_u32b(&a_ptr->flags4);
-#ifdef new_random_stuff
 				rd_byte(&a_ptr->esprace);
-#endif
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
-#if breaksave
-                rd_byte(&a_ptr->maxlvl);
-#endif
 
 				rd_byte(&a_ptr->activation);
 				rd_u16b(&a_ptr->time);
@@ -1923,7 +1921,7 @@ static errr rd_dungeon(void)
  */
 static errr rd_savefile_new_aux(void)
 {
-	int i;
+	int i, dx, dy;
 
 	byte tmp8u;
 	u16b tmp16u;
@@ -1999,6 +1997,15 @@ static errr rd_savefile_new_aux(void)
 	{
 		/* Read the lore */
 		rd_lore(i);
+	}
+	/* check maxpop */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* max_num should never be more than 1 for uniques */
+		if (((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->maxpop == 1)) &&
+			(r_ptr->max_num > 1)) r_ptr->max_num = 1;
 	}
 	if (arg_fiddle) note("Loaded Monster Memory");
 
@@ -2147,6 +2154,19 @@ static errr rd_savefile_new_aux(void)
 			note("Error reading dungeon data");
 			return (-1);
 		}
+
+		/* Check if we're in a cavern */
+		/* will just save in the savefile next time I break savefiles */
+		p_ptr->speclev = 1; /* 1 means a cavern level */
+		for (dy = 0; dy < DUNGEON_HGT; dy++)
+		{
+			for (dx = 0; dx < DUNGEON_WID; dx++)
+			{
+				/* if there's any rooms, then it's not a cavern */
+				if (cave_info[dy][dx] & (CAVE_ROOM)) p_ptr->speclev = 0;
+			}
+		}
+	
 
 		/* Read the ghost info */
 		rd_ghost();

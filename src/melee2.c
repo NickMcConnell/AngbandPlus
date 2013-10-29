@@ -409,13 +409,15 @@ static void bolt(int m_idx, int typ, int dam_hp)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int flg, pflg;
+	int flg;
+	/* int pflg; */
 	
 	if (typ == GF_BOULDER) flg = PROJECT_GRID | PROJECT_STOP | PROJECT_KILL;
 	else flg = PROJECT_STOP | PROJECT_KILL;
 
 	/* Target the player with a bolt attack */
-	(void)project(m_idx, 0, py, px, dam_hp, typ, flg, pflg);
+	(void)project(m_idx, 0, py, px, dam_hp, typ, flg, 0);
+	/* (void)project(m_idx, 0, py, px, dam_hp, typ, flg, plfg); */
 }
 
 
@@ -426,47 +428,57 @@ static void bolt(int m_idx, int typ, int dam_hp)
  *
  * isbreath (mode) == 0 normal ball spell
  * isbreath == 1 breath attack
+ * isbreath == 4 special wide radius ball spell for DARKNESS spell 
+ *    (very low damage, usually none for the PC)
  */
 static void breath(int m_idx, int typ, int dam_hp, int isbreath)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int rad, pflg;
+	int rad, pflg = 0;
 
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	if (isbreath == 1) pflg = PROJO_BRETH;
+
+	/* for actual monster breath only: */
+	if (isbreath == 1)
+    {
+		/* mark as actual breath for project function */
+		pflg = PROJO_BRETH;
     	
-	/* raise breath damage for low hp monsters */
-	if ((r_ptr->flags2 & (RF2_BR_STRONG)) && (dam_hp < 31) &&
-       (!(r_ptr->flags2 & (RF2_BR_WEAK))) && (r_ptr->hdice * r_ptr->hside < 150))
-	{
-		int die = randint(100) + (goodluck/3) - (badluck/2);
-		if (die < 5) dam_hp = (dam_hp * 11) / 4;
-		else if (die < 52) dam_hp = dam_hp * 2;
-		else if (die < 76) dam_hp = (dam_hp * 3) / 2;
-		else if (die < 92) dam_hp = dam_hp + 2;
-	}
+		/* raise breath damage for low hp monsters */
+		if ((r_ptr->flags2 & (RF2_BR_STRONG)) && (dam_hp < 31) &&
+	       (!(r_ptr->flags2 & (RF2_BR_WEAK))) && (r_ptr->hdice * r_ptr->hside < 150))
+		{
+			int die = randint(100) + (goodluck/3) - (badluck/2);
+			if (die < 5) dam_hp = (dam_hp * 11) / 4;
+			else if (die < 52) dam_hp = dam_hp * 2;
+			else if (die < 76) dam_hp = (dam_hp * 3) / 2;
+			else if (die < 92) dam_hp = dam_hp + 2;
+		}
            
-	/* BR_WEAK flag lowers breath damage */
-	if ((r_ptr->flags2 & (RF2_BR_WEAK)) && (dam_hp > 13))
-	{
-		int die = randint(100);
-		if (die < 5) dam_hp = dam_hp / 4;
-		else if (die < 55) dam_hp = dam_hp / 3;
-		else if (die < 75) dam_hp = ((dam_hp * 2) / 5);
-		else if (die < 95) dam_hp = dam_hp / 2;
-		else dam_hp = ((dam_hp * 3) / 5);
+		/* BR_WEAK flag lowers breath damage */
+		if ((r_ptr->flags2 & (RF2_BR_WEAK)) && (dam_hp > 13))
+		{
+			int die = randint(100);
+			if (die < 5) dam_hp = dam_hp / 4;
+			else if (die < 55) dam_hp = dam_hp / 3;
+			else if (die < 75) dam_hp = ((dam_hp * 2) / 5);
+			else if (die < 95) dam_hp = dam_hp / 2;
+			else dam_hp = ((dam_hp * 3) / 5);
+		}
+
+		/* shorter range for BR_WEAK) */
+		if (r_ptr->flags2 & (RF2_BR_WEAK)) range = 5;
 	}
 
+	/* special wide radius for DARKNESS spell */
+	if (isbreath == 4) rad = 4;
 	/* Determine the radius of the blast */
-	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
-
-    /* shorter range for BR_WEAK) */
-    if (r_ptr->flags2 & (RF2_BR_WEAK)) range = 5;
+	else rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
 
 	/* HELPER monsters target whoever the player asked us to target */
 	if (r_ptr->flags3 & (RF3_HELPER))
@@ -642,11 +654,14 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		if (!(f4 || f5 || f6)) return (0);
 	}
 	/* Smart monsters should have some AI even if AI_SMART isn't turned on */
-	else if (r_ptr->flags2 & (RF2_SMART))
+	else if ((r_ptr->flags2 & (RF2_SMART)) && (randint(100) < 40 + badluck))
 	{
 		bool chosen = FALSE;
+		int lowhp = m_ptr->maxhp / 4;
+		if (m_ptr->maxhp > 2000) lowhp = m_ptr->maxhp/5 + 10;
+		else if (m_ptr->maxhp > 1600) lowhp = 402;
         /* Hurt badly or afraid, attempt to flee */
-		if (has_escape && ((m_ptr->hp < m_ptr->maxhp / 4) || m_ptr->monfear))
+		if (has_escape && ((m_ptr->hp < lowhp) || m_ptr->monfear))
 		{
 			/* Choose escape spell */
 			f4_mask = (RF4_ESCAPE_MASK);
@@ -656,7 +671,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Still hurt badly, couldn't flee, attempt to heal */
-		else if (has_heal && m_ptr->hp < m_ptr->maxhp / 4)
+		else if (has_heal && m_ptr->hp < lowhp)
 		{
 			/* Choose heal spell */
 			f4_mask = (RF4_HEAL_MASK);
@@ -667,7 +682,8 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 		/* Player is close and we prefer attack spells, blink away */
 		else if (has_tactic && (distance(py, px, m_ptr->fy, m_ptr->fx) < 4) &&
-		         has_attack && (r_ptr->flags2 & (RF2_RANGE)) && (rand_int(100) < 75))
+				has_attack && ((r_ptr->flags2 & (RF2_RANGE)) ||
+				(r_ptr->flags3 & (RF3_KEEP_DIST))) && (rand_int(100) < 60))
 		{
 			/* Choose tactical spell */
 			f4_mask = (RF4_TACTIC_MASK);
@@ -751,13 +767,13 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
  * pillar and then teleported away, for example.
  *
  * Note that certain spell attacks do not use the "project()" function
- * but "simulate" it via the "direct" variable, which is always at least
+ * but simulate it via the "direct" variable, which is always at least
  * as restrictive as the "project()" function.  This is necessary to
- * prevent "blindness" attacks and such from bending around walls.
+ * prevent blindness attacks and such from bending around walls.
  *
  * Note that this function attempts to optimize the use of spells for the
  * cases in which the monster has no spells, or has spells but cannot use
- * them, or has spells but they will have no "useful" effect.  Note that
+ * them, or has spells but they will have no useful effect.  Note that
  * this function has been an efficiency bottleneck in the past.
  *
  * Note the special "MFLAG_NICE" flag, which prevents a monster from using
@@ -772,7 +788,7 @@ bool make_attack_spell(int m_idx)
 	int failrate, surround, bshield;
 	int mcdis, askill, savechance;
     int dir, damage, basebr, brdie;
-	bool controlled, strong, innate;
+	bool controlled, strong, innate, noattack = FALSE, nolosb = FALSE;
 	int some = 1;
 
 	u32b f4, f5, f6;
@@ -811,11 +827,35 @@ bool make_attack_spell(int m_idx)
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
 
+	/* 1_IN_x  x = 2 then chance = 50, x = 4 then chance = 25, x = 6 then chance = 16 */
+	/* scale spell chance for monsters that scale with depth */
+	if ((r_ptr->flags3 & (RF3_SCALE)) && (p_ptr->depth > r_ptr->level + 8) && (chance < 50))
+	{
+		int scalebase = p_ptr->depth - r_ptr->level;
+		int maxscale = (50-chance)/2 - 5; /* min maxscale is 3 (1_IN_3) */
+		if (maxscale > 15) maxscale = 15;
+
+		/* never increase spell frequency if it comes in groups */
+		if ((r_ptr->flags2 & (RF2_FRIEND1)) || (r_ptr->flags1 & (RF1_FRIENDS))) scalebase = 0;
+		if (r_ptr->flags1 & (RF1_FRIEND)) scalebase -= 4;
+
+		if ((scalebase > 39) && (chance > 20)) chance = 49;
+		else if (scalebase > 39) chance += maxscale;
+		else if ((scalebase > 30) && (maxscale >= 15)) chance += 13;
+		else if ((scalebase > 25) && (maxscale > 10)) chance += 9;
+		else if (((scalebase > 25) && (maxscale > 5)) || ((scalebase > 20) && (chance < 25))) 
+			chance += 5;
+		else if ((scalebase > 15) && (chance < 20)) chance += 2;
+		else if ((scalebase > 9) && (chance < 15)) chance += rand_int(3);
+	}
+
 	/* Only do spells occasionally */
 	if (rand_int(100) >= chance) return (FALSE);
 
 	/* monsters which haven't noticed you should cast less often */
-	if ((m_ptr->csleep) && (randint(100) < 50)) return (FALSE);
+	if (((m_ptr->csleep) || (m_ptr->extra2)) && (randint(100) < 50)) return (FALSE);
+	/* monsters which haven't noticed you have a much smaller spell selection */
+	else if (m_ptr->csleep) noattack = TRUE;
 
 	/* Extract the monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
@@ -857,8 +897,8 @@ bool make_attack_spell(int m_idx)
          /* DJA: Some Monsters can teleport toward the player when not in LOS */
          /* (this should prevent Sauron from being trapped in a vault) */
          if ((r_ptr->flags6 & (RF6_TPORT)) && (!m_ptr->monfear) &&
-             (rand_int(100) < rlev / 8) && (rlev > 40) &&
-             (m_ptr->cdis > MAX_RANGE + 4) && (m_ptr->hp >= m_ptr->maxhp / 2))
+             (!m_ptr->csleep) && (rand_int(100) < rlev / 9) && (rlev > 35) &&
+             (m_ptr->cdis > MAX_RANGE + 5) && (m_ptr->hp >= m_ptr->maxhp / 2))
          {
 			/* teleport towards the player */
 			teleport_away(m_idx, MAX_SIGHT * 2 + 1, 2);
@@ -905,13 +945,37 @@ bool make_attack_spell(int m_idx)
 	          }
 	          return (TRUE);
            }
-           return (FALSE);
+           /* not in LOS to PC, much smaller spell selection */
+           noattack = TRUE;
+           /* changes effect of DARKNESS spell */
+           nolosb = TRUE;
         }
 	}
-	
+
+	/* Check racial spell range */
+	if (m_ptr->cdis > r_ptr->spr)
+	{
+		/* if PC is in LOS, prefer not to cast a non-agressive spell */
+		if ((!noattack) && (r_ptr->flags6 & (RF6_TRAPS)) && 
+			(randint(100) < 70))
+		{
+			/* remove alternate version of TRAPS spell */
+			/* because it's meant for when the PC is out of LOS */
+			/* or before the monster has noticed the PC */
+            f6 &= ~(RF6_TRAPS);
+		}
+		
+		noattack = TRUE;
+		nolosb = TRUE;
+	}
+
+	if ((m_ptr->extra2) && (randint(100) < 15)) noattack = TRUE;
+
 	/* no combat spells if monster hasn't noticed you */
+	/* (or is out of LOS or out of range) */
 	/* (this allows BLINK, INVIS, TPORT, DARKNESS, HEAL, HEAL_KIN, and HEAL_OTHR) */
-    if ((m_ptr->roaming) || (m_ptr->truce))
+	/* (now also allows alternate version of TRAPS spell) */
+    if ((m_ptr->roaming) || (m_ptr->truce) || (noattack))
 	{
 		f4 &= (RF4_NONCOMBAT_MASK);
 		f5 &= (RF5_NONCOMBAT_MASK);
@@ -919,6 +983,10 @@ bool make_attack_spell(int m_idx)
 
 		/* No spells left */
 		if (!f4 && !f5 && !f6) return (FALSE);
+		
+		/* changes effect of certain monster spells */
+		noattack = TRUE;
+		nolosb = TRUE;
     }
 
 
@@ -949,10 +1017,11 @@ bool make_attack_spell(int m_idx)
 		(r_ptr->flags2 & (RF2_SMART)))
 	{
 		/* Check for a clean bolt shot */
-		if ((f4 & (RF4_BOLT_MASK) ||
+		if (((f4 & (RF4_BOLT_MASK) ||
 			 f5 & (RF5_BOLT_MASK) ||
 			 f6 & (RF6_BOLT_MASK)) &&
-			!clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE))
+			!clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE)) &&
+			(adult_ai_smart || (rand_int(100) < 40 + badluck)))
 		{
 			/* Remove spells that will only hurt friends */
 			f4 &= ~(RF4_BOLT_MASK);
@@ -968,6 +1037,15 @@ bool make_attack_spell(int m_idx)
 			f5 &= ~(RF5_SUMMON_MASK);
 			f6 &= ~(RF6_SUMMON_MASK);
 		}
+	}
+
+	/* imaginary monsters don't summon */
+	if (m_ptr->extra2)
+	{
+		/* Remove summoning spells */
+		f4 &= ~(RF4_SUMMON_MASK);
+		f5 &= ~(RF5_SUMMON_MASK);
+		f6 &= ~(RF6_SUMMON_MASK);
 	}
 
 	/* If monster has HEAL_OTHR or HEAL_KIN spell */
@@ -1011,7 +1089,17 @@ bool make_attack_spell(int m_idx)
             f4 &= ~(RF4_EXPLODE);
 		}
 	}
-	
+
+	/* Alternate TRAPS effect (noattack) not possible if you can't set a trap in current space */
+	/* (but traps can coincide with objects now) */
+	if ((r_ptr->flags6 & (RF6_TRAPS)) && !(r_ptr->flags2 & (RF2_STUPID)) &&
+		(noattack))
+	{
+		if (!((cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_FLOOR) || 
+			(cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_OPEN_PIT)))
+            f6 &= ~(RF6_TRAPS);
+	}
+                	
 	/* Monsters shouldn't cast TELE_TO when they're afraid or already next to the PC */
     if ((r_ptr->flags6 & (RF6_TELE_TO)) && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
@@ -1023,18 +1111,22 @@ bool make_attack_spell(int m_idx)
 		}
 	}
 
+	/* telelevel doesn't work in ironman games so don't waste a turn */
+	if (adult_ironman) f6 &= ~(RF6_TELE_LEVEL);
+
 	/* monsters should be less likely to cast darkness when already in a dark room */
-	/* (unlite_area is always centered on the PC so only check for the PC) */
     if ((r_ptr->flags6 & (RF6_DARKNESS)) && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
 		if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) &&     /* PC in a room*/
 			(!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))) &&  /* ..not lit */
+			(!m_ptr->csleep) &&                                /* monster aware of PC */
 			(randint(100) < 70)) f6 &= ~(RF6_DARKNESS);
-        
-		/* slightly less likely to cast DARKNESS when not in a room at all */
-		/* (maybe make this a beam darkness effect when in a tunnel instead) */
-		else if ((!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) &&
-			(randint(100) < 20)) f6 &= ~(RF6_DARKNESS);
+			
+		/* spell is centered on the monster when it isn't aware of the PC */
+		else if ((cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_ROOM)) &&   /* monster in a room*/
+			(!(cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_GLOW))) &&  /* ..not lit */
+			(m_ptr->csleep) &&                              /* monster not aware of PC */
+			(randint(100) < 70)) f6 &= ~(RF6_DARKNESS);
 	}
 
 	/* No spells left */
@@ -1078,6 +1170,7 @@ bool make_attack_spell(int m_idx)
     if ((m_ptr->confused) && (m_ptr->stunned)) failrate = 100;
     if (m_ptr->confused) failrate += 84;
     else if (m_ptr->stunned) failrate += 67;
+	if (m_ptr->extra2) failrate += 14;
 
     /* innate attacks rarely fail (even if confused or stunned) */
     if (innate) failrate = failrate / 4;
@@ -1142,6 +1235,8 @@ bool make_attack_spell(int m_idx)
 
     /* breath should always do at least 1hp damage */
     if (basebr < 6) basebr = 6;
+	/* unless its an imaginary monster */
+	if (m_ptr->extra2) basebr = 1;
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -1154,6 +1249,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			sound(MSG_SHRIEK);
 			if (seen) msg_format("%^s makes a high pitched shriek.", m_name);
+			if (m_ptr->extra2) break;
 			aggravate_monsters(m_idx);
 			break;
 		}
@@ -1181,6 +1277,7 @@ bool make_attack_spell(int m_idx)
             {
 				if (blind) msg_format("%^s throws something.", m_name);
 				else msg_format("%^s throws a throwing axe at you!", m_name);
+				if (m_ptr->extra2) break;
 				if (rlev > 22) bolt(m_idx, GF_THROW, damroll(3, 4));
 				else bolt(m_idx, GF_THROW, damroll(2, 4));
             }
@@ -1189,6 +1286,9 @@ bool make_attack_spell(int m_idx)
 				if (blind) msg_format("%^s throws something and curses.", m_name);
 				else msg_format("%^s throws a throwing axe at you but misses.", m_name);
             }
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1198,6 +1298,11 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s throws something.", m_name);
 			else msg_format("%^s throws a piece of junk from the floor.", m_name);
+			if (m_ptr->extra2)
+			{
+				(void)inc_timed(TMD_STUN, 1);
+				break;
+			}
 			if (rlev > 49)
 			{
 				bolt(m_idx, GF_THROW, damroll(6, 4));
@@ -1233,13 +1338,19 @@ bool make_attack_spell(int m_idx)
             {
                 if (blind) msg_format("%^s makes a strange noise.", m_name);
                 else msg_format("%^s fires an arrow.", m_name);
-                bolt(m_idx, GF_ARROW, damroll(1, 6));
+				if (m_ptr->extra2) break;
+                damage = damroll(1, 6);
+                if ((rlev > 10) && (randint(100) < 35)) damage += damroll(1, 6);
+                bolt(m_idx, GF_ARROW, damage);
             }
             else /* missed */
             {
                 if (blind) msg_format("%^s makes a strange noise and curses.", m_name);
                 else msg_format("%^s fires an arrow but misses.", m_name);
             }
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1260,6 +1371,7 @@ bool make_attack_spell(int m_idx)
             {
                 if (blind) msg_format("%^s makes a strange noise.", m_name);
                 else msg_format("%^s fires an arrow.", m_name);
+				if (m_ptr->extra2) break;
                 damage = damroll(3, 6);
                 if ((rlev > 19) && (randint(100) < 35)) damage += randint((rlev-18)/2 + 1);
                 bolt(m_idx, GF_ARROW, damage);
@@ -1269,6 +1381,9 @@ bool make_attack_spell(int m_idx)
                 if (blind) msg_format("%^s makes a strange noise and curses.", m_name);
                 else msg_format("%^s fires an arrow but misses.", m_name);
             }
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1278,11 +1393,15 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires a missile.", m_name);
+			if (m_ptr->extra2) break;
 			/* (always hit because these are like stronger magic missiles) */
 			damage = damroll(5, 6);
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			bolt(m_idx, GF_ARROW, damage);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1292,10 +1411,14 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires a missile!", m_name);
+			if (m_ptr->extra2) break;
 			damage = damroll(7, 6);
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 250));
 			bolt(m_idx, GF_ARROW, damage);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1326,6 +1449,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_ACID, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_ACID);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1356,6 +1482,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_ELEC, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1397,6 +1526,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_FIRE, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1427,6 +1559,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_COLD, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_COLD);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1457,6 +1592,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_POIS, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_POIS);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1487,6 +1625,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_NETHER, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_NETHR);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1517,6 +1658,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_LITE, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_LITE);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1547,6 +1691,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_DARK, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_DARK);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1577,6 +1724,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_CONFUSION, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_CONFU);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1607,6 +1757,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_SOUND, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_SOUND);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1637,6 +1790,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_CHAOS, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_CHAOS);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1667,6 +1823,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_DISENCHANT, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_DISEN);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1697,6 +1856,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_NEXUS, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_NEXUS);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1726,6 +1888,9 @@ bool make_attack_spell(int m_idx)
 			if (bshield == 2) damage -= (damage / 3);
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_TIME, damage, 1);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1748,6 +1913,9 @@ bool make_attack_spell(int m_idx)
 			if (bshield == 2) damage -= (damage / 3);
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_INERTIA, damage, 1);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1777,6 +1945,9 @@ bool make_attack_spell(int m_idx)
 			if (bshield == 2) damage -= (damage / 3);
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_GRAVITY, damage, 1);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1807,6 +1978,9 @@ bool make_attack_spell(int m_idx)
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_SHARD, damage, 1);
 			update_smart_learn(m_idx, DRS_RES_SHARD);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1836,6 +2010,9 @@ bool make_attack_spell(int m_idx)
 			if (bshield == 2) damage -= (damage / 3);
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_PLASMA, damage, 1);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1860,6 +2037,9 @@ bool make_attack_spell(int m_idx)
 			if (bshield == 2) damage -= (damage / 3);
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_FORCE, damage, 1);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1869,8 +2049,9 @@ bool make_attack_spell(int m_idx)
 			int exploderad;
             disturb(1, 0);
 			sound(MSG_BR_FORCE);
-			if (blind) msg_format("You hear an ominous rumbling.");
+			if ((blind) || (m_ptr->extra2)) msg_format("You hear an ominous rumbling.");
 			else msg_format("%^s causes an explosion!", m_name);
+			if (m_ptr->extra2) break;
 			/* just in case the PC dodges the quake blast.. */
 			damage = damroll(4, rlev/10 + 1);
 	        /* extra damage reduction from surrounding magic */
@@ -1881,6 +2062,7 @@ bool make_attack_spell(int m_idx)
 			if (m_ptr->cdis < 4) exploderad = 2;
 			else exploderad = 3;
 			/* this does 26d9 damage if there's no place to retreat to */
+			/* (one of the few spells that EMERGENCY_ESCAPE doesn't protect from) */
 			earthquake(p_ptr->py, p_ptr->px, exploderad, 40, 4, FALSE);
 			break;
 		}
@@ -1897,6 +2079,9 @@ bool make_attack_spell(int m_idx)
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_BRFEAR, damage, 1);
+            /* monster is now easier to notice */
+            if (!m_ptr->monseen) m_ptr->monseen = 1;
+            else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1926,6 +2111,9 @@ bool make_attack_spell(int m_idx)
 			if (bshield == 2) damage -= (damage / 3);
 			else if (bshield == 1) damage -= (damage / 4);
 			breath(m_idx, GF_BRSLIME, damage, 1);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -1941,6 +2129,13 @@ bool make_attack_spell(int m_idx)
 	        /* extra damage reduction from surrounding magic */
 			if (surround) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_AMNESIA, damage, 1);
+			/* monster is now easier to notice (maybe) */
+			if ((p_ptr->resist_silver) || (p_ptr->resist_charm) ||
+				(p_ptr->timed[TMD_CLEAR_MIND]))
+			{	
+				if (!m_ptr->monseen) m_ptr->monseen = 1;
+				else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
+			}
 			break;
 		}
 
@@ -1973,6 +2168,9 @@ bool make_attack_spell(int m_idx)
 				if (blind) msg_format("You hear something grunt with exertion.", m_name);
 				else msg_format("%^s hurls a boulder at you but misses.", m_name);
             }
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2080,7 +2278,8 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a mana storm.", m_name);
-			damage = (rlev * 4) + damroll(10, 10);
+			if (rlev < 79) damage = (rlev * 4) + damroll(10, 8);
+			else damage = (rlev * 4) + damroll(10, 10);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_MANA, damage, 0);
@@ -2093,7 +2292,9 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a darkness storm.", m_name);
-			damage = (rlev * 3) + damroll(10, 10) + randint(rlev);
+			if (rlev == 126) damage = (rlev * 5) + damroll(10, 10); /* original damage */
+			else if (rlev < 79) damage = (rlev * 2) + damroll(10, 9) + randint(rlev*2+1);
+			else damage = (rlev * 3) + damroll(10, 10) + randint(rlev+1);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			breath(m_idx, GF_DARK, damage, 0);
@@ -2108,15 +2309,42 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			if (p_ptr->csp)
 			{
-				int r1;
-				/* Disturb if legal */
-				disturb(1, 0);
-
+				int r1, dsave = p_ptr->skills[SKILL_SAV];
+				bool weaker = FALSE;
 				/* Basic message */
 				msg_format("%^s draws psychic energy from you!", m_name);
 
+				/* still get the message from imaginary monsters but nothing happens */
+				if (m_ptr->extra2) break;
+
+				/* Disturb if legal */
+				disturb(1, 0);
+
+				/* base save on off-intellect stat */
+				/* (if spell stat is wisdom, base this save on INT) */
+				if (cp_ptr->spell_stat == 2)
+				{
+					dsave -= adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+					dsave += adj_wis_sav[p_ptr->stat_ind[A_INT]];
+				}
+				dsave = dsave/2;
+				if (p_ptr->timed[TMD_BRAIL]) dsave += 20;
+				if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) ||
+					(p_ptr->timed[TMD_CLEAR_MIND])) dsave += 10;
+				if (p_ptr->timed[TMD_CURSE]) dsave -= 10;
+
+				/* save only makes it as weak as it was originally */
+				if (randint(100) < dsave) weaker = TRUE;
+
 				/* Attack power */
 				r1 = (randint(rlev) / 2) + 1;
+				if ((weaker) && (r1 > 19)) r1 -= randint(goodluck + 1);
+				else if (!weaker)
+				{
+					/* make it stronger */
+					if (rlev / 3 < 20) r1 += rlev/3;
+					else r1 += 20;
+				}
 
 				/* Full drain */
 				if (r1 >= p_ptr->csp)
@@ -2127,7 +2355,7 @@ bool make_attack_spell(int m_idx)
 				}
 
 				/* Partial drain */
-				else
+				else if (r1 > 0)
 				{
 					p_ptr->csp -= r1;
 				}
@@ -2139,7 +2367,7 @@ bool make_attack_spell(int m_idx)
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 				/* Heal the monster */
-				if (m_ptr->hp < m_ptr->maxhp)
+				if ((m_ptr->hp < m_ptr->maxhp) && (r1 > 0))
 				{
                     /* Barbarians and knights have weak mana */
 /* ..I heard a mind flayer rampaged your family reunion and starved */
@@ -2185,9 +2413,19 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s gazes deep into your eyes.", m_name);
 			}
 
+			/* 50% miss chance for monster spells */
+			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			savechance = 100 + (badluck/2) - (goodluck/4);
 			if (p_ptr->timed[TMD_CLEAR_MIND]) savechance -= 15;
-			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 10;
+			if (p_ptr->timed[TMD_SAFET_GOGGLES]) savechance -= 14;
+			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 8 + rlev/20;
 			if (p_ptr->telepathy) savechance += 10;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
@@ -2197,6 +2435,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
+				if (m_ptr->extra2) (void)inc_timed(TMD_CONFUSED, 1); break;
 				if (!p_ptr->resist_confu)
 				{
 					(void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
@@ -2226,9 +2465,19 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s looks deep into your eyes.", m_name);
 			}
 
+			/* 50% miss chance for monster spells */
+			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			savechance = 105 + (badluck/2) - (goodluck/4);
 			if (p_ptr->timed[TMD_CLEAR_MIND]) savechance -= 15;
-			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 10;
+			if (p_ptr->timed[TMD_SAFET_GOGGLES]) savechance -= 14;
+			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 8 + rlev/20;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
@@ -2236,6 +2485,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
+				if (m_ptr->extra2) (void)inc_timed(TMD_CONFUSED, 1); break;
 				damage = damroll(11, 15);
 				take_hit(damage, ddesc);
 				if (!p_ptr->resist_blind)
@@ -2262,16 +2512,29 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses.", m_name);
+
+			/* 50% miss chance for monster spells */
+			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			savechance = 105 + (badluck/2) - (goodluck/3);
 			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 20;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
-			else
+			else if (!m_ptr->extra2)
 			{
 				take_hit(damroll(3, 8), ddesc);
 			}
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2282,19 +2545,32 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses horribly.", m_name);
+
+			/* 50% miss chance for monster spells */
+			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			savechance = rand_int(104 + (badluck/2) - (goodluck/2));
 			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 25;
 			if (savechance < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
-			else
+			else if (!m_ptr->extra2)
 			{
 				damage = damroll(7, 8);
 		        /* extra damage reduction from surrounding magic */
 				if (surround) damage -= (damage * (surround / 500));
 				take_hit(damage, ddesc);
 			}
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2305,13 +2581,23 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles loudly.", m_name);
 			else msg_format("%^s points at you, incanting terribly!", m_name);
+
+			/* 50% miss chance for monster spells */
+			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			savechance = rand_int(101 + (badluck/2) - (goodluck/4));
 			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 25;
 			if (savechance < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
-			else
+			else if (!m_ptr->extra2)
 			{
 				damage = damroll(9, 15);
 		        /* extra damage reduction from surrounding magic */
@@ -2320,9 +2606,14 @@ bool make_attack_spell(int m_idx)
 				/* added cuts */
 				if (!p_ptr->resist_shard)
 				{
-					(void)inc_timed(TMD_CUT, damroll(6, 3));
+					int cdur = damroll(6, 3);
+					if (r_ptr->flags2 & (RF2_POWERFUL)) cdur += damage/8;
+					(void)inc_timed(TMD_CUT, cdur);
 				}
 			}
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2333,30 +2624,46 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
 			else msg_format("%^s points at you, screaming the word DIE!", m_name);
+
+			/* 50% miss chance for monster spells */
+			if (((p_ptr->timed[TMD_INVULN]) || (p_ptr->timed[TMD_EMERGENCY_ESCAPE])) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			savechance = rand_int(101 + (badluck/2) - (goodluck/4));
 			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 25;
+			if (rlev == 126) savechance += 25;
 			if (savechance < p_ptr->skills[SKILL_SAV])
 			{
 				if ((badluck > 1) && (randint((badluck * 2) + 15) > 9) &&
-					(!p_ptr->resist_shard))
+					(!p_ptr->resist_shard) && (!m_ptr->extra2))
 				{
 					msg_print("You mostly resist the effects!");
 					(void)inc_timed(TMD_CUT, damroll(6, 6));
                 }
 				else msg_print("You resist the effects!");
 			}
-			else
+			else if (!m_ptr->extra2)
 			{
-				damage = damroll(14, 15);
+				if (rlev == 126) damage = damroll(20, 15) + 99; /* The Grim Reaper */
+				else if (rlev > 70) damroll(15, 15);
+				else damage = damroll(14, 15);
 		        /* extra damage reduction from surrounding magic */
 				if (surround) damage -= (damage * (surround / 500));
 				take_hit(damage, ddesc);
 				/* Rshards helps a little */
-				if (!p_ptr->resist_shard)
+				if ((!p_ptr->resist_shard) && (rlev < 126))
 					(void)inc_timed(TMD_CUT, damroll(10, 10));
 				else
 					(void)inc_timed(TMD_CUT, damroll(8, 8));
 			}
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2371,6 +2678,9 @@ bool make_attack_spell(int m_idx)
 			if (surround > 0) damage -= (damage * (surround / 500));
 			bolt(m_idx, GF_ACID, damage);
 			update_smart_learn(m_idx, DRS_RES_ACID);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2380,11 +2690,15 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a lightning bolt.", m_name);
-			damage = damroll(4, 8) + (rlev / 3);
+			if (rlev < 20) damage = damroll(3, 7) + (rlev / 2);
+			else damage = damroll(4, 8) + (rlev / 3);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 500));
 			bolt(m_idx, GF_ELEC, damage);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2399,6 +2713,9 @@ bool make_attack_spell(int m_idx)
 			if (surround > 0) damage -= (damage * (surround / 500));
 			bolt(m_idx, GF_FIRE, damage);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2423,6 +2740,9 @@ bool make_attack_spell(int m_idx)
 			if (surround > 0) damage -= (damage * (surround / 500));
 			bolt(m_idx, GF_COLD, damage);			     
 			update_smart_learn(m_idx, DRS_RES_COLD);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2451,6 +2771,9 @@ bool make_attack_spell(int m_idx)
 			if (surround > 0) damage -= (damage * (surround / 500));
 			bolt(m_idx, GF_NETHER, damage);
 			update_smart_learn(m_idx, DRS_RES_NETHR);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2471,6 +2794,9 @@ bool make_attack_spell(int m_idx)
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 350));
 		    bolt(m_idx, GF_WATER, damage);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2499,6 +2825,9 @@ bool make_attack_spell(int m_idx)
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 350));
 			bolt(m_idx, GF_MANA, damage);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2512,6 +2841,9 @@ bool make_attack_spell(int m_idx)
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 350));
 			bolt(m_idx, GF_PLASMA, damage);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2526,6 +2858,9 @@ bool make_attack_spell(int m_idx)
 			if (surround > 0) damage -= (damage * (surround / 400));
 			bolt(m_idx, GF_ICE, damage);
 			update_smart_learn(m_idx, DRS_RES_COLD);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2537,6 +2872,9 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a magic missile.", m_name);
 			bolt(m_idx, GF_MISSILE,
 			     damroll(2, 6) + (rlev / 3));
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2554,9 +2892,10 @@ bool make_attack_spell(int m_idx)
             }
 			if (!direct) break;
             die = randint(100);
-            if (r_ptr->flags2 & (RF2_POWERFUL)) die = die + 25;
-            if (p_ptr->timed[TMD_FRENZY]) die = die - 10;
-            if (p_ptr->resist_charm) die = die - 5;
+            if (r_ptr->flags2 & (RF2_POWERFUL)) die += 25;
+            if (p_ptr->timed[TMD_FRENZY]) die -= 10;
+            if (p_ptr->resist_charm) die -= 5;
+			if (m_ptr->extra2) die -= 10;
 			if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
 			if (p_ptr->resist_fear)
@@ -2570,33 +2909,34 @@ bool make_attack_spell(int m_idx)
 			else
 			{
             	(void)clear_timed(TMD_CHARM);
-                if (die > 100)
-                {
-				     (void)inc_timed(TMD_AFRAID, rand_int(6) + 6);
-                }
-                else 
-                {
-				     (void)inc_timed(TMD_AFRAID, rand_int(4) + 4);
-                }
+				if (m_ptr->extra2) (void)inc_timed(TMD_AFRAID, 2);
+                else if (die > 100) (void)inc_timed(TMD_AFRAID, rand_int(6) + 6);
+                else (void)inc_timed(TMD_AFRAID, rand_int(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_RES_FEAR);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 30)) m_ptr->monseen += 1;
 			break;
 		}
 
 		/* RF5_BLIND */
 		case RF5_OFFSET+28:
 		{
+			int save = p_ptr->skills[SKILL_SAV];
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a spell, burning your eyes!", m_name);
+			if (p_ptr->timed[TMD_SAFET_GOGGLES]) save += 8;
 			if (p_ptr->resist_blind)
 			{
 				msg_print("You are unaffected!");
 			}
+			else if (m_ptr->extra2) break;
 			else if (r_ptr->flags2 & (RF2_POWERFUL))
 	        {
-                    if (rand_int(120) < p_ptr->skills[SKILL_SAV])
+                    if (rand_int(120) < save)
 				    {
                       msg_print("You resist the effects!");
                     }
@@ -2605,13 +2945,13 @@ bool make_attack_spell(int m_idx)
                       (void)set_timed(TMD_BLIND, 12 + rand_int(5));
                     }
             }
-			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			else if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
-				(void)set_timed(TMD_BLIND, 12 + rand_int(4));
+				(void)set_timed(TMD_BLIND, 11 + rand_int(2 + rlev/10)); /* was 12+rand_int(4) */
 			}
 			update_smart_learn(m_idx, DRS_RES_BLIND);
 			break;
@@ -2639,6 +2979,15 @@ bool make_attack_spell(int m_idx)
                }
                break;
             } 
+
+			/* 50% miss chance for monster spells */
+			if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) &&	(randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
@@ -2647,6 +2996,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
+			else if (m_ptr->extra2) break;
 			else if (r_ptr->flags2 & (RF2_POWERFUL))
 			{
                     if (rand_int(120) < p_ptr->skills[SKILL_SAV])
@@ -2680,6 +3030,15 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
+			/* 50% miss chance for monster spells */
+			else if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+			else if (m_ptr->extra2) break;
 			else if (r_ptr->flags2 & (RF2_POWERFUL))
 			{
                     if (rand_int(120) < p_ptr->skills[SKILL_SAV])
@@ -2706,6 +3065,7 @@ bool make_attack_spell(int m_idx)
 		/* RF5_HOLD */
 		case RF5_OFFSET+31:
 		{
+			int save = p_ptr->skills[SKILL_SAV];
 			if (r_ptr->flags3 & (RF3_HELPER)) 
 			{
                msg_format("%^s casts sleep monsters.", m_name);
@@ -2716,13 +3076,23 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s stares deep into your eyes!", m_name);
+			if (p_ptr->timed[TMD_SAFET_GOGGLES]) save += 10;
 			if (p_ptr->free_act)
 			{
 				msg_print("You are unaffected!");
 			}
+			/* 50% miss chance for monster spells */
+			else if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the effect.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+			else if (m_ptr->extra2) break;
 			else if (r_ptr->flags2 & (RF2_POWERFUL))
 			{
-                 if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+                 if (rand_int(110) < save)
 				 {
                      msg_print("You resist the effects!");
                  }
@@ -2731,7 +3101,7 @@ bool make_attack_spell(int m_idx)
                      (void)inc_timed(TMD_PARALYZED, rand_int(5) + 4);
                  }
             }
-			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			else if (rand_int(100) < save)
 			{
 				msg_format("You resist the effects!");
 			}
@@ -2776,10 +3146,14 @@ bool make_attack_spell(int m_idx)
 			int healmon;
 			if (m_ptr->silence) return FALSE;
 			if (seen) msg_format("%^s casts a spell to heal %s kin.", m_name, m_poss);
-			disturb(1, 0);
+			if (m_ptr->extra2) break;
+			if ((seen) || (!noattack)) disturb(1, 0);
 			healmon = 1 + rlev/2 + randint((rlev * 3) / 2);
 			/* simulates project_los with GF_OLD_HEAL */
 			(void)heal_monsters(healmon, m_ptr, TRUE);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2787,17 +3161,16 @@ bool make_attack_spell(int m_idx)
 		case RF6_OFFSET+2:
 		{
 			if (m_ptr->silence) return FALSE;
-			disturb(1, 0);
+			/* don't heal when already fully healthy */
+			if (m_ptr->hp == m_ptr->maxhp) return FALSE;
+
+			if ((seen) || ((projectable(m_ptr->fy, m_ptr->fx, py, px)) &&
+				(m_ptr->cdis < 10))) disturb(1, 0);
 
 			/* Message */
-			if (seen)
-			{
-				msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
-			}
-			else if (m_ptr->cdis < 10)
-			{
-				msg_format("%^s mumbles.", m_name);
-			}
+			if (seen) msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
+			else if ((projectable(m_ptr->fy, m_ptr->fx, py, px)) &&
+				(m_ptr->cdis < 10)) msg_format("%^s mumbles.", m_name);
 
 			/* Heal some */
 			m_ptr->hp += (s32b)(rlev * 4) + randint(rlev * 2);
@@ -2834,7 +3207,7 @@ bool make_attack_spell(int m_idx)
 			if (r_ptr->flags3 & (RF3_HELPER))
 			{
                msg_format("%^s heals you also.", m_name);
-               (void)hp_player(20 + randint(30));
+               (void)hp_player(19 + randint((rlev+5)/2));
             } 
 			break;
 		}
@@ -2842,22 +3215,30 @@ bool make_attack_spell(int m_idx)
 		/* RF6_HEAL_OTHR */
 		case RF6_OFFSET+3:
 		{
-			int healmon;
+			int healmon = 2 + rlev/2 + randint((rlev * 3) / 2);
 			if (m_ptr->silence) return FALSE;
-			if (seen) msg_format("%^s casts a spell of mass healing.", m_name);
-			disturb(1, 0);
-			healmon = 1 + rlev/2 + randint((rlev * 3) / 2);
+			if (strchr("v", r_ptr->d_char))
+			{
+				if (seen) msg_format("%^s breathes positive energy.", m_name);
+				healmon += 35 + randint(35 + badluck*2);
+			}
+			else if (seen) msg_format("%^s casts a spell of mass healing.", m_name);
+			if (m_ptr->extra2) break;
+			if ((seen) || (!noattack)) disturb(1, 0);
 			/* simulates project_los with GF_OLD_HEAL */
 			(void)heal_monsters(healmon, m_ptr, FALSE);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 10)) m_ptr->monseen += 1;
 			break;
 		}
 
 		/* RF6_BLINK */
 		case RF6_OFFSET+4:
 		{
-			disturb(1, 0);
+			if ((seen) || (!noattack)) disturb(1, 0);
 			if (seen) msg_format("%^s blinks away.", m_name);
-			/* if monster is afraid, try to blink away from the player */
+			/* if monster is afraid, try to blink away from the PC */
 			if (m_ptr->monfear) teleport_away(m_idx, 10, 3);
 			else teleport_away(m_idx, 10, 0);
 			m_ptr->bold = FALSE;
@@ -2867,10 +3248,18 @@ bool make_attack_spell(int m_idx)
 		/* RF6_TPORT */
 		case RF6_OFFSET+5:
 		{
-			disturb(1, 0);
+			/* the teleporter box #914 tries to teleport with the PC */
+			if ((!r_ptr->level) && (randint(100) < 100) &&
+				(!((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx))))
+					break;
+			if ((seen) || (!noattack)) disturb(1, 0);
 			if (seen) msg_format("%^s teleports away.", m_name);
+			/* teleport_away mode 4 tries to take the PC along */
+			if (((!r_ptr->level) || (m_ptr->hp >= m_ptr->maxhp * 2 / 3)) &&
+				((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx)))
+				teleport_away(m_idx, MAX_SIGHT * 2 + 6, 4);
 			/* monster can hide again after teleporting (done in teleport_away() ) */
-			teleport_away(m_idx, MAX_SIGHT * 2 + 6, 0);
+			else teleport_away(m_idx, MAX_SIGHT * 2 + 6, 0);
 			m_ptr->bold = FALSE;
 			break;
 		}
@@ -2878,19 +3267,16 @@ bool make_attack_spell(int m_idx)
 		/* RF6_XXX3X6 - RF6_INVIS */
 		case RF6_OFFSET+6:
 		{
-			int mrs = r_ptr->stealth;
-			disturb(1, 0);
-			if ((seen) && (!p_ptr->see_inv)) msg_format("%^s dissapears!", m_name);
-			m_ptr->monseen = 0;
-			if (mrs < 1) mrs = 1;
-			m_ptr->tinvis = randint(4) + 3 + (rlev/9);
+			if (!player_has_los_bold(m_ptr->fy, m_ptr->fx)) seen = FALSE;
+			if (seen) disturb(1, 0);
+			if ((seen) && (!p_ptr->see_inv)) msg_format("%^s disappears!", m_name);
 			/* monster can hide again after turning invisible */
-			if ((!p_ptr->see_inv) || (!seen))
-			{
-			    if (m_ptr->monseen > 2) m_ptr->monseen -= randint(2);
-				else if ((m_ptr->monseen) && (rand_int(100) < mrs*8))
-				  m_ptr->monseen -= 1;
-			}
+			m_ptr->monseen = 0;
+
+			/* turn invisible */
+			m_ptr->tinvis = randint(4) + 3 + (rlev/9);
+
+			update_mon(m_idx, 0);
 			break;
 		}
 
@@ -2903,8 +3289,6 @@ bool make_attack_spell(int m_idx)
 		/* RF6_TELE_TO */
 		case RF6_OFFSET+8:
 		{
-			/* if monster is afraid, then it doesn't want to bring the player closer */
-			if (m_ptr->monfear) break;
 			if (!direct) break;
 			/* demon ward spell protects from TELE_TO from demons */
 			if ((r_ptr->flags3 & (RF3_DEMON)) && (p_ptr->timed[TMD_DEMON_WARD]))
@@ -2914,7 +3298,19 @@ bool make_attack_spell(int m_idx)
             }
 			disturb(1, 0);
 			msg_format("%^s commands you to return.", m_name);
+			/* 50% miss chance for monster spells */
+			if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the spell.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+			if (m_ptr->extra2) break;
 			teleport_player_to(m_ptr->fy, m_ptr->fx);
+			/* monster is now easier to notice */
+			if (!m_ptr->monseen) m_ptr->monseen = 1;
+			else if ((m_ptr->monseen < 3) && (randint(100) < 30)) m_ptr->monseen += 1;
 			break;
 		}
 
@@ -2925,9 +3321,18 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			/* TELE_AWAY has very short range in town */
 			if ((!p_ptr->depth) && (m_ptr->cdis > 5)) break;
+			/* small chance to resist (1/11 with Rnexus) */
+			if (((p_ptr->resist_nexus) && (rand_int(100) < 9 + goodluck/2)) ||
+				(randint(5000) < adj_chr_charm[p_ptr->stat_ind[A_CHR]]/11 + goodluck/2))
+			{
+				disturb(1, 0);
+				msg_format("%^s tells you to go away but you refuse.", m_name);
+				break;
+			}
 			disturb(1, 0);
-			if (mrs < 1) mrs = 1;
 			msg_format("%^s tells you to go away.", m_name);
+			if (m_ptr->extra2) break;
+			if (mrs < 1) mrs = 1;
 			controlled = FALSE;
 			/* controlled teleport (much harder when caused by a monster) */
 		    if (p_ptr->telecontrol)
@@ -2940,7 +3345,8 @@ bool make_attack_spell(int m_idx)
 
             if (!controlled) teleport_player(100);
 			/* monster can hide again after teleporting you away */
-		    if (m_ptr->monseen > 2) m_ptr->monseen -= 1;
+			if (m_ptr->monseen > 3) m_ptr->monseen -= randint(m_ptr->monseen-2);
+			else if (m_ptr->monseen > 2) m_ptr->monseen -= 1;
 			else if ((m_ptr->monseen > 1) && (rand_int(100) < mrs*6))
 			  m_ptr->monseen -= 1;
 			break;
@@ -2949,22 +3355,29 @@ bool make_attack_spell(int m_idx)
 		/* RF6_TELE_LEVEL */
 		case RF6_OFFSET+10:
 		{
+			int tlvlmode = 1;
 			if (!direct) break;
+			/* the teleporter box #914 teleports you only while it holds you */
+			if ((!r_ptr->level) && (!((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx))))
+					break;
+			else if (!r_ptr->level) tlvlmode = 2;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
-			savechance = 100 + badluck - (goodluck/2);
-			if (p_ptr->resist_nexus)
+			savechance = p_ptr->skills[SKILL_SAV] - badluck + (goodluck/2);
+			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance -= 5;
+			if (tlvlmode == 2) savechance = 0;
+			if ((p_ptr->resist_nexus) && (!(tlvlmode == 2)))
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
+			else if (rand_int(100) < savechance)
 			{
 				msg_print("You resist the effects!");
 			}
-			else
+			else if (!m_ptr->extra2)
 			{
-				teleport_player_level();
+				teleport_player_level(tlvlmode);
 			}
 			update_smart_learn(m_idx, DRS_RES_NEXUS);
 			break;
@@ -2973,43 +3386,54 @@ bool make_attack_spell(int m_idx)
 		/* RF6_XXX5  - now RF6_CURSE_PC */
 		case RF6_OFFSET+11:
 		{
-			int savet;
+			int savet, powf = badluck + (p_ptr->corrupt+1)/2;
 			if (!direct) break;
 			disturb(1, 0);
-			/* This message can be the same, blind or not */
-			/*if (blind) msg_format("%^s mumbles.", m_name);
-			else*/ msg_format("%^s whispers a curse of misfortune.", m_name);
+			msg_format("%^s whispers a curse of misfortune.", m_name);
+			/* 50% miss chance for monster spells */
+			if ((p_ptr->timed[TMD_EMERGENCY_ESCAPE]) &&
+				(!(r_ptr->flags3 & (RF3_HELPER))) && (randint(100) < 50))
+			{
+				if (m_ptr->ml) msg_print("A magic shield around you shimmers and blocks the spell.");
+				else msg_print("You feel a protective shimmer in the air.");
+				break;
+			}
+
 			savet = (p_ptr->skills[SKILL_SAV] * 3) / 4;
-			if (r_ptr->flags2 & (RF2_POWERFUL)) savet -= 20;
+			if (r_ptr->flags2 & (RF2_POWERFUL)) powf += 20;
+			if (r_ptr->flags1 & (RF1_UNIQUE)) powf += 18;
 			/* blessing guards against curses */
 			if (p_ptr->timed[TMD_BLESSED]) savet += 17;
+			if (m_ptr->extra2) savet += 20;
 			/* the luck factor */
-			savet += goodluck - badluck;
-			if (rand_int(100) < savet)
+			savet += goodluck;
+			if (rand_int(100 + powf) < savet)
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
-				int rlevb = ((rlev > 40) ? 40 : rlev);
 				int diebad;
+				int rlevb = ((rlev > 40) ? 40 : rlev);
+				if (rlev > 50) rlevb += (rlev - 50)/5;
 				if (p_ptr->depth > rlevb+10) rlevb += (p_ptr->depth - (rlevb+9)) / 2;
-				diebad = randint(50 + (rlevb*2) + badluck - goodluck);
+				diebad = randint(44 + (rlevb*2) + badluck - goodluck);
 				if (p_ptr->timed[TMD_BLESSED]) diebad -= 10;
 				if ((diebad >= 75) && (randint(100) < 35))
 				{
 					msg_print("You feel especially unlucky");
-					(void)inc_timed(TMD_WITCH, randint(diebad - 85) + 1);
+					(void)inc_timed(TMD_WITCH, randint(diebad - 65) + 1);
 				}
 				else if ((diebad > 70) && (randint(100) < 40))
 				{
 					msg_print("You feel especially unlucky");
-					p_ptr->luck -= 1;
+					if (!m_ptr->extra2) p_ptr->luck -= 1;
 				}
 				/* cap duration */
 				if (diebad > 70) diebad = 69 + randint(6);
-				if (diebad < 0) msg_print("You feel like you got lucky");
-				else (void)inc_timed(TMD_CURSE, randint(diebad) + 25);
+				if (diebad < 1) msg_print("You feel like you got lucky");
+				else if (m_ptr->extra2) (void)inc_timed(TMD_CURSE, 4);
+				else (void)inc_timed(TMD_CURSE, randint(diebad) + 25 + diebad/4);
 			}
 			break;
 		}
@@ -3018,10 +3442,22 @@ bool make_attack_spell(int m_idx)
 		case RF6_OFFSET+12:
 		{
 			if (!direct) break;
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s gestures in shadow.", m_name);
-			(void)unlite_area(0, 3, FALSE);
+			if ((m_ptr->extra2) && ((noattack) || (randint(100) < 85-badluck/2))) break;
+			if ((seen) || (!noattack)) disturb(1, 0);
+			if ((blind) && (m_ptr->cdis < 8)) msg_format("%^s mumbles.", m_name);
+			else if (seen) msg_format("%^s gestures in shadow.", m_name);
+			/* (alternate effect: projects from the monster) */
+			if (nolosb) (void)mon_unlite_area(randint((rlev+4)/4), 5, m_idx);
+			/* (changed old effect as well) */
+			else
+			{
+				/* fire a ball of weak darkess */
+				breath(m_idx, GF_DARK_WEAK, randint((rlev+4)/4), 4);
+				/* then darken the room where the PC is */
+				unlite_room(py, px, FALSE);
+				/* (very similar to old effect, but "who" in project() */
+				/* is now the monster as it should be for this. */
+			}
 			break;
 		}
 
@@ -3029,10 +3465,35 @@ bool make_attack_spell(int m_idx)
 		case RF6_OFFSET+13:
 		{
 			if (!direct) break;
-			disturb(1, 0);
+			/* Make it happen less often so corridors don't get full of traps */
+			/* From a monster who hasn't seen you yet */
+			if ((noattack) && (randint(100) < 22 + goodluck)) break;
 			sound(MSG_CREATE_TRAP);
+			/* alternate version of the spell: */
+			/* can set trap without the PC (or the player) noticing. */
+			if ((m_ptr->extra2) && (noattack)) break;
+			else if (noattack)
+			{
+				int tty = m_ptr->fy, ttx = m_ptr->fx;
+				/* can't set a trap here */
+				if (!((cave_feat[tty][ttx] == FEAT_FLOOR) || (cave_feat[tty][ttx] == FEAT_OPEN_PIT)))
+					break;
+				/* set the trap (whether PC notices or not) */
+				cave_set_feat(tty, ttx, FEAT_INVIS);
+				/* check if the PC notices the monster setting a trap */
+				/* (monsters never set trap doors this way) */
+				if ((alertness_check(m_ptr, 0, FALSE)) && (seen))
+				{
+					disturb(1, 0);
+					msg_format("%^s sets a trap.", m_name);
+					pick_trap(tty, ttx, TRUE);
+				}
+				break;
+			}
+			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and then cackles evilly.", m_name);
 			else msg_format("%^s casts a spell and cackles evilly.", m_name);
+			if (m_ptr->extra2) break;
 			(void)trap_creation();
 			break;
 		}
@@ -3050,7 +3511,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You resist the effects!");
 			}
-			else
+			else if (!m_ptr->extra2)
 			{
 				if (rlev < 20) inc_timed(TMD_AMNESIA, 4 + randint(5));
 				else inc_timed(TMD_AMNESIA, (rlev/4) + randint(rlev/4));
@@ -3359,20 +3820,22 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_ANGEL (summon ape) */
 		case RF6_OFFSET+24:
 		{
-		    cptr rname = (r_name + r_ptr->name);
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_ANIMAL);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons something hairy!", m_name);
-			/* how many monsters to summon */
-			if ((randint(100) < (badluck+1)*2) && (rlev >= 15))
+			/* how many monsters to summon (Humbaba is only 'A' after dL40) */
+			if ((rand_int(100) < (badluck+1)*2) && (rlev >= 20))
 			{
-				if ((badluck > 8) && (rlev >= 40)) some = randint(rlev/20 + 2) + 1;
-				else some = randint(3) + 1;
+				if ((badluck > 8) || (rlev >= 42)) some = randint(rlev/20 + 1) + 2;
+				else some = randint(rlev/20 + 2) + 1;
 			}
-			else if ((randint(100) < (badluck+20)*2) && (rlev >= 10))
-				some = 2;
+			else if ((rand_int(100) < badluck + 10 + (rlev/2)) && (rlev >= 10))
+			{
+				if ((rand_int(100) < (rlev + 25)/2) && (rlev >= 30)) some = 3;
+				else some = 2;
+			}
 			else some = 1;
 			/* cap */
 			if (some > 4 + (badluck+4)/6) some = 2 + (badluck+4)/6 + randint(2);
@@ -3608,7 +4071,7 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Remember what the monster did to us */
-	if (seen)
+	if ((seen) && (!m_ptr->extra2))
 	{
 		/* Innate spell */
 		if (thrown_spell < 32*4)
@@ -3783,6 +4246,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 
 	int when = 0;
 	int cost = 999;
+	bool in_sight = FALSE;
 
 	/* Monster flowing disabled */
 	if (!adult_ai_sound) return (FALSE);
@@ -3800,7 +4264,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 
 	/* Hack -- Player can see us, run towards him */
 	if (player_has_los_bold(y1, x1)) return (FALSE);
-
+	
 	/* The player is not currently near the monster grid */
 	if (cave_when[y1][x1] < cave_when[py][px])
 	{
@@ -3814,7 +4278,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 
 	/* Monster is too far away to notice the player */
 	if (cave_cost[y1][x1] > MONSTER_FLOW_DEPTH) return (FALSE);
-	if (cave_cost[y1][x1] > r_ptr->aaf) return (FALSE);
+	if (cave_cost[y1][x1] > MAX(r_ptr->aaf, 10)) return (FALSE); /* */
 
 	/* Check nearby grids, diagonals first */
 	for (i = 7; i >= 0; i--)
@@ -4480,6 +4944,7 @@ static bool get_moves(int m_idx, int mm[5])
 	if ((adult_ai_sound) && (!m_ptr->roaming))
 	{
 		/* Flow towards the player */
+		/* doesn't use return bool value, but x2 & y2 don't change when it returns FALSE */
 		(void)get_moves_aux(m_idx, &y2, &x2);
 	}
 #endif /* MONSTER_FLOW */
@@ -4494,8 +4959,9 @@ static bool get_moves(int m_idx, int mm[5])
 		friendflag = TRUE;
 
 	/* Normal animal packs try to get the player out of corridors. */
+	/* (now only does this before it 'meets' the PC) */
 	if (adult_ai_packs && (!m_ptr->roaming) && (!m_ptr->truce) &&
-    	(friendflag) && (r_ptr->flags3 & RF3_ANIMAL) &&
+    	(friendflag) && (r_ptr->flags3 & RF3_ANIMAL) && (!m_ptr->meet) &&
 	    !((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))))
 	{
 		int i, room = 0;
@@ -4591,6 +5057,8 @@ static bool get_moves(int m_idx, int mm[5])
 	}
 
 #endif /* MONSTER_AI */
+	m_ptr->headtoy = y2;
+	m_ptr->headtox = x2;
 
 	/* Check for no move */
 	if (!x && !y) return (FALSE);
@@ -4790,27 +5258,59 @@ static bool get_moves(int m_idx, int mm[5])
 
 /*
  * Hack -- compare the "strength" of two monsters XXX XXX XXX
+ * 
+ * (If this function returns greater than 0, then monster 1 can 
+ *  eat/trample or push past monster 2)
  */
-static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr, bool killm)
+static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr, bool killm, bool shoofly)
 {
 	monster_race *r_ptr;
-
+	monster_race *nr_ptr;
 	u32b mexp1, mexp2;
+	int bigger = 0;
 
 	/* Race 1 */
 	r_ptr = &r_info[m_ptr->r_idx];
+	/* Race 2 */
+	nr_ptr = &r_info[n_ptr->r_idx];
 
 	/* Extract mexp */
 	mexp1 = r_ptr->mexp;
 
-	/* Race 2 */
-	r_ptr = &r_info[n_ptr->r_idx];
-
 	/* Extract mexp */
-	mexp2 = r_ptr->mexp;
+	mexp2 = nr_ptr->mexp;
+	
+	/* NONMONSTERS have no XP value (and trees are hard to trample/push past) */
+	if (nr_ptr->flags7 & (RF7_NONMONSTER)) mexp2 = 14000 + randint(16000);
 
-	/* don't push past monsters of the same race */
-	if ((!killm) && (r_ptr->flags2 & (RF2_MOVE_BODY))) mexp2 *= 2;
+	/* always push past imaginary monsters */
+	if ((n_ptr->extra2) && (!m_ptr->extra2)) return (1);
+	else if ((!n_ptr->extra2) && (m_ptr->extra2)) return (-1);
+
+	/* wall monsters and statues are especially hard to trample */
+	if ((killm) && (strchr("#", nr_ptr->d_char))) mexp2 += 8000 + randint(11000);
+	
+	/* never trample uniques */
+	if ((killm) && (nr_ptr->flags1 & (RF1_UNIQUE))) return (-1);
+
+	/* don't trample or push past monsters of the same race */
+	if (m_ptr->r_idx == n_ptr->r_idx) return (-1);
+	
+	/* monster size (shoofly = smaller the better) */
+	if ((r_ptr->mrsize > nr_ptr->mrsize))
+	{
+		bigger = r_ptr->mrsize - nr_ptr->mrsize;
+		if (bigger > 2) bigger += (bigger - 2);
+		if (shoofly) mexp1 = (mexp1 * (10 - bigger)) / 16;
+		else mexp1 = (mexp1 * (4 + bigger)) / 4;
+	}
+	else if ((nr_ptr->mrsize > r_ptr->mrsize))
+	{
+		bigger = nr_ptr->mrsize - r_ptr->mrsize;
+		if (bigger > 2) bigger += (bigger - 2);
+		if (shoofly) mexp2 = (mexp2 * (10 - bigger)) / 16;
+		else mexp2 = (mexp2 * (4 + bigger)) / 4;
+	}
 
 	/* Compare */
 	if (mexp1 < mexp2) return (-1);
@@ -4820,33 +5320,49 @@ static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr
 	return (0);
 }
 
-/* Staff of zapping effect */
-/* return damage and do damage later */
-int do_zapping(const monster_type *m_ptr, int y, int x)
+/* Staff of zapping effect
+ * returns TRUE is monster has been zapped to death.
+ * (more effective than it used to be)
+ */
+static bool do_zapping(const monster_type *m_ptr)
 {
 	cptr note_dies; 
-	bool fear;          
-	 /* get stuff */
-     /* monster_type *m_ptr = &mon_list[m_idx]; */
-	 monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	 monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-	 int zap = 0;
-	int odds = 4;
+	bool fear;      
+	int y, x, odds, zap = 0;
+
+	/* get stuff */
+    /* monster_type *m_ptr = &mon_list[m_idx]; */
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	/* skip if monster is immune and you know it (this may confuse people...) */
+	/* if ((r_ptr->Relec == 3) && (l_ptr->know_MRelec)) return FALSE; */
+
+	/* location */
+	y = m_ptr->fy;
+	x = m_ptr->fx;
+
+	/* less likely to zap sleeping monsters */
 	if ((m_ptr->csleep) && (m_ptr->roaming)) odds = 5;
 	else if (m_ptr->csleep) odds = 8;
+	else odds = 4;
+	/* less likely to activate vs PASS_WALL monsters in a wall */
+	if (!cave_floor_bold(y, x)) odds += 2;
+	/* more likely to zap breeders */
+	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (odds > 6)) odds -= 2;
+	else if (r_ptr->flags2 & (RF2_MULTIPLY)) odds -= 1;
 
 	/* Prepare death note */
 	note_dies = " dies.";
 	/* Some monsters get "destroyed" */
-	if ((r_ptr->flags3 & (RF3_DEMON)) ||
-      (r_ptr->flags2 & (RF2_STUPID)) ||
+	if ((r_ptr->flags3 & (RF3_DEMON)) || (r_ptr->flags2 & (RF2_STUPID)) ||
 	     (r_ptr->flags3 & (RF3_NON_LIVING)))
 	{
 		/* Special note at death */
 		note_dies = " is destroyed.";
 	}
 	 
-     if ((!cave_floor_bold(y, x)) && (m_ptr->cdis > 1) && (randint(odds+1) == 1))
+     if ((!cave_floor_bold(y, x)) && (m_ptr->cdis > 1) && (randint(odds) == 1))
      {
          /* in case of PASS_WALL monsters */
          msg_print("A spark hits the wall.");
@@ -4856,35 +5372,48 @@ int do_zapping(const monster_type *m_ptr, int y, int x)
 	     /* Get the monster name */
 		 char m_name[80];
 		 monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-                          
+
          msg_format("%^s is zapped with electricity.", m_name);
-         if (p_ptr->lev > 13) zap = randint(p_ptr->lev/3) + (p_ptr->lev/12);
-         else zap = randint(4);
-         if (p_ptr->resist_elec) zap += randint(p_ptr->lev/4 + 1);
+		 /* damage has been increased as of v1.3.0: */
+		 /* 2-4 damage at plev 1, 2-6 at plev 10, 3-6 at plev 12, 4-11 at plev 24 */
+         if (p_ptr->lev >= 12) zap = randint(p_ptr->lev/3) + (p_ptr->lev/12) + 1;
+         else zap = randint(3 + p_ptr->lev/5) + 1;
+
+		 if (p_ptr->immune_elec) zap += randint(p_ptr->lev/4 + 1) + 1;
+         else if (p_ptr->resist_elec) zap += randint(p_ptr->lev/4 + 1);
          if (cp_ptr->flags & CF_POWER_SHIELD) zap += (goodluck/2) + (p_ptr->lev/10);
          if (r_ptr->flags3 & (RF3_BUG)) zap += randint(p_ptr->lev/3 + 1);
 
-		 if (r_ptr->flags3 & (RF3_IM_ELEC))
+		 if (r_ptr->Relec > 1)
 	     {
             if (m_ptr->ml)
             {
-               msg_format("%^s resists.", m_name);
-               l_ptr->flags3 |= (RF3_IM_ELEC);
+				if (r_ptr->Relec == 3) msg_format("%^s is unaffected.", m_name);
+				else msg_format("%^s resists.", m_name);
+				l_ptr->know_MRelec = 1;
             } 
-            zap = zap/3;
+            if (r_ptr->Relec == 2) zap = zap/3;
+            if (r_ptr->Relec == 3) zap = 0;
+         }                  
+		 if (r_ptr->Relec < -1)
+	     {
+            if (m_ptr->ml) l_ptr->know_MRelec = 1;
+            if (r_ptr->Relec == -2) zap += (zap+2)/3;
+            if (r_ptr->Relec == -3) zap *= 2;
          }                  
      }     
 	
-	if (!zap) return 0;
-	/* true if monster dies (returns anyway) */
-	fear = FALSE;
-	(void)mon_take_hit(cave_m_idx[y][x], zap, &fear, note_dies);
+	if (!zap) return FALSE;
 
-    return zap;
+	fear = FALSE;
+	/* true if monster dies */
+	return (mon_take_hit(cave_m_idx[y][x], zap, &fear, note_dies, FALSE));
+
+    /* return zap; */
 }
 
 /* Daylight effect (similar to zapping) */
-bool do_daylight(int m_idx, int ny, int nx)
+static bool do_daylight(int m_idx, int ny, int nx)
 {
 	 char m_name[80];
 	 cptr note_dies;
@@ -4896,7 +5425,7 @@ bool do_daylight(int m_idx, int ny, int nx)
 	 int ldam, chance;
 
 	 /* if not hurt by light, then doesn't hurt as often */
-	 if (!r_ptr->flags3 & (RF3_HURT_LITE)) chance = 4;
+	 if (r_ptr->Rlite >= 0) chance = 4;
 	 else chance = 3;
 
      if (cave_info[ny][nx] & (CAVE_WALL))
@@ -4906,31 +5435,29 @@ bool do_daylight(int m_idx, int ny, int nx)
      }
      else if ((randint(chance) == 1) && (player_has_los_bold(ny, nx)))
      {
-	      if ((r_ptr->flags3 & (RF3_HURT_LITE)) && (r_ptr->flags3 & (RF3_UNDEAD)))
+	      if ((r_ptr->Rlite < -1) && (r_ptr->flags3 & (RF3_UNDEAD)))
 	      {
-             ldam = damroll(2, (p_ptr->lev/6));
-             if (m_ptr->ml)
-             {
-                l_ptr->flags3 |= (RF3_HURT_LITE);
-                l_ptr->flags3 |= (RF3_UNDEAD);
-             }
-          }
-	      else if (r_ptr->flags3 & (RF3_HURT_LITE))
-	      {
-             ldam = damroll(1, (p_ptr->lev/4));
-             if (m_ptr->ml) l_ptr->flags3 |= (RF3_HURT_LITE);
+             ldam = damroll((ABS(r_ptr->Rlite)), (p_ptr->lev/6));
+             if (m_ptr->ml) l_ptr->flags3 |= (RF3_UNDEAD);
           }
 	      else if (r_ptr->flags3 & (RF3_UNDEAD))
 	      {
              ldam = damroll(1, (p_ptr->lev/5));
              if (m_ptr->ml) l_ptr->flags3 |= (RF3_UNDEAD);
           }
+	      else if (r_ptr->Rlite < 0)
+	      {
+             if (r_ptr->Rlite == -1) ldam = damroll(1, (p_ptr->lev/5));
+             else ldam = damroll(1, (p_ptr->lev/4));
+          }
 	      else if (r_ptr->flags3 & (RF3_DEMON))
 	      {
-             ldam = damroll(1, (p_ptr->lev/6));
-             if (m_ptr->ml) l_ptr->flags3 |= (RF3_DEMON);
+             ldam = damroll(1, (p_ptr->lev+4)/8);
           }
           else return FALSE; /* doesn't affect other monsters */
+          
+          /* learn something */
+		if ((!(r_ptr->Rlite == 0)) && (m_ptr->ml)) l_ptr->know_MRlite = 1;
 	 
 	     /* Get the monster name */
 		 monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -4943,7 +5470,7 @@ bool do_daylight(int m_idx, int ny, int nx)
          /* (does not use GF_LITE or GF_LITE_WEAK because */
          /* we don't want the spaces permanently lit) */
          fear = FALSE;
-         if (mon_take_hit(m_idx, ldam, &fear, note_dies)) return TRUE;
+         if (mon_take_hit(m_idx, ldam, &fear, note_dies, TRUE)) return TRUE;
      }
      
      return FALSE;
@@ -4962,11 +5489,11 @@ bool charm_sphere(const monster_type *m_ptr)
 	ridx = m_ptr->r_idx;
 
     /* light fairies (not easily charmed) */
-    if (strchr("y", r_ptr->d_char)) charmres = 7;
+    if ((r_ptr->flags3 & (RF3_FEY)) && (r_ptr->flags3 & (RF3_CLIGHT))) charmres = 7;
     /* unicorns (not easily charmed but charmable) */
-    if ((strchr("Y", r_ptr->d_char)) && (r_ptr->flags3 & (RF3_HURT_DARK))) charmres = 6;
+    if ((strchr("Y", r_ptr->d_char)) && (r_ptr->flags3 & (RF3_FEY))) charmres = 6;
     /* other creatures of light */
-    else if (r_ptr->flags3 & (RF3_HURT_DARK)) charmres = 4;
+    else if (r_ptr->flags3 & (RF3_CLIGHT)) charmres = 4;
     /* (most) animals and bugs can be charmed */
     else if (r_ptr->flags3 & (RF3_ANIMAL)) charmres = 1;
     else if (r_ptr->flags3 & (RF3_BUG)) charmres = 3;
@@ -4981,7 +5508,7 @@ bool charm_sphere(const monster_type *m_ptr)
     if (r_ptr->flags1 & (RF1_UNIQUE)) charmres += 4;
 
     /* black cats, werebeats, etc.. (most of these also have EVIL flag) */
-    if (r_ptr->flags3 & (RF3_HURT_SILV)) charmres += 3;
+    if (r_ptr->Rsilver) charmres += r_ptr->Rsilver + 1;
 
     /* evil (young dragons already have strong resistance) */
     if ((m_ptr->evil) && (r_ptr->flags3 & (RF3_DRAGON))) charmres += 1;
@@ -4998,7 +5525,7 @@ bool charm_sphere(const monster_type *m_ptr)
 
     /* HURT_LITE impossible to charm: */
     /* driders, araneas, spider uniques, and gnawing bug 9*/
-    if (r_ptr->flags3 & (RF3_HURT_LITE)) charmres += 20;
+    if (r_ptr->Rlite < -1) charmres += 20;
     
     /* other exceptions which should be harder to charm */
     if (ridx == 645) charmres += 3; /* Humbaba */
@@ -5016,7 +5543,7 @@ bool charm_sphere(const monster_type *m_ptr)
     /* white unicorn (extremely hard to charm but charmable) */
     if (ridx == 605) charmres = 5;
     /* Beruthiel's cats (very hard to charm but charmable) */
-    if ((ridx >= 781) && (ridx <= 789)) charmres = 4;
+    if (ridx == 781) charmres = 4;
 
     /* max eplev is 140 (only with max plev, max charisma, and max goodluck) */
     eplev = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]] + goodluck;
@@ -5044,12 +5571,11 @@ bool charm_sphere(const monster_type *m_ptr)
  */
 static bool wakeup_friends(int m_idx, bool dowake)
 {
-	int i, y, x, oy, ox, dist, iloud;
+	int i, y, x, oy, ox, dist, iloud, loud;
 	bool wokeup = FALSE;
 	bool leader = FALSE;
 	char m_name[80];
 	char om_name[80];
-	int loud = 75 + badluck + randint(50) - (p_ptr->skills[SKILL_STL]*2);
 	
 	/* get the monster who is looking for friends */
 	monster_type *m_ptr = &mon_list[m_idx];
@@ -5068,6 +5594,13 @@ static bool wakeup_friends(int m_idx, bool dowake)
 	/* monsters leads a group of escorts */
 	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags2 & (RF2_ESCORT1)))
 		leader = TRUE;
+
+	/* loudness (csleep -= loudness) */
+	/* was 75 + badluck + randint(50) - (p_ptr->skills[SKILL_STL]*2) */
+	if (r_ptr->level < 50) loud = 80 + randint(45 + r_ptr->level/4);
+	else loud = 85 + randint(52);
+	loud -= (p_ptr->skills[SKILL_STL]*2);
+	if (rand_int(100) < ((badluck/2)+1) * 4) loud = loud*2;
 
 	if (dowake)
 	{
@@ -5189,15 +5722,12 @@ static bool do_repugnance(int m_idx)
 		erlev += 5;
 	else if (r_ptr->flags3 & (RF3_BUG)) erlev += 10;
 	else if ((r_ptr->flags3 & (RF3_ORC)) || (r_ptr->flags3 & (RF3_TROLL)) ||
-		(r_ptr->flags3 & (RF3_GIANT)) || (r_ptr->flags3 & (RF3_HURT_SILV)))
+		(r_ptr->flags3 & (RF3_GIANT)) || (r_ptr->Rsilver > 1))
 		erlev += 1;
 	else erlev -= 5;
 
 	/* Attempt a saving throw */
-	if ((fearless) || (erlev > randint(11 + flee) + 10))
-	{
-		flee = 0;
-	}
+	if ((fearless) || (erlev > randint(11 + flee) + 10)) flee = 0;
 
 	if (flee)
 	{
@@ -5280,14 +5810,15 @@ static void process_monster(int m_idx)
 	/* temporarily invisibility */
 	if (m_ptr->tinvis) m_ptr->tinvis -= 1;
 
+	/* threshhold so that certain monsters never wake unless attacked */
+	if (r_ptr->sleep == 255) nowake = TRUE;
+	/* town monsters with an XP penalty don't get aggravated this way */
+	if ((r_ptr->level == 0) && (r_ptr->mexp < 0)) nowake = TRUE;
+
 	/* Handle roaming or sleeping monsters (hasn't noticed the player yet) */
 	if (m_ptr->csleep)
 	{
 		u32b notice;
-		/* threshhold so that certain monsters never wake unless attacked */
-		if (r_ptr->sleep == 255) nowake = TRUE;
-		/* town monsters with an XP penalty don't get aggravated this way */
-		if ((r_ptr->level == 0) && (r_ptr->mexp < 0)) nowake = TRUE;
 
 		/* Aggravation */
 		/* note: aggravation can now be nullifed by very high stealth */
@@ -5298,7 +5829,6 @@ static void process_monster(int m_idx)
 			if (m_ptr->ml)
 			{
 				/* Get the monster name */
-				char m_name[80];
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 				/* Dump a message */
@@ -5318,17 +5848,15 @@ static void process_monster(int m_idx)
 			{
 				/* notice the player */
 				m_ptr->csleep = 0;
+
+				/* Efficiency XXX XXX */
+				/* monsters who were already awake have time to act */
+				/* on the same turn that they notice you */
+				if (!m_ptr->roaming) return;
+
+				/* stop roaming */
 				m_ptr->roaming = 0;
 			}
-
-			/* Efficiency XXX XXX */
-			/* monsters who were already awake have time to act */
-			/* on the same turn that they notice you */
-			if (!m_ptr->roaming) return;
-
-			/* stop roaming if it's noticed you */
-			if ((!m_ptr->csleep) && ((!nowake) || (player_has_los_bold(oy, ox))))
-				m_ptr->roaming = 0;
 		}
 		
 		/* reduced detection radius for special types of aggravation */
@@ -5338,7 +5866,7 @@ static void process_monster(int m_idx)
 		/* Liches aggravate animals and creatures of light */
 		if ((p_ptr->timed[TMD_BECOME_LICH]) &&
 		   (m_ptr->cdis <= malertrad) &&
-		   ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		   ((r_ptr->flags3 & (RF3_CLIGHT)) ||
 		   (r_ptr->flags3 & (RF3_ANIMAL))))
 		{
 			/* Reset sleep counter */
@@ -5347,8 +5875,6 @@ static void process_monster(int m_idx)
 			/* Notice the "waking up" */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
-
 				/* Get the monster name */
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
@@ -5380,8 +5906,6 @@ static void process_monster(int m_idx)
 			/* Notice the "waking up" */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
-
 				/* Get the monster name */
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
@@ -5403,12 +5927,12 @@ static void process_monster(int m_idx)
 		}
 
 		/* Anti-stealth (originally: notice = rand_int(1024);  ) */
-		if (player_has_los_bold(m_ptr->fy, m_ptr->fx)) noticerange = 900 + (m_ptr->cdis*2);
-		else if (projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) noticerange = 1000;
-		else noticerange = 1200;
+		if (player_has_los_bold(m_ptr->fy, m_ptr->fx)) noticerange = 800 + (m_ptr->cdis*5); /* was 900 + (m_ptr->cdis*2) */
+		else if (projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) noticerange = 980; /* was 1000 */
+		else noticerange = 1400; /* was 1200 */
 
 		/* monsters notice you easier when you stink */
-		if ((p_ptr->timed[TMD_STINKY]) && (m_ptr->cdis < 5))
+		if ((p_ptr->timed[TMD_STINKY]) && (m_ptr->cdis < 6))
 			noticerange = noticerange/2;
 
 		/* Mind flayers sense telepathic PCs */
@@ -5449,7 +5973,7 @@ static void process_monster(int m_idx)
 			/* niceness */
 			if ((p_ptr->nice) &&
 			   (!m_ptr->evil) &&
-		       ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		       ((r_ptr->flags3 & (RF3_CLIGHT)) ||
 		       (r_ptr->flags3 & (RF3_ANIMAL))))
             {
                if (d > 2) d = (d - 1) / 2;
@@ -5472,7 +5996,7 @@ static void process_monster(int m_idx)
 				m_ptr->csleep -= d;
 
 				/* Notice the "not waking up" */
-				if (m_ptr->ml)
+				if ((m_ptr->ml) && (!m_ptr->extra2))
 				{
 					/* Hack -- Count the ignores */
 					if (l_ptr->ignore < MAX_UCHAR)
@@ -5486,7 +6010,7 @@ static void process_monster(int m_idx)
 			else if ((p_ptr->nice) && 
 			   (!m_ptr->evil) &&
                (goodluck > 0) && (randint(100) < 33) &&
-		       ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		       ((r_ptr->flags3 & (RF3_CLIGHT)) ||
 		       (r_ptr->flags3 & (RF3_ANIMAL))))
             {
                   m_ptr->csleep += (goodluck * 20) + 20;
@@ -5501,8 +6025,6 @@ static void process_monster(int m_idx)
 				/* Notice being noticed */
 				if (m_ptr->ml)
 				{
-					char m_name[80];
-
 					/* Get the monster name */
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
@@ -5514,7 +6036,7 @@ static void process_monster(int m_idx)
 					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 					/* Hack -- Count the wakings */
-					if (l_ptr->wake < MAX_UCHAR)
+					if ((l_ptr->wake < MAX_UCHAR) || (!m_ptr->extra2))
 					{
 						l_ptr->wake++;
 					}
@@ -5580,8 +6102,6 @@ static void process_monster(int m_idx)
 			/* Message if visible */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
-
 				/* Get the monster name */
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
@@ -5630,7 +6150,6 @@ static void process_monster(int m_idx)
 			if (m_ptr->ml)
 			{
 				/* Get the monster name */
-				char m_name[80];
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 				/* Dump a message */
@@ -5664,7 +6183,6 @@ static void process_monster(int m_idx)
 			if (m_ptr->ml)
 			{
 				/* Get the monster name */
-				char m_name[80];
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 				/* Dump a message */
@@ -5698,8 +6216,6 @@ static void process_monster(int m_idx)
 			/* Message if visible */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
-
 				/* Get the monster name */
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
@@ -5735,7 +6251,6 @@ static void process_monster(int m_idx)
 			/* Visual note */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
 				char m_poss[80];
 
 				/* Get the monster name/poss */
@@ -5814,7 +6329,6 @@ static void process_monster(int m_idx)
 	   {
 	      bool startroam;
 		  /* Get the monster name */
-	      /* char m_name[80]; */
 	      monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 	   
 	      if (r_ptr->sleep * 2 < 50) m_ptr->csleep += (goodluck * 25) + 50;
@@ -5896,7 +6410,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 25)
 			{
 				/* Memorize flags */
-				if (m_ptr->ml) l_ptr->flags1 |= (RF1_RAND_25);
+				if ((m_ptr->ml) && (!m_ptr->extra2)) l_ptr->flags1 |= (RF1_RAND_25);
 
 				/* Stagger */
 				stagger = TRUE;
@@ -5910,7 +6424,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 50)
 			{
 				/* Memorize flags */
-				if (m_ptr->ml) l_ptr->flags1 |= (RF1_RAND_50);
+				if ((m_ptr->ml) && (!m_ptr->extra2)) l_ptr->flags1 |= (RF1_RAND_50);
 
 				/* Stagger */
 				stagger = TRUE;
@@ -5924,12 +6438,17 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 75)
 			{
 				/* Memorize flags */
-				if (m_ptr->ml) l_ptr->flags1 |= (RF1_RAND_50 | RF1_RAND_25);
+				if ((m_ptr->ml) && (!m_ptr->extra2)) l_ptr->flags1 |= (RF1_RAND_50 | RF1_RAND_25);
 
 				/* Stagger */
 				stagger = TRUE;
 			}
 		}
+	}
+	/* imaginary monsters stagger sometimes */
+	else if ((m_ptr->extra2) && (rand_int(100) < 25))
+	{
+		stagger = TRUE;
 	}
 
 	/* monsters roaming in groups stagger more often */
@@ -5949,7 +6468,7 @@ static void process_monster(int m_idx)
     /* nice monsters stagger sometimes */
     else if ((p_ptr->nice) && (!m_ptr->evil) &&
        (goodluck > 0) && (randint(100) < 16) && 
-	   ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+	   ((r_ptr->flags3 & (RF3_CLIGHT)) ||
 	   (r_ptr->flags3 & (RF3_ANIMAL))))
      {
         stagger = TRUE;
@@ -5963,10 +6482,7 @@ static void process_monster(int m_idx)
 	if (!stagger)
 	{
 		/* Logical moves, may do nothing */
-		if (!get_moves(m_idx, mm))
-		{
-			return;
-		}
+		if (!get_moves(m_idx, mm)) return;
 	}
 
 	/* Assume nothing */
@@ -5992,14 +6508,26 @@ static void process_monster(int m_idx)
     pause = FALSE;
 
 	/* if it's a WATER_ONLY monster, it may suffocate if out of water */
-	if (rand_int(100) < 17) fishdie = TRUE;
+	if ((rand_int(100) < 9) && (m_ptr->extra2)) fishdie = TRUE;
+	else if ((rand_int(100) < 17) && (!m_ptr->extra2)) fishdie = TRUE;
 	else fishdie = FALSE;
 
 	/* Process moves */
 	for (i = 0; i < 5; i++)
 	{
+		/* get the monster name */
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
 		/* Get the direction (or stagger) */
 		d = (stagger ? ddd[rand_int(8)] : mm[i]);
+		
+		/* some monsters do not like getting too close to the PC */
+		if ((r_ptr->flags3 & (RF3_KEEP_DIST)) &&
+			(projectable(oy, ox, p_ptr->py, p_ptr->px)) &&
+			(randint(5) + 2 > m_ptr->cdis) && (!m_ptr->bold) &&
+			(!stagger) && (!m_ptr->csleep))  /* not staggering or roaming */
+			/* (reverse direction to move away from PC) */
+			d = 0 - d;
 
 		/* Get the destination */
 		ny = oy + ddy[d];
@@ -6010,17 +6538,32 @@ static void process_monster(int m_idx)
 			(!(cave_feat[oy][ox] == FEAT_WATER)) &&
 			(!(cave_feat[ny][nx] == FEAT_WATER)))
 		{
-			if (m_ptr->hp > 4) m_ptr->hp -= (1 + randint((m_ptr->hp / 2) + 1));
-			if (m_ptr->hp <= 4) m_ptr->hp -= randint(2);
-			if (m_ptr->hp < 0)
+			int wy, wx;
+			bool can_breathe = FALSE;
+			/* (this is so water maccasins don't die so easily because */
+			/* they're group monsters and all of the group usually don't fit in the water spaces) */
+			for (wy = (oy - 1); wy <= (oy + 1); wy++)
 			{
-				if (m_ptr->ml) msg_format("%^s dies from being out of water!", m_name);
-				delete_monster_idx(m_idx, FALSE);
-				return;
+				for (wx = (ox - 1); wx <= (ox + 1); wx++)
+				{
+					if (cave_feat[wy][wx] == FEAT_WATER) can_breathe = TRUE;
+				}
 			}
-			else if (m_ptr->ml)
+
+			if (!can_breathe)
 			{
-				msg_format("%^s is having trouble breathing out of water.", m_name);
+				if (m_ptr->hp > 4) m_ptr->hp -= (1 + randint((m_ptr->hp / 2) + 1));
+				if (m_ptr->hp <= 4) m_ptr->hp -= randint(2);
+				if (m_ptr->hp < 0)
+					{
+				if (m_ptr->ml) msg_format("%^s dies from being out of water!", m_name);
+						delete_monster_idx(m_idx, FALSE);
+					return;
+				}
+				else if (m_ptr->ml)
+				{
+					msg_format("%^s is having trouble breathing out of water.", m_name);
+				}
 			}
 			/* don't hurt the monster more than once */
 			fishdie = FALSE;
@@ -6158,7 +6701,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Monster destroys walls (and doors) */
-		else if (r_ptr->flags2 & (RF2_KILL_WALL))
+		else if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (!m_ptr->extra2))
 		{
 			/* Eat through walls/doors/rubble */
 			do_move = TRUE;
@@ -6195,12 +6738,12 @@ static void process_monster(int m_idx)
 			if (randint(100) < 10) stagger = TRUE;
 		}
 
-		/* Handle PASS_DOOR monsters */
-		else if ((((cave_feat[ny][nx] >= FEAT_DOOR_HEAD) &&
-		          (cave_feat[ny][nx] <= FEAT_DOOR_TAIL)) ||
+		/* Handle PASS_DOOR monsters (imaginary monsters also pass through doors) */
+		else if ((((cave_feat[ny][nx] >= FEAT_DOOR_CLOSE) &&
+		          (cave_feat[ny][nx] <= FEAT_DOOR_STUCK)) ||
 		         /* (cave_feat[ny][nx] == FEAT_SECRET) || */
 				  (cave_feat[ny][nx] == FEAT_RUBBLE)) &&
-  				  (r_ptr->flags2 & (RF2_PASS_DOOR)))
+  				  ((r_ptr->flags2 & (RF2_PASS_DOOR)) || (m_ptr->extra2)))
 
 		{
 			/* Pass through doors */
@@ -6212,16 +6755,17 @@ static void process_monster(int m_idx)
 				m_ptr->ml = TRUE;
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-				l_ptr->flags2 |= (RF2_PASS_DOOR);
+				if (!m_ptr->extra2) l_ptr->flags2 |= (RF2_PASS_DOOR);
 			}
 		}
 
 		/* Handle doors and secret doors */
-		else if (((cave_feat[ny][nx] >= FEAT_DOOR_HEAD) &&
-		          (cave_feat[ny][nx] <= FEAT_DOOR_TAIL)) ||
+		else if (((cave_feat[ny][nx] >= FEAT_DOOR_CLOSE) &&
+		          (cave_feat[ny][nx] <= FEAT_DOOR_STUCK)) ||
 		         (cave_feat[ny][nx] == FEAT_SECRET))
 		{
 			bool may_bash = TRUE;
+			bool may_open = TRUE;
 
 			/* roaming monsters don't bash down doors */
             if ((m_ptr->roaming) && (m_ptr->roaming < 20)) may_bash = FALSE;
@@ -6231,11 +6775,15 @@ static void process_monster(int m_idx)
 			if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) || (r_ptr->flags2 & (RF2_BASH_DOOR)))
 				do_turn = TRUE;
 
+			/* occationally bash instead of opening */
+			if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) && (r_ptr->flags2 & (RF2_BASH_DOOR)) &&
+				(randint(100) < 3) && (may_bash)) may_open = FALSE;
+
 			/* Creature can open doors. */
-			if (r_ptr->flags2 & (RF2_OPEN_DOOR))
+			if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) && (may_open))
 			{
 				/* Closed doors and secret doors */
-				if ((cave_feat[ny][nx] == FEAT_DOOR_HEAD) ||
+				if ((cave_feat[ny][nx] == FEAT_DOOR_CLOSE) ||
 				    (cave_feat[ny][nx] == FEAT_SECRET))
 				{
 					/* The door is open */
@@ -6246,13 +6794,17 @@ static void process_monster(int m_idx)
 				}
 
 				/* Locked doors (not jammed) */
-				else if (cave_feat[ny][nx] < FEAT_DOOR_HEAD + 0x08)
+				else if (cave_feat[ny][nx] == FEAT_DOOR_LOCKD)
 				{
-					int k;
+					int k, rdlev;
 
 					/* Door power */
-					k = ((cave_feat[ny][nx] - FEAT_DOOR_HEAD) & 0x07);
-					if ((m_ptr->confused) || (m_ptr->stunned)) k += 2;
+					if (p_ptr->depth < 20) k = 2 + randint(9);
+					else if (p_ptr->depth < 70) k = p_ptr->depth/10 + randint(9);
+					else k = 7 + randint(9);
+
+					if ((m_ptr->confused) && (m_ptr->stunned)) k += 5;
+					else if ((m_ptr->confused) || (m_ptr->stunned)) k += 2;
 
 					/* roaming monsters don't bash doors so they should */
 					/* be able to open them easier so they don't just */
@@ -6260,10 +6812,14 @@ static void process_monster(int m_idx)
 					if (m_ptr->roaming) k -= 5;
 
 					/* Try to unlock it XXX XXX XXX */
-					if (rand_int(m_ptr->hp / 10) > k)
+					rdlev = r_ptr->level*2;
+
+					/* needs to be a minimum of 5 to be able to open anything */
+					if ((rdlev < 5) && (randint(100) < rdlev*10)) rdlev = 5;
+					if (rand_int(rdlev) > k)
 					{
 						/* Unlock the door */
-						cave_set_feat(ny, nx, FEAT_DOOR_HEAD + 0x00);
+						cave_set_feat(ny, nx, FEAT_DOOR_CLOSE);
 
 						/* Do not bash the door */
 						may_bash = FALSE;
@@ -6277,48 +6833,60 @@ static void process_monster(int m_idx)
 				int k, bashhp;
 
 				/* Door power */
-				k = ((cave_feat[ny][nx] - FEAT_DOOR_HEAD) & 0x07);
-				
-				/* make up for having less levels of door power */
-				if (cave_feat[ny][nx] > FEAT_DOOR_TAIL - 2)
-					k += 1 + randint(2 + (goodluck+1)/2);
-				/* inflate so stuck doors can actually block monsters sometimes */
-				k = (k + 1) * 5; /* was k = (k + 1) * 3 */
+				if (cave_feat[ny][nx] == FEAT_DOOR_STUCK)
+				{
+					if (p_ptr->depth < 20) k = 4 + randint(9);
+					else if (p_ptr->depth < 75) k = p_ptr->depth/5 + randint(9);
+					else k = 15 + randint(9);
+				}
+				else
+				{
+					if (p_ptr->depth < 20) k = 2 + randint(9);
+					else if (p_ptr->depth < 56) k = p_ptr->depth/8 + randint(9);
+					else if (p_ptr->depth > 80) k = p_ptr->depth/8 + randint(8);
+					else k = 7 + randint(9);
+				}
 				
 				/* monster's bashing power */
-				bashhp = (m_ptr->hp+4) / 15;
+				bashhp = (m_ptr->hp+6) / 16;
 				if (bashhp > 220) bashhp = 220;
-				/* some types bash worse than others */
-				if ((strchr("BFIJZbefkrt", r_ptr->d_char)) && (bashhp > 10))
-                   bashhp = (bashhp * 3) / 4;
-				if ((strchr("CShpqs", r_ptr->d_char)) && (bashhp > 10))
-                   bashhp = (bashhp * 4) / 5;
-                /* lower max for most humans & humanoids and some others */
-				if ((strchr("FIkptr@", r_ptr->d_char)) && (bashhp > 60)) bashhp = 60;
-				if ((strchr("BCKZbfho", r_ptr->d_char)) && (bashhp > 120)) bashhp = 120;
-				/* some types bash better than others */
-				if ((strchr("DENOPTUXYdg%&", r_ptr->d_char)) && (bashhp <= 200))
-					bashhp = (bashhp * 6) / 5;
-				/* replace previous with this when monster size is coded */
-				/* if (monster size > x) */
+                /* lower maximum for some monsters */
+				if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+				{
+					if ((strchr("FIktr", r_ptr->d_char)) && (bashhp > 40)) bashhp = 40;
+					if ((strchr("BCJZbfhop@", r_ptr->d_char)) && (bashhp > 80)) bashhp = 80;
+					if ((strchr("KSeijlsuxyz", r_ptr->d_char)) && (bashhp > 120)) bashhp = 120;
+				}
+				
+				/* exception for power sprite */
+				if (m_ptr->r_idx == 195) bashhp = (bashhp * 6) / 4;
+				/* size of monster */
+				else bashhp = (bashhp * r_ptr->mrsize) / 4;
+
+				/* some monsters have a minimum */
+				if ((strchr("DOPT&", r_ptr->d_char)) && (bashhp < MAX(25, r_ptr->level/3)))
+					bashhp = MAX(25, r_ptr->level/4);
+				if ((strchr("AHMNUXYd%", r_ptr->d_char)) && (bashhp < MAX(18, r_ptr->level/4))) 
+					bashhp = MAX(18, r_ptr->level/6);
 
 				/* if a monster has BASH_DOOR then they should always have some chance */
-				if (bashhp < k + 2)
+				if (bashhp <= k)
 				{
 					int bchance = 50 - goodluck + (badluck*2);
 					int dlevel = 52 + (p_ptr->depth/2);
-					int obash = bashhp + 1;
+					int obash = bashhp;
 					bashhp = k;
 					if (r_ptr->level < dlevel) bchance -= (dlevel - r_ptr->level) / 3;
-					if (rand_int(100) < bchance/2) bashhp += 1 + randint(obash);
+					if (r_ptr->flags1 & (RF1_UNIQUE)) bchance += 15;
+					if (rand_int(100) < bchance/5) bashhp += 1 + randint(obash);
 					else if (rand_int(100) < bchance) bashhp += 2;
 					if (badluck > 5) bashhp += (badluck/5);
 				}
 				/* confused / stunned penalty */
-				if ((m_ptr->confused) && (m_ptr->stunned)) bashhp = bashhp/3;
-				else if ((m_ptr->confused) || (m_ptr->stunned)) bashhp = (bashhp*2)/3;
+				if ((m_ptr->confused) && (m_ptr->stunned)) bashhp = bashhp/4;
+				else if (m_ptr->stunned) bashhp = bashhp / 2;
+				else if (m_ptr->confused) bashhp = (bashhp*2)/3;
 				if ((badluck > 8) && (bashhp <= k+1) && (r_ptr->level > 5)) bashhp = k+2;
-				if (bashhp < 2) bashhp = 2;
 
 				/* Attempt to Bash */
 				if (rand_int(bashhp) > k)
@@ -6388,14 +6956,14 @@ static void process_monster(int m_idx)
            	int bashstr, perc, die;
            	bool aclimb = FALSE;
 			object_type *o_ptr;
-	        cptr dname = (r_name + r_ptr->name);
-           	/* hack for dwarves' digging */
-  			if (strstr(dname, "dwarf")) bashstr = 60;
-           	/* some monsters are better at digging/bashing than others */
+			cptr dname = (r_name + r_ptr->name);
+			/* hack for dwarves' digging */
+			if (strstr(dname, "dwarf")) bashstr = 60;
+			/* some monsters are better at digging/bashing than others */
 			else if (strchr("XP:%", r_ptr->d_char)) bashstr = 70;
-            else if (strchr("DETg&", r_ptr->d_char)) bashstr = 50;
-            else if (strchr("ZOMdnox", r_ptr->d_char)) bashstr = 40;
-            else bashstr = 35;
+			else if (strchr("DETg&", r_ptr->d_char)) bashstr = 50;
+			else if (strchr("ZOMdnox", r_ptr->d_char)) bashstr = 40;
+			else bashstr = 35;
             
 			/* Boulders can leave rubble, so monsters who throw them */
 			/* should climb/move the rubble easily */
@@ -6496,7 +7064,7 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 
 			/* Break the ward */
-			if (randint(BREAK_GLYPH) < r_ptr->level)
+			if ((randint(BREAK_GLYPH) < r_ptr->level) && (!m_ptr->extra2))
 			{
 				/* Describe observable breakage */
 				if (cave_info[ny][nx] & (CAVE_MARK))
@@ -6535,7 +7103,7 @@ static void process_monster(int m_idx)
 		    monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 		    
 			/* how did he not notice the player earlier? */
-            if ((m_ptr->roaming) && (m_ptr->csleep))
+            if ((m_ptr->roaming) && (m_ptr->csleep) && (!nowake))
             {
 				msg_format("%^s suddenly notices you.", m_name);
 				/* another magic roaming number: monster is caught off guard */
@@ -6595,9 +7163,7 @@ static void process_monster(int m_idx)
 			/* (not if confused or stunned, and don't kill trees) */
 			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
                (!m_ptr->stunned) && (!m_ptr->confused) &&
-			    (compare_monsters(m_ptr, n_ptr, TRUE) > 0) &&
-				(!strchr("E", nr_ptr->d_char)))
-
+			    (compare_monsters(m_ptr, n_ptr, TRUE, FALSE) > 0))
 			{
 				/* Allow movement */
 				do_move = TRUE;
@@ -6628,28 +7194,38 @@ static void process_monster(int m_idx)
 		if (gonext && (cave_m_idx[ny][nx] > 0))
 		{
 			monster_type *n_ptr = &mon_list[cave_m_idx[ny][nx]];
+			bool shoofly;
+			bool movepast = FALSE;
+			if (r_ptr->flags2 & (RF2_MOVE_BODY)) movepast = TRUE;
+			/* small flying monsters can fly past other monsters */
+			if ((r_ptr->flags2 & (RF2_FLY)) && (r_ptr->mrsize < 3))
+			{
+				movepast = TRUE;
+				shoofly = TRUE;
+			}
+			/* WATER_ONLY monsters moving into water will pust past other monsters */
+			if ((r_ptr->flags7 & (RF7_WATER_ONLY)) && 
+				(!(cave_feat[oy][ox] == FEAT_WATER)) && (cave_feat[ny][nx] == FEAT_WATER)) 
+				movepast = TRUE;
+			/* if the monster that's in the way is imaginary, move past it */
+			if (n_ptr->extra2) movepast = TRUE;
 
 			/* Assume no movement */
 			do_move = FALSE;
 
 			/* Push past weaker monsters (unless leaving a wall) */
-			if ((r_ptr->flags2 & (RF2_MOVE_BODY)) &&
-			    (compare_monsters(m_ptr, n_ptr, FALSE) > 0) &&
+			if ((movepast) &&
+			    (compare_monsters(m_ptr, n_ptr, FALSE, shoofly) > 0) &&
                 (!m_ptr->stunned) && (!m_ptr->confused) &&
 			    (cave_floor_bold(m_ptr->fy, m_ptr->fx)))
 			{
-				/* don't push past a tree */
-				if (!((r_ptr->flags7 & (RF7_NONMONSTER)) && 
-					(r_ptr->flags7 & (RF7_BLOCK_LOS))))
-				{
-					/* Allow movement */
-					do_move = TRUE;
+				/* Allow movement */
+				do_move = TRUE;
 
-					/* Monster pushed past another monster */
-					did_move_body = TRUE;
+				/* Monster pushed past another monster */
+				did_move_body = TRUE;
 
-					/* XXX XXX XXX Message */
-				}
+				/* XXX XXX XXX Message */
 			}
 		}
 
@@ -6815,8 +7391,8 @@ static void process_monster(int m_idx)
 			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
 	             (!m_ptr->csleep) && disturb_near)))
 			{
-				/* Disturb */
-				disturb(0, 0);
+				/* Disturb (unless it's a town monster and the PC is high level) */
+				if ((r_ptr->level) || (p_ptr->lev < 20)) disturb(0, 0);
 			}
 
 
@@ -6854,8 +7430,8 @@ static void process_monster(int m_idx)
 				}
 
 				/* Take or Kill objects on the floor */
-				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
-				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
+				if (((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
+				    (r_ptr->flags2 & (RF2_KILL_ITEM))) && (!m_ptr->extra2))
 				{
 					u32b f1, f2, f3, f4;
 
@@ -6880,8 +7456,7 @@ static void process_monster(int m_idx)
 					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
 					if (f1 & (TR1_SLAY_SILVER)) flg3 |= (RF3_SILVER);
 					if (f1 & (TR1_SLAY_BUG)) flg3 |= (RF3_BUG);
-					if (f1 & (TR1_SLAY_WERE)) flg3 |= (RF3_HURT_SILV);
-					if (f1 & (TR1_SLAY_LITE)) flg3 |= (RF3_HURT_DARK);
+					if (f1 & (TR1_SLAY_LITE)) flg3 |= (RF3_CLIGHT);
 					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
 					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
 					/* if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);  orcs kill each other often */
@@ -7012,8 +7587,8 @@ static void process_monster(int m_idx)
 	}
 
 
-	/* Learn things from observable monster */
-	if (m_ptr->ml)
+	/* Learn things from observable (and real) monster */
+	if ((m_ptr->ml) && (!m_ptr->extra2))
 	{
 		/* Monster opened a door */
 		if (did_open_door) l_ptr->flags2 |= (RF2_OPEN_DOOR);
@@ -7082,13 +7657,14 @@ static bool monster_can_flow(int m_idx)
 		int fy = m_ptr->fy;
 		int fx = m_ptr->fx;
 
+		/* maybe should prevent flowing while asleep */
+		/* if ((m_ptr->csleep) && (!m_ptr->roaming)) return FALSE; */
+
 		/* Check the flow (normal aaf is about 20) */
 		if ((cave_when[fy][fx] == cave_when[p_ptr->py][p_ptr->px]) &&
 		    (cave_cost[fy][fx] < MONSTER_FLOW_DEPTH) &&
 		    (cave_cost[fy][fx] < r_ptr->aaf))
-		{
-			return TRUE;
-		}
+				return TRUE;
 	}
 
 	return FALSE;
@@ -7179,17 +7755,21 @@ void process_monsters(byte minimum_energy)
 		    player_has_los_bold(m_ptr->fy, m_ptr->fx) ||
 		    monster_can_flow(i))
 		{
-			int zapped = 0;
+			bool zapped = FALSE;
+			
+			/* Zapping effect (used to be if cdis < 4) */
+			if ((p_ptr->timed[TMD_ZAPPING]) && (m_ptr->cdis < 5) &&
+				(!(r_ptr->flags7 & (RF7_NONMONSTER))))
+			{
+				/* returns TRUE if monster is dead */
+				zapped = do_zapping(m_ptr);
+			}
+
+			/* dead monsters don't do anything */
+			if (zapped) continue;
 
 			/* Process the monster */
 			process_monster(i);
-			
-			/* Zapping effect */
-			if ((p_ptr->timed[TMD_ZAPPING]) && (m_ptr->cdis < 4))
-			{
-				/* returns damage to do later */
-				zapped = do_zapping(m_ptr, m_ptr->fy, m_ptr->fx);
-			}
 		}
 	}
 }

@@ -111,12 +111,12 @@ s16b mon_max = 1;	/* Number of allocated monsters */
 s16b mon_cnt = 0;	/* Number of live monsters */
 
 /* new for DJA  **see bottom of file** */
-/* int illusion = 0;	use when I implement the illusion trap */
 int range = 0;         /* shortened range of some spell/breaths */
 int spellswitch = 0;   /* extra effects of some spells (easy hacking) */
 int losesave = 0;      /* chance for powerful monsters to get past sustains and immunity */
 int summoner = 0;      /* holds race index of monster casting a summoning spell */
 					/* so I can have more control over what it can summon. */
+int uniqdrop = 0;
 int goodluck = 0;
 /* if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20; */
 int badluck = 0;
@@ -137,6 +137,7 @@ int roamgroup5 = 0;
 int roamgroup6 = 0;
 int roamgroup7 = 0;
 int roamgroup8 = 0;
+bool bugsearch = FALSE;
 
 /*
  * TRUE if process_command() is a repeated call.
@@ -925,7 +926,7 @@ char notes_fname[1024];
  * 13 = target prompt and prevents using old target for teleport control. 
  *	HELPER monster spells also use it to prevent using old target.
  * 14 = (no longer used)
- * 15 = (no longer used)
+ * 15 = used to let place_puddle know that we're in a cavern
  * 16 = disinfectant in GF_BUG_SPRAY (damage to j,m,",",R and S)
  * 17 = (no longer used)
  * 18 = (no longer used)

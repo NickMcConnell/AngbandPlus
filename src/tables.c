@@ -421,11 +421,11 @@ const byte adj_int_spsk[] =
 /*
  * Stat Table (WIS) -- Saving throw
  */
-const byte adj_wis_sav[] =
+const int adj_wis_sav[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
+	-1	/* 3 */,
+	-1	/* 4 */,
+	-1	/* 5 */,
 	0	/* 6 */,
 	0	/* 7 */,
 	1	/* 8 */,
@@ -434,23 +434,23 @@ const byte adj_wis_sav[] =
 	1	/* 11 */,
 	1	/* 12 */,
 	1	/* 13 */,
-	1	/* 14 */,
+	2	/* 14 */,
 	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	5	/* 18/80-18/89 */,
-	6	/* 18/90-18/99 */,
-	7	/* 18/100-18/109 */,
-	8	/* 18/110-18/119 */,
-	9	/* 18/120-18/129 */,
+	3	/* 16 */,
+	3	/* 17 */,
+	4	/* 18/00-18/09 */,
+	4	/* 18/10-18/19 */,
+	5	/* 18/20-18/29 */,
+	5	/* 18/30-18/39 */,
+	6	/* 18/40-18/49 */,
+	6	/* 18/50-18/59 */,
+	7	/* 18/60-18/69 */,
+	7	/* 18/70-18/79 */,
+	8	/* 18/80-18/89 */,
+	8	/* 18/90-18/99 */,
+	9	/* 18/100-18/109 */,
+	9	/* 18/110-18/119 */,
+	10	/* 18/120-18/129 */,
 	10	/* 18/130-18/139 */,
 	11	/* 18/140-18/149 */,
 	12	/* 18/150-18/159 */,
@@ -557,7 +557,7 @@ const byte adj_int_dis[] =
 
 
 /*
- * Stat Table (DEX) -- bonus to ac (plus 128)
+ * Stat Table (DEX) -- bonus to ac (plus 128) (increased slightly)
  */
 const byte adj_dex_ta[] =
 {
@@ -568,36 +568,36 @@ const byte adj_dex_ta[] =
 	128 + 0	/* 7 */,
 	128 + 0	/* 8 */,
 	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 1	/* 12 */,
-	128 + 1	/* 13 */,
-	128 + 2	/* 14 */,
-	128 + 2	/* 15 */,
-	128 + 3	/* 16 */,
-	128 + 3	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
-	128 + 4	/* 18/30-18/39 */,
-	128 + 4	/* 18/40-18/49 */,
-	128 + 5	/* 18/50-18/59 */,
-	128 + 5	/* 18/60-18/69 */,
-	128 + 5	/* 18/70-18/79 */,
-	128 + 6	/* 18/80-18/89 */,
-	128 + 7	/* 18/90-18/99 */,
-	128 + 8	/* 18/100-18/109 */,
-	128 + 8	/* 18/110-18/119 */,
-	128 + 9	/* 18/120-18/129 */,
-	128 + 9	/* 18/130-18/139 */,
-	128 + 9	/* 18/140-18/149 */,
-	128 + 10	/* 18/150-18/159 */,
-	128 + 10	/* 18/160-18/169 */,
-	128 + 11	/* 18/170-18/179 */,
-	128 + 12	/* 18/180-18/189 */,
-	128 + 12	/* 18/190-18/199 */,
-	128 + 13	/* 18/200-18/209 */,
-	128 + 14	/* 18/210-18/219 */,
+	128 + 1	/* 10 */,
+	128 + 1	/* 11 */,
+	128 + 2	/* 12 */,
+	128 + 2	/* 13 */,
+	128 + 3	/* 14 */,
+	128 + 3	/* 15 */,
+	128 + 4	/* 16 */,
+	128 + 4	/* 17 */,
+	128 + 5	/* 18/00-18/09 */,
+	128 + 5	/* 18/10-18/19 */,
+	128 + 5	/* 18/20-18/29 */,
+	128 + 6	/* 18/30-18/39 */,
+	128 + 6	/* 18/40-18/49 */,
+	128 + 6	/* 18/50-18/59 */,
+	128 + 7	/* 18/60-18/69 */,
+	128 + 7	/* 18/70-18/79 */,
+	128 + 8	/* 18/80-18/89 */,
+	128 + 8	/* 18/90-18/99 */,
+	128 + 9	/* 18/100-18/109 */,
+	128 + 9	/* 18/110-18/119 */,
+	128 + 10	/* 18/120-18/129 */,
+	128 + 10	/* 18/130-18/139 */,
+	128 + 10	/* 18/140-18/149 */,
+	128 + 11	/* 18/150-18/159 */,
+	128 + 11	/* 18/160-18/169 */,
+	128 + 12	/* 18/170-18/179 */,
+	128 + 13	/* 18/180-18/189 */,
+	128 + 13	/* 18/190-18/199 */,
+	128 + 14	/* 18/200-18/209 */,
+	128 + 15	/* 18/210-18/219 */,
 	128 + 15	/* 18/220+ */
 };
 
@@ -1702,7 +1702,7 @@ cptr option_text[OPT_MAX] =
 	"cheat_hear",				/* OPT_cheat_hear */
 	"cheat_room",				/* OPT_cheat_room */
 	"cheat_xtra",				/* OPT_cheat_xtra */
-	"cheat_know",				/* OPT_cheat_know */
+	"know_races",				/* OPT_know_races (was cheat_know) */
 	"cheat_noid",				/* OPT_cheat_noid */
 	"cheat_live",				/* OPT_cheat_live */
 	NULL,						/* xxx */
@@ -1966,7 +1966,7 @@ cptr option_desc[OPT_MAX] =
 	"Cheat: Peek into monster creation and knowledge",	/* OPT_cheat_hear */
 	"Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
 	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
-	"Know complete monster race info (allows scoring)",	/* OPT_cheat_know */
+	"Know complete monster race info (allows scoring)",	/* OPT_know_races */
 	"Cheat: Everything is IDed (except artifacts)",	/* OPT_cheat_noid */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
 	NULL,										/* xxx */
@@ -2030,7 +2030,7 @@ cptr option_desc[OPT_MAX] =
 	"Score: Peek into monster creation",		/* OPT_score_hear */
 	"Score: Peek into dungeon creation",		/* OPT_score_room */
 	"Score: Peek into something else",			/* OPT_score_xtra */
-	"Score: Know complete monster info",		/* OPT_score_know */
+	"Know complete monster race info",			/* OPT_score_know */
 	"Score: Everything is already IDed",		/* OPT_score_noid */
 	"Score: Allow player to avoid death",		/* OPT_score_live */
 	NULL,										/* xxx */
@@ -2209,7 +2209,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* birth_ai_sound */
 	TRUE,		/* birth_ai_smell */
-	FALSE,		/* birth_ai_packs */
+	TRUE,		/* birth_ai_packs */
 	FALSE,		/* birth_ai_learn */
 	FALSE,		/* birth_ai_cheat */
 	FALSE,		/* birth_ai_smart */
@@ -2230,7 +2230,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_cheat_hear */
 	FALSE,		/* OPT_cheat_room */
 	FALSE,		/* OPT_cheat_xtra */
-	FALSE,		/* OPT_cheat_know */
+	FALSE,		/* OPT_know_races */
 	FALSE,		/* OPT_cheat_noid */
 	FALSE,		/* OPT_cheat_live */
 	FALSE,		/* xxx */
@@ -2417,7 +2417,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_hear,
 		OPT_cheat_room,
 		OPT_cheat_xtra,
-		OPT_cheat_know,
+		OPT_know_races,
 		OPT_cheat_noid,
 		OPT_cheat_live,
 		OPT_NONE,
@@ -2476,10 +2476,11 @@ const grouper object_text_order [] =
 	{TV_DARK_BOOK,      "Book of Black Magic" },
 /*	{TV_MIND_BOOK,      "Book of Mind Powers" }, */
 	{TV_LITE,			"Light"			},
-	{TV_FLASK,			"Flask"			},
+	{TV_FLASK,			"Flask/grenade"	},
 	{TV_SWORD,			"Sword"			},
 	{TV_POLEARM,		"Polearm"		},
 	{TV_HAFTED,			"Hafted Weapon" },
+	{TV_SKELETON,       "Bone Weapon"   },
 	{TV_BOW,			"Bow"			},
 	{TV_ARROW,			"Ammunition"	},
 	{TV_BOLT,			NULL			},
@@ -2540,7 +2541,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
+		{ TV_HARD_ARMOR, SV_RING_MAIL },
 		{ TV_HARD_ARMOR, SV_RING_MAIL },
 
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
@@ -2672,12 +2673,12 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_LIGHT },
 
+		{ TV_SCROLL, SV_SCROLL_LIGHT },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
 		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 

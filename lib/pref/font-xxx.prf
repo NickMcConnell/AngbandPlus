@@ -302,6 +302,23 @@ S:0xFF:0x0F/0x2C
 
 ##### Default inventory object colors #####
 
+# key
+#0x01 = white
+#0x02 = grey
+#0x03 = orange
+#0x04 = d.red
+#0x05 = d.green
+#0x06 = d.blue
+#0x07 = d.brown
+#0x08 = dark grey
+#0x09 = l.grey
+#0x0A = violet
+#0x0B = yellow
+#0x0C = l.red
+#0x0D = l.green
+#0x0E = l.blue
+#0x0F = l.brown
+
 
 # SKELETON
 E:1:0x01
@@ -311,6 +328,9 @@ E:2:0x01
 
 # JUNK
 E:3:0x01
+
+# special tval: treasure map
+E:4:0x05
 
 # SPIKE
 E:5:0x02
@@ -404,4 +424,20 @@ E:90:0x0C
 
 # PRAYER_BOOK
 E:91:0x0D
+
+# Nature realm book
+E:92:0x06
+
+# Chance realm book
+E:93:0x03
+
+# Alchemy realm book
+E:94:0x09
+#E:94:0x0B (bright)
+
+# Black magic book
+E:95:0x08
+
+# Mind powers book
+E:96:0x0A
 

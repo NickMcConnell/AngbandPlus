@@ -370,7 +370,6 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			(*f3) |= e_ptr->flags3;
 			(*f4) |= e_ptr->flags4;
 
-#ifdef new_random_stuff
 			/* only the random sustains, powers, and high resists are hidden */
 			if (o_ptr->randslay > 50) /* special code for KILL slays */
 			{
@@ -420,10 +419,11 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 				/* maybe add another */
 				if (o_ptr->randdrb2)
 					(*f2) |= (OBJECT_XTRA_BASE_DRAWBACK << (o_ptr->randdrb2 - 1));
-				/* can only have a random immunity if it also has drawbacks */
-				if (o_ptr->randimm)
-					(*f2) |= (OBJECT_XTRA_BASE_IMMU << (o_ptr->randimm - 1));
 			}
+			/* normally can only have a random immunity if it also has drawbacks */
+			/* The exception is basic 4 DSMs of immunity */
+			if (o_ptr->randimm)
+				(*f2) |= (OBJECT_XTRA_BASE_IMMU << (o_ptr->randimm - 1));
 
 			if (o_ptr->randlowr)
 			{
@@ -466,7 +466,6 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 						(*f3) |= (OBJECT_XTRA_BASE_POWER << (o_ptr->randpow2 - 1));
 				}
 			}
-#endif
 		}
 
 		if (mode == OBJECT_FLAGS_KNOWN)
@@ -522,7 +521,6 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		if (!(o_ptr->ident & IDENT_MENTAL)) return;
 	}
 
-#ifdef new_random_stuff
 	if (!is_ego_randart(o_ptr))
 	{
 		if (o_ptr->randsus)
@@ -555,32 +553,6 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 				(*f3) |= (OBJECT_XTRA_BASE_POWER << (o_ptr->randpow2 - 1));
 		}
 	}
-#else
-	/* Extra powers */
-	switch (o_ptr->xtra1)
-	{
-		case OBJECT_XTRA_TYPE_SUSTAIN:
-		{
-			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-			break;
-		}
-
-		case OBJECT_XTRA_TYPE_RESIST:
-		{
-			/* OBJECT_XTRA_WHAT_RESIST == 4 */
-			(*f4) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-			break;
-		}
-
-		case OBJECT_XTRA_TYPE_POWER:
-		{
-			/* OBJECT_XTRA_WHAT_POWER == 3 */
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-			break;
-		}
-	}
-#endif /* new_random_stuff */
 }
 
 
@@ -863,7 +835,7 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 	int power;
 	bool aware, known, flavor;
 	bool append_name;
-	bool show_weapon, show_armour;
+	bool show_weapon, show_armour, liteto = FALSE;
 	bool knowego = FALSE;
 	bool haspval = FALSE;
 	bool hidepotion = FALSE;
@@ -1426,7 +1398,7 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 			bool singleslay = FALSE;
 
 			object_desc_chr_macro(t, ' ');
-#ifdef new_random_stuff
+
 			/* treating 'of slaying' as single slay if it only ended up with one */
 			if ((o_ptr->name2 == EGO_SLAY_ONE) || ((o_ptr->name2 == EGO_SLAY_TWO) &&
             (o_ptr->randslay == o_ptr->randslay2))) singleslay = TRUE;
@@ -1465,9 +1437,6 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 			{
 				object_desc_str_macro(t, (e_name + e_ptr->name));
 			}
-#else
-			object_desc_str_macro(t, (e_name + e_ptr->name));
-#endif
 
 			/* chance for double ego 'of lightness' on heavy armor */
 			if ((o_ptr->tval == TV_HARD_ARMOR) && (!(o_ptr->name2 == EGO_LIGHTNESS)) &&
@@ -1884,15 +1853,19 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 			/* Dump " (N charges)" */
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_num_macro(t, o_ptr->pval);
+			object_desc_num_macro(t, o_ptr->charges);
 			object_desc_str_macro(t, " charge");
-			if (o_ptr->pval != 1)
+			if (o_ptr->charges != 1)
 			{
 				object_desc_chr_macro(t, 's');
 			}
 			object_desc_chr_macro(t, p2);
 		}
     }
+
+	/* no charging lights */
+	if (o_ptr->tval == TV_LITE && (!(f3 & TR3_NO_FUEL))) liteto = TRUE;
+	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == 0)) liteto = TRUE;
 
 	/* Hack -- Rods have a "charging" indicator */
 	if (known && (o_ptr->tval == TV_ROD))
@@ -1929,7 +1902,7 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Indicate "charging" artifacts */
-	else if (known && o_ptr->timeout && !(o_ptr->tval == TV_LITE && (!(f3 & TR3_NO_FUEL))))
+	else if (known && o_ptr->timeout && !liteto)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
@@ -1974,7 +1947,7 @@ object_desc_fifth:
 	}
 
 	/* Use "tried" if the object has been tested unsuccessfully */
-	else if (!aware && object_tried_p(o_ptr))
+	else if (!aware && object_tried_p(o_ptr) && (!hidepotion))
 	{
 		v = "tried";
 	}
@@ -2070,6 +2043,15 @@ void identify_random_gen(const object_type *o_ptr)
 	{
 	   object_info_out_flags = object_flags;
     }
+	/* don't give away disguised multi-hued poison (pval is its disguise) */
+	else if ((o_ptr->tval == TV_POTION) && 
+		(o_ptr->sval == SV_POTION_MULTIHUED_POISON) && (o_ptr->pval))
+	{
+		/* this calls object_info_screen() for a fake object of the */
+		/* kind of potion it is disguising as (hope that works...) */
+		desc_obj_fake(o_ptr->pval);
+		return;
+	}
 
 	/* Set the indent/wrap */
 	text_out_indent = 3;
@@ -2106,6 +2088,57 @@ void identify_random_gen(const object_type *o_ptr)
        text_out("  This object has had an evil enchantment removed from it,");
        text_out(" but the temporary blessing has worn off.\n");
     }
+
+	/* describe object origin */
+	if (o_ptr->dlevel)
+	{
+		if (o_ptr->drop_ridx < 0)
+		{
+			text_out("  It was dropped by an unknown monster");
+			if (o_ptr->vcode == 2) text_out(" in a vault");
+		}
+		else if (o_ptr->drop_ridx)
+		{
+			monster_race *r_ptr = &r_info[o_ptr->drop_ridx];
+			cptr name = (r_name + r_ptr->name);
+			if (r_ptr->flags1 & (RF1_UNIQUE))
+				text_out(format("  It was dropped by %s", name));
+			else text_out(format("  It was dropped by a(n) %s", name));
+			if (o_ptr->vcode == 2) text_out(" in a vault");
+		}
+		else if (o_ptr->vcode == 1) text_out(" It was found in a vault");
+		else if (o_ptr->vcode == 3) text_out(" It was found in a pile of rubble");
+		else if (o_ptr->vcode == 4) text_out(" It was found in a chest");
+		else if (o_ptr->vcode == 5) text_out(" It was found in a chest in a vault");
+		else if (o_ptr->vcode == 6) text_out(" It was found in a silver-locked chest");
+		else if (o_ptr->vcode == 7) text_out(" It was found in a gold-locked chest");
+		else if (o_ptr->vcode == 8) text_out(" It was found in a pile of rubble in a vault");
+		else if (o_ptr->vcode == 9) text_out(" It was created by aquirement magic");
+		else if (o_ptr->vcode == 10) text_out(" It was conjured up by magic");
+		else if ((o_ptr->vcode == 11) && (cheat_peek)) 
+			text_out(" It was generated as a great item outside of a vault");
+		else text_out(" It was found on the floor");
+
+		text_out(format(" on level %d.", o_ptr->dlevel));
+		text_out("\n");
+	}
+	else if ((o_ptr->vcode == 13) && (!(o_ptr->ident & IDENT_STORE)))
+	{
+		text_out(" It was bought from the black market.");
+		text_out("\n");
+	}
+	else if ((o_ptr->vcode == 12) && (!(o_ptr->ident & IDENT_STORE)))
+	{
+		/* only egos, artifacts, TV_SPECIAL, TV_CHEST and a few powerful items are tracked */
+		/* of these, only egos can be generated in stores */
+		if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_SWORD))
+			text_out(" It was bought from the weapon shop.");
+		else if ((o_ptr->tval >= TV_BOOTS) && (o_ptr->tval <= TV_HARD_ARMOR))
+			text_out(" It was bought from the armoury.");
+		else if (o_ptr->tval == TV_STAFF)
+			text_out(" It was bought from the magic shop.");
+		text_out("\n");
+	}
     text_out("\n");
 
 	/* Reset indent/wrap */
@@ -2524,6 +2557,9 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
+		/* this fixes the crash bug (see if it does the same here...) */
+		if (!((0 < this_o_idx) && (this_o_idx < z_info->o_max))) break;
+
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
@@ -2562,13 +2598,9 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 void display_inven(void)
 {
 	register int i, n, z = 0;
-
 	object_type *o_ptr;
-
 	byte attr;
-
 	char tmp_val[10];
-
 	char o_name[80];
 
 
@@ -4608,7 +4640,7 @@ void display_itemlist(void)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 				/* disguised == 1 means it's mimmicking a terrain, not an object */
 				if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised > 1) &&
-					((m_ptr->meet == 100) || (player_can_see_bold(my, mx))))
+					((m_ptr->meet == 11) || (player_can_see_bold(my, mx))))
 /*					((m_ptr->mflag & (MFLAG_SHOW)) || (player_can_see_bold(my, mx)))) */
 				{
 					unsigned j;

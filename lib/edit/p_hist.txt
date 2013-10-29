@@ -1,5 +1,5 @@
 # File: p_hist.txt
-# for DaJAngband 1.2.2
+# for DaJAngband 1.3.0
 
 # This file is used to initialize the "lib/data/p_hist.raw" file, which is
 # used to initialize the "player history" information for the Angband game.
@@ -31,8 +31,13 @@
 
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
+# (not drastic just ugly, doesn't affect gameplay at all)
 
-# Note that the "spacing" in the "description" lines is very important!
+# Note that the "spacing" in the "description" lines is very important.
+
+# Key:
+# N: Index : Index that can come next : rarity of that entry of that index
+# : bonus to social class for that entry (-50).
 
 
 # Version stamp (required)

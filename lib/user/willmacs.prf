@@ -3876,3 +3876,448 @@ P:\[F4]
 # *Warning!*  The lines above are an automatic dump.
 # Don't edit them; changes will be deleted and replaced automatically.
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=# end Dump Macros
+#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=# begin Dump Macros
+# *Warning!*  The lines below are an automatic dump.
+# Don't edit them; changes will be deleted and replaced automatically.
+
+
+#  Macros definitions
+
+# Macro '0'
+
+A:<
+P:\[Oem_102]
+
+
+# Macro '1'
+
+A:>
+P:\[shift-Oem_102]
+
+
+# Macro '2'
+
+A:|
+P:\[alt-Oem_102]
+
+
+# Macro '3'
+
+A:/
+P:\[/]
+
+
+# Macro '4'
+
+A:*
+P:\[KP_Multiply]
+
+
+# Macro '5'
+
+A:7
+P:\[Home]
+
+
+# Macro '6'
+
+A:\x8D
+P:\[Up]
+
+
+# Macro '7'
+
+A:9
+P:\[Page_Up]
+
+
+# Macro '8'
+
+A:-
+P:\[KP_Subtract]
+
+
+# Macro '9'
+
+A:\x8B
+P:\[Left]
+
+
+# Macro '10'
+
+A:5
+P:\[KP_5]
+
+
+# Macro '11'
+
+A:\x8C
+P:\[Right]
+
+
+# Macro '12'
+
+A:+
+P:\[KP_Add]
+
+
+# Macro '13'
+
+A:1
+P:\[End]
+
+
+# Macro '14'
+
+A:\x8A
+P:\[Down]
+
+
+# Macro '15'
+
+A:3
+P:\[Page_Down]
+
+
+# Macro '16'
+
+A:0
+P:\[Insert]
+
+
+# Macro '17'
+
+A:.
+P:\[Delete]
+
+
+# Macro '18'
+
+A:\a
+P:\[shift-/]
+
+
+# Macro '19'
+
+A:\a
+P:\[shift-KP_Multiply]
+
+
+# Macro '20'
+
+A:\a\\.7
+P:\[shift-Home]
+
+
+# Macro '21'
+
+A:\a\\.8
+P:\[shift-Up]
+
+
+# Macro '22'
+
+A:\a\\.9
+P:\[shift-Page_Up]
+
+
+# Macro '23'
+
+A:\a
+P:\[shift-KP_Subtract]
+
+
+# Macro '24'
+
+A:\a\\.4
+P:\[shift-Left]
+
+
+# Macro '25'
+
+A:\a\\.5
+P:\[shift-KP_5]
+
+
+# Macro '26'
+
+A:\a\\.6
+P:\[shift-Right]
+
+
+# Macro '27'
+
+A:\a
+P:\[shift-KP_Add]
+
+
+# Macro '28'
+
+A:\a\\.1
+P:\[shift-End]
+
+
+# Macro '29'
+
+A:\a\\.2
+P:\[shift-Down]
+
+
+# Macro '30'
+
+A:\a\\.3
+P:\[shift-Page_Down]
+
+
+# Macro '31'
+
+A:\a
+P:\[shift-Insert]
+
+
+# Macro '32'
+
+A:\a
+P:\[shift-Delete]
+
+
+# Macro '33'
+
+A:\a
+P:\[control-/]
+
+
+# Macro '34'
+
+A:\a
+P:\[control-KP_Multiply]
+
+
+# Macro '35'
+
+A:\a\\+7
+P:\[control-Home]
+
+
+# Macro '36'
+
+A:\a\\+8
+P:\[control-Up]
+
+
+# Macro '37'
+
+A:\a\\+9
+P:\[control-Page_Up]
+
+
+# Macro '38'
+
+A:\a
+P:\[control-KP_Subtract]
+
+
+# Macro '39'
+
+A:\a\\+4
+P:\[control-Left]
+
+
+# Macro '40'
+
+A:\a\\+5
+P:\[control-KP_5]
+
+
+# Macro '41'
+
+A:\a\\+6
+P:\[control-Right]
+
+
+# Macro '42'
+
+A:\a
+P:\[control-KP_Add]
+
+
+# Macro '43'
+
+A:\a\\+1
+P:\[control-End]
+
+
+# Macro '44'
+
+A:\a\\+2
+P:\[control-Down]
+
+
+# Macro '45'
+
+A:\a\\+3
+P:\[control-Page_Down]
+
+
+# Macro '46'
+
+A:\a
+P:\[control-Insert]
+
+
+# Macro '47'
+
+A:\a
+P:\[control-Delete]
+
+
+# Macro '48'
+
+A:\a
+P:\[control-Stop]
+
+
+# Macro '49'
+
+A:\a
+P:\[control-Ax]
+
+
+# Macro '50'
+
+A:\a\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\a\\+8
+P:\[control-KP_equals]
+
+
+# Macro '52'
+
+A:\a\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\a
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\a\\+4
+P:\[control-Abnt_C1]
+
+
+# Macro '55'
+
+A:\a\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\a\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\a
+P:\[control-Prevtrack]
+
+
+# Macro '58'
+
+A:\a\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\a\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\a\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\a
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\a
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:!
+P:!
+
+
+# Macro '64'
+
+A:t2
+P:~
+
+
+# Macro '65'
+
+A:@
+P:@
+
+
+# Macro '66'
+
+A:t1
+P:\[F1]
+
+
+# Macro '67'
+
+A:t1*t
+P:\[F2]
+
+
+# Macro '68'
+
+A:p1a
+P:\[F3]
+
+
+# Macro '69'
+
+A:p2f
+P:\[F9]
+
+
+# Macro '70'
+
+A:p2a
+P:\[F4]
+
+
+# Macro '71'
+
+A:t1
+P:`
+
+
+
+
+
+# *Warning!*  The lines above are an automatic dump.
+# Don't edit them; changes will be deleted and replaced automatically.
+#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=# end Dump Macros

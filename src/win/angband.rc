@@ -124,5 +124,6 @@ ANGBAND MENU
 	}
 }
 
-ANGBAND ICON "angband.ico"
+/* ANGBAND ICON "angband.ico" */
+ANGBAND ICON "DaJAngband130.ico"
 

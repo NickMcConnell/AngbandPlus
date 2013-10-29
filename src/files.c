@@ -1215,7 +1215,9 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 					f[4] |= TR4_RES_CHARM;
 				if (p_ptr->timed[TMD_SINVIS])
 					f[3] |= TR3_SEE_INVIS;
-				if (p_ptr->timed[TMD_CLEAR_MIND])
+				if ((p_ptr->timed[TMD_TSIGHT]) || (p_ptr->timed[TMD_LASTING_CURE]))
+					f[4] |= TR4_RES_BLIND;
+				if ((p_ptr->timed[TMD_CLEAR_MIND]) || (p_ptr->timed[TMD_LASTING_CURE]))
 					f[4] |= TR4_RES_CONFU;
 				if ((p_ptr->timed[TMD_OPP_NETHR]) || (p_ptr->timed[TMD_BECOME_LICH]))
 					f[4] |= TR4_RES_NETHR;
@@ -1548,6 +1550,44 @@ static const char *show_depth(void)
 	}
 }
 
+/* do this more like the others are done */
+/* ...still doesn't work even though it worked in 1.2.3 */
+static const char *show_time(void)
+{
+	s32b hour, minute, sec, day;
+	static char time[13];
+
+	/* convert turns to time (60 turns = 1 minute) */
+	if (turn >= 60) minute = turn / 60;
+	else minute = 0;
+	if (minute >= 60) hour = minute / 60;
+	else hour = 0;
+	if (hour >= 24) day = (hour / 24) + 1;
+	else day = 0;
+	if (turn >= 60) sec = turn - (minute * 60);
+	else sec = turn;
+	if (minute >= 60) minute -= hour * 60;
+	if (hour >= 24) hour -= (day-1) * 24;
+	
+	/* convert to time display 00:00:00 */
+	if ((day) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "%d, %d:0%d:0%d", day, hour, minute, sec);
+	else if ((day) && (minute < 10)) strnfmt(time, sizeof(time), "%d, %d:0%d:%d", day, hour, minute, sec);
+	else if ((day) && (sec < 10)) strnfmt(time, sizeof(time), "%d, %d:%d:0%d", day, hour, minute, sec);
+	else if (day) strnfmt(time, sizeof(time), "%d, %d:%d:%d", day, hour, minute, sec);
+	else if ((hour) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "1, %d:0%d:0%d", hour, minute, sec);
+	else if ((hour) && (minute < 10)) strnfmt(time, sizeof(time), "1, %d:0%d:%d", hour, minute, sec);
+	else if ((hour) && (sec < 10)) strnfmt(time, sizeof(time), "1, %d:%d:0%d", hour, minute, sec);
+	else if (hour) strnfmt(time, sizeof(time), "1, %d:%d:%d", hour, minute, sec);
+	else if ((minute) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "1, 00:0%d:0%d", minute, sec);
+	else if ((minute) && (minute < 10)) strnfmt(time, sizeof(time), "1, 00:0%d:%d", minute, sec);
+	else if ((minute) && (sec < 10)) strnfmt(time, sizeof(time), "1, 00:%d:0%d", minute, sec);
+	else if (minute) strnfmt(time, sizeof(time), "1, 00:%d:%d", minute, sec);
+	else if (sec < 10) strnfmt(time, sizeof(time), "1, 00:00:0%d", sec);
+	else strnfmt(time, sizeof(time), "1, 00:00:%d", sec);
+
+	return time;
+}
+
 #ifdef EFG
 /* EFGchange show energy rather than speed on 'C' screen */
 static const char *show_energy()
@@ -1617,38 +1657,8 @@ int get_panel(int oid, data_panel *panel, size_t size)
 {
 	int ret = (s32b) size;
 	int maxhp = p_ptr->mhp;
-	s32b hour, minute, sec, day;
-	char time[17];
-	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
 	int current_game_score = total_points();
-	
-	/* convert turns to time (60 turns = 1 minute) */
-	if (turn >= 60) minute = turn / 60;
-	else minute = 0;
-	if (minute >= 60) hour = minute / 60;
-	else hour = 0;
-	if (hour >= 24) day = (hour / 24) + 1;
-	else day = 0;
-	if (turn >= 60) sec = turn - (minute * 60);
-	else sec = turn;
-	if (minute >= 60) minute -= hour * 60;
-	if (hour >= 24) hour -= (day-1) * 24;
-	
-	/* convert to time display 00:00:00 */
-	if ((day) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "Day %d, %d:0%d:0%d", day, hour, minute, sec);
-	else if ((day) && (minute < 10)) strnfmt(time, sizeof(time), "Day %d, %d:0%d:%d", day, hour, minute, sec);
-	else if ((day) && (sec < 10)) strnfmt(time, sizeof(time), "Day %d, %d:%d:0%d", day, hour, minute, sec);
-	else if (day) strnfmt(time, sizeof(time), "Day %d, %d:%d:%d", day, hour, minute, sec);
-	else if ((hour) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, %d:0%d:0%d", hour, minute, sec);
-	else if ((hour) && (minute < 10)) strnfmt(time, sizeof(time), "Day 1, %d:0%d:%d", hour, minute, sec);
-	else if ((hour) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, %d:%d:0%d", hour, minute, sec);
-	else if (hour) strnfmt(time, sizeof(time), "Day 1, %d:%d:%d", hour, minute, sec);
-	else if ((minute) && (minute < 10) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, 00:0%d:0%d", minute, sec);
-	else if ((minute) && (minute < 10)) strnfmt(time, sizeof(time), "Day 1, 00:0%d:%d", minute, sec);
-	else if ((minute) && (sec < 10)) strnfmt(time, sizeof(time), "Day 1, 00:%d:0%d", minute, sec);
-	else if (minute) strnfmt(time, sizeof(time), "Day 1, 00:%d:%d", minute, sec);
-	else if (sec < 10) strnfmt(time, sizeof(time), "Day 1, 00:00:0%d", sec);
-	else strnfmt(time, sizeof(time), "Day 1, 00:00:%d", sec);
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);	
 	
   switch(oid)
  {
@@ -1671,16 +1681,17 @@ int get_panel(int oid, data_panel *panel, size_t size)
   case 2:
   {
 	int i = 0;
-	assert( ret >= boundaries[2].page_rows);
+	assert( ret >= boundaries[2].page_rows); 
 	ret = boundaries[2].page_rows;
 	P_I(max_color(p_ptr->lev, p_ptr->max_lev), "Level", "%y", i2u(p_ptr->lev), END  );
 	P_I(max_color(p_ptr->exp, p_ptr->max_exp), "Cur Exp", "%y", i2u(p_ptr->exp), END  );
 	P_I(TERM_L_GREEN, "Max Exp",	"%y",	i2u(p_ptr->max_exp), END  );
 	P_I(TERM_L_GREEN, "Adv Exp",	"%y",	s2u(show_adv_exp()), END  );
 	P_I(TERM_L_GREEN, "MaxDepth",	"%y",	s2u(show_depth()), END  );
-	P_I(TERM_L_GREEN, "",		"%y",	s2u(time), END  );
 #if notime
 	P_I(TERM_L_GREEN, "Turns",		"%y",	i2u(turn), END  );
+#else
+	P_I(TERM_L_GREEN, "   Day ",	"%y",	s2u(show_time()), END  );
 #endif
 	P_I(TERM_L_GREEN, "Gold",		"%y",	i2u(p_ptr->au), END  );
 	P_I(TERM_L_GREEN, "Burden",	"%.1y lbs",	f2u(p_ptr->total_weight/10.0), END  );
@@ -3609,8 +3620,8 @@ static errr enter_score(void)
 	{
 		if (!op_ptr->opt[j]) continue;
 		
-		/* knowing monster info shouldn't mark you as a cheater (?) */
-		if (j == OPT_SCORE+4) continue; /* CHEAT_KNOW */
+		/* knowing monster info shouldn't mark you as a cheater */
+		if (j == OPT_SCORE+4) continue; /* know_races */
 
 		msg_print("Score not registered for cheaters.");
 		message_flush();

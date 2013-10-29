@@ -135,6 +135,7 @@ static cptr r_info_blow_effect[] =
 	"STUDY",
 	"BHOLD",
 	"XCONF",
+	"SBLIND",
 	NULL
 };
 
@@ -234,22 +235,22 @@ static cptr r_info_flags3[] =
 	"BUG",
 	"HELPER",
 	"NON_LIVING",
-	"HURT_LITE",
+	"",
 	"HURT_ROCK",
-	"HURT_FIRE",
-	"HURT_COLD",
-	"IM_ACID",
-	"IM_ELEC",
-	"IM_FIRE",
-	"IM_COLD",
-	"IM_POIS",
-	"HURT_DARK",
+	"CLIGHT",
+	"FEY",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
 	"RES_NETH",
-	"IM_WATER",
-	"RES_PLAS",
-	"RES_NEXUS",
-	"RES_DISE",
-	"HURT_SILV",
+	"",
+	"",
+	"",
+	"SCALE",
+	"KEEP_DIST",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -395,7 +396,7 @@ static cptr r_info_flags7[] =
 	"HELL_HALL",
 	"DWARF_MINE",
 	"BUG_CAVE",
-	"NIGHTMARE",
+	"XX716",
 	"DARK_CITY",
 	"ARMY",
 	"XX719",
@@ -652,8 +653,8 @@ static cptr c_info_flags[] =
 	"ZERO_FAIL",
 	"BEAM",
 	"CHOOSE_SPELLS",
-	"XXX8",
-	"XXX9",
+	"THROW_SHROOMS",
+	"THROW_POTIONS",
 	"HEAVY_BONUS",
 	"ALTERNATE_XP",
 	"CLASS_SPEED",
@@ -1311,7 +1312,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 
 /*
  * Initialize the "k_info" array, by parsing an ascii "template" file
- * (object.txt, object kind info)
+ * (object.txt, object kind info, k_ptr)
  */
 errr parse_k_info(char *buf, header *head)
 {
@@ -1932,7 +1933,6 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 errr parse_e_info(char *buf, header *head)
 {
 	int i;
-
 	char *s, *t;
 
 	/* Current entry */
@@ -1982,38 +1982,27 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, wgt;
+		int level, maxlev, rating, rarity, wgt;
 		long cost;
-#ifdef new_random_stuff
-		int rating;
-#endif
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-#ifdef new_random_stuff
 		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld",
-			            &level, &rarity, &rating, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
-#else
-		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &level, &rarity, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
-#endif
+		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%ld",
+			            &level, &maxlev, &rarity, &rating, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		e_ptr->level = level;
 		e_ptr->rarity = rarity;
 		e_ptr->weight = wgt;
 		e_ptr->cost = cost;
-#ifdef new_random_stuff
+		e_ptr->maxlev = maxlev;
 		e_ptr->rating = rating;
-#endif
 	}
 
 	/* New: Process 'X' for extra (changed old X to R) */
 	else if (buf[0] == 'X')
 	{
-#ifdef new_random_stuff
 		int randact, esprace, blahyeah;
 
 		/* There better be a current e_ptr */
@@ -2033,26 +2022,16 @@ errr parse_e_info(char *buf, header *head)
 	{
 		int randsus, randres, randpow, randslay, randbon, randplu, randdrb;
 		int randlowr, randbran;
-#else
-		int xtra, rating;
-#endif
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-#ifdef new_random_stuff
 		/* Scan for the values */
 		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d", 
 			&randsus, &randres, &randlowr, &randpow, &randslay, &randbran, &randbon, &randplu, &randdrb))
 			return (PARSE_ERROR_GENERIC);
-#else
-		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &rating, &xtra))
-			return (PARSE_ERROR_GENERIC);
-#endif
 
 		/* Save the values */
-#ifdef new_random_stuff
 		e_ptr->randsus = randsus;
 		e_ptr->randres = randres;
 		e_ptr->randpow = randpow;
@@ -2062,10 +2041,6 @@ errr parse_e_info(char *buf, header *head)
 		e_ptr->randbran = randbran;
 		e_ptr->randdrb = randdrb;
 		e_ptr->randlowr = randlowr;
-#else
-		e_ptr->rating = rating;
-		e_ptr->xtra = xtra;
-#endif
 	}
 
 	/* Process 'T' for "Types allowed" (up to five lines (was 3)) */
@@ -2314,7 +2289,6 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->d_char = d_char;
 	}
 
-#ifdef newrst
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
@@ -2336,8 +2310,8 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->maxpop = maxpop;
 	}
 
-	/* Process 'V' for "Vision/alertness stats" (one line only) */
-	else if (buf[0] == 'V')
+	/* Process 'A' for "Vision/alertness stats" (one line only) */
+	else if (buf[0] == 'A')
 	{
 		int aaf, slp, spr;
 
@@ -2383,44 +2357,23 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'X' for more monster resistances */
 	else if (buf[0] == 'X')
 	{
-		int Rchao, Rdisen, Rsilv, Rtame;
+		int Rchao, Rdisen, Rsilv, Rtame, lat1, lat2;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &Rchao, &Rdisen, &Rsilv, &Rtame)) return (PARSE_ERROR_GENERIC);
+			            &Rchao, &Rdisen, &Rsilv, &Rtame, &lat1, &lat2)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->Rchaos = Rchao;
 		r_ptr->Rdisen = Rdisen;
 		r_ptr->Rsilver = Rsilv;
 		r_ptr->Rtaming = Rtame;
+		r_ptr->R4later = lat1;
+		r_ptr->R4later2 = lat2;
 	}
-
-#else
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
-	{
-		int spd, hp1, hp2, aaf, ac, slp;
-
-		/* There better be a current r_ptr */
-		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the other values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		r_ptr->speed = spd;
-		r_ptr->hdice = hp1;
-		r_ptr->hside = hp2;
-		r_ptr->aaf = aaf;
-		r_ptr->ac = ac;
-		r_ptr->sleep = slp;
-	}
-#endif
 
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
@@ -2750,19 +2703,19 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int mhp, exp, unused;
+		int mhp, exp, rsize;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
 		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &mhp, &exp, &unused)) return (PARSE_ERROR_GENERIC);
+			            &mhp, &exp, &rsize)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_mhp = mhp;
 		pr_ptr->r_exp = exp;
-		pr_ptr->infra = unused; /* unused */
+		pr_ptr->rsize = rsize; /* unused */
 	}
 
 	/* Hack -- Process 'I' for "info" and such */
@@ -3041,7 +2994,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, unused;
+		int mhp, exp, socb;
 		long sense_base;
 
 		/* There better be a current pc_ptr */
@@ -3049,7 +3002,7 @@ errr parse_c_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%ld:%d",
-			            &mhp, &exp, &sense_base, &unused))
+			            &mhp, &exp, &sense_base, &socb))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -3057,7 +3010,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
 		/* pc_ptr->sense_div = 40; */
-		pc_ptr->calert = unused;
+		pc_ptr->calert = socb; /* now used for social class */
 	}
 
 	/* Process 'A' for "Attack Info" (one line only) */
@@ -3082,15 +3035,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'M' for "Magic Info" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int spell_book, spell_stat, spell_first, spell_weight;
+		int spell_book, spell_stat, spell_first, spell_weight, junkbook;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
 		                &spell_book, &spell_stat,
-		                &spell_first, &spell_weight))
+		                &spell_first, &spell_weight, &junkbook))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -3098,6 +3051,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->spell_stat = spell_stat;
 		pc_ptr->spell_first = spell_first;
 		pc_ptr->spell_weight = spell_weight;
+		pc_ptr->useless_books = junkbook;
 	}
 
 	/* Process 'B' for "Spell/Prayer book info" */
@@ -3749,6 +3703,7 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		}
 		/*other bad effects - elements / major*/
 		case RBE_BLIND:
+		case RBE_SBLIND:
 		case RBE_CONFUSE:
 		case RBE_LOSE_STR:
 		case RBE_LOSE_INT:
@@ -4221,11 +4176,12 @@ static long eval_hp_adjust(monster_race *r_ptr)
 
 	/* Monsters with resistances are harder to kill.
 	   Therefore effective slays / brands against them are worth more. */
-	if (r_ptr->flags3 & RF3_IM_ACID)	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_FIRE) 	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_COLD)	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_ELEC)	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_POIS)	resists += 2;
+	if (r_ptr->Racid > 1)	resists += r_ptr->Racid - 1;
+	if (r_ptr->Rfire > 1)	resists += r_ptr->Rfire - 1;
+	if (r_ptr->Rcold > 1)	resists += r_ptr->Rcold - 1;
+	if (r_ptr->Relec > 1)	resists += r_ptr->Relec - 1;
+	if (r_ptr->Rpois > 1)	resists += r_ptr->Rpois - 1;
+	if (r_ptr->Rmissile > 1) resists += 1;
 
 	/* Bonus for multiple basic resists and weapon resists */
 	if (resists >= 12) resists *= 6;
@@ -4237,21 +4193,30 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	if (resists >= 6)
 	{
 		if (r_ptr->flags3 & RF3_HURT_ROCK) 	resists -= 1;
-		if (!(r_ptr->flags3 & RF3_NO_SLEEP))	resists -= 3;
+		if (!(r_ptr->flags3 & RF3_NO_SLEEP)) resists -= 2;
 		if (!(r_ptr->flags3 & RF3_NO_FEAR))	resists -= 2;
 		if (!(r_ptr->flags3 & RF3_NO_CONF))	resists -= 2;
 		if (!(r_ptr->flags3 & RF3_NO_STUN))	resists -= 1;
+		if (r_ptr->Rfire < -1) 	resists -= 1;
+		if (r_ptr->Rcold < -1) 	resists -= 1;
+		if (r_ptr->Relec < -1) 	resists -= 1;
+		if (r_ptr->Racid < -1) 	resists -= 1;
+		if (r_ptr->Rpois < -1) 	resists -= 1;
+		if (r_ptr->Rsilver < -1) resists -= 1;
+		if (r_ptr->Rlite < -1) 	resists -= 1;
+		if (r_ptr->Rwater < -1) resists -= 1;
 
-		if (resists < 5) resists = 5;
+		if (resists < 4) resists = 4;
 	}
 
 	/* If quite resistant, bonus for high resists */
 	if (resists >= 3)
 	{
-		if (r_ptr->flags3 & RF3_IM_WATER)	resists += 1;
+		if (r_ptr->Rwater == 3)	resists += 1;
 		if (r_ptr->flags3 & RF3_RES_NETH)	resists += 1;
-		if (r_ptr->flags3 & RF3_RES_NEXUS)	resists += 1;
-		if (r_ptr->flags3 & RF3_RES_DISE)	resists += 1;
+		if (r_ptr->Rnexus > 1) resists += 1;
+		if (r_ptr->Rdisen == 3)	resists += 1;
+		if (r_ptr->Rsilver == 3) resists += 1;
 	}
 
 	/* Scale resists */
@@ -4271,7 +4236,6 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	if (hp < 1) hp = 1;
 
 	return (hp);
-
 }
 
 

@@ -248,7 +248,7 @@ static tval_desc sval_dependent[] =
 	{ TV_SPIKE,			"Spikes" },
 	/* EFGchange squelch oil like spikes */
 	/* ??? we need some sort of misc option */
-	{ TV_FLASK,			"Oil" },
+	{ TV_FLASK,			"Oil/grenades" },
 };
 
 

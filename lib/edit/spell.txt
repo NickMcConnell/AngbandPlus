@@ -1,5 +1,5 @@
 # File: spell.txt 
-# for DaJAngband 1.2.2
+# for DaJAngband 1.3.0
 
 
 # This file is used to initialize the "lib/data/spell.raw" file, which is
@@ -904,7 +904,9 @@ I:91:6:7
 D:Fires a beam of holy damage a little stronger than orb of draining.
 D: (evil monsters take double damage).
 D: Has a level dependant chance of also shooting a spear of light at
-D: the same time. (50% at clvl 30)
+D: the same time (50% at clvl 30).
+D:  This spell has range of 17 if you are higher than character level 40.
+D: Otherwise its range is 15 spaces.
 
 #65
 N:141:Dispel Silver 2
@@ -1404,6 +1406,8 @@ N:232:Camera Flash
 I:93:0:4
 D:Makes a bright flash at a monster which stuns it and does a
 D: small amount of damage.
+D:  This spell has no effect on non-living monsters or monsters
+D: which are more than 10 spaces away.
 
 #5
 N:233:Identify
@@ -1579,11 +1583,10 @@ D: chance to damage monsters and destroy objects than most earthquakes do.
 D:  Artifacts will not be destroyed by this spell.
 D:  This spell has no effect when used in the town.
 
-N:252:Turn Stone To Mud
-I:93:2:7
-D:Produces a beam that destroys the first section of wall it hits,
-D: unless it is a permanent wall.  Each monster caught in the beam that
-D: is susceptible to rock remover takes 20+1d30 points of damage.
+N:252:Lullaby
+#I:93:6:2
+D:Attempts to slow and put to sleep monsters within a level-
+D:dependant radius.
 
 #25
 N:253:Sense Surroundings
@@ -1591,7 +1594,7 @@ I:93:7:2
 D:Maps out a portion of the level around you.
 
 N:254:Detect Enchantment
-I:93:2:8
+I:93:2:7
 D:Detects all enchanted objects in the immediate area.
 D:  Enchanted objects include artifacts, ego items, amulets, rings,
 D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
@@ -1764,10 +1767,14 @@ I:93:4:1
 D:Produces a short-range beam that teleports each monster in its
 D: path up to a maximum of 26 squares away (usually less).
 
-N:280:Door Creation
+N:280:Seal / Open Getaway
 I:93:6:0
-D:A door is created on each empty floor space that is directly
-D: adjacent to you.  These doors are closed, but not locked
+D:Allows you to create a door in any space in your line of sight
+D: (including walls).  You choose whether the door is jammed or
+D: unlocked.  You may target a space that is already a door in
+D: order to close / jam it.
+D: (You must target a specfic spot for this spell to work.
+D: -don't just use a direction key.)
 
 N:281:Stair Creation
 I:93:6:1
@@ -1776,15 +1783,16 @@ D: where you are standing.  This will destroy any terrain feature that
 D: was there before.  It will also destroy all items currently on the
 D: floor where the spell is cast.
 
+# to be changed to taming
 N:282:Teleport Level
-I:93:6:2
+I:93:6:3
 D:Teleports you 1 level up or 1 level down (chosen at random).
 D:  This spell has no effect when the option to restrict the use of
 D: stairs and recall is set.
 
 #55
 N:283:Word of Destruction
-I:93:6:3
+I:93:6:4
 D:Destroys everything in a 15-square radius circle around you.
 D:  All monsters, objects, and terrain features in the area of
 D: effect are destroyed, except stairs, permanent walls and
@@ -1793,19 +1801,14 @@ D:  You will also be blinded for 10+1d10 turns, unless you
 D: have resistance to blindness or light.
 D:  This spell has no effect when used in the town.
 
-N:284:Word of Recall
-I:93:6:4
-D:Teleports you from the dungeon to the town or from the town to the
-D: deepest level you have visited in the dungeon.
-D:  The recall effect is not immediate; it is delayed by 14+1d20 turns.
-D:  During that delay, the spell can be canceled by invoking the spell
-D: of recall again.
-D:  This spell has no effect when the option to restrict the use of
-D: stairs and recall is set, unless Morgoth is dead.
-D: Has a small chance of making the recall effect happen much quicker.
+N:284:Teleport Control
+I:93:6:5
+D:Grants you temporary teleport control.
+D: Teleport control is never 100%, the more you use it, the better
+D: your chances are of controlling your teleportation.
 
 N:285:Rune of Protection
-I:93:6:5
+I:93:6:6
 D:Inscribes a glyph of warding beneath you.
 D:  Summoned monsters can't appear on the glyph.
 D:  If a monster attempts to move onto the glyph or melee you while you
@@ -1818,14 +1821,12 @@ N:286:Resist Heat and Lightning
 I:93:7:0
 D:Gives you temporary resistance to electricity and fire, for 10+1d10 turns each.
 
-N:287:Seal Getaway
+N:287:Boomerang Throw
 I:93:7:1
-D:If you target a door, it fixes (if broken), closes, and magically
-D: spikes the door. Otherwise, it creates either rubble or a locked door
-D: in the targetted spot. Higher level characters are more likely to
-D: get a locked door.
-D: (You must target a specfic spot for this spell to work.
-D: -don't just use a direction key.)
+D:  Temporarily makes every throwing weapon that you throw return to your hand
+D: after you throw it.  Semi-throwing weapons also have a chance to 
+D: return when thrown as well.  (semi-throwers are throwing weapons that you can
+D: weild for melee: daggers, spears, etc.)
 
 #60
 N:288:Burst of Light
@@ -2018,7 +2019,7 @@ D:This potion is very nourishing, but unlike other magical
 D: nourishment, it may cause you to be satiated.
 
 N:318:Chemical Rage
-I:94:1:7
+I:94:1:5
 D:Cures 30 points of damage, removes fear, and produces a chemical
 D: imbalance which causes berserk strength (resistance to fear, a bonus
 D: of +24 to-hit, and a penalty of -10 to AC) for 25+1d25 turns.
@@ -2030,7 +2031,7 @@ D:Restores experience points to maximum if it is currently below maximum.
 D: Also cures amnesia, charming, and 1-4 points of silver poison.
 
 N:320:Resist Poison
-I:94:1:5
+I:94:1:7
 D:Grants you resistance to poison for 20+1d20 turns.
 
 N:321:Heal
@@ -2053,12 +2054,12 @@ D:Destroys all traps and doors within a 1-square radius of you.
 
 #20
 N:324:Clear mind
-I:94:2:4
+I:94:2:2
 D:Gives you resistance to confusion for a level-dependant duration.
 D: It occationally has side effects..
 
 N:325:Identify
-I:94:2:2
+I:94:2:4
 D:Reveals all normal (magical but non-hidden) powers of one object.
 
 N:326:Detect Hidden
@@ -2070,12 +2071,12 @@ D: invisible monsters, but any hidden monsters within your line of sight
 D: will always be revealed.
 
 N:327:Resistance
-I:94:2:5
+I:94:6:4
 D:Grants you resistance to acid, cold, fire, lightning, and poison for
 D: 20+1d20 turns.  
 
 N:328:Detect Enchantment
-I:94:2:6
+I:94:2:5
 D:Detects all enchanted objects in the immediate area.
 D:  Enchanted objects include artifacts, ego items, amulets, rings,
 D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
@@ -2086,7 +2087,7 @@ D: not in line of sight will sometimes, but not always, be detected.
 
 #25
 N:329:Acid Coat Ammo
-I:94:2:7
+I:94:2:6
 D:Temporarily coats one stack of ammunition with acid.  Sometimes it also
 D: attempts to improve the to-hit bonus and the to-dam bonus
 D: of the same ammunition. The acid coating wears off after 500 game turns.
@@ -2133,7 +2134,7 @@ D:  This spell has no effect when the option to restrict the use of
 D: stairs and recall is set.
 
 N:337:Elixer of Life
-I:94:6:7
+I:94:8:7
 D:Attempts to make the Elixir of Life. There is an extremely small chance of
 D: succeeding in making the perfect recipe, but if you get close to getting
 D: it right, you still get very good effects.
@@ -2151,15 +2152,20 @@ D: and constitution (not permanently, but it ignores sustains.)
 D: There are effects in between which give mostly good effects, but can also
 D: cause poison.
 
-N:338:Rune of Protection
+N:338:Emergency Getaway Shield
 I:94:3:8
-D:Inscribes a glyph of warding beneath you.
-D:  Summoned monsters can't appear on the glyph.
-D:  If a monster attempts to move onto the glyph or melee you while you
-D: are standing on the glyph, it must first succeed in breaking the glyph.
-D:  Higher level monsters are more likely to break the glyph.
-D:  The glyph will remain where it is, until a monster succeeds in
-D: breaking it, or until you leave the level.
+D:When this spell is active, you gain +5 to speed (which stacks with the
+D: haste self spell), +1 to stealth, +20 armor class, and a 50% miss chance
+D: which applies to monster breaths and almost every type of monster spell.
+D:  The drawback is that if you damage a monster(s) *in any way* or attempt to
+D: cast a spell on a monster(s) in any way while this spell is active, the
+D: spell immedietly ends and you get a -5 penalty to speed for about two minutes.
+D: This shield does not protect from: Earthquakes (including when caused by
+D: the explosion monster spell), mana drain, terrify, blinding spells,
+D: or amnesia.
+#( These are the only monster spells that directly affect the PC that 
+# the emergency escape shield never protects from:
+# EXPLODE, DRAIN_MANA, SCARE, BLIND, TRAPS, FORGET )
 
 #35
 N:339:Lightning Bolt
@@ -2276,7 +2282,7 @@ D: It only affects monsters within a few spaces of you (radius is listed in
 D: spellbook). Non-living monsters are unaffected.
 
 N:350:Lasting Repugnance
-I:94:5:5
+I:94:5:6
 D:This formula makes you stink horribly for an extended level-dependant
 D: period of time, making most monsters run away whenever they get within 30
 D: feet (3 spaces) of you.  Non-living monsters are unaffected.
@@ -2293,6 +2299,7 @@ D: they will take full effect from this flame.  It also harms silver monsters
 D: and any other fire-vulnerable non-living monsters.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.  The chance to get a beam goes up with your character level.
+D:  This spell has a range of 14 + clev/12 (max 18) spaces.
 
 N:352:Restore Cleverness
 I:94:7:5
@@ -2300,18 +2307,18 @@ D:Restores your Intelligence, Dexterity, and Charisma to maximum
 D: if any of them are below maximum.
 
 N:353:Alchemical Dragonbreath
-I:94:5:6
-D:A mixture which causes you to breath a radius-2 ball of cold or fire,
-D: chosen at random.
-#D: (same as a potion of dragonbreath)
+I:94:5:7
+D:Brew a potion of dragonbreath: causes you to breath a radius-2 ball of
+D: cold or fire, chosen at random.
+D:  This spell has a range of 14 + clev/12 (max 18) spaces.
 
 #50
 N:354:Acid Ball
-I:94:5:7
+I:94:5:8
 D:Shoots a radius-2 acid ball.
 
 N:355:Ice Storm
-I:94:5:8
+I:94:8:4
 D:Shoots a radius-3 cold ball which also attempts to stun affected monsters.
 
 # (replaced wonder spell)
@@ -2338,11 +2345,11 @@ D:  You cannot stack enhancements on a wand or rod unless its current enhancemen
 D: is weak (less than 10).
 
 N:357:Cloudkill
-I:94:6:3
+I:94:8:2
 D:Shoots a radius-3 poison ball.
 
 N:358:Glyph of Warding
-I:94:8:6
+I:94:6:6
 D:Inscribes a glyph of warding beneath you.
 D:  Summoned monsters can't appear on the glyph.
 D:  If a monster attempts to move onto the glyph or melee you while you
@@ -2353,7 +2360,7 @@ D: breaking it, or until you leave the level.
 
 #55
 N:359:Silver bullet
-I:94:6:1
+I:94:8:1
 D:Fires a powerful bolt of silver that always hits its target.
 D:  Monsters vulnerable to silver include: black cats, imps and
 D: some related demons (quasit, tengu, homunculus), vampires, all
@@ -2366,7 +2373,7 @@ D: in its path.
 D:  The chance to get a beam goes up with your character level.
 
 N:360:Recharging
-I:94:6:0
+I:94:8:0
 D:Adds charges to a stack of wands or staves.
 D:  Chance of success and number of charges gained increase with your
 D: level and decrease with level of wand or staff and number of charges.
@@ -2379,16 +2386,16 @@ D: unless it is a permanent wall.  Each monster caught in the beam that
 D: is susceptible to rock remover takes 40+1d40 points of damage.
 
 N:362:Explosion
-I:94:6:4
+I:94:8:3
 D:Shoots a radius-2 shards ball which also has a chance of destroying walls.
 
 N:363:Restoration
-I:94:6:6
+I:94:8:6
 D:Restores to maximum all stats that are currently below maximum.
 
 #60
 N:364:Poison Brand Weapon
-I:94:6:5
+I:94:8:5
 D:Temporarily brands the currently wielded melee weapon with poison,
 D: and at the same time attempts to improve the to-hit bonus and the
 D: to-dam bonus of the same weapon.  The branding effect
@@ -2446,37 +2453,44 @@ D:  The spell may fail if the item is an artifact, a cursed item, or if it
 D: is already branded.  The spell will always fail if the item is already
 D: branded with poison.
 
-N:372:Recharging
-I:94:8:0
-D:Adds charges to a stack of wands or staves.
-D:  Chance of success and number of charges gained increase with your
-D: level and decrease with level of wand or staff and number of charges.
-D:  A failed attempt to recharge destroys one wand or staff from the stack.
+N:372:Shaded Safety Goggles
+I:94:6:0
+D:This spell protects from blindness only from light and eye-poking*.  It
+D: also raises your armor class (or saving throw) against gaze attacks
+D: (which include mind blasting, brain smashing, and the ranged paralysis
+D: monster spell as well as melee gaze attacks).
+D: (eye-poking is blindness by getting something in your eyes. The monster
+D: description will say it pokes your eyes if it blinds this way -If you
+D: know its melee attacks).
 
-N:373:Shield
-I:94:8:3
-D:Grants you +50 to AC for 30+1d20 turns.
+N:373:Sustain Health
+I:94:6:1
+D:This spell sustains your constitution and dexterity and makes you
+D: resistant to sliming for the duration.
 
 #70
-N:374:Bedlam
-I:94:8:4
-D:Shoots a radius-4 confusion ball that doesn't cause physical
-D: damage but has a chance to confuse each monster in the area of effect.
-D:  Uniques or monsters that resist confusion are not affected.
+N:374:Craft Grenade
+I:94:5:5
+D: Make a grenade out of any handy source of oil.  The quality of the
+D: grenade crafted depends on your character level and luck with a chance
+D: for getting ego grenades on high levels.  Also, if you use an ego lantern
+D: to make the grenade the magic will transfer and you will get an ego grenade.
+D: Note: any source of oil you use will be used up, even if it is a lantern,
+D: so don't use your only light source.
 
 N:375:Breath Shield
-I:94:8:2
+I:94:6:2
 D:Gives you damage reduction against monster breath for a level-dependant duration.
 D: It reduces all breath attacks by 1/4 of the damage.  If you have this spell active
 D: AND a wielded magic item which gives breath damage reduction, then it reduces
 D: breath damage by 1/3 of the original damage.
 
 N:376:Enchant Armor
-I:94:8:5
+I:94:6:3
 D:Attempts to improve the armour class bonus of a piece of armour.
 
 N:377:Meteor Swarm
-I:94:8:7
+I:94:4:8
 D:Shoots a swarm of 3 or 4 meteors.
 D:  Meteors will travel until hitting a wall, a monster,
 D: or reaching the target location.
@@ -2496,14 +2510,14 @@ D: Very useful if there's a tough monster between you and a valuble object.
 
 #75
 N:379:Quiver Protection
-I:94:8:1
+I:94:6:5
 D:Temporarily protects all ammunition in your quiver from being destroyed with
 D: duration dependant on character level.
 D: This spell also has a chance of removing curses from ammo in your quiver
 D: which increases (drastically) with character level.
 
 
-#    alchemy spells (304-379) unused <75+1>
+#    alchemy spells (304-379) 0 unused <75+1>
 # start black spells with #380 because Max spells is 76
 # Black Magic Realm:
 

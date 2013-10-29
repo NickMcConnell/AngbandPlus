@@ -21,7 +21,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 	{
 		case SV_FOOD_POISON:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS] || p_ptr->timed[TMD_SUSTAIN_HEALTH]))
 			{
 				if (inc_timed(TMD_POISONED, randint(15) + 15))
 				{
@@ -343,6 +343,9 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_UNHEALTH:
 		{
+			/* SUSTAIN_HEALTH protects but doesn't let you know what type the shroom is */
+			if (p_ptr->timed[TMD_SUSTAIN_HEALTH]) break;
+
 			if (randint((badluck*2)+10) >= 20)
 			{
                (void)do_dec_stat(A_CON, 0);
@@ -414,7 +417,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			(void)hp_player(200);
             if (inc_timed(TMD_OPP_FIRE, dur)) *ident = TRUE;
 			if (inc_timed(TMD_OPP_COLD, dur)) *ident = TRUE;
-			/* this hallucenation bypasses chaos resistance */
+			/* (this hallucenation bypasses chaos resistance) */
             if (inc_timed(TMD_IMAGE, randint(dur*3) + dur)) *ident = TRUE;
 			if (dur > 41) dur = 41;
 			/* additional emergencies (only helps with one of them) */
@@ -439,6 +442,15 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 				addemer = TRUE;
 			}
 			else if (p_ptr->luck < 13) p_ptr->luck += 2;
+			else if (((cp_ptr->flags & CF_ZERO_FAIL) && (p_ptr->msp > 50) &&
+				(p_ptr->csp <= p_ptr->msp/10)) || ((p_ptr->msp > 100) &&
+				(p_ptr->csp <= p_ptr->msp/10)))
+			{
+				p_ptr->csp += p_ptr->msp/2 + randint(p_ptr->msp/4);
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				addemer = TRUE;
+			}
 			else if (p_ptr->slime >= PY_SLIME_LEVELONE) p_ptr->slime -= 2;
 			else if (p_ptr->silver >= PY_SILVER_LEVELONE) p_ptr->silver -= 1;
 			else if (p_ptr->corrupt > 15) p_ptr->corrupt -= 1;
@@ -474,7 +486,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_CURE_SERIOUS:
 		{
-			int cure = damroll(4, 8);
+			int cure = damroll(4, 9);
 			int curep = (p_ptr->mhp * 20) / 100;
 			if (cure < curep) cure = curep;
 			if (hp_player(cure)) *ident = TRUE;
@@ -574,9 +586,10 @@ static bool eat_food(object_type *o_ptr, bool *ident)
        if (p_ptr->food > PY_FOOD_MAX) p_ptr->food = PY_FOOD_MAX;
     }
 	
-    /* notice changes of slime and silver poison levels */
-    p_ptr->redraw |= (PR_SILVER);
-    p_ptr->redraw |= (PR_SLIME);
+	/* notice changes to stats, slime and silver poison levels */
+	p_ptr->redraw |= (PR_SILVER);
+	p_ptr->redraw |= (PR_SLIME);
+	p_ptr->redraw |= (PR_STATS);
 
 	return (TRUE);
 }
@@ -680,6 +693,14 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                     if (randint(6) < (badluck + 3 - (goodluck/3)))
                     {
                        int sick = randint(6);
+	
+						/* golems have no CON score */
+						if ((p_ptr->prace == 16) && (sick == 2)) 
+						{
+							sick = randint(6);
+							if (sick == 2) break;
+						}
+	
                        if (sick == 1) (void)do_dec_stat(A_STR, 0);
                        if (sick == 2) (void)do_dec_stat(A_CON, 0);
                        if (sick == 3) (void)do_dec_stat(A_DEX, 0);
@@ -744,6 +765,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
 				inc_timed(TMD_POISONED, rand_int(15) + 10);
+				*ident = TRUE;
 			}
 			/* poison resistance or sustains won't protect from the drains */
 			switch (randint(6))
@@ -755,6 +777,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 				case 5: sick = A_CON; act = "hale"; break;
 				case 6: sick = A_CHR; act = "beautiful"; break;
 			}
+	
+			/* golems have no CON score */
+			if ((p_ptr->prace == 16) && (sick == A_CON)) break;
+
 			msg_format("You're not as %s as you used to be...", act);
 			/* lower the stat */
 			if (badluck >= 3)
@@ -862,6 +888,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_DEC_CON:
 		{
+			if (p_ptr->prace == 16) break;
 			if (do_dec_stat(A_CON, 0)) *ident = TRUE;
 			break;
 		}
@@ -1000,13 +1027,14 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_DBREATH:
 		{
 			int dir;
-			msg_print("Breathe in what direction?");
+			msg_print("Breathe in what direction? (max.range 15)");
 			*ident = TRUE;
 			if (!get_aim_dir(&dir)) /* still gets used up */
 			{
 				msg_print("You have an unpleasant cough..");
 				dir = 0;
 			}
+			range = 15;
 			if (randint(100) < 45) fire_ball(GF_COLD, dir, 80, 2);
 			else fire_ball(GF_FIRE, dir, 80, 2);
 			if (randint(100) < 65 + ((badluck+1)/2)) (void)set_food(p_ptr->food - (30 + badluck + randint(60)));
@@ -1134,7 +1162,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
-			if (set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 2) - 50)) *ident = TRUE;
+			if (set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 2) - 30)) *ident = TRUE;
 			break;
 		}
 
@@ -1147,9 +1175,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
-			if (clear_timed(TMD_POISONED)) *ident = TRUE;
+			/* if (clear_timed(TMD_POISONED)) *ident = TRUE; */
+			if (set_timed(TMD_POISONED, (p_ptr->timed[TMD_POISONED] / 2) - 25)) *ident = TRUE;
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
-			if (clear_timed(TMD_CUT)) *ident = TRUE;
+			/* if (clear_timed(TMD_CUT)) *ident = TRUE; */
+			if (set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 4) - 16)) *ident = TRUE;
 			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
 			break;
 		}
@@ -1263,6 +1293,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 					clear_timed(TMD_BEAR_HOLD);
 				}
 			}
+			if (p_ptr->prace == 16) break;
 			if (do_res_stat(A_CON)) *ident = TRUE;
 			break;
 		}
@@ -1280,26 +1311,6 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (do_res_stat(A_CHR)) *ident = TRUE;
 			break;
 		}
-
-#if notremoved
-		case SV_POTION_RES_WIS:
-		{
-			if (do_res_stat(A_WIS)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_RES_DEX:
-		{
-			if (do_res_stat(A_DEX)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_RES_CON:
-		{
-			if (do_res_stat(A_CON)) *ident = TRUE;
-			break;
-		}
-#endif
 
 		case SV_POTION_INC_STR:
 		{
@@ -1377,6 +1388,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			int value;
 			value = p_ptr->stat_cur[A_CON];
+			if (p_ptr->prace == 16) value = 18+100;
+
 			if (value < 18+100)
 			{
 				if (do_inc_stat(A_CON)) *ident = TRUE;
@@ -1422,11 +1435,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			/* all maxxed out */
 			if (*ident == FALSE)
 			{
-				int time = randint(35) + 35;
+				int time = randint(32) + 32;
 				(void)inc_timed(TMD_HOLDLIFE, time);
 				(void)inc_timed(TMD_ESP, time);
 				(void)inc_timed(TMD_FAST, time);
-				(void)inc_timed(TMD_INVULN, time/7);
+				(void)inc_timed(TMD_INVULN, time/8-2);
 			}
 			break;
 		}
@@ -1489,9 +1502,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		(void)set_food(p_ptr->food + o_ptr->pval);
 	}
 
-    /* notice changes of slime and silver poison levels */
+    /* notice changes of stats, slime and silver poison levels */
     p_ptr->redraw |= (PR_SILVER);
     p_ptr->redraw |= (PR_SLIME);
+	p_ptr->redraw |= (PR_STATS);
 
 	return (TRUE);
 }
@@ -1576,12 +1590,17 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_CURSE_ARMOR:
 		{
-            if ((goodluck > 16) && (randint(100) < 20))
+            if ((goodluck > 16) && (rand_int(100) < goodluck))
             {
                msg_print("You feel as if you just escaped a nasty curse..");
                break; /* (very lucky) */
             }
-			if (curse_armor()) *ident = TRUE;
+            else if ((goodluck > 13) && (rand_int(100) < goodluck * 3))
+            {
+				if (curse_armor(TRUE)) *ident = TRUE;
+               break; /* (less nasty version) */
+            }
+			if (curse_armor(FALSE)) *ident = TRUE;
 			break;
 		}
 
@@ -1673,7 +1692,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level();
+			(void)teleport_player_level(0);
 			*ident = TRUE;
 			break;
 		}
@@ -1697,7 +1716,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			if (goodluck > 11) idagain += randint(goodluck - 10);
 			if ((randint(idagain) > 18) && (badluck < 12) && (used_up))
 			{
-			   msg_print("The writing on the scroll doesn't dissapear!");
+			   msg_print("The writing on the scroll doesn't disappear!");
                used_up = FALSE;
 
 			    /* Take a turn (because otherwise */
@@ -1717,7 +1736,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			idagain = p_ptr->skills[SKILL_DEV] + (goodluck/2);
 			if ((randint(idagain) > 75) && (badluck < 7))
 			{
-			   msg_print("The writing on the scroll doesn't dissapear!");
+			   msg_print("The writing on the scroll doesn't disappear!");
                used_up = FALSE;
 
 			    /* Take a turn (because otherwise */
@@ -1927,7 +1946,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_TRAP_DOOR_DESTRUCTION:
 		{
-			if (destroy_doors_touch()) *ident = TRUE;
+			if (destroy_doors_touch(0)) *ident = TRUE;
 			break;
 		}
 
@@ -1941,6 +1960,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_DISPEL_UNDEAD:
 		{
 			if (dispel_undead(60)) *ident = TRUE;
+			if (turn_undead(p_ptr->skills[SKILL_DEV]*4/5)) *ident = TRUE;
 			break;
 		}
 
@@ -1983,9 +2003,23 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 	int px = p_ptr->px;
     bool casted;
 
-	int k, dir;
+	int k, dir, enhanced;
 
 	bool use_charge = TRUE;
+
+	/* for alchemist's enhance wand spell */
+	if ((o_ptr->enhance) && (o_ptr->charges > o_ptr->enhancenum) && 
+		(o_ptr->enhancenum < o_ptr->number))
+	{
+		/* not all the items in this stack are enhanced */
+		if (rand_int(o_ptr->number) < o_ptr->enhancenum) 
+			enhanced = o_ptr->enhance/o_ptr->enhancenum + 1; /* (round up) */
+		else enhanced = 0;
+	}
+	else
+	{
+		enhanced = o_ptr->enhance; /* 0 unless enhanced */
+	}
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
@@ -1993,41 +2027,46 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_DARKNESS:
 		{
 			bool strongdark = FALSE;
-			int strongodd = 60, darkdam = 10, darkrad = 10;
+			int darkdam = 10, darkrad = 10;
+			int strongodd = 60 - enhanced;
 			if (cp_ptr->spell_book == TV_DARK_BOOK)
 			{
-				strongodd = 0;
 				darkdam = damroll(5, (p_ptr->skills[SKILL_DEV]/10));
+				strongdark = TRUE;
 				darkrad = 13;
 				/* may extend DARKSTEP effect */
 				if (p_ptr->timed[TMD_DARKSTEP]) (void)inc_timed(TMD_DARKSTEP, rand_int(4));
 			}
 			/* occationally use GF_DARK instead of DARK_WEAK */
-			if ((randint(p_ptr->skills[SKILL_DEV] + (goodluck*2)) > strongodd) &&
+			else if ((randint(p_ptr->skills[SKILL_DEV] + (goodluck*2)) > strongodd) &&
 				(cp_ptr->spell_book != TV_PRAYER_BOOK))
 			{
 				strongdark = TRUE;
-				darkdam = damroll(3, (p_ptr->skills[SKILL_DEV]/15));
+				darkdam = damroll(3, (p_ptr->skills[SKILL_DEV]/12)) + enhanced/2;
 			}
-			if (!p_ptr->resist_blind)
+			if ((!p_ptr->resist_blind) && (rand_int(50) > enhanced))
 			{
-				if (cp_ptr->spell_book == TV_DARK_BOOK)
+				if (!(cp_ptr->spell_book == TV_DARK_BOOK))
+					(void)inc_timed(TMD_BLIND, 3 + randint(6));
+				else if (randint(100) > 5 - badluck + goodluck*4)
 					(void)inc_timed(TMD_BLIND, 3 + randint(3));
-				else (void)inc_timed(TMD_BLIND, 3 + randint(6));
 			}
 			if (unlite_area(darkdam, darkrad, strongdark)) *ident = TRUE;
 			break;
 		}
-
+		
+		/* the only staff which aims */
 		case SV_STAFF_STRIKING:
 		{
+			int damg = damroll(3, 9);
 			*ident = TRUE;
   	        if (!get_aim_dir(&dir))
   	        {
 	           use_charge = FALSE;
                return (FALSE);
             }
-			fire_bolt(GF_MISSILE, dir, damroll(3, 9));
+			damg += (randint(p_ptr->skills[SKILL_DEV] + goodluck)) / 5 + enhanced;
+			fire_bolt(GF_MISSILE, dir, damg);
 			break;
         }
 
@@ -2101,9 +2140,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			if (remove_curse())
 			{
 				if (!p_ptr->timed[TMD_BLIND])
-				{
 					msg_print("The staff glows blue for a moment...");
-				}
 				*ident = TRUE;
 			}
 			break;
@@ -2112,7 +2149,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_STARLITE:
 		{
 			bool strong = FALSE;
-			if (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 65)
+			if (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 65 - enhanced)
 				strong = TRUE;
 			if (!p_ptr->timed[TMD_BLIND])
 			{
@@ -2123,7 +2160,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			else for (k = 0; k < 8; k++) lite_line(ddd[k], 0);
 			/* a drawback of the strong effect (only if you have bad luck) */
 			if ((badluck) && (!goodluck) && (strong) && (!p_ptr->timed[TMD_BLIND]) &&
-				(rand_int(100) < (badluck+1)*4))
+				(!p_ptr->timed[TMD_SAFET_GOGGLES]) && (rand_int(100) < (badluck+1)*4))
 			{
 				(void)inc_timed(TMD_BLIND, randint(4 + badluck/2) + 2);
 			}
@@ -2245,16 +2282,17 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			int cure;
+			int cure = randint(p_ptr->mhp / 11);
 			if (p_ptr->mhp / 20 >= 7) cure = damroll(2, p_ptr->mhp / 20);
 			else if (p_ptr->mhp < 96) cure = randint(8);
-			else cure = randint(p_ptr->mhp / 11);
+			cure += (enhanced+1)/2;
 			if (hp_player(cure)) *ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_CURING:
 		{
+			int time;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_POISONED)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
@@ -2276,6 +2314,11 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 					*ident = TRUE;
 				}
 			}
+			
+			/* new additional effect */
+			time = randint(5) + 3;
+			(void)inc_timed(TMD_WOPP_POIS, time);
+			(void)inc_timed(TMD_LASTING_CURE, time);
 			break;
 		}
 
@@ -2305,6 +2348,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
             int pwr = p_ptr->lev + 2 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			pwr += (enhanced+1)/2;
 			if (sleep_monsters(pwr)) *ident = TRUE;
 			break;
 		}
@@ -2312,6 +2356,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_SLOW_MONSTERS:
 		{
             int pwr = p_ptr->lev + 2 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			pwr += (enhanced+1)/2;
 			if (slow_monsters(pwr)) *ident = TRUE;
 			break;
 		}
@@ -2426,9 +2471,21 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 /* takes sval instead of o_ptr to allow for the mimmic wand spell */
 bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 {
-	int die, pwr, dis;
+	int pwr, dis/*, die */;
 	int luckdev = (p_ptr->skills[SKILL_DEV] + goodluck + p_ptr->lev) / 2;
 	int plev = p_ptr->lev;
+
+	if (plev) /* set wand range */
+	{
+		int rangedev = luckdev + p_ptr->lev/5 - badluck/2;
+	
+		/* don't always reach MAX_RANGE anymore */
+		if (rangedev > 55) /* (use MAX_RANGE which is 20) */ range = 0;
+		else if (rangedev > 40) range = 19;
+		else if (rangedev > 25) range = 18;
+		else if (rangedev > 15) range = 17;
+		else range = 16;
+	}
 
 	/* Not identified yet */
 	*ident = FALSE;
@@ -2579,7 +2636,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_STINKING_CLOUD:
 		{
 			pwr = 12 + enhanced;
-			if (randint(luckdev) > 60)
+			if (randint(luckdev) > 45)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
 			fire_ball(GF_POIS, dir, pwr, 2);
 			*ident = TRUE;
@@ -2589,7 +2646,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_MAGIC_MISSILE:
 		{
 			pwr = damroll(3, 4) + enhanced;
-			if (randint(luckdev) > 60)
+			if (randint(luckdev) > 45)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
 			fire_bolt_or_beam(20, GF_MISSILE, dir, pwr);
 			*ident = TRUE;
@@ -2599,7 +2656,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_ACID_BOLT:
 		{
 			pwr = damroll(10, 8) + enhanced;
-			if (randint(luckdev) > 65)
+			if (randint(luckdev) > 50)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 1);
 			fire_bolt_or_beam(20, GF_ACID, dir, pwr);
 			*ident = TRUE;
@@ -2610,9 +2667,9 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		{
 			int beamer = 20;
 			pwr = damroll(6, 6) + enhanced;
-			if (randint(luckdev) > 62)
+			if (randint(luckdev) > 45)
 				pwr += randint((p_ptr->skills[SKILL_DEV] - 7) / 2);
-			if (randint(luckdev) > 62)
+			if (randint(luckdev) > 45)
 				beamer += randint(p_ptr->lev/2);
 			fire_bolt_or_beam(beamer, GF_ELEC, dir, pwr);
 			*ident = TRUE;
@@ -2622,7 +2679,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_FIRE_BOLT:
 		{
 			pwr = damroll(12, 8) + enhanced;
-			if (randint(luckdev) > 65)
+			if (randint(luckdev) > 50)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 2);
 			fire_bolt_or_beam(20, GF_FIRE, dir, pwr);
 			*ident = TRUE;
@@ -2632,7 +2689,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_COLD_BOLT:
 		{
 			pwr = damroll(6, 8) + enhanced;
-			if (randint(luckdev) > 65)
+			if (randint(luckdev) > 48)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
 			fire_bolt_or_beam(20, GF_COLD, dir, pwr);
 			*ident = TRUE;
@@ -2642,7 +2699,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_ACID_BALL:
 		{
 			pwr = 120 + enhanced;
-			if (randint(luckdev) > 65)
+			if (randint(luckdev) > 50)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 5);
 			fire_ball(GF_ACID, dir, pwr, 2);
 			*ident = TRUE;
@@ -2652,7 +2709,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_ELEC_BALL:
 		{
 			pwr = 64 + enhanced;
-			if (randint(luckdev) > 67)
+			if (randint(luckdev) > 52)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 7);
 			fire_ball(GF_ELEC, dir, pwr, 2);
 			*ident = TRUE;
@@ -2662,7 +2719,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_FIRE_BALL:
 		{
 			pwr = 144 + enhanced;
-			if (randint(luckdev) > 63)
+			if (randint(luckdev) > 53)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 5);
 			fire_ball(GF_FIRE, dir, pwr, 2);
 			*ident = TRUE;
@@ -2672,7 +2729,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_COLD_BALL:
 		{
 			pwr = 96 + enhanced;
-			if (randint(luckdev) > 68)
+			if (randint(luckdev) > 53)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 7);
 			fire_ball(GF_COLD, dir, 96, 2);
 			*ident = TRUE;
@@ -2734,7 +2791,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_WAND_DRAGON_COLD:
 		{
 			pwr = 160;
-			if (randint(luckdev + enhanced) > 70)
+			if (randint(luckdev + enhanced) > 60)
 				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
 			if (pwr + enhanced < 200) pwr += enhanced;
 			else if (enhanced) pwr += (pwr + enhanced - 198) / 4;
@@ -2803,7 +2860,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	bool returnthis;
 
 	/* for alchemist's enhance wand spell */
-	if ((o_ptr->enhance) && (o_ptr->pval > o_ptr->enhancenum) && 
+	if ((o_ptr->enhance) && (o_ptr->charges > o_ptr->enhancenum) && 
 		(o_ptr->enhancenum < o_ptr->number))
 	{
 		/* not all the items in this stack are enhanced */
@@ -2817,7 +2874,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	}
 
 	/* The wand is already empty! (should come before chance of success) */
-	if (o_ptr->pval <= 0)
+	if (o_ptr->charges <= 0)
 	{
 		/* takes a turn only if you didn't already know it was empty */
 		/* (you always know charges if aware) */
@@ -2842,6 +2899,16 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	/* thieves zap faster (usually) */
+	if ((!p_ptr->timed[TMD_CONFUSED]) && (cp_ptr->flags & CF_CLASS_SPEED) && 
+		(rand_int(p_ptr->skills[SKILL_DEV]) > 10 + badluck))
+	{
+		if (p_ptr->lev >= 40) p_ptr->energy_use = 80;
+		else if (p_ptr->lev >= 20) p_ptr->energy_use = 85;
+		else if (p_ptr->lev >= 5) p_ptr->energy_use = 90;
+		else p_ptr->energy_use = 95;
+	}
 
 	/* Get the item difficulty (now separated from item level) */
 	lev = k_info[o_ptr->k_idx].extra;
@@ -2901,16 +2968,16 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	if (!returnthis) return (FALSE);
 
 	/* enhancement wears off when last charge gets used up */
-	if ((o_ptr->pval == 1) && (o_ptr->enhance))
+	if ((o_ptr->charges == 1) && (o_ptr->enhance))
 	{
 		o_ptr->enhance = 0;
 		o_ptr->enhancenum = 0;
 	}
 	/* can't have more items enhanced than there are charges left */
-	else if ((o_ptr->enhance) && (o_ptr->pval) && 
+	else if ((o_ptr->enhance) && (o_ptr->charges) && 
 		(o_ptr->enhancenum < o_ptr->number))
 	{
-		if (o_ptr->enhancenum > o_ptr->pval) o_ptr->enhancenum = o_ptr->pval;
+		if (o_ptr->enhancenum > o_ptr->charges) o_ptr->enhancenum = o_ptr->charges;
 	}
 
 	return (TRUE);
@@ -2922,6 +2989,17 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 {
 	bool used_charge = TRUE;
 	int plev = p_ptr->lev;
+
+	/* set rod range */
+	int luckdev = (p_ptr->skills[SKILL_DEV] + goodluck + plev) / 2;
+	int rangedev = luckdev + plev/5 - badluck/2;
+
+	/* don't always reach MAX_RANGE anymore */
+	if (rangedev > 50) /* (use MAX_RANGE which is 20) */ range = 0;
+	else if (rangedev > 35) range = 19;
+	else if (rangedev > 20) range = 18;
+	else if (rangedev > 10) range = 17;
+	else range = 16;
 
 	/* Not identified yet */
 	*ident = FALSE;
@@ -3026,6 +3104,14 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
+
+			if (randint(100) < 35 + goodluck/2 - badluck/2)
+			{
+				/* new additional effect */
+				int time = randint(5) + 5;
+				(void)inc_timed(TMD_WOPP_POIS, time);
+				(void)inc_timed(TMD_LASTING_CURE, time);
+			}
 			break;
 		}
 
@@ -3044,8 +3130,9 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 			if (do_res_stat(A_INT)) *ident = TRUE;
 			if (do_res_stat(A_WIS)) *ident = TRUE;
 			if (do_res_stat(A_DEX)) *ident = TRUE;
-			if (do_res_stat(A_CON)) *ident = TRUE;
 			if (do_res_stat(A_CHR)) *ident = TRUE;
+			if (p_ptr->prace == 16) break;
+			if (do_res_stat(A_CON)) *ident = TRUE;
 			break;
 		}
 
@@ -3075,7 +3162,21 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 
 		case SV_ROD_DISARMING:
 		{
-			if (disarm_trap(dir, 0)) *ident = TRUE;
+			int disrad = 2;
+			if (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 85) disrad += 2;
+			else if (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 65) disrad += 1;
+			/* GF_KILL_TRAP now damages mimmics and launchers as well as disarming traps */
+			/* rod now has area effect when in a vault */
+			if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ICKY))
+			{
+				if (fire_ball(GF_KILL_TRAP, dir, damroll(5, 6), disrad)) *ident = TRUE;
+			}
+			else
+			{
+				/* mode 2 uses GF_KILL TRAP instead of KILL_DOOR */
+				if (disrad > 3 - goodluck/4) (void)destroy_doors_touch(2);
+				if (disarm_trap(dir, 0)) *ident = TRUE;
+			}
 			break;
 		}
 
@@ -3096,14 +3197,18 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
-            int pwr = p_ptr->lev + 5 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+            int pwr = p_ptr->lev + 6 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (randint(p_ptr->skills[SKILL_DEV] + goodluck + enhanced) > 70)
+				pwr += 7;
 			if (sleep_monster(dir, pwr + enhanced)) *ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
-            int pwr = p_ptr->lev + 5 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+            int pwr = p_ptr->lev + 6 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (randint(p_ptr->skills[SKILL_DEV] + goodluck + enhanced) > 70)
+				pwr += 7;
 			if (slow_monster(dir, pwr + enhanced)) *ident = TRUE;
 			break;
 		}
@@ -3111,15 +3216,25 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_ROD_DRAIN_LIFE:
 		{
 			int draindam = 150;
+			if (randint(p_ptr->skills[SKILL_DEV]) + goodluck > 65)
+				draindam += p_ptr->skills[SKILL_DEV] / 5;
+
 			if (enhanced < 50) draindam += enhanced;
-			else if (enhanced) draindam += randint(30) + 10;
-			if (drain_life(dir, 150)) *ident = TRUE;
+			else if (enhanced) draindam += randint(enhanced-35) + 35;
+			if (drain_life(dir, draindam)) *ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir, p_ptr->lev + 5 + enhanced)) *ident = TRUE;
+			break;
+		}
+
+		case SV_ROD_RIFT:
+		{
+			if (fire_beam(GF_GRAVITY, dir, 30 + damroll(p_ptr->skills[SKILL_DEV]/5+5, 3))) 
+				*ident = TRUE;
 			break;
 		}
 
@@ -3160,7 +3275,7 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 64 + enhanced, 2);
+			fire_ball(GF_ELEC, dir, 72 + enhanced, 2);
 			*ident = TRUE;
 			break;
 		}
@@ -3188,7 +3303,7 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 
 static bool zap_rod(object_type *o_ptr, bool *ident)
 {
-	int chance, dir, lev, sval, enhanced;
+	int chance, dir, lev, enhanced;
 	bool fluke = FALSE;
 	bool used_charge;
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -3208,7 +3323,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 	/* Still charging? (before taking a turn & chance of failure) */
 	/* you always know when a rod is charging so no need to check awareness */
-	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval))
+	if (o_ptr->timeout > (o_ptr->charges - k_ptr->pval))
 	{
 		if (flush_failure) flush();
 
@@ -3226,10 +3341,20 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return FALSE;
 	}
-
+	else dir = 0;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	/* thieves zap faster (usually) */
+	if ((!p_ptr->timed[TMD_CONFUSED]) && (cp_ptr->flags & CF_CLASS_SPEED) && 
+		(rand_int(p_ptr->skills[SKILL_DEV]) > 10 + badluck))
+	{
+		if (p_ptr->lev >= 40) p_ptr->energy_use = 80;
+		else if (p_ptr->lev >= 20) p_ptr->energy_use = 85;
+		else if (p_ptr->lev >= 5) p_ptr->energy_use = 90;
+		else p_ptr->energy_use = 95;
+	}
 
 	/* Not identified yet */
 	*ident = FALSE;
@@ -3283,15 +3408,11 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		return FALSE;
 	}
 
-	/* get the sval */
-	sval = o_ptr->sval;
-
 	/* Sound */
 	sound(MSG_ZAP_ROD);
 
-
 	/*** do the rod effect (effects moved to another function) ***/
-	used_charge = rod_effect(sval, ident, enhanced, dir);
+	used_charge = rod_effect(o_ptr->sval, ident, enhanced, dir);
 
 	/* Drain the charge */
 	if (used_charge) o_ptr->timeout += k_ptr->pval;
@@ -3537,7 +3658,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_TRAP_DOOR_DEST:
 			{
 				msg_format("Your %s glows bright red...", o_name);
-				destroy_doors_touch();
+				destroy_doors_touch(2);
 				break;
 			}
 

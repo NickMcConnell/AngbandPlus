@@ -322,7 +322,6 @@
 #define LUCK_SLOW_MONSTER              22
 #define LUCK_MINI_DESTRUCTION          23
 #define LUCK_BURST_OF_LIGHT            60
-#define LUCK_STONE_TO_MUD              24
 #define LUCK_DETECT_ENCHANTMENT        26
 
 /* Guidebook for Tourists 3(only for tourists)*/
@@ -357,17 +356,18 @@
 #define LUCK_TREASURE_MAP              73
 #define LUCK_AQUIREMENT                50
 
-/* Mordenkainen's Escapes: RE 6(mostly not for tourists)*/
-#define LUCK_DOOR_CREATION2            52
+/* Lucky Escapes: RE 6(mostly not for tourists)*/
+#define LUCK_DOOR_CREATION2            52 /* renamed to seal/open getaway */
 #define LUCK_STAIR_CREATION2           53
-#define LUCK_TELEPORT_LEVEL            54
+#define LUCK_LULLABY                   24
+#define LUCK_TELEPORT_LEVEL            54 /* change to taming */
 #define LUCK_WORD_OF_DESTRUCTION       55
-#define LUCK_WORD_OF_RECALL2           56
+#define LUCK_TELEPORT_CONTROL          56
 #define LUCK_RUNE_OF_PROTECTION        57
 
 /* Rogue's Defences 7(not for tourists)*/
 #define LUCK_RESIST_HEAT_ELEC          58
-#define LUCK_SEAL_GETAWAY              59
+#define LUCK_BOOMERANG_THROW           59
 #define LUCK_SENSE_SURROUNDINGS        25
 #define LUCK_CURING                    61
 #define LUCK_SUPER_ROGUE               62
@@ -385,7 +385,7 @@
 #define LUCK_MASS_CHAOS                71 /* needs testing */
 #define LUCK_BIZZARE_EFFECTS           72 /* needs testing */
 
-        /* Alchemy - done except for marked ones */
+        /* Alchemy - working on */
 /* Beginner's Mixing 0*/
 #define CHEM_CURE_LIGHT_WOUNDS         1
 #define CHEM_STINKING_CLOUD            3
@@ -412,9 +412,8 @@
 #define CHEM_DETECT_TREASURE           18 /* now also detect objects */
 #define CHEM_TRAP_DOOR_DESTRUCTION     19
 #define CHEM_CLEAR_MIND                20
+#define CHEM_DETECT_INVISIBLE          22 /* detect hidden */
 #define CHEM_IDENTIFY                  21
-#define CHEM_DETECT_INVISIBLE          22
-#define CHEM_RESISTANCE                23
 #define CHEM_DETECT_ENCHANTMENT        24
 #define CHEM_ACID_COAT_AMMO            25
 
@@ -422,42 +421,43 @@
 #define CHEM_BURST_OF_SPEED            26
 #define CHEM_TELEPORT_SELF             27
 #define CHEM_SLOW_MONSTERS             29
-#define CHEM_MASS_AMNESIA              30
+#define CHEM_MASS_AMNESIA              30 /* Mist of Amnesia */
 #define CHEM_HASTE_SELF                31
 #define CHEM_TELEPORT_OTHER            28
 #define CHEM_TUNNEL_DIGGING            57
 #define CHEM_TELEPORT_LEVEL            32
-#define CHEM_RUNE_OF_PROTECTION        34
+#define CHEM_EMERGENCY_GETAWAY_SHIELD  34
 
-/* Missile Magic (archers only)4*/
+/* Missile Magic (archers only (still sval 4 but native deeper than before)4*/
 #define CHEM_LIGHTNING_BOLT            35
 #define CHEM_RAIN_OF_ARROWS            36
 #define CHEM_CHAOS_ARROW               37
-#define CHEM_ROCKET_BLAST              38
 #define CHEM_ENCHANT_TO_HIT            39
 #define CHEM_ENCHANT_TO_DAM            40
 #define CHEM_POISON_BRAND_AMMO         41
+#define CHEM_ROCKET_BLAST              38
 #define CHEM_ELEMENTAL_BRAND_AMMO      42
+#define CHEM_METEOR_SWARM              73
 
 /* Chemical Combat (not for archers)5*/
 #define CHEM_MIMMIC_MIMMIC             43
 #define CHEM_MIMMIC_ZAP                44 /* hard-coded variable mana */
 #define CHEM_ENHANCE_WAND              52 
 #define CHEM_REPUGNANCE                45 /* maybe replace with potion transferral */
-#define CHEM_LASTING_REPUGNANCE        46
 #define CHEM_ZOMBIE_FLAME              47
+#define CHEM_LASTING_REPUGNANCE        46
+#define CHEM_MAKE_GRENADE			   70
 #define CHEM_ELEMENT_BALL              49 /* alchemical dragonbreath (almost same as the potion) */
 #define CHEM_ACID_BALL                 50
-#define CHEM_ICE_STORM                 51
 
-/* Core of Alchemy (alchemists only)6*/
-#define CHEM_RECHARGING1               56
-#define CHEM_SILVER_BULLET             55
-#define CHEM_CLOUDKILL1                53
-#define CHEM_EXPLOSION                 58
-#define CHEM_RESTORATION               59
-#define CHEM_POISON_BRAND_WEAPON1      60
-#define CHEM_ELIXIR_OF_LIFE            33
+/* Safety Precautions 6*/
+#define CHEM_SAFETY_GOGGLES            68
+#define CHEM_SUSTAIN_HEALTH            69
+#define CHEM_BREATH_SHIELD             71
+#define CHEM_ENCHANT_ARMOR             72
+#define CHEM_GUARD_QUIVER			   75 /* quiver protection */
+#define CHEM_RESISTANCE                23
+#define CHEM_GLYPH_OF_WARDING          54
 
 /* Advanced Thievery (thieves only)7*/
 #define CHEM_HIT_N_RUN                 61
@@ -467,18 +467,18 @@
 #define CHEM_FIND_VAULT                66
 #define CHEM_RESTORE_DEX1              48
 #define CHEM_TELEKINESIS               74
-#define CHEM_BEDLAM1                   65
+#define CHEM_BEDLAM					   65
 #define CHEM_POISON_BRAND_WEAPON2      67
 
-/* Advenced Archer's Tactics (archers only)8*/
-#define CHEM_RECHARGING2               68
-#define CHEM_SHIELD                    69
-#define CHEM_BEDLAM2                   70
-#define CHEM_BREATH_SHIELD             71
-#define CHEM_ENCHANT_ARMOR             72
-#define CHEM_METEOR_SWARM              73
-#define CHEM_GLYPH_OF_WARDING          54
-#define CHEM_GUARD_QUIVER			   75 /* quiver protection */
+/* Core of Alchemy (alchemists only)8*/
+#define CHEM_RECHARGING				   56
+#define CHEM_SILVER_BULLET             55
+#define CHEM_CLOUDKILL1                53
+#define CHEM_ICE_STORM                 51
+#define CHEM_EXPLOSION                 58
+#define CHEM_POISON_BRAND_WEAPON1      60
+#define CHEM_RESTORATION               59
+#define CHEM_ELIXIR_OF_LIFE            33
 
         /* Black Magic */
 /* Dark Initiation (not for assassin) 0*/
@@ -867,7 +867,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 		        strnfmt(p, len, " dam 6d8");
 			    break;
 	   	    case PRAYER_DAYLIGHT:
-				strnfmt(p, len, " dur 20 + d%d", 10 + plev/2);
+				strnfmt(p, len, " dur %d + d%d", 15 + plev/4, 10 + plev/2);
 			    break;
             case PRAYER_GODSPEED:
 				strnfmt(p, len, " dur %d + d%d", plev+2, 8 + plev/2);
@@ -1039,6 +1039,12 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 	        case LUCK_SUSTAIN_SPEED:
 				strnfmt(p, len, " dur %d+d%d", plev / 2, plev / 2);
 				break;
+			case LUCK_BOOMERANG_THROW:
+				strnfmt(p, len, " dur %d+d%d", plev, (plev*3)/4);
+				break;
+			case LUCK_TELEPORT_CONTROL:
+				strnfmt(p, len, " dur %d+d%d", plev, plev);
+				break;
 			case LUCK_SLIP_INTO_SHADOWS:
 				strnfmt(p, len, " dur 30+d%d", plev);
 				break;
@@ -1082,8 +1088,15 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 				strnfmt(p, len, " heal %dd9, min%d", plev/2, curep);
 				break;
 			case CHEM_STINKING_CLOUD:
-			    strnfmt(p, len, " dam %d", 10 + (plev / 2));
+			{
+				if (plev < 3) strnfmt(p, len, " dam %d+d%d", plev + 2, 3);
+				else if (plev < 9) strnfmt(p, len, " dam %d+d%d", plev + 2, (plev+3) / 2);
+				else if (plev < 12) strnfmt(p, len, " dam %d+d%d", 11, plev / 2);
+				else if (plev < 22) strnfmt(p, len, " dam %d+d%d", 11, plev / 2 - 1);
+				else strnfmt(p, len, " dam %d+d%d", plev/2 + 1, 9);
+			    /* else strnfmt(p, len, " dam %d", 10 + (plev / 2)); */
 			    break;
+			}
 		    case CHEM_ACID_ARROW:
 			    strnfmt(p, len, " dam %dd6", (3 + ((plev - 6) / 6)));
 			    break;
@@ -1119,6 +1132,15 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 		    case CHEM_HIT_N_RUN:
 				strnfmt(p, len, " dam 2d%d+1", (plev / 3) + 1);
 				break;
+			case CHEM_EMERGENCY_GETAWAY_SHIELD:
+				strnfmt(p, len, " dur %d+d%d", 6 + (plev*3)/4, (plev*3)/4);
+				break;
+			case CHEM_SAFETY_GOGGLES:
+				strnfmt(p, len, " dur %d+d%d", 10 + (plev*3)/4, plev);
+				break;
+			case CHEM_SUSTAIN_HEALTH:
+				strnfmt(p, len, " dur %d+d%d", 8 + (plev*3)/4, plev);
+				break;
 			case CHEM_BREATH_SHIELD:
 				strnfmt(p, len, " dur %d+d%d", plev/2 + 1, plev/3);
 				break;
@@ -1149,9 +1171,16 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case CHEM_ICE_STORM:
 				strnfmt(p, len, " dam %d", 50 + (plev * 2));
 				break;
+			case CHEM_CLOUDKILL1:
+			case CHEM_CLOUDKILL2:
+				strnfmt(p, len, " dam %d", 40 + (plev * 2));
+				break;
 		    case CHEM_SILVER_BULLET:
 			    strnfmt(p, len, " dam %d + d%d", 25 + plev, plev);
 			    break;
+			case CHEM_EXPLOSION:
+				strnfmt(p, len, " dam %d", 20 + (plev * 2));
+				break;
 		}
     }
 
@@ -1159,7 +1188,6 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 	if (tval == TV_DARK_BOOK)
 	{
 		int plev = p_ptr->lev;
-		int curep, curehp;
 
 		/* Analyze the spell */
 		switch (spell)
@@ -1461,7 +1489,7 @@ static bool cast_mage_spell(int spell)
         
 		case SPELL_TRAP_DOOR_DESTRUCTION:
 		{
-			(void)destroy_doors_touch();
+			(void)destroy_doors_touch(0);
 			break;
 		}
 
@@ -1603,7 +1631,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_FIRE_BALL:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_FIRE, dir, 55 + (plev), 2);
+			fire_ball(GF_FIRE, dir, 55 + plev, 2);
 			break;
 		}
              
@@ -1651,7 +1679,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level();
+			(void)teleport_player_level(0);
 			break;
 		}
 
@@ -1692,11 +1720,14 @@ static bool cast_mage_spell(int spell)
 
         case SPELL_DRAGONFIRE:
 		{
-            range = 5;
 			if (!get_aim_dir(&dir)) return (FALSE);
+            range = 5;
 			fire_beam(GF_FIRE, dir, damroll(plev/4, 6));
+            range = 5;
 			fire_beam(GF_PLASMA, dir, damroll(plev/4, 6));
+            range = 5;
 			fire_ball(GF_FIRE, dir, damroll(plev/2, 8), 3);
+            range = 5;
 			fire_ball(GF_PLASMA, dir, damroll(plev/2, 8), 3);
 			break;
 		}
@@ -2226,6 +2257,8 @@ static bool cast_priest_spell(int spell)
 		case PRAYER_HOLY_LANCE:
         {
 			if (!get_aim_dir(&dir)) return (FALSE);
+			if (plev > 40) range = 17;
+			else range = 15;
 			fire_beam(GF_HOLY_ORB, dir,
 			          damroll((plev/10), 8) + plev + randint(plev/2));
 			if (randint(plev/3) > 6) lite_line(dir, 0);
@@ -2307,7 +2340,9 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_TURN_UNDEAD:
 		{
-			(void)turn_undead();
+			int pwr = (p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]])/2;
+			if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] < p_ptr->lev) pwr = p_ptr->lev - 1;
+			(void)turn_undead(pwr);
 			break;
 		}
 
@@ -2546,7 +2581,7 @@ static bool cast_priest_spell(int spell)
 			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)disarm_trap(dir, 0);
 			/* make prayer a little different from equivelent wizardry spell */
-			/* (void)destroy_doors_touch(); */
+			/* (void)destroy_doors_touch(0); */
 			break;
 		}
 		
@@ -2629,7 +2664,26 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_DAYLIGHT:
 		{
-			(void)inc_timed(TMD_DAYLIGHT, 20 + randint(10 + plev/2));
+			if (p_ptr->depth) (void)inc_timed(TMD_DAYLIGHT, 15 + plev/4 + randint(10 + plev/2));
+			else /* in town */
+			{
+				/* night or day */
+				bool night;
+			    if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
+				else night = TRUE;
+				
+				/* Bring the dawn early */
+				if (night)
+				{
+					(void)inc_timed(TMD_DAYLIGHT, 15 + plev/4 + randint(10 + plev/2));
+					town_illuminate(TRUE);
+				}
+				else 
+				{
+					msg_print("No need for magic, you're already in daylight.");
+					return (FALSE);
+				}
+			}
             break;
 		}
         
@@ -2756,8 +2810,7 @@ static bool cast_newm_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
             range = 5;
-			fire_beam(GF_ELEC, dir,
-			          damroll(2+((plev-5)/5), 4));
+			fire_beam(GF_ELEC, dir, damroll(2+((plev-5)/5), 4));
 			break;
 		}
 
@@ -2771,7 +2824,7 @@ static bool cast_newm_spell(int spell)
 		
 		case NEWM_TRAP_DOOR_DESTRUCTION:
 		{
-			(void)destroy_doors_touch();
+			(void)destroy_doors_touch(0);
 			break;
 		}
 
@@ -3273,7 +3326,7 @@ static bool cast_newm_spell(int spell)
 
 		case NEWM_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level();
+			(void)teleport_player_level(0);
 			break;
 		}
 
@@ -3314,12 +3367,12 @@ static bool cast_luck_spell(int spell)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-    int die, dir, dis;
+    int die, dir, dis, pwr;
 	int flash, lottery, jackpot;
 	int where, aquirenum, price;
-	int ty, tx;
-    int way, time, eplev, dieb;
-	bool controlled, tdoor;
+	/* int ty, tx, time; */
+    int way, dieb;
+	bool controlled;
 
 	/* Hack -- chance of "beam" instead of "bolt" */
 	int beam = beam_chance();
@@ -3377,12 +3430,10 @@ static bool cast_luck_spell(int spell)
 		case LUCK_TRAP_DOOR_DESTRUCTION:
 		{
             die = randint(99) + randint(plev/5);
-			(void)destroy_doors_touch();
+			(void)destroy_doors_touch(0);
 			if (die > 100)
             {
-               spellswitch = 6; /* increses radius for destroy traps */
-               (void)destroy_doors_touch();
-               spellswitch = 0;
+               (void)destroy_doors_touch(1);
             }
 			break;
 		}
@@ -3394,8 +3445,10 @@ static bool cast_luck_spell(int spell)
 			flash = 1 + randint(plev/4 + 1);
 			if (plev < 9) flash = randint(plev/4 + 1);
             spellswitch = 9;
+            range = 10;
 			fire_ball(GF_WATER, dir, 1, plev/22);
             spellswitch = 9;
+            range = 10;
 			fire_ball(GF_LITE, dir, flash-1, plev/15);
 			/* GF_WATER for stunning effect */
 			/* spellswitch 9 keeps you from discovering water immunity */
@@ -3413,7 +3466,7 @@ static bool cast_luck_spell(int spell)
             die = randint(99) + randint(plev/4);
             if (die < 3) return (project_los(GF_WIZLOCK, plev/5));
             else if (die < 10) earthquake(py, px, 5, 0, 0, FALSE);
-            else if (die < 15) (void)destroy_doors_touch();
+            else if (die < 15) (void)destroy_doors_touch(0);
             else if (die < 26) 
             {
                  earthquake(py, px, 3, 80, 0, FALSE);
@@ -3426,13 +3479,13 @@ static bool cast_luck_spell(int spell)
             else if (die < 100) (void)door_creation(0);
             else if (die < 110)
             {
-                 (void)destroy_doors_touch();
+                 (void)destroy_doors_touch(0);
 			     (void)door_creation(10);
             }
             else  /* (die > 109) */
             {
 			     (void)hp_player(damroll(5, 5));
-                 (void)destroy_doors_touch();
+                 (void)destroy_doors_touch(2);
 			     (void)door_creation(10);
             }
 			break;
@@ -3446,8 +3499,8 @@ static bool cast_luck_spell(int spell)
                  trap_creation();
 			     msg_print("You hear the floor shifting.");
             }
-            else if (die < 13) (void)teleport_player_level();
-            else if (die < 18) (void)destroy_doors_touch();
+            else if (die < 13) (void)teleport_player_level(0);
+            else if (die < 18) (void)destroy_doors_touch(0);
             else if (die < 28) 
             {
                  earthquake(py, px, 3, 0, 0, FALSE);
@@ -3888,10 +3941,11 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
 		
-        case LUCK_STONE_TO_MUD: /* replaces rogue version of telekinesis */
+        case LUCK_LULLABY:
 		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)wall_to_mud(dir);
+            pwr = plev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+            fire_spread(GF_OLD_SLOW, pwr-2, 6 + plev/12);
+            fire_spread(GF_OLD_SLEEP, pwr, 5 + plev/12);
 			break;
 		}
 		
@@ -3948,13 +4002,10 @@ static bool cast_luck_spell(int spell)
             {
 			  (void)detect_traps();
             }
-			if (die > 99) (void)destroy_doors_touch();
+			if (die > 99) (void)destroy_doors_touch(0);
 			else if (die > 108)
             {
-               spellswitch = 6; /* increses radius for destroy traps */
-                                /* and keeps it from destroying doors */
-               (void)destroy_doors_touch();
-               spellswitch = 0;
+               (void)destroy_doors_touch(1);
             }
 			break;
         }
@@ -4125,7 +4176,7 @@ static bool cast_luck_spell(int spell)
 		case LUCK_MASS_AMNESIA: /* was plev*2 */
 		{
             int pwr = ((plev * 7)/4) + (adj_chr_charm[p_ptr->stat_ind[A_CHR]] / 2);
-			(void)mass_amnesia(pwr);
+			(void)mass_amnesia(pwr, 0, 0);
 			break;
 		}
 		
@@ -4263,9 +4314,16 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
 
-		case LUCK_DOOR_CREATION2:
+		case LUCK_DOOR_CREATION2: /* seal/open getaway */
+		/* maybe: if rogue and clvl < X then it makes rubble instead */
 		{
-			(void)door_creation(0);
+			int jam = 0;
+			/* (void)door_creation(0); */
+			if (get_check("Create a jammed door? (otherwise will be unlocked) "))
+				jam = 10;
+			spellswitch = 24; /* force specific target */
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_MAKE_DOOR, dir, jam, 1);
 			break;
 		}
 
@@ -4277,7 +4335,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level();
+			(void)teleport_player_level(0);
 			break;
 		}
 
@@ -4287,14 +4345,9 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
 
-		case LUCK_WORD_OF_RECALL2:
+		case LUCK_TELEPORT_CONTROL:
 		{
-            die = randint(99) + randint(plev/4);
-            if (die > 100)
-            {
-                 set_recall(rand_int(5) + 4);
-            }
-            else set_recall(rand_int(20) + 15);
+			(void)inc_timed(TMD_TELECONTROL, randint(plev) + plev);
 			break;
 		}
 
@@ -4319,9 +4372,9 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_BANISH_SUMMON:
         {
+            int dep = p_ptr->depth;
             die = randint(99 - badluck) + goodluck;
             if (randint(100) > badluck) die += plev/3;
-            int dep = p_ptr->depth;
             if (!dep) dep = 1;
             if (die < 5)
             {
@@ -4606,33 +4659,9 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
 
-		case LUCK_SEAL_GETAWAY:
+		case LUCK_BOOMERANG_THROW:
 		{
-			if (!get_aim_dir(&dir)) return FALSE;
-			if ((dir == 5) && target_okay())
-			{
-			   /* is the target a door? */
-		       ty = p_ptr->target_row;
-		       tx = p_ptr->target_col;
-			   tdoor = FALSE;
-			   if ((cave_feat[ty][tx] == FEAT_OPEN) || 
-                  (cave_feat[ty][tx] == FEAT_BROKEN))
-                    tdoor = TRUE;
-			   if ((cave_feat[ty][tx] >= FEAT_DOOR_HEAD) || 
-                  (cave_feat[ty][tx] <= FEAT_DOOR_TAIL))
-                    tdoor = TRUE;
-               eplev = ((plev - 10) * 2) + 15;
-
-			   /* Spell will jam a door or create a jammed door or rubble */
-               /* in any one empty square. */
-               if ((randint(eplev) > 15) || (tdoor)) fire_ball(GF_WIZLOCK, dir, 0, 0);
-			   else fire_ball(GF_BOULDER, dir, 0, 0);
-            }
-            else
-            {
-                msg_print("You must target a specfic spot for this spell to work.");
-                return FALSE;
-            }
+			(void)inc_timed(TMD_THROW_RETURN, randint((plev*3)/4) + plev);
 			break;
 		}
         
@@ -4663,8 +4692,8 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_SUPER_ROGUE:
 		{
-			(void)clear_timed(TMD_FRENZY);
 			int time;
+			(void)clear_timed(TMD_FRENZY);
 			if (goodluck > 0) time = 11 + (goodluck * 4) + randint(19);
 			else time = 10 + randint(18);
 			(void)inc_timed(TMD_SUPER_ROGUE, time);
@@ -4842,12 +4871,12 @@ static bool cast_luck_spell(int spell)
             {
 			   msg_print("You are surrounded by a malignant aura.");
 			   /* Decrease all stats (permanently, but by less) */
-			   (void)dec_stat(A_STR, randint(2), TRUE);
-			   (void)dec_stat(A_INT, randint(2), TRUE);
-			   (void)dec_stat(A_WIS, randint(2), TRUE);
-			   (void)dec_stat(A_DEX, randint(2), TRUE);
-			   (void)dec_stat(A_CON, randint(2), TRUE);
-			   (void)dec_stat(A_CHR, randint(3), TRUE);
+			   (void)dec_stat(A_STR, randint(3), TRUE);
+			   (void)dec_stat(A_INT, randint(3), TRUE);
+			   (void)dec_stat(A_WIS, randint(3), TRUE);
+			   (void)dec_stat(A_DEX, randint(3), TRUE);
+			   (void)dec_stat(A_CON, randint(3), TRUE);
+			   (void)dec_stat(A_CHR, randint(4), TRUE);
             }
             else if (die < 5) 
             {
@@ -4886,10 +4915,10 @@ static bool cast_luck_spell(int spell)
                else if (die2 == 7) do_call_help(710); /* dullahan */
                else if (die2 == 8) do_call_help(703); /* skull druj */
                else if (die2 == 9) do_call_help(688); /* barbazu */
-               else if (die2 == 10) do_call_help(676); /* quylthulg shrieker */
+               else if (die2 == 10) do_call_help(676); /* giant toadstool of iritation */
                else if (die2 == 11) do_call_help(684); /* gnawing bug */
                else if (die2 == 12) do_call_help(661); /* wemu vyrm */
-               else if (die2 == 13) do_call_help(692); /* rayem */
+               else if (die2 == 13) do_call_help(723); /* rayem */
                else if (die2 == 14) do_call_help(659); /* gorgon */
                else if (die2 == 15) do_call_help(644); /* greater basilisk */
                else if (die2 == 16) do_call_help(631); /* doppleganger */
@@ -4901,7 +4930,7 @@ static bool cast_luck_spell(int spell)
                else if (die2 == 22) do_call_help(511); /* singing vyrms */
                else if (die2 == 23) do_call_help(509); /* hellhound */
                else if (die2 == 24) do_call_help(569); /* animated staff of summoning */
-               /* higher than 22 can only happen with good luck */
+               /* higher than 24 can only happen with good luck */
                else if (die2 == 25) do_call_help(605); /* ancient zhelung */
                else if (die2 == 26) do_call_help(400); /* creeping adamantite coins */
                else if (die2 == 27) do_call_help(522); /* hairy quylthulg */
@@ -4910,13 +4939,13 @@ static bool cast_luck_spell(int spell)
                /* 1 can only happen with maximum bad luck */
                else /* 1 */ do_call_help(798); /* plague slime */
             }
-            /* the following four effects have both good and bad possibilities */
-            /* but the good ones happen more often */
             else if (die < 37) 
             {
                msg_print("You feel lucky.");
                p_ptr->luck += randint(2);
             }
+            /* the following four effects have both good and bad possibilities */
+            /* but the good ones happen more often */
             else if (die < 45) (void)spell_adjust_curse();
             else if (die < 55) (void)spell_affect_self();
             else if (die < 65) (void)spell_potluck_stats();
@@ -5037,8 +5066,15 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_STINKING_CLOUD:
 		{
+			int sdam; /* wizard version is 10 + plev/2 (no randomness) */
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
+			/* alchemists get the spell very early and cheap, so nerf slightly for low level chrs */
+			if (plev < 3) sdam = plev + 2 + randint(3);
+			else if (plev < 9) sdam = plev + 2 + randint((plev+3) / 2);
+			else if (plev < 12) sdam = 11 + randint(plev / 2);
+			else if (plev < 22) sdam = 11 + randint(plev / 2 - 1);
+			else sdam = plev/2 + 1 + randint(9);
+			fire_ball(GF_POIS, dir, sdam, 2);
 			break;
 		}
 
@@ -5239,7 +5275,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_TRAP_DOOR_DESTRUCTION:
 		{
-			(void)destroy_doors_touch();
+			(void)destroy_doors_touch(0);
 			break;
 		}
 
@@ -5347,7 +5383,7 @@ static bool cast_chem_spell(int spell)
 		case CHEM_MASS_AMNESIA: /* was plev * 2 */
 		{
             int pwr = ((plev * 7)/4) + (adj_chr_charm[p_ptr->stat_ind[A_CHR]] / 2);
-			(void)mass_amnesia(pwr);
+			(void)mass_amnesia(pwr, 0, 0);
 			break;
 		}
 
@@ -5380,13 +5416,45 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level();
+			(void)teleport_player_level(0);
 			break;
 		}
 
-		case CHEM_RUNE_OF_PROTECTION:
+		case CHEM_EMERGENCY_GETAWAY_SHIELD:
 		{
-			return (warding_glyph());
+			int dur = 6 + (plev*3)/4 + (goodluck+1)/2 + randint((plev*3)/4);
+			inc_timed(TMD_WSHIELD, dur);
+			inc_timed(TMD_EMERGENCY_ESCAPE, dur);
+			break;
+		}
+
+		case CHEM_SAFETY_GOGGLES:
+		{
+			int dur = 10 + (plev*3)/4 + (goodluck+1)/2 + randint(plev);
+			inc_timed(TMD_SAFET_GOGGLES, dur);
+			break;
+		}
+
+		case CHEM_SUSTAIN_HEALTH:
+		{
+			int dur = 8 + (plev*3)/4 + (goodluck+1)/2 + randint(plev);
+			(void)inc_timed(TMD_SUSTAIN_HEALTH, dur);
+			break;
+		}
+        
+        case CHEM_BREATH_SHIELD:
+		{
+			(void)inc_timed(TMD_BR_SHIELD, randint(plev/3) + (plev/2) + 1);
+			break;
+        }
+
+		case CHEM_GUARD_QUIVER:
+		{
+			int scoreq = ((plev-20)/3) + ((goodluck + 1)/2);
+			(void)inc_timed(TMD_QUIVERGUARD, randint(plev + scoreq) + scoreq*5);
+			if (plev > 35) scoreq += (plev - 35) * 5;
+			if (rand_int(100) < scoreq) remove_cursed_quiver();
+			break;
 		}
 
 		case CHEM_LIGHTNING_BOLT:
@@ -5494,7 +5562,13 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_ENHANCE_WAND: /* replaced wonder */
 		{
-			int power = plev + randint((plev + p_ptr->skills[SKILL_DEV]) / 2);
+			int power = (plev*4)/5;
+			power = power + randint((power + p_ptr->skills[SKILL_DEV] - 1) / 2);
+			/* max power */
+			if ((plev >= 20) && (power > plev * 2 - 1)) power = plev * 2 - 1;
+			else if (power > 39) power = 39;
+
+			/* msg_format("enhance wand power is %d.", power); (testing) */
 
 			return enhance_wand(power);
 		}
@@ -5522,48 +5596,41 @@ static bool cast_chem_spell(int spell)
                                    damroll(6+((plev-5)/4), 8));
 			break;
 		}
+#endif
 
-		case CHEM_POLYMORPH_OTHER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			if (randint(100) < (goodluck + 6)/2) (void)poly_monster(dir, plev + 10);
-			else (void)poly_monster(dir, plev);
-			break;
-		}
-
-		case CHEM_SLOW_MONSTER:
-		{
-            int pwr = plev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)slow_monster(dir, pwr);
-			break;
-		}
-#else
 		case CHEM_REPUGNANCE:
 		{
 			fire_spread(GF_TURN_ALL, plev + ((goodluck+1)/2), 3 + (plev/8));
 			inc_timed(TMD_STINKY, 3);
+			break;
 		}
 
 		case CHEM_LASTING_REPUGNANCE:
 		{
 			fire_spread(GF_TURN_ALL, plev + ((goodluck+1)/2), 3);
 			inc_timed(TMD_STINKY, rand_int(plev/2 + 5) + 20);
+			break;
+		}
+
+		case CHEM_MAKE_GRENADE:
+		{
+			return craft_grenade();
 		}
 
 		case CHEM_ZOMBIE_FLAME:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
+			range = 14 + plev/12;
 			fire_bolt_or_beam(beam-10, GF_ZOMBIE_FIRE, dir, damroll((plev/2), 6));
 			break;
 		}
-#endif
 		
 		case CHEM_ELEMENT_BALL: /* alchemical dragonbreath */
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			if (randint(100) < 48) fire_ball(GF_COLD, dir, 40 + (plev), 2);
-			else fire_ball(GF_FIRE, dir, 43 + (plev), 2);
+			range = 14 + plev/12;
+			if (rand_int(100) < 48) fire_ball(GF_COLD, dir, 40 + plev, 2);
+			else fire_ball(GF_FIRE, dir, 43 + plev, 2);
 			if (randint(100) < 60 + ((badluck+1)/2)) (void)set_food(p_ptr->food - (30 + badluck + randint(60)));
 			break;
 		}
@@ -5571,7 +5638,7 @@ static bool cast_chem_spell(int spell)
 		case CHEM_ACID_BALL:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_ACID, dir, 55 + (plev), 2);
+			fire_ball(GF_ACID, dir, 55 + plev, 2);
 			break;
 		}
 
@@ -5589,14 +5656,9 @@ static bool cast_chem_spell(int spell)
 			break;
 		}
 
-		case CHEM_RECHARGING1:
+		case CHEM_RECHARGING:
 		{
 			return recharge(5 + randint(plev));
-		}
-
-		case CHEM_RECHARGING2:
-		{
-			return recharge(6 + randint(plev/2));
 		}
 
 		case CHEM_CLOUDKILL1:
@@ -5675,14 +5737,7 @@ static bool cast_chem_spell(int spell)
 			break;
 		}
 
-		case CHEM_BEDLAM1:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_OLD_CONF, dir, plev, 4);
-			break;
-		}
-
-		case CHEM_BEDLAM2:
+		case CHEM_BEDLAM:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_OLD_CONF, dir, plev, 4);
@@ -5745,21 +5800,6 @@ static bool cast_chem_spell(int spell)
 			(void)do_res_stat(A_CHR);
 			break;
         }
-        
-        case CHEM_BREATH_SHIELD:
-		{
-			(void)inc_timed(TMD_BR_SHIELD, randint(plev/3) + (plev/2) + 1);
-			break;
-        }
-
-		case CHEM_GUARD_QUIVER:
-		{
-			int scoreq = ((plev-20)/3) + ((goodluck + 1)/2);
-			(void)inc_timed(TMD_QUIVERGUARD, randint(plev + scoreq) + scoreq*5);
-			if (plev > 35) scoreq += (plev - 35) * 5;
-			if (rand_int(100) < scoreq) remove_cursed_quiver();
-			break;
-		}
 		
 		case CHEM_POISON_BRAND_WEAPON2:
         {
@@ -5889,12 +5929,6 @@ static bool cast_chem_spell(int spell)
 			break;
         }
 
-		case CHEM_SHIELD:
-		{
-			(void)inc_timed(TMD_SHIELD, randint(20) + 30);
-			break;
-		}
-
 		case CHEM_METEOR_SWARM:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
@@ -5988,7 +6022,7 @@ static bool cast_dark_spell(int spell)
             else (void)inc_timed(TMD_WSINFRA, 6 + randint(plev-3));
             ifrad = (plev / 3);
             if (plev > 11) ifrad = 3 + randint(plev / 6);
-            if (ifrad < 1) ifrad = 1;
+            if (ifrad < 2) ifrad = 2;
             if (randint(100) < 11 + badweap*2 + goodluck - ifrad) ifrad += 1;
 			(void)unlite_area(damroll(2, ((plev+1) / 2)) + randint(ifrad + 1) + 1, ifrad, TRUE);
 			/* in unlite_area function if from call dark spell: */
@@ -6123,10 +6157,10 @@ static bool cast_dark_spell(int spell)
 
         case DARK_DRAIN_CHARGES:
         {
-			drained = 0;
 			int healthis;
 			int oldhp = p_ptr->chp;
 			int maxhp = p_ptr->mhp;
+			drained = 0;
 			if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
 
             /* Restrict choices to staves or wands */
@@ -6152,11 +6186,11 @@ static bool cast_dark_spell(int spell)
 			    (o_ptr->tval == TV_WAND))
 			{
 				/* Charged? */
-				if (o_ptr->pval)
+				if (o_ptr->charges)
 				{
-					drained = o_ptr->pval;
+					drained = o_ptr->charges;
    						/* Uncharge */
-					o_ptr->pval = 0;
+					o_ptr->charges = 0;
 					/* higher value for higher level devices drained (1.5x) */
 					if (k_info[o_ptr->k_idx].level >= 48)
                         drained = (drained * 3) / 2;
@@ -6234,7 +6268,9 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_TURN_UNDEAD:
 		{
-			(void)turn_undead();
+			int pwr = (p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]])/2;
+			if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] < p_ptr->lev) pwr = p_ptr->lev - 1;
+			(void)turn_undead(pwr);
 			break;
 		}
 
@@ -6318,7 +6354,7 @@ static bool cast_dark_spell(int spell)
 
         case DARK_TRAP_DOOR_DESTRUCTION:
    		{
-			(void)destroy_doors_touch();
+			(void)destroy_doors_touch(0);
 			break;
 		}
 

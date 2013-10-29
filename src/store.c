@@ -394,8 +394,8 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
  * shop-keepers friendliness, and the shop-keeper's base greed, but
  * never lets a shop-keeper lose money in a transaction.
  *
- * The "greed" value should exceed 100 when the player is "buying" the
- * object, and should be less than 100 when the player is "selling" it.
+ * The "greed" value should exceed 100 when the player is buying the
+ * object, and should be less than 100 when the player is selling it.
  *
  * Hack -- the black market always charges twice as much as it should.
  *
@@ -580,7 +580,7 @@ static void mass_produce(object_type *o_ptr)
 	/* Hack -- rods need to increase PVAL if stacked */
 	if (o_ptr->tval == TV_ROD)
 	{
-		o_ptr->pval = o_ptr->number * k_info[o_ptr->k_idx].pval;
+		o_ptr->charges = o_ptr->number * k_info[o_ptr->k_idx].pval;
 	}
 }
 
@@ -604,10 +604,7 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
 
 	/* Different pvals cannot be stacked, except for wands, staves, or rods */
-	if ((o_ptr->pval != j_ptr->pval) &&
-	    (o_ptr->tval != TV_WAND) &&
-	    (o_ptr->tval != TV_STAFF) &&
-	    (o_ptr->tval != TV_ROD)) return (0);
+	if (o_ptr->pval != j_ptr->pval) return (0);
 
 	/* Require many identical values */
 	if (o_ptr->to_h != j_ptr->to_h) return (0);
@@ -621,7 +618,6 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	if (o_ptr->name2 != j_ptr->name2) return (0);
 
 	/* Hack -- Never stack "powerful" items */
-#ifdef new_random_stuff
 	if (o_ptr->randsus != j_ptr->randsus) return (0);
 	if (o_ptr->randsus2 != j_ptr->randsus2) return (0);
 	if (o_ptr->randres != j_ptr->randres) return (0);
@@ -641,9 +637,6 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	if (o_ptr->randlowr != j_ptr->randlowr) return (0);
 	if (o_ptr->randlowr2 != j_ptr->randlowr2) return (0);
 	if (o_ptr->randact != j_ptr->randact) return (0);
-#else
-	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
-#endif
 
 	/* Hack -- Never stack recharging items */
 	if ((o_ptr->timeout || j_ptr->timeout) && o_ptr->tval != TV_LITE)
@@ -682,14 +675,14 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 	 */
 	if (o_ptr->tval == TV_ROD)
 	{
-		o_ptr->pval += j_ptr->pval;
+		o_ptr->charges += j_ptr->charges;
 		o_ptr->timeout += j_ptr->timeout;
 	}
 
 	/* Hack -- if wands/staves are stacking, combine the charges */
 	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
 	{
-		o_ptr->pval += j_ptr->pval;
+		o_ptr->charges += j_ptr->charges;
 	}
 }
 
@@ -1062,7 +1055,7 @@ static void store_delete_item(int st)
 				    (o_ptr->tval == TV_STAFF) ||
 				    (o_ptr->tval == TV_WAND))
 				{
-					o_ptr->pval -= num * o_ptr->pval / o_ptr->number;
+					o_ptr->charges -= num * o_ptr->charges / o_ptr->number;
 				}
 			}
 		}
@@ -1318,14 +1311,12 @@ static bool store_create_random(int st)
 	object_type object_type_body;
 
 
-	/*
-	 * Decide min/max levels 
-	 */
+	/* Decide min/max levels */
 	if (st == STORE_B_MARKET)
 	{
 		min_level = 25;
 		max_level = 50;
-        if (p_ptr->max_depth > 60) max_level += (p_ptr->max_depth - 45)/5;
+        if (p_ptr->max_depth > 50) max_level += (p_ptr->max_depth - 40)/5;
 	}
 	else
 	{
@@ -1338,7 +1329,7 @@ static bool store_create_random(int st)
 	
 
 	/* Consider up to six items */
-	for (tries = 0; tries < 6; tries++)
+	for (tries = 0; tries < 12; tries++)
 	{
 		lucktry = FALSE;
         /* Work out the level for objects to be generated at */
@@ -1351,8 +1342,8 @@ static bool store_create_random(int st)
 			k_idx = get_obj_num(level);
 			
 			if ((k_idx == 420) && (p_ptr->corrupt < 35)) /* save a !life */;
-            /* luck may come through for you */
-			else if ((rand_int(200) < (goodluck + 3) / 2) && (!luckfail))
+            /* luck may come through for you was 180 */
+			else if ((rand_int(150) < (goodluck + 3) / 2) && (!luckfail))
 			{
 				int luckidx = get_lucky();
 				/* if get_lucky didn't return anything, then don't change the k_idx */
@@ -1412,13 +1403,13 @@ static bool store_create_random(int st)
 
 		/* Black markets have expensive tastes */
 		if ((st == STORE_B_MARKET) && !black_market_ok(i_ptr)) continue;
-		/* these filters don't apply to BM */
+		/* these other filters don't apply to BM */
 		else if (st == STORE_B_MARKET) /* okay */;
 		/* no ego magic staffs or rings carried in stores (except black market) */
         else if (((tval == TV_STAFF) || (tval == TV_RING)) && (i_ptr->name2))
              continue;
 		/* no "of randomness" or "Natural" egos in stores (except BM) */
-        else if (((i_ptr->name2 >= EGO_RANDOM1) && (i_ptr->name2 <= EGO_NATURAL_LITE)) ||
+        else if (((i_ptr->name2 >= EGO_RANDOM1) && (i_ptr->name2 <= EGO_BIG_RANDOM1)) ||
         ((i_ptr->name2 >= EGO_CONSTANT1) && (i_ptr->name2 <= EGO_CONSTANT2)) ||
         ((i_ptr->name2 >= EGO_RANDOM_AC1) && (i_ptr->name2 <= EGO_RANDOM_BOW)))
              continue;
@@ -1436,12 +1427,20 @@ static bool store_create_random(int st)
 		/* No worthless items */
 		if (object_value(i_ptr) < 1) continue;
 
+		/* only track certain categories of items */
+		if ((ego_item_p(i_ptr)) || (do_rating(i_ptr, TRUE)))
+		{
+			if (st == STORE_B_MARKET) i_ptr->vcode = 13;
+			else i_ptr->vcode = 12;
+		}
 
 		/* Charge lights XXX */
 		if (i_ptr->tval == TV_LITE)
 		{
-			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->timeout = FUEL_TORCH / 2;
-			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->timeout = FUEL_LAMP / 2;
+			/* FUEL_TORCH is 5760 is 16 hours, /8 is 2 hours (previous store amount was 8h 20min) */
+			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->timeout = (FUEL_TORCH/8) * randint(7);
+			/* FUEL_LANTERN is 14400 is 40 hours, /10 is 4 hours */
+			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->timeout = (FUEL_LAMP/10) * randint(9);
 
 			/* to prevent it saying (charging) in the description) */
 			if (i_ptr->name2 == EGO_EVERBURNING) i_ptr->timeout = 0;
@@ -1528,7 +1527,7 @@ static int store_create_item(int st, int tval, int sval, create_mode mode)
 	if (object.tval == TV_LITE)
 	{
 		if (object.sval == SV_LITE_TORCH)        object.timeout = FUEL_TORCH / 2;
-		else if (object.sval == SV_LITE_LANTERN) object.timeout = FUEL_LAMP / 2;
+		else if (object.sval == SV_LITE_LANTERN) object.timeout = 8640; /* 24 hours */
 	}
 
 	/* Make according to mode */
@@ -1589,11 +1588,8 @@ void store_maint(int which)
 {
 	int j;
 	int stock;
-
 	int old_rating = rating;
-
 	store_type *st_ptr;
-
 
 	/* Ignore home */
 	if (which == STORE_HOME) return;
@@ -1604,7 +1600,6 @@ void store_maint(int which)
 		store_create_staples();
 		return;
 	}
-
 
 	/* Activate that store */
 	st_ptr = &store[which];
@@ -1706,7 +1701,6 @@ void store_init(void)
 void store_shuffle(int which)
 {
 	int i;
-
 	store_type *st_ptr = &store[which];
 
 	/* Ignore home */
@@ -1786,7 +1780,6 @@ static void store_display_recalc(void)
 	scr_places_y[LOC_ITEMS_END] = hgt - 4;
 	scr_places_y[LOC_MORE] = hgt - 3;
 	scr_places_y[LOC_AU] = hgt - 2;
-
 
 
 	/* If we're displaying the help, then put it with a line of padding */
@@ -2041,16 +2034,13 @@ static bool store_get_check(const char *prompt)
 static bool store_purchase(int item)
 {
 	int amt, item_new;
-
 	store_type *st_ptr = &store[store_current];
 
 	object_type *o_ptr;
-
 	object_type *i_ptr;
 	object_type object_type_body;
 
 	char o_name[80];
-
 	s32b price;
 
 	/* Get the actual object */
@@ -2118,7 +2108,7 @@ static bool store_purchase(int item)
 
     /* check for spellbook tval */
     /* is it an appropriate spell book? */
-    if ((o_ptr->tval >= TV_MAGIC_BOOK) && (o_ptr->tval < TV_GOLD) && (!(o_ptr->tval == cp_ptr->spell_book)))
+    if (junkbook(o_ptr))
     {
 		/* Prevent buying a book you can't use */
         msg_print("Why would you want to buy that? You can't use it.");
@@ -2133,7 +2123,7 @@ static bool store_purchase(int item)
 	/* Attempt to buy it */
 	if (store_current != STORE_HOME)
 	{
-		u32b price;
+		s32b price;
 		bool response;
 
 		/* Extract the price for the entire stack */
@@ -2183,12 +2173,12 @@ static bool store_purchase(int item)
 		msg_format("You have %s (%c).", o_name, index_to_label(item_new));
 		store_flags |= STORE_KEEP_PROMPT;
 
-		/* Now, reduce the original stack's pval */
+		/* Now, reduce the original stack's charge */
 		if ((o_ptr->tval == TV_ROD) ||
 		    (o_ptr->tval == TV_WAND) ||
 		    (o_ptr->tval == TV_STAFF))
 		{
-			o_ptr->pval -= i_ptr->pval;
+			o_ptr->charges -= i_ptr->charges;
 		}
 
 		/* Handle stuff */
@@ -2295,6 +2285,9 @@ static bool store_purchase_all(void)
 	    o_ptr = &st_ptr->stock[i];
 	    price += price_item(o_ptr, FALSE) * o_ptr->number;
 	}
+	
+	/* allow easy restocking in debug mode */
+	if (p_ptr->noscore & NOSCORE_DEBUG) price = 1;
 
 	/* Check if the player can afford it */
 	if ((u32b)p_ptr->au < (u32b)price)
@@ -2433,14 +2426,8 @@ static void store_sell(void)
 	   /* EFGchange no selling to stores */
   	   if (store_current != STORE_HOME)
 	   {
-          if (aware)
-          {               
-		     msg_print("I do the selling and you do the buying.");
-		     store_flags |= STORE_KEEP_PROMPT;
-		     return;
-          }
-          else if (((o_ptr->tval >= 40) && (o_ptr->tval < 77)) || 
-                  (o_ptr->tval == 80))
+          if ((((o_ptr->tval >= 40) && (o_ptr->tval < 77)) || 
+                  (o_ptr->tval == 80)) && (!aware))
           {
              /* allow donating to shops for ID */
 		     msg_print("I'll identify that for you if you'll give it to me for free..");
@@ -2492,7 +2479,7 @@ static void store_sell(void)
 	    (o_ptr->tval == TV_WAND) ||
 	    (o_ptr->tval == TV_STAFF))
 	{
-		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+		i_ptr->charges = o_ptr->charges * amt / o_ptr->number;
 	}
 
 	/* Get a full description */
@@ -2504,11 +2491,9 @@ static void store_sell(void)
 	{
 		store_flags |= STORE_KEEP_PROMPT;
 
-		if (store_current == STORE_HOME)
-			msg_print("Your home is full.");
+		if (store_current == STORE_HOME) msg_print("Your home is full.");
 
-		else
-			msg_print("I have not the room in my store to keep it.");
+		else msg_print("I have not the room in my store to keep it.");
 
 		return;
 	}
@@ -2517,7 +2502,8 @@ static void store_sell(void)
 	/* Real store */
 	if (store_current != STORE_HOME)
 	{
-		u32b price, dummy, value;
+		u32b dummy, value;
+		s32b price;
 
 		/* Extract the value of the items */
 		price = price_item(i_ptr, TRUE) * amt;
@@ -2538,9 +2524,21 @@ static void store_sell(void)
 		}
 
 		screen_load();
-
+		
 		/* Get some money */
 		p_ptr->au += price;
+
+		/* Tourist gets XP from gold and gold drops are bigger when selling is turned off */
+		/* so allow XP from selling to make up for smaller gold drops */
+		if ((cp_ptr->flags & CF_ALTERNATE_XP) && (price > 50 + p_ptr->lev))
+		{
+			int gxp, tim = (p_ptr->max_depth+10)/20;
+			if (tim < 1) tim = 1;
+			gxp = (price / (50 + p_ptr->lev)) * tim;
+			/* thieves' also have ALTERNATE_XP but not as much */
+			if (cp_ptr->flags & CF_CLASS_SPEED) gxp = gxp / 3;
+			if (gxp >= 1) gain_exp(gxp);
+		}
 
 		/* Update the display */
 		store_flags |= STORE_GOLD_CHANGE;
@@ -2605,7 +2603,7 @@ static void store_sell(void)
 		store_carry(store_current, i_ptr);
 	}
 
-	/* Player is at home */
+	/* PC is at home */
 	else
 	{
 		/* Distribute charges of wands/staves/rods */
@@ -2728,12 +2726,14 @@ static void take_a_nap(void)
 	}
 	if (p_ptr->timed[TMD_CUT] || p_ptr->timed[TMD_POISONED])
 	{
-		msg_print("You need first aid before napping.");
+		if (p_ptr->prace == 16) msg_print("You need repairs first.");
+		else msg_print("You need first aid before napping.");
 		return;
 	}
 	if (turn - p_ptr->last_nap < 500)
 	{
-		msg_print("You're not tired.");
+		if (p_ptr->prace == 16) msg_print("You feel too restless.");
+		else msg_print("You're not tired.");
 		return;
 	}
 	if (p_ptr->word_recall)
@@ -2744,12 +2744,14 @@ static void take_a_nap(void)
 
 	if (rand_int(100) < bbluck)
 	{
-		msg_print("You can't seem to get to sleep.");
+		if (p_ptr->prace == 16) msg_print("You feel too restless.");
+		else msg_print("You can't seem to get to sleep.");
 		p_ptr->last_nap = turn - 400;
 		return;
 	}
 	
-    if (p_ptr->chp < p_ptr->mhp) msg_print("You feel refreshed after your nap.");
+	if (p_ptr->prace == 16) msg_print("You wait around at home for a couple hours.");
+	else if (p_ptr->chp < p_ptr->mhp) msg_print("You feel refreshed after your nap.");
 	else msg_print("You enjoy your nap.");
 	
  
@@ -2759,7 +2761,9 @@ static void take_a_nap(void)
 
 	/* take a 2-hour nap */
 	turn += 7200;
-	p_ptr->last_nap = turn;
+	clear_timed(TMD_FATIGUE);
+	/* allow infinite napping in debug mode */
+	if (!p_ptr->noscore & NOSCORE_DEBUG) p_ptr->last_nap = turn;
 	(void)set_food(p_ptr->food - 200);
 
 	/* takes the place of going to level 1 to rest x number of turns */
@@ -2833,7 +2837,7 @@ static void take_a_nap(void)
 		store_shuffle(n);
 	}
 
-	/* do this here, or else the sun won't rise in the morning.. */
+	/* do this here, or else the sun won't rise in the morning... */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) daytimeb = TRUE;
 	else daytimeb = FALSE;
 	if (daytimea != daytimeb) town_illuminate(daytimeb);

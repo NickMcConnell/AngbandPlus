@@ -48,12 +48,10 @@ static int monster_critical(int dice, int sides, int dam)
 
 
 
-
-
 /*
  * Determine if a monster attack against the player succeeds.
  */
-static bool check_hit(int power, int level, const monster_race *r_ptr)
+static bool check_hit(int power, int level, const monster_race *r_ptr, bool noarmor)
 {
 	int chance, ac, fdep = p_ptr->depth;
 	/* modified level */
@@ -68,7 +66,7 @@ static bool check_hit(int power, int level, const monster_race *r_ptr)
 		/* shallow uniques shouldn't be too weak if they appear deep */
 		if ((uniq) && (levelb < 33) && (p_ptr->depth > level+10))
             levelb += (fdep - levelb)/3;
-        /* shallow monsters appearing deep are tougher than most of their race */
+        /* shallow monsters appearing deep are (slightly) tougher than most of their race */
         else if ((levelb < 31) && (p_ptr->depth > level+20)) levelb += (p_ptr->depth - levelb - 10)/5;
         else if (p_ptr->depth > level+40) levelb += (p_ptr->depth - levelb - 20)/5;
 
@@ -92,6 +90,24 @@ static bool check_hit(int power, int level, const monster_race *r_ptr)
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
+	/* armor doesn't protect against GAZE, WAIL, or INSULTs */
+	if (noarmor) ac = (p_ptr->to_a + 1) / 2 + p_ptr->lev/5;
+
+	  /* PC size was never previously represented in his armor class */
+	  /* (PC races have different sizes now, ranging from size 3 (hobbit, gnomes, etc.) */
+	  /* to size 6 (umber hulk).  exception: power sprite is size 1. */
+	/* PC is bigger than monster, easier for moster to hit */
+	if (rp_ptr->rsize > r_ptr->mrsize)
+	{
+		int sizediff = rp_ptr->rsize - r_ptr->mrsize;
+		ac = (ac * (12 - sizediff)) / 12;
+	}
+	/* PC is smaller than monster, harder for moster to hit */
+	if (rp_ptr->rsize < r_ptr->mrsize)
+	{
+		int sizediff = r_ptr->mrsize - rp_ptr->rsize;
+		ac = (ac * (12 + sizediff)) / 12;
+	}
 
 	/* Check if the player was hit */
 	return test_hit(chance, ac, TRUE);
@@ -207,6 +223,7 @@ bool make_attack_normal(int m_idx)
 		int power = 0;
 		int damage = 0;
 		int trlev, protpwr, surround;
+		bool noarmor = FALSE;
 
 		cptr act = NULL;
 
@@ -240,11 +257,12 @@ bool make_attack_normal(int m_idx)
 			case RBE_EAT_ITEM:  power =  5; break;
 			case RBE_EAT_FOOD:  power =  5; break;
 			case RBE_EAT_LITE:  power =  5; break;
-			case RBE_ACID:      power =  0; break;
+			case RBE_ACID:      power =  3; break;
 			case RBE_ELEC:      power = 10; break;
 			case RBE_FIRE:      power = 10; break;
 			case RBE_COLD:      power = 10; break;
 			case RBE_BLIND:     power =  2; break;
+			case RBE_SBLIND:    power = 20; break;
 			case RBE_CONFUSE:   power = 10; break;
 			case RBE_XCONF:     power =  9; break;
 			case RBE_TERRIFY:   power = 10; break;
@@ -279,13 +297,24 @@ bool make_attack_normal(int m_idx)
 			case RBE_STUDY:     power = 50; break;
 			case RBE_BHOLD:		power = 15; break;
 		}
+        trlev = rlev;
+
+		/* armor should not apply against GAZE, WAIL, INSULT attacks */
+		if ((method == RBM_GAZE) || (method == RBM_WAIL) || (method == RBM_INSULT))
+			noarmor = TRUE;
+
+		/* but safety goggles do */
+		if ((p_ptr->timed[TMD_SAFET_GOGGLES]) && (method == RBM_GAZE))
+			trlev = trlev * 2 / 3;
 
         /* make temporary effective monster level */
         /* affected by confusion and stunning */
-        trlev = rlev;
         if ((m_ptr->confused) && (m_ptr->stunned)) trlev = trlev/5;
         else if (m_ptr->stunned) trlev = trlev/2;
         else if (m_ptr->confused) trlev = (trlev*4)/5;
+		/* teleporter box hack (should always hit) */
+		if ((!r_ptr->level) && (r_ptr->flags7 & (RF7_BLOCK_LOS))) 
+			{ trlev = 120; power = 100; }
 
         /* monster has been caught off guard */
         if (m_ptr->roaming == 29)
@@ -301,26 +330,11 @@ bool make_attack_normal(int m_idx)
 		if (trlev < 1) trlev = 1;
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, trlev, r_ptr))
+		if (!effect || check_hit(power, trlev, r_ptr, noarmor))
 		{
-#if irrevelentnow
-			/* if you are hit by a monster, you should notice that it's there */
-			/* irrevelent because you always automatically notice adjacent monsters */
-			if ((!m_ptr->ml) && !(r_ptr->flags2 & (RF2_INVISIBLE)))
-			{
-               m_ptr->monseen = 11;
-
-               /* update visual */
-	           /* p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS); */
-	           update_mon(m_idx, 1);
-
-               /* Extract monster name (not just "it" anymore) */
-	           monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-            }
-#endif
-                                
-			/* Always disturbing */
-			disturb(1, 0);
+			/* (almost) Always disturbing */
+			if ((effect) || (d_dice) || (d_side) || (r_ptr->level) || (disturb_minor)) 
+				disturb(1, 0);
 
 			/* Hack -- Apply "protection from lifeless" */
 			if ((p_ptr->timed[TMD_PROTDEAD] > 0) &&
@@ -634,12 +648,48 @@ bool make_attack_normal(int m_idx)
 			/* Message */
 			if (act) message_format(sound_msg, 0, "%^s %s", m_name, act);
 
-
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
+			
+			/* imaginary monsters do imaginary damage (no damage) */
+			if (m_ptr->extra2)
+			{
+				/* XCONF is weaker for imaginary monsters */
+				if (effect == RBE_XCONF) effect = RBE_CONFUSE;
+				/* imaginary monsters only have a couple effects allowed */
+				switch (effect)
+				{
+					case RBE_EAT_LITE:
+					case RBE_BLIND:
+					case RBE_SBLIND:
+					case RBE_CONFUSE:
+					case RBE_TERRIFY:
+					case RBE_HALLU:
+					case RBE_FRENZY:
+					case RBE_CHARM:
+					case RBE_UNLUCKY:
+					{
+						damage = 0;
+						break;
+					}
+					default:
+					{
+						if (((method == RBM_KICK) || (method == RBM_BUTT)) &&
+							(rand_int(100) < 4 + badluck/3))
+						{
+							(void)inc_timed(TMD_STUN, 2);
+						}
+						if ((method == RBM_CLAWB) && (rand_int(100) < 4 + badluck/3))
+						{
+							(void)inc_timed(TMD_CUT, 2);
+						}
+						return (TRUE);
+					}
+				}
+			}
 			
 			if (r_ptr->flags2 & (RF2_POWERFUL))
             {
@@ -768,11 +818,11 @@ bool make_attack_normal(int m_idx)
 
 						/* Drain charged wands/staves */
 						if (((o_ptr->tval == TV_STAFF) ||
-						    (o_ptr->tval == TV_WAND)) && (o_ptr->pval))
+						    (o_ptr->tval == TV_WAND)) && (o_ptr->charges))
 						{
 							if (p_ptr->resist_static) rstatic += (k+1)/2;
 
-							if (randint(100) < rstatic)
+							if (randint(90) < rstatic)
 							{
 								/* Description */
 								object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
@@ -781,18 +831,18 @@ bool make_attack_normal(int m_idx)
 								/* resisted even without static resistance (from luck, rare) */
 								else msg_format("You get lucky and your %s escapes being drained!", o_name);
 								/* second resist roll to prevent it draining something else */
-								if (randint(100) < rstatic + 1) break;
+								if (randint(90) < rstatic + 2) break;
 							}
 							else
 							{
-								drained = o_ptr->pval;
-								if ((p_ptr->resist_static) && (randint(100) < 55))
+								drained = o_ptr->charges;
+								if ((p_ptr->resist_static) && (randint(100) < 75 + goodluck))
 								{
 									drained -= p_ptr->resist_static;
 									if (drained < 1) drained = 1;
 								}
 									/* Uncharge */
-								o_ptr->pval -= drained;
+								o_ptr->charges -= drained;
 							}
 						}
 
@@ -1222,12 +1272,48 @@ bool make_attack_normal(int m_idx)
 					{
 						if (inc_timed(TMD_BLIND, 10 + randint(rlev)))
 						{
+							if (m_ptr->extra2) (void)set_timed(TMD_BLIND, 6 + badluck/3);
 							obvious = TRUE;
 						}
 					}
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_BLIND);
+
+					break;
+				}
+
+				/* SBLIND is blindness from a physical source (usually claws or beaks) */
+				/* Rblind doesn't protect from it as well, but the duration is shorter */
+				case RBE_SBLIND:
+				{
+					int save = 0;
+
+					if (p_ptr->timed[TMD_SAFET_GOGGLES])
+					{
+						msg_print("Your goggles protect your eyes.");
+						take_hit((damage*3)/4, ddesc);
+						break;
+					}
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					if (p_ptr->resist_blind) save += 35 + p_ptr->lev/2;
+					save += ((adj_wis_sav[p_ptr->stat_ind[A_DEX]] + 2) * 6) / 5;
+
+					/* Increase "blind" */
+					if (randint(100) > save)
+					{
+						if (inc_timed(TMD_BLIND, 3 + randint(rlev/2 + 2)))
+						{
+							if (m_ptr->extra2) (void)set_timed(TMD_BLIND, 1 + (badluck+2)/3);
+							obvious = TRUE;
+						}
+					}
+
+					/* Learn about the player if he doesn't resist */
+					else update_smart_learn(m_idx, DRS_RES_BLIND);
 
 					break;
 				}
@@ -1252,10 +1338,7 @@ bool make_attack_normal(int m_idx)
 					
 					if ((rand_int(xconfstr) < resist) && (dur))
 					{
-                        if (inc_timed(TMD_CONFUSED, dur))
-						{
-							obvious = TRUE;
-						}
+                        if (inc_timed(TMD_CONFUSED, dur)) obvious = TRUE;
 					}
 					if (obvious) resist -= 10;
 					if (p_ptr->resist_confu) resist -= 50;
@@ -1264,10 +1347,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->resist_silver) resist += 25;
 					if ((rand_int(xconfstr) < resist) && (randint(100) < 21))
 					{
-						if (inc_timed(TMD_IMAGE, 2 + randint(rlev / 3)))
-						{
-							obvious = TRUE;
-						}
+						if (inc_timed(TMD_IMAGE, 2 + randint(rlev / 3))) obvious = TRUE;
 					}
 					if (obvious) resist -= 10;
 					if ((p_ptr->resist_chaos) || (p_ptr->timed[TMD_TSIGHT])) resist -= 75;
@@ -1275,10 +1355,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->peace) resist += 70;
 					if ((rand_int(xconfstr) < resist) && (randint(100) < 21))
 					{
-						if (inc_timed(TMD_FRENZY, 3 + randint((rlev / 2))))
-						{
-							obvious = TRUE;
-						}
+						if (inc_timed(TMD_FRENZY, 3 + randint((rlev / 2)))) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -1300,6 +1377,7 @@ bool make_attack_normal(int m_idx)
 					{
                         if (inc_timed(TMD_CONFUSED, 3 + randint(rlev)))
 						{
+							if (m_ptr->extra2) (void)set_timed(TMD_CONFUSED, 3 + badluck/3);
 							obvious = TRUE;
 						}
 					}
@@ -1322,6 +1400,7 @@ bool make_attack_normal(int m_idx)
 					
 					if (p_ptr->timed[TMD_FRENZY]) frenz += 10;
 					if (r_ptr->flags2 & (RF2_POWERFUL)) frenz -= 5 + rand_int(10);
+					if (m_ptr->extra2) frenz += 10;
 
 					/* Increase "afraid" */
 					if (p_ptr->resist_fear)
@@ -1338,6 +1417,7 @@ bool make_attack_normal(int m_idx)
 					{
 						if (inc_timed(TMD_AFRAID, 3 + randint(rlev)))
 						{
+							if (m_ptr->extra2) (void)set_timed(TMD_AFRAID, 3 + badluck/3);
             			    (void)clear_timed(TMD_CHARM);
 							obvious = TRUE;
 						}
@@ -1354,7 +1434,9 @@ bool make_attack_normal(int m_idx)
 					int resistc = p_ptr->skills[SKILL_SAV];
 					if (p_ptr->timed[TMD_AMNESIA]) resistc -= 16;
 					if (p_ptr->timed[TMD_CLEAR_MIND]) resistc += 8;
+					if (m_ptr->extra2) resistc += 16;
 					if (r_ptr->flags2 & (RF2_POWERFUL)) resistc -= 10;
+
                     /* Take damage */
 					take_hit(damage, ddesc);
 
@@ -1373,6 +1455,7 @@ bool make_attack_normal(int m_idx)
 					{
 						int dur = 3 + randint(rlev);
                         if (p_ptr->timed[TMD_AMNESIA]) dur += 1 + ((badluck+2)/4);
+						if (m_ptr->extra2) dur = 4; /* always minimum */
                         if (inc_timed(TMD_CHARM, dur))
 						{
             			    (void)clear_timed(TMD_AFRAID);
@@ -1773,10 +1856,18 @@ bool make_attack_normal(int m_idx)
 					if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]) &&
 						(!p_ptr->timed[TMD_OPP_SILV]))
 					{
-						if (inc_timed(TMD_IMAGE, 3 + randint(rlev / 2)))
-						{
-							obvious = TRUE;
-						}
+						int idur;
+						/* new hallucenation effect doesn't work well */
+						/* with a very short duration */
+						if (rlev < 20) idur = 3 + randint(rlev*3/2);
+						else if (rlev < 30) idur = 3 + randint(30);
+						else idur = rlev/10 + randint(rlev);
+						if (idur < 10 + badluck) idur = 10 + badluck;
+
+						/* m_ptr->extra2 = it's an imaginary monster */
+						if (m_ptr->extra2) idur = (idur+2)/4;
+
+						if (inc_timed(TMD_IMAGE, idur)) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -1799,9 +1890,13 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                       if (r_ptr->flags2 & (RF2_POWERFUL)) p_ptr->luck -= randint(3);
-                       else p_ptr->luck -= randint(2);
-                       if (p_ptr->luck > 21) msg_print("You feel less lucky.");
+						/* imaginary monsters can make you think you're losing luck when you're not */
+						if (!(m_ptr->extra2))
+						{
+						   if (r_ptr->flags2 & (RF2_POWERFUL)) p_ptr->luck -= randint(3);
+						   else p_ptr->luck -= randint(2);
+						}
+                       if (p_ptr->luck > 22) msg_print("You feel less lucky.");
                        else if (p_ptr->luck < 9) msg_print("You feel very unlucky.");
                        else msg_print("You feel unlucky.");
 						obvious = TRUE;
@@ -1821,7 +1916,9 @@ bool make_attack_normal(int m_idx)
 					/* Increase "frenzy" */
 					if ((!p_ptr->resist_charm) && (!p_ptr->peace))
 					{
-						if (inc_timed(TMD_FRENZY, 4 + randint((rlev / 2))))
+						int fdur = 4 + randint((rlev / 2));
+						if (m_ptr->extra2) fdur = 5;
+						if (inc_timed(TMD_FRENZY, fdur))
 						{
 							obvious = TRUE;
 						}
@@ -1859,6 +1956,7 @@ bool make_attack_normal(int m_idx)
 						int time = (holdfast - wrestle) / 5;
 						if (time < 5) time = 2 + randint(3);
 						if (time > 9) time = 8 + randint((time-8)/2);
+						if ((!r_ptr->level) && (r_ptr->flags7 & (RF7_BLOCK_LOS))) time += 3;
 						msg_format("%^s grabs you and holds you tight!", m_name);
 						if (p_ptr->timed[TMD_BEAR_HOLD])
 						{

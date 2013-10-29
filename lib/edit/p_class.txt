@@ -1,5 +1,5 @@
 # File: p_class.txt
-# for DaJAngband 1.2.2
+# for DaJAngband 1.3.0
 
 
 # This file is used to initialize the "lib/data/p_class.raw" file, which is
@@ -16,9 +16,9 @@
 # S:str:int:wis:dex:con:chr
 # C:dis:dev:sav:stl:srh:fos:thn:thb:tht
 # X:dis:dev:sav:stl:srh:fos:thn:thb:tht
-# I:mhp:exp:sense_base:<unused>
+# I:mhp:exp:sense_base:social class adj
 # A:max_attacks:min_weight:att_multiply
-# M:spellbook tval:spell-stat:first-level:max weight
+# M:spellbook tval:spell-stat:first-level:max weight:unusable books
 # B:spell number:level:mana:fail:exp
 # T:title
 # E:tval:sval:min:max
@@ -46,6 +46,8 @@
 # 'I' is for extra info - max. hitpoints gained per level, experience
 # factor in percent, base chance for pseudo-id (smaller is better),
 # level dependent divisor for the pseudo-id chance.
+# social class adj - adjusts your social status (affects starting gold
+# and shopkeeper friendliness.) by 1dX
 
 # 'A' is for attack info - maximum possible number of attacks, minimum
 # weapon weight for calculating the number of attacks, multiplier for
@@ -53,6 +55,7 @@
 
 # 'M' is for magic info - tval of the used spellbook, number of the
 # spell-stat, level of the first spell, weight that hurts spells.
+# Unusable books holds the (sval +1)s of the books this class can't use.
 
 # 'B' is for spell/prayer info - number of the spell, level, mana
 # required, fail-rate, experience for first casting.
@@ -79,9 +82,9 @@ N:0:Warrior
 S:5:-2:-2:2:2:0
 C:27:18:17:1:9:15:71:55:40
 X:11:8:10:0:0:6:45:40:50
-I:9:0:8500:15
+I:9:0:8500:5
 A:6:30:5
-M:0:0:0:0
+M:0:0:0:0:0
 #starting objects: scimitar and chain mail
 E:23:18:1:1
 E:37:4:1:1
@@ -104,9 +107,9 @@ N:1:Wizard
 S:-3:3:0:1:-1:1
 C:24:36:25:2:15:8:39:22:25
 X:8:13:10:0:0:15:16:15:15
-I:1:30:90000:8
+I:1:30:90000:20
 A:4:5:3
-M:90:1:1:300
+M:90:1:1:300:8
 #Starting objects: walking staff, robe, 1st Magicbook, 1-2 ?WoR, -magic missile.
 E:21:3:1:1
 E:36:2:1:1
@@ -202,9 +205,9 @@ N:2:Necromancer
 S:-4:2:-2:2:-2:-2
 C:29:33:30:2:16:5:35:24:29
 X:7:14:9:0:0:7:21:14:16
-I:2:21:28000:5
+I:2:21:28000:-3
 A:4:35:3
-M:95:1:1:320
+M:95:1:1:320:8
 #Starting objects: dagger, 1st Black Magicbook, 1-3 ?Detect Invisible,
 # and 1 !Restore Mana
 E:95:0:1:1
@@ -303,18 +306,19 @@ B:75:2:1:21:3	#shadow sting			2 (necromancer only, in 1st book)
 
 N:3:Rogue
 S:2:1:-2:3:1:-1
-C:45:31:23:3:28:17:60:66:70
-X:15:10:11:0:0:8:40:30:40
-I:6:25:21000:17
+C:45:31:23:3:28:17:61:65:70
+X:15:10:11:0:0:8:36:30:40
+I:6:25:21000:-3
 A:5:30:4
-M:93:1:6:360
-#Starting objects: cutlass and soft leather armor (not 1st magicbook)
+M:93:1:6:360:4
+#Starting objects: cutlass, soft leather armor (not 1st magicbook), and 3-6 throwing daggers
 #E:93:0:1:1
 E:23:12:1:1
+E:23:9:3:6
 E:36:4:1:1
 #Class objects: Heavy crossbow or Quick Getaways book
 O:19:24:93:4
-F:CHOOSE_SPELLS | CUMBER_GLOVE
+F:CHOOSE_SPELLS | CUMBER_GLOVE | THROW_POTIONS | THROW_SHROOMS
 T:Vagabond
 T:Petty Outlaw
 T:Footpad
@@ -349,7 +353,7 @@ B:20:6:1:43:1	#detect monsters			6
 B:21:7:3:40:1	#detect traps			7
 B:22:23:16:60:4	#slow monster			23
 B:23:22:14:60:4	#mini destruction			22
-B:24:24:12:70:3	#stone to mud			24
+B:24:99:0:0:0	#lullaby 				/ (book 7, for tourist)
 B:25:29:20:75:5	#sense surroundings		29 (moved to book 8)
 B:26:27:10:50:10	#detect enchantment		27
 B:27:99:0:0:0	#detect traps (B4)		/ (tourist only book)
@@ -376,15 +380,15 @@ B:47:99:0:0:0	#affect self			/
 B:48:99:0:0:0	#affect surroundings		/
 B:49:33:27:39:19	#potluck stats			33
 B:50:99:0:0:0	#aquirement				/
-B:51:12:12:54:6	#blink monster			12 (moved to book 5)
-B:52:17:7:35:17	#door creation2 (B7)		17
-B:53:25:13:44:25	#stair creation2			25
-B:54:26:21:60:25	#teleport level			26
+B:51:12:11:54:6	#blink monster			12 (moved to book 5)
+B:52:19:13:54:21	#Seal / Open Getaway (B7)	19
+B:53:27:21:60:25	#stair creation2			27
+B:54:99:0:0:0	#teleport level			/	change to taming when possible
 B:55:45:30:95:35	#word of destruction		45
-B:56:36:35:85:20	#word of recall2			36
+B:56:40:26:68:40	#teleport control			40
 B:57:49:75:99:90	#rune of protection		49 (very high mana & fail)
 B:58:19:11:50:19	#resist heat and elec (B8)	19
-B:59:21:14:60:23	#seal getaway (wizard lock)	21
+B:59:21:14:60:23	#boomerang throw			21
 B:60:23:16:72:4	#burst of light			23 (moved to book 3)
 B:61:34:21:80:42	#curing				34
 B:62:37:50:30:50	#extreme roguishness		37
@@ -404,11 +408,11 @@ B:74:99:0:0:0	#luck bolt				/
 #(done), weapon speed modifier was 3
 N:4:Ranger
 S:2:2:1:1:1:1
-C:40:23:29:4:22:21:63:60:40
-X:11:9:10:0:0:10:33:41:45
-I:4:27:30000:20
+C:40:23:29:4:22:21:64:60:39
+X:11:9:10:0:0:10:32:42:45
+I:4:27:30000:10
 A:5:32:4
-M:92:1:2:375
+M:92:1:2:375:79
 #Starting objects: soft leather armor, short bow, 12-24 arrows, and 1st Nature book
 E:92:0:1:1
 E:36:4:1:1
@@ -503,11 +507,11 @@ B:71:14:11:45:8	#fire spray				14 (in B4)
 #(done)
 N:5:Paladin
 S:3:-2:1:0:1:2
-C:21:20:27:0:12:10:62:42:50
-X:12:9:12:0:0:18:37:30:30
-I:5:35:52000:10
+C:21:20:24:0:12:10:62:40:48
+X:12:9:12:0:0:18:37:30:31
+I:5:35:52000:9
 A:5:35:5
-M:91:2:1:420
+M:91:2:1:420:89
 #Starting objects: short sword, ring mail, 1st Prayer book, 1 ?Protection from evil
 E:91:0:1:1
 E:23:10:1:1
@@ -598,14 +602,13 @@ B:68:99:0:0:0	#Wo destruction			/
 B:69:99:0:0:0	#annihilation			/
 B:70:25:20:65:27	#truce				25 (new in B7)
 
-#done
 N:6:Archer
 S:2:0:-1:2:1:0
-C:29:17:23:3:12:17:48:75:35
-X:9:10:9:0:0:9:26:45:34
-I:3:18:15000:17
+C:29:17:20:3:12:17:48:75:35
+X:9:10:9:0:0:9:21:45:25
+I:3:18:15000:5
 A:5:35:3
-M:94:1:5:350
+M:94:1:5:350:689
 #Starting objects: long bow, 15-30 arrows
 E:19:13:1:1
 E:17:1:15:30
@@ -644,10 +647,10 @@ B:18:99:0:0:0	#detect treasure (B3)		/
 B:19:18:9:60:2	#trap/door destruction		18
 B:20:22:15:65:2	#clear mind				22
 B:21:27:28:90:2	#identify				27
-B:22:20:15:65:2	#detect invisible			20
-B:23:36:39:85:3	#resistance				36
+B:22:20:15:65:2	#detect hidden			20
+B:23:39:39:84:3	#resistance				36 (now in B7)
 B:24:38:21:80:4	#detect enchantment		38
-B:25:31:50:87:5	#acid coat ammo			31 < changed since spoiler
+B:25:31:50:87:5	#acid coat ammo			31
 B:26:29:11:72:2	#burst of speed (B4)		29
 B:27:28:14:55:2	#teleport self			28
 B:28:31:26:75:3	#teleport other			31
@@ -656,7 +659,7 @@ B:30:39:21:75:4	#mist of amnesia			39
 B:31:37:26:80:3	#haste self				37
 B:32:41:31:80:6	#teleport level			41
 B:33:99:0:0:0	#elixir of life			/  (in alchemist only B7)
-B:34:99:0:0:0	#rune of protection		/  (in B4)
+B:34:99:0:0:0	#emergency escape shield	/  (in B4)
 B:35:16:8:67:2	#lightning bolt (B5)		16
 B:36:22:16:60:3	#rain of arrows			22
 B:37:26:16:70:3	#chaos arrow			26
@@ -664,19 +667,19 @@ B:38:43:24:65:15	#rocket blast			43
 B:39:41:40:80:4	#enchant missile to-hit		41
 B:40:42:41:80:4	#enchant missile to-dam		42
 B:41:38:60:95:9	#poison brand ammo		38
-B:42:45:72:96:25	#elemental brand ammo		45
-B:43:99:0:0:0	#confuse monster (B6)		/ (non-archer book)
-B:44:99:0:0:0	#sleep monster			/
-B:45:99:0:0:0	#element bolt			/
-B:46:99:0:0:0	#polymorph other			/
-B:47:99:0:0:0	#slow monster			/
-B:48:99:0:0:0	#restore dex1			/
+B:42:44:72:97:25	#elemental brand ammo		45
+B:43:99:0:0:0	#mimmic wand (mimmic) (B6)		/ (non-archer book)
+B:44:99:0:0:0	#mimmic wand (zap)			/
+B:45:99:0:0:0	#repugnance			/
+B:46:99:0:0:0	#lasting repugnance			/
+B:47:99:0:0:0	#zombie flame			/
+B:48:99:0:0:0	#restore cleverness			/
 B:49:99:0:0:0	#element ball			/
 B:50:99:0:0:0	#acid ball				/
 B:51:99:0:0:0	#ice storm				/
-B:52:99:0:0:0	#wonder				/
-B:53:99:0:0:0	#cloudkill1	(B7)			/ (alchemist only book)
-B:54:44:75:88:50	#glyph of warding			44 (this spell in archer only B9)
+B:52:99:0:0:0	#enhance wand				/
+B:53:99:0:0:0	#cloudkill1	(B9)			/ (alchemist only book)
+B:54:44:75:88:50	#glyph of warding			44 (now in B7)
 B:55:99:0:0:0	#stone to mud			/
 B:56:99:0:0:0	#recharging				/
 B:57:40:25:75:40	#tunneldigging			40 (in book 4)
@@ -690,22 +693,22 @@ B:64:99:0:0:0	#cloudkill2				/
 B:65:99:0:0:0	#bedlam1				/
 B:66:99:0:0:0	#find vault				/
 B:67:99:0:0:0	#poison brand weapon2		/
-B:68:36:21:88:6	#recharging2 (B9)			36  (archer only book)
-B:69:39:31:80:5	#shield				39
-B:70:40:32:75:16	#bedlam2				40
+B:68:21:17:70:6	#safety goggles (B7)			21  (Safety Precautions book)
+B:69:29:18:80:5	#sustain health			29
+B:70:99:0:0:0	#craft grenade			/ (in B6)
 B:71:37:23:65:12	#Breath Shield			37
 B:72:43:54:95:15	#enchant armor			43
-B:73:48:48:85:40	#meteor swarm			48
+B:73:48:48:85:40	#meteor swarm			48 (now in B5) 
 B:74:99:0:0:0  	#telekinesis			/ (in thief-only book)
 B:75:35:25:75:10	#quiver guard			35
 
 N:7:Alchemist
 S:-1:2:-1:0:-1:-1
 C:21:22:20:1:20:6:39:31:32
-X:9:12:12:0:0:10:20:16:21
-I:1:29:24100:6
+X:9:12:12:0:0:10:21:16:21
+I:1:29:24100:4
 A:4:34:3
-M:94:1:1:335
+M:94:1:1:335:58
 #Starting objects: set of leather gloves, 1 !ccw, 1 !Restore mana, and 1st Alchemy book
 E:94:0:1:1
 E:31:1:1:2
@@ -720,95 +723,95 @@ T:Experimenter
 T:Chemist
 T:Potionmaker
 T:Psuedo Doctor
-T:Expert
+T:Mad Scientist
 T:Alchemist
 T:Potionmaster
 T:Master Alchemist
-B:0:3:3:26:2	#disinfectant			3
-B:1:2:2:26:2	#cure light wounds		2
-B:2:5:2:31:2	#light area				5
-B:3:1:1:35:2	#stinking cloud			1
-B:4:7:2:30:3	#phase door				7
-B:5:7:3:40:2	#find traps/doors			7
-B:6:8:2:35:3	#detect monsters			8
-B:7:5:5:45:3	#cure poison			5
-B:8:6:3:35:2	#acid arrow				6
-B:9:5:4:35:2	#skill boost (B2)			5
-B:10:4:3:40:2	#resist acid			4
-B:11:13:11:45:3	#cure moderate wounds		13
-B:12:13:10:55:4	#resist heat & cold		13
-B:13:13:10:55:4	#satisfy hunger			13
-B:14:22:16:67:6	#chemical rage			22
-B:15:24:14:67:5	#restore memories			24
-B:16:15:12:60:5	#resist poison			15
-B:17:32:28:67:7	#heal					32
-B:18:11:4:60:3	#detect treasure (B3)		11
-B:19:11:7:40:3	#trap/door destruction		11
-B:20:16:9:70:4	#clear mind				16
-B:21:16:17:75:5	#identify				16
-B:22:16:8:55:4	#detect invisible			16
-B:23:27:24:81:9	#resistance				27  (25-28(?)
-B:24:31:11:67:9	#detect enchantment		31(?)
+B:0:3:3:26:2		#disinfectant			3
+B:1:2:2:26:2		#cure light wounds		2
+B:2:5:2:31:2		#light area				5
+B:3:1:1:35:2		#stinking cloud			1
+B:4:7:2:30:3		#phase door				7
+B:5:7:3:40:2		#find traps/doors			7
+B:6:8:2:35:3		#detect monsters			8
+B:7:5:5:45:3		#cure poison			5
+B:8:6:3:35:2		#acid arrow				6
+B:9:5:4:35:2		#skill boost (B2)			5
+B:10:4:3:40:2		#resist acid			4
+B:11:13:11:45:3		#cure moderate wounds		13
+B:12:13:10:55:4		#resist heat & cold		13
+B:13:13:10:55:4		#satisfy hunger			13
+B:14:22:16:67:6		#chemical rage			22
+B:15:24:14:67:5		#restore memories			24
+B:16:15:12:60:5		#resist poison			15
+B:17:32:28:67:7		#heal					32
+B:18:11:4:60:3		#detect treasure (B3)		11
+B:19:11:7:40:3		#trap/door destruction		11
+B:20:16:9:70:4		#clear mind				16
+B:21:16:17:75:5		#identify				16
+B:22:16:8:55:4		#detect hidden			16
+B:23:27:25:81:11	#resistance				27  (25-28(?) (now in B5)
+B:24:31:11:67:9		#detect enchantment		31(?)
 B:25:35:45:89:23	#acid coat ammo			35  (33-37(?)
-B:26:19:10:70:6	#burst of speed (B4)		19
-B:27:19:11:60:5	#teleport self			19
-B:28:33:21:75:7	#teleport other			33(?)
-B:29:99:0:0:0	#slow monsters			/
-B:30:26:16:75:6	#mist of amnesia			26
-B:31:26:21:89:9	#haste self				26
+B:26:19:10:70:6		#burst of speed (B4)		19
+B:27:19:11:60:5		#teleport self			19
+B:28:33:21:75:7		#teleport other			33(?)
+B:29:99:0:0:0		#slow monsters			/
+B:30:26:16:75:6		#mist of amnesia			26
+B:31:26:21:89:9		#haste self				26
 B:32:40:26:80:30	#teleport level			40(?)
-B:33:42:50:75:150	#elixir of life			42  (in alchemist only B7)
-B:34:40:75:91:70	#rune of protection		40(?)  (in B4)
-B:35:99:0:0:0	#lightning bolt (B5)		/  (archer only book)
-B:36:99:0:0:0	#rain of arrows			/
-B:37:99:0:0:0	#chaos arrow			/
-B:38:99:0:0:0	#rocket blast			/
-B:39:99:0:0:0	#enchant missile to-hit		/
-B:40:99:0:0:0	#enchant missile to-dam		/
-B:41:99:0:0:0	#poison brand ammo		/
-B:42:99:0:0:0	#elemental brand ammo		/
+B:33:42:50:75:150	#elixir of life			42  (in alchemist only B9)
+B:34:43:75:81:70	#emergency getaway shield	43(?)  (in B4)
+B:35:99:0:0:0		#lightning bolt (B5)		/  (archer only book)
+B:36:99:0:0:0		#rain of arrows			/
+B:37:99:0:0:0		#chaos arrow			/
+B:38:99:0:0:0		#rocket blast			/
+B:39:99:0:0:0		#enchant missile to-hit		/
+B:40:99:0:0:0		#enchant missile to-dam		/
+B:41:99:0:0:0		#poison brand ammo		/
+B:42:99:0:0:0		#elemental brand ammo		/
 # (these two spells must be same level and B:43 needs to be low mana cost and low %fail)
-B:43:18:3:15:4	#mimmic wand (mimmic) (B6)	18 new (2-part spell)
-B:44:18:6:65:16	#mimmic wand (zap)		18 new (hard-coded variable mana cost)
+B:43:18:3:15:4		#mimmic wand (mimmic) (B6)	18 new (2-part spell)
+B:44:18:6:65:16		#mimmic wand (zap)		18 new (hard-coded variable mana cost)
 B:45:20:11:60:15	#repugnant odor			20
 B:46:25:20:60:24	#lasting repugnance		25
-B:47:18:9:65:9	#zombie flame			18
-B:48:99:0:0:0	#restore dex1			/  (this spell in thief only B8)
-B:49:25:18:75:40	#alchemical dragonbreath	25 (almost the same as potion of dragonbreath)
-B:50:31:21:80:45	#acid ball				31
-B:51:37:30:81:60	#ice storm				37
-B:52:15:21:85:25	#enhance wand			15 new
-B:53:23:12:55:35	#cloudkill1	(B7)			27 (alchemist only book)
-B:54:99:0:0:0	#glyph of warding			/  (this spell in archer only B9)
+B:47:18:9:65:9		#zombie flame			18
+B:48:99:0:0:0		#restore dex1			/  (this spell in thief only B8)
+B:49:25:18:72:40	#alchemical dragonbreath	25 (similar to potion of dragonbreath)
+B:50:31:21:75:45	#acid ball				31
+B:51:37:30:80:60	#ice storm				37 (now in B9)
+B:52:15:21:70:25	#enhance wand			15 new (was 85 fail)
+B:53:23:12:55:35	#cloudkill1	(B9)		27 (alchemist only book)
+B:54:99:0:0:0		#glyph of warding		/  (now in B7)
 B:55:19:15:50:15	#silver bullet			19
-B:56:14:11:95:15	#recharging				14
-B:57:34:30:65:75	#tunneldigging			34
+B:56:14:11:90:15	#recharging			14 (was 95 fail)
+B:57:34:30:65:70	#tunneldigging			34 (in B4)
 B:58:29:21:50:50	#explosion				29  (28-29(?)
-B:59:43:38:92:100	#restoration			43
+B:59:43:38:92:90	#restoration			43
 B:60:34:65:90:85	#poison brand weapon		34  (33-37(?)
-B:61:99:0:0:0	#hit and run (B8)			/  (thief only book)
-B:62:99:0:0:0	#slip into the shadows		/
-B:63:99:0:0:0	#poison bolt			/
-B:64:99:0:0:0	#cloudkill2				/
-B:65:99:0:0:0	#bedlam1				/
-B:66:99:0:0:0	#find vault				/
-B:67:99:0:0:0	#poison brand weapon2		/
-B:68:99:0:0:0	#recharging2 (B9)			/ (archer only book)
-B:69:99:0:0:0	#shield				/
-B:70:99:0:0:0	#bedlam2				/
-B:71:99:0:0:0	#Breath Shield			/
-B:72:99:0:0:0	#enchant armor			/
-B:73:99:0:0:0	#meteor swarm			/
-B:74:99:0:0:0  	#telekinesis			/ (B8)
-B:75:99:0:0:0	#quiver guard			/ (B9)
+B:61:99:0:0:0		#hit and run (B8)		/  (thief only book)
+B:62:99:0:0:0		#slip into the shadows	/
+B:63:99:0:0:0		#poison bolt			/
+B:64:99:0:0:0		#cloudkill2			/
+B:65:99:0:0:0		#bedlam				/
+B:66:99:0:0:0		#find vault				/
+B:67:99:0:0:0		#poison brand weapon2		/
+B:68:14:15:65:8		#Safety Goggles (B7)		14 (new Safety Precautions book)
+B:69:20:14:60:10	#Sustain Health			20
+B:70:22:18:65:20	#Craft Grenade			22 (in B6)
+B:71:25:18:60:22	#Breath Shield			25
+B:72:30:40:80:30	#enchant armor			30
+B:73:99:0:0:0		#meteor swarm			/ (now in B5)
+B:74:99:0:0:0  		#telekinesis			/ (B8)
+B:75:37:25:70:42	#quiver guard			37 (B7)
 
 N:8:Priest
 S:-2:-1:3:-1:1:2
-C:20:28:31:2:16:8:45:31:22
-X:8:10:12:0:0:14:20:20:20
-I:2:20:75000:8
+C:20:28:31:2:16:8:45:31:24
+X:8:10:12:0:0:14:20:19:19
+I:2:20:75000:20
 A:4:35:3
-M:91:2:1:340
+M:91:2:1:340:7
 #Starting objects: robe, 2-4 !csw, 1 ?blessing, 1 !Purity, and 1st Prayer book
 E:91:0:1:1
 E:36:2:1:1
@@ -839,7 +842,7 @@ B:7:7:7:50:3	#spear of light			7
 B:8:7:5:38:4	#satisfy hunger			7
 B:9:3:3:28:2	#find traps (B2)			3
 B:10:3:3:27:2	#detect doors/stairs		3
-B:11:7:4:50:2	#detect life			7
+B:11:7:4:42:2	#detect life			7
 B:12:9:6:35:5	#remove curse			9
 B:13:11:8:42:4	#sense invisible			11
 B:14:13:10:45:4	#sense surroundings		13
@@ -903,11 +906,11 @@ B:70:99:0:0:0	#truce				/ (new in B7)
 #(done)
 N:9:Healer
 S:-3:2:1:0:2:1
-C:27:21:32:2:11:11:37:28:25
-X:8:8:9:0:0:10:16:21:17
-I:1:12:27000:11
+C:27:21:32:2:11:11:34:27:25
+X:8:8:9:0:0:10:17:22:17
+I:1:12:27000:30
 A:4:40:2
-M:91:1:1:340
+M:91:1:1:340:49
 #Starting objects: robe, 1 mushroom of health, 1 !healing, and healing prayerbook.
 E:91:4:1:1   		#healing spellbook
 E:36:2:1:1
@@ -937,7 +940,7 @@ B:7:19:9:55:3	#spear of light			19
 B:8:11:10:70:3	#satisfy hunger			11
 B:9:26:8:60:3	#find traps (B2)			26
 B:10:25:7:55:3	#detect doors/stairs		25
-B:11:14:5:52:2	#detect life			14
+B:11:14:5:50:2	#detect life			14
 B:12:18:14:67:3	#remove curse			18
 B:13:21:17:60:2	#sense invisible			21
 B:14:24:20:65:3	#sense surroundings		24
@@ -1002,11 +1005,11 @@ B:70:31:25:70:30	#truce				31 (new in B7)
 #changed bless_weapon to a milder penalty because of less weapons with that tval
 N:10:Druid
 S:-2:1:2:1:-1:0
-C:32:27:26:4:17:16:44:38:45
-X:11:10:11:0:1:16:23:23:25
-I:3:30:34000:16
+C:32:27:26:4:17:16:43:38:45
+X:11:10:11:0:1:16:23:24:27
+I:3:30:34000:8
 A:4:40:3
-M:92:2:1:290
+M:92:2:1:290:9
 #Starting objects: druid robe, walking staff, and 1st nature book
 E:92:0:1:1
 E:36:8:1:1
@@ -1098,13 +1101,13 @@ B:69:29:18:70:22	#mighty throw			29 (in B4)
 B:70:19:9:50:11	#portal				19 (in B3)
 B:71:10:9:40:5	#fire spray				10 (in B4)
 
-N:11:White Knight
+N:11:White_Knight
 S:4:-1:1:1:1:3
 C:15:14:15:-1:14:10:65:38:39
-X:11:8:14:0:0:20:46:32:37
-I:7:25:40000:10
+X:11:8:12:0:0:20:46:32:37
+I:7:25:40000:15
 A:5:35:5
-M:91:2:5:470
+M:91:2:5:470:8
 #Starting Objects: long sword, partial plate, 2-3 javelins, & 2-3 !Heroism
 E:23:17:1:1
 E:37:12:1:1
@@ -1195,13 +1198,13 @@ B:68:99:0:0:0	#Wo destruction			/
 B:69:45:75:75:60	#annihilation			45
 B:70:34:24:70:15	#truce				34 (in B7)
 
-N:12:Black Knight
+N:12:Black_Knight
 S:4:1:-2:1:1:1
-C:15:15:15:-1:15:10:68:41:37
-X:11:8:13:0:0:19:45:33:34
-I:7:25:41000:10
+C:15:15:16:-1:15:10:68:41:37
+X:11:8:11:0:0:19:45:33:34
+I:7:25:41000:15
 A:5:35:5
-M:95:1:5:465
+M:95:1:5:465:39
 #Starting Objects: pike, augmented chain mail, mini crossbow & bolts, & 2-3 !Monster Detection
 E:22:8:1:1
 E:37:6:1:1
@@ -1304,7 +1307,7 @@ C:31:29:21:3:16:13:53:65:55
 X:10:10:11:0:0:16:33:31:45
 I:5:25:25600:13
 A:5:30:4
-M:95:1:4:360
+M:95:1:4:360:167
 #Starting objects: stiletto, mini crossbow, 10-19 bolts, and 1st assassin book
 # (1st assassin book is 2nd black magic book)
 E:95:1:1:1
@@ -1401,13 +1404,14 @@ B:73:29:25:74:24	#resist poison			29 (assassin only version, in book 3)
 B:74:47:39:88:100	#wall of hellfire			47 (maybe should be higher mana cost)
 B:75:99:0:0:0	#shadow sting			/ (necromancer only)
 
+# gets 1/3 the XP from gold that tourists do
 N:14:Thief
 S:1:2:-1:3:-1:1
-C:34:27:28:5:26:12:40:43:60
-X:14:8:10:0:0:8:30:33:35
-I:2:23:34000:12
+C:34:27:26:5:26:12:36:42:57
+X:14:8:10:0:0:8:27:28:37
+I:2:23:34000:-2
 A:5:30:3
-M:94:1:2:330
+M:94:1:2:330:579
 #Starting objects: long dagger, pair of soft leather gloves, Quick Getaways alchemy book,
 # and 1-3 ?Object & Treasure detection
 E:94:3:1:1
@@ -1416,7 +1420,7 @@ E:30:2:1:1
 E:70:27:1:3
 #Class objects: Wand of Teleport Other or rod of recall
 O:65:3:66:3
-F:CHOOSE_SPELLS | CLASS_SPEED
+F:CHOOSE_SPELLS | CLASS_SPEED | ALTERNATE_XP
 T:Robber
 T:Pickpocket
 T:Cutpurse
@@ -1450,18 +1454,18 @@ B:19:12:8:50:3	#trap/door destruction		12 (8-12)
 B:20:11:9:65:3	#clear mind				11
 B:21:16:20:65:5	#identify				16
 B:22:13:7:60:4	#detect invisible			13
-B:23:32:32:85:12	#resistance				32
+B:23:99:0:0:0	#resistance				/
 B:24:29:13:60:8	#detect enchantment		29
 B:25:99:0:0:0	#acid coat ammo			/
 B:26:3:4:50:2	#burst of speed (B4)		3
 B:27:6:6:33:2	#teleport self			6
 B:28:30:24:70:10	#teleport other			30
-B:29:25:18:70:7	#slow monsters			25
-B:30:24:19:60:11	#mist of amnesia			24
+B:29:24:18:70:7	#slow monsters			24
+B:30:23:19:60:11	#mist of amnesia			23
 B:31:22:14:70:7	#haste self				22
 B:32:32:23:70:40	#teleport level			32
 B:33:99:0:0:0	#elixir of life			/  (in alchemist only B7)
-B:34:43:70:85:130	#rune of protection		43  (in B4)
+B:34:35:33:75:130	#emergency getaway shield	35  (in B4)
 B:35:99:0:0:0	#lightning bolt (B5)		/  (archer only book)
 B:36:99:0:0:0	#rain of arrows			/
 B:37:99:0:0:0	#chaos arrow			/
@@ -1472,16 +1476,16 @@ B:41:99:0:0:0	#poison brand ammo		/
 B:42:99:0:0:0	#elemental brand ammo		/
 # (these two spells must be same level and B:43 needs to be low mana cost and low %fail)
 B:43:19:4:20:3	#mimmic wand (mimmic) (B6)	19 new (2-part spell, maybe change level 21?)
-B:44:19:6:80:3	#mimmic wand (zap)		19 new (hard-coded variable mana cost)
-B:45:27:17:65:11	#repugnant odor			27
-B:46:31:21:67:30	#lasting repugnance		31
+B:44:19:6:70:3	#mimmic wand (zap)		19 new (hard-coded variable mana cost)
+B:45:27:17:60:11	#repugnant odor			27
+B:46:31:21:65:30	#lasting repugnance		31
 B:47:99:0:0:0	#zombie flame			/
-B:48:34:37:92:71	#restore dex1			34  (this spell in thief only B8)
+B:48:34:37:90:71	#restore cleverness		34  (this spell in thief only B8)
 B:49:36:29:80:60	#alchemical dragonbreath	36
 B:50:99:0:0:0	#acid ball				/
 B:51:99:0:0:0	#ice storm				/
-B:52:24:25:75:11	#enhance wand			24H1 new
-B:53:99:0:0:0	#cloudkill1	(B7)			/  (alchemist only book)
+B:52:24:25:74:11	#enhance wand			24H1 new
+B:53:99:0:0:0	#cloudkill1	(B9)			/  (alchemist only book)
 B:54:99:0:0:0	#glyph of warding			/  (this spell in archer only B9)
 B:55:99:0:0:0	#stone to mud			/
 B:56:99:0:0:0	#recharging				/
@@ -1496,22 +1500,22 @@ B:64:23:16:70:30	#cloudkill2				23
 B:65:28:26:70:60	#bedlam1				28
 B:66:25:50:75:50	#find vault				25 (needs testing)
 B:67:37:70:75:120	#poison brand weapon2		37
-B:68:99:0:0:0	#recharging2 (B9)			/ (archer only book)
-B:69:99:0:0:0	#shield				/
-B:70:99:0:0:0	#bedlam2				/
+B:68:99:0:0:0	#safety goggles (B7)			/ (thieves don't get B7)
+B:69:99:0:0:0	#sustain health				/
+B:70:29:26:75:28	#craft grenade			29 (in B6)
 B:71:99:0:0:0	#Breath Shield			/
 B:72:99:0:0:0	#enchant armor			/
 B:73:99:0:0:0	#meteor swarm			/
-B:74:31:16:55:70  #telekinesis			31 (in B8)
+B:74:30:16:57:70  #telekinesis			31 (in B8)
 B:75:99:0:0:0	#quiver guard			/ (archer-only book)
 
 N:15:Tourist
 S:0:2:-2:1:0:2
-C:21:20:21:0:20:10:34:30:36
-X:7:10:8:0:0:6:21:21:36
-I:1:10:73000:10
+C:21:20:19:0:20:9:30:28:38
+X:7:10:8:0:0:6:24:22:36
+I:1:10:73000:2
 A:4:32:3
-M:93:1:1:400
+M:93:1:1:400:38
 #Starting objects: walking stick, high quality travelling cloak,
 # 1-3 ?Magic Mapping, 2-3 strips of beef jerky, and the 1st Chance magicbook
 E:93:0:1:1
@@ -1556,7 +1560,7 @@ B:20:99:0:0:0	#detect monsters			/
 B:21:99:0:0:0	#detect traps			/
 B:22:99:0:0:0	#slow monster			/
 B:23:99:0:0:0	#mini destruction			/
-B:24:99:0:0:0	#stone to mud			/
+B:24:17:14:67:21	#lullaby (B7)			17
 B:25:99:0:0:0	#sense surroundings		/
 B:26:99:0:0:0	#detect enchantment		/
 B:27:7:4:55:2	#detect traps (B4)		7
@@ -1584,14 +1588,14 @@ B:48:28:19:50:25	#affect surroundings		28
 B:49:34:44:65:53	#potluck stats			34
 B:50:40:91:67:99	#aquirement				40
 B:51:37:17:72:14	#blink monster			37 (in book 5)
-B:52:99:0:0:0	#door creation2			/
+B:52:24:18:50:24	#seal/open getaway (B7)		24
 B:53:99:0:0:0	#stair creation2			/
 B:54:99:0:0:0	#teleport level			/
 B:55:99:0:0:0	#word of destruction		/
-B:56:99:0:0:0	#word of recall2			/
+B:56:37:24:70:70	#teleport control			37
 B:57:99:0:0:0	#rune of protection		/
 B:58:99:0:0:0	#resist heat and elec (B8)	/ (non-tourist book)
-B:59:99:0:0:0	#seal getaway (wizard lock)	/
+B:59:99:0:0:0	#boomerang throw			/
 B:60:99:0:0:0	#burst of light			/
 B:61:99:0:0:0	#curing				/
 B:62:99:0:0:0	#super rogue			/
@@ -1599,9 +1603,9 @@ B:63:99:0:0:0	#sustain speed			/
 B:64:99:0:0:0	#resistance				/
 B:65:23:16:67:30	#stink (B9)				23
 B:66:99:0:0:0	#berserker				/
-B:67:34:31:88:90	#bedlam				34
+B:67:34:31:80:90	#bedlam				34
 B:68:99:0:0:0	#chaos strike			/
-B:69:99:0:0:0	#rift					/
+B:69:49:46:89:80	#rift					49
 B:70:99:0:0:0	#breathe chaos			/
 B:71:41:30:90:125	#mass chaos				41
 B:72:50:90:76:200 #bizzare effects			50
@@ -1609,13 +1613,13 @@ B:73:33:25:50:50  #treasure hunt			33
 B:74:20:15:50:5	#luck bolt				20
 
 #(tentatively done), (gets 1.5x mana with POWER_SHIELD)
-N:16:War Mage
+N:16:War_Mage
 S:-4:3:-1:1:-2:-1
-C:20:38:30:1:10:12:45:15:25
-X:9:13:9:0:0:9:25:15:26
-I:2:26:65000:12
+C:20:38:30:1:10:12:45:15:26
+X:9:13:9:0:0:9:26:15:26
+I:2:26:65000:6
 A:4:40:2
-M:90:1:1:300
+M:90:1:1:300:5
 #Starting objects: staff of zapping, 1st magicbook, and 1-3 !Super spellcasting
 E:90:0:1:1
 E:55:10:1:1
@@ -1705,16 +1709,21 @@ B:67:22:24:70:12	#sphere of charm			22 (B8, for war mage)
 B:68:34:60:89:70	#elemental brand melee		34 (temporary and now works on ego/artifact weapons)
 B:69:36:30:70:100	#dragonfire				36 (B8)
 
-#N:17:Red Knight (wizardry)
+#N:17:Red_Knight (wizardry)
+#S:4:1:-1:1:1:2
+#C:
+#X:
+#I:7:25:45000:10
+#A:5:35:5
 
 #tentatively done
 N:18:Barbarian
 S:6:-3:-1:1:2:-1
-C:24:12:18:2:10:16:75:53:58
-X:8:9:11:0:0:15:44:42:30
-I:10:5:14000:16
+C:24:12:18:2:10:16:75:52:58
+X:8:9:12:0:0:15:44:42:31
+I:10:5:14000:-4
 A:3:80:3
-M:92:2:5:400
+M:92:2:5:400:3569
 #Starting objects: broad axe, small metal shield,
 # and 2-3 rothe tusks (like primitive spears)
 E:1:1:2:3
@@ -1800,20 +1809,20 @@ B:63:99:0:0:0	#
 B:64:99:0:0:0	#
 B:65:99:0:0:0	#
 B:66:99:0:0:0	#
-B:67:43:33:67:20	#extra melee attack		43 (in B8)
+B:67:43:34:72:20	#extra melee attack		43 (in B8)
 B:68:38:20:67:14	#charm animals			38 (in B7)
 B:69:25:20:55:25	#mighty throw			25 (in B4)
 B:70:99:0:0:0	#portal				/ (in B3)
 B:71:22:12:65:9	#fire spray				22 (in B4)
 
 #tentatively done
-N:19:Chaos Warrior
+N:19:Chaos_Warrior
 S:4:-1:-3:0:2:-2
-C:15:17:14:-1:11:9:67:39:43
+C:15:17:13:-1:11:9:67:39:43
 X:16:11:14:0:0:13:43:33:39
-I:7:25:43000:9
+I:7:25:43000:3
 A:5:35:5
-M:93:1:6:455
+M:93:1:6:456:18
 #Starting objects: flail, 1-2 ?Monster confusion, 1 !Berserk strength,
 # and 1-2 rothe tusks
 E:22:10:1:1
@@ -1858,7 +1867,7 @@ B:20:12:4:60:1	#detect monsters			12
 B:21:99:0:0:0	#detect traps and objects	/ (gets tourist version)
 B:22:16:10:80:2	#slow monster			16
 B:23:19:13:75:4	#mini destruction			19
-B:24:26:14:70:3	#stone to mud			26
+B:24:38:18:65:30	#lullaby				38
 B:25:99:0:0:0	#sense surroundings		/ (in book 8)
 B:26:99:0:0:0	#detect enchantment		/
 B:27:8:4:55:1	#detect traps (B4)		8 (tourist only book)
@@ -1886,11 +1895,11 @@ B:48:31:20:67:16	#affect surroundings		31
 B:49:38:25:55:33	#potluck stats			38
 B:50:99:0:0:0	#aquirement				/
 B:51:19:7:67:9	#blink monster (B7)		19 (moved to book 5)
-B:52:24:14:65:16	#door creation2			24
+B:52:24:14:65:16	#seal/open getaway		24
 B:53:31:16:75:23	#stair creation2			31
-B:54:44:34:55:30	#teleport level			44
+B:54:44:34:55:30	#teleport level			44 (to be changed)
 B:55:41:32:67:28	#word of destruction		41
-B:56:99:0:0:0	#word of recall2			/
+B:56:47:40:65:31	#teleport control			47
 B:57:99:0:0:0	#rune of protection		/
 B:58:99:0:0:0	#resist heat and elec (B8)	/
 B:59:99:0:0:0	#seal getaway			/
@@ -1904,42 +1913,138 @@ B:66:15:21:67:30	#berserker				15
 B:67:21:19:67:35	#bedlam				21
 B:68:43:26:75:75	#chaos strike			43
 B:69:46:31:80:80	#rift					46
-B:70:40:33:67:70	#breathe chaos			40
+B:70:37:33:71:70	#breathe chaos			37
 B:71:45:35:75:99	#mass chaos				45
 B:72:49:50:90:101	#bizzare effects			49
 B:73:48:35:70:65  #treasure hunt			47
 B:74:16:15:70:7	#luck bolt				16
 
-#N:20:Sage (mind)
+#alchemy knight (there will eventually be a knight class for each magic realm)
+N:20:Green_Knight
+S:4:1:-2:2:0:-1
+C:17:16:14:-1:14:9:66:40:41
+X:10:9:12:0:0:15:44:32:36
+I:7:25:42000:3
+A:5:35:5
+# t.done up to here
+M:94:1:6:450:378
+#Starting objects: morningstar, metal scale mail, 3-4 junk grenades, 1-2 !cure poison
+E:22:11:1:1
+E:37:3:1:1
+E:77:3:3:4
+E:75:27:1:2
+#Class objects: chemical combat, Hand grenade
+O:94:5:77:4
+F:BEAM | KNIGHT
+T:BeakerBreaker
+T:MixerAssistant
+T:AshfaceSoldier
+T:Geek Warrior
+T:PoisonBrewer
+T:ViolentChemist
+T:DungeonTerrorist
+T:Alchemy Knight
+T:Green Knight
+T:Doctor Doom
+#^was really running out of ideas here.  I still like Arch Anarchist...
+# Spells started by copying from alchemist, not done for Green Knight
+B:0:5:3:40:1		#disinfectant			5 B1aa
+B:1:12:4:50:2		#cure light wounds		12
+B:2:99:0:0:0		#light area			/
+B:3:9:3:60:2		#stinking cloud			9
+B:4:99:0:0:0		#phase door			/
+B:5:16:6:65:3		#find traps/doors		16
+B:6:20:4:40:3		#detect monsters		20
+B:7:23:16:55:4		#cure poison			23
+B:8:11:4:65:2		#acid arrow			11
+B:9:7:3:50:1		#skill boost (B2aa)		7
+B:10:9:3:50:2		#resist acid			9
+B:11:99:0:0:0		#cure moderate wounds		/
+B:12:18:14:60:4		#resist heat & cold		18
+B:13:99:0:0:0		#satisfy hunger			/
+B:14:15:15:67:3		#chemical rage			15
+B:15:99:0:0:0		#restore memories		/
+B:16:19:18:63:4		#resist poison			19
+B:17:99:0:0:0		#heal				/
+B:18:99:0:0:0		#detect treasure (B3)		/
+B:19:99:0:0:0		#trap/door destruction	/
+B:20:99:0:0:0		#clear mind			/
+B:21:99:0:0:0		#identify				/
+B:22:99:0:0:0		#detect invisible		/
+B:23:99:0:0:0		#resistance			/ (now in B7)
+B:24:99:0:0:0		#detect enchantment		/
+B:25:99:0:0:0		#acid coat ammo			/
+B:26:15:9:70:4		#burst of speed (B4)		15
+B:27:99:0:0:0		#teleport self			/
+B:28:99:0:0:0		#teleport other			/
+B:29:29:16:70:4		#slow monsters			29
+B:30:26:14:65:4		#mist of amnesia		26 (not very effective for a knight..)
+B:31:42:32:75:16	#haste self			42
+B:32:47:36:85:19	#teleport level			47
+B:33:50:50:85:45	#elixir of life			50  (in alchemist only B7)
+B:34:99:0:0:0		#rune of protection		/
+B:35:99:0:0:0		#lightning bolt (B5)		/  (archer book)
+B:36:99:0:0:0		#rain of arrows			/
+B:37:21:13:60:3		#chaos arrow			21
+B:38:45:26:67:20	#rocket blast			45
+B:39:99:0:0:0		#enchant missile to-hit		/
+B:40:99:0:0:0		#enchant missile to-dam		/
+B:41:46:66:93:29	#poison brand ammo		46
+B:42:99:0:0:0		#elemental brand ammo		/
+# (these two spells must be same level and B:43 needs to be low mana cost and low %fail)
+B:43:31:2:12:2		#mimmic wand (mimmic) (B6)	31 (2-part spell)
+B:44:31:6:65:9		#mimmic wand (zap)		31 (hard-coded variable mana cost)
+B:45:26:16:60:6		#repugnant odor			26
+B:46:34:21:60:9		#lasting repugnance		34
+B:47:30:15:65:8		#zombie flame			30
+B:48:99:0:0:0		#restore dex1			/  (this spell in thief only B8)
+B:49:38:21:70:12	#alchemical dragonbreath	38 (almost the same as potion of dragonbreath)
+B:50:43:25:70:16	#acid ball				43
+B:51:46:30:77:21	#ice storm				46
+B:52:35:23:70:11	#enhance wand			35
+B:53:33:13:65:11	#cloudkill1	(B9)		33 (alchemist only book)
+B:54:99:0:0:0		#glyph of warding		/  (in B7)
+B:55:30:17:65:10	#silver bullet			30
+B:56:99:0:0:0		#recharging			/
+B:57:40:26:68:20	#tunneldigging			40
+B:58:39:25:60:15	#explosion				39
+B:59:99:0:0:0		#restoration			/
+B:60:42:60:90:21	#poison brand weapon		42
+B:61:99:0:0:0		#hit and run (B8)		/  (thief only book)
+B:62:99:0:0:0		#slip into the shadows	/
+B:63:99:0:0:0		#poison bolt			/
+B:64:99:0:0:0		#cloudkill2			/
+B:65:99:0:0:0		#bedlam1				/
+B:66:99:0:0:0		#find vault				/
+B:67:99:0:0:0		#poison brand weapon2		/
+B:68:99:0:0:0		#safety goggles (B7)			/
+B:69:99:0:0:0		#sustain health				/
+B:70:23:25:70:5		#craft grenade				23 (in B6)
+B:71:99:0:0:0		#Breath Shield			/
+B:72:99:0:0:0		#enchant armor			/
+B:73:48:28:70:24	#meteor swarm			48 (B5)
+B:74:99:0:0:0  		#telekinesis			/ (B8)
+B:75:99:0:0:0		#quiver guard			/ (B7)
 
-#N:21:Mystic (nature/mind)
+#N:21:Blue_Knight (nature)
+
+#N:22:Yellow_Knight (mind)
+
+#N:23:Sage (mind)
+
+#N:24:Mystic (nature/mind)
 #T:Windrider
 #T:Stormwielder
 #T:High Mystic
 #T:Mystic Lord
 
-#N:22:Loser (chance) (probably not going to do this one)
+#N:25:Loser (chance) (probably not going to do this one)
 
-#N:23:Witch/Warlock (black) (probably not going to do this one)
+#N:26:Stone_Slinger (nature)
 
-#N:24:Stone Slinger (nature)
+#N:27:Ninja (mind)
 
-#N:26:Ninja (mind)
-
-#N:27:Holy Rogue (not going to do this one)
-
-#N:28:Green Knight (alchemy)
-
-#N:29:Red Knight (wizardry)
-#S:4:1:-1:1:1:2
-#C:
-#X:
-#I:7:25:45000:10
-#A:5:35:5
-
-#N:30:Blue Knight (nature)
-
-#N:31:Yellow Knight (mind)
+#N::Witch/Warlock (black) (probably not going to do this one)
 
 #Novelty Class, maybe give it some chance spells
 #umber hulks may now choose any class and HULK_CONF flag no longer exists
@@ -1948,9 +2053,9 @@ B:74:16:15:70:7	#luck bolt				16
 #C:18:23:24:0:4:9:66:30:40
 #X:10:6:14:0:0:10:38:10:10
 
-#I:6:25:60000:8
+#I:6:25:60000:0
 #A:6:50:4
-#M:0:0:0:0
+#M:0:0:0:0:0
 #Starting objects: mumak tusk, filthy rag
 #E:1:2:1:1
 #E:36:1:1:1

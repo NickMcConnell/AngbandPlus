@@ -88,7 +88,6 @@ void do_cmd_eat_food(void)
 	bool ident;
 
 	object_type *o_ptr;
-
 	cptr q, s;
 
 	/* golems cannot eat */
@@ -169,7 +168,6 @@ void do_cmd_eat_food(void)
 		floor_item_optimize(0 - item);
 	}
 }
-
 
 
 
@@ -450,7 +448,7 @@ void do_cmd_use_staff(void)
 	}
 
 	/* Notice empty staffs (should come before chance of success) */
-	if (o_ptr->pval <= 0)
+	if (o_ptr->charges <= 0)
 	{
 		/* takes a turn only if you didn't already know it was empty */
 		/* (you always know charges if aware) */
@@ -474,6 +472,14 @@ void do_cmd_use_staff(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	/* thieves zap slightly faster (usually -not as often as wands & rods) */
+	if ((!p_ptr->timed[TMD_CONFUSED]) && (cp_ptr->flags & CF_CLASS_SPEED) && 
+		(rand_int(p_ptr->skills[SKILL_DEV]) > 15 + badluck))
+	{
+		if (p_ptr->lev >= 40) p_ptr->energy_use = 90;
+		else if (p_ptr->lev >= 20) p_ptr->energy_use = 95;
+	}
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -526,10 +532,8 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
-
 	/* Sound */
 	sound(MSG_USE_STAFF);
-
 
 	/* Use the staff */
 	use_charge = use_object(o_ptr, &ident);
@@ -574,9 +578,9 @@ void do_cmd_use_staff(void)
 	/* Staff of manafree sometimes uses multiple charges */
     if (p_ptr->manafree > 19)
 	{
-        if (p_ptr->manafree/10 > o_ptr->pval)
+        if (p_ptr->manafree/10 > o_ptr->charges)
         {
-           o_ptr->pval = 0;
+           o_ptr->charges = 0;
 
            /* If you don't have enough charges it might explode */
            if (randint(75 + badluck) > 55)
@@ -611,12 +615,12 @@ void do_cmd_use_staff(void)
            }
         }
         /* normal usage: 1 charge for every 10 mana cost of the spell cast */
-        else o_ptr->pval -= p_ptr->manafree/10;
+        else o_ptr->charges -= p_ptr->manafree/10;
     }
     else
     {
         /* Use a single charge (every other staff) */
-	    o_ptr->pval--;
+	    o_ptr->charges--;
     }
 
 	/* reset manafree */
@@ -725,7 +729,7 @@ void do_cmd_aim_wand(void)
 
 
 	/* Use a single charge */
-	o_ptr->pval--;
+	o_ptr->charges--;
 
 	/* Describe the charges in the pack */
 	if (item >= 0)
@@ -808,7 +812,7 @@ void do_cmd_zap_wandorrod(void)
     if (o_ptr->tval == TV_WAND)
 	{
 		/* Use a single charge */
-		o_ptr->pval--;
+		o_ptr->charges--;
 
 		/* Describe the charges in the pack */
 		if (item >= 0)

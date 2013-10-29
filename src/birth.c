@@ -11,7 +11,8 @@
 #include "angband.h"
 #include "cmds.h"
 #include "script.h"
-	 static int clash = 0;
+
+static int clash = 0;
 
 /*
  * Forward declare
@@ -354,7 +355,10 @@ static void get_history(void)
 
 
 	/* Initial social class */
-	social_class = randint(4);
+	social_class = randint(6)-2;
+
+	/* class now affects social class */
+	if (cp_ptr->calert > 0) social_class += randint(cp_ptr->calert);
 
 	/* Starting place */
 	chart = rp_ptr->hist;
@@ -382,7 +386,15 @@ static void get_history(void)
 		chart = h_info[i].next;
 	}
 
-
+	/* class now affects social class */
+	if ((cp_ptr->calert < 0) && (social_class > 9))
+	{
+		int tsc = social_class;
+		tsc -= rand_int(ABS(cp_ptr->calert)+1);
+		/* Don't lower all the way to zero, too many characters already end up with sc of 1 */
+		if (tsc < 5) social_class = social_class - 5;
+		else social_class = tsc;
+	}
 
 	/* Verify social class */
 	if (social_class > 100) social_class = 100;
@@ -435,16 +447,15 @@ static void get_ahw(void)
 static void get_money(void)
 {
 	int i;
-
 	int gold;
 
     /* tourists start with slightly more gold */
-    if (p_ptr->pclass == 15) p_ptr->sc += randint(6) - 1; /* +0 to +5 */
+    if (p_ptr->pclass == 15) p_ptr->sc += rand_int(6); /* +0 to +5 */
 
 	/* Social Class determines starting gold */
 	/* (start with less if selling to stores is turned on) */
     if (adult_cansell) gold = ((p_ptr->sc+2) * 3) + randint(110) + 140;
-    else gold = ((p_ptr->sc+2)  * 4) + randint(120) + 280;
+    else gold = ((p_ptr->sc+2) * 4) + randint(120) + 280;
     if (p_ptr->pclass == 15) gold += 15 + randint(25);
 
 	/* Process the stats */
@@ -545,17 +556,16 @@ static void player_wipe(bool really_wipe)
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
-		/* Hack -- Reset the counters */
-		r_ptr->cur_num = 0; /* this level */
-#ifdef newrst
-		r_ptr->curpop = 0;  /* this game */
-#endif
-
 		/* Hack -- Reset the max counter */
 		r_ptr->max_num = 100; /* per level */
 
+		/* Hack -- Reset the counters */
+		r_ptr->cur_num = 0; /* this level */
+		r_ptr->curpop = 0;  /* this game */
+
 		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->maxpop == 1)) 
+			r_ptr->max_num = 1;
 
 		/* Clear player kills */
 		l_ptr->pkills = 0;
@@ -592,6 +602,7 @@ static void wield_all(void)
 	object_type *o_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
+	object_kind *k_ptr;
 
 	int slot, num;
 	int item;
@@ -600,6 +611,7 @@ static void wield_all(void)
 	for (item = INVEN_PACK - 1; item >= 0; item--)
 	{
 		o_ptr = &inventory[item];
+		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -607,7 +619,11 @@ static void wield_all(void)
         /* Charge staffs and wands */
 		if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
         {
-           o_ptr->pval = 4 + randint(3);
+			/* Charge staves and wands */
+			o_ptr->charges = k_ptr->charge_base;
+
+			if (k_ptr->charge_dd && k_ptr->charge_ds)
+				o_ptr->charges += damroll(k_ptr->charge_dd, k_ptr->charge_ds);
         }
 
 		/* Make sure we can wield it and that there's nothing else in that slot */
@@ -721,7 +737,8 @@ static void player_outfit(void)
 	/* Hack -- Give the player some torches */
 	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 	i_ptr->number = (byte)rand_range(4, 7);
-	i_ptr->timeout = rand_range(4, 7) * 500;
+	/* */
+	i_ptr->timeout = (rand_int(10) + 9) * 180;
 	object_aware(i_ptr);
 	object_known(i_ptr);
         k_info[i_ptr->k_idx].everseen = TRUE;

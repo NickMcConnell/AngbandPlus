@@ -146,7 +146,7 @@ struct feature_type
 
 
 /*
- * Information about object "kinds", including player knowledge. (k_ptr)
+ * Information about object kind, including player knowledge. (k_ptr)
  *
  * Only "aware" and "tried" are saved in the savefile
  */
@@ -253,13 +253,11 @@ struct artifact_type
 	byte maxlvl;		/* Maximum object level to create this artifact */
 	s16b artrat;        /* Artifact rating */
 
-#ifdef new_random_stuff
 	/* code for an item which gives race-specifix ESP: */
 	/* 0-none, 1=orcs, 2=trolls, 3=giants, 4=undead, 5=dragons, 6=demons */
 	/* 7=fairies, 8=bugs, 9=grepse, 10=(most)animals,.. */
 	/* 70 = short-ranged ESP for everything */
 	byte esprace;       /* race-specific ESP (see o_ptr declaration below) */
-#endif
 
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
@@ -286,20 +284,20 @@ struct ego_item_type
 	u32b flags4;		/* Flags, set 4 */
 
 	byte level;			/* Minimum level */
+	s16b maxlev;		/* maximum level for ego (soft cap) */
 	byte rarity;		/* Object rarity */
 	byte rating;		/* Level rating boost */
-	byte weight;		/* Extra weight */
+	s16b weight;		/* Extra weight */
 
 	byte tval[EGO_TVALS_MAX]; /* Legal tval */
 	byte min_sval[EGO_TVALS_MAX];	/* Minimum legal sval */
 	byte max_sval[EGO_TVALS_MAX];	/* Maximum legal sval */
 
-	byte max_to_h;		/* Maximum to-hit bonus */
-	byte max_to_d;		/* Maximum to-dam bonus */
-	byte max_to_a;		/* Maximum to-ac bonus */
-	byte max_pval;		/* Maximum pval */
+	s16b max_to_h;		/* Maximum to-hit bonus */
+	s16b max_to_d;		/* Maximum to-dam bonus */
+	s16b max_to_a;		/* Maximum to-ac bonus */
+	s16b max_pval;		/* Maximum pval */
 
-#ifdef new_random_stuff
 	/* holds how many random attributes in its set */
 	byte randsus;		/* random sustain 0, 1 or 2 */
 	byte randres;		/* random resist 0, 1, 2, or 3 */
@@ -314,9 +312,6 @@ struct ego_item_type
 	
 	byte esprace;       /* race-specific ESP (see o_ptr declaration below) */
 	byte unused1;        /* saving a spot for future use */
-#else
-	byte xtra;			/* Extra sustain/resist/power */
-#endif
 
 	bool everseen;		/* Do not spoil squelch menus */
 };
@@ -402,30 +397,31 @@ struct monster_race
 	byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
 	
-#ifdef newrst
 	s16b spr;               /* spell range */
 	byte mrsize;            /* monster race size */
 	s16b maxpop;            /* max total population (per game) */
 	s16b curpop;            /* how many killed so far this game */
+	/* curpop is only ever incremented when a monster is killed */
+	/* cur_num keeps track of living monsters on the current level */
+	/* so when you check population always check curpop + cur_num */
 	
 	/* monster resistances */
-	byte Rfire;
-	byte Rcold; 
-	byte Relec; 
-	byte Racid;
-	byte Rpois;
-	byte Rlite;
-	byte Rdark;
-	byte Rwater;
-	byte Rnexus;
-	byte Rmissile;
-	byte Rchaos;
-	byte Rdisen;
-	byte Rsilver;
-	byte Rtaming;
-	byte R4later;
-	byte R4later2;
-#endif
+	s16b Rfire;
+	s16b Rcold; 
+	s16b Relec; 
+	s16b Racid;
+	s16b Rpois;
+	s16b Rlite;
+	s16b Rdark;
+	s16b Rwater;
+	s16b Rnexus;
+	s16b Rmissile;
+	s16b Rchaos;
+	s16b Rdisen;
+	s16b Rsilver;
+	s16b Rtaming;
+	s16b R4later;
+	s16b R4later2;
 
 	byte d_attr;			/* Default monster attribute */
 	char d_char;			/* Default monster character */
@@ -466,6 +462,26 @@ struct monster_lore
 	byte cast_spell;		/* Max number of other spells seen */
 
 	byte blows[MONSTER_BLOW_MAX]; /* Number of times each blow type was seen */
+	
+	/* knowledge of monster resistances (because these aren't in RF? flags anymore) */
+	/* these are just boolean whether the PC knows the level of the monster's resistance. */
+	byte know_MRfire;
+	byte know_MRcold;
+	byte know_MRelec;
+	byte know_MRacid;
+	byte know_MRpois;
+	byte know_MRlite;
+	byte know_MRdark;
+	byte know_MRwatr;
+	byte know_MRnexu;
+	byte know_MRmisl;
+	/* X: line monster resistances */
+	byte know_MRchao;
+	byte know_MRdise;
+	byte know_MRsilv;
+	byte know_MRtame;
+	byte know_R4latr;
+	byte know_R4lat2;
 
 	u32b flags1;			/* Observed racial flags */
 	u32b flags2;			/* Observed racial flags */
@@ -539,11 +555,24 @@ struct object_type
 	byte sval;			/* Item sub-type (from kind) */
 
 	s16b pval;			/* Item extra-parameter */
+	s16b charges;       /* separate pval from charges so ego staves can have a pval */
 
 	byte pseudo;		/* Pseudo-ID marker */
 #ifdef instantpseudo
 	byte hadinstant;    /* marks whether you've had a chance for instant pseudo */
 #endif
+
+	/* new origin-tracking stuff */
+	s16b dlevel;		/* dungeon level it was created on */
+	s16b drop_ridx;		/* race index of monster it was dropped by (or 0) */
+	byte vcode;			/* 1= generated on a vault floor, 2= dropped by a monster in a vault */
+		/* 3= generated in a rubble pile, 4= from a normal chest, */
+		/* 5= from a normal chest which was generated in a vault */
+		/* 6= from a silver-locked chest, 7= from a gold-locked chest */
+		/* 8= generated in a rubble pile in a vault, 9= created by ?aquirement */
+		/* 10= conjured by magic some other way, */
+		/* 11= otherwise generated as a 'great' item (only used for cheat/testing options) */
+		/* 12= bought from a store (besides the BM), 13= bought from the black market */
 
 	byte number;		/* Number of items */
 
@@ -552,7 +581,6 @@ struct object_type
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
-#ifdef new_random_stuff
 	char randego_name[40];	/* psuedo-randart names */
 	/* holds indexes of random attribute in its set */
 	byte randsus;		/* random sustain */
@@ -596,11 +624,6 @@ struct object_type
 	/* 71 = special for Ratagast (ESP for wizards) */
 	/* 75 = special for Thranduil */
     byte esprace;       /* */
-#else
-	byte xtra1;			/* Extra info type */
-	byte xtra2;			/* Extra info index */
-	byte xtra3;         /* For egos which have two random resistances */
-#endif
 
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
@@ -699,10 +722,14 @@ struct monster_type
 	
 	s16b temp_death;    /* Monsters is only temporarily dead */
 	s16b ninelives;     /* counts how many times the monster has died temporarily */
-	s16b extra2;        /* to prevent breaking savefiles later */
+	s16b extra2;        /* for new hallucenation-> monster is an imaginary monster */
 	s16b extra3;        /* to prevent breaking savefiles later */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
+
+	/* for testing, not in savefiles, defined in get_moves() */
+	int headtox;
+	int headtoy;
 
 #ifdef DRS_SMART_OPTIONS
 
@@ -869,7 +896,7 @@ struct player_race
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 
-	s16b infra;			/* no longer used */
+	byte rsize;			/* race size */
 
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
@@ -884,7 +911,7 @@ struct player_race
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
 
-	u32b choice;		/* Legal class choices (changed from a byte) */
+	u32b choice;		/* recommended class choices (changed from a byte) */
 
 	s16b hist;			/* Starting history index */
 
@@ -942,7 +969,7 @@ struct player_class
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
 	
-	s16b calert;        /* no longer used */
+	s16b calert;         /* now used for social class */
 
 	u32b flags;			/* Class Flags */
 
@@ -954,6 +981,7 @@ struct player_class
 	u16b spell_stat;	/* Stat for spells (if any) */
 	u16b spell_first;	/* Level of first spell */
 	u16b spell_weight;	/* Weight that hurts spells */
+	s16b useless_books; /* svals of books which this class can't use */
 
 	u32b sense_base;	/* Base pseudo-id value */
 	u16b sense_div;		/* Pseudo-id divisor (now unused) */
@@ -1064,12 +1092,17 @@ struct player_type
 	s16b slime;         /* DJA: slimed state */
 	s16b luck;          /* DJA: luck */
 	s16b maxluck;		/* DJA: maximum luck (so can restore lost luck) */
-	byte corrupt;       /* DJA: level of corruption*/
+	byte corrupt;       /* level of corruption */
 	s16b spadjust;       /* amount of nonstandard speed adjustment */
 	byte learnedcontrol; /* teleport control skill */
 	s16b mimmic;		/* wand/rod sval to mimmic, +100 if rod (alchemy spell) */
 	s16b menhance;		/* mimmiced wand is enhanced */
-	s32b control_des;   /* stores destination while being controlled (like monster roaming) */
+	s32b control_des;   /* stores destination while being controlled */
+						/* (like monster roaming -didn't get it to work) */
+	/* currently only used for caverns and extracted by checking if there are any spaces */
+	/* on the level with the CAVE_ROOM flag.  This will change next time I break savefiles. */
+	s16b speclev;		/* hold code for something special about the level (caverns, etc) */
+	/* speclev: 1=cavern, ... */
 	
 	s16b danger_turn;   /* last time you got a danger feeling */
 	s32b game_score;    /* game score, (redone, now counted as you play) */
@@ -1079,7 +1112,7 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-	s16b extra1;         /* to prevent breaking savefiles later */
+	s16b extra1;         /* marks as in a space with a pit without being in the pit */
 	s16b extra2;        /* to prevent breaking savefiles later */
 	s16b extra3;        /* to prevent breaking savefiles later */
 	
@@ -1276,8 +1309,8 @@ struct player_type
 	s16b extra_blows;	/* number of extra blows */
 
 	byte ammo_mult;		/* Ammo multiplier */
-
 	byte ammo_tval;		/* Ammo variety */
+	byte bow_range;     /* */
 
 	bool cursed_quiver;	/* The quiver is cursed */
 

@@ -326,7 +326,8 @@ static int quiver_wield(int item, object_type *o_ptr)
 void do_cmd_wield_reallynow(bool toquiver)
 {
 	int item, slot;
-	bool is_splendid, new_lite;
+	bool is_splendid, new_lite/*, ammo*/;
+	bool dormantcurse = FALSE;
 #ifdef instantpseudo	
 	bool instant = FALSE;
 #endif
@@ -562,7 +563,7 @@ void do_cmd_wield_reallynow(bool toquiver)
 	/* use up a charge for constant activation when wielding */
 	if (f2 & (TR2_CONSTANTA))
 	{
-		o_ptr->pval--;
+		o_ptr->charges--;
 		msg_print("a charge has been used.");
 
 		/* This lets you be able to tell what it is */
@@ -644,9 +645,15 @@ void do_cmd_wield_reallynow(bool toquiver)
 		o_ptr->hadinstant = 1;
 	}
 #endif
+
+	/* Weapons which aren't primarily made for throwing don't curse the quiver */
+	if ((IS_QUIVER_SLOT(slot)) && (f3 & (TR3_PTHROW)))
+	{
+		dormantcurse = TRUE;
+	}
 	
 	/* Cursed! */
-	if (cursed_p(o_ptr))
+	if ((cursed_p(o_ptr)) && (!dormantcurse))
 	{
 		/* Warn the player */
 		sound(MSG_CURSED);
@@ -780,9 +787,7 @@ void do_cmd_takeoff(void)
 void do_cmd_drop(void)
 {
 	int item, amt;
-
 	object_type *o_ptr;
-
 	cptr q, s;
 
 
@@ -831,6 +836,15 @@ void do_cmd_drop(void)
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
+
+	/* thieves drop things faster (from pack, not equipment) */
+	if ((cp_ptr->flags & CF_CLASS_SPEED) && (item < INVEN_WIELD))
+	{
+		if (p_ptr->lev >= 40) p_ptr->energy_use = 30;
+		else if (p_ptr->lev >= 20) p_ptr->energy_use = 35;
+		else if (p_ptr->lev >= 5) p_ptr->energy_use = 40;
+		else p_ptr->energy_use = 45;
+	}
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
@@ -948,7 +962,7 @@ void do_cmd_destroy(void)
 	    (o_ptr->tval == TV_ROD))
 	{
 		/* Calculate the amount of destroyed charges */
-		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+		i_ptr->charges = o_ptr->charges * amt / o_ptr->number;
 	}
 
 	/* Set quantity */
@@ -1133,7 +1147,6 @@ void do_cmd_fstack(void)
 	o_ptr->to_d = 0;
 	o_ptr->to_a = 0;
 	/* remove possible random stuff from egos like defender */
-#ifdef new_random_stuff
     o_ptr->randsus = 0;
     o_ptr->randsus2 = 0;
     o_ptr->randres = 0;
@@ -1155,10 +1168,6 @@ void do_cmd_fstack(void)
     o_ptr->randlowr2 = 0;
     o_ptr->randact = 0;
 	o_ptr->esprace = 0;
-#else
-    o_ptr->xtra1 = 0;
-    o_ptr->xtra2 = 0;
-#endif
 	/* remove bonus damage dice */
 	if (o_ptr->dd > k_ptr->dd) o_ptr->dd = k_ptr->dd;
 
@@ -1361,7 +1370,6 @@ static void do_cmd_refill_lamp(void)
 	object_type *j_ptr;
 
 	cptr q, s;
-
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_lantern;
@@ -2036,7 +2044,7 @@ void do_cmd_query_symbol(void)
 		monster_lore *l_ptr = &l_list[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !l_ptr->sights) continue;
+		if (!know_races && !l_ptr->sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;

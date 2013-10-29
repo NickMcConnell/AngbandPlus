@@ -76,13 +76,14 @@ bool truce(void)
 		else dishonor = 1;
 		/* uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) dishonor += 50;
+		else if (r_ptr->maxpop == 1) dishonor += 30;
 		/* non-agressive light fairies */
-		if ((p_ptr->nice) && (r_ptr->flags3 & (RF3_HURT_DARK))) dishonor = dishonor/2;
+		if ((p_ptr->nice) && (r_ptr->flags3 & (RF3_CLIGHT))) dishonor = dishonor/2;
 		/* common race strengthens truce (hacky, but I don't really care) */
 		if (((p_ptr->prace == 5) || (p_ptr->prace == 3)) && 
 			(strchr("h", r_ptr->d_char))) dishonor -= 20;
 		if (((p_ptr->prace == 12) || (p_ptr->prace == 15)) && 
-			(r_ptr->flags3 & (RF3_HURT_DARK))) dishonor -= 20;
+			(r_ptr->flags3 & (RF3_CLIGHT))) dishonor -= 20;
 
 		/* effectiveness based on charisma and luck (not level) */
 		talk = (adj_chr_charm[p_ptr->stat_ind[A_CHR]] * 2) + randint(goodluck+1);
@@ -141,13 +142,20 @@ bool truce(void)
  * Mist of Amnesia
  * (a mist shouldn't just be an LOS effect)
  */
-bool mass_amnesia(int power)
+bool mass_amnesia(int power, int ey, int ex)
 {
 	int i, y, x, erlev, do_sleep;
 	char m_name[80];
 	bool something = FALSE;
+	bool grenade = FALSE;
 
-	if (project_los(GF_AMNESIA, power)) something = TRUE;
+	/* only grenades send coordinates to this function */
+	if ((ey) && (ex)) grenade = TRUE;
+
+	if (!grenade)
+	{
+		if (project_los(GF_AMNESIA, power)) something = TRUE;
+	}
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -169,13 +177,24 @@ bool mass_amnesia(int power)
 
 		/* affect only monsters within 14 spaces away who aren't in line of sight */
 		/* (spell has already affected LOS monsters) */
-		if ((player_has_los_bold(y, x)) || (m_ptr->cdis > 14)) continue;
+		if ((!grenade) && ((player_has_los_bold(y, x)) || (m_ptr->cdis > 14))) continue;
+
+		/* grenades of smoke have shorter range than the amnesia spell */
+		else if (grenade)
+		{
+			int maxdis = 8;
+			if (los(ey, ex, y, x)) maxdis += 3 + (goodluck+1)/3;
+			if (distance(ey, ex, y, x) > maxdis) continue;
+		}
 
 		/* effective monster level: */
 		erlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level > 80)) erlev = erlev * 2;
 		else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 22))  erlev += 9;
 		else if (r_ptr->flags1 & (RF1_UNIQUE)) erlev += 10 + randint((erlev/2) - 10);
+		
+		/* get monster name */
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 		/* doesn't affect non-living monsters */
 		if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_NON_LIVING)))
@@ -328,12 +347,12 @@ int do_vampiric_drain(int dir, int damage)
 		cptr note_dies = " dies.";
 		damage = m_ptr->hp;
 		/* now kill it */
-		mon_take_hit(cave_m_idx[ty][tx], damage+1, &fear, note_dies);
+		mon_take_hit(cave_m_idx[ty][tx], damage+1, &fear, note_dies, TRUE);
 	}
 	else
 	{
 		/* Hurt the monster, check for fear (we know the monster isn't dead) */
-		mon_take_hit(cave_m_idx[ty][tx], damage, &fear, NULL);
+		mon_take_hit(cave_m_idx[ty][tx], damage, &fear, NULL, TRUE);
 
 		/* notice fear */
 		if ((fear) && (m_ptr->ml))
@@ -445,7 +464,28 @@ bool item_tester_hook_bigwand(const object_type *o_ptr)
 		}
 	}
 
-	/* only a high level alchemist can enhance items other than wands */
+	/* min level to enhance staves */
+	if (p_ptr->lev < 20) return (FALSE);
+
+	/* not many staff types can be enhanced (used to be none) */
+	if (o_ptr->tval == TV_STAFF)
+	{
+		/* can waste an enhancement on a rod which can't be enhanced */
+		if (!object_aware_p(o_ptr)) return (TRUE);
+		/* check type */
+		switch (o_ptr->sval)
+		{
+			case SV_STAFF_DARKNESS:
+			case SV_STAFF_STARLITE:
+			case SV_STAFF_CURE_LIGHT:
+			case SV_STAFF_SLEEP_MONSTERS:
+			case SV_STAFF_SLOW_MONSTERS:
+			case SV_STAFF_STRIKING:
+				 return (TRUE);
+		}
+	}
+
+	/* only a high level alchemist can enhance rods, rings and artifacts */
 	if (p_ptr->lev < 30) return (FALSE);
 	if (o_ptr->tval == TV_ROD)
 	{
@@ -524,10 +564,7 @@ bool item_tester_hook_bigwand(const object_type *o_ptr)
 
 /*
  * The enhance wand/rod alchemy spell.
- * works similar to priest's bless weapon spell, but much simpler
- *
- * Still need to put o_ptr->enhance into save.c and load.c but I'll
- * do that later because it will break savefiles.
+ * works similar to priest's bless weapon spell
  */
 bool enhance_wand(int power)
 {
@@ -540,8 +577,8 @@ bool enhance_wand(int power)
 	item_tester_hook = item_tester_hook_bigwand;
 
 	/* Get an item */
-	if (p_ptr->lev < 30) q = "Enhance which wand? ";
-	else q = "Enhance which wand or rod? ";
+	if (p_ptr->lev < 20) q = "Enhance which wand? ";
+	else q = "Enhance which magic item? ";
 	s = "You have nothing to enhance.";  
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
@@ -578,11 +615,13 @@ bool enhance_wand(int power)
 	/* Extract the item diffuculty (now separated from item level) */
 	if (o_ptr->tval == TV_WAND) lev = k_info[o_ptr->k_idx].extra;
 	/* items other than wands are harder to enhance */
+	else if (o_ptr->tval == TV_STAFF) lev = (k_info[o_ptr->k_idx].extra * 5) / 4;
 	else if (o_ptr->tval == TV_ROD) lev = (k_info[o_ptr->k_idx].extra * 3) / 2;
 	else lev = (k_info[o_ptr->k_idx].extra * 5) / 3;
 
 	/* minimum resistance */
-	if ((lev < 20) && (o_ptr->tval == TV_WAND)) lev += (23 - lev) / 3;
+	if ((lev < 20) && ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)))
+		lev += (23 - lev) / 3;
 	if ((lev < 25) && (o_ptr->tval != TV_WAND)) lev += (26 - lev) / 2;
 
 	/* amount of enhancement */
@@ -769,7 +808,6 @@ bool bless_weapon(int power)
        {
            o_ptr->name2 = 0;
            /* remove random stuff with ego */
-#ifdef new_random_stuff
 			o_ptr->randsus = 0;
 			o_ptr->randsus2 = 0;
 			o_ptr->randres = 0;
@@ -791,10 +829,6 @@ bool bless_weapon(int power)
 			o_ptr->randlowr2 = 0;
 			o_ptr->randact = 0;
 			o_ptr->esprace = 0;
-#else
-           o_ptr->xtra1 = 0;
-           o_ptr->xtra2 = 0;
-#endif
        }
     }
     else /* extend if already blessed */
@@ -1081,7 +1115,7 @@ bool mimmic_wand(void)
 		p_ptr->mimmic = o_ptr->sval;
 
 		/* use a charge */
-		o_ptr->pval--;
+		if (o_ptr->charges) o_ptr->charges--;
 	}
 	/* +100 means it's a rod */
 	else /*(o_ptr->tval == TV_ROD)*/
@@ -1279,6 +1313,7 @@ void spell_affect_self(void)
     else if (die < 20)
     {
        msg_print("Your eyes hurt for a moment.");
+       (void)inc_timed(TMD_BLIND, randint(3));
        (void)clear_timed(TMD_TSIGHT);
        (void)clear_timed(TMD_SINVIS);
        (void)clear_timed(TMD_SINFRA);
@@ -1359,17 +1394,16 @@ void spell_adjust_curse(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 	int plev = p_ptr->lev;
-	int die;
-	int dir;
+	int die, dir;
 
-    die = randint(99) + randint(plev/5) + goodluck/2 - badluck/2;
+    die = randint(99) + plev/5 + goodluck/2 - badluck/2;
     /* adjust when called by bizzare effects spell */
     if (spellswitch == 30) die += 1 + randint(9 + goodluck/3); 
     
-    if (die < 5)
+    if (die < 4)
     {
          /* makes weapon a morgul weapon or else curse armor */
-         if (!curse_weapon(5)) curse_armor();
+         if (!curse_weapon(5)) curse_armor(FALSE);
     }
     else if (die < 25)
     {
@@ -1380,7 +1414,7 @@ void spell_adjust_curse(void)
     }
     else if (die < 35)
     {
-         curse_armor();
+         curse_armor(TRUE);
     }
     else if (die < 75)
     {
@@ -1664,15 +1698,15 @@ void spell_affect_other(int dir)
        if (thirty == 1) die += 3 + randint(7);
        if (die < 8)
        {
-          fire_ball(GF_MAKE_TRAP, 1, 0, randint(2)); /* lots of traps.. */
-          fire_ball(GF_MAKE_TRAP, 2, 0, randint(2));
-          fire_ball(GF_MAKE_TRAP, 3, 0, randint(2));
-          fire_ball(GF_MAKE_TRAP, 4, 0, randint(2));
-          fire_ball(GF_MAKE_TRAP, 5, 0, randint(2));
-          fire_ball(GF_MAKE_TRAP, 6, 0, randint(2));
-          fire_ball(GF_MAKE_TRAP, 7, 0, randint(2));
-          fire_ball(GF_MAKE_TRAP, 8, 0, randint(2));
-          fire_ball(GF_MAKE_TRAP, 9, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 1, 9, randint(3)); /* lots of traps.. */
+          fire_ball(GF_MAKE_TRAP, 2, 9, randint(3));
+          fire_ball(GF_MAKE_TRAP, 3, 9, randint(3));
+          fire_ball(GF_MAKE_TRAP, 4, 9, randint(3));
+          fire_ball(GF_MAKE_TRAP, 5, 9, randint(3));
+          fire_ball(GF_MAKE_TRAP, 6, 9, randint(3));
+          fire_ball(GF_MAKE_TRAP, 7, 9, randint(3));
+          fire_ball(GF_MAKE_TRAP, 8, 9, randint(3));
+          fire_ball(GF_MAKE_TRAP, 9, 9, randint(3));
        }
        else if (die < 16)
        {
@@ -1810,7 +1844,6 @@ void spell_affect_other(int dir)
 
 
 
-
 /*
  * Summon a creature of the specified type
  * copied from wizard2.c
@@ -1822,10 +1855,14 @@ void do_call_help(int r_idx)
 	int px = p_ptr->px;
 
 	int i, x, y;
+	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Paranoia */
 	if (!r_idx) return;
 	if (r_idx >= z_info->r_max-1) return;
+	
+	/* extinct */
+	if ((r_ptr->curpop + r_ptr->cur_num >= r_ptr->maxpop) && (r_ptr->maxpop)) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1854,7 +1891,7 @@ void do_call_help(int r_idx)
  * if there are nearby monsters to heal. (-1 is for stupid monsters)
  *
  * XXXTODO: If an undead monster has HEAL_KIN, it should raise any
- * undead monsters which are temporarily dead.
+ * undead monsters which are temporarily dead. (onlyundead is currently unused)
  */
 bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 {
@@ -1869,6 +1906,7 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 
 	bool healed = FALSE;
 	bool onlygood = FALSE;
+	bool onlyliving = FALSE, onlyundead = FALSE;
 
 	/* what race is the caster? */
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1878,15 +1916,13 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 	if (r_ptr->flags3 & (RF3_TROLL)) kinkind = 1;
 	if (strchr("pKt", r_ptr->d_char)) kinkind = 2; /* all humans */
 	if (strchr("oO", r_ptr->d_char)) kinkind = 3; /* orcs and ogres considered kin */
-	if (r_ptr->flags3 & (RF3_HURT_DARK))
-	{
-		kinkind = 4; /* creatures of light */
-	}
+	if (r_ptr->flags3 & (RF3_CLIGHT)) kinkind = 4; /* creatures of light */
 	/* hack: paladins and templar knights don't heal evil monsters */
 	if ((strstr(rname, "paladin")) || (strstr(rname, "templar"))) onlygood = TRUE;
 	/* special case: Humbaba heals all animals */
 	if (strstr(rname, "Humbaba")) kinkind = 5;
-
+	/* positive energy vortex */
+	if (strstr(rname, "positive energy v")) onlyliving = TRUE;
 	/* location of caster */
 	cy = m_ptr->fy;
 	cx = m_ptr->fx;
@@ -1947,6 +1983,9 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 			}
 			continue;
 		}
+		
+		/* positive energy vortex only heals living monsters */
+		if ((onlyliving) && (r_ptr->flags3 & (RF3_NON_LIVING))) continue;
 
 		/* don't bother if monster doesn't need healing */
 		/* (but stupid monsters will cast it even if no one needs healing) */
@@ -1956,7 +1995,7 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 		if (kinonly)
 		{
 			int kinkindt = 0;
-			if (r_ptr->flags3 & (RF3_HURT_DARK)) kinkindt = 4;
+			if (r_ptr->flags3 & (RF3_CLIGHT)) kinkindt = 4;
 			/* light fairies also heal non-evil animals with HEAL_KIN */
 			if ((!n_ptr->evil) && (r_ptr->flags3 & (RF3_ANIMAL))) kinkindt = 4;
 			/* centaurs also considered kin with light fairies */
@@ -1986,7 +2025,7 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 		/* Wake up (usually) */
 		if ((p_ptr->nice) && (!n_ptr->evil) &&
            (goodluck) && (randint(100) < 50) &&
-	       ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+	       ((r_ptr->flags3 & (RF3_CLIGHT)) ||
 	       (r_ptr->flags3 & (RF3_ANIMAL))))
 	    {
             /* don't wake up */
@@ -2035,6 +2074,173 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 }
 
 
+/*
+ * An "item_tester_hook" for grenade oil sources
+ */
+static bool item_tester_refill_lantern(const object_type *o_ptr)
+{
+	/* Get flags */
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	/* grenades use TV_FLASK also (normal flasks of oil only have PTHROW) */
+    if (f3 & TR3_THROWN) return (FALSE);
+
+	/* Flasks of oil are okay */
+	if (o_ptr->tval == TV_FLASK) return (TRUE);
+
+	/* ego lanerns are okay even if they're empty (allow everburning lanterns) */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN) && 
+		(ego_item_p(o_ptr))) return (TRUE);
+
+	/* other Non-empty lanterns are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    (o_ptr->timeout > 0))
+			return (TRUE);
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+
+/*
+ * Create a grenade (alchemy spell)
+ * Copied from wiz_create_item() and do_cmd_refill_lamp()
+ */
+bool craft_grenade(void)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+	object_type *o_ptr;
+
+	int k_idx;
+	int item, die, bonus;
+
+	cptr q, s;
+	
+	/* Restrict the choices */
+	item_tester_hook = item_tester_refill_lantern;
+
+	/* Get an item */
+	q = "Craft a grenade with which source of oil? ";
+	s = "You have no sources of oil.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* an ego lantern will make an ego grenade */
+	if (ego_item_p(o_ptr)) bonus = 200;
+	else bonus = 0;
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Determine quality of grenade to make */
+	die = p_ptr->lev + goodluck + randint(p_ptr->lev * 2 + goodluck + 40);
+
+	/* default */
+	k_idx = lookup_kind(TV_FLASK, SV_OIL_GRENADE);
+
+	/* junk grenade */
+	if (die < 50) k_idx = lookup_kind(TV_FLASK, SV_JUNK_GRENADE);
+
+	/* chance of an ego grenade (or combat bonuses) */
+	if ((die > 100) && (bonus < 100)) bonus = die - 100;
+
+	/* small chance of powerful grenade */
+	if (die > 175)
+	{
+		k_idx = lookup_kind(TV_FLASK, SV_FIREBOMB);
+		if (bonus < 200) bonus = bonus * 2 / 3;
+	}
+
+	/* Return if failed */
+	if (!k_idx)
+	{
+		msg_print("oops, someone's killed this spell in the code or object.txt.");
+		return FALSE;
+	}
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Create the item */
+	object_prep(i_ptr, k_idx);
+	
+	/* apply magic (manually) */
+
+	/* roll for ego grenade */
+	if (rand_int(100) < bonus - 10)
+	{
+		ego_item_type *e_ptr;
+		int dieb, maxdieb, nbonus = bonus; 
+		if (nbonus > 150) nbonus = 150;
+		maxdieb = 78 + goodluck*2 + nbonus/10 + p_ptr->lev/4;
+		if (maxdieb > 131) maxdieb = 111 + goodluck; /* maximum goodluck is 21 (vrare) */
+		dieb = rand_int(maxdieb);
+		if (dieb < 11) i_ptr->name2 = EGO_HURT_ANIMAL; /* 11 */
+		else if (dieb < 20) i_ptr->name2 = EGO_HURT_DEMON; /* 9 */
+		else if (dieb < 29) i_ptr->name2 = EGO_HURT_UNDEAD; /* 9 */
+		else if (dieb < 40) i_ptr->name2 = EGO_HURT_GIANT; /* 11 */
+		else if (dieb < 53) i_ptr->name2 = EGO_AMMO_VENOM; /* 12 */
+		else if (dieb < 66) i_ptr->name2 = EGO_XPLODE_PANIC; /* 13 */
+		else if (dieb < 80) i_ptr->name2 = EGO_XPLODE_ESCAPE; /* 14 */
+		else if (dieb < 94) i_ptr->name2 = EGO_XPLODE_DESTRUCT; /* 14 */
+		else if (dieb < 108) i_ptr->name2 = EGO_XPLODE_CHAOS; /* 14 */
+		else if (dieb < 120) i_ptr->name2 = EGO_AMMO_ELEC; /* 12 */
+		else /*if (dieb < 132)*/ i_ptr->name2 = EGO_AMMO_HOLY; /* 12 (vrare max) */
+
+		/* ego combat bonuses */
+		e_ptr = &e_info[i_ptr->name2];
+		i_ptr->to_h += randint(e_ptr->max_to_h);
+		i_ptr->to_d += randint(e_ptr->max_to_d);
+	}
+
+	/* give some combat bonuses */
+	if ((rand_int(20) < bonus + 2) || (rand_int(400) < goodluck) || (i_ptr->name2)) 
+	{
+		if ((rand_int(150 - p_ptr->lev) > goodluck + 5) || (i_ptr->name2))
+		{
+			if ((bonus > 105) && (i_ptr->name2)) bonus = randint(61) + 45;
+			else if (bonus > 120) bonus = randint(30) + 90;
+			else if (bonus > 90) bonus = 90;
+		
+			if (bonus > 105) bonus = 105;
+		}
+
+		i_ptr->to_h += randint(bonus/15) + randint(5);
+		i_ptr->to_d += randint(bonus/15) + randint(5);
+	}
+
+	/* place the object */
+	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+
+	return (TRUE);
+}
+
 
 /*
  * Create a treasure map for the tourist to find.
@@ -2053,14 +2259,8 @@ void treasure_map(void)
 
 	int k_idx;
 
-	/* Save screen */
-	screen_save();
-
 	/* Get object base type (tval 4, sval 2) */
 	k_idx = lookup_kind(TV_SPECIAL, SV_TREASURE);
-
-	/* Load screen */
-	screen_load();
 
 	/* Return if failed */
 	if (!k_idx) return;
@@ -2146,6 +2346,7 @@ void rxp_drain(int odd)
      /* sentient equipment can make exp drain kick in more or less often */
      if (goodweap > badweap) odd -= 10;
      else if (badweap > goodweap) odd -= 5;
+     else if ((badweap > 0) && (badweap == goodweap)) odd += 10;
 
      if ((randint(100) < odd + badluck - goodluck) && (p_ptr->exp > 0))
      {
@@ -2171,7 +2372,7 @@ void rxp_drain(int odd)
 /* drain charges caused by a curse */
 static void annoying_static(void)
 {
-	int k, i, rstatic = (goodluck+1)/3; /* static resistance */
+	int k, i, rstatic = (goodluck+1)/2; /* static resistance */
 	int drained = 0;
 	object_type *o_ptr;
 	char o_name[80];
@@ -2197,7 +2398,7 @@ static void annoying_static(void)
 
 			/* Drain charged wands/staves */
 			if (((o_ptr->tval == TV_STAFF) ||
-			    (o_ptr->tval == TV_WAND)) && (o_ptr->pval))
+			    (o_ptr->tval == TV_WAND)) && (o_ptr->charges))
 			{
 				if (p_ptr->resist_static) rstatic += (k+1)/2;
 
@@ -2214,14 +2415,14 @@ static void annoying_static(void)
 				}
 				else
 				{
-					drained = o_ptr->pval;
+					drained = o_ptr->charges;
 					if ((p_ptr->resist_static) && (randint(100) < 55))
 					{
 						drained -= p_ptr->resist_static;
 						if (drained < 1) drained = 1;
 					}
 						/* Uncharge */
-					o_ptr->pval -= drained;
+					o_ptr->charges -= drained;
 				}
 			}
 
@@ -2245,9 +2446,8 @@ static void annoying_static(void)
 void do_something_annoying(object_type *o_ptr)
 {
 	char o_name[80];
-	/* curse gets worse based on your max depth */
-	int die = ((p_ptr->max_depth+3)/4) + 
-		rand_int(60 + (p_ptr->max_depth/4) + badluck);
+	/* curse gets worse based on your max depth (was rand_int(60 + ...) ) */
+	int die = p_ptr->max_depth/4 + rand_int(56 + (p_ptr->max_depth+3)/4 + badluck);
 
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
@@ -2256,6 +2456,7 @@ void do_something_annoying(object_type *o_ptr)
 	{
 		msg_print("You suddenly get a crick in your neck.");
 		inc_timed(TMD_STUN, 4 + randint(4 + badluck/2));
+		if (disturb_minor) disturb(0, 0);
 	}
 	else if (die < 16)
 	{
@@ -2263,11 +2464,13 @@ void do_something_annoying(object_type *o_ptr)
 		take_hit(damroll(1, 6), "an annoying curse");
 		if ((!p_ptr->resist_charm) && (!p_ptr->peace))
 			inc_timed(TMD_FRENZY, 8 + randint(8 + badluck));
+		if (disturb_minor) disturb(0, 0);
 	}
 	else if (die < 20)
 	{
 		msg_print("You trip over a rock and cut yourself on a broken flask.");
 		inc_timed(TMD_CUT, 13 + randint(13 + badluck));
+		if (disturb_minor) disturb(0, 0);
 	}
 	else if (die < 25)
 	{
@@ -2286,39 +2489,51 @@ void do_something_annoying(object_type *o_ptr)
 		(void)clear_timed(TMD_SNIPER);
 		(void)clear_timed(TMD_HERO);
 		(void)clear_timed(TMD_SHERO);
+		(void)clear_timed(TMD_SANCTIFY);
+		(void)clear_timed(TMD_MDETECTION);
 		(void)clear_timed(TMD_CLEAR_MIND);
+		(void)clear_timed(TMD_LASTING_CURE);
+		inc_timed(TMD_FRENZY, 3 + randint(2 + badluck/2));
+		if (disturb_minor) disturb(0, 0);
 	}
-	else if (die < 33)
+	else if (die < 32) /* 4 */
+	{
+		/* shhh, don't let the PC know there's an imaginary monster summoned */
+		imaginary_friend(0);
+	}
+	else if (die < 37)
 	{
 		msg_format("Your %s curses you!", o_name);
 		inc_timed(TMD_CURSE, 80 + randint(80 + badluck));
+		if (disturb_minor) disturb(0, 0);
 	}
-	else if (die < 38)
+	else if (die < 43)
 	{
 		msg_format("Your %s makes you forget what you were doing.", o_name);
 		inc_timed(TMD_AMNESIA, 60 + randint(50 + badluck));
+		if (disturb_minor) disturb(0, 0);
 	}
-	else if (die < 44)
+	else if (die < 50)
 	{
-		msg_format("Your %s shouts 'Hello Sailor' loud enough rouse a sleeping behemoth!", o_name);
 		disturb(0, 0);
+		msg_format("Your %s shouts 'Hello Sailor' loud enough rouse a sleeping behemoth!", o_name);
 		aggravate_monsters(0);
 	}
-	else if (die < 47)
+	else if (die < 53) /* 3 */
 	{
 		int healmoo = damroll(4, 9);
 		if (p_ptr->depth >= 22) healmoo = healmoo * randint(p_ptr->depth/11);
         if (fire_spread(GF_OLD_HEAL, healmoo, 8))
 			msg_format("Your %s magically heals nearby monsters!", o_name);
 	}
-	else if (die < 60)
+	else if (die < 62) /* 9 */
 	{
 		int die2, fdep = p_ptr->depth;
 		if ((fdep < 10) && (p_ptr->max_depth > 14)) fdep = (p_ptr->max_depth*2)/3;
 		else if (fdep < 9) fdep = 9;
         die2 = fdep/3 + randint((fdep*2)/3 + badluck);
 		msg_format("Your %s summons a pest.", o_name);
-		disturb(0, 0);
+		disturb(1, 0);
 		if (die2 < 5) do_call_help(67); /* yellow worm mass */
 		else if (die2 < 7) do_call_help(46); /* garden gnome */
 		else if (die2 < 10) do_call_help(109); /* rabid rat */
@@ -2363,34 +2578,64 @@ void do_something_annoying(object_type *o_ptr)
 		else if (die2 < 100) do_call_help(637); /* undead beholder */
 		else do_call_help(822); /* pandemonium fiend */
 	}
-	else if (die < 64)
+	else if (die < 66) /* 4 */
 	{
 		msg_print("You suddenly get a nasty crick in your neck.");
-		inc_timed(TMD_STUN, 8 + randint(4 + badluck));
+		(void)clear_timed(TMD_SNIPER);
+		(void)clear_timed(TMD_CLEAR_MIND);
+		inc_timed(TMD_STUN, 8 + randint(6 + badluck));
+		if (disturb_minor) disturb(0, 0);
 	}
-	else if (die < 68)
+	else if (die < 70) /* 4 */
 	{
 		msg_format("Your %s plays a catchy tune, putting you in a good mood.", o_name);
 		inc_timed(TMD_CHARM, 40 + randint(40 + badluck));
+		if (disturb_minor) disturb(0, 0);
 	}
-#if addmorelater
-	else if (die < 71)
+	else if (die < 73) /* 3 */
 	{
+		disturb(0, 0);
+		/* spontaneously create a trap underneath you (prevents trap doors) */
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_INVIS);
+		pick_trap(p_ptr->py, p_ptr->px, TRUE);
+
+		/* ...and hit the trap */
+		hit_trap(p_ptr->py, p_ptr->px, TRUE);
 	}
-#endif
-	else if (die < 75) /* 75 */
+	else if (die < 76) /* 3 */
 	{
+		disturb(0, 0);
+		msg_format("Your %s grows a pair of tentacles and pokes you in the eyes.", o_name);
+		take_hit(damroll(1, 3), "an annoying curse");
+		if ((!p_ptr->resist_charm) && (!p_ptr->peace))
+			inc_timed(TMD_FRENZY, 9 + randint(9 + badluck));
+		if (!p_ptr->timed[TMD_SAFET_GOGGLES])
+			inc_timed(TMD_BLIND, 3 + randint(3 + badluck/3));
+	}
+	else if (die < 79) /* 3 */
+	{
+		int traprad = 2, chance = 10;
+		if (die > 77) traprad = 3;
+		if (die < 74) chance = 11; /* slightly less traps */
 		msg_format("Your %s creates some traps!", o_name);
 		disturb(0, 0);
-		fire_spread(GF_MAKE_TRAP, 10, 2);
+		/* for each grid within 2-3 spaces, it has a 1/3 chance to create a trap */
+		fire_spread(GF_MAKE_TRAP, chance, traprad);
 	}
-	else if (die < 80)
+	else if (die < 82) /* 3 */
 	{
-		msg_format("Your %s is hungry!", o_name);
 		disturb(0, 0);
+		msg_format("Your %s is hungry!", o_name);
 		annoying_static();
 	}
-	else /* if (die < 90) */
+	else if (die == 91) /* 1 */
+	{
+		disturb(0, 0);
+		msg_format("Your %s curses your armor!", o_name);
+		/* (less nasty version of curse armor effect) */
+		curse_armor(TRUE);
+	}
+	else if (die < 94) /* 11 */
 	{
 		msg_format("Your %s bites you!", o_name);
 		take_hit(damroll(2, 6), "an annoying curse");
@@ -2399,11 +2644,37 @@ void do_something_annoying(object_type *o_ptr)
 		if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			inc_timed(TMD_POISONED, randint(20) + 20 + badluck);
 		inc_timed(TMD_CUT, 13 + randint(13 + badluck));
+		if (disturb_minor) disturb(0, 0);
 	}
-#if addmorelater
-	else
+	else if (die == 103) /* 104 is maximum for maxdepth 99 not including bad luck */
 	{
+		disturb(0, 0);
+		msg_format("Your %s decides to be really nasty this time.", o_name);
+		msg_format("Your %s bites you and casts some spells at the same time!", o_name);
+		take_hit(damroll(2, 8), "an annoying curse");
+		if ((!p_ptr->resist_charm) && (!p_ptr->peace))
+			inc_timed(TMD_FRENZY, 33 + randint(33 + badluck));
+		if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+			inc_timed(TMD_POISONED, randint(20) + 20 + badluck);
+		inc_timed(TMD_CUT, 16 + randint(13 + badluck));
+		inc_timed(TMD_STUN, 12 + randint(6 + badluck));
+		if (!p_ptr->resist_chaos)
+			inc_timed(TMD_IMAGE, 29 + randint(31 + badluck));
+		if (!p_ptr->resist_charm)
+			inc_timed(TMD_CHARM, 29 + randint(31 + badluck));
+
+		/* spontaneously create a trap underneath you (prevents trap doors) */
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_INVIS);
+		pick_trap(p_ptr->py, p_ptr->px, TRUE);
+
+		/* ...and hit the trap */
+		hit_trap(p_ptr->py, p_ptr->px, FALSE);
 	}
-#endif
+	else /* 9 (if max is 104 (maxdepth99)) */
+	{
+		disturb(0, 0);
+		msg_format("Your %s injects something funky into your veins.", o_name);
+		inc_timed(TMD_IMAGE, 65 + badluck + randint(65 + badluck));
+	}
 }
 

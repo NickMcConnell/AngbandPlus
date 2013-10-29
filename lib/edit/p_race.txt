@@ -1,5 +1,5 @@
 # File: p_race.txt
-# for DaJAngband 1.2.2
+# for DaJAngband 1.3.0
 
 
 # This file is used to initialize the "lib/data/p_race.raw" file, which is
@@ -9,16 +9,13 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/p_race.raw" file.
 
-# Maia copied from OAngband (only slightly modified)
-# I'll probably remove it soon.
-
 # === Understanding p_race.txt ===
 
 # Format:
 # N:race number:race name
 # S:str:int:wis:dex:con:chr
 # R:dis:dev:sav:stl:srh:fos:thn:thb:tht
-# X:hitdie:expbase:alertness
+# X:hitdie:expbase:race size
 # I:history:agebase:agemod
 # H:hgtmale:modhgtmale:hgtfemale:modhgtfemale
 # W:wgtmale:modwgtmale:wgtfemale:modwgtfemale
@@ -32,7 +29,7 @@
 # dexterity, constitution, charisma.
 
 # 'R' is for the base skills - disarming, magic devices, saving throws,
-# stealth, searching ability, searching frequency, to hit (melee),
+# stealth, searching ability, alertness(fos), to hit (melee),
 # to hit (bows), to hit (thrown).
 
 # 'X' is for extra info - max. hitpoints gained per level, experience
@@ -60,7 +57,7 @@ V:3.0.10
 N:0:Human
 S:0:0:0:0:0:0
 R:0:0:1:0:2:10:0:0:1
-X:10:100:5
+X:10:100:4
 I:1:14:8
 H:72:6:66:4
 W:180:25:150:20
@@ -70,7 +67,7 @@ C:0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19
 N:1:Half-Elf
 S:0:1:0:1:-1:1
 R:1:3:1:1:4:11:-2:5:4
-X:10:110:10
+X:10:110:4
 I:4:24:16
 H:66:6:62:6
 W:130:15:100:10
@@ -80,7 +77,7 @@ C:0|1|2|3|4|6|7|9|11|12|13|14|15|16|19
 N:2:Elf
 S:-1:2:-1:2:-1:2
 R:4:7:6:2:8:13:-4:15:12
-X:9:120:14
+X:9:120:4
 I:5:75:75
 H:60:4:54:4
 W:100:6:80:6
@@ -92,8 +89,8 @@ C:0|1|2|3|4|6|7|9|13|14|15|16|19
 #(intrinsic ac because of size and agility?)
 N:3:Hobbit
 S:-2:2:1:3:3:1
-R:10:12:18:4:12:10:-10:12:22
-X:7:111:11
+R:10:12:17:4:12:10:-10:12:22
+X:7:111:3
 I:10:21:12
 H:36:3:33:3
 W:60:3:50:3
@@ -101,10 +98,10 @@ F:HOLD_LIFE | NICE
 C:3|4|6|8|9|10|13|14|15
 
 #magic gnome cannot be a paladin, priest, or white, grey, blue, or yellow knight
-N:4:Magic Gnome
+N:4:Magic_Gnome
 S:-1:2:0:2:1:-1
-R:9:16:12:3:9:8:-8:9:14
-X:8:125:8
+R:9:16:11:3:9:8:-8:9:14
+X:8:125:3
 I:13:50:40
 H:42:3:39:3
 W:90:6:75:3
@@ -113,20 +110,21 @@ C:1|2|3|4|6|7|9|10|13|14|16
 
 #dwarf cannot be a ranger, witch, stone slinger, or chaos warrior
 N:5:Dwarf
-S:2:-3:2:-2:2:-2
-R:4:5:9:-1:9:1:16:-2:5
-X:11:120:1
+S:2:-2:2:-2:2:-2
+R:3:5:9:-1:9:1:16:-3:5
+X:11:120:4
 I:16:35:15
 H:48:3:46:3
 W:150:10:120:10
 F:RES_BLIND | DARKVIS
 C:0|3|5|8|10|11|12|18|19
+# R:dis:dev:sav:stl:srh:fos:thn:thb:tht
 
 #half orc cannot be a healer, paladin, priest, sage, or white or yellow knight
 N:6:Half-Orc
 S:2:-1:-1:0:1:-4
 R:0:-3:-3:-1:1:6:10:2:-1
-X:10:110:6
+X:10:110:4
 I:19:11:6
 H:66:1:62:1
 W:150:5:120:5
@@ -137,7 +135,7 @@ C:0|2|3|4|6|11|12|13|14|18|19
 N:7:Half-Troll
 S:4:-4:-2:-4:3:-5
 R:-5:-8:-8:-2:0:3:20:-10:2
-X:12:120:3
+X:12:120:5
 I:21:20:10
 H:96:10:84:8
 W:250:50:225:40
@@ -148,7 +146,7 @@ C:0|3|5|8|11|12|18|19
 N:8:Dunadan
 S:1:2:2:2:3:2
 R:5:5:5:2:4:12:15:10:6
-X:10:175:12
+X:10:175:4
 I:1:45:25
 H:82:5:78:6
 W:190:20:180:15
@@ -159,8 +157,8 @@ C:0|1|3|4|5|6|8|9|11|12|13|15|16|18
 # stone slinger, or green knight
 N:9:High-Elf
 S:1:3:-1:3:1:5
-R:4:20:20:3:3:15:10:25:15
-X:10:190:15
+R:4:20:19:3:3:15:10:25:15
+X:10:190:4
 I:7:100:30
 H:90:10:82:10
 W:160:20:140:15
@@ -171,7 +169,7 @@ C:0|1|2|4|6|7|9|13|14|16
 N:10:Kobold
 S:-1:-1:0:2:2:-2
 R:15:4:0:4:16:12:-4:15:12
-X:8:114:12
+X:8:114:3
 I:23:15:10
 H:38:4:36:3
 W:70:5:60:4
@@ -191,10 +189,10 @@ C:3|6|7|9|13|14|15
 
 #fairy gnome cannot be a warrior, necromancer, assassin, witch,
 # chaos warrior, or any kind of knight
-N:12:Fairy Gnome
+N:12:Fairy_Gnome
 S:-2:1:4:2:0:1
-R:12:5:19:3:11:9:-5:4:4
-X:7:140:9
+R:12:5:18:3:11:9:-5:4:4
+X:7:140:3
 I:70:80:35
 H:33:4:31:4
 W:50:3:45:3
@@ -203,10 +201,10 @@ C:3|4|5|8|9|10|14
 
 #dark elf cannot be a paladin or tourist
 #maybe move to half-elf slot (replacing half-elf)
-N:13:Dark Elf
+N:13:Dark_Elf
 S:0:2:-2:2:-1:-2
-R:8:12:7:3:10:14:6:12:11
-X:9:125:13
+R:8:12:6:3:10:14:6:12:11
+X:9:125:4
 I:76:76:70
 H:63:4:59:4
 W:120:5:95:6
@@ -214,10 +212,10 @@ F:RES_DARK | SUST_DEX
 C:0|1|2|3|4|6|7|12|13|14|15|16|19
 
 #living ghoul cannot be a tourist, ninja, or white, blue, or yellow knight
-N:14:Living Ghoul
+N:14:Living_Ghoul
 S:0:0:2:0:-3:-3
-R:2:8:8:2:3:11:1:-3:2
-X:10:115:7
+R:2:8:9:2:3:11:1:-3:2
+X:10:115:4
 I:82:16:16
 H:71:5:66:3
 W:160:26:130:23
@@ -226,23 +224,22 @@ C:1|8|9
 
 #power sprite cannot be a wizard, necromancer, druid, alchemist, sage, or loser
 #to be removed to alt file
-N:15:Power Sprite
+N:15:Power_Sprite
 S:5:-3:-1:2:1:0
-R:-2:2:10:1:2:9:18:-4:11
-X:4:130:9
+R:-2:2:9:1:2:9:18:-4:11
+X:4:130:1
 I:88:23:120
 H:6:5:6:4
 W:9:6:9:5
 F:RES_LITE | FEATHER | RES_FEAR
 C:0|5|8|11|12|14|18|19
 
-#*replaced Maia
 # Golem race has no CON score and always a neutral luck rating (hardcoded by race #)
 # also no need for food and feather falling has no effect.
 N:16:Golem
 S:3:0:0:-2:0:-2
 R:1:-6:10:-1:0:15:5:-15:3
-X:20:155:6
+X:20:155:5
 I:90:2:3000
 H:80:20:80:20
 W:30:10:30:10 #x10
@@ -253,10 +250,10 @@ C:0|5|11|12|13|18
 # cannot be ranger, archer, or war mage, but may choose any other class now
 # ** warning: do not change this entry to another race, **
 # because several special hulk race effects are hard-coded by race index
-N:17:Umber Hulk
+N:17:Umber_Hulk
 S:5:-5:-4:0:2:-8
 R:-9:-10:13:-4:1:4:16:-15:8
-X:11:145:4
+X:11:145:6
 I:62:52:300
 H:96:10:84:8
 W:250:50:225:40

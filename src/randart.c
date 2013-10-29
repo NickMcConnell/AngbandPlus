@@ -462,7 +462,7 @@ static void choose_item(int a_idx)
 	 * bell curve are based on the target level; the distribution of
 	 * kinds versus the bell curve is hand-tweaked. :-(
 	 */
-	r = rand_int(100);
+	r = rand_int(104);
 
 	/* prevent high-powered artifacts becoming thrown weapons */
 	if ((r >= 9) && (r < 12) && (a_ptr->level > 45))
@@ -617,16 +617,15 @@ static void choose_item(int a_idx)
 		else if (r2 < 49) sval = SV_LEATHER_SCALE_MAIL;
 
 		/* Hard stuff. */
-		else if (r2 < 55) sval = SV_RUSTY_CHAIN_MAIL;
-		else if (r2 < 65) sval = SV_METAL_SCALE_MAIL;
-		else if (r2 < 77) sval = SV_CHAIN_MAIL;
-		else if (r2 < 87) sval = SV_AUGMENTED_CHAIN_MAIL;
-		else if (r2 < 97) sval = SV_BAR_CHAIN_MAIL;
-		else if (r2 < 105) sval = SV_METAL_BRIGANDINE_ARMOUR;
-		else if (r2 < 115) sval = SV_PARTIAL_PLATE_ARMOUR;
-		else if (r2 < 125) sval = SV_METAL_LAMELLAR_ARMOUR;
-		else if (r2 < 135) sval = SV_FULL_PLATE_ARMOUR;
-		else if (r2 < 140) sval = SV_RIBBED_PLATE_ARMOUR;
+		else if (r2 < 54) sval = SV_RUSTY_CHAIN_MAIL;
+		else if (r2 < 65) sval = SV_RING_MAIL;
+		else if (r2 < 77) sval = SV_METAL_SCALE_MAIL;
+		else if (r2 < 88) sval = SV_CHAIN_MAIL;
+		else if (r2 < 98) sval = SV_AUGMENTED_CHAIN_MAIL;
+		else if (r2 < 106) sval = SV_METAL_BRIGANDINE_ARMOUR;
+		else if (r2 < 117) sval = SV_PARTIAL_PLATE_ARMOUR;
+		else if (r2 < 128) sval = SV_METAL_LAMELLAR_ARMOUR;
+		else if (r2 < 140) sval = SV_FULL_PLATE_ARMOUR;
 		else if (r2 < 150) sval = SV_MITHRIL_CHAIN_MAIL;
 		else if (r2 < 170) sval = SV_MITHRIL_PLATE_MAIL;
 		else sval = SV_ADAMANTITE_PLATE_MAIL;
@@ -682,6 +681,20 @@ static void choose_item(int a_idx)
 		else if (r2 < 65) sval = SV_DRAGONSCALE_SHIELD;
 		else sval = SV_SHIELD_OF_DEFLECTION;
 	}
+	else if (r < 98)
+	{
+		/* Make a bone weapon. */
+		tval = TV_SKELETON;
+		r2 = Rand_normal(target_level * 2, target_level);
+		if (r2 < 15) sval = SV_ROTHE_TUSK;
+		else if (r2 < 25) sval = SV_SPIDER_FANG;
+		else if (r2 < 35) sval = SV_FIRE_TOOTH;
+		else if (r2 < 45) sval = SV_TAIL_SPIKE;
+		else if (r2 < 65) sval = SV_MUMAK_TUSK;
+		else if (r2 < 75) sval = SV_VASP_STING;
+		else if (r2 < 90) sval = SV_WYVERN_STING;
+		else sval = SV_MASTDN_TUSK;
+	}
 	else
 	{
 		/* Make a cloak. */
@@ -734,11 +747,28 @@ static void choose_item(int a_idx)
 		case TV_HAFTED:
 		case TV_SWORD:
 		case TV_POLEARM:
+		{
 			a_ptr->to_h += (s16b)(a_ptr->level / 10 + rand_int(4) +
 			                      rand_int(4));
 			a_ptr->to_d += (s16b)(a_ptr->level / 10 + rand_int(4));
 			a_ptr->to_d += (s16b)(rand_int((a_ptr->dd * a_ptr->ds) / 2 + 1));
+			/* main gauche should have ac bonus (at the cost of offensive bonuses) */
+			if (a_ptr->flags4 & TR4_WIELD_SHIELD)
+			{
+				int acba = 0, acbb = 0;
+				/* take something from to_d */
+				if (a_ptr->to_d > 3) acba = rand_int(a_ptr->to_d/3 + 2);
+				if (acba > 2) a_ptr->to_d -= (acba - rand_int((acba+1)/2));
+				else if (acba) a_ptr->to_d -= acba;
+				/* take something from to_h */
+				if (a_ptr->to_h > 3) acbb = rand_int(a_ptr->to_h/3 + 1);
+				if (acbb > 2) a_ptr->to_h -= (acbb - rand_int(acbb/2 + 1));
+				else if (acbb) a_ptr->to_h -= acbb;
+				
+				a_ptr->to_a += acba + acbb + rand_int(3);
+			}
 			break;
+		}
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_HELM:
@@ -882,25 +912,25 @@ static void add_ability(artifact_type *a_ptr)
 
 	/* thrown weapons can't be wielded which makes a lot of flags useless */
 	/* so this should always depend on item type for thrown weapons */
-	if (a_ptr->flags3 & TR3_THROWN) r = rand_int(5);
+	if (a_ptr->flags3 & TR3_THROWN) r = 1;
 	else r = rand_int(10);
+
+	/* fake tval */
+	ftval = a_ptr->tval;
+
+	/* If it has the THROWN flag, pretend it's a shot */
+	/* because THROWN flag makes it so you can't wield it */
+	/* also maybe add RTURN flag which is only for thrown weapons */
+	/* (most artifact thrown weapons should get RTURN) */
+    if (a_ptr->flags3 & TR3_THROWN)
+	{
+		ftval = 16;
+		if (randint(15) > 4) a_ptr->flags3 |= TR3_RTURN;
+	}
 
 	if (r < 5)		/* Pick something dependent on item type. */
 	{
 		r = rand_int(100);
-
-		/* fake tval */
-		ftval = a_ptr->tval;
-
-		/* If it has the THROWN flag, pretend it's a shot */
-		/* because THROWN flag makes it so you can't wield it */
-		/* also maybe add RTURN flag which is only for thrown weapons */
-		/* (most artifact thrown weapons should get RTURN) */
-	    if (a_ptr->flags3 & TR3_THROWN)
-        {
-           ftval = 16;
-           if (randint(15) > 4) a_ptr->flags3 |= TR3_RTURN;
-        }
 
 		switch (ftval)
 		{
@@ -1393,9 +1423,9 @@ static void add_ability(artifact_type *a_ptr)
                         if (rand_int(8) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
 						if (rand_int(8) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
 						if (rand_int(6) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
-						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
-						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
-						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_DRAGON;
+						if (rand_int(6) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
+						if (rand_int(6) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+						if (rand_int(6) == 0) a_ptr->flags1 |= TR1_SLAY_DRAGON;
 						if (rand_int(8) == 0) a_ptr->flags2 |= TR2_SLAY_ANIMAL;
 						if (rand_int(16) == 0) a_ptr->flags1 |= TR1_SLAY_SILVER;
 						if (rand_int(16) == 0) a_ptr->flags1 |= TR1_SLAY_LITE;
@@ -1671,7 +1701,7 @@ this does not work
 		/* artifact torches & lanterns only sometimes get NO_FUEL */
 		if ((a_ptr->sval == SV_LITE_TORCH) || (a_ptr->sval == SV_LITE_LANTERN))
 		{
-			if (randint(100) < 20) a_ptr->flags3 |= TR3_NO_FUEL;
+			if (randint(100) < 22) a_ptr->flags3 |= TR3_NO_FUEL;
 		}
 		/* special artifact lights do always get NO_FUEL */
 		else a_ptr->flags3 |= TR3_NO_FUEL;

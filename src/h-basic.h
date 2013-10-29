@@ -151,7 +151,6 @@
 #endif
 
 
-
 /*** Define the basic game types ***/
 
 /*

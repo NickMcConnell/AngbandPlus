@@ -411,7 +411,7 @@ static const tval_desc tvals[] =
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
+	{ TV_FLASK,             "Flask/grenade"        },
 	{ TV_SPECIAL,           "Class Special"        },
 	{ TV_SKELETON,          "Skeletons"            },
 	{ TV_BOTTLE,            "Empty bottle"         },
@@ -635,7 +635,9 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 's' || ch == 'S')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
+			uniqdrop = 3;
 			apply_magic(i_ptr, p_ptr->depth, TRUE, TRUE, TRUE);
+			uniqdrop = 0;
 		}
 	}
 	
@@ -886,7 +888,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 		/* Adjust charge for rods */
 		if (o_ptr->tval == TV_ROD)
 		{
-			o_ptr->pval = (o_ptr->pval / o_ptr->number) * tmp_int;
+			o_ptr->charges = (o_ptr->charges / o_ptr->number) * tmp_int;
 		}
 
 		/* Accept modifications */
@@ -1215,7 +1217,7 @@ static void do_cmd_wiz_cure_all(void)
 /*
  * Go to any level
  */
-static void do_cmd_wiz_jump(void)
+void do_cmd_wiz_jump(bool limited)
 {
 	/* Ask for level */
 	if (p_ptr->command_arg <= 0)
@@ -1225,7 +1227,11 @@ static void do_cmd_wiz_jump(void)
 		char tmp_val[160];
 
 		/* Prompt */
-		strnfmt(ppp, sizeof(ppp), "Jump to level (0-%d): ", MAX_DEPTH-1);
+		if ((limited) && (p_ptr->max_depth < 99))
+			strnfmt(ppp, sizeof(ppp), "Jump to level (0-%d): ", p_ptr->max_depth + 1);
+		else if (limited)
+			strnfmt(ppp, sizeof(ppp), "Jump to level (0-%d): ", p_ptr->max_depth);
+		else strnfmt(ppp, sizeof(ppp), "Jump to level (0-%d): ", MAX_DEPTH-1);
 
 		/* Default */
 		strnfmt(tmp_val, sizeof(tmp_val), "%d", p_ptr->depth);
@@ -1242,6 +1248,15 @@ static void do_cmd_wiz_jump(void)
 
 	/* Paranoia */
 	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
+
+	/* teleporter box limits */
+	if (limited)
+	{
+		if (p_ptr->command_arg == p_ptr->depth) return; /* no alter reality */
+		else if ((p_ptr->command_arg > p_ptr->max_depth) && (p_ptr->max_depth < 99)) 
+			p_ptr->command_arg = p_ptr->depth + 1;
+		else if (p_ptr->command_arg > p_ptr->max_depth) p_ptr->command_arg = p_ptr->depth - 1;
+	}
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
@@ -1361,10 +1376,18 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	int px = p_ptr->px;
 
 	int i, x, y;
+	monster_race *r_ptr;
 
 	/* Paranoia */
 	if (!r_idx) return;
 	if (r_idx >= z_info->r_max-1) return;
+
+	/* maximum population */
+	r_ptr = &r_info[r_idx];
+	if ((r_ptr->curpop + r_ptr->cur_num >= r_ptr->maxpop) && (r_ptr->maxpop))
+	{
+		if (!get_check("exceed racial monster population per game? ")) return;
+	}
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1669,7 +1692,7 @@ void do_cmd_debug(void)
 		/* Go up or down in the dungeon */
 		case 'j':
 		{
-			do_cmd_wiz_jump();
+			do_cmd_wiz_jump(FALSE);
 			break;
 		}
 

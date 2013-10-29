@@ -832,9 +832,12 @@ static void prt_confused(int row, int col, bool subw)
 		text = "Amnesiac";
 	else if (p_ptr->timed[TMD_CLEAR_MIND])
 		text = "Clr mind";
+	else if (p_ptr->timed[TMD_LASTING_CURE])
+		text = "RconfRbl";
 
 
-	if (p_ptr->timed[TMD_CLEAR_MIND]) c_put_str(TERM_L_GREEN, text, row, col);
+	if ((p_ptr->timed[TMD_CLEAR_MIND]) || (p_ptr->timed[TMD_LASTING_CURE]))
+		c_put_str(TERM_L_GREEN, text, row, col);
 	else c_put_str(TERM_ORANGE, text, row, col);
 }
 
@@ -1903,9 +1906,9 @@ static void calc_torch(void)
 			int flag_inc = (f3 & TR3_LITE) ? 1 : 0;
 
 			/* most artifact lights provide permanent bright light */
-			/* if ((artifact_p(o_ptr)) && (f3 & TR3_NO_FUEL)) */
-			/* almost all artifact lights get NO_FUEL, Everburning ego also has NO_FUEL */
-			if (f3 & TR3_NO_FUEL) amt = 3 + flag_inc;
+			if ((artifact_p(o_ptr)) && (f3 & TR3_NO_FUEL)) amt = 3 + flag_inc;
+			/* Everburning ego also has NO_FUEL */
+			else if (f3 & TR3_NO_FUEL) amt = 2 + flag_inc;
 
 			/* lights which need fuel and don't have any provide no light */
 			else if (!burn_light || o_ptr->timeout == 0)
@@ -1916,7 +1919,7 @@ static void calc_torch(void)
 			{
 				amt = 2 + flag_inc;
 
-				/* Torches below 1500 fuel provide less light */
+				/* Torches below 1500 fuel provide less light- now 1440 (4 hrs) */
 				if (o_ptr->sval == SV_LITE_TORCH && o_ptr->timeout < (FUEL_TORCH / 4))
 				    amt--;
 				
@@ -2480,14 +2483,19 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Scan the quiver */
 	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
 	{
+		u32b f1, f2, f3, f4;
 		/* Get the object */
 		o_ptr = &inventory[i];
 
 		/* Ignore empty objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* check for PTHROW */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 		/* Found cursed ammo */
-		if (cursed_p(o_ptr))
+		/* (weapons which aren't primarily meant for throwing don't curse the quiver) */
+		if ((cursed_p(o_ptr)) && (!(f3 & (TR3_PTHROW))))
 		{
 			/* Remember it */
 			p_ptr->cursed_quiver = TRUE;
@@ -2647,7 +2655,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* much less effect than magic mastery in the area of devices */
 	if (p_ptr->timed[TMD_BRAIL])
 	{
-		p_ptr->skills[SKILL_DEV] += 5;
+		if (!p_ptr->msp) p_ptr->skills[SKILL_DEV] += 12;
+		else p_ptr->skills[SKILL_DEV] += 5;
     }
 
     /* timed skill boost */
@@ -2680,6 +2689,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	   p_ptr->to_a += 1;
 	   p_ptr->dis_to_a += 1;
 	   p_ptr->darkvis = TRUE;
+	}
+
+	/* temporary teleport control */
+	if (p_ptr->timed[TMD_TELECONTROL])
+	{
+		p_ptr->telecontrol = TRUE;
 	}
 
 	/* being held by a monster makes it hard to do a lot of things */
@@ -2833,6 +2848,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	}
 
 	/* water slows you down */
+	/* (monster_swap now calls this function whenever you move in or out of water) */
 	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
 	{
 		p_ptr->pspeed -= 2;
@@ -2853,6 +2869,22 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (p_ptr->timed[TMD_ADJUST])
 	{
 		p_ptr->pspeed += p_ptr->spadjust;
+	}
+
+	/* thieves' Emergency escape shield */
+	if (p_ptr->timed[TMD_EMERGENCY_ESCAPE])
+	{
+		p_ptr->pspeed += 5;
+	}
+
+	/* current only used if you violate the emergency escape shield */
+	/* may be used for other things later */
+	if (p_ptr->timed[TMD_FATIGUE])
+	{
+		if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->pspeed -= 5;
+		p_ptr->to_a -= 4;
+		p_ptr->dis_to_a -= 4;
+		p_ptr->skills[SKILL_SAV] = (p_ptr->skills[SKILL_SAV] * 4) / 5;
 	}
 
 	/* Temporary see invisible */
@@ -2911,6 +2943,29 @@ void calc_bonuses(object_type inventory[], bool killmess)
         p_ptr->resist_confu = TRUE;
         /* hallucenation wears off faster */
         if (randint(100) < 17) (void)dec_timed(TMD_IMAGE, randint(2 + goodluck/3));
+	}
+
+	/* safety goggles: This spell protects from blindness only from light and eye-poking. 
+	 * It also raises your armor class (or saving throw) against gaze attacks
+	 * (which include mind blasting, brain smashing, and the ranged paralysis
+	 * monster spell as well as melee gaze attacks)  (most effects elsewhere) */
+	if (p_ptr->timed[TMD_SAFET_GOGGLES])
+	{
+		p_ptr->resist_lite = TRUE;
+	}
+
+	if (p_ptr->timed[TMD_SUSTAIN_HEALTH])
+	{
+		p_ptr->resist_slime = TRUE;
+		p_ptr->sustain_con = TRUE;
+		p_ptr->sustain_dex = TRUE;
+	}
+
+	/* new additional effect of staff/rod of curing */
+	if (p_ptr->timed[TMD_LASTING_CURE])
+	{
+        p_ptr->resist_confu = TRUE;
+        p_ptr->resist_blind = TRUE;
 	}
 	
 	/* timed partial poison resistance */
@@ -3036,8 +3091,18 @@ void calc_bonuses(object_type inventory[], bool killmess)
     }
 
 	/*** Special flags ***/
-	
+
     /* thieves' extra speed */
+#ifdef thief 
+	/* speed bonus moved elsewhere, no longer applies to all actions.
+	 * Things a thief does faster than other classes:
+	 * move (into an empty space -no rubble)
+	 * close or open doors (only if door is unlocked & unjammed)
+	 * drop things
+	 * zap wands & rods (usually)
+	 * pick things up
+     */
+#else
 	if (cp_ptr->flags & CF_CLASS_SPEED)
 	{
         p_ptr->pspeed += 2;
@@ -3048,6 +3113,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Extra speed at level 40 */
 		if (p_ptr->lev >= 40) p_ptr->pspeed += 1;
 	}
+#endif
 
     /* Assassin gets extra stealth at L26 */
 	if (cp_ptr->flags & CF_ASSASSIN)
@@ -3222,7 +3288,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* quieter when you are searching and moving slowly */
 	if (p_ptr->searching) p_ptr->skills[SKILL_STL] += 1;
 	/* Tourist's stealth by charisma (base class stealth 0) */
-	if (cp_ptr->flags & CF_ALTERNATE_XP)
+	if ((cp_ptr->flags & CF_ALTERNATE_XP) && (!(cp_ptr->flags & CF_CLASS_SPEED)))
 	{
 		/* > 18/129 CHR */
 		if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] > 47) p_ptr->skills[SKILL_STL] += 3; 
@@ -3234,6 +3300,9 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		else if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] < 6) p_ptr->skills[SKILL_STL] -= 2; 
 		/* < 14 CHR */
 		else if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] < 14) p_ptr->skills[SKILL_STL] -= 1; 
+
+		/* also (minor) luck bonus to saving throw- their class saving throw is very low  */
+		if (goodluck) p_ptr->skills[SKILL_SAV] += goodluck/3;
 	}
 
 	/* Affect Skill -- stealth (Level, by Class) */
@@ -3266,6 +3335,10 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/* Affect Skill -- saving throw (Level, by Class) */
 	p_ptr->skills[SKILL_SAV] += (cp_ptr->x_sav * p_ptr->lev / 10);
+	/* maximum saving throw -I don't think a "perfect" save should be possible */
+	if ((p_ptr->lev < 40) && (p_ptr->skills[SKILL_SAV] > 100)) p_ptr->skills[SKILL_SAV] = 100;
+	/* 110 should at least save 100% against everything that doesn't have the powerful flag */
+	else if (p_ptr->skills[SKILL_SAV] > 110) p_ptr->skills[SKILL_SAV] = 110;
 
 	/* Affect Skill -- search ability (Level, by Class) */
 	p_ptr->skills[SKILL_SRH] += (cp_ptr->x_srh * p_ptr->lev / 10);
@@ -3329,6 +3402,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->num_fire = 1;
 
 		/* Analyze the launcher */
+		/* extra might adds to bow_range as well as ammo_mult */
 		switch (o_ptr->sval)
 		{
 			/* Sling and ammo */
@@ -3336,6 +3410,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_SHOT;
 				p_ptr->ammo_mult = 2;
+				p_ptr->bow_range = 16;
 				break;
 			}
 			
@@ -3343,6 +3418,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_SHOT;
 				p_ptr->ammo_mult = 3;
+				p_ptr->bow_range = 19;
 				break;
 			}
 
@@ -3351,6 +3427,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_ARROW;
 				p_ptr->ammo_mult = 2;
+				p_ptr->bow_range = 17;
 				break;
 			}
 			
@@ -3359,6 +3436,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_ARROW;
 				p_ptr->ammo_mult = 3;
+				p_ptr->bow_range = 20;
 				break;
 			}
 			
@@ -3366,6 +3444,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_ARROW;
 				p_ptr->ammo_mult = 4;
+				p_ptr->bow_range = 21;
 				break;
 			}
 
@@ -3374,6 +3453,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_BOLT;
 				p_ptr->ammo_mult = 3;
+				p_ptr->bow_range = 18;
 				break;
 			}
 			
@@ -3381,6 +3461,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_BOLT;
 				p_ptr->ammo_mult = 2;
+				p_ptr->bow_range = 16;
 				break;
 			}
 
@@ -3389,43 +3470,44 @@ void calc_bonuses(object_type inventory[], bool killmess)
 			{
 				p_ptr->ammo_tval = TV_BOLT;
 				p_ptr->ammo_mult = 4;
+				p_ptr->bow_range = 20;
 				break;
 			}
 		}
 
-	/* certain classes are better at using certain types of weapons */
-    if ((p_ptr->pclass == 4) && (p_ptr->ammo_tval == TV_ARROW))
-    { /* rangers don't get extra shots but still good with bows */
-	      p_ptr->skills[SKILL_THB] += 5;
-    }
-    if ((p_ptr->pclass == 6) && ((p_ptr->ammo_tval == TV_BOLT) || (p_ptr->ammo_tval == TV_SHOT)))
-    { /* archers not as good with slings or crossbows */
-	      p_ptr->skills[SKILL_THB] -= 5;
-    }
-    if (((p_ptr->pclass == 5) || (p_ptr->pclass == 13) || (p_ptr->prace == 13)) && (p_ptr->ammo_tval == TV_SHOT))
-    { /* paladins and assassin don't like slings (and dark elves) */
-	      p_ptr->skills[SKILL_THB] -= 2;
-    }
-    if (((p_ptr->pclass == 8) || (p_ptr->pclass == 10)) && (p_ptr->ammo_tval == TV_SHOT))
-    { /* sling kindof is a priestly weapon (and druids) */
-	      p_ptr->skills[SKILL_THB] += 2;
-    }
-    if (((p_ptr->pclass == 18) || (p_ptr->prace == 3) || (p_ptr->prace == 14)) && (p_ptr->ammo_tval == TV_SHOT))
-    { /* barbarians and hobbits like slings (and living ghouls) */
-	      p_ptr->skills[SKILL_THB] += 4;
-    }
-    if ((p_ptr->pclass == 13) && (p_ptr->ammo_tval == TV_BOLT))
-    { /* assassins like crossbows */
-	      p_ptr->skills[SKILL_THB] += 2;
-    }
-    if (((p_ptr->prace == 9) || (p_ptr->prace == 12) || (p_ptr->pclass == 18)) && (p_ptr->ammo_tval == TV_BOLT))
-    { /* barbarians, high elves and fairies don't */
-	      p_ptr->skills[SKILL_THB] -= 2;
-    }
-    if ((p_ptr->prace == 17) && (p_ptr->ammo_tval == TV_ARROW))
-    { /* umber hulks don't use bows */
-	      p_ptr->skills[SKILL_THB] -= 10;
-    }
+		/* certain classes are better at using certain types of weapons */
+		if ((p_ptr->pclass == 4) && (p_ptr->ammo_tval == TV_ARROW))
+		{ /* rangers don't get extra shots but still good with bows */
+			p_ptr->skills[SKILL_THB] += 5;
+		}
+		if ((p_ptr->pclass == 6) && ((p_ptr->ammo_tval == TV_BOLT) || (p_ptr->ammo_tval == TV_SHOT)))
+		{ /* archers not as good with slings or crossbows */
+			p_ptr->skills[SKILL_THB] -= 5;
+		}
+		if (((p_ptr->pclass == 5) || (p_ptr->pclass == 13) || (p_ptr->prace == 13)) && (p_ptr->ammo_tval == TV_SHOT))
+		{ /* paladins and assassin don't like slings (and dark elves) */
+			p_ptr->skills[SKILL_THB] -= 2;
+		}
+		if (((p_ptr->pclass == 8) || (p_ptr->pclass == 10)) && (p_ptr->ammo_tval == TV_SHOT))
+		{ /* sling kindof is a priestly weapon (and druids) */
+			p_ptr->skills[SKILL_THB] += 2;
+		}
+		if (((p_ptr->pclass == 18) || (p_ptr->prace == 3) || (p_ptr->prace == 14)) && (p_ptr->ammo_tval == TV_SHOT))
+		{ /* barbarians and hobbits like slings (and living ghouls) */
+			p_ptr->skills[SKILL_THB] += 4;
+		}
+		if ((p_ptr->pclass == 13) && (p_ptr->ammo_tval == TV_BOLT))
+		{ /* assassins like crossbows */
+			p_ptr->skills[SKILL_THB] += 2;
+		}
+		if (((p_ptr->prace == 9) || (p_ptr->prace == 12) || (p_ptr->pclass == 18)) && (p_ptr->ammo_tval == TV_BOLT))
+		{ /* barbarians, high elves and fairies don't */
+			p_ptr->skills[SKILL_THB] -= 2;
+		}
+		if ((p_ptr->prace == 17) && (p_ptr->ammo_tval == TV_ARROW))
+		{ /* umber hulks don't use bows */
+			p_ptr->skills[SKILL_THB] -= 10;
+		}
 
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
@@ -3435,6 +3517,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
+			p_ptr->bow_range += extra_might;
 
 			/* Hack -- Archers love Bows */
 			if ((cp_ptr->flags & CF_EXTRA_SHOT) &&

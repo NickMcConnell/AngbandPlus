@@ -559,13 +559,9 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
-
 	bool sin = FALSE;
-
 	int n;
-
 	cptr p;
-
 	int msex = 0;
 
 
@@ -755,6 +751,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_FIRE:      q = "burn"; break;
 			case RBE_COLD:      q = "freeze"; break;
 			case RBE_BLIND:     q = "blind"; break;
+			case RBE_SBLIND:    q = "poke your eyes (blind)"; break;
 			case RBE_CONFUSE:   q = "confuse"; break;
 			case RBE_XCONF:     q = "powerfully confuse"; break;
 			case RBE_TERRIFY:   q = "terrify"; break;
@@ -864,6 +861,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	int n, vn, stl;
 	cptr vp[64];
+	int drastic[64];
 	int msex = 0;
 
 	/* Extract a gender (if applicable) */
@@ -976,12 +974,55 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Collect susceptibilities */
 	vn = 0;
-	if (l_ptr->flags3 & RF3_HURT_ROCK) vp[vn++] = "rock remover";
-	if (l_ptr->flags3 & RF3_HURT_LITE) vp[vn++] = "bright light";
-	if (l_ptr->flags3 & RF3_HURT_DARK) vp[vn++] = "magical darkness";
-	if (l_ptr->flags3 & RF3_HURT_SILV) vp[vn++] = "silver";
-	if (l_ptr->flags3 & RF3_HURT_FIRE) vp[vn++] = "fire";
-	if (l_ptr->flags3 & RF3_HURT_COLD) vp[vn++] = "cold";
+	if (l_ptr->flags3 & RF3_HURT_ROCK)
+	{
+		vp[vn++] = "rock remover";
+	}
+	if ((l_ptr->know_MRlite) && (r_ptr->Rlite < 0)) 
+	{
+		drastic[vn] = r_ptr->Rlite;
+		vp[vn++] = "bright light";
+	}
+	if ((l_ptr->know_MRdark) &&	(r_ptr->Rdark < 0)) 
+	{
+		drastic[vn] = r_ptr->Rdark;
+		vp[vn++] = "magical darkness";
+	}
+	if ((l_ptr->know_MRsilv) &&	(r_ptr->Rsilver < 0)) 
+	{
+		drastic[vn] = r_ptr->Rsilver;
+		vp[vn++] = "silver";
+	}
+	if ((l_ptr->know_MRfire) &&	(r_ptr->Rfire < 0)) 
+	{
+		drastic[vn] = r_ptr->Rfire;
+		vp[vn++] = "fire";
+	}
+	if ((l_ptr->know_MRcold) &&	(r_ptr->Rcold < 0)) 
+	{
+		drastic[vn] = r_ptr->Rcold;
+		vp[vn++] = "cold";
+	}
+	if ((l_ptr->know_MRelec) &&	(r_ptr->Relec < 0)) 
+	{
+		drastic[vn] = r_ptr->Relec;
+		vp[vn++] = "electricity";
+	}
+	if ((l_ptr->know_MRacid) &&	(r_ptr->Racid < 0)) 
+	{
+		drastic[vn] = r_ptr->Racid;
+		vp[vn++] = "acid";
+	}
+	if ((l_ptr->know_MRpois) &&	(r_ptr->Rpois < 0)) 
+	{
+		drastic[vn] = r_ptr->Rpois;
+		vp[vn++] = "poison";
+	}
+	if ((l_ptr->know_MRwatr) &&	(r_ptr->Rwater < 0))
+	{
+		drastic[vn] = r_ptr->Rwater;
+		vp[vn++] = "water";
+	}
 
 	/* Describe susceptibilities */
 	if (vn)
@@ -995,10 +1036,14 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 			/* Intro */
 			if (n == 0) text_out(" is hurt by ");
 			else if (n < vn-1) text_out(", ");
-			else text_out(" and ");
+			else text_out(", and ");
 
 			/* Dump */
 			text_out_c(TERM_YELLOW, vp[n]);
+			
+			if (drastic[n] == -1) text_out(" (a little)");
+			if (drastic[n] == -2) text_out(" (moderately)");
+			if (drastic[n] == -3) text_out(" (a lot)");
 		}
 
 		/* End */
@@ -1006,18 +1051,58 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	}
 
 
-	/* Collect immunities and resistances */
+	/* Collect immunities and resistances (needswork) */
 	vn = 0;
-	if (l_ptr->flags3 & RF3_IM_ACID) vp[vn++] = "acid";
-	if (l_ptr->flags3 & RF3_IM_ELEC) vp[vn++] = "lightning";
-	if (l_ptr->flags3 & RF3_IM_FIRE) vp[vn++] = "fire";
-	if (l_ptr->flags3 & RF3_IM_COLD) vp[vn++] = "cold";
-	if (l_ptr->flags3 & RF3_IM_POIS) vp[vn++] = "poison";
-	if (l_ptr->flags3 & RF3_IM_WATER) vp[vn++] = "water";
-	if (l_ptr->flags3 & RF3_RES_NETH)  vp[vn++] = "nether";
-	if (l_ptr->flags3 & RF3_RES_PLAS)  vp[vn++] = "plasma";
-	if (l_ptr->flags3 & RF3_RES_NEXUS) vp[vn++] = "nexus";
-	if (l_ptr->flags3 & RF3_RES_DISE)  vp[vn++] = "disenchantment";
+	if ((l_ptr->know_MRacid) &&	(r_ptr->Racid > 0))
+	{
+		drastic[vn] = r_ptr->Racid;
+		vp[vn++] = "acid";
+	}
+	if ((l_ptr->know_MRelec) &&	(r_ptr->Relec > 0))
+	{
+		drastic[vn] = r_ptr->Relec;
+		vp[vn++] = "lightning";
+	}
+	if ((l_ptr->know_MRfire) &&	(r_ptr->Rfire > 0))
+	{
+		drastic[vn] = r_ptr->Rfire;
+		vp[vn++] = "fire";
+	}
+	if ((l_ptr->know_MRcold) &&	(r_ptr->Rcold > 0))
+	{
+		drastic[vn] = r_ptr->Rcold;
+		vp[vn++] = "cold";
+	}
+	if ((l_ptr->know_MRpois) &&	(r_ptr->Rpois > 0))
+	{
+		drastic[vn] = r_ptr->Rpois;
+		vp[vn++] = "poison";
+	}
+	if ((l_ptr->know_MRwatr) &&	(r_ptr->Rwater > 0))
+	{
+		drastic[vn] = r_ptr->Rwater;
+		vp[vn++] = "water";
+	}
+	if (l_ptr->flags3 & RF3_RES_NETH)
+	{
+		drastic[vn] = 2;
+		vp[vn++] = "nether";
+	}
+	if ((l_ptr->know_MRnexu) &&	(r_ptr->Rnexus > 0))
+	{
+		drastic[vn] = r_ptr->Rnexus;
+		vp[vn++] = "nexus";
+	}
+	if ((l_ptr->know_MRdise) &&	(r_ptr->Rdisen > 0))
+	{
+		drastic[vn] = r_ptr->Rdisen;
+		vp[vn++] = "disenchantment";
+	}
+	if ((l_ptr->know_MRmisl) &&	(r_ptr->Rmissile > 0))
+	{
+		drastic[vn] = r_ptr->Rmissile;
+		vp[vn++] = "projectiles";
+	}
 
 	/* Describe immunities and resistances */
 	if (vn)
@@ -1031,10 +1116,14 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 			/* Intro */
 			if (n == 0) text_out(" resists ");
 			else if (n < vn-1) text_out(", ");
-			else text_out(" and ");
+			else text_out(", and ");
 
 			/* Dump */
 			text_out_c(TERM_ORANGE, vp[n]);
+			
+			if (drastic[n] == 1) text_out(" (slightly)");
+			if (drastic[n] == 2) text_out(" (moderately)");
+			if (drastic[n] == 3) text_out(" (immune)");
 		}
 
 		/* End */
@@ -1320,7 +1409,7 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 			return;
 		}
 		/* Introduction */
-		if (l_ptr->flags1 & RF1_UNIQUE)
+		if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->maxpop == 1))
 			text_out("Killing");
 		else
 			text_out("A kill of");
@@ -1387,9 +1476,9 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	if ((r_ptr->flags3 & RF3_EVIL) && (!(l_ptr->flags3 & RF3_EVIL))) evilflag = TRUE;
 	if ((r_ptr->flags2 & RF2_STUPID) && (knowevil == 3)) knowevil = 0;
 
-	/* changed from cheat_know to cheat_hear because cheat_know is no */
-	/* longer considered cheating. So monster-related stuff which is */
-	/* considered cheating (or testing) should use cheat_hear. */
+	/* changed from cheat_know to cheat_hear because cheat_know (know_races) */
+	/* is no longer considered cheating. So monster-related stuff which */
+	/* is considered cheating (or testing) should use cheat_hear. */
     if ((cheat_hear) && (m_ptr))
 	{
 		int rmspeed;
@@ -1404,6 +1493,23 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 		else if (rmspeed < 0)
 			text_out(format("This monster is %d point slower than average for its race.  ", ABS(rmspeed)));
 		else text_out("This monster is average speed for its race.  ");
+
+#if nolongerneeded
+		/* (attempting to test pathfinding) */
+		if ((m_ptr->headtoy) && (m_ptr->headtox))
+		{
+			bool atpc = FALSE;
+			text_out(format("This monster's grid location is %d, %d. ", m_ptr->fy, m_ptr->fx));
+			text_out(format("This monster's get_moves destination is %d, %d", m_ptr->headtoy, m_ptr->headtox));
+			if ((m_ptr->headtoy == p_ptr->py) && (m_ptr->headtox == p_ptr->px))
+				{ text_out(" (the PC's location)"); atpc = TRUE; }
+			else if (cave_feat[m_ptr->headtoy][m_ptr->headtox] == FEAT_WATER)
+				text_out(" (a water-filled grid)");
+			else if (m_ptr->roaming) text_out(" (roaming destination)");
+			text_out(". ");
+			if (!atpc) text_out(format("The PC's grid location is %d, %d. ", p_ptr->py, p_ptr->px));
+		}
+#endif
 	}
 
     /* most of this description is irrevelent for NONMONSTERs */
@@ -1439,6 +1545,15 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 
 	text_out("This");
 
+	if (r_ptr->mrsize == 1) text_out(" diminutive");
+	else if (r_ptr->mrsize == 2) text_out(" tiny");
+	else if (r_ptr->mrsize == 3) text_out(" small");
+	else if (r_ptr->mrsize == 4) text_out(" human-sized");
+	else if (r_ptr->mrsize == 5) text_out(" large");
+	else if (r_ptr->mrsize == 6) text_out(" very large");
+	else if (r_ptr->mrsize == 7) text_out(" huge");
+	else if (r_ptr->mrsize == 8) text_out(" gigantic");
+
 	if ((l_ptr->flags3 & RF3_EVIL) && (r_ptr->flags1 & RF1_UNIQUE)) 
 		text_out_c(TERM_L_BLUE, " evil");
 	else if (l_ptr->flags3 & RF3_EVIL) text_out_c(TERM_L_BLUE, " inherently evil");
@@ -1455,8 +1570,9 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	else if (l_ptr->flags3 & RF3_BUG) text_out_c(TERM_L_BLUE, " bug");
 	else if (l_ptr->flags3 & RF3_ORC) text_out_c(TERM_L_BLUE, " orc");
 	else if (l_ptr->flags3 & RF3_ANIMAL) text_out_c(TERM_L_BLUE, " animal");
-	/* "y" light fairy: special case */
-	else if ((l_ptr->flags3 & RF3_HURT_DARK) && (strchr("y", r_ptr->d_char))) text_out_c(TERM_L_BLUE, " light fairy");
+	/* light fairy: special case */
+	else if ((r_ptr->flags3 & (RF3_FEY)) && (l_ptr->flags3 & (RF3_CLIGHT))) text_out_c(TERM_L_BLUE, " light fairy");
+	else if (l_ptr->flags3 & (RF3_CLIGHT)) text_out_c(TERM_L_BLUE, " creature of light");
 	else if (l_ptr->flags3 & RF3_DRAGON) text_out_c(TERM_L_BLUE, " dragon");
 	else if (l_ptr->flags3 & RF3_UNDEAD) text_out_c(TERM_L_BLUE, " monster");
 	else if (l_ptr->flags3 & RF3_DEMON) text_out_c(TERM_L_BLUE, " monster");
@@ -1605,6 +1721,12 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	{
 		text_out(format("%^s does not become hostile unless attacked or aggravated.  ", wd_he[msex]));
 	}
+
+	/* This monster scales with depth */
+	if (r_ptr->flags3 & (RF3_SCALE))
+	{
+		text_out("This monster may become tougher when it appears deeper than its native depth.  ");
+	}
 }
 
 
@@ -1615,9 +1737,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
-
 	int i;
-
 
 	/* Hack -- Maximal kills */
 	l_ptr->tkills = MAX_SHORT;
@@ -1661,6 +1781,24 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 	l_ptr->flags4 = r_ptr->flags4;
 	l_ptr->flags5 = r_ptr->flags5;
 	l_ptr->flags6 = r_ptr->flags6;
+
+	/* know all resistances */
+	l_ptr->know_MRfire = 1;
+	l_ptr->know_MRcold = 1;
+	l_ptr->know_MRelec = 1;
+	l_ptr->know_MRacid = 1;
+	l_ptr->know_MRpois = 1;
+	l_ptr->know_MRlite = 1;
+	l_ptr->know_MRdark = 1;
+	l_ptr->know_MRwatr = 1;
+	l_ptr->know_MRnexu = 1;
+	l_ptr->know_MRmisl = 1;
+	l_ptr->know_MRchao = 1;
+	l_ptr->know_MRdise = 1;
+	l_ptr->know_MRsilv = 1;
+	l_ptr->know_MRtame = 1;
+	l_ptr->know_R4latr = 1;
+	l_ptr->know_R4lat2 = 1;
 }
 
 
@@ -1702,7 +1840,7 @@ void describe_monster(int r_idx, bool spoilers, monster_type *m_ptr)
 	}
 
 	/* Cheat -- know everything */
-	if (cheat_know || spoilers) cheat_monster_lore(r_idx, &lore);
+	if (know_races || spoilers) cheat_monster_lore(r_idx, &lore);
 
 	/* Show kills of monster vs. player(s) */
 	if ((!spoilers) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) 
@@ -1760,7 +1898,6 @@ void roff_top(int r_idx)
 	byte a1, a2;
 	char c1, c2;
 
-
 	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
@@ -1777,7 +1914,7 @@ void roff_top(int r_idx)
 	Term_gotoxy(0, 0);
 
 	/* A title (use "The" for non-uniques) */
-	if (!(r_ptr->flags1 & RF1_UNIQUE))
+	if (!((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->maxpop == 1)))
 	{
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}

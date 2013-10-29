@@ -1003,7 +1003,7 @@ static void display_monster(int col, int row, bool cursor, int oid)
 	big_pad(66, row, a, c);
 
 	/* Display kills */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->maxpop == 1))
 		put_str(format("%s", (r_ptr->max_num == 0)?  " dead" : "alive"), row, 70);
 	else
 		put_str(format("%5d", l_ptr->pkills), row, 70);
@@ -1098,7 +1098,7 @@ static int count_known_monsters(void)
 	for (i = 0; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
-		if (!cheat_know && !l_list[i].sights) continue;
+		if (!know_races && !l_list[i].sights) continue;
 		if (!r_ptr->name) continue;
 
 		if (r_ptr->flags1 & RF1_UNIQUE) m_count++;
@@ -1132,7 +1132,7 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 	for (i = 0; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
-		if (!cheat_know && !l_list[i].sights) continue;
+		if (!know_races && !l_list[i].sights) continue;
 		if (!r_ptr->name) continue;
 
 		if (r_ptr->flags1 & RF1_UNIQUE) m_count++;
@@ -1151,7 +1151,7 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 	for (i = 0; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
-		if (!cheat_know && !l_list[i].sights) continue;
+		if (!know_races && !l_list[i].sights) continue;
 		if (!r_ptr->name) continue;
 	
 		for (j = 0; j < N_ELEMENTS(monster_group)-1; j++)
@@ -1371,10 +1371,6 @@ static void desc_ego_fake(int oid)
 {
 	/* Hack: dereference the join */
 	const char *cursed[] = { "powerfully cursed", "heavily cursed", "cursed" };
-#ifdef new_random_stuff
-#else
-	const char *xtra[] = { "sustain", "higher resistance", "ability" };
-#endif
 	int f3, i;
 
 	int e_idx = default_join[oid].oid;
@@ -1410,7 +1406,6 @@ static void desc_ego_fake(int oid)
 	object_info_out_flags = object_flags;
 	object_info_out(&dummy);
 
-#ifdef new_random_stuff
 	if (e_ptr->randsus == 2) text_out(" It provides two random sustains.");
 	else if (e_ptr->randsus) text_out(" It provides one random sustain.");
 	if (e_ptr->randres == 3) text_out(" It provides three random high resistances.");
@@ -1431,10 +1426,6 @@ static void desc_ego_fake(int oid)
 	if (e_ptr->randdrb > 1) text_out(" It carries two random drawbacks.");
 	else if (e_ptr->randdrb) text_out(" It carries one random drawback.");
 	if (e_ptr->randdrb == 3) text_out(" It provides one random immunity.");
-#else
-	if (e_ptr->xtra)
-		text_out(format("It provides one random %s.", xtra[e_ptr->xtra - 1]));
-#endif
 
 	for (i = 0, f3 = TR3_PERMA_CURSE; i < 3 ; f3 >>= 1, i++)
 	{
@@ -1566,7 +1557,7 @@ static void display_object(int col, int row, bool cursor, int oid)
 	{
 		/* Tidy name */
 		if (aware) object_kind_name(o_name, sizeof(o_name), k_idx, TRUE);
-		else object_kind_name(o_name, sizeof(o_name), k_idx, cheat_know);
+		else object_kind_name(o_name, sizeof(o_name), k_idx, know_races);
 	}
 
 	/* Display the name */
@@ -1578,18 +1569,23 @@ static void display_object(int col, int row, bool cursor, int oid)
 
 #ifdef UNANGBAND
 	/* Hack - don't use if double tile */
-	if (use_dbltile || use_trptile)
-		return;
+	if (use_dbltile || use_trptile) return;
 #endif
 
-	/* Display symbol */
-	big_pad(76, row, a, c);
+	/* This allows you to remember which objects you've seen this game.  It also keeps */
+	/* the player from meta-IDing the item by comparing it's symbol to the object knowledge list */
+	if ((k_ptr->aware) || (k_ptr->tval > TV_FOOD) || (k_ptr->tval <= TV_LITE))
+		/* Display symbol */
+		big_pad(76, row, a, c);
 }
 
 /*
  * Describe fake object
+ *
+ * This is also used in object_info_screen() for the diguises
+ * of multi-hued poison potions.
  */
-static void desc_obj_fake(int k_idx)
+void desc_obj_fake(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 	object_type object_type_body;
@@ -1643,6 +1639,15 @@ static int o_cmp_tval(const void *a, const void *b)
 	/* If you've seen it in a shop, you should be able to autoinscribe it  */
     if (k_a->aware || k_a->everseen) aware = TRUE;
 	if (k_b->aware || k_b->everseen) baware = TRUE;
+
+	/* sort spellbooks by sval, not cost (cost in not nessesarily in order of sval) */
+	if ((k_a->tval >= TV_MAGIC_BOOK) && (k_a->tval <= TV_DARK_BOOK) &&
+		(k_b->tval >= TV_MAGIC_BOOK) && (k_b->tval <= TV_DARK_BOOK) &&
+		(k_a->tval == k_b->tval))
+	{
+		c = k_a->sval - k_b->sval;
+		if (c) return c;
+	}
 
 	/* Order by */
 	c = aware - baware;
@@ -1782,7 +1787,7 @@ void do_cmd_knowledge_objects(void *obj, const char *name)
 		}
 	}
 
-	display_knowledge("known objects", objects, o_count, kind_f, obj_f, "Inscribed          Sym");
+	display_knowledge("known objects (blank symbol means you've haven't seen it this game)", objects, o_count, kind_f, obj_f, "Inscribed          Sym");
 
 	FREE(objects);
 }
@@ -4770,7 +4775,7 @@ static int nasty_melee(int m_idx)
  */         
 s16b get_danger_feeling(void)
 {
-	int i, ap_cnt, dep, rlev, hplev, cheatluck;
+	int i, dep, rlev, hplev, cheatluck;
 	int mon_danger = 0;
 	s16b danger_text = 0;
 	monster_type *m_ptr;
@@ -4778,6 +4783,7 @@ s16b get_danger_feeling(void)
 	monster_lore *l_ptr;
 	u16b *race_count;
 	u32b f4, f5, f6, lf4, lf5, lf6;
+	bool fearless = FALSE;
 
 	/* Allocate the array (from display_monlist()) */
 	C_MAKE(race_count, z_info->r_max, u16b);
@@ -4785,10 +4791,10 @@ s16b get_danger_feeling(void)
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
 	{
+		bool strongbr = FALSE;
 		m_ptr = &mon_list[i];
 		r_ptr = &r_info[m_ptr->r_idx];
 		l_ptr = &l_list[m_ptr->r_idx];
-		bool strongbr = FALSE;
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -4842,7 +4848,7 @@ s16b get_danger_feeling(void)
 		lf5 = l_ptr->flags5;
 		lf6 = l_ptr->flags6;
 		
-		if (cheat_know) cheatluck = 110;
+		if (know_races) cheatluck = 110;
 		else cheatluck = goodluck + 8 + randint((goodluck+2)*2);
 		
 		if ((r_ptr->flags2 & (RF2_INVISIBLE)) && (!p_ptr->see_inv))
@@ -5027,14 +5033,21 @@ s16b get_danger_feeling(void)
 	/* It's always dangerous on deep levels so scale down a little */
 	if ((mon_danger > 50) && (p_ptr->depth >= 45)) mon_danger -= 4;
 	else if ((mon_danger > 30) && (p_ptr->depth >= 45)) mon_danger -= 2;
+
+	if (p_ptr->resist_fear) fearless = TRUE;
+	if ((p_ptr->timed[TMD_IMAGE]) && (randint(100) < 33))
+	{
+		if (fearless) fearless = FALSE;
+		else fearless = TRUE;
+	}
 	/* Rfear influences confidence level... */
-	if ((mon_danger > 20) && (p_ptr->depth >= 45) && (p_ptr->resist_fear))
+	if ((mon_danger > 20) && (p_ptr->depth >= 45) && (fearless))
 		mon_danger -= 2;
 
-    /* use the danger level to decide on a danger message */
-    if ((mon_danger > 95) && (p_ptr->resist_fear)) danger_text = 2;
+	/* use the danger level to decide on a danger message */
+    if ((mon_danger > 95) && (fearless)) danger_text = 2;
     else if (mon_danger > 95) danger_text = 3;
-    else if ((mon_danger > 77) && (p_ptr->resist_fear)) danger_text = 4;
+    else if ((mon_danger > 77) && (fearless)) danger_text = 4;
     else if (mon_danger > 77) danger_text = 5;
     else if (mon_danger > 62) danger_text = 6;
     else if (mon_danger > 46) danger_text = 7;
@@ -5106,7 +5119,17 @@ void do_cmd_danger_feeling(void)
 }
 
 /*
- * Array of feeling strings
+ * Array of feeling strings:
+ *
+ *		if (rating > 100) feeling = 2;
+ *		else if (rating > 80) feeling = 3;
+ *		else if (rating > 60) feeling = 4;
+ *		else if (rating > 40) feeling = 5;
+ *		else if (rating > 30) feeling = 6;
+ *		else if (rating > 20) feeling = 7;
+ *		else if (rating > 9) feeling = 8;
+ *		else if (rating > 0) feeling = 9;
+ *		else feeling = 10;
  */
 static const char *feeling_text[] =
 {
@@ -5141,7 +5164,8 @@ void do_cmd_feeling(void)
 		if (p_ptr->depth)
 		{
 			/* Display the feeling */
-			msg_print(feeling_text[feeling]);
+			if (p_ptr->timed[TMD_IMAGE]) msg_print("This level feels totally groovy.");
+			else msg_print(feeling_text[feeling]);
 		}
 	}
 	if (!p_ptr->depth)
@@ -5172,14 +5196,14 @@ void do_cmd_feeling(void)
 	else if (p_ptr->theme == 10) msg_print("You recognise a symbol on the wall as a mark to the entrance of a dwarf mine.");
 	else if (p_ptr->theme == 11) msg_print("The ground and walls here are nearly covered with ants and other tiny bugs.");
 	else if (p_ptr->theme == 12) msg_print("A silver mist hangs in the air here; you sense that you have entered the domain of the grepse.");
-	else if (p_ptr->theme == 13) msg_print("This level gives you the creeps, images come to your mind from nightmares you had as a child.");
-	else if (p_ptr->theme == 14) msg_print("Extra shadows and demonic symbols line the walls. It's very hot in here..");
-	else if (p_ptr->theme == 15) msg_print("You find yourself in one of Morgoth's army barracks.");
-	else if (p_ptr->theme == 16)
+	else if (p_ptr->theme == 13) 
 	{
 		msg_print("Grotesque carvings and the sounds of sadistic chuckling let you know ");
-		msg_print("that you have found a city of the hobs.");
+		msg_print("that you have found a dark fairy city of nightmares.");
+		/* msg_print("This level gives you the creeps, images come to your mind from nightmares you had as a child."); */
 	}
+	else if (p_ptr->theme == 14) msg_print("Extra shadows and demonic symbols line the walls. It's very hot in here..");
+	else if (p_ptr->theme == 15) msg_print("You find yourself in one of Morgoth's army barracks.");
 }
 
 

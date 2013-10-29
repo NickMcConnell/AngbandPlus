@@ -1,7 +1,7 @@
 [Project]
 FileName=DaJAngband1.3.dev
 Name=DaJAngband1.3
-UnitCount=85
+UnitCount=86
 Type=1
 Ver=1
 ObjFiles=
@@ -10,7 +10,7 @@ Libs=
 PrivateResource=DaJAngband1.3_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=-mwindows_@@_-DWINDOWS_@@_
+Compiler=-mwindows_@@_-DWINDOWS_@@_-I_@@_
 CppCompiler=
 Linker=-lmingw32_@@_-lwinmm_@@_-mwindows_@@_
 IsCpp=0
@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000000000000
+CompilerSettings=0000000000000001000000
 
 [Unit1]
 FileName=birth.c
@@ -839,15 +839,6 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit85]
-FileName=autoconf.h.in
-Folder=DaJAngband1.3
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit87]
 FileName=win\readdib.h
 CompileCpp=0
@@ -907,6 +898,26 @@ BuildCmd=
 
 [Unit67]
 FileName=h-basic.h
+CompileCpp=0
+Folder=DaJAngband1.3
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit85]
+FileName=z-queue.c
+CompileCpp=0
+Folder=DaJAngband1.3
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit86]
+FileName=z-queue.h
 CompileCpp=0
 Folder=DaJAngband1.3
 Compile=1

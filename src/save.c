@@ -100,11 +100,16 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
+	wr_s16b(o_ptr->charges);
 
 	wr_byte(o_ptr->pseudo);
 #ifdef instantpseudo
 	wr_byte(o_ptr->hadinstant);
 #endif
+
+	wr_s16b(o_ptr->dlevel);
+	wr_s16b(o_ptr->drop_ridx);
+	wr_byte(o_ptr->vcode);
 
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
@@ -140,7 +145,6 @@ static void wr_item(const object_type *o_ptr)
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
 
-#ifdef new_random_stuff
 	/* names for psuedo-randart ego items */
 	/* Stinkin! finally got it to work to have a string in o_ptr */
 	/* for these and I can't put them in the savefile. */
@@ -173,17 +177,10 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->randact);
 
 	wr_byte(o_ptr->esprace);
-#else
-	/* Special powers */
-	wr_byte(o_ptr->xtra1);
-	wr_byte(o_ptr->xtra2);
-	
-	/* new stuff */
-	wr_byte(o_ptr->xtra3);
-#endif
+
 	wr_byte(o_ptr->thisbrand);
 	wr_s16b(o_ptr->timedbrand);
-	wr_s16b(o_ptr->extra1);
+	wr_s16b(o_ptr->charges);
 	wr_s16b(o_ptr->extra2);
 
 	/* Save the inscription (if any) */
@@ -265,6 +262,23 @@ static void wr_lore(int r_idx)
 	for (i = 0; i < MONSTER_BLOW_MAX; i++)
 		wr_byte(l_ptr->blows[i]);
 
+	wr_byte(l_ptr->know_MRfire);
+	wr_byte(l_ptr->know_MRcold);
+	wr_byte(l_ptr->know_MRelec);
+	wr_byte(l_ptr->know_MRacid);
+	wr_byte(l_ptr->know_MRpois);
+	wr_byte(l_ptr->know_MRlite);
+	wr_byte(l_ptr->know_MRdark);
+	wr_byte(l_ptr->know_MRwatr);
+	wr_byte(l_ptr->know_MRnexu);
+	wr_byte(l_ptr->know_MRmisl);
+	wr_byte(l_ptr->know_MRchao);
+	wr_byte(l_ptr->know_MRdise);
+	wr_byte(l_ptr->know_MRsilv);
+	wr_byte(l_ptr->know_MRtame);
+	wr_byte(l_ptr->know_R4latr);
+	wr_byte(l_ptr->know_R4lat2);
+
 	/* Memorize flags */
 	wr_u32b(l_ptr->flags1);
 	wr_u32b(l_ptr->flags2);
@@ -277,10 +291,8 @@ static void wr_lore(int r_idx)
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
 
-#ifdef newrst
 	/* Race population so far this game */
-	wr_byte(r_ptr->curpop);
-#endif
+	wr_s16b(r_ptr->curpop);
 
 	/* Later (?) */
 	wr_byte(0);
@@ -580,10 +592,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->sc);
 	wr_s16b(0);	/* oops */
 
-#ifdef new_random_stuff
 	wr_s32b(p_ptr->lastfullmoon);
 	wr_s32b(p_ptr->last_nap);
-#endif
 	wr_s16b(p_ptr->food);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->word_recall);
@@ -694,14 +704,9 @@ static void wr_randarts(void)
 		wr_u32b(a_ptr->flags3);
 		wr_u32b(a_ptr->flags4);
 
-#ifdef new_random_stuff
         wr_byte(a_ptr->esprace);
-#endif
 		wr_byte(a_ptr->level);
 		wr_byte(a_ptr->rarity);
-#if breaksave
-        wr_byte(a_ptr->maxlvl);
-#endif
 
 		wr_byte(a_ptr->activation);
 		wr_u16b(a_ptr->time);

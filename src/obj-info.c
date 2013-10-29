@@ -1048,45 +1048,64 @@ void describe_attack(const object_type *o_ptr)
 	
 	if (o_ptr->tval == TV_BOW)
 	{
-        int multl;
+        int multl, bowrange;
 		switch (o_ptr->sval)
 		{
 			/* ML2 */
             case SV_SLING:
-			case SV_SHORT_BOW:
 			case SV_MINI_XBOW:
+			case SV_SHORT_BOW:
             {
                  multl = 2;
+                 if (o_ptr->sval == SV_SHORT_BOW) bowrange = 17;
+                 else bowrange = 16;
                  break;
             }
 			/* ML3 */
 			case SV_HANDHELDC:
+            {
+                 multl = 3;
+                 bowrange = 19;
+                 break;
+            }
 			case SV_LONG_BOW:
+            {
+                 multl = 3;
+                 bowrange = 20;
+                 break;
+            }
 			case SV_LIGHT_XBOW:
             {
                  multl = 3;
+                 bowrange = 18;
                  break;
             }
-
 			/* ML4 */
 			case SV_GREAT_BOW:
 			case SV_HEAVY_XBOW:
             {
                  multl = 4;
+                 if (o_ptr->sval == SV_HEAVY_XBOW) bowrange = 20;
+                 else bowrange = 21;
                  break;
             }
         }
-		if ((f1 & (TR1_MIGHT)) && (object_known_p(o_ptr))) multl += o_ptr->pval;
+		if ((f1 & (TR1_MIGHT)) && (object_known_p(o_ptr))) 
+		{
+			multl += o_ptr->pval;
+			bowrange += o_ptr->pval;
+		}
         
 	    new_paragraph = TRUE;
 	    p_text_out(format("A launcher with an multiplier level (ML) of %d ", multl));
 	    new_paragraph = FALSE;
 	    text_out("actually multiplies damage by ");
-	    if (multl == 4) text_out("x3.5\n");
-        else if (multl == 3) text_out("x2.625\n");
-        else if (multl == 5) text_out("x4.375\n");
-        else if (multl > 5) text_out("x5.25\n");
-        else /* 2 */ text_out("x1.75\n");
+	    if (multl == 4) text_out("x3.5");
+        else if (multl == 3) text_out("x2.625");
+        else if (multl == 5) text_out("x4.375");
+        else if (multl > 5) text_out("x5.25");
+        else /* 2 */ text_out("x1.75");
+	    text_out(format(". The range on this launcher is %d spaces.\n", bowrange));
         text_out("Examine ammo to see average damage.\n");
             
         /* no more info for bows */
@@ -1441,6 +1460,10 @@ void describe_attack(const object_type *o_ptr)
 	{
 		text_out("  Note that no multipliers from a silver weapon work against silver monsters.");
 	}
+
+	if ((p_ptr->timed[TMD_MIGHTY_HURL]) || (cp_ptr->flags & CF_HEAVY_BONUS) ||
+		(p_ptr->prace == 17)) strong_throw = TRUE;
+    else strong_throw = FALSE;
     
     /* can be too heavy to throw effectively even if it's meant for throwing */
     if ((!strong_throw) && (o_ptr->weight >= 200))
@@ -1679,6 +1702,7 @@ void dsc_enhance(object_type *o_ptr)
 	cptr type;
 	bool zapper = TRUE;
 	bool recall = FALSE;
+	int special = 0;
 	s16b amount;
 
 	/* enhanced items only */
@@ -1725,6 +1749,14 @@ void dsc_enhance(object_type *o_ptr)
 				zapper = FALSE;
 		}
 	}
+	else if (o_ptr->tval == TV_STAFF)
+	{
+		type = "staff";
+		if (!(o_ptr->sval == SV_STAFF_STRIKING)) zapper = FALSE;
+		if (o_ptr->sval == SV_STAFF_CURE_LIGHT) special = 1;
+		if (o_ptr->sval == SV_STAFF_DARKNESS) special = 2;
+		if (o_ptr->sval == SV_STAFF_STARLITE) special = 3;
+	}
 	else if (o_ptr->tval == TV_RING)
 	{
 		type = "ring";
@@ -1760,7 +1792,16 @@ void dsc_enhance(object_type *o_ptr)
 	if (!object_aware_p(o_ptr)) text_out(format(" by +%d.", amount));
 	else if (recall) text_out(" with reduced recall time.");
 	else if (zapper) text_out(format(" with +%d to damage.", amount));
+	else if (special == 1) text_out(format(" with +%d to curing amount.", (amount+1)/2));
+	else if (special == 2) 
+	{
+		text_out(" with better chance of stronger darkness damage to all monsters in sight");
+		text_out(" as well as a chance to prevent causing blindness.");
+	}
+	else if (special == 3) text_out(" with better chance of the more powerful rays of light.");
 	else text_out(format(" with +%d to effectiveness.", amount));
+	if ((cheat_xtra) && ((special == 2) || (special == 3) || (recall)))
+		text_out(format(" (by %d)", amount));
 }
 
 /*
@@ -1800,7 +1841,7 @@ void device_chance(const object_type *o_ptr)
 
 	new_paragraph = TRUE;
 	/* 100% chance of failure */
-	if ((charged) && (o_ptr->pval <= 0))
+	if ((charged) && (o_ptr->charges <= 0))
 	{
 	    p_text_out("  This device is out of charges.");
 		new_paragraph = FALSE;
@@ -1999,16 +2040,13 @@ bool object_info_out(const object_type *o_ptr)
 	}
 
 	/* Unknown extra powers (ego-item with random extras) */
+	/* esprace should be obvious */
 	if ((object_known_p(o_ptr)) && (!(o_ptr->ident & IDENT_MENTAL)) &&
-#ifdef new_random_stuff
 		(!is_ego_randart(o_ptr)) &&
 		((o_ptr->randsus) || (o_ptr->randsus2) || 
 		(o_ptr->randres) ||	(o_ptr->randres2) || (o_ptr->randres3) || 
 		(o_ptr->randpow2) || (o_ptr->randpow) || 
 		((o_ptr->esprace) && (!bigslay))))
-#else
-	    (o_ptr->xtra1))
-#endif
 	{
 		/* Hack -- Put this in a separate paragraph if screen dump */
 		if (text_out_hook == text_out_to_screen)
@@ -2173,6 +2211,74 @@ static bool obvious_excellent(const object_type *o_ptr)
 }
 
 
+/* return whether the PC's class can use this spellbook */
+bool junkbook(const object_type *o_ptr)
+{
+	int jb1, jb2, jb3, jb4, jb5, jb6;
+	int badsv = cp_ptr->useless_books;
+
+	/* not a spellbook so it can't be a junkbook */
+	if (!((o_ptr->tval >= TV_MAGIC_BOOK) && (o_ptr->tval < TV_GOLD)))
+		return FALSE;
+
+	/* wrong magic realm */
+	if (!(o_ptr->tval == cp_ptr->spell_book)) return TRUE;
+
+	/* (now it gets complicated and hacky) */
+	if (badsv > 99999)
+	{
+		/* get the sixth digit */
+		jb6 = ((int)(badsv / 100000)) - 1;
+		/* get rid of the sixth digit */
+		badsv -= (jb6+1) * 100000;
+	}
+	/* don't block the sval 0 spellbook by default */
+	else jb6 = -1;
+	if (badsv > 9999)
+	{
+		/* get the fifth digit */
+		jb5 = ((int)(badsv / 10000)) - 1;
+		/* get rid of that digit */
+		badsv -= (jb5+1) * 10000;
+	}
+	else jb5 = -1;
+	if (badsv > 999)
+	{
+		/* get the fourth digit */
+		jb4 = ((int)(badsv / 1000)) - 1;
+		/* get rid of that digit */
+		badsv -= (jb4+1) * 1000;
+	}
+	else jb4 = -1;
+	if (badsv > 99)
+	{
+		/* get the third digit */
+		jb3 = ((int)(badsv / 100)) - 1;
+		/* get rid of that digit */
+		badsv -= (jb3+1)* 100;
+	}
+	else jb3 = -1;
+	if (badsv > 9)
+	{
+		/* get the second digit */
+		jb2 = ((int)(badsv / 10)) - 1;
+		/* get rid of that digit */
+		badsv -= (jb2+1) * 10;
+	}
+	else jb2 = -1;
+	/* there should only be one digit left */
+	if (badsv > 0) jb1 = badsv - 1;
+	else jb1 = -1;
+
+	/* check for matches */
+	if ((jb1 == o_ptr->sval) || (jb2 == o_ptr->sval) || (jb3 == o_ptr->sval) ||
+		(jb4 == o_ptr->sval) || (jb5 == o_ptr->sval) || (jb6 == o_ptr->sval))
+		return TRUE;
+
+	/* otherwise it's not a junk book */
+	return FALSE;
+}
+
 /*
  * Place an item description on the screen.
  */
@@ -2182,13 +2288,23 @@ void object_info_screen(object_type *o_ptr)
 	bool weapon, ammo;
 	object_type *j_ptr;
     u32b f1, f2, f3, f4;
+		
+	/* don't give away disguised multi-hued poison (pval is its disguise) */
+	if ((o_ptr->tval == TV_POTION) && 
+		(o_ptr->sval == SV_POTION_MULTIHUED_POISON) && (o_ptr->pval))
+	{
+		/* this calls object_info_screen() for a fake object of the */
+		/* kind of potion it is disguising as (hope that works...) */
+		desc_obj_fake(o_ptr->pval);
+		return;
+	}
 
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
 
 	/* Save the screen */
 	screen_save();
-
+	
 	has_description = screen_out_head(o_ptr);
 
 	object_info_out_flags = object_flags_known;
@@ -2292,6 +2408,56 @@ void object_info_screen(object_type *o_ptr)
        text_out(" but the temporary blessing has worn off.");
     }
 
+	if (junkbook(o_ptr)) text_out("  Your class cannot use this spellbook.");
+
+	/* describe object origin */
+	if (o_ptr->dlevel)
+	{
+		if (o_ptr->drop_ridx < 0)
+		{
+			text_out("  It was dropped by an unknown monster");
+			if (o_ptr->vcode == 2) text_out(" in a vault");
+		}
+		else if (o_ptr->drop_ridx)
+		{
+			monster_race *r_ptr = &r_info[o_ptr->drop_ridx];
+			cptr name = (r_name + r_ptr->name);
+			if (r_ptr->flags1 & (RF1_UNIQUE))
+				text_out(format("  It was dropped by %s", name));
+			else text_out(format("  It was dropped by a(n) %s", name));
+			if (o_ptr->vcode == 2) text_out(" in a vault");
+		}
+		else if (o_ptr->vcode == 1) text_out(" It was found in a vault");
+		else if (o_ptr->vcode == 3) text_out(" It was found in a pile of rubble");
+		else if (o_ptr->vcode == 4) text_out(" It was found in a chest");
+		else if (o_ptr->vcode == 5) text_out(" It was found in a chest in a vault");
+		else if (o_ptr->vcode == 6) text_out(" It was found in a silver-locked chest");
+		else if (o_ptr->vcode == 7) text_out(" It was found in a gold-locked chest");
+		else if (o_ptr->vcode == 8) text_out(" It was found in a pile of rubble in a vault");
+		else if (o_ptr->vcode == 9) text_out(" It was created by aquirement magic");
+		else if (o_ptr->vcode == 10) text_out(" It was conjured up by magic");
+		else if ((o_ptr->vcode == 11) && (cheat_peek)) 
+			text_out(" It was generated as a great item outside of a vault");
+		else text_out(" It was found on the floor");
+
+		text_out(format(" on level %d.", o_ptr->dlevel));
+	}
+	else if ((o_ptr->vcode == 13) && (!(o_ptr->ident & IDENT_STORE)))
+	{
+		text_out(" It was bought from the black market.");
+	}
+	else if ((o_ptr->vcode == 12) && (!(o_ptr->ident & IDENT_STORE)))
+	{
+		/* only egos, artifacts, TV_SPECIAL, TV_CHEST and a few powerful items are tracked */
+		/* of these, only egos can be generated in stores other than the BM */
+		if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_SWORD))
+			text_out(" It was bought from the weapon shop.");
+		else if ((o_ptr->tval >= TV_BOOTS) && (o_ptr->tval <= TV_HARD_ARMOR))
+			text_out(" It was bought from the armoury.");
+		else if (o_ptr->tval == TV_STAFF)
+			text_out(" It was bought from the magic shop.");
+	}
+
 	text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
 
 	/* Wait for input */
@@ -2301,7 +2467,7 @@ void object_info_screen(object_type *o_ptr)
 	screen_load();
 
 	/* Hack -- Browse book, then prompt for a command */
-	if (o_ptr->tval == cp_ptr->spell_book)
+	if ((o_ptr->tval == cp_ptr->spell_book) && (!junkbook(o_ptr)))
 	{
 		/* Call the aux function */
 		do_cmd_browse_aux(o_ptr);

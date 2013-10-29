@@ -122,8 +122,8 @@ s16b spell_chance(int spell)
     {
          if (badweap > 0) chance -= 1;
          if ((badweap > 1) && (goodweap < badweap)) chance -= 1;
-         /* small penalty for using conflicting sentient weapons */
-         if ((badweap > 0) && (goodweap == badweap)) chance += 3;
+         /* penalty for using conflicting sentient weapons */
+         else if ((badweap > 0) && (goodweap > 0)) chance += 2 + goodweap + badweap;
     }
 
 	/* Minimum failure rate */

@@ -663,14 +663,14 @@ static void return_monsters(void)
 			/* message:  m_ptr->ml is set in update_mon() */
 			if (m_ptr->ml)
 			{
-				/* get monster name */
 				char m_name[80];
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
 				/* remember that it can rise from the dead */
 				monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 				l_ptr->flags2 |= (RF2_RETURNS);
 				
+				/* get monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
 				/* message */
 				if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_NON_LIVING)) ||
 					(strchr("T", r_ptr->d_char)))
@@ -851,11 +851,12 @@ void recharge_objects(void)
 		/* handle annoyances (separate chance for each object that has R_ANNOY) */
 		if ((f2 & (TR2_R_ANNOY)) && (goodluck < 20))
 		{
-			int uglychance = 4 + (badluck+1)/3;
-			if (goodluck > 13) uglychance -= 3;
-			else if (goodluck > 5) uglychance -= 2;
+			int uglychance = 4 + (badluck+2)/4;
+			if (goodluck > 11) uglychance -= 3;
+			else if (goodluck > 6) uglychance -= 2;
 			else if (goodluck > 1) uglychance -= 1;
-			if (rand_int(998) < uglychance) do_something_annoying(o_ptr);
+			/* was 998 unstead of 1200 */
+			if (rand_int(1200) < uglychance) do_something_annoying(o_ptr);
 		}
 
 		/* handle constant activation */
@@ -1156,8 +1157,8 @@ void decrease_timeouts(void)
 		/* Scan all objects */
 		for (i = 1; i < o_max; i++)
 		{
-			object_type *o_ptr = &o_list[i];
 			int y, x;
+			o_ptr = &o_list[i];
 
 			/* Skip held objects */
 			if (o_ptr->held_m_idx) continue;
@@ -1178,9 +1179,6 @@ void decrease_timeouts(void)
 			}
 		}
 	}
-
-	/* clear p_ptr->held_m_idx when mind control (mcontrol) expires */
-    if (p_ptr->timed[TMD_MIND_CONTROL] == 1) p_ptr->held_m_idx = 0;
 
 	/* clear p_ptr->held_m_idx when you pull free of the hold */
 	if (p_ptr->timed[TMD_BEAR_HOLD] == 1) p_ptr->held_m_idx = 0;
@@ -1291,7 +1289,7 @@ static void process_world(void)
 				if (p_ptr->theme == 7)
 				{
 					do_cmd_feeling();
-					if (rand_int(100) < 16 + (badluck*6))
+					if (rand_int(100) < 22 + (badluck*5))
 						(void)alloc_monster(MAX_SIGHT, FALSE);
 				}
 			}
@@ -1398,7 +1396,7 @@ static void process_world(void)
                      else if (die < 49) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
                      else if (die < 54) (void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
                      else if (die < 72) (void)inc_timed(TMD_AMNESIA, rand_int(6) + 4);
-                     else if (die < 90) (void)inc_timed(TMD_IMAGE, rand_int(6) + 4);
+                     else if (die < 90) (void)inc_timed(TMD_IMAGE, rand_int(6) + 5);
                      else take_hit(randint(p_ptr->silver-4), "silver poison");
             }
             
@@ -1414,7 +1412,7 @@ static void process_world(void)
 		       take_hit(66 + randint(p_ptr->silver*6), "corruption from silver poison");
                if (notsorare < 16) (void)inc_timed(TMD_CONFUSED, randint(4) + 3);
                if (notsorare > 16) (void)inc_timed(TMD_AMNESIA, randint(6) + 6);
-               if (notsorare < 25) (void)inc_timed(TMD_IMAGE, randint(6) + 4);
+               if (notsorare < 25) (void)inc_timed(TMD_IMAGE, randint(6) + 6);
         	   msg_print("Your mind is corrupted by silver poison!");
             }
         } 
@@ -1541,6 +1539,14 @@ static void process_world(void)
        else if (p_ptr->max_depth > 7) summon_nogroups(sy, sx, p_ptr->max_depth-5, SUMMON_DEMON);
 	   else summon_nogroups(sy, sx, 2, SUMMON_DEMON);
     }
+
+#ifdef newhallu
+	/* new effects of hallucenation */
+	else if (rand_int(2250) < p_ptr->timed[TMD_IMAGE])
+	{
+		imaginary_friend(0);
+	}
+#endif
     
     /* neutral class wielding both good object(s) and bad object(s) */
     if ((magicmod > 19) && (randint(999) == 1))
@@ -1788,6 +1794,7 @@ static void process_world(void)
 		/* Turn off the wanton burning of light during the day in the town */
 		if (!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
 			burn_fuel = FALSE;
+		if ((!p_ptr->depth) && (p_ptr->timed[TMD_DAYLIGHT])) burn_fuel = FALSE;
 
 		/* If the light has the NO_FUEL flag, well... */
 		if (f3 & TR3_NO_FUEL)
@@ -2272,12 +2279,15 @@ static void process_player(void)
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
 
+#ifdef newhallu
+#else
 			/* Hack -- constant hallucination */
 			if (p_ptr->timed[TMD_IMAGE])
 			{
 				p_ptr->redraw |= (PR_MAP);
 				p_ptr->window |= (PW_MAP);
 			}
+#endif
 
 			/* Shimmer monsters if needed */
 			if (shimmer_monsters)
@@ -2456,7 +2466,6 @@ static void dungeon(void)
 	/* Disturb */
 	disturb(1, 0);
 
-
 	/* Track maximum player level */
 	if (p_ptr->max_lev < p_ptr->lev)
 	{
@@ -2509,6 +2518,10 @@ static void dungeon(void)
 		/* Cancel the stair request */
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
+
+	/* autosave whenever a new level is generated */
+	/*  (after stairs are generated under the PC) */
+	save_player();
 
 	/* Choose panel */
 	verify_panel();
@@ -2837,7 +2850,6 @@ void play_game(bool new_game)
 		/* Oops */
 		quit("broken savefile");
 	}
-	msg_format("just loaded");
 
 	/* Nothing loaded */
 	if (!character_loaded)
@@ -2867,10 +2879,8 @@ void play_game(bool new_game)
 		seed = (time(NULL));
 
 #ifdef SET_UID
-
 		/* Mutate the seed on Unix machines */
 		seed = ((seed >> 3) * (getpid() << 1));
-
 #endif
 
 		/* Use the complex RNG */
@@ -2965,10 +2975,8 @@ void play_game(bool new_game)
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
-
 
 	/* Character is now "complete" */
 	character_generated = TRUE;
@@ -3103,12 +3111,9 @@ void play_game(bool new_game)
 
 		/* Handle "death" */
 		if (p_ptr->is_dead) break;
-
+		
 		/* Make a new level */
 		generate_cave();
-
-		/* autosave whenever a new level is generated */
-		save_player();
 	}
 
 	/* Close stuff */
