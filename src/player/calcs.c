@@ -1518,6 +1518,7 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	if (of_has(collect_f, OF_SLOW_DIGEST)) state->slow_digest = TRUE;
 	if (of_has(collect_f, OF_FEATHER)) state->ffall = TRUE;
 	if (of_has(collect_f, OF_REGEN)) state->regenerate = TRUE;
+	if (of_has(collect_f, OF_SUPER_REGEN)) state->super_regenerate = TRUE;
 	if (of_has(collect_f, OF_TELEPATHY)) state->telepathy = TRUE;
 	if (of_has(collect_f, OF_SEE_INVIS)) state->see_inv = TRUE;
 	if (of_has(collect_f, OF_FREE_ACT)) state->free_act = TRUE;
@@ -1542,7 +1543,7 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	if (of_has(collect_f, OF_VULN_ELEC)) state->vuln_elec = TRUE;
 
 	/* Immunity flags */
-	//if (of_has(collect_f, OF_IM_POIS)) state->immune_pois = TRUE;
+	if (of_has(collect_f, OF_IM_POIS)) state->immune_pois = TRUE;
 	if (of_has(collect_f, OF_IM_FIRE)) state->immune_fire = TRUE;
 	if (of_has(collect_f, OF_IM_ACID)) state->immune_acid = TRUE;
 	if (of_has(collect_f, OF_IM_COLD)) state->immune_cold = TRUE;
@@ -1657,7 +1658,7 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	}
 
 	/* Temporary blessing */
-	if (p_ptr->timed[TMD_BLESSED])
+	if (p_ptr->timed[TMD_BLESSED] || p_ptr->standard_bearer)
 	{
 		state->to_a += 5;
 		state->dis_to_a += 5;
@@ -1683,7 +1684,7 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	}
 
 	/* Temporary "Hero" */
-	if (p_ptr->timed[TMD_HERO])
+	if (p_ptr->timed[TMD_HERO] || p_ptr->standard_bearer)
 	{
 		state->to_h += 12;
 		state->dis_to_h += 12;

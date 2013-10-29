@@ -170,13 +170,13 @@ struct player_flag_record
 
 static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 {
-	{ "rAcid",	OF_RES_ACID,    OF_IM_ACID, OF_VULN_ACID },
-	{ "rElec",	OF_RES_ELEC,    OF_IM_ELEC, OF_VULN_ELEC },
-	{ "rFire",	OF_RES_FIRE,    OF_IM_FIRE, OF_VULN_FIRE },
-	{ "rCold",	OF_RES_COLD,    OF_IM_COLD, OF_VULN_COLD },
-	{ "rPois",	OF_RES_POIS,    FLAG_END,	FLAG_END },
-	{ "rLite",	OF_RES_LIGHT,   FLAG_END,   FLAG_END },
-	{ "rDark",	OF_RES_DARK,    FLAG_END,   FLAG_END },
+	{ "Acid",	OF_RES_ACID,    OF_IM_ACID, OF_VULN_ACID },
+	{ "Elec",	OF_RES_ELEC,    OF_IM_ELEC, OF_VULN_ELEC },
+	{ "Fire",	OF_RES_FIRE,    OF_IM_FIRE, OF_VULN_FIRE },
+	{ "Cold",	OF_RES_COLD,    OF_IM_COLD, OF_VULN_COLD },
+	{ "Pois",	OF_RES_POIS,    OF_IM_POIS,	FLAG_END },
+	{ "Light",	OF_RES_LIGHT,   FLAG_END,   FLAG_END },
+	{ "Dark",	OF_RES_DARK,    FLAG_END,   FLAG_END },
 	{ "Sound",	OF_RES_SOUND,   FLAG_END,   FLAG_END },
 	{ "Shard",	OF_RES_SHARD,   FLAG_END,   FLAG_END },
 
@@ -191,7 +191,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "pConf",	OF_RES_CONFU,   FLAG_END,   FLAG_END },
 
 	{ "Light",	OF_LIGHT,       FLAG_END,   FLAG_END },
-	{ "Regen",	OF_REGEN,       FLAG_END,   FLAG_END },
+	{ "Regen",	OF_REGEN,       OF_SUPER_REGEN,   FLAG_END },
 	{ "  ESP",	OF_TELEPATHY,   FLAG_END,   FLAG_END },
 	{ "Invis",	OF_SEE_INVIS,   FLAG_END,   FLAG_END },
 	{ "FrAct",	OF_FREE_ACT,    FLAG_END,   FLAG_END },

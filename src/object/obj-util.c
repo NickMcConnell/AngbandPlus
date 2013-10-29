@@ -2395,7 +2395,7 @@ void acquirement(int y1, int x1, int level, int num, bool great)
 		/* Make a good (or great) object (if possible) */
 		if (!make_object(i_ptr, level, TRUE, great)) continue;
 		i_ptr->origin = ORIGIN_ACQUIRE;
-		i_ptr->origin_depth = p_ptr->max_depth;
+		i_ptr->origin_depth = p_ptr->depth;
 		
 		/* Gives a chance at rerolling based on how many slots player has -Simon */
 		switch(i_ptr->tval)

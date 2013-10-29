@@ -602,6 +602,7 @@ B:BITE:HURT:1d4
 F:UNIQUE | ANIMAL
 F:RAND_25 | BASH_DOOR
 F:NO_CONF | NO_SLEEP
+Y:137
 D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are stealing
 D: mushrooms.
 
@@ -613,6 +614,7 @@ B:BITE:HURT:1d4
 F:UNIQUE | ANIMAL
 F:RAND_25 | BASH_DOOR
 F:NO_CONF | NO_SLEEP
+Y:138
 D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are stealing
 D: mushrooms.
 
@@ -667,6 +669,7 @@ F:UNIQUE | MALE | EVIL | INVISIBLE
 F:DROP_1 | DROP_GOOD | DROP_GREAT
 F:RAND_25 | RAND_50 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:HURT_LIGHT
+Y:139
 D:Usually known as Gollum.  He's been sneaking, and he wants his 'precious.'
 
 N:53:Green ooze
@@ -928,6 +931,7 @@ B:HIT:HURT:1d8
 F:UNIQUE | MALE
 F:DROP_2 | DROP_GOOD | ONLY_ITEM
 F:OPEN_DOOR | BASH_DOOR
+Y:150
 D:He is a sturdy hobbit who is renowned for his unusual strength and vigour.  He
 D: can prove a troublesome opponent.
 
@@ -1321,6 +1325,7 @@ F:UNIQUE | MALE | EVIL | ESCORT | ESCORTS
 F:DROP_1 | DROP_GOOD | ONLY_ITEM
 F:OPEN_DOOR | BASH_DOOR
 F:IM_POIS
+Y:149
 D:Strong and powerful, for a kobold.
 
 ### Dungeon level 8 ###
@@ -1355,6 +1360,7 @@ B:HIT:HURT:1d9
 F:UNIQUE | MALE | ORC | EVIL | ESCORT
 F:DROP_1 | DROP_GOOD | ONLY_ITEM
 F:OPEN_DOOR | BASH_DOOR
+Y:151
 D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order with
 D: displays of excessive violence.
 
@@ -4453,6 +4459,7 @@ S:BLIND | CAUSE_3 | CAUSE_4 | CONF | HEAL | SCARE
 S:SLOW | TRAPS
 S:BR_DARK | BR_POIS
 S:S_KIN
+Y:143
 D:Shelob is an enormous bloated spider, the last daughter of Ungoliant the
 D: Unlight.  Her poison is legendary, as is her ego.  She normally guards the
 D: pass through Cirith Ungol, but occasionally goes out foraging for food to
@@ -5363,6 +5370,7 @@ F:UNIQUE | MALE | TROLL | EVIL | REGENERATE | ESCORT
 F:DROP_3 | DROP_GOOD | ONLY_ITEM
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | TAKE_ITEM
 F:IM_COLD | IM_POIS
+Y:142
 S:1_IN_7
 S:BOULDER
 D:A massive and cruel troll of great power, drool slides caustically down his
@@ -5956,6 +5964,7 @@ F:FORCE_SLEEP
 S:1_IN_4
 S:BA_FIRE
 S:BO_PLAS
+Y:146
 D:A towering fire elemental, Vargo burns everything beyond recognition.
 
 ### Dungeon level 38 ###
@@ -6067,6 +6076,7 @@ F:FORCE_SLEEP
 S:1_IN_4
 S:BA_COLD | BA_WATE
 S:BO_ICEE | BO_WATE
+Y:145
 D:A towering water elemental, Waldern is master of all things liquid.  Wave
 D: after wave drowns your frail body.
 
@@ -6957,6 +6967,7 @@ F:FORCE_SLEEP
 S:1_IN_5
 S:BA_COLD | BA_ELEC
 S:BO_ELEC
+Y:147
 D:A towering air elemental, Ariel, the sorceress, avoids your blows with her
 D: extreme speed.
 
@@ -7064,6 +7075,7 @@ F:FORCE_SLEEP
 S:1_IN_4
 S:CAUSE_3 | CONF
 S:BR_COLD
+Y:153
 D:An ancient and wise Dragon.  Scatha has grown clever over the long years.  His
 D: scales are covered with frost, and his breath sends a shower of ice into the
 D: air.
@@ -7233,6 +7245,7 @@ S:1_IN_3
 S:BLIND | CONF | SCARE
 S:BR_FIRE | BR_POIS
 S:S_HI_DRAGON
+Y:140
 D:Glaurung is the father of all dragons, and was for a long time the most
 D: powerful.  Though this is no longer so, he still has full command over his
 D: brood and can command them to appear whenever he so wishes.  He is the
@@ -7718,6 +7731,7 @@ S:BA_FIRE | BA_POIS
 S:BO_FIRE | BO_PLAS
 S:BR_FIRE | BR_POIS
 S:S_HYDRA | S_KIN
+Y:141
 D:A massive legendary hydra.  It has twelve powerful heads.  Its many eyes stare
 D: at you as clouds of smoke and poisonous vapour rise from its seething form.
 D: And it grows new heads as fast as you chop them off.
@@ -8556,6 +8570,7 @@ S:BLIND | BRAIN_SMASH | CAUSE_4 | SCARE | TPORT
 S:BA_FIRE | BA_MANA | BA_NETH
 S:BO_MANA
 S:S_HI_DEMON | S_HI_UNDEAD | S_KIN | S_MONSTERS
+Y:144
 D:The greatest of all undead sorcerers, even the gods once feared him.  This
 D: ancient shadow of death wilts every living thing it passes.
 
@@ -9573,6 +9588,7 @@ F:FORCE_SLEEP
 S:1_IN_6
 S:S_ANIMAL | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE
 S:S_WRAITH
+Y:152
 D:The son of E["o]l the Dark Elf, Maeglin is every bit as evil as his father and
 D: more.  His greed for gold led him to betray the Hidden Kingdom of Gondolin to
 D: Morgoth's forces.  He is a mighty warrior himself, and some of Morgoth's
@@ -9975,3 +9991,524 @@ S:1_IN_5
 S:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
 D:Shimmering in rainbow hues, this hound is beautiful and deadly.
 
+#New RePos monsters, copied from Pos -Simon
+
+N:617:Ice ogre
+G:O:w
+I:110:220:25:40:0
+W:22:1:0:200
+B:HIT:BATTER:1d5
+B:HIT:BATTER:1d5
+B:BITE:COLD:2d6
+F:MALE | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR
+F:GIANT | EVIL | HURT_LIGHT | IM_COLD
+#: | CHAOTIC
+D:A pale white ogre with powerfully clawed hands.
+
+N:618:Two-headed ogre
+G:O:y
+I:110:105:20:33:30
+W:28:1:0:200
+B:HIT:BATTER:2d6
+B:HIT:BATTER:2d6
+B:BITE:WOUND:2d8
+B:BITE:WOUND:2d8
+F:MALE | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR
+F:GIANT | EVIL
+#: | CHAOTIC
+D:A large, hideous giant with two heads.
+
+N:619:Great Crystal Wyrm
+G:D:u
+I:125:3500:30:150:70
+W:67:2:39:23000
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:BITE:HURT:6d14
+B:BITE:HURT:6d14
+F:FORCE_SLEEP | ONLY_ITEM
+F:DROP_4 | DROP_GOOD | HAS_LIGHT | BASH_DOOR | POWERFUL
+F:DRAGON | EVIL | NO_CONF | NO_SLEEP
+# | LAWFUL
+S:1_IN_3
+# | POW_26
+S:BR_SHAR | SCARE | BLIND | CONF
+D:A huge crystalline dragon.  Its skin is composed of thousands of
+D: razor-sharp silver plates. Strange colours ripple through it as it
+D: moves in the light.
+
+N:620:Great Time Wyrm
+G:D:B
+I:125:3700:30:170:80
+W:70:2:39:27000
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:BITE:HURT:7d14
+B:BITE:HURT:7d14
+F:FORCE_SLEEP | ONLY_ITEM
+F:DROP_4| DROP_GOOD | BASH_DOOR | POWERFUL | DRAGON
+F:EVIL | RES_NEXUS | NO_STUN | NO_CONF
+F:NO_SLEEP
+# | LAWFUL
+S:1_IN_3
+# | POW_26
+S:BR_NEXU | BR_TIME | SCARE | BLIND | CONF
+D:A massive dragon that is thousands of years old, but you are not even
+D: sure if it is there.
+
+N:621:Great Inertia Wyrm
+G:D:W
+I:125:3500:30:150:80
+W:67:2:39:24000
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:BITE:HURT:6d14
+B:BITE:HURT:6d14
+F:FORCE_SLEEP | ONLY_ITEM
+F:DROP_4 | DROP_GOOD | SMART | BASH_DOOR | POWERFUL
+F:DRAGON | EVIL | NO_CONF | NO_SLEEP
+# | LAWFUL
+S:1_IN_3
+# | POW_26
+S:BR_INER | SCARE | CONF | SLOW
+D:A massive dragon that seems to be hardly moving at all as it charges
+D: at you with deadly menace.
+
+N:622:Inertia drake
+G:d:W
+I:110:450:30:70:70
+W:37:2:39:1300
+B:CLAW:HURT:4d3
+B:CLAW:HURT:4d3
+B:BITE:HURT:4d6
+F:FORCE_SLEEP | ONLY_ITEM | DROP_4 | BASH_DOOR
+F:DRAGON | EVIL | NO_CONF | NO_SLEEP
+# | LAWFUL
+S:1_IN_6
+# | POW_11
+S:BR_INER | SCARE | CONF | SLOW
+D:A dragon that seems to be hardly moving at all, yet it approaches you
+D: with deadly menace.
+
+N:623:Great Power Wyrm
+G:D:v
+I:130:6000:40:200:80
+W:82:2:119:35000
+B:CLAW:ACID:8d12
+B:CLAW:COLD:8d12
+B:BITE:FIRE:9d14
+B:BITE:POISON:9d14
+F:ATTR_MULTI | FORCE_SLEEP | ONLY_ITEM
+F:DROP_4 | DROP_GOOD | SMART
+# | CLOUD_SURROUND
+F:BASH_DOOR | POWERFUL | DRAGON | EVIL | IM_ACID
+F:IM_ELEC | IM_FIRE | IM_COLD | IM_POIS
+# | RES_CHAOS
+F:RES_PLAS | RES_NEXUS | RES_DISE
+#RES_NETHR | RES_WATER | 
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:1_IN_3
+# | POW_45
+S:BR_ACID | BR_ELEC | BR_FIRE | BR_COLD | BR_POIS
+S:BR_LIGHT | BR_DARK | BR_CONF | BR_SOUN | BR_NEXU
+S:BR_NETH | BR_CHAO | BR_DISE | SCARE | BLIND
+S:CONF | S_DRAGON | S_HI_DRAGON
+D:The most powerful breed of wyrm.  It appears to be every color at
+D: once. Nobody has survived long enough to know all the different ways
+D: it can breathe.
+
+N:624:Power drake
+G:d:v
+I:120:650:30:100:70
+W:42:1:56:2000
+B:CLAW:ACID:4d5
+B:CLAW:ELEC:4d5
+B:BITE:FIRE:4d8
+F:ATTR_MULTI | ONLY_ITEM | DROP_3
+F:DRAGON | EVIL | IM_ACID | IM_ELEC
+F:IM_FIRE | IM_COLD | IM_POIS
+F:RES_PLAS | RES_NEXUS | RES_DISE
+F:NO_STUN | NO_CONF | NO_SLEEP
+#CLOUD_SURROUND | RES_WATER | NO_SLOW | RES_CHAO | RES_NTHR
+S:1_IN_4
+# | POW_15
+S:BR_ACID | BR_ELEC | BR_FIRE | BR_COLD | BR_POIS
+S:BR_LIGHT | BR_DARK | BR_CONF | BR_SOUN | BR_NEXU
+S:BR_NETH | BR_CHAO | BR_DISE | SCARE | BLIND
+S:CONF
+D:An extremely dangerous drake.
+
+N:625:Great Aether Wyrm
+G:D:v
+I:125:3500:40:160:80
+W:70:2:39:25000
+B:CLAW:HURT:5d10
+B:CLAW:HURT:5d10
+B:BITE:HURT:8d12
+B:BITE:HURT:8d12
+F:ATTR_MULTI | FORCE_SLEEP | ONLY_ITEM
+F:DROP_4 | DROP_GOOD | SMART | BASH_DOOR
+F:POWERFUL | DRAGON | EVIL | IM_ACID | IM_ELEC
+F:IM_FIRE | IM_COLD | IM_POIS
+# | RES_CHAOS | RES_NETHR | RES_WATER | NO_SLOW
+F:RES_PLAS | RES_NEXUS | RES_DISE
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:1_IN_3
+# | POW_32
+S:BR_ACID | BR_ELEC | BR_FIRE | BR_COLD | BR_POIS
+S:BR_PLAS | BR_LIGHT | BR_DARK | BR_CONF | BR_SOUN
+S:BR_SHAR | BR_INER | BR_GRAV | BR_WALL
+S:BR_NEXU | BR_NETH | BR_CHAO | BR_DISE | BR_TIME
+S:BR_MANA | SCARE | BLIND | CONF
+#BR_WIND | 
+D:An awesome wyrm of pure magic.  It seems to be all colours and sizes
+D: and shapes, though the dominant form is that of a great dragon.
+
+N:626:Great Ethereal Wyrm
+G:D:o
+I:125:4500:40:175:80
+W:70:2:50:22000
+B:CLAW:HURT:6d10
+B:CLAW:HURT:6d10
+B:BITE:HURT:8d12
+B:BITE:HURT:8d12
+F:FORCE_SLEEP | ONLY_ITEM
+F:DROP_4 | DROP_GOOD | SMART | HAS_LITE | INVISIBLE
+F:PASS_WALL | POWERFUL | DRAGON | EVIL | NO_CONF
+F:NO_SLEEP
+# | LAWFUL
+S:1_IN_3
+# | POW_26
+S:BR_LIGHT | BR_DARK | BLIND | CONF
+D:A powerful wyrm of with control over light and dark, the ethereal
+D: wyrm's eyes glare with white hatred from the shadows.
+
+N:627:Thunder drake
+G:d:y
+I:110:400:30:100:70
+W:39:1:39:1400
+B:CLAW:HURT:3d5
+B:CLAW:HURT:3d5
+B:BITE:HURT:3d8
+F: ONLY_ITEM | DROP_3 | DRAGON
+F:EVIL | NO_CONF | NO_SLEEP
+# | LAWFUL
+S:1_IN_6
+# | POW_11
+S:BR_SOUN | SCARE | BLIND | CONF
+D:A blurry dragon-like form which seems to be moving as fast as the eye
+D: can follow.
+
+N:628:Half-ogre
+G:O:U
+I:110:188:20:50:50
+W:26:1:0:250
+B:HIT:BATTER:3d6
+B:HIT:BATTER:3d6
+B:BITE:WOUND:2d8
+F:MALE | FRIENDS | OPEN_DOOR | BASH_DOOR | DROP_1
+F:GIANT | EVIL
+# | CHAOTIC | DROP_90 | 
+D:A large, ugly half-human looking for a fight.
+
+N:629:Rod mimic
+G:-:s
+I:110:383:30:40:0
+W:45:4:71:450
+B:BITE:POISON:4d4
+B:BITE:POISON:4d4
+B:BUTT:CONFUSE:4d4
+B:BUTT:CONFUSE:4d4
+F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_2 | COLD_BLOOD
+F:EMPTY_MIND | IM_ACID | IM_FIRE | IM_COLD | IM_POIS
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:1_IN_3
+# | POW_10
+S:BA_DARK | BO_WATE
+S:BO_MANA | BO_ELEC | BO_ICEE | HASTE
+#BA_SHAR | BA_LITE | BA_CONF | 
+D:A strange creature that disguises itself as a rod to lure unsuspecting
+D: adventurers within reach of its venomous claws.  The first that most
+D: adventurers realise of the deception is when the seemingly invitingly
+D: laying on the ground rod suddenly grows teeth and tears into the
+D: adventurer's hand.
+
+N:630:Staff mimic
+G:_:s
+I:110:349:30:40:0
+W:38:4:43:260
+B:BITE:POISON:4d4
+B:BITE:POISON:4d4
+B:BUTT:CONFUSE:4d4
+B:SPIT:BLIND:4d4
+F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_2 | COLD_BLOOD
+F:EMPTY_MIND | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:1_IN_3
+# | POW_6
+S:SHRIEK | DARKNESS | TRAPS | FORGET | DRAIN_MANA
+S:SCARE | BLIND | CONF | SLOW | S_MONSTER
+D:A strange creature that disguises itself as a staff to lure
+D: unsuspecting adventurers within reach of its venomous claws.  The
+D: first that most adventurers realise of the deception is when the
+D: harmless stick on the ground grows teeth and then bites into the
+D: adventurer's hand.
+
+N:631:Wand mimic
+G:-:s
+I:110:310:30:40:0
+W:40:4:56:300
+B:BITE:POISON:4d4
+B:BITE:POISON:4d4
+B:BUTT:CONFUSE:4d4
+B:CLAW:CONFUSE:4d4
+F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_2 | COLD_BLOOD
+F:EMPTY_MIND | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:1_IN_3
+# | POW_9
+S:BO_POIS | BO_MANA | BO_ELEC | SCARE
+S:BLIND | CONF | S_MONSTER
+#BA_SHAR | 
+D:A strange creature that disguises itself as a wand to lure
+D: unsuspecting adventurers within reach of its venomous teeth.  The
+D: first that most adventurers realise of the deception is when the
+D: dormant wand suddenly starts lobbing spells at them from across the
+D: room.
+
+N:632:Vorpal bunny
+G:r:U
+I:120:28:8:18:10
+W:37:2:0:30
+B:BITE:CONFUSE:1d5
+B:BITE:BLIND:1d5
+F:RAND_50 | MULTIPLY | ANIMAL
+D:A fast-breeding, fast-moving vermin with light brown fur and big dark
+D: eyes.  Nothing that looks so innocent has ever been so dangerous.
+
+N:633:The Guardian of Chaos
+G:D:v
+I:140:7500:15:150:70
+W:95:3:0:43210
+B:CLAW:SHATTER:10d10
+B:CLAW:SHATTER:10d10
+B:BITE:CONFUSE:13d13
+B:BITE:HALLU:8d8
+F:UNIQUE | FORCE_SLEEP | ONLY_ITEM
+F:DROP_4 | DROP_GOOD | DROP_GREAT
+F:SMART | HAS_LIGHT | BASH_DOOR | POWERFUL | WEIRD_MIND |
+F:DRAGON | EVIL | NO_CONF | NO_SLEEP |
+#F:CHAOTIC | CLOUD_SURROUND
+S:1_IN_2
+# | POW_70
+S:BR_CONF | BR_NEXU | BR_CHAO | BR_DISE | BR_MANA |
+S:HEAL | DARKNESS | BLIND | CONF |
+S:BO_MANA | S_HI_DRAGON |
+S:BRAIN_SMASH | MIND_BLAST | HOLD | DRAIN_MANA | FORGET |
+#S:ADD_MANA | CURE | BA_CHAO | BA_CONF | WOUND | 
+Y:148
+D:The visage of the nameless Guardian of Chaos is beyond any description.
+D:  This huge figure of pure Chaos in a vaguely draconic shape approaches you
+D: unbelievably quickly.  It will turn you into Primal Chaos, and
+D: there is no escape for you now.
+
+N:634:The Sky Drake
+G:D:B
+I:135:6000:40:200:255
+W:77:2:0:40000
+B:CLAW:HURT:7d12
+B:CLAW:HURT:7d12
+B:BITE:ELEC:9d14
+B:BITE:ELEC:9d14
+F:FORCE_SLEEP | IM_ELEC | EVIL | UNIQUE
+F:ONLY_ITEM | DROP_4 | DROP_GOOD | DROP_GREAT
+F:BASH_DOOR | POWERFUL |  DRAGON
+# CHAOTIC | CLOUD_SURROUND | NO_CHARM
+S:1_IN_3
+# | POW_50
+S:BR_ELEC | BR_GRAV | BR_LIGHT
+# | BR_WIND
+S:S_DRAGON | S_HI_DRAGON |
+S:SCARE | BLIND
+Y:154
+D:A living chunk of the sky looms over you.  It has the shape of a huge
+D: dragon.  Its body is a dark cloud, its wings are strong winds,
+D: its tail is a lightning, and its eyes are bright stars.
+
+N:635:Water wapor
+G:.:b
+I:120:1:12:25:50
+W:10:3:0:2
+B:TOUCH:HURT:1d2
+F:CHAR_CLEAR | RAND_25 | RAND_50 | COLD_BLOOD | EMPTY_MIND | MULTIPLY
+F:IM_COLD | IM_POIS | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+#RES_WATER | NO_SLOW 
+D:A strange cloud of vapor.  It expands so quickly that it almost
+D: seems to be alive.
+
+# Powerful water elemental version, for later levels.
+
+N:636:Greater water elemental
+G:E:b
+I:120:625:12:40:50
+W:50:2:100:1200
+B:HIT:HURT:3d10
+B:HIT:HURT:3d10
+B:HIT:HURT:3d10
+F:FORCE_SLEEP | RAND_25 | COLD_BLOOD | EMPTY_MIND | BASH_DOOR
+F:KILL_BODY | KILL_ITEM | POWERFUL | IM_ACID | IM_FIRE
+F:IM_COLD | IM_POIS | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+#RES_WATER | NO_SLOW | LAWFUL
+S:1_IN_3
+# | POW_40
+S:BA_WATE | BO_COLD | BO_WATE
+#BALL_STORM | ADD_MANA |
+D:An elder creature from the plane of Water, it appears as
+D: a sentient waterfall at least thirty feet high.  It
+D: crushes its opponents with huge tsunami waves.  Two
+D: dark whirlpools stare at you with grim determination.
+
+# Powerful ice elemental version, for later levels.
+# Note that in Vanilla/NPP ice elementals were stronger
+# than water elementals.  In Pos, they have approximately
+# the same strength; both have "greater" form.
+
+N:637:Greater ice elemental
+G:E:w
+I:120:625:10:60:90
+W:50:2:100:1200
+B:TOUCH:COLD:12d3
+B:HIT:HURT:12d6
+B:TOUCH:COLD:12d3
+F:FORCE_SLEEP | COLD_BLOOD | EMPTY_MIND | BASH_DOOR | KILL_BODY
+F:KILL_ITEM | POWERFUL | IM_ACID | IM_ELEC | IM_COLD
+F:IM_POIS | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+#NO_SLOW | LAWFUL 
+S:1_IN_3
+# | POW_40
+S:BO_COLD | BA_COLD | BO_ICEE
+#BEAM_ICE | ADD_MANA
+D:You are faced by a sentient iceberg.  Huge chunks of ice
+D: form its body.  Aquamarine eyes pierce you, and your heart
+D: seems to freeze.
+
+# Ethereal Dragon king.  My own invention.
+
+N:638:Antir the Silver Wyrm
+G:D:W
+I:135:6000:15:140:70
+W:74:3:170:45000
+B:CLAW:HURT:7d10
+B:CLAW:HURT:7d10
+B:BITE:CONFUSE:10d10
+B:BITE:CONFUSE:10d10
+F:UNIQUE | MALE | FORCE_SLEEP | ONLY_ITEM
+F:DROP_4 | DROP_GOOD
+F:SMART | HAS_LITE | BASH_DOOR | POWERFUL
+F:DRAGON | EVIL | NO_CONF | NO_SLEEP | PASS_WALL | INVISIBLE
+# | CLOUD_SURROUND | LAWFUL 
+S:1_IN_2
+# | POW_60
+S:BR_LIGHT | BR_DARK | BR_CONF | BR_MANA | 
+S:HEAL | DARKNESS | BLIND | CONF |
+S:BA_DARK | BO_MANA | S_DRAGON | S_HI_DRAGON
+#ADD_MANA |  | CURE | BA_CONF | BA_LITE | 
+#Y:12
+D:A huge dragon from the Ethereal plane stands before you. 
+D: Antir's scales are shining and silver, but his shape is surrounded
+D: by darkness and fades.  Like all inhabitants of Ethereal plane,
+D: he despises material beings.
+
+# Shadow Dragon king.  Appears only when "normal" Glaurung is killed.
+# XXX Might be a little too tough.
+
+N:639:The Shadow of Glaurung
+#G:D:G
+#I:130:75d100:30:140:70
+#W:90:3:169:60000:481
+#B:CLAW:HURT:6d12
+#B:CLAW:HURT:6d12
+#B:BITE:COLD:9d14
+#B:BITE:EXP_80:9d14
+#F:UNIQUE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM
+#F:INVISIBLE | PASS_WALL
+#F:DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT
+#F:SMART | COLD_BLOOD | CLOUD_SURROUND | BASH_DOOR | POWERFUL
+#F:UNDEAD | CHAOTIC | IM_COLD | IM_POIS | RES_NETHR | NO_SLEEP
+#F:DRAGON | EVIL | NO_CONF
+#F:NO_SLEEP
+#S:SPELL_PCT_55 | POW_65
+#S:BRTH_POIS | BRTH_NETHR | BRTH_COLD | BRTH_MANA
+#S:SCARE | BLIND | CONF | S_HI_DRAGON
+#Y:19
+#D:Glaurung, the Father of Dragons is dead now, but his threat is not over
+#D: yet.  His undead ghost, created by Sauron, still haunts the deepest
+#D: vaults of Angband.  His gigantic form is almost invisible, but his
+#D: eyes are glowing brightly with anger.  His flame is extinguished, but
+#D: his deadly chill is even more terrible.
+
+
+# Low-level demon to fill the gap between tengu and bodak.
+# This one is mostly just an annoyance.
+
+N:640:Familiar
+G:u:o
+I:115:120:20:35:25
+W:20:2:0:100
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:GAZE:TERRIFY
+F:OPEN_DOOR | BASH_DOOR | DROP_1 | DEMON | EVIL
+# | CHAOTIC
+F:IM_FIRE | NO_FEAR | NO_CONF
+S:1_IN_6
+# | POW_5
+S:DRAIN_MANA | DARKNESS | SCARE
+D:A human figure of short stature with glowing red eyes.
+D:  Upon close examination, you discover ugly horns and short tail.
+
+
+# Low-level demon to fill the gap between tengu and bodak.
+# This one is a REAL annoyance, and could be quite nasty.
+
+N:641:Torturer
+G:u:s
+I:115:160:20:30:20
+W:25:2:0:200
+B:CLAW:WOUND:3d5
+B:CLAW:WOUND:3d5
+B:CLAW:PARALYZE:3d5
+F:OPEN_DOOR | BASH_DOOR | DROP_2 | DEMON | EVIL
+# | CHAOTIC
+F:IM_FIRE | IM_COLD | NO_FEAR | NO_CONF | NO_SLEEP
+S:1_IN_4
+# | POW_7
+S:SHRIEK | BLINK | DRAIN_MANA
+# | ADD_MANA | LASH
+S:MIND_BLAST | SCARE | BLIND | CONF | SLOW | HOLD
+# | WOUND
+D:A cruel and cunning demon with nasty claws.  He will torture both
+D: your body and your soul.
+
+# Yet another low-level demon to fill the gap between tengu and bodak.
+# I like the idea of occasional non-fire-based demons (I particularly
+# enjoyed ToME's White Balrog).
+
+N:642:Ice demon
+G:u:w
+I:115:210:20:35:25
+W:30:2:0:250
+B:CLAW:COLD:2d5
+B:CLAW:COLD:2d5
+B:GAZE:COLD:5d5
+F:OPEN_DOOR | BASH_DOOR | ONLY_ITEM | DROP_2 | DEMON | EVIL
+# | CHAOTIC
+F:IM_FIRE | IM_COLD | NO_FEAR | NO_CONF
+S:1_IN_3
+# | POW_7
+S:DRAIN_MANA | DARKNESS | BR_COLD | BA_COLD | BO_COLD | BO_ICEE
+D:An evil spirit covered with frost.  It can turn mortals' blood to ice
+D: with a mere look.

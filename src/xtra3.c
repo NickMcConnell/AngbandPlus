@@ -709,7 +709,7 @@ static const struct state_info effects[] =
 	{ TMD_SHERO,     S("Berserk"),    TERM_L_GREEN },
 	{ TMD_STONESKIN, S("Stone"),      TERM_L_GREEN },
 	{ TMD_SHIELD,    S("Shield"),     TERM_L_GREEN },
-	{ TMD_BLESSED,   S("Blssd"),      TERM_L_GREEN },
+	{ TMD_BLESSED,   S("Bless"),      TERM_L_GREEN },
 	{ TMD_SINVIS,    S("SInvis"),     TERM_L_GREEN },
 	{ TMD_SINFRA,    S("Infra"),      TERM_L_GREEN },
 	{ TMD_OPP_ACID,  S("RAcid"),      TERM_SLATE },
@@ -949,7 +949,9 @@ static size_t prt_tmd(int row, int col)
 
 	for (i = 0; i < N_ELEMENTS(effects); i++)
 	{
-		if (p_ptr->timed[effects[i].value])
+		/* If the player is the standard bearer, always display as blessed and heroic -Simon */
+		/*  */
+		if (p_ptr->timed[effects[i].value] || ((!strcmp(effects[i].str, "Bless") || !strcmp(effects[i].str, "Hero")) && (p_ptr->standard_bearer)))
 		{
 			c_put_str(effects[i].attr, effects[i].str, row, col + len);
 			len += effects[i].len;

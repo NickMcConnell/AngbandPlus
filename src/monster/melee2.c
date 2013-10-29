@@ -131,7 +131,7 @@ static void remove_bad_spells(int m_idx, bitflag f[RSF_SIZE])
 		if (p_ptr->state.immune_elec) smart |= (SM_IMM_ELEC);
 		if (p_ptr->state.immune_fire) smart |= (SM_IMM_FIRE);
 		if (p_ptr->state.immune_cold) smart |= (SM_IMM_COLD);
-		//if (p_ptr->state.immune_pois) smart |= (SM_IMM_POIS);
+		if (p_ptr->state.immune_pois) smart |= (SM_IMM_POIS);
 
 		/* Know oppositions */
 		if (p_ptr->timed[TMD_OPP_ACID]) smart |= (SM_OPP_ACID);
@@ -246,6 +246,11 @@ static void remove_bad_spells(int m_idx, bitflag f[RSF_SIZE])
 		}
 
 
+		if (smart & SM_IMM_POIS)
+		{
+			if (int_outof(r_ptr, 100)) rsf_off(f2, RSF_BR_POIS);
+			if (int_outof(r_ptr, 100)) rsf_off(f2, RSF_BA_POIS);
+		}
 		if ((smart & SM_OPP_POIS) && (smart & SM_RES_POIS))
 		{
 			if (int_outof(r_ptr, 80)) rsf_off(f2, RSF_BR_POIS);
@@ -3357,8 +3362,10 @@ static void process_monster(int m_idx)
 
 
 		/* Floor is open? */
-		if (cave_floor_bold(ny, nx))
+		if (cave_floor_bold(ny, nx) || (ny == p_ptr->py && nx == p_ptr->px))
 		{
+			/* Hack! if ny == py and nx == px then try to "move" */
+			/* This allows monsters to attack passwall players */
 			/* Go ahead and move */
 			do_move = TRUE;
 		}

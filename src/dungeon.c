@@ -650,11 +650,13 @@ static void process_world(void)
 		regen_amount = PY_REGEN_WEAK;
 
 	/* Various things speed up regeneration */
-	if (p_ptr->state.regenerate)
+	if (p_ptr->state.regenerate || p_ptr->state.super_regenerate) /* Super regen implies regular regen */
+		regen_amount *= 2;
+	if (p_ptr->state.super_regenerate)
 		regen_amount *= 2;
 	if (p_ptr->searching || p_ptr->resting)
 		regen_amount *= 2;
-
+		
 	/* Some things slow it down */
 	if (p_ptr->state.impair_hp)
 		regen_amount /= 2;
@@ -676,7 +678,9 @@ static void process_world(void)
 	regen_amount = PY_REGEN_NORMAL;
 
 	/* Various things speed up regeneration */
-	if (p_ptr->state.regenerate)
+	if (p_ptr->state.regenerate || p_ptr->state.super_regenerate) /* Super regen implies regular regen */
+		regen_amount *= 2;
+	if (p_ptr->state.super_regenerate)
 		regen_amount *= 2;
 	if (p_ptr->searching || p_ptr->resting)
 		regen_amount *= 2;

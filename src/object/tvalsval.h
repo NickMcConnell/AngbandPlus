@@ -270,7 +270,10 @@ enum sval_amulet /* tval 40 */
 	SV_AMULET_INGWE = 51,
 	SV_AMULET_DWARVES = 52,
 	SV_AMULET_ELESSAR = 53,
-	SV_AMULET_EVENSTAR = 54
+	SV_AMULET_EVENSTAR = 54,
+	SV_AMULET_COLLAR = 55,
+	SV_AMULET_VECNA = 56,
+	SV_AMULET_CHAOS = 57
 };
 
 enum sval_ring /* tval 45 */
@@ -315,7 +318,11 @@ enum sval_ring /* tval 45 */
 	SV_RING_NARYA = 52,
 	SV_RING_NENYA = 53,
 	SV_RING_VILYA = 54,
-	SV_RING_POWER = 55
+	SV_RING_POWER = 55,
+	SV_RING_WATER = 56,
+	SV_RING_FIRE = 57,
+	SV_RING_AIR = 58,
+	SV_RING_SMEAGOL = 59
 };
 
 enum sval_food /* tval 80 */

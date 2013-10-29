@@ -467,7 +467,8 @@ void wr_misc(void)
 	wr_u16b(p_ptr->total_winner);
 	wr_u16b(p_ptr->noscore);
 
-
+	wr_byte(p_ptr->standard_bearer);
+	
 	/* Write death */
 	wr_byte(p_ptr->is_dead);
 

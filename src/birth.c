@@ -613,7 +613,7 @@ void player_outfit(struct player *p)
 		if (e_ptr->kind)
 		{
 			/* Prepare the item */
-			object_prep(i_ptr, e_ptr->kind, 0, MINIMISE);
+			object_prep(i_ptr, e_ptr->kind, 0, RANDOMISE);
 			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
 			i_ptr->origin = ORIGIN_BIRTH;
 

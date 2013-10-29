@@ -1376,6 +1376,20 @@ static enum parser_error parse_r_f(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
+static enum parser_error parse_r_y(struct parser *p) {
+	struct monster_race *r = parser_priv(p);
+
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	if (!parser_hasval(p, "artidx"))
+	{
+		r->artifact_index = 0;
+		return PARSE_ERROR_NONE;
+	}
+	r->artifact_index = parser_getint(p, "artidx");
+	return PARSE_ERROR_NONE;
+}
+
 static enum parser_error parse_r_d(struct parser *p) {
 	struct monster_race *r = parser_priv(p);
 
@@ -1436,6 +1450,7 @@ struct parser *init_parse_r(void) {
 	parser_reg(p, "W int level int rarity int power int mexp", parse_r_w);
 	parser_reg(p, "B sym method ?sym effect ?rand damage", parse_r_b);
 	parser_reg(p, "F ?str flags", parse_r_f);
+	parser_reg(p, "Y int artidx", parse_r_y);
 	parser_reg(p, "D str desc", parse_r_d);
 	parser_reg(p, "S str spells", parse_r_s);
 	return p;
@@ -2612,6 +2627,21 @@ static enum parser_error parse_p_l(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
+/* Parse king monster info */
+static enum parser_error parse_p_k(struct parser *p) {
+	struct player_race *r = parser_priv(p);
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	if (!parser_hasval(p, "kidx"))
+	{
+		r->king_index = -1;
+		return PARSE_ERROR_NONE;
+	}
+	
+	r->king_index = parser_getint(p, "kidx");
+	return PARSE_ERROR_NONE;
+}
+
 /* Parse the new monster slot info -Simon */
 static enum parser_error parse_p_q(struct parser *p) {
 	struct player_race *r = parser_priv(p);
@@ -2688,6 +2718,7 @@ struct parser *init_parse_p(void) {
 	parser_reg(p, "E sym tval sym sval uint min uint max", parse_p_e);
 	parser_reg(p, "M int pmid", parse_p_m);
 	parser_reg(p, "L int lvl int mlvl int nid0 int nid1 int nid2 int nid3 int nid4", parse_p_l);
+	parser_reg(p, "K int kidx", parse_p_k);
 	parser_reg(p, "Q int mslt int rslt int islt int aslt int lslt int bslt int cslt int sslt int hslt int gslt int oslt", parse_p_q);
 	parser_reg(p, "P int lvl int cost sym name int fail", parse_p_p);
 	return p;

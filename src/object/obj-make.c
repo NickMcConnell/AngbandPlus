@@ -422,7 +422,8 @@ static bool make_artifact(object_type *o_ptr)
 		return (FALSE);
 
 	/* No artifacts in the town */
-	if (!p_ptr->depth) return (FALSE);
+	/* Commenting this out because I don't understand the reasoning behind it -Simon */
+	//if (!p_ptr->depth) return (FALSE);
 
 	/* Paranoia -- no "plural" artifacts */
 	if (o_ptr->number != 1) return (FALSE);

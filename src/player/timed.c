@@ -150,7 +150,7 @@ bool set_timed(int idx, int v, bool notify)
 	else if (idx == TMD_OPP_ELEC && p_ptr->state.immune_elec) notify = FALSE;
 	else if (idx == TMD_OPP_FIRE && p_ptr->state.immune_fire) notify = FALSE;
 	else if (idx == TMD_OPP_COLD && p_ptr->state.immune_cold) notify = FALSE;
-	//else if (idx == TMD_OPP_POIS && p_ptr->state.immune_pois) notify = FALSE;
+	else if (idx == TMD_OPP_POIS && p_ptr->state.immune_pois) notify = FALSE;
 	else if (idx == TMD_OPP_CONF && p_ptr->state.resist_confu) notify = FALSE;
 
 	/* Find the effect */

@@ -1,12 +1,13 @@
 Added monster races which have no class and have natural powers and can gain natural AC and speed as they level, and at set levels can evolve into different forms that have new stats, flags and powers
+Monsters are assigned the monster class, which has skill values equal to a paladin
+Added "standard bearer" unique monsters - if you're their species, and you kill them, you'll become perma-blessed & heroic and they'll drop a special artifact.  Non-members of their species have a 1/15 chance of getting the artifact, which is normally pretty strong for its level.
 changed the equip item interface slightly so it shows all slots
 changed player dumps so they only show full slots
 changed character sheet to 3 seperate pages
 score is registered for suicides
-changed max xp to = max gold, because why not
+increased max xp 10-fold , because why not
 quickstart disabled.. evolution screws it up
 acquirement changed so that it generates objects based on the farthest depths you've reached, not current depth.. also only grants items you can use
-
 
 Progression:
 2h hydra -lvl 8-> 3h hydra -15-> 4h hydra -23-> 5h hydra -30-> 7h hydra -37-> 9h hydra -45-> 11h hydra
@@ -23,11 +24,10 @@ crystal drake 	-25-> GCD
 
 TODO:
 from high to low priority:
-more monster races (easy)
-implement new flags (pois blood, super regen, imm pois)
+copy over pos' balanced ice/water, fire/lava, etc elementals
+maybe copy ainur too
 more powers for new monsters
 infinite home room (put on hold)
-"king" monsters (easy)
 summoning (hard)
 quests (easy)
 level 30 monsters should have about 5 net bonus points to stats - rationalize stat points, flags, hp, xp across monsters.. then do it all while blindfolded and on fire
@@ -35,7 +35,7 @@ add fire_arc, change br weapons to use it
 terrain, terrain modifying spells (e.g. Ainur spells) (med)
 possessors (hard)
 monster alignment - law/chaos (easy)
-invisibility/blindness (easy)
+invisibility/blindness (easy?)
 
 my own TODO:
 add Nick's sweet egos
@@ -44,16 +44,13 @@ add different classes for monsters: monster (base kind), possessor (doesn't evol
 
 bugs:
 screen redrawing means messages before evolution are dropped
-level gain messages can be displayed 2x if they occur after evolving
+level gain messages can be displayed 2x or more if they occur after evolving
 can't use 'repeat command' with race powers
 powers can't use HP in lieu of mana (feature or bug?)
-pval of starting items is set in stone (feature or bug?)
 equippy chars don't display on main screen(design problem.. how to deal with a line too long?)
 innate melee info not displayed
-innate melee doesn't ID-by-use rings of dam/acc/slay
 BAD PROGRAMMING: racial powers files should be in their own folder and better organized, I lazily copied them from pos
 eq slots past 23 aren't labelled correctly
-monsters probably (untested) try to use poison against IM_POIS players, even if smart_monsters turned on
 player dumps show level X being achieved multiple times, eg:
     215913   2000'   31   Reached level 31
     215942   2000'   31   Found The Leather Scale Mail 'Thalkettoth'

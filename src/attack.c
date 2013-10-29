@@ -323,11 +323,13 @@ bool py_attack_real(int y, int x)
 	bonus = p_ptr->state.to_h + o_ptr->to_h;
 	chance = (p_ptr->state.skills[SKILL_TO_HIT_MELEE] + (bonus * BTH_PLUS_ADJ));
 
+	/* Handle innate melee; innate effects not working great -Simon */
 	if(!o_ptr->k_idx && rp_ptr->p_monster_index)
 	{
 		for (int num = 0; (num < MONSTER_BLOW_MAX) && !dead; num++)
 		{
-			int type = GF_ARROW, type2 = 0;
+			const slay_t *best_s_ptr = NULL;
+			int type = GF_ARROW, type2 = 0, i;
 			int flg = PROJECT_KILL | PROJECT_STOP | PROJECT_HIDE; // | PROJECT_PASS; TODO: figure out what this is and implement it -Simon
 			char *p = "";
 						
@@ -352,7 +354,7 @@ bool py_attack_real(int y, int x)
 					case RBM_STING:	p = "sting"; break;
 					case RBM_BUTT:	p = "butt"; break;
 					case RBM_CRUSH:	p = "crush"; break;
-					case RBM_ENGULF:	p = "engulf"; break;
+					case RBM_ENGULF:p = "engulf"; break;
 					case RBM_PECK:	p = "peck"; break;
 					case RBM_CRAWL:	p = "crawl on"; break;
 					case RBM_DROOL:	p = "drool on"; break;
@@ -396,9 +398,35 @@ bool py_attack_real(int y, int x)
 					case RBE_HALLU: type = GF_DISENCHANT; mul = 2; break;
 					default: type = GF_ARROW;
 				}
-
+			
+				k = damroll(r_info[rp_ptr->p_monster_index].blow[num].d_dice, r_info[rp_ptr->p_monster_index].blow[num].d_side);
+				/* Get the best attack from all slays or
+				 * brands on all non-launcher equipment */
+				for (i = INVEN_FINGER; i < INVEN_TOTAL; i++)
+					improve_attack_modifier(&p_ptr->inventory[i], m_ptr, &best_s_ptr);
+					
+				if (best_s_ptr != NULL)
+				{
+					if (best_s_ptr->mult > mul)
+					{
+						p = best_s_ptr->melee_verb;
+						k *= best_s_ptr->mult;
+						if (best_s_ptr->resist_flag == RF_IM_ACID)
+							type = GF_ACID;
+						else if (best_s_ptr->resist_flag == RF_IM_ELEC)
+							type = GF_ELEC;
+						else if (best_s_ptr->resist_flag == RF_IM_FIRE)
+							type = GF_FIRE;
+						else if (best_s_ptr->resist_flag == RF_IM_COLD)
+							type = GF_COLD;
+						else if (best_s_ptr->resist_flag == RF_IM_POIS)
+							type = GF_POIS;
+					}
+					else
+						k *= mul;
+				}
+				
 				message_format(MSG_HIT, m_ptr->r_idx, "You %s %s.", p, m_name);
-				k = damroll(r_info[rp_ptr->p_monster_index].blow[num].d_dice * mul, r_info[rp_ptr->p_monster_index].blow[num].d_side);
 				/* Add to-dam bonus only if did some damage */
 				if (k) k += p_ptr->state.to_d;
 				if (k < 0) k = 0;
@@ -411,20 +439,13 @@ bool py_attack_real(int y, int x)
 				{
 					project(-1, 0, y, x, 4 * p_ptr->lev, type2, flg);
 				}
-					
-				/* Damage, check for fear and death */
-				/* For some reason this used to project a radius 0 ball */
-				dead = mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
-				
-				/* Hack -- delay fear messages */
-				if (fear && m_ptr->ml)
-					message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
-								       
+							       
 				/* Confusion attack */
-				if (p_ptr->confusing)
+				if (p_ptr->confusing || (type2 == GF_OLD_CONF))
 				{
 					/* Message */
-					msg_print("Your limbs stop glowing.");
+					if (p_ptr->confusing)
+						msg_print("Your limbs stop glowing.");
 				
 					/* Cancel glowing hands */
 					p_ptr->confusing = FALSE;
@@ -448,7 +469,16 @@ bool py_attack_real(int y, int x)
 						m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
 					}
 				}
-	     
+				
+				/* Damage, check for fear and death */
+				/* Hack: check if the square is empty after we project the attack into it -Simon */
+				project(-1, 0, y, x, k, type, flg);	
+				dead = (cave_m_idx[y][x] == 0);
+				//dead = mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
+			
+				/* Hack -- delay fear messages */
+				if (fear && m_ptr->ml)
+					message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
 			}
 			/* Player misses */
 			else

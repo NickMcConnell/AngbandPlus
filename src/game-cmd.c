@@ -103,7 +103,6 @@ static struct
 	{ CMD_STASH, { arg_ITEM, arg_NUMBER }, do_cmd_stash, FALSE, 0 },
 	{ CMD_BUY, { arg_ITEM, arg_NUMBER }, do_cmd_buy, FALSE, 0 },
 	{ CMD_RETRIEVE, { arg_ITEM, arg_NUMBER }, do_cmd_retrieve, FALSE, 0 },
-	/* Make this do things -Simon */
 	{ CMD_USE_RACIAL_POWER, {arg_NONE }, NULL, FALSE, 0 },
 	{ CMD_SUICIDE, { arg_NONE }, do_cmd_suicide, FALSE, 0 },
 	{ CMD_SAVE, { arg_NONE }, do_cmd_save_game, FALSE, 0 },

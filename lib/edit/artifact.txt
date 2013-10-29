@@ -1923,3 +1923,216 @@ F:RES_NETHR | RES_FEAR | RES_DARK | RES_COLD
 D:The blade of the legendary Shieldmaiden of Rohan, who struck a 
 D:mighty blow against the Morgul-lord whom no mortal Man could hinder, 
 D:and also slew his foul steed.
+
+N:137:of Grip
+I:amulet:55:2
+W:1:1:3:750
+A:0:0 to 127
+P:0:0d0:5:1:0
+F:DEX | INT
+D:The collar of one of Farmer Maggot's dogs.
+
+N:138:of Fang
+I:amulet:55:2
+W:1:1:3:750
+A:0:0 to 127
+P:0:0d0:1:5:0
+F:STR | CON
+D:The collar of one of Farmer Maggot's dogs.
+
+N:139:of Sm['e]agol
+I:ring:59:5
+W:3:1:2:3000
+A:0:0 to 127
+P:0:0d0:0:0:4
+F:SEARCH | STEALTH | INFRA | RES_COLD
+D:Wait, what's this?  Ring of Smeagol?  But he wore the One Ring! 
+D: Yes, that is true, and the real One Ring is lost forever now. 
+D: Nonetheless, this ring is useful for a small creature living
+D: in dark underground tunnels.
+
+N:140:of Glaurung
+I:dragon armour:Red Dragon Scale Mail~:5
+W:60:1:250:200000
+A:0:0 to 127
+P:40:2d4:5:8:25
+F:STR | INT | CON | SPEED |
+F:SUST_STR | SUST_CON | IM_FIRE | RES_ACID | RES_ELEC | RES_POIS | RES_FEAR
+F:RES_BLIND | RES_CONFU | RES_SHARD | RES_CHAOS |
+F:SLOW_DIGEST | FEATHER | LIGHT | REGEN | SEE_INVIS | FREE_ACT | HOLD_LIFE
+#F:AGGRAVATE - not good enough to be worth AGG
+D:The red scales of Glaurung, Father of Dragons himself,
+D: containing much of his power.
+
+N:141:of Hydras
+I:crown:Iron Crown~:3
+W:55:1:20:75000
+A:0:0 to 127
+P:0:0d0:0:0:35
+F:CON | IM_FIRE | IM_POIS | REGEN | SUPER_REGEN | RES_FEAR | RES_ACID | RES_ELEC | RES_COLD
+F:RES_SOUND | RES_SHARD | RES_NEXUS | SLOW_DIGEST | FREE_ACT
+D:The ugly, slimy crown, worn by the hydra queen.  You nearly faint
+D: from the terrible stench, but it seems to vanish when you touch
+D: this crown.
+
+N:142:of Rogrog
+I:hafted:Lead-Filled Mace~:4
+W:40:1:180:50000
+A:0:0 to 127
+P:0:6d4:0:20:0
+F:STR | INFRA | TUNNEL | SLAY_GIANT | SLAY_ANIMAL | BRAND_ACID
+F:RES_FEAR | RES_DISEN | SLOW_DIGEST | FREE_ACT | IMPACT
+D:A huge mace, black with dried blood.  It is so big and heavy
+D: that you feel nervous just looking at it.
+
+N:143:of Shelob
+I:soft armour:Leather Scale Mail~:4
+W:50:1:140:125000
+A:0:0 to 127
+P:20:1d2:0:0:40
+F:STR | DEX | STEALTH | SEARCH | SPEED |
+F:SUST_DEX | RES_ACID | RES_COLD | RES_FIRE | RES_ELEC | IM_POIS |
+F:RES_CHAOS | RES_NETHR | HOLD_LIFE | REGEN | FREE_ACT | RES_BLIND
+D:The disgusting remains of the mightiest descendant of Ungoliant. 
+D: Shelob's chitin is almost impenetrable.
+
+N:144:of Vecna
+I:amulet:56:5
+W:70:1:3:130000
+A:0:0 to 127
+P:0:0d0:0:0:35
+F:INT | WIS | CHR | SEARCH |
+F:SUST_INT | SUST_WIS |
+F:IM_COLD | IM_POIS | RES_LIGHT | RES_DARK | RES_CHAOS | RES_NETHR | RES_DISEN |
+F:RES_BLIND | RES_CONFU |
+F:LIGHT | TELEPATHY | HOLD_LIFE | SEE_INVIS |
+F:DRAIN_EXP | HEAVY_CURSE | HIDE_TYPE
+#F:ACTIVATE
+#A:VECNA:75:25
+D:This skeletal hand looks ancient.  You sense the dark powers of
+D: the great undead wizard still coursing through it.
+
+N:145:of Elemental Water
+I:ring:56:6
+W:15:1:3:75000
+A:0:0 to 127
+P:0:0d0:12:3:28
+F:WIS | DEX | CON |
+F:SUST_WIS | SUST_DEX | SUST_CON |
+F:IM_COLD | RES_DARK | RES_FEAR |
+F:REGEN | HOLD_LIFE | HIDE_TYPE
+E:RING_ICE:50+d50
+D:A mysterious ring with a dark blue sapphire embedded within.  When you touch it,
+D: you feel the chilling cold of Helcaraxe, the silence of ocean depths,
+D: the calmness of Galadriel's mirror and the darkness of the waters of
+D: Kheled-zaram.
+
+N:146:of Elemental Fire
+I:ring:57:6
+W:15:1:3:75000
+A:0:0 to 127
+P:0:0d0:7:7:15
+F:STR | INT | CON |
+F:SUST_STR | SUST_INT | SUST_CON |
+F:IM_FIRE | RES_LIGHT | RES_CHAOS | RES_FEAR |
+F:REGEN | FEATHER | HIDE_TYPE
+E:RING_FLAMES:50+d50
+D:A mysterious ring with a deep red ruby embedded within.  When you touch it,
+D: you feel the warmth of the Sun, the light of Arien, the terrible
+D: fire of Udun and the heat of the raging flames of Sammath-Naur.
+
+N:147:of Elemental Air
+I:ring:58:6
+W:15:1:3:75000
+A:0:0 to 127
+P:0:0d0:20:3:16
+F:STR | DEX | CHR |
+F:SUST_STR | SUST_DEX | SUST_CHR |
+F:IM_ELEC | RES_LIGHT | RES_FEAR |
+F:REGEN | SPEED | HIDE_TYPE
+E:RING_LIGHTNING:50+d50
+D:A mysterious ring with a bright white diamond embedded within.  When you touch it,
+D: you feel the infinite depth of the sky of Arda, the cold winds blowing in the
+D: Misty Mountains, the might of Great Eagles and the soft clouds floating
+D: above the Shire.
+
+N:148:of Chaos
+I:amulet:57:10
+W:90:0:3:987654
+A:0:0 to 127
+P:0:0d0:10:42:-80
+F:INT | DEX | CON | SPEED |
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | RES_COLD | RES_ELEC |
+F:IM_FIRE | IM_ACID | RES_FEAR | RES_DARK | RES_CONFU |
+F:RES_NEXUS | RES_CHAOS | RES_DISEN |
+F:LIGHT | REGEN | TELEPATHY | FREE_ACT | HOLD_LIFE |
+F:TELEPORT | AGGRAVATE | DRAIN_EXP |
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
+#F:ACTIVATE
+#A:BURST_CHAOS:50:50
+D:You have never seen such a strange amulet.  It changes shape
+D: constantly, striving to revert to Primal Chaos.  It contains
+D: powers too great for any mortal to master.
+
+N:149:of Mughash
+I:sword:Dagger~:2
+W:7:0:12:7500
+A:0:0 to 127
+P:0:2d4:9:9:0
+F:STR | DEX | SUST_DEX |
+F:BRAND_POIS | RES_POIS |
+E:STINKING_CLOUD:3+d3
+D:A small poisonous dagger, the former property of a kobold lord.
+
+N:150:of Bullroarer
+I:gloves:Set~ of Gauntlets:3
+W:5:0:25:3000
+A:0:0 to 127
+P:3:1d1:2:2:8
+F:STR | CON | RES_FEAR | HOLD_LIFE
+D:As everyone knows, Bullroarer the Hobbit was renowned for his unusual
+D: strength and vigour. These gauntlets were the cause of it.
+
+N:151:of Lagduf
+I:sword:Main Gauche~:-2
+W:7:0:30:7700
+A:0:0 to 127
+P:0:3d5:5:16:0
+F:INT | WIS | CHR
+D:A cruel-looking blade, belonging to one of the weaker orcs.
+
+N:152:'Angmenel'
+I:sword:Long Sword~:5
+W:70:0:130:100000
+A:0:0 to 127
+P:0:5d5:18:27:-35
+F:BRAND_ELEC | BRAND_COLD | SLAY_DRAGON | SLAY_DEMON | SLAY_UNDEAD | SLAY_EVIL
+F:STR | RES_COLD | IM_ELEC | RES_NETHR | RES_DISEN | HOLD_LIFE
+D:A sword of meteoric iron, its name means 'iron from heavens'.
+D: It was the last sword of Eol, the Dark Elven Smith, and it belonged
+D: to his son for a long time.  You hold this completely black and
+D: very sharp blade with unease; you feel its owner's anger in it.
+
+N:153:of Scatha
+I:dragon armour:White Dragon Scale Mail~:3
+W:40:0:250:100000
+A:0:0 to 127
+P:30:2d4:5:8:35
+F:STR | WIS | CON | SPEED |
+F:SUST_WIS | IM_COLD | RES_POIS | RES_FEAR
+F:RES_BLIND | RES_CONFU | RES_SHARD |
+F:SLOW_DIGEST | FEATHER | REGEN | SEE_INVIS | FREE_ACT |
+D:The suit of white scales of Scatha the Worm, the last White Dragon of
+D: Middle-earth, containing much of his power.
+
+N:154:of the Sky Drake
+I:dragon armour:Blue Dragon Scale Mail~:10
+W:60:0:250:350000
+A:0:0 to 127
+P:40:2d4:0:0:15
+F:STEALTH | SPEED |
+F:SUST_DEX | IM_ELEC | RES_COLD | RES_POIS | RES_FEAR
+F:RES_BLIND | RES_CONFU | RES_SOUND | RES_CHAOS | RES_DISEN
+F:SLOW_DIGEST | FEATHER | REGEN | SEE_INVIS | FREE_ACT | HOLD_LIFE |
+D:A suit of blue scales from the mighty Sky Drake,
+D: containing much of its power.

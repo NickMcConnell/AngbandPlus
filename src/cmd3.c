@@ -235,7 +235,7 @@ void textui_obj_wield(object_type *o_ptr, int item)
 			item_tester_hook = obj_is_ammo;
 			if (!get_item(&slot, q, s, CMD_WIELD, USE_EQUIP)) return;
 		}
-		else if (((slot == INVEN_WIELD) && (rp_ptr->melee_slots > 1))
+		/*else if (((slot == INVEN_WIELD) && (rp_ptr->melee_slots > 1))
 				|| ((slot = INVEN_BOW) && (rp_ptr->range_slots > 1))
 				|| ((slot = INVEN_FINGER) && (rp_ptr->ring_slots > 1))
 				|| ((slot == INVEN_NECK) && (rp_ptr->amulet_slots > 1))
@@ -251,7 +251,7 @@ void textui_obj_wield(object_type *o_ptr, int item)
 			cptr s = "Error in obj_wield, please report";
 			//item_tester_hook = obj_is_ring;
 			if (!get_item(&slot, q, s, CMD_WIELD, USE_EQUIP)) return;
-		}
+		}*/
 	}
 
 	cmd_insert(CMD_WIELD);

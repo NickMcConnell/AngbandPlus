@@ -1624,6 +1624,11 @@ s16b player_place(int y, int x)
 	return (-1);
 }
 
+/*
+ * Ugly Hack (to avoid changing calls everywhere):
+ * flag to mark summoned monsters as pets
+ */
+bool summon_pets_hack = FALSE;
 
 /*
  * Place a copy of a monster in the dungeon XXX XXX
@@ -1742,6 +1747,22 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		return (FALSE);
 	}
 
+	/* Hack -- some monsters can be generated only after the death of certain unique */
+	/* copied from Pos, used for Shade of Glaurung -Simon */
+	if (r_ptr->extra && r_info[r_ptr->extra].max_num)
+	{
+		/* Cannot create */
+		return (FALSE);
+	}
+
+	/* Hack -- "unique" monsters cannot be summoned as pets */
+	/* Mega-Hack -- but the Valar can */
+	/* Copied from Pos -Simon */
+	if (rf_has(r_ptr->flags, RF_UNIQUE) && !rf_has(r_ptr->flags, RF_VALA) && summon_pets_hack)
+	{
+		/* Cannot create */
+		return (FALSE);
+	}
 
 	/* Depth monsters may NOT be created out of depth */
 	if (rf_has(r_ptr->flags, RF_FORCE_DEPTH) && p_ptr->depth < r_ptr->level)
@@ -1749,8 +1770,14 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		/* Cannot create */
 		return (FALSE);
 	}
-
-
+	
+	/* Mega-Hack -- "lawful" monster cannot be summoned by a player of Chaos */
+	if (rf_has(r_ptr->flags, RF_LAWFUL) && (p_ptr->al_special == PAL_CHAOS) && (summon_pets_hack))
+	{
+		/* Cannot create */
+		return (FALSE);
+	}
+	
 	/* Powerful monster */
 	if (r_ptr->level > p_ptr->depth)
 	{
@@ -1780,6 +1807,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		/* Unique monsters induce message */
 		if (OPT(cheat_hear)) msg_format("Unique (%s).", name);
+		
+		/* Monsters always know about their standard bearer */
+		if (r_idx == rp_ptr->king_index) msg_format("You sense the presence of the standard bearer of the %s race!", name);
 	}
 
 
@@ -1831,7 +1861,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		if (i) n_ptr->mspeed += rand_spread(0, i);
 	}
 
-
 	/* Give a random starting energy */
 	n_ptr->energy = (byte)randint0(50);
 
@@ -1844,7 +1873,31 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		/* Optimize -- Repair flags */
 		repair_mflag_nice = TRUE;
 	}
-
+	
+	/* Set alignment to the player */
+	if (summon_pets_hack)
+	{
+		if (rf_has(r_ptr->flags, RF_LAWFUL))
+			n_ptr->align = AL_PET_L;
+		else if (rf_has(r_ptr->flags, RF_CHAOTIC))
+			n_ptr->align = AL_PET_C;
+		else
+			n_ptr->align = AL_PET;
+	}
+	else
+	{
+		if (rf_has(r_ptr->flags, RF_LAWFUL))
+			n_ptr->align = AL_HOSTILE_L;
+		else if (rf_has(r_ptr->flags, RF_CHAOTIC))
+			n_ptr->align = AL_HOSTILE_C;
+		else
+			n_ptr->align = AL_HOSTILE;
+	}
+	
+	/* Give initial orders to pets */
+//	if (n_ptr->align & (AL_PET_MASK))
+//		n_ptr->mflag |= MFLAG_PET_DEFAULT;
+		
 	/* Radiate light? */
 	if (rf_has(r_ptr->flags, RF_HAS_LITE)) p_ptr->update |= PU_UPDATE_VIEW;
 
@@ -2242,7 +2295,14 @@ static bool summon_specific_okay(int r_idx)
 			        !rf_has(r_ptr->flags, RF_UNIQUE));
 			break;
 		}
-
+		
+		case SUMMON_ANT:
+		{
+			okay = ((r_ptr->d_char == 'a') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+ 			break;
+ 		}
+		
 		case SUMMON_SPIDER:
 		{
 			okay = (r_ptr->d_char == 'S' &&
@@ -2273,6 +2333,14 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+	/*	case SUMMON_AINU:
+		{
+			okay = ((r_ptr->d_char == 'A') &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
+
+			break;
+		}
+	*/	
 		case SUMMON_DEMON:
 		{
 			okay = (rf_has(r_ptr->flags, RF_DEMON) &&
@@ -2299,7 +2367,14 @@ static bool summon_specific_okay(int r_idx)
 			                              RF_ESCORTS, FLAG_END));
 			break;
 		}
-
+		
+		case SUMMON_LAWFUL:
+		{
+			okay = (rf_has(r_ptr->flags, RF_LAWFUL) &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break; 
+		}
+		
 		case SUMMON_KIN:
 		{
 			okay = (r_ptr->d_char == summon_kin_type &&
@@ -2351,6 +2426,193 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_MONSTERS:
 		{
 			okay = (!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+		
+		case SUMMON_THIEF:
+		{
+			int effect;
+			int i;
+			
+			/* Scan through all the blows */
+			for (i = 0; i < MONSTER_BLOW_MAX; i++)
+			{
+				/* Extract information about the blow effect */
+				effect = r_ptr->blow[i].effect;
+				if (effect == RBE_EAT_GOLD) okay = TRUE;
+				if (effect == RBE_EAT_ITEM) okay = TRUE;
+			}
+			break;
+		}
+
+		case SUMMON_AIR_ELEM:
+		{
+		    	/* Hack -- allow wisps of fog, air spirits,
+			   (greater) air elementals and smoke elementals */
+			okay = (r_idx == 660 || r_idx == 163 || r_idx == 360 ||
+			        r_idx == 371 || r_idx == 658 || r_idx == 659);
+			break;
+		}
+		
+		case SUMMON_WATER_ELEM:
+		{
+			/* Hack -- allow water vapor, water spirits,
+			   (grater) water elementals and ice elementals */
+			okay = (r_idx == 217 || r_idx == 351 || r_idx == 390 ||
+			        r_idx == 634 || r_idx == 635 || r_idx == 636);
+			break;
+		}
+
+		case SUMMON_FIRE_ELEM:
+		{
+			/* Hack -- allow wisps of smoke, fire spirits,
+			   (grater) fire elementals and magma elementals */
+			okay = (r_idx == 220 || r_idx == 349 || r_idx == 397 ||
+			        r_idx == 655 || r_idx == 656 || r_idx == 657);
+			break;
+		}
+		
+		case SUMMON_YEEK:
+		{
+			/* Hack -- all non-unique 'y's */
+			okay = ((r_ptr->d_char == 'y') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+		
+		case SUMMON_ORC:
+		{
+			/* Hack -- all non-unique 'o's */
+			okay = ((r_ptr->d_char == 'o') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+		
+		case SUMMON_DARK_ELF:
+		{
+			/* Hack -- all non-unique 'h's with 'Dark ' in the name */
+			okay = ((r_ptr->d_char == 'h') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE) &&
+				strstr(r_ptr->name, "Dark "));
+			break;
+		}
+			
+		case SUMMON_OGRE:
+		{
+			/* Hack -- all non-unique 'O's */
+			okay = ((r_ptr->d_char == 'O') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+
+		case SUMMON_TROLL:
+		{
+			okay = (rf_has(r_ptr->flags, RF_TROLL) &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+
+		case SUMMON_GOLEM:
+		{
+			/* Hack -- all non-unique 'g's (are there any unique golems?..) */
+			okay = ((r_ptr->d_char == 'g') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+
+		case SUMMON_VORTEX:
+		{
+			/* Hack -- all non-unique 'v's (are there any unique vortices?..) */
+			okay = ((r_ptr->d_char == 'v') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+
+		case SUMMON_ELEMENTAL:
+		{
+			/* Hack -- all non-unique 'E's */
+			okay = ((r_ptr->d_char == 'E') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+
+		case SUMMON_LICH:
+		{
+			/* Hack -- all non-unique 'L's */
+			okay = ((r_ptr->d_char == 'L') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
+			break;
+		}
+/*
+		case SUMMON_UNDEAD_SUMM:
+		{
+*/			/* Hack -- all non-unique summoners */
+/*			okay = (!rf_has(r_ptr->flags, RF_UNIQUE) &&
+				(rf_has(r_ptr->flags, S_UNDEAD) || rf_has(r_ptr->flags, S_HI_UNDEAD)));
+			break;
+		}
+
+		case SUMMON_DEMON_SUMM:
+		{
+*/			/* Hack -- all non-unique summoners */
+/*			okay = (!rf_has(r_ptr->flags, RF_UNIQUE) &&
+				(rf_has(r_ptr->flags, S_DEMON) || rf_has(r_ptr->flags, S_HI_DEMON)));
+			break;
+		}
+
+		case SUMMON_DRAGON_SUMM:
+		{
+*/			/* Hack -- all non-unique summoners */
+/*			okay = (!rf_has(r_ptr->flags, RF_UNIQUE) &&
+				(rf_has(r_ptr->flags, S_DRAGON) || rf_has(r_ptr->flags, S_HI_DRAGON)));
+			break;
+		}
+*/
+		case SUMMON_VROCK:
+		{
+			/* Hack -- non-unique demons with groups */
+			okay = (!rf_has(r_ptr->flags, RF_UNIQUE) &&
+				rf_has(r_ptr->flags, RF_DEMON) &&
+				(rf_has(r_ptr->flags, RF_FRIEND) || rf_has(r_ptr->flags, RF_FRIENDS)));
+			break;
+		}
+		
+		case SUMMON_BALROG:
+		{
+			/* Hack -- non-unique U's, either summoners or escorts */
+			okay = (!rf_has(r_ptr->flags, RF_UNIQUE) &&
+				//(r_ptr->flags7 & (RF7_S_DEMON | RF7_S_HI_DEMON) ||
+				(rf_has(r_ptr->flags, RF_ESCORT) || rf_has(r_ptr->flags, RF_ESCORTS)) &&
+				(r_ptr->d_char == 'U'));
+			break;
+		}
+
+		case SUMMON_MATURE_DRAGON:
+		{
+			/* Hack -- all 'd's with 'ature' or 'rake' in name */
+			okay = ((r_ptr->d_char == 'd') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE) &&
+				(strstr(r_ptr->name, "ature") ||
+				 strstr(r_ptr->name, "rake")));
+			break;
+		}
+		
+		case SUMMON_ULTIMATE:
+		{
+			/* Hack -- allow Great Power Wyrms, Greater Balrogs,
+				Pit Fiends, Black Reavers, Master Q's,
+				Aether Hounds, Bronze Golems, Jabberwocks */
+			okay = (r_idx == 623 || r_idx == 573 || r_idx == 572 ||
+			        r_idx == 524 || r_idx == 533 || r_idx == 531 ||
+			        r_idx == 609 || r_idx == 517);
+			break;
+		}
+
+		case SUMMON_WIGHT_WRAITH:
+		{
+			/* Hack -- all non-unique 'W's */
+			okay = ((r_ptr->d_char == 'W') &&
+				!rf_has(r_ptr->flags, RF_UNIQUE));
 			break;
 		}
 	}
@@ -2450,6 +2712,92 @@ bool summon_specific(int y1, int x1, int lev, int type, int delay)
 }
 
 
+/*
+ * Place a pet (of the specified "type") near the given
+ * location.  Return TRUE if a monster was actually summoned.
+ *
+ * We will attempt to place the monster up to 20 times before giving up.
+ *
+ * Note: This can never summon uniques.
+ *
+ * We usually do not summon monsters greater than the given depth.  -LM-
+ *
+ * Note that we use the new "monster allocation table" creation code
+ * to restrict the "get_mon_num()" function to the set of "legal"
+ * monsters, making this function much faster and more reliable.
+ *
+ * Note that this function may not succeed, though this is very rare.
+ */
+bool summon_specific_pet(int y1, int x1, int lev, int type)
+{
+	int i, x = 0, y = 0, r_idx;
+
+
+	/* Look for a location */
+	for (i = 0; i < 20; ++i)
+	{
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+
+		/* Pick a location */
+		scatter(&y, &x, y1, x1, d, 0);
+
+		/* Require "empty" floor grid */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Hack -- no summon on glyph of warding */
+		if (cave_feat[y][x] == FEAT_GLYPH) continue;
+
+		/* Okay */
+		break;
+	}
+
+	/* Failure */
+	if (i == 20) return (FALSE);
+
+
+	/* Save the "summon" type */
+	summon_specific_type = type;
+
+
+	/* Require "okay" monsters */
+	get_mon_num_hook = summon_specific_okay;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+
+	/* Pick a monster, using the level calculation */
+	r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 5);
+
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+
+	/* Handle failure */
+	if (!r_idx) return (FALSE);
+
+	/* Attempt to place the monster (awake, allow groups) */
+	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
+
+	summon_pets_hack = TRUE;
+
+	/* Attempt to place the monster (awake, allow groups) */
+	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE))
+	{
+		summon_pets_hack = FALSE;
+		return (FALSE);
+	}
+
+	summon_pets_hack = FALSE;
+
+	/* Success */
+	return (TRUE);
+}
 
 
 
@@ -2726,7 +3074,7 @@ void update_smart_learn(int m_idx, int what)
 		{
 			if (p_ptr->state.resist_pois) m_ptr->smart |= (SM_RES_POIS);
 			if (p_ptr->timed[TMD_OPP_POIS]) m_ptr->smart |= (SM_OPP_POIS);
-			//if (p_ptr->state.immune_pois) m_ptr->smart |= (SM_IMM_POIS);
+			if (p_ptr->state.immune_pois) m_ptr->smart |= (SM_IMM_POIS);
 			break;
 		}
 
@@ -2883,7 +3231,9 @@ void monster_death(int m_idx)
 
 	int number = 0;
 	int total = 0;
-
+	
+	char m_poss[80];
+	
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &mon_list[m_idx];
@@ -2908,7 +3258,8 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-
+	monster_desc(m_poss, sizeof(m_poss), m_ptr, 0x22);
+	
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -2975,6 +3326,48 @@ void monster_death(int m_idx)
 		drop_near(i_ptr, 0, y, x, TRUE);
 	}
 
+	if (rp_ptr->king_index == m_ptr->r_idx)
+	{
+		msg_print("*** CONGRATULATIONS ***");
+		msg_format("You have slain the standard bearer, and now take %s place!", m_poss);
+		msg_print("You are now permanently blessed and heroic.");
+		p_ptr->standard_bearer = TRUE;
+		p_ptr->redraw |= (PR_STATE);
+		p_ptr->update |= (PU_BONUS);
+	}
+	
+	/* Mega-Hack -- drop "unique" treasures.  Copied from Pos -Simon */
+	if (rf_has(r_ptr->flags, RF_UNIQUE) && (r_ptr->artifact_index > 0))
+	{
+		artifact_type *a_ptr = &a_info[r_ptr->artifact_index];
+		
+		/* Kings always drop their treasure. Others with 1/15 chance */
+		if ((rp_ptr->king_index == m_ptr->r_idx) || one_in_(15))
+		{
+			char o_name[80];
+			
+			monster_desc(m_poss, sizeof(m_poss), m_ptr, 0x22);
+
+			/* Message */
+			/* Note: this can create duplicate artifacts, so only use it with artis that have 0 chance of dropping -Simon  */
+			/* Get local object */
+			i_ptr = &object_type_body;
+			/* Mega-Hack -- Make the item */
+			object_prep(i_ptr, objkind_get(a_ptr->tval, a_ptr->sval), 0, MAXIMISE);
+			i_ptr->name1 = r_ptr->artifact_index;
+			apply_magic(i_ptr, 0, TRUE, TRUE, TRUE);
+			
+			i_ptr->origin = ORIGIN_DROP;
+			i_ptr->origin_depth = p_ptr->depth;
+			i_ptr->origin_xtra = m_ptr->r_idx;
+			
+			object_desc(o_name, sizeof(o_name), i_ptr, ODESC_BASE);
+			msg_format("You notice the dying %s drop a strange %s.", r_ptr->name, o_name);
+			
+			/* Drop it in the dungeon */
+			drop_near(i_ptr, 0, y, x, TRUE);
+		}
+	}
 
 	/* Determine how much we can drop */
 	if (rf_has(r_ptr->flags, RF_DROP_20) && randint0(100) < 20) number++;

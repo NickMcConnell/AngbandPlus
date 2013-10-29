@@ -97,7 +97,7 @@ static const flag_type pval_flags[] =
 static const flag_type immunity_flags[] =
 {
 
-//	{ OF_IM_POIS, "poison" },
+	{ OF_IM_POIS, "poison" },
 	{ OF_IM_ACID, "acid" },
 	{ OF_IM_ELEC, "lightning" },
 	{ OF_IM_FIRE, "fire" },
@@ -164,6 +164,7 @@ static const flag_type misc_flags[] =
 	{ OF_AFRAID, "Makes you afraid of melee, and worse at shooting and casting spells" },
 	{ OF_FEATHER, "Feather Falling" },
 	{ OF_REGEN, "Speeds regeneration" },
+	{ OF_SUPER_REGEN, "Greatly speeds regeneration" },
 	{ OF_FREE_ACT, "Prevents paralysis" },
 	{ OF_HOLD_LIFE, "Sustains your life force" },
 	{ OF_TELEPATHY, "Grants telepathy" },

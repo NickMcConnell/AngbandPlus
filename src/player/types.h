@@ -58,7 +58,7 @@ typedef struct
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
 	bool immune_cold;	/* Immunity to cold */
-	//bool immune_pois;	/* Immunity to poison */
+	bool immune_pois;	/* Immunity to poison */
 	
 	bool resist_acid;	/* Resist acid */
 	bool resist_elec;	/* Resist lightning */
@@ -82,8 +82,9 @@ typedef struct
 	bool slow_digest;	/* Slower digestion */
 	bool impair_hp;   	/* Slow HP regeneration */
 	bool impair_mana; 	/* Slow mana regeneration */
-	bool ffall;		/* Feather falling */
+	bool ffall;			/* Feather falling */
 	bool regenerate;	/* Regeneration */
+	bool super_regenerate; /* SUPER regeneration */
 	bool telepathy;		/* Telepathy */
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
@@ -183,6 +184,8 @@ typedef struct player
 
 	u16b noscore;			/* Cheating flags */
 
+	bool standard_bearer;	/* Player has killed his race's standard bearer, new for RePos -Simon */
+	
 	bool is_dead;			/* Player is dead */
 
 	bool wizard;			/* Player is in wizard mode */
@@ -333,6 +336,9 @@ typedef struct player_race
 	
 	/* Index of monster used to determine player icon, melee -Simon */
 	s16b p_monster_index;
+	
+	/* Index of standard bearer monster */
+	s16b king_index;
 	
 	/* slot #s -Simon */
 	byte melee_slots;

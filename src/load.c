@@ -973,7 +973,10 @@ int rd_misc(void)
 	rd_u16b(&p_ptr->total_winner);
 	rd_u16b(&p_ptr->noscore);
 
-
+	/* New RePos flag, set on killing the standard bearer -Simon */
+	rd_byte(&tmp8u);
+	p_ptr->standard_bearer = tmp8u;
+	
 	/* Read "death" */
 	rd_byte(&tmp8u);
 	p_ptr->is_dead = tmp8u;

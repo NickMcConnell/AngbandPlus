@@ -3867,3 +3867,45 @@ G:":w
 I:40:54:0
 W:40:0:3:25000
 F:INSTA_ART
+
+N:565:& Dog Collar~
+G:":o
+I:40:55:0
+W:1:0:3:750
+F:INSTA_ART
+
+N:566:& Ring~
+G:=:r
+I:45:56:0
+W:15:0:2:75000
+F:INSTA_ART
+
+N:567:& Ring~
+G:=:b
+I:45:57:0
+W:15:0:2:75000
+F:INSTA_ART
+
+N:568:& Ring~
+G:=:w
+I:45:58:0
+W:15:0:2:75000
+F:INSTA_ART
+
+N:569:& Ring~
+G:=:y
+I:45:59:0
+W:3:0:2:2000
+F:INSTA_ART
+
+N:570:& Hand~
+G:":W
+I:40:56:0
+W:70:0:3:130000
+F:INSTA_ART
+
+N:571:& Amulet~
+G:":d
+I:40:57:0
+W:90:0:3:987654
+F:INSTA_ART

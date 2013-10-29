@@ -607,7 +607,7 @@ void move_player(int dir, bool disarm)
 	}
 
 	/* Cannot walk through walls if you don't have pass_wall or it's perma */
-	else if ((!cave_floor_bold(y, x) && !player_has(PF_PASS_WALL)) || (cave_feat[y][x] >= FEAT_PERM_EXTRA))
+	else if ((!cave_floor_bold(y, x) && !(player_has(PF_PASS_WALL) || player_has(PF_KILL_WALL))) || (cave_feat[y][x] >= FEAT_PERM_EXTRA))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
@@ -726,6 +726,13 @@ void move_player(int dir, bool disarm)
 
 			/* Hit the trap */
 			hit_trap(y, x);
+		}
+		
+		/* Om nom nom, kill_wall eats non-perma non-traps -Simon */
+		
+		else if (!cave_perma_bold(y, x) && player_has(PF_KILL_WALL))
+		{
+			cave_feat[y][x] = FEAT_FLOOR;
 		}
 	}
 

@@ -225,7 +225,7 @@ void get_attack_colors(int melee_colors[RBE_MAX], int spell_colors[RSF_MAX])
 	spell_colors[RSF_BA_FIRE] = tmp_col;
 
 	/* Poison */
-	if (!st.resist_pois)
+	if (!st.resist_pois  && !st.immune_pois)
 	{
 		melee_colors[RBE_POISON] = TERM_ORANGE;
 		spell_colors[RSF_BR_POIS] = TERM_ORANGE;

@@ -297,7 +297,6 @@ N:67:40
 G:":W
 D:Mother-of-Pearl
 
-
 ##### Staves #####
 
 N:68:55
@@ -1205,3 +1204,12 @@ G:?:w
 
 N:302:70
 G:?:w
+
+#New monster artifacts start here -Simon
+N:303:40:55
+G:":o
+D:Small Brass
+
+N:304:40:56
+G:":W
+D:Shriveled Hand

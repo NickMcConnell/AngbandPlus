@@ -16,22 +16,22 @@ V:3.0.11
 M:F:64
 
 # Maximum number of object kinds
-M:K:570
+M:K:600
 
 # Maximum number of artifacts
-M:A:137
+M:A:200
 
 # Maximum number of ego-item types
 M:E:128
 
 # Maximum number of monster races
-M:R:618
+M:R:700
 
 # Maximum number of vaults
 M:V:71
 
 # Maximum number of player races
-M:P:99
+M:P:150
 
 # Maximum number of player classes
 M:C:7
@@ -43,7 +43,7 @@ M:H:1650
 M:B:4
 
 # Maximum number of flavors
-M:L:313
+M:L:350
 
 # Maximum number of spells
 M:S:122

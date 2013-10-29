@@ -77,6 +77,9 @@ typedef struct monster_race
 
 	byte max_num;			/* Maximum population allowed per level */
 	byte cur_num;			/* Monster population on current level */
+	
+	/* New from Pos.. index of unique artifact dropped by monster */
+	s16b artifact_index;
 } monster_race;
 
 

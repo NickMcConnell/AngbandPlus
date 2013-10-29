@@ -174,11 +174,9 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam,
 	{
 		case EF_POISON:
 		{
-			if (!p_ptr->state.resist_pois)// && !p_ptr->state.immune_pois)
+			if ((!p_ptr->state.resist_pois) && (!p_ptr->state.immune_pois))
 			{
-				if (!p_ptr->timed[TMD_OPP_POIS] &&
-					inc_timed(TMD_POISONED, damroll(2, 7)
-					+ 10, TRUE))
+				if (!p_ptr->timed[TMD_OPP_POIS] &&	inc_timed(TMD_POISONED, damroll(2, 7) + 10, TRUE))
 					*ident = TRUE;
 			}
 			*ident = TRUE;
@@ -942,15 +940,14 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam,
 
 		case EF_ACQUIRE:
 		{
-			acquirement(py, px, p_ptr->depth, 1, TRUE);
+			acquirement(py, px, p_ptr->max_depth, 1, TRUE);
 			*ident = TRUE;
 			return TRUE;
 		}
 
 		case EF_ACQUIRE2:
 		{
-			acquirement(py, px, p_ptr->depth, randint1(2) + 1,
-				TRUE);
+			acquirement(py, px, p_ptr->max_depth, randint1(2) + 1, TRUE);
 			*ident = TRUE;
 			return TRUE;
 		}

@@ -40,18 +40,18 @@
 #define SAVEFILE_NAME  "RPOS"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "0.5.4 (" BUILD_ID ")"
+# define VERSION_STRING "0.6.0 (" BUILD_ID ")"
 #else
-# define VERSION_STRING "0.5.4"
+# define VERSION_STRING "0.6.0"
 #endif
 
 
 /*
  * Current savefile version
  */
-#define VERSION_MAJOR	3
-#define VERSION_MINOR	0
-#define VERSION_PATCH	14
+#define VERSION_MAJOR	0
+#define VERSION_MINOR	6
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 /*
@@ -135,20 +135,17 @@
 #define MAX_SEXES            2
 
 /*
- *	Max numbers for "classic" i.e. non-monster characters -Simon
+ *	RePos stuff: max numbers for "classic" i.e. non-monster characters, # of races that show up on the race select screen,
+ *  most # of forms that monster race can branch into at one junction, maximum number of powers any race can have -Simon
+ * PS: DON'T CHANGE MAX_NEXT_FORMS, it's very hard coded.  Not even sure why I put it in here
  */
 #define DEMIHUMAN_RACE_MAX	10
 #define DEMIHUMAN_CLASS_MAX	5
 
-/* # of races that show up on the race select screen */
 #define SELECTABLE_RACE_MAX	23
 
-/* most # of forms that monster race can branch into at one junction */
 #define MAX_NEXT_FORMS	5
 
-/*
- * Maximum number of powers any race can have -Simon
- */
 #define RACIAL_POWERS_MAX		23
 
 /*
