@@ -128,7 +128,8 @@ W:10:0:1:0
 A:10/1
 F:EASY_KNOW
 D:It causes you to hallucinate for 249+1d250 turns, unless you have
-D: resistance to chaos.
+D: true sight or resistance to chaos. Also has a 9% chance of raising
+D: your luck.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -394,17 +395,15 @@ F:SHOW_MODS
 D:Also known as a hand-and-a-half sword, it is larger than the long sword, but
 D: smaller than the two-handed sword.
 
-# maybe should give straight bonus to magical ability instead of INT bonus
-# (should probably only give bonus for black magic and maybe wizardry)
-# (also should probably give penalties for prayers)
-# cannot have certain egos like holy avenger
+# cannot be holy avenger, blessed, gondolin, or westernese
+# rarity should be 6 after black magic classes are added
 N:32:& athame~
 G:|:D
-I:23:29:1
-W:13:0:50:366
+I:23:29:0
+W:13:6:50:366
 A:13/6
 P:0:1d4:0:0:0
-F:SHOW_MODS | DRAIN_EXP | INT
+F:SHOW_MODS | BAD_WEAP
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 D:A magical stone dagger used in rites of witchcraft.
 
@@ -438,7 +437,6 @@ P:0:1d7:0:0:0
 F:SHOW_MODS
 D:The standard sword for soldiers and lesser knights.
 
-#might be taken out
 N:36:& Blade~ of Chaos
 G:|:v
 I:23:30:0
@@ -489,7 +487,7 @@ P:0:4d5:0:0:0
 F:SHOW_MODS
 D:An exagerated long sword, larger and heavier, with a tapered blade.
 
-#almost same as small sword
+#almost same as old small sword
 N:41:& gladius~
 G:|:W
 I:23:20:0
@@ -735,7 +733,7 @@ D:A long metal spear-like polearm.
 N:64:& spear~
 G:/:s
 I:22:4:0
-W:5:0:50:168
+W:5:0:52:168
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
@@ -1983,12 +1981,12 @@ N:222:Pepsi
 G:!:d
 I:75:2:400
 W:0:0:4:2
-A:0/1
+A:0/2:45/4
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:It has no effect apart from providing nourishment (for about 200 turns
-D: under normal conditions).
-D:  Note: These are always Icky Green Potions.
+D:It provides nourishment for about 200 turns under normal conditions.
+D: It also has a 2% chance of raising your luck.
+D:  Note: These are always Caramel Color Potions.
 
 N:223:Apple Juice
 G:!:d
@@ -2399,7 +2397,7 @@ D:  Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
 D: with other magic providing temporary cold resistance.
 
-N:263:Detect Invisible
+N:263:See Invisible
 G:!:d
 I:75:25:25
 W:3:0:4:50
@@ -2896,7 +2894,7 @@ D:  Uniques are unaffected.
 N:312:Cure Light Wounds
 G:_:d
 I:55:16:0
-W:5:0:50:350
+W:5:0:50:310
 A:5/1
 P:0:1d2:0:0:0
 C:6+d6
@@ -3033,7 +3031,7 @@ C:2+d2
 D:It restores both intelligence and mana points to maximum if either or
 D: both are currently below maximum.
 
-N:326:Perception
+N:326:Identify
 G:_:d
 I:55:5:0
 W:10:0:50:400
@@ -3056,7 +3054,7 @@ D: damage, neutralizes poison, removes fear, and also grants you the
 D: enchantment of protection from evil for a duration equal to 1d25 plus
 D: three times your character level.
 
-N:328:Enlightenment
+N:328:Mapping
 G:_:d
 I:55:9:0
 W:20:0:50:750
@@ -3468,7 +3466,7 @@ F:EASY_KNOW
 D:It shoots an acid bolt that inflicts 12d8 points of damage, with a 10%
 D: chance of getting an acid beam.
 
-N:371:Enlightenment
+N:371:Mapping
 G:-:d
 I:66:5:99
 W:65:0:15:10000
@@ -3477,7 +3475,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It maps out a portion of the level centered on you.
 
-N:372:Perception
+N:372:Identify
 G:-:d
 I:66:2:10
 W:50:0:15:13000
@@ -3655,8 +3653,7 @@ F:EASY_KNOW
 
 ##### Skeletons #####
 
-# Skeleton items are no longer generated (no 'A'llocation lines)
-# Keep the entries for savefile compatibility
+#tusks can be wielded and used as weapons, but they never get an ego or enchantment
 
 N:391:& rothe tusk~
 G:~:w
@@ -3681,6 +3678,9 @@ W:50:6:330:6000
 A:50/6
 P:0:2d8:-2:0:0
 F:EASY_KNOW
+
+# Skeleton items are no longer generated (no 'A'llocation lines)
+# Keep the entries for savefile compatibility
 
 N:394:& Rodent Skeleton~
 G:~:w
@@ -4351,7 +4351,7 @@ F:SHOW_MODS
 # was 42
 N:517:& elven leather cap~
 G:]:u
-I:32:7:2
+I:32:7:1
 W:3:0:15:57
 A:45/6
 P:3:0d0:0:0:0
@@ -4693,3 +4693,167 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:This spellbook is for archers only.
+
+##### Black Magic Books (DARK) #####
+
+N:556:[Dark Initiation]
+G:?:s
+I:95:0:0
+W:5:0:30:30
+A:5/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:This spellbook is not for assassins.
+
+N:557:[Blood Novitiate]
+G:?:s
+I:95:1:0
+W:5:0:30:125
+A:10/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:This spellbook is not for witches.
+
+N:558:[Handbook of Curses and Poisons]
+G:?:s
+I:95:2:0
+W:5:0:30:135
+A:10/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:This spellbook is not for necromancers.
+
+N:559:[Mysteries of Shadow]
+G:?:s
+I:95:4:0
+W:5:0:30:5000
+A:20/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:560:[Frightful Realms]
+G:?:D
+I:95:3:0
+W:5:0:30:1000
+A:23/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:561:[Unholy Protection]
+G:?:D
+I:95:5:0
+W:5:0:30:16000
+A:35/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This spellbook is not for assassins.
+
+N:562:[Life Force Mastery]
+G:?:D
+I:95:6:0
+W:5:0:30:30000
+A:56/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This spellbook is not for assassins.
+
+N:563:[Metamorphoses]
+G:?:D
+I:95:7:0
+W:5:0:30:50000
+A:70/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:564:[Necronomicon]
+G:?:D
+I:95:8:0
+W:5:0:30:75000
+A:90/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This spellbook is not for assassins.
+
+##### Mind Power Books (MIND) ##### (mind realm not added yet)
+
+N:565:[Try To Concentrate]
+G:?:o
+I:96:0:0
+W:5:0:30:30
+#A:5/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:566:[Second Sight]
+G:?:o
+I:96:1:0
+W:5:0:30:125
+#A:10/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:567:[Control Your Surroundings]
+G:?:o
+I:96:2:0
+W:5:0:30:335
+#A:10/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:568:[Expand Your Horizons]
+G:?:o
+I:96:3:0
+W:5:0:30:1000
+#A:20/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:569:[Healing Meditations]
+G:?:v
+I:96:4:0
+W:5:0:30:6000
+#A:23/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:570:[Mental Guards]
+G:?:v
+I:96:5:0
+W:5:0:30:16000
+#A:35/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:571:[Battle of Wits]
+G:?:v
+I:96:6:0
+W:5:0:30:30000
+#A:56/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:572:[Mastermind Solutions]
+G:?:v
+I:96:7:0
+W:5:0:30:50000
+#A:70/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:573:[Power of Enlightenment]
+G:?:v
+I:96:8:0
+W:5:0:30:75000
+#A:90/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

@@ -576,6 +576,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_PIXIEKISS: q = "bless you"; break;
 			case RBE_ENTHELP:   q = "give you entdraught"; break;
 			case RBE_PURIFY:    q = "purify you"; break;
+			case RBE_UNLUCKY:   q = "drain luck"; break;
 		}
 
 
@@ -723,6 +724,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	vn = 0;
 	if (l_ptr->flags3 & RF3_HURT_ROCK) vp[vn++] = "rock remover";
 	if (l_ptr->flags3 & RF3_HURT_LITE) vp[vn++] = "bright light";
+	if (l_ptr->flags3 & RF3_HURT_DARK) vp[vn++] = "magical darkness";
 	if (l_ptr->flags3 & RF3_HURT_FIRE) vp[vn++] = "fire";
 	if (l_ptr->flags3 & RF3_HURT_COLD) vp[vn++] = "cold";
 
@@ -1112,16 +1114,17 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	text_out("This");
 
 	if (l_ptr->flags3 & RF3_EVIL) text_out_c(TERM_L_BLUE, " evil");
+	if (l_ptr->flags3 & RF3_UNDEAD) text_out_c(TERM_L_BLUE, " undead");
+	else if (l_ptr->flags3 & RF3_NON_LIVING) text_out_c(TERM_L_BLUE, " lifeless");
 	if (l_ptr->flags3 & RF3_SILVER) text_out_c(TERM_L_BLUE, " silver");
 	if (l_ptr->flags3 & RF3_DEMON) text_out_c(TERM_L_BLUE, " demonic");
-	if (l_ptr->flags3 & RF3_UNDEAD) text_out_c(TERM_L_BLUE, " nightmare");
-	if (l_ptr->flags3 & RF3_DRAGON) text_out_c(TERM_L_BLUE, " lethkel");
-	if (l_ptr->flags3 & RF3_ORC) text_out_c(TERM_L_BLUE, " ugmruten");
 
-	if (l_ptr->flags3 & RF3_GIANT) text_out_c(TERM_L_BLUE, " slime");
-	else if (l_ptr->flags3 & RF3_TROLL) text_out_c(TERM_L_BLUE, " fairy");
+	if (l_ptr->flags3 & RF3_GIANT) text_out_c(TERM_L_BLUE, " giant");
+	else if (l_ptr->flags3 & RF3_TROLL) text_out_c(TERM_L_BLUE, " troll");
 	else if (l_ptr->flags3 & RF3_BUG) text_out_c(TERM_L_BLUE, " bug");
+	else if (l_ptr->flags3 & RF3_ORC) text_out_c(TERM_L_BLUE, " orc");
 	else if (l_ptr->flags3 & RF3_ANIMAL) text_out_c(TERM_L_BLUE, " animal");
+	else if (l_ptr->flags3 & RF3_DRAGON) text_out_c(TERM_L_BLUE, " dragon");
 	else if (l_ptr->flags3 & RF3_UNDEAD) text_out_c(TERM_L_BLUE, " monster");
 	else if (l_ptr->flags3 & RF3_DEMON) text_out_c(TERM_L_BLUE, " monster");
 	else text_out(" creature");

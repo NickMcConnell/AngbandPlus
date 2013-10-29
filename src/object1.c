@@ -997,6 +997,22 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
+		/* Black Magic realm */
+		case TV_DARK_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Black Magic #";
+			break;
+		}
+
+/*		/* Black Magic realm *
+		case TV_MIND_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Mind Powers #";
+			break;
+		} */
+
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
 		{
@@ -1816,6 +1832,7 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+        case TV_SKELETON:  /* to wield tusks */
 		{
 			return (INVEN_WIELD);
 		}
@@ -2847,8 +2864,17 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+    int py;
+    int px;
+    
+/*   py = p_ptr->py;
+ *   px = p_ptr->px;
+ *   spellswitch 24 is for telekinesis */
+
+    if (spellswitch == 24) py = p_ptr->target_row;
+    else py = p_ptr->py;
+    if (spellswitch == 24) px = p_ptr->target_col;
+    else px = p_ptr->px;
 
 	char which;
 

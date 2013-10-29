@@ -39,27 +39,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit2]
-FileName=load.c
-CompileCpp=0
-Folder=AltDaJAngband
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit3]
-FileName=maid-x11.c
-CompileCpp=0
-Folder=AltDaJAngband
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit4]
 FileName=main.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -69,7 +49,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
+[Unit4]
 FileName=main-crb.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -79,7 +59,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit6]
+[Unit5]
 FileName=main-gcu.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -89,7 +69,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit7]
+[Unit6]
 FileName=main-gtk.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -99,7 +79,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit8]
+[Unit7]
 FileName=main-ros.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -109,7 +89,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit9]
+[Unit8]
 FileName=main-sdl.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -119,7 +99,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
+[Unit9]
 FileName=main-win.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -129,7 +109,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit11]
+[Unit10]
 FileName=main-x11.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -139,7 +119,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit12]
+[Unit11]
 FileName=main-xaw.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -149,7 +129,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit13]
+[Unit12]
 FileName=main-xxx.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -159,7 +139,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit14]
+[Unit13]
 FileName=melee1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -169,7 +149,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit15]
+[Unit14]
 FileName=melee2.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -179,7 +159,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit16]
+[Unit15]
 FileName=monster1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -189,7 +169,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit17]
+[Unit16]
 FileName=monster2.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -199,7 +179,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit18]
+[Unit17]
 FileName=object1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -209,7 +189,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
+[Unit18]
 FileName=object2.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -219,7 +199,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit20]
+[Unit19]
 FileName=obj-info.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -229,7 +209,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit21]
+[Unit20]
 FileName=pathfind.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -239,7 +219,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit22]
+[Unit21]
 FileName=randart.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -249,7 +229,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit23]
+[Unit22]
 FileName=randname.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -259,7 +239,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit24]
+[Unit23]
 FileName=save.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -269,7 +249,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit25]
+[Unit24]
 FileName=signals.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -279,7 +259,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit26]
+[Unit25]
 FileName=snd-sdl.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -289,7 +269,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit27]
+[Unit26]
 FileName=spells1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -299,7 +279,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit28]
+[Unit27]
 FileName=spells2.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -309,7 +289,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit29]
+[Unit28]
 FileName=squelch.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -319,7 +299,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
+[Unit29]
 FileName=store.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -329,7 +309,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit30]
 FileName=tables.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -339,7 +319,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit32]
+[Unit31]
 FileName=ui.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -349,7 +329,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit33]
+[Unit32]
 FileName=use-obj.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -359,7 +339,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit34]
+[Unit33]
 FileName=util.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -369,7 +349,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit35]
+[Unit34]
 FileName=variable.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -379,7 +359,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit36]
+[Unit35]
 FileName=wizard1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -389,7 +369,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit37]
+[Unit36]
 FileName=wizard2.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -399,7 +379,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit38]
+[Unit37]
 FileName=x-spell.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -409,7 +389,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit39]
+[Unit38]
 FileName=xtra1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -419,7 +399,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit40]
+[Unit39]
 FileName=xtra2.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -429,7 +409,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit41]
+[Unit40]
 FileName=z-file.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -439,7 +419,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit42]
+[Unit41]
 FileName=z-form.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -449,7 +429,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit43]
+[Unit42]
 FileName=z-rand.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -459,7 +439,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit44]
+[Unit43]
 FileName=z-term.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -469,7 +449,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit45]
+[Unit44]
 FileName=z-type.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -479,7 +459,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit46]
+[Unit45]
 FileName=z-util.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -489,7 +469,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit47]
+[Unit46]
 FileName=z-virt.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -499,8 +479,9 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit48]
+[Unit47]
 FileName=Makefile
+CompileCpp=0
 Folder=AltDaJAngband
 Compile=0
 Link=0
@@ -508,17 +489,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit49]
+[Unit48]
 FileName=angband.h
-CompileCpp=0
 Folder=AltDaJAngband
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
-[Unit50]
+[Unit49]
 FileName=cmds.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -528,7 +509,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit51]
+[Unit50]
 FileName=config.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -538,7 +519,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit52]
+[Unit51]
 FileName=defines.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -548,7 +529,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit53]
+[Unit52]
 FileName=externs.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -558,7 +539,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit54]
+[Unit53]
 FileName=h-basic.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -568,7 +549,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit55]
+[Unit54]
 FileName=init.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -578,7 +559,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit56]
+[Unit55]
 FileName=maid-x11.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -588,7 +569,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit57]
+[Unit56]
 FileName=main.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -598,7 +579,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit58]
+[Unit57]
 FileName=randname.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -608,7 +589,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit59]
+[Unit58]
 FileName=script.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -618,7 +599,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit60]
+[Unit59]
 FileName=types.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -628,7 +609,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit61]
+[Unit60]
 FileName=dungeon.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -638,7 +619,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit62]
+[Unit61]
 FileName=files.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -648,7 +629,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit63]
+[Unit62]
 FileName=generate.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -658,7 +639,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit64]
+[Unit63]
 FileName=init1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -668,8 +649,9 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit65]
+[Unit64]
 FileName=Makefile.inc
+CompileCpp=0
 Folder=AltDaJAngband
 Compile=0
 Link=0
@@ -677,7 +659,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit66]
+[Unit65]
 FileName=Makefile.osx
 Folder=AltDaJAngband
 Compile=0
@@ -686,7 +668,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit67]
+[Unit66]
 FileName=Makefile.ros
 Folder=AltDaJAngband
 Compile=0
@@ -695,7 +677,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit68]
+[Unit67]
 FileName=Makefile.src
 Folder=AltDaJAngband
 Compile=0
@@ -704,7 +686,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit69]
+[Unit68]
 FileName=Makefile.std
 Folder=AltDaJAngband
 Compile=0
@@ -713,7 +695,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit70]
+[Unit69]
 FileName=Makefile.win
 Folder=AltDaJAngband
 Compile=0
@@ -722,17 +704,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit71]
+[Unit70]
 FileName=ui.h
-CompileCpp=0
 Folder=AltDaJAngband
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
-[Unit72]
+[Unit71]
 FileName=z-file.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -742,7 +724,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit73]
+[Unit72]
 FileName=z-form.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -752,7 +734,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit74]
+[Unit73]
 FileName=z-rand.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -762,7 +744,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit75]
+[Unit74]
 FileName=z-term.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -772,7 +754,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit76]
+[Unit75]
 FileName=z-type.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -782,7 +764,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit77]
+[Unit76]
 FileName=z-util.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -792,7 +774,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit78]
+[Unit77]
 FileName=z-virt.h
 CompileCpp=0
 Folder=AltDaJAngband
@@ -802,8 +784,9 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit79]
+[Unit78]
 FileName=angband.ico
+CompileCpp=0
 Folder=AltDaJAngband
 Compile=0
 Link=0
@@ -811,7 +794,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit80]
+[Unit79]
 FileName=autoconf.h.in
 Folder=AltDaJAngband
 Compile=0
@@ -820,17 +803,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit81]
+[Unit80]
 FileName=birth.c
-CompileCpp=0
 Folder=AltDaJAngband
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
-[Unit82]
+[Unit81]
 FileName=cave.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -840,7 +823,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit83]
+[Unit82]
 FileName=cmd0.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -850,7 +833,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit84]
+[Unit83]
 FileName=cmd1.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -860,7 +843,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit85]
+[Unit84]
 FileName=cmd2.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -870,7 +853,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit86]
+[Unit85]
 FileName=cmd3.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -880,7 +863,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit87]
+[Unit86]
 FileName=cmd4.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -890,7 +873,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit88]
+[Unit87]
 FileName=cmd5.c
 CompileCpp=0
 Folder=AltDaJAngband
@@ -900,12 +883,22 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit89]
+[Unit88]
 FileName=cmd6.c
 CompileCpp=0
 Folder=AltDaJAngband
 Compile=1
 Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit89]
+FileName=win\angband.rc
+CompileCpp=0
+Folder=AltDaJAngband
+Compile=1
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
@@ -929,16 +922,17 @@ ProductVersion=
 AutoIncBuildNr=0
 
 [Unit90]
-FileName=win\angband.rc
+FileName=win\readdib.c
 Folder=AltDaJAngband
 Compile=1
-Link=0
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
 [Unit91]
-FileName=win\readdib.c
+FileName=win\readdib.h
 CompileCpp=0
 Folder=AltDaJAngband
 Compile=1
@@ -948,7 +942,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit92]
-FileName=win\readdib.h
+FileName=load.c
+CompileCpp=0
+Folder=DaJAngband 1.1.0
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit2]
+FileName=maid-x11.c
 CompileCpp=0
 Folder=AltDaJAngband
 Compile=1

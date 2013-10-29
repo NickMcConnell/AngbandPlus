@@ -575,8 +575,19 @@ void search(void)
  */
 static void py_pickup_gold(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+    int py;
+    int px;
+
+    if (spellswitch == 24)
+    {
+		py = p_ptr->target_row;
+		px = p_ptr->target_col;
+    }
+    else 
+    {
+	    py = p_ptr->py;
+	    px = p_ptr->px;
+    }
 
 	s32b total_gold = 0L;
 	byte *treasure;
@@ -630,7 +641,6 @@ static void py_pickup_gold(void)
 		   /* EFGchange allow larger gold values */
 		   total_gold += o_ptr->number * o_ptr->pval;
            }
-         /* ..Hope that works..   ..it does, awesome!*/
 
 		/* Delete the gold */
 		delete_object_idx(this_o_idx);
@@ -825,9 +835,17 @@ static void py_pickup_aux(int o_idx, bool msg)
  */
 byte py_pickup(int pickup)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+    int py;
+    int px;
+    
+/*    py = p_ptr->py;
+    px = p_ptr->px; */
 
+    if (spellswitch == 24) py = p_ptr->target_row;
+    else py = p_ptr->py;
+    if (spellswitch == 24) px = p_ptr->target_col;
+    else px = p_ptr->px;
+    
 	char o_name[80];
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -853,7 +871,8 @@ byte py_pickup(int pickup)
 
 
 	/* Nothing to pick up -- return */
-	if (!cave_o_idx[py][px]) return (0);
+	if (!cave_o_idx[py][px])
+         return (0);
 
 
 	/* Always pickup gold, effortlessly */
@@ -1162,6 +1181,12 @@ void hit_trap(int y, int x)
 					{
 						msg_print("The poison does not affect you!");
 					}
+					else if (p_ptr->weakresist_pois)
+					{
+						msg_print("You partially resist the poison.");
+                        dam = (dam * 4) / 3;
+						(void)inc_timed(TMD_POISONED, randint(dam/3));
+                    }
 					else
 					{
 						dam = dam * 2;
@@ -1302,7 +1327,8 @@ void hit_trap(int y, int x)
 			msg_print("You are surrounded by a pungent green gas!");
 			if (!p_ptr->resist_pois && !p_ptr->timed[TMD_OPP_POIS])
 			{
-				(void)inc_timed(TMD_POISONED, rand_int(20) + 10);
+                if (p_ptr->weakresist_pois) (void)inc_timed(TMD_POISONED, rand_int(10) + 3);
+                else (void)inc_timed(TMD_POISONED, rand_int(20) + 10);
 			}
 			break;
 		}
@@ -1351,10 +1377,6 @@ void py_attack(int y, int x)
 
 	/* Disturb the player */
 	disturb(0, 0);
-
-
-	/* Disturb the monster */
-	m_ptr->csleep = 0;
 
 
 	/* Extract monster name (or "it") */
@@ -1414,13 +1436,72 @@ void py_attack(int y, int x)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr);
-				if (p_ptr->impact && (k > 40)) do_quake = TRUE;
+				if (p_ptr->impact && (k > 40) && (randint(100) < 66)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
+			}
+			
+			/* spirit of the balrog (after multipliers) */
+			if (p_ptr->timed[TMD_BALROG])
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_FIRE);
+					}
+				}
+				/* Otherwise, take fire damage */
+				else
+				{
+                    k += (k/4) + randint(k/3);
+				}
+				/* Demons & Undead don't take dark damage */
+			    if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_DEMON)))
+				{
+					if (m_ptr->ml)
+					{
+				       if (r_ptr->flags3 & (RF3_DEMON)) l_ptr->flags3 |= (RF3_DEMON);
+				       if (r_ptr->flags3 & (RF3_UNDEAD)) l_ptr->flags3 |= (RF3_UNDEAD);
+					}
+				}
+				/* Otherwise, take darkness damage */
+				else if (r_ptr->flags4 & (RF4_BR_DARK))
+				{
+                    k += (k/5) + randint(k/4);
+                }
+				else if (r_ptr->flags3 & (RF3_HURT_DARK))
+				{
+                    if (m_ptr->ml) l_ptr->flags3 |= (RF3_HURT_DARK);
+                    k += (k/3) + randint(k/2);
+                }
+				else
+				{
+                    k += (k/4) + randint(k/3);
+				}
+			}
+			
+			/* assassin bonus against sleeping monsters */
+            if ((m_ptr->csleep > 0) && (cp_ptr->flags & CF_ASSASSIN))
+            {
+               if (k/5 > 1) k += (k/5) + randint(k/2);
+   			   else k += 1 + randint(k/2);
+            }
+            
+            /* object damage bonus after semi-multipliers */
+			if (o_ptr->k_idx) 
+			{
 				k += o_ptr->to_d;
 			}
 
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
+
+            /* barbarians and hulks to more damage with bare hands */
+			if ((!o_ptr->k_idx) && (cp_ptr->flags & CF_HEAVY_BONUS))
+			{
+				k += 1 + randint(p_ptr->lev/5);
+			}
 
 			/* No negative damage */
 			if (k < 0) k = 0;
@@ -1482,6 +1563,10 @@ void py_attack(int y, int x)
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
 	}
+
+
+	/* Disturb the monster */
+	m_ptr->csleep = 0;
 
 
 	/* Hack -- delay fear messages */

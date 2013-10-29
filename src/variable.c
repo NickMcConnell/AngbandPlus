@@ -110,9 +110,17 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b mon_max = 1;	/* Number of allocated monsters */
 s16b mon_cnt = 0;	/* Number of live monsters */
 
-int range = 0;      /* shortened range of some spell/breaths */
-int spellswitch = 0;      /* extra effects of some spells */
+/* new for DJA  **see bottom of file** */
+int range = 0;         /* shortened range of some spell/breaths */
+int spellswitch = 0;   /* extra effects of some spells (easy hacking) */
 int spadjust = 0;      /* speed adjustment by a nonstandard amount */
+int goodluck = 0;
+/* if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20; */
+int badluck = 0;
+/* if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck; */
+int goodweap = 0;      /* magic modifiers for sentient objects */
+int badweap = 0;       /* magic modifiers for sentient objects */
+int magicmod = 5;      /* magic modifiers for sentient objects */
 
 
 /*
@@ -859,3 +867,65 @@ void (*sound_hook)(int sound);
  */
 autoinscription *inscriptions = 0;
 u16b inscriptions_count = 0;
+
+/* 
+ *  explaination of spellswitches:
+ * 1  = map_area maps much bigger area.
+ * 2  = another version of curse_weapon (gives it morgul ego instead of shattered ego)
+ * 3  = milder version of curse_weapon (gives -tohit and -todam but doesn't change ego)
+ * 4  = prevents lite_area() from automatically lighting up the whole room
+ * 5  = make object that's not good or great (for acquirement())
+ * 6  = increase radius for detect traps
+ * 7  = always cold brand for brand weapon
+ * 8  = quick word of recall
+ * 9  = changes target prompt for camera flash spell and prevents discovory of
+ *  water immunity for camera flash and stun_monster spells.  Also makes the
+ *  light from camera flash and burst of light not stay.
+ * 10 = prevents GF_DISP_ALL from affecting golems for song of dispelling
+ * 11 = player-activated earthquake with spell (doesn't allow big damage to player)
+ * 12 = monster-activated earthquake with spell (not used yet)
+ * 13 = blink monster: makes teleport_monster do short distance
+ * 14 = uses banishment() function to summon a chosen type of monster.
+ * 15 = turn undead turns all monsters.
+ * 16 = disinfectant in GF_BUG_SPRAY (damage to j,m,",",R and S)
+ * 17 = acid coating in the brand_ammo function
+ * 18 = enchant only missile weapons for archer spell
+ * 19 = poison brand in the brand_ammo function
+ * 20 = poison brand weapon
+ * 21 = for call_dark (changes damage from dark_weak to dark)
+ * 22 = adds chance of sleep to GF_POIS for NOXIOUS_FUMES
+ * 23 = makes GF_OLD_DRAIN affect demons for death spells and cause wounds 
+ *  spells, also used to turn GF_DISP_UNDEAD into dispel demons.
+ * 24 = for telekinesis
+ *  spellswitch resets at the end of the project() function which is used in
+ * every bolt/beam/ball/breath spell.
+ * 
+ *  sentient weapons:
+ *    goodweap counts good weapons
+ *    badweap  counts bad weapons
+ * magicmods: (base 5)
+ * 2  = black magic user with good weapon (penalty)
+ * 4  = black magic user with bad weapon (bonus)
+ * 1  = black magic user wielding both and the same amount of good weapons and bad weapons 
+ * (partially cancel each other's effects)
+ * 3  = black magic user wielding both, but more good weapons
+ * 0  = black magic user wielding both, but more bad weapons
+ * 
+ * 9  = one who prays with bad weapon (penalty)
+ * 6  = one who prays with good weapon (bonus)
+ * 10 = one who prays wielding both and the same amount of good weapons and bad weapons 
+ * (partially cancel each other's effects)
+ * 7 = one who prays wielding both, but more good weapons
+ * 8 = one who prays wielding both, but more bad weapons
+ * 12 = would have been icky_wield if not for goodweap and wielding no bad weapons
+ * 11 = would have been icky_wield if not for goodweap and (goodweap > badweap > 0)
+ * 13 = would have been icky_wield if not for goodweap and (goodweap < badweap)
+ * 
+ * 18 = other class with a bad weapon
+ * 19 = other class with a good weapon
+ * 20 = other class wielding both and the same amount of good weapons and bad weapons 
+ * (partially cancel each other's effects)
+ * 21 = other class wielding both, but more bad weapons
+ * 22 = other class wielding both, but more good weapons
+ * 
+ * */

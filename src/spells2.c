@@ -13,7 +13,6 @@
 
 
 
-
 /*
  * Increase players hit points, notice effects
  */
@@ -525,6 +524,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are in a battle rage.";
 	}
+	if (p_ptr->timed[TMD_PROTDEAD])
+	{
+		info[i++] = "You are protected from lifeless monsters.";
+	}
 	if (p_ptr->timed[TMD_PROTEVIL])
 	{
 		info[i++] = "You are protected from evil.";
@@ -659,6 +662,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are resistant to poison.";
 	}
+	else if (f2 & TR2_RES_POISB)
+	{
+		info[i++] = "You are somewhat resistant to poison.";
+	}
 
 	if (f2 & TR2_RES_FEAR)
 	{
@@ -667,7 +674,7 @@ void self_knowledge(bool spoil)
 	
 	if (f3 & TR3_RES_CHARM)
 	{
-		info[i++] = "You resistant to charm.";
+		info[i++] = "You are resistant to charm.";
 	}	
 
 	if (f2 & TR2_RES_LITE)
@@ -698,7 +705,7 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are resistant to nexus attacks.";
 	}
-	if (f2 & TR2_RES_NETHR)
+	if ((f2 & TR2_RES_NETHR) || (p_ptr->timed[TMD_OPP_NETHR]))
 	{
 		info[i++] = "You are resistant to nether forces.";
 	}
@@ -792,6 +799,31 @@ void self_knowledge(bool spoil)
 	if (f1 & (TR1_MIGHT))
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
+	}
+
+	if (goodluck > 16)
+	{
+		info[i++] = "You are extremely lucky.";
+	}
+	else if (goodluck > 10)
+	{
+		info[i++] = "You are very lucky.";
+	}
+	else if (goodluck > 4)
+	{
+		info[i++] = "You are lucky.";
+	}
+	if (badluck > 15)
+	{
+		info[i++] = "You are extremely unlucky.";
+	}
+	else if (badluck > 9)
+	{
+		info[i++] = "You are very unlucky.";
+	}
+	else if (badluck > 4)
+	{
+		info[i++] = "You are unlucky.";
 	}
 
 
@@ -1349,7 +1381,8 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
-            (tv == TV_NEWM_BOOK) || (tv == TV_LUCK_BOOK) || (tv == TV_CHEM_BOOK) ||
+            (tv == TV_NEWM_BOOK) || (tv == TV_LUCK_BOOK) ||
+            (tv == TV_CHEM_BOOK) || (tv == TV_DARK_BOOK) || /*(tv == TV_MIND_BOOK) ||*/
 		    ((o_ptr->to_a > 2) || (o_ptr->to_h + o_ptr->to_d > 3)))
 		{
 			/* Memorize the item */
@@ -2380,6 +2413,16 @@ bool sleep_monsters(void)
 	return (project_los(GF_OLD_SLEEP, p_ptr->lev));
 }
 
+/*
+ * Hold monsters
+ */
+bool hold_monsters(void)
+{
+    spellswitch = 29;
+	return (project_los(GF_OLD_SLEEP, p_ptr->lev * 2));
+	spellswitch = 0;
+}
+
 
 /*
  * Banish evil monsters
@@ -2424,6 +2467,16 @@ bool dispel_undead(int dam)
 }
 
 /*
+ * Dispel demons
+ */
+bool dispel_demon(int dam)
+{
+    spellswitch = 23; /* changes GF_DISP_UNDEAD to affect demons */
+	return (project_los(GF_DISP_UNDEAD, dam));
+    spellswitch = 0;
+}
+
+/*
  * Bug Spray
  */
 bool dispel_bug(int dam)
@@ -2445,6 +2498,16 @@ bool dispel_silver(int dam)
 bool dispel_unnatural(int dam)
 {
 	return (project_los(GF_DISP_UNN, dam));
+}
+
+/*
+ * Dispel Life
+ */
+bool dispel_life(int dam)
+{
+    spellswitch = 27; /* makes OLD_DRAIN not affect silver monsters */
+	return (project_los(GF_OLD_DRAIN, dam));
+    spellswitch = 0;
 }
 
 /*
@@ -2824,6 +2887,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		{
 			/* Become blind */
 			if (spellswitch == 11) (void)inc_timed(TMD_BLIND, 3 + randint(5));
+			else if (spellswitch == 26) (void)inc_timed(TMD_BLIND, 1 + randint(2));
 			else (void)inc_timed(TMD_BLIND, 10 + randint(10));
 		}
 	}
@@ -2866,7 +2930,7 @@ void earthquake(int cy, int cx, int r)
 	int i, t, y, x, yy, xx, dy, dx;
 
 	int damage = 0;
-
+	
 	int sn = 0, sy = 0, sx = 0;
 
 	bool hurt = FALSE;
@@ -2973,7 +3037,7 @@ void earthquake(int cy, int cx, int r)
 
 		/* Hurt the player a lot */
 		/* but not if spell is cast by the player */
-		if ((!sn) && (!(spellswitch == 11)))
+		if ((!sn) && (spellswitch != 11) && (spellswitch != 26))
 		{
 			/* Message and damage */
 			msg_print("You are severely crushed!");
@@ -3485,10 +3549,11 @@ bool unlite_area(int dam, int rad)
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg);
+	if (spellswitch == 21) (void)project(-1, rad, py, px, dam, GF_DARK, flg);
+	else (void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg);
 
-	/* Lite up the room */
-	unlite_room(py, px);
+	/* Darken the room */
+	if ((spellswitch != 21) || (randint(100) < 20)) unlite_room(py, px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3523,6 +3588,12 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 		ty = p_ptr->target_row;
 		tx = p_ptr->target_col;
 	}
+
+    if (spellswitch == 28)
+    {
+	   ty = py;
+	   tx = px;
+    }
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
 	return (project(-1, rad, ty, tx, dam, typ, flg));

@@ -737,6 +737,39 @@ static void decrease_timeouts(void)
 
 
 /*
+ * Summon a creature of the specified type
+ * copied from wizard2.c
+ * This function is rather dangerous? why?
+ */
+static void do_call_help(int r_idx, bool slp)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int i, x, y;
+
+	/* Paranoia */
+	if (!r_idx) return;
+	if (r_idx >= z_info->r_max-1) return;
+
+	/* Try 10 times */
+	for (i = 0; i < 10; i++)
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&y, &x, py, px, d, 0);
+
+		/* Require empty grids */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Place it (allow groups) */
+		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+	}
+}
+
+
+/*
  * Handle certain things once every 10 game turns
  */
 static void process_world(void)
@@ -947,6 +980,43 @@ static void process_world(void)
                        
     }
     
+    if ((p_ptr->timed[TMD_WITCH]) && (randint(666) == 1))
+    {
+       if (cp_ptr->spell_book == TV_DARK_BOOK)
+       {
+          msg_print("Demons are attracted to your black magic.");
+       }
+       else
+       {
+          msg_print("Demons are attracted to the nether power you summoned.");
+       }
+       if (randint(100) < 33) do_call_help(560, TRUE);
+       else summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DEMON);
+    }
+    
+    /* neutral class wielding both good object(s) and bad object(s) */
+    if ((magicmod > 19) && (randint(500) == 1))
+    {
+       msg_print("Some of your worn/wielded items are in conflict with each other.");
+       if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2 + (badluck/5)));
+       else (void)inc_timed(TMD_CONFUSED, 2 + randint(3 + (badluck/3)));
+    }
+    /* aligned class wielding both good object(s) and bad object(s) */
+    if (((magicmod == 10) || (magicmod == 8)) && (randint(999) == 1))
+    {
+       msg_print("Some of your worn/wielded items are in conflict with each other.");
+       if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2));
+       else (void)inc_timed(TMD_CONFUSED, 2 + randint(4));      
+       if (randint(100) < 55) (void)inc_timed(TMD_STUN, 1 + badweap);
+    }
+    if (((magicmod == 1) || (magicmod == 3)) && (randint(999) == 1))
+    {
+       msg_print("Some of your worn/wielded items are in conflict with each other.");
+       if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2 + (badluck/5)));
+       else (void)inc_timed(TMD_CONFUSED, 2 + randint(3 + (badluck/3)));
+       if (randint(100) < 55) (void)inc_timed(TMD_STUN, 1 + goodweap);
+    }
+    
 	/* Take damage from poison */
 	if (p_ptr->timed[TMD_POISONED])
 	{
@@ -1076,6 +1146,7 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_STUN]) regen_amount = 0;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
 	if (p_ptr->stopregen) regen_amount = 0;
+	if (p_ptr->timed[TMD_BECOME_LICH]) regen_amount /= 2;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -1159,7 +1230,8 @@ static void process_world(void)
 	{
 		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
 		{
-            int drainmuch = randint(10) + randint(p_ptr->lev);
+            int drainmuch = randint(10) + randint(p_ptr->lev) + randint(badluck);
+            if (cp_ptr->spell_book == TV_DARK_BOOK) drainmuch += randint(6);
 			p_ptr->exp = p_ptr->exp - drainmuch;
 			p_ptr->max_exp = p_ptr->max_exp - ((drainmuch*2) / 3);
 			check_experience();

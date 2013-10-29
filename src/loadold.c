@@ -1175,11 +1175,9 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->timed[TMD_IMAGE]);
 		rd_s16b(&p_ptr->timed[TMD_PROTEVIL]);
 		rd_s16b(&p_ptr->timed[TMD_PROTEVIL2]);
-		rd_s16b(&p_ptr->timed[TMD_PROTDEAD]);
 		rd_s16b(&p_ptr->timed[TMD_INVULN]);
 		rd_s16b(&p_ptr->timed[TMD_HERO]);
 		rd_s16b(&p_ptr->timed[TMD_SHERO]);
-		rd_s16b(&p_ptr->timed[TMD_HOLDLIFE]);
 		rd_s16b(&p_ptr->timed[TMD_WSHIELD]);
 		rd_s16b(&p_ptr->timed[TMD_SHIELD]);
 		rd_s16b(&p_ptr->timed[TMD_BLESSED]);
@@ -1189,26 +1187,18 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->timed[TMD_SANCTIFY]);
 		rd_s16b(&p_ptr->timed[TMD_ESP]);
 		rd_s16b(&p_ptr->timed[TMD_MESP]);
-		rd_s16b(&p_ptr->timed[TMD_BECOME_LICH]);
-		rd_s16b(&p_ptr->timed[TMD_WITCH]);
-		rd_s16b(&p_ptr->timed[TMD_XATTACK]);
 		rd_s16b(&p_ptr->word_recall);
 		rd_s16b(&p_ptr->see_infra);
 		rd_s16b(&p_ptr->silver);
 		rd_s16b(&p_ptr->slime);
 		rd_s16b(&p_ptr->luck);
 		rd_s16b(&p_ptr->timed[TMD_SINFRA]);
-		rd_s16b(&p_ptr->timed[TMD_WSINFRA]);
-		rd_s16b(&p_ptr->timed[TMD_BALROG]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_ACID]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_ELEC]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_POIS]);
 		rd_s16b(&p_ptr->timed[TMD_WOPP_POIS]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_DARK]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_NETHR]);
-		rd_s16b(&p_ptr->timed[TMD_IMM_FIRE]);
 
 		rd_byte(&p_ptr->confusing);
 		rd_byte(&tmp8u);	/* oops */

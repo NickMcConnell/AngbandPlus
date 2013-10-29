@@ -13,7 +13,6 @@
 #include "script.h"
 	 static int clash = 0;
 
-
 /*
  * Forward declare
  */
@@ -288,7 +287,11 @@ static void get_extra(void)
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
 	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+	/* I really didn't mean to make this game harder than V Angband, */
+	/* but several other things I did each made the game slightly harder, */
+	/* adding together to make it significantly harder, */
+	/* so to make up for it a little I give everyone +1 to their hit die */
+	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + 1;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
@@ -1004,7 +1007,7 @@ static bool player_birth_aux_1(bool start_at_end)
 	if (clash == 8) text_out_c(TERM_L_RED, "Sorry, a dunadan cannot be the class you chose.");
 	if (clash == 9) text_out_c(TERM_L_RED, "Sorry, a high elf cannot be the class you chose.");
 	if (clash == 10) text_out_c(TERM_L_RED, "Sorry, a kobold cannot be a mystic or a red knight.");
-	if (clash == 11) text_out_c(TERM_L_RED, "Sorry, hobglibs can only be an alchemist, rogue, healer, or assassin.");
+	if (clash == 11) text_out_c(TERM_L_RED, "Sorry, hobglibs can only be an alchemist, rogue, healer, or necromancer.");
     if (clash == 12) text_out_c(TERM_L_RED, "Sorry, a fairy gnome cannot be the class you chose.");
 	if (clash == 13) text_out_c(TERM_L_RED, "Sorry, a dark elf cannot be a paladin or tourist.");
 	if (clash == 14) text_out_c(TERM_L_RED, "Sorry, a grave ghoul cannot be the class you chose.");
@@ -1773,8 +1776,9 @@ static void player_birth_aux(void)
  * fields, so we must be sure to clear them first.
  */
 void player_birth(void)
-    /* DAJ: yes I know, this is incredibly crude programming */
 {
+spellswitch = 9999;
+    /* DAJ: yes I know, this is incredibly crude programming */
 for (;clash < 50;)
     {
 	/* Wipe the player properly */
@@ -1785,10 +1789,11 @@ for (;clash < 50;)
 	
 				    /* restrict certain race/class combos */
                     clash = 51;
-                    /* hobligb can only be rogue, alchemist, healer, assassin or chaos warrior */
+                    /* hobligb can only be rogue, alchemist, healer, necromancer or chaos warrior */
                     if (p_ptr->prace == 11)
                       {
-                      if ((p_ptr->pclass != 7) && (p_ptr->pclass != 3) && (p_ptr->pclass != 9))
+                      if ((p_ptr->pclass != 7) && (p_ptr->pclass != 3) &&
+                         (p_ptr->pclass != 9) && (p_ptr->pclass != 2))
                       clash = 11;
                       }
                     /* hobbit cannot be necromancer, druid, war mage, barbarian, fighter wizard, mystic, or red or yellow knight */
@@ -1866,32 +1871,38 @@ for (;clash < 50;)
                     if ((p_ptr->pclass == 32) && (p_ptr->prace != 17)) clash = 40;
 	}
 
-   /* luck settings */
-if (p_ptr->prace == 0) p_ptr->luck = randint(6) - 2; /* human -1 to 4 */
-if (p_ptr->prace == 1) p_ptr->luck = randint(5) - 2; /* half-elf -1 to 3 */
-if (p_ptr->prace == 2) p_ptr->luck = randint(5) - 2; /* elf -1 to 3 */
-if (p_ptr->prace == 3) p_ptr->luck = randint(4) - 1; /* hobbit 0 to 3 */
-if (p_ptr->prace == 4) p_ptr->luck = randint(4) - 2; /* magic gnome -1 to 2 */
-if (p_ptr->prace == 5) p_ptr->luck = randint(3) - 1; /* dwarf 0 to 2 */
-if (p_ptr->prace == 6) p_ptr->luck = randint(6) - 3; /* half orc -2 to 3 */
-if (p_ptr->prace == 7) p_ptr->luck = randint(5) - 2; /* half troll -1 to 3 */
-if (p_ptr->prace == 8) p_ptr->luck = randint(3) - 1; /* dunadan 0 to 2 */
-if (p_ptr->prace == 9) p_ptr->luck = randint(4) - 2; /* high elf -1 to 2 */
-if (p_ptr->prace == 10) p_ptr->luck = randint(7) - 3; /* kobold -2 to 4 */
-if (p_ptr->prace == 11) p_ptr->luck = randint(5) - 2; /* hobglib -1 to 3 */
-if (p_ptr->prace == 12) p_ptr->luck = randint(4) - 1; /* fairy gnome 0 to 3 */
-if (p_ptr->prace == 13) p_ptr->luck = randint(6) - 3; /* dark elf -2 to 3 */
-if (p_ptr->prace == 14) p_ptr->luck = 0; /* grave ghoul 0 */
-if (p_ptr->prace == 15) p_ptr->luck = randint(4) - 1; /* power sprite 0 to 3 */
-if (p_ptr->prace == 16) p_ptr->luck = randint(2) - 1; /* maia 0 to 1 */
-if (p_ptr->prace == 17) p_ptr->luck = randint(4) - 2; /* hulk -1 to 2 */
-if (p_ptr->pclass == 2) p_ptr->luck = p_ptr->luck - 1; /* necromancer -1 */
-if (p_ptr->pclass == 3) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* rogue +0 to +1 */
-if (p_ptr->pclass == 8) p_ptr->luck = p_ptr->luck - (randint(2) - 1); /* priest +0 to -1 */
-if (p_ptr->pclass == 18) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* barbarian +0 to +1 */
-if (p_ptr->pclass == 15) p_ptr->luck = p_ptr->luck + 2; /* tourist +2 */
-if (p_ptr->pclass == 14) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* thief +0 to +1 */
-if (p_ptr->pclass == 21) p_ptr->luck = p_ptr->luck - (randint(3) - 1); /* loser +0 to -2 */
+   /* luck settings, base luck is 20 (below 20 is bad luck) */
+p_ptr->luck = 20;
+if (p_ptr->prace == 0) p_ptr->luck += randint(6) - 2; /* human 19 to 24 */
+if (p_ptr->prace == 1) p_ptr->luck += randint(5) - 2; /* half-elf 19 to 23 */
+if (p_ptr->prace == 2) p_ptr->luck += randint(5) - 2; /* elf 19 to 23 */
+if (p_ptr->prace == 3) p_ptr->luck += randint(4) - 1; /* hobbit 20 to 23 */
+if (p_ptr->prace == 4) p_ptr->luck += randint(4) - 2; /* magic gnome 19 to 22 */
+if (p_ptr->prace == 5) p_ptr->luck += randint(3) - 1; /* dwarf 20 to 22 */
+if (p_ptr->prace == 6) p_ptr->luck += randint(6) - 3; /* half orc 18 to 23 */
+if (p_ptr->prace == 7) p_ptr->luck += randint(5) - 2; /* half troll 19 to 23 */
+if (p_ptr->prace == 8) p_ptr->luck += randint(3) - 1; /* dunadan 20 to 22 */
+if (p_ptr->prace == 9) p_ptr->luck += randint(4) - 2; /* high elf 19 to 22 */
+if (p_ptr->prace == 10) p_ptr->luck += randint(7) - 3; /* kobold 18 to 24 */
+if (p_ptr->prace == 11) p_ptr->luck += randint(5) - 2; /* hobglib 19 to 23 */
+if (p_ptr->prace == 12) p_ptr->luck += randint(4) - 1; /* fairy gnome 20 to 23 */
+if (p_ptr->prace == 13) p_ptr->luck += randint(6) - 3; /* dark elf 18 to 23 */
+/* if (p_ptr->prace == 14) p_ptr->luck += 0; /* grave ghoul 20 */
+if (p_ptr->prace == 15) p_ptr->luck += randint(4) - 1; /* power sprite 20 to 23 */
+if (p_ptr->prace == 16) p_ptr->luck += randint(2) - 1; /* maia 20 to 21 */
+if (p_ptr->prace == 17) p_ptr->luck += randint(4) - 2; /* hulk 19 to 22 */
+if (p_ptr->pclass == 2) p_ptr->luck -= 1; /* necromancer -1 */
+if (p_ptr->pclass == 3) p_ptr->luck += (randint(2) - 1); /* rogue +0 to +1 */
+if (p_ptr->pclass == 8) p_ptr->luck -= (randint(2) - 1); /* priest +0 to -1 */
+if (p_ptr->pclass == 18) p_ptr->luck += (randint(2) - 1); /* barbarian +0 to +1 */
+if (p_ptr->pclass == 15) p_ptr->luck += 2; /* tourist +2 */
+if (p_ptr->pclass == 14) p_ptr->luck += (randint(2) - 1); /* thief +0 to +1 */
+if (p_ptr->pclass == 21) p_ptr->luck -= (randint(3) - 1); /* loser +0 to -2 */
+    goodluck = 0;
+    if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
+    badluck = 0;
+    if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
+spellswitch = 0;
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);
@@ -1903,7 +1914,6 @@ if (p_ptr->pclass == 21) p_ptr->luck = p_ptr->luck - (randint(3) - 1); /* loser 
 
 	/* Hack -- outfit the player */
 	player_outfit();
-
 
 	/* Initialise the stores */
 	store_init();

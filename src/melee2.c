@@ -1457,7 +1457,8 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s gazes deep into your eyes.", m_name);
 			}
 
-			if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			int savechance = 100 + (badluck/2) - (goodluck/4);
+			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1486,7 +1487,9 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_format("%^s looks deep into your eyes.", m_name);
 			}
-			if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+
+			int savechance = 100 + (badluck/2) - (goodluck/4);
+			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1518,7 +1521,8 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses.", m_name);
-			if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			int savechance = 105 + badluck - (goodluck/5);
+			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1536,7 +1540,8 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses horribly.", m_name);
-			if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			int savechance = 104 + badluck - (goodluck/5);
+			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1554,7 +1559,8 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles loudly.", m_name);
 			else msg_format("%^s points at you, incanting terribly!", m_name);
-			if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			int savechance = 101 + (badluck/2) - (goodluck/4);
+			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1572,8 +1578,14 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
 			else msg_format("%^s points at you, screaming the word DIE!", m_name);
-			if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			int savechance = 101 + (badluck/2) - (goodluck/4);
+			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
+				if (badluck > 1)
+				{
+				msg_print("You mostly resist the effects!");
+				(void)inc_timed(TMD_CUT, damroll(6, 6));
+                }
 				msg_print("You resist the effects!");
 			}
 			else
@@ -1774,8 +1786,8 @@ bool make_attack_spell(int m_idx)
 				msg_print("You are unaffected!");
 			}
 			else if (r_ptr->flags2 & (RF2_POWERFUL))
-			     {
-                    if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+	        {
+                    if (rand_int(120) < p_ptr->skills[SKILL_SAV])
 				    {
                       msg_print("You resist the effects!");
                     }
@@ -1809,7 +1821,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else if (r_ptr->flags2 & (RF2_POWERFUL))
 			{
-                    if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+                    if (rand_int(120) < p_ptr->skills[SKILL_SAV])
 				    {
                       msg_print("You disbelieve the feeble spell.");
                     }
@@ -1842,7 +1854,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else if (r_ptr->flags2 & (RF2_POWERFUL))
 			{
-                    if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+                    if (rand_int(120) < p_ptr->skills[SKILL_SAV])
 				    {
                       msg_print("You resist the effects!");
                     }
@@ -2063,11 +2075,12 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
+			int savechance = 100 + badluck - (goodluck/2);
 			if (p_ptr->resist_nexus)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			else if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -2115,10 +2128,12 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			msg_format("%^s tries to blank your mind.", m_name);
 
-			if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+            int savechance = 100 - (goodluck/3);
+            if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 10;
+			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 				msg_print("You resist the effects!");
 			else
-				inc_timed(TMD_AMNESIA, 3);
+				inc_timed(TMD_AMNESIA, 3 + randint(rlev/3));
 
 			break;
 		}
@@ -3501,6 +3516,60 @@ static void process_monster(int m_idx)
 			/* Efficiency XXX XXX */
 			return;
 		}
+
+		/* Liches aggravate animals and creatures of light */
+		if ((p_ptr->timed[TMD_BECOME_LICH]) &&
+		   ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		   (r_ptr->flags3 & (RF3_ANIMAL))))
+		{
+			/* Reset sleep counter */
+			m_ptr->csleep = 0;
+
+			/* Notice the "waking up" */
+			if (m_ptr->ml)
+			{
+				char m_name[80];
+
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+				msg_format("%^s wakes up.", m_name);
+
+				/* Hack -- Update the health bar */
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			}
+
+			/* Efficiency XXX XXX */
+			return;
+		}
+		
+		/* Black magic aggravates demons */
+		if ((p_ptr->timed[TMD_WITCH]) &&
+		   (r_ptr->flags3 & (RF3_DEMON)))
+		{
+			/* Reset sleep counter */
+			m_ptr->csleep = 0;
+
+			/* Notice the "waking up" */
+			if (m_ptr->ml)
+			{
+				char m_name[80];
+
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+				msg_format("%^s wakes up.", m_name);
+
+				/* Hack -- Update the health bar */
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			}
+
+			/* Efficiency XXX XXX */
+			return;
+		}
+
 
 		/* Anti-stealth */
 		notice = rand_int(1024);

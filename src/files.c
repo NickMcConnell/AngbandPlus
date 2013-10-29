@@ -1162,6 +1162,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ " Fire",	2, TR2_RES_FIRE,	TR2_IM_FIRE },
 	{ " Cold",	2, TR2_RES_COLD,	TR2_IM_COLD },
 	{ " Pois",	2, TR2_RES_POIS,	0 },	/* TR2_IM_POIS */
+/* 	{ "1.2Po",  2, TR3_RES_POISB,   0 },   /* partial poison resist */
 	{ " Fear",	2, TR2_RES_FEAR,	0 },
 	{ " Lite",	2, TR2_RES_LITE,	0 },
 	{ " Dark",	2, TR2_RES_DARK,	0 },
@@ -1174,7 +1175,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "Nethr",	2, TR2_RES_NETHR,	0 },
 	{ "Chaos",	2, TR2_RES_CHAOS,	0 },
 	{ "Disen",	2, TR2_RES_DISEN,	0 },
-/* 	{ "Charm",  3, TR3_RES_CHARM,   0 }, */
+/* 	{ "Charm",  2, TR3_RES_CHARM,   0 }, */
 
 	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0 },
 	{ "Feath",	3, TR3_FEATHER, 	0 },
@@ -1245,18 +1246,32 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 					f[2] |= TR2_RES_ACID;
 				if (p_ptr->timed[TMD_OPP_ELEC])
 					f[2] |= TR2_RES_ELEC;
-				if (p_ptr->timed[TMD_OPP_FIRE])
+				if (p_ptr->timed[TMD_IMM_FIRE])
+					f[2] |= TR2_IM_FIRE;
+				else if (p_ptr->timed[TMD_OPP_FIRE])
 					f[2] |= TR2_RES_FIRE;
-				if (p_ptr->timed[TMD_OPP_COLD])
+				if (p_ptr->timed[TMD_BECOME_LICH])
+					f[2] |= TR2_IM_COLD;
+				else if (p_ptr->timed[TMD_OPP_COLD])
 					f[2] |= TR2_RES_COLD;
 				if (p_ptr->timed[TMD_OPP_POIS])
 					f[2] |= TR2_RES_POIS;
-				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]))
+				if (p_ptr->timed[TMD_WOPP_POIS])
+					f[2] |= TR2_RES_POISB;
+				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]) || 
+                   (p_ptr->timed[TMD_BECOME_LICH]))
 					f[2] |= TR2_RES_FEAR;
-				if (p_ptr->timed[TMD_SHERO])
+				if ((p_ptr->timed[TMD_SHERO]) || (p_ptr->timed[TMD_BECOME_LICH]))
 					f[3] |= TR3_RES_CHARM;
 				if (p_ptr->timed[TMD_SINVIS])
 					f[3] |= TR3_SEE_INVIS;
+				if ((p_ptr->timed[TMD_OPP_NETHR]) || (p_ptr->timed[TMD_BECOME_LICH]))
+					f[2] |= TR2_RES_NETHR;
+				if ((p_ptr->timed[TMD_OPP_DARK]) || (p_ptr->timed[TMD_BECOME_LICH]))
+					f[2] |= TR2_RES_DARK;
+				if (p_ptr->timed[TMD_HOLDLIFE])
+					f[3] |= TR3_HOLD_LIFE;
+			    /* maybe add something here about whether spells are being inhibited */
 			}
 #else
 				player_flags(&f[1], &f[2], &f[3]);

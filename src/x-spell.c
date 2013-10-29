@@ -253,7 +253,7 @@
 /* Bombadil's Songs 6*/
 #define NEWM_SONG_LULLING              43
 #define NEWM_SONG_HEROISM              44
-#define NEWM_CALL_HELP                 45 // do this one later
+#define NEWM_CALL_HELP                 45
 #define NEWM_SONG_PROTECTION           46
 #define NEWM_SONG_DISPELLING           47
 #define NEWM_WARDING                   48
@@ -262,10 +262,11 @@
 /* Spirits of Nature 7*/
 #define NEWM_ESSENCE_SPEED             50
 #define NEWM_INFUSION                  51
-#define NEWM_NATURE_BLESSING           52
-#define NEWM_TELEPORT_LEVEL            53
 #define NEWM_BANISH_UNNATURAL          54
+#define NEWM_TELEPORT_LEVEL            53
 #define NEWM_REMEMBRANCE               55
+#define NEWM_EXTRA_BLOW                67
+#define NEWM_NATURE_BLESSING           52
 #define NEWM_ELEMENTAL_BRAND           56
 #define NEWM_TELEPATHY                 57 // done up to here
 
@@ -310,7 +311,7 @@
 #define LUCK_DETECT_TRAPS_OBJ          21
 #define LUCK_SLOW_MONSTER              22
 #define LUCK_MINI_DESTRUCTION          23
-#define LUCK_TELEKINESIS               24 // do this one later
+#define LUCK_STONE_TO_MUD              24
 #define LUCK_SENSE_SURROUNDINGS        25
 #define LUCK_DETECT_ENCHANTMENT        26
 
@@ -319,7 +320,7 @@
 #define LUCK_DETECT_OBJECTS            28
 #define LUCK_MAP_AREA                  29
 #define LUCK_ADJUST_CURSE              30
-#define LUCK_TELEKINESIS2              31 // do this one later
+#define LUCK_TELEKINESIS2              31
 #define LUCK_DETECT_ENCHANTMENT2       32
 #define LUCK_PROBING                   33
 #define LUCK_MAP_LEVEL                 34
@@ -339,10 +340,10 @@
 #define LUCK_POLYMORPH_OTHER           44
 #define LUCK_ADJUST_SPEED              45
 #define LUCK_BANISH_SUMMON             46
-#define LUCK_AFFECT_SELF               47 // done up to here
-#define LUCK_AFFECT_OTHER              48 // finish this book later
-#define LUCK_POTLUCK_STATS             49
-#define LUCK_AQUIREMENT                50 // this one done
+#define LUCK_AFFECT_SELF               47 /* needs testing */
+#define LUCK_AFFECT_OTHER              48 /* needs testing */
+#define LUCK_POTLUCK_STATS             49 /* needs testing */
+#define LUCK_AQUIREMENT                50 /* needs testing */
 
 /* Mordenkainen's Escapes: RE 6(mostly not for tourists)*/
 #define LUCK_BLINK_MONSTER             51
@@ -351,7 +352,7 @@
 #define LUCK_TELEPORT_LEVEL            54
 #define LUCK_WORD_OF_DESTRUCTION       55
 #define LUCK_WORD_OF_RECALL2           56
-#define LUCK_RUNE_OF_PROTECTION        57 // this spellbook all done
+#define LUCK_RUNE_OF_PROTECTION        57
 
 /* Rogue's Defences 7(not for tourists)*/
 #define LUCK_RESIST_HEAT_ELEC          58
@@ -360,17 +361,17 @@
 #define LUCK_CURING                    61
 #define LUCK_REMOVE_CURSE              62
 #define LUCK_RESTORE_CLEVERNESS        63
-#define LUCK_RESISTANCE                64 // this spellbook all done
+#define LUCK_RESISTANCE                64
 
 /* The Spreading of Chaos 8*/
-#define LUCK_STINK                     65 // this one done
-#define LUCK_BERSERKER                 66 // this one done
-#define LUCK_BEDLAM                    67 // this one done
-#define LUCK_CHAOS_STRIKE              68 // this one done
-#define LUCK_RIFT                      69 // this one done
-#define LUCK_BREATHE_CHAOS             70
-#define LUCK_MASS_CHAOS                71 // this one done
-#define LUCK_BIZZARE_EFFECTS           72
+#define LUCK_STINK                     65
+#define LUCK_BERSERKER                 66
+#define LUCK_BEDLAM                    67
+#define LUCK_CHAOS_STRIKE              68
+#define LUCK_RIFT                      69
+#define LUCK_BREATHE_CHAOS             70 /* needs testing */
+#define LUCK_MASS_CHAOS                71 /* needs testing */
+#define LUCK_BIZZARE_EFFECTS           72 /* needs testing */
 
         /* Alchemy - done except for marked ones */
 /* Beginner's Mixing 0*/
@@ -451,9 +452,10 @@
 #define CHEM_SLIP_INTO_SHADOWS         62
 #define CHEM_POISON_BOLT               63
 #define CHEM_CLOUDKILL2                64
-#define CHEM_BEDLAM1                   65
 #define CHEM_OBJECT_TO_GOLD2           66 // do this one later
 #define CHEM_RESTORE_DEX1              48
+#define CHEM_TELEKINESIS               74
+#define CHEM_BEDLAM1                   65
 #define CHEM_POISON_BRAND_WEAPON2      67
 
 /* Advenced Archer's Tactics (archers only)8*/
@@ -464,6 +466,101 @@
 #define CHEM_ENCHANT_ARMOR             72
 #define CHEM_METEOR_SWARM              73
 #define CHEM_GLYPH_OF_WARDING          54
+
+        /* Black Magic  (realm done except for summon aid spell) */
+/* Dark Initiation (not for assassin) 0*/
+#define DARK_DETECT_EVIL               0
+#define DARK_INFRAVISION               1
+#define DARK_CALL_DARK                 2
+#define DARK_SCARE_MONSTER             3
+#define DARK_NOXIOUS_FUMES             4
+#define DARK_CURE_POISON               5
+#define DARK_SLEEP_MONSTER             6
+#define DARK_WITHER_FOE                7
+#define DARK_SEE_INVISIBLE             8
+
+/* Blood Novitiate (not for witch) 1*/
+#define DARK_SHADOW_STING              75
+#define DARK_FIND_TRAPS                9
+#define DARK_DETECT_DOORS_STAIRS       10
+#define DARK_SHADOW_SHIFT              11
+#define DARK_DRAIN_CHARGES             12 // needs testing
+#define DARK_TURN_UNDEAD               13
+#define DARK_DEATH_BOLT                14
+#define DARK_SLOW_MONSTER              15
+#define DARK_DISPEL_UNDEAD1            16
+
+/* Handbook of Curses and Poison (not for necromancer) 2*/
+#define DARK_CAUSE_LIGHT_WOUNDS        17
+#define DARK_WITCH_DISINFECTANT        18
+#define DARK_CAUSE_SERIOUS_WOUNDS      19
+#define DARK_TRAP_DOOR_DESTRUCTION     20
+#define DARK_POISON_BOLT               21
+#define DARK_SLIP_INTO_SHADOWS         22
+#define DARK_RESIST_POISON             73
+#define DARK_CAUSE_MORTAL_WOUNDS       23
+#define DARK_BREATHE_WITHERING         25
+
+/* Frightful Realms 3*/
+#define DARK_SCARE_MONSTERS            26
+#define DARK_SPEAR_OF_DARK             27 // needs testing
+#define DARK_ICE_SPEAR                 28 // needs testing
+#define DARK_STENCH_OF_DEATH           29 // needs testing
+#define DARK_BEAM_OF_DESTRUCTION       30 // needs testing
+#define DARK_DESTRUCTION_BALL          31 // needs testing
+#define DARK_VENOM_BOLT                24
+#define DARK_CHAOS_STRIKE              32
+
+/* Mysteries of Shadow 4*/
+#define DARK_SHADOW_WARP               33
+#define DARK_WIZARD_LOCK               34
+#define DARK_SHADOW_MAPPING            35
+#define DARK_BREAK_CURSE               36
+#define DARK_PROBING                   37
+#define DARK_IDENTIFY                  38
+#define DARK_PROTECT_FROM_LIFELESS     45
+#define DARK_EXORCISE_DEMONS           40
+#define DARK_DETECT_ENCHANTMENT        41
+
+/* Unholy Protection & Curing (not for assassin) 5*/
+#define DARK_BOLDNESS                  42
+#define DARK_TOURNIQUET                43
+#define DARK_RESIST_POISON2            44
+#define DARK_UNDEAD_SKIN               46
+#define DARK_SUMMON_DEMONIC_AID        39 // finish this one later
+#define DARK_UNHOLY_RESISTANCE         47
+#define DARK_SHADOW_BARRIER            48
+
+/* Life Force Mastery (not for assassin) 6*/
+#define DARK_DETECT_ALL_MONSTERS       49
+#define DARK_ORB_OF_DEATH              50
+#define DARK_REND_SOUL                 51
+#define DARK_TELEPORT_OTHER            52
+#define DARK_DISPEL_LIFE               53
+#define DARK_VAMPIRIC_DRAIN            54
+#define DARK_HOLD_LIFE                 55
+#define DARK_GENOCIDE                  56
+
+/* Metamorphoses 7*/
+#define DARK_RECHARGING                57
+#define DARK_CURE_MORTAL_WOUNDS        58
+#define DARK_DISPEL_CURSE              59
+#define DARK_SPIRIT_OF_BALROG          60
+#define DARK_HASTE                     61
+#define DARK_BLOODWRATH                62
+#define DARK_POISON_AMMO               63
+#define DARK_TELEPATHY                 64
+
+/* Necronomicon (not for assassin) 8*/
+#define DARK_DRAW_MANA                 65
+#define DARK_WORD_OF_DESTRUCTION       66
+#define DARK_HOLD                      67
+#define DARK_DISPEL_UNDEAD2            68
+#define DARK_BR_FEAR_CONF              69
+#define DARK_WALL_OF_HELLFIRE          74
+#define DARK_NETHER_BALL               70
+#define DARK_DARKNESS_STORM            71
+#define DARK_BECOME_LICH               72
 
 int get_spell_index(const object_type *o_ptr, int index)
 {
@@ -483,6 +580,10 @@ int get_spell_index(const object_type *o_ptr, int index)
 		realm = 3;
 	else if (cp_ptr->spell_book == TV_CHEM_BOOK)
 		realm = 4;
+	else if (cp_ptr->spell_book == TV_DARK_BOOK)
+		realm = 5;
+/*	else if (cp_ptr->spell_book == TV_MIND_BOOK)
+		realm = 5; */
 	else
 		realm = 1;
 
@@ -504,6 +605,10 @@ cptr get_spell_name(int tval, int spell)
 		return s_name + s_info[spell + (PY_MAX_SPELLS * 3)].name;
 	else if (tval == TV_CHEM_BOOK)
 		return s_name + s_info[spell + (PY_MAX_SPELLS * 4)].name;
+	else if (tval == TV_DARK_BOOK)
+		return s_name + s_info[spell + (PY_MAX_SPELLS * 5)].name;
+/*	else if (tval == TV_MIND_BOOK)
+		return s_name + s_info[spell + (PY_MAX_SPELLS * 6)].name; */
 	else /* (prayers) */
 		return s_name + s_info[spell + PY_MAX_SPELLS].name;
 }
@@ -795,7 +900,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			    strnfmt(p, len, " dam %dd8", plev / 7);
 			    break;
 		    case NEWM_ELEC_STORM:
-			    strnfmt(p, len, " dam %d + d%d", plev+20, (plev*2));
+			    strnfmt(p, len, " dam %d + d%d", (plev/2)+30, (plev*2));
 			    break;
 		    case NEWM_THUNDERCLAP:
 			    strnfmt(p, len, " dam %d + d%d", plev, (plev*2));
@@ -854,7 +959,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			    strnfmt(p, len, " total dam 4 + d(clvl/2) + d(clvl/5)");
 				break;
 		    case LUCK_HIT_N_RUN:
-				strnfmt(p, len, " dam 2d%d", (plev / 3) + 1);
+				strnfmt(p, len, " dam 2d%d+1", (plev / 3) + 1);
 				break;
 		    case LUCK_BURST_OF_LIGHT:
 			    strnfmt(p, len, " dam 6d8");
@@ -891,6 +996,12 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 		    case CHEM_ACID_ARROW:
 			    strnfmt(p, len, " dam %dd6", (3 + ((plev - 6) / 6)));
 			    break;
+			case CHEM_CHAOS_ARROW:
+			    strnfmt(p, len, " dam %dd7 + 1", plev/4);
+			    break;
+		    case CHEM_POISON_BOLT:
+			    strnfmt(p, len, " dam %dd7", 7 + (plev / 5));
+			    break;
 			case CHEM_INFRAVISION:
 				my_strcpy(p, " dur 80+d100", len);
 				break;
@@ -900,7 +1011,107 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case CHEM_RESIST_HEAT_COLD:
 				my_strcpy(p, " dur 10+d12", len);
 				break;
+		    case CHEM_HIT_N_RUN:
+				strnfmt(p, len, " dam 2d%d+1", (plev / 3) + 1);
+				break;
 		}
+    }
+
+	/* Black spells */
+	if (tval == TV_DARK_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* Analyze the spell */
+		switch (spell)
+		{
+		    case DARK_INFRAVISION:
+			    strnfmt(p, len, " dur %d+d%d ", (plev * 3) + 10), plev;
+			    break;
+		    case DARK_SHADOW_STING:
+			    if (plev < 4) strnfmt(p, len, " dam 2d%d", plev * 2);
+			    else if (plev < 8) strnfmt(p, len, " dam 2d%d", 6);
+			    else if (plev < 15) strnfmt(p, len, " dam 2d%d", plev-1);
+			    else strnfmt(p, len, " dam %dd13", (plev-1)/10);
+			    break;
+		    case DARK_NOXIOUS_FUMES:
+			    strnfmt(p, len, " dam %d+d%d", 10 + (plev/2), plev/4);
+			    break;
+		    case DARK_WITHER_FOE:
+			    strnfmt(p, len, " dam %dd8", plev / 7);
+			    break;
+			case DARK_DEATH_BOLT:
+			    if (plev < 13) strnfmt(p, len, " dam %dd6", 3+(plev/5));
+			    else strnfmt(p, len, " dam %d+d%d", (plev*8)/5, plev);
+			    break;
+		    case DARK_POISON_BOLT:
+			    strnfmt(p, len, " dam %dd7", 7 + (plev / 5));
+			    break;
+		    case DARK_SPEAR_OF_DARK:
+			    strnfmt(p, len, " dam %dd8", 3 + (plev/10));
+			    break;
+			case DARK_ICE_SPEAR:
+			    strnfmt(p, len, " dam %dd8", 5 + (plev/5));
+			    break;
+			case DARK_STENCH_OF_DEATH:
+			    strnfmt(p, len, " dam %d + d%d", 26 + plev/2, (plev*3)/2);
+			    break;
+            case DARK_BEAM_OF_DESTRUCTION:
+			    strnfmt(p, len, " dam %d + %dd9", 15 + plev, plev/10);
+			    break;
+            case DARK_DESTRUCTION_BALL:
+			    strnfmt(p, len, " dam %d + %dd11", 24 + plev, plev/10);
+			    break;
+		    case DARK_CHAOS_STRIKE:
+			    strnfmt(p, len, " dam 13d%d", plev);
+			    break;
+		    case DARK_VENOM_BOLT:
+			    strnfmt(p, len, " dam %dd11", 7+((plev+1)/4));
+			    break;
+			case DARK_RESIST_POISON:
+				my_strcpy(p, " dur 20+d20", len);
+				break;
+			case DARK_RESIST_POISON2:
+				my_strcpy(p, " dur 20+d20", len);
+				break;
+			case DARK_UNDEAD_SKIN:
+				my_strcpy(p, " dur 20+d20", len);
+				break;
+			case DARK_UNHOLY_RESISTANCE:
+				my_strcpy(p, " dur 20+d20", len);
+				break;
+			case DARK_SHADOW_BARRIER:
+				my_strcpy(p, " dur 20+d20", len);
+				break;
+			case DARK_ORB_OF_DEATH:
+			    strnfmt(p, len, " dam 3d6 + %d", plev+(plev/2));
+			    break;
+			case DARK_VAMPIRIC_DRAIN:
+			    strnfmt(p, len, " dam %dd11", plev / 3);
+			    break;
+			case DARK_HOLD_LIFE:
+			    strnfmt(p, len, " dur 20 + d%d", 8+(plev/2));
+			    break;
+			case DARK_SPIRIT_OF_BALROG:
+				my_strcpy(p, " dur 30+d30", len);
+				break;
+		    case DARK_HASTE:
+			    strnfmt(p, len, " dur %d+d20", plev);
+			    break;
+			case DARK_TELEPATHY:
+			    strnfmt(p, len, " dur %d+d%d", plev/2, plev);
+			    break;
+			case DARK_NETHER_BALL:
+			    strnfmt(p, len, " dam %dd11", plev);
+			    break;
+			case DARK_BECOME_LICH:
+			    strnfmt(p, len, " dur %d+d%d", plev+5, plev/2);
+			    break;
+			case DARK_WALL_OF_HELLFIRE:
+                if (cp_ptr->flags & CF_ASSASSIN) strnfmt(p, len, " dur (25+d%d)/2", plev/2);
+			    else strnfmt(p, len, " dur 25+d%d", plev/2);
+			    break;
+        }
 	}
 
 	return;
@@ -979,16 +1190,16 @@ static void spell_affect_self(int unused)
 	int plev = p_ptr->lev;
 	int die;
 
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die < 40) take_hit(randint((plev * 3)/2), "a backfiring spell");
     if (die > 45) (void)hp_player(randint(plev));
     if (die > 65) (void)hp_player(randint(plev));
     if (die > 90) (void)hp_player(randint(plev));
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die < 25) msg_print("Your position feels uncertain.");
     if (die < 15) teleport_player(damroll(plev/2, 4));
     else if (die < 25) teleport_player(damroll(2, plev/3 + 1));
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die < 5) (void)inc_timed(TMD_CHARM, randint(16) + 12);
     else if (die < 10) (void)inc_timed(TMD_CONFUSED, randint(19) + 11);
     else if (die < 15) (void)inc_timed(TMD_BLIND, randint(25) + 25);
@@ -1000,7 +1211,7 @@ static void spell_affect_self(int unused)
 		   msg_print("You feel your life slipping away!");
 		   lose_exp(100 + randint(die * 101));
     }
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die > 100)
     {
 	     if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 7;
@@ -1022,10 +1233,10 @@ static void spell_affect_self(int unused)
     if (die > 60) (void)clear_timed(TMD_STUN);
     if (die > 55) (void)clear_timed(TMD_CUT);
     if (die > 50) (void)clear_timed(TMD_POISONED);
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die > 75) (void)set_food(p_ptr->food + ((randint(plev + die)) * 6)); 
     if (die < 25) (void)set_food(p_ptr->food - ((randint(plev + die)) * 11));  
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die < 34)
     {
          spadjust = (randint(25) - 11);
@@ -1036,7 +1247,7 @@ static void spell_affect_self(int unused)
          if (spadjust > 0) (void)set_timed(TMD_ADJUST, randint(25) + plev);
          if (spadjust < 0) (void)set_timed(TMD_ADJUST, (plev + 25) - randint(plev));
     }
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die < 10)
     {
          msg_print("You feel rather mundane.");
@@ -1071,7 +1282,7 @@ static void spell_affect_self(int unused)
     p_ptr->slime = p_ptr->slime + 1;
     }
     if (die < 23) (void)inc_timed(TMD_SLOW, randint(25) + 15);
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die > 100) (void)inc_timed(TMD_SANCTIFY, randint(die / 2) + (25));
     else if (die > 95) (void)inc_timed(TMD_HERO, randint(die / 2) + (25));
     else if (die > 90) (void)inc_timed(TMD_SHERO, randint(die / 2) + (25));
@@ -1079,7 +1290,7 @@ static void spell_affect_self(int unused)
     else if (die > 80) (void)inc_timed(TMD_WSHIELD, randint(die) + (25));
     else if (die > 75) (void)inc_timed(TMD_SHADOW, randint(die) + (25));
     else if (die > 70) (void)inc_timed(TMD_PROTEVIL, randint(die / 2) + (25));
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die > 98)
     {
 		 int time = randint(20) + 20;
@@ -1102,7 +1313,7 @@ static void spell_affect_self(int unused)
          (void)inc_timed(TMD_OPP_FIRE, time);
     }
     else if (die > 74) (void)inc_timed(TMD_OPP_POIS, randint(21) + 21);
-    die = randint(99) + (randint(plev/5));
+    die = randint(99) + randint(plev/5);
     if (die > 99) (void)inc_timed(TMD_ESP, randint(die * 2) + (25));
     else if (die > 89) (void)inc_timed(TMD_TSIGHT, randint(die * 2) + (25));
     else if (die > 85) (void)inc_timed(TMD_BRAIL, randint(die * 2) + (25));
@@ -1127,60 +1338,450 @@ static void spell_affect_self(int unused)
     else if (die > 22) (void)detect_objects_normal();
 }
 
-
-static void spell_affect_other(int dir)
+static void spell_adjust_curse(int unused)
 {
-/* same as wonder for now, should be
-   a series of random LOS effects */
-
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 	int plev = p_ptr->lev;
-	int die = randint(100) + plev / 4;
-	int beam = beam_chance();
+	int die;
+	int dir;
 
-	if (die > 100)
-		msg_print("You feel a surge of power!");
-	if (die < 8) clone_monster(dir);
-	else if (die < 14) speed_monster(dir);
-	else if (die < 26) heal_monster(dir);
-	else if (die < 31) poly_monster(dir);
-	else if (die < 36)
-		fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
-		                  damroll(3 + ((plev - 1) / 5), 4));
-	else if (die < 41) confuse_monster(dir, plev);
-	else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
-	else if (die < 51) lite_line(dir);
-	else if (die < 56)
-		fire_beam(GF_ELEC, dir, damroll(3+((plev-5)/6), 6));
-	else if (die < 61)
-		fire_bolt_or_beam(beam-10, GF_COLD, dir,
-		                  damroll(5+((plev-5)/4), 8));
-	else if (die < 66)
-		fire_bolt_or_beam(beam, GF_ACID, dir,
-		                  damroll(6+((plev-5)/4), 8));
-	else if (die < 71)
-		fire_bolt_or_beam(beam, GF_FIRE, dir,
-		                  damroll(8+((plev-5)/4), 8));
-	else if (die < 76) drain_life(dir, 75);
-	else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
-	else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
-	else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
-	else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
-	else if (die < 101) drain_life(dir, 100 + plev);
-	else if (die < 104) earthquake(py, px, 12);
-	else if (die < 106) destroy_area(py, px, 15, TRUE);
-	else if (die < 109) banishment();
-	else if (die < 112) dispel_monsters(120);
-	else /* RARE */
-	{
-		dispel_monsters(150);
-		slow_monsters();
-		sleep_monsters();
-		hp_player(300);
-	}
+    die = randint(99) + randint(plev/5);
+    if (die < 4) curse_weapon();
+    else if (die < 15)
+    {
+         spellswitch = 2; /* makes weapon a morgul weapon */
+         curse_weapon();
+         spellswitch = 0;
+    }
+    else if (die < 35)
+    {
+         spellswitch = 3; /* damages weapon without removing current ego */
+         curse_weapon();
+         spellswitch = 0;
+    }
+    else if (die < 75)
+    {
+         remove_curse();
+    }
+    else if (die < 85)
+    {
+         remove_curse();
+         msg_print("You fire a small ball of destroy cursed objects.");
+		 if (!get_aim_dir(&dir)) return;
+		 fire_ball(GF_HOLY_ORB, dir, 0, (plev/15));
+    }
+    else if (die < 95)
+    {
+         remove_curse();
+		 if (!get_aim_dir(&dir)) return;
+         msg_print("You fire a ball of destroy cursed objects.");
+		 fire_ball(GF_HOLY_ORB, dir, randint(plev/5), (plev/7));
+    }
+    else if (die < 105)
+    {
+         remove_all_curse();
+    }
+    else 
+    {
+         remove_all_curse();
+		 if (!get_aim_dir(&dir)) return;
+         msg_print("You fire a ball of destroy cursed objects.");
+		 fire_ball(GF_HOLY_ORB, dir, randint(plev/4), (plev/8));
+    }
 }
 
+static void spell_potluck_stats(int unused)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int plev = p_ptr->lev;
+	int die;
+
+    int jackpot = randint(5);
+    die = randint(100);
+    int die2 = randint(99) + randint(plev/4);
+    if (die < 33)
+    {
+       if (die2 < 5) dec_stat(A_CHR, 1, TRUE);     
+       else if (die2 < 34) do_dec_stat(A_CHR);
+       if (die2 > 66) do_res_stat(A_CHR);
+       if ((die2 > 99) && (randint(5) == 1))
+       {
+          do_inc_stat(A_CHR);
+          jackpot -= 1;
+       }
+    }
+    die = randint(100);
+    die2 = randint(99) + randint(plev/4);
+    if (die < 33)
+    {
+       if (die2 < 5) dec_stat(A_WIS, 1, TRUE);     
+       else if (die2 < 34) do_dec_stat(A_WIS);
+       if (die2 > 66) do_res_stat(A_WIS);
+       if ((die2 > 100) && (randint(5) == 1) && (jackpot > 0))
+       {
+          do_inc_stat(A_WIS);
+          jackpot -= 1;
+       }
+    }
+    die = randint(100);
+    die2 = randint(99) + randint(plev/4);
+    if (die < 33)
+    {
+       if (die2 < 5) dec_stat(A_INT, 1, TRUE);     
+       else if (die2 < 34) do_dec_stat(A_INT);
+       if (die2 > 66) do_res_stat(A_INT);
+       if ((die2 > 99) && (randint(5) == 1) && (jackpot > 0))
+       {
+          do_inc_stat(A_INT);
+          jackpot -= 1;
+       }
+    }
+    die = randint(100);
+    die2 = randint(99) + randint(plev/4);
+    if (die < 33)
+    {
+       if (die2 < 5) dec_stat(A_DEX, 1, TRUE);     
+       else if (die2 < 34) do_dec_stat(A_DEX);
+       if (die2 > 66) do_res_stat(A_DEX);
+       if ((die2 > 99) && (randint(5) == 1) && (jackpot > 0))
+       {
+          do_inc_stat(A_DEX);
+          jackpot -= 1;
+       }
+    }
+    die = randint(100);
+    die2 = randint(99) + randint(plev/4);
+    if (die < 33)
+    {
+       if (die2 < 5) dec_stat(A_CON, 1, TRUE);     
+       else if (die2 < 34) do_dec_stat(A_CON);
+       if (die2 > 66) do_res_stat(A_CON);
+       if ((die2 > 99) && (randint(5) == 1) && (jackpot > 0))
+       {
+          do_inc_stat(A_CON);
+          jackpot -= 1;
+       }
+    }
+    die = randint(100);
+    die2 = randint(99) + randint(plev/4);
+    if (die < 33)
+    {
+       if (die2 < 5) dec_stat(A_STR, 1, TRUE);     
+       else if (die2 < 34) do_dec_stat(A_STR);
+       if (die2 > 66) do_res_stat(A_STR);
+       if ((die2 > 99) && (randint(5) == 1) && (jackpot > 0))
+       {
+          do_inc_stat(A_STR);
+          jackpot -= 1;
+       }
+    }
+	if (jackpot > 0)
+	{
+       die = randint(99) + randint(plev/4);
+       if ((die < 10) && (goodluck < 5))
+       {
+          dec_stat(A_DEX, randint(2), TRUE);
+		  dec_stat(A_WIS, randint(2), TRUE);
+		  dec_stat(A_CON, randint(2), TRUE);
+		  dec_stat(A_STR, randint(2), TRUE);
+		  dec_stat(A_CHR, randint(2), TRUE);
+		  dec_stat(A_INT, randint(2), TRUE);
+		  if (goodluck > 0) jackpot += 1;
+       }
+       else if ((die < 12) && (goodluck < 15))
+       {
+          do_dec_stat(A_DEX);
+          do_dec_stat(A_WIS);
+          do_dec_stat(A_INT);
+          do_dec_stat(A_STR);
+          do_dec_stat(A_CHR);
+		  do_dec_stat(A_CON);
+		  if (goodluck > 6) jackpot += 1;
+       }
+       if (die > 90)
+       {
+	      do_res_stat(A_STR);
+		  do_res_stat(A_CON);
+		  do_res_stat(A_DEX);
+		  do_res_stat(A_WIS);
+		  do_res_stat(A_INT);
+		  do_res_stat(A_CHR);
+          jackpot -= 2;
+       }
+    }
+   	if (jackpot > 2)
+   	{
+       die = randint(99) + randint(plev/4);
+       if (die > 100)
+       {
+          do_inc_stat(A_CHR);
+          do_inc_stat(A_WIS);
+          do_inc_stat(A_INT);
+          do_inc_stat(A_DEX);
+          do_inc_stat(A_CON);
+          do_inc_stat(A_STR);
+          jackpot -= 2;
+       }
+       if (die < 16) jackpot -= 1;
+       if ((die < 67) && (jackpot > 3)) jackpot -= randint(2);
+    }
+    if (jackpot > 1) p_ptr->luck += randint(jackpot);
+    if ((jackpot < 1) && (randint(100) < 10)) p_ptr->luck -= 1;
+    if ((jackpot < 0) && (randint(100) < 9)) p_ptr->luck -= 1;
+}
+
+static void spell_affect_other(int dir)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int plev = p_ptr->lev;
+	int die;
+	int lottery = randint(2);
+	if (randint(100) < (plev/4)) lottery += 1;
+	int olot = lottery;
+	if (randint(100) < (plev+2)/2) lottery += 1;
+
+    /* damage effects */
+    for (; lottery > 0; lottery -= 1)
+    {
+        die = randint(99) + randint(plev/5);
+        if (die < 5) project_los(GF_DARK, randint(plev * (1 + randint(olot))));
+        else if (die < 10) project_los(GF_LITE, randint(plev * (1 + randint(olot))));
+        else if (die < 16) project_los(GF_POIS, randint(plev * (1 + randint(olot))));
+        else if (die < 22) project_los(GF_COLD, randint(plev * (1 + randint(olot))));
+        else if (die < 28) project_los(GF_FIRE, randint(plev * (1 + randint(olot))));
+        else if (die < 34) project_los(GF_ACID, randint(plev * (1 + randint(olot))));
+        else if (die < 40) project_los(GF_ELEC, randint(plev * (1 + randint(olot))));
+        else if (die < 45) (void)dispel_bug(randint(plev * (1 + randint(olot))));
+        else if (die < 48) (void)dispel_silver(randint(plev * (1 + olot)));
+        else if (die < 52) (void)dispel_demon(randint(plev * (1 + olot)));
+        else if (die < 56) (void)dispel_undead(randint(plev * (1 + olot)));
+        else if (die < 60) (void)dispel_unnatural(randint(plev * (1 + olot)));
+        else if (die < 64) project_los(GF_BRFEAR, randint(plev * (1 + olot)));
+        else if (die < 68) project_los(GF_SHARD, randint(plev * (1 + olot)));
+        else if (die < 72) project_los(GF_SOUND, randint(plev * (1 + olot)));
+        else if (die < 76) project_los(GF_WATER, randint(plev * (1 + olot)));
+        else if (die < 80) project_los(GF_NETHER, randint(plev * (1 + olot)));
+        else if (die < 84) project_los(GF_PLASMA, randint(plev * (1 + olot)));
+        else if (die < 88) project_los(GF_ICE, randint(plev * (1 + olot)));
+        else if (die < 92) project_los(GF_GRAVITY, randint(plev * (1 + olot)));
+        else if (die < 96) project_los(GF_CHAOS, randint(plev * (1 + olot)));
+        else if (die < 100) project_los(GF_HOLY_ORB, randint(plev * (1 + olot)));
+        else /* die > 99 */ (void)dispel_monsters(randint(plev * (2 + olot)));
+    }
+    
+    /* other monster effects */
+    if ((olot > 1) && (plev < 30)) olot -= 1;
+    for (;olot > 0; olot -= 1)
+    {
+        die = randint(99) + randint(plev/4);
+        if (die < 10) aggravate_monsters(0);
+        else if (die < 19) project_los(GF_OLD_HEAL, 45 + randint(45) + (badluck*2) - plev/2);
+        else if (die < 28) 
+        {
+             /* make sure it doesn't clone more than once */
+             if (olot == 1)
+             {
+                 project_los(GF_OLD_CLONE, plev);
+             }
+             else
+             {
+                 spellswitch = 13; /* blink monsters */
+                 project_los(GF_AWAY_ALL, 2 + randint(15));
+                 spellswitch = 0;
+             }
+        }
+        else if (die < 33) 
+        {
+           spellswitch = 13; /* blink monsters */
+           project_los(GF_AWAY_ALL, 2 + randint(15));
+           spellswitch = 0;
+        }
+        else if (die < 38) 
+        {
+           spellswitch = 14; /* chose what you summon */
+           (void)banishment();
+           spellswitch = 0;
+        }
+        else if (die < 48) project_los(GF_OLD_CONF, 45 + plev);
+        else if (die < 58) project_los(GF_OLD_SLEEP, 10 + plev);
+        else if (die < 68) project_los(GF_TURN_ALL, 55 + plev);
+        else if (die < 78) project_los(GF_OLD_SLOW, 45 + plev);
+        else if (die < 88) project_los(GF_AWAY_UNDEAD, plev + 10); /* banish unnatural */
+        else if (die < 98) project_los(GF_AWAY_EVIL, plev + 10); /* banish evil */
+        else if (die < 108) project_los(GF_AWAY_ALL, plev + 10); /* mass banishment */
+        else /* die > 107 */ banishment();
+    }
+    
+    if (randint(100) < 50) /* destruct/create effects */
+    {
+       die = randint(99) + randint(plev/5);
+       if (die < 8)
+       {
+          fire_ball(GF_MAKE_TRAP, 1, 0, randint(2)); /* lots of traps.. */
+          fire_ball(GF_MAKE_TRAP, 2, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 3, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 4, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 5, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 6, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 7, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 8, 0, randint(2));
+          fire_ball(GF_MAKE_TRAP, 9, 0, randint(2));
+       }
+       else if (die < 16)
+       {
+          fire_ball(GF_KILL_DOOR, 1, 0, 4); /* trap/door destruction */
+          fire_ball(GF_KILL_DOOR, 2, 0, 4); 
+          fire_ball(GF_KILL_DOOR, 3, 0, 4); 
+          fire_ball(GF_KILL_DOOR, 4, 0, 4); 
+          fire_ball(GF_KILL_DOOR, 5, 0, 4); 
+          fire_ball(GF_KILL_DOOR, 6, 0, 4); 
+          fire_ball(GF_KILL_DOOR, 7, 0, 4); 
+          fire_ball(GF_KILL_DOOR, 8, 0, 4); 
+          fire_ball(GF_KILL_DOOR, 9, 0, 4); 
+       }
+       else if (die < 24)
+       {
+          fire_ball(GF_KILL_WALL, 1, (plev*2), randint(3)); /* destroy walls */
+          fire_ball(GF_KILL_WALL, 2, (plev*2), randint(3)); 
+          fire_ball(GF_KILL_WALL, 3, (plev*2), randint(3)); 
+          fire_ball(GF_KILL_WALL, 4, (plev*2), randint(3)); 
+          fire_ball(GF_KILL_WALL, 5, (plev*2), randint(3)); 
+          fire_ball(GF_KILL_WALL, 6, (plev*2), randint(3)); 
+          fire_ball(GF_KILL_WALL, 7, (plev*2), randint(3)); 
+          fire_ball(GF_KILL_WALL, 8, (plev*2), randint(3)); 
+          fire_ball(GF_KILL_WALL, 9, (plev*2), randint(3)); 
+       }
+       else if (die < 40)
+       {
+          fire_ball(GF_KILL_WALL, randint(8), 0, 1); 
+          fire_ball(GF_KILL_WALL, randint(8), 0, 1); 
+          fire_ball(GF_KILL_WALL, randint(8), 0, 1); 
+          fire_ball(GF_KILL_WALL, randint(8), 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 1, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 2, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 3, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 4, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 5, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 6, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 7, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 8, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, 9, 0, 1); 
+          fire_ball(GF_MAKE_DOOR, randint(8), 0, 3); 
+       }
+       else if (die < 48)
+       {
+          if (randint(100) < 90) fire_ball(GF_WIZLOCK, 1, 0, 1); 
+          if (randint(100) < 90) fire_ball(GF_WIZLOCK, 2, 0, 1); 
+          if (randint(100) < 90) fire_ball(GF_WIZLOCK, 3, 0, 1); 
+          if (randint(100) < 90) fire_ball(GF_WIZLOCK, 4, 0, 1); 
+          if (randint(100) < 80) fire_ball(GF_WIZLOCK, 5, 0, 1); 
+          if (randint(100) < 80) fire_ball(GF_WIZLOCK, 6, 0, 1); 
+          if (randint(100) < 80) fire_ball(GF_WIZLOCK, 7, 0, 1); 
+          if (randint(100) < 80) fire_ball(GF_WIZLOCK, 8, 0, 1); 
+          if (randint(100) < 80) fire_ball(GF_WIZLOCK, 9, 0, 1); 
+       }
+       else if (die < 53)
+       {
+          fire_ball(GF_MANA, 1, 1, 5); /* destroy objects */
+          fire_ball(GF_MANA, 2, 1, 5); 
+          fire_ball(GF_MANA, 3, 1, 5); 
+          fire_ball(GF_MANA, 4, 1, 5); 
+          fire_ball(GF_MANA, 5, 1, 5); 
+          fire_ball(GF_MANA, 6, 1, 5); 
+          fire_ball(GF_MANA, 7, 1, 5); 
+          fire_ball(GF_MANA, 8, 1, 5); 
+          fire_ball(GF_MANA, 9, 1, 5); 
+       }
+       else if (die < 58)
+       {
+          fire_ball(GF_HOLY_ORB, 1, 0, 5); /* destroy cursed objects */
+          fire_ball(GF_HOLY_ORB, 2, 0, 5); 
+          fire_ball(GF_HOLY_ORB, 3, 0, 5); 
+          fire_ball(GF_HOLY_ORB, 4, 0, 5); 
+          fire_ball(GF_HOLY_ORB, 5, 0, 5); 
+          fire_ball(GF_HOLY_ORB, 6, 0, 5); 
+          fire_ball(GF_HOLY_ORB, 7, 0, 5); 
+          fire_ball(GF_HOLY_ORB, 8, 0, 5); 
+          fire_ball(GF_HOLY_ORB, 9, 0, 5); 
+       }
+       else if (die < 68) earthquake(py, px, randint(13));
+       else if (die < 78) destroy_area(py, px, 4 + randint(14), TRUE);
+       else if (die > 100)
+       {
+			msg_print("The world changes!");
+			/* Leaving (alter reality) */
+			p_ptr->leaving = TRUE;
+       }
+    }
+    
+    /* mapping & light/dark effects */
+    die = randint(99) + randint(plev/5);
+    if (die < 30) (void)lite_area(4, (plev / (4 + randint(5))) + 1);
+    else if (die < 50) /* call dark */
+    {
+       /* most of the time use GF_DARK instead of DARK_WEAK */
+       if (randint(100) < 75) spellswitch = 21; 
+	   (void)unlite_area(4, (plev / (4 + randint(5))) + 1);
+       spellswitch = 0;
+    }
+    if ((die < 80) && (randint(100) < 15)) map_area();
+    if (die > 100) wiz_lite();
+    
+    /* other effects (may add more later if I think of them) */
+    die = randint(99) + randint(plev/5);
+    if (die > 95) /* telekinesis */
+	{
+       /* spellswitch 24 allows distance pickup */ 
+       spellswitch = 24; 
+       if (!get_aim_dir(&dir)) return;
+	   do_telekinesis();
+	   if (spellswitch == 24)
+	   {
+            /* chance of waking up monsters in path */
+            if (randint(100) > plev + 29 - badluck + goodluck) fire_beam(GF_THROW, dir, 0);
+       }
+       spellswitch = 0;
+	}
+	else if (die > 90) /* create good object */
+	{
+         int where = randint(100);
+	     if (where < 25) acquirement(py + randint(4), px + randint(4), 1, FALSE);
+         else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, FALSE);
+         else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, FALSE);
+         else acquirement(py - randint(4), px - randint(4), 1, FALSE);
+    }
+	else if (die > 85)
+	{
+         int where = randint(100);
+         int aquirenum = randint(2) + 1;
+         spellswitch = 5;  /* creates object that's not good or great */
+         if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, FALSE);
+         else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, FALSE);
+         else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, FALSE);
+         else acquirement(py - randint(4), px - randint(4), aquirenum, FALSE);
+         spellswitch = 0;
+    }
+}
+
+/*
+ * Hook to specify staff or wand
+ */
+static bool item_tester_hook_charged(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_WAND:
+		case TV_STAFF:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
 
 /*
  * Summon a creature of the specified type
@@ -1402,7 +2003,7 @@ static bool cast_mage_spell(int spell)
 			fire_bolt_or_beam(beam, GF_FIRE, dir,
 			                  damroll(6+((plev-5)/4), 8));
 			break;
-		}
+		} /* 10d8 at L21, 12d8 at L30, 14d8 at L40 */
 
 		case SPELL_SLOW_MONSTER:
 		{
@@ -1669,6 +2270,10 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(11, plev));
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+            }
 			break;
 		}
 
@@ -1747,7 +2352,10 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CALL_LIGHT:
 		{
-			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+            int toolow = plev/10;
+            if (toolow < 1) toolow = 1;
+            if ((p_ptr->luck > 20) && (randint(100) < 25)) toolow += 1;
+			(void)lite_area(damroll(2, (plev / 2)), randint(toolow) + randint(toolow));
 			break;
 		}
 
@@ -1850,11 +2458,11 @@ static bool cast_priest_spell(int spell)
         {
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_beam(GF_HOLY_ORB, dir,
-			          damroll(2, 8) + plev + randint(plev/2));
+			          damroll((plev/10), 8) + plev + randint(plev/2));
 			if (randint(plev/3) > 6) lite_line(dir);
 			break;
-			/* 32-46 at L20, 47-61 at L30, 62-76 at L40, 77-91 at L50 */
-        }
+			/* av34 at L20, av51 at L30, av68 at L40, av85 at L50 */
+        }	/* averages not including line_lite which adds 6d8 */
 
 		case PRAYER_CURE_CRITICAL_WOUNDS:
 		{
@@ -1984,7 +2592,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_HOLY_WORD:
 		{
-			(void)dispel_evil(randint(plev * 4));
+			(void)dispel_evil(plev + randint(plev * 3));
 			(void)hp_player(1000);
 			(void)clear_timed(TMD_AFRAID);
 			(void)clear_timed(TMD_POISONED);
@@ -2004,6 +2612,7 @@ static bool cast_priest_spell(int spell)
 		case PRAYER_TELEPATHY:
         {
 			(void)inc_timed(TMD_ESP, randint(plev) + (plev/2));
+			break;
         }
 
 		case PRAYER_DETECTION:
@@ -2046,13 +2655,13 @@ static bool cast_priest_spell(int spell)
         case PRAYER_CURING:
         {
 			(void)clear_timed(TMD_CONFUSED);
-			(void)clear_timed(TMD_BLIND);
-			(void)clear_timed(TMD_FRENZY);
-			(void)clear_timed(TMD_AMNESIA);
 			(void)clear_timed(TMD_CHARM);
+			(void)clear_timed(TMD_FRENZY);
 			(void)clear_timed(TMD_POISONED);
 			(void)clear_timed(TMD_CUT);
 			(void)clear_timed(TMD_STUN);
+			(void)clear_timed(TMD_BLIND);
+			(void)clear_timed(TMD_AMNESIA);
 			break;
         }
 
@@ -2163,9 +2772,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_STARLITE:
 		{
-			{
-				msg_print("You shine your light in all directions.");
-			}
+			msg_print("You shine your light in all directions.");
 			lite_line(1);lite_line(2);lite_line(3);lite_line(4);
             lite_line(5);lite_line(6);lite_line(7);
             lite_line(8);lite_line(9);
@@ -2453,18 +3060,22 @@ static bool cast_newm_spell(int spell)
 		case NEWM_WITHER_FOE:
         {
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt(GF_MANA, dir, damroll(plev / 7, 8));
-				(void)confuse_monster(dir, plev + 10);
-			    (void)slow_monster(dir);
+			int toolow = plev / 7;
+			if (toolow < 1) toolow = 1;
+			if ((toolow < 1) && (plev > 11)) toolow = 2;
+			int die = damroll(toolow, 8);
+			fire_bolt(GF_MANA, dir, die);
+			(void)confuse_monster(dir, plev + 10);
+			if (die > 7) (void)slow_monster(dir);
 			break;
         }
 
 		case NEWM_ELEC_STORM:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_ELEC, dir, 20 + plev + randint(plev * 2), (plev / 14));
+			fire_ball(GF_ELEC, dir, 30 + (plev/2) + randint(plev * 2), (plev / 14));
 			break;
-           /* 41-80 at L20, 51-110 at L30, 61-140 at L40, 71-170 at L50 */
+           /* averages: 60 at L20, 75 at L30, 90 at L40, 105 at L50 */
 		}
 
 		case NEWM_THUNDERCLAP:
@@ -2526,9 +3137,9 @@ static bool cast_newm_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("The earth convulses and erupts in molten lava!");
+            spellswitch = 11;  /* activates earthquake */
 			fire_ball(GF_PLASMA, dir, 
                       50 + (3 * plev) + randint((plev * 10)/3), 1 + (plev / 16));
-            spellswitch = 11;  /* activates earthquake */
 			break;
            /* 111-176 at L20, 141-240 at L30, 171-303 at L40, 201-366 at L50 */
         }
@@ -2539,7 +3150,7 @@ static bool cast_newm_spell(int spell)
 			fire_beam(GF_GRAVITY, dir, 10 + (plev*2) + damroll(plev, 6));
 			break;
             /* 71-170 at L20, 101-250 at L30, 131-330 at L40, 161-410 at L50 */
-		}
+		}   /* stronger than mage version */
 
 		case NEWM_SONG_LULLING:
 		{
@@ -2579,7 +3190,7 @@ static bool cast_newm_spell(int spell)
         {
 			msg_print("An unbearable discord tortures your foes!");
             spellswitch = 10;  /* a song should not affect golems */
-            (void)dispel_monsters(randint((plev * 7)/3));
+            (void)dispel_monsters(plev/3 + randint(plev * 2));
 			(void)dispel_evil(randint(plev));
 			break;
         }
@@ -2634,6 +3245,12 @@ static bool cast_newm_spell(int spell)
 			break;
 		}
 
+        case NEWM_EXTRA_BLOW:
+		{
+			(void)inc_timed(TMD_XATTACK, randint(plev-5) + (plev/2));
+			break;
+		}
+
 		case NEWM_TELEPORT_LEVEL:
 		{
 			(void)teleport_player_level();
@@ -2663,6 +3280,7 @@ static bool cast_newm_spell(int spell)
 		case NEWM_TELEPATHY:
         {
 			(void)inc_timed(TMD_ESP, randint(plev) + (plev/2));
+			break;
         }
         		 /* HERE4: still need last spellbook */
     }
@@ -2688,7 +3306,7 @@ static bool cast_luck_spell(int spell)
 	{
 		case LUCK_ILLUMINATION:
 		{
-			(void)lite_area(damroll(1, (plev / 2)), (plev / 10) + 1);
+			(void)lite_area(randint(plev / 2), (plev / 10) + 1);
 			break;
 		}
 		
@@ -2708,7 +3326,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_TRAP_DOOR_DESTRUCTION:
 		{
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
 			(void)destroy_doors_touch();
 			if (die > 100)
             {
@@ -2721,13 +3339,17 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_CAMERA_FLASH:
 		{
-            spellswitch = 9; /* changes targetting prompt */
+            msg_print("What do you want to take a picture of?");
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_WATER, dir, 0, plev/23);
-			fire_ball(GF_LITE, dir, 4 + randint(plev/3), plev/15);
+			int flash = 3 + randint(plev/3);
+			if (plev < 9) flash = 2 + randint(plev/3);
+            spellswitch = 9;
+			fire_ball(GF_WATER, dir, 1, plev/22);
+            spellswitch = 9;
+			fire_ball(GF_LITE, dir, flash-1, plev/15);
 			/* GF_WATER for stunning effect */
-			/* spellswitch also keeps you from discovering water immunity */
-			/* WATER must be first because spellswitch resets before the 2nd effect */
+			/* spellswitch keeps you from discovering water immunity */
+			/* spellswitch also makes the light from the flash temporary */
 			break;
 		}
 
@@ -2738,7 +3360,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_DOOR_CREATION:
 		{
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
             if (die < 3) return (project_los(GF_WIZLOCK, plev/5));
             else if (die < 11) earthquake(py, px, 5);
             else if (die < 16) (void)destroy_doors_touch();
@@ -2747,7 +3369,7 @@ static bool cast_luck_spell(int spell)
                  spellswitch = 11; /* doesn't allow big damage to player */
                  earthquake(py, px, 3);
             }
-            else if (die < 48)
+            else if (die < 42)
             {
                  spellswitch = 11; /* doesn't allow big damage to player */
                  earthquake(py, px, 3);
@@ -2771,7 +3393,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_STAIR_CREATION:
 		{
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
             if (die < 8)
             {
                  trap_creation();
@@ -2792,14 +3414,14 @@ static bool cast_luck_spell(int spell)
             else if (die < 100) (void)stair_creation();
             else if (die < 110)
             {
-                 return (project_los(GF_GRAVITY, plev/6));
 			     (void)stair_creation();
+                 return (project_los(GF_GRAVITY, plev/6));
             }
             else  /* (die > 109) */
             {
 			     (void)hp_player(damroll(7, 7));
-                 return (project_los(GF_GRAVITY, plev/6));
 			     (void)stair_creation();
+                 return (project_los(GF_GRAVITY, plev/6));
             }
             spellswitch = 0;
 			break;
@@ -2807,7 +3429,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_WORD_OF_RECALL:
 		{
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
             if (die < 90) set_recall();
             else if (die < 96)
             {
@@ -2838,7 +3460,7 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_EXTRA_LUCK:
         {
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
             if (die < 3)
             {
                msg_print("You feel quite unlucky."); 
@@ -2941,12 +3563,18 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_RESIST_COLD:
         {
-            die = randint(99) + (randint(plev/4));
+            die = randint(100) + randint(plev/4);
+            if ((die > 95) && (plev > 9) && (randint(100) < 9))
+            {
+                     msg_print("You feel a cold breeze.."); 
+                     cold_dam(1 + randint(plev/3), "a random cold breeze");
+                     die += 10;
+            }
             if (die < 10) (void)inc_timed(TMD_OPP_COLD, randint(die) + (10));
             else if (die < 45) (void)inc_timed(TMD_OPP_COLD, randint(10) + (10));
             else if (die < 80) (void)inc_timed(TMD_OPP_COLD, randint(15) + (10));
             else if (die < 100) (void)inc_timed(TMD_OPP_COLD, randint(die / 4) + (11));
-            else if (die < 113) (void)inc_timed(TMD_OPP_COLD, randint(die / 3) + (15));
+            else if (die < 110) (void)inc_timed(TMD_OPP_COLD, randint(die / 3) + (15));
             else
             {
                 spellswitch = 7;
@@ -2959,7 +3587,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_RECHARGING:
         {
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
       		if (die < 4) return recharge(1);
       		else if (die < 50) return recharge(2 + plev / 5);
       		else if (die < 70) return recharge(2 + plev / 3);
@@ -2972,7 +3600,7 @@ static bool cast_luck_spell(int spell)
         
         case LUCK_BUG_SPRAY:
         {
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
             if (die < 6) (void)dispel_bug(1 + (randint(plev / 3)));
 			else if (die < 94) (void)dispel_bug(1 + (randint(plev / 2)));
 			else if (die < 100) (void)dispel_bug(1 + (randint(plev - 3)));
@@ -2982,7 +3610,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_DETECT_INVISIBLE:
 		{
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
 			if (die < 10) (void)inc_timed(TMD_SINVIS, randint(4) + 2);
 			else if (die < 70) (void)detect_monsters_invis();
 			else if (die < 80) (void)inc_timed(TMD_SINVIS, randint(24) + 24);
@@ -3008,9 +3636,15 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_RESIST_POISON:
 		{
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
             if (die < 10) (void)inc_timed(TMD_OPP_POIS, randint(5) + 5);
-            else if (die < 80) (void)inc_timed(TMD_OPP_POIS, randint(20) + 20);
+            else if (die < 25) (void)inc_timed(TMD_WOPP_POIS, randint(21) + 20);
+            else if (die < 75) (void)inc_timed(TMD_OPP_POIS, randint(20) + 20);
+            else if (die < 80)
+            {
+               (void)inc_timed(TMD_OPP_POIS, randint(20) + 20);
+               (void)inc_timed(TMD_WOPP_POIS, randint(15) + 10);
+            }
             else if (die < 90)
             {
                (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
@@ -3020,6 +3654,7 @@ static bool cast_luck_spell(int spell)
             {
 			   (void)clear_timed(TMD_POISONED);
                (void)inc_timed(TMD_OPP_POIS, randint(21) + 24);
+               (void)inc_timed(TMD_WOPP_POIS, randint(15) + 15);
             }
             else
             {
@@ -3027,13 +3662,14 @@ static bool cast_luck_spell(int spell)
                p_ptr->silver = PY_SILVER_HEALTHY;
                p_ptr->slime = PY_SLIME_HEALTHY;
                (void)inc_timed(TMD_OPP_POIS, randint(26) + 24);
+               (void)inc_timed(TMD_WOPP_POIS, randint(21) + 20);
             }
 			break;
 		}
         
         case LUCK_CURE_CAUSE:
         {
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
             if (die < 5)
             {
                (void)inc_timed(TMD_CUT, randint(40) + 10);
@@ -3166,15 +3802,25 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
 		
-		case LUCK_TELEKINESIS: /* to add later */
+        case LUCK_STONE_TO_MUD: /* replaces rogue version of telekinesis */
 		{
-            (void)dispel_bug(2);
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)wall_to_mud(dir);
 			break;
 		}
 		
-		case LUCK_TELEKINESIS2: /* to add later */
+		case LUCK_TELEKINESIS2:
 		{
-            (void)dispel_bug(2);
+            /* spellswitch 24 allows distance pickup */ 
+            spellswitch = 24; 
+            if (!get_aim_dir(&dir)) return (FALSE);
+			do_telekinesis();
+			if (spellswitch == 24)
+			{
+               /* chance of waking up monsters in path */
+               if (randint(100) > plev + 29 - badluck + goodluck) fire_beam(GF_THROW, dir, 0);
+            }
+            spellswitch = 0;
 			break;
 		}
 
@@ -3192,7 +3838,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_DETECT_TRAPS:
 		{
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
 			(void)detect_traps();
 			if (die > 98) (void)destroy_doors_touch();
 			else if (die > 108)
@@ -3206,7 +3852,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_DETECT_OBJECTS:
 		{
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
             if (die > 105) (void)detect_objects_magic();
             else if (die > 5) (void)detect_objects_normal();
             else msg_print("You detect that there are objects on the level.");
@@ -3215,7 +3861,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_MAP_AREA:
 		{
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
             if (die < 8)
             {
                spellswitch = 4; /* does not light room */
@@ -3233,50 +3879,9 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_ADJUST_CURSE: /* add chance to make the weapon blessed */
 		{
-            die = randint(99) + (randint(plev/5));
-            if (die < 4) curse_weapon();
-            else if (die < 15)
-            {
-                 spellswitch = 2; /* makes weapon a morgul weapon */
-                 curse_weapon();
-                 spellswitch = 0;
-            }
-            else if (die < 35)
-            {
-                 spellswitch = 3; /* damages weapon without removing current ego */
-                 curse_weapon();
-                 spellswitch = 0;
-            }
-            else if (die < 75)
-            {
-                 remove_curse();
-            }
-            else if (die < 85)
-            {
-                 remove_curse();
-			     if (!get_aim_dir(&dir)) return (FALSE);
-                 msg_print("You fire a small ball of destroy cursed objects.");
-			     fire_ball(GF_HOLY_ORB, dir, 0, (plev/15));
-            }
-            else if (die < 95)
-            {
-                 remove_curse();
-			     if (!get_aim_dir(&dir)) return (FALSE);
-                 msg_print("You fire a ball of destroy cursed objects.");
-			     fire_ball(GF_HOLY_ORB, dir, randint(plev/5), (plev/7));
-            }
-            else if (die < 105)
-            {
-                 remove_all_curse();
-            }
-            else 
-            {
-                 remove_all_curse();
-			     if (!get_aim_dir(&dir)) return (FALSE);
-                 msg_print("You fire a ball of destroy cursed objects.");
-			     fire_ball(GF_HOLY_ORB, dir, randint(plev/4), (plev/8));
-            }
-			break;
+            dir = 5;
+            (void)spell_adjust_curse(dir);
+			break; /* (direction is unused) */
         }
         
         case LUCK_DETECT_ENCHANTMENT2:
@@ -3318,7 +3923,7 @@ static bool cast_luck_spell(int spell)
 		case LUCK_HIT_N_RUN:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt(GF_MISSILE, dir, damroll(2, (plev/3) + 1));
+			fire_bolt(GF_MISSILE, dir, 1 + damroll(2, (plev/3) + 1));
 			teleport_player(10);
 			break;
 		}
@@ -3360,11 +3965,12 @@ static bool cast_luck_spell(int spell)
 	             u32b f1 = 0L, f2 = 0L, f3 = 0L;
 	             object_type *o_ptr;
 	             int k;
-		         o_ptr = &inventory[k];
 
 	         /* Check for aggravation */
 	         for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	         {
+                 o_ptr = &inventory[k];
+                 
 		         /* Skip non-objects */
 		         if (!o_ptr->k_idx) continue;
 
@@ -3411,13 +4017,13 @@ static bool cast_luck_spell(int spell)
 
         case LUCK_ADJUST_SPEED:
 		{
-            spadjust = (randint(20) - 9);
-            if (randint(100) < plev) spadjust = spadjust + 2;
-            if (randint(501) < plev) spadjust = spadjust + randint(3);
-            if ((spadjust = 0) && (randint(45) < plev)) spadjust = 9;
-            else if (spadjust = 0) spadjust = (randint(3) - 5);
-            if (spadjust > 0) (void)set_timed(TMD_ADJUST, randint(25) + plev);
-            if (spadjust < 0) (void)set_timed(TMD_ADJUST, (plev + 25) - randint(plev));
+            spadjust = randint(20) - 9;
+            if (randint(100) < plev) spadjust += 2;
+            if (randint(501) < plev) spadjust += randint(3);
+            if ((spadjust == 0) && (randint(45) < plev)) spadjust = 6 + randint(3);
+            if (spadjust == 0) spadjust = randint(3) - 5;
+            if (spadjust > 0) (void)inc_timed(TMD_ADJUST, randint(25) + plev);
+            if (spadjust < 0) (void)inc_timed(TMD_ADJUST, (plev + 25) - randint(plev));
 			break;
 		}
 
@@ -3447,7 +4053,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_WORD_OF_RECALL2:
 		{
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
             if (die > 100)
             {
                  spellswitch = 8; /* quick recall */
@@ -3475,7 +4081,7 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_BANISH_SUMMON:
         {
-            die = randint(99) + (randint(plev/3));
+            die = randint(99) + randint(plev/3);
             if (die < 5)
             {
                msg_print("The spell gets a little out of hand..");
@@ -3546,33 +4152,50 @@ static bool cast_luck_spell(int spell)
         
         case LUCK_AFFECT_SELF:
         {
-            int unused;
+            int unused = 0;
             (void)spell_affect_self(unused);
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
             if (die > 105) wiz_lite();
+            else if (die > 100) return identify_fully();
             else if (die > 95) map_area();
             else if (die > 85) return ident_spell();
             else if (die > 80) restore_level();
             else if (die > 77) gain_exp(randint(plev * 3));
             else if (die > 70) p_ptr->luck = p_ptr->luck + randint(2);
-            if (die < 9) p_ptr->luck = p_ptr->luck - randint(2);
+            if (die < 8) p_ptr->luck = p_ptr->luck - randint(2);
+            break;  
         }
         
         case LUCK_AFFECT_OTHER:
         {
-            (void)spell_affect_other(dir); /* same as wonder for now */
-			break;
+            dir = 5;
+            (void)spell_affect_other(dir);
+			break; /* (direction is unused) */
         }
         
         case LUCK_POTLUCK_STATS:
         {
-            die = randint(99) + (randint(plev/4));
-			break;
+            dir = 5;
+            (void)spell_potluck_stats(dir);
+			break; /* (direction is unused) */
         }
         
         case LUCK_AQUIREMENT:
         {
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/5);
+            if ((plev == 50) && (goodluck > 0)) die += 1;
+            if (goodluck > 10) die += 1;
+            int lottery = randint(1000);
+            int jackpot = 0;
+            if (die == 110) jackpot = randint(11);
+            if (jackpot == 10) lottery = 999;
+            if (jackpot == 9) lottery = 776;
+            if (jackpot == 8) lottery = 888;
+            if (jackpot == 7) lottery = 777;
+            if (jackpot == 6) lottery = 666;
+            if (jackpot == 5) lottery = 555;
+            if (jackpot == 4) lottery = 444;
+            if (jackpot == 3) lottery = 333;
             int where = randint(100);
             if (die < 10)
             {
@@ -3582,22 +4205,22 @@ static bool cast_luck_spell(int spell)
                if ((plev > 47) && (randint(100) < 50)) aquirenum = aquirenum + randint(3);
                if ((plev > 49) && (randint(100) < 90)) aquirenum = aquirenum + randint(4);
                if (randint(100) < 3) aquirenum = 1;
-               if (aquirenum == 9) do_call_help(712, TRUE);
-               else if (aquirenum == 8) do_call_help(692, TRUE);
-               else if (aquirenum == 7) do_call_help(546, TRUE);
-               else if (aquirenum == 6) do_call_help(554, TRUE);
-               else if (aquirenum == 5) do_call_help(508, TRUE);
-               else if (aquirenum == 4) do_call_help(459, TRUE);
-               else if (aquirenum == 3) do_call_help(354, TRUE);
-               else if (aquirenum == 2) do_call_help(142, TRUE);
-               else do_call_help(55, TRUE);
+               if (aquirenum == 9) do_call_help(712, TRUE); /* dark fairy fool */
+               else if (aquirenum == 8) do_call_help(692, TRUE); /* lesser titan */
+               else if (aquirenum == 7) do_call_help(546, TRUE); /* cyclops */
+               else if (aquirenum == 6) do_call_help(554, TRUE); /* extril */
+               else if (aquirenum == 5) do_call_help(508, TRUE); /* master assassin */
+               else if (aquirenum == 4) do_call_help(459, TRUE); /* assassin */
+               else if (aquirenum == 3) do_call_help(354, TRUE); /* lightning rogue */
+               else if (aquirenum == 2) do_call_help(142, TRUE); /* bandit */
+               else do_call_help(55, TRUE); /* scruffy looking hobbit */
             }
             if (die < 20)
             {
                msg_print("A broken bottle appears and shatters violently.");
                (void)inc_timed(TMD_CUT, 4);
             }
-            else if (die < 40)
+            else if (die < 35)
             {
                spellswitch = 5;  /* creates object that's not good or great */
                if (where < 25) acquirement(py + randint(4), px + randint(4), 1, FALSE);
@@ -3608,7 +4231,7 @@ static bool cast_luck_spell(int spell)
                take_hit(randint(10), "delivery price of aquirement");
                (void)inc_timed(TMD_STUN, 2);
             }
-            else if (die < 50)
+            else if (die < 45)
             {
                int aquirenum = randint(2) + 1;
                spellswitch = 5;  /* creates object that's not good or great */
@@ -3620,71 +4243,117 @@ static bool cast_luck_spell(int spell)
                take_hit(randint(9 + aquirenum), "delivery price of aquirement");
                (void)inc_timed(TMD_STUN, 1 + aquirenum);
             }
-            else if (die < 80)  /* make good but not great object */
+            else if (die < 75)  /* make good but not great object */
             {
                if (where < 25) acquirement(py + randint(4), px + randint(4), 1, FALSE);
                else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, FALSE);
                else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, FALSE);
                else acquirement(py - randint(4), px - randint(4), 1, FALSE);
-               take_hit(damroll(2, randint(10)) - p_ptr->luck, "delivery price of aquirement");
+               int price = damroll(2, randint(10)) - (goodluck/2) + (badluck/2);
+               if (price < 1) price = 1;
+               take_hit(price, "delivery price of aquirement");
                if (randint(100) < 25) summon_specific(py, px, p_ptr->depth + 1, 0);
                p_ptr->silver = p_ptr->silver + 1;
                (void)inc_timed(TMD_STUN, randint(5));
             }
-            else if (die < 90)  /* make 2-3 good objects */
+            else if (die < 85)  /* make 2-3 good objects */
             {
                int aquirenum = randint(2) + 1;
                if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, FALSE);
                else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, FALSE);
                else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, FALSE);
                else acquirement(py - randint(4), px - randint(4), aquirenum, FALSE);
-               take_hit(damroll(2 + aquirenum, randint(10)) - (p_ptr->luck * aquirenum), "delivery price of aquirement");
+               int price = damroll(2 + aquirenum, 2 + randint(8));
+               price -= ((goodluck/4) * aquirenum);
+               price += (badluck * aquirenum);
+               if (price < 2) price = 2;
+               take_hit(price, "delivery price of aquirement");
                if (randint(100) < 50) summon_specific(py, px, p_ptr->depth + aquirenum, 0);
                p_ptr->silver = p_ptr->silver + aquirenum;
                (void)inc_timed(TMD_STUN, aquirenum * randint(5));
             }
-            else if (die < 100)  /* high cost aquirement */
+            else if (die < 95)  /* high cost aquirement */
             {
                if (where < 25) acquirement(py + randint(4), px + randint(4), 1, TRUE);
                else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, TRUE);
                else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, TRUE);
                else acquirement(py - randint(4), px - randint(4), 1, TRUE);
-               take_hit(damroll(6, 8 + randint(7)) - (p_ptr->luck * 2), "delivery price of aquirement");
+               int price = damroll(6, 8 + randint(7)) - (goodluck) + (badluck);
+               if (price < 4) price = 4;
+               take_hit(price, "delivery price of aquirement");
                p_ptr->silver = p_ptr->silver + 6;
                (void)inc_timed(TMD_STUN, 5 * randint(5));
                summon_specific(py, px, (plev * 3/2) + 1, 0);
             }
-            else if (die < 105)  /* lower cost aquirement */
+            else if (die < 100)  /* lower cost aquirement */
             {
                if (where < 25) acquirement(py + randint(4), px + randint(4), 1, TRUE);
                else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, TRUE);
                else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, TRUE);
                else acquirement(py - randint(4), px - randint(4), 1, TRUE);
-               take_hit(damroll(6, 5 + randint(5)) - (p_ptr->luck * 2), "delivery price of aquirement");
+               int price = damroll(6, 5 + randint(5)) - (goodluck * 2) + (badluck);
+               if (price < 1) price = 1;
+               take_hit(price, "delivery price of aquirement");
                p_ptr->silver = p_ptr->silver + 3;
                (void)inc_timed(TMD_STUN, 3 * randint(5));
                summon_specific(py, px, plev + 1, 0);
             }
-            else if (die < 110)  /* very high cost *aquirement* */
+            else if (die < 105)  /* very high cost *aquirement* */
             {
                int aquirenum = randint(2) + 1;
                if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, TRUE);
                else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, TRUE);
                else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, TRUE);
                else acquirement(py - randint(4), px - randint(4), aquirenum, TRUE);
-               take_hit(damroll(6, 7 + aquirenum + randint(7)) - (p_ptr->luck * aquirenum), "delivery price of aquirement");
+               int price = damroll(6, 7 + aquirenum + randint(7));
+               price -= ((goodluck/2) * aquirenum);
+               price += ((badluck/3) * aquirenum);
+               if (price < (aquirenum + 3)) price = aquirenum + 3;
+               take_hit(price, "delivery price of aquirement");
                p_ptr->silver = p_ptr->silver + 4 + aquirenum;
                (void)inc_timed(TMD_STUN, (4 + aquirenum) * randint(5));
                summon_specific(py, px, (plev * 3/2) + aquirenum, 0);
                summon_specific(py, px, p_ptr->depth + 8 + aquirenum, 0);
             }
-            else /* (die > 109)  no cost aquirement */
+            else /* (die > 104)  no cost aquirement */
             {
+               msg_print("You've won the lottery!");
                int aquirenum = randint(2);
+               if (lottery > 990) aquirenum += randint(2);
+               if (lottery == 333) aquirenum += 1;
+               if (lottery == 444) aquirenum = 4;
+               if (lottery == 555) p_ptr->luck += 1;
+               if (lottery == 666) p_ptr->luck -= randint(2);
+               if (lottery == 777)
+               {
+                  aquirenum = 5;
+                  p_ptr->luck += randint(2);
+               }
+               if (lottery == 776)
+               {
+                  (void)inc_timed(TMD_FRENZY, (9 + aquirenum) * randint(9));
+                  msg_print("One number off of jackpot, you get really frustrated!");
+                  aquirenum = 1;
+               }
+               if (lottery == 888)
+               {
+                  aquirenum = 8; /* good but not great */
+                  if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, FALSE);
+                  else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, FALSE);
+                  else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, FALSE);
+                  else acquirement(py - randint(4), px - randint(4), aquirenum, FALSE);
+                  msg_print("You've hit the jackpot of quantity but less quality.");
+               }
+               else
+               {
                if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, TRUE);
                else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, TRUE);
                else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, TRUE);
                else acquirement(py - randint(4), px - randint(4), aquirenum, TRUE);
+               if (aquirenum == 5) msg_print("You've hit the extreme jackpot!!!");
+               else if (aquirenum > 2) msg_print("You've hit the jackpot!!");
+               else if (badluck > 10) take_hit(randint(10), "delivery price of aquirement");
+               }
             }
 			break;
         }
@@ -3730,7 +4399,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_REMOVE_CURSE:
 		{
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
             if (die > 101) remove_all_curse();
             else remove_curse();
 			break;
@@ -3757,7 +4426,7 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_STINK:
         {
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + randint(plev/4);
    			if (die > 10)
             {
                if (!get_aim_dir(&dir)) return (FALSE);
@@ -3770,8 +4439,10 @@ static bool cast_luck_spell(int spell)
                   int dam;
                   if (die < 2) die = 2;
 			      dam = ((109 - (die * 10)) / 3);
+			      if (p_ptr->weakresist_pois) dam = dam / 2;
 			      take_hit(dam, "a toxic smell");
 			      (void)inc_timed(TMD_POISONED, rand_int(dam) + 10);
+			      if (p_ptr->weakresist_pois) (void)dec_timed(TMD_POISONED, randint(11));
 			   }
             }
             else if (die < 40) fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
@@ -3837,7 +4508,7 @@ static bool cast_luck_spell(int spell)
 		case LUCK_MASS_CHAOS: /* note lack of "elseif" */
         {
             return (project_los(GF_OLD_CONF, plev + 1)); /* no damage with OLD_CONF */
-            return (project_los(GF_CHAOS, (plev/2)));
+            return (project_los(GF_CHAOS, (plev/2) + randint(plev)));
             if (randint(100) < 40) /* random type of stunning */
             {
                if (randint(100) < 50) return (project_los(GF_WATER, 5));
@@ -3848,10 +4519,163 @@ static bool cast_luck_spell(int spell)
             if (randint(100) < 30)
             {
                spellswitch = 13; /* blink monsters */
-               (project_los(GF_AWAY_ALL, (2 + randint(15))));
+               (project_los(GF_AWAY_ALL, 2 + randint(15)));
 			   spellswitch = 0;
             }
             if (randint(100) < 35) return (project_los(GF_BRFEAR, randint(plev)));
+			break;
+        }
+        
+        case LUCK_BREATHE_CHAOS:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if (plev > 43) die = 4;
+			else die = 3;
+            int dieb = randint(62 + die);
+			fire_ball(GF_CHAOS, dir, damroll(plev, 9) + (dieb/3), die);
+			if (dieb < 30) fire_ball(GF_AWAY_ALL, dir, 1 + randint(8), die);
+			else if (dieb < 60) fire_ball(GF_BRFEAR, dir, 1 + randint(12), die);
+			else if (dieb < 63)
+			{
+                 spellswitch = 11;  /* activates earthquake */
+                 range = 21; /* small earthquake */
+                 fire_ball(GF_PLASMA, dir, 6 + randint(7), die);
+            }
+            else inc_timed(TMD_IMAGE, randint(3));
+			break;
+        }
+        
+        case LUCK_BIZZARE_EFFECTS:
+        {
+            die = randint(100) + goodluck - badluck/5;
+            /* those with very bad luck have a small chance of getting very lucky */
+            if ((badluck > 16) && (randint(100) < 4))
+            {
+               die += badluck + randint(badluck/2);
+            }
+            dir = 5;
+            int unused = 0;
+            if (die < 0) /* very rare: only every happens with 10+ bad luck */
+            {
+			   msg_print("You are surrounded by a malignant aura.");
+			   /* Decrease all stats (permanently) */
+			   (void)dec_stat(A_STR, 2 + randint(11), TRUE);
+			   (void)dec_stat(A_INT, 2 + randint(11), TRUE);
+			   (void)dec_stat(A_WIS, 2 + randint(11), TRUE);
+			   (void)dec_stat(A_DEX, 2 + randint(11), TRUE);
+			   (void)dec_stat(A_CON, 2 + randint(11), TRUE);
+			   (void)dec_stat(A_CHR, 3 + randint(12), TRUE);
+            }
+            else if (die < 2)
+            {
+			   msg_print("You are surrounded by a malignant aura.");
+			   /* Decrease all stats (permanently, but by less) */
+			   (void)dec_stat(A_STR, randint(2), TRUE);
+			   (void)dec_stat(A_INT, randint(2), TRUE);
+			   (void)dec_stat(A_WIS, randint(2), TRUE);
+			   (void)dec_stat(A_DEX, randint(2), TRUE);
+			   (void)dec_stat(A_CON, randint(2), TRUE);
+			   (void)dec_stat(A_CHR, randint(3), TRUE);
+            }
+            else if (die < 5) 
+            {
+			   msg_print("You are surrounded by an unpleasant aura.");
+			   /* Decrease all stats (not permanently) */
+			   (void)dec_stat(A_STR, randint(3), FALSE);
+			   (void)dec_stat(A_INT, randint(3), FALSE);
+			   (void)dec_stat(A_WIS, randint(3), FALSE);
+			   (void)dec_stat(A_DEX, randint(3), FALSE);
+			   (void)dec_stat(A_CON, randint(3), FALSE);
+			   (void)dec_stat(A_CHR, randint(6), FALSE);
+            }
+            else if (die < 15) 
+            {
+               msg_print("You feel your life draining away.");
+               p_ptr->exp -= (p_ptr->exp / 6);
+			   p_ptr->max_exp -= (p_ptr->max_exp / 20);
+			   check_experience();
+            }
+            else if (die < 25)
+            {
+               msg_print("You feel very unlucky.");
+               p_ptr->luck -= 2 + randint(4);
+            }
+            else if (die < 35)
+            {
+               /* die range is 1 to 29 */
+               die = 11 + randint(13 + goodluck/4) - badluck/2;
+               if (badluck > 15) die = die - 1;
+               /* less than 12 can only happen with bad luck */
+               if (die == 2) do_call_help(754, TRUE); /* veriety quylthulg */
+               else if (die == 3) do_call_help(812, TRUE); /* clear dust bunnies */
+               else if (die == 4) do_call_help(712, TRUE); /* dark fairy fool */
+               else if (die == 5) do_call_help(638, TRUE); /* shadow minions */
+               else if (die == 6) do_call_help(713, TRUE); /* horned devil lord */
+               else if (die == 7) do_call_help(710, TRUE); /* dullahan */
+               else if (die == 8) do_call_help(703, TRUE); /* skull druj */
+               else if (die == 9) do_call_help(688, TRUE); /* barbazu */
+               else if (die == 10) do_call_help(676, TRUE); /* quylthulg shrieker */
+               else if (die == 11) do_call_help(684, TRUE); /* will be gnawing bug */
+               else if (die == 12) do_call_help(661, TRUE); /* wemu vyrm */
+               else if (die == 13) do_call_help(692, TRUE); /* rayem */
+               else if (die == 14) do_call_help(659, TRUE); /* gorgon */
+               else if (die == 15) do_call_help(644, TRUE); /* greater basilisk */
+               else if (die == 16) do_call_help(631, TRUE); /* doppleganger */
+               else if (die == 17) do_call_help(616, TRUE); /* shadow raven */
+               else if (die == 18) do_call_help(604, TRUE); /* black unicorn */
+               else if (die == 19) do_call_help(603, TRUE); /* giant ameoba slime */
+               else if (die == 20) do_call_help(588, TRUE); /* giant static toadstool */
+               else if (die == 21) do_call_help(598, TRUE); /* trooping fairies */
+               else if (die == 22) do_call_help(511, TRUE); /* singing vyrms */
+               else if (die == 23) do_call_help(509, TRUE); /* hellhound */
+               else if (die == 24) do_call_help(569, TRUE); /* animated staff of summoning */
+               /* higher than 22 can only happen with good luck */
+               else if (die == 25) do_call_help(605, TRUE); /* ancient zhelung */
+               else if (die == 26) do_call_help(400, TRUE); /* creeping adamantite coins */
+               else if (die == 27) do_call_help(522, TRUE); /* hairy quylthulg */
+               else if (die == 28) do_call_help(495, TRUE); /* mature green dragon */
+               else if (die > 28) do_call_help(997, TRUE); /* white unicorn helper */
+               /* 1 can only happen with maximum bad luck */
+               else /* 1 */ do_call_help(798, TRUE); /* plague slime */
+            }
+            /* the following four effects have both good and bad possibilities */
+            /* but the good ones happen more often */
+            else if (die < 37) 
+            {
+               msg_print("You feel lucky.");
+               p_ptr->luck += randint(2);
+            }
+            else if (die < 45) (void)spell_adjust_curse(dir);
+            else if (die < 55) (void)spell_affect_self(unused);
+            else if (die < 65) (void)spell_potluck_stats(dir);
+            else if (die < 85) (void)spell_affect_other(dir);
+            else if (die < 90)
+            {
+			     /* Mana Bolt */
+			     if (!get_aim_dir(&dir)) return (FALSE);
+                 fire_bolt(GF_MANA, dir, 200 + randint(plev) + 1);
+            }
+            else if (die < 95)
+            {
+			     /* Mana Ball */
+			     if (!get_aim_dir(&dir)) return (FALSE);
+			     fire_ball(GF_MANA, dir, 250 + randint(plev), 3);
+            }
+            else if (die < 100)
+		    {
+	             msg_print("You are surrounded by a powerful aura.");
+			     /* Dispel monsters */
+			     dispel_monsters(700 + randint(277));
+		    }
+		    else /* very rare: like best wonder effect but better */
+		    {
+                msg_print("You feel very lucky.");
+                dispel_monsters((99 + randint(51)) * plev/10);
+		        slow_monsters();
+		        sleep_monsters();
+		        hp_player(150 * (1 + randint(5)));
+                p_ptr->luck += 2 + randint(3);
+            }
 			break;
         }
     }
@@ -3883,7 +4707,7 @@ static bool cast_chem_spell(int spell)
 		
 		case CHEM_LIGHT_AREA:
 		{
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
             if (plev > 25) die = die + 10;
             if (plev > 40) die = die + 10;
             if (plev > 50) die = die + 5;
@@ -3929,6 +4753,7 @@ static bool cast_chem_spell(int spell)
 			   (void)dec_timed(TMD_CUT, randint(plev/9));
                if ((randint(100) < (plev * 3)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime = p_ptr->slime - 1;
 			   (void)dispel_bug(randint(plev / 3));
+			   if (randint(100) < 75) (void)inc_timed(TMD_WOPP_POIS, randint(13) + 5);
             }
             spellswitch = 0;
 			break;
@@ -4048,6 +4873,7 @@ static bool cast_chem_spell(int spell)
                if ((randint(100) < (plev * 3)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime = p_ptr->slime - 2;
                if ((randint(100) < (plev * 3)) && (p_ptr->silver > PY_SILVER_HEALTHY)) p_ptr->silver = p_ptr->silver - 1;
 			   (void)dispel_bug(1 + (randint(plev / 2)));
+			   (void)inc_timed(TMD_WOPP_POIS, randint(15) + 10);
             }
 			(void)dec_timed(TMD_CONFUSED, 5 + randint(plev/2));
 			(void)dec_timed(TMD_BLIND, 5 + randint(plev/2));
@@ -4202,10 +5028,13 @@ static bool cast_chem_spell(int spell)
 			/* fire two swarms to make damage more random */
 			int arrowdmg = damroll((plev/12), (4 + randint(plev/6)));
 			if (arrowdmg > 70) arrowdmg = 70;
-			fire_swarm(randint(4), GF_ARROW, dir, arrowdmg, 1);
+			int manya = randint(3);
+			if (plev < 32) manya = randint(4);
+			if (plev < 25) manya = randint(5);
+			fire_swarm(manya + 2, GF_ARROW, dir, arrowdmg, 1);
 			arrowdmg = damroll((plev/12), (4 + randint(plev/5)));
-			if (arrowdmg > 70) arrowdmg = 70;
-			fire_swarm(1 + plev / 19, GF_ARROW, dir, arrowdmg, 1);
+			if (arrowdmg > 75) arrowdmg = 75;
+			fire_swarm(1 + plev / 16, GF_ARROW, dir, arrowdmg + 1, 1);
             /* paranoia backfire to remind archer to use range weapon */
             if ((randint(100) < 20) && (!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
             {
@@ -4226,7 +5055,7 @@ static bool cast_chem_spell(int spell)
                return (FALSE);
             }
 			if (!get_aim_dir(&dir)) return (FALSE);
-			int arrowdmg = damroll(plev/4, 7);
+			int arrowdmg = damroll(plev/4, 7) + 1;
 			fire_bolt(GF_CHAOS, dir, arrowdmg);
             /* paranoia backfire to remind archer to use range weapon */
             if ((randint(100) < 20) && (!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
@@ -4241,10 +5070,13 @@ static bool cast_chem_spell(int spell)
 		case CHEM_ROCKET_BLAST:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_SHARD, dir, 40 + randint(plev/5) + damroll((plev/2), 2), 2);
+			int manya = 40;
+			if (plev > 39) manya = 50;
+			if (plev > 49) manya = 60;
+			fire_ball(GF_SHARD, dir, manya + randint(plev/5) + damroll((plev/2), 2), 2);
 			if (randint(100) < 34) fire_ball(GF_KILL_WALL, dir, damroll((plev/2), 2), 2);
 			break;
-            /* 50-60 at L20, 55-70 at L30, 60-80 at L40, 65-90 at L50 */
+            /* 50-60 at L20, 55-70 at L30, 70-90 at L40, 85-110 at L50 */
 		}
 
 		case CHEM_ENCHANT_TO_HIT:
@@ -4413,7 +5245,7 @@ static bool cast_chem_spell(int spell)
 		case CHEM_HIT_N_RUN:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt(GF_ARROW, dir, damroll(2, (plev/3) + 1));
+			fire_bolt(GF_MISSILE, dir, 1 + damroll(2, (plev/3) + 1));
 			teleport_player(10);
 			break;
 		}
@@ -4463,11 +5295,12 @@ static bool cast_chem_spell(int spell)
 	             u32b f1 = 0L, f2 = 0L, f3 = 0L;
 	             object_type *o_ptr;
 	             int k;
-		         o_ptr = &inventory[k];
 
 	         /* Check for aggravation */
 	         for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	         {
+                 o_ptr = &inventory[k];
+                 
 		         /* Skip non-objects */
 		         if (!o_ptr->k_idx) continue;
 
@@ -4482,11 +5315,7 @@ static bool cast_chem_spell(int spell)
                 if (randint(plev * 2) > 85)
                 {
                   msg_print("You are aggravating monsters, attempting to remove curse..");
-                  if (remove_curse())
-                  {
-                     msg_print("You feel as if someone is watching over you.");
-                     (void)inc_timed(TMD_SHADOW, randint(plev / 2) + 20);
-                  }
+                  if (remove_curse()) msg_print("You feel as if someone is watching over you.");
                 }
                 else msg_print("You can't slip into the shadows while you're aggravating monsters.");
     	        break;
@@ -4498,10 +5327,27 @@ static bool cast_chem_spell(int spell)
 		
 		case CHEM_POISON_BOLT:
         {
+			if (!get_aim_dir(&dir)) return (FALSE);
             fire_bolt_or_beam(plev / 4, GF_POIS, dir, 
                               damroll(7+(plev/5), 7));
 			break;
         } /* 11d7 at L20, 13d7 at L30, 15d7 at L40, 17d7 at L50 */
+          /* bigger than frost bolt weaker than fire bolt */
+          
+		case CHEM_TELEKINESIS:
+		{
+            /* spellswitch 24 allows distance pickup */ 
+            spellswitch = 24; 
+            if (!get_aim_dir(&dir)) return (FALSE);
+			do_telekinesis();
+			if (spellswitch == 24)
+			{
+               /* chance of waking up monsters in path */
+               if (randint(100) > plev + 29 - badluck + goodluck) fire_beam(GF_THROW, dir, 0);
+            }
+            spellswitch = 0;
+			break;
+		}
         
         case CHEM_RESTORE_DEX1:
 		{
@@ -4662,6 +5508,1008 @@ static bool cast_chem_spell(int spell)
 	return (TRUE);
 }
 
+static bool cast_dark_spell(int spell)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int dir;
+
+	int plev = p_ptr->lev;
+
+	/* Hack -- chance of "beam" instead of "bolt" */
+	int beam = beam_chance();
+
+	/* Spells. */
+	switch (spell)
+	{
+		case DARK_DETECT_EVIL:
+		{
+			(void)detect_monsters_evil();
+			break;
+		}
+		
+        case DARK_SHADOW_STING:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if (plev < 4) fire_bolt(GF_NETHER, dir, damroll(2, (plev * 2)));
+			else if (plev < 8) fire_bolt(GF_NETHER, dir, damroll(2, 6));
+			else if (plev < 15) fire_bolt(GF_NETHER, dir, damroll(2, plev - 1));
+			else fire_bolt(GF_NETHER, dir, damroll(((plev-1)/10), 13));
+            if (randint(100) + badluck > 90 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 10 + randint(50-plev));
+            }
+			break;
+        }
+
+		
+		case DARK_INFRAVISION:
+		{
+		    (void)inc_timed(TMD_SINFRA, randint(plev) + 10 + (plev * 3));
+			break;
+		}
+
+		case DARK_CALL_DARK:
+		{
+            if (plev < 11) (void)inc_timed(TMD_SINFRA, 3 + randint(plev+2));
+		    else (void)inc_timed(TMD_SINFRA, 3 + randint(plev-3));
+            spellswitch = 21; /* uses GF_DARK instead of DARK_WEAK */
+            int ifrad = (plev / 3) - 1;
+            if (plev > 15) ifrad = 3 + randint(plev / 10);
+            if (ifrad < 1) ifrad = 1;
+            if ((ifrad < 6) && (randint(100) < 10)) ifrad += 1;
+			(void)unlite_area(damroll(2, (plev / 2)) + randint(ifrad*2) + 1, ifrad);
+            spellswitch = 0;
+			break;
+		}
+		
+		case DARK_SCARE_MONSTER:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fear_monster(dir, plev);
+			break;
+		}
+
+		case DARK_NOXIOUS_FUMES:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if (plev > 7 + (randint(18))) spellswitch = 22; /* adds chance of sleep to GF_POIS */
+			fire_ball(GF_POIS, dir, 10 + (plev / 2) + randint(plev / 4), 2);
+			spellswitch = 0;
+			break;
+		}
+
+		case DARK_SLEEP_MONSTER:
+		{
+            if (!get_aim_dir(&dir)) return (FALSE);
+			(void)sleep_monster(dir);
+			break;
+		}
+
+		case DARK_CURE_POISON:
+		{
+			(void)clear_timed(TMD_POISONED);
+			break;
+		}
+		
+		case DARK_WITHER_FOE:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			int witherf = plev / 7;
+			if ((witherf < 1) && (plev > 11)) witherf = 2;
+			if (witherf < 1) witherf = 1;
+			(void)confuse_monster(dir, plev + 10);
+			(void)slow_monster(dir);
+			fire_bolt(GF_MANA, dir, damroll(witherf, 8));
+			break;
+        }
+
+		case DARK_SEE_INVISIBLE:
+		{
+			(void)inc_timed(TMD_SINVIS, randint(plev) + 24);
+			break;
+		}
+
+		case DARK_FIND_TRAPS:
+		{
+			(void)detect_traps();
+			break;
+		}
+
+		case DARK_DETECT_DOORS_STAIRS:
+		{
+			(void)detect_doors();
+			(void)detect_stairs();
+			break;
+		}
+
+		case DARK_SHADOW_SHIFT:
+		{
+			teleport_player(10);
+			int die = randint(100);
+			if (plev < 20) die += (20-plev);
+			if (die < 75)
+            {
+               if (plev > 4) take_hit(randint(6), "shifting through the nether realm");
+               else take_hit(randint(3), "shifting through the nether realm");
+            }
+			break;
+		}
+
+        case DARK_DRAIN_CHARGES:
+        {
+			int drained = 0;
+	        int item;
+            cptr q, s;
+	        object_type *o_ptr;
+
+            /* Restrict choices to staves or wands */
+            item_tester_hook = item_tester_hook_charged;
+
+            /* Get an item */
+            q = "Drain which wand or staff? ";
+            s = "You have no wand or staff to use.";
+            if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	        /* Get the object */
+	        if (item >= 0)
+	        {
+		        o_ptr = &inventory[item];
+	        }
+	        else
+	        {
+	        	o_ptr = &o_list[0 - item];
+	        }
+
+			/* Drain charged wands/staves */
+			if ((o_ptr->tval == TV_STAFF) ||
+			    (o_ptr->tval == TV_WAND))
+			{
+				/* Charged? */
+				if (o_ptr->pval)
+				{
+					drained = o_ptr->pval;
+   						/* Uncharge */
+					o_ptr->pval = 0;
+				}
+			}
+			if (plev < 30) (void)hp_player((drained) * (plev/3));
+			else if (plev < 40) (void)hp_player((drained+1) * (8 + randint(2)));
+            else (void)hp_player((drained+1) * (plev/4));
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 10 + randint(plev));
+            }
+			break;
+		}
+
+		case DARK_TURN_UNDEAD:
+		{
+			(void)turn_undead();
+			break;
+		}
+
+		case DARK_DEATH_BOLT:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			spellswitch = 23; /* makes GF_OLD_DRAIN affect demons also */
+			if (plev < 13) drain_life(dir, damroll(3 + ((plev) / 5), 6));
+			else drain_life(dir, (plev*8)/5 + randint(plev));
+			spellswitch = 0;
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 11 + randint(plev));
+            }
+			break;
+        }  /* stronger than acid bolt, weaker than fire ball center */
+
+		case DARK_SLOW_MONSTER:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)slow_monster(dir);
+			break;
+		}
+
+		case DARK_DISPEL_UNDEAD1:
+		{
+			(void)dispel_undead(randint(plev * 3));
+			break;
+		}
+		
+        case DARK_CAUSE_LIGHT_WOUNDS:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			spellswitch = 23; /* makes GF_OLD_DRAIN affect demons also */
+			int dclw = plev / 9;
+			if (dclw < 1) dclw = 1;
+			int sdmg = damroll(dclw+1, 4 + randint(dclw+1));
+			if ((sdmg < 6) && (randint(100) < 40)) sdmg += randint(sdmg);
+			if ((sdmg > 40) && (randint(100) < 67)) sdmg -= 5 + randint(sdmg/4);
+            fire_ball(GF_OLD_DRAIN, dir, sdmg + 3, 0);
+			spellswitch = 0;
+			break;
+        } /* 2d(5-6) at L6, 3d(5-7) at L18, 4d(5-8) at L27, */
+          /* 5d(5-9) at L36, 6d(5-10) at L45 */
+          /* av: ~9 at L6, ~13 at L18, ~19 at L27, ~23 at L36, ~29 at L45 */
+
+        case DARK_WITCH_DISINFECTANT:
+		{
+            spellswitch = 16; /* dispel slime in bug_spray function */
+			(void)inc_timed(TMD_CUT, randint(11) + 5);
+			(void)dec_timed(TMD_POISONED, 4 + randint(plev/2));
+			(void)dec_timed(TMD_STUN, 4 + randint(plev/2));
+			(void)dispel_bug(1 + randint(plev / 2));
+			(void)inc_timed(TMD_WOPP_POIS, randint(13) + 5);
+            if ((randint(100) < 34) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
+            if ((randint(100) < 34) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
+            if ((randint(100) < 16) && (plev > 9))
+            {
+               spellswitch = 16; /* dispel slime in bug_spray function */
+			   (void)dec_timed(TMD_POISONED, randint(6));
+			   (void)dec_timed(TMD_STUN, randint(3));
+               if ((randint(100) < (plev * 3)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
+               if ((randint(100) < (plev * 3)) && (p_ptr->silver > PY_SILVER_HEALTHY)) p_ptr->silver -= 1;
+			   (void)dispel_bug(1 + randint(plev / 3));
+            }
+			(void)dec_timed(TMD_CONFUSED, 5 + randint(plev/3));
+			(void)dec_timed(TMD_BLIND, 5 + randint(plev/3));
+			(void)dec_timed(TMD_FRENZY, 3 + randint(plev/4));
+			(void)dec_timed(TMD_AMNESIA, 3 + randint(plev/4));
+			(void)dec_timed(TMD_IMAGE, 1 + randint(plev/4));
+            spellswitch = 0;
+			break;
+		}
+
+        case DARK_CAUSE_SERIOUS_WOUNDS:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			spellswitch = 23; /* makes GF_OLD_DRAIN affect demons also */
+			int dcsw = plev / 6;
+			if (dcsw < 2) dcsw = 2;
+			int sdmg = damroll(dcsw+2, 5 + randint(dcsw+1)) + randint(plev/2);
+			if (sdmg < 6) sdmg *= 1 + randint(3);
+			if ((sdmg < 12) && (randint(100) < 40)) sdmg += 1 + randint(sdmg);
+			if ((sdmg > 99) && (randint(100) < 90)) sdmg -= 10 + randint(sdmg/4);
+            fire_ball(GF_OLD_DRAIN, dir, sdmg + 10, 0);
+			spellswitch = 0;
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 50 + randint(100-plev));
+            }
+			break;
+        } /* 4d(6-8) at L6, 5d(6-9) at L18, 6d(6-10) at L24, */
+          /* 8d(6-12) at L36, 10d(6-14) at L48 (before capping) */
+          /* av: ~23.5 at L6, ~31 at L18, ~39 at L24, ~47 at L36, ~75 at L48 */
+          /* on average slightly weaker than frost bolt */
+
+        case DARK_TRAP_DOOR_DESTRUCTION:
+   		{
+			(void)destroy_doors_touch();
+			break;
+		}
+
+        case DARK_RESIST_POISON:
+		{
+			(void)inc_timed(TMD_OPP_POIS, randint(20) + 20);
+			break;
+		}
+
+        case DARK_POISON_BOLT:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+            fire_bolt_or_beam(beam, GF_POIS, dir, 
+                              damroll(7+(plev/5), 7));
+			break;
+        } /* 11d7 at L20, 13d7 at L30, 15d7 at L40, 17d7 at L50 */
+             
+        case DARK_SLIP_INTO_SHADOWS:
+		{
+	             u32b t1, t2, t3;
+	             u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	             object_type *o_ptr;
+	             int k;
+
+	         /* Check for aggravation */
+	         for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	         {
+                 o_ptr = &inventory[k];
+                 
+		         /* Skip non-objects */
+		         if (!o_ptr->k_idx) continue;
+
+		         /* Extract the flags */
+		         object_flags(o_ptr, &t1, &t2, &t3);
+
+		         /* Extract flags */
+		         f3 |= t3;
+	         }
+             if (f3 & TR3_AGGRAVATE)
+             {
+                if (randint(plev * 2) > 85)
+                {
+                  msg_print("You are aggravating monsters, attempting to remove curse..");
+                  if (remove_curse()) msg_print("You feel as if someone is watching over you.");
+                }
+                else msg_print("You can't slip into the shadows while you're aggravating monsters.");
+    	        break;
+             }   
+             else (void)inc_timed(TMD_SHADOW, randint(plev) + 30);
+             
+    	     break;
+		}
+        
+        case DARK_CAUSE_MORTAL_WOUNDS:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			spellswitch = 23; /* makes GF_OLD_DRAIN affect demons also */
+			int dcmw = plev / 4;
+			int sdmg = damroll(10 + randint(dcmw), dcmw+2);
+			if ((sdmg < 80) && (plev > 39)) sdmg += 20 + randint(sdmg/3);
+			if ((sdmg < 56) && (plev > 29)) sdmg += 10 + randint(sdmg/3);
+			if (sdmg < 30) sdmg += 15 + randint(sdmg/2);
+			if ((sdmg < 50) && (randint(100) < 67)) sdmg += 5 + randint(sdmg/3);
+			if ((sdmg > 260) && (randint(100) < 50)) sdmg -= 5 + randint(sdmg/5);
+            fire_ball(GF_OLD_DRAIN, dir, sdmg, 0);
+			if (sdmg > 160) sdmg = 165;
+			if (sdmg < 80) sdmg = sdmg + 10;
+            fire_ball(GF_SHARD, dir, randint(sdmg/5), 2);
+			spellswitch = 0;
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+        } /* (11-15)d7 at L20, (11-16)d8 at L24, (11-19)d11 at L36, (11-22)d14 at L48 */
+          /* av: ~57 at L20, ~66 at L24, ~98 at L36, ~135 at L48 (before capping)*/
+          /* absolute minimum after capping and shard ball is 51 */
+
+        case DARK_BREATHE_WITHERING:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_CONFUSION, dir, damroll(2, plev/5), plev/13);
+			fire_ball(GF_OLD_SLOW, dir, damroll(2, plev/5), plev/13);
+			fire_ball(GF_MANA, dir, damroll(plev/6, 3), plev/9);
+			fire_ball(GF_MANA, dir, damroll(plev/5, 8), plev/13);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+        }
+        
+        case DARK_SHADOW_WARP:
+        {
+			int die = randint(100 + plev/11);
+			teleport_player(plev * 5);
+			int shifthit = 3 + randint(plev - 20);
+			if (plev < 26) shifthit = 2 + randint(6);
+			if (die < 22) (void)inc_timed(TMD_STUN, randint(4) + 2);
+			else if (die < 44) (void)inc_timed(TMD_BLIND, randint(4) + 2);
+			else if (die < 66) (void)inc_timed(TMD_CUT, randint(4) + 2);
+			else if (die < 75) (void)inc_timed(TMD_BLIND, randint(2));
+			else shifthit -= 1;
+			if (randint(100) < 90) take_hit(shifthit, "shifting through the nether realm");
+			break;
+		}
+		
+        case DARK_WIZARD_LOCK:
+		{
+			if (!get_aim_dir(&dir)) return;
+
+			/* Spell will jam a door or create a jammed door
+            /* in any one empty square. */
+			fire_ball(GF_WIZLOCK, dir, 0, 0);
+			break;
+		}
+
+		case DARK_SHADOW_MAPPING:
+		{
+			map_area();
+			break;
+		}
+
+        case DARK_BREAK_CURSE:
+		{
+			remove_curse();
+			break;
+		}
+
+        case DARK_PROBING:
+		{
+			(void)probing();
+			break;
+		}
+
+        case DARK_IDENTIFY:
+		{
+			return ident_spell();
+		}
+		
+		case DARK_PROTECT_FROM_LIFELESS:
+		{
+			(void)inc_timed(TMD_PROTDEAD, randint(25) + ((1 + randint(2)) * p_ptr->lev));
+			break;
+		}
+
+        case DARK_EXORCISE_DEMONS:
+        {
+			if (randint(100 + (badluck*2)) < (plev*3)/2) (void)dispel_demon(1 + randint((plev * 7)/2));
+			else (void)dispel_demon(randint(plev * 3));
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break; /* (plev * 3.5) */
+		}
+             
+        case DARK_DETECT_ENCHANTMENT:
+		{
+			(void)detect_objects_magic();
+			break;
+		}
+
+		case DARK_SCARE_MONSTERS:
+        {
+		    scare_monsters();
+			break;
+        }
+
+		case DARK_SPEAR_OF_DARK:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			msg_print("A beam of darkness appears.");
+			fire_beam(GF_DARK, dir, damroll(3 + (plev/10), 8));
+			break;
+		}
+
+		case DARK_ICE_SPEAR:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_bolt_or_beam(beam + 5, GF_ICE, dir, damroll(5 + (plev/5), 8));
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+		}
+
+		case DARK_STENCH_OF_DEATH:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_POIS, dir, 13 + (plev / 2), 3);
+			fire_ball(GF_NETHER, dir, 13 + (plev / 8), 4);
+			dispel_life(randint((plev*3)/2));
+			fire_ball(GF_OLD_CONF, dir, plev - 2, 4);
+			spellswitch = 28; /* target self */
+			fire_ball(GF_POIS, 0, 13, 3);
+			if (p_ptr->resist_nethr) take_hit(randint(3), "the stench of death");
+			else take_hit(randint(13), "the stench of death");
+			if (p_ptr->resist_pois) (void)inc_timed(TMD_POISONED, randint(8) + 5);
+			else (void)inc_timed(TMD_POISONED, randint(9) + 12);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
+            }
+			break;
+        }
+ 
+        case DARK_BEAM_OF_DESTRUCTION:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if (randint(95) < (plev - 15))
+            {
+               if (plev > 40) fire_beam(GF_ACID, dir, 1 + damroll((plev-39)/2, 7));
+               else if (plev > 35) fire_beam(GF_ACID, dir, damroll((plev-34)/2, 6));
+               else fire_beam(GF_ACID, dir, damroll(randint(3), 4));
+            }
+            spellswitch = 26; /* activate destruction */
+			fire_beam(GF_SHARD, dir, 15 + plev + damroll(plev/10, 9));
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+		}
+
+ 		case DARK_DESTRUCTION_BALL:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if (randint(90) < (plev - 15))
+            {
+               if (plev > 40) fire_ball(GF_ACID, dir, 4 + damroll((plev-39)/2, 10), 2);
+               else if (plev > 38) fire_ball(GF_ACID, dir, 1 + damroll((plev-37)/2, 9), 2);
+               else fire_ball(GF_ACID, dir, damroll(randint(3), 7), 2);
+            }
+            spellswitch = 11;  /* activates earthquake */
+            range = 21; /* small earthquake */
+			fire_ball(GF_SHARD, dir, 24 + plev + damroll(plev/10, 11), 1 + plev/21);
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+		}
+             
+		case DARK_VENOM_BOLT:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+            fire_bolt_or_beam(beam + 5, GF_POIS, dir, 
+                              damroll(7+((plev+1)/4), 7 + randint(plev/10)));
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
+            }
+			break;
+        } /* 12d(8-9) at L20, 14d(8-10) at L30, 17d(8-11) at L40, 19d(8-12) at L50 */
+             
+		case DARK_CHAOS_STRIKE:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_bolt_or_beam(beam, GF_CHAOS, dir, damroll(13, plev));
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
+            }
+			break;
+		}
+
+		case DARK_BOLDNESS:
+   		{
+			(void)clear_timed(TMD_AFRAID);
+			if (rand_int(47 + badluck) < (plev + 5)) (void)clear_timed(TMD_CHARM);
+			break;
+		}
+
+        case DARK_RESIST_POISON2:
+		{
+			(void)inc_timed(TMD_OPP_POIS, randint(20) + 20);
+			break;
+		}
+		
+		case DARK_TOURNIQUET: /* the closest a necromancer gets to curing */
+		{
+			(void)clear_timed(TMD_STUN);
+			(void)clear_timed(TMD_CUT);
+			(void)set_timed(TMD_POISONED, (p_ptr->timed[TMD_POISONED] / 2) - 1);
+			(void)inc_timed(TMD_WOPP_POIS, randint(5) + 3);
+			(void)set_timed(TMD_SHERO, p_ptr->timed[TMD_SHERO] / 2);
+			(void)dec_timed(TMD_IMAGE, 1 + randint(plev/10));
+			(void)dec_timed(TMD_CONFUSED, 1 + randint(plev/10));
+			break;
+		}
+
+		case DARK_UNDEAD_SKIN:
+		{
+			int time = randint(20) + 20;
+			(void)inc_timed(TMD_OPP_COLD, time);
+			(void)inc_timed(TMD_OPP_NETHR, time);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+            }
+			break;
+		}
+		
+        case DARK_SUMMON_DEMONIC_AID:
+        {
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break; /* still need to add summoned demons */
+		}
+
+		case DARK_UNHOLY_RESISTANCE:
+		{
+			int time = randint(20) + 20;
+			(void)inc_timed(TMD_OPP_FIRE, time);
+			(void)inc_timed(TMD_OPP_DARK, time);
+			(void)inc_timed(TMD_OPP_COLD, time);
+			(void)inc_timed(TMD_OPP_POIS, time);
+			(void)inc_timed(TMD_OPP_NETHR, time);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
+            }
+			break;
+		}
+		
+		case DARK_SHADOW_BARRIER:
+		{
+			(void)inc_timed(TMD_SHIELD, randint(20) + 30);
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+		}
+
+		case DARK_DETECT_ALL_MONSTERS:
+        {
+			(void)detect_monsters_normal();
+			(void)detect_monsters_invis();
+			break;
+        }
+
+		case DARK_TELEPORT_OTHER:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)teleport_monster(dir);
+			break;
+		}
+
+        case DARK_ORB_OF_DEATH:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			spellswitch = 23; /* makes GF_OLD_DRAIN affect demons also */
+			fire_ball(GF_OLD_DRAIN, dir,
+			          (damroll(3, 6) + plev + (plev / 2)),
+			          ((plev < 30) ? 2 : 3));
+			spellswitch = 0;
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
+            }
+			break;
+		}
+             
+        case DARK_DISPEL_LIFE: /* does not affect silver or demons */
+		{
+			if (randint(100 + (badluck*2)) < (plev*3)/2) (void)dispel_life(1 + randint((plev * 7)/2));
+			else (void)dispel_life(randint(plev * 3));
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+            }
+			break;
+		}
+		
+		case DARK_VAMPIRIC_DRAIN:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			spellswitch = 27; /* does not affect silver monsters */
+			int drainmuch = damroll(plev / 3, 11);
+			fire_bolt(GF_OLD_DRAIN, dir, drainmuch);
+			(void)hp_player(drainmuch + 10 + randint((drainmuch/2)-10));
+			(void)set_food(p_ptr->food + 450 + randint(drainmuch * 5));
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+            }
+			break;
+		}
+		
+		case DARK_HOLD_LIFE:
+		{
+            (void)inc_timed(TMD_HOLDLIFE, randint(8 + plev/2) + 20);
+			break;
+		}
+
+		case DARK_REND_SOUL:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(11, plev));
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
+            }
+			break;
+		}
+		
+		case DARK_GENOCIDE:
+		{
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			return banishment();
+			break;
+		}
+		
+		case DARK_RECHARGING:
+		{
+			return recharge(5 + plev);
+		}
+
+		case DARK_CURE_MORTAL_WOUNDS:
+		{
+			(void)hp_player(damroll(10, 5 + plev/10));
+			(void)clear_timed(TMD_STUN);
+			(void)clear_timed(TMD_CUT);
+			break;
+		}
+        
+        case DARK_DISPEL_CURSE:
+		{
+			(void)remove_all_curse();
+			break;
+		}
+		
+		case DARK_SPIRIT_OF_BALROG:
+		{
+			int time = randint(30) + 30;
+			(void)inc_timed(TMD_OPP_FIRE, time);
+			(void)inc_timed(TMD_OPP_DARK, time);
+			(void)inc_timed(TMD_BALROG, time);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+            }
+			break;
+		}
+
+		case DARK_POISON_AMMO:
+		{
+            spellswitch = 19;
+			return brand_ammo();
+            spellswitch = 0;
+		}
+
+		case DARK_HASTE:
+		{
+			if (!p_ptr->timed[TMD_FAST])
+			{
+				(void)set_timed(TMD_FAST, randint(20) + plev);
+			}
+			else
+			{
+				(void)inc_timed(TMD_FAST, randint(5));
+			}
+			break;
+		}
+
+		case DARK_BLOODWRATH:
+        {
+			(void)hp_player(5 + randint(10));
+            spadjust = (4 + randint(1 + (plev/10)));
+            int die = randint(75);
+	        if ((p_ptr->timed[TMD_CHARM]) && (die > (plev + 25)))
+	        {
+                 msg_print("You're in too good a mood to go into a battle frenzy");
+            }
+            else 
+            {
+                 (void)clear_timed(TMD_AFRAID);
+			     (void)clear_timed(TMD_CHARM);
+			     if (plev > 20)
+			     {
+                 (void)set_timed(TMD_ADJUST, randint(25) + plev);
+			     (void)inc_timed(TMD_SHERO, randint(25) + (plev + ((76 - die) / 3)));
+                 }
+                 else
+                 {
+			     int time = randint(25) + 25;
+                 (void)set_timed(TMD_ADJUST, (time - 3) - randint(3));
+			     (void)inc_timed(TMD_SHERO, time);
+                 }
+            }
+            if (randint(100) + badluck > 70 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
+            }
+			break;
+        }
+        
+		case DARK_TELEPATHY:
+        {
+			(void)inc_timed(TMD_ESP, randint(plev) + (plev/2));
+			break;
+        }
+
+        case DARK_DRAW_MANA:        
+        {
+            if (p_ptr->csp >= p_ptr->msp)
+            {
+                  msg_print("Your mana is already at maximum!");
+                  if (randint(100) + badluck > 66 + goodluck)
+                  {
+                     (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
+                  }
+			      break;
+            }
+            /* less powerful version */
+	        else if (!get_check("Draw a lot of mana? (more powerful but risky) "))
+	        {
+               int die = 2 + randint(plev/2);
+               if (plev < 20) die = 2 + randint(10);
+               if (p_ptr->chp < die + 1)
+               {
+                  msg_print("Not enough life to draw mana!");
+                  if (randint(100) + badluck > 66 + goodluck)
+                  {
+                     (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
+                  }
+			      break;
+               }
+               take_hit(die, "(this shouldn't kill anyone)");
+               p_ptr->csp += die + 1;
+            }
+            /* more powerful and risky version */
+            else 
+            {
+               int die = (plev/2) + randint(plev * 2);
+               take_hit((die/2) + rand_int(3), "Taking your life for power");
+               p_ptr->csp += die + 1 + randint(4);
+            }
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+        }
+
+		case DARK_WORD_OF_DESTRUCTION:
+		{
+			destroy_area(py, px, 15, TRUE);
+			break;
+		}
+
+        case DARK_HOLD:
+        {
+			(void)hold_monsters();
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+        }
+
+		case DARK_DISPEL_UNDEAD2: /* less powerful for witches and assassins */
+		{
+			if (cp_ptr->flags & CF_BEAM)(void)dispel_undead(randint(plev * 4));
+			else (void)dispel_undead(1 + randint((plev * 7)/2));
+            if (randint(100) + badluck > 80 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+            }
+			break;
+		}
+		
+		case DARK_BR_FEAR_CONF:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_DARK, dir, damroll(plev/6, 3), plev/9);
+			fire_ball(GF_MANA, dir, damroll(plev/5, 8), plev/12);
+			fire_ball(GF_CONFUSION, dir, damroll(3, plev/5), plev/12);
+			fire_ball(GF_BRFEAR, dir, damroll(3, plev/5), plev/12);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+            }
+			break;
+        }
+        
+        /* chance of monsters warped through the nether realm (teleportation) */
+        case DARK_NETHER_BALL:
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if ((randint(50) < plev) && (randint(100) < 80))
+            {
+               fire_ball(GF_NETHER, dir, (plev/5) + damroll(plev, 10), 3);
+               spellswitch = 30; /* gravity breathers don't resist, undead do */
+               fire_ball(GF_GRAVITY, dir, ((plev*5)/7) + randint(20), 3);
+            }
+			else if (randint(100) < 16)
+            {
+               fire_ball(GF_NETHER, dir, damroll(plev, 10), 3);
+               spellswitch = 30; /* gravity breathers don't resist, undead do */
+               fire_ball(GF_GRAVITY, dir, (plev/2) + randint(plev/3 + 3), 3);
+            }
+            else
+            {
+               fire_ball(GF_NETHER, dir, damroll(plev, 11), 3);
+            }
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 400 + randint(200-plev));
+            }
+			break;
+        }
+        
+        case DARK_DARKNESS_STORM: /* black equivelent of mana storm */
+        {
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_DARK, dir, 240 + plev*2 + randint(plev+15), 3);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 400 + randint(200-plev));
+            }
+			break;
+        }
+        
+        case DARK_BECOME_LICH:
+        {
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 450 + randint(200-plev));
+            }
+            if ((badluck > 9) && (randint(100) < 5))
+            {
+                take_hit(plev*10 + randint(plev*10), "taking your life to become an undead.");
+            }
+            if ((badluck > 5) && (randint(100) < 10))
+            {
+                take_hit(randint(plev), "taking your life to become an undead.");
+            }
+            (void)clear_timed(TMD_OPP_FIRE);
+            (void)clear_timed(TMD_IMM_FIRE);
+            if (randint(99 + goodluck) < 81) p_ptr->luck -= 1;
+            if (randint(80) + badluck > plev)
+            {
+               int die = randint(100 + goodluck);
+               if (die < 20)
+               {
+                  (void)do_dec_stat(A_WIS);
+                  (void)do_dec_stat(A_CHR);
+               }
+               else if (die < 23) p_ptr->luck -= 1;
+               else if (die < 53) (void)do_dec_stat(A_WIS);
+               else if (die < 83) (void)do_dec_stat(A_CHR);
+               else if (die > 100) (void)hp_player(plev);
+               else if (die > 95) (void)hp_player(plev/3);
+               else if (die > 90) (void)hp_player(plev/5);
+            }
+            (void)hp_player(plev+10);
+			(void)clear_timed(TMD_AFRAID);
+			(void)clear_timed(TMD_CHARM);
+			(void)clear_timed(TMD_FRENZY);
+   			(void)clear_timed(TMD_CONFUSED);
+			(void)clear_timed(TMD_POISONED);
+			(void)clear_timed(TMD_CUT);
+            (void)inc_timed(TMD_BECOME_LICH, plev + 5 + randint(plev/2));
+            break;
+        }
+        
+        case DARK_WALL_OF_HELLFIRE: /* short lasting for assassins */
+        {
+            int time = randint(plev/2) + (25);
+            if (randint(100) + badluck > 66 + goodluck)
+            {
+                (void)inc_timed(TMD_WITCH, 600 + randint(200-plev));
+            }
+            if (p_ptr->timed[TMD_BECOME_LICH])
+            {
+               if ((badluck > 9) && (randint(100) < 5))
+               {
+                  msg_print("The fires of hell eagerly consumes your lifeless flesh.");
+                  fire_dam((time*3) + randint(time*2), "Summoning fire while in the form of an undead.");
+               }
+               else if ((badluck > 5) && (randint(100) < 10))
+               {
+                  msg_print("The fires of hell eagerly scorch your lifeless flesh.");
+                  fire_dam((time*2) + randint(time), "Summoning fire while in the form of an undead.");
+               }
+               fire_dam((time*2) + randint(time), "Summoning fire while in the form of an undead.");
+               msg_print("The summoned fire causes you intense pain so you banish it quickly.");
+            }
+            else
+            {
+               (void)clear_timed(TMD_OPP_COLD);
+               if ((badluck > 5) && (randint(100) < 8))
+               {
+                  msg_print("The fires of hell eagerly scorch your evil flesh.");
+                  fire_dam((time) + randint(time), "Summoning hellfire.");
+               }
+               else if ((badluck > 9) && (randint(100) < 4))
+               {
+                  msg_print("The fires of hell eagerly consumes your evil flesh.");
+                  fire_dam((time*2) + randint(time), "Summoning hellfire.");
+               }
+               if (cp_ptr->flags & CF_ASSASSIN) (void)inc_timed(TMD_WSHIELD, time/2);
+               else (void)inc_timed(TMD_WSHIELD, time);
+               if (cp_ptr->flags & CF_ASSASSIN) (void)inc_timed(TMD_OPP_FIRE, time/2);
+               else (void)inc_timed(TMD_OPP_FIRE, time);
+               if (cp_ptr->flags & CF_ASSASSIN) (void)inc_timed(TMD_IMM_FIRE, time/5);
+               else (void)inc_timed(TMD_IMM_FIRE, time/3);
+            }
+			break;
+        }
+
+    }
+
+	/* Success */
+	return (TRUE);
+}
 
 bool cast_spell(int tval, int index)
 {
@@ -4681,6 +6529,14 @@ bool cast_spell(int tval, int index)
 	{
 		return cast_chem_spell(index);
 	}
+	else if (tval == TV_DARK_BOOK)
+	{
+		return cast_dark_spell(index);
+	}
+/*	else if (tval == TV_MIND_BOOK)
+	{
+		return cast_chem_spell(index);
+	} */
 	else
 	{
 		return cast_priest_spell(index);

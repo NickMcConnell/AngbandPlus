@@ -132,38 +132,39 @@ static struct
 } monster_group[] =
 {
 	{ (cptr)-1,	"Uniques" },
-	{ "A",		"Angels" },
+	{ "A",		"Apes" },
 	{ "a",		"Ants" },
 	{ "b",		"Bats" },
 	{ "B",		"Birds" },
 	{ "C",		"Canines" },
 	{ "c",		"Centipedes" },
-	{ "uU",		"Demons" },
+	{ "uU&",	"Demons or Devils" },
 	{ "dD",		"Dragons" },
-	{ "vE",		"Elementals/Vortices" },
+	{ "vX%",	"Elementals/Vortices" },
+	{ "E",      "Ents and Tree Monsters" },
 	{ "e",		"Eyes/Beholders" },
 	{ "f",		"Felines" },
 	{ "G",		"Ghosts" },
 	{ "OP",		"Giants/Ogres" },
 	{ "g",		"Golems" },
-	{ "H",		"Harpies/Hybrids" },
-	{ "h",		"Hominids (Elves, Dwarves)" },
+	{ "H",		"Hybrids" },
+	{ "xh",		"Humanoid Monsters (Hobbits/Dwarves/Gargoyles)" },
 	{ "M",		"Hydras" },
-	{ "i",		"Icky Things" },
-	{ "lFI",	"Insects" },
+	{ "i",		"Imptype demons and Dark Fairies" },
+	{ "FI",	    "Insects" },
+	{ "l",      "Lizards" },
 	{ "j",		"Jellies" },
-	{ "K",		"Killer Beetles" },
 	{ "k",		"Kobolds" },
 	{ "L",		"Lichs" },
-	{ "tp",		"Men" },
-	{ ".$?!_",	"Mimics" },
-	{ "m",		"Molds" },
-	{ ",",		"Mushroom Patches" },
+	{ "tpK",	"Humans and inhuman Knights" },
+	{ ".$?!_",	"Mimics and Dust Bunnies" },
+	{ "m,",		"Fungi" },
 	{ "n",		"Nagas" },
+	{ "N",      "Nulls" },
 	{ "o",		"Orcs" },
 	{ "q",		"Quadrupeds" },
 	{ "Q",		"Quylthulgs" },
-	{ "R",		"Reptiles/Amphibians" },
+	{ "R",		"Amphibians" },
 	{ "r",		"Rodents" },
 	{ "S",		"Scorpions/Spiders" },
 	{ "s",		"Skeletons/Drujs" },
@@ -172,8 +173,7 @@ static struct
 	{ "V",		"Vampires" },
 	{ "W",		"Wights/Wraiths" },
 	{ "w",		"Worms/Worm Masses" },
-	{ "X",		"Xorns/Xarens" },
-	{ "Y",		"Yeti" },
+	{ "Y",		"Unicorns and Centaurs" },
 	{ "Z",		"Zephyr Hounds" },
 	{ "z",		"Zombies" },
 	{ NULL,		NULL }
@@ -995,11 +995,6 @@ static void display_monster(int col, int row, bool cursor, int oid)
 
 	/* Display the name */
 	c_prt(attr, r_name + r_ptr->name, row, col);
-
-#ifdef UNANGBAND
-	if (use_dbltile || use_trptile)
-		return;
-#endif
 
 	/* Display symbol */
 	big_pad(66, row, a, c);

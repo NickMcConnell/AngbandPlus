@@ -98,6 +98,8 @@ static const grouper group_item[] =
 	{ TV_NEWM_BOOK,	    "Books (Nature)" },
 	{ TV_LUCK_BOOK,	    "Books (Chance)" },
 	{ TV_CHEM_BOOK,	    "Books (Alchemy)" },
+	{ TV_DARK_BOOK,	    "Books (Witchcraft)" },
+	/*{ TV_MIND_BOOK,	    "Books (Mind Powers)" },*/
 
 	{ TV_CHEST,		"Chests" },
 

@@ -38,13 +38,12 @@
 
 /*
  * Name of the version/variant and its version string
- * (pervious version was v1.0.03 / v1.0.04)
  */
 #define VERSION_NAME   "DaJAngband"
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "v1.0.93 (pre 1.1.0)"
+#define VERSION_STRING "v1.0.95 (pre 1.1.0)"
 #endif
 
 
@@ -366,11 +365,11 @@
 #define PY_SILVER_LEVELTWO  15
 #define PY_SILVER_VERYBAD   25
 #define PY_SLIME_HEALTHY    0
-#define PY_SLIME_LEVELONE   15
-#define PY_SLIME_LEVELTWO   35
-#define PY_SLIME_VERYBAD    50
-#define PY_LUCKCHECK_MAX    21
-#define PY_LUCKCHECK_MIN    -20
+#define PY_SLIME_LEVELONE   20 /* was 15 */
+#define PY_SLIME_LEVELTWO   40 /* was 35 */
+#define PY_SLIME_VERYBAD    55 /* was 50 */
+#define PY_LUCKCHECK_MAX    41
+#define PY_LUCKCHECK_MIN    0
 
 /*
  * Maximum number of players spells (was 64, numbered 0 through 63/75)
@@ -392,7 +391,7 @@
 /*
  * Maximum number realms
  */
-#define MAX_REALMS 5
+#define MAX_REALMS 6
 
 
 /*
@@ -471,6 +470,9 @@ enum
 	TMD_OPP_POIS, TMD_AMNESIA, TMD_CHARM, TMD_FRENZY, TMD_TSIGHT,
 	TMD_SANCTIFY, TMD_PROTEVIL2, TMD_ESP, TMD_WSHIELD, TMD_SHADOW,
 	TMD_ADJUST, TMD_BRAIL, TMD_STONESKIN, TMD_TERROR, TMD_MESP,
+    TMD_WOPP_POIS, TMD_OPP_NETHR, TMD_PROTDEAD, TMD_OPP_DARK, TMD_HOLDLIFE,
+    TMD_BALROG, TMD_IMM_FIRE, TMD_BECOME_LICH, TMD_WSINFRA, TMD_WITCH,
+    TMD_XATTACK,
 
 	TMD_MAX
 };
@@ -923,6 +925,8 @@ enum
 #define TV_NEWM_BOOK    92  /* nature realm */
 #define TV_LUCK_BOOK    93  /* chance/escape realm */
 #define TV_CHEM_BOOK    94  /* alchemy realm */
+#define TV_DARK_BOOK    95  /* black magic realm */
+/* #define TV_MIND_BOOK    96  /* black magic realm */
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1537,14 +1541,15 @@ enum
 #define RBE_EXP_40		27
 #define RBE_EXP_80		28
 #define RBE_HALLU		29
-#define RBE_SILVER      30
-#define RBE_SLIME       31
-#define RBE_CHARM       32
-#define RBE_FRENZY      33
-#define RBE_HUNGER      34
+#define RBE_SILVER      30 /* silver poison */
+#define RBE_SLIME       31 /* sliming */
+#define RBE_CHARM       32 /* not used much yet (except with the muchroom) */
+#define RBE_FRENZY      33 /* not used much yet (maybe use a mushroom) */
+#define RBE_HUNGER      34 /* for hungry ghost */
 #define RBE_PIXIEKISS   35 /* for call help nature spell */
 #define RBE_ENTHELP     36 /* for call help nature spell */
 #define RBE_PURIFY      37 /* for call help nature spell */
+#define RBE_UNLUCKY     38 /* for black cat */
 
 /*** Function flags ***/
 
@@ -1907,7 +1912,7 @@ enum
 #define TR2_SLAY_SILVER     0x00000100L /* was XXX3 */
 #define TR2_SLAY_BUG        0x00000200L /* was XXX4 */
 #define TR2_XXX5            0x00000400L /* (reserved) */
-#define TR2_XXX6            0x00000800L /* (reserved) */
+#define TR2_RES_POISB       0x00000800L /* partial poison resistance */
 #define TR2_IM_ACID         0x00001000L /* Immunity to acid */
 #define TR2_IM_ELEC         0x00002000L /* Immunity to elec */
 #define TR2_IM_FIRE         0x00004000L /* Immunity to fire */
@@ -1949,15 +1954,15 @@ enum
 #define TR3_IGNORE_ELEC     0x00020000L /* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE     0x00040000L /* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD     0x00080000L /* Item ignores Cold Damage */
-#define TR3_XXX5            0x00100000L /* Item ignores moth Damage */
-#define TR3_XXX6            0x00200000L /* (reserved) */
+#define TR3_GOOD_WEAP       0x00100000L /* GOOD_WEAP */
+#define TR3_BAD_WEAP        0x00200000L /* BAD_WEAP */
 #define TR3_BLESSED         0x00400000L /* Item has been blessed */
 #define TR3_ACTIVATE        0x00800000L /* Item can be activated */
 #define TR3_INSTA_ART       0x01000000L /* Item makes an artifact */
 #define TR3_EASY_KNOW       0x02000000L /* Item is known if aware */
 #define TR3_HIDE_TYPE       0x04000000L /* Item hides description */
 #define TR3_SHOW_MODS       0x08000000L /* Item shows Tohit/Todam */
-#define TR3_XXX7            0x10000000L /* (reserved) */
+#define TR3_CORRUPT         0x10000000L /* CORRUPT */
 #define TR3_LIGHT_CURSE     0x20000000L /* Item has Light Curse */
 #define TR3_HEAVY_CURSE     0x40000000L /* Item has Heavy Curse */
 #define TR3_PERMA_CURSE     0x80000000L /* Item has Perma Curse */
@@ -2024,7 +2029,7 @@ enum
 #define CF_HEAVY_BONUS		0x00000200L /* Gives bonuses for heavy weapons */
 #define CF_HULK_CONF		0x00000400L /* always confuse monsters -also easydigging */
 #define CF_CLASS_SPEED		0x00000800L /* extra speed -also resists aggravation */
-#define CF_XXX13			0x00001000L
+#define CF_ASSASSIN			0x00001000L /* bonus against sleeping monsters & stealth */
 #define CF_XXX14			0x00002000L
 #define CF_XXX15			0x00004000L
 #define CF_XXX16			0x00008000L
@@ -2155,7 +2160,7 @@ enum
 #define RF3_IM_FIRE			0x00040000	/* Resist fire a lot */
 #define RF3_IM_COLD			0x00080000	/* Resist cold a lot */
 #define RF3_IM_POIS			0x00100000	/* Resist poison a lot */
-#define RF3_XXX5			0x00200000	/* Immune to (?) */
+#define RF3_HURT_DARK		0x00200000	/* Hurt by dark */
 #define RF3_RES_NETH		0x00400000	/* Resist nether a lot */
 #define RF3_IM_WATER		0x00800000	/* Immune to water */
 #define RF3_RES_PLAS		0x01000000	/* Resist plasma */

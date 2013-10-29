@@ -292,7 +292,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("A puff of green gas surrounds you!");
 		if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 		{
-			(void)inc_timed(TMD_POISONED, 10 + randint(20));
+            if (p_ptr->weakresist_pois) (void)inc_timed(TMD_POISONED, 3 + randint(12));
+			else (void)inc_timed(TMD_POISONED, 10 + randint(20));
 		}
 	}
 
@@ -2278,6 +2279,23 @@ void do_cmd_pickup(void)
 
 	/* Charge this amount of energy. */
 	p_ptr->energy_use = energy_cost;
+}
+
+/*
+ * DJA: Pick up objects on the floor away from you.
+ * spellswitch = 24
+ */
+void do_telekinesis(void)
+{
+	int energy_cost = 0;
+
+	/* Pick up floor objects, forcing a menu for multiple objects. */
+	energy_cost = py_pickup(2) * 10;
+	
+	/* (using the spell already uses energy) */
+
+	if (energy_cost < 10) spellswitch = 0;
+	else spellswitch = 24;
 }
 
 

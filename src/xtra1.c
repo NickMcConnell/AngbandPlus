@@ -778,17 +778,25 @@ static void prt_confused(int row, int col)
  */
 static void prt_afraid(int row, int col)
 {
-	if (p_ptr->timed[TMD_AFRAID])
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		c_put_str(TERM_ORANGE, "Terror", row, col);
+	}
+	else if (p_ptr->timed[TMD_FRENZY])
+	{
+		c_put_str(TERM_ORANGE, "Frenzy", row, col);
+	}
+	else if (p_ptr->timed[TMD_BECOME_LICH])
+	{
+		c_put_str(TERM_ORANGE, " Lich ", row, col);
+	}
+	else if (p_ptr->timed[TMD_AFRAID])
 	{
 		c_put_str(TERM_ORANGE, "Afraid", row, col);
 	}
 	else if (p_ptr->timed[TMD_CHARM])
 	{
 		c_put_str(TERM_ORANGE, "Charmd", row, col);
-	}
-	else if (p_ptr->timed[TMD_FRENZY])
-	{
-		c_put_str(TERM_ORANGE, "FRENZY", row, col);
 	}
 	else
 	{
@@ -1981,6 +1989,7 @@ static void calc_bonuses(void)
 	p_ptr->resist_fire = FALSE;
 	p_ptr->resist_cold = FALSE;
 	p_ptr->resist_pois = FALSE;
+	p_ptr->weakresist_pois = FALSE;
 	p_ptr->resist_fear = FALSE;
 	p_ptr->resist_charm = FALSE;
 	p_ptr->resist_frenzy = FALSE;
@@ -1998,7 +2007,8 @@ static void calc_bonuses(void)
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
-
+    goodweap = 0;
+    badweap = 0;
 
 	/*** Extract race/class info ***/
 
@@ -2049,7 +2059,7 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 
-	/* Weird flags */
+	/* wierd flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
 	/* Bad flags */
@@ -2081,6 +2091,7 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
 	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+	else if (f2 & (TR2_RES_POISB)) p_ptr->weakresist_pois = TRUE;
 	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
 	if (f3 & (TR3_RES_CHARM)) p_ptr->resist_charm = TRUE;
 	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
@@ -2160,8 +2171,10 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 
-		/* Weird flags */
-		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+	    /* Sentient Object & BLESSED flags */
+	    if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+	    if (f3 & (TR3_GOOD_WEAP)) goodweap += 1;
+	    if (f3 & (TR3_BAD_WEAP)) badweap -= 1;
 
 		/* Bad flags */
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
@@ -2192,6 +2205,7 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
 		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+	    else if (f2 & (TR2_RES_POISB)) p_ptr->weakresist_pois = TRUE;
 		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
 		if (f3 & (TR3_RES_CHARM)) p_ptr->resist_charm = TRUE;
 		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
@@ -2240,6 +2254,42 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
+
+    /*** track sentient equipment ***/    
+    if (cp_ptr->spell_book == TV_DARK_BOOK)
+    {
+       if (goodweap > 0) magicmod = 2;
+       if (badweap > 0) magicmod = 4;
+       if ((goodweap > 0) && (badweap > 0))
+       {
+          if (goodweap == badweap) magicmod = 1;
+          if (goodweap > badweap) magicmod = 3;
+          if (goodweap < badweap) magicmod = 0;
+       }
+    }
+	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+       if (goodweap > 0) magicmod = 6;
+       if (badweap > 0) magicmod = 9;
+       if ((goodweap > 0) && (badweap > 0))
+       {
+          if (goodweap == badweap) magicmod = 10;
+          if (goodweap > badweap) magicmod = 7;
+          if (goodweap < badweap) magicmod = 8;
+       }
+    }          
+    if ((cp_ptr->spell_book != TV_PRAYER_BOOK) && (cp_ptr->spell_book != TV_DARK_BOOK))
+	{
+       if (badweap > 0) magicmod = 18;
+       if (goodweap > 0) magicmod = 19;
+       if ((goodweap > 0) && (badweap > 0))
+       {
+          if (goodweap == badweap) magicmod = 20;
+          if (goodweap < badweap) magicmod = 21;
+          if (goodweap > badweap) magicmod = 22;
+       }
+    }
+    
 
 	/*** Handle stats ***/
 
@@ -2429,6 +2479,76 @@ static void calc_bonuses(void)
         p_ptr->resist_frenzy = TRUE;
 	}
 	
+	/* spirit of the balrog, does extra fire and dark damage in melee */
+	if (p_ptr->timed[TMD_BALROG])
+	{
+        p_ptr->resist_fear = TRUE;
+        p_ptr->resist_charm = TRUE;
+	}
+	
+	/* timed partial poison resistance */
+	if (p_ptr->timed[TMD_WOPP_POIS])
+	{
+        p_ptr->weakresist_pois = TRUE;
+	}
+	
+	/* timed nether resistance */
+	if (p_ptr->timed[TMD_OPP_NETHR])
+	{
+        p_ptr->resist_nethr = TRUE;
+    }
+	
+	/* timed dark resistance */
+	if (p_ptr->timed[TMD_OPP_DARK])
+	{
+        p_ptr->resist_dark = TRUE;
+    }
+    
+    /* beomce lich black magic spell */
+    /* lichs are also immune to cold and resistant to dark and nether */
+    /* and aggravate animals and creatures of light */
+    /* and take extra damage from light attacks */
+	if (p_ptr->timed[TMD_BECOME_LICH])
+	{
+		p_ptr->resist_fear = TRUE;
+		p_ptr->resist_charm = TRUE;
+	    p_ptr->see_infra += 3;
+	    p_ptr->skills[SKILL_SAV] += 3;
+		p_ptr->to_a += 3;
+		p_ptr->dis_to_a += 3;
+	    
+	    if ((goodweap > 1) && (randint(3) == 1))
+	    {
+           msg_print("Some pieces of your equipment hate your current form.");
+           take_hit(goodweap, "Wearing good sentient equipment while in an evil form");
+        }
+	    else if ((goodweap == 1) && (randint(4) == 1))
+	    {
+           msg_print("A piece of your equipment hates your current form.");
+           take_hit(1, "Wearing good sentient equipment while in an evil form");
+        }
+       
+	    /* lich cannot have temporary fire resistance */
+        if (p_ptr->timed[TMD_OPP_FIRE])
+        {
+           msg_print("Temporary fire resistance doesn't work while in the form of an undead!");
+           (void)clear_timed(TMD_OPP_FIRE);
+        }
+    }
+
+	/* cannot have timed cold resistance and timed fire immunity */
+	if (p_ptr->timed[TMD_OPP_COLD] && p_ptr->timed[TMD_IMM_FIRE])
+	{
+        msg_print("Temporary cold resistance doesn't work with temporary fire immunity!");
+		(void)clear_timed(TMD_OPP_COLD);
+	}
+	
+	/* timed hold life */
+	if (p_ptr->timed[TMD_HOLDLIFE])
+	{
+        p_ptr->hold_life = TRUE;
+    }
+
 	/* timed telepathy */
 	if (p_ptr->timed[TMD_ESP])
 	{
@@ -2446,7 +2566,15 @@ static void calc_bonuses(void)
 	{
 		p_ptr->see_infra += 5;
 	}
+	else if (p_ptr->timed[TMD_WSINFRA])
+	{
+		p_ptr->see_infra += 1;
+	}
 
+
+	/*** Special flags ***/
+	
+    /* thieves' extra speed */
 	if (cp_ptr->flags & CF_CLASS_SPEED)
 	{
         p_ptr->pspeed += 2;
@@ -2457,13 +2585,13 @@ static void calc_bonuses(void)
 		/* Extra speed at level 40 */
 		if (p_ptr->lev >= 40) p_ptr->pspeed += 1;
 	}
-	
-	/* luck check */
-	if (p_ptr->luck > PY_LUCKCHECK_MAX) p_ptr->luck = PY_LUCKCHECK_MAX;
-	if (p_ptr->luck < PY_LUCKCHECK_MIN) p_ptr->luck = PY_LUCKCHECK_MIN;
 
-	/*** Special flags ***/
-
+    /* Assassin gets extra stealth at L26 */
+	if (cp_ptr->flags & CF_ASSASSIN)
+	{
+		if (p_ptr->lev >= 26) p_ptr->skills[SKILL_STL] += 1;
+    }
+    
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->timed[TMD_HERO] || p_ptr->timed[TMD_SHERO])
 	{
@@ -2476,6 +2604,46 @@ static void calc_bonuses(void)
 		p_ptr->resist_charm = TRUE;
 	}
 
+	/*** Luck check & some effects of luck ***/
+	
+	if (p_ptr->luck > PY_LUCKCHECK_MAX) p_ptr->luck = PY_LUCKCHECK_MAX;
+	if (p_ptr->luck < PY_LUCKCHECK_MIN) p_ptr->luck = PY_LUCKCHECK_MIN;
+	/* black magic users have a lower max luck */
+    /* and those who pray don't rely on luck as much */
+	if ((cp_ptr->spell_book == TV_DARK_BOOK) || (cp_ptr->spell_book == TV_PRAYER_BOOK) && 
+       (p_ptr->luck > PY_LUCKCHECK_MAX - 2))
+	{
+       p_ptr->luck = PY_LUCKCHECK_MAX - 2;
+    }
+    /* further hit for black magic users*/
+    if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->luck > PY_LUCKCHECK_MAX - 4) &&
+       (randint(100) < 3))
+	{
+       p_ptr->luck -= 1;
+    }
+
+    /* reset goodluck and badluck */
+    goodluck = 0;
+    if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
+    badluck = 0;
+    if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
+
+    /* some effects of luck */
+    /* this will cause these things to possibly change every time */
+    /* this function is called */
+/* (spellswitch9999 prevents skill numbers from changing on birth screen) */
+    if (spellswitch != 9999)
+    {
+       p_ptr->to_h += randint(goodluck / 4);
+       p_ptr->to_h -= randint(badluck / 4);
+       if (randint(100) < 80) p_ptr->skills[SKILL_THT] += goodluck / 3;
+       if (randint(100) < 50) p_ptr->skills[SKILL_THT] -= badluck / 3;
+	   if ((goodluck > 10) || (badluck > 10) && (randint(100) < 66))
+       {
+          p_ptr->skills[SKILL_DEV] += goodluck / 9;
+          p_ptr->skills[SKILL_DEV] -= badluck / 9;
+       }
+    }
 
 	/*** Analyze weight ***/
 
@@ -2580,7 +2748,6 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-    
     if (!cp_ptr->flags & CF_HEAVY_BONUS)
     {
     	/* It is hard to carholdry a heavy bow */
@@ -2767,12 +2934,15 @@ static void calc_bonuses(void)
 	/* Examine the "current weapon" */
 	o_ptr = &inventory[INVEN_WIELD];
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
 
     if (!cp_ptr->flags & CF_HEAVY_BONUS)
     {
-	/* It is hard to hold a heavy weapon */
+	   /* It is hard to hold a heavy weapon */
 	   if (hold < o_ptr->weight / 10)
 	   {
 		/* Hard to wield a heavy weapon */
@@ -2815,12 +2985,18 @@ static void calc_bonuses(void)
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
+        /* timed extra attack (from spell or mushroom only) */
+		if (p_ptr->timed[TMD_XATTACK])
+		{
+		   p_ptr->num_blow += 1;
+        }
+
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
 		/* Boost digging skill by weapon weight. DJA: blades don't dig well. */
-		if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 20);
-		else if (o_ptr->tval == TV_HAFTED) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 12);
+		if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 25);
+		else if (o_ptr->tval == TV_HAFTED) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 15);
 		else p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);
 	}
 
@@ -2848,15 +3024,20 @@ static void calc_bonuses(void)
 	      p_ptr->to_h -= 1;
 	      p_ptr->dis_to_h -= 1;
     }
-    if ((p_ptr->pclass == 8) && (o_ptr->tval == TV_SWORD))
-    { /* barbarian */
-	      p_ptr->to_h -= 1;
-	      p_ptr->dis_to_h -= 1;
-    }
-    if ((p_ptr->pclass == 8) && (o_ptr->tval == TV_POLEARM))
-    { /* barbarians fight with spears */
-	      p_ptr->to_h += 2;
-	      p_ptr->dis_to_h += 2;
+    if (p_ptr->pclass == 8) /* barbarians */
+    {
+         /* barbarians fight with spears and axes */
+         if (o_ptr->tval == TV_SWORD)
+         {
+            p_ptr->to_h -= 2;
+	        p_ptr->dis_to_h -= 2;
+
+         }
+         if (o_ptr->tval == TV_POLEARM)
+         {
+	        p_ptr->to_h += 2;
+	        p_ptr->dis_to_h += 2;
+         }
     }
     if ((p_ptr->pclass == 32) && (o_ptr->tval == TV_SWORD))
     { /* umber hulks not good with swords */
@@ -2864,16 +3045,19 @@ static void calc_bonuses(void)
 	      p_ptr->dis_to_h -= 2;
     }
 	
-	/* Heavy Weapon Bonus for barbarians */
-    if ((cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight > 9))
+	/* Barbarians like heavy weapons */
+    if (cp_ptr->flags & CF_HEAVY_BONUS)
     {
-       int hbonus = ((o_ptr->weight - 10) / 5) + 1;
-	   p_ptr->to_d += hbonus;
-	   p_ptr->dis_to_d += hbonus;
-       if (o_ptr->weight > 14)
+       if (o_ptr->weight > 90)
        {
-	      p_ptr->to_h += 2;
-	      p_ptr->dis_to_h += 2;
+          int hbonus = ((o_ptr->weight - 100) / 50) + 1;
+	      p_ptr->to_d += hbonus;
+	      p_ptr->dis_to_d += hbonus;
+       }
+       if (o_ptr->weight < 52)
+       {
+	      p_ptr->to_d -= 1;
+	      p_ptr->dis_to_d -= 1;
        }
     }
     
@@ -2889,9 +3073,28 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h -= 2;
 		p_ptr->dis_to_d -= 2;
 
-		/* Icky weapon */
-		p_ptr->icky_wield = TRUE;
+        /* good edged weapon reduces combat penalty and prevents icky_wield */
+		if (f3 & (TR3_GOOD_WEAP))
+		{
+             p_ptr->to_d += 1;
+             p_ptr->dis_to_d += 1;
+             if ((badweap > 0) && (goodweap > badweap)) magicmod = 11;
+             if ((badweap > 0) && (goodweap < badweap)) magicmod = 13;
+             if (badweap < 1) magicmod = 12;
+        }
+        else /* Icky weapon */
+        {
+             p_ptr->icky_wield = TRUE;
+        }
 	}
+	/* Priest weapon penalty goes for avy evil weapons also */
+	/* (even if it's a hafted weapon) */
+	/* It should never happen that an object has both BLESSED and BAD_WEAP */
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (f3 & (TR3_BAD_WEAP)))
+    {
+		/* Icky weapon */
+        p_ptr->icky_wield = TRUE;                       
+    }	
 
 
 	/*** Notice changes ***/

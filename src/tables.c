@@ -2328,6 +2328,8 @@ const grouper object_text_order [] =
 	{TV_NEWM_BOOK,      "Book of Nature Magic" },
 	{TV_LUCK_BOOK,      "Book of Chance Magic" },
 	{TV_CHEM_BOOK,      "Alchemy Book" },
+	{TV_DARK_BOOK,      "Book of Black Magic" },
+/*	{TV_MIND_BOOK,      "Book of Mind Powers" }, */
 	{TV_LITE,			"Light"			},
 	{TV_FLASK,			"Flask"			},
 	{TV_SWORD,			"Sword"			},
@@ -2589,7 +2591,17 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_MAGIC_BOOK, 1 },
 		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 3 }
+		{ TV_MAGIC_BOOK, 3 },
+		
+		{ TV_DARK_BOOK, 0 },
+		{ TV_DARK_BOOK, 0 },
+		{ TV_DARK_BOOK, 0 },
+		{ TV_DARK_BOOK, 1 },
+		{ TV_DARK_BOOK, 1 },
+		{ TV_DARK_BOOK, 2 },
+		{ TV_DARK_BOOK, 2 },
+		{ TV_DARK_BOOK, 3 }
+
 	}
 };
 

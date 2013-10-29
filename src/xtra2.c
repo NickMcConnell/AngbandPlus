@@ -37,44 +37,55 @@ typedef struct
 
 static timed_effect effects[] =
 {
-	{ "You feel yourself moving faster!", "You feel yourself slow down.", 0, 0, PU_BONUS, MSG_SPEED },
-	{ "You feel yourself moving slower!", "You feel yourself speed up.", 0, 0, PU_BONUS, MSG_SLOW },
+	{ "You feel yourself moving faster!", "You feel yourself slow down.", 0, 0, PU_BONUS, MSG_SPEED }, /* TMD_FAST */
+	{ "You feel yourself moving slower!", "You feel yourself speed up.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_SLOW */
 	{ "You are blind.", "You can see again.", (PR_MAP | PR_BLIND),
-	  (PW_OVERHEAD | PW_MAP), (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS), MSG_BLIND },
-	{ "You are paralyzed!", "You can move again.", PR_STATE, 0, 0, MSG_PARALYZED },
-	{ "You are confused!", "You feel less confused now.", PR_CONFUSED, 0, 0, MSG_CONFUSED },
-	{ "You are terrified!", "You feel bolder now.", PR_AFRAID, 0, 0, MSG_AFRAID },
-	{ "You feel drugged!", "You can see clearly again.", PR_MAP, (PW_OVERHEAD | PW_MAP), 0, MSG_DRUGGED },
-	{ "You are poisoned!", "You are no longer poisoned.", PR_POISONED, 0, 0, MSG_POISONED },
+	  (PW_OVERHEAD | PW_MAP), (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS), MSG_BLIND }, /* TMD_BLIND */
+	{ "You are paralyzed!", "You can move again.", PR_STATE, 0, 0, MSG_PARALYZED }, /* TMD_PARALYZED */
+	{ "You are confused!", "You feel less confused now.", PR_CONFUSED, 0, 0, MSG_CONFUSED }, /* TMD_CONFUSED */
+	{ "You are terrified!", "You feel bolder now.", PR_AFRAID, 0, 0, MSG_AFRAID }, /* TMD_AFRAID */
+	{ "You feel drugged!", "You can see clearly again.", PR_MAP, (PW_OVERHEAD | PW_MAP), 0, MSG_DRUGGED }, /* TMD_IMAGE */
+	{ "You are poisoned!", "You are no longer poisoned.", PR_POISONED, 0, 0, MSG_POISONED }, /* TMD_POISONED */
 	{ "", "", 0, 0, 0, 0 },  /* TMD_CUT -- handled seperately */
 	{ "", "", 0, 0, 0, 0 },  /* TMD_STUN -- handled seperately */
-	{ "You feel safe from evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL },
-	{ "You feel invulnerable!", "You feel vulnerable once more.", 0, 0, PU_BONUS, MSG_INVULN },
-	{ "You feel like a hero!", "The heroism wears off.", 0, 0, PU_BONUS, MSG_HERO },
-	{ "You feel like a killing machine!", "You feel less Berserk.", 0, 0, PU_BONUS, MSG_BERSERK },
-	{ "A powerful mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD },
-	{ "You feel righteous!", "The prayer has expired.", 0, 0, PU_BONUS, MSG_BLESSED },
-	{ "Your eyes feel very sensitive!", "Your eyes feel less sensitive.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
-	{ "Your eyes begin to tingle!", "Your eyes stop tingling.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED },
-	{ "", "", 0, 0, 0, 0 },  /* acid -- handled seperately */
-	{ "", "", 0, 0, 0, 0 },  /* elec -- handled seperately */
-	{ "", "", 0, 0, 0, 0 },  /* fire -- handled seperately */
-	{ "", "", 0, 0, 0, 0 },  /* cold -- handled seperately */
-	{ "You feel resistant to poison!", "You feel less resistant to poison", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_POIS },
-	{ "You feel your memories fade.", "Your memories come flooding back.", PR_CONFUSED, 0, 0, MSG_GENERIC },
-	{ "With a smile, you decide you're not in the mood for fighting anymore.", "Your smile fades and you feel violent again.", PR_AFRAID, 0, 0, MSG_AFRAID },
-	{ "You are more than irritated.. you burst into a careless frenzy!", "You calm down from your careless frenzy.", 0, 0, PU_BONUS, MSG_BERSERK },
-	{ "You begin to see what's really there.", "Your sight returns to normal.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
-	{ "You strike at evil with holy wrath.", "The holy wrath wears off.", 0, 0, PU_BONUS, MSG_HERO },
-	{ "You feel safe from powerful evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL },
-	{ "You begin to sense other minds.", "You cease to sense other minds.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
-	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD },
-	{ "You slip into the shadows.", "The shadows don't conceal you so much anymore.", 0, 0, PU_BONUS, MSG_GENERIC },
-	{ "You feel yourself moving at a different speed.", "You move at more normal speed now.", 0, 0, PU_BONUS, MSG_SPEED },
-	{ "You can read runes with your hands.", "You forget how to read brail.", PR_BLIND, 0, 0, MSG_SEE_INVIS },
-	{ "Your skin becomes like stone and you move slower.", "The stoneskin wears off.", 0, 0, PU_BONUS, MSG_SLOW },
-	{ "You become desperate to escape!", "You feel bolder now.", PR_AFRAID, 0, PU_BONUS, MSG_AFRAID },
-	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), 0 }, /* mind sight: telepathy only while blind */
+	{ "You feel safe from evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL }, /* TMD_PROTEVIL */
+	{ "You feel invulnerable!", "You feel vulnerable once more.", 0, 0, PU_BONUS, MSG_INVULN }, /* TMD_INVULN */
+	{ "You feel like a hero!", "The heroism wears off.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_HERO */
+	{ "You feel like a killing machine!", "You feel less Berserk.", 0, 0, PU_BONUS, MSG_BERSERK }, /* TMD_SHERO */
+	{ "A powerful mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD }, /* TMD_SHIELD */
+	{ "You feel righteous!", "The prayer has expired.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_BLESSED */
+	{ "Your eyes feel very sensitive!", "Your eyes feel less sensitive.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS }, /* TMD_SINVIS */
+	{ "Your eyes begin to tingle!", "Your eyes stop tingling.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_SINFRA */
+	{ "", "", 0, 0, 0, 0 },  /* TMD_OPP_ACID -- handled seperately */
+	{ "", "", 0, 0, 0, 0 },  /* TMD_OPP_ELEC -- handled seperately */
+	{ "", "", 0, 0, 0, 0 },  /* TMD_OPP_FIRE -- handled seperately */
+	{ "", "", 0, 0, 0, 0 },  /* TMD_OPP_COLD -- handled seperately */
+	{ "You feel resistant to poison!", "You feel less resistant to poison", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_POIS }, /* TMD_OPP_POIS */
+	{ "You feel your memories fade.", "Your memories come flooding back.", PR_CONFUSED, 0, 0, MSG_GENERIC }, /* TMD_AMNESIA */
+	{ "With a smile, you decide you're not in the mood for fighting anymore.", "Your smile fades and you feel violent again.", PR_AFRAID, 0, 0, MSG_AFRAID }, /* TMD_CHARM */
+	{ "You are more than irritated.. you burst into a careless frenzy!", "You calm down from your careless frenzy.", 0, 0, PU_BONUS, MSG_BERSERK }, /* TMD_FRENZY */
+	{ "You begin to see what's really there.", "Your sight returns to normal.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS }, /* TMD_TSIGHT */
+	{ "You strike at evil with holy wrath.", "The holy wrath wears off.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_SANCTIFY */
+	{ "You feel safe from powerful evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL }, /* TMD_PROTEVIL2 */
+	{ "You begin to sense other minds.", "You cease to sense other minds.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS }, /* TMD_ESP */
+	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD }, /* TMD_WSHIELD */
+	{ "You slip into the shadows.", "The shadows don't conceal you so much anymore.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SHADOW */
+	{ "You feel yourself moving at a different speed.", "You move at more normal speed now.", 0, 0, PU_BONUS, MSG_SPEED }, /* TMD_ADJUST */
+	{ "You can read runes with your hands.", "You forget how to read brail.", PR_BLIND, 0, 0, MSG_SEE_INVIS }, /* TMD_BRAIL */
+	{ "Your skin becomes like stone and you move slower.", "The stoneskin wears off.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_STONESKIN */
+	{ "You become desperate to escape!", "You feel bolder now.", PR_AFRAID, 0, PU_BONUS, MSG_AFRAID }, /* TMD_TERROR */
+	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), 0 }, /* TMD_MESP: (mind sight) telepathy only while blind */
+	{ "You feel slightly resistant to poison.", "You feel less resistant to poison.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_WOPP_POIS */
+	{ "You feel resistant to nether forces!", "You feel less resistant to nether.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_OPP_NETHR */
+	{ "You feel safe from lifeless monsters!", "You no longer feel safe from lifeless monsters.", 0, 0, 0, MSG_PROT_EVIL }, /* TMD_PROTDEAD */
+	{ "You feel resistant to darkness!", "You feel less resistant to darkness.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_OPP_DARK */
+	{ "You feel your life force is protected!", "You no longer feel your life force is protected.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_HOLDLIFE */
+	{ "You feel the spirit of the balrog in your blows!", "The spirit of the balrog leaves you.", 0, 0, PU_BONUS, MSG_PROT_EVIL }, /* TMD_BALROG */
+	{ "You feel completely immune to fire!", "You no longer feel immune to fire.", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_FIRE }, /* TMD_IMM_FIRE */
+	{ "You stop breathing but continue to live as an undead.", "The lifebreath returns to you.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_BECOME_LICH */
+	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_WSINFRA */
+	{ "You sense demons stirring", "You no longer aggrvate demons", 0, 0, 0, MSG_GENERIC }, /* TMD_WITCH */
+	{ "You gain extra speed in melee!", "Your melee is back to normal speed", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_XATTACK */
 };
 
 /*
@@ -3232,6 +3243,7 @@ bool get_aim_dir(int *dp)
 	event_type ke;
 
 	cptr p;
+	
 
 	if (repeat_pull(dp))
 	{
@@ -3254,23 +3266,18 @@ bool get_aim_dir(int *dp)
 	dir = p_ptr->command_dir;
 
 	/* Hack -- auto-target if requested */
-	if (use_old_target && target_okay()) dir = 5;
+	/* Never use old target with telekinesis (spellswitch 24) */
+	if ((spellswitch != 24) && use_old_target && target_okay()) dir = 5;
+
+    if ((spellswitch == 24) && (!dir)) msg_print("Target an object or pile of objects.");
 
 	/* Ask until satisfied */
 	while (!dir)
 	{
 		/* Choose a prompt */
-		if ((!target_okay()) && (!spellswitch == 9))
+		if (!target_okay())
 		{
 			p = "Direction ('*' or <click> to choose a target, Escape to cancel)? ";
-		}
-		else if ((!target_okay()) && (spellswitch == 9))
-		{
-			p = "What do you want to take a picture of? ('*' to target, Esc to cancel)? ";
-		}
-		else if (spellswitch == 9)
-		{
-			p = "What do you want to take a picture of? (5 for target, * re-target, or Esc)? ";
 		}
 		else
 		{

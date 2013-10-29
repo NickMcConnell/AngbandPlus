@@ -136,7 +136,7 @@ W:65:30:3:90000
 F:INT | WIS | CHR | INFRA | HIDE_TYPE | 
 F:SEE_INVIS | FREE_ACT | ACTIVATE | 
 F:RES_ACID | RES_COLD | RES_ELEC | 
-F:INSTA_ART
+F:INSTA_ART | GOOD_WEAP
 A:DISP_EVIL:50:50
 D:The ancient heirloom of Ingwe, high lord of the Vanyar, against whom nothing 
 D:of evil could stand.
@@ -148,7 +148,7 @@ N:6:of the Dwarves
 I:40:12:3
 W:70:50:3:75000
 F:STR | CON | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | RES_FEAR | 
+F:SEE_INVIS | FREE_ACT | REGEN | LITE | RES_FEAR
 F:INSTA_ART
 D:The Nauglamir; a carencet of gold set with a multitude of shining gems of 
 D:Valinor, accenting a radiant Silmaril.  The sturdy spirits of Dwarvish 
@@ -166,7 +166,7 @@ P:0:10d10:0:0:0
 F:ACTIVATE | 
 F:INT | WIS | SEARCH | INFRA | SEE_INVIS | TELEPATHY | 
 F:RES_CHAOS | RES_BLIND | AGGRAVATE | DRAIN_EXP | 
-F:INSTA_ART | HIDE_TYPE
+F:INSTA_ART | HIDE_TYPE | BAD_WEAP
 A:CLAIRVOYANCE:50:50
 D:A great globe with a heart of fire, providing the wearer with sight 
 D:of far places - at a cost, for those espied upon are aware of it.
@@ -190,7 +190,7 @@ N:9:of Tulkas
 I:45:33:4
 W:70:50:2:150000
 F:STR | DEX | CON | HIDE_TYPE | RES_FEAR | 
-F:ACTIVATE | 
+F:ACTIVATE | RES_CHARM
 F:INSTA_ART
 A:HASTE2:150:150
 D:The treasure of Tulkas, most fleet and wrathful of the Valar.
@@ -205,7 +205,7 @@ P:0:0d0:6:6:0
 # F: DRAIN_MANA | 
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | SEE_INVIS | 
-F:SLOW_DIGEST | REGEN | 
+F:SLOW_DIGEST | REGEN | RES_CHARM | 
 F:SUST_STR | SUST_CON | SUST_WIS |
 F:IM_FIRE | RES_FIRE | RES_NETHR | RES_FEAR | RES_DARK |
 F:INSTA_ART
@@ -224,7 +224,7 @@ P:0:0d0:8:8:0
 # F: DRAIN_MANA | 
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | REGEN | 
+F:FEATHER | REGEN | RES_CHARM | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:IM_COLD | RES_COLD | RES_BLIND | TELEPATHY | RES_LITE |
 F:INSTA_ART
@@ -243,7 +243,7 @@ P:0:0d0:10:10:0
 # F: DRAIN_MANA | 
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | SLOW_DIGEST | REGEN | 
+F:FEATHER | SLOW_DIGEST | REGEN | RES_CHARM | 
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | TELEPATHY |
 F:IM_ELEC | RES_ELEC | RES_POIS | RES_DISEN | 
 F:INSTA_ART
@@ -264,6 +264,7 @@ P:0:0d0:15:15:0
 F:STR | INT | DEX | CON | SPEED | HIDE_TYPE | INFRA
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | STOPREGEN
+F:BAD_WEAP | CORRUPT | RES_CHARM |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | RES_POIS | 
 F:RES_BLIND | RES_DISEN | RES_DARK |
 F:SUST_STR | SUST_DEX | SUST_CON | 
@@ -320,7 +321,7 @@ P:30:2d4:-4:0:25
 F:FREE_ACT | IM_ELEC | RES_ELEC | 
 F:RES_ACID | RES_FIRE | RES_COLD | 
 F:RES_POIS | RES_LITE | RES_DARK | 
-F:LITE | SEE_INVIS | AGGRAVATE | 
+F:LITE | SEE_INVIS | AGGRAVATE | RES_CHARM |
 F:ACTIVATE
 A:STAR_BALL:50:0
 D:A massive suit of heavy dragon scales deeply saturated with many colors.  
@@ -352,7 +353,7 @@ I:38:20:0
 W:95:12:500:400000
 P:30:2d4:-4:0:25
 F:RES_CHAOS | RES_DISEN | RES_SHARD | RES_SOUND | 
-F:RES_CONFU | RES_NEXUS | AGGRAVATE | 
+F:RES_CONFU | RES_NEXUS | AGGRAVATE | RES_CHARM | 
 F:FREE_ACT | SLOW_DIGEST | REGEN | 
 F:ACTIVATE
 A:STAR_BALL:50:0
@@ -577,8 +578,8 @@ P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS | RES_NETHR | 
-F:LITE | SEE_INVIS | TELEPATHY | RES_FEAR | 
-F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
+F:LITE | SEE_INVIS | TELEPATHY | RES_FEAR | RES_CHARM | 
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE | BAD_WEAP
 F:INSTA_ART
 D:Containing much of the power of he who once was mightiest among the Ainur, 
 D:this plain iron crown has mounted upon it the two remaining Silmarils, 
@@ -591,7 +592,7 @@ I:33:10:-5
 W:40:12:20:1
 P:0:1d1:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
-F:FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE | HEAVY_CURSE
+F:FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE | HEAVY_CURSE | BAD_WEAP
 D:The midnight-hued steel circlet of the sorceress-queen Beruthiel, which 
 D:grants extraordinary powers of sight and awareness at a terrible physical 
 D:cost.
@@ -627,7 +628,7 @@ I:32:6:3
 W:20:8:60:45000
 P:6:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
-F:SUST_STR | SUST_DEX | SUST_CON | AGGRAVATE | 
+F:SUST_STR | SUST_DEX | SUST_CON | AGGRAVATE | RES_CHARM | 
 F:RES_ACID | RES_NEXUS | RES_COLD | RES_DARK
 D:A great helm, as steady and as distinctive as the hero of the Westdike.  
 D:Many long months was Helm Hammerhand besieged in the Hornburg, yet he 
@@ -699,7 +700,7 @@ P:0:1d1:0:0:18
 # F: DRAIN_MANA | ACTIVATE
 F:INT | DEX | CHR | SEARCH | SPEED | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT |  
-F:RES_SHARD | RES_SOUND | RES_COLD | 
+F:RES_SHARD | RES_SOUND | RES_COLD | RES_CHARM | 
 F:RES_LITE | RES_DARK | RES_BLIND | LITE
 # A:ANALYZE:50:0
 D:A crown of massive gold, set with wondrous jewels of thought and warding, 
@@ -802,12 +803,13 @@ D:of hostile eyes.
 ### Gloves and Gauntlets ###
 
 # New Artifact (51): The Gauntlets of Eol 
+# used to have AGGRAVATE, but I figured it didn't need it with the combat penalties
 
 N:51:of Eol
 I:31:2:3
 W:55:35:25:40000
 P:2:1d1:-5:-5:15
-F:INT | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | RES_POIS | AGGRAVATE
+F:INT | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | RES_POIS | BAD_WEAP
 F:ACTIVATE
 A:MANA_BOLT:30:30
 D:The iron-shod gauntlets of the Dark Elven smith Eol, tingling with magics 
@@ -1032,7 +1034,7 @@ D:In this dagger is bound the very force of the lightning.
 
 N:69:of Rilia
 I:23:8:0
-W:5:40:12:15000
+W:5:40:15:15000
 P:0:4d2:6:3:0
 F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 A:STINKING_CLOUD:4:4
@@ -1062,9 +1064,9 @@ I:23:21:5
 W:30:15:140:100000
 P:0:5d4:-20:20:0
 # F:DRAIN_HP | 
-F:CON | HIDE_TYPE | 
+F:CON | HIDE_TYPE | RES_CHARM |
 F:KILL_DRAGON | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | RES_DISEN | 
-F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
+F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS | BAD_WEAP
 D:This sword has runes of power incused on its ornate hint, and a single 
 D:blood channel that gleams coldly blue as you grasp this mighty weapon of 
 D:peril.
@@ -1077,7 +1079,7 @@ I:23:16:4
 W:20:45:150:50000
 P:0:3d5:20:12:0
 F:DEX | HIDE_TYPE | 
-F:SLAY_DEMON | SLAY_ORC | FREE_ACT | RES_COLD | FEATHER | 
+F:SLAY_DEMON | SLAY_ORC | FREE_ACT | RES_COLD | FEATHER | RES_CHARM |
 F:SLOW_DIGEST | ACTIVATE | SHOW_MODS
 A:FROST4:50:0
 D:The beautiful sword of Thingol, justly named "King's Ire".  It glistens 
@@ -1149,7 +1151,8 @@ P:0:4d6:19:21:0
 F:STR | CHR | INFRA | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | 
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
-F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
+F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | RES_CHARM |
+F:AGGRAVATE | SHOW_MODS | BAD_WEAP |
 D:Runes dark and deadly stand stark against the naked steel of this awesome 
 D:weapon, and you feel a wrathful power of slaying and rending as you 
 D:slowly approach.
@@ -1164,7 +1167,7 @@ P:0:3d6:-15:15:-20
 # F:DRAIN_HP | DRAIN_MANA
 F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | SLAY_ANIMAL | 
 F:SPEED | HIDE_TYPE | SEE_INVIS | HOLD_LIFE | SHOW_MODS | 
-F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE | STOPREGEN
+F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE | STOPREGEN | BAD_WEAP
 D:A foul, twisted sword with blackened spines and knobs, whose very name is 
 D:a curse upon the lips of Elves and Men. It is said that it will drink the 
 D:very lifeblood of its wielder.
@@ -1205,7 +1208,7 @@ N:81:'Aglarang'
 I:23:11:5
 W:30:25:50:40000
 P:0:5d7:0:0:0
-F:DEX | SPEED | HIDE_TYPE | 
+F:DEX | SPEED | HIDE_TYPE | RES_CHARM |
 F:SUST_DEX | SHOW_MODS
 D:An utterly perfect, cleanly chiseled sword, with a edge that effortlessly 
 D:slices rock and bone and spells to render the wearer lithe and nimble.  It 
@@ -1218,10 +1221,10 @@ N:82:'Ringil'
 I:23:17:10
 W:50:75:130:300000
 P:0:4d5:22:25:0
-F:SPEED | RES_FEAR | BLESSED |
+F:SPEED | RES_FEAR | GOOD_WEAP | RES_CHARM |
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | KILL_DEMON | SLAY_TROLL | 
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
-F:ACTIVATE | SHOW_MODS
+F:ACTIVATE | SHOW_MODS |
 A:FROST3:40:0
 D:The weapon of Fingolfin, High King of the Noldor; it shines like a column 
 D:of ice lit by light unquenchable.  Morgoth came but unwillingly to meet it 
@@ -1234,7 +1237,7 @@ N:83:'Anduril'
 I:23:17:4
 W:39:35:130:80000
 P:0:3d5:10:15:10
-F:STR | DEX | HIDE_TYPE | RES_FEAR | FREE_ACT | BLESSED | 
+F:STR | DEX | HIDE_TYPE | RES_FEAR | FREE_ACT | GOOD_WEAP | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | SLAY_UNDEAD | 
 F:RES_FIRE | RES_DISEN | 
 F:SUST_STR | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
@@ -1271,7 +1274,7 @@ D:and secret places of the earth.
 
 # The Rapier 'Forasgil'
 
-#		maybe take out (don't take out both this and this extra frost dagger)
+#		maybe take out (don't take out both this and the extra frost dagger)
 N:86:'Forasgil'
 I:23:7:0
 W:15:8:40:15000
@@ -1345,8 +1348,8 @@ P:0:6d5:18:28:-50
 F:BLOWS | SLAY_DEMON
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
-F:RES_CHAOS | SEE_INVIS | TELEPATHY | SHOW_MODS |
-F:LIGHT_CURSE | AGGRAVATE | STOPREGEN
+F:RES_CHAOS | SEE_INVIS | TELEPATHY | SHOW_MODS | RES_CHARM |
+F:LIGHT_CURSE | AGGRAVATE | STOPREGEN | BAD_WEAP
 D:This weapon of wrath, wrought by a desperate berserker gang, dives hungrily 
 D:into the yielding flesh of your enemies.  You yourself fall under the 
 D:shadow of death even as you inflict wounds that will not heal.
@@ -1355,14 +1358,16 @@ D:shadow of death even as you inflict wounds that will not heal.
 ### Polearms ###
 
 # The Spear of Melkor
+# (removed aggravate since it already has -4 stealth & WIS and drain_exp)
 
 N:92:of Melkor
 I:22:4:-4
 W:65:45:200:100000
 P:0:6d6:-12:20:0
 # F:DRAIN_MANA | DRAIN_HP | 
-F:STEALTH | WIS | LIGHT_CURSE | HEAVY_CURSE | DRAIN_EXP | AGGRAVATE | 
-F:BRAND_POIS | RES_DARK | RES_FEAR | RES_NETHR | TELEPATHY | ACTIVATE
+F:STEALTH | WIS | LIGHT_CURSE | HEAVY_CURSE | DRAIN_EXP | BAD_WEAP |
+F:BRAND_POIS | RES_DARK | RES_FEAR | RES_NETHR | RES_POIS |
+F:TELEPATHY | ACTIVATE |
 A:MANA_BOLT:50:50
 D:A mighty, heavy black spear, once wielded by the Lord of Darkness 
 D:himself as he came to Valinor in wrath. Its envenomed bite pierced 
@@ -1388,7 +1393,7 @@ N:94:of Pain
 I:22:13:0
 W:30:22:300:50000
 P:0:8d7:0:30:0
-F:SHOW_MODS | RES_FEAR | DRAIN_EXP | LIGHT_CURSE
+F:SHOW_MODS | RES_FEAR | DRAIN_EXP | LIGHT_CURSE | BAD_WEAP
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
 D:down, but it's not good for you to take pleasure in the pain of others.
@@ -1470,7 +1475,7 @@ I:22:20:2
 W:20:23:320:55000
 P:0:3d8:13:21:0
 F:STR | DEX | SPEED | HIDE_TYPE | RES_FEAR | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | REGEN | SHOW_MODS
+F:SLAY_EVIL | SLAY_TROLL | SLAY_ANIMAL | SLAY_ORC | REGEN | SHOW_MODS
 D:"Forth Eorlingas!"  To the field of Cormallen Eorl the Young came beyond 
 D:hope to save beleaguered Gondor, and from his lance fled massive trolls 
 D:and dire wolves.
@@ -1481,7 +1486,7 @@ D:and dire wolves.
 N:101:You Can't Handle
 I:22:23:-2
 W:30:30:650:80000
-P:0:5d6:-10:10:2
+P:0:5d6:-10:11:2
 F:DEX | SPEED | STEALTH | SLAY_GIANT
 F:RES_LITE | RES_ELEC | RES_COLD | BRAND_ELEC | BRAND_COLD |
 F:LIGHT_CURSE
@@ -1498,7 +1503,7 @@ F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | RES_FEAR |
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | KILL_DEMON | 
 F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | 
 F:SEE_INVIS | ACTIVATE | 
-F:BLESSED | SHOW_MODS
+F:GOOD_WEAP | SHOW_MODS
 A:MASS_BANISHMENT:1000:0
 D:The axe of Eonwe, leader of the Hosts of the West before the gates of 
 D:Thangorodrim, strikes with icy wrath at the undead, disperses hosts of 
@@ -1530,8 +1535,8 @@ F:STR | DEX | INFRA | HIDE_TYPE | RES_NEXUS | BRAND_ACID
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
 A:BERSERKER:90:90
 D:The axe wielded by the heroic Gimli son of Gloin, 'Elf-Friend'. It has slain countless
-D: orcs in its time (although Gimli did keep count for awhile in a friendly competition
-D: with Legolas over who killed more orcs).
+D: orcs in its time, although Gimli did keep count for awhile in a friendly competition
+D: with Legolas over who killed more orcs.
 
 
 # The Lochaber Axe 'Mundwine'
@@ -1566,7 +1571,7 @@ N:107:of Wrath
 I:22:7:2
 W:15:35:300:90000
 P:0:3d8:16:18:0 
-F:STR | DEX | HIDE_TYPE | BRAND_POIS | 
+F:STR | DEX | HIDE_TYPE | BRAND_POIS | RES_CHARM |
 F:SLAY_EVIL | KILL_UNDEAD | RES_LITE | RES_DARK | HOLD_LIFE | 
 F:BLESSED | SHOW_MODS
 D:A massive triple-pronged spear, so great it normally requires two hands 
@@ -1611,7 +1616,7 @@ I:22:25:2
 W:20:15:250:90000
 P:0:3d8:12:18:0
 # F:DRAIN_MANA | 
-F:ACTIVATE | KILL_DEMON | 
+F:ACTIVATE | KILL_DEMON | RES_CHARM |
 F:STR | CON | HIDE_TYPE | 
 F:BRAND_ACID | RES_ACID | RES_DARK | RES_FIRE | LITE | 
 F:SLAY_DRAGON | SLAY_TROLL | SHOW_MODS
@@ -1634,7 +1639,7 @@ W:100:1:1000:500000
 P:0:9d9:5:25:10
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | KILL_UNDEAD | 
 F:KILL_DEMON | SLAY_TROLL | SLAY_ORC | 
-F:SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
+F:SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART | BAD_WEAP
 D:The mighty Hammer of the Underworld, blackened by doomspells of shattering, 
 D:whose wielder holds the lives of all Morgoth's servants in his hand.
 
@@ -1646,7 +1651,7 @@ I:22:10:2
 W:20:8:150:55000
 P:0:2d13:6:3:0
 F:STEALTH | 
-F:SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONFU | ACTIVATE | 
+F:SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONFU | ACTIVATE | RES_CHARM |
 F:SHOW_MODS
 A:CONFUSE:15:0
 D:A flail whose head befuddles those who stare as you whirl it round, and 
@@ -1673,7 +1678,7 @@ N:114:'Bloodspike'
 I:22:14:4
 W:20:30:170:30000
 P:0:2d7:8:22:0
-F:STR | HIDE_TYPE | BRAND_POIS | 
+F:STR | HIDE_TYPE | BRAND_POIS | BAD_WEAP | RES_CHARM |
 F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | RES_POIS | 
 F:SHOW_MODS
 D:You feel strong and firm of foot as you whip the chain-suspended spiked orb 
@@ -1714,7 +1719,7 @@ I:21:10:4
 W:40:75:120:250000
 P:0:9d3:19:21:5
 # F:DRAIN_MANA | 
-F:WIS | TUNNEL | HIDE_TYPE | RES_FEAR | 
+F:WIS | TUNNEL | HIDE_TYPE | RES_FEAR | RES_CHARM |
 F:KILL_DRAGON | SLAY_EVIL | BRAND_ACID | SLAY_UNDEAD | SLAY_DEMON | 
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS | 
 F:SEE_INVIS | SHOW_MODS
@@ -1727,12 +1732,11 @@ D:invokes the strength of mountains to ward off the tumult of the elements.
 #		maybe take out
 N:118:'Silver Dollar'
 I:21:6:3
-W:15:24:180:65555
+W:15:64:180:65555
 P:0:1d9:20:1:0
 F:BLOWS | CHR |
 F:BRAND_COLD | RES_COLD | SHOW_MODS
 D:Four hits from a Quarterstaff equals a much better staff, does it not?
-D:oh and people like you better when you've got money.
 
 
 # The Quarterstaff 'Eriril' (walking staff)
@@ -1754,8 +1758,8 @@ N:120:of Olorin
 I:21:30:4
 W:30:105:150:130000
 P:0:3d9:10:5:0
-F:INT | WIS | CHR | HIDE_TYPE | KILL_DEMON | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | 
+F:INT | WIS | CHR | HIDE_TYPE | KILL_DEMON | GOOD_WEAP
+F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | RES_CHARM |
 F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:PROBE:20:0
 D:A staff tall and sturdy, borne of old by Gandalf.  Rough-hewn runes that 
@@ -1771,7 +1775,7 @@ I:22:35:6
 W:80:38:400:400000
 P:0:7d8:18:18:0
 # F:DRAIN_MANA | 
-F:STR | TUNNEL | HIDE_TYPE | 
+F:STR | TUNNEL | HIDE_TYPE | BLESSED | RES_CHARM |
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | KILL_UNDEAD | BRAND_FIRE | 
 F:IM_FIRE | RES_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE | 
 F:SHOW_MODS
@@ -1806,8 +1810,8 @@ I:21:2:-3
 W:60:25:90:25000
 P:0:6d3:13:16:0
 # F:DRAIN_HP
-F:INT | DEX | WIS | HIDE_TYPE | 
-F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE | STOPREGEN
+F:INT | DEX | WIS | HIDE_TYPE | RES_CHARM |
+F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE | STOPREGEN | BAD_WEAP
 F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | RES_ACID | LITE
 F:SLAY_ANIMAL | KILL_DRAGON | SLAY_TROLL | SLAY_GIANT | 
 F:ACTIVATE | SHOW_MODS
@@ -1819,12 +1823,13 @@ D:even Ungoliant to heel.
 ### Missile Weapons ###
 
 # The Long Bow 'Belthronding' (great bow)
-# maybe need to make weaker now that it has both x3 multiplier and an extra shot
+# maybe need to make weaker now that it has both x4 multiplier and an extra shot
+# was +17 +17
 
 N:124:'Belthronding'
 I:19:35:1
 W:40:20:140:37000
-P:0:0d0:17:17:0
+P:0:0d0:12:12:0
 F:DEX | SPEED | STEALTH | SHOTS | HIDE_TYPE | 
 F:RES_DISEN | SHOW_MODS
 D:The great bow of Beleg Cuthalion, made of black yew and strung with elven 
@@ -1835,7 +1840,7 @@ D:hair that faintly shimmers a pale clear gold.
 
 N:125:of Legolas
 I:19:13:2
-W:42:17:40:72000
+W:42:19:40:72000
 P:0:0d0:15:12:0
 F:SHOTS | DEX | STEALTH | SPEED | HIDE_TYPE | 
 F:RES_LITE | SUST_DEX | FEATHER | SHOW_MODS | SLAY_ORC
@@ -1918,15 +1923,15 @@ D:although Nain himself fell before their lord Azog.
 # maybe add a new priestly type artifact in its place
 #  (since there aren't as many as before)
 
-#N:131:of Erebor
-#I:20:6:5
-#W:44:5:200:30000
-#P:0:3d4:5:20:0
-#F:STR | CON | TUNNEL | SUST_STR | HIDE_TYPE | LITE | 
-#F:SLAY_ORC | SLAY_TROLL | SLAY_DEMON | BRAND_ACID | 
-#F:RES_CHAOS | RES_LITE | RES_DARK
-#D:A fine dwarven pick, good for a miner, and suitable as a weapon 
-#D:should the wielder ever tunnel through into a foe's stronghold.
+N:131:of Erebor
+I:20:6:5
+W:44:5:200:30000
+P:0:3d4:5:20:0
+F:STR | CON | TUNNEL | SUST_STR | HIDE_TYPE | LITE | 
+F:SLAY_ORC | SLAY_TROLL | SLAY_DEMON | BRAND_ACID | 
+F:RES_CHAOS | RES_LITE | RES_DARK
+D:A fine dwarven pick, good for a miner, and suitable as a weapon 
+D:should the wielder ever tunnel through into a foe's stronghold.
 
 
 ### Miscellaneous new stuff ###
@@ -1938,7 +1943,7 @@ I:21:8:4
 W:65:100:130:60000
 P:0:4d4:13:17:10
 F:STR | WIS | SPEED | LITE | HIDE_TYPE | 
-F:SLAY_EVIL | SLAY_UNDEAD | 
+F:SLAY_EVIL | SLAY_UNDEAD | GOOD_WEAP
 F:RES_FIRE | RES_ELEC | RES_NETHR | HOLD_LIFE | 
 F:ACTIVATE
 A:DISP_EVIL:100:100
@@ -1997,7 +2002,6 @@ D:The blade of the legendary Shieldmaiden of Rohan, who struck a
 D:mighty blow against the Morgul-lord whom no mortal Man could hinder, 
 D:and also slew his foul steed.
 
-# add an artifact athame
 # N:137 unused
 
 # Sling of Snowballs

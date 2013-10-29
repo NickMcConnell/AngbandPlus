@@ -2952,6 +2952,8 @@ static bool kind_is_good(int k_idx)
 		case TV_NEWM_BOOK:
 		case TV_LUCK_BOOK:
 		case TV_CHEM_BOOK:
+		case TV_DARK_BOOK:
+		/* case TV_MIND_BOOK: */
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);

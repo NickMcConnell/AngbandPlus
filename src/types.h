@@ -667,7 +667,7 @@ struct spell_type
 	u32b name;			/* Name (offset) */
 	u32b text;			/* Text (offset) */
 
-    /* 0 = mage, 1 = priest, (2 = newm, 3 = luck, 4 = alchemy) */
+    /* 0 = mage, 1 = priest, (2=newm, 3=luck, 4=alchemy, 5=black, 6=mind) */
 	byte realm;			
 	byte tval;			/* Item type for book this spell is in */
 	byte sval;			/* Item sub-type for book (= book number) */
@@ -1004,6 +1004,7 @@ struct player_type
 	bool resist_fire;	/* Resist fire */
 	bool resist_cold;	/* Resist cold */
 	bool resist_pois;	/* Resist poison */
+	bool weakresist_pois;	/* partial poison resistance */
 
 	bool resist_charm;	/* Resist charm */
 	bool resist_frenzy;	/* Resist charm */

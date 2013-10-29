@@ -432,6 +432,30 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
+	if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
+	{
+       good[gc++] = "is good and hates your black magic.";
+    }
+	else if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_PRAYER_BOOK))
+	{
+       good[gc++] = "is good and assists in your prayers.";
+    }
+	else if (f3 & (TR3_GOOD_WEAP))   good[gc++] = "is good and hates evil";
+	if ((f3 & (TR3_BAD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
+	{
+       good[gc++] = "is evil and assists in casting your black magic.";
+    }
+	else if ((f3 & (TR3_BAD_WEAP)) && (cp_ptr->spell_book == TV_PRAYER_BOOK))
+	{
+       good[gc++] = "is evil and hinders your prayers.";
+    }
+	else if (f3 & (TR3_BAD_WEAP))    good[gc++] = "is evil and hates good";
+	if (f3 & (TR3_CORRUPT))     good[gc++] = "corrupts those who wield it for too long";
+	if (((f3 & (TR3_BAD_WEAP)) || (f3 & (TR3_GOOD_WEAP))) && 
+       (goodweap > 0) && (badweap > 0))
+    {
+       good[gc++] = "is in conflict with something else that you're wearing or wielding";
+    }
 
 	/* Describe */
 	output_desc_list("It ", good, gc);
@@ -530,6 +554,12 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_slay(o_ptr, f1, f2)) something = TRUE;
 	if (describe_brand(o_ptr, f1, f2)) something = TRUE;
 	if (describe_immune(o_ptr, f2)) something = TRUE;
+    /* partial poison resistance */
+	if (f2 & (TR2_RES_POISB))
+    {
+       p_text_out("It provides partial resistance to poison.");
+       something = TRUE;
+    }
 	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
 	if (describe_sustains(o_ptr, f2)) something = TRUE;
 	if (describe_misc_magic(o_ptr, f3)) something = TRUE;

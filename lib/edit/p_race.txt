@@ -171,7 +171,7 @@ X:8:115:4
 I:23:15:10
 H:38:4:36:3
 W:70:5:60:4
-F:RES_POIS
+F:RES_POISB
 C:0|2|3|4|5|6|7|8|10|11|12|13|14
 
 #hobligb can only be rogue, alchemist, healer, or assassin
@@ -182,7 +182,7 @@ X:10:125:2
 I:72:30:35
 H:68:5:63:4
 W:190:10:185:10
-F:RES_POIS
+F:RES_POISB
 C:3|7|9|14
 
 #fairy gnome cannot be a warrior, necromancer, assassin, fighter wizard, witch,

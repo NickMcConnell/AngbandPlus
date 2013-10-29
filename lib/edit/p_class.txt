@@ -1,4 +1,5 @@
 # File: p_class.txt
+# DJA v1.0.94
 
 
 # This file is used to initialize the "lib/data/p_class.raw" file, which is
@@ -78,7 +79,7 @@ F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BRAVERY_30
 T:Rookie
 T:Fighter
 T:Swordsman
-T:Swashbuckler
+T:Soldier
 T:Veteran
 T:Myrmidon
 T:Commando
@@ -95,12 +96,12 @@ I:1:30:120000:40
 A:4:5:3
 M:90:1:1:300
 E:90:0:1:1
-E:21:4:1:1
+E:21:3:1:1
 E:70:11:1:2
 F:CUMBER_GLOVE | ZERO_FAIL | PSEUDO_ID_IMPROV | CHOOSE_SPELLS
 T:Novice Wizard
 T:Apprentice
-T:Trick Magician
+T:Magician
 T:Wizzard
 T:Evoker
 T:Enchanter
@@ -174,25 +175,105 @@ B:62:36:31:62:25	#rift
 B:63:42:31:95:200	#mana storm
 B:64:99:0:0:0	#tsunami
 
-#N:2:Necromancer (black)
-#S:-5:2:-2:2:-2:-2
-#C:29:32:30:2:14:12:35:18
-#X:7:12:9:0:0:0:21:16
-#I:3:20:28000:40
-#A:
-#M:94:1:1:320
-#E:94:0:1:1
-#F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | ZERO_FAIL | BEAM
-#T:Graverobber
-#T:BoneCollector
-#T:VampireGeek
-#T:CorpseRiser
-#T:ZombieTamer
-#T:Conjurer
-#T:Spellbinder
-#T:Sorcerer
-#T:Necromancer
-#T:Master of Undead
+#tentatively done
+N:2:Necromancer
+S:-5:2:-2:2:-2:-2
+C:29:32:30:2:14:12:35:18
+X:7:12:9:0:0:0:21:16
+I:3:20:28000:40
+A:4:35:3
+M:95:1:1:320
+E:95:0:1:1
+E:23:4:1:1
+E:70:30:1:3
+E:75:40:1:1
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | ZERO_FAIL | BEAM
+T:Graverobber
+T:BoneCollector
+T:VampireGeek
+T:CorpseRiser
+T:ZombieTamer
+T:Conjurer
+T:Spellbinder
+T:Sorcerer
+T:Necromancer
+T:Master of Undead
+B:0:1:1:15:4	#detect evil			1
+B:1:2:3:20:4	#infravision			2
+B:2:1:2:15:3	#call dark				1
+B:3:3:3:30:3	#scare monster			3
+B:4:3:3:33:3	#noxious fumes			3
+B:5:5:5:35:4	#cure poison			5
+B:6:6:5:40:4	#sleep monster			6
+B:7:6:9:60:6	#wither foe				6
+B:8:9:6:35:6	#see invisible			9
+B:9:3:3:30:2	#find traps	(2nd book)		3
+B:10:3:3:25:2	#detect doors/stairs		3
+B:11:2:2:24:2	#shadow shift			2
+B:12:7:6:35:4	#drain charges			7
+B:13:13:15:50:5	#turn undead			13
+B:14:8:8:60:4	#death bolt				8
+B:15:99:0:0:0	#slow monster			/ assassin only version
+B:16:15:14:60:7	#dispel undead x3			15
+B:17:99:0:0:0	#cause light wounds		/ (3rd book)
+B:18:99:0:0:0	#witch's disinfectant		/
+B:19:99:0:0:0	#cause serious wounds		/
+B:20:99:0:0:0	#trap/door destruction		/
+B:21:99:0:0:0	#poison bolt			/
+B:22:99:0:0:0	#slip into the shadows		/
+B:23:99:0:0:0	#cause mortal wounds		/
+B:24:23:8:45:3	#venom bolt				23 (in 4th book)
+B:25:99:0:0:0	#breathe withering		/
+B:26:21:8:41:20	#scare monsters (4th book)	21
+B:27:7:6:45:4	#spear of dark			7
+B:28:9:9:45:6	#ice spear				9
+B:29:26:19:65:13	#stench of death			26
+B:30:17:10:65:8	#beam of destruction		17
+B:31:23:16:70:12	#destruction ball			23
+B:32:39:35:86:35	#chaos strike			39
+B:33:7:6:33:5	#shadow warp (5th book)		7
+B:34:10:6:50:9	#wizard lock			10
+B:35:14:11:45:20	#shadow mapping			14
+B:36:15:10:40:30	#break curse			15
+B:37:28:11:76:80	#probing				28
+B:38:23:19:80:21	#identify				23
+B:39:30:18:71:50	#summon demonic aid		30 (in 6th book)
+B:40:21:18:66:16	#exorcize demons			21
+B:41:33:15:65:35	#detect enchantment		33
+B:42:4:3:30:6	#boldness (6th book)		4
+B:43:10:9:43:8	#tourniquet				10
+B:44:25:10:45:20	#resist poison			25
+B:45:15:9:43:10	#protection from the lifeless	15
+B:46:23:13:70:23	#undead skin			23
+B:47:29:21:67:40	#unholy resistance		29
+B:48:32:25:75:44	#shadow barrier			32
+B:49:14:5:42:7	#detect all monsters (7th book) 14
+B:50:9:7:40:4	#orb of death			9
+B:51:25:30:80:35	#rend soul				25
+B:52:23:12:62:32	#teleport other			23
+B:53:26:21:70:48	#dispel life			26
+B:54:19:18:66:24	#vampiric drain			19
+B:55:24:16:80:40	#hold life				24
+B:56:30:46:88:50	#genocide				30
+B:57:16:22:81:25	#recharging				16
+B:58:99:0:0:0	#cure mortal wounds		/
+B:59:29:40:80:120	#dispel curse			29
+B:60:32:28:67:140	#spirit of the balrog		32
+B:61:26:14:60:40	#haste				26
+B:62:99:0:0:0	#bloodwrath				/
+B:63:34:60:90:160	#poison ammo			34
+B:64:38:55:75:190	#telepathy				38
+B:65:10:3:55:15	#draw mana				10
+B:66:31:22:76:60	#word of destruction		31
+B:67:29:20:66:50	#hold					29
+B:68:18:12:70:35	#dispel undead2			18
+B:69:27:19:66:46	#breathe fear and confusion	27
+B:70:35:30:65:25	#nether ball			35
+B:71:40:31:96:150	#darkness storm			40
+B:72:41:40:90:200	#become lich			41
+B:73:99:0:0:0	#resist poison (assassin only version)	/
+B:74:41:35:93:180	#wall of hellfire			41
+B:75:2:1:21:3	#shadow sting			2 (necromancer only)
 
 N:3:Rogue
 S:2:1:-2:3:1:-1
@@ -239,7 +320,7 @@ B:20:6:1:46:1	#detect monsters			6
 B:21:9:4:54:2	#detect traps and objects	9
 B:22:26:18:70:4	#slow monster			26
 B:23:22:14:60:4	#mini destruction			22
-B:24:99:0:0:0	#telekinesis			/ add later or remove
+B:24:24:12:70:3	#stone to mud			24
 B:25:29:20:75:5	#sense surroundings		29
 B:26:27:10:50:10	#detect enchantment		27
 B:27:99:0:0:0	#detect traps (B4)		/ (tourist only book)
@@ -857,7 +938,7 @@ S:-2:1:2:1:-1:0
 C:32:27:26:4:18:19:44:38
 X:11:10:11:0:0:1:23:23
 I:3:30:35000:40
-A:5:40:3
+A:4:40:3
 M:92:2:1:320
 E:92:0:1:1
 E:36:8:1:1
@@ -873,7 +954,7 @@ T:Enchanter
 T:Nature Mage
 T:Druid
 T:Kuakgan
-T:Learned One
+T:Learned Elder
 B:0:1:1:22:1	#detect animal			1
 B:1:1:1:23:1	#call light				1
 B:2:3:2:30:2	#slow poison			3
@@ -891,11 +972,11 @@ B:13:11:4:30:5	#find traps/doors			11
 B:14:99:0:0:0	#stun monster (mystic only)	/
 B:15:11:6:35:6	#bug spray				11
 B:16:13:7:40:6	#fire bolt				13
-B:17:13:9:45:7	#remove curse			13
-B:18:16:7:40:8	#resist heat & cold (B3)	16
+B:17:13:9:45:7	#remove curse (B3)		13
+B:18:16:7:40:8	#resist heat & cold		16
 B:19:19:9:50:9	#resist acid & elec		19
 B:20:7:3:22:2	#detect life			7
-B:21:11:2:40:8	#natural vitality			11
+B:21:11:2:40:8	#natural vitality			11 (in book 2)
 B:22:21:10:44:9	#resist poison			21
 B:23:19:9:70:9	#earthquake				19
 B:24:25:17:55:11	#identify				25
@@ -907,7 +988,7 @@ B:29:18:10:45:10	#sense invisible			18
 B:30:20:12:50:15	#sense surroundings		20
 B:31:27:14:60:25	#true sight				27
 B:32:26:17:60:25	#nymph's blessing	 (B5)		26
-B:33:19:13:55:20	#wither foe				19
+B:33:18:12:55:20	#wither foe				18
 B:34:25:19:65:24	#lightning storm			25
 B:35:28:21:70:34	#thunderclap			28
 B:36:31:22:50:44	#blizzard				31
@@ -932,25 +1013,127 @@ B:54:32:30:72:80	#banish unnatural			32
 B:55:41:70:80:100	#remembrance			41
 B:56:99:0:0:0	#elemental brand (ammo)		/
 B:57:47:67:78:200	#telepathy				47
-B:58:99:0:0:0	#<start of mystic only book>
+B:58:99:0:0:0	#<start of mystic only book: book 9>
 B:59:99:0:0:0	#
 B:60:99:0:0:0	#
 B:61:99:0:0:0	#
 B:62:99:0:0:0	#
 B:63:99:0:0:0	#
+B:64:99:0:0:0	#
+B:65:99:0:0:0	#
+B:66:99:0:0:0	#
+B:67:46:35:60:75	#extra melee attack		46 (in 8th book)
 
 #N:11:White Knight (prayers)
 
 #N:12:Black Knight (black)
 
-#N:13:Assassin (black)
+#tentatively done
+N:13:Assassin
+S:2:1:-2:1:0:-1
+C:31:29:21:3:16:13:53:65
+X:10:10:11:0:0:0:33:31
+I:5:30:26000:40
+A:5:32:4
+M:95:1:2:360
+E:95:1:1:1
+E:23:8:1:1
+E:19:22:1:1
+E:18:1:10:19
+F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ASSASSIN
+T:Thug
+T:Cutthroat
+T:Killer
+T:Hitman
+T:Skull Collector
+T:Sniper
+T:Eraser
+T:Assassin
+T:Silent Death
+T:Master Assassin
+B:0:99:0:0:0	#detect evil			/
+B:1:99:0:0:0	#infravision			/
+B:2:99:0:0:0	#call dark				/
+B:3:99:0:0:0	#scare monster			/
+B:4:99:0:0:0	#noxious fumes			/
+B:5:99:0:0:0	#cure poison			/
+B:6:99:0:0:0	#sleep monster			/
+B:7:99:0:0:0	#wither foe				/
+B:8:99:0:0:0	#see invisible			/
+B:9:6:4:40:1	#find traps	(2nd book)		6
+B:10:7:3:45:2	#detect doors/stairs		7
+B:11:4:2:33:2	#shadow shift			4
+B:12:10:6:45:3	#drain charges			10
+B:13:99:0:0:0	#turn undead			/
+B:14:33:15:70:13	#death bolt				33 (vlate for assassin)
+B:15:23:19:67:6	#slow monster			23 assassin only (wither has slowing)
+B:16:34:26:65:15	#dispel undead x3			34 (vlate for assassin)
+B:17:2:1:36:1	#cause light wounds (3rd book) 2
+B:18:9:6:45:2	#witch's disinfectant		9
+B:19:99:0:0:0	#cause serious wounds		/
+B:20:12:7:50:2	#trap/door destruction		12
+B:21:14:11:60:3	#poison bolt			14
+B:22:18:11:40:5	#slip into the shadows		18
+B:23:41:30:80:18	#cause mortal wounds		40
+B:24:36:26:70:16	#venom bolt				36 (in 4th book)
+B:25:99:0:0:0	#breathe withering		/
+B:26:99:0:0:0	#scare monsters (4th book)	/
+B:27:21:11:55:6	#spear of dark			21
+B:28:99:0:0:0	#ice spear				/
+B:29:36:24:80:13	#stench of death			36
+B:30:26:16:76:9	#beam of destruction		26
+B:31:34:21:80:12	#destruction ball			34
+B:32:99:0:0:0	#chaos strike			/
+B:33:11:9:36:3	#shadow warp (5th book)		11
+B:34:99:0:0:0	#wizard lock			/
+B:35:25:17:60:10	#shadow mapping			25
+B:36:24:15:67:8	#break curse			24
+B:37:99:0:0:0	#probing				/
+B:38:26:24:88:7	#identify				26
+B:39:99:0:0:0	#summon demonic aid		/ (in 6th book)
+B:40:99:0:0:0	#exorcize demons			/
+B:41:37:19:80:12	#detect enchantment		37
+B:42:99:0:0:0	#boldness (6th book)		/ (6th book not for assassin)
+B:43:99:0:0:0	#tourniquet				/
+B:44:99:0:0:0	#resist poison			/
+B:45:24:16:60:7	#protection from the lifeless	24 (in 5th book)
+B:46:99:0:0:0	#undead skin			/
+B:47:99:0:0:0	#unholy resistance		/
+B:48:99:0:0:0	#shadow barrier			/
+B:49:99:0:0:0	#detect all monsters (7th book) / (7th book not for assassin)
+B:50:99:0:0:0	#orb of death			/
+B:51:99:0:0:0	#rend soul				/
+B:52:99:0:0:0	#teleport other			/
+B:53:99:0:0:0	#dispel life			/
+B:54:99:0:0:0	#vampiric drain			/
+B:55:99:0:0:0	#hold life				/
+B:56:99:0:0:0	#genocide				/
+B:57:27:15:95:15	#recharging (8th book)		27
+B:58:27:18:60:15	#cure mortal wounds		27
+B:59:99:0:0:0	#dispel curse			/
+B:60:99:0:0:0	#spirit of the balrog		/
+B:61:31:23:70:25	#haste				31
+B:62:33:30:80:35	#bloodwrath				33
+B:63:39:60:95:45	#poison ammo			39
+B:64:49:60:90:90	#telepathy				49
+B:65:16:2:60:11	#draw mana (9th book)		16
+B:66:35:28:88:40	#word of destruction		35
+B:67:45:34:70:70	#hold					45
+B:68:99:0:0:0	#dispel undead2			/
+B:69:99:0:0:0	#breathe fear and confusion	/
+B:70:99:0:0:0	#nether ball			/
+B:71:99:0:0:0	#darkness storm			/
+B:72:99:0:0:0	#become lich			/
+B:73:29:25:74:14	#resist poison			29 (assassin only version, in book 3)
+B:74:47:37:91:100	#wall of hellfire			47
+B:75:99:0:0:0	#shadow sting			/ (necromancer only)
 
 N:14:Thief
 S:1:2:-1:3:-1:1
 C:34:27:28:5:27:24:42:41
-X:12:8:10:0:1:0:30:33
+X:14:8:10:0:1:0:30:33
 I:2:22:34000:40
-A:5:30:4
+A:5:30:3
 M:94:1:2:330
 E:94:3:1:1
 E:23:4:1:1
@@ -1032,7 +1215,7 @@ B:61:7:6:50:6	#hit and run (B8)			7  (thief only book)
 B:62:20:12:40:20	#slip into the shadows		20
 B:63:20:15:65:15	#poison bolt			20
 B:64:23:21:70:30	#cloudkill2				23
-B:65:28:23:70:60	#bedlam1				28
+B:65:28:26:70:60	#bedlam1				28
 B:66:20:1:10:5	#object to gold2			<20> (temporary stats while not done)
 B:67:37:70:70:120	#poison brand weapon2		37
 B:68:99:0:0:0	#recharging2 (B9)			/ (archer only book)
@@ -1041,111 +1224,200 @@ B:70:99:0:0:0	#bedlam2				/
 B:71:99:0:0:0	#restore dex2			/
 B:72:99:0:0:0	#enchant armor			/
 B:73:99:0:0:0	#meteor swarm			/
+B:74:31:16:55:70  #telekinesis			31
 
-#N:15:Tourist (chance)
-#S:0:2:-2:1:1:2
-#C:45:32:23:3:32:24:60:66 (from here and later is copied from rogue for now)
-#X:15:10:11:0:0:0:40:30
-#I:6:25:21000:40
-#A:5:30:4
-#M:93:1:2:350
-#E:93:0:1:1 (equipment & probably flags done for the tourist)
-#E:35:3:1:1
-#E:70:25:1:3
-#E:16:0:7:18
-#E:19:1:1:1
-#F:PSEUDO_ID_IMPROV | CHOOSE_SPELLS
-#T:Vagabond
-#T:Petty Outlaw
-#T:Footpad
-#T:Bandit
-#T:Outlaw
-#T:Highwayman
-#T:Rogue
-#T:Shadow Bandit
-#T:Most Wanted
-#T:Master Rogue
-#B:0:9:2:60:1	#illumination			9
-#B:1:7:3:45:1	#detect doors/stairs		7
-#B:2:10:3:60:1	#detect $$				10
-#B:3:14:7:55:2	#trap/door destruction		14
-#B:4:99:0:0:0	#camera flash			
-#B:5:18:18:60:2	#identify				18
-#B:6:99:0:0:0	#door creation 			
-#B:7:99:0:0:0	#word of recall			
-#B:8:99:0:0:0	#stair creation			
-#B:9:11:4:60:1	#cure light wounds (B2)		11
-#B:10:27:16:76:4	#extra luck				27
-#B:11:15:11:50:2	#resist cold			15
-#B:12:28:15:96:3	#recharging				28
-#B:13:16:8:60:1	#bug spray				16
-#B:14:18:9:46:2	#detect invisible			18
-#B:15:30:21:80:4	#resist poison			30
-#B:16:23:13:68:13	#curing or causing		23
-#B:17:20:10:70:21	#wonder				20
-#B:18:7:2:49:1	#blink (B3)				/ (non-tourist book)
-#B:19:15:5:75:1	#confuse monster			/
-#B:20:6:1:46:1	#detect monsters			/
-#B:21:9:4:55:2	#detect traps and objects	/
-#B:22:26:18:70:4	#slow monster			/
-#B:23:22:14:60:4	#mini destruction			/
-#B:24:99:0:0:0	#telekinesis			/
-#B:25:29:20:75:5	#sense surroundings		/
-#B:26:27:10:50:10	#detect enchantment		/
-#B:27:99:0:0:0	#detect traps (B4)		
-#B:28:99:0:0:0	#detect objects			
-#B:29:99:0:0:0	#map of the area			
-#B:30:99:0:0:0	#adjust curse			
-#B:31:99:0:0:0	#telekinesis2			
-#B:32:99:0:0:0	#detect enchantment2		
-#B:33:99:0:0:0	#probing				
-#B:34:99:0:0:0	#map of the level			
-#B:35:99:0:0:0	#full identify			
-#B:36:8:5:66:3	#hit and run (B5)			/ (non-tourist book)
-#B:37:21:9:50:3	#teleport self			/
-#B:38:31:25:65:5	#teleport other			/
-#B:39:29:16:80:11	#slow monsters			/
-#B:40:25:20:80:6	#earthquake				/
-#B:41:24:15:70:10	#mass sleep				/
-#B:42:19:9:45:9	#slip into the shadows		/
-#B:43:32:25:70:16	#haste self				/
-#B:44:22:16:66:9	#polymorph (B6)			22
-#B:45:99:0:0:0	#adjust speed			
-#B:46:33:0:0:0	#banish or summon			35
-#B:47:99:0:0:0	#affect self			
-#B:48:99:0:0:0	#affect surroundings		
-#B:49:33:0:0:0	#potluck stats			33
-#B:50:99:0:0:0	#aquirement				 
-#B:51:12:13:55:6	#blink monster (B7)		/ (non-tourist book)
-#B:52:17:7:35:17	#door creation2			/
-#B:53:25:13:44:25	#stair creation2			/
-#B:54:26:21:60:25	#teleport level			/
-#B:55:45:30:95:35	#word of destruction		/
-#B:56:36:35:85:20	#word of recall2			/
-#B:57:49:75:99:90	#rune of protection		/
-#B:58:19:12:50:23	#resist heat and elec (B8)	/ (non-tourist book)
-#B:59:30:19:70:40	#turn undead			/
-#B:60:23:16:75:26	#burst of light			/
-#B:61:34:21:80:45	#curing				/
-#B:62:27:17:66:30	#remove curse			/
-#B:63:43:41:91:60	#restore cleverness		/
-#B:64:31:30:85:55	#resistance				/
-#B:65:21:16:61:30	#stink (B9)				21
-#B:66:28:20:60:60	#berserker				/
-#B:67:30:20:70:30	#bedlam				30
-#B:68:44:33:90:66	#chaos strike			/
-#B:69:99:0:0:0	#rift					/
-#B:70:99:0:0:0	#breathe chaos			/
-#B:71:41:31:80:65	#mass chaos				
-#B:72:99:0:0:0	#bizzare effects			
+N:15:Tourist
+S:0:2:-2:1:0:2
+C:21:20:21:1:14:21:34:30
+X:7:10:8:0:1:0:19:19
+I:1:5:50000:40
+A:4:32:3
+M:93:1:1:400
+E:93:0:1:1
+E:35:3:1:1
+E:70:25:1:3
+E:16:0:7:18
+E:19:1:1:1
+F:PSEUDO_ID_IMPROV | CHOOSE_SPELLS
+T:Rambler
+T:Sightseer
+T:Vacationer
+T:Excursionist
+T:Tourist
+T:Journeyer
+T:Voyager
+T:Dungeon Traveller
+T:Adventurer
+T:Unlikely Hero
+B:0:5:3:50:1	#illumination			5
+B:1:3:2:55:1	#detect doors/stairs		3
+B:2:12:3:65:2	#detect $$				12
+B:3:15:8:70:2	#trap/door destruction		15
+B:4:1:1:60:1	#camera flash			1
+B:5:5:9:95:2	#identify				5
+B:6:10:9:67:3	#door creation 			10
+B:7:20:25:67:10	#word of recall			20
+B:8:22:22:67:14	#stair creation			22
+B:9:6:3:50:1	#cure light wounds (B2)		6
+B:10:14:13:67:3	#extra luck				14
+B:11:7:12:67:2	#resist cold			7
+B:12:21:20:91:6	#new batteries			21
+B:13:8:7:67:2	#bug spray				8
+B:14:24:11:55:4	#detect invisible			24
+B:15:32:28:75:30	#resist poison			32
+B:16:26:20:33:24	#curing or causing		26
+B:17:26:16:75:21	#wonder				26
+B:18:99:0:0:0	#blink (B3)				/ (non-tourist book)
+B:19:99:0:0:0	#confuse monster			/
+B:20:99:0:0:0	#detect monsters			/
+B:21:99:0:0:0	#detect traps and objects	/
+B:22:99:0:0:0	#slow monster			/
+B:23:99:0:0:0	#mini destruction			/
+B:24:99:0:0:0	#stone to mud			/
+B:25:99:0:0:0	#sense surroundings		/
+B:26:99:0:0:0	#detect enchantment		/
+B:27:7:4:55:2	#detect traps (B4)		7
+B:28:13:5:70:2	#detect objects			13
+B:29:15:10:67:5	#map of the area			15
+B:30:19:13:67:9	#adjust curse			19
+B:31:29:15:55:23	#telekinesis2			29 (testing)
+B:32:27:12:67:20	#detect enchantment2		27
+B:33:28:15:76:22	#probing				28
+B:34:32:40:70:25	#map of the level			32
+B:35:35:35:95:50	#full identify			35
+B:36:36:10:74:21	#hit and run (B5)			36 (non-tourist book)
+B:37:40:20:75:25	#teleport self			40
+B:38:45:30:90:60	#teleport other			45
+B:39:99:0:0:0	#slow monsters			/
+B:40:99:0:0:0	#earthquake				/
+B:41:44:23:75:42	#mass sleep				44
+B:42:99:0:0:0	#slip into the shadows		/
+B:43:43:27:80:35	#haste self				43
+B:44:26:19:67:22	#polymorph (B6)			26
+B:45:29:17:50:20	#adjust speed			29
+B:46:38:60:67:60	#banish or summon			38
+B:47:31:20:51:25	#affect self			31
+B:48:33:22:56:30	#affect surroundings		33
+B:49:35:65:67:53	#potluck stats			35
+B:50:40:99:67:99	#aquirement				40
+B:51:99:0:0:0	#blink monster (B7)		/ (non-tourist book)
+B:52:99:0:0:0	#door creation2			/
+B:53:99:0:0:0	#stair creation2			/
+B:54:99:0:0:0	#teleport level			/
+B:55:99:0:0:0	#word of destruction		/
+B:56:99:0:0:0	#word of recall2			/
+B:57:99:0:0:0	#rune of protection		/
+B:58:99:0:0:0	#resist heat and elec (B8)	/ (non-tourist book)
+B:59:99:0:0:0	#turn undead			/
+B:60:99:0:0:0	#burst of light			/
+B:61:99:0:0:0	#curing				/
+B:62:99:0:0:0	#remove curse			/
+B:63:99:0:0:0	#restore cleverness		/
+B:64:99:0:0:0	#resistance				/
+B:65:23:16:67:30	#stink (B9)				23
+B:66:99:0:0:0	#berserker				/
+B:67:34:31:88:90	#bedlam				34
+B:68:99:0:0:0	#chaos strike			/
+B:69:99:0:0:0	#rift					/
+B:70:99:0:0:0	#breathe chaos			/
+B:71:41:30:90:125	#mass chaos				41
+B:72:50:90:76:200 #bizzare effects			50
 
-#N:16:Fighter Wizard (wizardry, class needs a better name)
+#N:16:Fighter Wizard (wizardry, class needs a better name or might be removed)
 
 #N:17:War Mage (wizardry)
 
-#N:18:Barbarian (chance or nature? vlittle magic)
+#tentatively done
+N:18:Barbarian
+S:6:-3:-1:1:2:-1
+C:24:12:18:2:11:5:75:56
+X:8:9:11:0:1:1:44:44
+I:10:5:14000:40
+A:3:80:3
+M:92:2:5:400
+E:22:12:1:1
+E:34:3:1:1
+E:1:1:2:3
+F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | HEAVY_BONUS
+T:Brute
+T:Pillager
+T:Brigand
+T:Swashbuckler
+T:Barbarian
+T:Raider
+T:Slayer
+T:Chieftain
+T:Destroyer
+T:Warlord
+B:0:5:1:40:1	#detect animal			5
+B:1:99:0:0:0	#call light				/
+B:2:8:2:45:3	#slow poison			8
+B:3:99:0:0:0	#blink				/
+B:4:14:10:50:5	#foraging				14
+B:5:99:0:0:0	#lightning spark			/
+B:6:99:0:0:0	#ray of light			/
+B:7:99:0:0:0	#trap/door destruction		/
+B:8:99:0:0:0	#stone to mud			/
+B:9:99:0:0:0	#cure poison (B2)			/
+B:10:99:0:0:0	#frost bolt				/
+B:11:99:0:0:0	#sleep creature			/
+B:12:12:8:55:4	#frighten creature		12
+B:13:99:0:0:0	#find traps/doors			/
+B:14:32:14:67:10	#stun monster (mystic only)	32 (vlate for barbarian)
+B:15:15:7:60:4	#bug spray				15
+B:16:99:0:0:0	#fire bolt				/
+B:17:99:0:0:0	#remove curse (B3)		/
+B:18:99:0:0:0	#resist heat & cold		/
+B:19:99:0:0:0	#resist acid & elec		/
+B:20:99:0:0:0	#detect life			/
+B:21:14:5:35:4	#natural vitality			14 (in book 2)
+B:22:99:0:0:0	#resist poison			/
+B:23:99:0:0:0	#earthquake				/
+B:24:99:0:0:0	#identify				/
+B:25:99:0:0:0	#teleport other			/
+B:26:99:0:0:0	#detect evil  (B4)		/
+B:27:99:0:0:0	#song of frightening		/
+B:28:99:0:0:0	#herbal healing			/
+B:29:99:0:0:0	#sense invisible			/
+B:30:99:0:0:0	#sense surroundings		/
+B:31:99:0:0:0	#true sight				/
+B:32:99:0:0:0	#nymph's blessing	 (B5)		/
+B:33:99:0:0:0	#wither foe				/
+B:34:99:0:0:0	#lightning storm			/
+B:35:99:0:0:0	#thunderclap			/
+B:36:99:0:0:0	#blizzard				/
+B:37:99:0:0:0	#bright starlight	 (B6)		/
+B:38:99:0:0:0	#small hurled star		/
+B:39:99:0:0:0	#trigger tsunami			/
+B:40:99:0:0:0	#molten lightning			/
+B:41:99:0:0:0	#volcanic eruption		/
+B:42:99:0:0:0	#rift					/
+B:43:99:0:0:0	#song of lulling (B7)		/
+B:44:99:0:0:0	#song of heroism			/
+B:45:34:21:70:12	#call help				34 (vlate)
+B:46:99:0:0:0	#song of protection		/
+B:47:99:0:0:0	#song of dispelling		/
+B:48:99:0:0:0	#song of warding			/
+B:49:99:0:0:0	#song of renewal			/
+B:50:99:0:0:0	#essence of speed (B8)		/
+B:51:99:0:0:0	#infusion (recharging)		/
+B:52:49:60:90:50	#nature's intervention		49
+B:53:99:0:0:0	#escape level			/
+B:54:99:0:0:0	#banish unnatural			/
+B:55:47:55:92:9	#remembrance			47
+B:56:99:0:0:0	#elemental brand (ammo)		/
+B:57:48:40:75:25	#telepathy				48
+B:58:99:0:0:0	#<start of mystic only book>
+B:59:99:0:0:0	#
+B:60:99:0:0:0	#
+B:61:99:0:0:0	#
+B:62:99:0:0:0	#
+B:63:99:0:0:0	#
+B:64:99:0:0:0	#
+B:65:99:0:0:0	#
+B:66:99:0:0:0	#
+B:67:45:33:67:20	#extra melee attack		45 (in 8th book)
 
-#N:19:Escape Artist (chance)
 
 #N:20:Sage (mind)
 
@@ -1178,12 +1450,13 @@ B:73:99:0:0:0	#meteor swarm			/
 #Novelty Class, maybe give it some chance spells (will be #32)
 N:32:Hulk
 S:3:-2:-1:1:2:-3
-C:18:23:24:0:4:3:65:30
+C:18:23:24:0:4:3:66:30
 X:10:6:14:0:0:1:38:10
 I:6:25:60000:40
 A:6:50:4
 M:0:0:0:0
-E:36:3:1:1
+E:1:2:1:1
+E:36:1:1:1
 F:PSEUDO_ID_HEAVY | BRAVERY_30 | HEAVY_BONUS | HULK_CONF
 T:Mistaken for a Dumb Ogre
 T:Dumb Brute

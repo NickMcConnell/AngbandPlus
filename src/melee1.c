@@ -190,6 +190,7 @@ bool make_attack_normal(int m_idx)
 
 
 		/* Extract the attack "power" */
+		/* what does this do? */
 		switch (effect)
 		{
 			case RBE_HURT:      power = 60; break;
@@ -228,6 +229,8 @@ bool make_attack_normal(int m_idx)
             case RBE_HUNGER:    power =  2; break;
 			case RBE_PIXIEKISS: power =  0; break;
 			case RBE_ENTHELP:   power =  0; break;
+			case RBE_PURIFY:    power =  0; break;
+			case RBE_UNLUCKY:   power =  2; break;
 		}
 
 
@@ -237,6 +240,24 @@ bool make_attack_normal(int m_idx)
 			/* Always disturbing */
 			disturb(1, 0);
 
+			/* Hack -- Apply "protection from lifeless" */
+			if ((p_ptr->timed[TMD_PROTDEAD] > 0) &&
+			    (r_ptr->flags3 & (RF3_NON_LIVING)) &&
+			    (p_ptr->lev >= (rlev-1) + randint(15)) &&
+			    ((rand_int(100) + p_ptr->lev) > 40))
+			{
+				/* Remember the lifelessness */
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_NON_LIVING);
+				}
+
+				/* Message */
+				msg_format("%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
@@ -279,7 +300,7 @@ bool make_attack_normal(int m_idx)
 			if ((p_ptr->timed[TMD_PROTEVIL2] > 0) &&
 			    (r_ptr->flags3 & (RF3_EVIL)) &&
 			    (p_ptr->lev < rlev) &&
-                (p_ptr->lev + rand_int(p_ptr->lev * 2) > rlev + 6))
+                (p_ptr->lev + randint(p_ptr->lev * 2) > rlev + 6))
 			{
                 if ((!(r_ptr->flags1 & (RF1_UNIQUE))) ||
                    (rand_int(100) < 5))
@@ -530,6 +551,7 @@ bool make_attack_normal(int m_idx)
 					{
 						if (inc_timed(TMD_POISONED, randint(rlev) + 5))
 						{
+                            if (p_ptr->weakresist_pois) (void)dec_timed(TMD_POISONED, randint(6));
 							obvious = TRUE;
 						}
 					}
@@ -1046,14 +1068,15 @@ bool make_attack_normal(int m_idx)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
-
+					
+					int savechance = 100 + (badluck/2) - (goodluck/5);
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
 					{
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+					else if (rand_int(savechance) < p_ptr->skills[SKILL_SAV]) 
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -1370,6 +1393,29 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 				
+				case RBE_UNLUCKY:
+				{
+               		/* Take damage */
+					take_hit(damage, ddesc);
+					
+                    int savechance = 111 + badluck - (goodluck/2);
+                    if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 20;
+			        if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
+					{
+                       msg_print("You resist the effects.");
+                    }
+                    else
+                    {
+                       if (r_ptr->flags2 & (RF2_POWERFUL)) p_ptr->luck -= randint(3);
+                       else p_ptr->luck -= randint(2);
+                       if (p_ptr->luck > 21) msg_print("You feel less lucky.");
+                       else if (p_ptr->luck < 9) msg_print("You feel very unlucky.");
+                       else msg_print("You feel unlucky.");
+                    }
+
+					break;
+				}
+
                 case RBE_FRENZY:
                 {
 					/* Take damage */
@@ -1459,7 +1505,7 @@ bool make_attack_normal(int m_idx)
                     }
 					break;
 				}
-
+				
 				case RBE_PURIFY:
 				{
 					/* conspicuous lack of damage */

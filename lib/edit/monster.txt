@@ -308,7 +308,7 @@ G:m:G
 I:110:2d7:4:6:40
 W:1:2:0:2
 B:BITE:HURT:1d6
-F:ANIMAL | IM_POIS |
+F:ANIMAL | IM_POIS | HURT_DARK
 F:WEIRD_MIND | NEVER_MOVE
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A part-plant part animal creature with a 2-ft neck surrounded by leaves at its base.
@@ -376,7 +376,7 @@ I:130:6d2:15:15:19
 W:1:7:0:7
 B:GAZE:HURT:0d0
 B:KICK:HURT:0d0
-F:RAND_50 | RAND_25
+F:RAND_50 | RAND_25 | HURT_DARK
 S:1_IN_19
 S:BR_LITE
 D:This baby sprite likes to kick people but is isn't strong enough to do any damage.
@@ -454,7 +454,7 @@ N:35:yellow mushroom patch
 G:,:y
 I:110:1d1:2:1:0
 W:2:1:0:2
-B:SPORE:TERRIFY:1d6
+B:SPORE:CHARM:1d6
 F:NEVER_MOVE
 F:STUPID | EMPTY_MIND
 F:IM_POIS
@@ -751,13 +751,13 @@ S:MISSILE | CAUSE_1 | HEAL | CONF
 D:It is a kobold dressed in skins and gesturing wildly.
 
 N:63:sprite
-G:y:U
+G:y:u
 I:127:3d5:12:42:20
 W:3:2:0:9
 B:HIT:HURT:1d3
 B:KICK:HURT:1d3
 F:OPEN_DOOR | RAND_50
-F:NO_SLEEP
+F:NO_SLEEP | HURT_DARK
 D:Sprites are somewhat silly, small, fast flying fairies a little bigger than the pixie.
 D: Less intelligent and less powerful than pixies, they are also less friendly.
 
@@ -1026,7 +1026,7 @@ I:120:3d5:15:30:6
 W:6:2:0:8
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d5
-F:ANIMAL | FRIENDS
+F:ANIMAL | FRIENDS | HURT_DARK
 D:a vicious flying lizard, the size and shape of a bat.
 D: It is the smallest type of zhelung lizard.
 
@@ -1277,7 +1277,7 @@ W:6:2:0:23
 B:HIT:POISON:1d3
 B:KICK:HURT:1d3
 F:OPEN_DOOR | RAND_50
-F:NO_SLEEP | IM_POIS
+F:NO_SLEEP | IM_POIS | HURT_DARK
 S:1_IN_16
 S:BR_POIS
 D:a green little winged humanoid, they are more aggresive than the average sprite.
@@ -1309,7 +1309,7 @@ G:v:D
 I:102:9d9:3:33:90
 W:6:3:0:21
 B:ENGULF:EAT_LITE:1d4
-F:RAND_50 | COLD_BLOOD
+F:RAND_50 | COLD_BLOOD | RES_NETH
 F:OPEN_DOOR | EMPTY_MIND | NON_LIVING
 F:NO_SLEEP | NO_FEAR | IM_COLD | IM_POIS
 S:1_IN_11
@@ -1356,7 +1356,7 @@ W:6:2:0:17
 B:CLAW:HURT:1d4
 B:BITE:HURT:1d6
 F:ANIMAL | BASH_DOOR
-F:IM_WATER | NO_FEAR | REGENERATE
+F:IM_WATER | NO_FEAR | REGENERATE | HURT_DARK
 D:A less magical form of the water-dwelling zhelung-lizard.
 
 N:118:creeping silver coins
@@ -1605,7 +1605,7 @@ I:114:9d8:15:39:42
 W:8:3:0:30
 B:HIT:HURT:1d3
 B:TOUCH:EAT_ITEM:1d2
-F:MALE | DROP_60
+F:MALE | DROP_60 | HURT_DARK
 F:OPEN_DOOR
 S:1_IN_10
 S:BLINK | CONF
@@ -1618,7 +1618,7 @@ W:8:4:0:14
 B:HIT:HURT:1d3
 B:KICK:HURT:1d3
 F:ATTR_CLEAR
-F:OPEN_DOOR | RAND_50
+F:OPEN_DOOR | RAND_50 | HURT_DARK
 F:NO_SLEEP | INVISIBLE
 D:Sprites are somewhat silly, small, fast flying fairies a little bigger than the pixie.
 D: Less intelligent and less powerful than pixies, they are also less friendly.
@@ -2037,13 +2037,12 @@ G:w:s
 I:112:7d7:13:19:26
 W:9:3:0:26
 B:BITE:SILVER:2d2
-F:COLD_BLOOD | WEIRD_MIND | RAND_50 | FRIEND
+F:COLD_BLOOD | WEIRD_MIND | RAND_50
 F:EVIL | IM_POIS | SILVER | BR_WEAK | STUPID
 S:1_IN_9
 S:BR_CONF | BLINK
 D:A lesser form of a vyrm from the domain of the grepse, it appears like a worm with
-D: wings that are shaped like a bat's but look like an insect's wings. They often come
-D: in pairs.
+D: wings that are shaped like a bat's but look like an insect's wings.
 
 N:172:goyley
 G:x:o
@@ -2273,7 +2272,7 @@ W:11:3:0:40
 B:HIT:HURT:1d7
 F:OPEN_DOOR | FORCE_SLEEP
 F:ONLY_ITEM | DROP_60
-F:NO_SLEEP | NO_CONF
+F:NO_SLEEP | NO_CONF | HURT_DARK
 S:1_IN_4
 S:BLINK | HEAL | SLOW | HASTE | S_ANIMAL
 D:A fairy of wisdom and friends with the animals, its skin is covered with wrinkles.
@@ -2328,7 +2327,7 @@ W:11:4:0:58
 B:HIT:HURT:3d3
 B:KICK:HURT:3d3
 F:OPEN_DOOR | BASH_DOOR | RAND_50
-F:NO_SLEEP | IM_POIS | NO_FEAR
+F:NO_SLEEP | IM_POIS | NO_FEAR | HURT_DARK
 S:1_IN_9
 S:BOULDER
 D:A sprite with surprising strength for its size..
@@ -2396,7 +2395,7 @@ I:127:9d5:15:42:22
 W:12:4:0:37
 B:GAZE:CONFUSE:0d0
 B:KICK:HURT:2d2
-F:OPEN_DOOR | RAND_25
+F:OPEN_DOOR | RAND_25 | HURT_DARK
 F:NO_SLEEP | IM_POIS | NO_FEAR
 S:1_IN_7
 S:BR_LITE
@@ -2641,7 +2640,7 @@ B:CLAW:HURT:1d8
 B:BITE:HURT:1d8
 F:BASH_DOOR | FORCE_SLEEP
 F:EVIL | ANIMAL
-F:NO_FEAR | NO_SLEEP
+F:NO_FEAR | NO_SLEEP | RES_NETH
 S:1_IN_13
 S:SLOW | DARKNESS | SCARE | S_UNDEAD
 D:A large black dog and an omen of death.
@@ -2694,7 +2693,7 @@ F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | BASH_DOOR
 F:IM_COLD | IM_POIS
 F:NO_FEAR | NO_SLEEP
 F:EVIL | ORC | UNDEAD | NON_LIVING
-D:A dead but walking orc wrapping thickly in bandages. The orcs are not experts at
+D:A dead but walking orc wrapped thickly in bandages. The orcs are not experts at
 D: embalming.
 
 N:225:blue naga
@@ -2892,7 +2891,7 @@ B:HIT:HURT:1d7
 B:TOUCH:BLIND:1d3
 F:DROP_60 | ONLY_ITEM
 F:OPEN_DOOR | FORCE_SLEEP
-F:NO_SLEEP | NO_CONF
+F:NO_SLEEP | NO_CONF | HURT_DARK
 S:1_IN_4
 S:BLINK | HEAL | SLOW | BR_LITE | S_KIN
 D:A wise and shining gnome, powerful in fairy magic, and a lover of light.
@@ -2999,7 +2998,7 @@ W:15:4:0:55
 B:HIT:HURT:2d4
 B:CRUSH:HURT:7d2
 F:FORCE_MAXHP | WEIRD_MIND | BASH_DOOR
-F:NO_FEAR | NO_CONF
+F:NO_FEAR | NO_CONF | HURT_DARK
 D:An mean apple tree that has gotten bored of dropping fruit on people's heads,
 D: so it learned to move its branches.
 
@@ -3051,7 +3050,7 @@ F:OPEN_DOOR | BASH_DOOR
 F:NO_SLEEP | IM_POIS | FORCE_SLEEP
 S:1_IN_4
 S:BLINK | HEAL | BLIND | S_MONSTER | S_KIN | CAUSE_2
-D:The use of sorcery is considered very bad among good fairies, so the gnome
+D:The use of sorcery is considered very bad among light fairies, so the gnome
 D: mage makes himself an outcast.
 
 N:253:half-orc
@@ -3156,7 +3155,7 @@ W:16:4:0:56
 B:CRUSH:POISON:2d2
 B:CRUSH:POISON:2d2
 B:CRUSH:PARALYZE:5d2
-F:FORCE_MAXHP | WEIRD_MIND
+F:FORCE_MAXHP | WEIRD_MIND | HURT_DARK
 F:NO_FEAR | NO_CONF | IM_POIS
 D: a mass of thick vines with poisonous leaves.
 
@@ -3255,7 +3254,7 @@ B:BITE:SILVER:1d2
 B:BITE:LOSE_WIS:2d2
 F:OPEN_DOOR | COLD_BLOOD
 F:RAND_25 | WEIRD_MIND
-F:EVIL | IM_POIS | SILVER
+F:EVIL | IM_POIS | SILVER | RES_NETH
 S:1_IN_9
 S:SLOW | BLINK | DRAIN_MANA | BLIND | CONF
 D:A magical being from the domain of the grepse. The purpose of all the grepse is to
@@ -3343,7 +3342,8 @@ W:16:6:0:60
 B:CLAW:HURT:1d4
 B:BITE:EXP_10:1d6
 B:TOUCH:UN_BONUS
-F:IM_ELEC | RES_DISE | RES_NEXUS
+B:GAZE:UNLUCKY
+F:IM_ELEC | RES_DISE | RES_NEXUS | RES_NETH
 F:NO_FEAR | NO_CONF | NO_SLEEP
 F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
@@ -3473,7 +3473,7 @@ W:17:5:0:70
 B:CLAW:HURT:1d7
 B:CLAW:HURT:1d7
 B:TOUCH:UN_BONUS
-F:OPEN_DOOR | NO_CONF
+F:OPEN_DOOR | NO_CONF | HURT_DARK
 S:1_IN_5
 S:SLOW | BLINK | TELE_TO | DRAIN_MANA | TELE_LEVEL | HEAL
 D:A fairy that looks like a silver-green bat.  It hates sorcery and dark
@@ -3807,7 +3807,7 @@ B:CLAW:HURT:1d4
 B:BITE:POISON:1d7
 B:TAIL:HURT:1d3
 F:ANIMAL | BASH_DOOR | REGENERATE
-F:IM_WATER | IM_POIS | FORCE_SLEEP
+F:IM_WATER | IM_POIS | FORCE_SLEEP | HURT_DARK
 S:1_IN_7
 S:BO_WATE | BR_LITE | CONF | BLINK | BLIND
 D:You finally get to see the magical zhelung of little known lore.  It is famed as
@@ -3882,7 +3882,7 @@ D:It is a vicious insect with a tough carapace.
 N:316:pink elephant
 G:.:R
 I:106:18d20:9:3:19
-W:20:7:0:199
+W:20:10:0:199
 B:BUTT:HURT:2d9
 B:TOUCH:HALLU:1d6
 F:ATTR_MULTI | SILVER
@@ -4234,7 +4234,7 @@ B:CRUSH:HURT:2d4
 B:CRUSH:HURT:2d4
 B:CRUSH:PARALYZE:8d4
 F:FORCE_MAXHP | WEIRD_MIND | BASH_DOOR
-F:NO_FEAR
+F:NO_FEAR | HURT_DARK
 D:It will tangle you in its branches until you can't breathe.
 
 N:342:ring mimmic
@@ -4287,7 +4287,8 @@ I:115:3d6:6:11:3
 W:23:5:0:33
 B:SPORE:PARALYZE:1d3
 B:SPORE:POISON:1d3
-F:NEVER_MOVE
+B:SPORE:CHARM
+F:NEVER_MOVE | HURT_DARK
 F:STUPID | EMPTY_MIND | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_7
@@ -4475,7 +4476,7 @@ B:BITE:EXP_10:1d5
 B:BITE:EXP_10:1d5
 F:RAND_50 | REGENERATE
 F:EVIL | ANIMAL
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | RES_NETH
 D:A blood-sucking bat that flies at your neck hungrily.
 
 N:360:forest wight
@@ -4555,7 +4556,7 @@ W:24:4:0:200
 B:HIT:HURT:10d6
 B:HIT:HURT:10d6
 F:FORCE_MAXHP | WEIRD_MIND | BASH_DOOR
-F:NO_FEAR | NO_CONF | NO_SLEEP
+F:NO_FEAR | NO_CONF | NO_SLEEP | HURT_DARK
 D:An old malevolent tree with powerful bashing branches.
 
 N:366:4-headed hydra
@@ -4769,7 +4770,7 @@ B:SPIT:HURT:1d9
 B:SPIT:HURT:1d9
 F:FORCE_MAXHP | WEIRD_MIND
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:NEVER_MOVE
+F:NEVER_MOVE | HURT_DARK
 S:1_IN_3
 S:ARROW_3
 D:These silly parodies of ents like to spit and throw things. It would chase you if it could.
@@ -5094,7 +5095,7 @@ B:KICK:HURT:3d4
 B:KICK:HURT:3d4
 B:BUTT:HURT:7d5
 F:BASH_DOOR | NO_CONF
-F:ANIMAL
+F:ANIMAL | HURT_DARK
 D:I hope your picture of a unicorn isn't some docile pink pony. Its horn can be used for
 D: impaling as well as healing, and it cannot be tamed.
 
@@ -5181,8 +5182,8 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:IM_ACID | IM_FIRE | IM_POIS | IM_COLD
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:Haven't you heard of puddings made for a tasty dessert, but enchanted to walk off the dinner table
-D: and frighten the guests?
+D:Haven't you heard of puddings made for a tasty dessert, but enchanted to walk off
+D: the dinner table and frighten the guests?
 
 N:407:bat of gorgoroth
 G:b:g
@@ -5324,7 +5325,7 @@ B:CRUSH:HURT:8d6
 B:CRUSH:HURT:8d6
 F:FORCE_MAXHP | WEIRD_MIND
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:BASH_DOOR | IM_COLD
+F:BASH_DOOR | IM_COLD | HURT_DARK
 F:EVIL
 D:These trees live not far from the Shire and are distant evil cousins of the huorns.
 
@@ -5394,7 +5395,7 @@ B:HIT:EXP_10:3d6
 F:FEMALE | DROP_60 | DROP_1D2
 F:SMART | OPEN_DOOR | BASH_DOOR
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:EVIL | REGENERATE
+F:EVIL | REGENERATE | HURT_LITE
 S:1_IN_5
 S:CAUSE_2 | CAUSE_3 | BA_POIS | HASTE | BLIND | BLINK | S_DEMON
 D:An ancient witch with unnatural long life, she associates with demons and werewolves
@@ -5732,7 +5733,7 @@ B:CRUSH:PARALYZE:12d5
 F:UNIQUE | FORCE_MAXHP | WEIRD_MIND
 F:NO_FEAR | NO_CONF | NO_SLEEP
 F:BASH_DOOR | IM_COLD
-F:EVIL | MALE
+F:EVIL | MALE | HURT_DARK
 S:1_IN_7
 S:ARROW_3 | ARROW_4
 D:The greatest of the trees of the old forest, he will trap and strangle all who come
@@ -5898,7 +5899,7 @@ B:CLAW:HURT:2d6
 B:BITE:POISON:4d6
 B:TAIL:HURT:1d5
 F:ANIMAL | BASH_DOOR | REGENERATE | FORCE_MAXHP
-F:IM_WATER | IM_POIS | NO_CONF | IM_ACID
+F:IM_WATER | IM_POIS | NO_CONF | IM_ACID | HURT_DARK
 S:1_IN_6
 S:BO_WATE | BR_LITE | BR_NEXU | CONF | BLINK | TELE_AWAY
 D:You finally get to see the magical zhelung of little known lore. It is famed as a
@@ -5915,7 +5916,7 @@ B:BITE:SILVER:1d9
 B:BITE:CONFUSE:6d6
 B:SPIT:ACID:2d8
 F:BASH_DOOR | IM_ACID | IM_POIS | NO_FEAR | RES_NETH
-F:SILVER | NON_LIVING
+F:SILVER
 S:1_IN_8
 S:BLINK | DRAIN_MANA | SLOW | FORGET | TELE_AWAY
 D:This worm is striped bright green and yellow and comes from a bizarre area of limbo
@@ -6342,7 +6343,7 @@ B:HIT:HURT:10d5
 B:CRUSH:HURT:8d6
 F:FORCE_MAXHP | WEIRD_MIND
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:BASH_DOOR | IM_COLD
+F:BASH_DOOR | IM_COLD | HURT_DARK
 S:1_IN_16 | HASTE
 D:The Ents are called tree farmers, and the huorns are the trees which the Ents farm. 
 D: Mostly they are indistinguishable from normal trees, but this one is restless.
@@ -6413,7 +6414,7 @@ B:KICK:HURT:3d4
 B:KICK:HURT:3d4
 B:BUTT:HURT:9d4
 F:BASH_DOOR | NO_CONF | IM_POIS | NO_FEAR
-F:ANIMAL
+F:ANIMAL | HURT_DARK
 S:1_IN_10 | ARROW_3
 D:Not as powerful in fairy magic as the white unicorn, it still holds great magic
 D: in its spiral horn and a fearsome wildness in its hooves. A unicorn in the flesh
@@ -6720,7 +6721,7 @@ N:511:singing vyrm
 G:w:W
 I:115:9d7:18:60:33
 W:35:3:0:193
-B:CLAW:SILVER:1d3
+B:CLAW:POISON:1d3
 B:CLAW:SILVER:1d3
 B:WAIL:HALLU:1d13
 B:WAIL:LOSE_WIS:1d13
@@ -6741,7 +6742,7 @@ B:CRUSH:POISON:3d2
 B:CRUSH:POISON:3d2
 B:CRUSH:PARALYZE:4d3
 F:FORCE_MAXHP | WEIRD_MIND
-F:NO_FEAR | NO_CONF
+F:NO_FEAR | NO_CONF | HURT_DARK
 F:IM_POIS | MULTIPLY | FRIENDS
 D:These fast growing vines could become a problem.
 
@@ -7023,10 +7024,10 @@ N:531:static mushroom patch
 G:,:W
 I:115:3d1:2:33:0
 W:37:3:0:33
+B:SPORE:CHARM:1d5
 B:SPORE:ELEC:1d7
 B:SPORE:UN_POWER:1d10
 B:SPORE:UN_POWER:1d10
-B:SPORE:EAT_FOOD:1d5
 F:NEVER_MOVE | INVISIBLE
 F:STUPID | EMPTY_MIND
 F:IM_POIS | IM_ELEC
@@ -7237,7 +7238,7 @@ F:COLD_BLOOD | IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC
 F:NO_FEAR | NO_SLEEP | RES_NETH
 F:EVIL | DEMON | WEIRD_MIND
 S:1_IN_3
-S:TELE_TO | HOLD | BLINK | DRAIN_MANA | HASTE
+S:TELE_TO | HOLD | BLINK | DRAIN_MANA
 D:An intensity selfish demon that thinks only of feeding itself.  These are the spirits
 D: which drive Shelob's hunger.
 
@@ -7391,7 +7392,7 @@ B:WAIL:LOSE_WIS:1d9
 B:DROOL:LOSE_CHR:1d9
 F:DROP_90
 F:OPEN_DOOR | BASH_DOOR
-F:NO_SLEEP | NO_FEAR
+F:NO_SLEEP | NO_FEAR | HURT_DARK
 S:1_IN_4
 S:BLINK | HEAL | CONF | TELE_TO | SHRIEK | BLIND | MIND_BLAST
 D:It's a fairy who has lost its mind and wants to make you lose yours.
@@ -7626,11 +7627,10 @@ I:115:75d25:30:81:9
 W:40:3:0:800
 B:HIT:CONFUSE:1d10
 B:HIT:PARALYZE:1d10
-B:HIT:HALLU:1d10
 B:HIT:BLIND:1d10
 F:EMPTY_MIND | COLD_BLOOD | NON_LIVING
 F:NO_FEAR | NO_CONF | NO_SLEEP | IM_COLD | IM_POIS
-S:1_IN_8
+S:1_IN_7
 S:S_MONSTER | S_MONSTERS | MIND_BLAST | DRAIN_MANA
 D:You see a staff on the floor but don't recognise its type. Then you are quite
 D: alarmed when it floats up in the air and starts activating itself.
@@ -7864,7 +7864,24 @@ S:S_MONSTER | S_MONSTERS | S_UNDEAD
 D:A human figure in robes, he moves with magically improved speed and quick spellcasting.
 D: The magic has twisted his mind with evil and hunger for power.
 
-# N:585:
+#experimental
+N:585:rastlig
+G:M:s
+I:108:68d11:15:67:35
+W:45:6:0:4430
+B:BUTT:BLIND:3d10
+B:CRUSH:SILVER:3d10
+B:SPORE:CHARM
+B:TAIL:CONFUSE:3d9
+F:BASH_DOOR | COLD_BLOOD | DROP_30 | FORCE_SLEEP
+F:NO_FEAR | NO_SLEEP | IM_POIS | IM_ACID | IM_ELEC
+F:RES_DISE | RAND_25 | WEIRD_MIND
+F:EVIL | SILVER | HURT_LITE | MOVE_BODY
+S:1_IN_7
+S:FORGET | BR_INER | BR_CONF | BR_DARK | MIND_BLAST | DRAIN_MANA
+D:A gigantic being from the domain of the grepse which looks like a cross between an
+D: elephant and a dinosaur. It is deep gray in color and breathes a deep gray mist
+D: which numbs the mind.
 
 N:586:nether wraith
 G:W:v
@@ -7906,12 +7923,12 @@ D: look for prey, but each with its own deadly breath weapon.
 #		level 41
 N:588:giant static toadstool
 G:,:W
-I:115:11d7:2:33:0
+I:130:11d7:2:33:0
 W:41:3:0:143
+B:SPORE:CHARM:1d6
 B:SPORE:ELEC:1d11
 B:SPORE:UN_POWER:2d6
 B:SPORE:UN_POWER:2d6
-B:SPORE:EAT_FOOD:1d6
 F:NEVER_MOVE | INVISIBLE
 F:STUPID | EMPTY_MIND | RES_DISE
 F:IM_POIS | IM_ELEC | IM_ACID | IM_COLD
@@ -8161,7 +8178,7 @@ B:HIT:HURT:1d11
 B:SPIT:ACID:2d9
 B:SPIT:SLIME:2d9
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND
-F:IM_POIS | IM_ACID | MULTIPLY
+F:IM_POIS | IM_ACID | MULTIPLY | FRIEND
 D:A giant acidic slime spreading itself over the dungeon.
 
 N:604:black unicorn
@@ -8173,7 +8190,7 @@ B:KICK:HURT:3d5
 B:BUTT:LOSE_WIS:10d6
 F:BASH_DOOR | DROP_60 | DROP_GOOD
 F:NO_CONF | NO_FEAR | IM_POIS | IM_ACID | RES_DISE
-F:ANIMAL | EVIL | FORCE_MAXHP
+F:ANIMAL | EVIL | FORCE_MAXHP | HURT_DARK
 S:1_IN_6
 S:ARROW_3 | BLIND | SLOW | BO_NETH | BO_ACID | MIND_BLAST | BLINK
 D:This unicorn was once pure white but has since been corrupted, and its magic has turned
@@ -8189,7 +8206,7 @@ B:BITE:POISON:7d6
 B:TAIL:HURT:2d7
 F:ANIMAL | BASH_DOOR | REGENERATE | FORCE_MAXHP
 F:IM_WATER | IM_POIS | NO_CONF
-F:IM_COLD | IM_ACID | SMART
+F:IM_COLD | IM_ACID | SMART | HURT_DARK
 S:1_IN_6
 S:BO_WATE | BR_LITE | BR_GRAV | CONF | HOLD | BLINK | HEAL | S_KIN | BLIND
 D:You finally get to see the magical zhelung of little known lore. This is the real
@@ -8788,8 +8805,8 @@ B:CLAW:UN_POWER:4d10
 B:BITE:UN_BONUS:7d10
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2
-F:INVISIBLE | TAKE_ITEM
-F:SMART | PASS_WALL | POWERFUL | MOVE_BODY
+F:BASH_DOOR | TAKE_ITEM
+F:SMART | POWERFUL | MOVE_BODY
 F:EVIL | DRAGON | IM_ELEC | RES_DISE | NO_CONF | NO_SLEEP
 S:1_IN_5
 S:SLOW | CONF | DRAIN_MANA | BR_DISE
@@ -8909,7 +8926,7 @@ D:She is a demon shaped like a naga with many arms, each bearing deadly weapons.
 
 N:649:9-headed salamander hydra
 G:M:R
-I:122:150d9:21:110:21
+I:121:150d9:21:110:21
 W:47:4:0:7009
 B:BITE:FIRE:5d7
 B:BITE:ELEC:5d7
@@ -9208,11 +9225,13 @@ F:BASH_DOOR | RAND_25 | FORCE_MAXHP
 F:DROP_1D2 | DROP_GOOD | ONLY_ITEM
 F:NO_CONF | NO_FEAR | IM_POIS | IM_ACID | RES_DISE
 F:RES_NETH | IM_COLD | IM_ELEC | NO_STUN
-F:ANIMAL | POWERFUL | SMART
+F:ANIMAL | POWERFUL | SMART | HURT_DARK
 S:1_IN_6
 S:ARROW_4 | HEAL | HOLD | BO_MANA | BO_ELEC | MIND_BLAST | BLINK | TELE_AWAY | BR_LITE
 D:The purest of beasts, but that doesn't mean its safe.  It has the power to disarm
 D: those who threaten it.
+#RES_NETH and HURT_DARK almost contradict each other, but RES_NETH makes it hurt
+#by dark less than other things that are hurt by dark.
 
 N:666:lesser balrog
 G:&:r
@@ -9422,21 +9441,23 @@ D:This Ringwraith was a weak-minded sorcerer-king who fell easily under
 D: Sauron's power.
 
 #		level 53
-# maybe remove (because by this point everyone will have see invisible)
-N:679:clear devil
+
+#experimental
+N:679:grepse devil
 G:U:w
-I:111:300d4:20:55:25
-W:53:3:0:3000
-B:HIT:HURT:6d6
-B:HIT:HURT:6d6
-B:SPIT:FIRE:5d8
+I:112:582d3:20:55:25
+W:60:6:0:3939
+B:GAZE:CHARM
+B:HIT:SILVER:6d6
+B:HIT:BLIND:6d6
+B:STING:PARALYZE:5d8
 F:DROP_60 | OPEN_DOOR | BASH_DOOR
 F:NO_FEAR | NO_SLEEP | IM_FIRE
-F:ATTR_CLEAR | INVISIBLE
-F:EVIL | DEMON
+F:EVIL | DEMON | SILVER | POWERFUL
 S:1_IN_9
-S:SCARE | BO_FIRE | ARROW_3 | BR_POIS
-D:a common minion of hell.
+S:SCARE | FORGET | MIND_BLAST | HOLD | BR_CONF | DARKNESS
+D:a devil from hell who has taken residence in the domain of the grepse and
+D:accumulated some of their magic.
 
 #	maybe start later than 53:
 N:680:dark fairy queen
@@ -9564,7 +9585,7 @@ B:HIT:HURT:10d6
 B:CRUSH:HURT:9d6
 F:FORCE_MAXHP | WEIRD_MIND
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:BASH_DOOR | IM_COLD | IM_POIS
+F:BASH_DOOR | IM_COLD | IM_POIS | HURT_DARK
 S:1_IN_16 | BOULDER
 D:A huge sentient tree meant to be one of the tree farmers, but this one has turned to the
 D: service of Morgoth.
@@ -10136,7 +10157,7 @@ D:A constantly changing canine form, this hound rushes towards you as if
 D: expecting mayhem and chaos ahead.  It appears to have an almost kamikaze
 D: relish for combat.  You suspect all may not be as it seems.
 
-#probably should be a little later
+#probably should be a little later -resists everything except confusion
 N:723:rayem
 G:y:v
 I:130:111d39:30:192:9
@@ -10145,7 +10166,7 @@ B:GAZE:CONFUSE:1d111
 B:DROOL:UN_BONUS:2d59
 B:SPIT:EAT_ITEM:3d29
 B:KICK:SHATTER:34d3
-F:RAND_50 | TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:RAND_50 | RAND_25 | TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:DROP_2D2 | DROP_GOOD | WEIRD_MIND
 F:MOVE_BODY | POWERFUL | ATTR_MULTI | REGENERATE
 F:NO_SLEEP | NO_FEAR | NO_STUN
@@ -10460,7 +10481,18 @@ S:1_IN_2
 S:BLINK | TELE_TO | S_HI_DEMON
 D:A massive pulsating mound of flesh, glowing with a hellish light.
 
-# N:741:
+# experimental
+N:741:gnawing bug
+G:c:u
+I:118:11d39:11:80:3
+W:70:6:0:900
+B:CRAWL:ACID:9d3
+B:CRAWL:PARALYZE:9d3
+B:STING:POISON:9d7
+F:NO_SLEEP | IM_POIS | IM_ACID | IM_FIRE | RES_PLAS
+F:HURT_LITE | KILL_WALL | MULTIPLY
+F:BUG | FRIEND | STUPID | WEIRD_MIND | RAND_50 | RAND_25
+D:A giant acidic centapede native to very deep depths. It gnaws through the walls.
 
 N:742:Achrya, the Spider Goddess
 G:S:R
@@ -10640,7 +10672,7 @@ G:D:u
 I:120:45d100:40:170:100
 W:75:2:0:29000
 B:CLAW:HURT:5d12
-B:CLAW:HURT:5d12
+B:CLAW:SHATTER:5d12
 B:BITE:HURT:7d14
 B:BITE:HURT:7d14
 F:FORCE_SLEEP | FORCE_MAXHP
@@ -11067,7 +11099,7 @@ F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN
 F:SMART | KILL_WALL | MOVE_BODY
 F:REGENERATE
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | RES_NETH
 S:1_IN_3
 S:BA_MANA | BO_MANA | BA_NETH | BRAIN_SMASH
 S:S_MONSTERS | S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON
@@ -11156,9 +11188,10 @@ W:52:5:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11174,9 +11207,10 @@ W:52:6:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11192,9 +11226,10 @@ W:53:5:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11210,9 +11245,10 @@ W:55:5:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY:1d1
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11228,9 +11264,10 @@ W:56:5:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY:1d1
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11246,9 +11283,10 @@ W:58:4:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY:1d2
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11264,9 +11302,10 @@ W:59:4:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11282,9 +11321,10 @@ W:61:4:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY:1d3
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11300,9 +11340,10 @@ W:63:3:0:6199
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
+B:GAZE:UNLUCKY:1d3
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE
+F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
@@ -11511,7 +11552,7 @@ I:117:4400d2:15:50:10
 W:114:6:0:27000
 F:FORCE_MAXHP | WEIRD_MIND | NEVER_BLOW | RAND_50 | RAND_25
 F:NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | RES_DISE | IM_WATER
-F:BASH_DOOR | IM_COLD | IM_ACID | IM_POIS | ESCORTS
+F:BASH_DOOR | IM_COLD | IM_ACID | IM_POIS | ESCORTS | HURT_DARK
 S:1_IN_2 | S_KIN | HEAL | HASTE
 D:This ent isn't interested in attacking you, just in planting more trees.
 
@@ -11656,12 +11697,12 @@ D:A rather cute ball of dust that refuses to be swept up.
 N:812:clear dust bunny
 G:.:w
 I:101:3d4:5:43:70
-W:19:11:0:21
+W:19:21:0:21
 B:TOUCH:HURT:1d1
 F:RAND_50 | RAND_25 | SILVER
 F:COLD_BLOOD | WEIRD_MIND | MULTIPLY | INVISIBLE
 F:CHAR_MULTI | ATTR_CLEAR | CHAR_CLEAR
-F:NO_FEAR | IM_POIS | HURT_LITE
+F:NO_FEAR | IM_POIS | HURT_LITE | FRIEND
 D:A wisp of dust which will evade the brooms of the most meticulous sweepers by
 D: being impossible to see.
 
@@ -11958,35 +11999,142 @@ D: Celegorm son of Feanor to Beren son of Barahir: but now he runs wild and
 D: acknowledges no master save himself, as he hunts alone for his nemesis -
 D: Carcharoth, the terrible wolf of Angband.
 
-N:995:Pixie
+#should never appear
+N:830:dummy
+G:c:b
+I:110:2d5:6:16:40
+W:1:0:0:3
+F:ANIMAL
+D:Dummy monster to keep from braking savefiles again (hopefully)
+
+#should never appear
+N:831:dummy
+G:D:r
+I:110:105d5:6:16:40
+W:1:0:0:3
+F:ANIMAL
+D:Dummy monster to keep from braking savefiles again (hopefully)
+
+#should never appear
+N:832:dummy
+G:D:r
+I:110:105d5:6:16:40
+W:1:0:0:3
+F:ANIMAL
+D:Dummy monster to keep from braking savefiles again (hopefully)
+
+#should never appear
+N:833:dummy
+G:D:r
+I:110:105d5:6:16:40
+W:1:0:0:3
+F:ANIMAL
+D:Dummy monster to keep from braking savefiles again (hopefully)
+
+#never appears yet
+N:989:study familiar (restore int)
+G:u:b
+I:110:2d5:6:16:40
+W:56:0:0:-3000
+F:DEMON
+D:Dummy monster to keep from braking savefiles again (hopefully)
+
+#never appears yet
+N:990:grepse devil familiar (sleep monsters, slow monsters..)
+G:U:w
+I:110:2d5:6:16:40
+W:56:0:0:-3000
+F:DEMON
+D:Dummy monster to keep from braking savefiles again (hopefully)
+
+#never appears yet
+N:991:barbazu familiar (berserk, kill_body)
+G:U:U
+I:110:2d5:6:16:40
+W:56:0:0:-3000
+F:DEMON
+D:Dummy monster to keep from braking savefiles again (hopefully)
+
+#never appears yet
+N:992:cursebound lich (dispel living..)
+G:L:G
+I:126:30d100:20:160:0
+W:56:0:0:-6000
+#B:TOUCH:HATELIFE
+B:TOUCH:EXP_10
+F:FORCE_MAXHP | SMART | NON_LIVING
+F:COLD_BLOOD | OPEN_DOOR | PASS_WALL
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_FIRE | NO_FEAR | HELPER
+S:1_IN_8
+S:BLINK | HEAL
+D:A lich who is cursebound to come to the aid of a
+D:necromancer or warlock who summons it.
+
+#never appears yet
+#scare monsters, temp fire imm + br_fire, move_body
+#use if (HELPER) with the BR_FIRE spell
+N:993:balrog ally
+G:&:s
+I:123:35d100:40:170:0
+W:56:0:0:-9000
+#B:TOUCH:FIREDARK
+F:FORCE_MAXHP
+F:OPEN_DOOR | POWERFUL | MOVE_BODY
+F:EVIL | DEMON | IM_POIS | HELPER
+F:NO_CONF | NO_SLEEP | RES_PLAS | IM_FIRE | IM_ELEC
+S:1_IN_5
+S:BR_FIRE
+D:Originally of the semi-divine Maiar, this evil spirit swore allegiance
+D: to Morgoth at the beginning of time and is now betraying his master by
+D: coming to your aid. Possibly it thinks you a worthy replacement to be
+D: a new dark lord using the One Ring, or maybe it thinks it can use you
+D: to get it.
+
+#never appears yet
+N:994:zimp (charm..)
+G:y:U
+I:132:79d7:22:220:0
+W:30:0:0:-12000
+B:GAZE:CHARM
+#B:KISS:ZIMPKISS
+F:FORCE_MAXHP | NO_FEAR | NO_CONF | NO_SLEEP | RAND_50 | RAND_25
+F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | HELPER | HURT_DARK
+S:1_IN_12 | HEAL
+D:Appearing like a little child, a zimp is a light fairy who embodies
+D: peaceful loving playfulness. They say it is the opposite of an imp.
+D: Your call help spell apparently called the wrong fairy, because zimps
+D: are not very helpful in fighting evil.
+
+N:995:pixie
 G:y:W
 I:140:101d7:30:200:0
-W:50:99:0:-10000
+W:50:0:0:-10000
 B:KISS:PIXIEKISS:1d30
 F:FORCE_MAXHP | NO_FEAR | NO_CONF | NO_SLEEP | RAND_50
-F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | RES_NETH | HELPER
+F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | RES_NETH | HELPER | HURT_DARK
 S:1_IN_12 | HEAL
 D:A tiny winged lady, sprinkling sparkling dust around.
 
-N:996:Ent
+N:996:ent
 G:E:B
 I:118:4000d2:20:45:0
-W:50:99:0:-10000
+W:50:0:0:-10000
 B:TOUCH:ENTHELP:1d22
 F:FORCE_MAXHP | WEIRD_MIND | RES_NEXUS | IM_WATER
-F:NO_FEAR | NO_CONF | NO_SLEEP | RAND_50
+F:NO_FEAR | NO_CONF | NO_SLEEP | RAND_50 | HURT_DARK
 F:BASH_DOOR | IM_COLD | IM_POIS | KILL_BODY | HELPER
 D:A huge sentient tree, this is one of the tree farmers.  He offers you a skin of
 D: entdraught.
 
-N:997:White Unicorn
+N:997:white unicorn
 G:Y:w
 I:140:850d2:25:70:0
-W:50:99:0:-20000
+W:50:0:0:-20000
 B:TOUCH:PURIFY:1d25
 F:FORCE_MAXHP | RES_DISE
 F:NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | RAND_50 | RAND_25
 F:BASH_DOOR | IM_COLD | IM_POIS | IM_FIRE | IM_ACID | IM_ELEC
-F:RES_DISE | RES_NEXUS | RES_NETH | HELPER
+F:RES_DISE | RES_NEXUS | RES_NETH | HELPER | HURT_DARK
 S:1_IN_9 | HEAL
 D:The purest of beasts, you have the privledge of its favor.

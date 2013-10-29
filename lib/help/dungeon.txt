@@ -65,32 +65,33 @@ something you are more comfortable with.
                              Monsters
  
             $   Creeping Coins      ,   Mushroom Patch
-            a   Giant Ant           A   Angelic being
-            b   Giant Bat           B   Bird
-            c   Giant Centipede     C   Canine (Dog)
+            a   Ant           	A   Ape
+            b   Bat           	B   Bird
+            c   Centipede     	C   Canine (Dog)
             d   Dragon              D   Ancient Dragon
-            e   Floating Eye        E   Elemental
-            f   Feline (Cat)        F   Dragon Fly
+            e   Floating Eye        E   Ent or other Tree Monster
+            f   Feline (Cat)        F   Dragonfly
             g   Golem               G   Ghost
             h   Humanoids           H   Hybrid
-            i   Icky-Thing          I   Insect
+     		i   Imp or Dark Fairy	I   Insect
             j   Jelly               J   Snake
-            k   Kobold              K   Killer Beetle
-            l   Giant Louse         L   Lich
+            k   Kobold              K   Knight or other Mystic Warrior
+            l   Lizard         	L   Lich
             m   Mold                M   Multi-Headed Hydra
-            n   Naga                N   (unused)
+            n   Naga                N   Null
             o   Orc                 O   Ogre
             p   Human "person"      P   Giant "person"
             q   Quadruped           Q   Quylthulg (Pulsing Flesh Mound)
-            r   Rodent              R   Reptile/Amphibian
+            r   Rodent              R   Amphibian
             s   Skeleton            S   Spider/Scorpion/Tick
             t   Townsperson         T   Troll
-            u   Minor Demon         U   Major Demon
+            u   Minor Demon         U   Devil
             v   Vortex              V   Vampire
             w   Worm or Worm Mass   W   Wight/Wraith
-            x   (unused)            X   Xorn/Xaren
-            y   Yeek                Y   Yeti
+            x   Gargoyle            X   Xorn or other Minor Elemental
+            y   Light Fairy         Y   Unicorn or Centaur
             z   Zombie/Mummy        Z   Zephyr Hound
+		%   Elemental		&   Major Demon
 
 
 
@@ -160,8 +161,7 @@ item if another is encountered.
 
 The General Store ("1")
      The General Store sells foods, drinks, some clothing, torches, lamps,
-     oil, shovels, picks, and spikes.  All of these items and some others
-     can be sold back to the General store for money.
+     oil, shovels, picks, and spikes.  It also sells Tourist books.
 
 The Armoury ("2")
      The Armoury is where the town's armour is fashioned.  All sorts of
@@ -178,10 +178,10 @@ The Weaponsmith's Shop ("3")
 The Temple ("4")
      The Temple deals in healing and restoration potions, as well as bless
      scrolls, word of recall scrolls, some approved priestly weapons, as
-     well as prayer books.
+     well as prayer books and nature books.
 
 The Alchemy shop ("5")
-     The Alchemy Shop deals in all types of potions and scrolls.
+     The Alchemy Shop deals in all types of potions, scrolls and alchemy books.
 
 The Magic User's Shop ("6")
      The Magic User's Shop deals in all sorts of rings, wands, amulets, and

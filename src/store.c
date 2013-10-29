@@ -310,6 +310,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			{
 				case TV_PRAYER_BOOK:
 				case TV_NEWM_BOOK:
+/*				case TV_MIND_BOOK: */
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -353,7 +354,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			{
 				case TV_MAGIC_BOOK:
 				case TV_LUCK_BOOK:
-				case TV_CHEM_BOOK:
+				case TV_DARK_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -521,6 +522,8 @@ static void mass_produce(object_type *o_ptr)
 		case TV_NEWM_BOOK:
 		case TV_LUCK_BOOK:
 		case TV_CHEM_BOOK:
+		case TV_DARK_BOOK:
+		/*case TV_MIND_BOOK:*/
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);

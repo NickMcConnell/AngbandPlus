@@ -515,11 +515,11 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
-	wr_byte(p_ptr->confusing);
-	wr_byte(p_ptr->searching);
 	wr_s16b(p_ptr->silver);
 	wr_s16b(p_ptr->slime);
 	wr_s16b(p_ptr->luck);
+	wr_byte(p_ptr->confusing);
+	wr_byte(p_ptr->searching);
 
 	/* Find the number of timed effects */
 	wr_byte(TMD_MAX);

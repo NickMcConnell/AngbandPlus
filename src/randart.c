@@ -363,6 +363,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
 	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
 	if (a_ptr->flags2 & TR2_RES_COLD) p += 6;
+	if (a_ptr->flags2 & TR2_RES_POISB) p += 4;
 	if (a_ptr->flags2 & TR2_RES_POIS) p += 12;
 	if (a_ptr->flags2 & TR2_RES_LITE) p += 8;
 	if (a_ptr->flags2 & TR2_RES_DARK) p += 10;
@@ -1114,7 +1115,10 @@ static void add_ability(artifact_type *a_ptr)
 			case 24: a_ptr->flags2 |= TR2_RES_FIRE; break;
 			case 25: a_ptr->flags2 |= TR2_RES_COLD; break;
 
-			case 26: a_ptr->flags2 |= TR2_RES_POIS; break;
+			case 26:
+                 if (randint(100) < 85) a_ptr->flags2 |= TR2_RES_POIS;
+                 else a_ptr->flags2 |= TR2_RES_POISB;
+                 break;
 			case 27: a_ptr->flags2 |= TR2_RES_LITE; break;
 			case 28: a_ptr->flags2 |= TR2_RES_DARK; break;
 			case 29: a_ptr->flags2 |= TR2_RES_BLIND; break;

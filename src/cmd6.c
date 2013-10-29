@@ -375,7 +375,6 @@ void do_cmd_use_staff(void)
 
 	cptr q, s;
 
-
 	/* Restrict choices to staves */
 	item_tester_tval = TV_STAFF;
 

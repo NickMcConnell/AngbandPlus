@@ -126,6 +126,7 @@ static cptr r_info_blow_effect[] =
 	"PIXIEKISS",
 	"ENTHELP",
 	"PURIFY",
+	"UNLUCKY",
 	NULL
 };
 
@@ -234,7 +235,7 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"XXX5X3",
+	"HURT_DARK",
 	"RES_NETH",
 	"IM_WATER",
 	"RES_PLAS",
@@ -420,7 +421,7 @@ static cptr k_info_flags2[] =
 	"SLAY_SILVER",
 	"SLAY_BUG",
 	"XXX5",
-	"XXX6",
+	"RES_POISB",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -468,15 +469,15 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",          /* was IGNORE_MOTH */
-	"XXX6",
+	"GOOD_WEAP",
+	"BAD_WEAP",
 	"BLESSED",
 	"ACTIVATE",
 	"INSTA_ART",
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX7",
+	"CORRUPT",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
@@ -563,7 +564,7 @@ static cptr c_info_flags[] =
 	"HEAVY_BONUS",
 	"HULK_CONF",
 	"CLASS_SPEED",
-	"XXX13",
+	"ASSASSIN",
 	"XXX14",
 	"XXX15",
 	"XXX16",

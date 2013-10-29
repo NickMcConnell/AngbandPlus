@@ -23,7 +23,12 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			{
 				if (inc_timed(TMD_POISONED, randint(15) + 15))
 				{
-			        take_hit(damroll(6, 6), "poisonous food");
+                    if (p_ptr->weakresist_pois)
+                    {
+                       (void)dec_timed(TMD_POISONED, randint(11) + 5);
+                       take_hit(damroll(2, 6), "poisonous food");
+                    }
+			        else take_hit(damroll(6, 6), "poisonous food");
 					*ident = TRUE;
 				}
 			}
@@ -32,7 +37,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_SECOND_SIGHT:
 		{
-            (void)inc_timed(TMD_MESP, randint(500) + 500);
+            (void)inc_timed(TMD_MESP, randint(580) + 400);
 			if (inc_timed(TMD_BLIND, randint(200) + 200))
 			{
                 if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 200);
@@ -62,16 +67,31 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+        /* note: rchaos and true sight prevent the possibility of +2 luck */
 		case SV_FOOD_HALLUCINATION:
 		{
+            int die = randint(100);
+            
+			if (die < 10)
+            {
+               p_ptr->luck = p_ptr->luck + 1;
+               msg_print("This stuff is groovy, man!");
+            }
+
 			if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
 			{
 				if (inc_timed(TMD_IMAGE, rand_int(250) + 250))
 				{
-					*ident = TRUE;
+				   *ident = TRUE;
+                   if (randint(100) < 3)
+                   {
+                      p_ptr->luck = p_ptr->luck + 1;
+                      inc_timed(TMD_IMAGE, randint(21) + randint(21));
+                      if (die < 10) msg_print("You never felt so high in your life!");
+                      else msg_print("Wow, this stuff is groovy, man!");
+                   }
 				}
 			}
-			if (randint(100) < 4) p_ptr->luck = p_ptr->luck + 1;
 			break;
 		}
 
@@ -240,12 +260,27 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 	{
 		case SV_POTION_WATER:
 		case SV_POTION_APPLE_JUICE:
-		case SV_POTION_SLIME_MOLD:
 		{
 			msg_print("You feel less thirsty.");
 			*ident = TRUE;
 			break;
 		}
+		
+		case SV_POTION_SLIME_MOLD: /* Pepsi */
+		{
+            if (randint(100) < 3)
+            {
+               p_ptr->luck += 1;
+               msg_print("This is good stuff.");
+            }
+            else
+            {
+			   msg_print("You feel less thirsty.");
+            }
+			*ident = TRUE;
+			break;
+		}
+
 
 		case SV_POTION_SLOWNESS:
 		{
@@ -269,6 +304,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			{
 				if (inc_timed(TMD_POISONED, rand_int(15) + 10))
 				{
+                    if (p_ptr->weakresist_pois) (void)dec_timed(TMD_POISONED, randint(7) + 5);
 					*ident = TRUE;
 				}
 			}
@@ -568,6 +604,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_LIFE:
 		{
+			(void)clear_timed(TMD_BECOME_LICH);
 			msg_print("You feel life flow through your body!");
 			restore_level();
 			(void)clear_timed(TMD_POISONED);
@@ -2210,6 +2247,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("Your %s glows deep blue...", o_name);
 				(void)clear_timed(TMD_AFRAID);
 				(void)clear_timed(TMD_POISONED);
+				if (randint(100) < 30) (void)clear_timed(TMD_CHARM);
 				break;
 			}
 

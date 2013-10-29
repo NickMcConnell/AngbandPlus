@@ -57,8 +57,56 @@ s16b spell_chance(int spell)
 	/* was +25 fail */
 	if (p_ptr->icky_wield)
 	{
-		chance += 20;
+		if (goodweap > badweap) chance += 15;
+		else if (badweap > goodweap) chance += 25;
+		else chance += 20;
 	}
+	
+	/* effect of sentient weapons */
+	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+	   if ((badweap > 0) && (goodweap > 0))
+	   {
+          /* wielding same amount of bad and good objects */
+	      if (magicmod == 10) chance += 2; 
+	      /* more good objects than bad */
+	      if (magicmod == 7) chance -= (goodweap-badweap); 
+	   /* magicmod == 11 bad and good completely cancels out each other's effects */
+	      /* more bad objects than good ones */
+	      if ((magicmod == 8) && (!p_ptr->icky_wield)) chance += 4 + ((badweap-goodweap) * 2); 
+	      if ((magicmod == 8) && (p_ptr->icky_wield)) chance += 1 + ((badweap-goodweap) * 2); 
+          if ((magicmod == 13) && (!p_ptr->icky_wield)) chance += 6 + ((badweap-goodweap) * 2); 
+       }
+       /* wielding 1 bad object (icky_wield is enough penalty) */
+	   else if ((badweap == 1) && (!p_ptr->icky_wield)) chance += 5;
+	   else if ((goodweap == 1) && (magicmod != 12)) chance -= 2; /* wielding good object(s) */
+	   else if ((badweap > 1) && (!p_ptr->icky_wield)) chance += 5 + (badweap*2);
+	   else if ((badweap > 1) && (p_ptr->icky_wield)) chance += 1 + (badweap*2);
+	   else if (goodweap > 1) chance -= (3 + (goodweap*2));
+    }
+	else if (cp_ptr->spell_book == TV_DARK_BOOK)
+	{
+	   if ((badweap > 0) && (goodweap > 0))
+	   {
+          /* wielding same amount of bad and good objects */
+	      if (magicmod == 1) chance += 2;
+	      /* more bad objects than good ones */
+	      if (magicmod == 0) chance -= 3 + (badweap-goodweap) * 2;
+	      /* more good objects than bad */
+	      if (magicmod == 3) chance += 5 + ((goodweap-badweap) * 2);
+       }
+	   if (goodweap == 1) chance += 5; /* wielding good object */
+	   if (badweap == 1) chance -= 5; /* wielding bad object */
+	   if (goodweap > 1) chance += 5 + (goodweap*2);
+	   if (badweap > 1) chance -= (4 + (badweap*2));
+    }
+    else /* neutral class */
+    {
+         if (badweap > 0) chance -= 1;
+         if ((badweap > 1) && (goodweap < badweap)) chance -= 1;
+         /* small penalty for using conflicting sentient weapons */
+         if ((badweap > 0) && (goodweap == badweap)) chance += 3;
+    }
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -66,6 +114,13 @@ s16b spell_chance(int spell)
 	/* Stunning makes spells harder (after minfail) */
 	if (p_ptr->timed[TMD_STUN] > 50) chance += 25;
 	else if (p_ptr->timed[TMD_STUN]) chance += 15;
+	
+	/* other effects which make spells harder */
+	if ((p_ptr->timed[TMD_SHERO]) || (p_ptr->timed[TMD_FRENZY]) ||
+	   (p_ptr->timed[TMD_CHARM]) || (p_ptr->timed[TMD_AFRAID]))
+    {
+       chance += 4 + randint(6);
+    }
 
 	/* Amnesia makes spells fail half the time */
 	if (p_ptr->timed[TMD_AMNESIA]) chance *= 2;
@@ -302,7 +357,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known, bool bro
 	char out_val[160];
 
 	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
-    if (cp_ptr->spell_book == TV_CHEM_BOOK) p = "recipe";
+    if (cp_ptr->spell_book == TV_CHEM_BOOK) p = "formula";
 
 	int result;
 
@@ -553,6 +608,8 @@ static void browse_spell(int spell)
     else if (cp_ptr->spell_book == TV_NEWM_BOOK) idx = idx + (2 * PY_MAX_SPELLS);
     else if (cp_ptr->spell_book == TV_LUCK_BOOK) idx = idx + (3 * PY_MAX_SPELLS);
     else if (cp_ptr->spell_book == TV_CHEM_BOOK) idx = idx + (4 * PY_MAX_SPELLS);
+    else if (cp_ptr->spell_book == TV_DARK_BOOK) idx = idx + (5 * PY_MAX_SPELLS);
+/*    else if (cp_ptr->spell_book == TV_MIND_BOOK) idx = idx + (6 * PY_MAX_SPELLS); */
     text_out(s_text + s_info[idx].text);
     
 /* replaced old code:
@@ -654,7 +711,7 @@ void do_cmd_study(void)
 	int spell;
 
 	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
-    if (cp_ptr->spell_book == TV_CHEM_BOOK) p = "recipe";
+    if (cp_ptr->spell_book == TV_CHEM_BOOK) p = "formula";
 
 	cptr q, s;
 
@@ -931,7 +988,7 @@ void do_cmd_cast(void)
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
-
+	
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
@@ -1060,7 +1117,6 @@ void do_cmd_pray(void)
 		return;
 	}
 
-
 	/* Restrict choices */
 	item_tester_tval = cp_ptr->spell_book;
 
@@ -1116,7 +1172,7 @@ void do_cmd_pray(void)
 	}
 
 
-	/* Spell failure chance */
+	/* Spell failure chance (higher chance = more likely to fail) */
 	chance = spell_chance(spell);
 
 	/* Check for failure */
@@ -1428,7 +1484,7 @@ void do_cmd_castluck(void)
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
-        if ((p_ptr->luck > 18) && (randint(100) < 34))
+        if ((goodluck > 16) && (randint(100) < 34))
         {
 		msg_print("You manage to stop long enough to cast quickly.");
         }
@@ -1573,7 +1629,7 @@ void do_cmd_castluck(void)
 }
 
 /*
- * Mix (cast) an alchemy recipe (copied from previous function and tweaked)
+ * Mix (cast) an alchemy formula (copied from previous function and tweaked)
  */
 void do_cmd_castchem(void)
 {
@@ -1620,7 +1676,7 @@ void do_cmd_castchem(void)
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
-		msg_print("You are too desperate to escape to mix a recipe!");
+		msg_print("You are too desperate to escape to mix up a formula!");
 		return;
 	}
 
@@ -1652,11 +1708,11 @@ void do_cmd_castchem(void)
 
 
 	/* Choose a spell */
-	spell = get_spell(o_ptr, "mix", TRUE, FALSE);
+	spell = get_spell(o_ptr, "mix up", TRUE, FALSE);
 
 	if (spell < 0)
 	{
-		if (spell == -2) msg_print("You don't know any recipes in that book.");
+		if (spell == -2) msg_print("You don't know any formulas in that book.");
 		return;
 	}
 
@@ -1669,7 +1725,7 @@ void do_cmd_castchem(void)
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_print("You do not have enough mana to mix this recipe.");
+		msg_print("You do not have enough mana to mix up this formula.");
 
 		/* Flush input */
 		flush();
@@ -1747,6 +1803,191 @@ void do_cmd_castchem(void)
 
 			/* Reduce constitution */
 			(void)dec_stat(A_CON, 2 + randint(3), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+/*
+ * Cast a spell of witchcraft
+ */
+void do_cmd_castblack(void)
+{
+	int item, spell;
+	int chance;
+
+	object_type *o_ptr;
+
+	const magic_type *s_ptr;
+
+	cptr q, s;
+
+	/* Require spell ability */
+	if (cp_ptr->spell_book != TV_DARK_BOOK)
+	{
+		msg_print("You cannot cast spells in this school!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You read the spell with your hands..");
+	}
+
+	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->timed[TMD_CONFUSED])
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+    /* Not when desperate to escape */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		msg_print("You are too desperate to escape to cast spells!");
+		return;
+	}
+
+	/* Restrict choices to spell books */
+	item_tester_tval = cp_ptr->spell_book;
+
+	/* Get an item */
+	q = "Use which book? ";
+	s = "You have no spell books!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Ask for a spell */
+	spell = get_spell(o_ptr, "cast", TRUE, FALSE);
+
+	if (spell < 0)
+	{
+		if (spell == -2) msg_print("You don't know any spells in that book.");
+		return;
+	}
+
+
+	/* Get the spell */
+	s_ptr = &mp_ptr->info[spell];
+
+
+	/* Verify "dangerous" spells */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to cast this spell.");
+
+		/* Flush input */
+		flush();
+
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+
+
+	/* Spell failure chance */
+	chance = spell_chance(spell);
+	
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to get the spell off!");
+	}
+
+	/* Process spell */
+	else
+	{
+		/* Cast the spell */
+		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+
+		/* A spell was cast */
+		sound(MSG_SPELL);
+		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
+
+			/* Gain experience */
+			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Sufficient mana */
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print("You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)inc_timed(TMD_PARALYZED, randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 26);
+
+			/* Message */
+			msg_print("You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(A_CON, 6 + randint(9), perm);
 		}
 	}
 

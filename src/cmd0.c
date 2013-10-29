@@ -316,6 +316,10 @@ static void do_cmd_cast_or_pray(void)
 		do_cmd_castluck();
 	else if (cp_ptr->spell_book == TV_CHEM_BOOK)
 		do_cmd_castchem();
+ 	else if (cp_ptr->spell_book == TV_DARK_BOOK)
+		do_cmd_castblack();
+/* 	else if (cp_ptr->spell_book == TV_MIND_BOOK)
+		do_cmd_castmind(); */
 	else
 		do_cmd_cast();
 }

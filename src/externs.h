@@ -255,9 +255,16 @@ extern void (*sound_hook)(int);
 extern autoinscription *inscriptions;
 extern u16b inscriptions_count;
 
+/* DJA */
 extern int range;
-extern int spellswitch;
+extern int spellswitch; /* for hacking */
 extern int spadjust;
+extern int goodluck;
+extern int badluck;
+extern int goodweap;
+extern int badweap;
+extern int magicmod;
+
 
 /* squelch.c */
 extern byte squelch_level[SQUELCH_BYTES];
@@ -562,6 +569,7 @@ extern bool recharge(int num);
 extern bool speed_monsters(void);
 extern bool slow_monsters(void);
 extern bool sleep_monsters(void);
+extern bool hold_monsters(void);
 extern bool banish_evil(int dist);
 extern bool turn_undead(void);
 extern bool dispel_undead(int dam);

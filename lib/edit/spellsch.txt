@@ -110,16 +110,16 @@ cure poison
 frost bolt
 sleep creature
 frighten creature
+natural vitality
 detect traps/doors
 stun monster (mystic only)
 bug spray (LOS dmg to bugs and partial damage to rodents)
-fire bolt (late for rangers)
-remove curse
+fire bolt (late for rangers, maybe move to Natural Combat book)
 	Gifts of Nature (2)
 resist fire & cold
 resist acid & lightning
 detect life
-natural vitality
+remove curse
 resist poison
 earthquake
 identify
@@ -155,12 +155,13 @@ song of renewal (restore stats)
 	Spirits of Nature (7)
 essence of speed
 infusion (recharging)
-nature's blessing (heal + blessing + curing + dispel unnatural(x2))
-escape level
 banish unnatural (non-living & silver)
+escape level
 remembrance (restore exp)
+extra melee attack (not for ranger, has conditions for mystic)
+nature's intervention (heal + blessing + curing + dispel unnatural(x2))
 elemental brand (ammo) (ranger only)
-telepathy (druid and mystic only)
+telepathy (not for ranger or blue knight)
 	Power of Enlightenment (8) (mystic only)
 chaos strike
 banishment
@@ -359,110 +360,133 @@ glyph of warding (chance of paranoia backfire)
 Archer: first 3 books, about 1/2 of Quick Getaways, Missile Magic & Advanced Archer's T
 Thief: first 4 books, about 1/2 of Chemical Combat & Advanced Thievery
 Alchemist: first 3 books, about 1/2 of Quick Getaways, Chemical Combat & Core of Alchemy
-(old archer got heroism at L32, explosion at L43, Rcold and Rfire at L34, shield at L40,
- recharging at L37, enchant armor L44, enchant weapon L46, elebrand L45, meteors L49)
 
 
 
-		Necromancer spells (Necromancer, Witch, Assassin, dark knight)
-
-	Beginner's Curses (0)
-magic bolt <weak mana bolt> (replace with cause light wounds)
+		Necromancer spells (Necromancer, Witch, Assassin, black knight)
+	Dark Initiation (0) (not for assassin)
 detect evil
 enhanced infravision (instead of light)
-sleep monster
+call darkness
 horrify monster
-slow monster
-cause serious wounds (slight damage to self, use fire_ball GF_DARK, radius-1)
-trap/door destruction (assassin only)
-	Dark Initiation (1) (not for assassin)
-darkness bolt
-noxious fumes (stinking cloud)
-detect door/stair
-turn undead
+noxious fumes (stinking cloud w/chance of sleep also if at a certain level)
+sleep monster
+wither foe (weak mana bolt + slow and confuse)
 cure poison
-wither monster
-mass sleep
-dispel undead x3
-	Blood Novitiate (2)
-detect traps
-shadow shift (blink with small damage)
 see invisible
-break curse (later than in O)
-wizard lock
-resist poison
-slip into the shadows (extra stealth) (assassin only)
-scare monsters
-death bolt (almost like drain life, but affects everything that doesn't have NON_LIVING flag, so does affect demons)
+	Blood Novitiate (1) (not for witches)
+shadow sting (necromancer only)
+detect traps
+detect door/stair
+shadow shift (blink with small damage)
+drain charges (heal hps from draining wand/staff charges, not sure if I can do this)
+turn undead
+death bolt (almost like drain life, but affects everything that doesn't have
+  NON_LIVING flag, so does affect demons)
+slow monster (assassin only because necromancer & witch get wither foe)
+dispel undead x3
+	Handbook of Curses and Poison (not for necromancer) (2)
+cause light wounds (slight damage to self, use fire_ball GF_OLD_DRAIN, radius-1)
+witch's disenfectant (gives you cuts)
+  (slightly weaker than strong disenfectant of CHEM realm, always gives WOPP_POIS)
+cause serious wounds (slight damage to self, use fire_ball GF_OLD_DRAIN, radius-1)
+trap/door destruction (mainly for assassin, late for witch)
+bo-pois (mainly for assassin, late for witch)
+slip into the shadows (mainly for assassin, vlate for witch)
+resist poison (assassin only -others get it in different book)
+cause mortal wounds (some damage to self, use fire_ball GF_OLD_DRAIN, radius-1)
+breathe withering (witch only)
 	Frightful Realms (3)
-bo-pois (assassin only)
-exorcise demons (dispel demons)
+scare monsters
 spear of dark
-mana bolt
-genocide (banishment)
-stench of death (dispel living + confuse monsters + ba-pois (+ ba_elec), also damages self)
-cause mortal wounds (some damage to self, use fire_ball GF_DARK, radius-1)
+ice spear (bolt or beam but better chance of beam than most)
+stench of death (weak dispel life + confuse monsters + ba-pois (+ ba_elec), also damages self)
+beam of destruction (not for assassin, vlate for witch) (not sure if I can do this)
+ball of destruction (shards ball plus very small earthquake, r-3)
+mighty venom bolt (strong bo_pois, with small chance of sleep monster) (assassin only)
+chaos strike (not for witch, vlate for assassin)
 	Mysteries of Shadow (4)
 shadow warp (teleport with small damage)
+wizard lock
+  (necromancer only, move back to Blood Novitiate if you can't get drain charges to work)
 shadow mapping
+break curse (later than in O)
 probing
-detect enchantment
 identify
+protection from the lifeless (works like protection from evil against stuff
+  with non_living flag)
+exorcise demons (dispel demons)
+detect enchantment
+	Unholy Protection (not for assassin) (5)
+boldness (cure fear and (usually) charm, sometimes gives temporary resist fear
+  -always if on a very high clvl) -not for assassin)
+tourniquet (cures cuts & stun but only slightly cures HP)
+resist poison
+undead skin (resist cold and nether)
 summon demonic aid (demon with helpful melee effect)
-telepathy
-poison ammo
-	Unholy protection (not for assassin) (5)
-heal wound (cures cuts & stun but not HP)
-resist acid and cold (resist stench and cold in ALT)
-banish evil
-unholy resistance (temp rst to acid,cold,stench,poison,dark,fear) (either stench or acid)
+unholy resistance (temp rst to fire,cold,poison,dark,nether) (also stench in alt)
+  (higher level spell than resistance spell of other realms)
 shadow barrier (shield)
 	Life Force Mastery (not for assassin) (6)
 detect all monsters (detect monsters + detect invisible)
-rend soul
 orb of death (ball spell like death bolt)
+teleport other
 dispel life
 vampiric drain (death bolt + heal + nourishment)
+rend soul
 hold life force (temporary hold life)
+genocide (banishment)
 	Metamorphoses (7)
-cure mortal wounds (witch & assassin only)
 recharging
+cure mortal wounds (witch & assassin only)
 dispel curse
+spirit of the balrog (resistance to fire and dark + add fire and dark damage
+  to your melee attacks for a limited time (2/3 dam for each -dam before multipliers) )
+  (necromancer only, also resistance to fear and charm)
 haste
-fester monster (stop regen + scare)
 bloodwrath (shero + speed, assassin only)
-breathe withering (witch & assassin only)
-	Necronomicon (8)
+poison ammo (assassin only)
+telepathy (not or assassin or vlate)
+  (has a chance of only giving MESP but for a longer time)
+	Necronomicon (8) (mostly not for assassin)
+	 (these should be all later for witch than nec.)
+draw mana (turn hps into mana)
 word of destruction
-teleport other
-mighty venom bolt (strong bo_pois)
-dispel undead x4
-hold undead (from O)
+hold (like sleep monsters except ignores no_sleep flag -doesn't affect light fairies)
+dispel undead x4 (x3.5 for witch)
+breathe fear and confusion
+nether ball
+wall of hellfire (Wshield plus temporary fire immunity) (mainly for witch, even harder for necromancer, maybe let assassin use it with more shorter duration)
 darkness storm (ba_dark)
+become lich (temporary im-cold and rst-nether and dark, heals, cures, and lowers luck, charisma and/or wisdom, light does extra damage, aggravates animals and HURT_DARK monsters) (mainly for necromancer, even harder for witch)
+
+(some black spells activate timed demon aggravation, some others activate timed "taint" which occationally summons a witch's shadow "Demons are attracted your tainted soul")
 
 		Mind spells
 	Try To Concentrate (0)
 cure light wounds
 remove fear
 blink
-mind light (expands light radius by 1)
+mind light (expands light radius by 1 for a while)
 door/stair detection
 bless
 trap detection
-slow poison
+disinfectant
 portal
 	Second Sight (1)
 infravision
 detect life
 detect objects
-see invisible
+sense invisible
 beam of light
 detect monsters
+greater mind light (expands light radius by 3 for short time)
 	Control Your Surroundings (2)
-light
+illumination
 unbarring ways
 confuse monster
 scare monster
+sanctuary
 destroy area (small range destruction)
 stone to mud
 earthquake
@@ -475,45 +499,52 @@ identify
 sense surroundings
 haste
 detect enchantment
+probing or meditate (paralyzes but continually scares monsters, probes, and
+  has good chance of having extra effect: healing, cure silverpo, restore WIS and/or INT..
+  also protects from slime and silver poison while paralyzed, maybe also telepathy)
 	Healing Meditations (4)
 curing
 cure critical wounds
+sustain mind (sustain WIS & INT)
 purify
 healing
-preserve mind (resist blindness, confusion & halucenation)
 restoration
 remembrance
 	Mental Guards (5)
 resist heat & cold
 resist poison
+resist light and dark
 protection from evil
+protect mind (resist blindness, confusion, halucenation & silver poison)
 resist elements (not poison)
 shield
 glyph of warding
 	Battle of Wits (6)
+blink monster
 slow monster
-sanctuary
-turn undead
-mana bolt
+repel monsters (scare monsters plus turn undead)
+bolt of stupidity (less damage to WEIRD_MIND, no damage to EMPTY_MIND,
+  see if you can make it prevent monsters from casting spells)
 heroism
-mind control (mass scare + confuse + stun)
-drain life
+mind control (mass confuse + stun + chance of scaring or sleeping or
+  keeping them from casting spells)
 shock wave
+drain life
 	Mastermind Solutions (7)
 telekinesis
-*protection from evil*
 dispel curse
-probing
 true sight
 preserve life force (temp. hold life)
-telepathy
-alter reality
-discover dungeon (full mapping + detection)
+*protection from evil*
+telepathy (has a chance of only giving MESP but for a longer time)
+*identify*
+discover dungeon (like old clairvoyance)
 	Power of Enlightenment (8)
 banishment
 dispel silver x3
 star ball
+(if you can prevent monsters from casting spells, then add dissolve enemy minds)
 mass banishment
 breathe fear & confusion
 breathe balance
-*identify*
+alter reality
