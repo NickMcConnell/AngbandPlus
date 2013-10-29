@@ -18,8 +18,6 @@ f) Phoenix fire: (lv 28, 20 sp) heals 500 and conjures a fireball for 4*(plev)
 #include "bookless.h"
 #include "target.h"
 
-#define MAX_PYRO_SPELLS 6
-
 #define PYRO_FIRE_BOLT	0
 #define PYRO_SENSE_HEAT	1
 #define PYRO_FIRE_BEAM	2
@@ -34,7 +32,7 @@ struct pyro_infoholder {
 	int fail;
 	char *desc;
 } pyro_spell_info[] = {
-	"Fire bolt", 1, 2, 5, "Conjures a bolt of fire.",
+	"Fire bolt", 1, 1, 5, "Conjures a bolt of fire.",
 	"Sense heat", 4, 3, 10, "Detects monsters in your vicinity.",
 	"Fire beam", 8, 8, 15, "Conjures a beam of fire.",
 	"Flicker", 14,  6, 15, "Teleports you a short distance.",
@@ -42,23 +40,16 @@ struct pyro_infoholder {
 	"Phoenix fire", 28, 20, 25, "Heals you and burns your enemies."
 };
 
-void cast_pyro_spell(int spell)
+bool cast_pyro_spell(int spell)
 {
 	int plev = p_ptr->lev;
-	int mana = pyro_spell_info[spell].cost;
 	int dir;
-	
-	if (p_ptr->csp < mana)
-	{
-		msg_print("You don't have enough mana!");
-		return;
-	}
 	
 	switch(spell)
 	{
 		case PYRO_FIRE_BOLT:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return FALSE;
 			fire_bolt(GF_FIRE, dir, damroll(4, plev));
 			break;
 		}
@@ -69,7 +60,7 @@ void cast_pyro_spell(int spell)
 		}
 		case PYRO_FIRE_BEAM:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return FALSE;
 			fire_beam(GF_FIRE, dir, damroll(6, plev));
 			break;
 		}
@@ -80,7 +71,7 @@ void cast_pyro_spell(int spell)
 		}
 		case PYRO_FIRE_BALL:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return FALSE;
 			fire_ball(GF_FIRE, dir, 8 * plev, 4);
 			break;
 		}
@@ -91,10 +82,8 @@ void cast_pyro_spell(int spell)
 			break;
 		}
 	}
-	
-	p_ptr->csp -= mana;
-	p_ptr->energy_use = 100;
-	return;
+
+	return TRUE;
 }
 
 int get_pyro_fail(int spell)
@@ -107,16 +96,10 @@ int get_pyro_fail(int spell)
 	chance -= 3 * (plev - pyro_spell_info[spell].level);
 	
 	/* Stat adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->state.stat_ind[A_INT]] - 1);
-	
-	/* Mana adjustment */
-	if (p_ptr->csp < pyro_spell_info[spell].cost)
-	{
-		chance += 5 * (pyro_spell_info[spell].cost - p_ptr->csp);
-	}
+	chance -= 3 * (adj_mag_stat[p_ptr->state.stat_ind[cp_ptr->spell_stat]] - 1);
 	
 	/* Get the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->state.stat_ind[A_INT]];
+	minfail = adj_mag_fail[p_ptr->state.stat_ind[cp_ptr->spell_stat]];
 	if (chance < minfail) chance = minfail;
 	
 	/* Stunning makes spells harder */
@@ -132,25 +115,64 @@ int get_pyro_fail(int spell)
 void print_pyro_menu(void)
 {
 	int i;
-	int y = 0;
+	int y = 1;
 	int x = 0;
 	
-	prt("     Lv Mana Fail    Info    Desc", y + 1, x);
-	for (i = 0; i < MAX_PYRO_SPELLS; i++)
+	prt(" Lv    Mana    Fail    Info    Desc ", y, x);
+	for (i = 0; i <= PYRO_PHOENIX; i++)
 	{
 		if (pyro_spell_info[i].level <= p_ptr->lev)
 		{
-			prt(format("%c) %s    %d %d %d%%    %s",
+			prt(format("%c) %s    %d    %d    %d%%    %s",
 				I2A(i),
 				pyro_spell_info[i].name,
 				pyro_spell_info[i].level,
 				pyro_spell_info[i].cost,
 				get_pyro_fail(i),
-				pyro_spell_info[i].desc), y + i + 2, x);
+				pyro_spell_info[i].desc), y + i + 1, x);
 		}
 	}
 	
 	return;
+}
+
+/* Print a spell's current stats to the screen */
+void print_pyro_stat(int spell)
+{
+	int plev = p_ptr->lev;
+
+	switch(spell)
+	{
+		case PYRO_FIRE_BOLT:
+		{
+			msg_format("damage 4d%d", plev);
+			break;
+		}
+		case PYRO_FIRE_BEAM:
+		{
+			msg_format("damage 6d%d", plev);
+			break;
+		}
+		case PYRO_FLICKER:
+		{
+			msg_format("range %d", 5 + plev / 2);
+			break;
+		}
+		case PYRO_FIRE_BALL:
+		{
+			msg_format("radius 4 damage %d", 8 * plev);
+			break; 
+		}
+		case PYRO_PHOENIX:
+		{
+			msg_format("heal 500 radius 24 damage %d", 4 * plev);
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
 }
 
 void do_cmd_pyro()
@@ -159,24 +181,46 @@ void do_cmd_pyro()
 
 	screen_save();
 	print_pyro_menu();
-	while (get_com("Cast which spell? (Esc to exit)", &choice))
+	while (get_com("Cast which spell? (Esc to exit, Shift+letter for stats)", &choice))
 	{
 		if (!choice)
 		{
 			screen_load();
 			return;
 		}
-
-		if (choice == ' ') continue;
-		else if (A2I(choice) < 0 || A2I(choice) >= MAX_PYRO_SPELLS)
+		
+		if (isupper(choice) && A2I(tolower(choice)) <= PYRO_PHOENIX)
 		{
-			msg_print("Invalid spell choice.");
+			print_pyro_stat(A2I(tolower(choice)));
+			continue;
+		}
+		
+		else if (A2I(choice) < 0 || A2I(choice) >= PYRO_PHOENIX)
+		{
+			continue;
+		}
+		
+		else if (p_ptr->csp < pyro_spell_info[A2I(choice)].cost)
+		{
+			msg_print("Not enough mana to cast this spell.");
 			continue;
 		}
 
 		screen_load();
-		cast_pyro_spell(A2I(choice));
-		p_ptr->redraw |= (PR_MANA);
+		if (randint1(100) > get_pyro_fail(A2I(choice)))
+		{
+			if (cast_pyro_spell(A2I(choice)))
+			{
+				p_ptr->csp -= pyro_spell_info[A2I(choice)].cost;
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->energy_use = 100;
+			}
+		}
+		else
+		{
+			msg_print("You failed to get the spell off!");
+		}
+		
 		return;
 	}
 

@@ -21,5 +21,5 @@ PF(KNOW_ZAPPER,      "easily recognize magic devices")
 PF(SEE_ORE,          "can sense ore in the walls")
 
 /* For bookless casters */
-PF(CASTER,           "can use use magical powers")
 PF(CAST_PYRO,        "can cast Pyromantic spells")
+PF(CAST_AVATAR,      "can use avatar powers")

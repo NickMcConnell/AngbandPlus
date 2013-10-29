@@ -1019,7 +1019,7 @@ static void calc_mana(void)
 	bool old_cumber_armor = p_ptr->cumber_armor;
 
 	/* Hack -- Must be literate */
-	if (!cp_ptr->spell_book && !player_has(PF_CASTER))
+	if (!cp_ptr->spell_book)
 	{
 		p_ptr->msp = 0;
 		p_ptr->csp = 0;

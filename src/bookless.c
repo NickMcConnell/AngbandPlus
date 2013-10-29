@@ -7,8 +7,12 @@
 
 void do_cmd_bookless()
 {
+	/* Disallow repeat to prevent nasty surprises */
+	cmd_disable_repeat();
 	if player_has(PF_CAST_PYRO)
 		do_cmd_pyro();
+	else if player_has(PF_CAST_AVATAR)
+		do_cmd_avatar();
 	
 	else msg_print("You have no magical powers.");
 	return;

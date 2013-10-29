@@ -57,6 +57,7 @@ GTKMAINFILES = \
 	
 ANGFILES = \
 	attack.o \
+	avatar.o \
 	birth.o \
 	bookless.o \
 	button.o \
