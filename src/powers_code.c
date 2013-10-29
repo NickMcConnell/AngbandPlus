@@ -3,6 +3,7 @@
 #include "powers_defines.h"
 #include "attack.h"
 #include "effects.h"
+#include "monster/monster.h"
 
 /* Actually use power */
 bool use_power(int power)
@@ -184,7 +185,7 @@ bool use_power(int power)
 			
 				/* Don't harm non-living or quester mobs */
 				/* deleted (monster_nonliving(r_ptr)) -Simon */
-				if (RF_QUESTOR)//(monster_nonliving(r_ptr) || RF_QUESTOR)
+				if (monster_is_unusual(r_ptr) || RF_QUESTOR)
 				{
 					msg_print("Nothing happens.");
 					return (TRUE);  /* Mana is used anyway. */
@@ -1829,216 +1830,180 @@ bool use_power(int power)
 
 				msg_print("You don't see anything to steal from.");
 				return (FALSE);
-
 			}
 			break;
-			 
+			
 			case PWR_SUMM_AINU:
 			{
-
 				count = 0;
 				for (i = 0; i < 3; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_AINU);
 				if (count)
 				{
 					msg_print("You summon the Maiar from Valinor!");
 				}
-
 			}
 			break; 
-			 
+		*/	 
 			case PWR_SUMM_BALROG:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_BALROG))
 				{
 					msg_print("Lord of Hell answers to your call!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_DARK_ELF:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_DARK_ELF))
 				{
 					msg_print("You summon an evil dark elf!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_DEMON:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_DEMON))
 				{
 					msg_print("You summon a demon from a lower plane!");
 				}
-
 			}
 			break;
-			 
+		/*	 
 			case PWR_SUMM_DEMON_SUMM:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_DEMON_SUMM))
 				{
 					msg_print("You summon a demon summoner!");
 				}
-
 			}
 			break;
-		 
+		*/ 
 			case PWR_SUMM_DRAGON:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_DRAGON))
 				{
 					msg_print("You summon a dragon!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_DRAGON_ANCIENT:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_HI_DRAGON))
 				{
 					msg_print("You summon an ancient wyrm!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_DRAGON_MATURE:
 			{
-
 				count = 0;
 				for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_MATURE_DRAGON);
 				if (count)
 				{
 					msg_print("You summon mighty dragons!");
 				}
-
 			}
 			break;
-			 
+		/*	 
 			case PWR_SUMM_DRAGON_SUMM:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_DRAGON_SUMM))
 				{
 					msg_print("You summon a dragon summoner!");
 				}
-
 			}
 			break;
-			 
+		*/	 
 			case PWR_SUMM_ELEMENTAL:
 			{
-
 				count = 0;
 				for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_ELEMENTAL);
 				if (count)
 				{
 					msg_print("You conjure some elementals!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_GOLEM:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_GOLEM))
 				{
 					msg_print("You magically construct a golem!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_HI_DEMON:
 			{
-
 				count = 0;
 				for (i = 0; i < 8; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_HI_DEMON);
 				if (count)
 				{
 					msg_print("You summon greater demons!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_HI_DRAGON:
 			{
-
 				count = 0;
 				for (i = 0; i < 8; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_HI_DRAGON);
 				if (count)
 				{
 					msg_print("You summon ancient wyrms!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_HI_UNDEAD:
 			{
-
 				count = 0;
 				for (i = 0; i < 8; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_HI_UNDEAD);
 				if (count)
 				{
 					msg_print("You summon the shadows of death!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_HYDRA:
 			{
-
 				count = 0;
 				for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_HYDRA);
 				if (count)
 				{
 					msg_print("You summon some hydras!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_LAWFUL:
 			{
-
 				count = 0;
 				for (i = 0; i < 3; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_LAWFUL);
 				if (count)
 				{
 					msg_print("You summon the minions of Law!");
 				}
-
 			}
 			break;
 		 
 			case PWR_SUMM_LICH:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_LICH))
 				{
 					msg_print("You summon a sorcerer from his grave!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_MAGMA_ELEM_WALL:
 			{
-
 				if (!get_rep_dir(&dir)) return (FALSE);
 				y = p_ptr->py + ddy[dir];
 				x = p_ptr->px + ddx[dir];
@@ -2051,148 +2016,124 @@ bool use_power(int power)
 				p_ptr->energy_use = 250 + randint0(250);
 				cave_set_feat(y, x, FEAT_FLOOR);
 				summon_pets_hack = TRUE;
-			*/	/* Hack -- Magma elemental and Greater magma elemental index hardcoded */
-			/*	msg_print("You melt the wall to summon the minion!");
-				place_monster_one(y, x, (plev > 40 ? 656 : 397), FALSE, plev > 35 ? 35 : plev);
+				/* Hack -- Magma elemental and Greater magma elemental index hardcoded */
+				msg_print("You melt the wall to summon the minion!");
+				place_monster_aux(y, x, (plev > 40 ? 656 : 397), FALSE, plev > 35 ? 35 : plev);
 				summon_pets_hack = FALSE;
-
 			}
 			break;
 		 
 			case PWR_SUMM_OGRE:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_OGRE))
 				{
 					msg_print("You summon a band of ogres!");
 				}
-
 			}
 			break;
 		 
 			case PWR_SUMM_ORC:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_ORC))
 				{
 					msg_print("You summon a band of orcs!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_SPIDER:
 			{
-
 				count = 0;
 				for (i = 0; i < 8; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_SPIDER);
 				if (count)
 				{
 					msg_print("You summon spiders from Nan Dungortheb!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_TROLL:
 			{
-
 				count = 0;
 				for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_TROLL);
 				if (count)
 				{
 					msg_print("You summon some ugly trolls!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_ULTIMATE:
 			{
-
 				count = 0;
 				for (i = 0; i < 4; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_ULTIMATE);
 				if (count)
 				{
 					msg_print("You summon some *ULTIMATE* allies!");
 				}
-
 			}
 			break;
 			 
 			case PWR_SUMM_UNDEAD:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_UNDEAD))
 				{
 					msg_print("You raise an undead slave from the grave!");
 				}
-
 			}
 			break;
-		 
+		 /*
 			case PWR_SUMM_UNDEAD_DRAGON:
 			{
-
 				count = 0;
 				for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_UNDEAD_DRAGON);
 				if (count)
 				{
 					msg_print("You summon the shadows of the Great Wyrms!");
 				}
-
 			}
 			break;
-		 
+		
 			case PWR_SUMM_UNDEAD_SUMM:
 			{
-
 				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_UNDEAD_SUMM))
 				{
 					msg_print("You summon an undead summoner!");
 				}
-
 			}
 			break;
-		 
+		*/ 
 			case PWR_SUMM_VORTEX:
 			{
-
-					count = 0;
-					for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_VORTEX);
-					if (count)
-					{
-						msg_print("You conjure elemental vortices!");
-					}
-
+				count = 0;
+				for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_VORTEX);
+				if (count)
+				{
+					msg_print("You conjure elemental vortices!");
+				}
 			}
 			break;
 			 
 			case PWR_SUMM_VROCK:
 			{
-
-					if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_VROCK))
-					{
-						msg_print("Troopers from Hell answer to your call!");
-					}
-
+				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_VROCK))
+				{
+					msg_print("Troopers from Hell answer to your call!");
+				}
 			}
 			break;
 			 
 			case PWR_SUMM_WIGHT_WRAITH:
 			{
-
-					if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_WIGHT_WRAITH))
-					{
-						msg_print("You summon a ghostly figure from the grave!");
-					}
-
+				if (summon_specific_pet(py, px, p_ptr->depth, SUMMON_WIGHT_WRAITH))
+				{
+					msg_print("You summon a ghostly figure from the grave!");
+				}
 			}
 			break;
 			 
 			case PWR_SUMM_YEEK:
 			{
-
 				count = 0;
 				for (i = 0; i < 5; i++) count += summon_specific_pet(py, px, p_ptr->depth, SUMMON_YEEK);
 					if (count)
@@ -2201,7 +2142,7 @@ bool use_power(int power)
 					}
 			}
 			break;
-		*/	 
+			
 			case PWR_TELEPORT:
 			{
 				msg_print("You teleport across the level.");

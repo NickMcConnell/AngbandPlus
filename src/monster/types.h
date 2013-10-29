@@ -80,7 +80,9 @@ typedef struct monster_race
 	
 	/* New from Pos.. index of unique artifact dropped by monster */
 	s16b artifact_index;
-} monster_race;
+	/* New from Pos, index of unique which must be dead before monster can be generated */
+	u16b extra;
+	} monster_race;
 
 
 /*
@@ -127,7 +129,7 @@ typedef struct
  */
 typedef struct
 {
-	/* New crud for RePos, maybe put this in monster_race -Simon*/
+	/* New stuff from Pos, maybe put maxmana and mimic k in monster_race -Simon*/
 	s16b mimic_k_idx;
 	s16b mana;
 	s16b maxmana;

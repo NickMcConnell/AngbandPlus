@@ -2132,7 +2132,7 @@ static int mon_will_run(int m_idx)
 	m_val = (m_lev * m_mhp) + (m_chp << 2);	/* div m_mhp */
 
 	/* Strong players scare strong monsters */
-	if (p_val * m_mhp > m_val * p_mhp) return (TRUE);
+	if ((p_val * m_mhp > m_val * p_mhp) && !(m_ptr->align & (AL_PET_MASK))) return (TRUE);
 
 	/* Assume no terror */
 	return (FALSE);
@@ -2266,8 +2266,8 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	y1 = fy - (*yp);
 	x1 = fx - (*xp);
 
-	/* The player is not currently near the monster grid */
-	if (cave_when[fy][fx] < cave_when[py][px])
+	/* The player is not currently near the monster grid, or a friend */
+	if ((cave_when[fy][fx] < cave_when[py][px]) || (m_ptr->align & (AL_PET_MASK)))
 	{
 		/* No reason to attempt flowing */
 		return (FALSE);
@@ -3539,12 +3539,11 @@ static void process_monster(int m_idx)
 		/* The player is in the way. */
 		if (do_move && (cave_m_idx[ny][nx] < 0))
 		{
-			/* Learn about if the monster attacks */
-			if (m_ptr->ml) rf_on(l_ptr->flags, RF_NEVER_BLOW);
-
 			/* Some monsters never attack */
-			if (rf_has(r_ptr->flags, RF_NEVER_BLOW))
+			if (rf_has(r_ptr->flags, RF_NEVER_BLOW) || (m_ptr->align & AL_PET_MASK))
 			{
+				/* Learn about if the monster attacks */
+				if (m_ptr->ml && rf_has(r_ptr->flags, RF_NEVER_BLOW)) rf_on(l_ptr->flags, RF_NEVER_BLOW);
 				/* Do not move */
 				do_move = FALSE;
 			}
@@ -3579,7 +3578,7 @@ static void process_monster(int m_idx)
 		if (do_move && (cave_m_idx[ny][nx] > 0))
 		{
 			monster_type *n_ptr = &mon_list[cave_m_idx[ny][nx]];
-
+			
 			/* Kill weaker monsters */
 			int kill_ok = rf_has(r_ptr->flags, RF_KILL_BODY);
 
@@ -3590,7 +3589,12 @@ static void process_monster(int m_idx)
 
 			/* Assume no movement */
 			do_move = FALSE;
-
+						
+			/* if the monster is a pet and you aren't, or v.v., attack! -Simon */
+			if (((m_ptr->align & (AL_PET_MASK)) && !(n_ptr->align & (AL_PET_MASK)))
+			|| (!(m_ptr->align & (AL_PET_MASK)) && (n_ptr->align & (AL_PET_MASK))))
+				make_attack_normal_mon(m_ptr, n_ptr);
+			
 			if (compare_monsters(m_ptr, n_ptr) > 0)
 			{
 				/* Learn about pushing and shoving */
@@ -3649,7 +3653,7 @@ static void process_monster(int m_idx)
 			monster_swap(oy, ox, ny, nx);
 
 			/* Possible disturb */
-			if (m_ptr->ml &&
+			if (m_ptr->ml && !(m_ptr->align & (AL_PET_MASK)) &&
 			    (OPT(disturb_move) ||
 			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
 			      OPT(disturb_near))))

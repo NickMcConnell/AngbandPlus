@@ -185,6 +185,8 @@ typedef struct player
 	u16b noscore;			/* Cheating flags */
 
 	bool standard_bearer;	/* Player has killed his race's standard bearer, new for RePos -Simon */
+
+	byte al_special;		/* Alignment (special), from Pos -Simon */
 	
 	bool is_dead;			/* Player is dead */
 

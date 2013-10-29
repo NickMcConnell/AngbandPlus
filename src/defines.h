@@ -237,6 +237,32 @@ typedef enum
   RANDNAME_NUM_TYPES
 } randname_type;
 
+/** Player/Monster alignment, from Pos -Simon **/
+
+enum
+{
+        PAL_NONE,
+        PAL_CHAOS,
+        PAL_LAW  /* XXX unused */
+};
+
+/*
+ * Monster alignment
+ */
+#define AL_HOSTILE		0x01  /* Hostile Neutral */
+#define AL_PET			0x02  /* Pet Neutral */
+#define AL_HOSTILE_L	0x04  /* Hostile Lawful */
+#define AL_PET_L		0x08  /* Pet Lawful */
+#define AL_HOSTILE_C	0x10  /* Hostile Chaotic */
+#define AL_PET_C		0x20  /* Pet Chaotic */
+
+/* Masks */
+#define AL_PET_MASK		(AL_PET | AL_PET_L | AL_PET_C)
+#define AL_HOSTILE_MASK	(AL_HOSTILE | AL_HOSTILE_L | AL_HOSTILE_C)
+#define AL_NEUTRAL		(AL_HOSTILE | AL_PET)
+#define AL_LAWFUL		(AL_HOSTILE_L | AL_PET_L)
+#define AL_CHAOTIC		(AL_HOSTILE_C | AL_PET_C)
+
 /*
  * There is a 1/20 (5%) chance of inflating the requested object level
  * during the creation of an object (see "get_obj_num()" in "object.c").
@@ -540,6 +566,27 @@ enum
 /* xxx */
 #define SUMMON_MONSTER      41
 #define SUMMON_MONSTERS     42
+/* xxx? */
+#define SUMMON_ANT			45
+#define SUMMON_LAWFUL		46
+#define SUMMON_THIEF		47
+#define SUMMON_AIR_ELEM		48
+#define SUMMON_WATER_ELEM	49
+#define SUMMON_FIRE_ELEM	50
+#define SUMMON_YEEK			51
+#define SUMMON_ORC			52
+#define SUMMON_DARK_ELF		53
+#define SUMMON_OGRE			54
+#define SUMMON_TROLL		55
+#define SUMMON_GOLEM		56
+#define SUMMON_VORTEX		57
+#define SUMMON_ELEMENTAL	58
+#define SUMMON_LICH			59
+#define SUMMON_VROCK		60
+#define SUMMON_BALROG		61
+#define SUMMON_MATURE_DRAGON 62
+#define SUMMON_ULTIMATE		63
+#define SUMMON_WIGHT_WRAITH	64
 
 
 /*

@@ -2079,8 +2079,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, bool obvio
 	cptr note_dies = " dies.";
 
 
-	/* Walls protect monsters */
-	if (!cave_floor_bold(y,x)) return (FALSE);
+	/* Walls protect monsters, unless in epicenter */
+	if (!cave_floor_bold(y,x) && r!= 0) return (FALSE);
 
 
 	/* No monster here */

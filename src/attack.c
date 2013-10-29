@@ -461,7 +461,7 @@ bool py_attack_real(int y, int x)
 					}
 					else if (randint0(100) < r_ptr->level)
 					{
-						msg_format("%^s is unaffected.", m_name);
+						msg_format("%^s appears slightly perplexed.", m_name);
 					}
 					else
 					{
@@ -471,8 +471,15 @@ bool py_attack_real(int y, int x)
 				}
 				
 				/* Damage, check for fear and death */
+				/* Make elemental attacks do half their damage physically -Simon */
+				if (type != GF_ARROW)
+				{
+					project(-1, 0, y, x, (k + 1)/2, type, flg);
+					project(-1, 0, y, x, k/2, GF_ARROW, flg);
+				}
+				else
+					project(-1, 0, y, x, k, type, flg);
 				/* Hack: check if the square is empty after we project the attack into it -Simon */
-				project(-1, 0, y, x, k, type, flg);	
 				dead = (cave_m_idx[y][x] == 0);
 				//dead = mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
 			

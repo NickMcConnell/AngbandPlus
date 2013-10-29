@@ -322,7 +322,8 @@ enum sval_ring /* tval 45 */
 	SV_RING_WATER = 56,
 	SV_RING_FIRE = 57,
 	SV_RING_AIR = 58,
-	SV_RING_SMEAGOL = 59
+	SV_RING_SMEAGOL = 59,
+	SV_RING_EARTH = 60,
 };
 
 enum sval_food /* tval 80 */

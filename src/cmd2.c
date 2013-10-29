@@ -781,11 +781,16 @@ void do_cmd_open(cmd_code code, cmd_arg args[])
 	/* Monster */
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Message */
-		msg_print("There is a monster in the way!");
+		if (mon_list[cave_m_idx[y][x]].align & (AL_PET_MASK))
+			msg_print("There is a friendly monster in the way!");
+		else
+		{
+			/* Message */
+			msg_print("There is a monster in the way!");
 
-		/* Attack */
-		py_attack(y, x);
+			/* Attack */
+			py_attack(y, x);
+		}
 	}
 
 	/* Chest */
@@ -915,11 +920,16 @@ void do_cmd_close(cmd_code code, cmd_arg args[])
 	/* Monster */
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Message */
-		msg_print("There is a monster in the way!");
+		if (mon_list[cave_m_idx[y][x]].align & (AL_PET_MASK))
+			msg_print("There is a friendly monster in the way!");
+		else
+		{
+			/* Message */
+			msg_print("There is a monster in the way!");
 
-		/* Attack */
-		py_attack(y, x);
+			/* Attack */
+			py_attack(y, x);
+		}
 	}
 
 	/* Door */
@@ -1230,11 +1240,18 @@ void do_cmd_tunnel(cmd_code code, cmd_arg args[])
 	/* Monster */
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Message */
-		msg_print("There is a monster in the way!");
+		if (mon_list[cave_m_idx[y][x]].align & (AL_PET_MASK))
+		{
+			msg_print("There is a friendly monster in the way!");
+		}
+		else
+		{
+			/* Message */
+			msg_print("There is a monster in the way!");
 
-		/* Attack */
-		py_attack(y, x);
+			/* Attack */
+			py_attack(y, x);
+		}
 	}
 
 	/* Walls */
@@ -1595,14 +1612,20 @@ void do_cmd_bash(cmd_code code, cmd_arg args[])
 	}
 
 
-	/* Monster */
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Message */
-		msg_print("There is a monster in the way!");
+		if (mon_list[cave_m_idx[y][x]].align & (AL_PET_MASK))
+		{
+			msg_print("There is a friendly monster in the way!");
+		}
+		else
+		{
+			/* Message */
+			msg_print("There is a monster in the way!");
 
-		/* Attack */
-		py_attack(y, x);
+			/* Attack */
+			py_attack(y, x);
+		}
 	}
 
 	/* Door */
@@ -1663,7 +1686,15 @@ void do_cmd_alter_aux(int dir)
 	/* Attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
-		py_attack(y, x);
+		if (mon_list[cave_m_idx[y][x]].align & (AL_PET_MASK))
+		{
+			msg_print("There is a friendly monster in the way!");
+		}
+		else
+		{
+			/* Attack */
+			py_attack(y, x);
+		}
 	}
 
 	/* Tunnel through walls */
@@ -1825,11 +1856,18 @@ void do_cmd_spike(cmd_code code, cmd_arg args[])
 	/* Monster */
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Message */
-		msg_print("There is a monster in the way!");
+		if (mon_list[cave_m_idx[y][x]].align & (AL_PET_MASK))
+		{
+			msg_print("There is a friendly monster in the way!");
+		}
+		else
+		{
+			/* Message */
+			msg_print("There is a monster in the way!");
 
-		/* Attack */
-		py_attack(y, x);
+			/* Attack */
+			py_attack(y, x);
+		}
 	}
 
 	/* Go for it */
