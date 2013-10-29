@@ -500,6 +500,8 @@ struct object_type
 	s16b ac;			/* Normal AC */
 
 	byte dd, ds;		/* Damage dice/sides */
+	
+	s16b blessed;        /* temporary blessing */
 
 	s16b timeout;		/* Timeout Counter */
 
@@ -535,22 +537,38 @@ struct monster_type
 	s16b maxhp;			/* Max Hit points */
 
 	s16b csleep;		/* Inactive counter */
+	bool display_sleep;  /* is it displayed as asleep? */
+
+	s16b roaming;       /* monster is awake but hasn't noticed the player */
+	/* roaming: 0 = not roaming */
+	/* roaming: 1 to 9 roaming alone */
+	/* roaming: 11 to 19 roaming in a group */
+	/* roaming: 30 temporary roaming to keep from repeatedly running into a wall */
+	byte roam_to_y;     /* random destination for roaming monsters */
+	byte roam_to_x;     /* random destination for roaming monsters */
 
 	byte mspeed;		/* Monster "speed" */
 	byte energy;		/* Monster "energy" */
+	
+	/* some monster races are sometimes but not always evil now */
+    byte evil;
+    s16b meet;          /* have you met this monster? */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+    bool bold;		    /* Monster has become bold */
 	s16b tinvis;        /* temporary invisibility */
-	bool monseen;       /* monster has been seen */
 	bool charmed;       /* monster is charmed */
+	byte silence;       /* monster is silenced (stops summoning spells) */
 
 	byte cdis;			/* Current dis from player */
 
 	byte mflag;			/* Extra monster flags */
 
+	byte monseen;       /* monster has been seen (>=2) or heard(==1) */
 	bool ml;			/* Monster is "visible" */
+	bool heard;         /* Monster has been heard */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
@@ -711,14 +729,15 @@ struct player_race
 	s16b r_sav;			/* saving throw */
 	s16b r_stl;			/* stealth */
 	s16b r_srh;			/* search ability */
-	s16b r_fos;			/* search frequency */
+	s16b r_fos;			/* alertness / search frequency */
 	s16b r_thn;			/* combat (normal) */
 	s16b r_thb;			/* combat (shooting) */
+	s16b r_tht;			/* combat (thrown) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 
-	s16b infra;			/* Racial alertness */
+	s16b infra;			/* no longer used */
 
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
@@ -773,23 +792,25 @@ struct player_class
 	s16b c_sav;			/* class saving throws */
 	s16b c_stl;			/* class stealth */
 	s16b c_srh;			/* class searching ability */
-	s16b c_fos;			/* class searching frequency */
+	s16b c_fos;			/* class alertness / searching frequency */
 	s16b c_thn;			/* class to hit (normal) */
 	s16b c_thb;			/* class to hit (bows) */
+	s16b c_tht;			/* class to hit (thrown) */
 
 	s16b x_dis;			/* extra disarming */
 	s16b x_dev;			/* extra magic devices */
 	s16b x_sav;			/* extra saving throws */
 	s16b x_stl;			/* extra stealth */
 	s16b x_srh;			/* extra searching ability */
-	s16b x_fos;			/* extra searching frequency */
+	s16b x_fos;			/* extra alertness / searching frequency */
 	s16b x_thn;			/* extra to hit (normal) */
 	s16b x_thb;			/* extra to hit (bows) */
+	s16b x_tht;			/* extra to hit (thrown) */
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
 	
-	s16b calert;        /* DJA: class alertness */
+	s16b calert;        /* no longer used */
 
 	u32b flags;			/* Class Flags */
 
@@ -906,9 +927,12 @@ struct player_type
 
 	s16b food;			/* Current nutrition */
 	
-	s16b silver;        /* DAJ: silver poison */
-	s16b slime;         /* DAJ: slimed state */
-	s16b luck;          /* DAJ: luck */
+	s16b silver;        /* DJA: silver poison */
+	s16b slime;         /* DJA: slimed state */
+	s16b luck;          /* DJA: luck */
+	byte corrupt;       /* DJA: level of corruption*/
+	int spadjust;      /* amount of nonstandard speed adjustment */
+	byte learnedcontrol; /* teleport control skill */
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
@@ -937,6 +961,9 @@ struct player_type
 	bool playing;			/* True if player is playing */
 
 	bool leaving;			/* True if player is leaving */
+	bool seek_vault;        /* look for a vault on next level if TRUE */
+	byte find_vault;        /* how likely to find a vault */
+	int manafree;           /* activate staff of mana-free casting */ 
 
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
@@ -948,8 +975,8 @@ struct player_type
 
 	s16b target_set;		/* Target flag */
 	s16b target_who;		/* Target identity */
-	s16b target_row;		/* Target location */
-	s16b target_col;		/* Target location */
+	s16b target_row;		/* Target location y */
+	s16b target_col;		/* Target location x */
 
 	s16b health_who;		/* Health bar trackee */
 
@@ -1017,6 +1044,7 @@ struct player_type
 	bool resist_cold;	/* Resist cold */
 	bool resist_pois;	/* Resist poison */
 	bool weakresist_pois;	/* partial poison resistance */
+	bool breath_shield; /* damage reduction against monster breath */
 
 	bool resist_charm;	/* Resist charm */
 	bool resist_frenzy;	/* Resist charm */
@@ -1064,6 +1092,8 @@ struct player_type
 	bool teleport;		/* Random teleporting */
 	bool exp_drain;		/* Experience draining */
 
+	bool telecontrol;   /* teleport control */
+
 	bool bless_blade;	/* Blessed blade */
 
 	s16b dis_to_h;		/* Known bonus to hit */
@@ -1078,7 +1108,7 @@ struct player_type
 
 	s16b ac;			/* Base ac */
 
-	s16b see_infra;		/* Alertness */
+	s16b see_infra;		/* no longer used */
 
 	s16b skills[SKILL_MAX];	/* Skills */
 

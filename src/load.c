@@ -132,6 +132,8 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_STAFF:
+		case TV_SKELETON:
 		{
 			return (TRUE);
 		}
@@ -282,6 +284,7 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->name2);
 
 	rd_s16b(&o_ptr->timeout);
+	rd_s16b(&o_ptr->blessed); /* DJA new: breaks savefiles for 1.0.98 */
 
 	rd_s16b(&o_ptr->to_h);
 	rd_s16b(&o_ptr->to_d);
@@ -460,6 +463,10 @@ static errr rd_item(object_type *o_ptr)
 			o_ptr->dd = old_dd;
 		}
 
+		/* Re-apply ego weight modification */
+        if (e_ptr->flags2 & (TR2_LIGHTNESS)) o_ptr->weight -= e_ptr->weight;
+		else if (e_ptr->weight > 0) o_ptr->weight += e_ptr->weight;
+
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -469,8 +476,9 @@ static errr rd_item(object_type *o_ptr)
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
 		}
-
+#if old
 		/* Mega-Hack - Enforce the special broken items */
+		/* ..which don't exist anymore */
 		if ((o_ptr->name2 == EGO_BLASTED) ||
 			(o_ptr->name2 == EGO_SHATTERED))
 		{
@@ -479,6 +487,7 @@ static errr rd_item(object_type *o_ptr)
 			o_ptr->dd = 0;
 			o_ptr->ds = 0;
 		}
+#endif
 	}
 
 	if (older_than(3, 0, 9) &&
@@ -520,10 +529,15 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
+	/* DJA new: breaks savefiles for 1.0.98 */
+	rd_s16b(&m_ptr->tinvis);
+	rd_byte(&m_ptr->silence);
+	rd_byte(&m_ptr->monseen);
+	rd_s16b(&m_ptr->meet);
+	rd_s16b(&m_ptr->roaming);
+	rd_byte(&m_ptr->evil);
 	rd_byte(&tmp8u);
 }
-
-
 
 
 
@@ -1042,6 +1056,7 @@ static errr rd_extra(void)
 	int i;
 
 	byte tmp8u;
+	byte num;
 	u16b tmp16u;
 
 
@@ -1049,30 +1064,7 @@ static errr rd_extra(void)
 
 	rd_string(p_ptr->died_from, 80);
 
-	if (older_than(3, 0, 1))
-	{
-		char *hist = p_ptr->history;
-
-		for (i = 0; i < 4; i++)
-		{
-			/* Read a part of the history */
-			rd_string(hist, 60);
-
-			/* Advance */
-			hist += strlen(hist);
-
-			/* Separate by spaces */
-			hist[0] = ' ';
-			hist++;
-		}
-
-		/* Make sure it is terminated */
-		hist[0] = '\0';
-	}
-	else
-	{
-		rd_string(p_ptr->history, 250);
-	}
+	rd_string(p_ptr->history, 250);
 
 	/* Player race */
 	rd_byte(&p_ptr->prace);
@@ -1152,118 +1144,44 @@ static errr rd_extra(void)
 	strip_bytes(2);
 
 	/* Read the flags */
-	if (older_than(3, 0, 7))
-	{
-		strip_bytes(2);	/* Old "rest" */
-		rd_s16b(&p_ptr->timed[TMD_BLIND]);
-		rd_s16b(&p_ptr->timed[TMD_BRAIL]);
-		rd_s16b(&p_ptr->timed[TMD_PARALYZED]);
-		rd_s16b(&p_ptr->timed[TMD_CONFUSED]);
-		rd_s16b(&p_ptr->food);
-		strip_bytes(4);	/* Old "food_digested" / "protection" */
-		rd_s16b(&p_ptr->energy);
-		rd_s16b(&p_ptr->timed[TMD_FAST]);
-		rd_s16b(&p_ptr->timed[TMD_SLOW]);
-		rd_s16b(&p_ptr->timed[TMD_STONESKIN]);
-		rd_s16b(&p_ptr->timed[TMD_ADJUST]);
-		rd_s16b(&p_ptr->timed[TMD_AFRAID]);
-		rd_s16b(&p_ptr->timed[TMD_TERROR]);
-		rd_s16b(&p_ptr->timed[TMD_CHARM]);
-		rd_s16b(&p_ptr->timed[TMD_FRENZY]);
-		rd_s16b(&p_ptr->timed[TMD_CUT]);
-		rd_s16b(&p_ptr->timed[TMD_STUN]);
-		rd_s16b(&p_ptr->timed[TMD_POISONED]);
-		rd_s16b(&p_ptr->timed[TMD_IMAGE]);
-		rd_s16b(&p_ptr->timed[TMD_PROTEVIL]);
-		rd_s16b(&p_ptr->timed[TMD_PROTEVIL2]);
-		rd_s16b(&p_ptr->timed[TMD_PROTDEAD]);
-		rd_s16b(&p_ptr->timed[TMD_INVULN]);
-		rd_s16b(&p_ptr->timed[TMD_HERO]);
-		rd_s16b(&p_ptr->timed[TMD_SHERO]);
-		rd_s16b(&p_ptr->timed[TMD_HOLDLIFE]);
-		rd_s16b(&p_ptr->timed[TMD_WSHIELD]);
-		rd_s16b(&p_ptr->timed[TMD_SHIELD]);
-		rd_s16b(&p_ptr->timed[TMD_BLESSED]);
-		rd_s16b(&p_ptr->timed[TMD_SHADOW]);
-		rd_s16b(&p_ptr->timed[TMD_SINVIS]);
-		rd_s16b(&p_ptr->timed[TMD_TSIGHT]);
-		rd_s16b(&p_ptr->timed[TMD_SANCTIFY]);
-		rd_s16b(&p_ptr->timed[TMD_ESP]);
-		rd_s16b(&p_ptr->timed[TMD_MESP]);
-		rd_s16b(&p_ptr->timed[TMD_2ND_THOUGHT]);
-		rd_s16b(&p_ptr->timed[TMD_ZAPPING]);
-		rd_s16b(&p_ptr->timed[TMD_SPHERE_CHARM]);
-		rd_s16b(&p_ptr->timed[TMD_BECOME_LICH]);
-		rd_s16b(&p_ptr->timed[TMD_WITCH]);
-		rd_s16b(&p_ptr->timed[TMD_XATTACK]);
-		rd_s16b(&p_ptr->timed[TMD_DARKVIS]);
-		rd_s16b(&p_ptr->timed[TMD_SUPER_ROGUE]);
-		rd_s16b(&p_ptr->word_recall);
-		rd_s16b(&p_ptr->see_infra);
-		rd_s16b(&p_ptr->silver);
-		rd_s16b(&p_ptr->slime);
-		rd_s16b(&p_ptr->luck);
-		rd_s16b(&p_ptr->timed[TMD_SINFRA]);
-		rd_s16b(&p_ptr->timed[TMD_WSINFRA]);
-		rd_s16b(&p_ptr->timed[TMD_BALROG]);
-		rd_s16b(&p_ptr->timed[TMD_HIT_ELEMENT]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_ACID]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_ELEC]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_POIS]);
-		rd_s16b(&p_ptr->timed[TMD_WOPP_POIS]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_DARK]);
-		rd_s16b(&p_ptr->timed[TMD_OPP_NETHR]);
-		rd_s16b(&p_ptr->timed[TMD_IMM_FIRE]);
+	/* int i; */
 
-		rd_byte(&p_ptr->confusing);
-		rd_byte(&tmp8u);	/* oops */
-		rd_byte(&tmp8u);	/* oops */
-		rd_byte(&tmp8u);	/* oops */
-		rd_byte(&p_ptr->searching);
-		rd_byte(&tmp8u);	/* oops */
-		rd_byte(&tmp8u);	/* oops */
-		rd_byte(&tmp8u);	/* oops */
+	rd_s16b(&p_ptr->food);
+	rd_s16b(&p_ptr->energy);
+	rd_s16b(&p_ptr->word_recall);
+	rd_s16b(&p_ptr->see_infra); /* no longer used */
+	rd_byte(&p_ptr->confusing);
+	rd_byte(&p_ptr->searching);
+	
+	rd_s16b(&p_ptr->silver);
+	rd_s16b(&p_ptr->slime);
+	rd_s16b(&p_ptr->luck);
+	rd_byte(&p_ptr->corrupt);
+	rd_byte(&p_ptr->learnedcontrol);
+	rd_byte(&p_ptr->find_vault);
+
+	/* Find the number of timed effects */
+	rd_byte(&num);
+
+	if (num <= TMD_MAX)
+	{
+		/* Read all the effects */
+		for (i = 0; i < num; i++)
+			rd_s16b(&p_ptr->timed[i]);
+
+		/* Initialize any entries not read */
+		if (num < TMD_MAX)
+			C_WIPE(p_ptr->timed + num, TMD_MAX - num, s16b);
 	}
 	else
 	{
-		byte num;
-		int i;
+		/* Probably in trouble anyway */
+		for (i = 0; i < TMD_MAX; i++)
+			rd_s16b(&p_ptr->timed[i]);
 
-		rd_s16b(&p_ptr->food);
-		rd_s16b(&p_ptr->energy);
-		rd_s16b(&p_ptr->word_recall);
-		rd_s16b(&p_ptr->see_infra);
-		rd_s16b(&p_ptr->silver);
-		rd_s16b(&p_ptr->slime);
-		rd_s16b(&p_ptr->luck);
-		rd_byte(&p_ptr->confusing);
-		rd_byte(&p_ptr->searching);
-
-		/* Find the number of timed effects */
-		rd_byte(&num);
-
-		if (num <= TMD_MAX)
-		{
-			/* Read all the effects */
-			for (i = 0; i < num; i++)
-				rd_s16b(&p_ptr->timed[i]);
-
-			/* Initialize any entries not read */
-			if (num < TMD_MAX)
-				C_WIPE(p_ptr->timed + num, TMD_MAX - num, s16b);
-		}
-		else
-		{
-			/* Probably in trouble anyway */
-			for (i = 0; i < TMD_MAX; i++)
-				rd_s16b(&p_ptr->timed[i]);
-
-			/* Discard unused entries */
-			strip_bytes(2 * (num - TMD_MAX));
-			note("Discarded unsupported timed effects");
-		}
+		/* Discard unused entries */
+		strip_bytes(2 * (num - TMD_MAX));
+		note("Discarded unsupported timed effects");
 	}
 
 	/* Future use */
@@ -1345,30 +1263,6 @@ static errr rd_randarts(void)
 	u32b tmp32u;
 
 
-	if (older_than(2, 9, 3))
-	{
-		/*
-		 * XXX XXX XXX
-		 * Importing old savefiles with random artifacts is dangerous
-		 * since the randart-generators differ and produce different
-		 * artifacts from the same random seed.
-		 *
-		 * Switching off the check for incompatible randart versions
-		 * allows to import such a savefile - do it at your own risk.
-		 */
-
-		/* Check for incompatible randart version */
-		if (randart_version != RANDART_VERSION)
-		{
-			note(format("Incompatible random artifacts version!"));
-			return (-1);
-		}
-
-		/* Initialize randarts */
-		do_randart(seed_randart, TRUE);
-	}
-	else
-	{
 		/* Read the number of artifacts */
 		rd_u16b(&artifact_count);
 
@@ -1419,7 +1313,7 @@ static errr rd_randarts(void)
 				rd_u32b(&a_ptr->flags1);
 				rd_u32b(&a_ptr->flags2);
 				rd_u32b(&a_ptr->flags3);
-				/* rd_u32b(&a_ptr->flags4); */
+				rd_u32b(&a_ptr->flags4);
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
@@ -1453,7 +1347,7 @@ static errr rd_randarts(void)
 				rd_u32b(&tmp32u); /* a_ptr->flags1 */
 				rd_u32b(&tmp32u); /* a_ptr->flags2 */
 				rd_u32b(&tmp32u); /* a_ptr->flags3 */
-				/* rd_u32b(&tmp32u);    a_ptr->flags4 */
+				rd_u32b(&tmp32u);  /*  a_ptr->flags4 */
 
 				rd_byte(&tmp8u); /* a_ptr->level */
 				rd_byte(&tmp8u); /* a_ptr->rarity */
@@ -1466,7 +1360,6 @@ static errr rd_randarts(void)
 
 		/* Initialize only the randart names */
 		do_randart(seed_randart, FALSE);
-	}
 
 	return (0);
 }

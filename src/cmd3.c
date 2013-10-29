@@ -13,8 +13,6 @@
 
 
 
-
-
 /*
  * Display inventory
  */
@@ -120,7 +118,6 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
 }
 
 
-#ifdef EFG
 /* EFGchange notice obvious effects */
 typedef struct {u32b flag; char *name;} flagname;
 static flagname boostconv[] =
@@ -131,7 +128,7 @@ static flagname boostconv[] =
 	{ TR1_DEX,      "dexterity" },
 	{ TR1_CON,      "constitution" },
 	{ TR1_CHR,      "charisma" },
-	{ TR1_STEALTH,  "stealth" },
+	{ TR1_STEALTH,  "stealth" }, /* unused */
 	{ TR1_SPEED,    "speed" },
 	{ TR1_BLOWS,    "blows" },
 	{ TR1_SHOTS,    "shots" },
@@ -148,8 +145,9 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 
 	int i;
 	u32b f1, f2, f3, f4;
+	char *desc;
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	char *desc = (o_ptr->pval >= 0) ? "boosts" : "reduces";
+	desc = (o_ptr->pval >= 0) ? "boosts" : "reduces";
 	for (i = 0; i < sizeof(boostconv)/sizeof(flagname); i++)
 	{
 		if (f1 & boostconv[i].flag)
@@ -167,6 +165,12 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 		ret = TRUE;
 		if (to_print)
 			msg_format("%s can be activated.", o_name);
+	}
+	if (f3 & (TR3_DARKVIS))
+	{
+		ret = TRUE;
+		if (to_print)
+			msg_format("%s grants darkvision.", o_name);
 	}
 	if (f3 & (TR3_TELEPATHY))
 	{
@@ -193,18 +197,20 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 	return ret;
 }
 
-#endif
 /*
  * Wield or wear a single item from the pack or floor
  */
 void do_cmd_wield(void)
 {
 	int item, slot;
+	bool hasac;
+	bool is_splendid;
 
 	object_type *o_ptr;
 
 	object_type *i_ptr;
 	object_type object_type_body;
+	u32b f1, f2, f3, f4;
 
 	object_type *equip_o_ptr;
 
@@ -236,9 +242,23 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* check for WIELD_SHIELD flag */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
+	/* be sure weapon has ac before using as a shield */
+	hasac = FALSE;
+    if ((o_ptr->to_a > 0) || (o_ptr->ac > 0)) hasac = TRUE;
+	
+	/* off-hand weapon (not duel-wielding (yet), more like using a weapon as a shield) */
+    if ((slot == INVEN_WIELD) && (f4 & TR4_WIELD_SHIELD) && (hasac))
+	{
+       if (get_check("Wield in off-hand for defence? "))
+       {
+          slot = INVEN_ARM;
+       }
+    }
 
 	/* Get a pointer to the slot to be removed */
 	equip_o_ptr = &inventory[slot];
@@ -355,9 +375,19 @@ void do_cmd_wield(void)
 	sound(MSG_WIELD);
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
-#ifdef EFG
+	/* use up a charge for constant activation when wielding */
+	if (f2 & (TR2_CONSTANTA))
+	{
+		o_ptr->pval--;
+		msg_print("a charge has been used.");
+
+		/* This lets you be able to tell what it is */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+	}
+
 	/* EFGchange notice obvious effects */
-	bool is_splendid = FALSE;
+	is_splendid = FALSE;
 	if (!object_known_p(o_ptr))
 		is_splendid = obviously_excellent(o_ptr, TRUE, o_name);
 	/* EFGchange some jewelry should self-id */
@@ -375,7 +405,6 @@ void do_cmd_wield(void)
 				case SV_AMULET_DEVOTION:
 				case SV_AMULET_TRICKERY:
 				/* no weaponmastery until +hit/+dam is apparent */
-				case SV_AMULET_INFRAVISION:
 					object_aware(o_ptr);
 					object_known(o_ptr);
 				break;
@@ -392,13 +421,6 @@ void do_cmd_wield(void)
 						object_known(o_ptr);
 					}
 					break;
-		/*		case SV_RING_STUPIDITY:   // (has been replaced)
-					if (k_info[135].aware)
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;   */
 				case SV_RING_STR:
 					if ((o_ptr->pval > 0) || (k_info[145].aware))
 					{
@@ -424,7 +446,6 @@ void do_cmd_wield(void)
 			}
 			break;
 	}
-#endif
 	/* Cursed! */
 	if (cursed_p(o_ptr))
 	{
@@ -452,7 +473,6 @@ void do_cmd_wield(void)
 		p_ptr->notice |= PN_SQUELCH;
 #endif
 	}
-#ifdef EFG
 	/* EFGchange notice obvious effects */
 	else 
 	{
@@ -467,7 +487,6 @@ void do_cmd_wield(void)
 				o_ptr->pseudo = INSCRIP_TRIED;
 		}
 	}
-#endif
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -749,6 +768,96 @@ void do_cmd_destroy(void)
 
 
 /*
+ * Hook to specify enchanted staff
+ */
+static bool item_tester_hook_enchstaff(const object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_STAFF)
+	{
+		/* If there's nothing special about a staff return FALSE */
+        if ((o_ptr->to_h == 0) && (o_ptr->to_d == 0) && (o_ptr->to_a == 0) && (!o_ptr->name2) && (!o_ptr->name1))
+        {
+            return (FALSE);
+		}
+		/* otherwise staffs return TRUE */
+		else return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
+/*
+ * Force Stacking of magic staffs
+ * (this removes to-hit and to-dam bonuses)
+ */
+void do_cmd_fstack(void)
+{
+	int item;
+
+	object_type *o_ptr;
+	object_kind *k_ptr;
+
+	cptr q, s;
+	
+	item_tester_hook = item_tester_hook_enchstaff;
+	
+	if (!get_check("This will remove all weapon bonuses, are you sure? "))
+	{
+        return;
+    }
+
+	/* Get an item */
+	q = "Un-enchant which item? ";
+	s = "You have no enchanted staffs.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	k_ptr = &k_info[o_ptr->k_idx];
+	
+	/* Currently there are no artifact magic staffs, but that may change */
+    if (o_ptr->name1)
+	{
+        msg_print("You cannot unenchant an artifact!");
+        return;
+    }
+	else if (cursed_p(o_ptr))
+	{
+        msg_print("You must uncurse the staff first.");
+        return;
+	}
+
+	/* Message */
+	msg_print("Staff is now unenchanted.");
+
+	/* Remove the enchantments */
+	o_ptr->name2 = 0;
+	o_ptr->to_h = 0;
+	o_ptr->to_d = 0;
+	o_ptr->to_a = 0;
+	/* remove bonus damage dice */
+	if (o_ptr->dd > k_ptr->dd) o_ptr->dd = k_ptr->dd;
+
+	/* Combine the pack */
+	p_ptr->notice |= (PN_COMBINE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+}
+
+
+/*
  * Observe an item, displaying what is known about it
  */
 void do_cmd_observe(void)
@@ -780,7 +889,6 @@ void do_cmd_observe(void)
 	/* Describe */
 	object_info_screen(o_ptr);
 }
-
 
 
 /*
@@ -832,7 +940,6 @@ void do_cmd_uninscribe(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }
-
 
 /*
  * Inscribe an object with a comment
@@ -1707,8 +1814,11 @@ void do_cmd_query_symbol(void)
 				/* Save screen */
 				screen_save();
 
+				/* spellswitch 32: try to tell if this individual monster is evil */
+				spellswitch = 32;
+
 				/* Recall on screen */
-				screen_roff(who[i]);
+				screen_roff(who[i], 0);
 
 				/* Hack -- Complete the prompt (again) */
 				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");

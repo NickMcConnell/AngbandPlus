@@ -195,8 +195,8 @@ static cptr r_info_flags2[] =
 	"XXX4X2",
 	"POWERFUL",
 	"BR_WEAK",
-	"XXX7X2",
-	"XXX6X2",
+	"BR_STRONG",
+	"FLY",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -205,11 +205,11 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
-	"BRAIN_2",
-	"BRAIN_3",
-	"BRAIN_4",
-	"BRAIN_5",
+	"RANGE",
+	"S_EVIL1",
+	"S_EVIL2",
+	"ROAM1",
+	"ROAM2",
 	"BRAIN_6",
 	"BRAIN_7",
 	"BRAIN_8"
@@ -247,7 +247,7 @@ static cptr r_info_flags3[] =
 	"RES_PLAS",
 	"RES_NEXUS",
 	"RES_DISE",
-	"XXX6X3",
+	"HURT_SILV",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -289,7 +289,7 @@ static cptr r_info_flags4[] =
 	"BR_MANA",
 	"BR_FEAR",
 	"XXX6X4",
-	"STINKBOMB",
+	"BR_AMNS",
 	"BOULDER"
 };
 
@@ -338,9 +338,9 @@ static cptr r_info_flags5[] =
 static cptr r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
+	"HEAL_KIN",
 	"HEAL",
-	"XXX2X6",
+	"HEAL_OTHR",
 	"BLINK",
 	"TPORT",
 	"INVIS",
@@ -426,8 +426,8 @@ static cptr k_info_flags2[] =
 	"COAT_ACID",
 	"SLAY_SILVER",
 	"SLAY_BUG",
-	"XXX5",
-	"RES_POISB",
+	"SLAY_LITE",
+	"PR_POIS",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -438,13 +438,13 @@ static cptr k_info_flags2[] =
 	"RES_COLD",
 	"EXTRA_CRIT",
 	"DANGER",
-	"XXX82",
+	"CONSTANTA",
 	"XXX83",
 	"XXX84",
 	"XXX85",
-	"XXX86",
-	"XXX87",
-	"XXX88",
+	"CORRUPT",
+	"RTURN",
+	"THROWN",
 	"LIGHTNESS",
 	"PEACE",
 	"NICE"
@@ -464,8 +464,8 @@ static cptr k_info_flags3[] =
 	"FREE_ACT",
 	"HOLD_LIFE",
 	"DARKVIS",
-	"NO_FUEL",
-	"UNDEAD",
+	"BR_SHIELD",
+	"TCONTROL",
     "STOPREGEN",              /* was XXX4 */
 	"IMPACT",
 	"TELEPORT",
@@ -483,7 +483,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"CORRUPT",
+	"NO_FUEL",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
@@ -525,7 +525,7 @@ static cptr k_info_flags4[] =
 	"XXX29",
 	"XXX30",
 	"XXX31",
-	"XXX32",
+	"WIELD_SHIELD"
 };
 
 
@@ -590,7 +590,9 @@ static cptr a_info_act[ACT_MAX] =
 	"MANA_BOLT",
 	"BERSERKER",
 	"SNOWBALL",
-	"CHARM_ANIMAL"
+	"CHARM_ANIMAL",
+	"TUNNELDIG",
+	"SUN_HERO"
 };
 
 
@@ -1926,7 +1928,7 @@ errr parse_e_info(char *buf, header *head)
 		e_ptr->xtra = xtra;
 	}
 
-	/* Process 'T' for "Types allowed" (up to three lines) */
+	/* Process 'T' for "Types allowed" (up to five lines (was 3)) */
 	else if (buf[0] == 'T')
 	{
 		int tval, sval1, sval2;
@@ -2491,15 +2493,15 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, fos, thn, thb, tht;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			            &srh, &fos, &thn, &thb, &tht)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_dis = dis;
@@ -2510,25 +2512,25 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_fos = fos;
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
+		pr_ptr->r_tht = tht;
 	}
 
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-        /* DJA: infra is now alertness but I didn't change the variable name */
-		int mhp, exp, infra;
+		int mhp, exp, unused;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
 		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
+			            &mhp, &exp, &unused)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_mhp = mhp;
 		pr_ptr->r_exp = exp;
-		pr_ptr->infra = infra;
+		pr_ptr->infra = unused;
 	}
 
 	/* Hack -- Process 'I' for "info" and such */
@@ -2756,15 +2758,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, fos, thn, thb, tht;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			            &srh, &fos, &thn, &thb, &tht)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_dis = dis;
@@ -2775,20 +2777,21 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_fos = fos;
 		pc_ptr->c_thn = thn;
 		pc_ptr->c_thb = thb;
+		pc_ptr->c_tht = tht;
 	}
 
 	/* Process 'X' for "Extra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, fos, thn, thb, tht;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			            &srh, &fos, &thn, &thb, &tht)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->x_dis = dis;
@@ -2799,12 +2802,13 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->x_fos = fos;
 		pc_ptr->x_thn = thn;
 		pc_ptr->x_thb = thb;
+		pc_ptr->x_tht = tht;
 	}
 
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, alertness;
+		int mhp, exp, unused;
 		long sense_base;
 
 		/* There better be a current pc_ptr */
@@ -2812,7 +2816,7 @@ errr parse_c_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%ld:%d",
-			            &mhp, &exp, &sense_base, &alertness))
+			            &mhp, &exp, &sense_base, &unused))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -2820,7 +2824,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
 		pc_ptr->sense_div = 40;
-        pc_ptr->calert = alertness;
+		pc_ptr->calert = unused;
 	}
 
 	/* Process 'A' for "Attack Info" (one line only) */

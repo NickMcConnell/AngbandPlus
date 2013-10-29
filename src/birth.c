@@ -211,7 +211,7 @@ static int adjust_stat(int value, int amount, int auto_roll)
  *
  * For efficiency, we include a chunk of "calc_bonuses()".
  */
-static void get_stats(void)
+static void get_stats(bool autoroller)
 {
 	int i, j;
 
@@ -227,7 +227,9 @@ static void get_stats(void)
 		for (j = i = 0; i < 18; i++)
 		{
 			/* Roll the dice */
-			dice[i] = randint(3 + i % 3);
+            /* (improved standard roller) */
+			if (autoroller) dice[i] = randint(3 + i % 3);
+			else dice[i] = randint(4 + i % 3);
 
 			/* Collect the maximum */
 			j += dice[i];
@@ -417,10 +419,14 @@ static void get_money(void)
 
 	int gold;
 
+    /* tourists start with slightly more gold */
+    if (p_ptr->pclass == 15) p_ptr->sc += randint(6) - 1; /* +0 to +5 */
+
 	/* Social Class determines starting gold */
 	/* (start with less if selling to stores is turned on) */
-    if (adult_cansell) gold = (p_ptr->sc * 3) + randint(110) + 140;
-    else gold = (p_ptr->sc  * 4) + randint(120) + 280;
+    if (adult_cansell) gold = ((p_ptr->sc+2) * 3) + randint(110) + 140;
+    else gold = ((p_ptr->sc+2)  * 4) + randint(120) + 280;
+    if (p_ptr->pclass == 15) gold += 15 + randint(25);
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -544,6 +550,8 @@ static void player_wipe(bool really_wipe)
     /* Player is free of slime and silver poison */
     p_ptr->silver = PY_SILVER_HEALTHY;
     p_ptr->slime = PY_SLIME_HEALTHY;
+    p_ptr->corrupt = 0; /* no corruption */
+    p_ptr->learnedcontrol = 0; /* no teleport control skill */
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
@@ -700,9 +708,12 @@ static void player_outfit(void)
 #define QUESTION_COL     2
 #define SEX_COL          2
 #define RACE_COL        14
-#define RACE_AUX_COL    29
-#define CLASS_COL       29
-#define CLASS_AUX_COL   50
+/* RACE_AUX_COL and CLASS_COL were 29 and CLASS_AUX_COL was 50 */
+/* changed to clean up a little messy-lookin stuff */
+#define RACE_AUX_COL    31
+#define CLASS_COL       31
+#define CLASS_AUX_COL   48
+#define ROLL_COL        48
 
 /*
  * Clear the previous question
@@ -743,25 +754,33 @@ static void race_aux_hook(int race, void *db, const region *reg)
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 	strnfmt(s, sizeof(s), "Experience: %d%% ", p_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-	strnfmt(s, sizeof(s), "Racial Alertness: %d  ", p_info[race].infra);
+	strnfmt(s, sizeof(s), "Race alertness: %d  ", p_info[race].r_fos);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
-	if (p_info[race].b_age == 24) strnfmt(s, sizeof(s), "has sustained dexterity.                           ");
-	else if (p_info[race].b_age == 14) strnfmt(s, sizeof(s), "creatures of light are less aggressive to humans.  ");
-	else if (p_info[race].b_age == 75) strnfmt(s, sizeof(s), "has sustained dexterity and resistance to light.   ");
-	else if (p_info[race].b_age == 21) strnfmt(s, sizeof(s), "has hold life.                                     ");
-	else if (p_info[race].b_age == 50) strnfmt(s, sizeof(s), "has free action.                                   ");
-	else if (p_info[race].b_age == 35) strnfmt(s, sizeof(s), "has resistance to blindness and darkvision.        ");
-	else if (p_info[race].b_age == 11) strnfmt(s, sizeof(s), "has resistance to darkness.                        ");
-	else if (p_info[race].b_age == 20) strnfmt(s, sizeof(s), "has sustained strength and regeneration.           ");
-	else if (p_info[race].b_age == 45) strnfmt(s, sizeof(s), "has sustained constitution.                       ");
-	else if (p_info[race].b_age == 100) strnfmt(s, sizeof(s), "has sustained intellgence and resistance to light.");
-	else if (p_info[race].b_age == 15) strnfmt(s, sizeof(s), "has partial resistance to poison.                  ");
-	else if (p_info[race].b_age == 30) strnfmt(s, sizeof(s), "has partial resistance to poison.                  ");
-	else if (p_info[race].b_age == 80) strnfmt(s, sizeof(s), "has sustained wisdom and resistance to chaos.      ");
-	else if (p_info[race].b_age == 16) strnfmt(s, sizeof(s), "has resistance to nether and can see invisible     ");
-	else strnfmt(s, sizeof(s), "                                                    ");
+	strnfmt(s, sizeof(s), "Race stealth: %d  ", p_info[race].r_stl);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
+	if (p_info[race].b_age == 24) strnfmt(s, sizeof(s), "has sustained dexterity.                         ");
+	else if (p_info[race].b_age == 14) strnfmt(s, sizeof(s), "creatures of light are less aggressive to humans.");
+	else if (p_info[race].b_age == 75) strnfmt(s, sizeof(s), "has sustained dexterity and resistance to light. ");
+	else if (p_info[race].b_age == 21) strnfmt(s, sizeof(s), "has hold life.                                   ");
+	else if (p_info[race].b_age == 50) strnfmt(s, sizeof(s), "has free action.                                 ");
+	else if (p_info[race].b_age == 35) strnfmt(s, sizeof(s), "has resistance to blindness and darkvision.      ");
+	else if (p_info[race].b_age == 11) strnfmt(s, sizeof(s), "has resistance to darkness.                      ");
+	else if (p_info[race].b_age == 20) strnfmt(s, sizeof(s), "has sustained strength and regeneration.         ");
+	else if (p_info[race].b_age == 45) strnfmt(s, sizeof(s), "has sustained constitution.                      ");
+	else if (p_info[race].b_age == 100) strnfmt(s, sizeof(s), "has sustained intellgence and resistance to light");
+	else if (p_info[race].b_age == 15) strnfmt(s, sizeof(s), "has partial resistance to poison.                ");
+	else if (p_info[race].b_age == 30) strnfmt(s, sizeof(s), "has partial resistance to poison.                ");
+	else if (p_info[race].b_age == 80) strnfmt(s, sizeof(s), "has sustained wisdom and resistance to chaos.    ");
+	else if (p_info[race].b_age == 76) strnfmt(s, sizeof(s), "has sustained dexterity and resistance to dark.  ");
+	else if (p_info[race].b_age == 16) strnfmt(s, sizeof(s), "has resistance to nether and can see invisible.  ");
+	else if (p_info[race].b_age == 23) strnfmt(s, sizeof(s), "has feather falling, resistance to light & fear. ");
+	else if (p_info[race].b_age == 52) strnfmt(s, sizeof(s), "*novelty race, must be the hulk class. (F)       ");
+	else /* only other one is Maia */ strnfmt(s, sizeof(s), "has resistance to disenchantment.                ");
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
 	/* ugly hack using base age to identify race, but I couldn't figure out how to do it by index number */
+	if (p_info[race].b_age == 52) strnfmt(s, sizeof(s),      "has confusion resistance and aggravates monsters.");
+	else strnfmt(s, sizeof(s),                               "                                                 ");
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, s);
 }
 
 
@@ -772,6 +791,7 @@ static void class_aux_hook(int class_idx, void *db, const region *loc)
 {
 	int i;
 	char s[128];
+	cptr srealm;
 
 	if (class_idx == z_info->c_max) return;
 
@@ -782,18 +802,76 @@ static void class_aux_hook(int class_idx, void *db, const region *loc)
 		        c_info[class_idx].c_adj[i]);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
+	
+	/* find the class magic realm */
+    srealm = NULL;
+    switch (c_info[class_idx].spell_book)
+    {
+           case 90:
+           {
+               srealm = "Wizardry (red)   ";
+               break;
+           }
+           case 91:
+           {
+               srealm = "Prayers (green)  ";
+               break;
+           }
+           case 92:
+           {
+               srealm = "Nature           ";
+               break;
+           }
+           case 93:
+           {
+               srealm = "Chance           ";
+               break;
+           }
+           case 94:
+           {
+               srealm = "Alchemy          ";
+               break;
+           }
+           case 95:
+           {
+               srealm = "Black Magic      ";
+               break;
+           }
+    }
 
 	strnfmt(s, sizeof(s), "Hit die: %d ", c_info[class_idx].c_mhp);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 	strnfmt(s, sizeof(s), "Experience: %d%% ", c_info[class_idx].c_exp);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
+	strnfmt(s, sizeof(s), "Class alertness: %d +1 every %d levels    ", c_info[class_idx].c_fos, c_info[class_idx].x_fos);
+	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+	strnfmt(s, sizeof(s), "Class stealth: %d  ", c_info[class_idx].c_stl);
+	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
+	if (c_info[class_idx].spell_stat == 1)
+	{
+	   strnfmt(s, sizeof(s), "Spell Stat/Realm: INT / %s ", srealm);
+	   Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
+    }
+	else if (c_info[class_idx].spell_stat == 2)
+	{
+	   strnfmt(s, sizeof(s), "Spell Stat/Realm: WIS / %s ", srealm);
+	   Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
+    }
+    else
+    {
+	   strnfmt(s, sizeof(s), "(no magic)                            ");
+	   Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
+    }
+	/* clear notes about races */
+	strnfmt(s, sizeof(s), "                               ");
+	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, s);
 }
 
 
 static region gender_region = {SEX_COL, TABLE_ROW, 15, -2};
 static region race_region = {RACE_COL, TABLE_ROW, 15, -2};
 static region class_region = {CLASS_COL, TABLE_ROW, 19, -2};
-static region roller_region = {44, TABLE_ROW, 21, -2};
+static region roller_region = {ROLL_COL, TABLE_ROW, 21, -2};
 
 
 /* Event handler implementation */
@@ -943,13 +1021,8 @@ static const menu_iter menu_defs[] = {
 	{ 0, 0, 0, display_gender, gender_handler },
 	{ 0, 0, 0, display_race, race_handler },
 	{ 0, 0, 0, display_class, class_handler },
-	{ 0, 0, 0, display_roller, roller_handler }, /* giving people back their choice */
+	{ 0, 0, 0, display_roller, roller_handler },
 
-#ifdef EFG
-	/* EFGchange unified character generation  */
-#else
-/*	{ 0, 0, 0, display_roller, roller_handler }, */
-#endif 
 };
 
 /* Menu display and selector */
@@ -1270,7 +1343,7 @@ static int player_birth_aux_2(bool start_at_end)
 #else
 		p_ptr->au = (100 * (48 - cost)) + 320;
 #endif
-        /* DJA social class should still affect starting gold */
+        /* DJA: social class should still affect starting gold */
         if ((p_ptr->sc == 1) && (adult_cansell)) p_ptr->au -= 19 + randint(35);
         else if (p_ptr->sc == 1) p_ptr->au -= 34 + randint(50);
         if (p_ptr->sc < 4) p_ptr->au -= (4-p_ptr->sc)*5 + randint(10);
@@ -1279,7 +1352,7 @@ static int player_birth_aux_2(bool start_at_end)
         if (p_ptr->sc > 50) p_ptr->au += p_ptr->sc/4 + randint(p_ptr->sc/2);
 
         /* hulks start with less gold because they can mine extremely easily */
-        if ((p_ptr->prace == 17) && (p_ptr->au > 100)) p_ptr->au -= 120 + randint(90);
+        if ((p_ptr->prace == 17) && (p_ptr->au > 120)) p_ptr->au -= 120 + randint(90);
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -1576,7 +1649,7 @@ static int player_birth_aux_3(bool start_at_end, bool autoroll)
 					bool accept = TRUE;
 
 					/* Get a new character */
-					get_stats();
+					get_stats(TRUE);
 
 					/* Advance the round */
 					auto_round++;
@@ -1651,7 +1724,7 @@ static int player_birth_aux_3(bool start_at_end, bool autoroll)
 			else
 			{
 				/* Get a new character */
-				get_stats();
+				get_stats(FALSE);
 			}
 
 			/* Flush input */
@@ -1897,10 +1970,10 @@ for (;clash < 50;)
                             (p_ptr->pclass != 16) && (p_ptr->pclass != 19) && (p_ptr->pclass != 14))
                          clash = 11;
                       }
-                    /* hobbit cannot be necromancer, druid, war mage, barbarian, fighter wizard, mystic, or red or yellow knight */
+                    /* hobbit cannot be necromancer, war mage, barbarian, mystic, or red or yellow knight */
                     if (p_ptr->prace == 3)
                       {
-                         if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10) || 
+                         if ((p_ptr->pclass == 2) ||
                             (p_ptr->pclass == 18) || (p_ptr->pclass == 16))
                          clash = 3;
                       }
@@ -1932,7 +2005,7 @@ for (;clash < 50;)
                       {
                          if (p_ptr->pclass == 14) clash = 8; /* only thief so far */
                       }
-                    /* high elf cannot be a barbarian, tourist, rogue, loser, holy rogue, stone slinger or green knight */
+                    /* high elf cannot be a barbarian, tourist, rogue, loser, stone slinger or green knight */
                     if (p_ptr->prace == 9)
                       {
                          if ((p_ptr->pclass == 3) || (p_ptr->pclass == 18) || (p_ptr->pclass == 15))

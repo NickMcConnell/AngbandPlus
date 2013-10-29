@@ -74,7 +74,7 @@ static timed_effect effects[] =
 	{ "You magic is enhanced and you can read runes with your hands!", "Your magic no longer seems more powerful than normal.", PR_BLIND, 0, PU_BONUS, MSG_SEE_INVIS }, /* TMD_BRAIL */
 	{ "Your skin becomes like stone and you move slower.", "The stoneskin wears off.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_STONESKIN */
 	{ "You become desperate to escape!", "You feel bolder now.", PR_AFRAID, 0, PU_BONUS, MSG_AFRAID }, /* TMD_TERROR */
-	{ "", "", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), 0 }, /* TMD_MESP: (mind sight) telepathy only while blind */
+	{ "", "", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MESP: (mind sight) telepathy only while blind (no message) */
 	{ "You feel slightly resistant to poison.", "You feel less resistant to poison.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_WOPP_POIS */
 	{ "You feel resistant to nether forces!", "You feel less resistant to nether.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_OPP_NETHR */
 	{ "You feel safe from lifeless monsters!", "You no longer feel safe from lifeless monsters.", 0, 0, 0, MSG_PROT_EVIL }, /* TMD_PROTDEAD */
@@ -83,7 +83,7 @@ static timed_effect effects[] =
 	{ "You feel the spirit of the balrog in your blows!", "The spirit of the balrog leaves you.", 0, 0, PU_BONUS, MSG_PROT_EVIL }, /* TMD_BALROG */
 	{ "You feel completely immune to fire!", "You no longer feel immune to fire.", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_FIRE }, /* TMD_IMM_FIRE */
 	{ "You stop breathing but continue to live as an undead.", "The lifebreath returns to you.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_BECOME_LICH */
-	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_WSINFRA */
+	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_WSINFRA (no message) */
 	{ "You sense demons stirring", "You no longer aggravate demons.", 0, 0, 0, MSG_GENERIC }, /* TMD_WITCH */
 	{ "You gain extra speed in melee!", "Your melee is back to normal speed.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_XATTACK */
 	{ "You feel like nothing can slow you down!", "Your speed is no longer sustained.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SUST_SPEED */
@@ -92,7 +92,13 @@ static timed_effect effects[] =
 	{ "You can see monsters without light!", "You can no longer see without light.", PR_OPPOSE_ELEMENTS, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DARKVIS */
 	{ "You feel very sneaky.", "You no longer feel especially sneaky.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_SUPER_ROGUE */
 	{ "Are electrical field surrounds you.", "The electric field dissapates.", PR_BLIND, 0, PU_BONUS, MSG_GENERIC }, /* TMD_ZAPPING */
-	{ "You have first sight and second thoughts", "Your sight returns to normal", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_2ND_THOUGHT */
+	{ "You have first sight and second thoughts.", "Your sight returns to normal", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_2ND_THOUGHT */
+	{ "Your magical shield protects against monster breath", "The breath shield dissapears", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_BR_SHIELD */
+	{ "Daylight surrounds you", "The daylight enchantment expires and the shadows return", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DAYLIGHT */
+	{ "You feel resistant to confusion!", "You no longer feel resistant to confusion.", PR_OPPOSE_ELEMENTS, 0, 0, MSG_GENERIC }, /* TMD_CLEAR_MIND */
+	{ "You feel forsaken.", "The curse wears off.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_CURSE */
+	{ "You feel very skillfull!", "The skill boost wears off.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_SKILLFUL */
+	{ "You have the throwing strength of a giant", "You feel like you just shrunk back to your usual size.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_MIGHTY_HURL */
 };
 
 /*
@@ -135,6 +141,8 @@ bool set_timed(int idx, int v)
 		{
 			message(MSG_RECOVER, 0, effect->on_end);
 			notice = TRUE;
+			/* hack: reset speed adjustment */
+			if (idx == TMD_ADJUST) p_ptr->spadjust = 0;
 		}
 	}
 
@@ -252,11 +260,7 @@ static bool set_oppose_elec(int v)
 	{
 		if (!p_ptr->timed[TMD_OPP_ELEC] && !p_ptr->immune_elec)
 		{
-#ifdef ALTDJA
-			message(MSG_RES_ELEC, 0, "You feel resistant to stench!");
-#else
 			message(MSG_RES_ELEC, 0, "You feel resistant to electricity!");
-#endif
 			notice = TRUE;
 		}
 	}
@@ -266,11 +270,7 @@ static bool set_oppose_elec(int v)
 	{
 		if (p_ptr->timed[TMD_OPP_ELEC] && !p_ptr->immune_elec)
 		{
-#ifdef ALTDJA
-			message(MSG_RECOVER, 0, "You feel less resistant to stench.");
-#else
 			message(MSG_RECOVER, 0, "You feel less resistant to electricity.");
-#endif
 			notice = TRUE;
 		}
 	}
@@ -1424,20 +1424,16 @@ void monster_death(int m_idx)
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	s32b div, new_exp, new_exp_frac;
+	bool wakemon;
+	int estl;
 
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
-
-	/* Wake it up */
-	m_ptr->csleep = 0;
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
@@ -1542,6 +1538,38 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		return (TRUE);
 	}
 
+	/* effective stealth (lower the better) */
+    estl = 108 - (p_ptr->skills[SKILL_STL] * 6);
+    /* extremely high stealth still can wake the monster up */
+    if (estl < 12) estl = 12;
+    /* if it's awake it's more likely to notice you */
+    if ((m_ptr->roaming) && (m_ptr->cdis < 3)) estl += 40;
+	else if (m_ptr->roaming) estl += 20;
+    /* if you hit but did (almost) no damage, */
+	/* there's still a slight chance that the monster doesn't notice */
+	/* especially if it's big and stupid */
+	if ((r_ptr->flags2 & (RF2_STUPID)) && (m_ptr->hp > 1000)) estl += 10 + (2 * dam);
+	else if (r_ptr->flags2 & (RF2_STUPID)) estl += 25 + (5 * dam);
+	else if ((m_ptr->hp > 1000) && (dam < 12)) estl += 40 + (5 * dam);
+    else if (dam < 5) estl += 50 + (10 * dam);
+    wakemon = FALSE;
+
+    if (dam >= 5) wakemon = TRUE;
+	if ((r_ptr->flags2 & (RF2_STUPID)) || (m_ptr->hp > 1000)) wakemon = FALSE;
+	if (randint(100) < estl) wakemon = TRUE;
+    if (estl > 50) estl = 50;
+    if (estl >= m_ptr->csleep) wakemon = TRUE;
+
+    /* disturb the monster (not automatic wakeup) */
+    if (wakemon)
+    {
+        m_ptr->roaming = 0;
+        m_ptr->csleep = 0;
+    }
+    else /* (this estl is always positive) */
+    {
+        m_ptr->csleep -= estl;
+    }
 
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
@@ -1567,7 +1595,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
+	/* never gets scared by damage after recovering from fear by running out of options */
+	if (!m_ptr->monfear && !m_ptr->bold && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
 	{
 		int percentage;
 
@@ -1832,7 +1861,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 
 	/* Determine if the monster is "living" (vs "undead") */
 	if (r_ptr->flags3 & (RF3_NON_LIVING)) living = FALSE;
-	if (r_ptr->flags3 & (RF3_DEMON)) living = FALSE;
+	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
@@ -1855,12 +1884,14 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 			my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
-	if (m_ptr->csleep) my_strcat(buf, ", asleep", max);
-	if (m_ptr->confused) my_strcat(buf, ", confused", max);
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
+	if ((m_ptr->csleep) && (m_ptr->roaming) && (m_ptr->roaming < 20)) my_strcat(buf, ", awake but hasn't noticed you", max);
+	else if ((m_ptr->roaming) && (cheat_know)) my_strcat(buf, ", temporarily roaming", max);
+	else if (m_ptr->csleep) my_strcat(buf, ", asleep", max);
+	if (m_ptr->confused) my_strcat(buf, ", confused", max);
 	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
+	if (m_ptr->charmed) my_strcat(buf, ", charmed", max);
 }
-
 
 
 /*
@@ -2537,8 +2568,9 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 						/* Save screen */
 						screen_save();
 
-						/* Recall on screen */
-						screen_roff(m_ptr->r_idx);
+                        /* Recall on screen */
+                        /* include individual monster stuff */
+						screen_roff(m_ptr->r_idx, m_ptr);
 
 						/* Hack -- Complete the prompt (again) */
 						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
@@ -2885,6 +2917,8 @@ bool target_set_interactive(int mode)
 
 	char info[80];
 
+	/* don't target monsters for telekinsis or teleport control */
+	if ((spellswitch == 24) || (spellswitch == 13)) flag = FALSE;
 
 	/* Cancel target */
 	target_set_monster(0);
@@ -3256,18 +3290,18 @@ bool target_set_interactive(int mode)
 bool get_aim_dir(int *dp)
 {
 	int dir;
+	bool spot_target = FALSE;
 
 	event_type ke;
 
 	cptr p;
-	
 
-	if (repeat_pull(dp))
+    if (repeat_pull(dp))
 	{
 		/* Verify */
 		if (!(*dp == 5 && !target_okay()))
 		{
-			return (TRUE);
+            return (TRUE);
 		}
 		else
 		{
@@ -3283,13 +3317,20 @@ bool get_aim_dir(int *dp)
 	dir = p_ptr->command_dir;
 
 	/* Hack -- auto-target if requested */
-	/* Never use old target with telekinesis (spellswitch 24) */
-	if ((spellswitch != 24) && use_old_target && target_okay()) dir = 5;
-
-    if ((spellswitch == 24) && (!dir)) msg_print("Target an object or pile of objects.");
+	/* spellswitch 24 is for telekinesis */
+	/* spellswitch 13 is for teleport control */
+	if ((spellswitch == 24) || (spellswitch == 13))
+	{
+       /* never use old target */
+       dir = 0;
+       if (spellswitch == 24) msg_print("Target an object or pile of objects.");
+       spot_target = TRUE;
+    }
+	else if (use_old_target && target_okay()) dir = 5;
 
 	/* Ask until satisfied */
-	while (!dir)
+/* 	while (!dir) */
+	while (spot_target ? dir != 5 : !dir)
 	{
 		/* Choose a prompt */
 		if (!target_okay())
@@ -3335,13 +3376,23 @@ bool get_aim_dir(int *dp)
 			/* Possible direction */
 			default:
 			{
-				dir = target_dir(ke.key);
-				break;
+				if (spot_target)
+				{
+					bell("You must target a specific spot.");
+				}
+				else
+				{
+					dir = target_dir(ke.key);
+					break;
+				}
 			}
 		}
 
+	    /* Error */
+	    if ((spot_target) && (dir != 5)) bell("You must target a specific spot.");
+
 		/* Error */
-		if (!dir) bell("Illegal aim direction!");
+		else if (!dir) bell("Illegal aim direction!");
 	}
 
 	/* No direction */
@@ -3351,7 +3402,9 @@ bool get_aim_dir(int *dp)
 	p_ptr->command_dir = dir;
 
 	/* Check for confusion */
-	if (p_ptr->timed[TMD_CONFUSED])
+	/* if you succeed in controlling teleport or casting telekinesis */
+	/* while confused then you should be able to target */
+	if ((p_ptr->timed[TMD_CONFUSED]) && (!spot_target))
 	{
 		/* Random direction */
 		dir = ddd[rand_int(8)];

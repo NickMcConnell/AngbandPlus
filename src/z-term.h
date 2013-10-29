@@ -310,7 +310,7 @@ struct term
 
 
 /*
- * Angband "attributes" (with symbols, and base (R,G,B) codes)
+ * Angband "attributes" (with symbols, and base (R,G,B) codes) (colors)
  *
  * The "(R,G,B)" codes are given in "fourths" of the "maximal" value,
  * and should "gamma corrected" on most (non-Macintosh) machines.

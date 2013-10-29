@@ -3106,6 +3106,47 @@ bool get_check(cptr prompt)
 	return (TRUE);
 }
 
+/*
+ * Verify something with the user (don't accept "y")
+ *
+ * The "prompt" should take the form "Query? "
+ *
+ * Note that "[y/n]" is appended to the prompt.
+ */
+bool get_confirm(cptr prompt)
+{
+	char ch;
+
+	char buf[80];
+
+	/* Paranoia XXX XXX XXX */
+	message_flush();
+
+	/* Hack -- Build a "useful" prompt */
+	strnfmt(buf, 78, "%.70s[@ to confirm] ", prompt);
+
+	/* Prompt for it */
+	prt(buf, 0, 0);
+
+	/* Get an acceptable answer */
+	while (TRUE)
+	{
+		ch = inkey();
+		if (quick_messages) break;
+		if (ch == ESCAPE) break;
+		bell("Illegal response to a 'yes/no' question!");
+	}
+
+	/* Erase the prompt */
+	prt("", 0, 0);
+
+	/* Normal negation (only one option to confirm) */
+	if (ch != '@') return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
+
 
 /*
  * Prompts for a keypress

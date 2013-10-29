@@ -596,7 +596,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		wiz_display_item(i_ptr);
 
 		/* Ask wizard what to do. */
-		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent? ", &ch))
+		if (!get_com("[a]ccept, [c]ursed, [n]ormal, [g]ood, [e]xcellent, [s]pecial? ", &ch))
 			break;
 
 		/* Create/change it! */
@@ -604,6 +604,13 @@ static void wiz_reroll_item(object_type *o_ptr)
 		{
 			changed = TRUE;
 			break;
+		}
+
+		/* Apply cursed magic, but first clear object */
+		else if (ch == 'c' || ch == 'C')
+		{
+			object_prep(i_ptr, o_ptr->k_idx);
+			apply_magic(i_ptr, -2, FALSE, FALSE, FALSE);
 		}
 
 		/* Apply normal magic, but first clear object */
@@ -614,20 +621,44 @@ static void wiz_reroll_item(object_type *o_ptr)
 		}
 
 		/* Apply good magic, but first clear object */
-		else if (ch == 'g' || ch == 'g')
+		else if (ch == 'g' || ch == 'G')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
 			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
-		else if (ch == 'e' || ch == 'e')
+		else if (ch == 'e' || ch == 'E')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
 			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
 		}
-	}
 
+		/* Apply great magic and allow artifacts */
+		else if (ch == 's' || ch == 'S')
+		{
+			object_prep(i_ptr, o_ptr->k_idx);
+			apply_magic(i_ptr, p_ptr->depth, TRUE, TRUE, TRUE);
+		}
+	}
+	
+	/* Remove broken flag from staffs with good egos */
+	/* even if their object kind is normally broken. */
+    if ((broken_p(i_ptr)) && (i_ptr->tval == TV_STAFF))
+    {
+		if (i_ptr->name2)
+		{
+           ego_item_type *e_ptr = &e_info[i_ptr->name2];
+
+		   /* not broken */
+		   if (e_ptr->cost) i_ptr->ident &= ~(IDENT_BROKEN);
+        }
+        /* not broken if it has good to-hit and to-dam bonuses */
+        else if ((i_ptr->to_h > 2) && (i_ptr->to_d > 2))
+        {
+           i_ptr->ident &= ~(IDENT_BROKEN);
+        }
+    }
 
 	/* Notice change */
 	if (changed)

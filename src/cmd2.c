@@ -72,6 +72,9 @@ void do_cmd_go_down(void)
 	/* New level */
 	p_ptr->depth++;
 
+	/* For find vault spell */
+	if ((p_ptr->find_vault) && (p_ptr->depth > 4)) p_ptr->seek_vault = TRUE;
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -275,7 +278,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		msg_print("A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_STR);
+		(void)do_dec_stat(A_STR, 0);
 	}
 
 	/* Lose constitution */
@@ -283,7 +286,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		msg_print("A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_CON);
+		(void)do_dec_stat(A_CON, 0);
 	}
 
 	/* Poison */
@@ -1030,7 +1033,7 @@ static bool do_cmd_tunnel_test(int y, int x)
  * of the room, and whose "illumination" status do not change with
  * the rest of the room.
  */
-static bool twall(int y, int x)
+bool twall(int y, int x)
 {
 	/* Paranoia -- Require a wall or door or some such */
 	if (cave_floor_bold(y, x)) return (FALSE);
@@ -1190,8 +1193,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Rubble */
 	else if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
-		/* Remove the rubble */
-		if ((p_ptr->skills[SKILL_DIG] > rand_int(200)) && twall(y, x))
+		/* Remove the rubble (slightly harder than it used to be) */
+		if ((p_ptr->skills[SKILL_DIG] > 4 + rand_int(200)) && twall(y, x))
 		{
 			/* Message */
 			msg_print("You have removed the rubble.");
@@ -1628,6 +1631,9 @@ static bool do_cmd_bash_aux(int y, int x)
 	/* Hack -- always have a chance */
 	if (temp < 1) temp = 1;
 
+	/* always succeed with mighty_hurl */
+	if (p_ptr->timed[TMD_MIGHTY_HURL]) temp = 101;
+
 	/* Hack -- attempt to bash down the door */
 	if (rand_int(100) < temp)
 	{
@@ -2036,6 +2042,11 @@ bool do_cmd_walk_test(int y, int x)
 	{
 		return TRUE;
 	}
+	/* allow attack on invisible monster you just heard */
+	else if ((cave_m_idx[y][x] > 0) && (mon_list[cave_m_idx[y][x]].heard))
+	{
+		return TRUE;
+	}
 
 	/* Require open space */
 	if (!cave_floor_bold(y, x))
@@ -2043,8 +2054,10 @@ bool do_cmd_walk_test(int y, int x)
 		/* Rubble */
 		if (cave_feat[y][x] == FEAT_RUBBLE)
 		{
-			/* Message */
-			message(MSG_HITWALL, 0, "There is a pile of rubble in the way!");
+			/* rubble can be climbed over now */
+            return (TRUE);
+            /* Message *
+			message(MSG_HITWALL, 0, "There is a pile of rubble in the way!"); */
 		}
 
 		/* Door */
@@ -2216,6 +2229,7 @@ void do_cmd_pathfind(int y, int x)
  */
 void do_cmd_hold(void)
 {
+	int trapalert;
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -2232,8 +2246,12 @@ void do_cmd_hold(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	trapalert = p_ptr->skills[SKILL_FOS];
+	/* mainly to help dwarves who have darkvision but horrible alertness */
+	if (p_ptr->darkvis) trapalert += 6;
+
 	/* Spontaneous Searching */
-	if ((p_ptr->skills[SKILL_FOS] >= 50) || (0 == rand_int(50 - p_ptr->skills[SKILL_FOS])))
+	if ((trapalert >= 50) || (0 == rand_int(50 - trapalert)))
 	{
 		search();
 	}
@@ -2282,7 +2300,7 @@ void do_cmd_pickup(void)
 }
 
 /*
- * DJA: Pick up objects on the floor away from you.
+ * DJA: Telekinesis: Pick up objects on the floor from a distance.
  * spellswitch = 24
  */
 void do_telekinesis(void)
@@ -2294,8 +2312,14 @@ void do_telekinesis(void)
 	
 	/* (using the spell already uses energy) */
 
-	if (energy_cost < 10) spellswitch = 0;
+	/* did we pick anything up? */
+    if (energy_cost < 10) spellswitch = 0;
 	else spellswitch = 24;
+
+	 /* reset target */
+	 /* (would usually not want to re-use a telekinesis target) */
+	 p_ptr->target_row = 0;
+	 p_ptr->target_col = 0;
 }
 
 
@@ -2405,6 +2429,7 @@ void do_cmd_rest(void)
  */
 static int breakage_chance(const object_type *o_ptr)
 {
+	int defolt;
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
@@ -2412,9 +2437,14 @@ static int breakage_chance(const object_type *o_ptr)
 		case TV_FLASK:
 		case TV_POTION:
 		case TV_BOTTLE:
-		case TV_FOOD:
 		{
 			return (100);
+		}
+
+		/* Usually breaks */
+		case TV_FOOD:
+		{
+			return (75);
 		}
 
 		/* Often break */
@@ -2426,10 +2456,15 @@ static int breakage_chance(const object_type *o_ptr)
 		}
 		
 		/* Sometimes break */
-		case TV_SKELETON: /* tusks as spears */
 		case TV_ARROW:
 		{
 			return (35);
+		}
+
+		/* tusks as spears */
+        case TV_SKELETON:
+		{
+			return (30);
 		}
 
 		/* Sometimes break */
@@ -2441,9 +2476,13 @@ static int breakage_chance(const object_type *o_ptr)
 			return (25);
 		}
 	}
+	
+	defolt = 10;
+	/* egos don't break as easily */
+	if (o_ptr->name2) defolt -= 4;
 
 	/* Rarely break */
-	return (10);
+	return (defolt);
 }
 
 
@@ -2457,6 +2496,7 @@ static int breakage_chance(const object_type *o_ptr)
  * See "calc_bonuses()" for more calculations and such.
  *
  * Note that "firing" a missile is MUCH better than "throwing" it.
+ * (but there are now weapons which are meant for throwing)
  *
  * Note: "unseen" monsters are very hard to hit.
  *
@@ -2479,8 +2519,8 @@ void do_cmd_fire(void)
 {
 	int dir, item;
 	int i, j, y, x, ty, tx;
-	int tdam, tdis, thits, tmul;
-	int bonus, chance;
+	int tdam, tdis, thits, tmul, noslip;
+	int bonus, chance, excrit;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
@@ -2494,6 +2534,7 @@ void do_cmd_fire(void)
 	char missile_char;
 
 	char o_name[80];
+	u32b f1, f2, f3, f4;
 
 	int path_n;
 	u16b path_g[256];
@@ -2564,6 +2605,9 @@ void do_cmd_fire(void)
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 	/* Single object */
 	i_ptr->number = 1;
 
@@ -2596,7 +2640,7 @@ void do_cmd_fire(void)
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
 
-	/* Base damage from thrown object plus launcher bonus */
+	/* Base damage from ammo plus launcher bonus */
 	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
 
 	/* Actually "fire" the object */
@@ -2613,14 +2657,33 @@ void do_cmd_fire(void)
 	else if (tmul == 4) tdam = ((tdam * 7) / 2);  /* (x3.5) */
 	else if (tmul == 5) tdam = ((tdam * 35) / 8); /* (x4.375) */
 	else if (tmul > 5) tdam = ((tdam * 21) / 4);  /* (x5.25) */
-	
     /* tdam *= tmul; */
+
+    excrit = 0;
+	if (f2 & TR2_EXTRA_CRIT) excrit = 12;
+	if ((bonus + p_ptr->skills[SKILL_THB])-1 > 12) excrit += ((bonus + p_ptr->skills[SKILL_THB])-1)/12;
 
 	/* Base range XXX XXX (DJA: 2 less than it was) */
 	tdis = 8 + 5 * tmul;
 
 	/* Take a (partial) turn */
 	p_ptr->energy_use = (100 / thits);
+
+	
+	/* cursed ammo misfires */
+	if (cursed_p(o_ptr))
+	{
+		noslip = 125 - p_ptr->skills[SKILL_THB];
+
+		/* random direction & less likely to hit */
+		if (randint(100) < noslip)
+		{
+			dir = ddd[rand_int(8)];
+			msg_format("The %s misfires.", o_name);
+			chance -= 5;
+		}
+	}
+
 
 	/* Start at the player */
 	y = p_ptr->py;
@@ -2738,20 +2801,26 @@ void do_cmd_fire(void)
 				}
 				
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, FALSE);
+				tdam = tot_dam_aux(i_ptr, tdam, 1, m_ptr);
+				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, 0, excrit);
 				
                 /* DJA: for races / classes who like slings, */
 				/* slings get strength bonus to damage */
 				/* (rogues, druids, barbarians, hobbits, and ghouls) */
-				if ((p_ptr->pclass == 3) || (p_ptr->pclass == 10) || (p_ptr->pclass == 18) ||
-				   (p_ptr->prace == 3) || (p_ptr->prace == 14))
+				if ((p_ptr->ammo_tval == TV_SHOT) && (tmul < 3))
 				{
-				   if ((p_ptr->ammo_tval == TV_SHOT) && (tmul < 3))
-				   {
+					if (p_ptr->timed[TMD_MIGHTY_HURL])
+					{
+                       tdam += (((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3) / 2;
+					}
+					else if ((p_ptr->pclass == 3) || (p_ptr->pclass == 10) || (p_ptr->pclass == 18) ||
+						(p_ptr->prace == 3) || (p_ptr->prace == 14))
+					{
                        tdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-                   }
+					}
                 }
+
+				
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2800,9 +2869,59 @@ void do_cmd_fire(void)
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
+	
+    /* apply exp drain */
+    if (p_ptr->exp_drain) rxp_drain(45);
 }
 
 
+
+/*
+ * Figure number of thrown weapons of the chosen item's weight
+ * that you can throw in one turn.
+ *
+ * Very similar to number of blows with a melee weapon except
+ * that the class min weight doesn't apply and the
+ * multiplier is determined by throwing skill.
+ */
+int thits_thrown(int weight)
+{
+	int str_index, dex_index;
+	int throws, mult, maxt;
+	int eskill = adj_dex_blow[p_ptr->stat_ind[A_DEX]] + p_ptr->skills[SKILL_THT];
+	/* minimum weight (the weight of a throwing dagger) */
+	if (weight < 12) weight = 12;
+
+	/* determine multiplier from throwing skill and DEX */
+	if (eskill < 60) mult = 1;
+	else if (eskill < 90) mult = 2;
+	else if (eskill < 120) mult = 3;
+	else if (eskill < 150) mult = 4;
+	else if (eskill < 180) mult = 5;
+	else mult = 6;
+
+	/* Get the strength vs weight */
+	str_index = ((adj_str_blow[p_ptr->stat_ind[A_STR]] * mult) / ((weight + 1) * 2));
+
+	/* Maximal value */
+	if (str_index > 11) str_index = 11;
+
+	/* Index by dexterity */
+	dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+	/* Maximal value */
+	if (dex_index > 11) dex_index = 11;
+
+	/* Use the blows table */
+	throws = blows_table[str_index][dex_index];
+
+	/* Maximal value */
+	maxt = cp_ptr->max_attacks;
+	if (maxt > 5) maxt = 5;
+	if (throws > maxt) throws = maxt;
+
+	return throws;
+}
 
 /*
  * Throw an object from the pack or floor.
@@ -2811,16 +2930,19 @@ void do_cmd_fire(void)
  *
  * Should throwing a weapon do full damage?  Should it allow the magic
  * to hit bonus of the weapon to have an effect?  Should it ever cause
- * the item to be destroyed?  Should it do any damage at all?
+ * the item to be destroyed?
  */
 void do_cmd_throw(void)
 {
 	int dir, item;
 	int i, j, y, x, ty, tx;
-	int chance, tdam, tdis;
+	int chance, tdam, tdis, noslip, thits;
 	int mul, div;
+	bool comeback, throwok, tooheavy;
+	int comechance, excrit, bonus;
 
 	object_type *o_ptr;
+	u32b f1, f2, f3, f4;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -2855,6 +2977,23 @@ void do_cmd_throw(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	tooheavy = FALSE;
+	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight >= 200))
+		tooheavy = TRUE;
+	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
+		tooheavy = TRUE;
+	if ((p_ptr->timed[TMD_MIGHTY_HURL]) || ((cp_ptr->flags & CF_HEAVY_BONUS) && (((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 7)))
+		tooheavy = FALSE;
+
+	if (tooheavy)
+	{
+		if (!get_check("This item is too heavy to throw effectively, do it anyway? "))
+		{
+			return;
+		}
+	}
+	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
+		tooheavy = TRUE;
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -2866,26 +3005,41 @@ void do_cmd_throw(void)
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
-	/* Distribute the charges of rods/wands/staves between the stacks */
-	distribute_charges(o_ptr, i_ptr, 1);
-
-	/* Single object */
-	i_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	comeback = FALSE;
+	comechance = p_ptr->skills[SKILL_THT] / 5;
+	if (f2 & TR2_RTURN)
 	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
+	   if (randint(120 + badluck) < 68 + comechance) comeback = TRUE;
+    }
 
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
+    /* Distribute the charges of rods/wands/staves between the stacks */
+    /* (these should never have RTURN) */
+    distribute_charges(o_ptr, i_ptr, 1);
+
+    /* Single object */
+    i_ptr->number = 1;
+
+    /* returns? ..ok, it never actually leaves, but the player doesn't know that */
+    if (comeback == FALSE)
+    {
+	   /* Reduce and describe inventory */
+	   if (item >= 0)
+	   {
+		  inven_item_increase(item, -1);
+		  inven_item_describe(item);
+		  inven_item_optimize(item);
+	   }
+
+	   /* Reduce and describe floor item */
+	   else
+	   {
+		  floor_item_increase(0 - item, -1);
+		  floor_item_optimize(0 - item);
+	   }
+    }
 
 
 	/* Description */
@@ -2905,18 +3059,108 @@ void do_cmd_throw(void)
 	/* Hack -- Distance -- Reward strength, penalize weight */
 	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
 
-	/* Max distance of 10 */
-	if (tdis > 10) tdis = 10;
+	/* limit distance for very heavy stuff */
+	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (!p_ptr->timed[TMD_MIGHTY_HURL]) && 
+		(o_ptr->weight >= 200))
+	{
+		if (tdis > 2) tdis = 2;
+	}
+	else if ((p_ptr->timed[TMD_MIGHTY_HURL]) && (cp_ptr->flags & CF_HEAVY_BONUS))
+	{
+		/* recycles the CON regeneration table */
+		tdis += (adj_con_fix[p_ptr->stat_ind[A_STR]]);
+		if (((o_ptr->weight >= 200) || (tooheavy)) && (tdis > 10)) tdis = 10;
+	}
+	/* HEAVY_BONUS class bonus to distance */
+	else if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->timed[TMD_MIGHTY_HURL]))
+	{
+		/* recycles the CON regeneration table */
+		tdis += (adj_con_fix[p_ptr->stat_ind[A_STR]]) / 2;
+		if (((o_ptr->weight >= 200) || (tooheavy)) && (tdis > 8)) tdis = 8;
+	}
+
+	/* Max distance of 10 (or 12 if meant for throwing) */
+	if ((p_ptr->timed[TMD_MIGHTY_HURL]) && (cp_ptr->flags & CF_HEAVY_BONUS))
+	{
+		if (tdis > 14) tdis = 14;
+		if ((o_ptr->weight >= 150) && (tdis > 12)) tdis = 12;
+	}
+	else if (((f2 & TR2_THROWN) || (cp_ptr->flags & CF_HEAVY_BONUS) || 
+		(p_ptr->timed[TMD_MIGHTY_HURL])) && (o_ptr->weight < 150))
+	{
+		if (tdis > 12) tdis = 12;
+	}
+	else if (tdis > 10) tdis = 10;
 
 	/* Hack -- Base damage from thrown object */
 	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
 
+
+
+    /* Boost the damage if it's a throwing weapon */
+    /* x1.4 (ML2 bow is x1.75) */
+	if (f2 & TR2_THROWN) throwok = TRUE;
+	else throwok = FALSE;
+	/* can be too heavy to throw effectively even if it's meant for throwing */
+	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight >= 200))
+		throwok = FALSE;
+
+	if (throwok)
+	{
+       tdam = (tdam * 7) / 5;
+    }
+    /* certain classes are strong enough to throw more effectively (x1.2) */
+    /* (warrior, barbarian, and the knights) */
+    else if ((cp_ptr->flags & CF_HEAVY_BONUS) || 
+         (cp_ptr->flags & CF_KNIGHT) || (p_ptr->pclass == 0))
+    {
+       tdam = (tdam * 6) / 5;
+    }
+	/* too heavy */
+	else if (o_ptr->weight >= 200)
+	{
+		tdam = tdam / 2;
+	}
+
 	/* Chance of hitting */
 	chance = (p_ptr->skills[SKILL_THT] + (p_ptr->to_h * BTH_PLUS_ADJ));
 
+	/* Weapons meant for throwing get weapon to-hit bonus */
+	if (f2 & TR2_THROWN) chance += i_ptr->to_h;
+	/* otherwise still get partial to-hit bonus from object */
+	else chance += (i_ptr->to_h + 1) / 3;
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+    excrit = 0;
+    bonus = p_ptr->skills[SKILL_THT] + p_ptr->to_h;
+	if (f2 & TR2_THROWN) bonus += i_ptr->to_h;
+	if (f2 & TR2_EXTRA_CRIT) excrit = 12;
+	if (bonus-1 > 12) excrit += (bonus-1)/12;
+
+	/* number of throws (assuming thrown items are the same weight) */
+	if (f2 & TR2_THROWN) thits = thits_thrown(div);
+	else thits = 1;
+
+	/* Take a (partial) turn */
+	p_ptr->energy_use = (100 / thits);
+
+
+	/* cursed thrown weapons slip (limit to weapons meant for */
+	/* throwing or else curses become too easy to recognise) */
+	if ((cursed_p(i_ptr)) && (f2 & TR2_THROWN))
+	{
+		/* (lower skill will be able to recognise curses easier) */
+		noslip = 130 - (p_ptr->skills[SKILL_THT]);
+		if (noslip < 15) noslip = 15;
+
+		/* random direction */
+		if (randint(100) < noslip)
+		{
+			dir = ddd[rand_int(8)];
+			msg_format("The %s slips as you throw it.", o_name);
+			chance -= 5;
+		}
+	}
+	else if (cursed_p(i_ptr)) chance -= 5;
 
 
 	/* Start at the player */
@@ -2981,121 +3225,225 @@ void do_cmd_throw(void)
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
 		{
+			int chance2, visible;
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			int num, tblows;
 
-			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
+			/* Get "the monster" or "it" */
+			char m_name[80];
+			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-			int visible = m_ptr->ml;
+			chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
+
+			visible = m_ptr->ml;
 
 			/* Note the collision */
 			hit_body = TRUE;
+			
+			/* Get number of blows */
+			num = 0;
+	        tblows = 1;
+            if (f1 & TR1_BLOWS)
+            {
+               tblows += o_ptr->pval;
+            }
+            
+	        /* Attack once for each legal blow */
+	        while (num++ < tblows)
+	        {
+			    /* Did we hit it (penalize range) */
+			    if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
+			    {
+				   bool fear = FALSE;
 
-			/* Did we hit it (penalize range) */
-			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
-			{
-				bool fear = FALSE;
+				   /* Assume a default death */
+				   cptr note_dies = " dies.";
 
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_NON_LIVING)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
+				   /* Some monsters get "destroyed" */
+				   if ((r_ptr->flags3 & (RF3_DEMON)) ||
+				      (r_ptr->flags3 & (RF3_NON_LIVING)) ||
+				      (r_ptr->flags2 & (RF2_STUPID)))
+				   {
+					  /* Special note at death */
+					  note_dies = " is destroyed.";
+				   }
 
 
-				/* Handle unseen monster */
-				if (!visible)
-				{
-					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
-				}
+				   /* Handle unseen monster */
+				   if (!visible)
+				   {
+					  /* Invisible monster */
+					  msg_format("The %s finds a mark.", o_name);
+				   }
 
-				/* Handle visible monster */
-				else
-				{
-					char m_name[80];
+				   /* Handle visible monster */
+				   else
+				   {
+					   /* Message */
+					   msg_format("The %s hits %s.", o_name, m_name);
 
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+					   /* Hack -- Track this monster race */
+					   if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+					   /* Hack -- Track this monster */
+					   if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+				   }
 
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+				   /* Apply special damage XXX XXX XXX */
+				   tdam = tot_dam_aux(i_ptr, tdam, 0, m_ptr);
 
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
-				}
+                   /* DJA: add (partial) strength bonus for certain classes */
+                   /* class 0 will always be warrior so no need for a flag in that case */
+                   /* weapons meant for throwing always get STR bonus */
+                   if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT) ||
+                      (p_ptr->pclass == 0) || (f2 & TR2_THROWN) || (p_ptr->timed[TMD_MIGHTY_HURL]))
+                   {
+                      int strb;
+					  int eweight = o_ptr->weight;
+                      if (!(f2 & TR2_THROWN)) eweight = eweight / 2; /* less if not meant for throwing */
+                      /* complex strength bonus by weight (more than with melee) */
+                      strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+				      if (eweight < 25) strb = strb / 2;
+				      else if (eweight < 40) strb = (strb * 2) / 3;
+				      else if (eweight < 50) strb = (strb * 3) / 4;
+				      else if (eweight < 60) strb = (strb * 5) / 6;
+				      strb = strb / 10;
+					  if (p_ptr->timed[TMD_MIGHTY_HURL]) strb = strb * 2;
+                      tdam += strb;
+                   }
 
-                /* DJA: add strength bonus for barbarians */
-                /* class 0 will always be warrior so no need for a flag in that case */
-                if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT) ||
-                   (p_ptr->pclass == 0))
-                {
-                   tdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-                }
+                   /* criticals less likely when weapon is thrown */
+				   /* unless weapon is meant for throwing */
+				   if (f2 & TR2_THROWN)
+                   {
+                       tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, 0, excrit);
+                   }
+                   /* weapons not meant for throwing get to-hit bonus halved for crit chance */
+				   else
+                   {
+				       bool weapon = FALSE;
+                       if (wield_slot(o_ptr) == INVEN_WIELD) weapon = TRUE;
+                       
+                       if ((o_ptr->tval == 16) || (o_ptr->tval == 17) || (o_ptr->tval == 18) || (o_ptr->tval == 66))
+                          weapon = TRUE;
+                       /* food counts because of damaging shrooms like unhealth */
+                       if (o_ptr->tval == 80) weapon = TRUE;
 
-				/* Apply special damage XXX XXX XXX */
-				/* criticals less likely when weapon is thrown */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, TRUE);
+                       /* when throwing something that isn't a weapon, critical is very unlikely */
+                       if (weapon) tdam = critical_shot(i_ptr->weight, (i_ptr->to_h)/2, tdam, 1, excrit);
+                       else tdam = critical_shot(i_ptr->weight, (i_ptr->to_h)/2, tdam, 2, excrit);
+                   }
 
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
+				   /* No negative damage */
+				   if (tdam < 0) tdam = 0;
 
-				/* Complex message */
-				if (p_ptr->wizard)
-				{
-					msg_format("You do %d (out of %d) damage.",
+				   /* Complex message */
+				   if (p_ptr->wizard)
+				   {
+					  msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
-				}
+				   }
 
-				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
-				{
-					/* Dead monster */
-				}
+				   /* Hit the monster, check for death */
+				   if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+				   {
+					  /* Dead monster */
+					  tblows = 0;
+				   }
 
-				/* No death */
-				else
-				{
-					/* Message */
-					message_pain(cave_m_idx[y][x], tdam);
+				   /* No death */
+				   else
+				   {
+					   /* Message */
+					   message_pain(cave_m_idx[y][x], tdam);
 
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						char m_name[80];
 
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+					   /* Take note */
+					   if (fear && m_ptr->ml)
+					   {
+						  char m_name[80];
 
-						/* Message */
-						message_format(MSG_FLEE, m_ptr->r_idx,
+						  /* Get the monster name (or "it") */
+						  monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+						  /* Message */
+						  message_format(MSG_FLEE, m_ptr->r_idx,
 						               "%^s flees in terror!", m_name);
-					}
-				}
-			}
+					   }
+				   }
+			    }
+			    /* miss message */
+			    else if (m_ptr->ml)
+                {
+					msg_format("The %s misses %s.", o_name, m_name);
+			    }
+            }
 
 			/* Stop looking */
 			break;
 		}
 	}
 
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
+    if ((f2 & TR2_RTURN) && (comeback == FALSE) && (randint(120 + badluck/2) < 50 + comechance))
+    {
+	   /* Chance of breakage (during attacks) */
+	   /* Throwing weapons very rarely break */
+	   if (hit_body)
+	   {
+	      if (f2 & TR2_THROWN) j = 0;
+	      else j = breakage_chance(i_ptr);
+          /* j = (hit_body ? breakage_chance(i_ptr) : 0); */
+	      if (cursed_p(o_ptr)) j += 3;
+	      if (badluck > 9) j += (badluck-6) / 4;
+	      if ((goodluck > 10) && (j > 0)) j -= 1;
+       }
+       else j = 0;
 
-	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+       /* chance of hitting yourself with a dangerous weapon */
+       /* (usually happens when the weapon returns and you don't catch it) */
+	   if ((f2 & TR2_DANGER) && (randint((comechance*5)-badluck) < 75) && ((comechance*5) < 175))
+	   {
+          int ouch = damroll(o_ptr->dd, o_ptr->ds);
+          ouch = self_dam_aux(o_ptr, ouch);
+
+          /* object damage bonus after semi-multipliers */
+          if (o_ptr->k_idx) ouch += o_ptr->to_d;
+
+          msg_format("You are hit by the %s as it returns to you!", o_name);
+          take_hit((ouch/2), "your own weapon");
+       }
+       else msg_format("The %s comes back to you, but you fail to catch it.", o_name);
+	   
+	   /* Drop (or break) near the player */
+	   drop_near(i_ptr, j, p_ptr->py, p_ptr->px);
+    }
+    else if (comeback == FALSE)
+    {
+	   /* Chance of breakage (during attacks) */
+	   /* Throwing weapons very rarely break */
+	   if (hit_body)
+	   {
+	      if (f2 & TR2_THROWN) j = 1;
+	      else j = breakage_chance(i_ptr);
+          /* j = (hit_body ? breakage_chance(i_ptr) : 0); */
+	      if (cursed_p(o_ptr)) j += 3;
+	      if (badluck > 9) j += (badluck-6) / 3;
+	      if ((goodluck > 10) && (j > 0)) j -= 1;
+       }
+       else j = 0;
+
+	   /* Drop (or break) near that location */
+	   drop_near(i_ptr, j, y, x);
+    }
+    else msg_format("You catch the %s as it comes back to you.", o_name);
+
+    /* exp drain only kicks in if you were trying to hurt a monster */
+    if ((p_ptr->exp_drain) && (hit_body))
+    {
+        rxp_drain(33);
+    }
 }
-
 
 /*
  * See if one can squelch a given kind of item.
@@ -3136,7 +3484,11 @@ void do_cmd_mark_squelch()
 	const char *s = "You have nothing you can squelch.";
 
 	object_type *o_ptr;
+#ifdef EFG
+	/* */
+#else
 	object_kind *k_ptr;
+#endif
 	int item;
 
 	/* Get an item */

@@ -437,8 +437,8 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 
 		case OBJECT_XTRA_TYPE_RESIST:
 		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
+			/* OBJECT_XTRA_WHAT_RESIST == 2 (should be 4) */
+			(*f4) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
 			break;
 		}
 
@@ -547,7 +547,7 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 
 
 /*
- * Obtain the "flags" for an item which are known to the player
+ * Obtain the "flags" for an item which is known to the player
  */
 void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
@@ -935,13 +935,27 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Scrolls */
 		case TV_SCROLL:
 		{
-			/* Color the object */
-			modstr = scroll_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
-
+            /* Color the object */
+		    modstr = scroll_adj[o_ptr->sval];
+		    if (aware) append_name = TRUE;
+		    basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
 			break;
 		}
+
+        /* Treasure map */
+        case TV_SPECIAL:     
+        {
+			if (o_ptr->sval == SV_TREASURE)
+			{
+			    if (aware) basenm = "& Treasure map~";
+			    else basenm = "& Scroll~ labelled \"X\"";
+            }
+            else
+            {
+			    my_strcpy(buf, "(nothing)", max);
+            }
+            break;
+        }
 
 		/* Potions */
 		case TV_POTION:
@@ -1016,7 +1030,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
-#if 0 /* */
+#if 0 /* for later */
 		/* Mind Magic realm */
 		case TV_MIND_BOOK:
 		{
@@ -1381,13 +1395,18 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Bows */
 		case TV_BOW:
 		{
+/* ML for 'multiplier level' because actual mutlplier is wierd now */
 			/* Hack -- Extract the "base power" */
 			power = (o_ptr->sval % 10);
+
+			/* show extra might if identified */
+		    if ((f1 & (TR1_MIGHT)) && (object_known_p(o_ptr))) power += o_ptr->pval;
 
 			/* Append a "power" string */
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_chr_macro(t, 'x');
+			object_desc_chr_macro(t, 'M');
+			object_desc_chr_macro(t, 'L');
 			object_desc_num_macro(t, power);
 			object_desc_chr_macro(t, p2);
 
@@ -1502,13 +1521,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		{
 			/* Dump " to stealth" */
 			tail = " to stealth";
-		}
-
-		/* Searching */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			tail = " to searching";
 		}
 
 		/* Alertness */
@@ -1756,16 +1768,55 @@ void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, int pref
  */
 void identify_random_gen(const object_type *o_ptr)
 {
+    u32b f1, f2, f3, f4;
+	object_type *j_ptr;
+	bool weapon, ammo, attacks;
+
 	/* Set hooks for character dump */
 	object_info_out_flags = object_flags_known;
+	
+	/* dump shows everything if character is dead */
+    if (p_ptr->is_dead)
+	{
+	   object_info_out_flags = object_flags;
+    }
 
 	/* Set the indent/wrap */
 	text_out_indent = 3;
 	text_out_wrap = 72;
 
+	j_ptr = &inventory[INVEN_BOW];
+	weapon = (wield_slot(o_ptr) == INVEN_WIELD);
+	ammo   = (p_ptr->ammo_tval == o_ptr->tval) && (j_ptr->k_idx);
+
+	/* get object flags */
+	object_info_out_flags(o_ptr, &f1, &f2, &f3, &f4);
+	attacks = FALSE;
+    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f2 & TR2_THROWN)) attacks = TRUE;
+	
 	/* Dump the info */
-	if (object_info_out(o_ptr))
+	if ((object_info_out(o_ptr)) && (!attacks))
 		text_out("\n");
+
+    /* describe weapon attacks */
+    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f2 & TR2_THROWN))
+    {
+	    describe_attack(o_ptr);
+    }
+
+    /* describe blessed status */
+    if (o_ptr->blessed > 1)
+    {
+       if (weapon) text_out("  This weapon has been temporarily blessed.\n");
+       else if (o_ptr->tval == TV_BOW) text_out("  This bow has been temporarily blessed.\n");
+       else text_out("  This object has been temporarily blessed.\n");
+    }
+    else if (((f3 & (TR3_BAD_WEAP)) || (f2 & (TR2_CORRUPT))) && (o_ptr->blessed))
+    {
+       text_out("  This object has had an evil enchantment removed from it,");
+       text_out(" but the temporary blessing has worn off.\n");
+    }
+    text_out("\n");
 
 	/* Reset indent/wrap */
 	text_out_indent = 0;
@@ -1840,6 +1891,10 @@ s16b label_to_equip(int c)
  */
 s16b wield_slot(const object_type *o_ptr)
 {
+	/* Get flags to check for THROWN flag */
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 	/* Slot for equipment */
 	switch (o_ptr->tval)
 	{
@@ -1850,7 +1905,8 @@ s16b wield_slot(const object_type *o_ptr)
         case TV_SKELETON:  /* to wield tusks */
         case TV_STAFF:     /* magic staffs */
 		{
-			return (INVEN_WIELD);
+			if (f2 & TR2_THROWN) return (-1);
+            else return (INVEN_WIELD);
 		}
 
 		case TV_BOW:
@@ -2884,13 +2940,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
     int px;
     
 /*   py = p_ptr->py;
- *   px = p_ptr->px;
- *   spellswitch 24 is for telekinesis */
-
-    if (spellswitch == 24) py = p_ptr->target_row;
-    else py = p_ptr->py;
-    if (spellswitch == 24) px = p_ptr->target_col;
-    else px = p_ptr->px;
+ *   px = p_ptr->px; */
 
 	char which;
 
@@ -2921,6 +2971,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num;
 
+	bool show_list = (show_lists) ? TRUE : FALSE;
+
+	/* spellswitch 24 is for telekinesis */
+    if (spellswitch == 24) py = p_ptr->target_row;
+    else py = p_ptr->py;
+    if (spellswitch == 24) px = p_ptr->target_col;
+    else px = p_ptr->px;
 
 	/* Get the item index */
 	if (repeat_pull(cp))
@@ -3055,7 +3112,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Start out in "display" mode */
-	if (p_ptr->command_see)
+	if ((p_ptr->command_see) || (show_list))
 	{
 		/* Save screen */
 		screen_save();
@@ -3102,7 +3159,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		if (p_ptr->command_wrk == (USE_INVEN))
 		{
 			/* Redraw if needed */
-			if (p_ptr->command_see) show_inven();
+			if ((p_ptr->command_see) || (show_list)) show_inven();
 
 			/* Begin the prompt */
 			strnfmt(out_val, sizeof(out_val), "Inven:");
@@ -3119,7 +3176,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
+			if ((!p_ptr->command_see) && (!show_list))
+               my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Indicate legality of "toggle" */
 			if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
@@ -3135,7 +3193,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		else if (p_ptr->command_wrk == (USE_EQUIP))
 		{
 			/* Redraw if needed */
-			if (p_ptr->command_see) show_equip();
+			if ((p_ptr->command_see) || (show_list)) show_equip();
 
 			/* Begin the prompt */
 			strnfmt(out_val, sizeof(out_val), "Equip:");
@@ -3152,7 +3210,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
+			if ((!p_ptr->command_see) && (!show_list)) my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Indicate legality of "toggle" */
 			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
@@ -3165,7 +3223,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		else
 		{
 			/* Redraw if needed */
-			if (p_ptr->command_see) show_floor(floor_list, floor_num, FALSE);
+			if ((p_ptr->command_see) || (show_list)) show_floor(floor_list, floor_num, FALSE);
 
 			/* Begin the prompt */
 			strnfmt(out_val, sizeof(out_val), "Floor:");
@@ -3181,7 +3239,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
+			if ((!p_ptr->command_see) && (!show_list)) my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Append */
 			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
@@ -3219,26 +3277,30 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			case '?':
 			case ' ':
 			{
-				/* Hide the list */
-				if (p_ptr->command_see)
+				if (!show_lists)
 				{
-					/* Flip flag */
-					p_ptr->command_see = FALSE;
+				   /* Hide the list */
+				   if ((p_ptr->command_see) || (show_list))
+				   {
+					  /* Flip flags */
+					  p_ptr->command_see = FALSE;
+					  show_list = FALSE;
 
-					/* Load screen */
-					screen_load();
-				}
+					  /* Load screen */
+					  screen_load();
+				   }
 
-				/* Show the list */
-				else
-				{
-					/* Save screen */
-					screen_save();
+				   /* Show the list */
+				   else
+				   {
+					   /* Save screen */
+					   screen_save();
 
-					/* Flip flag */
-					p_ptr->command_see = TRUE;
-				}
-
+					   /* Flip flags */
+					   p_ptr->command_see = TRUE;
+   					   show_list = TRUE;
+				   }
+                }
 				break;
 			}
 
@@ -3264,7 +3326,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/* Hack -- Fix screen */
-				if (p_ptr->command_see)
+				if ((p_ptr->command_see) || (show_list))
 				{
 					/* Load screen */
 					screen_load();
@@ -3312,7 +3374,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/* Hack -- Fix screen */
-				if (p_ptr->command_see)
+				if ((p_ptr->command_see) || (show_list))
 				{
 					/* Load screen */
 					screen_load();
@@ -3542,13 +3604,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Fix the screen if necessary */
-	if (p_ptr->command_see)
+	if ((p_ptr->command_see) || (show_list))
 	{
 		/* Load screen */
 		screen_load();
 
 		/* Hack -- Cancel "display" */
 		p_ptr->command_see = FALSE;
+		show_list = FALSE;
 	}
 
 

@@ -110,6 +110,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->name2);
 
 	wr_s16b(o_ptr->timeout);
+	wr_s16b(o_ptr->blessed); /* DJA new: breaks savefiles for 1.0.98 */
 
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
@@ -162,6 +163,13 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+	/* DJA new: breaks savefiles for 1.0.98 */
+	wr_s16b(m_ptr->tinvis);
+	wr_byte(m_ptr->silence);
+	wr_byte(m_ptr->monseen);
+	wr_s16b(m_ptr->meet);
+	wr_s16b(m_ptr->roaming);
+	wr_byte(m_ptr->evil);
 	wr_byte(0);
 }
 
@@ -514,12 +522,16 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->food);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->word_recall);
-	wr_s16b(p_ptr->see_infra);
+	wr_s16b(p_ptr->see_infra); /* unused */
+	wr_byte(p_ptr->confusing);
+	wr_byte(p_ptr->searching);
+
 	wr_s16b(p_ptr->silver);
 	wr_s16b(p_ptr->slime);
 	wr_s16b(p_ptr->luck);
-	wr_byte(p_ptr->confusing);
-	wr_byte(p_ptr->searching);
+	wr_byte(p_ptr->corrupt);
+	wr_byte(p_ptr->learnedcontrol);
+	wr_byte(p_ptr->find_vault);
 
 	/* Find the number of timed effects */
 	wr_byte(TMD_MAX);
@@ -619,6 +631,10 @@ static void wr_randarts(void)
  * The cave grid flags that get saved in the savefile
  */
 #define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
+#if EXPM
+        DLIT_FULL | DLIT_DIMA | DLIT_DIMB | DLIT_DIMC | \
+        DLIT_DIMD | DLIT_NONE )
+#endif
 
 
 /*

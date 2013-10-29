@@ -1005,9 +1005,10 @@ static int listindex = 0;
  */
 char *likert(int x, int y, byte *attr)
 {
+	int retindex;
 	*attr = TERM_L_GREEN;
-	snprintf(listings[listindex], LENCVALS, "%d", x);
-	int retindex = listindex;
+	strnfmt(listings[listindex], LENCVALS, "%d", x);
+	retindex = listindex;
 	listindex = (listindex+1) % NUMCVALS;
 	return &listings[retindex][0];
 #else
@@ -1163,7 +1164,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ " Fire",	2, TR2_RES_FIRE,	TR2_IM_FIRE },
 	{ " Cold",	2, TR2_RES_COLD,	TR2_IM_COLD },
 	{ " Pois",	4, TR4_RES_POIS,	0 },	/* TR4_IM_POIS */
-/* 	{ "1.2Po",  2, TR3_RES_POISB,   0 },    partial poison resist */
+ 	{ "1/2Po",  2, TR2_PR_POIS,     0 },   /* partial resist poison */
 	{ " Fear",	4, TR4_RES_FEAR,	0 },
 	{ " Lite",	4, TR4_RES_LITE,	0 },
 	{ " Dark",	4, TR4_RES_DARK,	0 },
@@ -1176,7 +1177,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "Nethr",	4, TR4_RES_NETHR,	0 },
 	{ "Chaos",	4, TR4_RES_CHAOS,	0 },
 	{ "Disen",	4, TR4_RES_DISEN,	0 },
-/* 	{ "Charm",  4, TR4_RES_CHARM,   0 }, */
+ 	{ "Charm",  4, TR4_RES_CHARM,   0 },
 
 	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0 },
 	{ "Feath",	3, TR3_FEATHER, 	0 },
@@ -1188,13 +1189,14 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 #endif
 	{ "Regen",	3, TR3_REGEN, 		0 },
 	{ "Telep",	3, TR3_TELEPATHY, 	0 },
+	{ "Dkvis",	3, TR3_DARKVIS, 	0 },
 	{ "Invis",	3, TR3_SEE_INVIS, 	0 },
 	{ "FrAct",	3, TR3_FREE_ACT, 	0 },
 	{ "HLife",	3, TR3_HOLD_LIFE, 	0 },
 
 	{ "Stea.",	1, TR1_STEALTH,		0 },
-	{ "Sear.",	1, TR1_SEARCH,		0 },
-	{ "Alrt.",	1, TR1_INFRA,		0 },
+/*	{ "Sear.",	1, TR1_SEARCH,		0 }, */
+	{ "Alert",	1, TR1_INFRA,		0 },
 	{ "Tunn.",	1, TR1_TUNNEL,		0 },
 	{ "Speed",	1, TR1_SPEED,		0 },
 	{ "Blows",	1, TR1_BLOWS,		0 },
@@ -1227,7 +1229,7 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 		{
 			object_type *o_ptr = &inventory[j];
 			byte attr = TERM_WHITE | (j % 2) * 8; /* alternating columns */
-			u32b f[4] = {0, 0, 0, 0};
+			u32b f[5] = {0, 0, 0, 0};
 			bool res, imm;
 			char sym;
 			if(j < INVEN_TOTAL)
@@ -1258,7 +1260,7 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 				if (p_ptr->timed[TMD_OPP_POIS])
 					f[4] |= TR4_RES_POIS;
 				if (p_ptr->timed[TMD_WOPP_POIS])
-					f[2] |= TR2_RES_POISB;
+					f[2] |= TR2_PR_POIS;
 				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]) || 
                    (p_ptr->timed[TMD_BECOME_LICH]))
 					f[4] |= TR4_RES_FEAR;
@@ -1266,6 +1268,8 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 					f[4] |= TR4_RES_CHARM;
 				if (p_ptr->timed[TMD_SINVIS])
 					f[3] |= TR3_SEE_INVIS;
+				if (p_ptr->timed[TMD_CLEAR_MIND])
+					f[4] |= TR4_RES_CONFU;
 				if ((p_ptr->timed[TMD_OPP_NETHR]) || (p_ptr->timed[TMD_BECOME_LICH]))
 					f[4] |= TR4_RES_NETHR;
 				if ((p_ptr->timed[TMD_OPP_DARK]) || (p_ptr->timed[TMD_BECOME_LICH]))
@@ -1591,6 +1595,17 @@ static const char *show_melee_weapon(const object_type *o_ptr)
 	int hit = p_ptr->dis_to_h;
 	int dam = p_ptr->dis_to_d;
 
+    /* no strength bonus for light weapons */
+    if ((o_ptr->weight / 10) <= 4)
+    {
+       dam -= ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+    }
+    /* double strength bonus for heavy weapons */
+    if ((o_ptr->weight / 10) > 15)
+    {
+       dam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+    }
+
 	if (object_known_p(o_ptr))
 	{
 		hit += o_ptr->to_h;
@@ -1676,7 +1691,7 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(TERM_L_BLUE, "Shoot", "%y",			s2u(show_missile_weapon(&inventory[INVEN_BOW])), END  );
 	P_I(TERM_L_BLUE, "Blows", "%y/turn",	i2u(p_ptr->num_blow), END  );
 	P_I(TERM_L_BLUE, "Shots", "%y/turn",	i2u(p_ptr->num_fire), END  );
-	P_I(TERM_L_BLUE, "Alertness", "%y",	    i2u(p_ptr->see_infra), END  );
+	P_I(TERM_L_BLUE, "Stealth", "%y",	    i2u(p_ptr->skills[SKILL_STL]), END  );
 #ifdef EFG
 	/* EFGchange show energy rather than speed on 'C' screen */
 	/* showing energy is more useful and saves player from looking at tables.c */
@@ -1696,12 +1711,12 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	} skills[] =
 	{
 		{ "Saving Throw", SKILL_SAV, 6 },
-		{ "Stealth", SKILL_STL, 1 },
 		{ "Fighting", SKILL_THN, 12 },
 		{ "Shooting", SKILL_THB, 12 },
+		{ "Throwing", SKILL_THT, 12 },
 		{ "Disarming", SKILL_DIS, 8 },
 		{ "Magic Device", SKILL_DEV, 6 },
-		{ "Perception", SKILL_FOS, 6 },
+		{ "Alertness", SKILL_FOS, 6 },
 		{ "Searching", SKILL_SRH, 6 }
 	};
 	int i;
@@ -1720,8 +1735,8 @@ int get_panel(int oid, data_panel *panel, size_t size)
 		{
 			const object_type *o_ptr= &inventory[INVEN_WIELD];
         		int hit = p_ptr->dis_to_h;
-        		if (object_known_p(o_ptr))
-                		hit += o_ptr->to_h;
+/*        		if (object_known_p(o_ptr))
+                		hit += o_ptr->to_h; */
 			skill += hit * BTH_PLUS_ADJ;
 		}
 		else if (skills[i].skill == SKILL_THB)
@@ -1731,6 +1746,12 @@ int get_panel(int oid, data_panel *panel, size_t size)
         		if (object_known_p(o_ptr))
                 		hit += o_ptr->to_h;
 			skill += hit * BTH_PLUS_ADJ;
+		}
+		/* DJA: show thrown weapon skill */
+		else if (skills[i].skill == SKILL_THT)
+		{
+			/* XXX can't include object bonuses like THN and THB do */
+			skill += p_ptr->dis_to_h * BTH_PLUS_ADJ;
 		}
 		panel[i].value[0] = s2u(likert(skill, skills[i].div, &panel[i].color));
 #else
@@ -1878,12 +1899,7 @@ errr file_character(cptr name, bool full)
 		strnfmt(out_val, sizeof(out_val), "Replace existing file %s? ", buf);
 
 		/* Ask */
-#ifdef EFG
-		/* EFGchange bugfix */
 		if (!get_check(out_val))
-#else
-		if (get_check(out_val))
-#endif
 			return -1;
 	}
 
@@ -2703,7 +2719,18 @@ void do_cmd_suicide(void)
 	my_strcpy(p_ptr->died_from, "Quitting", sizeof(p_ptr->died_from));
 }
 
+#if testing
+/* Temporary function to find out where it's crashing */
+/* (Make sure you erase all the calls to this function when not testing) */
+void did_it_crash_yet(int where)
+{
+     /* I know it's crashing in the town */
+     if (p_ptr->depth) return;
 
+     msg_format("crash yet? %d", where);
+     save_player();
+}
+#endif
 
 /*
  * Save the game

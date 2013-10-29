@@ -39,7 +39,7 @@ s16b spell_chance(int spell)
 	chance -= adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
 	/* Not enough mana to cast */
-	if (s_ptr->smana > p_ptr->csp)
+	if ((s_ptr->smana > p_ptr->csp) && (!p_ptr->manafree))
 	{
 		chance += 5 * (s_ptr->smana - p_ptr->csp);
 	}
@@ -61,12 +61,12 @@ s16b spell_chance(int spell)
        else if (goodluck > 0) minfail -= (randint(3) - 1); /* - 1 or 2 */
        else minfail -= (randint(2) - 1); /* - 0 or 1 */
     }
-
+    
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
 	/* was +25 fail */
 	if (p_ptr->icky_wield)
 	{
-		if (goodweap > badweap) chance += 15;
+		if (goodweap > badweap) chance += (20 - (goodweap*3));
 		else if (badweap > goodweap) chance += 25;
 		else chance += 20;
 	}
@@ -88,9 +88,9 @@ s16b spell_chance(int spell)
        }
        /* wielding 1 bad object (icky_wield is enough penalty) */
 	   else if ((badweap == 1) && (!p_ptr->icky_wield)) chance += 5;
-	   else if ((goodweap == 1) && (magicmod != 12)) chance -= 2; /* wielding good object(s) */
+	   else if ((goodweap == 1) && (magicmod != 12)) chance -= 4; /* wielding good object(s) */
 	   else if ((badweap > 1) && (!p_ptr->icky_wield)) chance += 5 + (badweap*2);
-	   else if ((badweap > 1) && (p_ptr->icky_wield)) chance += 1 + (badweap*2);
+	   else if ((badweap > 1) && (p_ptr->icky_wield)) chance += (badweap*2);
 	   else if (goodweap > 1) chance -= (3 + (goodweap*2));
     }
 	else if ((cp_ptr->spell_book == TV_DARK_BOOK) ||
@@ -125,6 +125,12 @@ s16b spell_chance(int spell)
 	if (p_ptr->timed[TMD_STUN] > 50) chance += 25;
 	else if (p_ptr->timed[TMD_STUN]) chance += 15;
 	
+	/* used to be no chance of casting while confused */
+    if (p_ptr->timed[TMD_CONFUSED]) chance += 25;
+    
+    /* don't take other penalties when using manafree */
+    if (p_ptr->manafree) return (chance);
+
 	/* other effects which make spells harder */
 	if ((p_ptr->timed[TMD_SHERO]) || (p_ptr->timed[TMD_FRENZY]) ||
 	   (p_ptr->timed[TMD_CHARM]) || (p_ptr->timed[TMD_AFRAID]))
@@ -132,7 +138,7 @@ s16b spell_chance(int spell)
        chance += 4 + randint(6);
     }
 
-    /* 1st sight strengthen natural sight and inhibits unnatural stuff */
+    /* 1st sight strengthens natural sight and inhibits unnatural stuff like magic */
 	if (p_ptr->timed[TMD_2ND_THOUGHT]) chance += 10;
 
 	/* Amnesia makes spells fail half the time */
@@ -357,6 +363,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known, bool bro
 
 	int spell;
 	int num = 0;
+	int result;
 
 	byte spells[PY_MAX_SPELLS];
 
@@ -372,7 +379,6 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known, bool bro
 	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
     if (cp_ptr->spell_book == TV_CHEM_BOOK) p = "formula";
 
-	int result;
 
 	/* Get the spell, if available */
 	if (repeat_pull(&result))
@@ -420,7 +426,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known, bool bro
 	redraw = FALSE;
 
 	/* Hack -- when browsing a book, start with list shown */
-	if (browse)
+	if ((browse) || (show_lists))
 	{
 		/* Show list */
 		redraw = TRUE;
@@ -433,14 +439,15 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known, bool bro
 	}
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
-	        p, I2A(0), I2A(num - 1), prompt, p);
+	strnfmt(out_val, 78, "(%^ss %c-%c%s, ESC=exit) %^s which %s? ",
+	        p, I2A(0), I2A(num - 1), ((show_lists) ? "" : ", *=List"), prompt, p);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
 		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		if ((!show_lists) &&
+           ((choice == ' ') || (choice == '*') || (choice == '?')))
 		{
 			/* Hide the list */
 			if (redraw)
@@ -544,6 +551,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known, bool bro
 static void browse_spell(int spell)
 {
 	const magic_type *s_ptr;
+    int idx;
 
 	char out_val[160];
 	char help[20];
@@ -615,7 +623,6 @@ static void browse_spell(int spell)
 
     /* allow for more than 2 realms */
     /* (code thanks to Pete Mack) */
-    int idx;
     idx = spell;
     if (cp_ptr->spell_book == TV_PRAYER_BOOK) idx = idx + PY_MAX_SPELLS;
     else if (cp_ptr->spell_book == TV_NEWM_BOOK) idx = idx + (2 * PY_MAX_SPELLS);
@@ -720,16 +727,12 @@ void do_cmd_browse(void)
 void do_cmd_study(void)
 {
 	int i, item;
-
 	int spell;
+	cptr q, s;
+	object_type *o_ptr;
 
 	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
     if (cp_ptr->spell_book == TV_CHEM_BOOK) p = "formula";
-
-	cptr q, s;
-
-	object_type *o_ptr;
-
 
 	if (!cp_ptr->spell_book)
 	{
@@ -743,15 +746,16 @@ void do_cmd_study(void)
 		return;
 	}
 
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
-	{
-		msg_print("You read the book with your hands..");
-	}
-
-	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
 		return;
+	}
+
+	/* TMD_BRAIL */
+    if ((p_ptr->timed[TMD_BLIND]) || (no_lite()))
+	{
+		msg_print("You read the spell with your hands..");
 	}
 
 	if (p_ptr->timed[TMD_CONFUSED])
@@ -892,8 +896,9 @@ void do_cmd_study(void)
 
 /*
  * Cast a spell
+ * void do_cmd_cast(void)
  */
-void do_cmd_cast(void)
+bool do_cmd_cast(void)
 {
 	int item, spell;
 	int chance;
@@ -909,38 +914,32 @@ void do_cmd_cast(void)
 	if (cp_ptr->spell_book != TV_MAGIC_BOOK)
 	{
 		msg_print("You cannot cast spells in this school!");
-		return;
+		return FALSE;
 	}
 
 	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
-	{
-		msg_print("You read the spell with your hands..");
-	}
-
-	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	/* Not when confused */
-	if (p_ptr->timed[TMD_CONFUSED])
+	/* TMD_BRAIL */
+    if ((p_ptr->timed[TMD_BLIND]) || (no_lite()))
 	{
-		msg_print("You are too confused!");
-		return;
+		msg_print("You read the spell with your hands..");
 	}
 
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
 		msg_print("You are too desperate to escape to cast spells!");
-		return;
+		return FALSE;
 	}
 
 	/* Restrict choices to spell books */
@@ -949,7 +948,7 @@ void do_cmd_cast(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no spell books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -977,16 +976,21 @@ void do_cmd_cast(void)
 	if (spell < 0)
 	{
 		if (spell == -2) msg_print("You don't know any spells in that book.");
-		return;
+		return FALSE;
 	}
 
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
+    /* no dangerous spells when not using mana */
+    if (p_ptr->manafree)
+    {
+       /* nothing */
+    }
 
-	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->csp)
+    /* Verify "dangerous" spells */
+	else if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to cast this spell.");
@@ -995,25 +999,31 @@ void do_cmd_cast(void)
 		flush();
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check("Attempt it anyway? ")) return FALSE;
 	}
 
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 	
+	/* If you can use the staff, then you can cast the spell */
+	/* as long as your failure rate is less than 86 */
+    if ((p_ptr->manafree) && (chance < 86)) chance = 0;
+	
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to get the spell off!");
+
+		if (p_ptr->manafree) return FALSE;
 	}
 
 	/* Process spell */
 	else
 	{
 		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+		if (!cast_spell(cp_ptr->spell_book, spell)) return FALSE;
 
 		/* A spell was cast */
 		sound(MSG_SPELL);
@@ -1035,8 +1045,15 @@ void do_cmd_cast(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+    /* no mana use with staff of manafree */
+    if (p_ptr->manafree)
+    {
+       /* save the manacost so you know how many staff charges to use */
+       p_ptr->manafree = s_ptr->smana;
+    }
+
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	else if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -1075,13 +1092,15 @@ void do_cmd_cast(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+	return TRUE;
 }
 
 
 /*
  * Pray a prayer
  */
-void do_cmd_pray(void)
+bool do_cmd_pray(void)
 {
 	int item, spell, chance;
 
@@ -1096,38 +1115,32 @@ void do_cmd_pray(void)
 	if (cp_ptr->spell_book != TV_PRAYER_BOOK)
 	{
 		msg_print("Pray hard enough and your prayers may be answered.");
-		return;
+		return FALSE;
 	}
 
 	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
-	{
-		msg_print("You read the spell with your hands..");
-	}
-
-	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	/* Must not be confused */
-	if (p_ptr->timed[TMD_CONFUSED])
+	/* TMD_BRAIL */
+    if ((p_ptr->timed[TMD_BLIND]) || (no_lite()))
 	{
-		msg_print("You are too confused!");
-		return;
+		msg_print("You read the spell with your hands..");
 	}
 
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
 		msg_print("You are too desperate to escape to stop and pray!");
-		return;
+		return FALSE;
 	}
 
 	/* Restrict choices */
@@ -1136,7 +1149,7 @@ void do_cmd_pray(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no prayer books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1163,16 +1176,21 @@ void do_cmd_pray(void)
 	if (spell < 0)
 	{
 		if (spell == -2) msg_print("You don't know any prayers in that book.");
-		return;
+		return FALSE;
 	}
 
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
+    /* no dangerous spells when not using mana */
+    if (p_ptr->manafree)
+    {
+       /* nothing */
+    }
 
 	/* Verify "dangerous" prayers */
-	if (s_ptr->smana > p_ptr->csp)
+	else if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to recite this prayer.");
@@ -1181,25 +1199,31 @@ void do_cmd_pray(void)
 		flush();
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check("Attempt it anyway? ")) return FALSE;
 	}
 
 
 	/* Spell failure chance (higher chance = more likely to fail) */
 	chance = spell_chance(spell);
 
+	/* If you can use the staff, then you can cast the spell */
+	/* as long as your failure rate is less than 86 */
+    if ((p_ptr->manafree) && (chance < 86)) chance = 0;
+	
 	/* Check for failure */
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to concentrate hard enough!");
+
+		if (p_ptr->manafree) return FALSE;
 	}
 
 	/* Success */
 	else
 	{
 		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+		if (!cast_spell(cp_ptr->spell_book, spell)) return FALSE;
 
 		/* A prayer was prayed */
 		sound(MSG_PRAYER);
@@ -1221,8 +1245,15 @@ void do_cmd_pray(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+    /* no mana use with staff of manafree */
+    if (p_ptr->manafree)
+    {
+       /* save the manacost so you know how many staff charges to use */
+       p_ptr->manafree = s_ptr->smana;
+    }
+
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	else if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -1261,12 +1292,14 @@ void do_cmd_pray(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+	return TRUE;
 }
 
 /*
  * Cast a spell of nature magic (copied from previous function and tweaked)
  */
-void do_cmd_castnew(void)
+bool do_cmd_castnew(void)
 {
 	int item, spell, chance;
 
@@ -1281,38 +1314,32 @@ void do_cmd_castnew(void)
 	if (cp_ptr->spell_book != TV_NEWM_BOOK)
 	{
 		msg_print("You cannot cast spells in this school!");
-		return;
+		return FALSE;
 	}
 
 	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
-	{
-		msg_print("You read the spell with your hands..");
-	}
-
-	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	/* Must not be confused */
-	if (p_ptr->timed[TMD_CONFUSED])
+	/* TMD_BRAIL */
+    if ((p_ptr->timed[TMD_BLIND]) || (no_lite()))
 	{
-		msg_print("You are too confused!");
-		return;
+		msg_print("You read the spell with your hands..");
 	}
 
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
 		msg_print("You are too desperate to escape to cast spells!");
-		return;
+		return FALSE;
 	}
 
 
@@ -1322,7 +1349,7 @@ void do_cmd_castnew(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no books of nature magic!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1349,16 +1376,21 @@ void do_cmd_castnew(void)
 	if (spell < 0)
 	{
 		if (spell == -2) msg_print("You don't know any spells in that book.");
-		return;
+		return FALSE;
 	}
 
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
+    /* no dangerous spells when not using mana */
+    if (p_ptr->manafree)
+    {
+       /* nothing */
+    }
 
 	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->csp)
+	else if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to cast this spell.");
@@ -1367,25 +1399,31 @@ void do_cmd_castnew(void)
 		flush();
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check("Attempt it anyway? ")) return FALSE;
 	}
 
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
+	/* If you can use the staff, then you can cast the spell */
+	/* as long as your failure rate is less than 86 */
+    if ((p_ptr->manafree) && (chance < 86)) chance = 0;
+	
 	/* Check for failure */
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to get the spell off!");
+
+		if (p_ptr->manafree) return FALSE;
 	}
 
 	/* Success */
 	else
 	{
 		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+		if (!cast_spell(cp_ptr->spell_book, spell)) return FALSE;
 
 		/* A spell was cast */
 		sound(MSG_SPELL);
@@ -1407,8 +1445,15 @@ void do_cmd_castnew(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+    /* no mana use with staff of manafree */
+    if (p_ptr->manafree)
+    {
+       /* save the manacost so you know how many staff charges to use */
+       p_ptr->manafree = s_ptr->smana;
+    }
+
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	else if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -1447,12 +1492,14 @@ void do_cmd_castnew(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+	return TRUE;
 }
 
 /*
  * Cast a spell of chance magic
  */
-void do_cmd_castluck(void)
+bool do_cmd_castluck(void)
 {
 	int item, spell, chance;
 
@@ -1467,44 +1514,38 @@ void do_cmd_castluck(void)
 	if (cp_ptr->spell_book != TV_LUCK_BOOK)
 	{
 		msg_print("You cannot cast spells in this school!");
-		return;
+		return FALSE;
 	}
 
 	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
-	{
-		msg_print("You read the spell with your hands..");
-	}
-
-	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	/* Must not be confused */
-	if (p_ptr->timed[TMD_CONFUSED])
+	/* TMD_BRAIL */
+    if ((p_ptr->timed[TMD_BLIND]) || (no_lite()))
 	{
-		msg_print("You are too confused!");
-		return;
+		msg_print("You read the spell with your hands..");
 	}
 
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
-        if ((goodluck > 16) && (randint(100) < 34))
+        if (randint(100) < goodluck*2)
         {
-		msg_print("You manage to stop long enough to cast quickly.");
+		   msg_print("You manage to stop long enough to cast quickly.");
         }
         else
         {        
-		msg_print("You are too desperate to escape to cast spells!");
-		return;
+           msg_print("You are too desperate to escape to cast spells!");
+		   return FALSE;
         }
 	}
 
@@ -1514,7 +1555,7 @@ void do_cmd_castluck(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no books of new magic!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1541,16 +1582,21 @@ void do_cmd_castluck(void)
 	if (spell < 0)
 	{
 		if (spell == -2) msg_print("You don't know any spells in that book.");
-		return;
+		return FALSE;
 	}
 
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
+    /* no dangerous spells when not using mana */
+    if (p_ptr->manafree)
+    {
+       /* nothing */
+    }
 
-	/* Verify "dangerous" prayers */
-	if (s_ptr->smana > p_ptr->csp)
+	/* Verify "dangerous" spells */
+	else if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to cast this spell.");
@@ -1559,25 +1605,31 @@ void do_cmd_castluck(void)
 		flush();
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check("Attempt it anyway? ")) return FALSE;
 	}
 
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
+	/* If you can use the staff, then you can cast the spell */
+	/* as long as your failure rate is less than 86 */
+    if ((p_ptr->manafree) && (chance < 86)) chance = 0;
+	
 	/* Check for failure */
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to get the spell off!");
+
+		if (p_ptr->manafree) return FALSE;
 	}
 
 	/* Success */
 	else
 	{
 		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+		if (!cast_spell(cp_ptr->spell_book, spell)) return FALSE;
 
 		/* A spell was cast */
 		sound(MSG_SPELL);
@@ -1599,8 +1651,16 @@ void do_cmd_castluck(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+    /* no mana use with staff of manafree */
+    if (p_ptr->manafree)
+    {
+       /* save the manacost so you know how many staff charges to use */
+       p_ptr->manafree = s_ptr->smana;
+       /* msg_print("manafree"); */
+    }
+
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	else if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -1639,12 +1699,14 @@ void do_cmd_castluck(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+	return TRUE;
 }
 
 /*
  * Mix (cast) an alchemy formula (copied from previous function and tweaked)
  */
-void do_cmd_castchem(void)
+bool do_cmd_castchem(void)
 {
 	int item, spell, chance;
 
@@ -1659,38 +1721,32 @@ void do_cmd_castchem(void)
 	if (cp_ptr->spell_book != TV_CHEM_BOOK)
 	{
 		msg_print("You cannot cast spells in this school!");
-		return;
+		return FALSE;
 	}
 
 	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
-	{
-		msg_print("You read the spell with your hands..");
-	}
-
-	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	/* Must not be confused */
-	if (p_ptr->timed[TMD_CONFUSED])
+	/* TMD_BRAIL */
+    if ((p_ptr->timed[TMD_BLIND]) || (no_lite()))
 	{
-		msg_print("You are too confused!");
-		return;
+		msg_print("You read the spell with your hands..");
 	}
 
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
 		msg_print("You are too desperate to escape to mix up a formula!");
-		return;
+		return FALSE;
 	}
 
 	/* Restrict choices */
@@ -1699,7 +1755,7 @@ void do_cmd_castchem(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no alchemy books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1726,16 +1782,21 @@ void do_cmd_castchem(void)
 	if (spell < 0)
 	{
 		if (spell == -2) msg_print("You don't know any formulas in that book.");
-		return;
+		return FALSE;
 	}
 
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
+    /* no dangerous spells when not using mana */
+    if (p_ptr->manafree)
+    {
+       /* nothing */
+    }
 
 	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->csp)
+	else if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to mix up this formula.");
@@ -1744,25 +1805,31 @@ void do_cmd_castchem(void)
 		flush();
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check("Attempt it anyway? ")) return FALSE;
 	}
 
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
+	/* If you can use the staff, then you can cast the spell */
+	/* as long as your failure rate is less than 86 */
+    if ((p_ptr->manafree) && (chance < 86)) chance = 0;
+	
 	/* Check for failure */
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to get the spell off!");
+
+		if (p_ptr->manafree) return FALSE;
 	}
 
 	/* Success */
 	else
 	{
 		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+		if (!cast_spell(cp_ptr->spell_book, spell)) return FALSE;
 
 		/* A spell was cast */
 		sound(MSG_SPELL);
@@ -1784,8 +1851,15 @@ void do_cmd_castchem(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+    /* no mana use with staff of manafree */
+    if (p_ptr->manafree)
+    {
+       /* save the manacost so you know how many staff charges to use */
+       p_ptr->manafree = s_ptr->smana;
+    }
+
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	else if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -1824,12 +1898,14 @@ void do_cmd_castchem(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+	return TRUE;
 }
 
 /*
  * Cast a spell of witchcraft
  */
-void do_cmd_castblack(void)
+bool do_cmd_castblack(void)
 {
 	int item, spell;
 	int chance;
@@ -1844,38 +1920,32 @@ void do_cmd_castblack(void)
 	if (cp_ptr->spell_book != TV_DARK_BOOK)
 	{
 		msg_print("You cannot cast spells in this school!");
-		return;
+		return FALSE;
 	}
 
 	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
-	{
-		msg_print("You read the spell with your hands..");
-	}
-
-	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You cannot see!");
-		return;
+		return FALSE;
 	}
 
-	/* Not when confused */
-	if (p_ptr->timed[TMD_CONFUSED])
+	/* TMD_BRAIL */
+    if ((p_ptr->timed[TMD_BLIND]) || (no_lite()))
 	{
-		msg_print("You are too confused!");
-		return;
+		msg_print("You read the spell with your hands..");
 	}
 
     /* Not when desperate to escape */
 	if (p_ptr->timed[TMD_TERROR])
 	{
 		msg_print("You are too desperate to escape to cast spells!");
-		return;
+		return FALSE;
 	}
 
 	/* Restrict choices to spell books */
@@ -1884,7 +1954,7 @@ void do_cmd_castblack(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no spell books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1911,16 +1981,21 @@ void do_cmd_castblack(void)
 	if (spell < 0)
 	{
 		if (spell == -2) msg_print("You don't know any spells in that book.");
-		return;
+		return FALSE;
 	}
 
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
+    /* no dangerous spells when not using mana */
+    if (p_ptr->manafree)
+    {
+       /* nothing */
+    }
 
 	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->csp)
+	else if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to cast this spell.");
@@ -1929,25 +2004,31 @@ void do_cmd_castblack(void)
 		flush();
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check("Attempt it anyway? ")) return FALSE;
 	}
 
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 	
+	/* If you can use the staff, then you can cast the spell */
+	/* as long as your failure rate is less than 86 */
+    if ((p_ptr->manafree) && (chance < 86)) chance = 0;
+	
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to get the spell off!");
+
+		if (p_ptr->manafree) return FALSE;
 	}
 
 	/* Process spell */
 	else
 	{
 		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+		if (!cast_spell(cp_ptr->spell_book, spell)) return FALSE;
 
 		/* A spell was cast */
 		sound(MSG_SPELL);
@@ -1969,8 +2050,15 @@ void do_cmd_castblack(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+    /* no mana use with staff of manafree */
+    if (p_ptr->manafree)
+    {
+       /* save the manacost so you know how many staff charges to use */
+       p_ptr->manafree = s_ptr->smana;
+    }
+
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	else if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -2009,4 +2097,6 @@ void do_cmd_castblack(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+	return TRUE;
 }

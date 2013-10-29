@@ -174,6 +174,7 @@ static struct
 	{ "W",		"Wights/Wraiths" },
 	{ "w",		"Worms/Worm Masses" },
 	{ "Y",		"Unicorns and Centaurs" },
+	{ "y",      "Light Fairies" },
 	{ "Z",		"Zephyr Hounds" },
 	{ "z",		"Zombies" },
 	{ NULL,		NULL }
@@ -1047,7 +1048,7 @@ static void mon_lore(int oid)
 	/* Recall monster */
 	roff_top(default_join[oid].oid);
 	Term_gotoxy(0, 2);
-	describe_monster(default_join[oid].oid, FALSE);
+	describe_monster(default_join[oid].oid, FALSE, 0);
 
 	text_out_c(TERM_L_BLUE, "\n[Press any key to continue]\n");
 	(void)anykey();
@@ -1367,7 +1368,7 @@ static void display_ego_item(int col, int row, bool cursor, int oid)
 static void desc_ego_fake(int oid)
 {
 	/* Hack: dereference the join */
-	const char *cursed[] = { "permanently cursed", "heavily cursed", "cursed" };
+	const char *cursed[] = { "powerfully cursed", "heavily cursed", "cursed" };
 	const char *xtra[] = { "sustain", "higher resistance", "ability" };
 	int f3, i;
 

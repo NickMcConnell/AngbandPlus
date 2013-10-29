@@ -192,9 +192,9 @@ const byte adj_mag_fail[] =
  */
 const int adj_mag_stat[] =
 {
-	-5	/* 3 */,
-	-4	/* 4 */,
-	-3	/* 5 */,
+	-6	/* 3 */,
+	-5  /* 4 */,
+	-4	/* 5 */,
 	-3	/* 6 */,
 	-2	/* 7 */,
 	-1	/* 8 */,
@@ -230,6 +230,52 @@ const int adj_mag_stat[] =
 	51	/* 18/200-18/209 */,
 	54	/* 18/210-18/219 */,
 	57	/* 18/220+ */
+};
+
+
+/*
+ * Stat Table (CHR) -- Charisma bonus to charm spells working
+ */
+const byte adj_chr_charm[] =
+{
+	0	/* 3 */,
+	0	/* 4 */,
+	0	/* 5 */,
+	1	/* 6 */,
+	2	/* 7 */,
+	3	/* 8 */,
+	4	/* 9 */,
+	6	/* 10 */,
+	8	/* 11 */,
+	10	/* 12 */,
+	12	/* 13 */,
+	14	/* 14 */,
+	16	/* 15 */,
+	18	/* 16 */,
+	20	/* 17 */,
+	22	/* 18/00-18/09 */,
+	24	/* 18/10-18/19 */,
+	26	/* 18/20-18/29 */,
+	28	/* 18/30-18/39 */,
+	30	/* 18/40-18/49 */,
+	32	/* 18/50-18/59 */,
+	34	/* 18/60-18/69 */,
+	36	/* 18/70-18/79 */,
+	38	/* 18/80-18/89 */,
+	40	/* 18/90-18/99 */,
+	42	/* 18/100-18/109 */,
+	44	/* 18/110-18/119 */,
+	46	/* 18/120-18/129 */,
+	48	/* 18/130-18/139 */,
+	50	/* 18/140-18/149 */,
+	52	/* 18/150-18/159 */,
+	54	/* 18/160-18/169 */,
+	56	/* 18/170-18/179 */,
+	58	/* 18/180-18/189 */,
+	60	/* 18/190-18/199 */,
+	63	/* 18/200-18/209 */,
+	66	/* 18/210-18/219 */,
+	70	/* 18/220+ */
 };
 
 
@@ -385,12 +431,12 @@ const byte adj_dex_dis[] =
 	0	/* 9 */,
 	0	/* 10 */,
 	0	/* 11 */,
-	0	/* 12 */,
+	1	/* 12 */,
 	1	/* 13 */,
 	1	/* 14 */,
-	1	/* 15 */,
+	2	/* 15 */,
 	2	/* 16 */,
-	2	/* 17 */,
+	3	/* 17 */,
 	4	/* 18/00-18/09 */,
 	4	/* 18/10-18/19 */,
 	4	/* 18/20-18/29 */,
@@ -477,34 +523,34 @@ const byte adj_dex_ta[] =
 	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 1	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 1	/* 17 */,
-	128 + 2	/* 18/00-18/09 */,
-	128 + 2	/* 18/10-18/19 */,
-	128 + 2	/* 18/20-18/29 */,
-	128 + 2	/* 18/30-18/39 */,
-	128 + 2	/* 18/40-18/49 */,
-	128 + 3	/* 18/50-18/59 */,
-	128 + 3	/* 18/60-18/69 */,
-	128 + 3	/* 18/70-18/79 */,
-	128 + 4	/* 18/80-18/89 */,
-	128 + 5	/* 18/90-18/99 */,
-	128 + 6	/* 18/100-18/109 */,
-	128 + 7	/* 18/110-18/119 */,
-	128 + 8	/* 18/120-18/129 */,
+	128 + 1	/* 12 */,
+	128 + 1	/* 13 */,
+	128 + 2	/* 14 */,
+	128 + 2	/* 15 */,
+	128 + 3	/* 16 */,
+	128 + 3	/* 17 */,
+	128 + 3	/* 18/00-18/09 */,
+	128 + 4	/* 18/10-18/19 */,
+	128 + 4	/* 18/20-18/29 */,
+	128 + 4	/* 18/30-18/39 */,
+	128 + 4	/* 18/40-18/49 */,
+	128 + 5	/* 18/50-18/59 */,
+	128 + 5	/* 18/60-18/69 */,
+	128 + 5	/* 18/70-18/79 */,
+	128 + 6	/* 18/80-18/89 */,
+	128 + 7	/* 18/90-18/99 */,
+	128 + 8	/* 18/100-18/109 */,
+	128 + 8	/* 18/110-18/119 */,
+	128 + 9	/* 18/120-18/129 */,
 	128 + 9	/* 18/130-18/139 */,
 	128 + 9	/* 18/140-18/149 */,
 	128 + 10	/* 18/150-18/159 */,
-	128 + 11	/* 18/160-18/169 */,
-	128 + 12	/* 18/170-18/179 */,
-	128 + 13	/* 18/180-18/189 */,
-	128 + 14	/* 18/190-18/199 */,
-	128 + 15	/* 18/200-18/209 */,
-	128 + 15	/* 18/210-18/219 */,
+	128 + 10	/* 18/160-18/169 */,
+	128 + 11	/* 18/170-18/179 */,
+	128 + 12	/* 18/180-18/189 */,
+	128 + 12	/* 18/190-18/199 */,
+	128 + 13	/* 18/200-18/209 */,
+	128 + 14	/* 18/210-18/219 */,
 	128 + 15	/* 18/220+ */
 };
 
@@ -627,71 +673,72 @@ const byte adj_str_th[] =
 	128 + 3	/* 18/10-18/19 */,
 	128 + 3	/* 18/20-18/29 */,
 	128 + 3	/* 18/30-18/39 */,
-	128 + 3	/* 18/40-18/49 */,
+	128 + 4	/* 18/40-18/49 */,
 	128 + 4	/* 18/50-18/59 */,
 	128 + 4	/* 18/60-18/69 */,
 	128 + 4 /* 18/70-18/79 */,
-	128 + 4	/* 18/80-18/89 */,
-	128 + 5	/* 18/90-18/99 */,
-	128 + 6	/* 18/100-18/109 */,
-	128 + 7	/* 18/110-18/119 */,
-	128 + 7	/* 18/120-18/129 */,
-	128 + 7	/* 18/130-18/139 */,
-	128 + 8	/* 18/140-18/149 */,
-	128 + 9	/* 18/150-18/159 */,
-	128 + 9	/* 18/160-18/169 */,
-	128 + 9	/* 18/170-18/179 */,
-	128 + 10	/* 18/180-18/189 */,
-	128 + 11	/* 18/190-18/199 */,
-	128 + 12	/* 18/200-18/209 */,
-	128 + 12	/* 18/210-18/219 */,
-	128 + 13	/* 18/220+ */
+	128 + 5	/* 18/80-18/89 */,
+	128 + 6	/* 18/90-18/99 */,
+	128 + 7	/* 18/100-18/109 */,
+	128 + 8	/* 18/110-18/119 */,
+	128 + 8	/* 18/120-18/129 */,
+	128 + 9	/* 18/130-18/139 */,
+	128 + 9	/* 18/140-18/149 */,
+	128 + 10	/* 18/150-18/159 */,
+	128 + 10	/* 18/160-18/169 */,
+	128 + 11	/* 18/170-18/179 */,
+	128 + 11	/* 18/180-18/189 */,
+	128 + 12	/* 18/190-18/199 */,
+	128 + 13	/* 18/200-18/209 */,
+	128 + 14	/* 18/210-18/219 */,
+	128 + 15	/* 18/220+ */
 };
 
 
 /*
  * Stat Table (STR) -- weight limit in deca-pounds
+ * increased slightly
  */
 const byte adj_str_wgt[] =
 {
-	5	/* 3 */,
+	5   /* 3 */,
 	6	/* 4 */,
-	7	/* 5 */,
-	8	/* 6 */,
-	9	/* 7 */,
-	10	/* 8 */,
-	11	/* 9 */,
-	12	/* 10 */,
-	13	/* 11 */,
-	14	/* 12 */,
-	15	/* 13 */,
-	16	/* 14 */,
-	17	/* 15 */,
-	18	/* 16 */,
-	19	/* 17 */,
-	20	/* 18/00-18/09 */,
-	22	/* 18/10-18/19 */,
-	24	/* 18/20-18/29 */,
-	26	/* 18/30-18/39 */,
+	8	/* 5 */,
+	9	/* 6 */,
+	10	/* 7 */,
+	11	/* 8 */,
+	12	/* 9 */,
+	13	/* 10 */,
+	14	/* 11 */,
+	15	/* 12 */,
+	16	/* 13 */,
+	17	/* 14 */,
+	18	/* 15 */,
+	20	/* 16 */,
+	21	/* 17 */,
+	23	/* 18/00-18/09 */,
+	25	/* 18/10-18/19 */,
+	26	/* 18/20-18/29 */,
+	27	/* 18/30-18/39 */,
 	28	/* 18/40-18/49 */,
-	30	/* 18/50-18/59 */,
+	29	/* 18/50-18/59 */,
 	30	/* 18/60-18/69 */,
 	30	/* 18/70-18/79 */,
 	30	/* 18/80-18/89 */,
-	30	/* 18/90-18/99 */,
+	31	/* 18/90-18/99 */,
 	31	/* 18/100-18/109 */,
 	31	/* 18/110-18/119 */,
 	32	/* 18/120-18/129 */,
 	32	/* 18/130-18/139 */,
 	32	/* 18/140-18/149 */,
 	32	/* 18/150-18/159 */,
-	32	/* 18/160-18/169 */,
-	32	/* 18/170-18/179 */,
-	32	/* 18/180-18/189 */,
-	33	/* 18/190-18/199 */,
+	33	/* 18/160-18/169 */,
+	33	/* 18/170-18/179 */,
+	33	/* 18/180-18/189 */,
+	34	/* 18/190-18/199 */,
 	34	/* 18/200-18/209 */,
 	34	/* 18/210-18/219 */,
-	34	/* 18/220+ */
+	35	/* 18/220+ */
 };
 
 
@@ -764,25 +811,25 @@ const byte adj_str_dig[] =
 	9	/* 18/00-18/09 */,
 	10	/* 18/10-18/19 */,
 	12	/* 18/20-18/29 */,
-	15	/* 18/30-18/39 */,
-	20	/* 18/40-18/49 */,
-	25	/* 18/50-18/59 */,
-	30	/* 18/60-18/69 */,
-	35	/* 18/70-18/79 */,
-	40	/* 18/80-18/89 */,
-	45	/* 18/90-18/99 */,
-	50	/* 18/100-18/109 */,
-	55	/* 18/110-18/119 */,
-	60	/* 18/120-18/129 */,
-	65	/* 18/130-18/139 */,
-	70	/* 18/140-18/149 */,
-	75	/* 18/150-18/159 */,
-	80	/* 18/160-18/169 */,
-	85	/* 18/170-18/179 */,
-	90	/* 18/180-18/189 */,
-	95	/* 18/190-18/199 */,
-	100	/* 18/200-18/209 */,
-	100	/* 18/210-18/219 */,
+	14	/* 18/30-18/39 */,
+	16	/* 18/40-18/49 */,
+	20	/* 18/50-18/59 */,
+	22	/* 18/60-18/69 */,
+	26	/* 18/70-18/79 */,
+	30	/* 18/80-18/89 */,
+	35	/* 18/90-18/99 */,
+	40	/* 18/100-18/109 */,
+	45	/* 18/110-18/119 */,
+	50	/* 18/120-18/129 */,
+	55	/* 18/130-18/139 */,
+	60	/* 18/140-18/149 */,
+	65	/* 18/150-18/159 */,
+	70	/* 18/160-18/169 */,
+	75	/* 18/170-18/179 */,
+	80	/* 18/180-18/189 */,
+	85	/* 18/190-18/199 */,
+	90	/* 18/200-18/209 */,
+	95	/* 18/210-18/219 */,
 	100	/* 18/220+ */
 };
 
@@ -835,6 +882,7 @@ const byte adj_str_blow[] =
 
 /*
  * Stat Table (DEX) -- index into the "blow" table
+ * Why does it go up to 20 when the max is 11?
  */
 const byte adj_dex_blow[] =
 {
@@ -869,11 +917,11 @@ const byte adj_dex_blow[] =
 	9	/* 18/130-18/139 */,
 	10	/* 18/140-18/149 */,
 	11	/* 18/150-18/159 */,
-	12	/* 18/160-18/169 */,
-	14	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	18	/* 18/190-18/199 */,
-	20	/* 18/200-18/209 */,
+	11	/* 18/160-18/169 */,
+	12	/* 18/170-18/179 */,
+	14	/* 18/180-18/189 */,
+	16	/* 18/190-18/199 */,
+	18	/* 18/200-18/209 */,
 	20	/* 18/210-18/219 */,
 	20	/* 18/220+ */
 };
@@ -910,13 +958,13 @@ const byte adj_dex_safe[] =
 	40	/* 18/80-18/89 */,
 	45	/* 18/90-18/99 */,
 	50	/* 18/100-18/109 */,
-	60	/* 18/110-18/119 */,
-	70	/* 18/120-18/129 */,
-	80	/* 18/130-18/139 */,
-	90	/* 18/140-18/149 */,
-	100	/* 18/150-18/159 */,
-	100	/* 18/160-18/169 */,
-	100	/* 18/170-18/179 */,
+	55	/* 18/110-18/119 */,
+	60	/* 18/120-18/129 */,
+	65	/* 18/130-18/139 */,
+	70	/* 18/140-18/149 */,
+	75	/* 18/150-18/159 */,
+	80	/* 18/160-18/169 */,
+	90	/* 18/170-18/179 */,
 	100	/* 18/180-18/189 */,
 	100	/* 18/190-18/199 */,
 	100	/* 18/200-18/209 */,
@@ -927,6 +975,8 @@ const byte adj_dex_safe[] =
 
 /*
  * Stat Table (CON) -- base regeneration rate
+ * also used for bonus throwing distance (STR) with HEAVY_BONUS or MIGHTY_HURL
+ * and for the duration of the "mighty throw" spell
  */
 const byte adj_con_fix[] =
 {
@@ -1007,13 +1057,13 @@ const int adj_con_mhp[] =
 	 650	/* 18/130-18/139 */,
 	 700	/* 18/140-18/149 */,
 	 750	/* 18/150-18/159 */,
-	 800	/* 18/160-18/169 */,
+	 825	/* 18/160-18/169 */,
 	 900	/* 18/170-18/179 */,
-	1000	/* 18/180-18/189 */,
-	1100	/* 18/190-18/199 */,
-	1250	/* 18/200-18/209 */,
-	1250	/* 18/210-18/219 */,
-	1250	/* 18/220+ */
+     980	/* 18/180-18/189 */,
+	1090	/* 18/190-18/199 */,
+	1200	/* 18/200-18/209 */,
+	1300	/* 18/210-18/219 */,
+	1400	/* 18/220+ */
 };
 
 
@@ -1133,9 +1183,6 @@ const byte extract_energy[200] =
 	/* F+70 */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
 	/* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
 };
-
-
-
 
 
 
@@ -1423,8 +1470,8 @@ cptr option_text[OPT_MAX] =
 	"disturb_panel",			/* OPT_disturb_panel */
 	"disturb_state",			/* OPT_disturb_state */
 	"disturb_minor",			/* OPT_disturb_minor */
-	NULL,						/* xxx next_xp */
-	NULL,						/* xxx alert_hitpoint */
+	"disturb_espmove",			/* OPT_disturb_espmove */
+	NULL,			            /* xxx disturb_aware */
 	NULL,						/* xxx alert_failure */
 	NULL,						/* xxx verify_destroy */
 	NULL,						/* xxx verify_special */
@@ -1476,7 +1523,7 @@ cptr option_text[OPT_MAX] =
 	"hide_squelchable",			/* OPT_hide_squelchable */
 	"squelch_worthless",			/* OPT_squelch_worthless */
 	"mouse_movement",			/* OPT_mouse_movement */
-	NULL,						/* xxx */
+	"always show lists",		/* OPT_show_lists */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1687,8 +1734,8 @@ cptr option_desc[OPT_MAX] =
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
 	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
-	NULL,										/* xxx next_xp */
-	NULL,										/* xxx alert_hitpoint */
+	"Disturb when ESP detects a new monster",	/* OPT_disturb_espmove */
+	NULL,                                       /* OPT_disturb_aware */
 	NULL,										/* xxx alert_failure */
 	NULL,										/* xxx verify_destroy */
 	NULL,										/* xxx verify_special */
@@ -1740,7 +1787,7 @@ cptr option_desc[OPT_MAX] =
 	"Hide items set as squelchable",			/* OPT_hide_squelchable */
 	"Automatically squelch worthless items",	/* OPT_squelch_worthless */
 	"Allow mouse clicks to move the player",	/* OPT_mouse_movement */
-	NULL,										/* xxx */
+	"Always show lists",						/* OPT_show_lists */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1950,8 +1997,8 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
 	FALSE,		/* OPT_disturb_minor */
-	FALSE,		/* xxx next_xp */
-	FALSE,		/* xxx alert_hitpoint */
+	FALSE,		/* OPT_disturb_espmove */
+	FALSE,		/* OPT_disturb_aware */
 	FALSE,		/* xxx alert_failure */
 	FALSE,		/* xxx verify_destroy */
 	FALSE,		/* xxx verify_special */
@@ -2003,7 +2050,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_hide_squelchable */
 	FALSE,		/* OPT_squelch_worthless */
 	FALSE,		/* OPT_mouse_movement */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_show_lists */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2202,7 +2249,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_open,
 		OPT_mouse_movement,
-		OPT_NONE,
+		OPT_show_lists,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2230,6 +2277,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/* Warning */
 	{
 		OPT_disturb_move,
+		OPT_disturb_espmove,
 		OPT_disturb_near,
 		OPT_disturb_panel,
 		OPT_disturb_state,
@@ -2239,7 +2287,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_ring_bell,
 		OPT_flush_failure,
 		OPT_flush_disturb,
-		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2364,7 +2411,7 @@ const grouper object_text_order [] =
 const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 {
 	{
-		/* General Store */
+		/* General Store in store.c L1275 */
 
 		{ 0, 0 },
 	},
@@ -2372,6 +2419,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Armoury */
 
+		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
@@ -2400,25 +2448,22 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_HARD_ARMOR, SV_RING_MAIL },
 
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
-#ifdef EFG
-		/* EFGchange Armory sells good cloaks since general store does not */
-		{ TV_CLOAK,		SV_CLOAK },
-#else
+		{ TV_CLOAK,	SV_CLOAK },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-#endif
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
-	},
+	}, /*  */
 
 	{
 		/* Weaponsmith */
 
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_DAGGER },
+		{ TV_SWORD, SV_THROWN_DAGGER },
 		{ TV_SWORD, SV_MAIN_GAUCHE },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_GLADIUS },
@@ -2429,8 +2474,11 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
+		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
 		{ TV_SWORD, SV_BASTARD_SWORD },
+		{ TV_POLEARM, SV_THROWN_AXE },
+		{ TV_POLEARM, SV_JAVELIN },
 
 		{ TV_POLEARM, SV_HATCHET },
 		{ TV_POLEARM, SV_SPEAR },
@@ -2445,7 +2493,6 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POLEARM, SV_LANCE },
 		{ TV_POLEARM, SV_BATTLE_AXE },
 		{ TV_POLEARM, SV_GLAIVE },
-		{ TV_HAFTED, SV_WHIP },
 		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SLING },
 
@@ -2459,18 +2506,19 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
-	},
+	}, /* 41 */
 
 	{
 		/* Temple */
 
-		{ TV_HAFTED, SV_WALKING_STICK },
+		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_WALKING_STAFF },
 		{ TV_HAFTED, SV_WALKING_STAFF },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_WAR_HAMMER },
+		{ TV_HAFTED, SV_CEREMONIAL_MACE },
 		{ TV_HAFTED, SV_CEREMONIAL_MACE },
 
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
@@ -2505,7 +2553,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_NEWM_BOOK, 2 },
 		{ TV_NEWM_BOOK, 2 },
 		{ TV_NEWM_BOOK, 3 }
-	},
+	}, /* 41 */
 
 	{
 		/* Alchemy shop */
@@ -2532,35 +2580,36 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DEEP_DESCENT },
+		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
 		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 
 		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
 		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+		{ TV_SCROLL, SV_SCROLL_TRAP_DOOR_DESTRUCTION },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_POTION, SV_POTION_INFRAVISION }, /* alertness */
+		{ TV_POTION, SV_POTION_CURE_POISON },
 
 		{ TV_POTION, SV_POTION_RESIST_HEAT },
 		{ TV_POTION, SV_POTION_RESIST_COLD },
-		{ TV_POTION, SV_POTION_RES_STR },
-		{ TV_POTION, SV_POTION_RES_STR },
-		{ TV_POTION, SV_POTION_RES_INT },
-		{ TV_POTION, SV_POTION_RES_WIS },
-		{ TV_POTION, SV_POTION_RES_DEX },
-		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR }
-	},
+		{ TV_POTION, SV_POTION_RES_BRAWN },
+		{ TV_POTION, SV_POTION_RES_BRAWN },
+		{ TV_POTION, SV_POTION_RES_BRAWN },
+		{ TV_POTION, SV_POTION_RES_INTELLECT },
+		{ TV_POTION, SV_POTION_RES_INTELLECT },
+		{ TV_POTION, SV_POTION_RES_SNEAKINESS },
+		{ TV_POTION, SV_POTION_RES_SNEAKINESS }
+	}, /* 41 */
 
 	{
 		/* Magic-User store */
 
-		{ TV_RING, SV_RING_SEARCHING },
 		{ TV_RING, SV_RING_FEATHER_FALL },
 		{ TV_RING, SV_RING_PROTECTION },
+        { TV_AMULET, SV_AMULET_ALERTNESS },
         { TV_AMULET, SV_AMULET_SLOW_DIGEST },
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
 		{ TV_WAND, SV_WAND_SLOW_MONSTER },
@@ -2604,7 +2653,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_DARK_BOOK, 2 },
 		{ TV_DARK_BOOK, 3 }
 
-	}
+	} /* 41 */
 };
 
 

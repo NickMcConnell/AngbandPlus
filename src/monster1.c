@@ -128,7 +128,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & RF4_ARROW_2) vp[vn++] = "fire arrows";
 	if (l_ptr->flags4 & RF4_ARROW_3) vp[vn++] = "fire a missile";
 	if (l_ptr->flags4 & RF4_ARROW_4) vp[vn++] = "fire missiles";
-	if (l_ptr->flags4 & RF4_STINKBOMB) vp[vn++] = "hurl a small stinkbomb";
 	if (l_ptr->flags4 & RF4_BOULDER) vp[vn++] = "throw boulders";
 
 	/* Describe innate attacks */
@@ -157,11 +156,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	/* Collect breaths */
 	vn = 0;
 	if (l_ptr->flags4 & RF4_BR_ACID)		vp[vn++] = "acid";
-#ifdef ALTDJA
-	if (l_ptr->flags4 & RF4_BR_ELEC)		vp[vn++] = "stench";
-#else
 	if (l_ptr->flags4 & RF4_BR_ELEC)		vp[vn++] = "lightning";
-#endif
 	if (l_ptr->flags4 & RF4_BR_FIRE)		vp[vn++] = "fire";
 	if (l_ptr->flags4 & RF4_BR_COLD)		vp[vn++] = "frost";
 	if (l_ptr->flags4 & RF4_BR_POIS)		vp[vn++] = "poison";
@@ -181,6 +176,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & RF4_BR_WALL)		vp[vn++] = "force";
 	if (l_ptr->flags4 & RF4_BR_MANA)		vp[vn++] = "mana";
 	if (l_ptr->flags4 & RF4_BR_FEAR)		vp[vn++] = "fear";
+	if (l_ptr->flags4 & RF4_BR_AMNS)		vp[vn++] = "amnesia";
 	if (l_ptr->flags4 & RF4_XXX6)		vp[vn++] = "something";
 
 	/* Describe breaths */
@@ -209,11 +205,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	/* Collect spells */
 	vn = 0;
 	if (l_ptr->flags5 & RF5_BA_ACID)     vp[vn++] = "produce acid balls";
-#ifdef ALTDJA
-	if (l_ptr->flags5 & RF5_BA_ELEC)     vp[vn++] = "hurl giant stink bombs";
-#else
 	if (l_ptr->flags5 & RF5_BA_ELEC)     vp[vn++] = "produce lightning balls";
-#endif
 	if (l_ptr->flags5 & RF5_BA_FIRE)     vp[vn++] = "produce fire balls";
 	if (l_ptr->flags5 & RF5_BA_COLD)     vp[vn++] = "produce frost balls";
 	if (l_ptr->flags5 & RF5_BA_POIS)     vp[vn++] = "produce poison balls";
@@ -229,11 +221,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & RF5_CAUSE_3)     vp[vn++] = "cause critical wounds";
 	if (l_ptr->flags5 & RF5_CAUSE_4)     vp[vn++] = "cause mortal wounds";
 	if (l_ptr->flags5 & RF5_BO_ACID)     vp[vn++] = "produce acid bolts";
-#ifdef ALTDJA
-	if (l_ptr->flags5 & RF5_BO_ELEC)     vp[vn++] = "hurl stink bombs";
-#else
 	if (l_ptr->flags5 & RF5_BO_ELEC)     vp[vn++] = "produce lightning bolts";
-#endif	
 	if (l_ptr->flags5 & RF5_BO_FIRE)     vp[vn++] = "produce fire bolts";
 	if (l_ptr->flags5 & RF5_BO_COLD)     vp[vn++] = "produce frost bolts";
 	if (l_ptr->flags5 & RF5_BO_POIS)     vp[vn++] = "produce poison bolts";
@@ -249,9 +237,9 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & RF5_SLOW)        vp[vn++] = "slow";
 	if (l_ptr->flags5 & RF5_HOLD)        vp[vn++] = "paralyze";
 	if (l_ptr->flags6 & RF6_HASTE)       vp[vn++] = "haste-self";
-	if (l_ptr->flags6 & RF6_XXX1)        vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_HEAL_KIN)    vp[vn++] = "heal kin";
 	if (l_ptr->flags6 & RF6_HEAL)        vp[vn++] = "heal-self";
-	if (l_ptr->flags6 & RF6_XXX2)        vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_HEAL_OTHR)   vp[vn++] = "heal other monsters";
 	if (l_ptr->flags6 & RF6_BLINK)       vp[vn++] = "blink-self";
 	if (l_ptr->flags6 & RF6_TPORT)       vp[vn++] = "teleport-self";
 	if (l_ptr->flags6 & RF6_XXX4)        vp[vn++] = "do something";
@@ -272,15 +260,9 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_S_HOUND)     vp[vn++] = "summon hounds";
 	if (l_ptr->flags6 & RF6_S_HYDRA)     vp[vn++] = "summon hydras";
 	if (l_ptr->flags6 & RF6_S_ANGEL)     vp[vn++] = "summon an ape";
-#ifdef ALTDJA
-	if (l_ptr->flags6 & RF6_S_DEMON)     vp[vn++] = "summon a monster of unlife (demon or undead)";
-	if (l_ptr->flags6 & RF6_S_UNDEAD)    vp[vn++] = "summon a nightmare";
-	if (l_ptr->flags6 & RF6_S_DRAGON)    vp[vn++] = "summon a nymph";
-#else
 	if (l_ptr->flags6 & RF6_S_DEMON)     vp[vn++] = "summon a demon";
 	if (l_ptr->flags6 & RF6_S_UNDEAD)    vp[vn++] = "summon an undead";
 	if (l_ptr->flags6 & RF6_S_DRAGON)    vp[vn++] = "summon a dragon";
-#endif
 	if (l_ptr->flags6 & RF6_S_HI_UNDEAD) vp[vn++] = "summon Greater Undead";
 	if (l_ptr->flags6 & RF6_S_HI_DRAGON) vp[vn++] = "summon Ancient Dragons";
 	if (l_ptr->flags6 & RF6_S_HI_DEMON)  vp[vn++] = "summon Greater Demons";
@@ -348,6 +330,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		/* End this sentence */
 		text_out(".  ");
 	}
+	
+	if ((breath == TRUE) && (r_ptr->flags2 & (RF2_BR_STRONG)))
+	{
+		text_out(format("%^s", wd_he[msex]));
+		text_out(" has powerful breath.  ");
+    }
 }
 
 
@@ -546,11 +534,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_HUNGER:    q = "make you hungry"; break;
 			case RBE_EAT_LITE:  q = "absorb light"; break;
 			case RBE_ACID:      q = "shoot acid"; break;
-#ifdef ALTDJA
-			case RBE_ELEC:      q = "spread a nasty smell"; break;
-#else
 			case RBE_ELEC:      q = "electrify"; break;
-#endif
 			case RBE_FIRE:      q = "burn"; break;
 			case RBE_COLD:      q = "freeze"; break;
 			case RBE_BLIND:     q = "blind"; break;
@@ -731,6 +715,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
     else if (r_ptr->stealth == 4) text_out(format("%^s is very stealthy.  ", wd_he[msex]));
     else if (r_ptr->stealth == 5) text_out(format("%^s is extremely stealthy.  ", wd_he[msex]));
     else if (r_ptr->stealth > 5) text_out(format("%^s is extremely stealthy!  ", wd_he[msex]));
+    else if (r_ptr->stealth == 0) text_out(format("%^s is not at all stealthy.  ", wd_he[msex]));
     else text_out(format("%^s is not very stealthy.  ", wd_he[msex]));
 
 	/* Collect susceptibilities */
@@ -738,6 +723,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags3 & RF3_HURT_ROCK) vp[vn++] = "rock remover";
 	if (l_ptr->flags3 & RF3_HURT_LITE) vp[vn++] = "bright light";
 	if (l_ptr->flags3 & RF3_HURT_DARK) vp[vn++] = "magical darkness";
+	if (l_ptr->flags3 & RF3_HURT_SILV) vp[vn++] = "silver";
 	if (l_ptr->flags3 & RF3_HURT_FIRE) vp[vn++] = "fire";
 	if (l_ptr->flags3 & RF3_HURT_COLD) vp[vn++] = "cold";
 
@@ -767,11 +753,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	/* Collect immunities and resistances */
 	vn = 0;
 	if (l_ptr->flags3 & RF3_IM_ACID) vp[vn++] = "acid";
-#ifdef ALTDJA
-	if (l_ptr->flags3 & RF3_IM_ELEC) vp[vn++] = "stench";
-#else
 	if (l_ptr->flags3 & RF3_IM_ELEC) vp[vn++] = "lightning";
-#endif
 	if (l_ptr->flags3 & RF3_IM_FIRE) vp[vn++] = "fire";
 	if (l_ptr->flags3 & RF3_IM_COLD) vp[vn++] = "cold";
 	if (l_ptr->flags3 & RF3_IM_POIS) vp[vn++] = "poison";
@@ -1117,16 +1099,62 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, monster_type *m_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
 
+	int msex;
+	s16b knowevil;
 	bool old = FALSE;
+	bool evil_individual = FALSE;
+	bool evilflag = FALSE;
+	/* knowevil: 2=discern evil, 3=discern not evil, 4=detected evil, 6=known evil by cheating, 7=known not evil by cheating */
+	if (m_ptr) knowevil = m_ptr->meet;
+	else knowevil = 0;
+	if ((r_ptr->flags2 & RF2_S_EVIL1) || (r_ptr->flags2 & RF2_S_EVIL2)) evilflag = TRUE;
+	if ((r_ptr->flags3 & RF3_EVIL) && (!(l_ptr->flags3 & RF3_EVIL))) evilflag = TRUE;
+	if ((r_ptr->flags2 & RF2_STUPID) && (knowevil == 3)) knowevil = 0;
 
+	if ((cheat_know) && (m_ptr))
+	{
+		text_out(format("This monster has %d hps out of %d max hit points.  ", m_ptr->hp, m_ptr->maxhp));
+		if ((m_ptr->evil) && (!knowevil)) knowevil = 6;
+		else if ((!m_ptr->evil) && (!knowevil) && (evilflag)) knowevil = 7;
+	}
+
+	/* pointed at an individual monster and recognised as evil */	
+	if (((knowevil == 2) || (knowevil == 4) || (knowevil == 6)) && (evilflag))
+	{
+       evil_individual = TRUE;
+       if (knowevil == 2) text_out(" You discern");
+       else if (knowevil == 4) text_out(" You have detected");
+	   else if (knowevil == 6) text_out(" You know by cheating");
+       text_out(" that this individual monster is");
+       text_out_c(TERM_L_BLUE, " evil");
+       /* occationally evil */
+       if (l_ptr->flags2 & RF2_S_EVIL1) text_out(" though this monster race isn't usually evil.  ");
+       /* usually evil */
+       else if (l_ptr->flags2 & RF2_S_EVIL2) text_out(" as is typical for its race.  ");
+       else text_out(".  ");
+    }
+    else if ((knowevil == 3) || (knowevil == 7))
+    {
+       if (knowevil == 3) text_out(" You discern");
+	   else if (knowevil == 7) text_out(" You know by cheating");
+       text_out(" that this individual monster is not evil");
+       if ((l_ptr->flags2 & RF2_S_EVIL1) || (l_ptr->flags2 & RF2_S_EVIL2)) text_out(",");
+       else text_out(".  ");
+       if (l_ptr->flags2 & RF2_S_EVIL1) text_out(" as monsters of its type occationally are.  ");
+       else if (l_ptr->flags2 & RF2_S_EVIL2) text_out(" though monsters of its type usually are.  ");
+    }
+	/* separate individual monster info from race info */
+	if ((knowevil) || (cheat_know)) text_out("\n");
 
 	text_out("This");
 
-	if (l_ptr->flags3 & RF3_EVIL) text_out_c(TERM_L_BLUE, " evil");
+	if (l_ptr->flags3 & RF3_EVIL) text_out_c(TERM_L_BLUE, " inherently evil");
+	else if ((knowevil < 2) && (l_ptr->flags2 & RF2_S_EVIL2)) text_out_c(TERM_L_BLUE, " usually evil");
+	else if ((knowevil < 2) && (l_ptr->flags2 & RF2_S_EVIL1)) text_out_c(TERM_L_BLUE, " sometimes evil");
 	if (l_ptr->flags3 & RF3_UNDEAD) text_out_c(TERM_L_BLUE, " undead");
 	else if (l_ptr->flags3 & RF3_NON_LIVING) text_out_c(TERM_L_BLUE, " lifeless");
 	if (l_ptr->flags3 & RF3_SILVER) text_out_c(TERM_L_BLUE, " silver");
@@ -1137,18 +1165,25 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	else if (l_ptr->flags3 & RF3_BUG) text_out_c(TERM_L_BLUE, " bug");
 	else if (l_ptr->flags3 & RF3_ORC) text_out_c(TERM_L_BLUE, " orc");
 	else if (l_ptr->flags3 & RF3_ANIMAL) text_out_c(TERM_L_BLUE, " animal");
+	/* "y" light fairy: special case */
+	else if ((l_ptr->flags3 & RF3_HURT_DARK) && (strchr("y", r_ptr->d_char))) text_out_c(TERM_L_BLUE, "light fairy");
 	else if (l_ptr->flags3 & RF3_DRAGON) text_out_c(TERM_L_BLUE, " dragon");
 	else if (l_ptr->flags3 & RF3_UNDEAD) text_out_c(TERM_L_BLUE, " monster");
 	else if (l_ptr->flags3 & RF3_DEMON) text_out_c(TERM_L_BLUE, " monster");
 	else text_out(" creature");
 
+	if (r_ptr->rarity == 0)
+	{
+       /* don't bother with depth of something which never appears naturally */
+    }
 	/* Describe location */
-	if (r_ptr->level == 0)
+	else if (r_ptr->level == 0)
 	{
 		text_out_c(TERM_SLATE, " lives in the town");
 		old = TRUE;
 	}
-	else if (l_ptr->tkills)
+	/* DJA: depth should always be known */
+	else
 	{
 		if (l_ptr->flags1 & RF1_FORCE_DEPTH)
 			text_out_c(TERM_SLATE, " is found ");
@@ -1168,11 +1203,38 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		old = TRUE;
 	}
 
-	if (old) text_out(", and");
+	if (old) text_out(" and");
 
-	text_out(" moves");
+    if (r_ptr->flags1 & RF1_UNIQUE)
+    {
+       text_out(" moves");
+    }                  
+    else 
+    {
+	   /* "Helper" monsters */
+       if ((l_ptr->flags3 & RF3_HELPER) && (r_ptr->rarity == 0))
+	   {
+		  text_out(" never appears except when summoned by a spell.  ");
+	   }
+	   /* describe rarity */
+	   else if (r_ptr->rarity == 0) text_out(" never appears.  ");
+	   else if (r_ptr->rarity == 1) text_out(" is very common.  ");
+	   else if (r_ptr->rarity == 2) text_out(" is common.  ");
+	   else if ((r_ptr->rarity == 3) || (r_ptr->rarity == 4)) text_out(" is not very common.  ");
+	   else if ((r_ptr->rarity > 4) && (r_ptr->rarity <= 6)) text_out(" is rare.  ");
+	   else if ((r_ptr->rarity > 6) && (r_ptr->rarity <= 16)) text_out(" is very rare.  ");
+	   else if (r_ptr->rarity > 16) text_out(" is extremely rare.  ");
+	
+	   msex = 0;
 
-	/* Random-ness */
+	   /* Extract a gender (if applicable) */
+	   if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
+	   else if (r_ptr->flags1 & RF1_MALE) msex = 1;
+
+	   text_out(format("%^s moves", wd_he[msex]));
+    }	   
+
+ 	/* Random-ness */
 	if ((l_ptr->flags1 & RF1_RAND_50) || (l_ptr->flags1 & RF1_RAND_25))
 	{
 		/* Adverb */
@@ -1200,13 +1262,17 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	if (r_ptr->speed > 110)
 	{
 		if (r_ptr->speed > 130) text_out_c(TERM_GREEN, " incredibly");
-		else if (r_ptr->speed > 120) text_out_c(TERM_GREEN, " very");
+		else if (r_ptr->speed > 121) text_out_c(TERM_GREEN, " very");
+		else if (r_ptr->speed < 113) text_out_c(TERM_GREEN, " slightly");
+		else if (r_ptr->speed < 115) text_out_c(TERM_GREEN, " somewhat");
 		text_out_c(TERM_GREEN, " quickly");
 	}
 	else if (r_ptr->speed < 110)
 	{
 		if (r_ptr->speed < 90) text_out_c(TERM_GREEN, " incredibly");
-		else if (r_ptr->speed < 100) text_out_c(TERM_GREEN, " very");
+		else if (r_ptr->speed < 96) text_out_c(TERM_GREEN, " very");
+		else if (r_ptr->speed > 107) text_out_c(TERM_GREEN, " slightly");
+		else if (r_ptr->speed > 105) text_out_c(TERM_GREEN, " somewhat");
 		text_out_c(TERM_GREEN, " slowly");
 	}
 	else
@@ -1293,14 +1359,13 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
  * left edge of the screen, on a cleared line, in which the recall is
  * to take place.  One extra blank line is left after the recall.
  */
-void describe_monster(int r_idx, bool spoilers)
+void describe_monster(int r_idx, bool spoilers, monster_type *m_ptr)
 {
 	monster_lore lore;
 
 	/* Get the race and lore */
 	const monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
-
 
 	/* Hack -- create a copy of the monster-memory */
 	COPY(&lore, l_ptr, monster_lore);
@@ -1329,8 +1394,9 @@ void describe_monster(int r_idx, bool spoilers)
 	/* Monster description */
 	describe_monster_desc(r_idx);
 
-	/* Describe the movement and level of the monster */
-	describe_monster_movement(r_idx, &lore);
+	/* Describe the race, movement and level of the monster */
+	/* sometimes include stuff about the individual monster */
+	describe_monster_movement(r_idx, &lore, m_ptr);
 
 	/* Describe experience */
 	if (!spoilers) describe_monster_exp(r_idx, &lore);
@@ -1411,12 +1477,10 @@ void roff_top(int r_idx)
 	Term_addstr(-1, TERM_WHITE, "'):");
 }
 
-
-
 /*
  * Hack -- describe the given monster race at the top of the screen
  */
-void screen_roff(int r_idx)
+void screen_roff(int r_idx, monster_type *m_ptr)
 {
 	/* Flush messages */
 	message_flush();
@@ -1428,7 +1492,7 @@ void screen_roff(int r_idx)
 	text_out_hook = text_out_to_screen;
 
 	/* Recall monster */
-	describe_monster(r_idx, FALSE);
+	describe_monster(r_idx, FALSE, m_ptr);
 
 	/* Describe monster */
 	roff_top(r_idx);
@@ -1458,7 +1522,7 @@ void display_roff(int r_idx)
 	text_out_hook = text_out_to_screen;
 
 	/* Recall monster */
-	describe_monster(r_idx, FALSE);
+	describe_monster(r_idx, FALSE, 0);
 
 	/* Describe monster */
 	roff_top(r_idx);

@@ -54,6 +54,10 @@ typedef struct
 	do_cmd_type *hook;
 } command_type;
 
+/* XXX These lists show only original keyset commands even if
+ * roguelike commands is turned on.
+ * I don't know how to fix this.
+ */
 
 /* Magic use */
 static command_type cmd_magic[] =
@@ -110,7 +114,8 @@ static command_type cmd_item_manage[]  =
 	{ "Mark an item as squelch",   'K', do_cmd_mark_squelch },
 	{ "Examine an item",           'I', do_cmd_observe },
 	{ "Inscribe an object",        '{', do_cmd_inscribe },
-	{ "Uninscribe an object",      '}', do_cmd_uninscribe }
+	{ "Uninscribe an object",      '}', do_cmd_uninscribe },
+	{ "Unenchant Staff (for stacking)", '&', do_cmd_fstack }
 };
 
 /* Information access commands */
@@ -306,22 +311,22 @@ static bool do_cmd_try_borg(void)
 /*
  * Helper -- cast or pray, depending on the character.
  */
-static void do_cmd_cast_or_pray(void)
+void do_cmd_cast_or_pray(void)
 {
 	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
-		do_cmd_pray();
+		(void)do_cmd_pray();
 	else if (cp_ptr->spell_book == TV_NEWM_BOOK)
-		do_cmd_castnew();
+		(void)do_cmd_castnew();
 	else if (cp_ptr->spell_book == TV_LUCK_BOOK)
-		do_cmd_castluck();
+		(void)do_cmd_castluck();
 	else if (cp_ptr->spell_book == TV_CHEM_BOOK)
-		do_cmd_castchem();
+		(void)do_cmd_castchem();
  	else if (cp_ptr->spell_book == TV_DARK_BOOK)
-		do_cmd_castblack();
+		(void)do_cmd_castblack();
 /* 	else if (cp_ptr->spell_book == TV_MIND_BOOK)
 		do_cmd_castmind(); */
 	else
-		do_cmd_cast();
+		(void)do_cmd_cast();
 }
 
 

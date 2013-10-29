@@ -14,6 +14,8 @@
 
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
+	int price, die, time;
+	
 	/* Analyze the food */
 	switch (o_ptr->sval)
 	{
@@ -25,7 +27,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 				{
                     if (p_ptr->weakresist_pois)
                     {
-                       (void)dec_timed(TMD_POISONED, randint(11) + 5);
+                       (void)dec_timed(TMD_POISONED, randint(10) + 5);
                        take_hit(damroll(2, 6), "poisonous food");
                     }
 			        else take_hit(damroll(6, 6), "poisonous food");
@@ -46,46 +48,41 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_PARANOIA:
+		/* changed to 'good mood' but name not changed in the code */
+        case SV_FOOD_PARANOIA:
 		{
 			if ((!p_ptr->resist_charm))
 			{
-				   if (inc_timed(TMD_CHARM, rand_int(11) + 10))
-				   {
-					  *ident = TRUE;
-				   }
+				   if (inc_timed(TMD_CHARM, rand_int(11) + 10)) *ident = TRUE;
 			}
 			break;
 		}
 
 		case SV_FOOD_TERROR:
 		{
-			if (inc_timed(TMD_TERROR, randint(15) + 15))
-			{
-				*ident = TRUE;
-			}
+			if (inc_timed(TMD_TERROR, randint(15) + 15)) *ident = TRUE;
 			break;
 		}
 
-        /* note: rchaos and true sight prevent the possibility of +2 luck */
+        /* note: rchaos and true sight prevent the rare possibility of +2 luck */
 		case SV_FOOD_HALLUCINATION:
 		{
-            int die = randint(100);
+            die = randint(100);
             
 			if (die < 10)
             {
-               p_ptr->luck = p_ptr->luck + 1;
+               p_ptr->luck += 1;
                msg_print("like this stuff is groovy, man!");
             }
 
 			if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
 			{
-				if (inc_timed(TMD_IMAGE, rand_int(250) + 250))
+				if (inc_timed(TMD_IMAGE, rand_int(200 + badluck*2) + 200))
 				{
 				   *ident = TRUE;
                    if (randint(100) < 3)
                    {
-                      p_ptr->luck = p_ptr->luck + 1;
+                      p_ptr->luck += 1;
                       inc_timed(TMD_IMAGE, randint(21) + randint(21));
                       if (die < 10) msg_print("You never felt so high in your life!");
                       else msg_print("Wow, this stuff is groovy, man!");
@@ -101,58 +98,74 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_DISEASE:
+		/* changed to 'Idiocy' but name not changed in the code */
+        case SV_FOOD_DISEASE:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_STR);
+			if (randint((badluck*2)+10) >= 20)
+			{
+               (void)do_dec_stat(A_INT, 0);
+               (void)do_dec_stat(A_WIS, 0);
+            }
+            /* drain according to spell stat */
+            else if ((randint(badluck/2 + 10) > 4) && (cp_ptr->spell_book))
+            {
+               if (cp_ptr->spell_stat == A_INT) (void)do_dec_stat(A_INT, 0);
+               else (void)do_dec_stat(A_WIS, 0);
+            }
+			else if (randint(100) < 50) (void)do_dec_stat(A_INT, 0);
+			else (void)do_dec_stat(A_WIS, 0);
+			p_ptr->silver += 3;
+			/* confusion or amnesia */
+			if (randint(badluck/2 + 10) > 5)
+			{
+               if (randint(100) < 50) inc_timed(TMD_AMNESIA, randint(50) + 25 + badluck);
+               else inc_timed(TMD_CONFUSED, randint(50) + 25 + badluck);
+            }
+			take_hit(damroll(8, 8), "poisonous food");
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_LUCKFINDING:
 		{
-            if (p_ptr->luck > 40)
-            {
-               msg_print("This tastes rather bland.");
-               break;
-            }
-            if ((p_ptr->luck > 37) && (randint(100) < 50))
+            if ((p_ptr->luck > 37) && (p_ptr->luck < 41) && (randint(100) < 50))
             {
                   p_ptr->luck += 1;
             }
             else if (p_ptr->luck > 37)
             {
-               msg_print("This tastes rather bland.");
-               break;
+                  msg_print("This tastes rather bland.");
+                  break;
             }
-            else if (p_ptr->luck < 39)
+            else if (p_ptr->luck < 38)
             {
                   p_ptr->luck += randint(3);
             }
             msg_print("This is good stuff.");
-            int price = randint(6);
-			if (price == 1) (void)dec_stat(A_STR, 10, FALSE);
-			if (price == 2) (void)dec_stat(A_DEX, 10, FALSE);
-			if (price == 3) (void)dec_stat(A_CON, 10, FALSE);
-			if (price == 4) (void)dec_stat(A_INT, 10, FALSE);
-			if (price == 5) (void)dec_stat(A_WIS, 10, FALSE);
-			if (price == 6) (void)dec_stat(A_CHR, 20, FALSE);
-            msg_print("..but it must have been poisonous.");
+            price = randint(6);
+            /* has chance to bypass sustains */
+			if (price == 1) (void)do_dec_stat(A_STR, 20 + badluck);
+			if (price == 2) (void)do_dec_stat(A_DEX, 20 + badluck);
+			if (price == 3) (void)do_dec_stat(A_CON, 20 + badluck);
+			if (price == 4) (void)do_dec_stat(A_INT, 20 + badluck);
+			if (price == 5) (void)do_dec_stat(A_WIS, 20 + badluck);
+			if (price == 6) (void)do_dec_stat(A_CHR, 22 + badluck);
 			take_hit(damroll(3, 6), "poisonous clover");
+            msg_print("..but it must have been poisonous.");
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_MUNCHKIN: /* unlucky munchkin */
 		{
+            if (p_ptr->luck < 1) break;
             if ((p_ptr->luck < 3) && (randint(100) < 50))
             {
                   p_ptr->luck -= 1;
             }
             else if (p_ptr->luck < 3)
             {
-               msg_print("You suddenly have a forboding feeling.");
-               inc_timed(TMD_WITCH, randint(213) + 113);
+               inc_timed(TMD_WITCH, randint(113) + 113);
                break;
             }
             else if (p_ptr->luck > 2)
@@ -161,7 +174,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             }
             msg_print("..That didn't taste so good.");
 			*ident = TRUE;
-			int time = randint(113) + 100;
+			time = randint(113) + 100;
+			/* spellcasters get magic bonuses, others get other buffs */
 			if (cp_ptr->flags & CF_ZERO_FAIL)
 			{
                inc_timed(TMD_BRAIL, time);
@@ -181,10 +195,10 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             int die = randint(100);
             if (randint(100) < 50)
             {
-               die += goodluck * 2;
-               die -= badluck * 2;
+               if (goodluck) die += goodluck + randint(goodluck+1);
+               if (badluck) die -= badluck + randint(badluck+1);
             }
-            if (die < 1)
+            if (die < 1) /* with bad luck only */
             {
                inc_timed(TMD_STUN, randint(20) + 20 + badluck);
                inc_timed(TMD_TERROR, randint(30) + 30 + badluck);
@@ -192,8 +206,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
                inc_timed(TMD_BLIND, randint(60) + 30 + badluck);
 			   take_hit(damroll(3, 6), "poisonous food");
             }
-            else if (die < 10) inc_timed(TMD_SLOW, randint(100) + 100);
-            else if (die < 20)
+            else if ((die < 10) && (!p_ptr->timed[TMD_SUST_SPEED])) inc_timed(TMD_SLOW, randint(100) + 100);
+            else if (die < 20) /* poison razor */
             {
                inc_timed(TMD_CUT, randint(20) + 20 + badluck);
                if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
@@ -202,71 +216,82 @@ static bool eat_food(object_type *o_ptr, bool *ident)
                }
             }
             else if (die < 30) inc_timed(TMD_AMNESIA, randint(100) + 100);
-            else if (die < 40)
+            else if (die < 40) /* blah */
             {
                int time = randint(150) + 150;
                inc_timed(TMD_WOPP_POIS, time);
                inc_timed(TMD_SUST_SPEED, time);
                if (!p_ptr->resist_blind) inc_timed(TMD_BLIND, time);
             }
-            else if (die < 50)
+            else if (die < 50) /* charm & zap */
             {
                int time = randint(200) + 200;
                inc_timed(TMD_ZAPPING, time);
                inc_timed(TMD_SPHERE_CHARM, time);
                if (!p_ptr->resist_confu) inc_timed(TMD_CONFUSED, (time/3));
             }
-            else if (die < 60)
+            else if (die < 60) /* minor bonuses */
             {
                int time = randint(200) + 200;
                inc_timed(TMD_SINFRA, time);
                inc_timed(TMD_WSHIELD, time);
+			   inc_timed(TMD_MIGHTY_HURL, (time/5));
             }
-            else if (die < 70)
+            else if (die < 70) /* Dark resistance & darkvision */
             {
                int time = randint(200) + 200;
                inc_timed(TMD_DARKVIS, time);
                inc_timed(TMD_OPP_DARK, time);
                inc_timed(TMD_HOLDLIFE, time);
             }
-            else if (die < 80)
+            else if (die < 80) /* curing */
             {
 			   clear_timed(TMD_BLIND);
 			   clear_timed(TMD_POISONED);
-			   clear_timed(TMD_CONFUSED);
 			   clear_timed(TMD_STUN);
 			   clear_timed(TMD_CUT);
+			   clear_timed(TMD_CONFUSED);
 			   clear_timed(TMD_AMNESIA);
-			   clear_timed(TMD_SLOW);
+			   if (!p_ptr->timed[TMD_SUST_SPEED]) clear_timed(TMD_SLOW);
 			   hp_player(damroll(3, 9));
                inc_timed(TMD_OPP_POIS, randint(150) + 150);
-			   if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 1;
-               if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 1;
+			   if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 1;
+               if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 1;
             }
-            else if (die < 90)
+            else if (die < 90) /* anti-evil */
             {
                int time = randint(200) + 200;
                inc_timed(TMD_PROTEVIL, time);
                inc_timed(TMD_SANCTIFY, time);
             }
-            else if (die < 95)
+            else if (die < 95) /* undead slayer */
             {
                int time = randint(200) + 200;
-               inc_timed(TMD_SHADOW, time);
-               inc_timed(TMD_FAST, time);
+               inc_timed(TMD_OPP_NETHR, time);
+               inc_timed(TMD_CLEAR_MIND, time);
+               inc_timed(TMD_DAYLIGHT, time);
             }
-            else if (die < 100)
+            else if (die < 100) /* dragonfighter */
             {
                int time = randint(200) + 200;
                inc_timed(TMD_HIT_ELEMENT, time);
-               inc_timed(TMD_PROTEVIL2, time);
+               inc_timed(TMD_BR_SHIELD, time);
                inc_timed(TMD_ESP, time);
             }
-            else if (die > 99)
+            /* (die > 99, with good luck only) */
+            else if (get_check("You got the luckiest effects! What's your style? y=melee, n=ranged"))
             {
+               /* luckiest effects: melee */
                int time = randint(200) + 200;
                inc_timed(TMD_SHIELD, time);
                inc_timed(TMD_XATTACK, time);
+               inc_timed(TMD_PROTEVIL2, time);
+            }
+            else /* luckiest effects: ranged */
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_SHADOW, time);
+               if (!p_ptr->timed[TMD_SUST_SPEED]) inc_timed(TMD_FAST, time);
                inc_timed(TMD_TSIGHT, time);
             }
 			*ident = TRUE;
@@ -275,24 +300,70 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_UNHEALTH:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
-			(void)do_dec_stat(A_CON);
-			*ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_SILVER_SLIME:
-		{
-			take_hit(damroll(3, 11), "poisonous food");
-			p_ptr->silver += 3;
+			if (randint((badluck*2)+10) >= 20)
+			{
+               (void)do_dec_stat(A_CON, 0);
+               (void)do_dec_stat(A_STR, 0);
+            }
+			else if (randint(100) < 50) (void)do_dec_stat(A_CON, 0);
+			else (void)do_dec_stat(A_STR, 0);
 			p_ptr->slime += 5;
+			if (randint(badluck/2 + 10) > 6)
+			{
+               inc_timed(TMD_CUT, randint(25) + 25 + badluck);
+            }
+			take_hit(damroll(10, 10), "poisonous food");
 			*ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_CURE_POISON:
+		case SV_FOOD_SINGING_DRUNK:
 		{
-			if (clear_timed(TMD_POISONED)) *ident = TRUE;
+			/* not as important as STR, CON or spell stat, so more severe */
+			clear_timed(TMD_SUPER_ROGUE);
+			clear_timed(TMD_SHADOW);
+			if (!p_ptr->timed[TMD_SUST_SPEED]) clear_timed(TMD_FAST);
+            if (randint((badluck*2)+10) >= 20)
+			{
+               /* usually bypasses sustains */
+               (void)do_dec_stat(A_DEX, 80 + badluck);
+               (void)do_dec_stat(A_CHR, 80 + badluck);
+            }
+			else if (randint(badluck/2 + 10) > 4)
+			{
+               (void)do_dec_stat(A_DEX, 0);
+               (void)do_dec_stat(A_CHR, 0);
+            }
+			else if (randint(100) < 60) (void)do_dec_stat(A_DEX, 10 + badluck);
+			else (void)do_dec_stat(A_CHR, 15 + badluck);
+			if (randint(badluck/2 + 10) > 4)
+			{
+               msg_print("The mushroom screams for help as you eat it!");
+               aggravate_monsters(0);
+            }
+			if ((randint(badluck/2 + 10) > 5) && (!p_ptr->timed[TMD_SUST_SPEED]))
+            {
+               if (p_ptr->spadjust) p_ptr->spadjust -= randint(4);
+               else
+               {
+                  p_ptr->spadjust = 0 - (1 + randint(2));
+                  inc_timed(TMD_ADJUST, randint(25) + 25 + badluck);
+               }
+            }
+			/* possibly lower charisma twice */
+			if (randint(badluck/2 + 10) > 7) (void)do_dec_stat(A_CHR, 15 + badluck);
+			take_hit(damroll(3, 11), "poisonous food");
+			*ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_EMERGENCY:
+		{
+			int dur = randint(25 + goodluck/2) + 15 + goodluck/4;
+			(void)hp_player(200);
+            if (inc_timed(TMD_OPP_FIRE, dur)) *ident = TRUE;
+			if (inc_timed(TMD_OPP_COLD, dur)) *ident = TRUE;
+            if (inc_timed(TMD_IMAGE, randint(dur*3) + dur)) *ident = TRUE;
 			break;
 		}
 
@@ -310,42 +381,64 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_MAD_FRENZY:
 		{
+			if (clear_timed(TMD_AFRAID)) *ident = TRUE;
+			if (clear_timed(TMD_TERROR)) *ident = TRUE;
 			if (inc_timed(TMD_FRENZY, randint(100) + 100)) *ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) *ident = TRUE;
-			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 1;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 1;
+			int cure = damroll(4, 8);
+			int curep = (p_ptr->mhp * 20) / 100;
+			if (cure < curep) cure = curep;
+			if (hp_player(cure)) *ident = TRUE;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 1;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 1;
 			break;
 		}
 
-		case SV_FOOD_RESTORE_STR:
+		case SV_FOOD_CLEAR_MIND:
 		{
-			if (do_res_stat(A_STR)) *ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_RESTORE_CON:
-		{
-			if (do_res_stat(A_CON)) *ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_RESTORING:
-		{
-			if (do_res_stat(A_STR)) *ident = TRUE;
-			if (do_res_stat(A_INT)) *ident = TRUE;
-			if (do_res_stat(A_WIS)) *ident = TRUE;
-			if (do_res_stat(A_DEX)) *ident = TRUE;
-			if (do_res_stat(A_CON)) *ident = TRUE;
-			if (do_res_stat(A_CHR)) *ident = TRUE;
-			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 2;
+			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
+			if (clear_timed(TMD_FRENZY)) *ident = TRUE;
+			if (clear_timed(TMD_IMAGE)) *ident = TRUE;
+			if (clear_timed(TMD_AFRAID)) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 2;
 			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 2;
+			if (inc_timed(TMD_CLEAR_MIND, randint(30 + goodluck/2) + 10 + goodluck/4)) *ident = TRUE;
+			if (do_res_stat(A_WIS)) *ident = TRUE;
+			if (do_res_stat(A_INT)) *ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_HEALTH:
+		{
+			if (clear_timed(TMD_POISONED)) *ident = TRUE;
+			if (clear_timed(TMD_CUT)) *ident = TRUE;
+			if (clear_timed(TMD_BLIND)) *ident = TRUE;
+			if (inc_timed(TMD_OPP_POIS, randint(30 + goodluck/2) + 10 + goodluck/4)) *ident = TRUE;
+			if (p_ptr->slime > PY_SLIME_HEALTHY) *ident = TRUE;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= 2 + randint(2);
 			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+			if (do_res_stat(A_STR)) *ident = TRUE;
+			if (do_res_stat(A_CON)) *ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_SNEAKINESS:
+		{
+			if (clear_timed(TMD_STUN)) *ident = TRUE;
+			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
+			if (clear_timed(TMD_CHARM)) *ident = TRUE;
+			if (!p_ptr->timed[TMD_SUST_SPEED])
+			{
+				if (clear_timed(TMD_SLOW)) *ident = TRUE;
+			}
+			if (inc_timed(TMD_SUPER_ROGUE, randint(50 + goodluck/2) + 25 + goodluck/4)) *ident = TRUE;
+			if (do_res_stat(A_DEX)) *ident = TRUE;
+			if (do_res_stat(A_CHR)) *ident = TRUE;
 			break;
 		}
 
@@ -362,9 +455,13 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_WAYBREAD:
 		{
+			int cure, curep;
 			msg_print("That tastes good and healthy.");
 			(void)clear_timed(TMD_POISONED);
-			(void)hp_player(damroll(4, 8));
+			cure = damroll(4, 8);
+			curep = (p_ptr->mhp * 17) / 100;
+			if (cure < curep) cure = curep;
+			(void)hp_player(cure);
 			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 5;
 			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
             if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 3;
@@ -401,6 +498,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 static bool quaff_potion(object_type *o_ptr, bool *ident)
 {
+	int time;
+
 	/* Analyze the potion */
 	switch (o_ptr->sval)
 	{
@@ -415,7 +514,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		
 		case SV_POTION_SLIME_MOLD: /* Pepsi */
 		{
-            if ((randint(100) < 4) && (p_ptr->luck < 15))
+            if ((randint(100) < 4) && (p_ptr->luck < 35))
             {
                p_ptr->luck += 1;
                msg_print("This is good stuff.");
@@ -430,13 +529,13 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
         case SV_POTION_FOUR_LEAF:
         {
-            if ((p_ptr->luck == 39) && (randint(100) < 50))
+            if (((p_ptr->luck == 38) || (p_ptr->luck == 39)) && (randint(100) < 50))
             {
                   p_ptr->luck += 1;
                   msg_print("This is good stuff.");
 			      *ident = TRUE;
             }
-            else if (p_ptr->luck < 39)
+            else if (p_ptr->luck < 38)
             {
                   p_ptr->luck += randint(2);
                   msg_print("This is good stuff.");
@@ -448,6 +547,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_SLOWNESS:
 		{
+			if (p_ptr->timed[TMD_SUST_SPEED])
+			{
+				msg_print("Your pace falters for a moment, but doesn't change.");
+				*ident = TRUE;
+			}
 			if (inc_timed(TMD_SLOW, randint(25) + 15)) *ident = TRUE;
 			break;
 		}
@@ -475,9 +579,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                     if (badluck > 2)
                     {
                        int sick = randint(6);
-                       if (sick == 1) (void)do_dec_stat(A_STR);
-                       if (sick == 2) (void)do_dec_stat(A_CON);
-                       if (sick == 3) (void)do_dec_stat(A_DEX);
+                       if (sick == 1) (void)do_dec_stat(A_STR, 0);
+                       if (sick == 2) (void)do_dec_stat(A_CON, 0);
+                       if (sick == 3) (void)do_dec_stat(A_DEX, 0);
                     }
 					*ident = TRUE;
 				}
@@ -553,37 +657,37 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_DEC_STR:
 		{
-			if (do_dec_stat(A_STR)) *ident = TRUE;
+			if (do_dec_stat(A_STR, 0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_INT:
 		{
-			if (do_dec_stat(A_INT)) *ident = TRUE;
+			if (do_dec_stat(A_INT, 0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_WIS:
 		{
-			if (do_dec_stat(A_WIS)) *ident = TRUE;
+			if (do_dec_stat(A_WIS, 0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_DEX:
 		{
-			if (do_dec_stat(A_DEX)) *ident = TRUE;
+			if (do_dec_stat(A_DEX, 0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CON:
 		{
-			if (do_dec_stat(A_CON)) *ident = TRUE;
+			if (do_dec_stat(A_CON, 0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CHR:
 		{
-			if (do_dec_stat(A_CHR)) *ident = TRUE;
+			if (do_dec_stat(A_CHR, 0)) *ident = TRUE;
 			break;
 		}
 
@@ -599,7 +703,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_PURITY:
 		{
-			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
+			bool slime = FALSE;
+            if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
 			if (clear_timed(TMD_IMAGE)) *ident = TRUE;
 			if (p_ptr->silver > PY_SILVER_HEALTHY)
 			{
@@ -608,12 +713,20 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
             }
             if (p_ptr->slime > PY_SLIME_HEALTHY)
 			{
+                       slime = TRUE;
                        p_ptr->slime = PY_SLIME_HEALTHY;
                        *ident = TRUE;
             }
+            if (p_ptr->corrupt > 9) p_ptr->corrupt /= 2;
+            else if (p_ptr->corrupt > 5) p_ptr->corrupt -= 5;
+            else if (p_ptr->corrupt > 0) p_ptr->corrupt = 0;
 			if (set_timed(TMD_STUN, (p_ptr->timed[TMD_STUN] / 2))) *ident = TRUE;
-			if (set_timed(TMD_CONFUSED, (p_ptr->timed[TMD_CONFUSED] / 2))) *ident = TRUE;
-			if (*ident = TRUE) msg_print("Your mind is purified.");
+			if (set_timed(TMD_POISONED, (p_ptr->timed[TMD_POISONED] / 2))) *ident = TRUE;
+			if (*ident == TRUE)
+            {
+               if (slime) msg_print("Your mind and body are purified.");
+               else msg_print("Your mind is purified.");
+            }
 			else msg_print("You feel less thirsty.");
 			break;
 		}
@@ -636,7 +749,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_DETECT_INVIS:
+		case SV_POTION_DETECT_INVIS: /* see invisible */
 		{
             if (p_ptr->timed[TMD_2ND_THOUGHT])
             {
@@ -644,7 +757,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                *ident = TRUE;
                break;
             }
-			if (inc_timed(TMD_SINVIS, 12 + randint(12)))
+            time = p_ptr->skills[SKILL_DEV] / 2;
+            if (time < 15) time = 15;
+            if (time > 41) time = (time - 40) / 2;
+			if (inc_timed(TMD_SINVIS, time + randint(time)))
 			{
 				*ident = TRUE;
 			}
@@ -671,15 +787,18 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_SPEED:
 		{
+			if (p_ptr->timed[TMD_SUST_SPEED])
+			{
+				msg_print("You cannot be hasted while your speed is sustained");
+				break;
+			}
 			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
 				if (set_timed(TMD_FAST, randint(25) + 15)) *ident = TRUE;
-				(void)set_food(p_ptr->food - 600);
 			}
 			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
 				(void)inc_timed(TMD_FAST, 5);
-				(void)set_food(p_ptr->food - 200);
 			}
 			break;
 		}
@@ -754,7 +873,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) *ident = TRUE;
+			int cure = damroll(2, 8);
+			int curep = p_ptr->mhp / 10;
+			if (cure < curep) cure = curep;
+			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (dec_timed(TMD_CUT, 10)) *ident = TRUE;
 			break;
@@ -762,7 +884,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) *ident = TRUE;
+			int cure = damroll(4, 8);
+			int curep = (p_ptr->mhp * 18) / 100;
+			if (cure < curep) cure = curep;
+			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
 			if (set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 2) - 50)) *ident = TRUE;
@@ -771,7 +896,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(6, 8))) *ident = TRUE;
+			int cure = damroll(6, 8);
+			int curep = (p_ptr->mhp * 23) / 100;
+			if (cure < curep) cure = curep;
+			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
 			if (clear_timed(TMD_POISONED)) *ident = TRUE;
@@ -783,7 +911,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(300)) *ident = TRUE;
+			int cure = 300;
+			int curep = p_ptr->mhp / 2;
+			if (cure < curep) cure = curep;
+			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
 			if (clear_timed(TMD_POISONED)) *ident = TRUE;
@@ -865,18 +996,28 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_RES_STR:
+		case SV_POTION_RES_BRAWN:
 		{
 			if (do_res_stat(A_STR)) *ident = TRUE;
+			if (do_res_stat(A_CON)) *ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_INT:
+		case SV_POTION_RES_INTELLECT:
 		{
 			if (do_res_stat(A_INT)) *ident = TRUE;
+			if (do_res_stat(A_WIS)) *ident = TRUE;
 			break;
 		}
 
+		case SV_POTION_RES_SNEAKINESS:
+		{
+			if (do_res_stat(A_DEX)) *ident = TRUE;
+			if (do_res_stat(A_CHR)) *ident = TRUE;
+			break;
+		}
+
+#if notremoved
 		case SV_POTION_RES_WIS:
 		{
 			if (do_res_stat(A_WIS)) *ident = TRUE;
@@ -894,46 +1035,106 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (do_res_stat(A_CON)) *ident = TRUE;
 			break;
 		}
-
-		case SV_POTION_RES_CHR:
-		{
-			if (do_res_stat(A_CHR)) *ident = TRUE;
-			break;
-		}
+#endif
 
 		case SV_POTION_INC_STR:
 		{
-			if (do_inc_stat(A_STR)) *ident = TRUE;
+			int value;
+			value = p_ptr->stat_cur[A_STR];
+			if (value < 18+100)
+			{
+				if (do_inc_stat(A_STR)) *ident = TRUE;
+			}
+			else /* already at max */
+			{
+				(void)inc_timed(TMD_MIGHTY_HURL, randint(30) + 30);
+			}
 			break;
 		}
 
 		case SV_POTION_INC_INT:
 		{
-			if (do_inc_stat(A_INT)) *ident = TRUE;
+			int value;
+			value = p_ptr->stat_cur[A_INT];
+			if (value < 18+100)
+			{
+				if (do_inc_stat(A_INT)) *ident = TRUE;
+			}
+			else /* already at max */
+			{
+				(void)inc_timed(TMD_CLEAR_MIND, randint(30) + 30);
+				(void)inc_timed(TMD_BRAIL, randint(15) + 15);
+			}
 			break;
 		}
 
 		case SV_POTION_INC_WIS:
 		{
-			if (do_inc_stat(A_WIS)) *ident = TRUE;
+			int value;
+			value = p_ptr->stat_cur[A_WIS];
+			if (value < 18+100)
+			{
+				if (do_inc_stat(A_WIS)) *ident = TRUE;
+			}
+			else /* already at max */
+			{
+				(void)inc_timed(TMD_TSIGHT, randint(30) + 30);
+				if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver -= 1;
+			}
 			break;
 		}
 
 		case SV_POTION_INC_DEX:
 		{
-			if (do_inc_stat(A_DEX)) *ident = TRUE;
+			int value;
+			value = p_ptr->stat_cur[A_DEX];
+			if (value < 18+100)
+			{
+				if (do_inc_stat(A_DEX)) *ident = TRUE;
+			}
+			else /* already at max */
+			{
+				int time = randint(30) + 30;
+				(void)inc_timed(TMD_SUST_SPEED, time);
+				(void)inc_timed(TMD_WSHIELD, time); /* for dodge ac */
+			}
 			break;
 		}
 
 		case SV_POTION_INC_CON:
 		{
-			if (do_inc_stat(A_CON)) *ident = TRUE;
+			int value;
+			value = p_ptr->stat_cur[A_CON];
+			if (value < 18+100)
+			{
+				if (do_inc_stat(A_CON)) *ident = TRUE;
+			}
+			else /* already at max */
+			{
+				(void)inc_timed(TMD_OPP_POIS, randint(30) + 30);
+				if (p_ptr->slime > PY_SLIME_HEALTHY + 3) p_ptr->slime -= 3;
+				else if (p_ptr->slime > PY_SLIME_HEALTHY + 3) p_ptr->slime = PY_SLIME_HEALTHY;
+			}
 			break;
 		}
 
 		case SV_POTION_INC_CHR:
 		{
-			if (do_inc_stat(A_CHR)) *ident = TRUE;
+			int value;
+			value = p_ptr->stat_cur[A_CHR];
+			if (value < 18+100)
+			{
+				if (do_inc_stat(A_CHR)) *ident = TRUE;
+			}
+			else /* already at max */
+			{
+				(void)inc_timed(TMD_SPHERE_CHARM, randint(30) + 30);
+				if ((randint(100) < 33) && (p_ptr->luck < 40))
+				{
+					p_ptr->luck += 1;
+					msg_print("You feel lucky");
+				}
+			}
 			break;
 		}
 
@@ -945,6 +1146,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (do_inc_stat(A_DEX)) *ident = TRUE;
 			if (do_inc_stat(A_CON)) *ident = TRUE;
 			if (do_inc_stat(A_CHR)) *ident = TRUE;
+
+			/* all maxxed out */
+			if (*ident == FALSE)
+			{
+				int time = randint(35) + 35;
+				(void)inc_timed(TMD_HOLDLIFE, time);
+				(void)inc_timed(TMD_ESP, time);
+				(void)inc_timed(TMD_FAST, time);
+				(void)inc_timed(TMD_INVULN, 3);
+			}
 			break;
 		}
 
@@ -1015,11 +1226,37 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int idagain;
 
 	int k;
 
 	bool used_up = TRUE;
 
+    /* special for treasure map */
+    if ((o_ptr->tval == TV_SPECIAL) && (o_ptr->sval == SV_TREASURE))
+    {
+       if (p_ptr->find_vault > 5)
+       {
+          msg_print("You are already seeking a vault.");
+          used_up = FALSE;
+       }
+
+       p_ptr->find_vault = goodluck + 25 + randint(15 + goodluck/2);
+
+       if ((goodluck < 4) && (badluck < 13) && (randint(7) == 1))
+       {
+            p_ptr->luck += 1;
+            p_ptr->find_vault += 14 + randint(p_ptr->lev/3);
+            msg_print("You feel lucky.");
+       }
+       msg_print("You learn the way through the maze of stairs.");
+
+       /* if you're lucky it also detects stairs */
+       if (randint(p_ptr->find_vault + 7 + (goodluck/2)) > 38) (void)detect_stairs();
+
+       *ident = TRUE;
+       return (used_up);
+    }
 
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
@@ -1051,13 +1288,28 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_CURSE_ARMOR:
 		{
+            if ((goodluck > 16) && (randint(100) < 20))
+            {
+               msg_print("You feel as if you just escaped a nasty curse..");
+               break; /* (very lucky) */
+            }
 			if (curse_armor()) *ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_CURSE_WEAPON:
 		{
-			if (curse_weapon()) *ident = TRUE;
+            int badness = randint(2) + 1; /* 2 or 3 */
+            if ((goodluck > 16) && (randint(100) < 20))
+            {
+               msg_print("You feel as if you just escaped a nasty curse..");
+               break; /* (very lucky) */
+            }
+            if ((badluck > 15) && (badness < 3)) badness += 2;
+            else if (badluck > 5) badness += 1;
+            else if ((goodluck > 15) && (badness > 2)) badness -= 2;
+            else if (goodluck > 5) badness -= 1;
+			if (curse_weapon(badness)) *ident = TRUE;
 			break;
 		}
 
@@ -1101,14 +1353,30 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_PHASE_DOOR:
 		{
-			teleport_player(10);
+			bool controlled = FALSE;
+            /* controlled teleport (random if you don't chose a target) */
+		    if (p_ptr->telecontrol)
+		    {
+                if (control_tport(100, 12)) controlled = TRUE;
+                if (!controlled) msg_print("You fail to control the teleportation.");
+            }
+
+            if (!controlled) teleport_player(10);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_TELEPORT:
 		{
-			teleport_player(100);
+			bool controlled = FALSE;
+            /* controlled teleport (random if you don't chose a target) */
+		    if (p_ptr->telecontrol)
+		    {
+                if (control_tport(0, 150)) controlled = TRUE;
+                if (!controlled) msg_print("You fail to control the teleportation.");
+            }
+
+            if (!controlled) teleport_player(100);
 			*ident = TRUE;
 			break;
 		}
@@ -1131,6 +1399,21 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		{
 			*ident = TRUE;
 			if (!ident_spell()) used_up = FALSE;
+			/* chance for it not to be used up */
+			/* in theory a scroll of identify could be used an infinite */
+			/* number of times if you get very lucky */
+			idagain = (p_ptr->skills[SKILL_DEV] + goodluck) / 2;
+			if ((goodluck == 1) || (goodluck == 11)) idagain += 1;
+			if (goodluck > 11) idagain += randint(goodluck - 10);
+			if ((randint(idagain) > 18) && (badluck < 12))
+			{
+			   msg_print("The writing on the scroll doesn't dissapear!");
+               used_up = FALSE;
+
+			    /* Take a turn (because otherwise */
+				/* the energy only gets used if the scroll gets used up */
+				p_ptr->energy_use = 100;
+            }
 			break;
 		}
 
@@ -1138,6 +1421,19 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		{
 			*ident = TRUE;
 			if (!identify_fully()) used_up = FALSE;
+			/* chance for it not to be used up (much rarer than normal ?ID) */
+			/* in theory a scroll of identify could be used an infinite */
+			/* number of times if you get very lucky */
+			idagain = p_ptr->skills[SKILL_DEV] + (goodluck/2);
+			if ((randint(idagain) > 75) && (badluck < 7))
+			{
+			   msg_print("The writing on the scroll doesn't dissapear!");
+               used_up = FALSE;
+
+			    /* Take a turn (because otherwise */
+				/* the energy only gets used if the scroll gets used up */
+				p_ptr->energy_use = 100;
+            }
 			break;
 		}
 
@@ -1392,6 +1688,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+    bool casted;
 
 	int k, dir;
 
@@ -1424,6 +1721,10 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLOWNESS:
 		{
+			if (p_ptr->timed[TMD_SUST_SPEED])
+			{
+				msg_print("Your pace falters for a moment, but doesn't change.");
+			}
 			if (inc_timed(TMD_SLOW, randint(30) + 15)) *ident = TRUE;
 			break;
 		}
@@ -1461,7 +1762,15 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_TELEPORTATION:
 		{
-			teleport_player(100);
+			bool controlled = FALSE;
+            /* controlled teleport (random if you don't chose a target) */
+		    if (p_ptr->telecontrol)
+		    {
+                if (control_tport(0, 150)) controlled = TRUE;
+                if (!controlled) msg_print("You fail to control the teleportation.");
+            }
+
+            if (!controlled) teleport_player(100);
 			*ident = TRUE;
 			break;
 		}
@@ -1597,7 +1906,11 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(randint(8))) *ident = TRUE;
+			int cure;
+			if (p_ptr->mhp / 20 >= 7) cure = damroll(2, p_ptr->mhp / 20);
+			else if (p_ptr->mhp < 96) cure = randint(8);
+			else cure = randint(p_ptr->mhp / 11);
+			if (hp_player(cure)) *ident = TRUE;
 			break;
 		}
 
@@ -1636,27 +1949,32 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters()) *ident = TRUE;
+            int pwr = p_ptr->lev + 2 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (sleep_monsters(pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_SLOW_MONSTERS:
 		{
-			if (slow_monsters()) *ident = TRUE;
+            int pwr = p_ptr->lev + 2 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (slow_monsters(pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_SPEED:
 		{
+			if (p_ptr->timed[TMD_SUST_SPEED])
+			{
+				msg_print("You cannot be hasted while your speed is sustained");
+				break;
+			}
 			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
 				if (set_timed(TMD_FAST, randint(30) + 15)) *ident = TRUE;
-				(void)set_food(p_ptr->food - 600);
 			}
 			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
 				(void)inc_timed(TMD_FAST, 5);
-				(void)set_food(p_ptr->food - 200);
 			}
 			break;
 		}
@@ -1706,6 +2024,38 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			*ident = TRUE;
 			break;
 		}
+		
+		case SV_STAFF_MANAFREE:
+		{
+			if (!cp_ptr->spell_book)
+	        {
+		       msg_print("You feel as if you're missing out on something..");
+			   break;
+	        }
+            p_ptr->manafree = 1;
+	        if (cp_ptr->spell_book == TV_PRAYER_BOOK)
+		       casted = do_cmd_pray();
+	        else if (cp_ptr->spell_book == TV_NEWM_BOOK)
+		         casted = do_cmd_castnew();
+	        else if (cp_ptr->spell_book == TV_LUCK_BOOK)
+		         casted = do_cmd_castluck();
+	        else if (cp_ptr->spell_book == TV_CHEM_BOOK)
+		         casted = do_cmd_castchem();
+ 	        else if (cp_ptr->spell_book == TV_DARK_BOOK)
+		         casted = do_cmd_castblack();
+	        else casted = do_cmd_cast();
+	        
+            if (!casted)
+            {
+               p_ptr->manafree = 0;
+               use_charge = FALSE;
+            }
+            /* figures how many staff charges to use in */
+            /* do_cmd_use_staff() in cmd6.c */
+            
+            *ident = TRUE;
+			break;
+		}
 
 		case SV_STAFF_DESTRUCTION:
 		{
@@ -1714,15 +2064,15 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			break;
 		}
 	}
-
-	return (use_charge);
+	
+    return (use_charge);
 }
 
 
 static bool aim_wand(object_type *o_ptr, bool *ident)
 {
 	int lev, chance, dir, sval;
-
+	int die, pwr, dis;
 
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return (FALSE);
@@ -1811,19 +2161,22 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_TELEPORT_AWAY:
 		{
-			if (teleport_monster(dir)) *ident = TRUE;
+			int dis = p_ptr->skills[SKILL_DEV] + goodluck + randint(p_ptr->skills[SKILL_DEV] + 2);
+            if (teleport_monster(dir, dis)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DISARMING:
 		{
-			if (disarm_trap(dir)) *ident = TRUE;
+			if (disarm_trap(dir, 0)) *ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_TRAP_DOOR_DEST:
+ 		case SV_WAND_TUNNELDIGGER:
 		{
-			if (destroy_door(dir)) *ident = TRUE;
+			/* spellswitch 31 makes it not stop at the first wall */
+			spellswitch = 31;
+            if (wall_to_mud(dir)) *ident = TRUE;
 			break;
 		}
 
@@ -1843,25 +2196,31 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) *ident = TRUE;
+            int pwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (sleep_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
-			if (slow_monster(dir)) *ident = TRUE;
+            int pwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (slow_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, 10)) *ident = TRUE;
+            int pwr = (p_ptr->lev + 10) / 2;
+            pwr += adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (confuse_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FEAR_MONSTER:
 		{
-			if (fear_monster(dir, 10)) *ident = TRUE;
+            int pwr = (p_ptr->lev + 13) / 2;
+            pwr += adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (fear_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
@@ -1950,16 +2309,24 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 		case SV_WAND_WONDER:
 		{
             /* only activates with high luck, and rarely then */
-            int die = randint(10);
+            pwr = (p_ptr->lev + 10 + goodluck) / 2;
+            pwr += adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+
+            die = randint(10);
 			lite_line(dir);
 			fire_ball(GF_POIS, dir, goodluck * randint(6), 4);
-			sleep_monster(dir);
-			if (die < 7) teleport_monster(dir);
-			else if ((die == 7) || (die == 8)) slow_monster(dir);
+			if (die < 7)
+            {
+			   dis = ((p_ptr->skills[SKILL_DEV]*3)/4) + goodluck + randint(p_ptr->skills[SKILL_DEV] + (goodluck*2) + 2);
+			   if (badluck) dis -= ((badluck/2) + (p_ptr->skills[SKILL_DEV] / 4));
+			   if ((dis < 30) && (randint(100) < 25)) dis += 1 + goodluck/2 + randint(1 + p_ptr->skills[SKILL_DEV]);
+               teleport_monster(dir, dis);
+            }
+			else if ((die == 7) || (die == 8)) slow_monster(dir, pwr);
 			else if (die == 9) poly_monster(dir);
 			else if (die == 10) drain_life(dir, 120 + randint(goodluck));
-			fear_monster(dir, 10);
-			sleep_monster(dir);
+			fear_monster(dir, pwr);
+			sleep_monster(dir, pwr);
 			*ident = TRUE;
 			/* msg_print("Oops.  Wand of wonder activated."); */
 			break;
@@ -2064,8 +2431,13 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
 
-	/* Confusion hurts skill */
-	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
+	/* should be able to use rod of curing to cure confusion */
+	if (o_ptr->sval == SV_ROD_CURING)
+	{
+		lev -= 5;
+	}
+	/* Confusion (usually) hurts skill */
+	else if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -2219,28 +2591,31 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_SPEED:
 		{
+			if (p_ptr->timed[TMD_SUST_SPEED])
+			{
+				msg_print("You cannot be hasted while your speed is sustained");
+			}
 			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
 				if (set_timed(TMD_FAST, randint(30) + 15)) *ident = TRUE;
-				(void)set_food(p_ptr->food - 600);
 			}
 			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
 				(void)inc_timed(TMD_FAST, 5);
-				(void)set_food(p_ptr->food - 200);
 			}
 			break;
 		}
 
 		case SV_ROD_TELEPORT_AWAY:
 		{
-			if (teleport_monster(dir)) *ident = TRUE;
+			int dis = p_ptr->skills[SKILL_DEV] + goodluck + randint(p_ptr->skills[SKILL_DEV] + 5);
+            if (teleport_monster(dir, dis)) *ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DISARMING:
 		{
-			if (disarm_trap(dir)) *ident = TRUE;
+			if (disarm_trap(dir, 0)) *ident = TRUE;
 			break;
 		}
 
@@ -2254,13 +2629,15 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) *ident = TRUE;
+            int pwr = p_ptr->lev + 5 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (sleep_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
-			if (slow_monster(dir)) *ident = TRUE;
+            int pwr = p_ptr->lev + 5 + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (slow_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
@@ -2352,8 +2729,8 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
  */
 static bool activate_object(object_type *o_ptr, bool *ident)
 {
-	int k, dir, i, chance;
-
+	int k, dir, i, chance, dis;
+	bool controlled;
 
 	/* Check the recharge */
 	if (o_ptr->timeout)
@@ -2369,9 +2746,9 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
-		char o_name[80];
 
 		/* Get the basic name of the object */
+		char o_name[80];
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		switch (a_ptr->activation)
@@ -2424,6 +2801,11 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_HASTE2:
 			{
 				msg_format("The %s glows brightly...", o_name);
+				if ((p_ptr->timed[TMD_SUST_SPEED]) && (goodluck < 9))
+				{
+					msg_print("You cannot be hasted while your speed is sustained");
+					break;
+				}
 				if (!p_ptr->timed[TMD_FAST])
 				{
 					(void)set_timed(TMD_FAST, randint(75) + 75);
@@ -2467,7 +2849,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				break;
 			}
 
-
 			case ACT_STAR_BALL:
 			{
 				msg_format("Your %s is surrounded by lightning...", o_name);
@@ -2508,8 +2889,16 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_PHASE:
 			{
 				msg_format("Your %s twists space around you...", o_name);
-				teleport_player(10);
-				break;
+			    controlled = FALSE;
+			    /* controlled teleport (random if you don't chose a target) */
+		        if (p_ptr->telecontrol)
+		        {
+                   if (control_tport(100, 12)) controlled = TRUE;
+                   if (!controlled) msg_print("You fail to control the teleportation.");
+                }
+
+                if (!controlled) teleport_player(10);
+			    break;
 			}
 
 			case ACT_BANISHMENT:
@@ -2569,11 +2958,19 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			}
 
 			case ACT_TELEPORT:
-			{
+		    {
 				msg_format("Your %s twists space around you...", o_name);
-				teleport_player(100);
-				break;
-			}
+			    controlled = FALSE;
+			    /* controlled teleport (random if you don't chose a target) */
+		        if (p_ptr->telecontrol)
+		        {
+                   if (control_tport(0, 175)) controlled = TRUE;
+                   if (!controlled) msg_print("You fail to control the teleportation.");
+                }
+
+                if (!controlled) teleport_player(100);
+			    break;
+		    }
 
 			case ACT_RESTORE_LIFE:
 			{
@@ -2633,6 +3030,11 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_HASTE1:
 			{
 				msg_format("Your %s glows bright green...", o_name);
+				if ((p_ptr->timed[TMD_SUST_SPEED]) && (goodluck < 9))
+				{
+					msg_print("You cannot be hasted while your speed is sustained");
+					break;
+				}
 				if (!p_ptr->timed[TMD_FAST])
 				{
 					(void)set_timed(TMD_FAST, randint(20) + 20);
@@ -2728,7 +3130,8 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s glows deep red...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-				teleport_monster(dir);
+			    dis = ((p_ptr->skills[SKILL_DEV]*5)/3) + goodluck + randint(20 + p_ptr->skills[SKILL_DEV]);
+                teleport_monster(dir, dis);
 				break;
 			}
 
@@ -2743,7 +3146,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s glows in scintillating colours...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-				confuse_monster(dir, 20);
+				confuse_monster(dir, (20 + adj_chr_charm[p_ptr->stat_ind[A_CHR]]));
 				break;
 			}
 
@@ -2778,10 +3181,19 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 
 			case ACT_SNOWBALL:
 			{
+				msg_format("Your %s glows frosty white...", o_name);
 				if (!snowball_shot()) return FALSE;
-				msg_format("Your %s turn into magical snowballs!", o_name);
 				break;
 			}
+			
+			case ACT_TUNNELDIG:
+		    {
+			    /* spellswitch 31 makes it not stop at the first wall */
+				msg_format("Your %s pulsates powerfully...", o_name);
+				if (!get_aim_dir(&dir)) return FALSE;
+			    spellswitch = 31;
+			    break;
+		    }
 
 			case ACT_STARLIGHT:
 			{
@@ -2800,14 +3212,32 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 
 			case ACT_BERSERKER:
 			{
+				(void)clear_timed(TMD_CHARM);
                 if (p_ptr->peace)
         	    {
-                   msg_print("The peaceful magic prevents you from going into a rage.");
+                   msg_format("Your %s glows in anger, but is stifled by peaceful magic.", o_name);
                    return FALSE; /* don't make it have to recharge */
                 }
 				msg_format("Your %s glows in anger...", o_name);
-				(void)clear_timed(TMD_CHARM);
 			    inc_timed(TMD_SHERO, randint(50) + 50);
+				break;
+			}
+
+			case ACT_SUN_HERO:
+			{
+				int time = randint(45) + 45;
+                if (p_ptr->peace)
+        	    {
+				   msg_format("Your %s shines like the sun...", o_name);
+				   inc_timed(TMD_DAYLIGHT, time);
+                }
+                else
+                {
+				   msg_format("Your %s shines like the sun and burns with fury...", o_name);
+				   inc_timed(TMD_DAYLIGHT, time);
+				   (void)clear_timed(TMD_CHARM);
+			       inc_timed(TMD_SHERO, time);
+                }
 				break;
 			}
 		}
@@ -2822,7 +3252,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
-		return FALSE;
+		return TRUE;
 	}
 
 
@@ -2983,7 +3413,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Success */
-		return FALSE;
+		return TRUE;
 	}
 
 	/* Hack -- some Rings can be activated for double resist and element ball */
@@ -3032,7 +3462,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 		p_ptr->window |= (PW_EQUIP);
 
 		/* Success */
-		return FALSE;
+		return TRUE;
 	}
 
 	/* Mistake */
@@ -3061,7 +3491,8 @@ bool use_object(object_type *o_ptr, bool *ident)
 			used = quaff_potion(o_ptr, ident);
 			break;
 		}
-
+		
+		case TV_SPECIAL:
 		case TV_SCROLL:
 		{
 			used = read_scroll(o_ptr, ident);
@@ -3148,7 +3579,11 @@ static cptr act_description[ACT_MAX] =
 	"fire branding of bolts",
 	"starlight (10d8)",
 	"mana bolt (12d8)",
-	"berserk rage (50+d50 turns)"
+	"berserk rage (50+d50 turns)",
+	"frost branding of shots",
+	"sphere of animal charming",
+	"tunneldigging",
+	"daylight and berserk rage"
 };
 
 

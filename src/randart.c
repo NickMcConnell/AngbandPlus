@@ -44,7 +44,7 @@ static errr init_names(void)
 	char buf[BUFLEN];
 	size_t name_size;
 	char *a_base;
-	char *a_next;
+/*	char *a_next; */
 	int i;
 
 	/* Temporary space for names, while reading and randomizing them. */
@@ -236,8 +236,10 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags1 & TR1_SLAY_DEMON) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_TROLL) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 5) / 4;
-			if (a_ptr->flags2 & TR2_SLAY_BUG) p = (p * 5) / 4;
-			if (a_ptr->flags2 & TR2_SLAY_SILVER) p = (p * 5) / 4;
+			if (a_ptr->flags2 & TR2_SLAY_BUG) p = (p * 6) / 5;
+			if (a_ptr->flags2 & TR2_SLAY_SILVER) p = (p * 6) / 5;
+			if (a_ptr->flags2 & TR2_SLAY_LITE) p = (p * 6) / 5;
+			if (a_ptr->flags2 & TR2_EXTRA_CRIT) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
 
 			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
@@ -282,6 +284,7 @@ static s32b artifact_power(int a_idx)
 			p += (a_ptr->to_d + sign(a_ptr->to_d)) / 2;
 			if (a_ptr->weight != k_ptr->weight)
 				p += (k_ptr->weight - a_ptr->weight) / 30;
+			if (a_ptr->flags3 & TR3_BR_SHIELD) p = (p * 5) / 4;
 			break;
 		}
 		case TV_LITE:
@@ -361,7 +364,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
 	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
 	if (a_ptr->flags2 & TR2_RES_COLD) p += 6;
-	if (a_ptr->flags2 & TR2_RES_POISB) p += 4;
+	if (a_ptr->flags2 & TR2_PR_POIS) p += 4;
 	if (a_ptr->flags2 & TR2_EXTRA_CRIT) p += 6;
 	if (a_ptr->flags4 & TR4_RES_POIS) p += 12;
 	if (a_ptr->flags4 & TR4_RES_LITE) p += 8;
@@ -378,16 +381,19 @@ static s32b artifact_power(int a_idx)
 
 	if (a_ptr->flags3 & TR3_FEATHER) p += 2;
 	if (a_ptr->flags3 & TR3_LITE) p += 2;
-	if (a_ptr->flags3 & TR3_DARKVIS) p += 2;
-	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 8;
+	if (a_ptr->flags3 & TR3_DARKVIS) p += 4;
+	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 12;
 	if (a_ptr->flags3 & TR3_TELEPATHY) p += 20;
 	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 4;
-	if (a_ptr->flags3 & TR3_REGEN) p += 8;
+	if ((a_ptr->flags3 & TR3_TCONTROL) && (a_ptr->flags3 & TR3_TELEPORT)) p += 18;
+	else if (a_ptr->flags3 & TR3_TCONTROL) p += 12;
+	else if (a_ptr->flags3 & TR3_TELEPORT) p -= 16;
+	if (a_ptr->flags3 & TR3_REGEN) p += 10;
 	if (a_ptr->flags2 & TR2_DANGER) p -= 10;
-	if (a_ptr->flags3 & TR3_TELEPORT) p -= 16;
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) p -= 16;
 	if (a_ptr->flags3 & TR3_STOPREGEN) p -= 20;
-	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 8;
+	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 10;
+	if (a_ptr->flags2 & TR2_CORRUPT) p -= 12;
 	if (a_ptr->flags3 & TR3_BLESSED) p += 4;
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE) p -= 4;
 	if (a_ptr->flags3 & TR3_HEAVY_CURSE) p -= 20;
@@ -440,13 +446,13 @@ static void choose_item(int a_idx)
 		/* Create a missile weapon. */
 		tval = TV_BOW;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 4) sval = SV_SLING;
-		else if (r2 < 10) sval = SV_SHORT_BOW;
-		else if (r2 < 29) sval = SV_LONG_BOW;
-		else if (r2 < 31) sval = SV_MINI_XBOW;
-		else if (r2 < 44) sval = SV_LIGHT_XBOW;
-		else if (r2 < 46) sval = SV_HANDHELDC;
-		else if (r2 < 47) sval = SV_GREAT_BOW;
+		if (r2 < 5) sval = SV_SLING;
+		else if (r2 < 15) sval = SV_SHORT_BOW;
+		else if (r2 < 35) sval = SV_LONG_BOW;
+		else if (r2 < 37) sval = SV_MINI_XBOW;
+		else if (r2 < 60) sval = SV_LIGHT_XBOW;
+		else if (r2 < 52) sval = SV_HANDHELDC;
+		else if (r2 < 54) sval = SV_GREAT_BOW;
 		else sval = SV_HEAVY_XBOW;
 	}
 	else if (r < 9)
@@ -461,19 +467,48 @@ static void choose_item(int a_idx)
 		else if (r2 < 92) sval = SV_ORCISH_PICK;
 		else sval = SV_DWARVEN_MATTOCK;
 	}
-	else if (r < 17)
+	else if (r < 12)
+	{
+		/* Create a throwing weapon */
+		r2 = Rand_normal(target_level * 2, target_level);
+		if (r2 < 15)
+		{
+			tval = TV_SWORD;
+			sval = SV_THROWN_DAGGER;
+		}
+		else if (r2 < 30)
+		{
+			tval = TV_POLEARM;
+			sval = SV_THROWN_AXE;
+		}
+		else if (r2 < 33)
+		{
+			tval = TV_SWORD;
+			sval = SV_BOOMERANG;
+		}
+		else
+		{
+			tval = TV_POLEARM;
+			sval = SV_JAVELIN;
+		}
+	}
+	else if (r < 18)
 	{
 		/* Create a "priestly blunt" weapon. */
 		tval = TV_HAFTED;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 5) sval = SV_WALKING_STICK;
+		if (r2 < 4) sval = SV_WALKING_STICK;
 		else if (r2 < 23) sval = SV_WHIP;
 		else if (r2 < 45) sval = SV_WALKING_STAFF;
 		else if (r2 < 55) sval = SV_LIGHT_CLUB;
-		else if (r2 < 75) sval = SV_QUARTERSTAFF;
-		else if (r2 < 81) sval = SV_CEREMONIAL_MACE;
-		else if (r2 < 95) sval = SV_WAR_HAMMER;
-		else sval = SV_STAFF_STRIKING;
+		else if (r2 < 76) sval = SV_QUARTERSTAFF;
+		else if (r2 < 82) sval = SV_CEREMONIAL_MACE;
+		else if (r2 < 97) sval = SV_WAR_HAMMER;
+		else
+		{
+			tval = TV_STAFF;
+			sval = SV_STAFF_STRIKING;
+		}
 	}
 	else if (r < 30)
 	{
@@ -482,21 +517,21 @@ static void choose_item(int a_idx)
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 0) sval = SV_BROKEN_DAGGER;
 		else if (r2 < 2) sval = SV_BROKEN_SWORD;
-		else if (r2 < 5) sval = SV_DAGGER;
-		else if (r2 < 7) sval = SV_MAIN_GAUCHE;
-		else if (r2 < 11) sval = SV_RAPIER;
-		else if (r2 < 13) sval = SV_GLADIUS;
-		else if (r2 < 15) sval = SV_SHORT_SWORD;
-		else if (r2 < 18) sval = SV_CUTLASS;
-		else if (r2 < 22) sval = SV_LONG_DAGGER;
-		else if (r2 < 24) sval = SV_ATHAME;
-		else if (r2 < 34) sval = SV_SABRE;
-		else if (r2 < 38) sval = SV_STILETTO;
-		else if (r2 < 50) sval = SV_SCIMITAR;
-		else if (r2 < 60) sval = SV_BROAD_SWORD;
-		else if (r2 < 75) sval = SV_LONG_SWORD;
-		else if (r2 < 90) sval = SV_BASTARD_SWORD;
-		else if (r2 < 101) sval = SV_TWO_HANDED_SWORD;
+		else if (r2 < 6) sval = SV_DAGGER;
+		else if (r2 < 8) sval = SV_MAIN_GAUCHE;
+		else if (r2 < 12) sval = SV_RAPIER;
+		else if (r2 < 14) sval = SV_GLADIUS;
+		else if (r2 < 16) sval = SV_SHORT_SWORD;
+		else if (r2 < 19) sval = SV_CUTLASS;
+		else if (r2 < 23) sval = SV_LONG_DAGGER;
+		else if (r2 < 25) sval = SV_ATHAME;
+		else if (r2 < 35) sval = SV_SABRE;
+		else if (r2 < 39) sval = SV_STILETTO;
+		else if (r2 < 51) sval = SV_SCIMITAR;
+		else if (r2 < 61) sval = SV_BROAD_SWORD;
+		else if (r2 < 76) sval = SV_LONG_SWORD;
+		else if (r2 < 91) sval = SV_BASTARD_SWORD;
+		else if (r2 < 102) sval = SV_TWO_HANDED_SWORD;
 		else if (r2 < 120) sval = SV_GREAT_SWORD;
 		else sval = SV_BLADE_OF_CHAOS;
 	}
@@ -507,23 +542,22 @@ static void choose_item(int a_idx)
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 1) sval = SV_HATCHET;
 		else if (r2 < 2) sval = SV_HAND_AXE;
-		else if (r2 < 6) sval = SV_SPEAR;
-		else if (r2 < 10) sval = SV_MACE;
-		else if (r2 < 14) sval = SV_TRIDENT;
+		else if (r2 < 7) sval = SV_SPEAR;
+		else if (r2 < 11) sval = SV_MACE;
+		else if (r2 < 15) sval = SV_TRIDENT;
 		else if (r2 < 17) sval = SV_PIKE;
 		else if (r2 < 22) sval = SV_FLAIL;
 		else if (r2 < 29) sval = SV_MORNING_STAR;
 		else if (r2 < 37) sval = SV_BROAD_AXE;
 		else if (r2 < 45) sval = SV_LEAD_FILLED_MACE;
-		else if (r2 < 55) sval = SV_GLAIVE;
-		else if (r2 < 63) sval = SV_TWO_HANDED_FLAIL;
+		else if (r2 < 56) sval = SV_GLAIVE;
+		else if (r2 < 62) sval = SV_TWO_HANDED_FLAIL;
 		else if (r2 < 75) sval = SV_BATTLE_AXE;
 		else if (r2 < 83) sval = SV_LANCE;
 		else if (r2 < 93) sval = SV_HALBERD;
 		else if (r2 < 101) sval = SV_SCYTHE;
 		else if (r2 < 109) sval = SV_GREAT_AXE;
 		else if (r2 < 118) sval = SV_LOCHABER_AXE;
-		else if (r2 < 119) sval = SV_GIANT_AXE;
 		else
         {
             if (randint(100) < 50) sval = SV_MACE_OF_DISRUPTION;
@@ -534,7 +568,7 @@ static void choose_item(int a_idx)
 	{
 		/* Create light or hard body armor. */
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 45) tval = TV_SOFT_ARMOR; else tval = TV_HARD_ARMOR;
+		if (r2 < 49) tval = TV_SOFT_ARMOR; else tval = TV_HARD_ARMOR;
 
 		/* Soft stuff. */
 		if (r2 < 0) sval = SV_FILTHY_RAG;
@@ -566,8 +600,9 @@ static void choose_item(int a_idx)
 		/* Make shoes. */
 		tval = TV_BOOTS;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 9) sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
-		else if (r2 < 15) sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
+		if (r2 < 2) sval = SV_PAIR_OF_LEATHER_SANDALS;
+		else if (r2 < 11) sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
+		else if (r2 < 17) sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
 		else sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
 	}
 	else if (r < 78)
@@ -575,23 +610,25 @@ static void choose_item(int a_idx)
 		/* Make gloves. */
 		tval = TV_GLOVES;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 10) sval = SV_SET_OF_LEATHER_GLOVES;
-		else if (r2 < 30) sval = SV_SET_OF_GAUNTLETS;
+		if (r2 < 8) sval = SV_SET_OF_LEATHER_GLOVES;
+		else if (r2 < 28) sval = SV_SET_OF_GAUNTLETS;
+		else if (r2 < 38) sval = SV_SET_OF_STEEL_GAUNTLETS;
 		else sval = SV_SET_OF_CESTI;
 	}
 	else if (r < 87)
 	{
 		/* Make headgear. */
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 60) tval = TV_HELM; else tval = TV_CROWN;
+		if (r2 < 50) tval = TV_HELM; else tval = TV_CROWN;
 
-		if (r2 < 9) sval = SV_HARD_LEATHER_CAP;
-		else if (r2 < 20) sval = SV_METAL_CAP;
-		else if (r2 < 23) sval = SV_ELVEN_LEATHER_CAP;
-		else if (r2 < 40) sval = SV_IRON_HELM;
-		else if (r2 < 50) sval = SV_STEEL_HELM;
+		if (r2 < 8) sval = SV_HARD_LEATHER_CAP;
+		else if (r2 < 19) sval = SV_METAL_CAP;
+		else if (r2 < 22) sval = SV_ELVEN_LEATHER_CAP;
+		else if (r2 < 30) sval = SV_BARBUT;
+		else if (r2 < 45) sval = SV_IRON_HELM;
+		else if (r2 < 55) sval = SV_STEEL_HELM;
 
-		else if (r2 < 60) sval = SV_IRON_CROWN;
+		else if (r2 < 65) sval = SV_IRON_CROWN;
 		else if (r2 < 90) sval = SV_GOLDEN_CROWN;
 		else sval = SV_JEWELED_CROWN;
 	}
@@ -601,9 +638,11 @@ static void choose_item(int a_idx)
 		tval = TV_SHIELD;
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 9) sval = SV_SMALL_LEATHER_SHIELD;
-		else if (r2 < 20) sval = SV_SMALL_METAL_SHIELD;
-		else if (r2 < 40) sval = SV_LARGE_LEATHER_SHIELD;
+		else if (r2 < 19) sval = SV_SMALL_METAL_SHIELD;
+		else if (r2 < 35) sval = SV_LARGE_LEATHER_SHIELD;
+		else if (r2 < 40) sval = SV_KNIGHT_SHIELD;
 		else if (r2 < 60) sval = SV_LARGE_METAL_SHIELD;
+		else if (r2 < 65) sval = SV_DRAGONSCALE_SHIELD;
 		else sval = SV_SHIELD_OF_DEFLECTION;
 	}
 	else
@@ -611,9 +650,11 @@ static void choose_item(int a_idx)
 		/* Make a cloak. */
 		tval = TV_CLOAK;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 84) sval = SV_CLOAK;
-		else if (r2 < 87) sval = SV_TRAVELLING_CLOAK;
-		else if (r2 < 90) sval = SV_FUR_CLOAK;
+		if (r2 < 69) sval = SV_CLOAK;
+		else if (r2 < 72) sval = SV_TRAVELLING_CLOAK;
+		else if (r2 < 80) sval = SV_ELVEN_CLOAK;
+		else if (r2 < 85) sval = SV_FUR_CLOAK;
+		else if (r2 < 90) sval = SV_ETHEREAL_CLOAK;
 		else sval = SV_SHADOW_CLOAK;
 	}
 
@@ -675,7 +716,7 @@ static void choose_item(int a_idx)
 			if (a_ptr->to_a < 10)
 				a_ptr->to_a += (s16b)(2 + rand_int(4) + rand_int(4));
 
-				/*
+			/*
 			 * Make sure armor gets some resists!  Hard body armor
 			 * is generally high-level stuff, with good ac and
 			 * to_a.  That sucks up all the points....
@@ -710,9 +751,11 @@ static void do_pval(artifact_type *a_ptr)
 }
 
 
-static void remove_contradictory(artifact_type *a_ptr)
+/* DJA: return possible object alignment */
+static int remove_contradictory(artifact_type *a_ptr)
 {
-	if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
+	int which = 10 + randint(80); /* higher = more likely to be good */
+    if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
 	if (a_ptr->flags2 & TR2_IM_ACID) a_ptr->flags2 &= ~(TR2_RES_ACID);
 	if (a_ptr->flags2 & TR2_IM_ELEC) a_ptr->flags2 &= ~(TR2_RES_ELEC);
 	if (a_ptr->flags2 & TR2_IM_FIRE) a_ptr->flags2 &= ~(TR2_RES_FIRE);
@@ -729,12 +772,56 @@ static void remove_contradictory(artifact_type *a_ptr)
 		a_ptr->flags1 &= ~(TR1_BLOWS);
 	}
 
-	if (a_ptr->flags3 & TR3_LIGHT_CURSE) a_ptr->flags3 &= ~(TR3_BLESSED);
+	if (a_ptr->flags3 & TR3_LIGHT_CURSE)
+	{
+       which -= 20;
+       a_ptr->flags3 &= ~(TR3_BLESSED);
+    }
+	if (a_ptr->flags3 & TR3_BLESSED)
+	{
+       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+       which += 25;
+    }
 	if (a_ptr->flags1 & TR1_KILL_DRAGON) a_ptr->flags1 &= ~(TR1_SLAY_DRAGON);
-	if (a_ptr->flags1 & TR1_KILL_DEMON) a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
-	if (a_ptr->flags1 & TR1_KILL_UNDEAD) a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
+	if (a_ptr->flags1 & TR1_KILL_DEMON)
+	{
+       which += 15;
+       a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
+       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+    }
+	if (a_ptr->flags1 & TR1_SLAY_DEMON)
+    {
+       which += 5;
+       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+    }
+	if (a_ptr->flags1 & TR1_KILL_UNDEAD)
+    {
+       which += 15;
+       a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
+       a_ptr->flags2 &= ~(TR2_SLAY_LITE);
+    }
+	if (a_ptr->flags1 & TR1_SLAY_UNDEAD) which += 5;
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
 	if (a_ptr->flags3 & TR3_REGEN) a_ptr->flags3 &= ~(TR3_STOPREGEN);
+	if (a_ptr->flags2 & TR2_EXTRA_CRIT) which -= 5;
+	if (a_ptr->flags4 & TR4_RES_CHARM) which -= 7;
+	if (a_ptr->flags4 & TR4_RES_NETHR) which += 7;
+	if (a_ptr->flags4 & TR4_RES_LITE) which -= 4;
+	if (a_ptr->flags4 & TR4_RES_DARK) which += 4;
+	if (a_ptr->flags2 & TR2_SLAY_LITE)
+	{
+       which -= 20;
+       a_ptr->flags2 &= ~(TR2_SLAY_SILVER);
+       a_ptr->flags4 &= ~(TR4_RES_LITE);
+    }
+	if (a_ptr->flags1 & TR1_SLAY_ANIMAL)
+    {
+       which -= 5;
+       a_ptr->flags2 &= ~(TR2_SLAY_SILVER);
+    }
+	if (a_ptr->flags2 & TR2_SLAY_SILVER) which += 15;
+	
+	return which;
 }
 
 
@@ -746,14 +833,90 @@ static void remove_contradictory(artifact_type *a_ptr)
  */
 static void add_ability(artifact_type *a_ptr)
 {
-	int r;
+	int r, what, teleordarkv, align;
+	byte ftval;
 
 	r = rand_int(10);
 	if (r < 5)		/* Pick something dependent on item type. */
 	{
 		r = rand_int(100);
-		switch (a_ptr->tval)
+
+		/* fake tval */
+		ftval = a_ptr->tval;
+
+		/* If it has the THROWN flag, pretend it's a shot */
+		/* because THROWN flag makes it so you can't wield it */
+		/* also maybe add RTURN flag which is only for thrown weapons */
+		/* (most artifact thrown weapons should get RTURN) */
+	    if (a_ptr->flags2 & TR2_THROWN)
+        {
+           ftval = 16;
+           if (randint(15) > 4) a_ptr->flags2 |= TR2_RTURN;
+        }
+
+		else switch (ftval)
 		{
+			case TV_SHOT: /* THROWN weapons */
+			/* (There are no real TV_SHOT artifacts) */
+			{
+				if (r < 6) a_ptr->flags1 |= TR1_BRAND_ACID;
+				else if (r < 12) a_ptr->flags1 |= TR1_BRAND_ELEC;
+				else if (r < 18) a_ptr->flags1 |= TR1_BRAND_FIRE;
+				else if (r < 24) a_ptr->flags1 |= TR1_BRAND_COLD;
+				else if (r < 30)
+				{
+					a_ptr->dd += (byte)(1 + rand_int(2) + rand_int(2));
+					if (a_ptr->dd > 9) a_ptr->dd = 9;
+				}
+				else if (r < 36)
+				{
+					/* new slays */
+					int what = randint(100);
+					if (what < 33) a_ptr->flags2 |= TR2_SLAY_BUG;
+					else if (what < 67) a_ptr->flags2 |= TR2_SLAY_LITE;
+					else a_ptr->flags2 |= TR2_SLAY_SILVER;
+				}
+				else if (r < 39) a_ptr->flags1 |= TR1_KILL_DRAGON;
+				else if (r < 43) a_ptr->flags1 |= TR1_SLAY_DRAGON;
+				else if (r < 49) a_ptr->flags1 |= TR1_SLAY_EVIL;
+
+				else if (r < 55) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+				else if (r < 58) a_ptr->flags1 |= TR1_KILL_UNDEAD;
+				else if (r < 62) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+				else if (r < 65) a_ptr->flags1 |= TR1_KILL_DEMON;
+				else if (r < 69) a_ptr->flags1 |= TR1_SLAY_DEMON;
+				else if (r < 75) a_ptr->flags1 |= TR1_SLAY_ORC;
+				else if (r < 81) a_ptr->flags1 |= TR1_SLAY_TROLL;
+				else if (r < 87) a_ptr->flags1 |= TR1_SLAY_GIANT;
+				else if (r < 91) a_ptr->flags2 |= TR2_EXTRA_CRIT;
+				else if (r < 96)
+				{
+					/* only pval flag which a thrown weapon can have */
+                    a_ptr->flags1 |= TR1_BLOWS;
+					do_pval(a_ptr);
+				}
+				else /* multiple slays */
+				{
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_SLAY_DRAGON;
+					if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_EVIL;
+					if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+					if (rand_int(10) == 0) a_ptr->flags2 |= TR2_SLAY_SILVER;
+					if (rand_int(10) == 0) a_ptr->flags2 |= TR2_SLAY_LITE;
+					if (rand_int(10) == 0) a_ptr->flags2 |= TR2_SLAY_BUG;
+					if (rand_int(5) == 0) a_ptr->flags2 |= TR2_EXTRA_CRIT;
+					if (rand_int(5) == 0)
+				    {
+					   /* only pval flag which a thrown weapon can have */
+                       a_ptr->flags1 |= TR1_BLOWS;
+					   do_pval(a_ptr);
+				    }
+                }
+            }
 			case TV_BOW:
 			{
 				if (r < 15)
@@ -809,20 +972,30 @@ static void add_ability(artifact_type *a_ptr)
 				{
 					a_ptr->dd += (byte)(1 + rand_int(2) + rand_int(2));
 					if (a_ptr->dd > 9) a_ptr->dd = 9;
+					
+					/* new slays */
+					what = randint(100);
+					if (what < 25) a_ptr->flags2 |= TR2_SLAY_LITE;
+					else if (what < 50) a_ptr->flags2 |= TR2_SLAY_BUG;
+					else if (what < 75) a_ptr->flags2 |= TR2_SLAY_SILVER;
+					else a_ptr->flags2 |= TR2_EXTRA_CRIT;
 				}
 				else if (r < 31) a_ptr->flags1 |= TR1_KILL_DRAGON;
 				else if (r < 35) a_ptr->flags1 |= TR1_SLAY_DRAGON;
 				else if (r < 40) a_ptr->flags1 |= TR1_SLAY_EVIL;
-
 				else if (r < 45) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
 				else if (r < 50)
 				{
-					a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_KILL_UNDEAD;
+					else a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
 				}
 				else if (r < 54)
 				{
-					a_ptr->flags1 |= TR1_SLAY_DEMON;
+					if (rand_int(4) == 0) a_ptr->flags1 |= TR1_KILL_DEMON;
+					else a_ptr->flags1 |= TR1_SLAY_DEMON;
+
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
 				}
 				else if (r < 59)
@@ -843,7 +1016,12 @@ static void add_ability(artifact_type *a_ptr)
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
 				}
-				else if (r < 72) a_ptr->flags3 |= TR3_SEE_INVIS;
+				else if (r < 72)
+				{
+					/* making see invisible less common */
+					what = randint(100);
+					if (what < 75) a_ptr->flags3 |= TR3_SEE_INVIS;
+				}
 				else if (r < 76)
 				{
 					if (a_ptr->pval < 0) break;
@@ -938,10 +1116,11 @@ static void add_ability(artifact_type *a_ptr)
 			}
 			case TV_SHIELD:
 			{
-				if (r < 20) a_ptr->flags2 |= TR2_RES_ACID;
-				else if (r < 40) a_ptr->flags2 |= TR2_RES_ELEC;
-				else if (r < 60) a_ptr->flags2 |= TR2_RES_FIRE;
-				else if (r < 80) a_ptr->flags2 |= TR2_RES_COLD;
+				if (r < 16) a_ptr->flags2 |= TR2_RES_ACID;
+				else if (r < 32) a_ptr->flags2 |= TR2_RES_ELEC;
+				else if (r < 48) a_ptr->flags2 |= TR2_RES_FIRE;
+				else if (r < 64) a_ptr->flags2 |= TR2_RES_COLD;
+				else if (r < 80) a_ptr->flags3 |= TR3_BR_SHIELD;
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
 				break;
 			}
@@ -985,7 +1164,8 @@ static void add_ability(artifact_type *a_ptr)
 	else			/* Pick something universally useful. */
 	{
 		r = rand_int(44);
-        int teleordarkv = rand_int(3);
+        teleordarkv = rand_int(3);
+        
 		switch (r)
 		{
 			case 0:
@@ -1026,9 +1206,6 @@ static void add_ability(artifact_type *a_ptr)
 				do_pval(a_ptr);
 				break;
 			case 7:
-				a_ptr->flags1 |= TR1_SEARCH;
-				do_pval(a_ptr);
-				break;
 			case 8:
 				a_ptr->flags1 |= TR1_INFRA;
 				do_pval(a_ptr);
@@ -1120,7 +1297,7 @@ static void add_ability(artifact_type *a_ptr)
 
 			case 26:
                  if (randint(100) < 85) a_ptr->flags4 |= TR4_RES_POIS;
-                 else a_ptr->flags2 |= TR2_RES_POISB;
+                 else a_ptr->flags2 |= TR2_PR_POIS;
                  break;
 			case 27: a_ptr->flags4 |= TR4_RES_LITE; break;
 			case 28: a_ptr->flags4 |= TR4_RES_DARK; break;
@@ -1150,12 +1327,26 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;
-			case 43: a_ptr->flags4 |= TR4_RES_CHARM; break;
+			case 43:
+				if ((teleordarkv == 0) || (teleordarkv == 2))
+					a_ptr->flags4 |= TR4_RES_CHARM;
+				else if (teleordarkv == 1)
+					a_ptr->flags3 |= TR3_TCONTROL;
+				break;
 		}
 	}
 
 	/* Now remove contradictory or redundant powers. */
-	remove_contradictory(a_ptr);
+	align = remove_contradictory(a_ptr);
+	
+    /* possible object alignment (and possible corruption for bad weapons) */
+	if ((align > 81) && (randint(100) < 25)) a_ptr->flags3 |= TR3_GOOD_WEAP;
+	if ((align < 19) && (randint(100) < 25))
+    {
+       a_ptr->flags3 |= TR3_BAD_WEAP;
+       if (align < 6) align = 6;
+       if (randint(align) < 5) a_ptr->flags2 |= TR2_CORRUPT;
+    }
 }
 
 
@@ -1231,7 +1422,7 @@ static void scramble_artifact(int a_idx)
 	/* Really powerful items should aggravate. */
 	if (power > 100)
 	{
-		if (rand_int(100) < (power - 100) * 3)
+		if (rand_int(200) < (power - 100) * 3)
 			aggravate_me = TRUE;
 	}
 

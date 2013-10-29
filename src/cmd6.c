@@ -228,6 +228,19 @@ void do_cmd_quaff_potion(void)
 	}
 }
 
+/*
+ * The "readable" tester
+ */
+static bool item_tester_hook_readable(const object_type *o_ptr)
+{
+
+	if (o_ptr->tval == TV_SCROLL) return (TRUE);
+	if ((o_ptr->tval == TV_SPECIAL) && (o_ptr->sval == SV_TREASURE)) return (TRUE);
+
+	/* Assume not readable */
+	return (FALSE);
+}
+
 
 /*
  * Read a scroll (from the pack or floor).
@@ -235,6 +248,9 @@ void do_cmd_quaff_potion(void)
  * Certain scrolls can be "aborted" without losing the scroll.  These
  * include scrolls with no effects but recharge or identify, which are
  * cancelled before use.  XXX Reading them still takes a turn, though.
+ *
+ * Identify scrolls and *Identify* scrolls also have a chance of not
+ * being used up even if not cancelled.
  */
 void do_cmd_read_scroll(void)
 {
@@ -252,16 +268,19 @@ void do_cmd_read_scroll(void)
 		msg_print("You can't see anything.");
 		return;
 	}
-
-	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+    else if (p_ptr->timed[TMD_BLIND])
 	{
 		msg_print("You read the scroll with your hands..");
 	}
 	
-	if (no_lite())
+	if ((no_lite()) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You have no light to read by.");
 		return;
+	}
+	else if (no_lite())
+	{
+		msg_print("You read the scroll with your hands..");
 	}
 
 	if (p_ptr->timed[TMD_CONFUSED])
@@ -271,7 +290,8 @@ void do_cmd_read_scroll(void)
 	}
 
 	/* Restrict choices to scrolls */
-	item_tester_tval = TV_SCROLL;
+	/* item_tester_tval = TV_SCROLL; */
+	item_tester_hook = item_tester_hook_readable;
 
 	/* Get an item */
 	q = "Read which scroll? ";
@@ -288,17 +308,22 @@ void do_cmd_read_scroll(void)
 	else
 	{
 		o_ptr = &o_list[0 - item];
+
+		/* to make sure scroll of rune of protection gets used up */
+        if ((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_RUNE_OF_PROTECTION))
+           spellswitch = 3;
 	}
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Check for amnesia */
 	if (rand_int(2) != 0 && p_ptr->timed[TMD_AMNESIA])
 	{
 		/* Can't remember how */
 		msg_print("You can't remember how to read!");
+
+		/* Take (most of) a turn */
+		p_ptr->energy_use = 90;
 		return;
 	}
 
@@ -310,6 +335,9 @@ void do_cmd_read_scroll(void)
 
 	/* Read the scroll */
 	used_up = use_object(o_ptr, &ident);
+
+	/* Take a turn */
+	if ((used_up) || (ident)) p_ptr->energy_use = 100;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -328,10 +356,8 @@ void do_cmd_read_scroll(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Hack -- allow certain scrolls to be "preserved" */
 	if (!used_up) return;
-
 
 	/* Destroy a scroll in the pack */
 	if (item >= 0)
@@ -349,9 +375,6 @@ void do_cmd_read_scroll(void)
 		floor_item_optimize(0 - item);
 	}
 }
-
-
-
 
 
 
@@ -412,7 +435,15 @@ void do_cmd_use_staff(void)
 	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
+	/* (should be able to use staff of curing to cure confusion) */
+	if ((p_ptr->timed[TMD_CONFUSED]) && (o_ptr->sval != SV_STAFF_CURING))
+    {
+       if (goodluck > 16) chance = (chance * 8) / 9;
+       else if (goodluck > 9) chance = (chance * 3) / 4;
+       else if (goodluck > 2) chance = (chance * 2) / 3;
+       else chance = chance / 2 + 1;
+       if ((badluck > 5) && (chance > 15)) chance -= badluck/2;
+    }
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -472,9 +503,56 @@ void do_cmd_use_staff(void)
 	/* Hack -- some uses are "free" */
 	if (!use_charge) return;
 
+	/* Staff of manafree sometimes uses multiple charges */
+    if (p_ptr->manafree > 19)
+	{
+        if (p_ptr->manafree/10 > o_ptr->pval)
+        {
+           o_ptr->pval = 0;
 
-	/* Use a single charge */
-	o_ptr->pval--;
+           /* If you don't have enough charges it might explode */
+           if (randint(75 + badluck) > 55)
+           {
+		      msg_print("The staff doesn't have enough charges to handle your spell!");
+		      msg_print("There is a bright flash of light.");
+
+		      /* Reduce the charges of rods/wands/staves */
+		      reduce_charges(o_ptr, 1);
+
+		      /* *Identified* items keep the knowledge about the charges */
+		      if (!(o_ptr->ident & IDENT_MENTAL))
+		      {
+			     /* We no longer "know" the item */
+			     o_ptr->ident &= ~(IDENT_KNOWN);
+		      }
+
+		      /* Reduce and describe inventory */
+		      if (item >= 0)
+		      {
+			     inven_item_increase(item, -1);
+			     inven_item_describe(item);
+			     inven_item_optimize(item);
+		      }
+		      /* Reduce and describe floor item */
+		      else
+		      {
+			      floor_item_increase(0 - item, -1);
+			      floor_item_describe(0 - item);
+			      floor_item_optimize(0 - item);
+		      }
+           }
+        }
+        /* normal usage: 1 charge for every 10 mana cost of the spell cast */
+        else o_ptr->pval -= p_ptr->manafree/10;
+    }
+    else
+    {
+        /* Use a single charge (every other staff) */
+	    o_ptr->pval--;
+    }
+
+	/* reset manafree */
+    p_ptr->manafree = 0;
 
 	/* Describe charges in the pack */
 	if (item >= 0)
@@ -593,7 +671,7 @@ void do_cmd_aim_wand(void)
  *
  * Unstack fully charged rods as needed.
  *
- * Hack -- rods of perception can be "cancelled"
+ * Hack -- rods of identify can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
  */
 void do_cmd_zap_rod(void)
@@ -658,13 +736,6 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
 
-#ifdef EFG
-	/* EFGchange allow activation without id */
-#else
-	/* Not known */
-	if (!object_known_p(o_ptr)) return (FALSE);
-#endif
-
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
@@ -727,7 +798,14 @@ void do_cmd_activate(void)
 	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
+	if (p_ptr->timed[TMD_CONFUSED])
+    {
+       if (goodluck > 16) chance = (chance * 8) / 9;
+       else if (goodluck > 9) chance = (chance * 3) / 4;
+       else if (goodluck > 2) chance = (chance * 2) / 3;
+       else chance = chance / 2 + 1;
+       if ((badluck > 5) && (chance > 15)) chance -= badluck/2;
+    }
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -754,7 +832,32 @@ void do_cmd_activate(void)
 		msg_print("You failed to activate it properly.");
 		return;
 	}
-
+	
 	/* Activate the object */
-	(void)use_object(o_ptr, &ident);
+	if (use_object(o_ptr, &ident))
+	{
+	   u32b f1, f2, f3, f4;
+       /* Learn from the activation */
+       if (!object_known_p(o_ptr))
+	   {
+			char o_name[80];
+
+			object_aware(o_ptr);
+			object_known(o_ptr);
+
+			gain_exp((lev - 5 + (p_ptr->lev / 2)) / p_ptr->lev);
+		  
+		  /* notice the discovery */
+		  object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);		  
+		  msg_format("You have %s.", o_name);
+	   }
+
+	   /* Extract the flags */
+	   object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+       /* exp drain is much more likely when */
+       /* activating an object with the DRAIN_EXP flag */
+       /* (two chances to kick in: here and in prjoect() function) */
+       if ((f3 & (TR3_DRAIN_EXP)) && (p_ptr->exp_drain)) rxp_drain(25);
+    }
 }

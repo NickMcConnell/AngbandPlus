@@ -768,8 +768,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	else if (feat <= FEAT_INVIS)
 	{
 		/* Memorized (or seen) floor */
+		/* spellswitch 9: temporary light */
 		if ((info & (CAVE_MARK)) ||
-		    (info & (CAVE_SEEN)))
+		    (info & (CAVE_SEEN)) /* || (spellswitch == 9) */ )
 		{
 			/* Get the floor feature */
 			f_ptr = &f_info[FEAT_FLOOR];
@@ -890,7 +891,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		monster_type *m_ptr = &mon_list[m_idx];
 
 		/* Visible monster */
-		if (m_ptr->ml)
+		if ((m_ptr->ml) || (m_ptr->heard))
 		{
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -965,6 +966,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Normal attr */
 				a = da;
 			}
+
+			/* always grey if heard but not seen */
+			if ((m_ptr->heard) && (!m_ptr->ml))
+			{
+                a = TERM_SLATE;
+            }
 		}
 	}
 
@@ -2834,7 +2841,7 @@ void update_view(void)
 
 	int i, g, o2;
 
-	int radius;
+	int radius, srad, radmod;
 
 	int fast_view_n = view_n;
 	u16b *fast_view_g = view_g;
@@ -2922,6 +2929,23 @@ void update_view(void)
 	/* Save in array */
 	fast_view_g[fast_view_n++] = g;
 
+						
+    /* figure seen radius for dim light (min 7) (see L3093) */
+#if EXPM
+	srad = radius + 5;
+	if (radius < 2) srad = 7;
+#else	
+	srad = radius + 6;
+	if (radius < 2) srad = 8;
+	/* no dimness with daylight spell */
+	if (p_ptr->timed[TMD_DAYLIGHT]) srad += 100;
+	else if (p_ptr->depth < 6) srad += 1;
+	radmod = randint(100 - goodluck/2 + p_ptr->depth/2);
+	if (radmod < 20) srad += 3;
+	else if (radmod < 70) srad += 2;
+	else if (radmod > 100) srad -= 1;
+#endif
+
 
 	/*** Step 2 -- octants ***/
 
@@ -2995,7 +3019,7 @@ void update_view(void)
 						}
 
 						/* Perma-lit grids */
-						else if (info & (CAVE_GLOW))
+						else if ((info & (CAVE_GLOW)) && ((p->d < srad) || (!p_ptr->depth)))
 						{
 							int y = GRID_Y(g);
 							int x = GRID_X(g);
@@ -3070,8 +3094,18 @@ void update_view(void)
 							/* info |= (CAVE_LITE); */
 						}
 
+#if EXPM
+                        /* figure seen radius for dim light (min 7) */
+						if (info & (DLIT_DIMA)) srad += 3;
+						else if (info & (DLIT_DIMB)) srad += 2;
+						else if (info & (DLIT_DIMC)) srad += 1;
+						else if (info & (DLIT_DIMD)) srad += 0;
+						else /* (DLIT_FULL) */ srad += 100;
+#endif
+
 						/* Perma-lit grids */
-						else if (info & (CAVE_GLOW))
+						/* DJA: dim light: do not show whole rooms in a large room */
+						if ((info & (CAVE_GLOW)) && ((p->d < srad) || (!p_ptr->depth)))
 						{
 							/* Mark as "CAVE_SEEN" */
 							info |= (CAVE_SEEN);
@@ -3492,6 +3526,9 @@ void wiz_lite(void)
 
 					/* Perma-lite the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
+#if EXPM
+					cave_info[yy][xx] |= (DLIT_DIMA);
+#endif
 
 					/* Memorize normal features */
 					if (cave_feat[yy][xx] > FEAT_INVIS)
@@ -3585,6 +3622,9 @@ void town_illuminate(bool daytime)
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
+#if EXPM
+                cave_info[y][x] |= (DLIT_FULL);
+#endif
 
 				/* Memorize the grid */
 				cave_info[y][x] |= (CAVE_MARK);
@@ -3595,6 +3635,9 @@ void town_illuminate(bool daytime)
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
+#if EXPM
+                cave_info[y][x] |= (DLIT_FULL);
+#endif
 
 				/* Hack -- Memorize grids */
 				if (view_perma_grids)
@@ -3635,6 +3678,9 @@ void town_illuminate(bool daytime)
 
 					/* Illuminate the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
+#if EXPM
+					cave_info[yy][xx] |= (DLIT_FULL);
+#endif
 
 					/* Hack -- Memorize grids */
 					if (view_perma_grids)
@@ -3753,6 +3799,9 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 
 	/* Slope */
 	int m;
+	
+	/* for spellswitch 31 (wand of tunneldigging) */
+	int dig = 0;
 
 
 	/* No path necessary (or allowed) */
@@ -3819,8 +3868,14 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 				if ((x == x2) && (y == y2)) break;
 			}
 
-			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_floor_bold(y, x)) break;
+            /* Always stop at non-initial wall grids */
+            /* (except for wand of tunneldigging: spellswitch 31) */
+			if (spellswitch == 31)
+			{
+               if (!cave_floor_bold(y, x)) dig += 1;
+               if (dig > 5) break;
+            }
+			else if ((n > 0) && !cave_floor_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3881,8 +3936,14 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 				if ((x == x2) && (y == y2)) break;
 			}
 
-			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_floor_bold(y, x)) break;
+            /* Always stop at non-initial wall grids */
+            /* (except for wand of tunneldigging: spellswitch 31) */
+			if (spellswitch == 31)
+			{
+               if (!cave_floor_bold(y, x)) dig += 1;
+               if (dig > 5) break;
+            }
+			else if ((n > 0) && !cave_floor_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3937,8 +3998,14 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 				if ((x == x2) && (y == y2)) break;
 			}
 
-			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_floor_bold(y, x)) break;
+            /* Always stop at non-initial wall grids */
+            /* (except for wand of tunneldigging: spellswitch 31) */
+			if (spellswitch == 31)
+			{
+               if (!cave_floor_bold(y, x)) dig += 1;
+               if (dig > 5) break;
+            }
+			else if ((n > 0) && !cave_floor_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))

@@ -45,6 +45,7 @@ extern const int adj_mag_mana[];
 extern const byte adj_mag_fail[];
 extern const int adj_mag_stat[];
 extern const byte adj_chr_gold[];
+extern const byte adj_chr_charm[];
 extern const byte adj_int_dev[];
 extern const byte adj_wis_sav[];
 extern const byte adj_dex_dis[];
@@ -258,7 +259,6 @@ extern u16b inscriptions_count;
 /* DJA */
 extern int range;
 extern int spellswitch; /* for hacking, see comment at bottom of variable.c */
-extern int spadjust;
 extern int losesave;
 extern int goodluck;
 extern int badluck;
@@ -272,6 +272,14 @@ extern int cosval;
 extern int cotvalb;
 extern int cosvalb;
 extern void do_telekinesis(void);
+extern int roamgroup1;
+extern int roamgroup2;
+extern int roamgroup3;
+extern int roamgroup4;
+extern int roamgroup5;
+extern int roamgroup6;
+extern int roamgroup7;
+extern int roamgroup8;
 
 /* squelch.c */
 extern byte squelch_level[SQUELCH_BYTES];
@@ -320,13 +328,14 @@ extern bool is_quest(int level);
 
 /* cmd1.c */
 extern bool test_hit(int chance, int ac, int vis);
-extern int critical_shot(int weight, int plus, int dam, bool thrown);
-extern int critical_norm(int weight, int plus, int dam, int excrit);
+extern int critical_shot(int weight, int plus, int dam, int thrown, int excrit);
+extern int critical_norm(monster_type *m_ptr, int weight, int plus, int dam, int excrit);
 #ifdef EFG
-extern int tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr);
+extern int tot_dam_aux(object_type *o_ptr, int tdam, int strd, monster_type *m_ptr);
 #else
-extern int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr);
+extern int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type *m_ptr);
 #endif
+extern int self_dam_aux(const object_type *o_ptr, int tdam);
 extern void search(void);
 extern byte py_pickup(int pickup);
 extern void hit_trap(int y, int x);
@@ -340,6 +349,9 @@ bool do_cmd_walk_test(int y, int x);
 /* ??? prob will move to a different file */
 extern bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name);
 #endif
+
+/* cmd2.c */
+extern int thits_thrown(int weight); /* for thrown weapons */
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -383,13 +395,14 @@ extern bool load_player(bool *character_loaded, bool *reusing_savefile);
 extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
+extern bool get_random_des(int y, int x, int *toy, int *tox, bool naked);
 extern bool make_attack_spell(int m_idx);
 extern void process_monsters(byte minimum_energy);
 
 /* monster1.c */
-extern void describe_monster(int r_idx, bool spoilers);
+extern void describe_monster(int r_idx, bool spoilers, monster_type *m_ptr);
 extern void roff_top(int r_idx);
-extern void screen_roff(int r_idx);
+extern void screen_roff(int r_idx, monster_type *m_ptr);
 extern void display_roff(int r_idx);
 
 /* monster2.c */
@@ -421,6 +434,8 @@ extern void update_smart_learn(int m_idx, int what);
 /* obj-info.c */
 extern bool object_info_out(const object_type *o_ptr);
 extern void object_info_screen(const object_type *o_ptr);
+extern int thrown_brand(void);
+extern void describe_attack(const object_type *o_ptr);
 
 /* object1.c */
 extern void flavor_init(void);
@@ -526,10 +541,11 @@ extern bool save_player(void);
 
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);
-extern void teleport_away(int m_idx, int dis);
+extern void teleport_away(int m_idx, int dis, int mode);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_player_level(void);
+extern bool control_tport(int resistcrtl, int enforcedist); /* teleport control */
 extern void deep_descent(void);
 extern void take_hit(int dam, cptr kb_str);
 extern void acid_dam(int dam, cptr kb_str);
@@ -546,7 +562,7 @@ extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 /* spells2.c */
 extern bool hp_player(int num);
 extern void warding_glyph(void);
-extern bool do_dec_stat(int stat);
+extern bool do_dec_stat(int stat, int loses);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat);
 extern void identify_pack(void);
@@ -566,19 +582,23 @@ extern bool detect_objects_magic(void);
 extern bool detect_monsters_normal(void);
 extern bool detect_monsters_invis(void);
 extern bool detect_monsters_evil(void);
+extern bool detect_monsters_life(void);
+extern bool detect_monsters_animal(void);
 extern bool detect_all(void);
-extern void stair_creation(void);
+extern void stair_creation(int dis);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
+extern bool bless_weapon(int power);
 extern void do_ident_item(int item, object_type *o_ptr);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool speed_monsters(void);
-extern bool slow_monsters(void);
-extern bool sleep_monsters(void);
-extern bool scare_monsters(void);
+extern bool slow_monsters(int plev);
+extern bool sleep_monsters(int plev);
+extern bool scare_monsters(int plev);
 extern bool hold_monsters(void);
+extern bool mass_amnesia(int power);
 extern bool banish_evil(int dist);
 extern bool turn_undead(void);
 extern bool dispel_undead(int dam);
@@ -588,7 +608,9 @@ extern bool dispel_silver(int dam);
 extern bool dispel_unnatural(int dam);
 extern bool dispel_life(int dam);
 extern bool dispel_evil(int dam);
+extern bool dispel_ears(int dam);
 extern bool dispel_monsters(int dam);
+extern bool banish_unnatural(int dist);
 extern void aggravate_monsters(int who);
 extern bool banishment(void);
 extern bool mass_banishment(void);
@@ -610,28 +632,31 @@ extern bool strong_lite_line(int dir);
 extern bool drain_life(int dir, int dam);
 extern bool wall_to_mud(int dir);
 extern bool destroy_door(int dir);
-extern bool disarm_trap(int dir);
+extern bool disarm_trap(int dir, int mode);
 extern bool heal_monster(int dir);
 extern bool speed_monster(int dir);
-extern bool slow_monster(int dir);
-extern bool sleep_monster(int dir);
+extern bool slow_monster(int dir, int plev);
+extern bool sleep_monster(int dir, int plev);
 extern bool confuse_monster(int dir, int plev);
 extern bool poly_monster(int dir);
 extern bool clone_monster(int dir);
 extern bool fear_monster(int dir, int plev);
-extern bool teleport_monster(int dir);
-extern bool door_creation(void);
+extern bool teleport_monster(int dir, int dis);
+extern bool heal_monsters(int healmon, const monster_type *m_ptr, bool kinonly);
+extern bool door_creation(int mode);
 extern bool trap_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
 extern bool curse_armor(void);
-extern bool curse_weapon(void);
+extern bool curse_weapon(int badness);
 extern void brand_object(object_type *o_ptr, byte brand_type);
 extern void brand_weapon(void);
 extern bool brand_ammo(void);
 extern bool brand_bolts(void);
 extern bool snowball_shot(void);
 extern void ring_of_power(int dir);
+extern void rxp_drain(int odd); /* DJA: XP drain from item */
+extern void treasure_map(void); /* DJA: Tourist's treasure map spell */
 
 /* squelch.c */
 int get_autoinscription_index(s16b k_idx);
@@ -658,6 +683,14 @@ extern void do_cmd_store(void);
 extern void store_shuffle(int which);
 extern void store_maint(int which);
 extern void store_init(void);
+
+/* cmd5.c (also in cmds.h) */
+extern bool do_cmd_cast(void);
+extern bool do_cmd_pray(void);
+extern bool do_cmd_castnew(void);
+extern bool do_cmd_castluck(void);
+extern bool do_cmd_castchem(void);
+extern bool do_cmd_castblack(void);
 
 /* typeutils.c */
 void display_panel(const data_panel *panel, int count,
@@ -713,6 +746,7 @@ extern bool get_string(cptr prompt, char *buf, size_t len);
 extern s16b get_quantity(cptr prompt, int max);
 extern int get_check_other(cptr prompt, char other);
 extern bool get_check(cptr prompt);
+extern bool get_confirm(cptr prompt); /* version of get_check */
 extern bool get_com(cptr prompt, char *command);
 extern bool get_com_ex(cptr prompt, event_type *command);
 extern void pause_line(int row);
@@ -743,6 +777,7 @@ extern void update_stuff(void);
 extern void redraw_stuff(void);
 extern void window_stuff(void);
 extern void handle_stuff(void);
+extern void calc_bonuses(object_type inventory[], bool killmess);
 
 /* xtra2.c */
 extern bool set_timed(int idx, int v);

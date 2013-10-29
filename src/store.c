@@ -56,7 +56,7 @@ static unsigned int scr_places_y[LOC_MAX];
 /* Some local constants */
 #define STORE_TURNOVER  9       /* Normal shop turnover, per day */
 #define STORE_OBJ_LEVEL 5       /* Magic Level for normal stores */
-#define STORE_MIN_KEEP  8       /* Min slots to "always" keep full (>0) */
+#define STORE_MIN_KEEP  9       /* Min slots to "always" keep full (>0) */
 #define STORE_MAX_KEEP  20      /* Max slots to "always" keep full */
 /* MIN_KEEP was 6, MAX_KEEP was 18*/
 
@@ -1058,13 +1058,13 @@ static void store_delete_item(int st)
 static bool black_market_ok(const object_type *o_ptr)
 {
 	int i, j;
-
+	
 	/* Ego items are always fine */
 	if (ego_item_p(o_ptr)) return (TRUE);
 
 	/* Good items are normally fine */
 	if (o_ptr->to_a > 2) return (TRUE);
-	if (o_ptr->to_h > 1) return (TRUE);
+	if (o_ptr->to_h > 2) return (TRUE);
 	if (o_ptr->to_d > 2) return (TRUE);
 
 
@@ -1180,20 +1180,23 @@ static bool store_create_random(int st)
 	{
 		min_level = 25;
 		max_level = 50;
+        if (p_ptr->max_depth > 70) max_level += (p_ptr->max_depth - 45)/5;
 	}
 	else
 	{
 		min_level = 1;
 		max_level = STORE_OBJ_LEVEL;
+        if (p_ptr->max_depth > 21) max_level += (p_ptr->max_depth - 20)/2;
+        if (max_level > 45) max_level = 45;
 	}
-
+	
 
 	/* Consider up to six items */
 	for (tries = 0; tries < 6; tries++)
 	{
 		/* Work out the level for objects to be generated at */
 		level = rand_range(min_level, max_level);
-
+        if (level > 2) level -= 1;
 
 		/* Black Markets have a random object, of a given level */
 		if (st == STORE_B_MARKET) k_idx = get_obj_num(level);
@@ -1205,16 +1208,17 @@ static bool store_create_random(int st)
 		/* Get tval/sval; if not found, item isn't real, so try again */
 		if (!lookup_reverse(k_idx, &tval, &sval))
 		{
-			msg_print("Invalid object index in store_create_random()!");
+			msg_format("Invalid object index in store_create_random()! store %d", st);
 			continue;
 		}
 
 
 		/*** Pre-generation filters ***/
 
-		/* No chests in stores XXX */
+		/* No chests, skeletons, or treasure maps in stores XXX */
 		if (tval == TV_CHEST) continue;
-
+		if ((tval == TV_SPECIAL) && (sval == SV_CLASS_OBJ)) continue;
+        if (tval == TV_SKELETON) continue;
 
 		/*** Generate the item ***/
 
@@ -1226,7 +1230,7 @@ static bool store_create_random(int st)
 
 		/* Apply some "low-level" magic (no artifacts) */
 		apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
-	
+		
 		/* The object is "known" and belongs to a store */
 		object_known(i_ptr);
 		i_ptr->ident |= IDENT_STORE;
@@ -1235,12 +1239,17 @@ static bool store_create_random(int st)
 		/*** Post-generation filters ***/
 
 		/* Black markets have expensive tastes */
-		if ((st == STORE_B_MARKET) && !black_market_ok(i_ptr))
-			continue;
+		if ((st == STORE_B_MARKET) && !black_market_ok(i_ptr)) continue;
+		/* no ego magic staffs or rings carried in stores (except black market) */
+        else if (((tval == TV_STAFF) || (tval == TV_RING)) && (i_ptr->name2) && (st != STORE_B_MARKET))
+             continue;
+        /* no "of randomness" or "Natural" egos in stores */
+        else if ((i_ptr->name2 >= EGO_RANDOM1) && (i_ptr->name2 <= EGO_UPS_N_DOWNS))
+             continue;
+			
 
 		/* No "worthless" items */
 		if (object_value(i_ptr) < 1) continue;
-
 
 
 		/* Charge lights XXX */
@@ -1310,7 +1319,7 @@ static int store_create_item(int st, int tval, int sval, create_mode mode)
 	/* Validation - do something more substantial here? XXX */
 	if (!k_idx)
 	{
-		msg_print("No object in store_create_item().");
+		msg_print("No object in store_create_item(). stORe %d");
 		return -1;
 	}
 
@@ -1914,6 +1923,17 @@ static bool store_purchase(int item)
 		return FALSE;
 	}
 
+    /* check for spellbook tval */
+    /* is it an appropriate spell book? */
+    if ((o_ptr->tval >= TV_MAGIC_BOOK) && (o_ptr->tval < TV_GOLD) && (!(o_ptr->tval == cp_ptr->spell_book)))
+    {
+		/* Prevent buying a book you can't use */
+        msg_print("Why would you want to buy that? You can't use it.");
+		store_flags |= STORE_KEEP_PROMPT;
+		return FALSE;
+    }
+
+
 	/* Describe the object (fully) */
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
@@ -2057,10 +2077,11 @@ static bool store_purchase(int item)
 static bool store_purchase_all(void)
 {
 	int i;
-
-	store_type *st_ptr = &store[store_current];
+	bool response;
 
 	object_type *o_ptr;
+
+	store_type *st_ptr = &store[store_current];
 
 	s32b price;
 
@@ -2070,7 +2091,7 @@ static bool store_purchase_all(void)
 
 	if (store_current == STORE_HOME)
 	{
-	    /* this should routine should not have been called from home */
+	    /* this routine should not have been called from home */
 	    return FALSE;
 	}
 
@@ -2099,7 +2120,7 @@ static bool store_purchase_all(void)
 	prt(format("Total cost: %d", price), 1, 0);
 
 	/* Confirm purchase */
-	bool response = store_get_check("Restock the store? [ESC, any other key to accept]");
+	response = store_get_check("Restock the store? [ESC, any other key to accept]");
 	screen_load();
 
 	/* Negative response, so give up */
@@ -2179,8 +2200,8 @@ static bool store_will_buy_tester(const object_type *o_ptr)
  */
 static void store_sell(void)
 {
-	int amt;
-	int item;
+	int amt, item;
+	bool aware;
 
 	object_type *o_ptr;
 	object_type *i_ptr;
@@ -2211,7 +2232,6 @@ static void store_sell(void)
 		o_ptr = &o_list[0 - item];
 		
 // #ifdef EFG
-bool aware;
 	/* See if the object is "aware" */
 	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
 
@@ -2817,7 +2837,7 @@ void do_cmd_store(void)
 		{
 			/* These two can't intersect! */
 			menu.cmd_keys = "\n\x04\x10\r?=CPdeEiIsTwx\x8B\x8Chl"; /* \x10 = ^p , \x04 = ^D */
-			menu.selections = "abcfgmnopqruvyz1234567890";
+			menu.selections = "abcfgmnopqruvyz1234567890ABD";
 		}
 
 		/* Original */
@@ -2825,7 +2845,7 @@ void do_cmd_store(void)
 		{
 			/* These two can't intersect! */
 			menu.cmd_keys = "\n\x010\r?=CbdeEiIklstw\x8B\x8C"; /* \x10 = ^p */
-			menu.selections = "acfghmnopqruvxyz13456790";
+			menu.selections = "acfghmnopqruvxyz13456790ABD";
 		}
 
 		/* Keep the cursor in range of the stock */

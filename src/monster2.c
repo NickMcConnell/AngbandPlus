@@ -257,7 +257,7 @@ void wipe_mon_list(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Mega-Hack -- preserve Unique's XXX XXX XXX */
+		/* Mega-Hack -- preserve Uniques XXX XXX XXX */
 
 		/* Hack -- Reduce the racial counter */
 		r_ptr->cur_num--;
@@ -547,9 +547,8 @@ s16b get_mon_num(int level)
 	return (table[i].index);
 }
 
-
 /*
- * Display visible monsters in a window
+ * Display visible monsters in a window (the monster list)
  */
 void display_monlist(void)
 {
@@ -557,16 +556,21 @@ void display_monlist(void)
 	int line = 1, x = 0;
 	int cur_x;
 	unsigned total_count = 0, disp_count = 0;
+	unsigned count_asleep = 0, count_normal = 0;
+	unsigned count_snolos = 0, count_nolos = 0;
+	bool uniq, messy;
 
 	byte attr;
 
 	char *m_name;
 	char buf[80];
-
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
 	u16b *race_count;
+	u16b *race_count_nolos;
+	u16b *race_count_snolos;
+	u16b *race_count_asleep;
 
 
 	/* Clear the term if in a subwindow, set x otherwise */
@@ -583,17 +587,79 @@ void display_monlist(void)
 
 	/* Allocate the array */
 	C_MAKE(race_count, z_info->r_max, u16b);
+	C_MAKE(race_count_nolos, z_info->r_max, u16b);
+	C_MAKE(race_count_snolos, z_info->r_max, u16b);
+	C_MAKE(race_count_asleep, z_info->r_max, u16b);
+
+	uniq = FALSE;
+	messy = FALSE;
+	if (p_ptr->timed[TMD_IMAGE]) messy = TRUE;
 
 	/* Scan the monster list */
 	for (i = 1; i < mon_max; i++)
 	{
 		m_ptr = &mon_list[i];
+		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Only visible monsters */
 		if (!m_ptr->ml) continue;
-
+		
+        /* display flags should be correct even when hallucenating */
+        if (m_ptr->csleep) m_ptr->display_sleep = TRUE;
+        else m_ptr->display_sleep = FALSE;
+	    
+        /* halucenation messes things up */
+        if ((messy) && (randint(40) < 30 + (badluck/2)))
+        {
+           int mess = randint(4);
+           int friedx = randint(682) + 17;
+           if (mess == 1)
+           {
+              race_count_asleep[friedx] += 1;
+              count_asleep += 1;
+           }
+           else if (mess == 2)
+           {
+              race_count[friedx] += 1;
+              count_normal += 1;
+           }
+           else if (mess == 3)
+           {
+              race_count_snolos[friedx] += 1;
+              count_snolos += 1;
+           }
+           else if (mess == 4)
+           {
+              race_count_nolos[friedx] += 1;
+              count_nolos += 1;
+           }
+		   /* sometimes see more monsters than there really are */
+		   if (randint(100) < 9) i -= 1;
+        }
 		/* Bump the count for this race, and the total count */
-		race_count[m_ptr->r_idx]++;
+		/* separate race count for los / no los / asleep */
+        else if ((!(m_ptr->mflag & (MFLAG_VIEW))) && (m_ptr->csleep))
+	    {
+            race_count_snolos[m_ptr->r_idx]++;
+            count_snolos++;
+        }
+        else if (!(m_ptr->mflag & (MFLAG_VIEW)))
+	    {
+            race_count_nolos[m_ptr->r_idx]++;
+            count_nolos++;
+        }
+        else if (m_ptr->csleep)
+        {
+            race_count_asleep[m_ptr->r_idx]++;
+            count_asleep++;
+        }
+        else
+        {
+            race_count[m_ptr->r_idx]++;
+            count_normal++;
+        }
+        if ((r_ptr->flags1 & RF1_UNIQUE) && (!messy)) uniq = TRUE;
+	
 		total_count++;
 	}
 
@@ -607,19 +673,51 @@ void display_monlist(void)
 
 		/* Free up memory */
 		FREE(race_count);
+		FREE(race_count_asleep);
+		FREE(race_count_nolos);
+		FREE(race_count_snolos);
 
 		/* Done */
 		return;
 	}
 
-	/* Go over */
-	for (i = 1; (i < z_info->r_max) && (line < max); i++)
-	{
-		/* No monsters of this race are visible */
-		if (!race_count[i]) continue;
-
+    /* if (count_asleep) */
+    if (((count_asleep) || (count_snolos)) && (!messy))
+    {
 		/* Reset position */
 		cur_x = x;
+
+        /* my_strcpy(buf, "  The following monsters are in sight but aren't aware of you:", sizeof(buf)); */
+        my_strcpy(buf, " (darker shade means unaware of you, blue means out of line of sight) ", sizeof(buf));
+
+        /* Print and bump line counter */
+		c_prt(TERM_L_WHITE, buf, line, cur_x);
+		line++;
+    }
+
+    if ((uniq) && (!messy))
+    {
+		/* Reset position */
+		cur_x = x;
+
+        my_strcpy(buf, " (uniques in red if in sight, or brown if out of LOS) ", sizeof(buf));
+
+        /* Print and bump line counter */
+		c_prt(TERM_L_WHITE, buf, line, cur_x);
+		line++;
+    }
+
+	/* Go over (line of sight and awake) */
+	for (i = 1; (i < z_info->r_max) && (line < max); i++)
+	{
+		/* Reset position */
+		cur_x = x;
+
+        /* no monsters in los who are aware of you */
+        if (!count_normal) break;
+        
+		/* No monsters of this race are visible (and awake) */
+		if (!race_count[i]) continue;
 
 		/* Note that these have been displayed */
 		disp_count += race_count[i];
@@ -630,7 +728,7 @@ void display_monlist(void)
 
 		/* Display uniques in a special colour */
 		if (r_ptr->flags1 & RF1_UNIQUE)
-			attr = TERM_VIOLET;
+			attr = TERM_L_RED;
 		else
 			attr = TERM_WHITE;
 
@@ -639,6 +737,143 @@ void display_monlist(void)
 			my_strcpy(buf, m_name, sizeof(buf));
 		else
 			strnfmt(buf, sizeof(buf), "%s (x%d) ", m_name, race_count[i]);
+
+		/* Display the pict */
+		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
+		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
+		Term_putch(cur_x++, line, TERM_WHITE, ' ');
+
+		/* Print and bump line counter */
+		c_prt(attr, buf, line, cur_x);
+		line++;
+	}
+        
+	/* Go over (line of sight and unaware of the player) */
+	for (i = 1; (i < z_info->r_max) && (line < max); i++)
+	{
+		/* Reset position */
+		cur_x = x;
+
+        /* no sleeping (or roaming) monsters */
+        if (!count_asleep) break;
+        
+        /* No monsters of this race are visible and unaware */
+		if (!race_count_asleep[i]) continue;
+
+		/* Note that these have been displayed */
+		disp_count += race_count_asleep[i];
+
+		/* Get monster race and name */
+		r_ptr = &r_info[i];
+		m_name = r_name + r_ptr->name;
+
+		/* Display uniques in a special colour */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+			attr = TERM_RED;
+		else
+			attr = TERM_L_WHITE;
+
+		/* Build the monster name */
+		if (race_count_asleep[i] == 1)
+			my_strcpy(buf, m_name, sizeof(buf));
+		else
+			strnfmt(buf, sizeof(buf), "%s (x%d) ", m_name, race_count_asleep[i]);
+
+		/* Display the pict */
+		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
+		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
+		Term_putch(cur_x++, line, TERM_WHITE, ' ');
+
+		/* Print and bump line counter */
+		c_prt(attr, buf, line, cur_x);
+		line++;
+	}
+
+/*#if removed        
+    if ((count_nolos) || (count_snolos))
+    {
+        my_strcpy(buf, "  The following monsters are not in line of sight:", sizeof(buf));
+
+        /* Print and bump line counter *
+		c_prt(TERM_L_BLUE, buf, line, cur_x);
+		line++;
+    }
+#endif */
+
+	/* Go over (for not in LOS monsters) */
+	for (i = 1; (i < z_info->r_max) && (line < max); i++)
+	{
+		/* Reset position */
+		cur_x = x;
+
+        /* no monsters out of LOS and aware */
+        if (!count_nolos) break;
+        
+		/* No monsters of this race are visible */
+		if (!race_count_nolos[i]) continue;
+
+		/* Note that these have been displayed */
+		disp_count += race_count_nolos[i];
+
+		/* Get monster race and name */
+		r_ptr = &r_info[i];
+		m_name = r_name + r_ptr->name;
+
+		/* Display uniques in a special colour */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+			attr = TERM_L_UMBER;
+		else
+			attr = TERM_L_BLUE;
+
+		/* Build the monster name */
+		if (race_count_nolos[i] == 1)
+			my_strcpy(buf, m_name, sizeof(buf));
+		else
+			strnfmt(buf, sizeof(buf), "%s (x%d) ", m_name, race_count_nolos[i]);
+
+		/* Display the pict */
+		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
+		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
+		Term_putch(cur_x++, line, TERM_WHITE, ' ');
+
+		/* Print and bump line counter */
+		c_prt(attr, buf, line, cur_x);
+		line++;
+	}
+
+	/* Go over (for out of LOS and not aware) */
+	for (i = 1; (i < z_info->r_max) && (line < max); i++)
+	{
+		/* Reset position */
+		cur_x = x;
+
+        /* no monsters out of LOS and unaware */
+        if (!count_snolos) break;
+
+        /* no message */
+        
+		/* No monsters of this race are visible */
+		if (!race_count_snolos[i]) continue;
+
+		/* Note that these have been displayed */
+		disp_count += race_count_snolos[i];
+
+		/* Get monster race and name */
+		r_ptr = &r_info[i];
+		m_name = r_name + r_ptr->name;
+
+		/* Display uniques in a special colour */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+			attr = TERM_UMBER;
+		else
+			attr = TERM_BLUE;
+		
+
+		/* Build the monster name */
+		if (race_count_snolos[i] == 1)
+			my_strcpy(buf, m_name, sizeof(buf));
+		else
+			strnfmt(buf, sizeof(buf), "%s (x%d) ", m_name, race_count_snolos[i]);
 
 		/* Display the pict */
 		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
@@ -672,8 +907,10 @@ void display_monlist(void)
 
 	/* Free the race counters */
 	FREE(race_count);
+	FREE(race_count_asleep);
+	FREE(race_count_nolos);
+	FREE(race_count_snolos);
 }
-
 
 /*
  * Build a string describing a monster in some way.
@@ -725,12 +962,18 @@ void display_monlist(void)
 void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 {
 	cptr res;
+	cptr name;
+	bool seen, pron;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Hallucenation */
+    if ((p_ptr->timed[TMD_IMAGE]) && (randint(40) < 35 + ((badluck+3)/4)))
+	{
+       r_ptr = &r_info[randint(682) + 17];
+    }
 
-	cptr name = (r_name + r_ptr->name);
-
-	bool seen, pron;
+	name = (r_name + r_ptr->name);
 
 
 	/* Can we "see" it (forced, or not hidden + visible) */
@@ -854,7 +1097,6 @@ void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 
 
 
-
 /*
  * Learn about a monster (by "probing" it)
  */
@@ -871,9 +1113,9 @@ void lore_do_probe(int m_idx)
 	l_ptr->flags3 = r_ptr->flags3;
 	if (randint(100) < 34)
 	{
-	l_ptr->flags4 = r_ptr->flags4;
-	l_ptr->flags5 = r_ptr->flags5;
-	l_ptr->flags6 = r_ptr->flags6;
+	   l_ptr->flags4 = r_ptr->flags4;
+	   l_ptr->flags5 = r_ptr->flags5;
+	   l_ptr->flags6 = r_ptr->flags6;
     }
 
 	/* Update monster recall window */
@@ -984,10 +1226,16 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * "disturb_move" (monster which is viewable moves in some way), and
  * "disturb_near" (monster which is "easily" viewable moves in some
  * way).  Note that "moves" includes "appears" and "disappears".
+ *
+ * DJA: "disturb_near" now only triggers when the monster is aware of you.
+ * (or when you're running and about to run into a monster)
  */
 void update_mon(int m_idx, bool full)
 {
-			bool do_invisible = FALSE;
+	bool do_invisible = FALSE;
+	bool darkvs, msilent, lore;
+	int hearcheck, discernmod, bluff;
+	u32b f4;
 
 	monster_type *m_ptr = &mon_list[m_idx];
 
@@ -1008,12 +1256,12 @@ void update_mon(int m_idx, bool full)
 	bool easy = FALSE;
 
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	/* Compute distance */
 	if (full)
 	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
-
 		/* Distance components */
 		int dy = (py > fy) ? (py - fy) : (fy - py);
 		int dx = (px > fx) ? (px - fx) : (fx - px);
@@ -1034,7 +1282,6 @@ void update_mon(int m_idx, bool full)
 		/* Extract the distance */
 		d = m_ptr->cdis;
 	}
-
 
 	/* Detected */
 	if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
@@ -1062,6 +1309,9 @@ void update_mon(int m_idx, bool full)
 				{
 					/* Detectable */
 					flag = TRUE;
+					
+					/* monster moved into esp range */
+					if ((!m_ptr->ml) && (disturb_espmove)) disturb(1, 0);
 
 					/* Memorize flags */
 					l_ptr->flags2 |= (RF2_WEIRD_MIND);
@@ -1077,6 +1327,9 @@ void update_mon(int m_idx, bool full)
 			{
 				/* Detectable */
 				flag = TRUE;
+					
+				/* monster moved into esp range */
+				if ((!m_ptr->ml) && (disturb_espmove)) disturb(1, 0);
 
 				/* Hack -- Memorize mental flags */
 				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
@@ -1087,8 +1340,6 @@ void update_mon(int m_idx, bool full)
 		/* Normal line of sight, and not blind */
 		if (player_has_los_bold(fy, fx) && !p_ptr->timed[TMD_BLIND])
 		{
-			bool do_cold_blood = FALSE;
-
 			/* Use "illumination" */
 			if (player_can_see_bold(fy, fx))
 			{
@@ -1122,41 +1373,44 @@ void update_mon(int m_idx, bool full)
 			}
 			
 			/* Temporary invisibility */
-			if ((easy) && (m_ptr->tinvis > 0))
+			if (m_ptr->tinvis)
 			{
                 m_ptr->tinvis -= 1;
-				do_invisible = TRUE;
+                if (easy)
+                {
+				   do_invisible = TRUE;
 
-				/* See invisible */
-				if (!p_ptr->see_inv)
-				{
-					/* dissapears! */
-					easy = FALSE;
-				}
+				   /* See invisible */
+				   if (!p_ptr->see_inv)
+				   {
+					  /* dissapears! */
+					  easy = FALSE;
+				   }
+                }
             }
 		}
 	}
-	
+
+	darkvs = FALSE;
     /* Darkvision: If monster is in line of sight, the player is not blind, */ 
     /* and the monster is not invisible, then the player can see it */
     /* (even if the space is not lit) */
+    /* (should darkvision let you see walls without light?) */
     if (((p_ptr->darkvis) || (p_ptr->timed[TMD_DARKVIS])) &&
-	   (player_has_los_bold(fy, fx) && !p_ptr->timed[TMD_BLIND]))
+	   (player_has_los_bold(fy, fx)) && (!p_ptr->timed[TMD_BLIND]))
 	{   
-       easy = TRUE;
-
-       /* but don't see invisibile monsters */
-       if (!p_ptr->see_inv)
+       if ((p_ptr->see_inv) || (!do_invisible))
        {
-          if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis)) easy = FALSE;
+           easy = TRUE;
+           darkvs = TRUE;
        }
     }   
 
 	/* if a monster would otherwise be seen easily, check monster stealth */
-	/* palert is evaluated in xtra1.c */
+	/* palert is evaluated in calc_bonuses in xtra1.c */
 	if (easy)
 	{
-        int mstealth = (r_ptr->stealth * 11);
+        int mstealth = (r_ptr->stealth * 11) + 1;
         if ((r_ptr->stealth > 1) && (d < 15)) mstealth += d * 2; /* distance */
         if (goodluck > 5) mstealth -= (goodluck/2);
         else if (goodluck > 3) mstealth -= 1;
@@ -1172,16 +1426,36 @@ void update_mon(int m_idx, bool full)
         if ((m_ptr->stunned) || (m_ptr->confused) || (m_ptr->charmed)) mstealth -= 16;
         if (p_ptr->depth == 0) mstealth -= 16;
                 
-        /* much easier to notice if you've noticed it before */
-        if ((!m_ptr->monseen) && (r_ptr->stealth > 1)) mstealth += 15;
-        if ((m_ptr->monseen) && (d < 7) && (!m_ptr->monfear)) mstealth -= 50;
-        else if (m_ptr->monseen) mstealth -= 15;
-        if ((m_ptr->monseen) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 32;
+        /* monster hasn't been noticed yet (it is still hiding) */
+        /* darkvision makes it hard to hide in the shadows */
+        /* this helps dwarves who have darkvision but horrible alertness */
+        if ((!m_ptr->monseen) && (r_ptr->stealth > 2) && (!darkvs)) mstealth += 20;
 
+        /* much easier to notice if you've noticed it before */
+        if ((m_ptr->monseen > 3) && (d < 5) && (!m_ptr->monfear)) mstealth -= m_ptr->monseen * 15;
+        else if ((m_ptr->monseen > 0) && (d < 7) && (!m_ptr->monfear)) mstealth -= 60;
+        else if (m_ptr->monseen > 2) mstealth -= m_ptr->monseen * 4;
+        else if ((m_ptr->monseen > 0) || (m_ptr->heard)) mstealth -= 12;
+        
+        /* sleeping monsters can't actively hide */
+        if ((m_ptr->csleep) && (!m_ptr->roaming)) mstealth -= 10;
+
+        /* NEVER_MOVE monsters can't try to hide once they've been noticed */
+        if ((m_ptr->monseen > 0) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 20;
+
+#if irrevelentnow
+        /* always visible if it just hit you or you hit it */
+        /* may be irrevelent now that you always notice adjacent monsters */
+        if (m_ptr->monseen > 9)
+        {
+           m_ptr->monseen -= 1;
+           mstealth = 1;
+        }
+#endif
         /* prevent randint(negative mstealth) because that makes it crash */
         if (mstealth < 1) mstealth = 1;
 
-        /* examples which assume monseen is FALSE and luck is 0: */
+        /* examples which assume monseen is 0 and luck is 0: */
         /* monster of stealth 1 at a distance of 8 now has mstealth of 16 */
         /* monster of stealth 1 at a distance of 15 now has mstealth of 27 */
         /* monster of stealth 3 at a distance of 15 now has mstealth of 71 */
@@ -1197,26 +1471,25 @@ void update_mon(int m_idx, bool full)
         if (d > 2)
         {
               /* give monsters a few chances to avoid being noticed */
-              if ((mstealth > (palert + 50)) && (!m_ptr->monseen)) easy = FALSE;
+              if ((mstealth > (palert + 50)) && (m_ptr->monseen < 1)) easy = FALSE;
               if ((mstealth > (palert * 2)) && (randint(mstealth) > palert + 4)) easy = FALSE;
               if (randint(mstealth) > palert) easy = FALSE;
-              if (randint(mstealth) > palert + rp_ptr->infra) easy = FALSE;
+              if (randint(mstealth) > palert + rp_ptr->r_fos) easy = FALSE;
               if ((palert > mstealth) && (r_ptr->stealth > 1) && 
-                  (randint(palert * 25) < (mstealth + d + badluck - goodluck))) easy = FALSE;
-                   /* originally 1200 instead of palert * 25 */
+                  (randint(palert * 20) < (mstealth/2 + d + badluck/2 - goodluck/2))) easy = FALSE;
         }
-        else if (d <= 2)
+        else if (d == 2)
         {
               /* only one chance to escape notice when very close */
               if (randint(mstealth) > palert) easy = FALSE;
-        }        
+        }
+        /* d == 1: always notice if adjacent */
     }
     /* an extremely alert character may notice signs of an invisible monster */
     else if ((!p_ptr->see_inv) && (r_ptr->flags2 & (RF2_INVISIBLE)))
     {
         int mstealth = 50 + (r_ptr->stealth * 5) + (d * 2);
         if (goodluck > 4) mstealth -= (goodluck/4 + randint(goodluck/2));
-        else if (goodluck == 4) mstealth -= 1;
         if (badluck > 4) mstealth += (badluck/4 + rand_int(badluck/3));
         if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_SILVER)))
         {
@@ -1226,10 +1499,12 @@ void update_mon(int m_idx, bool full)
         if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * 2;
         else if (d > 3) mstealth += (d-3);
         else if (d < 2) mstealth -= 10;
-        if ((m_ptr->monseen) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 10;
+        if ((m_ptr->monseen > 0) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= (5 + m_ptr->monseen);
+        if (m_ptr->monseen > 0) mstealth -= m_ptr->monseen;
 
         /* minimum stealth for invisibile monsters */
         if (mstealth < 30) mstealth = 30;
+        if (palert < 1) palert = 1;
 
         /* impossible to notice invisible monsters further than 6 spaces away */
         if ((d < 7) && (r_ptr->stealth < 5))
@@ -1238,14 +1513,84 @@ void update_mon(int m_idx, bool full)
               {
                   easy = TRUE;
                   msg_format("You notice the signs of an invisible monster!");
-              }    
+              }
         }
     }
 
+    /* once it's noticed by the player it's easier to see afterwords */
+    if ((easy) && (m_ptr->monseen < 1)) m_ptr->monseen = 2;
+
+    /* monster has been seen but is hiding again */
+    if ((!easy) && (m_ptr->monseen > 2)) m_ptr->monseen -= 1;
+    else if ((!easy) && (m_ptr->monseen > 1) && (randint(200) < r_ptr->stealth*5))
+          m_ptr->monseen -= 1;
+    if (m_ptr->monseen > 5) m_ptr->monseen -= 1;
+
     /* is it still visible after monster stealth is checked? */
     if (easy) flag = TRUE;
-    /* once it's noticed by the player it's easier to see afterwords */
-    if (easy) m_ptr->monseen = TRUE;
+
+#if notyet
+	/* not yet because I want to see if this happens anyway */
+    /* when running, disturb when adjacent instead of after running into it */
+    if ((flag) && (d == 1) && (p_ptr->running) && (disturb_near)) disturb(1, 0);
+#endif
+
+	/*** DJA: hearing out-of-sight monsters ***/
+	/* maybe should add a 'move silently' stat for monsters separate from 'hide' stealth */
+    hearcheck = (palert * 4) + (goodluck/2);
+	/* hear better when you're blind */
+	if (p_ptr->timed[TMD_BLIND]) hearcheck += 100;
+	/* not attentive when you're running */
+    if (p_ptr->running) hearcheck = hearcheck/2;
+	/* hear it better when you're listening for it */
+    else if (m_ptr->heard) hearcheck += 100;
+
+	/* PASS_WALL and NEVER_MOVE monsters are considered completely silent */
+	/* (unless their stealth is 0: poltergeists, green glutton ghosts, and earth elementals) */
+	msilent = FALSE; /* completely silent */
+	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (r_ptr->stealth)) msilent = TRUE;
+	if (r_ptr->flags1 & (RF1_NEVER_MOVE)) msilent = TRUE;
+	f4 = r_ptr->flags4; /* check for THROW flag */
+	/* poltergeists make a lot of noise */
+	if (r_ptr->flags4 & (RF4_THROW)) hearcheck += 30;
+	/* sleeping monsters are silent */
+	if ((m_ptr->csleep) && (!m_ptr->roaming)) msilent = TRUE;
+	/* don't hear offscreen monsters */
+	if (!panel_contains(fy, fx)) msilent = TRUE;
+	/* alertness isn't high enough */
+	if ((r_ptr->stealth == 3) && (palert < 26)) msilent = TRUE;
+	if ((r_ptr->stealth == 2) && (palert < 20)) msilent = TRUE;
+
+	/* if monster is nearby and not already visible there's a chance to hear it */
+	/* the town is considered safe, so don't bother if monster level is 0 */
+	if ((!flag) && (r_ptr->stealth < 4) && (d < MAX_SIGHT) &&
+	   (!p_ptr->timed[TMD_IMAGE]) && (r_ptr->level) && (!msilent) &&
+	   (randint(2500 + (r_ptr->stealth * 500) + (d * 25)) < hearcheck))
+	{
+		/* Draw the monster (always grey color) */
+		lite_spot(fy, fx);
+
+		/* don't disturb when running or resting */
+		if ((!p_ptr->resting) && (!p_ptr->running))
+		{
+			/* Disturb on hearing (no message if no disturb) */
+			if (disturb_near)
+			{
+				if (!m_ptr->heard) msg_format("You hear a monster nearby but out of sight.");
+				disturb(1, 0);
+			}
+		}
+
+        /* you heard it, now you're listening for it */
+        m_ptr->heard = TRUE;
+
+        /* you heard it, now you're watching for it */
+        if (m_ptr->monseen < 1) m_ptr->monseen = 1;
+
+		/* can't target or examine the monster */
+		/* does not appear on visible monster list */
+    }
+    else m_ptr->heard = FALSE;
 
 	/* The monster is now visible */
 	if (flag)
@@ -1296,7 +1641,6 @@ void update_mon(int m_idx, bool full)
 		}
 	}
 
-
 	/* The monster is now easily visible */
 	if (easy)
 	{
@@ -1306,8 +1650,11 @@ void update_mon(int m_idx, bool full)
 			/* Mark as easily visible */
 			m_ptr->mflag |= (MFLAG_VIEW);
 
-			/* Disturb on appearance */
+			/* Disturb on appearance (even if roaming) */
 			if (disturb_near) disturb(1, 0);
+
+			/* Window stuff */
+			p_ptr->window |= PW_MONLIST;
 		}
 	}
 
@@ -1320,10 +1667,160 @@ void update_mon(int m_idx, bool full)
 			/* Mark as not easily visible */
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 
-			/* Disturb on disappearance */
-			if (disturb_near) disturb(1, 0);
+			/* Disturb on appearance */
+			if ((disturb_near) && ((!m_ptr->roaming) || (m_ptr->roaming < 20))) disturb(1, 0);
+
+			/* Window stuff */
+			p_ptr->window |= PW_MONLIST;
 		}
 	}
+
+	
+    /* monster now has LOS to the player */
+    if ((m_ptr->cdis <= MAX_RANGE) && (projectable(m_ptr->fy, m_ptr->fx, py, px)))
+	{
+        if (!(m_ptr->mflag & (MFLAG_MLOS)))
+        {
+			/* Mark as having LOS to the player */
+			m_ptr->mflag |= (MFLAG_MLOS);
+			
+            /* only note if awake and sensed by telepathy */
+            if ((disturb_espmove) && (flag) && (!easy) && (!m_ptr->csleep))
+            {
+               disturb(1, 0);
+#if nomessage
+               /* get monster name */
+		       char m_name[80];
+               monster_desc(m_name, sizeof(m_name), m_ptr, 0x04);
+                       
+               /* should there be a message here? */
+               msg_format("You sense that %s can see you.", m_name);
+#endif
+            }
+        }
+    }
+    else if (m_ptr->mflag & (MFLAG_MLOS))
+    {
+		/* Mark as not having LOS to the player */
+		m_ptr->mflag &= ~(MFLAG_MLOS);
+    }
+
+	/* check monster's awareness of you */
+	/* asleep but displayed as awake in monster list */
+	if ((m_ptr->csleep) && (!m_ptr->display_sleep))
+	{
+	   /* update monster list */
+	   p_ptr->window |= PW_MONLIST;
+    }
+    /* awake but displayed as asleep in monster list */
+	if ((!m_ptr->csleep) && (m_ptr->display_sleep))
+	{
+	   /* update monster list */
+	   p_ptr->window |= PW_MONLIST;
+    }
+
+   /* done if you've met the monster before or if you're not meeting it now */
+   if ((m_ptr->meet) || (!easy)) return;
+
+   /* "Nice to meet you" (First impression) */
+   if (easy)
+   {
+       /* Meeting the monster for the first time */
+       m_ptr->meet = 1;
+      
+       /*** Can you discern if the monster is evil? ***/
+
+       /* discernment based on wisdom */
+       discernmod = (adj_mag_study[p_ptr->stat_ind[A_WIS]] / 10);
+
+       /* paladins almost always recognise evil */
+       if ((cp_ptr->spell_book == TV_PRAYER_BOOK) && (!cp_ptr->flags & CF_ZERO_FAIL))
+       {
+          discernmod += 27;
+       }
+       /* aligned classes recognise alignment easier */
+       /* (priests and druids but not healers) */
+       else if ((cp_ptr->flags & CF_BLESS_WEAPON) ||
+            (cp_ptr->spell_book == TV_DARK_BOOK))
+       {
+            /* wielding equipment with alignment that matches yours */
+            if ((magicmod == 4) || (magicmod == 6)) discernmod += 14;
+            else discernmod += 7;
+       }
+       /* small bonus for healers */
+       else if (cp_ptr->spell_book == TV_PRAYER_BOOK)
+       {
+            discernmod += 3;
+       }
+
+       /* chance realm casters get modifier from luck */
+       if (cp_ptr->spell_book == TV_LUCK_BOOK)
+       {
+          if (goodluck > 2) discernmod += goodluck/3;
+          if (badluck > 2) discernmod -= badluck/3;
+       }
+       /* everyone else gets much weaker modifier from luck */
+       else
+       {
+           if (goodluck > 5) discernmod += goodluck/6;
+           if (badluck > 4) discernmod -= badluck/5;
+       }
+
+       lore = TRUE;
+
+       /* always recognise if you know the race is always evil */
+       if (l_ptr->flags3 & (RF3_EVIL)) discernmod += 50;
+       /* easier to recognise if you know it's sometimes evil */
+       else if (l_ptr->flags2 & (RF2_S_EVIL2)) discernmod += 4;
+       else if (l_ptr->flags2 & (RF2_S_EVIL1)) discernmod += 2;
+       else lore = FALSE;
+   
+       if (!lore)
+       {
+          /* always evil monsters are easier to recognise */
+          if (r_ptr->flags3 & (RF3_EVIL)) discernmod += 2;
+          /* occationally evil monsters are harder to recognise */
+          /* if you don't know that they're sometimes evil */
+          else if (r_ptr->flags2 & (RF2_S_EVIL2)) discernmod -= 5;
+          else if (r_ptr->flags2 & (RF2_S_EVIL1)) discernmod -= 10;
+       }
+   
+       /* discern */
+       if (r_ptr->level/20 + randint(25) < discernmod)
+       {
+          /* If it's always evil then the monster lore tells you that it's evil */
+          if (r_ptr->flags3 & (RF3_EVIL))
+          {
+             /* remember */
+             l_ptr->flags3 |= (RF3_EVIL);
+
+             /* don't need a separate message telling you it's evil */
+          }
+          else if (m_ptr->evil)
+          {
+              /* can tell (later) that the monster is evil */
+              m_ptr->meet = 2;
+              
+              bluff = r_ptr->level + ((r_ptr->stealth + 2) * 2);
+              
+              /* remember */
+              if (l_ptr->sights + (discernmod/2) > bluff)
+              {
+                 if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
+                 else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
+              }
+          }
+          /* (much harder to tell for sure that a monster is NOT evil) */
+          else if (r_ptr->level/10 + randint(60) < discernmod)
+          {
+              /* can tell (later) that the monster is not evil */
+              m_ptr->meet = 3;
+          }
+       }
+       /* if you fail this first chance, a detect evil spell is the only */
+       /* way to find out if an individual monster is evil */
+       /* and there's no other way to know that a specific monster is not evil */
+   }
 }
 
 
@@ -1611,9 +2108,12 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-static bool place_monster_one(int y, int x, int r_idx, bool slp)
+static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group)
 {
 	int i;
+	byte isroam;
+	bool roamflag;
+	int evilchance;
 
 	monster_race *r_ptr;
 
@@ -1705,11 +2205,46 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->r_idx = r_idx;
 
 
+	/* likeliness of being awake without noticing the player */
+	/* currently no monster has both ROAM1 and ROAM2 but could use that to stack */
+	/* slp is only FALSE when monster is being generated over time after dungeon creation */
+	isroam = 1;
+	roamflag = FALSE;
+	if ((r_ptr->flags2 & (RF2_ROAM2)) || (r_ptr->flags2 & (RF2_ROAM1))) roamflag = TRUE;
+	if (r_ptr->flags2 & (RF2_ROAM1)) isroam += 25;
+	if (r_ptr->flags2 & (RF2_ROAM2)) isroam += 74;
+	/* monsters who are immune to sleep shouldn't sleep */
+	if ((r_ptr->flags3 & (RF3_NO_SLEEP)) && (!roamflag)) isroam += 15;
+	else if (r_ptr->flags3 & (RF3_NO_SLEEP)) isroam += 5;
+	/* townspeople shouldn't just stand there (shouldn't have ROAM2) */
+	if (r_ptr->level == 0) isroam += 55;
+	/* some types of monsters rarely roam */
+	if ((strchr("eglLsVwWXz$.", r_ptr->d_char)) && (!roamflag)) isroam = isroam/3;
+	/* some types of monsters never roam */
+	if ((!r_ptr->sleep) && (!roamflag)) isroam = 0;
+	if ((strchr(",dDEjmQvZ%?!=_~", r_ptr->d_char)) && (!roamflag)) isroam = 0;
+
+	/* is it roaming? */
+	if (randint(100) < isroam)
+    {
+        n_ptr->roaming = 1;
+        /* roams as part of a group */
+        if (group) n_ptr->roaming = 11;
+    }
+	else n_ptr->roaming = 0;
+
 	/* Enforce sleeping if needed */
-	if (slp && r_ptr->sleep)
+	/* (old: all monsters start out asleep unless it was random generation over time */
+	/* or unless they have 0 in the monster alertness field in monster.txt) */
+	/* now: n_ptr->csleep means hasn't noticed the player yet, not nessesarily sleeping */
+	/* if n_ptr->csleep > 0 and n_ptr->roaming = 0 then monster is asleep */
+	if ((slp) && ((r_ptr->sleep) || (n_ptr->roaming)))
 	{
 		int val = r_ptr->sleep;
-		n_ptr->csleep = ((val * 2) + randint(val * 10));
+		
+        /* town monsters ignore you most of the time */
+       	if (!r_ptr->level) n_ptr->csleep = (val * 4) + randint(val * 9);
+       	else n_ptr->csleep = (val * 2) + randint(val * 10);
 	}
 
 
@@ -1726,9 +2261,44 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;
 
-
 	/* Extract the monster base speed */
 	n_ptr->mspeed = r_ptr->speed;
+
+	/* Some monster races are sometimes evil but not always */
+	evilchance = 0;
+	/* uniques never have S_EVIL1 or S_EVIL2 */
+	/* sometimes evil (should never be invisible except on very high levels) */
+	if (r_ptr->flags2 & (RF2_S_EVIL1)) evilchance = 22;
+	/* usually evil */
+	else if (r_ptr->flags2 & (RF2_S_EVIL2)) evilchance = 78;
+	
+	/* if it's invisible, it's evil more often so it'll be easier to find */
+	if ((evilchance) && (r_ptr->flags2 & (RF2_INVISIBLE)))
+    {
+        if (p_ptr->depth < 60) evilchance += (61 - p_ptr->depth)/3 + 1;
+    }
+
+    if ((randint(100) < evilchance) || (r_ptr->flags3 & (RF3_EVIL)))
+    {
+        n_ptr->evil = 1;
+    }
+    else
+    {
+        n_ptr->evil = 0;
+    }
+    
+    /* nonevil monsters take less notice of you */
+    if ((evilchance) && (n_ptr->csleep) && (!n_ptr->evil))
+    {
+        if (n_ptr->csleep < r_ptr->sleep * 6) n_ptr->csleep += r_ptr->sleep * 2 + 1;
+    }
+    else if ((evilchance) && (n_ptr->csleep))
+    {
+        if (n_ptr->csleep > r_ptr->sleep * 8) n_ptr->csleep -= r_ptr->sleep * 2;
+    }
+
+    /* you've never met this monster */
+	n_ptr->meet = 0;
 
 	/* Hack -- small racial variety */
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
@@ -1774,8 +2344,8 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	int old, n, i;
+	int tag = 0;
 	int total, extra = 0;
-
 	int hack_n;
 
 	byte hack_y[GROUP_MAX];
@@ -1835,6 +2405,25 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	hack_x[0] = x;
 	hack_y[0] = y;
 
+	/* maybe add a tribe shaman to the group */
+	if ((r_ptr->flags3 & RF3_ORC) && (p_ptr->depth > 9))
+	{
+		int die = randint(101 - badluck);
+		if (die < 34) tag = 155; /* orc shaman */
+		else if ((die < 55) && (p_ptr->depth > 14)) tag = 187; /* fire orc */
+	}
+	else if (strchr("x", r_ptr->d_char))
+	{
+		int die = randint(75 + p_ptr->depth);
+		if (die > 135) tag = 547; /* riverflow gargoyle */
+		else if (die > 100) tag = 556; /* margoyle shaman */
+	}
+	else if (strchr("O", r_ptr->d_char))
+	{
+		int die = randint(75 + p_ptr->depth);
+		if (die > 80) tag = 397; /* ogre shaman */
+	}
+
 	/* Puddle monsters, breadth first, up to total */
 	for (n = 0; (n < hack_n) && (hack_n < total); n++)
 	{
@@ -1851,8 +2440,21 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 			/* Walls and Monsters block flow */
 			if (!cave_empty_bold(my, mx)) continue;
 
+			/* maybe add a tribe shaman to the group */
+			if ((hack_n == (total - 1)) && (tag))
+			{
+				if (place_monster_one(my, mx, tag, slp, TRUE))
+				{
+					/* Add it to the "hack" set */
+					hack_y[hack_n] = my;
+					hack_x[hack_n] = mx;
+					hack_n++;
+					continue;
+				}
+			}
+
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, slp))
+			if (place_monster_one(my, mx, r_idx, slp, TRUE))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -1929,7 +2531,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
+	if (!place_monster_one(y, x, r_idx, slp, FALSE)) return (FALSE);
 
 
 	/* Require the "group" flag */
@@ -1990,7 +2592,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp);
+			(void)place_monster_one(ny, nx, z, slp, TRUE);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
@@ -2084,7 +2686,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
  *
  * XXX XXX XXX
  */
-
 
 
 
@@ -2205,21 +2806,16 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_UNDEAD: /* summon nightmare in ALT */
-                            /* -still uses UNDEAD flag */
+		case SUMMON_UNDEAD: 
 		{
 			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
-		case SUMMON_DRAGON: /* summon nymph in ALT */
+		case SUMMON_DRAGON:
 		{
-#ifdef ALTDJA
-			okay = ((r_ptr->d_char == 'N') &&
-#else
 			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
-#endif
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -2247,8 +2843,8 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HI_DEMON:
 		{
-			okay = (r_ptr->d_char == 'U') ||
-			        (r_ptr->d_char == '&');
+			okay = ((r_ptr->d_char == 'U') ||
+			        (r_ptr->d_char == '&'));
 			break;
 		}
 
@@ -2273,7 +2869,7 @@ static bool summon_specific_okay(int r_idx)
 
 /*
  * Place a monster (of the specified "type") near the given
- * location.  Return TRUE iff a monster was actually summoned.
+ * location.  Return TRUE if a monster was actually summoned.
  *
  * We will attempt to place the monster up to 10 times before giving up.
  *
@@ -2470,7 +3066,7 @@ void message_pain(int m_idx, int dam)
 	}
     
    	/* monsters which don't feel pain (ignores) */
-	else if (strchr("szg", r_ptr->d_char))
+	else if (strchr("szgW", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s ignores the attack.", m_name);

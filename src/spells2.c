@@ -44,13 +44,13 @@ bool hp_player(int num)
 		}
 
 		/* Heal 5-14 */
-		else if (num < 15)
+		else if (num < 20)
 		{
 			msg_print("You feel better.");
 		}
 
 		/* Heal 15-34 */
-		else if (num < 35)
+		else if (num < 45)
 		{
 			msg_print("You feel much better.");
 		}
@@ -76,6 +76,7 @@ bool hp_player(int num)
  */
 void warding_glyph(void)
 {
+	bool usedup;
 	object_type *o_ptr;
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -89,10 +90,19 @@ void warding_glyph(void)
 	/* Create a glyph */
 	cave_set_feat(py, px, FEAT_GLYPH);
 
+   	usedup = TRUE;
+   	/* reading rune of protection from the floor */
+   	if (spellswitch == 3) usedup = FALSE;
+   	
 	/* Shift any objects to further away */
 	for (o_ptr = get_first_object(py, px); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		drop_near(o_ptr, 0, py, px);
+       	/* don't move the scroll of rune of protection because it should be used up */
+        if ((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_RUNE_OF_PROTECTION) && (!usedup))
+       	{
+		   usedup = TRUE;
+        }
+        else drop_near(o_ptr, 0, py, px);
 	}
 
 	/* Delete the "moved" objects from their original position */
@@ -133,7 +143,7 @@ static cptr desc_stat_neg[] =
 /*
  * Lose a "point"
  */
-bool do_dec_stat(int stat)
+bool do_dec_stat(int stat, int loses)
 {
 	bool sust = FALSE;
 
@@ -149,9 +159,9 @@ bool do_dec_stat(int stat)
 	}
 	
 	/* monsters with powerful flag have a chance to get past sustains */
-	if ((losesave > 0) && (goodluck < 21))
+	if ((loses > 0) && (goodluck < 21))
 	{
-       if (randint(100) < losesave) sust = FALSE;
+       if (randint(100) < loses) sust = FALSE;
     }
 
 	/* Sustain */
@@ -301,6 +311,7 @@ static void uncurse_object(object_type *o_ptr)
  *
  * Note that Items which are "Perma-Cursed" (The One Ring,
  * The Crown of Morgoth) can NEVER be uncursed.
+ * ..that's no longer true, instead they re-curse themselves.
  *
  * Note that if "all" is FALSE, then Items which are
  * "Heavy-Cursed" (Mormegil, Calris, and Weapons of Morgul)
@@ -309,6 +320,8 @@ static void uncurse_object(object_type *o_ptr)
 static int remove_curse_aux(int all)
 {
 	int i, cnt = 0;
+	int fail = 0;
+	int failstop, failgo;
 
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -327,13 +340,28 @@ static int remove_curse_aux(int all)
 		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Heavily Cursed Items need a special spell */
+		/* DJA: Perma-Cursed can now be uncursed */
+        /* but they recurse themselves automatically */
 		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
+		if (!all && (f3 & (TR3_PERMA_CURSE))) continue;
 
-		/* Perma-Cursed Items can NEVER be uncursed */
-		if (f3 & (TR3_PERMA_CURSE)) continue;
-
-		/* Uncurse the object */
-		uncurse_object(o_ptr);
+        /* corruption makes it harder to remove curses */
+        failstop = 70 + (goodluck * 3);
+        if (all) failstop += 30;
+        if ((f3 & (TR3_PERMA_CURSE)) && (p_ptr->corrupt < 20)) failgo = 25;
+        else if (f3 & (TR3_PERMA_CURSE)) failgo = p_ptr->corrupt + 6;
+        else failgo = p_ptr->corrupt + 1;
+        if (((p_ptr->corrupt > 0) || (f3 & (TR3_PERMA_CURSE))) &&
+           (randint(failstop) < failgo))
+        {
+            if (f3 & (TR3_PERMA_CURSE)) fail = 2; /* failed because of PERMA_CURSE */
+		    else fail = 1; /* failed because of corruption */
+        }
+        else
+        {
+		    /* Uncurse the object */
+		    uncurse_object(o_ptr);
+        }
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -344,6 +372,12 @@ static int remove_curse_aux(int all)
 		/* Count the uncursings */
 		cnt++;
 	}
+	
+	if (fail == 2)
+	{
+      msg_print("You feel there's a curse that won't be lifted that easily.");
+    }
+	else if (fail == 1) msg_print("You feel curses clinging to your corruption.");
 
 	/* Return "something uncursed" */
 	return (cnt);
@@ -512,13 +546,29 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are hallucinating.";
 	}
-	if (f3 & TR3_AGGRAVATE)
+	if (p_ptr->aggravate)
 	{
 		info[i++] = "You aggravate monsters.";
 	}
-	if (f3 & TR3_TELEPORT)
+	else if (f3 & TR3_AGGRAVATE)
+	{
+		info[i++] = "Your stealth is severely drained.";
+	}
+	if ((p_ptr->telecontrol) && (f3 & TR3_TELEPORT))
+	{
+		info[i++] = "You have teleport control and random teleportation.";
+	}
+	else if (p_ptr->telecontrol)
+	{
+		info[i++] = "You have teleport control.";
+	}
+	else if (f3 & TR3_TELEPORT)
 	{
 		info[i++] = "Your position is very uncertain.";
+	}
+	if (p_ptr->timed[TMD_SKILLFUL])
+	{
+		info[i++] = "Your skills are boosted.";
 	}
 	if (p_ptr->timed[TMD_BLESSED])
 	{
@@ -548,13 +598,13 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are protected from lifeless monsters.";
 	}
-	if (p_ptr->timed[TMD_PROTEVIL])
-	{
-		info[i++] = "You are protected from evil.";
-	}
 	if (p_ptr->timed[TMD_PROTEVIL2])
 	{
 		info[i++] = "You are protected from powerful evil.";
+	}
+	else if (p_ptr->timed[TMD_PROTEVIL])
+	{
+		info[i++] = "You are protected from evil.";
 	}
 	if (p_ptr->timed[TMD_WSHIELD])
 	{
@@ -571,6 +621,10 @@ void self_knowledge(bool spoil)
 	if (p_ptr->timed[TMD_INVULN])
 	{
 		info[i++] = "You are temporarily invulnerable.";
+	}
+	if (p_ptr->timed[TMD_CURSE])
+	{
+		info[i++] = "You have a temporary curse on your combat.";
 	}
 	if (p_ptr->timed[TMD_WITCH])
 	{
@@ -593,6 +647,10 @@ void self_knowledge(bool spoil)
 		info[i++] = "You will soon be recalled.";
 	}
 
+	if (p_ptr->timed[TMD_DAYLIGHT])
+	{
+		info[i++] = "Daylight surrounds you even in the dungeon.";
+	}
 	if (p_ptr->timed[TMD_TSIGHT])
 	{
 		info[i++] = "You see everything that is really there.";
@@ -618,6 +676,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You regenerate quickly.";
 	}
+	if (f3 & (TR3_STOPREGEN))
+	{
+		info[i++] = "Your wounds do not heal naturally.";
+	}
     if (p_ptr->timed[TMD_2ND_THOUGHT])
 	{
 		info[i++] = "You have first sight and second thoughts.";
@@ -638,6 +700,14 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You have enhanced roguish skills.";
     }
+	if ((p_ptr->breath_shield) && (p_ptr->timed[TMD_BR_SHIELD]))
+	{
+		info[i++] = "You have extra damage reduction against monster breath.";
+	}
+	else if ((p_ptr->breath_shield) || (p_ptr->timed[TMD_BR_SHIELD]))
+	{
+		info[i++] = "You have damage reduction against monster breath.";
+	}
 	
 	if (f3 & TR3_SEE_INVIS)
 	{
@@ -655,6 +725,10 @@ void self_knowledge(bool spoil)
 	if (p_ptr->timed[TMD_XATTACK])
 	{
 		info[i++] = "You have temporarily enhanced attack speed.";
+	}
+	if (p_ptr->timed[TMD_MIGHTY_HURL])
+	{
+		info[i++] = "You have temporary mighty throwing ability.";
 	}
 	if (p_ptr->timed[TMD_SUST_SPEED])
 	{
@@ -729,17 +803,12 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are resistant to poison.";
 	}
-	else if ((f2 & TR2_RES_POISB) || (p_ptr->timed[TMD_WOPP_POIS]))
+	else if ((f2 & TR2_PR_POIS) || (p_ptr->timed[TMD_WOPP_POIS]))
 	{
 		info[i++] = "You are somewhat resistant to poison.";
 	}
 
-	if (f2 & TR2_EXTRA_CRIT)
-	{
-		info[i++] = "You inflict critical hits extra often.";
-	}
-	
-	if ((p_ptr->accident) || (f2 & TR2_DANGER))
+	if (p_ptr->accident)
 	{
 		info[i++] = "Your weapon is easy to hurt yourself with.";
 	}
@@ -776,7 +845,7 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
-	if (f4 & TR4_RES_CONFU)
+	if ((f4 & TR4_RES_CONFU) || (p_ptr->timed[TMD_CLEAR_MIND]))
 	{
 		info[i++] = "You are resistant to confusion.";
 	}
@@ -859,10 +928,6 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your stealth is affected by your equipment.";
 	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "Your searching ability is affected by your equipment.";
-	}
 	if (f1 & (TR1_INFRA))
 	{
 		info[i++] = "Your alertness is affected by your equipment.";
@@ -888,42 +953,17 @@ void self_knowledge(bool spoil)
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
 
-	if (goodluck > 16)
-	{
-		info[i++] = "You are extremely lucky.";
-	}
-	else if (goodluck > 10)
-	{
-		info[i++] = "You are very lucky.";
-	}
-	else if (goodluck > 4)
-	{
-		info[i++] = "You are lucky.";
-	}
-	else if (goodluck > 0)
-	{
-		info[i++] = "You are somewhat lucky.";
-	}
-	if (badluck > 15)
-	{
-		info[i++] = "You are extremely unlucky.";
-	}
-	else if (badluck > 9)
-	{
-		info[i++] = "You are very unlucky.";
-	}
-	else if (badluck > 4)
-	{
-		info[i++] = "You are unlucky.";
-	}
-	else if (badluck > 0)
-	{
-		info[i++] = "You are somewhat unlucky.";
-	}
-
+	/* reset flags so current weapon part won't include stuff from other equipment */
+	f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
 
 	/* Get the current weapon */
 	o_ptr = &inventory[INVEN_WIELD];
+
+	/* Extract the flags */
+	if (spoil)
+		object_flags(o_ptr, &t1, &t2, &t3, &t4);
+	else 
+		object_flags_known(o_ptr, &t1, &t2, &t3, &t4);
 
 	/* Analyze the weapon */
 	if (o_ptr->k_idx)
@@ -975,6 +1015,11 @@ void self_knowledge(bool spoil)
 			info[i++] = "Your ring adds poison to your blows.";
 		}
 
+		if (f2 & (TR2_EXTRA_CRIT))
+		{
+			info[i++] = "You inflict critical hits extra often.";
+		}
+
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
 		{
@@ -986,11 +1031,7 @@ void self_knowledge(bool spoil)
 		}
 		if (f1 & (TR1_SLAY_UNDEAD))
 		{
-#ifdef ALTDJA
-			info[i++] = "Your weapon is especially deadly against nightmare monsters.";
-#else
 			info[i++] = "Your weapon is especially deadly against undead.";
-#endif
 		}
 		if (f1 & (TR1_SLAY_DEMON))
 		{
@@ -1002,15 +1043,15 @@ void self_knowledge(bool spoil)
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
-#ifdef ALTDJA
-			info[i++] = "Your weapon is especially deadly against fairies.";
-#else
 			info[i++] = "Your weapon is especially deadly against trolls.";
-#endif
 		}
 		if (f2 & (TR2_SLAY_BUG))
 		{
 			info[i++] = "Your weapon is especially deadly against bugs.";
+		}
+		if (f2 & (TR2_SLAY_LITE))
+		{
+			info[i++] = "Your weapon is especially deadly against creatures of light.";
 		}
 		if (f2 & (TR2_SLAY_SILVER))
 		{
@@ -1050,15 +1091,69 @@ void self_knowledge(bool spoil)
 		if (f3 & (TR3_IMPACT))
 		{
 			info[i++] = "Your weapon can induce earthquakes.";
-		}
-		
-		/* Hack */
-		if (f3 & (TR3_STOPREGEN))
-		{
-			info[i++] = "Your wounds do not heal naturally.";
-		} 
+		}		
 	}
 
+	/* luck level */
+    if (goodluck > 16)
+	{
+		info[i++] = "You are extremely lucky.";
+	}
+	else if (goodluck > 10)
+	{
+		info[i++] = "You are very lucky.";
+	}
+	else if (goodluck > 4)
+	{
+		info[i++] = "You are lucky.";
+	}
+	else if (goodluck > 0)
+	{
+		info[i++] = "You are somewhat lucky.";
+	}
+	if (badluck > 15)
+	{
+		info[i++] = "You are extremely unlucky.";
+	}
+	else if (badluck > 9)
+	{
+		info[i++] = "You are very unlucky.";
+	}
+	else if (badluck > 4)
+	{
+		info[i++] = "You are unlucky.";
+	}
+	else if (badluck > 0)
+	{
+		info[i++] = "You are somewhat unlucky.";
+	}
+
+	/* slime / silver poison levels */
+    if (p_ptr->silver >= PY_SILVER_VERYBAD)
+	{
+		info[i++] = "Your mind is almost fully corrupted by silver poison!";
+	}
+    else if (p_ptr->silver >= PY_SILVER_LEVELTWO)
+	{
+		info[i++] = "You have a dangerous level of silver poison.";
+	}
+    else if (p_ptr->silver >= PY_SILVER_LEVELONE)
+	{
+		info[i++] = "You have an unhealthy level of silver poison.";
+	}
+    if (p_ptr->slime >= PY_SLIME_VERYBAD)
+	{
+		info[i++] = "Any more sliming and your body will become a jelly!";
+	}
+    else if (p_ptr->slime >= PY_SLIME_LEVELTWO)
+	{
+		info[i++] = "You have a dangerous level of sliming.";
+	}
+    else if (p_ptr->slime >= PY_SLIME_LEVELONE)
+	{
+		info[i++] = "You have an unhealthy level of sliming.";
+	}
+    
 
 	/* Save screen */
 	screen_save();
@@ -1492,14 +1587,13 @@ bool detect_objects_magic(void)
 		tv = o_ptr->tval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
+		/* spellbooks of foreign realms no longer count */
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
-            (tv == TV_NEWM_BOOK) || (tv == TV_LUCK_BOOK) ||
-            (tv == TV_CHEM_BOOK) || (tv == TV_DARK_BOOK) || /*(tv == TV_MIND_BOOK) ||*/
-		    ((o_ptr->to_a > 2) || (o_ptr->to_h + o_ptr->to_d > 3)))
+		    (tv == cp_ptr->spell_book) ||
+		    ((o_ptr->to_a > 3) || (o_ptr->to_h + o_ptr->to_d > 4)))
 		{
 			/* Memorize the item */
 			o_ptr->marked = TRUE;
@@ -1607,10 +1701,11 @@ bool detect_monsters_invis(void)
 		if (!panel_contains(y, x)) continue;
 
 		/* Detect invisible monsters */
-		if (r_ptr->flags2 & (RF2_INVISIBLE))
+		if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis))
 		{
 			/* Take note that they are invisible */
-			l_ptr->flags2 |= (RF2_INVISIBLE);
+			if (r_ptr->flags2 & (RF2_INVISIBLE)) l_ptr->flags2 |= (RF2_INVISIBLE);
+			else if (m_ptr->tinvis) l_ptr->flags6 |= (RF6_INVIS);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1674,10 +1769,21 @@ bool detect_monsters_evil(void)
 		if (!panel_contains(y, x)) continue;
 
 		/* Detect evil monsters */
-		if (r_ptr->flags3 & (RF3_EVIL))
+		if (m_ptr->evil)
 		{
-			/* Take note that they are evil */
-			l_ptr->flags3 |= (RF3_EVIL);
+			/* Take note about evil monster race flags  */
+			if (r_ptr->flags3 & (RF3_EVIL))
+            {
+                l_ptr->flags3 |= (RF3_EVIL);
+            }
+			else 
+			{
+			    if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
+			    else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
+
+			    /* remember that this individual monster is evil (but the race isn't always) */
+			    m_ptr->meet = 4;
+            }
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1861,22 +1967,82 @@ bool detect_all(void)
 
 
 /*
- * Create stairs at the player location
+ * Create stairs (usually) at the player location
+ * (dis is 0 except for find vault spell and chance version of stair creation)
  */
-void stair_creation(void)
+void stair_creation(int dis)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-
+	int i, x, y, d, min;
+	bool look;
+	
 	/* XXX XXX XXX */
-	if (!cave_valid_bold(py, px))
+	if (!cave_valid_bold(py, px) && (!dis))
 	{
-		msg_print("The object resists the spell.");
-		return;
+		dis = 4;
 	}
 
 	/* XXX XXX XXX */
-	delete_object(py, px);
+	/* delete_object(py, px); */
+
+	/* Look until done */
+	if (dis)
+	{
+	  look = TRUE;
+
+	  /* Initialize */
+	  y = py;
+	  x = px;
+
+	  /* Minimum distance */
+	  min = dis / 2;
+
+	  while (look)
+	  {
+		/* Verify max distance */
+		if (dis > 200) dis = 200;
+
+		/* Try several locations */
+		for (i = 0; i < 500; i++)
+		{
+			/* Pick a (possibly illegal) location */
+			while (1)
+			{
+				y = rand_spread(py, dis);
+				x = rand_spread(px, dis);
+				d = distance(py, px, y, x);
+				if ((d >= min) && (d <= dis)) break;
+			}
+
+			/* Ignore illegal locations */
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* Require "naked" floor space */
+			if (!cave_naked_bold(y, x)) continue;
+
+			/* No creating stairs in vaults */
+			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+
+			/* This grid looks good */
+			look = FALSE;
+
+			/* Stop looking */
+			break;
+		}
+
+		/* Increase the maximum distance */
+		dis = dis * 2;
+
+		/* Decrease the minimum distance */
+		min = min / 2;
+      }
+
+	  /* create the stairs somewhere else */
+      py = y;
+	  px = x;
+	}
+
 
 	/* Create a staircase */
 	if (!p_ptr->depth)
@@ -1887,7 +2053,7 @@ void stair_creation(void)
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
-	else if (rand_int(100) < 50)
+	else if ((rand_int(100) < 50) || ((dis) && (p_ptr->depth < 11)))
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
@@ -1897,6 +2063,44 @@ void stair_creation(void)
 	}
 }
 
+
+/*
+ * Hook to specify an item which can be blessed
+ */
+static bool item_tester_hook_bless(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		/* anything which can be wielded as a weapon */
+        case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_STAFF:
+		case TV_SKELETON:
+
+		/* bows and lights */
+		/* (but can't use bless object spell to enchant ammo) */
+		case TV_BOW:
+        case TV_LITE:
+
+		/* any armor */
+        case TV_BOOTS:
+        case TV_GLOVES:
+        case TV_HELM:
+        case TV_CROWN:
+        case TV_SHIELD:
+        case TV_CLOAK:
+        case TV_SOFT_ARMOR:
+        case TV_HARD_ARMOR:
+        case TV_DRAG_ARMOR:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
 
 
 
@@ -1969,6 +2173,15 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 		{
 			return (TRUE);
 		}
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		{
+			u32b f1, f2, f3, f4;
+			/* check for WIELD_SHIELD flag (mainly for main gauche) */
+			object_flags(o_ptr, &f1, &f2, &f3, &f4);
+			if (f4 & TR4_WIELD_SHIELD) return (TRUE);
+		}
 	}
 
 	return (FALSE);
@@ -1977,10 +2190,10 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 
 static bool item_tester_unknown(const object_type *o_ptr)
 {
+        /* able to identify weapon stats on a staff */
 #ifdef EFG
 	/* EFGchange show charges on aware unknown */
-	if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
-	    && (object_aware_p(o_ptr)))
+	if ((o_ptr->tval == TV_WAND) && (object_aware_p(o_ptr)))
 		return FALSE;
 #endif
 	if (object_known_p(o_ptr))
@@ -2016,7 +2229,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
  */
 bool enchant(object_type *o_ptr, int n, int eflag)
 {
-	int i, chance, prob;
+	int i, chance, prob, lift;
 
 	bool res = FALSE;
 
@@ -2045,6 +2258,11 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Hack -- Roll for pile resistance */
 		if ((prob > 100) && (rand_int(prob) >= 100)) continue;
 
+        /* PERMA_CURSEs can now be lifted but not easily */
+        lift = 25;
+        if (f3 & (TR3_PERMA_CURSE)) lift -= 16;
+        if (f3 & (TR3_HEAVY_CURSE)) lift -= badluck/3;
+
 		/* Enchant to hit */
 		if (eflag & (ENCH_TOHIT))
 		{
@@ -2062,8 +2280,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
-				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
+				    (o_ptr->to_h >= 0) && (rand_int(100) < lift))
 				{
 					msg_print("The curse is broken!");
 
@@ -2090,8 +2307,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
-				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
+				    (o_ptr->to_d >= 0) && (rand_int(100) < lift))
 				{
 					msg_print("The curse is broken!");
 
@@ -2118,8 +2334,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
-				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
+				    (o_ptr->to_a >= 0) && (rand_int(100) < lift))
 				{
 					msg_print("The curse is broken!");
 
@@ -2146,6 +2361,186 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	return (TRUE);
 }
 
+
+/*
+ * Bless an object (not always a weapon)
+ * has a chance of nullifing the BAD_WEAP flag
+ */
+bool bless_weapon(int power)
+{
+	int item;
+	cptr q, s;
+	u32b f1, f2, f3, f4;
+	int something, resistb, plus;
+	bool weapon, bow, lite;
+
+	object_type *o_ptr;
+	char o_name[80];
+
+	item_tester_hook = item_tester_hook_bless;
+
+	/* Get an item */
+	q = "Bless which item? ";
+	s = "You have nothing to bless.";  
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Describe */
+	msg_format("A white light touches %s %s",
+	           ((item >= 0) ? "Your" : "The"), o_name);
+	           
+	something = 0;
+	resistb = 1;
+	if (!o_ptr->blessed)
+	{
+	   if (f3 & (TR3_BAD_WEAP)) resistb = 20 + badluck/2 + o_ptr->pval*2;
+	   if (f2 & (TR2_CORRUPT)) resistb += 15;
+    }
+    /* this spell doesn't directly remove curses */
+    /* but can uncurse by enchanting the item */
+    if (cursed_p(o_ptr))
+    {
+	   if ((f3 & (TR3_HEAVY_CURSE)) && (resistb < 15)) resistb = 15;
+	   else if (f3 & (TR3_HEAVY_CURSE)) resistb += 10;
+	   else /* light curse */ resistb += 5;
+    }
+	
+	weapon = (wield_slot(o_ptr) == INVEN_WIELD);
+	bow = (wield_slot(o_ptr) == INVEN_BOW);
+	lite = (wield_slot(o_ptr) == INVEN_LITE);
+	/* if none of these then it's armor */
+
+	/* Narsil is only thing with both CORRUPT and BLESSED */
+	/* and it's easier to un-CORRUPT */
+	if ((f2 & (TR2_CORRUPT)) && (f2 & (TR3_BLESSED))) resistb = 1;
+
+	/* fail on artifacts with heavy curses or BAD_WEAP flag */
+	/* can work on other artifacts */
+    if ((broken_p(o_ptr)) || ((artifact_p(o_ptr)) && (resistb > 9) && (power + (goodluck/2) < 47)))
+    {
+        if (artifact_p(o_ptr)) msg_print("The powerful evil resists enchantment");
+        else msg_print("The blessing fails");
+        /* blessing failed but the attempt still uses mana */
+	    return TRUE;
+    }
+
+    /* sometimes some trace of the curse remains */
+    if ((f3 & (TR3_HEAVY_CURSE)) && (!cursed_p(o_ptr)) && (randint(100) < 19)) resistb += (randint(2) * 5);
+
+    /* can bless egos or artifacts */
+    /* but they have a chance to resist if they don't have GOOD_WEAP */
+    if ((artifact_p(o_ptr)) && (!f3 & (TR3_GOOD_WEAP)) && (resistb < 30)) resistb = 30;
+    else if ((ego_item_p(o_ptr)) && (!f3 & (TR3_GOOD_WEAP)) && (resistb < 15)) resistb = 15;
+    else if ((artifact_p(o_ptr)) && (resistb < 20)) resistb = 20;
+    else if ((ego_item_p(o_ptr)) && (resistb < 10)) resistb = 10;
+
+	/* Narsil is only thing with CORRUPT and BLESSED and is easier to un-CORRUPT */
+	if ((f2 & (TR2_CORRUPT)) && (f2 & (TR3_BLESSED))) resistb = (resistb*3)/5;
+    
+    /* paladins not as good at removing curses and evil alignment */
+    if ((!cp_ptr->flags & CF_BLESS_WEAPON) && (resistb + 5 < 20)) resistb = 20;
+    else if (!cp_ptr->flags & CF_BLESS_WEAPON) resistb += 5;
+    
+    /* blessing doesn't always work on lites (but lasts longer) */
+    if ((lite) && (resistb < 2)) resistb += (randint(5) * 5);
+    else if ((lite) && (resistb < 15)) resistb = 15;
+    
+    /* everything should have some small chance to be blessed (max power = plev) */
+    if (resistb > 49) resistb = 49;
+
+	/* Attempt to overcome BAD_WEAP and curses */
+    if (resistb > power)
+    {
+        if (artifact_p(o_ptr)) msg_print("The artifact remains unaffected");
+        else if (f3 & (TR3_BAD_WEAP)) msg_print("The evil enchantment resists blessing");
+        else if (lite) msg_print("You fail to make the light brighter");
+        else /* ego */ msg_print("The object's magic resists blessing");
+        something = 2;
+    }
+	/* bless */
+	else if (o_ptr->blessed <= 1)
+    {
+       if ((f3 & (TR3_BAD_WEAP)) && (!o_ptr->blessed))
+       {
+          msg_format("The evil enchantment on %s %s is lifted!",
+           ((item >= 0) ? "Your" : "The"), o_name);
+       }
+       if (lite) o_ptr->blessed = 500 + (power * 100);
+       else o_ptr->blessed = 500 + power * 50;
+       something = 1;
+
+       /* remove evil egos ("The evil enchantment is lifted") */
+       /* (but not MORGUL or NAZGUL) */
+       if ((o_ptr->name2 == EGO_WITCHCRAFT) || (o_ptr->name2 == EGO_DEMON_MIGHT) ||
+          (o_ptr->name2 == EGO_BLOODLUST))
+       {
+           o_ptr->name2 = 0;
+           /* "of witchcraft" has random sustain, so remove it also */
+           o_ptr->xtra1 = 0;
+           o_ptr->xtra2 = 0;
+       }
+    }
+    else /* extend if already blessed */
+    {
+       if (lite) o_ptr->blessed += (power * (35 + goodluck));
+       else o_ptr->blessed += (power * (25 + (goodluck/2)));
+    }
+
+    /* usually only enchants if you are at least L35 */
+    if (p_ptr->lev > 34 - goodluck/4)
+    {
+       /* priests don't get as much combat enchantment as paladins do */
+       if ((cp_ptr->flags & CF_BLESS_WEAPON) && (goodluck < 19))
+           power -= (5 - goodluck/4);
+
+       plus = 1;
+       if (power > 19) plus = power / 10;
+       if ((plus > 3) && (goodluck < 8)) plus = 2 + randint(plus - 2);
+
+       if ((o_ptr->blessed) && ((weapon) || (bow)))
+       {
+	      /* Enchant */
+	      if (enchant(o_ptr, plus, ENCH_TOHIT)) something = 1;
+	      if (enchant(o_ptr, plus, ENCH_TODAM)) something = 1;
+       }
+       else if ((!lite) && (o_ptr->blessed)) /* armor */
+       {
+	      if (enchant(o_ptr, plus, ENCH_TOAC)) something = 1;
+       }
+    }
+
+	/* nothing happened */
+	if (something != 1)
+	{
+		/* Flush */
+		if (flush_failure) flush();
+
+		/* Message (if didn't already get a message) */
+		if (something == 0) msg_format("%s %s seems unchanged.",
+	           ((item >= 0) ? "Your" : "The"), o_name);
+	           
+	    return TRUE;
+	}
+	
+	return TRUE;
+}
 
 
 /*
@@ -2175,15 +2570,14 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	    /* Assume enchant weapon */
 	    item_tester_hook = item_tester_hook_weapon;
     }
-    spellswitch = 0;
 
-	    /* Enchant armor if requested */
-	    if (num_ac) item_tester_hook = item_tester_hook_armour;
+    /* Enchant armor if requested */
+    if (num_ac) item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item */
 	q = "Enchant which item? ";
 	if (spellswitch == 18) s = "You have no bow or arrows to enchant.";
-	if (spellswitch != 18) s = "You have nothing to enchant.";
+	else s = "You have nothing to enchant.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
@@ -2221,6 +2615,9 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		/* Message */
 		msg_print("The enchantment failed.");
 	}
+
+    /* reset spellswitch */
+    spellswitch = 0;
 
 	/* Something happened */
 	return (TRUE);
@@ -2400,12 +2797,15 @@ bool recharge(int num)
 		/* Reduce the charges of rods/wands/staves */
 		reduce_charges(o_ptr, 1);
 
+#ifdef removed_piece
+        /* I don't want this to happen */
 		/* *Identified* items keep the knowledge about the charges */
 		if (!(o_ptr->ident & IDENT_MENTAL))
 		{
 			/* We no longer "know" the item */
 			o_ptr->ident &= ~(IDENT_KNOWN);
 		}
+#endif
 
 		/* Reduce and describe inventory */
 		if (item >= 0)
@@ -2432,12 +2832,15 @@ bool recharge(int num)
 		/* Recharge based on the power */
 		if (t > 0) o_ptr->pval += 2 + randint(t);
 
+#ifdef removed_piece
+        /* I don't want this to happen */
 		/* *Identified* items keep the knowledge about the charges */
 		if (!(o_ptr->ident & IDENT_MENTAL))
 		{
 			/* We no longer "know" the item */
 			o_ptr->ident &= ~(IDENT_KNOWN);
 		}
+#endif
 
 		/* We no longer think the item is empty */
 		o_ptr->ident &= ~(IDENT_EMPTY);
@@ -2497,7 +2900,6 @@ bool project_los(int typ, int dam)
 	return (obvious);
 }
 
-
 /*
  * Speed monsters
  */
@@ -2509,25 +2911,25 @@ bool speed_monsters(void)
 /*
  * Slow monsters
  */
-bool slow_monsters(void)
+bool slow_monsters(int plev)
 {
-	return (project_los(GF_OLD_SLOW, p_ptr->lev));
+	return (project_los(GF_OLD_SLOW, plev));
 }
 
 /*
  * Scare monsters
  */
-bool scare_monsters(void)
+bool scare_monsters(int plev)
 {
-	return (project_los(GF_BRFEAR, 0));
+	return (project_los(GF_TURN_ALL, plev));
 }
 
 /*
  * Sleep monsters
  */
-bool sleep_monsters(void)
+bool sleep_monsters(int plev)
 {
-	return (project_los(GF_OLD_SLEEP, p_ptr->lev));
+	return (project_los(GF_OLD_SLEEP, plev));
 }
 
 /*
@@ -2537,7 +2939,14 @@ bool hold_monsters(void)
 {
     spellswitch = 29;
 	return (project_los(GF_OLD_SLEEP, p_ptr->lev * 2));
-	spellswitch = 0;
+}
+
+/*
+ * Mass Amnesia
+ */
+bool mass_amnesia(int power)
+{
+	return (project_los(GF_AMNESIA, power));
 }
 
 
@@ -2590,7 +2999,6 @@ bool dispel_demon(int dam)
 {
     spellswitch = 23; /* changes GF_DISP_UNDEAD to affect demons */
 	return (project_los(GF_DISP_UNDEAD, dam));
-    spellswitch = 0;
 }
 
 /*
@@ -2624,7 +3032,6 @@ bool dispel_life(int dam)
 {
     spellswitch = 27; /* makes OLD_DRAIN not affect silver monsters */
 	return (project_los(GF_OLD_DRAIN, dam));
-    spellswitch = 0;
 }
 
 /*
@@ -2676,14 +3083,16 @@ void aggravate_monsters(int who)
 		    if (m_ptr->cdis < (MAX_SIGHT * 3) / 2)
 		    {
 			   /* Wake up */
-			   if ((m_ptr->csleep) && (randint(100) < 84))
+			   if ((m_ptr->csleep) && (randint(100) < 95 - (m_ptr->cdis/2)))
 			   {
 				  /* Wake up */
 				  m_ptr->csleep = 0;
+				  m_ptr->roaming = 0;
 				  sleep = TRUE;
 			   }
 		    }
         }
+		/* Wake up nearby sleeping monsters */
         else
         {
 		    if (m_ptr->cdis < MAX_SIGHT * 2)
@@ -2693,6 +3102,7 @@ void aggravate_monsters(int who)
 			   {
 				  /* Wake up */
 				  m_ptr->csleep = 0;
+				  m_ptr->roaming = 0;
 				  sleep = TRUE;
 			   }
 		    }
@@ -2736,7 +3146,7 @@ bool banishment(void)
     }
     else
     {
-	    if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
+	   if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
 		return FALSE;
     }
 
@@ -2744,9 +3154,9 @@ bool banishment(void)
     {
            int py = p_ptr->py;
 	       int px = p_ptr->px;
-           int ny, nx, die;
+           int ny, nx, die, die2;
            die = randint(100);
-           int die2 = randint(100);
+           die2 = randint(100);
            if (die < 50) ny = py + randint(4);
            else ny = py - randint(4);
            if (die2 < 50) nx = px + randint(4);
@@ -2778,6 +3188,11 @@ bool banishment(void)
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
+		/* Delete the monster */
+		delete_monster_idx(i);
+
+		/* Take some damage */
+		dam += randint(4);
 	}
 
 	/* Hurt the player */
@@ -2926,14 +3341,18 @@ void destroy_area(int y1, int x1, int r, bool full)
 			/* Skip illegal grids */
 			if (!in_bounds_fully(y, x)) continue;
 
+			/* do not affect vaults */
+			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) continue;
+
 			/* Extract the distance */
 			k = distance(y1, x1, y, x);
 
 			/* Stay in the circle of death */
 			if (k > r) continue;
 
-			/* Lose room and vault */
-			cave_info[y][x] &= ~(CAVE_ROOM | CAVE_ICKY);
+			/* Lose room (not vault) */
+			cave_info[y][x] &= ~(CAVE_ROOM);
 
 			/* Lose light and knowledge */
 			cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
@@ -3274,6 +3693,7 @@ void earthquake(int cy, int cx, int r)
 
 					/* Monster is certainly awake */
 					m_ptr->csleep = 0;
+					m_ptr->roaming = 0;
 
 					/* Apply damage directly */
 					m_ptr->hp -= damage;
@@ -3404,7 +3824,14 @@ void earthquake(int cy, int cx, int r)
  */
 static void cave_temp_room_lite(void)
 {
-	int i;
+	int i, dimness;
+
+    /* how dim is the room's light? */
+    int lmod = randint(50 - goodluck/2 + p_ptr->depth + p_ptr->corrupt);
+    if (lmod < 30) dimness = 1;
+    else if (lmod < 60) dimness = 2;
+    else if (lmod > 99) dimness = 4;
+    else dimness = 3;
 
 	/* Apply flag changes */
 	for (i = 0; i < temp_n; i++)
@@ -3417,6 +3844,13 @@ static void cave_temp_room_lite(void)
 
 		/* Perma-Lite */
 		cave_info[y][x] |= (CAVE_GLOW);
+#if EXPM
+        if (dimness == 0) cave_info[y][x] |= (DLIT_FULL);
+        else if (dimness == 1) cave_info[y][x] |= (DLIT_DIMA);
+        else if (dimness == 2) cave_info[y][x] |= (DLIT_DIMB);
+        else if (dimness == 3) cave_info[y][x] |= (DLIT_DIMC);
+        else /* dimness 4 */ cave_info[y][x] |= (DLIT_DIMD);
+#endif
 	}
 
 	/* Fully update the visuals */
@@ -3447,13 +3881,12 @@ static void cave_temp_room_lite(void)
 
 			/* Smart monsters always wake up */
 			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
+			
+			if (m_ptr->roaming) chance += 25;
 
 			/* Sometimes monsters wake up */
 			if (m_ptr->csleep && (rand_int(100) < chance))
 			{
-				/* Wake up! */
-				m_ptr->csleep = 0;
-
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
 				{
@@ -3463,8 +3896,13 @@ static void cave_temp_room_lite(void)
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 					/* Dump a message */
-					msg_format("%^s wakes up.", m_name);
+				    if (m_ptr->roaming) msg_format("%^s notices you.", m_name);
+				    else msg_format("%^s wakes up.", m_name);
 				}
+
+				/* Wake up! */
+				m_ptr->csleep = 0;
+				m_ptr->roaming = 0;
 			}
 		}
 	}
@@ -3483,6 +3921,8 @@ static void cave_temp_room_lite(void)
  * In addition, some of these grids will be "unmarked".
  *
  * This routine is used (only) by "unlite_room()"
+ *
+ * DJA: also to damage to any creatures of light in the room.
  */
 static void cave_temp_room_unlite(void)
 {
@@ -3522,6 +3962,16 @@ static void cave_temp_room_unlite(void)
 
 		/* Redraw the grid */
 		lite_spot(y, x);
+		
+        /* is there a monster in the grid? */
+        if (cave_m_idx[y][x] > 0)
+        {
+		   int dam = randint(11 + (p_ptr->depth/5));
+		   int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
+
+           /* Jump directly to the target monster */
+		   (void)project(-1, 0, y, x, dam, GF_DARK_WEAK, flg);
+        }
 	}
 
 	/* None left */
@@ -3680,7 +4130,12 @@ bool unlite_area(int dam, int rad)
 	else (void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg);
 
 	/* Darken the room */
-	if ((spellswitch != 21) || (randint(100) < 20)) unlite_room(py, px);
+	/* necromancer's 'call dark' only sometimes darkens the whole room */
+	if (spellswitch == 21)
+	{
+       if (randint(100) < 15 + goodluck) unlite_room(py, px);
+    }
+    else unlite_room(py, px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3716,6 +4171,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 		tx = p_ptr->target_col;
 	}
 
+    /* spellswitch 28 used to center spell on the caster */
     if (spellswitch == 28)
     {
 	   ty = py;
@@ -3838,13 +4294,13 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 
 bool lite_line(int dir)
 {
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL | PROJECT_THRU;
 	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), flg));
 }
 
 bool strong_lite_line(int dir)
 {
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL | PROJECT_THRU;
 	return (project_hook(GF_LITE, dir, damroll(10, 8), flg));
 }
 
@@ -3856,8 +4312,10 @@ bool drain_life(int dir, int dam)
 
 bool wall_to_mud(int dir)
 {
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	return (project_hook(GF_KILL_WALL, dir, 25 + randint(25), flg));
+	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_THRU;
+	int dam = 25 + randint(25);
+	if (spellswitch == 31) dam = 40 + randint(40);
+	return (project_hook(GF_KILL_WALL, dir, dam, flg));
 }
 
 bool destroy_door(int dir)
@@ -3866,10 +4324,10 @@ bool destroy_door(int dir)
 	return (project_hook(GF_KILL_DOOR, dir, 0, flg));
 }
 
-bool disarm_trap(int dir)
+bool disarm_trap(int dir, int mode)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (project_hook(GF_KILL_TRAP, dir, 0, flg));
+	return (project_hook(GF_KILL_TRAP, dir, mode, flg));
 }
 
 bool heal_monster(int dir)
@@ -3884,16 +4342,16 @@ bool speed_monster(int dir)
 	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
 }
 
-bool slow_monster(int dir)
+bool slow_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLOW, dir, plev, flg));
 }
 
-bool sleep_monster(int dir)
+bool sleep_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, plev, flg));
 }
 
 bool confuse_monster(int dir, int plev)
@@ -3920,32 +4378,201 @@ bool fear_monster(int dir, int plev)
 	return (project_hook(GF_TURN_ALL, dir, plev, flg));
 }
 
-bool teleport_monster(int dir)
+bool teleport_monster(int dir, int dis)
 {
-
-	int flg = PROJECT_BEAM | PROJECT_KILL;
-    if (spellswitch == 13)
-    {
-       range = 6;
-       int plev = p_ptr->lev;
-       return (project_hook(GF_AWAY_ALL, dir, 11 + randint((plev / 5) + 2), flg));
-    }
-	else return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
+	int flg;
+	if (dis < 25) dis = 25;
+	if ((dis > 100) && (goodluck < 11)) dis = 100;
+	else if (dis > 125) dis = 125;
+	flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU;
+    return (project_hook(GF_AWAY_ALL, dir, dis, flg)); 
+    /* return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg)); */
 }
 
+/*
+ * For the monster spells: HEAL_OTHR and HEAL_KIN
+ * (simulation of monster-cast project_los using GF_OLD_HEAL)
+ * (doesn't actually use project() at all)
+ *
+ * if healmon is 0, then it only tests to see 
+ * if there are nearby monsters to heal.
+ */
+bool heal_monsters(int healmon, const monster_type *m_ptr, bool kinonly)
+{
+	int i, x, y, d, cy, cx;
+	char ally;
+	int kinkind = 0;
+	char n_name[80];
+	char n_poss[80];
+	monster_type *n_ptr;
+	monster_race *r_ptr;
+
+	int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
+
+	bool healed = FALSE;
+	bool endfear = FALSE;
+	bool iskin = FALSE;
+	bool onlygood = FALSE;
+
+	/* what race is the caster? */
+	r_ptr = &r_info[m_ptr->r_idx];
+	ally = r_ptr->d_char;
+	if (r_ptr->flags3 & (RF3_TROLL)) kinkind = 1;
+	if (strchr("pKt", r_ptr->d_char)) kinkind = 2; /* all humans */
+	if (strchr("oO", r_ptr->d_char)) kinkind = 3; /* orcs and ogres considered kin */
+	if ((strchr("y", r_ptr->d_char)) || (r_ptr->flags3 & (RF3_HURT_DARK))) 
+	{
+		kinkind = 4; /* creatures of light */
+	}
+	/* hack: paladins and templar knights don't heal evil monsters */
+	if ((m_ptr->r_idx == 619) || (m_ptr->r_idx == 319) || (m_ptr->r_idx == 561)) onlygood = TRUE;
+
+	/* location of caster */
+	cy = m_ptr->fy;
+	cx = m_ptr->fx;
+
+	/* Affect all (nearby) monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		/* get target monster info */
+		n_ptr = &mon_list[i];
+		r_ptr = &r_info[n_ptr->r_idx];
+		/* get target monster name (and possesive) */
+		monster_desc(n_name, sizeof(n_name), n_ptr, 0);
+		monster_desc(n_poss, sizeof(n_poss), n_ptr, 0x22);
+
+		/* Paranoia -- Skip dead monsters */
+		if (!n_ptr->r_idx) continue;
+
+		/* Location of target */
+		y = n_ptr->fy;
+		x = n_ptr->fx;
+
+		/* Require projectable from caster */
+		d = distance(cy, cx, y, x);
+		if ((d > MAX_RANGE - 1) || (!projectable(cy, cx, y, x))) continue;
+
+		/* hurts undead */
+		if (r_ptr->flags3 & (RF3_UNDEAD))
+		{
+			/* Hurt the monster */
+			n_ptr->hp -= (healmon/2);
+
+			/* Dead monster */
+			if (n_ptr->hp < 0)
+			{
+				/* Generate treasure, etc */
+				monster_death(cave_m_idx[y][x]);
+
+				/* Delete the monster */
+				delete_monster_idx(cave_m_idx[y][x]);
+
+				/* Give detailed messages if destroyed */
+				msg_format("%^s is destroyed", n_name);
+			}
+
+			/* Damaged monster */
+			else
+			{
+				/* Give detailed messages if visible */
+				if (n_ptr->ml) msg_format("%^s is damaged", n_name);
+			}
+			continue;
+		}
+
+		/* don't bother if monster doesn't need healing */
+		if (n_ptr->hp == n_ptr->maxhp) continue;
+
+		/* Heal_kin spell only heals similar monsters */
+		if (kinonly)
+		{
+			int kinkindt = 0;
+			if ((strchr("y", r_ptr->d_char)) || (r_ptr->flags3 & (RF3_HURT_DARK))) kinkindt = 4;
+			/* light fairies also heal non-evil animals with HEAL_KIN */
+			if ((!n_ptr->evil) && (r_ptr->flags3 & (RF3_ANIMAL))) kinkindt = 4;
+			if (kinkind == kinkindt) iskin = TRUE;
+			if (r_ptr->flags3 & (RF3_TROLL)) kinkindt = 1;
+			if (strchr("pKt", r_ptr->d_char)) kinkindt = 2; /* all humans */
+			if (strchr("oO", r_ptr->d_char)) kinkindt = 3; /* orcs and ogres considered kin */
+			/* is the target monster kin? */
+			if (kinkind == kinkindt) iskin = TRUE;
+			/* same symbol is always kin */
+			if (r_ptr->d_char == ally) iskin = TRUE;
+			if (!iskin) continue;
+		}
+
+		/* hack: templar knights don't heal evil monsters */
+		if ((n_ptr->evil) && (onlygood)) continue;
+
+		/* !healmon == not actually casting the spell yet */
+		/* TRUE == there is at least one monster nearby to heal */
+		/* (but not if the only monster to heal is itself) */
+		if ((!healmon) && (n_ptr != m_ptr)) return TRUE;
+		else if (!healmon) continue;
+
+		/* Wake up (usually) */
+		if ((p_ptr->nice) && (!n_ptr->evil) &&
+           (goodluck) && (randint(100) < 50) &&
+	       ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+	       (r_ptr->flags3 & (RF3_ANIMAL))))
+	    {
+            /* don't wake up */
+        }   
+		else if ((goodluck < 14) && (!n_ptr->charmed))
+        {
+			n_ptr->csleep = 0;
+			n_ptr->roaming = 0;
+		}
+
+		/* Heal */
+		healed = TRUE;
+		n_ptr->hp += healmon;
+
+		/* Message */
+		if (n_ptr->hp < n_ptr->maxhp) msg_format("%^s looks healthier", n_name);
+
+		/* No overflow */
+		if (n_ptr->hp >= n_ptr->maxhp)
+		{
+			n_ptr->hp = n_ptr->maxhp;
+			/* alternate message */
+			msg_format("%^s looks fully healthy", n_name);
+		}
+
+		/* Redraw (later) if needed */
+		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
+
+		/* always end fear if healed by an ally or "kin" */
+		if ((kinonly) || (r_ptr->d_char == ally)) endfear = TRUE;
+		/* Cancel fear */
+		if (randint(100) < 60 + badluck - goodluck) endfear = TRUE;
+		if ((n_ptr->monfear) && (endfear))
+		{
+			/* Cancel fear */
+			n_ptr->monfear = 0;
+
+			/* Message */
+			msg_format("%^s recovers %s courage.", n_name, n_poss);
+		}
+	}
+
+	/* Result */
+	return (healed);
+}
 
 
 /*
  * Hooks -- affect adjacent grids (radius 1 ball attack)
  */
 
-bool door_creation(void)
+/* door creation mode (10=locked, 0=unlocked) */
+bool door_creation(int mode)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_DOOR, flg));
+	return (project(-1, 1, py, px, mode, GF_MAKE_DOOR, flg));
 }
 
 bool trap_creation(void)
@@ -3987,9 +4614,16 @@ bool curse_armor(void)
 
 	char o_name[80];
 
+	int die = randint(101);
 
-	/* Curse the body armor */
-	o_ptr = &inventory[INVEN_BODY];
+	/* Curse the body armor (DJA: added chance to affect other armor) */
+	if (die < 7) o_ptr = &inventory[INVEN_OUTER];
+	else if (die < 14) o_ptr = &inventory[INVEN_ARM];
+	else if (die < 21) o_ptr = &inventory[INVEN_HEAD];
+	else if (die < 28) o_ptr = &inventory[INVEN_HANDS];
+	else if (die < 35) o_ptr = &inventory[INVEN_FEET];
+	else o_ptr = &inventory[INVEN_BODY];
+	
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -3999,7 +4633,7 @@ bool curse_armor(void)
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw for artifacts */
-	if (artifact_p(o_ptr) && (rand_int(100) < 50))
+	if (artifact_p(o_ptr) && (rand_int(100) < 45 + goodluck))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -4012,21 +4646,22 @@ bool curse_armor(void)
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
-		/* Blast the armor */
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_BLASTED;
-		o_ptr->to_a = 0 - randint(5) - randint(5);
-		o_ptr->to_h = 0;
-		o_ptr->to_d = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		/* Blast the armor (no more removing egos or destroying artifacts) */
+		o_ptr->to_a -= randint(5) + randint(5);
+		if ((die > 45) || (o_ptr->to_h > 0))
+		{
+           o_ptr->to_h -= 1 + randint(1 + badluck/6);
+           if ((goodluck > 0) && (die < 41) && (o_ptr->to_h < 0)) o_ptr->to_h = 0;
+        }
+		else if (randint(6) == 1) o_ptr->to_h -= randint(1 + badluck/6);
+		if ((o_ptr->to_d > 0) && (badluck > 1)) o_ptr->to_d -= randint(2 + badluck/4);
+		o_ptr->ac -= randint(2 + badluck/3);
+		
+        /* remove blessing from bless obejct spell */
+        if (o_ptr->blessed) o_ptr->blessed = 0;
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -4043,9 +4678,11 @@ bool curse_armor(void)
 
 
 /*
- * Curse the players weapon
+ * Curse the players weapon (no longer shatters weapons)
+ * added an option to adjust the seriousness of the curse
+ *  (..replacing use of the global spellswitch hack)
  */
-bool curse_weapon(void)
+bool curse_weapon(int badness)
 {
 	object_type *o_ptr;
 
@@ -4054,6 +4691,12 @@ bool curse_weapon(void)
 
 	/* Curse the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
+	
+	/* DJA: 1 in 6 chance to curse range weapon instead */
+	if ((badness > 1) && (goodluck < 6) && (randint(6) == 1))
+	{
+	   o_ptr = &inventory[INVEN_BOW];
+    }
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -4063,15 +4706,15 @@ bool curse_weapon(void)
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw */
-	if (artifact_p(o_ptr) && (rand_int(100) < 50))
+	if (artifact_p(o_ptr) && (rand_int(100) < 50 + goodluck/2))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 		           "terrible black aura", "surround your weapon", o_name);
 	}
 	
-	/* weaker curses never work on artifacts */
-	if (artifact_p(o_ptr) && ((spellswitch == 3) || (spellswitch == 2)))
+	/* morgul curse or weakest curse never works on artifacts */
+	else if (artifact_p(o_ptr) && ((badness == 5) || (badness == 1)))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -4084,30 +4727,55 @@ bool curse_weapon(void)
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
-        if (spellswitch == 3)
+        /* badness 5 is with bad luck from adjust curse spell only */
+        if ((badness == 5) && (o_ptr == &inventory[INVEN_WIELD]))
         {
-		o_ptr->to_h = o_ptr->to_h - randint(6);
-		o_ptr->to_d = o_ptr->to_d - randint(6);
-		if (o_ptr->to_a > 0) o_ptr->to_a = o_ptr->to_a - randint(2);
-		if (o_ptr->to_a < 0) o_ptr->to_a = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		   o_ptr->name1 = 0;
+		   o_ptr->name2 = EGO_MORGUL;
+		   o_ptr->to_h -= randint(8) + 1;
+		   o_ptr->to_d -= randint(8) + 1;
+		   o_ptr->to_a = 0;
+		   o_ptr->ac = 0;
         }
-        else if (spellswitch == 2)
+        /* range weapon with bad luck from adjust curse spell only */
+        else if (badness == 5)
         {
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_MORGUL;
-		o_ptr->to_h = o_ptr->to_h - randint(5) - randint(4);
-		o_ptr->to_d = o_ptr->to_d - randint(5) - randint(4);
-		o_ptr->to_a = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		   o_ptr->name1 = 0;
+		   o_ptr->name2 = EGO_NAZGUL;
+		   o_ptr->to_h -= randint(7) + 1;
+		   o_ptr->to_d -= randint(7) + 1;
+		   o_ptr->to_a = 0;
+		   o_ptr->ac = 0;
         }
-        else
+        /* badness 1 to 4 (usually 2 or 3) */
+        else if (o_ptr == &inventory[INVEN_WIELD])
         {
-		/* Shatter the weapon */
+		   o_ptr->to_h -= randint(badness * 2) + 1;
+		   o_ptr->to_d -= randint(badness * 2) + 1;
+		   if ((o_ptr->to_a > 0) && (badness > 1))
+           {
+              o_ptr->to_a -= randint(2);
+		      if (o_ptr->to_a < 0) o_ptr->to_a = 0;
+           }
+		   if ((o_ptr->ac > 0) && (badness > 2))
+           {
+              o_ptr->ac -= randint(2);
+		      if (o_ptr->ac < 0) o_ptr->ac = 0;
+           }
+           /* remove blessing from bless obejct spell */
+		   if (o_ptr->blessed) o_ptr->blessed = 0;
+        }
+        else /* range weapon (don't touch ac) */
+        {
+		   o_ptr->to_h -= randint(badness * 2 - 1) + 1;
+		   o_ptr->to_d -= randint(badness * 2 - 1) + 1;
+
+           /* remove blessing from bless obejct spell */
+		   if (o_ptr->blessed) o_ptr->blessed = 0;
+        }
+        /* else
+        {
+		/ never Shatter the weapon anymore /
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_SHATTERED;
 		o_ptr->to_h = 0 - randint(5) - randint(5);
@@ -4116,21 +4784,10 @@ bool curse_weapon(void)
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
-        }
+        } */
 
-        if ((spellswitch == 3) || (spellswitch == 2))
-        {
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
-        }
-        else
-        {
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-     
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-        }
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -4155,13 +4812,21 @@ bool curse_weapon(void)
 void brand_object(object_type *o_ptr, byte brand_type)
 {
 	/* you can never modify artifacts / ego-items */
-	/* you can never modify broken / cursed items */
+	/* you can never modify broken (completely worthless) items */
 	if ((o_ptr->k_idx) &&
 	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+	    (!broken_p(o_ptr)))
 	{
 		cptr act = "magical";
 		char o_name[80];
+		
+		/* small chance to succeed branding cursed weapon */
+		if ((cursed_p(o_ptr)) && (randint(100) > 10 + goodluck/2))
+	    {
+		     if (flush_failure) flush();
+		     msg_print("The branding failed.");
+		     return;
+	    }
 
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
@@ -4179,6 +4844,7 @@ void brand_object(object_type *o_ptr, byte brand_type)
 			case EGO_AMMO_VENOM:
 				act = "sickly";
 				break;
+			case EGO_BRAND_ELEC:
 			case EGO_AMMO_ELEC:
 				act = "electric";
 				break;
@@ -4205,13 +4871,13 @@ void brand_object(object_type *o_ptr, byte brand_type)
 	else
 	{
 		if (flush_failure) flush();
-		msg_print("The Branding failed.");
+		msg_print("The branding failed.");
 	}
 }
 
 
 /*
- * Brand the current weapon
+ * Brand the current melee weapon
  */
 void brand_weapon(void)
 {
@@ -4267,9 +4933,16 @@ bool brand_ammo(void)
 	item_tester_hook = item_tester_hook_ammo;
 
 	/* Get an item */
-	if (spellswitch == 17) q = "Coat which ammunition? ";
-	else q = "Brand which kind of ammunition? ";
-	s = "You have nothing to brand.";
+	if (spellswitch == 17)
+    {
+        q = "Coat which ammunition? ";
+	    s = "You have no ammo to coat.";
+    }
+	else
+    {
+        q = "Brand which kind of ammunition? ";
+	    s = "You have no ammo to brand.";
+    }
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
@@ -4351,6 +5024,7 @@ bool snowball_shot(void)
 	int item;
 	object_type *o_ptr;
 	cptr q, s;
+	char o_name[80];
 
 	/* Restrict choices to shots */
 	item_tester_tval = TV_SHOT;
@@ -4375,6 +5049,11 @@ bool snowball_shot(void)
 	/* Brand the bolts */
 	brand_object(o_ptr, EGO_FROST);
 
+	/* Get the basic name of the object */
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+	
+	msg_format("Your %s turn into magical snowballs!", o_name);
+
 	/* Done */
 	return (TRUE);
 }
@@ -4391,20 +5070,30 @@ void ring_of_power(int dir)
 		case 1:
 		case 2:
 		{
-			/* Message */
+			if (randint(50) < goodluck)
+			{
+               msg_print("You feel you are out of luck.");
+               p_ptr->luck -= randint(p_ptr->luck - 4) + 5;
+			   (void)dec_stat(A_CHR, 2, TRUE);
+			   if (p_ptr->hold_life) p_ptr->exp -= (p_ptr->exp / 20);
+			   else p_ptr->exp -= (p_ptr->exp / 9);
+               break;
+            }
+			
+            /* Message */
 			msg_print("You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
-			(void)dec_stat(A_STR, 50, TRUE);
-			(void)dec_stat(A_INT, 50, TRUE);
-			(void)dec_stat(A_WIS, 50, TRUE);
-			(void)dec_stat(A_DEX, 50, TRUE);
-			(void)dec_stat(A_CON, 50, TRUE);
-			(void)dec_stat(A_CHR, 50, TRUE);
+			(void)dec_stat(A_STR, 10, TRUE);
+			(void)dec_stat(A_INT, 10, TRUE);
+			(void)dec_stat(A_WIS, 10, TRUE);
+			(void)dec_stat(A_DEX, 10, TRUE);
+			(void)dec_stat(A_CON, 10, TRUE);
+			(void)dec_stat(A_CHR, 10, TRUE);
 
 			/* Lose some experience (permanently) */
-			p_ptr->exp -= (p_ptr->exp / 4);
-			p_ptr->max_exp -= (p_ptr->max_exp / 4);
+			p_ptr->exp -= (p_ptr->exp / 5);
+			p_ptr->max_exp -= (p_ptr->max_exp / 5);
 			check_experience();
 
 			break;
@@ -4510,4 +5199,138 @@ void do_ident_item(int item, object_type *o_ptr)
 	{
 		msg_format("On the ground: %s.", o_name);
 	}
+}
+
+/*
+ * Activate Experience drain on an item
+ * (activated by attacking, shooting, or casting)
+ * (was 55 instead of 10 + odd)
+ * (odd is 45 except in melee when it is 40 + (damage/5))
+ */
+void rxp_drain(int odd)
+{
+     /* sentient equipment can make exp drain kick in more or less often */
+     if (goodweap > badweap) odd -= 10;
+     else if (badweap > goodweap) odd -= 5;
+
+     if ((randint(100) < odd + badluck - goodluck) && (p_ptr->exp > 0))
+     {
+        int drainmuch = randint(11) + randint(p_ptr->lev) + randint(badluck*2);
+        if (cp_ptr->spell_book == TV_DARK_BOOK) drainmuch += randint(6);
+		p_ptr->exp -= drainmuch;
+		if (goodluck > 16) p_ptr->max_exp -= drainmuch/10;
+		else if (goodluck > 10) p_ptr->max_exp -= drainmuch/4;
+		else if (goodluck > 4) p_ptr->max_exp -= drainmuch/3;
+		else if (badluck > 6) p_ptr->max_exp -= (drainmuch * 2) / 3;
+		else p_ptr->max_exp -= drainmuch/2;
+	    check_experience();
+     }
+     else if ((badluck > 0) && (p_ptr->exp > 0))
+     {
+        int drainmuch = randint(badluck) + 1;
+		p_ptr->exp -= drainmuch;
+		p_ptr->max_exp -= 1;
+	    check_experience();
+     }
+}
+
+/*
+ * Create a treasure map for the tourist to find.
+ * Copied from wiz_create_item(void)
+ */
+void treasure_map(void)
+{
+	int i, x, y, d, dis, min;
+	bool look = TRUE;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	int k_idx;
+
+	/* Save screen */
+	screen_save();
+
+	/* Get object base type (tval 4, sval 2) */
+	k_idx = lookup_kind(TV_SPECIAL, SV_TREASURE);
+
+	/* Load screen */
+	screen_load();
+
+	/* Return if failed */
+	if (!k_idx) return;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Create the item */
+	object_prep(i_ptr, k_idx);
+	
+	/* no need to apply magic to a treasure map */
+	
+	/* Look for a place to "hide" the map */
+	/* coped from teleportation code */
+	look = TRUE;
+	dis = (76 - randint(p_ptr->lev + goodluck));
+
+	/* Initialize */
+	y = py;
+	x = px;
+
+	/* Minimum distance */
+	min = dis / 2;
+
+	while (look)
+	{
+		/* Try several locations */
+		for (i = 0; i < 500; i++)
+		{
+			/* Pick a (possibly illegal) location */
+			while (1)
+			{
+				y = rand_spread(py, dis);
+				x = rand_spread(px, dis);
+				d = distance(py, px, y, x);
+				if ((d >= min) && (d <= dis)) break;
+			}
+
+			/* Ignore illegal locations */
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* Require "naked" floor space */
+			if (!cave_naked_bold(y, x)) continue;
+
+			/* Might create the map inside a vault */
+			/* if (cave_info[y][x] & (CAVE_ICKY)) continue; */
+
+			/* This grid looks good */
+			look = FALSE;
+
+			/* Stop looking */
+			break;
+		}
+
+		/* Increase the maximum distance */
+		dis = dis * 2;
+
+		/* Decrease the minimum distance */
+		min = min / 2;
+    }
+
+	/* how far away is it? */
+    d = distance(py, px, y, x);
+	
+    /* location to create the map */
+    py = y;
+	px = x;
+
+	/* Drop the object from heaven */
+	drop_near(i_ptr, -1, py, px);
+
+	/* All done */
+	if (d < 8) msg_print("X marks the spot. (actually it's a '?')");
+	else msg_print("The map is hidden, the hunt is on!");
 }

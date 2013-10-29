@@ -696,17 +696,17 @@ s16b get_obj_num(int level)
 		
 		/* DAJ: appropriate spellbooks much more likely to appear than others */
 	    /* this is a must-have because of having several spell realms */
-	
+
 	    /* check for spellbook tval */
-	    if ((k_ptr->tval >= TV_MAGIC_BOOK) && (k_ptr->tval < TV_GOLD))
+	    if ((k_ptr->tval >= TV_MAGIC_BOOK) && (k_ptr->tval < TV_GOLD) && (cp_ptr->spell_book))
 	    {
            /* is it an appropriate spell book? */
            /* (occationally let them find a foreign book for flavor) */
-           if ((!(k_ptr->tval == cp_ptr->spell_book)) && (randint(100) < 93))
+           if ((!(k_ptr->tval == cp_ptr->spell_book)) && (randint(100) < 91))
            {
               /* reject it outright a lot of the time */
               /* (was 90% before I got replacement to work) */
-              if (randint(100) < 77) continue;
+              if (randint(100) < 86) continue;
               
               /* always reject alchemy books */
 /* do not convert them to correct book because depths are very different */
@@ -940,9 +940,8 @@ void object_tried(object_type *o_ptr)
  */
 bool is_blessed(const object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
-
 	/* Get the flags */
+	u32b f1, f2, f3, f4;
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Is the object blessed? */
@@ -1025,7 +1024,21 @@ static s32b object_value_real(const object_type *o_ptr)
 
 
 	/* Hack -- "worthless" items */
-	if (!k_ptr->cost) return (0L);
+	if (!k_ptr->cost)
+    {
+       bool worthless = TRUE;
+
+       /* if object has good ego and/or positive to-hit/to-dam bonuses */
+       /* then it isn't worthless, even it is of a normally worthless type */
+       /* eg "Staff of darkness of Frost" */
+       if (o_ptr->name2)
+       {
+		   ego_item_type *e_ptr = &e_info[o_ptr->name2];
+           if (e_ptr->cost) worthless = FALSE;
+       }
+       if ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) > 3) worthless = FALSE;
+       if (worthless) return (0L);
+    }
 
 	/* Base cost */
 	value = k_ptr->cost;
@@ -1098,9 +1111,8 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (f1 & (TR1_CON)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 200L);
 
-			/* Give credit for stealth and searching */
+			/* Give credit for stealth */
 			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
-			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
 
 			/* Give credit for alertness and tunneling */
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
@@ -1126,6 +1138,19 @@ static s32b object_value_real(const object_type *o_ptr)
 		{
 			/* Pay extra for charges, depending on standard number of charges */
 			value += ((value / 20) * (o_ptr->pval / o_ptr->number));
+			
+			/* magic staffs are weapons now */
+            if (o_ptr->tval == TV_STAFF)
+			{
+			   /* Factor in the bonuses */
+			   value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 75L);
+
+			   /* Hack -- Factor in extra damage dice */
+			   if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
+			   {
+				  value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 100L;
+			   }
+            }
 
 			/* Done */
 			break;
@@ -1177,12 +1202,13 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_SWORD:
 		case TV_POLEARM:
+		case TV_SKELETON:
 		{
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
 
 			/* Factor in the bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 90L);
 
 			/* Hack -- Factor in extra damage dice */
 			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
@@ -1317,8 +1343,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			break;
 		}
 
-		/* Staves and Wands */
-		case TV_STAFF:
+		/* Wands and Staffs */
 		case TV_WAND:
 		{
 #ifdef EFG
@@ -1357,6 +1382,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_SKELETON:
+		case TV_STAFF:
 		{
 			/* Fall through */
 		}
@@ -1393,14 +1420,23 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			if (o_ptr->to_d != j_ptr->to_d) return (FALSE);
 			if (o_ptr->to_a != j_ptr->to_a) return (FALSE);
 
-			/* Require identical "pval" code */
-			if (o_ptr->pval != j_ptr->pval) return (FALSE);
+			if (o_ptr->tval == TV_STAFF)
+			{
+               /* don't require the same pval for magic staffs */
+            }
+            /* Require identical "pval" code */
+			else if (o_ptr->pval != j_ptr->pval) return (FALSE);
 
 			/* Require identical "artifact" names */
 			if (o_ptr->name1 != j_ptr->name1) return (FALSE);
 
-			/* Require identical "ego-item" names */
-			if (o_ptr->name2 != j_ptr->name2) return (FALSE);
+			if (((o_ptr->name2 == EGO_WOUNDING) && (!j_ptr->name2)) ||
+			   ((j_ptr->name2 == EGO_WOUNDING) && (!o_ptr->name2)))
+            {
+               /* allow "of wounding" ammo to stack with normal ammo */
+            }
+            /* Require identical "ego-item" names */
+			else if (o_ptr->name2 != j_ptr->name2) return (FALSE);
 
 			/* Hack -- Never stack "powerful" items */
 			if (o_ptr->xtra1 || j_ptr->xtra1) return (FALSE);
@@ -1488,6 +1524,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	bool forget;
 
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1498,7 +1535,7 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 #ifdef EFG
 	/* EFGchange merge unided wands and staves */
 	/* I hate to do this, but so long as #charges is hidden until identify */
-	bool forget = (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) && 
+	forget = (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) && 
 		       ((!object_known_p(o_ptr) || !object_known_p(j_ptr))));
 	if (object_known_p(j_ptr)) object_known(o_ptr);
 	if (forget)
@@ -1527,6 +1564,16 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 #else
 	o_ptr->pseudo = j_ptr->pseudo;
 #endif
+
+    /* DJA: allow "of wounding" ammo to stack with normal ammo */ 
+    /* (only time "(o_ptr->name2 != j_ptr->name2)" is allowed) */
+    if (o_ptr->name2 != j_ptr->name2)
+    {
+       /* remove or add "of wounding" ego */
+       /* (makes no difference because "of wounding" just gives */
+       /* bigger to-hit/to-dam bonuses when it's created) */
+       o_ptr->name2 = j_ptr->name2;
+    }
 
 	/*
 	 * Hack -- if rods are stacking, re-calculate the
@@ -1763,6 +1810,8 @@ static void object_mention(const object_type *o_ptr)
 static int make_ego_item(object_type *o_ptr, bool only_good)
 {
 	int i, j, level;
+	u32b f1, f2, f3, f4;
+    byte ftval, fsval;
 
 	int e_idx;
 
@@ -1778,6 +1827,29 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 	if (o_ptr->name2) return (FALSE);
 
 	level = object_level;
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	/* use fake tval and sval so it can be modified */
+    ftval = o_ptr->tval;
+	fsval = o_ptr->sval;
+
+	/* Weapons with THROWN flag can't be wielded */
+	/* so they get ammo egos instead of normal weapon egos */
+	/* (gets a fake sval with TV_SHOT for the purpose of chosing an ego) */
+    if ((f2 & TR2_THROWN) && (f2 & TR2_RTURN))
+    {
+       /* prevent boomerangs from getting 'throwing and returning' ego */
+       /* because they already have both those flags */
+       ftval = 16;
+       fsval = 6;
+    }
+    else if (f2 & TR2_THROWN)
+    {
+       ftval = 16;
+       fsval = 5;
+    }
 
 	/* Boost level (like with object base types) */
 	if (level > 0)
@@ -1815,13 +1887,13 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 		for (j = 0; j < EGO_TVALS_MAX; j++)
 		{
 			/* Require identical base type */
-			if (o_ptr->tval == e_ptr->tval[j])
+			if (ftval == e_ptr->tval[j])
 			{
 				/* Require sval in bounds, lower */
-				if (o_ptr->sval >= e_ptr->min_sval[j])
+				if (fsval >= e_ptr->min_sval[j])
 				{
 					/* Require sval in bounds, upper */
-					if (o_ptr->sval <= e_ptr->max_sval[j])
+					if (fsval <= e_ptr->max_sval[j])
 					{
 						/* Accept */
 						table[i].prob3 = table[i].prob2;
@@ -2023,6 +2095,19 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		o_ptr->to_h += tohit1;
 		o_ptr->to_d += todam1;
 
+		/* Hack: Main Gauche of shielding isn't mainly for offence */
+        if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_MAIN_GAUCHE) && (o_ptr->name2 == EGO_SHIELDING))
+		{
+           if (o_ptr->to_d > o_ptr->to_h)
+           {
+              /* swap bonuses */
+              s16b tmp = o_ptr->to_d;
+              o_ptr->to_d = o_ptr->to_h;
+              o_ptr->to_h = tmp;
+           }
+           return; /* never enchant again or get extra dice */
+        }
+
 		/* Very good */
 		if (power > 1)
 		{
@@ -2078,8 +2163,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+		case TV_STAFF:
+		case TV_SKELETON:
 		{
-			/* Very Good */
+            /* Very Good */
 			if (power > 1)
 			{
 				/* Hack -- Super-charge the damage dice */
@@ -2089,7 +2176,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					o_ptr->dd++;
 				}
 
-				/* Hack -- Lower the damage dice */
+				/* Hack -- Max damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
 			}
 
@@ -2262,8 +2349,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Searching */
-				case SV_RING_SEARCHING:
+				/* Alertness */
+				case SV_RING_ALERTNESS:
 				{
 					/* Bonus to searching */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -2429,30 +2516,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of wisdom/charisma */
 				case SV_AMULET_WISDOM:
 				case SV_AMULET_CHARISMA:
-   			    case SV_AMULET_INFRAVISION:
+   			    case SV_AMULET_ALERTNESS:
 				{
 					o_ptr->pval = 1 + m_bonus(5, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse bonuses */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-
-				/* Amulet of searching */
-				case SV_AMULET_SEARCHING:
-				{
-					o_ptr->pval = randint(5) + m_bonus(5, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2667,22 +2733,30 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 {
 	int i, rolls, f1, f2, power;
 
+	/* allow forced cursed items in wizmode for testing */
+	/* used -2 because -1 is used for Morgoth's artifacts */
+	bool curseit = FALSE;
+	if (lev == -2)
+	{
+		curseit = TRUE;
+		lev = p_ptr->depth;
+	}
 
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-       /* increased odds */
+     /* increased odds */
 	/* Base chance of being "good" */
-	f1 = lev + 11 + (goodluck/2);
+	f1 = lev + 11 + (goodluck/3);
 
 	/* Maximal chance of being "good" */
-	if (f1 > 80) f1 = 80;
+	if (f1 > 78) f1 = 78;
 
 	/* Base chance of being "great" */
-	f2 = (f1 / 2) + (goodluck/3) + 2;
+	f2 = (f1 / 2) + (goodluck/3) + 1;
 
 	/* Maximal chance of being "great" */
-	if (f2 > 25) f2 = 25;
+	if (f2 > 22) f2 = 22;
 
 
 	/* Assume normal */
@@ -2699,12 +2773,13 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	}
 
 	/* Roll for "cursed" */
-	else if (rand_int(100) < f1)
+	else if ((rand_int(100) < f1) || (curseit))
 	{
 		/* Assume "cursed" */
 		power = -1;
 
-		/* Roll for "broken" */
+		/* Roll for "broken" (more likely if forced cursed) */
+		if ((rand_int(100) < 25) && (curseit)) power = -2;
 		if (rand_int(100) < f2) power = -2;
 	}
 
@@ -2745,7 +2820,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
 		o_ptr->weight = a_ptr->weight;
-#ifdef EFG
+
+#ifdef EFGH /* (undoing a change Eddie made) */
 		if (!obviously_excellent(o_ptr, FALSE, NULL))
 		{
 			/* would be better to do this at birth */
@@ -2783,6 +2859,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_SKELETON:
 		case TV_SWORD:
 		case TV_BOW:
 		case TV_SHOT:
@@ -2800,6 +2877,24 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 			if (power) a_m_aux_1(o_ptr, lev, power);
 
+			break;
+		}
+		/* Magic staffs can get egos now */
+		/* but make sure they don't get any ego that has a pval */
+		case TV_STAFF:
+		{
+			a_m_aux_4(o_ptr, lev, power);
+
+			if ((power > 1) || (power < -1))
+			{
+				int ego_power;
+
+				ego_power = make_ego_item(o_ptr, (bool)(good || great));
+
+				if (ego_power) power = ego_power;
+			}
+
+			if (power) a_m_aux_1(o_ptr, lev, power);
 			break;
 		}
 
@@ -2821,8 +2916,11 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 				if (ego_power) power = ego_power;
 			}
+            
+            if (power) a_m_aux_2(o_ptr, lev, power);
 
-			if (power) a_m_aux_2(o_ptr, lev, power);
+            /* elven cloak pval shouldn't always be 2 */
+            if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_ELVEN_CLOAK) && (power < 2) && (o_ptr->pval > 1)) o_ptr->pval = randint(2);
 
 			break;
 		}
@@ -2830,6 +2928,14 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		case TV_RING:
 		case TV_AMULET:
 		{
+			if ((power > 1) || (power < -1))
+			{
+				int ego_power;
+
+				ego_power = make_ego_item(o_ptr, (bool)(good || great));
+
+				if (ego_power) power = ego_power;
+			}
 			if (!power && (rand_int(100) < 50)) power = -1;
 			a_m_aux_3(o_ptr, lev, power);
 			break;
@@ -2892,6 +2998,12 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		/* Hack -- acquire "cursed" flag */
 		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
+		/* Constant activation on staff of slowness should be cursed */
+		if ((o_ptr->tval == TV_STAFF) && (e_ptr->flags2 & (TR2_CONSTANTA)) && (o_ptr->sval == SV_STAFF_SLOWNESS))
+		{
+			o_ptr->ident |= (IDENT_CURSED);
+		}
+
 		/* Hack -- apply extra penalties if needed */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
 		{
@@ -2914,11 +3026,24 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 			/* Hack -- obtain pval */
 			if (e_ptr->max_pval > 0) o_ptr->pval += randint(e_ptr->max_pval);
+
+			/* Hack: prevent insane stealth bonuses */
+			/* on armor that already has extra stealth */
+            if (((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_ELVEN_LEATHER_CAP)) ||
+			   ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_ELVEN_CLOAK)))
+            {
+                if ((o_ptr->pval > 3) && (randint(100) > goodluck + 4)) o_ptr->pval = randint(3);
+                else if (o_ptr->pval > 4) o_ptr->pval = randint(3) + 2;
+
+                /* don't reduce pval too much for elven cloaks */
+                /* which have a pval of 2 without an ego */
+                if ((o_ptr->tval == TV_CLOAK) && (o_ptr->pval < 2)) o_ptr->pval = 2;
+            }
 		}
 
-            /* Hack for ego "of lightness" armor */
-            if (e_ptr->flags2 & (TR2_LIGHTNESS)) o_ptr->weight -= e_ptr->weight;
-			else if (e_ptr->weight > 0) o_ptr->weight += e_ptr->weight;
+        /* Hack for ego "of lightness" armor */
+        if (e_ptr->flags2 & (TR2_LIGHTNESS)) o_ptr->weight -= e_ptr->weight;
+		else if (e_ptr->weight > 0) o_ptr->weight += e_ptr->weight;
 
 		/* Hack -- apply rating bonus */
 		rating += e_ptr->rating;
@@ -3115,19 +3240,38 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 	/* Apply magic (allow artifacts) */
 	apply_magic(j_ptr, object_level, TRUE, good, great);
+	
+	/* Remove broken flag from staffs with good egos */
+	/* even if their object kind is normally broken. */
+    if ((broken_p(j_ptr)) && (j_ptr->tval == TV_STAFF))
+    {
+		if (j_ptr->name2)
+		{
+           ego_item_type *e_ptr = &e_info[j_ptr->name2];
 
+		   /* not broken */
+		   if (e_ptr->cost) j_ptr->ident &= ~(IDENT_BROKEN);
+        }
+        /* not broken if it has good to-hit and to-dam bonuses */
+        else if ((j_ptr->to_h > 2) && (j_ptr->to_d > 2))
+        {
+           j_ptr->ident &= ~(IDENT_BROKEN);
+        }
+    }
 
 	/* Generate multiple items */
 	/* Imported from Steamband and Sangband */
 	/* XXX Will probably not work so well for stacks of potions (yet) */
 	k_ptr = &k_info[j_ptr->k_idx];
-
+	
 	if (k_ptr->gen_mult_prob >= 100 ||
 	    k_ptr->gen_mult_prob >= randint(100))
 	{
 		j_ptr->number = damroll(k_ptr->gen_dice, k_ptr->gen_side);
 	}
 
+	/* prevent creating multiple artifacts */
+    if (artifact_p(j_ptr)) j_ptr->number = 1;
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
@@ -3296,7 +3440,6 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 	/* Result */
 	return (o_idx);
 }
-
 
 /*
  * Let an object fall to the ground at or near a location.
@@ -3545,6 +3688,39 @@ void acquirement(int y1, int x1, int num, bool great)
 	}
 }
 
+/*
+ * create big rocks in a space with rubble
+ * mostly copied from the previous function
+ */
+void big_rocks(int y, int x)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+	bool make = TRUE;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(i_ptr);
+
+	/* Make the big rocks */
+	/* the following copied from parts of make_object() */
+	if (make)
+	{
+		object_kind *k_ptr;
+		int k_idx;
+
+		k_idx = lookup_kind(1, 25);
+		object_prep(i_ptr, k_idx);
+		i_ptr->number = damroll(1, 3);
+	}
+
+	/* Drop the object (never let it roll to another space) */
+	(void)floor_carry(y, x, i_ptr);
+	/* drop_near(i_ptr, -1, y1, x1); */
+}
+
 
 /*
  * Attempt to place an object (normal or good/great) at the given location.
@@ -3635,6 +3811,26 @@ void pick_trap(int y, int x)
 
 		/* Hack -- no trap doors on the deepest level */
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
+		
+		   /* minimum levels for traps: */
+		/* trap doors minL3 */
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth < 3)) continue;
+		/* spiked pits minL3 */
+		if ((feat == FEAT_TRAP_HEAD + 0x02) && (p_ptr->depth < 3)) continue;
+		/* poison spiked pit minL4 */
+		if ((feat == FEAT_TRAP_HEAD + 0x03) && (p_ptr->depth < 4)) continue;
+		/* summon monster trap minL3 */
+		if ((feat == FEAT_TRAP_HEAD + 0x04) && (p_ptr->depth < 3)) continue;
+		/* fire trap minL2 (damage is reduced for L2-3) */
+		if ((feat == FEAT_TRAP_HEAD + 0x07) && (p_ptr->depth < 2)) continue;
+		/* acid trap minL4 */
+		if ((feat == FEAT_TRAP_HEAD + 0x07) && (p_ptr->depth < 4)) continue;
+		/* DEX drain dart trap minL2 */
+		if ((feat == FEAT_TRAP_HEAD + 0x0A) && (p_ptr->depth < 2)) continue;
+		/* CON drain dart trap minL3 */
+		if ((feat == FEAT_TRAP_HEAD + 0x0B) && (p_ptr->depth < 3)) continue;
+		/* STR drain dart trap minL4 */
+		if ((feat == FEAT_TRAP_HEAD + 0x09) && (p_ptr->depth < 4)) continue;
 
 		/* Done */
 		break;

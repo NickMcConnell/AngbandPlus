@@ -113,21 +113,28 @@ s16b mon_cnt = 0;	/* Number of live monsters */
 /* new for DJA  **see bottom of file** */
 int range = 0;         /* shortened range of some spell/breaths */
 int spellswitch = 0;   /* extra effects of some spells (easy hacking) */
-int spadjust = 0;      /* speed adjustment by a nonstandard amount */
+int losesave = 0;      /* chance for powerful monsters to get past sustains and immunity */
 int goodluck = 0;
-int losesave = 0;       /* POWERFUL flag: sometimes ignore sustains */
 /* if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20; */
 int badluck = 0;
 /* if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck; */
 int goodweap = 0;      /* magic modifiers for sentient objects */
 int badweap = 0;       /* magic modifiers for sentient objects */
 int magicmod = 5;      /* magic modifiers for sentient objects */
-int palert = 0;
+int palert = 0;        /* this should be in the p_ptr type */
 int qSTR;           /* strength modifier (like in DND), defined in xtra1.c */
 int cotval = 0;     /* class object tval */
 int cosval = 0;     /* class object sval */
 int cotvalb = 0;     /* class object tval */
 int cosvalb = 0;     /* class object sval */
+int roamgroup1 = 0;   /* some ugly hacks to let */
+int roamgroup2 = 0;   /* roaming groups share a destination */
+int roamgroup3 = 0;
+int roamgroup4 = 0;
+int roamgroup5 = 0;
+int roamgroup6 = 0;
+int roamgroup7 = 0;
+int roamgroup8 = 0;
 
 /*
  * TRUE if process_command() is a repeated call.
@@ -877,8 +884,7 @@ u16b inscriptions_count = 0;
 /* 
  *  explaination of spellswitches:
  * 1  = map_area maps much bigger area.
- * 2  = another version of curse_weapon (gives it morgul ego instead of shattered ego)
- * 3  = milder version of curse_weapon (gives -tohit and -todam but doesn't change ego)
+ * 2-3  = (no longer used)
  * 4  = prevents lite_area() from automatically lighting up the whole room
  * 5  = make object that's not good or great (for acquirement())
  * 6  = increase radius for detect traps
@@ -911,7 +917,7 @@ u16b inscriptions_count = 0;
  * 28 = target self
  * 29 = makes GF_OLD_SLEEP more powerful (ignoring NO_SLEEP flags)
  * 30 = for gravity effect on nether ball, also used for bizzare effects spell
- * 91-95 = palert searching bonus
+ * 91-95 = palert searching bonus (?)
  *   spellswitch resets at the end of the project() function
  *   which is used in every bolt/beam/ball/breath spell.
  * 

@@ -345,7 +345,7 @@ have intrinsic abilities.
 		than a few inches tall, butthey have troll-sized strength.  They 
 		are fast, but lacking in intelligence and wisdom.  They are terrible 
 		with magic and disarming, but have a high saving throw due simply to 
-		being a fairy.  Their melee power	is second only to the half-troll.  
+		being a fairy.  Their melee power is second only to the half-troll.  
 		Their primary drawback is their size which results in significantly 
 		less hit points.  They resist light because of being a light fairy, 
 		they have feather falling because of being able to fly, and they 
@@ -369,18 +369,19 @@ have intrinsic abilities.
 ***** <Uber Umber Hulk>
           Umber Hulk
 		   The Umber Hulk race is a novelty race where you must be the class
-		made specifically for them as they do not work well in any profession.  
-		Their race/class combo is most similar to a half-troll barbarian except
-		an umber hulk has special abilities.  They have incredible strength and 
-		good constitution, but horrible intelligence, wisdom, and charisma.  
-		They are also terrible with disarming, searching and magic devices, but 
-		have a decent saving throw.  Their melee is the best of all races, and 
-		their range skills are just as bad as the half-troll's.  They can dig 
-		through even granite walls with their bare hands with no trouble at all, 
-		and they confuse monsters with their gaze, and cannot be confused 
-		themselves.  They are so powerful that occationally their blows will 
-		cause earthquakes.  They also always aggravate monsters because of 
-		their horrible stealth and the noise they make when they dig.
+		made specifically for them as they do not work well in any profession. 
+		Their race/class combo is most similar to a half-troll barbarian 
+		except an umber hulk has special abilities.  They have incredible 
+		strength and good constitution, but horrible intelligence, wisdom, 
+		and charisma.  They are also terrible with disarming, searching and 
+		magic devices, but have a decent saving throw.  Their melee is the 
+		best of all races, and their range skills are just as bad as the 
+		half-troll's.  They can dig through even granite walls with their bare 
+		hands with no trouble at all, and they confuse monsters with their 
+		gaze, and cannot be confused themselves.  They are so powerful that 
+		occationally their blows will cause earthquakes.  They also always 
+		aggravate monsters because of their horrible stealth and the noise 
+		they make when they dig.
 
 === Classes ===
  
@@ -433,7 +434,9 @@ have intrinsic abilities.
 		having to search.  A rogue is better than warriors or paladins with 
 		magical devices.  Rogues can also learn a few spells, but no powerful 
 		offensive spells like the wizard or necromancer.  A rogue's primary 
-		stats are Dexterity and Strength. Magic Realm- Chance magic.
+		stats are Dexterity and Strength. Magic Realm- Chance magic. He
+		doesn't start with a spellbook, but his first spells are in the
+		Tricks and Detections book found in the magic shop.
 
 ***** <Ranger>
           Ranger
@@ -538,9 +541,9 @@ have intrinsic abilities.
 		  A unique class which is hard to do well with, the tourist is very
 		bad at fighting and in just about every other skill except searching.
 		He advances in levels faster than any class except the warrior. The
-		Tourist starts with a useful camera flash spell which can stun monsters
-		and he learns spells from the chance realm which has many random-
-		effect spells.
+		Tourist starts with a useful camera flash spell which can stun 
+		monsters and he learns spells from the chance realm which has many 
+		random-effect spells.
 
 ***** <War Mage>
 	  War Mage
@@ -555,15 +558,15 @@ have intrinsic abilities.
 ***** <Barbarian>
 	  Barbarian
 		  The barbarian is easily the most powerful class as far as strength
-		and toughness and is just a good as the warrior as far as fighting skill.
-		His fighting style is different from the warrior's because the barbarian
-		does not easily get multiple attacks but instead he gets a significant 
-		bonus while wielding heavy weapons.  His disarming and magic device
-		skills are abysmal, and his saving throw and searching aren't much 
-		better, but he advances just as fast as the tourist.  And he can learn 
-		a few spells from the nature realm but he's doesn't get very good at it.
-		Not being very smart, he relies on wisdom instead of intelligence to 
-		use the little bit of magic that he can learn.
+		and toughness and is just a good as the warrior as far as fighting 
+		skill.	His fighting style is different from the warrior's because the 
+		barbarian does not easily get multiple attacks but instead he gets a 
+		significant bonus while wielding heavy weapons.  His disarming and 
+		magic device skills are abysmal, and his saving throw and searching 
+		aren't much better, but he advances just as fast as the tourist.  And 
+		he can learn a few spells from the nature realm but he's doesn't get 
+		very good at it. Not being very smart, he relies on wisdom instead of 
+		intelligence to use the little bit of magic that he can learn.
  
 
 === Stats ===
@@ -710,7 +713,7 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
       Elf         -1   +2   +1   +1   -1   +1       9         +20%   	14
       Hobbit      -2   +2   +1   +3   +3   +1       7         +11%   	7
       Gnome       -1   +2    0   +2   +1   -2       8         +25%   	9
-      Dwarf       +2   -3   +2   -2   +2   -3      11         +20%   	1 (but has darkv)
+      Dwarf       +2   -3   +2   -2   +2   -3      11         +20%   	1*
       Half-Orc    +2   -1   -1    0   +1   -4      10         +10%   	6
       Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%   	3
       Dunadan     +1   +2   +2   +2   +3   +2      10         +75%   	12
@@ -721,8 +724,10 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
       Dark Elf     0   +2   -2   +2   -1   -3       9         +25%   	13
      Living Ghoul  0    0   +2    0   -3   -4      10         +15%   	7
      Power Sprite +5   -3   -1   +2   +1    0       4         +30%   	9
-	Maia        +2   +3   +3   +2   +4   +3      12         +50%   	10
+	Maia      +2   +3   +3   +2   +4   +3      12         +50%   	10
       Umber Hulk  +5   -4   -3    0   +1   -6      15	        +55%   	8
+
+*Dwarf has the lowest alertness, but he has innate darkvision to partly make up for it.
 
                   STR  INT  WIS  DEX  CON  CHR  HD (bonus)  XP/level	   Alertness
       Warrior     +5   -2   -2   +2   +2    0       9          +0%	-	15
@@ -739,9 +744,9 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
       Assassin    +2   +1   -2   +1    0   -1       5         +30%	-	13
       Thief       +1   +2   -1   +3   -1   +1       2         +22%	-	11
       Tourist     +1   +2   -2   +1    0   +2       1          +5%	-	10
-	War Mage	-4   +3   -1   +1   -2   -1       0		  +26%	-	12
+      War Mage	  -4   +3   -1   +1   -2   -1       0	      +26%	-	12
       Barbarian   +6   -3   -1   +1   +2   -1      10          +5%	-	16
-    Chaos Warrior +4    0   -3   +1   +2   -2       7		  +25%	-	9
+    Chaos Warrior +4    0   -3   +1   +2   -2       7		+25%	-	9
       Umber Hulk  +3   -2   -1   +1   +2   -3       6         +25% (class)	8
  
  
@@ -804,8 +809,8 @@ your character - you can choose which one to use from the birth screen.
               The point-based method allows you to "buy" improvements to
               your basic stats by "spending" points on them.  You have a
               fixed number of points to spend, and making small changes
-              to a stat costs proportionally less than making large changed.
-              Any unspent points are converted into your starting money that 
+              to a stat costs less than making large change.
+              Any unspent points are converted into extra starting money that 
               you can use to buy equipment at the start of the game.
 
               This is the recommended birth method.

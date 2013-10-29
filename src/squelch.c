@@ -69,6 +69,7 @@ enum
 	/* EFGchange differentiate squelch into subcategories */
 	TYPE_WEAPON_POINTY,
 	TYPE_WEAPON_BLUNT,
+	TYPE_WEAPON_SKELETON,
 	TYPE_SHOOTER,
 	TYPE_MISSILE_SLING,
 	TYPE_MISSILE_BOW,
@@ -105,6 +106,7 @@ static const char *type_names[TYPE_MAX] =
 /* ??? need redundant check for right TYPE order */
 	"Pointy Melee Weapons",
 	"Blunt Melee Weapons",
+	"Bone Weapons",
 	"Missile weapons",
 	/* EFGchange differentiate squelch into subcategories */
 	"Shots and Pebbles",
@@ -137,6 +139,7 @@ static int type_tvals[][2] =
 	/* EFGchange differentiate squelch into subcategories */
 	{ TYPE_WEAPON_POINTY,	TV_SWORD },
 	{ TYPE_WEAPON_POINTY,	TV_POLEARM },
+	{ TYPE_WEAPON_SKELETON, TV_SKELETON },
 	{ TYPE_WEAPON_BLUNT,	TV_HAFTED },
 	{ TYPE_SHOOTER,	TV_BOW },
 	{ TYPE_MISSILE_SLING,	TV_SHOT },
@@ -506,6 +509,20 @@ bool squelch_item_ok(const object_type *o_ptr)
 /* ??? Need to mark preserved artifacts not to be regenerated after pseudoed or tried on */
 #endif
 	if (artifact_p(o_ptr)) return FALSE;
+	
+	/* DJA: don't squelch ego rings or amulets */
+	/* (amulet of teleporation of teleport control is very different */
+	/*  from normal amulet of teleporation) */
+	/* (this makes it easy to know that it's an ego, but that's not so bad) */
+    if ((ego_item_p(o_ptr)) && ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
+	   return FALSE;
+
+    /* DJA: don't squelch staffs which are obviously egos */
+    if (o_ptr->tval == TV_STAFF)
+    {
+	   if ((ego_item_p(o_ptr)) && (sensed)) return FALSE;
+	   if (object_splendid_p(o_ptr)) return FALSE;
+    }
 
 	/* Don't squelch stuff inscribed not to be destroyed (!k) */
 	if (check_for_inscrip(o_ptr, "!k") || check_for_inscrip(o_ptr, "!*"))
@@ -734,6 +751,19 @@ bool squelch_item_ok(const object_type *o_ptr)
  */
 bool squelch_hide_item(object_type *o_ptr)
 {
+	bool mighty = FALSE;
+	if (p_ptr->timed[TMD_MIGHTY_HURL]) mighty = TRUE;
+	/* an extremely strong barbarian or hulk is also mighty */
+	if ((((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 7) && 
+		(cp_ptr->flags & CF_HEAVY_BONUS)) mighty = TRUE;
+
+	/* Bigs rocks are always hidden unless you are "mighty" */
+	if (((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK)) &&
+		(!mighty))
+	{
+		return TRUE;
+	}
+	
 	return (hide_squelchable ? squelch_item_ok(o_ptr) : FALSE);
 }
 
@@ -850,6 +880,7 @@ static bool doing_lights = FALSE;
 static void quality_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
 {
 	const char *name = type_names[oid];
+	byte attr;
 
 	byte level = squelch_level[oid];
 	const char *level_name = quality_names[level];
@@ -863,7 +894,7 @@ static void quality_display(menu_type *menu, int oid, bool cursor, int row, int 
 		doing_lights = (oid == TYPE_LITE);
 #endif
 
-	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+	attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
 
 
 	c_put_str(attr, format("%-20s : %s", name, level_name), row, col);
@@ -876,6 +907,7 @@ static void quality_display(menu_type *menu, int oid, bool cursor, int row, int 
 static void quality_subdisplay(menu_type *menu, int oid, bool cursor, int row, int col, int width)
 {
 	const char *name = quality_names[oid];
+	byte attr;
 #ifdef EFG
 	/* EFGchange add lights to quality squelch menus */
 	if (doing_lights)
@@ -883,7 +915,7 @@ static void quality_subdisplay(menu_type *menu, int oid, bool cursor, int row, i
 		name = quality_lights[oid];
 	}
 #endif
-	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+	attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
 
 	c_put_str(attr, name, row, col);
 }

@@ -12,7 +12,6 @@
 #include "z-file.h"
 #include "cmds.h"
 #include "script.h"
-	 static int corruption = 0;
 
 #ifdef EFG
 /* EFGchange allow pseudo on jewelry */
@@ -40,6 +39,21 @@ static Bool excellent_jewelry_p(const object_type *o_ptr)
 			case SV_AMULET_RESIST:
 			case SV_AMULET_REGEN:
 			case SV_AMULET_RESIST_LIGHTNING:
+				return (TRUE);
+		}
+	}
+	/* Staffs only if not aware */
+	/* because staff psuedo can indicate egos also */
+	else if ((o_ptr->tval == TV_STAFF) && (!object_aware_p(o_ptr)))
+	{
+		switch(o_ptr->sval)
+		{
+			case SV_STAFF_DESTRUCTION:
+			case SV_STAFF_POWER:
+			case SV_STAFF_HOLINESS:
+			case SV_STAFF_BANISHMENT:
+            case SV_STAFF_SPEED:
+            case SV_STAFF_MANAFREE:
 				return (TRUE);
 		}
 	}
@@ -136,6 +150,10 @@ static int value_check_aux2(const object_type *o_ptr)
 static void sense_inventory(void)
 {
 	int i;
+#ifdef EFG
+	bool sensedany;
+	int phase;
+#endif
 
 	int plev = p_ptr->lev;
 
@@ -169,8 +187,8 @@ static void sense_inventory(void)
 
 #ifdef EFG
 	/* EFGchange know non-pseudoed wielded items average when anything pseudos */
-	bool sensedany = FALSE;
-	int phase;
+	sensedany = FALSE;
+	phase;
 	for (phase = 0; phase <= 1; phase++) for (i = phase*INVEN_WIELD; i < INVEN_TOTAL; i++)
 #else
 	/* Check everything */
@@ -204,6 +222,9 @@ static void sense_inventory(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+                 /* staffs and tusks can get egos so they should pseudo */
+			case TV_STAFF:
+			case TV_SKELETON:
 #ifdef EFG
 			/* EFGchange allow pseudo on jewelry */
 			case TV_LITE:
@@ -303,6 +324,13 @@ static void sense_inventory(void)
 			/* EFGchange remove need for identify wrto preserving artifacts */
 			object_known(o_ptr);
 			msg_print("You recognize a legendary item!");
+
+			/* Fully ID randarts (so you don't need a crazy amount of *ID*) */
+			if (adult_randarts)
+			{
+				/* Mark the item as fully known */
+				o_ptr->ident |= (IDENT_MENTAL);
+			}
 		}
 		/* EFGchange make stuff that pseudos as average be as if identified */
 		/* ??? This does not pick up jewelry -- good or bad? */
@@ -311,8 +339,12 @@ static void sense_inventory(void)
 			object_known(o_ptr);
 #endif
 
+		if (o_ptr->tval == TV_STAFF)
+		{
+           /* no squelching magic staffs by quality */
+        }
 		/* Set squelch flag as appropriate */
-		if (i < INVEN_WIELD)
+		else if (i < INVEN_WIELD)
 			p_ptr->notice |= PN_SQUELCH;
 
 
@@ -546,6 +578,8 @@ static void recharge_objects(void)
 	/* Process equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
+		u32b f1, f2, f3, f4;
+
 		/* Get the object */
 		o_ptr = &inventory[i];
 
@@ -563,6 +597,30 @@ static void recharge_objects(void)
 
 			/* Message if item is recharged, if inscribed with "!!" */
 			if (!(o_ptr->timeout)) recharged_notice(o_ptr, TRUE);
+		}
+
+		/* get flags (to check for constant activation flag) */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+		/* handle constant activation */
+		if ((i == INVEN_WIELD) && (f2 & (TR2_CONSTANTA)))
+		{
+			/* Currently only on magic staffs, but that could possibly change */
+			if (o_ptr->tval == TV_STAFF)
+			{
+				if (o_ptr->sval == SV_STAFF_SLOWNESS)
+				{
+					if (p_ptr->timed[TMD_SLOW] < 11) (void)set_timed(TMD_SLOW, 15);
+				}
+				else if (o_ptr->sval == SV_STAFF_ZAPPING)
+				{
+					if (p_ptr->timed[TMD_ZAPPING] < 11) (void)set_timed(TMD_ZAPPING, 15);
+				}
+				else if (o_ptr->sval == SV_STAFF_SPEED)					
+				{
+					if (p_ptr->timed[TMD_FAST] < 11) (void)set_timed(TMD_FAST, 15);
+				}
+			}
 		}
 	}
 
@@ -704,6 +762,54 @@ static void decrease_timeouts(void)
 {
 	int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 	int i;
+	
+	/* timed weapon blessing */
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_WIELD];
+    if ((o_ptr->blessed > 1) && ((!p_ptr->resting) || (randint(100) < 33)))
+    {
+	   if (o_ptr->blessed == 2)
+       {
+	      /* get the object name */
+          char o_name[80];
+	      object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+          msg_format("The blessing on your %s has faded", o_name);
+       }
+	   o_ptr->blessed -= 1;
+	   /* o_ptr->blessed is still 1 to nullify badweap flag */
+    }
+    /* find vault spell wears off after awhile if not used */
+    if ((p_ptr->find_vault) && (!p_ptr->resting) && (randint(40+goodluck) == 2))
+        p_ptr->find_vault -= 1;
+
+	/* Turn big rocks into rubble when MIGHTY_HURL expires */
+	if (p_ptr->timed[TMD_MIGHTY_HURL] == 1)
+	{
+		/* Scan all objects */
+		for (i = 1; i < o_max; i++)
+		{
+			object_type *o_ptr = &o_list[i];
+			int y, x;
+
+			/* Skip held objects */
+			if (o_ptr->held_m_idx) continue;
+
+			/* is it a big rock? */
+			if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
+			{
+				/* Location */
+				y = o_ptr->iy;
+				x = o_ptr->ix;
+
+				/* Create rubble (if there isn't already rubble there) */
+			    if (cave_feat[y][x] != FEAT_RUBBLE) cave_set_feat(y, x, FEAT_RUBBLE);
+
+				/* Update the visuals */
+				p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+			}
+		}
+	}
 
 	/* Decrement all effects that can be done simply */
 	for (i = 0; i < TMD_MAX; i++)
@@ -732,6 +838,12 @@ static void decrease_timeouts(void)
 		dec_timed(i, decr);
 	}
 
+	/* Sustain speed sustains positive adjusted speed (but not hasting) */
+	if ((p_ptr->timed[TMD_SUST_SPEED]) && (p_ptr->timed[TMD_ADJUST]))
+	{
+		if (p_ptr->spadjust > 0) (void)inc_timed(TMD_ADJUST, 3);
+	}
+
 	return;
 }
 
@@ -741,7 +853,7 @@ static void decrease_timeouts(void)
  * copied from wizard2.c
  * This function is rather dangerous? why?
  */
-static void do_call_help(int r_idx, bool slp)
+static void do_call_help(int r_idx)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -764,7 +876,7 @@ static void do_call_help(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+		if (place_monster_aux(y, x, r_idx, FALSE, TRUE)) break;
 	}
 }
 
@@ -775,6 +887,7 @@ static void do_call_help(int r_idx, bool slp)
 static void process_world(void)
 {
 	int i;
+	int corch;
 
 	int regen_amount;
 
@@ -782,7 +895,6 @@ static void process_world(void)
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
-
 
 	/*** Check the Time and Load ***/
 
@@ -864,7 +976,6 @@ static void process_world(void)
 		}
 	}
 
-
 	/*** Process the monsters ***/
 
 	/* Check for creature generation */
@@ -885,7 +996,7 @@ static void process_world(void)
 	{
         if ((p_ptr->silver >= PY_SILVER_LEVELONE) && (p_ptr->silver < PY_SILVER_LEVELTWO))
         {
-           	int rare = randint(999);
+           	int rare = randint(1000 - p_ptr->silver);
       	    if (rare == 1)
       	    {
                      int die = randint(100);
@@ -902,7 +1013,7 @@ static void process_world(void)
         }
         if ((p_ptr->silver >= PY_SILVER_LEVELTWO) && (p_ptr->silver < PY_SILVER_VERYBAD))
         {
-           	int rare = randint(999);
+           	int rare = randint(1000 - p_ptr->silver);
       	    if (rare < 4)
       	    {
                      int die = randint(100);
@@ -914,19 +1025,24 @@ static void process_world(void)
                      else if (die < 54) (void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
                      else if (die < 72) (void)inc_timed(TMD_AMNESIA, rand_int(6) + 4);
                      else if (die < 90) (void)inc_timed(TMD_IMAGE, rand_int(6) + 4);
-                     else take_hit(3, "silver poison");
+                     else take_hit(randint(p_ptr->silver-4), "silver poison");
             }
             
         }
         if (p_ptr->silver >= PY_SILVER_VERYBAD)
         {
-           p_ptr->stat_cur[A_WIS] = p_ptr->stat_cur[A_WIS] -1;
-           p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1;
-		   take_hit(212, "corruption from silver poison");
-			(void)inc_timed(TMD_CONFUSED, rand_int(4) + 3);
-            (void)inc_timed(TMD_AMNESIA, rand_int(6) + 6);
-		    (void)inc_timed(TMD_IMAGE, rand_int(6) + 4);
-        	  msg_print("Your mind is corrupted by silver poison!");
+           	int notsorare = randint(100 - badluck);
+      	    if (notsorare < 33)
+      	    {
+               p_ptr->stat_cur[A_WIS] = p_ptr->stat_cur[A_WIS] -1;
+               p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1;
+               if (notsorare < 10) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
+		       take_hit(66 + randint(p_ptr->silver*6), "corruption from silver poison");
+               if (notsorare < 16) (void)inc_timed(TMD_CONFUSED, randint(4) + 3);
+               if (notsorare > 16) (void)inc_timed(TMD_AMNESIA, randint(6) + 6);
+               if (notsorare < 25) (void)inc_timed(TMD_IMAGE, randint(6) + 4);
+        	   msg_print("Your mind is corrupted by silver poison!");
+            }
         } 
                        
     }
@@ -936,7 +1052,7 @@ static void process_world(void)
 	{
         if ((p_ptr->slime >= PY_SLIME_LEVELONE) && (p_ptr->slime < PY_SLIME_LEVELTWO))
         {
-           	int rare = randint(999);
+           	int rare = randint(1000 - (p_ptr->slime/2));
       	    if (rare == 1)
       	    {
                      int die = randint(100);
@@ -952,34 +1068,73 @@ static void process_world(void)
         }
         if ((p_ptr->slime >= PY_SLIME_LEVELTWO) && (p_ptr->slime < PY_SLIME_VERYBAD))
         {
-           	int rare = randint(999);
+           	int rare = randint(1000 - (p_ptr->slime/2));
       	    if (rare < 4)
       	    {
                      int die = randint(100);
-                     if (die < 96) msg_print("The slime oozes into your body.");
+                     msg_print("The slime oozes into your body.");
 
                      if (die < 30) (p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON] -1);
                      else if (die < 45) (p_ptr->stat_cur[A_DEX] = p_ptr->stat_cur[A_DEX] -1);
                      else if (die < 50) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
                      else if (die < 70) (void)inc_timed(TMD_SLOW, rand_int(4) + 5);
                      else if (die < 90) (void)inc_timed(TMD_STUN, rand_int(4) + 5);
-                     else if (die < 96) take_hit(2, "slime");
+                     else take_hit(randint(p_ptr->slime-30), "slime");
             }
             
         }
         if (p_ptr->slime >= PY_SLIME_VERYBAD)
         {
-           p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON] -1;
-           p_ptr->stat_cur[A_DEX] = p_ptr->stat_cur[A_DEX] -1;
-           p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1;
-		   take_hit(284, "slime");
-			(void)inc_timed(TMD_SLOW, rand_int(4) + 6);
-		    (void)inc_timed(TMD_STUN, rand_int(4) + 6);
-        	  msg_print("Slime is taking over your body!");
+           	int notsorare = randint(100 - badluck);
+      	    if (notsorare < 33)
+      	    {
+               p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON] -1;
+               p_ptr->stat_cur[A_DEX] = p_ptr->stat_cur[A_DEX] -1;
+               p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1;
+		       take_hit(33 + randint(p_ptr->slime * 4), "slime");
+               if (notsorare < 16) (void)inc_timed(TMD_SLOW, randint(4) + 6);
+               if (notsorare > 16) (void)inc_timed(TMD_STUN, randint(6) + 6);
+        	   msg_print("Slime is taking over your body!");
+            }
         } 
                        
     }
     
+    /* corruption from the One Ring */
+    corch = 5000; /* no effect at 5000 */
+    if (p_ptr->corrupt > 0) corch = randint(6000 - badluck);
+    if (corch < 4)
+    {
+       p_ptr->corrupt += 1;
+       if (corch < 3) p_ptr->luck -= 1;
+       /* corruption limit */
+       if (p_ptr->corrupt > 50) p_ptr->corrupt = 50;
+    }
+    else if (corch < (p_ptr->corrupt / 2) - (goodluck / 2) - 1)
+    {
+       if ((badluck > 15) && (p_ptr->max_depth > 69) && (randint(100) < 33))
+       {
+          /* may happen at any depth, as long as max depth is > 69 */
+          if (summon_specific(p_ptr->py, p_ptr->px, 70, SUMMON_WRAITH))
+          {
+             msg_print("A Nazgul has sought you out.");
+          }
+          else summon_specific(p_ptr->py, p_ptr->px, p_ptr->max_depth/2, SUMMON_DEMON);
+       }
+       else
+       {
+          summon_specific(p_ptr->py, p_ptr->px, p_ptr->max_depth-6, SUMMON_DEMON);
+          msg_print("Demons are attracted to the evil power you hold.");
+       }
+    }
+
+    /* good magic items can remove corruption */    
+    if ((goodweap) && (!badweap) && (p_ptr->corrupt > 0) && (randint(999) == 1))
+    {
+       p_ptr->corrupt -= 1;
+    }
+    
+    /* attraction of demons by black magic or bad luck */    
     if (((p_ptr->timed[TMD_WITCH]) || (badluck > 18)) && (randint(666) == 1))
     {
        if (cp_ptr->spell_book == TV_DARK_BOOK)
@@ -988,37 +1143,37 @@ static void process_world(void)
        }
        else if (badluck > 18)
        {
-          msg_print("Demons like to pick on the unlucky.");
+          msg_print("Demons are attracted to those who are very unlucky.");
        }
        else
        {
           msg_print("Demons are attracted to the nether power you summoned.");
        }
-       if (randint(100) < 20) do_call_help(560, TRUE);
-       else summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DEMON);
+       if ((randint(100) < 20) && (p_ptr->lev > 20)) do_call_help(560);
+       else summon_specific(p_ptr->py, p_ptr->px, p_ptr->max_depth-5, SUMMON_DEMON);
     }
     
     /* neutral class wielding both good object(s) and bad object(s) */
-    if ((magicmod > 19) && (randint(500) == 1))
+    if ((magicmod > 19) && (randint(999) == 1))
     {
-       msg_print("Some of your worn/wielded items are in conflict with each other.");
+       msg_print("Some of your equipped items are in conflict with each other.");
        if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2 + (badluck/5)));
-       else (void)inc_timed(TMD_CONFUSED, 2 + randint(3 + (badluck/3)));
+       else (void)inc_timed(TMD_CONFUSED, 2 + randint(4 + (badluck/3)));
     }
     /* aligned class wielding both good object(s) and bad object(s) */
-    if (((magicmod == 10) || (magicmod == 8)) && (randint(999) == 1))
+    if (((magicmod == 10) || (magicmod == 8)) && (randint(1200) == 1))
     {
-       msg_print("Some of your worn/wielded items are in conflict with each other.");
+       msg_print("Some of your equipped items are in conflict with each other.");
        if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2));
        else (void)inc_timed(TMD_CONFUSED, 2 + randint(4));      
-       if (randint(100) < 55) (void)inc_timed(TMD_STUN, 1 + badweap);
+       if (randint(100) < 60) (void)inc_timed(TMD_STUN, 1 + badweap);
     }
-    if (((magicmod == 1) || (magicmod == 3)) && (randint(999) == 1))
+    if (((magicmod == 1) || (magicmod == 3)) && (randint(1200) == 1))
     {
-       msg_print("Some of your worn/wielded items are in conflict with each other.");
+       msg_print("Some of your equipped items are in conflict with each other.");
        if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2 + (badluck/5)));
        else (void)inc_timed(TMD_CONFUSED, 2 + randint(3 + (badluck/3)));
-       if (randint(100) < 55) (void)inc_timed(TMD_STUN, 1 + goodweap);
+       if (randint(100) < 60) (void)inc_timed(TMD_STUN, 1 + goodweap);
     }
     
 	/* Take damage from poison */
@@ -1059,11 +1214,14 @@ static void process_world(void)
 			/* Basic digestion rate based on speed */
 			i = extract_energy[p_ptr->pspeed] * 2;
 
-			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
+			/* Regeneration takes more food (was 30) */
+			if (p_ptr->regenerate) i += 28;
+
+			/* digest faster when hasted */
+			if (p_ptr->timed[TMD_SUST_SPEED]) i += 20;
 
 			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 10;
+			if (p_ptr->slow_digest) i -= 11;
 
 			/* Minimal digestion */
 			if (i < 1) i = 1;
@@ -1147,7 +1305,7 @@ static void process_world(void)
 	/* Various things interfere with healing */
 	if (p_ptr->timed[TMD_PARALYZED]) regen_amount /= 3;
 	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
-	if (p_ptr->timed[TMD_STUN]) regen_amount = 0;
+	if (p_ptr->timed[TMD_STUN]) regen_amount /= 4;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
 	if (p_ptr->stopregen) regen_amount = 0;
 	if (p_ptr->timed[TMD_BECOME_LICH]) regen_amount /= 2;
@@ -1229,19 +1387,6 @@ static void process_world(void)
 
 	/*** Process Inventory ***/
 
-	/* Handle experience draining */
-	if (p_ptr->exp_drain)
-	{
-		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
-		{
-            int drainmuch = randint(10) + randint(p_ptr->lev) + randint(badluck);
-            if (cp_ptr->spell_book == TV_DARK_BOOK) drainmuch += randint(6);
-			p_ptr->exp = p_ptr->exp - drainmuch;
-			p_ptr->max_exp = p_ptr->max_exp - ((drainmuch*2) / 3);
-			check_experience();
-		}
-	}
-
 	/* Recharge activatable objects and rods */
 	recharge_objects();
 
@@ -1254,8 +1399,21 @@ static void process_world(void)
 	/* Mega-Hack -- Random teleportation XXX XXX XXX */
 	if ((p_ptr->teleport) && (rand_int(100) < 1))
 	{
-		/* Teleport player */
-		teleport_player(40);
+        bool controlled = FALSE;
+        /* controlled teleport (not easily controlled) */
+		if (p_ptr->telecontrol)
+		{
+            if (control_tport(0, 101)) controlled = TRUE;
+
+            if (!controlled) msg_print("You fail to control the teleportation.");
+        }
+
+        /* check for controlled teleport before teleporting randomly */
+        if (!controlled)
+        {
+            /* Teleport player randomly */
+		    teleport_player(40);
+        }
 	}
 
 	/* Delayed Word-of-Recall */
@@ -1263,6 +1421,9 @@ static void process_world(void)
 	{
 		/* Count down towards recall */
 		p_ptr->word_recall--;
+
+		/* recall twice as fast if desperate to escape */
+		if ((p_ptr->timed[TMD_TERROR]) && (p_ptr->depth)) p_ptr->word_recall--;
 
 		/* Activate the recall */
 		if (!p_ptr->word_recall)
@@ -1445,12 +1606,23 @@ static void process_player(void)
 		else if (p_ptr->resting == -2)
 #endif
 		{
-			/* Stop resting */
+			bool minor = TRUE;
+			/* disturb minor is a wierd option to use for this.. */
+			if (disturb_minor) /* minor timed effects (only slightly bad) */
+			{
+                minor = FALSE;
+                if (!p_ptr->timed[TMD_FRENZY] && !p_ptr->timed[TMD_CURSE] &&
+                   !p_ptr->timed[TMD_SUST_SPEED] && !p_ptr->timed[TMD_2ND_THOUGHT] &&
+                   !p_ptr->timed[TMD_STONESKIN] && !p_ptr->timed[TMD_AMNESIA])
+                   minor = TRUE;
+            }
+            
+            /* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp) &&
+			    (p_ptr->csp == p_ptr->msp) && (minor) &&
 			    !p_ptr->timed[TMD_BLIND] && !p_ptr->timed[TMD_CONFUSED] &&
 			    !p_ptr->timed[TMD_POISONED] && !p_ptr->timed[TMD_AFRAID] &&
-			    !p_ptr->timed[TMD_STUN] && !p_ptr->timed[TMD_CUT] &&
+			    !p_ptr->timed[TMD_STUN] && !p_ptr->timed[TMD_CUT] && !p_ptr->timed[TMD_TERROR] &&
 			    !p_ptr->timed[TMD_SLOW] && !p_ptr->timed[TMD_PARALYZED] &&
 			    !p_ptr->timed[TMD_IMAGE] && !p_ptr->word_recall && !p_ptr->timed[TMD_CHARM])
 			{
@@ -1538,7 +1710,7 @@ static void process_player(void)
 			inven_item_increase(item, -255);
 			inven_item_describe(item);
 			inven_item_optimize(item);
-
+            
 			/* Notice stuff (if needed) */
 			if (p_ptr->notice) notice_stuff();
 
@@ -1644,7 +1816,6 @@ static void process_player(void)
 		{
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
-
 
 			/* Hack -- constant hallucination */
 			if (p_ptr->timed[TMD_IMAGE])
@@ -1881,10 +2052,8 @@ static void dungeon(void)
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
-
 	/* Choose panel */
 	verify_panel();
-
 
 	/* Flush messages */
 	message_flush();
@@ -1977,6 +2146,16 @@ static void dungeon(void)
 
 	/* Reset the object generation level */
 	object_level = p_ptr->depth;
+	
+	/* Reset the group roaming destinations */
+	roamgroup1 = 0;
+	roamgroup2 = 0;
+	roamgroup3 = 0;
+	roamgroup4 = 0;
+	roamgroup5 = 0;
+	roamgroup6 = 0;
+	roamgroup7 = 0;
+	roamgroup8 = 0;
 
 	/* Main loop */
 	while (TRUE)
@@ -2176,6 +2355,7 @@ void play_game(bool new_game)
 		/* Oops */
 		quit("broken savefile");
 	}
+	msg_format("just loaded");
 
 	/* Nothing loaded */
 	if (!character_loaded)
@@ -2330,7 +2510,6 @@ void play_game(bool new_game)
 		/* Process the level */
 		dungeon();
 
-
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
@@ -2371,7 +2550,7 @@ void play_game(bool new_game)
 		if (p_ptr->playing && p_ptr->is_dead)
 		{
 			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+			if ((p_ptr->wizard || cheat_live) && !get_confirm("Die? "))
 			{
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
@@ -2403,10 +2582,13 @@ void play_game(bool new_game)
 				(void)clear_timed(TMD_POISONED);
 				(void)clear_timed(TMD_AFRAID);
 				(void)clear_timed(TMD_CHARM);
+				(void)clear_timed(TMD_FRENZY);
 				(void)clear_timed(TMD_PARALYZED);
 				(void)clear_timed(TMD_IMAGE);
 				(void)clear_timed(TMD_STUN);
 				(void)clear_timed(TMD_CUT);
+				p_ptr->silver = 0;
+				p_ptr->slime = 0;
 
 				/* Hack -- Prevent starvation */
 				(void)set_food(PY_FOOD_MAX - 1);

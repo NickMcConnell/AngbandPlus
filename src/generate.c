@@ -361,6 +361,9 @@ static void place_rubble(int y, int x)
 {
 	/* Create rubble */
 	cave_set_feat(y, x, FEAT_RUBBLE);
+
+	/* Create big rocks */
+	big_rocks(y, x);
 }
 
 
@@ -820,14 +823,32 @@ static void vault_monsters(int y1, int x1, int num)
  */
 static void generate_room(int y1, int x1, int y2, int x2, int light)
 {
-	int y, x;
+	int y, x, dimness;
+
+    /* how dim is the room's light? */
+    int lmod = randint(50 - goodluck/2 + p_ptr->depth * 2 + p_ptr->corrupt);
+    if (p_ptr->depth == 0) dimness = 0;
+    else if ((lmod < 33) && (p_ptr->depth < 26)) dimness = 1;
+    else if ((lmod < 66) && ((p_ptr->depth < 55) || (goodluck > 10))) dimness = 2;
+    else if (lmod < 100) dimness = 3;
+    else dimness = 4;
 
 	for (y = y1; y <= y2; y++)
 	{
 		for (x = x1; x <= x2; x++)
 		{
 			cave_info[y][x] |= (CAVE_ROOM);
-			if (light) cave_info[y][x] |= (CAVE_GLOW);
+			if (light)
+            {
+                 cave_info[y][x] |= (CAVE_GLOW);
+#if EXPM
+                 if (dimness == 0) cave_info[y][x] |= (DLIT_FULL);
+                 else if (dimness == 1) cave_info[y][x] |= (DLIT_DIMA);
+                 else if (dimness == 2) cave_info[y][x] |= (DLIT_DIMB);
+                 else if (dimness == 3) cave_info[y][x] |= (DLIT_DIMC);
+                 else /* dimness 4 */ cave_info[y][x] |= (DLIT_DIMD);
+#endif
+            }
 		}
 	}
 }
@@ -981,7 +1002,8 @@ static void build_type1(int y0, int x0)
 
 	/* Occasional light */
 	if (p_ptr->depth <= randint(25)) light = TRUE;
-
+	else if ((p_ptr->depth > 25) && (randint(p_ptr->depth + 10 + badluck/2 - goodluck/2) == 2))
+	     light = TRUE;
 
 	/* Pick a room size */
 	y1 = y0 - randint(4);
@@ -1043,6 +1065,8 @@ static void build_type2(int y0, int x0)
 
 	/* Occasional light */
 	if (p_ptr->depth <= randint(25)) light = TRUE;
+	else if ((p_ptr->depth > 25) && (randint(p_ptr->depth + 15 + badluck/2 - goodluck/2) == 2))
+	     light = TRUE;
 
 
 	/* Determine extents of room (a) */
@@ -1104,6 +1128,8 @@ static void build_type3(int y0, int x0)
 
 	/* Occasional light */
 	if (p_ptr->depth <= randint(25)) light = TRUE;
+	else if ((p_ptr->depth > 25) && (randint(p_ptr->depth + 15 + badluck/2 - goodluck/2) == 2))
+	     light = TRUE;
 
 
 	/* Pick inner dimension */
@@ -1250,8 +1276,10 @@ static void build_type4(int y0, int x0)
 	int light = FALSE;
 
 
-	/* Occasional light */
+	/* Occasional light (more often lit than other room types) */
 	if (p_ptr->depth <= randint(25)) light = TRUE;
+	else if ((p_ptr->depth > 2) && (randint(p_ptr->depth + 5 + badluck/2 - goodluck/2) == 2))
+	     light = TRUE;
 
 
 	/* Large room */
@@ -1761,6 +1789,17 @@ static void build_type5(int y0, int x0)
 	/* Hack -- Choose a nest type */
 	tmp = randint(p_ptr->depth);
 
+    /* DJA randomize a little more */
+	if (randint(100) < 40)
+	{
+       int tmpb;
+       if (p_ptr->depth < 70) tmpb = randint(p_ptr->depth+20);
+       else tmpb = randint(90);
+       if ((tmpb > tmp) && (randint(50) < 5 + badluck - goodluck)) tmp = tmpb;
+       else if (tmpb > tmp) tmp = (tmp + tmpb) / 2;
+       else if (tmpb < tmp) tmp = (tmp + tmpb) / 2 + 1;
+    }
+
 	/* Monster nest (jelly) */
 	if (tmp < 15)
 	{
@@ -1769,36 +1808,51 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to jelly */
 		get_mon_num_hook = vault_aux_jelly;
+
+	    /* Increase the level rating (depending on nest type) */
+	    rating += 4;
 	}
 
 	/* Monster nest (creepy crawly) */
-	else if (tmp < 25)
+	else if (tmp < 23)
 	{
 		/* Describe */
 		name = "creepy crawly";
 
-		/* Restrict to creepy crawly */
+		/* Restrict to creepy crawlys */
 		get_mon_num_hook = vault_aux_bugs;
+
+	    /* Increase the level rating (depending on nest type) */
+	    rating += 7;
 	}
 
 	/* Monster nest (imp and fairy) */
-	else if (tmp < 30)
+	else if (tmp < 26)
 	{
 		/* Describe */
 		name = "imp and fairy";
 
+		/* fairies like light */
+		if (randint(100) > p_ptr->depth + 15) light = TRUE;
+
 		/* Restrict to imp or fairy */
 		get_mon_num_hook = vault_aux_fairy;
+
+	    /* Increase the level rating (depending on nest type) */
+	    rating += 10;
 	}
 
 	/* Monster nest (animal) */
-	else if (tmp < 38)
+	else if (tmp < 37)
 	{
 		/* Describe */
 		name = "animal";
 
 		/* Restrict to animal */
 		get_mon_num_hook = vault_aux_animal;
+
+	    /* Increase the level rating (depending on nest type) */
+	    rating += 10;
 	}
 
 	/* Monster nest (great beast) */
@@ -1809,6 +1863,9 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to great beast */
 		get_mon_num_hook = vault_aux_beast;
+
+	    /* Increase the level rating (depending on nest type) */
+	    rating += 12;
 	}
 
 	/* Monster nest (undead) */
@@ -1819,6 +1876,9 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to undead */
 		get_mon_num_hook = vault_aux_undead;
+
+	    /* Increase the level rating (depending on nest type) */
+	    rating += 13;
 	}
 
 	/* Prepare allocation table */
@@ -1855,9 +1915,6 @@ static void build_type5(int y0, int x0)
 	}
 
 
-	/* Increase the level rating */
-	rating += 10;
-
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
 	if ((p_ptr->depth <= 40) &&
 	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
@@ -1874,7 +1931,7 @@ static void build_type5(int y0, int x0)
 			int r_idx = what[rand_int(64)];
 
 			/* Place that "random" monster (no groups) */
-			(void)place_monster_aux(y, x, r_idx, FALSE, FALSE);
+			(void)place_monster_aux(y, x, r_idx, TRUE, FALSE);
 		}
 	}
 }
@@ -2180,8 +2237,8 @@ static void build_type6(int y0, int x0)
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
 	{
-		place_monster_aux(y0 - 2, x, what[0], FALSE, FALSE);
-		place_monster_aux(y0 + 2, x, what[0], FALSE, FALSE);
+		place_monster_aux(y0 - 2, x, what[0], TRUE, FALSE);
+		place_monster_aux(y0 + 2, x, what[0], TRUE, FALSE);
 	}
 
 	/* Middle columns */
@@ -2891,7 +2948,7 @@ static bool room_build(int by0, int bx0, int typ)
 		}
 	}
 
-	/* Count "crowded" rooms */
+	/* Count "crowded" rooms (pits and nests) */
 	if ((typ == 5) || (typ == 6)) dun->crowded = TRUE;
 
 	/* Success */
@@ -2931,7 +2988,7 @@ static void cave_gen(void)
 
 
 	/* Possible "destroyed" level */
-	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
+	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST - (badluck/3)) == 0)) destroyed = TRUE;
 
 	/* Hack -- No destroyed "quest" levels */
 	if (is_quest(p_ptr->depth)) destroyed = FALSE;
@@ -2961,6 +3018,7 @@ static void cave_gen(void)
 	/* Build some rooms */
 	for (i = 0; i < DUN_ROOMS; i++)
 	{
+		int roomodds;
 		/* Pick a block for the room */
 		by = rand_int(dun->row_rooms);
 		bx = rand_int(dun->col_rooms);
@@ -2977,6 +3035,16 @@ static void cave_gen(void)
 		}
 #endif
 
+		/* should we look for a vault? (find vault spell) */
+        roomodds = DUN_UNUSUAL;
+		if (p_ptr->seek_vault)
+        {
+           roomodds -= p_ptr->find_vault;
+           if (roomodds > 150) roomodds = 150;
+           destroyed = FALSE;
+        }
+        else if (goodluck > 6) roomodds -= goodluck/2;
+
 		/* Destroyed levels are boring */
 		if (destroyed)
 		{
@@ -2988,14 +3056,31 @@ static void cave_gen(void)
 		}
 
 		/* Attempt an "unusual" room */
-		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+		/* (DUN_UNUSUAL is 200, set at L109) */
+		/* roomodds = DUN_UNUSUAL unless find vault spell is used */
+		if (rand_int(roomodds) < p_ptr->depth)
 		{
 			/* Roll for room type */
-			k = rand_int(100);
+			if (p_ptr->seek_vault)
+            {
+               k = rand_int(100 - p_ptr->find_vault);
+               if ((p_ptr->depth > 3) && (p_ptr->depth < 120))
+               {
+                  /* seek_vault uses inverted depth */
+                  roomodds -= 120 - p_ptr->depth;
+               }
+               else roomodds -= (p_ptr->find_vault/3) + 1;
+            }
+			else if (goodluck > 6) k = rand_int(100 - goodluck/4);
+			else k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+			if (rand_int(roomodds) < p_ptr->depth)
 			{
+			    /* find vault shouldn't find pits and nests as often */
+			    if ((p_ptr->seek_vault) && (k < 50) && (k > 25) && (randint(100) < 55))
+                   k = randint(20) + 5 - (goodluck/4);
+
 				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && room_build(by, bx, 8)) continue;
 
@@ -3137,7 +3222,7 @@ static void cave_gen(void)
 	if (k < 2) k = 2;
 
 	/* Put some rubble in corridors */
-	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
+	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k + 1));
 
 	/* Place some traps in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
@@ -3191,6 +3276,15 @@ static void cave_gen(void)
 	/* Put some objects/gold in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
+
+    /* reset vault seeking */
+	if (p_ptr->seek_vault)
+    {
+       p_ptr->seek_vault = FALSE;
+       p_ptr->find_vault = 0;
+    }
+    else if (p_ptr->find_vault >= 5) p_ptr->find_vault -= 5;
+
 }
 
 

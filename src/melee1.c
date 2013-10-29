@@ -166,6 +166,7 @@ bool make_attack_normal(int m_idx)
 
 		int power = 0;
 		int damage = 0;
+		int trlev, protpwr, surround;
 
 		cptr act = NULL;
 
@@ -188,12 +189,11 @@ bool make_attack_normal(int m_idx)
 		if (m_ptr->ml) visible = TRUE;
 
 
-
 		/* Extract the attack "power" */
 		switch (effect)
 		{
 			case RBE_HURT:      power = 60; break;
-			case RBE_POISON:    power =  5; break;
+			case RBE_POISON:    power =  6; break;
 			case RBE_UN_BONUS:  power = 20; break;
 			case RBE_UN_POWER:  power = 15; break;
 			case RBE_EAT_GOLD:  power =  5; break;
@@ -221,8 +221,8 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_40:    power =  5; break;
 			case RBE_EXP_80:    power =  5; break;
 			case RBE_HALLU:     power = 10; break;
-			case RBE_SILVER:    power = 11; break;
-			case RBE_SLIME:     power = 12; break;
+			case RBE_SILVER:    power = 13; break;
+			case RBE_SLIME:     power = 13; break;
 			case RBE_CHARM:     power = 20; break;
 			case RBE_FRENZY:    power = 15; break;
             case RBE_HUNGER:    power = 20; break;
@@ -238,17 +238,38 @@ bool make_attack_normal(int m_idx)
 			case RBE_STUDY:     power = 50; break;
 		}
 
+        /* make temporary effective monster level */
+        /* affected by confusion and stunning */
+        trlev = rlev;
+        if ((m_ptr->confused) && (m_ptr->stunned)) trlev = trlev/10;
+        else if (m_ptr->stunned) trlev = trlev/3;
+        else if (m_ptr->confused) trlev = (trlev*4)/5;
+        /* monster has been caught off guard */
+        if (m_ptr->roaming == 29)
+        {
+            trlev = (trlev*3)/4;
+            m_ptr->roaming = 0;
+        }
+        if (trlev < 1) trlev = 1;
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev))
+		if (!effect || check_hit(power, trlev))
 		{
+#if irrevelentnow
 			/* if you are hit by a monster, you should notice that it's there */
-			if ((!m_ptr->monseen) && (!r_ptr->flags2 & (RF2_INVISIBLE)))
+			/* irrevelent because you always automatically notice adjacent monsters */
+			if ((!m_ptr->ml) && !(r_ptr->flags2 & (RF2_INVISIBLE)))
 			{
-               m_ptr->monseen = TRUE;
-               m_ptr->ml = TRUE;
-               visible = FALSE;
+               m_ptr->monseen = 11;
+
+               /* update visual */
+	           /* p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS); */
+	           update_mon(m_idx, TRUE);
+
+               /* Extract monster name (not just "it" anymore) */
+	           monster_desc(m_name, sizeof(m_name), m_ptr, 0);
             }
+#endif
                                 
 			/* Always disturbing */
 			disturb(1, 0);
@@ -271,17 +292,22 @@ bool make_attack_normal(int m_idx)
 				/* Hack -- Next attack */
 				continue;
 			}
+			
+			protpwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if (protpwr > 50) protpwr = 50;
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			    (m_ptr->evil) &&
+			    ( (p_ptr->lev >= rlev) || (randint(protpwr) >= rlev) ) &&
+			    ((rand_int(98 + adj_chr_charm[p_ptr->stat_ind[A_CHR]]) + p_ptr->lev - rlev) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_EVIL);
+					if (r_ptr->flags3 & (RF3_EVIL)) l_ptr->flags3 |= (RF3_EVIL);
+					else if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
+					else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
 				}
 
 				/* Message */
@@ -293,14 +319,16 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- Apply strong "protection from evil" */
 			if ((p_ptr->timed[TMD_PROTEVIL2] > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
+			    (m_ptr->evil) &&
 			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(101) + p_ptr->lev) > 50))
+			    ((rand_int(100 + adj_chr_charm[p_ptr->stat_ind[A_CHR]]) + p_ptr->lev - rlev) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_EVIL);
+					if (r_ptr->flags3 & (RF3_EVIL)) l_ptr->flags3 |= (RF3_EVIL);
+					else if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
+					else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
 				}
 				
 				/* Message */
@@ -312,7 +340,7 @@ bool make_attack_normal(int m_idx)
 
 			/* can affect monsters higher than the player's level */
 			if ((p_ptr->timed[TMD_PROTEVIL2] > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
+			    (m_ptr->evil) &&
 			    (p_ptr->lev < rlev) &&
                 (p_ptr->lev + randint(p_ptr->lev * 2) > rlev + 6))
 			{
@@ -322,7 +350,9 @@ bool make_attack_normal(int m_idx)
                    /* Remember the Evil-ness */
 				   if (m_ptr->ml)
 				   {
-					  l_ptr->flags3 |= (RF3_EVIL);
+					  if (r_ptr->flags3 & (RF3_EVIL)) l_ptr->flags3 |= (RF3_EVIL);
+					  else if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
+					  else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
 				   }
 				
 				   /* Message */
@@ -538,7 +568,7 @@ bool make_attack_normal(int m_idx)
 			
 			if (r_ptr->flags2 & (RF2_POWERFUL))
             {
-               losesave = randint(10);
+               losesave = randint(6 + rlev/10);
                if ((losesave < 4) && (rlev > 50) && (randint(100) < (66-(goodluck/2))))
                {
                   if (badluck > 12) losesave += 1;
@@ -548,7 +578,7 @@ bool make_attack_normal(int m_idx)
             }
             
             /* primary spellcasters get slight damage reduction from surrounding magic */
-            int surround = 0;
+            surround = 0;
 			if (cp_ptr->flags & CF_POWER_SHIELD) surround = p_ptr->lev + 5;
 			else if ((cp_ptr->flags & CF_ZERO_FAIL) && (p_ptr->lev > 20)) surround = p_ptr->lev/3 + 3;
 			if (p_ptr->timed[TMD_BRAIL]) surround += 10 + (goodluck/3);
@@ -704,7 +734,13 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_GOLD:
 				{
-			        /* extra damage reduction from surrounding magic */
+					long maxpval = (u16b) ((s16b) -1);  /* ??? should go elsewhere */
+					long maxnum = 99;
+					long maxgold = maxnum * maxpval;
+					object_type object_type_body;
+					object_type *i_ptr = &object_type_body;
+
+					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
@@ -747,13 +783,14 @@ bool make_attack_normal(int m_idx)
 							msg_print("Your purse feels lighter.");
 							msg_print("All of your coins were stolen!");
 						}
-#ifdef EFG
 						/* EFGchange stolen gold does not evaporate */
+#if movedup
 						long maxpval = (u16b) ((s16b) -1);  /* ??? should go elsewhere */
 						long maxnum = 99;
 						long maxgold = maxnum * maxpval;
 						object_type object_type_body;
 						object_type *i_ptr = &object_type_body;
+#endif
 						while (gold > 0)
 						{
         						object_wipe(i_ptr);
@@ -774,7 +811,6 @@ bool make_attack_normal(int m_idx)
 							gold -= i_ptr->number * i_ptr->pval;
 							(void)monster_carry(m_idx, i_ptr);
 						}
-#endif
 
 						/* Redraw gold */
 						p_ptr->redraw |= (PR_GOLD);
@@ -985,11 +1021,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Message */
-#ifdef ALTDJA
-					msg_print("You smell something disgustingly foul!");
-#else
 					msg_print("You are struck by electricity!");
-#endif					
 
 					/* Take damage (special) */
 					elec_dam(damage, ddesc);
@@ -1150,7 +1182,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_PARALYZE:
 				{
-			        /* extra damage reduction from surrounding magic */
+			        int savechance;
+					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Hack -- Prevent perma-paralysis via damage */
@@ -1159,7 +1192,7 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
-					int savechance = 100 + (badluck/2) - (goodluck/5);
+					savechance = 100 + (badluck/2) - (goodluck/5);
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
 					{
@@ -1173,7 +1206,9 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (inc_timed(TMD_PARALYZED, 3 + randint(rlev)))
+						int hold = 3 + randint(rlev);
+						if (p_ptr->timed[TMD_PARALYZED] > 3) inc_timed(TMD_PARALYZED, hold/2 + 1);
+                        else if (inc_timed(TMD_PARALYZED, hold))
 						{
 							obvious = TRUE;
 						}
@@ -1222,8 +1257,8 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 					
 					/* silver poison */
-					if (rlev >= 10) p_ptr->silver = p_ptr->silver + randint(rlev / 10);
-					if (rlev < 10) p_ptr->silver = p_ptr->silver + 1;
+					if (rlev >= 10) p_ptr->silver += randint(rlev / 10);
+					if (rlev < 10) p_ptr->silver += 1;
 					
 					msg_print("you feel silver magic corrupting your mind!");
 
@@ -1256,7 +1291,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, losesave)) obvious = TRUE;
 
 					break;
 				}
@@ -1267,7 +1302,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_INT)) obvious = TRUE;
+					if (do_dec_stat(A_INT, losesave)) obvious = TRUE;
 
 					break;
 				}
@@ -1278,7 +1313,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, losesave)) obvious = TRUE;
 
 					break;
 				}
@@ -1289,7 +1324,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, losesave)) obvious = TRUE;
 
 					break;
 				}
@@ -1300,7 +1335,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CON)) obvious = TRUE;
+					if (do_dec_stat(A_CON, losesave)) obvious = TRUE;
 
 					break;
 				}
@@ -1311,7 +1346,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, losesave)) obvious = TRUE;
 
 					break;
 				}
@@ -1320,14 +1355,16 @@ bool make_attack_normal(int m_idx)
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
+					
+					if (losesave) losesave += randint(badluck/2 + 1) + 1;
 
 					/* Damage (stats) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
-					if (do_dec_stat(A_CON)) obvious = TRUE;
-					if (do_dec_stat(A_INT)) obvious = TRUE;
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, losesave)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, losesave)) obvious = TRUE;
+					if (do_dec_stat(A_CON, losesave)) obvious = TRUE;
+					if (do_dec_stat(A_INT, losesave)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, losesave)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, losesave)) obvious = TRUE;
 
 					break;
 				}
@@ -1515,10 +1552,11 @@ bool make_attack_normal(int m_idx)
 				
 				case RBE_UNLUCKY:
 				{
-               		/* Take damage */
+               		int savechance;
+					/* Take damage */
 					take_hit(damage, ddesc);
 					
-                    int savechance = 111 + badluck - (goodluck/2);
+                    savechance = 111 + badluck - (goodluck/2);
                     if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 9 + randint(4);
 			        if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 					{
@@ -1571,25 +1609,28 @@ bool make_attack_normal(int m_idx)
                     }
 					else if (damage < 5)
 					{
-                       spellswitch = 21; /* uses GF_DARK instead of DARK_WEAK */
-                       int ifrad = randint(9);
+                       int ifrad;
+					   spellswitch = 21; /* uses GF_DARK instead of DARK_WEAK */
+                       ifrad = randint(9);
                        if ((badluck > 0) && (ifrad > 3)) ifrad -= randint(2);
 			           (void)unlite_area(damroll(2, 15 + randint(ifrad*2 + 1)), ifrad);
                        spellswitch = 0;
                     }
 					else if (damage < 8)
 					{
-                       /* Message */
+                       int die;
+					   /* Message */
 					   msg_print("You are enveloped in flames!");
                        
-                       int die = damage-1 + randint(damage);
+                       die = damage-1 + randint(damage);
 					   /* Take damage (special) */
 					   fire_dam(die, ddesc);
                     }
                     else
                     {
-                       msg_format("%^s imparts its essence to you!", m_name);
-                       int time = 25 + randint(25);
+                       int time;
+						msg_format("%^s imparts its essence to you!", m_name);
+                       time = 25 + randint(25);
                        (void)inc_timed(TMD_IMM_FIRE, time);
                        (void)inc_timed(TMD_BALROG, time);
                     }
@@ -1677,18 +1718,19 @@ bool make_attack_normal(int m_idx)
                     }
 
                     (void)clear_timed(TMD_AFRAID);
-					if (damage < 4)
+					if ((damage < 4) && (!p_ptr->timed[TMD_SUST_SPEED]))
 					{
-                       spadjust = 3 + randint(2 + (p_ptr->lev/10));
+                       p_ptr->spadjust = 3 + randint(2 + (p_ptr->lev/10));
                        (void)inc_timed(TMD_ADJUST, randint(4));
                        if (damage == 1) (void)inc_timed(TMD_FRENZY, 2 + randint(6));
                     }
 					else if (damage < 7)
 					{
-                       (void)clear_timed(TMD_CHARM);
-                       spadjust = 4 + randint(1 + (p_ptr->lev/10));
-                       int time = 15 + randint(35);
-                       (void)inc_timed(TMD_ADJUST, time - (time/4));
+                       int time;
+					   (void)clear_timed(TMD_CHARM);
+                       if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->spadjust = 4 + randint(1 + (p_ptr->lev/10));
+                       time = 15 + randint(35);
+                       if (!p_ptr->timed[TMD_SUST_SPEED]) (void)inc_timed(TMD_ADJUST, time - (time/4));
                        (void)inc_timed(TMD_SHERO, time);
                     }
 					else if (damage < 9)
@@ -1815,8 +1857,9 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                       (void)hp_player(20 + randint(p_ptr->lev));
-                       int time = damage * (7 + randint(5)) + randint(20);
+                       int time;
+						(void)hp_player(20 + randint(p_ptr->lev));
+                       time = damage * (7 + randint(5)) + randint(20);
                        (void)inc_timed(TMD_HOLDLIFE, time);
                        (void)inc_timed(TMD_OPP_NETHR, time);
 				       (void)clear_timed(TMD_FRENZY);
@@ -1878,10 +1921,13 @@ bool make_attack_normal(int m_idx)
 					{
                        (void)hp_player(damage);
                        (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
-                       if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 1;
+                       if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime -= - 1;
                        (void)inc_timed(TMD_WSHIELD, randint(20) + 5);
-                       spadjust = 1 - 2;
-                       (void)inc_timed(TMD_ADJUST, randint(5) + 2);
+                       if (!p_ptr->timed[TMD_SUST_SPEED])
+					   {
+							p_ptr->spadjust = 1 - 3;
+							(void)inc_timed(TMD_ADJUST, randint(5) + 2);
+					   }
    			           msg_print("The entdraught makes your body feel more fixed. (kindof like a tree..)");
                     }
 					else 
@@ -1919,7 +1965,7 @@ bool make_attack_normal(int m_idx)
                        (void)hp_player(damage * randint(3));
                        (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
                        if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 2;
-                       spadjust = 1;
+                       p_ptr->spadjust = 1;
                        (void)inc_timed(TMD_ADJUST, randint(4) + 3);
                        (void)inc_timed(TMD_OPP_POIS, randint(10) + 10);
                        (void)inc_timed(TMD_SANCTIFY, randint(16) + 8);
@@ -2114,11 +2160,11 @@ bool make_attack_normal(int m_idx)
 	}
 
 
-	/* Blink away */
+	/* Blink away (if the monster stole something) */
 	if (blinked)
 	{
 		msg_print("There is a puff of smoke!");
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+		teleport_away(m_idx, MAX_SIGHT * 2 + 5, 0);
 	}
 
 

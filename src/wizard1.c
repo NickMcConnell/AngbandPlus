@@ -615,6 +615,10 @@ static void spoil_mon_desc(cptr fname)
 		{
 			strnfmt(nam, sizeof(nam), "[U] %s", name);
 		}
+		else if (r_ptr->flags3 & (RF3_HELPER))
+		{
+			strnfmt(nam, sizeof(nam), "[H] The %s", name);
+		}
 		else
 		{
 			strnfmt(nam, sizeof(nam), "The %s", name);
@@ -754,6 +758,10 @@ static void spoil_mon_info(cptr fname)
 		{
 			text_out("[U] ");
 		}
+        else if (r_ptr->flags3 & (RF3_HELPER))
+		{
+			text_out("[H] The ");
+		}
 		else
 		{
 			text_out("The ");
@@ -817,7 +825,7 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Describe */
-		describe_monster(r_idx, TRUE);
+		describe_monster(r_idx, TRUE, 0);
 
 		/* Terminate the entry */
 		text_out("\n");

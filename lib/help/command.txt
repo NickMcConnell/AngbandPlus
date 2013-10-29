@@ -520,7 +520,9 @@ Character Description (C)
         the file character description command to save your character
         status to a file.  That command saves additional information,
         including your background, your inventory, and the contents of
-        your house.
+        your house. Note: The displayed fighting and shooting skills 
+	  include bonuses from wielded weapons, but the throwing skill 
+	  doesn't because you don't wield a thrown weapon.
 
 Check knowledge (~)
         This command allows you to ask about the knowledge possessed by

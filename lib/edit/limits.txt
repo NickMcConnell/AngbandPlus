@@ -22,10 +22,10 @@ M:F:64
 M:K:600
 
 # Maximum number of artifacts
-M:A:160
+M:A:170
 
 # Maximum number of ego-item types
-M:E:160
+M:E:200
 
 # Maximum number of monster races
 M:R:999
