@@ -663,7 +663,11 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
-	if (l_ptr->flags2 & RF2_PASS_DOOR) vp[vn++] = "pass through doors";
+	if (l_ptr->flags2 & RF2_PASS_DOOR)
+    {
+        if (strchr("JScjlvw,", r_ptr->d_char)) vp[vn++] = "pass under doors";
+        else vp[vn++] = "pass through doors";
+    }
 	if (l_ptr->flags2 & RF2_KILL_WALL) vp[vn++] = "bore through walls";
 	if (l_ptr->flags2 & RF2_MOVE_BODY) vp[vn++] = "push past weaker monsters";
 	if (l_ptr->flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";

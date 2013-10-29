@@ -67,6 +67,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		case SV_FOOD_HALLUCINATION:
 		{
             die = randint(100);
+            /* more likely to gain luck if you're already hallucenating */
+            if (p_ptr->timed[TMD_IMAGE]) die -= 11;
             
 			if (die < 10)
             {
@@ -1791,7 +1793,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_RUNE_OF_PROTECTION:
 		{
-			warding_glyph();
+			if (!warding_glyph()) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -2031,8 +2033,8 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_TELEKINESIS:
 		{
 			*ident = TRUE;
-			/* pick up objects from a distance */
-			if (!do_telekinesis())
+			/* pick up objects from a distance (in cmd2.c) */
+			if (!do_telekinesis(8 + goodluck/2))
 			{
 				/* returns FALSE only if no direction was entered */
 				use_charge = FALSE;
@@ -2607,7 +2609,8 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 250)) *ident = TRUE;
+            spellswitch = 8; /* enhance drain life (may do more than 250 damage) */
+            if (drain_life(dir, 250)) *ident = TRUE;
 			break;
 		}
 	}

@@ -343,6 +343,7 @@ static s32b artifact_power(int a_idx)
 		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
 	}
 	if (a_ptr->flags1 & TR1_CHR) p += a_ptr->pval;
+    if (a_ptr->flags1 & TR1_EQLUCK) p += a_ptr->pval;
 	if (a_ptr->flags1 & TR1_INFRA) p += (a_ptr->pval + sign(a_ptr->pval)) / 2;
 	if (a_ptr->flags1 & TR1_SPEED) p += (a_ptr->pval * 3) / 2;
 
@@ -1385,6 +1386,11 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags3 |= TR3_TELEPATHY;
 				else if (teleordarkv == 1)
 					a_ptr->flags3 |= TR3_DARKVIS;
+				else if (randint(100) < 35) /* luck on randarts should be rare */
+				{
+				    a_ptr->flags1 |= TR1_EQLUCK;
+				    do_pval(a_ptr);
+                }
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;

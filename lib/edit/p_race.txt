@@ -36,7 +36,7 @@
 # to hit (bows), to hit (thrown).
 
 # 'X' is for extra info - max. hitpoints gained per level, experience
-# factor in percent, alertness.
+# factor in percent, alertnes.
 
 # 'I' is for info - starting point of the player history, base age,
 # random age modifier.
@@ -59,7 +59,7 @@ V:3.0.10
 
 N:0:Human
 S:0:0:0:0:0:0
-R:0:0:0:0:2:10:0:0:1
+R:0:0:1:0:2:10:0:0:1
 X:10:100:5
 I:1:14:8
 H:72:6:66:4

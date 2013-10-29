@@ -405,7 +405,7 @@ static cptr r_info_flags7[] =
 	"XX724",
 	"XX725",
 	"XX726",
-	"XX727",
+	"LUCKY_KILL",
 	"WATER_ONLY",
 	"BLOCK_LOS",
 	"HATE_WATER",
@@ -427,7 +427,7 @@ static cptr k_info_flags1[] =
 	"XXX1",
 	"XXX2",
 	"STEALTH",
-	"SEARCH",
+	"EQLUCK",
 	"INFRA",
 	"TUNNEL",
 	"SPEED",
@@ -481,9 +481,9 @@ static cptr k_info_flags2[] =
 	"DANGER",
 	"CONSTANTA",
 	"SLAY_WERE",
-	"XXX84",
-	"IMPACT",
 	"CORRUPT",
+	"IMPACT",
+	"PTHROW",
 	"RTURN",
 	"THROWN",
 	"LIGHTNESS",
@@ -565,7 +565,7 @@ static cptr k_info_flags4[] =
 	"XXX28",
 	"XXX29",
 	"XXX30",
-	"XXX31",
+	"DRUID",
 	"WIELD_SHIELD"
 };
 

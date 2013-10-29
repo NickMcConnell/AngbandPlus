@@ -1145,6 +1145,7 @@ static s32b object_value_real(const object_type *o_ptr)
 			/* Give credit for alertness and tunneling */
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
 			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
+			if (f1 & (TR1_EQLUCK)) value += (o_ptr->pval * 35L);
 
 			/* Give credit for extra attacks */
 			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
@@ -1291,7 +1292,6 @@ static s32b object_value_real(const object_type *o_ptr)
 s32b object_value(const object_type *o_ptr)
 {
 	s32b value;
-
 
 	/* Unknown items -- acquire a base value */
 	if (object_known_p(o_ptr))
@@ -2126,7 +2126,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 	int tohit2 = m_bonus(10, level);
 	int todam2 = m_bonus(10, level);
-
+	
+	/* reduce an annoyance (cursed staffs) */
+    if ((o_ptr->tval == TV_STAFF) && (p_ptr->depth > 45 - goodluck))
+    {
+       if ((power < 0) && (randint(100) < (p_ptr->depth*7)/8 + goodluck)) power = 0;
+    }
 
 	/* Good */
 	if (power > 0)
@@ -2946,7 +2951,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 			a_m_aux_4(o_ptr, lev, power);
 
-			if (((power > 1) || (power < -1)) && (randint(100) < 80))
+			if (((power > 1) || (power < -1)) && (randint(100) < egoodd))
 			{
 				int ego_power;
 
@@ -3180,6 +3185,26 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				}
 			}
 		}
+		
+		/* amulet of adornment of luck (make sure pval isn't too minor) */
+        if (o_ptr->name2 == EGO_LOOKLUCKY)
+		{
+            if (power == -2)
+            {
+				/* negative pval */
+                o_ptr->pval = 0 - (2 + randint(4));
+
+				/* Broken */
+				o_ptr->ident |= (IDENT_BROKEN);
+
+				/* Cursed */
+				o_ptr->ident |= (IDENT_CURSED);
+            }
+            else if (o_ptr->pval < 3)
+            {
+                o_ptr->pval = 2 + randint(3);
+            }
+        }
 
 		/* Eregion should never have a negative speed bonus (even when cursed) */
 		/* (no rings which otherwise get a pval should be able to have eregion ego) */
@@ -3237,7 +3262,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 		/* (+3 +3) =slaying is junk (especially with ego rings of warfare) */
 		if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_SLAYING) &&
-			(lev > 45 + (badluck*2)))
+			(lev > 40 + (badluck*2)))
 		{
 			if (o_ptr->to_d + o_ptr->to_h < 8)
 			{
@@ -3245,11 +3270,11 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				o_ptr->to_h += rand_int(4);
 			}
 			/* maybe a little bit more */
-			if ((o_ptr->to_d + o_ptr->to_h < 7 + ((goodluck+1)/3)) && 
-				(goodluck > 2) && (randint(100) < 45))
+			if ((o_ptr->to_d + o_ptr->to_h < 7 + (goodluck+1)/3) && 
+				(goodluck > 2) && (randint(100) < 40+goodluck))
 			{
 				o_ptr->to_d += rand_int(3);
-				o_ptr->to_h += rand_int(3);
+				o_ptr->to_h += rand_int(4);
 			}
 		}
 		/* Eregion ego has +1-2 speed, so =speed should be at least +3 */
@@ -3651,8 +3676,8 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 			return (this_o_idx);
 		}
 
-		/* Count objects */
-		n++;
+		/* Count objects (but not squelched items) */
+		if (!squelch_hide_item(o_ptr)) n++;
 	}
 
 	/* The stack is already too large */
@@ -5648,6 +5673,14 @@ bool is_throwing_weapon(const object_type *o_ptr)
 	u32b f1, f2, f3, f4;
 
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	/* some potions and stuff have PTHROW, but shouldn't go in the quiver */
+	/* all weapons & iron spikes are <= tval 23 */
+    if (o_ptr->tval > 23) return FALSE;
+	
+	/* small semi-throwers can be put into the quiver */
+	/* (weight of a spear or lighter) */
+    if ((f2 & (TR2_PTHROW)) && (o_ptr->weight <= 52)) return TRUE;
 
 	return ((f2 & (TR2_THROWN)) ? TRUE: FALSE);
 }
@@ -5713,6 +5746,10 @@ bool quiver_carry_okay(const object_type *o_ptr, int num, int item)
  */
 byte quiver_get_group(const object_type *o_ptr)
 {
+	u32b f1, f2, f3, f4;
+	/* check for thrown flag */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 	switch (o_ptr->tval)
 	{
 		case TV_BOLT: return (QUIVER_GROUP_BOLTS);
@@ -5720,6 +5757,9 @@ byte quiver_get_group(const object_type *o_ptr)
 		case TV_SHOT: return (QUIVER_GROUP_SHOTS);
 	}
 
-	return (QUIVER_GROUP_THROWING_WEAPONS);
+	if (f2 & (TR2_THROWN)) return (QUIVER_GROUP_THROWING_WEAPONS);
+
+	/* PTHROW flag */
+    return (QUIVER_GROUP_SEMI_THROWER);
 }
 

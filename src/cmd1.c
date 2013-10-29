@@ -247,7 +247,8 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
     {
        int ringbrand;
        int brandodd = ((p_ptr->skills[SKILL_THT] + goodluck) / 2) - 5;
-       if (f2 & (TR2_THROWN))
+       if (p_ptr->lev < 20) brandodd += 5;
+       if ((f2 & (TR2_THROWN)) || (f2 & (TR2_PTHROW)))
        {
           ringbrand = thrown_brand();
           if ((ringbrand == 1) || ((ringbrand > 10) && (ringbrand < 20)) || (f1 & (TR1_BRAND_COLD))) brandc = TRUE;
@@ -259,8 +260,10 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
           /* character is wearing more than one elemental ring */
           /* so more likely to get brand from ring */
           if (ringbrand > 10) brandodd += 10;
+          /* semi throwing weapons */
+          if (!(f2 & (TR2_THROWN))) brandodd = brandodd/2;
        }
-       if ((randint(100) < brandodd) && (f2 & (TR2_THROWN)))
+       if ((randint(100) < brandodd) && ((f2 & (TR2_THROWN)) || (f2 & (TR2_PTHROW))))
        {
           /* get brand from rings (weapon meant for throwing) */
           /* use "brandc/a/f/e/v, not p_ptr->brand_xxxx */
@@ -1356,8 +1359,7 @@ void search(void)
  */
 static void py_pickup_gold(void)
 {
-    int py;
-    int px;
+    int py, px;
 
 	s32b total_gold = 0L;
 	byte *treasure;
@@ -1768,10 +1770,10 @@ static void norubble(int y, int x)
  * Note the lack of chance for the character to be disturbed by unmarked
  * objects.  They are truly "unknown".
  */
-byte py_pickup(int pickup)
+s16b py_pickup(int pickup)
 {
-    int py;
-    int px;
+    int py, px;
+    bool telemove = FALSE; /* for telekinesis */
     
 /*    py = p_ptr->py;
     px = p_ptr->px; */
@@ -1796,11 +1798,16 @@ byte py_pickup(int pickup)
 	bool auto_okay = p_ptr->auto_pickup_okay;
 
     /* pickup at target for telekinesis */
-	if (spellswitch == 24) py = p_ptr->target_row;
-    else py = p_ptr->py;
-    if (spellswitch == 24) px = p_ptr->target_col;
-    else px = p_ptr->px;
-
+	if (spellswitch == 24)
+    {
+        py = p_ptr->target_row;
+        px = p_ptr->target_col;
+    }
+    else
+    { 
+        py = p_ptr->py;
+        px = p_ptr->px;
+    }
 
 	/* Reset auto_pickup_okay */
 	p_ptr->auto_pickup_okay = TRUE;
@@ -1857,18 +1864,23 @@ byte py_pickup(int pickup)
 		if (floor_num == MAX_FLOOR_STACK) break;
 	}
 
+    /* telekinesis with a full inventory */
+    if ((!can_pickup) && (floor_num) && (spellswitch == 24))
+    {
+        if (!get_check("Your pack is full, move an item to the floor at your feet? ")) return (0);
+        else telemove = TRUE;
+    }
+
 	/* There are no objects left */
 	if (!floor_num)
 		return objs_picked_up;
-
 
 	/* Get hold of the last floor index */
 	floor_o_idx = floor_list[floor_num - 1];
 
 
-
 	/* Mention the objects if player is not picking them up. */
-	if (pickup == 0 || !can_pickup)
+	if ((pickup == 0 || !can_pickup) && (!telemove))
 	{
 		const char *p = "see";
 
@@ -1957,19 +1969,20 @@ byte py_pickup(int pickup)
 		int item;
 
 		/* Restrict the choices */
-		item_tester_hook = inven_carry_okay;
+		if (!telemove) item_tester_hook = inven_carry_okay;
 
 		/* Request a list */
 		p_ptr->command_see = TRUE;
 
 		/* Get an object or exit. */
 		q = "Get which item?";
+		if (telemove) q = "Move which item?";
 		s = "You see nothing there.";
 		if (!get_item(&item, q, s, USE_FLOOR))
 			return (objs_picked_up);
 		
 		this_o_idx = 0 - item;
-		call_function_again = TRUE;
+		if (!(spellswitch == 24)) call_function_again = TRUE;
 
 		/* With a list, we do not need explicit pickup messages */
 		msg = FALSE;
@@ -1990,9 +2003,30 @@ byte py_pickup(int pickup)
 
 			norubble(y, x);
 		}
-
+		
+        /* telekinesis with a full inventory */
+		if (telemove)
+		{
+             /* move the object to the PC's space */
+             if (!floor_carry(p_ptr->py, p_ptr->px, o_ptr))
+             {
+                 msg_print("There's no space on the floor to put it!");
+                 return (0);
+             }
+             else
+             {
+                 /* if we moved the object, make sure it's not in two places at once */
+                 delete_object_idx(this_o_idx); /* (floor_carry makes a new object) */
+             }
+             /* don't use drop_near because that can make the object dissapear */
+             /* If something is valuable enough to use telekinesis to get it, you don't */
+             /* want it to dissapear. */
+        }
 		/* Pick up the object */
-		py_pickup_aux(this_o_idx, msg);
+		else
+        {
+             py_pickup_aux(this_o_idx, msg);
+        }
 
 		/* Indicate an object picked up. */
 		objs_picked_up = 1;
@@ -3318,6 +3352,8 @@ void move_player(int dir)
 			hit_trap(y, x);
 		}
 	}
+	
+	p_ptr->window |= (PW_OBJLIST);
 }
 
 

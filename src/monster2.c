@@ -1239,13 +1239,13 @@ s16b get_mon_num(int level, bool vault)
 	for (i = 0; i < alloc_race_size; i++)
 	{
 		/* Monsters are sorted by depth (allow deeper monsters with a themed level) */
-		if ((table[i].level > level + 10) && (p_ptr->theme)) break;
+		if ((table[i].level > level + 8) && (p_ptr->theme)) break;
 		/* Monsters are sorted by depth */
 		if ((table[i].level > level) && (!p_ptr->theme)) break;
 
 		/* mark this entry as out of depth */
-		if (table[i].level > level) ood = table[i].level - level;
-		else if (table[i].level > p_ptr->depth+4) ood = table[i].level - p_ptr->depth+2;
+		if (table[i].level > level) ood = table[i].level - (p_ptr->depth+2);
+		else if (table[i].level > p_ptr->depth+4) ood = table[i].level - (p_ptr->depth+2);
 		else ood = 0;
 
 		/* Default */
@@ -1264,7 +1264,7 @@ s16b get_mon_num(int level, bool vault)
 		else if ((level > 0) && (table[i].level <= 0)) continue;
 
 		/* HELPER monsters can occationally be randomly generated on themed levels */
-		/* don't allow HELPER monsters in vaults */
+		/* but don't allow HELPER monsters in vaults */
 		if ((vault) && (r_ptr->flags3 & (RF3_HELPER))) continue;
 
 		/* Hack -- "unique" monsters must be "unique" */
@@ -1305,9 +1305,9 @@ s16b get_mon_num(int level, bool vault)
 		if ((ood) && (p_ptr->theme) && (table[i].prob3))
 		{
 			if (p_ptr->depth < 12) table[i].prob3 = table[i].prob3/3 - (ood+1)/2;
-			else table[i].prob3 = table[i].prob3/2 - ood;
+			else table[i].prob3 = table[i].prob3/2 - (ood*2);
 
-			if (table[i].prob3 < 5) table[i].prob3 = 5;
+			if (table[i].prob3 < 5) table[i].prob3 = 4;
 		}
 
 		/* Total */
@@ -4011,8 +4011,10 @@ static bool summon_specific_okay(int r_idx)
  * monsters, making this function much faster and more reliable.
  *
  * Note that this function may not succeed, though this is very rare.
+ *
+ * bool grp allows summons to not allow groups.
  */
-bool summon_specific(int y1, int x1, int lev, int type)
+static bool summon_specific_really(int y1, int x1, int lev, int type, bool grp)
 {
 	int i, x, y, r_idx, tries = 0;
 	monster_race *r_ptr;
@@ -4092,15 +4094,35 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
-	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
+	if (grp)
+	{
+       /* Attempt to place the monster (awake, allow groups) */
+	   if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
+    }
+    else
+	{
+       /* Attempt to place the monster (awake, don't allow groups) */
+	   if (!place_monster_aux(y, x, r_idx, FALSE, FALSE)) return (FALSE);
+    }
 
 	/* Success */
 	return (TRUE);
 }
 
+/* just call the real function */
+bool summon_specific(int y1, int x1, int lev, int type)
+{
+   return summon_specific_really(y1, x1, lev, type, TRUE);
+}
 
-
+/*
+ * cheap way to make TMD_WITCH not allow groups
+ * (too much trouble to change all the calls to summon_specific to add a TRUE or FALSE)
+ */
+bool summon_nogroups(int y1, int x1, int lev, int type)
+{
+   return summon_specific_really(y1, x1, lev, type, FALSE);
+}
 
 
 /*

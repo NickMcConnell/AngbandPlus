@@ -1,18 +1,18 @@
 # Project: DaJAngband
 # Makefile created by Dev-C++ 4.9.9.2
 
-CPP  = g++.exe -D__DEBUG__
-CC   = gcc.exe -D__DEBUG__
+CPP  = g++.exe
+CC   = gcc.exe
 WINDRES = windres.exe
-RES  = DaJAngband1098_private.res
-OBJ  = birth.o cave.o cmd0.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o win/readdib.o $(RES)
-LINKOBJ  = birth.o cave.o cmd0.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o win/readdib.o $(RES)
-LIBS =  -L"C:/PROGRAMS/Dev-Cpp/lib" -lmingw32 -lwinmm -mwindows  -g3 
-INCS =  -I"C:/PROGRAMS/Dev-Cpp/include" 
-CXXINCS =  -I"C:/PROGRAMS/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2"  -I"C:/PROGRAMS/Dev-Cpp/include" 
+RES  = DaJAngband_private.res
+OBJ  = cmd0.o cave.o cmd1.o birth.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o win/readdib.o $(RES)
+LINKOBJ  = cmd0.o cave.o cmd1.o birth.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o win/readdib.o $(RES)
+LIBS =  -L"C:/Users/Public/Games/DaJAngbandDev/Dev-Cpp/lib" -lmingw32 -lwinmm -mwindows  
+INCS =  -I"C:/Users/Public/Games/DaJAngbandDev/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Users/Public/Games/DaJAngbandDev/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Users/Public/Games/DaJAngbandDev/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Users/Public/Games/DaJAngbandDev/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Users/Public/Games/DaJAngbandDev/Dev-Cpp/include/c++/3.4.2"  -I"C:/Users/Public/Games/DaJAngbandDev/Dev-Cpp/include" 
 BIN  = ../DaJAngband.exe
-CXXFLAGS = $(CXXINCS)   -g3
-CFLAGS = $(INCS) -mwindows    -g3
+CXXFLAGS = $(CXXINCS)  
+CFLAGS = $(INCS) -mwindows -DWINDOWS  
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -26,17 +26,17 @@ clean: clean-custom
 $(BIN): $(OBJ)
 	$(CC) $(LINKOBJ) -o "..\DaJAngband.exe" $(LIBS)
 
-birth.o: birth.c
-	$(CC) -c birth.c -o birth.o $(CFLAGS)
+cmd0.o: cmd0.c
+	$(CC) -c cmd0.c -o cmd0.o $(CFLAGS)
 
 cave.o: cave.c
 	$(CC) -c cave.c -o cave.o $(CFLAGS)
 
-cmd0.o: cmd0.c
-	$(CC) -c cmd0.c -o cmd0.o $(CFLAGS)
-
 cmd1.o: cmd1.c
 	$(CC) -c cmd1.c -o cmd1.o $(CFLAGS)
+
+birth.o: birth.c
+	$(CC) -c birth.c -o birth.o $(CFLAGS)
 
 cmd2.o: cmd2.c
 	$(CC) -c cmd2.c -o cmd2.o $(CFLAGS)
@@ -209,5 +209,5 @@ z-virt.o: z-virt.c
 win/readdib.o: win/readdib.c
 	$(CC) -c win/readdib.c -o win/readdib.o $(CFLAGS)
 
-DaJAngband1098_private.res: DaJAngband1098_private.rc 
-	$(WINDRES) -i DaJAngband1098_private.rc --input-format=rc -o DaJAngband1098_private.res -O coff 
+DaJAngband_private.res: DaJAngband_private.rc 
+	$(WINDRES) -i DaJAngband_private.rc --input-format=rc -o DaJAngband_private.res -O coff 

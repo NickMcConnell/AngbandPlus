@@ -33,6 +33,7 @@ extern void do_cmd_mark_squelch(void);
 extern void do_cmd_inven(void);
 extern void do_cmd_equip(void);
 extern void do_cmd_wield(void);
+extern void do_cmd_wieldnq(void);
 extern void do_cmd_takeoff(void);
 extern void do_cmd_drop(void);
 extern void do_cmd_destroy(void);

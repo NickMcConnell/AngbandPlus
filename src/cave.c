@@ -750,9 +750,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
 
-	/* doppleganger (change tile to copy the player) */
+	/* doppleganger (change tile to copy the player if easily visible) */
 	m_ptr = &mon_list[m_idx];
-	if (m_ptr->r_idx == 631) m_idx = -1;
+	if ((m_ptr->r_idx == 631) && (m_ptr->mflag & (MFLAG_VIEW)))
+	{
+	   m_idx = -1;
+	}
 	/* map_info() doesn't use m_ptr again so don't need to reset it */
 
 	/* Feature */

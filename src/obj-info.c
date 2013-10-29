@@ -147,14 +147,18 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2, u32b 
 	   /* Output end */
 	   p_text_out(format(" by %i.  ", pval));
     }
+    else
+    {
+	   p_text_out("  ");
+    }
 
 	/* throwing power */
 	if (f3 & (TR3_THROWMULT))
 	{
 		int tpval = pval;
 		if (tpval == 1) tpval += 1;
-		p_text_out(format(" It %s your throwing power", (o_ptr->pval > 0 ? "increases" : "decreases")));
-		p_text_out(format(" by %i.  ", (tpval - 1)));
+		p_text_out(format("It %s your throwing power", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		p_text_out(format("by %i.  ", (tpval - 1)));
 
 		/* message about gauntlets of throwing */
 		if (wield_slot(o_ptr) == INVEN_HANDS)
@@ -163,11 +167,18 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2, u32b 
 		}
 	}
 
+    /* Lucky or unlucky equipment (separate because it always 'increases') */
+	if (f1 & (TR1_EQLUCK))
+    {
+		p_text_out(format("It increases your %s", (o_ptr->pval > 0 ? "good luck" : "bad luck")));
+		p_text_out(format("by %i.  ", pval));
+    }
+
     /* handle alertness factor */
 	if (f1 & (TR1_INFRA))
 	{
-		p_text_out(format(" It %s your alertness", (o_ptr->pval > 0 ? "increases" : "decreases")));
-		p_text_out(format(" by %i.  ", (pval * 5)));
+		p_text_out(format("It %s your alertness", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		p_text_out(format("by %i.  ", (pval * 5)));
     }
 
 	/* magic mastery (factor of 8 unless pval is 1) */
@@ -428,9 +439,10 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
 	int gc = 0, bc = 0;
 	bool something = FALSE;
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	bool armor = FALSE;
+	bool weapon, armor = FALSE;
 	if ((wield_slot(o_ptr) >= INVEN_BODY) && (wield_slot(o_ptr) <= INVEN_FEET))
 		armor = TRUE;
+	weapon = (wield_slot(o_ptr) == INVEN_WIELD);
 
 	/* Describe lights */
 	if (o_ptr->tval == TV_LITE || (f3 & TR3_LITE))
@@ -477,6 +489,9 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
 	if (f3 & (TR3_BR_SHIELD))   good[gc++] = "provides damage reduction against monster breath";
 	if (f2 & (TR2_THROWN))      good[gc++] = "is balanced for throwing and can't be used for melee";
+	/* not as good as primary throwing weapons, but can be wielded for melee (spear, dagger..) */
+	else if ((weapon) && (f2 & (TR2_PTHROW))) good[gc++] = "is better for throwing than most melee weapons";
+	else if (f2 & (TR2_PTHROW)) good[gc++] = "can be thrown for damage";
 	if (f2 & (TR2_RTURN))       good[gc++] = "(usually) returns to your hand when thrown";
 	if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
 	{
@@ -702,11 +717,13 @@ static int critshot_chance(const object_type *o_ptr, u32b f2)
     int weight = o_ptr->weight;
 	int excrit = o_ptr->crc - 5;
 
-	if (f2 & TR2_THROWN)
+	if ((f2 & TR2_THROWN) || (f2 & TR2_PTHROW))
 	{
 		if (f2 & TR2_EXTRA_CRIT) excrit += 12;
-	   bonus = p_ptr->to_h + o_ptr->to_h + p_ptr->skills[SKILL_THT];
-	   if (bonus-1 > 12) excrit += (bonus-1)/12;
+		bonus = p_ptr->to_h + p_ptr->skills[SKILL_THT];
+	    if (f2 & TR2_THROWN) bonus += o_ptr->to_h;
+	    else /* (f2 & TR2_PTHROW) */ bonus += (o_ptr->to_h + 1) / 2;
+	    if (bonus-1 > 12) excrit += (bonus-1)/12;
     }
     else /* missile ammo */
     {
@@ -897,7 +914,8 @@ void describe_attack(const object_type *o_ptr)
 {
     object_type *j_ptr;
 	const char *desc[18];
-	bool ammo, weapon, edged, throwglove = FALSE;
+	bool ammo, weapon, edged, thrower, strong_throw;
+    bool throwglove = FALSE;
 	int mult[16];
 	int dam, sbdam, cnt, total_dam, total_sbdam, critc, ptodam, tmpblow;
 	int xtra_dam = 0;
@@ -932,6 +950,9 @@ void describe_attack(const object_type *o_ptr)
     
 	ammo   = (p_ptr->ammo_tval == o_ptr->tval) && (j_ptr->k_idx);
 	weapon = (wield_slot(o_ptr) == INVEN_WIELD);
+	
+	if ((f2 & TR2_THROWN) || (f2 & TR2_PTHROW)) thrower = TRUE;
+	else thrower = FALSE;
 
 	/* don't need the bow if we're looking at a weapon */
 	if (weapon)
@@ -1055,12 +1076,15 @@ void describe_attack(const object_type *o_ptr)
 	   if (p_ptr->heavy_wield)
 		  text_out_c(TERM_L_RED, "  You are too weak to use this weapon effectively.");
     }
-	else if (f2 & TR2_THROWN)
+	if (thrower)
 	{
 		int throws = thits_thrown(o_ptr->weight);
-		if (throws > 1) text_out(format("  You can throw %d of these weapons in one turn.", throws));
+		if (throws > 1)
+        {
+            if (f2 & TR2_PTHROW) text_out("  ");
+            text_out(format("You can throw %d of these weapons in one turn.", throws));
+        }
 	}
-	text_out("\n");
 
     /* describe damage only if identified */
     if (!object_known_p(o_ptr))
@@ -1091,7 +1115,9 @@ void describe_attack(const object_type *o_ptr)
        ptodam = p_ptr->dis_to_d - ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	   xtra_dam = ptodam * 10;
 	   xtra_dam += o_ptr->to_d * 10;
-       text_out("Each blow will do an average damage of ");
+	    new_paragraph = TRUE;
+		p_text_out("Each blow will do an average damage of ");
+	    new_paragraph = FALSE;
 
 	   /* complex strength bonus by weight */
        strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
@@ -1150,53 +1176,7 @@ void describe_attack(const object_type *o_ptr)
        /* find chance of critical hit */
        critc = crit_chance(o_ptr, f2);
     }
-    else if (f2 & TR2_THROWN)
-    {
-		/* Calculate damage */
-		dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
-		if (object_known_p(o_ptr)) dam += (o_ptr->to_d * 10);
-
-		/* add to_dam from gloves if appropriate */
-		if (throwglove) dam += (g_ptr->to_d * 10);
-
-		/* gauntlets of throwing (or something else with the THROWMULT power) */
-		if (p_ptr->throwmult == 2) dam = ((dam * 7) / 4);       /* (x1.75) */
-		else if (p_ptr->throwmult == 3) dam = ((dam * 21) / 8); /* (x2.625) */
-		else if (p_ptr->throwmult >= 4) dam = ((dam * 7) / 2);  /* (x3.5) */
-		/* thrown weapon multiplier */
-        else dam = (dam * 7) / 5;
-		
-		/* DJA: add (partial) strength bonus for certain classes */
-		/* class 0 will always be warrior so no need for a flag in that case */
-		/* weapons meant for throwing always get STR bonus */
-		if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT) ||
-			(p_ptr->pclass == 0) || (f2 & TR2_THROWN) || (p_ptr->timed[TMD_MIGHTY_HURL]))
-		{
-			int strb;
-			int eweight = o_ptr->weight;
-			if (!(f2 & TR2_THROWN)) eweight = eweight / 2; /* less if not meant for throwing */
-			/* complex strength bonus by weight (different than melee) */
-			strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-			if (eweight < 25) strb = strb / 2;
-			else if (eweight < 40) strb = (strb * 2) / 3;
-			else if (eweight < 50) strb = (strb * 3) / 4;
-			else if (eweight < 60) strb = (strb * 5) / 6;
-			strb = strb / 10;
-			if (p_ptr->timed[TMD_MIGHTY_HURL]) strb = strb * 2;
-			dam += strb;
-			/* doesn't use strdam because STR bonus is now added before slays */
-		}
-
-        /* strdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128); */
-
-	    new_paragraph = TRUE;
-		p_text_out("This weapon can be thrown for an average damage of ");
-	    new_paragraph = FALSE;
-       
-        /* find chance of critical hit */
-        critc = critshot_chance(o_ptr, f2);
-    }
-    else /* ammo */
+    else if (ammo)
     {
 		/* Calculate damage */
 		dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
@@ -1233,133 +1213,276 @@ void describe_attack(const object_type *o_ptr)
         /* find chance of critical hit */
         critc = critshot_chance(o_ptr, f2);
     }
-
-    /* Collect slays */
-	cnt = collect_slays(desc, mult, f1, f2, f3, weapon);
+    
+    /* exclude thrown weapons */
+    /* (don't use thrown flag or iron spikes will get garbage in the description) */
+    if ((!(wield_slot(o_ptr) == INVEN_QUIVER)) || (ammo))
+    {
+        /* Collect slays */
+	    cnt = collect_slays(desc, mult, f1, f2, f3, weapon);
 	   
-	if (cnt)
-	{
-	    int i;
+	    if (cnt)
+	    {
+	        int i;
 
-		for (i = 0; i < cnt; i++)
-		{
-		   /* Include bonus damage and slay in stated average */
-		   int slay_dam = dam * mult[i] + xtra_dam;
-		   int slay_sbdam = sbdam * mult[i] + xtra_dam;
+	    	for (i = 0; i < cnt; i++)
+    		{
+	    	   /* Include bonus damage and slay in stated average */
+	    	   int slay_dam = dam * mult[i] + xtra_dam;
+	    	   int slay_sbdam = sbdam * mult[i] + xtra_dam;
 
-		   /* special message for slay stacking which adds 25% */
-		   if (mult[i] == 9) slay_dam = dam / 4;
-		   if (mult[i] == 10) slay_dam = (dam / 4) * 2;
-		   if (mult[i] == 11) slay_dam = (dam / 4) * 3;
+	    	   /* special message for slay stacking which adds 25% */
+	    	   if (mult[i] == 9) slay_dam = dam / 4;
+	    	   if (mult[i] == 10) slay_dam = (dam / 4) * 2;
+		       if (mult[i] == 11) slay_dam = (dam / 4) * 3;
     
-           /* strength bonus after multipliers for slings */
-           /* but before multipliers for melee weapons */
-           if ((o_ptr->tval == TV_SHOT) && (strdam))
-              slay_dam += strdam;
+               /* strength bonus after multipliers for slings */
+               /* but before multipliers for melee weapons */
+               if ((o_ptr->tval == TV_SHOT) && (strdam))
+                  slay_dam += strdam;
 
-			if (mult[i] >= 9) text_out("+");
-			if (slay_dam <= 0)
-				text_out(format("%d", 0));
-			else if (slay_dam % 10)
-				text_out(format("%d.%d", slay_dam / 10, slay_dam % 10));
-			else text_out(format("%d", slay_dam / 10));
-			if ((o_ptr->sbdd) && (mult[i] < 9) && ((p_ptr->num_blow > 1) || (tmpblow > 1)))
-		   {
-			   if (slay_sbdam <= 0)
-				    text_out(format(" (%d", 0));
-			   else if (slay_sbdam % 10)
-					text_out(format(" (%d.%d", slay_sbdam / 10, slay_sbdam % 10));
-			   else text_out(format(" (%d", slay_sbdam / 10));
-			   text_out(" on the 2nd hit)");
-		   }
-
-		   if (mult[i] >= 9) text_out(format(" %s, ", desc[i]));
-		   else text_out(format(" against %s, ", desc[i]));
-		}
-	    text_out("and ");
-    }
+		    	if (mult[i] >= 9) text_out("+");
+		    	if (slay_dam <= 0)
+		    		text_out(format("%d", 0));
+	    		else if (slay_dam % 10)
+	    			text_out(format("%d.%d", slay_dam / 10, slay_dam % 10));
+	    		else text_out(format("%d", slay_dam / 10));
+	    		if ((o_ptr->sbdd) && (mult[i] < 9) && ((p_ptr->num_blow > 1) || (tmpblow > 1)))
+	    	   {
+	    		   if (slay_sbdam <= 0)
+	    			    text_out(format(" (%d", 0));
+	    		   else if (slay_sbdam % 10)
+	    				text_out(format(" (%d.%d", slay_sbdam / 10, slay_sbdam % 10));
+	    		   else text_out(format(" (%d", slay_sbdam / 10));
+	    		   text_out(" on the 2nd hit)");
+		       }
+    
+	    	   if (mult[i] >= 9) text_out(format(" %s, ", desc[i]));
+	    	   else text_out(format(" against %s, ", desc[i]));
+	    	}
+	        text_out("and ");
+        }
        
-    /* Include bonus damage in stated average */
-    total_dam = dam + xtra_dam;
+        /* Include bonus damage in stated average */
+        total_dam = dam + xtra_dam;
     
-    
-    /* strength bonus after multipliers for slings */
-    /* but before multipliers for melee weapons */
-    if ((o_ptr->tval == TV_SHOT) && (strdam)) total_dam += strdam;
+        /* strength bonus after multipliers for slings */
+        /* but before multipliers for melee weapons */
+        if ((o_ptr->tval == TV_SHOT) && (strdam)) total_dam += strdam;
 
-	if (total_dam <= 0)
-	   text_out(format("%d", 0));
-	else if (total_dam % 10) text_out(format("%d.%d",
-	           total_dam / 10, total_dam % 10));
-	else text_out(format("%d", total_dam / 10));
-	if ((o_ptr->sbdd) && ((p_ptr->num_blow > 1) || (tmpblow > 1)))
-	{
-		total_sbdam = sbdam + xtra_dam;
-		if (total_sbdam <= 0)
-		   text_out(format(" (%d", 0));
-		else if (total_sbdam % 10) text_out(format(" (%d.%d",
-		           total_sbdam / 10, total_sbdam % 10));
-		else text_out(format(" (%d", total_sbdam / 10));
-		text_out(format(" on the 2nd hit)", total_sbdam));
-	}
+	    if (total_dam <= 0)
+	       text_out(format("%d", 0));
+    	else if (total_dam % 10) text_out(format("%d.%d",
+	               total_dam / 10, total_dam % 10));
+    	else text_out(format("%d", total_dam / 10));
+	    if ((o_ptr->sbdd) && ((p_ptr->num_blow > 1) || (tmpblow > 1)))
+	    {
+	    	total_sbdam = sbdam + xtra_dam;
+	    	if (total_sbdam <= 0)
+	    	   text_out(format(" (%d", 0));
+	    	else if (total_sbdam % 10) text_out(format(" (%d.%d",
+	    	           total_sbdam / 10, total_sbdam % 10));
+	    	else text_out(format(" (%d", total_sbdam / 10));
+    		text_out(format(" on the 2nd hit)", total_sbdam));
+    	}
 
-    if (cnt) text_out(" against other monsters");
+        if (cnt) text_out(" against other monsters");
 
-	if ((f1 & TR1_TUNNEL) || (f3 & TR3_LITE))
-	{
-		int digrock;
-		if ((f1 & TR1_TUNNEL) && (o_ptr->pval > 1)) digrock = (dam / 4) * o_ptr->pval;
-		else digrock = (dam / 4);
-		if ((digrock == (dam / 4)) && ((dam / 4) > 0))
-		{
-			if ((dam / 4) % 10)
-				text_out(format(" (add +%d.%d", (dam / 4) / 10, (dam / 4) % 10));
-			else text_out(format(" (add +%d", (dam / 4) / 10));
-			if ((f1 & TR1_TUNNEL) && (f3 & TR3_LITE))
-			{
-				text_out(" damage against creatures vulnerable to light or rock remover)");
-			}
-			else if (f3 & TR3_LITE)
-			{
-				text_out(" damage against creatures vulnerable to light)");
-			}
-			else if (f1 & TR1_TUNNEL)
-			{
-				text_out(" damage against creatures vulnerable to rock remover)");
-			}
-		}
-		else if ((f1 & TR1_TUNNEL) && (f3 & TR3_LITE) && (o_ptr->pval > 1))
-		{
-			if ((dam / 4) % 10)
-				text_out(format(" (add +%d.%d", (dam / 4) / 10, (dam / 4) % 10));
-			else text_out(format(" (add +%d", (dam / 4) / 10));
-			text_out(" damage against creatures vulnerable to light and");
-			if ((dam / 4) % 10)
-				text_out(format(" add +%d.%d", digrock / 10, digrock % 10));
-			else text_out(format(" add +%d", digrock / 10));
-			text_out(" damage against creatures vulnerable to rock remover)");
-		}
-		else if ((f1 & TR1_TUNNEL) && (o_ptr->pval > 1))
-		{
-			if ((dam / 4) % 10)
-				text_out(format(" (add +%d.%d", digrock / 10, digrock % 10));
-			else text_out(format(" (add +%d", digrock / 10));
-			text_out(" damage against creatures vulnerable to rock remover)");
-		}
-	}
+    	if ((f1 & TR1_TUNNEL) || (f3 & TR3_LITE))
+    	{
+	    	int digrock;
+	    	if ((f1 & TR1_TUNNEL) && (o_ptr->pval > 1)) digrock = (dam / 4) * o_ptr->pval;
+	    	else digrock = (dam / 4);
+	    	if ((digrock == (dam / 4)) && ((dam / 4) > 0))
+	    	{
+	    		if ((dam / 4) % 10)
+	    			text_out(format(" (add +%d.%d", (dam / 4) / 10, (dam / 4) % 10));
+	    		else text_out(format(" (add +%d", (dam / 4) / 10));
+		    	if ((f1 & TR1_TUNNEL) && (f3 & TR3_LITE))
+		    	{
+	    			text_out(" damage against creatures vulnerable to light or rock remover)");
+	    		}
+	    		else if (f3 & TR3_LITE)
+	    		{
+		    		text_out(" damage against creatures vulnerable to light)");
+			    }
+    			else if (f1 & TR1_TUNNEL)
+	    		{
+		    		text_out(" damage against creatures vulnerable to rock remover)");
+			    }
+    		}
+	    	else if ((f1 & TR1_TUNNEL) && (f3 & TR3_LITE) && (o_ptr->pval > 1))
+		    {
+			    if ((dam / 4) % 10)
+    				text_out(format(" (add +%d.%d", (dam / 4) / 10, (dam / 4) % 10));
+	    		else text_out(format(" (add +%d", (dam / 4) / 10));
+		    	text_out(" damage against creatures vulnerable to light and");
+			    if ((dam / 4) % 10)
+	    			text_out(format(" add +%d.%d", digrock / 10, digrock % 10));
+		    	else text_out(format(" add +%d", digrock / 10));
+			    text_out(" damage against creatures vulnerable to rock remover)");
+    		}
+	    	else if ((f1 & TR1_TUNNEL) && (o_ptr->pval > 1))
+		    {
+			    if ((dam / 4) % 10)
+				    text_out(format(" (add +%d.%d", digrock / 10, digrock % 10));
+	    		else text_out(format(" (add +%d", digrock / 10));
+	    		text_out(" damage against creatures vulnerable to rock remover)");
+	    	}
+    	}
 
-    /* factors not included */
-	if ((weapon) && (p_ptr->timed[TMD_BALROG]))
-       text_out(". This does not figure in the 'spririt of the balrog' effect.");
-	if ((weapon) && (p_ptr->timed[TMD_HIT_ELEMENT]))
-       text_out(". This does not figure in the 'elemental strike' effect.");
-    else text_out(".");
+        /* factors not included */
+	    if ((weapon) && (p_ptr->timed[TMD_BALROG]))
+           text_out(". This does not figure in the 'spririt of the balrog' effect.");
+	    if ((weapon) && (p_ptr->timed[TMD_HIT_ELEMENT]))
+           text_out(". This does not figure in the 'elemental strike' effect.");
+        else text_out(".");
+    }
 
 	/* note about the weakness of SLAY_WERE weapons */
 	if (f2 & TR2_SLAY_WERE)
 	{
 		text_out("  Note that no multipliers from a silver weapon work against silver monsters.");
 	}
+    
+    /* can be too heavy to throw effectively even if it's meant for throwing */
+    if ((!strong_throw) && (o_ptr->weight >= 200))
+    {
+	    /* (if STR is less than 18/150) */
+	    if (((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) < 10) thrower = FALSE;
+    }
+    /* strong throw characters get no penalty for throwing normal melee weapons */
+    /* so show damage for them too */
+    else if ((weapon) && (strong_throw)) thrower = TRUE;
+
+    if (thrower)
+    {
+		int throwok;
+        /* Calculate damage */
+		dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
+		if (object_known_p(o_ptr)) dam += (o_ptr->to_d * 10);
+
+		/* add to_dam from gloves if appropriate */
+		if (throwglove) dam += (g_ptr->to_d * 10);
+
+  	    if (f2 & TR2_THROWN) throwok = 2; /* throwing weapon */
+	    else /* (f2 & TR2_PTHROW) */ throwok = 1; /* semi-thrower */
+	
+	    /* bonus to thrown weapon multiplier from equipment */
+        throwok += p_ptr->throwmult;
+
+	    if ((!strong_throw) && (o_ptr->weight >= 150))
+	    {
+		    /* (if STR is less than 18/50) */
+		    if (((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) < 5) throwok -= 1;
+        }
+
+        if (((strong_throw) || (p_ptr->pclass == 0) ||
+                (cp_ptr->flags & CF_KNIGHT)) && (throwok < 2))
+        {
+            dam = (dam * 5) / 4; /* semi-throwers x1.25 */
+        }
+        else if (throwok > 0)
+        {
+		    /* throwing weapons:  throwok == 2 + THROWMULT bonus (minimum THROWMULT bonus is 2) */
+		    /* semi-throwing weapons:  throwok == 1 + THROWMULT bonus */
+		    if (throwok == 4) dam = ((dam * 7) / 4);       /* (x1.75) (same as ML2 for bows) */
+		    else if (throwok == 5) dam = ((dam * 21) / 8); /* (x2.625) (same as ML3) */
+		    else if (throwok >= 6) dam = ((dam * 7) / 2);  /* (x3.5) (same as ML4) */
+		    /* normal multiplier for semi-throwing weapons:  x1.2 */
+		    else if (throwok == 1) dam = (dam * 6) / 5;
+		    /* normal throwing weapon multiplier:  x1.4  */
+		    /* (same for THROWMULT bonus of 2 with a semi-thrower) */
+		    else /* throwok == 2 or 3 */ dam = (dam * 7) / 5;
+        }
+		
+		/* DJA: add (partial) strength bonus for certain classes */
+		if ((strong_throw) || (cp_ptr->flags & CF_KNIGHT) || (p_ptr->pclass == 0))
+		{
+			int strb;
+			int eweight = o_ptr->weight;
+			if (!(f2 & TR2_THROWN)) eweight = eweight / 2; /* less if not meant for throwing */
+			/* complex strength bonus by weight (different than melee) */
+			strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+			if (eweight < 25) strb = strb / 2;
+			else if (eweight < 40) strb = (strb * 2) / 3;
+			else if (eweight < 50) strb = (strb * 3) / 4;
+			else if (eweight < 60) strb = (strb * 5) / 6;
+			strb = strb / 10;
+			if (p_ptr->timed[TMD_MIGHTY_HURL]) strb = strb * 2;
+			dam += strb;
+			/* doesn't use strdam because STR bonus is now added before slays */
+		}
+
+        /* strdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128); */
+
+	    if (f2 & TR2_THROWN) new_paragraph = TRUE;
+	    else text_out("  ");
+		p_text_out("This weapon can be thrown for an average damage of ");
+	    new_paragraph = FALSE;
+       
+        /* find chance of critical hit */
+        if (f2 & TR2_THROWN) critc = critshot_chance(o_ptr, f2);
+
+        /* Collect slays */
+	    cnt = collect_slays(desc, mult, f1, f2, f3, weapon);
+	   
+	    /* have to do all this again for thrown weapons */
+	    /* because some weapons can be used both for melee and for throwing */
+        if (cnt)
+	    {
+	        int i;
+
+		    for (i = 0; i < cnt; i++)
+		    {
+		       /* Include bonus damage and slay in stated average */
+		       int slay_dam = dam * mult[i];
+		       int slay_sbdam = sbdam * mult[i];
+
+		       /* special message for slay stacking which adds 25% */
+		       if (mult[i] == 9) slay_dam = dam / 4;
+		       if (mult[i] == 10) slay_dam = (dam / 4) * 2;
+		       if (mult[i] == 11) slay_dam = (dam / 4) * 3;
+    
+               /* strength bonus after multipliers for slings */
+               /* but before multipliers for melee weapons */
+               if ((o_ptr->tval == TV_SHOT) && (strdam))
+                  slay_dam += strdam;
+
+			    if (mult[i] >= 9) text_out("+");
+			    if (slay_dam <= 0)
+			    	text_out(format("%d", 0));
+			    else if (slay_dam % 10)
+			    	text_out(format("%d.%d", slay_dam / 10, slay_dam % 10));
+			    else text_out(format("%d", slay_dam / 10));
+			    if ((o_ptr->sbdd) && (mult[i] < 9) && ((p_ptr->num_blow > 1) || (tmpblow > 1)))
+		      {
+			       if (slay_sbdam <= 0)
+			    	    text_out(format(" (%d", 0));
+			       else if (slay_sbdam % 10)
+			    		text_out(format(" (%d.%d", slay_sbdam / 10, slay_sbdam % 10));
+			       else text_out(format(" (%d", slay_sbdam / 10));
+			       text_out(" on the 2nd hit)");
+		       }
+
+		       if (mult[i] >= 9) text_out(format(" %s, ", desc[i]));
+		       else text_out(format(" against %s, ", desc[i]));
+		    }
+	        text_out("and ");
+        }
+       
+        /* Include bonus damage in stated average */
+        total_dam = dam;
+    
+	    if (total_dam <= 0)
+	       text_out(format("%d", 0));
+	    else if (total_dam % 10) text_out(format("%d.%d",
+	               total_dam / 10, total_dam % 10));
+	    else text_out(format("%d", total_dam / 10));
+
+        if (cnt) text_out(" against other monsters");
+        text_out(".");
+    }
     
     /* note to-hit penalty from TMD_XATTACK */
     if (((ammo) || (f2 & TR2_THROWN)) && (p_ptr->timed[TMD_XATTACK]))
@@ -1369,19 +1492,22 @@ void describe_attack(const object_type *o_ptr)
     }
     
     /* Are you getting an elemental brand from a ring? */
-    if (f2 & TR2_THROWN)
+    if (thrower)
 	{
 		ringbrand = thrown_brand();
 
 		/* Get odds of thrown weapon getting branded by elemental ring */
 		if (ringbrand)
 		{
-		   brandodd = ((p_ptr->skills[SKILL_THT] + goodluck) / 2);
+		   brandodd = ((p_ptr->skills[SKILL_THT] + goodluck) / 2) - 5;
 		   if (p_ptr->lev < 20) brandodd += 5;
 		   /* if ringbrand > 10 then */
 		   /* character is wearing more than one elemental ring */
 		   /* so more likely to get brand from ring */
 		   if (ringbrand > 10) brandodd += 10;
+		   
+		   /* less likely for semi-throwers */
+           if (!(f2 & (TR2_THROWN))) brandodd = brandodd/2;
 	
 	       /* percentile */
 	       if (brandodd > 100) brandodd = 100;
@@ -1401,7 +1527,9 @@ void describe_attack(const object_type *o_ptr)
        }
 
        text_out("  Your chance of scoring a critical hit with this weapon is 1 in ");
-       text_out(format("%d.\n", critc));
+       text_out(format("%d", critc));
+       if (f2 & TR2_PTHROW) text_out(" (less when thrown)");
+       text_out(".\n");
        
        /* re-calulate bonuses with real wielded weapon to prevent wierd messages */
        calc_bonuses(inventory, TRUE);
@@ -1413,8 +1541,7 @@ void describe_attack(const object_type *o_ptr)
 		text_out("  Your chance of scoring a critical hit when throwing this ");
 		text_out(format("weapon is 1 in %d.", critc));
 
-		if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight >= 200) && 
-			(!p_ptr->timed[TMD_MIGHTY_HURL]) && (xstrb < 10))
+		if ((!strong_throw) && (o_ptr->weight >= 200) && (xstrb < 10))
 		{
 			text_out("  This weapon is too heavy to be thrown effectively with your strength.");
 		}
@@ -1968,7 +2095,7 @@ void object_info_screen(object_type *o_ptr)
 	}
 	
     /* describe weapon attacks */
-    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f2 & TR2_THROWN))
+    if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (is_throwing_weapon(o_ptr)))
     {
 	    describe_attack(o_ptr);
     }

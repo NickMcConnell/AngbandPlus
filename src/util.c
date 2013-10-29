@@ -2007,7 +2007,7 @@ void messages_free(void)
 /*
  * Hack -- flush
  */
-static void msg_flush(int x)
+void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
 

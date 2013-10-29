@@ -117,6 +117,19 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * The quiver wield tester
+ */
+static bool item_tester_hook_quiverwield(const object_type *o_ptr)
+{
+	if (is_throwing_weapon(o_ptr)) return TRUE;
+	
+	if (ammo_p(o_ptr)) return (TRUE);
+
+	/* Assume not wearable */
+	return (FALSE);
+}
+
 
 /* EFGchange notice obvious effects */
 typedef struct {u32b flag; char *name;} flagname;
@@ -297,7 +310,7 @@ static int quiver_wield(int item, object_type *o_ptr)
 /*
  * Wield or wear a single item from the pack or floor
  */
-void do_cmd_wield(void)
+void do_cmd_wield_reallynow(bool toquiver)
 {
 	int item, slot;
 	bool is_splendid;
@@ -320,10 +333,18 @@ void do_cmd_wield(void)
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
+	
+	/* wield straight to quiver */
+    if (toquiver) item_tester_hook = item_tester_hook_quiverwield;
 
 	/* Get an item */
 	q = "Wear/Wield which item? ";
 	s = "You have nothing you can wear or wield.";
+	if (toquiver)
+    {
+        q = "Put which item into the quiver? ";
+        s = "You have nothing you can put in the quiver.";
+    }
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -344,8 +365,15 @@ void do_cmd_wield(void)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 	
-	/* off-hand weapon (not duel-wielding (yet), more like using a weapon as a shield) */
-    if ((slot == INVEN_WIELD) && (f4 & TR4_WIELD_SHIELD))
+	/* new command to wield straight to the quiver (mainly for PTHROW weapons) */
+    if (toquiver)
+	{
+        slot = INVEN_QUIVER;
+    }
+	
+	/* off-hand weapon (usually a main gauche) */
+	/* (not duel-wielding (yet), more like using a weapon as a shield) */
+    else if ((slot == INVEN_WIELD) && (f4 & TR4_WIELD_SHIELD))
 	{
        if (get_check("Wield in off-hand for defence? "))
        {
@@ -629,7 +657,17 @@ void do_cmd_wield(void)
 	p_ptr->redraw |= (PR_EQUIPPY);
 }
 
+/*  */
+void do_cmd_wield(void)
+{
+     do_cmd_wield_reallynow(FALSE);
+}
 
+/* control-Q:  new command to wield straight to the quiver */
+void do_cmd_wieldnq(void)
+{
+     do_cmd_wield_reallynow(TRUE);
+}
 
 /*
  * Take off an item

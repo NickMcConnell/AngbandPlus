@@ -43,7 +43,7 @@
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "version 1.1.0 Nov 20, 09 update"
+#define VERSION_STRING "version 1.1.1"
 #endif
 
 
@@ -809,7 +809,7 @@ enum
 #define EGO_LORDLINESS		29
 #define EGO_SEEING			30
 #define EGO_INFRAVISION		31 /* alertness */
-#define EGO_LITE			32
+/* #define EGO_LITE			32 removed because it's redundant with Night and Day */
 #define EGO_TELEPATHY		33
 #define EGO_REGENERATION	34
 #define EGO_TELEPORTATION	35
@@ -934,6 +934,8 @@ enum
 #define EGO_WARFARE         131   /* combat bonuses */
 /* rings & amulets of teleportation */
 #define EGO_TELECONTROL     154
+/* amulets of adornment only */
+#define EGO_LOOKLUCKY       32  /* raise or lower luck */
 
 /* DJA: weird psuedo-randarts for weapons, diggers & tusks */
 #define EGO_RANDOM1         134
@@ -1745,12 +1747,12 @@ enum
  *
  *	KILL: Target monsters
  *	LOOK: Describe grid fully
- *	XTRA: Currently unused flag
+ *	ITEM: For telekinesis
  *	GRID: Select from all grids
  */
 #define TARGET_KILL		0x01
 #define TARGET_LOOK		0x02
-#define TARGET_XTRA		0x04
+#define TARGET_ITEM		0x04
 #define TARGET_GRID		0x08
 
 
@@ -1932,7 +1934,7 @@ enum
  * Special object flags
  */
 #define IDENT_SENSE     0x01	/* Item has been "sensed" */
-/* ... */
+#define IDENT_BREAKS    0x02    /* makes sure we have the correct item in cmd6.c */
 #define IDENT_EMPTY     0x04	/* Item charges are known */
 #define IDENT_KNOWN     0x08	/* Item abilities are known */
 #define IDENT_STORE     0x10	/* Item is in the inventory of a store */
@@ -2050,10 +2052,10 @@ enum
 #define TR1_DEX             0x00000008L /* DEX += pval */
 #define TR1_CON             0x00000010L /* CON += pval */
 #define TR1_CHR             0x00000020L /* CHR += pval */
-#define TR1_XXX1            0x00000040L /* (reserved) */
+#define TR1_XXX1            0x00000040L /* (reserved ..for what?) */
 #define TR1_XXX2            0x00000080L /* (reserved) */
 #define TR1_STEALTH         0x00000100L /* Stealth += pval */
-#define TR1_SEARCH          0x00000200L /* no longer used (combined with alertness) */
+#define TR1_EQLUCK          0x00000200L /* temporary +/- luck (combined SEARCH with alertness) */
 #define TR1_INFRA           0x00000400L /* Alertness += pval*5 */
 #define TR1_TUNNEL          0x00000800L /* Tunnel += pval */
 #define TR1_SPEED           0x00001000L /* Speed += pval */
@@ -2101,14 +2103,14 @@ enum
 #define TR2_DANGER          0x00200000L /* dangerous to the user of the weapon */
 #define TR2_CONSTANTA       0x00400000L /* magic staff of constant activation */
 #define TR2_SLAY_WERE       0x00800000L /* damage like GF_SILVER_BLT */
-#define TR2_XXX84           0x01000000L /* unused */
+#define TR2_CORRUPT         0x01000000L /* Corrupting (moved from TR3) */
 #define TR2_IMPACT          0x02000000L /* Earthquake blows */
-#define TR2_CORRUPT         0x04000000L /* Corrupting (moved from TR3) */
+#define TR2_PTHROW          0x04000000L /* decent for throwing, but not as good as THROWN -can be wielded for melee */
 #define TR2_RTURN           0x08000000L /* returns when thrown */
 #define TR2_THROWN          0x10000000L /* weapon good for throwing but can't wield */
 #define TR2_LIGHTNESS       0x20000000L /* ego weight is subtracted instead of added */
 #define TR2_PEACE           0x40000000L /* hinders combat */
-#define TR2_NICE            0x80000000L /* for humans, hobbits, and fairies */
+#define TR2_NICE            0x80000000L /* makes animals less aggresive (mainly for certain player races) */
 
 #define TR3_SLOW_DIGEST     0x00000001L /* Slow digest */
 #define TR3_FEATHER         0x00000002L /* Feather Falling */
@@ -2176,8 +2178,8 @@ enum
 #define TR4_XXX28           0x08000000L /*  */
 #define TR4_XXX29           0x10000000L /*  */
 #define TR4_XXX30           0x20000000L /*  */
-#define TR4_XXX31		    0x40000000L /*  */
-#define TR4_WIELD_SHIELD    0x80000000L /* can be worn in shield slot */
+#define TR4_DRUID		    0x40000000L /* no icky penalty for druids */
+#define TR4_WIELD_SHIELD    0x80000000L /* weapon can be worn in shield slot for defence */
 
 /*
  * Hack -- flag set 1 -- mask for "pval-dependant" flags.
@@ -2186,7 +2188,7 @@ enum
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
 	 TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
-	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
+	 TR1_STEALTH | TR1_EQLUCK | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT )
 
 #define TR2_PVAL_MASK \
@@ -2534,7 +2536,7 @@ enum
 #define RF7_XX724         0x01000000 /*   */
 #define RF7_XX725         0x02000000 /*   */
 #define RF7_XX726        0x04000000 /*   */
-#define RF7_XX727        0x08000000 /*   */
+#define RF7_LUCKY_KILL      0x08000000 /* has a chance to raise your luck when killed */
 #define RF7_WATER_ONLY	    0x10000000 /* monster never leaves the water */
 #define RF7_BLOCK_LOS	    0x20000000 /* for trees and wall monsters */
 #define RF7_HATE_WATER      0x40000000 /* never goes in a space with water */
@@ -3556,6 +3558,7 @@ enum
 	QUIVER_GROUP_ARROWS,
 	QUIVER_GROUP_SHOTS,
 	QUIVER_GROUP_THROWING_WEAPONS,
+	QUIVER_GROUP_SEMI_THROWER,
 	MAX_QUIVER_GROUPS
 };
 

@@ -4473,7 +4473,7 @@ R:830:0xB3/0x90
 R:831:0xCA/0x81
 
 # Sshppllluuit, the multi-hued Icky King (ICKY_PLACE theme only)
-R:832:0xCA/0x8B
+R:832:0xCA/0x8C
 
 # black dwarf miner (DWARF_MINE theme only)
 R:833:0x90/0x82
@@ -4482,13 +4482,13 @@ R:833:0x90/0x82
 R:834:0xCF/0x84
 
 # blubbering icky thing (ICKY_PLACE theme only)
-R:835:0xCA/0x88
+R:835:0xCA/0x89
 
 # bloodshot icky thing (ICKY_PLACE theme only)
-R:836:0xCA/0x89
+R:836:0xCA/0x8A
 
 # blue icky thing (ICKY_PLACE theme only)
-R:837:0xCA/0x8A
+R:837:0xCA/0x8B
 
 # ironwood tree (DWARF_MINE theme only)
 R:838:0x91/0x8B

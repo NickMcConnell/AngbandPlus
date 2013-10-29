@@ -2019,7 +2019,10 @@ s16b wield_slot(const object_type *o_ptr)
 			return (INVEN_FEET);
 		}
 	}
-
+	
+	/* this will allow iron spikes to go in the quiver */
+    if (is_throwing_weapon(o_ptr)) return (INVEN_QUIVER);
+    
 	/* No slot available */
 	return (-1);
 }
@@ -3410,8 +3413,7 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-    int py;
-    int px;
+    int py, px;
     
 /*   py = p_ptr->py;
  *   px = p_ptr->px; */

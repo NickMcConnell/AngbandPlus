@@ -70,6 +70,9 @@
 # object, or a new one at the end of the file, you must also amend object.txt
 # or limits.txt.)
 
+# currently no artifact has the TELE_AWAY activation.
+# also, there should probably be some artifact with THROW_MULT
+
 
 # Version stamp (required)
 
@@ -166,7 +169,7 @@ W:75:127:60:200:100000
 P:0:10d10:0:0:0
 # F:DRAIN_MANA | 
 F:ACTIVATE | 
-F:INT | WIS | SEARCH | INFRA | SEE_INVIS | TELEPATHY | 
+F:INT | WIS | INFRA | SEE_INVIS | TELEPATHY | 
 F:RES_CHAOS | RES_BLIND | AGGRAVATE | DRAIN_EXP | RES_STATC
 F:INSTA_ART | HIDE_TYPE | BAD_WEAP | NO_FUEL
 A:CLAIRVOYANCE:50:50
@@ -411,17 +414,18 @@ D:in combat, around you as you put his armour on.
 
 
 # The Mithril Chain Mail 'Belegennon'
+# suggestion: apply pval to DEX, but I have a better idea, how about teleport control?
 
 N:22:'Belegennon'
 I:37:20:4
-W:40:96:4:150:105000
+W:40:96:5:150:115000
 P:28:1d4:-1:0:20
-F:STEALTH | HIDE_TYPE | RES_STATC
+F:STEALTH | HIDE_TYPE | RES_STATC | TCONTROL
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 A:PHASE:2:0
 D:This wondrous suit of fine-linked chain shimmers as though of pure silver.  
 D:It stands untouched amidst the fury of the elements, and a power of 
-D:concealment rests within.
+D:concealment and escaping rests within.
 
 
 # The Mithril Plate Mail of Celeborn
@@ -469,12 +473,13 @@ D:enhance body and mind lie within, and no door can bar the wearer's path.
 ### Light Armor ###
 
 # New Artifact (26): The Hard Leather Armour of Himring
+# added breath shield
 
 N:26:of Himring
 I:36:6:0
-W:50:100:20:100:35000
+W:36:80:20:100:30000
 P:6:0d0:0:0:15
-F:RES_CHAOS | RES_NETHR | RES_POIS | ACTIVATE
+F:RES_CHAOS | RES_NETHR | RES_POIS | BR_SHIELD | ACTIVATE
 A:PROT_EVIL:100:100
 D:Contained within this studded cuirass of pliable leather is the memory of 
 D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
@@ -564,7 +569,7 @@ N:33:of Celebrimbor
 I:32:3:3
 W:55:127:12:20:45000
 P:3:1d1:0:0:18
-F:INT | DEX | CHR | SEARCH | 
+F:INT | DEX | CHR
 F:RES_FIRE | RES_ACID | RES_DISEN | RES_SHARD | 
 D:A metal cap forged by the greatest Noldorin smith of the Second Age, 
 D:this helm is of equal use in battle or at the forge, and its 
@@ -604,7 +609,7 @@ D:cost.
 
 N:36:of Thranduil
 I:32:2:2
-W:25:127:3:15:50000
+W:21:127:3:15:50000
 P:2:0d0:0:0:10
 F:INT | WIS | HIDE_TYPE | 
 F:RES_BLIND | TELEPATHY
@@ -627,11 +632,11 @@ D:engraved silver.  It grants the wearer nobility and understanding.
 
 N:38:of Hammerhand
 I:32:6:3
-W:20:105:8:60:55000
+W:25:105:8:60:55000
 P:6:1d3:6:6:20
 F:STR | DEX | CON | HIDE_TYPE | 
 F:SUST_STR | SUST_DEX | SUST_CON | AGGRAVATE | RES_CHARM | 
-F:RES_ACID | RES_NEXUS | RES_COLD | RES_DARK
+F:RES_ACID | RES_NEXUS | RES_COLD | RES_DARK | RES_SOUND
 D:A great helm, as steady and as distinctive as the hero of the Westdike.  
 D:Many long months was Helm Hammerhand besieged in the Hornburg, yet he 
 D:strode out time and again among his foes and slew many. Although they 
@@ -658,7 +663,7 @@ N:40:'Holhenneth'
 I:32:5:2
 W:25:127:5:75:100000
 P:5:1d3:0:0:10
-F:INT | WIS | SEARCH | HIDE_TYPE
+F:INT | WIS | HIDE_TYPE
 F:RES_CONFU | TELEPATHY | ACTIVATE
 A:DETECT:55:55
 D:A famous helm of forged iron granting extraordinary powers of mind and 
@@ -672,7 +677,7 @@ I:32:5:-5
 W:20:108:5:75:1
 P:5:1d3:8:8:10
 # F: DRAIN_HP | 
-F:INT | WIS | SEARCH | HIDE_TYPE | RES_FEAR | 
+F:INT | WIS | EQLUCK | HIDE_TYPE | RES_FEAR
 F:SEE_INVIS | FREE_ACT | AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE
 D:A headpiece, gaudy and barbaric, that betrayed a warrior when he most 
 D:needed succor.
@@ -700,7 +705,7 @@ I:33:12:3
 W:60:127:30:40:50000
 P:0:1d1:0:0:18
 # F: DRAIN_MANA | ACTIVATE
-F:INT | DEX | CHR | SEARCH | SPEED | HIDE_TYPE |
+F:INT | DEX | CHR | SPEED | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT |  
 F:RES_SHARD | RES_SOUND | RES_COLD | RES_CHARM | 
 F:RES_LITE | RES_DARK | RES_BLIND | LITE
@@ -756,7 +761,7 @@ N:47:of Thorongil
 I:35:1:3
 W:4:50:10:10:8000
 P:1:0d0:0:0:10
-F:FREE_ACT | RES_ACID | RES_FEAR | INFRA | SEARCH
+F:FREE_ACT | RES_ACID | RES_FEAR | INFRA
 D:This shimmering cloak of greens and browns was once worn by the young 
 D:Aragorn, a keen-eyed captain of Gondor, valiant on both land and sea.
 
@@ -834,10 +839,10 @@ D:A hero's handgear that lends great prowess in battle.
 # The Set of Leather Gloves 'Cammithrim'
 
 N:53:'Cammithrim'
-I:31:1:0
-W:10:60:3:5:30000
-P:1:0d0:0:0:10
-F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
+I:31:1:2
+W:5:56:3:5:25000
+P:1:0d0:2:2:10
+F:EQLUCK | FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
 A:MISSILE:2:0
 D:These gloves glow so brightly as to light the way for the player and cast 
 D:magical bolts with great frequency.
@@ -858,7 +863,7 @@ D:A set of gauntlets that smoulder with an unnatural heat.
 
 N:55:'Paurnimmen'
 I:31:2:0
-W:10:50:3:25:12000
+W:5:46:3:25:12000
 P:2:1d1:0:0:15
 F:RES_COLD | SLOW_DIGEST | ACTIVATE
 A:FROST1:7:7
@@ -869,7 +874,7 @@ D:A set of handgear, freezing with unnatural cold.
 
 N:56:'Pauraegen'
 I:31:2:0
-W:10:50:3:25:10000
+W:5:46:3:25:10000
 P:2:1d1:0:0:15
 F:RES_ELEC | LITE | ACTIVATE
 A:LIGHTNING_BOLT:6:6
@@ -880,7 +885,7 @@ D:A set of handgear with sparks that crackle across its knuckleguards.
 
 N:57:'Paurnen'
 I:31:2:0
-W:10:50:3:25:11000
+W:5:46:3:25:11000
 P:2:1d1:0:0:15
 F:RES_ACID | FEATHER | ACTIVATE
 A:ACID1:5:5
@@ -893,7 +898,7 @@ N:58:'Camlost'
 I:31:2:-3
 W:10:108:20:25:0
 P:2:1d1:-12:-12:0
-F:STR | DEX | HIDE_TYPE | 
+F:STR | DEX | EQLUCK | HIDE_TYPE | 
 F:RES_FIRE | RES_DISEN | FREE_ACT | DANGER
 F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 D:A pair of gauntlets that sap combat ability, named after the empty hand 
@@ -1053,7 +1058,7 @@ N:70:of Ratagast
 I:36:2:2
 W:36:127:33:24:14000
 P:2:1d1:0:0:12
-F:WIS | INT | SEARCH | INFRA
+F:WIS | INT | INFRA
 F:RES_BLIND | RES_DISEN | RES_CONFU | SEE_INVIS
 F:SUST_WIS | SUST_CON | SUST_STR | SUST_INT | ACTIVATE
 A:IDENTIFY:25:25
@@ -1098,7 +1103,7 @@ N:73:'Glamdring'
 I:23:16:1
 W:20:127:20:150:40000
 P:0:2d5:10:15:0
-F:SEARCH | HIDE_TYPE | BLESSED | LITE | 
+F:INFRA | HIDE_TYPE | BLESSED | LITE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | SLAY_DEMON | RES_FIRE | RES_LITE | 
 F:SLOW_DIGEST | SHOW_MODS
 D:This fiery, shining blade, mate to Orcrist, earned its sobriquet "Beater" 
@@ -1111,7 +1116,7 @@ N:74:'Aeglin'
 I:23:16:1
 W:20:127:30:150:45000
 P:0:2d5:12:16:0
-F:SEARCH | HIDE_TYPE | BLESSED | LITE | 
+F:INFRA | HIDE_TYPE | BLESSED | LITE | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | BRAND_ELEC | RES_ELEC | RES_BLIND | 
 F:SLOW_DIGEST | SHOW_MODS
 D:Like unto Orcrist and Glamdring, and like them long lost, this sword is 
@@ -1122,10 +1127,10 @@ D:eerily in the globes of light they create.
 # The Broad Sword 'Orcrist'
 
 N:75:'Orcrist'
-I:23:16:3
+I:23:16:2
 W:20:127:20:150:40000
 P:0:2d5:10:15:0
-F:SEARCH | HIDE_TYPE | LITE | 
+F:INFRA | HIDE_TYPE | LITE | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | SLAY_DRAGON | RES_COLD | RES_DARK | 
 F:SLOW_DIGEST | SHOW_MODS
 D:This coldly gleaming blade, mate to Glamdring, is called simply "Biter" 
@@ -1270,7 +1275,7 @@ D:other blade he forged.
 #W:20:8:130:26000
 #P:0:2d5:2:7:0
 #F:DEX | CHR | STEALTH | HIDE_TYPE | 
-#F:SLAY_TROLL | SLAY_ORC | FEATHER | SEARCH | SHOW_MODS
+#F:SLAY_TROLL | SLAY_ORC | FEATHER | SHOW_MODS
 #D:The "Singing Blade", whose wearer can slay Orcs and Trolls in the hidden 
 #D:and secret places of the earth.
 
@@ -1278,7 +1283,7 @@ D:other blade he forged.
 # The Set of Steel Gauntlets of Maeglin
 
 N:85:of Maeglin
-I:31:3:0
+I:31:3:2
 W:50:127:34:25:30000
 P:3:1d1:0:0:15
 F:MAGIC_MASTERY | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | RES_STATC | ACTIVATE
@@ -1318,7 +1323,7 @@ N:88:'Sting'
 I:23:5:2
 W:26:127:15:34:100000
 P:0:1d5:7:7:0
-F:STR | DEX | CON | BLOWS | SPEED | INFRA | HIDE_TYPE | RES_FEAR | 
+F:STR | DEX | CON | BLOWS | SPEED | INFRA | EQLUCK | HIDE_TYPE | RES_FEAR | 
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_BUG | 
 F:FREE_ACT | RES_LITE | LITE | SHOW_MODS
 D:"I will give you a name, and I shall call you Sting."  The perfect size 
@@ -1406,10 +1411,10 @@ D:dragon, and the designs of your enemies stand naked and revealed.
 # The Glaive of Pain
 
 N:94:of Pain
-I:22:13:0
+I:22:13:-3
 W:30:127:22:300:50000
-P:0:8d7:0:30:0
-F:SHOW_MODS | RES_FEAR | DRAIN_EXP | LIGHT_CURSE | BAD_WEAP
+P:0:8d7:3:30:0
+F:SHOW_MODS | EQLUCK | RES_FEAR | DRAIN_EXP | LIGHT_CURSE | BAD_WEAP
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
 D:down, but it's an evil thing to take pleasure in the pain of others.
@@ -1487,6 +1492,7 @@ D:spear.
 # The Lance of Eorlingas
 # (don't use artifact #100 because there's a good chance I'll put it back in-
 # only removed lances while I'm trying out the natace.)
+# originally had SEE_INVIS
 
 #N:100:of Eorlingas
 #I:22:20:2
@@ -1498,16 +1504,19 @@ D:spear.
 #D:hope to save beleaguered Gondor, and from his lance fled massive trolls 
 #D:and dire wolves.
 
-
-# an artifact javelin
-N:101:'Thunderbolt'
-I:22:9:0
-W:25:90:27:35:10000
-P:0:1d7:15:12:0
-F:SLAY_GIANT | EXTRA_CRIT | BRAND_ELEC | 
-F:THROWN | RTURN | SHOW_MODS
-D:A throwing spear like a shaft of lightning. 
-D:Like Zeus' lightning bolt itself, it was made to combat giants and titans.
+# The Great Axe of Durin 
+# had been removed, but I put it back in.
+N:101:of Durin 
+I:22:25:3 
+W:30:126:90:230:150000
+P:0:4d4:10:20:15 
+F:STR | CON | TUNNEL | HIDE_TYPE | BRAND_ACID | BRAND_FIRE | 
+F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
+F:RES_CONFU | RES_FEAR | 
+F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS 
+D:The twin massive axe heads of this ancient demon's dread gleam with 
+D:mithril inlay, which tell sagas of endurance, invoking the powers of 
+D:Kazad-dum to protect the wearer and slay all evils found underground. 
 
 
 # The Great Axe of Eonwe
@@ -1547,10 +1556,10 @@ D:more.
 N:104:of Gimli
 I:22:18:1
 W:30:88:15:170:30000
-P:0:2d8:6:6:0
+P:0:2d8:6:8:0
 F:STR | DEX | HIDE_TYPE | RES_NEXUS | BRAND_ACID
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
-A:BERSERKER:90:90
+A:BERSERKER:80:80
 D:The axe wielded by the heroic Gimli son of Gloin, 'Elf-Friend'. It has slain countless
 D: orcs in its time, although Gimli did keep count for awhile in a friendly competition
 D: with Legolas over who killed more orcs.
@@ -1619,7 +1628,7 @@ W:40:127:8:230:17500
 P:0:5d3:6:8:10
 F:DEX | CHR | HIDE_TYPE | FEATHER |
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
-F:RES_LITE | LITE | SEARCH | ACTIVATE | SHOW_MODS
+F:RES_LITE | LITE | ACTIVATE | SHOW_MODS
 A:WOR:200:0
 D:Binding elemental powers whose struggles turn this weapon red and purest 
 D:white, this shining reaper bears within it a power of going forth and 
@@ -1761,7 +1770,7 @@ D:invokes the strength of mountains to ward off the tumult of the elements.
 N:118:'Alchemist's Fire'
 I:23:9:0
 W:15:73:32:12:5090
-P:0:2d4:7:9:0
+P:0:2d4:5:6:0
 F:BRAND_ACID | BRAND_FIRE
 F:THROWN | RTURN | SHOW_MODS
 D:
@@ -1777,7 +1786,7 @@ F:INT | WIS | HIDE_TYPE |
 F:SLAY_EVIL | RES_LITE | LITE | TELEPATHY | ACTIVATE | SHOW_MODS
 A:IDENTIFY:10:0
 D:The radiant golden staff of an Istar of legend; this wizard's companion 
-D:grants keen sight and clear knowledge of many hidden things.
+D:grants insight and clear knowledge of many hidden things.
 
 
 # The Quarterstaff of Olorin (Staff of Striking)
@@ -1804,7 +1813,7 @@ N:121:'Deathwreaker'
 I:22:35:6
 W:80:127:38:400:400000
 P:0:7d8:18:18:0
-# F:DRAIN_MANA | RES_FIRE (no need for resistance and immunity)
+# F:DRAIN_MANA | RES_FIRE (no need for both resistance and immunity)
 F:STR | TUNNEL | HIDE_TYPE | BLESSED | RES_CHARM |
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | KILL_UNDEAD | BRAND_FIRE | 
 F:IM_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE | 
@@ -1822,7 +1831,7 @@ N:122:of Pippin Took
 I:23:4:1
 W:19:91:23:12:32500
 P:0:2d4:2:2:3
-F:STR | DEX | CON | SEARCH |
+F:STR | DEX | CON | INFRA | EQLUCK
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | RES_CHAOS | RES_SOUND |
 F:FREE_ACT | HOLD_LIFE | SUST_CON | ACTIVATE |
 A:CLAIRVOYANCE:75:85
@@ -1898,7 +1907,7 @@ I:19:24:2
 W:25:127:36:220:41000
 P:0:2d2:5:23:0
 F:STR | MIGHT |
-F:RES_LITE | RES_DARK | RES_ELEC | RES_ACID | RES_NEXUS | RES_SHARD
+F:RES_DARK | RES_ELEC | RES_ACID | RES_NEXUS | RES_SHARD
 F:HIDE_TYPE | ACTIVATE | SHOW_MODS | AGGRAVATE | DRAIN_EXP
 A:TUNNELDIG:40:40
 D:These cannonballs will go through a lot...
@@ -2067,9 +2076,10 @@ D:turn fighting monsters into a fun snowball fight!
 
 N:139:of the Fairies
 I:35:5:3
-W:9:97:70:5:19000
+W:9:97:70:5:22000
 P:2:0d0:0:0:5
-F:SPEED | STEALTH | INFRA | LITE | NICE | PEACE | HIDE_TYPE | GOOD_WEAP
+F:SPEED | STEALTH | INFRA | EQLUCK | LITE | 
+F:NICE | PEACE | HIDE_TYPE | GOOD_WEAP
 F:RES_CHARM | RES_CHAOS | RES_CONFU | RES_DARK | ACTIVATE
 #F:RES_SILVR
 A:CHARM_ANIMAL:45:45
@@ -2114,17 +2124,28 @@ D: planned, Isildur hid it and kept it for himself until he was slain
 D: by orc arrows by the river where Smeagul found it many years later.
 D: It cannot be wielded safely again until reforged to fullfill its destiny.
 
-N:143: (unused, something was added and removed)
+# A priest's weapon (ceremonial mace)
+# Needs some more description (and maybe a new name) if I find a fitting 
+# priest to name it after or something. (I just made up this name from nowhere)
+N:143:'Lightbringer'
+I:21:8:2
+W:30:120:72:130:44000
+P:0:3d4:17:10:0
+F:WIS | INFRA | LITE | RES_LITE | RES_DARK | REGEN
+F:RES_COLD | RES_NETHR | SEE_INVIS | GOOD_WEAP | ACTIVATE
+A:ILLUMINATION:20:50
+D:The weapon of Sybram Esberal, a mighty priest who sought to
+D: bring light to dark places.
 
 #	A few weaker low-level artifacts:
 # (Artifacts now have a maximum depth they can appear, so these are enforced low-level)
 
-# the augmented chain mail of augmentation
+# the augmented chain mail of augmentation (removed INFRA)
 N:144:of Augmentation
 I:37:6:1
-W:24:36:12:250:2400
-P:16:1d4:-2:0:0:16
-F:STR | DEX | CON | INT | WIS | CHR | SEARCH | INFRA
+W:24:36:12:250:4000
+P:16:1d4:-2:0:16
+F:STR | DEX | CON | INT | WIS | CHR
 D:
 
 # an artifact torch (..just for kicks)
@@ -2142,11 +2163,34 @@ D: in the village.  It also protects against the life-draining bites of such mon
 #(slightly heavier than a normal sabre)
 N:146:Grayswandir
 I:23:11:1
-W:10:39:15:60:3000
+W:9:39:15:60:3000
 P:0:2d7:5:2:0:7
-F:SLAY_WERE | SLAY_DEMON | BLESSED | CHR
+F:SLAY_WERE | SLAY_DEMON | BLESSED | CHR | EQLUCK
 F:HIDE_TYPE | RES_CHAOS
 #F:RES_SLIME
 D:A silver sabre well-known in foreign lands to be a bane of demons and werebeasts
 D: and protection from hallucenation.
 D:  You wonder how it got to Angband from the far off land of Yendor.
+
+# an artifact javelin
+N:147:'Thunderbolt'
+I:22:9:0
+W:23:90:24:35:9000
+P:0:1d7:15:12:0
+F:SLAY_GIANT | EXTRA_CRIT | BRAND_ELEC | 
+F:THROWN | RTURN | SHOW_MODS
+D:A throwing spear like a shaft of lightning. 
+D:Like Zeus' lightning bolt itself, it was made to combat giants and titans.
+
+# The Halberd of Tourbagit's Sentance
+# (THROWMULT is always positive even if the pval is negative)
+N:149:of Tourbagit's Sentance
+I:22:21:-3
+W:19:60:21:190:16000
+P:0:3d5:6:10:0
+F:RES_COLD | RES_ELEC | RES_SOUND | 
+F:EXTRA_CRIT | THROWMULT | PR_POIS | EQLUCK
+F:ACTIVATE | BAD_WEAP | FREE_ACT | SHOW_MODS
+A:DRAIN_LIFE1:65:65
+D:The weapon of Bordgak, the champion of Tourbagit, god of pride and tyranny.
+D: It is used to carry out the evil gods' sentance of death on his foes.

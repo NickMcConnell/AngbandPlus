@@ -1710,6 +1710,46 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Generate treasure */
 		monster_death(m_idx);
 
+		/* certain monsters have a chance to */
+		/* raise your luck when you kill them */
+		/* LUCKY_KILL should only be on certain rare monsters or uniques */
+		if (r_ptr->flags7 & (RF7_LUCKY_KILL))
+		{
+			/* don't include any temporary luck effects */
+			int gluck = ((p_ptr->luck > 20) ? (p_ptr->luck - 20) : 0);
+			int bluck = ((p_ptr->luck < 20) ? (20 - p_ptr->luck) : 0);
+			/* (harder to raise luck when luck is already high) */
+			int luckchance = 11 - ((gluck+1)/3);
+			luckchance += (bluck+1)/3;
+			/* killing black cats not as likely */
+			if (r_ptr->flags3 & (RF3_HURT_SILV)) luckchance -= 3;
+			if (r_ptr->flags1 & (RF1_UNIQUE)) luckchance += 3;
+			if (rand_int(100) < luckchance)
+			{
+				p_ptr->luck += 1;
+				if (p_ptr->luck >= 20) msg_print("You feel lucky.");
+				else if (r_ptr->flags3 & (RF3_HURT_SILV))
+					msg_print("You feel your luck is avenged.");
+				else msg_print("You feel less unlucky.");
+			}
+		}
+
+		/* don't kill monsters who are trying to help you */
+		if ((r_ptr->flags3 & (RF3_HELPER)) && (!m_ptr->evil))
+		{
+			/* don't include any temporary luck effects */
+			int gluck = ((p_ptr->luck > 20) ? (p_ptr->luck - 20) : 0);
+			int bluck = ((p_ptr->luck < 20) ? (20 - p_ptr->luck) : 0);
+			/* (harder to lose luck when luck is already low) */
+			int luckchance = 15 - ((bluck+1)/3);
+			luckchance += (gluck+1)/3;
+			if (rand_int(100) < luckchance)
+			{
+				p_ptr->luck -= 1;
+				msg_print("Maybe that wasn't a good idea..");
+			}
+		}
+
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
 
@@ -2636,7 +2676,14 @@ static void target_set_interactive_prepare(int mode)
 			if (!target_set_interactive_accept(y, x)) continue;
 
 			/* Special mode */
-			if (mode & (TARGET_KILL))
+			if (mode & (TARGET_ITEM))
+			{
+				/* Must contain an item */
+				if (cave_o_idx[y][x] == 0) continue;
+			}
+
+			/* Special mode */
+			else if (mode & (TARGET_KILL))
 			{
 				/* Must contain a monster */
 				if (!(cave_m_idx[y][x] > 0)) continue;
@@ -3172,7 +3219,7 @@ bool target_set_interactive(int mode)
 	char info[80];
 
 	/* don't target monsters for telekinsis or teleport control */
-	if ((spellswitch == 24) || (spellswitch == 13)) flag = FALSE;
+	if (spellswitch == 13) flag = FALSE;
 
 	/* Cancel target */
 	target_set_monster(0);
@@ -3197,8 +3244,9 @@ bool target_set_interactive(int mode)
 			y = temp_y[m];
 			x = temp_x[m];
 
-			/* Allow target */
-			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
+            /* Allow target */
+			if (((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x])) ||
+			   (mode & (TARGET_ITEM)))
 			{
 				my_strcpy(info, "g,q,t,p,o,+,-,<dir>, <click>", sizeof(info));
 			}
@@ -3289,18 +3337,30 @@ bool target_set_interactive(int mode)
 				case '0':
 				case '.':
 				{
-					int m_idx = cave_m_idx[y][x];
+					if (mode & (TARGET_ITEM))
+					{
+                        if (cave_o_idx[y][x] == 0) bell("Illegal target!");
+                        else
+                        {
+                            target_set_location(y, x);
+                            done = TRUE;
+                        }
+                    }
+                    else
+                    {
+                        int m_idx = cave_m_idx[y][x];
 
-					if ((m_idx > 0) && target_able(m_idx))
-					{
-						health_track(m_idx);
-						target_set_monster(m_idx);
-						done = TRUE;
-					}
-					else
-					{
-						bell("Illegal target!");
-					}
+                        if ((m_idx > 0) && target_able(m_idx))
+					    {
+						    health_track(m_idx);
+						    target_set_monster(m_idx);
+						    done = TRUE;
+					    }
+					    else
+					    {
+						    bell("Illegal target!");
+					    }
+                    }
 					break;
 				}
 
@@ -3576,7 +3636,6 @@ bool get_aim_dir(int *dp)
 	{
        /* never use old target */
        dir = 0;
-       if (spellswitch == 24) msg_print("Target an object or pile of objects.");
        spot_target = TRUE;
     }
 	/* Hack -- auto-target if requested */
@@ -3595,9 +3654,8 @@ bool get_aim_dir(int *dp)
 		{
 			p = "Direction ('5' or <click>for target, '*' to re-target, Escape to cancel)? ";
 		}
-
-		/* Get a command (or Cancel) */
-		if (!get_com_ex(p, &ke)) break;
+        
+        if (!get_com_ex(p, &ke)) break;
 
 		/* Analyze */
 		switch (ke.key)
@@ -3613,7 +3671,11 @@ bool get_aim_dir(int *dp)
 			/* Set new target, use target if legal */
 			case '*':
 			{
-				if (target_set_interactive(TARGET_KILL)) dir = 5;
+				if (spot_target)
+                {
+                    if (target_set_interactive(TARGET_GRID)) dir = 5;
+                }
+                else if (target_set_interactive(TARGET_KILL)) dir = 5;
 				break;
 			}
 
@@ -3641,7 +3703,6 @@ bool get_aim_dir(int *dp)
 				}
 			}
 		}
-
 	    /* Error */
 	    if ((spot_target) && (dir != 5)) bell("You must target a specific spot.");
 

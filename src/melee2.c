@@ -2212,7 +2212,7 @@ bool make_attack_spell(int m_idx)
                msg_format("%^s gives you a frost bolt to throw as a free action.", m_name);
 			   spellswitch = 13; /* prevents using old target */
 			   if (!get_aim_dir(&dir)) break;
-			   /* ("gives you frost bolt" means okay to project from player) */
+			   /* ("gives you frost bolt" means okay to project from PC) */
 			   fire_bolt_or_beam(10 + (goodluck*2), GF_COLD, dir, 
                                  damroll(6, 8) + (rlev / 3));
 			   break;
@@ -2426,7 +2426,8 @@ bool make_attack_spell(int m_idx)
                   msg_format("%^s casts confuse monsters.", m_name);
 				  spellswitch = 13; /* prevents using old target */
 			      if (!get_aim_dir(&dir)) break;
-			      fire_ball(GF_OLD_CONF, 0, 30 + randint(30), 4);
+				/* breath() changes the target to player's target for HELPER monsters */
+			      breath(m_idx, GF_OLD_CONF, 30 + randint(30), FALSE);
                }
                else
                {
@@ -6329,6 +6330,18 @@ static void process_monster(int m_idx)
 
 				/* Skip gold */
 				if (o_ptr->tval == TV_GOLD) continue;
+				
+				/* don't let monsters carry the special chests out of vaults */
+				/* also, they wouldn't bother with ruined chests */
+                if ((o_ptr->tval == TV_CHEST) && ((o_ptr->sval == SV_RUINED_CHEST) || 
+				   (o_ptr->sval == SV_SP_SILVER_CHEST) || (o_ptr->sval == SV_SP_GOLD_CHEST)))
+				{
+                    /* special chests can't be picked up or destroyed by monsters */
+                    if ((o_ptr->sval == SV_SP_SILVER_CHEST) || (o_ptr->sval == SV_SP_GOLD_CHEST))
+                       continue;
+                    /* let the monsters destroy ruined chests */
+                    else nopickup = TRUE;
+                }
 
 				/* monsters usually don't notice objects buried in rubble */
 				if ((o_ptr->hidden) && (randint(100) < 80 - (r_ptr->level/5)))
@@ -6366,7 +6379,7 @@ static void process_monster(int m_idx)
 					if (f2 & (TR2_SLAY_LITE)) flg3 |= (RF3_HURT_DARK);
 					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
 					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+					/* if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);  orcs kill each other often */
 					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);

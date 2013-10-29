@@ -2060,7 +2060,7 @@ static void build_type5(int y0, int x0)
 	for (i = 0; i < 64; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 10, FALSE);
+		what[i] = get_mon_num(p_ptr->depth + 10, TRUE);
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
@@ -2432,7 +2432,7 @@ static void build_type6(int y0, int x0)
 	for (i = 0; i < 16; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 10, FALSE);
+		what[i] = get_mon_num(p_ptr->depth + 10, TRUE);
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
@@ -3251,7 +3251,7 @@ int get_mon_match(int level, int mode)
  * T: monster temple monster
  * Z: zoo monster (non-bug animal)
  */
-static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
+static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool greater)
 {
 	int dx, dy, x, y;
 	int dr_idx, bigdr_idx;
@@ -3364,7 +3364,11 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Nasty monster and treasure (monster temple) */
 				case 'T':
 				{
-					int thismon = get_mon_match(p_ptr->depth + 20 + randint(20), 3);
+					int thismon, monlev;
+					/* different amount out of depth for lesser & greater vaults */
+					if (greater) monlev = p_ptr->depth + 20 + rand_int(21); /* 20-40 */
+					else monlev = p_ptr->depth + 11 + rand_int(10+((badluck+2)/2)); /* 11-21 */
+                    thismon = get_mon_match(monlev, 3);
 					monster_race *r_ptr = &r_info[thismon];
 					place_monster_aux(y, x, thismon, TRUE, TRUE);
 					/* If it picked a WATER_HIDE monster, sometimes add a puddle */
@@ -3420,7 +3424,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
-				/* Zoo monster and treasure */
+				/* Zoo monster (non-bug animal) and treasure */
 				case '1':
 				{
 					int thismon = get_mon_match(p_ptr->depth + 6 + randint(4), 2);
@@ -3442,9 +3446,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				}
 
 				/* matching monster, possible treasure */
+				/* (no groups for matching monsters) */
 				case 'd':
 				{
-					place_monster_aux(y, x, dr_idx, TRUE, TRUE);
+					place_monster_aux(y, x, dr_idx, TRUE, FALSE);
 					if (randint(100) < 11)
 					{
 						object_level = p_ptr->depth + 4;
@@ -3455,9 +3460,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				}
 
 				/* meaner matching monster, possible treasure */
+				/* (no groups for matching monsters) */
 				case 'D':
 				{
-					place_monster_aux(y, x, bigdr_idx, TRUE, TRUE);
+					place_monster_aux(y, x, bigdr_idx, TRUE, FALSE);
 					if (randint(100) < 11)
 					{
 						object_level = p_ptr->depth + 6;
@@ -3480,12 +3486,15 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				}
 
 				/* Nasty monster and treasure */
+				/* different nastiness for lesser & greater vaults */
 				case '8':
 				{
-					monster_level = p_ptr->depth + 40;
+					if (greater) monster_level = p_ptr->depth + 40;
+					else monster_level = p_ptr->depth + 25;
 					place_monster(y, x, TRUE, TRUE, TRUE);
 					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 20;
+					if (greater) object_level = p_ptr->depth + 20;
+					else object_level = p_ptr->depth + 11;
 					place_object(y, x, TRUE, TRUE);
 					object_level = p_ptr->depth;
 					break;
@@ -3871,7 +3880,7 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 						place_monster_aux(y, x, thismon, TRUE, TRUE);
 
 						/* If it picked a WATER_HIDE monster, sometimes add a puddle */
-						if ((r_ptr->flags7 & (RF7_WATER_HIDE)) && (randint(100) < 40))
+						if ((r_ptr->flags7 & (RF7_WATER_HIDE)) && (randint(100) < 33))
 								place_puddle(y, x, TRUE);
 					}
 					else if (die < dsg/2)
@@ -3882,7 +3891,7 @@ static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int desig
 					}
 					else if (die < dsg)
 					{
-						monster_level = p_ptr->depth + randint(2);
+						monster_level = p_ptr->depth + rand_int(3);
 						place_monster(y, x, TRUE, TRUE, TRUE);
 						monster_level = p_ptr->depth;
 					}
@@ -3961,7 +3970,7 @@ static void build_type7(int y0, int x0)
 	}
 
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE);
 }
 
 
@@ -4122,7 +4131,7 @@ static void build_type8(int y0, int x0)
 	}
 
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, TRUE);
 }
 
 

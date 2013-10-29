@@ -115,7 +115,8 @@ static command_type cmd_item_manage[]  =
 	{ "Examine an item",           'I', do_cmd_observe },
 	{ "Inscribe an object",        '{', do_cmd_inscribe },
 	{ "Uninscribe an object",      '}', do_cmd_uninscribe },
-	{ "Unenchant Staff (for stacking)", '&', do_cmd_fstack }
+	{ "Unenchant Staff (for stacking)", '&', do_cmd_fstack },
+	{ "Wield straight to quiver",  KTRL('Q'), do_cmd_wieldnq }
 };
 
 /* Information access commands */

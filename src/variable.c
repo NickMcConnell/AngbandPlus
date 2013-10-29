@@ -903,14 +903,15 @@ quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
  * 5  = make object that's not good or great (for acquirement())
  * 6  = increase radius for detect traps
  * 7  = (no longer used)
- * 8  = (no longer used)
+ * 8  = enhances GF_OLD_DRAIN
  * 9  = changes target prompt for camera flash spell and prevents discovory of
  *  water immunity for camera flash and stun_monster spells.  Also makes the
  *  light from camera flash and burst of light not stay.
  * 10 = prevents GF_DISP_ALL from affecting golems for song of dispelling
  * 11 = will activate earthquake for any ball spell in project() function
  * 12 = (no longer used)
- * 13 = target prompt and prevents using old target for teleport control.  *	HELPER monster spells also use it to prevent using old target.
+ * 13 = target prompt and prevents using old target for teleport control. 
+ *	HELPER monster spells also use it to prevent using old target.
  * 14 = (no longer used)
  * 15 = (no longer used)
  * 16 = disinfectant in GF_BUG_SPRAY (damage to j,m,",",R and S)

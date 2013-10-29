@@ -14,61 +14,6 @@
 #define MAX_PANEL 12
 
 
-#if 0
-
-/*
- * Use this (perhaps) for Angband 2.8.4
- *
- * Extract "tokens" from a buffer
- *
- * This function uses "whitespace" as delimiters, and treats any amount of
- * whitespace as a single delimiter.  We will never return any empty tokens.
- * When given an empty buffer, or a buffer containing only "whitespace", we
- * will return no tokens.  We will never extract more than "num" tokens.
- *
- * By running a token through the "text_to_ascii()" function, you can allow
- * that token to include (encoded) whitespace, using "\s" to encode spaces.
- *
- * We save pointers to the tokens in "tokens", and return the number found.
- */
-static s16b tokenize_whitespace(char *buf, s16b num, char **tokens)
-{
-	int k = 0;
-
-	char *s = buf;
-
-
-	/* Process */
-	while (k < num)
-	{
-		char *t;
-
-		/* Skip leading whitespace */
-		for ( ; *s && isspace((unsigned char)*s); ++s) /* loop */;
-
-		/* All done */
-		if (!*s) break;
-
-		/* Find next whitespace, if any */
-		for (t = s; *t && !isspace((unsigned char)*t); ++t) /* loop */;
-
-		/* Nuke and advance (if necessary) */
-		if (*t) *t++ = '\0';
-
-		/* Save the token */
-		tokens[k++] = s;
-
-		/* Advance */
-		s = t;
-	}
-
-	/* Count */
-	return (k);
-}
-
-#endif
-
-
 /*
  * Extract the first few "tokens" from a buffer
  *
@@ -2039,8 +1984,10 @@ errr file_character(cptr name, bool full)
 
 
 	/* If dead, dump last messages -- Prfnoff */
+#if onlywhendead
 	if (p_ptr->is_dead)
 	{
+#endif
 		i = message_num();
 		if (i > 15) i = 15;
 		fprintf(fff, "  [Last Messages]\n\n");
@@ -2049,7 +1996,9 @@ errr file_character(cptr name, bool full)
 			fprintf(fff, "> %s\n", message_str((s16b)i));
 		}
 		fprintf(fff, "\n\n");
+#if onlywhendead
 	}
+#endif
 
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)

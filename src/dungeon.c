@@ -777,6 +777,7 @@ static void play_ambient_sound(void)
 
 /*
  * Helper for process_world -- decrement p_ptr->timed[] fields.
+ * timed effects
  */
 static void decrease_timeouts(void)
 {
@@ -833,7 +834,7 @@ static void decrease_timeouts(void)
 
 				/* Create rubble (if there isn't already rubble there) */
 				if (cave_feat[y][x] == FEAT_OPEN_PIT) cave_set_feat(y, x, FEAT_FLOOR);
-			    else if (cave_feat[y][x] != FEAT_RUBBLE) cave_set_feat(y, x, FEAT_RUBBLE);
+			    else if (!(cave_feat[y][x] == FEAT_RUBBLE)) cave_set_feat(y, x, FEAT_RUBBLE);
 
 				/* Update the visuals */
 				p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -885,15 +886,15 @@ static void decrease_timeouts(void)
 				else decr = adjust;
 				break;
 			}
+			/* Sustain speed sustains positive adjusted speed (but not hasting) */
+			case TMD_ADJUST:
+            {
+                 if ((p_ptr->timed[TMD_SUST_SPEED]) && (p_ptr->spadjust > 0)) 
+                    decr = 0;
+            }
 		}
 		/* Decrement the effect */
-		dec_timed(i, decr);
-	}
-
-	/* Sustain speed sustains positive adjusted speed (but not hasting) */
-	if ((p_ptr->timed[TMD_SUST_SPEED]) && (p_ptr->timed[TMD_ADJUST]))
-	{
-		if (p_ptr->spadjust > 0) (void)inc_timed(TMD_ADJUST, 3);
+		if (decr) dec_timed(i, decr);
 	}
 
 	return;
@@ -1156,7 +1157,7 @@ static void process_world(void)
        p_ptr->corrupt -= 1;
     }
     
-    /* attraction of demons by black magic or bad luck */    
+    /* attraction of demons by black magic or bad luck */
     if (((p_ptr->timed[TMD_WITCH]) || (badluck > 18)) && (randint(666) == 1))
     {
 		int sy, sx;
@@ -1173,19 +1174,20 @@ static void process_world(void)
           msg_print("Demons are attracted to the nether power you summoned.");
        }
 	   /* get a nearby (about 20 spaces away) location to place the summoned demon */
-	   /* (just place it next to the PC about 40% of the time) */
+	   /* (just place it next to the PC about half the time) */
 	   if ((!get_nearby(p_ptr->py, p_ptr->px, &sy, &sx, 3)) || 
-		   (rand_int(100) < 40 + badluck))
+		   (rand_int(100) < 48 + badluck))
 	   {
 		   sy = p_ptr->py;
 		   sx = p_ptr->px;
 	   }
 	   if (p_ptr->max_depth < 3) /* no summon */;
+	   /* these summons don't allow groups */
        else if ((randint(100) < (p_ptr->lev + p_ptr->max_depth)/3) && 
 		   (p_ptr->lev + p_ptr->max_depth >= 46)) do_call_help(560);
-	   else if (!p_ptr->depth) summon_specific(sy, sx, 1, SUMMON_DEMON);
-       else if (p_ptr->max_depth > 7) summon_specific(sy, sx, p_ptr->max_depth-5, SUMMON_DEMON);
-	   else summon_specific(sy, sx, 2, SUMMON_DEMON);
+	   else if (!p_ptr->depth) summon_nogroups(sy, sx, 1, SUMMON_DEMON);
+       else if (p_ptr->max_depth > 7) summon_nogroups(sy, sx, p_ptr->max_depth-5, SUMMON_DEMON);
+	   else summon_nogroups(sy, sx, 2, SUMMON_DEMON);
     }
     
     /* neutral class wielding both good object(s) and bad object(s) */

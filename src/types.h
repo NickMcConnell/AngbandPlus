@@ -1154,6 +1154,9 @@ struct player_type
 	bool cursed_quiver;	/* The quiver is cursed */
 
 	s16b pspeed;		/* Current speed */
+	
+	/* temporary thing for knowledge menu (the only way I could figure how to do it) */
+	bool fakehome;      /* for home inventory in knowledge menu */
 };
 
 

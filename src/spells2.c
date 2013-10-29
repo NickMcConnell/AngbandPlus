@@ -77,7 +77,7 @@ bool hp_player(int num)
 /*
  * Leave a "glyph of warding" which prevents monster movement
  */
-void warding_glyph(void)
+bool warding_glyph(void)
 {
 	bool usedup;
 	object_type *o_ptr;
@@ -88,7 +88,8 @@ void warding_glyph(void)
 	if (cave_feat[py][px] != FEAT_FLOOR)
 	{
 		msg_print("There is no clear floor on which to cast the spell.");
-		return;
+		/* don't use up the scroll */
+		return FALSE;
 	}
 
 	/* Create a glyph */
@@ -111,6 +112,8 @@ void warding_glyph(void)
 
 	/* Delete the "moved" objects from their original position */
 	delete_object(py, px);
+	
+	return TRUE;
 }
 
 
@@ -1005,6 +1008,11 @@ void self_knowledge(bool spoil)
 	if (f1 & (TR1_MIGHT))
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
+	}
+
+	if (f1 & (TR1_EQLUCK))
+	{
+		info[i++] = "Your luck is affected by your equipment.";
 	}
 
 	/* sentient equipment */
@@ -2484,7 +2492,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
  */
 bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 {
-	int i, chance, prob, lift;
+	int i, chance, prob, lift, minlift;
 
 	bool res = FALSE;
 
@@ -2518,11 +2526,6 @@ bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 		/* Hack -- Roll for pile resistance */
 		if ((prob > 100) && (rand_int(prob) >= 100)) continue;
 
-        /* PERMA_CURSEs can now be lifted but not easily */
-        lift = 25;
-        if (f3 & (TR3_PERMA_CURSE)) lift -= 16;
-        if (f3 & (TR3_HEAVY_CURSE)) lift -= badluck/3;
-
 		/* Enchant to hit */
 		if (eflag & (ENCH_TOHIT))
 		{
@@ -2549,16 +2552,6 @@ bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 
 				/* Enchant */
 				o_ptr->to_h++;
-
-				/* Break curse */
-				if (cursed_p(o_ptr) &&
-				    (o_ptr->to_h >= 0) && (rand_int(100) < lift))
-				{
-					msg_print("The curse is broken!");
-
-					/* Uncurse the object */
-					uncurse_object(o_ptr);
-				}
 			}
 		}
 
@@ -2588,16 +2581,6 @@ bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 
 				/* Enchant */
 				o_ptr->to_d++;
-
-				/* Break curse */
-				if (cursed_p(o_ptr) &&
-				    (o_ptr->to_d >= 0) && (rand_int(100) < lift))
-				{
-					msg_print("The curse is broken!");
-
-					/* Uncurse the object */
-					uncurse_object(o_ptr);
-				}
 			}
 		}
 
@@ -2627,18 +2610,38 @@ bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 
 				/* Enchant */
 				o_ptr->to_a++;
-
-				/* Break curse */
-				if (cursed_p(o_ptr) &&
-				    (o_ptr->to_a >= 0) && (rand_int(100) < lift))
-				{
-					msg_print("The curse is broken!");
-
-					/* Uncurse the object */
-					uncurse_object(o_ptr);
-				}
 			}
 		}
+	}
+
+    if (a) lift = 20; /* chance to lift a curse */
+    else lift = 25;
+    if (big) lift += 5; /* *enchant* scrolls */
+    /* PERMA_CURSEs can now be lifted but not easily */
+    if ((f3 & (TR3_PERMA_CURSE)) || 
+       ((f3 & (TR3_HEAVY_CURSE)) && (!big))) lift = lift / 2 - (badluck/2 + 1);
+    else if (f3 & (TR3_HEAVY_CURSE)) lift -= (badluck/2 + 1);
+    lift += ((goodluck + 1) / 3) * 2;
+    if (o_ptr->to_h < 0-3) lift -= 4;
+    if (o_ptr->to_a < 0-2) lift -= 4;
+    if (o_ptr->to_d < 0-1) lift -= 4;
+    if (!res) lift = (lift + 1) / 2;
+    /* minimum chance */
+    if (goodluck > 4) minlift = 5;
+    else if (badluck < 8) minlift = 4;
+    else minlift = 0;
+    if (f3 & (TR3_PERMA_CURSE)) minlift = 0;
+    else if ((f3 & (TR3_HEAVY_CURSE)) && (goodluck < 2)) minlift = 0;
+    else if (f3 & (TR3_HEAVY_CURSE)) minlift -= 2;
+    if (lift < minlift) lift = minlift;
+
+	/* Break curse (now mostly separated from enchantment) */
+	if ((cursed_p(o_ptr)) && (rand_int(100) < lift))
+	{
+		msg_print("The curse is broken!");
+
+		/* Uncurse the object */
+		uncurse_object(o_ptr);
 	}
 
 	/* Failure */

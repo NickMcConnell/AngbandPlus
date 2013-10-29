@@ -1738,7 +1738,6 @@ static void apply_nexus(const monster_type *m_ptr)
                 if (r_ptr->level > 35) resistcrtl = (r_ptr->level * 3) / 2;
                 else resistcrtl = 52;
                 if (control_tport(resistcrtl, 130)) controlled = TRUE;
-                if (!controlled) msg_print("You fail to control the teleportation.");
             }
 
             if (!controlled) teleport_player((65 * randcase) + 1);
@@ -3555,6 +3554,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				obvious = FALSE;
 				dam = 0;
 			}
+			
+			if (spellswitch == 8) /* (annihilation, base damage 250) */
+			{
+                if (dam < m_ptr->maxhp/10)
+                {
+                    int diff = m_ptr->maxhp/10 - dam;
+                    dam += (diff/2) + randint((diff+1)/2);
+                    if (dam > 750) dam = 750;
+                }
+            }
 
 			break;
 		}

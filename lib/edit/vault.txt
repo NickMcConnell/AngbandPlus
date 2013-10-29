@@ -966,7 +966,7 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 N:42:Greater vault ("Funnel")
-X:8:15:21:23:0:15:99
+X:8:16:21:23:0:15:99
 D:%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXX%
 D:%X&&&...........***X.#%
@@ -1785,3 +1785,93 @@ D:%X,$8XW~~W~W~~W~X,,~W~~#%
 D:%XXXXX~W~~~~~W~~#XXXXX##%
 D:%..&,############X.&*...%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#this one roughly copied from a Furyband screenshot
+N:85:Castle Battlements
+X:8:29:25:51:1:10:8
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+D:%~~~XXXXXX###~~~~~~~~~~~~W~~~~~~~~~~~W###XXXXXX~~~%
+D:%~~XXC.9.XX8#~W~~~~~~~~~~~~~~~~~~~~~W~#8XX.@.CXX~~%
+D:%~XX,..@..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#..@..,XX~%
+D:%~XX,...@..+......^.D..@...@..D....^...+...@..,XX~%
+D:%~~XX^^^^XXXXXXXXXXXXXXX+X+XXXXXXXXXXXXXXX^^^^XX~~%
+D:%~~~XX++XX,*,.....^^^,*..X..*,^^^.....,*,XX++XX~~~%
+D:%W~~~X..X9.....^^^....XXXXXXX....^^^.....9X..X~~~W%
+D:%~~~~X..X.X^^^..&.,.^^^..8..^^^.,.&..^^^X.X..X~~~~%
+D:%~~~~X..X^X..*XXXXXXXXXXXXXXXXXXXXXXX*..X^X..X~~~~%
+D:%~~~~X..+.X..XX^*D99,#.^.XG^.X,999*^XX..X.+&&X~~~~%
+D:%~~W~X,,XXX9.#&^*999,XT^.+.^TX,989*^&#.9XXX,,X~W~~%
+D:%~~~~X&&+.X..XX^*D99,X.^GX.^.#,999*^XX..X.+..X~~~~%
+D:%~~~~X..X^X..*XXXXXXXXXXXXXXXXXXXXXXX*..X^X..X~~~~%
+D:%W~~~X..X.X^^^.....^^^.......^^^.....^^^X.X..X~~~W%
+D:%~~~~X..X9.....^^^...XXXX#XXXX...^^^.....9X..X~~~~%
+D:%~~~XX++XX,*,...&,*,XX9.9@9.9XX,*,&...,*,XX++XX~~~%
+D:%~~XX^^^^XXXXXXXXXXXX.^.....^.XXXXXXXXXXXX^^^^XX~~%
+D:%~XX,...@.....d.d...#XXXX+XXXX#...d.d.....@...,XX~%
+D:%~XX,.....XXXXXXXXXXX,@.^^^.@,XXXXXXXXXXX.....,XX~%
+D:%~~XX,,.&XX~~~~~~~~~XX@.^^^.@XX~~~~~~~~~XX&.,,XX~~%
+D:%~W~XXXXXX~~W~~~~~W~~XXXX#XXXX~~W~~~~~W~~XXXXXX~W~%
+D:%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:86:Medusa's Island
+X:8:23:18:51:1:21:99
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%....##999999XX..................^^...............%
+D:%,.*.XX.^^^^XX.^.XXXXXXXXXXXXXXXXXXXXXXXXXX,,X#X..%
+D:%..##+XXX##XX...XX,,..~~~~~~~~~~~~~~~~.E.*XXXX.XE.%
+D:%#.#999X......XXX...~~~~~~~~~~~~~~~~~~~~.^..#8.X,.%
+D:%#+#999X.@@..XX,,.~~~~~~W~~...@@...~~~~~~^..XX#XX.%
+D:%..####X....XX...~~~R9~~~~..XXXXXX..~~~~~~..,X99X.%
+D:%..#,.@X....X.*.~~~R.~~~~.@XX*99*XX@.~~W~~~..X#9X.%
+D:%.&#,..+....X.^~~~~~~~~~.@X#^*TG*^#X@.~~~~~~..XXX.%
+D:%..#,.*X....X.^.~~~~~~~~~.@XX*99*XX@.~~~,~~~~.X,..%
+D:%..#,..X....X....~~~W~~~~~..XXXXXX..~~~~R~~~..X,..%
+D:%..##..X...EX#X...~~~~~~~~~...@@...~~~~~~~...XX,..%
+D:%#..+..X...,X8X##X..~~~~~~~~~~~~~~~~~W~~...,,X&*..%
+D:%####..X...,X*X99XX...~~R*~~~~~~~~~~~~~~.,,XXX....%
+D:%...#.1X...XX.XX99#.,..~~~~~~~~~~~~~~~...XXX...@@.%
+D:%999#..X..EX###XXXXXXXXXXXXXXXXXXXXXXXXXXX....^...%
+D:%999##,XX.............^^..........................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:87:Box in the Middle
+X:9:2:11:16:1:21:99
+D: %%%%%%%%%%%%%%%
+D:%%.......#.....%
+D:%........+.....%
+D:%...^.####.....%
+D:%.....#&&#.....%
+D:%#+####,,####+#%
+D:%.....#&&#.....%
+D:%.....####..^..%
+D:%.....+........%
+D:%.....#.......%%
+D:%%%%%%%%%%%%%%% 
+
+
+#    % - outside of the vault, where corridors may be connected
+#    # - granite
+#    X - impenetrable rock
+#    * - treasure or trap
+#    + - secret door
+#    ^ - trap
+#    & - monster up to 5 levels out of depth (OOD)
+#    @ - monster up to 11 levels OOD
+#    9 - monster up to 9 levels OOD and treasure up to 7 levels OOD
+#    8 - monster up to 40 levels OOD and treasure up to 20 levels OOD
+#    , - monster up to 3 levels OOD and/or treasure up to 7 levels OOD
+#    D - matching monsters up to 10 levels OOD (all Ds in a vault are the same monster)
+#    d - matching monsters up to 4 levels OOD (add ds in a vault are the same monster)
+#	T - monster appropriate for monster temple (up to 40 levels OOD)
+# 		(T, D and d are always theme-appropriate monsters if there's a theme)
+#	1 - monster appropriate for zoo (up to 9-10 levels OOD, requires non-bug animal)
+#		(was Z, but that made the vault design hard to read)
+#	E - a tree (#834 ordinary tree with small chance of other tree monster)
+#	W - water_hide monster in water
+#	R - rubble
+#	~ - water
+#	o - open pit
+#    c: small chest, $: normal big chest, C: good chest, G: great chest

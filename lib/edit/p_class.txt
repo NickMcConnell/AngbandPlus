@@ -107,11 +107,12 @@ X:8:13:10:0:0:15:16:15:15
 I:1:30:90000:8
 A:4:5:3
 M:90:1:1:300
-#Starting objects: walking staff, robe, 1st Magicbook, 1-2 ?WoR.
-E:90:0:1:1
+#Starting objects: walking staff, robe, 1st Magicbook, 1-2 ?WoR, -magic missile.
 E:21:3:1:1
-E:70:11:1:2
 E:36:2:1:1
+E:90:0:1:1
+E:70:11:1:2
+E:65:15:1:1
 #Class object: Potion of Enlightenment or Staff of the Magi
 O:75:56:55:19
 F:CUMBER_GLOVE | ZERO_FAIL | PSEUDO_ID_IMPROV | CHOOSE_SPELLS
@@ -353,7 +354,7 @@ B:24:24:12:70:3	#stone to mud			24
 B:25:29:20:75:5	#sense surroundings		29 (moved to book 8)
 B:26:27:10:50:10	#detect enchantment		27
 B:27:99:0:0:0	#detect traps (B4)		/ (tourist only book)
-B:28:13:5:60:2	#disinfectant			13 (in book 2)
+B:28:13:5:50:2	#disinfectant			13 (in book 2)
 B:29:99:0:0:0	#map of the area			/
 B:30:99:0:0:0	#adjust curse			/
 B:31:99:0:0:0	#telekinesis2			/
@@ -622,7 +623,7 @@ T:Sharp Shooter
 T:Marksman
 T:Elete Archer
 T:Master Marksman
-B:0:8:5:35:1	#disinfectant			8
+B:0:8:5:33:1	#disinfectant			8
 B:1:7:3:40:1	#cure light wounds		7
 B:2:12:4:40:1	#light area				12
 B:3:18:8:65:2	#stinking cloud			18
@@ -724,7 +725,7 @@ T:Expert
 T:Alchemist
 T:Potionmaster
 T:Master Alchemist
-B:0:3:3:32:2	#disinfectant			3
+B:0:3:3:26:2	#disinfectant			3
 B:1:2:2:26:2	#cure light wounds		2
 B:2:5:2:31:2	#light area				5
 B:3:1:1:35:2	#stinking cloud			1
@@ -897,7 +898,7 @@ B:65:21:9:68:26	#dispel silver x4 (B9)		21 (priest-only book)
 B:66:19:10:70:25	#dispel undead x4			19
 B:67:24:15:75:60	#dispel evil x4			24
 B:68:35:36:80:140 #Wo destruction			35
-B:69:44:60:75:235 #annihilation			44
+B:69:44:65:75:235 #annihilation			44
 B:70:99:0:0:0	#truce				/ (new in B7)
 
 #(done)
@@ -1194,7 +1195,7 @@ B:65:99:0:0:0	#dispel silver x4	(B9)		/
 B:66:42:30:80:28	#dispel undead x4			42
 B:67:45:55:90:90	#dispel evil x4			45
 B:68:99:0:0:0	#Wo destruction			/
-B:69:45:65:85:60	#annihilation			35
+B:69:45:75:75:60	#annihilation			45
 B:70:34:24:70:15	#truce				34 (in B7)
 
 N:12:Black Knight
@@ -1334,7 +1335,7 @@ B:3:99:0:0:0	#scare monster			/
 B:4:99:0:0:0	#noxious fumes			/
 B:5:99:0:0:0	#cure poison			/
 B:6:99:0:0:0	#sleep monster			/
-B:7:23:15:60:8	#wither foe				23 (in B5)
+B:7:21:14:65:8	#wither foe				21 (in B5)
 B:8:99:0:0:0	#see invisible			/
 B:9:6:4:40:1	#find traps	(2nd book)		6
 B:10:7:3:45:2	#detect doors/stairs		7
@@ -1342,19 +1343,19 @@ B:11:4:2:33:2	#shadow shift			4
 B:12:10:5:40:3	#drain charges			10
 B:13:99:0:0:0	#turn undead			/
 B:14:33:15:70:13	#death bolt				33 (in B5)
-B:15:16:14:55:6	#stink				16 assassin only (instead of noxious f)
+B:15:13:11:55:6	#stink				13 assassin only (instead of noxious f)
 B:16:34:26:65:15	#dispel undead x3			34 (in B5)
-B:17:10:8:76:2	#symbol of demon warding	10 (in B5)
+B:17:9:8:78:2	#symbol of demon warding	9 (in B5)
 B:18:8:4:45:2	#witch's disinfectant		8 (in B2)
 B:19:41:26:80:30	#circle of flame			41 (in B5)
 B:20:12:7:50:2	#trap/door destruction		12 (in B2)
-B:21:14:10:60:3	#poison bolt			14 (in B4)
-B:22:18:11:40:31	#slip into the shadows		18 (in B8)
-B:23:99:0:0:0	#cause mortal wounds (unused)	/
-B:24:36:25:70:16	#venom bolt  (B4)			36
-B:25:99:0:0:0	#breathe withering (unused)	/
+B:21:14:8:50:3	#poison bolt			14 (in B4)
+B:22:18:13:38:31	#slip into the shadows		18 (in B8)
+B:23:15:8:40:3	#shadow step			15 (short-lasting version of slip into the shadows, B2)
+B:24:35:24:70:16	#venom bolt  (B4)			35
+B:25:23:14:46:23	#darkvision				23
 B:26:99:0:0:0	#scare monsters			/ (in B5)
-B:27:21:10:50:6	#spear of dark			21
+B:27:18:10:60:6	#spear of dark			18
 B:28:99:0:0:0	#ice spear				/
 B:29:36:24:80:13	#stench of death			36 (in B5)
 B:30:26:16:76:9	#beam of destruction		26
@@ -1365,7 +1366,7 @@ B:34:99:0:0:0	#wizard lock			/
 B:35:25:17:60:10	#shadow mapping			25
 B:36:24:15:67:8	#break curse			24
 B:37:29:12:70:7	#probing				29
-B:38:26:24:88:7	#identify				26
+B:38:25:24:90:7	#identify				25
 B:39:99:0:0:0	#summon demonic aid		/ (in 6th book)
 B:40:99:0:0:0	#exorcize demons			/
 B:41:37:19:80:12	#detect enchantment		37
@@ -1384,7 +1385,7 @@ B:53:99:0:0:0	#dispel life			/
 B:54:99:0:0:0	#vampiric drain			/
 B:55:99:0:0:0	#hold life				/
 B:56:99:0:0:0	#genocide				/
-B:57:27:15:95:8	#recharging				27
+B:57:26:15:95:8	#recharging				26
 B:58:27:18:60:17	#cure mortal wounds  (B8)	27
 B:59:11:4:30:3	#detect living			11 (B2)
 B:60:99:0:0:0	#spirit of the balrog		/ (in B6)
@@ -1406,9 +1407,9 @@ B:75:99:0:0:0	#shadow sting			/ (necromancer only)
 
 N:14:Thief
 S:1:2:-1:3:-1:1
-C:34:27:28:5:26:12:41:43:60
+C:34:27:28:5:26:12:40:43:60
 X:14:8:10:0:0:8:30:33:35
-I:2:22:34000:12
+I:2:23:34000:12
 A:5:30:3
 M:94:1:2:330
 #Starting objects: long dagger, pair of soft leather gloves, Quick Getaways alchemy book,
@@ -1430,7 +1431,7 @@ T:Quick
 T:Thief
 T:Silent Menace
 T:Master Thief
-B:0:8:5:44:3	#disinfectant			8
+B:0:8:5:35:3	#disinfectant			8
 B:1:4:3:40:1	#cure light wounds		4
 B:2:8:3:40:2	#light area				8
 B:3:7:5:45:3	#stinking cloud			7
@@ -1563,7 +1564,7 @@ B:24:99:0:0:0	#stone to mud			/
 B:25:99:0:0:0	#sense surroundings		/
 B:26:99:0:0:0	#detect enchantment		/
 B:27:7:4:55:2	#detect traps (B4)		7
-B:28:9:5:67:2	#disinfectant			9 (in book 2)
+B:28:9:5:52:2	#disinfectant			9 (in book 2)
 B:29:15:10:67:5	#map of the area			15
 B:30:19:13:67:9	#adjust curse			19
 B:31:29:15:55:23	#telekinesis2			29
@@ -1865,7 +1866,7 @@ B:24:26:14:70:3	#stone to mud			26
 B:25:99:0:0:0	#sense surroundings		/ (in book 8)
 B:26:99:0:0:0	#detect enchantment		/
 B:27:8:4:55:1	#detect traps (B4)		8 (tourist only book)
-B:28:19:6:65:2	#disinfectant			19
+B:28:19:6:60:2	#disinfectant			19
 B:29:34:20:75:0	#map of the area			34
 B:30:22:16:55:3	#adjust curse			22
 B:31:30:15:67:4	#telekinesis			30

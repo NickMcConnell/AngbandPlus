@@ -2483,39 +2483,57 @@ void do_cmd_pickup(void)
  * DJA: Telekinesis: Pick up objects on the floor from a distance.
  * spellswitch = 24
  */
-bool do_telekinesis(void)
+bool do_telekinesis(int maxd)
 {
 	int energy_cost = 0;
-	int dir;
+	int dir, tx, ty;
 
 	/* spellswitch = 24 allows picking up objects from a distance (uses target) */
-	/* also prevent using old target & changes the prompt for get_aim_dir */
+	/* also prevents using old target & changes the prompt for get_aim_dir */
 	spellswitch = 24;
 
-    /* get a target (never use old target) */
-	if (!get_aim_dir(&dir))
-	{
-		/* reset spellswitch */
-		spellswitch = 0;
+    while (1)
+    {
+        msg_format("Target an object (max distance %d) -more-.", maxd);
+        if (inkey() == ESCAPE) /* do nothing (just a -more-) */;
+        
+        /* Target an item (no longer uses get_aim_dir() ) */
+	    /* if (!get_aim_dir(&dir)) */
+	    if (!target_set_interactive(TARGET_ITEM))
+	    {
+		    /* cancelled: reset spellswitch and target */
+		    spellswitch = 0;
+      	    p_ptr->target_row = 0;
+	        p_ptr->target_col = 0;
 
-		return FALSE;
+		    return FALSE;
+        }
+	    
+        /* Make sure it's a good target */
+        ty = p_ptr->target_row;
+	    tx = p_ptr->target_col;
+	    
+	    /* limit max distance (if out of line of sight) */
+        if ((distance(p_ptr->py, p_ptr->px, ty, tx) > maxd) &&
+           (!los(p_ptr->py, p_ptr->px, ty, tx)))
+        {
+            msg_print("Too far away -more-");
+            if (inkey() == ESCAPE) /* do nothing */;
+        }
+	    /* Nothing to pick up */
+	    else if (!cave_o_idx[ty][tx])
+	    {
+            msg_print("There is no object there to pick up. -more-");
+            if (inkey() == ESCAPE) /* do nothing */;
+        }
+        else /* good target */
+        {
+            break; 
+        }
 	}
 
-	/* Pick up floor objects, forcing a menu for multiple objects. */
-	energy_cost = py_pickup(2) * 10;
-	
-	/* (using the spell already uses energy) */
-
-	/* did we pick anything up? */
-    if (energy_cost >= 10)
-	{
-		/* chance of waking up monsters in path of the floating object */
-		if (randint(100) < 9 + (badluck*2) - ((goodluck+1)/2))
-		{
-			/* 0 damage beam to wake up monsters in path */
-			fire_beam(GF_THROW, dir, 0);
-		}
-	}
+   	/* Pick up floor objects */
+   	energy_cost = py_pickup(1);
 
 	 /* reset target */
 	 /* (would usually not want to re-use a telekinesis target) */
@@ -2524,6 +2542,19 @@ bool do_telekinesis(void)
 
 	/* reset spellswitch */
 	spellswitch = 0;
+    	
+	/* didn't move anything (can now cancel without using a charge) */
+    if (!energy_cost) return FALSE;
+	
+	/* (using the spell / staff already uses energy) */
+
+	/* chance of waking up monsters in path of the floating object */
+	if ((los(p_ptr->py, p_ptr->px, ty, tx)) && 
+       (randint(100) < 9 + (badluck*2) - ((goodluck+1)/2)))
+	{
+		/* 0 damage beam to wake up monsters in path */
+		fire_beam(GF_THROW, dir, 0);
+	}
 
 	 return TRUE;
 }
@@ -2876,7 +2907,7 @@ void do_cmd_fire(void)
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skills[SKILL_THB] + (bonus * BTH_PLUS_ADJ));
 
-	/* Assume a base multiplier */
+	/* Assume a base multiplier (ML) */
 	tmul = p_ptr->ammo_mult;
 
 	/* Boost the damage (but not by as much as before) */
@@ -3209,8 +3240,9 @@ void do_cmd_throw(void)
 	int i, j, y, x, ty, tx, dy, dx;
 	int chance, tdam, tdis, noslip, thits;
 	int mul, div;
-	bool comeback, throwok, tooheavy, throwglove, hitwall = FALSE;
-	int comechance, excrit, bonus;
+	bool comeback, tooheavy, throwglove, strong_throw, throwerw;
+    bool hitwall = FALSE;
+	int comechance, excrit, bonus, throwok;
 
 	object_type *o_ptr;
 	object_type *g_ptr; /* g_ptr to check gloves */
@@ -3261,7 +3293,7 @@ void do_cmd_throw(void)
 		tooheavy = TRUE;
 	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
 		tooheavy = TRUE;
-	if ((p_ptr->timed[TMD_MIGHTY_HURL]) || ((cp_ptr->flags & CF_HEAVY_BONUS) && (((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 7)))
+	if ((p_ptr->timed[TMD_MIGHTY_HURL]) || ((cp_ptr->flags & CF_HEAVY_BONUS) && (((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 4)))
 		tooheavy = FALSE;
 
 	if (tooheavy)
@@ -3293,6 +3325,9 @@ void do_cmd_throw(void)
 	}
 	else throwglove = FALSE;
 
+    if ((p_ptr->timed[TMD_MIGHTY_HURL]) || (cp_ptr->flags & CF_HEAVY_BONUS))
+       strong_throw = TRUE;
+    else strong_throw = FALSE;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -3303,7 +3338,8 @@ void do_cmd_throw(void)
 	/* Extract the thrown object flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	
-	comeback = FALSE;
+	/* chance for returning weapons to return to your hand when thrown */
+    comeback = FALSE;
 	comechance = p_ptr->skills[SKILL_THT] / 5;
 	if (f2 & TR2_RTURN)
 	{
@@ -3355,8 +3391,7 @@ void do_cmd_throw(void)
 	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
 
 	/* limit distance for very heavy stuff */
-	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (!p_ptr->timed[TMD_MIGHTY_HURL]) && 
-		(o_ptr->weight >= 200))
+	if ((!strong_throw) && (o_ptr->weight >= 200))
 	{
 		if (tdis > 2) tdis = 2;
 	}
@@ -3367,7 +3402,7 @@ void do_cmd_throw(void)
 		if (((o_ptr->weight >= 200) || (tooheavy)) && (tdis > 10)) tdis = 10;
 	}
 	/* HEAVY_BONUS class bonus to distance */
-	else if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->timed[TMD_MIGHTY_HURL]))
+	else if (strong_throw)
 	{
 		/* recycles the CON regeneration table */
 		tdis += (adj_con_fix[p_ptr->stat_ind[A_STR]]) / 2;
@@ -3380,8 +3415,7 @@ void do_cmd_throw(void)
 		if (tdis > 14) tdis = 14;
 		if ((o_ptr->weight >= 150) && (tdis > 12)) tdis = 12;
 	}
-	else if (((f2 & TR2_THROWN) || (cp_ptr->flags & CF_HEAVY_BONUS) || 
-		(p_ptr->timed[TMD_MIGHTY_HURL])) && (o_ptr->weight < 150))
+	else if (((f2 & TR2_THROWN) || (strong_throw)) && (o_ptr->weight < 150))
 	{
 		if (tdis > 12) tdis = 12;
 	}
@@ -3391,35 +3425,53 @@ void do_cmd_throw(void)
 	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
 
 	/* add to_dam from gloves if appropriate */
-	if (throwglove) tdam += g_ptr->to_d;
+	if ((throwglove) && ((f2 & TR2_THROWN) || (f2 & TR2_PTHROW))) tdam += g_ptr->to_d;
 
 	/* determine whether to boost the damage */
-	if (f2 & TR2_THROWN) throwok = TRUE;
-	else throwok = FALSE;
+	if (f2 & TR2_THROWN) throwok = 2; /* throwing weapon */
+	else if (f2 & TR2_PTHROW) throwok = 1; /* okay for throwing, but not primarily for throwing */
+	else throwok = 0; /* not a throwing weapon */
+	if ((f2 & TR2_THROWN) || (f2 & TR2_PTHROW)) throwerw = TRUE;
+	else throwerw = FALSE;
+	
+	/* bonus to thrown weapon multiplier from equipment */
+    throwok += p_ptr->throwmult;
+	
 	/* can be too heavy to throw effectively even if it's meant for throwing */
-	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight >= 200) && 
-		(!p_ptr->timed[TMD_MIGHTY_HURL]))
+	if ((!strong_throw) && (o_ptr->weight >= 200))
 	{
 		/* (if STR is less than 18/150) */
-		if (((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) < 10) throwok = FALSE;
+		if (((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) < 10) throwok = 0;
 	}
-
-	/* Boost the damage if appropriate */
-	if (throwok)
+	else if ((!strong_throw) && (o_ptr->weight >= 150) && (throwok > 0))
 	{
-		/* gauntlets of throwing (or something else with the THROWMULT power) */
-		if (p_ptr->throwmult == 2) tdam = ((tdam * 7) / 4);       /* (x1.75) */
-		else if (p_ptr->throwmult == 3) tdam = ((tdam * 21) / 8); /* (x2.625) */
-		else if (p_ptr->throwmult >= 4) tdam = ((tdam * 7) / 2);  /* (x3.5) */
-		/* normal throwing weapon multiplier:  x1.4 */
-		else tdam = (tdam * 7) / 5;
+		/* (if STR is less than 18/50) */
+		if (((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) < 5) throwok -= 1;
     }
-    /* certain classes are strong enough to throw more effectively (x1.2) */
+
+    /* certain classes are strong enough to throw more effectively */
     /* (warrior, barbarian, and the knights) */
-    else if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->pclass == 0) ||
-         (cp_ptr->flags & CF_KNIGHT) || (p_ptr->timed[TMD_MIGHTY_HURL]))
+    if (((strong_throw) || (p_ptr->pclass == 0) || 
+       (cp_ptr->flags & CF_KNIGHT)) && (throwok < 2))
     {
-       tdam = (tdam * 6) / 5;
+       if (throwok == 1) tdam = (tdam * 5) / 4; /* semi-throwers x1.25 */
+       else tdam = (tdam * 6) / 5; /* x1.2 */
+    }
+	/* Boost the damage if appropriate */
+	else if (throwok > 0)
+	{
+		/* non-throwing weapons:  throwok == THROWMULT bonus (or 0) */
+        if ((!throwerw) && (throwok < 3)) throwok = 1;
+		/* throwing weapons:  throwok == 2 + THROWMULT bonus (minimum THROWMULT bonus is 2) */
+		/* semi-throwing weapons:  throwok == 1 + THROWMULT bonus */
+		if (throwok == 4) tdam = ((tdam * 7) / 4);       /* (x1.75) (same as ML2 for bows) */
+		else if (throwok == 5) tdam = ((tdam * 21) / 8); /* (x2.625) (same as ML3) */
+		else if (throwok >= 6) tdam = ((tdam * 7) / 2);  /* (x3.5) (same as ML4) */
+		/* normal multiplier for semi-throwing weapons:  x1.2 */
+		else if (throwok == 1) tdam = (tdam * 6) / 5;
+		/* normal throwing weapon multiplier:  x1.4  */
+		/* (same for THROWMULT bonus of 2 with a semi-thrower) */
+		else /* throwok == 2 or 3 */ tdam = (tdam * 7) / 5;
     }
 	/* too heavy */
 	else if (o_ptr->weight >= 200)
@@ -3432,17 +3484,25 @@ void do_cmd_throw(void)
 
 	/* Weapons meant for throwing get weapon to-hit bonus */
 	if (f2 & TR2_THROWN) chance += i_ptr->to_h;
+	else if (f2 & TR2_PTHROW) chance += (i_ptr->to_h + 1) / 2;
 	/* otherwise still get partial to-hit bonus from object */
-	else chance += (i_ptr->to_h + 1) / 3;
+	else
+    {
+        chance += (i_ptr->to_h + 2) / 3;
+        /* (and penalty for not being a throwing weapon) */
+        if ((!ammo_p(i_ptr)) && (!strong_throw)) chance = (chance * 2) / 3;
+    }
 
     excrit = i_ptr->crc - 5;
     bonus = p_ptr->skills[SKILL_THT] + p_ptr->to_h;
 	if (f2 & TR2_THROWN) bonus += i_ptr->to_h;
+	else if (f2 & TR2_PTHROW) bonus += (i_ptr->to_h + 1) / 2;
 	if (f2 & TR2_EXTRA_CRIT) excrit += 12;
 	if (bonus-1 > 12) excrit += (bonus-1)/12;
 
 	/* number of throws (assuming thrown items are the same weight) */
 	if (f2 & TR2_THROWN) thits = thits_thrown(div);
+	else if (f2 & TR2_PTHROW) thits = thits_thrown(div+20);
 	else thits = 1;
 
 	/* Take a (partial) turn */
@@ -3454,8 +3514,6 @@ void do_cmd_throw(void)
 	if ((cursed_p(i_ptr)) && (f2 & TR2_THROWN))
 	{
 		/* (side effect: lower skill will be able to recognise curses easier) */
-		/* changed: misfire was too common for PCs with low skill */
-		/* noslip = 130 - (p_ptr->skills[SKILL_THT]); */
 		noslip = 80 - (p_ptr->skills[SKILL_THT] / 2);
 		if (noslip < 10) noslip = 10;
 
@@ -3567,7 +3625,7 @@ void do_cmd_throw(void)
 			/* Get number of blows */
 			num = 0;
 	        tblows = 1;
-            if (f1 & TR1_BLOWS)
+            if ((f1 & TR1_BLOWS) && (f2 & TR2_THROWN))
             {
                tblows += i_ptr->pval;
             }
@@ -3619,8 +3677,8 @@ void do_cmd_throw(void)
                    /* DJA: add (partial) strength bonus for certain classes */
                    /* class 0 will always be warrior so no need for a flag in that case */
                    /* weapons meant for throwing always get STR bonus */
-                   if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT) ||
-                      (p_ptr->pclass == 0) || (f2 & TR2_THROWN) || (p_ptr->timed[TMD_MIGHTY_HURL]))
+                   if ((strong_throw) || (cp_ptr->flags & CF_KNIGHT) ||
+                      (p_ptr->pclass == 0) || (throwerw))
                    {
                       int strb;
 					  int eweight = o_ptr->weight;
@@ -3642,7 +3700,7 @@ void do_cmd_throw(void)
 
                    /* criticals less likely when weapon is thrown */
 				   /* unless weapon is meant for throwing */
-				   if (f2 & TR2_THROWN)
+				   if ((f2 & TR2_THROWN) || (f2 & TR2_PTHROW))
                    {
                        tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, 0, excrit);
                    }

@@ -501,6 +501,7 @@
 #define DARK_TRAP_DOOR_DESTRUCTION     20
 #define DARK_DETECT_LIVING             59
 #define DARK_STINK                     15
+#define DARK_SHADOW_STEP               23 /* early version slip into the shadows */
 
 /* Mysteries of Shadow 2*/
 #define DARK_SHADOW_WARP               33
@@ -554,11 +555,9 @@
 #define DARK_HOLD_LIFE                 55
 #define DARK_GENOCIDE                  56
 
-#define DARK_CAUSE_MORTAL_WOUNDS       23 /* unused, replace */
-#define DARK_BREATHE_WITHERING         25 /* unused, replace */
-
 /* Metamorphoses 7*/
 #define DARK_SLIP_INTO_SHADOWS         22
+#define DARK_DARKVISION                25
 #define DARK_CURE_MORTAL_WOUNDS        58
 #define DARK_SEE_ALL_FOES              64 /* see invisible */
 #define DARK_RESIST_POISON             73
@@ -1040,6 +1039,9 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 	        case LUCK_SUSTAIN_SPEED:
 				strnfmt(p, len, " dur %d+d%d", plev / 2, plev / 2);
 				break;
+			case LUCK_SLIP_INTO_SHADOWS:
+				strnfmt(p, len, " dur 30+d%d", plev);
+				break;
 		    case LUCK_RESISTANCE:
 			    strnfmt(p, len, " dur 20+d20");
 			    break;
@@ -1117,6 +1119,9 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case CHEM_BREATH_SHIELD:
 				strnfmt(p, len, " dur %d+d%d", plev/2 + 1, plev/3);
 				break;
+			case CHEM_SLIP_INTO_SHADOWS:
+				strnfmt(p, len, " dur 30+d%d", plev);
+				break;
 			case CHEM_GUARD_QUIVER:
 			{
 				int scoreq = ((plev-20)/3) + ((goodluck + 1)/2);
@@ -1162,6 +1167,15 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case DARK_SEE_INVISIBLE:
 			    strnfmt(p, len, " dam %d+24", plev);
 			    break;
+		    case DARK_CALL_DARK:
+		    {
+                if ((!p_ptr->darkvis) && (plev < 11)) strnfmt(p, len, " dam 10+d%d", plev+2);
+		        else if (!p_ptr->darkvis) strnfmt(p, len, " dam 12+d%d", plev-3);
+		        /* slight extra alertness if the player already has darkvision */
+		        else if (plev < 11) strnfmt(p, len, " dam 4+d%d", plev+2);
+                else strnfmt(p, len, " dam 6+d%d", plev-3);
+                break;
+            }
 		    case DARK_SHADOW_STING:
 			    if (plev < 4) strnfmt(p, len, " dam 2d%d", plev * 2);
 			    else if (plev < 8) strnfmt(p, len, " dam 2d%d", 6);
@@ -1218,6 +1232,15 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case DARK_RESIST_POISON2:
 				my_strcpy(p, " dur 20+d20", len);
 				break;
+			case DARK_SHADOW_STEP:
+				my_strcpy(p, " dur 15+d15", len);
+				break;
+			case DARK_SLIP_INTO_SHADOWS:
+				strnfmt(p, len, " dur 35+d%d", plev+5);
+				break;
+			case DARK_DARKVISION:
+				strnfmt(p, len, " dur 20+d%d", plev);
+				break;
 			case DARK_UNDEAD_SKIN:
 				my_strcpy(p, " dur 20+d20", len);
 				break;
@@ -1238,6 +1261,9 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case DARK_VAMPIRIC_DRAIN:
 			    strnfmt(p, len, " dam %dd11", plev / 3);
 			    break;
+			case DARK_SEE_ALL_FOES:
+				my_strcpy(p, " dur 35+d35", len);
+				break;
 			case DARK_HOLD_LIFE:
 			    strnfmt(p, len, " dur 20 + d%d", 8+(plev/2));
 			    break;
@@ -1943,7 +1969,7 @@ static void spell_affect_other(dir)
     if (thirty == 1) die += 3 + randint(7);
     if (die > 95)
 	{
-	   do_telekinesis();
+	   do_telekinesis(8 + goodluck/2);
 	}
 	else if (die > 90) /* create good object */
 	{
@@ -2324,7 +2350,7 @@ static bool cast_mage_spell(int spell)
             else if (die < 75) do_call_help(992);
             else do_call_help(993);
 
-            if (randint(100) + badluck > 70 + goodluck)
+            if (randint(100) + badluck > 84 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 100 + randint(150-plev));
             }
@@ -2602,9 +2628,9 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(11, plev));
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 75 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 100 + randint(150-plev));
             }
 			break;
 		}
@@ -2618,8 +2644,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_RUNE_OF_PROTECTION: /* rune of protection */
 		{
-			(void)warding_glyph();
-			break;
+			return (warding_glyph());
 		}
 
 		case SPELL_ENCHANT_ARMOR: /* enchant armor */
@@ -3020,7 +3045,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_GLYPH_OF_WARDING:
 		{
-			warding_glyph();
+			return (warding_glyph());
 			break;
 		}
 
@@ -3336,7 +3361,8 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_ANNIHILATION:
 		{
-			if (!get_aim_dir(&dir)) return (FALSE);
+            if (!get_aim_dir(&dir)) return (FALSE);
+            spellswitch = 8; /* enhance GF_OLD_DRAIN: may do more than 200 damage */
 			drain_life(dir, 200);
 			break;
 		}
@@ -3864,8 +3890,7 @@ static bool cast_newm_spell(int spell)
 
 		case NEWM_WARDING:
 		{
-			warding_glyph();
-			break;
+			return (warding_glyph());
 		}
 
 		case NEWM_RENEWAL:
@@ -4545,7 +4570,17 @@ static bool cast_luck_spell(int spell)
 		
 		case LUCK_TELEKINESIS2:
 		{
-			do_telekinesis();
+			/* max distance for telekinesis */
+            int dist = 8;
+			if (goodluck)
+            {
+                dist += rand_int(goodluck+1);
+                /* maybe boost max distance again */
+                if (rand_int(100) < goodluck*2) dist += randint((goodluck+1)/2) * 2;
+                if (dist < 8 + (goodluck+1)/3) dist = 8 + (goodluck+1)/3;
+            }
+            if (badluck >= 10) dist -= randint(badluck/4);
+            do_telekinesis(dist);
 			break;
 		}
 
@@ -4927,8 +4962,7 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_RUNE_OF_PROTECTION: /* rune of protection */
 		{
-			(void)warding_glyph();
-			break;
+			return (warding_glyph());
 		}
         
         case LUCK_BLINK_MONSTER:
@@ -6003,8 +6037,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_RUNE_OF_PROTECTION:
 		{
-			(void)warding_glyph();
-			break;
+			return (warding_glyph());
 		}
 
 		case CHEM_LIGHTNING_BOLT:
@@ -6313,14 +6346,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_GLYPH_OF_WARDING:
 		{
-			(void)warding_glyph();
-            /* paranoia backfire to remind archer to use range weapon */
-            if ((randint(100) < 10) && (!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
-            {
-               inc_timed(TMD_AFRAID, rand_int(7) + 7);
-               msg_print("You suddenly feel especially nervous about melee combat.");
-            }
-			break;
+			return (warding_glyph());
 		}
 		
 		case CHEM_POISON_BRAND_WEAPON1:
@@ -6357,7 +6383,7 @@ static bool cast_chem_spell(int spell)
           
 		case CHEM_TELEKINESIS:
 		{
-			do_telekinesis();
+			do_telekinesis(8 + goodluck/2);
 			break;
 		}
         
@@ -6589,7 +6615,7 @@ static bool cast_dark_spell(int spell)
 			else if (plev < 16) fire_bolt(GF_NETHER, dir, damroll(3, 7));
 			else if (plev < 21) fire_bolt(GF_NETHER, dir, damroll(3, 8));
 			else fire_bolt(GF_NETHER, dir, damroll((plev/7), dmod));
-            if (randint(100) + badluck > 90 + goodluck)
+            if (randint(100) + badluck > 91 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 10 + randint(50-plev));
             }
@@ -6608,13 +6634,13 @@ static bool cast_dark_spell(int spell)
             if ((!p_ptr->darkvis) && (plev < 11)) (void)inc_timed(TMD_DARKVIS, 10 + randint(plev+2));
 		    else if (!p_ptr->darkvis) (void)inc_timed(TMD_DARKVIS, 12 + randint(plev-3));
 		    /* slight extra alertness if the player already has darkvision */
-		    else if (plev < 11) (void)inc_timed(TMD_WSINFRA, 3 + randint(plev+2));
-            else (void)inc_timed(TMD_WSINFRA, 3 + randint(plev-3));
-            ifrad = (plev / 3) - 1;
-            if (plev > 15) ifrad = 3 + randint(plev / 10);
+		    else if (plev < 11) (void)inc_timed(TMD_WSINFRA, 4 + randint(plev+2));
+            else (void)inc_timed(TMD_WSINFRA, 6 + randint(plev-3));
+            ifrad = (plev / 3);
+            if (plev > 11) ifrad = 3 + randint(plev / 6);
             if (ifrad < 1) ifrad = 1;
-            if (randint(100) < 11 + badweap*2 + goodluck/2 - ifrad) ifrad += 1;
-			(void)unlite_area(damroll(2, (plev / 2)) + randint(ifrad*2) + 1, ifrad, TRUE);
+            if (randint(100) < 11 + badweap*2 + goodluck - ifrad) ifrad += 1;
+			(void)unlite_area(damroll(2, ((plev+1) / 2)) + randint(ifrad + 1) + 1, ifrad, TRUE);
 			break;
 		}
 
@@ -6786,7 +6812,7 @@ static bool cast_dark_spell(int spell)
 			if (plev < 30) (void)hp_player((drained) * (plev/3));
 			else if (plev < 40) (void)hp_player((drained+1) * (8 + randint(2)));
             else (void)hp_player((drained+2) * (plev/4));
-            if (randint(100) + badluck > 80 + goodluck)
+            if (randint(100) + badluck > 84 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 10 + randint(plev));
             }
@@ -6864,27 +6890,35 @@ static bool cast_dark_spell(int spell)
 		{
             spellswitch = 16; /* damage slime in GF_bug_spray */
 			fire_spread(GF_BUG_SPRAY, 3 + randint(plev / 2), 6 + plev/6);
-			(void)inc_timed(TMD_CUT, randint(10) + 5);
-			(void)dec_timed(TMD_POISONED, 4 + randint(plev/2));
-			(void)dec_timed(TMD_STUN, 4 + randint(plev/2));
+			(void)inc_timed(TMD_CUT, randint(6) + 3);
+			/* now decreases poison by (poison/2) + d(poison/2) + 1 */
+			if (p_ptr->timed[TMD_POISONED] < 6) clear_timed(TMD_POISONED);
+			else if (p_ptr->timed[TMD_POISONED]) (void)dec_timed(TMD_POISONED, 1 + p_ptr->timed[TMD_POISONED]/2 + randint(p_ptr->timed[TMD_POISONED]/2));
+			(void)dec_timed(TMD_STUN, 4 + randint(plev/2+1));
             if ((randint(100) < 34) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
             if ((randint(100) < 34) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
             if ((randint(100) < 16) && (plev > 9))
             {
 	            spellswitch = 16; /* damage slime in GF_bug_spray */
-			   (void)dec_timed(TMD_POISONED, randint(6));
-			   (void)dec_timed(TMD_STUN, randint(3));
+			   clear_timed(TMD_POISONED);
+			   (void)dec_timed(TMD_STUN, randint(4));
                if ((randint(100) < (plev * 3)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
                if ((randint(100) < (plev * 3)) && (p_ptr->silver > PY_SILVER_HEALTHY)) p_ptr->silver -= 1;
 			   fire_spread(GF_BUG_SPRAY, 2 + randint(plev / 3 + 1), 6 + plev/6);
-			   (void)inc_timed(TMD_OPP_POIS, randint(14) + 6);
+			   if ((plev < 20) && (goodluck > 1)) (void)inc_timed(TMD_OPP_POIS, randint(13) + 5);
+			   else if (goodluck) (void)inc_timed(TMD_OPP_POIS, randint(13) + plev/4);
             }
-			else (void)inc_timed(TMD_WOPP_POIS, randint(13) + 5);
-			(void)dec_timed(TMD_CONFUSED, 5 + randint(plev/3));
-			(void)dec_timed(TMD_BLIND, 5 + randint(plev/3));
+			if (!p_ptr->timed[TMD_OPP_POIS])
+            {
+                if (plev >= 20) (void)inc_timed(TMD_WOPP_POIS, randint(13) + plev/4);
+                else (void)inc_timed(TMD_WOPP_POIS, randint(13) + 5);
+            }
+			clear_timed(TMD_CONFUSED);
+			clear_timed(TMD_BLIND);
 			(void)dec_timed(TMD_FRENZY, 2 + randint(plev/4));
 			(void)dec_timed(TMD_AMNESIA, 2 + randint(plev/4));
 			(void)dec_timed(TMD_IMAGE, 2 + randint(plev/4));
+			if (cp_ptr->flags & CF_ASSASSIN) (void)dec_timed(TMD_AFRAID, 5 + randint(plev/3));
 			break;
 		}
 
@@ -6921,6 +6955,20 @@ static bool cast_dark_spell(int spell)
                               damroll(7+(plev/5), 7));
 			break;
         } /* 11d7 at L20, 13d7 at L30, 15d7 at L40, 17d7 at L50 */
+        
+        case DARK_SHADOW_STEP:
+        {
+             if (p_ptr->aggravate)
+             {
+                msg_print("You can't slip into the shadows while you're aggravating monsters.");
+    	        break;
+             }   
+             else
+             {
+                 (void)inc_timed(TMD_SHADOW, randint(15) + 15);
+             }
+    	     break;
+        }
              
         case DARK_SLIP_INTO_SHADOWS:
 		{
@@ -6934,45 +6982,14 @@ static bool cast_dark_spell(int spell)
                 else msg_print("You can't slip into the shadows while you're aggravating monsters.");
     	        break;
              }   
-             else (void)inc_timed(TMD_SHADOW, randint(plev) + 30);
+             else (void)inc_timed(TMD_SHADOW, randint(plev+5) + 35);
              
     	     break;
 		}
-        
-        case DARK_CAUSE_MORTAL_WOUNDS:
-        {
-			if (!get_aim_dir(&dir)) return (FALSE);
-			dcmw = plev / 4;
-			sdmg = damroll(10 + randint(dcmw), dcmw+2);
-			if ((sdmg < 80) && (plev > 39)) sdmg += 20 + randint(sdmg/3);
-			if ((sdmg < 56) && (plev > 29)) sdmg += 10 + randint(sdmg/3);
-			if (sdmg < 30) sdmg += 15 + randint(sdmg/2);
-			if ((sdmg < 50) && (randint(100) < 67)) sdmg += 5 + randint(sdmg/3);
-			if ((sdmg > 260) && (randint(100) < 50)) sdmg -= 5 + randint(sdmg/5);
-            fire_ball(GF_OLD_DRAIN, dir, sdmg, 0);
-			if (sdmg > 160) sdmg = 165;
-			if (sdmg < 80) sdmg = sdmg + 10;
-            fire_ball(GF_SHARD, dir, randint(sdmg/5), 2);
-            if (randint(100) + badluck > 66 + goodluck)
-            {
-                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
-            }
-			break;
-        } /* (11-15)d7 at L20, (11-16)d8 at L24, (11-19)d11 at L36, (11-22)d14 at L48 */
-          /* av: ~57 at L20, ~66 at L24, ~98 at L36, ~135 at L48 (before capping)*/
-          /* absolute minimum after capping and shard ball is 51 */
 
-        case DARK_BREATHE_WITHERING:
+        case DARK_DARKVISION:
         {
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_CONFUSION, dir, damroll(2, plev/5), plev/13);
-			fire_ball(GF_OLD_SLOW, dir, damroll(2, plev/5), plev/13);
-			fire_ball(GF_MANA, dir, damroll(plev/6, 3), plev/9);
-			fire_ball(GF_MANA, dir, damroll(plev/5, 8), plev/13);
-            if (randint(100) + badluck > 66 + goodluck)
-            {
-                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
-            }
+            (void)inc_timed(TMD_DARKVIS, 20 + randint(plev));
 			break;
         }
         
@@ -7047,7 +7064,7 @@ static bool cast_dark_spell(int spell)
         {
 			if (randint(100 + (badluck*2)) < (plev*3)/2) (void)dispel_demon(1 + randint((plev * 7)/2));
 			else (void)dispel_demon(randint(plev * 3));
-            if (randint(100) + badluck > 80 + goodluck)
+            if (randint(100) + badluck > 82 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
             }
@@ -7086,11 +7103,11 @@ static bool cast_dark_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam + 15, GF_ICE, dir, damroll(5 + (plev/5), 8));
-            if (randint(100) + badluck > 67 + goodluck)
+            if (randint(100) + badluck > 82 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
 				/* good effect within a bad effect */
-				if (randint(100) + badluck < plev + goodluck + 2)
+				if (randint(100) + badluck < plev + (goodluck*2) + 2)
 				{
 					fire_beam(GF_NETHER, dir, damroll(1 + (plev/10), 6));
 				}
@@ -7111,7 +7128,7 @@ static bool cast_dark_spell(int spell)
 			else take_hit(randint(13), "the stench of death");
 			if (p_ptr->resist_pois) (void)inc_timed(TMD_POISONED, randint(8) + 5);
 			else (void)inc_timed(TMD_POISONED, randint(9) + 12);
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 80 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
@@ -7130,7 +7147,7 @@ static bool cast_dark_spell(int spell)
             spellswitch = 26; /* activate 1-spaces earthquakes in project() */
 			/* lowered damage because the earthquakes do damage separately */
 			fire_beam(GF_SHARD, dir, plev + damroll(plev/10, 9));
-            if (randint(100) + badluck > 80 + goodluck)
+            if (randint(100) + badluck > 84 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
             }
@@ -7160,7 +7177,7 @@ static bool cast_dark_spell(int spell)
 			if (!get_aim_dir(&dir)) return (FALSE);
             fire_bolt_or_beam(beam + 5, GF_POIS, dir, 
                               damroll(7+((plev+1)/4), 7 + randint(plev/10)));
-            if (randint(100) + badluck > 80 + goodluck)
+            if (randint(100) + badluck > 82 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
@@ -7171,7 +7188,7 @@ static bool cast_dark_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam, GF_CHAOS, dir, damroll(13, plev));
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 82 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
             }
@@ -7206,9 +7223,9 @@ static bool cast_dark_spell(int spell)
 			time = randint(20) + 20;
 			(void)inc_timed(TMD_OPP_COLD, time);
 			(void)inc_timed(TMD_OPP_NETHR, time);
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 80 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
 			break;
 		}
@@ -7224,7 +7241,7 @@ static bool cast_dark_spell(int spell)
             else if (die < 80) do_call_help(992);
             else do_call_help(993);
 
-            if (randint(100) + badluck > 67 + goodluck)
+            if (randint(100) + badluck > 70 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
             }
@@ -7239,9 +7256,9 @@ static bool cast_dark_spell(int spell)
 			(void)inc_timed(TMD_OPP_COLD, time);
 			(void)inc_timed(TMD_OPP_POIS, time);
 			(void)inc_timed(TMD_OPP_NETHR, time);
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 80 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
 			break;
 		}
@@ -7249,7 +7266,7 @@ static bool cast_dark_spell(int spell)
 		case DARK_SHADOW_BARRIER:
 		{
 			(void)inc_timed(TMD_SHIELD, randint(20) + 30);
-            if (randint(100) + badluck > 80 + goodluck)
+            if (randint(100) + badluck > 84 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
             }
@@ -7285,9 +7302,9 @@ static bool cast_dark_spell(int spell)
 			fire_ball(GF_OLD_DRAIN, dir,
 			          (damroll(3, 6) + plev + (plev / 2)),
 			          ((plev < 30) ? 2 : 3));
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 75 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
 			break;
 		}
@@ -7300,9 +7317,9 @@ static bool cast_dark_spell(int spell)
             {
                take_hit(randint(plev + 5), "A spell of dispel living");
             }
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 75 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
 			break;
 		}
@@ -7329,9 +7346,9 @@ static bool cast_dark_spell(int spell)
 			{
 				set_food(PY_FOOD_MAX - 1);
 			}
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 75 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
 			break;
 		}
@@ -7346,7 +7363,7 @@ static bool cast_dark_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(11, plev));
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 75 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
             }
@@ -7355,7 +7372,7 @@ static bool cast_dark_spell(int spell)
 		
 		case DARK_GENOCIDE:
 		{
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 80 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
             }
@@ -7385,9 +7402,9 @@ static bool cast_dark_spell(int spell)
 			(void)inc_timed(TMD_OPP_FIRE, time);
 			(void)inc_timed(TMD_OPP_DARK, time);
 			(void)inc_timed(TMD_BALROG, time);
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 80 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
             }
 			break;
 		}
@@ -7424,6 +7441,12 @@ static bool cast_dark_spell(int spell)
             if (p_ptr->peace)
         	{
                  msg_print("The peaceful magic prevents you from going into a rage.");
+                 if ((goodluck) && (!p_ptr->timed[TMD_SUST_SPEED]))
+                 {
+			         /* speed bonus but no berserk */
+                     p_ptr->spadjust = 4 + randint(1 + (plev/10));
+                     (void)set_timed(TMD_ADJUST, randint(25) + plev);
+                 }
             }
 	        else if ((p_ptr->timed[TMD_CHARM]) && (die > (plev + 25)))
 	        {
@@ -7444,15 +7467,15 @@ static bool cast_dark_spell(int spell)
                     (void)set_timed(TMD_ADJUST, (time - 3) - randint(3));
 			        (void)inc_timed(TMD_SHERO, time);
                  }
-                 if (randint(100) + badluck > 70 + goodluck)
+                 if (randint(100) + badluck > 90 + goodluck)
                  {
-                    (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
+                    (void)inc_timed(TMD_WITCH, 100 + randint(150-plev));
                  }
             }
 			break;
         }
         
-        case DARK_SEE_ALL_FOES: /* full telepathy for necromancers */
+        case DARK_SEE_ALL_FOES:
         {
             if (p_ptr->timed[TMD_2ND_THOUGHT])
             {
@@ -7461,10 +7484,6 @@ static bool cast_dark_spell(int spell)
             }
 			(void)clear_timed(TMD_BLIND);
 			(void)inc_timed(TMD_SINVIS, randint(35) + 35);
-			if ((cp_ptr->flags & CF_BEAM) && (badluck < 3)) (void)inc_timed(TMD_ESP, randint(plev) + (plev/2));
-			else if (plev + (goodluck/2) > 39) (void)inc_timed(TMD_ESP, randint(plev/2) + (plev/3));
-			else if (randint(plev + (goodluck/2)) > 20) (void)inc_timed(TMD_ESP, randint(plev/2));
-			else if (randint(plev + (goodluck/2)) > 5) (void)inc_timed(TMD_ESP, randint(plev/4));			
 			break;
         }
 
@@ -7473,10 +7492,6 @@ static bool cast_dark_spell(int spell)
             if (p_ptr->csp >= p_ptr->msp)
             {
                   msg_print("Your mana is already at maximum!");
-                  if (randint(100) + badluck > 88 + goodluck)
-                  {
-                     (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
-                  }
 			      break;
             }
             /* less powerful version */
@@ -7487,10 +7502,6 @@ static bool cast_dark_spell(int spell)
                if (p_ptr->chp < die + 1)
                {
                   msg_print("Not enough life to draw mana!");
-                  if (randint(100) + badluck > 66 + goodluck)
-                  {
-                     (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
-                  }
 			      break;
                }
                /* this should never kill anyone */
@@ -7506,9 +7517,9 @@ static bool cast_dark_spell(int spell)
             }
             /* not more than maximum */
             if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 84 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 100 + randint(150-plev));
             }
 			break;
         }
@@ -7522,21 +7533,17 @@ static bool cast_dark_spell(int spell)
         case DARK_HOLD:
         {
 			(void)hold_monsters();
-            if (randint(100) + badluck > 80 + goodluck)
+            if (randint(100) + badluck > 84 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 100 + randint(150-plev));
             }
 			break;
         }
 
-		case DARK_DISPEL_UNDEAD2: /* less powerful for witches and assassins */
+		case DARK_DISPEL_UNDEAD2: /* less powerful for assassins */
 		{
-			if (cp_ptr->flags & CF_BEAM)(void)dispel_undead(randint(plev * 4));
-			else (void)dispel_undead(1 + randint((plev * 7)/2));
-            if (randint(100) + badluck > 80 + goodluck)
-            {
-                (void)inc_timed(TMD_WITCH, 100 + randint(200-plev));
-            }
+			if (cp_ptr->flags & CF_BEAM) (void)dispel_undead(randint(plev * 4));
+			else (void)dispel_undead(1 + randint((plev * 7)/2)); /* x3.5 */
 			break;
 		}
 		
@@ -7547,9 +7554,9 @@ static bool cast_dark_spell(int spell)
 			fire_ball(GF_MANA, dir, damroll(plev/5, 8), plev/12);
 			fire_ball(GF_CONFUSION, dir, damroll(3, plev/5), plev/12);
 			fire_ball(GF_BRFEAR, dir, damroll(3, plev/5), plev/12);
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 80 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 150 + randint(200-plev));
             }
 			break;
         }
@@ -7574,9 +7581,9 @@ static bool cast_dark_spell(int spell)
             {
                fire_ball(GF_NETHER, dir, damroll(plev, 11), 3);
             }
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 80 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 400 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
             }
 			break;
         }
@@ -7585,9 +7592,9 @@ static bool cast_dark_spell(int spell)
         {
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_DARK, dir, 270 + (plev * 2) + randint(plev+15), 3);
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 75 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 400 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));
             }
 		    if (!p_ptr->darkvis) (void)inc_timed(TMD_DARKVIS, plev/2 + randint(plev));
 			break;
@@ -7595,9 +7602,9 @@ static bool cast_dark_spell(int spell)
         
         case DARK_BECOME_LICH:
         {
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 75 + goodluck)
             {
-                (void)inc_timed(TMD_WITCH, 450 + randint(200-plev));
+                (void)inc_timed(TMD_WITCH, 300 + randint(200-plev));
             }
             if ((badluck > 9) && (randint(100) < 5))
             {
@@ -7639,28 +7646,32 @@ static bool cast_dark_spell(int spell)
         case DARK_WALL_OF_HELLFIRE: /* short lasting for assassins */
         {
             time = randint(plev/2) + (25);
-            if (randint(100) + badluck > 66 + goodluck)
+            if (randint(100) + badluck > 72 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 600 + randint(200-plev));
             }
             if (p_ptr->timed[TMD_BECOME_LICH])
             {
-               if ((badluck > 9) && (randint(100) < 5))
+               if ((badluck > 9) && (randint(100) < 10))
                {
-                  msg_print("The fires of hell eagerly consumes your lifeless flesh.");
+                  msg_print("The fires of hell eagerly consume your lifeless flesh.");
                   fire_dam((time*3) + randint(time*2), "Summoning fire while in the form of an undead.");
                }
-               else if ((badluck > 5) && (randint(100) < 10))
+               else if ((badluck > 5) && (randint(100) < 22))
                {
                   msg_print("The fires of hell eagerly scorch your lifeless flesh.");
                   fire_dam((time*2) + randint(time), "Summoning fire while in the form of an undead.");
                }
-               fire_dam((time*2) + randint(time), "Summoning fire while in the form of an undead.");
+               else
+               {
+                  fire_dam(time + randint(time), "Summoning fire while in the form of an undead.");
+               }
                msg_print("The summoned fire causes you intense pain so you banish it quickly.");
             }
             else
             {
                (void)clear_timed(TMD_OPP_COLD);
+               if (cp_ptr->flags & CF_ASSASSIN) time = time/2;
                if ((badluck > 5) && (randint(100) < 8))
                {
                   msg_print("The fires of hell eagerly scorch your evil flesh.");
@@ -7668,19 +7679,15 @@ static bool cast_dark_spell(int spell)
                }
                else if ((badluck > 9) && (randint(100) < 4))
                {
-                  msg_print("The fires of hell eagerly consumes your evil flesh.");
+                  msg_print("The fires of hell eagerly consume your evil flesh.");
                   fire_dam((time*2) + randint(time), "Summoning hellfire.");
                }
-               if (cp_ptr->flags & CF_ASSASSIN) (void)inc_timed(TMD_WSHIELD, time/2);
-               else (void)inc_timed(TMD_WSHIELD, time);
-               if (cp_ptr->flags & CF_ASSASSIN) (void)inc_timed(TMD_OPP_FIRE, time/2);
-               else (void)inc_timed(TMD_OPP_FIRE, time);
-               if (cp_ptr->flags & CF_ASSASSIN) (void)inc_timed(TMD_IMM_FIRE, time/5);
-               else (void)inc_timed(TMD_IMM_FIRE, time/3);
+               (void)inc_timed(TMD_WSHIELD, time);
+               (void)inc_timed(TMD_OPP_FIRE, time);
+               (void)inc_timed(TMD_IMM_FIRE, time/3+1);
             }
 			break;
         }
-
     }
 
 	/* Success */

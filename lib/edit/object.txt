@@ -191,7 +191,7 @@ I:80:6:250
 W:11:0:1:0
 A:11/2
 P:0:8d8:0:0:0:3
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
 D:It rots your brain.
 D: It inflicts 8d8 points of damage, gives you minor silver poison
 D: and also reduces intelligence or wisdom unless you have the
@@ -208,7 +208,7 @@ I:80:10:250
 W:11:0:1:50
 A:11/2
 P:0:10d10:0:0:0:4
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
 D:It inflicts 10d10 points of damage, gives you minor sliming
 D: and also reduces constitution or strength unless you have
 D: the appropriate sustain. If you're very unlucky, it'll reduce
@@ -288,7 +288,7 @@ I:80:0:250
 W:5:0:1:0
 A:10/1
 P:0:3d9:0:0:0:3
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
 D:It poisons you (doing 6d6 damage and adding 15+1d15 points to the
 D: poison counter), unless you have resistance to poison.
 D:  It may also be thrown to inflict 6d6 points of damage.
@@ -335,7 +335,7 @@ I:80:11:260
 W:11:0:1:0
 A:11/2
 P:0:6d6:0:0:0:3
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
 D:This will make you about as stealthy and charismatic as a singing,
 D: happy drunk, though maybe not as happy..
 D:  It inflicts 6d6 points of damage, cancels temporary haste, reduces
@@ -367,11 +367,13 @@ A:0/1:10/1
 F:EASY_KNOW
 D:It provides nourishment for about 2500 turns under normal conditions.
 
+# It's hard enough to double as a throwing weapon (hehe)
 N:22:& hard biscuit~
 G:,:U
 I:80:32:500
 W:0:0:2:1
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
+P:0:1d2:0:0:0:4
 D:It provides nourishment for about 250 turns under normal conditions.
 
 N:23:& strip~ of beef jerky
@@ -446,7 +448,7 @@ I:23:1:0
 W:0:0:6:1
 A:0/2:5/2
 P:0:1d2:-2:-2:0:5
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW | DRUID
 
 # was 350
 N:31:& bastard sword~
@@ -466,11 +468,11 @@ I:23:29:0
 W:13:0:50:366
 A:13/6
 P:0:1d4:0:0:0:5
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW | DRUID
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 D:A magical stone dagger used in rites of witchcraft.
 
-# was 200 (same as old Tulwar)
+# was 200 (same as old Tulwar) (should this be a druid weapon too? 'cause it is in DND3.5)
 N:33:& scimitar~
 G:|:W
 I:23:18:0
@@ -527,7 +529,7 @@ I:23:5:0
 W:3:0:34:105
 A:5/1
 P:0:1d5:0:0:0:6
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW
 D:A dagger long enough to be used as a sword by the smaller races.
 
 # was 85
@@ -557,7 +559,7 @@ I:23:14:0
 W:5:0:70:54
 A:5/1
 P:0:1d6:0:0:0:5
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW
 D:The same size as a long dagger but made like a sword.
 
 # was 300
@@ -579,7 +581,7 @@ I:23:4:0
 W:0:0:14:40
 A:0/1:5/1:15/1:20/1
 P:0:1d4:0:0:0:6
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW | DRUID
 
 # was 42
 N:44:& rapier~
@@ -720,7 +722,7 @@ G:\:D
 I:22:15:0
 W:15:0:190:660
 A:15/2
-P:0:4d3:0:0:0:5
+P:0:4d3:0:0:0:6
 F:SHOW_MODS
 D:A large and especially heavy made, harder to handle but deals a much more
 D: effective blow.
@@ -809,7 +811,7 @@ I:22:4:0
 W:5:0:52:121
 A:5/1
 P:0:1d6:0:0:0:5
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW | DRUID
 D:A shaft of strong wood or metal with a sharp point at the end.
 
 # was 120
@@ -819,7 +821,7 @@ I:22:7:0
 W:5:0:70:303
 A:6/2
 P:0:1d8:0:0:0:5
-F:SHOW_MODS
+F:SHOW_MODS | DRUID
 D:A metal spear that splits into three or more sharp tips.
 
 # was 230
@@ -850,7 +852,7 @@ G:/:s
 I:22:23:0
 W:40:0:230:754
 A:35/2
-P:0:4d4:0:0:0:5
+P:0:4d4:0:0:0:6
 F:SHOW_MODS
 
 # was 334
@@ -870,8 +872,8 @@ W:45:0:250:835
 A:40/2
 P:0:3d8:0:0:0:5
 F:SHOW_MODS
-D:Similar to the halberd, its head has an axe on one side and a nasty spiked prong
-D: on the other.
+D:Similar to the halberd, its head has an axeblade on one side and a nasty spiked
+D: prong on the other.
 
 # was 304
 N:70:& broad axe~
@@ -879,7 +881,7 @@ G:/:s
 I:22:12:0
 W:15:0:165:543
 A:15/1
-P:0:2d6:0:0:0:5
+P:0:2d6:0:0:0:6
 F:SHOW_MODS
 
 # was 800
@@ -888,8 +890,8 @@ G:/:s
 I:22:22:0
 W:45:0:230:792
 A:35/2
-P:0:5d3:-1:0:0:6
-F:SHOW_MODS
+P:0:5d3:-1:0:0:5
+F:SHOW_MODS | DRUID
 D:Rather clumsy as a weapon, it is made for harvesting grain.
 
 N:72:& Scythe~ of Slicing
@@ -897,8 +899,8 @@ G:/:r
 I:22:33:0
 W:60:0:250:3500
 A:60/3
-P:0:8d4:0:0:0:6
-F:SHOW_MODS
+P:0:8d4:0:0:0:5
+F:SHOW_MODS | DRUID
 D:A magical scythe sharp enough to effortlessly slice through bone or even metal.
 
 ##### Bows, Crossbows, Slings #####
@@ -906,7 +908,7 @@ D:A magical scythe sharp enough to effortlessly slice through bone or even metal
 N:73:& short bow~
 G:}:U
 I:19:12:0
-W:3:0:32:90
+W:3:0:32:80
 A:3/1:50/2
 F:SHOW_MODS
 
@@ -2178,14 +2180,14 @@ D:It has no effect apart from providing nourishment (for about 100 turns
 D: under normal conditions).
 D:  Note: These are always Clear Potions.
 
-#added more allocation lines to let divers find stat potions deeper
+#added more allocation to let divers find stat potions deeper
 #allocate at 45 because that's about the place it gets noticably harder and some
 #people (like me) slow down their diving there.
 N:225:Strength
 G:!:d
 I:75:48:25
 W:30:0:4:8000
-A:23/3:45/4:67/3
+A:24/3:45/3:66/3
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Strength, then permanently
@@ -2217,7 +2219,7 @@ N:228:Intelligence
 G:!:d
 I:75:49:25
 W:30:0:4:8000
-A:23/3:45/4:67/3
+A:24/3:45/3:66/3
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Intelligence, then permanently
@@ -2249,7 +2251,7 @@ N:231:Wisdom
 G:!:d
 I:75:50:25
 W:30:0:4:8000
-A:23/3:45/4:67/3
+A:24/3:45/3:66/3
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Wisdom, then permanently
@@ -2280,7 +2282,7 @@ N:234:Charisma
 G:!:d
 I:75:53:25
 W:20:0:4:1000
-A:18/3:40/4:62/4
+A:18/3:40/3:62/4
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Charisma, then permanently
@@ -2333,8 +2335,8 @@ G:!:d
 I:75:20:0
 W:10:0:4:0
 A:10/1
-P:0:1d1:0:0:0:1
-F:EASY_KNOW
+P:0:2d3:0:0:0:3
+F:EASY_KNOW | PTHROW
 D:It reduces constitution (unless you have sustain constitution).
 
 N:240:Cure Serious Wounds
@@ -2381,7 +2383,7 @@ N:243:Constitution
 G:!:d
 I:75:52:25
 W:30:0:4:8000
-A:23/3:45/4:67/3
+A:24/3:45/3:66/3
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Constitution, then permanently
@@ -2438,7 +2440,7 @@ I:75:6:0
 W:3:0:4:0
 A:3/1
 P:0:1d5:0:0:0:5
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
 D:It poisons you (adding 9+1d15 points to the poison counter), unless
 D: you have resistance to poison.  It also sometimes lowers either
 D: strength, dexterity, or constitution unless you have the stat
@@ -2472,7 +2474,7 @@ N:251:Dexterity
 G:!:d
 I:75:51:25
 W:30:0:4:8000
-A:23/3:45/4:67/3
+A:24/3:45/3:66/3
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Dexterity, then permanently
@@ -2525,7 +2527,7 @@ G:!:d
 I:75:13:222
 W:50:0:4:0
 A:40/2:90/5
-P:0:1d8:0:0:0:9
+P:0:1d10:0:0:0:9
 D:It disguises itself as another random type of potion, so it can be
 D: dangerous even when it's been identified.  When drunk, it poisons
 D: you and lowers a random stat by 1d2, ignoring sustains. Poison
@@ -2583,8 +2585,8 @@ G:!:d
 I:75:28:0
 W:1:0:4:1000
 A:40/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW | IGNORE_COLD | IGNORE_FIRE
+P:0:2d5:0:0:0:4
+F:EASY_KNOW | IGNORE_COLD | IGNORE_FIRE | PTHROW
 D:It causes you to breathe either cold or flames for 80 damage.
 
 N:260:Restore Life Levels
@@ -3027,6 +3029,9 @@ C:1+d2
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 D:It inflicts 250 points of damage on a single living monster.
+D: If the monster has more than 2500 max hit points the damage
+D: will be enhanced to up to 1/10 of the monster's max hit points
+D: or a maximum of 750 damage.
 
 N:299:Storms
 G:-:d
@@ -3248,8 +3253,9 @@ A:40/3
 P:0:1d5:0:0:0:5
 C:4+d4
 F:SHOW_MODS
-D:It allows you to pick up items from a distance.  If you can target the item,
-D: then you can pick it up with this spell.
+D:It allows you to pick up objects from a distance.  The object must be
+D: either in line of sight or within the maximum range which is usually
+D: 8 spaces (but may be higher with good luck).
 
 N:316:Door/Stair Location
 G:_:d
@@ -3537,13 +3543,12 @@ I:5:0:0
 W:1:0:10:1
 M:100:4d7
 A:1/2
-P:0:1d2:0:0:0:2
-F:EASY_KNOW | THROWN
+P:0:1d3:0:0:0:2
+F:EASY_KNOW | PTHROW
 D:These can be placed in doors to make them harder to open.  Multiple
 D: spikes may be used on a single door.  Each of the first 7 spikes will
 D: increase the door's resistance to bashing.  Placing more than 7
 D: spikes in one door will not have any further effect.
-D: They can also be thrown for damage.
 
 # torch was 4000, lantern was 7500
 #Torches and lanterns shouldn't get a pval.  Their amount of fuel is hard-coded, and
@@ -3575,12 +3580,12 @@ G:!:y
 I:77:0:7500
 W:1:0:10:3
 A:1/1
-P:0:2d6:0:0:0:2
-F:EASY_KNOW
+P:0:1d6:0:0:0:2
+F:EASY_KNOW | PTHROW | BRAND_FIRE
 D:It can be used to fuel a brass lantern with 7500 turns of light, up to
 D: a maximum of 15000 turns of light.
 D:  When thrown, it is considered lit, so it does more than nominal
-D: damage (which occurs even against creatures resistant to fire).
+D: damage to creatures vulnerable to fire.
 
 # Empty Bottles are no longer generated (no 'A'llocation line)
 # Keep the entry for savefile compatibility
@@ -4009,7 +4014,7 @@ W:4:4:80:20
 A:4/4
 M:20:1d2
 P:0:1d5:0:0:0:6
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW
 D:Something found from a corpse of a nocturnal ox, it can be used like a spear.
 
 N:392:& mumak tusk~
@@ -4047,7 +4052,7 @@ I:1:3:0
 W:10:6:30:95
 A:10/6
 P:0:1d3:0:0:0:6
-F:BRAND_POIS | SHOW_MODS
+F:BRAND_POIS | PTHROW | SHOW_MODS
 
 N:396:& wyvern stinger~
 G:~:g
@@ -4073,7 +4078,7 @@ I:1:6:0
 W:20:6:25:300
 A:20/6
 P:0:1d4:0:0:0:4
-F:BRAND_FIRE | SHOW_MODS
+F:BRAND_FIRE | PTHROW | SHOW_MODS
 
 #special object: This is created (only) wherever rubble is created
 #but is only noticed by characters with MIGHTY_HURL
@@ -4084,8 +4089,7 @@ I:1:25:0
 W:25:0:150:1
 P:0:6d10:0:0:0:5
 F:THROWN | EASY_KNOW
-D: Throwing this makes you feel like a giant, though it's only
-D: broken pieces of a boulder.
+D: Throwing this makes you feel like a giant.
 D: (big rocks are never noteworthy unless you have the
 D: "mighty throw" effect active.)
 
@@ -4250,7 +4254,7 @@ I:75:15:0
 W:40:0:4:0
 A:40/8
 P:0:1d9:0:0:0:1
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
 D:Cancels all buffs and sets charisma to 10 and all other stats to 14,
 D: permanently and ignoring sustains.  This can raise a stat which is
 D: currently lower than 14, but it usually isn't worth it..
@@ -4264,7 +4268,7 @@ I:75:22:0
 W:60:0:4:10000
 A:60/8
 P:0:25d25:0:0:0:5
-F:EASY_KNOW
+F:EASY_KNOW | PTHROW
 D:It inflicts 50d20 points of damage from massive explosions, severe
 D: cuts (+5000 to the cut counter), and stunning (+75 to the stun
 D: counter).
@@ -4761,7 +4765,7 @@ I:23:3:0
 W:3:0:24:65
 A:3/3
 P:2:1d3:0:0:0:5
-F:WIELD_SHIELD | SHOW_MODS
+F:WIELD_SHIELD | SHOW_MODS | PTHROW
 D:An offhand dagger with a wide handguard for defence.
 
 N:519:& fur cloak~
@@ -4786,7 +4790,7 @@ I:21:4:0
 W:5:0:55:110
 A:6/3
 P:0:2d3:0:0:0:6
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW
 
 ##### Nature Books (NEWM) #####
 
@@ -5312,7 +5316,7 @@ N:578:Four-Leaf Clover Juice
 G:!:d
 I:75:14:0
 W:10:0:4:777
-A:10/37
+A:10/37:77/77
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 D:Raises your luck by 1d2.
@@ -5404,7 +5408,7 @@ G:$:g
 I:100:16:0
 W:1:0:0:30
 
-#special item, can be created by the 'treasure hunt' tourist spell.
+#special item, can be created by the 'treasure hunt' tourist spell or dropped by uniques.
 N:587:Treasure map
 G:?:y
 I:4:2:0
@@ -5428,4 +5432,4 @@ W:30:0:5:300
 A:30/7:70/20
 P:0:1d2:0:0:0:2
 F:NICE
-D:A crown from the fairy realm made of leafy vine.
+D:A crown from the fairy realm made of leafy vines.

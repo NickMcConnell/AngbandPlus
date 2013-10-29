@@ -1,10 +1,19 @@
 
 
 Thanks to:
-First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch (although I'm using a very old version of it), Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, CunningGabe for new names of a couple jellies, and anyone else who gives comments or suggestions or just plays DaJAngband.
+First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch (although I'm using a very old version of it), Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Fizzix for finding bugs and other helpful feedback, Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, CunningGabe for new names of a couple jellies, and anyone else who gives comments or suggestions or just plays DaJAngband.
 
 ------------------------------------------------------------------------------------------
-Readme for DaJAngband 1.1.0
+Readme for DaJAngband 1.1.1
+		Changes since original 1.1.0
+  telekinesis bugs fixed. It works the way it should now: must be either in line of sight or within max distance (usually about 8).
+  removing curses with enchant scrolls is no longer dependant on the success of the enchantment
+  monsters can no longer pick up (or destroy) the special vault chests.
+  druids have a few more weapons they can use without pointy penalty
+  ?rune of protection is not used up if it fails to make a glyph (like if you're testing out the scroll while standing on stairs..)
+  the object list now updates when it should
+  home inventory is now in knowledge menu
+  more changes to black magic realm: witch's disinfectant strengthened, demon summoning lessened (never in groups and only appear next to the PC about half the time, otherwise appear about 20 spaces away. Also less likely that the evil spells trigger the demon summoning effect), assassin spells modified.
 
 		Changes since 1.0.99 (9/9/99 update)
 

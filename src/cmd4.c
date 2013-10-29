@@ -1829,10 +1829,13 @@ static void do_cmd_knowledge_features(void *obj, const char *name)
 /* =================== HOMES AND STORES ==================================== */
 
 
-
+/* just call do_cmd_store_reallynow() with fakehoome = TRUE */
 void do_cmd_knowledge_home() 
 {
 	/* TODO */
+	p_ptr->fakehome = TRUE;
+    do_cmd_store_reallynow();
+    p_ptr->fakehome = FALSE;
 }
 
 
@@ -4191,6 +4194,7 @@ static menu_item knowledge_actions[] =
 	{{0, "Display feature knowledge", do_cmd_knowledge_features, 0}, '5'},
 	{{0, "Display self-knowledge", do_cmd_self_knowledge, 0}, '6'},
 	{{0, "Display hall of fame", do_cmd_knowledge_scores, 0}, '7'},
+	{{0, "Display home inventory", do_cmd_knowledge_home, 0}, '8'},
 };
 
 static menu_type knowledge_menu;

@@ -55,6 +55,27 @@
 
 
 
+/*
+ * This command is used to locate the item to reduce
+ * after applying all effects in the inventory. (taken from UnAngband)
+ */
+int find_item_to_reduce(int item)
+{
+	int i;
+
+	/* The default case */
+	if (inventory[item].ident & (IDENT_BREAKS)) return (item);
+
+	/* Scan inventory to locate */
+	for (i = 0; i < INVEN_TOTAL + 1; i++)
+	{
+		if (inventory[i].ident & (IDENT_BREAKS)) return (i);
+	}
+
+	/* Not found - item has been destroyed during use */
+	return (-1);
+}
+
 
 
 
@@ -417,6 +438,9 @@ void do_cmd_use_staff(void)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -513,6 +537,21 @@ void do_cmd_use_staff(void)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	
+	/* Make sure we have the correct item (from UnAngband) */
+	if (item >= 0)
+	{
+		item = find_item_to_reduce(item);
+
+		/* Item has already been destroyed */
+		if (item < 0) return;
+
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Clear marker */
+		o_ptr->ident &= ~(IDENT_BREAKS);
+	}
 
 	/* Tried the item */
 	object_tried(o_ptr);

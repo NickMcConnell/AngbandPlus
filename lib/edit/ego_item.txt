@@ -56,18 +56,18 @@
 
 V:3.0.10
 
-#one ego torch or lantern (has lower light radius)
+#one ego torch or lantern (has lower light radius) (made slightly rarer)
 #another ego light at the end
 N:1:of Darkvision
 X:4:0
-W:3:22:0:1600
+W:3:25:0:1600
 T:39:0:1
 F:DARKVIS | EASY_KNOW
 
 #Heavy shields
 N:2:of Lightness
 X:5:0
-W:0:3:60:1000
+W:0:3:60:800
 C:0:0:6:0
 T:34:4:99
 F:FEATHER | LIGHTNESS
@@ -77,7 +77,7 @@ F:FEATHER | LIGHTNESS
 #Heavy armor or Dragon scale
 N:3:of Lightness
 X:10:0
-W:0:2:110:1400
+W:0:3:110:1400
 C:1:0:7:0
 T:37:0:99
 T:38:0:99
@@ -163,7 +163,7 @@ F:FREE_ACT | DARKVIS
 F:STR | CON | HIDE_TYPE |
 
 ### N:13:
-#(if you keep double weapons, add shield of floating here)
+#(if you decide to keep double weapons, add shield of floating here)
 #F:FLOAT | FEATHER | FREE_ACT   (FLOAT flag is not coded yet)
 
 ### Shields ###
@@ -312,6 +312,14 @@ F:INFRA | HIDE_TYPE
 #W:0:2:0:1000
 #T:32:0:99
 #F:LITE | RES_LITE
+
+# an ego for amulets of adornment only
+N:32:of Luck
+X:7:0
+W:0:7:0:2407
+T:40:2:2
+C:0:0:0:7
+F:EQLUCK
 
 N:33:of Telepathy
 X:20:0
@@ -923,7 +931,7 @@ F:STR | TUNNEL | BRAND_ACID | IMPACT | HIDE_TYPE
 
 N:102:of Morgul
 X:0:0
-W:0:5:0:1
+W:10:5:0:1
 C:0:0:0:0
 T:21:0:99
 T:22:0:99
@@ -999,7 +1007,7 @@ F:DEX | SHOTS | MIGHT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:111:of the Nazgul
 X:0:0
-W:0:2:0:0
+W:10:2:0:0
 C:10:10:0:0
 T:19:0:99
 F:LIGHT_CURSE | DRAIN_EXP | SEE_INVIS | BAD_WEAP
@@ -1439,7 +1447,7 @@ F:TCONTROL | HIDE_TYPE
 #stiletto specialty
 N:155:of Assassination
 X:19:0
-W:0:11:0:6000
+W:0:9:0:6000
 C:9:0:0:1
 T:23:8:8
 F:STEALTH | SPEED | BRAND_POIS | EXTRA_CRIT | HIDE_TYPE | BAD_WEAP
@@ -1471,7 +1479,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 #For weapons which already have the THROWN flag
 N:158:of Returning
 X:5:0
-W:0:12:0:350
+W:0:6:0:350
 C:4:4:0:0
 T:16:5:5
 F:RTURN
@@ -1481,7 +1489,7 @@ F:RTURN
 #Certain magic staffs only (light and zapping)
 N:159:of Constant Activation
 X:10:0
-W:20:15:0:1600
+W:20:12:0:1600
 C:3:3:0:0
 T:55:8:8
 T:55:10:10
@@ -1508,7 +1516,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 #another ego light (rare)
 N:162:of Magic Keeping
 X:9:0
-W:30:70:0:4600
+W:30:73:0:6400
 T:39:1:1
 C:0:0:0:2
 F:RES_STATC | RES_DISEN | MAGIC_MASTERY | FREE_ACT | SUST_INT

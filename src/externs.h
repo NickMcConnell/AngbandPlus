@@ -273,7 +273,7 @@ extern int cotval;
 extern int cosval;
 extern int cotvalb;
 extern int cosvalb;
-extern bool do_telekinesis(void);
+extern bool do_telekinesis(int maxd); /* in cmd2.c */
 extern int roamgroup1;
 extern int roamgroup2;
 extern int roamgroup3;
@@ -340,7 +340,7 @@ extern int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monst
 #endif
 extern int self_dam_aux(const object_type *o_ptr, int tdam);
 extern void search(void);
-extern byte py_pickup(int pickup);
+extern s16b py_pickup(int pickup);
 extern void hit_trap(int y, int x);
 extern void py_attack(int y, int x);
 extern void move_player(int dir);
@@ -578,7 +578,7 @@ extern bool get_nearby(int dy, int dx, int *toy, int *tox, int mode);
 
 /* spells2.c */
 extern bool hp_player(int num);
-extern void warding_glyph(void);
+extern bool warding_glyph(void);
 extern bool do_dec_stat(int stat, int loses);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat);
@@ -707,6 +707,7 @@ void do_cmd_options_item(void *, cptr);
 
 /* store.c */
 extern void do_cmd_store(void);
+extern void do_cmd_store_reallynow(void);
 extern void store_shuffle(int which);
 extern void store_maint(int which);
 extern void store_init(void);
@@ -784,6 +785,7 @@ extern bool is_a_vowel(int ch);
 extern int color_char_to_attr(char c);
 extern int color_text_to_attr(cptr name);
 extern cptr attr_to_text(byte a);
+extern void msg_flush(int x);
 
 #ifdef SUPPORT_GAMMA
 extern void build_gamma_table(int gamma);

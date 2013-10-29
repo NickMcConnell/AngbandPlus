@@ -907,8 +907,10 @@ D:  This prayer has no effect when used in the town.
 
 N:145:Annihilation
 I:91:8:5
-D:Inflicts 200 points of damage on a single monster that is not
-D: undead, a demon, an elemental, a golem, or a vortex.
+D:Inflicts 200 points of damage on a single living monster.
+D: If the monster has more than 2000 max hit points, the spell
+D: damage will be enhanced to up to 1/10 of the monster's max
+D: hit points or a maximum of 750 damage.
 
 #70
 N:146:Truce
@@ -1599,8 +1601,10 @@ D: holy orb except it usually doesn't do any damage to monsters.)
 
 N:259:Telekinesis
 I:93:3:4
-D:Allows you to pick up items which are in a different space as long as
-D: they are in line of sight.
+D:Allows you to pick up an item from a distance as long as it is
+D: either in line of sight or within the max range.  The max range
+D: is usually 8, but can be higher with good luck, and may be reduced with
+D: very bad luck.
 D: You must target an object or pile of objects in order for this spell to work.
 D: Very useful if there's a tough monster between you and a valuble object.
 
@@ -2438,8 +2442,9 @@ D: location, the next meteor may continue to find another target.
 
 N:378:Telekinesis
 I:94:7:6
-D:Allows you to pick up items which are in a different space as long as
-D: they are in line of sight.
+D:Allows you to pick up an item from a distance as long as it is
+D: either in line of sight or within the max range.  The max range
+D: is usually 8, but can be higher with good luck.
 D: You must target an object or pile of objects in order for this spell to work.
 D: Very useful if there's a tough monster between you and a valuble object.
 
@@ -2468,9 +2473,9 @@ D:Increases your alertness for 10 + (clvl*3) + 1d(clvl) turns.
 N:382:Call Darkness
 I:95:0:2
 D:Darkens the area around you and does very minor darkness damage to
-D: the monsters in the area.  Damage is 2d(clvl/2) + d(radius of the spell*2+1).
-D: (At clvl 2 it will do 3 to 7 damage)
-D: (radius is between 1 and 8 depending on your character level)
+D: the monsters in the area.  Damage is 2d(clvl/2) + d(radius of the spell+1) + 1.
+D: (At clvl 2 it will do 4 to 7 damage. The radius is between 1 and 11 depending
+D: on your character level.)
 D: Creatures of light take double damage.
 D: Also gives you short-lasting darkvision (allows you to see monsters without light).
 D: If you already have darkvision, then it temporarily raises your alertness.
@@ -2568,14 +2573,17 @@ D: dissapears.
 
 N:398:Witch's Disinfectant
 I:95:1:3
-D:Decreases poison and stunning by 4 + d(clvl/2), has two 1/3 chances of 
-D: decreasing sliming by 1, and does very slight damage to all jellies, 
-D: slimes, molds, mushroom patches, and worms in line of sight.
+D:Decreases poison by more than half and decreases stunning by 4 + d(clvl/2),
+D: has two 1/3 chances of decreasing sliming by 1, and does very slight
+D: damage to all jellies, slimes, molds, mushroom patches, and worms in line
+D: of sight.
 D: Has 10% chance of having slightly more potent effects if you are at least
-D: clvl 10.  Also slows the effects of blindness, frenzy, amnesia,
-D: and halucenation, and gives you temporary partial resistance to poison. 
+D: clvl 10.  Also slows the effects of frenzy, amnesia, and halucenation,
+D: and gives you temporary partial resistance to poison. If you manage to
+D: cast this spell while confused or blind, it will also cure confusion and
+D: blindness. If you are an assassin, this spell will also slow or cure fear.
 D: This spell requires blood to be shed for the curing of other 
-D: things (you inflict minor cuts on yourself when you cast the spell).
+D: things (you inflict very minor cuts on yourself when you cast the spell).
 
 N:399:Circle of Flame
 I:95:3:7
@@ -2601,21 +2609,16 @@ D:  The chance to get a beam goes up with your character level.
 N:402:Slip Into the Shadows
 I:95:7:0
 D:Doubles your stealth, and gives you a slight bonus to alertness and ac for
-D: 30 + d(clvl) turns. Usually has no effect if you are currently
-D: aggravating monsters.
+D: 30 + d(clvl) turns. If you are currently aggravating monsters, it
+D: will usually have no effect, but if you're lucky it has a chance
+D: to attempt to remove the curse.
 
-#currently unused
-N:403:Cause Mortal Wounds
-#I:95:2:7
-D:Inflicts damage on a single living monster.  In addition, fires
-D: a radius-1 shards ball at the same target.
-D: (lifeless monsters include undead, golems, vortexes, elementals,
-D:  mimmics, and a couple certain types of demons).
-D: Damage averages slightly more than ~60 at clvl 20,
-D: ~98 at clvl 36, and ~135 at clvl 48.
-D: Absolute minimum damage to affected monsters is 51.
-D: It's an insanely complicated damage formula -I don't know
-D: how I came up with it.
+N:403:Shadow Step
+I:95:1:8
+D:This is a short-lasting version of Slip Into the Shadows: It doubles your
+D: stealth, and gives you a slight bonus to alertness and ac for
+D: 15 + d15 turns. Has no effect if you are currently
+D: aggravating monsters.
 
 N:404:Greater Venom Bolt
 I:95:3:6
@@ -2625,12 +2628,10 @@ D: in its path.
 D:  The chance to get a beam goes up with your character level.
 
 #25
-#currently unused
-N:405:Breathe Withering
-#I:95:2:8
-D:Makes you breathe slowing and confusion plus damage.
-D: Damage averages ~50 on clvl 30, ~67 on clvl 40,
-D: and ~83 on clvl 50.
+N:405:Darkvision
+I:95:7:1
+D:Allows you to see monsters without light. Lasts 20 +
+D: d(character level) turns.
 
 N:406:Scare Monsters
 I:95:3:4
@@ -2706,7 +2707,7 @@ D:Removes all ordinary curses from all equipped items.
 D:  Heavy or permanent curses are not affected.
 
 N:417:Probing
-I:95:2:6
+I:95:2:7
 D:Probes each monster within line of sight, giving information on the
 D: current hit points of the monster and many of its characteristics
 D: and abilities (excluding its melee, spellcasting, and breath attacks).
@@ -2722,7 +2723,7 @@ D:Summons a demon to help you.
 
 #40
 N:420:Exorcise Demons
-I:95:2:7
+I:95:2:6
 D:Inflicts unresistable damage on each demon within line of sight.
 
 N:421:Detect Enchantment

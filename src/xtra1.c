@@ -1992,7 +1992,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	bool old_icky_wield;
 
     int aggra = 0;
-	int spbonus;
+	int spbonus, eqluck = 0;
 	bool yshield = FALSE;
 	bool throwgloves = FALSE;
 
@@ -2263,6 +2263,9 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Affect digging (factor of 20) */
 		if (f1 & (TR1_TUNNEL)) p_ptr->skills[SKILL_DIG] += (o_ptr->pval * 20);
 
+		/* Affect luck */
+		if (f1 & (TR1_EQLUCK)) eqluck += o_ptr->pval;
+
 		/* weapon in shield shot should not add blows */
 		if ((i == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) /* */;
 		/* Affect blows */
@@ -2286,11 +2289,14 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 	    if (f3 & (TR3_DARKVIS)) p_ptr->darkvis = TRUE;
 	    if (f2 & (TR2_NICE)) p_ptr->nice = TRUE;
-		if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2) && (p_ptr->throwmult < 2)) 
-			p_ptr->throwmult += 2;
-		else if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += o_ptr->pval;
 	    if (f3 & (TR3_BR_SHIELD)) p_ptr->breath_shield = TRUE;
 	    if (f3 & (TR3_TCONTROL)) p_ptr->telecontrol = TRUE;
+
+	    /* NOTE: THROWMULT will be positive even if the pval is negative */
+		if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2) && (p_ptr->throwmult < 2)) 
+			p_ptr->throwmult += 2;
+		else if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2)) p_ptr->throwmult += 1;
+        else if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += o_ptr->pval;
 
 		/* wearing something in the shield slot */
 		if (i == INVEN_ARM) yshield = TRUE;
@@ -2527,20 +2533,19 @@ void calc_bonuses(object_type inventory[], bool killmess)
     }
 	/* set maximum luck */
 	if (p_ptr->maxluck < p_ptr->luck) p_ptr->maxluck = p_ptr->luck;
-    /* further hit for black magic users*/
-    if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->luck > PY_LUCKCHECK_MAX - 4) &&
-       (randint(1000) < 2))
-	{
-       p_ptr->luck -= 1;
-    }
 	/* golems always have neutral base luck rating */
 	if (p_ptr->prace == 16) p_ptr->luck = 20;
 
     /* reset goodluck and badluck (p_ptr->luck == 20 is neutral) */
+	/* (some timed effects (below) give temporary goodluck or badluck) */
     goodluck = 0;
     if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
     badluck = 0;
     if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
+    
+    /* luck from equipment (not applied to permanent luck) */
+    if (eqluck > 0) goodluck += eqluck;
+    if (eqluck < 0) badluck += ABS(eqluck);
 
 	/* check silver & slime */
 	if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
@@ -3357,13 +3362,17 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Should never happen that an object has both TR3_BLESSED and TR3_BAD_WEAP */
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (f3 & (TR3_BAD_WEAP)))
     {
-		/* druids can use bad blunt weapons without penalty */
-        if (!cp_ptr->flags & CF_CHOOSE_SPELLS)
+		/* druids can use bad blunt weapons without icky_wield */
+        if (cp_ptr->spell_book == TV_PRAYER_BOOK)
 		{
            /* Icky weapon (temporary blessing overcomes) */
            if (!o_ptr->blessed) p_ptr->icky_wield = TRUE;
         }
     }
+    
+    /* Druids have less restriction than priests */
+    if ((cp_ptr->spell_book == TV_NEWM_BOOK) && (f4 & (TR4_DRUID)))
+       p_ptr->icky_wield = FALSE;
 
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;

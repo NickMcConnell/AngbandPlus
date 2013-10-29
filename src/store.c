@@ -2540,7 +2540,6 @@ bool store_overflow(void)
 	return FALSE;
 }
 
-
 /*
  * Process a command in a store
  *
@@ -2566,7 +2565,8 @@ static bool store_process_command(char cmd, void *db, int oid)
 		case 's':
 		case 'd':
 		{
-			store_sell();
+            /* can't interact with home from knowledge menu */
+            if (!p_ptr->fakehome) store_sell();
 			return TRUE;
 		}
 
@@ -2575,10 +2575,13 @@ static bool store_process_command(char cmd, void *db, int oid)
 		case '\n':
 		case '\r':
 		{
-			/* On successful purchase, redraw */
-			if (store_purchase(oid))
-				return TRUE;
-
+            /* can't interact with home from knowledge menu */
+            if (!p_ptr->fakehome)
+            {
+			    /* On successful purchase, redraw */
+		    	if (store_purchase(oid))
+			    	return TRUE;
+            }
 			break;
 		}
 
@@ -2608,7 +2611,7 @@ static bool store_process_command(char cmd, void *db, int oid)
 		/* Wear/wield equipment */
 		case 'w':
 		{
-			do_cmd_wield();
+			if (!p_ptr->fakehome) do_cmd_wield();
 			break;
 		}
 
@@ -2616,7 +2619,7 @@ static bool store_process_command(char cmd, void *db, int oid)
 		case 'T':
 		case 't':
 		{
-			do_cmd_takeoff();
+			if (!p_ptr->fakehome) do_cmd_takeoff();
 			break;
 		}
 
@@ -2624,7 +2627,7 @@ static bool store_process_command(char cmd, void *db, int oid)
 		case KTRL('D'):
 		case 'k':
 		{
-			do_cmd_destroy();
+			if (!p_ptr->fakehome) do_cmd_destroy();
 			break;
 		}
 
@@ -2714,8 +2717,11 @@ static bool store_process_command(char cmd, void *db, int oid)
 		/* EFGchange new command to buy out a store */
 		    /* ??? could not figure out how to use a new letter */
 		{
-			if (store_purchase_all())
-				return TRUE;
+			if (!p_ptr->fakehome)
+			{
+                if (store_purchase_all())
+				    return TRUE;
+            }
 			break;
 		}
 #else
@@ -2756,7 +2762,8 @@ static bool store_process_command(char cmd, void *db, int oid)
 		case '~':
 		case '|':
 		{
-			do_cmd_knowledge();
+			/* don't go to knowledge menu from the knowledge menu */
+            if (!p_ptr->fakehome) do_cmd_knowledge();
 			break;
 		}
 
@@ -2775,21 +2782,29 @@ static bool store_process_command(char cmd, void *db, int oid)
 
 /*
  * Enter a store, and interact with it.
+ * 
+ * bool fakehome is a hack to allow
+ * this function to double as a home inventory knowledge function
+ * from the knowledge menu.
  */
-void do_cmd_store(void)
+/* void do_cmd_store(void) */
+void do_cmd_store_reallynow(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	bool leave = FALSE;
 
-	/* Verify that there is a store */
-	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+	if (!p_ptr->fakehome)
 	{
-		msg_print("You see no store here.");
-		return;
-	}
+        /* Verify that there is a store */
+    	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
+	          (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+	    {
+		    msg_print("You see no store here.");
+    		return;
+	    }
+    }
 
 
 	/* Check if we can enter the store */
@@ -2811,10 +2826,17 @@ void do_cmd_store(void)
 
 	/*** Set up state ***/
 
+    if (p_ptr->fakehome) store_current = STORE_HOME;
+    
 	/* XXX Take note of the store number from the terrain feature */
-	store_current = (cave_feat[py][px] - FEAT_SHOP_HEAD);
+	else store_current = (cave_feat[py][px] - FEAT_SHOP_HEAD);
 
-
+	/* you stink */
+	if ((p_ptr->timed[TMD_STINKY]) && (store_current != STORE_HOME))
+	{
+		msg_print("The shopkeeper kicks you out and tells you to take a bath.");
+		return;
+	}
 
 	/*** Display ***/
 
@@ -2834,13 +2856,6 @@ void do_cmd_store(void)
 
 	store_type *st_ptr = &store[store_current];
 
-	/* you stink */
-	if ((p_ptr->timed[TMD_STINKY]) && (store_current != STORE_HOME))
-	{
-		msg_print("The shopkeeper kicks you out and tells you to take a bath.");
-		return;
-	}
-
 	/* Wipe the menu and set it up */
 	WIPE(&menu, menu);
 	menu.flags = MN_DBL_TAP | MN_PAGE;
@@ -2856,7 +2871,7 @@ void do_cmd_store(void)
 	/* Loop */
 	while (!leave)
 	{
-		/* As many rows in the menus as there are items in the store */
+        /* As many rows in the menus as there are items in the store */
 		menu.count = st_ptr->stock_num;
 
 		/* Roguelike */
@@ -2890,7 +2905,7 @@ void do_cmd_store(void)
 			menu.prompt = NULL;
 
 		menu_layout(&menu, &menu.boundary);
-
+		
 		evt.type = EVT_MOVE;
 		/* Get a selection/action */
 		while (evt.type == EVT_MOVE)
@@ -2939,7 +2954,7 @@ void do_cmd_store(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	if (!p_ptr->fakehome) p_ptr->energy_use = 100;
 
 
 	/* Hack -- Cancel automatic command */
@@ -2968,4 +2983,11 @@ void do_cmd_store(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
+}
+
+/* */
+void do_cmd_store(void)
+{
+    p_ptr->fakehome = FALSE;
+    do_cmd_store_reallynow();
 }
