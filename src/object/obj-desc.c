@@ -123,6 +123,7 @@ static const char *obj_desc_get_modstr(const object_type *o_ptr)
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
 			return (k_name + k_ptr->name);
+
 	}
 
 	return "";
@@ -171,6 +172,7 @@ static const char *obj_desc_get_basename(const object_type *o_ptr)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		case TV_LITE:
+		case TV_CRAFTING:
 			return (k_name + k_ptr->name);
 
 		case TV_AMULET:

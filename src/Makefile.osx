@@ -19,9 +19,9 @@ CC = gcc
 OPT ?= -O2
 
 # Name of the game
-NAME =Angband
+NAME = Craftband
 APPNAME =$(NAME).app
-EXE =angband
+EXE =craftband
 
 # Some Developer CD tools we need - the standard installation location
 TOOLDIR = /Developer/Tools
@@ -134,8 +134,8 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.png for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in
 # the lib/xtra/graf directory and rebuild.
-ICONFILES = osx/Angband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
-PLIST = osx/Angband.xml
+ICONFILES = osx/Craftband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+PLIST = osx/Craftband.xml
 
 GRAPHSRC=../lib/xtra/graf/
 TILES = $(GRAPHSRC)8x8.png $(GRAPHSRC)16x16.png $(GRAPHSRC)32x32.png
@@ -198,13 +198,13 @@ PACKAGE_NAME = $(NAME)-$(VERSION)
 dist: install
 	@rm -rf disttemp*
 	mkdir -p disttemp/Docs
-	cp ../readme.txt ../changes.txt disttemp/Docs
-	cp -R -p "$(APPBNDL)" disttemp
+	cp ../*.txt disttemp
+	CpMac -r -p "$(APPBNDL)" disttemp
 	$(SETFILE) -a B disttemp/$(APPNAME)
 
-	@-rm ../"$(PACKAGE_NAME)-osx.dmg"
+	@-rm ../"$(PACKAGE_NAME).dmg"
 
-	hdiutil create -quiet -fs HFS+ -volname $(PACKAGE_NAME) -srcfolder disttemp disttemp.dmg
-	hdiutil convert disttemp.dmg -quiet -format UDZO -imagekey zlib-level=6 -o ../"$(PACKAGE_NAME)-osx.dmg"
+	hdiutil create -volname $(PACKAGE_NAME) -srcfolder disttemp disttemp.dmg
+	hdiutil convert disttemp.dmg -format UDZO -imagekey zlib-level=6 -o ../"$(PACKAGE_NAME).dmg"
 
 	rm -rf disttemp*

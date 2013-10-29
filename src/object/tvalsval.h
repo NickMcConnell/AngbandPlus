@@ -60,6 +60,7 @@
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
 #define TV_GOLD         100	/* Gold can only be picked up by players */
+#define TV_CRAFTING		101 /* All crafting-only materials have the same tval */
 
 
 
@@ -369,7 +370,15 @@ enum sval_gold /* tval 100 */
  */
 #define SV_UNKNOWN			255
 
-
+enum sval_crafting /* tval 101 */
+{
+	SV_CRAFTING_STEEL = 0,
+	SV_CRAFTING_MITHRIL = 1,
+	SV_CRAFTING_LEATHER = 2,
+	SV_CRAFTING_THICK_LEATHER = 3,
+	SV_CRAFTING_ASH_WOOD = 4,
+	SV_CRAFTING_OAK_WOOD = 5
+};
 
 
 

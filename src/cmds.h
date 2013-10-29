@@ -94,6 +94,9 @@ typedef enum
 
 void do_cmd_use(object_type *o_ptr, int item, int snd, use_type use);
 
+/* Crafting command hook */
+extern void do_cmd_open_crafting_menu(void);
+
 
 #endif
 

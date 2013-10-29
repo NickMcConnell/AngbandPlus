@@ -1,3 +1,14 @@
+Craftband 0.1
+=============
+
+Thanks to:
+
+Andrew Sidwell, Chris Carr, Paul Blay, Atarlost, and Elly for valuable input
+on both the coding and design sides.
+
+Angband Thanks
+==============
+ 
 If your name should be included in this file and it's not, please email us
 so we can fix it. :)
 

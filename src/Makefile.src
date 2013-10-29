@@ -5,7 +5,7 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-VERSION = 3.1.0beta
+VERSION = 0.1
 COPYRIGHT = (c) 1995-2009 Angband contributors
 
 HEADERS = \
@@ -64,6 +64,7 @@ ANGFILES = \
 	cmd5.o \
 	cmd6.o \
 	cmd-obj.o \
+	crafting.o \
 	death.o \
 	debug.o \
 	dungeon.o \

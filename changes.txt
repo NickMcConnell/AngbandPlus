@@ -1,3 +1,13 @@
+Craftband 0.1
+=============
+
+This is a variant of Angband devoted to adding crafting of items to the game.
+
+This release adds a crafting menu to the game, a few crafting recipes, and
+some basic crafting components.  Some items can be broken down to extract
+crafting components, and these components can be combined to make a small
+set of items.
+
 Angband 3.1.0
 =============
 

@@ -83,7 +83,7 @@ static void flavor_assign_random(byte tval)
 
 		/* Select a flavor */
 		choice = randint0(flavor_count);
-	
+
 		/* Find and store the flavor */
 		for (j = 0; j < z_info->flavor_max; j++)
 		{
@@ -1588,7 +1588,7 @@ static s32b object_value_real(const object_type *o_ptr, int qty)
 			/* Done */
 			break;
 		}
-		
+
 		default:
 		{
 			total_value = value * qty;
@@ -1667,10 +1667,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
-
 	/* Require identical object types */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
-
 
 	/* Analyze the items */
 	switch (o_ptr->tval)
@@ -1759,7 +1757,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			if (o_ptr->name2 != j_ptr->name2) return (FALSE);
 
 			/* Hack - Never stack recharging items */
-			if ((o_ptr->timeout || j_ptr->timeout) && o_ptr->tval != TV_LITE) 
+			if ((o_ptr->timeout || j_ptr->timeout) && o_ptr->tval != TV_LITE)
 				return FALSE;
 
 			/* Lites must have same amount of fuel */
@@ -2164,7 +2162,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 			/* Option -- disallow stacking */
 			if (adult_no_stacking && (k > 1)) continue;
-			
+
 			/* Paranoia? */
 			if ((k + n) > MAX_FLOOR_STACK) continue;
 

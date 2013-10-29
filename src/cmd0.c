@@ -143,10 +143,11 @@ static command_type cmd_util[] =
 	{ "Redraw the screen",    KTRL('R'), do_cmd_redraw },
 
 	{ "Load \"screen dump\"",       '(', do_cmd_load_screen },
-	{ "Save \"screen dump\"",       ')', do_cmd_save_screen }
+	{ "Save \"screen dump\"",       ')', do_cmd_save_screen },
+	{ "Open Crafting Menu",         'O', do_cmd_open_crafting_menu }
 };
 
-/* Commands that shouldn't be shown to the user */ 
+/* Commands that shouldn't be shown to the user */
 static command_type cmd_hidden[] =
 {
 	{ "Take notes",               ':', do_cmd_note },
@@ -598,7 +599,7 @@ void cmd_init(void)
 		{
 			unsigned char key = commands[i].key;
 
-			/* Note: at present converted_list is UCHAR_MAX + 1 
+			/* Note: at present converted_list is UCHAR_MAX + 1
 			   large, so 'key' is always a valid index. */
 			converted_list[key] = commands[i].hook;
 		}
@@ -622,7 +623,7 @@ void cmd_init(void)
 				if (!converted_list[i])
 					converted_list[i] = do_cmd_unknown;
 			}
-		}		
+		}
 	}
 }
 

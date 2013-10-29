@@ -706,6 +706,10 @@ void object_info_header(const object_type *o_ptr)
 			         o_ptr->origin_depth * 50,
 			         o_ptr->origin_depth);
 			break;
+
+		case ORIGIN_CRAFTED:
+			text_out("You crafted it yourself.");
+			break;
 	}
 
 	text_out("\n");
