@@ -2089,7 +2089,7 @@ void py_attackself(const object_type *o_ptr)
 		if (randint(45) < (badluck+20)) p_ptr->confusing = FALSE;
 
         /* umber hulk always has glowing hands */
-	    if (cp_ptr->flags & CF_HULK_CONF) p_ptr->confusing = TRUE;
+	    if (p_ptr->prace == 17) p_ptr->confusing = TRUE;
 
 		/* Message */
 		if (p_ptr->confusing == FALSE)
@@ -2256,8 +2256,8 @@ void py_attack(int y, int x)
 			/* Hack -- bare hands do one damage */
 			k = 1;
 			
-            /* barbarians and hulks to more damage with bare hands */
-			if ((!o_ptr->k_idx) && (cp_ptr->flags & CF_HEAVY_BONUS))
+            /* barbarians and hulks to a little more damage with bare hands */
+			if ((!o_ptr->k_idx) && ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)))
 			{
 				if (p_ptr->lev >= 5) k += 1 + randint(p_ptr->lev/5);
                 excrit += 2;
@@ -2268,6 +2268,9 @@ void py_attack(int y, int x)
 			{
 				int strb, strdec, nocritk;
 				bool doublehit = FALSE;
+				int wweight = o_ptr->weight / 10;
+				object_type *oarm_ptr = &inventory[INVEN_ARM];
+				
 				k = damroll(o_ptr->dd, o_ptr->ds);
 
 				/* double weapons (should it be 2,4 & 6 or just 2?) */
@@ -2277,33 +2280,41 @@ void py_attack(int y, int x)
 					doublehit = TRUE;
 				}
 				
+				/* not wielding a shield */
+				if ((!oarm_ptr->k_idx) && (!p_ptr->heavy_wield))
+				{
+					/* raises strength bonus */
+					if (wweight >= 10) wweight += 2;
+				}
+				
 				/* complex strength bonus by weight */
                 strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-				if ((o_ptr->weight / 10) < 2) strb = strb / 6;
-				else if ((o_ptr->weight / 10) < 3) strb = strb / 4;
-				else if ((o_ptr->weight / 10) < 4) strb = strb / 2;
-				else if ((o_ptr->weight / 10) < 5) strb = (strb * 2) / 3;
-				else if ((o_ptr->weight / 10) < 6) strb = (strb * 3) / 4;
-				else if ((o_ptr->weight / 10) < 7) strb = (strb * 5) / 6;
-				if (cp_ptr->flags & CF_HEAVY_BONUS) /* barbarians like heavy weapons */
+				if (wweight < 2) strb = strb / 6;
+				else if (wweight < 3) strb = strb / 4;
+				else if (wweight < 4) strb = strb / 2;
+				else if (wweight < 5) strb = (strb * 2) / 3;
+				else if (wweight < 6) strb = (strb * 3) / 4;
+				else if (wweight < 7) strb = (strb * 5) / 6;
+				/* barbarians & umber hulks like heavy weapons */
+				if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)) 
 				{
-					if ((o_ptr->weight / 10) > 26) strb = (strb * 13) / 6;
-					else if ((o_ptr->weight / 10) > 20) strb = strb * 2;
-					else if ((o_ptr->weight / 10) > 17) strb = (strb * 7) / 4;
-					else if ((o_ptr->weight / 10) > 15) strb = (strb * 3) / 2;
-					else if ((o_ptr->weight / 10) > 12) strb = (strb * 4) / 3;
-					else if ((o_ptr->weight / 10) > 10) strb = (strb * 5) / 4;
-					else if ((o_ptr->weight / 10) == 10) strb = (strb * 6) / 5;
+					if (wweight > 26) strb = (strb * 13) / 6;
+					else if (wweight > 20) strb = strb * 2;
+					else if (wweight > 17) strb = (strb * 7) / 4;
+					else if (wweight > 15) strb = (strb * 3) / 2;
+					else if (wweight > 12) strb = (strb * 4) / 3;
+					else if (wweight > 10) strb = (strb * 5) / 4;
+					else if (wweight == 10) strb = (strb * 6) / 5;
 					if ((o_ptr->weight / 10) > 10) strb += 1;
 				}
 				else
 				{
-					if ((o_ptr->weight / 10) > 25) strb = strb * 2;
-					else if ((o_ptr->weight / 10) > 21) strb = (strb * 7) / 4;
-					else if ((o_ptr->weight / 10) > 17) strb = (strb * 3) / 2;
-					else if ((o_ptr->weight / 10) > 15) strb = (strb * 4) / 3;
-					else if ((o_ptr->weight / 10) > 12) strb = (strb * 5) / 4;
-					else if ((o_ptr->weight / 10) > 10) strb = (strb * 6) / 5;
+					if (wweight > 25) strb = strb * 2;
+					else if (wweight > 21) strb = (strb * 7) / 4;
+					else if (wweight > 17) strb = (strb * 3) / 2;
+					else if (wweight > 15) strb = (strb * 4) / 3;
+					else if (wweight > 12) strb = (strb * 5) / 4;
+					else if (wweight > 10) strb = (strb * 6) / 5;
 				}
 				strdec = (strb / 10);
 				if (doublehit) k += strdec/2;
@@ -2316,12 +2327,12 @@ void py_attack(int y, int x)
                 /* (done away with the breakpoints) */
                 /* DJA: add strength bonus to damage before multipliers */
                 /* (no strength bonus for very light weapons) */
-	            if ((o_ptr->weight / 10) > 4)
+	            if (wweight > 4)
 	            {
                    k += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
                    
                    /* double strength bonus for very heavy weapons (heavier than 15 lb) */
-                   if ((o_ptr->weight / 10) > 15) k += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+                   if (wweight > 15) k += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
                 }
 #endif
 
@@ -2333,10 +2344,10 @@ void py_attack(int y, int x)
 				{
 					/* at least 48 damage or crit */
 					int quk, qrad;
-					if (nocritk > 59) quk = 3 + ((nocritk-48)/12);
-					else if (k > 47) quk = 3;
+					if (nocritk > 59) quk = 2 + ((nocritk-48)/12);
+					else if (k > 47) quk = 2;
 					/* very common on critical hit, rarely otherwise */
-					if (k > nocritk) quk += 72 + ((k-nocritk)/10);
+					if (k > nocritk) quk += 72 + ((k-nocritk)/18);
 					/* roll for quake */
 					if (rand_int(100) < quk)
 					{
@@ -2446,7 +2457,7 @@ void py_attack(int y, int x)
 				p_ptr->confusing = FALSE;
 
                 /* umber hulk always has glowing hands */
-	            if (cp_ptr->flags & CF_HULK_CONF)
+	            if (p_ptr->prace == 17)
                 {
        	           p_ptr->confusing = TRUE;
                 }
@@ -2838,14 +2849,14 @@ void move_player(int dir)
     {
         bool climbit = FALSE;
         if (p_ptr->timed[TMD_MIND_CONTROL]) climbit = TRUE;
-        else if (p_ptr->prace == 15) climbit = TRUE;
+        else if (p_ptr->prace == 15) climbit = TRUE; /* power sprites fly over rubble easily */
         else if (get_check("Try to climb over the rubble? ")) climbit = TRUE;
         if (climbit)
         {
 			if (p_ptr->timed[TMD_MIGHTY_HURL]) mighty = TRUE;
 			/* an extremely strong barbarian or hulk is also mighty */
 			if ((((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 7) && 
-				(cp_ptr->flags & CF_HEAVY_BONUS)) mighty = TRUE;
+				((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17))) mighty = TRUE;
 			/* climbing strength based on encumberance and strength */
 			/* reference: STR10: (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 10) = 130 */
 			/* reference: STR14: (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 10) = 170 */
@@ -2855,7 +2866,7 @@ void move_player(int dir)
 			/* (p_ptr->total_weight/10) is usually close to half of the above */
             climbstr = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 9);
             climbstr += (adj_str_wgt[p_ptr->stat_ind[A_DEX]] * 2);
-            climbdif = 68 + (p_ptr->depth/4); /* was 95 + (p_ptr->depth/4) */
+            climbdif = 68 + (p_ptr->depth/5); /* was 95 + (p_ptr->depth/4), then 68 + (p_ptr->depth/4) */
             /* cap difficulty */
             if (climbdif > 90 - goodluck) climbdif -= (climbdif-90-goodluck)/2;
 			/* harder to climb onto rubble from inside a pit */
@@ -2915,12 +2926,12 @@ void move_player(int dir)
 		if (p_ptr->timed[TMD_MIGHTY_HURL]) mighty = TRUE;
 		/* an extremely strong barbarian or hulk is also mighty */
 		if ((((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 7) &&
-			(cp_ptr->flags & CF_HEAVY_BONUS)) mighty = TRUE;
+			((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17))) mighty = TRUE;
 		/* climbing strength based on encumberance and strength */
         climbstr = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 8);
         climbstr += (adj_str_wgt[p_ptr->stat_ind[A_DEX]] * 3);
 		/* climbdif = 68 + (p_ptr->depth/4); (easier than climbing over rubble) */
-        climbdif = 53 + (p_ptr->depth/3);
+        climbdif = 54 + (p_ptr->depth/4); /* was 53 + depth/3 */
 		if (climbdif > 80) climbdif = 81; /* cap */
 		/* always succeed with MIGHTY_HURL */
 		if (mighty) climbstr += 200;

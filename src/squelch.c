@@ -787,7 +787,7 @@ bool squelch_hide_item(const object_type *o_ptr)
 	if (p_ptr->timed[TMD_MIGHTY_HURL]) mighty = TRUE;
 	/* an extremely strong barbarian or hulk is also mighty */
 	if ((((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 7) && 
-		(cp_ptr->flags & CF_HEAVY_BONUS)) mighty = TRUE;
+		((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17))) mighty = TRUE;
 
 	/* Bigs rocks are always hidden unless you are "mighty" */
 	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK) && (!mighty))

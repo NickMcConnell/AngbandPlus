@@ -700,17 +700,19 @@ static void player_outfit(void)
 
 	/* Hack -- give the player hardcoded equipment XXX */
 
-	/* Get local object */
-	i_ptr = &object_type_body;
+	if (!(p_ptr->prace == 16)) /* (Golems don't eat) */
+	{
+		/* Get local object */
+		i_ptr = &object_type_body;
 
-	/* Hack -- Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 7);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-        k_info[i_ptr->k_idx].everseen = TRUE;
-	(void)inven_carry(i_ptr);
-
+		/* Hack -- Give the PC some food */
+		object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+		i_ptr->number = (byte)rand_range(3, 7);
+		object_aware(i_ptr);
+		object_known(i_ptr);
+    	    k_info[i_ptr->k_idx].everseen = TRUE;
+		(void)inven_carry(i_ptr);
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -803,7 +805,7 @@ static void race_aux_hook(int race, void *db, const region *reg)
 	else if (p_info[race].b_age == 76) strnfmt(s, sizeof(s), "has sustained dexterity and resistance to dark.  ");
 	else if (p_info[race].b_age == 16) strnfmt(s, sizeof(s), "has resistance to nether and can see invisible.  ");
 	else if (p_info[race].b_age == 23) strnfmt(s, sizeof(s), "has feather falling, resistance to light & fear. ");
-	else if (p_info[race].b_age == 52) strnfmt(s, sizeof(s), "*novelty race, must be the hulk class. (F)       ");
+	else if (p_info[race].b_age == 52) strnfmt(s, sizeof(s), "has confusion resistance, confusion attacks,     ");
 	else /* only other one is Golem */
 	{
 		strnfmt(s, sizeof(s), "has resistance to poison, fire, and shards,      ");
@@ -811,7 +813,7 @@ static void race_aux_hook(int race, void *db, const region *reg)
 	}
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
 	/* ugly hack using base age to identify race, but I couldn't figure out how to do it by index number */
-	if (p_info[race].b_age == 52) strnfmt(s, sizeof(s),      "has confusion resistance and aggravates monsters.");
+	if (p_info[race].b_age == 52) strnfmt(s, sizeof(s),      "easy digging, causes earthquakes, and BAD stealth");
 	/* else if (p_info[race].b_age == 14) strnfmt(s, sizeof(s), "gets +1 to one random stat a.            "); */
 	else if (golemrace) strnfmt(s, sizeof(s),                "throws powerfully and does not heal naturally.   ");
 	else strnfmt(s, sizeof(s),                               "                                                 ");
@@ -1211,7 +1213,7 @@ static bool player_birth_aux_1(bool start_at_end)
 	if (clash == 14) text_out_c(TERM_L_RED, "Sorry, a living ghoul cannot be the class you chose.");
 	if (clash == 15) text_out_c(TERM_L_RED, "Sorry, a power sprite cannot be the class you chose.");
 	if (clash == 16) text_out_c(TERM_L_RED, "Sorry, a golem cannot be the class you chose.");
-	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an uber umber hulk must be the hulk class.");
+	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an umber hulk cannot be the class you chose.");
 	if (clash == 40) text_out_c(TERM_L_RED, "Sorry, only an uber umber hulk can be the hulk class.");
 	/* chose a blank class */
 	if (clash == -5) text_out_c(TERM_L_RED, "Please choose a class.");
@@ -2108,10 +2110,14 @@ for (;clash < 50;)
                          if ((p_ptr->pclass == 10) || (p_ptr->pclass == 14) || (p_ptr->pclass == 13))
                          clash = 16;
                       }
-                    /* umber hulk must be hulk class */
-                    if ((p_ptr->prace == 17) && (p_ptr->pclass != 32)) clash = 17;
-                    /* no other race can be hulk class */
-                    if ((p_ptr->pclass == 32) && (p_ptr->prace != 17)) clash = 40;
+                    /* umber hulk cannot be ranger, archer, or war mage */
+                    if (p_ptr->prace == 17)
+                      {
+                         if ((p_ptr->pclass == 4) || (p_ptr->pclass == 6) || (p_ptr->pclass == 16))
+                         {
+                            clash = 13;
+                         }
+                      }
 
                     /* make sure the player doesn't choose a blank class */
                     if (c_info[p_ptr->pclass].max_attacks < 2) clash = -5;

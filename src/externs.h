@@ -272,6 +272,7 @@ extern void fill_template(char buf[], int max_buf);
 /* DJA */
 extern int range;
 extern int spellswitch; /* for hacking, see comment at bottom of variable.c */
+extern int summoner;
 extern int losesave;
 extern int goodluck;
 extern int badluck;
@@ -488,7 +489,7 @@ extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
 extern void display_inven(void);
 extern void display_equip(void);
 extern void show_inven(void);
-extern void show_equip(void);
+extern void show_equip(int mode);
 extern void show_floor(const int *floor_list, int floor_num, bool gold);
 extern void toggle_inven_equip(void);
 extern bool verify_item(cptr prompt, int item);

@@ -1,5 +1,5 @@
 # File: terrain.txt
-# DaJAngband 1.2.0
+# for DaJAngband 1.2.2
 
 
 # This file is used to initialize the "lib/data/terrain.raw" file, which is

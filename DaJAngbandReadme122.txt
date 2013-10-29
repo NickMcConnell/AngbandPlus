@@ -4,6 +4,34 @@ Thanks to:
 Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch, Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or just plays DaJAngband.
 ------------------------------------------------------------------------------------------
 
+version 1.2.2 fixes the following bugs:
+  (everburning) torches & lanterns don't give off light
+  fixed bug: some monsters described as bugs which shouldn't be
+  fixed extra message when using stone to mud on a vein with treasure
+  a couple extremely minor bugs related to the HEAL_OTHR monster spell fixed
+  fixed bug: Excorsise demons necromancer spell never worked on more than one demon
+  (hopefully) fixed crash bug mentioned here: http://angband.oook.cz/forum/showpost.php?p=37451&postcount=1  (caused by the 'load a saved game' function ignoring the fact that some monsters can be temporarily dead.)
+
+Other changes since 1.2.1:
+  objects hidden in rubble are no longer restricted to non-gold
+  golems no longer start with food (because they can't eat)
+  teleport control is slightly more reliable
+  'of wounding' with low bonuses pseudos as good instead of excellent
+  object detection range is reduced and extra dice is hidden when item is not IDed or pseudoed
+  certain ego types (including psuedo-randarts) have greater chance for extra dice.
+  psuedo-randart weapons generally improved as weapons (chance for KILL slays among other things)
+  athame and fur cloak weigh slightly less than they used to
+  some more useful scrolls and potions have a small chance to appear in (usually small) stacks
+  call darkness spell can now do damage without alerting the monster to your presense 
+(if d8 < your character level)
+  room spaces in the area of an earthquake which don't get damage no longer lose the CAVE_ROOM flag (this makes it much easier to re-light areas which have been darkened by earthquakes),
+  tweaked rubble-climbing difficulty again (made slightly easier)
+  putting something into the quiver (^q) is now a completely separate command from wielding an item (w). (This allows you to wield something directly from your quiver into your weapon slot and vice versa).
+  not wearing a shield now slightly raises your strength bonus to damage for weapons at least 10lb
+  mind flayers notice you faster if you have telepathy, also telepathy worsens your saving throw against mind blasting. Confusion from mind blasting may bypass Rconf if you have telepathy and bad luck.
+  recharging prayer is a little stronger (still weaker than greater recharging wizard spell)
+  if monster doesn't prefer ranged attacks/spells then range attacks are less common when in melee range
+
 version 1.2.1 fixes the following bugs:
   monster generation messiness (including very few >L50 monsters, inappropriate escorts & pit monsters, etc)
   crash when recalling non-specific statue (like from knowledge menu)

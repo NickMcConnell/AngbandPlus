@@ -1,5 +1,5 @@
 # File: ego_item.txt
-# DaJAngband 1.2.2
+# DaJAngband 1.2.0
 
 
 # This file is used to initialize the "lib/data/ego_item.raw" file, which is
@@ -18,85 +18,20 @@
 # === Understanding ego_item.txt ===
 
 # N: serial number : ego type
-# R: randsus : randres : randlowr : randpow : randslay : randbran : randbon : randplu : randdrb
-# X: esprace : randact : unused
+# X: rating : xtra
 # C: max to-hit : max to-dam : max to-ac : pval
-# W: depth : rarity : rating : weight : cost
+# W: depth : rarity : weight : cost
 # T: tval : min_sval : max_sval
 # F: flag | flag | etc
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new item.
 
-# *** NEW
-# 'R' is for random attributes:
-#   randsus = how many random sustains on the item (0, 1, or 2)
-# Sustains prevent stat drains for strength, dexterity, constitution, wisdom,
-# intelligence, or charisma.
-#   randres = how many random high resists on the item (0, 1, 2, or 3)
-# Random 'high' resistances include resistances to: poison, fear, light, dark,
-# blindness, confusion, sound, shards, nexus, nether, chaos, disenchantment,
-# charm, static (drain charges), slime, and silver poison.
-#   randlowr = how many low random resists on the item (0, 1, or 2)
-# 'Low' resistances are fire, cold, acid, and lightning.
-#   randpow = how many random powers on the item (0, 1, or 2)
-# Random powers include: slow digestion, feather falling, free action,
-# see invisible, permanent light, regeneration, telepathy, hold life, darkvision,
-# breath shield (damage reduction vs monster breath), teleport control and throwing might.
-#   randslay = how many random slays on the item (0, 1, or 2)
-# Random slays include slays against: orcs, trolls, giants, undead, demons, dragons,
-# creatures vulnerable to silver, bugs, silver (grepse) monsters, and creatures of light.
-#   randbran = whether there is a random brand on the item (always 0 or 1).
-# Chooses a brand type from poison, fire, cold, acid, and lightning.
-#   randbon = how many random bonuses on the item (0, 1, or 2)
-# Random bonuses include bonuses to: magic device skill, stealth, alertness,
-# luck, tunneling, and speed. These are modified by the item's pval.
-#   randplu = how many random pluses on the item (0, 1, or 2)
-# Random plusses are plusses to stats (strength, dexterity, constitution, wisdom,
-# intelligence, or charisma) modified by the item's pval.
-#   randdrb = how many random drawbacks on the item (0, 1, or 2)
-# Random drawbacks include: corruption, aggravation, accidents (causes you to hit
-# yourself sometimes), earthquake blows, prevent hp regeneration, random teleportation,
-# experience drain, the enchantment of peace (reduces blows per turn by 1, and
-# hinders combat in various other ways but has minor advantages also), or 
-# random annoyances (once in awhile does something annoying).
-#   You may have up to 3 random resistances on an ego, and up to 2 of any
-# other random attribute.
-#   Special: Random Immunity: If you put 3 for randdrb, the item will get 2 random
-# drawbacks AND a random immunity. An ego may only have a random immunity if it also
-# has the drawbacks.  randdrb has another magic number coded: If you put 11 for randdrb,
-# then the item will have a random drawback about half the time.
-#   Special: magic number 9: If you put a 9 for the number of any random attribute,
-# (except randbran) Then it will have 1d2 random attributes of that type (or 1d3 for
-# the random high resists).  It will read any other value you enter as 1, except
-# randres and randdrb will read weird values as 2.
-#   Any ego which has two random slays (or any other random attribute type) may end
-# up getting only one because it drew the same random attribute twice.
-#   *If an item gets regeneration as a random power and regeneration prevention as a
-# random drawback, it will not remove either one because they both still have an effect:
-# While hit point regeneration is stopped, regeneration will still made you regain mana
-# faster.
-
-# 'X' is for extra item powers: 
-#   esprace is a code for items which have race-specific ESP, like this:
-# 0-none, 1=orcs, 2=trolls, 3=giants, 4=undead, 5=dragons, 6=demons
-# 7=light fairies, 8=bugs, 9=grepse (silver monsters),..
-# Special esprace codes are: 40 = random esprace,
-# 34 = 35% chance of ESP for undead, 
-# 35 = 35% chance of ESP for dragons, 36 = 50% chance of ESP for demons
-# 41 = matches one of the random slays, 
-# 42 = 35% chance of having racial ESP matching one of the random slays.
-# The range for race-specific ESP is only half the range of full ESP.
-#   randact is not implemented yet and currently has no effect.  Maybe at some
-# point I will add random activations for egos.
-#   ...
-
-# *** OLD
-# X: rating : xtra
-# 'X' is for extra information -  The xtra value determines random extra
-# flags for the ego-item.  Nothing happens with a value of 0, 1 stands
-# for "one random extra sustain", 2 is "one random extra resist", and 3 is
-# "one random extra ability".
+# 'X' is for extra information - Rating affects level feelings.
+# The xtra value determines random extra flags for the ego-item.
+# Nothing happens with a value of 0, 1 stands for "one random extra
+# sustain", 2 is "one random extra resist", and 3 is "one random
+# extra ability".
 
 # 'C' is for creation bonusses - maximum to-hit, to-dam, to-ac, and
 # pval. Cursed ego-items will negate the given value.
@@ -105,43 +40,34 @@
 
 # 'W' is for extra information. Depth is the depth the object is
 # normally found at, rarity determines how common the object is,
-# rating affects level feelings, weight is in tenth-pounds and cost is
-# the items value.
+# weight is in tenth-pounds and cost is the items value.
 
 # 'F' is for flags. These are fairly self-explanatory. As many F:
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
 
 # 'T' is for possible 'tval' and 'sval' values of the base-item.
-# Up to five 'T' entries are possible for a single ego type. The
+# Up to three 'T' entries are possible for a single object. The
 # ego-item can only be generated from items of this tval, with sval
 # in the specified range.
 
-#  The following ego weapon types have greater chance to get extra dice:
-#(percent chance for automatic +1 dice is in addition to usual small chance of extra dice)
-# 96  CRITICAL_WEIGHT (35%)
-# 126 CRITICAL_AMMO (20%) (extra dice chance for throwing weapons, not missile ammo)
-# 141 GORING (9%)
-# 155 ASSASSIN (16%)
-# 134, 135, 136, 137, 138, 147 all "of randomness" weapon egos (pseudo-randarts) (10%)
-# (coded by ego index)
-
 
 # Version stamp (required)
+
 V:3.0.10
 
 #one ego torch or lantern (has lower light radius) (made slightly rarer)
 #another ego light at the end
 N:1:of Darkvision
-#X:5:0
-W:3:25:5:0:1800
+X:5:0
+W:3:25:0:1800
 T:39:0:1
 F:DARKVIS | EASY_KNOW
 
 #Heavy shields
 N:2:of Lightness
-#X:4:0
-W:0:3:4:60:500
+X:5:0
+W:0:3:60:800
 C:0:0:6:0
 T:34:4:99
 F:FEATHER | LIGHTNESS
@@ -150,44 +76,44 @@ F:FEATHER | LIGHTNESS
 
 #Heavy armor or Dragon scale
 N:3:of Lightness
-#X:8:0
-W:0:3:8:110:1400
+X:9:0
+W:0:3:110:1400
 C:1:0:7:0
 T:37:0:99
 T:38:0:99
 F:FEATHER | LIGHTNESS
 
 N:4:of Resist Acid
-#X:14:0
-W:0:1:14:0:1000
+X:14:0
+W:0:1:0:1000
 T:36:0:99
 T:37:0:99
 F:RES_ACID | IGNORE_ACID
 
 N:5:of Resist Lightning
-#X:8:0
-W:0:1:8:0:400
+X:8:0
+W:0:1:0:400
 T:36:0:99
 T:37:0:99
 F:RES_ELEC | IGNORE_ELEC
 
 N:6:of Resist Fire
-#X:12:0
-W:0:1:12:0:800
+X:12:0
+W:0:1:0:800
 T:36:0:99
 T:37:0:99
 F:RES_FIRE | IGNORE_FIRE
 
 N:7:of Resist Cold
-#X:10:0
-W:0:1:10:0:600
+X:10:0
+W:0:1:0:600
 T:36:0:99
 T:37:0:99
 F:RES_COLD | IGNORE_COLD
 
 N:8:of Resistance
-#X:18:0
-W:0:2:18:0:12500
+X:18:0
+W:0:2:0:12500
 C:0:0:10:0
 T:36:0:99
 T:37:0:99
@@ -195,9 +121,8 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:9:of Elvenkind
-R:0:1:0:0:0:0:0:0:0:0
-#X:24:2
-W:0:4:24:0:15200
+X:24:2
+W:0:4:0:15200
 C:0:0:10:3
 T:36:0:99
 T:37:0:99
@@ -205,12 +130,10 @@ F:STEALTH |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# combined the two Vulnerability egos, so this is for shields and armor
 N:10:of Vulnerability
-#X:0:0
-W:0:3:0:0:0
+X:0:0
+W:0:2:0:0
 C:0:0:50:0
-T:34:0:99
 T:36:0:99
 T:37:0:99
 F:AGGRAVATE | LIGHT_CURSE
@@ -218,9 +141,8 @@ F:AGGRAVATE | LIGHT_CURSE
 ### Robes only ###
 
 N:11:of Permanence
-R:0:1:0:0:0:0:0:0:0:0
-#X:28:2
-W:0:4:28:0:30000
+X:28:2
+W:0:4:0:30000
 C:0:0:20:0
 T:36:2:2
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
@@ -231,8 +153,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # added metal shod boots
 N:12:(Dwarven)
-#X:15:0
-W:0:2:15:0:6000
+X:15:0
+W:0:2:0:6000
 C:0:0:15:2
 T:37:3:99
 T:30:6:6
@@ -247,19 +169,16 @@ F:STR | CON | HIDE_TYPE |
 ### Shields ###
 
 N:14:of Dragonbreath Blocking
-#X:13:0
-X:35:0:0
-W:0:4:13:0:5000
+X:13:0
+W:0:4:0:5000
 T:34:0:10
 F:BR_SHIELD
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 # (shield or cloak)
 N:15:of Holy Protection
-R:0:1:0:0:0:0:0:0:0:0
-X:34:0:0
-#X:24:2
-W:40:6:24:0:17000
+X:24:2
+W:40:6:0:17000
 T:34:0:99
 T:35:0:5
 C:0:0:12:2
@@ -267,41 +186,40 @@ F:RES_NETHR | RES_DARK | SUST_WIS | WIS | GOOD_WEAP
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE
 
 N:16:of Resist Acid
-#X:14:0
-W:0:1:14:0:1000
+X:14:0
+W:0:1:0:1000
 T:34:0:99
 F:RES_ACID | IGNORE_ACID
 
 N:17:of Resist Lightning
-#X:8:0
-W:0:1:8:0:400
+X:8:0
+W:0:1:0:400
 T:34:0:99
 F:RES_ELEC | IGNORE_ELEC
 
 N:18:of Resist Fire
-#X:12:0
-W:0:1:12:0:800
+X:12:0
+W:0:1:0:800
 T:34:0:99
 F:RES_FIRE | IGNORE_FIRE
 
 N:19:of Resist Cold
-#X:10:0
-W:0:1:10:0:600
+X:10:0
+W:0:1:0:600
 T:34:0:99
 F:RES_COLD | IGNORE_COLD
 
 N:20:of Resistance
-#X:20:0
-W:0:2:20:0:12500
+X:20:0
+W:0:2:0:12500
 C:0:0:10:0
 T:34:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:21:of Elvenkind
-R:0:1:0:0:0:0:0:0:0:0
-#X:25:2
-W:0:4:25:0:18000
+X:25:2
+W:0:4:0:18000
 C:0:0:10:3
 T:34:0:99
 F:STEALTH |
@@ -309,50 +227,47 @@ F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC |
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 N:22:of Preservation
-#X:25:0
-W:60:4:25:0:24000
+X:25:0
+W:60:4:0:24000
 C:0:0:20:0
 T:34:0:99
 F:RES_DISEN | SUST_STR | SUST_CON | SUST_DEX | SUST_CHR | HOLD_LIFE |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+N:23:of Vulnerability
+X:0:0
+W:0:2:0:0
+C:0:0:50:0
+T:34:0:99
+F:AGGRAVATE | LIGHT_CURSE
+
+
 ### Crowns and Helms ###
 
-#lowers two random stats, but KEEP_BONUS makes ac/combat bonuses stay positive
-# on a cursed item (but not pval).  (also has a random resist)
-N:23:(Handicapped)
-R:0:1:0:0:0:0:2:0:0:0
-#X:0:0
-W:0:3:0:0:0
-C:0:0:8:3
-T:33:0:99
-F:KEEP_BONUS | LIGHT_CURSE
-
 N:24:of Intelligence
-#X:12:0
-W:0:2:12:0:500
+X:12:0
 C:0:0:0:2
+W:0:2:0:500
 T:32:0:99
 F:INT | SUST_INT
 
 N:25:of Wisdom
-#X:12:0
-W:0:2:12:0:500
+X:12:0
+W:0:2:0:500
 C:0:0:0:2
 T:32:0:99
 F:WIS | SUST_WIS
 
 N:26:of Beauty
-#X:6:0
-W:0:2:6:0:1000
+X:6:0
+W:0:2:0:1000
 C:0:0:0:4
 T:32:0:99
 F:CHR | SUST_CHR
 
 N:27:of the Magi
-R:0:0:0:1:0:0:0:0:0:0
-#X:15:3
-W:0:4:15:0:7500
+X:15:3
+W:0:4:0:7500
 C:0:0:0:3
 T:33:0:99
 F:INT | SUST_INT |
@@ -360,17 +275,16 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:28:of Might
-#X:19:0
-W:0:4:19:0:7500
+X:19:0
+W:0:4:0:7500
 C:0:0:0:3
 T:33:0:13
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:29:of Lordliness
-R:0:0:0:1:0:0:0:0:0:0
-#X:17:3
-W:0:2:17:0:7500
+X:17:3
+W:0:2:0:7500
 C:0:0:0:3
 T:33:0:99
 F:WIS | CHR | SUST_WIS | SUST_CHR | RES_FEAR
@@ -378,16 +292,16 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #(replaces "of seeing" because see invisible is supposed to be rare)
 N:30:of True Seeing
-#X:17:0
-W:20:4:17:0:7000
+X:17:0
+W:20:3:0:7000
 C:0:0:0:4
 T:32:7:7
 T:33:11:99
 F:RES_CHAOS | SEE_INVIS | INFRA
 
 N:31:of Alertness
-#X:9:0
-W:0:2:9:0:500
+X:9:0
+W:0:2:0:500
 C:0:0:0:5
 T:32:0:99
 F:INFRA | HIDE_TYPE
@@ -395,79 +309,74 @@ F:INFRA | HIDE_TYPE
 # redundant now that I've put "of Night and Day" back in and not restricted to crowns
 #N:32:of Light
 #X:6:0
-#W:0:2:6:0:1000
+#W:0:2:0:1000
 #T:32:0:99
 #F:LITE | RES_LITE
 
 # an ego for amulets of adornment only
 N:32:of Luck
-#X:7:0
-W:0:7:7:0:2407
+X:7:0
+W:0:7:0:2407
 T:40:2:2
 C:0:0:0:7
 F:EQLUCK
 
 N:33:of Telepathy
-#X:20:0
-W:0:4:20:0:50000
+X:20:0
+W:0:4:0:50000
 T:32:0:99
 T:33:0:99
 F:TELEPATHY
 
 N:34:of Regeneration
-#X:10:0
-W:0:4:10:0:1500
+X:10:0
+W:0:4:0:1500
 T:32:0:99
 T:33:0:99
 F:REGEN
 
 N:35:of Teleportation
-#X:0:0
-W:0:2:0:0:0
+X:0:0
+W:0:2:0:0
 T:32:0:99
 F:TELEPORT | LIGHT_CURSE
 
 N:36:of Serenity
-#X:19:0
-W:0:5:19:0:4000
+X:19:0
+W:0:5:0:4000
 T:33:0:99
 F:RES_SOUND | RES_CONFU | RES_FEAR | RES_CHARM
 
 #(put back in without see invisible because see invisible is supposed to be rare)
 # no longer restricted to crowns (it's now weaker than true sight)
 N:37:of Night and Day
-#X:12:0
-W:0:3:12:0:3400
+X:12:0
+W:0:3:0:3400
 T:33:0:99
 T:32:0:99
 F:RES_BLIND | RES_LITE | RES_DARK | LITE | IGNORE_ACID
 
-# lowers two random stats and a skill but has advantages
-N:38:of Debility
-R:0:1:0:0:0:0:1:2:0:0
-#X:0:0
-W:0:2:0:0:0
-C:0:0:2:3
+N:38:of Dullness
+X:0:0
+C:0:0:0:4
+W:0:2:0:0
+T:32:0:99
 T:33:0:99
-F:SUST_INT | RES_SILVR | KEEP_BONUS | LIGHT_CURSE
+F:INT | WIS | CHR | INFRA | LIGHT_CURSE
 
-# stops HP regeneration, speeds mana regeneration
-# also lowers a random stat, but has a random power and a random racial esp
-N:39:of Mana Draw
-R:0:0:0:1:0:0:0:1:0:0
-X:40:0:0
-#X:0:0
-W:0:2:0:0:0
-C:0:0:0:2
+N:39:of Sickliness
+X:0:0
+C:0:0:0:4
+W:0:2:0:0
 T:33:0:99
-F:STOPREGEN | REGEN | LIGHT_CURSE | BAD_WEAP
+F:STR | DEX | CON | LIGHT_CURSE | BAD_WEAP
 
 
 ### Cloaks ###
 
 N:40:of Protection
-#X:10:0
-W:0:2:10:0:1500
+X:10:0
+W:0:2:0:1500
 C:0:0:10:0
 T:35:0:99
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
@@ -475,22 +384,20 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
 #Made a little less common since I added elven cloaks which always raise stealth.
 #excludes elven cloaks which already have a stealth bonus
 N:41:of Stealth
-#X:10:0
-W:0:2:10:0:500
+X:10:0
+W:0:2:0:500
 C:0:0:0:3
 T:35:0:4
 T:35:6:99
 F:STEALTH
 
-# has 1d2 random resists (removed RES_CHAOS)
 N:42:of Peace
-R:0:9:0:0:0:0:0:0:0:0
-#X:11:2
-W:0:14:11:0:1200
+X:11:2
+W:0:12:0:1200
 C:0:0:4:1
 T:35:0:5
-F:NICE | WIS | FEATHER | LITE
-F:GOOD_WEAP | PEACE | BLESSED
+F:NICE | WIS | RES_CHAOS | FEATHER
+F:GOOD_WEAP | LITE | PEACE | BLESSED
 D:The peace enchantment has several effects: 
 D:It reduces your number of blows by 1, makes criticals less likely,
 D: and prevents heroism, berserker, and frenzy.
@@ -498,96 +405,100 @@ D: It also raises your saving throw,
 D: and if you're lucky, it may nullify aggravation.
 
 N:43:of the Magi
-R:0:0:0:1:0:0:0:0:0:0
-#X:15:3
-W:30:3:15:0:2000
+X:15:3
+W:30:3:0:2000
 C:0:0:4:2
 T:35:0:99
 F:INT | SUST_INT | STEALTH | HIDE_TYPE | IGNORE_ACID
 
 N:44:of Enveloping
-#X:0:0
-W:0:1:0:0:0
-C:13:13:0:0
+X:0:0
+W:0:1:0:0
+C:10:10:0:0
 T:35:0:99
 F:SHOW_MODS | LIGHT_CURSE
 
-#N:45:unused
+N:45:of Vulnerability
+X:0:0
+W:0:2:0:0
+C:0:0:50:0
+T:35:0:99
+F:AGGRAVATE | LIGHT_CURSE
 
 #excludes elven cloaks which have a stealth bonus
-# removed cloak version of vulnerability because no reason to have both that and this.
 N:46:of Irritation
-#X:0:0
-W:0:2:0:0:0
-C:4:4:6:0
+X:0:0
+W:0:2:0:0
+C:15:15:0:0
 T:35:0:4
 T:35:6:99
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
 N:47:of Dungeon Sight
-#X:18:0
-W:25:6:18:0:4000
-C:4:0:8:0
+X:18:0
+W:25:3:0:4000
+C:2:0:8:6
 T:35:0:99
-F:RES_BLIND | DARKVIS | IGNORE_ACID
+F:RES_BLIND | DARKVIS
+F:IGNORE_ACID
 
 ### Gloves ###
 
 N:48:of Free Action
-#X:10:0
-W:0:4:10:0:1000
-T:31:0:99
+X:10:0
 F:FREE_ACT
+W:0:4:0:1000
+T:31:0:99
 
 N:49:of Slaying
-#X:16:0
-W:0:4:16:0:1500
-C:7:7:0:0
-T:31:0:99
+X:16:0
+W:0:4:0:1500
+C:6:6:0:0
 F:SHOW_MODS
+T:31:0:99
 D:They boost your to-hit and to-dam values.
 
 N:50:of Agility
-#X:14:0
-W:0:5:14:0:1000
+X:14:0
+W:0:5:0:1000
 C:0:0:0:5
 T:31:0:99
 F:DEX | HIDE_TYPE
 
 N:51:of Power
-#X:21:0
-W:0:6:21:0:2500
+X:21:0
+W:0:6:0:2500
 C:5:5:0:5
 T:31:0:99
 F:STR | SHOW_MODS | HIDE_TYPE
 
 N:52:of Thievery
-#X:22:0
-W:40:12:22:0:5000
+X:22:0
+W:40:12:0:5000
 C:8:3:0:5
 T:31:1:1
 F:DEX | SHOW_MODS | FEATHER | FREE_ACT | HIDE_TYPE
 
-#Hacky gauntlet ego: minimum pval is 2 because minimum p_ptr->throwmult is 2,
+#Hacky ego: minimum pval is 2 because minimum p_ptr->throwmult is 2,
 # pval of 4 is rare (checked in code)
 # Its damage bonus always adds to thrown weapon damage instead of melee as an exception.
 N:53:of Throwing
-#X:14:0
-W:0:15:14:0:1200
+X:14:0
+W:0:5:0:1200
 C:7:7:0:4
 T:31:0:99
 F:THROWMULT | SHOW_MODS | HIDE_TYPE
 
 N:54:of Weakness
-#X:0:0
-W:0:3:0:0:0
+X:0:0
+W:0:2:0:0
 C:0:0:0:10
 T:31:0:99
 F:STR | LIGHT_CURSE | HIDE_TYPE
 
 N:55:of Clumsiness
-#X:0:0
-W:0:1:0:0:0
+X:0:0
+W:0:2:0:0
 C:0:0:0:10
 T:31:0:99
 F:DEX | LIGHT_CURSE | HIDE_TYPE | DANGER
@@ -596,71 +507,65 @@ F:DEX | LIGHT_CURSE | HIDE_TYPE | DANGER
 ### Boots ###
 
 N:56:of the Messenger
-#X:32:0
-W:50:27:32:0:110000
+X:32:0
+W:50:27:0:110000
 C:0:0:3:4
 T:30:0:4
 F:FEATHER | SPEED | TELEPATHY
 
 N:57:of Stealth
-#X:12:0
-W:0:6:12:0:500
+X:12:0
+W:0:6:0:500
 C:0:0:0:3
 T:30:0:99
 F:STEALTH | HIDE_TYPE
 
 N:58:of Free Action
-#X:14:0
-W:0:8:14:0:1000
-T:30:0:99
+X:14:0
+W:0:8:0:1000
 F:FREE_ACT
+T:30:0:99
 
 N:59:of Speed
-#X:25:0
-W:0:22:25:0:90000
+X:25:0
+W:0:22:0:90000
 C:0:0:0:10
 T:30:0:99
 F:SPEED | HIDE_TYPE
 
 N:60:of Stability
-#X:17:0
-W:0:10:17:0:5000
+X:17:0
+W:0:10:0:5000
 T:30:0:99
 F:RES_NEXUS | FEATHER
 
 N:61:of Elvenkind
-R:0:1:0:0:0:0:0:0:0:0
-#X:17:2
-W:20:20:17:0:70000
+X:17:2
+W:20:20:0:70000
 C:0:0:0:4
 T:30:2:3
 F:STEALTH | HIDE_TYPE | IGNORE_ACID | IGNORE_FIRE
 
-#KEEP_BONUS makes ac/combat bonuses stay positive on a cursed item (but not pval)
 N:62:of Slowness
-R:9:0:0:0:0:0:0:0:0:0
-#X:0:0
-W:0:5:0:0:0
-C:0:0:6:5
+X:0:0
+W:0:5:0:0
+C:0:0:0:5
+F:SPEED | LIGHT_CURSE | HIDE_TYPE
 T:30:0:99
-F:SPEED | KEEP_BONUS | LIGHT_CURSE | HIDE_TYPE
 
 N:63:of Annoyance
-R:0:0:0:0:1:0:0:0:0:0
-#X:0:0
-W:0:10:0:0:0
-C:0:6:2:1
+X:0:0
+W:0:10:0:0
+C:0:0:0:10
+F:SPEED | CHR | STEALTH | AGGRAVATE | LIGHT_CURSE | HIDE_TYPE
 T:30:0:99
-F:SPEED | CHR | KEEP_BONUS
-F:R_ANNOY | LIGHT_CURSE | HIDE_TYPE
 
 
 ### Weapons ###
 
 N:64:(Holy Avenger)
-R:1:0:0:0:0:0:0:0:0:0
-#X:25:1
-W:0:12:25:0:20000
+X:25:1
+W:0:12:0:20000
 C:6:6:4:4
 T:21:0:99
 T:22:0:99
@@ -670,9 +575,8 @@ F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
 F:HOLD_LIFE | GOOD_WEAP | RES_FEAR
 
 N:65:(Defender)
-R:1:0:0:0:0:0:0:0:0:0
-#X:22:1
-W:0:12:22:0:15000
+X:22:1
+W:0:12:0:15000
 C:4:4:8:4
 T:21:1:2
 T:21:7:99
@@ -685,10 +589,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 #see also N:157 version
 
 N:66:(Blessed)
-R:0:0:0:1:0:0:0:0:0:0
-#X:20:3
-X:54:0:0
-W:0:10:20:0:5000
+X:20:3
+W:0:10:0:5000
 C:0:0:0:3
 T:21:0:99
 T:22:0:99
@@ -696,9 +598,8 @@ T:23:0:28
 F:WIS | BLESSED | GOOD_WEAP
 
 N:67:of Gondolin
-R:0:0:0:1:0:0:0:0:0:0
-#X:30:3
-W:30:35:30:0:25000
+X:30:3
+W:30:35:0:25000
 C:7:7:0:0
 T:21:0:99
 T:22:0:99
@@ -708,19 +609,19 @@ F:LITE | RES_DARK | SEE_INVIS | FREE_ACT |
 F:IGNORE_ACID | IGNORE_FIRE
 
 N:68:of Westernesse
-#X:16:0
-X:31:0:0
-W:0:10:16:0:20000
+X:16:0
+W:0:10:0:20000
 C:5:5:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:28
-F:STR | DEX | CON | INFRA
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | FREE_ACT
+F:STR | DEX | CON |
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
+F:FREE_ACT | INFRA
 
 N:69:of Extra Attacks
-#X:21:0
-W:0:10:21:0:10000
+X:21:0
+W:0:10:0:10000
 C:0:0:0:2
 T:1:0:99
 T:21:0:99
@@ -729,8 +630,8 @@ T:23:0:99
 F:BLOWS | HIDE_TYPE
 
 N:70:of Fury
-#X:29:0
-W:40:23:29:0:20000
+X:29:0
+W:40:23:0:20000
 T:21:12:99
 T:22:4:10
 T:23:16:99
@@ -742,21 +643,19 @@ F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 #doesn't have WIELD_SHIELD because main gauches always have it
 #and it seems silly to wield a quarterstaff in the off-hand as a shield
 N:71:of Shielding
-R:1:0:1:0:0:0:0:0:0:0
-#X:10:1
-W:7:6:10:2:4000
+X:10:1
 C:3:0:20:1
+W:0:6:2:4000
 T:21:6:6
 T:23:3:3
 F:BLESSED | SPEED |
 F:IGNORE_ACID | IGNORE_FIRE
 
 # The "Branded" weapons (5)
-# (decided not to use a random brand with these)
 
 N:72:of Acid
-#X:19:0
-W:0:10:19:0:5000
+X:19:0
+W:0:10:0:5000
 T:55:0:99
 T:21:0:99
 T:22:0:99
@@ -764,8 +663,8 @@ T:23:0:99
 F:BRAND_ACID | RES_ACID | IGNORE_ACID
 
 N:73:of Lightning
-#X:19:0
-W:0:10:19:0:4500
+X:19:0
+W:0:10:0:4500
 T:55:0:99
 T:21:0:99
 T:22:0:99
@@ -773,16 +672,16 @@ T:23:0:99
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
 N:74:of Flame
-#X:15:0
-W:0:8:15:0:3500
+X:15:0
+W:0:8:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
 
 N:75:of Frost
-#X:15:0
-W:0:8:15:0:3000
+X:15:0
+W:0:8:0:3000
 T:55:0:99
 T:21:0:99
 T:22:0:99
@@ -790,52 +689,49 @@ T:23:0:99
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
 N:76:of Venom
-#X:14:0
-W:0:8:14:0:3500
+X:15:0
+W:0:8:0:4000
 T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:3:99
 F:BRAND_POIS
 
-#has a random drawback
 N:77:of Raging Elementals
-R:0:0:0:0:0:0:0:0:1:0
-#X:25:0
-W:41:35:25:105:25000
+X:25:0
+W:41:35:105:25000
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_FIRE | BRAND_ACID | BRAND_ELEC | BRAND_POIS | BRAND_COLD
-F:HEAVY_CURSE
+F:DRAIN_EXP | HEAVY_CURSE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # broken dagger, broken sword, or broken pick only
 N:78:of Rust
-#X:1:0
-W:0:8:1:0:60
-C:3:6:-4:-2
+X:1:0
+C:4:8:-3:-2
+W:0:8:0:60
 T:23:1:2
 T:20:8:8
-F:CON | TUNNEL | BRAND_POIS | SLAY_ANIMAL
+F:CON | TUNNEL | BRAND_POIS | SLAY_ANIMAL | LIGHT_CURSE
 F:IGNORE_ACID | IGNORE_ELEC
 
 # looks too common, but is restricted to the athame only which is already rare
 N:79:of Witchcraft
-R:1:0:0:0:0:0:1:0:0:0
-#X:5:1
-W:0:2:5:0:2600
-C:3:3:0:2
+X:5:1
+C:3:3:0:1
+W:0:2:0:2600
 T:23:29:29
-F:INT | RES_DARK | SLAY_ANIMAL
+F:INT | STEALTH | RES_DARK | SLAY_ANIMAL
 F:BAD_WEAP | DRAIN_EXP | HIDE_TYPE
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 
 # The "Slay" weapons (8)
 
 N:80:of Slay Animal
-#X:8:0
-W:0:6:8:0:3000
+X:8:0
+W:0:6:0:3000
 T:55:0:99
 T:21:0:99
 T:22:0:99
@@ -843,137 +739,72 @@ T:23:0:99
 F:SLAY_ANIMAL
 
 N:81:of Slay Evil
-#X:15:0
-W:0:6:15:0:3000
+X:15:0
+W:0:6:0:3000
 T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SLAY_EVIL
 
-#Has a hack to say what is slays in the short description (random slay)
-#These two replace the old single slay egos
-#Slay animal and slay evil are not included in the random slays, only the x3 slays are random
-N:82:of Slay Monster
-R:0:0:0:0:1:0:0:0:0:0
-W:0:2:11:0:2600
+N:82:of Slay Undead
+X:14:0
+W:0:6:0:3500
 T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
+F:SLAY_UNDEAD
 
-#(2 random slays and extra damage)
-N:83:of Slaying
-X:42:0:0
-R:0:0:0:0:2:0:0:0:0:0
-W:4:2:15:0:3900
-C:3:5:0:0
+N:83:of Slay Demon
+X:14:0
+W:0:6:0:3500
 T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
+F:SLAY_DEMON
 
-#N:82:of Slay Undead
-#X:14:0
-#W:0:6:14:0:3500
-#T:55:0:99
-#T:21:0:99
-#T:22:0:99
-#T:23:0:99
-#F:SLAY_UNDEAD
+N:84:of Slay Orc
+X:9:0
+W:0:6:0:2500
+T:55:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_ORC
 
-#N:83:of Slay Demon
-#X:14:0
-#W:0:6:14:0:3500
-#T:55:0:99
-#T:21:0:99
-#T:22:0:99
-#T:23:0:99
-#F:SLAY_DEMON
+N:85:of Slay Troll
+X:8:0
+W:0:6:0:2500
+T:55:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_TROLL
 
-#N:84:of Slay Orc
-#X:9:0
-#W:0:6:9:0:2500
-#T:55:0:99
-#T:21:0:99
-#T:22:0:99
-#T:23:0:99
-#F:SLAY_ORC
+N:86:of Slay Giant
+X:10:0
+W:0:6:0:2500
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_GIANT
 
-#N:85:of Slay Troll
-#X:8:0
-#W:0:6:8:0:2500
-#T:55:0:99
-#T:21:0:99
-#T:22:0:99
-#T:23:0:99
-#F:SLAY_TROLL
-
-#N:86:of Slay Giant
-#X:10:0
-#W:0:6:10:0:2500
-#T:21:0:99
-#T:22:0:99
-#T:23:0:99
-#F:SLAY_GIANT
-
-#N:87:of Slay Dragon
-#X:15:0
-#W:0:6:15:0:3500
-#T:55:0:99
-#T:21:0:99
-#T:22:0:99
-#T:23:0:99
-#F:SLAY_DRAGON
-
-# a couple armor pseudo-randarts (sometimes with drawbacks)
-
-#low and high resist(s), a sustain, and two skill bonuses
-#also for cloaks and boots (was rarity 67)
-N:84:of Randomness
-R:1:9:2:0:0:0:2:0:11:0
-W:8:61:21:2:21684
-C:0:0:8:4
-T:30:0:99
-T:34:0:99
-T:35:0:99
-T:36:0:99
-T:37:0:99
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-#sustain(s), a low resist, a high resist, and two random stat boosts
-#also for helms & crowns (was rarity 67)
-N:85:of Randomness
-R:9:1:1:1:0:0:0:2:11:0
-X:43:0:0
-W:8:61:21:2:21684
-C:0:0:8:4
-T:32:0:99
-T:33:0:99
-T:34:0:99
-T:36:0:99
-T:37:0:99
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-#a pseudo randart bow/gloves: a sustain, a low resist, 1d2 random skill bonuses,
-#  and a stat boost.  (was rarity 67)
-N:86:of Randomness
-R:1:0:1:0:0:0:9:1:12:0
-W:12:61:21:2:17684
-C:7:4:0:3
-T:31:0:99
-T:19:0:99
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-#N:87 now unused
+N:87:of Slay Dragon
+X:15:0
+W:0:6:0:3500
+T:55:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_DRAGON
 
 # The *Slay* weapons (8)
 
 N:88:of *Slay Animal*
-R:1:0:0:0:0:0:0:0:0:0
-X:30:0:0
-#X:20:1
-W:0:20:20:0:5000
+X:19:1
+W:0:20:0:5000
 C:0:0:0:2
 T:21:10:99
 T:22:0:34
@@ -982,9 +813,8 @@ F:INFRA | SLAY_ANIMAL | SLAY_LITE | RES_CHARM |
 F:BAD_WEAP | EXTRA_CRIT
 
 N:89:of *Slay Evil*
-R:0:0:0:1:0:0:0:0:0:0
-#X:20:3
-W:0:20:20:0:5000
+X:20:3
+W:0:20:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -992,9 +822,8 @@ T:23:0:28
 F:WIS | SLAY_EVIL | GOOD_WEAP
 
 N:90:of *Slay Undead*
-X:34:0:0
-#X:24:0
-W:0:20:24:0:8000
+X:24:0
+W:0:20:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -1002,9 +831,8 @@ T:23:0:28
 F:KILL_UNDEAD | WIS | SEE_INVIS
 
 N:91:of *Slay Demon*
-X:36:0:0
-#X:21:0
-W:0:20:21:0:8000
+X:21:0
+W:0:20:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -1012,51 +840,44 @@ T:23:0:28
 F:KILL_DEMON | INT | RES_FIRE
 
 N:92:of *Slay Orc*
-X:1:0:0
-#X:12:0
-W:0:20:12:0:4000
+X:12:0
+W:0:20:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:DEX | SLAY_ORC | SUST_DEX
 
-#changed from STR to CON
 N:93:of *Slay Troll*
-X:2:0:0
-#X:14:0
-W:0:20:14:0:5500
-C:0:0:0:3
+X:14:0
+W:0:20:0:4000
+C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:CON | SLAY_TROLL | REGEN
+F:STR | SLAY_TROLL | REGEN
 
 N:94:of *Slay Giant*
-#X:12:0
-X:3:0:0
-W:0:20:12:0:4000
+X:12:0
+W:0:20:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:STR | SLAY_GIANT | SUST_STR
 
-#changed from CON to CHR (has a x5 slay so it doesn't need a good stat boost)
 N:95:of *Slay Dragon*
-X:35:0:0
-#X:24:0
-W:0:20:24:0:8000
-C:0:0:0:3
+X:24:0
+W:0:20:0:8000
+C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:CHR | KILL_DRAGON | RES_FEAR
+F:CON | KILL_DRAGON | RES_FEAR
 
 N:96:of Critical Weight
-#X:8:0
-W:0:12:8:50:1600
-C:0:5:0:0
+X:8:0
+W:0:12:50:1500
 T:1:0:99
 T:55:0:99
 T:21:0:99
@@ -1064,59 +885,53 @@ T:22:0:99
 T:23:0:99
 F:EXTRA_CRIT
 
-#reduced weight also
-#code checks LIGHTNESS flag: never reduces weight if weight is already 4lb or less
 N:97:of Throwing and Returning
-#X:7:0
-W:0:19:7:20:420
+X:5:0
+W:0:18:0:400
 C:4:4:0:0
 T:1:0:99
 T:21:4:10
 T:22:0:13
 T:23:0:14
 T:23:29:29
-F:THROWN | RTURN | LIGHTNESS
+F:THROWN | RTURN
 #see also N:158 "of Returning"
 
 ### Digging Tools
 
 N:98:of Miner's Fury
-R:0:0:0:0:1:0:0:0:0:0
-X:42:0:0
-#X:13:0
-W:36:8:13:0:7600
+X:11:0
+W:40:5:0:5500
 C:6:20:0:1
-T:20:3:3
 T:20:6:6
 F:STR | BLOWS | SLAY_ORC | HIDE_TYPE
 
 N:99:of Mining
-#X:6:0
-W:10:6:6:0:800
+X:4:0
+W:0:2:0:500
 C:1:0:3:3
 T:20:2:99
 F:TUNNEL | RES_DARK | DARKVIS
 
 N:100:of Digging
-#X:4:0
-W:0:1:4:0:500
+X:4:0
+W:0:1:0:500
 C:0:0:0:4
 T:20:0:99
 F:TUNNEL | BRAND_ACID
 
 N:101:of Earthquakes
-#X:8:0
-W:20:4:8:0:3000
+X:8:0
+W:20:4:0:3000
 C:10:10:0:6
 T:20:0:99
 F:STR | TUNNEL | BRAND_ACID | IMPACT | HIDE_TYPE
 
 ### Cursed Weapons
 
-#why does a morgul weapon slay undead? that makes no sense.
 N:102:of Morgul
-#X:0:0
-W:10:5:1:0:1
+X:0:0
+W:10:5:0:1
 C:0:0:0:0
 T:21:0:99
 T:22:0:99
@@ -1124,81 +939,75 @@ T:23:0:99
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE |
 F:HOLD_LIFE | DRAIN_EXP | SLAY_UNDEAD | BRAND_POIS | BAD_WEAP
 
-#removed STOPREGEN;  DRAIN_EXP, CORRUPT and the penalty to WIS are enough drawbacks
-# especially since I replaced TELEPATHY with a random power
 N:103:of Demon Might
-R:0:0:1:1:0:0:0:0:0:0
-X:37:0:0
-#X:6:0
-W:39:16:6:0:4300
+X:6:0
 C:6:13:0:4
+W:39:16:0:3500
 T:23:8:8
 T:23:29:29
 T:22:14:14
 F:WIS | RES_FIRE | RES_NETHR | RES_DARK | RES_CHARM
-F:SEE_INVIS | BRAND_FIRE | SLAY_LITE | KEEP_BONUS
+F:SEE_INVIS | TELEPATHY | STOPREGEN | BRAND_FIRE | SLAY_LITE
 F:BAD_WEAP | DRAIN_EXP | CORRUPT | LIGHT_CURSE | HEAVY_CURSE
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 
 ### Missile Launchers ###
 
 N:104:of Accuracy
-#X:10:0
-W:0:1:10:0:1000
+X:10:0
+W:0:1:0:1000
 C:15:5:0:0
 T:19:0:99
 D:It has no special abilities, but its to-hit value may be unusually
 D: high.
 
 N:105:of Power
-#X:10:0
-W:0:1:10:0:1000
+X:10:0
+W:0:1:0:1000
 C:5:15:0:0
 T:19:0:99
 D:It has no special abilities, but its to-dam value may be unusually
 D: high.
 
 N:106:of Lothlorien
-R:0:0:0:1:0:0:0:0:0:0
-#X:30:3
-W:50:4:30:0:22000
+X:30:3
+W:50:4:0:22000
 C:10:10:0:2
 T:19:11:13
 F:DEX | MIGHT | FREE_ACT | LITE | RES_LITE | GOOD_WEAP
 F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:107:of Steady Aim
-R:1:1:0:0:0:0:0:0:0:0
-#X:16:2
-W:40:4:16:0:17700
-C:19:4:0:2
+X:15:2
+W:40:4:0:17500
+C:20:4:0:2
 T:19:0:99
 F:INFRA | RES_CONFU | RES_CHARM | HIDE_TYPE
 
 N:108:of Extra Might
-#X:20:0
-W:0:2:20:0:10000
+X:20:0
+W:0:2:0:10000
 C:5:10:0:1
 F:MIGHT | HIDE_TYPE
 T:19:0:24
 
 N:109:of Extra Shots
-#X:20:0
-W:0:2:20:0:10000
+X:20:0
+W:0:2:0:10000
 C:10:5:0:1
 F:SHOTS | HIDE_TYPE
 T:19:0:24
 
 N:110:of Buckland
-#X:25:0
-W:40:4:25:0:20000
+X:25:0
+W:40:4:0:20000
 C:8:8:0:2
 T:19:1:2
 F:DEX | SHOTS | MIGHT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:111:of the Nazgul
-#X:0:0
-W:10:2:1:0:0
+X:0:0
+W:10:2:0:0
 C:10:10:0:0
 T:19:0:99
 F:LIGHT_CURSE | DRAIN_EXP | SEE_INVIS | BAD_WEAP
@@ -1207,40 +1016,40 @@ F:LIGHT_CURSE | DRAIN_EXP | SEE_INVIS | BAD_WEAP
 ### Ammo ###
 
 N:112:of Slay Animal
-#X:9:0
-W:0:6:9:0:20
+X:10:0
+W:0:6:0:20
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_ANIMAL
 
 N:113:of Slay Evil
-#X:10:0
-W:0:6:10:0:20
+X:10:0
+W:0:6:0:20
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_EVIL
 
 N:114:of Slay Undead
-#X:10:0
-W:0:8:10:0:25
+X:10:0
+W:0:8:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_UNDEAD
 
 N:115:of Slay Demon
-#X:10:0
-W:0:8:10:0:25
+X:10:0
+W:0:8:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_DEMON
 
 N:116:of Acid
-#X:10:0
-W:0:9:10:0:50
+X:10:0
+W:0:9:0:50
 T:16:0:6
 T:16:8:99
 T:17:0:99
@@ -1248,8 +1057,8 @@ T:18:0:99
 F:BRAND_ACID | IGNORE_ACID
 
 N:117:of Lightning
-#X:10:0
-W:0:9:10:0:45
+X:10:0
+W:0:9:0:45
 T:16:0:6
 T:16:8:99
 T:17:0:99
@@ -1257,24 +1066,24 @@ T:18:0:99
 F:BRAND_ELEC | IGNORE_ELEC
 
 N:118:of Slay Giant
-#X:9:0
-W:0:8:9:0:25
+X:9:0
+W:0:8:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_GIANT
 
 N:119:of Slay Dragon
-#X:10:0
-W:0:8:10:0:40
+X:10:0
+W:0:8:0:40
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_DRAGON
 
 N:120:of Holy Might
-#X:20:0
-W:40:15:20:0:60
+X:20:0
+W:40:15:0:60
 C:10:12:0:0
 T:16:2:99
 T:17:2:99
@@ -1283,8 +1092,8 @@ F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD
 F:IGNORE_FIRE | IGNORE_ACID | GOOD_WEAP
 
 N:121:of Venom
-#X:9:0
-W:0:6:9:0:40
+X:9:0
+W:0:6:0:40
 T:16:0:6
 T:16:8:99
 T:17:0:99
@@ -1292,26 +1101,26 @@ T:18:0:99
 F:BRAND_POIS
 
 N:122:of Flame
-#X:10:0
-W:0:6:10:0:35
+X:10:0
+F:BRAND_FIRE | IGNORE_FIRE
+W:0:6:0:35
 T:16:0:6
 T:16:8:99
 T:17:0:99
 T:18:0:99
-F:BRAND_FIRE | IGNORE_FIRE
 
 N:123:of Frost
-#X:10:0
-W:0:6:10:0:30
+X:10:0
+F:BRAND_COLD | IGNORE_COLD
+W:0:6:0:30
 T:16:0:6
 T:16:8:99
 T:17:0:99
 T:18:0:99
-F:BRAND_COLD | IGNORE_COLD
 
 N:124:of Wounding
-#X:5:0
-W:0:4:5:0:20
+X:5:0
+W:0:4:0:20
 C:5:5:0:0
 T:16:0:99
 T:17:0:99
@@ -1320,8 +1129,8 @@ D:Ammunition of Wounding often has unusually high to-hit and to-dam
 D: values.
 
 N:125:of Backbiting
-#X:0:0
-W:0:6:0:0:0
+X:0:0
+W:0:6:0:0
 C:50:50:0:0
 T:16:0:99
 T:17:0:99
@@ -1330,8 +1139,8 @@ F:LIGHT_CURSE
 
 #ammo/thrown version
 N:126:of Critical Weight
-#X:7:0
-W:0:16:7:2:5
+X:7:0
+W:0:16:2:5
 T:16:0:99
 T:17:0:99
 T:18:0:99
@@ -1339,34 +1148,26 @@ F:EXTRA_CRIT
 
 #a very rare bow ego
 N:127:from Darkness
-#X:23:0
-W:30:63:23:0:6600
+X:23:0
+W:30:64:0:6600
 C:6:6:0:1
 T:19:0:99
 F:DARKVIS | SLAY_LITE | RES_DARK | STEALTH | BAD_WEAP
 F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
-#ego rings (Eregion: random resist(s) and/or a random power)
-#somewhat low cost because the speed bonus adds a lot to the cost separately
+# only available by the alchemy spell (2x multiplier instead of a 3x brand)
+N:128:(acid coated)
+X:8:0
+W:0:0:0:20
+F:COAT_ACID | IGNORE_ACID
+
+#ego rings (Eregion: one has random resist, one has random power)
+#low cost because the speed bonus adds a lot to the cost separately
 #no ring kinds that otherwise have a pval can be "of Eregion"
-#Amulets of Resistance can now get Eregion egos also
-
-# (random resistance and random power)
-N:128:of Eregion
-R:0:1:0:1:0:0:0:0:0:0
-W:30:50:22:0:5400
-C:0:0:0:2
-T:45:4:16
-T:45:20:22
-T:45:28:30
-T:40:14:14
-F:SPEED
-
-# (1d3 random resistances)
+#Amulets of Resistance can now get Eregion ego also
 N:129:of Eregion
-R:0:9:0:0:0:0:0:0:0:0
-#X:20:2
-W:30:30:22:0:5400
+X:20:2
+W:30:27:0:3000
 C:0:0:0:2
 T:45:4:16
 T:45:20:22
@@ -1374,11 +1175,9 @@ T:45:28:30
 T:40:14:14
 F:SPEED
 
-# (random low resist and random power)
 N:130:of Eregion
-R:0:0:1:1:0:0:0:0:0:0
-#X:20:3
-W:30:31:20:0:5000
+X:20:3
+W:30:27:0:3000
 C:0:0:0:2
 T:45:4:16
 T:45:20:22
@@ -1387,8 +1186,8 @@ T:40:14:14
 F:SPEED
 
 N:131:of Warfare
-#X:18:0
-W:25:18:18:0:5000
+X:18:0
+W:25:18:0:5000
 C:9:9:0:0
 T:45:8:21
 T:45:24:27
@@ -1396,16 +1195,16 @@ T:45:31:31
 
 #Ego Gloves (increase magic device skill)
 N:132:of Magic Mastery
-#X:9:0
-W:0:4:9:0:1000
+X:10:0
+W:0:4:0:1000
 C:0:0:0:3
 T:31:0:99
 F:MAGIC_MASTERY
 
 #weapon (similar to fury)
 N:133:of Bloodlust
-#X:29:0
-W:15:18:29:10:20000
+X:29:0
+W:15:16:10:20000
 T:21:12:99
 T:22:4:10
 T:23:16:99
@@ -1414,140 +1213,143 @@ F:BLOWS | EXTRA_CRIT | RES_CHARM |
 F:DANGER | BAD_WEAP
 F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
-#A few pseudo-randarts
-# (now a lot more random than they used to be)
+#A few pseudo-randarts with drawbacks:
+#(to be replaced with a single ego type when multiple pvals & multiple random stuff is added)
 
-#resist(s), slay(s), a skill bonus, a sustain, and a random stat boost
-# was rarity 54
 N:134:of Randomness
-R:1:9:0:0:9:0:1:1:12:0
-W:6:59:21:1:11642
+X:26:1
+W:6:62:1:15642
 T:1:0:99
 T:20:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:8:8:0:4
-F:EXTRA_CRIT
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+C:9:9:0:1
+F:RES_CHAOS | BRAND_ELEC | RES_CHARM | STEALTH
+F:SPEED | CHR | SUST_CHR
+F:FEATHER | STOPREGEN
+F:IGNORE_ELEC | HIDE_TYPE
 
-#sustain(s), lower resist(s), random power(s), a skill bonus, and a random stat boost
-# was rarity 54
 N:135:of Randomness
-R:9:0:9:9:0:0:1:1:11:0
-W:6:59:21:1:11642
+X:26:2
+W:6:62:1:15642
 T:1:0:99
 T:20:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:8:8:0:3
-F:SLAY_EVIL
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+C:9:9:0:1
+F:LITE | EXTRA_CRIT | SLAY_BUG | SLAY_TROLL | RES_STATC | TUNNEL
+F:SUST_INT | INT | CON
+F:DRAIN_EXP | SLOW_DIGEST
+F:IGNORE_COLD | HIDE_TYPE
 
-#sustain(s), resists, skill bonus(es), and a random power
-# was rarity 54 (before adding BLOWS)
 N:136:of Randomness
-R:9:2:0:1:0:0:9:0:11:0
-W:6:59:21:1:22385
+X:26:3
+W:6:62:1:15642
 T:1:0:99
 T:20:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:8:8:0:2
-F:BLOWS
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+C:9:9:0:1
+F:SLAY_ANIMAL | SLAY_UNDEAD | MAGIC_MASTERY | BR_SHIELD | RES_LITE
+F:SUST_WIS | DEX | WIS
+F:TELEPORT | FREE_ACT
+F:IGNORE_FIRE | HIDE_TYPE
 
-#lower resist(s), skill bonus(es), stat boost(s), a high resist, and a random slay
-# was rarity 54
 N:137:of Randomness
-R:0:1:9:0:1:0:9:9:11:0
-W:6:59:21:1:11642
+X:30:2
+W:11:93:1:28649
 T:1:0:99
 T:20:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:8:8:0:3
-F:SLAY_ANIMAL
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+C:9:9:0:2
+F:SLAY_DEMON | SLAY_GIANT | BRAND_COLD | REGEN | HOLD_LIFE | RES_CHAOS | SPEED
+F:SUST_STR | STR
+F:AGGRAVATE | DANGER | TELEPATHY
+F:IGNORE_ACID | HIDE_TYPE
 
-#some of everything except a brand (1d2 drawbacks)  (was rarity 72)
 N:138:of Randomness
-R:2:2:9:9:2:0:9:2:9:0
-W:11:59:21:1:23649
+X:30:3
+W:11:93:1:28649
 T:1:0:99
 T:20:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:8:8:0:3
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+C:9:9:0:3
+F:EXTRA_CRIT | SLAY_ORC | SLAY_SILVER | PR_POIS | SEE_INVIS | RES_DISEN | SPEED
+F:SUST_STR | SUST_CHR | SUST_DEX
+F:STOPREGEN | DRAIN_EXP | DARKVIS
+F:IGNORE_FIRE | IGNORE_ELEC | HIDE_TYPE
 
-#  a pair of rare heavy armor pseudo-randart egos
-#2 random drawbacks and a random immunity (plus 1d2 low resist(s), a high resist, and a stat boost)
+#rare Heavy armor ego
 N:139:of Costly Immunity
-R:0:1:9:0:0:0:0:1:3:0
-W:40:88:28:2:40000
+X:30:0
+W:40:88:1:40000
 T:37:6:99
 C:0:0:15:3
+F:IM_FIRE | IM_COLD | RES_BLIND | HOLD_LIFE | FEATHER
+F:STOPREGEN | DRAIN_EXP | DANGER | TELEPORT | LIGHT_CURSE | HEAVY_CURSE | CON
 F:IGNORE_FIRE | IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | HIDE_TYPE
 
-#2 random drawbacks and a random immunity (plus 1d2 sustain(s), a skill bonus, and a random power)
+#rare Heavy armor ego
 N:140:of Costly Immunity
-R:9:0:0:1:0:0:1:0:3:0
-W:40:88:28:2:40000
+X:30:0
+W:40:88:1:40000
 T:37:6:99
 C:0:0:15:3
+F:IM_ELEC | IM_ACID | FREE_ACT
+F:SUST_STR | SUST_CON | SUST_DEX | SUST_INT | SUST_WIS | SUST_CHR
+F:STOPREGEN | DRAIN_EXP | DANGER | TELEPORT | LIGHT_CURSE | HEAVY_CURSE | WIS | INT
 F:IGNORE_FIRE | IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | HIDE_TYPE
 
-#ego tusks (strong bone-weapon version of slaying) (2 random slays)
+#ego tusks
 N:141:of Goring
-R:0:0:0:0:2:0:0:0:0:0
-X:42:0:0
-#X:15:0
-W:4:8:15:0:6600
+X:10:0
+W:1:8:0:6500
 T:1:0:10
 C:4:8:0:1
-F:SUST_CON | EXTRA_CRIT | TUNNEL
-F:RES_ACID | RES_COLD | PR_POIS
+F:SUST_CON | SLAY_DRAGON | EXTRA_CRIT | SLAY_GIANT
+F:TUNNEL | RES_ACID | RES_COLD | PR_POIS
 
 #These are only for tusks, walking sticks, or walking staffs
 N:142:of Natural Battle
-#X:15:0
-W:20:8:15:0:12000
+X:15:0
+W:20:8:0:14000
 T:1:0:99
 T:21:1:1
 T:21:3:3
 C:6:9:0:1
 F:SUST_STR | BLOWS | RES_FEAR | SLAY_TROLL | SLAY_ORC
-F:RES_CHARM | RES_SHARD | IGNORE_FIRE
+F:RES_NEXUS | RES_SHARD | IGNORE_FIRE
 
 N:143:of Natural Magic
-#X:16:0
-W:21:9:16:0:14000
+X:12:0
+W:21:9:0:14000
 T:1:0:99
 T:21:1:1
 T:21:3:3
 C:4:4:0:1
 F:SUST_WIS | SUST_INT | SLAY_DEMON | MAGIC_MASTERY | INT
-F:RES_DISEN | RES_SILVR | IGNORE_FIRE
+F:RES_DISEN | RES_CHAOS | IGNORE_FIRE
 
 N:144:of Natural Instincts
-#X:15:0
-X:30:0:0
-W:20:8:15:0:13000
+X:12:0
+W:20:8:0:14000
 T:1:0:99
 T:21:1:1
 T:21:3:3
 C:8:4:0:2
 F:SUST_DEX | INFRA | STEALTH | SLOW_DIGEST | SLAY_ANIMAL
-F:RES_SLIME | RES_SOUND | IGNORE_FIRE
+F:RES_CONFU | RES_SOUND | IGNORE_FIRE
 
 N:145:of Natural Light
-#X:22:0
-W:20:8:22:0:14700
+X:27:0
+W:20:8:0:17000
 T:1:0:99
 T:21:1:1
 T:21:3:3
@@ -1556,44 +1358,44 @@ F:SUST_CHR | LITE | BLESSED | SEE_INVIS | SLAY_UNDEAD
 F:RES_DARK | RES_NETHR | IGNORE_FIRE | GOOD_WEAP
 
 N:146:of Ups and Downs
-R:0:1:0:1:0:1:0:0:2:0
-X:40:0:0
-#X:6:0
-W:1:19:6:0:13000
+X:5:0
+W:1:19:0:13000
 T:1:0:99
 T:21:1:1
 T:21:3:3
 T:55:0:25
 T:55:27:99
 C:0:0:10:0
-F:RES_STATC | LIGHT_CURSE | IGNORE_FIRE
+F:FEATHER | BRAND_COLD | EXTRA_CRIT | DARKVIS | REGEN | RES_CHARM
+F:DANGER | TELEPORT | LIGHT_CURSE | IGNORE_FIRE
 
-#a little of everything plus a brand (1d2 drawbacks)  (was rarity 72)
 N:147:of Randomness
-R:1:1:1:1:1:1:9:9:9:0
-W:11:59:21:1:23649
+X:26:1
+W:6:64:1:15642
 T:1:0:99
 T:20:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:8:8:0:3
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+C:9:9:0:1
+F:SLAY_DRAGON | INFRA | RES_DARK | TCONTROL | RES_SHARD
+F:STR | THROWMULT | DANGER
+F:IGNORE_FIRE | HIDE_TYPE
 
 #Alternate versions with no pval for magic staffs
 #certain egos available to certain types of staffs
 N:148:of Natural Battle
-#X:11:0
-W:8:15:11:0:7000
+X:11:0
+W:8:15:0:7000
 T:55:2:23
 T:55:28:31
 C:6:9:0:0
 F:SUST_STR | RES_FEAR | SLAY_TROLL | SLAY_ORC
-F:RES_CHARM | RES_SHARD | IGNORE_FIRE
+F:RES_NEXUS | RES_SHARD | IGNORE_FIRE
 
 N:149:of Natural Light
-#X:22:0
-W:20:25:22:0:17000
+X:27:0
+W:20:25:0:17000
 T:55:4:24
 T:55:26:27
 T:55:30:31
@@ -1603,18 +1405,16 @@ F:RES_DARK | RES_NETHR | IGNORE_FIRE | GOOD_WEAP
 
 #Cool new ammo ego
 N:150:of Exploding
-#X:10:0
-W:0:4:10:0:30
+X:9:0
+W:0:4:0:30
 T:16:0:4
 T:17:0:99
 T:18:0:99
 F:EXPLODE_A
 
 N:151:(Holy Avenger)
-R:1:0:0:0:0:0:0:0:0:0
-X:56:0:0
-#X:24:1
-W:0:20:24:0:20000
+X:24:1
+W:0:20:0:20000
 C:6:6:4:0
 T:55:4:18
 T:55:20:27
@@ -1624,16 +1424,16 @@ F:HOLD_LIFE | GOOD_WEAP | RES_FEAR | IGNORE_FIRE
 
 #Thrown weapon version
 N:152:of Extra Attacks
-#X:15:0
-W:0:12:15:0:5000
+X:15:0
+W:0:12:0:5000
 C:0:0:0:2
 T:16:5:6
 F:BLOWS | HIDE_TYPE
 
 #Extra attacks + thrown (rare)
 N:153:of Dancing
-#X:16:0
-W:10:47:16:0:7000
+X:16:0
+W:10:50:0:7000
 C:0:0:0:2
 T:1:0:99
 T:21:3:10
@@ -1644,25 +1444,24 @@ F:BLOWS | THROWN | HIDE_TYPE
 
 #rings/amulets of teleportation (works now!)
 N:154:of Teleport Control
-#X:13:0
-W:15:17:13:0:5000
+X:13:0
+W:15:17:0:5000
 T:40:1:1
 T:45:4:4
 F:TCONTROL | HIDE_TYPE
 
 #stiletto specialty
 N:155:of Assassination
-#X:16:0
-W:0:9:16:0:6100
-C:9:0:0:2
+X:16:0
+W:0:9:0:6000
+C:9:0:0:1
 T:23:8:8
 F:STEALTH | SPEED | BRAND_POIS | EXTRA_CRIT | HIDE_TYPE | BAD_WEAP
 
 #another magic staff version with pval removed
 N:156:(Defender)
-R:1:0:0:0:0:0:0:0:0:0
-#X:21:1
-W:0:12:21:0:12000
+X:21:1
+W:0:12:0:12000
 C:4:4:8:0
 T:55:4:24
 F:FREE_ACT | REGEN |
@@ -1670,24 +1469,23 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #version which can be wielded in shield slot for defence (rarer)
-#has two random low resists instead of all four
 #(light non-broken weapons only)
 N:157:(Defender)
-R:1:0:2:0:0:0:0:0:0:0
-#X:24:1
-W:5:25:24:0:18000
+X:24:1
+W:5:25:0:18000
 C:4:4:8:4
 T:21:3:6
 T:22:2:3
 T:23:3:8
 T:23:29:29
 F:STEALTH | FREE_ACT | INFRA | REGEN | WIELD_SHIELD
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #For weapons which already have the THROWN flag
 N:158:of Returning
-#X:6:0
-W:0:6:6:0:350
+X:6:0
+W:0:6:0:350
 C:4:4:0:0
 T:16:5:5
 F:RTURN
@@ -1696,8 +1494,8 @@ F:RTURN
 
 #Certain magic staffs only (light and zapping)
 N:159:of Constant Activation
-#X:8:0
-W:20:12:8:0:1600
+X:8:0
+W:20:12:0:1600
 C:3:3:0:0
 T:55:8:8
 T:55:10:10
@@ -1705,34 +1503,32 @@ F:CONSTANTA | IGNORE_FIRE
 
 #Certain magic staffs only (speed version should cost a lot more)
 N:160:of Constant Activation
-#X:10:0
-W:25:25:10:0:20000
+X:10:0
+W:25:25:0:20000
 C:3:3:0:0
 T:55:22:22
 F:CONSTANTA | IGNORE_FIRE
 
 #edged weapons only
 N:161:(Silver)
-R:1:0:0:0:0:0:1:0:0:0
-X:46:0:0
-#X:6:0
-W:0:21:6:0:3100
-C:2:0:0:2
+X:6:0
+W:0:17:0:2100
+C:2:0:0:0
 T:22:0:99
 T:23:0:28
 F:SLAY_WERE | BLESSED | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#another ego light (very rare)
+#another ego light (rare)
 N:162:of Magic Keeping
-#X:12:0
-W:30:72:12:0:7300
+X:10:0
+W:30:72:0:6400
 T:39:1:1
 C:0:0:0:2
 F:RES_STATC | RES_DISEN | MAGIC_MASTERY | FREE_ACT | SUST_INT
 
 N:163:(Everburning)
-#X:3:0
-W:3:17:3:0:800
+X:3:0
+W:3:17:0:800
 T:39:0:1
 F:NO_FUEL | EASY_KNOW | IGNORE_FIRE

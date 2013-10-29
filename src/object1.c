@@ -372,7 +372,13 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 
 #ifdef new_random_stuff
 			/* only the random sustains, powers, and high resists are hidden */
-			if (o_ptr->randslay)
+			if (o_ptr->randslay > 50) /* special code for KILL slays */
+			{
+				if (o_ptr->randslay == 51) (*f2) |= TR2_KILL_DRAGON;
+				if (o_ptr->randslay == 52) (*f2) |= TR2_KILL_DEMON;
+				if (o_ptr->randslay == 53) (*f2) |= TR2_KILL_UNDEAD;
+			}
+			else if (o_ptr->randslay)
 			{
 				/* OBJECT_XTRA_WHAT_SLAY == 1 */
 				(*f1) |= (OBJECT_XTRA_BASE_SLAY << (o_ptr->randslay - 1));
@@ -842,9 +848,12 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, 
  *   0 -- Chain Mail of Death
  *   1 -- Cloak of Death [1,+3]
  *   2 -- Amulet of Death [1,+3] (+2 to Stealth)
- *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty} (squelch)
+ *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty} (squelch) 
+ *        (shows everything)
  *   4 -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
+ *        (shows everything escept squelch)
  *   5 -- Rings of Death [1,+3] {nifty} (squelch)
+ *   6 -- shows everything except staff charges (for wielding)
  */
 void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 {
@@ -1415,12 +1424,13 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
 			bool singleslay = FALSE;
+
+			object_desc_chr_macro(t, ' ');
+#ifdef new_random_stuff
 			/* treating 'of slaying' as single slay if it only ended up with one */
 			if ((o_ptr->name2 == EGO_SLAY_ONE) || ((o_ptr->name2 == EGO_SLAY_TWO) &&
             (o_ptr->randslay == o_ptr->randslay2))) singleslay = TRUE;
 
-			object_desc_chr_macro(t, ' ');
-#ifdef new_random_stuff
 			/* get slay name (this ego has one random slay and nothing else) */
 			/* replaces old "slay undead", "slay orc" etc */
 			if (singleslay)
@@ -1599,17 +1609,36 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 			/* Append a "damage" string */
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_num_macro(t, o_ptr->dd);
-			object_desc_chr_macro(t, 'd');
-			object_desc_num_macro(t, o_ptr->ds);
-
-			if (o_ptr->sbdd)
+			/* find out if extra dice is known or not */
+			if ((known) || (o_ptr->pseudo == INSCRIP_SPLENDID) ||
+				(o_ptr->pseudo == INSCRIP_EXCELLENT) ||
+				(o_ptr->pseudo == INSCRIP_SPECIAL))
 			{
-				object_desc_chr_macro(t, '/');
-				object_desc_num_macro(t, o_ptr->sbdd);
+				object_desc_num_macro(t, o_ptr->dd);
 				object_desc_chr_macro(t, 'd');
-				object_desc_num_macro(t, o_ptr->sbds);
+				object_desc_num_macro(t, o_ptr->ds);
+				if (o_ptr->sbdd)
+				{
+					object_desc_chr_macro(t, '/');
+					object_desc_num_macro(t, o_ptr->sbdd);
+					object_desc_chr_macro(t, 'd');
+					object_desc_num_macro(t, o_ptr->sbds);
+				}
 			}
+			else /* k_ptr instead of o_ptr to hide extra dice on unIDed stuff */
+			{
+				object_desc_num_macro(t, k_ptr->dd);
+				object_desc_chr_macro(t, 'd');
+				object_desc_num_macro(t, k_ptr->ds);
+				if (o_ptr->sbdd)
+				{
+					object_desc_chr_macro(t, '/');
+					object_desc_num_macro(t, k_ptr->sbdd);
+					object_desc_chr_macro(t, 'd');
+					object_desc_num_macro(t, k_ptr->sbds);
+				}
+			}
+
 			object_desc_chr_macro(t, p2);
 
 			/* All done */
@@ -1729,6 +1758,10 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 		if (toturns >= 60) sec = toturns - (minute * 60);
 		else sec = toturns;
 		if (minute >= 60) minute -= hour * 60;
+		/* don't show 0:00 while still lit */
+		if ((!hour) && (!minute) && (sec)) minute = 1;
+		/* round up slightly */
+		else if (sec > 50) minute += 1;
 
 		object_desc_str_macro(t, " (");
 #if old
@@ -1737,14 +1770,18 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 		object_desc_str_macro(t, " turns)");
 #else
 		if (hour) object_desc_num_macro(t, hour);
-		if (hour) object_desc_str_macro(t, ":");
+		else object_desc_str_macro(t, "0");
+		object_desc_str_macro(t, ":");
 		if (minute < 10) object_desc_str_macro(t, "0");
+		if (minute < 1) object_desc_str_macro(t, "0");
 		if (minute) object_desc_num_macro(t, minute);
+#if nosec
 		object_desc_str_macro(t, ":");
 		if (sec < 10) object_desc_str_macro(t, "0");
 		object_desc_num_macro(t, sec);
+#endif /* nosec */
 		object_desc_str_macro(t, ")");
-#endif
+#endif /* old/else */
 	}
 
 	if ((f1 & (TR1_PVAL_MASK)) || /* (f2 & (TR2_PVAL_MASK)) || */
@@ -1830,30 +1867,35 @@ void object_desc(char *buf, size_t max, object_type *o_ptr, int pref, int mode)
 		object_desc_chr_macro(t, p2);
 	}
 
-	/* Hack -- Wands and Staffs have charges */
-#ifdef EFG
-	/* EFGchange show charges if aware without id */
-	if (aware &&
-#else
-	if (known &&
-#endif
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
+	/* mode 6 means wielding */
+	/* not looking at charges when wielding a staff */
+    if (!(mode == 6))
 	{
-		/* Dump " (N charges)" */
-		object_desc_chr_macro(t, ' ');
-		object_desc_chr_macro(t, p1);
-		object_desc_num_macro(t, o_ptr->pval);
-		object_desc_str_macro(t, " charge");
-		if (o_ptr->pval != 1)
+		/* Hack -- Wands and Staffs have charges */
+#ifdef EFG
+		/* EFGchange show charges if aware without id */
+		if (aware &&
+#else
+		if (known &&
+#endif
+		    ((o_ptr->tval == TV_STAFF) ||
+		     (o_ptr->tval == TV_WAND)))
 		{
-			object_desc_chr_macro(t, 's');
+			/* Dump " (N charges)" */
+			object_desc_chr_macro(t, ' ');
+			object_desc_chr_macro(t, p1);
+			object_desc_num_macro(t, o_ptr->pval);
+			object_desc_str_macro(t, " charge");
+			if (o_ptr->pval != 1)
+			{
+				object_desc_chr_macro(t, 's');
+			}
+			object_desc_chr_macro(t, p2);
 		}
-		object_desc_chr_macro(t, p2);
-	}
+    }
 
 	/* Hack -- Rods have a "charging" indicator */
-	else if (known && (o_ptr->tval == TV_ROD))
+	if (known && (o_ptr->tval == TV_ROD))
 	{
 		/* Hack -- Dump " (# charging)" if relevant */
 		if (o_ptr->timeout > 0)
@@ -2412,7 +2454,6 @@ cptr describe_use(int i)
 	/* Return the result */
 	return p;
 }
-
 
 
 
@@ -3025,8 +3066,12 @@ void show_inven(void)
 
 /*
  * Display the equipment.
+ * mode now optionally shows ONLY the quiver or excludes the quiver
+ * mode == 0 show all equipment
+ * mode == 1 show only non-quiver equipment
+ * mode == 2 show only quiver equipment
  */
-void show_equip(void)
+void show_equip(int mode)
 {
 	int i, j, k, l;
 	int col, len, lim;
@@ -3034,7 +3079,6 @@ void show_equip(void)
 	object_type *o_ptr;
 
 	char tmp_val[80];
-
 	char o_name[80];
 
 	int out_index[24];
@@ -3102,6 +3146,11 @@ void show_equip(void)
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr, FALSE)) continue;
+		
+		/* mode == 1 don't show quiver */
+        if ((mode == 1) && (IS_QUIVER_SLOT(i))) continue;
+		/* mode == 1 don't show non-quiver equipment */
+        if ((mode == 2) && (!IS_QUIVER_SLOT(i))) continue;
 
 		/* Description */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -3652,6 +3701,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
 	bool allow_floor = FALSE;
+	int eqmode = 0;
 
 	bool toggle = FALSE;
 
@@ -3727,6 +3777,18 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Full equipment */
 	e1 = INVEN_WIELD;
 	e2 = INVEN_TOTAL - 1;
+	
+	/* eqmode == 0 show all equipment */
+	/* eqmode == 1 show only non-quiver equipment */
+	/* eqmode == 2 show only quiver equipment */
+	/* (only used when choosing an object to wield or put in quiver) */
+	/* (can't really think of a better way of doing this..) */
+	if ((pmt == "Wear/Wield which item? ") || 
+		(pmt == "Put which item into the quiver? "))
+	{
+		if ((use_quiver) && (!use_equip)) eqmode = 2;
+		else if ((!use_quiver) && (use_equip)) eqmode = 1;
+	}
 
 	/* Restrict the beginning of the quiver */
 	/* block the equip only if equip isn't allowed */
@@ -3903,7 +3965,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		else if (p_ptr->command_wrk == (USE_EQUIP))
 		{
 			/* Redraw if needed */
-			if ((p_ptr->command_see) || (show_list)) show_equip();
+			if ((p_ptr->command_see) || (show_list)) show_equip(eqmode);
 
 			/* Begin the prompt */
 			strnfmt(out_val, sizeof(out_val), "Equip:");

@@ -1054,7 +1054,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 	{
 		if (p_ptr->lev >= 30) (*f4) |= (TR4_RES_FEAR);
 	}
-	if (cp_ptr->flags & CF_HULK_CONF)
+	if (p_ptr->prace == 17)
     {
         p_ptr->confusing = TRUE;
     }
@@ -3118,9 +3118,7 @@ static void death_knowledge(void)
 static void show_info(void)
 {
 	int i, j, k;
-
 	object_type *o_ptr;
-
 	store_type *st_ptr = &store[STORE_HOME];
 
 
@@ -3141,7 +3139,7 @@ static void show_info(void)
 	{
 		Term_clear();
 		item_tester_full = TRUE;
-		show_equip();
+		show_equip(0);
 		prt("You are using: -more-", 0, 0);
 		if (inkey() == ESCAPE) return;
 	}

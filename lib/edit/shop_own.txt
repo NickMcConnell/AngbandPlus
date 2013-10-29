@@ -1,5 +1,5 @@
 # File: shop_own.txt
-# DaJAngband 1.1.0
+# for DaJAngband 1.2.2
 
 
 # This file is used to initialize the "lib/data/shop_own.raw" file, which is

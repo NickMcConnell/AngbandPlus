@@ -48,7 +48,7 @@
  * Name of the version/variant and its version string
  */
 #define VERSION_NAME   "DaJAngband"
-#define VERSION_STRING "v1.2.1c"
+#define VERSION_STRING "v1.2.2"
 
 
 /*
@@ -518,7 +518,7 @@ enum
     TMD_BR_SHIELD, TMD_DAYLIGHT, TMD_CLEAR_MIND, TMD_CURSE, TMD_SKILLFUL,
 	TMD_MIGHTY_HURL, TMD_BEAR_HOLD, TMD_QUIVERGUARD, TMD_MINDLIGHT, TMD_OPP_SILV,
 	TMD_FALSE_LIFE, TMD_STINKY, TMD_DEMON_WARD, TMD_TMPBOOST, TMD_SNIPER,
-	TMD_MIND_CONTROL, TMD_ACID_BLOCK,
+	TMD_MIND_CONTROL, TMD_ACID_BLOCK, /* TMD_THRoW_RETURN, */
 
 	TMD_MAX
 };
@@ -667,6 +667,7 @@ enum
 #define GF_SILENCE_S    60
 #define GF_ZOMBIE_FIRE  61
 #define GF_BRSLIME		62
+#define GF_DISP_DEMON   63
 
 /*
  * Some constants for the "learn" code
@@ -1300,10 +1301,10 @@ enum
 /* The sval codes for TV_RING (45) */
 #define SV_RING_WOE				0
 #define SV_RING_AGGRAVATION		1
-/* #define SV_RING_WEAKNESS		2   has been removed */
-#define SV_RING_FORGETFULNESS	3
-#define SV_RING_TELEPORTATION	4
-/* xxx */
+#define SV_RING_FORGETFULNESS	2
+#define SV_RING_TELEPORTATION	3
+#define SV_RING_SUBTBLE_NAGGING 4   //mixed: +stealth, alertness -R_ANNOY
+#define SV_RING_FEEBLE_RST      5   //mixed: -STR +resistances
 #define SV_RING_SLOW_DIGESTION	6
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
@@ -1311,7 +1312,7 @@ enum
 #define SV_RING_SUSTAIN_STR		10  //sustain brawn
 #define SV_RING_SUSTAIN_INT		11  //sustain intellect
 #define SV_RING_SUSTAIN_CON		12  //sustain sneakiness
-/* xxx */
+#define SV_FUMBLING_FREE        13  //mixed -DEX, DANGER +free_act, FEATHER & RES_NEXUS
 /* xxx */
 /* xxx */
 #define SV_RING_PROTECTION		16
@@ -2092,7 +2093,7 @@ enum
 #define TR1_XXX1            0x00000040L /* (reserved ..for what?) */
 #define TR1_MAGIC_MASTERY   0x00000080L /* Magic Mastery */
 #define TR1_STEALTH         0x00000100L /* Stealth += pval */
-#define TR1_EQLUCK          0x00000200L /* temporary +/- luck (combined SEARCH with alertness) */
+#define TR1_EQLUCK          0x00000200L /*  +/- luck (combined SEARCH with alertness) */
 #define TR1_INFRA           0x00000400L /* Alertness += pval*5 */
 #define TR1_TUNNEL          0x00000800L /* Tunnel += pval */
 #define TR1_SPEED           0x00001000L /* Speed += pval */
@@ -2164,7 +2165,7 @@ enum
 #define TR3_TCONTROL        0x00000400L /* Teleport Control */
 #define TR3_THROWMULT       0x00000800L /* for gauntlets of throwing (also a random power) */
 /* end of random powers */
-#define TR3_XXXEMPTY        0x00001000L /* unused */
+#define TR3_XXXEMPTY        0x00001000L /* unused (enhance spell damage random power?) */
 #define TR3_RTURN           0x00002000L /* returns when thrown */
 #define TR3_THROWN          0x00004000L /* weapon good for throwing but can't wield */
 #define TR3_PTHROW          0x00008000L /* decent for throwing, but not as good as THROWN -can be wielded for melee */
@@ -2311,7 +2312,7 @@ enum
 #define CF_PSEUDO_ID_HEAVY	0x00000080L /* Allow heavy pseudo-id */
 #define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
 #define CF_HEAVY_BONUS		0x00000200L /* Gives bonuses for heavy weapons */
-#define CF_HULK_CONF		0x00000400L /* always confuse monsters -also easydigging */
+#define CF_XXX11		    0x00000400L /* no longer used */
 #define CF_CLASS_SPEED		0x00000800L /* extra speed -also resists aggravation */
 #define CF_ASSASSIN			0x00001000L /* bonus against sleeping monsters & stealth */
 #define CF_POWER_SHIELD		0x00002000L /* war mage's defence & power bonus */

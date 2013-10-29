@@ -1,5 +1,5 @@
 # File: vault.txt
-# DaJAngband 1.2.0
+# for DaJAngband 1.2.2
 
 
 # This file is used to initialize the "lib/data/vault.raw" file, which is
@@ -29,7 +29,7 @@
 
 # useMT signifies whether the vault design can be used for an empty vault.  Empty
 # vaults add variety to room shapes by using a vault design, but not creating most
-# of the monsters, treasures, or traps in the vault design.  Empty vaults interpret
+# of the monsters, treasures, or traps in the vault design.  Empty vaults may interpret
 # Xs as granite instead of impenetrable rock, and any granite wall in a vault design
 # has a chance to be turned to rubble in an empty vault (usually allowing entry to
 # empty vaults with designs where you would normally have to dig through granite).
@@ -838,7 +838,7 @@ D:%%%%%%%%%%%%%%%%%%%%
 
 
 N:36:Lesser vault ("Miniature Cell")
-X:7:5:5:5:1:20:99
+X:7:5:5:5:0:20:99
 D:%%%%%
 D:%#9#%
 D:%999%
@@ -1927,8 +1927,8 @@ D:%#S..##.1#*@*#..##&...%
 D:%....##..#####..##....%
 D:%....##..R......#.....%
 D:%.....+..#.,.#..+#....%
-D:%....##.##...##.##....%
-D:%%%%%%%%%%%%%%%%%%%%%%%
+D:%....##.%%%%%%%.##....%
+D:%%%%%%%%%     %%%%%%%%%
 
 N:92:circle in a diamond
 X:9:0:13:15:1:20:99
@@ -2045,6 +2045,88 @@ D: %...XXmXX...X.XX@%
 D: %%...XXX...+XRXX.%
 D:  %%.......XX.XXC%%
 D:   %%%%%%%%%%%%%%% 
+
+N:99:lazy naming 1
+X:9:0:12:16:1:15:99
+D:%%%%%%    %%%%%%
+D:%....%    %....%
+D:%....%%%%%%....%
+D:%..............%
+D:%%%..........%%%
+D:  %....##....%  
+D:  %....##....%  
+D:%%%..........%%%
+D:%..............%
+D:%.....%%%%.....%
+D:%.....%  %.....%
+D:%%%%%%%  %%%%%%%
+
+N:100:lazy naming 2
+X:9:0:14:16:1:15:99
+D:     %%%%%%     
+D:%%%%%%....%     
+D:%.X.......%%%%%%
+D:%..............%
+D:%..............%
+D:%%%.........^%%%
+D:  %..#+#X+X..%  
+D:  %###.#X.XXX%%%
+D:%%%.&...X...XX.%
+D:%......#X...,X.%
+D:%.....##.....X+%
+D:%....##........%
+D:%....##........%
+D:%%%%%%%%%%%%%%%%
+
+N:101:lazy naming 3
+X:9:0:9:19:1:20:99
+D:%%%%%%%     %%%%%%%
+D:%.....%%%%%%%.....%
+D:%.................%
+D:%.................%
+D:%...#+#######+#...%
+D:%.................%
+D:%.................%
+D:%.....%%%%%%%.....%
+D:%%%%%%%     %%%%%%%
+
+N:102:lazy naming 4
+X:9:0:11:19:1:20:99
+D:   %%%%%%%%%%%%%   
+D:   %...........%   
+D:   %...........%   
+D:   %%%%.....%%%%   
+D:      %.....%      
+D:%%%%%%%.....%%%%%%%
+D:%.....###+###.....%
+D:%.................%
+D:%.................%
+D:%%%%%.........%%%%%
+D:    %%%%%%%%%%%    
+
+N:103:island tower
+X:9:2:11:15:1:40:99
+D:%%%%%%%%%%%%%% 
+D:%~~~~~~~~~~~~%%
+D:%~~~XXXXXX~~~~%
+D:%~~XX$@..XXX~~%
+D:%~XX.......+~~%
+D:%~XX......XX~~%
+D:%~~XX.^..XX~W~%
+D:%~~~XX++XX~~~%%
+D:%~~W~X..X~~~~% 
+D:%~~~~~~~~~~~%% 
+D:%%%%%%%%%%%%%  
+
+N:104:hidden closet
+X:9:2:7:24:1:50:99
+D:%%%%%%%          %%%%%%%
+D:%.....%     9$   %.....%
+D:%.....%          %....&%
+D:%.Wf..%          %.....%
+D:%.....%%%%%%%%%%%%###+%%
+D:%.....+....^..........%,
+D:%%%%%%%%%%%%%%%%%%%%%%% 
 
 #    % - outside of the vault, where corridors may be connected
 #    # - granite

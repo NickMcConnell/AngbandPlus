@@ -508,7 +508,7 @@ void deep_descent(void)
 
 /*
  * Attempt controlled teleportation
- * high resistcrtl is usually caused by a monster
+ * high resistcrtl is usually caused by a monster spell (or gravity/nexus breath)
  */
 bool control_tport(int resistcrtl, int enforcedist)
 {
@@ -526,8 +526,8 @@ bool control_tport(int resistcrtl, int enforcedist)
      opy = p_ptr->py;
 	 opx = p_ptr->px;
 
-     /* magic device skill minus class 10/level improvement (1/3) */
-     controlchance = (p_ptr->skills[SKILL_DEV] - (cp_ptr->x_dev * p_ptr->lev / 10)) / 3;
+     /* magic device skill (1/3) */
+     controlchance = (p_ptr->skills[SKILL_DEV]) / 3;
 
      /* cap magic device factor */
      /* learning telecontrol must be risky or else it'd be overpowered */
@@ -548,7 +548,8 @@ bool control_tport(int resistcrtl, int enforcedist)
         controlchance = 18 + p_ptr->learnedcontrol;
 
      /* attempt to gain control */
-     if (randint(150 + resistcrtl) > controlchance) return FALSE;
+     /* if (randint(150 + resistcrtl) > controlchance) return FALSE; */
+     if (randint(140 + resistcrtl) > controlchance) return FALSE;
 
      /* spellswitch 13 prevents using old target in get_aim_dir() */
      /* and prevents teleporting into vaults in teleport_player_to() */
@@ -2165,7 +2166,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Destroy walls (and doors) */
+		/* Destroy walls (and doors) (stone to mud) */
 		case GF_KILL_WALL:
 		{
 			s16b this_o_idx, next_o_idx = 0;
@@ -2276,10 +2277,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					next_o_idx = o_ptr->next_o_idx;
 					/* Skip non-objects */
 					if (!o_ptr->k_idx) continue;
+					/* don't give message more than once if more than one item was uncovered */
+					if ((!squelch_hide_item(o_ptr)) && (o_ptr->hidden)) unbury = TRUE;
 					/* unhide it */
 					o_ptr->hidden = 0;
-					/* don't give message more than once if more than one item was uncovered */
-					if (!squelch_hide_item(o_ptr)) unbury = TRUE;
 				}
 				/* Found something */
 				if ((unbury) && (player_can_see_bold(y, x)))
@@ -4499,8 +4500,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				/* effective monster level */
-				int rlev = r_ptr->level + 1;
-				if (r_ptr->flags2 & (RF2_STUPID)) rlev = ((rlev-1) * 3) / 4;
+				int erlev = r_ptr->level + 1;
+				if ((r_ptr->flags2 & (RF2_STUPID)) && (erlev > 3)) erlev = ((rlev-1) * 4) / 5;
+				/* priests have strong turn undead */
+				if ((cp_ptr->spell_book == TV_PRAYER_BOOK) && (cp_ptr->flags & CF_BLESS_WEAPON))
+					dam = (dam * 3) / 2;
+				/* paladins */
+				else if (cp_ptr->spell_book == TV_PRAYER_BOOK) 
+					dam = (dam * 5) / 4;
+				/* necromancers also have power over undead */
+				else if ((cp_ptr->spell_book == TV_PRAYER_BOOK) && (cp_ptr->flags & CF_ZERO_FAIL))
+					dam = (dam * 4) / 3;
 
 				/* Learn about type */
 				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
@@ -4512,7 +4522,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				do_fear = damroll(4, (dam / 2));
 
 				/* Attempt a saving throw */
-				if (r_ptr->level > randint((dam - 15) < 1 ? 1 : (dam - 15)) + 15)
+				if (erlev > randint((dam - 15) < 1 ? 1 : (dam - 15)) + 15)
 				{
 					/* No obvious effect */
 					note = " is unaffected!";
@@ -4704,28 +4714,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 			break;
 		}
 
-
 		/* Dispel undead */
 		case GF_DISP_UNDEAD:
 		{
 			/* NONMONSTERS are unaffected */
 			if (r_ptr->flags7 & (RF7_NONMONSTER)) { dam = 0; break; }
 
-            /* spellswitch 23: dispel demons */
-			if ((r_ptr->flags3 & (RF3_DEMON)) && (spellswitch == 23))
-			{
-				/* Learn about type */
-				if (seen) l_ptr->flags3 |= (RF3_DEMON);
-
-				/* Obvious */
-				if (seen) obvious = TRUE;
-
-				/* Message */
-				note = " shudders.";
-				note_dies = " dissolves!";
-            }
-			/* Normally only affect undead */
-			else if ((r_ptr->flags3 & (RF3_UNDEAD)) && (spellswitch != 23))
+			/* only affect undead */
+			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				/* Learn about type */
 				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
@@ -4737,6 +4733,38 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				note = " shudders.";
 				note_dies = " dissolves!";
 			}
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+		
+		/* Dispel demons */
+		case GF_DISP_DEMON:
+		{
+			/* NONMONSTERS are unaffected */
+			if (r_ptr->flags7 & (RF7_NONMONSTER)) { dam = 0; break; }
+
+            /* dispel demons */
+			if (r_ptr->flags3 & (RF3_DEMON))
+			{
+				/* Learn about type */
+				if (seen) l_ptr->flags3 |= (RF3_DEMON);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+            }
 			/* Others ignore */
 			else
 			{
@@ -5256,6 +5284,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 
 	/* Player blind-ness */
 	bool blind = (p_ptr->timed[TMD_BLIND] ? TRUE : FALSE);
+	/* used to affect effects of breaths */
+	bool isstrongbreath = FALSE;
 
 	/* Source monster */
 	monster_type *m_ptr;
@@ -5319,8 +5349,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 	   /* (maximum reduction is slightly more than 1/3 of the damage) */
 	   if (reduction > (dam * 7) / 20) reduction = ((dam * 7) / 20) + 1;
 
-	   dam -= reduction;
-    }
+		dam -= reduction;
+
+	  /* sometimes breath effects from weak monsters need strengthening */
+      if ((r_ptr->flags2 & (RF2_BR_STRONG)) && (dam < 21)) isstrongbreath = TRUE;
+}
 
 
 	/* Analyze the damage */
@@ -5387,6 +5420,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 			else if (p_ptr->weakresist_pois) dam = (dam + 2) / 2;
 			if (p_ptr->timed[TMD_OPP_POIS]) dam = (dam + 2) / 3;
 			take_hit(dam, killer);
+			if (isstrongbreath) dam += ((dam + 3) / 4) + 1;
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
                 (void)inc_timed(TMD_POISONED, rand_int(dam) + 10);
@@ -5442,6 +5476,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 			dam = (dam * (12-rplas)) / 12;
 
 			take_hit(dam, killer);
+
+			if (isstrongbreath) dam += ((dam + 3) / 4) + 1;
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
@@ -5667,6 +5703,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 		case GF_FORCE:
 		{
 			int k = (randint((dam > 45) ? 20 : (dam / 3 + 5)));
+			if (isstrongbreath) k += (k + 3) / 4;
 			if (blind) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
@@ -5836,7 +5873,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
-				(void)inc_timed(TMD_BLIND, randint(5) + 2);
+				if (isstrongbreath) (void)inc_timed(TMD_BLIND, randint(5) + 3);
+				else (void)inc_timed(TMD_BLIND, randint(5) + 2);
 			}
 			take_hit(dam, killer);
 			break;
@@ -5852,7 +5890,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
-				(void)inc_timed(TMD_BLIND, randint(5) + 2);
+				if (isstrongbreath) (void)inc_timed(TMD_BLIND, randint(5) + 3);
+				else (void)inc_timed(TMD_BLIND, randint(5) + 2);
 			}
 			take_hit(dam, killer);
 			break;

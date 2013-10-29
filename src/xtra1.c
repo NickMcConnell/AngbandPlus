@@ -1903,8 +1903,9 @@ static void calc_torch(void)
 			int flag_inc = (f3 & TR3_LITE) ? 1 : 0;
 
 			/* most artifact lights provide permanent bright light */
-			if ((artifact_p(o_ptr)) && (f3 & TR3_NO_FUEL))
-				amt = 3 + flag_inc;
+			/* if ((artifact_p(o_ptr)) && (f3 & TR3_NO_FUEL)) */
+			/* almost all artifact lights get NO_FUEL, Everburning ego also has NO_FUEL */
+			if (f3 & TR3_NO_FUEL) amt = 3 + flag_inc;
 
 			/* lights which need fuel and don't have any provide no light */
 			else if (!burn_light || o_ptr->timeout == 0)
@@ -3160,7 +3161,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	else if ((o_ptr->weight / 10) < 5) strb = (strb * 2) / 3;
 	else if ((o_ptr->weight / 10) < 6) strb = (strb * 3) / 4;
 	else if ((o_ptr->weight / 10) < 7) strb = (strb * 5) / 6;
-	if (cp_ptr->flags & CF_HEAVY_BONUS) /* barbarians like heavy weapons */
+	if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)) /* barbarians like heavy weapons */
 	{
 		if ((o_ptr->weight / 10) > 26) strb = (strb * 13) / 6;
 		else if ((o_ptr->weight / 10) > 20) strb = strb * 2;
@@ -3390,7 +3391,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
     }
     if ((p_ptr->prace == 17) && (p_ptr->ammo_tval == TV_ARROW))
     { /* umber hulks don't use bows */
-	      p_ptr->skills[SKILL_THB] -= 8;
+	      p_ptr->skills[SKILL_THB] -= 10;
     }
 
 		/* Apply special flags */
@@ -3482,7 +3483,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
 
-    if (!cp_ptr->flags & CF_HEAVY_BONUS)
+    if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (!(p_ptr->prace == 17)))
     {
 	   /* It is hard to hold a heavy weapon */
 	   if (hold < o_ptr->weight / 10)

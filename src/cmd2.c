@@ -1185,7 +1185,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* sound(MSG_DIG); */
 
 	/* umber hulk can dig through permanent vault walls (but not easily) */
-	if ((cave_feat[y][x] == FEAT_PERM_INNER) && (cp_ptr->flags & CF_HULK_CONF))
+	if ((cave_feat[y][x] == FEAT_PERM_INNER) && (p_ptr->prace == 17))
 	{
 	    /* Tunnel */
 	    if ((p_ptr->skills[SKILL_DIG] > 50 + rand_int(2000)) && twall(y, x))
@@ -1212,7 +1212,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
 	{
         /* umber hulk never fails when digging */
-		if ((cp_ptr->flags & CF_HULK_CONF) && twall(y, x))
+		if ((p_ptr->prace == 17) && twall(y, x))
         {
             msg_print("You easily bash through the wall.");
         }
@@ -1254,7 +1254,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		}
 
         /* umber hulk never fails when digging */
-		if (cp_ptr->flags & CF_HULK_CONF)
+		if (p_ptr->prace == 17)
         {
 			okay = ((p_ptr->skills[SKILL_DIG] + 21) > 1);
         }
@@ -1290,7 +1290,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			else
 			{
 				/* Message */
-		        if (cp_ptr->flags & CF_HULK_CONF) msg_print("You easily bash through the wall.");
+		        if (p_ptr->prace == 17) msg_print("You easily bash through the wall.");
 				else msg_print("You have finished the tunnel.");
 			}
 		}
@@ -1350,7 +1350,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] >= FEAT_SECRET)
 	{
         /* umber hulk never fails when digging */
-		if (cp_ptr->flags & CF_HULK_CONF)
+		if (p_ptr->prace == 17)
         {
             twall(y, x);
             msg_print("You easily bash through the wall.");
@@ -3055,6 +3055,7 @@ void do_cmd_fire(void)
 			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
+				bool luckstr = FALSE;
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
@@ -3099,9 +3100,14 @@ void do_cmd_fire(void)
                 /* DJA: for races / classes who like slings, */
 				/* slings get strength bonus to damage */
 				/* (rogues, druids, barbarians, hobbits, and ghouls) */
-				if ((p_ptr->ammo_tval == TV_SHOT) && (tmul < 3))
+				if (j_ptr->sval == SV_SLING)
 				{
-					if (p_ptr->timed[TMD_MIGHTY_HURL])
+					int slingluck = goodluck;
+					if (slingluck > 16) slingluck = 15;
+					else if (slingluck > 14) slingluck = 12;
+					else if (slingluck > 12) slingluck = 11;
+					else if (slingluck > 10) slingluck = 10;
+                    if (p_ptr->timed[TMD_MIGHTY_HURL])
 					{
                        tdam += (((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3) / 2;
 					}
@@ -3109,6 +3115,11 @@ void do_cmd_fire(void)
 						(p_ptr->prace == 3) || (p_ptr->prace == 14))
 					{
                        tdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+					}
+					else if (randint(100) < slingluck * 2)
+					{
+                       tdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+                       luckstr = TRUE;
 					}
                 }
 
@@ -3317,11 +3328,13 @@ void do_cmd_throw(void)
 	}
 
 	tooheavy = FALSE;
-	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight >= 200))
+	if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (!(p_ptr->prace == 17)) && (o_ptr->weight >= 200))
 		tooheavy = TRUE;
 	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
 		tooheavy = TRUE;
 	if ((p_ptr->timed[TMD_MIGHTY_HURL]) || ((cp_ptr->flags & CF_HEAVY_BONUS) && (((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 4)))
+		tooheavy = FALSE;
+	if ((p_ptr->prace == 17) && (((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 4))
 		tooheavy = FALSE;
 
 	if (tooheavy)
@@ -3353,8 +3366,8 @@ void do_cmd_throw(void)
 	}
 	else throwglove = FALSE;
 
-    if ((p_ptr->timed[TMD_MIGHTY_HURL]) || (cp_ptr->flags & CF_HEAVY_BONUS))
-       strong_throw = TRUE;
+	if ((p_ptr->timed[TMD_MIGHTY_HURL]) || (cp_ptr->flags & CF_HEAVY_BONUS) ||
+		(p_ptr->prace == 17)) strong_throw = TRUE;
     else strong_throw = FALSE;
 
 	/* Get local object */
@@ -3423,7 +3436,8 @@ void do_cmd_throw(void)
 	{
 		if (tdis > 2) tdis = 2;
 	}
-	else if ((p_ptr->timed[TMD_MIGHTY_HURL]) && (cp_ptr->flags & CF_HEAVY_BONUS))
+	else if ((p_ptr->timed[TMD_MIGHTY_HURL]) && ((cp_ptr->flags & CF_HEAVY_BONUS) ||
+		(p_ptr->prace == 17)))
 	{
 		/* recycles the CON regeneration table */
 		tdis += (adj_con_fix[p_ptr->stat_ind[A_STR]]);

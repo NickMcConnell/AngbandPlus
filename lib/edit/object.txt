@@ -1,5 +1,5 @@
 # File: object.txt
-# DaJAngband 1.2.0
+# for DaJAngband 1.2.2
 
 
 # This file is used to initialize the "lib/data/object.raw" file, which is
@@ -173,6 +173,7 @@ I:80:15:250
 W:10:0:1:0
 A:8/2
 F:EASY_KNOW
+M:10:1d3
 D:It drives you into a mad, careless frenzy.
 D:  Most mushrooms also provide some nourishment.
 
@@ -268,12 +269,13 @@ G:,:d
 I:80:0:250
 W:5:0:1:0
 A:10/1
+M:11:2d2
 P:0:3d4:0:0:0:3
 F:EASY_KNOW | PTHROW | BRAND_POIS
 D:It poisons you (doing 9d4 damage and adding 15+1d15 points to the
 D: poison counter), unless you have resistance to poison.
 D: (9d2 damage if eaten before clvl 6)
-D:  It may also be thrown to inflict 6d6 points of damage.
+D:  It may also be thrown for damage.
 D:  Most mushrooms also provide some nourishment.
 
 N:16:Pricy Luckfinding
@@ -329,8 +331,9 @@ D:  Most mushrooms also provide some nourishment.
 N:20:Cure Serious Wounds
 G:,:d
 I:80:16:500
-W:15:0:1:75
+W:15:0:1:77
 A:15/1
+M:15:1d2
 F:EASY_KNOW
 D:It cures 4d8 points of damage (or 1/5 of your maxhps, whichever is more).
 D: Also cures 1 point of silver poison and 1 point of sliming.
@@ -360,7 +363,7 @@ G:,:u
 I:80:33:1450
 W:0:0:2:2
 A:0/5
-M:60:1d3
+M:68:1d3
 F:EASY_KNOW
 D:It provides nourishment for about 2 hours under normal conditions.
 
@@ -389,10 +392,12 @@ W:0:0:5:1
 F:EASY_KNOW
 D:It provides nourishment for about 40 minutes under normal conditions.
 
+# allocate to dL101 to celebrate your win :)
 N:27:& pint~ of fine wine
 G:,:r
 I:80:39:720
 W:0:0:10:2
+A:101/3
 F:EASY_KNOW
 D:It provides nourishment for about an hour under normal conditions.
 
@@ -438,11 +443,11 @@ F:SHOW_MODS
 D:Also known as a hand-and-a-half sword, it is larger than the long sword, but
 D: smaller than the two-handed sword.
 
-# cannot be holy avenger, blessed, gondolin, or westernese
+# cannot be holy avenger, blessed, gondolin, or westernese (slightly lighter than it was)
 N:32:& athame~
 G:|:D
 I:23:29:0
-W:13:0:50:366
+W:13:0:40:366
 A:13/6
 P:0:1d4:0:0:0:5
 F:SHOW_MODS | PTHROW | DRUID
@@ -811,6 +816,8 @@ D:A metal spear that splits into three or more sharp tips.
 #F:SHOW_MODS
 #D:A very long and heavy spear-like weapon made for jousting.
 
+# this shouldn't be tval 22, it isn't ax axe or polearm
+# (it's more a cross between a flail and a dagger)
 N:66:& natace~
 G:/:v
 I:22:6:0
@@ -1351,7 +1358,7 @@ I:77:6:0
 W:36:0:30:536
 A:36/6:64/6
 P:0:9d4:0:0:0:5
-M:56:2d3
+M:56:2d2
 F:THROWN | EXPLODE_A | BRAND_FIRE | BRAND_ACID | 
 F:SHOW_MODS | BAD_WEAP
 F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
@@ -1480,7 +1487,7 @@ F:INFRA | HIDE_TYPE
 
 N:138:Teleportation
 G:=:d
-I:45:4:0
+I:45:3:0
 W:5:0:2:0
 A:5/1
 F:LIGHT_CURSE | TELEPORT | EASY_KNOW
@@ -1529,10 +1536,11 @@ F:FREE_ACT | EASY_KNOW
 
 N:145:Forgetfulness
 G:=:d
-I:45:3:-1
-W:40:0:2:0
-A:40/4
-F:LIGHT_CURSE | INT | WIS | CHR | DRAIN_EXP | RES_FEAR | HIDE_TYPE
+I:45:2:-1
+W:36:0:2:0
+A:36/6
+F:LITE | RES_FEAR
+F:LIGHT_CURSE | INT | WIS | CHR | DRAIN_EXP | HIDE_TYPE
 
 N:146:Flames
 G:=:d
@@ -1561,6 +1569,14 @@ P:0:0d0:0:0:15:0
 F:RES_COLD | IGNORE_COLD | BRAND_COLD
 F:ACTIVATE
 
+# (FIREPOWER not coded: flag which enhances spell damage)
+#N:149:Scrawny Spellpower
+#G:=:d
+#I:45:5:-2
+#W:16:9:2:350
+#A:16/9
+#F:CON | CHR | THROWMULT | FIREPOWER
+
 N:149:Woe
 G:=:d
 I:45:0:-5
@@ -1568,19 +1584,18 @@ W:50:0:2:0
 A:50/1
 F:HEAVY_CURSE | TELEPORT | WIS | CHR | INFRA | HIDE_TYPE
 
-N:150:Nether Resistance
+N:150:Fumbling Freely
 G:=:d
-I:45:13:0
-W:56:6:2:3000
-A:56/6
-F:RES_NETHR | EASY_KNOW
-D:it provides resistance to nether forces.
+I:45:13:-3
+W:18:9:2:350
+A:18/9
+F:DEX | DANGER | FREE_ACT | FEATHER | RES_NEXUS
 
 N:151:Damage
 G:=:d
 I:45:29:0
 W:20:0:2:550
-A:20/1
+A:21/1
 D:It boosts your to-dam value.
 
 N:152:Accuracy
@@ -1632,9 +1647,20 @@ W:20:0:2:400
 A:20/3
 F:SUST_DEX | SUST_CHR | EASY_KNOW
 
-### N:159:
+# replacing nether resistance with something more interesting
+N:159:Sheltered Feebleness
+G:=:d
+I:45:5:-2
+W:18:9:2:350
+A:18/9
+F:STR | BR_SHIELD | RES_NETHR | RES_STATC | RES_SLIME | PR_POIS
 
-### N:160:
+N:160:Subtle Nagging
+G:=:d
+I:45:5:2
+W:18:9:2:350
+A:18/9
+F:STEALTH | INFRA | R_ANNOY
 
 ### N:161:
 
@@ -1748,14 +1774,16 @@ I:70:16:0
 W:15:0:5:125
 A:15/1
 F:EASY_KNOW
+M:7:1d2
 D:It attempts to enchant a piece of armor once.
 
 N:176:Identify
 G:?:w
 I:70:12:0
 W:1:0:5:55
-A:1/1:5/1:10/1:30/1
+A:1/2:5/1:10/1:30/1
 F:EASY_KNOW
+M:7:1d3
 D:It reveals all normal (magical but non-hidden) powers of one object.
 D:  (The spell may be aborted without using up the scroll.)
 
@@ -1764,6 +1792,7 @@ G:?:w
 I:70:13:0
 W:30:0:5:700
 A:25/1:40/1:70/1
+M:3:1d2
 F:EASY_KNOW
 D:It reveals all normal and hidden powers of one object, and also
 D: permanently implants this knowledge into your mind, so that you will
@@ -1810,8 +1839,8 @@ F:EASY_KNOW
 D:Temporarily brands the currently wielded melee weapon with fire (1/3 chance)
 D: cold (1/2 chance), or lightning (1/6 chance or more with good luck), and at
 D: the same time attempts to improve the to-hit bonus and the to-dam bonus of
-D: the same weapon.  The branding effect lasts 500 game turns.  (A player turn
-D: takes 10 game turns at normal speed.)
+D: the same weapon.  The branding effect lasts 3 minutes plus a level dependant 
+D: time up to  30 seconds * (your character level/5).
 D:  The spell may fail if the item is an artifact, a cursed item, or if it
 D: is already branded.
 
@@ -1833,21 +1862,23 @@ G:?:w
 I:70:8:0
 W:1:0:5:15
 A:1/1
+M:6:2d2
 F:EASY_KNOW
 D:It teleports you randomly up to 10 squares away.
 
 N:186:Teleportation
 G:?:w
 I:70:9:0
-W:10:0:5:40
+W:10:0:5:44
 A:10/1
+M:6:1d2
 F:EASY_KNOW
 D:It teleports you randomly up to 100 squares away.
 
 N:187:Teleport Level
 G:?:w
 I:70:10:0
-W:20:0:5:50
+W:20:0:5:55
 A:20/1
 F:EASY_KNOW
 D:It teleports you 1 level up or down (chosen at random).
@@ -2108,9 +2139,10 @@ D:  If a monster normally has escorts, it will appear with escorts.
 N:217:Blessing
 G:?:w
 I:70:33:0
-W:1:0:5:15
+W:1:0:5:17
 A:1/1
 F:EASY_KNOW
+M:6:1d3
 D:It blesses you (a bonus of +5 to armor class and +10 to-hit) for
 D: 1-3 minutes.
 
@@ -2323,9 +2355,10 @@ D: are currently below maximum.
 N:237:Cure Light Wounds
 G:!:d
 I:75:34:48
-W:0:0:4:15
+W:0:0:4:16
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0:0
+M:11:2d3
 F:EASY_KNOW
 D:It cures 2d8 points of damage (or 10% of your maxhps, whichever is
 D: more), heals 10 points worth of cuts, and cures blindness.
@@ -2353,9 +2386,10 @@ D:It reduces constitution (unless you have sustain constitution).
 N:240:Cure Serious Wounds
 G:!:d
 I:75:35:96
-W:3:0:4:42
+W:3:0:4:45
 A:3/1
 P:0:1d1:0:0:0:0
+M:5:2d2
 F:EASY_KNOW
 D:It cures 4d8 points of damage (or 18% of your maxhps, whichever
 D: is more), heals half of all cut damage plus
@@ -2366,9 +2400,10 @@ D: conditions.
 N:241:Cure Critical Wounds
 G:!:d
 I:75:36:96
-W:5:0:4:105
+W:5:0:4:115
 A:5/1
 P:0:1d1:0:0:0:0
+M:5:1d3
 F:EASY_KNOW
 D:It cures 6d8 points of damage (or 23% of your maxhps, whichever
 D: is more), cures all stunning, heals all cut
@@ -2612,7 +2647,7 @@ N:261:Resist Heat
 G:!:d
 I:75:30:20
 W:1:0:4:30
-A:1/1
+A:1/1:40/10
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It grants you temporary resistance to fire for about 2-4 minutes.
@@ -2624,7 +2659,7 @@ N:262:Resist Cold
 G:!:d
 I:75:31:20
 W:1:0:4:30
-A:1/1
+A:1/1:40/10
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It grants you temporary resistance to cold for about 2-4 minutes.
@@ -2637,6 +2672,7 @@ G:!:d
 I:75:25:25
 W:3:0:4:50
 A:3/1:25/1
+M:5:1d2
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:It enables you to see invisible creatures for a duration depending
@@ -2780,7 +2816,7 @@ D:  Uniques are unaffected.
 N:275:Heal Monster
 G:-:d
 I:65:0:0
-W:3:3:10:0
+W:3:3:10:210
 A:3/1
 P:0:1d1:0:0:0:1
 C:6+d15
@@ -3607,7 +3643,7 @@ N:349:& docile tan dust bunny
 G:.:U
 I:2:2:0
 W:0:0:0:0
-A:2/21:14/8:60/14
+A:2/21:14/9:60/14
 P:0:0d0:0:0:0:0
 F:EASY_KNOW
 D:A floppy-eared furball-tailed dustball who eats dust carrots.
@@ -3616,7 +3652,7 @@ N:350:& docile silver dust bunny
 G:.:W
 I:2:3:0
 W:0:0:0:0
-A:18/13:40/9:75/15
+A:18/12:71/16
 P:0:0d0:0:0:0:0
 F:EASY_KNOW
 D:A rather cute ball of dust that refuses to be swept up.
@@ -3984,11 +4020,12 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 D:This spellbook is not readable by paladins.
 
+# was native to 100, then 95
 N:388:[Wrath of God]
 G:?:g
 I:91:8:0
-W:95:0:30:100000
-A:95/4
+W:90:0:30:100000
+A:90/4
 P:0:1d1:0:0:0:9
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -4063,6 +4100,7 @@ G:~:W
 I:1:3:0
 W:10:6:30:95
 A:10/6
+M:8:1d2
 P:0:1d3:0:0:0:6
 F:BRAND_POIS | PTHROW | SHOW_MODS
 
@@ -4089,6 +4127,7 @@ G:~:r
 I:1:6:0
 W:20:6:25:300
 A:20/6
+M:8:1d2
 P:0:1d4:0:0:0:4
 F:BRAND_FIRE | PTHROW | SHOW_MODS
 
@@ -4275,13 +4314,14 @@ D:  If a stat is more than 18/22, it just lowers the stat by 25 instead
 D: of setting it to 15.
 D:  (It affects base stats: before any race/class/equipment bonuses)
 
+#added EXPLODE_A to make it more fun as a throwing weapon.
 N:417:Detonations
 G:!:d
 I:75:22:0
 W:60:0:4:10000
 A:60/8
 P:0:25d25:0:0:0:5
-F:EASY_KNOW | PTHROW
+F:EASY_KNOW | PTHROW | EXPLODE_A
 D:It inflicts 50d20 points of damage from massive explosions, severe
 D: cuts (+5000 to the cut counter), and stunning (+75 to the stun
 D: counter).
@@ -4369,7 +4409,6 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # to now wear a combination of armor and shield, neither of which has the basic
 # four resists, without having to find Colluin or Dor-Lomin first. To have this 
 # power too early in the game would make it too easy.
-
 
 N:425:Regeneration
 G:":d
@@ -4768,7 +4807,6 @@ P:0:1d5:0:0:0:2
 F:SHOW_MODS
 D:A sturdy wooden staff not made for fighting.
 
-# was cost 42
 N:517:& elven leather cap~
 G:]:u
 I:32:7:1
@@ -4787,10 +4825,11 @@ P:2:1d3:0:0:0:5
 F:WIELD_SHIELD | SHOW_MODS | PTHROW
 D:An offhand dagger with a wide handguard for defence.
 
+# slightly lighter than it was
 N:519:& fur cloak~
 G:(:w
 I:35:2:0
-W:12:0:60:230
+W:12:0:30:230
 A:12/9
 P:2:0d0:0:0:0:0
 F:RES_COLD
@@ -5336,6 +5375,7 @@ G:!:d
 I:75:14:0
 W:10:0:4:777
 A:10/37:77/77
+M:1:1d2
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 D:Raises your luck by 1d2.
@@ -5380,7 +5420,7 @@ N:583:Resist Acid and Electricity
 G:!:d
 I:75:12:20
 W:4:0:4:55
-A:6/3
+A:6/3:41/15
 P:0:1d1:0:0:0:1
 F:EASY_KNOW
 D:It grants you temporary resistance to acid and electricity for 2-4 minutes.

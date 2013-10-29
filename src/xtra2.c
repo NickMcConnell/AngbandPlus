@@ -432,7 +432,7 @@ static bool set_shortboost(int v)
 	{
 		/* strong casters get their spell stat increased */
 		/* (unless it's already very high) */
-		if (cp_ptr->spell_first < 4)
+		if ((cp_ptr->spell_first) && (cp_ptr->spell_first < 4))
 		{
 			if (cp_ptr->spell_stat == 1)  wstat = A_INT;
 		    if (cp_ptr->spell_stat == 2)  wstat = A_WIS;
@@ -446,7 +446,7 @@ static bool set_shortboost(int v)
 		else wstat = A_STR;
 
 		/* strength is second choice if it isn't the first */
-		if ((!(wstat == A_STR)) && (p_ptr->stat_cur[wstat] > 18+70))
+		if ((wstat > A_STR) && (p_ptr->stat_cur[wstat] > 18+70))
 		{
 			wstat = A_STR;
 		}
@@ -1191,6 +1191,41 @@ void check_experience(void)
 
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
+		
+		/* golems heal on levelup (because they don't regenerate naturally) */
+		if (p_ptr->prace == 16)
+		{
+			int maxhp = p_ptr->mhp;
+			int ammmmt = maxhp/5;
+			if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
+
+			if (p_ptr->chp < maxhp) p_ptr->chp += maxhp/5;
+			else ammmmt = 0;
+
+			/* Enforce maximum */
+			if (p_ptr->chp >= maxhp)
+			{
+				ammmmt -= (p_ptr->chp - maxhp + 1);
+				p_ptr->chp = maxhp;
+				p_ptr->chp_frac = 0;
+			}
+
+			/* Redraw */
+			p_ptr->redraw |= (PR_HP);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			
+			if (ammmmt > 0)
+			{
+	            /* Heal 0-6 */
+				if (ammmmt < 7) msg_print("You feel a little better.");
+				/* Heal 7-27 */
+				else if (ammmmt < 28) msg_print("You feel better.");
+				/* Heal 28+ */
+				else msg_print("You feel much better.");
+        	}
+		}
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -1700,11 +1735,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
-	/* Hurt it */
-	m_ptr->hp -= dam;
-
     /* Extract monster name */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+	/* Hurt it */
+	m_ptr->hp -= dam;
 
 	/* It is dead now */
 	if (m_ptr->hp < 0)
@@ -1976,9 +2011,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     if (dam >= 5) wakemon = TRUE;
 	if (((r_ptr->flags2 & (RF2_STUPID)) || (m_ptr->hp > 1000)) && (dam < 12)) wakemon = FALSE;
 	if (randint(100) < estl) wakemon = TRUE;
-    if (estl > 50) estl = 50;
-    if (estl >= m_ptr->csleep) wakemon = TRUE;
-    if (dam <= 0) wakemon = FALSE;
+	if (estl > 50) estl = 50;
+	/* rare ways of causing damage without the monster noticing */
+	if (spellswitch == 23)
+	{
+		wakemon = FALSE;
+		estl = estl/4;
+	}
+	else if (dam <= 0)
+	{
+		wakemon = FALSE;
+		estl = estl/3;
+	}
+	if (estl >= m_ptr->csleep) wakemon = TRUE;
 
     /* disturb the monster (not automatic wakeup) */
     if (wakemon)

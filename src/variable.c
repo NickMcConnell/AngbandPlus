@@ -115,6 +115,8 @@ s16b mon_cnt = 0;	/* Number of live monsters */
 int range = 0;         /* shortened range of some spell/breaths */
 int spellswitch = 0;   /* extra effects of some spells (easy hacking) */
 int losesave = 0;      /* chance for powerful monsters to get past sustains and immunity */
+int summoner = 0;      /* holds race index of monster casting a summoning spell */
+					/* so I can have more control over what it can summon. */
 int goodluck = 0;
 /* if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20; */
 int badluck = 0;
@@ -931,7 +933,7 @@ char notes_fname[1024];
  * 20 = (no longer used)
  * 21 = (no longer used)
  * 22 = adds chance of sleep to GF_POIS for NOXIOUS_FUMES
- * 23 = used to turn GF_DISP_UNDEAD into dispel demons.
+ * 23 = used to damage monsters without noticing (call dark spell)
  * 24 = for telekinesis
  * 25 = makes the light from camera flash and burst of light not stay
  * 26 = for beam of destruction spell

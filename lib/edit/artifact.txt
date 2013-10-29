@@ -1,5 +1,5 @@
 # File: artifact.txt
-# for DaJAngband 1.2.0
+# for DaJAngband 1.2.2
 
 # This file is used to initialize the "lib/data/artifact.raw" file, which
 # is used to initialize the "artifact" information for the Angband game.
@@ -1009,7 +1009,7 @@ W:20:127:80:12:100000
 P:0:2d4:10:15:5
 F:DEX | SPEED | BRAND_ACID | RES_ACID | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | FREE_ACT | RES_DARK | SUST_DEX | 
-F:SHOW_MODS
+F:SHOW_MODS | PTHROW
 D:Forged from meteoric iron by Telchar, greatest of Dwarven smiths, and 
 D:used by Beren to gouge a Silmaril out of Morgoth's crown, this long 
 D:chopping dagger slices through ordinary metal as easily as its name, 
@@ -1022,7 +1022,7 @@ N:66:'Narthanc'
 I:23:4:0:10:0
 W:4:46:3:12:12000
 P:0:2d4:4:6:0
-F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
+F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | PTHROW
 A:FIRE1:6:6
 D:A flame, instead of a blade, seems to spring forth from this dagger's hilt.
 
@@ -1033,7 +1033,7 @@ N:67:'Nimthanc'
 I:23:4:0:10:0
 W:4:46:3:12:11500
 P:0:2d4:4:6:0
-F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
+F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS | PTHROW
 A:FROST1:6:6
 D:From the hilt of this dagger springs not so much a blade as an icicle.
 
@@ -1044,7 +1044,7 @@ N:68:'Dethanc'
 I:23:4:0:10:0
 W:4:46:3:12:13000
 P:0:2d4:4:6:0
-F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
+F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS | PTHROW
 A:LIGHTNING_BOLT:6:6
 D:In this dagger is bound the very force of the lightning.
 
@@ -1465,7 +1465,7 @@ W:15:127:45:50:140000
 P:0:3d6:15:25:5
 F:WIS | DEX | HIDE_TYPE | RES_FEAR | 
 F:BRAND_COLD | RES_COLD | SLAY_EVIL | SLAY_TROLL | SLAY_ORC | KILL_UNDEAD | 
-F:FREE_ACT | SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS
+F:FREE_ACT | SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS | PTHROW
 A:FROST3:36:0
 D:The mighty spear of Gil-galad, famed as "Snow-point" in the songs of Elves, 
 D:against which all the foul corruptions of Sauron dashed in vain.
@@ -1493,7 +1493,7 @@ I:22:4:3:23:0
 W:15:127:12:50:30000
 P:0:1d6:11:13:0
 F:STEALTH | SPEED | HIDE_TYPE | BLESSED | 
-F:BRAND_COLD | KILL_UNDEAD | IM_COLD | SHOW_MODS
+F:BRAND_COLD | KILL_UNDEAD | IM_COLD | SHOW_MODS | PTHROW
 D:A thin spike of thrice-forged steel caps a straight silvan shaft cut from 
 D:a legendary tree, and spells to break the wills of the undead and strike 
 D:cold into the breasts of your enemies lay upon this perfectly balanced 
@@ -1624,7 +1624,7 @@ W:15:91:20:12:35000
 P:0:2d4:4:4:0
 F:STR | DEX | CON |
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | KILL_UNDEAD |
-F:FREE_ACT | HOLD_LIFE | SUST_CON | ACTIVATE |
+F:FREE_ACT | HOLD_LIFE | SUST_CON | ACTIVATE | PTHROW
 A:REM_FEAR_POIS:36:36
 D:A dagger of Westernesse used by the hobbit Merry who rode with the Rohirrim and
 D: seriously wounded the Lord of the Nazgul in the battle of Pelennor Fields allowing
@@ -1845,7 +1845,7 @@ W:15:91:24:12:32500
 P:0:2d4:2:2:3
 F:STR | DEX | CON | INFRA | EQLUCK
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | RES_CHAOS | RES_SOUND |
-F:FREE_ACT | HOLD_LIFE | SUST_CON | ACTIVATE |
+F:FREE_ACT | HOLD_LIFE | SUST_CON | ACTIVATE | PTHROW
 A:CLAIRVOYANCE:90:90
 D:A dagger of Westernesse used by the hobbit Pippin who met Sauron face to face through
 D: the Palantir which had been used by Saruman. In Gondor, he was made a Guard of the
@@ -2045,7 +2045,7 @@ N:135:'Quickslash'
 I:23:1:2:10:0
 W:3:33:6:6:999
 P:0:1d2:6:4:-1
-F:DEX | BLOWS | SPEED | SLAY_ANIMAL
+F:DEX | BLOWS | SPEED | SLAY_ANIMAL | PTHROW
 D:it may be broken, but it's fast..
 
 

@@ -1,5 +1,5 @@
 # File: p_class.txt
-# DaJAngband 1.2.0
+# for DaJAngband 1.2.2
 
 
 # This file is used to initialize the "lib/data/p_class.raw" file, which is
@@ -1946,24 +1946,26 @@ B:74:16:15:70:7	#luck bolt				16
 #N:31:Yellow Knight (mind)
 
 #Novelty Class, maybe give it some chance spells
-N:32:Hulk
-S:3:-2:-1:1:2:-3
-C:18:23:24:0:4:9:66:30:40
-X:10:6:14:0:0:10:38:10:10
-I:6:25:60000:8
-A:6:50:4
-M:0:0:0:0
+#umber hulks may now choose any class and HULK_CONF flag no longer exists
+#N:32:Hulk
+#S:3:-2:-1:1:2:-3
+#C:18:23:24:0:4:9:66:30:40
+#X:10:6:14:0:0:10:38:10:10
+
+#I:6:25:60000:8
+#A:6:50:4
+#M:0:0:0:0
 #Starting objects: mumak tusk, filthy rag
-E:1:2:1:1
-E:36:1:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BRAVERY_30 | HEAVY_BONUS | HULK_CONF
-T:Mistaken for a Dumb Ogre
-T:Dumb Brute
-T:Brute
-T:Green Hulk
-T:Fearsome Brute
-T:Brown Hulk
-T:Umber Hulk
-T:Raging Hulk
-T:Titan Hulk
-T:Umber Titan
+#E:1:2:1:1
+#E:36:1:1:1
+#F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BRAVERY_30 | HEAVY_BONUS | HULK_CONF
+#T:Mistaken for a Dumb Ogre
+#T:Dumb Brute
+#T:Brute
+#T:Green Hulk
+#T:Fearsome Brute
+#T:Brown Hulk
+#T:Umber Hulk
+#T:Raging Hulk
+#T:Titan Hulk
+#T:Umber Titan

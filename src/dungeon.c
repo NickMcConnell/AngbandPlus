@@ -66,7 +66,7 @@ static Bool excellent_jewelry_p(const object_type *o_ptr)
 int value_check_aux1(const object_type *o_ptr)
 {
 	int good = 3;
-	int psskill; /* pseudo-skill */
+	int psskill, wgood; /* pseudo-skill */
 	
 	/* (none of this makes any difference if lower than level 13) */
     if (p_ptr->lev >= 13)
@@ -104,8 +104,18 @@ int value_check_aux1(const object_type *o_ptr)
 	/* EFGchange pseudo jewelry */
 	if (excellent_jewelry_p(o_ptr)) return (INSCRIP_EXCELLENT);
 #endif
+
+	/* ammo of wounding with low bonuses */
+	if (good > 8) wgood = 7;
+	else if (good < 5) wgood = 3;
+	else wgood = good - 1;
+	if ((o_ptr->name2 == EGO_WOUNDING) && (o_ptr->to_h + o_ptr->to_d < good))
+		return (INSCRIP_DECENT);
+	else if ((o_ptr->name2 == EGO_WOUNDING) && (o_ptr->to_h + o_ptr->to_d < 9 + wgood))
+		return (INSCRIP_GOOD);
+
 	/* Ego-Items */
-	if (ego_item_p(o_ptr))
+	else if (ego_item_p(o_ptr))
 	{
 		/* Cursed/Broken */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
@@ -907,10 +917,10 @@ void recharge_objects(void)
 		if ((f2 & (TR2_R_ANNOY)) && (goodluck < 20))
 		{
 			int uglychance = 4 + (badluck+1)/3;
-			if (goodluck > 11) uglychance -= 3;
-			else if (goodluck > 4) uglychance -= 2;
+			if (goodluck > 13) uglychance -= 3;
+			else if (goodluck > 5) uglychance -= 2;
 			else if (goodluck > 1) uglychance -= 1;
-			if (rand_int(1000) < uglychance) do_something_annoying(o_ptr);
+			if (rand_int(998) < uglychance) do_something_annoying(o_ptr);
 		}
 
 		/* handle constant activation */
@@ -1795,9 +1805,10 @@ static void process_world(void)
 	}
 
 	/* Various things interfere with healing */
-	if (p_ptr->timed[TMD_PARALYZED]) regen_amount /= 3;
 	if (p_ptr->timed[TMD_STUN]) regen_amount /= 4;
-	if (p_ptr->timed[TMD_BECOME_LICH]) regen_amount /= 2;
+	else if (p_ptr->timed[TMD_PARALYZED]) regen_amount /= 3;
+	else if (p_ptr->timed[TMD_BECOME_LICH]) regen_amount /= 2;
+	else if (p_ptr->timed[TMD_CURSE]) regen_amount = (regen_amount * 2) / 3 + 1;
 	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
 	if (p_ptr->stopregen) regen_amount = 0;
@@ -1915,7 +1926,8 @@ static void process_world(void)
 		p_ptr->word_recall--;
 
 		/* recall twice as fast if desperate to escape */
-		if ((p_ptr->timed[TMD_TERROR]) && (p_ptr->depth)) p_ptr->word_recall--;
+		if ((p_ptr->timed[TMD_TERROR]) && (p_ptr->depth) &&
+			(p_ptr->word_recall)) p_ptr->word_recall--;
 
 		/* Activate the recall */
 		if (!p_ptr->word_recall)

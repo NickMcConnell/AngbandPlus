@@ -1,5 +1,5 @@
 # File: spell.txt 
-# DaJAngband 1.2.0
+# for DaJAngband 1.2.2
 
 
 # This file is used to initialize the "lib/data/spell.raw" file, which is
@@ -2522,7 +2522,8 @@ D:Darkens the area around you and does very minor darkness damage to
 D: the monsters in the area.  Damage is 2d(clvl/2) + d(radius of the spell+1) + 1.
 D: (At clvl 2 it will do 4 to 7 damage. The radius is between 1 and 11 depending
 D: on your character level.)
-D: Creatures of light take double damage.
+D: Creatures of light take double damage.  This spell's damage (usually)
+D: doesn't alert monsters to your presense.
 D: Also gives you short-lasting darkvision (allows you to see monsters without light).
 D: If you already have darkvision, then it temporarily raises your alertness.
 

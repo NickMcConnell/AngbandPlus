@@ -12,111 +12,36 @@
 
 
 
-
 /*
  * Delete a monster by index.
+ *
  * When a monster is deleted, all of its objects are deleted.
- *
- * This functions does not always delete RETURNS monsters
- * (monsters which come back from the dead), it only marks them
- * as temporarily dead.
- * If cancomeback is FALSE, then the monster cannot come back from the dead.
- *
- * return_monsters() is called every 40 game turns.  That function
- * decrements m_ptr->temp_death, or if temp_death == 1, it brings the
- * monster back to life. (40 game turns = 4 normal speed player turns)
  */
-void delete_monster_idx(int i, bool cancomeback)
+void delete_monster_idx(int i)
 {
-	int x, y, deadlong;
+	int x, y;
 
 	monster_type *m_ptr = &mon_list[i];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	bool comeback = FALSE;
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	/* for RETURNS monsters */
-    int drlev = r_ptr->level / 8;
-	if (drlev < 2) drlev = 2;
-	
-	/* will the monster come back from the dead? (if it has RETURNS) */
-    if ((strchr("f", r_ptr->d_char)) && (cancomeback))
-	{
-		/* any cats that have the RETURNS flag have nine lives */
-        if (m_ptr->ninelives < 9) comeback = TRUE;
-	}
-	else if ((r_ptr->flags2 & (RF2_RETURNS)) && (cancomeback))
-	{
-		int remonchance = 2;
-		if (badluck) remonchance += rand_int(2 + (badluck / 2));
-		if (rand_int(100) < drlev)
-		{
-			if (drlev > 3) remonchance += randint(drlev-2);
-			else remonchance += 1;
-		}
-		/* town version less likely to come back */
-		if (!p_ptr->depth) remonchance = 1;
-		/* if remonchance == 2 (normal) then */
-        /* always if first death, 2/3 chance if 2nd death, then 50% chance.. */
-        if (rand_int(m_ptr->ninelives + 2) < remonchance) comeback = TRUE;
-	}
-
-	/* Monsters that come back from the dead */
-	if ((r_ptr->flags2 & (RF2_RETURNS)) && (comeback))
-	{
-		/* come back to life slower if it has come back before */
-        if (m_ptr->ninelives) deadlong = 5 + rand_int(10 + m_ptr->ninelives);
-		else deadlong = 3 + rand_int(11);
-        /* higher temp_death makes it take longer to come back to life */
-		m_ptr->temp_death = deadlong + m_ptr->ninelives - randint(drlev) - ((badluck+1)/3);
-		/* ensure a positive number */
-		if (m_ptr->temp_death < 3) m_ptr->temp_death = 2 + ((goodluck + 1) / 4);
-		/* make sure it doesn't take too long to come back */
-		if (m_ptr->temp_death > 10) m_ptr->temp_death = 10 + rand_int(m_ptr->temp_death-8);
-		if ((p_ptr->depth >= r_ptr->level + 5) && (m_ptr->ninelives) &&
-			(m_ptr->temp_death > 5 + m_ptr->ninelives))
-			m_ptr->temp_death = 5 + m_ptr->ninelives + rand_int(m_ptr->temp_death - (4 + m_ptr->ninelives));
-
-		/* count how many times the monster has died */
-		if ((strchr("f", r_ptr->d_char)) && (!m_ptr->ninelives) &&
-			(randint(100) < 55 + goodluck - badluck))
-		{
-			/* cats have nine lives, but they might have died a couple times before */
-			/* (but must have m_ptr->ninelives == 0 when it's created) */
-            m_ptr->ninelives += 1 + randint(5);
-		}
-		else
-		{
-			m_ptr->ninelives += 1;
-		}
-		
-		/* make it dissapear */
-        m_ptr->ml = FALSE;
-		m_ptr->heard = FALSE;
-	}
 
 	/* Get location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
 	/* remove CAVE_WALL from dead BLOCK_LOS monsters */
-	/* (as long as they're not in a wall) */
 	if (r_ptr->flags7 & (RF7_BLOCK_LOS))
 	{
-		if (!((cave_feat[y][x] >= FEAT_SECRET) ||
-			((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			(cave_feat[y][x] <= FEAT_DOOR_TAIL))))
-				cave_info[y][x] &= ~(CAVE_WALL);
+		cave_info[y][x] &= ~(CAVE_WALL);
 	}
 
 	/* Hack -- Reduce the racial counter */
-	/* (only if it's not going to come back to life) */
-	if (!m_ptr->temp_death) r_ptr->cur_num--;
+	r_ptr->cur_num--;
 
 	/* Hack -- count the number of "reproducers" */
-	if ((r_ptr->flags2 & (RF2_MULTIPLY)) &&
-		(!m_ptr->temp_death)) num_repro--;
+	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
 
 
 	/* Hack -- remove target monster */
@@ -154,14 +79,13 @@ void delete_monster_idx(int i, bool cancomeback)
 		delete_object_idx(this_o_idx);
 	}
 
-    if (!m_ptr->temp_death)
-	{
-		/* Wipe the Monster */
-		(void)WIPE(m_ptr, monster_type);
 
-		/* Count monsters */
-		mon_cnt--;
-	}
+	/* Wipe the Monster */
+	(void)WIPE(m_ptr, monster_type);
+
+	/* Count monsters */
+	mon_cnt--;
+
 
 	/* Visual update */
 	lite_spot(y, x);
@@ -171,80 +95,13 @@ void delete_monster_idx(int i, bool cancomeback)
 /*
  * Delete the monster, if any, at a given location
  */
-void delete_monster(int y, int x, bool cancomeback)
+void delete_monster(int y, int x)
 {
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
 	/* Delete the monster (if any) */
-	if (cave_m_idx[y][x] > 0) delete_monster_idx(cave_m_idx[y][x], cancomeback);
-}
-
-/* 
- * Finish deleting a monster which is already dead
- * (RETURNS monster which has failed to come back to life.)
- */
-void delete_dead_monster_idx(int i)
-{
-	int x, y;
-
-	monster_type *m_ptr = &mon_list[i];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	s16b this_o_idx, next_o_idx = 0;
-
-	/* Get location */
-	y = m_ptr->fy;
-	x = m_ptr->fx;
-
-	/* Hack -- Reduce the racial counter */
-	r_ptr->cur_num--;
-
-	/* Hack -- count the number of "reproducers" */
-	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
-
-	/* Hack -- remove target monster */
-	if (p_ptr->target_who == i) target_set_monster(0);
-
-	/* Hack -- remove tracked monster */
-	if (p_ptr->health_who == i) health_track(0);
-
-	/* monster is no longer holding the PC */
-	if (p_ptr->held_m_idx == i)
-	{
-		p_ptr->held_m_idx = 0;
-		clear_timed(TMD_BEAR_HOLD);
-	}
-
-	/* <Monster was already gone> */
-
-
-	/* Delete objects (paranoia: dead monsters should never have objects) */
-	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Hack -- efficiency */
-		o_ptr->held_m_idx = 0;
-
-		/* Delete the object */
-		delete_object_idx(this_o_idx);
-	}
-
-	/* Wipe the Monster */
-	(void)WIPE(m_ptr, monster_type);
-
-	/* Count monsters */
-	mon_cnt--;
-
-	/* Visual update (probably unnessesary here, but it shouldn't hurt) */
-	lite_spot(y, x);
+	if (cave_m_idx[y][x] > 0) delete_monster_idx(cave_m_idx[y][x]);
 }
 
 
@@ -339,6 +196,7 @@ void compact_monsters(int size)
 		for (i = 1; i < mon_max; i++)
 		{
 			monster_type *m_ptr = &mon_list[i];
+
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Paranoia -- skip "dead" monsters */
@@ -352,9 +210,6 @@ void compact_monsters(int size)
 
 			/* Saving throw chance */
 			chance = 90;
-			
-			/* This monster is already temporarily dead, so it dies easier */
-			if (m_ptr->temp_death) chance = 34;
 
 			/* Only compact "Quest" Monsters in emergencies */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) && (cnt < 1000)) chance = 100;
@@ -366,7 +221,7 @@ void compact_monsters(int size)
 			if (rand_int(100) < chance) continue;
 
 			/* Delete the monster */
-			delete_monster_idx(i, FALSE);
+			delete_monster_idx(i);
 
 			/* Count the monster */
 			num++;
@@ -406,6 +261,7 @@ void wipe_mon_list(void)
 	for (i = mon_max - 1; i >= 1; i--)
 	{
 		monster_type *m_ptr = &mon_list[i];
+
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Skip dead monsters */
@@ -675,7 +531,7 @@ s16b get_mon_force_theme(int level)
 				if (level < 15) choose = 112; /* small slime(6) */
 				else if (level < 27) choose = 266; /* giant slime blob(16) */
 				else if (level < 85) choose = 403; /* wereworm(27) */
-				else choose = 730; /* great bile worm(67) */
+				else choose = choose = 730; /* great bile worm(67) */
 			}
 			else if (die < 43)
 			{
@@ -1275,7 +1131,7 @@ static bool temple_okay(int r_idx)
 	/* monster temple monsters are supposed to be tough */
 	if ((r_ptr->level < p_ptr->depth - 2) && (!(r_ptr->flags1 & (RF1_UNIQUE))))
 		return (FALSE);
-	else if (r_ptr->level < (p_ptr->depth * 2) / 3) return (FALSE);
+	else if (r_ptr->level < (p_ptr->depth * 3) / 4) return (FALSE);
 
 	/* monster temple monsters */
 	if (r_ptr->flags7 & RF7_TEMPLE) return (TRUE);
@@ -1294,6 +1150,9 @@ bool theme_okay(int r_idx, int mode, bool vault)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 	int force;
+
+	/* never allow L0 monsters in vaults */
+	if ((vault) && (r_ptr->level == 0)) return FALSE;
 
 	/* a monster temple is like a mini themed level */
 	if ((!p_ptr->theme) && (r_ptr->flags7 & (RF7_THEME_ONLY)) &&
@@ -1332,10 +1191,6 @@ bool theme_okay(int r_idx, int mode, bool vault)
 	else if ((p_ptr->theme == 13) && (r_ptr->flags7 & (RF7_NIGHTMARE))) return TRUE;
 	/* hell hall (demons & devils) */
 	else if ((p_ptr->theme == 14) && (r_ptr->flags7 & (RF7_HELL_HALL))) return TRUE;
-	/* army barracks */
-	else if ((p_ptr->theme == 15) && (r_ptr->flags7 & (RF7_BARRACKS))) return TRUE;
-	/* city of hobs (dark fairy city) */
-	else if ((p_ptr->theme == 16) && (r_ptr->flags7 & (RF7_DARK_CITY))) return TRUE;
 
 	/* Hacky: allow water elementals from the swamp to appear in the cold forest */
 	if ((p_ptr->theme == 1) && (r_ptr->flags7 & (RF7_SWAMP)) &&
@@ -1344,33 +1199,36 @@ bool theme_okay(int r_idx, int mode, bool vault)
 
 	/* THEME_ONLY always requires correct theme for its flag */
 	if (r_ptr->flags7 & (RF7_THEME_ONLY)) return FALSE;
-	/* mode 0 always requires correct theme */
-	if (mode == 0) return FALSE;
 
-		/* theme conflicts */
-	/* volcano monsters never in cold forest */
-	if ((p_ptr->theme == 1) && (r_ptr->flags7 & (RF7_VOLCANO))) return FALSE;
-	/* cold forest monsters never in volcano */
-	if ((p_ptr->theme == 4) && (r_ptr->flags7 & (RF7_CFOREST))) return FALSE;
-	/* no demons or grepse in fairy forest */
-	if ((p_ptr->theme == 2) && (r_ptr->flags3 & (RF3_DEMON))) return FALSE;
-	if ((p_ptr->theme == 2) && (r_ptr->flags3 & (RF3_SILVER))) return FALSE;
-	/* no creatures of light in the HELL_HALL */
-	if ((p_ptr->theme == 14) && (r_ptr->flags3 & (RF3_HURT_DARK))) return FALSE;
-	/* no light fairies in the domain of the grepse */
-	if ((p_ptr->theme == 12) && (strchr("y", r_ptr->d_char))) return FALSE;
-	/* no light fairies in the dark fairy city */
-	if ((p_ptr->theme == 12) && (strchr("y", r_ptr->d_char)) &&
-		(r_ptr->flags3 & (RF3_HURT_DARK))) return FALSE;
-	/* no trees or centaurs in earth cave or volcano */
-	if (((p_ptr->theme == 5) || (p_ptr->theme == 4)) && 
-		(strchr("EY", r_ptr->d_char))) return FALSE;
+	/* mode 0 never accepts out of theme monsters */
+    if (mode == 1)
+	{
+			/* theme conflicts */
+		/* volcano monsters never in cold forest */
+		if ((p_ptr->theme == 1) && (r_ptr->flags7 & (RF7_VOLCANO))) return FALSE;
+		/* cold forest monsters never in volcano */
+		if ((p_ptr->theme == 4) && (r_ptr->flags7 & (RF7_CFOREST))) return FALSE;
+		/* no demons or grepse in fairy forest */
+		if ((p_ptr->theme == 2) && (r_ptr->flags3 & (RF3_DEMON))) return FALSE;
+		if ((p_ptr->theme == 2) && (r_ptr->flags3 & (RF3_SILVER))) return FALSE;
+		/* no creatures of light in the HELL_HALL */
+		if ((p_ptr->theme == 14) && (r_ptr->flags3 & (RF3_HURT_DARK))) return FALSE;
+		/* no light fairies in the domain of the grepse */
+		if ((p_ptr->theme == 12) && (strchr("y", r_ptr->d_char))) return FALSE;
+		/* no trees or centaurs in earth cave or volcano */
+		if (((p_ptr->theme == 5) || (p_ptr->theme == 4)) && 
+           (strchr("EY", r_ptr->d_char))) return FALSE;
 
-	force = 15;
-	/* (some themes have different odds to accept non-theme monsters) */
-	if (p_ptr->theme == 10) force = 13; /* DWARF_MINE */
-	/* if no conflicts, then doesn't always require correct theme flag */
-	if (rand_int(100) < force) return TRUE;
+		/* don't accept if out of theme and more than 3 levels out of depth */
+		/* (unless we are chosing a monster for a vault) */
+		if ((!vault) && (r_ptr->level > p_ptr->depth + 3)) return FALSE;
+
+		force = 15;
+		/* (some themes have different odds to accept non-theme monsters) */
+		if (p_ptr->theme == 10) force = 13; /* DWARF_MINE */
+		/* if no conflicts, then doesn't always require correct theme flag */
+		if (rand_int(100) < force) return TRUE;
+	}
 
 	/* don't accept */
 	return FALSE;
@@ -1389,50 +1247,12 @@ static int place_monster_idx = 0;
 static bool place_monster_okay(int r_idx)
 {
 	monster_race *r_ptr = &r_info[place_monster_idx];
-	monster_race *z_ptr = &r_info[r_idx];
-    cptr rname = (r_name + r_ptr->name);
-    cptr zname = (r_name + z_ptr->name);
-    bool exception = FALSE;
-	
-	/* Make exceptions for certain escort leaders */
-	 /* Azog can have troll escorts sometimes */
-	if ((strstr(rname, "King of the orcs")) && (strstr(zname, "troll")) && 
-		(randint(100) < 9)) exception = TRUE;
-	 /* The Great Goblin was allies with wolves */
-	 /* (checks for 'C' AND wolf to prevent wolf spiders or jackals) */
-	if ((strstr(rname, "Great Goblin")) && (strstr(zname, "wolf")) && 
-		(strchr("C", z_ptr->d_char)) && (randint(100) < 10)) exception = TRUE;
-	 /* orcs sometimes ally with wargs */
-	if ((strchr("o", r_ptr->d_char)) && (strstr(zname, "warg")) && 
-		(randint(100) < 5)) exception = TRUE;
-	 /* The Sire of all werewolves may lead any werebeast */
-	if ((strstr(rname, "Draugluin")) && (strstr(zname, "were")) && 
-		(randint(100) < 45)) exception = TRUE;
-	 /* An artifact mentions Gothmog's troll guard (don't allow weakest trolls) */
-	if ((strstr(rname, "Gothmog")) && (strstr(zname, "troll")) && 
-		(z_ptr->level >= 25) && (randint(100) < 11)) exception = TRUE;
-	 /* allow the icky king to have slimes & puddings */
-	if ((strstr(rname, "Icky King")) && (strchr("S", z_ptr->d_char)) && 
-		(randint(100) < 25)) exception = TRUE;
-	/* Wulf may have other outlaw/warrior escorts ("K" with "p" escorts) */
-	if ((strstr(rname, "Wulf")) && 
-		((strstr(zname, "swordsm")) || (strstr(zname, "hardened")) || 
-		(strstr(zname, "lightning ro"))) && 
-		(randint(100) < 34)) exception = TRUE;
-	
-	/* (usually) Require similar "race" */
-	if ((z_ptr->d_char != r_ptr->d_char) && (!exception)) return (FALSE);
 
-		/* 'T' symbol complications.. */
-    /* Hack: Tom, Bert & Bill shouldn't have gargoyle escorts */
-    if ((strstr(rname, "the Stone Troll")) && (strstr(zname, "oyle"))) return (FALSE);
-	/* Hack: Rogrog should only rarely have gargoyle escorts */
-	if ((strstr(rname, "Rogrog")) && (strstr(zname, "oyle")) && (randint(100) < 80)) 
-		return (FALSE);
-	/* Ramvodo the gargoyle king should have mostly gargoyle escorts */
-	if ((strstr(rname, "Gargoyle")) && (!strstr(zname, "oyle")) && (randint(100) < 75)) 
-		return (FALSE);
-	
+	monster_race *z_ptr = &r_info[r_idx];
+
+	/* Require similar "race" */
+	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
+
 	/* Skip more advanced monsters */
 	if (z_ptr->level > r_ptr->level) return (FALSE);
 
@@ -1461,74 +1281,15 @@ static int summon_specific_type = 0;
 static bool summon_specific_okay(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-    cptr rname = (r_name + r_ptr->name);
 
 	bool okay = FALSE;
 
-	/* Extract the racial spell flags */
-	u32b f4, f5, f6;
-	f4 = r_ptr->flags4;
-	f5 = r_ptr->flags5;
-	f6 = r_ptr->flags6;
 
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
 
-	/* Check extra requirements */
-	switch (summon_specific_type)
-	{
-		case SUMMON_NOFIRE:
-		case SUMMON_ANI_NOFIRE:
-		{
-			/* exclude fire monsters */
-			if ((strstr(rname, "fire")) || (strstr(rname, "plasma")) ||
-				(strstr(rname, "hell")) || (strstr(rname, "Smaug")) ||
-				(strstr(rname, "tyerr")) || (strstr(rname, "hoenix")) ||
-				(strstr(rname, "salamander")) || (strstr(rname, "ifrit")) ||
-				(strstr(rname, "effretti")) || (strstr(rname, "bodak")) ||
-				((strstr(rname, "hydra")) && (r_ptr->flags4 & (RF4_BR_FIRE))) ||
-				(strstr(rname, "horned devil")) || (strstr(rname, "pit fiend")) ||
-				(strstr(rname, "bronze idol")) || (strstr(rname, "balrog")) ||
-				(strstr(rname, "lava")))
-				return FALSE;
 
-			if (summon_specific_type == SUMMON_ANI_NOFIRE)
-				summon_specific_type = SUMMON_ANIMAL;
-			else return TRUE;
-			break;
-		}
-
-		case SUMMON_NOWATER:
-		case SUMMON_ANI_NOWATER:
-		{
-			/* exclude water monsters (a lot easier..) */
-			if ((strstr(rname, "water")) || (r_ptr->flags7 & (RF7_WATER_HIDE)) ||
-				(r_ptr->flags7 & (RF7_WATER_ONLY)) || (r_ptr->d_char == 'N') ||
-                (r_ptr->flags5 & (RF5_BA_WATE))) 
-				return FALSE;
-
-			if (summon_specific_type == SUMMON_ANI_NOWATER)
-				summon_specific_type = SUMMON_ANIMAL;
-			else return TRUE;
-			break;
-		}
-
-		case SUMMON_NOLIGHT:
-		case SUMMON_ANI_NOLIGHT:
-		{
-			/* exclude light breathers and creatures of light */
-			if ((r_ptr->flags4 & (RF4_BR_LITE)) || (r_ptr->flags3 & (RF3_HURT_DARK)))
-				return FALSE;
-
-			if (summon_specific_type == SUMMON_ANI_NOLIGHT)
-				summon_specific_type = SUMMON_ANIMAL;
-			else return TRUE;
-			break;
-		}
-	}
-
-
-	/* Check standard requirements */
+	/* Check our requirements */
 	switch (summon_specific_type)
 	{
 		case SUMMON_ANIMAL:
@@ -1540,7 +1301,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_SPIDER:
 		{
-			okay = ((r_ptr->d_char == 'x') &&
+			okay = ((r_ptr->d_char == 'S') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -1563,10 +1324,6 @@ static bool summon_specific_okay(int r_idx)
 		{
 			okay = ((r_ptr->d_char == 'A') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			        
-			/* The Wicked witch of the West prefers winged monkeys */
-			if ((spellswitch == 40) && (!strstr(rname, "winged")) &&
-				(randint(100) < 85)) okay = FALSE;
 			break;
 		}
 
@@ -1638,153 +1395,12 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
-			/* allow S_UNIQUE to summon 'almost-uniques' */
-			if ((strstr(rname, "king")) || (strstr(rname, "queen")) ||
-				(strstr(rname, "fool")) || (strstr(rname, "lord")) ||
-				(strstr(rname, "captain")) || (strstr(rname, "spectral")) ||
-				(strstr(rname, "chief")))
-				okay = TRUE;
 			break;
 		}
 	}
 
 	/* Result */
 	return (okay);
-}
-
-
-/*
- * A separate function to choose a monster to place in the town 
- */
-s16b get_mon_num_town(void)
-{
-	int i, j, p, erlev;
-	int r_idx;
-	long value, total;
-	bool night;
-	int plev = p_ptr->lev;
-	int maxd = p_ptr->max_depth;
-
-	monster_race *r_ptr;
-	alloc_entry *table = alloc_race_table;
-	
-	/* paranoia: do not call this function from the dungeon */
-	if (p_ptr->depth) return 0;
-	
-	/* night or day */
-    if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) night = FALSE;
-	else night = TRUE;
-
-	/* Reset total */
-	total = 0L;
-
-	/* Process probabilities */
-	for (i = 0; i < alloc_race_size; i++)
-	{
-        cptr dname;
-        /* Default */
-		table[i].prob3 = 0;
-		
-		/* Get the "r_idx" of the chosen monster */
-		r_idx = table[i].index;
-
-		/* Get the actual race */
-		r_ptr = &r_info[r_idx];
-
-		/* effective monster level */
-		erlev = r_ptr->level;
-
-		/* Only TOWNOK dungeon monsters allowed in the town */
-        if ((!(r_ptr->flags7 & (RF7_TOWNOK))) && (erlev > 0)) continue;
-
-		/* poltergeists have TOWNOK */
-		if ((r_ptr->flags2 & (RF2_INVISIBLE)) && (!night)) continue;
-		else if (r_ptr->flags2 & (RF2_INVISIBLE)) erlev += 2;
-		
-		/* Make sure all TOWNOK have some chance of appearing in the town */
-        if (erlev > 43) erlev = 43;
-		
-		/* deeper TOWNOK monsters should only appear when the PC is tough */
-        if ((erlev > 25) && (plev <= erlev + 5)) continue;
-		
-		/* TOWNOK werebeasts only allowed on a full moon */
-		dname = (r_name + r_ptr->name);
-        if ((strstr(dname, "were")) && (!(p_ptr->theme == 7))) continue;
-		
-		/* limits:  this prevents dungeon monsters (except dL1 monsters) */
-		/*  in the town at the very beginning of the game  */
-		if ((erlev > 1) && ((plev <= erlev) ||	(maxd <= erlev))) continue;
-
-		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-		    (r_ptr->cur_num >= r_ptr->max_num)) continue;
-
-		/* Accept */
-		table[i].prob3 = table[i].prob2;
-
-		/* FULL_MOON theme occationally allowed in town */
-		if ((p_ptr->theme == 7) && (night) && 
-			(r_ptr->flags7 & (RF7_FULL_MOON)))
-		{
-			/* no increasing the rarity */;
-		}
-		/* dungeon monsters normally less common in the town than town monsters */
-		else if ((night) || (erlev <= 3) || 
-			((p_ptr->theme == 7) && (r_ptr->flags7 & (RF7_FULL_MOON))))
-		{
-			if (r_ptr->level > 0) table[i].prob3 = table[i].prob3 / 2;
-		}
-		/* (most dungeon monsters rarely come out in the daytime) */
-		else if (r_ptr->level > 0) table[i].prob3 = table[i].prob3 / 4;
-
-		/* Total */
-		total += table[i].prob3;
-	}
-
-	/* No legal monsters */
-	if (total <= 0) return (0);
-
-	/* Pick a monster */
-	value = rand_int(total);
-
-	/* Find the monster */
-	for (i = 0; i < alloc_race_size; i++)
-	{
-		/* Found the entry */
-		if (value < table[i].prob3) break;
-
-		/* Decrement */
-		value = value - table[i].prob3;
-	}
-
-	/* Power boost */
-	p = rand_int(100);
-
-	/* Try for a "harder" monster (11% + badluck) */
-	if ((p < 11 + badluck) && (plev > 5))
-	{
-		/* Save old */
-		j = i;
-
-		/* Pick a monster */
-		value = rand_int(total);
-
-		/* Find the monster */
-		for (i = 0; i < alloc_race_size; i++)
-		{
-			/* Found the entry */
-			if (value < table[i].prob3) break;
-
-			/* Decrement */
-			value = value - table[i].prob3;
-		}
-
-		/* Keep the "best" one */
-		if (table[i].level < table[j].level) i = j;
-	}
-
-	/* Result */
-	return (table[i].index);
 }
 
 
@@ -1799,9 +1415,6 @@ s16b get_mon_num_town(void)
  * Note that "town" monsters will *only* be created in the town, and
  * "normal" monsters will *never* be created in the town, unless the
  * "level" is "modified", for example, by polymorph or summoning.
- * DJA 1.2.0 introduced the TOWKOK flag which makes exceptions to this
- * rule, allowing dungeon monsters to appear in the town (but never at
- * the very beginning of the game).
  *
  * There is a small chance (1/50) of "boosting" the given depth by
  * a small amount (up to four levels), except in the town.
@@ -1815,32 +1428,20 @@ s16b get_mon_num_town(void)
  */
 s16b get_mon_num(int level, bool vault)
 {
-	int i, j, p;
+	int i, j, p, ood;
 	int r_idx;
 	long value, total;
 	bool boosted = FALSE;
-	bool summoned = FALSE;
+	bool summoned;
 	int levelb = level; /* level before boost */
-
-	/* escorts and summoned monsters */
-	if ((get_mon_num_hook == place_monster_okay) || 
-		(get_mon_num_hook == summon_specific_okay) ||
-		(get_mon_num_hook == match_okay))
-		summoned = TRUE;
 
 	monster_race *r_ptr;
 	alloc_entry *table = alloc_race_table;
 
-	/* paranoia */
-	if (level <= 0)
-	{
-		if ((!p_ptr->depth) && (p_ptr->max_depth > 4)) level = p_ptr->max_depth/4;
-		else if (!p_ptr->depth) level = 1;
-		else level = p_ptr->depth;
-		levelb = level;
-	}
 
 	/* Boost the level */
+	if (level > 0)
+	{
 		/* Occasional "nasty" monster */
 		if (rand_int(NASTY_MON) == 0)
 		{
@@ -1853,14 +1454,11 @@ s16b get_mon_num(int level, bool vault)
 			boosted = TRUE;
 		}
 
-		/* Occasional "nasty" monster (NASTY_MON = 50, set in line304 in defines.h) */
+		/* Occasional "nasty" monster */
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
 			int d = level / 4 + 2;
-			if ((level > 50) && (d < 20)) d = 20;
-			if ((level > 31) && (d < 15)) d = 15;
-			if ((level > 14) && (d < 10)) d = 10;
 
 			/* occationally allow way out of depth monsters */
             if (d > 5)
@@ -1875,21 +1473,12 @@ s16b get_mon_num(int level, bool vault)
 			
 			boosted = TRUE;
 		}
+	}
 	
-		/* (allow deeper monsters on themed levels) */
-		/* vault monsters are already boosted */
-	    if ((!boosted) && (!vault) && (p_ptr->theme)) level += 4 + rand_int(5);
-
-	    /* more common slight increase (8% with NASTY_MON == 50) */
-	    if ((!boosted) && (!vault) && (!p_ptr->theme) &&
-           (rand_int(100) < NASTY_MON / 6) && (p_ptr->depth > 2)) level += randint(2);
-	    /* rare decrease (4% with NASTY_MON == 50), can happen on a themed level */
-	    else if ((!boosted) && (!vault) && (level > 9) && (p_ptr->depth < 99) &&
-                (rand_int(100) < (99-NASTY_MON) / 11)) level -= randint(2);
-	
-	/* never boost summoned monsters */
-	if (get_mon_num_hook == summon_specific_okay) level = levelb;
-
+	/* (allow deeper monsters on themed levels) */
+	/* vault monsters are already boosted */
+    if ((!boosted) && (!vault) && (p_ptr->theme)) level += 4 + randint(4);
+    
     /* don't boost off the scales */
     if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
 
@@ -1906,28 +1495,25 @@ s16b get_mon_num(int level, bool vault)
 		table[i].prob3 = 0;
 		
 		/* I'm still getting way out of depth stuff on themed levels, so add this: */
-        /* don't allow significantly out of depth non-theme appropriate monsters */
-        if ((table[i].level > p_ptr->depth+4) && (!vault) && (!theme_okay(r_idx, 0, vault)))
+        /* don't allow out of depth non-theme appropriate monsters */
+        if ((table[i].level > p_ptr->depth+5) && (!vault) && (!theme_okay(r_idx, 0, vault)))
         {
             continue;
         }
 		/* don't allow too out of depth except in a vault */
         else if ((table[i].level > levelb+2) && (!vault) && (p_ptr->theme) && 
-                 (p_ptr->depth < 96))
+                 (p_ptr->depth < 99))
         {
             if ((rand_int(11) < table[i].level - levelb) &&
                 (rand_int(500) > 80 - p_ptr->depth/2)) continue;
         }
-		/* sometimes reject monsters which are too easy for the level */
-		/* not common unless the monster is way out of depth */
-		else if (table[i].level < p_ptr->depth - 30)
-		{
-			int rejectchance = (p_ptr->depth - table[i].level - 25)/2;
-			if (rejectchance > 34) rejectchance = 34;
-			if (rand_int(100) < rejectchance) continue;
-		}
-		/* very shallow monsters never in deep vaults */
-		if ((table[i].level < p_ptr->depth/9) && (levelb >= 50) && (vault)) continue;
+        /* sometimes reject monsters which are too easy for the level */
+        /* not common unless the monster is way out of depth */
+        else if ((table[i].level < p_ptr->depth - 30) && 
+                (rand_int(100) < p_ptr->depth - table[i].level - 29)) continue;
+        /* very shallow monsters never in deep vaults */
+        else if ((table[i].level < p_ptr->depth/9) && (levelb >= 50) && (vault)) continue;
+
 
 		/* Get the "r_idx" of the chosen monster */
 		r_idx = table[i].index;
@@ -1936,39 +1522,46 @@ s16b get_mon_num(int level, bool vault)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- No town monsters in dungeon */
-		/* (except if shallow and appropriate to themed level) */
-		if ((p_ptr->theme) && (theme_okay(r_idx, 0, vault)) && (p_ptr->depth < 20)) /* okay */;
-		else if (table[i].level <= 0) continue;
+		/* (except if appropriate to themed level to allow L0 trees in the forests) */
+		if ((p_ptr->theme) && (theme_okay(r_idx, 0, vault))) /* okay */;
+		else if ((level > 0) && (table[i].level <= 0)) continue;
 
-		/* town and HELPER monsters can be randomly generated on themed */
-		/* levels but don't allow them to be summoned or placed in vaults */
-		if (((vault) || (summoned)) && 
-			((r_ptr->flags3 & (RF3_HELPER)) || (table[i].level <= 0))) continue;
+		/* HELPER monsters can be randomly generated on themed levels */
+		/* but don't allow HELPER monsters in vaults */
+		if ((vault) && (r_ptr->flags3 & (RF3_HELPER))) continue;
 
 		/* Hack -- "unique" monsters must be "unique" */
 		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-		    (r_ptr->cur_num >= r_ptr->max_num)) continue;
+		    (r_ptr->cur_num >= r_ptr->max_num))
+		{
+			continue;
+		}
 
 		/* Depth Monsters never appear out of depth */
 		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
+		{
 			continue;
+		}
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
+		/* check theme for escorts and summoned monsters */
+        if ((get_mon_num_hook == place_monster_okay) || 
+            (get_mon_num_hook == summon_specific_okay))
+            summoned = TRUE;
 		/* don't check themed level when there's a get_mon_num_hook */
-		/* (but don't summon theme-only monsters when not on a themed level) */
-		/* (this allows THEME_ONLY monsters in non-themed nests & pits) */
+		/* (but don't summon theme-only monsters) */
 		if ((!get_mon_num_hook) || ((r_ptr->flags7 & (RF7_THEME_ONLY)) && (summoned)))
 		{
 			/* always common when appropriate for current themed level */
 			/* prob is defined as 100/r_ptr->rarity in init2.c */
 			/* so common monsters have a prob of 100(1) or 50(2) */
-			if ((p_ptr->theme) && (theme_okay(r_idx, 0, vault)) && (table[i].prob2))
+			if ((p_ptr->theme) && (theme_okay(r_idx, 0, vault)))
 			{
 				int minus = (r_ptr->rarity*5);
-                if (minus > 80) minus = 80;
-                if (table[i].prob3 < 75) table[i].prob3 = 85 - minus;
+                if (minus > 89) minus = 89;
+                if (table[i].prob3 < 75) table[i].prob3 = 90 - minus;
 				/* else prob3 is 100 */
 			}
 			/* don't allow if not appropriate */
@@ -2001,7 +1594,7 @@ s16b get_mon_num(int level, bool vault)
     /* then don't try for a deeper monster */
 	if ((p_ptr->theme) && (table[i].level >= levelb - 2)) return (table[i].index);
 
-	/* Power boost */
+	/* Power boost (less likely if on a themed level) */
 	p = rand_int(100);
 
 	/* Try for a "harder" monster once (50%) or twice (10%) */
@@ -2159,17 +1752,11 @@ void display_monlist(void)
 		m_ptr = &mon_list[i];
 		r_ptr = &r_info[m_ptr->r_idx];
 
-		/* Paranoia -- skip "dead" monsters */
-		if (!m_ptr->r_idx) continue;
-		
-		/* monster is temporarily dead */
-		if (m_ptr->temp_death) continue;
-
 		/* Only visible monsters */
 		if ((!m_ptr->ml) && (!m_ptr->heard)) continue;
 
 		/* ordinary trees aren't really monsters.. */
-		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
+		if (m_ptr->r_idx == 834) continue;
 		
         /* display flags should be correct even when hallucenating */
         if (m_ptr->csleep) m_ptr->display_sleep = TRUE;
@@ -2370,6 +1957,17 @@ void display_monlist(void)
 		c_prt(attr, buf, line, cur_x);
 		line++;
 	}
+
+/*#if removed        
+    if ((count_nolos) || (count_snolos))
+    {
+        my_strcpy(buf, "  The following monsters are not in line of sight:", sizeof(buf));
+
+        /* Print and bump line counter *
+		c_prt(TERM_L_BLUE, buf, line, cur_x);
+		line++;
+    }
+#endif */
 
 	/* Go over (for not in LOS monsters) */
 	/* for (i = 1; (i < z_info->r_max) && (line < max); i++) */
@@ -2754,350 +2352,6 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 }
 
 
-/* check to see if this monster is detected by the PC's racial ESP
- * and return the range at which it can be detected.
- */
-int check_rtelep(int m_idx)
-{
-	int espcheck = 0;
-	int i, rtr = 0; /* Rtelep range */
-	bool thranduil = FALSE;
-	bool sting = FALSE;
-	bool ratagast = FALSE;
-    /* get the monster and its race */
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	cptr dname = (r_name + r_ptr->name);
-	
-	/* first sight supresses ESP */
-    if (p_ptr->timed[TMD_2ND_THOUGHT]) return 0;
-
-	/* Check what we can sense */
-	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-		
-		/* 70 == detect everything at short range */
-		if ((o_ptr->esprace == 70) && (!rtr)) rtr = 8;
-		else if (o_ptr->esprace == 70) rtr += 3;
-        
-		/* special for Thranduil (senses several monster types) */
-		if (o_ptr->esprace == 75) thranduil = TRUE;
-		/* special for Sting */
-		if (o_ptr->esprace == 15) sting = TRUE;
-		/* special for Ratagast */
-		if (o_ptr->esprace == 71) ratagast = TRUE;
-		/* that's all for this time through */
-	}
-
-	/* traditional telepathy */
-	if (p_ptr->telepathy)
-	{
-		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-		if (r_ptr->flags2 & (RF2_EMPTY_MIND))
-		{
-			l_ptr->flags2 |= (RF2_EMPTY_MIND);
-		}
-		else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
-		{
-			int dchance = 3 + ((goodluck+1)/2);
-			if (r_ptr->flags2 & (RF2_SMART)) dchance += 2;
-			if (r_ptr->flags2 & (RF2_STUPID)) dchance -= 1;
-			/* One in ten individuals are easy to sense with ESP */
-			if ((m_idx % 10) == 5) dchance += 20;
-				
-			if (rand_int(100) < dchance)
-			{
-				if (los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx)) rtr = 19;
-				else if (!rtr) rtr = 16;
-				else rtr += 2;
-				/* Memorize mental flags */
-				l_ptr->flags2 |= (RF2_WEIRD_MIND);
-				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
-				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
-			}
-		}
-		else /* normal mind */
-		{
-			if (los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx)) rtr = 20;
-            else if (!rtr) rtr = 18;
-			else rtr += 2;
-		}
-	}
-	
-	/* ESP by race */
-    if (r_ptr->flags3 & (RF3_ORC)) espcheck = 1;
-	if (r_ptr->flags3 & (RF3_TROLL)) espcheck = 2;
-	if (r_ptr->flags3 & (RF3_GIANT)) espcheck = 3;
-	if (r_ptr->flags3 & (RF3_UNDEAD)) espcheck = 4;
-	if (r_ptr->flags3 & (RF3_DRAGON)) espcheck = 5;
-	if (r_ptr->flags3 & (RF3_DEMON)) espcheck = 6;
-	if (r_ptr->flags3 & (RF3_BUG)) espcheck = 8;
-	if (r_ptr->flags3 & (RF3_SILVER)) espcheck = 9;
-	
-	/* light fairies, not all creatures of light */
-	if ((strchr("y", r_ptr->d_char)) || (strstr(dname, "unicorn")) ||
-		(strstr(dname, "eirrinel")))
-		espcheck = 7;
-	
-	/* 10 senses most but not all animals */
-	/* (doesn't include 'H' animals or unicorns, probably a few others) */
-	if ((r_ptr->flags3 & (RF3_ANIMAL)) && 
-		((strchr("ABCJRZbflqr", r_ptr->d_char)) ||
-		(strstr(dname, "warhorse"))))
-		espcheck = 10;
-		
-	/* constructs */
-	if (strchr("gm", r_ptr->d_char)) espcheck = 11;
-	
-	/* dwarves (maybe we should have a dwarf flag..) */
-	if ((strstr(dname, "dwarf")) || (strstr(dname, "grag")) ||
-		(strstr(dname, "Mim")) || (strstr(dname, "Dwarf")) ||
-		(strstr(dname, "Nibelung")) || 
-		/* ghosts of dwarvish supersition get sensed along with dwarves  */
-		(strstr(dname, "ing dark"))) espcheck = 12;
-		
-	/* dark elves and other servants of Achrya */	
-	if (((strchr("@", r_ptr->d_char)) &&
-	/* exclude doppleganger, but include Achrya and her servants */
-		(!strstr(dname, "dopple"))) || 
-		(strstr(dname, "achrya")) || (strstr(dname, "Achrya")) ||
-		(strstr(dname, "drider"))) espcheck = 13;
-	
-	/** thranduil **/
-    /* orcs, bugs, (most) animals, tree monsters, centaurs, unicorns, */
-	/* light fairies, also picks up druids and forest trolls */
-    if ((thranduil) && ((espcheck == 1) || (espcheck == 8) ||
-		(espcheck == 10) || (strchr("EYy", r_ptr->d_char)) ||
-		(strstr(dname, "forest")) || (strstr(dname, "druid"))))
-	{ 
-		if (!rtr) rtr = 14;
-		else rtr += 3;
-	}
-		
-	/* Sting detects orcs and spiders, but not as long a range */
-    if ((sting) && ((r_ptr->flags3 & (RF3_ORC)) ||
-		(strchr("x", r_ptr->d_char))))
-	{
-		if (!rtr) rtr = 12;
-		else rtr += 3;
-	}
-	
-	/* Ratagast senses all evil wizards */
-    /* (..this is insane..  ..for 1 artifact??..) */
-    if ((ratagast) && ((strstr(dname, "Saruman")) ||
-		((strstr(dname, "mage")) && (m_ptr->evil)) || 
-		(strstr(dname, "the Blue")) || (strstr(dname, "necromancer")) ||
-		(strstr(dname, "demonologist")) ||
-		(strstr(dname, "Dunlending")) || (strstr(dname, "witch")) ||
-		(strstr(dname, "Witch")) || (strstr(dname, "Mouth of")) ||
-		((strstr(dname, "hag")) && (strchr("t", r_ptr->d_char))) ||
-		((r_ptr->d_attr == TERM_RED) && (r_ptr->flags1 & (RF1_UNIQUE)) && (strchr("W", r_ptr->d_char))) ||
-		(strstr(dname, "priest of")) || (strstr(dname, "nightmare doc")) ||
-		(strstr(dname, "sorcerer")) || (strstr(dname, "shaman"))))
-    {
-		if (!rtr) rtr = 14;
-		else rtr += 3;
-	}
-		
-	/* surely not sensed */
-    if ((!espcheck) && (!rtr)) return 0;
-    
-	/* 2nd time through */
-	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-		
-		/* check items with racial ESP */
-		if ((o_ptr->esprace == espcheck) && (!rtr)) rtr = 15;
-		else if (o_ptr->esprace == espcheck) rtr += 2;
-	}
-	
-	return rtr;
-}
-                   
-
-/*
- * update_mon() helper:
- * Check PC alertness vs monster stealth (and other factors)
- * to decide if the PC notices the monster.
- *
- * mode == 0 normal useage called by update_mon()
- * mode == 1 called by detect monsters spell
- */
-bool alertness_check(monster_type *m_ptr, int mode, bool darkvs)
-{
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	int d = m_ptr->cdis;
-	int mstealth = r_ptr->stealth;
-	int palert = p_ptr->palert;
-	int detect_alert = p_ptr->lev/2 + 20;
-	bool easy = TRUE;
-	/* chance realm classes have more influence from luck */
-	if (cp_ptr->spell_book == TV_LUCK_BOOK) 
-		detect_alert = p_ptr->lev/2 + 18 + goodluck - ((badluck+1)/2);
-
-	/* if called from a detection spell, it shouldn't depend as much on alertness */
-	if ((mode == 1) && (palert < detect_alert)) palert = (detect_alert + palert)/2;
-
-	/* most of the stealth of a CHAR_MULTI monster is their disguise */
-	if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised))
-	{
-		/* Rchaos helps recognise mimmics */
-		if ((mstealth < 5) && (!p_ptr->resist_chaos)) mstealth = 5;
-	}
-	/* WATER_HIDE monsters get stealth bonus when in water */
-	if (((r_ptr->flags7 & (RF7_WATER_HIDE)) || (r_ptr->flags7 & (RF7_WATER_ONLY))) &&
-		(cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_WATER))
-	{
-		if (mstealth < 3) mstealth += 2;
-		else if (mstealth == 3) mstealth += randint(2);
-	}
-	/* WATER_ONLY monsters can't hide out of water */
-	else if ((r_ptr->flags7 & (RF7_WATER_ONLY)) && (mstealth > 1))
-	{
-		if (mstealth < 5) mstealth = 1;
-		else mstealth -= 3;
-	}
-	/* earth elementals get stealth bonus when in a wall */
-	if ((strchr("X%", r_ptr->d_char)) && (r_ptr->flags2 & (RF2_PASS_WALL)) &&
-		(!cave_floor_bold(m_ptr->fy, m_ptr->fx)))
-	{
-		if (mstealth < 3) mstealth += 1 + randint(2);
-		else if (mstealth < 4)  mstealth += randint(2);
-	}
-
-	/* cap & scale up */
-	if (mstealth > 6) mstealth = 6;
-	mstealth = (mstealth * 11) + 1;
-	/* luck factor */
-	if (goodluck > 5) mstealth -= (goodluck/2);
-	else if (goodluck > 3) mstealth -= 1;
-	if (badluck > 3) mstealth += (badluck/2);
-        
-	/* distance factor */
-	if ((r_ptr->stealth > 1) && (d < 15)) mstealth += d * 2;
-	if ((d > 14) && (r_ptr->stealth > 2)) mstealth += (r_ptr->stealth*10);
-	else if ((d > 14) && (r_ptr->stealth == 2)) mstealth += 28;
-	else if (d > 14) mstealth += 16;
-	else if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * (r_ptr->stealth - 2);
-	else if (d > 3) mstealth += (d-3);
-
-	if ((m_ptr->stunned) || (m_ptr->confused) || (m_ptr->charmed)) mstealth -= 16;
-	if (p_ptr->depth == 0) mstealth -= 16;
-	
-	/* Monster gives off light */
-	if (r_ptr->flags2 & (RF2_MONGLOW)) mstealth -= 12;
-                
-	/* monster hasn't been noticed yet (it is still hiding) */
-	/* darkvision makes it hard to hide in the shadows */
-	/* this helps dwarves who have darkvision but horrible alertness */
-	if ((!m_ptr->monseen) && (r_ptr->stealth > 2) && (!darkvs)) mstealth += 20;
-	else if ((!m_ptr->monseen) && (r_ptr->stealth > 2)) mstealth += 9;
-
-	/* much easier to notice if you've noticed it before */
-	if ((m_ptr->monseen > 3) && (d < 5) && (!m_ptr->monfear)) mstealth -= m_ptr->monseen * 15;
-	else if ((m_ptr->monseen > 0) && (d < 7) && (!m_ptr->monfear)) mstealth -= 45;
-	else if (m_ptr->monseen > 2) mstealth -= m_ptr->monseen * 4;
-	else if ((m_ptr->monseen > 0) || (m_ptr->heard)) mstealth -= 12;
-        
-	/* sleeping monsters can't actively hide */
-	if ((m_ptr->csleep) && (!m_ptr->roaming)) mstealth -= 12;
-
-	/* NEVER_MOVE monsters can't try to hide once they've been noticed */
-	if ((m_ptr->monseen > 0) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 20;
-
-	/* Monsters with 0 stealth never hide unless disguised */
-	if ((!r_ptr->stealth) && (!m_ptr->disguised)) mstealth = 1;
-
-	/* prevent randint(negative mstealth) because that makes it crash */
-	if (mstealth < 1) mstealth = 1;
-
-	/* examples which assume monseen is 0 and luck is 0: */
-	/* monster of stealth 1 at a distance of 8 now has mstealth of 16 */
-	/* monster of stealth 1 at a distance of 15 now has mstealth of 27 */
-	/* monster of stealth 3 at a distance of 15 now has mstealth of 71 */
-	/* monster of stealth 5 at a distance of 15 now has mstealth of 113 */
-	/* monster of stealth 2 at a distance of 9 now has mstealth of 54 */
-	/* monster of stealth 3 at a distance of 7 now has mstealth of 59 */
-	/* monster of stealth 4 at a distance of 6 now has mstealth of 70 */
-	/* monster of stealth 5 at a distance of 5 now has mstealth of 79 */
-	/* monster of stealth 6 at a distance of 4 now has mstealth of 86 */
-	/* monster of stealth 5 at a distance of 1 now has mstealth of 53 */
-	/* monster of stealth 6 at a distance of 8 now has mstealth of 110 */
-	/* does the player notice the monster? */
-	if ((d > 2) || ((m_ptr->disguised) && (m_ptr->monseen < 2)))
-	{
-		/* give monsters a few chances to avoid being noticed */
-		if ((mstealth > (palert + 50)) && (m_ptr->monseen < 1)) easy = FALSE;
-		if ((mstealth > (palert * 2)) && (randint(mstealth) > palert + 4)) easy = FALSE;
-		if (randint(mstealth) > palert) easy = FALSE;
-		if (randint(mstealth) > palert + rp_ptr->r_fos) easy = FALSE;
-		if ((palert > mstealth) && (r_ptr->stealth > 1) && 
-			(randint(palert * 20) < (mstealth/2 + d + badluck/2 - goodluck/2))) easy = FALSE;
-	}
-	else if (d == 2)
-	{
-		/* only one chance to escape notice when very close */
-		if (randint(mstealth) > palert) easy = FALSE;
-	}
-	/* d == 1: always notice if adjacent and not disguised */
-        
-	return easy;
-}
-
-/*
- * update_mon() helper:
- * Check PC alertness (and other factors) to decide if the PC
- * notices signs of an invisible monster.
- * (easy is always false when this function is called)
- */
-bool notice_invisible_check(monster_type *m_ptr)
-{
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	bool easy = FALSE;
-	int d = m_ptr->cdis;
-	
-	/* stealth + distance + 48 for invisibility */
-    int mstealth = 48 + (r_ptr->stealth * 5) + (d * 2);
-    /* luck factor */
-	if (goodluck > 4) mstealth -= (goodluck/4 + randint(goodluck/2));
-	if (badluck > 4) mstealth += (badluck/4 + rand_int(badluck/3));
-	/* Ghosts are harder to notice */
-	if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_SILVER)))
-		mstealth += 22;
-		
-	/* much easier to notice an invisible monster which is giving off light */
-    if (r_ptr->flags2 & (RF2_MONGLOW)) mstealth -= 12;
-
-	if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * 2;
-	else if (d > 3) mstealth += (d-3);
-	else if (d < 2) mstealth -= 10;
-	if ((m_ptr->monseen > 0) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= (5 + m_ptr->monseen);
-	if (m_ptr->monseen > 0) mstealth -= m_ptr->monseen;
-
-	/* minimum stealth for invisibile monsters */
-	if (mstealth < 30) mstealth = 30;
-
-	/* impossible to notice invisible monsters further than 6 spaces away */
-	if ((d < 7) && (r_ptr->stealth < 5))
-	{
-		if (randint(p_ptr->palert) > mstealth)
-		{
-			easy = TRUE;
-			msg_format("You notice the signs of an invisible monster!");
-		}
-	}
-	return easy;
-}
-
 
 /*
  * This function updates the monster record of the given monster
@@ -3121,10 +2375,6 @@ bool notice_invisible_check(monster_type *m_ptr)
  *
  * Note the "full" flag which requests that the "cdis" field be updated,
  * this is only needed when the monster (or the player) has moved.
- *
- * full parameter is now an int: full == 3 means the monster has just
- * moved. ..because there are certain ways which even NEVER_MOVE
- * monsters can be moved (like teleother).
  *
  * Every time a monster moves, we must call this function for that
  * monster, and update the distance, and the visibility.  Every time
@@ -3164,12 +2414,15 @@ bool notice_invisible_check(monster_type *m_ptr)
  * "disturb_move" (monster which is viewable moves in some way), and
  * "disturb_near" (monster which is "easily" viewable moves in some
  * way).  Note that "moves" includes "appears" and "disappears".
+ *
+ * DJA: "disturb_near" now only triggers when the monster is aware of you.
+ * (or when you're running and about to run into a monster)
  */
-void update_mon(int m_idx, int full)
+void update_mon(int m_idx, bool full)
 {
 	bool do_invisible = FALSE;
-	bool darkvs, msilent, lore, nevermove, easybut = FALSE;
-	int tempinv, hearcheck, discernmod, d, rtelep = 0;
+	bool darkvs, msilent, lore, nevermove;
+	int hearcheck, discernmod, d;
 	u32b f4, f5, f6;
 
 	monster_type *m_ptr = &mon_list[m_idx];
@@ -3188,29 +2441,6 @@ void update_mon(int m_idx, int full)
 
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	cptr mon_text = (r_text + r_ptr->text);
-
-	/* monster is temporarily dead */
-	if (m_ptr->temp_death) return;
-	
-	/* racial ESP */
-	rtelep = (check_rtelep(m_idx));
-	
-	/* temporary invisibility */
-	tempinv = m_ptr->tinvis;
-	/* statues use m_ptr->tinvis for something else */
-	if ((r_ptr->flags7 & (RF7_NONMONSTER)) && (r_ptr->flags3 & (RF3_NON_LIVING))) 
-		tempinv = 0;
-	/* remember where the trees are in the town */
-	if ((r_ptr->flags7 & (RF7_NONMONSTER)) && (r_ptr->flags7 & (RF7_BLOCK_LOS)) &&
-		(!p_ptr->depth)) m_ptr->ml = TRUE;
-#if shouldntneedthis
-	/* paranoia: make sure BLOCK_LOS monsters have CAVE_WALL */
-	if ((r_ptr->flags7 & (RF7_BLOCK_LOS)) && (!(cave_info[fy][fx] & (CAVE_WALL))))
-	{
-		cave_info[fy][fx] |= (CAVE_WALL);
-	}
-#endif
 
 	/* Compute distance */
 	if (full)
@@ -3236,12 +2466,15 @@ void update_mon(int m_idx, int full)
 		d = m_ptr->cdis;
 	}
 
-	/* paranoia: prevent non-adjacent monsters holding the player */
-	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx == m_idx) && (m_ptr->cdis > 2))
+	/* paranoia */
+	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx == m_idx))
 	{
-		p_ptr->held_m_idx = 0;
-		msg_print("You pull free.");
-		clear_timed(TMD_BEAR_HOLD);
+		/* prevent non-adjacent monsters holding the player */
+		if (m_ptr->cdis > 2)
+		{
+			p_ptr->held_m_idx = 0;
+			clear_timed(TMD_BEAR_HOLD);
+		}
 	}
 
 	/* Extract the racial spell flags to check for certain things */
@@ -3256,15 +2489,53 @@ void update_mon(int m_idx, int full)
 	/* Nearby */
 	if (d <= MAX_SIGHT)
 	{
-		/* rtelep covers all kinds of ESP (value of rtelep = range of ESP) */
-		/* (we have already checked if this monster is sensed) */
-		if (rtelep >= d)
+		/* Basic telepathy */
+		if (p_ptr->telepathy)
 		{
-			/* Detectable */
-			flag = TRUE;
+			/* Empty mind, no telepathy */
+			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
+			{
+				/* Memorize flags */
+				l_ptr->flags2 |= (RF2_EMPTY_MIND);
+			}
+
+			/* Weird mind, occasional telepathy */
+			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
+			{
+				int dchance = 3 + (goodluck/2);
+				if (r_ptr->flags2 & (RF2_SMART)) dchance += 1;
+				if (r_ptr->flags2 & (RF2_STUPID)) dchance -= 1;
+				
+                /* One in ten individuals are detectable */
+				/* or any detectable rarely */
+				if (((m_idx % 10) == 5) || (rand_int(100) < dchance))
+				{
+					/* Detectable */
+					flag = TRUE;
 					
-			/* monster moved into esp range */
-			if ((!m_ptr->ml) && (disturb_espmove)) disturb(1, 0);
+					/* monster moved into esp range */
+					if ((!m_ptr->ml) && (disturb_espmove)) disturb(1, 0);
+
+					/* Memorize mental flags */
+					l_ptr->flags2 |= (RF2_WEIRD_MIND);
+					if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
+					if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
+				}
+			}
+
+			/* Normal mind, allow telepathy */
+			else
+			{
+				/* Detectable */
+				flag = TRUE;
+					
+				/* monster moved into esp range */
+				if ((!m_ptr->ml) && (disturb_espmove)) disturb(1, 0);
+
+				/* Hack -- Memorize mental flags */
+				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
+				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
+			}
 		}
 
 		/* Normal line of sight, and not blind */
@@ -3274,7 +2545,7 @@ void update_mon(int m_idx, int full)
 			if (player_can_see_bold(fy, fx))
 			{
 				/* Handle "invisible" monsters */
-				if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (tempinv))
+				if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis))
 				{
 					/* Take note */
 					do_invisible = TRUE;
@@ -3293,43 +2564,12 @@ void update_mon(int m_idx, int full)
 					easy = TRUE;
 				}
 			}
-			/* in line of sight & not blind, but out of torchlight range */
-			/* MONGLOW monsters give off their own light */
-			/* (but not enough to illuminate any square but their own) */
-			/* One of the fountain statues also gives off light */
-			else if ((r_ptr->flags2 & (RF2_MONGLOW)) || ((strstr(mon_text, "fountain special")) &&
-				(m_ptr->tinvis == 4)))
-			{
-				/* Handle "invisible" monsters */
-				if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (tempinv))
-				{
-					/* Take note */
-					do_invisible = TRUE;
-
-					/* See invisible */
-					if (p_ptr->see_inv)
-					{
-						/* Easy to see */
-						easy = TRUE;
-					}
-				}
-				/* Handle "normal" MONGLOW monsters */
-				else
-				{
-					/* Easy to see */
-					easy = TRUE;
-				}
-				/* INVISIBLE (or stealthy) MONGLOW monsters still give off light */
-				easybut = TRUE;
-				if (!m_ptr->disguised) m_ptr->disguised = 1;
-			}
 
 			/* Visible */
 			if ((flag) || (easy))
 			{
 				/* Memorize flags */
-				if ((do_invisible) && (!tempinv)) l_ptr->flags2 |= (RF2_INVISIBLE);
-				else if (do_invisible) l_ptr->flags6 |= (RF6_INVIS);
+				if ((do_invisible) && (!m_ptr->tinvis)) l_ptr->flags2 |= (RF2_INVISIBLE);
 			}
 		}
 	}
@@ -3337,7 +2577,7 @@ void update_mon(int m_idx, int full)
 	/* Temporary invisibility decrements in process_monster() */
 	
 	/* make sure all invisible monsters are marked as invisible for darkvision check */
-	if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (tempinv)) do_invisible = TRUE;
+	if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis)) do_invisible = TRUE;
 
     /* Darkvision: If monster is in line of sight, the player is not blind, */ 
     /* and the monster is not invisible, then the player can see it */
@@ -3354,25 +2594,145 @@ void update_mon(int m_idx, int full)
 		}
     }
 
-	/* True sight allows the PC to see through disguises */
-	if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) && 
-		(p_ptr->timed[TMD_TSIGHT]) && (easy)) m_ptr->disguised = 0;
-		
-	/* easy to see before considering the disguise */
-	if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised) && (easy))
-		easybut = TRUE;
-
 	/* if a monster would otherwise be seen easily, check monster stealth */
-	if (easy) easy = (alertness_check(m_ptr, 0, darkvs));
-	/* an extremely alert character may notice signs of an invisible monster */
-	else if ((!easy) && (full == 2) && 
-		((r_ptr->flags2 & (RF2_INVISIBLE)) || (tempinv)))
+	if (easy)
 	{
-		easy = (notice_invisible_check(m_ptr));
-	}
+        int mstealth = r_ptr->stealth;
+		/* WATER_HIDE monsters get stealth bonus when in water */
+		if (((r_ptr->flags7 & (RF7_WATER_HIDE)) || (r_ptr->flags7 & (RF7_WATER_ONLY))) &&
+			(cave_feat[fy][fx] == FEAT_WATER))
+		{
+			if (mstealth < 3) mstealth += 2;
+			else if (mstealth == 3) mstealth += randint(2);
+		}
+		/* WATER_ONLY monsters can't hide out of water */
+		else if ((r_ptr->flags7 & (RF7_WATER_ONLY)) && (mstealth > 1))
+		{
+			if (mstealth < 5) mstealth = 1;
+			else mstealth -= 3;
+		}
+		/* earth elementals get stealth bonus when in a wall */
+		if ((strchr("X%", r_ptr->d_char)) && (r_ptr->flags2 & (RF2_PASS_WALL)) &&
+			(!cave_floor_bold(fy, fx)))
+		{
+			if (mstealth < 3) mstealth += 1 + randint(2);
+			else if (mstealth < 4)  mstealth += randint(2);
+		}
+
+		/* cap & scale up */
+		if (mstealth > 6) mstealth = 6;
+		mstealth = (mstealth * 11) + 1;
+		/* luck factor */
+        if (goodluck > 5) mstealth -= (goodluck/2);
+        else if (goodluck > 3) mstealth -= 1;
+        if (badluck > 3) mstealth += (badluck/2);
+        
+		/* distance factor */
+        if ((r_ptr->stealth > 1) && (d < 15)) mstealth += d * 2;
+        if ((d > 14) && (r_ptr->stealth > 2)) mstealth += (r_ptr->stealth*10);
+        else if ((d > 14) && (r_ptr->stealth == 2)) mstealth += 28;
+        else if (d > 14) mstealth += 16;
+        else if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * (r_ptr->stealth - 2);
+        else if (d > 3) mstealth += (d-3);
+        else if (d < 2) mstealth -= 16;
+
+        if ((m_ptr->stunned) || (m_ptr->confused) || (m_ptr->charmed)) mstealth -= 16;
+        if (p_ptr->depth == 0) mstealth -= 16;
+                
+        /* monster hasn't been noticed yet (it is still hiding) */
+        /* darkvision makes it hard to hide in the shadows */
+        /* this helps dwarves who have darkvision but horrible alertness */
+        if ((!m_ptr->monseen) && (r_ptr->stealth > 2) && (!darkvs)) mstealth += 20;
+		else if ((!m_ptr->monseen) && (r_ptr->stealth > 2)) mstealth += 9;
+
+        /* much easier to notice if you've noticed it before */
+        if ((m_ptr->monseen > 3) && (d < 5) && (!m_ptr->monfear)) mstealth -= m_ptr->monseen * 15;
+        else if ((m_ptr->monseen > 0) && (d < 7) && (!m_ptr->monfear)) mstealth -= 45;
+        else if (m_ptr->monseen > 2) mstealth -= m_ptr->monseen * 4;
+        else if ((m_ptr->monseen > 0) || (m_ptr->heard)) mstealth -= 12;
+        
+        /* sleeping monsters can't actively hide */
+        if ((m_ptr->csleep) && (!m_ptr->roaming)) mstealth -= 12;
+
+        /* NEVER_MOVE monsters can't try to hide once they've been noticed */
+        if ((m_ptr->monseen > 0) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 20;
+
+#if irrevelentnow
+        /* always visible if it just hit you or you hit it */
+        /* may be irrevelent now that you always notice adjacent monsters */
+        if (m_ptr->monseen > 9)
+        {
+           m_ptr->monseen -= 1;
+           mstealth = 1;
+        }
+#endif
+        /* prevent randint(negative mstealth) because that makes it crash */
+        if (mstealth < 1) mstealth = 1;
+
+        /* examples which assume monseen is 0 and luck is 0: */
+        /* monster of stealth 1 at a distance of 8 now has mstealth of 16 */
+        /* monster of stealth 1 at a distance of 15 now has mstealth of 27 */
+        /* monster of stealth 3 at a distance of 15 now has mstealth of 71 */
+        /* monster of stealth 5 at a distance of 15 now has mstealth of 113 */
+        /* monster of stealth 2 at a distance of 9 now has mstealth of 54 */
+        /* monster of stealth 3 at a distance of 7 now has mstealth of 59 */
+        /* monster of stealth 4 at a distance of 6 now has mstealth of 70 */
+        /* monster of stealth 5 at a distance of 5 now has mstealth of 79 */
+        /* monster of stealth 6 at a distance of 4 now has mstealth of 86 */
+        /* monster of stealth 5 at a distance of 1 now has mstealth of 53 */
+        /* monster of stealth 6 at a distance of 8 now has mstealth of 110 */
+        /* does the player notice the monster? */
+        if (d > 2)
+        {
+              /* give monsters a few chances to avoid being noticed */
+              if ((mstealth > (palert + 50)) && (m_ptr->monseen < 1)) easy = FALSE;
+              if ((mstealth > (palert * 2)) && (randint(mstealth) > palert + 4)) easy = FALSE;
+              if (randint(mstealth) > palert) easy = FALSE;
+              if (randint(mstealth) > palert + rp_ptr->r_fos) easy = FALSE;
+              if ((palert > mstealth) && (r_ptr->stealth > 1) && 
+                  (randint(palert * 20) < (mstealth/2 + d + badluck/2 - goodluck/2))) easy = FALSE;
+        }
+        else if (d == 2)
+        {
+              /* only one chance to escape notice when very close */
+              if (randint(mstealth) > palert) easy = FALSE;
+        }
+        /* d == 1: always notice if adjacent */
+    }
+    /* an extremely alert character may notice signs of an invisible monster */
+    else if ((!p_ptr->see_inv) && (r_ptr->flags2 & (RF2_INVISIBLE)) && (full))
+    {
+        int mstealth = 48 + (r_ptr->stealth * 5) + (d * 2);
+        if (goodluck > 4) mstealth -= (goodluck/4 + randint(goodluck/2));
+        if (badluck > 4) mstealth += (badluck/4 + rand_int(badluck/3));
+        if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_SILVER)))
+        {
+           mstealth += 25;
+        }
+
+        if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * 2;
+        else if (d > 3) mstealth += (d-3);
+        else if (d < 2) mstealth -= 10;
+        if ((m_ptr->monseen > 0) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= (5 + m_ptr->monseen);
+        if (m_ptr->monseen > 0) mstealth -= m_ptr->monseen;
+
+        /* minimum stealth for invisibile monsters */
+        if (mstealth < 30) mstealth = 30;
+        if (palert < 1) palert = 1;
+
+        /* impossible to notice invisible monsters further than 6 spaces away */
+        if ((d < 7) && (r_ptr->stealth < 5))
+        {
+              if (randint(palert) > mstealth)
+              {
+                  easy = TRUE;
+                  msg_format("You notice the signs of an invisible monster!");
+              }
+        }
+    }
 
     /* once it's noticed by the player it's easier to see afterwords */
-    if ((easy) && (m_ptr->monseen < 2)) m_ptr->monseen = 2;
+    if ((easy) && (m_ptr->monseen < 1)) m_ptr->monseen = 2;
 
     /* water hide monsters can hide even if you can still see them */
 	if (((r_ptr->flags7 & (RF7_WATER_HIDE)) || (r_ptr->flags7 & (RF7_WATER_ONLY))) &&
@@ -3392,7 +2752,7 @@ void update_mon(int m_idx, int full)
 
 	/*** DJA: hearing out-of-sight monsters ***/
 	/* maybe should add a 'move silently' stat for monsters separate from 'hide' stealth */
-    hearcheck = (p_ptr->palert * 4) + (goodluck/2);
+    hearcheck = (palert * 4) + (goodluck/2);
 	/* hear better when you're blind */
 	if (p_ptr->timed[TMD_BLIND]) hearcheck += 100;
 	/* not attentive when you're running */
@@ -3406,27 +2766,18 @@ void update_mon(int m_idx, int full)
 	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (r_ptr->stealth)) msilent = TRUE;
 	if (r_ptr->flags1 & (RF1_NEVER_MOVE)) msilent = TRUE;
 	/* poltergeists make a lot of noise */
-	if ((r_ptr->flags4 & (RF4_THROW)) && (r_ptr->flags2 & (RF2_PASS_WALL)))
-	{
-		hearcheck += 30;
-		/* noisy even when they don't move */
-		if (full) full = 2;
-	}
+	if (r_ptr->flags4 & (RF4_THROW)) hearcheck += 30;
 	/* sleeping monsters are silent */
 	if ((m_ptr->csleep) && (!m_ptr->roaming)) msilent = TRUE;
-	/* undiscovered mimmics are silent */
-	if (m_ptr->disguised) msilent = TRUE;
 	/* don't hear offscreen monsters */
 	if (!panel_contains(fy, fx)) msilent = TRUE;
 	/* alertness isn't high enough */
-	if ((r_ptr->stealth == 3) && (p_ptr->palert < 26)) msilent = TRUE;
-	if ((r_ptr->stealth == 2) && (p_ptr->palert < 20)) msilent = TRUE;
-	if ((r_ptr->stealth == 4) && (p_ptr->palert < 50)) msilent = TRUE;
-	else if (r_ptr->stealth == 4) hearcheck -= 25;
+	if ((r_ptr->stealth == 3) && (palert < 26)) msilent = TRUE;
+	if ((r_ptr->stealth == 2) && (palert < 20)) msilent = TRUE;
 
 	/* if monster is nearby and not already visible there's a chance to hear it */
 	/* the town is considered safe, so don't bother if monster level is 0 */
-	if ((!flag) && (full == 2) && (r_ptr->stealth < 5) && (d < MAX_SIGHT) &&
+	if ((!flag) && (full) && (r_ptr->stealth < 4) && (d < MAX_SIGHT) &&
 	   (!p_ptr->timed[TMD_IMAGE]) && (r_ptr->level) && (!msilent) &&
 	   (randint(2500 + (r_ptr->stealth * 500) + (d * 25)) < hearcheck))
 	{
@@ -3436,8 +2787,8 @@ void update_mon(int m_idx, int full)
 		if (disturb_move) eardisturb = TRUE;
 		/* don't disturb when running, resting, or digging */
 		if ((p_ptr->resting) || (p_ptr->running) || (p_ptr->command_rep)) eardisturb = FALSE;
-		/* ..unless it's near and in line of sight */
-		if ((disturb_near) && (player_has_los_bold(fy, fx)) && (d < 15)) eardisturb = TRUE;
+		/* ..unless it's in line of sight */
+		if ((disturb_near) && (player_has_los_bold(fy, fx))) eardisturb = TRUE;
 
 		/* disturb on hearing */
 		if ((!m_ptr->heard) && (eardisturb))
@@ -3459,6 +2810,10 @@ void update_mon(int m_idx, int full)
     else if ((full) && (m_ptr->heard))
 	{
 		m_ptr->heard = FALSE;
+
+		/* forget where the monster is */
+		lite_spot(fy, fx);
+		p_ptr->window |= PW_MONLIST;
 	}
 
 	if (m_ptr->heard)
@@ -3475,26 +2830,6 @@ void update_mon(int m_idx, int full)
 		(!(r_ptr->flags6 & (RF6_BLINK))) &&
 		(!(r_ptr->flags6 & (RF6_TPORT)))) nevermove = TRUE;
 	else nevermove = FALSE;
-	/* full == 2 means monster has just moved because there are ways that */
-    /* NEVER_MOVE monsters can move (like teleother). */
-	if (full == 2) nevermove = FALSE;
-
-	/* mimmics */
-    if ((m_ptr->disguised) && (easybut) && (!flag) && (!character_xtra))
-	{
-		/* Show whatever the monster is disguised as */
-		/* (no disturb because you don't know it's a monster yet) */
-		/* Hack -- Detect the monster */
-		repair_mflag_show = TRUE;
-		m_ptr->mflag |= (MFLAG_SHOW);
-
-		lite_spot(fy, fx);
-		/* Monsters disguised as objects should show on object list */
-		p_ptr->window |= (PW_OBJLIST);
-	}
-	/* flag == true: If it's (easy) or detected as a monster, then it's no longer disguised */
-	else if ((m_ptr->disguised) && (flag)) m_ptr->disguised = 0;
-
 
 	/* The monster is now visible */
 	if (flag)
@@ -3515,14 +2850,14 @@ void update_mon(int m_idx, int full)
 			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
 
 			/* Disturb on appearance */
-			if ((disturb_move) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) disturb(1, 0);
+			if (disturb_move) disturb(1, 0);
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
 		}
 
 		/* everyone knows ordinary trees don't move.. */
-		if ((r_ptr->flags7 & (RF7_NONMONSTER)) && (r_ptr->flags1 & (RF1_NEVER_MOVE)))
+		if (m_ptr->r_idx == 834)
 		{
 			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 			l_ptr->flags1 |= (RF1_NEVER_MOVE);
@@ -3546,7 +2881,7 @@ void update_mon(int m_idx, int full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Disturb on disappearance */
-			if ((disturb_move) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) disturb(1, 0);
+			if (disturb_move) disturb(1, 0);
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
@@ -3559,16 +2894,16 @@ void update_mon(int m_idx, int full)
 		/* Change */
 		if (!(m_ptr->mflag & (MFLAG_VIEW)))
 		{
-            /* Mark as easily visible */
+			/* Mark as easily visible */
 			m_ptr->mflag |= (MFLAG_VIEW);
 
 #if idontrememberwhatthisisfor
 			/* Disturb on appearance */
 			if ((disturb_near) && ((!m_ptr->roaming) || (m_ptr->roaming < 20))) disturb(1, 0);
 #endif
-			
+
 			/* Disturb on appearance (even if roaming) */
-			if ((disturb_near) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) disturb(1, 0);
+			if (disturb_near) disturb(1, 0);
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
@@ -3613,10 +2948,9 @@ void update_mon(int m_idx, int full)
 			/* Mark as having LOS to the player */
 			m_ptr->mflag |= (MFLAG_MLOS);
 			
-			/* only note if awake and sensed by telepathy */
-			if ((disturb_espmove) && (flag) && (!easy) && (!m_ptr->csleep) &&
-				(!(r_ptr->flags7 & (RF7_NONMONSTER))))
-			{
+            /* only note if awake and sensed by telepathy */
+            if ((disturb_espmove) && (flag) && (!easy) && (!m_ptr->csleep))
+            {
                disturb(1, 0);
 #if nomessage
                /* get monster name */
@@ -3648,12 +2982,9 @@ void update_mon(int m_idx, int full)
 	   /* update monster list */
 	   p_ptr->window |= PW_MONLIST;
     }
-    
-	/* meet == 100 is a magic code, so reset it */
-    if ((easy) && (m_ptr->meet == 100)) m_ptr->meet = 0;
 
-	/* done if you've met the monster before or if you're not meeting it now */
-	if ((m_ptr->meet) || (!easy)) return;
+   /* done if you've met the monster before or if you're not meeting it now */
+   if ((m_ptr->meet) || (!easy)) return;
 
    /* "Nice to meet you" (First impression) */
    if (easy)
@@ -3779,12 +3110,8 @@ void update_monsters(bool full)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* monster is temporarily dead */
-        if (m_ptr->temp_death) continue;
-
 		/* Update the monster */
-		if (full) update_mon(i, 1);
-		else update_mon(i, 0);
+		update_mon(i, full);
 	}
 }
 
@@ -3863,7 +3190,7 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 
 /*
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
- * (this is used whenever a monster or the player moves in any way)
+ * (this is used whenever a monster or the player moves)
  */
 void monster_swap(int y1, int x1, int y2, int x2)
 {
@@ -3913,7 +3240,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		}
 
 		/* Update monster */
-		update_mon(m1, 3);
+		update_mon(m1, TRUE);
 	}
 
 	/* Player 1 */
@@ -3970,7 +3297,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		}
 
 		/* Update monster */
-		update_mon(m2, 3);
+		update_mon(m2, TRUE);
 	}
 
 	/* Player 2 */
@@ -4030,8 +3357,14 @@ s16b player_place(int y, int x)
 s16b monster_place(int y, int x, monster_type *n_ptr)
 {
 	s16b m_idx;
+
 	monster_type *m_ptr;
 	monster_race *r_ptr;
+
+
+	/* Paranoia XXX XXX */
+	if (cave_m_idx[y][x] != 0) return (0);
+
 
 	/* Get a new record */
 	m_idx = mon_pop();
@@ -4040,6 +3373,9 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	if (m_idx)
 	{
 		/* Make a new monster */
+		cave_m_idx[y][x] = m_idx;
+
+		/* Get the new monster */
 		m_ptr = &mon_list[m_idx];
 
 		/* Copy the monster XXX */
@@ -4048,20 +3384,9 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		/* Location */
 		m_ptr->fy = y;
 		m_ptr->fx = x;
-		
-		/* don't actually put the monster in the dungeon if it is temporarily dead */
-        if (m_ptr->temp_death) return (m_idx);
-
-		/* Paranoia XXX XXX Moved here from the beginning of the function */
-		/* because a temporarily dead monster may be in the same space as a */
-		/* living monster (just can't come back to life in the same space). */
-		if (cave_m_idx[y][x] != 0) return (0);
-
-		/* place the monster in the dungeon */
-		cave_m_idx[y][x] = m_idx;
 
 		/* Update the monster */
-		update_mon(m_idx, 1);
+		update_mon(m_idx, TRUE);
 
 		/* Get the new race */
 		r_ptr = &r_info[m_ptr->r_idx];
@@ -4080,57 +3405,6 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	return (m_idx);
 }
 
-
-/*
- * Count the number of empty spaces next to a grid
- *  Mostly from next_to_corr() in generate.c except
- * that it counts any non-wall spaces, not only empty corridors.
- */
-int next_to_floor(int y1, int x1)
-{
-	int i, y, x, k = 0;
-
-	/* Scan adjacent grids */
-	for (i = 0; i < 8; i++)
-	{
-		/* Extract the location */
-		y = y1 + ddy_ddd[i];
-		x = x1 + ddx_ddd[i];
-
-		/* Skip non floors */
-		if (!cave_floor_bold(y, x)) continue;
-
-		/* Count these grids */
-		k++;
-	}
-
-	/* Return the number of empty spaces */
-	return (k);
-}
-
-
-/*
- * Find the index of the object_kind with the given tval and sval.
- * used for mimmics - didn't use normal lookup_kind function because
- * I didn't want people getting the "No object (blah, blah)" message
- * when there was nothing wrong.
- */
-s16b lookup_mimmic_kind(int tval, int sval)
-{
-	int k;
-
-	/* Look for it */
-	for (k = 1; k < z_info->k_max; k++)
-	{
-		object_kind *k_ptr = &k_info[k];
-
-		/* Found a match */
-		if ((k_ptr->tval == tval) && (k_ptr->sval == sval)) return (k);
-	}
-
-	/* Oops */
-	return (0);
-}
 
 
 /*
@@ -4151,17 +3425,13 @@ s16b lookup_mimmic_kind(int tval, int sval)
  *
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
- *
- * vaulttree == TRUE means place the tree or statue whether it blocks a
- * path or not because this is in a vault / room design.
- * (normally NONMONSTERs are not placed if it would block a path.)
  */
-static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, bool vaulttree)
+static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group)
 {
-	int i, dkind = 0;
-	byte isroam, weakenme = 0;
+	int i;
+	byte isroam;
 	bool roamflag, spawnroam = FALSE;
-	int evilchance, drops = 0;
+	int evilchance;
 
 	monster_race *r_ptr;
 	monster_type *n_ptr;
@@ -4181,21 +3451,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 	/* checks this elseware, and should be allowed if caused by polymorph */
 	/* if ((r_ptr->flags7 & (RF7_WATER_ONLY)) &&
 		(!(cave_feat[y][x] == FEAT_WATER))) return (FALSE); */
-		
-	/* NONMONSTERs shouldn't get in the way */
-	if ((r_ptr->flags7 & (RF7_NONMONSTER)) && (!vaulttree))
-	{
-		int mtspaces = next_to_floor(y, x);
-        /* maybe find a better location */
-		if ((mtspaces < 3) || (possible_doorway(y, x, TRUE)))
-		{
-			int spoty, spotx;
-			/* abort if there's no good space for a tree nearby */
-			if (!get_nearby(y, x, &spoty, &spotx, 6)) return (FALSE);
-			y = spoty;
-			x = spotx;
-		}
-    }
 
 	/* pass_door monsters (silver moss) can multiply into a door space */
 	if ((((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
@@ -4244,19 +3499,17 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 			if (cheat_hear) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
-			/* was (r_ptr->level - p_ptr->depth) * 2; */
-			rating += (r_ptr->level - p_ptr->depth + 1) / 2; /* round up */
+			rating += (r_ptr->level - p_ptr->depth) * 2;
 		}
 
 		/* Normal monsters */
-		else if (!(r_ptr->flags7 & (RF7_NONMONSTER)))
+		else
 		{
 			/* Message for cheaters */
 			if (cheat_hear) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
-			/* was (r_ptr->level - p_ptr->depth); */
-			rating += (r_ptr->level - p_ptr->depth + 1) / 4;
+			rating += (r_ptr->level - p_ptr->depth);
 		}
 	}
 
@@ -4265,46 +3518,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 	{
 		/* Unique monsters induce message */
 		if (cheat_hear) msg_format("Unique (%s).", name);
-		
-		/* in depth uniques raise rating slightly */
-        if (r_ptr->level > p_ptr->depth - 4) rating += 1;
 	}
-	else if (r_ptr->flags1 & (RF1_CHAR_MULTI))
-	{
-		/* mimmics induce messages now */
-		if (cheat_hear) msg_format("Mimmic (%s).", name);
-	}
-	
-	/* only sometimes count drops if the monster doesn't always drop */
-    if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 5)) drops += 1;
-	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 16)) drops += 1;
-	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 34)) drops += 1;
-	if (r_ptr->flags1 & (RF1_DROP_1D2)) drops += 1;
-	if (r_ptr->flags1 & (RF1_DROP_2D2)) drops += 2;
-	if (r_ptr->flags1 & (RF1_DROP_3D2)) drops += 3;
-	if (r_ptr->flags1 & (RF1_DROP_4D2)) drops += 4;
-	/* level rating is now primarily about treasure, danger rating is separate */
-	if ((drops) && (p_ptr->depth >= 20))
-	{
-		int mrat = 0;
-		if (drops > 2) mrat = drops/3;
-		if (r_ptr->flags1 & (RF1_DROP_GREAT))
-		{
-			if (drops > 3) mrat += 3;
-			else if (drops > 1) mrat += 2;
-            else mrat += 1;
-		}
-		else if (r_ptr->flags1 & (RF1_DROP_GOOD))
-		{
-			if (drops > 3) mrat += 2;
-            else mrat += 1;
-		}
-		if (r_ptr->flags1 & (RF1_ONLY_ITEM)) mrat += 1;
-		else if ((mrat) && (r_ptr->flags1 & (RF1_ONLY_GOLD))) mrat -= 1;
-		
-		/* boost the rating accoring to a monster's drops */
-        rating += mrat;
-	}
+
 
 	/* Get local monster */
 	n_ptr = &monster_type_body;
@@ -4317,7 +3532,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 	n_ptr->r_idx = r_idx;
 
 
-	/* likeliness of being awake without noticing the PC */
+	/* likeliness of being awake without noticing the player */
 	/* currently no monster has both ROAM1 and ROAM2 but could use that to stack */
 	/* slp is only FALSE when monster is being generated over time after dungeon creation */
 	isroam = 1;
@@ -4325,15 +3540,11 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 	if ((r_ptr->flags2 & (RF2_ROAM2)) || (r_ptr->flags2 & (RF2_ROAM1))) roamflag = TRUE;
 	if (r_ptr->flags2 & (RF2_ROAM1)) isroam += 25;
 	if (r_ptr->flags2 & (RF2_ROAM2)) isroam += 74;
-	/* townspeople shouldn't just stand there */
-	if ((r_ptr->flags2 & (RF2_ROAM2)) && (r_ptr->level == 0)) isroam += 16;
-	else if (r_ptr->level == 0) isroam += 55;
 	/* monsters who are immune to sleep shouldn't sleep */
 	if ((r_ptr->flags3 & (RF3_NO_SLEEP)) && (!roamflag)) isroam += 15;
 	else if (r_ptr->flags3 & (RF3_NO_SLEEP)) isroam += 5;
-	/* non-aggressive monsters */
-	if ((r_ptr->sleep == 255) && (isroam > 70)) isroam += 6;
-	else if (r_ptr->sleep == 255) isroam += 25;
+	/* townspeople shouldn't just stand there (shouldn't have ROAM2) */
+	if (r_ptr->level == 0) isroam += 55;
     /* spawned smonsters shouldn't always automatically be aware of the player */
     else if ((!slp) && (rand_int(100) < 33))
     {
@@ -4352,6 +3563,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 	{
 		isroam = 0;
 	}
+
 
 	/* is it roaming? */
 	if (randint(100) < isroam)
@@ -4374,11 +3586,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 		int val = r_ptr->sleep;
 		if (val < 1) val = 1;
 		
-		/* town monsters ignore you most of the time */
-		if (!r_ptr->level) n_ptr->csleep = (val * 6) + randint(val * 8);
-		/* (town versions of dungeon monsters) */
-		else if (!p_ptr->depth) n_ptr->csleep = (val * 4) + randint(val * 9);
-		else n_ptr->csleep = (val * 2) + randint(val * 10);
+        /* town monsters ignore you most of the time */
+       	if (!r_ptr->level) n_ptr->csleep = (val * 4) + randint(val * 9);
+       	else n_ptr->csleep = (val * 2) + randint(val * 10);
 	}
 
 	/* BLOCK_LOS monsters get the CAVE_WALL flag */
@@ -4399,8 +3609,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;
-	n_ptr->ninelives = 0;
-	n_ptr->temp_death = 0;
 
 	/* Extract the monster base speed */
 	n_ptr->mspeed = r_ptr->speed;
@@ -4440,123 +3648,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 
     /* you've never met this monster */
 	n_ptr->meet = 0;
-	/* This monster is disguised (mimmics) */
-	if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (strchr("!,-_~=?#%:.$", r_ptr->d_char)))
-	{
-        if (strchr("!", r_ptr->d_char)) /* potion mimmics */
-		{
-			/* in case it doesn't get a valid kind on 1st try  */
-			while (!dkind)
-			{
-	            int dk = 23 + rand_int(36);
-				if (dk > 45) dk += 1; /* no sval 46 */
-				dkind = lookup_mimmic_kind(75, dk);
-			}
-			/* disguised = index of object it is disguised as */
-			n_ptr->disguised = dkind;
-		}
-		else if (strchr(",", r_ptr->d_char)) /* mushroom mimmic (currently none) */
-		{
-			/* in case it doesn't get a valid kind on 1st try  */
-			while (!dkind)
-			{
-	            int dk = 0 + rand_int(19);
-				dkind = lookup_mimmic_kind(80, dk);
-			}
-			n_ptr->disguised = dkind;
-		}
-		else if (strchr("-", r_ptr->d_char)) /* wand mimmics */
-		{
-			while (!dkind)
-			{
-	            int dk = 0 + rand_int(25);
-				dkind = lookup_mimmic_kind(65, dk);
-			}
-			n_ptr->disguised = dkind;
-		}
-		else if (strchr("_", r_ptr->d_char)) /* staff mimmics */
-		{
-			while (!dkind)
-			{
-				int dk = 0 + rand_int(33);
-				dkind = lookup_mimmic_kind(55, dk);
-			}
-			n_ptr->disguised = dkind;
-		}
-		else if (strchr("$", r_ptr->d_char)) /* coin mimmics */
-		{
-			if (p_ptr->depth < 16) n_ptr->disguised = lookup_mimmic_kind(100, 1 + rand_int(5));
-			else if (p_ptr->depth < 25) n_ptr->disguised = lookup_mimmic_kind(100, 1 + rand_int(p_ptr->depth-10));
-			else n_ptr->disguised = lookup_mimmic_kind(100, 6 + rand_int(14));
-		}
-		else if (strchr("~", r_ptr->d_char)) /* chest mimmics */
-		{
-			while (!dkind)
-			{
-				int dk = 1 + rand_int(5);
-				if (dk > 3) dk += 1; /* no sval 4 */
-				dkind = lookup_mimmic_kind(7, dk);
-			}
-			n_ptr->disguised = dkind;
-		}
-		else if (strchr("=", r_ptr->d_char)) /* ring mimmics */
-		{
-			while (!dkind)
-			{
-				int dk = 6 + rand_int(22);
-				if (dk > 12) dk += 3; /* no 13-15 svals  */
-				dkind = lookup_mimmic_kind(45, dk);
-			}
-			n_ptr->disguised = dkind;
-		}
-		else if (strchr("?", r_ptr->d_char)) /* scroll mimmics */
-		{
-			while (!dkind)
-			{
-				int dk = 7 + rand_int(36);
-				/* no scroll sval for these numbers */
-				/* if ((dk == 19) || (dk == 23) || (dk == 26) || (dk == 31))
-				dk = 7 + rand_int(12); */
-				dkind = lookup_mimmic_kind(70, dk);
-			}
-            n_ptr->disguised = dkind;
-		}
-		/* disguised as a wall or floor ('#', '.', ':' or '%') */
-        else n_ptr->disguised = 1;
-	}
-	else n_ptr->disguised = 0;
-	
-	/* hack: statues use tinvis to remember their individual descriptions */
-	/* ( see describe_monster_desc() in monster1.c ) */
-	if ((r_ptr->flags7 & (RF7_NONMONSTER)) && (r_ptr->flags3 & (RF3_NON_LIVING)))
-	{
-		/* sleep is irrevelent for NONMONSTERs so they can use this flag for something else */
-		/* (slp means it's a ruined statue) */
-		if ((slp) && (r_ptr->flags3 & (RF3_IM_WATER))) n_ptr->tinvis = 8 + rand_int(2);
-        else if (slp) n_ptr->tinvis = 26;
-        /* this flag means it's a fountain */
-		else if (r_ptr->flags3 & (RF3_IM_WATER)) n_ptr->tinvis = 1 + rand_int(7); /* 1-7 */
-		/* Statues in DARK_CITY are of goblins and ugly/weird things */
-		else if (p_ptr->theme == 16) 
-		{
-			/* BLOCK_LOS statues and non-BLOCK_LOS have different descriptions */
-            if (r_ptr->flags7 & (RF7_BLOCK_LOS)) n_ptr->tinvis = 18 + rand_int(8); /* 18-25 */
-            else n_ptr->tinvis = 19 + rand_int(7); /* 19-25 */
-		}
-		/* (small) Statues in DWARF_MINE are usually of dwarves */
-		else if ((p_ptr->theme == 10) && (!(r_ptr->flags7 & (RF7_BLOCK_LOS))) &&
-			(randint(100) < 70)) n_ptr->tinvis = 1 + rand_int(8); /* 1-6 */
-		/* Statues in the CASTLE and BARRACKS are of historical figures */
-		else if ((p_ptr->theme == 8) || (p_ptr->theme == 15))
-		{
-			/* BLOCK_LOS statues and non-BLOCK_LOS have different descriptions */
-            if (r_ptr->flags7 & (RF7_BLOCK_LOS)) n_ptr->tinvis = 1 + rand_int(7); /* 1-7 */
-            else n_ptr->tinvis = 1 + rand_int(14); /* 1-14 */
-		}
-		/* Statues other places could be any type of statue */
-		else if (r_ptr->flags7 & (RF7_BLOCK_LOS)) n_ptr->tinvis = randint(23);
-        else n_ptr->tinvis = randint(22);
-	}
 
 	/* Hack -- small racial variety */
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
@@ -4568,62 +3659,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 
 	/* Give a random starting energy */
 	n_ptr->energy = (byte)rand_int(100);
-	
-	/* TOWNOK dungeon monsters in the town are (usually) created as */
-	/* easier versions (partly to justify the lack of an XP reward) */
-	if ((r_ptr->level > 0) && (!p_ptr->depth) &&
-		(r_ptr->flags7 & (RF7_TOWNOK)))
-	{
-		int erlev = r_ptr->level * 3;
-		int erlevb = r_ptr->level * 7;
-		if (erlev < 10) erlev = 10;
-		if (erlevb < 25) erlevb = 25;
-		if (p_ptr->lev > erlevb) weakenme = 0;
-		else if (p_ptr->lev > erlev) weakenme = 1;
-		else weakenme = 2;
-	}
-	
-    if (weakenme == 2)
-    {
-		/* monster (almost) never has more than its race's average amouint of HP */
-        if (n_ptr->maxhp > ((r_ptr->hdice * r_ptr->hside) + r_ptr->hdice)/2 + badluck)
-		{
-			int omax = n_ptr->maxhp;
-			n_ptr->maxhp = ((r_ptr->hdice * r_ptr->hside) + r_ptr->hdice)/2;
-			if ((badluck) && (n_ptr->maxhp + badluck <= omax)) 
-				n_ptr->maxhp += rand_int(badluck + 1);
-			n_ptr->hp = n_ptr->maxhp;
-		}
-		/* reduced speed */
-		if (n_ptr->mspeed > 103) n_ptr->mspeed -= 5;
-		else if (n_ptr->mspeed > 99) n_ptr->mspeed = 99;
-		/* less alert */
-		if (n_ptr->csleep) n_ptr->csleep += 40;
-		else n_ptr->csleep += 10;
-	}
-	/* don't weaken TOWNOK monsters as much if PC is tough */
-	else if (weakenme == 1)
-    {
-		/* monster never has much more than its race's average amouint of HP */
-        if (n_ptr->maxhp > (((r_ptr->hdice * r_ptr->hside) + r_ptr->hdice) * 2) / 3 + badluck)
-		{
-			int omax = n_ptr->maxhp;
-			n_ptr->maxhp = (((r_ptr->hdice * r_ptr->hside) + r_ptr->hdice) * 2) / 3;
-			if ((badluck) && (n_ptr->maxhp + badluck <= omax)) 
-				n_ptr->maxhp += rand_int(badluck + 1);
-			n_ptr->hp = n_ptr->maxhp;
-		}
-		/* reduced speed */
-		if (n_ptr->mspeed >= 115) n_ptr->mspeed -= 4;
-		else if (n_ptr->mspeed >= 110) n_ptr->mspeed -= 3;
-		else if (n_ptr->mspeed >= 102) n_ptr->mspeed -= 2;
-		/* less alert */
-		if (n_ptr->csleep) n_ptr->csleep += 20;
-		else n_ptr->csleep += 4;
-	}
 
 	/* Force monster to wait for player */
-	if ((r_ptr->flags1 & (RF1_FORCE_SLEEP)) || (weakenme))
+	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
 	{
 		/* Monster is still being nice */
 		n_ptr->mflag |= (MFLAG_NICE);
@@ -4669,21 +3707,18 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	if (r_ptr->level > p_ptr->depth)
 	{
 		extra = r_ptr->level - p_ptr->depth;
-		extra = randint(extra);
-
-		/* Hack -- limit group reduction */
-		if (extra > 12) extra = 12;
-
-		extra = 0 - extra;
+		extra = 0 - randint(extra);
 	}
 
 	/* Easy monsters, large groups */
 	else if (r_ptr->level < p_ptr->depth)
 	{
 		extra = p_ptr->depth - r_ptr->level;
-		if (r_ptr->flags2 & RF2_FRIEND1) extra = randint((extra+1)/2);
-		else extra = randint(extra);
+		extra = randint(extra);
 	}
+
+	/* Hack -- limit group reduction */
+	if (extra > 12) extra = 12;
 
 	/* Modify the group size */
 	total += extra;
@@ -4691,37 +3726,24 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	/* Minimum size */
 	if (total < 1) total = 1;
 
-	/* Maximum size (31, set just above this function) */
+	/* Maximum size */
 	if (total > GROUP_MAX) total = GROUP_MAX;
 
 	/* Pairs (usually) */
 	if ((r_ptr->flags1 & RF1_FRIEND) && (total > 2))
 	{
-       	if ((extra > 10) && (randint(100) < 60)) total = 4;
-       	else if ((extra > 7) && (randint(100) < 25)) total = 3;
+       	if ((extra == 12) && (randint(100) < 60)) total = 4;
+       	else if ((extra > 7) && (randint(100) < 20)) total = 3;
        	else total = 2;
     }
 
-	/* small groups (max max is 16) */
-	if ((r_ptr->flags2 & RF2_FRIEND1) && (total > 6))
+	/* small groups */
+	if ((r_ptr->flags2 & RF2_FRIEND1) && (total > 7))
 	{
-       	/* reduction */
-        if ((total > 7) && (randint(100) < 9) && (goodluck)) total = (total / 2) + rand_int(3);
-       	else if ((total > 7) && (randint(100) < 41)) total = ((total * 3) / 4);
-       	else if (total > 8) total = 4 + rand_int(total / 2);
-       	else total = 3 + randint(3);
-       	/* caps */
-	    if ((r_ptr->level > p_ptr->depth) && (total > 6)) total = 5 + rand_int(3);
-	    else if ((r_ptr->level > p_ptr->depth - 4) && (total > 8)) total = 6 + randint(3);
-	    else if ((r_ptr->level > p_ptr->depth - 8) && (total > 10)) total = 7 + randint(4);
-	    else if ((total > 11) && (badluck < 3)) total = 8 + randint(total-9);
-	    else if (total > 15) total = 12 + randint(4);
-	}
-    /* group monsters shouldn't be all by themselves */
-	else if ((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags2 & RF2_FRIEND1))
-	{
-	    if (total < 2) total = 2;
-	}
+       	if ((extra > 8) && (randint(100) < 50)) total = ((total * 3) / 4);
+       	else total = ((total * 2) / 3);
+	    if ((r_ptr->level > p_ptr->depth) && (total > 8)) total = 8;
+    }
 
 	/* Save the rating */
 	old = rating;
@@ -4732,48 +3754,22 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	hack_y[0] = y;
 
 	/* maybe add a tribe shaman to the group */
-	/* (or something else which hangs out with that type of monster group) */
 	if ((r_ptr->flags3 & RF3_ORC) && (p_ptr->depth > 9))
 	{
-		int die = randint(150 - badluck);
-		if ((die < 4) && (p_ptr->depth > 24)) tag = 388; /* cave ogre L26 */
-		else if ((die < 5) && (p_ptr->depth > 13)) tag = 193; /* ogre L11 */
-		else if ((die < 10) && (p_ptr->depth > 22)) tag = 370; /* stone troll L24 */
-		else if ((die < 9) && (p_ptr->depth > 14)) tag = 235; /* warg L14 */
-		else if (die < 48) tag = 155; /* orc shaman */
-		else if ((die < 56) && (p_ptr->depth > 14)) tag = 187; /* fire orc */
+		int die = randint(101 - badluck);
+		if (die < 35) tag = 155; /* orc shaman */
+		else if ((die < 40) && (p_ptr->depth > 14)) tag = 187; /* fire orc */
 	}
 	else if (strchr("x", r_ptr->d_char))
 	{
 		int die = randint(70 + p_ptr->depth);
 		if (die > 135) tag = 547; /* riverflow gargoyle */
-		else if (die > 97) tag = 556; /* margoyle shaman */
+		else if (die > 100) tag = 556; /* margoyle shaman */
 	}
 	else if (strchr("O", r_ptr->d_char))
 	{
 		int die = randint(70 + p_ptr->depth);
 		if (die > 80) tag = 397; /* ogre shaman */
-	}
-	else if (strchr("T", r_ptr->d_char))
-	{
-		int die = randint(70 + p_ptr->depth);
-		if ((die > 90) && (p_ptr->depth > 29)) tag = 482; /* undying troll */
-	}
-	else if (r_idx == 263) /* winged monkeys */
-	{
-		int die = randint(90 + (p_ptr->depth/3) + badluck);
-		if (die > 97) tag = 264; /* elete winged monkey (otherwise THEME_ONLY) */
-	}
-	else if (r_idx == 407) /* bats of gorgoroth */
-	{
-		int die = randint(75 + (p_ptr->depth/3) + badluck);
-		if (die > 96) tag = 652; /* winged horror */
-	}
-	/* haradrim with mumaks */
-	else if (r_idx == 859)
-	{
-		if (randint(70 + p_ptr->depth*2) > 60) tag = 860; /* captain */
-		else tag = 506;
 	}
 
 	/* Puddle monsters, breadth first, up to total */
@@ -4782,7 +3778,6 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 		/* Grab the location */
 		int hx = hack_x[n];
 		int hy = hack_y[n];
-		bool mumaks = FALSE;
 
 		/* Check each direction, up to total */
 		for (i = 0; (i < 8) && (hack_n < total); i++)
@@ -4794,30 +3789,13 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 			if (!cave_can_occupy_bold(my, mx)) continue;
 
 			/* ordinary trees shouldn't block a doorway */
-			if ((r_ptr->flags7 & (RF7_NONMONSTER)) && 
-				((cave_feat[my][mx] == FEAT_OPEN) ||
+			if ((r_idx == 834) && ((cave_feat[my][mx] == FEAT_OPEN) ||
 				(cave_feat[my][mx] == FEAT_BROKEN))) continue;
-				
-			/* haradrim often have more than just one mumak */
-            if ((r_idx == 859) && (randint(100) < 12) && (!mumaks))
-            {
-				int tagb = tag;
-                if (tag == 860) tagb = 608;
-                if (place_monster_one(my, mx, tagb, slp, TRUE, FALSE))
-				{
-					/* Add it to the "hack" set */
-					hack_y[hack_n] = my;
-					hack_x[hack_n] = mx;
-					hack_n++;
-					if (tagb == 608) mumaks = TRUE;
-					continue;
-				}
-    	    }
 
 			/* maybe add a tribe shaman to the group */
 			if ((hack_n == (total - 1)) && (tag))
 			{
-				if (place_monster_one(my, mx, tag, slp, TRUE, FALSE))
+				if (place_monster_one(my, mx, tag, slp, TRUE))
 				{
 					/* Add it to the "hack" set */
 					hack_y[hack_n] = my;
@@ -4828,7 +3806,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 			}
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, slp, TRUE, FALSE))
+			if (place_monster_one(my, mx, r_idx, slp, TRUE))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -4840,10 +3818,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 	/* Hack -- restore the rating */
 	rating = old;
-	
-	/* if OOD or near OOD, tags (shamans) increase rating */
-    if ((r_ptr->level > p_ptr->depth) && (tag)) rating += randint(2);
-    else if ((r_ptr->level > p_ptr->depth - 3) && (tag)) rating += rand_int(2);
+
 
 	/* Success */
 	return (TRUE);
@@ -4868,14 +3843,15 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
  * Note the use of the new "monster allocation table" code to restrict
  * the "get_mon_num()" function to "legal" escort types.
  */
-bool place_monster_aux_real(int y, int x, int r_idx, bool slp, bool grp, bool vaulttree)
+bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 {
 	int i, place;
+
 	monster_race *r_ptr = &r_info[r_idx];
 
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp, FALSE, vaulttree)) return (FALSE);
+	if (!place_monster_one(y, x, r_idx, slp, FALSE)) return (FALSE);
 
 
 	/* Require the "group" flag */
@@ -4893,43 +3869,26 @@ bool place_monster_aux_real(int y, int x, int r_idx, bool slp, bool grp, bool va
 	/* Escorts for certain monsters */
 	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags2 & (RF2_ESCORT1)))
 	{
- 		/* how many escorts to try to place */
-		if ((r_ptr->flags2 & (RF2_ESCORT1)) && (r_ptr->level < p_ptr->depth - 9)) 
-			place = 11 + randint(9);
-		else if ((r_ptr->flags2 & (RF2_ESCORT1)) && (r_ptr->level < p_ptr->depth - 4)) 
-			place = 8 + randint(8);
-		else if (r_ptr->flags2 & (RF2_ESCORT1)) place = 7 + randint(6);
-		else if (r_ptr->level > p_ptr->depth) place = 34 + randint(10);
-		else place = 44 + randint(6);
  
-		/* Try to place several escorts */
+        /* how many escorts to try to place */
+        if (r_ptr->flags2 & (RF2_ESCORT1)) place = 20;
+        else place = 50;
+ 
+		/* Try to place several "escorts" */
 		for (i = 0; i < place; i++)
 		{
 			int nx, ny, z, d = 3;
-			if ((d == 3) && (i > 40) && (randint(100) < 10)) d++;
 
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, d, 0);
 
 			/* Require empty grids */
-			if (!cave_can_occupy_bold(ny, nx))
-			{
-				int spoty, spotx;
-				if (get_nearby(ny, nx, &spoty, &spotx, d + rand_int(2)))
-				{
-					ny = spoty;
-					nx = spotx;
-				}
-				else
-				{
-					/* try again if less total tries */
-					if ((place < 40) && (randint(100) < 70)) i -= 1;
-					continue;
-				}
-			}
+			if (!cave_can_occupy_bold(ny, nx)) continue;
+
 
 			/* Set the escort index */
 			place_monster_idx = r_idx;
+
 
 			/* Set the escort hook */
 			get_mon_num_hook = place_monster_okay;
@@ -4953,12 +3912,11 @@ bool place_monster_aux_real(int y, int x, int r_idx, bool slp, bool grp, bool va
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp, TRUE, FALSE);
+			(void)place_monster_one(ny, nx, z, slp, TRUE);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
-			    (r_ptr->flags1 & (RF1_ESCORTS)) ||
-                ((r_info[z].flags2 & (RF2_FRIEND1)) && (randint(100) < 22)))
+			    (r_ptr->flags1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
 				(void)place_monster_group(ny, nx, z, slp);
@@ -4972,12 +3930,6 @@ bool place_monster_aux_real(int y, int x, int r_idx, bool slp, bool grp, bool va
 }
 
 
-/* call the real function with an added parameter */
-bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
-{
-     return place_monster_aux_real(y, x, r_idx, slp, grp, FALSE);
-}
-
 /*
  * Hack -- attempt to place a monster at the given location
  *
@@ -4987,25 +3939,15 @@ bool place_monster(int y, int x, bool slp, bool grp, bool vault)
 {
 	int r_idx, tries = 0;
 	monster_race *r_ptr;
-	
-	/* paranoia */
-	if ((p_ptr->depth > 0) && (monster_level <= 0)) monster_level = p_ptr->depth;
 
 	/* keeps trying until it gets a valid r_idx */
 	while (tries < 90)
 	{
 		tries++;
-		/* separate function now to choose a town monster */
-		/* (monster_level is always 0 when initially placing town residents) */
-		if (!p_ptr->depth)
-		{
-			/* Pick a monster */
-			r_idx = get_mon_num_town();
-		}
 		/* occationally force an especially appropriate themed monster */
 		/* this will rarely cause an unusually out-of-depth monster */
 		/* or very low level monster in a deep depth */
-		else if ((p_ptr->theme) && (rand_int(100) < 6))
+		if ((p_ptr->theme) && (rand_int(100) < 6))
 		{
 			r_idx = get_mon_force_theme(monster_level);
 		}
@@ -5130,7 +4072,6 @@ bool alloc_monster(int dis, bool slp)
 		if (!cave_can_occupy_bold(y, x)) continue;
 		
 		/* don't place monsters in shop doorways (need this when we have trees as monsters) */
-		/* (trees are no longer placed as monsters) */
         if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) && (cave_feat[y][x] <= FEAT_SHOP_TAIL))
            continue;
 
@@ -5187,7 +4128,6 @@ static bool summon_specific_really(int y1, int x1, int lev, int type, bool grp)
 {
 	int i, x, y, r_idx, tries = 0;
 	monster_race *r_ptr;
-	int sumlev;
 
 	/* Look for a location */
 	for (i = 0; i < 22; ++i)
@@ -5235,10 +4175,7 @@ static bool summon_specific_really(int y1, int x1, int lev, int type, bool grp)
 		tries++;
 
 		/* Pick a monster, using the level calculation */
-		if (lev > p_ptr->depth) sumlev = (p_ptr->depth + lev) / 2 + 4;
-		else if (lev+1 < p_ptr->depth) sumlev = (p_ptr->depth + lev) / 2 + 2;
-		else sumlev = lev;
-		r_idx = get_mon_num(sumlev, FALSE);
+		r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 5, FALSE);
 
 		/* Handle failure */
 		if (!r_idx) continue;
@@ -5368,13 +4305,6 @@ void message_pain(int m_idx, int dam)
 	if (dam == 0)
 	{
 		msg_format("%^s is unharmed.", m_name);
-		return;
-	}
-	
-	/* NONMONSTERs don't feel pain */
-	if (r_ptr->flags7 & (RF7_NONMONSTER))
-	{
-		msg_format("%^s is damaged.", m_name);
 		return;
 	}
 

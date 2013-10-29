@@ -558,6 +558,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
 	if (f3 & (TR3_SEE_INVIS)) good[gc++] = "the ability to see invisible things";
 
 	/* Collect penalties */
+ 	if (f2 & (TR2_R_ANNOY))   bad[bc++] = "does something annoying every now and then";
 	if (f2 & (TR2_AGGRAVATE)) bad[bc++] = "aggravates creatures around you";
 	if (f2 & (TR2_DRAIN_EXP)) bad[bc++] = "drains experience";
 	if (f2 & (TR2_TELEPORT))  bad[bc++] = "induces random teleportation";
@@ -1195,6 +1196,8 @@ void describe_attack(const object_type *o_ptr)
 
     if (weapon)
     {
+		int wweight = o_ptr->weight / 10;
+		object_type *oarm_ptr = &inventory[INVEN_ARM];
 		dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
 	   if (o_ptr->sbdd) sbdam = ((o_ptr->sbds + 1) * o_ptr->sbdd * 5);
        /* remove strength bonus from xtra_dam */
@@ -1205,33 +1208,41 @@ void describe_attack(const object_type *o_ptr)
 		p_text_out("Each blow will do an average damage of ");
 	    new_paragraph = FALSE;
 
+		/* not wielding a shield */
+		if ((!oarm_ptr->k_idx) && (!p_ptr->heavy_wield))
+		{
+			/* raises strength bonus */
+			if (wweight >= 10) wweight += 2;
+		}
+
 	   /* complex strength bonus by weight */
        strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	   if ((o_ptr->weight / 10) < 2) strb = strb / 6;
-	   else if ((o_ptr->weight / 10) < 3) strb = strb / 4;
-	   else if ((o_ptr->weight / 10) < 4) strb = strb / 2;
-	   else if ((o_ptr->weight / 10) < 5) strb = (strb * 2) / 3;
-	   else if ((o_ptr->weight / 10) < 6) strb = (strb * 3) / 4;
-	   else if ((o_ptr->weight / 10) < 7) strb = (strb * 5) / 6;
-		if (cp_ptr->flags & CF_HEAVY_BONUS) /* barbarians like heavy weapons */
+	   if (wweight < 2) strb = strb / 6;
+	   else if (wweight < 3) strb = strb / 4;
+	   else if (wweight < 4) strb = strb / 2;
+	   else if (wweight < 5) strb = (strb * 2) / 3;
+	   else if (wweight < 6) strb = (strb * 3) / 4;
+	   else if (wweight < 7) strb = (strb * 5) / 6;
+	   /* barbarians & hulks like heavy weapons */
+		if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)) 
 		{
-			if ((o_ptr->weight / 10) > 26) strb = (strb * 13) / 6;
-			else if ((o_ptr->weight / 10) > 20) strb = strb * 2;
-			else if ((o_ptr->weight / 10) > 17) strb = (strb * 7) / 4;
-			else if ((o_ptr->weight / 10) > 15) strb = (strb * 3) / 2;
-			else if ((o_ptr->weight / 10) > 12) strb = (strb * 4) / 3;
-			else if ((o_ptr->weight / 10) > 10) strb = (strb * 5) / 4;
-			else if ((o_ptr->weight / 10) == 10) strb = (strb * 6) / 5;
-			if ((o_ptr->weight / 10) > 10) strb += 1;
+			if (wweight > 26) strb = (strb * 13) / 6;
+			else if (wweight > 20) strb = strb * 2;
+			else if (wweight > 17) strb = (strb * 7) / 4;
+			else if (wweight > 15) strb = (strb * 3) / 2;
+			else if (wweight > 12) strb = (strb * 4) / 3;
+			else if (wweight > 10) strb = (strb * 5) / 4;
+			else if (wweight == 10) strb = (strb * 6) / 5;
+			if (wweight > 10) strb += 1;
 		}
 		else
 		{
-			if ((o_ptr->weight / 10) > 25) strb = strb * 2;
-			else if ((o_ptr->weight / 10) > 21) strb = (strb * 7) / 4;
-			else if ((o_ptr->weight / 10) > 17) strb = (strb * 3) / 2;
-			else if ((o_ptr->weight / 10) > 15) strb = (strb * 4) / 3;
-			else if ((o_ptr->weight / 10) > 12) strb = (strb * 5) / 4;
-			else if ((o_ptr->weight / 10) > 10) strb = (strb * 6) / 5;
+			if (wweight > 25) strb = strb * 2;
+			else if (wweight > 21) strb = (strb * 7) / 4;
+			else if (wweight > 17) strb = (strb * 3) / 2;
+			else if (wweight > 15) strb = (strb * 4) / 3;
+			else if (wweight > 12) strb = (strb * 5) / 4;
+			else if (wweight > 10) strb = (strb * 6) / 5;
 		}
 	   strdec = (strb / 10);
 	   dam += strdec * 10;
@@ -1243,12 +1254,12 @@ void describe_attack(const object_type *o_ptr)
 
 #if oldbreak
        /* figure strength bonus */
-       if ((o_ptr->weight / 10) > 4)
+       if (wweight > 4)
        {
           strdam = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
                    
           /* double strength bonus for very heavy weapons (heavier than 15 lb) */
-          if ((o_ptr->weight / 10) > 15) strdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+          if (wweight > 15) strdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 
           dam += strdam * 10;
        }

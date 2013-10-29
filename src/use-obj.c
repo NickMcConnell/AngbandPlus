@@ -119,13 +119,19 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             }
             msg_print("This is good stuff.");
             price = randint(6);
-            /* has chance to bypass sustains */
-			if (price == 1) (void)do_dec_stat(A_STR, 20 + badluck);
-			if (price == 2) (void)do_dec_stat(A_DEX, 20 + badluck);
-			if (price == 3) (void)do_dec_stat(A_CON, 20 + badluck);
-			if (price == 4) (void)do_dec_stat(A_INT, 20 + badluck);
-			if (price == 5) (void)do_dec_stat(A_WIS, 20 + badluck);
-			if (price == 6) (void)do_dec_stat(A_CHR, 22 + badluck);
+            /* maybe avoid lowering strength depending on luck */
+            if ((price == 1) && ((badluck*2) - goodluck < rand_int(6) - rand_int(2))) 
+                price = randint(5) + 1;
+            /* strength drain isn't always permanent */
+            if ((price == 1) && (goodluck - badluck >= 0))
+                (void)dec_stat(A_STR, 20 - goodluck, FALSE);
+            /* otherwise permanent & bypasses sustains */
+			else if (price == 1) (void)dec_stat(A_STR, 10, TRUE);
+			else if (price == 2) (void)dec_stat(A_DEX, 10, TRUE);
+			else if (price == 3) (void)dec_stat(A_CON, 10, TRUE);
+			else if (price == 4) (void)dec_stat(A_INT, 10, TRUE);
+			else if (price == 5) (void)dec_stat(A_WIS, 10, TRUE);
+			else if (price == 6) (void)dec_stat(A_CHR, 10, TRUE);
 			take_hit(damroll(3, 6), "poisonous clover");
             msg_print("..but it must have been poisonous.");
 			*ident = TRUE;
@@ -557,7 +563,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_WATER:
 		case SV_POTION_APPLE_JUICE:
 		{
-			msg_print("You feel less thirsty.");
+			if (p_ptr->prace == 16) msg_print("Some liquid flows down your clay throat to no effect.");
+            else msg_print("You feel less thirsty.");
 	        (void)set_food(p_ptr->food + o_ptr->pval);
 			*ident = TRUE;
 			break;
@@ -572,7 +579,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
             }
             else
             {
-			   msg_print("You feel less thirsty.");
+				if (p_ptr->prace == 16) msg_print("Some liquid flows down your clay throat to no effect.");
+				else msg_print("You feel less thirsty.");
             }
 			*ident = TRUE;
 			break;
@@ -600,6 +608,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                   msg_print("This is good stuff.");
 			      *ident = TRUE;
             }
+			else if (p_ptr->prace == 16) msg_print("Some liquid flows down your clay throat to no effect.");
             else msg_print("You feel less thirsty.");
 			break;
         }
@@ -870,6 +879,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                if (slime) msg_print("Your mind and body are purified.");
                else msg_print("Your mind is purified.");
             }
+			else if (p_ptr->prace == 16) msg_print("Some liquid flows down your clay throat to no effect.");
 			else msg_print("You feel less thirsty.");
 			break;
 		}
@@ -2181,6 +2191,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
 			if (rand_int(25) < 5 + goodluck*2)
 			{
+				if (randint(100) < 35) { if (clear_timed(TMD_AMNESIA)) *ident = TRUE; }
 				if (p_ptr->silver > PY_SILVER_HEALTHY)
 				{
 					p_ptr->silver -= 1;
@@ -2928,6 +2939,7 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_POISONED)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
+			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
 			break;

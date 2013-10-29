@@ -943,7 +943,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			{
 				int endurance = (adj_con_fix[p_ptr->stat_ind[A_CON]]);
 				if (p_ptr->prace == 16) endurance = 10;
-				if (cp_ptr->flags & CF_HEAVY_BONUS) endurance += 2;
+				if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)) endurance += 2;
 			    strnfmt(p, len, " dur %d +d%d", endurance*2, (plev / 2) + endurance);
 			    break;
 			}
@@ -1179,6 +1179,9 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			    else if (plev < 15) strnfmt(p, len, " dam 2d%d", plev-1);
 			    else strnfmt(p, len, " dam %dd13", (plev-1)/10);
 			    break;
+			case DARK_DISPEL_UNDEAD1:
+				strnfmt(p, len, " dam d%d", 3 * plev);
+				break;
 		    case DARK_NOXIOUS_FUMES:
 			    strnfmt(p, len, " dam %d+d%d", 10 + (plev/2), plev/4);
 			    break;
@@ -2584,7 +2587,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_RECHARGING:
 		{
-			return recharge(15);
+			return recharge(14 + randint((plev * 3) / 4));
 		}
 
 #if old
@@ -3016,7 +3019,7 @@ static bool cast_newm_spell(int spell)
 				msg_print("Your constitution is too low to cast this spell.");
 				break;
 			}
-			if (cp_ptr->flags & CF_HEAVY_BONUS) endurance += 2;
+			if ((cp_ptr->flags & CF_HEAVY_BONUS) || (p_ptr->prace == 17)) endurance += 2;
 			time = endurance*2 + randint((plev / 2) + endurance);
 			(void)inc_timed(TMD_MIGHTY_HURL, time);
 
@@ -3232,7 +3235,7 @@ static bool cast_newm_spell(int spell)
 		
 		case NEWM_INFUSION:
         {
-			return recharge(plev);
+			return recharge(plev + 1);
         }
 		
 		case NEWM_NATURE_BLESSING:
@@ -5565,7 +5568,7 @@ static bool cast_chem_spell(int spell)
 
 		case CHEM_RECHARGING2:
 		{
-			return recharge(5 + randint(plev/2));
+			return recharge(6 + randint(plev/2));
 		}
 
 		case CHEM_CLOUDKILL1:
@@ -5960,6 +5963,9 @@ static bool cast_dark_spell(int spell)
             if (ifrad < 1) ifrad = 1;
             if (randint(100) < 11 + badweap*2 + goodluck - ifrad) ifrad += 1;
 			(void)unlite_area(damroll(2, ((plev+1) / 2)) + randint(ifrad + 1) + 1, ifrad, TRUE);
+			/* in unlite_area function if from call dark spell: */
+			/* if (rand_int(8) < p_ptr->lev) spellswitch = 23; */
+			/* (spellswitch 23 damages monsters without them noticing) */
 			break;
 		}
 

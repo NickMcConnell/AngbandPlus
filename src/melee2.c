@@ -616,7 +616,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Haste self if we aren't already somewhat hasted (rarely) */
-		else if (has_haste && (rand_int(100) < (20 + r_ptr->speed - m_ptr->mspeed)))
+		else if (has_haste && (rand_int(100) < (19 + r_ptr->speed - m_ptr->mspeed)))
 		{
 			/* Choose haste spell */
 			f4_mask = (RF4_HASTE_MASK);
@@ -818,7 +818,7 @@ bool make_attack_spell(int m_idx)
 	if (rand_int(100) >= chance) return (FALSE);
 
 	/* monsters which haven't noticed you should cast less often */
-    if ((m_ptr->csleep) && (randint(100) < 45)) return (FALSE);
+	if ((m_ptr->csleep) && (randint(100) < 50)) return (FALSE);
 
 	/* Extract the monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
@@ -831,6 +831,27 @@ bool make_attack_spell(int m_idx)
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
+    
+	/* next to the PC and does not prefer ranged attacks (cast less often) */
+	if ((m_ptr->cdis == 1) && (!(r_ptr->flags2 & (RF2_RANGE))) &&
+		(randint(100) < 31))
+	{
+		if (randint(100) < 50) return (FALSE);
+        f4 &= ~(RF4_INNATE_MASK);
+		f5 &= ~(RF5_MISSILE);
+	}
+	/* monsters which do not prefer ranged attacks never fire arrows at melee range */
+	else if ((m_ptr->cdis == 1) && (!(r_ptr->flags2 & (RF2_RANGE))))
+	{
+		f4 &= ~(RF4_ARROW_1);
+		f4 &= ~(RF4_ARROW_2);
+		f4 &= ~(RF4_T_AXE);
+		f4 &= ~(RF4_BOULDER);
+		f5 &= ~(RF5_MISSILE);
+	}
+
+	/* No spells left */
+	if (!f4 && !f5 && !f6) return (FALSE);
 
 	/* Hack -- require projectable player */
 	/* why "if (normal)" when normal is always TRUE here? */
@@ -958,16 +979,31 @@ bool make_attack_spell(int m_idx)
 	{
 		bool kin = TRUE;
 		if (r_ptr->flags6 & (RF6_HEAL_OTHR)) kin = FALSE;
+		else summoner = m_ptr->r_idx;
 		
 		/* test run to the spell function */
 		if (!heal_monsters(0, m_ptr, kin))
+		{
+			/* don't cast it if there are no monsters to heal */
+			f6 &= ~(RF6_HEALO_MASK);
+		}
+	}
+	/* even stupid monsters don't cast heal others if there are no other monsters */
+	/* (but they will cast it when no nearby monsters need healing) */
+	else if (f6 & (RF6_HEALO_MASK))
+	{
+		bool kin = TRUE;
+		if (r_ptr->flags6 & (RF6_HEAL_OTHR)) kin = FALSE;
+		
+		/* test run to the spell function */
+		if (!heal_monsters(-1, m_ptr, kin))
 		{
 			/* don't cast it if there are no monsters to heal */
             f6 &= ~(RF6_HEALO_MASK);
 		}
 	}
 
-	/* Monsters don't cast EXPLODE when it can be hurt in the explosion */
+	/* a monster shouldn't cast EXPLODE when it can be hurt in the explosion */
 	if ((r_ptr->flags4 & (RF4_EXPLODE)) && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
 		bool immunewall = FALSE;
@@ -980,7 +1016,7 @@ bool make_attack_spell(int m_idx)
 	}
 	
 	/* Monsters shouldn't cast TELE_TO when they're afraid or already next to the PC */
-    if (!(r_ptr->flags2 & (RF2_STUPID)))
+    if ((r_ptr->flags6 & (RF6_TELE_TO)) && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
 		if ((m_ptr->cdis < 2) || (m_ptr->monfear))
 		{
@@ -988,6 +1024,20 @@ bool make_attack_spell(int m_idx)
             if (!(cave_feat[p_ptr->py][p_ptr->px] == FEAT_GLYPH))
 				f6 &= ~(RF6_TELE_TO);
 		}
+	}
+
+	/* monsters should be less likely to cast darkness when already in a dark room */
+	/* (unlite_area is always centered on the PC so only check for the PC) */
+    if ((r_ptr->flags4 & (RF6_DARKNESS)) && !(r_ptr->flags2 & (RF2_STUPID)))
+	{
+		if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) &&     /* PC in a room*/
+			(!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))) &&  /* ..not lit */
+			(randint(100) < 70)) f6 &= ~(RF6_DARKNESS);
+        
+		/* slightly less likely to cast DARKNESS when not in a room at all */
+		/* (maybe make this a beam darkness effect when in a tunnel instead) */
+		else if ((!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) &&
+			(randint(100) < 20)) f6 &= ~(RF6_DARKNESS);
 	}
 
 	/* No spells left */
@@ -2126,6 +2176,7 @@ bool make_attack_spell(int m_idx)
 			savechance = 100 + (badluck/2) - (goodluck/4);
 			if (p_ptr->timed[TMD_CLEAR_MIND]) savechance -= 15;
 			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 10;
+			if (p_ptr->telepathy) savechance += 10;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
@@ -2137,6 +2188,11 @@ bool make_attack_spell(int m_idx)
 				if (!p_ptr->resist_confu)
 				{
 					(void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
+				}
+				/* may bypass Rconf if you have telepathy and badluck */
+				else if ((p_ptr->telepathy) && (badluck > rand_int(5)))
+				{
+					(void)inc_timed(TMD_CONFUSED, 2);
 				}
 				damage = damroll(8, 8);
 				take_hit(damage, ddesc);
@@ -2666,25 +2722,21 @@ bool make_attack_spell(int m_idx)
 		}
 
 
-
 		/* RF6_HASTE */
 		case RF6_OFFSET+0:
 		{
+			/* (no effect, so shouldn't have a message) */
+			if (m_ptr->mspeed >= r_ptr->speed + 20) break;
+			
 			disturb(1, 0);
-			if (blind)
-			{
-				msg_format("%^s mumbles.", m_name);
-			}
-			else
-			{
-				msg_format("%^s concentrates on %s body.", m_name, m_poss);
-			}
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s concentrates on %s body.", m_name, m_poss);
 
-			/* Allow quick speed increases to base+10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			/* Allow quick speed increases to base+(8 to 10) */
+			if (m_ptr->mspeed < r_ptr->speed + 8)
 			{
 				msg_format("%^s starts moving faster.", m_name);
-				m_ptr->mspeed += 10;
+				m_ptr->mspeed += 8 + rand_int(3);
 			}
 
 			/* Allow small speed increases to base+20 */
@@ -2693,7 +2745,6 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s moves even faster.", m_name);
 				m_ptr->mspeed += 2;
 			}
-
 			break;
 		}
 
@@ -2992,9 +3043,12 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_SUM_ANGEL);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s summons silver grepse.", m_name);
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < some; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_SILVER);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_SILVER);
 			}
 			if (blind && count)
 			{
@@ -3015,12 +3069,17 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons %s %s.", m_name, m_poss,
 			                ((r_ptr->flags1) & RF1_UNIQUE ?
 			                 "minions" : "kin"));
-
-			/* Hack -- Set the letter of the monsters to summon */
-			summon_kin_type = r_ptr->d_char;
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_KIN);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				/* Hack -- tweak for living ghouls */
+				if ((randint(100) < 58) && (strstr(m_name, "living ghoul"))) 
+					summon_kin_type = 'z';
+				/* Hack -- Set the letter of the monsters to summon */
+				else summon_kin_type = r_ptr->d_char;
+                count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_KIN);
 			}
 			if (blind && count)
 			{
@@ -3037,9 +3096,12 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_SUM_HI_DEMON);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater demons!", m_name);
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DEMON);
+				int sumlev = rlev;
+				if (randint(100) < badluck) sumlev += randint((badluck+5)/3);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_DEMON);
 			}
 			if (blind && count)
 			{
@@ -3063,12 +3125,15 @@ bool make_attack_spell(int m_idx)
 			else if (r_ptr->flags7 & (RF7_HATE_WATER)) styp = SUMMON_NOWATER;
 			else if ((r_ptr->flags3 & (RF3_EVIL)) ||
 				(r_ptr->flags3 & (RF3_HURT_LITE))) styp = SUMMON_NOLIGHT;
+			summoner = m_ptr->r_idx;
 			
 			for (k = 0; k < 1; k++)
 			{
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
 				/* exception for Scroll of Aquirement town mimmic */
                 if ((r_ptr->level == 0) && (p_ptr->max_depth > 4)) count += summon_specific(m_ptr->fy, m_ptr->fx, p_ptr->max_depth/4 + 1, styp);
-                else count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, styp);
+                else count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, styp);
 			}
 			if (blind && count)
 			{
@@ -3093,9 +3158,12 @@ bool make_attack_spell(int m_idx)
 				((samt < 8) || (badluck > 5))) samt += 1;
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons monsters!", m_name);
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, 0);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, 0);
 			}
 			if (blind && count)
 			{
@@ -3119,6 +3187,7 @@ bool make_attack_spell(int m_idx)
 			else if (r_ptr->flags7 & (RF7_HATE_WATER)) styp = SUMMON_ANI_NOWATER;
 			else if ((r_ptr->flags3 & (RF3_EVIL)) ||
 				(r_ptr->flags3 & (RF3_HURT_LITE))) styp = SUMMON_ANI_NOLIGHT;
+			summoner = m_ptr->r_idx;
 
 			for (k = 0; k < 6; k++)
 			{
@@ -3141,6 +3210,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons spiders.", m_name);
 			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_SPIDER);
@@ -3162,6 +3232,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hounds.", m_name);
 			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HOUND);
@@ -3183,6 +3254,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hydras.", m_name);
 			if (randint(100) < (goodluck + 5) * 2) samt -= randint(2);
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HYDRA);
@@ -3208,10 +3280,13 @@ bool make_attack_spell(int m_idx)
 			if (randint(100) < (badluck + 1) * 2) samt += 1;
 			/* spellswitch 40: The Wicked witch of the West */
             /* prefers winged monkeys */
-			if (strstr(rname, "West")) spellswitch = 40;
+			/* if (strstr(rname, "West")) spellswitch = 40; */
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_ANGEL);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANGEL);
 			}
 			if (blind && count)
 			{
@@ -3232,7 +3307,9 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons a hellish adversary!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DEMON);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_DEMON);
 			}
 			if (blind && count)
 			{
@@ -3249,9 +3326,12 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_SUM_UNDEAD);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons an undead adversary!", m_name);
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNDEAD);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -3268,9 +3348,12 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_SUM_DRAGON);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons a dragon!", m_name);
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DRAGON);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_DRAGON);
 			}
 			if (blind && count)
 			{
@@ -3289,9 +3372,12 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater undead!", m_name);
 			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
+				int sumlev = rlev;
+				if (randint(100) < badluck) sumlev += randint((badluck+5)/3);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -3310,9 +3396,12 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons ancient dragons!", m_name);
 			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DRAGON);
+				int sumlev = rlev;
+				if (randint(100) < badluck) sumlev += randint((badluck+5)/3);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_DRAGON);
 			}
 			if (blind && count)
 			{
@@ -3333,6 +3422,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons mighty undead!", m_name);
 			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
@@ -3357,6 +3447,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			sound(MSG_SUM_UNIQUE);
 			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			summoner = m_ptr->r_idx;
 			for (k = 0; k < samt; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNIQUE);
@@ -5056,6 +5147,8 @@ static void process_monster(int m_idx)
 		u32b notice;
 		/* threshhold so that certain monsters never wake unless attacked */
 		if (r_ptr->sleep == 255) nowake = TRUE;
+		/* town monsters with an XP penalty don't get aggravated this way */
+		if ((r_ptr->level == 0) && (r_ptr->mexp < 0)) nowake = TRUE;
 
 		/* Aggravation */
 		/* note: aggravation can now be nullifed by very high stealth */
@@ -5178,6 +5271,13 @@ static void process_monster(int m_idx)
 		/* monsters notice you easier when you stink */
 		if ((p_ptr->timed[TMD_STINKY]) && (m_ptr->cdis < 5))
 			noticerange = noticerange/2;
+
+		/* Mind flayers sense telepathic PCs */
+		if (p_ptr->telepathy)
+		{
+			cptr rname = (r_name + r_ptr->name);
+			if (strstr(rname, "ind flayer")) noticerange -= (290 + (badluck*5));
+		}
 
 		/* awake in a dark space within the PC's light radius (very likely to notice the PC) */
 		if ((!(cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_GLOW))) && (m_ptr->roaming) &&
@@ -5800,7 +5900,7 @@ static void process_monster(int m_idx)
 			int staynhide;
 			/* hiding in the water, so don't want to leave */
 			if ((player_can_see_bold(oy, ox)) && (!m_ptr->ml)) staynhide = 95;
-			else if (!m_ptr->ml) staynhide = 75;
+			else if (!m_ptr->ml) staynhide = 80;
 			else if (r_ptr->flags2 & (RF2_RANGE)) staynhide = 80;
 			else staynhide = 20;
 

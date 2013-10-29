@@ -1849,8 +1849,8 @@ void do_call_help(int r_idx)
  * (simulation of monster-cast project_los using GF_OLD_HEAL)
  * (doesn't actually use project() at all)
  *
- * if healmon is 0, then it only tests to see 
- * if there are nearby monsters to heal.
+ * if healmon is 0 or -1, then it only tests to see 
+ * if there are nearby monsters to heal. (-1 is for stupid monsters)
  *
  * XXXTODO: If an undead monster has HEAL_KIN, it should raise any
  * undead monsters which are temporarily dead.
@@ -1868,8 +1868,6 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 	int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 
 	bool healed = FALSE;
-	bool endfear = FALSE;
-	bool iskin = FALSE;
 	bool onlygood = FALSE;
 
 	/* what race is the caster? */
@@ -1892,6 +1890,8 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 	/* Affect all (nearby) monsters */
 	for (i = 1; i < mon_max; i++)
 	{
+		bool iskin = FALSE;
+		bool endfear = FALSE;
 		/* get target monster info */
 		n_ptr = &mon_list[i];
 		r_ptr = &r_info[n_ptr->r_idx];
@@ -1914,7 +1914,7 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 		if ((d > MAX_RANGE - 1) || (!projectable(cy, cx, y, x))) continue;
 
 		/* hurts undead */
-		if ((r_ptr->flags3 & (RF3_UNDEAD)) && (!kinonly))
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) && (!kinonly) && (healmon > 0))
 		{
 			/* Hurt the monster */
 			n_ptr->hp -= (healmon/2);
@@ -1945,7 +1945,8 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 		}
 
 		/* don't bother if monster doesn't need healing */
-		if (n_ptr->hp == n_ptr->maxhp) continue;
+		/* (but stupid monsters will cast it even if no one needs healing) */
+		if ((n_ptr->hp == n_ptr->maxhp) && (healmon > -1)) continue;
 
 		/* Heal_kin spell only heals similar monsters */
 		if (kinonly)
@@ -1968,11 +1969,11 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 		/* hack: templar knights don't heal evil monsters */
 		if ((n_ptr->evil) && (onlygood)) continue;
 
-		/* !healmon == not actually casting the spell yet */
+		/* (healmon < 1) == not actually casting the spell yet */
 		/* TRUE == there is at least one monster nearby to heal */
 		/* (but not if the only monster to heal is itself) */
-		if ((!healmon) && (n_ptr != m_ptr)) return TRUE;
-		else if (!healmon) continue;
+		if ((healmon < 1) && (n_ptr != m_ptr)) return TRUE;
+		else if (healmon < 1) continue;
 
 		/* Wake up (usually) */
 		if ((p_ptr->nice) && (!n_ptr->evil) &&
@@ -2232,7 +2233,7 @@ static void annoying_static(void)
 		}
 }
 
-/* new item drawback */
+/* new item drawback: R_ANNOY */
 void do_something_annoying(object_type *o_ptr)
 {
 	char o_name[80];
@@ -2245,8 +2246,8 @@ void do_something_annoying(object_type *o_ptr)
 	
 	if (die < 5)
 	{
-		msg_format("You suddenly get a nasty crick in your neck.", o_name);
-		inc_timed(TMD_STUN, 4 + randint(5 + badluck/2));
+		msg_print("You suddenly get a crick in your neck.");
+		inc_timed(TMD_STUN, 4 + randint(4 + badluck/2));
 	}
 	else if (die < 16)
 	{
@@ -2263,6 +2264,7 @@ void do_something_annoying(object_type *o_ptr)
 	else if (die < 25)
 	{
 		msg_format("Your %s creates some traps!", o_name);
+		disturb(0, 0);
 		trap_creation();
 	}
 	else if (die < 28)
@@ -2291,11 +2293,14 @@ void do_something_annoying(object_type *o_ptr)
 	else if (die < 44)
 	{
 		msg_format("Your %s shouts 'Hello Sailor' loud enough rouse a sleeping behemoth!", o_name);
+		disturb(0, 0);
 		aggravate_monsters(0);
 	}
 	else if (die < 47)
 	{
-		if (fire_spread(GF_OLD_HEAL, damroll(3, 9), 8))
+		int healmoo = damroll(4, 9);
+		if (p_ptr->depth >= 22) healmoo = healmoo * randint(p_ptr->depth/11);
+        if (fire_spread(GF_OLD_HEAL, healmoo, 8))
 			msg_format("Your %s magically heals nearby monsters!", o_name);
 	}
 	else if (die < 60)
@@ -2305,6 +2310,7 @@ void do_something_annoying(object_type *o_ptr)
 		else if (fdep < 9) fdep = 9;
         die2 = fdep/3 + randint((fdep*2)/3 + badluck);
 		msg_format("Your %s summons a pest.", o_name);
+		disturb(0, 0);
 		if (die2 < 5) do_call_help(67); /* yellow worm mass */
 		else if (die2 < 7) do_call_help(46); /* garden gnome */
 		else if (die2 < 10) do_call_help(109); /* rabid rat */
@@ -2349,24 +2355,31 @@ void do_something_annoying(object_type *o_ptr)
 		else if (die2 < 100) do_call_help(637); /* undead beholder */
 		else do_call_help(822); /* pandemonium fiend */
 	}
-	else if (die < 65)
+	else if (die < 64)
+	{
+		msg_print("You suddenly get a nasty crick in your neck.");
+		inc_timed(TMD_STUN, 8 + randint(4 + badluck));
+	}
+	else if (die < 68)
 	{
 		msg_format("Your %s plays a catchy tune, putting you in a good mood.", o_name);
 		inc_timed(TMD_CHARM, 40 + randint(40 + badluck));
 	}
 #if addmorelater
-	else if (die < 70)
+	else if (die < 71)
 	{
 	}
 #endif
-	else if (die < 75)
+	else if (die < 75) /* 75 */
 	{
 		msg_format("Your %s creates some traps!", o_name);
+		disturb(0, 0);
 		fire_spread(GF_MAKE_TRAP, 10, 2);
 	}
 	else if (die < 80)
 	{
 		msg_format("Your %s is hungry!", o_name);
+		disturb(0, 0);
 		annoying_static();
 	}
 	else /* if (die < 90) */

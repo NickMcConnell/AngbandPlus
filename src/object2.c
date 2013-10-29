@@ -1122,7 +1122,6 @@ static s32b object_value_real(const object_type *o_ptr)
 	u32b f1, f2, f3, f4;
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-
 	/* Hack -- "worthless" items */
 	if (!k_ptr->cost)
     {
@@ -1357,8 +1356,6 @@ static s32b object_value_real(const object_type *o_ptr)
  *
  * Never notice "unknown" bonuses or properties, including "curses",
  * since that would give the player information he did not have.
- *
- * Note that discounted items stay discounted forever.
  */
 s32b object_value(const object_type *o_ptr)
 {
@@ -2252,6 +2249,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	int tohit2 = m_bonus(10, level);
 	int todam2 = m_bonus(10, level);
 
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
 	/* Get flags */
 	u32b f1, f2, f3, f4;
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -2274,7 +2273,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
               o_ptr->to_d = o_ptr->to_h;
               o_ptr->to_h = tmp;
            }
-           return; /* never enchant again or get extra dice */
+           return; /* never get extra dice */
         }
 
 		/* Very good */
@@ -2311,15 +2310,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	{
 		case TV_DIGGING:
 		{
-			/* Very bad */
-			if (power < -1)
-			{
-				/* Hack -- Horrible digging bonus */
-				o_ptr->pval = 0 - (5 + randint(5));
-			}
-
-			/* Bad */
-			else if (power < 0)
+			/* bad */
+			if (power < 0)
 			{
 				/* Hack -- Reverse digging bonus */
 				o_ptr->pval = 0 - (o_ptr->pval);
@@ -2327,7 +2319,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 			break;
 		}
-
 
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -2338,9 +2329,35 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
             /* Very Good */
 			if (power > 1)
 			{
-				/* Hack -- Super-charge the damage dice */
+				int bbig = 0;
+                int vdd = o_ptr->dd;
+				/* certain egos have a bigger chance for extra dice */
+				/* (influenced by depth of creation) */
+                if (o_ptr->name2 == EGO_CRITICAL_WEIGHT) bbig = 35 + (p_ptr->depth/10);
+				
+				/* throwing weapons of critical weight */
+                if (o_ptr->name2 == EGO_CRITICAL_AMMO) bbig = 20 + (p_ptr->depth/10);
+				
+				/* bone-weapon goring ego (has EXTRA_CRIT) */	
+				if (o_ptr->name2 == EGO_GORING) bbig = 9 + (p_ptr->depth/15);
+					
+				/* rare stiletto ego (has EXTRA_CRIT) */
+				if (o_ptr->name2 == EGO_ASSASSIN) bbig = 16 + (p_ptr->depth/10);
+				
+				/* pseudo-randarts ("of randomness" egos) */
+				if (is_ego_randart(o_ptr)) bbig = 10 + (p_ptr->depth/10);
+					
+				/* roll for ego chance of extra dice */
+				if ((o_ptr->dd == k_ptr->dd) && (rand_int(100) < bbig))
+				{
+					o_ptr->dd++;
+					/* possible but unlikely to get extra dice both ways */
+					vdd * 2; /* vdd = old o_ptr->dd */
+				}
+
+                /* Hack -- Super-charge the damage dice */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				       (rand_int(10L * vdd * o_ptr->ds) == 0))
 				{
 					o_ptr->dd++;
 				}
@@ -2351,7 +2368,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 			break;
 		}
-
 
 		case TV_BOLT:
 		case TV_ARROW:
@@ -3262,8 +3278,8 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		case TV_RING:
 		case TV_AMULET:
 		{
-			/* ego jewelry less common */
-			if (((power > 1) || (power < -1)) && (randint(100) < 70))
+			/* ego jewelry less common (was 70 instead of 63) */
+			if (((power > 1) || (power < -1)) && (randint(100) < 63))
 			{
 				int ego_power;
 
@@ -3362,8 +3378,8 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				(o_ptr->tval == TV_DIGGING)) edgedw = TRUE;
 			if (e_ptr->randslay == 9) howmanywow = randint(3);
 			/* The old slays should still be more common than others */
-			/* 1/4 chance to restrict the 1st slay to orc/troll/giant/undead/demon/dragon */
-            if (rand_int(100) < 26) 
+			/* ~1/4 chance to restrict the 1st slay to orc/troll/giant/undead/demon/dragon */
+            if (rand_int(100) < 27) 
 				o_ptr->randslay = 2 + (byte)rand_int(6);
 			/* only edged weapons can get SLAY_WERE (silver-bladed) */
 			else if (edgedw)
@@ -3384,6 +3400,16 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				else /* anything except SLAY_WERE (which is the 1st one) */
 					o_ptr->randslay3 = 2 + (byte)rand_int(OBJECT_XTRA_SIZE_SLAY - 1);
 			}
+		}
+		/* chance of switching to kill slay for pseudo-randarts */
+		if (is_ego_randart(o_ptr))
+		{
+			if ((o_ptr->randslay == 2) && (randint(100) < 25 + (p_ptr->depth/10))) 
+    	        o_ptr->randslay = 53;
+			if ((o_ptr->randslay == 3) && (randint(100) < 25 + (p_ptr->depth/10))) 
+        	    o_ptr->randslay = 52;
+			if ((o_ptr->randslay == 7) && (randint(100) < 25 + (p_ptr->depth/10))) 
+            	o_ptr->randslay = 51;
 		}
 		/* An object should never have both SLAY_SILVER and SLAY_WERE */
 		/* because weapons which SLAY_WERE ARE silver */
@@ -5574,7 +5600,7 @@ s16b inven_takeoff(int item, int amt)
 	i_ptr->number = amt;
 
 	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 6);
 
 	/* Took off weapon */
 	if (item == INVEN_WIELD)

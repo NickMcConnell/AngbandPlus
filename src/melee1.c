@@ -1164,7 +1164,7 @@ bool make_attack_normal(int m_idx)
 					msg_print("You are enveloped in flames!");
 
 					/* Take damage (special) */
-					fire_dam(damage, ddesc);
+					/* fire_dam(damage, ddesc); */
 
 					/* Special damage (3/4 acid, 1/4 'hurt') */
 					fire_dam((damage * 3) / 4, ddesc);

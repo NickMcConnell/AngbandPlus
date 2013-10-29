@@ -526,18 +526,6 @@ static errr rd_item(object_type *o_ptr)
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
 		}
-#if old
-		/* Mega-Hack - Enforce the special broken items */
-		/* ..which don't exist anymore */
-		if ((o_ptr->name2 == EGO_BLASTED) ||
-			(o_ptr->name2 == EGO_SHATTERED))
-		{
-			/* These were set to k_info values by preceding code */
-			o_ptr->ac = 0;
-			o_ptr->dd = 0;
-			o_ptr->ds = 0;
-		}
-#endif
 	}
 
 	if (older_than(3, 0, 9) &&

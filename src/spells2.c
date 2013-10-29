@@ -41,28 +41,16 @@ bool hp_player(int num)
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Heal 0-4 */
-		if (num < 5)
-		{
-			msg_print("You feel a little better.");
-		}
+		if (num < 5) msg_print("You feel a little better.");
 
-		/* Heal 5-14 */
-		else if (num < 20)
-		{
-			msg_print("You feel better.");
-		}
+		/* Heal 5-19 */
+		else if (num < 20) msg_print("You feel better.");
 
-		/* Heal 15-34 */
-		else if (num < 45)
-		{
-			msg_print("You feel much better.");
-		}
+		/* Heal 20-44 */
+		else if (num < 45) msg_print("You feel much better.");
 
 		/* Heal 35+ */
-		else
-		{
-			msg_print("You feel very good.");
-		}
+		else msg_print("You feel very good.");
 
 		/* Notice */
 		return (TRUE);
@@ -1565,9 +1553,14 @@ void set_recall(s16b time)
 /*
  * Useful constants for the area around the player to detect.
  * This is instead of using circular detection spells.
+ * "Reveal" distances used for detect hidden/invisible.
+ * "Detectb" distaces used for weaker object detection spell.
+ * Other detection spells use "Detect" distances.
  */
 #define DETECT_DIST_X	45	/* left & right (was 52) */
 #define DETECT_DIST_Y	22	/* top & bottom (was 23) */
+#define DETECTB_DIST_X	39	/* left & right (was 52) */
+#define DETECTB_DIST_Y	19	/* top & bottom (was 23) */
 #define REVEAL_DIST_X	32	/* left & right */
 #define REVEAL_DIST_Y	16	/* top & bottom */
 
@@ -1878,11 +1871,22 @@ bool detect_objects_normal(bool full)
 
 	bool detect = FALSE;
 
-	/* Pick an area to detect */
-	y1 = p_ptr->py - DETECT_DIST_Y;
-	y2 = p_ptr->py + DETECT_DIST_Y;
-	x1 = p_ptr->px - DETECT_DIST_X;
-	x2 = p_ptr->px + DETECT_DIST_X;
+	if (full)
+	{
+		/* Pick an area to detect */
+		y1 = p_ptr->py - DETECT_DIST_Y;
+		y2 = p_ptr->py + DETECT_DIST_Y;
+		x1 = p_ptr->px - DETECT_DIST_X;
+		x2 = p_ptr->px + DETECT_DIST_X;
+	}
+	else /* 'DETECTB' area is smaller */
+	{
+		/* Pick an area to detect */
+		y1 = p_ptr->py - DETECTB_DIST_Y;
+		y2 = p_ptr->py + DETECTB_DIST_Y;
+		x1 = p_ptr->px - DETECTB_DIST_X;
+		x2 = p_ptr->px + DETECTB_DIST_X;
+    }
 
 	if (y1 < 0) y1 = 0;
 	if (x1 < 0) x1 = 0;
@@ -2623,8 +2627,8 @@ bool detect_monsters_animal(void)
 		if ((r_ptr->flags3 & (RF3_ANIMAL)) || (r_ptr->flags3 & (RF3_BUG)))
 		{
 			/* Take note that they are animals or bugs */
-			l_ptr->flags3 |= (RF3_ANIMAL);
-			l_ptr->flags3 |= (RF3_BUG);
+			if (r_ptr->flags3 & (RF3_ANIMAL)) l_ptr->flags3 |= (RF3_ANIMAL);
+			if (r_ptr->flags3 & (RF3_BUG)) l_ptr->flags3 |= (RF3_BUG);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -3545,8 +3549,7 @@ bool dispel_undead(int dam)
  */
 bool dispel_demon(int dam)
 {
-    spellswitch = 23; /* changes GF_DISP_UNDEAD to affect demons */
-	return (project_los(GF_DISP_UNDEAD, dam));
+	return (project_los(GF_DISP_DEMON, dam));
 }
 
 /*
@@ -3629,10 +3632,10 @@ void aggravate_monsters(int who)
 		    if (m_ptr->cdis < (MAX_SIGHT * 3) / 2)
 		    {
 			   /* Wake up */
-			   if ((m_ptr->csleep) && (randint(100) < 95 - (m_ptr->cdis/2)))
+			   if ((m_ptr->csleep) && (rand_int(100) < 99 - m_ptr->cdis))
 			   {
 				  /* Wake up */
-					  m_ptr->csleep = 0;
+					m_ptr->csleep = 0;
 					m_ptr->roaming = 0;
 				  sleep = TRUE;
 			   }
@@ -4116,14 +4119,14 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_FLASK:
 		case TV_BOTTLE:
 		{
-			if (mild) return (75);
+			if (mild) return (68); /* was 75 */
 			else return (100);
 		}
 		/* almost always breaks */
 		case TV_FOOD:
 		case TV_BOW:
 		{
-			if (mild) return (50);
+			if (mild) return (40); /* was 50 */
 			else return (91);
 		}
 		/* Usually breaks */
@@ -4132,7 +4135,7 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_ARROW:
         case TV_SKELETON:
 		{
-			if (mild) return (25);
+			if (mild) return (20); /* was 25 */
 			else return (75);
 		}
 		/* often break */
@@ -4214,8 +4217,10 @@ static int quake_break(const object_type *o_ptr, bool mild)
  * Allowcrush = 1 means allow partial crush damage, not 300, but something smaller
  * -used for the earthquake trap because it would be too nasty to do 300pts damage
  * to the PC without warning as a trap.
- * Allowcrush = 2 is normal behavior (allowing the 300pts damage if the PC gets crushed).
- * Allowcrush = 4 will always destroy the PC's square, causing damage to the PC.
+ * Allowcrush = 2 is normal behavior (allowing the 300pts damage if the PC gets
+ * crushed -used for monster SHATTER melee attack).
+ * Allowcrush = 4 will always destroy the PC's square, causing damage to the PC
+ *  (used for the monster EXPLODE spell because it's an attack targetted on the PC).
  * Allowcrush is irrevelent when the quake is centered on the PC (unless it's 4).
  *
  * Allowxp = TRUE means the PC gets experience for the damage done to monsters
@@ -4249,7 +4254,7 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 	/* default strength */
 	if (strength == 0) strength = 85;
 	/* more powerful (lower strength#) makes it more likely that the player can't */
-	/* find a safe spot to dodge into.  Don't make it too likely to cause big damage. */
+	/* find a safe spot to dodge into, but don't make it too likely to cause big damage. */
 	if ((strength < 55) && (allowcrush == 2) && 
 		(randint(100) < (90-strength + goodluck))) allowcrush = 1;
 
@@ -4281,7 +4286,7 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 			edist = distance(cy, cx, yy, xx);
 
 			/* allow quakes in a vault if caused by a trap or the monster EXPLODE spell */
-			/* (but makes it a less likely for any space to be affected) */
+			/* (but makes it less likely for any space to be affected) */
 			if ((allowcrush == 4) && (yy == py) && (xx == px)) /* always blow up */;
 			else if (((allowcrush == 1) || (allowcrush == 4)) && (randint(100) < 80)) /* */;
             /* should be able to use earthquake to break into a vault */
@@ -4295,9 +4300,6 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 
 			/* Skip distant grids */
 			if (edist > r) continue;
-
-			/* Lose room (not vault) */
-			cave_info[yy][xx] &= ~(CAVE_ROOM);
 
 			/* Lose light and knowledge */
 			cave_info[yy][xx] &= ~(CAVE_GLOW | CAVE_MARK);
@@ -4325,6 +4327,10 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 
 			/* Hack -- Take note of player damage */
 			if ((yy == py) && (xx == px)) hurt = TRUE;
+
+			/* Lose room (not vault) */
+			/* (now only on damaged grids: makes re-lighting the area easier) */
+			cave_info[yy][xx] &= ~(CAVE_ROOM);
 		}
 	}
 
@@ -4391,9 +4397,14 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 		/* earthquake trap */
 		else if ((!sn) && (allowcrush == 1))
 		{
-			/* Message and damage */
-			msg_print("You are nearly severely crushed!");
-			damage = damroll(10, 5);
+			int factor = 10;
+            /* Message and damage */
+			msg_print("You are badly crushed!");
+			if ((p_ptr->depth > 70) && (rand_int(15) < (badluck+1) * 2)) 
+				factor += (p_ptr->depth-65) / 5;
+			else if (p_ptr->depth > 90) factor = 12;
+			else if (p_ptr->depth > 100) factor = 15;
+			damage = damroll(factor, 5);
 		}
 
 		/* Destroy the grid, and push the player to safety */
@@ -4428,7 +4439,7 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 				{
 					msg_print("You are crushed between the floor and ceiling!");
 					damage = damroll(10, 4);
-					(void)inc_timed(TMD_STUN, randint(50));
+					(void)inc_timed(TMD_STUN, randint(40) + 10);
 					break;
 				}
 			}
@@ -4640,6 +4651,9 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 				monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 				bool xpkill = FALSE;
+				/* be sure to hurt the same monster */
+				int thisx = xx;
+                int thisy = yy;
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
@@ -4690,17 +4704,20 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 
 					/* Take damage from the quake */
 					if (noflee) damage = damroll(3, 8);
-					else if ((!sn) && (randint(100) < 35)) damage = damroll(6, 8);
+					else if ((!sn) && (randint(100) < 45))
+					{
+						damage = damroll(6, 8);
+						if (damage < m_ptr->maxhp/4) damage = m_ptr->maxhp/4;
+					}
 					else if (!sn) damage = m_ptr->hp + 1;
 					else damage = damroll(4, 8);
 
 					/* hurt the monster & give xp */
-					if ((allowxp) && (sn))
+					if (allowxp) /* ((allowxp) && (sn)) */
 					{
 						bool fear = FALSE;
-						cptr note_dies;
-						note_dies = " is crushed in the earthquake.";
-						if (mon_take_hit(cave_m_idx[yy][xx], damage, &fear, note_dies))
+						cptr note_dies = " is crushed in the earthquake.";
+						if (mon_take_hit(cave_m_idx[thisy][thisx], damage, &fear, note_dies))
 						{
 							/* player killed monster with earthquake */
 							xpkill = TRUE;
@@ -4711,7 +4728,7 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 					{
 						if ((r_ptr->sleep == 255) && (m_ptr->csleep))
 						{
-							/* non-aggressive monsters start roaming */
+							/* non-aggressive sleeping monsters start roaming */
                             if (!m_ptr->roaming) m_ptr->roaming = 1;
 						}
 						else
@@ -5152,14 +5169,19 @@ bool unlite_area(int dam, int rad, bool strong)
 	}
 
 	/* Hook into the "project()" function */
-	if (strong) (void)project(-1, rad, py, px, dam, GF_DARK, flg, pflg);
+	if (strong)
+	{
+		/* necro call dark spell can damage monsters without them noticing */
+		if (rand_int(8) < p_ptr->lev) spellswitch = 23;
+		(void)project(-1, rad, py, px, dam, GF_DARK, flg, pflg);
+	}
 	else (void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg, pflg);
 
 	/* Darken the room */
 	/* necromancer's 'call dark' only sometimes darkens the whole room */
 	if (strong)
 	{
-       if (randint(100) < 15 + goodluck) unlite_room(py, px);
+       if (randint(100) < 16) unlite_room(py, px);
     }
     else unlite_room(py, px);
 
@@ -5866,6 +5888,7 @@ void brand_weapon(int mode)
 	object_type *o_ptr = &inventory[INVEN_WIELD];
 	int die = rand_int(100);
 	bool enchantit = TRUE;
+	int plevmin;
 
 	/* Extract the flags */
 	u32b f1, f2, f3, f4;
@@ -5885,9 +5908,13 @@ void brand_weapon(int mode)
 
 	/* branding scrolls don't enchant the weapon */
     if (mode == 3) enchantit = FALSE;
-		
+    
+	/* to make it easier to translate to minutes */
+	if (p_ptr->lev >= 10) plevmin = 30 * randint(p_ptr->lev/5);
+	else plevmin = 30;
+	
 	/* Brand the weapon (fix duration later) */
-	brand_object(o_ptr, brand_type, 180 + randint(p_ptr->lev*2 + 20), enchantit);
+	brand_object(o_ptr, brand_type, 180 + plevmin, enchantit);
 }
 
 

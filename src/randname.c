@@ -165,7 +165,7 @@ static cptr silly_names[] =
     "norman", "oliphaunt", "orpiphus", "oscar",
     "oswald", "panhead", "panic", "paraskeets",
     "peanut", "peppermint", "perambulator", "peskon", 
-    "plop", "pickle", "pinefresh", "pits",
+    "plop", "pickle", "pipeweed", "pinefresh", "pits",
     "ponfusion", "proudfeet", "puffle", "quasimodo", "quick", 
     "randorf", "robin", "ribbet", "ricardo", "rubert", 
     "salamoonder", "sammy", "saveferris", 

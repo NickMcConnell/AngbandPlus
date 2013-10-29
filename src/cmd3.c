@@ -74,7 +74,7 @@ void do_cmd_equip(void)
 	item_tester_full = TRUE;
 
 	/* Display the equipment */
-	show_equip();
+	show_equip(0);
 
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
@@ -110,8 +110,9 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(const object_type *o_ptr)
 {
-	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+	/* Check for a usable slot (no longer includes quiver) */
+	if ((wield_slot(o_ptr) >= INVEN_WIELD) &&
+		(wield_slot(o_ptr) < END_EQUIPMENT)) return (TRUE);
 
 	/* Assume not wearable */
 	return (FALSE);
@@ -119,6 +120,7 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
 
 /*
  * The quiver wield tester
+ * Quiverwield command now completely separate from normal wield
  */
 static bool item_tester_hook_quiverwield(const object_type *o_ptr)
 {
@@ -222,7 +224,9 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 	return ret;
 }
 
-/* */
+/* put something into the quiver 
+ * called only from do_cmd_wield_reallynow()
+ */
 static int quiver_wield(int item, object_type *o_ptr)
 {
 	int slot = 0;
@@ -317,7 +321,7 @@ static int quiver_wield(int item, object_type *o_ptr)
 
 
 /*
- * Wield or wear a single item from the pack or floor
+ * Wield / wear / or put into quiver  a single item from the pack or floor
  */
 void do_cmd_wield_reallynow(bool toquiver)
 {
@@ -354,8 +358,15 @@ void do_cmd_wield_reallynow(bool toquiver)
     {
         q = "Put which item into the quiver? ";
         s = "You have nothing you can put in the quiver.";
-    }
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+        
+		/* USE_EQUIP: can now put items into quiver straight from weapon slot */
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
+	}
+	else
+	{
+		/* USE_QUIVER: can now wield items straight from the quiver to weapon slot */
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_QUIVER))) return;
+	}
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -375,14 +386,14 @@ void do_cmd_wield_reallynow(bool toquiver)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 	
-	/* new command to wield straight to the quiver (mainly for PTHROW weapons) */
+	/* new command to put items into quiver */
     if (toquiver)
 	{
         slot = INVEN_QUIVER;
     }
 	
 	/* off-hand weapon (usually a main gauche) */
-	/* (not duel-wielding (yet), more like using a weapon as a shield) */
+	/* (no duel-wielding (yet), more like using a weapon as a shield) */
     else if ((slot == INVEN_WIELD) && (f4 & TR4_WIELD_SHIELD))
 	{
        if (get_check("Wield in off-hand for defence? "))
@@ -542,7 +553,7 @@ void do_cmd_wield_reallynow(bool toquiver)
 	}
 
 	/* Describe the result */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 6);
 
 	/* Message */
 	sound(MSG_WIELD);
@@ -696,13 +707,14 @@ void do_cmd_wield_reallynow(bool toquiver)
 	p_ptr->redraw |= (PR_EQUIPPY);
 }
 
-/*  */
+/* wield: no longer includes putting items into the quiver */
 void do_cmd_wield(void)
 {
      do_cmd_wield_reallynow(FALSE);
 }
 
-/* control-Q:  new command to wield straight to the quiver */
+/* control-Q:  new command to put items into the quiver */
+/* now separated from normal wield command */
 void do_cmd_wieldnq(void)
 {
      do_cmd_wield_reallynow(TRUE);
@@ -714,9 +726,7 @@ void do_cmd_wieldnq(void)
 void do_cmd_takeoff(void)
 {
 	int item;
-
 	object_type *o_ptr;
-
 	cptr q, s;
 
 
