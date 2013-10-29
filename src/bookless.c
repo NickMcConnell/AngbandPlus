@@ -17,6 +17,8 @@ void do_cmd_bookless()
 		do_cmd_sapper();
 	else if player_has(PF_CAST_REAPER)
 		do_cmd_reaper();
+	else if player_has(PF_CAST_ASSASSIN)
+		do_cmd_assassin();
 	
 	else msg_print("You have no magical powers.");
 	return;

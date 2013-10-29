@@ -1089,6 +1089,13 @@ void fire_dam(int dam, cptr kb_str)
 	else if (n >= 2) dam = DBLRES_FIRE_ADJ(dam, NOT_USED);
 	else if (n == 1) dam = RES_FIRE_ADJ(dam, NOT_USED);
 	else if (n == -1) dam = VULN_FIRE_ADJ(dam, NOT_USED);
+	
+	/* Hack - Pyromancers are healed instead */
+	if (player_has(PF_CAST_PYRO))
+	{
+		hp_player(dam * (p_ptr->lev) / 50);
+		dam = 0;
+	}
 
 	/* Take damage */
 	take_hit(dam, kb_str);

@@ -2,24 +2,6 @@
  * Purpose: abilities for the sapper class
  */
  
-/* Sappers are bookless magic users. Their abilities are as follows:
- * a) Flare (lv 1, 1 sp): invokes a ball of fire for 4d4 damage, and
- *  lights up the area in the process.
- * b) Smoke bomb (lv 2, 3 sp): invokes a ball of poison for 5d15 damage,
- *  and darkenes the area in the process.
- * c) Brand ammo (lv 4, 6 sp): brands a stack of ammunition with fire
- *  or frost.
- * d) Phosphor smog (lv 8, 10 sp): invokes balls of light, darkness,
- *  and poison for 100 damage each.
- * e) Airburst (lv 12, 12 sp): invokes two balls of sound for 150 damage
- *  each.
- * f) Freezing fog (lv 16, 18 sp): invokes a ball of ice for 450 damage.
- * g) Incinerant (lv 22, 20 sp): invokes a ball of plasma for 550
- *  damage.
- * h) Concussor (lv 30, 28 sp): invokes balls of light, sound, and
- *  shards for 400 damage each.
- */
- 
 #include "angband.h"
 #include "cave.h"
 #include "effects.h"
@@ -36,21 +18,15 @@
 #define SAP_INCINERANT	6
 #define SAP_CONCUSSOR	7
 
-struct sapper_infoholder {
-	char *name;
-	int level;
-	int cost;
-	int fail;
-	char *info;
-} sapper_spell_info[] = {
-	"Flare", 1, 1, 5, "dam 4d4 rad 1",
-	"Smoke bomb", 2, 3, 10, "dam 5d15 rad 3",
-	"Brand ammo", 4, 6, 15, "",
-	"Phosphor smog", 8, 10, 20, "dam 100*3 rad 3",
-	"Airburst", 12, 12, 25, "dam 150*2 rad 2",
-	"Freezing fog", 16, 18, 30, "dam 450 rad 4",
-	"Incinerant", 22, 20, 35, "dam 550 rad 5",
-	"Concussor", 30, 28, 40, "dam 400*3 rad 8"
+struct spellholder sapper_spell_info[] = {
+	{ "Flare", 1, 1, 5, "dam 4d4 rad 1" },
+	{ "Smoke bomb", 2, 3, 10, "dam 5d15 rad 3" },
+	{ "Brand ammo", 4, 6, 15, "" },
+	{ "Phosphor smog", 8, 10, 20, "dam 100*3 rad 3" },
+	{ "Airburst", 12, 12, 25, "dam 150*2 rad 2" },
+	{ "Freezing fog", 16, 18, 30, "dam 450 rad 4" },
+	{ "Incinerant", 22, 20, 35, "dam 550 rad 5" },
+	{ "Concussor", 30, 28, 40, "dam 400*3 rad 8" },
 };
 
 bool cast_sapper_spell(int spell)
@@ -127,20 +103,6 @@ int get_sapper_fail(int spell)
 	return chance;
 }
 
-bool fail_sapper_spell(int spell)
-{
-	if (randint1(100) < get_sapper_fail(spell))
-	{
-		msg_print("Oh no! The recipe blows up in your face!");
-		if (randint1(2) == 1)
-		{
-			take_hit(damroll(2, 20), "a botched explosive concoction");
-		}
-		return TRUE;
-	}
-	return FALSE;
-}
-
 void print_sapper_menu(void)
 {
 	int i;
@@ -158,7 +120,7 @@ void print_sapper_menu(void)
 				sapper_spell_info[i].level,
 				sapper_spell_info[i].cost,
 				get_sapper_fail(i),
-				sapper_spell_info[i].info), y + i + 1, x);
+				sapper_spell_info[i].desc), y + i + 1, x);
 		}
 	}
 	
@@ -168,6 +130,7 @@ void print_sapper_menu(void)
 void do_cmd_sapper(void)
 {
 	char choice;
+	bool casting;
 	
 	/* Not while confused */
 	if (p_ptr->timed[TMD_CONFUSED])
@@ -184,41 +147,37 @@ void do_cmd_sapper(void)
 	
 	screen_save();
 	print_sapper_menu();
-	while (get_com("Use which recipe? (Esc to exit)", &choice))
+	while (casting = get_com("Use which recipe? (Esc to exit)", &choice))
 	{
-		if (!choice)
-		{
-			screen_load();
-			return;
-		}
-
-		
 		if (sapper_spell_info[A2I(tolower(choice))].level > p_ptr->lev)
-		{
 			continue;
-		}
 		
 		if (A2I(choice) < 0 || A2I(choice) > SAP_CONCUSSOR)
-		{
 			continue;
-		}
 
 		if (p_ptr->csp < sapper_spell_info[A2I(choice)].cost)
 		{
 			msg_print("You are too tired to use this recipe.");
 			continue;
 		}
-		
-		screen_load();
-		if (fail_sapper_spell(A2I(choice)) || cast_sapper_spell(A2I(choice)))
-		{
-			p_ptr->csp -= sapper_spell_info[A2I(choice)].cost;
-			p_ptr->redraw |= (PR_MANA);
-		}
-		p_ptr->energy_use = 100;
-		return;
+
+		break;
 	}
 	
 	screen_load();
+	if (casting)
+	{
+		if (randint1(100) <= get_sapper_fail(A2I(choice)))
+		{
+			msg_print("Oh no! The recipe blows up in your face!");
+			take_hit(damroll(2, 10), "a botched explosive concoction");
+		}
+		else if (!cast_sapper_spell(A2I(choice)))
+			return;
+		p_ptr->csp -= sapper_spell_info[A2I(choice)].cost;
+		p_ptr->redraw |= (PR_MANA);
+		p_ptr->energy_use = 100;
+	}
+
 	return;
 }

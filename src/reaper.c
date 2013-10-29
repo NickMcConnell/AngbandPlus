@@ -2,18 +2,6 @@
  * Purpose: abilities for the Reaper class
  */
 
-/* Reapers are bookless priests. Their abilities are as follows:
- * a) Manaburst (lv 5, 3 sp): conjures 1+(plev)/6 bolts of mana for
- *  10+(plev) damage each.
- * b) Berserk (lv 10, 6 sp): grants speed and berserk strength.
- * c) Darksight (lv 15, 9 sp): maps the surrounding area and detects
- *  monsters.
- * d) Indominable (lv 20, 12 sp): Grants resistance to confusion,
- *  poison, and the elements.
- *
- * Reapers gain a few HP and SP for every foe slain.
- */
-
 #include "angband.h"
 #include "cave.h"
 #include "effects.h"
@@ -26,17 +14,11 @@
 #define REAPER_DARKSIGHT	2
 #define REAPER_INDOMINABLE	3
 
-struct reaper_infoholder {
-	char *name;
-	int level;
-	int cost;
-	int fail;
-	char *desc;
-} reaper_spell_info[] = {
-	"Manaburst", 5, 3, 10, "Conjures a barrage of mana bolts.",
-	"Berserk", 10, 6, 20, "Grants increased speed and strength.",
-	"Darksight", 15, 9, 30, "Allows you to see through walls.",
-	"Indominable", 20, 12, 40, "Protects you from physical and psychic harm."
+struct spellholder reaper_spell_info[] = {
+	{ "Manaburst", 5, 3, 10, "Conjures a barrage of mana bolts." },
+	{ "Berserk", 10, 6, 20, "Grants increased speed and strength." },
+	{ "Darksight", 15, 9, 30, "Allows you to see through walls." },
+	{ "Indominable", 20, 12, 40, "Protects you from physical and psychic harm." },
 };
 
 bool cast_reaper_spell(int spell)
@@ -48,29 +30,22 @@ bool cast_reaper_spell(int spell)
 	switch(spell)
 	{
 		case REAPER_MANABURST:
-		{
 			if (!get_aim_dir(&dir)) return FALSE;
 			for (i = 0; i < 1 + (plev / 6); i++)
 			{
 				fire_bolt(GF_MANA, dir, 10 + plev);
 			}
 			break;
-		}
 		case REAPER_BERSERK:
-		{
 			(void)inc_timed(TMD_SHERO, randint1(25) + plev, TRUE);
 			(void)inc_timed(TMD_FAST, randint1(25) + plev, TRUE);
 			break;
-		}
 		case REAPER_DARKSIGHT:
-		{
 			(void)map_area();
 			(void)detect_monsters_normal(TRUE);
 			(void)detect_monsters_invis(TRUE);
 			break;
-		}
 		case REAPER_INDOMINABLE:
-		{
 			(void)inc_timed(TMD_OPP_FIRE, randint1(50) + plev, TRUE);
 			(void)inc_timed(TMD_OPP_COLD, randint1(50) + plev, TRUE);
 			(void)inc_timed(TMD_OPP_ACID, randint1(50) + plev, TRUE);
@@ -78,7 +53,6 @@ bool cast_reaper_spell(int spell)
 			(void)inc_timed(TMD_OPP_CONF, randint1(50) + plev, TRUE);
 			(void)inc_timed(TMD_OPP_POIS, randint1(50) + plev, TRUE);
 			break;
-		}
 	}
 
 	return TRUE;
@@ -157,53 +131,51 @@ void print_reaper_stat(int spell)
 void do_cmd_reaper(void)
 {
 	char choice;
+	bool casting;
+
+	/* Confusion prevents spellcasting */
+	if (p_ptr->timed[TMD_CONFUSED])
+	{
+		msg_print("You are too confused!");
+		return;
+	}
 
 	screen_save();
 	print_reaper_menu();
 	
-	while(get_com("Cast which spell? (Esc to exit, Shift+letter for stats)", &choice))
+	while(casting = get_com("Cast which spell? (Esc to exit, Shift+letter for stats)", &choice))
 	{
-		if (!choice)
-		{
-			screen_load();
-			return;
-		}
-		
 		if (reaper_spell_info[A2I(tolower(choice))].level > p_ptr->lev)
-			continue;
+			continue; /* Spell is too powerful */
 		
-		if (isupper(choice) && A2I(tolower(choice)) <= REAPER_INDOMINABLE)
+		if (A2I(tolower(choice)) < 0 || A2I(tolower(choice)) > REAPER_INDOMINABLE)
+			continue; /* Spell does not exist */
+		
+		if (isupper(choice))
 		{
 			print_reaper_stat(A2I(tolower(choice)));
 			continue;
 		}
-		
-		else if (A2I(choice) < 0 || A2I(choice) > REAPER_INDOMINABLE)
-			continue;
 		
 		else if (p_ptr->csp < reaper_spell_info[A2I(choice)].cost)
 		{
 			msg_print("Not enough mana to cast this spell.");
 			continue;
 		}
-		
-		screen_load();
-		
-		if (randint1(100) > get_reaper_fail(A2I(choice)))
-		{
-			if (cast_reaper_spell(A2I(choice)))
-			{
-				p_ptr->csp -= reaper_spell_info[A2I(choice)].cost;
-				p_ptr->redraw |= (PR_MANA);
-			}
-		}
-		else
-			msg_print("You failed to get the spell off!");
-		
-		p_ptr->energy_use = 100;
-		return;
+
+		break; /* Player has chosen a spell */
 	}
 	
 	screen_load();
+	if (casting)
+	{
+		if (randint1(100) <= get_reaper_fail(A2I(choice)))
+			msg_print("You failed to get the spell off!");
+		else if (!cast_reaper_spell(A2I(choice)))
+			return;
+		p_ptr->csp -= reaper_spell_info[A2I(choice)].cost;
+		p_ptr->redraw |= (PR_MANA);
+		p_ptr->energy_use = 100;
+	}
 	return;
 }

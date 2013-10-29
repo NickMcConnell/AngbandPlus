@@ -2,15 +2,6 @@
  * Purpose: spells for the Pyromancer class
  */
 
-/* Pyromancers are bookless spellcasters. Their spells are as follows:
-a) Fire bolt (lv 1, 2 sp): conjures a bolt of fire for 4d(plev) damage.
-b) Sense heat (lv 4, 3 sp): detects normal (visible) monsters.
-c) Fire beam: (lv 8, 8 sp) conjures a beam of fire for 6d(plev) damage.
-d) Flicker: (lv 14, 6 sp) teleport up to 5 + (plev)/2 spaces.
-e) Fire ball: (lv 22, 12 sp) conjures a ball of fire for 8*(plev) damage.
-f) Phoenix fire: (lv 28, 20 sp) heals 500 and conjures a fireball for 4*(plev)
-*/
-
 #include "angband.h"
 #include "cave.h"
 #include "effects.h"
@@ -20,26 +11,26 @@ f) Phoenix fire: (lv 28, 20 sp) heals 500 and conjures a fireball for 4*(plev)
 
 #define PYRO_FIRE_BOLT	0
 #define PYRO_SENSE_HEAT	1
-#define PYRO_FIRE_BEAM	2
+#define PYRO_PLAS_BOLT	2
 #define PYRO_FLICKER	3
 #define PYRO_FIRE_BALL	4
-#define PYRO_PHOENIX	5
+#define PYRO_HEAT_RAYS	5
+#define PYRO_KNOWLEDGE	6
+#define PYRO_MANA_BOLT	7
 
-struct pyro_infoholder {
-	char *name;
-	int level;
-	int cost;
-	int fail;
-	char *desc;
-} pyro_spell_info[] = {
-	"Fire bolt", 1, 1, 5, "Conjures a bolt of fire.",
-	"Sense heat", 4, 3, 10, "Detects monsters in your vicinity.",
-	"Fire beam", 8, 8, 15, "Conjures a beam of fire.",
-	"Flicker", 14,  6, 15, "Teleports you a short distance.",
-	"Fire ball", 22, 12, 20, "Conjures a powerful ball of fire.",
-	"Phoenix fire", 28, 20, 25, "Heals you and burns your enemies."
+struct spellholder pyro_spell_info[] = {
+	/* Name		level	cost	fail		description */
+	{ "Fire bolt", 1, 1, 5, "Conjures a bolt of fire." },
+	{ "Sense heat", 4, 3, 10, "Detects monsters in your vicinity." },
+	{ "Plasma Bolt", 8, 8, 15, "Conjures a bolt of plasma." },
+	{ "Flicker", 14,  6, 15, "Teleports you a short distance." },
+	{ "Fire ball", 22, 12, 20, "Conjures a powerful ball of fire." },
+	{ "Heat Rays", 28, 20, 25, "Burns all enemies in your sight." },
+	{ "Knowledge", 32, 18, 30, "Lights and maps the whole level." },
+	{ "Mana Bolt", 36, 24, 35, "Summons a bolt of pure energy." },
 };
 
+/* Invokes spell effects. Returns true if succeeded, false if aborted by player. */
 bool cast_pyro_spell(int spell)
 {
 	int plev = p_ptr->lev;
@@ -48,44 +39,39 @@ bool cast_pyro_spell(int spell)
 	switch(spell)
 	{
 		case PYRO_FIRE_BOLT:
-		{
 			if (!get_aim_dir(&dir)) return FALSE;
 			fire_bolt(GF_FIRE, dir, damroll(4, plev));
 			break;
-		}
 		case PYRO_SENSE_HEAT:
-		{
 			(void)detect_monsters_normal(TRUE);
 			break;
-		}
-		case PYRO_FIRE_BEAM:
-		{
+		case PYRO_PLAS_BOLT:
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_beam(GF_FIRE, dir, damroll(6, plev));
+			fire_bolt(GF_PLASMA, dir, damroll(6, plev));
 			break;
-		}
 		case PYRO_FLICKER:
-		{
 			teleport_player(5 + plev / 2);
 			break;
-		}
 		case PYRO_FIRE_BALL:
-		{
 			if (!get_aim_dir(&dir)) return FALSE;
 			fire_ball(GF_FIRE, dir, 8 * plev, 4);
 			break;
-		}
-		case PYRO_PHOENIX:
-		{
-			(void)hp_player(500);
-			(void)project_los(GF_FIRE, 4 * plev, FALSE);
+		case PYRO_HEAT_RAYS:
+			(void)project_los(GF_PLASMA, 4 * plev, FALSE);
 			break;
-		}
+		case PYRO_KNOWLEDGE:
+			wiz_light();
+			break;
+		case PYRO_MANA_BOLT:
+			if (!get_aim_dir(&dir)) return FALSE;
+			fire_bolt(GF_MANA, dir, damroll(10, plev));
+			break;
 	}
 
 	return TRUE;
 }
 
+/* Calculates the current failure rate of a spell. */
 int get_pyro_fail(int spell)
 {
 	int minfail;
@@ -112,6 +98,7 @@ int get_pyro_fail(int spell)
 	return chance;
 }
 
+/* Prints the text menu for choosing a spell. */
 void print_pyro_menu(void)
 {
 	int i;
@@ -119,7 +106,7 @@ void print_pyro_menu(void)
 	int x = 0;
 	
 	prt("Name    Lv    Mana    Fail    Desc ", y, x);
-	for (i = 0; i <= PYRO_PHOENIX; i++)
+	for (i = 0; i <= PYRO_MANA_BOLT; i++)
 	{
 		if (pyro_spell_info[i].level <= p_ptr->lev)
 		{
@@ -136,7 +123,7 @@ void print_pyro_menu(void)
 	return;
 }
 
-/* Print a spell's current stats to the screen */
+/* Prints a spell's current stats in the line above the text menu. */
 void print_pyro_stat(int spell)
 {
 	int plev = p_ptr->lev;
@@ -144,91 +131,82 @@ void print_pyro_stat(int spell)
 	switch(spell)
 	{
 		case PYRO_FIRE_BOLT:
-		{
 			msg_format("damage 4d%d", plev);
 			break;
-		}
-		case PYRO_FIRE_BEAM:
-		{
+		case PYRO_PLAS_BOLT:
 			msg_format("damage 6d%d", plev);
 			break;
-		}
 		case PYRO_FLICKER:
-		{
 			msg_format("range %d", 5 + plev / 2);
 			break;
-		}
 		case PYRO_FIRE_BALL:
-		{
 			msg_format("radius 4 damage %d", 8 * plev);
 			break; 
-		}
-		case PYRO_PHOENIX:
-		{
-			msg_format("heal 500 damage %d", 4 * plev);
+		case PYRO_HEAT_RAYS:
+			msg_format("damage %d", 4 * plev);
 			break;
-		}
+		case PYRO_MANA_BOLT:
+			msg_format("damage 10d%d", plev);
 		default:
-		{
 			break;
-		}
 	}
 }
 
+/* Ties all the above functionality together, and checks for failure, etc. on casting. */
 void do_cmd_pyro()
 {
-	char choice;
+	char choice; /* Whichever character the player enters */
+	bool casting; /* Whether the player is casting the spell or aborting */
 
-	screen_save();
-	print_pyro_menu();
-	while (get_com("Cast which spell? (Esc to exit, Shift+letter for stats)", &choice))
+	/* Check for blindness and confusion, which prevent casting */
+	if (p_ptr->timed[TMD_CONFUSED])
 	{
-		if (!choice)
-		{
-			screen_load();
-			return;
-		}
+		msg_print("You are too confused!");
+		return;
+	}
+	if (p_ptr->timed[TMD_BLIND])
+	{
+		msg_print("You are blind!");
+		return;
+	}
 
+	screen_save(); /* Screen state must be saved first to prevent display corruption */
+	print_pyro_menu(); /* Display the text menu */
+	while (casting = get_com("Cast which spell? (Esc to exit, Shift+letter for stats)", &choice))
+	{
 		if (pyro_spell_info[A2I(tolower(choice))].level > p_ptr->lev)
-		{
-			continue;
-		}
-		
-		if (isupper(choice) && A2I(tolower(choice)) <= PYRO_PHOENIX)
+			continue; /* Spell is not yet allowed */
+
+		if (A2I(tolower(choice)) < 0 || A2I(tolower(choice)) > PYRO_MANA_BOLT)
+			continue; /* Spell does not exist */
+			
+		if (isupper(choice))
 		{
 			print_pyro_stat(A2I(tolower(choice)));
 			continue;
 		}
 		
-		else if (A2I(choice) < 0 || A2I(choice) > PYRO_PHOENIX)
-		{
-			continue;
-		}
-		
 		else if (p_ptr->csp < pyro_spell_info[A2I(choice)].cost)
 		{
+			/* Can't cast without enough SP */
 			msg_print("Not enough mana to cast this spell.");
 			continue;
 		}
 
-		screen_load();
-		if (randint1(100) > get_pyro_fail(A2I(choice)))
-		{
-			if (cast_pyro_spell(A2I(choice)))
-			{
-				p_ptr->csp -= pyro_spell_info[A2I(choice)].cost;
-				p_ptr->redraw |= (PR_MANA);
-			}
-		}
-		else
-		{
-			msg_print("You failed to get the spell off!");
-		}
-
-		p_ptr->energy_use = 100;
-		return;
+		break;
 	}
 
-	screen_load();
+	screen_load(); /* Reload the screen state, so we can show the spell effect */
+	if (casting) /* Player did not abort */
+	{
+		/* Possibly fail the spell */
+		if (randint1(100) <= get_pyro_fail(A2I(choice)))
+			msg_print("You failed to get the spell off!");
+		else if (!cast_pyro_spell(A2I(choice)))
+			return; /* Allow the player to abort before wasting a turn */
+		p_ptr->csp -= pyro_spell_info[A2I(choice)].cost; /* Use some SP */
+		p_ptr->redraw |= (PR_MANA); /* Redraw SP counter */
+		p_ptr->energy_use = 100; /* Use a turn */
+	}
 	return;
 }
