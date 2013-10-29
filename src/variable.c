@@ -921,7 +921,7 @@ char notes_fname[1024];
  *  light from camera flash and burst of light not stay.
  * 10 = prevents GF_DISP_ALL from affecting golems for song of dispelling
  * 11 = will activate earthquake for any ball spell in project() function
- * 12 = (no longer used)
+ * 12 = prevent using old target in get_aim_dir
  * 13 = target prompt and prevents using old target for teleport control. 
  *	HELPER monster spells also use it to prevent using old target.
  * 14 = (no longer used)

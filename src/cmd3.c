@@ -635,10 +635,7 @@ void do_cmd_wield_reallynow(bool toquiver)
 		else if (ego_item_p(o_ptr)) pschance += 6;
 		
 		/* factor character level */
-		pschance = (pschance * p_ptr->lev) / 100;
-		
-		/* not having heavy pseudo is a handicap */
-        if (!(cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) pschance /= 2;
+		pschance = (pschance * p_ptr->lev) / 40;
 
 		/* roll for instant pseudo on pickup */
         if (randint(100) < pschance) instant = TRUE;

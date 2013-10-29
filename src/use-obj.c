@@ -14,7 +14,7 @@
 
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
-	int price, die, time;
+	int die, time;
 	
 	/* Analyze the food */
 	switch (o_ptr->sval)
@@ -104,10 +104,12 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_LUCKFINDING: /* pricy luckfinding */
 		{
+			int price, sick, sickold;
+			cptr act = NULL;
             if ((p_ptr->luck > 37) && (p_ptr->luck < 41) && (randint(100) < 50))
             {
                   p_ptr->luck += 1;
-            }
+           }
             else if (p_ptr->luck > 37)
             {
                   msg_print("This tastes rather bland.");
@@ -117,23 +119,50 @@ static bool eat_food(object_type *o_ptr, bool *ident)
             {
                   p_ptr->luck += randint(3);
             }
-            msg_print("This is good stuff.");
-            price = randint(6);
+			msg_print("This is good stuff.");
+			price = randint(6);
             /* maybe avoid lowering strength depending on luck */
-            if ((price == 1) && ((badluck*2) - goodluck < rand_int(6) - rand_int(2))) 
+            if ((price == 1) && ((badluck*2) - goodluck < rand_int(7) - rand_int(5))) 
                 price = randint(5) + 1;
-            /* strength drain isn't always permanent */
-            if ((price == 1) && (goodluck - badluck >= 0))
-                (void)dec_stat(A_STR, 20 - goodluck, FALSE);
-            /* otherwise permanent & bypasses sustains */
-			else if (price == 1) (void)dec_stat(A_STR, 10, TRUE);
-			else if (price == 2) (void)dec_stat(A_DEX, 10, TRUE);
-			else if (price == 3) (void)dec_stat(A_CON, 10, TRUE);
-			else if (price == 4) (void)dec_stat(A_INT, 10, TRUE);
-			else if (price == 5) (void)dec_stat(A_WIS, 10, TRUE);
-			else if (price == 6) (void)dec_stat(A_CHR, 10, TRUE);
+			switch (price)
+			{
+				case 1: sick = A_STR; act = "strong"; break;
+				case 2: sick = A_INT; act = "bright"; break;
+				case 3: sick = A_WIS; act = "wise"; break;
+				case 4: sick = A_DEX; act = "agile"; break;
+				case 5: sick = A_CON; act = "hale"; break;
+				case 6: sick = A_CHR; act = "beautiful"; break;
+			}
+			/* stat too low to get lower */
+			if (p_ptr->stat_cur[sick] < 4)
+			{
+				take_hit(damroll(3, 6), "poisonous clover");
+				msg_print("You feel pitiful.");
+				*ident = TRUE;
+				break;
+			}
+			sickold = p_ptr->stat_cur[sick];
+			/* lower the stat */
+			if (p_ptr->stat_cur[sick] > 18+20)
+			{
+				p_ptr->stat_cur[sick] = (p_ptr->stat_cur[sick] * 5) / 6;
+			}
+			else p_ptr->stat_cur[sick] -= 2;
+
+			if (p_ptr->stat_cur[sick] < 3) p_ptr->stat_cur[sick] = 3;
+			price = sickold - p_ptr->stat_cur[sick];
+
+			/* strength drain isn't always permanent */
+			if ((sick == A_STR) && (goodluck - badluck > 0)) /* skip */;
+			else if (goodluck - badluck - randint(11) > 0) /* skip */;
+			/* otherwise permanent & bypasses sustains */
+			if (sickold > 18+20) p_ptr->stat_max[sick] -= price;
+			else p_ptr->stat_max[sick] -= 2;
+            
+			msg_print("..but it must have been poisonous.");
+			update_stuff();
+			msg_format("You're not as %s as you used to be...", act);
 			take_hit(damroll(3, 6), "poisonous clover");
-            msg_print("..but it must have been poisonous.");
 			*ident = TRUE;
 			break;
 		}
@@ -938,8 +967,14 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
             }
             else
             {
-				if (detect_monsters_normal(TRUE)) *ident = TRUE;
+				if (detect_monsters_normal(2)) *ident = TRUE;
 				if (detect_monsters_invis()) *ident = TRUE;
+				if (((badluck*2)/3 >= 5) && (goodluck < 2))
+				{
+					if (set_timed(TMD_MDETECTION, randint(4) + 4)) *ident = TRUE;
+				}
+				else if (set_timed(TMD_MDETECTION, randint(5 + (goodluck*2)/3 - (badluck*2)/3) + 8)) 
+					*ident = TRUE;
 			}
 			break;
 		}
@@ -1083,6 +1118,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			int cure = damroll(2, 8);
 			int curep = p_ptr->mhp / 10;
 			if (cure < curep) cure = curep;
+			if (cure > 40) cure = 40; /* maximum */
 			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (dec_timed(TMD_CUT, 10)) *ident = TRUE;
@@ -1094,6 +1130,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			int cure = damroll(4, 8);
 			int curep = (p_ptr->mhp * 18) / 100;
 			if (cure < curep) cure = curep;
+			if (cure > 60) cure = 60; /* maximum */
 			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
@@ -1106,6 +1143,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			int cure = damroll(6, 8);
 			int curep = (p_ptr->mhp * 23) / 100;
 			if (cure < curep) cure = curep;
+			if (cure > 90) cure = 90; /* maximum */
 			if (hp_player(cure)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
@@ -1396,7 +1434,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_ENLIGHTENMENT:
 		{
 			msg_print("An image of your surroundings forms in your mind...");
-			wiz_lite();
+			wiz_lite(FALSE);
 			*ident = TRUE;
 			break;
 		}
@@ -1405,11 +1443,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			msg_print("You begin to feel more enlightened...");
 			message_flush();
-			wiz_lite();
+			wiz_lite(TRUE);
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
-			(void)detect_traps();
 			(void)detect_doorstairs(FALSE);
+			(void)detect_traps();
 			(void)detect_treasure();
 			(void)detect_objects_normal(TRUE);
 			identify_pack();
@@ -1500,11 +1538,24 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 	{
 		case SV_SCROLL_DARKNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (cp_ptr->spell_book == TV_DARK_BOOK)
 			{
-				(void)inc_timed(TMD_BLIND, 3 + randint(5));
+				if (!p_ptr->resist_blind)
+				{
+					(void)inc_timed(TMD_BLIND, 3 + randint(3));
+				}
+				if (unlite_area(13, 11, TRUE)) *ident = TRUE;
+				/* may extend DARKSTEP effect */
+				if (p_ptr->timed[TMD_DARKSTEP]) (void)inc_timed(TMD_DARKSTEP, rand_int(4));
 			}
-			if (unlite_area(10, 3, FALSE)) *ident = TRUE;
+			else
+			{
+				if (!p_ptr->resist_blind)
+				{
+					(void)inc_timed(TMD_BLIND, 3 + randint(5));
+				}
+				if (unlite_area(10, 8, FALSE)) *ident = TRUE;
+			}
 			break;
 		}
 
@@ -1738,12 +1789,13 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_LIGHT:
 		{
 			if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
+			if (p_ptr->timed[TMD_DARKSTEP]) take_hit(damroll(2, 6), "a scroll of light");
 			break;
 		}
 
 		case SV_SCROLL_MAPPING:
 		{
-			map_area();
+			map_area(FALSE);
 			*ident = TRUE;
 			break;
 		}
@@ -1941,14 +1993,29 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_DARKNESS:
 		{
 			bool strongdark = FALSE;
+			int strongodd = 60, darkdam = 10, darkrad = 10;
+			if (cp_ptr->spell_book == TV_DARK_BOOK)
+			{
+				strongodd = 0;
+				darkdam = damroll(5, (p_ptr->skills[SKILL_DEV]/10));
+				darkrad = 13;
+				/* may extend DARKSTEP effect */
+				if (p_ptr->timed[TMD_DARKSTEP]) (void)inc_timed(TMD_DARKSTEP, rand_int(4));
+			}
 			/* occationally use GF_DARK instead of DARK_WEAK */
-			if ((randint(p_ptr->skills[SKILL_DEV] + (goodluck*2)) > 60) &&
-				(cp_ptr->spell_book != TV_PRAYER_BOOK)) strongdark = TRUE;
+			if ((randint(p_ptr->skills[SKILL_DEV] + (goodluck*2)) > strongodd) &&
+				(cp_ptr->spell_book != TV_PRAYER_BOOK))
+			{
+				strongdark = TRUE;
+				darkdam = damroll(3, (p_ptr->skills[SKILL_DEV]/15));
+			}
 			if (!p_ptr->resist_blind)
 			{
-				(void)inc_timed(TMD_BLIND, 3 + randint(6));
+				if (cp_ptr->spell_book == TV_DARK_BOOK)
+					(void)inc_timed(TMD_BLIND, 3 + randint(3));
+				else (void)inc_timed(TMD_BLIND, 3 + randint(6));
 			}
-			if (unlite_area(10, 3, strongdark)) *ident = TRUE;
+			if (unlite_area(darkdam, darkrad, strongdark)) *ident = TRUE;
 			break;
 		}
 
@@ -2053,13 +2120,15 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 				else msg_print("The end of the staff glows brightly...");
 			}
 			if (strong) for (k = 0; k < 8; k++) strong_lite_line(ddd[k]);
-			else for (k = 0; k < 8; k++) lite_line(ddd[k]);
+			else for (k = 0; k < 8; k++) lite_line(ddd[k], 0);
 			/* a drawback of the strong effect (only if you have bad luck) */
 			if ((badluck) && (!goodluck) && (strong) && (!p_ptr->timed[TMD_BLIND]) &&
 				(rand_int(100) < (badluck+1)*4))
 			{
 				(void)inc_timed(TMD_BLIND, randint(4 + badluck/2) + 2);
 			}
+			if ((p_ptr->timed[TMD_DARKSTEP]) && (!p_ptr->timed[TMD_BLIND]))
+				take_hit(damroll(2, 6), "a staff of starlight");
 			*ident = TRUE;
 			break;
 		}
@@ -2067,6 +2136,8 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_LITE:
 		{
 			if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
+			if ((p_ptr->timed[TMD_DARKSTEP]) && (!p_ptr->timed[TMD_BLIND]))
+				take_hit(damroll(2, 6), "a staff of light");
 			break;
 		}
 
@@ -2078,7 +2149,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
             }
             else
             {
-			  map_area();
+			  map_area(FALSE);
             }
 			*ident = TRUE;
 			break;
@@ -2357,6 +2428,7 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 {
 	int die, pwr, dis;
 	int luckdev = (p_ptr->skills[SKILL_DEV] + goodluck + p_ptr->lev) / 2;
+	int plev = p_ptr->lev;
 
 	/* Not identified yet */
 	*ident = FALSE;
@@ -2428,8 +2500,11 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 			}
 			else
 			{
-				msg_print("A line of blue shimmering light appears.");
-				lite_line(dir);
+				int blek = plev/5 * p_ptr->skills[SKILL_DEV]/5;
+				if (plev < 5) blek = p_ptr->skills[SKILL_DEV]/5;
+                msg_print("A line of blue shimmering light appears.");
+				if (blek > 31) lite_line(dir, 0);
+				else lite_line(dir, 8 - (blek / 4));
 			}
 			*ident = TRUE;
 			break;
@@ -2606,12 +2681,16 @@ bool wand_effect(int sval, bool *ident, int enhanced, int dir)
 
 		case SV_WAND_WONDER:
 		{
+			int blek, die = randint(10);
             /* only activates with high luck, and rarely then */
             pwr = (p_ptr->lev + 10 + goodluck) / 2;
             pwr += adj_chr_charm[p_ptr->stat_ind[A_CHR]] + enhanced;
 
-            die = randint(10);
-			lite_line(dir);
+            blek = plev/5 * p_ptr->skills[SKILL_DEV]/5;
+			if (plev < 5) blek = p_ptr->skills[SKILL_DEV]/5;
+			if (blek > 31) lite_line(dir, 0);
+			else lite_line(dir, 8 - (blek / 4));
+
 			fire_ball(GF_POIS, dir, goodluck * randint(6), 4);
 			if (die < 7)
             {
@@ -2842,6 +2921,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 {
 	bool used_charge = TRUE;
+	int plev = p_ptr->lev;
 
 	/* Not identified yet */
 	*ident = FALSE;
@@ -2896,6 +2976,8 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 		case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8) + enhanced, 2)) *ident = TRUE;
+			if ((p_ptr->timed[TMD_DARKSTEP]) && (!p_ptr->timed[TMD_BLIND]))
+				take_hit(damroll(2, 6), "a rod of illumination");
 			break;
 		}
 
@@ -2907,7 +2989,9 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
             }
             else
             {
-			  map_area();
+				if (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 90)
+					map_area(TRUE);
+				else map_area(FALSE);
             }
 			*ident = TRUE;
 			break;
@@ -2982,7 +3066,7 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 			break;
 		}
 
-		case SV_ROD_TELEPORT_AWAY:
+		case SV_ROD_TELEPORT_AWAY: /* SV_ROD_TELEPORT_OTHER */
 		{
 			int dis = p_ptr->skills[SKILL_DEV] + goodluck + randint(p_ptr->skills[SKILL_DEV] + 5);
             if (teleport_monster(dir, dis)) *ident = TRUE;
@@ -2995,11 +3079,17 @@ bool rod_effect(int sval, bool *ident, int enhanced, int dir)
 			break;
 		}
 
-		case SV_ROD_LITE:
+		case SV_ROD_LITE: /* SV_ROD_LIGHT (why always use dumb spelling?) */
 		{
-			msg_print("A line of blue shimmering light appears.");
+			int blek;
+            msg_print("A line of blue shimmering light appears.");
 			if ((enhanced) && (rand_int(100) < 90 - enhanced)) strong_lite_line(dir);
-			lite_line(dir);
+
+            blek = plev/5 * p_ptr->skills[SKILL_DEV]/5;
+			if (plev < 5) blek = p_ptr->skills[SKILL_DEV]/5;
+			if (blek > 31) lite_line(dir, 0);
+			else lite_line(dir, 9 - (blek / 4));
+
 			*ident = TRUE;
 			break;
 		}
@@ -3265,6 +3355,9 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("The %s wells with clear light...", o_name);
 				lite_area(damroll(2, 15), 3);
+				if ((p_ptr->timed[TMD_DARKSTEP]) && (!p_ptr->timed[TMD_BLIND]))
+					take_hit(damroll(2, 8), "the Phial of Galadriel");
+				else if (p_ptr->timed[TMD_DARKSTEP]) take_hit(damroll(2, 3), "the Phial of Galadriel");
 				break;
 			}
 			
@@ -3277,16 +3370,45 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_MAGIC_MAP:
 			{
 				msg_format("The %s shines brightly...", o_name);
-				map_area();
+				map_area(FALSE);
 				break;
 			}
 
 			case ACT_CLAIRVOYANCE:
 			{
 				msg_format("The %s glows a deep green...", o_name);
-				wiz_lite();
-				(void)detect_traps();
+				wiz_lite(FALSE);
 				(void)detect_doorstairs(FALSE);
+				(void)detect_traps();
+				/* object detection no longer for whole level */
+				(void)detect_treasure();
+				(void)detect_objects_normal(FALSE);
+				/* very short range version */
+				(void)detect_monsters_normal(0);
+				break;
+			}
+			
+			/* weaker version for dagger of Pippin */
+			case ACT_WCLAIRVOYANCE:
+			{
+				int die = rand_int(100);
+                msg_format("The %s glows lime green...", o_name);
+				if (die < goodluck/2 + 2) wiz_lite(FALSE);
+				else if (die < goodluck + 7)
+				{
+					map_area(TRUE); /* maps whole level without lighting it up */
+					(void)lite_area(damroll(2, 5), 2);
+				}
+				else
+				{
+					map_area(FALSE);
+					(void)lite_area(damroll(2, 5), 2);
+				}
+				(void)detect_doorstairs(FALSE);
+				(void)detect_traps();
+				/* no object detection for pippin's version */
+				/* very short range version */
+				(void)detect_monsters_normal(0);
 				break;
 			}
 
@@ -3738,6 +3860,8 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s glows with the light of a thousand stars...", o_name);
 				for (k = 0; k < 8; k++) strong_lite_line(ddd[k]);
+				if ((p_ptr->timed[TMD_DARKSTEP]) && (!p_ptr->timed[TMD_BLIND]))
+					take_hit(damroll(2, 8), "starlight");
 				break;
 			}
 
@@ -3827,7 +3951,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_ELEC);
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(540) + 360;
+				o_ptr->timeout = rand_int(240) + 300;
 				break;
 			}
 
@@ -3836,7 +3960,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_FROST);
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(540) + 360;
+				o_ptr->timeout = rand_int(240) + 300;
 				break;
 			}
 
@@ -3845,7 +3969,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_ACID);
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(540) + 360;
+				o_ptr->timeout = rand_int(240) + 300;
 				break;
 			}
 
@@ -3854,7 +3978,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_GAS);
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(540) + 360;
+				o_ptr->timeout = rand_int(240) + 300;
 				break;
 			}
 
@@ -3863,7 +3987,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_FIRE);
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(540) + 360;
+				o_ptr->timeout = rand_int(240) + 300;
 				break;
 			}
 
@@ -3884,7 +4008,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(240) + 240;
+				o_ptr->timeout = rand_int(180) + 300;
 				break;
 			}
 
@@ -3893,7 +4017,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_CONF);
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(540) + 360;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3902,7 +4026,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_SOUND);
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(540) + 360;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3914,7 +4038,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3929,7 +4053,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				           ((chance == 2) ? GF_DARK :
 				            ((chance == 3) ? GF_CONFUSION : GF_NEXUS))),
 				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3947,7 +4071,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_print("You breathe nexus.");
 				fire_ball(GF_NEXUS, dir, 110, 2);
 #endif
-				o_ptr->timeout = rand_int(270) + 360;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3962,7 +4086,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3973,7 +4097,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 150, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 
@@ -3988,7 +4112,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				fire_ball(GF_COLD, dir, 45, 2);
 				fire_ball(GF_POIS, dir, 45, 2);
 				fire_ball(GF_MISSILE, dir, 75, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(240) + 240;
 				break;
 			}
 		}
@@ -4187,7 +4311,8 @@ static cptr act_description[ACT_MAX] =
 	"sphere of animal charming",
 	"tunneldigging",
 	"daylight and berserk rage",
-	"fire bolt (9d8) and light beam (3d8)"
+	"fire bolt (9d8) and light beam (3d8)",
+	"weak clairvoyance (no object detection and usually doesn't map the whole level)"
 };
 
 
@@ -4198,7 +4323,7 @@ static cptr act_description[ACT_MAX] =
 void describe_item_activation(const object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
-	s32b minute, rminute, sec, rsec;
+	s32b minute = 0, rminute = 0, sec = 0, rsec = 0;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -4225,7 +4350,8 @@ void describe_item_activation(const object_type *o_ptr)
 		/* estimate random recharge time */
 		if (((a_ptr->randtime >= 11) && (a_ptr->time)) || (a_ptr->randtime >= 17))
 			rminute = (a_ptr->randtime + 1) / 6;
-		else rsec = a_ptr->randtime * 10;
+		else if (a_ptr->randtime) rsec = a_ptr->randtime * 10;
+		else rsec = 0;
 
 		/* Output the number of minutes/seconds to recharge */
 		/* (round to nearest minute or 30 seconds) */
@@ -4304,72 +4430,72 @@ void describe_item_activation(const object_type *o_ptr)
 	{
 		case SV_DRAGON_BLUE:
 		{
-			text_out("breathe lightning (100) every 60+d90 minutes");
+			text_out("breathe lightning (100) every 50+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_WHITE:
 		{
-			text_out("breathe frost (110) every 60+d90 minutes");
+			text_out("breathe frost (110) every 50+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_BLACK:
 		{
-			text_out("breathe acid (130) every 60+d90 minutes");
+			text_out("breathe acid (130) every 50+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_GREEN:
 		{
-			text_out("breathe poison gas (150) every 60+d90 minutes");
+			text_out("breathe poison gas (150) every 50+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_RED:
 		{
-			text_out("breathe fire (200) every 60+d90 minutes");
+			text_out("breathe fire (200) every 50+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_MULTIHUED:
 		{
-			text_out("breathe multi-hued (250) every 40+d40 minutes");
+			text_out("breathe multi-hued (250) every 50+d30 minutes");
 			break;
 		}
 		case SV_DRAGON_BRONZE:
 		{
-			text_out("breathe confusion (120) every 60+d90 minutes");
+			text_out("breathe confusion (120) every 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_GOLD:
 		{
-			text_out("breathe sound (130) every 60+d90 minutes");
+			text_out("breathe sound (130) every 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_CHAOS:
 		{
-			text_out("breathe chaos/disenchant (220) every 50+d50 minutes");
+			text_out("breathe chaos/disenchant (220) every 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_LAW:
 		{
-			text_out("breathe sound/shards (230) every 50+d50 minutes");
+			text_out("breathe sound/shards (230) every 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_BALANCE:
 		{
-			text_out("breathe balance (250) every 50+d50 minutes");
+			text_out("breathe balance (250) every 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_SHINING:
 		{
-			text_out("breathe light/darkness (200) 50+d50 minutes");
+			text_out("breathe light/darkness (200) 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_POWER:
 		{
-			text_out("breathe the elements (300) every 50+d50 minutes");
+			text_out("breathe the elements (300) every 40+d40 minutes");
 			break;
 		}
 		case SV_DRAGON_ETHEREAL:
 		{
-			text_out("breathe light, dark, confusion, or nexus (230) every 50+d50 minutes");
+			text_out("breathe light, dark, confusion, or nexus (230) every 40+d40 minutes");
 			break;
 		}
 	}

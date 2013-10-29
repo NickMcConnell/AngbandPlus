@@ -1417,7 +1417,7 @@ static bool place_monster_okay(int r_idx)
 	/* Wulf may have other outlaw/warrior escorts ("K" with "p" escorts) */
 	if ((strstr(rname, "Wulf")) && 
 		((strstr(zname, "swordsm")) || (strstr(zname, "hardened")) || 
-		(strstr(zname, "lightning ro"))) && 
+		(strstr(zname, "warhorse")) || (strstr(zname, "lightning ro"))) && 
 		(randint(100) < 34)) exception = TRUE;
 	
 	/* (usually) Require similar "race" */
@@ -1463,6 +1463,9 @@ static bool summon_specific_okay(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
     cptr rname = (r_name + r_ptr->name);
 
+    /* get summoner race also */
+	monster_race *sr_ptr = &r_info[summoner];
+
 	bool okay = FALSE;
 
 	/* Extract the racial spell flags */
@@ -1471,62 +1474,43 @@ static bool summon_specific_okay(int r_idx)
 	f5 = r_ptr->flags5;
 	f6 = r_ptr->flags6;
 
-	/* Hack -- no specific type specified */
+	/* Hack -- no specific type specified (for S_MONSTER(S) spell) */
 	if (!summon_specific_type) return (TRUE);
 
-	/* Check extra requirements */
-	switch (summon_specific_type)
+	/* if summoner is hurt by fire, exclude fire monsters */
+    if (sr_ptr->flags3 & (RF3_HURT_FIRE))
 	{
-		case SUMMON_NOFIRE:
-		case SUMMON_ANI_NOFIRE:
-		{
-			/* exclude fire monsters */
-			if ((strstr(rname, "fire")) || (strstr(rname, "plasma")) ||
-				(strstr(rname, "hell")) || (strstr(rname, "Smaug")) ||
-				(strstr(rname, "tyerr")) || (strstr(rname, "hoenix")) ||
-				(strstr(rname, "salamander")) || (strstr(rname, "ifrit")) ||
-				(strstr(rname, "effretti")) || (strstr(rname, "bodak")) ||
-				((strstr(rname, "hydra")) && (r_ptr->flags4 & (RF4_BR_FIRE))) ||
-				(strstr(rname, "horned devil")) || (strstr(rname, "pit fiend")) ||
-				(strstr(rname, "bronze idol")) || (strstr(rname, "balrog")) ||
-				(strstr(rname, "lava")))
-				return FALSE;
-
-			if (summon_specific_type == SUMMON_ANI_NOFIRE)
-				summon_specific_type = SUMMON_ANIMAL;
-			else return TRUE;
-			break;
-		}
-
-		case SUMMON_NOWATER:
-		case SUMMON_ANI_NOWATER:
-		{
-			/* exclude water monsters (a lot easier..) */
-			if ((strstr(rname, "water")) || (r_ptr->flags7 & (RF7_WATER_HIDE)) ||
-				(r_ptr->flags7 & (RF7_WATER_ONLY)) || (r_ptr->d_char == 'N') ||
-                (r_ptr->flags5 & (RF5_BA_WATE))) 
-				return FALSE;
-
-			if (summon_specific_type == SUMMON_ANI_NOWATER)
-				summon_specific_type = SUMMON_ANIMAL;
-			else return TRUE;
-			break;
-		}
-
-		case SUMMON_NOLIGHT:
-		case SUMMON_ANI_NOLIGHT:
-		{
-			/* exclude light breathers and creatures of light */
-			if ((r_ptr->flags4 & (RF4_BR_LITE)) || (r_ptr->flags3 & (RF3_HURT_DARK)))
-				return FALSE;
-
-			if (summon_specific_type == SUMMON_ANI_NOLIGHT)
-				summon_specific_type = SUMMON_ANIMAL;
-			else return TRUE;
-			break;
-		}
+		/* exclude fire monsters */
+		if ((r_ptr->flags4 & (RF4_BR_FIRE)) ||
+			(strstr(rname, "fire")) || (strstr(rname, "plasma")) ||
+			(strstr(rname, "tyerr")) || (strstr(rname, "salamander")) || 
+			(strstr(rname, "ifrit")) ||	(strstr(rname, "effretti")) || 
+			(strstr(rname, "bodak")) ||	(strstr(rname, "horned devil")) || 
+			(strstr(rname, "bronze idol")) || (strstr(rname, "lava")))
+			return FALSE;
 	}
-
+	/* is summoner hates water, exclude water monsters */
+    if (sr_ptr->flags7 & (RF7_HATE_WATER))
+	{
+		/* exclude water monsters */
+		if ((strstr(rname, "water")) || (r_ptr->flags7 & (RF7_WATER_HIDE)) ||
+			(r_ptr->flags7 & (RF7_WATER_ONLY)) || (r_ptr->d_char == 'N') ||
+               (r_ptr->flags5 & (RF5_BA_WATE))) 
+			return FALSE;
+	}
+	/* if summoner is evil or hurt by light, */
+	/* exclude light-breathers and creatures of light */
+    if ((sr_ptr->flags3 & (RF3_EVIL)) || (sr_ptr->flags3 & (RF3_HURT_LITE)))
+	{
+		/* exclude light breathers and creatures of light */
+		if ((r_ptr->flags4 & (RF4_BR_LITE)) || (r_ptr->flags3 & (RF3_HURT_DARK)))
+			return FALSE;
+	}
+	/* if summoner is hurt by dark, exclude darkness breathers */
+	if (sr_ptr->flags3 & (RF3_HURT_DARK))
+	{
+		if (r_ptr->flags4 & (RF4_BR_DARK)) return FALSE;
+	}
 
 	/* Check standard requirements */
 	switch (summon_specific_type)
@@ -1565,8 +1549,8 @@ static bool summon_specific_okay(int r_idx)
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			        
 			/* The Wicked witch of the West prefers winged monkeys */
-			if ((spellswitch == 40) && (!strstr(rname, "winged")) &&
-				(randint(100) < 85)) okay = FALSE;
+			if ((summoner == 311) && (!strstr(rname, "winged")) &&
+				(randint(100) < 81)) okay = FALSE;
 			break;
 		}
 
@@ -1615,6 +1599,10 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HI_DRAGON:
 		{
+			/* I don't think non-unique dragons should summon Ancalagon or Glaurung */
+			if ((!(sr_ptr->flags1 & (RF1_UNIQUE))) && (sr_ptr->d_char == 'D') &&
+				(r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level > 70)) return FALSE;
+
 			okay = (r_ptr->d_char == 'D');
 			break;
 		}
@@ -1638,11 +1626,12 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
-			/* allow S_UNIQUE to summon 'almost-uniques' */
-			if ((strstr(rname, "king")) || (strstr(rname, "queen")) ||
+			/* sometimes allow S_UNIQUE to summon 'almost-uniques' */
+			if (((strstr(rname, "king")) || (strstr(rname, "queen")) ||
 				(strstr(rname, "fool")) || (strstr(rname, "lord")) ||
 				(strstr(rname, "captain")) || (strstr(rname, "spectral")) ||
-				(strstr(rname, "chief")))
+				(strstr(rname, "chief")) || (strstr(rname, "Beruthi"))) && 
+                (r_ptr->level > sr_ptr->level - 25) && (rand_int(100) < 20 + badluck))
 				okay = TRUE;
 			break;
 		}
@@ -2754,6 +2743,37 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 }
 
 
+/* a little hook for monsters slowed by water */
+static bool monster_is_slowed_by_water(int ridx)
+{
+	monster_race *r_ptr = &r_info[ridx];
+		
+	/* nulls are water monsters */
+	/* though some are too big to hide in shallow water */
+	if (strchr("N", r_ptr->d_char)) return FALSE;
+	
+	/* Most PASS_DOOR monsters aren't incorporeal, but some are */
+	if ((r_ptr->flags2 & (RF2_PASS_DOOR)) &&
+		(strchr("GLVW", r_ptr->d_char))) return FALSE;
+
+	/* This is the temporary piece for until I finish */
+	/* getting r_ptr->mrsize coded */
+	/* (monsters too big to get slowed by water) */
+	if (strchr("DEOPTd", r_ptr->d_char)) return FALSE;
+
+	/* isn't water monster, doesn't fly, not very big, */
+	/* not incorporeal */
+	if ((!(r_ptr->flags2 & (RF2_FLY))) && 
+		(!(r_ptr->flags7 & (RF7_WATER_HIDE))) &&
+		(!(r_ptr->flags7 & (RF7_WATER_ONLY))) &&
+		(!(r_ptr->flags2 & (RF2_PASS_WALL)))
+		/* && (r_ptr->mrsize < 6) */)
+		return TRUE;
+		
+	return FALSE;
+}
+
+
 /* check to see if this monster is detected by the PC's racial ESP
  * and return the range at which it can be detected.
  */
@@ -2946,6 +2966,8 @@ bool alertness_check(monster_type *m_ptr, int mode, bool darkvs)
 
 	/* if called from a detection spell, it shouldn't depend as much on alertness */
 	if ((mode == 1) && (palert < detect_alert)) palert = (detect_alert + palert)/2;
+	/* negative stealth applies only to hearing monsters */
+	if (mstealth < 0) mstealth = 0;
 
 	/* most of the stealth of a CHAR_MULTI monster is their disguise */
 	if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised))
@@ -2972,6 +2994,12 @@ bool alertness_check(monster_type *m_ptr, int mode, bool darkvs)
 	{
 		if (mstealth < 3) mstealth += 1 + randint(2);
 		else if (mstealth < 4)  mstealth += randint(2);
+	}
+	/* some monsters hide better in their natural habitat */
+	if ((r_ptr->flags3 & RF3_ANIMAL) || (strchr("X%iy", r_ptr->d_char)))
+	{
+		if ((r_ptr->flags7 & (RF7_CFOREST)) && (p_ptr->theme == 1)) mstealth += 1;
+		if ((r_ptr->flags7 & (RF7_FFOREST)) && (p_ptr->theme == 2)) mstealth += 1;
 	}
 
 	/* cap & scale up */
@@ -3015,7 +3043,7 @@ bool alertness_check(monster_type *m_ptr, int mode, bool darkvs)
 	if ((m_ptr->monseen > 0) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 20;
 
 	/* Monsters with 0 stealth never hide unless disguised */
-	if ((!r_ptr->stealth) && (!m_ptr->disguised)) mstealth = 1;
+ 	if ((r_ptr->stealth < 1) && (!m_ptr->disguised)) mstealth = 1;
 
 	/* prevent randint(negative mstealth) because that makes it crash */
 	if (mstealth < 1) mstealth = 1;
@@ -3169,7 +3197,8 @@ void update_mon(int m_idx, int full)
 {
 	bool do_invisible = FALSE;
 	bool darkvs, msilent, lore, nevermove, easybut = FALSE;
-	int tempinv, hearcheck, discernmod, d, rtelep = 0;
+	int tempinv, hearcheck, discernmod, hearstealth;
+    int d, rtelep = 0;
 	u32b f4, f5, f6;
 
 	monster_type *m_ptr = &mon_list[m_idx];
@@ -3183,7 +3212,7 @@ void update_mon(int m_idx, int full)
 	/* Seen at all */
 	bool flag = FALSE;
 
-	/* Seen by vision */
+	/* Seen by vision (in LOS) */
 	bool easy = FALSE;
 
 	int py = p_ptr->py;
@@ -3249,6 +3278,10 @@ void update_mon(int m_idx, int full)
 	f5 = r_ptr->flags5;
 	f6 = r_ptr->flags6;
 
+	/* !monster detection detects all monsters */
+	/* 23 will probably be standard detection distance in the future */
+	if ((p_ptr->timed[TMD_MDETECTION]) && (m_ptr->cdis <= 23)) flag = TRUE;
+
 	/* Detected */
 	if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
 
@@ -3270,8 +3303,17 @@ void update_mon(int m_idx, int full)
 		/* Normal line of sight, and not blind */
 		if (player_has_los_bold(fy, fx) && !p_ptr->timed[TMD_BLIND])
 		{
+			bool pccansee = player_can_see_bold(fy, fx);
+			/* large monsters in a lit space in LOS */
+			/* (ugly temporary fix until I implement monster size) */
+			if ((cave_info[fy][fx] & (CAVE_GLOW)) &&
+				((strchr("DEMPOX%", r_ptr->d_char)) || 
+                ((strchr("Tdg", r_ptr->d_char)) && (r_ptr->level > 17)) || 
+                ((strchr("HR", r_ptr->d_char)) && (r_ptr->level > 39))))
+				pccansee = TRUE;
+				
 			/* Use "illumination" */
-			if (player_can_see_bold(fy, fx))
+			if (pccansee)
 			{
 				/* Handle "invisible" monsters */
 				if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (tempinv))
@@ -3374,11 +3416,11 @@ void update_mon(int m_idx, int full)
     /* once it's noticed by the player it's easier to see afterwords */
     if ((easy) && (m_ptr->monseen < 2)) m_ptr->monseen = 2;
 
-    /* water hide monsters can hide even if you can still see them */
+    /* water hide monsters can hide in water even if you can still see them */
 	if (((r_ptr->flags7 & (RF7_WATER_HIDE)) || (r_ptr->flags7 & (RF7_WATER_ONLY))) &&
 		(cave_feat[fy][fx] == FEAT_WATER))
 	{
-		 if ((m_ptr->monseen > 2) || (randint(200) < r_ptr->stealth*5))
+		 if ((m_ptr->monseen > 2) || (randint(190) < r_ptr->stealth*5))
 			 m_ptr->monseen -= 1;
 	}
     /* monster has been seen but is hiding again */
@@ -3403,8 +3445,9 @@ void update_mon(int m_idx, int full)
 	/* PASS_WALL and NEVER_MOVE monsters are considered completely silent */
 	/* (unless their stealth is 0: poltergeists, green glutton ghosts, and earth elementals) */
 	msilent = FALSE; /* assume not completely silent */
-	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (r_ptr->stealth)) msilent = TRUE;
-	if (r_ptr->flags1 & (RF1_NEVER_MOVE)) msilent = TRUE;
+	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (r_ptr->stealth > 0)) msilent = TRUE;
+	if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) && (!(r_ptr->flags4 & (RF4_SHRIEK))))
+		msilent = TRUE;
 	/* poltergeists make a lot of noise */
 	if ((r_ptr->flags4 & (RF4_THROW)) && (r_ptr->flags2 & (RF2_PASS_WALL)))
 	{
@@ -3423,12 +3466,16 @@ void update_mon(int m_idx, int full)
 	if ((r_ptr->stealth == 2) && (p_ptr->palert < 20)) msilent = TRUE;
 	if ((r_ptr->stealth == 4) && (p_ptr->palert < 50)) msilent = TRUE;
 	else if (r_ptr->stealth == 4) hearcheck -= 25;
+	
+	/* ensure no randint(<1) (because of negative r_ptr->stealth) */
+	hearstealth = 2500 + (r_ptr->stealth * 500) + (d * 25);
+    if (hearstealth < d + 1) hearstealth = d + 1;
 
 	/* if monster is nearby and not already visible there's a chance to hear it */
 	/* the town is considered safe, so don't bother if monster level is 0 */
 	if ((!flag) && (full == 2) && (r_ptr->stealth < 5) && (d < MAX_SIGHT) &&
 	   (!p_ptr->timed[TMD_IMAGE]) && (r_ptr->level) && (!msilent) &&
-	   (randint(2500 + (r_ptr->stealth * 500) + (d * 25)) < hearcheck))
+	   (randint(hearstealth) < hearcheck))
 	{
 		bool eardisturb = FALSE;
 
@@ -3495,7 +3542,6 @@ void update_mon(int m_idx, int full)
 	/* flag == true: If it's (easy) or detected as a monster, then it's no longer disguised */
 	else if ((m_ptr->disguised) && (flag)) m_ptr->disguised = 0;
 
-
 	/* The monster is now visible */
 	if (flag)
 	{
@@ -3515,7 +3561,12 @@ void update_mon(int m_idx, int full)
 			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
 
 			/* Disturb on appearance */
-			if ((disturb_move) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) disturb(1, 0);
+			if ((disturb_move) && (!(r_ptr->flags7 & (RF7_NONMONSTER))))
+			{
+				/* unaware town monsters shouldn't disturb */
+                if ((r_ptr->level == 0) && (m_ptr->csleep)) /* skip */;
+                else disturb(1, 0);
+			}
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
@@ -3545,8 +3596,8 @@ void update_mon(int m_idx, int full)
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
-			/* Disturb on disappearance */
-			if ((disturb_move) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) disturb(1, 0);
+			/* Disturb on disappearance (why?) */
+			/* if ((disturb_move) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) disturb(1, 0); */
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
@@ -3568,7 +3619,12 @@ void update_mon(int m_idx, int full)
 #endif
 			
 			/* Disturb on appearance (even if roaming) */
-			if ((disturb_near) && (!(r_ptr->flags7 & (RF7_NONMONSTER)))) disturb(1, 0);
+			if ((disturb_near) && (!(r_ptr->flags7 & (RF7_NONMONSTER))))
+			{
+				/* unaware town monsters shouldn't disturb */
+                if ((r_ptr->level == 0) && (m_ptr->csleep)) /* skip */;
+                else disturb(1, 0);
+			}
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
@@ -3660,6 +3716,7 @@ void update_mon(int m_idx, int full)
    {
        /* bluff */
 	   int bluff = r_ptr->stealth;
+	   if (bluff < 0) bluff = 0;
 	   if (r_ptr->level <= 20) bluff += 1;
 	   else bluff += r_ptr->level / 20;
 	   if (r_ptr->flags2 & (RF2_SMART)) bluff += randint((bluff+1)/2) + 1;
@@ -3911,6 +3968,22 @@ void monster_swap(int y1, int x1, int y2, int x2)
 				cave_info[y1][x1] &= ~(CAVE_WALL);
 			}
 		}
+		
+		if (monster_is_slowed_by_water(m_ptr->r_idx))
+		{
+	        /* moving into a space with water */
+    	    if ((cave_feat[y2][x2] == FEAT_WATER) &&
+				(!(cave_feat[y1][x1] == FEAT_WATER)))
+			{
+				m_ptr->mspeed -= 2;
+			}
+	        /* moving out of a space with water */
+    	    if ((cave_feat[y1][x1] == FEAT_WATER) &&
+				(!(cave_feat[y2][x2] == FEAT_WATER)))
+			{
+				m_ptr->mspeed += 2;
+			}
+		}
 
 		/* Update monster */
 		update_mon(m1, 3);
@@ -3924,13 +3997,15 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->px = x2;
 
 		/* Update the panel */
-		p_ptr->update |= (PU_PANEL);
+		p_ptr->update |= (PU_PANEL | PU_UPDATE_FLOW);
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
-		/* Update the flow */
-		p_ptr->update |= (PU_UPDATE_FLOW);
+		/* Update bonuses (water slows you down) */
+		if ((cave_feat[y1][x1] == FEAT_WATER) ||
+			(cave_feat[y2][x2] == FEAT_WATER))
+ 			p_ptr->update |= (PU_BONUS);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
@@ -3959,13 +4034,29 @@ void monster_swap(int y1, int x1, int y2, int x2)
 			}
 			/* allow for two BLOCK_LOS monsters switching with each other */
 			/* (although I don't think this should ever happen..) */
-			else if ((m1 > 0) && (r_ptr->flags7 & (RF7_BLOCK_LOS)))
+			else if ((m1 > 0) && (ar_ptr->flags7 & (RF7_BLOCK_LOS)))
 			{
 				/* don't remove CAVE_WALL */
 			}
 			else
 			{
 				cave_info[y1][x1] &= ~(CAVE_WALL);
+			}
+		}
+		
+		if (monster_is_slowed_by_water(m_ptr->r_idx))
+		{
+	        /* moving into a space with water */
+    	    if ((cave_feat[y1][x1] == FEAT_WATER) &&
+				(!(cave_feat[y2][x2] == FEAT_WATER)))
+			{
+				m_ptr->mspeed -= 2;
+			}
+	        /* moving out of a space with water */
+    	    if ((cave_feat[y2][x2] == FEAT_WATER) &&
+				(!(cave_feat[y1][x1] == FEAT_WATER)))
+			{
+				m_ptr->mspeed += 2;
 			}
 		}
 
@@ -3980,14 +4071,16 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y1;
 		p_ptr->px = x1;
 
-		/* Update the panel */
-		p_ptr->update |= (PU_PANEL);
+		/* Update the panel and flow */
+		p_ptr->update |= (PU_PANEL | PU_UPDATE_FLOW);
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
-		/* Update the flow */
-		p_ptr->update |= (PU_UPDATE_FLOW);
+		/* Update bonuses (water slows you down) */
+		if ((cave_feat[y1][x1] == FEAT_WATER) ||
+			(cave_feat[y2][x2] == FEAT_WATER))
+ 			p_ptr->update |= (PU_BONUS);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
@@ -4565,6 +4658,13 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group, boo
 		i = extract_energy[r_ptr->speed] / 10;
 		if (i) n_ptr->mspeed += rand_spread(0, i);
 	}
+	/* this speed adjustment is handled only here and */
+	/* in monster_swap() */
+	if ((monster_is_slowed_by_water(n_ptr->r_idx)) &&
+		(cave_feat[y][x] == FEAT_WATER))
+	{
+		n_ptr->mspeed -= 2;
+	}
 
 	/* Give a random starting energy */
 	n_ptr->energy = (byte)rand_int(100);
@@ -4762,7 +4862,10 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	else if (r_idx == 263) /* winged monkeys */
 	{
 		int die = randint(90 + (p_ptr->depth/3) + badluck);
-		if (die > 97) tag = 264; /* elete winged monkey (otherwise THEME_ONLY) */
+		/* much bigger chance if in-theme */
+		if ((p_ptr->theme == 13) || (p_ptr->theme == 16)) 
+			die = 55 + randint(45 + (p_ptr->depth/2) + badluck);
+		if (die > 93) tag = 264; /* elete winged monkey (otherwise THEME_ONLY) */
 	}
 	else if (r_idx == 407) /* bats of gorgoroth */
 	{

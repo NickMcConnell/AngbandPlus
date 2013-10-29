@@ -243,15 +243,13 @@ static s16b chest_check(int y, int x)
  *
  * Disperse treasures from the given chest, centered at (x,y).
  *
- * Small chests often contain "gold", while Large chests always contain
+ * Small chests often contain gold, while Large chests always contain
  * items.  Wooden chests contain 2 items, Iron chests contain 4 items,
- * and Steel chests contain 6 items.  The "value" of the items in a
- * chest is based on the "power" of the chest, which is in turn based
- * on the level on which the chest is generated.
+ * and Steel chests contain 6 items.
  */
 static void chest_death(int y, int x, s16b o_idx)
 {
-	int number;
+	int number, greed;
 	bool tiny;
 	/* odds for extra items in a special chest */
 	int die = randint(100 + goodluck - badluck);
@@ -279,18 +277,49 @@ static void chest_death(int y, int x, s16b o_idx)
 	if (o_ptr->sval == SV_SP_GOLD_CHEST)
 	{
 		number = 5 + rand_int(2);
-		if (die > 100) number += 1;
+		if (die > 99) number += 1;
 		else if ((die > 80) && (number < 6)) number = 6;
 	}
 	else if (o_ptr->sval == SV_SP_SILVER_CHEST)
 	{
 		number = 3 + randint(2);
-		if (die > 100) number += 1;
+		if (die > 99) number += 1;
 		else if ((die > 80) && (number < 5)) number += 1;
 	}
 
-	/* Determine the "value" of the items */
-	object_level = ABS(o_ptr->pval) + 10;
+	/* Determine the value of the items */
+	if (p_ptr->depth > ABS(o_ptr->pval)) greed = p_ptr->depth;
+	else greed = ABS(o_ptr->pval);
+	
+	switch (o_ptr->sval)
+	{
+		case SV_SM_WOODEN_CHEST: 
+		case SV_LG_WOODEN_CHEST:
+		{
+			/* the old way except with a minimum */
+			object_level = ABS(o_ptr->pval) + 10;
+			if (object_level < p_ptr->depth/2 + 1) object_level = p_ptr->depth/2 + 1;
+			break;
+		}
+		case SV_SM_IRON_CHEST: 
+		case SV_LG_IRON_CHEST:
+		{
+            object_level = greed + 3;
+			break;
+		}
+		case SV_SM_STEEL_CHEST: 
+		case SV_LG_STEEL_CHEST:
+		case SV_SP_SILVER_CHEST:
+		{
+            object_level = greed + 9;
+			break;
+		}
+		case SV_SP_GOLD_CHEST:
+		{
+            object_level = greed + 11;
+			break;
+		}
+	}
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
@@ -311,14 +340,14 @@ static void chest_death(int y, int x, s16b o_idx)
 		/* special chests */
 		if (o_ptr->sval == SV_SP_GOLD_CHEST)
 		{
-			if (randint(100-badluck) < 12) tiny = TRUE; /* may drop gold instead of items */
+			if (randint(100-badluck) < 11) tiny = TRUE; /* may drop gold instead of items */
 			else tiny = FALSE;
 			if (die > 12) good = TRUE;
 			if (die > 70) great = TRUE;
 		}
 		else if (o_ptr->sval == SV_SP_SILVER_CHEST)
 		{
-			if (randint(100-badluck) < 20) tiny = TRUE; /* may drop gold instead of items */
+			if (randint(100-badluck) < 18) tiny = TRUE; /* may drop gold instead of items */
 			else tiny = FALSE;
 			if (die > 25) good = TRUE;
 			if (die > 100) great = TRUE;
@@ -448,11 +477,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 {
 	int i, j;
-
 	bool flag = TRUE;
-
 	bool more = FALSE;
-
 	object_type *o_ptr = &o_list[o_idx];
 
 
@@ -466,8 +492,8 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		i = p_ptr->skills[SKILL_DIS];
 
 		/* Penalize some conditions */
-		if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 10;
-		if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 10;
+		if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 5;
+		if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 5;
 
 		/* Extract the difficulty */
 		j = i - o_ptr->pval;
@@ -531,8 +557,9 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	i = p_ptr->skills[SKILL_DIS];
 
 	/* Penalize some conditions */
-	if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 10;
-	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 10;
+	if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 5;
+	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 5;
+	if (p_ptr->timed[TMD_CURSE]) i -= i / 4;
 
 	/* Extract the difficulty */
 	j = i - o_ptr->pval;
@@ -1532,9 +1559,7 @@ static bool do_cmd_disarm_test(int y, int x)
 static bool do_cmd_disarm_aux(int y, int x)
 {
 	int i, j, power;
-
 	cptr name;
-
 	bool more = FALSE;
 
 
@@ -1549,13 +1574,14 @@ static bool do_cmd_disarm_aux(int y, int x)
 	i = p_ptr->skills[SKILL_DIS];
 
 	/* Penalize some conditions */
-	if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 10;
-	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 10;
+	if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 5;
+	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 5;
+	if (p_ptr->timed[TMD_CURSE]) i -= i / 4;
 
 	/* XXX XXX XXX Variable power? */
 
 	/* Extract trap "power" */
-	power = 5;
+	power = 5 + (p_ptr->depth-5)/5;
 
 	/* Extract the difficulty */
 	j = i - power;
@@ -1570,13 +1596,25 @@ static bool do_cmd_disarm_aux(int y, int x)
 		message_format(MSG_DISARM, 0, "You have disarmed the %s.", name);
 
 		/* Reward */
-		gain_exp(power);
+		gain_exp(power - 1);
 
 		/* Forget the trap */
 		cave_info[y][x] &= ~(CAVE_MARK);
+		
+		/* pit traps often turn into open pits when disarmed */
+		if ((cave_feat[y][x] >= FEAT_TRAP_HEAD + 0x01) &&
+			(cave_feat[y][x] <= FEAT_TRAP_HEAD + 0x03) &&
+			(randint(100) < 50 + badluck/2))
+		{
+			/* earthquake trap not pit trap */
+			if ((cave_feat[y][x] == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 65))
+				cave_set_feat(y, x, FEAT_FLOOR);
+			/* pit trap becomes open pit */
+			else cave_set_feat(y, x, FEAT_OPEN_PIT);
+		}
 
 		/* Remove the trap */
-		cave_set_feat(y, x, FEAT_FLOOR);
+		else cave_set_feat(y, x, FEAT_FLOOR);
 	}
 
 	/* Failure -- Keep trying */
@@ -2172,7 +2210,7 @@ void do_cmd_spike(void)
 		/* Convert "locked" to "stuck" XXX XXX XXX */
 		if (cave_feat[y][x] < FEAT_DOOR_HEAD + 0x08)
 		{
-			cave_feat[y][x] += 0x08;
+			cave_feat[y][x] = FEAT_DOOR_HEAD + 0x08;
 		}
 
 		/* use as many as are available up to 7 */
@@ -2981,8 +3019,8 @@ void do_cmd_fire(void)
 			dx = x;
 			hitwall = TRUE;
 
-			/* hard to hit monsters which are part way in a wall */
-			chance = (chance * 3) / 4;
+			/* hard to hit monsters which are part way in a wall (unless the wall is rubble) */
+			if (!(cave_feat[ny][nx] == FEAT_RUBBLE)) chance = (chance * 3) / 4;
 		}
 		/* Hack -- Stop before hitting walls */
 		else if (!cave_floor_bold(ny, nx))
@@ -3185,7 +3223,7 @@ void do_cmd_fire(void)
 			}
 			else /* miss */
 			{
-				if (hitwall)
+				if ((hitwall) && (!(cave_feat[y][x] == FEAT_RUBBLE)))
 				{
 					msg_format("The %s hits the wall.", o_name);
 					/* less likely to break when hitting the wall */
@@ -3347,8 +3385,27 @@ void do_cmd_throw(void)
 	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK))
 		tooheavy = TRUE;
 
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain a local object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Extract the thrown object flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* is it a throwing weapon? */
+	if ((f3 & TR3_THROWN) || (f3 & TR3_PTHROW)) throwerw = TRUE;
+	else throwerw = FALSE;
+		
+	/* prevent using old target when throwing a non-weapon */
+	/* (because I often throw stuff to the edge of the room just to get it out of the way) */
+	if (!throwerw) spellswitch = 12;
+
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
+	
+	spellswitch = 0; /* reset */
 
 
 	/*** Hacky: Check for to_dam bonus from gauntlets of throwing ***/
@@ -3369,15 +3426,6 @@ void do_cmd_throw(void)
 	if ((p_ptr->timed[TMD_MIGHTY_HURL]) || (cp_ptr->flags & CF_HEAVY_BONUS) ||
 		(p_ptr->prace == 17)) strong_throw = TRUE;
     else strong_throw = FALSE;
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Obtain a local object */
-	object_copy(i_ptr, o_ptr);
-
-	/* Extract the thrown object flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	
 	/* chance for returning weapons to return to your hand when thrown */
     comeback = FALSE;
@@ -3473,8 +3521,6 @@ void do_cmd_throw(void)
 	if (f3 & TR3_THROWN) throwok = 2; /* throwing weapon */
 	else if (f3 & TR3_PTHROW) throwok = 1; /* okay for throwing, but not primarily for throwing */
 	else throwok = 0; /* not a throwing weapon */
-	if ((f3 & TR3_THROWN) || (f3 & TR3_PTHROW)) throwerw = TRUE;
-	else throwerw = FALSE;
 	
 	/* bonus to thrown weapon multiplier from equipment */
     throwok += p_ptr->throwmult;
@@ -3607,7 +3653,7 @@ void do_cmd_throw(void)
 			hitwall = TRUE;
 
 			/* hard to hit monsters which are part way in a wall */
-			chance = (chance * 3) / 4;
+			if (!(cave_feat[ny][nx] == FEAT_RUBBLE)) chance = (chance * 3) / 4;
 		}
 		/* Hack -- Stop before hitting walls */
 		else if (!cave_floor_bold(ny, nx))
@@ -3842,7 +3888,7 @@ void do_cmd_throw(void)
 			    /* miss message */
 			    else if (m_ptr->ml)
                 {
-					if (hitwall)
+					if ((hitwall) && (!(cave_feat[y][x] == FEAT_RUBBLE)))
 					{
 						msg_format("The %s hits the wall.", o_name);
 						/* much less likely to break when hitting the wall */

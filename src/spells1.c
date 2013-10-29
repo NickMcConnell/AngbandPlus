@@ -207,10 +207,12 @@ void teleport_away(int m_idx, int dis, int mode)
 	/* Monsters can hide again whenever they teleport out of sight of the PC */
 	if ((!player_can_see_bold(ny, nx)) && (!warppull))
 	{
-		/* go back into hiding */
+		int mrs = r_ptr->stealth;
+		if (mrs < 0) mrs = 0;
+        /* go back into hiding */
 	    if (m_ptr->monseen > 3) m_ptr->monseen -= randint(2);
 	    else if (m_ptr->monseen > 2) m_ptr->monseen -= 1;
-		else if ((m_ptr->monseen) && (rand_int(100) < r_ptr->stealth*10))
+		else if ((m_ptr->monseen) && (rand_int(100) < mrs*10))
 		  m_ptr->monseen -= 1;
 		  
 		/* mimmics can disguise themselves again */
@@ -289,7 +291,10 @@ void teleport_player(int dis)
 	int d, i, min, y, x;
 
 	bool look = TRUE;
-
+	bool alreadyicky = FALSE;
+	
+	/* can teleport inside a vault if already inside a vault */
+	if (cave_info[py][px] & (CAVE_ICKY)) alreadyicky = TRUE;
 
 	/* Initialize */
 	y = py;
@@ -331,8 +336,9 @@ void teleport_player(int dis)
 			if ((cave_feat[y][x] == FEAT_INVIS) || 
 				(cave_feat[y][x] == FEAT_TRAP_HEAD + 0x00)) continue;
 
-			/* No teleporting into vaults and such */
-			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+			/* No teleporting into vaults (unless already in a vault) */
+			if ((cave_info[y][x] & (CAVE_ICKY)) &&
+				(!alreadyicky)) continue;
 
 			/* This grid looks good */
 			look = FALSE;
@@ -1096,11 +1102,8 @@ typedef int (*inven_func)(const object_type *);
 static int inven_damage(inven_func typ, int perc)
 {
 	int i, j, k, amt;
-
 	object_type *o_ptr;
-
 	char o_name[80];
-	
 	bool damage;
 
 	/* Count the casualties */
@@ -1275,12 +1278,10 @@ static int inven_damage(inven_func typ, int perc)
  *
  * If any armor is damaged (or resists), the player takes less damage.
  */
-static int minus_ac(void)
+static int minus_ac(bool immune)
 {
 	object_type *o_ptr = NULL;
-
 	u32b f1, f2, f3, f4;
-
 	char o_name[80];
 
 
@@ -1315,6 +1316,13 @@ static int minus_ac(void)
 
 		return (TRUE);
 	}
+	
+	else if (immune)
+	{
+		msg_format("Your resistance protects your armor!", o_name);
+
+		return (TRUE);
+	}
 
 	/* Message */
 	msg_format("Your %s is damaged!", o_name);
@@ -1336,9 +1344,11 @@ static int minus_ac(void)
 /*
  * Hurt the PC with Acid
  */
-void acid_dam(int dam, cptr kb_str)
+void acid_dam(int dam, cptr kb_str, int monlev)
 {
 	int inv = (dam < 40) ? 1 : (dam < 80) ? 2 : 3;
+	bool aprotect = FALSE;
+	int acidsave = 1 + badluck - goodluck/2;
 
 	/* Total Immunity */
 	if (p_ptr->immune_acid || (dam <= 0)) return;
@@ -1346,26 +1356,43 @@ void acid_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 	if (p_ptr->timed[TMD_OPP_ACID]) dam = (dam + 2) / 3;
-
-	/* double resist protects inventory a little better */
-	if ((p_ptr->resist_acid) && (p_ptr->timed[TMD_OPP_ACID])) inv -= 1;
+	
+	/* resist can protect from inven damage vs low level monsters */
+	/* baby dragons are native to dL9, but baby multi-hued is dL11 */
+	if ((monlev < 11) && ((p_ptr->resist_acid) || (p_ptr->timed[TMD_OPP_ACID]))) 
+			inv = 0;
+	/* basic4 hounds and gelatinus cube are native to dL18 */
+	else if ((monlev < 18) && (p_ptr->resist_acid) && (p_ptr->timed[TMD_OPP_ACID]))
+			inv = 0;
+			
+	/* protect armor from acid */
+    if ((p_ptr->timed[TMD_ACID_BLOCK]) || (inv == 0))
+    {
+		aprotect = TRUE;
+		acidsave += 2;
+	}
 
 	/* If any armor gets hit, defend the player */
-	if ((badluck > 2) && (minus_ac())) dam = (dam * 3) / 4;
-	else if (minus_ac()) dam = (dam * 2) / 3;
+	if ((rand_int(5) < acidsave) && (minus_ac(aprotect)))
+		dam = (dam * 3) / 4;
+	else if (minus_ac(aprotect)) dam = (dam * 2) / 3;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
 
+	/* double resist protects inventory a little better */
+	if ((p_ptr->resist_acid) && (p_ptr->timed[TMD_OPP_ACID]) && (inv > 1)) 
+			inv -= 1;
+	
     /* Inventory damage */
-	if ((inv > 0) && (!p_ptr->timed[TMD_ACID_BLOCK])) inven_damage(set_acid_destroy, inv);
+	if (inv > 0) inven_damage(set_acid_destroy, inv);
 }
 
 
 /*
  * Hurt the player with electricity
  */
-void elec_dam(int dam, cptr kb_str)
+void elec_dam(int dam, cptr kb_str, int monlev)
 {
 	int inv = (dam < 40) ? 1 : (dam < 80) ? 2 : 3;
 
@@ -1376,11 +1403,19 @@ void elec_dam(int dam, cptr kb_str)
 	if (p_ptr->timed[TMD_OPP_ELEC]) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
 
-	/* double resist protects inventory a little better */
-	if ((p_ptr->resist_elec) && (p_ptr->timed[TMD_OPP_ELEC])) inv -= 1;
-
 	/* Take damage */
 	take_hit(dam, kb_str);
+	
+	/* resist can protect from inven damage vs low level monsters */
+	/* baby dragons are native to dL9, but baby multi-hued is dL11 */
+	if ((monlev < 11) && ((p_ptr->resist_elec) || (p_ptr->timed[TMD_OPP_ELEC]))) 
+			inv = 0;
+	/* basic4 hounds are native to dL18 */
+	else if ((monlev < 18) && (p_ptr->resist_elec) && (p_ptr->timed[TMD_OPP_ELEC]))
+			inv = 0;
+	/* double resist protects inventory a little better */
+	else if ((p_ptr->resist_elec) && (p_ptr->timed[TMD_OPP_ELEC])) 
+			inv -= 1;
 
 	/* Inventory damage */
 	if (inv > 0) inven_damage(set_elec_destroy, inv);
@@ -1388,11 +1423,10 @@ void elec_dam(int dam, cptr kb_str)
 
 
 
-
 /*
  * Hurt the player with Fire
  */
-void fire_dam(int dam, cptr kb_str)
+void fire_dam(int dam, cptr kb_str, int monlev)
 {
 	int inv = (dam < 40) ? 1 : (dam < 80) ? 2 : 3;
 
@@ -1403,11 +1437,19 @@ void fire_dam(int dam, cptr kb_str)
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
 	if (p_ptr->timed[TMD_OPP_FIRE]) dam = (dam + 2) / 3;
 
-	/* double resist protects inventory a little better */
-	if ((p_ptr->resist_fire) && (p_ptr->timed[TMD_OPP_FIRE])) inv -= 1;
-
 	/* Take damage */
 	take_hit(dam, kb_str);
+	
+	/* resist can protect from inven damage vs low level monsters */
+	/* baby dragons are native to dL9, but baby multi-hued is dL11 */
+	if ((monlev < 11) && ((p_ptr->resist_fire) || (p_ptr->timed[TMD_OPP_FIRE]))) 
+			inv = 0;
+	/* basic4 hounds are native to dL18 */
+	else if ((monlev < 18) && (p_ptr->resist_fire) && (p_ptr->timed[TMD_OPP_FIRE]))
+			inv = 0;
+	/* double resist protects inventory a little better */
+	else if ((p_ptr->resist_fire) && (p_ptr->timed[TMD_OPP_FIRE])) 
+			inv -= 1;
 
 	/* Inventory damage */
 	if (inv > 0) inven_damage(set_fire_destroy, inv);
@@ -1417,7 +1459,7 @@ void fire_dam(int dam, cptr kb_str)
 /*
  * Hurt the player with Cold
  */
-void cold_dam(int dam, cptr kb_str)
+void cold_dam(int dam, cptr kb_str, int monlev)
 {
 	int inv = (dam < 40) ? 1 : (dam < 80) ? 2 : 3;
 
@@ -1428,11 +1470,19 @@ void cold_dam(int dam, cptr kb_str)
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
 	if (p_ptr->timed[TMD_OPP_COLD]) dam = (dam + 2) / 3;
 
-	/* double resist protects inventory a little better */
-	if ((p_ptr->resist_cold) && (p_ptr->timed[TMD_OPP_COLD])) inv -= 1;
-
 	/* Take damage */
 	take_hit(dam, kb_str);
+	
+	/* resist can protect from inven damage vs low level monsters */
+	/* baby dragons are native to dL9, but baby multi-hued is dL11 */
+	if ((monlev < 11) && ((p_ptr->resist_cold) || (p_ptr->timed[TMD_OPP_COLD]))) 
+			inv = 0;
+	/* basic4 hounds are native to dL18 */
+	else if ((monlev < 18) && (p_ptr->resist_cold) && (p_ptr->timed[TMD_OPP_COLD]))
+			inv = 0;
+	/* double resist protects inventory a little better */
+	else if ((p_ptr->resist_cold) && (p_ptr->timed[TMD_OPP_COLD])) 
+			inv -= 1;
 
 	/* Inventory damage */
 	if (inv > 0) inven_damage(set_cold_destroy, inv);
@@ -1986,7 +2036,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_METEOR:
 		case GF_ICE:
 		case GF_SHARD:
-		case GF_FORCE:
 		case GF_SOUND:
 		case GF_MANA:
         case GF_AMNESIA:
@@ -2059,6 +2108,39 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 						obvious = TRUE;
 					}
 					cave_set_feat(y, x, FEAT_FLOOR);
+				}
+			}
+			break;
+		}
+		
+		/* 'breathe wall' should have a chance to create walls */
+        case GF_FORCE:
+		{
+			bool hawall = FALSE;
+			monster_race *sr_ptr;
+			/* BR_WALL saves the breather in summoner */
+			if (summoner) sr_ptr = &r_info[summoner];
+			
+			/* if breather can go through walls then more likely to make a wall */
+			if ((summoner) && ((sr_ptr->flags2 & (RF2_PASS_WALL)) || (sr_ptr->flags2 & (RF2_KILL_WALL))))
+			{
+				dam = dam * 2;
+				hawall = TRUE;
+
+				/* max chance to create a wall 68% */
+				if (dam > 680) dam = 680;
+			}
+			else if (dam > 260) dam = 260; /* .. or 26% */
+			
+			if (cave_empty_bold(y, x))
+			{
+				if (rand_int(100) < dam/10)
+				{
+					if ((!hawall) && (randint(100) < 55))
+					{
+						cave_set_feat(y, x, FEAT_RUBBLE);
+					}
+					else cave_set_feat(y, x, FEAT_WALL_EXTRA);
 				}
 			}
 			break;
@@ -2341,6 +2423,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
+				/* don't let insignificant (squelched) objects get in the way */
+				sweep_floor(y, x, FALSE);
+
 				/* Require a "naked" floor grid */
 				if (!cave_naked_bold(y, x)) break;
 
@@ -2491,17 +2576,21 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Make traps */
 		case GF_MAKE_TRAP:
 		{
-			/* Require floor grid */
-			if (!(cave_feat[y][x] == FEAT_FLOOR)) break;
+			/* a trap can replace a pit */
+			if (!((cave_feat[y][x] == FEAT_FLOOR) || (cave_feat[y][x] == FEAT_OPEN_PIT)))
+				break;
+
+			/* don't let insignificant (squelched) objects get in the way */
+			sweep_floor(y, x, FALSE);
 
 			/* Require a "naked" floor grid (no more: now may create */
             /* traps on spaces with objects or monsters, but doesn't always) */
 			if ((!cave_naked_bold(y, x)) && (randint(100) < 22+goodluck)) break;
-			
 
 			/* Place a trap */
-			place_trap(y, x);
-
+			/* no longer requires space to be 'naked' */
+			/* place_trap() still has that requirement */
+			cave_set_feat(y, x, FEAT_INVIS);
 			break;
 		}
 
@@ -3144,6 +3233,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 		/* Poison */
 		case GF_POIS:
 		{
+			/* Statues and golems are unaffected */
+			if ((r_ptr->flags3 & (RF3_IM_POIS)) && 
+				((r_ptr->flags7 & (RF7_NONMONSTER)) || (strchr("g", r_ptr->d_char))))
+			{
+				dam = 0;
+				if (r_ptr->flags7 & (RF7_NONMONSTER)) break;
+				note = " is unaffected.";
+				break;
+			}
+             
             /* chance of sleep if called from Noxious Fumes spell */
             if ((randint(100) < 29) && (spellswitch == 22))
             {
@@ -3152,7 +3251,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 			       (r_ptr->flags3 & (RF3_IM_POIS)) ||
 			       (r_ptr->level > randint((dam - 9) < 1 ? 1 : (dam - 9)) + 10))
 			   {
-				   if (randint(999) == 1) dam-= 1; /* (skip) */
+				   if (randint(999) == 1) dam -= 1; /* (skip) */
 			   }
 			   else
 			   {
@@ -3296,6 +3395,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				dam = 0;
 				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 			}
+			else if (r_ptr->flags3 & (RF3_NON_LIVING))
+			{
+				note = " resists a lot.";
+				if (badluck > 1 + randint(4)) dam /= 2;
+				else if (goodluck > 2 + randint(4)) dam /= (2 + randint(2));
+				else dam /= (1 + randint(2));
+				if (seen) l_ptr->flags3 |= (RF3_NON_LIVING);
+			}
 			else if ((r_ptr->flags4 & (RF4_BR_NETH)) || (r_ptr->flags3 & (RF3_RES_NETH)))
 			{
 				note = " resists.";
@@ -3322,7 +3429,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 			break;
 		}
 
-		/* Water damage */
+		/* Water damage (or misc. stunning) */
 		case GF_WATER:
 		{
 			if (seen) obvious = TRUE;
@@ -3334,7 +3441,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				dam = do_stun + randint(dam / 4);
 				break;
 			}
-			/* spellswitch 9 is stunning for camera flash spell */
+			/* spellswitch 9 is stunning for camera flash and */
+			/* burst of light spells */
 			else if (spellswitch == 9)
             {
                do_stun = (dam+2 + randint(dam+5) + r) / (r + 1);
@@ -3409,7 +3517,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 			else if (r_ptr->flags3 & (RF3_NON_LIVING))
 			{
 				note = " doesn't notice.";
-				dam *= 5; dam /= (randint(4)+6);
+				dam *= 5; dam /= (randint(4)+5);
 			}
 			break;
 		}
@@ -4467,16 +4575,33 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 		case GF_AWAY_ALL:
 		{
 			/* NONMONSTERS are unaffected (cannot teleother a tree) */
+			/* (maybe ordinary trees should block beam spells like walls do) */
 			if (r_ptr->flags7 & (RF7_NONMONSTER)) { dam = 0; break; }
 
 			/* Obvious */
 			if (seen) obvious = TRUE;
-
+			
+#if notsureIwantthis
+			/* vaults give monsters slight chance to resist TO */
+			if (cave_info[y][x] & (CAVE_ICKY))
+			{
+				int resist = p_ptr->depth/10 + badluck; /* depth of vault */
+				if (r_ptr->flags3 & RF3_RES_NEXUS) resist += r_ptr->level/5 + 1;
+				if (randint(125) < resist)
+				{
+					if (r_ptr->flags3 & RF3_RES_NEXUS)
+						note = " resists the teleportation!";
+					else msg_print("The vault's magic blocks the teleportation!");
+					dam = 0;
+					break;
+				}
+			}
+#endif
 			/* those that resist nexus have a (small) chance to resist) */
 			if (r_ptr->flags3 & RF3_RES_NEXUS)
 			{
-				int resist = (r_ptr->level/4) + 4 + ((badluck+1)/2);
-				if (randint(100) < resist)
+				int resist = ((r_ptr->level+3)/5) + 4 + badluck;
+				if (rand_int(100) < resist)
 				{
 					note = " resists the teleportation!";
 					dam = 0;
@@ -5364,12 +5489,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 		case GF_ACID:
 		{
 			if (blind) msg_print("You are hit by acid!");
-			acid_dam(dam, killer);
 			/* acid does less damage in water */
 			if (cave_feat[y][x] == FEAT_WATER)
 			{
 				dam = (dam * 4) / 5;
 			}
+			acid_dam(dam, killer, r_ptr->level);
 			break;
 		}
 
@@ -5377,12 +5502,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 		case GF_FIRE:
 		{
 			if (blind) msg_print("You are hit by fire!");
-			fire_dam(dam, killer);
 			/* fire does less damage in water */
 			if (cave_feat[y][x] == FEAT_WATER)
 			{
 				dam = (dam * 3) / 4;
 			}
+			fire_dam(dam, killer, r_ptr->level);
 			break;
 		}
 
@@ -5395,7 +5520,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 			{
 				dam = (dam * 5) / 4;
 			}
-			cold_dam(dam, killer);
+			cold_dam(dam, killer, r_ptr->level);
 			break;
 		}
 
@@ -5408,7 +5533,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 			{
 				dam = (dam * 4) / 3;
 			}
-			elec_dam(dam, killer);
+			elec_dam(dam, killer, r_ptr->level);
 			break;
 		}
 
@@ -5862,7 +5987,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 				   else (void)inc_timed(TMD_BLIND, randint(3));
                 }
 			}
-			else if (p_ptr->resist_lite)
+			else if ((p_ptr->resist_lite) && (!p_ptr->timed[TMD_DARKSTEP]))
 			{
 				if (randint(50) < p_ptr->corrupt-2)
                 {
@@ -5876,6 +6001,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 				if (isstrongbreath) (void)inc_timed(TMD_BLIND, randint(5) + 3);
 				else (void)inc_timed(TMD_BLIND, randint(5) + 2);
 			}
+			/* DARKSTEP causes vulnerability */
+			if ((p_ptr->timed[TMD_DARKSTEP]) && (!blind))
+			{
+				msg_print("You cringe in the light.");
+				dam = (dam * 5) / 4;
+			}
+			
 			take_hit(dam, killer);
 			break;
 		}
@@ -5970,8 +6102,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 			/* feather fall gives partial resist */
 			if (p_ptr->ffall)
 			{
-				dam -= dam / 9;
-				if (rand_int(100) < 20) res_slow = TRUE;
+				dam -= dam / 9; /* maybe should reduce by a little more? */
+				if (rand_int(100) < 20 + goodluck) res_slow = TRUE;
 			}
 			if (p_ptr->timed[TMD_SUST_SPEED]) res_slow = TRUE;
 
@@ -6005,7 +6137,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int spread
 		case GF_ICE:
 		{
 			if (blind) msg_print("You are hit by something sharp!");
-			cold_dam(dam, killer);
+			cold_dam(dam, killer, r_ptr->level);
 			if (!p_ptr->resist_shard)
 			{
 				(void)inc_timed(TMD_CUT, damroll(5, 8));
@@ -6729,7 +6861,7 @@ bool get_nearby(int dy, int dx, int *toy, int *tox, int mode)
 
 	dis = 2;
 	if (mode == 3) dis = 19 + randint(1 + ((goodluck+1)/2));
-	if (mode == 4) dis = 4;
+	if (mode == 4) dis = 5 + rand_int(8);
 	if ((mode == 5) || (mode == 6)) dis = 3;
 
 	/* Initialize */

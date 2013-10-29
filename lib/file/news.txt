@@ -9,7 +9,7 @@
 				
 		          David A. Justiss (aka Will_Asher)
 			report bug reports on angband.oook.cz
-		     		   DJA v1.2.2b
+		     		   DJA v1.2.3
                 Based on Angband Version 3.0.9e (with Eddie Grove's patch)
 
    				    Website:

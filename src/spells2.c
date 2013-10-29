@@ -554,7 +554,7 @@ void self_knowledge(bool spoil)
 	}
 	if (p_ptr->timed[TMD_FRENZY])
 	{
-		if (p_ptr->timed[TMD_FRENZY] > 19) info[i++] = "You are in an extreme frenzy.";
+		if (p_ptr->timed[TMD_FRENZY] > 19) info[i++] = "You are in an extremely careless frenzy.";
 		else info[i++] = "You are in a mad careless frenzy.";
 	}	
 	if (p_ptr->timed[TMD_CUT])
@@ -1249,7 +1249,7 @@ void self_knowledge(bool spoil)
 		}
 		if (f1 & (TR1_SLAY_UNDEAD))
 		{
-			info[i++] = "Your weapon is especially deadly against undead.";
+			info[i++] = "Your weapon is especially effective against undead.";
 		}
 		if (f1 & (TR1_SLAY_DEMON))
 		{
@@ -1556,11 +1556,16 @@ void set_recall(s16b time)
  * "Reveal" distances used for detect hidden/invisible.
  * "Detectb" distaces used for weaker object detection spell.
  * Other detection spells use "Detect" distances.
+ *
+ * I think it'd be better to use the distance function 
+ * (usually with distance of 22 or 23).
  */
 #define DETECT_DIST_X	45	/* left & right (was 52) */
 #define DETECT_DIST_Y	22	/* top & bottom (was 23) */
-#define DETECTB_DIST_X	39	/* left & right (was 52) */
-#define DETECTB_DIST_Y	19	/* top & bottom (was 23) */
+#define DETECTB_DIST_X	39	/* left & right */
+#define DETECTB_DIST_Y	19	/* top & bottom */
+#define DETECTC_DIST_X	MAX_RANGE+1	/* left & right */
+#define DETECTC_DIST_Y	MAX_RANGE	/* top & bottom */
 #define REVEAL_DIST_X	32	/* left & right */
 #define REVEAL_DIST_Y	16	/* top & bottom */
 
@@ -1862,7 +1867,7 @@ bool detect_treasure(void)
 
 
 /*
- * Detect all "normal" objects on the current panel
+ * Detect objects on the current panel
  */
 bool detect_objects_normal(bool full)
 {
@@ -1983,13 +1988,11 @@ bool detect_objects_normal(bool full)
 
 
 /*
- * Detect all "magic" objects on the current panel.
+ * Detect all magic objects on the current panel.
  *
- * This will light up all spaces with "magic" items, including artifacts,
+ * This will light up all spaces with magic items, including artifacts,
  * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
- * and "enchanted" items of the "good" variety.
- *
- * It can probably be argued that this function is now too powerful.
+ * and enchanted items of the good variety.
  */
 bool detect_objects_magic(void)
 {
@@ -2037,7 +2040,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == cp_ptr->spell_book) ||
-		    ((o_ptr->to_a > 3) || (o_ptr->to_h + o_ptr->to_d > 4)))
+		    ((o_ptr->to_a > 3) || (o_ptr->to_h + o_ptr->to_d > 5)))
 		{
 			/* Memorize the item */
 			o_ptr->marked = TRUE;
@@ -2113,14 +2116,16 @@ bool detect_objects_magic(void)
  * detect stealthy monsters or WATER_HIDE monsters in water.
  * ..But then you might need a specific "detect stealthy monsters" spell.
  *
- * A better idea: we make this function take a bool full parameter,
- * if FALSE, it will not always detect hiding monsters and this will be
+ * A better idea: we make this function take a strong parameter,
+ * if <2, it will not always detect hiding monsters and this will be
  * explained in the spell description. Starting at a certain plev,
- * (early for full casters, later for other classes) full will always be TRUE.
+ * (early for full casters, later for other classes) full will always be 3.
  * Or using certain spells like True sight or the black-realm 'see all foes' spell,
- * full will always be TRUE.
+ * full will always be 3.
+ *
+ * changed strong from bool to int
  */
-bool detect_monsters_normal(bool strong)
+bool detect_monsters_normal(int strong)
 {
 	int i, y, x;
 	int x1, x2, y1, y2;
@@ -2132,6 +2137,14 @@ bool detect_monsters_normal(bool strong)
 	y2 = p_ptr->py + DETECT_DIST_Y;
 	x1 = p_ptr->px - DETECT_DIST_X;
 	x2 = p_ptr->px + DETECT_DIST_X;
+	
+	if (strong == 0)
+	{
+		y1 = p_ptr->py - DETECTC_DIST_Y;
+		y2 = p_ptr->py + DETECTC_DIST_Y;
+		x1 = p_ptr->px - DETECTC_DIST_X;
+		x2 = p_ptr->px + DETECTC_DIST_X;
+	}
 
 	if (y1 < 0) y1 = 0;
 	if (x1 < 0) x1 = 0;
@@ -2161,12 +2174,12 @@ bool detect_monsters_normal(bool strong)
 		if (r_ptr->flags7 & (RF7_NONMONSTER)) continue;
 		
 		/* (Usually) don't detect disguised monsters */
-		if ((m_ptr->disguised) && (!strong) &&
+		if ((m_ptr->disguised) && (strong < 2) &&
 			(rand_int(100) > goodluck/2 + 1)) continue;
 
 		/* stealthy monsters don't always get detected */
         if ((!m_ptr->ml) && (m_ptr->monseen < 2) && (m_ptr->cdis > 4) &&
-			(r_ptr->stealth > 1) && (!strong))
+			(r_ptr->stealth > 1) && (strong < 2))
 		{
             if (!alertness_check(m_ptr, 1, FALSE)) continue;
 		}
@@ -2668,6 +2681,8 @@ bool detect_monsters_animal(void)
 bool detect_all(bool strong)
 {
 	bool detect = FALSE;
+	int dmstrong = 1;
+	if (strong) dmstrong = 2;
 
 	/* Detect everything */
 	if (detect_traps()) detect = TRUE;
@@ -2676,7 +2691,7 @@ bool detect_all(bool strong)
 	if (detect_treasure()) detect = TRUE;
 	if (detect_objects_normal(strong)) detect = TRUE;
 	if (detect_monsters_invis()) detect = TRUE;
-	if (detect_monsters_normal(strong)) detect = TRUE;
+	if (detect_monsters_normal(dmstrong)) detect = TRUE;
 
 	/* Result */
 	return (detect);
@@ -4126,7 +4141,7 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_FOOD:
 		case TV_BOW:
 		{
-			if (mild) return (40); /* was 50 */
+			if (mild) return (35); /* was 50 */
 			else return (91);
 		}
 		/* Usually breaks */
@@ -4135,7 +4150,7 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_ARROW:
         case TV_SKELETON:
 		{
-			if (mild) return (20); /* was 25 */
+			if (mild) return (16); /* was 25 */
 			else return (75);
 		}
 		/* often break */
@@ -4235,7 +4250,7 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 	int i, t, y, x, yy, xx, dy, dx, edist;
 	int damage = 0;
 	
-	int sn = 0, sy = 0, sx = 0;
+	int sn = 0, sy = 0, sx = 0, tsn = 0;
 
 	bool hurt = FALSE;
 
@@ -4378,6 +4393,17 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 				break;
 			}
 		}
+		
+		/* EXPLODE is meant to be a high damage monster spell */
+		if (allowcrush == 4)
+		{
+			tsn = sn;
+            /* use caster race */
+			monster_race *sr_ptr = &r_info[summoner];
+			/* can't always dodge earthquake spell even if there's a space */
+			if (rand_int(12 + sr_ptr->level/2 + badluck/2) > (adj_dex_dis[p_ptr->stat_ind[A_DEX]] + sn)*2)
+				sn = 0;
+        }
 
 		/* Hurt the player a lot */
 		/* but not if spell is cast by the player */
@@ -4400,10 +4426,10 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 			int factor = 10;
             /* Message and damage */
 			msg_print("You are badly crushed!");
-			if ((p_ptr->depth > 70) && (rand_int(15) < (badluck+1) * 2)) 
-				factor += (p_ptr->depth-65) / 5;
-			else if (p_ptr->depth > 90) factor = 12;
-			else if (p_ptr->depth > 100) factor = 15;
+			if ((p_ptr->depth > 65) && (rand_int(15) < (badluck+1) * 2)) 
+				factor += (p_ptr->depth-60) / 5;
+			else if (p_ptr->depth > 90) factor = 13;
+			else if (p_ptr->depth > 100) factor = 16;
 			damage = damroll(factor, 5);
 		}
 
@@ -4412,7 +4438,7 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 		{
 			int howhard = randint(2) + 1;
 			int blastthis = 14;
-			if (allowcrush == 4) blastthis *= 2;
+			if (allowcrush == 4) blastthis = 16;
 			/* reflex save */
 			if (rand_int(blastthis + badluck/2) < adj_dex_dis[p_ptr->stat_ind[A_DEX]])
 				howhard = 1;
@@ -4424,21 +4450,24 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 				{
 					/* now determined by DEX */
                     msg_print("You nimbly dodge the blast!");
-					damage = 0;
+					if (allowcrush == 4) damage = damroll(4, 4);
+					else damage = 0;
 					hurt = FALSE;
 					break;
 				}
 				case 2:
 				{
 					msg_print("You are bashed by rubble!");
-					damage = damroll(8, 4);
+					if (allowcrush == 4) damage = damroll(10, 4);
+					else damage = damroll(8, 4);
 					(void)inc_timed(TMD_STUN, randint(40));
 					break;
 				}
 				case 3:
 				{
 					msg_print("You are crushed between the floor and ceiling!");
-					damage = damroll(10, 4);
+					if (allowcrush == 4) damage = damroll(12, 4);
+					else damage = damroll(10, 4);
 					(void)inc_timed(TMD_STUN, randint(40) + 10);
 					break;
 				}
@@ -4447,6 +4476,9 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 			/* Move player */
 			if (sn) monster_swap(py, px, sy, sx);
 		}
+		
+		/* failed to dodge worst of the blast even when there was a space */
+		if (tsn) monster_swap(py, px, sy, sx);
 
         /* extra damage reduction from surrounding magic */
 		if (cp_ptr->flags & CF_POWER_SHIELD)
@@ -4487,7 +4519,6 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 			/* Skip unaffected grids */
 			if (!map[16+yy-cy][16+xx-cx])
 			{
-/* #if thiscrashes */
 				/* some fragile objects get destroyed even in unaffected grids */
 				for (this_o_idx = cave_o_idx[yy][xx]; this_o_idx; this_o_idx = next_o_idx)
 				{
@@ -4533,8 +4564,9 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 
 						delete_object_idx(this_o_idx);
 					}
+					/* you shouldn't automatically tell whether an object survived destruction */
+					else o_ptr->marked = FALSE;
 				}
-/* #endif */
 				continue;
 			}
 
@@ -4546,6 +4578,11 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 			{
 				int feat = FEAT_FLOOR;
 				bool floor = cave_floor_bold(yy, xx);
+
+				/* Wall (or floor) type */
+				t = rand_int(105);
+				if (!floor) t += 95;
+				/* t = (floor ? rand_int(105) : 200); */
 
 				/* Delete most objects, but leave some durable ones buried */
 				/* delete_object(yy, xx); */
@@ -4571,18 +4608,14 @@ void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowx
 						delete_object_idx(this_o_idx);
 					}
 					/* if it isn't destroyed then it's buried (and hidden) */
-					else
+					/* t == 100-104 makes a pit which wouldn't hide an object */
+					else if ((t < 100) || (t > 104))
 					{
 						o_ptr->hidden = 1;
 						o_ptr->marked = FALSE;
 						lite_spot(yy, xx);
 					}
 				}
-
-				/* Wall (or floor) type */
-				t = rand_int(105);
-				if (!floor) t += 95;
-				/* t = (floor ? rand_int(105) : 200); */
 
 				/* Granite */
 				if (t < 30)
@@ -5152,7 +5185,7 @@ bool lite_area(int dam, int rad)
 
 /*
  * Hack -- call darkness around the player
- * Affect all monsters in the projection radius
+ * Affect all monsters in the projection radius (never returns false)
  */
 bool unlite_area(int dam, int rad, bool strong)
 {
@@ -5348,10 +5381,14 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
  * Some of the old functions
  */
 
-bool lite_line(int dir)
+bool lite_line(int dir, int weak)
 {
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL | PROJECT_THRU;
-	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), flg));
+	int dam, die = rand_int(10);
+	if (die < weak/2) dam = damroll(4, 8);
+	else if (die < weak) dam = damroll(5, 8);
+	else dam = damroll(6, 8);
+    int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL | PROJECT_THRU;
+	return (project_hook(GF_LITE_WEAK, dir, dam, flg));
 }
 
 bool strong_lite_line(int dir)
@@ -5535,9 +5572,7 @@ bool sleep_monsters_touch(int power)
 bool curse_armor(void)
 {
 	object_type *o_ptr;
-
 	char o_name[80];
-
 	int die = randint(101);
 
 	/* Curse the body armor (DJA: added chance to affect other armor) */
@@ -5557,7 +5592,7 @@ bool curse_armor(void)
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw for artifacts */
-	if (artifact_p(o_ptr) && (rand_int(100) < 45 + goodluck))
+	if (artifact_p(o_ptr) && (rand_int(100) < 48 + goodluck - badluck/2))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -5571,7 +5606,7 @@ bool curse_armor(void)
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
 		/* Blast the armor (no more removing egos or destroying artifacts) */
-		o_ptr->to_a -= randint(5) + randint(5);
+		o_ptr->to_a -= (randint(5) + randint(5));
 		if ((die > 45) || (o_ptr->to_h > 0))
 		{
            o_ptr->to_h -= 1 + randint(1 + badluck/6);
@@ -5609,7 +5644,6 @@ bool curse_armor(void)
 bool curse_weapon(int badness)
 {
 	object_type *o_ptr;
-
 	char o_name[80];
 
 
@@ -5630,7 +5664,7 @@ bool curse_weapon(int badness)
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw */
-	if (artifact_p(o_ptr) && (rand_int(100) < 50 + goodluck/2))
+	if (artifact_p(o_ptr) && (rand_int(100) < 50 + goodluck/2 - badluck/2))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -5658,8 +5692,8 @@ bool curse_weapon(int badness)
 		   o_ptr->name2 = EGO_MORGUL;
 		   o_ptr->to_h -= randint(8) + 1;
 		   o_ptr->to_d -= randint(8) + 1;
-		   o_ptr->to_a = 0;
-		   o_ptr->ac = 0;
+		   if (o_ptr->to_a > 0) o_ptr->to_a = 0;
+		   if (o_ptr->ac > 0) o_ptr->ac = 0;
         }
         /* range weapon with bad luck from adjust curse spell only */
         else if (badness == 5)
@@ -5679,7 +5713,7 @@ bool curse_weapon(int badness)
 		   if ((o_ptr->to_a > 0) && (badness > 1))
            {
               o_ptr->to_a -= randint(2);
-		      if (o_ptr->to_a < 0) o_ptr->to_a = 0;
+		      /* if (o_ptr->to_a < 0) o_ptr->to_a = 0; */
            }
 		   if ((o_ptr->ac > 0) && (badness > 2))
            {
@@ -6136,6 +6170,7 @@ void ring_of_power(int dir)
 		{
 			if (randint(50) < goodluck)
 			{
+               /* lowers luck but prevents worse effects */
                msg_print("You feel you are out of luck.");
                p_ptr->luck -= randint(p_ptr->luck - 4) + 5;
 			   (void)dec_stat(A_CHR, 2, TRUE);

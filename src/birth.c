@@ -214,9 +214,7 @@ static int adjust_stat(int value, int amount, int auto_roll)
 static void get_stats(bool autoroller)
 {
 	int i, j;
-
 	int bonus, humanstat;
-
 	int dice[18];
 
 
@@ -547,11 +545,14 @@ static void player_wipe(bool really_wipe)
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
-		/* Hack -- Reset the counter */
-		r_ptr->cur_num = 0;
+		/* Hack -- Reset the counters */
+		r_ptr->cur_num = 0; /* this level */
+#ifdef newrst
+		r_ptr->curpop = 0;  /* this game */
+#endif
 
 		/* Hack -- Reset the max counter */
-		r_ptr->max_num = 100;
+		r_ptr->max_num = 100; /* per level */
 
 		/* Hack -- Reset the max counter */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;

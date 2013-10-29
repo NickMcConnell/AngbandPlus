@@ -1,8 +1,40 @@
 
 
 Thanks to:
-Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch, Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or just plays DaJAngband.
+Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch among other things, Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or just plays DaJAngband.
 ------------------------------------------------------------------------------------------
+
+version 1.2.3 fixed the following bugs:
+  fixed bug: grenades lose their enchantment on save/load
+  fixed bug: +attacks in quiver applies to melee also (ego of dancing)
+  fixed bug: shrooms of pricy luckfinding aren't as pricy as I meant them to be...
+  fixed bug: display of recharge times for artifacts is sometimes messed up (reported by buzzkill)
+
+Other changes since 1.2.2:
+  BR_WALL now has a chance to create walls (more likely if breather can pass/break walls)
+  chest drops improved.  Also, sometimes nests have a silver or gold chest placed inside.
+  traps gets harder to disarm with dungeon level, also there's a new trap type for >dl40
+  tourists get some XP for picking up gold, they also get a charisma-based stealth bonus (which is negative with low CHA)
+  weak pseudo is removed
+  scroll/staff of darkness has better effect for black magic users
+  shortened some rod & DSM recharge times
+  resists can protect against inventory damage vs low level monsters (single resist protects against monsters < dL11, double resist protects against monsters < dL18)
+  water slows you down a little (same for most monsters)
+  cheat_hear allows you to see a monster's current speed relative to average speed for its race as well as its current hp.
+  teleport/phase can land you inside a vault if you are already inside a vault.
+  CLAIRVOYANCE now detects objects only in normal detection range, and detects monsters within 20 spaces (uses MAX_RANGE). There is now also a weaker version of the clairvoyance activation for the dagger of Pippin.
+  monsters which throw boulders climb over/move rubble much easier now
+  cause critical wounds monster spell now can cause cuts (as well as cause mortal wounds)
+  most summoning spells summon a reduced number of monsters, summon ape spell may summon more than one now, and the single S_MONSTER spell has a small chance to summon up to three if you have bad luck.
+  most cure wounds potions/spells have a maximum heal amount as well as a minimum (40/60/90 for the potions).  Only the prayer-realm cure spells greater than cure serious don't have a maximum.
+  pit traps often (but not always) turn into open pits when disarmed
+  rearranged assassin spells a little, adding Step Into Darkness: +1 stealth, darkvision, reduces light radius to 1, and makes you vulnerable to light.
+  potions of monster detection now detect all monsters within 23 spaces for ~9-14 turns (shorter if you have very bad luck).
+  SMART monsters always learn & react to your resists as if AI_LEARN was on.
+  NON_LIVING monsters resist nether
+  other things which have been tweaked include: stuff that affects level feelings, scoring system, some spells, monsters vs jammed doors (jamming doors is more effective now).
+
+-------------------------------------------------------------------------
 
 version 1.2.2 fixes the following bugs:
   (everburning) torches & lanterns don't give off light
@@ -41,7 +73,8 @@ version 1.2.1 fixes the following bugs:
   sleep monster wakes up sleeping monsters that resist
   also, that bug that a bunch of effects put monsters to sleep should be fixed now.
 
-Changelist for DaJAngband 1.2.0
+
+-- Changelist for DaJAngband 1.2.0 --
 
 	Information / Interface Stuff:
   each artifact has its own rating (like ego types already did)

@@ -1690,7 +1690,7 @@ void do_cmd_debug(void)
 		/* Magic Mapping */
 		case 'm':
 		{
-			map_area();
+			map_area(FALSE);
 			break;
 		}
 
@@ -1756,7 +1756,7 @@ void do_cmd_debug(void)
 		/* Wizard Light the Level */
 		case 'w':
 		{
-			wiz_lite();
+			wiz_lite(TRUE);
 			break;
 		}
 

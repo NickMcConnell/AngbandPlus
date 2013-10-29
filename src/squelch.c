@@ -687,27 +687,23 @@ bool squelch_item_ok(const object_type *o_ptr)
 		case SQUELCH_BORING:
 		{
 			if ((feel == INSCRIP_BROKEN) ||
-			    (((fullid) || (cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) &&
-			     ((feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
-			      (feel == INSCRIP_AVERAGE))))
+			     (feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
+			      (feel == INSCRIP_AVERAGE))
 			{
 				return TRUE;
 			}
-
 			break;
 		}
 
 		case SQUELCH_NONEGO:
 		{
 			if ((feel == INSCRIP_BROKEN) ||
-			    (((fullid) || (cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) &&
-			     ((feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
+			     (feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
 			      (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD) ||
-                  (feel == INSCRIP_DECENT))))
+                  (feel == INSCRIP_DECENT))
 			{
 				return TRUE;
 			}
-
 			break;
 		}
 
@@ -722,7 +718,6 @@ bool squelch_item_ok(const object_type *o_ptr)
 			{
 				return TRUE;
 			}
-
 			break;
 		}
 #else
@@ -735,7 +730,6 @@ bool squelch_item_ok(const object_type *o_ptr)
 			{
 				return TRUE;
 			}
-
 			break;
 		}
 #endif
@@ -749,8 +743,7 @@ bool squelch_item_ok(const object_type *o_ptr)
 			    /* EFGchange treat UNCURSED same as CURSED for squelch purposes */
 			    (feel == INSCRIP_UNCURSED) ||
 #endif
-			    ((feel == INSCRIP_GOOD) &&
-			     ((fullid) || (cp_ptr->flags & CF_PSEUDO_ID_HEAVY))))
+			    (feel == INSCRIP_GOOD))
 			{
 				return TRUE;
 			}

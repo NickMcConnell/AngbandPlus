@@ -635,7 +635,8 @@ static cptr a_info_act[ACT_MAX] =
 	"CHARM_ANIMAL",
 	"TUNNELDIG",
 	"SUN_HERO",
-	"HOLY_FIRE"
+	"HOLY_FIRE",
+	"WCLAIRVOYANCE"
 };
 
 
@@ -651,10 +652,10 @@ static cptr c_info_flags[] =
 	"ZERO_FAIL",
 	"BEAM",
 	"CHOOSE_SPELLS",
-	"PSEUDO_ID_HEAVY",
-	"PSEUDO_ID_IMPROV",
+	"XXX8",
+	"XXX9",
 	"HEAVY_BONUS",
-	"HULK_CONF",
+	"ALTERNATE_XP",
 	"CLASS_SPEED",
 	"ASSASSIN",
 	"POWER_SHIELD",
@@ -2313,6 +2314,92 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->d_char = d_char;
 	}
 
+#ifdef newrst
+	/* Process 'I' for "Info" (one line only) */
+	else if (buf[0] == 'I')
+	{
+		int spd, hp1, hp2, ac, mrsize, maxpop;
+
+		/* There better be a current r_ptr */
+		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the other values */
+		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
+			            &spd, &hp1, &hp2, &ac, &mrsize, &maxpop)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		r_ptr->speed = spd;
+		r_ptr->hdice = hp1;
+		r_ptr->hside = hp2;
+		r_ptr->ac = ac;
+		r_ptr->mrsize = mrsize;
+		r_ptr->maxpop = maxpop;
+	}
+
+	/* Process 'V' for "Vision/alertness stats" (one line only) */
+	else if (buf[0] == 'V')
+	{
+		int aaf, slp, spr;
+
+		/* There better be a current r_ptr */
+		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the other values */
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+			            &aaf, &slp, &spr)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		r_ptr->aaf = aaf;
+		r_ptr->sleep = slp;
+		r_ptr->spr = spr;
+	}
+
+	/* Process 'R' for "monster resistances" */
+	else if (buf[0] == 'R')
+	{
+		int Rfire, Rcold, Relec, Racid, Rpois, Rlite, Rdark, Rwat, Rnex, Rmis;
+
+		/* There better be a current r_ptr */
+		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the other values */
+		if (10 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+			&Rfire, &Rcold, &Relec, &Racid, &Rpois, &Rlite, &Rdark, &Rwat, &Rnex, &Rmis)) 
+			return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		r_ptr->Rfire = Rfire;
+		r_ptr->Rcold = Rcold; 
+		r_ptr->Relec = Relec; 
+		r_ptr->Racid = Racid;
+		r_ptr->Rpois = Rpois;
+		r_ptr->Rlite = Rlite;
+		r_ptr->Rdark = Rdark;
+		r_ptr->Rwater = Rwat;
+		r_ptr->Rnexus = Rnex;
+		r_ptr->Rmissile = Rmis;
+	}
+
+	/* Process 'X' for more monster resistances */
+	else if (buf[0] == 'X')
+	{
+		int Rchao, Rdisen, Rsilv, Rtame;
+
+		/* There better be a current r_ptr */
+		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the other values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &Rchao, &Rdisen, &Rsilv, &Rtame)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		r_ptr->Rchaos = Rchao;
+		r_ptr->Rdisen = Rdisen;
+		r_ptr->Rsilver = Rsilv;
+		r_ptr->Rtaming = Rtame;
+	}
+
+#else
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
@@ -2333,6 +2420,7 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
 	}
+#endif
 
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
@@ -2968,7 +3056,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_mhp = mhp;
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
-		pc_ptr->sense_div = 40;
+		/* pc_ptr->sense_div = 40; */
 		pc_ptr->calert = unused;
 	}
 

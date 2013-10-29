@@ -1202,12 +1202,13 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (!o_ptr->pval) break;
 
 			/* Give credit for stat bonuses */
+			/* CHR used to be the same as the others */
 			if (f1 & (TR1_STR)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_INT)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_CON)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 50L);
 
 			/* Give credit for stealth */
 			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
@@ -1242,7 +1243,8 @@ static s32b object_value_real(const object_type *o_ptr)
             if (o_ptr->tval == TV_STAFF)
 			{
 			   /* Factor in the bonuses */
-			   value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 75L);
+			   value += ((o_ptr->to_d) * 85L);
+			   value += ((o_ptr->to_h + o_ptr->to_a) * 65L);
 
 			   /* Hack -- Factor in extra damage dice */
 			   if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
@@ -1265,7 +1267,9 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (o_ptr->to_d < 0) return (0L);
 
 			/* Give credit for bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			/* value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L); */
+			value += ((o_ptr->to_d) * 100L);
+			value += ((o_ptr->to_h + o_ptr->to_a) * 75L);
 
 			/* Done */
 			break;
@@ -1283,13 +1287,13 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_DRAG_ARMOR:
 		{
 			/* Give credit for hit bonus */
-			value += ((o_ptr->to_h - k_ptr->to_h) * 100L);
+			value += ((o_ptr->to_h - k_ptr->to_h) * 90L);
 
 			/* Give credit for damage bonus */
 			value += ((o_ptr->to_d - k_ptr->to_d) * 100L);
 
 			/* Give credit for armor bonus */
-			value += (o_ptr->to_a * 100L);
+			value += (o_ptr->to_a * 90L);
 
 			/* Done */
 			break;
@@ -1307,7 +1311,10 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
 
 			/* Factor in the bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 90L);
+			/* value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 90L); */
+			value += (o_ptr->to_d * 95L);
+			value += (o_ptr->to_h * 70L);
+			value += (o_ptr->to_a * 75L);
 
 			/* Hack -- Factor in extra damage dice */
 			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
@@ -1447,28 +1454,18 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			break;
 		}
 
-		/* Wands and Staffs */
+		/* Rods and wands*/
 		case TV_WAND:
-		{
-#ifdef EFG
-			/* EFGchange merge unided wands and staves */
-#else
-			/* Require either knowledge or known empty for both wands/staves */
-			if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
-				!object_known_p(o_ptr)) ||
-				(!(j_ptr->ident & (IDENT_EMPTY)) &&
-				!object_known_p(j_ptr))) return(0);
-#endif
-
-			/* Assume okay */
-			break;
-		}
-
-		/* Rods */
 		case TV_ROD:
 		{
 			/* Assume okay */
 			break;
+		}
+
+		case TV_FLASK:
+		{
+			if (o_ptr->sval == 0) break; /* oil always stacks */
+			/* otherwise fall through */
 		}
 
 		/* Weapons and Armor */
@@ -1492,21 +1489,11 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Fall through */
 		}
 
-		case TV_FLASK:
-		{
-			if (o_ptr->sval == 0) break; /* oil always stacks */
-			/* otherwies fall through */
-		}
-
 		/* Rings, Amulets, Lites */
 		case TV_RING:
 		case TV_AMULET:
 		case TV_LITE:
 		{
-#if old
-			/* Require both items to be known */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
-#endif
 			/* Fall through */
 		}
 
@@ -1515,11 +1502,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_ARROW:
 		case TV_SHOT:
 		{
-#if old
-			/* Require identical knowledge of both items */
-			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
-#endif
-
 			/* Require identical "bonuses" */
 			if (o_ptr->to_h != j_ptr->to_h) return (FALSE);
 			if (o_ptr->to_d != j_ptr->to_d) return (FALSE);
@@ -1616,16 +1598,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		/* Never combine different inscriptions */
 		if (o_ptr->note && j_ptr->note) return (0);
 	}
-
-
-#ifdef EFG
-	/* EFGchange stack identical objects even when not identified */
-	/* Removed code prevents merging a "tried" item with untried item. */
-#else
-	/* Different pseudo-ID statuses preclude combination */
-	if (o_ptr->pseudo != j_ptr->pseudo)
-		return (0);
-#endif
 
 
 	/* Maximal "stacking" limit */
@@ -3279,7 +3251,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		case TV_AMULET:
 		{
 			/* ego jewelry less common (was 70 instead of 63) */
-			if (((power > 1) || (power < -1)) && (randint(100) < 63))
+			if (((power > 1) || (power < -1)) && (randint(100) < 62))
 			{
 				int ego_power;
 
@@ -3333,6 +3305,18 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 			break;
 		}
 	}
+	
+#if ifthis
+	/* chance for indestructible ego books */
+	if ((o_ptr->tval >= TV_MAGIC_BOOK) && (o_ptr->tval < TV_GOLD))
+	{
+		/* ego books less common */
+		if (((power > 1) || (power < -1)) && (randint(100) < 65))
+		{
+			make_ego_item(o_ptr, (bool)(good || great));
+		}
+	}
+#endif
 
 	/* Hack -- analyze ego-items */
 	if (o_ptr->name2)
@@ -3621,7 +3605,11 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 			/* how about this: */
 	        /* update flags to get random power flag (hopefully..) */
             object_flags(o_ptr, &f1, &f2, &f3, &f4);
-			if ((!o_ptr->pval) && (f3 & TR3_THROWMULT)) o_ptr->pval = 1 + randint(2);
+			if ((!o_ptr->pval) && (f3 & TR3_THROWMULT) && (!(o_ptr->tval == TV_STAFF)))
+			{
+				if (randint(100) < 20 + goodluck) o_ptr->pval = 1 + randint(3);
+				else o_ptr->pval = 1 + randint(2);
+			}
 			
 			/* Magic Mastery (now uses pval so make sure it has one) */
 			if (e_ptr->flags1 & (TR1_MAGIC_MASTERY))
@@ -3665,7 +3653,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		}
 
 #ifdef new_random_stuff
-		/* copied from randart.c */
+		/* copied from randart.c: give the psuedo-randart a name */
 		if (is_ego_randart(o_ptr))
 		{
 			char buf[40];
@@ -3682,7 +3670,6 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 			strnfmt(o_ptr->randego_name, sizeof(o_ptr->randego_name), buf);
 		}
-#else
 #endif
 
 		/* Hack -- apply rating bonus */
@@ -3917,13 +3904,13 @@ static void do_rating(object_type *j_ptr)
 				case SV_RING_LIGHTNING:
 				case SV_RING_ACID:
 				{
-					rboost = 5;
+					rboost = 6;
 					break;
 				}
 				case SV_RING_FLAMES:
 				case SV_RING_ICE:
 				{
-					rboost = 3;
+					rboost = 4;
 					break;
 				}
 				case SV_RING_STR:
@@ -3939,19 +3926,23 @@ static void do_rating(object_type *j_ptr)
 		{
 			switch (j_ptr->sval)
 			{
+				case SV_AMULET_SUSTENANCE:
+				{
+					rboost = 5;
+					break;
+				}
 				case SV_AMULET_THE_MAGI:
 				case SV_AMULET_ESP:
-				case SV_AMULET_SUSTENANCE:
 				case SV_AMULET_DEVOTION:
 				{
-					rboost = 7;
+					rboost = 8;
                     if (j_ptr->pval > 1) rboost += j_ptr->pval-1;
 					break;
 				}
 				case SV_AMULET_WEAPONMASTERY:
 				case SV_AMULET_TRICKERY:
 				{
-					rboost = 14 + j_ptr->pval;
+					rboost = 15 + j_ptr->pval;
 					break;
 				}
 			}
@@ -3965,7 +3956,8 @@ static void do_rating(object_type *j_ptr)
 				case SV_ROD_TELEPORT_AWAY:
 				case SV_ROD_SPEED:
 				{
-					rboost = 2;
+					if (p_ptr->depth < nlev) rboost = 3;
+					else rboost = 2;
 					break;
 				}
 			}
@@ -4059,7 +4051,7 @@ static void do_rating(object_type *j_ptr)
 				}
 				case SV_WYVERN_STING:
 				{
-					rboost = 10;
+					rboost = 9;
 					break;
 				}
 			}
@@ -4136,9 +4128,9 @@ static void do_rating(object_type *j_ptr)
 					rboost = 37;
 					break;
 				}
-				default: /* (the lesser DSMs) */
+				default: /* (the lesser DSMs, was 8) */
 				{
-					rboost = 8;
+					rboost = 9;
 					break;
 				}
 			}
@@ -4301,14 +4293,14 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
 	    (k_info[j_ptr->k_idx].level > p_ptr->depth))
 	{
-        /* Rating increase */
+        /* Rating increase (was /3) */
 		/* rating += (k_info[j_ptr->k_idx].level - p_ptr->depth); */
-        rating += (k_info[j_ptr->k_idx].level - p_ptr->depth + 1)/3;
+        rating += (k_info[j_ptr->k_idx].level - p_ptr->depth + 1)/2;
 
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
 	}
-	
+
 	/* let the base object affect the rating */
 	/* artifacts have their ratings separate */
 	if (!artifact_p(j_ptr)) do_rating(j_ptr);
@@ -5042,12 +5034,16 @@ void place_closed_door(int y, int x)
 /*
  * Place a random type of door at the given location.
  */
-void place_random_door(int y, int x)
+void place_random_door(int y, int x, bool mtvault)
 {
 	int tmp;
 
 	/* Choose an object */
 	tmp = rand_int(1000);
+	
+	/* in empty vaults, doors are much less likely to be left open */
+	/* and there's a separate symbol for secret doors so bias against secret doors. */
+	if (mtvault) tmp = rand_int(620) + 260;
 
 	/* Open doors (300/1000) */
 	if (tmp < 300)
@@ -5063,19 +5059,55 @@ void place_random_door(int y, int x)
 		cave_set_feat(y, x, FEAT_BROKEN);
 	}
 
-	/* Secret doors (200/1000) */
-	else if (tmp < 600)
-	{
-		/* Create secret door */
-		cave_set_feat(y, x, FEAT_SECRET);
-	}
-
 	/* Closed, locked, or stuck doors (400/1000) */
-	else
+	else if (tmp < 800)
 	{
 		/* Create closed door */
 		place_closed_door(y, x);
 	}
+
+	/* Secret doors (200/1000) */
+	else
+	{
+		/* Create secret door */
+		cave_set_feat(y, x, FEAT_SECRET);
+	}
+}
+
+/*
+ * sweep the floor (delete all squelched items in a space)
+ */
+bool sweep_floor(int y, int x, bool killall)
+{
+	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
+	
+	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		int gold_type;
+
+		/* Get the object and the next */
+		o_ptr = &o_list[this_o_idx];
+		next_o_idx = o_ptr->next_o_idx;
+
+		if ((squelch_item_ok(o_ptr)) || (killall))
+		{
+			/* Delete the object */
+			delete_object_idx(this_o_idx);
+		}
+		else if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK) &&
+			(squelch_hide_item(o_ptr)))
+		{
+			/* Delete the object */
+			delete_object_idx(this_o_idx);
+		}
+		
+		continue;
+	}
+	
+	/* true if no objects left in the space */
+	if (cave_o_idx[y][x] == 0) return TRUE;
+	return FALSE;
 }
 
 
@@ -6460,8 +6492,22 @@ int reorder_quiver(int slot)
 bool is_throwing_weapon(const object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
-
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	/* certain classes may put damaging potions in the quiver */
+	if (cp_ptr->flags & CF_THROW_POTIONS)
+	{
+		if (((o_ptr->tval == TV_POTION) || (o_ptr->tval == TV_FLASK)) && 
+			((f3 & (TR3_THROWN)) || (f3 & (TR3_PTHROW))))
+			return TRUE;
+	}
+	/* certain classes may put damaging mushrooms (and hard biscuits) in the quiver */
+	if (cp_ptr->flags & CF_THROW_SHROOMS)
+	{
+		if ((o_ptr->tval == TV_FOOD) && 
+			((f3 & (TR3_THROWN)) || (f3 & (TR3_PTHROW))))
+			return TRUE;
+	}
 	
 	/* grenades may go in the quiver */
 	if ((o_ptr->tval == TV_FLASK) && (f3 & (TR3_THROWN))) /* okay */;

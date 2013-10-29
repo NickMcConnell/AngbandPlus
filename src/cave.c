@@ -3486,11 +3486,11 @@ void update_flow(void)
  * We must never attempt to map the outer dungeon walls, or we
  * might induce illegal cave grid references.
  */
-void map_area(void)
+void map_area(bool full)
 {
 	int i, x, y, y1, y2, x1, x2;
 
-    if (spellswitch == 1)
+    if (full)
     {
 		/* map the whole level (without light & detection) */
 		y1 = Term->offset_y - 1000;
@@ -3590,68 +3590,72 @@ void map_area(void)
  * since this would prevent the use of "view_torch_grids" as a method to
  * keep track of what grids have been observed directly.
  */
-void wiz_lite(void)
+void wiz_lite(bool wizard)
 {
 	int i, y, x;
 
-
-	/* Memorize objects */
-	for (i = 1; i < o_max; i++)
+	/* object detection separated, not for whole dungeon */
+	/* unless debugging or using !STAR_ENLIGHTENMENT */
+	if (wizard)
 	{
-		object_type *o_ptr = &o_list[i];
-		int oy, ox;
-		/* object location */
-		oy = o_ptr->iy;
-		ox = o_ptr->ix;
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* never show objects buried in granite, quartz, or magma */
-		if ((o_ptr->hidden) && ((cave_feat[oy][ox] == FEAT_RUBBLE) || (cave_feat[oy][ox] == FEAT_FLOOR)))
+		/* Memorize objects */
+		for (i = 1; i < o_max; i++)
 		{
-			/* always rubble unhide objects if cheating */
-			if (cheat_peek) o_ptr->hidden = 0;
+			object_type *o_ptr = &o_list[i];
+			int oy, ox;
+			/* object location */
+			oy = o_ptr->iy;
+			ox = o_ptr->ix;
 
-			/* normally unhide rubble objects only if in LOS */
-			else if (player_can_see_bold(oy, ox)) o_ptr->hidden = 0;
-			
-			/* chance to unhide other rubble objects with luck */
-			else if (randint(100) < 20 + goodluck - badluck) o_ptr->hidden = 0;
-		}
+			/* Skip dead objects */
+			if (!o_ptr->k_idx) continue;
 
-		/* Memorize */
-		if (!o_ptr->hidden) o_ptr->marked = TRUE;
-	}
-	
-	/* Check for mimmics */
-	for (i = 1; i < mon_max; i++)
-	{
-		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			/* Skip held objects */
+			if (o_ptr->held_m_idx) continue;
 
-		/* Paranoia -- skip "dead" monsters */
-		if (!m_ptr->r_idx) continue;
-		
-		/* monster is temporarily dead */
-		if (m_ptr->temp_death) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* detect mimmics as objects */
-        if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised > 1))
-		{
-			if (strchr("!,-_~=?", r_ptr->d_char))
+			/* never show objects buried in granite, quartz, or magma */
+			if ((o_ptr->hidden) && ((cave_feat[oy][ox] == FEAT_RUBBLE) || (cave_feat[oy][ox] == FEAT_FLOOR)))
 			{
-				/* mark as detected as object */
-				m_ptr->meet = 100;
-				/* Redraw */
-				lite_spot(y, x);
+				/* always unhide rubble objects if cheating */
+				if (cheat_peek) o_ptr->hidden = 0;
+
+				/* normally unhide rubble objects only if in LOS */
+				else if (player_can_see_bold(oy, ox)) o_ptr->hidden = 0;
+			
+				/* chance to unhide other rubble objects with luck */
+				else if (randint(100) < 20 + goodluck - badluck) o_ptr->hidden = 0;
+			}
+
+			/* Memorize */
+			if (!o_ptr->hidden) o_ptr->marked = TRUE;
+		}
+	
+		/* Check for mimmics */
+		for (i = 1; i < mon_max; i++)
+		{
+			monster_type *m_ptr = &mon_list[i];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Paranoia -- skip "dead" monsters */
+			if (!m_ptr->r_idx) continue;
+		
+			/* monster is temporarily dead */
+			if (m_ptr->temp_death) continue;
+
+			/* Location */
+			y = m_ptr->fy;
+			x = m_ptr->fx;
+
+			/* detect mimmics as objects */
+    	    if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (m_ptr->disguised > 1))
+			{
+				if (strchr("!,-_~=?", r_ptr->d_char))
+				{
+					/* mark as detected as object */
+					m_ptr->meet = 100;
+					/* Redraw */
+					lite_spot(y, x);
+				}
 			}
 		}
 	}

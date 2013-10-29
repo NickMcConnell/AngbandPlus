@@ -13,7 +13,6 @@
 #include "cmds.h"
 #include "script.h"
 
-#ifdef EFG
 /* EFGchange allow pseudo on jewelry */
 typedef byte Bool;
 static Bool excellent_jewelry_p(const object_type *o_ptr)
@@ -59,7 +58,8 @@ static Bool excellent_jewelry_p(const object_type *o_ptr)
 	}
 	return (FALSE);
 }
-#endif
+
+
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
@@ -82,7 +82,7 @@ int value_check_aux1(const object_type *o_ptr)
 	
 		/* new: definition of 'good' changes with experience */
 		/* (it auto-IDs everything which pseudos as 'average' or 'decent' */
-		/* so this should make ID less tedious later in the game) */
+		/* so this should make ID slightly less tedious later in the game) */
 		good += (p_ptr->lev - 10) / psskill;
 	}
     
@@ -96,14 +96,12 @@ int value_check_aux1(const object_type *o_ptr)
 		return (INSCRIP_SPECIAL);
 	}
 
-#ifdef EFG
 	/* EFGchange new pseudo level SPLENDID */
 	/* now that all standarts are splendid, should there even be INSCRIP_SPECIAL? */
 	if (object_splendid_p(o_ptr))
 		return (INSCRIP_SPLENDID);
 	/* EFGchange pseudo jewelry */
 	if (excellent_jewelry_p(o_ptr)) return (INSCRIP_EXCELLENT);
-#endif
 
 	/* ammo of wounding with low bonuses */
 	if (good > 8) wgood = 7;
@@ -154,52 +152,15 @@ int value_check_aux1(const object_type *o_ptr)
 
 
 /*
- * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
- */
-static int value_check_aux2(const object_type *o_ptr)
-{
-	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
-
-	/* Broken items (all of them) */
-	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
-
-#ifdef EFG
-	/* EFGchange new pseudo level SPLENDID */
-	if (object_splendid_p(o_ptr)) return (INSCRIP_SPLENDID);
-	if (excellent_jewelry_p(o_ptr)) return (INSCRIP_GOOD);
-#endif
-	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr)) return (INSCRIP_GOOD);
-
-	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return (INSCRIP_GOOD);
-
-	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d >= 3) return (INSCRIP_GOOD);
-
-	/* Good armor bonus */
-	if (o_ptr->to_a >= 3) return (INSCRIP_GOOD);
-
-	/* No feeling */
-	return (0);
-}
-
-
-
-/*
  * Sense the inventory
  */
 void sense_inventory(void)
 {
 	int i, plevb;
-#ifdef EFG
 	bool sensedany;
 	int phase;
-#endif
 
 	int plev = p_ptr->lev;
-	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
 	int feel;
 
 	object_type *o_ptr;
@@ -213,20 +174,11 @@ void sense_inventory(void)
 	if (p_ptr->timed[TMD_CONFUSED]) return;
 
     /* plevb makes it a little faster (esp in the early game) */
-    if (cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
-	{
-		if (plev + 3 < 6) plevb = 6;
-		else plevb = plev + 3;
-		if (0 != rand_int(cp_ptr->sense_base / (plev * plevb + cp_ptr->sense_div)))
-			return;
-	}
-	else
-	{
-		if (plev / 2 < 4) plevb = 4;
-		else plevb = plev / 2;
-        if (0 != rand_int(cp_ptr->sense_base / (plev * plevb + cp_ptr->sense_div)))
-			return;
-	}
+	if (plev + 3 < 6) plevb = 6;
+	else plevb = plev + 3;
+	/* variable sense_div has been removed (now always 40) */
+	if (0 != rand_int(cp_ptr->sense_base / (plev * plevb + 40)))
+		return;
 
 
 	/*** Sense everything ***/
@@ -276,7 +228,7 @@ void sense_inventory(void)
 			}
 			case TV_FLASK:
 			{
-				/* oil is sval 0 */
+				/* oil is sval 0, grenades are also TV_FLASK */
                 if (o_ptr->sval > 0) okay = TRUE;
 				break;
 			}
@@ -312,30 +264,18 @@ void sense_inventory(void)
 		/* Occasional failure on inventory items */
 		else if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 
-		/* Indestructible objects are either excellent or terrible */
-		if (o_ptr->pseudo == INSCRIP_INDESTRUCTIBLE)
-			heavy = TRUE;
-
-#ifdef EFG
-		/* EFGchange know non-pseudoed wielded items average when anything pseudos */
-		/* The second pass with phase=1 we know everything non-avg */
-		/* has pseudoed, and the player should know anything else  */
-		/* currently wielded is avg, if anything pseudoed at all.  */
-		if (phase && sensedany)
-			heavy = TRUE;
-#endif
 		/* Check for a feeling */
-		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+		feel = value_check_aux1(o_ptr);
 
 		/* Skip non-feelings */
 		if (!feel) continue;
 
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
-#ifdef EFG
+
 		/* EFGchange know non-pseudoed wielded items average when anything pseudos */
 		sensedany = TRUE;
-#endif
+
 
 		/* Get an object description */
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -345,13 +285,9 @@ void sense_inventory(void)
 
 		if (i >= INVEN_WIELD)
 		{
-#ifdef EFG
 			/* EFGchange know non-pseudoed wielded items average when anything pseudos */
 			msg_format("You %s the %s (%c) you are %s %s %s...",
 				phase ? "realize" : "feel",
-#else
-			msg_format("You feel the %s (%c) you are %s %s %s...",
-#endif
 			           o_name, index_to_label(i), describe_use(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
 			           inscrip_text[feel - INSCRIP_NULL]);
@@ -413,7 +349,6 @@ bool sense_one(object_type *o_ptr)
 {
 	int i = 0;
 	int plevb, plev = p_ptr->lev;
-	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
 	int feel;
 	bool okay = FALSE;
 
@@ -471,7 +406,7 @@ bool sense_one(object_type *o_ptr)
 	if (o_ptr->weight != k_ptr->weight) /* okay */;
 
 	/* Check for a feeling */
-	feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+	feel = value_check_aux1(o_ptr);
 
 	/* Skip non-feelings */
 	if (!feel) return FALSE;
@@ -680,7 +615,7 @@ static void return_monsters(void)
 			}
 			/* Monster comes back to life */
 			if (m_ptr->maxhp > 1000) m_ptr->hp = m_ptr->maxhp - (m_ptr->ninelives*10);
-			else m_ptr->hp = m_ptr->maxhp - m_ptr->ninelives;
+			else m_ptr->hp = m_ptr->maxhp - (m_ptr->ninelives-1)*2;
 			if (m_ptr->hp < 2) m_ptr->hp = 2;
 			m_ptr->temp_death = 0;
 			
@@ -1312,9 +1247,7 @@ void decrease_timeouts(void)
  */
 static void process_world(void)
 {
-	int i;
-	int corch;
-
+	int i, corch;
 	int regen_amount;
 
 	object_type *o_ptr;
@@ -1359,7 +1292,7 @@ static void process_world(void)
 				{
 					do_cmd_feeling();
 					if (rand_int(100) < 16 + (badluck*6))
-						(void)alloc_monster(MAX_SIGHT + 1, FALSE);
+						(void)alloc_monster(MAX_SIGHT, FALSE);
 				}
 			}
 
@@ -1420,7 +1353,7 @@ static void process_world(void)
 	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+		(void)alloc_monster(MAX_SIGHT + 5 - ((badluck+1)/2), FALSE);
 	}
 
 	/* Hack -- Check for creature ressurrection */
@@ -1560,7 +1493,7 @@ static void process_world(void)
           {
              msg_print("A Nazgul has sought you out.");
           }
-          else summon_specific(p_ptr->py, p_ptr->px, p_ptr->max_depth/2, SUMMON_DEMON);
+          else summon_specific(p_ptr->py, p_ptr->px, (p_ptr->max_depth*2)/3, SUMMON_DEMON);
        }
        else
        {
@@ -1623,14 +1556,18 @@ static void process_world(void)
        if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2));
        else (void)inc_timed(TMD_CONFUSED, 2 + randint(4));      
        if (randint(100) < 60) (void)inc_timed(TMD_STUN, 1 + badweap);
-    }
-    if (((magicmod == 1) || (magicmod == 3)) && (randint(1200) == 1))
-    {
+	}
+	if (((magicmod == 1) || (magicmod == 3)) && (randint(1200) == 1))
+	{
        msg_print("Some of your equipped items are in conflict with each other.");
        if (p_ptr->resist_confu) (void)inc_timed(TMD_CONFUSED, 1 + randint(2 + (badluck/5)));
        else (void)inc_timed(TMD_CONFUSED, 2 + randint(3 + (badluck/3)));
        if (randint(100) < 60) (void)inc_timed(TMD_STUN, 1 + goodweap);
-    }
+	}
+    
+	/* a nice effect of peacemaking equipment */
+	if ((p_ptr->peace) && (randint(10000) < (goodluck+1) * 2))
+		inc_timed(TMD_SPHERE_CHARM, randint(10 + goodluck) + 15);
 
 	/* may start to drown if paralyzed or stunned in water */
 	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
@@ -1654,7 +1591,8 @@ static void process_world(void)
 			(randint(100) < 5 + p_ptr->timed[TMD_STUN]/5)))
 		{
 			int drown;
-			if (p_ptr->mhp > 100) drown = damroll(2, 20);
+			if (p_ptr->mhp > 200) drown = damroll(2, p_ptr->mhp/10);
+			else if (p_ptr->mhp > 100) drown = damroll(2, 20);
 			else if (p_ptr->mhp < 10) drown = damroll(2, 2);
 			else drown = damroll(2, p_ptr->mhp/5);
 			/* make sure the player knows he can die by drowning */
@@ -1676,6 +1614,13 @@ static void process_world(void)
 			else msg_print("You drown in the water!");
 			take_hit(drown, "drowning");
 		}
+	}
+
+	/* DARKSTEP makes you vulnerable to light */
+    if ((p_ptr->timed[TMD_DARKSTEP]) && (p_ptr->timed[TMD_DAYLIGHT]))
+	{
+		/* Take damage (do not disturb unless below HP warning mark) */
+		take_hit_reallynow(1, "daylight", FALSE);
 	}
     
 	/* Take damage from poison */
@@ -1808,7 +1753,7 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_STUN]) regen_amount /= 4;
 	else if (p_ptr->timed[TMD_PARALYZED]) regen_amount /= 3;
 	else if (p_ptr->timed[TMD_BECOME_LICH]) regen_amount /= 2;
-	else if (p_ptr->timed[TMD_CURSE]) regen_amount = (regen_amount * 2) / 3 + 1;
+	else if (p_ptr->timed[TMD_CURSE]) regen_amount = ((regen_amount * 2) + 1) / 3;
 	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
 	if (p_ptr->stopregen) regen_amount = 0;

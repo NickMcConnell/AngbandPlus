@@ -138,6 +138,9 @@ static bool wearable_p(const object_type *o_ptr)
 			return (TRUE);
 		}
 	}
+	
+	/* grenades are weapons too */
+	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -393,6 +396,7 @@ static errr rd_item(object_type *o_ptr)
 		o_ptr->pval = k_ptr->pval * o_ptr->number;
 	}
 
+#if noneed
 	if (older_than(3, 0, 4))
 	{
 		/* Recalculate charges of stacked wands and staves */
@@ -424,7 +428,7 @@ static errr rd_item(object_type *o_ptr)
 		/* All done */
 		return (0);
 	}
-
+#endif
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -630,8 +634,13 @@ static void rd_lore(int r_idx)
 	rd_u32b(&l_ptr->flags6);
 
 
-	/* Read the "Racial" monster limit per level */
+	/* Read the racial monster limit per level */
 	rd_byte(&r_ptr->max_num);
+
+#ifdef newrst
+	/* Race population so far this game */
+	rd_byte(&r_ptr->curpop);
+#endif
 
 	/* Later (?) */
 	rd_byte(&tmp8u);

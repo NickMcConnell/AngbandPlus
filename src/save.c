@@ -277,6 +277,11 @@ static void wr_lore(int r_idx)
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
 
+#ifdef newrst
+	/* Race population so far this game */
+	wr_byte(r_ptr->curpop);
+#endif
+
 	/* Later (?) */
 	wr_byte(0);
 	wr_byte(0);

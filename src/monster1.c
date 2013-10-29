@@ -954,8 +954,8 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	    else if (stl == 4) text_out(format("%^s is very stealthy", wd_he[msex]));
 	    else if (stl == 5) text_out(format("%^s is extremely stealthy", wd_he[msex]));
 	    else if (stl > 5) text_out(format("%^s is extremely stealthy!  ", wd_he[msex]));
-	    else if (stl == 0) text_out(format("%^s is not at all stealthy", wd_he[msex]));
-    	else text_out(format("%^s is not very stealthy", wd_he[msex]));
+	    else if (stl < 1) text_out(format("%^s is not at all stealthy", wd_he[msex]));
+    	else /* stl == 1 */ text_out(format("%^s is not very stealthy", wd_he[msex]));
 
 		if (r_ptr->stealth <= 5)
 		{
@@ -1392,10 +1392,18 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	/* considered cheating (or testing) should use cheat_hear. */
     if ((cheat_hear) && (m_ptr))
 	{
-		text_out(format("This monster has %d hps out of %d max hit points.  ", m_ptr->hp, m_ptr->maxhp));
+		int rmspeed;
+        text_out(format("This monster has %d hps out of %d max hit points.  ", m_ptr->hp, m_ptr->maxhp));
 		/* know evil or not by cheating */
 		if ((m_ptr->evil) && (!knowevil)) knowevil = 6;
 		else if ((!m_ptr->evil) && (!knowevil) && (evilflag)) knowevil = 7;
+		
+		rmspeed = m_ptr->mspeed - r_ptr->speed;
+		if (rmspeed > 0)
+			text_out(format("This monster is %d point faster than average for its race.  ", rmspeed));
+		else if (rmspeed < 0)
+			text_out(format("This monster is %d point slower than average for its race.  ", ABS(rmspeed)));
+		else text_out("This monster is average speed for its race.  ");
 	}
 
     /* most of this description is irrevelent for NONMONSTERs */

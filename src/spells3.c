@@ -1134,7 +1134,7 @@ void spell_wonder(int dir)
 		                  damroll(3 + ((plev - 1) / 5), 4));
 	else if (die < 41) confuse_monster(dir, (plev + 2 + adj_chr_charm[p_ptr->stat_ind[A_CHR]]));
 	else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
-	else if (die < 51) lite_line(dir);
+	else if (die < 51) lite_line(dir, 10-(plev/5));
 	else if (die < 56)
 		fire_beam(GF_ELEC, dir, damroll(3+((plev-5)/6), 6));
 	else if (die < 61)
@@ -1326,7 +1326,7 @@ void spell_affect_self(void)
     else if (die > 85) (void)inc_timed(TMD_BRAIL, randint(die * 2) + (25));
     else if (die > 75) (void)inc_timed(TMD_SINVIS, randint(die * 2) + (25));
     else if (die > 65) (void)inc_timed(TMD_SINFRA, randint(die * 2) + (25));
-    else if ((die > 55) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_monsters_normal(FALSE);
+    else if ((die > 55) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_monsters_normal(1);
     else if ((die > 50) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_monsters_invis();
     else if ((die > 45) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_traps();
     else if ((die > 42) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_doorstairs(TRUE);
@@ -1776,8 +1776,9 @@ void spell_affect_other(int dir)
        if (randint(100) < 75 + goodluck/2) (void)unlite_area(4, (plev / (4 + randint(5))) + 1, TRUE);
 	   else (void)unlite_area(4, (plev / (4 + randint(5))) + 1, FALSE);
     }
-    if ((die < 80) && (randint(100) < 20)) map_area();
-    if (die > 100) wiz_lite();
+    if ((die < 80) && (randint(100) < 20)) map_area(FALSE);
+    if (die > 108) wiz_lite(TRUE);
+    else if (die > 100) wiz_lite(FALSE);
     
     /* other effects (may add more later if I think of them) */
     die = randint(99) + randint(plev/5);
@@ -1845,7 +1846,7 @@ void do_call_help(int r_idx)
 
 
 /*
- * For the monster spells: HEAL_OTHR and HEAL_KIN
+ * For the monster spells: HEAL_OTHR and HEAL_KIN (kinonly)
  * (simulation of monster-cast project_los using GF_OLD_HEAL)
  * (doesn't actually use project() at all)
  *
@@ -1863,7 +1864,6 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 	char n_name[80];
 	char n_poss[80];
 	monster_type *n_ptr;
-	monster_race *r_ptr;
 
 	int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 
@@ -1871,7 +1871,9 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 	bool onlygood = FALSE;
 
 	/* what race is the caster? */
-	r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    cptr rname = (r_name + r_ptr->name);
+
 	ally = r_ptr->d_char;
 	if (r_ptr->flags3 & (RF3_TROLL)) kinkind = 1;
 	if (strchr("pKt", r_ptr->d_char)) kinkind = 2; /* all humans */
@@ -1881,7 +1883,9 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 		kinkind = 4; /* creatures of light */
 	}
 	/* hack: paladins and templar knights don't heal evil monsters */
-	if ((m_ptr->r_idx == 619) || (m_ptr->r_idx == 319) || (m_ptr->r_idx == 561)) onlygood = TRUE;
+	if ((strstr(rname, "paladin")) || (strstr(rname, "templar"))) onlygood = TRUE;
+	/* special case: Humbaba heals all animals */
+	if (strstr(rname, "Humbaba")) kinkind = 5;
 
 	/* location of caster */
 	cy = m_ptr->fy;
@@ -1955,12 +1959,16 @@ bool heal_monsters(int healmon, monster_type *m_ptr, bool kinonly)
 			if (r_ptr->flags3 & (RF3_HURT_DARK)) kinkindt = 4;
 			/* light fairies also heal non-evil animals with HEAL_KIN */
 			if ((!n_ptr->evil) && (r_ptr->flags3 & (RF3_ANIMAL))) kinkindt = 4;
+			/* centaurs also considered kin with light fairies */
+			if ((!n_ptr->evil) && (strchr("Y", r_ptr->d_char))) kinkindt = 4;
 			if (kinkind == kinkindt) iskin = TRUE;
 			if (r_ptr->flags3 & (RF3_TROLL)) kinkindt = 1;
 			if (strchr("pKt", r_ptr->d_char)) kinkindt = 2; /* all humans */
 			if (strchr("oO", r_ptr->d_char)) kinkindt = 3; /* orcs and ogres considered kin */
 			/* is the target monster kin? */
 			if (kinkind == kinkindt) iskin = TRUE;
+			/* Humbaba heals all animals */
+			if ((r_ptr->flags3 & (RF3_ANIMAL)) && (kinkind == 5)) iskin = TRUE;
 			/* same symbol is always kin */
 			if (r_ptr->d_char == ally) iskin = TRUE;
 			if (!iskin) continue;

@@ -1966,6 +1966,9 @@ static void calc_torch(void)
 	if (p_ptr->timed[TMD_DAYLIGHT]) new_lite = MIN(new_lite, 6);
 	else new_lite = MIN(new_lite, 5);
 	new_lite = MAX(new_lite, 0);
+	
+	/* DARKSTEP sets light range to 1 */
+	if (p_ptr->timed[TMD_DARKSTEP]) new_lite = 1;
 
 	/* Notice changes in the "lite radius" */
 	if (old_lite != new_lite)
@@ -2322,6 +2325,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 		/* weapon in shield shot should not add blows */
 		if ((i == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) /* */;
+		/* dancing (thrown) weapons don't add blows to melee */
+		else if (IS_QUIVER_SLOT(i)) /* */;
 		/* Affect blows */
 		else if (f1 & (TR1_BLOWS)) p_ptr->extra_blows += o_ptr->pval;
 
@@ -2661,9 +2666,20 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
        if (p_ptr->skills[SKILL_STL] > 1) p_ptr->skills[SKILL_STL] *= 2;
        else p_ptr->skills[SKILL_STL] = 3;
-	   p_ptr->to_a += 2;
-	   p_ptr->dis_to_a += 2;
+	   p_ptr->to_a += 4;
+	   p_ptr->dis_to_a += 4;
 	   p_ptr->skills[SKILL_FOS] += 4;
+	}
+
+	/* earlier assassin spell less powerful than slip into the shadows */
+	/* (sets light range to 1 and makes you vulnerable to light) */
+	if (p_ptr->timed[TMD_DARKSTEP])
+	{
+       if (p_ptr->skills[SKILL_STL] >= 0) p_ptr->skills[SKILL_STL] += 1;
+       else p_ptr->skills[SKILL_STL] = 1;
+	   p_ptr->to_a += 1;
+	   p_ptr->dis_to_a += 1;
+	   p_ptr->darkvis = TRUE;
 	}
 
 	/* being held by a monster makes it hard to do a lot of things */
@@ -2793,7 +2809,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	    p_ptr->accident = TRUE;
 	    p_ptr->skills[SKILL_FOS] -= extreme;
         p_ptr->skills[SKILL_SAV] -= (extreme * 3) / 5;
-        if (p_ptr->skills[SKILL_STL] > 0) p_ptr->skills[SKILL_STL] -= extreme/5;
+        if (p_ptr->skills[SKILL_STL] >= 0) p_ptr->skills[SKILL_STL] -= extreme/3;
     }
 
 	/* Temporary "fast" */
@@ -2814,6 +2830,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
         if (!p_ptr->timed[TMD_SUST_SPEED]) p_ptr->pspeed -= 5;
 		p_ptr->to_a += 30;
 		p_ptr->dis_to_a += 30;
+	}
+
+	/* water slows you down */
+	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
+	{
+		p_ptr->pspeed -= 2;
 	}
 
     /* Temporary "desperate to escape" (cannot melee, shoot, or cast) */
@@ -2837,9 +2859,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (p_ptr->timed[TMD_SINVIS])
 	{
 		p_ptr->see_inv = TRUE;
-
-		/* this part for 'see all foes' spell: (should be separate) */
-		if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->lev > 32)) p_ptr->skills[SKILL_FOS] += 16;
 	}
 
 	/* Timed "True Sight" */
@@ -3002,7 +3021,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	
     /* Peace reduces number of blows by 1, makes criticals less likely */
     /* and prevents heroism, berserker, and frenzy */
-    if ((p_ptr->peace) && (!killmess))
+    if (p_ptr->peace)
     {
 	   (void)clear_timed(TMD_HERO);
 	   (void)clear_timed(TMD_SHERO);
@@ -3014,7 +3033,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
        p_ptr->to_h -= 2;
        if ((p_ptr->skills[SKILL_STL] < 1) && (goodluck > 6)) p_ptr->skills[SKILL_STL] = 1;
        else if (p_ptr->skills[SKILL_STL] < 0) p_ptr->skills[SKILL_STL] = 0;
-       if (randint(10000) < goodluck * 2) inc_timed(TMD_SPHERE_CHARM, randint(10 + goodluck) + 15);
     }
 
 	/*** Special flags ***/
@@ -3089,7 +3107,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
        if (randint(100) < 50) p_ptr->to_h -= randint(badluck / 4);
        if (randint(100) < 80) p_ptr->skills[SKILL_THT] += goodluck / 3;
        if (randint(100) < 50) p_ptr->skills[SKILL_THT] -= badluck / 3;
-	   if ((goodluck > 10) && (randint(100) < 66))
+	   if ((goodluck > 10) && (randint(100) < 67))
        {
           p_ptr->skills[SKILL_DEV] += 1 + goodluck / 6;
        }
@@ -3203,6 +3221,24 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	p_ptr->skills[SKILL_STL] += 1;
 	/* quieter when you are searching and moving slowly */
 	if (p_ptr->searching) p_ptr->skills[SKILL_STL] += 1;
+	/* Tourist's stealth by charisma (base class stealth 0) */
+	if (cp_ptr->flags & CF_ALTERNATE_XP)
+	{
+		/* > 18/129 CHR */
+		if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] > 47) p_ptr->skills[SKILL_STL] += 3; 
+		/* > 18/69 CHR */
+		else if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] > 35) p_ptr->skills[SKILL_STL] += 2; 
+		/* > 17 CHR */
+		else if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] > 21) p_ptr->skills[SKILL_STL] += 1; 
+		/* < 10 CHR */
+		else if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] < 6) p_ptr->skills[SKILL_STL] -= 2; 
+		/* < 14 CHR */
+		else if (adj_chr_charm[p_ptr->stat_ind[A_CHR]] < 14) p_ptr->skills[SKILL_STL] -= 1; 
+	}
+
+	/* Affect Skill -- stealth (Level, by Class) */
+	p_ptr->skills[SKILL_STL] += (cp_ptr->x_stl * p_ptr->lev / 10);
+
 	/* stealth modified by AGGRAVATE flag(s) */
 	if (aggra)
 	{
@@ -3230,9 +3266,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/* Affect Skill -- saving throw (Level, by Class) */
 	p_ptr->skills[SKILL_SAV] += (cp_ptr->x_sav * p_ptr->lev / 10);
-
-	/* Affect Skill -- stealth (Level, by Class) */
-	p_ptr->skills[SKILL_STL] += (cp_ptr->x_stl * p_ptr->lev / 10);
 
 	/* Affect Skill -- search ability (Level, by Class) */
 	p_ptr->skills[SKILL_SRH] += (cp_ptr->x_srh * p_ptr->lev / 10);
@@ -3502,10 +3535,9 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
 		int str_index, dex_index;
 		bool staffbonus = FALSE;
-
 		int div;
 
-		/* Enforce a minimum "weight" (tenth pounds) */
+		/* Enforce a minimum weight (tenth pounds) */
 		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 
 		/* priest & druids get bonus with staffs (but are worse with icky double weapons) */
@@ -3552,6 +3584,20 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 		/* Use the blows table */
 		p_ptr->num_blow = blows_table[str_index][dex_index];
+		
+		/* very light weapons are very easy to get 2nd attack with */
+		if ((o_ptr->weight <= 30) && 
+			(dex_index >= 2) && (adj_str_blow[p_ptr->stat_ind[A_STR]] >= 15) &&
+            (!cp_ptr->flags & CF_HEAVY_BONUS) && (p_ptr->num_blow < 2))
+		{
+			p_ptr->num_blow = 2;
+		}
+		else if ((o_ptr->weight <= 40) && 
+			(dex_index >= 3) && (adj_str_blow[p_ptr->stat_ind[A_STR]] >= 17) &&
+            (!cp_ptr->flags & CF_HEAVY_BONUS) && (p_ptr->num_blow < 2))
+		{
+			p_ptr->num_blow = 2;
+		}
 
 		/* Maximal value (+1 when using a double weapon with no shield) */
 		if ((o_ptr->sbdd) && (!yshield))
@@ -3562,17 +3608,15 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		else if (p_ptr->num_blow > cp_ptr->max_attacks)
                  p_ptr->num_blow = cp_ptr->max_attacks;
 
-		/* Add in the "bonus blows" */
+		/* Add in the bonus blows */
 		p_ptr->num_blow += p_ptr->extra_blows;
 
         /* timed extra attack (from spell or mushroom only) */
 		if (p_ptr->timed[TMD_XATTACK])
-		{
 		   p_ptr->num_blow += 1;
-        }
 		
 		/* peace */
-        if (p_ptr->peace) p_ptr->num_blow -= 1;
+		if (p_ptr->peace) p_ptr->num_blow -= 1;
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
@@ -3610,16 +3654,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Barbarians like heavy weapons */
     if (cp_ptr->flags & CF_HEAVY_BONUS)
     {
-#if changed
-		/* Barbarians' damage bonus with heavy weapons was moved 
-		to cmd1.c where it belongs.  */
-		if (o_ptr->weight > 99)
-		{
-			int hbonus = ((o_ptr->weight - 100) / 50) + 1;
-			p_ptr->to_d += hbonus;
-			p_ptr->dis_to_d += hbonus;
-		}
-#endif
        if (o_ptr->weight < 51) /* not as good with light weapons */
        {
 	      p_ptr->skills[SKILL_THN] -= 3;

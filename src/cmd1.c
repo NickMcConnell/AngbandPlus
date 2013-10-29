@@ -174,7 +174,7 @@ int critical_norm(monster_type *m_ptr, int weight, int plus, int dam, int excrit
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 		
 		/* allow a saving throw */
-		if (randint(100 + goodluck) > 96-(r_ptr->level*3)/4) dstun = 0;
+		if (randint(102 - goodluck) > 96-(r_ptr->level*3)/4) dstun = 0;
 
         /* Get stunned */
 		if ((m_ptr->stunned) && (dstun))
@@ -925,6 +925,9 @@ void search(void)
 							lite_spot(y, x);
 						}
 					}
+				
+					/* no finding chest traps while blind */
+    	            if ((cantsee) || (p_ptr->timed[TMD_IMAGE])) continue;
 					
 					/* Skip non-chests */
 					if (o_ptr->tval != TV_CHEST) continue;
@@ -1093,6 +1096,14 @@ static void py_pickup_gold(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
+	
+	/* certain class(es) may get XP by picking up gold */
+	if ((cp_ptr->flags & CF_ALTERNATE_XP) && (total_gold > 40 + p_ptr->lev))
+	{
+		int tim = p_ptr->depth/15;
+		if (tim < 1) tim = 1;
+        gain_exp((total_gold / (40 + p_ptr->lev)) * tim);
 	}
 
 	/* Free the gold array */
@@ -1309,7 +1320,7 @@ static void py_pickup_aux(int o_idx, bool msg)
 
 		/* invert to make it higher the better */
 		if (pschance < 100) pschance = 101 - pschance;
-		else pschance = 0;
+		else pschance = 1;
 
 		/* factor how easy it is to recognise the item */
 		if (artifact_p(o_ptr)) pschance += 25;
@@ -1321,10 +1332,7 @@ static void py_pickup_aux(int o_idx, bool msg)
 		else if (ego_item_p(o_ptr)) pschance += 6;
 		
 		/* factor character level */
-		pschance = (pschance * p_ptr->lev) / 100;
-		
-		/* not having heavy pseudo is a handicap */
-        if (!(cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) pschance /= 2;
+		pschance = (pschance * p_ptr->lev) / 40;
 
 		/* roll for instant pseudo on pickup and maybe sense it */
         if (randint(100) < pschance) sense_one(o_ptr);
@@ -1699,7 +1707,7 @@ static bool check_hit(int power)
  */
 void hit_trap(int y, int x)
 {
-	int i, num, dam;
+	int i, num, dam, mdrain;
 
 	cptr name = "a trap";
 
@@ -1717,7 +1725,7 @@ void hit_trap(int y, int x)
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
-			if ((p_ptr->ffall) && (randint(100) < (goodluck+3) * 4))
+			if ((p_ptr->ffall) && (randint(100) < (goodluck+5) * 4))
 			{
                 msg_print("You almost fall through a trap door..");
 				msg_print("You catch hold of the edge of the trap door!");
@@ -1759,7 +1767,7 @@ void hit_trap(int y, int x)
 			{
 				msg_print("You trigger an earthquake trap!");
 				/* mode 4 damages the PC's square even if it's the centre square */
-                if (p_ptr->depth > 87) earthquake(p_ptr->py, p_ptr->px, 6, 75, 4, FALSE);
+                if (p_ptr->depth > 84-badluck) earthquake(p_ptr->py, p_ptr->px, 6, 75, 4, FALSE);
                 /* mode 1 reduces the maximum damage that a quake can cause */
                 /* (next to the PC so that it'll have a chance of hurting the PC) */
 				else earthquake(p_ptr->py, p_ptr->px+1, 6, 80, 1, FALSE);
@@ -1893,12 +1901,12 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x06:
 		{
 			msg_print("You are enveloped in flames!");
-            if (p_ptr->depth > 80) dam = damroll(4, 9);
+            if (p_ptr->depth > 79) dam = damroll(4, 9);
             else if (p_ptr->depth > 56) dam = damroll(4, 8);
             else if (p_ptr->depth > 28) dam = damroll(4, 7);
             else if (p_ptr->depth < 4) dam = damroll(4, 4);
 			else dam = damroll(4, 6);
-			fire_dam(dam, "a fire trap");
+			fire_dam(dam, "a fire trap", p_ptr->depth);
 			break;
 		}
 
@@ -1909,7 +1917,7 @@ void hit_trap(int y, int x)
             else if (p_ptr->depth > 58) dam = damroll(4, 8);
             else if (p_ptr->depth > 29) dam = damroll(4, 7);
 			else dam = damroll(4, 6);
-			acid_dam(dam, "an acid trap");
+			acid_dam(dam, "an acid trap", p_ptr->depth);
 			break;
 		}
 
@@ -1918,10 +1926,10 @@ void hit_trap(int y, int x)
 			if (check_hit(traphit))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, (4 + p_ptr->depth/20));
+				dam = damroll(1, (4 + p_ptr->depth/16));
 				take_hit(dam, name);
 				/* (bypasses free action so it stays effective) */
-				(void)inc_timed(TMD_SLOW, rand_int(20) + 20);
+				(void)inc_timed(TMD_SLOW, rand_int(15 + p_ptr->depth/5) + 19 + p_ptr->depth/10);
 			}
 			else
 			{
@@ -1935,7 +1943,7 @@ void hit_trap(int y, int x)
 			if (check_hit(traphit))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, (4 + p_ptr->depth/20));
+				dam = damroll(1, (4 + p_ptr->depth/16));
 				take_hit(dam, name);
 				(void)do_dec_stat(A_STR, 0);
 			}
@@ -1951,9 +1959,29 @@ void hit_trap(int y, int x)
 			if (check_hit(traphit))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, (4 + p_ptr->depth/20));
+				dam = damroll(1, (4 + p_ptr->depth/16));
 				take_hit(dam, name);
-				(void)do_dec_stat(A_DEX, 0);
+				/* mana drain trap */
+				if ((p_ptr->depth > 42) && (randint(100) < p_ptr->depth/2+18))
+				{
+					if (!(cp_ptr->flags & CF_ZERO_FAIL))
+						mdrain = randint(p_ptr->depth/4) + (p_ptr->depth+3)/4;
+					else mdrain = randint(p_ptr->depth/3) + (p_ptr->depth+2)/3;
+					msg_print("You feel your magic energy drain.");
+					if (mdrain >= p_ptr->csp)
+					{
+						p_ptr->csp = 0;
+						p_ptr->csp_frac = 0;
+					}
+					else p_ptr->csp -= mdrain;
+					/* Redraw mana */
+					p_ptr->redraw |= (PR_MANA);
+					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				}
+				else
+				{
+					(void)do_dec_stat(A_DEX, 0);
+				}
 			}
 			else
 			{
@@ -1967,7 +1995,7 @@ void hit_trap(int y, int x)
 			if (check_hit(traphit))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, (4 + p_ptr->depth/20));
+				dam = damroll(1, (4 + p_ptr->depth/16));
 				take_hit(dam, name);
 				(void)do_dec_stat(A_CON, 0);
 			}
@@ -2043,7 +2071,7 @@ void hit_trap(int y, int x)
 		{
             /* chance of hallucenation trap instead of paralysis */
 			/* (everyone has free action by dl50) */
-			if ((p_ptr->depth >= 55) && (randint(100) < p_ptr->depth/2+15))
+			if ((p_ptr->depth >= 55) && (randint(100) < p_ptr->depth/2+20))
 			{
                 msg_print("You are surrounded by a purple haze!");
                 if ((p_ptr->resist_chaos) || (p_ptr->timed[TMD_TSIGHT]) ||
@@ -2578,7 +2606,7 @@ void py_attack(int y, int x)
                {
                   int breakprot = 67;
 				  if (artifact_p(o_ptr)) breakprot -= a_info[o_ptr->name1].level;
-				  if ((p_ptr->timed[TMD_PROTEVIL]) && (randint(100) < breakprot))
+				  if ((p_ptr->timed[TMD_PROTEVIL]) && (f3 & TR3_BAD_WEAP) && (randint(100) < breakprot))
 				  {
 					  msg_format("Your own weapon tries to attacks you but is repelled!");
 				  }

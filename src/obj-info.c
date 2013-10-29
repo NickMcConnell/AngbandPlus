@@ -1433,9 +1433,6 @@ void describe_attack(const object_type *o_ptr)
 		/* factors not included */
 		if ((weapon) && (p_ptr->timed[TMD_BALROG]))
            text_out(". This does not figure in the 'spririt of the balrog' effect.");
-		/* HIT_ELEMENT no longer used */   
-		if ((weapon) && (p_ptr->timed[TMD_HIT_ELEMENT]))
-           text_out(". This does not figure in the 'elemental strike' effect.");
 		else text_out(".");
 	}
 

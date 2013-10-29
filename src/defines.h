@@ -48,7 +48,7 @@
  * Name of the version/variant and its version string
  */
 #define VERSION_NAME   "DaJAngband"
-#define VERSION_STRING "v1.2.2b"
+#define VERSION_STRING "v1.2.3"
 
 
 /*
@@ -499,7 +499,6 @@
 
 /*
  * Timed effects
- * TMD_HIT_ELEMENT is no longer used
  * TMD_MIND_CONTROL never did work (unused)
  */
 enum
@@ -513,12 +512,13 @@ enum
 	TMD_ADJUST, TMD_BRAIL, TMD_STONESKIN, TMD_TERROR, TMD_MESP,
     TMD_WOPP_POIS, TMD_OPP_NETHR, TMD_PROTDEAD, TMD_OPP_DARK, TMD_HOLDLIFE,
     TMD_BALROG, TMD_IMM_FIRE, TMD_BECOME_LICH, TMD_WSINFRA, TMD_WITCH,
-    TMD_XATTACK, TMD_SUST_SPEED, TMD_SPHERE_CHARM, TMD_HIT_ELEMENT,
+    TMD_XATTACK, TMD_SUST_SPEED, TMD_SPHERE_CHARM, TMD_MDETECTION,
     TMD_DARKVIS, TMD_SUPER_ROGUE, TMD_ZAPPING, TMD_2ND_THOUGHT,
-    TMD_BR_SHIELD, TMD_DAYLIGHT, TMD_CLEAR_MIND, TMD_CURSE, TMD_SKILLFUL,
-	TMD_MIGHTY_HURL, TMD_BEAR_HOLD, TMD_QUIVERGUARD, TMD_MINDLIGHT, TMD_OPP_SILV,
-	TMD_FALSE_LIFE, TMD_STINKY, TMD_DEMON_WARD, TMD_TMPBOOST, TMD_SNIPER,
-	TMD_MIND_CONTROL, TMD_ACID_BLOCK, /* TMD_THRoW_RETURN, */
+	TMD_BR_SHIELD, TMD_DAYLIGHT, TMD_CLEAR_MIND, TMD_CURSE, TMD_SKILLFUL,
+	TMD_MIGHTY_HURL, TMD_BEAR_HOLD, TMD_QUIVERGUARD, TMD_MINDLIGHT, 
+	TMD_OPP_SILV, TMD_FALSE_LIFE, TMD_STINKY, TMD_DEMON_WARD, TMD_TMPBOOST,
+	TMD_SNIPER, TMD_MIND_CONTROL, TMD_ACID_BLOCK, TMD_DARKSTEP, 
+	/* TMD_THRoW_RETURN, */
 
 	TMD_MAX
 };
@@ -591,6 +591,8 @@ enum
 #define SUMMON_WRAITH       31
 #define SUMMON_UNIQUE       32
 #define SUMMON_KIN          33
+
+#if removed
 /* The next few are for the normal S_MONSTER spell but so */
 /* certain monsters won't summon monsters that the summoning */
 /* monster hates. (like to prevent dryads summoning fire hounds) */
@@ -600,6 +602,7 @@ enum
 #define SUMMON_ANI_NOFIRE   43 /* S_ANIMAL with restrictions */
 #define SUMMON_ANI_NOWATER  44 /* S_ANIMAL with restrictions */
 #define SUMMON_ANI_NOLIGHT  45 /* S_ANIMAL with restrictions */
+#endif
 
 
 /*
@@ -1256,7 +1259,7 @@ enum
 #define SV_DRAGON_GREEN			5
 #define SV_DRAGON_MULTIHUED		6
 #define SV_DRAGON_SHINING		10 /* flashing yellow (remove or change) */
-#define SV_DRAGON_LAW			12 /* silver */
+#define SV_DRAGON_LAW			12 /* violet */
 #define SV_WYVERN_SCALE			13 /* no activation */
 #define SV_DRAGON_BRONZE		14
 #define SV_DRAGON_ETHEREAL		15
@@ -2061,6 +2064,7 @@ enum
 #define SM_RES_CHAOS	0x40000000
 #define SM_RES_DISEN	0x80000000
 /* #define SM_RES_CHARM                 /* what do I do with this? */
+/* stupid limited number of flags */
 
 
 /*
@@ -2309,10 +2313,10 @@ enum
 #define CF_ZERO_FAIL		0x00000010L /* Fail rates can reach 0% */
 #define CF_BEAM				0x00000020L /* Higher chance of spells beaming */
 #define CF_CHOOSE_SPELLS	0x00000040L	/* Allow choice of spells */
-#define CF_PSEUDO_ID_HEAVY	0x00000080L /* Allow heavy pseudo-id */
-#define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
+#define CF_THROW_SHROOMS    0x00000080L /* damaging shrooms can go in the quiver */
+#define CF_THROW_POTIONS    0x00000100L /* damaging potions can go in quiver  */
 #define CF_HEAVY_BONUS		0x00000200L /* Gives bonuses for heavy weapons */
-#define CF_XXX11		    0x00000400L /* no longer used */
+#define CF_ALTERNATE_XP		0x00000400L /* for the tourist class */
 #define CF_CLASS_SPEED		0x00000800L /* extra speed -also resists aggravation */
 #define CF_ASSASSIN			0x00001000L /* bonus against sleeping monsters & stealth */
 #define CF_POWER_SHIELD		0x00002000L /* war mage's defence & power bonus */
@@ -3614,8 +3618,9 @@ enum
 #define ACT_TUNNELDIG           52
 #define ACT_SUN_HERO            53
 #define ACT_HOLY_FIRE           54
+#define ACT_WCLAIRVOYANCE       55
 
-#define ACT_MAX                 55
+#define ACT_MAX                 56
 
 #ifdef EFG
 #define NUM_PVALS		10

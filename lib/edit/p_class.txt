@@ -87,7 +87,7 @@ E:23:18:1:1
 E:37:4:1:1
 #Class objects: potion of monster detection or ring of slaying
 O:75:45:45:30
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BRAVERY_30
+F:BRAVERY_30
 T:Rookie
 T:Fighter
 T:Swordsman
@@ -102,7 +102,7 @@ T:Hero
 #(done)
 N:1:Wizard
 S:-3:3:0:1:-1:1
-C:24:36:25:2:15:8:39:21:25
+C:24:36:25:2:15:8:39:22:25
 X:8:13:10:0:0:15:16:15:15
 I:1:30:90000:8
 A:4:5:3
@@ -115,7 +115,7 @@ E:70:11:1:2
 E:65:15:1:1
 #Class object: Potion of Enlightenment or Staff of the Magi
 O:75:56:55:19
-F:CUMBER_GLOVE | ZERO_FAIL | PSEUDO_ID_IMPROV | CHOOSE_SPELLS
+F:CUMBER_GLOVE | ZERO_FAIL | CHOOSE_SPELLS
 T:Novice Wizard
 T:Apprentice
 T:Magician
@@ -213,8 +213,7 @@ E:70:30:1:3
 E:75:40:1:1
 #Class objects: Potion of Restore Mana or Advanced Necromancy book
 O:75:40:95:4
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | ZERO_FAIL | BEAM
-F:CUMBER_GLOVE
+F:CHOOSE_SPELLS | ZERO_FAIL | BEAM | CUMBER_GLOVE
 T:Graverobber
 T:BoneCollector
 T:SkullVendor
@@ -270,7 +269,7 @@ B:41:33:15:65:35	#detect enchantment		33
 B:42:5:3:31:4	#boldness  (B6)			5
 B:43:20:21:65:11	#false life				20
 B:44:25:10:45:20	#resist poison			25
-B:45:15:9:43:10	#protection from the lifeless	15 (in B5)
+B:45:14:8:44:9	#protection from the lifeless	14 (in B5)
 B:46:23:13:65:23	#undead skin			23
 B:47:29:21:65:40	#unholy resistance		29
 B:48:32:25:74:44	#shadow barrier			32
@@ -315,7 +314,7 @@ E:23:12:1:1
 E:36:4:1:1
 #Class objects: Heavy crossbow or Quick Getaways book
 O:19:24:93:4
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | CUMBER_GLOVE
+F:CHOOSE_SPELLS | CUMBER_GLOVE
 T:Vagabond
 T:Petty Outlaw
 T:Footpad
@@ -417,7 +416,7 @@ E:19:12:1:1
 E:17:1:12:24
 #Class objects: Staff of detect evil or Elven Cloak
 O:55:15:35:5
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | CUMBER_GLOVE
+F:CHOOSE_SPELLS | CUMBER_GLOVE
 T:Hunter
 T:Strider
 T:Scout
@@ -431,7 +430,7 @@ T:Ranger Lord
 B:0:2:1:30:1	#detect animal			2
 B:1:5:2:35:1	#call light				5
 B:2:4:3:30:1	#slow poison			4
-B:3:4:3:40:1	#blink				4
+B:3:4:4:50:1	#blink				4 (was 3 mana /40%fail)
 B:4:10:10:45:2	#foraging				10
 B:5:9:5:32:2	#lightning spark			9
 B:6:12:11:60:4	#ray of light			12
@@ -516,7 +515,7 @@ E:70:37:1:1
 E:37:2:1:1
 #Class object: Potion of Healing (don't know what 2nd class object to give him)
 O:75:37:0:0
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+#F:
 T:Lightmaker
 T:Lightkeeper
 T:Warder
@@ -612,7 +611,7 @@ E:19:13:1:1
 E:17:1:15:30
 #Class objects: Missile Magic book or mithril arrows
 O:94:4:17:3
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | EXTRA_SHOT | CHOOSE_SPELLS
+F:EXTRA_SHOT | CHOOSE_SPELLS
 T:Hot Shot
 T:Flinger
 T:Shooter
@@ -714,7 +713,7 @@ E:75:36:1:1
 E:75:40:1:1
 #Class objects: amulet of alertness or staff of speed
 O:40:5:55:22
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BEAM
+F:BEAM
 T:Mixer
 T:Tester
 T:Experimenter
@@ -805,7 +804,7 @@ B:75:99:0:0:0	#quiver guard			/ (B9)
 
 N:8:Priest
 S:-2:-1:3:-1:1:2
-C:20:28:31:2:16:8:45:32:22
+C:20:28:31:2:16:8:45:31:22
 X:8:10:12:0:0:14:20:20:20
 I:2:20:75000:8
 A:4:35:3
@@ -818,7 +817,7 @@ E:75:23:1:1
 E:70:33:1:1
 #Class objects: Potion of Restore Mana or ring of see invisible
 O:75:40:45:22
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BLESS_WEAPON | ZERO_FAIL
+F:BLESS_WEAPON | ZERO_FAIL
 T:Believer
 T:Acolyte
 T:Adept
@@ -916,7 +915,7 @@ E:80:18:1:1
 E:75:37:1:1
 #Class objects: Potion of Healing or Staff of Dispel Evil (since they need some offence)
 O:75:37:55:24
-F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL
+F:CHOOSE_SPELLS | ZERO_FAIL
 T:Bandager
 T:Wound Dresser
 T:Village Healer
@@ -1001,7 +1000,6 @@ B:69:99:0:0:0	#annihilation			/
 B:70:31:25:70:30	#truce				31 (new in B7)
 
 #changed bless_weapon to a milder penalty because of less weapons with that tval
-#(done)
 N:10:Druid
 S:-2:1:2:1:-1:0
 C:32:27:26:4:17:16:44:38:45
@@ -1016,8 +1014,7 @@ E:21:3:1:1
 #Class objects: potion of monster detection or Staff or Striking
 #O:40:5:55:31 (used to have amulet of alertness)
 O:75:45:55:31
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS
-F:BLESS_WEAPON | ZERO_FAIL | BEAM
+F:CHOOSE_SPELLS | BLESS_WEAPON | ZERO_FAIL | BEAM
 T:Gardener
 T:Student of Plants
 T:Student of Stones
@@ -1033,7 +1030,7 @@ B:1:1:1:23:1	#call light				1
 B:2:2:2:22:2	#slow poison			3
 B:3:3:1:25:2	#blink				3
 B:4:5:4:24:2	#foraging				5
-B:5:4:2:25:3	#lightning spark			4
+B:5:3:2:25:3	#lightning spark			3 (was cL4)
 B:6:7:6:30:4	#ray of light			7
 B:7:7:4:28:4	#trap/door destruction		7
 B:8:9:6:40:4	#stone to mud			9
@@ -1049,7 +1046,7 @@ B:17:13:9:45:7	#remove curse (B3)		13
 B:18:16:7:40:8	#resist heat & cold		16
 B:19:19:9:50:9	#resist acid & elec		19
 B:20:7:3:22:2	#detect life			7
-B:21:8:4:33:8	#natural vitality			8 (in B2)
+B:21:7:4:33:8	#natural vitality			7 (in B2, was cL8)
 B:22:21:10:44:9	#resist poison			21 (moved to B5)
 B:23:19:10:70:9	#earthquake				19
 B:24:25:17:55:11	#identify				25
@@ -1115,7 +1112,7 @@ E:22:9:2:3
 E:75:32:2:3
 #Class objects: Staff of Starlight or mithril plate mail
 O:55:7:37:35
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | KNIGHT
+F:KNIGHT
 T:Flag Bearer
 T:Squire
 T:Shield Bearer
@@ -1213,7 +1210,7 @@ E:18:1:6:14
 E:75:45:2:3
 #Class objects: wand of Lightning balls or mithril chain mail
 O:65:21:37:20
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | KNIGHT
+F:CHOOSE_SPELLS | KNIGHT
 T:Black Banner Bearer
 T:Trainee
 T:Knave
@@ -1301,7 +1298,6 @@ B:73:34:24:80:3	#resist poison			34 (in B3)
 B:74:99:0:0:0	#wall of hellfire			/
 B:75:5:3:60:1	#shadow sting			5
 
-#tentatively done (possibly raise blow multiplier and lower melee skill)
 N:13:Assassin
 S:2:1:-2:1:0:-1
 C:31:29:21:3:16:13:53:65:55
@@ -1317,7 +1313,7 @@ E:19:22:1:1
 E:18:1:10:19
 #Class objects: Heavy Crossbow or ring of slaying
 O:19:24:45:30
-F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ASSASSIN
+F:CHOOSE_SPELLS | ASSASSIN
 T:Thug
 T:Cutthroat
 T:Killer
@@ -1335,7 +1331,7 @@ B:3:99:0:0:0	#scare monster			/
 B:4:99:0:0:0	#noxious fumes			/
 B:5:99:0:0:0	#cure poison			/
 B:6:99:0:0:0	#sleep monster			/
-B:7:21:14:65:8	#wither foe				21 (in B5)
+B:7:20:14:66:8	#wither foe				20 (in B5)
 B:8:99:0:0:0	#see invisible			/
 B:9:6:4:40:1	#find traps	(2nd book)		6
 B:10:7:3:45:2	#detect doors/stairs		7
@@ -1344,36 +1340,36 @@ B:12:10:5:40:3	#drain charges			10
 B:13:99:0:0:0	#turn undead			/
 B:14:33:15:70:13	#death bolt				33 (in B5)
 B:15:13:11:55:6	#stink				13 assassin only (instead of noxious f)
-B:16:34:26:65:15	#dispel undead x3			34 (in B5)
+B:16:36:26:61:15	#dispel undead x3			36 (in B5)
 B:17:9:8:78:2	#symbol of demon warding	9 (in B5)
 B:18:8:4:45:2	#witch's disinfectant		8 (in B2)
-B:19:41:26:80:30	#circle of flame			41 (in B5)
+B:19:40:26:80:30	#circle of flame			40 (in B5)
 B:20:12:7:50:2	#trap/door destruction		12 (in B2)
-B:21:14:8:50:3	#poison bolt			14 (in B4)
-B:22:18:13:38:31	#slip into the shadows		18 (in B8)
-B:23:15:8:40:3	#shadow step			15 (short-lasting version of slip into the shadows, B2)
+B:21:14:8:45:3	#poison bolt			14 (in B4)
+B:22:22:14:36:31	#slip into the shadows		22 (in B8)
+B:23:15:9:43:3	#step into darkness		15 (in B2)
 B:24:35:24:70:16	#venom bolt  (B4)			35
-B:25:23:18:46:23	#darkvision				23
+B:25:32:20:50:23	#darkvision				32
 B:26:99:0:0:0	#scare monsters			/ (in B5)
 B:27:18:10:60:6	#spear of dark			18
 B:28:99:0:0:0	#ice spear				/
 B:29:36:24:80:13	#stench of death			36 (in B5)
-B:30:26:16:76:9	#beam of destruction		26
-B:31:34:21:80:12	#destruction ball			34
+B:30:23:16:78:9	#beam of destruction		23
+B:31:34:21:78:12	#destruction ball			34
 B:32:99:0:0:0	#chaos strike			/
 B:33:11:9:33:3	#shadow warp  (B3)		11
 B:34:99:0:0:0	#wizard lock			/
-B:35:25:17:60:10	#shadow mapping			25
-B:36:24:15:67:8	#break curse			24
-B:37:29:12:70:7	#probing				29
-B:38:25:24:90:7	#identify				25
+B:35:26:17:61:10	#shadow mapping			26
+B:36:28:15:67:8	#break curse			28
+B:37:29:12:65:7	#probing				29
+B:38:25:24:90:6	#identify				25
 B:39:99:0:0:0	#summon demonic aid		/ (in 6th book)
 B:40:99:0:0:0	#exorcize demons			/
 B:41:37:19:80:12	#detect enchantment		37
 B:42:99:0:0:0	#boldness (6th book)		/ (6th book not for assassin)
 B:43:99:0:0:0	#false life 			/
 B:44:99:0:0:0	#resist poison			/
-B:45:24:16:60:7	#protection from the lifeless	24 (in 5th book)
+B:45:21:15:60:9	#protection from the lifeless	21 (in 5th book)
 B:46:99:0:0:0	#undead skin			/
 B:47:99:0:0:0	#unholy resistance		/
 B:48:99:0:0:0	#shadow barrier			/
@@ -1420,7 +1416,7 @@ E:30:2:1:1
 E:70:27:1:3
 #Class objects: Wand of Teleport Other or rod of recall
 O:65:3:66:3
-F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CLASS_SPEED
+F:CHOOSE_SPELLS | CLASS_SPEED
 T:Robber
 T:Pickpocket
 T:Cutpurse
@@ -1513,7 +1509,7 @@ N:15:Tourist
 S:0:2:-2:1:0:2
 C:21:20:21:0:20:10:34:30:36
 X:7:10:8:0:0:6:21:21:36
-I:1:5:50000:10
+I:1:10:73000:10
 A:4:32:3
 M:93:1:1:400
 #Starting objects: walking stick, high quality travelling cloak,
@@ -1525,7 +1521,7 @@ E:80:33:2:3
 E:21:1:1:1
 #Class objects: Potion of Four-Leaf clover Juice or The Lottery book
 O:75:14:93:5
-F:PSEUDO_ID_IMPROV
+F:ALTERNATE_XP
 T:Rambler
 T:Sightseer
 T:Vacationer
@@ -1540,13 +1536,13 @@ B:0:5:3:50:1	#illumination			5
 B:1:3:2:55:1	#detect doors/stairs		3
 B:2:12:5:65:2	#detect $$ and objects		12
 B:3:15:8:70:2	#trap/door destruction		15
-B:4:1:1:60:1	#camera flash			1
+B:4:1:1:55:1	#camera flash			1 (was 60%fail)
 B:5:5:9:95:2	#identify				5
 B:6:10:9:67:3	#door creation 			10
 B:7:20:25:67:10	#word of recall			20
 B:8:22:22:67:14	#stair creation			22
 B:9:6:3:50:1	#cure light wounds (B2)		6
-B:10:14:13:67:3	#extra luck				14
+B:10:14:13:61:3	#extra luck				14 (was 67%fail)
 B:11:7:12:67:2	#resist cold			7
 B:12:21:20:91:6	#new batteries			21 (moved to book 4)
 B:13:8:7:67:2	#bug spray				8
@@ -1626,7 +1622,7 @@ E:55:10:1:1
 E:75:54:1:3
 #Class objects: Tome of Destruction or ring of Constitution
 O:45:27:90:5
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | ZERO_FAIL | BEAM
+F:CHOOSE_SPELLS | ZERO_FAIL | BEAM
 F:CUMBER_GLOVE | POWER_SHIELD
 T:Novice Mage
 T:Vengeance Magician
@@ -1726,7 +1722,7 @@ E:22:12:1:1
 E:34:3:1:1
 #Class objects: Ring of Slaying or Staff of Charm Animal
 O:45:30:55:30
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | HEAVY_BONUS
+F:BRAVERY_30 | HEAVY_BONUS
 T:Brute
 T:Pillager
 T:Brigand
@@ -1826,7 +1822,7 @@ E:75:33:1:1
 E:1:1:1:2
 #Class objects: Wand of Wonder or Spreading of Chaos book
 O:65:24:93:8
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BEAM | KNIGHT
+F:BEAM | KNIGHT
 T:Violent Jester
 T:Confuddler
 T:Anarchist
@@ -1958,7 +1954,7 @@ B:74:16:15:70:7	#luck bolt				16
 #Starting objects: mumak tusk, filthy rag
 #E:1:2:1:1
 #E:36:1:1:1
-#F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BRAVERY_30 | HEAVY_BONUS | HULK_CONF
+#F:BRAVERY_30 | HEAVY_BONUS | HULK_CONF
 #T:Mistaken for a Dumb Ogre
 #T:Dumb Brute
 #T:Brute

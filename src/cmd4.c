@@ -4718,10 +4718,10 @@ static int nasty_melee(int m_idx)
 	
 	/* If it never moves or it's very slow, melee shouldn't matter */
     if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) || 
-		(m_ptr->mspeed < p_ptr->pspeed - 4)) return 0;
+		(m_ptr->mspeed < p_ptr->pspeed - 5)) return 0;
 		
 	/* only sometimes get a feeling about distant monsters for melee */
-    if ((m_ptr->cdis >= 100) && (randint(100) < 35)) return 0;
+    if ((m_ptr->cdis >= 100) && (randint(100) < 38 + goodluck)) return 0;
 	
 	/* sometimes use real attacks, sometimes use only known attacks */
 	if (randint(100) < 40 + goodluck*2) sensereal = TRUE;
@@ -4822,7 +4822,7 @@ s16b get_danger_feeling(void)
 		{
 			if (rlev > dep + 10) mon_danger += 10 + ((rlev - dep + 10)/4);
 			/* try to get decent feeling even for very early depths */
-			else if ((p_ptr->depth < 3) && (rlev >= dep) && (p_ptr->lev <= dep))
+			else if ((p_ptr->depth < 4) && (rlev >= dep) && (p_ptr->lev <= dep))
 			{
 				 if (r_ptr->mexp > dep*2) mon_danger += (rlev + 1) - p_ptr->lev;
 				 else if (race_count[m_ptr->r_idx] > 5) mon_danger += 1;
@@ -4843,7 +4843,7 @@ s16b get_danger_feeling(void)
 		lf6 = l_ptr->flags6;
 		
 		if (cheat_know) cheatluck = 110;
-		else cheatluck = goodluck + 4 + randint((goodluck+2)*2);
+		else cheatluck = goodluck + 8 + randint((goodluck+2)*2);
 		
 		if ((r_ptr->flags2 & (RF2_INVISIBLE)) && (!p_ptr->see_inv))
 		{
@@ -4943,7 +4943,6 @@ s16b get_danger_feeling(void)
 		   ((r_ptr->flags4 & (RF4_BR_CHAO)) && (randint(100) < 20+cheatluck))) &&
 		   (!p_ptr->resist_chaos) && (hplev)) mon_danger += 2;
 		   
-		/* update when resist silver & resist slime are added */
 		if (((l_ptr->flags4 & (RF4_BR_AMNS)) ||
 		   ((r_ptr->flags4 & (RF4_BR_AMNS)) && (randint(100) < 20+cheatluck))) &&
 		   (!p_ptr->resist_silver) && (hplev))
@@ -4988,6 +4987,12 @@ s16b get_danger_feeling(void)
                      mon_danger += 1;
         }
 
+		if ((l_ptr->flags5 & (RF5_CAUSE_3)) ||
+		   ((r_ptr->flags5 & (RF5_CAUSE_3)) && (randint(100) < 20+cheatluck)))
+		{
+			if ((p_ptr->skills[SKILL_SAV] < 90) && (p_ptr->lev < 21)) mon_danger += 1;
+        }
+
 		if (((l_ptr->flags5 & (RF5_HOLD)) ||
 		   ((r_ptr->flags5 & (RF5_HOLD)) && (randint(100) < 20+cheatluck))) &&
 		   (!p_ptr->free_act)) mon_danger += 2;
@@ -5022,6 +5027,7 @@ s16b get_danger_feeling(void)
 	/* It's always dangerous on deep levels so scale down a little */
 	if ((mon_danger > 50) && (p_ptr->depth >= 45)) mon_danger -= 4;
 	else if ((mon_danger > 30) && (p_ptr->depth >= 45)) mon_danger -= 2;
+	/* Rfear influences confidence level... */
 	if ((mon_danger > 20) && (p_ptr->depth >= 45) && (p_ptr->resist_fear))
 		mon_danger -= 2;
 

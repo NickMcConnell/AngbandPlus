@@ -65,7 +65,7 @@ static timed_effect effects[] =
 	{ "You feel your memories fade.", "Your memories come flooding back.", PR_CONFUSED, 0, 0, MSG_GENERIC }, /* TMD_AMNESIA */
 	{ "With a smile, you decide you're not in the mood for fighting anymore.", "Your smile fades and you feel violent again.", PR_AFRAID, 0, 0, MSG_AFRAID }, /* TMD_CHARM */
 	{ "You are more than irritated.. you burst into a careless frenzy!", "You calm down from your careless frenzy.", 0, 0, PU_BONUS, MSG_BERSERK }, /* TMD_FRENZY */
-	{ "You begin to see what's really there.", "Your sight returns to normal.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS }, /* TMD_TSIGHT */
+	{ "You begin to see what's really there.", "Your sight returns to normal.", 0, 0, (PU_TORCH | PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS }, /* TMD_TSIGHT */
 	{ "You strike at evil with holy wrath.", "The holy wrath wears off.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_SANCTIFY */
 	{ "You feel safe from powerful evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL }, /* TMD_PROTEVIL2 */
 	{ "You begin to sense other minds.", "You cease to sense other minds.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS }, /* TMD_ESP */
@@ -90,20 +90,20 @@ static timed_effect effects[] =
 	{ "You gain extra speed in melee!", "Your melee is back to normal speed.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_XATTACK */
 	{ "You feel like nothing can slow you down!", "Your speed is no longer sustained.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SUST_SPEED */
 	{ "A sphere of green light surrounds you!", "The sphere of charm dissapears.", 0, 0, 0, MSG_GENERIC }, /* TMD_SPHERE_CHARM */
-	{ "Your attacks are reinforced by the elements.", "You no longer strike with the elements.", 0, 0, 0, MSG_GENERIC }, /* TMD_HIT_ELEMENT (unused) */
+	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MDETECTION (no message) */
 	{ "You can see monsters without light!", "You can no longer see without light.", PR_OPPOSE_ELEMENTS, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DARKVIS */
 	{ "You feel very sneaky.", "You no longer feel especially sneaky.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_SUPER_ROGUE */
 	{ "Are electrical field surrounds you.", "The electric field dissapates.", PR_BLIND, 0, PU_BONUS, MSG_GENERIC }, /* TMD_ZAPPING */
 	{ "You have first sight and second thoughts.", "Your sight returns to normal", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_2ND_THOUGHT */
 	{ "Your magical shield protects against monster breath.", "The breath shield dissapears.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_BR_SHIELD */
-	{ "Daylight surrounds you.", "The daylight enchantment expires and the shadows return.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DAYLIGHT */
+	{ "Daylight surrounds you.", "The daylight enchantment expires and the shadows return.", 0, 0, (PU_TORCH | PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DAYLIGHT */
 	{ "You feel resistant to confusion!", "You no longer feel resistant to confusion.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_GENERIC }, /* TMD_CLEAR_MIND */
 	{ "You feel forsaken.", "The curse wears off.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_CURSE */
 	{ "You feel very skillfull!", "The skill boost wears off.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_SKILLFUL */
 	{ "You have the throwing strength of a giant.", "You feel like you just shrunk back to your usual size.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_MIGHTY_HURL */
 	{ "", "", PR_STATE, 0, PU_BONUS, MSG_PARALYZED }, /* TMD_BEAR_HOLD (messages are elseware, attack: RBE_BHOLD) */
 	{ "a faint glow surrounds your quiver.", "your quiver is no longer protected.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_QUIVERGUARD */
-	{ "You begin to give off light.", "You no longer give off light.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MINDLIGHT */
+	{ "You begin to give off light.", "You no longer give off light.", 0, 0, (PU_TORCH | PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MINDLIGHT */
 	{ "You feel resistant to silver magic.", "You are no longer resistant to silver magic.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_GENERIC }, /* TMD_OPP_SILV */
 	{ "You feel unnaturally tough.", "You no longer feel more tough than usual.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_FALSE_LIFE */
 	{ "You begin to give off a disgusting smell.", "You no longer smell any worse than usual..", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_STINKY */
@@ -112,6 +112,7 @@ static timed_effect effects[] =
 	{ "Your aim is especially good.", "The sniper's eye effect has worn off.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_SNIPER */
 	{ "An outside force is trying to control your body!", "You regain control.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_MIND_CONTROL (unused) */
 	{ "You inventory is protected from acid.", "You inventory is no longer protected.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_ACID_BLOCK */
+	{ "You step into darkness.", "You are no longer cloaked in darkness.", 0, 0, (PU_TORCH | PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DARKSTEP */
 };
 
 /*
@@ -1397,7 +1398,7 @@ void monster_death(int m_idx)
 
 	int dump_item = 0;
 	int dump_gold = 0;
-	int gold_chance, howgood = 0;
+	int gold_chance, ablah, howgood = 0;
 
 	int number = 0;
 	int total = 0;
@@ -1420,11 +1421,9 @@ void monster_death(int m_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1497,13 +1496,12 @@ void monster_death(int m_idx)
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 	}
-	/* 6% chance for uniques to drop a treasure map */
+	/* 6% chance for deep uniques to drop a treasure map */
 	else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (rand_int(100) < 6) && 
 		(r_ptr->level >= 35))
 	{
 		/* Get object base type (tval 4, sval 2) */
-		int k_idx;
-		k_idx = lookup_kind(TV_SPECIAL, SV_TREASURE);
+		int k_idx = lookup_kind(TV_SPECIAL, SV_TREASURE);
 
 		/* (allow for failure in case something happens to the object.txt entry) */
 		if (k_idx)
@@ -1521,7 +1519,6 @@ void monster_death(int m_idx)
 	/* if we nerf the One Ring a bit more, we can make Gollum have a */
 	/* chance to drop it */
 
-
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 33)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
@@ -1536,6 +1533,17 @@ void monster_death(int m_idx)
 
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	
+	/* reward for OOD monsters */
+	if (r_ptr->level > p_ptr->depth)
+	{
+		if (rand_int(100) < 40 + goodluck*2) object_level = r_ptr->level;
+		else object_level = (p_ptr->depth + (r_ptr->level*2)) / 3;
+	}
+	else if (r_ptr->level < p_ptr->depth)
+	{
+		if (rand_int(100) < 10 + badluck*2) object_level = r_ptr->level;
+	}
 	
 	/* sometimes vary the object level a bit more */
 	if (!(p_ptr->depth == r_ptr->level))
@@ -1871,12 +1879,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/*** new scoring ***/
 		/* base score = monlevel/5 rounded up */
 		killscore = (r_ptr->level+4)/5;
+
+		/* compare to character level (part1) */
+		if ((p_ptr->lev - 25 > r_ptr->level) && (killscore < 3)) killscore = 0;
+		else if ((p_ptr->lev - 10 > r_ptr->level) && (killscore == 2)) killscore -= 1;
+		else if (p_ptr->lev - 10 > r_ptr->level) killscore = (r_ptr->level+5)/6;
+		
 		/* THEME_ONLY monsters worth a little extra */
 		if ((r_ptr->flags7 & (RF7_THEME_ONLY)) && (killscore < 8)) killscore += 2;
 		else if (r_ptr->flags7 & (RF7_THEME_ONLY)) killscore = (killscore * 5) / 4;
 		/* Sauron & Morgoth */
 		if (r_ptr->flags1 & RF1_DROP_CHOSEN) killscore = 1000;
-		else if (r_ptr->flags1 & (RF1_QUESTOR)) killscore = 500;
+		else if (r_ptr->flags1 & (RF1_QUESTOR)) killscore = 300;
 		/* other uniques */
 		else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 5)) killscore = 5;
 		else if (r_ptr->flags1 & (RF1_UNIQUE)) killscore = r_ptr->level + 1;
@@ -1889,21 +1903,27 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			else killscore += (r_ptr->rarity + 1) / 2;
 		}
 		/* reduced score for killing a lot of the same monster */
-		else if ((l_ptr->pkills > 75) && (lottakills))
+		else if ((l_ptr->pkills > 15) && (lottakills))
 		{
-             killscore -= (l_ptr->pkills - 70) / 5;
+             killscore -= (l_ptr->pkills - 12) / 4;
              /* If you kill enough of the same monster, they stop giving score */
              if (killscore < 0) killscore = 0;
 		}
-		else if ((l_ptr->pkills > 50) && (!lottakills))
+		else if ((l_ptr->pkills > 5) && (!lottakills))
 		{
-             killscore -= (l_ptr->pkills - 48) / 3;
+             killscore -= (l_ptr->pkills - 4) / 2;
              /* If you kill enough of the same monster, they stop giving score */
              if (killscore < 0) killscore = 0;
 		}
+		/* compare to character level (part2) */
+		if (r_ptr->level > 100) killscore += 2;
+		else if (p_ptr->lev * 2 < r_ptr->level) killscore = killscore * 3;
+		else if (p_ptr->lev * 3 / 2 < r_ptr->level) killscore = killscore * 2;
+		else if (p_ptr->lev < r_ptr->level) killscore = killscore * 3 / 2;
+		
 		/* no score for town monsters or ordinary trees */
 		if (racexp < 1) killscore = 0;
-		
+
 		/* if it comes back to life, you have to kill it twice */
 		/* to get full score */
 		if (r_ptr->flags2 & (RF2_RETURNS)) killscore = killscore / 2;
@@ -4036,7 +4056,9 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				if (feat == FEAT_TRAP_HEAD + 0x03) name = "poisoned spiked pit";
 				if (feat == FEAT_TRAP_HEAD + 0x08) name = "dart trap (slowing)";
 				if (feat == FEAT_TRAP_HEAD + 0x09) name = "dart trap (strength drain)";
-				if (feat == FEAT_TRAP_HEAD + 0x0A) name = "dart trap (dexterity drain)";
+				if ((feat == FEAT_TRAP_HEAD + 0x0A) && (p_ptr->depth > 42))
+					name = "dart trap (dexterity drain or mana drain)";
+				else if (feat == FEAT_TRAP_HEAD + 0x0A) name = "dart trap (dexterity drain)";
 				if (feat == FEAT_TRAP_HEAD + 0x0B) name = "dart trap (constitution drain)";
 			}
 				
@@ -4570,6 +4592,8 @@ bool get_aim_dir(int *dp)
        dir = 0;
        spot_target = TRUE;
     }
+    /* never use old target when throwing a non-weapon */
+    else if (spellswitch == 12) dir = 0;
 	/* Hack -- auto-target if requested */
 	else if (use_old_target && target_okay()) dir = 5;
 

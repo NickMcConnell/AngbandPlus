@@ -51,8 +51,8 @@
  */
 static bool int_outof(const monster_race *r_ptr, int prob)
 {
-	/* Non-Smart monsters are half as "smart" */
-	if (!(r_ptr->flags2 & (RF2_SMART))) prob = prob / 2;
+	/* Non-Smart monsters are not as smart (used to be half) */
+	if (!(r_ptr->flags2 & (RF2_SMART))) prob = (prob * 2) / 3;
 
 	/* Roll the dice */
 	return (rand_int(100) < prob);
@@ -74,17 +74,15 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 	u32b smart = 0L;
 
-
 	/* Too stupid to know anything */
 	if (r_ptr->flags2 & (RF2_STUPID)) return;
 
-
-	/* Must be cheating or learning */
-	if (!adult_ai_cheat && !adult_ai_learn) return;
-
+	/* Must be cheating or learning or SMART */
+	if (!adult_ai_cheat && !adult_ai_learn && (!(r_ptr->flags2 & (RF2_SMART)))) 
+		return;
 
 	/* Update acquired knowledge */
-	if (adult_ai_learn)
+	if ((adult_ai_learn) || (r_ptr->flags2 & (RF2_SMART)))
 	{
 		/* Hack -- Occasionally forget player status */
 		if (m_ptr->smart && (rand_int(100) < 1)) m_ptr->smart = 0L;
@@ -154,9 +152,9 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	}
 	else if ((smart & (SM_OPP_ACID)) || (smart & (SM_RES_ACID)))
 	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_ACID);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_ACID);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_ACID);
+		if (int_outof(r_ptr, 21)) f4 &= ~(RF4_BR_ACID);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BA_ACID);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BO_ACID);
 	}
 
 
@@ -174,9 +172,9 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	}
 	else if ((smart & (SM_OPP_ELEC)) || (smart & (SM_RES_ELEC)))
 	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_ELEC);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_ELEC);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_ELEC);
+		if (int_outof(r_ptr, 21)) f4 &= ~(RF4_BR_ELEC);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BA_ELEC);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BO_ELEC);
 	}
 
 
@@ -194,9 +192,9 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	}
 	else if ((smart & (SM_OPP_FIRE)) || (smart & (SM_RES_FIRE)))
 	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_FIRE);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_FIRE);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_FIRE);
+		if (int_outof(r_ptr, 21)) f4 &= ~(RF4_BR_FIRE);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BA_FIRE);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BO_FIRE);
 	}
 
 
@@ -212,14 +210,14 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_COLD);
 		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_COLD);
 		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_COLD);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_ICEE);
+		if (int_outof(r_ptr, 75)) f5 &= ~(RF5_BO_ICEE);
 	}
 	else if ((smart & (SM_OPP_COLD)) || (smart & (SM_RES_COLD)))
 	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_COLD);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_COLD);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_COLD);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_ICEE);
+		if (int_outof(r_ptr, 21)) f4 &= ~(RF4_BR_COLD);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BA_COLD);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BO_COLD);
+		if (int_outof(r_ptr, 21)) f5 &= ~(RF5_BO_ICEE);
 	}
 
 
@@ -230,8 +228,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	}
 	else if ((smart & (SM_OPP_POIS)) || (smart & (SM_RES_POIS)))
 	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_POIS);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_POIS);
+		if (int_outof(r_ptr, 27)) f4 &= ~(RF4_BR_POIS);
+		if (int_outof(r_ptr, 27)) f5 &= ~(RF5_BA_POIS);
 	}
 
 
@@ -275,24 +273,24 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (smart & (SM_RES_NEXUS))
 	{
 		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_NEXU);
-		if (int_outof(r_ptr, 50)) f6 &= ~(RF6_TELE_LEVEL);
+		if (int_outof(r_ptr, 80)) f6 &= ~(RF6_TELE_LEVEL);
 	}
 
 	if (smart & (SM_RES_NETHR))
 	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_NETH);
-		if (int_outof(r_ptr, 50)) f5 &= ~(RF5_BA_NETH);
-		if (int_outof(r_ptr, 50)) f5 &= ~(RF5_BO_NETH);
+		if (int_outof(r_ptr, 42)) f4 &= ~(RF4_BR_NETH);
+		if (int_outof(r_ptr, 42)) f5 &= ~(RF5_BA_NETH);
+		if (int_outof(r_ptr, 42)) f5 &= ~(RF5_BO_NETH);
 	}
 
 	if (smart & (SM_RES_CHAOS))
 	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_CHAO);
+		if (int_outof(r_ptr, 42)) f4 &= ~(RF4_BR_CHAO);
 	}
 
 	if (smart & (SM_RES_DISEN))
 	{
-		if (int_outof(r_ptr, 100)) f4 &= ~(RF4_BR_DISE);
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_DISE);
 	}
 
 
@@ -310,7 +308,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	/* temporary invisibility spell */
 	if (p_ptr->see_inv)
 	{
-		if (int_outof(r_ptr, 100)) f6 &= ~(RF6_INVIS);
+		if (int_outof(r_ptr, 80)) f6 &= ~(RF6_INVIS);
 	}
 
 	/* XXX XXX XXX No spells left? */
@@ -772,10 +770,10 @@ bool make_attack_spell(int m_idx)
 
 	int k, die, chance, thrown_spell, rlev;
 	int failrate, surround, bshield;
-	int mcdis, askill;
+	int mcdis, askill, savechance;
     int dir, damage, basebr, brdie;
-	int savechance;
 	bool controlled, strong, innate;
+	int some = 1;
 
 	u32b f4, f5, f6;
 
@@ -798,12 +796,11 @@ bool make_attack_spell(int m_idx)
 	/* Extract the "see-able-ness" */
 	bool seen = (!blind && m_ptr->ml);
 
-	/* Assume "normal" target */
+	/* Assume normal target */
 	bool normal = TRUE;
 
-	/* Assume "projectable" */
+	/* Assume projectable */
 	bool direct = TRUE;
-
 
 	/* Cannot cast spells when nice */
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
@@ -980,7 +977,7 @@ bool make_attack_spell(int m_idx)
 		bool kin = TRUE;
 		if (r_ptr->flags6 & (RF6_HEAL_OTHR)) kin = FALSE;
 		else summoner = m_ptr->r_idx;
-		
+
 		/* test run to the spell function */
 		if (!heal_monsters(0, m_ptr, kin))
 		{
@@ -1028,7 +1025,7 @@ bool make_attack_spell(int m_idx)
 
 	/* monsters should be less likely to cast darkness when already in a dark room */
 	/* (unlite_area is always centered on the PC so only check for the PC) */
-    if ((r_ptr->flags4 & (RF6_DARKNESS)) && !(r_ptr->flags2 & (RF2_STUPID)))
+    if ((r_ptr->flags6 & (RF6_DARKNESS)) && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
 		if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) &&     /* PC in a room*/
 			(!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))) &&  /* ..not lit */
@@ -1060,7 +1057,7 @@ bool make_attack_spell(int m_idx)
 	/* Abort if no spell was chosen */
 	if (!thrown_spell) return (FALSE);
     
-	/* OFFSET+27: EXPLOSE spell is not innate */
+	/* OFFSET+27: EXPLODE spell is not innate */
 	if ((thrown_spell < RF5_OFFSET) && (!(thrown_spell == RF4_OFFSET+27)))
 		innate = TRUE;
 	else innate = FALSE;
@@ -1201,9 +1198,21 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s throws something.", m_name);
 			else msg_format("%^s throws a piece of junk from the floor.", m_name);
-			if (rlev > 22) bolt(m_idx, GF_THROW, damroll(2, 4));
-			else bolt(m_idx, GF_THROW, damroll(1, 4));
-            (void)inc_timed(TMD_STUN, (randint(3)));
+			if (rlev > 49)
+			{
+				bolt(m_idx, GF_THROW, damroll(6, 4));
+				(void)inc_timed(TMD_STUN, (randint(6) + 2));
+			}
+			else if (rlev > 18)
+			{
+				bolt(m_idx, GF_THROW, damroll(rlev/12 + 1, 4));
+				(void)inc_timed(TMD_STUN, (randint(2 + rlev/12) + 1));
+			}
+			else
+			{
+				bolt(m_idx, GF_THROW, damroll(1, 4));
+				(void)inc_timed(TMD_STUN, (randint(3)));
+			}
 			break;
 		}
 
@@ -1840,6 +1849,8 @@ bool make_attack_spell(int m_idx)
             }
             disturb(1, 0);
 			sound(MSG_BR_FORCE);
+			summoner = m_ptr->r_idx;
+
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes force.", m_name);
 			damage = ((basebr / 6) > 200 ? 200 : (basebr / 6));
@@ -1860,16 +1871,17 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_FORCE);
 			if (blind) msg_format("You hear an ominous rumbling.");
 			else msg_format("%^s causes an explosion!", m_name);
-			/* cause an earthquake on the PC's square which damages the PC */
-			if (m_ptr->cdis < 4) exploderad = 2;
-			else exploderad = 3;
-			earthquake(p_ptr->py, p_ptr->px, exploderad, 40, 4, FALSE);
 			/* just in case the PC dodges the quake blast.. */
 			damage = damroll(4, rlev/10 + 1);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 400));
 			breath(m_idx, GF_SHARD, damage, 0);
 			breath(m_idx, GF_BOULDER, damage, 0);
+			/* cause an earthquake on the PC's square which damages the PC */
+			if (m_ptr->cdis < 4) exploderad = 2;
+			else exploderad = 3;
+			/* this does 26d9 damage if there's no place to retreat to */
+			earthquake(p_ptr->py, p_ptr->px, exploderad, 40, 4, FALSE);
 			break;
 		}
 
@@ -2305,6 +2317,11 @@ bool make_attack_spell(int m_idx)
 		        /* extra damage reduction from surrounding magic */
 				if (surround) damage -= (damage * (surround / 500));
 				take_hit(damage, ddesc);
+				/* added cuts */
+				if (!p_ptr->resist_shard)
+				{
+					(void)inc_timed(TMD_CUT, damroll(6, 3));
+				}
 			}
 			break;
 		}
@@ -2320,10 +2337,11 @@ bool make_attack_spell(int m_idx)
 			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 25;
 			if (savechance < p_ptr->skills[SKILL_SAV])
 			{
-				if ((badluck > 1) && (randint((badluck * 2) + 15) > 9))
+				if ((badluck > 1) && (randint((badluck * 2) + 15) > 9) &&
+					(!p_ptr->resist_shard))
 				{
-				   msg_print("You mostly resist the effects!");
-				   (void)inc_timed(TMD_CUT, damroll(6, 6));
+					msg_print("You mostly resist the effects!");
+					(void)inc_timed(TMD_CUT, damroll(6, 6));
                 }
 				else msg_print("You resist the effects!");
 			}
@@ -2333,7 +2351,11 @@ bool make_attack_spell(int m_idx)
 		        /* extra damage reduction from surrounding magic */
 				if (surround) damage -= (damage * (surround / 500));
 				take_hit(damage, ddesc);
-				(void)inc_timed(TMD_CUT, damroll(10, 10));
+				/* Rshards helps a little */
+				if (!p_ptr->resist_shard)
+					(void)inc_timed(TMD_CUT, damroll(10, 10));
+				else
+					(void)inc_timed(TMD_CUT, damroll(8, 8));
 			}
 			break;
 		}
@@ -2856,15 +2878,17 @@ bool make_attack_spell(int m_idx)
 		/* RF6_XXX3X6 - RF6_INVIS */
 		case RF6_OFFSET+6:
 		{
+			int mrs = r_ptr->stealth;
 			disturb(1, 0);
 			if ((seen) && (!p_ptr->see_inv)) msg_format("%^s dissapears!", m_name);
 			m_ptr->monseen = 0;
+			if (mrs < 1) mrs = 1;
 			m_ptr->tinvis = randint(4) + 3 + (rlev/9);
 			/* monster can hide again after turning invisible */
-			if (!p_ptr->see_inv)
+			if ((!p_ptr->see_inv) || (!seen))
 			{
 			    if (m_ptr->monseen > 2) m_ptr->monseen -= randint(2);
-				else if ((m_ptr->monseen) && (rand_int(100) < r_ptr->stealth*8))
+				else if ((m_ptr->monseen) && (rand_int(100) < mrs*8))
 				  m_ptr->monseen -= 1;
 			}
 			break;
@@ -2897,10 +2921,12 @@ bool make_attack_spell(int m_idx)
 		/* RF6_TELE_AWAY */
 		case RF6_OFFSET+9:
 		{
+			int mrs = r_ptr->stealth;
 			if (!direct) break;
 			/* TELE_AWAY has very short range in town */
 			if ((!p_ptr->depth) && (m_ptr->cdis > 5)) break;
 			disturb(1, 0);
+			if (mrs < 1) mrs = 1;
 			msg_format("%^s tells you to go away.", m_name);
 			controlled = FALSE;
 			/* controlled teleport (much harder when caused by a monster) */
@@ -2915,7 +2941,7 @@ bool make_attack_spell(int m_idx)
             if (!controlled) teleport_player(100);
 			/* monster can hide again after teleporting you away */
 		    if (m_ptr->monseen > 2) m_ptr->monseen -= 1;
-			else if ((m_ptr->monseen > 1) && (rand_int(100) < r_ptr->stealth*5))
+			else if ((m_ptr->monseen > 1) && (rand_int(100) < mrs*6))
 			  m_ptr->monseen -= 1;
 			break;
 		}
@@ -3037,18 +3063,22 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_SILVER */
 		case RF6_OFFSET+15:
 		{
-			int some = randint(rlev/10) + 1;
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_ANGEL);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s summons silver grepse.", m_name);
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/10) + 2;
+			else some = randint((rlev+6)/15 + 1);
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
 			for (k = 0; k < some; k++)
 			{
-				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
-				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_SILVER);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_SILVER);
 			}
 			if (blind && count)
 			{
@@ -3069,11 +3099,18 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons %s %s.", m_name, m_poss,
 			                ((r_ptr->flags1) & RF1_UNIQUE ?
 			                 "minions" : "kin"));
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/20 + 1) + 2;
+			else some = randint(rlev/25 + 2) + 1;
+			/* cap */
+			if (some > 6 + badluck/5) some = 4 + badluck/5 + randint(2);
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < 6; k++)
+			for (k = 0; k < some; k++)
 			{
 				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
 				/* Hack -- tweak for living ghouls */
 				if ((randint(100) < 58) && (strstr(m_name, "living ghoul"))) 
 					summon_kin_type = 'z';
@@ -3096,12 +3133,24 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_SUM_HI_DEMON);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater demons!", m_name);
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/15 + 1) + 2;
+			else some = randint(rlev/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 3;
+
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < 8; k++)
+
+			for (k = 0; k < some; k++)
 			{
 				int sumlev = rlev;
-				if (randint(100) < badluck) sumlev += randint((badluck+5)/3);
-				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_DEMON);
+				if (randint(130) < badluck) sumlev += randint(3 + badluck/4);
+				/* possible to summon more than one but no more than one group */
+				if (k == some-1) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_DEMON);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_DEMON);
 			}
 			if (blind && count)
 			{
@@ -3113,27 +3162,33 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_MONSTER */
 		case RF6_OFFSET+18:
 		{
-			int styp = 0;
             if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_MONSTER);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons help!", m_name);
+			/* how many monsters to summon */
+			if ((randint(100) < (badluck+1)*2) && (rlev >= 15))
+			{
+				if (badluck > 8) some = randint(rlev/30 + 3);
+				else some = randint(3);
+			}
+			else some = 1;
+			/* cap */
+			if (some > 2 + (badluck+4)/6) some = 2 + (badluck+4)/6;
 			
-			/* To prevent monsters summoning contradictory monsters */
-			if (r_ptr->flags3 & (RF3_HURT_FIRE)) styp = SUMMON_NOFIRE;
-			else if (r_ptr->flags7 & (RF7_HATE_WATER)) styp = SUMMON_NOWATER;
-			else if ((r_ptr->flags3 & (RF3_EVIL)) ||
-				(r_ptr->flags3 & (RF3_HURT_LITE))) styp = SUMMON_NOLIGHT;
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
 			
-			for (k = 0; k < 1; k++)
+			for (k = 0; k < some; k++)
 			{
 				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
 				/* exception for Scroll of Aquirement town mimmic */
-                if ((r_ptr->level == 0) && (p_ptr->max_depth > 4)) count += summon_specific(m_ptr->fy, m_ptr->fx, p_ptr->max_depth/4 + 1, styp);
-                else count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, styp);
+				if ((r_ptr->level == 0) && (p_ptr->max_depth > 4)) count += summon_nogroups(m_ptr->fy, m_ptr->fx, p_ptr->max_depth/4 + 1, 0);
+				/* possible to summon more than one but no more than one group */
+				else if (k == some-1) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, 0);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, 0);
 			}
 			if (blind && count)
 			{
@@ -3145,25 +3200,29 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_MONSTERS */
 		case RF6_OFFSET+19:
 		{
-			int samt = 6 + randint(2); /* 7-8 */
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_MONSTER);
-			if (randint(100) < (goodluck + 1) * 2)
-			{
-				if (goodluck > 2) samt -= randint(goodluck/3 + 1);
-				else samt -= 1;
-			}
-			if ((randint(100) < (badluck + 1) * 2) && 
-				((samt < 8) || (badluck > 5))) samt += 1;
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons monsters!", m_name);
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint((rlev+10)/15 + 1) + 2;
+			else some = randint((rlev+15)/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 2 + randint(2);
+
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < 8; k++)
+
+			for (k = 0; k < some; k++)
 			{
 				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
-				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, 0);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				/* not too many monster groups */
+				if (k < 3) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, 0);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, 0);
 			}
 			if (blind && count)
 			{
@@ -3175,23 +3234,28 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_ANIMAL */
 		case RF6_OFFSET+20:
 		{
-			int styp = SUMMON_ANIMAL;
             if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_ANIMAL);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons animals.", m_name);
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint((rlev+10)/20 + 1) + 2;
+			else some = randint((rlev+10)/20 + 1) + 1;
+			/* cap */
+			if (some > 6 + badluck/5) some = 4 + badluck/5 + randint(2);
 			
-			/* To prevent monsters summoning contradictory monsters */
-			if (r_ptr->flags3 & (RF3_HURT_FIRE)) styp = SUMMON_ANI_NOFIRE;
-			else if (r_ptr->flags7 & (RF7_HATE_WATER)) styp = SUMMON_ANI_NOWATER;
-			else if ((r_ptr->flags3 & (RF3_EVIL)) ||
-				(r_ptr->flags3 & (RF3_HURT_LITE))) styp = SUMMON_ANI_NOLIGHT;
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
 
-			for (k = 0; k < 6; k++)
+			for (k = 0; k < some; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, styp);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				/* not too many monster groups */
+				if (k < 4) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANIMAL);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANIMAL);
 			}
 			if (blind && count)
 			{
@@ -3203,17 +3267,28 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_SPIDER */
 		case RF6_OFFSET+21:
 		{
-			int samt = 6;
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_SPIDER);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons spiders.", m_name);
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint((rlev+10)/20 + 1) + 2;
+			else some = randint((rlev+10)/20 + 1) + 1;
+			/* cap */
+			if (some > 6 + badluck/5) some = 4 + badluck/5 + randint(2);
+
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
+			
+			for (k = 0; k < some; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_SPIDER);
+				int sumlev = rlev;
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				/* not too many monster groups */
+				if (k < 4) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_SPIDER);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_SPIDER);
 			}
 			if (blind && count)
 			{
@@ -3225,16 +3300,24 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_HOUND */
 		case RF6_OFFSET+22:
 		{
-			int samt = 6;
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_HOUND);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hounds.", m_name);
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint((rlev+10)/20 + 1) + 2;
+			else some = randint((rlev+10)/20 + 1) + 1;
+			/* cap */
+			if (some > 5 + badluck/4) some = 3 + badluck/4 + randint(2);
+
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
+
+			for (k = 0; k < some; k++)
 			{
+				/* (don't block groups because hounds are always in groups) */
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HOUND);
 			}
 			if (blind && count)
@@ -3247,17 +3330,24 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_HYDRA */
 		case RF6_OFFSET+23:
 		{
-			int samt = 6;
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_HYDRA);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hydras.", m_name);
-			if (randint(100) < (goodluck + 5) * 2) samt -= randint(2);
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint((rlev+10)/20 + 1) + 2;
+			else some = randint((rlev+10)/20 + 1) + 1;
+			/* cap */
+			if (some > 5 + badluck/4) some = 3 + badluck/4 + randint(2);
+
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
+
+			for (k = 0; k < some; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HYDRA);
+				count += summon_nogroups(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HYDRA);
 			}
 			if (blind && count)
 			{
@@ -3269,31 +3359,39 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_ANGEL (summon ape) */
 		case RF6_OFFSET+24:
 		{
-			int samt = 1 + rand_int(2);
 		    cptr rname = (r_name + r_ptr->name);
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_ANIMAL);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons something hairy!", m_name);
-			if ((randint(100) < (goodluck + 1) * 2) && (samt > 1)) samt -= 1;
-			if (randint(100) < (badluck + 1) * 2) samt += 1;
-			/* spellswitch 40: The Wicked witch of the West */
-            /* prefers winged monkeys */
-			/* if (strstr(rname, "West")) spellswitch = 40; */
+			/* how many monsters to summon */
+			if ((randint(100) < (badluck+1)*2) && (rlev >= 15))
+			{
+				if ((badluck > 8) && (rlev >= 40)) some = randint(rlev/20 + 2) + 1;
+				else some = randint(3) + 1;
+			}
+			else if ((randint(100) < (badluck+20)*2) && (rlev >= 10))
+				some = 2;
+			else some = 1;
+			/* cap */
+			if (some > 4 + (badluck+4)/6) some = 2 + (badluck+4)/6 + randint(2);
+
+			/* Summoning monster may affect what is summoned */
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
+			
+			for (k = 0; k < some; k++)
 			{
 				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
-				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANGEL);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				/* not too many monster groups */
+				if (k < 2) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANGEL);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_ANGEL);
 			}
 			if (blind && count)
 			{
 				msg_print("You hear something appear nearby ..and it spells like a monkey.");
 			}
-			/* reset the global hack */
-			spellswitch = 0;
 			break;
 		}
 
@@ -3308,7 +3406,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
 				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_DEMON);
 			}
 			if (blind && count)
@@ -3330,7 +3428,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
 				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_UNDEAD);
 			}
 			if (blind && count)
@@ -3352,7 +3450,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				int sumlev = rlev;
-				if (randint(150) < badluck) sumlev += randint((badluck+1)/2);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
 				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_DRAGON);
 			}
 			if (blind && count)
@@ -3365,19 +3463,28 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_HI_UNDEAD */
 		case RF6_OFFSET+28:
 		{
-			int samt = 8;
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_UNDEAD);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater undead!", m_name);
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/15 + 1) + 2;
+			else some = randint(rlev/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 3;
+
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
+
+			for (k = 0; k < some; k++)
 			{
 				int sumlev = rlev;
-				if (randint(100) < badluck) sumlev += randint((badluck+5)/3);
-				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_UNDEAD);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				/* not too many monster groups (undead rarely come in groups anyway) */
+				if (k < 3) count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_UNDEAD);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -3389,19 +3496,26 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_HI_DRAGON */
 		case RF6_OFFSET+29:
 		{
-			int samt = 8;
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_DRAGON);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons ancient dragons!", m_name);
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			/* how many monsters to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/15 + 1) + 2;
+			else some = randint(rlev/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 3;
+
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
+
+			for (k = 0; k < some; k++)
 			{
 				int sumlev = rlev;
-				if (randint(100) < badluck) sumlev += randint((badluck+5)/3);
-				count += summon_specific(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_DRAGON);
+				if (randint(150) < badluck) sumlev += randint(3 + badluck/4);
+				count += summon_nogroups(m_ptr->fy, m_ptr->fx, sumlev, SUMMON_HI_DRAGON);
 			}
 			if (blind && count)
 			{
@@ -3413,24 +3527,33 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_WRAITH */
 		case RF6_OFFSET+30:
 		{
-			int samt = 8;
+			int wraiths = 3 + rand_int((badluck+5)/2) + badluck/5;
+			if (wraiths > 9) wraiths = 9;
 			/* silence summons can't stop Sauron from summoning his ringwraiths */
-            if ((m_ptr->silence) && (rlev < 99)) return FALSE;
+			if ((m_ptr->silence) && (rlev < 99)) return FALSE;
             
 			disturb(1, 0);
 			sound(MSG_SUM_WRAITH);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons mighty undead!", m_name);
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
-			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
-			}
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
-			for (k = 0; k < samt + 1; k++)
+			for (k = 0; k < wraiths; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_WRAITH);
+			}
+
+			/* how many HI_UNDEAD to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/15 + 1) + 2;
+			else some = randint(rlev/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 3;
+			for (k = 0; k < some; k++)
+			{
+				/* not too many monster groups (undead rarely come in groups anyway) */
+				if (k < 4) count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -3442,22 +3565,38 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_UNIQUE */
 		case RF6_OFFSET+31:
 		{
-			int samt = 8;
 			if (m_ptr->silence) return FALSE;
 			disturb(1, 0);
 			sound(MSG_SUM_UNIQUE);
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
 			summoner = m_ptr->r_idx;
-			for (k = 0; k < samt; k++)
+
+			/* how many uniques to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/15 + 1) + 2;
+			else some = randint(rlev/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 3;
+			for (k = 0; k < some; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNIQUE);
 			}
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else if (count) msg_format("%^s magically summons special opponents!", m_name);
-			else msg_format("%^s magically summons special monsters!", m_name);
-			for (k = 0; k < samt; k++)
+			else msg_format("%^s magically summons greater undead!", m_name);
+
+			/* how many HI_UNDEAD to summon */
+			if ((randint(100) < badluck*2) && (rlev >= 20)) 
+				some = randint(rlev/15 + 1) + 2;
+			else some = randint(rlev/20 + 2) + 1;
+			/* cap */
+			if (some > 8 + badluck/5) some = 6 + badluck/5 + randint(2);
+			if ((some < 3) && (goodluck < 5)) some = 3;
+			for (k = 0; k < some; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
+				/* not too many monster groups (undead rarely come in groups anyway) */
+				if (k < 3) count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
+				else count += summon_nogroups(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -5276,7 +5415,10 @@ static void process_monster(int m_idx)
 		if (p_ptr->telepathy)
 		{
 			cptr rname = (r_name + r_ptr->name);
-			if (strstr(rname, "ind flayer")) noticerange -= (290 + (badluck*5));
+			if (strstr(rname, "ind flayer")) noticerange -= (300 + badluck*5);
+			/* Smart monsters can sense telepathy sometimes */
+			else if ((r_ptr->flags2 & (RF2_SMART)) && (randint(200) < r_ptr->level))
+				noticerange -= (40 + r_ptr->level + badluck*4);
 		}
 
 		/* awake in a dark space within the PC's light radius (very likely to notice the PC) */
@@ -5284,8 +5426,12 @@ static void process_monster(int m_idx)
 			(m_ptr->cdis < p_ptr->cur_lite))
 		{
 			if (p_ptr->cur_lite < 4) noticerange = noticerange/2 - 40;
-			else if (m_ptr->cdis < 3) noticerange -= noticerange/3;
+			else if (m_ptr->cdis < 3) noticerange = noticerange/3;
+			else noticerange -= noticerange/5;
 		}
+		
+		/* paranoia */
+		if (noticerange < 2) noticerange = 2;
 
 		notice = rand_int(noticerange);
 
@@ -6132,24 +6278,29 @@ static void process_monster(int m_idx)
 
 				/* Door power */
 				k = ((cave_feat[ny][nx] - FEAT_DOOR_HEAD) & 0x07);
-				/* inflate so stuck doors can actually block monsters sometimes */
-				k = (k + 1) * 3;
+				
 				/* make up for having less levels of door power */
 				if (cave_feat[ny][nx] > FEAT_DOOR_TAIL - 2)
 					k += 1 + randint(2 + (goodluck+1)/2);
+				/* inflate so stuck doors can actually block monsters sometimes */
+				k = (k + 1) * 5; /* was k = (k + 1) * 3 */
 				
 				/* monster's bashing power */
 				bashhp = (m_ptr->hp+4) / 15;
-				if (bashhp > 240) bashhp = 240;
+				if (bashhp > 220) bashhp = 220;
 				/* some types bash worse than others */
-				if ((strchr("BCFIJSZbefkpqrst", r_ptr->d_char)) && (bashhp > 10))
+				if ((strchr("BFIJZbefkrt", r_ptr->d_char)) && (bashhp > 10))
+                   bashhp = (bashhp * 3) / 4;
+				if ((strchr("CShpqs", r_ptr->d_char)) && (bashhp > 10))
                    bashhp = (bashhp * 4) / 5;
                 /* lower max for most humans & humanoids and some others */
 				if ((strchr("FIkptr@", r_ptr->d_char)) && (bashhp > 60)) bashhp = 60;
-				if ((strchr("BKbho", r_ptr->d_char)) && (bashhp > 120)) bashhp = 120;
+				if ((strchr("BCKZbfho", r_ptr->d_char)) && (bashhp > 120)) bashhp = 120;
 				/* some types bash better than others */
 				if ((strchr("DENOPTUXYdg%&", r_ptr->d_char)) && (bashhp <= 200))
-                   bashhp = (bashhp * 6) / 5;
+					bashhp = (bashhp * 6) / 5;
+				/* replace previous with this when monster size is coded */
+				/* if (monster size > x) */
 
 				/* if a monster has BASH_DOOR then they should always have some chance */
 				if (bashhp < k + 2)
@@ -6167,6 +6318,7 @@ static void process_monster(int m_idx)
 				if ((m_ptr->confused) && (m_ptr->stunned)) bashhp = bashhp/3;
 				else if ((m_ptr->confused) || (m_ptr->stunned)) bashhp = (bashhp*2)/3;
 				if ((badluck > 8) && (bashhp <= k+1) && (r_ptr->level > 5)) bashhp = k+2;
+				if (bashhp < 2) bashhp = 2;
 
 				/* Attempt to Bash */
 				if (rand_int(bashhp) > k)
@@ -6240,10 +6392,14 @@ static void process_monster(int m_idx)
            	/* hack for dwarves' digging */
   			if (strstr(dname, "dwarf")) bashstr = 60;
            	/* some monsters are better at digging/bashing than others */
-			if (strchr("XP:", r_ptr->d_char)) bashstr = 65;
-            else if (strchr("DETg%&", r_ptr->d_char)) bashstr = 50;
+			else if (strchr("XP:%", r_ptr->d_char)) bashstr = 70;
+            else if (strchr("DETg&", r_ptr->d_char)) bashstr = 50;
             else if (strchr("ZOMdnox", r_ptr->d_char)) bashstr = 40;
             else bashstr = 35;
+            
+			/* Boulders can leave rubble, so monsters who throw them */
+			/* should climb/move the rubble easily */
+			if (r_ptr->flags4 & (RF4_BOULDER)) bashstr = bashstr * 3;
 
 			/* hard to climb over rubble from inside of a pit (doesn't affect climbers) */
 			if (openpit) bashstr -= 10;
@@ -6580,7 +6736,8 @@ static void process_monster(int m_idx)
 				bool needclimb = TRUE;
 				/* these monsters never have trouble getting out of pits */
 				if ((r_ptr->flags2 & (RF2_FLY)) || (r_ptr->flags2 & (RF2_PASS_WALL)) ||
-					(r_ptr->flags2 & (RF2_KILL_WALL))) needclimb = FALSE;
+					(r_ptr->flags2 & (RF2_KILL_WALL)) || (r_ptr->flags2 & (RF2_PASS_DOOR))) 
+					needclimb = FALSE;
 
 				/* monster is climbing out of a pit */
 				if ((openpit) && (needclimb))

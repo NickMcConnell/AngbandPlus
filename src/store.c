@@ -1312,8 +1312,7 @@ static bool store_create_random(int st)
 {
 	int k_idx, tries, level, tval, sval;
 	int min_level, max_level;
-	bool luckfail = FALSE;
-	bool lucktry = FALSE;
+	bool lucktry, luckfail = FALSE;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -1341,9 +1340,10 @@ static bool store_create_random(int st)
 	/* Consider up to six items */
 	for (tries = 0; tries < 6; tries++)
 	{
-		/* Work out the level for objects to be generated at */
+		lucktry = FALSE;
+        /* Work out the level for objects to be generated at */
 		level = rand_range(min_level, max_level);
-        if (level > 2) level -= 1;
+        if (level > 2) level -= 1; /* why this line? */
 
 		/* Black Markets have a random object, of a given level */
 		if (st == STORE_B_MARKET)
@@ -1379,12 +1379,17 @@ static bool store_create_random(int st)
 
 		/*** Pre-generation filters ***/
 
-		/* No chests, skeletons, or treasure maps in stores XXX */
+		/* No chests, skeletons, or treasure maps in stores */
 		if (tval == TV_CHEST) continue;
 		if ((tval == TV_SPECIAL) && (sval == SV_TREASURE)) continue;
 		/* sometimes allow TV_SKELETON in black market later */
 		if ((tval == TV_SKELETON) && ((randint(100) > 40) ||
 			(p_ptr->max_depth < 35))) continue;
+		/* luck potions / mushrooms shouldn't even appear in the BM */
+		/* (unless you get extremely lucky: see get_lucky() ) */
+		if ((((tval == TV_FOOD) && (sval == SV_FOOD_LUCKFINDING)) ||
+			((tval == TV_POTION) && (sval == SV_POTION_FOUR_LEAF))) &&
+			(!lucktry)) continue;
 
 		/*** Generate the item ***/
 
@@ -1407,21 +1412,28 @@ static bool store_create_random(int st)
 
 		/* Black markets have expensive tastes */
 		if ((st == STORE_B_MARKET) && !black_market_ok(i_ptr)) continue;
+		/* these filters don't apply to BM */
+		else if (st == STORE_B_MARKET) /* okay */;
 		/* no ego magic staffs or rings carried in stores (except black market) */
-        else if (((tval == TV_STAFF) || (tval == TV_RING)) && (i_ptr->name2) && (st != STORE_B_MARKET))
+        else if (((tval == TV_STAFF) || (tval == TV_RING)) && (i_ptr->name2))
              continue;
-        /* no "of randomness" or "Natural" egos in stores */
+		/* no "of randomness" or "Natural" egos in stores (except BM) */
         else if (((i_ptr->name2 >= EGO_RANDOM1) && (i_ptr->name2 <= EGO_NATURAL_LITE)) ||
         ((i_ptr->name2 >= EGO_CONSTANT1) && (i_ptr->name2 <= EGO_CONSTANT2)) ||
         ((i_ptr->name2 >= EGO_RANDOM_AC1) && (i_ptr->name2 <= EGO_RANDOM_BOW)))
              continue;
+/* #if this */
+		/* no ego spellbooks allowed in stores (except BM) */
+		else if ((i_ptr->tval >= TV_MAGIC_BOOK) && (i_ptr->tval < TV_GOLD) &&
+			(i_ptr->name2)) continue;
+/* #endif */
 
 		/* dungeon books should normally be found in the dungeon */
 		/* instead of being aquired from the black market. */
 		if ((i_ptr->tval >= TV_MAGIC_BOOK) && (i_ptr->tval < TV_GOLD) && 
 			(i_ptr->sval >= SV_BOOK_MIN_GOOD) && (randint(100) < 42 - goodluck/2)) continue;
 
-		/* No "worthless" items */
+		/* No worthless items */
 		if (object_value(i_ptr) < 1) continue;
 
 

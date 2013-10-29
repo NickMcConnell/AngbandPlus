@@ -401,6 +401,31 @@ struct monster_race
 
 	byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
+	
+#ifdef newrst
+	s16b spr;               /* spell range */
+	byte mrsize;            /* monster race size */
+	s16b maxpop;            /* max total population (per game) */
+	s16b curpop;            /* how many killed so far this game */
+	
+	/* monster resistances */
+	byte Rfire;
+	byte Rcold; 
+	byte Relec; 
+	byte Racid;
+	byte Rpois;
+	byte Rlite;
+	byte Rdark;
+	byte Rwater;
+	byte Rnexus;
+	byte Rmissile;
+	byte Rchaos;
+	byte Rdisen;
+	byte Rsilver;
+	byte Rtaming;
+	byte R4later;
+	byte R4later2;
+#endif
 
 	byte d_attr;			/* Default monster attribute */
 	char d_char;			/* Default monster character */
@@ -410,7 +435,6 @@ struct monster_race
 
 	byte max_num;			/* Maximum population allowed per level */
 	byte cur_num;			/* Monster population on current level */
-
 };
 
 
@@ -932,7 +956,7 @@ struct player_class
 	u16b spell_weight;	/* Weight that hurts spells */
 
 	u32b sense_base;	/* Base pseudo-id value */
-	u16b sense_div;		/* Pseudo-id divisor */
+	u16b sense_div;		/* Pseudo-id divisor (now unused) */
 
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 

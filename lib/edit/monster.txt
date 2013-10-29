@@ -2501,10 +2501,11 @@ F:IM_POIS | RAND_25
 F:EVIL | ANIMAL
 D:a baby cockatrice.
 
+#was dL10
 N:187:fire orc
 G:o:R
 I:110:11d8:20:32:28
-W:11:4:0:23
+W:10:4:0:23
 B:HIT:HURT:1d6
 B:HIT:FIRE:1d4
 F:MALE | DROP_60 | MONGLOW
@@ -5534,7 +5535,7 @@ B:TOUCH:ACID:1d9
 F:DROP_60 | DROP_90
 F:STUPID | EMPTY_MIND | FRIEND1
 F:TAKE_ITEM | PASS_DOOR
-F:IM_ACID | IM_FIRE | IM_POIS | IM_COLD
+F:IM_ACID | IM_POIS | IM_COLD
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 F:ICKY_PLACE | DARK_CITY | WATER_HIDE
 D:Haven't you heard of puddings made for a tasty dessert, but enchanted to walk off
@@ -9300,6 +9301,7 @@ S:1_IN_8
 S:BR_POIS | BR_DARK | BR_NEXU
 D:A large basilisk, whose shape resembles that of a great wyrm.
 
+#Humbaba's HEAL_KIN heals all animals
 N:645:Humbaba, Guardian of the Forest
 G:A:D
 I:120:30d100:20:60:60
@@ -11030,7 +11032,8 @@ S:1_IN_2
 S:BLINK | TELE_TO | S_HI_DEMON
 D:A massive pulsating mound of flesh, glowing with a hellish light.
 
-# experimental
+# experimental (had FRIEND1, changed to FRIEND -a tough multiplier which already
+# comes in groups is probably too nasty)
 N:741:gnawing bug
 G:c:u
 I:118:11d39:11:80:3
@@ -11040,9 +11043,10 @@ B:CRAWL:PARALYZE:9d3
 B:STING:POISON:9d4
 F:NO_SLEEP | IM_POIS | IM_ACID | IM_FIRE | RES_PLAS
 F:HURT_LITE | KILL_WALL | MULTIPLY | ROAM1
-F:BUG | FRIEND1 | STUPID | WEIRD_MIND | RAND_50
+F:BUG | FRIEND | STUPID | WEIRD_MIND | RAND_50
 F:EARTHY_CAVE | BUG_CAVE | DWARF_MINE
-D:A giant acidic centapede native to very deep depths. It gnaws through the walls.
+D:A giant acidic centapede native to very deep depths. It gnaws through the walls
+D: and multiplies quickly.
 
 N:742:Achrya, the Spider Goddess
 G:x:r
@@ -12270,7 +12274,7 @@ F:OPEN_DOOR | BASH_DOOR | FORCE_DEPTH | ATTR_MULTI
 F:TAKE_ITEM | RAND_25 | REGENERATE | DROP_90 | DROP_30
 F:FRIEND1 | STUPID | WEIRD_MIND | FORCE_SLEEP | ROAM1
 F:FULL_MOON | NIGHTMARE | CASTLE | SWAMP | BUG_CAVE
-F:WINDY_CAVE | EARTHY_CAVE | VOLCANO | CFOREST | FFOREST
+F:WINDY_CAVE | EARTHY_CAVE | VOLCANO | CFOREST
 S:1_IN_3
 S:BLINK | TPORT | HEAL | HASTE | DRAIN_MANA | DARKNESS
 S:FORGET | S_MONSTER | MISSILE | CAUSE_2
@@ -13358,7 +13362,7 @@ N:909:statue
 G:#:s
 I:110:500d8:0:110:254
 W:30:0:0:0
-F:EMPTY_MIND | NON_LIVING | STUPID
+F:EMPTY_MIND | NON_LIVING | STUPID | IM_POIS
 F:NEVER_MOVE | NEVER_BLOW | HURT_ROCK
 F:NO_FEAR | NO_CONF | NO_STUN | RES_NEXUS
 F:CASTLE | DARK_CITY | BLOCK_LOS | NONMONSTER
@@ -13371,7 +13375,7 @@ N:910:statue
 G:#:s
 I:110:200d11:0:110:254
 W:15:0:0:0
-F:EMPTY_MIND | NON_LIVING | STUPID
+F:EMPTY_MIND | NON_LIVING | STUPID | IM_POIS
 F:NEVER_MOVE | NEVER_BLOW | HURT_ROCK
 F:NO_FEAR | NO_CONF | NO_STUN | RES_NEXUS
 F:CASTLE | DARK_CITY | NONMONSTER
@@ -13385,7 +13389,7 @@ N:911:fountain
 G:#:s
 I:110:500d8:0:110:254
 W:30:0:0:0
-F:EMPTY_MIND | NON_LIVING | STUPID
+F:EMPTY_MIND | NON_LIVING | STUPID | IM_POIS
 F:NEVER_MOVE | NEVER_BLOW | HURT_ROCK
 F:NO_FEAR | NO_CONF | NO_STUN | RES_NEXUS | IM_WATER
 F:CASTLE | DARK_CITY | BLOCK_LOS | NONMONSTER

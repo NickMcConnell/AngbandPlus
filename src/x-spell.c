@@ -1027,6 +1027,9 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 				if (plev >= 9) strnfmt(p, len, " dam %d+d%d", plev/3, plev / 2 + 1);
 			    else my_strcpy(p, " dur 3+d4", len);
 			    break;
+			case LUCK_DISINFECTANT:
+				strnfmt(p, len, " dam %d + d%d", 2 + (plev+3)/6, (plev+2)/3);
+			    break;
 		    case LUCK_HIT_N_RUN:
 				strnfmt(p, len, " dam 2d%d+1", (plev / 3) + 1);
 				break;
@@ -1063,7 +1066,10 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case CHEM_CURE_LIGHT_WOUNDS:
+			case CHEM_DISINFECTANT:
+			    strnfmt(p, len, " dam %d + d%d", 3 + plev/8, (plev+1)/2);
+			    break;
+            case CHEM_CURE_LIGHT_WOUNDS:
 				curep = (p_ptr->mhp * 11) / 100; /* 11% */
 				strnfmt(p, len, " heal 2d9, min%d", curep);
 				break;
@@ -1173,7 +1179,10 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
                 else strnfmt(p, len, " dam 6+d%d", plev-3);
                 break;
             }
-		    case DARK_SHADOW_STING:
+			case DARK_WITCH_DISINFECTANT:
+				strnfmt(p, len, " dam %d + d%d", 3 + plev/8, (plev+1)/2);
+				break;
+			case DARK_SHADOW_STING:
 			    if (plev < 4) strnfmt(p, len, " dam 2d%d", plev * 2);
 			    else if (plev < 8) strnfmt(p, len, " dam 2d%d", 6);
 			    else if (plev < 15) strnfmt(p, len, " dam 2d%d", plev-1);
@@ -1233,7 +1242,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 				my_strcpy(p, " dur 20+d20", len);
 				break;
 			case DARK_SHADOW_STEP:
-				my_strcpy(p, " dur 15+d15", len);
+				my_strcpy(p, " dur 13+d13", len);
 				break;
 			case DARK_SLIP_INTO_SHADOWS:
 				strnfmt(p, len, " dur 35+d%d", plev+5);
@@ -1369,7 +1378,7 @@ static bool cast_mage_spell(int spell)
             {
                msg_print("Your first sight supresses detection.");
             }
-            else (void)detect_monsters_normal(FALSE);
+            else (void)detect_monsters_normal(1);
 			break;
 		}
 
@@ -1398,6 +1407,7 @@ static bool cast_mage_spell(int spell)
 			int cure = damroll(2, 8);
 			int curep = p_ptr->mhp / 10;
 			if (cure < curep) cure = curep;
+			if (cure > 39) cure = 39; /* maximum */
 			(void)hp_player(cure);
 			(void)dec_timed(TMD_CUT, 15);
 			break;
@@ -1489,7 +1499,7 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("A line of blue shimmering light appears.");
-			lite_line(dir);
+			lite_line(dir, 9-(plev/3));
 			break;
 		}
 
@@ -1986,6 +1996,7 @@ static bool cast_priest_spell(int spell)
 			int cure = damroll(2, 10);
 			int curep = (p_ptr->mhp * 12) / 100;
 			if (cure < curep) cure = curep;
+			if (cure > 49) cure = 49; /* maximum */
 			(void)hp_player(cure);
 			(void)dec_timed(TMD_CUT, 10);
 			break;
@@ -2052,7 +2063,7 @@ static bool cast_priest_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("A ray of white light appears.");
-			lite_line(dir);
+			lite_line(dir, 12-(plev/2));
 			break;
 		}
 		
@@ -2092,6 +2103,7 @@ static bool cast_priest_spell(int spell)
 			int cure = damroll(4, 10);
 			int curep = (p_ptr->mhp * 18) / 100;
 			if (cure < curep) cure = curep;
+			if (cure > 62) cure = 62; /* maximum */
 			(void)hp_player(cure);
 			(void)set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 2) - 20);
 			break;
@@ -2216,7 +2228,7 @@ static bool cast_priest_spell(int spell)
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_beam(GF_HOLY_ORB, dir,
 			          damroll((plev/10), 8) + plev + randint(plev/2));
-			if (randint(plev/3) > 6) lite_line(dir);
+			if (randint(plev/3) > 6) lite_line(dir, 0);
 			break;
 			/* av34 at L20, av51 at L30, av68 at L40, av85 at L50 */
         }	/* averages not including line_lite which adds 6d8 */
@@ -2278,7 +2290,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_SENSE_SURROUNDINGS:
 		{
-			map_area();
+			map_area(FALSE);
 			break;
 		}
 
@@ -2753,7 +2765,7 @@ static bool cast_newm_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("A ray of white light appears.");
-			lite_line(dir);
+			lite_line(dir, 12-(plev/2));
 			break;
 		}
 		
@@ -2986,7 +2998,7 @@ static bool cast_newm_spell(int spell)
             }
             else
             {
-			  map_area();
+			  map_area(FALSE);
             }
 			break;
 		}
@@ -3488,6 +3500,7 @@ static bool cast_luck_spell(int spell)
 			int cure = damroll(2, 2 + (p_ptr->luck/4)) + randint(plev / 4);
 			int curep = (p_ptr->mhp * 11) / 100;
 			if (cure < curep) cure = curep;
+			if ((cure > 44) && (randint(80) > goodluck*2)) cure = 44; /* maximum */
 			(void)hp_player(cure);
 			(void)dec_timed(TMD_CUT, 10 + (goodluck/3));
 			break;
@@ -3606,7 +3619,7 @@ static bool cast_luck_spell(int spell)
             if ((die > 70) && (plev > 9) && (randint(100) < 4))
             {
                      msg_print("You feel a cold breeze.."); 
-                     cold_dam(1 + randint(plev/3), "a random cold breeze");
+                     cold_dam(1 + randint(plev/3), "a random cold breeze", plev-7);
                      if (cp_ptr->flags & CF_CUMBER_GLOVE) die += 2 + randint(5);
                      else die += 10 + (goodluck/5);
             }
@@ -3842,9 +3855,9 @@ static bool cast_luck_spell(int spell)
             }
             else if ((!p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck > 11))
             {
-			  (void)detect_monsters_normal(TRUE);
+			  (void)detect_monsters_normal(2);
             }
-            else (void)detect_monsters_normal(FALSE);
+            else (void)detect_monsters_normal(1);
 			break;
 		}
 
@@ -3906,7 +3919,7 @@ static bool cast_luck_spell(int spell)
             }
             else
             {
-			   map_area();
+			   map_area(FALSE);
             }
 			break;
 		}
@@ -3952,17 +3965,17 @@ static bool cast_luck_spell(int spell)
 			(void)dec_timed(TMD_POISONED, plev/4 + randint((plev+1)/2));
 			(void)dec_timed(TMD_CUT, plev/3 + randint((plev+2)/3));
 			(void)dec_timed(TMD_STUN, plev/5 + randint((plev+2)/3));
-			fire_spread(GF_BUG_SPRAY, 3 + randint((plev+2)/3 + goodluck), 6 + plev/6);
+			fire_spread(GF_BUG_SPRAY, 2 + ((plev+3)/6) + randint((plev+2)/3 + goodluck), 6 + plev/6);
             if ((randint(100) < 25+(plev/2)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
             if ((randint(100) < 10) && (plev > 14))
             {
-	            spellswitch = 16; /* damage slime in GF_bug_spray */
+			    spellswitch = 16; /* damage slime in GF_bug_spray */
 			   (void)dec_timed(TMD_POISONED, randint((plev+2)/3));
 			   (void)dec_timed(TMD_CUT, randint((plev+4)/5));
 			   (void)dec_timed(TMD_STUN, randint((plev+5)/6));
                if ((randint(100) < (plev * 3)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime -= 1;
                if ((randint(100) < 2 + (plev/2)) && (p_ptr->silver > PY_SILVER_HEALTHY)) p_ptr->silver -= 1;
-			   fire_spread(GF_BUG_SPRAY, 1 + randint(plev / 3 + goodluck), 6 + plev/6);
+			   fire_spread(GF_BUG_SPRAY, 1 + randint((plev+2)/ 3 + goodluck), 6 + plev/6);
 			   (void)inc_timed(TMD_WOPP_POIS, randint(plev/2 + 4) + 11);
             }
 			break;
@@ -3982,11 +3995,17 @@ static bool cast_luck_spell(int spell)
                (void)lite_area(damroll(2, (plev / 6)), (plev / 5));
                spellswitch = 0;
             }
-            else if (die < 90) map_area();
-            else
+            else if (die < 90) map_area(FALSE);
+            else if (die < 100)
             {
                (void)lite_area(damroll(2, (plev / 4)), (plev / 5));
-			   map_area();
+			   if (die == 94) map_area(TRUE);
+			   else map_area(FALSE);
+            }
+            else
+            {
+               (void)lite_area(damroll(2, (plev / 3)), (plev / 5));
+			   map_area(TRUE);
             }
 			break;
 		}
@@ -4023,18 +4042,23 @@ static bool cast_luck_spell(int spell)
 
 		case LUCK_MAP_LEVEL:
 		{
+			int mapstr = randint((plev - 2)*2 + goodluck);
             if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 12))
             {
                msg_print("Your first sight supresses detection.");
                break;
             }
-			if (randint(plev * 2) > 96) wiz_lite();
+            if (mapstr > 100) wiz_lite(TRUE);
+			else if (mapstr > 94) wiz_lite(FALSE);
 			else
 			{
-                if (randint(plev * 2) > 4) spellswitch = 1;
-                else msg_print("The map seems to be incomplete..");
-			    map_area(); /* spellswitch = 1 makes map_area map whole level */
-			    spellswitch = 0;
+                if (randint(plev * 2 + goodluck - badluck) > 4) 
+                    map_area(TRUE);
+                else
+                {
+                    msg_print("The map seems to be incomplete..");
+			        map_area(FALSE);
+			    }
             }
 			break;
 		}
@@ -4366,9 +4390,10 @@ static bool cast_luck_spell(int spell)
         {
             (void)spell_affect_self();
             die = randint(99) + randint(plev/5);
-            if (die > 105) wiz_lite();
+            if (die > 108) wiz_lite(TRUE);
+            else if (die > 105) wiz_lite(FALSE);
             else if (die > 100) return identify_fully();
-            else if (die > 95) map_area();
+            else if (die > 95) map_area(FALSE);
             else if (die > 85) return ident_spell();
             else if (die > 80) restore_level();
             else if (die > 77) gain_exp(randint(plev * 3));
@@ -4617,9 +4642,10 @@ static bool cast_luck_spell(int spell)
             /* need loop because spellswitch resets at the end of project() */
 		    for (way = 0; way < 10; way++)
 		    {
-            spellswitch = 9;lite_line(way); /* prevents area from staying lit */
+            spellswitch = 9;lite_line(way, 15-(plev/2)); /* prevents area from staying lit */
             }
-			fire_spread(GF_BUG_SPRAY, 1, 9 + plev/10);
+            spellswitch = 9;
+			fire_spread(GF_WATER, 1, 9 + plev/10);
 			break; /* like weak starlite except also stuns monsters */
         }
 
@@ -4965,6 +4991,7 @@ static bool cast_chem_spell(int spell)
 			int cure = damroll(2, 9);
 			int curep = (p_ptr->mhp * 11) / 100;
 			if (cure < curep) cure = curep;
+			if (cure > 43) cure = 43; /* maximum */
 			(void)hp_player(cure);
 			(void)dec_timed(TMD_CUT, 10);
 			break;
@@ -5018,7 +5045,7 @@ static bool cast_chem_spell(int spell)
 		case CHEM_DISINFECTANT:
 		{
             spellswitch = 16; /* damage slime in GF_bug_spray */
-			fire_spread(GF_BUG_SPRAY, 3 + randint((plev+1)/2), 6 + plev/6);
+			fire_spread(GF_BUG_SPRAY, 3 + plev/8 + randint((plev+1)/2), 6 + plev/6);
 			(void)dec_timed(TMD_POISONED, plev/4 + randint((plev+2)/3));
 			(void)dec_timed(TMD_CUT, plev/3 + randint((plev+2)/3));
 			(void)dec_timed(TMD_STUN, plev/5 + randint((plev+2)/3));
@@ -5083,7 +5110,7 @@ static bool cast_chem_spell(int spell)
             }
             else
             {
-			  (void)detect_monsters_normal(FALSE);
+			  (void)detect_monsters_normal(1);
             }
 			break;
 		}
@@ -5130,6 +5157,7 @@ static bool cast_chem_spell(int spell)
 			int cure = damroll(6, 8);
 			int curep = (p_ptr->mhp * 20) / 100;
 			if (cure < curep) cure = curep;
+			if (cure > 68) cure = 68; /* maximum */
 			(void)hp_player(cure);
 			(void)set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 3) - 2);
 			break;
@@ -6240,7 +6268,7 @@ static bool cast_dark_spell(int spell)
         case DARK_WITCH_DISINFECTANT:
 		{
             spellswitch = 16; /* damage slime in GF_bug_spray */
-			fire_spread(GF_BUG_SPRAY, 3 + randint(plev / 2), 6 + plev/6);
+			fire_spread(GF_BUG_SPRAY, 3 + plev/8 + randint((plev+1)/2), 6 + plev/6);
 			(void)inc_timed(TMD_CUT, randint(6) + 3);
 			/* now decreases poison by (poison/2) + d(poison/2) + 1 */
 			if (p_ptr->timed[TMD_POISONED] < 6) clear_timed(TMD_POISONED);
@@ -6308,17 +6336,10 @@ static bool cast_dark_spell(int spell)
 			break;
         } /* 11d7 at L20, 13d7 at L30, 15d7 at L40, 17d7 at L50 */
         
-        case DARK_SHADOW_STEP:
+        case DARK_SHADOW_STEP: /* now step into darkness */
         {
-             if (p_ptr->aggravate)
-             {
-                msg_print("You can't slip into the shadows while you're aggravating monsters.");
-    	        break;
-             }   
-             else
-             {
-                 (void)inc_timed(TMD_SHADOW, randint(15) + 15);
-             }
+             (void)unlite_area(6, 6, FALSE);
+             (void)inc_timed(TMD_DARKSTEP, randint(15 + goodluck) + 15);
     	     break;
         }
              
@@ -6385,7 +6406,7 @@ static bool cast_dark_spell(int spell)
 
 		case DARK_SHADOW_MAPPING:
 		{
-			map_area();
+			map_area(FALSE);
 			break;
 		}
 
@@ -6632,7 +6653,7 @@ static bool cast_dark_spell(int spell)
             }
             else
             {
-			  (void)detect_monsters_normal(TRUE);
+			  (void)detect_monsters_normal(2);
 			  (void)detect_monsters_invis();
             }
 			break;
@@ -6821,19 +6842,21 @@ static bool cast_dark_spell(int spell)
                  }
             }
 			break;
-        }
+		}
         
-        case DARK_SEE_ALL_FOES:
-        {
-            if (p_ptr->timed[TMD_2ND_THOUGHT])
-            {
-               msg_print("Your first sight supresses telepathy.");
-               break;
-            }
+		case DARK_SEE_ALL_FOES:
+		{
+			int time = randint(35) + 35;
+			if (p_ptr->timed[TMD_2ND_THOUGHT])
+			{
+				msg_print("Your first sight supresses detection.");
+				break;
+			}
 			(void)clear_timed(TMD_BLIND);
-			(void)inc_timed(TMD_SINVIS, randint(35) + 35);
+			(void)inc_timed(TMD_SINVIS, time);
+			if (p_ptr->lev > 32) (void)inc_timed(TMD_SINFRA, time);
 			break;
-        }
+		}
 
         case DARK_DRAW_MANA:        
         {
@@ -7003,16 +7026,16 @@ static bool cast_dark_spell(int spell)
                if ((badluck > 9) && (randint(100) < 10))
                {
                   msg_print("The fires of hell eagerly consume your lifeless flesh.");
-                  fire_dam((time*3) + randint(time*2), "Summoning fire while in the form of an undead.");
+                  fire_dam((time*3) + randint(time*2), "Summoning fire while in the form of an undead.", plev-5);
                }
                else if ((badluck > 5) && (randint(100) < 22))
                {
                   msg_print("The fires of hell eagerly scorch your lifeless flesh.");
-                  fire_dam((time*2) + randint(time), "Summoning fire while in the form of an undead.");
+                  fire_dam((time*2) + randint(time), "Summoning fire while in the form of an undead.", plev-5);
                }
                else
                {
-                  fire_dam(time + randint(time), "Summoning fire while in the form of an undead.");
+                  fire_dam(time + randint(time), "Summoning fire while in the form of an undead.", plev-5);
                }
                msg_print("The summoned fire causes you intense pain so you banish it quickly.");
             }
@@ -7023,12 +7046,12 @@ static bool cast_dark_spell(int spell)
                if ((badluck > 5) && (randint(100) < 8))
                {
                   msg_print("The fires of hell eagerly scorch your evil flesh.");
-                  fire_dam((time) + randint(time), "Summoning hellfire.");
+                  fire_dam((time) + randint(time), "Summoning hellfire.", plev-5);
                }
                else if ((badluck > 9) && (randint(100) < 4))
                {
                   msg_print("The fires of hell eagerly consume your evil flesh.");
-                  fire_dam((time*2) + randint(time), "Summoning hellfire.");
+                  fire_dam((time*2) + randint(time), "Summoning hellfire.", plev-5);
                }
                (void)inc_timed(TMD_WSHIELD, time);
                (void)inc_timed(TMD_OPP_FIRE, time);

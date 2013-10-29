@@ -2663,12 +2663,14 @@ D: 30 + d(clvl) turns. If you are currently aggravating monsters, it
 D: will usually have no effect, but if you're lucky it has a chance
 D: to attempt to remove the curse.
 
-N:403:Shadow Step
+N:403:Step Into Darkness
 I:95:1:8
-D:This is a short-lasting version of Slip Into the Shadows: It doubles your
-D: stealth, and gives you a slight bonus to alertness and ac for
-D: 15 + d15 turns. Has no effect if you are currently
-D: aggravating monsters.
+D:Gives you +1 to stealth, temporary darkvision, and sets your light radius
+D: to 1.  It also causes you to be hurt by light (even if you have
+D: resistance to light). (You don't take damage just from being in a lit space
+D: but you do take damage whenever the room you're in is illuminated, or you
+D: use starlight, or extra when a monster breathes light).
+D: This spell also darkens the room if you're in a room.
 
 N:404:Greater Venom Bolt
 I:95:3:6

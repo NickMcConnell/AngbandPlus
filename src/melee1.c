@@ -1121,9 +1121,13 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered in acid!");
 
-					/* Special damage (3/4 acid, 1/4 'hurt') */
-					acid_dam((damage * 3) / 4, ddesc);
-					take_hit(damage/4, ddesc);
+					if (damage > 11)
+					{
+    	                /* Special damage (3/4 acid, 1/4 'hurt') */
+						acid_dam((damage * 3) / 4, ddesc, rlev);
+						take_hit(damage/4, ddesc);
+                	}
+					else acid_dam(damage, ddesc, rlev);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ACID);
@@ -1142,9 +1146,13 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are struck by electricity!");
 
-					/* Special damage (3/4 acid, 1/4 'hurt') */
-					elec_dam((damage * 3) / 4, ddesc);
-					take_hit(damage/4, ddesc);
+					if (damage > 11)
+					{
+						/* Special damage (3/4 acid, 1/4 'hurt') */
+						elec_dam((damage * 3) / 4, ddesc, rlev);
+						take_hit(damage/4, ddesc);
+                	}
+					else elec_dam(damage, ddesc, rlev);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ELEC);
@@ -1165,10 +1173,13 @@ bool make_attack_normal(int m_idx)
 
 					/* Take damage (special) */
 					/* fire_dam(damage, ddesc); */
-
-					/* Special damage (3/4 acid, 1/4 'hurt') */
-					fire_dam((damage * 3) / 4, ddesc);
-					take_hit(damage/4, ddesc);
+					if (damage > 11)
+					{
+						/* Special damage (3/4 acid, 1/4 'hurt') */
+						fire_dam((damage * 3) / 4, ddesc, rlev);
+						take_hit(damage/4, ddesc);
+                	}
+					else fire_dam(damage, ddesc, rlev);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_FIRE);
@@ -1187,9 +1198,13 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered with frost!");
 
-					/* Special damage (3/4 acid, 1/4 'hurt') */
-					cold_dam((damage * 3) / 4, ddesc);
-					take_hit(damage/4, ddesc);
+					if (damage > 11)
+					{
+						/* Special damage (3/4 acid, 1/4 'hurt') */
+						cold_dam((damage * 3) / 4, ddesc, rlev);
+						take_hit(damage/4, ddesc);
+                	}
+					else cold_dam(damage, ddesc, rlev);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_COLD);
@@ -1227,7 +1242,7 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* XCONF has a change to bypass resist but still gets a saving throw */
+					/* XCONF has a chance to bypass resist but still gets a saving throw */
 					resist = p_ptr->skills[SKILL_SAV] + goodluck;
 					if (p_ptr->resist_confu) resist += 50;
 					xconfstr = 140;
@@ -1297,19 +1312,24 @@ bool make_attack_normal(int m_idx)
                      
 				case RBE_TERRIFY:
 				{
-			        /* extra damage reduction from surrounding magic */
+			        int frenz = 0;
+                    
+                    /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+					
+					if (p_ptr->timed[TMD_FRENZY]) frenz += 10;
+					if (r_ptr->flags2 & (RF2_POWERFUL)) frenz -= 5 + rand_int(10);
 
 					/* Increase "afraid" */
-					if ((p_ptr->resist_fear) || (p_ptr->timed[TMD_FRENZY]))
+					if (p_ptr->resist_fear)
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+					else if (rand_int(97 + r_ptr->level/3) < p_ptr->skills[SKILL_SAV] + frenz)
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -1334,6 +1354,7 @@ bool make_attack_normal(int m_idx)
 					int resistc = p_ptr->skills[SKILL_SAV];
 					if (p_ptr->timed[TMD_AMNESIA]) resistc -= 16;
 					if (p_ptr->timed[TMD_CLEAR_MIND]) resistc += 8;
+					if (r_ptr->flags2 & (RF2_POWERFUL)) resistc -= 10;
                     /* Take damage */
 					take_hit(damage, ddesc);
 
@@ -1343,7 +1364,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You resist its charms.");
 						obvious = TRUE;
 					}
-					else if (rand_int(125) < resistc)
+					else if (rand_int(110 + r_ptr->level/3) < resistc)
 					{
 						msg_print("You resist its charms.");
 						obvious = TRUE;
@@ -1880,7 +1901,7 @@ bool make_attack_normal(int m_idx)
                        
                        die = damage-1 + randint(damage);
 					   /* Take damage (special) */
-					   fire_dam(die, ddesc);
+					   fire_dam(die, ddesc, r_ptr->level);
                     }
                     else
                     {
