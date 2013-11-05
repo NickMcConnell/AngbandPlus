@@ -81,7 +81,9 @@ static const grouper group_item[] =
 
 	{ TV_SWORD,		"Weapons" },
 	{ TV_POLEARM,	  NULL },
+	{ TV_CLAW,	  NULL },
 	{ TV_HAFTED,	  NULL },
+	{ TV_AXE,	  NULL },
 	{ TV_DIGGING,	  NULL },
 
 	{ TV_SOFT_ARMOR,	"Armour (Body)" },
@@ -105,9 +107,6 @@ static const grouper group_item[] =
 	{ TV_ROD,		"Rods" },
 	{ TV_WAND,		"Wands" },
 	{ TV_STAFF,		"Staffs" },
-
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -192,7 +191,9 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		}
 
 		/* Weapons */
+	        case TV_AXE:
 		case TV_HAFTED:
+	        case TV_CLAW:
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
@@ -386,7 +387,9 @@ static const grouper group_artifact[] =
 {
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
+	{ TV_CLAW,	"Claws" },
 	{ TV_HAFTED,	"Hafted Weapons" },
+	{ TV_AXE, "Axes" },
 	{ TV_BOW,		"Bows" },
 	{ TV_DIGGING,	"Diggers" },
 
@@ -497,11 +500,6 @@ static const flag_desc brand_flags_desc[] =
 
 static const flag_desc resist_flags_desc[] =
 {
-	{ TR2_RES_ACID,   "Acid" },
-	{ TR2_RES_ELEC,   "Lightning" },
-	{ TR2_RES_FIRE,   "Fire" },
-	{ TR2_RES_COLD,   "Cold" },
-	{ TR2_RES_POIS,   "Poison" },
 	{ TR2_RES_FEAR,   "Fear" },
 	{ TR2_RES_LITE,   "Light" },
 	{ TR2_RES_DARK,   "Dark" },
@@ -513,18 +511,6 @@ static const flag_desc resist_flags_desc[] =
 	{ TR2_RES_NETHR,  "Nether" },
 	{ TR2_RES_CHAOS,  "Chaos" },
 	{ TR2_RES_DISEN,  "Disenchantment" },
-};
-
-/*
- * Elemental immunities (along with poison)
- */
-
-static const flag_desc immune_flags_desc[] =
-{
-	{ TR2_IM_ACID,    "Acid" },
-	{ TR2_IM_ELEC,    "Lightning" },
-	{ TR2_IM_FIRE,    "Fire" },
-	{ TR2_IM_COLD,    "Cold" },
 };
 
 /*
@@ -558,6 +544,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_FREE_ACT,           "Free Action" },
 	{ TR3_HOLD_LIFE,          "Hold Life" },
+	{ TR3_2HANDED,            "Two-handed Weapon" },
 	{ TR3_BLESSED,            "Blessed Blade" },
 	{ TR3_IMPACT,             "Earthquake impact on hit" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
@@ -616,9 +603,6 @@ typedef struct
 
 	/* A list if an object's elemental brands */
 	cptr brands[N_ELEMENTS(brand_flags_desc) + 1];
-
-	/* A list of immunities granted by an object */
-	cptr immunities[N_ELEMENTS(immune_flags_desc) + 1];
 
 	/* A list of resistances granted by an object */
 	cptr resistances[N_ELEMENTS(resist_flags_desc) + 1];
@@ -813,24 +797,6 @@ static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 
 
 /*
- * Note the immunities granted by an object
- */
-static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
-{
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
-	                               immune_list, N_ELEMENTS(immune_flags_desc));
-
-	/* Terminate the description list */
-	*immune_list = NULL;
-
-}
-
-
-/*
  * Note which stats an object sustains
  */
 static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
@@ -938,8 +904,6 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 	analyze_brand(o_ptr, desc_x_ptr->brands);
 
 	analyze_slay(o_ptr, desc_x_ptr->slays);
-
-	analyze_immune(o_ptr, desc_x_ptr->immunities);
 
 	analyze_resist(o_ptr, desc_x_ptr->resistances);
 
@@ -1115,8 +1079,6 @@ static void spoiler_print_art(const obj_desc_list *art_ptr)
 	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
 
 	spoiler_outlist("", art_ptr->brands, LIST_SEP);
-
-	spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
 
 	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
 
@@ -1955,27 +1917,6 @@ static void spoil_mon_info(cptr fname)
 			for (i = 0; i < vn; i++)
 			{
 				if (!i) spoil_out(" is hurt by ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-		/* Collect immunities */
-		vn = 0;
-		if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
-		if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
-		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
-		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
-		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" resists ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" and ");
 				spoil_out(vp[i]);

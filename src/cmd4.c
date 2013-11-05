@@ -49,7 +49,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SKILLS);
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
@@ -2938,4 +2938,23 @@ void do_cmd_knowledge(void)
 
 	/* Load screen */
 	screen_load();
+}
+
+
+
+/*
+ * Display the time
+ */
+void do_cmd_time()
+{
+     s32b len = 10L * TOWN_DAWN;
+     s32b tick = turn % len + len / 4;
+
+     int hour = (24 * tick / len) % 24;
+     int min = (1440 * tick / len) % 60;
+     
+     /* Message */
+     msg_format("The time is %d:%02d %s.",
+		(hour % 12 == 0) ? 12 : (hour % 12),
+		min, (hour < 12) ? "AM" : "PM");
 }

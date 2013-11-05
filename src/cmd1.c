@@ -181,8 +181,10 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_HAFTED:
+	        case TV_CLAW:
 		case TV_POLEARM:
 		case TV_SWORD:
+		case TV_AXE:
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
@@ -917,7 +919,7 @@ void hit_trap(int y, int x)
 					dam = dam * 2;
 					(void)set_cut(p_ptr->cut + randint(dam));
 
-					if (p_ptr->resist_pois || p_ptr->oppose_pois)
+					if (resist_effect(RES_POIS))
 					{
 						msg_print("The poison does not affect you!");
 					}
@@ -1058,7 +1060,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x0E:
 		{
 			msg_print("You are surrounded by a pungent green gas!");
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+			if (!resist_effect(RES_POIS))
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
 			}
@@ -1077,6 +1079,83 @@ void hit_trap(int y, int x)
 	}
 }
 
+
+
+/* Additional critical hit damage */
+int assasination(const monster_race *r_ptr, int damage)
+{
+     /* Assasination skill */
+     if (skill_value(ASSI_ASSASINATE))
+     {
+	  /* If successfull */
+	  if (rand_int(100) < (skill_value(ASSI_ASSASINATE) * 9 / 2) + 9)
+	  {
+	       /* Living humanoids */
+	       if ((r_ptr->d_char == 'h' || r_ptr->d_char == 'k' || r_ptr->d_char == 'o' ||
+		    r_ptr->d_char == 'p' || r_ptr->d_char == 't' || r_ptr->d_char == 'y') &&
+		   (!(r_ptr->flags3 & (RF3_UNDEAD))))
+	       {
+		    /* *3 damage */
+		    return damage * 3;
+	       }
+	       return damage;
+	  }
+     }
+
+     return damage;
+}
+
+/* Druids can use unarmed combat */
+int unarmed_damage(int level)
+{
+     int dmg = 1;
+
+     /* Based on level */
+     dmg = (level * 12 / 5) + 2;
+
+     /* Add bonuses from claws if not wearing gloves */
+     switch (p_ptr->shapeshift && (!inventory[INVEN_HANDS].k_idx))
+     {
+     case SHAPE_WOLF: dmg += 2; break;
+     case SHAPE_BEAR: dmg += 3; break;
+     }
+
+     /* Add bonuses from gloves/boots */
+     if (inventory[INVEN_HANDS].k_idx) switch (inventory[INVEN_HANDS].sval)
+     {
+     case SV_SET_OF_MAIL_GAUNTLETS: dmg += 1; break;
+     case SV_SET_OF_STEEL_GAUNTLETS: dmg += 2; break;
+     }
+     if (inventory[INVEN_FEET].k_idx) switch (inventory[INVEN_FEET].sval)
+     {
+     case SV_PAIR_OF_SPIKED_LEATHER_BOOTS: dmg += 1; break;
+     case SV_PAIR_OF_METAL_SHOD_BOOTS: dmg += 2; break;
+     }
+
+     return (dmg);
+}
+
+
+/* Change a weapon's bonus to damage into
+ * amplified damage dice */
+int amplify_ds(int dd, int ds, int to_d)
+{
+  /** eg, 1d7 +6 **/
+  int avg_dmg = dd * (ds + 1) / 2;
+
+  /** eg, 100 * (4 + 6) / 4 = 25 * 10 = 250 **/
+  int percentage = (100 * (avg_dmg + to_d) / avg_dmg);
+
+  /* New ds, before taking into account new dd */
+  /** eg, 7 * 250 / 100 = 1750 / 100 = 17 **/
+  int new_ds = ds * percentage / 100;
+
+  /* Minimum of 1 side */
+  if (new_ds < 1) new_ds = 1;
+
+  /* Return flat_ds if calculating new dd */
+  return (new_ds);
+}
 
 
 /*
@@ -1099,6 +1178,12 @@ void py_attack(int y, int x)
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
+
+	/* Get array of blows in order to try them */
+	int blows1 = p_ptr->num_blow1;
+	int blows2 = p_ptr->num_blow2;
+	int blows[20]; /* Shouldn't need more than this... */
+	int i = 0;
 
 
 	/* Get the monster */
@@ -1137,22 +1222,66 @@ void py_attack(int y, int x)
 	}
 
 
-	/* Get the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
+	/* While blows remaining, create array in blows[] of alternating blows */
+	while (blows1 + blows2 > 0)
+	{
+	     /* If first hand has blows remainig */
+	     if (blows1)
+	     {
+		  /* Next attack is from first hand */
+		  blows[i] = 1;
+		  /* Next attack */
+		  i++;
+		  /* One less blow from first hand */
+		  blows1--;
+	     }
+	     /* If second hand has blows remaining */
+	     if (blows2)
+	     {
+		  /* Next attack is from second hand */
+		  blows[i] = 0;
+		  /* Next attack */
+		  i++;
+		  /* One less blow from second hand */
+		  blows2--;
+	     }
+	}
 
 	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
+	while (num++ < i)
 	{
+	        /* Get weapon to use for this attack */
+	        if (blows[num-1])
+		{
+		     /* Get the weapon */
+		     o_ptr = &inventory[INVEN_WIELD];
+		}
+		else
+		{
+		     /* Get weapon in second slot */
+		     o_ptr = &inventory[INVEN_ARM];
+		}
+
+	        /* Calculate the "attack quality" */
+	        bonus = p_ptr->to_h + (weapon_mastery(blows[num-1]) * 2);
+	        if (o_ptr->k_idx) bonus += o_ptr->to_h;
+	        chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
-			/* Message */
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+		        /* Describe action */
+		        char hit_desc[10] = "hit";
+
+			/* Unarmed combat skill */
+			if (skill_value(DRUID_UNARMED) &&
+			    (!dual_wielding()) &&
+			    (!inventory[INVEN_WIELD].k_idx))
+			{
+			     if (rand_int(2))
+				  strcpy(hit_desc, "punch");
+			     else strcpy(hit_desc, "kick");
+			}
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1160,18 +1289,50 @@ void py_attack(int y, int x)
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
+				k = damroll(o_ptr->dd, amplify_ds(o_ptr->dd, o_ptr->ds, o_ptr->to_d));
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
-				k += o_ptr->to_d;
+				k = assasination(r_ptr, k); /* default is to return unchanged */
 			}
+			else if (skill_value(DRUID_UNARMED) &&
+				 !inventory[INVEN_WIELD].k_idx &&
+				 !dual_wielding())
+			{
+			     /* Unarmed attacks */
+			     k = damroll(1, unarmed_damage(skill_value(DRUID_UNARMED)));
+			     k = critical_norm(skill_value(DRUID_UNARMED) * 5, p_ptr->to_h, k);
+			}
+			else strcpy(hit_desc, "punch");
 
 			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;
+			k += p_ptr->to_d + weapon_mastery(blows[num-1]) + 
+			     might_bonus(k);
+			if (p_ptr->aura != AURA_TIGER &&
+			    p_ptr->aura != AURA_COBRA) k += tiger_strike(k, hit_desc);
+
+			/* Add to charges */
+			charge_ups(FALSE);
 
 			/* No negative damage */
 			if (k < 0) k = 0;
+
+			/* Assasin's healing */
+			if (p_ptr->aura != AURA_TIGER &&
+			    p_ptr->aura != AURA_COBRA) life_steal(k, hit_desc);
+
+			/* Message */
+			if (!o_ptr->k_idx)
+			{
+			     message_format(MSG_HIT, m_ptr->r_idx, "You %s %s.", hit_desc, m_name);
+			}
+			else
+			{
+			     char o_name[80];
+			     object_desc(o_name, o_ptr, FALSE, 0);
+			     message_format(MSG_HIT, m_ptr->r_idx, "You %s %s with your %s.", hit_desc, 
+					    m_name, o_name);
+			}
 
 			/* Complex message */
 			if (p_ptr->wizard)
@@ -1219,9 +1380,19 @@ void py_attack(int y, int x)
 			/* Message */
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
+
+		/* Charge-up being used is maxed, don't waste blows */
+		if ((p_ptr->aura == AURA_TIGER && p_ptr->charge_up[CU_SKILL_TIGER] == 3) ||
+		    (p_ptr->aura == AURA_COBRA && p_ptr->charge_up[CU_SKILL_COBRA] == 3)) break;
 	}
 
+	/* IAS */
+	p_ptr->energy_use = 10000 / (100 + ias_bonus());
 
+	/* Use less energy */
+	if (p_ptr->energy_use && num < i)
+	     p_ptr->energy_use = p_ptr->energy_use * num / i;
+	
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
 	{
@@ -1231,7 +1402,7 @@ void py_attack(int y, int x)
 
 
 	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
+	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10, FALSE, 85);
 }
 
 
@@ -2156,3 +2327,12 @@ void run_step(int dir)
 	move_player(p_ptr->run_cur_dir, FALSE);
 }
 
+/* Is character wielding a weapon in shield slot ? */
+bool dual_wielding()
+{
+     if (inventory[INVEN_ARM].k_idx && 
+	 inventory[INVEN_ARM].tval >= TV_FIRST_WPN &&
+	 inventory[INVEN_ARM].tval <= TV_LAST_WPN) return TRUE;
+
+     return FALSE;
+}

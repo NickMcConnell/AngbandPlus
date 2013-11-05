@@ -419,15 +419,15 @@ static cptr k_info_flags2[] =
 	"XXX4",
 	"XXX5",
 	"XXX6",
-	"IM_ACID",
-	"IM_ELEC",
-	"IM_FIRE",
-	"IM_COLD",
-	"RES_ACID",
-	"RES_ELEC",
-	"RES_FIRE",
-	"RES_COLD",
-	"RES_POIS",
+	"XXX7",
+	"XXX8",
+	"XXX9",
+	"XX10",
+	"XX11",
+	"XX12",
+	"XX13",
+	"XX14",
+	"XX15",
 	"RES_FEAR",
 	"RES_LITE",
 	"RES_DARK",
@@ -454,7 +454,7 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
+	"2HANDED",
 	"XXX2",
 	"XXX3",
 	"XXX4",
@@ -694,38 +694,6 @@ errr init_z_info_txt(FILE *fp, char *buf, header *head)
 
 			/* Save the value */
 			z_info->v_max = max;
-
-			/* Next... */
-			continue;
-		}
-
-
-		/* Process 'P' for "Maximum p_info[] index" */
-		if (buf[2] == 'P')
-		{
-			int max;
-
-			/* Scan for the value */
-			if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-			/* Save the value */
-			z_info->p_max = max;
-
-			/* Next... */
-			continue;
-		}
-
-
-		/* Process 'H' for "Maximum h_info[] index" */
-		if (buf[2] == 'H')
-		{
-			int max;
-
-			/* Scan for the value */
-			if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-			/* Save the value */
-			z_info->h_max = max;
 
 			/* Next... */
 			continue;
@@ -1537,6 +1505,26 @@ errr init_k_info_txt(FILE *fp, char *buf, header *head)
 			continue;
 		}
 
+		/* Process 'O' for "Oppositions" (one line only) */
+		if (buf[0] == 'O')
+		{
+		     int acd, elc, fir, cld, psn;
+
+		     /* Scan for the values */
+		     if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d", &acd, &elc, &fir, &cld, &psn)) 
+			  return (PARSE_ERROR_GENERIC);
+
+		     /* Save the values */
+		     k_ptr->res[RES_ACID] = acd;
+		     k_ptr->res[RES_ELEC] = elc;
+		     k_ptr->res[RES_FIRE] = fir;
+		     k_ptr->res[RES_COLD] = cld;
+		     k_ptr->res[RES_POIS] = psn;
+
+		     /* Next... */
+		     continue;
+		}
+
 		/* Hack -- Process 'F' for flags */
 		if (buf[0] == 'F')
 		{
@@ -1861,6 +1849,26 @@ errr init_a_info_txt(FILE *fp, char *buf, header *head)
 
 			/* Next... */
 			continue;
+		}
+
+		/* Process 'O' for "Oppositions" (one line only) */
+		if (buf[0] == 'O')
+		{
+		     int acd, elc, fir, cld, psn;
+
+		     /* Scan for the values */
+		     if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d", &acd, &elc, &fir, &cld, &psn)) 
+			  return (PARSE_ERROR_GENERIC);
+
+		     /* Save the values */
+		     a_ptr->res[RES_ACID] = acd;
+		     a_ptr->res[RES_ELEC] = elc;
+		     a_ptr->res[RES_FIRE] = fir;
+		     a_ptr->res[RES_COLD] = cld;
+		     a_ptr->res[RES_POIS] = psn;
+
+		     /* Next... */
+		     continue;
 		}
 
 		/* Process 'F' for flags */
@@ -2195,8 +2203,8 @@ errr init_e_info_txt(FILE *fp, char *buf, header *head)
 			/* increase counter for 'possible tval' index */
 			cur_t++;
 
-			/* only three T: lines allowed */
-			if (cur_t > 3) return (PARSE_ERROR_GENERIC);
+			/* only four T: lines allowed */
+			if (cur_t > 4) return (PARSE_ERROR_GENERIC);
 
 			/* Next... */
 			continue;
@@ -2218,6 +2226,26 @@ errr init_e_info_txt(FILE *fp, char *buf, header *head)
 
 			/* Next... */
 			continue;
+		}
+
+		/* Process 'O' for "Oppositions" (one line only) */
+		if (buf[0] == 'O')
+		{
+		     int acd, elc, fir, cld, psn;
+
+		     /* Scan for the values */
+		     if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d", &acd, &elc, &fir, &cld, &psn)) 
+			  return (PARSE_ERROR_GENERIC);
+
+		     /* Save the values */
+		     e_ptr->res[RES_ACID] = acd;
+		     e_ptr->res[RES_ELEC] = elc;
+		     e_ptr->res[RES_FIRE] = fir;
+		     e_ptr->res[RES_COLD] = cld;
+		     e_ptr->res[RES_POIS] = psn;
+
+		     /* Next... */
+		     continue;
 		}
 
 		/* Hack -- Process 'F' for flags */
@@ -2757,525 +2785,6 @@ errr init_r_info_txt(FILE *fp, char *buf, header *head)
 
 
 /*
- * Grab one flag in a player_race from a textual string
- */
-static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
-{
-	int i;
-
-	/* Check flags1 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags1[i]))
-		{
-			pr_ptr->flags1 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags2 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags2[i]))
-		{
-			pr_ptr->flags2 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags3 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags3[i]))
-		{
-			pr_ptr->flags3 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Oops */
-	msg_format("Unknown player flag '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
-}
-
-
-
-/*
- * Initialize the "p_info" array, by parsing an ascii "template" file
- */
-errr init_p_info_txt(FILE *fp, char *buf, header *head)
-{
-	int i, j;
-
-	char *s, *t;
-
-	/* Not ready yet */
-	bool okay = FALSE;
-
-	/* Current entry */
-	player_race *pr_ptr = NULL;
-
-	p_info = head->info_ptr;
-	p_name = head->name_ptr;
-	p_text = head->text_ptr;
-
-
-	/* Just before the first record */
-	error_idx = -1;
-
-	/* Just before the first line */
-	error_line = -1;
-
-	/* Start the "fake" stuff */
-	head->name_size = 0;
-	head->text_size = 0;
-
-	/* Parse */
-	while (0 == my_fgets(fp, buf, 1024))
-	{
-		/* Advance the line number */
-		error_line++;
-
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Verify correct "colon" format */
-		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
-
-
-		/* Hack -- Process 'V' for "Version" */
-		if (buf[0] == 'V')
-		{
-			int v1, v2, v3;
-
-			/* Scan for the values */
-			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != head->v_major) ||
-			    (v2 != head->v_minor) ||
-			    (v3 != head->v_patch))
-			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
-			}
-
-			/* Okay to proceed */
-			okay = TRUE;
-
-			/* Continue */
-			continue;
-		}
-
-		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
-
-		/* Process 'N' for "New/Number/Name" */
-		if (buf[0] == 'N')
-		{
-			/* Find the colon before the name */
-			s = strchr(buf+2, ':');
-
-			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
-
-			/* Nuke the colon, advance to the name */
-			*s++ = '\0';
-
-			/* Paranoia -- require a name */
-			if (!*s) return (PARSE_ERROR_GENERIC);
-
-			/* Get the index */
-			i = atoi(buf+2);
-
-			/* Verify information */
-			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-			/* Verify information */
-			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
-
-			/* Save the index */
-			error_idx = i;
-
-			/* Point at the "info" */
-			pr_ptr = &p_info[i];
-
-			/* Hack -- Verify space */
-			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the name index */
-			if (!pr_ptr->name) pr_ptr->name = ++head->name_size;
-
-			/* Append chars to the name */
-			strcpy(p_name + head->name_size, s);
-
-			/* Advance the index */
-			head->name_size += strlen(s);
-
-			/* Next... */
-			continue;
-		}
-
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-
-		/* Process 'S' for "Stats" (one line only) */
-		if (buf[0] == 'S')
-		{
-			int adj;
-
-			/* Start the string */
-			s = buf+1;
-
-			/* For each stat */
-			for (j = 0; j < A_MAX; j++)
-			{
-				/* Find the colon before the subindex */
-				s = strchr(s, ':');
-
-				/* Verify that colon */
-				if (!s) return (PARSE_ERROR_GENERIC);
-
-				/* Nuke the colon, advance to the subindex */
-				*s++ = '\0';
-
-				/* Get the value */
-				adj = atoi(s);
-
-				/* Save the value */
-				pr_ptr->r_adj[j] = adj;
-
-				/* Next... */
-				continue;
-			}
-
-			/* Next... */
-			continue;
-		}
-
-		/* Process 'R' for "Racial Skills" (one line only) */
-		if (buf[0] == 'R')
-		{
-			int dis, dev, sav, stl, srh, fos, thn, thb;
-
-			/* Scan for the values */
-			if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			                &dis, &dev, &sav, &stl,
-			                &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-			/* Save the values */
-			pr_ptr->r_dis = dis;
-			pr_ptr->r_dev = dev;
-			pr_ptr->r_sav = sav;
-			pr_ptr->r_stl = stl;
-			pr_ptr->r_srh = srh;
-			pr_ptr->r_fos = fos;
-			pr_ptr->r_thn = thn;
-			pr_ptr->r_thb = thb;
-
-			/* Next... */
-			continue;
-		}
-
-		/* Process 'X' for "Extra Info" (one line only) */
-		if (buf[0] == 'X')
-		{
-			int mhp, exp, infra;
-
-			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
-
-			/* Save the values */
-			pr_ptr->r_mhp = mhp;
-			pr_ptr->r_exp = exp;
-			pr_ptr->infra = infra;
-
-			/* Next... */
-			continue;
-		}
-
-		/* Hack -- Process 'I' for "info" and such */
-		if (buf[0] == 'I')
-		{
-			int hist, b_age, m_age;
-
-			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
-
-			pr_ptr->hist = hist;
-			pr_ptr->b_age = b_age;
-			pr_ptr->m_age = m_age;
-
-			/* Next... */
-			continue;
-		}
-
-		/* Hack -- Process 'H' for "Height" */
-		if (buf[0] == 'H')
-		{
-			int m_b_ht, m_m_ht, f_b_ht, f_m_ht;
-
-			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &m_b_ht, &m_m_ht, &f_b_ht, &f_m_ht)) return (PARSE_ERROR_GENERIC);
-
-			pr_ptr->m_b_ht = m_b_ht;
-			pr_ptr->m_m_ht = m_m_ht;
-			pr_ptr->f_b_ht = f_b_ht;
-			pr_ptr->f_m_ht = f_m_ht;
-
-			/* Next... */
-			continue;
-		}
-
-		/* Hack -- Process 'W' for "Weight" */
-		if (buf[0] == 'W')
-		{
-			int m_b_wt, m_m_wt, f_b_wt, f_m_wt;
-
-			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &m_b_wt, &m_m_wt, &f_b_wt, &f_m_wt)) return (PARSE_ERROR_GENERIC);
-
-			pr_ptr->m_b_wt = m_b_wt;
-			pr_ptr->m_m_wt = m_m_wt;
-			pr_ptr->f_b_wt = f_b_wt;
-			pr_ptr->f_m_wt = f_m_wt;
-
-			/* Next... */
-			continue;
-		}
-
-		/* Hack -- Process 'F' for flags */
-		if (buf[0] == 'F')
-		{
-			/* Parse every entry textually */
-			for (s = buf + 2; *s; )
-			{
-				/* Find the end of this entry */
-				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-				/* Nuke and skip any dividers */
-				if (*t)
-				{
-					*t++ = '\0';
-					while ((*t == ' ') || (*t == '|')) t++;
-				}
-
-				/* Parse this entry */
-				if (0 != grab_one_racial_flag(pr_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
-
-				/* Start the next entry */
-				s = t;
-			}
-
-			/* Next... */
-			continue;
-		}
-
-		/* Hack -- Process 'C' for class choices */
-		if (buf[0] == 'C')
-		{
-			/* Parse every entry textually */
-			for (s = buf + 2; *s; )
-			{
-				/* Find the end of this entry */
-				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-				/* Nuke and skip any dividers */
-				if (*t)
-				{
-					*t++ = '\0';
-					while ((*t == ' ') || (*t == '|')) t++;
-				}
-
-				/* Hack - Parse this entry */
-				pr_ptr->choice |= (1 << atoi(s));
-
-				/* Start the next entry */
-				s = t;
-			}
-
-			/* Next... */
-			continue;
-		}
-
-
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-
-	/* Complete the "name" and "text" sizes */
-	++head->name_size;
-	++head->text_size;
-
-
-	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-/*
- * Initialize the "h_info" array, by parsing an ascii "template" file
- */
-errr init_h_info_txt(FILE *fp, char *buf, header *head)
-{
-	int i;
-
-	char *s;
-
-	/* Not ready yet */
-	bool okay = FALSE;
-
-	/* Current entry */
-	hist_type *h_ptr = NULL;
-
-	h_info = head->info_ptr;
-	h_text = head->text_ptr;
-
-
-	/* Just before the first record */
-	error_idx = -1;
-
-	/* Just before the first line */
-	error_line = -1;
-
-	/* Start the "fake" stuff */
-	head->name_size = 0;
-	head->text_size = 0;
-
-	/* Parse */
-	while (0 == my_fgets(fp, buf, 1024))
-	{
-		/* Advance the line number */
-		error_line++;
-
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Verify correct "colon" format */
-		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
-
-
-		/* Hack -- Process 'V' for "Version" */
-		if (buf[0] == 'V')
-		{
-			int v1, v2, v3;
-
-			/* Scan for the values */
-			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != head->v_major) ||
-			    (v2 != head->v_minor) ||
-			    (v3 != head->v_patch))
-			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
-			}
-
-			/* Okay to proceed */
-			okay = TRUE;
-
-			/* Continue */
-			continue;
-		}
-
-		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
-
-		/* Process 'N' for "New/Number" */
-		if (buf[0] == 'N')
-		{
-			int prv, nxt, prc, soc;
-
-			/* Hack - get the index */
-			i = error_idx + 1;
-
-			/* Verify information */
-			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-			/* Verify information */
-			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
-
-			/* Save the index */
-			error_idx = i;
-
-			/* Point at the "info" */
-			h_ptr = &h_info[i];
-
-			/* Scan for the values */
-			if (4 != sscanf(buf, "N:%d:%d:%d:%d",
-			                &prv, &nxt, &prc, &soc)) return (PARSE_ERROR_GENERIC);
-
-			/* Save the values */
-			h_ptr->chart = prv;
-			h_ptr->next = nxt;
-			h_ptr->roll = prc;
-			h_ptr->bonus = soc;
-
-			/* Next... */
-			continue;
-		}
-
-		/* There better be a current h_ptr */
-		if (!h_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-
-		/* Process 'D' for "Description" */
-		if (buf[0] == 'D')
-		{
-			/* Get the text */
-			s = buf+2;
-
-			/* Hack -- Verify space */
-			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the text index */
-			if (!h_ptr->text) h_ptr->text = ++head->text_size;
-
-			/* Append chars to the name */
-			strcpy(h_text + head->text_size, s);
-
-			/* Advance the index */
-			head->text_size += strlen(s);
-
-			/* Next... */
-			continue;
-		}
-
-
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-
-	/* Complete the "text" size */
-	++head->text_size;
-
-
-	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-/*
  * Initialize the "b_info" array, by parsing an ascii "template" file
  */
 errr init_b_info_txt(FILE *fp, char *buf, header *head)
@@ -3415,14 +2924,13 @@ errr init_b_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
-			int idx, gld, max, min, hgl, tol;
+			int gld, max, min, hgl, tol;
 
 			/* Scan for the values */
-			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-			                &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
+			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			                &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
-			ot_ptr->owner_race = idx;
 			ot_ptr->max_cost = gld;
 			ot_ptr->max_inflate = max;
 			ot_ptr->min_inflate = min;
@@ -3453,147 +2961,6 @@ errr init_b_info_txt(FILE *fp, char *buf, header *head)
 }
 
 
-
-
-/*
- * Initialize the "g_info" array, by parsing an ascii "template" file
- */
-errr init_g_info_txt(FILE *fp, char *buf, header *head)
-{
-	int i, j;
-
-	char *s;
-
-	/* Not ready yet */
-	bool okay = FALSE;
-
-	/* Current entry */
-	byte *g_ptr;
-
-	g_info = head->info_ptr;
-	g_name = head->name_ptr;
-	g_text = head->text_ptr;
-
-
-	/* Just before the first record */
-	error_idx = -1;
-
-	/* Just before the first line */
-	error_line = -1;
-
-
-	/* Start the "fake" stuff */
-	head->name_size = 0;
-	head->text_size = 0;
-
-	/* Parse */
-	while (0 == my_fgets(fp, buf, 1024))
-	{
-		/* Advance the line number */
-		error_line++;
-
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Verify correct "colon" format */
-		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
-
-
-		/* Hack -- Process 'V' for "Version" */
-		if (buf[0] == 'V')
-		{
-			int v1, v2, v3;
-
-			/* Scan for the values */
-			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != head->v_major) ||
-			    (v2 != head->v_minor) ||
-			    (v3 != head->v_patch))
-			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
-			}
-
-			/* Okay to proceed */
-			okay = TRUE;
-
-			/* Continue */
-			continue;
-		}
-
-		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
-
-		/* Process 'A' for "Adjustments" */
-		if (buf[0] == 'A')
-		{
-			int adj;
-
-			/* Start the string */
-			s = buf+1;
-
-			/* Initialize the counter to max races */
-			j = z_info->p_max;
-
-			/* Repeat */
-			while (j-- > 0)
-			{
-				/* Hack - get the index */
-				i = error_idx + 1;
-
-				/* Verify information */
-				if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-				/* Verify information */
-				if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
-
-				/* Save the index */
-				error_idx = i;
-
-				/* Point at the "info" */
-				g_ptr = &g_info[i];
-
-				/* Find the colon before the subindex */
-				s = strchr(s, ':');
-
-				/* Verify that colon */
-				if (!s) return (PARSE_ERROR_GENERIC);
-
-				/* Nuke the colon, advance to the subindex */
-				*s++ = '\0';
-
-				/* Get the value */
-				adj = atoi(s);
-
-				/* Save the value */
-				*g_ptr = adj;
-
-				/* Next... */
-				continue;
-			}
-
-			/* Next... */
-			continue;
-		}
-
-
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-
-	/* Complete the "text" size */
-	++head->name_size;
-	++head->text_size;
-
-
-	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
-
-	/* Success */
-	return (0);
-}
 
 
 #else	/* ALLOW_TEMPLATES */

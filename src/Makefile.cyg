@@ -27,7 +27,6 @@ SRCS = \
 	generate.c \
 	init1.c \
 	init2.c \
-	load1.c \
 	load2.c \
 	main-win.c \
 	melee1.c \
@@ -71,7 +70,6 @@ EXOBJS = \
 	generate.o \
 	init1.o \
 	init2.o \
-	load1.o \
 	load2.o \
 	main-win.o \
 	melee1.o \
@@ -203,9 +201,6 @@ init1.o: init1.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 init2.o: init2.c $(INCS) init.h
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-load1.o: load1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 load2.o: load2.c $(INCS)

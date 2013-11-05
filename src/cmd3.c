@@ -112,11 +112,19 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(const object_type *o_ptr)
 {
-	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+         /* Check average items */
+	if (value_check_aux(o_ptr) == INSCRIP_AVERAGE ||
+	    object_known_p(o_ptr))
+	{
 
-	/* Assume not wearable */
-	return (FALSE);
+	  /* Check for a usable slot */
+	  if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+
+	  /* Assume not wearable */
+	  return (FALSE);
+	}
+
+	return FALSE;
 }
 
 
@@ -125,7 +133,7 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-	int item, slot;
+	int item, slot, num = 1;
 
 	object_type *o_ptr;
 
@@ -163,6 +171,42 @@ void do_cmd_wield(void)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
+	/* Not allowed */
+	if (slot == -1) 
+	{
+	     return;
+	}
+
+	/* Verify putting a weapon into shield slot */
+	if ((slot == INVEN_ARM) && (o_ptr->tval >= TV_FIRST_WPN && o_ptr->tval <= TV_LAST_WPN))
+	{
+	     char ch;
+
+	     /* Describe it */
+	     object_desc(o_name, o_ptr, FALSE, 0);
+
+	     /* Ask */
+	     message_flush();
+	     prt("Wield in second hand (may not get any attakcks)? [y/n] ", 0, 0);
+	     while (TRUE)
+	     {
+		ch = inkey();
+		if (quick_messages) break;
+		if (ch == ESCAPE) break;
+		if (strchr("YyNn", ch)) break;
+		bell("Illegal response to a 'yes/no' question!");
+	     }
+	     /* Erase the prompt */
+	     prt("", 0, 0);
+
+	     /* Swap with current weapon */
+	     if (ch == 'N' || ch == 'n')
+		  slot = INVEN_WIELD;
+	     /* Something else */
+	     else if (ch != 'Y' && ch != 'y')
+		  return;
+	}
+
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
 	{
@@ -187,20 +231,22 @@ void do_cmd_wield(void)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
+        if (slot == INVEN_AMMO) num = o_ptr->number; 
+
 	/* Modify quantity */
-	i_ptr->number = 1;
+	i_ptr->number = num;
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -1);
+		inven_item_increase(item, -num);
 		inven_item_optimize(item);
 	}
 
 	/* Decrease the item (from the floor) */
 	else
 	{
-		floor_item_increase(0 - item, -1);
+		floor_item_increase(0 - item, -num);
 		floor_item_optimize(0 - item);
 	}
 
@@ -208,11 +254,29 @@ void do_cmd_wield(void)
 	o_ptr = &inventory[slot];
 
 	/* Take off existing item */
-	if (o_ptr->k_idx)
-	{
-		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
-	}
+        if (slot != INVEN_AMMO)
+        {
+                if (o_ptr->k_idx)
+                {
+                        /* Take off existing item */
+                        (void)inven_takeoff(slot, 255);
+                }
+        }
+        else
+        {
+                if (o_ptr->k_idx)
+                {
+                        if (!object_similar(o_ptr, i_ptr))
+                        {
+                                /* Take off existing item */
+                                (void)inven_takeoff(slot, 255);
+                        }
+                        else
+                        {
+                                i_ptr->number += o_ptr->number;
+                        }
+                }                
+        }
 
 	/* Wear the new stuff */
 	object_copy(o_ptr, i_ptr);
@@ -224,7 +288,7 @@ void do_cmd_wield(void)
 	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-	if (slot == INVEN_WIELD)
+	if (slot == INVEN_WIELD || (slot == INVEN_ARM && dual_wielding()))
 	{
 		act = "You are wielding";
 	}
@@ -235,6 +299,10 @@ void do_cmd_wield(void)
 	else if (slot == INVEN_LITE)
 	{
 		act = "Your light source is";
+	}
+        else if (slot == INVEN_AMMO)
+	{
+                act = "In your quiver you have";
 	}
 	else
 	{
@@ -252,15 +320,6 @@ void do_cmd_wield(void)
 	{
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
 	}
 
 	/* Recalculate bonuses */
@@ -442,30 +501,6 @@ void do_cmd_destroy(void)
 	{
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
-
-		/* Don't mark id'ed objects */
-		if (object_known_p(o_ptr)) return;
-
-		/* It has already been sensed */
-		if (o_ptr->ident & (IDENT_SENSE))
-		{
-			/* Already sensed objects always get improved feelings */
-			if (cursed_p(o_ptr) || broken_p(o_ptr))
-				o_ptr->discount = INSCRIP_TERRIBLE;
-			else
-				o_ptr->discount = INSCRIP_SPECIAL;
-		}
-		else
-		{
-			/* Mark the object as indestructible */
-			o_ptr->discount = INSCRIP_INDESTRUCTIBLE;
-		}
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return;
@@ -1009,11 +1044,13 @@ void do_cmd_locate(void)
 
 		/* Verify the row */
 		if (y2 < 0) y2 = 0;
-		if (y2 > DUNGEON_HGT - SCREEN_HGT) y2 = DUNGEON_HGT - SCREEN_HGT;
+		if (y2 > p_ptr->cur_hgt - SCREEN_HGT) 
+		     y2 = p_ptr->cur_hgt - SCREEN_HGT;
 
 		/* Verify the col */
 		if (x2 < 0) x2 = 0;
-		if (x2 > DUNGEON_WID - SCREEN_WID) x2 = DUNGEON_WID - SCREEN_WID;
+		if (x2 > p_ptr->cur_wid - SCREEN_WID) 
+		     x2 = p_ptr->cur_wid - SCREEN_WID;
 
 		/* Handle "changes" */
 		if ((p_ptr->wy != y2) || (p_ptr->wx != x2))

@@ -12,280 +12,6 @@
 
 
 /*
- * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
- */
-static int value_check_aux1(const object_type *o_ptr)
-{
-	/* Artifacts */
-	if (artifact_p(o_ptr))
-	{
-		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_TERRIBLE);
-
-		/* Normal */
-		return (INSCRIP_SPECIAL);
-	}
-
-	/* Ego-Items */
-	if (ego_item_p(o_ptr))
-	{
-		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
-
-		/* Normal */
-		return (INSCRIP_EXCELLENT);
-	}
-
-	/* Cursed items */
-	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
-
-	/* Broken items */
-	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
-
-	/* Good "armor" bonus */
-	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
-
-	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
-
-	/* Default to "average" */
-	return (INSCRIP_AVERAGE);
-}
-
-
-/*
- * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
- */
-static int value_check_aux2(const object_type *o_ptr)
-{
-	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
-
-	/* Broken items (all of them) */
-	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
-
-	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr)) return (INSCRIP_GOOD);
-
-	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return (INSCRIP_GOOD);
-
-	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
-
-	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
-
-	/* No feeling */
-	return (0);
-}
-
-
-
-/*
- * Sense the inventory
- *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow and light
- *   Class 5 = Paladin --> slow but heavy
- */
-static void sense_inventory(void)
-{
-	int i;
-
-	int plev = p_ptr->lev;
-
-	bool heavy = FALSE;
-
-	int feel;
-
-	object_type *o_ptr;
-
-	char o_name[80];
-
-
-	/*** Check for "sensing" ***/
-
-	/* No sensing when confused */
-	if (p_ptr->confused) return;
-
-	/* Analyze the class */
-	switch (p_ptr->pclass)
-	{
-		case CLASS_WARRIOR:
-		{
-			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_MAGE:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PRIEST:
-		{
-			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ROGUE:
-		{
-			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_RANGER:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PALADIN:
-		{
-			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-	}
-
-
-	/*** Sense everything ***/
-
-	/* Check everything */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		bool okay = FALSE;
-
-		o_ptr = &inventory[i];
-
-		/* Skip empty slots */
-		if (!o_ptr->k_idx) continue;
-
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
-		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			{
-				okay = TRUE;
-				break;
-			}
-		}
-
-		/* Skip non-sense machines */
-		if (!okay) continue;
-
-		/* It already has a discount or special inscription */
-		if ((o_ptr->discount > 0) &&
-		    (o_ptr->discount != INSCRIP_INDESTRUCTIBLE)) continue;
-
-		/* It has already been sensed, do not sense it again */
-		if (o_ptr->ident & (IDENT_SENSE)) continue;
-
-		/* It is fully known, no information needed */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Occasional failure on inventory items */
-		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
-
-		/* Indestructible objects are either excellent or terrible */
-		if (o_ptr->discount == INSCRIP_INDESTRUCTIBLE)
-			heavy = TRUE;
-
-		/* Check for a feeling */
-		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
-
-		/* Skip non-feelings */
-		if (!feel) continue;
-
-		/* Stop everything */
-		if (disturb_minor) disturb(0, 0);
-
-		/* Get an object description */
-		object_desc(o_name, o_ptr, FALSE, 0);
-
-		/* Message (equipment) */
-		if (i >= INVEN_WIELD)
-		{
-			msg_format("You feel the %s (%c) you are %s %s %s...",
-			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
-		}
-
-		/* Message (inventory) */
-		else
-		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
-			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
-		}
-
-		/* Sense the object */
-		o_ptr->discount = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-	}
-}
-
-
-
-/*
  * Regenerate hit points
  */
 static void regenhp(int percent)
@@ -335,7 +61,7 @@ static void regenhp(int percent)
 /*
  * Regenerate mana points
  */
-static void regenmana(int percent)
+void regenmana(int percent)
 {
 	s32b new_mana, new_mana_frac;
 	int old_csp;
@@ -686,22 +412,141 @@ static void process_world(void)
 		}
 	}
 
-	/* Regeneration ability */
-	if (p_ptr->regenerate)
+	/* Decrease 'frenzy bonus' */
+	if (p_ptr->frenzy > 0)
 	{
-		regen_amount = regen_amount * 2;
+	     /* 1-75, 76-100 = 25% : 1-95, 96-100 = 5% */
+	     if (randint(100) > 75 + skill_value(aura_skill[AURA_FRENZY]))
+	     {
+		  p_ptr->frenzy--;
+		  p_ptr->redraw |= (PR_BASIC);
+		  p_ptr->redraw |= (PR_SPEED);
+		  p_ptr->update |= (PU_BONUS);
+	     }
 	}
 
-	/* Searching or Resting */
-	if (p_ptr->searching || p_ptr->resting)
+	/* Decrease stored 'charges' */
+	for (i = 0; i < MAX_CU_SKILLS; i++)
 	{
-		regen_amount = regen_amount * 2;
+	     if (p_ptr->charge_up[i])
+	     {
+		  int skill = -1;
+		  switch (i)
+		  {
+		  case CU_SKILL_TIGER: skill = ASSI_TIGER; break;
+		  case CU_SKILL_COBRA: skill = ASSI_COBRA; break;
+		  }
+
+		  if (skill != -1)
+		  {
+		       /* 1-88, 89-100 = 11% : 1-99, 100 = 1% */
+		       if (randint(100) > 89 + (skill_value(skill) / 2))
+		       {
+			    p_ptr->charge_up[i]--;
+			    p_ptr->redraw |= (PR_BASIC);
+		       }
+		  }
+	     }
+	}
+
+	/* Use auras */
+	if (p_ptr->aura)
+	{
+	     /* Use mana ? */
+	     bool done = FALSE;
+
+	     /* Number of monsters affected */
+	     int num = 1;
+
+	     /* Find the mana cost per turn or monster */
+	     int manacost = skill_info[aura_skill[p_ptr->aura]].mana_base +
+		  (skill_info[aura_skill[p_ptr->aura]].mana_plus * 
+		   skill_value(aura_skill[p_ptr->aura]) / 10);
+
+	     /* Do effects of aura */
+	     switch (p_ptr->aura)
+	     {
+	     case AURA_FRENZY:
+		  /* Nothing to do here */
+		  break;
+	     case AURA_THUNDERSTORM:
+		  num = thunderstorm_aura(skill_value(aura_skill[AURA_THUNDERSTORM]));
+		  if (num) done = TRUE;
+		  break;
+	     case AURA_BLIZZARD:
+		  num = blizzard_aura(skill_value(aura_skill[AURA_BLIZZARD]));
+		  if (num) done = TRUE;
+		  break;
+	     case AURA_TIGER: case AURA_COBRA:
+		  /* Nothing to do here */
+		  break;
+	     case AURA_HEROISM: case AURA_MIGHT:
+		  /* Nothing to do here */
+		  break;
+	     case AURA_PRAYER:
+		  if (hp_player(TRUE, skill_value(aura_skill[AURA_PRAYER]), 0)) done = TRUE;
+		  break;
+	     case AURA_HOLY_LIGHT:
+		  num = holy_aura(skill_value(aura_skill[AURA_HOLY_LIGHT]));
+		  if (num) done = TRUE;
+		  break;
+	     case AURA_FEAR:
+		  num = scare_aura(skill_value(aura_skill[AURA_FEAR]));
+		  if (num) done = TRUE;
+		  break;
+	     case AURA_SLOW:
+		  num = slow_aura(skill_value(aura_skill[AURA_SLOW]));
+		  if (num) done = TRUE;
+		  break;
+	     }
+
+	     /* Use mana */
+	     if (done)
+	     {
+		  /* Pay cost if any exists */
+		  if (manacost && (p_ptr->csp >= manacost * num))
+		  {
+		       p_ptr->csp -= manacost * num;
+		       if (p_ptr->cure_sp)
+		       {
+			    p_ptr->cure_sp -= manacost * num;
+			    if (p_ptr->cure_sp < 1)
+			    {
+				 p_ptr->cure_sp = 0;
+				 p_ptr->time_sp = 0;
+			    }
+		       }
+		       p_ptr->redraw |= (PR_MANA);
+		       p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		  }
+		  else /* Not enough mana, so end aura */
+		  {
+		       msg_format("%s", aura_end_string[p_ptr->aura]);
+
+		       p_ptr->aura = 0;
+
+		       /* Disturb */
+		       if (disturb_state) disturb(0, 0);
+
+		       /* No mana left */
+		       p_ptr->csp = 0;
+		       p_ptr->csp_frac = 0;
+		       p_ptr->redraw |= (PR_MANA | PR_FORM);
+		       p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		       /* Recalculate bonuses */
+		       p_ptr->update |= (PU_BONUS);
+
+		       /* Handle stuff */
+		       handle_stuff();
+		  }
+	     }
 	}
 
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
-		regenmana(regen_amount);
+	     regenmana((regen_amount * (skill_value(SORC_WARMTH) + 1)) / 20);
 	}
 
 	/* Various things interfere with healing */
@@ -713,11 +558,79 @@ static void process_world(void)
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
-		regenhp(regen_amount);
+		if (p_ptr->regenerate) regenhp(regen_amount);
 	}
 
+	/* Restoring hp */
+	if (p_ptr->cure_hp)
+	{
+	     hp_player(TRUE, rand_range(p_ptr->time_hp, p_ptr->time_hp * 2), 0);
+
+	     if (p_ptr->chp >= p_ptr->cure_hp)
+	     {
+		  /* End */
+		  p_ptr->chp = p_ptr->cure_hp;
+		  p_ptr->chp_frac = 0;
+		  p_ptr->cure_hp = 0;
+		  p_ptr->time_hp = 0;
+	     }
+
+	     p_ptr->redraw |= (PR_HP);
+	     p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	       
+	}
+
+	/* Restoring mana */
+	if (p_ptr->cure_sp)
+	{
+	     if (p_ptr->csp < p_ptr->cure_sp)
+		  p_ptr->csp += rand_range(p_ptr->time_sp, p_ptr->time_sp * 2);
+
+	     if (p_ptr->csp >= p_ptr->cure_sp)
+	     {
+		  /* End */
+		  p_ptr->csp = p_ptr->cure_sp;
+		  p_ptr->csp_frac = 0;
+		  p_ptr->cure_sp = 0;
+		  p_ptr->time_sp = 0;
+	     }
+	     
+	     p_ptr->redraw |= (PR_MANA);
+	     p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
 
 	/*** Timeout Various Things ***/
+
+	/* Reduce duration of hapeshifts */
+	if (p_ptr->shapeshift)
+	{
+	     if (p_ptr->tim_shapeshift)
+	     {
+		  p_ptr->tim_shapeshift--;
+
+		  /* Ended */
+		  if (!p_ptr->tim_shapeshift)
+		  {
+		       msg_format("%s", shapeshift_end_string[p_ptr->shapeshift]);
+
+		       /* Feral rage ends when wolf form is left */
+		       if (p_ptr->shapeshift == SHAPE_WOLF && p_ptr->feral_rage)
+			      (void)set_feral_rage(0);
+
+		       p_ptr->shapeshift = 0;
+
+		       /* Disturb */
+		       if (disturb_state) disturb(0, 0);
+
+		       /* Recalculate bonuses */
+		       p_ptr->redraw |= (PR_FORM);
+		       p_ptr->update |= (PU_BONUS | PU_HP);
+
+		       /* Handle stuff */
+		       handle_stuff();
+		  }
+	     }
+	}
 
 	/* Hack -- Hallucinating */
 	if (p_ptr->image)
@@ -797,6 +710,24 @@ static void process_world(void)
 		(void)set_shero(p_ptr->shero - 1);
 	}
 
+	/* Berserk Rage */
+	if (p_ptr->berserk_rage)
+	{
+		(void)set_berserk_rage(p_ptr->berserk_rage - 1);
+	}
+
+	/* Feral Rage */
+	if (p_ptr->feral_rage)
+	{
+		(void)set_feral_rage(p_ptr->feral_rage - 1);
+	}
+
+	/* Burst of Speed */
+	if (p_ptr->speed_burst)
+	{
+		(void)set_speed_burst(p_ptr->speed_burst - 1);
+	}
+
 	/* Blessed */
 	if (p_ptr->blessed)
 	{
@@ -810,33 +741,45 @@ static void process_world(void)
 	}
 
 	/* Oppose Acid */
-	if (p_ptr->oppose_acid)
+	if (p_ptr->tim_res[RES_ACID])
 	{
-		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
+		(void)set_oppose_acid(p_ptr->tim_res[RES_ACID] - 1);
 	}
 
 	/* Oppose Lightning */
-	if (p_ptr->oppose_elec)
+	if (p_ptr->tim_res[RES_ELEC])
 	{
-		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
+		(void)set_oppose_elec(p_ptr->tim_res[RES_ELEC] - 1);
 	}
 
 	/* Oppose Fire */
-	if (p_ptr->oppose_fire)
+	if (p_ptr->tim_res[RES_FIRE])
 	{
-		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
+		(void)set_oppose_fire(p_ptr->tim_res[RES_FIRE] - 1);
 	}
 
 	/* Oppose Cold */
-	if (p_ptr->oppose_cold)
+	if (p_ptr->tim_res[RES_COLD])
 	{
-		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
+		(void)set_oppose_cold(p_ptr->tim_res[RES_COLD] - 1);
 	}
 
 	/* Oppose Poison */
-	if (p_ptr->oppose_pois)
+	if (p_ptr->tim_res[RES_POIS])
 	{
-		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
+		(void)set_oppose_pois(p_ptr->tim_res[RES_POIS] - 1);
+	}
+
+	/* Timed telepathy */
+	if (p_ptr->tim_telepathy)
+	{
+	     (void)set_tim_telepathy(p_ptr->tim_telepathy - 1);
+	}
+	
+	/* Protection from undead */
+	if (p_ptr->prot_undead)
+	{
+	     (void)set_prot_undead(p_ptr->prot_undead - 1);
 	}
 
 
@@ -951,7 +894,15 @@ static void process_world(void)
 			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (!(o_ptr->timeout)) j++;
+			if (!(o_ptr->timeout))
+			{
+			     char o_name[80];
+			     object_desc(o_name, o_ptr, FALSE, 3);
+			     msg_format("Your %s has recharged!", o_name);
+			     j++;
+			}
+			/* Periodic updates */
+			if (o_ptr->timeout % 2) j++;
 		}
 	}
 
@@ -977,7 +928,15 @@ static void process_world(void)
 			o_ptr->pval--;
 
 			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
+			if (!(o_ptr->pval))
+			{
+			     char o_name[80];
+			     object_desc(o_name, o_ptr, FALSE, 3);
+			     msg_format("Your %s has recharged!", o_name);
+			     j++;
+			}
+			/* Periodic updates */
+			if (o_ptr->pval % 2) j++;
 		}
 	}
 
@@ -990,10 +949,6 @@ static void process_world(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
 	}
-
-	/* Feel the inventory */
-	sense_inventory();
-
 
 	/*** Process Objects ***/
 
@@ -1216,9 +1171,6 @@ static void process_command(void)
 			/* Update monsters */
 			p_ptr->update |= (PU_MONSTERS);
 
-			/* Redraw "title" */
-			p_ptr->redraw |= (PR_TITLE);
-
 			break;
 		}
 
@@ -1247,6 +1199,11 @@ static void process_command(void)
 #endif
 
 
+	        case KTRL('T'):
+		{
+		     do_cmd_time();
+		     break;
+		}
 
 		/*** Inventory Commands ***/
 
@@ -1447,34 +1404,28 @@ static void process_command(void)
 
 		/*** Magic and Prayers ***/
 
-		/* Gain new spells/prayers */
-		case 'G':
+		/* Gain stat points */
+	        case 'p':
 		{
-			do_cmd_study();
+		        practice_stat();
 			break;
 		}
 
-		/* Browse a book */
-		case 'b':
+		/* Gain skills */
+		case 'G':
 		{
-			do_cmd_browse();
+		        do_cmd_study_skill();
 			break;
 		}
 
 		/* Cast a spell */
 		case 'm':
 		{
-			do_cmd_cast();
+		        do_cmd_use_skill();
 			break;
 		}
 
-		/* Pray a prayer */
-		case 'p':
-		{
-			do_cmd_pray();
-			break;
-		}
-
+		/* 'b' does nothing now */
 
 		/*** Use various objects ***/
 
@@ -1880,28 +1831,40 @@ static void process_player(void)
 		/* Basic resting */
 		if (p_ptr->resting == -1)
 		{
-			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp))
-			{
-				disturb(0, 0);
-			}
+		     /* Regeneration disturbs when hp and mana are restored,
+		      * Warmth disturbs when mana is restored,
+		      * no regeneration disturbs always
+		      */
+		     bool end = TRUE;
+		     if ((p_ptr->regenerate || p_ptr->cure_hp) && 
+			 (p_ptr->chp != p_ptr->mhp)) end = FALSE;
+		     if ((skill_value(SORC_WARMTH) || p_ptr->cure_sp) &&
+			 (p_ptr->csp != p_ptr->msp)) end = FALSE;
+		     if (end) disturb(0, 0);
+
+		     /* Sometimes disturb */
+		     if (!rand_int(5000)) disturb(0, 0);
 		}
 
 		/* Complete resting */
 		else if (p_ptr->resting == -2)
 		{
-			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp) &&
-			    !p_ptr->blind && !p_ptr->confused &&
-			    !p_ptr->poisoned && !p_ptr->afraid &&
-			    !p_ptr->stun && !p_ptr->cut &&
-			    !p_ptr->slow && !p_ptr->paralyzed &&
-			    !p_ptr->image && !p_ptr->word_recall)
-			{
-				disturb(0, 0);
-			}
+		     /* Regeneration disturbs when hp and mana are restored and conditions timeout,
+		      * Warmth disturbs when mana is restored and conditions timeout,
+		      * no regeneration disturbs when conditions timeout
+		      */
+		     bool end = TRUE;
+		     if ((p_ptr->regenerate || p_ptr->cure_hp) && 
+			 (p_ptr->chp != p_ptr->mhp)) end = FALSE;
+		     if ((skill_value(SORC_WARMTH) || p_ptr->cure_sp) &&
+			 (p_ptr->csp != p_ptr->msp)) end = FALSE;
+		     if (p_ptr->blind || p_ptr->confused || p_ptr->poisoned || p_ptr->afraid ||
+			 p_ptr->stun || p_ptr->cut || p_ptr->slow || p_ptr->paralyzed ||
+			 p_ptr->image || p_ptr->word_recall) end = FALSE;
+		     if (end) disturb(0, 0);
+
+		     /* Sometimes disturb */
+		     if (!rand_int(500)) disturb(0, 0);
 		}
 	}
 
@@ -2235,8 +2198,8 @@ static void dungeon(void)
 
 
 	/* Hack -- enforce illegal panel */
-	p_ptr->wy = DUNGEON_HGT;
-	p_ptr->wx = DUNGEON_WID;
+	p_ptr->wy = p_ptr->cur_hgt;
+	p_ptr->wx = p_ptr->cur_wid;
 
 
 	/* Not leaving */
@@ -2341,7 +2304,7 @@ static void dungeon(void)
 
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SKILLS);
 
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
@@ -2383,7 +2346,7 @@ static void dungeon(void)
 
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SKILLS);
 
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2828,12 +2791,6 @@ void play_game(bool new_game)
 			/* Mega-Hack -- Allow player to cheat death */
 			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
 			{
-				/* Mark social class, reset age, if needed */
-				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
-
-				/* Increase age */
-				p_ptr->age++;
-
 				/* Mark savefile */
 				p_ptr->noscore |= 0x0001;
 

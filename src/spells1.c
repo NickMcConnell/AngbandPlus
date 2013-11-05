@@ -14,6 +14,54 @@
 
 
 /*
+ * Reduce damage according to resistance
+ */
+static int apply_resistance(int dam, byte res)
+{
+	/* Trivial cases */
+ 	if (!res || (dam <= 0)) return dam;
+
+	/* Immunity */
+	if (res >= 100) return 0;
+
+	/* Apply percentile resistance */
+	dam = (dam * (100 - res)) / 100;
+
+	/* Lower boundary control - only full immunity can lower damage to 0 */
+	if (dam < 1) dam = 1;
+
+	return dam;
+}
+
+static int resist_steps[11] = {0,0,0,25,50,100,200,300,400,600,1000};
+
+/*
+ * Chance to avoid a resistance according to effect.
+ * The higher the factor, the better the chance to avoid the effect.
+ */
+bool resist_effect(byte res)
+{
+	int i, j;
+	int step = 75;
+	int chance = 0;
+
+	/* Full resistance, immune to the effect */
+	if (p_ptr->res[res] >= step) return TRUE;
+
+	/* Nearest lower whole step */
+	i = (p_ptr->res[res]*10) / step;
+        
+	/* Fraction of the next step (j/step) */
+	j = (p_ptr->res[res]*10) % step;
+
+	chance = resist_steps[i] + 
+		(((100 * j ) / step) * (resist_steps[i + 1] - resist_steps[i])) / 100;
+
+	return (rand_int(1000) <= chance);
+}
+
+
+/*
  * Helper function -- return a "nearby" race for polymorphing
  *
  * Note that this function is one of the more "dangerous" ones...
@@ -450,6 +498,15 @@ void take_hit(int dam, cptr kb_str)
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
+	if (p_ptr->cure_hp)
+	{
+	     p_ptr->cure_hp -= dam;
+	     if (p_ptr->cure_hp < 1)
+	     {
+		  p_ptr->cure_hp = 0;
+		  p_ptr->time_hp = 0;
+	     }
+	}
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
@@ -512,8 +569,10 @@ static bool hates_acid(const object_type *o_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_BOW:
+	        case TV_AXE:
 		case TV_SWORD:
 		case TV_HAFTED:
+	        case TV_CLAW:
 		case TV_POLEARM:
 		case TV_HELM:
 		case TV_CROWN:
@@ -587,18 +646,12 @@ static bool hates_fire(const object_type *o_ptr)
 		case TV_ARROW:
 		case TV_BOW:
 		case TV_HAFTED:
+	        case TV_CLAW:
 		case TV_POLEARM:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
-		{
-			return (TRUE);
-		}
-
-		/* Books */
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
 		{
 			return (TRUE);
 		}
@@ -847,12 +900,10 @@ void acid_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Total Immunity */
-	if (p_ptr->immune_acid || (dam <= 0)) return;
+	dam = apply_resistance(dam, p_ptr->res[RES_ACID]);
 
-	/* Resist the damage */
-	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
+	/* Total Immunity */
+	if (dam <= 0) return;
 
 	/* If any armor gets hit, defend the player */
 	if (minus_ac()) dam = (dam + 1) / 2;
@@ -872,12 +923,10 @@ void elec_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Total immunity */
-	if (p_ptr->immune_elec || (dam <= 0)) return;
+	dam = apply_resistance(dam, p_ptr->res[RES_ELEC]);
 
-	/* Resist the damage */
-	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
-	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
+	/* Total immunity */
+	if (dam <= 0) return;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -896,12 +945,10 @@ void fire_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Totally immune */
-	if (p_ptr->immune_fire || (dam <= 0)) return;
+	dam = apply_resistance(dam, p_ptr->res[RES_FIRE]);
 
-	/* Resist the damage */
-	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
+	/* No damage */
+	if (dam <= 0) return;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -918,15 +965,19 @@ void cold_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Total immunity */
-	if (p_ptr->immune_cold || (dam <= 0)) return;
+	dam = apply_resistance(dam, p_ptr->res[RES_COLD]);
 
-	/* Resist the damage */
-	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
+	/* No damage */
+	if (dam <= 0) return;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
+
+	/* Slow down */
+	if (!resist_effect(RES_COLD))
+	{
+	     (void)set_slow(p_ptr->slow + rand_int(4) + 4);
+	}
 
 	/* Inventory damage */
 	inven_damage(set_cold_destroy, inv);
@@ -987,9 +1038,7 @@ bool inc_stat(int stat)
 
 		/* Bring up the maximum too */
 		if (value > p_ptr->stat_max[stat])
-		{
-			p_ptr->stat_max[stat] = value;
-		}
+		     p_ptr->stat_max[stat] = value;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -2111,6 +2160,22 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) l_ptr->r_flags3 |= (RF3_IM_COLD);
+			}
+			else
+			{
+			     /* Powerful monsters can resist */
+			     if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+				 (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			     {
+				  /* Not affected */
+			     }
+			     
+			     /* Normal monsters slow down */
+			     else
+			     {
+				  if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+				  note = " starts moving slower.";
+			     }			     
 			}
 			break;
 		}
@@ -3268,10 +3333,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_POIS:
 		{
 			if (fuzzy) msg_print("You are hit by poison!");
-			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
-			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
+			dam = apply_resistance(dam, p_ptr->res[RES_POIS]);
 			take_hit(dam, killer);
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!resist_effect(RES_POIS))
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
 			}

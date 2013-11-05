@@ -289,7 +289,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_POISON))
 	{
 		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+		if (!resist_effect(RES_POIS))
 		{
 			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
 		}
@@ -2379,25 +2379,32 @@ void do_cmd_fire(void)
 		return;
 	}
 
+        /* Get the "ammo" (if any) */
+        o_ptr = &inventory[INVEN_AMMO];
 
-	/* Require proper missile */
-	item_tester_tval = p_ptr->ammo_tval;
+        item = INVEN_AMMO;
 
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	if (item >= 0)
+        /* If nothing correct try to choose from the backpack */
+        if ((p_ptr->ammo_tval != o_ptr->tval) || (!o_ptr->k_idx))
 	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+                /* Require proper missile */
+                item_tester_tval = p_ptr->ammo_tval;
 
+                /* Get an item */
+                q = "Fire which item? ";
+                s = "You have nothing to fire.";
+                if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+                /* Access the item (if in the pack) */
+                if (item >= 0)
+                {
+                        o_ptr = &inventory[item];
+                }
+                else
+                {
+                        o_ptr = &o_list[0 - item];
+                }
+	}
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -2455,6 +2462,17 @@ void do_cmd_fire(void)
 
 	/* Boost the damage */
 	tdam *= tmul;
+
+	/* Increased critical hits */
+	if (skill_value(ARCH_CRITICAL))
+	{
+	     /* If successful */
+	     if (rand_int(100) < (skill_value(ARCH_CRITICAL) * 3) + 15)
+	     {
+		  /* *3 damage */
+		  tdam = tdam * 3;
+	     }
+	}
 
 	/* Base range XXX XXX */
 	tdis = 10 + 5 * tmul;

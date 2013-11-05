@@ -1595,6 +1595,13 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 			int mx = hx + ddx_ddd[i];
 			int my = hy + ddy_ddd[i];
 
+			scatter(&my, &mx, hy, hx, 10, 0);
+			
+			if (!in_bounds(my, mx)) continue;
+
+			/* Not on player */
+			if ((my == p_ptr->py) && (mx == p_ptr->px)) continue;
+
 			/* Walls and Monsters block flow */
 			if (!cave_empty_bold(my, mx)) continue;
 
@@ -1849,8 +1856,8 @@ bool alloc_monster(int dis, bool slp)
 	while (--attempts_left)
 	{
 		/* Pick a location */
-		y = rand_int(DUNGEON_HGT);
-		x = rand_int(DUNGEON_WID);
+		y = rand_int(p_ptr->cur_hgt);
+		x = rand_int(p_ptr->cur_wid);
 
 		/* Require "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;
@@ -2285,40 +2292,31 @@ void update_smart_learn(int m_idx, int what)
 
 		case DRS_RES_ACID:
 		{
-			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
-			if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
-			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+			if (p_ptr->res[RES_ACID] > 20) m_ptr->smart |= (SM_RES_ACID);
 			break;
 		}
 
 		case DRS_RES_ELEC:
 		{
-			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
-			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
-			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			if (p_ptr->res[RES_ELEC] > 20) m_ptr->smart |= (SM_RES_ELEC);
 			break;
 		}
 
 		case DRS_RES_FIRE:
 		{
-			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
-			if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
-			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+			if (p_ptr->res[RES_FIRE] > 20) m_ptr->smart |= (SM_RES_FIRE);
 			break;
 		}
 
 		case DRS_RES_COLD:
 		{
-			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
-			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
-			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			if (p_ptr->res[RES_COLD] > 20) m_ptr->smart |= (SM_RES_COLD);
 			break;
 		}
 
 		case DRS_RES_POIS:
 		{
-			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
-			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+			if (p_ptr->res[RES_POIS] > 20) m_ptr->smart |= (SM_RES_POIS);
 			break;
 		}
 

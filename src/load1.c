@@ -1296,10 +1296,8 @@ static errr rd_item_old(object_type *o_ptr)
 	if (old_ident & 0x08) o_ptr->ident |= (IDENT_KNOWN);
 
 	/* Convert "ID_DAMD" to "ID_SENSE" */
-	if (old_ident & 0x02) o_ptr->ident |= (IDENT_SENSE);
 
 	/* Convert "ID_FELT" to "ID_SENSE" */
-	if (old_ident & 0x01) o_ptr->ident |= (IDENT_SENSE);
 
 
 	/*** Get the standard values ***/
@@ -1721,7 +1719,7 @@ static void rd_extra_old(void)
 	rd_s16b(&p_ptr->msp);
 	rd_s16b(&p_ptr->mhp);
 	strip_bytes(20);
-	rd_s16b(&p_ptr->sc);
+	strip_bytes(16);
 	strip_bytes(2);
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->prace);
@@ -2732,7 +2730,6 @@ static errr rd_savefile_old_aux(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Initialize the race/class */
-	rp_ptr = &p_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 
 	/* Initialize the magic */

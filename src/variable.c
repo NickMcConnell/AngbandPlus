@@ -473,9 +473,7 @@ cptr keymap_act[KEYMAP_MODES][256];
  * Pointer to the player tables (sex, race, class, magic)
  */
 const player_sex *sp_ptr;
-const player_race *rp_ptr;
 const player_class *cp_ptr;
-const player_magic *mp_ptr;
 
 /*
  * The player other record (static)
@@ -548,32 +546,11 @@ char *r_text;
 
 
 /*
- * The player race arrays
- */
-player_race *p_info;
-char *p_name;
-char *p_text;
-
-/*
- * The player history arrays
- */
-hist_type *h_info;
-char *h_text;
-
-/*
  * The shop owner arrays
  */
 owner_type *b_info;
 char *b_name;
 char *b_text;
-
-/*
- * The racial price adjustment arrays
- */
-byte *g_info;
-char *g_name;
-char *g_text;
-
 
 /*
  * Hack -- The special Angband "System Suffix"

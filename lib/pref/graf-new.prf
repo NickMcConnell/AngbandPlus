@@ -1452,30 +1452,6 @@ K:328:0x87/0x92
 # Staff of Healing
 K:329:0x87/0x92
 
-# [Magic for Beginners]
-K:330:0x8C/0x86
-
-# [Conjurings and Tricks]
-K:331:0x8C/0x87
-
-# [Incantations and Illusions]
-K:332:0x8C/0x88
-
-# [Sorcery and Evocations]
-K:333:0x8C/0x89
-
-# [Beginners Handbook]
-K:334:0x8C/0x8F
-
-# [Words of Wisdom]
-K:335:0x8C/0x90
-
-# [Chants and Blessings]
-K:336:0x8C/0x91
-
-# [Exorcism and Dispelling]
-K:337:0x8C/0x92
-
 # Small wooden chest
 K:338:0x84/0x99
 
@@ -1592,36 +1568,6 @@ K:376:0x86/0x83
 
 # Rod of Speed
 K:377:0x86/0x83
-
-# [Resistance of Scarabtarices]
-K:379:0x8C/0x8A
-
-# [Mordenkainen's Escapes]
-K:380:0x8C/0x8B
-
-# [Kelek's Grimoire of Power]
-K:381:0x8C/0x8C
-
-# [Tenser's Transformations]
-K:382:0x8C/0x8D
-
-# [Raal's Tome of Destruction]
-K:383:0x8C/0x8E
-
-# [Ethereal Openings]
-K:384:0x8C/0x93
-
-# [Godly Insights]
-K:385:0x8C/0x94
-
-# [Purifications and Healing]
-K:386:0x8C/0x95
-
-# [Holy Infusions]
-K:387:0x8C/0x96
-
-# [Wrath of God]
-K:388:0x8C/0x97
 
 # Shard of Pottery
 K:389:0x8E/0x92

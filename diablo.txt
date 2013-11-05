@@ -1,0 +1,205 @@
+
+Diabloband 0.0.1
+
+Removed races for both player and shopkeepers
+Sex depends on class, not shown
+Changed class names to Barbarian, Sorceress, Druid, Assasin, Amazon and Paladin
+Added Necromancer class
+Removed class titles
+Removed spellcasting and spell books
+Changed starting equipment, no gold at birth, gets 4 cure lights wounds, 1 
+identify, and 1 word of recall, amazons get arrows, and all starting 
+equipment is 99% off
+Moved spell stat and max spell weight to class info
+All classes get mana, only sorceress is encumbered by gloves, barbarian and
+paladin are not encumbered by heavy equipment
+Attributes, hp and mana are set by class and no longer random
+HP and Mana get a base value from class, and increase a set amount as level and
+the relevent stat increases (Con for hp, Int or Wis for mana)
+Removed auto-roller, point-based, and maximize options - at atts have natural
+max of 18/100
+Charaters need twice as much XP to advance, classes do not differ in XP penalty
+Changed character information screen, changed how melee and missile damage is
+shown, added an XP bar, put info on used stat points where race bonus was
+Added mana and health bars
+Added display of remaining stat/skill points to main screen
+
+Added percentile resistances for acid, electricity, fire, cold and poison. Max
+from items is 75% and max from items + temporary resistance (bonus of 33%) is
+90%. Items that granted immunity now grant a +100% bonus, resistance from most
+items is 25% per item, rings of element (Flames, Ice, etc) and single-element
+dragon scale mail (Black, Red, etc) give 40%, items that provide resistance to
+more than one element give 20% to each
+
+Cold now slows the target, player can resist the effects with cold resistance,
+monsters immune to cold are not affected
+
+Can now increase (practice) attributes with 'p', gets 1 stat point per
+level after level 1
+Doubled the rarity of stat potions
+
+Can now study skills with 'G', gets 1 skill point at level 1 and 2 skill
+points per level after that
+Enabled looking at skills for next level with 'G' even if no skills points
+Skills may require a certain XP level, or other skills, before they can be
+learnt
+Cannot advance a skill past a skill level of current XP level + 1 - level
+required to first study the skill. So you can max a level 1 skill at XP level
+20, but you have to wait till XP level 49 to max a skill that requires level 30
+Cannot advance a skill past skill level 20
+Can use non-passive skills with 'm' - these can cost mana and take time to use
+
+Added auras - can be activated and deactivated by selecting them from skill
+list. An aura may have a mana cost and duration (but character can choose to
+end it before the aura times out), or a mana cost per turn (and it ends when
+the character does not have enough mana left to continue it), or a mana cost
+each time it affects a monster, or no cost at all. Only one aura can be active
+at any time, and selecting a different aura ends the current aura
+Changing auras does not take any time
+
+Added shapeshifts - cost mana to activate, end after a certain period of time,
+cannot be deactivated except by choosing a different shapeshift
+While active, grant various bonuses
+Lycanthropy skill grants a druid more hp while shapeshifted, and extends the
+duration of the shapeshift
+Added druid skills which require a certain form to be known before they can be
+learnt, and the form to be worn before they can be used
+Druids using unarmed combat get a small bonus from wolf/bear claws unless
+wearing gloves, and a small bonus from gauntlets or spiked/metal-shod boots (to
+all blows, irrelevant of whether message is 'you punch' or 'you kick')
+
+Active auras and shapeshifts are shown on main screen
+
+Added charge-up skills and finishing moves for assasins
+Attacking with a charge-up skill active adds bouses and different effects to
+finishing moves, but costs mana, and stops when the character has accumulated 3
+'charges' (the maximum) of the type which the skill provides. Studying a
+charge-up skill increases the chance that the character can hold on to these
+'charges' for longer, as well as increasing their effect on finishing moves.
+Changing charge-up skills does not take any time.
+Finishing moves are attack skills available to the assasin, which have various
+effects and also benefit from charge-up skills. Attacking normally with no
+charge-up skills active counts as a finishing move.
+Added display of current charges about health and mana bars
+
+If studying                     If using                           Color
+and skill is maxed                                                 light red
+                                an active aura or shapeshift       light green
+and skill can be studied        and skill is useable               white
+and not high enough XP level                                       dark red
+and pre-requisites are not met  and mana/requirements not met      dark red
+
+When studying skills, information shown is for the next skill level up rather
+than the current level
+Don't always show information about skill's effectiveness, but do show reason
+for not being able to study or use a skill
+
+Resting no longer regenerates hp unless player has regeneration intrinstic
+Resting is randomly interrupted 1 in 5000 times, as it is not so effective now
+and so uses up more food and light fuel
+Slow regeneration rate down, hp gains 1 around every 10 turns, mana regenerates
+very slowly (but Warmth skill increases this)
+Increased rarity and value of regeneration on ego-items and randarts
+Added restore light/serious/critical mana potions
+Changed effect of healing items and mana potions - now they cure gradually over
+time, amount to be cured shown in gray *'s in health/mana bars (heroism,
+berserk strength, restore mana and rejuvenation potions still take effect
+instantly)
+Heal hp and restore mana when gaining a level
+
+Limited size of stacks of items - junk items, spikes and ammo remain at 99,
+potions, scrolls, amulets, rings, flasks, and food except rations and waybread
+to 20, empty bottles, rations, waybread and torches to 10, and nothing else can
+stack
+
+Added a command to show the time of day (control-T)
+If below level 50, show XP needed to advance to next level
+Added Quiver slot
+
+Changed how damage bonus affects weapons and ammo - it now adjusts the number
+of sides of each dice. A weapon with 1d5 + 3 which did an average of *2 damage
+previously now does 1d10 damage.
+Bows no longer get a damage bonus/penalty.
+Around 1/4 weapons have no to-hit adjustment, but double the damage adjustment.
+Added two weapon combat - assasins can wield two claw type weapons at a time,
+barbarians can wield two non-claw weapons at a time. Blows (but not extra
+attacks, which only affect enchanted weapon) are divided between hands
+Cannot wield a non-ok weapon if an ok weapon is in second slot
+When wielding an ok weapon with one already wielded, can choose whether to dual
+wield, if yes, then second weapon replaces shield (if any), if no then swap
+weapons normally
+Druid's unarmed blows are divided between hands for prettiness
+Show both hands in character information display, monster memory calculates
+average damage from both weapons 
+Barbarian weapon masteries and assasins claw masteries only apply to relevant
+weapon
+
+Added two-handed weapons, cannot wield if already wielding something in shield
+slot, cannot wear shield if wielding a two-handed weapon
+Includes weapons heavier than 20lbs, and also Mage Staff, Quarterstaff, Beaked
+Axe, Glaive, Halberd, Awl-Pike, Pike
+
+Attacking stops when monster dies (ie if not all available blows were used)
+and only takes time for each blow that was actually used
+
+Added some new flavours from Sangband
+Added new items, added them to randart code, added effects of timed telepathy,
+protection from undead, detect undead, detect animals
+Added ego-items for rings/amulets, (Glowing) or (Indestructible)
+Added skill items - grants a bonus to one skill, does not affect studying
+of skills
+Added skill items that grant bonuses to more than one skill
+
+Added TV_AXE, increased max tvals of ego-items to 4
+Added TV_CLAW, claw weapons for assasins, can be dual-wielded by assasins
+without penalty
+Skeletons (the items) now appear as 's' instead of '~'
+Cumulative lite
+Temporary infravision has radius 5 (since it cannot be gained via race)
+Potions of life will now restore stats before healing to provide full health
+even if CON was drained
+
+Rearranged items in stores, changed Alchemist to Gambling Den
+Gambling Den generates unknown, random items whenever entered. Cost depends on
+max recall depth, there are no discounts. Only ammunition comes in large
+piles. Items must be bought as a pile (no buying just one to ID the rest), are
+identified when purchase is complete
+Quality of items in Black Market depends on recall depth
+Stores stock a range of random items whose depth depends on recall depth
+Examining an item in the home displayed the item as if it was identified, even
+if it wasn't
+Fade out price of items in stores if they're not affordable
+
+Rods show how many more turns are left till they can be used again
+Inform player when rods and artifacts recharge, update charging
+rods/artifacts in inven windows
+When 'I'nspecting artifacts and magical devices (wands, staffs, rods), chance
+to activate or use the item is described (only if activation is known, or type
+of device is known). (calculation is from sCthangband)
+
+Items are always psuedo-id'd, average items are always known, changed good to
+magic (weapons with only damage dice changed (due to a damage bonus/penalty)
+are average), excellent to rare and special to unique
+Identify does *identify*, no more *identify* scrolls, *enlightenment* no longer
+id's items
+Cannot equip unidentified items
+Show no information about unidentified weapons and armour
+Show only information about weapons/equipment that differs from the norm,
+ie base AC for armour, damage dice for weapons, pval for diggers and multiplier
+for bows
+Changed format of melee weapons and missiles from (2d5) (+5, +5) to (+5, 2d5+5)
+Show extra might in multiplier of missile launcher
+Removed discounts
+
+Changed message when attacking monsters to 'you punch it' if no weapon is
+wielded, druids using unarmed combat get 'you kick it' half the time
+In monster memory, changed 'it has a liferating of x' to 'it takes an average
+of x blows and y shots to kill' (based on known weapon damage, but not brands
+or slays)
+Also added colored info to monster memory
+Groups of monsters are scattered
+Increased chance per round of creating a new monster
+Dungeon size is smaller at shallower depths (idea from Randomband, code
+from Ey)
+
+-- 

@@ -236,10 +236,14 @@ bool make_attack_normal(int m_idx)
 
 
 			/* Hack -- Apply "protection from evil" */
-			if ((p_ptr->protevil > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			/* Paladins with Holy Shield get it 1/10 times at lev 1 up to 1/2 at lev 20 */
+			if (((p_ptr->protevil > 0 && p_ptr->lev >= rlev && 
+			      rand_int(100) + p_ptr->lev > 50) ||
+			     (skill_value(PALA_HOLY_SHIELD) && 
+			      inventory[INVEN_ARM].k_idx && inventory[INVEN_ARM].tval == TV_SHIELD &&
+			      (skill_value(PALA_HOLY_SHIELD) * 5) > rlev &&
+			      rand_int(100) < (skill_value(PALA_HOLY_SHIELD) * 2) + 10)) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -457,7 +461,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+					if (!resist_effect(RES_POIS))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
 						{
@@ -1012,7 +1016,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Radius 8 earthquake centered at the monster */
-					if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
+					if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8, FALSE, 85);
 
 					break;
 				}

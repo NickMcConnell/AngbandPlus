@@ -364,23 +364,11 @@ static errr wr_savefile(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_s16b(player_hp[i]);
+		wr_s16b(unused[i]);
 	}
 
 
-	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
-	wr_u32b(spell_worked1);
-	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
-
-	/* Dump the ordered spells */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		wr_byte(spell_order[i]);
-	}
+	/* was 6 * u32b and PY_MAX_SPELLS * byte */
 
 
 	/* Write the inventory */
@@ -697,8 +685,6 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
 
-	wr_byte(o_ptr->discount);
-
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
@@ -1012,18 +998,28 @@ static void wr_extra(void)
 
 	wr_string(p_ptr->died_from);
 
-	for (i = 0; i < 4; i++)
-	{
-		wr_string(p_ptr->history[i]);
-	}
+	/* Skills */
+	for (i = 0; i < MAX_SKILLS; i++)
+	     wr_s16b(p_ptr->skill[i]);
+	wr_s16b(p_ptr->skill_points);
+	/* Stats */
+	for (i = 0; i < A_MAX; i++)
+	     wr_s16b(p_ptr->stat_bonus[i]);
+	wr_s16b(p_ptr->stat_points);
+	/* Other stuff */
+	wr_s16b(p_ptr->aura);
+	for (i = 0; i < MAX_CU_SKILLS; i++)
+	     wr_s16b(p_ptr->charge_up[i]);
+	wr_s16b(p_ptr->shapeshift);
+	wr_s16b(p_ptr->tim_shapeshift);
 
-	/* Race/Class/Gender/Spells */
-	wr_byte(p_ptr->prace);
+	/* Class/Gender/Spells */
+	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_byte(0);	/* oops */
 
-	wr_byte(p_ptr->hitdie);
+	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->expfact);
 
 	wr_s16b(p_ptr->age);
@@ -1047,10 +1043,14 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
 	wr_u16b(p_ptr->chp_frac);
+	wr_s16b(p_ptr->cure_hp);
+	wr_s16b(p_ptr->time_hp);
 
 	wr_s16b(p_ptr->msp);
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
+	wr_s16b(p_ptr->cure_sp);
+	wr_s16b(p_ptr->time_sp);
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
@@ -1061,7 +1061,7 @@ static void wr_extra(void)
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
-	wr_s16b(p_ptr->sc);
+	/* wr_s16b(0); */
 	wr_s16b(0);	/* oops */
 
 	wr_s16b(0);		/* old "rest" */
@@ -1089,11 +1089,16 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
-	wr_s16b(p_ptr->oppose_fire);
-	wr_s16b(p_ptr->oppose_cold);
-	wr_s16b(p_ptr->oppose_acid);
-	wr_s16b(p_ptr->oppose_elec);
-	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->tim_telepathy);
+	wr_s16b(p_ptr->prot_undead);
+	wr_s16b(p_ptr->berserk_rage);
+	wr_s16b(p_ptr->feral_rage);
+	wr_s16b(p_ptr->frenzy);
+	wr_s16b(p_ptr->speed_burst);
+
+	/* Write resistances */
+	for (i = 0; i < RES_MAX; i++) 
+	     wr_s16b(p_ptr->tim_res[i]);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */
@@ -1175,8 +1180,8 @@ static void wr_dungeon(void)
 	wr_u16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
-	wr_u16b(0);
-	wr_u16b(0);
+	wr_u16b(p_ptr->cur_wid);
+	wr_u16b(p_ptr->cur_hgt);
 
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
@@ -1186,9 +1191,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Extract the important cave_info flags */
 			tmp8u = (cave_info[y][x] & (IMPORTANT_FLAGS));
@@ -1225,9 +1230,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Extract a byte */
 			tmp8u = cave_feat[y][x];
@@ -1428,24 +1433,10 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_s16b(p_ptr->player_hp[i]);
+		wr_s16b(p_ptr->unused[i]);
 	}
 
-
-	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
-	wr_u32b(p_ptr->spell_worked1);
-	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
-
-	/* Dump the ordered spells */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		wr_byte(p_ptr->spell_order[i]);
-	}
-
+	/* was 6 * u32b and PY_MAX_SPELLS * byte */
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1897,15 +1888,15 @@ bool load_player(void)
 		/* Parse "ancient" savefiles */
 		if (sf_major < 2)
 		{
-			/* Attempt to load */
-			err = rd_savefile_old();
+			/* Error XXX XXX XXX */
+			err = -1;
 		}
 
 		/* Parse "old" savefiles */
 		else if ((sf_major == 2) && (sf_minor < 7))
 		{
-			/* Attempt to load */
-			err = rd_savefile_old();
+			/* Error XXX XXX XXX */
+			err = -1;
 		}
 
 		/* Parse "new" savefiles */

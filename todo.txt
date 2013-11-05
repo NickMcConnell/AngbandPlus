@@ -1,0 +1,44 @@
+find some way (without discounts) to make birth items always worth 1au
+
+wand/bone -> (necromancer) weapon that activates for a spell, has charges
+staff/orb -> (sorceress) weapon that provides a spell skill
+rod/sceptre -> (paladin) weapon that activates for a spell, timeout
+add chance-to-cast items
+
+druid skill items
+
+prefixes 
+  inferior: blunt
+  superior: padded, hunter's, razor-sharp
+  exceptional: mage, mithril, demon/wyrm-hide
+  elite: smith's, gothic, crystal
+make + to skill items into prefixes
+  assasin : ninja (martial arts), dragon (dragon skills)
+  barbarian : gladiator (masteries)
+  druid : shaman (elemental), lupus (wolf), ursan (bear)
+  paladin : crusader/knight (offensive), defender/warder (shield), exorcist (vs undead)
+  necromancer : grim:masks/scythes (fear/slow), reaver (damaging)
+  sorceress : charged (elec), enchanted (passive), apprentice
+    (zap/firebolt/frostbolt 1), elementalist (masteries)
+
+variable percentile resistances on ego-items and randarts
+variable slays/brands on weapons
+minor randarts = rare items
+ego-monsters
+
+sockets, gems, jewels, runes, charms, set items, horaldric cube + recipes
+
+give stats a maximum natural value that depends on starting class value
+
+amazon : add spear skills, point-blank shot (attack adjacent monster, large bonus to-hit)
+exploding shot : firing elemental branded ammo causes explosion on hit
+
+necromancer : bone armour, drain life attack, take damage from mana
+
+druid : fire claws, to learn requires unarmed combat and one shapeshift, to use
+  requires p_ptr->shapeshift == a shape with claws and no weapon wielded, ends
+  when clawed form is left, times out, or a weapon is wielded
+howl, werewolf power, aggravates and causes fear
+
+paladin - sacrifice, thorns?
+

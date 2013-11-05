@@ -103,25 +103,12 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (p_ptr->free_act) smart |= (SM_IMM_FREE);
 		if (!p_ptr->msp) smart |= (SM_IMM_MANA);
 
-		/* Know immunities */
-		if (p_ptr->immune_acid) smart |= (SM_IMM_ACID);
-		if (p_ptr->immune_elec) smart |= (SM_IMM_ELEC);
-		if (p_ptr->immune_fire) smart |= (SM_IMM_FIRE);
-		if (p_ptr->immune_cold) smart |= (SM_IMM_COLD);
-
-		/* Know oppositions */
-		if (p_ptr->oppose_acid) smart |= (SM_OPP_ACID);
-		if (p_ptr->oppose_elec) smart |= (SM_OPP_ELEC);
-		if (p_ptr->oppose_fire) smart |= (SM_OPP_FIRE);
-		if (p_ptr->oppose_cold) smart |= (SM_OPP_COLD);
-		if (p_ptr->oppose_pois) smart |= (SM_OPP_POIS);
-
 		/* Know resistances */
-		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
-		if (p_ptr->resist_elec) smart |= (SM_RES_ELEC);
-		if (p_ptr->resist_fire) smart |= (SM_RES_FIRE);
-		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
-		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
+		if (p_ptr->res[RES_ACID] > 20) smart |= (SM_RES_ACID);
+		if (p_ptr->res[RES_ELEC] > 20) smart |= (SM_RES_ELEC);
+		if (p_ptr->res[RES_FIRE] > 20) smart |= (SM_RES_FIRE);
+		if (p_ptr->res[RES_COLD] > 20) smart |= (SM_RES_COLD);
+		if (p_ptr->res[RES_POIS] > 20) smart |= (SM_RES_POIS);
 		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
 		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
 		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
@@ -140,100 +127,41 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (!smart) return;
 
 
-	if (smart & (SM_IMM_ACID))
+	if (smart & (SM_RES_ACID))
 	{
-		if (int_outof(r_ptr, 100)) f4 &= ~(RF4_BR_ACID);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BA_ACID);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BO_ACID);
+		if (int_outof(r_ptr, p_ptr->res[RES_ACID])) f4 &= ~(RF4_BR_ACID);
+		if (int_outof(r_ptr, p_ptr->res[RES_ACID])) f5 &= ~(RF5_BA_ACID);
+		if (int_outof(r_ptr, p_ptr->res[RES_ACID])) f5 &= ~(RF5_BO_ACID);
 	}
-	else if ((smart & (SM_OPP_ACID)) && (smart & (SM_RES_ACID)))
+
+	if (smart & (SM_RES_ELEC))
 	{
-		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_ACID);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_ACID);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_ACID);
-	}
-	else if ((smart & (SM_OPP_ACID)) || (smart & (SM_RES_ACID)))
-	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_ACID);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_ACID);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_ACID);
+		if (int_outof(r_ptr, p_ptr->res[RES_ELEC])) f4 &= ~(RF4_BR_ELEC);
+		if (int_outof(r_ptr, p_ptr->res[RES_ELEC])) f5 &= ~(RF5_BA_ELEC);
+		if (int_outof(r_ptr, p_ptr->res[RES_ELEC])) f5 &= ~(RF5_BO_ELEC);
 	}
 
 
-	if (smart & (SM_IMM_ELEC))
+	if (smart & (SM_RES_FIRE))
 	{
-		if (int_outof(r_ptr, 100)) f4 &= ~(RF4_BR_ELEC);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BA_ELEC);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BO_ELEC);
-	}
-	else if ((smart & (SM_OPP_ELEC)) && (smart & (SM_RES_ELEC)))
-	{
-		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_ELEC);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_ELEC);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_ELEC);
-	}
-	else if ((smart & (SM_OPP_ELEC)) || (smart & (SM_RES_ELEC)))
-	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_ELEC);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_ELEC);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_ELEC);
+		if (int_outof(r_ptr, p_ptr->res[RES_FIRE])) f4 &= ~(RF4_BR_FIRE);
+		if (int_outof(r_ptr, p_ptr->res[RES_FIRE])) f5 &= ~(RF5_BA_FIRE);
+		if (int_outof(r_ptr, p_ptr->res[RES_FIRE])) f5 &= ~(RF5_BO_FIRE);
 	}
 
-
-	if (smart & (SM_IMM_FIRE))
+	if (smart & (SM_RES_COLD))
 	{
-		if (int_outof(r_ptr, 100)) f4 &= ~(RF4_BR_FIRE);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BA_FIRE);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BO_FIRE);
-	}
-	else if ((smart & (SM_OPP_FIRE)) && (smart & (SM_RES_FIRE)))
-	{
-		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_FIRE);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_FIRE);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_FIRE);
-	}
-	else if ((smart & (SM_OPP_FIRE)) || (smart & (SM_RES_FIRE)))
-	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_FIRE);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_FIRE);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_FIRE);
+		if (int_outof(r_ptr, p_ptr->res[RES_COLD])) f4 &= ~(RF4_BR_COLD);
+		if (int_outof(r_ptr, p_ptr->res[RES_COLD])) f5 &= ~(RF5_BA_COLD);
+		if (int_outof(r_ptr, p_ptr->res[RES_COLD])) f5 &= ~(RF5_BO_COLD);
+		if (int_outof(r_ptr, p_ptr->res[RES_COLD])) f5 &= ~(RF5_BO_ICEE);
 	}
 
-
-	if (smart & (SM_IMM_COLD))
+	if (smart & (SM_RES_POIS))
 	{
-		if (int_outof(r_ptr, 100)) f4 &= ~(RF4_BR_COLD);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BA_COLD);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BO_COLD);
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BO_ICEE);
+		if (int_outof(r_ptr, p_ptr->res[RES_POIS])) f4 &= ~(RF4_BR_POIS);
+		if (int_outof(r_ptr, p_ptr->res[RES_POIS])) f5 &= ~(RF5_BA_POIS);
 	}
-	else if ((smart & (SM_OPP_COLD)) && (smart & (SM_RES_COLD)))
-	{
-		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_COLD);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_COLD);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_COLD);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_ICEE);
-	}
-	else if ((smart & (SM_OPP_COLD)) || (smart & (SM_RES_COLD)))
-	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_COLD);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_COLD);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_COLD);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_ICEE);
-	}
-
-
-	if ((smart & (SM_OPP_POIS)) && (smart & (SM_RES_POIS)))
-	{
-		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_POIS);
-		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_POIS);
-	}
-	else if ((smart & (SM_OPP_POIS)) || (smart & (SM_RES_POIS)))
-	{
-		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_POIS);
-		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_POIS);
-	}
-
 
 	if (smart & (SM_RES_FEAR))
 	{
@@ -1346,6 +1274,16 @@ bool make_attack_spell(int m_idx)
 				else
 				{
 					p_ptr->csp -= r1;
+
+					if (p_ptr->cure_sp)
+					{
+					     p_ptr->cure_sp -= r1;
+					     if (p_ptr->cure_sp < 1)
+					     {
+						  p_ptr->cure_sp = 0;
+						  p_ptr->time_sp = 0;
+					     }
+					}
 				}
 
 				/* Redraw mana */

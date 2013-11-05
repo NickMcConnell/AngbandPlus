@@ -126,6 +126,8 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+	        case TV_CLAW:
+	        case TV_AXE:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_HELM:
@@ -514,8 +516,6 @@ static errr rd_item(object_type *o_ptr)
 	/* New method */
 	else
 	{
-		rd_byte(&o_ptr->discount);
-
 		rd_byte(&o_ptr->number);
 		rd_s16b(&o_ptr->weight);
 
@@ -1298,20 +1298,22 @@ static errr rd_extra(void)
 
 	rd_string(p_ptr->died_from, 80);
 
-	for (i = 0; i < 4; i++)
-	{
-		rd_string(p_ptr->history[i], 60);
-	}
+	/* Skills */
+	for (i = 0; i < MAX_SKILLS; i++)
+	     rd_s16b(&p_ptr->skill[i]);
+	rd_s16b(&p_ptr->skill_points);
+        /* Stats */
+	for (i = 0; i < A_MAX; i++)
+	     rd_s16b(&p_ptr->stat_bonus[i]);
+	rd_s16b(&p_ptr->stat_points);
+	/* Other stuff */
+	rd_s16b(&p_ptr->aura);
+	for (i = 0; i < MAX_CU_SKILLS; i++)
+	     rd_s16b(&p_ptr->charge_up[i]);
+	rd_s16b(&p_ptr->shapeshift);
+	rd_s16b(&p_ptr->tim_shapeshift);
 
-	/* Player race */
-	rd_byte(&p_ptr->prace);
-
-	/* Verify player race */
-	if (p_ptr->prace >= z_info->p_max)
-	{
-		note(format("Invalid player race (%d).", p_ptr->prace));
-		return (-1);
-	}
+	strip_bytes(1);
 
 	/* Player class */
 	rd_byte(&p_ptr->pclass);
@@ -1332,7 +1334,7 @@ static errr rd_extra(void)
 	strip_bytes(1);
 
 	/* Special Race/Class info */
-	rd_byte(&p_ptr->hitdie);
+	strip_bytes(1);
 	rd_byte(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
@@ -1364,10 +1366,14 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
 	rd_u16b(&p_ptr->chp_frac);
+	rd_s16b(&p_ptr->cure_hp);
+	rd_s16b(&p_ptr->time_hp);
 
 	rd_s16b(&p_ptr->msp);
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
+	rd_s16b(&p_ptr->cure_sp);
+	rd_s16b(&p_ptr->time_sp);
 
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
@@ -1380,7 +1386,7 @@ static errr rd_extra(void)
 
 	/* More info */
 	strip_bytes(8);
-	rd_s16b(&p_ptr->sc);
+        /* space for s16b */
 	strip_bytes(2);
 
 	/* Ignore old redundant info */
@@ -1411,11 +1417,15 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
-	rd_s16b(&p_ptr->oppose_fire);
-	rd_s16b(&p_ptr->oppose_cold);
-	rd_s16b(&p_ptr->oppose_acid);
-	rd_s16b(&p_ptr->oppose_elec);
-	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->tim_telepathy);
+	rd_s16b(&p_ptr->prot_undead);
+	rd_s16b(&p_ptr->berserk_rage);
+	rd_s16b(&p_ptr->feral_rage);
+	rd_s16b(&p_ptr->frenzy);
+	rd_s16b(&p_ptr->speed_burst);
+
+	/* Read resistances */
+	for (i = 0; i < RES_MAX; i++) rd_s16b(&p_ptr->tim_res[i]);
 
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);
@@ -1426,7 +1436,6 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&tmp8u);	/* oops */
-	if (older_than(2, 8, 5)) adult_maximize = tmp8u;
 	rd_byte(&tmp8u);	/* oops */
 	if (older_than(2, 8, 5)) adult_preserve = tmp8u;
 	rd_byte(&tmp8u);
@@ -1518,22 +1527,10 @@ static errr rd_extra(void)
 	/* Read the player_hp array */
 	for (i = 0; i < tmp16u; i++)
 	{
-		rd_s16b(&p_ptr->player_hp[i]);
+		rd_s16b(&p_ptr->unused[i]);
 	}
 
-
-	/* Read spell info */
-	rd_u32b(&p_ptr->spell_learned1);
-	rd_u32b(&p_ptr->spell_learned2);
-	rd_u32b(&p_ptr->spell_worked1);
-	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_forgotten2);
-
-	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		rd_byte(&p_ptr->spell_order[i]);
-	}
+	/* was 6 * u32b and PY_MAX_SPELLS * byte */
 
 	return (0);
 }
@@ -1720,7 +1717,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 
 
 	/* Read the dungeon */
-	for (y = x = 0; y < DUNGEON_HGT; )
+	for (y = x = 0; y < p_ptr->cur_hgt; )
 	{
 		/* Extract some RLE info */
 		rd_byte(&count);
@@ -1874,13 +1871,13 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			cave_set_feat(y, x, feat);
 
 			/* Advance/Wrap */
-			if (++x >= DUNGEON_WID)
+			if (++x >= p_ptr->cur_wid)
 			{
 				/* Wrap */
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= DUNGEON_HGT) break;
+				if (++y >= p_ptr->cur_hgt) break;
 			}
 		}
 	}
@@ -2346,8 +2343,8 @@ static errr rd_dungeon(void)
 	rd_s16b(&px);
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
-	rd_u16b(&tmp16u);
-	rd_u16b(&tmp16u);
+	rd_u16b(&p_ptr->cur_wid);
+	rd_u16b(&p_ptr->cur_hgt);
 
 
 	/* Ignore illegal dungeons */
@@ -2358,16 +2355,18 @@ static errr rd_dungeon(void)
 	}
 
 	/* Ignore illegal dungeons */
-	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
+	if ((p_ptr->cur_hgt > DUNGEON_HGT) || 
+	    (p_ptr->cur_wid > DUNGEON_WID))
 	{
 		/* XXX XXX XXX */
-		note(format("Ignoring illegal dungeon size (%d,%d).", ymax, xmax));
+		note(format("Ignoring illegal dungeon size (%d,%d).", 
+			    p_ptr->cur_hgt, p_ptr->cur_wid));
 		return (0);
 	}
 
 	/* Ignore illegal dungeons */
-	if ((px < 0) || (px >= DUNGEON_WID) ||
-	    (py < 0) || (py >= DUNGEON_HGT))
+	if ((px < 0) || (px >= p_ptr->cur_wid) ||
+	    (py < 0) || (py >= p_ptr->cur_hgt))
 	{
 		note(format("Ignoring illegal player location (%d,%d).", py, px));
 		return (1);
@@ -2384,7 +2383,7 @@ static errr rd_dungeon(void)
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < DUNGEON_HGT; )
+	for (x = y = 0; y < p_ptr->cur_hgt; )
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -2397,13 +2396,13 @@ static errr rd_dungeon(void)
 			cave_info[y][x] = tmp8u;
 
 			/* Advance/Wrap */
-			if (++x >= DUNGEON_WID)
+			if (++x >= p_ptr->cur_wid)
 			{
 				/* Wrap */
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= DUNGEON_HGT) break;
+				if (++y >= p_ptr->cur_hgt) break;
 			}
 		}
 	}
@@ -2412,7 +2411,7 @@ static errr rd_dungeon(void)
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < DUNGEON_HGT; )
+	for (x = y = 0; y < p_ptr->cur_hgt; )
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -2425,13 +2424,13 @@ static errr rd_dungeon(void)
 			cave_set_feat(y, x, tmp8u);
 
 			/* Advance/Wrap */
-			if (++x >= DUNGEON_WID)
+			if (++x >= p_ptr->cur_wid)
 			{
 				/* Wrap */
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= DUNGEON_HGT) break;
+				if (++y >= p_ptr->cur_hgt) break;
 			}
 		}
 	}
@@ -2805,12 +2804,7 @@ static errr rd_savefile_new_aux(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Important -- Initialize the race/class */
-	rp_ptr = &p_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
-
-	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
-
 
 	/* Read the inventory */
 	if (rd_inventory())

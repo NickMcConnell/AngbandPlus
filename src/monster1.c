@@ -18,6 +18,8 @@ static cptr wd_he[3] =
 { "it", "he", "she" };
 static cptr wd_his[3] =
 { "its", "his", "her" };
+static cptr wd_him[3] =
+{ "it", "him", "her" };
 
 
 /*
@@ -417,7 +419,7 @@ static void roff_aux(int r_idx)
 #endif
 
 		/* Dump it */
-		roff(buf);
+		c_roff(TERM_SLATE, buf);
 		roff("  ");
 	}
 
@@ -428,20 +430,22 @@ static void roff_aux(int r_idx)
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		roff(format("%^s lives in the town", wd_he[msex]));
+		roff(format("%^s lives in the ", wd_he[msex]));
+		c_roff(TERM_UMBER, "town");
 		old = TRUE;
 	}
 	else if (l_ptr->r_tkills)
 	{
 		if (depth_in_feet)
 		{
-			roff(format("%^s is normally found at depths of %d feet",
-			            wd_he[msex], r_ptr->level * 50));
+			roff(format("%^s is normally found at depths of ", wd_he[msex]));
+			c_roff(TERM_L_GREEN, format("%d", r_ptr->level * 50));
+			roff(" feet");
 		}
 		else
 		{
-			roff(format("%^s is normally found on dungeon level %d",
-			            wd_he[msex], r_ptr->level));
+			roff(format("%^s is normally found on dungeon level ", wd_he[msex]));
+			c_roff(TERM_L_GREEN, format("%d", r_ptr->level));
 		}
 		old = TRUE;
 	}
@@ -465,19 +469,19 @@ static void roff_aux(int r_idx)
 		/* Adverb */
 		if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
 		{
-			roff(" extremely");
+			c_roff(TERM_VIOLET, " extremely");
 		}
 		else if (flags1 & (RF1_RAND_50))
 		{
-			roff(" somewhat");
+			c_roff(TERM_VIOLET, " somewhat");
 		}
 		else if (flags1 & (RF1_RAND_25))
 		{
-			roff(" a bit");
+			c_roff(TERM_VIOLET, " a bit");
 		}
 
 		/* Adjective */
-		roff(" erratically");
+		c_roff(TERM_VIOLET, " erratically");
 
 		/* Hack -- Occasional conjunction */
 		if (r_ptr->speed != 110) roff(", and");
@@ -486,19 +490,21 @@ static void roff_aux(int r_idx)
 	/* Speed */
 	if (r_ptr->speed > 110)
 	{
-		if (r_ptr->speed > 130) roff(" incredibly");
-		else if (r_ptr->speed > 120) roff(" very");
-		roff(" quickly");
+		if (r_ptr->speed > 130) c_roff(TERM_L_GREEN, " incredibly");
+		else if (r_ptr->speed > 120) c_roff(TERM_L_GREEN, " very");
+		c_roff(TERM_L_GREEN, " quickly");
 	}
 	else if (r_ptr->speed < 110)
 	{
-		if (r_ptr->speed < 90) roff(" incredibly");
-		else if (r_ptr->speed < 100) roff(" very");
-		roff(" slowly");
+		if (r_ptr->speed < 90) c_roff(TERM_L_DARK, " incredibly");
+		else if (r_ptr->speed < 100) c_roff(TERM_L_DARK, " very");
+		c_roff(TERM_L_DARK, " slowly");
 	}
 	else
 	{
-		roff(" at normal speed");
+		roff(" at ");
+		c_roff(TERM_L_DARK, "normal");
+		roff(" speed");
 	}
 
 	/* The code above includes "attack speed" */
@@ -516,7 +522,7 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe */
-		roff("does not deign to chase intruders");
+		c_roff(TERM_L_DARK, "does not deign to chase intruders");
 	}
 
 	/* End this sentence */
@@ -540,68 +546,52 @@ static void roff_aux(int r_idx)
 			roff("A kill of this");
 		}
 
-		/* Describe the "quality" */
-		if (flags3 & (RF3_ANIMAL)) roff(" natural");
-		if (flags3 & (RF3_EVIL)) roff(" evil");
-		if (flags3 & (RF3_UNDEAD)) roff(" undead");
+		/* Describe the "quality" with color */
+		if (flags3 & (RF3_ANIMAL)) c_roff(TERM_UMBER, " natural");
+		if (flags3 & (RF3_EVIL)) c_roff(TERM_VIOLET, " evil");
+		if (flags3 & (RF3_UNDEAD)) c_roff(TERM_VIOLET, " undead");
 
-		/* Describe the "race" */
-		if (flags3 & (RF3_DRAGON)) roff(" dragon");
-		else if (flags3 & (RF3_DEMON)) roff(" demon");
-		else if (flags3 & (RF3_GIANT)) roff(" giant");
-		else if (flags3 & (RF3_TROLL)) roff(" troll");
-		else if (flags3 & (RF3_ORC)) roff(" orc");
+		/* Describe the "race" with color */
+		if (flags3 & (RF3_DRAGON)) c_roff(TERM_UMBER, " dragon");
+		else if (flags3 & (RF3_DEMON)) c_roff(TERM_VIOLET, " demon");
+		else if (flags3 & (RF3_GIANT)) c_roff(TERM_UMBER, " giant");
+		else if (flags3 & (RF3_TROLL)) c_roff(TERM_UMBER, " troll");
+		else if (flags3 & (RF3_ORC)) c_roff(TERM_UMBER, " orc");
 		else roff(" creature");
 
-		/* calculate the integer exp part */
-		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
-
-		/* calculate the fractional exp part scaled by 100, */
-		/* must use long arithmetic to avoid overflow  */
-		j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			  (long)1000 / p_ptr->lev + 5) / 10);
+		/* Show experience */ 
+		{
+		     i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
+		     j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
+			   (long)1000 / p_ptr->lev) / 10); 
+		}
 
 		/* Mention the experience */
-		roff(format(" is worth %ld.%02ld point%s",
-			        (long)i, (long)j,
-			        (((i == 1) && (j == 0)) ? "" : "s")));
-
-		/* Take account of annoying English */
-		p = "th";
-		i = p_ptr->lev % 10;
-		if ((p_ptr->lev / 10) == 1) /* nothing */;
-		else if (i == 1) p = "st";
-		else if (i == 2) p = "nd";
-		else if (i == 3) p = "rd";
-
-		/* Take account of "leading vowels" in numbers */
-		q = "";
-		i = p_ptr->lev;
-		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
-
-		/* Mention the dependance on the player's level */
-		roff(format(" for a%s %lu%s level character.  ",
-			        q, (long)i, p));
+		roff(" is worth ");
+		c_roff(TERM_L_GREEN, format("%ld.%02ld", (long)i, (long)j));
+		roff(format(" point%s to you.  ", (((i == 1) && (j == 0)) ? "" : "s")));
 	}
 
 
 	/* Describe escorts */
 	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
 	{
-		roff(format("%^s usually appears with escorts.  ",
-		            wd_he[msex]));
+		roff(format("%^s usually appears with ", wd_he[msex]));
+		c_roff(TERM_UMBER, "escorts");
+		roff(".  ");
 	}
 
 	/* Describe friends */
 	else if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
 	{
-		roff(format("%^s usually appears in groups.  ",
-		            wd_he[msex]));
+	        roff(format("%^s usually appears in ", wd_he[msex])); 
+		c_roff(TERM_UMBER, "groups"); 
+		roff(".  ");
 	}
 
 
 	/* Collect inate attacks */
-	vn = 0;
+	vn = 0; 
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
 	if (flags4 & (RF4_XXX2))		vp[vn++] = "do something";
 	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
@@ -626,7 +616,7 @@ static void roff_aux(int r_idx)
 			else roff(" or ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_BLUE, vp[n]);
 		}
 
 		/* End */
@@ -636,30 +626,54 @@ static void roff_aux(int r_idx)
 
 	/* Collect breaths */
 	vn = 0;
-	if (flags4 & (RF4_BR_ACID))		vp[vn++] = "acid";
-	if (flags4 & (RF4_BR_ELEC))		vp[vn++] = "lightning";
-	if (flags4 & (RF4_BR_FIRE))		vp[vn++] = "fire";
-	if (flags4 & (RF4_BR_COLD))		vp[vn++] = "frost";
-	if (flags4 & (RF4_BR_POIS))		vp[vn++] = "poison";
-	if (flags4 & (RF4_BR_NETH))		vp[vn++] = "nether";
-	if (flags4 & (RF4_BR_LITE))		vp[vn++] = "light";
-	if (flags4 & (RF4_BR_DARK))		vp[vn++] = "darkness";
-	if (flags4 & (RF4_BR_CONF))		vp[vn++] = "confusion";
-	if (flags4 & (RF4_BR_SOUN))		vp[vn++] = "sound";
-	if (flags4 & (RF4_BR_CHAO))		vp[vn++] = "chaos";
-	if (flags4 & (RF4_BR_DISE))		vp[vn++] = "disenchantment";
-	if (flags4 & (RF4_BR_NEXU))		vp[vn++] = "nexus";
-	if (flags4 & (RF4_BR_TIME))		vp[vn++] = "time";
-	if (flags4 & (RF4_BR_INER))		vp[vn++] = "inertia";
-	if (flags4 & (RF4_BR_GRAV))		vp[vn++] = "gravity";
-	if (flags4 & (RF4_BR_SHAR))		vp[vn++] = "shards";
-	if (flags4 & (RF4_BR_PLAS))		vp[vn++] = "plasma";
-	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
-	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
-	if (flags4 & (RF4_XXX5))		vp[vn++] = "something";
-	if (flags4 & (RF4_XXX6))		vp[vn++] = "something";
-	if (flags4 & (RF4_XXX7))		vp[vn++] = "something";
-	if (flags4 & (RF4_XXX8))		vp[vn++] = "something";
+	if (flags4 & (RF4_BR_ACID))
+	     vp[vn++] = "acid"; 
+	if (flags4 & (RF4_BR_ELEC))
+	     vp[vn++] = "lightning"; 
+	if (flags4 & (RF4_BR_FIRE))
+	     vp[vn++] = "fire"; 
+	if (flags4 & (RF4_BR_COLD))
+	     vp[vn++] = "frost"; 
+	if (flags4 & (RF4_BR_POIS))
+	     vp[vn++] = "poison"; 
+	if (flags4 & (RF4_BR_NETH))
+	     vp[vn++] = "nether"; 
+	if (flags4 & (RF4_BR_LITE))
+	     vp[vn++] = "light"; 
+	if (flags4 & (RF4_BR_DARK))
+	     vp[vn++] = "darkness"; 
+	if (flags4 & (RF4_BR_CONF))
+	     vp[vn++] = "confusion"; 
+	if (flags4 & (RF4_BR_SOUN))
+	     vp[vn++] = "sound"; 
+	if (flags4 & (RF4_BR_CHAO))
+	     vp[vn++] = "chaos"; 
+	if (flags4 & (RF4_BR_DISE))
+	     vp[vn++] = "disenchantment"; 
+	if (flags4 & (RF4_BR_NEXU))
+	     vp[vn++] = "nexus"; 
+	if (flags4 & (RF4_BR_TIME))
+	     vp[vn++] = "time"; 
+	if (flags4 & (RF4_BR_INER))
+	     vp[vn++] = "inertia"; 
+	if (flags4 & (RF4_BR_GRAV))
+	     vp[vn++] = "gravity"; 
+	if (flags4 & (RF4_BR_SHAR))
+	     vp[vn++] = "shards"; 
+	if (flags4 & (RF4_BR_PLAS))
+	     vp[vn++] = "plasma"; 
+	if (flags4 & (RF4_BR_WALL))
+	     vp[vn++] = "force"; 
+	if (flags4 & (RF4_BR_MANA))
+	     vp[vn++] = "mana"; 
+	if (flags4 & (RF4_XXX5))
+	     vp[vn++] = "something"; 
+	if (flags4 & (RF4_XXX6))
+	     vp[vn++] = "something"; 
+	if (flags4 & (RF4_XXX7))
+	     vp[vn++] = "something"; 
+	if (flags4 & (RF4_XXX8))
+	     vp[vn++] = "something"; 
 
 	/* Describe breaths */
 	if (vn)
@@ -678,78 +692,142 @@ static void roff_aux(int r_idx)
 			else if (n < vn-1) roff(", ");
 			else roff(" or ");
 
-			/* Dump */
-			roff(vp[n]);
+			/* Dump (with color) */
+			c_roff(TERM_L_BLUE, vp[n]);
 		}
 	}
 
 
 	/* Collect spells */
 	vn = 0;
-	if (flags5 & (RF5_BA_ACID))		vp[vn++] = "produce acid balls";
-	if (flags5 & (RF5_BA_ELEC))		vp[vn++] = "produce lightning balls";
-	if (flags5 & (RF5_BA_FIRE))		vp[vn++] = "produce fire balls";
-	if (flags5 & (RF5_BA_COLD))		vp[vn++] = "produce frost balls";
-	if (flags5 & (RF5_BA_POIS))		vp[vn++] = "produce poison balls";
-	if (flags5 & (RF5_BA_NETH))		vp[vn++] = "produce nether balls";
-	if (flags5 & (RF5_BA_WATE))		vp[vn++] = "produce water balls";
-	if (flags5 & (RF5_BA_MANA))		vp[vn++] = "invoke mana storms";
-	if (flags5 & (RF5_BA_DARK))		vp[vn++] = "invoke darkness storms";
-	if (flags5 & (RF5_DRAIN_MANA))	vp[vn++] = "drain mana";
-	if (flags5 & (RF5_MIND_BLAST))	vp[vn++] = "cause mind blasting";
-	if (flags5 & (RF5_BRAIN_SMASH))	vp[vn++] = "cause brain smashing";
-	if (flags5 & (RF5_CAUSE_1))		vp[vn++] = "cause light wounds";
-	if (flags5 & (RF5_CAUSE_2))		vp[vn++] = "cause serious wounds";
-	if (flags5 & (RF5_CAUSE_3))		vp[vn++] = "cause critical wounds";
-	if (flags5 & (RF5_CAUSE_4))		vp[vn++] = "cause mortal wounds";
-	if (flags5 & (RF5_BO_ACID))		vp[vn++] = "produce acid bolts";
-	if (flags5 & (RF5_BO_ELEC))		vp[vn++] = "produce lightning bolts";
-	if (flags5 & (RF5_BO_FIRE))		vp[vn++] = "produce fire bolts";
-	if (flags5 & (RF5_BO_COLD))		vp[vn++] = "produce frost bolts";
-	if (flags5 & (RF5_BO_POIS))		vp[vn++] = "produce poison bolts";
-	if (flags5 & (RF5_BO_NETH))		vp[vn++] = "produce nether bolts";
-	if (flags5 & (RF5_BO_WATE))		vp[vn++] = "produce water bolts";
-	if (flags5 & (RF5_BO_MANA))		vp[vn++] = "produce mana bolts";
-	if (flags5 & (RF5_BO_PLAS))		vp[vn++] = "produce plasma bolts";
-	if (flags5 & (RF5_BO_ICEE))		vp[vn++] = "produce ice bolts";
-	if (flags5 & (RF5_MISSILE))		vp[vn++] = "produce magic missiles";
-	if (flags5 & (RF5_SCARE))		vp[vn++] = "terrify";
-	if (flags5 & (RF5_BLIND))		vp[vn++] = "blind";
-	if (flags5 & (RF5_CONF))		vp[vn++] = "confuse";
-	if (flags5 & (RF5_SLOW))		vp[vn++] = "slow";
-	if (flags5 & (RF5_HOLD))		vp[vn++] = "paralyze";
-	if (flags6 & (RF6_HASTE))		vp[vn++] = "haste-self";
-	if (flags6 & (RF6_XXX1))		vp[vn++] = "do something";
-	if (flags6 & (RF6_HEAL))		vp[vn++] = "heal-self";
-	if (flags6 & (RF6_XXX2))		vp[vn++] = "do something";
-	if (flags6 & (RF6_BLINK))		vp[vn++] = "blink-self";
-	if (flags6 & (RF6_TPORT))		vp[vn++] = "teleport-self";
-	if (flags6 & (RF6_XXX3))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX4))		vp[vn++] = "do something";
-	if (flags6 & (RF6_TELE_TO))		vp[vn++] = "teleport to";
-	if (flags6 & (RF6_TELE_AWAY))		vp[vn++] = "teleport away";
-	if (flags6 & (RF6_TELE_LEVEL))	vp[vn++] = "teleport level";
-	if (flags6 & (RF6_XXX5))		vp[vn++] = "do something";
-	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
-	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
-	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
-	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon similar monsters";
-	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
-	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
-	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
-	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
-	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
-	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";
-	if (flags6 & (RF6_S_ANGEL))		vp[vn++] = "summon an angel";
-	if (flags6 & (RF6_S_DEMON))		vp[vn++] = "summon a demon";
-	if (flags6 & (RF6_S_UNDEAD))		vp[vn++] = "summon an undead";
-	if (flags6 & (RF6_S_DRAGON))		vp[vn++] = "summon a dragon";
-	if (flags6 & (RF6_S_HI_UNDEAD))	vp[vn++] = "summon Greater Undead";
-	if (flags6 & (RF6_S_HI_DRAGON))	vp[vn++] = "summon Ancient Dragons";
-	if (flags6 & (RF6_S_HI_DEMON))		vp[vn++] = "summon Greater Demons";
-	if (flags6 & (RF6_S_WRAITH))		vp[vn++] = "summon Ring Wraiths";
-	if (flags6 & (RF6_S_UNIQUE))		vp[vn++] = "summon Unique Monsters";
+	if (flags5 & (RF5_BA_ACID))
+	     vp[vn++] = "produce acid balls"; 
+	if (flags5 & (RF5_BA_ELEC))
+	     vp[vn++] = "produce lightning balls"; 
+	if (flags5 & (RF5_BA_FIRE))
+	     vp[vn++] = "produce fire balls"; 
+	if (flags5 & (RF5_BA_COLD))
+	     vp[vn++] = "produce frost balls"; 
+	if (flags5 & (RF5_BA_POIS))
+	     vp[vn++] = "produce poison balls";
+	if (flags5 & (RF5_BA_NETH))
+	     vp[vn++] = "produce nether balls";
+	if (flags5 & (RF5_BA_WATE))
+	     vp[vn++] = "produce water balls"; 
+	if (flags5 & (RF5_BA_MANA))
+	     vp[vn++] = "invoke mana storms"; 
+	if (flags5 & (RF5_BA_DARK))
+	     vp[vn++] = "invoke darkness storms";
+	if (flags5 & (RF5_DRAIN_MANA))
+	     vp[vn++] = "drain mana"; 
+	if (flags5 & (RF5_MIND_BLAST))
+	     vp[vn++] = "cause mind blasting";
+	if (flags5 & (RF5_BRAIN_SMASH))
+	     vp[vn++] = "cause brain smashing";
+	if (flags5 & (RF5_CAUSE_1))
+	     vp[vn++] = "cause light wounds"; 
+	if (flags5 & (RF5_CAUSE_2))
+	     vp[vn++] = "cause serious wounds";
+	if (flags5 & (RF5_CAUSE_3))
+	     vp[vn++] = "cause critical wounds";
+	if (flags5 & (RF5_CAUSE_4))
+	     vp[vn++] = "cause mortal wounds"; 
+	if (flags5 & (RF5_BO_ACID))
+	     vp[vn++] = "produce acid bolts"; 
+	if (flags5 & (RF5_BO_ELEC))
+	     vp[vn++] = "produce lightning bolts"; 
+	if (flags5 & (RF5_BO_FIRE))
+	     vp[vn++] = "produce fire bolts"; 
+	if (flags5 & (RF5_BO_COLD))
+	     vp[vn++] = "produce frost bolts"; 
+	if (flags5 & (RF5_BO_POIS))
+	     vp[vn++] = "produce poison bolts"; 
+	if (flags5 & (RF5_BO_NETH))
+	     vp[vn++] = "produce nether bolts"; 
+	if (flags5 & (RF5_BO_WATE))
+	     vp[vn++] = "produce water bolts"; 
+	if (flags5 & (RF5_BO_MANA))
+	     vp[vn++] = "produce mana bolts"; 
+	if (flags5 & (RF5_BO_PLAS))
+	     vp[vn++] = "produce plasma bolts"; 
+	if (flags5 & (RF5_BO_ICEE))
+	     vp[vn++] = "produce ice bolts"; 
+	if (flags5 & (RF5_MISSILE))
+	     vp[vn++] = "produce magic missiles"; 
+	if (flags5 & (RF5_SCARE))
+	     vp[vn++] = "terrify"; 
+	if (flags5 & (RF5_BLIND))
+	     vp[vn++] = "blind"; 
+	if (flags5 & (RF5_CONF))
+	     vp[vn++] = "confuse"; 
+	if (flags5 & (RF5_SLOW))
+	     vp[vn++] = "slow"; 
+	if (flags5 & (RF5_HOLD))
+	     vp[vn++] = "paralyze"; 
+	if (flags6 & (RF6_HASTE))
+	     vp[vn++] = "haste-self"; 
+	if (flags6 & (RF6_XXX1))
+	     vp[vn++] = "do something"; 
+	if (flags6 & (RF6_HEAL))
+	     vp[vn++] = "heal-self"; 
+	if (flags6 & (RF6_XXX2))
+	     vp[vn++] = "do something"; 
+	if (flags6 & (RF6_BLINK))
+	     vp[vn++] = "blink-self"; 
+	if (flags6 & (RF6_TPORT))
+	     vp[vn++] = "teleport-self"; 
+	if (flags6 & (RF6_XXX3))
+	     vp[vn++] = "do something"; 
+	if (flags6 & (RF6_XXX4))
+	     vp[vn++] = "do something"; 
+	if (flags6 & (RF6_TELE_TO))
+	     vp[vn++] = "teleport to"; 
+	if (flags6 & (RF6_TELE_AWAY))
+	     vp[vn++] = "teleport away"; 
+	if (flags6 & (RF6_TELE_LEVEL))
+	     vp[vn++] = "teleport level"; 
+	if (flags6 & (RF6_XXX5))
+	     vp[vn++] = "do something"; 
+	if (flags6 & (RF6_DARKNESS))
+	     vp[vn++] = "create darkness"; 
+	if (flags6 & (RF6_TRAPS))
+	     vp[vn++] = "create traps"; 
+	if (flags6 & (RF6_FORGET))
+	     vp[vn++] = "cause amnesia"; 
+	if (flags6 & (RF6_XXX6))
+	     vp[vn++] = "do something"; 
+	if (flags6 & (RF6_S_KIN))
+	     vp[vn++] = "summon similar monsters"; 
+	if (flags6 & (RF6_S_MONSTER))
+	     vp[vn++] = "summon a monster"; 
+	if (flags6 & (RF6_S_MONSTERS))
+	     vp[vn++] = "summon monsters"; 
+	if (flags6 & (RF6_S_ANT))
+	     vp[vn++] = "summon ants"; 
+	if (flags6 & (RF6_S_SPIDER))
+	     vp[vn++] = "summon spiders"; 
+	if (flags6 & (RF6_S_HOUND))
+	     vp[vn++] = "summon hounds"; 
+	if (flags6 & (RF6_S_HYDRA))
+	     vp[vn++] = "summon hydras"; 
+	if (flags6 & (RF6_S_ANGEL))
+	     vp[vn++] = "summon an angel"; 
+	if (flags6 & (RF6_S_DEMON))
+	     vp[vn++] = "summon a demon"; 
+	if (flags6 & (RF6_S_UNDEAD))
+	     vp[vn++] = "summon an undead"; 
+	if (flags6 & (RF6_S_DRAGON))
+	     vp[vn++] = "summon a dragon"; 
+	if (flags6 & (RF6_S_HI_UNDEAD))
+	     vp[vn++] = "summon Greater Undead"; 
+	if (flags6 & (RF6_S_HI_DRAGON))
+	     vp[vn++] = "summon Ancient Dragons"; 
+	if (flags6 & (RF6_S_HI_DEMON))
+	     vp[vn++] = "summon Greater Demons"; 
+	if (flags6 & (RF6_S_WRAITH))
+	     vp[vn++] = "summon Ring Wraiths"; 
+	if (flags6 & (RF6_S_UNIQUE))
+	     vp[vn++] = "summon Unique Monsters"; 
 
 	/* Describe spells */
 	if (vn)
@@ -771,7 +849,7 @@ static void roff_aux(int r_idx)
 		roff(" magical, casting spells");
 
 		/* Adverb */
-		if (flags2 & (RF2_SMART)) roff(" intelligently");
+		if (flags2 & (RF2_SMART)) c_roff(TERM_L_DARK, " intelligently");
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
@@ -782,7 +860,7 @@ static void roff_aux(int r_idx)
 			else roff(" or ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_BLUE, vp[n]);
 		}
 	}
 
@@ -799,14 +877,20 @@ static void roff_aux(int r_idx)
 		/* Describe the spell frequency */
 		if (m > 100)
 		{
-			roff(format("; 1 time in %d", 100 / n));
+			roff("; ");
+			c_roff(TERM_L_BLUE, "1");
+			roff(" time in ");
+			c_roff(TERM_L_BLUE, format("%d", 100 / n));
 		}
 
 		/* Guess at the frequency */
 		else if (m)
 		{
 			n = ((n + 9) / 10) * 10;
-			roff(format("; about 1 time in %d", 100 / n));
+			roff("; about ");
+			c_roff(TERM_L_BLUE, "1");
+			roff(" time in ");
+			c_roff(TERM_L_BLUE, format("%d", 100 / n));
 		}
 
 		/* End this sentence */
@@ -817,23 +901,194 @@ static void roff_aux(int r_idx)
 	/* Describe monster "toughness" */
 	if (know_armour(r_idx))
 	{
-		/* Armor */
-		roff(format("%^s has an armor rating of %d",
-		            wd_he[msex], r_ptr->ac));
+	        /* Code to get average number of successful blows needed to kill the target */
+	        int mod = 0, mult = 2;
+		int average_damage = 0, avg_missile_dmg = 0, mons_hp, blows, shots;
+		object_type *i_ptr, *j_ptr;
+		u32b f1, f2, f3;
 
-		/* Maximized hitpoints */
-		if (flags1 & (RF1_FORCE_MAXHP))
+
+		/* Unarmed combat skill */
+		if (skill_value(DRUID_UNARMED) &&
+		    (!inventory[INVEN_WIELD].k_idx) &&
+		    (!dual_wielding()))
 		{
-			roff(format(" and a life rating of %d.  ",
-			            r_ptr->hdice * r_ptr->hside));
+		     average_damage = ((unarmed_damage(skill_value(DRUID_UNARMED)) + 1) / 2 + 
+				       p_ptr->dis_to_d);
 		}
-
-		/* Variable hitpoints */
 		else
 		{
-			roff(format(" and a life rating of %dd%d.  ",
-			            r_ptr->hdice, r_ptr->hside));
+		     object_type *o_ptr;
+		     int first_wpn = 0;
+		     int second_wpn = 0;
+
+		     /* Get weapon */
+		     o_ptr = &inventory[INVEN_WIELD];
+
+		     /* Get known damage bonus */
+		     mod = 0;
+		     
+		     /* Use value of weapon mastery */
+		     mod += weapon_mastery(TRUE);
+		
+		     /* Get average melee damage */
+		     if (o_ptr->k_idx) /* With weapon */
+		     {
+		       if (object_known_p(o_ptr))
+			  first_wpn = (o_ptr->dd * 
+				       (amplify_ds(o_ptr->dd, o_ptr->ds, o_ptr->to_d)+1) / 2) + 
+			    mod + p_ptr->dis_to_d;
+		       else
+			  first_wpn = (o_ptr->dd * (o_ptr->ds+1) / 2) + 
+			    mod + p_ptr->dis_to_d;
+		     }
+
+		     /* Get weapon */
+		     o_ptr = &inventory[INVEN_ARM];
+
+		     /* If it IS a weapon */
+		     if (dual_wielding())
+		     {
+			  /* Use value of weapon mastery */
+			  mod = weapon_mastery(FALSE);
+		
+			  /* Get average melee damage */
+			  if (o_ptr->k_idx) /* With weapon */
+			  {
+			    if (object_known_p(o_ptr))
+			       second_wpn = (o_ptr->dd * 
+					     (amplify_ds(o_ptr->dd, o_ptr->ds, o_ptr->to_d)+1) / 2) + 
+				 mod + p_ptr->dis_to_d;
+			    else
+			       second_wpn = (o_ptr->dd * (o_ptr->ds+1) / 2) + 
+				 mod + p_ptr->dis_to_d;
+			  }
+		     }
+
+		     /* Two weapon combat */
+		     if (first_wpn && second_wpn)
+		     {
+			  int first_damage = first_wpn * p_ptr->num_blow1;
+			  int second_damage = second_wpn * p_ptr->num_blow2;
+			  average_damage = (first_damage + second_damage) / 
+			       (p_ptr->num_blow1 + p_ptr->num_blow2);
+		     }
+		     else if (first_wpn)
+			  average_damage = first_wpn;
+		     else if (second_wpn)
+			  average_damage = second_wpn;
+		     else
+			  average_damage = p_ptr->dis_to_d;
 		}
+
+		/* Might increases damage */
+	        if (p_ptr->aura == AURA_MIGHT)
+		     average_damage += average_damage * 
+			  (10 + (skill_value(aura_skill[AURA_MIGHT]) * 9 / 2)) / 100;
+
+		/* Get missile weapon and ammo */
+		i_ptr = &inventory[INVEN_BOW];
+		j_ptr = &inventory[INVEN_AMMO];
+		/* Find extra might flag from launcher */
+		object_flags(i_ptr, &f1, &f2, &f3);
+		
+		/* Get known damage bonus */
+		mod = 0;
+		if (object_known_p(i_ptr)) mod += i_ptr->to_d;
+		if (object_known_p(j_ptr)) mod += j_ptr->to_d;
+
+		/* Get average missile damage */
+		if (i_ptr->k_idx && j_ptr->k_idx)
+		{
+		     /* Get average damage from ammo */
+		     avg_missile_dmg = (j_ptr->dd * (j_ptr->ds+1) / 2) + mod;
+
+		     /* mult has default of 2 set above */
+		     mult = i_ptr->sval % 10;
+
+		     /* Get extra might if known */
+		     if (object_known_p(i_ptr) && (f1 & TR1_MIGHT)) mult += i_ptr->pval;
+
+		     /* Add +to-dmg */
+		     avg_missile_dmg += (i_ptr->to_d + j_ptr->to_d);
+
+		     /* Apply multiplier */
+		     avg_missile_dmg *= mult;
+		}
+		else /* Cannot determine missile damage */
+		     avg_missile_dmg = 0;
+		
+		/* Get hp */
+		if (flags1 & RF1_FORCE_MAXHP) mons_hp = r_ptr->hdice * r_ptr->hside;
+		else mons_hp = r_ptr->hdice * (r_ptr->hside+1) / 2;
+
+		/* Get average blows and shots needed */
+		blows = ((average_damage > 0) ? mons_hp * 10 / average_damage : -1);
+		shots = ((avg_missile_dmg > 0) ? mons_hp * 10 / avg_missile_dmg : -1);
+
+		/* Armor */
+		roff(format("%^s has an armor rating of ", wd_he[msex]));
+		c_roff(TERM_L_RED, format("%d", r_ptr->ac));
+		roff(".");
+
+		/* Average blows */
+		roff(" and you would take an ");
+		if (blows == -1) /* None */
+		{
+		     c_roff(TERM_L_RED, "infinite");
+		     roff(" number of blows ");
+		}
+		else if (blows < 11) /* 1 blow or less */
+		{
+		     roff("average of ");
+		     c_roff(TERM_L_RED, "1");
+		     roff(" blow ");
+		}
+		else if (blows % 10 == 0) /* Round number of blows */
+		{
+		     roff("average of ");
+		     c_roff(TERM_L_RED, format("%d", blows / 10));
+		     roff(" blows ");
+		}
+		else /* Decimal number of blows */
+		{
+		     roff("average of ");
+		     c_roff(TERM_L_RED, format("%d.%d", blows / 10, blows % 10));
+		     roff(" blows ");
+		}
+
+		/* Show missile damage */
+		if (i_ptr->k_idx && j_ptr->k_idx)
+		{
+		     roff("and an ");
+
+		     if (shots == -1) /* None */
+		     {
+			  c_roff(TERM_L_RED, "infinite");
+			  roff(" number of shots ");
+		     }
+		     else if (shots < 11) /* 1 shot or less */
+		     {
+			  roff("average of ");
+			  c_roff(TERM_L_RED, "1");
+			  roff(" shot ");
+		     }
+		     else if (shots % 10 == 0) /* Round number of shots */
+		     {
+			  roff("average of ");
+			  c_roff(TERM_L_RED, format("%d", shots / 10));
+			  roff(" shots ");
+		     }
+		     else /* Decimal number of shots */
+		     {
+			  roff("average of ");
+			  c_roff(TERM_L_RED, format("%d.%d", shots / 10, shots % 10));
+			  roff(" shots ");
+		     }
+		}
+
+		/* Finished */
+		roff(format("to kill %s.  ", wd_him[msex]));
 	}
 
 
@@ -864,7 +1119,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_DARK, vp[n]);
 		}
 
 		/* End */
@@ -875,23 +1130,32 @@ static void roff_aux(int r_idx)
 	/* Describe special abilities. */
 	if (flags2 & (RF2_INVISIBLE))
 	{
-		roff(format("%^s is invisible.  ", wd_he[msex]));
+	        roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "invisible");
+		roff(".  ");
 	}
 	if (flags2 & (RF2_COLD_BLOOD))
 	{
-		roff(format("%^s is cold blooded.  ", wd_he[msex]));
+		roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "cold blooded");
+		roff(".  ");
 	}
 	if (flags2 & (RF2_EMPTY_MIND))
 	{
-		roff(format("%^s is not detected by telepathy.  ", wd_he[msex]));
+		roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "not detected");
+		roff(" by telepathy.  ");
 	}
 	if (flags2 & (RF2_WEIRD_MIND))
 	{
-		roff(format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
+		roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "rarely detected"); 
+		roff(" by telepathy.  ");
 	}
 	if (flags2 & (RF2_MULTIPLY))
 	{
-		roff(format("%^s breeds explosively.  ", wd_he[msex]));
+		roff(format("%^s ", wd_he[msex]));
+		c_roff(TERM_YELLOW, "breeds explosively.  ");
 	}
 	if (flags2 & (RF2_REGENERATE))
 	{
@@ -921,7 +1185,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_GREEN, vp[n]);
 		}
 
 		/* End */
@@ -952,7 +1216,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 
 		/* End */
@@ -983,7 +1247,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 
 		/* End */
@@ -1013,7 +1277,7 @@ static void roff_aux(int r_idx)
 			else roff(" or ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 
 		/* End */
@@ -1100,13 +1364,17 @@ static void roff_aux(int r_idx)
 		/* Two drops */
 		else if (n == 2)
 		{
-			roff(" one or two");
+		        roff(" ");
+			c_roff(TERM_YELLOW, "one");
+			roff(" or ");
+			c_roff(TERM_YELLOW, "two");
 		}
 
 		/* Many drops */
 		else
 		{
-			roff(format(" up to %d", n));
+		        roff(" up to ");
+			c_roff(TERM_YELLOW, format("%d", n));
 		}
 
 
@@ -1138,9 +1406,9 @@ static void roff_aux(int r_idx)
 			sin = FALSE;
 
 			/* Dump "object(s)" */
-			if (p) roff(p);
-			roff(" object");
-			if (n != 1) roff("s");
+			if (p) c_roff(TERM_YELLOW, p);
+			c_roff(TERM_YELLOW, " object");
+			if (n != 1) c_roff(TERM_YELLOW, "s");
 
 			/* Conjunction replaces variety, if needed for "gold" below */
 			p = " or";
@@ -1158,8 +1426,8 @@ static void roff_aux(int r_idx)
 
 			/* Dump "treasure(s)" */
 			if (p) roff(p);
-			roff(" treasure");
-			if (n != 1) roff("s");
+			c_roff(TERM_YELLOW, " treasure");
+			if (n != 1) c_roff(TERM_YELLOW, "s");
 		}
 
 		/* End this sentence */
@@ -1285,7 +1553,7 @@ static void roff_aux(int r_idx)
 		if (!p) p = "do something weird";
 
 		/* Describe the method */
-		roff(p);
+		c_roff(TERM_L_BLUE, p);
 
 
 		/* Describe the effect (if any) */
@@ -1293,14 +1561,14 @@ static void roff_aux(int r_idx)
 		{
 			/* Describe the attack type */
 			roff(" to ");
-			roff(q);
+			c_roff(TERM_L_BLUE, q);
 
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, m))
 			{
 				/* Display the damage */
 				roff(" with damage");
-				roff(format(" %dd%d", d1, d2));
+				c_roff(TERM_L_GREEN, format(" %dd%d", d1, d2));
 			}
 		}
 
@@ -1331,7 +1599,7 @@ static void roff_aux(int r_idx)
 	/* Notice "Quest" monsters */
 	if (flags1 & (RF1_QUESTOR))
 	{
-		roff("You feel an intense desire to kill this monster...  ");
+	     c_roff(TERM_YELLOW, "You feel an intense desire to kill this monster...  ");
 	}
 
 

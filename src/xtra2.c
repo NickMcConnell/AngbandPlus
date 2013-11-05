@@ -634,6 +634,156 @@ bool set_shero(int v)
 
 
 /*
+ * Set "p_ptr->berserk_rage", notice observable changes
+ */
+bool set_berserk_rage(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->berserk_rage)
+		{
+			msg_print("You feel wild!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->berserk_rage)
+		{
+			msg_print("You feel calmer.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->berserk_rage = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->feral_rage", notice observable changes
+ */
+bool set_feral_rage(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->feral_rage)
+		{
+			msg_print("You feel wild!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->feral_rage)
+		{
+			msg_print("You feel calmer.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->feral_rage = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->speed_burst", notice observable changes
+ */
+bool set_speed_burst(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->speed_burst)
+		{
+			msg_print("You feel wild!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->speed_burst)
+		{
+			msg_print("You feel calmer.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->speed_burst = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
  * Set "p_ptr->protevil", notice observable changes
  */
 bool set_protevil(int v)
@@ -843,7 +993,7 @@ bool set_tim_infra(int v)
 
 
 /*
- * Set "p_ptr->oppose_acid", notice observable changes
+ * Set "p_ptr->tim_res[RES_ACID]", notice observable changes
  */
 bool set_oppose_acid(int v)
 {
@@ -855,7 +1005,7 @@ bool set_oppose_acid(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_acid)
+		if (!p_ptr->tim_res[RES_ACID])
 		{
 			msg_print("You feel resistant to acid!");
 			notice = TRUE;
@@ -865,7 +1015,7 @@ bool set_oppose_acid(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_acid)
+		if (p_ptr->tim_res[RES_ACID])
 		{
 			msg_print("You feel less resistant to acid.");
 			notice = TRUE;
@@ -873,7 +1023,7 @@ bool set_oppose_acid(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_acid = v;
+	p_ptr->tim_res[RES_ACID] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -882,6 +1032,7 @@ bool set_oppose_acid(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Handle stuff */
+	p_ptr->update |= (PU_BONUS);
 	handle_stuff();
 
 	/* Result */
@@ -890,7 +1041,7 @@ bool set_oppose_acid(int v)
 
 
 /*
- * Set "p_ptr->oppose_elec", notice observable changes
+ * Set "p_ptr->tim_res[RES_ELEC]", notice observable changes
  */
 bool set_oppose_elec(int v)
 {
@@ -902,7 +1053,7 @@ bool set_oppose_elec(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_elec)
+		if (!p_ptr->tim_res[RES_ELEC])
 		{
 			msg_print("You feel resistant to electricity!");
 			notice = TRUE;
@@ -912,7 +1063,7 @@ bool set_oppose_elec(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_elec)
+		if (p_ptr->tim_res[RES_ELEC])
 		{
 			msg_print("You feel less resistant to electricity.");
 			notice = TRUE;
@@ -920,7 +1071,7 @@ bool set_oppose_elec(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_elec = v;
+	p_ptr->tim_res[RES_ELEC] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -929,6 +1080,7 @@ bool set_oppose_elec(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Handle stuff */
+	p_ptr->update |= (PU_BONUS);
 	handle_stuff();
 
 	/* Result */
@@ -937,7 +1089,7 @@ bool set_oppose_elec(int v)
 
 
 /*
- * Set "p_ptr->oppose_fire", notice observable changes
+ * Set "p_ptr->tim_res[RES_FIRE]", notice observable changes
  */
 bool set_oppose_fire(int v)
 {
@@ -949,7 +1101,7 @@ bool set_oppose_fire(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_fire)
+		if (!p_ptr->tim_res[RES_FIRE])
 		{
 			msg_print("You feel resistant to fire!");
 			notice = TRUE;
@@ -959,7 +1111,7 @@ bool set_oppose_fire(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_fire)
+		if (p_ptr->tim_res[RES_FIRE])
 		{
 			msg_print("You feel less resistant to fire.");
 			notice = TRUE;
@@ -967,7 +1119,7 @@ bool set_oppose_fire(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_fire = v;
+	p_ptr->tim_res[RES_FIRE] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -976,6 +1128,7 @@ bool set_oppose_fire(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Handle stuff */
+	p_ptr->update |= (PU_BONUS);
 	handle_stuff();
 
 	/* Result */
@@ -984,7 +1137,7 @@ bool set_oppose_fire(int v)
 
 
 /*
- * Set "p_ptr->oppose_cold", notice observable changes
+ * Set "p_ptr->tim_res[RES_COLD]", notice observable changes
  */
 bool set_oppose_cold(int v)
 {
@@ -996,7 +1149,7 @@ bool set_oppose_cold(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_cold)
+		if (!p_ptr->tim_res[RES_COLD])
 		{
 			msg_print("You feel resistant to cold!");
 			notice = TRUE;
@@ -1006,7 +1159,7 @@ bool set_oppose_cold(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_cold)
+		if (p_ptr->tim_res[RES_COLD])
 		{
 			msg_print("You feel less resistant to cold.");
 			notice = TRUE;
@@ -1014,7 +1167,7 @@ bool set_oppose_cold(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_cold = v;
+	p_ptr->tim_res[RES_COLD] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1023,6 +1176,7 @@ bool set_oppose_cold(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Handle stuff */
+	p_ptr->update |= (PU_BONUS);
 	handle_stuff();
 
 	/* Result */
@@ -1031,7 +1185,7 @@ bool set_oppose_cold(int v)
 
 
 /*
- * Set "p_ptr->oppose_pois", notice observable changes
+ * Set "p_ptr->tim_res[RES_POIS]", notice observable changes
  */
 bool set_oppose_pois(int v)
 {
@@ -1043,7 +1197,7 @@ bool set_oppose_pois(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_pois)
+		if (!p_ptr->tim_res[RES_POIS])
 		{
 			msg_print("You feel resistant to poison!");
 			notice = TRUE;
@@ -1053,7 +1207,7 @@ bool set_oppose_pois(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_pois)
+		if (p_ptr->tim_res[RES_POIS])
 		{
 			msg_print("You feel less resistant to poison.");
 			notice = TRUE;
@@ -1061,7 +1215,104 @@ bool set_oppose_pois(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_pois = v;
+	p_ptr->tim_res[RES_POIS] = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+bool set_tim_telepathy(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_telepathy)
+		{
+			msg_print("Your mind expands!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_telepathy)
+		{
+			msg_print("Your mind contracts.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_telepathy = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->prot_undead", notice observable changes
+ */
+bool set_prot_undead(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->prot_undead)
+		{
+			msg_print("You feel safe from undead!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->prot_undead)
+		{
+			msg_print("You no longer feel safe from undead.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->prot_undead = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1075,7 +1326,6 @@ bool set_oppose_pois(int v)
 	/* Result */
 	return (TRUE);
 }
-
 
 /*
  * Set "p_ptr->stun", notice observable changes
@@ -1683,10 +1933,10 @@ void check_experience(void)
 		p_ptr->lev--;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SKILLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1711,15 +1961,27 @@ void check_experience(void)
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SKILLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_EXP | PR_HP | PR_MANA);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Handle stuff */
+		handle_stuff();
+
+		/* Fully heal the character */
+	        p_ptr->chp = p_ptr->mhp;
+		p_ptr->chp_frac = 0;
+	        p_ptr->csp = p_ptr->msp;
+		p_ptr->csp_frac = 0;
+
+		/* Update again */
+		p_ptr->update |= (PU_HP | PU_MANA);
+		p_ptr->redraw |= (PR_HP | PR_MANA);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		handle_stuff();
 	}
 
@@ -1732,10 +1994,10 @@ void check_experience(void)
 		p_ptr->max_lev++;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SKILLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -2032,6 +2294,21 @@ void monster_death(int m_idx)
 	}
 
 
+	/* Mana Leech from kills */
+	if (skill_value(NECRO_MANA_LEECH))
+	{
+	     /* Living, intelligent, warm-bloded monsters */
+	     if ((!(r_ptr->flags3 & (RF3_UNDEAD))) &&
+		 (!(r_ptr->flags3 & (RF3_DEMON))) &&
+		 (!(r_ptr->flags2 & (RF2_EMPTY_MIND))) &&
+		 (!(r_ptr->flags2 & (RF2_COLD_BLOOD))))
+	     {
+	          /* Amount depends on monster level and skill level */
+	          regenmana(r_ptr->level * skill_value(NECRO_MANA_LEECH) * 20);
+	     }	  
+	}
+
+
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
@@ -2054,9 +2331,6 @@ void monster_death(int m_idx)
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
-
-		/* Redraw the "title" */
-		p_ptr->redraw |= (PR_TITLE);
 
 		/* Congratulations */
 		msg_print("*** CONGRATULATIONS ***");
@@ -2273,14 +2547,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 bool modify_panel(int wy, int wx)
 {
 	/* Verify wy, adjust if needed */
-	if (p_ptr->depth == 0) wy = SCREEN_HGT;
-	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
-	else if (wy < 0) wy = 0;
+	if (p_ptr->cur_hgt < SCREEN_HGT) wy = 0;
+	else if (wy > p_ptr->cur_hgt - SCREEN_HGT) 
+	     wy = p_ptr->cur_hgt - SCREEN_HGT;
+	if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (p_ptr->depth == 0) wx = SCREEN_WID;
-	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
-	else if (wx < 0) wx = 0;
+	if (p_ptr->cur_wid < SCREEN_WID) wx = 0;
+	else if (wx > p_ptr->cur_wid - SCREEN_WID) 
+	     wx = p_ptr->cur_wid - SCREEN_WID;
+	if (wx < 0) wx = 0;
 
 	/* React to changes */
 	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
@@ -3755,11 +4031,11 @@ bool target_set_interactive(int mode)
 				if (scroll_target)
 				{
 					/* Slide into legality */
-					if (x >= DUNGEON_WID - 1) x--;
+					if (x >= p_ptr->cur_wid - 1) x--;
 					else if (x <= 0) x++;
 
 					/* Slide into legality */
-					if (y >= DUNGEON_HGT - 1) y--;
+					if (y >= p_ptr->cur_hgt - 1) y--;
 					else if (y <= 0) y++;
 
 					/* Adjust panel if needed */

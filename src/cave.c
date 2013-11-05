@@ -1445,8 +1445,8 @@ void display_map(int *cy, int *cx)
 	map_wid = Term->wid - 2;
 
 	/* Prevent accidents */
-	if (map_hgt > DUNGEON_HGT) map_hgt = DUNGEON_HGT;
-	if (map_wid > DUNGEON_WID) map_wid = DUNGEON_WID;
+	if (map_hgt > p_ptr->cur_hgt) map_hgt = p_ptr->cur_hgt;
+	if (map_wid > p_ptr->cur_wid) map_wid = p_ptr->cur_wid;
 
 	/* Silliness XXX XXX XXX */
 	if ((cy != NULL) && (map_hgt > SCREEN_HGT)) map_hgt = SCREEN_HGT;
@@ -1509,12 +1509,12 @@ void display_map(int *cy, int *cx)
 
 
 	/* Analyze the actual map */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
-			row = (y * map_hgt / DUNGEON_HGT);
-			col = (x * map_wid / DUNGEON_WID);
+			row = (y * map_hgt / p_ptr->cur_hgt);
+			col = (x * map_wid / p_ptr->cur_wid);
 
 #ifdef USE_TRANSPARENCY
 
@@ -1545,8 +1545,8 @@ void display_map(int *cy, int *cx)
 
 
 	/* Player location */
-	row = (py * map_hgt / DUNGEON_HGT);
-	col = (px * map_wid / DUNGEON_WID);
+	row = (py * map_hgt / p_ptr->cur_hgt);
+	col = (px * map_wid / p_ptr->cur_wid);
 
 
 	/*** Make sure the player is visible ***/
@@ -2998,9 +2998,9 @@ void forget_flow(void)
 	if (!flow_save) return;
 
 	/* Check the entire dungeon */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Forget the old data */
 			cave_cost[y][x] = 0;
@@ -3063,9 +3063,9 @@ void update_flow(void)
 	if (flow_save++ == 255)
 	{
 		/* Cycle the flow */
-		for (y = 0; y < DUNGEON_HGT; y++)
+		for (y = 0; y < p_ptr->cur_hgt; y++)
 		{
-			for (x = 0; x < DUNGEON_WID; x++)
+			for (x = 0; x < p_ptr->cur_wid; x++)
 			{
 				int w = cave_when[y][x];
 				cave_when[y][x] = (w >= 128) ? (w - 128) : 0;
@@ -3173,9 +3173,9 @@ void map_area(void)
 
 	/* Efficiency -- shrink to fit legal bounds */
 	if (y1 < 1) y1 = 1;
-	if (y2 > DUNGEON_HGT-1) y2 = DUNGEON_HGT-1;
+	if (y2 > p_ptr->cur_hgt-1) y2 = p_ptr->cur_hgt-1;
 	if (x1 < 1) x1 = 1;
-	if (x2 > DUNGEON_WID-1) x2 = DUNGEON_WID-1;
+	if (x2 > p_ptr->cur_wid-1) x2 = p_ptr->cur_wid-1;
 
 	/* Scan that area */
 	for (y = y1; y < y2; y++)
@@ -3255,10 +3255,10 @@ void wiz_lite(void)
 	}
 
 	/* Scan all normal grids */
-	for (y = 1; y < DUNGEON_HGT-1; y++)
+	for (y = 1; y < p_ptr->cur_hgt-1; y++)
 	{
 		/* Scan all normal grids */
-		for (x = 1; x < DUNGEON_WID-1; x++)
+		for (x = 1; x < p_ptr->cur_wid-1; x++)
 		{
 			/* Process all non-walls */
 			if (cave_feat[y][x] < FEAT_SECRET)
@@ -3310,9 +3310,9 @@ void wiz_dark(void)
 
 
 	/* Forget every grid */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Process the grid */
 			cave_info[y][x] &= ~(CAVE_MARK);
@@ -3355,9 +3355,9 @@ void town_illuminate(bool daytime)
 
 
 	/* Apply light or darkness */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Interesting grids */
 			if (cave_feat[y][x] > FEAT_INVIS)
@@ -3399,9 +3399,9 @@ void town_illuminate(bool daytime)
 
 
 	/* Handle shop doorways */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Track shop doorways */
 			if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&

@@ -712,36 +712,6 @@ static errr init_v_info(void)
 
 
 /*
- * Initialize the "p_info" array
- */
-static errr init_p_info(void)
-{
-	/* Init the header */
-	init_header(&p_head, z_info->p_max, sizeof(player_race),
-	            init_p_info_txt);
-
-	return init_info("p_info", &p_head,
-	                 (void*)&p_info, (void*)&p_name, (void*)&p_text);
-}
-
-
-
-/*
- * Initialize the "h_info" array
- */
-static errr init_h_info(void)
-{
-	/* Init the header */
-	init_header(&h_head, z_info->h_max, sizeof(hist_type),
-	            init_h_info_txt);
-
-	return init_info("h_info", &h_head,
-	                 (void*)&h_info, NULL, (void*)&h_text);
-}
-
-
-
-/*
  * Initialize the "b_info" array
  */
 static errr init_b_info(void)
@@ -756,22 +726,6 @@ static errr init_b_info(void)
 
 
 
-/*
- * Initialize the "g_info" array
- */
-static errr init_g_info(void)
-{
-	/* Init the header */
-	init_header(&g_head, z_info->p_max * z_info->p_max, sizeof(byte),
-	            init_g_info_txt);
-
-	return init_info("g_info", &g_head,
-	                 (void*)&g_info, (void*)&g_name, (void*)&g_text);
-}
-
-
-
-
 /*** Initialize others ***/
 
 
@@ -781,245 +735,207 @@ static errr init_g_info(void)
  */
 static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 {
-	{
-		/* General Store */
+  { /* General Store 1 */
 
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-		{ TV_FOOD, SV_FOOD_JERKY },
-		{ TV_FOOD, SV_FOOD_JERKY },
+    { TV_DIGGING, SV_SHOVEL },
+    { TV_DIGGING, SV_SHOVEL },
+    { TV_DIGGING, SV_SHOVEL },
+    { TV_DIGGING, SV_PICK },
+    { TV_DIGGING, SV_PICK },
+    { TV_CLOAK, SV_CLOAK },
+    { TV_CLOAK, SV_CLOAK },
+    { TV_CLOAK, SV_CLOAK },
 
-		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
-		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_LANTERN },
-		{ TV_LITE, SV_LITE_LANTERN },
+    { TV_CLOAK, SV_FUR_CLOAK },
+    { TV_CLOAK, SV_FUR_CLOAK },
+    { TV_LITE, SV_LITE_TORCH },
+    { TV_LITE, SV_LITE_TORCH },
+    { TV_LITE, SV_LITE_TORCH },
+    { TV_FOOD, SV_FOOD_BISCUIT },
+    { TV_FOOD, SV_FOOD_BISCUIT },
+    { TV_FOOD, SV_FOOD_JERKY },
 
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
+    { TV_FOOD, SV_FOOD_JERKY },
+    { TV_FOOD, SV_FOOD_PINT_OF_ALE },
+    { TV_FOOD, SV_FOOD_PINT_OF_WINE },
+    { TV_FOOD, SV_FOOD_RATION },
+    { TV_FOOD, SV_FOOD_RATION },
+    { TV_FOOD, SV_FOOD_RATION },
+    { TV_FOOD, SV_FOOD_RATION },
+    { TV_FOOD, SV_FOOD_RATION },
 
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_DIGGING, SV_SHOVEL },
-		{ TV_DIGGING, SV_PICK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK }
-	},
+    { TV_FOOD, SV_FOOD_RATION },
+    { TV_SHOT, SV_AMMO_LIGHT },
+    { TV_SHOT, SV_AMMO_LIGHT },
+    { TV_SHOT, SV_AMMO_NORMAL },
+    { TV_SHOT, SV_AMMO_NORMAL },
+    { TV_ARROW, SV_AMMO_NORMAL },
+    { TV_ARROW, SV_AMMO_NORMAL },
+    { TV_ARROW, SV_AMMO_NORMAL },
 
-	{
-		/* Armoury */
+  }, { /* Armour 2 */
 
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_METAL_CAP },
-		{ TV_HELM, SV_IRON_HELM },
+    { TV_SHIELD, SV_WOODEN_SHIELD },
+    { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+    { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+    { TV_SHIELD, SV_SMALL_METAL_SHIELD },
+    { TV_HELM, SV_HARD_LEATHER_CAP },
+    { TV_HELM, SV_HARD_LEATHER_CAP },
+    { TV_HELM, SV_METAL_CAP },
+    { TV_BOOTS, SV_PAIR_OF_SANDALS },
 
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
+    { TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
+    { TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
+    { TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
+    { TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+    { TV_GLOVES, SV_SET_OF_MAIL_GAUNTLETS },
+    { TV_GLOVES, SV_SET_OF_MAIL_GAUNTLETS },
+    { TV_GLOVES, SV_SET_OF_STEEL_GAUNTLETS },
+    { TV_SOFT_ARMOR, SV_ROBE },
 
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
+    { TV_SOFT_ARMOR, SV_LEATHER_JACKET },
+    { TV_SOFT_ARMOR, SV_QUILTED_ARMOR },
+    { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+    { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+    { TV_SOFT_ARMOR, SV_SOFT_STUDDED_LEATHER },
+    { TV_SOFT_ARMOR, SV_SOFT_STUDDED_LEATHER },
+    { TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
+    { TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
 
-		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
-		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
-	},
+    { TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
+    { TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
+    { TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
+    { TV_HARD_ARMOR, SV_RING_MAIL },
+    { TV_HARD_ARMOR, SV_HAUBERK },
+    { TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
+    { TV_HARD_ARMOR, SV_CHAIN_MESH_ARMOUR },
+    { TV_HARD_ARMOR, SV_CHAIN_MAIL },
 
-	{
-		/* Weaponsmith */
+  }, { /* Weapons 3 */
 
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_MAIN_GAUCHE },
-		{ TV_SWORD, SV_RAPIER },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_SWORD, SV_SABRE },
-		{ TV_SWORD, SV_CUTLASS },
-		{ TV_SWORD, SV_TULWAR },
+    { TV_BOW, SV_SLING },
+    { TV_BOW, SV_SLING },
+    { TV_BOW, SV_SHORT_BOW },
+    { TV_BOW, SV_SHORT_BOW },
+    { TV_BOW, SV_LIGHT_XBOW },
+    { TV_SWORD, SV_DIRK },
+    { TV_SWORD, SV_DAGGER },
+    { TV_SWORD, SV_MAIN_GAUCHE },
 
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SWORD, SV_LONG_SWORD },
-		{ TV_SWORD, SV_SCIMITAR },
-		{ TV_SWORD, SV_KATANA },
-		{ TV_SWORD, SV_BASTARD_SWORD },
-		{ TV_POLEARM, SV_SPEAR },
-		{ TV_POLEARM, SV_AWL_PIKE },
-		{ TV_POLEARM, SV_TRIDENT },
+    { TV_SWORD, SV_KNIFE },
+    { TV_SWORD, SV_RAPIER },
+    { TV_SWORD, SV_SMALL_SWORD },
+    { TV_SWORD, SV_SHORT_SWORD },
+    { TV_SWORD, SV_SABRE },
+    { TV_SWORD, SV_CUTLASS },
+    { TV_SWORD, SV_FALCHION },
+    { TV_SWORD, SV_TULWAR },
 
-		{ TV_POLEARM, SV_PIKE },
-		{ TV_POLEARM, SV_BEAKED_AXE },
-		{ TV_POLEARM, SV_BROAD_AXE },
-		{ TV_POLEARM, SV_LANCE },
-		{ TV_POLEARM, SV_BATTLE_AXE },
-		{ TV_HAFTED, SV_WHIP },
-		{ TV_BOW, SV_SLING },
-		{ TV_BOW, SV_SHORT_BOW },
+    { TV_SWORD, SV_BROAD_SWORD },
+    { TV_SWORD, SV_LONG_SWORD },
+    { TV_SWORD, SV_SCIMITAR },
+    { TV_AXE, SV_HATCHET },
+    { TV_AXE, SV_HAND_AXE },
+    { TV_AXE, SV_DOUBLE_AXE },
+    { TV_AXE, SV_CLEAVER },
+    { TV_AXE, SV_LIGHT_WAR_AXE },
 
-		{ TV_BOW, SV_LONG_BOW },
-		{ TV_BOW, SV_LIGHT_XBOW },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-	},
+    { TV_CLAW, SV_CLAW },
+    { TV_CLAW, SV_KATAR },
+    { TV_CLAW, SV_CESTUS },
+    { TV_POLEARM, SV_SPEAR },
+    { TV_POLEARM, SV_SICKLE },
+    { TV_POLEARM, SV_AWL_PIKE },
+    { TV_POLEARM, SV_TRIDENT },
+    { TV_POLEARM, SV_BROAD_SPEAR },
 
-	{
-		/* Temple */
+  }, { /* Temple 4 */
 
-		{ TV_HAFTED, SV_WHIP },
-		{ TV_HAFTED, SV_QUARTERSTAFF },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_BALL_AND_CHAIN },
-		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_LUCERN_HAMMER },
-		{ TV_HAFTED, SV_MORNING_STAR },
+    { TV_POTION, SV_POTION_SLOW_POISON },
+    { TV_POTION, SV_POTION_CURE_POISON },
+    { TV_POTION, SV_POTION_BOLDNESS },
+    { TV_POTION, SV_POTION_HEROISM },
+    { TV_POTION, SV_POTION_BESERK_STRENGTH },
+    { TV_POTION, SV_POTION_CURE_LIGHT },
+    { TV_POTION, SV_POTION_CURE_LIGHT },
+    { TV_POTION, SV_POTION_CURE_SERIOUS },
 
-		{ TV_HAFTED, SV_FLAIL },
-		{ TV_HAFTED, SV_FLAIL },
-		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_BLESSING },
-		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-		{ TV_POTION, SV_POTION_BOLDNESS },
-		{ TV_POTION, SV_POTION_HEROISM },
+    { TV_POTION, SV_POTION_CURE_CRITICAL },
+    { TV_SCROLL, SV_SCROLL_BLESSING },
+    { TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
+    { TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
+    { TV_SCROLL, SV_SCROLL_HOLY_PRAYER },
+    { TV_SCROLL, SV_SCROLL_HOLY_CHANT },
+    { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+    { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
-		{ TV_POTION, SV_POTION_CURE_LIGHT },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
+    { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+    { TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
+    { TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
+    { TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
+    { TV_STAFF, SV_STAFF_DETECT_EVIL },
+    { TV_STAFF, SV_STAFF_DETECT_UNDEAD },
+    { TV_STAFF, SV_STAFF_CURE_LIGHT },
+    { TV_STAFF, SV_STAFF_REMOVE_CURSE },
 
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 3 }
-	},
+    { TV_HAFTED, SV_WOODEN_CLUB },
+    { TV_HAFTED, SV_QUARTERSTAFF },
+    { TV_HAFTED, SV_MACE },
+    { TV_HAFTED, SV_BALL_AND_CHAIN },
+    { TV_HAFTED, SV_WAR_HAMMER },
+    { TV_HAFTED, SV_LUCERN_HAMMER },
+    { TV_HAFTED, SV_MORNING_STAR },
+    { TV_HAFTED, SV_FLAIL },
 
-	{
-		/* Alchemy shop */
+  }, { /* Supplies 5 */
 
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_LIGHT },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
 
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
-		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
-		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
+  }, { /* Magic 6 */
 
-		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
-		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+    { TV_WAND, SV_WAND_DISARMING },
+    { TV_WAND, SV_WAND_MAGIC_MISSILE },
+    { TV_WAND, SV_WAND_MAGIC_MISSILE },
+    { TV_WAND, SV_WAND_WONDER },
+    { TV_WAND, SV_WAND_SLEEP_MONSTER },
+    { TV_WAND, SV_WAND_SLOW_MONSTER },
+    { TV_WAND, SV_WAND_CONFUSE_MONSTER },
+    { TV_WAND, SV_WAND_FEAR_MONSTER },
 
-		{ TV_POTION, SV_POTION_RESIST_HEAT },
-		{ TV_POTION, SV_POTION_RESIST_COLD },
-		{ TV_POTION, SV_POTION_RES_STR },
-		{ TV_POTION, SV_POTION_RES_INT },
-		{ TV_POTION, SV_POTION_RES_WIS },
-		{ TV_POTION, SV_POTION_RES_DEX },
-		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR }
-	},
+    { TV_WAND, SV_WAND_STINKING_CLOUD },
+    { TV_WAND, SV_WAND_LITE },
+    { TV_WAND, SV_WAND_STONE_TO_MUD },
+    { TV_STAFF, SV_STAFF_TELEPORTATION },
+    { TV_STAFF, SV_STAFF_IDENTIFY },
+    { TV_STAFF, SV_STAFF_LITE },
+    { TV_STAFF, SV_STAFF_MAPPING },
+    { TV_SCROLL, SV_SCROLL_LIGHT },
 
-	{
-		/* Magic-User store */
+    { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+    { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+    { TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+    { TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+    { TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+    { TV_SCROLL, SV_SCROLL_DETECT_GOLD },
+    { TV_SCROLL, SV_SCROLL_DETECT_ITEM },
+    { TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 
-		{ TV_RING, SV_RING_SEARCHING },
-		{ TV_RING, SV_RING_FEATHER_FALL },
-		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_AMULET, SV_AMULET_CHARISMA },
-		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
-		{ TV_AMULET, SV_AMULET_RESIST_ACID },
-		{ TV_WAND, SV_WAND_SLOW_MONSTER },
-		{ TV_WAND, SV_WAND_CONFUSE_MONSTER },
-
-		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
-		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
-		{ TV_WAND, SV_WAND_STINKING_CLOUD },
-		{ TV_WAND, SV_WAND_WONDER },
-		{ TV_STAFF, SV_STAFF_LITE },
-		{ TV_STAFF, SV_STAFF_MAPPING },
-		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
-		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
-
-		{ TV_STAFF, SV_STAFF_DETECT_GOLD },
-		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
-		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
-		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 3 }
-	}
+    { TV_SCROLL, SV_SCROLL_DETECT_DOOR },
+    { TV_SCROLL, SV_SCROLL_DETECT_INVIS },
+    { TV_SCROLL, SV_SCROLL_IDENTIFY },
+    { TV_SCROLL, SV_SCROLL_IDENTIFY },
+    { TV_SCROLL, SV_SCROLL_RECHARGING },
+    { TV_SCROLL, SV_SCROLL_TELEPORT },
+    { TV_POTION, SV_POTION_MANA_LIGHT },
+    { TV_POTION, SV_POTION_MANA_LIGHT },
+  } 
 };
 
 
@@ -1688,21 +1604,9 @@ void init_angband(void)
 	note("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
 
-	/* Initialize history info */
-	note("[Initializing arrays... (histories)]");
-	if (init_h_info()) quit("Cannot initialize histories");
-
-	/* Initialize race info */
-	note("[Initializing arrays... (races)]");
-	if (init_p_info()) quit("Cannot initialize races");
-
 	/* Initialize owner info */
 	note("[Initializing arrays... (owners)]");
 	if (init_b_info()) quit("Cannot initialize owners");
-
-	/* Initialize price info */
-	note("[Initializing arrays... (prices)]");
-	if (init_g_info()) quit("Cannot initialize prices");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");

@@ -102,7 +102,7 @@ G:4:g
 
 # 0x0C --> shop -- alchemist (perm)
 
-N:12:Alchemy Shop
+N:12:Gambling Den
 G:5:b
 
 # 0x0D --> shop -- magic shop (perm)

@@ -372,7 +372,9 @@ static const tval_desc tvals[] =
 {
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
+	{ TV_CLAW,           "Claw"              },
 	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_AXE,               "Axes" },
 	{ TV_BOW,               "Bow"                  },
 	{ TV_ARROW,             "Arrows"               },
 	{ TV_BOLT,              "Bolts"                },
@@ -394,8 +396,6 @@ static const tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
-	{ TV_MAGIC_BOOK,        "Magic Book"           },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -989,6 +989,10 @@ static void do_cmd_wiz_play(void)
 		/* Change */
 		object_copy(o_ptr, i_ptr);
 
+		/* Know about average items */
+		if (value_check_aux(o_ptr) == INSCRIP_AVERAGE)
+		  object_known(o_ptr);
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -1222,54 +1226,6 @@ static void do_cmd_wiz_learn(void)
 			object_aware(i_ptr);
 		}
 	}
-}
-
-
-/*
- * Hack -- Rerate Hitpoints
- */
-static void do_cmd_rerate(void)
-{
-	int min_value, max_value, i, percent;
-
-	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
-	min_value += PY_MAX_LEVEL;
-
-	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
-	max_value += PY_MAX_LEVEL;
-
-	p_ptr->player_hp[0] = p_ptr->hitdie;
-
-	/* Rerate */
-	while (1)
-	{
-		/* Collect values */
-		for (i = 1; i < PY_MAX_LEVEL; i++)
-		{
-			p_ptr->player_hp[i] = randint(p_ptr->hitdie);
-			p_ptr->player_hp[i] += p_ptr->player_hp[i - 1];
-		}
-
-		/* Legal values */
-		if ((p_ptr->player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (p_ptr->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
-	}
-
-	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
-
-	/* Update and redraw hitpoints */
-	p_ptr->update |= (PU_HP);
-	p_ptr->redraw |= (PR_HP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Message */
-	msg_format("Current Life Rating is %d/100.", percent);
 }
 
 
@@ -1575,17 +1531,10 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Hitpoint rerating */
-		case 'h':
-		{
-			do_cmd_rerate();
-			break;
-		}
-
 		/* Identify */
 		case 'i':
 		{
-			(void)ident_spell();
+			(void)identify_fully();
 			break;
 		}
 

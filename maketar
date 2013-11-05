@@ -1,0 +1,31 @@
+# Remove files
+rm lib/data/*.raw
+rm lib/apex/scores.raw
+rm lib/*/*~
+rm src/*~
+rm *~
+rm angband
+rm diabloband.tgz
+
+# Move files
+mv lib/save/1000.* ..
+mv src/angband ../temp
+mv src/*.o ..
+
+# Change directory
+cd ..
+
+# Make archive
+tar -cvzf diabloband.tgz diabloband/
+
+# Return
+cd diabloband/
+
+# Move archive
+mv ../diabloband.tgz .
+
+# Restore files
+mv ../1000.* lib/save/
+mv ../*.o src/
+mv ../temp angband
+cp angband src/
