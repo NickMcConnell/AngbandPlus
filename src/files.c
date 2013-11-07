@@ -645,7 +645,7 @@ static const char *show_missile_weapon(const object_type *o_ptr)
 {
 	static char buffer[12];
 	int hit = p_ptr->state.dis_to_h;
-	int dam = 0;
+	int dam = p_ptr->state.dis_to_d;
 
 	if (object_attack_plusses_are_visible(o_ptr))
 	{

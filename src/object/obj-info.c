@@ -650,8 +650,26 @@ static bool describe_combat(textblock *tb, const object_type *o_ptr,
 			}
 		}
 	}
-	else
+	else /* bow */
 	{
+		/*
+		 * Get the player's hypothetical state, were they to be
+		 * wielding this item.
+		 */
+		player_state state;
+		int dex_plus_bound;
+		int str_plus_bound;
+
+		object_type inven[INVEN_TOTAL];
+
+		memcpy(inven, p_ptr->inventory, INVEN_TOTAL * sizeof(object_type));
+		//inven[INVEN_WIELD] = *o_ptr;
+
+		//if (full) object_know_all_flags(&inven[INVEN_WIELD]);
+
+		calc_bonuses(inven, &state, TRUE);
+		dex_plus_bound = STAT_RANGE - state.stat_ind[A_DEX];
+		str_plus_bound = STAT_RANGE - state.stat_ind[A_STR];
 		int tdis = 6 + 2 * p_ptr->state.ammo_mult;
 
 		if (object_attack_plusses_are_visible(o_ptr))
@@ -663,8 +681,9 @@ static bool describe_combat(textblock *tb, const object_type *o_ptr,
 		/* Calculate damage */
 		dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
 
+		xtra_precrit = state.to_d * 10;
 		if (object_attack_plusses_are_visible(o_ptr))
-			dam += (o_ptr->to_d * 10);
+			xtra_precrit += (o_ptr->to_d * 10); /* arrow damage moved to post multiplier */ 
 		if (object_attack_plusses_are_visible(bow))
 			dam += (bow->to_d * 10);
 
@@ -717,7 +736,6 @@ static bool describe_combat(textblock *tb, const object_type *o_ptr,
 			total_dam = (total_dam * old_blows) / 100;
 		else
 			total_dam *= p_ptr->state.num_shots;
-		
 
 		if (total_dam <= 0)
 			textblock_append_c(tb, TERM_L_RED, "%d", 0);

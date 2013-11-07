@@ -532,13 +532,18 @@ static struct attack_result make_ranged_shot(object_type *o_ptr, int y, int x) {
 		multiplier += best_s_ptr->mult;
 	}
 
-	/* Apply damage: multiplier, slays, criticals, bonuses */
+	/* Apply damage: (((arrow_roll + bow_damage_plusses)*(bow_multiplier + slays) + arrow_damage_plusses)*criticals) + player_plusses */
+	/* This is changed from the old one: (arrow_roll + bow_damage_plusses + arrow_plusses)*(bow_multiplier + slays)*critical) */
 	result.dmg = damroll(o_ptr->dd, o_ptr->ds);
-	result.dmg += o_ptr->to_d + j_ptr->to_d;
+	result.dmg += j_ptr->to_d;
 	result.dmg *= multiplier;
+	result.dmg += o_ptr->to_d;
 	result.dmg = critical_shot(o_ptr->weight, o_ptr->to_h, result.dmg, &result.msg_type);
 
 	object_notice_attack_plusses(&p_ptr->inventory[INVEN_BOW]);
+
+	/* Apply the player damage bonuses- THIS IS A NEW CHANGE for ranged.*/
+	result.dmg += p_ptr->state.to_d;
 
 	return result;
 }

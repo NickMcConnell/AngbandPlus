@@ -225,6 +225,7 @@ static const char *get_flag_desc(bitflag flag)
 		case OF_SUST_STR: return "Sustains strength";
 		case OF_SUST_DEX: return "Sustains dexterity";
 		case OF_SUST_CON: return "Sustains constitution";
+		case OF_SUST_CHR: return "Sustains charisma";
 		case OF_RES_POIS: return "Resists poison";
 		case OF_RES_LIGHT: return "Resists light damage";
 		case OF_RES_DARK: return "Resists darkness damage";

@@ -24,12 +24,12 @@
 # Pony Chart progression by race:
 #   Earth Pony    -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #                 -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#                 -->  5 -->  6 -->  9 --> 54 --> 55 --> 56
+#   Griffon       -->  5 -->  6 -->  9 --> 54 --> 55 --> 56
 #                 -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
 #   Pegasus       --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Unicorn       --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Dragonling    --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
-#   Alicorn   --> 19 --> 20/21 --> 13/14 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Alicorn       --> 19 --> 20/21 --> 13/14 -->  3 --> 50 --> 51 --> 52 --> 53
 #                 --> 21 --> 22 --> 62 --> 63 --> 64 --> 65 --> 66
 #   Diamond Dog   --> 23 --> 24 --> 25 --> 26 --> 67 --> 68 --> 69
 
@@ -94,12 +94,8 @@ D:You are one of several children
 N:5:6:100:55
 D:You are the only child 
 
-N:6:9:40:40
-D:of an Avarin 
-N:6:9:70:50
-D:of a Nandorin 
 N:6:9:100:60
-D:of a Sindarin 
+D:of a Griffonian 
 
 N:7:8:60:50
 D:You are one of several children 
@@ -113,18 +109,18 @@ D:of a Noldorin
 N:8:9:100:60
 D:of a Vanyarin 
 
-N:9:54:40:80
-D:Ranger.  
-N:9:54:70:90
-D:Archer.  
-N:9:54:87:110
-D:Warrior.  
+N:9:54:20:80
+D:Explorer.  
+N:9:54:50:90
+D:Flight Instructor.  
+N:9:54:75:110
+D:Traveling Merchant.  
 N:9:54:95:125
-D:Mage.  
+D:Warrior.  
 N:9:54:99:140
-D:Prince.  
+D:Ambassador.  
 N:9:54:100:145
-D:King.  
+D:Noble.  
 
 N:10:11:50:45
 D:You are one of several children of a Pegasus 
@@ -171,17 +167,17 @@ D:You are one of two children of a Dragon
 N:16:17:100:60
 D:You are the only child of a Dragon 
 
-N:17:18:10:60
+N:17:57:10:60
 D:Thief.  
-N:17:18:25:75
+N:17:57:55:75
 D:Warrior.  
-N:17:18:75:90
+N:17:57:75:90
 D:Miner.  
-N:17:18:90:110
+N:17:57:90:110
 D:Hoarder.  
-N:17:18:99:130
+N:17:57:99:130
 D:Noble.  
-N:17:18:100:150
+N:17:57:100:150
 D:Tyrant.  
 
 N:18:57:15:40
@@ -201,8 +197,6 @@ D:and your mother was a Pegasus
 
 N:21:14:100:50
 D:and your mother was a Unicorn 
-
-
 
 N:22:62:5:60
 D:Cook.  
@@ -232,22 +226,22 @@ N:24:25:100:55
 D:a litter of 6 pups. 
 
 N:25:26:25:60
-D:Your father was a farmer, 
+D:Your father was a Farmer 
 N:25:26:50:65
-D:Your father was a guard, 
+D:Your father was a Guard 
 N:25:26:75:75
-D:Your father was a gem hunter, 
+D:Your father was a Gem Hunter 
 N:25:26:95:95
-D:Your father was a gem merchant, 
+D:Your father was a Gem Merchant 
 N:25:26:100:100
-D:Your father was the tribal chief, 
+D:Your father was the Tribal Chief 
 
 N:26:67:20:55
-D:and your mother was a farmer. 
+D:and your mother was a Farmer. 
 N:26:67:95:60
-D:and your mother was a cook. 
+D:and your mother was a Cook. 
 N:26:67:100:75
-D:and your mother was a gem merchant. 
+D:and your mother was a Gem merchant. 
 
 N:50:51:10:50
 D:You have gold eyes, 
@@ -314,25 +308,27 @@ N:53:0:100:50
 D:and a white coat.
 
 N:54:55:85:50
-D:You have light grey eyes, 
+D:You have copper eyes, 
 N:54:55:95:50
-D:You have light blue eyes, 
+D:You have silver eyes, 
 N:54:55:100:50
-D:You have light green eyes, 
+D:You have golden eyes, 
 
-N:55:56:75:50
-D:straight 
+N:55:56:65:50
+D:a brown coat and wings, and 
+N:55:56:90:50
+D:a grey coat and wings, and 
 N:55:56:100:50
-D:wavy 
+D:a black coat and wings, and 
 
-N:56:0:75:50
-D:black hair, and a fair complexion.
-N:56:0:85:50
-D:brown hair, and a fair complexion.
+N:56:0:35:50
+D:white feathers with purple accents.
+N:56:0:65:50
+D:white feathers with teal accents.
 N:56:0:95:50
-D:blond hair, and a fair complexion.
+D:black feathers with silver accents.
 N:56:0:100:50
-D:silver hair, and a fair complexion.
+D:black feathers with red accents.
 
 N:57:58:45:50
 D:You have green eyes, 
