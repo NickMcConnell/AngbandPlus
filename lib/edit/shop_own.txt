@@ -18,52 +18,52 @@ V:3.0.11
 
 # General Store
 N:0
-S:5000:Bilbo the Friendly (Hobbit)
-S:10000:Rincewind the Chicken (Human)
-S:20000:Snafu the Midget (Gnome)
-S:30000:Lyar-el the Comely (Elf)
+S:5000:Applejack the Honest (Earth Pony)
+S:10000:Mrs. Cake (Earth Pony)
+S:20000:Cherries Jubilee (Earth Pony)
+S:30000:Clyde, Rock Farmer (Earth Pony)
 
 # Armoury
 N:1
-S:5000:Kon-Dar the Ugly (Half-Orc)
-S:10000:Darg-Low the Grim (Human)
-S:25000:Decado the Handsome (Dundan)
-S:30000:Mauglin the Grumpy (Dwarf)
+S:5000:Apple Bloom, the Crafty (Earth Pony)
+S:10000:Big Macintosh (Earth Pony)
+S:25000:Sapphire Shores, Fashionista (Earth Pony)
+S:30000:Rarity the Generous (Unicorn)
 
 # Weapon Smith
 N:2
-S:5000:Ithyl-Mak the Beastly (Half-Troll)
-S:10000:Arndal Beast-Slayer (Half-Elf)
-S:25000:Tarl Beast-Master (Hobbit)
-S:30000:Oglign Dragon-Slayer (Dwarf)
+S:5000:Snips, Blademaster (Unicorn)
+S:10000:Gilda the Rude (Griffon)
+S:25000:Raibow Dash the Loyal (Pegasus)
+S:30000:Scootaloo, Athlete (Pegasus)
 
 # Temple
 N:3
-S:15000:Ludwig the Humble (Human)
-S:20000:Gunnar the Paladin (Human)
-S:25000:Delilah the Pure (Elf)
-S:30000:Bosk the Wise (Dwarf)
+S:15000:Cheerilee, Teacher (Earth Pony)
+S:20000:Sweetie Belle, Songstress (Unicorn)
+S:25000:Fluttershy the Kind (Pegasus)
+S:30000:Photo Finish (Earth Pony)
 
 # Alchemist
 N:4
-S:10000:Mauser the Chemist (Half-Elf)
-S:10000:Wizzle the Chaotic (Hobbit)
-S:15000:Ga-nat the Greedy (Gnome)
-S:15000:Vella the Slender (Human)
+S:10000:Snails, Chemist (Unicorn)
+S:10000:Steven Magnet (Sea Serpent)
+S:15000:Zecora the Wise (Zebra Pony)
+S:15000:Pinkie Pie (Earth Pony)
 
 # Magic Shop
 N:5
-S:15000:Ariel the Sorceress (Half-Elf)
-S:20000:Buggerby the Great (Gnome)
-S:25000:Inglorian the Mage (Human)
-S:30000:Luthien Starshine (High-Elf)
+S:15000:Hoity Toity, Fashion Maestro (Earth Pony)
+S:20000:The Great and Powerful Trixie (Unicorn)
+S:25000:Spike, #1 Assistant (Dragonling)
+S:30000:Twilight Sparkle, Mystic (Unicorn)
 
 # Black Market
 N:6
-S:15000:Lo-Hak the Awful (Half-Troll)
-S:20000:Histor the Goblin (Kobold)
-S:25000:Durwin the Shifty (Half-Orc)
-S:30000:Drago the Fair (Elf)
+S:15000:Spot the Awful (Diamond Dog)
+S:20000:Rover the Tricky (Diamond Dog)
+S:25000:Fido the Brute (Diamond Dog)
+S:30000:Princess Luna (Pegasus Unicorn)
 
 # Home
 N:7

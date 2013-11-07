@@ -1,15 +1,16 @@
 
-{yellow}                     _                _                     _ {/}
-{yellow}                    / \   _ __   __ _| |__   __ _ _ __   __| |{/}
-{yellow}                   / _ \ | '_ \ / _` | '_ \ / _` | '_ \ / _` |{/}
-{yellow}                  / ___ \| | | | (_| | |_) | (_| | | | | (_| |{/}
-{yellow}                 /_/   \_\_| |_|\__, |_.__/ \__,_|_| |_|\__,_|{/}
-{yellow}                                |___/                         {/}  
+{red}                _        {/}{orange}        {/}{yellow}        {/}{green}       _{/}{blue}        {/}{violet}_       {/} 
+{red}               / \   _ _{/}{orange}_   __ _{/}{yellow} _   _  {/}{green}___ ___|{/}{blue} |_ _ __{/}{violet}(_) __ _ {/} 
+{red}              / _ \ | '{/}{orange}_ \ / _`{/}{yellow} | | | |{/}{green}/ _ | __{/}{blue}| __| '_{/}{violet}_| |/ _` |{/} 
+{red}             / ___ \| {/}{orange}| | | (_{/}{yellow}| | |_| {/}{green}|  __|__{/}{blue} \ |_| |{/}{violet}  | | (_| |{/} 
+{red}            /_/   \_\{/}{orange}_| |_|\_{/}{yellow}_, |\__,{/}{green}_|\___|_{/}{blue}__/\__|_{/}{violet}|  |_|\__,_|{/} 
+{red}                    {/}{orange}        {/}{yellow}  |_|   {/}{green}        {/}{blue}        {/}{violet}             {/} 
+ 
+{violet}                A 'My Little Pony: Friendship is Magic' RPG {/}                       
+{yellow}                Based on Angband Version 3.2.0 {/}
+                Bug reports to <anquestria@gmail.com>
 
-                              Version $VERSION
-                Bug reports to <http://angband.oook.cz/forum/>
-
-   For resources and links to places you can talk about the game, please see:
+   For resources and links to places you can talk about {yellow}Angband{/}, please see:
                   http://rephial.org/ -- the home of Angband
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -18,4 +19,3 @@
                              Geoff Hill, Charles Teague, Charles Swiger
             2.7.0 - 2.8.5:   Ben Harrison
             2.9.0 - 3.0.6:   Robert Ruehlmann
-           

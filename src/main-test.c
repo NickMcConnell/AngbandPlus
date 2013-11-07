@@ -1,10 +1,15 @@
 /** @file main-test.c
  *  @brief Pseudo-UI for end-to-end testing.
  *  @author Elly <elly+angband@leptoquark.net>
+ *
+ * Copyright (c) 2011 elly+angband@leptoquark.net. See COPYING.
  */
 
 #include "angband.h"
 #include "birth.h"
+#include "buildid.h"
+
+#ifdef USE_TEST
 
 static int prompt = 0;
 static int verbose = 0;
@@ -58,6 +63,8 @@ static void c_player_birth(char *rest) {
 	char *race = strtok(NULL, " ");
 	char *class = strtok(NULL, " ");
 	int i;
+	struct player_class *c;
+	struct player_race *r;
 
 	if (!sex) sex = "Female";
 	if (!race) race = "Human";
@@ -75,43 +82,36 @@ static void c_player_birth(char *rest) {
 		return;
 	}
 
-	for (i = 0; i < z_info->p_max; i++) {
-		if (!strcmp(race, p_info[i].name)) {
-			p_ptr->prace = i;
+	for (r = races; r; r = r->next)
+		if (!strcmp(race, r->name))
 			break;
-		}
-	}
-
-	if (i == z_info->p_max) {
+	if (!r) {
 		printf("player-birth: bad race '%s'\n", race);
 		return;
 	}
 
-	for (i = 0; i < z_info->c_max; i++) {
-		if (!strcmp(class, c_info[i].name)) {
-			p_ptr->pclass = i;
+	for (c = classes; c; c = c->next)
+		if (!strcmp(class, c->name))
 			break;
-		}
-	}
 
-	if (i == z_info->c_max) {
+	if (!c) {
 		printf("player-birth: bad class '%s'\n", class);
 		return;
 	}
 
-	player_generate(p_ptr, NULL, NULL, NULL);
+	player_generate(p_ptr, NULL, r, c);
 }
 
 static void c_player_class(char *rest) {
-	printf("player-class: %s\n", cp_ptr->name);
+	printf("player-class: %s\n", p_ptr->class->name);
 }
 
 static void c_player_race(char *rest) {
-	printf("player-race: %s\n", rp_ptr->name);
+	printf("player-race: %s\n", p_ptr->race->name);
 }
 
 static void c_player_sex(char *rest) {
-	printf("player-sex: %s\n", sp_ptr->title);
+	printf("player-sex: %s\n", p_ptr->sex->title);
 }
 
 typedef struct {
@@ -188,11 +188,6 @@ static void term_nuke_test(term *t) {
 	if (verbose) printf("term-end\n");
 }
 
-static errr term_user_test(int n) {
-	if (verbose) printf("term-user %d\n", n);
-	return 0;
-}
-
 static errr term_xtra_clear(int v) {
 	if (verbose) printf("term-xtra-clear %d\n", v);
 	return 0;
@@ -221,7 +216,7 @@ static errr term_xtra_alive(int v) {
 static errr term_xtra_event(int v) {
 	if (verbose) printf("term-xtra-event %d\n", v);
 	if (nextkey) {
-		Term_keypress(nextkey);
+		Term_keypress(nextkey, 0);
 		nextkey = 0;
 	}
 	return test_docmd();
@@ -289,7 +284,6 @@ static void term_data_link(int i) {
 	t->init_hook = term_init_test;
 	t->nuke_hook = term_nuke_test;
 
-	t->user_hook = term_user_test;
 	t->xtra_hook = term_xtra_test;
 	t->curs_hook = term_curs_test;
 	t->wipe_hook = term_wipe_test;
@@ -319,3 +313,4 @@ errr init_test(int argc, char *argv[]) {
 	term_data_link(0);
 	return 0;
 }
+#endif

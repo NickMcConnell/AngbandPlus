@@ -94,7 +94,7 @@ M:90:1:1:300
 E:magic book:[Magic for Beginners]:1:1
 E:sword:Dagger~:1:1
 E:scroll:Word of Recall:1:1
-F:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
+F:CUMBER_HELM | ZERO_FAIL | BEAM | CHOOSE_SPELLS
 T:Novice
 T:Apprentice
 T:Trickster
@@ -267,7 +267,7 @@ E:magic book:[Magic for Beginners]:1:1
 E:sword:Short Sword~:1:1
 E:soft armour:Soft Leather Armour~:1:1
 E:scroll:Word of Recall:1:1
-F:CUMBER_GLOVE | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
+F:CUMBER_HELM | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
 T:Vagabond
 T:Cutpurse
 T:Footpad
@@ -354,7 +354,7 @@ E:sword:Dagger~:1:1
 E:bow:Short Bow~:1:1
 E:arrow:Arrow~:15:20
 E:scroll:Word of Recall:1:1
-F:CUMBER_GLOVE | EXTRA_SHOT | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
+F:CUMBER_HELM | EXTRA_SHOT | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
 T:Runner
 T:Strider
 T:Scout
@@ -515,3 +515,5 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
+
+

@@ -63,7 +63,7 @@ u32b z0, z1, z2;
 #define newV0 STATE[(state_i + 31) & 0x0000001fU]
 #define newV1 STATE[state_i]
 
-u32b WELLRNG1024a (void){
+static u32b WELLRNG1024a (void){
 	z0      = VRm1;
 	z1      = Identity(V0) ^ MAT0POS (8, VM1);
 	z2      = MAT0NEG (-19, VM2) ^ MAT0NEG(-14,VM3);
@@ -90,6 +90,8 @@ bool Rand_quick = TRUE;
  */
 u32b Rand_value;
 
+static bool rand_fixed = FALSE;
+static u32b rand_fixval = 0;
 
 /**
  * Initialize the complex RNG using a new seed.
@@ -137,6 +139,9 @@ u32b Rand_div(u32b m) {
 
 	/* Hack -- simple case */
 	if (m <= 1) return (0);
+
+	if (rand_fixed)
+		return (rand_fixval * 1000 * (m - 1)) / (100 * 1000);
 
 	/* Partition size */
 	n = (0x10000000 / m);
@@ -333,7 +338,7 @@ int rand_range(int A, int B) {
  * Perform division, possibly rounding up or down depending on the size of the
  * remainder and chance.
  */
-int simulate_division(int dividend, int divisor) {
+static int simulate_division(int dividend, int divisor) {
 	int quotient  = dividend / divisor;
 	int remainder = dividend % divisor;
 	if (randint0(divisor) < remainder) quotient++;
@@ -458,4 +463,9 @@ bool randcalc_valid(random_value v, int test) {
  */
 bool randcalc_varies(random_value v) {
 	return randcalc(v, 0, MINIMISE) != randcalc(v, 0, MAXIMISE);
+}
+
+void rand_fix(u32b val) {
+	rand_fixed = TRUE;
+	rand_fixval = val;
 }
