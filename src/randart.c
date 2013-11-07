@@ -80,18 +80,19 @@ long ltotal[S_WORD + 1][S_WORD + 1];	/* global, hence init to 0 */
 #define SLAY_EVIL		21
 #define SLAY_UNDEAD		22
 #define SLAY_DEMON		23
-#define SLAY_ORC		24
-#define SLAY_TROLL		25
-#define SLAY_GIANT		26
+#define SLAY_HUMANOID	24
+#define SLAY_CONSTELLATION		25
+#define SLAY_HYBRID		26
 #define SLAY_DRAGON		27
-#define PERFECT_BALANCE		28
-#define BRAND_POIS		29
-#define BRAND_ACID		30
-#define BRAND_ELEC		31
-#define BRAND_FIRE		32
-#define BRAND_COLD		33
+#define SLAY_PONY       28
+#define PERFECT_BALANCE		29
+#define BRAND_POIS		30
+#define BRAND_ACID		31
+#define BRAND_ELEC		32
+#define BRAND_FIRE		33
+#define BRAND_COLD		34
 /* SJGU */
-#define SLAY_KILL		34
+#define SLAY_KILL		35
 
 #define SUST_STR		40
 #define SUST_INT		41
@@ -129,6 +130,7 @@ long ltotal[S_WORD + 1][S_WORD + 1];	/* global, hence init to 0 */
 #define FREE_ACT		76
 #define HOLD_LIFE		77
 #define IMPACT			78
+#define VORPAL          81
 #define BLESSED			80
 
 #define ADD_AC			94
@@ -161,15 +163,17 @@ static bool take_money(bool on_credit, int cost)
 {
 
     /* Take the money. */
-    if (potential > cost - 1) {
-	potential -= cost;
-	return (TRUE);
+    if (potential > cost - 1) 
+	{
+	   potential -= cost;
+	   return (TRUE);
     }
 
     /* <<mutter>> OK, I'll charge it to your account... */
-    else if (on_credit) {
-	potential = 0;
-	return (TRUE);
+    else if (on_credit) 
+	{
+	   potential = 0;
+	   return (TRUE);
     }
 
     /* Otherwise, kick da bum out. */
@@ -348,26 +352,26 @@ static bool get_quality(bool on_credit, int purchase, int value, int a_idx)
 	    }
 	    break;
 	}
-    case SLAY_ORC:
+    case SLAY_HUMANOID:
 	{
 	    if (take_money(on_credit, 40 * value)) {
-		a_ptr->multiple_slay[P_SLAY_ORC] += value;
+		a_ptr->multiple_slay[P_SLAY_HUMANOID] += value;
 		return (TRUE);
 	    }
 	    break;
 	}
-    case SLAY_TROLL:
+    case SLAY_CONSTELLATION:
 	{
 	    if (take_money(on_credit, 50 * value)) {
-		a_ptr->multiple_slay[P_SLAY_TROLL] += value;
+		a_ptr->multiple_slay[P_SLAY_CONSTELLATION] += value;
 		return (TRUE);
 	    }
 	    break;
 	}
-    case SLAY_GIANT:
+    case SLAY_HYBRID:
 	{
 	    if (take_money(on_credit, 40 * value)) {
-		a_ptr->multiple_slay[P_SLAY_GIANT] += value;
+		a_ptr->multiple_slay[P_SLAY_HYBRID] += value;
 		return (TRUE);
 	    }
 	    break;
@@ -376,6 +380,14 @@ static bool get_quality(bool on_credit, int purchase, int value, int a_idx)
 	{
 	    if (take_money(on_credit, 60 * value)) {
 		a_ptr->multiple_slay[P_SLAY_DRAGON] += value;
+		return (TRUE);
+	    }
+	    break;
+	}
+	case SLAY_PONY:
+	{
+	    if (take_money(on_credit, 40 * value)) {
+		a_ptr->multiple_slay[P_SLAY_PONY] += value;
 		return (TRUE);
 	    }
 	    break;
@@ -722,6 +734,18 @@ static bool get_quality(bool on_credit, int purchase, int value, int a_idx)
 	    }
 	    break;
 	}
+	case VORPAL:
+	{
+         if ((a_ptr->tval == TV_POLEARM) || (a_ptr->tval == TV_SWORD)) 
+		 {
+		    if (take_money(on_credit, 3000)) 
+			{
+		       of_on(a_ptr->flags_obj, OF_VORPAL);
+		       return (TRUE);
+			}
+         }
+         break;
+    }
     case BLESSED:
 	{
 	    if ((player_has(PF_BLESS_WEAPON))
@@ -1123,7 +1147,7 @@ static void initialize_artifact(int a_idx)
 	{
 	    if (k_ptr->sval == SV_EXECUTIONERS_SWORD)
 		power_of_base_object = 500;
-	    if (k_ptr->sval == SV_VALINOREAN_SWORD)
+	    if (k_ptr->sval == SV_CRUSADER_SWORD)
 		power_of_base_object = 800;
 	    break;
 	}
@@ -1615,11 +1639,11 @@ static void choose_basic_theme(int a_idx)
 		if ((randint1(6) == 1) && (potential >= 2000)) {
 		    get_quality(TRUE, SLAY_EVIL, (randint1(3) == 1 ? 7 : 5),
 				a_idx);
-		    get_quality(TRUE, SLAY_ORC, (randint1(3) == 1 ? 15 : 10),
+		    get_quality(TRUE, SLAY_HUMANOID, (randint1(3) == 1 ? 15 : 10),
 				a_idx);
-		    get_quality(TRUE, SLAY_TROLL, (randint1(3) == 1 ? 15 : 10),
+		    get_quality(TRUE, SLAY_CONSTELLATION, (randint1(3) == 1 ? 15 : 10),
 				a_idx);
-		    get_quality(TRUE, SLAY_GIANT, (randint1(3) == 1 ? 15 : 10),
+		    get_quality(TRUE, SLAY_HYBRID, (randint1(3) == 1 ? 15 : 10),
 				a_idx);
 		}
 
@@ -1643,16 +1667,19 @@ static void choose_basic_theme(int a_idx)
 			get_quality(FALSE, SLAY_EVIL,
 				    (randint1(3) == 1 ? 7 : 5), a_idx);
 		    if (randint1(3) == 1)
-			get_quality(FALSE, SLAY_ORC,
+			get_quality(FALSE, SLAY_HUMANOID,
 				    (randint1(3) == 1 ? 15 : 10), a_idx);
 		    if (randint1(3) == 1)
-			get_quality(FALSE, SLAY_TROLL,
+			get_quality(FALSE, SLAY_CONSTELLATION,
 				    (randint1(3) == 1 ? 15 : 10), a_idx);
 		    if (randint1(3) == 1)
 			get_quality(FALSE, SLAY_DEMON,
 				    (randint1(3) == 1 ? 15 : 10), a_idx);
 		    if (randint1(3) == 1)
-			get_quality(FALSE, SLAY_GIANT,
+			get_quality(FALSE, SLAY_HYBRID,
+				    (randint1(3) == 1 ? 15 : 10), a_idx);
+            if (randint1(3) == 1)
+			get_quality(FALSE, SLAY_PONY,
 				    (randint1(3) == 1 ? 15 : 10), a_idx);
 		}
 
@@ -1753,7 +1780,10 @@ static void choose_basic_theme(int a_idx)
 		    a_ptr->effect = EF_RAND_CONFU_FOE;
 		}
 
-		/* Provide resistance to confusion. */
+		/* Possibly a slay */
+		if (randint1(2) != 1)
+		   get_quality(TRUE, SLAY_PONY, 7, a_idx);
+        /* Provide resistance to confusion. */
 		get_quality(FALSE, RES_CONFU, 0, a_idx);
 		/* Bonus to intelligence. */
 		get_quality(FALSE, ADD_INT, randint1(4), a_idx);
@@ -1817,7 +1847,10 @@ static void choose_basic_theme(int a_idx)
 		    a_ptr->effect = EF_RAND_EARTHQUAKE;
 		}
 
-		/* Enhance the damage dice. */
+		/* Possibly a slay */
+		if (randint1(3) > 2)
+            get_quality(TRUE, SLAY_PONY, 7, a_idx);
+        /* Enhance the damage dice. */
 		get_quality(TRUE, ENHANCE_DICE, 3, a_idx);
 		/* 75% of the time, an earthquake brand.  SJGU but only if the
 		 * dice are big enough */
@@ -1880,17 +1913,17 @@ static void choose_basic_theme(int a_idx)
 		}
 
 		/* Naturally, the appropriate slays. */
-		get_quality(TRUE, SLAY_ORC, (randint1(3) == 1 ? 15 : 10),
+		get_quality(TRUE, SLAY_HUMANOID, (randint1(3) == 1 ? 15 : 10),
 			    a_idx);
-		get_quality(TRUE, SLAY_TROLL, (randint1(3) == 1 ? 15 : 10),
+		get_quality(TRUE, SLAY_CONSTELLATION, (randint1(3) == 1 ? 15 : 10),
 			    a_idx);
 		/* Often, grant a bonus to ac. */
 		if (randint1(2) == 1)
 		    get_quality(FALSE, ADD_AC, randint1(4) + potential / 1000,
 				a_idx);
-		/* Sometimes, slay giant. */
+		/* Sometimes, slay hybrid. */
 		if (randint1(3) == 1)
-		    get_quality(FALSE, SLAY_GIANT, 10, a_idx);
+		    get_quality(FALSE, SLAY_HYBRID, 10, a_idx);
 		/* Bonus to strength. */
 		get_quality(FALSE, ADD_STR, randint1(4), a_idx);
 		/* Sometimes vulnerable to confusion */
@@ -2703,8 +2736,8 @@ static void choose_basic_theme(int a_idx)
 		}
 	    }
 
-	    /* Hack -- Elven Cloaks have STEALTH */
-	    if (k_ptr->sval == SV_ELVEN_CLOAK) {
+	    /* Hack -- Zebra Cloaks have STEALTH */
+	    if (k_ptr->sval == SV_ZEBRA_CLOAK) {
 
 		/* Should this be for free? */
 		a_ptr->bonus_other[P_BONUS_STEALTH] +=
@@ -3229,7 +3262,7 @@ static void haggle_till_done(int a_idx)
 	    }
 
 	    /* Collect a slay or brand. */
-	    choice = randint1(13);
+	    choice = randint1(14);
 	    if ((choice == 1)
 		&& (a_ptr->multiple_slay[P_SLAY_ANIMAL] == MULTIPLE_BASE))
 		get_quality(TRUE, SLAY_ANIMAL, 7, a_idx);
@@ -3246,36 +3279,40 @@ static void haggle_till_done(int a_idx)
 		    == MULTIPLE_BASE))
 		get_quality(TRUE, SLAY_DEMON, 10, a_idx);
 	    if ((choice == 5)
-		&& (a_ptr->multiple_slay[P_SLAY_ORC] == MULTIPLE_BASE))
-		get_quality(TRUE, SLAY_ORC, 10, a_idx);
+		&& (a_ptr->multiple_slay[P_SLAY_HUMANOID] == MULTIPLE_BASE))
+		get_quality(TRUE, SLAY_HUMANOID, 10, a_idx);
 	    if ((choice == 6)
-		&& (a_ptr->multiple_slay[P_SLAY_TROLL] == MULTIPLE_BASE))
-		get_quality(TRUE, SLAY_TROLL, 10, a_idx);
+		&& (a_ptr->multiple_slay[P_SLAY_CONSTELLATION] == MULTIPLE_BASE))
+		get_quality(TRUE, SLAY_CONSTELLATION, 10, a_idx);
 	    if ((choice == 7)
-		&& (a_ptr->multiple_slay[P_SLAY_GIANT]
+		&& (a_ptr->multiple_slay[P_SLAY_HYBRID]
 		    == MULTIPLE_BASE))
-		get_quality(TRUE, SLAY_GIANT, 10, a_idx);
+		get_quality(TRUE, SLAY_HYBRID, 10, a_idx);
 	    if ((choice == 8)
 		&& (a_ptr->multiple_slay[P_SLAY_DRAGON]
 		    == MULTIPLE_BASE))
 		get_quality(TRUE, SLAY_DRAGON, 10, a_idx);
-	    if ((choice == 9)
+		if ((choice == 9)
+		&& (a_ptr->multiple_slay[P_SLAY_PONY]
+		    == MULTIPLE_BASE))
+        get_quality(TRUE, SLAY_PONY, 10, a_idx);
+	    if ((choice == 10)
 		&& (a_ptr->multiple_brand[P_BRAND_FIRE]
 		    == MULTIPLE_BASE))
 		get_quality(TRUE, BRAND_FIRE, 7, a_idx);
-	    if ((choice == 10)
+	    if ((choice == 11)
 		&& (a_ptr->multiple_brand[P_BRAND_COLD]
 		    == MULTIPLE_BASE))
 		get_quality(TRUE, BRAND_COLD, 7, a_idx);
-	    if ((choice == 11)
+	    if ((choice == 12)
 		&& (a_ptr->multiple_brand[P_BRAND_ACID]
 		    == MULTIPLE_BASE))
 		get_quality(TRUE, BRAND_ACID, 7, a_idx);
-	    if ((choice == 12)
+	    if ((choice == 13)
 		&& (a_ptr->multiple_brand[P_BRAND_ELEC]
 		    == MULTIPLE_BASE))
 		get_quality(TRUE, BRAND_ELEC, 7, a_idx);
-	    if ((choice == 13)
+	    if ((choice == 14)
 		&& (a_ptr->multiple_brand[P_BRAND_POIS]
 		    == MULTIPLE_BASE))
 		get_quality(TRUE, BRAND_POIS, 7, a_idx);
@@ -3727,13 +3764,15 @@ static void make_terrible(int a_idx)
 	    if (randint1(3) == 1)
 		a_ptr->multiple_slay[P_SLAY_DEMON] = 10;
 	    if (randint1(3) == 1)
-		a_ptr->multiple_slay[P_SLAY_ORC] = 10;
+		a_ptr->multiple_slay[P_SLAY_HUMANOID] = 10;
 	    if (randint1(3) == 1)
-		a_ptr->multiple_slay[P_SLAY_TROLL] = 10;
+		a_ptr->multiple_slay[P_SLAY_CONSTELLATION] = 10;
 	    if (randint1(3) == 1)
-		a_ptr->multiple_slay[P_SLAY_GIANT] = 10;
+		a_ptr->multiple_slay[P_SLAY_HYBRID] = 10;
 	    if (randint1(3) == 1)
 		a_ptr->multiple_slay[P_SLAY_DRAGON] = 10;
+		if (randint1(3) == 1)
+		a_ptr->multiple_slay[P_SLAY_PONY] = 10;
 	    if (randint1(3) == 1)
 		of_off(a_ptr->flags_obj, OF_PERFECT_BALANCE);
 	    if (randint1(3) == 1)

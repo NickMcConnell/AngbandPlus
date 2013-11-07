@@ -29,6 +29,8 @@
 #include "tvalsval.h"
 #include "spells.h"
 #include "squelch.h"
+#include "option.h"
+#include "ui-event.h"
 
 /*** Utility bits and bobs ***/
 
@@ -199,6 +201,7 @@ void do_cmd_wield(cmd_code code, cmd_arg args[])
     int slot = args[1].number;
     object_type *o_ptr = object_from_item_idx(item);
 
+    
     if (SCHANGE) {
 	msg("You cannot wield equipment while shapechanged.");
 	msg("Use the ']' command to return to your normal form.");
@@ -214,7 +217,7 @@ void do_cmd_wield(cmd_code code, cmd_arg args[])
     /* Check the slot */
     if (!slot_can_wield_item(slot, o_ptr))
     {
-	msg("You cannot wield that item there.");
+    msg("You cannot wield that item there.");
 	return;
     }
 
@@ -761,12 +764,12 @@ void pseudo_probe(void)
 	    rf_on(l_ptr->flags, RF_UNDEAD);
 	if ((rf_has(r_ptr->flags, RF_DEMON)) && (randint0(20) != 1))
 	    rf_on(l_ptr->flags, RF_DEMON);
-	if ((rf_has(r_ptr->flags, RF_ORC)) && (randint0(20) != 1))
-	    rf_on(l_ptr->flags, RF_ORC);
-	if ((rf_has(r_ptr->flags, RF_TROLL)) && (randint0(20) != 1))
-	    rf_on(l_ptr->flags, RF_TROLL);
-	if ((rf_has(r_ptr->flags, RF_GIANT)) && (randint0(10) != 1))
-	    rf_on(l_ptr->flags, RF_GIANT);
+	if ((rf_has(r_ptr->flags, RF_HUMANOID)) && (randint0(20) != 1))
+	    rf_on(l_ptr->flags, RF_HUMANOID);
+	if ((rf_has(r_ptr->flags, RF_CONSTELLATION)) && (randint0(20) != 1))
+	    rf_on(l_ptr->flags, RF_CONSTELLATION);
+	if ((rf_has(r_ptr->flags, RF_HYBRID)) && (randint0(10) != 1))
+	    rf_on(l_ptr->flags, RF_HYBRID);
 	if ((rf_has(r_ptr->flags, RF_DRAGON)) && (randint0(20) != 1))
 	    rf_on(l_ptr->flags, RF_DRAGON);
 	if ((rf_has(r_ptr->flags, RF_IM_ACID)) && (randint0(5) != 1))
@@ -955,4 +958,405 @@ void do_cmd_study_book(cmd_code code, cmd_arg args[])
     /* Forget the item_tester_hook */
     item_tester_hook = NULL;
 
+}
+
+/*
+ * Use a racial ability
+ */
+void do_cmd_racial(cmd_code code, cmd_arg args[])
+{
+	power_desc_type power_desc[36];
+	int             num, i = 0;
+	int             ask = TRUE;
+	int             lvl = p_ptr->lev;
+	bool            flag, redraw, cast = FALSE;
+	char            out_val[160];
+	int menu_line = (OPT(show_lists));
+	struct keypress key;
+    key.type = EVT_KBRD;
+    key.code = ESCAPE;
+    key.mods = 0;
+	
+	for (num = 0; num < 36; num++)
+	{
+		strcpy(power_desc[num].name, "");
+		power_desc[num].number = 0;
+	}
+	
+	/* Check for confusion */
+    if (p_ptr->timed[TMD_CONFUSED]) {
+		msg("You are too confused to use any powers.");
+		p_ptr->energy_use = 0;
+		return;
+	}
+	
+	if (player_has(PF_TELEKINESIS))
+	{
+		strcpy(power_desc[num].name, "Telekinesis");
+		power_desc[num].level = 1;
+		power_desc[num].cost = 9;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 14;
+		power_desc[num++].number = PF_TELEKINESIS;
+	}
+	
+	if (player_has(PF_BR_FIRE))
+	{
+		strcpy(power_desc[num].name, "Breathe Fire");
+		power_desc[num].level = 8;
+		power_desc[num].cost = lvl;
+		power_desc[num].stat = A_CON;
+		power_desc[num].fail = 18;
+		power_desc[num++].number = PF_BR_FIRE;
+	}
+	
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+	
+	/* Build a prompt */
+	(void)strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Use which power? ", I2A(0), (num <= 26) ? I2A(num - 1) : '0' + num - 27);
+	
+	if (OPT(show_menus))
+       screen_save();
+	
+	key.code = ESCAPE;
+	while(!flag)
+	{
+		if (key.code == ESCAPE)
+			key.code = ' '; 
+		else if (!get_com(out_val, &key.code))
+			break;
+		
+		if (OPT(show_menus) && key.code != ' ')
+		{
+			switch(key.code)
+			{
+				case '0':
+				{
+					screen_load();
+					p_ptr->energy_use = 0;
+					return;
+				}
+
+				case '8':
+				case 'k':
+				case 'K':
+				{
+					menu_line += (num - 1);
+					break;
+				}
+
+				case '2':
+				case 'j':
+				case 'J':
+				{
+					menu_line++;
+					break;
+				}
+
+				case '6':
+				case 'l':
+				case 'L':
+				case '4':
+				case 'h':
+				case 'H':
+				{
+					if (menu_line > 18)
+						menu_line -= 18;
+					else if (menu_line+18 <= num)
+						menu_line += 18;
+					break;
+				}
+
+				case 'x':
+				case 'X':
+				case '\r':
+				{
+					i = menu_line - 1;
+					ask = FALSE;
+					break;
+				}
+			}
+			if (menu_line > num) menu_line -= num;
+		}
+		/* Request redraw */
+		if ((key.code == ' ') || (key.code == '*') || (key.code == '?') || (OPT(show_menus) && ask))
+		{
+			/* Show the list */
+			if (!redraw || OPT(show_menus))
+			{
+				byte y = 1, x = 0;
+				int ctr = 0;
+				char dummy[80];
+				char letter;
+				int x1, y1;
+
+				strcpy(dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				if (!OPT(show_menus))
+					screen_save();
+
+				/* Print header(s) */
+				if (num < 18)
+					prt("                            Lv Cost Fail", y++, x);
+				else
+					prt("                            Lv Cost Fail                            Lv Cost Fail", y++, x);
+				
+				/* Print list */
+				while (ctr < num)
+				{
+					x1 = ((ctr < 18) ? x : x + 40);
+					y1 = ((ctr < 18) ? y + ctr : y + ctr - 18);
+					
+					if (OPT(show_menus))
+					{
+						if (ctr == (menu_line-1))
+							strcpy(dummy, " >  ");
+						else 
+							strcpy(dummy, "    ");
+						}
+					else
+					{
+						/* letter/number for power selection */
+						if (ctr < 26)
+							letter = I2A(ctr);
+						else
+							letter = '0' + ctr - 26;
+						sprintf(dummy, " %c) ",letter);
+					}
+					strcat(dummy, format("%-23.23s %2d %4d %3d%%",
+						power_desc[ctr].name, power_desc[ctr].level, power_desc[ctr].cost,
+						100 - racial_chance(&power_desc[ctr])));
+					prt(dummy, y1, x1);
+					ctr++;
+				}
+			}
+			
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				screen_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+		
+		if (!OPT(show_menus))
+		{
+			if (key.code == '\r' && num == 1)
+			{
+				key.code = 'a';
+			}
+
+			if (isalpha(key.code))
+			{
+				/* Note verify */
+				ask = (isupper(key.code));
+
+				/* Lowercase */
+				if (ask) key.code = tolower(key.code);
+
+				/* Extract request */
+				i = (islower(key.code) ? A2I(key.code) : -1);
+			}
+			else
+			{
+				ask = FALSE; /* Can't uppercase digits */
+
+				i = key.code - '0' + 26;
+			}
+		}
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell("Bad racial choice.");
+			continue;
+		}
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+			(void)strnfmt(tmp_val, 78, "Use %s? ", power_desc[i].name);
+			
+		/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw) screen_load();
+
+	/* Abort if needed */
+	if (!flag)
+	{
+		p_ptr->energy_use = 0;
+		return;
+	}
+
+	switch (racial_aux(&power_desc[i]))
+	{
+	case 1:
+			cast = cmd_racial_power_aux(power_desc[i].number);
+		break;
+	case 0:
+		cast = FALSE;
+		break;
+	case -1:
+		cast = TRUE;
+		break;
+	}
+
+	if (cast)
+	{
+		if (power_desc[i].cost)
+		{
+			int actual_racial_cost = power_desc[i].cost / 2 + randint1(power_desc[i].cost / 2);
+
+			/* If mana is not enough, player consumes hit points! */
+			if (p_ptr->csp < actual_racial_cost)
+			{
+				actual_racial_cost -= p_ptr->csp;
+				p_ptr->csp = 0;
+				take_hit(actual_racial_cost, "concentrating too hard");
+			}
+			else p_ptr->csp -= actual_racial_cost;
+
+			/* Redraw mana and hp */
+			p_ptr->redraw |= (PR_HEALTH | PR_MANA);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_PLAYER_2);
+		}
+	}
+	else p_ptr->energy_use = 0;
+
+	/* Success */
+	return;
+}
+
+/*
+ * Note: return value indicates that we have succesfully used the power
+ * 1: Succeeded, 0: Cancelled, -1: Failed
+ */
+int racial_aux(power_desc_type* pd_ptr)
+{
+	s16b min_level  = pd_ptr->level;
+	int  use_stat   = pd_ptr->stat;
+	int  difficulty = pd_ptr->fail;
+	int  racial_cost = pd_ptr->cost;
+	int  use_hp = 0;
+	
+	racial_cost = pd_ptr->cost;
+
+	/* Not enough mana - use hp */
+	if (p_ptr->csp < racial_cost) use_hp = racial_cost - p_ptr->csp;
+	
+	/* Power is not available yet */
+	if (p_ptr->lev < min_level)
+	{
+		msg("You need to attain level %d to use this power.", min_level);
+		
+		p_ptr->energy_use = 0;
+		return 0;
+	}
+	
+	/* Too confused */
+	else if (p_ptr->timed[TMD_CONFUSED])
+	{
+		msg("You are too confused to use this power.");
+		p_ptr->energy_use = 0;
+		return 0;
+	}
+	
+	/* Risk death? */
+	else if (p_ptr->chp < use_hp)
+	{
+		if (!get_check("Really use the power in your weakened state? "))
+		{
+			p_ptr->energy_use = 0;
+			return 0;
+		}
+	}
+
+	/* Else attempt to do it! */
+
+	if (difficulty)
+	{
+		if (p_ptr->timed[TMD_STUN] > 50)
+        {
+		    difficulty += 20;
+	    }
+	    else if (p_ptr->timed[TMD_STUN])
+	    {
+		    difficulty += 10;
+	    }
+	    else if (p_ptr->lev > min_level)
+		{
+			int lev_adj = ((p_ptr->lev - min_level) / 3);
+			if (lev_adj > 10) lev_adj = 10;
+			difficulty -= lev_adj;
+		}
+
+		if (difficulty < 5) difficulty = 5;
+	}
+
+	/* take time and pay the price */
+	p_ptr->energy_use = 100;
+
+	/* Success? */
+	if (randint1(p_ptr->stat_cur[use_stat]) >=
+	    ((difficulty / 2) + randint1(difficulty / 2)))
+	{
+		return 1;
+	}
+	
+	if(OPT(flush_failure))
+		flush();
+	msg("You've failed to concentrate hard enough.");
+	return -1;
+}
+
+bool cmd_racial_power_aux(u32b power)
+{
+	int         dir = 0;
+	s16b 		ty, tx;
+	
+	if(power == PF_TELEKINESIS)
+	{
+		msg("You concentrate...");
+		 target_get(&tx, &ty);
+	    if (!target_set_interactive(TARGET_OBJ, -1, -1))
+		return FALSE;
+	    if (!py_pickup(2, ty, tx))
+		return FALSE;
+	}
+	
+	else if (power == PF_BR_FIRE)
+	{
+		if (!get_aim_dir(&dir))
+			return FALSE;
+		msg("You breathe fire...");
+		fire_ball(GF_FIRE, dir, p_ptr->lev * 2, 1 + (p_ptr->lev / 20), FALSE);
+	}
+	
+	return TRUE;
 }

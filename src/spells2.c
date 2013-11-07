@@ -455,7 +455,7 @@ void create_athelas(void)
     i_ptr = &object_type_body;
 
     /* Hack -- Make some Athelas, identify it, and drop it near the player. */
-    object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_ATHELAS), MINIMISE);
+    object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_HEARTDESIRE), MINIMISE);
 
     /* Prevent money-making. */
     i_ptr->discount = 80;
@@ -1336,7 +1336,9 @@ bool recall_menu(void)
     ui_event evt = { 0 };
     int cursor = 0;
     int num_entries;
-    int num_poss = OPT(adult_dungeon) ? 1 : 4;
+    /* Legacy code from FAAngband. Ponyband has 1 recall point */
+    int num_poss = 1;
+
 
     int i;
 

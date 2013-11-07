@@ -1393,18 +1393,18 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	    /* Earthbound demons and firebreathers cannot cross water */
 	    if (rsf_has(r_ptr->flags, RSF_BRTH_FIRE))
 		return (0);
-	    if (strchr("uU", r_ptr->d_char))
+	    if (strchr("U", r_ptr->d_char))
 		return (0);
 	    
 	    /* "Red" elementals cannot cross water */
-	    if (strchr("E", r_ptr->d_char)
+	    if (strchr("EO", r_ptr->d_char)
 		&& ((r_ptr->d_attr == TERM_RED)
 		    || (r_ptr->d_attr == TERM_L_RED))) {
 		return (0);
 	    }
 
 	    /* Humanoid-type monsters are slowed a little */
-	    if (strchr("ghkoOpPTXy", r_ptr->d_char))
+	    if (strchr("ghopPTX", r_ptr->d_char))
 		return (MIN(75, move_chance));
 	    
 	    /* Undead are slowed a little more (a la Ringwraiths) */
@@ -1566,8 +1566,8 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		 */
 		bashing_power = 20 + r_ptr->level + m_ptr->hp / 15;
 
-		if ((rf_has(r_ptr->flags, RF_GIANT))
-		    || (rf_has(r_ptr->flags, RF_TROLL)))
+		if ((rf_has(r_ptr->flags, RF_HYBRID))
+		    || (rf_has(r_ptr->flags, RF_CONSTELLATION)))
 		    bashing_power = 3 * bashing_power / 2;
 
 		/* 
@@ -4148,12 +4148,12 @@ static void process_move(monster_type * m_ptr, int ty, int tx, bool bash)
 		/* React to objects that hurt the monster */
 		if (o_slay(o_ptr, P_SLAY_DRAGON))
 		    rf_on(mon_flags, RF_DRAGON);
-		if (o_slay(o_ptr, P_SLAY_TROLL))
-		    rf_on(mon_flags, RF_TROLL);
-		if (o_slay(o_ptr, P_SLAY_GIANT))
-		    rf_on(mon_flags, RF_GIANT);
-		if (o_slay(o_ptr, P_SLAY_ORC))
-		    rf_on(mon_flags, RF_ORC);
+		if (o_slay(o_ptr, P_SLAY_CONSTELLATION))
+		    rf_on(mon_flags, RF_CONSTELLATION);
+		if (o_slay(o_ptr, P_SLAY_HYBRID))
+		    rf_on(mon_flags, RF_HYBRID);
+		if (o_slay(o_ptr, P_SLAY_HUMANOID))
+		    rf_on(mon_flags, RF_HUMANOID);
 		if (o_slay(o_ptr, P_SLAY_DEMON))
 		    rf_on(mon_flags, RF_DEMON);
 		if (o_slay(o_ptr, P_SLAY_UNDEAD))

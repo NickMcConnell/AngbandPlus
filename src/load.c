@@ -1486,13 +1486,10 @@ int rd_dungeon(u32b version)
 
     /*** Basic info ***/
   
-    /* Hack - rewrite stage_map if necessary */
-    if (OPT(adult_dungeon))
-    {
+    /* Hack - rewrite stage_map */
 	for (i = 0; i < NUM_STAGES; i++)
 	    for (n = 0; n < 9; n++)
 		stage_map[i][n] = dungeon_map[i][n];
-    }
 
 
 

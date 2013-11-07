@@ -393,10 +393,11 @@ const char *slay_desc[] =
   "Evil",
   "Undead",
   "Demon",
-  "Orc",
-  "Troll",
-  "Giant",
-  "Dragon"
+  "Humanoid",
+  "Constellation Beast",
+  "Hybrid",
+  "Dragon",
+  "Ponies"
 };
 
 /**
@@ -463,7 +464,8 @@ static flag_desc flags_obj_desc[] =
   { OF_SEEING,	          "Blindness resistance" },
   { OF_BLESSED,	          "Blessed Blade" },
   { OF_IMPACT,		  "Earthquake impact on hit" },
-  { OF_PERMA_CURSE,       "Permanently cursed" }
+  { OF_PERMA_CURSE,       "Permanently cursed" },
+  { OF_VORPAL,        "Frequent Criticals" }
 };
 
 
@@ -812,7 +814,7 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 {
   artifact_type *a_ptr = &a_info[o_ptr->name1];
   
-  sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold", a_ptr->level, 
+  sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Bits", a_ptr->level, 
 	  a_ptr->rarity,  a_ptr->weight / 10, a_ptr->weight % 10, 
 	  (long) a_ptr->cost);
 }
@@ -1849,9 +1851,9 @@ static void spoil_mon_info(const char *fname)
       
       if (rf_has(r_ptr->flags, RF_DRAGON)) spoil_out(" dragon");
       else if (rf_has(r_ptr->flags, RF_DEMON)) spoil_out(" demon");
-      else if (rf_has(r_ptr->flags, RF_GIANT)) spoil_out(" giant");
-      else if (rf_has(r_ptr->flags, RF_TROLL)) spoil_out(" troll");
-      else if (rf_has(r_ptr->flags, RF_ORC)) spoil_out(" orc");
+      else if (rf_has(r_ptr->flags, RF_HYBRID)) spoil_out(" hybrid");
+      else if (rf_has(r_ptr->flags, RF_CONSTELLATION)) spoil_out(" constellation beast");
+      else if (rf_has(r_ptr->flags, RF_HUMANOID)) spoil_out(" humanoid");
       else spoil_out(" creature");
       
       spoil_out(" moves");
@@ -1984,7 +1986,6 @@ static void spoil_mon_info(const char *fname)
       if (rsf_has(r_ptr->flags, RSF_BRTH_DFIRE))	vp[vn++] = "dragonfire";
       if (rsf_has(r_ptr->flags, RSF_BRTH_ICE))	vp[vn++] = "ice";
       if (rsf_has(r_ptr->flags, RSF_BRTH_ALL))	vp[vn++] = "the elements";
-      if (rsf_has(r_ptr->flags, RSF_XXX1))		vp[vn++] = "something";
       
       if (vn)
 	{
@@ -2176,6 +2177,7 @@ static void spoil_mon_info(const char *fname)
 	  else if (spower < 50) vp[vn++] = "cause critical wounds";
 	  else vp[vn++] = "cause mortal wounds";
 	}
+	  if (rsf_has(r_ptr->flags, RSF_FORCE_SUICIDE))     vp[vn++] = "throw allies at you";
       if (rsf_has(r_ptr->flags, RSF_SHAPECHANGE))       vp[vn++] = "change shape";
       if (rsf_has(r_ptr->flags, RSF_SCARE))		vp[vn++] = "terrify";
       if (rsf_has(r_ptr->flags, RSF_BLIND))		vp[vn++] = "blind";
@@ -2199,6 +2201,11 @@ static void spoil_mon_info(const char *fname)
       if (rsf_has(r_ptr->flags, RSF_S_HI_UNDEAD))	vp[vn++] = "summon Greater Undead";
       if (rsf_has(r_ptr->flags, RSF_S_QUEST))	vp[vn++] = "summon the Quest monsters";
       if (rsf_has(r_ptr->flags, RSF_S_UNIQUE))	vp[vn++] = "summon Unique Monsters";
+      if (rsf_has(r_ptr->flags, RSF_S_EHARMONY)) vp[vn++] = "summon the Elements of Harmony";
+      if (rsf_has(r_ptr->flags, RSF_S_SESSILE)) vp[vn++] = "summon immobile monsters";
+      if (rsf_has(r_ptr->flags, RSF_S_PARTY)) vp[vn++] = "summon intelligent monsters";
+      if (rsf_has(r_ptr->flags, RSF_S_SHADOWBOLTS)) vp[vn++] = "summon the Shadowbolts";
+      if (rsf_has(r_ptr->flags, RSF_SHADOWCLONE)) vp[vn++] = "create clones";
       
       if (vn)
 	{
@@ -2216,9 +2223,9 @@ static void spoil_mon_info(const char *fname)
 	  
 	  /* Describe magic */
 	  if ((rf_has(r_ptr->flags, RF_UDUN_MAGIC)) && (rf_has(r_ptr->flags, RF_MORGUL_MAGIC))) 
-	    spoil_out(" perilous spells of Udun and of Morgul");
+	    spoil_out(" perilous spells of Udun and of Night");
 	  if (rf_has(r_ptr->flags, RF_MORGUL_MAGIC)) 
-	    spoil_out(" Morgul-spells");
+	    spoil_out(" Night spells");
 	  else if (rf_has(r_ptr->flags, RF_UDUN_MAGIC)) 
 	    spoil_out(" spells of Udun");
 	  
@@ -2352,8 +2359,7 @@ static void spoil_mon_info(const char *fname)
       vn = 0;
       if (rsf_has(r_ptr->flags, RSF_BRTH_LIGHT)) vp[vn++] = "light";
       if ((rsf_has(r_ptr->flags, RSF_BRTH_DARK)) || 
-	  (rf_has(r_ptr->flags, RF_MORGUL_MAGIC)) || 
-	  (rf_has(r_ptr->flags, RF_ORC))) vp[vn++] = "darkness";
+	  (rf_has(r_ptr->flags, RF_MORGUL_MAGIC))) vp[vn++] = "darkness";
       
       if (rsf_has(r_ptr->flags, RSF_BRTH_CONFU)) vp[vn++] = "confusion";
       if (rsf_has(r_ptr->flags, RSF_BRTH_SOUND)) vp[vn++] = "sound";
@@ -2521,19 +2527,19 @@ static void spoil_mon_info(const char *fname)
 	    case RBM_CLAW:   p = "claw"; break;
 	    case RBM_BITE:   p = "bite"; break;
 	    case RBM_STING:  p = "sting"; break;
-	    case RBM_XXX1:   break;
+	    case RBM_CHAT:   p = "chat"; break;
 	    case RBM_BUTT:   p = "butt"; break;
 	    case RBM_CRUSH:  p = "crush"; break;
 	    case RBM_ENGULF: p = "engulf"; break;
-	    case RBM_XXX2:   break;
+	    case RBM_PANIC:  p = "panic"; break;
 	    case RBM_CRAWL:  p = "crawl on you"; break;
 	    case RBM_DROOL:  p = "drool on you"; break;
 	    case RBM_SPIT:   p = "spit"; break;
-	    case RBM_XXX3:   break;
+	    case RBM_PECK:   p = "peck"; break;
 	    case RBM_GAZE:   p = "gaze"; break;
 	    case RBM_WAIL:   p = "wail"; break;
 	    case RBM_SPORE:  p = "release spores"; break;
-	    case RBM_XXX4:   break;
+	    case RBM_EXPLODE: p = "explode";  break;
 	    case RBM_BEG:    p = "beg"; break;
 	    case RBM_INSULT: p = "insult"; break;
 	    case RBM_SNEER:  p = "moan"; break;
@@ -2551,7 +2557,7 @@ static void spoil_mon_info(const char *fname)
 	    case RBE_POISON:	q = "poison"; break;
 	    case RBE_UN_BONUS:	q = "disenchant"; break;
 	    case RBE_UN_POWER:	q = "drain charges"; break;
-	    case RBE_EAT_GOLD:	q = "steal gold"; break;
+	    case RBE_EAT_GOLD:	q = "steal money"; break;
 	    case RBE_EAT_ITEM:	q = "steal items"; break;
 	    case RBE_EAT_FOOD:	q = "eat your food"; break;
 	    case RBE_EAT_LIGHT:	q = "absorb light"; break;
@@ -2575,6 +2581,8 @@ static void spoil_mon_info(const char *fname)
 	    case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
 	    case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
 	    case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
+	    case RBE_HALLUCINATE: q = "hallucinate"; break;
+	    case RBE_DRAIN_MANA: q = "drain mana"; break;
 	    }
 	  
 	  

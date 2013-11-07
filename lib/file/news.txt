@@ -1,29 +1,30 @@
                                                                                
              ****************************************************              
-             **   FAangband 1.2.6  ****   First Age Angband    **              
-             ** Beleriand in the days of the War of the Jewels **              
+             **   Ponyband 0.3.0  ****    My Little Angband    **              
+             **       My Little Pony: Dungeons are Magic       **              
              ****************************************************              
-                                                                               
-     Based on Moria, Umoria, Angband and Oangband,                             
-     with ideas and features from NPPangband and Unangband                     
+     Based on Moria, Umoria, Angband, Oangband, and FAAngband                            
+     with ideas and features from Hengband and Posband                     
                                                                                
      Contributors include Robert Alan Koeneke, James E. Wilson, Alex Cutler,   
      Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague, Charles Swiger,     
      Ben Harrison, Robert Ruehlmann, Leon Marrick, Bahman Rabii, Jeff Greene,  
-     Diego Gonzalez, Andrew Doull, Andi Sidwell, Pete Mack, Si Griffin.      
-	                                                                       
-     FAangband 0.1.0-1.2.6 by Nick McConnell             
-     FAangband 0.3.6       by Si Griffin             
-                                                                               
-     Send comments, bug reports, and patches to nckmccnnll@gmail.com     
-     The FAangband home page is http://angband.oook.cz/faangband            
-     Latest code is at https://github.com/NickMcConnell/FAangband            
+     Diego Gonzalez, Andrew Doull, Andi Sidwell, Pete Mack, Si Griffin,
+	 Nick McConnell.      
+	                                                                                   
+	 Ponyband 0.1.0-0.3.0: Copyright (c) 2011 Michael Northington
+	 
+	 My Little Pony is copyright (c) Hasbro. Ponyband is not affiliated with
+	 or endored by Hasbro.                                                                               
+     Send comments, bug reports, and patches to rydelfox@gmail.com     
+     Ponyband does not have a home yet, wait for version 1.0.0!            
+     There isn't a place with the latest code yet, wait for 1.0.0          
      Visit the Angband ladder page at http://angband.oook.cz                  
                         '?' for in-game help.                                  
 
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwwwwwZZZZZZZZZZZZZZZwwwwwwwwwZZZZZZZZZZZZZZZZZwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwZZZZZZZZZZZZZZZwwwwwwZZZZZZZZZZZZZZZZZZZZwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
@@ -36,10 +37,10 @@ wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwZZZZZZZZZZZZZZZZZZZZZwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-wwwwwZZZZZZZZZZZZZZZZZZZZZwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
-wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
-wwwwwwwwwwwwwwwwwwwwwwwYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
 wwwwwwwwwwwwwwwwwwwwwwwwwYwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww

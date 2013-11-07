@@ -31,6 +31,7 @@ bool spell_okay_to_study(int spell);
 bool spell_okay_to_browse(int spell);
 bool spell_in_book(int spell, int book);
 s16b spell_chance(int spell);
+s16b racial_chance(power_desc_type *pd_ptr);
 void spell_learn(int spell);
 bool spell_cast(int spell, int dir);
 
@@ -47,5 +48,6 @@ bool player_can_cast(void);
 bool player_can_study(void);
 bool player_can_read(void);
 bool player_can_fire(void);
+bool player_has_racial(void);
 
 #endif /* !PLAYER_PLAYER_H */

@@ -291,7 +291,7 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
 
     if (effect < 1 || effect > EF_MAX)
     {
-	msg("Bad effect passed to do_effect().  Please report this bug.");
+	msg("Bad effect passed to effect_do().  Please report this bug.");
 	return FALSE;
     }
 
@@ -728,7 +728,7 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
 
     case EF_FOOD_BEORNING:
 	{
-	    msg("The cakes of the Beornings are tasty.");
+	    msg("The cakes of Sugar Cube Corner are tasty.");
 	    (void) hp_player(damroll(5, 8));
 	    *ident = TRUE;
 	    return TRUE;
@@ -1345,7 +1345,10 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
     case EF_MONSTER_CONFU:
 	{
 	    if (!(p_ptr->special_attack & (ATTACK_CONFUSE))) {
-		msg("Your hands begin to glow.");
+           if (player_has(PF_QUADRUPED))
+               msg("Your hooves begin to glow.");
+           else
+		       msg("Your hands begin to glow.");
 		p_ptr->special_attack |= (ATTACK_CONFUSE);
 		*ident = TRUE;
 		p_ptr->redraw |= PR_STATUS;
@@ -2630,7 +2633,10 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
     }
     case EF_RAND_FIRE2:
     {
-	msg("You feel a sphere of fire form between your hands.");
+    if(player_has(PF_QUADRUPED))
+        msg("You feel a sphere of fire form before you.");
+    else
+	    msg("You feel a sphere of fire form between your hands.");
 	fire_sphere(GF_FIRE, dir, 90, 1, 20);
 	return TRUE;
     }
@@ -2666,7 +2672,10 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
     }
     case EF_RAND_ACID2:
     {
-	msg("A sphere of deadly acid forms upon your hand.");
+    if(player_has(PF_QUADRUPED))
+        msg("A sphere of deadly acid forms before you.");
+    else
+	    msg("A sphere of deadly acid forms upon your hand.");
 	fire_sphere(GF_ACID, dir, 90, 1, 20);
 	return TRUE;
     }
@@ -2990,7 +2999,7 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
 	    missile_name = "shot";
 
 	msg
-	    ("The %s you have ready to hand gleams with deadly power.",
+	    ("The %s you have ready to fire gleams with deadly power.",
 	     missile_name);
 	p_ptr->special_attack |= (ATTACK_SUPERSHOT);
 	    
@@ -3042,7 +3051,10 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
     }
     case EF_RAND_SLEEP_FOE:
     {
-	msg("A fine dust appears in your hand, and you throw it...");
+    if(player_has(PF_QUADRUPED))
+        msg("A fine dust appears and flys forward...");
+    else
+	    msg("A fine dust appears in your hand, and you throw it...");
 	if (sleep_monster(dir, 5 * plev / 3))
 	    msg("...sending a foe to the realm of dreams!");
 	return TRUE;
@@ -3124,7 +3136,10 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
 	int flag = PROJECT_STOP | PROJECT_KILL;
 	int avail_mon[100], avail_mon_num;
 
-	msg("The lightning of Manwe leaps from your hands!");
+    if(player_has(PF_QUADRUPED))
+        msg("Bolts of lightning erupt from your body!");
+    else
+	    msg("Bolts of lightning erupt from your hands!");
 
 	/* Initialise */
 	for (k = 0; k < 100; k++)
@@ -3353,7 +3368,7 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
 	int y, x;
 	int py = p_ptr->py, px = p_ptr->px;
 
-	msg("The light of the Valar shines from above!");
+	msg("The light of Celestia shines from above!");
 
 	/* Everything in range */
 	for (y = py - 10; y <= py + 10; y++)
@@ -3454,6 +3469,21 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
 	    msg("Magical power flows from your staff.");
 	    p_ptr->redraw |= (PR_MANA);
 	}
+	return TRUE;
+    }
+    
+    /* Activation for Telekinesis */
+    case EF_TELEKINESIS:
+    {
+    s16b   ty, tx;
+    
+    msg("You concentrate...");
+    target_get(&tx, &ty);
+	if (!target_set_interactive(TARGET_OBJ, -1, -1))
+	    return FALSE;
+	if (!py_pickup(2, ty, tx))
+		return FALSE;
+	*ident = TRUE;
 	return TRUE;
     }
 

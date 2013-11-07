@@ -1,5 +1,9 @@
 To the customizer:
 
+NOTICE: This file is out of date. Much of the information within
+has changed.  The Edit files now have more descriptive names and
+have explainations inside them, so this likely won't be updated soon.
+
 One of the great things about Angband is that it is so customizable,
 even by those who do not know C programming.  Building on this
 tradition, Oangband offers new ways to tweak the game to your

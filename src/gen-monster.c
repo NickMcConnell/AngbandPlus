@@ -94,7 +94,7 @@ static bitflag breath_flag_mask[RSF_SIZE];
  */
 const char *d_char_req_desc[] = {
     "B:bird",
-    "C:canine",
+    "C:constellation",
     "D:dragon",
     "E:elemental",
     "F:dragon fly",
@@ -105,12 +105,11 @@ const char *d_char_req_desc[] = {
     "K:killer beetle",
     "L:lich",
     "M:mummy",
-    "O:ogre",
-    "P:giant",
+    "N:nautical",
+    "P:Centaur",
     "Q:quylthulg",
     "R:reptile",
     "S:spider",
-    "T:troll",
     "U:demon",
     "V:vampire",
     "W:wraith",
@@ -118,7 +117,7 @@ const char *d_char_req_desc[] = {
     "Z:zephyr hound",
     "a:ant",
     "b:bat",
-    "c:centipede",
+    "c:canine",
     "d:dragon",
     "e:floating eye",
     "f:feline",
@@ -126,20 +125,19 @@ const char *d_char_req_desc[] = {
     "h:humanoid",
     "i:icky thing",
     "j:jelly",
-    "k:kobold",
     "l:louse",
     "m:mold",
     "n:naga",
     "o:orc",
-    "p:human",
+    "p:pony",
     "q:quadruped",
     "r:rodent",
     "s:skeleton",
-    "t:townsperson",
-    "u:demon",
+    "t:townspony",
     "v:vortex",
     "w:worm",
-    "y:yeek",
+    "x:parasprite",
+    "y:hydra",
     "z:zombie",
     ",:mushroom patch",
     NULL
@@ -221,24 +219,32 @@ static bool mon_select(int r_idx)
     /* Special case: Estolad themed level. */
     if (p_ptr->themed_level == THEME_ESTOLAD) {
 	if (!(rf_has(r_ptr->flags, RF_RACIAL)))
+	{
 	    return (FALSE);
+     }
     }
 
 
     /* Require that the monster symbol be correct. */
     if (d_char_req[0] != '\0') {
 	if (strchr(d_char_req, r_ptr->d_char) == 0)
+	{
 	    return (FALSE);
+     }
     }
 
     /* Require correct racial type. */
     if (racial_flag_mask) {
 	if (!(rf_has(r_ptr->flags, racial_flag_mask)))
+	{
 	    return (FALSE);
+     }
+     }
 
 	/* Hack -- no invisible undead until deep. */
 	if ((p_ptr->depth < 40) && (rf_has(r_ptr->flags, RF_UNDEAD))
 	    && (rf_has(r_ptr->flags, RF_INVISIBLE)))
+	    {
 	    return (FALSE);
     }
 
@@ -248,16 +254,22 @@ static bool mon_select(int r_idx)
 	/* 'd'ragons */
 	if (!rsf_is_equal(mon_breath, breath_flag_mask)
 	    && (r_ptr->d_char != 'D'))
+	    {
 	    return (FALSE);
+     }
 
 	/* Winged 'D'ragons */
 	if (r_ptr->d_char == 'D') {
 	    if (!rsf_is_subset(mon_breath, breath_flag_mask))
+	    {
 		return (FALSE);
+    }
 
 	    /* Hack - this deals with all current Ds that need excluding */
 	    if (rsf_has(r_ptr->flags, RSF_BRTH_SOUND))
+	    {
 		return (FALSE);
+        }
 	}
     }
 
@@ -286,15 +298,21 @@ static bool mon_select(int r_idx)
 
 	/* Doesn't match any of the given colors? Not good. */
 	if (!ok)
+	{
 	    return (FALSE);
+     }
     }
 
     /* Usually decline unique monsters. */
     if (rf_has(r_ptr->flags, RF_UNIQUE)) {
 	if (!allow_unique)
+	{
 	    return (FALSE);
+     }
 	else if (randint0(5) != 0)
+	{
 	    return (FALSE);
+     }
     }
 
     /* Okay */
@@ -413,10 +431,11 @@ extern char *mon_restrict(char symbol, byte depth, bool * ordered,
 	/* Humans and humaniods */
     case 'p':
     case 'h':
+    case 'q':
 	{
-	    /* 'p's and 'h's can coexist. */
+	    /* 'p's, 'q's, and 'h's can coexist. */
 	    if (randint0(3) == 0) {
-		strcpy(d_char_req, "ph");
+		strcpy(d_char_req, "phq");
 
 		/* If so, they will usually all be of similar classes. */
 		if (randint0(4) != 0) {
@@ -459,7 +478,7 @@ extern char *mon_restrict(char symbol, byte depth, bool * ordered,
 			strcpy(name, "fighter's hall");
 		    }
 		} else {
-		    strcpy(name, "humans and humanoids");
+		    strcpy(name, "ponies and humanoids");
 		}
 	    }
 
@@ -468,7 +487,9 @@ extern char *mon_restrict(char symbol, byte depth, bool * ordered,
 		d_char_req[0] = symbol;
 
 		if (symbol == 'p')
-		    strcpy(name, "human");
+		    strcpy(name, "pony");
+        else if (symbol == 'q')
+            strcpy(name, "quadruped");
 		else if (symbol == 'h')
 		    strcpy(name, "humanoid");
 	    }
@@ -485,6 +506,15 @@ extern char *mon_restrict(char symbol, byte depth, bool * ordered,
 	    *ordered = TRUE;
 	    break;
 	}
+	
+    /* Constellations */
+    case 'C':
+    {
+         strcpy(name, "starfield");
+         racial_flag_mask = RF_CONSTELLATION;
+         *ordered = TRUE;
+         break;
+    }
 
 	/* Trolls */
     case 'T':
@@ -494,24 +524,30 @@ extern char *mon_restrict(char symbol, byte depth, bool * ordered,
 	    *ordered = TRUE;
 	    break;
 	}
+	
+	/* Parasprites */
+	case 'x':
+    {
+         strcpy(name, "parasprite hive");
+         strcpy(d_char_req, "x");
+         *ordered = TRUE;
+         break;
+    }
 
-	/* Giants (sometimes ogres at low levels) */
+	/* Centaurs (sometimes ogres at low levels) */
     case 'P':
 	{
-	    strcpy(name, "giant");
-	    if ((p_ptr->depth < 30) && (randint0(3) == 0))
-		strcpy(d_char_req, "O");
-	    else
+	    strcpy(name, "centaur");
 		strcpy(d_char_req, "P");
 	    *ordered = TRUE;
 	    break;
 	}
 
-	/* Orcs, ogres, trolls, or giants */
+	/* Ususally intelligent monsters found in dungeons */
     case '%':
 	{
-	    strcpy(name, "moria");
-	    strcpy(d_char_req, "oOPT");
+	    strcpy(name, "dungeon monsters");
+	    strcpy(d_char_req, "onuPHL");
 	    *ordered = FALSE;
 	    break;
 	}
@@ -519,17 +555,8 @@ extern char *mon_restrict(char symbol, byte depth, bool * ordered,
 	/* Monsters found in caves */
     case '0':
 	{
-	    strcpy(name, "dungeon monsters");
-	    strcpy(d_char_req, "ykoOT");
-	    *ordered = FALSE;
-	    break;
-	}
-
-	/* Monsters found in wilderness caves */
-    case 'x':
-	{
-	    strcpy(name, "underworld monsters");
-	    strcpy(d_char_req, "bgkosuyOTUVXW");
+	    strcpy(name, "cave monsters");
+	    strcpy(d_char_req, "bdijmnorwCDHJKRSY");
 	    *ordered = FALSE;
 	    break;
 	}
@@ -578,17 +605,20 @@ extern char *mon_restrict(char symbol, byte depth, bool * ordered,
 	    break;
 	}
 
-	/* Demons */
+	/* Tribal */
     case 'u':
+    {
+         strcpy(name, "tribesman");
+         strcpy(d_char_req, "u");
+         *ordered = TRUE;
+         break;
+    }       
+         
+    /* Demons */
     case 'U':
 	{
 	    strcpy(name, "demon");
-	    if (depth > 55)
 		strcpy(d_char_req, "U");
-	    else if (depth < 40)
-		strcpy(d_char_req, "u");
-	    else
-		strcpy(d_char_req, "uU");
 	    *ordered = TRUE;
 	    break;
 	}

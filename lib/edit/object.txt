@@ -248,36 +248,37 @@ D:A small, ground-living fungus that will heal 4d8 hitpoints.
 
 ##### Normal Food #####
 
-N:29:& Ration~ of Food
-G:,:U
-I:80:35:5000
+N:29:& Carrot~
+G:,:o
+I:80:35:500
 W:0:0:10:3
 A:0/1:10/2
 F:EASY_KNOW
 E:FOOD_GOOD
-D:Also known as Cram or Waybread, this nutritious but fairly bland food is 
-D:familiar to anyone contemplating long journeys.
+D:A crispy orange root with green leaves at the top.
 
-N:30:& Hard Biscuit~
+N:30:& Muffin~
 G:,:U
-I:80:32:500
+I:80:32:1500
 W:0:0:2:1
+A:0/3:15/2
 F:EASY_KNOW
 E:FOOD_GOOD
-D:Twice-cooked for good keeping qualities, this lump of bread is as hard as a 
-D:rock and about as tasty.
+D:A small quick bread with a round top, this is somewhat sweet, but less so 
+D:than a cupcake.
 
-N:31:& Strip~ of Beef Jerky
-G:,:u
-I:80:33:1500
+N:31:& Apple~
+G:,:r
+I:80:33:2000
 W:0:0:2:2
+A:10/1:30/2
 F:EASY_KNOW
 E:FOOD_GOOD
-D:A strip of jerked beef that seems never to spoil.
+D:A nice, shiny, red apple.
 
 N:32:& Slime Mold~
 G:,:g
-I:80:36:2000
+I:80:36:1000
 W:1:0:5:2
 A:1/2
 F:EASY_KNOW
@@ -285,50 +286,52 @@ E:FOOD_GOOD
 D:An utterly hideous fungal growth.  It is strangely appealing...
 
 #waybread now fully satisfies the player, instead of increasing the food count.
-N:33:& Piece~ of Elvish Waybread
-G:,:B
+N:33:& Sweet Apple Acres Apple~
+G:,:R
 I:80:37:0
 W:55:0:3:60
 A:55/3:80/3
 F:EASY_KNOW
 E:FOOD_WAYBREAD
-D:Small golden-brown wafers wrapped in silven leaves.  Made with elvish art, it 
-D:sustains life where nothing else can.
+D:One of the brightest, tastyest apples in Equestria.
 
-N:34:& Pint~ of Fine Ale
+N:34:& Cupcake~
 G:,:y
-I:80:38:500
+I:80:38:800
 W:0:0:5:1
 F:EASY_KNOW
+A:15/1:35/2
 E:FOOD_GOOD
-D:Made from the barley of Eriador, and brewed to golden perfection.
+D:A small cake designed to serve one. Tasty, but not very filling.
 
-N:35:& Pint~ of Fine Wine
+N:35:& Juice Box|es
 G:,:r
-I:80:39:1000
+I:80:39:2000
 W:0:0:10:2
 F:EASY_KNOW
+A:20/1:45/2
 E:FOOD_GOOD
-D:A heady wine, almost as good as that served at the Green Dragon at Bywater.
+D:A single serving a juice in a convenient box.
 
-N:36:& Sprig~ of Athelas
+N:36:& Heart's Desire~
 G:,:g
 I:80:40:0
 W:25:0:2:450
 A:35/2:60/2
 F:EASY_KNOW
 E:FOOD_ATHELAS
-D:Athelas will break the grip of the Black Breath.
+D:A rare plant from the Everfree Forest than's known to cure many ills. It is 
+D:one of the few cures for the black breath.
 
-N:37:& Cake~ of the Beornings
+N:37:& Sugarcube Corner Cake~
 G:,:M
 I:80:41:7500
 W:25:0:7:18
 A:25/2:45/2
 F:EASY_KNOW
 E:FOOD_BEORNING
-D:Filled with sugar, fruits, and honey, the cakes of the Beornings are tasty 
-D:indeed.
+D:Filled with sugar, fruits, and honey, the cakes of Sugarcube Corner are 
+D:tasty indeed.
 
 ## XXX 38 XXX ##
 
@@ -391,7 +394,7 @@ W:5:0:50:55
 A:5/1
 P:0:1d6:0:0:0:0
 F:SHOW_MODS
-D:A smaller version of the longsword, perfectly sized for Hobbits.
+D:A smaller version of the longsword, perfectly sized for a baby Dragon.
 
 ## XXX 49 XXX ##
 
@@ -412,7 +415,7 @@ A:6/1
 P:0:1d7:0:0:0:0
 F:SHOW_MODS
 D:A light, somewhat curved blade that can be used to thrust or slash; familiar 
-D:to horseman and duelists alike.
+D:to duelists.
 
 N:52:& Cutlass~
 G:|:W
@@ -518,7 +521,7 @@ D:body.
 
 ## XXX 69 XXX ##
 
-N:70:& Valinorean Sword~
+N:70:& Crusader Sword~
 G:|:v
 I:23:30:0
 W:85:0:180:3500
@@ -526,7 +529,8 @@ A:75/2
 P:0:4d6:0:0:0:0
 B:SLAY_EVIL[15] 
 F:SHOW_MODS
-D:A surprisingly light sword from the smithies of Valinor, refuge from evil.
+D:A surprisingly light sword made by the finest smith to aid those who hunt
+D:evil.
 
 
 
@@ -553,7 +557,7 @@ A:3/1
 P:0:1d5:0:0:0:0
 F:SHOW_MODS
 D:A heavy whip, this thick coil is thrown from the shoulder and can 
-D:knock down a large man.
+D:knock down a buffalo.
 
 N:73:& Quarterstaff~
 G:\:U
@@ -833,7 +837,7 @@ W:30:0:160:550
 A:30/1
 P:0:2d8:0:0:0:0
 F:SHOW_MODS
-D:A double-bladed axe.  Very popular among Dwarves.
+D:A double-bladed axe.
 
 ## XXX 118 XXX ##
 
@@ -846,8 +850,8 @@ W:50:0:200:1000
 A:50/1
 P:0:4d5:0:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
-D:An enormous two-handed battle axe, carried by Dwarven champions, who 
-D:compete to see who can cleave the most orc heads.
+D:An enormous two-handed battle axe. Sacrificing the precision of a sword, it
+D:brings more weight into every swing to slice through tough armor.
 
 ## XXX 121 XXX ##
 
@@ -903,7 +907,8 @@ W:6:0:30:50
 A:6/1
 P:0:2d1:0:0:0:0
 F:SHOW_MODS
-D:The traditional hunter's weapon, this light bow is easily drawn.
+D:The traditional hunter's weapon, this light bow is easily drawn. It is hard 
+D:to use without fingers.
 
 N:131:& Long Bow~
 G:}:M
@@ -913,7 +918,7 @@ A:18/1:50/2
 P:0:3d1:0:0:0:0
 F:SHOW_MODS
 D:As tall as a man, the longbow can drive an arrow through the 
-D:heaviest armour.
+D:heaviest armour. It is hard to use without fingers.
 
 ## XXX 132 XXX ##
 
@@ -1028,7 +1033,7 @@ B:TUNNEL[1]
 F:SHOW_MODS 
 D:A compact and sturdy spade.
 
-N:151:& Gnomish Shovel~
+N:151:& Professional Shovel~
 G:\:G
 I:20:2:2
 W:25:0:60:300
@@ -1036,9 +1041,9 @@ A:25/6
 P:0:1d2:0:0:0:0
 B:TUNNEL[2] 
 F:SHOW_MODS 
-D:A small spade forged of steel with gnomish craftmanship.
+D:A small spade of high quality, used by those who dig professionally.
 
-N:152:& Dwarven Shovel~
+N:152:& Diamond Dog Shovel~
 G:\:B
 I:20:3:4
 W:50:0:80:500
@@ -1046,8 +1051,8 @@ A:50/6
 P:0:1d3:0:0:0:0
 B:TUNNEL[4] 
 F:SHOW_MODS 
-D:A broad shovel, fit for the strong shoulders of a dwarf.  It bears runes of 
-D:delving and no ordinary rock can resist it.
+D:A broad shovel, one of the rare object where those made by the Diamond Dog
+D:have the highest quality.
 
 N:153:& Pick~
 G:\:s
@@ -1060,7 +1065,7 @@ F:SHOW_MODS
 D:A heavy mining tool with a long, slightly curved head that tapers 
 D:to chisel points on both ends.
 
-N:154:& Orcish Pick~
+N:154:& Centaur Pick~
 G:\:g
 I:20:5:2
 W:35:0:150:300
@@ -1071,7 +1076,7 @@ F:SHOW_MODS
 D:A crude, ugly but effective pickaxe.  Made in enormous quantities for 
 D:the slave-mines of the north.
 
-N:155:& Dwarven Pick~
+N:155:& Diamond Dog Pick~
 G:\:b
 I:20:6:5
 W:60:0:120:800
@@ -1079,8 +1084,8 @@ A:60/6
 P:0:1d4:0:0:0:0
 B:TUNNEL[5] 
 F:SHOW_MODS 
-D:A short but heavy pick, like those that delved the Dwarf cities of
-D:Beleriand, with runes to break the sinews of mountains.
+D:While the creations of the Diamond Dogs are rarely know for quality or 
+D:beauty, to a miner, this is a work of art.
 
 ## XXX 156 XXX ##
 
@@ -1090,14 +1095,14 @@ D:Beleriand, with runes to break the sinews of mountains.
 
 ##### Armour - Footgear #####
 
-N:158:& Pair~ of Leather Sandals
+N:158:& Pair~ of Socks
 G:]:U
 I:30:1:0
 W:0:0:15:4
 A:0/1:20/2
 P:1:1d1:0:0:0:0
-D:A set of open-topped footgear with soft calfskin lacings and a sturdy 
-D:cured leather base.
+D:A smooth set of sock with an emroidered design, to be worn over the feet or
+D:hooves.
 
 N:159:& Pair~ of Soft Leather Boots
 G:]:U
@@ -1123,19 +1128,35 @@ A:35/1
 P:4:1d1:0:0:0:0
 D:A set of double-lined leather boots, with toes and heels reinforced with iron.
 
-N:162:& Pair~ of Dwarven Boots
+N:162:& Pair~ of Pegasus Boots
 G:]:B
 I:30:5:0
 W:60:0:40:500
 A:60/3
 P:5:1d1:0:0:0:0
 F:REGEN
-D:The enduring dwarves make the finest footgear known, and they march in it 
-D:for endless miles without wearying.
+D:The pegasi of Cloudsdale need to be able to fly for long disances without 
+D:rest, so these boots have been designed to keep the wearer feeling fresh.
 
-## XXX 163 XXX ##
+## Glass Slippers are identical to hard leather boots except in name
+## Used for Ariftact naming purposes
+N:163:& Pair~ of Glass Slippers
+G:]:w
+I:30:6:0
+W:7:0:40:12
+A:10/1:38/2
+P:3:1d1:0:0:0:0
+D:A sparkling pair of glass slippers
 
-## XXX 164 XXX ##
+## Golden Greaves are identical to metal shod shoes except in name and price
+## Used for artifact naming purposes
+N:164:& Pair~ of Golden Greaves
+G:]:y
+I:30:7:0
+W:35:0:60:250
+A:40/1
+P:4:1d1:0:0:0:0
+D:A gleaming set of metal shoes, crafted out of gold.
 
 ## XXX 165 XXX ##
 
@@ -1144,28 +1165,29 @@ D:for endless miles without wearying.
 
 ## XXX 166 XXX ##
 
-N:167:& Hard Leather Cap~
-G:]:u
+N:167:& Wizard Hat~
+G:]:V
 I:32:2:0
 W:3:0:15:12
 A:3/1:35/2
 P:2:0d0:0:0:0:0
-D:A padded skullcap of boiled leather.
+D:A light hat that provides little protection but lets everyone know your
+D:profession.
 
 N:168:& Metal Cap~
 G:]:s
 I:32:3:0
-W:12:0:20:30
-A:12/1:45/2
-P:3:1d1:0:0:0:0
+W:45:0:20:80
+A:45/1:65/2
+P:5:1d1:0:0:0:0
 D:A pot-helm of steel that protects the skull.
 
 N:169:& Barbut~
 G:]:s
 I:32:4:0
-W:35:0:45:60
-A:35/1
-P:4:1d2:0:0:0:0
+W:55:0:45:100
+A:55/1
+P:6:1d2:0:0:0:0
 D:A metal helmet with a t-shaped face slit that offers protection down to the 
 D:neck.
 
@@ -1186,11 +1208,31 @@ P:6:1d3:0:0:0:0
 D:This great helm covers the head and shoulders with plates of steel and a 
 D:curtain of mail.
 
-## XXX 172 XXX ##
+N:172:& Belled Hat~
+G:]:B
+I:32:7:0
+W:3:0:15:50
+A:20/1:55/2
+P:3:0d0:0:0:0:0
+D:A thick, wide-brimmed hat with bells, made popular by the wizard Star Swirl 
+D:the Bearded.
 
-## XXX 173 XXX ##
+N:173:& Wide Brimmed Hat~
+G:]:u
+I:32:8:0
+W:15:0:20:100
+A:25/1:60/2
+P:4:0d0:0:0:0:0
+D:A thick leather hat with a wide brim to keep the sun out of your eyes.
 
-## XXX 174 XXX ##
+N:174:& Pith Helm~
+G:]:y
+I:32:9:0
+W:45:0:40:75
+A:45/1:60/1
+P:5:1d2:0:0:0:0
+D:Also know as a Safari Helmet, this helmet, while functional, is designed 
+D:primarily to protect you from the sun.
 
 
 ##### Armour - Crowns #####
@@ -1212,7 +1254,7 @@ A:55/2
 P:0:1d1:0:0:4:0
 F:ACID_PROOF
 D:An elegant silver circlet, with slender spines thrusting upward. 
-D:It looks like it should be resting over the brow of a king.
+D:It looks like it should be resting over the brow of a princess.
 
 N:177:& Jewel Encrusted Crown~
 G:]:v
@@ -1222,15 +1264,23 @@ A:70/3
 P:0:1d1:0:0:6:0
 F:ACID_PROOF
 D:An elaboratedly decorated crown of massive gold, studded with a rainbow 
-D:of gems and jewels; worthy of a High King.
+D:of gems and jewels; worthy of the Royal Pony Sisters.
 
 ## XXX 178 XXX ##
 
-## XXX 179 XXX ##
-
-
 
 ##### Armour - Soft body armour #####
+
+
+N:179:& Vest~
+G:(:r
+I:36:3:0
+W:15:0:140:400
+A:10/1
+P:9:1d1:0:0:0:0
+D:A vest made of sturdy cloth. Often a way to indicate a pony's role in a 
+D:group activity from a distance.
+
 
 N:180:& Filthy Rag~
 G:(:D
@@ -1283,9 +1333,24 @@ D:A strong leather breastplate and shoulder guards over a shirt,
 D:sleeves, and leggings of cured leather, covered with widely-spaced 
 D:iron studs.
 
-## XXX 186 XXX ##
+N:186:& Sweater~
+G:(:g
+I:36:8:0
+W:1:0:20:20
+A:10/1:60/1
+P:3:0d0:0:0:0:0
+B:RES_COLD[10]
+D:A turtleneck sweater, designed to protect more the the cold than from blades.
 
-## XXX 187 XXX ##
+N:187:& Hoodie~
+G:(:B
+I:36:9:0
+W:1:0:20:20
+A:30/1:70/1
+P:4:0d0:0:0:0:0
+B:RES_COLD[20]
+D:A hooded sweater, offering more protection against winter's chill, but little
+D:more against monsters.
 
 N:188:Leather Scale Mail~
 G:(:U
@@ -1296,7 +1361,14 @@ P:11:1d1:-1:0:0:0
 D:A tunic and skirt sewn with thick, overlapping scales of hardened 
 D:leather.
 
-## XXX 189 XXX ##
+N:189:& Dress|es
+G:(:r
+I:36:12:0
+W:15:0:140:500
+A:20/1
+P:4:1d1:0:0:0:0
+D:A finely crafted flowing gown.  While more fit for a night on the town than
+D:a dungeon, its strong cloth expert construction offer some protection.
 
 
 
@@ -1636,7 +1708,7 @@ A:1/1:30/1:70/1
 P:1:0d0:0:0:0:0
 D:A traveller's sturdy outer garment.
 
-N:231:& Elven Cloak~
+N:231:& Zebra Cloak~
 G:(:G
 I:35:2:0
 W:35:0:5:350
@@ -4603,7 +4675,7 @@ P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:The pathetic remains of a jackal.
 
-N:645:& Petty-Dwarf Skeleton~
+N:645:& Pony Skeleton~
 G:`:w
 I:1:5:0
 W:5:0:30:0
@@ -4612,7 +4684,7 @@ P:0:1d2:0:0:0:0
 F:EASY_KNOW
 D:The remains of a Petty-Dwarf who was, in the end, not quite clever enough. 
 
-N:646:& Elf Skeleton~
+N:646:& Griffon Skeleton~
 G:`:w
 I:1:6:0
 W:5:0:40:0
@@ -4622,7 +4694,7 @@ F:EASY_KNOW
 D:A wandering elf lies here, far from green glades or the haunting sound of the 
 D:sea.  His spirit rests in Valinor; his body is but food for jackals.
 
-N:647:& Dwarf Skeleton~
+N:647:& Diamond Dog Skeleton~
 G:`:w
 I:1:7:0
 W:5:0:50:0
@@ -4648,7 +4720,7 @@ D:fool that ventured too deep.
 
 #### Magic Books - Sorcery ####
 
-N:650:[Magic for Beginners]
+N:650:[Magic for Derps]
 G:?:R
 I:90:0:0
 W:5:0:30:25
@@ -4666,7 +4738,7 @@ P:0:0d0:0:0:0:0
 F:EASY_KNOW
 D:A book of spells for Mages and Rogues.
 
-N:652:[Useful Magic]
+N:652:[Understanding Medival Equestria]
 G:?:R
 I:90:2:0
 W:20:0:30:400
@@ -4694,7 +4766,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A book of defensive spells for Mages.
 
-N:655:[Escapes and Trickery]
+N:655:[Ferrets of Fairyland]
 G:?:r
 I:90:5:0
 W:55:0:30:10000
@@ -4704,7 +4776,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A book of spells for elusive Mages and Rogues.
 
-N:656:[Advanced Sorcery]
+N:656:[The Art of the To Do List]
 G:?:r
 I:90:6:0
 W:70:0:30:30000
@@ -4714,7 +4786,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A spellbook for powerful Mages and Rogues.
 
-N:657:[Power and Destruction]
+N:657:[Modern Spellcasting]
 G:?:r
 I:90:7:0
 W:85:0:30:50000
@@ -4767,7 +4839,7 @@ P:0:0d0:0:0:0:0
 F:EASY_KNOW
 D:A prayer book for Priests.
 
-N:663:[Exorcism and Dispelling]
+N:663:[Fantastic Foolproof Failsafes]
 G:?:B
 I:91:3:0
 W:30:0:30:1000
@@ -4796,7 +4868,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A holy book granting Priests and Paladins great knowledge.
 
-N:666:[Purifications and Healing]
+N:666:[Magical Mysteries and Practical Potions]
 G:?:b
 I:91:6:0
 W:70:0:30:30000
@@ -4816,7 +4888,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A holy book of powerful blessings for Priests.
 
-N:668:[Wrath of the Valar]
+N:668:[The Elements of Harmony]
 G:?:b
 I:91:8:0
 W:95:0:30:100000
@@ -4824,7 +4896,7 @@ A:95/2
 P:0:0d0:0:0:0:0
 F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF | 
 F:EASY_KNOW
-D:A holy book of fearsome wrath for Priests and Paladins.
+D:The Elements of Harmony: A Reference Guide
 
 ## XXX 669 XXX ##
 
@@ -4840,7 +4912,7 @@ P:0:0d0:0:0:0:0
 F:EASY_KNOW
 D:A stone carved with simple lore for Druids and Rangers.
 
-N:671:[Communion with Nature]
+N:671:[Two-Headed Mythological Mysteries]
 G:?:G
 I:92:1:0
 W:10:0:30:100
@@ -4867,7 +4939,7 @@ P:0:0d0:0:0:0:0
 F:EASY_KNOW
 D:A stone carved with lore for Druids.
 
-N:674:[Yavanna's Shapeshifts]
+N:674:[Discord's Shapeshifts]
 G:?:g
 I:92:4:0
 W:45:0:30:5000
@@ -4877,7 +4949,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A stone carved with transformation lore for Druids.
 
-N:675:[Melian's Lore]
+N:675:[Astronomical Astronomer's Guide]
 G:?:g
 I:92:5:0
 W:55:0:30:10000
@@ -4897,7 +4969,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A stone covered with powerful elemental runes for Druids.
 
-N:677:[Bombadil's Songs]
+N:677:[Fluttershy's Songs]
 G:?:g
 I:92:7:0
 W:85:0:30:50000
@@ -4958,7 +5030,7 @@ P:0:0d0:0:0:0:0
 F:EASY_KNOW
 D:A tome of fell curses for Necromancers.
 
-N:684:[Mysteries of Utumno]
+N:684:[Perplexing Pony Plagues]
 G:?:p
 I:93:4:0
 W:45:0:30:5000
@@ -4998,7 +5070,7 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF |
 F:EASY_KNOW
 D:A corrupting tome for Necromancers and Assassins.
 
-N:688:[Necronomicon]
+N:688:[Necroponicon]
 G:?:p
 I:93:8:0
 W:95:0:30:100000
@@ -5172,11 +5244,11 @@ W:15:0:200:1000
 P:0:3d9:0:0:0:0
 F:SHOW_MODS | INSTA_ART
 
-N:732:& Massive Iron Crown~
+N:732:& Obsidian Crown~
 G:]:D
 I:33:50:0
 W:44:0:20:1000
-P:0:1d1:0:0:0:0
+P:0:4d9:0:0:0:0
 F:INSTA_ART
 
 
@@ -5206,16 +5278,16 @@ F:INSTA_ART
 # special "base names" (such as "Necklace").
 
 
-# The Lamp of Gwindor -- see artifact list
+# Sunstone -- see artifact list
 
-N:733:& Lamp~
+N:733:& Glowstone~
 G:~:b
 I:39:4:0
 W:1:0:10:10000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 
-# The Pearl 'Nimphelos'  -- see artifact list
+# The Pearl 'Celestia's Radiance'  -- see artifact list
 
 N:734:& Pearl~
 G:~:w
@@ -5224,9 +5296,9 @@ W:40:0:5:25000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 
-# The Palantir of Avallone -- see artifact list
+# The Crystal Tear of Luna\Luna's Tear -- see artifact list
 
-N:735:& Palant['i]r~
+N:735:& Crystal Tear~
 G:~:D
 I:39:6:0
 W:90:0:5:60000
@@ -5237,7 +5309,7 @@ F:INSTA_ART
 
 # The Amulet of Ingwe -- see artifact list
 
-# The Necklace of the Dwarves -- see artifact list
+# The Necklace of Horns -- see artifact list
 
 N:738:& Necklace~
 G:":W
@@ -5248,9 +5320,9 @@ F:INSTA_ART
 # The Torque of Boromir -- see artifact list
 
 
-# The Elfstone 'Elessar' -- see artifact list
+# The lightstone 'Flashstone' -- see artifact list
 
-N:740:& Elfstone~
+N:740:& lightstone~
 G:":g
 I:40:14:0
 W:30:0:3:40000

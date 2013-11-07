@@ -21,6 +21,7 @@
 
 #include "angband.h"
 #include "cave.h"
+#include "cmds.h"
 #include "game-event.h"
 #include "monster.h"
 #include "player.h"
@@ -1193,8 +1194,11 @@ static void calc_mana(void)
 	/* Assume player is not encumbered by gloves */
 	p_ptr->cumber_glove = FALSE;
 
-	/* Get the gloves */
-	o_ptr = &p_ptr->inventory[INVEN_HANDS];
+	/* Get the gloves, or the ring for Unicorns/Alicorns */
+	if (rp_ptr->num_rings == 1)
+	   o_ptr = &p_ptr->inventory[INVEN_LEFT];
+    else
+	 o_ptr = &p_ptr->inventory[INVEN_HANDS];
 
 	/* Normal gloves hurt mage or necro-type spells.  Now, only Free Action 
 	 * or magic mastery stops this effect. */
@@ -1244,7 +1248,7 @@ static void calc_mana(void)
 	}
     }
 
-    /* Any non-humaniod shape penalizes mana, unless prevented by specialty
+    /* Any non-humaniod/non-pony shape penalizes mana, unless prevented by specialty
      * ability */
     if (p_ptr->schange) {
 	/* Chop mana to 2/3. */
@@ -1277,9 +1281,15 @@ static void calc_mana(void)
     if (old_cumber_glove != p_ptr->cumber_glove) {
 	/* Message */
 	if (p_ptr->cumber_glove) {
-	    msg("Your covered hands feel unsuitable for spellcasting.");
+        if (rp_ptr->num_rings == 1)
+           msg("Your encircled horn feels unsuitable for spellcasting.");
+        else
+	        msg("Your covered hands feel unsuitable for spellcasting.");
 	} else {
-	    msg("Your hands feel more suitable for spellcasting.");
+	    if (rp_ptr->num_rings == 1)
+	       msg("Your horn feels more suitable for spellcasting.");
+        else
+            msg("Your hands feel more suitable for spellcasting.");
 	}
     }
 
@@ -1348,6 +1358,7 @@ static void calc_hitpoints(void)
 static void calc_torch(void)
 {
     object_type *o_ptr = &p_ptr->inventory[INVEN_LIGHT];
+    object_type *amulet = &p_ptr->inventory[INVEN_NECK];
 
     s16b old_light = p_ptr->cur_light;
 
@@ -1377,6 +1388,10 @@ static void calc_torch(void)
 	    p_ptr->cur_light += 3;
     }
 
+    if((amulet->sval == SV_AMULET_LIGHTSTONE) && (amulet->pval > 0)) {
+        p_ptr->cur_light++;
+    }
+    
     /* Priests and Paladins get a bonus to light radius at level 35 and 45,
      * respectively. */
     if (player_has(PF_HOLY)) {
@@ -1562,7 +1577,7 @@ int add_special_missile_skill(player_state *state, s16b weight,
     } else if (state->ammo_tval == TV_ARROW) {
 	if (player_has(PF_BOW_SKILL))
 	    add_skill += 3 + p_ptr->lev / 7;
-	else if (player_has(PF_BOW_UNSKILL))
+	else if (player_has(PF_BOW_UNSKILL) && !of_has(o_ptr->id_obj, OF_HOLD_LIFE))
 	    add_skill -= 3 + p_ptr->lev / 7;
     } else if (state->ammo_tval == TV_SHOT) {
 	if (player_has(PF_SLING_SKILL))
@@ -2082,6 +2097,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     state->no_fear = FALSE;
     state->no_blind = FALSE;
     state->darkness = FALSE;
+    state->full_hands = FALSE;
 
     for (i = 0; i < MAX_P_RES; i++) {
 	state->res_list[i] = RES_LEVEL_BASE;
@@ -2151,7 +2167,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 	state->sustain_chr = TRUE;
     if (of_has(rp_ptr->flags_obj, OF_SLOW_DIGEST))
 	state->slow_digest = TRUE;
-    if (of_has(rp_ptr->flags_obj, OF_FEATHER))
+    if (of_has(rp_ptr->flags_obj, OF_FEATHER) || player_has(PF_WINGED) || player_has(PF_GRIFFON_WINGS))
 	state->ffall = TRUE;
     if (of_has(rp_ptr->flags_obj, OF_LIGHT))
 	state->light = TRUE;
@@ -2255,6 +2271,10 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 	if (p_ptr->lev > 45)
 	    state->stat_add[A_CON]++;
     }
+    
+    /* Tunneling bonus to dig */
+    if (player_has(PF_TUNNELING))
+       state->skills[SKILL_DIGGING] += p_ptr->lev * 3;
 
     /* Warrior. */
     if (player_has(PF_RELENTLESS)) {
@@ -2314,7 +2334,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 
 	/* Affect speed */
 	state->pspeed += o_ptr->bonus_other[P_BONUS_SPEED];
-
+	
 	state->skills[SKILL_DEVICE] +=
 	    10 * o_ptr->bonus_other[P_BONUS_M_MASTERY];
 
@@ -2339,7 +2359,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 	    state->sustain_chr = TRUE;
 	if (of_has(o_ptr->flags_obj, OF_SLOW_DIGEST))
 	    state->slow_digest = TRUE;
-	if (of_has(o_ptr->flags_obj, OF_FEATHER))
+	if (of_has(o_ptr->flags_obj, OF_FEATHER) || player_has(PF_WINGED) || player_has(PF_GRIFFON_WINGS))
 	    state->ffall = TRUE;
 	if (of_has(o_ptr->flags_obj, OF_LIGHT))
 	    state->light = TRUE;
@@ -2482,6 +2502,17 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     if (player_has(PF_WOODEN))
 	state->ffall = FALSE;
 
+    /* Check if hands are full */
+    o_ptr = &(inventory[INVEN_WIELD]);
+        if (o_ptr->k_idx) {
+            if (needs_two_hands(o_ptr))
+                state->full_hands = TRUE;
+            else {
+                o_ptr = &(inventory[INVEN_ARM]);
+                if(o_ptr->k_idx)
+                    state->full_hands = TRUE;
+                  }
+         }
 
     /*** Analyze shapechanges - statistics only ***/
     shape_change_stat(state);
@@ -2522,6 +2553,15 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     /* Speed boost for rune of speed */
     if (cave_trap_specific(p_ptr->py, p_ptr->px, RUNE_SPEED))
 	state->pspeed += 10;
+	
+	/* Speed boost for winged */
+	if (player_has(PF_WINGED))
+	    state->pspeed += (p_ptr->lev / 10);
+    
+    /* Speed boost for griffon wings. Not applied if both hands are full */
+    if (player_has(PF_GRIFFON_WINGS))
+        if (!state->full_hands)
+            state->pspeed += (p_ptr->lev / 10);
 
     /* Dwarves are good miners */
     if (player_has(PF_DWARVEN))
@@ -3303,6 +3343,17 @@ static void update_bonuses(void)
 	/* Save it */
 	old.evasion_chance = state->evasion_chance;
     }
+    
+    /* Take note a "full hands" changes */
+    if (old.full_hands != state->full_hands) {
+    /* Only notify the player if it actually matters */
+    if (player_has(PF_GRIFFON_WINGS)) {
+        if (state->full_hands)
+            msg("Your full hands impede your running.");
+        else
+            msg("Your speed is no longer impeded.");
+        }
+    }
 
     /* Take note when "heavy bow" changes */
     if (old.heavy_shoot != state->heavy_shoot) {
@@ -3356,7 +3407,10 @@ static void update_bonuses(void)
 	if (state->shield_on_back) {
 	    msg("You are carrying your shield on your back.");
 	} else if (p_ptr->inventory[INVEN_ARM].k_idx) {
-	    msg("You are carrying your shield in your hand.");
+        if (player_has(PF_QUADRUPED))
+           msg("You strap your shield to your foreleg.");
+        else
+	        msg("You are carrying your shield in your hand.");
 	}
 
 	/* No message for players no longer carrying a shield. */

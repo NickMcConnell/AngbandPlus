@@ -1,6 +1,6 @@
 ************************************************
-***  FAangband 1.1.6  ****  First Age Angband  *
-*Beleriand in the days of the War of the Jewels*
+***  Ponyband 0.3.0  ****  My Little Angband   *
+*     My Little Pony: Dungeons are Magic       *
 ************************************************
                                                 
 Based on Moria, Angband and variants            
@@ -11,13 +11,13 @@ Sean Marsh, Geoff Hill, Charles Teague,
 Charles Swiger, Ben Harrison, Robert Ruehlmann, 
 Leon Marrick, Bahman Rabii, Jeff Greene,        
 Diego Gonzalez, Andrew Doull, Andi Sidwell,   
-Pete Mack, Si Griffin.                          
+Pete Mack, Si Griffin, Nick McConnell.                          
                                                 
-FAangband 0.1.0-1.1.6: Copyright (c) 2005-2010  
-                      Nick McConnell, Si Griffin
+Ponyband 0.1.0-0.3.0: Copyright (c) 2011  
+                      Michael Northington
                                                 
-Send comments, etc. to nckmccnnll@yahoo.com.au  
-FAangband page: http://angband.oook.cz/faangband
+Send comments, etc. to rydelfox@gmail.com  
+No Ponyband page yet.
 Angband newsgroup: rec.games.roguelike.angband  
 Angband ladder page: http://angband.oook.cz     
           '?' for in-game help.                 
@@ -37,11 +37,11 @@ wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-bbbbbbbbbbbbbbbbbbbbbwwwwwwwwwwwwwwwwwwwwwwwwwww
+bbbbbbbbbbbbbbbbbbbbwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBww
-wwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBBBBBww
 wwwwwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBwwwww
 wwwwwwwwwwwGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww

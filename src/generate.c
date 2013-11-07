@@ -175,16 +175,12 @@ static void build_store(int n, int yy, int xx, int stage)
  */
 static void town_gen_hack(void)
 {
-    int i, y, x, k, n, py = 1, px = 1;
+    int i, y, x, k, n;
 
-    int qy = DUNGEON_HGT / 3;
-    int qx = DUNGEON_WID / 3;
     int stage = p_ptr->stage;
-    int last_stage = p_ptr->last_stage;
 
     int rooms[MAX_STORES_BIG + 1];
 
-    bool place = FALSE;
     bool major = FALSE;
 
     /* Hack -- Use the "simple" RNG */
@@ -194,39 +190,24 @@ static void town_gen_hack(void)
     for (i = 0; i < 10; i++)
 	if (stage == towns[i])
 	    Rand_value = seed_town[i];
-
-    if (OPT(adult_dungeon))
+		
 	Rand_value = seed_town[0];
 
     /* Set major town flag if necessary */
-    if ((stage > 150) || OPT(adult_dungeon))
 	major = TRUE;
 
-    /* Hack - reduce width for minor towns */
-    if (!major)
-	qx /= 2;
-
     /* Prepare an Array of "remaining stores", and count them */
-    if (major)
 	for (n = 0; n < MAX_STORES_BIG; n++)
 	    rooms[n] = n;
-    else {
-	rooms[0] = 9;
-	rooms[1] = 3;
-	rooms[2] = 4;
-	rooms[3] = 7;
-	n = 4;
-    }
 
-    if (OPT(adult_dungeon))
 	rooms[n++] = 9;
 
     /* No stores for ironmen away from home */
-    if ((!OPT(adult_ironman)) || (p_ptr->stage == p_ptr->home)) {
+    if (p_ptr->stage == p_ptr->home) {
 	/* Place two rows of stores */
 	for (y = 0; y < 2; y++) {
 	    /* Place two, four or five stores per row */
-	    for (x = 0; x < (OPT(adult_dungeon) ? 5 : 4); x++) {
+	    for (x = 0; x < 5; x++) {
 		/* Pick a random unplaced store */
 		k = ((n <= 1) ? 0 : randint0(n));
 
@@ -241,12 +222,8 @@ static void town_gen_hack(void)
 		    break;
 	    }
 	}
-	/* Hack -- Build the 9th store.  Taken from Zangband */
-	if (major && !OPT(adult_dungeon))
-	    build_store(rooms[0], randint0(2), 4, stage);
     }
 
-    if (OPT(adult_dungeon)) {
 	/* Place the stairs */
 	while (TRUE) {
 	    /* Pick a location at least "three" from the outer walls */
@@ -264,64 +241,6 @@ static void town_gen_hack(void)
 
 	/* Place the player */
 	player_place(y, x);
-    }
-
-    else {
-
-	/* Place the paths */
-	for (n = 2; n < 6; n++) {
-	    /* Pick a path direction for the player if not obvious */
-	    if (((!last_stage) || (last_stage == 255)) && (stage_map[stage][n]))
-		last_stage = stage_map[stage][n];
-
-	    /* Where did we come from? */
-	    if ((last_stage) && (last_stage == stage_map[stage][n]))
-		place = TRUE;
-
-	    /* Pick a location at least "three" from the corners */
-	    y = 1 + rand_range(3, qy - 4);
-	    x = 1 + rand_range(3, qx - 4);
-
-	    /* Shove it to the wall, place the path */
-	    switch (n) {
-	    case NORTH:
-		{
-		    y = 1;
-		    if (stage_map[stage][n])
-			cave_set_feat(y, x, FEAT_MORE_NORTH);
-		    break;
-		}
-	    case EAST:
-		{
-		    x = qx - 2;
-		    if (stage_map[stage][n])
-			cave_set_feat(y, x, FEAT_MORE_EAST);
-		    break;
-		}
-	    case SOUTH:
-		{
-		    y = qy - 2;
-		    if (stage_map[stage][n])
-			cave_set_feat(y, x, FEAT_MORE_SOUTH);
-		    break;
-		}
-	    case WEST:
-		{
-		    x = 1;
-		    if (stage_map[stage][n])
-			cave_set_feat(y, x, FEAT_MORE_WEST);
-		}
-	    }
-	    if (place) {
-		py = y;
-		px = x;
-		place = FALSE;
-	    }
-	}
-
-	/* Place the player */
-	player_place(py, px);
-    }
 
     /* Hack -- use the "complex" RNG */
     Rand_quick = FALSE;
@@ -351,17 +270,12 @@ static void town_gen(void)
     int i, y, x;
 
     int residents;
-    int stage = p_ptr->stage;
 
     int qy = 0;
     int qx = 0;
     int width = DUNGEON_WID / 3;
 
     bool dummy;
-
-    /* Hack - smaller for minor towns */
-    if ((stage < 151) && (!OPT(adult_dungeon)))
-	width /= 2;
 
     /* Day time */
     if (is_daylight) {
@@ -548,7 +462,7 @@ void generate_cave(void)
 	if (no_vault())
 	    wild_vaults = 0;
 
-	/* Build the town */
+    /* Build the town */
 	if (!p_ptr->depth) {
 	    /* Make a town */
 	    town_gen();

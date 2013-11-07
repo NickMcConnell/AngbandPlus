@@ -182,8 +182,8 @@ Chaotic:
 grants immunity to an element, you will take no damage from that element.  Be 
 warned that immunity does not extend to your backpack; the stuff you are 
 carrying in inventory can still be destroyed on rare occasions.  Under certian
-circumstances, characters that are vulnerable to an element (i.e. Ent with
-Fire) may still take a tiny amount of damage through immunity.
+circumstances, characters that are vulnerable to an element may still take a 
+tiny amount of damage through immunity.
 
 Immunity to Acid:
      You take no damage from acid.  Staffs, missiles, weapons, armour, and 
@@ -405,7 +405,7 @@ devices.
 
      Some rare weapons and armours have special abilities.  These are called 
 ego items, and are feared by great and meek.  Ego-item information is not 
-provided in the standard FAangband help files, because you can 'I'nspect any 
+provided in the standard Ponyband help files, because you can 'I'nspect any 
 normally identified ego-item to learn everything about it.
 
 --- Dragon Scale Mails ---

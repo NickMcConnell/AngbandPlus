@@ -1,0 +1,57 @@
+Ponyband version 0.3.0
+
+My Little Pony: Friendship is Magic debued on television on October 10th, 2010.
+While previous generations of show did have fans, the shows were largely 
+viewed as being extremely "girly" and low on substance, so little was expected
+of this new iteration. This version, however, managed to defy that trend. With 
+a mind to prove that girls' cartoons done have to be "a puddle of smooshy, 
+cutesy-wootsy, goody-two-shoeness," creator Lauren Faust developed a world with 
+a relatable cast, strong lessons, and fun sense of humor that captivated the 
+minds of children and adults alike, and the shows popularity spread through
+the internet like wild fire, quickly appearing on all manner of sites.
+
+Naturally, Angband gets its dose of friendship and magic too.
+
+Ponyband is based on First Age Angband (FAangband) 1.2.6 by Nick McConnell.
+The primary changes have been those of setting, replacing items and characters
+from Middle Earth with those from Equestria, and changing the story from the
+fight against Morgoth in the Silmarilian to the fight against Nightmare Moon
+in Elements of Harmony. While the setting isn't entirely consistant, with some
+items and characters appearing from later in the series, or occationally other
+generations of My Little Pony, some fan content, or even a little bit outside
+of My Little Pony entirely, the core setting of Friendship is Magic is 
+preserved as much as possible.
+
+There are a number of core changes which should be noted going in to the game,
+as some things differ significantly from FAangband
+
+ - In keeping with the different setting, the races have changed significantly.
+   Most noticably, several of the races are not humanoid.  There races lack 
+   hands and fingers, and the game recognizes limitations from this. Since they
+   don't have hands, they cannot hold some equipment normally, instead holding
+   weapons in their mouths and strapping shields to their forleg.  While this
+   is largely just cosmetic, they can't use these in conjunction to duel wield,
+   so they can only use weapons that can be used in a single hand.
+   Additionally, they lack fingers, so they are unable to wear rings.  Some
+   races have horns which they can wear rings on, but since they use their 
+   horns to cast magic, wearing a ring on one limits their spell casting just
+   like a human wearing gloves.  A plan is currently in the works to allow the
+   player to select a Cutie Mark for the races that have one, giving a minor
+   customizable bonus for those races.  Their design has taken this into 
+   account, so until that is implemented, they may appear slightly weaker than
+   intended.
+   
+ - The FAangband wilderness has been removed.  Since the entire quest takes 
+   place within the Castle of the Royal Pony Sisters, there isn't any need
+   for a wilderness anyway.
+   
+ - Monster have learned some new tricks.  Don't be surprised to encounter 
+   enemies that explode when they attack, drain your mana, create weak
+   clones to fight you.  Additionally, some enemies won't appear normally and
+   only arrive when summoned by another monster, allowing summoners to have 
+   some unexpected surprises for you. Also, be aware that some especially nasty
+   foes have found a way to become immune to teleportation.
+   
+Special thanks to everyone who helped me with my crazy compiler issues on 
+andband.oook.cz and to Nick McConnell for creating a great variant to work
+from with some extremely clean and organized code.

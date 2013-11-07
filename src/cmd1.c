@@ -208,7 +208,7 @@ static void py_pickup_gold(void)
 	int i, count, total, k_idx;
 
 	/* Build a message */
-	(void)strnfmt(buf, sizeof(buf), "You have found %ld gold pieces worth of ", (long)total_gold);
+	(void)strnfmt(buf, sizeof(buf), "You have found %ld bits worth of ", (long)total_gold);
 
 	/* Count the types of treasure present */
 	for (total = 0, i = 0; i < SV_GOLD_MAX; i++)
@@ -711,8 +711,7 @@ void fall_off_cliff(void)
 	}
 
 	/* Check for quests */
-	if (OPT(adult_dungeon) && is_quest(p_ptr->stage)
-	    && (p_ptr->depth < 100)) {
+	if (is_quest(p_ptr->stage) && (p_ptr->depth < 100)) {
 	    int i;
 	    monster_race *r_ptr = NULL;
 

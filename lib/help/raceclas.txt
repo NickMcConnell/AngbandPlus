@@ -2,14 +2,14 @@
 =============================== Character Birth ===============================
 
      This file describes your character and his creation.  It discusses the 
-races and classes available in FAangband; racial and class tables are provided 
+races and classes available in Ponyband; racial and class tables are provided 
 at the bottom.
 
 
 === Creating a Character ===
 
-FAangband is a role-playing game, in which you, the player, control a character
-in the First Age of Middle-Earth.  Perhaps the most important thing you 
+Ponyband is a role-playing game, in which you, the player, control a character
+during the return of Nightmare Moon.  Perhaps the most important thing you 
 control is the birth of your character, in which you choose or allow to be 
 chosen various attributes that will affect his future adventures.
 
@@ -25,189 +25,182 @@ save the character to disk.
 
 === Races ===
 
-There are thirteen different races that you can choose from in FAangband, 
-representing most of the enemies of Morgoth found in Tolkien's Silmarillion.  
-Some races will have difficulty with some professions, and each race has its 
-own adjustments to a character's stats and abilities. Most races also have 
-intrinsic abilities.  Most importantly, each race starts in a particular town.
-Since the wilderness around some of these towns is very dangerous, these races
-start with some experience already, and sometimes improved equipment.
-     Maiar are especially designed for new and inexperienced players, and are 
-not recommended for veterans.  Hobbits, Beornings and Longbeards also make 
-good races for players new to Angband in general and FAangband in particular.  
-Druedain, Edain, Grey Elves and High Elves particularly are only recommended 
-for experienced players.
+There are eleven different races that you can choose from in Ponyband, 
+representing most of the races seen in Friendship is Magic.  Some races will
+have difficulty with some professions, and each race has its own adjustments 
+to a character's stats and abilities. Most races also have intrinsic abilities.  
+     Alicorns are especially designed for new and inexperienced players, and 
+are not recommended for veterans.  Humans and Baby Dragons also make good races
+for players new to Angband in general and Ponyband in particular. Zebra, and 
+Mules particularly are only recommended for experienced players.
 
-***** <Easterling>
-     Easterling:
-         Easterlings are the swarthy humans who came into Beleriand late in 
-	 the First Age of Middle-Earth.   All other races are compared to them.
-         Easterlings can choose any class and are average at everything.  They 
-         have a slight bonus to fighting skill when using swords and 
-         crossbows, and have more hit points than many other races.  They get
-	 a bonus to hit in plains.
+***** <Earth-Pony>
+     Earth Pony:
+         Earth Ponies are the most common type of pony in Ponyville. They are 
+		 known for their physical strength and stamina, as well as their skill
+		 at working the earth.
+		 As quadrupeds, they can't wear gloves or rings, but can wear 2 pairs
+		 of footwear.  They also have difficulty firing bows with their hooves.
+         Earth Ponies are very skilled at physical classes, but their inability
+		 to use arcane magic means that they make poor Rogues and Assasins and
+		 should completely avoid being a Mage or Necromancer.  They are able to
+		 resist being stunned. They also have strong saving throws and are good
+		 at searching and have high health.
  
-***** <Green-Elf>
-     Green Elf:
-         Green elves are a branch of the Teleri who abandoned the Great Journey
-         of the elves to Aman, but later crossed the Blue Mountains into the
-         Land of the Seven Rivers, Ossiriand.  They tend to be smarter and 
-         more agile than Easterlings, but are not as strong.  Green elves are 
-         better at searching, saving throws, stealth, perception, 
-         and shooting (especially with bows), but they are not as good 
-         at hand weapons, disarming and magic devices.  Like all elves, Green 
-	 elves are able to move freely among trees
+***** <Pegasus>
+     Pegasus:
+         Pegasi normally hail from Cloudsdale, but they also appear in large
+		 numbers in Ponyville.  With their abilities to fly and walk on clouds,
+		 they frequently have jobs maintaining the weather, though jobs that 
+		 requires a great deal of speed are also common.
+		 As quadrupeds, they can't wear gloves or rings, but can wear 2 pairs
+		 of footwear.  They also have difficulty firing bows with their hooves.
+		 Pegasi are quick, but there light bodies are somewhat weaker and less
+		 durable, and many are prone to rash action. Pegasi can fly allowing 
+		 them to avoid pits and giving them the highest natural speed of any 
+		 race. This bonus makes them work well in most classes, but their 
+		 inability to use arcane magic can cause problems for Rouges and 
+		 Assassins and make being a Mage or Necromancer nearly impossible.  
+		 Despite their inability to use magic, they are good with magic 
+		 devices.
  
-***** <Grey-Elf>
-     Grey Elf:
-         Grey elves are the people of King Thingol, and the first elves to
-         settle in Beleriand.  They tend to be wiser and more dexterous than 
-         humans and tougher and stronger than green elves.  Grey elves have
-         better saving throws but less stealth than green elves, and are better
-         at hand-to-hand combat but not as good at shooting.  Grey elves
-         resist light effects intrinsically, and like the forest.
+***** <Unicorn>
+     Unicorn:
+         Primarily from Canterlot, Unicorns still make up a noteworthy part of
+		 Ponyville.  Unicorns are able to use their horns to channel magic. 
+		 All adult Unicorns can use their magic for telekinesis, those some
+		 study the art of magic in more depth.
+		 As quadrupeds, Unicorn cannot wear gloves, but can wear two pairs of
+		 footwear.  They are able to wear a single ring on their horn, but
+		 doing so can restrict their ability to use magic.
+		 Unicorns are very intelligent and are skilled with magic devices, but
+		 they lack the natural resiliance of the other races.
  
-***** <Hobbit>
-     Hobbit:
-         Hobbits are very good at bows (especially slings), throwing, and have 
-         good saving throws.  They are even better at searching, disarming, 
-         perception, and stealth; so they make excellent rogues, but prefer to 
-         be called burglars.  They will be much weaker than humans, and no 
-         good at melee fighting.  They have few hit points, but can sometimes 
-         endure ailments that would lay other races low.  Hobbits have fair 
-         infravision, so they can detect warm creatures at a distance.  
-         Hobbits, like Easterlings, are people of the plains.
- 
-***** <Petty-Dwarf>
-     Petty-Dwarf:
-         Petty-dwarves are an ancient and diminished race of dwarves thought
-         at first by the elves to be orcs.  They were all but wiped out, with
-         just one small settlement left in the south of the Ered Luin.
-         Petty-dwarves make excellent mages, are the best magical device users 
-         of any race, and are good at searching, disarming, and perception.  
-         They are reasonably stealthy. They are, however, rather frail and
-         are not very good at fighting with hand weapons.  Petty-dwarves have 
-         good infra-vision, so they can detect warm-blooded creatures at a 
-         distance.  Petty-dwarves are intrinsically protected against 
-         paralysis and some slowing effects, and like all dwarves are harder
-	 to hit when in the mountains, and can move easily through rubble.
- 
-***** <Dwarf>
-     Dwarf:
-         Dwarves are the headstrong miners and fighters of legend.  They are 
-         strong, smart, and tough, but not very wise or agile.  Since 
-         dungeons are their natural home, dwarves have very good infravision, 
-         can never be blinded, and make good warriors, mages, and necromancers.
-         They gain a small bonus to combat skill when using polearms, but 
-         don't know the first thing about bows.  Because they are so 
-         headstrong, they resist spells which are cast on them.  They do have 
-         one big drawback, though:  Dwarves are loudmouthed and proud, singing 
-         in loud voices, arguing with themselves for no good reason, screaming 
-         out challenges at imagined foes.  In other words, dwarves have a 
-         miserable stealth.  They get the same terrain bonuses as 
-	 Petty-Dwarves.
- 
-***** <Druadan>
-     Druadan:
-         Druedain, also known as woses, are the woodspeople who live alongside
-         the people of Haleth.  They are tough, wise and stealthy, but not very
-         street-smart and are poor at devices, disarming and shooting; they
-         make excellent druids.  Druedain look, well, funny.  They tend to pay 
-         more for goods in town.  Their uncanny appreciation of the natural
-         environment gives them the power of telepathy, and they fight more
-	 skilfully in forest.
- 
-***** <Longbeard>
-     Longbeard:
-         The longbeards are the eldest of the seven lines of the dwarves.  
-         Their home is in Khazad Dum, away from the chief conflicts of 
-         Beleriand, but they are always ready for a challenge.  They have all
-         the strengths of other dwarves, but their weaknesses are less.
-
-***** <Adan>
-     Adan:
-         The edain are the elf-friends of the houses of Beor, Hador and 
-         Haleth.  First of men to enter Beleriand, they surpass the abilities 
-         of other humans in every field, are superb melee fighters, and have 
-         amazing wisdom and constitution.  They may play any class.  Their 
-	 constitution cannot be reduced, and like druedain fight their best in
-	 the forests of Beleriand.
- 
-***** <High-Elf>
-     High Elf:
-         High elves are the Noldor, who fled from the Undying Lands to try and
-         wrest the Silmarils back from Morgoth.  They are masters of all 
-         skills, and are agile and intelligent, although their wisdom is 
-         sometimes suspect.  High-elves begin their lives able to see the 
-         unseen, and resist light effects just like Grey elves.  As other 
-	 elves, they move freely through trees.
- 
-***** <Maia>
-     Maia:  
-         (Special race for players new to FAangband.  Score is reduced by 50%)
-         The Maiar, lesser deities of the created world, often take tangible 
-         form and mingle among earthly beings.  They can be found among the 
-         ranks of wise counselors, peerless warriors, mighty wizards and 
-         deadly necromancers; indeed they can play any class with credit.  
-         Their vital statistics put all other races to shame, their standard 
+***** <Alicorn>
+     Alicorn:
+	     (Special race for players new to Ponyband.  Score is reduced by 50%)
+         Alicorns are extremely powerful and extremely rare beings that possess
+		 the strength of Earth Ponies, Pegasi, and Unicorns combined. At 
+		 present, the only three know Alicorns are Princess Celestia, Princess 
+		 Cadance, and Princess Luna, who is now Nightmare Moon.
+		 Alicorns are Quadrupeds and as such, cannot wear gloves, but can wear
+		 two pairs of footgear. They can also wear a single ring on their horn,
+		 but this restricts their ability to use magic.
+		 Their vital statistics put all other races to shame, their standard 
          abilities are always good and sometimes superlative, and they recover 
          divinely quickly from all sorts of wounds and ailments, and are not 
-	 slowed in water like other races.  Maiar are 
-         perfect for those desiring a character able to survive the perils of 
-         an unfamiliar game.
-
-***** <Dark-Elf>
-     Dark Elf:
-         Dark elves are those who chose to stay among the stars of Middle-
-         Earth rather than see the Light of the Trees in Aman.  They are
-         wise and agile, but frail and poor with weapons.  However, dark
-         elves are not merely stealthiest of all races, but they never 
-         aggravate monsters.  (If they normally would, they suffer a penalty 
-         of three to stealth).  The price they pay, though, is an increased
-         sensitivity to bright light.  Dark elves have the usual elvish 
-	 ability to move unhindered through trees.
-
-***** <Ent>
-     Ent:
-         Clad in bark-like skin, and with bodies like the trunks of trees, Ents
-         can nevertheless move about perfectly well.  They have poor dungeon 
-         survival skills, and are bad at archery and with polearms, but handle 
-         other weapons well.  As long as they stay away from fire, Ents will 
-         find themselves well capable of surviving many a bitter fight.  As 
-         they age, Ents slowly lose the relative suppleness of their sapling 
-         youth, trading dexterity for increased strength and constitution.  
-         Members of this wise race can never gain feather fall by any means, 
-         but will slowly acquire the ability needed to tear rock apart with 
-         their weaponless hands.  Since they only need to stand still to be
-	 mistaken for trees, Ents are incredibly stealthy in forests.
+	     slowed in water like other races.  They are perfect for those desiring a 
+	     character able to survive the perils of an unfamiliar game.
  
-***** <Beorning>
-     Beorning:
-         These hardy woodsfolk, though of human origin, have developed a deep
-         affinity with nature.  Many of the Beornings have learned the secret
-         languanges of animals and some have learned to transform themselves
-         into the forms of great bears.  They have respectable survival
-         skills and are comfortable with all manner of weapons, but they are
-         mediocre with magical devices.  They are at a slight disadvantage in
-         charisma and intellegence, but they have better wisdom and 
-         consistution than other humans.  When needed, they can take the form
-         of an increasingly powerful bear (use the ']' command), making them
-         more effective in combat and weaker in magic and archery.  Beorning
-         are best known as warriors, rangers, and druids, though they make 
-         fine rogues and priests as well.  They fight most skilfully on the 
-	 plains.
+***** <Baby-Dragon>
+     Baby Dragon:
+         While fully grown dragons are far too large to venture into a dungeon,
+		 and tend to be cruel and capricious, making them ill-suited for pony
+		 society, it is not unheard of for a mage to take on a young dragon as
+		 an assistant.  This is especially common at Celestia's School for 
+		 Gifted Unicorns, which has at times used this as part of their 
+		 entrance exam.
+		 Dragons are able to breathe fire and are naturally resistant to it as
+		 well.  Due to their young age, they tend to be somewhat weak and nieve
+		 but their small size leaves them rather agile and they are still 
+		 dragons, with all the durability that comes with that. They have some
+		 infravision, allowing them to see warm blooded creatures in the dark
+ 
+***** <Zebra>
+     Zebra:
+         An Equine from a far off land, these would be easily mistaken for 
+		 ponies if not for their black and white striped coats.  They are not 
+		 often seen in Equestria and as a result are often viewed with fear and
+		 suspision.
+		 As quadrupeds, they can't wear gloves or rings, but can wear 2 pairs
+		 of footwear.  They also have difficulty firing bows with their hooves.
+		 Their strong oral tradition makes for strong Priests and Paladins, but
+		 their inability to use arcane magic can hinder them in other classes 
+		 that use magic.
+		 They have a strong medical tradition, recognizing the medicinal 
+		 properties of local flora, giving them quick treatments for poisons 
+		 and cuts.  They also have a small degree of infravision.
+ 
+***** <Diamond-Dog>
+     Diamond Dog:
+         The Diamond Dogs and large bipedal canines that dwell underground,
+		 digging for gems and gold. Their underground life has lead to strong
+		 vision, even to the point of being able to see warm blooded creatures
+		 in the dark, as well as some resistance to poison. Diamond Dogs are
+		 extremely good at digging, even without tools. The life of a Diamond
+		 Dog is one of hard labor, making the Diamond Dogs strong and tough, 
+		 but with little education, they are not very knowledgeable. They tend 
+		 to smell foul and be poorly mannered and ill-tempered, leaving them 
+		 rather unwelcome among ponies.
+ 
+***** <Griffon>
+     Griffon:
+         A flying race of half-lion, half-eagles.  They once preyed on ponies
+		 for food, but have since left this way of life behind, though midtrust
+		 still persists in many areas.  Griffons are very strong and have 
+		 poweful wings giving them a quick speed.  Although Griffons walk on
+		 all fours, their talons can easily hold an manipulate objects, unlike
+		 a pony's hoof. However, if they have both of their claws full, the
+		 difficulties dealing with the awkard posture would counteract the 
+		 speed benefits of their wings.
 
-
+***** <Buffalo>
+     Buffalo:
+         The Buffalo are a tribal race found in some areas of Equestria. Quite
+		 at home on the plains, they set up temporary settlements in an area,
+		 but later pack up and stampede to a new location, cycling their 
+		 grazing through the area over a period of time.  The Buffalo are 
+		 physically imposing and strong and tough to the point that even 
+		 magical attempts to weaken them will fail. While the Buffalo do not 
+		 have a formal education system, they have a strong oral tradition 
+		 passed on to their young. Because of the wide grazing range of the
+		 Buffalo, it is not uncommon for new pony settlements to be established
+		 in lands used by the Buffalo, resulting in poor relations between 
+		 ponies and Buffalo.
+		 As quadrupeds, they can't wear gloves or rings, but can wear 2 pairs
+		 of footwear.  They also have difficulty firing bows with their hooves.
+         Buffalo are very skilled at physical classes, but their inability
+		 to use arcane magic means they should completely avoid being a Mage or
+    	 Necromancer. This combined with low steath and device skills also 
+		 hinders them as Rogues or Assassins.
+ 
+***** <Mule>
+     Mule:
+         The offspring of a Pony and a Donkey, Mules are rare in Equestria but
+		 still common enough that seeing one in a small town would not be any
+		 real event.  Mules show a degree of the strength of their Earth Pony 
+		 heritage, but aren't quite as quick or tough. They are, however, able
+		 to go long periods of time with little food.
+		 As quadrupeds, they can't wear gloves or rings, but can wear 2 pairs
+		 of footwear.  They also have difficulty firing bows with their hooves.
+		 Like their parents, they have no way to channel arcane magic, leaving
+		 the unsuited to become a Mage or Necromancer and weakening them as a
+		 Rouge or Assassin.
+ 
+***** <Human>
+     Human:  
+         Humans are a bipedal ape that are almost never seen in Equestria 
+		 outside of myth and folklore, and rarely by reliable sources. They are
+		 generally just considered a myth, like Bighoof or Space Ponies.  
+		 Naturally, anything to do with them gets viewed with suspicion. If 
+		 they do exist, their hands would likely leave them far more skilled
+		 at ranged weapons than your average pony.
+		 
 === Classes ===
  
-Nine different classes are available in FAangband.  Some classes are not re-
-commended for certain races; for instance, a Petty-dwarf would be a very 
-confused Paladin.  More information about magics available to each class can 
+Nine different classes are available in Ponyband.  Some classes are not re-
+commended for certain races; for instance, an Earth Pony would be a very 
+confused Mage.  More information about magics available to each class can 
 be found in the help file "magic.txt".  For the first few adventures it is 
 suggested that you run a warrior, rogue, or paladin.  The pure spellcasters 
 generally require a more experienced player that is familiar with survival 
 techniques.  Different classes have access to different specialty abilites 
 (described in "specialt.txt").
+
+It is important to note that the magic of the Mage, Necromancer, Rogue, and
+Assassin, collectively known as arcane magic, requires the use of a horn or
+fingers to cast spells. Any race that lacks those will find themselves at a
+potentially crippling disadvantage.
 
 ***** <Warrior>
      Warrior:
@@ -240,16 +233,16 @@ techniques.  Different classes have access to different specialty abilites
 
 ***** <Priest>
      Priest:
-         Committed to the Valar and Eru Iluvatar. He explores the dungeon only 
-         to clease the evil that lurks within, and if treasure just happens to 
-         fall into his pack, well, so much more to the glory of Aman!  A 
-         priest is spoilt for choice with protection and healing prayers, and 
-         can wield the power of holy light like no other character can.  In 
-         addition, pious characters can fight fairly well, as long as they 
-         stay away from archery and edged weapons.  They have average survival 
-         skills, but know quite a bit about magical items, and resist magic 
-         very well.  Priests gain +1 to light radius at level 35.  They have
-         weak pseudo-ID.  Wisdom is a Priest's primary stat.
+         Committed to the worship of Celestia and Luna. He explores the dungeon
+		 only to clease the evil that lurks within, and if treasure just 
+		 happens to fall into his pack, well, so much more to the glory of 
+		 Celestia! A priest is spoilt for choice with protection and healing 
+		 prayers, and can wield the power of holy light like no other character
+		 can.  In addition, pious characters can fight fairly well, as long as 
+		 they stay away from archery and edged weapons.  They have average 
+		 survival skills, but know quite a bit about magical items, and resist 
+		 magic very well.  Priests gain +1 to light radius at level 35.  They 
+		 have weak pseudo-ID.  Wisdom is a Priest's primary stat.
 
 ***** <Rogue>
      Rogue:
@@ -279,7 +272,7 @@ techniques.  Different classes have access to different specialty abilites
 
 ***** <Paladin>
      Paladin:
-         A champion of the Valar.  A paladin is the second best melee fighter 
+         A champion of Celestia.  A paladin is the second best melee fighter 
          available.  As long as he sticks to priestly weapons, his mastery of 
          the elements and of battle prayers will render him formidable to his 
          foes.  Missile weapons and magical devices confuse him.  He has 
@@ -333,39 +326,32 @@ techniques.  Different classes have access to different specialty abilites
                  Warrior      Priest      Ranger      Druid     Assassin
                          Mage       Rogue      Paladin      Necro
 
-     Easterling    Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
-     Green Elf     Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
-     Grey Elf      Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
-     Hobbit        Yes   Yes   Yes   Yes   Yes   No    Yes   No    Yes
-     Petty-Dwarf   Yes   Yes   No    Yes   No    No    No    Yes   Yes
-     Dwarf         Yes   Yes   No    No    No    Yes   No    Yes   No
-     Druadan       Yes   No    Yes   No    Yes   Yes   Yes   No    No
-     Longbeard     Yes   Yes   No    No    No    Yes   No    Yes   No
-     Adan          Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
-     High-Elf      Yes   Yes   Yes   Yes   Yes   Yes   No    Yes   Yes
-     Maia          Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
-     Dark Elf      Yes   Yes   Yes   Yes   Yes   No    Yes   Yes   Yes
-     Ent           Yes   No    Yes   No    Yes   No    Yes   No    No
-     Beorning      Yes   No    Yes   Yes   Yes   No    Yes   No    No
-
+     Earth Pony    Yes   No    Yes   No    No    Yes   Yes   No    No
+     Pegasus       Yes   No    No    No    Yes   Yes   Yes   No    No 
+     Unicorn       No    Yes   Yes   Yes   No    No    Yes   Yes   No
+     Alicorn       Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
+     Baby Dragon   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
+     Zebra         Yes   No    Yes   No    Yes   Yes   Yes   No    No
+     Diamond Dog   Yes   No    No    Yes   Yes   No    No    No    Yes
+     Griffon       Yes   No    No    Yes   Yes   Yes   No    No    Yes
+     Buffalo       Yes   No    Yes   No    No    Yes   Yes   No    No
+     Mule          Yes   No    Yes   No    No    Yes   Yes   No    No
+     Human         Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
 
 === Stat Bonus and Hit Point Tables ===
 
-                    STR  INT   WIS   DEX   CON   CHR  Hit Dice Home Town
-     Easterling     +1    0     0     0    +1    -1       9    Eriador
-     Green Elf      -1   -1    +2    +2    -1    +2      10    Ossiriand
-     Grey Elf       +1    0    +2    +2     0    +3      10    Menegroth
-     Hobbit         -2   -1    +2    +3    +2    +1       7    Gladden Fields
-     Petty-Dwarf    -1   +3    -3    +3    -1    -4       8    Ered Luin South
-     Dwarf          +2   +1    -2    +1    +2    -1      11    Belegost
-     Druadan        +2   -2    +2    -1    +2    -4      11    Ephel Brandir
-     Longbeard      +3   +1    -1    +2    +2     0      12    Khazad Dum
-     Adan           +1   +1    +3    +1    +3    +1      10    Ephel Brandir
-     High Elf       +2   +3     0    +3    +2    +5      10    Gondolin
-     Maia           +2   +3    +3    +2    +4    +4      12    Gladden Fields
-     Dark Elf       -2   -1    +2    +2    -1     1       7    Taur-Im-Duinath
-     Ent            +4   -4    +2    -3    +3     0      12    Taur-Im-Duinath
-     Beorning       +1   -1    +1     0    +1    -1      10    Gladden Fields
+                    STR  INT   WIS   DEX   CON   CHR  Hit Dice
+     Earth Pony     +2   -1     0    +1    +2     0      10
+     Pegasus        -1    0    -2    +4    -2     0       8
+     Unicorn        -1   +3    +1    -2    -3    +1       7
+     Alicorn        +2   +2    +2    +2    +3    +3      12
+     Baby Dragon    -1   -1    -1    +2    +3     0      10
+     Zebra           0    0    +3    +1    +1    -2      10
+     Diamond Dog    +2   -2    -2    +2    +2    -2      10
+     Griffon        +3   -1    -1    +2    +3    -3      12
+     Buffalo        +3    0    +2    -1    +3    -3      10
+     Mule           +2   -1     0     0    +1     0      10
+     Human           0    0     0     0     0    -1      10
 
                    STR   INT   WIS   DEX   CON   CHR  Hit Dice
      Warrior       +5    -2    -2    +2    +2    -1      +9
@@ -387,20 +373,17 @@ ability does for your character.
 Abilities are ranked on a comparative scale ranging from 1 to 10.
 
                  disarm device save stealth search percep melee shooting
-     Easterling    5      5     5      5      5      5      5      5
-     Green Elf     4      4     8      8      7      6      4      8
-     Grey Elf      4      4    10      6      9      7      5      7
-     Hobbit       10      8     9      8     10     10      1      7
-     Petty-Dwarf   8      9     7      6      8      7      1      5
-     Dwarf         7      7     9      3      6      6      7      4
-     Druadan       2      1     8      7      6      9      6      4
-     Longbeard     7      7     9      3      6      6      8      4
-     Adan          9      9     5      6      6      8      6      5
-     High Elf      9     10     9      7      7      9      7      8
-     Maia          9      9    10      6      7     10     10     10
-     Dark Elf      9      8     5     10+    10     10      3      4
-     Ent           3      4     9      5      3      5      7      3
-     Beorning      6      4     5      6      6      8      6      5
+     Earth Pony    3      1    10      3      7      4      7      5
+     Pegasus       6      6     7     10      2      6      2      2
+     Unicorn       3     10     7      1      7      1      1      1
+     Alicorn      10     10+   10+     3      5     10     10+    10+
+     Baby Dragon  10      8     1      3      2      1      5      5
+     Zebra         3      4     2      6      4     10      5      5
+     Diamond Dog   5      1     4      6     10      4     10     10
+     Griffon       3      1     1      6      3      2      7      5
+     Buffalo       1      1     5      3      2     10      7      2
+     Mule          2      2     5      6      3     10      5      5
+     Human         9      4     4      6      5      1      5      7
 
                  disarm device save stealth search percep melee missile
      Warrior       5      3     5      3      4      4      10     8

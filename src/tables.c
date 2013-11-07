@@ -917,11 +917,11 @@ byte mana_cost[RSF_MAX]=
     5, 			/* RSF_SLOW */ 
     6, 			/* RSF_HOLD */ 
     12,			/* RSF_S_KIN */ /* Summon - 6 */
-    0, 			/* RSF_S_XXX1 */
-    0, 			/* RSF_S_XXX2 */
+    19,			/* RSF_S_EHARMONY */
+    8, 			/* RSF_S_SESSILE */
     10,			/* RSF_S_MONSTER */ /* Summon - 1 */
     15,		        /* RSF_S_MONSTERS */ /* Summon - 8 */
-    0,			/* RSF_S_XXX3 */
+    14,			/* RSF_S_PARTY */
     0, 			/* RSF_S_XXX4 */
     0, 			/* RSF_S_XXX5 */
     10, 		/* RSF_S_ANT */ /* Summon - 6 */
@@ -1002,7 +1002,7 @@ byte spell_desire[RSF_MAX][D_MAX] =
     { 65,  0,   0,   5,	0,   0,	LRN_DFIRE ,   90}, /* RSF_BRTH_DFIRE */
     { 65,  0,   0,   5,	0,   0,	LRN_ICE	  ,   90}, /* RSF_BRTH_ICE */
     { 70,  0,   0,   5,	0,   0,	LRN_ALL	  ,  100}, /* RSF_BRTH_ALL */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_XXX1 */
+    { 50,  0,   5,   0,	0,   3,	   0	  ,  100}, /* RSF_FORCE_SUICIDE */
   /*  d_base    d_hurt  d_esc	 d_res				    */
   /*     d_summ	  d_mana  d_tact	   d_range		    */
     { 50,  0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RSF_BALL_ACID */
@@ -1074,19 +1074,19 @@ byte spell_desire[RSF_MAX][D_MAX] =
 /*   d_base	d_hurt d_esc	 d_res				    */
 /*	   d_summ  d_mana  d_tact	   d_range		    */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_KIN	    */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX1    */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX2    */
+    { 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_EHARMONY*/
+    { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_SESSILE */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_MONSTER */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_MONSTERS*/
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX3    */
+    { 0,   16,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_PARTY    */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX4    */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX5    */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_ANT	    */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_SPIDER  */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_HOUND   */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_ANIMAL  */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX6    */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX7    */
+    { 0,   16,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_SHADOWBOLTS*/
+    { 0,   17,  0,   0,	3,   8,	   0	  ,  100}, /* RSF_SHADOWCLONE    */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_THIEF   */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_SWAMP   */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RSF_S_XXX8    */
@@ -1977,7 +1977,7 @@ int dungeon_map[NUM_STAGES][9] =
 const char *locality_name[MAX_LOCALITIES] = 
   {
     "Nowhere",
-    "Hithaeglir",
+    "Outer Castle",
     "Eriador",
     "Ered Luin",
     "Ered Luin South",
@@ -2004,7 +2004,7 @@ const char *locality_name[MAX_LOCALITIES] =
     "Angband",
     "Anduin Vale",
     "Gladden Fields",
-    "Khazad D[^u]m",
+    "Ponyville",
     "Belegost",
     "Menegroth",
     "Ephel Brandir",
@@ -2023,7 +2023,7 @@ const char *locality_name[MAX_LOCALITIES] =
 const char *short_locality_name[MAX_LOCALITIES] = 
   {
     "Nowhere",
-    "Hith",
+    "Outer",
     "Eriad",
     "ErLu",
     "ErLuS",
@@ -2050,7 +2050,7 @@ const char *short_locality_name[MAX_LOCALITIES] =
     "Ang",
     "AVale",
     "GladFlds",
-    "KhazdD[^u]m",
+    "Ponyville",
     "Belegost",
     "Menegrth",
     "EBrandir",

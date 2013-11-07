@@ -30,10 +30,11 @@
 #define SLAY_EVIL		21
 #define SLAY_UNDEAD		22
 #define SLAY_DEMON		23
-#define SLAY_ORC		24
-#define SLAY_TROLL		25
-#define SLAY_GIANT		26
+#define SLAY_HUMANOID	24
+#define SLAY_CONSTELLATION		25
+#define SLAY_HYBRID		26
 #define SLAY_DRAGON		27
+#define SLAY_PONY       28
 
 /* Brands */
 #define BRAND_ACID		30

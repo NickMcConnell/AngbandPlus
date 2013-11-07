@@ -13,7 +13,7 @@
 #
 
 # Executable name and default target
-EXE = faangband.exe
+EXE = Ponyband.exe
 all: ../$(EXE)
 
 ifneq (,$(findstring \system32,$(PATH)))
@@ -38,7 +38,7 @@ ifdef CONSOLE
   IOBJS = $(BASEOBJS) main-gcu.o main.o
 
   #PDCURSES_INC = ../../pdcurses/include
-  #PDCURSES_LIB = ../../pdcurses/lib/pdcurses.a
+  #PDCURSES_LIB = ../../pdcurse/lib/pdcurses.a
 else
   CFLAGS = -DWINDOWS -static
 
@@ -51,11 +51,15 @@ endif
 
 CC = $(CROSS)gcc
 WRES = $(CROSS)windres
-WARNINGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
+WARNINGS = -Wall -Wextra -Wno-unused-parameter
 CFLAGS += $(WARNINGS) -std=c99 -Wdeclaration-after-statement -O2 -I.
 
 ifdef BUILD_ID
   CFLAGS += -DBUILD_ID="$(BUILD_ID)"
+endif
+
+ifdef DEBUG
+  CFLAGS += -DDEBUG
 endif
 
 ifdef CYGWIN
@@ -65,7 +69,7 @@ ifdef CYGWIN
 
   # Note the additional -DNEAR= flag to cope with the 'NEAR'
   # keyword used in readdib.c
-  win/readdib.o: win/readdib.c win/readdib.h
+  win/readdib.o: win/readdib.c wi/readdib.h
 	$(CC) $(CFLAGS) -DNEAR= $(INCDIRS) -c -o $@ $<
 
   win/readpng.o: win/readpng.c win/readdib.h
@@ -101,16 +105,17 @@ endif
 
 ../$(EXE): $(EXE)
 	$(CP) $(EXE) ..
-	$(CP) win/dll/libpng12.dll ..
-	$(CP) win/dll/zlib1.dll ..
+	$(CP) win\dll\libpng12.dll ..
+	$(CP) win\dll\zlib1.dll ..
 
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -o $(EXE) $(OBJS) $(LIBS)
 
 clean:
-	$(RM) -f $(EXE) $(OBJS)
+	$(RM) -f $(EXE) $(BASEOBJS) main-win.o win\readdib.o win\readpng.o
 	$(RM) -f libpng12.dll
 	$(RM) -f zlib1.dll
+	$(RM) -f win\$(PROG).res
 
 
 #

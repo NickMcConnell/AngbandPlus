@@ -350,7 +350,7 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 	    }
 	  
 	  /* And still another line of info */
-	  strnfmt(out_val, sizeof(out_val), "(User %s, Date %s, Gold %s, Turn %s).", user, when, gold, aged);
+	  strnfmt(out_val, sizeof(out_val), "(User %s, Date %s, Bits %s, Turn %s).", user, when, gold, aged);
 	  c_put_str(attr, out_val, n*4 + 4, 15);
 	}
 

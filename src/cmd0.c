@@ -17,6 +17,7 @@
 #include "angband.h"
 #include "cave.h"
 #include "cmds.h"
+#include "defines.h"
 #include "files.h"
 #include "game-cmd.h"
 #include "keymap.h"
@@ -59,7 +60,10 @@ static struct cmd_info cmd_magic[] =
     { "Cast a spell",    'm', CMD_CAST, textui_obj_cast, player_can_cast },
     { "Pray a prayer",   'p', CMD_CAST, textui_obj_cast, player_can_cast },
     { "Browse a book",   'b', CMD_BROWSE_SPELL, textui_spell_browse, NULL },
-    { "Gain new spells", 'G', CMD_STUDY_BOOK, textui_obj_study, player_can_study }
+    { "Gain new spells", 'G', CMD_STUDY_BOOK, textui_obj_study, player_can_study },
+    /* { "Use a racial power", 'U', CMD_RACIAL, textui_racial, player_has_racial } */
+    /* All of the text controls are in do_cmd_racial for now. */
+    { "Use a racial power", 'U', CMD_RACIAL, do_cmd_racial, player_has_racial }
 };
 
 /**

@@ -30,9 +30,9 @@ extern const int option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
  * These values are hard-coded by savefiles (and various pieces of code).  Ick.
  */
 #define OPT_BIRTH					128
-#define OPT_CHEAT					160
-#define OPT_ADULT					192
-#define OPT_SCORE					224
+#define OPT_CHEAT					159
+#define OPT_ADULT					191
+#define OPT_SCORE					222
 #define OPT_NONE					255
 #define OPT_MAX						256
 
@@ -99,11 +99,10 @@ extern const int option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_birth_ironman               (OPT_BIRTH+5)
 #define OPT_birth_thrall                (OPT_BIRTH+6)
 #define OPT_birth_small_device          (OPT_BIRTH+7)
-#define OPT_birth_dungeon               (OPT_BIRTH+8)
-#define OPT_birth_no_artifacts          (OPT_BIRTH+9)
-#define OPT_birth_no_stairs             (OPT_BIRTH+10)
-#define OPT_birth_ai_cheat              (OPT_BIRTH+11)
-#define OPT_birth_auto_scum             (OPT_BIRTH+12)
+#define OPT_birth_no_artifacts          (OPT_BIRTH+8)
+#define OPT_birth_no_stairs             (OPT_BIRTH+9)
+#define OPT_birth_ai_cheat              (OPT_BIRTH+10)
+#define OPT_birth_auto_scum             (OPT_BIRTH+11)
 
 #define OPT_cheat_peek                  (OPT_CHEAT+0)
 #define OPT_cheat_hear                  (OPT_CHEAT+1)
@@ -120,11 +119,10 @@ extern const int option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_adult_ironman               (OPT_ADULT+5)
 #define OPT_adult_thrall                (OPT_ADULT+6)
 #define OPT_adult_small_device          (OPT_ADULT+7)
-#define OPT_adult_dungeon               (OPT_ADULT+8)
-#define OPT_adult_no_artifacts          (OPT_ADULT+9)
-#define OPT_adult_no_stairs             (OPT_ADULT+10)
-#define OPT_adult_ai_cheat              (OPT_ADULT+11)
-#define OPT_adult_auto_scum             (OPT_ADULT+12)
+#define OPT_adult_no_artifacts          (OPT_ADULT+8)
+#define OPT_adult_no_stairs             (OPT_ADULT+9)
+#define OPT_adult_ai_cheat              (OPT_ADULT+10)
+#define OPT_adult_auto_scum             (OPT_ADULT+11)
 
 #define OPT_score_peek                  (OPT_SCORE+0)
 #define OPT_score_hear                  (OPT_SCORE+1)

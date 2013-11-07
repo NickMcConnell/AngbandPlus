@@ -352,7 +352,7 @@ static void do_cmd_wiz_change_aux(void)
     sprintf(tmp_val, "%ld", (long) (p_ptr->au));
 
     /* Query */
-    if (!get_string("Gold: ", tmp_val, 10))
+    if (!get_string("Bits: ", tmp_val, 10))
 	return;
 
     /* Extract */
@@ -1448,56 +1448,10 @@ bool jump_action(menu_type *menu, const ui_event *evt, int oid)
  */
 bool jump_menu(int level, int *location)
 {
-    menu_type menu;
-    menu_iter menu_f = { jump_tag, 0, jump_display, jump_action, 0 };
-    region area = { 15, 1, 48, -1 };
-    ui_event evt = { 0 };
-    int cursor = 0, j = 0;
-    size_t i;
-    u16b *choice;
-
     /* Dungeon only is easy */
-    if (OPT(adult_dungeon))
-    {
+    /* Always true in Ponyband. */
 	*location = level + 1;
 	return TRUE;
-    }
-
-    /* Create the array */
-    choice = C_ZNEW(15, u16b);
-
-    /* Get the possible stages */
-    for (i = 0; i < NUM_STAGES; i++)
-	if ((stage_map[i][DEPTH] == level) && (stage_map[i][LOCALITY] != 0))
-	    choice[j++] = i;
-
-    /* Clear space */
-    area.page_rows = j + 2;
-
-    /* Save the screen and clear it */
-    screen_save();
-
-    /* Set up the menu */
-    WIPE(&menu, menu);
-    menu.title = "Which region do you want to be transported to?";
-    menu.cmd_keys = " \n\r";
-    menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
-    menu_setpriv(&menu, j, choice);
-    menu_layout(&menu, &area);
-
-    /* Select an entry */
-    evt = menu_select(&menu, cursor, TRUE);
-
-    /* Set it */
-    if (evt.type == EVT_SELECT)
-	*location = place;
-
-    /* Free memory */
-    FREE(choice);
-
-    /* Load screen */
-    screen_load();
-    return (evt.type != EVT_ESCAPE);
 }
 
 /**

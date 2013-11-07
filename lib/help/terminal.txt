@@ -3,7 +3,7 @@
 
 ********************** Using a Larger Display (Bigscreen) *********************
 
-This version of FAangband uses's Steven Fuerst's bigscreen code, which
+This version of Ponyband uses's Steven Fuerst's bigscreen code, which
 allows you to have a terminal larger than 80x24.  This allows you to
 see more of the dungeon map.  It is not necessary to set any particular 
 command line or preference options.
@@ -15,7 +15,7 @@ available when you start the game, but will not resize further.
 
 *************************** Using Multiple Terminals **************************
 
-Terminals other than the main FAangband window can be used to display
+Terminals other than the main Ponyband window can be used to display
 addition information such as character stats and monster memory.  Use
 the window flags options (in game, type: "* W") to take advantage of
 this.
@@ -26,15 +26,15 @@ be used when starting FAangband:
 
 Using an X display -
 
-FAangband will open only the main terminal by default.  To use more the
+Ponyband will open only the main terminal by default.  To use more the
 terminals put the option "-- -n#" at the end of the command line when
-launching FAangband, where # is the number of terminals desired, up to
-eight (eg "faangband -mx11 -- -n3").
+launching Ponyband, where # is the number of terminals desired, up to
+eight (eg "ponyband -mx11 -- -n3").
 
 Using a gcu 'curses' console display -
 
-When the console is large enough, FAangband will attempt to use space
+When the console is large enough, Ponyband will attempt to use space
 along the right and bottom of to create three additional terminals.
-This uses space which would otherwise be used for the main FAangband
+This uses space which would otherwise be used for the main Ponyband
 window.  To disable this feature put the option "-- -x" at the end of
-the command line when launching FAangband (eg "faangband -mgcu -- -x").
+the command line when launching Ponyband (eg "faangband -mgcu -- -x").

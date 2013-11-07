@@ -669,7 +669,7 @@ static const char *do_cmd_challenge_text[14] =
   "demands that you prove your worthiness in combat!",
   "calls you unworthy of your ancestors!",
   "challenges you to a deathmatch!",
-  "walks Middle-Earth once more!",
+  "walks Equestria once more!",
   "challenges you to demonstrate your prowess!",
   "demands you prove yourself here and now!",
   "asks 'Can ye face the best of those who came before?'."

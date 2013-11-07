@@ -27,16 +27,16 @@ the 'O' command.
               -adds entirely new abilities or benefits.
          The maximum experience level is 50.
 
-     Gold:
-         Gold is amazingly handy, because everything the town can sell can be 
-         yours with enough of the stuff.  Characters start out with an amount 
-         of gold determined by ability scores (lower is better) and sex (female 
-	 characters start with more gold - In FAangband, males and females are 
-         clones, so take advantage of this!).  If the character is being
-	 'rolled' with random atributes, social class also influences starting
-	 gold (higher is better).
+     Bits:
+         Bits, the currency of Equestria, are amazingly handy, because 
+		 everything the town can sell can be yours with enough of the stuff.  
+		 Characters start out with a number of bits determined by ability 
+		 scores (lower is better) and sex (female characters start with more 
+		 money - In Ponyband, males and females are clones, so take advantage 
+		 of this!).  If the character is being 'rolled' with random atributes, 
+		 social class also influences starting bits (higher is better).
 
-         Inside the dungeon lies more gold than you will ever find, more seams 
+         Inside the dungeon lies more money than you will ever find, more seams 
          of treasure than you will ever dig, and more monsters carrying loot 
          than you will ever kill.
 
@@ -168,14 +168,14 @@ may be adjusted by high or low stats, and some increase with experience level.
           magically enhanced.  Note that mages slowly lose stealth as they 
           gain levels.
  
-     Disarming:  (Warning:  much more important in FAangband)
+     Disarming:  (Warning:  much more important in Ponyband)
           Disarming is the ability to safely remove traps and pick locks on 
           chests and doors.  A successful disarming will gain the character 
           some experience.  A trap must be found before it can be disarmed.  
           Dexterity and Intelligence both modify the ability to disarm, and this
           ability increases with the level of the character.
  
-     Magical Devices:  (Warning:  somewhat more important in FAangband)
+     Magical Devices:  (Warning:  somewhat more important in Ponyband)
           Using a magical device such as a wand, staff, or any activatable 
           object requires experience and knowledge.  Mages have considerably 
           more skill in this field than any other class.  This skill is modified 
@@ -197,7 +197,7 @@ may be adjusted by high or low stats, and some increase with experience level.
           Infra-vision is the ability to see heat sources.  It will allow a 
           character to see any warm-blooded creature up to a certain distance.  
           This ability works equally well with or without a light source.  Many 
-          non-human races have innate infravision, and this skill can be 
+          non-pony races have innate infravision, and this skill can be 
           enhanced only by magical means.
 
 

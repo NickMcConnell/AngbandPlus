@@ -4788,9 +4788,13 @@ static errr get_init_cmd()
 static errr win_get_cmd(cmd_context context, bool wait)
 {
 	if (context == CMD_INIT) 
+	{
 		return get_init_cmd();
+    }
 	else 
-		return textui_get_cmd(context, wait);
+	{
+        return textui_get_cmd(context, wait);
+    }
 }
 
 

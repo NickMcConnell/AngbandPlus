@@ -955,7 +955,11 @@ bool chaotic_effects(monster_type * m_ptr)
 
     /* Extract monster name (or "it") */
     monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
+    
+    /* Skip immune monsters */
+    if (rf_has(r_ptr->flags, RF_IM_CHAOS))
+        return (TRUE);
+        
     /* Spin the wheel... */
     effect = randint1(14);
 
@@ -2608,12 +2612,18 @@ int apply_dispel(int power)
     }
     if ((p_ptr->special_attack & (ATTACK_CONFUSE)) && (!check_save(power))) {
 	p_ptr->special_attack &= ~(ATTACK_CONFUSE);
-	msg("Your hands stop glowing.");
+	if (player_has(PF_QUADRUPED))
+	   msg("Your hooves stop glowing.");
+    else
+	    msg("Your hands stop glowing.");
 	num_effects += 1;
     }
     if ((p_ptr->special_attack & (ATTACK_BLKBRTH)) && (!check_save(power))) {
 	p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
-	msg("Your hands stop radiating Night.");
+	if (player_has(PF_QUADRUPED))
+	   msg("Your hooves stop radiating Night.");
+    else
+	    msg("Your hands stop radiating Night.");
 	num_effects += 1;
     }
     if ((p_ptr->special_attack & (ATTACK_FLEE)) && (!check_save(power))) {
@@ -3596,7 +3606,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 
 		break;
 	    }
-	}
+    }
 
 
 	/* Attempt to destroy the object */
@@ -4322,7 +4332,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	    }
 
 	    /* Orcs partially resist darkness. */
-	    else if (rf_has(r_ptr->flags, RF_ORC)) {
+	    else if (r_ptr->d_char == 'o') {
 		note = " resists somewhat.";
 		dam *= 3;
 		dam /= 5 + randint0(3);
@@ -4347,7 +4357,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		note = " resists somewhat.";
 		dam *= 3;
 		dam /= 5 + randint0(3);
-	    }
+	    } else if (rf_has(r_ptr->flags, RF_IM_CHAOS)) {
+        note = " is immune.";
+        dam = 0;
+        }
 	    break;
 	}
 
@@ -4562,6 +4575,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		dam *= 3;
 		dam /= 14 + randint0(3);
 	    }
+	    if(rf_has(r_ptr->flags, RF_IM_CHAOS)) {
+	        dam = 0;
+	        note = " is immune.";
+        }
 
 	    /* Mark grid for later processing. */
 	    cave_on(cave_info[y][x], CAVE_TEMP);
@@ -5670,6 +5687,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
     /* Confusion and Chaos breathers (and sleepers) never confuse */
     else if (do_conf && !(rf_has(r_ptr->flags, RF_NO_CONF))
+         && !(rf_has(r_ptr->flags, RF_IM_CHAOS))
 	     && !(rsf_has(r_ptr->spell_flags, RSF_BRTH_CONFU))
 	     && !(rsf_has(r_ptr->spell_flags, RSF_BRTH_CHAOS))) {
 	/* Obvious */
@@ -6267,7 +6285,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 
 			/* Hack - The Ringwraiths and Sauron are very
 			 * dangerous. */
-			else if ((prefix(m_name, "Sauron, the Sorcerer"))
+			else if ((prefix(m_name, "Nightshade, Leader of the Shadowbolts"))
 				 || ((r_ptr->d_char == 'W')
 				     && (rf_has(r_ptr->flags, RF_UNIQUE)))) {
 			    /* 40% chance of Black Breath. */
@@ -6718,7 +6736,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 
 	    /* Hack - The Ringwraiths and Sauron are very dangerous. */
 	    if ((!self)
-		&& ((prefix(m_name, "Sauron, the Sorcerer"))
+		&& ((prefix(m_name, "Nightshade, Leader of the Shadowbolts"))
 		    || ((r_ptr->d_char == 'W')
 			&& (rf_has(r_ptr->flags, RF_UNIQUE))))) {
 		if (k < 175)
@@ -7722,7 +7740,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	{
 	    if (affect_monster) {
 		/* Only affect undead */
-		if (rf_has(r_ptr->flags, RF_UNDEAD)) {
+		if (rf_has(r_ptr->flags, RF_UNDEAD) && !rf_has(r_ptr->flags, RF_NO_TELE)) {
 		    if (seen)
 			obvious = TRUE;
 		    if (seen)
@@ -7738,7 +7756,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	{
 	    if (affect_monster) {
 		/* Only affect evil */
-		if (rf_has(r_ptr->flags, RF_EVIL)) {
+		if (rf_has(r_ptr->flags, RF_EVIL) && !rf_has(r_ptr->flags, RF_NO_TELE)) {
 		    if (seen)
 			obvious = TRUE;
 		    if (seen)
@@ -7756,7 +7774,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		teleport_player(dam, FALSE);
 	    }
 
-	    if (affect_monster) {
+	    if (affect_monster && !rf_has(r_ptr->flags, RF_NO_TELE)) {
 		/* Obvious */
 		if (seen)
 		    obvious = TRUE;

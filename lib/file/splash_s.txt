@@ -1,45 +1,45 @@
-                 /%%%%%%%\                      
-              /@%%%%%@%%%%%@\                   
-            /@@@@@%%%%%%%@@@@@\                 
-           @@@@@@@@@@@@@@@@@@@@@                
-          %%%@@@@@@@@@@@@@@@@@%%%               
-         %%%%%@@@@@@###@@@@@@%%%%%              
-         %%@%%@@@@@#####@@@@@%%@%%              
-         %%%%%@@@@@@###@@@@@@%%%%%              
-          %%%@@@@@@@@@@@@@@@@@%%%               
-           @@@@@@@@@@@@@@@@@@@@@                
-            \@@@@@%%%%%%%@@@@@/                 
-              \@%%%%%@%%%%%@/                   
-                 \%%%%%%%/                      
-                                                
-@@@@@@@  @@                   |                |
-@@      @@@@                  |                |
-@@@@@  @@  @@    /\  |/\  /\| |/\   /\  |/\  /\|
-@@    @@@@@@@@  (  ) | | (  | |  ) (  ) | | (  |
-@@   @@      @@  \/\ | |  \/| |\/   \/\ | |  \/|
-                            |                   
-                          _/                    
+                 //%%%%\\                       
+                //%%%%%%%%\                                 
+               /%%%%%%%%%%%\                               
+               %%%%%%   %%%%                              
+            /%%\%%%      %%%                             
+           /%%%%%||||||||| %%\                           
+           %%% %%||||||||||Y\/YY                           
+           \%%%% ||| NN |N|YY\YY                           
+            \%%%OOOO NN\|N|\YYYY                             
+           PPPP OOOO,NNN\N| YYY/                             
+          PPPPP`OO OONNNNN| YYY                               
+          PPPp POOOO/NN|\N| YYY                                 
+           PPPPP OOO NN| \| YY                                 
+            \PPP /YY\       YYY                                                    
+             \PP/YYYYY\    YYY             
+              PPYYY/  YYYYYYY              
+                YY/YY             
+                 YYY             
+ 
+                                               
+                                             
           [Press any key to continue]           
 
-wwwwwwwwwwwwwwwwwDDDDDDDDDwwwwwwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwrbDDDDDSDDDDDbrwwwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwrbSSSsDDDDDDDsSSSbrwwwwwwwwwwwwwwwww
-wwwwwwwwwwwbSSSSSSbbyyybbSSSSSSbwwwwwwwwwwwwwwww
-wwwwwwwwwwDDDySSgbyyyyyyybgSSyDDDwwwwwwwwwwwwwww
-wwwwwwwwwDDDDDgbyyyyouoyyyybgDDDDDwwwwwwwwwwwwww
-wwwwwwwwwDDSDDDbyyyouuuoyyybDDDSDDwwwwwwwwwwwwww
-wwwwwwwwwDDDDDgbyyyyouoyyyybgDDDDDwwwwwwwwwwwwww
-wwwwwwwwwwDDDySSgbyyyyyyybgSSyDDDwwwwwwwwwwwwwww
-wwwwwwwwwwwbSSSSSSbbyyybbSSSSSSbwwwwwwwwwwwwwwww
-wwwwwwwwwwwwrbSSSsDDDDDDDsSSSbrwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwrbDDDDDSDDDDDbrwwwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwwwwDDDDDDDDDwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwsvpPPpvswwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwsvpPrRRRrpvwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwsvprRiiiiRrpvwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwvprRiIwwwIiRrwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwsvvsiIIwwwwwwIiRwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwsvvvvvIsVVVVVVVwIiswwwwwwwwwwwwwwwwwww
+wwwwwwwwwwvpPwppvVVVVvVVVVsIiiIIwwwwwwwwwwwwwwww
+wwwwwwwwwwspvppwPVPwIiwiIiIIiIiwwwwwwwwwwwwwwwww
+wwwwwwwwwwwspvpiIIPwIIiiIiiIIIiwwwwwwwwwwwwwwwww
+wwwwwwwwwwiIIIIiIIIiIIIiIiwIIiwwwwwwwwwwwwwwwwww
+wwwwwwwwwiIIIIiIIwiIiIIIIIwIIIwwwwwwwwwwwwwwwwww
+wwwwwwwwwiIIiwIiIIIiiIiiIIwiIiwwwwwwwwwwwwwwwwww
+wwwwwwwwwwIIiiiwiiiwiIiwiiwiIwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwiIIIwiIIiwwwwwwwiIiwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwiIiiIIIIIiwwwwiIiwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwiIIIIiwwiIIIIIiwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwIIiIIwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwIIIwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-RRRRRRRwwRRwwwwwwwwwwwwwwwwwwwbwwwwwwwwwwwwwwwwb
-RRwwwwwwRRRRwwwwwwwwwwwwwwwwwwbwwwwwwwwwwwwwwwwb
-RRRRRwwRRwwRRwwwwbbwwbbbwwbbbwbbbwwwbbwwbbbwwbbb
-RRwwwwRRRRRRRRwwbwwbwbwbwbwwbwbwwbwbwwbwbwbwbwwb
-RRwwwRRwwwwwwRRwwbbbwbwbwwbbbwbbbwwwbbbwbwbwwbbb
-wwwwwwwwwwwwwwwwwwwwwwwwwwwwbwwwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwwwwwwwwwwwwwbbwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww

@@ -409,16 +409,27 @@ s16b m_pop(void)
 errr get_mon_num_prep(void)
 {
     int i;
+    monster_race *r_ptr;
 
     /* Scan the allocation table */
     for (i = 0; i < alloc_race_size; i++) {
 	/* Get the entry */
 	alloc_entry *entry = &alloc_race_table[i];
+	r_ptr = &r_info[entry->index];
+
 
 	/* Accept monsters which pass the restriction, if any */
 	if (!get_mon_num_hook || (*get_mon_num_hook) (entry->index)) {
+       /* If this isn't a summon, don't accept summon only monsters */
+       if (!get_mon_num_hook && rf_has(r_ptr->flags, RF_SUMMON_ONLY))
+           {
+           entry->prob2 = 0;
+           }
+       else
+        {
 	    /* Accept this monster */
 	    entry->prob2 = entry->prob1;
+        }
 	}
 
 	/* Do not use this monster */
@@ -533,91 +544,59 @@ s16b get_mon_num(int level)
 	    /* Hack -- some monsters are unique */
 	    if ((rf_has(r_ptr->flags, RF_UNIQUE))
 		&& (r_ptr->cur_num >= r_ptr->max_num))
+		{
 		continue;
+        }
 
 	    /* Forced-depth monsters only appear at their level. */
 	    if ((rf_has(r_ptr->flags, RF_FORCE_DEPTH))
 		&& (r_ptr->level != p_ptr->depth))
+		{
 		continue;
-
-	    /* Hack - handle dungeon specific -NRM- */
-	    if ((rf_has(r_ptr->flags, RF_RUDH))
-		&& (stage_map[p_ptr->stage][LOCALITY] != AMON_RUDH))
-		continue;
-
-	    if ((rf_has(r_ptr->flags, RF_NARGOTHROND))
-		&& (stage_map[p_ptr->stage][LOCALITY] != NARGOTHROND))
-		continue;
-
-	    if ((rf_has(r_ptr->flags, RF_DUNGORTHEB))
-		&& (stage_map[p_ptr->stage][LOCALITY] != NAN_DUNGORTHEB))
-		continue;
-
-	    if ((rf_has(r_ptr->flags, RF_GAURHOTH))
-		&& (stage_map[p_ptr->stage][LOCALITY] != TOL_IN_GAURHOTH))
-		continue;
-
-	    if ((rf_has(r_ptr->flags, RF_ANGBAND))
-		&& (stage_map[p_ptr->stage][LOCALITY] != ANGBAND))
-		continue;
-
-	    /* Hack - dungeon-only monsters */
-	    if ((rf_has(r_ptr->flags, RF_DUNGEON))
-		&& (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE))
-		continue;
-
-	    /* Hack - choose flying monsters for mountaintop */
-	    if ((stage_map[p_ptr->stage][LOCALITY] == MOUNTAIN_TOP)
-		&& !(rf_has(r_ptr->flags, RF_FLYING)))
-		continue;
+        }
 
 	    /* Accept */
 	    table[i].prob3 = table[i].prob2;
 
 	    /* Now modifications for locality etc follow -NRM- */
 
-	    /* Nan Dungortheb is spiderland, bad for humans and humanoids */
-	    if (stage_map[p_ptr->stage][LOCALITY] == NAN_DUNGORTHEB) {
-		if (r_ptr->d_char == 'S')
-		    table[i].prob3 *= 5;
-		if ((r_ptr->d_char == 'p') || (r_ptr->d_char == 'h'))
-		    table[i].prob3 /= 3;
-	    }
-
-	    /* Tol-In-Gaurhoth is full of wolves and undead */
-	    if (stage_map[p_ptr->stage][LOCALITY] == TOL_IN_GAURHOTH) {
-		if ((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z'))
-		    table[i].prob3 *= 4;
-		else if (rf_has(r_ptr->flags, RF_UNDEAD))
-		    table[i].prob3 *= 2;
-	    }
-
 	    /* Most animals don't like desert and mountains */
 	    if ((stage_map[p_ptr->stage][STAGE_TYPE] == DESERT)
 		|| (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)) {
-		if ((r_ptr->d_char == 'R') || (r_ptr->d_char == 'J')
-		    || (r_ptr->d_char == 'c'))
+		if ((r_ptr->d_char == 'R') || (r_ptr->d_char == 'J'))
+		{
 		    table[i].prob3 *= 2;
+        }
 		else if (rf_has(r_ptr->flags, RF_ANIMAL))
-		    table[i].prob3 /= 2;
+		{
+             table[i].prob3 /= 2;
+        }
 	    }
 
 	    /* Most animals do like forest */
 	    if (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST) {
 		if (r_ptr->d_char == 'R')
+		{
 		    table[i].prob3 /= 2;
+        }
 		else if ((rf_has(r_ptr->flags, RF_ANIMAL))
 			 && (r_ptr->d_char != 'Z'))
+	    {
 		    table[i].prob3 *= 2;
+        }
 	    }
 
 
 
 	    /* Keep low-level monsters rare */
 	    if (table[i].level < depth_rare)
+	    {
 		table[i].prob3 /= 4;
+        }
 	    if (table[i].level < depth_very_rare)
-		table[i].prob3 /= 4;
+	    {
+        table[i].prob3 /= 4;
+        }
 
 	    /* Sum up probabilities */
 	    alloc_race_total += table[i].prob3;
@@ -1821,7 +1800,7 @@ static bool get_racial_monster(int r_idx)
 {
     monster_race *r_ptr = &r_info[r_idx];
 
-    if (!(rf_has(r_ptr->flags, RF_RACIAL)))
+    if (!(rf_has(r_ptr->flags, RF_RACIAL)) || rf_has(r_ptr->flags, RF_SUMMON_ONLY))
 	return (FALSE);
 
     return (TRUE);
@@ -2263,6 +2242,10 @@ static bool place_monster_okay(int r_idx)
     /* Skip unique monsters */
     if (rf_has(z_ptr->flags, RF_UNIQUE))
 	return (FALSE);
+	
+	/* Skip summon only monsters */
+	if(rf_has(z_ptr->flags, RF_SUMMON_ONLY))
+	return (FALSE);
 
     /* Paranoia -- Skip identical monsters */
     if (place_monster_idx == r_idx)
@@ -2272,6 +2255,35 @@ static bool place_monster_okay(int r_idx)
     return (TRUE);
 }
 
+static bool place_monster_okay_pdp(int r_idx)
+{
+    monster_race *r_ptr = &r_info[place_monster_idx];
+
+    monster_race *z_ptr = &r_info[r_idx];
+
+    /* Must be immobile */
+    if (!rf_has(z_ptr->flags, RF_NEVER_MOVE))
+	return (FALSE);
+
+    /* Skip more advanced monsters */
+    if (z_ptr->level > r_ptr->level)
+	return (FALSE);
+
+    /* Skip unique monsters */
+    if (rf_has(z_ptr->flags, RF_UNIQUE))
+	return (FALSE);
+	
+	/* Skip summon only monsters */
+	if(rf_has(z_ptr->flags, RF_SUMMON_ONLY))
+	return (FALSE);
+
+    /* Paranoia -- Skip identical monsters */
+    if (place_monster_idx == r_idx)
+	return (FALSE);
+
+    /* Okay */
+    return (TRUE);
+}
 
 
 /**
@@ -2294,7 +2306,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 
 
     /* Calculate the number of escorts we want. */
-    if (rf_has(r_ptr->flags, RF_ESCORTS))
+    if (rf_has(r_ptr->flags, RF_ESCORTS) || rf_has(r_ptr->flags, RF_PDP_ESCORT))
 	escort_size = 6 + randint0(15);
     else
 	escort_size = 2 + randint0(7);
@@ -2304,7 +2316,10 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
     place_monster_idx = leader_idx;
 
     /* Set the escort hook */
-    get_mon_num_hook = place_monster_okay;
+    if (rf_has(r_ptr->flags, RF_PDP_ESCORT))
+        get_mon_num_hook = place_monster_okay_pdp;
+    else
+        get_mon_num_hook = place_monster_okay;
 
     /* Prepare allocation table */
     get_mon_num_prep();
@@ -2510,6 +2525,7 @@ bool alloc_monster(int dis, bool slp, bool quick)
 
     /* Get the monster */
     r_ptr = &r_info[r_idx];
+    
 
     /* Find a legal, distant, unoccupied, space */
     while (TRUE) {
@@ -2538,7 +2554,9 @@ bool alloc_monster(int dis, bool slp, bool quick)
 
     /* Attempt to place the monster, allow groups */
     if (place_monster_aux(y, x, r_idx, slp, TRUE))
+    {                     
 	return (TRUE);
+    }
 
     /* Nope */
     return (FALSE);
@@ -2568,12 +2586,6 @@ static bool summon_specific_okay(int r_idx)
     if (rf_has(r_ptr->flags, RF_PLAYER_GHOST))
 	return (FALSE);
 
-    /* Sauron's forms cannot be summoned. */
-    if ((rf_has(r_ptr->flags, RF_GAURHOTH))
-	&& (rf_has(r_ptr->flags, RF_FORCE_DEPTH))
-	&& (summon_specific_type != SUMMON_SAURON))
-	return (FALSE);
-
     /* Hack -- no specific type specified */
     if (!summon_specific_type)
 	return (TRUE);
@@ -2586,7 +2598,7 @@ static bool summon_specific_okay(int r_idx)
 		    && !(rf_has(r_ptr->flags, RF_UNIQUE)));
 	    break;
 	}
-
+	
     case SUMMON_SAURON:
 	{
 	    okay = ((rf_has(r_ptr->flags, RF_GAURHOTH))
@@ -2610,7 +2622,7 @@ static bool summon_specific_okay(int r_idx)
 
     case SUMMON_HOUND:
 	{
-	    okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z'))
+	    okay = ((r_ptr->d_char == 'Z')
 		    && !(rf_has(r_ptr->flags, RF_UNIQUE)));
 	    break;
 	}
@@ -2722,6 +2734,44 @@ static bool summon_specific_okay(int r_idx)
 		    || (r_ptr->d_char == 'F') || (r_ptr->d_char == ','));
 	    break;
 	}
+	
+	case SUMMON_EHARMONY:
+    {
+         okay = (rf_has(r_ptr->flags, RF_HARMONY));
+         break;
+    }
+    
+    case SUMMON_SESSILE:
+    {
+         okay = ((rf_has(r_ptr->flags, RF_NEVER_MOVE))
+                 && !rf_has(r_ptr->flags, RF_UNIQUE));
+         break;
+    }
+    
+    case SUMMON_PARTY:
+    {
+         okay = ((rf_has(r_ptr->flags, RF_NEVER_MOVE))
+                 && !rf_has(r_ptr->flags, RF_UNIQUE));
+         break;
+    }
+    
+    case SUMMON_ORB:
+	{
+	    okay = (r_ptr->d_char == 'O');
+	    break;
+	}
+	
+	case SUMMON_SHADOWBOLTS:
+    {
+         okay = rf_has(r_ptr->flags, RF_SHADOWBOLT);
+         break;
+    }
+    
+    case SHADOWCLONE:
+    {
+         okay = rf_has(r_ptr->flags, RF_NMMCLONE);
+         break;
+    }
     }
 
     /* Result */
@@ -4115,22 +4165,6 @@ void monster_death(int m_idx)
     /* Make a staircase for Morgoth */
     if (r_ptr->level == 100)
 	build_quest_stairs(y, x, "staircase");
-
-    /* ...or a portal for ironmen wilderness games */
-    else if (OPT(adult_ironman) && !OPT(adult_dungeon) && (p_ptr->depth != 100))
-	build_quest_stairs(y, x, "portal");
-
-    /* or a path out of Nan Dungortheb for wilderness games */
-    else if ((r_ptr->level == 70) && (p_ptr->depth == 70)
-	     && !OPT(adult_dungeon)) {
-	/* Make a path */
-	for (y = p_ptr->py; y < DUNGEON_HGT - 2; y++)
-	    cave_set_feat(y, p_ptr->px, FEAT_FLOOR);
-	cave_set_feat(DUNGEON_HGT - 2, p_ptr->px, FEAT_LESS_SOUTH);
-
-	/* Announce it */
-	msg("The way out of Nan Dungortheb is revealed!");
-    }
 
     /* Increment complete quests */
     p_ptr->quests++;

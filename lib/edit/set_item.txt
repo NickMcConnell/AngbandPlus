@@ -16,82 +16,162 @@ V:1.1.6
 #P: artifact index
 #F: flags added
 
-# Holy Fire Set
+# Celestia's Reignment
 
-# Light/Dark Set
-
-N:2:Shadow Ward
-C:2
-D:It is one of the Shadow Ward items
-# The Soft Leather Armour 'Hithlomir'
-P:37
-B:SEARCH[4] | SPEED[4] | RES_NETHR[40]
+N:1:Celestia's Reignment
+C:3
+D:It is Princess Celestia's Royal Garb.
+# Celestia's Radiance
+P:2
 F:SEEING
-# The Set of Leather Gloves 'Cammithrim'
-P:78
-B:DEX[3] | MAGIC_MASTERY[3] 
-F:SUSTAIN_DEX
+# Mithril Plate of the Sun
+P:30
+B:RES_POIS[30] | RES_CHAOS[20]
+# Crown of the Sun
+P:62
+B:RES_DARK[50]
+F:TELEPATHY
+# Shoes of the Golden Sun
+P:79
+F:LIGHT | REGEN
+# Golden Greaves
+P:92
+B:RES_NETHR[20] | RES_NEXUS[20]
 
+# Luna's Reignment
 
-# Vinyamar Set
-
-N:3:Messenger's Arms
+N:2:Luna's Reignment
 C:3
-D:It is part of the armor left by Turgon for the messenger of Ulmo
-# The Full Plate Armor of Nevrast
+D:It is Princess Luna's Royal Garb
+# Crystal Tear of Luna
+P:3
+B:RES_DARK[15]
+F:FEARLESS
+# Chain Mail of the Moon
+P:29
+B:RES_CONFU[20] | RES_SOUND[20]
+# Crown of the Moon
+P:61
+B:INT[3] | RES_LIGHT[15]
+# Cloak of Bats
+P:71
+B:RES_CHAOS[20]
+F:REGEN
+# Glass Slippers of Luna
+P:89
+F:FREE_ACT
+
+# Bloody Cupcakes Set
+
+N:3:Bloody Cupcakes
+C:2
+D:It is a set of clothes made and worn by a serial killer.
+# Necklace of Horns
+P:6
+B:RES_NEXUS[40] | RES_NETHR[40]
+# Dess of Cutie Marks
+P:35
+B:RES_FIRE[40]
+# Axe 'Cupcakes'
+P:143
+B:SLAY_ANIMAL[20] | SLAY_HYBRID[20]
+
+
+# Twilight's Set
+
+N:4:Twilight's Set
+C:2
+D:It is several peices of clothing owned by Twilight Sparkle
+# Gala Dress of Twilight Sparkle
 P:27
-B:RES_DISEN[40] | CON[3] | SPEED[3]
-# The Large Metal Shield of the Swan
-P:46
-B:WIS[2] | CHR[2] 
-F:HOLD_LIFE
-# The Iron Helm of Vinyamar
-P:55
-B:STR[5] | CHR[5] | CON[5] 
-F:REGEN | TELEPATHY
-
-
-# Turin's Set
-
-N:4:The Mormegil's Armor
-C:3
-D:It is from the battle gear worn by Turin Turambar while at Nargothrond
-# The Steel Helm of Dor-L['o]min
+B:RES_DARK[20] | RES_LIGHT[20] | RES_FIRE[20]
+# Hat of Stalking
+P:54
+F:TELEPATHY | SUSTAIN_DEX
+# Element of Magic
 P:56
-B:RES_FIRE[100]
-# The Two-Handed Sword 'Gurthang'
-P:110
-B:RES_POIS[50] | STR[4] | CHR[4] | INFRA[4] | SPEED[4] 
-# The Chain Mail (Dwarven) of the Mormegil
+F:SUSTAIN_INT | SUSTAIN_WIS | REGEN
+
+# Fluttershy's Set
+
+N:5:Fluttershy's Set
+C:2
+D:It is a set of clothes worn by Fluttershy
+# Fluttershy's Gala Dress
 P:31
-B:RES_CONFU[40]
-F:SUSTAIN_STR | SUSTAIN_DEX | SUSTAIN_CON 
+B:RES_SOUND[20] | RES_SHARD[20] | RES_DARK[30]
+# Element of Kindness
+P:10
+F:TELEPATHY | SEEING
 
-# Gil-Galad's Set
+# Rarity's Set
 
-N:5:Gil-Galad's Battle Gear
+N:6:Rarity's Set
 C:2
-D:It is one of Gil-Galad's items
-# The Shield of Deflection of Gil-Galad
-P:48
-B:RES_FIRE[35] | RES_COLD[35] | RES_POIS[35] | DEX[3]
-F:SUSTAIN_DEX 
-# The Spear 'Aeglos'
-P:137
-B:SLAY_TROLL[25] | SLAY_EVIL[17] | SLAY_GIANT[25] | SLAY_ORC[25] | 
-B:SLAY_DEMON[25] | RES_DARK[35] | SPEED[4] 
+D:It is a set of clothes worn by Fluttershy
+# Rarity's Gala Dress
+P:31
+B:RES_FIRE[20]
+F:FEATHER | LIGHT
+# Element of Generosity
+P:5
+B:RES_COLD[30]
+F:SUSTAIN_DEX | SUSTAIN_CON
 
-# Beren's Set
+# Pinkie's Set
 
-
-# Mablung's Set
-
-N:7:Mablung's Items
+N:7:Rainbow Dash's Set
 C:2
-D:It was borne by Mablung, chief hunter of King Thingol
-# The Hard Leather Cap of Mablung
-P:53
-B:RES_CONFU[40] | RES_SOUND[40] | INT[3] | WIS[3] | SPEED[3]
-# The Spear of Boldog
-P:151
-B:STR[3] | SLAY_EVIL[17] | SLAY_ANIMAL[20] | STEALTH[3]
+D:It is a set of cool items owned by Rainbow Dash
+# Rainbow Dash's First Dress
+P:33
+B:SPEED[3]
+# Rainbow's Gala Dress
+P:37
+B:RES_COLD[40]
+F:FEARLESS
+# Vest of the Weather Team Leader
+P:40
+B:SPEED[2]
+F:SUSTAIN_DEX
+# Silver Crown of the Best Young Flyer
+P:58
+B:SPEED[3]
+F:SUSTAIN_STR
+# The Amulet 'Element of Loyalty'
+P:4
+F:FEARLESS | FEATHER
+
+# Pinkie's Set
+
+N:8:Pinkie Pie's Set
+C:2
+D:It is a group of party accessories owned by Pinkie Pie
+# Dress of Pinkie Pie
+P:34
+B:RES_NEXUS[30] | RES_NETHR[30]
+# Party Cannon
+P:181
+F:SLOW_DIGEST | REGEN | FREE_ACT | FEATHER
+# Element of Laughter
+P:7
+B:RES_CHAOS[20] | RES_DARK[20] | RES_NEXUS[20]
+F:FEARLESS
+
+# Applejack's Set
+
+N:9:Applejack's Set
+C:2
+D:It is a set of clothes owned by Applejack
+# Gala Dress
+P:36
+B:RES_POIS[4]
+# Team Vest
+P:41
+F:FEARLESS | REGEN
+# Hat
+P:57
+F:TELEPATHY
+# Element of Honesty
+P:9
+F:SUSTAIN_STR | SUSTAIN_CHR

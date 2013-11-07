@@ -22,7 +22,6 @@
 #include "game-event.h"
 #include "randname.h"
 
-
 /*
  * Find the start of a possible Roman numerals suffix by going back from the
  * end of the string to a space, then checking that all the remaining chars
@@ -1512,7 +1511,20 @@ static bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *le
 	{
 		case '*':
 		{
-			*len = randname_make(RANDNAME_TOLKIEN, 4, 8, buf, buflen, name_sections);
+            if (p_ptr->psex == SEX_MALE)
+            {
+                if(rp_ptr->m_name == RANDNAME_PONY_FIRST || rp_ptr->m_name == RANDNAME_PONY_LAST)
+                    *len = randname_make(rp_ptr->m_name, 4, 18, buf, buflen, name_sections);
+                else
+			        *len = randname_make(rp_ptr->m_name, 4, 8, buf, buflen, name_sections);
+            }
+            else
+            {
+                if(rp_ptr->f_name == RANDNAME_PONY_FIRST || rp_ptr->f_name == RANDNAME_PONY_LAST)
+                    *len = randname_make(rp_ptr->f_name, 4, 18, buf, buflen, name_sections);
+                else
+                    *len = randname_make(rp_ptr->f_name, 4, 8, buf, buflen, name_sections);
+            }
 			buf[0] = toupper((unsigned char) buf[0]);
 			*curs = 0;
 			result = FALSE;

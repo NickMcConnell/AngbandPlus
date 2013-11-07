@@ -140,6 +140,13 @@ void wield_item(object_type *o_ptr, int item, int slot)
 
     flags_init(f, OF_SIZE, OF_OBVIOUS_MASK, FLAG_END);
 
+    /* If this is a two haned weapon, you can't weild it in your mouth */
+    /* Hack - try to get this taken care of before reaching here */
+    if ((slot == INVEN_WIELD) && needs_two_hands(o_ptr) && player_has(PF_QUADRUPED)) {
+       fmt = "%s is too heavy to wield in your mouth.";
+       msgt(MSG_WIELD, fmt, o_name, index_to_label(slot));
+       return;
+    }
     /* If we are stacking things in the quiver */
     if (obj_is_quiver_obj(o_ptr) && (slot >= QUIVER_START))
     {
@@ -655,7 +662,7 @@ static const char *ident_info[] = {
     "!:A potion (or oil)",
     "\":An amulet (or necklace)",
     "#:A wall (or secret door)",
-    "$:Treasure (gold or gems)",
+    "$:Treasure (bits or gems)",
     "%:A vein (magma or quartz)",
     /* "&:unused", */
     "':An open door",
@@ -684,10 +691,10 @@ static const char *ident_info[] = {
     ">:A down staircase",
     "?:A scroll",
     "@:You",
-    /* "A:unused", */
+    "A:Alicorn",
     "B:Bird",
-    "C:Canine",
-    "D:Flying Dragon",
+    "C:Constellation Beast",
+    "D:Great Dragon",
     "E:Elemental",
     "F:Dragon Fly",
     "G:Ghost",
@@ -697,14 +704,14 @@ static const char *ident_info[] = {
     "K:Killer Beetle",
     "L:Lich",
     "M:Mummy",
-    /* "N:unused", */
-    "O:Ogre",
-    "P:Giant Humanoid",
+    "N:Nautical", 
+    "O:Spell Orb",
+    "P:Centaur",
     "Q:Quylthulg (Pulsing Flesh Mound)",
     "R:Reptile/Amphibian",
     "S:Spider/Scorpion/Tick",
-    "T:Troll",
-    "U:Major Demon",
+    /* "T:Unused", */
+    "U:Demon",
     "V:Vampire",
     "W:Wight/Wraith/etc",
     "X:Xorn/Xaren/etc",
@@ -718,30 +725,30 @@ static const char *ident_info[] = {
     "`:A tool or junk",
     "a:Ant",
     "b:Bat",
-    "c:Centipede",
+    "c:Canine",
     "d:Dragon",
     "e:Floating Eye",
     "f:Feline",
     "g:Golem",
-    "h:Hobbit/Elf/Dwarf",
+    "h:Humanoid",
     "i:Icky Thing",
     "j:Jelly",
-    "k:Kobold",
+    /* "k:Unused", */
     "l:Louse",
     "m:Mold",
     "n:Naga",
     "o:Orc",
-    "p:Person/Human",
+    "p:Pony",
     "q:Quadruped",
     "r:Rodent",
     "s:Skeleton",
-    "t:Townsperson",
-    "u:Minor Demon",
+    "t:Townspony",
+    "u:Bushwooly/Fur-bob",
     "v:Vortex",
     "w:Worm/Worm-Mass",
-    /* "x:unused", */
-    "y:Yeek",
-    "z:Zombie/Mummy",
+    "x:Parasprite",
+    "y:Hydra",
+    "z:Zombie",
     "{:A missile (arrow/bolt/shot)",
     "|:An edged weapon (sword/dagger/etc)",
     "}:A launcher (bow/crossbow/sling)",

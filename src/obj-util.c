@@ -348,7 +348,13 @@ char index_to_label(int i)
 	return (I2A(i));
 
     /* Indexes for "equip" are offset */
-    return (I2A(i - INVEN_WIELD));
+    
+    /* Indexes before the Rings are easy */
+    if (i < INVEN_LEFT )
+        return (I2A(i - INVEN_WIELD));
+    
+    /* Indexes after the rings are offset by the number of ring slots */
+    return (I2A(i - INVEN_WIELD - 2 + rp_ptr->num_rings));
 }
 
 /*
@@ -386,7 +392,12 @@ s16b label_to_equip(int c)
     int i;
 
     /* Convert */
-    i = (islower((unsigned char) c) ? A2I(c) : -1) + INVEN_WIELD;
+     i = A2I(c) + INVEN_WIELD; //i = (islower((unsigned char) c) ? A2I(c) : -1) + INVEN_WIELD;
+
+    /* Convert for items past the rings */
+
+	if (i >= (INVEN_LEFT + rp_ptr->num_rings))
+		i += (2 - rp_ptr->num_rings);
 
     /* Verify the index */
     if ((i < INVEN_WIELD) || (i >= ALL_INVEN_TOTAL) || (i == INVEN_TOTAL))
@@ -502,7 +513,12 @@ s16b wield_slot(const object_type * o_ptr)
 	return (INVEN_BOW);
 
     case TV_RING:
-	return p_ptr->inventory[INVEN_RIGHT].k_idx ? INVEN_LEFT : INVEN_RIGHT;
+         if((rp_ptr->num_rings) <= 0)
+             return (-1);
+         else if (rp_ptr->num_rings == 1)
+             return INVEN_LEFT;
+         else
+	         return p_ptr->inventory[INVEN_RIGHT].k_idx ? INVEN_LEFT : INVEN_RIGHT;
 
     case TV_AMULET:
 	return (INVEN_NECK);
@@ -526,9 +542,14 @@ s16b wield_slot(const object_type * o_ptr)
 	return (INVEN_HEAD);
 
     case TV_GLOVES:
-	return (INVEN_HANDS);
+         if (player_has(PF_QUADRUPED))
+            return (-1);
+         else
+         	return (INVEN_HANDS);
 
     case TV_BOOTS:
+         if (player_has(PF_QUADRUPED))
+            return p_ptr->inventory[INVEN_HANDS].k_idx ? INVEN_FEET : INVEN_HANDS;
 	return (INVEN_FEET);
 
     case TV_BOLT:
@@ -547,16 +568,38 @@ s16b wield_slot(const object_type * o_ptr)
  */
 bool slot_can_wield_item(int slot, const object_type * o_ptr)
 {
-    if (o_ptr->tval == TV_RING)
-	return (slot == INVEN_LEFT || slot == INVEN_RIGHT) ? TRUE : FALSE;
+    if (o_ptr->tval == TV_RING) {
+       if(rp_ptr->num_rings == 0)
+           return FALSE;
+       else if (rp_ptr->num_rings == 1) 
+           return (slot == INVEN_LEFT) ? TRUE : FALSE;
+       else
+	       return (slot == INVEN_LEFT || slot == INVEN_RIGHT) ? TRUE : FALSE;
+	}
+    else if (obj_is_boot(o_ptr) && player_has(PF_QUADRUPED)) 
+    {
+        return (slot == INVEN_FEET || slot == INVEN_HANDS) ? TRUE : FALSE;
+    }
+    else if (o_ptr->tval == TV_GLOVES && player_has(PF_QUADRUPED))
+    {
+        return FALSE;
+    }
     else if (obj_is_ammo(o_ptr))
-	return (slot >= QUIVER_START && slot < QUIVER_END) ? TRUE : FALSE;
+	{
+         return (slot >= QUIVER_START && slot < QUIVER_END) ? TRUE : FALSE;
+    }
     else if (wield_slot(o_ptr) == slot)
-	return TRUE;
+    {
+        return TRUE;
+    }
     else if (of_has(o_ptr->flags_obj, OF_THROWING))
-	return (slot >= QUIVER_START && slot < QUIVER_END) ? TRUE : FALSE;
+    {
+        return (slot >= QUIVER_START && slot < QUIVER_END) ? TRUE : FALSE;
+    }
     else
-	return FALSE;
+    {
+        return FALSE;
+    }
 }
 
 
@@ -582,16 +625,33 @@ const char *mention_use(int slot)
 	    return "Shooting";
     }
 
-    case INVEN_LEFT:	return "On left hand";
-    case INVEN_RIGHT:	return "On right hand";
+    case INVEN_LEFT:
+            if (rp_ptr->num_rings <= 0)
+               return "";
+            if (rp_ptr->num_rings == 1)
+               return "On horn";
+         	return "On left hand";
+    case INVEN_RIGHT:
+            if (rp_ptr->num_rings < 2)
+               return "";
+         	return "On right hand";
     case INVEN_NECK:	return "Around neck";
     case INVEN_LIGHT:	return "Light source";
     case INVEN_BODY:	return "On body";
     case INVEN_OUTER:	return "About body";
-    case INVEN_ARM:	return "On arm";
+    case INVEN_ARM:	
+            if (player_has(PF_QUADRUPED))
+               return "On foreleg";
+            return "On arm";
     case INVEN_HEAD:	return "On head";
-    case INVEN_HANDS:	return "On hands";
-    case INVEN_FEET:	return "On feet";
+    case INVEN_HANDS:
+            if (player_has(PF_QUADRUPED))
+               return "On forehooves";
+         	return "On hands";
+    case INVEN_FEET:
+            if (player_has(PF_QUADRUPED))
+               return "On hindhooves";
+         	return "On feet";
 
 
     case QUIVER_START + 0: return "In quiver [f0]";
@@ -623,9 +683,19 @@ const char *describe_use(int i)
 	break;
     case INVEN_BOW:	p = "shooting missiles with";
 	break;
-    case INVEN_LEFT:	p = "wearing on your left hand";
+    case INVEN_LEFT:	
+         if (rp_ptr->num_rings <= 0)
+            p = "";
+         if (rp_ptr->num_rings == 1)
+            p = "wearing on your horn";
+         else
+            p = "wearing on your left hand";
 	break;
-    case INVEN_RIGHT:	p = "wearing on your right hand";
+    case INVEN_RIGHT:
+         if (rp_ptr->num_rings < 2)
+            p = "";
+         else
+         	p = "wearing on your right hand";
 	break;
     case INVEN_NECK:	p = "wearing around your neck";
 	break;
@@ -638,15 +708,25 @@ const char *describe_use(int i)
     case INVEN_ARM:{
 	if (p_ptr->state.shield_on_back)
 	    p = "carrying on your back";
-	else
+	else if (player_has(PF_QUADRUPED))
+        p = "wearing on your foreleg";
+    else
 	    p = "wearing on your arm";
 	break;
     }
     case INVEN_HEAD:	p = "wearing on your head";
 	break;
-    case INVEN_HANDS:	p = "wearing on your hands";
+    case INVEN_HANDS:
+         if (player_has(PF_QUADRUPED))
+            p = "wearing on your forehooves";
+         else
+         	p = "wearing on your hands";
 	break;
-    case INVEN_FEET:	p = "wearing on your feet";
+    case INVEN_FEET:
+         if (player_has(PF_QUADRUPED))
+            p = "wearing on your hindhooves";
+         else
+         	p = "wearing on your feet";
 	break;
     case QUIVER_START + 0:
     case QUIVER_START + 1:
@@ -1595,19 +1675,22 @@ static s32b object_value_real(const object_type *o_ptr)
 	    if (if_has(o_ptr->id_other, IF_SLAY_DEMON))
 		value +=
 		    (o_ptr->multiple_slay[P_SLAY_DEMON] - MULTIPLE_BASE) * 200L;
-	    if (if_has(o_ptr->id_other, IF_SLAY_ORC))
+	    if (if_has(o_ptr->id_other, IF_SLAY_HUMANOID))
 		value +=
-		    (o_ptr->multiple_slay[P_SLAY_ORC] - MULTIPLE_BASE) * 100L;
-	    if (if_has(o_ptr->id_other, IF_SLAY_TROLL))
+		    (o_ptr->multiple_slay[P_SLAY_HUMANOID] - MULTIPLE_BASE) * 100L;
+	    if (if_has(o_ptr->id_other, IF_SLAY_CONSTELLATION))
 		value +=
-		    (o_ptr->multiple_slay[P_SLAY_TROLL] - MULTIPLE_BASE) * 150L;
-	    if (if_has(o_ptr->id_other, IF_SLAY_GIANT))
+		    (o_ptr->multiple_slay[P_SLAY_CONSTELLATION] - MULTIPLE_BASE) * 150L;
+	    if (if_has(o_ptr->id_other, IF_SLAY_HYBRID))
 		value +=
-		    (o_ptr->multiple_slay[P_SLAY_GIANT] - MULTIPLE_BASE) * 100L;
+		    (o_ptr->multiple_slay[P_SLAY_HYBRID] - MULTIPLE_BASE) * 100L;
 	    if (if_has(o_ptr->id_other, IF_SLAY_DRAGON))
 		value +=
 		    (o_ptr->multiple_slay[P_SLAY_DRAGON] -
 		     MULTIPLE_BASE) * 200L;
+        if (if_has(o_ptr->id_other, IF_SLAY_PONY))
+		value +=
+		    (o_ptr->multiple_slay[P_SLAY_PONY] - MULTIPLE_BASE) * 100L;
 
 	    /* Give credit for brands */
 	    if (if_has(o_ptr->id_other, IF_BRAND_ACID))
@@ -1678,6 +1761,10 @@ static s32b object_value_real(const object_type *o_ptr)
 		value += 100L;
 	    if (of_has(o_ptr->id_obj, OF_DARKNESS))
 		value += 1000L;
+		if (of_has(o_ptr->id_obj, OF_PONYKIND))
+		value += 100L;
+		if (of_has(o_ptr->id_obj, OF_VORPAL))
+		value +=3000L;
 
 	    /* Give 'credit' for curse flags */
 	    if (cf_has(o_ptr->id_curse, CF_TELEPORT))
@@ -1746,18 +1833,21 @@ static s32b object_value_real(const object_type *o_ptr)
 	    if (if_has(o_ptr->id_other, IF_SLAY_DEMON))
 		value +=
 		    (o_ptr->multiple_slay[P_SLAY_DEMON] - MULTIPLE_BASE) * 20L;
-	    if (if_has(o_ptr->id_other, IF_SLAY_ORC))
+	    if (if_has(o_ptr->id_other, IF_SLAY_HUMANOID))
 		value +=
-		    (o_ptr->multiple_slay[P_SLAY_ORC] - MULTIPLE_BASE) * 10L;
-	    if (if_has(o_ptr->id_other, IF_SLAY_TROLL))
+		    (o_ptr->multiple_slay[P_SLAY_HUMANOID] - MULTIPLE_BASE) * 10L;
+	    if (if_has(o_ptr->id_other, IF_SLAY_CONSTELLATION))
 		value +=
-		    (o_ptr->multiple_slay[P_SLAY_TROLL] - MULTIPLE_BASE) * 15L;
-	    if (if_has(o_ptr->id_other, IF_SLAY_GIANT))
+		    (o_ptr->multiple_slay[P_SLAY_CONSTELLATION] - MULTIPLE_BASE) * 15L;
+	    if (if_has(o_ptr->id_other, IF_SLAY_HYBRID))
 		value +=
-		    (o_ptr->multiple_slay[P_SLAY_GIANT] - MULTIPLE_BASE) * 10L;
+		    (o_ptr->multiple_slay[P_SLAY_HYBRID] - MULTIPLE_BASE) * 10L;
 	    if (if_has(o_ptr->id_other, IF_SLAY_DRAGON))
 		value +=
 		    (o_ptr->multiple_slay[P_SLAY_DRAGON] - MULTIPLE_BASE) * 20L;
+        if (if_has(o_ptr->id_other, IF_SLAY_PONY))
+		value +=
+		    (o_ptr->multiple_slay[P_SLAY_PONY] - MULTIPLE_BASE) * 10L;
 
 	    /* Give credit for brands */
 	    if (if_has(o_ptr->id_other, IF_BRAND_ACID))
@@ -2672,6 +2762,36 @@ void acquirement(int y1, int x1, int num, bool great)
 	    continue;
 	i_ptr->origin = ORIGIN_ACQUIRE;
 	i_ptr->origin_stage = p_ptr->stage;
+	
+	/* Chance to reroll based on missing slots */
+	switch(i_ptr->tval)
+		{
+             case TV_BOOTS:
+                  if (one_in_(player_has(PF_QUADRUPED) + 1))
+                     num++;
+                  else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+             case TV_GLOVES:
+                  if (one_in_(!player_has(PF_QUADRUPED) + 1))
+                     num++;
+                  else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+             case TV_RING:
+				if (one_in_(rp_ptr->num_rings + 1))
+					num++;
+				else
+					/* Drop the object */	
+					drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+			default:
+				/* Drop the object */	
+				drop_near(i_ptr, 0, y1, x1, TRUE);
+				break;
+        }
 
 	/* Drop the object */
 	drop_near(i_ptr, 0, y1, x1, TRUE);
@@ -3948,7 +4068,7 @@ static const grouper tval_names[] = {
     { TV_PRAYER_BOOK, "prayer book"},
     { TV_DRUID_BOOK, "stone of lore"},
     { TV_NECRO_BOOK, "necromantic tome"},
-    { TV_GOLD,	"gold"},
+    { TV_GOLD,	"bits"},
 
 };
 
@@ -4381,44 +4501,48 @@ object_kind *object_kind_of(const object_type * o_ptr)
 /* Basic tval testers */
 bool obj_is_staff(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_STAFF;
+    return (o_ptr->tval == TV_STAFF);
 }
 
 bool obj_is_wand(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_WAND;
+    return (o_ptr->tval == TV_WAND);
 }
 
 bool obj_is_rod(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_ROD;
+    return (o_ptr->tval == TV_ROD);
 }
 
 bool obj_is_potion(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_POTION;
+    return (o_ptr->tval == TV_POTION);
 }
 
 bool obj_is_scroll(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_SCROLL;
+    return (o_ptr->tval == TV_SCROLL);
 }
 
 bool obj_is_food(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_FOOD;
+    return (o_ptr->tval == TV_FOOD);
 }
 
 bool obj_is_light(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_LIGHT;
+    return (o_ptr->tval == TV_LIGHT);
 }
 
 bool obj_is_ring(const object_type * o_ptr)
 {
-    return o_ptr->tval == TV_RING;
+    return (o_ptr->tval == TV_RING);
 }
 
+bool obj_is_boot(const object_type * o_ptr)
+{
+     return (o_ptr->tval == TV_BOOTS);
+}
 
 /**
  * Determine whether an object is ammo
@@ -4477,7 +4601,7 @@ bool obj_can_zap(const object_type * o_ptr)
 /* Determine if an object is activatable */
 bool obj_is_activatable(const object_type * o_ptr)
 {
-    return object_effect(o_ptr) ? TRUE : FALSE;
+    return (object_effect(o_ptr) ? TRUE : FALSE);
 }
 
 /* Determine if an object can be activated now */
@@ -4513,19 +4637,19 @@ bool obj_can_refill(const object_type * o_ptr)
 
 bool obj_can_browse(const object_type * o_ptr)
 {
-    return o_ptr->tval == mp_ptr->spell_book;
+    return (o_ptr->tval == mp_ptr->spell_book);
 }
 
 bool obj_can_cast_from(const object_type * o_ptr)
 {
-    return obj_can_browse(o_ptr)
-	&& spell_book_count_spells(o_ptr, spell_okay_to_cast) > 0;
+    return (obj_can_browse(o_ptr)
+	&& spell_book_count_spells(o_ptr, spell_okay_to_cast) > 0);
 }
 
 bool obj_can_study(const object_type * o_ptr)
 {
-    return obj_can_browse(o_ptr)
-	&& spell_book_count_spells(o_ptr, spell_okay_to_study) > 0;
+    return (obj_can_browse(o_ptr)
+	&& spell_book_count_spells(o_ptr, spell_okay_to_study) > 0);
 }
 
 
@@ -4562,7 +4686,7 @@ bool obj_can_wear(const object_type * o_ptr)
 /* Can only fire an item with the right tval */
 bool obj_can_fire(const object_type * o_ptr)
 {
-    return o_ptr->tval == p_ptr->state.ammo_tval;
+    return (o_ptr->tval == p_ptr->state.ammo_tval);
 }
 
 /* Can has inscrip pls */
@@ -4711,7 +4835,7 @@ bool item_is_available(int item, bool(*tester) (const object_type *), int mode)
  */
 bool pack_is_full(void)
 {
-    return p_ptr->inventory[INVEN_PACK - 1].k_idx ? TRUE : FALSE;
+    return (p_ptr->inventory[INVEN_PACK - 1].k_idx ? TRUE : FALSE);
 }
 
 /*
@@ -4721,7 +4845,7 @@ bool pack_is_full(void)
  */
 bool pack_is_overfull(void)
 {
-    return p_ptr->inventory[INVEN_PACK].k_idx ? TRUE : FALSE;
+    return (p_ptr->inventory[INVEN_PACK].k_idx ? TRUE : FALSE);
 }
 
 /*

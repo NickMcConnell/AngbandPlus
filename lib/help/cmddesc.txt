@@ -162,8 +162,7 @@ Run (.) or Run (,)
      pressing a direction key.
 
 Go to a less dangerous area (<)
-     Ascends an up staircase you are standing on in a dungeon, or takes a path
-     to an area of less danger in the wilderness.  These will both 
+     Ascends an up staircase you are standing on in a dungeon  These will  
      take you to a new area or town.  Some up staircases in dungeons will 
      allow you to go up more than one level.  This command takes some energy.
 
@@ -230,9 +229,9 @@ Toggle search mode (S) or Toggle search mode (#)
 
 Tunnel (T) or Tunnel (Ctrl-T)
      This command allows you to dig through barriers, obtain treasure found in 
-     wall seams, and otherwise alter the environment to your liking.  Races 
-     other than Ents would be well advised to be wielding a weapon, preferably 
-     something heavy or especially designed for digging, before attempting to 
+     wall seams, and otherwise alter the environment to your liking.  You 
+	 would be well advised to be wielding a weapon, preferably something 
+	 heavy or especially designed for digging, before attempting to 
      tunnel.  This command will also remove a web, either from within it 
      (automatically) or beside it.
      This command may take a count, is affected by the "always_repeat" option, 
@@ -336,7 +335,8 @@ Cast a spell or Pray a Prayer (m and p)
      failure is greatly increased, and you may lose a point of constitution.  
      Since you must read the spell from a book, you cannot be blind or 
      confused while casting, and there must be some light present.  This 
-     command takes some energy.
+     command takes some energy. Note that Mage style casters need either 
+	 fingers or a horn in order to cast any spells.
      Once Warriors attain experience level 35, they may pseudo-probe monsters 
      using this command.
 
@@ -528,13 +528,13 @@ Save and Quit (Ctrl-X)
      with the same options and such.
 
 Save (Ctrl-S)
-     This command saves the game but doesn't exit FAangband.  Use this 
+     This command saves the game but doesn't exit Ponyband.  Use this 
      frequently if you are paranoid about having your computer crash (or your 
      power go out) 
      while you are playing.
 
 Quit (commit suicide) (Q or Ctrl-K)
-     Kills your character and exits Angband.  You will be prompted to make 
+     Kills your character and exits Ponyband.  You will be prompted to make 
      sure you really want to do this, and then asked to verify that choice.  
      Note that dead characters are dead forever.
 
@@ -570,7 +570,7 @@ Interact with colors (&)
 --- Help ---
 
 Help (?)
-     Brings up the FAangband on-line help system.  Note that the help files 
+     Brings up the Ponyband on-line help system.  Note that the help files 
      are just text files in a particular format, and that other help files may 
      be available on the Net.
 
@@ -594,7 +594,7 @@ Identify Symbol (/)
      will exit this command.
 
 Game Version (V)
-        This command will tell you what version of FAangband you are playing.
+        This command will tell you what version of Ponyband you are playing.
 
 
 --- Extra Commands ---
@@ -622,7 +622,7 @@ Repeat last command (n) or ([)
      you typed.
 
 
-=== Special Keys - Not modified for FAangband ===
+=== Special Keys - Not modified for Ponyband ===
  
         Certain special keys may be intercepted by the operating system or
 the host machine, causing unexpected results.  In general, these special keys

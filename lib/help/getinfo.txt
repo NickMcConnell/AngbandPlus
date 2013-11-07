@@ -5,7 +5,7 @@
 have occasion to ask.  It covers the help system you are navigating, how to 
 learn more about yourself, monsters, objects, spells, and the dungeon, and 
 offers a little list of useful places on the Web for people with questions about 
-Angband, Oangband or FAangband.
+Angband, Oangban, FAangband, or Ponyband.
 
 
 === How to use the In-game Help System ===
@@ -99,8 +99,7 @@ and screenshots, read and post to the forums, browse the newsgroup...
 
 news:rec.games.roguelike.angband  :  The Angband Newsgroup.  It also covers 
 all her variants, including Oangband and FAangband.  Lots of friendly people.  
-You may post character dumps there and ask for and offer advice.  Please put a 
-"[FA]" before FAangband-specific posts.
+You may post character dumps there and ask for and offer advice.  
 
 http://rephial.org/ : The official Angband website.  Find out the latest about
 Vanilla Angband, check out the status of the GPL project, even get involved in 

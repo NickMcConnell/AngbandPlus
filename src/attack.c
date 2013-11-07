@@ -93,8 +93,7 @@ static bool test_hit_combat(int chance, int ac, int visible, int item1,
  * damage they do is more variable).  Their great saving grace is precisely 
  * this variablity; criticals benefit them more.
  *
- * Vorpal blades/weapons of concussion get lots of criticals.
- * -- Not currently used in Oangband -BR-
+ * Vorpal bladesget lots of criticals.
  *
  * This function is responsible for the basic melee combat messages, which 
  * vary according to the quality of the hit.  A distinction is made between 
@@ -103,7 +102,7 @@ static bool test_hit_combat(int chance, int ac, int visible, int item1,
 static int critical_melee(int chance, int sleeping_bonus, bool visible,
 			  char m_name[], const object_type * o_ptr)
 {
-    bool vorpal = FALSE;
+    bool vorpal = of_has(o_ptr->flags_obj, OF_VORPAL);
     bool armsman = FALSE;
 
     /* Extract melee power. */
@@ -383,7 +382,7 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
     case TV_SWORD:
     case TV_DIGGING:
 	{
-	    for (j = 0; j < 2; j++) {
+	    for (j = 0; j < rp_ptr->num_rings; j++) {
 		/* Check rings for additional brands (slays) */
 		i_ptr = &p_ptr->inventory[INVEN_LEFT + j];
 
@@ -470,8 +469,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		if (notice_launcher)
 		    notice_other(IF_SLAY_ANIMAL, INVEN_BOW + 1);
 		if (notice_ring) {
-		    notice_other(IF_SLAY_ANIMAL, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_ANIMAL, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_ANIMAL, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_ANIMAL, INVEN_RIGHT + 1);
+                }
+            }
 		}
 	    }
 
@@ -493,8 +496,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		if (notice_launcher)
 		    notice_other(IF_SLAY_EVIL, INVEN_BOW + 1);
 		if (notice_ring) {
-		    notice_other(IF_SLAY_EVIL, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_EVIL, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_EVIL, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_EVIL, INVEN_RIGHT + 1);
+                }
+            }
 		}
 	    }
 
@@ -514,8 +521,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		if (notice_launcher)
 		    notice_other(IF_SLAY_UNDEAD, INVEN_BOW + 1);
 		if (notice_ring) {
-		    notice_other(IF_SLAY_UNDEAD, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_UNDEAD, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_UNDEAD, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_UNDEAD, INVEN_RIGHT + 1);
+                }
+            }
 		}
 	    }
 
@@ -534,68 +545,106 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		if (notice_launcher)
 		    notice_other(IF_SLAY_DEMON, INVEN_BOW + 1);
 		if (notice_ring) {
-		    notice_other(IF_SLAY_DEMON, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_DEMON, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_DEMON, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_DEMON, INVEN_RIGHT + 1);
+                }
+            }
 		}
 	    }
 
-	    /* Slay Orc */
-	    if ((slay[P_SLAY_ORC] > MULTIPLE_BASE)
-		&& (rf_has(r_ptr->flags, RF_ORC))) {
+	    /* Slay Humanoid */
+	    if ((slay[P_SLAY_HUMANOID] > MULTIPLE_BASE)
+		&& (rf_has(r_ptr->flags, RF_HUMANOID))) {
 		if (m_ptr->ml) {
-		    rf_on(l_ptr->flags, RF_ORC);
+		    rf_on(l_ptr->flags, RF_HUMANOID);
 		}
 
-		if (mul < slay[P_SLAY_ORC])
-		    mul = slay[P_SLAY_ORC];
+		if (mul < slay[P_SLAY_HUMANOID])
+		    mul = slay[P_SLAY_HUMANOID];
 
 		/* Notice slay */
-		notice_other(IF_SLAY_ORC, item + 1);
+		notice_other(IF_SLAY_HUMANOID, item + 1);
 		if (notice_launcher)
-		    notice_other(IF_SLAY_ORC, INVEN_BOW + 1);
+		    notice_other(IF_SLAY_HUMANOID, INVEN_BOW + 1);
 		if (notice_ring) {
-		    notice_other(IF_SLAY_ORC, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_ORC, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_HUMANOID, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_HUMANOID, INVEN_RIGHT + 1);
+                }
+            }
+		}
+	    }
+	    
+	    /* Slay Pony */
+	    if ((slay[P_SLAY_PONY] > MULTIPLE_BASE)
+	    && (rf_has(r_ptr->flags, RF_PONY))) {
+        
+        if (mul < slay[P_SLAY_PONY])
+            mul = slay[P_SLAY_PONY];
+            
+        /* Notice Slay */
+        notice_other(IF_SLAY_PONY, item + 1);
+        if (notice_launcher)
+            notice_other(IF_SLAY_PONY, INVEN_BOW + 1);
+        if (notice_ring) {
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_PONY, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+                    notice_other(IF_SLAY_PONY, INVEN_RIGHT + 1);
+                }
+            }
+        }
+        }
+                          
+
+	    /* Slay Constellation */
+	    if ((slay[P_SLAY_CONSTELLATION] > MULTIPLE_BASE)
+		&& (rf_has(r_ptr->flags, RF_CONSTELLATION))) {
+		if (m_ptr->ml) {
+		    rf_on(l_ptr->flags, RF_CONSTELLATION);
+		}
+
+		if (mul < slay[P_SLAY_CONSTELLATION])
+		    mul = slay[P_SLAY_CONSTELLATION];
+
+		/* Notice slay */
+		notice_other(IF_SLAY_CONSTELLATION, item + 1);
+		if (notice_launcher)
+		    notice_other(IF_SLAY_CONSTELLATION, INVEN_BOW + 1);
+		if (notice_ring) {
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_CONSTELLATION, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_CONSTELLATION, INVEN_RIGHT + 1);
+                }
+            }
 		}
 	    }
 
-	    /* Slay Troll */
-	    if ((slay[P_SLAY_TROLL] > MULTIPLE_BASE)
-		&& (rf_has(r_ptr->flags, RF_TROLL))) {
+	    /* Slay Hybrid */
+	    if ((slay[P_SLAY_HYBRID] > MULTIPLE_BASE)
+		&& (rf_has(r_ptr->flags, RF_HYBRID))) {
 		if (m_ptr->ml) {
-		    rf_on(l_ptr->flags, RF_TROLL);
+		    rf_on(l_ptr->flags, RF_HYBRID);
 		}
 
-		if (mul < slay[P_SLAY_TROLL])
-		    mul = slay[P_SLAY_TROLL];
+		if (mul < slay[P_SLAY_HYBRID])
+		    mul = slay[P_SLAY_HYBRID];
 
 		/* Notice slay */
-		notice_other(IF_SLAY_TROLL, item + 1);
+		notice_other(IF_SLAY_HYBRID, item + 1);
 		if (notice_launcher)
-		    notice_other(IF_SLAY_TROLL, INVEN_BOW + 1);
+		    notice_other(IF_SLAY_HYBRID, INVEN_BOW + 1);
 		if (notice_ring) {
-		    notice_other(IF_SLAY_TROLL, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_TROLL, INVEN_LEFT + 1);
-		}
-	    }
-
-	    /* Slay Giant */
-	    if ((slay[P_SLAY_GIANT] > MULTIPLE_BASE)
-		&& (rf_has(r_ptr->flags, RF_GIANT))) {
-		if (m_ptr->ml) {
-		    rf_on(l_ptr->flags, RF_GIANT);
-		}
-
-		if (mul < slay[P_SLAY_GIANT])
-		    mul = slay[P_SLAY_GIANT];
-
-		/* Notice slay */
-		notice_other(IF_SLAY_GIANT, item + 1);
-		if (notice_launcher)
-		    notice_other(IF_SLAY_GIANT, INVEN_BOW + 1);
-		if (notice_ring) {
-		    notice_other(IF_SLAY_GIANT, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_GIANT, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_HYBRID, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_HYBRID, INVEN_RIGHT + 1);
+                }
+            }
 		}
 	    }
 
@@ -614,8 +663,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		if (notice_launcher)
 		    notice_other(IF_SLAY_DRAGON, INVEN_BOW + 1);
 		if (notice_ring) {
-		    notice_other(IF_SLAY_DRAGON, INVEN_RIGHT + 1);
-		    notice_other(IF_SLAY_DRAGON, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_SLAY_DRAGON, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_SLAY_DRAGON, INVEN_RIGHT + 1);
+                }
+            }
 		}
 	    }
 
@@ -637,8 +690,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		    if (notice_launcher)
 			notice_other(IF_BRAND_ACID, INVEN_BOW + 1);
 		    if (notice_ring) {
-			notice_other(IF_BRAND_ACID, INVEN_RIGHT + 1);
-			notice_other(IF_BRAND_ACID, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_BRAND_ACID, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_BRAND_ACID, INVEN_RIGHT + 1);
+                }
+            }
 		    }
 		}
 	    }
@@ -661,8 +718,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		    if (notice_launcher)
 			notice_other(IF_BRAND_ELEC, INVEN_BOW + 1);
 		    if (notice_ring) {
-			notice_other(IF_BRAND_ELEC, INVEN_RIGHT + 1);
-			notice_other(IF_BRAND_ELEC, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_BRAND_ELEC, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_BRAND_ELEC, INVEN_RIGHT + 1);
+                }
+            }
 		    }
 		}
 	    }
@@ -685,8 +746,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		    if (notice_launcher)
 			notice_other(IF_BRAND_FIRE, INVEN_BOW + 1);
 		    if (notice_ring) {
-			notice_other(IF_BRAND_FIRE, INVEN_RIGHT + 1);
-			notice_other(IF_BRAND_FIRE, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_BRAND_FIRE, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_BRAND_FIRE, INVEN_RIGHT + 1);
+                }
+            }
 		    }
 		}
 	    }
@@ -709,8 +774,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		    if (notice_launcher)
 			notice_other(IF_BRAND_COLD, INVEN_BOW + 1);
 		    if (notice_ring) {
-			notice_other(IF_BRAND_COLD, INVEN_RIGHT + 1);
-			notice_other(IF_BRAND_COLD, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_BRAND_COLD, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_BRAND_COLD, INVEN_RIGHT + 1);
+                }
+            }
 		    }
 		}
 	    }
@@ -733,8 +802,12 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 		    if (notice_launcher)
 			notice_other(IF_BRAND_POIS, INVEN_BOW + 1);
 		    if (notice_ring) {
-			notice_other(IF_BRAND_POIS, INVEN_RIGHT + 1);
-			notice_other(IF_BRAND_POIS, INVEN_LEFT + 1);
+            if (rp_ptr->num_rings >= 1) {
+                notice_other(IF_BRAND_POIS, INVEN_LEFT + 1);
+                if (rp_ptr->num_rings >= 2) {
+		            notice_other(IF_BRAND_POIS, INVEN_RIGHT + 1);
+                }
+            }
 		    }
 		}
 	    }
@@ -769,8 +842,8 @@ static int adjust_dam(long *die_average, object_type * o_ptr,
 
     /* 
      * In addition to multiplying the base damage, slays and brands also 
-     * add to it.  This means that a dagger of Slay Orc (1d4) is a lot 
-     * better against orcs than is a dagger (1d9).
+     * add to it.  This means that a dagger of Slay Humanoid (1d4) is a lot 
+     * better against humanoids than is a dagger (1d9).
      * SJGU tone down the affect of slays and brands for launchers
      */
     if (mul > 10) {
@@ -964,13 +1037,13 @@ static void apply_deadliness(long *die_average, int deadliness)
  *    1 die rolling four
  * 2) Gets a small critical hit for +2 damage dice:
  *    3 dice rolling four.  Average of each die is 2.5
- * 3) Dagger is a weapon of Slay Orc, and monster is an orc:
+ * 3) Dagger is a weapon of Slay Humanoid, and monster is a humanoid:
  *    average of each die is 2.5 * 2.0 = 5.0
  * 4) Player has a Deadliness value of +72, which gives a bonus of 200%:
  *    5.0 * (100% + 200%) -> average of each die is now 15
  * 5) Roll three dice, each with an average of 15, to get an average damage 
  *    of 45.
- * 6) Finally, the special bonus for orc slaying weapons against orcs is 
+ * 6) Finally, the special bonus for humanoid slaying weapons against humanoids is 
  *    added:
  *    45 + 10 bonus = average damage of 55.
  * 
@@ -1437,8 +1510,12 @@ bool py_attack(int y, int x, bool can_push)
 	    if ((p_ptr->special_attack & (ATTACK_CONFUSE))
 		|| (p_ptr->special_attack & (ATTACK_DRUID_CONFU))) {
 		/* Message */
-		if (!(p_ptr->special_attack & (ATTACK_DRUID_CONFU)))
-		    msgt(MSG_HIT, "Your hands stop glowing.");
+		if (!(p_ptr->special_attack & (ATTACK_DRUID_CONFU))) {
+		    if(player_has(PF_QUADRUPED))
+		       msgt(MSG_HIT, "Your hooves stop glowing.");
+            else
+		       msgt(MSG_HIT, "Your hands stop glowing.");
+        }
 
 		/* Cancel special confusion attack */
 		p_ptr->special_attack &= ~(ATTACK_CONFUSE);
@@ -1479,7 +1556,10 @@ bool py_attack(int y, int x, bool can_push)
 		p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
 
 		/* Message */
-		msg("Your hands stop radiating Night.");
+		if (player_has(PF_QUADRUPED))
+		   msg("Your hooves stop radiating Night.");
+        else
+		   msg("Your hands stop radiating Night.");
 
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATUS);

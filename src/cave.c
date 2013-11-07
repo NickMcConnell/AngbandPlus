@@ -1555,8 +1555,6 @@ void display_map(int *cy, int *cx)
     /* Adjust for town */
     dungeon_hgt = (p_ptr->depth ? DUNGEON_HGT : 2 * DUNGEON_HGT / 3);
     dungeon_wid = (p_ptr->depth ? DUNGEON_WID : 2 * DUNGEON_WID / 3);
-    if (!(p_ptr->depth) && (p_ptr->stage < 151) && (!OPT(adult_dungeon)))
-	dungeon_wid = DUNGEON_WID / 2;
     top_row = (p_ptr->depth ? 0 : DUNGEON_HGT / 3);
     left_col = (p_ptr->depth ? 0 : DUNGEON_WID / 3);
 
@@ -3866,7 +3864,6 @@ void illuminate(void)
  */
 void cave_set_feat(int y, int x, int feat)
 {
-
     feature_type *f_ptr = &f_info[feat];
 
     /* Change the feature */
@@ -3875,19 +3872,19 @@ void cave_set_feat(int y, int x, int feat)
     /* Handle "floor" grids. */
     if (tf_has(f_ptr->flags, TF_LOS) || tf_has(f_ptr->flags, TF_SHOP)) 
     {
-	cave_off(cave_info[y][x], CAVE_WALL);
+    cave_off(cave_info[y][x], CAVE_WALL);
     }
 
     /* Handle "wall"/etc grids */
     else 
     {
-	cave_on(cave_info[y][x], CAVE_WALL);
+    cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Notice/Redraw */
     if (character_dungeon) {
 	/* Notice */
-	note_spot(y, x);
+    note_spot(y, x);
 
 	/* Redraw */
 	light_spot(y, x);

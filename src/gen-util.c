@@ -80,7 +80,7 @@ void new_player_spot(void)
 	    x = dun->stair[i].x;
 
 	    /* Require exactly three adjacent walls */
-	    if (next_to_walls(y, x) != 3)
+	    if (next_to_walls(y, x) < 2)
 		continue;
 
 	    /* If character starts on stairs, ... */
@@ -179,7 +179,7 @@ void place_random_stairs(int y, int x)
     /* Choose a staircase */
     if (!p_ptr->depth) {
 	place_down_stairs(y, x);
-    } else if (OPT(adult_dungeon) && !stage_map[p_ptr->stage][DOWN]) {
+    } else if (!stage_map[p_ptr->stage][DOWN]) {
 	place_up_stairs(y, x);
     } else if (randint0(100) < 50) {
 	place_down_stairs(y, x);
@@ -284,7 +284,7 @@ void place_random_door(int y, int x)
  */
 void alloc_stairs(int feat, int num, int walls)
 {
-    int y, x, i, j;
+	int y, x, i, j;
     bool no_down_shaft = (!stage_map[stage_map[p_ptr->stage][DOWN]][DOWN]
 			  || is_quest(stage_map[p_ptr->stage][DOWN])
 			  || is_quest(p_ptr->stage));
@@ -292,20 +292,28 @@ void alloc_stairs(int feat, int num, int walls)
     bool morgy = is_quest(p_ptr->stage)
 	&& stage_map[p_ptr->stage][DEPTH] == 100;
 
-
-    /* Place "num" stairs */
+	/* If we've asked for a shaft and they're forbidden, fail */
+	if (no_down_shaft && (feat == FEAT_MORE_SHAFT)) {
+    return;
+	}
+        
+	if (no_up_shaft && (feat == FEAT_LESS_SHAFT)) {
+    return;
+	}
+	
+	/* Place "num" stairs */
     for (i = 0; i < num; i++) {
 	/* Try hard to place the stair */
 	for (j = 0; j < 3000; j++) {
 	    /* Cut some slack if necessary. */
-	    if ((j > dun->stair_n) && (walls > 2))
+	    if (walls > 2)
 		walls = 2;
 	    if ((j > 1000) && (walls > 1))
 		walls = 1;
 	    if (j > 2000)
 		walls = 0;
 
-	    /* Use the stored stair locations first. */
+		/* Use the stored stair locations first. */
 	    if (j < dun->stair_n) {
 		y = dun->stair[j].y;
 		x = dun->stair[j].x;
@@ -316,21 +324,19 @@ void alloc_stairs(int feat, int num, int walls)
 		/* Pick a random grid */
 		y = randint0(DUNGEON_HGT);
 		x = randint0(DUNGEON_WID);
-	    }
+        }
 
 	    /* Require "naked" floor grid */
-	    if (!cave_naked_bold(y, x))
-		continue;
+	    if (!cave_naked_bold(y, x)) {
+        continue;
+		}
 
 	    /* Require a certain number of adjacent walls */
-	    if (next_to_walls(y, x) < walls)
-		continue;
+	    if (next_to_walls(y, x) < walls) {
+        continue;
+		}
 
-	    /* If we've asked for a shaft and they're forbidden, fail */
-	    if (no_down_shaft && (feat == FEAT_MORE_SHAFT))
-		return;
-	    if (no_up_shaft && (feat == FEAT_LESS_SHAFT))
-		return;
+
 
 	    /* Town or no way up -- must go down */
 	    if ((!p_ptr->depth) || (!stage_map[p_ptr->stage][UP])) {
@@ -342,14 +348,13 @@ void alloc_stairs(int feat, int num, int walls)
 	    /* Bottom of dungeon, Morgoth or underworld -- must go up */
 	    else if ((!stage_map[p_ptr->stage][DOWN]) || underworld || morgy) {
 		/* Clear previous contents, add up stairs */
-		if (feat != FEAT_LESS_SHAFT)
+        if (feat != FEAT_LESS_SHAFT)
 		    cave_set_feat(y, x, FEAT_LESS);
 	    }
 
 	    /* Requested type */
 	    else {
-		/* Clear previous contents, add stairs */
-		cave_set_feat(y, x, feat);
+        cave_set_feat(y, x, feat);
 	    }
 
 	    /* Finished with this staircase. */

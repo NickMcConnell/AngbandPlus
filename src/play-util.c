@@ -55,6 +55,11 @@ s16b modify_stat_value(int value, int amount)
 /* Is the player capable of casting a spell? */
 bool player_can_cast(void)
 {
+    if (!rp_ptr->num_rings && p_ptr->cumber_glove) {
+        msg("You need a horn or fingers to cast arcane spells.");
+        return FALSE;
+    }
+
     if (player_has(PF_PROBE)) {
 	if (p_ptr->lev < 35) {
 	    msg("You do not know how to probe monsters yet.");
@@ -134,4 +139,23 @@ bool player_can_fire(void)
 	}
 
 	return TRUE;
+}
+
+/* Determine is a player has usable racial abilities */
+bool player_has_racial(void)
+{
+     /* Require a racial ability */
+     if (!player_has(PF_TELEKINESIS) && !player_has(PF_BR_FIRE))
+     {
+         msg("You have no racial abilities.");
+         return FALSE;
+     }
+     
+     /* Check for confusion */
+    if (p_ptr->timed[TMD_CONFUSED]) {
+		msg("You are too confused to use any powers.");
+		return FALSE;
+	}
+     
+     return TRUE;
 }

@@ -106,26 +106,26 @@ static struct {
 } monster_group[] = {
     {
     (const char *) - 1, "Uniques"}, {
+    "A", "Alicorns"}, {
     "a", "Ants"}, {
     "b", "Bats"}, {
     "B", "Birds"}, {
-    "C", "Canines"}, {
-    "c", "Centipedes"}, {
-    "uU", "Demons"}, {
+    "c", "Canines"}, {
+    "P", "Centaurs"}, {
+    "C", "Constellation Monsters"}, {
+    "U", "Demons"}, {
     "dD", "Dragons"}, {
     "vE", "Elementals/Vortices"}, {
     "e", "Eyes/Beholders"}, {
     "f", "Felines"}, {
     "G", "Ghosts"}, {
-    "OP", "Giants/Ogres"}, {
     "g", "Golems"}, {
     "H", "Harpies/Hybrids"}, {
-    "h", "Hominids (Elves, Dwarves)"}, {
+    "h", "Hominids"}, {
     "i", "Icky Things"}, {
     "lFI", "Insects"}, {
     "j", "Jellies"}, {
     "K", "Killer Beetles"}, {
-    "k", "Kobolds"}, {
     "L", "Lichs"}, {
     ".$!?=~|_*-", "Mimics"}, {
     "m", "Molds"}, {
@@ -133,20 +133,21 @@ static struct {
     ",", "Mushroom Patches"}, {
     "n", "Nagas"}, {
     "o", "Orcs"}, {
-    "tp", "People"}, {
+    "tp", "Ponies"}, {
     "q", "Quadrupeds"}, {
     "Q", "Quylthulgs"}, {
     "R", "Reptiles/Amphibians"}, {
     "r", "Rodents"}, {
     "S", "Scorpions/Spiders"}, {
+    "O", "Spell Orbs"}, {
     "s", "Skeletons/Drujs"}, {
     "J", "Snakes"}, {
-    "T", "Trolls"}, {
+    "u", "Tribesmen"}, {
     "V", "Vampires"}, {
     "W", "Wights/Wraiths"}, {
     "w", "Worms/Worm Masses"}, {
     "X", "Xorns/Xarens"}, {
-    "y", "Yeeks"}, {
+    "y", "Hydras"}, {
     "Y", "Yeti"}, {
     "Z", "Zephyr Hounds"}, {
     "z", "Zombies"}, {

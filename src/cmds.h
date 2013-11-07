@@ -13,6 +13,20 @@
  */
 typedef void (*cmd_handler_fn)(cmd_code code, cmd_arg args[]);
 
+typedef struct power_desc_type power_desc_type;
+
+/*
+ * Struct for racial power information
+ */
+struct power_desc_type
+{
+	char name[40];
+	int  level;
+	int  cost;
+	int  stat;
+	int  fail;
+	int  number;
+};
 
 /* cmd0.c */
 extern void cmd_init(void);
@@ -32,8 +46,11 @@ void do_cmd_study_spell(cmd_code code, cmd_arg args[]);
 extern int get_channeling_boost(void);
 void do_cmd_cast(cmd_code code, cmd_arg args[]);
 void do_cmd_study_book(cmd_code code, cmd_arg args[]);
+void do_cmd_racial(cmd_code code, cmd_arg args[]);
 
 void textui_obj_examine(void);
+int racial_aux(power_desc_type* pd_ptr);
+bool cmd_racial_power_aux(u32b power);
 
 /* cmd-misc.c */
 extern void cmd_init(void);
@@ -50,6 +67,13 @@ extern void do_cmd_reshape(void);
 extern void do_cmd_monlist(void);
 extern void do_cmd_itemlist(void);
 extern void do_cmd_unknown(void);
+
+/* This function copies its text to a debug file in lib/info
+ * Leave this function intact even if it is not called anywhere
+ * It is very useful for debugging */
+extern void logbug(const char *s1);
+extern void logbugf(const char *s1, ...);
+extern void vlogbug (const char *s1, va_list vp);
 
 /* cmd2.c */
 extern void do_cmd_move_house(void);
@@ -82,6 +106,7 @@ void textui_cmd_suicide(void);
 /* cmd3.c */
 extern void do_cmd_inven(void);
 extern void do_cmd_equip(void);
+bool needs_two_hands(const object_type *o_ptr);
 void wield_item(object_type *o_ptr, int item, int slot);
 extern void do_cmd_destroy(cmd_code code, cmd_arg args[]);
 void textui_cmd_destroy(void);

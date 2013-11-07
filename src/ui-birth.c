@@ -202,7 +202,6 @@ static const menu_iter birth_iter = { NULL, NULL, birthmenu_display, NULL, NULL 
 static void race_help(int i, void *db, const region *l)
 {
 	int j;
-	byte color;
 
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -217,17 +216,6 @@ static void race_help(int i, void *db, const region *l)
 	}
 	
 	text_out_e("Hit die: %d\n", p_info[i].r_mhp);
-	if (!OPT(adult_dungeon))
-	  {
-	    text_out_e("Difficulty: Level %d\n", p_info[i].difficulty);
-      
-	    /* Color code difficulty factor */
-	    if (p_info[i].difficulty < 3) color = TERM_GREEN;
-	    else if (p_info[i].difficulty < 15) color = TERM_ORANGE;
-	    else color = TERM_RED;
-      
-	    text_out_c(color, format("Home town: %-15s\n", locality_name[stage_map[towns[p_info[i].hometown]][LOCALITY]]));
-	  }
 	text_out_e("Infravision: %d ft", p_info[i].infra * 10);
 	
 	/* Reset text_out() indentation */
@@ -317,7 +305,7 @@ static void setup_menus()
 	init_birth_menu(&race_menu, z_info->p_max, p_ptr->prace, &race_region, TRUE, race_help);
 	mdata = race_menu.menu_data;
 
-	for (i = 0; i < z_info->p_max; i++)
+    for (i = 0; i < z_info->p_max; i++)
 	{	
 		mdata->items[i] = p_info[i].name;
 	}
@@ -327,7 +315,7 @@ static void setup_menus()
 	init_birth_menu(&class_menu, z_info->c_max, p_ptr->pclass, &class_region, TRUE, class_help);
 	mdata = class_menu.menu_data;
 
-	for (i = 0; i < z_info->c_max; i++)
+    for (i = 0; i < z_info->c_max; i++)
 	{	
 		mdata->items[i] = c_info[i].name;
 	}
@@ -426,7 +414,8 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
 	while (next == BIRTH_RESET)
 	{
 		/* Display the menu, wait for a selection of some sort to be made. */
-	    cx = menu_select(current_menu, EVT_KBRD, FALSE);
+		cx = menu_select(current_menu, EVT_KBRD, FALSE);
+
 
 		/* As all the menus are displayed in "hierarchical" style, we allow
 		   use of "back" (left arrow key or equivalent) to step back in 
@@ -509,7 +498,7 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
 
 static enum birth_stage roller_command(bool first_call)
 {
-	char prompt[80] = "";
+    char prompt[80] = "";
 	size_t promptlen = 0;
 
 	ui_event ke;
@@ -617,7 +606,7 @@ static enum birth_stage roller_command(bool first_call)
    are available. */
 static void point_based_points(game_event_type type, game_event_data *data, void *user)
 {
-	int i;
+    int i;
 	int sum = 0;
 	int *stats = data->birthstats.stats;
 
@@ -665,7 +654,7 @@ static void point_based_misc(game_event_type type, game_event_data *data, void *
 
 static void point_based_start(void)
 {
-	const char *prompt = "[up/down to move, left/right to modify, 'r' to reset, 'Enter' to accept]";
+    const char *prompt = "[up/down to move, left/right to modify, 'r' to reset, 'Enter' to accept]";
 
 	/* Clear */
 	Term_clear();
@@ -851,7 +840,7 @@ static enum birth_stage get_confirm_command(void)
  */
 errr get_birth_command(bool wait)
 {
-	static enum birth_stage current_stage = BIRTH_RESET;
+    static enum birth_stage current_stage = BIRTH_RESET;
 	static enum birth_stage prev;
 	static enum birth_stage roller = BIRTH_RESET;
 	enum birth_stage next = current_stage;
@@ -860,7 +849,7 @@ errr get_birth_command(bool wait)
 	{
 		case BIRTH_RESET:
 		{
-			cmd_insert(CMD_BIRTH_RESET);
+            cmd_insert(CMD_BIRTH_RESET);
 
 			roller = BIRTH_RESET;
 			
@@ -884,7 +873,7 @@ errr get_birth_command(bool wait)
 		case BIRTH_RACE_CHOICE:
 		case BIRTH_ROLLER_CHOICE:
 		{
-			menu_type *menu = &sex_menu;
+            menu_type *menu = &sex_menu;
 			cmd_code command = CMD_CHOOSE_SEX;
 
 			Term_clear();
@@ -914,11 +903,15 @@ errr get_birth_command(bool wait)
 			next = menu_question(current_stage, menu, command);
 
 			if (next == BIRTH_BACK)
+			{
 				next = current_stage - 1;
+            }
 
 			/* Make sure that the character gets reset before quickstarting */
 			if (next == BIRTH_QUICKSTART) 
+			{
 				next = BIRTH_RESET;
+          }
 
 			break;
 		}
@@ -984,7 +977,8 @@ errr get_birth_command(bool wait)
 	prev = current_stage;
 	current_stage = next;
 
-	return 0;
+	
+    return 0;
 }
 
 /*

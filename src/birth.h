@@ -2,6 +2,7 @@
 
 #ifndef BIRTH_H
 #define BIRTH_H
+extern bool in_birth;
 
 extern void player_generate(struct player *p, const player_sex *s,
                             struct player_race *r, player_class *c);

@@ -1575,7 +1575,7 @@ static const char *desc_victim_outcry[] = {
     "'Catch me this thief!'",
     "'Hi! Ho! Robbery!'",
     "'My gold, my precious gold!'",
-    "'My gold is costly, thief!'",
+    "'My bits are costly, thief!'",
     "'Your blood for my gold?  Agreed!'",
     "'I scrimp, I save, and now it's gone!'",
     "'Robbers like you are part of the problem!'",

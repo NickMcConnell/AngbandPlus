@@ -210,7 +210,7 @@ int value_check_aux1(object_type * o_ptr)
     o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
 
     /* No average jewellery */
-    if ((slot >= INVEN_LEFT) && (slot <= INVEN_NECK))
+    if ((slot >= INVEN_LEFT) && (slot <= INVEN_NECK + 2 - rp_ptr->num_rings))
 	return FEEL_GOOD_STRONG;
 
     /* Good "armor" bonus */

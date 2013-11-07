@@ -1,11 +1,11 @@
 
 ============================== Mouse Interface ================================
 
-This file describes how to control FAangband using the mouse, pointer, stylus
+This file describes how to control Ponyband using the mouse, pointer, stylus
 or whatever.
 
 -- Movement --
-Movement commands are the most commonly used in FAangband, and these are very
+Movement commands are the most commonly used in Ponyband, and these are very
 simple with the mouse.  To take a step, click on the adjacent grid you want to 
 step to.  To move toward a particular non-adjacent grid, click on it; this 
 invokes the pathfinding algorithm, which will try to find a way to your 

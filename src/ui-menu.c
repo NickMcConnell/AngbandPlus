@@ -19,6 +19,7 @@
 #include "angband.h"
 #include "ui-event.h"
 #include "ui-menu.h"
+#include "birth.h"
 
 /* Cursor colours */
 const byte curs_attrs[2][2] =
@@ -171,9 +172,15 @@ static void display_scrolling(menu_type *menu, int cursor, int *top, region *loc
 	*top = MIN(*top, n - rows_per_page);
 	*top = MAX(*top, 0);
 
-	for (i = 0; i < rows_per_page; i++)
+    
+    /*
+     * The -1 is a horrible hack. I don't know why this fixed the crashing,
+     * but it did
+     */
+     
+	for (i = 0; i < rows_per_page - in_birth; i++)
 	{
-		/* Blank all lines */
+        /* Blank all lines */
 		Term_erase(col, row + i, loc->width);
 		if (i < n)
 		{
@@ -444,23 +451,24 @@ void menu_refresh(menu_type *menu, bool reset_screen)
 		screen_save();
 	}
 
-	if (menu->filter_list && menu->cursor >= 0)
+	if (menu->filter_list && menu->cursor >= 0) 
 		oid = menu->filter_list[oid];
 
-	if (menu->title)
+	if (menu->title) 
 		Term_putstr(menu->boundary.col, menu->boundary.row,
 				loc->width, TERM_WHITE, menu->title);
 
-	if (menu->header)
+	if (menu->header) 
 		Term_putstr(loc->col, loc->row - 1, loc->width,
 				TERM_WHITE, menu->header);
 
-	if (menu->prompt)
+	if (menu->prompt) 
 		Term_putstr(menu->boundary.col, loc->row + loc->page_rows,
 				loc->width, TERM_WHITE, menu->prompt);
 
-	if (menu->browse_hook && oid >= 0)
+	if (menu->browse_hook && oid >= 0) 
 		menu->browse_hook(oid, menu->menu_data, loc);
+    
 
 	menu->skin->display_list(menu, menu->cursor, &menu->top, loc);
 }
@@ -629,7 +637,7 @@ ui_event menu_select(menu_type *menu, int notify, bool popup)
 	ui_event in = EVENT_EMPTY;
 	bool no_act = (menu->flags & MN_NO_ACTION) ? TRUE : FALSE;
 
-	assert(menu->active.width != 0 && menu->active.page_rows != 0);
+    assert(menu->active.width != 0 && menu->active.page_rows != 0);
 
 	notify |= (EVT_SELECT | EVT_ESCAPE);
 	if (popup)
@@ -660,7 +668,6 @@ ui_event menu_select(menu_type *menu, int notify, bool popup)
 		}
 
 		/* XXX should redraw menu here if cursor has moved */
-
 		/* If we've selected an item, then send that event out */
 		if (out.type == EVT_SELECT && !no_act && menu_handle_action(menu, &out))
 			continue;

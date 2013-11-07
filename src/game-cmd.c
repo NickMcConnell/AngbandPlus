@@ -106,6 +106,7 @@ static struct
     { CMD_QUIT, { arg_NONE }, do_cmd_quit, FALSE, 0 },
     { CMD_HELP, { arg_NONE }, NULL, FALSE, 0 },
     { CMD_REPEAT, { arg_NONE }, NULL, FALSE, 0 },
+    { CMD_RACIAL, { arg_CHOICE }, do_cmd_racial, TRUE,  0 }
 };
 
 /* Item selector type (everything required for get_item()) */
@@ -238,7 +239,10 @@ errr cmd_get(cmd_context c, game_command **cmd, bool wait)
 
     /* If there are no commands queued, ask the UI for one. */
     if (cmd_head == cmd_tail) 
+    {
 	cmd_get_hook(c, wait);
+	
+    }
 
     /* If we have a command ready, set it and return success. */
     if (cmd_head != cmd_tail)
@@ -248,7 +252,6 @@ errr cmd_get(cmd_context c, game_command **cmd, bool wait)
 
 	return 0;
     }
-
     /* Failure to get a command. */
     return 1;
 }
@@ -447,7 +450,7 @@ void process_command(cmd_context ctx, bool no_request)
 
 	case CMD_OPEN:
 	{
-	    if (OPT(easy_open) && (!cmd->arg_present[0] ||
+        if (OPT(easy_open) && (!cmd->arg_present[0] ||
 				   cmd->arg[0].direction == DIR_UNKNOWN))
 	    {
 		int y, x;
@@ -520,11 +523,11 @@ void process_command(cmd_context ctx, bool no_request)
 	{
 	get_dir:
 
-	    /* Direction hasn't been specified, so we ask for one. */
+        /* Direction hasn't been specified, so we ask for one. */
 	    if (!cmd->arg_present[0] ||
 		cmd->arg[0].direction == DIR_UNKNOWN)
 	    {
-		int dir;
+        int dir;
 		if (!get_rep_dir(&dir))
 		    return;
 
@@ -626,12 +629,25 @@ void process_command(cmd_context ctx, bool no_request)
 	     * to replace */
 	    if (p_ptr->inventory[slot].k_idx) {
 		if (o_ptr->tval == TV_RING) {
+            if (rp_ptr->num_rings <= 0) {
+                return;
+            } else if (rp_ptr->num_rings == 1) {
+                slot = INVEN_LEFT;
+            } else {
 		    const char *q = "Replace which ring? ";
 		    const char *s = "Error in obj_wield, please report";
 		    item_tester_hook = obj_is_ring;
 		    if (!get_item(&slot, q, s, CMD_WIELD, USE_EQUIP))
 			return;
+            }
 		}
+		else if (o_ptr->tval == TV_BOOTS && player_has(PF_QUADRUPED)) {
+             const char *q = "Replace which pair of boots? ";
+             const char *s = "Error in obj_wield, please report";
+             item_tester_hook = obj_is_boot;
+             if (!get_item(&slot, q, s, CMD_WIELD, USE_EQUIP))
+             return;
+        }
 
 		if ((is_missile(o_ptr) || 
 		     (of_has(o_ptr->flags_obj, OF_THROWING) && (slot != INVEN_WIELD))) 

@@ -1,0 +1,10 @@
+Changes from FAAngband
+
+- Permantently disabled the FAAngband wilderness and removed the option for it.
+- Added the ability for different races to have different equipment slots, using a Rings stat
+  and the QUADRUPED flag
+- Added additional monster attack types, monster attack effects, and monster spells
+- Added some racial abilities
+- Complete change of races, monsters, objects, and artifacts as appropriate to the setting
+- Added the ability for certain monsters to only appear through summoning and not spawn normally
+- Added monster abilities for Chaos Immunity and Teleport Immunity

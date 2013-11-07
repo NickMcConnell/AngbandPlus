@@ -335,38 +335,38 @@ static bool get_quality(bool on_credit, int purchase, int value,
 	  }
 	break;
       }
-    case SLAY_ORC:
+    case SLAY_HUMANOID:
       {
-	current = o_ptr->multiple_slay[P_SLAY_ORC];
+	current = o_ptr->multiple_slay[P_SLAY_HUMANOID];
 	new = current + value;
 	diff_cost = (40 * new) - (40 * current);
 	if (take_money(on_credit, diff_cost)) 
 	  {
-	    o_ptr->multiple_slay[P_SLAY_ORC] += value;
+	    o_ptr->multiple_slay[P_SLAY_HUMANOID] += value;
 	    return(TRUE);
 	  }
 	break;
       }
-    case SLAY_TROLL:
+    case SLAY_CONSTELLATION:
       {
-	current = o_ptr->multiple_slay[P_SLAY_TROLL];
+	current = o_ptr->multiple_slay[P_SLAY_CONSTELLATION];
 	new = current + value;
 	diff_cost = (50 * new) - (50 * current);
 	if (take_money(on_credit, diff_cost))
 	  {
-	    o_ptr->multiple_slay[P_SLAY_TROLL] += value;
+	    o_ptr->multiple_slay[P_SLAY_CONSTELLATION] += value;
 	    return(TRUE);
 	  }
 	break;
       }
-    case SLAY_GIANT:
+    case SLAY_HYBRID:
       {
-	current = o_ptr->multiple_slay[P_SLAY_GIANT];
+	current = o_ptr->multiple_slay[P_SLAY_HYBRID];
 	new = current + value;
 	diff_cost = (40 * new) - (40 * current);
 	if (take_money(on_credit, diff_cost))
 	  {
-	    o_ptr->multiple_slay[P_SLAY_GIANT] += value;
+	    o_ptr->multiple_slay[P_SLAY_HYBRID] += value;
 	    return(TRUE);
 	  }
 	break;
@@ -379,6 +379,18 @@ static bool get_quality(bool on_credit, int purchase, int value,
 	if (take_money(on_credit, diff_cost))
 	  {
 	    o_ptr->multiple_slay[P_SLAY_DRAGON] += value;
+	    return(TRUE);
+	  }
+	break;
+      }
+    case SLAY_PONY:
+      {
+    current = o_ptr->multiple_slay[P_SLAY_PONY];
+	new = current + value;
+	diff_cost = (60 * new) - (60 * current);
+	if (take_money(on_credit, diff_cost))
+	  {
+	    o_ptr->multiple_slay[P_SLAY_PONY] += value;
 	    return(TRUE);
 	  }
 	break;
@@ -2665,10 +2677,11 @@ static void j_make_terrible(object_type *o_ptr)
 	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_EVIL] = 10;
 	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_UNDEAD] = 10;
 	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_DEMON] = 10;
-	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_ORC] = 10;
-	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_TROLL] = 10;
-	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_GIANT] = 10;
+	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_HUMANOID] = 10;
+	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_CONSTELLATION] = 10;
+	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_HYBRID] = 10;
 	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_DRAGON] = 10;
+	  if (randint1(3) == 1) o_ptr->multiple_slay[P_SLAY_PONY] = 10;
 	  if (randint1(3) == 1) of_off(o_ptr->flags_obj, OF_PERFECT_BALANCE);
 	  if (randint1(3) == 1) o_ptr->multiple_brand[P_BRAND_POIS] = 10;
 	  if (randint1(3) == 1) o_ptr->multiple_brand[P_BRAND_ACID] = 10;

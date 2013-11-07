@@ -40,6 +40,7 @@
  */
 
 #include "option.h"
+#include "randname.h"
 
 
 
@@ -894,6 +895,8 @@ typedef struct player_race {
     byte start_lev;	/**< Race starting level */
     byte hometown;	/**< Race starting town */
 
+    byte num_rings;  /**< Number of rings. 1 ring indicates a horn */
+    
     u16b b_age;		/**< base age */
     u16b m_age;		/**< mod age */
 
@@ -912,6 +915,8 @@ typedef struct player_race {
     u16b choice;	/**< Legal class choices */
 
     s16b hist;		/**< Starting history index */
+    randname_type m_name;    /**< Male name index */
+    randname_type f_name;    /**< Female name index */
 
     bitflag flags_obj[OF_MAX];		/**< New object flags -NRM-*/
     bitflag flags_curse[CF_MAX];	/**< New curse flags  -NRM- */
@@ -1063,6 +1068,7 @@ typedef struct {
     bool heavy_wield;	/**< Heavy weapon */
     bool heavy_shoot;	/**< Heavy shooter */
     bool icky_wield;	/**< Icky weapon */
+    bool full_hands;    /**< Both hands are full */
 
     int res_list[MAX_P_RES];   /**< Resistances and immunities */
     int dis_res_list[MAX_P_RES];   /**< Known resistances and immunities */

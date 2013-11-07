@@ -54,24 +54,24 @@
 /**
  * Name of the version/variant
  */
-#define SAVEFILE_NAME  "FAAN"
+#define SAVEFILE_NAME  "PAN"
 
 
 /**
- * Current version string - according to FAangband reckoning.
+ * Current version string - according to Ponyband reckoning.
  */
 /*
 #ifdef BUILD_ID
-#define VERSION_STRING	"1.2.6 (" BUILD_ID ")"
+#define VERSION_STRING	"0.3.0 (" BUILD_ID ")"
 #endif
 */
 
 /*
- * Current FAangband version numbers.
+ * Current Ponyband version numbers.
  */
-#define VERSION_MAJOR	1
-#define VERSION_MINOR	2
-#define VERSION_PATCH	6
+#define VERSION_MAJOR	0
+#define VERSION_MINOR	3
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 /**
@@ -455,7 +455,7 @@
  * during the creation of a monsters (see "get_mon_num()" in "monster2.c").
  * Lower values yield harder monsters more often.  Value raised in FAangband.
  */
-#define NASTY_MON	25	/** 1/chance of inflated monster level */
+#define NASTY_MON	22	/** 1/chance of inflated monster level */
 
 /**
  * Fraction of turns in which the extend magic special ability causes timers to
@@ -814,9 +814,15 @@ enum
 #define SUMMON_ELEMENTAL	33
 #define SUMMON_VORTEX		34
 #define SUMMON_HYBRID		35
-#define SUMMON_BIRD		36
-#define SUMMON_GOLEM            37
+#define SUMMON_BIRD		    36
+#define SUMMON_GOLEM        37
 #define SUMMON_THIEF		38
+#define SUMMON_EHARMONY     39
+#define SUMMON_SESSILE      40
+#define SUMMON_PARTY        41
+#define SHADOWCLONE         42
+#define SUMMON_ORB          43
+#define SUMMON_SHADOWBOLTS  44
 
 
 /*
@@ -858,11 +864,12 @@ enum
 #define P_SLAY_EVIL             1
 #define P_SLAY_UNDEAD           2
 #define P_SLAY_DEMON            3
-#define P_SLAY_ORC              4
-#define P_SLAY_TROLL            5
-#define P_SLAY_GIANT            6
+#define P_SLAY_HUMANOID         4
+#define P_SLAY_CONSTELLATION    5
+#define P_SLAY_HYBRID           6
 #define P_SLAY_DRAGON           7
-#define MAX_P_SLAY              8
+#define P_SLAY_PONY             8
+#define MAX_P_SLAY              9
 
 /*
  * Indexes for array of player brand multiples.
@@ -1141,7 +1148,7 @@ enum
 #define EGO_RESIST_FIRE		6
 #define EGO_RESIST_COLD		7
 #define EGO_RESISTANCE		8
-#define EGO_ELVENKIND		9
+#define EGO_CANTERLOT		9
 #define EGO_DWARVEN		10
 #define EGO_PERMANENCE		11
 /* xxx */
@@ -1224,23 +1231,23 @@ enum
 #define EGO_BALROG		77	/* Added in Oangband. */
 /* xxx */
 /* xxx */
-#define EGO_SLAY_ANIMAL		80
-#define EGO_SLAY_EVIL		81
-#define EGO_SLAY_UNDEAD		82
-#define EGO_SLAY_DEMON		83
-#define EGO_SLAY_ORC		84
-#define EGO_SLAY_TROLL		85
-#define EGO_SLAY_GIANT		86
-#define EGO_SLAY_DRAGON		87
-#define EGO_KILL_ANIMAL		88
-#define EGO_KILL_EVIL		89
-#define EGO_KILL_UNDEAD		90
-#define EGO_KILL_DEMON		83
-#define EGO_KILL_ORC		84
-#define EGO_KILL_TROLL		85
-#define EGO_KILL_GIANT		86
-#define EGO_KILL_DRAGON		95
-/* xxx */
+#define EGO_SLAY_ANIMAL		         80
+#define EGO_SLAY_EVIL		         81
+#define EGO_SLAY_UNDEAD		         82
+#define EGO_SLAY_DEMON		         83
+#define EGO_SLAY_HUMANOID	         84
+#define EGO_SLAY_CONSTELLATION		 85
+#define EGO_SLAY_HYBRID		         86
+#define EGO_SLAY_DRAGON		         87
+#define EGO_KILL_ANIMAL		         88
+#define EGO_KILL_EVIL		         89
+#define EGO_KILL_UNDEAD		         90
+#define EGO_KILL_DEMON		         83
+#define EGO_KILL_HUMANOID	         84
+#define EGO_KILL_TROLL		         85
+#define EGO_KILL_HYBRID		         86
+#define EGO_KILL_DRAGON		         95
+#define EGO_MURDER                   96
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1264,9 +1271,9 @@ enum
 #define EGO_HURT_EVIL		112
 #define EGO_HURT_UNDEAD		113
 #define EGO_HURT_DEMON		114
-#define EGO_HURT_ORC		115
-#define EGO_HURT_TROLL		116
-#define EGO_HURT_GIANT		117
+#define EGO_HURT_HUMANOID	115
+#define EGO_HURT_CONSTELLATION		116
+#define EGO_HURT_HYBRID		117
 #define EGO_HURT_DRAGON		118
 #define EGO_ACIDIC		119	/* Added in Oangband. */
 #define EGO_ELECT		120	/* Added in Oangband. */
@@ -1328,15 +1335,15 @@ enum
 #define RBM_CLAW	5
 #define RBM_BITE	6
 #define RBM_STING	7
-#define RBM_XXX1	8
+#define RBM_CHAT	8
 #define RBM_BUTT	9
 #define RBM_CRUSH	10
 #define RBM_ENGULF	11
-#define RBM_XXX2	12
+#define RBM_PANIC	12
 #define RBM_CRAWL	13
 #define RBM_DROOL	14
 #define RBM_SPIT	15
-#define RBM_XXX3	16
+#define RBM_PECK	16
 #define RBM_GAZE	17
 #define RBM_WAIL	18
 #define RBM_SPORE	19
@@ -1345,6 +1352,7 @@ enum
 #define RBM_INSULT	22
 #define RBM_SNEER	23
 #define RBM_REQUEST	24
+#define RBM_EXPLODE 25
 
 
 /*
@@ -1378,6 +1386,8 @@ enum
 #define RBE_EXP_20	26
 #define RBE_EXP_40	27
 #define RBE_EXP_80	28
+#define RBE_HALLUCINATE 29
+#define RBE_DRAIN_MANA 30
 
 
 /** 1/x chance of reducing stats (for elemental attacks).  From Zangband
@@ -2001,11 +2011,13 @@ enum
 /* Some flags are obvious */
 #define RF_OBVIOUS_MASK \
 	RF_UNIQUE, RF_QUESTOR, RF_MALE, RF_FEMALE, \
-	RF_FRIEND, RF_FRIENDS, RF_ESCORT, RF_ESCORTS
+	RF_FRIEND, RF_FRIENDS, RF_ESCORT, RF_ESCORTS, \
+	RF_SUMMON_ONLY, RF_HARMONY, RF_SHADOWBOLT, \
+	RF_CONSTELLATION, RF_PDP_ESCORT
 
 /* "race" flags */
 #define RF_RACE_MASK \
-	RF_ORC, RF_TROLL, RF_GIANT, RF_DRAGON, \
+	RF_HUMANOID, RF_CONSTELLATION, RF_HYBRID, RF_DRAGON, \
 	RF_DEMON, RF_UNDEAD, RF_EVIL, RF_ANIMAL, RF_METAL
 
 
@@ -2050,7 +2062,9 @@ enum
     RSF_S_KIN, RSF_S_MONSTER, RSF_S_MONSTERS, RSF_S_ANT, RSF_S_SPIDER, \
 	RSF_S_HOUND, RSF_S_ANIMAL, RSF_S_THIEF, RSF_S_SWAMP, RSF_S_DRAGON, \
 	RSF_S_HI_DRAGON, RSF_S_DEMON, RSF_S_HI_DEMON, RSF_S_APPROP, \
-	RSF_S_UNDEAD, RSF_S_HI_UNDEAD, RSF_S_QUEST, RSF_S_UNIQUE
+	RSF_S_UNDEAD, RSF_S_HI_UNDEAD, RSF_S_QUEST, RSF_S_UNIQUE, \
+	RSF_S_EHARMONY, RSF_S_SESSILE, RSF_S_PARTY, RSF_S_ORB, RSF_S_ORBS, \
+	RSF_S_SHADOWBOLTS, RSF_SHADOWCLONE
 
 /**
  * Breath attacks.

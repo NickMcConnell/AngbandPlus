@@ -158,7 +158,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
     /* Success */
     if (pstair == FEAT_LESS) {
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon) && (p_ptr->depth != 1)
+	if ((p_ptr->depth != 1)
 	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[p_ptr->stage][UP]][LOCALITY]))) {
 	    /* Land properly */
@@ -186,7 +186,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 	p_ptr->create_stair = FEAT_MORE;
     } else if (pstair == FEAT_LESS_SHAFT) {
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon) && (p_ptr->depth != 2)
+	if ((p_ptr->depth != 2)
 	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[stage_map[p_ptr->stage][UP]][UP]]
 		 [LOCALITY]))) {
@@ -286,21 +286,6 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
     }
 
 
-    /* Handle ironman */
-    if (OPT(adult_ironman) && !p_ptr->depth && !OPT(adult_dungeon)) {
-	int i, other;
-	int next = stage_map[p_ptr->stage][2 + (pstair - FEAT_MORE_NORTH) / 2];
-
-	/* Check if this is the right way out of town */
-	for (i = NORTH; i <= WEST; i++) {
-	    other = stage_map[p_ptr->stage][i];
-	    if (stage_map[next][DEPTH] < stage_map[other][DEPTH]) {
-		msg("Nothing happens.");
-		return;
-	    }
-	}
-    }
-
     /* Make certain the player really wants to leave a themed level. -LM- */
     if (p_ptr->themed_level)
 	if (!get_check("This level will never appear again.  Really leave?"))
@@ -318,30 +303,9 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
     if (pstair == FEAT_MORE) {
 	int location;
 
-	/* Magical portal for ironman */
-	if (OPT(adult_ironman) && !stage_map[p_ptr->stage][DOWN]
-	    && !OPT(adult_dungeon)) {
-	    /* Get choice */
-	    if (!jump_menu(p_ptr->depth + 1, &location))
-		return;
-
-	    /* Land properly */
-	    p_ptr->last_stage = NOWHERE;
-
-	    /* New stage */
-	    p_ptr->stage = location;
-
-	    /* New depth */
-	    p_ptr->depth = stage_map[location][DEPTH];
-
-	    /* Leaving */
-	    p_ptr->leaving = TRUE;
-
-	    return;
-	}
 
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon) && (p_ptr->depth)
+	if ((p_ptr->depth)
 	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[p_ptr->stage][DOWN]][LOCALITY]))) {
 	    /* Land properly */
@@ -372,8 +336,7 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
 	p_ptr->create_stair = FEAT_LESS;
     } else if (pstair == FEAT_MORE_SHAFT) {
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon)
-	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
+	if (((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[stage_map[p_ptr->stage][DOWN]][DOWN]]
 		 [LOCALITY]))) {
 	    /* Land properly */
@@ -445,7 +408,7 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
     p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
     /* Check for quests */
-    if (OPT(adult_dungeon) && is_quest(p_ptr->stage) && (p_ptr->depth < 100)) {
+    if (is_quest(p_ptr->stage) && (p_ptr->depth < 100)) {
 	int i;
 	monster_race *r_ptr = NULL;
 
@@ -1607,8 +1570,9 @@ extern bool do_cmd_open_aux(int y, int x)
 
 
     /* Verify legality */
-    if (!do_cmd_open_test(y, x))
+    if (!do_cmd_open_test(y, x)) {
 	return (FALSE);
+    }
 
 
     /* Jammed door */

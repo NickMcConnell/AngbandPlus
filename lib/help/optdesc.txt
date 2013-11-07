@@ -2,7 +2,7 @@
 ============================== Option Descriptions =============================
 
 This file describes the options available through the "=" command.  They help
-customize your FAangband experience, so be sure to select those you like.
+customize your Ponyband experience, so be sure to select those you like.
 
 Options you may want to change to your preferences include:
 
@@ -537,7 +537,7 @@ point ("!") will delete all items marked "SQUELCH" in your inventory
 and at your current location on the map.  The "SQUELCH" inscribtion
 can be removed normally from any objects you wish not to destroy.
 
-FAangband supports two types of item squelching:
+Ponyband supports two types of item squelching:
 
 The main autosquelch screen allows you to select known item types
 through menus.  For example, if you choose to squelch "Amulets of

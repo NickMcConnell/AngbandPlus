@@ -481,21 +481,7 @@ static void death_knowledge(void)
     store_type *st_ptr = NULL;
 
     /* Get the store number of the home */
-    if (OPT(adult_dungeon))
 	which = NUM_TOWNS_SMALL * 4 + STORE_HOME;
-    else {
-	for (i = 0; i < NUM_TOWNS; i++) {
-	    /* Found the town */
-	    if (p_ptr->home == towns[i]) {
-		which += (i < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
-		break;
-	    }
-	    /* Next town */
-	    else
-		which +=
-		    (i < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
-	}
-    }
 
     /* Hack -- Know everything in the inven/equip */
     for (i = 0; i < ALL_INVEN_TOTAL; i++) {
@@ -569,21 +555,7 @@ static void death_info(const char *title, int row)
     bool done = FALSE;
 
     /* Get the store number of the home */
-    if (OPT(adult_dungeon))
 	which = NUM_TOWNS_SMALL * 4 + STORE_HOME;
-    else {
-	for (i = 0; i < NUM_TOWNS; i++) {
-	    /* Found the town */
-	    if (p_ptr->home == towns[i]) {
-		which += (i < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
-		break;
-	    }
-	    /* Next town */
-	    else
-		which +=
-		    (i < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
-	}
-    }
 
     /* Activate the store */
     st_ptr = &store[which];

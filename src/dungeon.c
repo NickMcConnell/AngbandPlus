@@ -2348,7 +2348,7 @@ void play_game(void)
 
 	/* Start in home town - or on the stairs to Angband */
 	p_ptr->stage =
-	    (OPT(adult_thrall) ? (OPT(adult_dungeon) ? 87 : 135) : p_ptr->home);
+	    (OPT(adult_thrall) ? 87 : p_ptr->home);
 	p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
 	/* Read the default options */

@@ -87,7 +87,7 @@ H:In truly desperate times, use Teleport Level or Destruction to escape.
 H:You always get the first move when entering a level. 
 H:Regeneration makes you hungry more quickly.
 H:If you're in extreme need of food, curing potions might do you good.
-H:Under great weights of loot, you'll be less quick of foot.
+H:Under great weights of loot, you'll be less quick of hoof.
 H:You're never invincible. Never forget that.
 H:Always carry around an escape that you can use while blind and confused.
 H:Staying on a level too long can cause awake random monsters to spawn.
@@ -96,3 +96,6 @@ H:Walking around with lots of heavy weapons is not necessarily a good idea.
 H:Carry around extra copies of spellbooks 1-4 in case one gets burned. 
 H:You don't have to cover every resist all the time - carry swap items.
 H:Check the 'C' screen to see a summary of your abilities and history.
+H:Unicorns have trouble with magic if they have a ring on their horn.
+H:Watch out for Nightmare Moon's shadow clones.
+H:Ponies have trouble drawing a bowstring.  Crossbows and slings still work.

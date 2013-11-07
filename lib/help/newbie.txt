@@ -9,9 +9,9 @@ keyset.
 
      When you (we shall use the second person from now on) begin the game, you 
 start out in a town with stores happy to sell you whatever they stock and you 
-can afford.  The town is also populated; stay away from rogues and Battle-
-scarred Veterans.  Visit the stores and stop by your very own home (the symbol 
-'8'), where you can safely stash all sorts of useful gear for later use.
+can afford.  The town is also populated; stay away from armed or angry ponies.
+Visit the stores and stop by your very own home (the symbol '8'), where you can 
+safely stash all sorts of useful gear for later use.
      You are carrying a few objects, which go in logical places on your person
 (your equipment) or in your backpack (your inventory).  Look at your 
 'i'nventory by typing 'i', and you will see a few items appropriate to your 
@@ -51,13 +51,10 @@ is very handy at night. Once you've earned a little money, invest in a shovel
 or a pickaxe, and some potions of Cure Light Wounds.  Now, 'w'ear a torch or 
 your lantern.  The 'O' command allows you to gain speciality abilities, and to 
 view your race, class, and specialty abilities.
-     See that path '>'?  It's the way to the world outside your home town.  Out
-there is a wilderness of forests, plains and mountains, swamps and deserts, 
-and the deadly, lucrative dungeons.  Head off (Once on the path, type '>').
-     Once you do that, you will find yourself in the wilderness.  Unless you 
-have spent a long time in town, it will still be daytime, but it is probably
-best to keep your light wielded anyway.  If you want some idea of where you're
-going, look at the Map of Middle-Earth in this help.
+     See that path '>'?  It's the way to the world outside your home town.
+Taking this path will lead you directly to the Castle of the Royal Pony Sisters.
+Head off (Once on the path, type '>').
+     Once you do that, you will find yourself in the dungeon.  
      If you are a warrior, check to make certain everything you can wear is on 
 you, and go monster-hunting.  If you are any other class, see if you can learn 
 any spells (if "study" is visible on the bottom of your screen, you can).  If 
@@ -69,4 +66,4 @@ have a wielded shooter that fires whatever you have).  When you get hungry,
 'E'at some of the food your character started out with.  And one last note:  
 Buy a scroll of Recall.  Find out what it does.
 
-Have fun, and keep your eyes peeled for a Lamp...
+Have fun, and keep your eyes peeled...

@@ -28,6 +28,7 @@
 #include "tvalsval.h"
 #include "textui.h"
 #include "ui-birth.h"
+#include "cmds.h"
 
 /* 
  * There are a few functions installed to be triggered by several 
@@ -2177,9 +2178,13 @@ static void ui_leave_game(game_event_type type, game_event_data * data,
 errr textui_get_cmd(cmd_context context, bool wait)
 {
     if (context == CMD_BIRTH)
-	return get_birth_command(wait);
+    {
+	    return get_birth_command(wait);
+    }
     else if (context == CMD_GAME)
-	textui_process_command(!wait);
+    {
+	    textui_process_command(!wait);
+    }
 
     /* If we've reached here, we haven't got a command. */
     return 1;

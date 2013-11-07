@@ -1,11 +1,10 @@
 
 ============================= Objects and Monsters =============================
 
-     The mines of Angband and the surrounding areas of Beleriand are full of 
-objects just waiting to be picked up and used.  The treasures of fallen 
-kingdoms, dragon's hordes, heirlooms, wizard's stashes, and the plunder from 
-the First Age ofthe world and before unite with the scattered earthly 
-possessions of all the foolish adventurers that died before you to offer 
+     The Castle of the Royal Pony Sisters full of objects just waiting to be 
+picked up and used.  The treasures of fallen kingdoms, dragon's hordes, heirlooms, 
+wizard's stashes, and the plunder from 1000 years ago unite with the scattered 
+earthly possessions of all the foolish adventurers that died before you to offer 
 unimaginable wealth for those bold enough to seize it.
 
 

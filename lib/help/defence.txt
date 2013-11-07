@@ -32,7 +32,8 @@ will cost you.  Armour class has no effect on magical attacks.
          Paladins.  Unlike in Angband, this penalty is as important for high-
          level characters as it was when they first started adventuring.  In 
          addition, Mages and Necromancers lose a chunk of mana if they wear 
-         gloves that do not provide free action or increase magic mastery skill.
+         gloves that do not provide free action or increase magic mastery skill
+		 on their hands or similar rings on their horns.
 
 
 -- Cuts, Poison, and Stunning --
@@ -102,4 +103,4 @@ confusion.  Your Saving throw protects against these and other attacks, and you
 can raise this survival skill by increasing Wisdom.
 
 It is rumoured that certain undead possess a very deadly touch...
-The same rumors whisper that Athelas has remarkable curative properties...
+The same rumors whisper that the Heart's Desire has remarkable curative properties...

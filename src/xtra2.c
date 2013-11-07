@@ -210,7 +210,9 @@ void lose_exp(s32b amount)
 
 void town_adjust(int *dungeon_hgt, int *dungeon_wid)
 {
-    bool small_town = ((p_ptr->stage < 151) && (!OPT(adult_dungeon)));
+     /* Never the case in Ponyband */
+     /* TODO: Clean up old code tgat references this variable */
+    bool small_town = FALSE;
 
     (*dungeon_hgt) /= 3;
     (*dungeon_wid) /= (small_town ? 6 : 3);
@@ -685,23 +687,13 @@ bool get_rep_dir(int *dp)
     while (!dir) {
 	/* Paranoia XXX XXX XXX */
 	message_flush();
-
-	/* Get first keypress - the first test is to avoid displaying the
-	 * prompt for direction if there's already a keypress queued up and
-	 * waiting - this just avoids a flickering prompt if there is a "lazy"
-	 * movement delay. */
-	inkey_scan = SCAN_INSTANT;
-	ke = inkey_ex();
-	inkey_scan = SCAN_OFF;
-
-	if (ke.type == EVT_KBRD && target_dir(ke.key) == 0) {
+	
 	    prt("Direction or <click> (Escape to cancel)? ", 0, 0);
 	    ke = inkey_ex();
-	}
 
 	/* Check mouse coordinates */
-	if (ke.type == EVT_MOUSE) {
-	    /* if (ke.button) */
+    if (ke.type == EVT_MOUSE) {
+        /* if (ke.button) */
 	    {
 		int y = KEY_GRID_Y(ke);
 		int x = KEY_GRID_X(ke);
@@ -733,13 +725,13 @@ bool get_rep_dir(int *dp)
 
 	/* Get other keypresses until a direction is chosen. */
 	else {
-	    int keypresses_handled = 0;
+        int keypresses_handled = 0;
 
 	    while (ke.type == EVT_KBRD && ke.key.code != 0) {
 		int this_dir;
 
 		if (ke.key.code == ESCAPE) {
-		    /* Clear the prompt */
+            /* Clear the prompt */
 		    prt("", 0, 0);
 
 		    return (FALSE);
@@ -749,12 +741,13 @@ bool get_rep_dir(int *dp)
 		 * currently "Pending" direction. XXX */
 		this_dir = target_dir(ke.key);
 
-		if (this_dir) {
-		    dir = dir_transitions[dir][this_dir];
+        if (this_dir) {
+            dir = dir_transitions[dir][this_dir];
 		}
 
-		if (lazymove_delay == 0 || ++keypresses_handled > 1)
+		if (lazymove_delay == 0 || ++keypresses_handled > 1) {
 		    break;
+           }
 
 		inkey_scan = lazymove_delay;
 		ke = inkey_ex();
@@ -762,7 +755,7 @@ bool get_rep_dir(int *dp)
 
 	    /* 5 is equivalent to "escape" */
 	    if (dir == 5) {
-		/* Clear the prompt */
+        /* Clear the prompt */
 		prt("", 0, 0);
 
 		return (FALSE);

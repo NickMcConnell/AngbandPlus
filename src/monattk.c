@@ -128,7 +128,39 @@ static const char *desc_insult[] = {
     "moons you!!!"
 };
 
+/**
+ * Equally hacky - possible "chat" messages
+ */
+static const char *desc_chat[] = {
+       "asks about the weather.",
+       "wonders aloud if you are new to Ponyville.",
+       "says that Parasprites are cute, even if they are a nussance.",
+       "hopes this whole \"eternal night\" thing gets fixed soon.",
+       "would like to buy some new socks.",
+       "can't wait for the new issue of Equestria Daily.",
+       "is worried about Pinkie Pie's twitching tail.",
+       "wonders why there are so few stallions in this town.",
+       "wonders why there are so many gloves in a castle for ponies.",
+       "invites you to go bowling, when you have the time.",
+       "needs help figuring out how to use scissors with hooves.",
+       "asks about the orange chicken running around town."
+};
 
+/**
+ * Hack -- possible "panic" messages
+ */
+static const char *desc_panic[] = {
+       "claims the night will never end!",
+       "worried about gettign eaten by an Ursa Major.",
+       "thinks Celestia planned on Nightmare Moons release.",
+       "claims something is watching everypony.",
+       "shouts \"The Horror! The Horror\"",
+       "cries in terror.",
+       "claims to be cursed.",
+       "claims to be hexed.",
+       "screams \"Whatever shall I do!?\""
+};
+       
 
 /**
  * Hack -- possible "insult" messages
@@ -137,17 +169,17 @@ static const char *desc_sneer[] = {
     "tells you it's too hard to cross rivers.",
     "worries about getting lost in the mountains.",
     "whines about the gang of novice paladins he met.",
-    "asks you the way to Nowhere Town.",
+    "is worried about getting too dirty.",
     "says he can hear someone imprisoned in the rock.",
-    "wonders how a trapdoor can take you to a different dungeon.",
+    "wonders how he holds a weapon, shield, bow, and torch at once.",
     "babbles about mirages in the swamp.",
     "theorises that time is standing still.",
-    "tries to give you an order for pizza.",
+    "tries to ask you to bring hors d'oeurvres.",
     "requests some help with map-reading.",
     "claims he can see through walls.",
     "decries the standard of today's arrows.",
-    "questions the presence of vorpal bunnies in Beleriand.",
-    "gasps that he's just drunk a wooden potion.",
+    "claims Fluttershy is actually a tree.",
+    "gasps that he's just eat commoner food.",
     "relates his problems with running in the right direction.",
     "testifies that some monsters speak in tongues.",
     "reports that some adventurers lie about their past.",
@@ -155,8 +187,8 @@ static const char *desc_sneer[] = {
     "asserts that he has been cloned.",
     "maintains that vaults are really just big larders.",
     "alleges that patches of grass are really magical staircases.",
-    "calls Ironbark the Ent a stingy bastard.",
-    "declares that wilderness pathways dilate time."
+    "calls to have beaten Rainbow Dash in a race.",
+    "declares that Nightmare Moon's banishment was faked."
 };
 
 /**
@@ -214,7 +246,7 @@ static void make_request(int m_idx)
 	    }
 	case TV_FOOD:
 	    {
-		if (o_ptr->sval == SV_FOOD_RATION)
+		if (o_ptr->sval == SV_FOOD_CARROT)
 		    requested_slot = i;
 		break;
 	    }
@@ -274,7 +306,7 @@ static void make_request(int m_idx)
 	/* Try to make a deal for the item. */
 	msg("%^s looks longingly at your abundant supplies:", m_name);
 	msg
-	    ("'Kind Sir, I desperately need %d %s.  I will gladly give %d gold in exchange.'",
+	    ("'Kind Sir, I desperately need %d %s.  I will gladly give %d bits in exchange.'",
 	     requested_number, o_name, offer_price);
 
 	/* Make the trade. */
@@ -353,7 +385,7 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
     char ddesc[80];
 
-    bool blinked;
+    bool blinked, explode;
 
     /* Check Bounds */
     if (!in_bounds(y, x))
@@ -409,8 +441,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	terrain_bonus += ac / 8 + 10;
 
 
-    /* Assume no blink */
+    /* Assume no blink or explosion */
     blinked = FALSE;
+    explode = FALSE;
 
     /* Scan through all four blows */
     for (ap_cnt = 0; ap_cnt < 4; ap_cnt++) {
@@ -531,6 +564,12 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	case RBE_EXP_80:
 	    power = 5;
 	    break;
+    case RBE_HALLUCINATE:
+        power = 10;
+        break;
+    case RBE_DRAIN_MANA:
+        power = 20;
+        break;
 	}
 
 	/* Try for Evasion */
@@ -625,9 +664,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		break;
 	    }
 
-	    case RBM_XXX1:
+	    case RBM_CHAT:
 	    {
-		act = "XXX1's you.";
+		act = desc_chat[randint0(8)];
 		break;
 	    }
 
@@ -651,11 +690,11 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		break;
 	    }
 
-	    case RBM_XXX2:
-	    {
-		act = "XXX2's you.";
-		break;
-	    }
+	    case RBM_PANIC:
+        {
+        act = desc_panic[randint0(9)];
+        break;
+        }
 
 	    case RBM_CRAWL:
 	    {
@@ -675,9 +714,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		break;
 	    }
 
-	    case RBM_XXX3:
+	    case RBM_PECK:
 	    {
-		act = "XXX3's on you.";
+		act = "pecks at your eyes.";
 		break;
 	    }
 
@@ -699,9 +738,11 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		break;
 	    }
 
-	    case RBM_XXX4:
+	    case RBM_EXPLODE:
 	    {
-		act = "projects XXX4's at you.";
+        explode = TRUE;
+        blinked = FALSE;
+		act = "explodes.";
 		break;
 	    }
 
@@ -716,8 +757,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		act = desc_insult[randint0(8)];
 		break;
 	    }
-
-	    case RBM_SNEER:
+        
+        case RBM_SNEER:
 	    {
 		act = desc_sneer[randint0(23)];
 		break;
@@ -734,25 +775,26 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    if (act)
 		msg("%^s %s", m_name, act);
 
-	    /* The undead can give the player the Black Breath with a sucessful 
-	     * blow. Uniques have a much better chance. -LM- */
-	    if ((r_ptr->level >= 40) && (rf_has(r_ptr->flags, RF_UNDEAD))
-		&& (rf_has(r_ptr->flags, RF_UNIQUE))
-		&& (randint1(250 - r_ptr->level) == 1)) {
-		msg("Your foe calls upon your soul!");
-		msg
-		    ("You feel the Black Breath slowly draining you of life...");
-		p_ptr->black_breath = TRUE;
-	    }
-
-	    else if ((r_ptr->level >= 50) && (rf_has(r_ptr->flags, RF_UNDEAD))
-		     && (randint1(500 - r_ptr->level) == 1)) {
-		msg("Your foe calls upon your soul!");
-		msg
-		    ("You feel the Black Breath slowly draining you of life...");
-		p_ptr->black_breath = TRUE;
-	    }
-
+        /* Explosions don't cause black breath */
+        if (!explode)
+        {
+	        /* The undead can give the player the Black Breath with a sucessful 
+	         * blow. Uniques have a much better chance. -LM- */
+	        if ((r_ptr->level >= 40) && (rf_has(r_ptr->flags, RF_UNDEAD))
+	    	&& (rf_has(r_ptr->flags, RF_UNIQUE))
+		    && (randint1(250 - r_ptr->level) == 1)) {
+		        msg("Your foe calls upon your soul!");
+		        msg("You feel the Black Breath slowly draining you of life...");
+		        p_ptr->black_breath = TRUE;
+	        }
+            else if ((r_ptr->level >= 50) && (rf_has(r_ptr->flags, RF_UNDEAD))
+		         && (randint1(500 - r_ptr->level) == 1)) {
+		        msg("Your foe calls upon your soul!");
+		        msg("You feel the Black Breath slowly draining you of life...");
+		    p_ptr->black_breath = TRUE;
+	        }
+        }
+        
 	    /* Hack -- assume all attacks are obvious */
 	    obvious = TRUE;
 
@@ -777,25 +819,37 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    {
 		/* Obvious */
 		obvious = TRUE;
+		/* Explode */
+        if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_WHIP, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
+        /* Non exploders hit the player */
+        else
+        {
+		    /* Hack -- Player armor reduces total damage */
+		    damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
-		/* Hack -- Player armor reduces total damage */
-		damage -= (damage * ((ac < 150) ? ac : 150) / 250);
-
-		/* Take damage */
-		take_hit(damage, ddesc);
+		    /* Take damage */
+			take_hit(damage, ddesc);
+        }
 
 		break;
 	    }
 
 	    case RBE_POISON:
 	    {
-		/* Basic damage is not resistable. */
-		take_hit(damage, ddesc);
+        /* Explode */
+        if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_POIS, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
+        /* Non exploders hit the player */
+        else
+        {
+		    /* Basic damage is not resistable. */
+		    take_hit(damage, ddesc);
 
-		/* Poison Counter Only */
-		if (pois_hit(damage))
-		    obvious = TRUE;
-
+		    /* Poison Counter Only */
+	        if (pois_hit(damage))
+		        obvious = TRUE;
+        }
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_POIS);
 
@@ -804,17 +858,23 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_UN_BONUS:
 	    {
-		/* Take damage */
-		take_hit(damage, ddesc);
+        /* Explode */
+        if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_DISEN, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
+        /* Non exploders hit the player */
+        else
+        {
+		    /* Take damage */
+		    take_hit(damage, ddesc);
 
-		/* Allow complete resist */
-		if (!p_resist_good(P_RES_DISEN)) {
-		    /* Apply disenchantment */
-		    if (apply_disenchant(0))
-			obvious = TRUE;
-		} else
-		    notice_other(IF_RES_DISEN, 0);
-
+		    /* Allow complete resist */
+		    if (!p_resist_good(P_RES_DISEN)) {
+		        /* Apply disenchantment */
+		        if (apply_disenchant(0))
+			    obvious = TRUE;
+		    } else
+		        notice_other(IF_RES_DISEN, 0);
+        }
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_DISEN);
 
@@ -824,6 +884,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    /* now drains rods too. */
 	    case RBE_UN_POWER:
 	    {
+        /* Hack: No UN_POWER explosions. Force a normal attack */
+        explode = FALSE;    
 		/* Take damage */
 		take_hit(damage, ddesc);
 
@@ -930,6 +992,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_EAT_GOLD:
 	    {
+        /* Hack: No EAT_GOLD explosions. Force normal attack */
+        explode = FALSE;
 		/* Take damage */
 		take_hit(damage, ddesc);
 
@@ -969,10 +1033,10 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 			msg("Nothing was stolen.");
 		    } else if (p_ptr->au) {
 			msg("Your purse feels lighter.");
-			msg("%ld coins were stolen!", (long) gold);
+			msg("%ld bitss were stolen!", (long) gold);
 		    } else {
 			msg("Your purse feels lighter.");
-			msg("All of your coins were stolen!");
+			msg("All of your bits were stolen!");
 		    }
 
 		    /* Redraw gold */
@@ -987,6 +1051,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_EAT_ITEM:
 	    {
+        /* Hack: No EAT_ITEM explosions. Force normal attack */
+        explode = FALSE;
 		/* Take damage */
 		take_hit(damage, ddesc);
 
@@ -1080,6 +1146,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    
 	    case RBE_EAT_FOOD:
 	    {
+        /* Hack: No EAT_FOOD explosions. Force normal attack */
+        explode = FALSE;
 		/* Take damage */
 		take_hit(damage, ddesc);
 
@@ -1124,6 +1192,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    
 	    case RBE_EAT_LIGHT:
 	    {
+        /* Hack: No EAT_LIGHT explosions. Force normal attack */
+        explode = FALSE;
 		/* Take damage */
 		take_hit(damage, ddesc);
 
@@ -1154,16 +1224,22 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    {
 		/* Obvious */
 		obvious = TRUE;
+		
+		/* Explode */
+		if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_ACID, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
 
-		/* Message */
-		msg("You are covered in acid!");
+        else {
+		    /* Message */
+		    msg("You are covered in acid!");
 
-		/* Some guaranteed damage. */
-		take_hit(damage / 3 + 1, ddesc);
+		    /* Some guaranteed damage. */
+		    take_hit(damage / 3 + 1, ddesc);
 
-		/* Special damage, reduced greatly by resists. */
-		acid_dam(2 * damage / 3, ddesc);
-
+		    /* Special damage, reduced greatly by resists. */
+		    acid_dam(2 * damage / 3, ddesc);
+		    
+        }
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_ACID);
 
@@ -1174,17 +1250,23 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    {
 		/* Obvious */
 		obvious = TRUE;
+		
+		/* Explode */
+		if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_ELEC, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
 
-		/* Message */
-		msg("You are struck by electricity!");
+        else {
+            /* Message */
+		    msg("You are struck by electricity!");
 
-		/* Some guaranteed damage. */
-		take_hit(damage / 3 + 1, ddesc);
+		    /* Some guaranteed damage. */
+		    take_hit(damage / 3 + 1, ddesc);
 
-		/* Special damage, reduced greatly by resists. */
-		elec_dam(2 * damage / 3, ddesc);
+		    /* Special damage, reduced greatly by resists. */
+		    elec_dam(2 * damage / 3, ddesc);
 
-		/* Learn about the player */
+        }
+        /* Learn about the player */
 		update_smart_learn(m_idx, LRN_ELEC);
 
 		break;
@@ -1195,16 +1277,22 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		/* Obvious */
 		obvious = TRUE;
 
-		/* Message */
-		msg("You are enveloped in flames!");
+		/* Explode */
+		if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_FIRE, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
 
-		/* Some guaranteed damage. */
-		take_hit(damage / 3 + 1, ddesc);
+        else {
+            /* Message */
+		    msg("You are enveloped in flames!");
 
-		/* Special damage, reduced greatly by resists. */
-		fire_dam(2 * damage / 3, ddesc);
+		    /* Some guaranteed damage. */
+		    take_hit(damage / 3 + 1, ddesc);
 
-		/* Learn about the player */
+		    /* Special damage, reduced greatly by resists. */
+		    fire_dam(2 * damage / 3, ddesc);
+
+		}
+        /* Learn about the player */
 		update_smart_learn(m_idx, LRN_FIRE);
 
 		break;
@@ -1215,16 +1303,22 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		/* Obvious */
 		obvious = TRUE;
 
-		/* Message */
-		msg("You are covered with frost!");
+		/* Explode */
+		if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_COLD, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
 
-		/* Some guaranteed damage. */
-		take_hit(damage / 3 + 1, ddesc);
+        else {
+             /* Message */
+		     msg("You are covered with frost!");
 
-		/* Special damage, reduced greatly by resists. */
-		cold_dam(2 * damage / 3, ddesc);
+		     /* Some guaranteed damage. */
+		     take_hit(damage / 3 + 1, ddesc);
 
-		/* Learn about the player */
+		     /* Special damage, reduced greatly by resists. */
+		     cold_dam(2 * damage / 3, ddesc);
+
+		}
+        /* Learn about the player */
 		update_smart_learn(m_idx, LRN_COLD);
 
 		break;
@@ -1233,7 +1327,12 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    /* Blindness is no longer fully cumulative. */
 	    case RBE_BLIND:
 	    {
-		/* Take damage */
+		/* Hack: No Blind explosions. force normal attack.  If you want a blinding explosion,
+		 * attack with light or dark 
+		 */
+		explode = FALSE;
+		
+        /* Take damage */
 		take_hit(damage, ddesc);
 
 		/* Increase "blind" */
@@ -1260,59 +1359,101 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    /* Confusion is no longer fully cumulative. */
 	    case RBE_CONFUSE:
 	    {
-		/* Take damage */
-		take_hit(damage, ddesc);
+        /* Explode */
+		if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_CONFU, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
 
-		/* Increase "confused" */
-		if (!p_resist_good(P_RES_CONFU)) {
-		    if (p_ptr->timed[TMD_CONFUSED]) {
-			if (inc_timed
-			    (TMD_CONFUSED, 2 + randint1(rlev / 2), TRUE)) {
-			    obvious = TRUE;
-			}
-		    } else {
-			if (inc_timed
-			    (TMD_CONFUSED, 5 + randint1(rlev), TRUE)) {
-			    obvious = TRUE;
-			}
-		    }
-		} else
-		    notice_other(IF_RES_CONFU, 0);
+        else {
+		     /* Take damage */
+		     take_hit(damage, ddesc);
 
-		/* Learn about the player */
+		     /* Increase "confused" */
+		     if (!p_resist_good(P_RES_CONFU)) {
+		         if (p_ptr->timed[TMD_CONFUSED]) {
+			     if (inc_timed
+			         (TMD_CONFUSED, 2 + randint1(rlev / 2), TRUE)) {
+			         obvious = TRUE;
+			     }
+		         } else {
+			     if (inc_timed
+			         (TMD_CONFUSED, 5 + randint1(rlev), TRUE)) {
+			         obvious = TRUE;
+			    }
+		         }
+		     } else
+		         notice_other(IF_RES_CONFU, 0);
+
+		}
+        /* Learn about the player */
 		update_smart_learn(m_idx, LRN_CONFU);
 
 		break;
 	    }
 
-	    /* Fear is no longer fully cumulative. */
-	    case RBE_TERRIFY:
+        case RBE_HALLUCINATE:
 	    {
-		/* Take damage */
+		/* Hack: No hallucination explosions. Force melee attack */
+		explode = FALSE;
+		
+        /* Take damage */
 		take_hit(damage, ddesc);
 
-		/* Increase "afraid" */
-		if (p_ptr->state.no_fear) {
-		    notice_obj(OF_FEARLESS, 0);
-		    msg("You stand your ground!");
-		    obvious = TRUE;
-		} else if (check_save(100)) {
-		    msg("You stand your ground!");
-		    obvious = TRUE;
-		} else {
-		    if (p_ptr->timed[TMD_AFRAID]) {
+		/* Increase "hallucinating" */
+		if (!p_resist_good(P_RES_CHAOS)) {
+		    if (p_ptr->timed[TMD_IMAGE]) {
 			if (inc_timed
-			    (TMD_AFRAID, 2 + randint1(rlev / 2), TRUE)) {
+			    (TMD_IMAGE, 2 + randint1(rlev / 2), TRUE)) {
 			    obvious = TRUE;
 			}
 		    } else {
-			if (inc_timed(TMD_AFRAID, 6 + randint1(rlev), TRUE)) {
+			if (inc_timed
+			    (TMD_IMAGE, 5 + randint1(rlev), TRUE)) {
 			    obvious = TRUE;
 			}
 		    }
-		}
+		} else
+		    notice_other(IF_RES_CHAOS, 0);
 
 		/* Learn about the player */
+		update_smart_learn(m_idx, LRN_CHAOS);
+
+		break;
+	    }
+	    
+	    /* Fear is no longer fully cumulative. */
+	    case RBE_TERRIFY:
+	    {
+		/* Explode */
+		if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_TURN_ALL, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
+
+        else {
+             /* Take damage */
+		     take_hit(damage, ddesc);
+
+		    /* Increase "afraid" */
+		    if (p_ptr->state.no_fear) {
+		        notice_obj(OF_FEARLESS, 0);
+		        msg("You stand your ground!");
+		        obvious = TRUE;
+		    } else if (check_save(100)) {
+		        msg("You stand your ground!");
+		        obvious = TRUE;
+		    } else {
+		        if (p_ptr->timed[TMD_AFRAID]) {
+			    if (inc_timed
+			        (TMD_AFRAID, 2 + randint1(rlev / 2), TRUE)) {
+			        obvious = TRUE;
+			    }
+		        } else {
+			    if (inc_timed(TMD_AFRAID, 6 + randint1(rlev), TRUE)) {
+			        obvious = TRUE;
+			    }
+		        }
+		    }
+
+		}
+        /* Learn about the player */
 		update_smart_learn(m_idx, LRN_FEAR_SAVE);
 
 		break;
@@ -1321,6 +1462,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    /* Paralyzation is no longer fully cumulative. */
 	    case RBE_PARALYZE:
 	    {
+        /* Hack: No paralysis explosions. Force melee */
+        explode = FALSE;
 		/* Hack -- Prevent perma-paralysis via damage */
 		if (p_ptr->timed[TMD_PARALYZED] && (damage < 1))
 		    damage = 1;
@@ -1359,6 +1502,8 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_LOSE_STR:
 	    {
+        /* Hack: No stat loss explosions. Force melee */
+        explode = FALSE;
 		/* Take damage */
 		take_hit(damage, ddesc);
 
@@ -1371,7 +1516,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_LOSE_INT:
 	    {
-		/* Take damage */
+		/* Hack: No stat loss explosions. Force melee */
+		explode = FALSE;
+        /* Take damage */
 		take_hit(damage, ddesc);
 
 		/* Damage (stat) */
@@ -1383,7 +1530,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_LOSE_WIS:
 	    {
-		/* Take damage */
+		/* Hack: No stat loss explosions. Force melee */
+		explode = FALSE;
+        /* Take damage */
 		take_hit(damage, ddesc);
 
 		/* Damage (stat) */
@@ -1395,6 +1544,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_LOSE_DEX:
 	    {
+        /* Hack: No Stat loss explosions. Force melee */
+        explode = FALSE;
+        
 		/* Take damage */
 		take_hit(damage, ddesc);
 
@@ -1407,7 +1559,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_LOSE_CON:
 	    {
-		/* Take damage */
+		/* Hack: No stat loss explosions. Force melee */
+		explode = FALSE;
+        /* Take damage */
 		take_hit(damage, ddesc);
 
 		/* Damage (stat) */
@@ -1419,7 +1573,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    
 	    case RBE_LOSE_CHR:
 	    {
-		/* Take damage */
+		/* Hack: No stat loss explosions. Force melee */
+		explode = FALSE;
+        /* Take damage */
 		take_hit(damage, ddesc);
 
 		/* Damage (stat) */
@@ -1431,7 +1587,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_LOSE_ALL:
 	    {
-		/* Take damage */
+		/* Hack: No stat loss explosions. Force melee */
+		explode = FALSE;
+        /* Take damage */
 		take_hit(damage, ddesc);
 
 		/* Damage (stats) */
@@ -1453,16 +1611,22 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_SHATTER:
 	    {
-		/* Obvious */
+        /* Obvious */
 		obvious = TRUE;
 
-		/* Hack -- Reduce damage based on the player armor class */
-		damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+		/* Explode */
+		if (explode)
+		    project(m_idx, 3, m_ptr->fy, m_ptr->fx, damage, GF_ELEC, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
 
-		/* Take damage */
-		take_hit(damage, ddesc);
+        else {
+            /* Hack -- Reduce damage based on the player armor class */
+		    damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
-		/* Radius 6 earthquake centered at the monster */
+		    /* Take damage */
+		    take_hit(damage, ddesc);
+
+		}
+        /* Radius 6 earthquake centered at the monster */
 		if (damage > 23)
 		    earthquake(m_ptr->fy, m_ptr->fx, 6, FALSE);
 
@@ -1471,7 +1635,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_EXP_10:
 	    {
-		/* Obvious */
+		/* Hack: No XP loss explosions. force melee */
+		explode = FALSE;
+        /* Obvious */
 		obvious = TRUE;
 
 		/* Take damage */
@@ -1497,7 +1663,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_EXP_20:
 	    {
-		/* Obvious */
+		/* Hack: No XP loss explosions. Force melee */
+		explode = FALSE;
+        /* Obvious */
 		obvious = TRUE;
 
 		/* Take damage */
@@ -1523,7 +1691,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 	    case RBE_EXP_40:
 	    {
-		/* Obvious */
+		/* Hack: No XP loss explosions. Force melee */
+		explode = FALSE;
+        /* Obvious */
 		obvious = TRUE;
 
 		/* Take damage */
@@ -1549,7 +1719,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		
 	    case RBE_EXP_80:
 	    {
-		/* Obvious */
+		/* Hack: No XP loss explosions. Force melee */
+		explode = FALSE;
+        /* Obvious */
 		obvious = TRUE;
 		    
 		/* Take damage */
@@ -1572,6 +1744,53 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		}
 		break;
 	    }
+	    
+	    case RBE_DRAIN_MANA:
+        {
+        /* Hack: No drain mana explosions. Force melee */
+        explode = FALSE;
+        /* Obvious */
+        obvious = TRUE;
+        
+        take_hit(damage, ddesc);
+        if (p_ptr->csp) {
+	       int r1;
+	       /* Drain */
+	       r1 = remove_player_mana(4 + randint1(rlev / 5));
+
+	       /* Redraw mana */
+	       p_ptr->redraw |= (PR_MANA);
+
+	       /* Replenish monster mana */
+	       if (m_ptr->mana < r_ptr->mana) {
+		   if (r1 > r_ptr->mana - m_ptr->mana) {
+		      r1 -= r_ptr->mana - m_ptr->mana;
+		       m_ptr->mana = r_ptr->mana;
+		   } else {
+		        m_ptr->mana += r1;
+		        r1 = 0;
+		   }
+
+		   /* Redraw (later) if needed */
+		   if (p_ptr->health_who == m_idx)
+		      p_ptr->redraw |= (PR_MON_MANA);
+           }
+
+	       /* Heal the monster with remaining energy */
+	       if ((m_ptr->hp < m_ptr->maxhp) && (r1)) {
+		   /* Heal */
+		   m_ptr->hp += (30 * (r1 + 1));
+		   if (m_ptr->hp > m_ptr->maxhp)
+		        m_ptr->hp = m_ptr->maxhp;
+
+		   /* Redraw (later) if needed */
+		   if (p_ptr->health_who == m_idx)
+		        p_ptr->redraw |= (PR_HEALTH);
+
+		   }
+	    }
+	    break;
+        }
 	    }
 
 
@@ -1680,11 +1899,9 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 	    case RBM_CLAW:
 	    case RBM_BITE:
 	    case RBM_STING:
-	    case RBM_XXX1:
 	    case RBM_BUTT:
 	    case RBM_CRUSH:
 	    case RBM_ENGULF:
-	    case RBM_XXX2:
 
 		/* Visible monsters */
 		if (m_ptr->ml) {
@@ -1698,6 +1915,16 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		break;
 	    }
 	}
+	
+	if (explode)
+	{
+        sound(MSG_BR_FIRE);
+        
+        /* Cancel Invulnerability */
+        m_ptr->stasis = FALSE;
+        mon_take_hit(m_idx, m_ptr->hp + 1, FALSE, " explodes into tiny shreds.");
+        blinked = FALSE;
+    }
 
 
 	/* Analyze "visible" monsters only */
@@ -1935,6 +2162,12 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
     char m_poss[80];
 
     char ddesc[80];
+    
+    /* Hack: These variables are only used by RSF_FORCE_SUICIDE */
+    monster_type *tm_ptr;
+    feature_type *f_ptr;
+    int i, direction, dy, dx;	 
+    int min = 0, max = 1, dist;
 
     /* Target player */
     int x = px;
@@ -2006,13 +2239,13 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
 			     r_ptr->blow[0].d_side);
 
 	/* Add some more damage for other melee blows. */
-	if (r_ptr->blow[1].d_dice)
+	if (r_ptr->blow[1].d_dice && (r_ptr->blow[1].method != RBM_EXPLODE))
 	    damage +=
 		damroll(r_ptr->blow[1].d_dice, r_ptr->blow[1].d_side) / 2;
-	if (r_ptr->blow[2].d_dice)
+	if (r_ptr->blow[2].d_dice && (r_ptr->blow[2].method != RBM_EXPLODE))
 	    damage +=
 		damroll(r_ptr->blow[2].d_dice, r_ptr->blow[2].d_side) / 2;
-	if (r_ptr->blow[3].d_dice)
+	if (r_ptr->blow[3].d_dice && (r_ptr->blow[3].method != RBM_EXPLODE))
 	    damage +=
 		damroll(r_ptr->blow[3].d_dice, r_ptr->blow[3].d_side) / 2;
 
@@ -2603,8 +2836,119 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
 	break;
     }
 
-    case RSF_XXX1:
+    case RSF_FORCE_SUICIDE:
     {
+    /* 
+    * Hack: This is very different from most other attacks and should probably
+    * have its own function to call
+    */
+    
+    disturb(1, 0);
+    /* Try 9 times before failing and giving up */
+    for (i = 0; i <9; i++) {
+	    /* Pick a random direction */
+	    direction = randint0(7);
+	    dy = 0;
+	    dx = 0;
+	    switch (direction) {
+	    case 0:
+	    	dy = 1;
+	     	dx = 0;
+		    break;
+	    case 1:
+		    dy = 1;
+		    dx = 1;
+		    break;
+	    case 2:
+		    dy = 0;
+      		dx = 1;
+	    	break;
+      	case 3:
+	    	dy = -1;
+	     	dx = 1;
+		    break;
+      	case 4:
+	    	dy = -1;
+		    dx = 0;
+      		break;
+        case 5:
+        	dy = -1;
+         	dx = -1;
+          	break;
+        case 6:
+        	dy = 0;
+         	dx = -1;
+          	break;
+        case 7:
+        	dy = 1;
+         	dx = -1;
+          	break;
+        default:
+	    	/* We've magically found an int between 0 and 7 not between 0 and 7
+             * Thow yourself at the player in frustration 
+             */
+            dy = 0;
+            dx = 0;
+            break;
+        }
+	
+        /* If the cell has a monster, store it */
+        if(cave_m_idx[m_ptr->fy + dy][m_ptr->fx + dx] > 0) {
+            tm_ptr = &m_list[cave_m_idx[m_ptr->fy + dy][m_ptr->fx + dx]];
+    		break;
+	    }
+    }
+
+    /* See if we didn't find a monster */
+    if(!(cave_m_idx[m_ptr->fy + dy][m_ptr->fx + dx] > 0)) {
+    	if (!blind)
+	    msg("%^s looks lonely.", m_name);
+    	break;
+     }
+     
+	 /* 
+      * Begin teleporting the monster.
+      * We aren't using teleport_towards because we want to get closer to the player than that does
+      */
+    int ctr = 0;
+	while (1) {
+		while (1) {
+			y = rand_spread(p_ptr->py, max);
+			x = rand_spread(p_ptr->px, max);
+			if (in_bounds_fully(y, x))
+			    break;
+		}
+		f_ptr = &f_info[cave_feat[y][x]];
+		
+		/* Consider all unoccupied floor grids */
+		if (tf_has(f_ptr->flags, TF_FLOOR) && tf_has(f_ptr->flags, TF_EASY) && (cave_m_idx[y][x] == 0))
+		{
+			/* Calculate distance between target and current grid */
+			dist = distance(p_ptr->py, p_ptr->px, y, x);
+			
+			/* Accept grids that are the right distance away. */
+			if ((dist >= min) && (dist <= min))
+			    break;
+		}
+		
+		/* Occationally relax the constraints */
+		if (++ctr > 15) {
+			ctr = 0;
+			max++;
+		} else
+		    ctr++;
+	}
+	
+	/* Sound (assumes monster is moving */
+	sound(MSG_TPOTHER);
+	msg("%^s throws one of %s allies at you.", m_name, m_poss);
+
+	/* Move monster */
+	monster_swap (tm_ptr->fy + dy, tm_ptr->fx + dx, y, x);
+
+	/* Blow up the monster */
+	(void) project(m_idx, 2, y, x, get_dam(tm_ptr->hp / 15, 6), GF_FIRE, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY, 0, 0);
+
 	break;
     }
 
@@ -3580,8 +3924,24 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
 	break;
     }
 
-    case RSF_XXX4:
+    case RSF_SHADOWPORT:
     {
+    disturb(1, 0);
+    if (seen)
+        msg("%^s draws in the darkness.", m_name);
+    (void) unlight_area(0, 5);
+    summon_specific(y, x, FALSE, rlev, SHADOWCLONE);
+    teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+    
+    /* 
+	 * if it comes into view from around a corner (VERY unlikely)
+	 * give a message and learn about the casting
+	 */
+	if (!seen && m_ptr->ml) {
+	    monster_desc(ddesc, sizeof(m_name), m_ptr, 0x08);
+	    msg("%^s teleports.", ddesc);
+	    seen = TRUE;
+    }
 	break;
     }
 
@@ -4101,11 +4461,37 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
 	break;
     }
 
-    case RSF_S_XXX1:
-	break;
-    case RSF_S_XXX2:
-	break;
-
+    case RSF_S_EHARMONY:
+    {
+         disturb(1,0);
+         sound(MSG_SUM_MONSTER);
+         if(blind)
+             msg("%^s mumbles.", m_name);
+         else
+             msg("%^s magically summons the Element bearers!", m_name);
+         for (k = 0; k <= 6; k++) {
+             count += summon_specific(y, x, FALSE, rlev, SUMMON_EHARMONY);
+         }
+         if (blind && count)
+             msg("You hear something appear nearby.");
+	     break;
+    }
+    
+    case RSF_S_SESSILE:
+    {
+         disturb(1,0);
+         sound(MSG_SUM_MONSTER);
+         if(blind)
+             msg("%^s mumbles.", m_name);
+         else
+             msg("%^s magically summons partygoers!", m_name);
+         for (k = 0; k <= 6; k++) {
+             count += summon_specific(y, x, FALSE, rlev, SUMMON_SESSILE);
+         }
+         if (blind && count)
+             msg("You hear something appear nearby.");
+	     break;
+    }
 
     case RSF_S_MONSTER:
     {
@@ -4138,11 +4524,54 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
 	    msg("You hear many things appear nearby.");
 	break;
     }
+    
+    case RSF_S_PARTY:
+    {
+         disturb(1, 0);
+         sound(MSG_SUM_MONSTER);
+         if(blind)
+             msg("%^s mumbles.", m_name);
+         else
+             msg("%^s magically summons partygoers!", m_name);
+         for (k = 0; k <= 6; k++) {
+             count += summon_specific(y, x, FALSE, rlev, SUMMON_PARTY);
+         }
+         if (blind && count)
+             msg("You hear something appear nearby.");
+	     break;
+    }
 
-    case RSF_S_XXX4:
-	break;
-    case RSF_S_XXX5:
-	break;
+    case RSF_S_ORB:
+    {
+         disturb(1, 0);
+         sound(MSG_SUM_MONSTER);
+         if(blind)
+             msg("%^s mumbles.", m_name);
+         else
+             msg("%^s creates an explosive ball of magical energy!", m_name);
+         for (k = 0; k <= 1; k++) {
+             count += summon_specific(y, x, FALSE, rlev, SUMMON_ORB);
+         }
+         if (blind && count)
+             msg("You hear the crackle of magic nearby.");
+	     break;
+    }
+    
+    case RSF_S_ORBS:
+    {
+	     disturb(1, 0);
+         sound(MSG_SUM_MONSTER);
+         if(blind)
+             msg("%^s mumbles.", m_name);
+         else
+             msg("%^s creates a explosive balls of magical energy!", m_name);
+         for (k = 0; k <= 5; k++) {
+             count += summon_specific(y, x, FALSE, rlev, SUMMON_ORB);
+         }
+         if (blind && count)
+             msg("You hear the crackle of magic nearby.");
+	     break;
+    }
 
     case RSF_S_ANT:
     {
@@ -4208,10 +4637,34 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
 	break;
     }
 
-    case RSF_S_XXX6:
+    case RSF_S_SHADOWBOLTS:
+    {
+         disturb(1, 0);
+	sound(MSG_SUM_ANIMAL);
+	if (blind)
+	    msg("%^s mumbles.", m_name);
+	else
+	    msg("%^s calls for the Shadowbolts.", m_name);
+	for (k = 0; k < 5; k++) {
+	    count += summon_specific(y, x, FALSE, rlev, SUMMON_SHADOWBOLTS);
+	}
+	if (blind && count)
+	    msg("You hear many things appear nearby.");
+	    break;
+    }
+    case RSF_SHADOWCLONE:
+    {
+    disturb(1, 0);
+    sound(MSG_SUM_MONSTER);
+    if (blind)
+       msg("A foul wind blows past.");
+    else
+        msg("%^s draws in the darknes and forms clones!", m_name);
+    for (k=0; k < 3; k++) {
+        count += summon_specific(y, x, FALSE, rlev, SHADOWCLONE);
+    }
 	break;
-    case RSF_S_XXX7:
-	break;
+    }
 
     case RSF_S_THIEF:
     {

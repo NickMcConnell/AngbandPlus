@@ -3,7 +3,7 @@
 # Debug build:   NMAKE /F Makefile.nmake
 # Release build: NMAKE /F Makefile.nmake RELEASE=1
 
-EXE = FAangband.exe
+EXE = Ponyband.exe
 default: ..\$(EXE)
 exe: $(EXE)
 

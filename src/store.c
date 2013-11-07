@@ -1343,7 +1343,7 @@ static void store_prt_gold(void)
 {
     char out_val[64];
 
-    prt("Gold Remaining: ", 18, 53);
+    prt("Bits Remaining: ", 18, 53);
 
     sprintf(out_val, "%9ld", (long) p_ptr->au);
     prt(out_val, 18, 67);
@@ -1603,7 +1603,7 @@ static void store_purchase(void)
 	/* Check if the player can afford any at all */
 	if ((u32b) p_ptr->au < (u32b) price) {
 	    /* Tell the user */
-	    msg("You do not have enough gold for this item.");
+	    msg("You do not have enough money for this item.");
 
 	    /* Abort now */
 	    return;
@@ -1656,7 +1656,7 @@ static void store_purchase(void)
 	price = price_item(i_ptr, ot_ptr->inflate, FALSE) * i_ptr->number;
 
 	/* Confirm purchase */
-	if (!get_check(format("Buy %s for %d gold?", o_name, price)))
+	if (!get_check(format("Buy %s for %d bits?", o_name, price)))
 	    return;
 
 	/* Message */
@@ -1694,7 +1694,7 @@ static void store_purchase(void)
 			ODESC_PREFIX | ODESC_FULL);
 
 	    /* Message */
-	    msg("You bought %s (%c) for %ld gold.", o_name,
+	    msg("You bought %s (%c) for %ld bits.", o_name,
 		       store_to_label(item), (long) price);
 
 	    /* Erase the feeling */
@@ -1786,7 +1786,7 @@ static void store_purchase(void)
 	/* Player cannot afford it */
 	else {
 	    /* Simple message (no insult) */
-	    msg("You do not have enough gold.");
+	    msg("You do not have enough money.");
 	}
 
     }
@@ -1965,11 +1965,11 @@ static void store_sell(void)
 	    price = price_item(i_ptr, ot_ptr->inflate, TRUE) * i_ptr->number;
 
 	    /* Confirm sale */
-	    msg("Selling %s (%c) for %d gold.", o_name,
+	    msg("Selling %s (%c) for %d bits.", o_name,
 		       index_to_label(item), price);
 
 	    /* Confirm sale */
-	    if (!get_check(format("Accept %d gold?", price)))
+	    if (!get_check(format("Accept %d bits?", price)))
 		return;
 
 	    /* Say "okay" */
@@ -2051,7 +2051,7 @@ static void store_sell(void)
 	    msg("You gave over %s (%c).", o_name, index_to_label(item));
 	} else {
 	    /* Describe the result (in message buffer) */
-	    msg("You sold %s (%c) for %ld gold.", o_name,
+	    msg("You sold %s (%c) for %ld bits.", o_name,
 		       index_to_label(item), (long) price);
 
 	    /* Analyze the prices (and comment verbally) */
@@ -2864,16 +2864,10 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
     /* Oops */
     if (which == MAX_STORES) 
     {
-	if (OPT(adult_dungeon)) 
-	{
 	    if (f_ptr->shopnum == STORE_MERCH)
 		which = 0;
 	    else
 		which = f_ptr->shopnum + 4 * NUM_TOWNS_SMALL;
-	} else {
-	    msg("You see no store here.");
-	    return;
-	}
     }
 
     /* Hack -- Check the "locked doors" */

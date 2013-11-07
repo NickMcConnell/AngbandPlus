@@ -76,6 +76,7 @@ typedef enum cmd_code
 	CMD_HOLD,
 	CMD_ENTER_STORE,
 	CMD_ALTER,
+	CMD_RACIAL,
 
     /* Store commands */	
 	CMD_SELL,

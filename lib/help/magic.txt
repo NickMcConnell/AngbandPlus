@@ -20,7 +20,7 @@ casters always have nine books, and the half-spellcasters use between four and
 six.  If a spellbook of the player's realm has no useful spells contained in it, 
 it will appear gray in listings and on the main screen.
 
-     In FAangband, it is far easier than in Angband to confuse, slow, frighten,
+     In Ponyband, it is far easier than in Angband to confuse, slow, frighten,
 turn, or sleep most monsters, and many creatures (including uniques) are vulnerable.  
 With skill and patience, you can badly hinder even formidable opponents.  On 
 the other hand, many monster races have at least one intrinsic immunity, high-
@@ -86,6 +86,9 @@ Sorcery:
      are better at this than anyone else), gaining information, improving their 
      combat skill, sneaking up on their unwary foes, and getting out of tough 
      spots.  Rogues use five magic books.
+	      These types of casters need a natural way to control magic, either
+     channeling it through a horn or through precise gestures and incantantions
+	 As a result, races without hands or horns are unable to use sorcery.
 
 Piety:
           Priests are the shining wielders of holy light, and will eventually be 
@@ -127,6 +130,9 @@ Necromancy:
      mancers are always going to have to be cautious.
           Assassin magic renders them silent and deadly, and eventually allows 
      them to reliably poison any missile.  Assassins use four books.
+	      Like sorcery, this need a natural way to control magic, either
+     channeling it through a horn or through precise gestures and incantantions
+	 As a result, races without hands or horns are unable to use necromancy.
 
 
 === Shapeshifts ===

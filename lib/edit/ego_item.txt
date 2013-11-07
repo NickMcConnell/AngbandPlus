@@ -68,7 +68,7 @@ I:FEARLESS | HALLU_RAND | POIS_RAND
 D:This tough armour is made of the hide of wolves of the frozen North, and 
 D:still bears an overpowering stench.
 
-N:3:of Ered Engrin
+N:3:of Dread Iron
 X:5
 W:0:10:0:1000
 T:37:1:18
@@ -125,7 +125,7 @@ I:RES_POIS | RES_LIGHT | RES_DARK | RES_CONFU | RES_SOUND | RES_SHARD |
 I:RES_NEXUS | RES_NETHR | RES_CHAOS | RES_DISEN 
 D:It grants at least one resistance, and cannot be harmed by elemental attacks.
 
-N:9:of Elvenkind
+N:9:of Canterlot
 X:25
 W:0:20:0:1500
 C:0:0:10
@@ -138,11 +138,11 @@ F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF
 I:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 I:RES_POIS | RES_LIGHT | RES_DARK | RES_CONFU | RES_SOUND | RES_SHARD | 
 I:RES_NEXUS | RES_NETHR | RES_CHAOS | RES_DISEN 
-D:Made in the smithies of Beleriand, this armour resists the elements and 
+D:Made in the smithies of Canterlot, this armour resists the elements and 
 D:at least one other attack, cannot be harmed by the elements, and conceals 
 D:the wearer from hostile eyes.
 
-N:10:(Dwarven)
+N:10:(Royal Guard)
 X:5
 W:0:12:0:1500
 T:36:4:99
@@ -250,7 +250,7 @@ B:RES_LIGHT[35] | RES_DARK[35]
 I:RES_LIGHT | RES_DARK 
 D:It grants resistance to light and darkness.
 
-N:22:of Elvenkind
+N:22:of Canterlot
 X:25
 W:0:20:0:1500
 C:0:0:10
@@ -261,7 +261,7 @@ F:RAND_RES_XTRA | ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF
 I:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 I:RES_POIS | RES_LIGHT | RES_DARK | RES_CONFU | RES_SOUND | RES_SHARD | 
 I:RES_NEXUS | RES_NETHR | RES_CHAOS | RES_DISEN 
-D:Made in the smithies of Beleriand, this shield resists the elements and 
+D:Made in the smithies of Canterlot, this shield resists the elements and 
 D:at least one other attack, cannot be harmed by the elements, and conceals 
 D:the wearer from hostile eyes.
 
@@ -399,7 +399,7 @@ F:TELEPORT | PERMA_CURSE | SHOW_CURSE
 I:TELEPORT
 D:This headgear randomly teleports you around the dungeon.
 
-N:36:of Trollkind
+N:36:of the Brute
 X:0
 W:0:12:0:0
 T:32:0:99
@@ -407,7 +407,7 @@ B:INT[-5] | WIS[-5] | STR[3] | CON[3]
 I:AC
 D:This headgear saps the powers of the mind, but adds to the powers of the body.
 
-N:37:of the Shadow Realm
+N:37:of the Eternal Night
 X:15
 W:0:24:0:5000
 T:32:0:99
@@ -416,8 +416,7 @@ B:RES_DARK[40] | RES_NETHR[25] | STEALTH[3] | INFRA[3]
 F:DARKNESS | DRAIN_EXP | ATTRACT_UNDEAD | PARALYZE | XTRA_TO_A | 
 F:PERMA_CURSE | SHOW_CURSE 
 I:RES_DARK | RES_NETHR | DARKNESS | ATTRACT_UNDEAD | PARALYZE 
-D:This headgear takes you into the realm of shadow, with the attendant bonuses 
-D:and dangers.
+D:This headgear wraps your body in Nightmare Moon's darkness.
 
 N:39:of Sickliness
 X:0
@@ -452,7 +451,7 @@ B:STEALTH[3]
 I:AC
 D:It improves your ability to hide from your enemies.
 
-N:42:of Aman
+N:42:of the Ninja
 X:20
 W:0:28:0:4000
 C:0:0:20
@@ -462,7 +461,7 @@ F:RAND_RES_XTRA | ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF
 I:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 I:RES_LIGHT | RES_DARK | RES_CONFU | RES_SOUND | RES_SHARD | 
 I:RES_NEXUS | RES_NETHR | RES_CHAOS | RES_DISEN 
-D:Made in the Blessed Realm far to the west, these highly magical garments 
+D:Made in a land far to the eaast, these highly magical garments 
 D:are seldom seen and highly valued.  They increase stealth, have at least one 
 D:special resistance, and cannot be harmed by the elements.
 
@@ -570,7 +569,7 @@ D:slaying your foes.
 
 ### Boots ###
 
-N:55:of Elvenkind
+N:55:of Pegasus Steps
 X:30
 T:30:2:99
 W:0:18:0:10000
@@ -674,7 +673,7 @@ D:the undead, increases wisdom and sustains a random stat, can be wielded by
 D:pious characters comfortably, grants sight beyond sight, and boosts armour 
 D:class.
 
-N:65:of Doriath
+N:65:of the Royal Sisters
 X:22
 W:0:20:0:10000
 C:4:4:8:4
@@ -707,14 +706,14 @@ I:FEATHER | REGEN | TELEPATHY | SEE_INVIS | FREE_ACT | HOLD_LIFE |
 I:SEEING | FEARLESS | LIGHT | SLOW_DIGEST 
 D:A priestly weapon that increases wisdom and bears a hidden power.
 
-N:67:of Gondolin
+N:67:of War
 X:23
 T:21:0:99
 T:22:0:99
 T:23:0:99
 W:20:20:0:15000
 C:7:7:0
-B:SLAY_DEMON[20] | SLAY_ORC[20] | SLAY_TROLL[20] | SLAY_DRAGON[20] |
+B:SLAY_DEMON[20] | SLAY_HUMANOID[20] | SLAY_CONSTELLATION[20] | SLAY_DRAGON[20] |
 B:RES_DARK[40] 
 F:LIGHT | SEE_INVIS | FREE_ACT | RAND_POWER | 
 F:ACID_PROOF | FIRE_PROOF 
@@ -724,23 +723,23 @@ D:invading hordes of orcs, trolls, dragons and demons from Angband.  It gives
 D:its bearer resistance to dark, permanent light, the ability to see those 
 D:hidden from normal sight, immunity from paralysis, and one extra power.
 
-N:68:of the Noldor
+N:68:of Midnight Castle
 X:20
 T:21:0:99
 T:22:0:99
 T:23:0:99
 W:0:20:0:10000
 C:5:5:0
-B:STR[2] | DEX[2] | CON[2] | 
-B:SLAY_ORC[20] | SLAY_TROLL[20] | SLAY_GIANT[20] 
+B:STR[2] | DEX[2] | 
+B:SLAY_HUMANOID[20] | SLAY_DRAGON[20] | SLAY_HYBRID[20] 
 F:FREE_ACT | SEE_INVIS
-I:FREE_ACT | SEE_INVIS | SLAY_ORC | SLAY_TROLL | SLAY_GIANT 
+I:FREE_ACT | SEE_INVIS | SLAY_HUMANOID | SLAY_DRAGON | SLAY_HYBRID 
 D:A weapon made by the Deep Elves, feared by trolls, orcs, and giants.  It 
 D:offers sight of the unseen and protects from paralysis, and increases 
 D:strength, dexterity and constitution.
 
 
-N:69:of Nogrod
+N:69:of the Underground
 X:19
 T:21:0:99
 T:22:0:99
@@ -749,11 +748,21 @@ W:0:20:0:6000
 B:TUNNEL[2] | SPEED[2] | STR[2] 
 F:LIGHT | XTRA_DICE | LIGHT 
 I:LIGHT
-D:Cunningly designed by the dwarves of Nogrod, this weapon will aid swift 
+D:Cunningly designed by the Diamond Dogs, this weapon will aid swift 
 D:movement underground.  It glows permanently, and increases the wielder's 
 D:strength, speed and tunnelling ability.
 
-# 70 (unused)
+N:70:(Vorpal)
+X:20
+T:21:0:99
+T:22:0:99
+T:23:0:99
+W:0:15:0:5500
+B:STR[2] | DEX[2]
+F:VORPAL
+I:VORPAL
+D:A weapon of unbelievable sharpness, able to cut through the toughest steel
+D:in an instant with a load "Snicker-Snack!"
 
 # 71 (unused)
 
@@ -817,9 +826,8 @@ B:BRAND_POIS[17] | RES_POIS[10]
 I:BRAND_POIS 
 D:It gleams a sickly green, and you dare not hold it above the handle.
 
-# A Whip of the Balrog.  At least 2d5, and x3 damage to all not immune 
-# to fire, but reduces stealth.  Can also lash out at a distance of two.
-N:77:of the Balrog
+# Whip only
+N:77:of the Flaming Mane
 X:30
 T:21:2:2
 W:0:5:0:10000
@@ -828,9 +836,8 @@ B:STEALTH[-4] | BRAND_FIRE[30] | RES_FIRE[45]
 F:LIGHT | XTRA_DICE | HEAVY | FIRE_PROOF
 I:LIGHT | BRAND_FIRE
 E:BALROG_WHIP:0
-D:This perilous demon's lash burns redly with the dread fires of Utumno, 
-D:doing triple damage to all monsters not resitant to fire, and 
-D:blazing so brightly as to light your path and disturb nearby foes.
+D:Some very powerful ponies have been known to have their manes burst in
+D:to flame in times of great anger.  This whip is made of those hairs.
 
 N:78:of Chaos
 X:20
@@ -898,17 +905,16 @@ D:This weapon smites the physical forms - demons - of the fallen Maiar of
 D:Morgoth's following; use it warily, because it takes a toll on your bodily 
 D:attributes.
 
-N:84:of the Dr[^u]gs
+N:84:(Man-eater)
 X:7
 T:21:0:99
 T:22:0:99
 T:23:0:99
 W:0:12:0:500
-B:SLAY_ORC[20] | SPEED[-2] 
+B:SLAY_HUMANOID[20] | SPEED[-2] 
 F:FEARLESS 
-I:SLAY_ORC | FEARLESS 
-D:This weapon embodies the Dr[^u]-folk - slow, but courageous and with a hatred 
-D:of orcs.
+I:SLAY_HUMANOID | FEARLESS 
+D:This weapon gorges itself on the flesh of men.
 
 N:85:of Sneaking
 X:7
@@ -916,14 +922,14 @@ T:21:0:2
 T:22:0:2
 T:23:0:11
 W:0:12:0:500
-B:SLAY_TROLL[20] | SLAY_GIANT[20] | STEALTH[3] 
+B:SLAY_CONSTELLATION[20] | SLAY_HYBRID[20] | STEALTH[3] 
 F:LIGHT | TELEPORT | DRAIN_MANA | SHOW_CURSE | PERMA_CURSE 
-I:SLAY_TROLL | SLAY_GIANT | TELEPORT | DRAIN_MANA 
+I:SLAY_CONSTELLATION | SLAY_HYBRID | TELEPORT | DRAIN_MANA 
 D:This weapon is small and light, making it ideal for use against the large and 
 D:slow-witted. Unfortunately it will also use up your magical energy to 
 D:teleport you around randomly.
 
-# 86 - unused
+# 86 unused
 
 N:87:of Slay Dragon
 X:18
@@ -984,35 +990,35 @@ I:SLAY_DEMON | RES_FIRE
 D:This weapon smites down demons with holy wrath, increases intelligence, 
 D:and protects against the element of fire.
 
-N:92:of *Slay* Orc
+N:92:of *Slay* Human
 X:12
 T:21:0:99
 T:22:0:99
 T:23:0:99
 W:0:50:0:1000
-B:DEX[2] | SLAY_ORC[25] 
-I:SLAY_ORC 
+B:DEX[2] | SLAY_HUMANOID[25] 
+I:SLAY_HUMANOID 
 D:This weapon wreaks orcish armies and increases dexterity.
 
-N:93:of *Slay* Troll
+N:93:of Star *Slaying*
 X:12
 T:21:0:99
 T:22:0:99
 T:23:0:99
 W:0:50:0:1000
-B:STR[2] | SLAY_TROLL[25] 
-I:SLAY_TROLL 
+B:STR[2] | SLAY_CONSTELLATION[25] 
+I:SLAY_CONSTELLATION 
 D:This weapon pierces the tough hides of trolls with ease, and you feel 
 D:mighty as you swing it.
 
-N:94:of *Slay* Giant
+N:94:of *Slay* Hybrids
 X:12
 T:21:0:99
 T:22:0:99
 T:23:0:99
 W:0:50:0:1000
-B:STR[2] | SLAY_GIANT[25] 
-I:SLAY_GIANT 
+B:STR[2] | SLAY_HYBRID[25] 
+I:SLAY_HYBRID 
 D:This weapon loans you some of the strength of giants, and cripples them with 
 D:every deadly blow.
 
@@ -1026,7 +1032,15 @@ B:CON[3] | SLAY_DRAGON[25]
 I:SLAY_DRAGON 
 D:This weapon is a mighty dragonbane, and increases constitution.
 
-# 96 (unused)
+N:96:of Murder
+X:20
+T:22:0:99
+T:23:0:99
+W:0:15:0:800
+B:SLAY_PONY[20]
+F:CUT_RAND | CUT_RAND_BAD | SHOW_CURSE | PERMA_CURSE | XTRA_TO_H
+I:SLAY_PONY | CUT_RAND | CUT_RAND_BAD
+D:This weapons is specifically designed to slice through other ponies.
 
 # 97 (unused)
 
@@ -1046,7 +1060,7 @@ D:harmed by the elements.
 
 # 101 (unused)
 
-N:102:of Angband
+N:102:of the Wraith
 X:0
 T:21:0:99
 T:22:0:99
@@ -1085,7 +1099,7 @@ I:TO_D
 D:This missile launcher has an unnaturally high Deadliness bonus, 
 D:and sometimes energizes for additional damage.
 
-N:106:of Ossiriand
+N:106:of Stalking
 X:25
 T:19:12:13
 W:50:4:0:5000
@@ -1118,7 +1132,15 @@ I:DD_DS
 D:So wondrously easy to reload is this weapon that little time passes 
 D:between one shot and the next.
 
-# 110 (unused)
+N:110:of Ponykind
+X:15
+C:7:7:0
+T:19:12:13
+W:0:15:0:800
+B:DEX[2]
+F:PONYKIND
+I:PONYKIND
+D:A specially bow crafted specifically for ponies
 
 ### Ammo ###
 
@@ -1162,14 +1184,14 @@ B:SLAY_DEMON[20]
 I:SLAY_DEMON
 D:They smite demonic foes.
 
-N:115:of the Noldor
+N:115:of Midnight Castle
 X:10
 T:16:0:99
 T:17:0:99
 T:18:0:99
 W:0:8:0:10
-B:SLAY_ORC[20] | SLAY_TROLL[20] | SLAY_GIANT[20]
-I:SLAY_ORC | SLAY_TROLL | SLAY_GIANT
+B:SLAY_HUMANOID[20] | SLAY_DRAGON[20] | SLAY_HYBRID[20]
+I:SLAY_HUMANOID | SLAY_DRAGON | SLAY_HYBRID
 D:They pierce deeply into orcs, trolls and giants.
 
 N:116:of Holy Might

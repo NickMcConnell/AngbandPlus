@@ -17,11 +17,14 @@
  */
 #include "angband.h"
 #include "randname.h"
+#include "z-file.h"
+#include "cmds.h"
 
 /* Markers for the start and end of words. */
 #define S_WORD 26
 #define E_WORD S_WORD
 #define TOTAL  27
+
 
 typedef unsigned short name_probs[S_WORD+1][S_WORD+1][TOTAL+1];
 
@@ -71,7 +74,8 @@ static void build_prob(name_probs probs, const char **learn)
  */
 size_t randname_make(randname_type name_type, size_t min, size_t max, char *word_buf, size_t buflen, const char ***sections)
 {
-	size_t lnum = 0;
+       
+	size_t lnum = -1;
 	bool found_word = FALSE;
 
 	static name_probs lprobs;
@@ -81,6 +85,44 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 
 	/* To allow for a terminating character */
 	assert(buflen > max);
+	/* Ponies use a different method */
+	if (name_type == RANDNAME_PONY_FIRST || name_type == RANDNAME_PONY_LAST)
+	{
+           const char **wordlist = NULL;
+           /* char *word1 = NULL; */
+           /* char *word2 = NULL; */
+           /* char *temp_word = NULL; */
+           u32b name_count, target_name;
+       
+           wordlist = sections[RANDNAME_PONY_FIRST];
+       
+           /* determine number of names */
+           for(name_count = 0; wordlist[name_count] != NULL; name_count++)
+           {
+           }
+                  
+           target_name = randint0(name_count);
+           char *word1 = wordlist[target_name];
+       
+           /* We have a first name, now get a last name */
+           wordlist = sections[RANDNAME_PONY_LAST];
+       
+           /* determine number of names */
+           for(name_count = 0; wordlist[name_count] != NULL; name_count++)
+           {
+           }
+       
+           target_name = randint0(name_count);
+           char *word2 = wordlist[target_name];
+       
+           /* Store the final name */
+           char *temp_word = " ";
+           my_strcat(word1, temp_word, max);
+           my_strcat(word1, word2, max);
+           lnum = my_strcpy(word_buf, word1, max);
+       return lnum;
+   }
+    
 
 	/* We cache one set of probabilities, only regenerate when
 	   the type changes.  It's as good a way as any for now.
@@ -92,7 +134,6 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 		wordlist = sections[name_type];
 
 		build_prob(lprobs, wordlist);
-
 		cached_type = name_type;
 	}
         
@@ -119,7 +160,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 			assert(c_prev >= 0 && c_prev <= S_WORD);
 			assert(c_cur >= 0 && c_cur <= S_WORD);
 
-			r = randint0(lprobs[c_prev][c_cur][TOTAL]);
+            r = randint0(lprobs[c_prev][c_cur][TOTAL]);
 
 			while (r >= lprobs[c_prev][c_cur][c_next])
 			{
@@ -127,7 +168,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 				c_next++;
 			}
 
-			assert(c_next <= E_WORD);
+            assert(c_next <= E_WORD);
 			assert(c_next >= 0);
             
 			if (c_next == E_WORD)

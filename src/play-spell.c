@@ -21,6 +21,7 @@
 #include "game-cmd.h"
 #include "spells.h"
 #include "trap.h"
+#include "cmds.h"
 
 
 /**
@@ -159,6 +160,62 @@ s16b spell_chance(int spell)
 
     /* Return the chance */
     return (chance);
+}
+
+/*
+ * Returns the chance to activate a racial power/mutation
+ */
+s16b racial_chance(power_desc_type *pd_ptr)
+{
+	s16b min_level  = pd_ptr->level;
+	int  difficulty = pd_ptr->fail;
+
+	int i;
+	int val;
+	int sum = 0;
+	int stat = p_ptr->stat_cur[pd_ptr->stat];
+
+	/* No chance for success */
+	if ((p_ptr->lev < min_level) || p_ptr->timed[TMD_CONFUSED])
+	{
+		return (0);
+	}
+
+	if (difficulty == 0) return 100;
+
+	/* Calculate difficulty */
+	if (p_ptr->timed[TMD_STUN] > 50)
+	{
+		difficulty += 20;
+	}
+	else if (p_ptr->timed[TMD_STUN])
+	{
+		difficulty += 10;
+	}
+	
+	else if (p_ptr->lev > min_level)
+	{
+		int lev_adj = ((p_ptr->lev - min_level) / 3);
+		if (lev_adj > 10) lev_adj = 10;
+		difficulty -= lev_adj;
+	}
+
+	if (difficulty < 5) difficulty = 5;
+
+	/* We only need halfs of the difficulty */
+	difficulty = difficulty / 2;
+
+	for (i = 1; i <= stat; i++)
+	{
+		val = i - difficulty;
+		if (val > 0)
+			sum += (val <= difficulty) ? val : difficulty;
+	}
+
+	if (difficulty == 0)
+		return (100);
+	else
+		return (((sum * 100) / difficulty) / stat);
 }
 
 

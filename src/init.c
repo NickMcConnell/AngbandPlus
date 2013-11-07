@@ -46,6 +46,7 @@
  * be able to load any template file with more than 20K of names or 60K
  * of text, even though technically, up to 64K should be legal.
  */
+ 
 
 static const char *object_flags[] = {
 #define OF(a, b) #a,
@@ -150,10 +151,11 @@ static const char *slay_values[] =
     "SLAY_EVIL",
     "SLAY_UNDEAD",
     "SLAY_DEMON",
-    "SLAY_ORC",
-    "SLAY_TROLL",
-    "SLAY_GIANT",
-    "SLAY_DRAGON"
+    "SLAY_HUMANOID",
+    "SLAY_CONSTELLATION",
+    "SLAY_HYBRID",
+    "SLAY_DRAGON",
+    "SLAY_PONY"
 };
 
 /**
@@ -2222,6 +2224,78 @@ static enum parser_error parse_p_c(struct parser *p) {
     return PARSE_ERROR_NONE;
 }
 
+static enum parser_error parse_p_q(struct parser *p) 
+{
+	s16b temp;
+    struct player_race *r = parser_priv(p);
+    if(!r)
+        return PARSE_ERROR_MISSING_RECORD_HEADER;
+    if(!parser_hasval(p,"rnum"))
+    {
+       r->num_rings = 2;
+       r->m_name = RANDNAME_TOLKIEN; /* Default to tolkein names */
+       r->f_name = RANDNAME_TOLKIEN;
+    }
+    /* 
+     * Prevent out of bounds numbers, then set the number of slots
+     * 1 ring slot is known as a horn and uses the ring shot instead
+     * of the glove slot for CUMBER_GLOVE casting limitations
+     * 2 ring slots are known as fingers and use gloves for CUMBER_GLOVE
+     * 0 rings slots prevents casting in classes with CUMBER_GLOVE
+     */
+    temp = parser_getint(p, "rnum");
+    if (temp < 0)
+         r->num_rings = 0;
+    else if (temp > 2)
+         r->num_rings = 2;
+    else
+         r->num_rings = temp;
+    temp = parser_getint(p, "mnam");
+    switch(temp) {
+    case 1:     r->m_name = RANDNAME_TOLKIEN; break;
+    case 2:     r->m_name = RANDNAME_SCROLL; break;
+    case 3:     
+    case 4:     r->m_name = RANDNAME_PONY_FIRST; break; /* Selecting either pony name gives pony first and last names */
+    case 5:     r->m_name = RANDNAME_DRAGON; break;
+    case 6:     r->m_name = RANDNAME_ZEBRA_M; break;
+    case 7:     r->m_name = RANDNAME_ZEBRA_F; break;
+    case 8:     r->m_name = RANDNAME_DDOG_M; break;
+    case 9:     r->m_name = RANDNAME_DDOG_F; break;
+    case 10:    r->m_name = RANDNAME_GRIFFON_M; break;
+    case 11:    r->m_name = RANDNAME_GRIFFON_F; break;
+    case 12:    r->m_name = RANDNAME_BUFFALO_M; break;
+    case 13:    r->m_name = RANDNAME_BUFFALO_F; break;
+    case 14:    r->m_name = RANDNAME_MULE_M; break;
+    case 15:    r->m_name = RANDNAME_MULE_F; break;
+    case 16:    r->m_name = RANDNAME_HUMAN_M; break;
+    case 17:    r->m_name = RANDNAME_HUMAN_F; break;
+    default:    r->m_name = RANDNAME_TOLKIEN; break; /* Use Tolkien names on failures */
+    }
+    temp = parser_getint(p, "fnam");
+    switch(temp) {
+    case 1:     r->f_name = RANDNAME_TOLKIEN; break;
+    case 2:     r->f_name = RANDNAME_SCROLL; break;
+    case 3:     
+    case 4:     r->f_name = RANDNAME_PONY_FIRST; break; /* Selecting either pony name gives pony first and last names */
+    case 5:     r->f_name = RANDNAME_DRAGON; break;
+    case 6:     r->f_name = RANDNAME_ZEBRA_M; break;
+    case 7:     r->f_name = RANDNAME_ZEBRA_F; break;
+    case 8:     r->f_name = RANDNAME_DDOG_M; break;
+    case 9:     r->f_name = RANDNAME_DDOG_F; break;
+    case 10:    r->f_name = RANDNAME_GRIFFON_M; break;
+    case 11:    r->f_name = RANDNAME_GRIFFON_F; break;
+    case 12:    r->f_name = RANDNAME_BUFFALO_M; break;
+    case 13:    r->f_name = RANDNAME_BUFFALO_F; break;
+    case 14:    r->f_name = RANDNAME_MULE_M; break;
+    case 15:    r->f_name = RANDNAME_MULE_F; break;
+    case 16:    r->f_name = RANDNAME_HUMAN_M; break;
+    case 17:    r->f_name = RANDNAME_HUMAN_F; break;
+    default:    r->f_name = RANDNAME_TOLKIEN; break; /* Use Tolkien names on failures */
+    };
+    return PARSE_ERROR_NONE;
+}
+       
+
 struct parser *init_parse_p(void) {
     struct parser *p = parser_new();
     parser_setpriv(p, NULL);
@@ -2235,6 +2309,7 @@ struct parser *init_parse_p(void) {
     parser_reg(p, "I int hist int b-age int m-age", parse_p_i);
     parser_reg(p, "H int mbht int mmht int fbht int fmht", parse_p_h);
     parser_reg(p, "W int mbwt int mmwt int fbwt int fmwt", parse_p_w);
+    parser_reg(p, "Q int rnum int mnam int fnam", parse_p_q);
     parser_reg(p, "F ?str flags", parse_p_f);
     parser_reg(p, "B ?str values", parse_p_b);
     parser_reg(p, "U ?str flags", parse_p_u);
@@ -2968,17 +3043,17 @@ static byte store_table[MAX_STORE_TYPES][STORE_CHOICES][2] =
   {
     /* General Store. */
     
-    { TV_FOOD, SV_FOOD_RATION },
-    { TV_FOOD, SV_FOOD_RATION },
-    { TV_FOOD, SV_FOOD_RATION },
-    { TV_FOOD, SV_FOOD_RATION },
-    { TV_FOOD, SV_FOOD_BISCUIT },
-    { TV_FOOD, SV_FOOD_BISCUIT },
-    { TV_FOOD, SV_FOOD_JERKY },
-    { TV_FOOD, SV_FOOD_JERKY },
+    { TV_FOOD, SV_FOOD_CARROT },
+    { TV_FOOD, SV_FOOD_CARROT },
+    { TV_FOOD, SV_FOOD_CARROT },
+    { TV_FOOD, SV_FOOD_CARROT },
+    { TV_FOOD, SV_FOOD_MUFFIN },
+    { TV_FOOD, SV_FOOD_MUFFIN },
+    { TV_FOOD, SV_FOOD_APPLE },
+    { TV_FOOD, SV_FOOD_APPLE },
     
-    { TV_FOOD, SV_FOOD_PINT_OF_WINE },
-    { TV_FOOD, SV_FOOD_PINT_OF_ALE },
+    { TV_FOOD, SV_FOOD_JUICE },
+    { TV_FOOD, SV_FOOD_CUPCAKE },
     { TV_LIGHT, SV_LIGHT_TORCH },
     { TV_LIGHT, SV_LIGHT_TORCH },
     { TV_LIGHT, SV_LIGHT_TORCH },
@@ -3012,8 +3087,8 @@ static byte store_table[MAX_STORE_TYPES][STORE_CHOICES][2] =
     { TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
     { TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
     { TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-    { TV_HELM, SV_HARD_LEATHER_CAP },
-    { TV_HELM, SV_HARD_LEATHER_CAP },
+    { TV_HELM, SV_WIZARD_HAT },
+    { TV_HELM, SV_WIZARD_HAT },
     { TV_HELM, SV_METAL_CAP },
     { TV_HELM, SV_IRON_HELM },
     
@@ -3320,12 +3395,12 @@ static byte store_table[MAX_STORE_TYPES][STORE_CHOICES][2] =
   {
     /* Travelling Merchant. */
     
-    { TV_FOOD, SV_FOOD_RATION },
-    { TV_FOOD, SV_FOOD_RATION },
-    { TV_FOOD, SV_FOOD_BISCUIT },
-    { TV_FOOD, SV_FOOD_JERKY },
-    { TV_FOOD, SV_FOOD_PINT_OF_WINE },
-    { TV_FOOD, SV_FOOD_PINT_OF_ALE },
+    { TV_FOOD, SV_FOOD_CARROT },
+    { TV_FOOD, SV_FOOD_CARROT },
+    { TV_FOOD, SV_FOOD_MUFFIN },
+    { TV_FOOD, SV_FOOD_APPLE },
+    { TV_FOOD, SV_FOOD_JUICE },
+    { TV_FOOD, SV_FOOD_CUPCAKE },
     { TV_LIGHT, SV_LIGHT_TORCH },
     { TV_LIGHT, SV_LIGHT_LANTERN },
 
@@ -3343,7 +3418,7 @@ static byte store_table[MAX_STORE_TYPES][STORE_CHOICES][2] =
     { TV_SOFT_ARMOR, SV_ROBE},
     { TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
     { TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-    { TV_HELM, SV_HARD_LEATHER_CAP },
+    { TV_HELM, SV_WIZARD_HAT },
     { TV_SHIELD, SV_WICKER_SHIELD },
     { TV_SWORD, SV_SHORT_SWORD },
 
@@ -4253,8 +4328,7 @@ bool init_angband(void)
 void cleanup_angband(void)
 {
     int i;
-
-
+    
     /* Free the allocation tables */
     FREE(alloc_kind_table);
     FREE(alloc_ego_table);

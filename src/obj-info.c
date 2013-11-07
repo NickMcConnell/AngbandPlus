@@ -113,10 +113,11 @@ static const char *slayee[] =
     "evil creatures", 
     "undead", 
     "demons",
-    "orcs", 
-    "trolls", 
-    "giants", 
-    "dragons"
+    "humanoids", 
+    "constellation beasts", 
+    "hybrids", 
+    "dragons",
+    "ponies"
 };
 
 static const char *brandee[] = 
@@ -181,6 +182,8 @@ static const flag_type misc_flags[] =
     { OF_HOLD_LIFE,          "Sustains your life force" },
     { OF_TELEPATHY,          "Grants telepathy" },
     { OF_SEE_INVIS,          "Grants the ability to see invisible things" },
+    { OF_PONYKIND,           "Can be fired effectively by ponies" },
+    { OF_VORPAL,             "Goes for the neck" },
 };
 
 static const flag_type curses[] =
@@ -235,7 +238,7 @@ char *obj_class_info[101] = {
     "",
     "", "", "", "", "",
 
-    "Footwear protects the feet only, but some rare items of this type have magics to render them fleet, light, or steady.",
+    "Footwear protects the feet or hooves only, but some rare items of this type have magics to render them fleet, light, or steady.",
     "Your hands would benefit from protection too, but most magic users need to keep their fingers unencumbered or magically supple.",
     "Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",
     "Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",
@@ -248,7 +251,7 @@ char *obj_class_info[101] = {
 
     "Amulets slip around your neck, and almost all have magics wondrous or perilous bound inside.",
     "", "", "", "",
-    "You may wear a ring upon each of your two ring fingers, and benefit or suffer from the magics it contains.",
+    "You may wear a ring upon one finger per hand, or on a horn, but most magic users need the horn uncovered. Rings often contain magic powers or curses to bestow upon the wearer.",
     "", "", "", "",
 
     "", "", "", "", "",
@@ -912,7 +915,7 @@ static bool describe_weapon_damage(textblock *tb, const object_type *o_ptr,
 	    ? o_ptr->multiple_brand[j] : MULTIPLE_BASE;
 
     /* Check rings for additional brands (slays) */
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < rp_ptr->num_rings; i++) {
 	i_ptr = &p_ptr->inventory[INVEN_LEFT + i];
 
 	/* If wearing a ring */

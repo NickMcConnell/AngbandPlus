@@ -50,30 +50,34 @@ monsters.
 
 
      Managing Weapons and Shields:
-          Most melee weapons fit comfortably in one hand, keeping your
-          shield arm free.  If you have a shield on your arm, you can
-          automatically take advantage of opportunities to bash, gain
-          a significant amount of standard protection (shield have a
-          high base armour class), and sometimes even deflect
-          non-magical missiles or partially protect against shards.
+          For creatures with hands, most melee weapons fit comfortably
+		  in one hand, keeping your shield arm free.  If you have a 
+		  shield on your arm, you can automatically take advantage of 
+		  opportunities to bash, gain a significant amount of standard 
+		  protection (shield have a high base armour class), and sometimes 
+		  even deflect non-magical missiles or partially protect against shards.
           Other weapons require two hands (but many of these can be
           wielded in one hand by very strong players).  Any shield
           worn is transferred to your back.  This reduces armour
           protection, removes the special shield abilities above, but
           has no effect on magical resistances or other attributes.
+		  Ponies and other hooved races can carry a weapon that would
+		  normally take one hand in their mouth while strapping a shield to
+		  a foreleg.  They do not, however, have a way to weild a weapon
+		  that would take 2 hands.
 
      Attacking:
          If you move your character into a square containing a
          monster, you will attack that monster.  If you are wielding
          no weapon, and are not a Druid or a Warrior with the Martial
          Arts specialty ability, you will do very little damage.  If
-	 you are wielding a weapon, things are a little different.
+	     you are wielding a weapon, things are a little different.
 
      Number of Blows:
          On your character screen ('C') is displayed the number of
          blows you can get per turn.  If you are wielding no weapon,
          you get between two and four blows, depending on your level.
-	 If your weapon is too heavy for you to wield properly, you
+	     If your weapon is too heavy for you to wield properly, you
          get one blow.  Otherwise, you get between two and six blows,
          depending solely on weapon weight, Dexterity, and Strength.
 
@@ -258,7 +262,7 @@ direction and target a visible monster, you will attempt to steal.  If you
 target a totally bare floor square, you will set a monster trap.  You may not
 use these abilities when shapeshifted.
      Stealing is lucrative but risky.  All monsters that drop anything will
-have at least some treasure on them.  Humans, humanoids, and dragons are the
+have at least some treasure on them.  Ponies, humanoids, and dragons are the
 juiciest targets, and most other smart bipedal creatures, nagas, or wraiths
 are fairly well-off too; the higher the monster level, the larger the purse.
 Uniques are especially rich.  High-level monsters and other thieves are harder

@@ -5,10 +5,10 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-NAME = FAangband
+NAME = Ponyband
 VERSION = 1.2.6
 COPYRIGHT = (c) 2005-2011 Nick McConnell and contributors
-PROG = faangband
+PROG = ponyband
 
 HEADERS = \
 	angband.h \

@@ -208,6 +208,7 @@ bool obj_is_scroll(const object_type *o_ptr);
 bool obj_is_food(const object_type *o_ptr);
 bool obj_is_light(const object_type *o_ptr);
 bool obj_is_ring(const object_type *o_ptr);
+bool obj_is_boot(const object_type *o_ptr);
 bool obj_is_ammo(const object_type *o_ptr);
 bool obj_is_quiver_obj(const object_type * o_ptr);
 bool obj_has_charges(const object_type *o_ptr);

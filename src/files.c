@@ -418,7 +418,7 @@ void player_weakness_dis(bitflag * flags)
 	}
     case SHAPE_ENT:
 	{
-	    of_on(flags, OF_FEATHER);
+        of_on(flags, OF_FEATHER);
 	    break;
 	}
     case SHAPE_VAMPIRE:
@@ -619,7 +619,7 @@ static u32b display_player_powers[10] = {
 /**
  * Hack -- see below
  */
-static const char *display_player_resist_names[2][7] = {
+const char *display_player_resist_names[2][7] = {
     {
      "Acid:",			/* P_RES_ACID */
      "Elec:",			/* P_RES_ELEC */
@@ -908,7 +908,7 @@ void display_player_sml(void)
     prt_lnum("Exp to Adv.  ", (s32b) (player_exp[p_ptr->lev - 1]), 19, 26,
 	     TERM_L_GREEN);
 
-    prt_lnum("Gold         ", p_ptr->au, 20, 26, TERM_L_GREEN);
+    prt_lnum("Bits         ", p_ptr->au, 20, 26, TERM_L_GREEN);
 
     prt_num("Max Hit Points   ", p_ptr->mhp, 11, 1, TERM_L_GREEN);
 
@@ -957,7 +957,7 @@ extern int make_dump(char_attr_line * line, int mode)
 
     const char *paren = ")";
 
-    int k, which = 0;
+    int which = 0;
 
     store_type *st_ptr = NULL;
 
@@ -984,7 +984,7 @@ extern int make_dump(char_attr_line * line, int mode)
     int n;
 
     u32b flag;
-    const char *name1;
+    char name1[100];
 
     int player_resists[MAX_P_RES];
     int player_bonus[MAX_P_BONUS];
@@ -998,22 +998,7 @@ extern int make_dump(char_attr_line * line, int mode)
 
     /* Get the store number of the home */
     if (have_home) {
-	if (OPT(adult_dungeon))
 	    which = NUM_TOWNS_SMALL * 4 + STORE_HOME;
-	else {
-	    for (k = 0; k < NUM_TOWNS; k++) {
-		/* Found the town */
-		if (p_ptr->home == towns[k]) {
-		    which += (k < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
-		    break;
-		}
-		/* Next town */
-		else
-		    which +=
-			(k <
-			 NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
-	    }
-	}
 
 	/* Activate the store */
 	st_ptr = &store[which];
@@ -1024,7 +1009,7 @@ extern int make_dump(char_attr_line * line, int mode)
     /* Hack - skip all this for mode 1 */
     if (mode != 1) {
 	/* Begin dump */
-	sprintf(buf, "[FAangband %s Character Dump]", VERSION_STRING);
+	sprintf(buf, "[Ponyband %s Character Dump]", VERSION_STRING);
 	dump_put_str(TERM_WHITE, buf, 2);
 	current_line++;
 
@@ -1041,17 +1026,17 @@ extern int make_dump(char_attr_line * line, int mode)
 	dump_ptr = (char_attr *) &line[current_line];
 
 	/* Name, Sex, Race, Class */
-	dump_put_str(TERM_WHITE, "Name    : ", 1);
+    dump_put_str(TERM_WHITE, "Name    : ", 1);
 	dump_put_str(TERM_L_BLUE, op_ptr->full_name, 11);
-	dump_put_str(TERM_WHITE, "Age", 27);
+    dump_put_str(TERM_WHITE, "Age", 27);
 	sprintf(buf1, "%10d", (int) p_ptr->age);
 	dump_put_str(TERM_L_BLUE, buf1, 42);
-	red = (p_ptr->stat_cur[0] < p_ptr->stat_max[0]);
+    red = (p_ptr->stat_cur[0] < p_ptr->stat_max[0]);
 	value = p_ptr->state.stat_use[0];
 	cnv_stat(value, buf1, sizeof(buf1));
 	value = p_ptr->state.stat_top[0];
 	cnv_stat(value, buf2, sizeof(buf2));
-	dump_put_str(TERM_WHITE, (red ? "Str" : "STR"), 53);
+    dump_put_str(TERM_WHITE, (red ? "Str" : "STR"), 53);
 	dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[0] == 18 + 100) ? "!" : " "),
 		     56);
 	if (red) {
@@ -1062,12 +1047,12 @@ extern int make_dump(char_attr_line * line, int mode)
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "Sex     : ", 1);
+    dump_put_str(TERM_WHITE, "Sex     : ", 1);
 	dump_put_str(TERM_L_BLUE, sp_ptr->title, 11);
-	dump_put_str(TERM_WHITE, "Height", 27);
+    dump_put_str(TERM_WHITE, "Height", 27);
 	sprintf(buf1, "%10d", (int) p_ptr->ht);
 	dump_put_str(TERM_L_BLUE, buf1, 42);
-	red = (p_ptr->stat_cur[1] < p_ptr->stat_max[1]);
+    red = (p_ptr->stat_cur[1] < p_ptr->stat_max[1]);
 	value = p_ptr->state.stat_use[1];
 	cnv_stat(value, buf1, sizeof(buf1));
 	value = p_ptr->state.stat_top[1];
@@ -1083,9 +1068,9 @@ extern int make_dump(char_attr_line * line, int mode)
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "Race    : ", 1);
+    dump_put_str(TERM_WHITE, "Race    : ", 1);
 	dump_put_str(TERM_L_BLUE, rp_ptr->name, 11);
-	dump_put_str(TERM_WHITE, "Weight", 27);
+    dump_put_str(TERM_WHITE, "Weight", 27);
 	sprintf(buf1, "%10d", (int) p_ptr->wt);
 	dump_put_str(TERM_L_BLUE, buf1, 42);
 	red = (p_ptr->stat_cur[2] < p_ptr->stat_max[2]);
@@ -1124,7 +1109,7 @@ extern int make_dump(char_attr_line * line, int mode)
 	    dump_put_str(TERM_L_GREEN, buf1, 61);
 	current_line++;
 
-	dump_ptr = (char_attr *) &line[current_line];
+    dump_ptr = (char_attr *) &line[current_line];
 	if (p_ptr->total_winner)
 	    dump_put_str(TERM_VIOLET, "***WINNER***", 0);
 	red = (p_ptr->stat_cur[4] < p_ptr->stat_max[4]);
@@ -1142,7 +1127,7 @@ extern int make_dump(char_attr_line * line, int mode)
 	    dump_put_str(TERM_L_GREEN, buf1, 61);
 	current_line++;
 
-	dump_ptr = (char_attr *) &line[current_line];
+    dump_ptr = (char_attr *) &line[current_line];
 	red = (p_ptr->stat_cur[5] < p_ptr->stat_max[5]);
 	value = p_ptr->state.stat_use[5];
 	cnv_stat(value, buf1, sizeof(buf1));
@@ -1160,39 +1145,39 @@ extern int make_dump(char_attr_line * line, int mode)
 
 	/* Get the bonuses to hit/dam */
 
-	o_ptr = &p_ptr->inventory[INVEN_WIELD];
+    o_ptr = &p_ptr->inventory[INVEN_WIELD];
 	if (if_has(o_ptr->id_other, IF_TO_H))
 	    show_m_tohit += o_ptr->to_h;
 	if (if_has(o_ptr->id_other, IF_TO_D))
 	    show_m_todam += o_ptr->to_d;
 
-	o_ptr = &p_ptr->inventory[INVEN_BOW];
+    o_ptr = &p_ptr->inventory[INVEN_BOW];
 	if (if_has(o_ptr->id_other, IF_TO_H))
 	    show_a_tohit += o_ptr->to_h;
 	if (if_has(o_ptr->id_other, IF_TO_D))
 	    show_a_todam += o_ptr->to_d;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_num("Max Hit Points   ", p_ptr->mhp, 1, TERM_L_GREEN);
-	if (p_ptr->lev >= p_ptr->max_lev)
+    dump_num("Max Hit Points   ", p_ptr->mhp, 1, TERM_L_GREEN);
+    if (p_ptr->lev >= p_ptr->max_lev)
 	    dump_num("Level            ", (int) p_ptr->lev, 27, TERM_L_GREEN);
 	else
 	    dump_num("Level            ", (int) p_ptr->lev, 27, TERM_YELLOW);
-	dump_num("Max SP (Mana)    ", p_ptr->msp, 53, TERM_L_GREEN);
+    dump_num("Max SP (Mana)    ", p_ptr->msp, 53, TERM_L_GREEN);
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	if (p_ptr->chp >= p_ptr->mhp)
+    if (p_ptr->chp >= p_ptr->mhp)
 	    dump_num("Cur Hit Points   ", p_ptr->chp, 1, TERM_L_GREEN);
 	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
 	    dump_num("Cur Hit Points   ", p_ptr->chp, 1, TERM_YELLOW);
 	else
 	    dump_num("Cur Hit Points   ", p_ptr->chp, 1, TERM_RED);
-	if (p_ptr->exp >= p_ptr->max_exp)
+    if (p_ptr->exp >= p_ptr->max_exp)
 	    dump_lnum("Experience    ", p_ptr->exp, 27, TERM_L_GREEN);
 	else
 	    dump_lnum("Experience    ", p_ptr->exp, 27, TERM_YELLOW);
-	if (p_ptr->csp >= p_ptr->msp)
+    if (p_ptr->csp >= p_ptr->msp)
 	    dump_num("Cur SP (Mana)    ", p_ptr->csp, 53, TERM_L_GREEN);
 	else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
 	    dump_num("Cur SP (Mana)    ", p_ptr->csp, 53, TERM_YELLOW);
@@ -1201,33 +1186,33 @@ extern int make_dump(char_attr_line * line, int mode)
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_lnum("Max Exp       ", p_ptr->max_exp, 27, TERM_L_GREEN);
+    dump_lnum("Max Exp       ", p_ptr->max_exp, 27, TERM_L_GREEN);
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "(Fighting)", 8);
-	if (p_ptr->lev >= PY_MAX_LEVEL) {
+    dump_put_str(TERM_WHITE, "(Fighting)", 8);
+    if (p_ptr->lev >= PY_MAX_LEVEL) {
 	    dump_put_str(TERM_WHITE, "Exp to Adv.   ", 27);
 	    sprintf(buf, "       *****");
 	} else
 	    dump_lnum("Exp to Adv.   ", (s32b) (player_exp[p_ptr->lev - 1]), 27,
 		      TERM_L_GREEN);
-	dump_put_str(TERM_WHITE, "(Shooting)", 60);
+    dump_put_str(TERM_WHITE, "(Shooting)", 60);
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_num("Blows/Round      ", p_ptr->state.num_blow, 1, TERM_L_BLUE);
-	dump_lnum("Gold          ", p_ptr->au, 27, TERM_L_GREEN);
-	dump_deci("Shots/Round    ", p_ptr->state.num_fire / 10, p_ptr->state.num_fire % 10,
+    dump_num("Blows/Round      ", p_ptr->state.num_blow, 1, TERM_L_BLUE);
+    dump_lnum("Bits          ", p_ptr->au, 27, TERM_L_GREEN);
+    dump_deci("Shots/Round    ", p_ptr->state.num_fire / 10, p_ptr->state.num_fire % 10,
 		  53, TERM_L_BLUE);
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_num("+ to Skill       ", show_m_tohit, 1, TERM_L_BLUE);
-	dump_put_str(TERM_WHITE, "Score", 27);
+    dump_num("+ to Skill       ", show_m_tohit, 1, TERM_L_BLUE);
+    dump_put_str(TERM_WHITE, "Score", 27);
 	sprintf(buf1, "%12d", (int) p_ptr->score);
 	dump_put_str(TERM_L_GREEN, buf1, 38);
-	dump_num("+ to Skill       ", show_a_tohit, 53, TERM_L_BLUE);
+    dump_num("+ to Skill       ", show_a_tohit, 53, TERM_L_BLUE);
 	current_line++;
 
 	dump_ptr = (char_attr *) &line[current_line];
@@ -1247,14 +1232,14 @@ extern int make_dump(char_attr_line * line, int mode)
 			 -deadliness_conversion[-show_m_todam], 1, TERM_L_BLUE);
 	}
 
-	dump_put_str(TERM_WHITE, "Base AC/+ To AC", 27);
+    dump_put_str(TERM_WHITE, "Base AC/+ To AC", 27);
 	sprintf(buf1, "%3d", p_ptr->state.dis_ac);
 	dump_put_str(TERM_L_BLUE, buf1, 43);
 	dump_put_str(TERM_WHITE, "/", 46);
 	sprintf(buf1, "%3d", p_ptr->state.dis_to_a);
 	dump_put_str(TERM_L_BLUE, buf1, 47);
 
-	if (show_a_todam > 0)
+    if (show_a_todam > 0)
 	    dump_num("Deadliness (%)   ", deadliness_conversion[show_a_todam],
 		     53, TERM_L_BLUE);
 	else
@@ -1263,17 +1248,17 @@ extern int make_dump(char_attr_line * line, int mode)
 
 	current_line++;
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "Game Turn", 27);
+    dump_put_str(TERM_WHITE, "Game Turn", 27);
 	sprintf(buf1, "%12d", (int) turn);
 	dump_put_str(TERM_L_GREEN, buf1, 38);
 	current_line += 2;
 
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "(Character Abilities)", 28);
+    dump_put_str(TERM_WHITE, "(Character Abilities)", 28);
 
 
 	/* Fighting Skill (with current weapon) */
-	xthn =
+    xthn =
 	    p_ptr->state.skills[SKILL_TO_HIT_MELEE] +
 	    (show_m_tohit * BTH_PLUS_ADJ);
 
@@ -1335,7 +1320,7 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 
 	/* Display history */
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "(Character Background)", 28);
+    dump_put_str(TERM_WHITE, "(Character Background)", 28);
 
 	current_line++;
 	dump_ptr = (char_attr *) &line[current_line];
@@ -1344,18 +1329,20 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 
 	/* End of mode 0 */
 	if (mode == 0)
+	{
 	    return (current_line);
+    }
 
 	current_line += 2;
 
 	/* Current, recent and recall points */
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "[Recent locations]", 2);
+    dump_put_str(TERM_WHITE, "[Recent locations]", 2);
 	current_line += 2;
 
 	/* Current, previous */
 	dump_ptr = (char_attr *) &line[current_line];
-	dump_put_str(TERM_WHITE, "Current Location :", 1);
+    dump_put_str(TERM_WHITE, "Current Location :", 1);
 	sprintf(buf, "%s Level %d",
 		locality_name[stage_map[p_ptr->stage][LOCALITY]], p_ptr->depth);
 	dump_put_str(TERM_L_GREEN, buf, 20);
@@ -1376,7 +1363,7 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 	    if (p_ptr->recall[i] == 0)
 		continue;
 	    dump_ptr = (char_attr *) &line[current_line];
-	    sprintf(buf, "Recall Point %d   :", i + 1);
+	    sprintf(buf, "Recall Point %i   :", i + 1);
 	    dump_put_str(TERM_WHITE, buf, 1);
 	    sprintf(buf, "%s Level %d",
 		    locality_name[stage_map[p_ptr->recall[i]][LOCALITY]],
@@ -1388,7 +1375,7 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 
 	/* Heading */
 	current_line++;
-	dump_ptr = (char_attr *) &line[current_line];
+    dump_ptr = (char_attr *) &line[current_line];
 	dump_put_str(TERM_WHITE, "[Resistances, Powers and Bonuses]", 2);
 	current_line += 2;
     }
@@ -1413,18 +1400,20 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
     /* Resistances */
     get_player_resists(player_resists);
 
+  
     for (y = 0; y < 7; y++) {
 	dump_ptr = (char_attr *) &line[current_line];
 
 	for (x = 0; x < 2; x++) {
 	    int r = y + 7 * x;
-
-	    /* Extract name */
-	    name1 = display_player_resist_names[x][y];
+        /* Extract name */
+        /* name1 = display_player_resist_names[x][y]; */
+        /* Hack, but this version doesn't crash */
+        const char* name2 = display_player_resist_names[x][y];
 
 	    /* Name */
 	    dump_put_str(resist_colour(p_ptr->state.dis_res_list[y + x * 7]), 
-			 name1, 1 + 24 * x);
+			 name2, 1 + 24 * x);
 
 	    /* Check equipment */
 	    for (n = 6 + 25 * x, i = INVEN_WIELD; i < INVEN_TOTAL; i++, n++) {
@@ -1432,9 +1421,14 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 
 		/* Object */
 		o_ptr = &p_ptr->inventory[i];
-
+		
+		/* Check for invalid gear slot */;
+        if(((i == INVEN_RIGHT) && ((rp_ptr->num_rings) <= 1)) ||
+            ((i == INVEN_LEFT) && ((rp_ptr->num_rings) <= 0))) {
+            dump_put_str((o_ptr->k_idx ? TERM_L_WHITE : TERM_SLATE), ".", n);
+            }
 		/* Check flags */
-		if ((o_ptr->k_idx)
+		else if ((o_ptr->k_idx)
 		    && if_has(o_ptr->id_other, OBJECT_ID_BASE_RESIST + r)) {
 		    if (o_ptr->percent_res[r] == RES_LEVEL_MIN)
 			dump_put_str(resist_colour(o_ptr->percent_res[r]), "*",
@@ -1489,20 +1483,24 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 	dump_ptr = (char_attr *) &line[current_line];
 
 	for (x = 0; x < 2; x++) {
-	    /* Extract flag */
+	    char log[100];
+        /* Extract flag */
 	    flag = display_player_powers[y];
 
 	    /* Extract name */
-	    name1 = display_player_power_names[y];
+	    /* It's a hack here too */
+	    char *name2 = display_player_power_names[y];
+        /* my_strcpy(name1, display_player_power_names[y], sizeof(display_player_power_names[y])); */
+	    /* name1 = display_player_power_names[y]; */
 
 	    /* Name */
-	    dump_put_str(TERM_WHITE, name1, 0);
+	    dump_put_str(TERM_WHITE, name2, 0);
 
 	    /* Check equipment */
 	    for (n = 6, i = INVEN_WIELD; i < INVEN_TOTAL; i++, n++) {
 		object_type *o_ptr;
 		bitflag objflags[OF_SIZE];
-
+		
 		/* Object */
 		o_ptr = &p_ptr->inventory[i];
 
@@ -1511,8 +1509,16 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 		of_copy(objflags, o_ptr->flags_obj);
 		of_inter(objflags, o_ptr->id_obj);
 
+        /* Make sure slot is a valid equipment slot */
+        if(((i == INVEN_RIGHT) && (rp_ptr->num_rings <= 1)) ||
+            ((i == INVEN_LEFT) && (rp_ptr->num_rings <= 0)))
+            {
+            dump_put_str((o_ptr->k_idx ? TERM_L_WHITE : TERM_SLATE),
+				 ".", n);
+            }
+				 
 		/* Check flags */
-		if ((o_ptr->k_idx) && of_has(objflags, flag)) {
+		else if ((o_ptr->k_idx) && of_has(objflags, flag)) {
 		    dump_put_str(TERM_WHITE, "+", n);
 		}
 
@@ -1549,10 +1555,12 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 		continue;
 
 	    /* Extract name */
-	    name1 = display_player_bonus_names[y];
+	    char *name3 = display_player_bonus_names[y];
+        /* my_strcpy(name1, display_player_bonus_names[y], sizeof(display_player_bonus_names[y])); */
+        /* name1 = display_player_bonus_names[y]; */
 
 	    /* Name */
-	    dump_put_str(TERM_WHITE, name1, 25);
+	    dump_put_str(TERM_WHITE, name3, 25);
 
 	    /* Check equipment */
 	    for (n = 31, i = INVEN_WIELD; i < INVEN_TOTAL; i++, n++) {
@@ -1561,8 +1569,14 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 		/* Object */
 		o_ptr = &p_ptr->inventory[i];
 
+		/* Make sure slot is a valid equipment slot */
+        if(((i == INVEN_RIGHT) && (rp_ptr->num_rings <= 1)) ||
+            ((i == INVEN_LEFT) && (rp_ptr->num_rings <= 0)))
+            dump_put_str((o_ptr->k_idx ? TERM_L_WHITE : TERM_SLATE),
+				 ".", n);
+	 
 		/* Check flags */
-		if (o_ptr->bonus_other[y] != BONUS_BASE) {
+		else if (o_ptr->bonus_other[y] != BONUS_BASE) {
 		    /* Default */
 		    c = '*';
 
@@ -1666,7 +1680,7 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 	    current_line += 2;
 	}
 
-	dump_ptr = (char_attr *) &line[current_line];
+    dump_ptr = (char_attr *) &line[current_line];
 	dump_put_str(TERM_WHITE, "[Stat Breakdown]", 2);
 	current_line += 2;
     }
@@ -1725,6 +1739,9 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 	    a = TERM_SLATE;
 	    c = '.';
 
+        /* Skip invalid rings */
+        if(!((i == INVEN_RIGHT) && (rp_ptr->num_rings <= 1)) ||
+            ((i == INVEN_LEFT) && (rp_ptr->num_rings <= 0))) {
 	    /* Boost */
 	    if (o_ptr->bonus_stat[i] != 0) {
 		/* Default */
@@ -1751,14 +1768,14 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 		}
 	    }
 
-	    /* Sustain */
+        /* Sustain */
 	    if (of_has(o_ptr->flags_obj, OF_SUSTAIN_STR + i)) {
 		/* Dark green, "s" if no stat bonus. */
 		a = TERM_GREEN;
 		if (c == '.')
 		    c = 's';
 	    }
-
+        }
 	    /* Dump proper character */
 	    buf[0] = c;
 	    buf[1] = '\0';
@@ -1814,6 +1831,9 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 	    }
 
 	    else {
+        if(((i == INVEN_RIGHT) && (rp_ptr->num_rings < 2)) ||
+            ((i == INVEN_LEFT) && (rp_ptr->num_rings < 1)))
+               continue;
 		dump_ptr = (char_attr *) &line[current_line];
 		object_desc(o_name, sizeof(o_name), 
 			    &p_ptr->inventory[i],
@@ -1917,7 +1937,7 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 	char place[32];
 
 	/* Get the location name */
-	if (p_ptr->depth)
+    if (p_ptr->depth)
 	    strnfmt(place, sizeof(place), "%15s%4d ",
 		    locality_name[stage_map[p_ptr->stage][LOCALITY]],
 		    p_ptr->depth);
@@ -1934,7 +1954,7 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
 		place, p_ptr->lev);
 
 	/* Write the info note */
-	dump_put_str(TERM_WHITE, info_note, 0);
+    dump_put_str(TERM_WHITE, info_note, 0);
 	dump_put_str(TERM_VIOLET, "Still alive", strlen(info_note));
 
 	current_line++;
@@ -1956,16 +1976,16 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
     /* Dump options */
     for (i = OPT_ADULT + 4; i < OPT_SCORE; i++) {
 	if (option_desc(i)) {
-	    dump_ptr = (char_attr *) &line[current_line];
-	    sprintf(buf, "%-49s: %s (%s)", option_desc(i),
+        dump_ptr = (char_attr *) &line[current_line];
+        sprintf(buf, "%-49s: %s (%s)", option_desc(i),
 		    op_ptr->opt[i] ? "yes" : "no ", option_name(i));
-	    dump_put_str(TERM_WHITE, buf, 0);
+        dump_put_str(TERM_WHITE, buf, 0);
 	    current_line++;
 	}
     }
 
     for (i = OPT_SCORE; i < OPT_MAX; i++) {
-	if (option_desc(i)) {
+    if (option_desc(i)) {
 	    dump_ptr = (char_attr *) &line[current_line];
 	    sprintf(buf, "%-49s: %s (%s)", option_desc(i),
 		    op_ptr->opt[i] ? "yes" : "no ", option_name(i));
@@ -2243,6 +2263,9 @@ bool show_file(const char *name, const char *what, int line, int mode)
     /* Note we're entering the file */
     push_file++;
 
+    /* Hack: Clear Command Buffer to prevent double-read of command */
+    flush();
+    
     /* Pre-Parse the file */
     while (TRUE) {
 	/* Read a line or stop */
@@ -2420,7 +2443,7 @@ bool show_file(const char *name, const char *what, int line, int mode)
 
 	/* Show a general "title" */
 	prt(format
-	    ("[FAangband %d.%d.%d, %s, Line %d/%d]", VERSION_MAJOR,
+	    ("[Ponygband %d.%d.%d, %s, Line %d/%d]", VERSION_MAJOR,
 	     VERSION_MINOR, VERSION_PATCH, caption, line, size), 0, 0);
 
 
@@ -2715,14 +2738,14 @@ void process_player_name(bool sf)
 	/* Build the filename */
 #ifdef _WIN32_WCE
 	/* SJG */
-	/* Rename the savefile, using the base name + .faa */
-	sprintf(temp, "%s.faa", op_ptr->base_name);
+	/* Rename the savefile, using the base name + .pbs */
+	sprintf(temp, "%s.pbs", op_ptr->base_name);
 
 	// The common open file dialog doesn't like
 	// anything being farther up than one directory!
 	// For now hard code it. I should probably roll my
 	// own open file dailog.
-	path_build(savefile, 1024, "\\My Documents\\FA", temp);
+	path_build(savefile, 1024, "\\My Documents\\PB", temp);
 #else
 	path_build(savefile, 1024, ANGBAND_DIR_SAVE, temp);
 #endif
