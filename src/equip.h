@@ -53,6 +53,7 @@ enum slot_e {
     EQUIP_SLOT_BOOTS,           /* 0-N                   */
     EQUIP_SLOT_HELMET,          /* 0-N                   */
     EQUIP_SLOT_ANY,             
+    EQUIP_SLOT_WEAPON,
     EQUIP_SLOT_MAX,
 };
 

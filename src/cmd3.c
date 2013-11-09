@@ -221,9 +221,12 @@ void do_cmd_drop(void)
 
 
     /* Hack -- Cannot remove cursed items */
-    if (equip_is_valid_slot(item) && object_is_cursed(o_ptr))
+    if (equip_is_valid_slot(item))
     {
-        msg_print("Hmmm, it seems to be cursed.");
+        if (object_is_cursed(o_ptr))
+            msg_print("Hmmm, it seems to be cursed.");
+        if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+            msg_print("You can't drop yourself, silly!");
         return;
     }
 
@@ -438,6 +441,8 @@ void do_cmd_destroy(void)
 
     if (prace_is_(RACE_MON_JELLY))
         jelly_eat_object(o_ptr);
+    else if (prace_is_(RACE_MON_SWORD) && object_is_melee_weapon(o_ptr))
+        sword_absorb_object(o_ptr);
     else
         msg_format("You destroy %s.", o_name);
 

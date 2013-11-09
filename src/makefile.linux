@@ -54,8 +54,9 @@ SRCS = \
 	monk.c monster.c monster1.c monster2.c mspells1.c mspells2.c mspells3.c mut.c \
 	mut_a.c mystic.c necromancer.c ninja.c object1.c object2.c object3.c obj_kind.c paladin.c \
 	priest.c psion.c races.c races_a.c races_k.c races_mimic.c race_angel.c \
-	race_beholder.c race_demon.c race_dragon.c race_elemental.c race_giant.c race_hound.c race_hydra.c race_jelly.c \
-	race_leprechaun.c race_lich.c race_spider.c race_troll.c race_xorn.c racial.c rage-mage.c ranger.c red_mage.c \
+	race_beholder.c race_demon.c race_dragon.c race_elemental.c race_giant.c race_golem.c \
+	race_hound.c race_hydra.c race_jelly.c race_leprechaun.c race_lich.c race_spider.c \
+	race_sword.c race_troll.c race_xorn.c racial.c rage-mage.c ranger.c red_mage.c \
 	resist.c rogue.c rooms.c rune_knight.c samurai.c save.c savefile.c scores.c scout.c \
 	skills.c sniper.c sorcerer.c spells.c spells1.c spells2.c spells3.c spells_a.c \
 	spells_c.c spells_h.c spells_m.c spells_s.c spoilers.c store.c streams.c \
@@ -75,8 +76,9 @@ OBJS = \
 	monk.o monster.o monster1.o monster2.o mspells1.o mspells2.o mspells3.o mut.o \
 	mut_a.o mystic.o necromancer.o ninja.o object1.o object2.o object3.o obj_kind.o paladin.o \
 	priest.o psion.o races.o races_a.o races_k.o races_mimic.o race_angel.o \
-	race_beholder.o race_demon.o race_dragon.o race_elemental.o race_giant.o race_hound.o race_hydra.o race_jelly.o \
-	race_leprechaun.o race_lich.o race_spider.o race_troll.o race_xorn.o racial.o rage-mage.o ranger.o red_mage.o \
+	race_beholder.o race_demon.o race_dragon.o race_elemental.o race_giant.o race_golem.o \
+	race_hound.o race_hydra.o race_jelly.o race_leprechaun.o race_lich.o race_spider.o \
+	race_sword.o race_troll.o race_xorn.o racial.o rage-mage.o ranger.o red_mage.o \
 	resist.o rogue.o rooms.o rune_knight.o samurai.o save.o savefile.o scores.o scout.o \
 	skills.o sniper.o sorcerer.o spells.o spells1.o spells2.o spells3.o spells_a.o \
 	spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o store.o streams.o \
@@ -381,12 +383,14 @@ race_demon.o: race_demon.c $(INCS)
 race_dragon.o: race_dragon.c $(INCS)
 race_elemental.o: race_elemental.c $(INCS)
 race_giant.o: race_giant.c $(INCS)
+race_golem.o: race_golem.c $(INCS)
 race_hound.o: race_hound.c $(INCS)
 race_hydra.o: race_hydra.c $(INCS)
 race_jelly.o: race_jelly.c $(INCS)
 race_leprechaun.o: race_leprechaun.c $(INCS)
 race_lich.o: race_lich.c $(INCS)
 race_spider.o: race_spider.c $(INCS)
+race_sword.o: race_sword.c $(INCS)
 race_troll.o: race_troll.c $(INCS)
 race_xorn.o: race_xorn.c $(INCS)
 racial.o: racial.c $(INCS)

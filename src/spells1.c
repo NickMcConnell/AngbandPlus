@@ -128,7 +128,7 @@ static byte spell_color(int type)
             case GF_SUPER_RAY:      return (0x0E);
 
             case GF_ARROW:          return (0x0F);
-            case GF_WATER:          return (0x04);
+            case GF_WATER: case GF_WATER2: return (0x04);
             case GF_WEB:          return (0x04);
             case GF_NETHER:         return (0x07);
             case GF_CHAOS:          return (mh_attr(15));
@@ -901,6 +901,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
             message = "shrivels in the light.";
             break;
         case GF_WATER:
+        case GF_WATER2:
             message = "is washed away.";
             break;
         case GF_GRAVITY:
@@ -1263,6 +1264,20 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
             }
             break;
         }
+
+        case GF_WATER2:
+            if (have_flag(f_ptr->flags, FF_PERMANENT)) break;
+            if (randint0(50) > p_ptr->lev) break;
+            if (randint0(1000) < dam)
+            {
+                cave_set_feat(y, x, feat_deep_water);
+            }
+            else
+            {
+                if (!have_flag(f_ptr->flags, FF_FLOOR)) break;
+                cave_set_feat(y, x, feat_shallow_water);
+            }
+            break;
 
         case GF_WATER_FLOW:
         {
@@ -2237,6 +2252,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
         /* Water (acid) damage -- Water spirits/elementals are immune */
         case GF_WATER:
+        case GF_WATER2:
         {
             if (seen) obvious = TRUE;
 
@@ -6354,6 +6370,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
             break;
         }
         case GF_WATER:
+        case GF_WATER2:
         {
             if (fuzzy) msg_print("You are hit by something wet!");
             if (!CHECK_MULTISHADOW())

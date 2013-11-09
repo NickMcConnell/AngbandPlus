@@ -1552,11 +1552,17 @@ static void autopick_delayed_alter_aux(int item)
     if (o_ptr->k_idx && (o_ptr->marked & OM_AUTODESTROY))
     {
         char o_name[MAX_NLEN];
+        bool msg = FALSE;
 
         if (prace_is_(RACE_MON_JELLY))
             jelly_eat_object(o_ptr);
+        else if (prace_is_(RACE_MON_SWORD) && object_is_melee_weapon(o_ptr))
+            sword_absorb_object(o_ptr);
         else
+        {
             object_desc(o_name, o_ptr, 0);
+            msg = TRUE;
+        }
 
         /* Eliminate the item (from the pack) */
         if (item >= 0)
@@ -1572,7 +1578,7 @@ static void autopick_delayed_alter_aux(int item)
         }
 
         /* Print a message */
-        if (!prace_is_(RACE_MON_JELLY))
+        if (msg)
             msg_format("Auto-destroying %s.", o_name);
     }
 }

@@ -179,12 +179,14 @@
     <ClCompile Include="race_dragon.c" />
     <ClCompile Include="race_elemental.c" />
     <ClCompile Include="race_giant.c" />
+    <ClCompile Include="race_golem.c" />
     <ClCompile Include="race_hound.c" />
     <ClCompile Include="race_hydra.c" />
     <ClCompile Include="race_jelly.c" />
     <ClCompile Include="race_leprechaun.c" />
     <ClCompile Include="race_lich.c" />
     <ClCompile Include="race_spider.c" />
+    <ClCompile Include="race_sword.c" />
     <ClCompile Include="race_troll.c" />
     <ClCompile Include="race_xorn.c" />
     <ClCompile Include="racial.c" />

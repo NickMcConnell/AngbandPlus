@@ -547,6 +547,10 @@ bool make_attack_normal(int m_idx)
                         if ((res_save_default(RES_DISEN) || CHECK_MULTISHADOW()) && one_in_(2))
                         {
                         }
+                        else if (prace_is_(RACE_MON_SWORD) && one_in_(2) && sword_disenchant())
+                        {
+                            obvious = TRUE;
+                        }
                         else if (disenchant_player())
                         {
                             obvious = TRUE;
@@ -1593,6 +1597,11 @@ bool make_attack_normal(int m_idx)
                 else if (p_ptr->pclass == CLASS_FORCETRAINER && p_ptr->weapon_info[0].bare_hands)
                 {
                     if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed && !mon_save_p(m_ptr->r_idx, A_DEX) && one_in_(2))
+                        do_retaliate = TRUE;
+                }
+                else if (prace_is_(RACE_MON_SWORD) && p_ptr->lev >= 45) /* TODO: p_ptr->retaliate! */
+                {
+                    if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed && !mon_save_p(m_ptr->r_idx, A_STR))
                         do_retaliate = TRUE;
                 }
 

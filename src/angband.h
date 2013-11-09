@@ -41,6 +41,7 @@
  */
 #include "z-config.h"
 
+#include "savefile.h"
 
 /*
  * Now, include the define's, the type's, and the extern's

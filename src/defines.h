@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 28
+#define VER_PATCH 29
 #define VER_EXTRA 0
 
 
@@ -678,12 +678,14 @@
 #define RACE_MON_TROLL          50
 #define RACE_CENTAUR            51
 #define RACE_MON_ELEMENTAL      52
+#define RACE_MON_SWORD          53
+#define RACE_MON_GOLEM          54
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  * Note other races exist, and use constants beginning at MIMIC_MIN
  */
-#define MAX_RACES               53
+#define MAX_RACES               55
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -2083,6 +2085,8 @@
 #define SV_SCYTHE_OF_SLICING            30    /* 8d4 */
 #define SV_TSURIZAO                     40    /* 1d1 */
 #define SV_DEATH_SCYTHE                 50    /* 10d10 */
+#define SV_DEATH_SCYTHE_HACK            51    /* 10d10 */
+
 
 /* The "sval" codes for TV_SWORD */
 #define SV_BROKEN_DAGGER                 1  /* 1d1 */
@@ -3038,12 +3042,6 @@
 #define ACTION_SPELL      9
 #define ACTION_STALK      10
 
-
-/* Empty hand status */
-#define EMPTY_HAND_NONE 0x0000 /* Both hands are used */
-#define EMPTY_HAND_LARM 0x0001 /* Left hand is empty */
-#define EMPTY_HAND_RARM 0x0002 /* Right hand is empty */
-
 /*** General index values ***/
 
 
@@ -3244,8 +3242,9 @@
 #define GF_WEB      137
 #define GF_AMNESIA  138
 #define GF_STEAL    139
+#define GF_WATER2   140
 
-#define MAX_GF                139
+#define MAX_GF                140
 
 /*
  * Some things which induce learning
@@ -3534,15 +3533,16 @@
 #define TR_FULL_NAME           116
 #define TR_FIXED_FLAVOR        117
 #define TR_SPELL_POWER         118
-#define TR_RES_TIME               119
+#define TR_RES_TIME            119
 #define TR_SPELL_CAP           120
-#define TR_LIFE                 121
-#define TR_WILD                   122
+#define TR_LIFE                121
+#define TR_WILD                122
 #define TR_ORDER               123
 #define TR_DARKNESS            124
 #define TR_NO_SUMMON           125
+#define TR_NO_REMOVE           126
 
-#define TR_FLAG_MAX            126
+#define TR_FLAG_MAX            127
 #define TR_FLAG_SIZE           6
 
 #define TRG_INSTA_ART           0x00000001     /* Item must be an artifact */
@@ -5092,6 +5092,7 @@ extern int PlayerUID;
 #define MON_COPPER_COINS        85
 #define MON_NOV_PALADIN         97
 #define MON_GREEN_G             100
+#define MON_DEATH_SWORD         107
 #define MON_NOV_PRIEST_G        109
 #define MON_SILVER_COINS        117
 #define MON_D_ELF               122
@@ -5169,6 +5170,7 @@ extern int PlayerUID;
 #define MON_TROLL_PRIEST        403
 #define MON_GWAIHIR             410
 #define MON_ANGEL               417
+#define MON_HELLBLADE           420
 #define MON_ADAMANT_COINS       423
 #define MON_ALGROTH             424
 #define MON_VIBRATION_HOUND     428
@@ -5393,6 +5395,7 @@ extern int PlayerUID;
 #define MON_SHARD_VOR     897
 #define MON_FIRE_TROLL   899
 #define MON_SMALL_KRAKEN  903
+#define MON_POLEAXE_OF_ANIMATED_ATTACK 908
 #define MON_MASTER_MYS    916
 #define MON_G_MASTER_MYS  917
 #define MON_IE            921
@@ -5413,53 +5416,55 @@ extern int PlayerUID;
 #define MON_RICH          948
 #define MON_IKETA         949
 #define MON_B_DEATH_SWORD 953
-#define MON_YASE_HORSE    955
-#define MON_HORSE         956
-#define MON_BOTEI         963
-#define MON_KAGE          964
-#define MON_JAIAN         967
-#define MON_BELD          973
-#define MON_THAT_BAT      975
-#define MON_SHUTEN        979
-#define MON_FENGHUANG     988
-#define MON_KIRIN         989
-#define MON_BAHAMUT       1000
-#define MON_SUKE          1001
-#define MON_KAKU          1002
-#define MON_GHOST_Q       1003
-#define MON_PIP           1004
-#define MON_A_GOLD        1010
-#define MON_A_SILVER      1011
-#define MON_ROLENTO       1013
-#define MON_RAOU          1018
-#define MON_SHURYUUDAN    1023
-#define MON_WAHHA         1031
-#define MON_DEBBY         1032
-#define MON_KNI_TEMPLAR   1037
-#define MON_PALADIN       1038
-#define MON_CHAMELEON     1040
-#define MON_CHAMELEON_K   1041
-#define MON_TOPAZ_MONK    1047
-#define MON_STONE_DRAGON          1048
-#define MON_STEEL_DRAGON          1049
-#define MON_ATLAS 1050
-#define MON_KRONOS 1051
-#define MON_NOBORTA       1059
-#define MON_MORI_TROLL    1060
-#define MON_BARNEY        1061
-#define MON_GROO          1062
-#define MON_LOUSY         1063
-#define MON_JIZOTAKO      1065
-#define MON_TANUKI        1067
-#define MON_REINDEER      1081
-#define MON_DEATH_BEAST   1082
-#define MON_ULT_MAGUS      1083
-#define MON_SPELLWARP      1085
-#define MON_TALOS          1086
-#define MON_TONBERRY      1087
+#define MON_BROKEN_DEATH_SWORD 953
+#define MON_YASE_HORSE      955
+#define MON_HORSE           956
+#define MON_BOTEI           963
+#define MON_KAGE            964
+#define MON_JAIAN           967
+#define MON_BELD            973
+#define MON_THAT_BAT        975
+#define MON_SHUTEN          979
+#define MON_FENGHUANG       988
+#define MON_KIRIN           989
+#define MON_BAHAMUT         1000
+#define MON_SUKE            1001
+#define MON_KAKU            1002
+#define MON_GHOST_Q         1003
+#define MON_PIP             1004
+#define MON_A_GOLD          1010
+#define MON_A_SILVER        1011
+#define MON_ROLENTO         1013
+#define MON_RAOU            1018
+#define MON_SHURYUUDAN      1023
+#define MON_WAHHA           1031
+#define MON_DEBBY           1032
+#define MON_KNI_TEMPLAR     1037
+#define MON_PALADIN         1038
+#define MON_CHAMELEON       1040
+#define MON_CHAMELEON_K     1041
+#define MON_TOPAZ_MONK      1047
+#define MON_STONE_DRAGON    1048
+#define MON_STEEL_DRAGON    1049
+#define MON_ATLAS           1050
+#define MON_KRONOS          1051
+#define MON_NOBORTA         1059
+#define MON_MORI_TROLL      1060
+#define MON_BARNEY          1061
+#define MON_GROO            1062
+#define MON_LOUSY           1063
+#define MON_JIZOTAKO        1065
+#define MON_TANUKI          1067
+#define MON_REINDEER        1081
+#define MON_DEATH_BEAST     1082
+#define MON_ULT_MAGUS       1083
+#define MON_DEATH_SCYTHE    1084
+#define MON_SPELLWARP       1085
+#define MON_TALOS           1086
+#define MON_TONBERRY        1087
 #define MON_NINJA_TONBERRY  1088
 #define MON_MASTER_TONBERRY 1089
-#define MON_THE_HOARD    1090
+#define MON_THE_HOARD       1090
 #define MON_VARIANT_MAINTAINER 1094
 #define MON_MONKEY_CLONE  1095
 #define MON_ZEUS          1096

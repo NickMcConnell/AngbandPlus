@@ -163,6 +163,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:130
 
+# Another Long Sword
+?:[AND [EQU $QUEST14 3] [EQU $RACE Death-Sword] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:42
+
 # Ring of Damage
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Spider] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
@@ -398,6 +403,18 @@ F:@:FLOOR:3:0:0:0:38
 ?:[AND [EQU $QUEST33 3] [EQU $RACE Dragon Hydra Centaur] [GEQ [MOD $RANDOM33 5] 1] ]
 F:a:BUILDING_0:3:0:0:0:0:NONE:27
 F:@:FLOOR:3:0:0:0:36
+
+##########################################################################
+# Death-Sword
+# Werewindle
+?:[AND [EQU $QUEST33 3] [EQU $RACE Death-Sword] [EQU [MOD $RANDOM33 5] 0] ]
+F:a:BUILDING_0:3:0:0:0:0:NONE:27
+F:@:FLOOR:3:0:0:0:84
+
+# Grayswandir
+?:[AND [EQU $QUEST33 3] [EQU $RACE Death-Sword] [GEQ [MOD $RANDOM33 5] 1] ]
+F:a:BUILDING_0:3:0:0:0:0:NONE:27
+F:@:FLOOR:3:0:0:0:72
 
 ##########################################################################
 # Beholder

@@ -3432,8 +3432,11 @@ static void dump_aux_display_player(FILE *fff)
 
     {
         class_t *class_ptr = get_class_t();
+        race_t  *race_ptr = get_race_t();
         if (class_ptr->character_dump != NULL)
             (class_ptr->character_dump)(fff);
+        if (race_ptr && race_ptr->character_dump)
+            race_ptr->character_dump(fff);
     }
 }
 

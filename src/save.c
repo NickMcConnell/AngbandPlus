@@ -11,8 +11,6 @@
 /* Purpose: interact with savefiles */
 
 #include "angband.h"
-#include "equip.h"
-#include "savefile.h"
 
 static void wr_item(savefile_ptr file, object_type *o_ptr)
 {
@@ -607,6 +605,16 @@ static void wr_extra(savefile_ptr file)
     savefile_write_u32b(file, playtime);
     savefile_write_s32b(file, p_ptr->visit);
     savefile_write_u32b(file, p_ptr->count);
+
+    {
+    race_t  *race_ptr = get_true_race_t();
+    class_t *class_ptr = get_class_t();
+
+        if (race_ptr->save_player)
+            race_ptr->save_player(file);
+        if (class_ptr->save_player)
+            class_ptr->save_player(file);
+    }
 }
 
 static bool ang_sort_comp_cave_temp(vptr u, vptr v, int a, int b)

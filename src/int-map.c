@@ -257,3 +257,7 @@ void int_map_clear(int_map_ptr map)
     map->prime_idx = 0;
 }
 
+int int_map_count(int_map_ptr map)
+{
+    return map->count;
+}

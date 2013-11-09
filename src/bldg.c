@@ -2872,6 +2872,12 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
+    if (have_flag(dest->art_flags, TR_NO_REMOVE))
+    {
+        msg_print("You cannot be reforged!");
+        return FALSE;
+    }
+
     if (object_is_ego(dest))
     {
         msg_print("This item is already an ego item!");

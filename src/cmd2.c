@@ -4234,6 +4234,12 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
         return FALSE;
     }
 
+    if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+    {
+        msg_print("And how exactly do you propose to throw yourself?");
+        return FALSE;
+    }
+
     /* Item is cursed */
     if (object_is_cursed(o_ptr) && equip_is_valid_slot(item))
     {

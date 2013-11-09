@@ -5035,6 +5035,7 @@ static void do_cmd_knowledge_extra(void)
     FILE *fff;
     char file_name[1024];
     class_t *class_ptr = get_class_t();
+    race_t  *race_ptr = get_race_t();
 
     fff = my_fopen_temp(file_name, 1024);
     if (!fff) {
@@ -5045,6 +5046,9 @@ static void do_cmd_knowledge_extra(void)
 
     if (class_ptr && class_ptr->character_dump)
         class_ptr->character_dump(fff);
+
+    if (race_ptr && race_ptr->character_dump)
+        race_ptr->character_dump(fff);
 
     my_fclose(fff);
     show_file(TRUE, file_name, "Extra", 0, 0);

@@ -766,7 +766,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
         {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_DEMON, RACE_MON_DRAGON, 
             RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, 
             RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_SPIDER, 
-            RACE_MON_TROLL, RACE_MON_XORN, -1} },
+            RACE_MON_SWORD, RACE_MON_TROLL, RACE_MON_XORN, -1} },
 };
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
@@ -2644,7 +2644,7 @@ void player_outfit(void)
     {
         _birth_object(TV_SCROLL, SV_SCROLL_DARKNESS, rand_range(2, 5));
     }
-    else if (p_ptr->prace == RACE_MON_JELLY || p_ptr->prace == RACE_MON_SPIDER)
+    else if (p_ptr->prace == RACE_MON_JELLY || p_ptr->prace == RACE_MON_SPIDER || p_ptr->prace == RACE_MON_SWORD)
     {
     }
     else if (p_ptr->pclass != CLASS_NINJA)

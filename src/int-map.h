@@ -14,5 +14,6 @@ extern int         int_map_delete(int_map_ptr map, int key);
 extern vptr        int_map_find(int_map_ptr map, int key);
 extern int         int_map_contains(int_map_ptr map, int key);
 extern void        int_map_clear(int_map_ptr map);
+extern int         int_map_count(int_map_ptr map);
 
 #endif

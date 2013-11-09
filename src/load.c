@@ -11,7 +11,6 @@
 /* Purpose: support for loading savefiles -BEN- */
 
 #include "angband.h"
-#include "savefile.h"
 
 /*
  * Hack -- Show information on the screen, one line at a time.
@@ -879,6 +878,16 @@ static void rd_extra(savefile_ptr file)
     playtime = savefile_read_u32b(file);
     p_ptr->visit = savefile_read_s32b(file);
     p_ptr->count = savefile_read_u32b(file);
+
+    {
+    race_t  *race_ptr = get_true_race_t();
+    class_t *class_ptr = get_class_t();
+
+        if (race_ptr->load_player)
+            race_ptr->load_player(file);
+        if (class_ptr->load_player)
+            class_ptr->load_player(file);
+    }
 }
 
 /*

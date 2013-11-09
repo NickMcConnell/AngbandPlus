@@ -782,7 +782,8 @@ static cptr k_info_flags[] =
     "WILD",
     "ORDER",
     "DARKNESS",
-    "NO_SUMMON"
+    "NO_SUMMON",
+    "NO_REMOVE"
 };
 
 

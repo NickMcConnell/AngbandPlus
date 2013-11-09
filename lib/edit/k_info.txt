@@ -5576,6 +5576,13 @@ W:55:0:0:15:50000
 A:40/16:55/4
 P:0:1d1:0:0:0
 
+N:746:& Death Scythe~ 
+G:/:R
+I:22:51:0
+W:70:0:0:350:10000
+P:0:10d10:-50:30:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

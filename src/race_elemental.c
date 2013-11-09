@@ -818,9 +818,7 @@ static void _water_ball_spell(int cmd, variant *res)
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        if (p_ptr->lev >= 35)
-            fire_ball_hide(GF_WATER_FLOW, dir, 1, 4);
-        fire_ball(GF_WATER, dir, dam, 4);
+        fire_ball(GF_WATER2, dir, dam, 4);
         var_set_bool(res, TRUE);
         break;
     }
@@ -979,7 +977,7 @@ static race_t *_water_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 28,  25,  35,   6,  25,  16,  65,  35};
+    skills_t bs = { 28,  25,  35,   5,  25,  16,  65,  35};
     skills_t xs = {  8,  10,   9,   0,   0,   0,  20,  15};
 
         me.skills = bs;
@@ -1278,7 +1276,7 @@ static race_t *_fire_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 28,  25,  35,   6,  25,  16,  65,  35};
+    skills_t bs = { 28,  25,  35,   4,  25,  16,  65,  35};
     skills_t xs = {  8,  10,   9,   0,   0,   0,  25,  15};
 
         me.skills = bs;

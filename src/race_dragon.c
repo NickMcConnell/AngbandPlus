@@ -394,7 +394,7 @@ static void _elemental_calc_bonuses(void) {
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 15 + (l/10)*5;
     int res = _elemental_info[p_ptr->psubrace].which_res;
-    
+
     p_ptr->skill_dig += 100;
 
     p_ptr->ac += ac;
@@ -555,6 +555,8 @@ static void _nether_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -700,6 +702,8 @@ static void _law_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -819,6 +823,8 @@ static void _chaos_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -939,6 +945,8 @@ static void _balance_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 10 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -1058,6 +1066,8 @@ static void _ethereal_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -1185,6 +1195,8 @@ static void _crystal_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/50 + l*l*l/2500;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -1310,6 +1322,8 @@ static void _bronze_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -1426,6 +1440,8 @@ static void _gold_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 100;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -1534,6 +1550,8 @@ static void _steel_calc_bonuses(void) {
     int l = p_ptr->lev;
     int to_a = l + l*l/50 + l*l*l/2500;
     int ac = 15 + (l/10)*2;
+
+    p_ptr->skill_dig += 200;
     
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;

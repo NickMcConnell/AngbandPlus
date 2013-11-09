@@ -88,6 +88,16 @@ bool _object_is_ring(object_type *o_ptr)
     return FALSE;
 }
 
+bool _object_is_weapon(object_type *o_ptr) 
+{
+    switch (o_ptr->tval)
+    {
+    case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
+        return TRUE;
+    }
+    return FALSE;
+}
+
 bool _object_is_weapon_or_shield(object_type *o_ptr) 
 {
     switch (o_ptr->tval)
@@ -111,7 +121,8 @@ static object_p _accept[EQUIP_SLOT_MAX] = {
     _object_is_cloak,
     _object_is_boots,
     _object_is_helmet,
-    _object_is_anything
+    _object_is_anything,
+    _object_is_weapon
 };
 
 static int _slot_count(object_type *o_ptr)
@@ -216,12 +227,12 @@ extern cptr equip_describe_slot(int slot)
 {
     int i = slot - EQUIP_BEGIN;
 
-    if (_template->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD)
+    if (_template->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD || _template->slots[i].type == EQUIP_SLOT_WEAPON)
     {
         int hand = _template->slots[i].hand;
         if (p_ptr->weapon_info[hand].heavy_wield)
             return "Just Lifting";
-        if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
+        if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS && !prace_is_(RACE_MON_SWORD))
             return "Both Arms";
         if (p_ptr->weapon_info[hand].riding)
             return "Riding Reins";
@@ -316,7 +327,7 @@ int equip_find_empty_hand(void)
     for (i = 0; i < _template->count; i++)
     {
         int slot = EQUIP_BEGIN + i;
-        if ( _template->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD
+        if ( (_template->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD || _template->slots[i].type == EQUIP_SLOT_WEAPON)
           && !equip_obj(slot) )
         {
             return slot;
@@ -521,6 +532,12 @@ void equip_wield(void)
     slot = _prompt_wield_slot(o_ptr);
     if (!equip_is_valid_slot(slot)) return;
 
+    if (have_flag(inventory[slot].art_flags, TR_NO_REMOVE))
+    {
+        msg_print("You can't replace yourself with that!");
+        return;
+    }
+
     /* Double Check */
     if (object_is_cursed(&inventory[slot]))
     {
@@ -653,6 +670,12 @@ void equip_takeoff(void)
     o_ptr = &inventory[slot];
     
     if (!psion_can_wield(o_ptr)) return;
+    if (have_flag(o_ptr->art_flags, TR_NO_REMOVE)) /* Hack!!!! */
+    {
+        msg_print("You try to take yourself off, but fail!");
+        return;
+    }
+
     if (object_is_cursed(o_ptr))
     {
         if (o_ptr->curse_flags & TRC_PERMA_CURSE || (p_ptr->pclass != CLASS_BERSERKER && !prace_is_(RACE_MON_JELLY)))
@@ -889,7 +912,8 @@ void equip_calc_bonuses(void)
     /* Find the weapons */
     for (i = 0; i < _template->count; i++)
     {
-        if (_template->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD)
+        if ( _template->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD
+          || _template->slots[i].type == EQUIP_SLOT_WEAPON )
         {
             object_type *o_ptr;
             int          hand = _template->slots[i].hand;
@@ -993,6 +1017,10 @@ void equip_calc_bonuses(void)
         }
     }
 
+    /* Hack for Death Swords ... but not Broken Death Swords ;) */
+    if (prace_is_(RACE_MON_SWORD) && p_ptr->lev >= 10)
+        p_ptr->weapon_info[0].wield_how = WIELD_TWO_HANDS;
+
     /* Its convenient to have an accurate weapon count later */
     p_ptr->weapon_ct = 0;
     for (i = 0; i < MAX_HANDS; i++)
@@ -1068,24 +1096,31 @@ void equip_calc_bonuses(void)
                     p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval;
                 else if (p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
                     p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval;
+                else
+                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval;
                 break;
             }
             case EQUIP_SLOT_WEAPON_SHIELD:
+            case EQUIP_SLOT_WEAPON:
                 if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
                     p_ptr->weapon_info[hand].xtra_blow += o_ptr->pval;
                 break;
             default:
             {
-                int j;
+                int  j;
+                bool assigned = FALSE;
                 if (object_is_melee_weapon(o_ptr)) break; /* Hack for Jellies ... */
                 for (j = 0; j < MAX_HANDS; j++)
                 {
                     if (p_ptr->weapon_info[j].wield_how != WIELD_NONE)
                     {
                         p_ptr->weapon_info[j].xtra_blow += o_ptr->pval;
+                        assigned = TRUE;
                         break; /* Assume pval == 1 so first found gets it */
                     }
                 }
+                if (!assigned)
+                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval;
             }
             }
         }
@@ -1110,6 +1145,7 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_AGGRAVATE))   p_ptr->cursed |= TRC_AGGRAVATE;
         if (have_flag(flgs, TR_DRAIN_EXP))   p_ptr->cursed |= TRC_DRAIN_EXP;
         if (have_flag(flgs, TR_TY_CURSE))    p_ptr->cursed |= TRC_TY_CURSE;
+
         if (have_flag(flgs, TR_DEC_MANA))    p_ptr->dec_mana = TRUE;
         if (have_flag(flgs, TR_SPELL_POWER)) p_ptr->spell_power -= o_ptr->pval;
         if (have_flag(flgs, TR_SPELL_CAP))   p_ptr->spell_cap += o_ptr->pval;
@@ -1222,6 +1258,7 @@ void equip_calc_bonuses(void)
                     p_ptr->shooter_info.dis_to_h += penalty;
                 break;                
             case EQUIP_SLOT_WEAPON_SHIELD:
+            case EQUIP_SLOT_WEAPON:
             {
                 int hand = _template->slots[i].hand;
                 p_ptr->weapon_info[hand].to_h += penalty;

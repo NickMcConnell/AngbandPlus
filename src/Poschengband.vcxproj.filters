@@ -534,6 +534,12 @@
     <ClCompile Include="race_elemental.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="race_sword.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
+    <ClCompile Include="race_golem.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
