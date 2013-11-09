@@ -9641,7 +9641,7 @@ static void display_skill_list(bool is_misc, bool is_magic, bool is_nanka, int c
 		if (is_nanka)
 		{
 //			skill_lev = p_ptr->weapon_exp[idx];
-			skill_lev = weapon_exp_level(p_ptr->weapon_exp[idx]);
+			skill_lev = weapon_exp_level(p_ptr->weapon_exp[idx]/10);
 			skill_eff = p_ptr->s_ptr->w_eff[idx];
 
 			strcpy(o_name, weapon_skill_name[idx]);
@@ -9656,7 +9656,7 @@ static void display_skill_list(bool is_misc, bool is_magic, bool is_nanka, int c
 		else if (is_misc)
 		{
 //			skill_lev = p_ptr->skill_exp[idx];
-			skill_lev = skill_exp_level(p_ptr->skill_exp[idx]);
+			skill_lev = skill_exp_level(p_ptr->skill_exp[idx]/10);
 			skill_eff = p_ptr->s_ptr->m_eff[idx];
 
 			strcpy(o_name, misc_skill_name[idx]);
@@ -9716,7 +9716,7 @@ static void display_skill_list(bool is_misc, bool is_magic, bool is_nanka, int c
 /*
  * Display and increase weapon & misc. skill levels
  */
-void do_cmd_weapon_skill_level(void)
+void do_cmd_skill_level(void)
 {
 	int i, len, max;
 	int grp_cur, grp_top, old_grp_cur;
@@ -9840,14 +9840,6 @@ void do_cmd_weapon_skill_level(void)
 		/* Display a list of skills in the current group */
 		display_skill_list(is_misc, is_magic, is_nanka, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
 
-#if 0
-		/* Prompt */
-#ifdef JP
-		prt("<方向>, Enterで成長スキルの選択, ESC", 23, 0);
-#else
-		prt("<dir>, Enter to increase skill level, ESC", 23, 0);
-#endif
-#endif
 
 		if (!column)
 		{
@@ -9867,14 +9859,7 @@ void do_cmd_weapon_skill_level(void)
 				flag = TRUE;
 				break;
 			}
-#if 0
-			case '\n':
-			case '\r':
-			{
-				redraw = increase_skill_level(is_misc, skill_idx[skill_cur]);
-				break;
-			}
-#endif
+
 			default:
 			{
 				/* Move the cursor */
@@ -9895,47 +9880,6 @@ void do_cmd_weapon_skill_level(void)
 /* Array for determine spells are in books in inventory */
 static bool **spell_skill_okay;
 
-#if 0
-/*
- * Construct "spell okay list" from books in inventory.
- * (note: realm is in (1-11))
- */
-void build_spell_okay_list(void)
-{
-	int spell;
-	int realm;
-	int i;
-
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore except spell books */
-		if ((TV_MAGERY_BOOK > o_ptr->tval) || (o_ptr->tval > TV_CRUSADE_BOOK)) continue;
-
-		realm = tval2realm(o_ptr->tval);
-		if (!can_use_realm(realm)) continue;
-
-		/* Extract spells */
-		for (spell = 0; spell < 32; spell++)
-		{
-			/* Check for this spell */
-			if ((fake_spell_flags[realm - 1][o_ptr->sval] & (1L << spell)))
-			{
-				/* Collect this spell */
-				if (spell_okay(spell, realm))
-				{
-					spell_skill_okay[realm - 1][spell] = TRUE;
-				}
-			}
-		}
-	}
-}
-#endif
 
 /*
  * Return the number of spells in the realm.
@@ -9980,7 +9924,7 @@ static void display_spell_skill_list(int col, int row, int per_page, int realm,
 		/* Access the spell */
 		magic_type *s_ptr = &mp_ptr->info[realm][spell];
 
-		skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
+		skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]/10);
 		skill_okay = spell_skill_okay[realm][spell];
 		is_master = (skill_lev == SKILL_LEVEL_MASTER);
 
@@ -10009,255 +9953,3 @@ static void display_spell_skill_list(int col, int row, int per_page, int realm,
 	}
 }
 
-
-#if 0
-/*
- * Confirm to increase spell skill levels
- * (note: realm is in (0-10))
- */
-static bool increase_spell_skill_level(int realm, int spell)
-{
-	/* Access the spell */
-	magic_type *s_ptr = &mp_ptr->info[realm][spell];
-
-	int skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
-	int need_msp = (s_ptr->sfail * skill_lev_var[skill_lev]) / 5;
-
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
-
-	if (!spell_skill_okay[realm][spell] || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
-
-	if (need_msp > cexp_ptr->magic_skill_point)
-	{
-#ifdef JP
-		msg_print("魔法スキルポイントが足りません。");
-#else
-		msg_print("You don't have enough magic skill point.");
-#endif
-		msg_print(NULL);
-		return FALSE;
-	}
-
-#ifdef JP
-	if (!get_check("この魔法スキルを成長させますか？ ")) return FALSE;
-#else
-	if (!get_check("Increase skill level of this spell? ")) return FALSE;
-#endif
-
-	cexp_ptr->magic_skill_point -= need_msp;
-	p_ptr->spell_skill_lev[realm][spell]++;
-
-	return TRUE;
-}
-#endif
-
-/*
- * Display and increase magic skill levels
- */
-static void do_cmd_magic_skill_level(void)
-{
-	int i, len, max;
-	int grp_cur, grp_top, old_grp_cur;
-	int spell_skill_cur, spell_skill_top;
-	int grp_cnt, grp_idx[MAX_REALM + 1];
-	int spell_skill_cnt;
-
-	int column = 0;
-	bool flag;
-	bool redraw;
-
-	int browser_rows;
-	int wid, hgt;
-
-	static cptr realm_text[MAX_REALM + 1];
-
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
-
-	for (i = 0; i < MAX_REALM; i++)
-		realm_text[i] = realm_names[i + 1];
-	realm_text[i] = NULL;
-
-	C_MAKE(spell_skill_okay, MAX_REALM, bool *);
-	C_MAKE(spell_skill_okay[0], MAX_REALM * 32, bool);
-	for (i = 1; i < MAX_REALM; i++) spell_skill_okay[i] = spell_skill_okay[0] + i * 32;
-
-#if 0
-	build_spell_okay_list();
-#endif
-
-	/* Get size */
-	Term_get_size(&wid, &hgt);
-
-	browser_rows = hgt - 8;
-
-	/* Save the screen */
-	screen_save();
-
-	/* Clear screen */
-	Term_clear();
-
-	max = 0;
-	grp_cnt = 0;
-
-	/* Check every group */
-	for (i = 0; i < MAX_REALM; i++)
-	{
-		/* Measure the label */
-		len = strlen(realm_text[i]);
-
-		/* Save the maximum length */
-		if (len > max) max = len;
-
-		if (count_spells(i))
-		{
-			/* Build a list of groups with spell skills */
-			grp_idx[grp_cnt++] = i;
-		}
-	}
-
-	/* Terminate the list */
-	grp_idx[grp_cnt] = -1;
-
-	old_grp_cur = -1;
-	grp_cur = grp_top = 0;
-	spell_skill_cur = spell_skill_top = 0;
-	spell_skill_cnt = 0;
-
-	flag = FALSE;
-	redraw = TRUE;
-
-	while (!flag)
-	{
-		char ch;
-
-		if (redraw)
-		{
-			clear_from(0);
-
-#ifdef JP
-			prt(format("魔法スキルポイント割り振りメニュー"), 2, 0);
-			prt("領域", 4, 0);
-			prt("スキル", 4, max + 3);
-			prt("レベル", 4, 43);
-			prt(" 必要MSP", 4, 65);
-#else
-			prt(format("Magic skill point distributing menu [Current Magic Skill Point: %5d]", cexp_ptr->magic_skill_point), 2, 0);
-			prt("Realm", 4, 0);
-			prt("Skill", 4, max + 3);
-			prt("Level", 4, 43);
-			prt("need MSP", 4, 65);
-#endif
-
-			for (i = 0; i < 78; i++)
-			{
-				Term_putch(i, 5, TERM_WHITE, '=');
-			}
-
-			for (i = 0; i < browser_rows; i++)
-			{
-				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
-			}
-
-			redraw = FALSE;
-		}
-
-		/* Scroll group list */
-		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
-
-		/* Display a list of realms */
-		display_group_list(0, 6, max, browser_rows, grp_idx, realm_text, grp_cur, grp_top);
-
-		if (old_grp_cur != grp_cur)
-		{
-			old_grp_cur = grp_cur;
-
-			/* Get a list of spell_skills in the current group */
-			spell_skill_cnt = count_spells(grp_idx[grp_cur]);
-		}
-
-		/* Scroll object list */
-		while (spell_skill_cur < spell_skill_top)
-			spell_skill_top = MAX(0, spell_skill_top - browser_rows/2);
-		while (spell_skill_cur >= spell_skill_top + browser_rows)
-			spell_skill_top = MIN(spell_skill_cnt - browser_rows, spell_skill_top + browser_rows/2);
-
-		/* Display a list of spell_skills in the current group */
-		display_spell_skill_list(max + 3, 6, browser_rows, grp_idx[grp_cur], spell_skill_cnt, spell_skill_cur, spell_skill_top);
-
-		/* Prompt */
-#ifdef JP
-		prt("<方向>, Enterで成長スキルの選択, ESC", 23, 0);
-#else
-		prt("<dir>, Enter to increase spell skill level, ESC", 23, 0);
-#endif
-
-		if (!column)
-		{
-			Term_gotoxy(0, 6 + (grp_cur - grp_top));
-		}
-		else
-		{
-			Term_gotoxy(max + 3, 6 + (spell_skill_cur - spell_skill_top));
-		}
-
-		ch = inkey();
-
-		switch (ch)
-		{
-			case ESCAPE:
-			{
-				flag = TRUE;
-				break;
-			}
-#if 0
-			case '\n':
-			case '\r':
-			{
-				redraw = increase_spell_skill_level(grp_idx[grp_cur], spell_skill_cur);
-				break;
-			}
-#endif
-			default:
-			{
-				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &spell_skill_cur, spell_skill_cnt);
-				break;
-			}
-		}
-	}
-
-	/* Free the "spell_skill_okay" array */
-	C_KILL(spell_skill_okay[0], MAX_REALM * 32, bool);
-	C_KILL(spell_skill_okay, MAX_REALM, bool *);
-
-	/* Restore the screen */
-	screen_load();
-}
-
-void do_cmd_skill_level(void)
-{
-	char ch;
-	char com[80];
-
-#ifdef JP
-	sprintf(com, "[W]武器/その他, [M]魔法 :");
-#else
-	sprintf(com, "Skill: [W]eapon/misc. or [M]agic ?");
-#endif
-
-	if (!get_com(com, &ch, TRUE)) return;
-
-	switch (ch)
-	{
-	case 'W':
-	case 'w':
-		do_cmd_weapon_skill_level();
-		break;
-
-	case 'M':
-	case 'm':
-		do_cmd_magic_skill_level();
-		break;
-	}
-}

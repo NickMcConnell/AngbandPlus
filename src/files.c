@@ -1743,7 +1743,7 @@ static void display_player_middle(void)
 	/* Apply weapon bonuses */
 	if (o_ptr->k_idx)
 	{
-		int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]];
+		int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]/10];
 
 		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
 		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
@@ -2276,8 +2276,8 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (to_speed) add_flag(flgs, TR_SPEED);
 
 	/* Class Master get Flag */
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 39) add_flag(flgs, TR_FEAR_FIELD);
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 49) add_flag(flgs, TR_ANTI_MAGIC);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34) add_flag(flgs, TR_FEAR_FIELD);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 44) add_flag(flgs, TR_ANTI_MAGIC);
 	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
 	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
 	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
@@ -2292,22 +2292,23 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_SUST_DEX);
 		add_flag(flgs, TR_SUST_CON);
 		add_flag(flgs, TR_HOLD_LIFE);
-		if (cexp_ptr->clev > 19)
+		if (cexp_ptr->clev > 14)
 		{
 			add_flag(flgs, TR_REGEN);
 			add_flag(flgs, TR_FREE_ACT);
 			add_flag(flgs, TR_FEAR_FIELD);
 		}
-		if (cexp_ptr->clev > 29)
+		if (cexp_ptr->clev > 24)
 		{
 			add_flag(flgs, TR_RES_FEAR);
 			add_flag(flgs, TR_ANTI_MAGIC);
 		}
-		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_CONF);
+		if (cexp_ptr->clev > 34) add_flag(flgs, TR_RES_CONF);
 		if (cexp_ptr->clev > 44) add_flag(flgs, TR_RES_NETHER);
 		break;
 	case CLASS_DRAGOON:
-		add_flag(flgs, TR_KILL_DRAGON);
+		if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
+		else add_flag(flgs, TR_SLAY_DRAGON);
 		break;
 	case CLASS_NINJA:
 		if (heavy_armor()) add_flag(flgs, TR_SPEED);
@@ -2691,7 +2692,7 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 	if (prace_is_(RACE_GHOST))
 		add_flag(flgs, TR_RES_NETHER);
 
-	if (p_ptr->pclass == CLASS_DRAGOON)
+	if (((p_ptr->pclass == CLASS_DRAGOON) && (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24)) || (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49))
 		add_flag(flgs, TR_SLAY_DRAGON);
 
 	if ((rp_ptr->r_flags & PRF_NO_DIGEST) || (cp_ptr->c_flags & PCF_NO_DIGEST))
@@ -3977,12 +3978,12 @@ errr make_character_dump(FILE *fff)
 
 #ifdef JP
 	fprintf(fff, "\n  [経験してきたクラス]\n\n");
-	fprintf(fff, "クラス                 レベル             経験値     SP    MSP\n");
+	fprintf(fff, "クラス                 レベル             経験値  \n");
 #else
 	fprintf(fff, "\n  [Experienced Classes]\n\n");
-	fprintf(fff, "Class                  Level                 Exp     SP    MSP\n");
+	fprintf(fff, "Class                  Level                 Exp  \n");
 #endif
-	fprintf(fff, "--------------------------------------------------------------\n");
+	fprintf(fff, "--------------------------------------------------\n");
 
 	for (i = 0; i < MAX_CLASS; i++)
 	{
@@ -3993,10 +3994,10 @@ errr make_character_dump(FILE *fff)
 		if (cexp_ptr->max_clev)
 		{
 #ifdef L64
-			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d  %5d  %5d\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d\n", class_info[i].title,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #else
-			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld  %5ld  %5ld\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld\n", class_info[i].title,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #endif
 		}

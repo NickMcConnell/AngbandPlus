@@ -435,6 +435,7 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 {
 	int mult = 10;
 
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	u32b flgs[TR_FLAG_SIZE];
@@ -444,18 +445,21 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 
 	if (in_hand)
 	{
-		if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
-		if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 49) add_flag(flgs, TR_KILL_DRAGON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_DEMON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_UNDEAD);
+		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
+		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
+		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
+		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
+		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
 		switch (p_ptr->pclass)
 		{
 		case CLASS_DRAGOON:
-			add_flag(flgs, TR_KILL_DRAGON);
+			if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
+			else add_flag(flgs, TR_SLAY_DRAGON);
 			break;
 		case CLASS_EXORCIST:
+			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
+			if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
 			add_flag(flgs, TR_SLAY_UNDEAD);
-			add_flag(flgs, TR_SLAY_DEMON);
 			/* Fall through */
 		case CLASS_CLERIC:
 		case CLASS_PRIEST:
@@ -2156,6 +2160,8 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	cave_type       *c_ptr = &cave[y][x];
 
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
 	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -2346,7 +2352,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					{
 						ma_ptr = &ma_blows[randint0(MAX_MA)];
 					}
-					while ((ma_ptr->min_skill_lev > skill_exp_level(p_ptr->skill_exp[SKILL_MARTIAL_ARTS])) ||
+					while ((ma_ptr->min_skill_lev > skill_exp_level(p_ptr->skill_exp[SKILL_MARTIAL_ARTS]/10)) ||
 					       (randint1(p_ptr->lev) < ma_ptr->chance));
 
 					/* keep the highest level attack available we found */
@@ -2585,19 +2591,25 @@ default:	msg_format("%sを細切れにした！", m_name);		break;
 				case CLASS_DRAGOON:
 					if (r_ptr->flags3 & RF3_DRAGON)
 					{
-						k *= 5;
+						k *= (cexp_ptr->clev > 24 ? 5 : 3);
 						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;
 					}
 					break;
 				case CLASS_EXORCIST:
-					if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON))
+					if (r_ptr->flags3 & RF3_UNDEAD)
 					{
 						k *= 3;
-						if (m_ptr->ml)
-						{
-							if (r_ptr->flags3 & RF3_UNDEAD) r_ptr->r_flags3 |= RF3_UNDEAD;
-							if (r_ptr->flags3 & RF3_DEMON) r_ptr->r_flags3 |= RF3_DEMON;
-						}
+						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_UNDEAD;
+					}
+					if ((r_ptr->flags3 &  RF3_DEMON) && cexp_ptr->clev > 9)
+					{
+						k *= 3;
+						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DEMON;
+					}
+					if ((r_ptr->flags3 & RF3_EVIL) && cexp_ptr->clev > 19)
+					{
+						k *= 3;
+						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_EVIL;
 					}
 					break;
 				}

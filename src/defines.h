@@ -39,9 +39,9 @@
 
 /* Savefile version for TOband 0.0.0 and later */
 #define T_VER_MAJOR 0
-#define T_VER_MINOR 0
-#define T_VER_PATCH 3
-#define T_VER_EXTRA 99
+#define T_VER_MINOR 1
+#define T_VER_PATCH 0
+#define T_VER_EXTRA 4
 
 /* Added for ZAngband (now used for TOband) */
 #define FAKE_VERSION   0
@@ -1046,6 +1046,10 @@
 #define ART_NIGHT                174
 #define ART_FIREBIRD             191
 #define ART_CAMERA               192
+#define ART_AMU_FIRE             199
+#define ART_AMU_AQUA             200
+#define ART_AMU_WIND             201
+#define ART_AMU_EARTH            202
 
 /* Rings */
 #define ART_VIVID                8
@@ -1881,6 +1885,10 @@
 #define SV_AMULET_OHN                   26
 #define SV_AMULET_SOL                   27
 #define SV_AMULET_VAN                   28
+#define SV_AMULET_FIRE                  29
+#define SV_AMULET_AQUA                  30
+#define SV_AMULET_WIND                  31
+#define SV_AMULET_EARTH                 32
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -4342,11 +4350,7 @@ extern int PlayerUID;
 #define BACT_DONATION_LODIS         53
 #define BACT_EVAL_AC                54
 #define BACT_DONATION_ZENOBIAN      55
-#if 0
-#define BACT_INC_SKILL_MELEE        56
-#define BACT_INC_SKILL_BOW          57
-#endif
-#define MAX_BACT                    58
+#define MAX_BACT                    56
 
 /*
  * Quest status
@@ -4394,15 +4398,6 @@ extern int PlayerUID;
  */
 #define GRAPHICS_NONE       0
 
-/*
- * Modes for the random name generator
- */
-#define NAME_DWARF  1
-#define NAME_ELF    2
-#define NAME_GNOME  3
-#define NAME_HOBBIT 4
-#define NAME_HUMAN  5
-#define NAME_ORC    6
 
 #ifdef JP
 #define JVERB_AND 1
@@ -4478,8 +4473,6 @@ extern int PlayerUID;
 #define TOWN_BARMAMUTHA  5
 #define TOWN_LOST_ISLAND 6
 #define TOWN_PORT_TOWN   7
-#define TOWN_BA          8
-#define TOWN_SEASIDE     9
 
 #define NO_TOWN (TOWN_LOST_ISLAND)
 
@@ -4585,7 +4578,6 @@ extern int PlayerUID;
 #define MON_ERIG          687
 #define MON_HIGH_PRIEST   689
 #define MON_NAZGUL        696
-#define MON_STORMBRINGER  698
 #define MON_WHITE_KNIGHT  699
 #define MON_FAFNER        712
 #define MON_RENDAL        734
@@ -4653,6 +4645,13 @@ extern int PlayerUID;
 #define MON_ISHTALLE      924
 #define MON_FILARHH       925
 #define MON_DIVINE_DRAGON 926
+#define MON_FOOD_DRAGON   955
+#define MON_FOOD_CHIMERA  956
+#define MON_FOOD_OCTOPUS  957
+#define MON_FOOD_SQUID    958
+#define MON_FOOD_BIRD     959
+#define MON_FOOD_COOK     960
+#define MON_FOOD_MAEMAID  961
 
 #define MON_EGG_BASE        933
 #define MON_ROTTEN_EGG_BASE (MON_EGG_BASE + 5 * (SV_FOOD_ROTTEN_EGG - SV_FOOD_EGG))

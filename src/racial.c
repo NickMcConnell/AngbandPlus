@@ -494,19 +494,6 @@ static int racial_aux(power_desc_type *pd_ptr)
 	{
 		plev = p_ptr->cexp_info[p_ptr->pclass].clev;
 
-		/* Swordmaster is not wield weapon */
-		if ((p_ptr->pclass == CLASS_SWORDMASTER) && (!buki_motteruka(INVEN_RARM)) && ((pd_ptr->number >= -10) && (pd_ptr->number <= -6)))
-		{
-#ifdef JP
-			msg_print("武器を持たないと必殺技は使えない！");
-#else
-			msg_print("You need to wield a weapon!");
-#endif
-
-			energy_use = 0;
-			return 0;
-		}
-
 		/* Power is not available yet */
 		if (plev < min_level)
 		{
@@ -536,6 +523,32 @@ static int racial_aux(power_desc_type *pd_ptr)
 			energy_use = 0;
 			return 0;
 		}
+	}
+
+	/* バーサーカーに新レイシャル */
+	if ((p_ptr->pclass == CLASS_BERSERKER) && (pd_ptr->number == -5) && (!((inventory[INVEN_RARM].tval == TV_POLEARM) && ((inventory[INVEN_RARM].sval == SV_FRANCISCA) || (inventory[INVEN_RARM].sval == SV_RUNEAXE)))))
+	{
+#ifdef JP
+		msg_print("利き腕に投げ斧を装備しないと！");
+#else
+		msg_print("You need to wield a weapon!");
+#endif
+
+		energy_use = 0;
+		return 0;
+	}
+		
+	/* Swordmaster is not wield weapon */
+	if ((p_ptr->pclass == CLASS_SWORDMASTER) && (!buki_motteruka(INVEN_RARM)) && ((pd_ptr->number >= -10) && (pd_ptr->number <= -6)))
+	{
+#ifdef JP
+		msg_print("武器を持たないと必殺技は使えない！");
+#else
+		msg_print("You need to wield a weapon!");
+#endif
+
+		energy_use = 0;
+		return 0;
 	}
 
 	/* Too confused */
@@ -731,7 +744,7 @@ static bool do_cmd_racial_throwing(int fake_item)
 	{
 		/* Extra shots */
 		p_ptr->num_fire += (extra_shots * 100);
-		p_ptr->num_fire += skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]] * 50;
+		p_ptr->num_fire += skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]/10] * 50;
 	}
 
 	if (p_ptr->riding)
@@ -744,7 +757,7 @@ static bool do_cmd_racial_throwing(int fake_item)
 		}
 		else
 		{
-			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) / 80;
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000) / 80;
 			penalty += 30;
 			if (penalty < 30) penalty = 30;
 		}
@@ -814,7 +827,7 @@ static bool cmd_racial_power_aux(s32b command)
 		rlev = r_ptr->level;
 		if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
 		if (rlev > 60) rlev = 60+(rlev-60)/2;
-		if ((randint1((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/120+plev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < plev*3/2+randint0(plev/5)))
+		if ((randint1((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)/120+plev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < plev*3/2+randint0(plev/5)))
 		{
 #ifdef JP
 			msg_format("%sを手なずけた。",m_name);
@@ -942,9 +955,14 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_BERSERKER:
 		{
-			if (command == -5)
+			switch (command)
 			{
+			case -5:
+				if (!do_cmd_throw_aux(1, PY_THROW_BOOMERANG, 0)) return FALSE;
+				break;
+			case -6:
 				teleport_player(50 + plev * 2);
+				break;
 			}
 			break;
 		}
@@ -1084,7 +1102,7 @@ static bool cmd_racial_power_aux(s32b command)
 			case -4:
 				{
 					int pstat = p_ptr->stat_use[A_STR];
-					int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
+					int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]/10];
 
 					if (!get_aim_dir(&dir)) return FALSE;
 					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;
@@ -1319,7 +1337,7 @@ static bool cmd_racial_power_aux(s32b command)
 			case -4:
 				{
 					int pstat = p_ptr->stat_use[A_STR];
-					int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
+					int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]/10];
 
 					if (!get_aim_dir(&dir)) return FALSE;
 					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;
@@ -2394,6 +2412,17 @@ msg_print("混乱していて特殊能力を使えません！");
 	case CLASS_BERSERKER:
 	{
 #ifdef JP
+		strcpy(power_desc[num].name, "トマホーク");
+#else
+		strcpy(power_desc[num].name, "Boomerang");
+#endif
+
+		power_desc[num].level = 5;
+		power_desc[num].cost = 15;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -5;
+#ifdef JP
 		strcpy(power_desc[num].name, "とんずら");
 #else
 		strcpy(power_desc[num].name, "Escape");
@@ -2403,7 +2432,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 5;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 30;
-		power_desc[num++].number = -5;
+		power_desc[num++].number = -6;
 		break;
 	}
 	case CLASS_TERRORKNIGHT:

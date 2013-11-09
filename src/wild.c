@@ -1164,7 +1164,7 @@ void wilderness_gen_small()
 	for (i = 0; i < max_wild_x; i++)
 		for (j = 0; j < max_wild_y; j++)
 		{
-			if (wilderness[j][i].town && ((wilderness[j][i].town != TOWN_LOST_ISLAND) && (wilderness[j][i].town != TOWN_SEASIDE)))
+			if (wilderness[j][i].town && (wilderness[j][i].town != TOWN_LOST_ISLAND))
 			{
 				cave[j][i].feat = FEAT_TOWN;
 				cave[j][i].special = wilderness[j][i].town;

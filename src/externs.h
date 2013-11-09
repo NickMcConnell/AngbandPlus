@@ -551,11 +551,7 @@ extern bool cave_valid_grid(cave_type *c_ptr);
 extern bool no_lite(void);
 extern s16b get_dominant_feature_elem(cave_type *c_ptr);
 extern byte elem_attr(s16b elem);
-#ifdef USE_TRANSPARENCY
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
-#else /* USE_TRANSPARENCY */
-extern void map_info(int y, int x, byte *ap, char *cp);
-#endif /* USE_TRANSPARENCY */
 extern void bigtile_attr(char *cp, byte *ap, char *cp2, byte *ap2);
 extern void move_cursor_relative(int row, int col);
 extern void print_rel(char c, byte a, int y, int x);
@@ -675,7 +671,6 @@ extern void plural_aux(char * Name);
 extern void do_cmd_checkquest(void);
 extern void do_cmd_time(void);
 extern void do_cmd_give_money(void);
-extern void do_cmd_weapon_skill_level(void);
 extern void do_cmd_skill_level(void);
 
 /* cmd5.c */

@@ -1045,7 +1045,7 @@ errr parse_s_info(char *buf, header *head)
 		if (2 != sscanf(buf+2, "%d:%d",
 				&wt, &eff)) return (1);
 
-		if (eff > 7) return (99);
+		if (eff > 11) return (0);
 		if (eff < 1) return (0);
 
 		/* Save the values */
@@ -1061,7 +1061,7 @@ errr parse_s_info(char *buf, header *head)
 		if (2 != sscanf(buf+2, "%d:%d",
 				&num, &eff)) return (1);
 
-		if (eff > 7) return (99);
+		if (eff > 11) return (0);
 		if (eff < 1) return (0);
 
 		/* Save the values */

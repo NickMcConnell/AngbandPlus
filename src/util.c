@@ -701,10 +701,13 @@ int fd_make(cptr file, int mode)
 
 	/* setting file type and creator -- AR */
 	{
-		errr errr_tmp;
-		errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
-		fsetfileinfo(file, _fcreator, _ftype);
-		return(errr_tmp);
+		int fdes;
+		/* Create the file, fail if exists, write-only, binary */
+		fdes = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
+		/* Set creator and type if the file is successfully opened */
+		if (fdes >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+		/* Return the descriptor */
+		return (fdes);
 	}
 
 # else
@@ -3681,7 +3684,7 @@ menu_naiyou menu_info[12][12] =
 		{"現在の時刻(^t/')", KTRL('T'), TRUE},
 		{"現在の知識(~)", '~', TRUE},
 		{"プレイ記録(|)", '|', TRUE},
-		{"", 0, FALSE},
+		{"スキルの確認(_)", '_', TRUE},
 		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
@@ -3864,7 +3867,7 @@ menu_naiyou menu_info[12][12] =
 		{"Current time(^t/')", KTRL('T'), TRUE},
 		{"Various infomations(~)", '~', TRUE},
 		{"Play record menu(|)", '|', TRUE},
-		{"", 0, FALSE},
+		{"Check skill level(_)", '_', TRUE},
 		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},

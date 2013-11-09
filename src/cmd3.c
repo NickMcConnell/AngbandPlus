@@ -594,6 +594,23 @@ msg_print("クエストを達成した！");
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
+	/* 属性転換のアミュレット仕様変更 */
+	if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_ALIGNMENT))
+	{
+		p_ptr->align_self *= -1;
+
+		inven_item_increase(INVEN_NECK, -1);
+		inven_item_optimize(INVEN_NECK);
+#ifdef JP
+		msg_print("アミュレットは粉々に砕け散った!");
+#else
+		msg_print("The Amulet has destroyed!");
+#endif
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 

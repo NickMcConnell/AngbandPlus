@@ -4072,16 +4072,20 @@ static void bldg_process_command(building_type *bldg, int i)
 		break;
 	}
 	case BACT_LOSE_MUTATION:
-		paid = lose_mutation(0);
-		/* ToDo: Better message text. */
-		if (!paid)
+		if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+		{
+			while(!lose_mutation(0));
+			paid = TRUE;
+		}
+		else
+		{
 #ifdef JP
-			msg_print("奇妙なくらい普通になった気がする。");
+			msg_print("治すべき突然変異が無い。");
 #else
-		msg_print("You feel oddly normal.");
+			msg_print("You have no mutations.");
 #endif
-
-
+			msg_print(NULL);
+		}
 		break;
 	case BACT_TSUCHINOKO:
 		tsuchinoko();
@@ -4335,14 +4339,6 @@ static void bldg_process_command(building_type *bldg, int i)
 	case BACT_EVAL_AC:
 		paid = eval_ac(p_ptr->dis_ac + p_ptr->dis_to_a);
 		break;
-#if 0
-	case BACT_INC_SKILL_MELEE:
-		paid = do_inc_skill(&bcost, FALSE);
-		break;
-	case BACT_INC_SKILL_BOW:
-		paid = do_inc_skill(&bcost, TRUE);
-		break;
-#endif
 	}
 
 	if (paid)

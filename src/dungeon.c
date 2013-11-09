@@ -312,7 +312,7 @@ static int get_sense_type_arms(void)
 	int pstat = p_ptr->stat_use[A_WIS];
 
 	/* Analyze the skill level */
-	switch (skill_exp_level(p_ptr->skill_exp[SKILL_SENSE_ARMS]))
+	switch (skill_exp_level(p_ptr->skill_exp[SKILL_SENSE_ARMS]/10))
 	{
 	case SKILL_LEVEL_BEGINNER:
 		if (randint0(200) < pstat) return SENSE_TYPE_LIGHT;
@@ -345,7 +345,7 @@ static int get_sense_type_acc(void)
 	int pstat = p_ptr->stat_use[A_WIS];
 
 	/* Analyze the skill level */
-	switch (skill_exp_level(p_ptr->skill_exp[SKILL_SENSE_ACC]))
+	switch (skill_exp_level(p_ptr->skill_exp[SKILL_SENSE_ACC]/10))
 	{
 	case SKILL_LEVEL_BEGINNER:
 		return SENSE_TYPE_NONE;
@@ -4319,7 +4319,7 @@ msg_print("アリーナが魔法を吸収した！");
 
 		case '_':
 		{
-			do_cmd_weapon_skill_level();
+			do_cmd_skill_level();
 			break;
 		}
 
@@ -4473,7 +4473,7 @@ msg_format("%^sを起こした。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->stunned;
@@ -4513,7 +4513,7 @@ msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->confused;
@@ -4553,7 +4553,7 @@ msg_format("%^sを混乱状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->monfear;

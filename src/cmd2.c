@@ -3352,7 +3352,7 @@ void do_cmd_rest(void)
  */
 static int breakage_chance(object_type *o_ptr)
 {
-	int archer_bonus = ((p_ptr->pclass == CLASS_ARCHER) ? ((p_ptr->cexp_info[CLASS_ARCHER].clev - 1) / 7 + 4) : 0);
+	int archer_bonus = ((p_ptr->pclass == CLASS_ARCHER) ? ((p_ptr->cexp_info[CLASS_ARCHER].clev - 1) / 7 + 4) : ((p_ptr->cexp_info[CLASS_ARCHER].clev - 1) / 7));
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -3889,7 +3889,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 	{
 		int avgdam, turnavg;
 
-		attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
+		attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]/10];
 		skill_to_d = attack_var - 1;
 
 		o_ptr = &thrown;
@@ -3969,7 +3969,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 
 		if ((j_ptr->sval == SV_PISTOL) && (o_ptr->sval == SV_MAGNUM_BULLET)) as_beam = TRUE;
 
-		attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx])]];
+		attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx])]/10];
 		skill_to_d = attack_var - 1;
 	}
 
@@ -4481,7 +4481,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 
 	int ac = 0;
 
-	int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
+	int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]/10];
 
 
 	if (mode & PY_THROW_CHOSEN)
@@ -4490,7 +4490,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	}
 	else if (boomerang)
 	{
-		if (buki_motteruka(INVEN_LARM))
+		if ((buki_motteruka(INVEN_LARM)) && (p_ptr->pclass != CLASS_BERSERKER))
 		{
 			item_tester_hook = item_tester_hook_boomerang;
 #ifdef JP

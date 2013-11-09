@@ -1463,7 +1463,10 @@ s32b object_value(object_type *o_ptr)
 bool can_player_destroy_object(object_type *o_ptr)
 {
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (!artifact_p(o_ptr) && !o_ptr->art_name) return TRUE;
+
+	/* If object is unidentified, makes fake inscription */
+	if (!object_known_p(o_ptr))
 	{
 		byte feel = FEEL_SPECIAL;
 
@@ -1486,7 +1489,8 @@ bool can_player_destroy_object(object_type *o_ptr)
 		return FALSE;
 	}
 
-	return TRUE;
+	/* Identified artifact -- Nothing to do */
+	return FALSE;
 }
 
 
@@ -3244,8 +3248,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				switch (o_ptr->name2)
 				{
 				case EGO_BAT:
-					o_ptr->to_d -= 6;
-					o_ptr->to_h -= 6;
+					o_ptr->to_d -= 2;
+					o_ptr->to_h -= 2;
 					break;
 				case EGO_SIRENE:
 					if (one_in_(8)) add_flag(o_ptr->art_flags, TR_EASY_SPELL);
@@ -4169,6 +4173,9 @@ static void a_m_aux_4(object_type *o_ptr, int power)
 
 				/* Ignore dead monsters */
 				if (!r_ptr->rarity) continue;
+
+				/* Ignore uncommon monsters */
+				if (r_ptr->rarity > 100) continue;
 
 				/* Prefer less out-of-depth monsters */
 				if (randint0(check)) continue;
@@ -6935,14 +6942,14 @@ bool process_warning(int xx, int yy)
 				if (f5 & RF5_BA_MANA) damcalc(GF_MANA, rlev * 4 + 150, 0, &dam_max0);
 				if (f5 & RF5_BA_DARK) damcalc(GF_DARK, rlev * 4 + 150, 0, &dam_max0);
 				if (f5 & RF5_BA_LITE) damcalc(GF_LITE, rlev * 4 + 150, 0, &dam_max0);
-				if (fa & RFA_FIRE_STORM) damcalc(GF_PURE_FIRE, rlev * 4 + 150, 0, &dam_max0);
-				if (fa & RFA_AQUA_STORM) damcalc(GF_PURE_AQUA, rlev * 4 + 150, 0, &dam_max0);
-				if (fa & RFA_EARTH_STORM) damcalc(GF_PURE_EARTH, rlev * 4 + 150, 0, &dam_max0);
-				if (fa & RFA_WIND_STORM) damcalc(GF_PURE_WIND, rlev * 4 + 150, 0, &dam_max0);
-				if (fa & RFA_BR_PURE_FIRE) damcalc(GF_PURE_FIRE, m_ptr->hp / 3, 800, &dam_max0);
-				if (fa & RFA_BR_PURE_AQUA) damcalc(GF_PURE_AQUA, m_ptr->hp / 3, 800, &dam_max0);
-				if (fa & RFA_BR_PURE_EARTH) damcalc(GF_PURE_EARTH, m_ptr->hp / 3, 800, &dam_max0);
-				if (fa & RFA_BR_PURE_WIND) damcalc(GF_PURE_WIND, m_ptr->hp / 3, 800, &dam_max0);
+				if (fa & RFA_FIRE_STORM) damcalc(GF_PURE_FIRE, rlev * 2 + 150, 0, &dam_max0);
+				if (fa & RFA_AQUA_STORM) damcalc(GF_PURE_AQUA, rlev * 2 + 150, 0, &dam_max0);
+				if (fa & RFA_EARTH_STORM) damcalc(GF_PURE_EARTH, rlev * 2 + 150, 0, &dam_max0);
+				if (fa & RFA_WIND_STORM) damcalc(GF_PURE_WIND, rlev * 2 + 150, 0, &dam_max0);
+				if (fa & RFA_BR_PURE_FIRE) damcalc(GF_PURE_FIRE, m_ptr->hp / 3, 500, &dam_max0);
+				if (fa & RFA_BR_PURE_AQUA) damcalc(GF_PURE_AQUA, m_ptr->hp / 3, 500, &dam_max0);
+				if (fa & RFA_BR_PURE_EARTH) damcalc(GF_PURE_EARTH, m_ptr->hp / 3, 500, &dam_max0);
+				if (fa & RFA_BR_PURE_WIND) damcalc(GF_PURE_WIND, m_ptr->hp / 3, 500, &dam_max0);
 				if (fa & RFA_SAND_STORM) damcalc(GF_SHARDS, rlev * 4 + 150, 0, &dam_max0);
 				if (fa & RFA_BA_DISI) damcalc(GF_DISINTEGRATE, rlev + 70, 0, &dam_max0);
 
@@ -7322,8 +7329,22 @@ bool item_tester_hook_metal(object_type *o_ptr)
 	case TV_DIGGING:
 	case TV_POLEARM:
 	case TV_SWORD:
-	case TV_HARD_ARMOR:
 		return TRUE;
+
+	case TV_HARD_ARMOR:
+		switch (o_ptr->sval)
+		{
+		case SV_METAL_SCALE_MAIL:
+		case SV_CHAIN_MAIL:
+		case SV_DOUBLE_CHAIN_MAIL:
+		case SV_SPLINT_MAIL:
+		case SV_FULL_PLATE_ARMOUR:
+		case SV_MITHRIL_SCALE_MAIL:
+		case SV_MITHRIL_CHAIN_MAIL:
+		case SV_MITHRIL_PLATE_MAIL:
+			return TRUE;
+		}
+		break;
 
 	case TV_CHEST:
 		switch (o_ptr->sval)

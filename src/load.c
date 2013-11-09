@@ -1228,6 +1228,19 @@ static errr rd_extra(void)
 
 	for (i = 0; i < MAX_WT; i++) rd_s16b(&p_ptr->weapon_exp[i]);
 	for (i = 0; i < 10; i++) rd_s16b(&p_ptr->skill_exp[i]);
+	if (t_older_than(0, 1, 0, 0))
+	{
+		for (i = 0; i < MAX_WT; i++)
+		{
+			p_ptr->weapon_exp[i] *= 10;
+			if (p_ptr->weapon_exp[i] > 500) p_ptr->weapon_exp[i] = 500;
+		}
+		for (i = 0; i < 10; i++)
+		{
+			p_ptr->skill_exp[i] *= 10;
+			if (p_ptr->skill_exp[i] > 500) p_ptr->skill_exp[i] = 500;
+		}
+	}
 	for (i = 0; i < MAX_REALM + 1; i++) rd_s16b(&p_ptr->magic_exp[i]);
 
 	rd_u16b(&tmp16u);

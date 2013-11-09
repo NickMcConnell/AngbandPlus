@@ -2767,7 +2767,7 @@ msg_format("%sをうまく唱えられなかった！", prayer);
 	}
 
 	/* Take a turn */
-	energy_use = 115 - skill_lev_var[p_ptr->skill_exp[SKILL_SPELL_CAST]] * 5;
+	energy_use = 115 - skill_lev_var[(p_ptr->skill_exp[SKILL_SPELL_CAST]/10)] * 5;
 	if (p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 49) energy_use -= 50;
 	else if ((p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 29) || (p_ptr->cexp_info[CLASS_SIRENE].clev > 44) || (p_ptr->cexp_info[CLASS_WIZARD].clev > 44)) energy_use -= 25;
 
@@ -3007,7 +3007,7 @@ int calculate_upkeep(void)
 	if (total_friends)
 	{
 		int upkeep_factor;
-		upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / ((6 - (int)skill_exp_level(p_ptr->skill_exp[SKILL_PET_UPKEEP])) * 10)));
+		upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / ((6 - (int)skill_exp_level(p_ptr->skill_exp[SKILL_PET_UPKEEP]/10)) * 10)));
 		if (upkeep_factor < 0) upkeep_factor = 0;
 		if (upkeep_factor > 1000) upkeep_factor = 1000;
 		return upkeep_factor;
@@ -3196,7 +3196,7 @@ bool rakuba(int dam, bool force)
 		{
 			int level = r_ptr->level;
 			if (p_ptr->riding_ryoute) level += 20;
-			if (randint0(dam/2 + level*2) < ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/30+10))
+			if (randint0(dam/2 + level*2) < ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)/30+10))
 			{
 				if ((!p_ptr->riding_ryoute) || !one_in_(p_ptr->cexp_info[p_ptr->psex == SEX_MALE ? CLASS_BEASTTAMER : CLASS_DRAGONTAMER].clev * (p_ptr->riding_ryoute ? 2 : 3)+30))
 				{
@@ -3400,7 +3400,7 @@ msg_print("その場所にはモンスターはいません。");
 
 			return FALSE;
 		}
-		if (r_info[m_ptr->r_idx].level > randint1(((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/50 + p_ptr->lev/2 +20)))
+		if (r_info[m_ptr->r_idx].level > randint1(((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)/50 + p_ptr->lev/2 +20)))
 		{
 #ifdef JP
 msg_print("うまく乗れなかった。");

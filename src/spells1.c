@@ -2086,6 +2086,7 @@ note = "はいくらか耐性を示した。";
 			if (seen) obvious = TRUE;
 			do_poly = TRUE;
 			do_conf = (5 + randint1(11) + r) / (r + 1);
+			if (r_ptr->flags7 & RF7_EGG_ONLY) do_poly = FALSE;
 			if ((r_ptr->flagsr & RFR_RES_CHAO) ||
 			    ((r_ptr->flags3 & RF3_DEMON) && one_in_(3)))
 			{
@@ -5530,6 +5531,8 @@ else msg_print("攻撃が跳ね返った！");
 			if (fuzzy) msg_print("You are hit by acid!");
 #endif
 
+			if (p_ptr->weak_earth) dam *= 4 / 3;
+
 			get_damage = acid_dam(dam, killer);
 			break;
 		}
@@ -5542,6 +5545,8 @@ else msg_print("攻撃が跳ね返った！");
 #else
 			if (fuzzy) msg_print("You are hit by lightning!");
 #endif
+
+			if (p_ptr->weak_wind) dam *= 4 / 3;
 
 			get_damage = elec_dam(dam, killer);
 			break;
@@ -5556,6 +5561,8 @@ else msg_print("攻撃が跳ね返った！");
 			if (fuzzy) msg_print("You are hit by fire!");
 #endif
 
+			if (p_ptr->weak_fire) dam *= 4 / 3;
+
 			get_damage = fire_dam(dam, killer);
 			break;
 		}
@@ -5568,6 +5575,8 @@ else msg_print("攻撃が跳ね返った！");
 #else
 			if (fuzzy) msg_print("You are hit by cold!");
 #endif
+
+			if (p_ptr->weak_aqua) dam *= 4 / 3;
 
 			get_damage = cold_dam(dam, killer);
 			break;
@@ -5801,6 +5810,7 @@ else msg_print("攻撃が跳ね返った！");
 			}
 
 			if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
+			if (p_ptr->weak_fire) dam *= 4 / 3;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			break;
@@ -5818,6 +5828,8 @@ else msg_print("攻撃が跳ね返った！");
 			if (p_ptr->zoshonel_protect) break;
 
 			ACTIVATE_MULTISHADOW();
+			if (p_ptr->weak_aqua) dam *= 4; dam /= (randint1(4) + 7);
+			if (p_ptr->weak_fire) dam *= 4 / 3;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 
 			if (!p_ptr->resist_sound && !IS_MULTISHADOW(0))
@@ -5847,6 +5859,7 @@ else msg_print("攻撃が跳ね返った！");
 #endif
 
 			ACTIVATE_MULTISHADOW();
+			if (p_ptr->weak_earth) dam *= 4 / 3;
 			if (p_ptr->resist_shard)
 			{
 				dam *= 6; dam /= (randint1(4) + 7);
@@ -5860,6 +5873,7 @@ else msg_print("攻撃が跳ね返った！");
 			{
 				inven_damage(set_cold_destroy, 2);
 			}
+			if (p_ptr->weak_earth) dam *= 4 / 3;
 
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
@@ -5876,6 +5890,7 @@ else msg_print("攻撃が跳ね返った！");
 #endif
 
 			ACTIVATE_MULTISHADOW();
+			if (p_ptr->weak_wind) dam *= 4 / 3;
 			if (p_ptr->resist_sound)
 			{
 				dam *= 5; dam /= (randint1(4) + 7);
@@ -6037,6 +6052,7 @@ else msg_print("攻撃が跳ね返った！");
 #endif
 				p_ptr->is_dead |= DEATH_STONED;
 			}
+			if (p_ptr->weak_earth) dam *= 4 / 3;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			break;
@@ -6095,6 +6111,7 @@ else msg_print("攻撃が跳ね返った！");
 
 			ACTIVATE_MULTISHADOW();
 			if (!IS_MULTISHADOW(0)) (void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
+			if (p_ptr->weak_wind) dam *= 4 / 3;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			break;
@@ -6212,16 +6229,16 @@ else msg_print("攻撃が跳ね返った！");
 			ACTIVATE_MULTISHADOW();
 			if (!IS_MULTISHADOW(0))
 			{
-				if (!p_ptr->earth_spike) teleport_player(5);
-				if (!p_ptr->ffall)
+				if (!(p_ptr->earth_spike || p_ptr->weak_earth)) teleport_player(5);
+				if (!(p_ptr->ffall || p_ptr->weak_earth))
 					(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
-				if (!(p_ptr->resist_sound || p_ptr->ffall))
+				if (!(p_ptr->resist_sound || p_ptr->weak_earth || p_ptr->ffall))
 				{
 					int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
 					(void)set_stun(p_ptr->stun + k);
 				}
 			}
-			if (p_ptr->ffall)
+			if (p_ptr->ffall || p_ptr->weak_earth)
 			{
 				dam = (dam * 2) / 3;
 			}
@@ -6230,6 +6247,7 @@ else msg_print("攻撃が跳ね返った！");
 			{
 				inven_damage(set_cold_destroy, 2);
 			}
+			if (p_ptr->weak_wind) dam *= 4 / 3;
 
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
@@ -6245,6 +6263,8 @@ else msg_print("攻撃が跳ね返った！");
 			if (fuzzy) msg_print("You are hit by something sharp and cold!");
 #endif
 
+			if (p_ptr->weak_aqua) dam *= 4; dam /= (randint1(4) + 7);
+			if (p_ptr->weak_fire) dam *= 4 / 3;
 			get_damage = cold_dam(dam, killer);
 			if (!IS_MULTISHADOW(1))
 			{
@@ -6337,6 +6357,7 @@ else msg_print("攻撃が跳ね返った！");
 			{
 				inven_damage(set_cold_destroy, 3);
 			}
+			if (p_ptr->weak_earth) dam *= 4 / 3;
 
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
@@ -6470,6 +6491,8 @@ else msg_print("攻撃が跳ね返った！");
 #endif
 
 			ACTIVATE_MULTISHADOW();
+			if (p_ptr->weak_wind) dam *= 4; dam /= (randint1(4) + 7);
+			if (p_ptr->weak_earth) dam *= 4 / 3;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			if (!p_ptr->resist_shard || one_in_(13))
@@ -6575,6 +6598,8 @@ else msg_print("攻撃が跳ね返った！");
 			}
 
 			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->weak_aqua) dam = 0;
+			if (p_ptr->weak_fire) dam *= 4 / 3;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6600,6 +6625,8 @@ else msg_print("攻撃が跳ね返った！");
 			}
 
 			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->weak_fire) dam = 0;
+			if (p_ptr->weak_aqua) dam *= 4 / 3;
 			if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
@@ -6626,6 +6653,8 @@ else msg_print("攻撃が跳ね返った！");
 			}
 
 			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->weak_wind) dam = 0;
+			if (p_ptr->weak_earth) dam *= 4 / 3;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6651,6 +6680,8 @@ else msg_print("攻撃が跳ね返った！");
 			}
 
 			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->weak_earth) dam = 0;
+			if (p_ptr->weak_wind) dam *= 4 / 3;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();

@@ -1724,20 +1724,11 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	if (a_cursed) powers /= 2;
 
 	/* add extra ignore_flag*/
-	if (powers > 6)
-	{
-	add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
-	}
 	if (powers > 5)
 	{
+	add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
 	add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
-	}
-	if (powers > 4)
-	{
 	add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
-	}
-	if (powers > 3)
-	{
 	add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
 	}
 	

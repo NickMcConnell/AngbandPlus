@@ -3091,6 +3091,16 @@ info[i++] = "それは水への耐性を授ける。";
 
 	}
 
+	if (o_ptr->name2 == EGO_BAT)
+	{
+#ifdef JP
+info[i++] = "それは暗視能力を授ける。";
+#else
+		info[i++] = "It provides resistance to water.";
+#endif
+
+	}
+
 	if (have_flag(flgs, TR_RES_MAGIC))
 	{
 #ifdef JP

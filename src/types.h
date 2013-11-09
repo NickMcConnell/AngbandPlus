@@ -1276,6 +1276,10 @@ struct player_type
 	bool resist_fear;	/* Resist fear */
 	bool resist_time;	/* Resist time */
 	bool resist_water;	/* Resist water */
+	bool weak_fire;		/* 新アーティファクト用 */
+	bool weak_aqua;		/* 新アーティファクト用 */
+	bool weak_wind;		/* 新アーティファクト用 */
+	bool weak_earth;	/* 新アーティファクト用 */
 
 	bool reflect;       /* Reflect 'bolt' attacks */
 	bool sh_fire;       /* Fiery 'immolation' effect */

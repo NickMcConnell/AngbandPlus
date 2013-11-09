@@ -2682,6 +2682,10 @@ void calc_bonuses(void)
 	p_ptr->resist_time = FALSE;
 	p_ptr->resist_fear = FALSE;
 	p_ptr->resist_water = FALSE;
+	p_ptr->weak_fire = FALSE;
+	p_ptr->weak_aqua = FALSE;
+	p_ptr->weak_wind = FALSE;
+	p_ptr->weak_earth = FALSE;
 	p_ptr->reflect = FALSE;
 	p_ptr->sh_fire = FALSE;
 	p_ptr->sh_elec = FALSE;
@@ -2754,19 +2758,27 @@ void calc_bonuses(void)
 			p_ptr->sustain_dex = TRUE;
 			p_ptr->sustain_con = TRUE;
 			p_ptr->hold_life = TRUE;
-			if (cexp_ptr->clev > 19)
+			if (cexp_ptr->clev > 14)
 			{
 				p_ptr->regenerate = TRUE;
 				p_ptr->free_act = TRUE;
 				p_ptr->fear_field = TRUE;
 			}
-			if (cexp_ptr->clev > 29)
+			if (cexp_ptr->clev > 24)
 			{
 				p_ptr->resist_fear = TRUE;
 				p_ptr->anti_magic_field += 3;
 			}
-			if (cexp_ptr->clev > 39) p_ptr->resist_conf = TRUE;
-			if (cexp_ptr->clev > 44) p_ptr->resist_neth = TRUE;
+			if (cexp_ptr->clev > 34)
+			{
+				p_ptr->resist_conf = TRUE;
+				p_ptr->anti_magic_field++;
+			}
+			if (cexp_ptr->clev > 44)
+			{
+				p_ptr->resist_neth = TRUE;
+				p_ptr->anti_magic_field++;
+			}
 			break;
 		case CLASS_SWORDMASTER:
 			easy_2weapon = TRUE;
@@ -2823,6 +2835,45 @@ void calc_bonuses(void)
 			p_ptr->see_dark_grid = TRUE;
 			break;
 	}
+
+	if (p_ptr->pclass != CLASS_TERRORKNIGHT)
+	{
+		if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 24)
+		{
+			p_ptr->regenerate = TRUE;
+			p_ptr->free_act = TRUE;
+			p_ptr->fear_field = TRUE;
+		}
+		if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 44)
+		{
+			p_ptr->resist_fear = TRUE;
+			p_ptr->anti_magic_field += 3;
+		}
+	}
+
+	if (p_ptr->pclass != CLASS_SWORDMASTER)
+	{
+		if (p_ptr->cexp_info[CLASS_SWORDMASTER].clev > 49)
+		{
+			easy_2weapon = TRUE;
+			for (i = 0; i < 2; i++)
+			{
+				/* Examine the "main weapon" */
+				o_ptr = &inventory[INVEN_RARM + i];
+				k_ptr = &k_info[o_ptr->k_idx];
+				if (!buki_motteruka(INVEN_RARM + i)) continue;
+				if (!(weapon_type_bit(get_weapon_type(k_ptr)) & (WT_BIT_SMALL_SWORD | WT_BIT_KATANA | WT_BIT_SWORD | WT_BIT_GREAT_SWORD)))
+					easy_2weapon = FALSE;
+			}
+		}
+	}
+
+	if (p_ptr->pclass != CLASS_DRAGOON)
+		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 44) p_ptr->esp_dragon = TRUE;
+
+	if ((p_ptr->cexp_info[CLASS_WITCH].clev > 29) || (p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 29)) p_ptr->ffall = TRUE;
+
+	if ((p_ptr->cexp_info[CLASS_NINJA].clev > 49) || (p_ptr->cexp_info[CLASS_GUNNER].clev > 49)) p_ptr->see_dark_grid = TRUE;
 
 	if ((rp_ptr->r_flags & PRF_NO_DIGEST) || (cp_ptr->c_flags & PCF_NO_DIGEST)) p_ptr->no_digest = TRUE;
 
@@ -3450,6 +3501,24 @@ void calc_bonuses(void)
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].tval == TV_CLOAK) && (inventory[INVEN_OUTER].sval == SV_RAINCOAT))
 		p_ptr->resist_water = TRUE;
 
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_BAT))
+		p_ptr->see_dark_grid = TRUE;
+
+	if (inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_AMU_FIRE))
+		p_ptr->weak_aqua = TRUE;
+
+	if (inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_AMU_AQUA))
+	{
+		p_ptr->resist_water = TRUE;
+		p_ptr->weak_fire = TRUE;
+	}
+
+	if (inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_AMU_WIND))
+		p_ptr->weak_earth = TRUE;
+
+	if (inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_AMU_EARTH))
+		p_ptr->weak_wind = TRUE;
+
 	if (p_ptr->cursed & TRC_TELEPORT) p_ptr->cursed &= ~(TRC_TELEPORT_SELF);
 
 	/* Hack -- aura of fire also provides light */
@@ -3514,7 +3583,7 @@ void calc_bonuses(void)
 		((inventory[INVEN_LARM].tval == TV_SWORD) && (inventory[INVEN_LARM].sval == SV_DARK_SWORD))) &&
 			(p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev < 34))
 	{
-			p_ptr->cursed |= (TRC_TY_CURSE | TRC_DRAIN_EXP);
+			p_ptr->cursed |= TRC_DRAIN_EXP;
 	}
 
 	p_ptr->skull_mask_hates = FALSE;
@@ -3823,7 +3892,7 @@ void calc_bonuses(void)
 
 	if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
 	{
-		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]];
+		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]/10];
 		p_ptr->to_h[0] += attack_var * 4 - 8;
 		p_ptr->dis_to_h[0] += attack_var * 4 - 8;
 		p_ptr->to_d[0] += attack_var * 2 - 2;
@@ -3832,7 +3901,7 @@ void calc_bonuses(void)
 
 	if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
-		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_NITOURYU]];
+		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_NITOURYU]/10];
 		int penalty1 = (100 - attack_var * attack_var) - (130 - inventory[INVEN_RARM].weight) / 8;
 		int penalty2 = (100 - attack_var * attack_var) - (130 - inventory[INVEN_LARM].weight) / 8;
 		if (easy_2weapon)
@@ -3864,7 +3933,7 @@ void calc_bonuses(void)
 		int speed = m_list[p_ptr->riding].mspeed;
 		if (m_list[p_ptr->riding].mspeed > 110)
 		{
-			p_ptr->pspeed = 110 + ((speed - 110)*((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)*3 + p_ptr->lev*160L - 10000L)/(22000L));
+			p_ptr->pspeed = 110 + ((speed - 110)*((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)*3 + p_ptr->lev*160L - 10000L)/(22000L));
 			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
 		}
 		else
@@ -3876,7 +3945,7 @@ void calc_bonuses(void)
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
 
-		if ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) < 2000) j += (p_ptr->wt*3*(2000 - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)))/2000;
+		if ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000) < 2000) j += (p_ptr->wt*3*(2000 - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)))/2000;
 
 		i = 3000 + r_info[m_list[p_ptr->riding].r_idx].level * 50;
 	}
@@ -3984,7 +4053,7 @@ void calc_bonuses(void)
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
-			int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx])]];
+			int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx])]/10];
 
 			/* Extra shots */
 			p_ptr->num_fire += (extra_shots * 100);
@@ -4082,7 +4151,7 @@ void calc_bonuses(void)
 			int str_index, dex_index;
 
 			int num = 0, wgt = 0, mul = 0, div = 0;
-			int skill_level = p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])];
+			int skill_level = p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]/10;
 			int attack_var = skill_lev_var[skill_level];
 
 			/* Analyze the class */
@@ -4276,7 +4345,7 @@ void calc_bonuses(void)
 		case CLASS_SIRENE:
 		case CLASS_LICH:
 		case CLASS_HIGHWITCH:
-			if ((!p_ptr->s_ptr->w_eff[get_weapon_type(k_ptr)]) && (p_ptr->weapon_exp[get_weapon_type(k_ptr)] < SKILL_EXP_SKILLED))
+			if ((!p_ptr->s_ptr->w_eff[get_weapon_type(k_ptr)]) && (p_ptr->weapon_exp[get_weapon_type(k_ptr)]/10 < SKILL_EXP_SKILLED))
 			{
 				/* Icky weapon */
 				p_ptr->icky_wield[i] += 10;
@@ -4474,7 +4543,7 @@ void calc_bonuses(void)
 				}
 				else
 				{
-					penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) / 80;
+					penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000) / 80;
 					penalty += 30;
 					if (penalty < 30) penalty = 30;
 				}
@@ -4501,7 +4570,7 @@ void calc_bonuses(void)
 		}
 		else
 		{
-			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) / 80;
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000) / 80;
 			penalty += 30;
 			if (penalty < 30) penalty = 30;
 		}
@@ -4534,7 +4603,7 @@ void calc_bonuses(void)
 
 		p_ptr->num_blow[0] += extra_blows[0];
 
-		p_ptr->num_blow[0] += skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]] - 1;
+		p_ptr->num_blow[0] += skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]/10] - 1;
 		if (empty_hands_status & EMPTY_HAND_LARM) dual_bare_hand = TRUE;
 	}
 
@@ -4551,7 +4620,7 @@ void calc_bonuses(void)
 
 		if (buki_motteruka(INVEN_RARM+i))
 		{
-			int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]];
+			int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]/10];
 			int w_eff = p_ptr->s_ptr->w_eff[get_weapon_type(&k_info[o_ptr->k_idx])];
 
 			p_ptr->to_h[i] += attack_var * 4 - 8;
@@ -4972,13 +5041,6 @@ msg_print("バランスがとれるようになった。");
 			p_ptr->align -= 30;
 		else if (have_flag(flgs, TR_BLESSED))
 			p_ptr->align += 30;
-	}
-
-	if (inventory[INVEN_NECK].k_idx)
-	{
-		o_ptr = &inventory[INVEN_NECK];
-		if (o_ptr->sval == SV_AMULET_ALIGNMENT)
-			p_ptr->align *= -1;
 	}
 
 	/* Limit player alignment (LNC) */

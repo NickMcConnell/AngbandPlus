@@ -84,7 +84,7 @@ void check_class_experience(void)
 		if (cexp_ptr->clev > cexp_ptr->max_clev)
 		{
 			int i, j, gfact;
-			int lfact = skill_exp_level(cexp_ptr->clev + 1);
+			int lfact = skill_lev_var[cexp_ptr->clev];
 			int total_max_clev = 0;
 
 
@@ -95,10 +95,11 @@ void check_class_experience(void)
 				{
 				if (p_ptr->cexp_info[i].max_clev > 0) total_max_clev += p_ptr->cexp_info[i].max_clev;
 				}
-			if (total_max_clev == cexp_ptr->clev) gfact = 2;
+			gfact = 2 + (total_max_clev *total_max_clev / cexp_ptr->clev / cexp_ptr->clev / 2);
+/*			if (total_max_clev == cexp_ptr->clev) gfact = 2;
 			else if ((total_max_clev > cexp_ptr->clev) && (total_max_clev < cexp_ptr->clev * 2)) gfact = 3;
 			else gfact = 5;
-			
+ */			
 			if ((total_max_clev < cexp_ptr->clev * 2) && 
 				((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_ANGELKNIGHT) || (p_ptr->pclass == CLASS_GUNNER))) gfact = 1;
 
@@ -127,36 +128,22 @@ void check_class_experience(void)
 
 			for (i = 1; i < MAX_WT; i++)
 				{
-				int wlev;
+				int wlev = p_ptr->s_ptr->w_eff[i] + p_ptr->s_ptr->w_eff[i] * lfact / 15;
+				if (p_ptr->weapon_exp[i] >= (cexp_ptr->clev - 1) * 20) wlev = 0;
+				else if (p_ptr->weapon_exp[i] >= (cexp_ptr->clev - 1) * 40 / 3) wlev /= 2;
+				p_ptr->weapon_exp[i] += wlev;
 
-				if ((p_ptr->s_ptr->w_eff[i] > 1) && (p_ptr->s_ptr->w_eff[i] < 8))
-				{
-					if (cexp_ptr->clev > 29) wlev = p_ptr->s_ptr->w_eff[i] / 2;
-					else wlev = p_ptr->s_ptr->w_eff[i];
-		
-					if (p_ptr->weapon_exp[i] > cexp_ptr->max_clev * 2) wlev *= 2;
-					else if (p_ptr->weapon_exp[i] > cexp_ptr->max_clev * 3 / 2) wlev += 1;
-
-					if (!(cexp_ptr->max_clev % wlev)) p_ptr->weapon_exp[i]++;
-					if (p_ptr->weapon_exp[i] > 50) p_ptr->weapon_exp[i] = 50;
-				}
+				if (p_ptr->weapon_exp[i] > 500) p_ptr->weapon_exp[i] = 500;
 				}
 
 			for (i = 0; i < 10; i++)
 				{
-				int mlev;
+				int mlev = p_ptr->s_ptr->m_eff[i] + p_ptr->s_ptr->m_eff[i] * lfact / 15;
+				if (p_ptr->skill_exp[i] >= (cexp_ptr->clev - 1) * 20) mlev = 0;
+				else if (p_ptr->skill_exp[i] >= (cexp_ptr->clev - 1) * 40 / 3) mlev /= 2;
+				p_ptr->skill_exp[i] += mlev;
 
-				if ((p_ptr->s_ptr->m_eff[i] > 1) && (p_ptr->s_ptr->m_eff[i] < 8))
-				{
-					if (cexp_ptr->clev > 29) mlev = p_ptr->s_ptr->m_eff[i] / 2;
-					else mlev = p_ptr->s_ptr->m_eff[i];
-
-					if (p_ptr->skill_exp[i] > cexp_ptr->max_clev * 2) mlev *= 2;
-					else if (p_ptr->skill_exp[i] > cexp_ptr->max_clev * 3 / 2) mlev += 1;
-
-					if (!(cexp_ptr->max_clev % mlev)) p_ptr->skill_exp[i]++;
-					if (p_ptr->skill_exp[i] > 50) p_ptr->skill_exp[i] = 50;
-				}
+				if (p_ptr->skill_exp[i] > 500) p_ptr->skill_exp[i] = 500;
 				}
 
 			for (i = 0; i < MAX_REALM + 1; i++)
@@ -178,15 +165,6 @@ void check_class_experience(void)
 				p_ptr->race_sp[cexp_ptr->max_clev - 1] = p_ptr->race_sp[cexp_ptr->max_clev - 2] + MAX(tmp32s, 0);
 			}
 			else p_ptr->race_sp[cexp_ptr->max_clev - 1] = 0;
-
-			/*　クラスの得意な武器レベルをあげる。 */
-			if ((p_ptr->pclass == CLASS_SWORDMASTER) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_KATANA] = cexp_ptr->clev;
-			if ((p_ptr->pclass == CLASS_NINJA) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_CLAW] = cexp_ptr->clev;
-			if ((p_ptr->pclass == CLASS_ARCHER) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_BOW] = cexp_ptr->clev;
-			if ((p_ptr->pclass == CLASS_GUNNER) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_GUN] = cexp_ptr->clev;
-
-			if (((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) && (p_ptr->skill_exp[SKILL_RIDING] < cexp_ptr->clev)) p_ptr->skill_exp[SKILL_RIDING] = cexp_ptr->clev;
-			if ((p_ptr->pclass == CLASS_HIGHWITCH) && (p_ptr->skill_exp[SKILL_SPELL_CAST] < cexp_ptr->clev)) p_ptr->skill_exp[SKILL_SPELL_CAST] = cexp_ptr->clev;
 		}
 
 		/* Update some stuff */
@@ -292,7 +270,7 @@ void check_racial_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER | PW_INVEN);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -404,7 +382,7 @@ void check_racial_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER | PW_SPELL);
+		p_ptr->window |= (PW_PLAYER | PW_SPELL | PW_INVEN);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -512,9 +490,30 @@ static bool kind_is_sword(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Analyze the item type */
-	if ((k_ptr->tval == TV_SWORD) && (k_ptr->sval > 2))
+	if (k_ptr->tval == TV_SWORD)
 	{
 		return (TRUE);
+	}
+
+	/* Assume not good */
+	return (FALSE);
+}
+
+
+/*
+ * Hack -- determine if a template is hafted weapon
+ */
+static bool kind_is_hafted(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	if (k_ptr->tval == TV_HAFTED)
+	{
+		if (!((k_ptr->sval == SV_WHIP) || (k_ptr->sval == SV_QUARTERSTAFF) || (k_ptr->sval == SV_SCIPPLAYS_STAFF) || (k_ptr->sval == SV_FAN) || (k_ptr->sval == SV_WIZSTAFF)))
+			return (TRUE);
+		else
+			return (FALSE);
 	}
 
 	/* Assume not good */
@@ -1207,7 +1206,113 @@ msg_print("地面に落とされた。");
 		}
 	}
 
-	else if ((r_ptr->d_char == '|') && (m_ptr->r_idx != MON_STORMBRINGER) &&
+	else if ((m_ptr->r_idx == MON_FOOD_DRAGON) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_INC_STR));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((m_ptr->r_idx == MON_FOOD_CHIMERA) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_INC_INT));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((m_ptr->r_idx == MON_FOOD_OCTOPUS) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_INC_WIS));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((m_ptr->r_idx == MON_FOOD_SQUID) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_INC_DEX));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((m_ptr->r_idx == MON_FOOD_BIRD) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_INC_CON));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((m_ptr->r_idx == MON_FOOD_COOK) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_INC_CHR));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((m_ptr->r_idx == MON_FOOD_MAEMAID) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_AUGMENTATION));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((r_ptr->d_char == '\\') &&
+	    !monster_is_runeweapon(m_ptr->r_idx) && !p_ptr->inside_arena)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Wipe the object */
+		object_wipe(q_ptr);
+
+		/* Activate restriction */
+		get_obj_num_hook = kind_is_hafted;
+
+		/* Prepare allocation table */
+		get_obj_num_prep();
+
+		/* Make a object */
+		make_object(q_ptr, AMF_OKAY);
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((r_ptr->d_char == '|') &&
 	    !monster_is_runeweapon(m_ptr->r_idx) && !p_ptr->inside_arena)
 	{
 		/* Get local object */
@@ -6728,7 +6833,9 @@ int skill_exp_level(int skill_exp)
 
 s16b get_cur_pelem(void)
 {
-	return p_ptr->opposite_pelem ? get_opposite_elem(p_ptr->pelem) : p_ptr->pelem;
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) return NO_ELEM;
+	else if (p_ptr->opposite_pelem) return get_opposite_elem(p_ptr->pelem);
+	else return p_ptr->pelem;
 }
 
 /*

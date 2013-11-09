@@ -478,17 +478,27 @@ static cptr AngList = "AngList";
 /*
  * Directory names
  */
-static cptr ANGBAND_DIR_XTRA_FONT;
 static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
-static cptr ANGBAND_DIR_XTRA_MUSIC;
 static cptr ANGBAND_DIR_XTRA_HELP;
+#ifndef JP
+static cptr ANGBAND_DIR_XTRA_FONT;
+#endif
+#ifdef USE_MUSIC
+static cptr ANGBAND_DIR_XTRA_MUSIC;
+#endif
 
 
 /*
  * The "complex" color values
  */
 static COLORREF win_clr[256];
+
+
+/*
+ * Flag for macro trigger with dump ASCII
+ */
+static bool Term_no_press = FALSE;
 
 
 /*
@@ -532,23 +542,34 @@ static bool ignore_key[256];
  * Hack -- initialization list for "special_key"
  */
 static byte special_key_list[] = {
-VK_CLEAR,VK_PAUSE,VK_CAPITAL,VK_KANA,VK_JUNJA,VK_FINAL,VK_KANJI,
-VK_CONVERT,VK_NONCONVERT,VK_ACCEPT,VK_MODECHANGE,
-VK_PRIOR,VK_NEXT,VK_END,VK_HOME,VK_LEFT,VK_UP,VK_RIGHT,VK_DOWN,
-VK_SELECT,VK_PRINT,VK_EXECUTE,VK_SNAPSHOT,VK_INSERT,VK_DELETE,
-VK_HELP,VK_APPS,
-VK_F1,VK_F2,VK_F3,VK_F4,VK_F5,VK_F6,VK_F7,VK_F8,VK_F9,VK_F10,
-VK_F11,VK_F12,VK_F13,VK_F14,VK_F15,VK_F16,VK_F17,VK_F18,VK_F19,VK_F20,
-VK_F21,VK_F22,VK_F23,VK_F24,VK_NUMLOCK,VK_SCROLL,
-VK_ATTN,VK_CRSEL,VK_EXSEL,VK_EREOF,VK_PLAY,VK_ZOOM,VK_NONAME,
-VK_PA1,0
+	VK_CLEAR, VK_PAUSE, VK_CAPITAL,
+	VK_KANA, VK_JUNJA, VK_FINAL, VK_KANJI,
+	VK_CONVERT, VK_NONCONVERT, VK_ACCEPT, VK_MODECHANGE,
+	VK_PRIOR, VK_NEXT, VK_END, VK_HOME,
+	VK_LEFT, VK_UP, VK_RIGHT, VK_DOWN,
+	VK_SELECT, VK_PRINT, VK_EXECUTE, VK_SNAPSHOT,
+	VK_INSERT, VK_DELETE, VK_HELP, VK_APPS,
+	VK_NUMPAD0, VK_NUMPAD1, VK_NUMPAD2, VK_NUMPAD3,
+	VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6, VK_NUMPAD7,
+	VK_NUMPAD8, VK_NUMPAD9, VK_MULTIPLY, VK_ADD,
+	VK_SEPARATOR, VK_SUBTRACT, VK_DECIMAL, VK_DIVIDE,
+	VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6,
+	VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12,
+	VK_F13, VK_F14, VK_F15, VK_F16, VK_F17, VK_F18,
+	VK_F19,VK_F20, VK_F21, VK_F22, VK_F23, VK_F24,
+	VK_NUMLOCK, VK_SCROLL, VK_ATTN, VK_CRSEL,
+	VK_EXSEL, VK_EREOF, VK_PLAY, VK_ZOOM,
+	VK_NONAME, VK_PA1,
+	0	/* End of List */
 };
 
 static byte ignore_key_list[] = {
-VK_ESCAPE,VK_TAB,VK_SPACE,
-'F','W','O','H', /* these are menu characters.*/
-VK_SHIFT,VK_CONTROL,VK_MENU,VK_LWIN,VK_RWIN,
-VK_LSHIFT,VK_RSHIFT,VK_LCONTROL,VK_RCONTROL,VK_LMENU,VK_RMENU,0
+	VK_ESCAPE, VK_TAB, VK_SPACE,
+	'F', 'W', 'O', /*'H',*/ /* these are menu characters.*/
+	VK_SHIFT, VK_CONTROL, VK_MENU, VK_LWIN, VK_RWIN,
+	VK_LSHIFT, VK_RSHIFT, VK_LCONTROL, VK_RCONTROL,
+	VK_LMENU, VK_RMENU,
+	0	/* End of List */
 };
 
 #else
@@ -652,7 +673,11 @@ static int init_bg(void)
 
 	hBG = LoadImage(NULL, bmfile,  IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 	if (!hBG) {
+#ifdef JP
 		plog_fmt("壁紙用ビットマップ '%s' を読み込めません。", bmfile);
+#else
+		plog_fmt("Can't load the bitmap file '%s'.", bmfile);
+#endif
 		use_bg = 0;
 		return 0;
 	}
@@ -714,6 +739,7 @@ static void DrawBG(HDC hdc, RECT *r)
 	DeleteDC(hdcSrc);
 }
 
+#if 0
 /*
  * Hack -- given a pathname, point at the filename
  */
@@ -730,6 +756,7 @@ static cptr extract_file_name(cptr s)
 	/* Return file name */
 	return (p+1);
 }
+#endif
 
 
 /*
@@ -1448,7 +1475,16 @@ static errr term_force_font(term_data *td, cptr path)
 	/* Forget the old font (if needed) */
 	if (td->font_id) DeleteObject(td->font_id);
 
-#ifndef JP
+#ifdef JP
+	/* Unused */
+	(void)path;
+
+	/* Create the font (using the 'base' of the font file name!) */
+	td->font_id = CreateFontIndirect(&(td->lf));
+	wid = td->lf.lfWidth;
+	hgt = td->lf.lfHeight;
+	if (!td->font_id) return (1);
+#else
 	/* Forget old font */
 	if (td->font_file)
 	{
@@ -1504,19 +1540,12 @@ static errr term_force_font(term_data *td, cptr path)
 
 	/* Remove the "suffix" */
 	base[strlen(base)-4] = '\0';
-#endif
 
 	/* Create the font (using the 'base' of the font file name!) */
-#ifdef JP
-	td->font_id = CreateFontIndirect(&(td->lf));
-	wid = td->lf.lfWidth;
-	hgt = td->lf.lfHeight;
-	if (!td->font_id) return (1);
-#else
 	td->font_id = CreateFont(hgt, wid, 0, 0, FW_DONTCARE, 0, 0, 0,
-	                         ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-	                         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-	                         FIXED_PITCH | FF_DONTCARE, base);
+			ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+			FIXED_PITCH | FF_DONTCARE, base);
 #endif
 
 
@@ -1699,6 +1728,9 @@ static void Term_nuke_win(term *t)
  */
 static errr Term_user_win(int n)
 {
+	/* Unused */
+	(void)n;
+
 	/* Success */
 	return (0);
 }
@@ -1796,7 +1828,7 @@ static errr Term_xtra_win_react(void)
 		term_data *td = &data[i];
 
 		/* Update resized windows */
-		if ((td->cols != td->t.wid) || (td->rows != td->t.hgt))
+		if ((td->cols != (uint)td->t.wid) || (td->rows != (uint)td->t.hgt))
 		{
 			/* Activate */
 			Term_activate(&td->t);
@@ -2367,11 +2399,7 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	/* Just erase this grid */
 	return (Term_wipe_win(x, y, n));
@@ -3390,6 +3418,97 @@ static void process_menus(WORD wCmd)
 
 
 
+static bool process_keydown(WPARAM wParam, LPARAM lParam)
+{
+	int i;
+	bool mc = FALSE;
+	bool ms = FALSE;
+	bool ma = FALSE;
+
+	/* Extract the modifiers */
+	if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
+	if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
+	if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
+
+	Term_no_press = (ma) ? TRUE : FALSE;
+
+	/* Handle "special" keys */
+	if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
+	{
+		bool ext_key = (lParam & 0x1000000L) ? TRUE : FALSE;
+		bool numpad = FALSE;
+
+		/* Begin the macro trigger */
+		Term_keypress(31);
+
+		/* Send the modifiers */
+		if (mc) Term_keypress('C');
+		if (ms) Term_keypress('S');
+		if (ma) Term_keypress('A');
+
+		/* Extract "scan code" */
+		i = LOBYTE(HIWORD(lParam));
+
+		/* Introduce the scan code */
+		Term_keypress('x');
+
+		/* Extended key bit */
+		switch (wParam)
+		{
+			/* Numpad Enter and '/' are extended key */
+		case VK_DIVIDE:
+			Term_no_press = TRUE;
+		case VK_RETURN:	/* Enter */
+			numpad = ext_key;
+			break;
+			/* Other extended keys are on full keyboard */
+		case VK_NUMPAD0:
+		case VK_NUMPAD1:
+		case VK_NUMPAD2:
+		case VK_NUMPAD3:
+		case VK_NUMPAD4:
+		case VK_NUMPAD5:
+		case VK_NUMPAD6:
+		case VK_NUMPAD7:
+		case VK_NUMPAD8:
+		case VK_NUMPAD9:
+		case VK_ADD:
+		case VK_MULTIPLY:
+		case VK_SUBTRACT:
+		case VK_SEPARATOR:
+		case VK_DECIMAL:
+			Term_no_press = TRUE;
+		case VK_CLEAR:
+		case VK_HOME:
+		case VK_END:
+		case VK_PRIOR:	/* Page Up */
+		case VK_NEXT:	/* Page Down */
+		case VK_INSERT:
+		case VK_DELETE:
+		case VK_UP:
+		case VK_DOWN:
+		case VK_LEFT:
+		case VK_RIGHT:
+			numpad = !ext_key;
+		}
+
+		/* Special modifiers for keypad keys */
+		if (numpad) Term_keypress('K');
+
+		/* Encode the hexidecimal scan code */
+		Term_keypress(hexsym[i/16]);
+		Term_keypress(hexsym[i%16]);
+
+		/* End the macro trigger */
+		Term_keypress(13);
+
+		return 1;
+	}
+
+	return 0;
+}
+
+
 #ifdef __MWERKS__
 LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                   WPARAM wParam, LPARAM lParam);
@@ -3466,48 +3585,15 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
-			bool mc = FALSE;
-			bool ms = FALSE;
-			bool ma = FALSE;
-
-			/* Extract the modifiers */
-			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
-			if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
-			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
-
-			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
-			{
-				/* Begin the macro trigger */
-				Term_keypress(31);
-
-				/* Send the modifiers */
-				if (mc) Term_keypress('C');
-				if (ms) Term_keypress('S');
-				if (ma) Term_keypress('A');
-
-				/* Extract "scan code" */
-				i = LOBYTE(HIWORD(lParam));
-
-				/* Introduce the scan code */
-				Term_keypress('x');
-
-				/* Encode the hexidecimal scan code */
-				Term_keypress(hexsym[i/16]);
-				Term_keypress(hexsym[i%16]);
-
-				/* End the macro trigger */
-				Term_keypress(13);
-
+			if (process_keydown(wParam, lParam))
 				return 0;
-			}
-
 			break;
 		}
 
 		case WM_CHAR:
 		{
-			Term_keypress(wParam);
+			if (Term_no_press) Term_no_press = FALSE;
+			else Term_keypress(wParam);
 			return 0;
 		}
 
@@ -3544,8 +3630,44 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 #else /* ZANGBAND */
 				/* do_cmd_save_game(); */
 #endif /* ZANGBAND */
-				Term_key_push(252);
+				Term_key_push(SPECIAL_KEY_QUIT);
 				return 0;
+			}
+			quit(NULL);
+			return 0;
+		}
+
+		case WM_QUERYENDSESSION:
+		{
+			if (game_in_progress && character_generated)
+			{
+				/* Hack -- Forget messages */
+				msg_flag = FALSE;
+
+				/* Mega-Hack -- Delay death */
+				if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
+
+#ifdef JP
+				do_cmd_write_nikki(NIKKI_GAMESTART, 0, "----ゲーム中断----");
+#else
+				do_cmd_write_nikki(NIKKI_GAMESTART, 0, "---- Save and Exit Game ----");
+#endif
+
+				/* Hardcode panic save */
+				p_ptr->panic_save = 1;
+
+				/* Forbid suspend */
+				signals_ignore_tstp();
+
+				/* Indicate panic save */
+#ifdef JP
+				(void)strcpy(p_ptr->died_from, "(緊急セーブ)");
+#else
+				(void)strcpy(p_ptr->died_from, "(panic save)");
+#endif
+
+				/* Panic save */
+				(void)save_player();
 			}
 			quit(NULL);
 			return 0;
@@ -3824,48 +3946,15 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
-			bool mc = FALSE;
-			bool ms = FALSE;
-			bool ma = FALSE;
-
-			/* Extract the modifiers */
-			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
-			if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
-			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
-
-			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
-			{
-				/* Begin the macro trigger */
-				Term_keypress(31);
-
-				/* Send the modifiers */
-				if (mc) Term_keypress('C');
-				if (ms) Term_keypress('S');
-				if (ma) Term_keypress('A');
-
-				/* Extract "scan code" */
-				i = LOBYTE(HIWORD(lParam));
-
-				/* Introduce the scan code */
-				Term_keypress('x');
-
-				/* Encode the hexidecimal scan code */
-				Term_keypress(hexsym[i/16]);
-				Term_keypress(hexsym[i%16]);
-
-				/* End the macro trigger */
-				Term_keypress(13);
-
+			if (process_keydown(wParam, lParam))
 				return 0;
-			}
-
 			break;
 		}
 
 		case WM_CHAR:
 		{
-			Term_keypress(wParam);
+			if (Term_no_press) Term_no_press = FALSE;
+			else Term_keypress(wParam);
 			return 0;
 		}
 
@@ -4290,6 +4379,9 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	WNDCLASS wc;
 	HDC hdc;
 	MSG msg;
+
+	/* Unused */
+	(void)nCmdShow;
 
 	/* Save globally */
 	hInstance = hInst;

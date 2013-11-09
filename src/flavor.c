@@ -3000,7 +3000,7 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 		int avgdam = 10;
 		int tmul;
 		s32b energy_fire;
-		int skill_to_d = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[bow_ptr->k_idx])]] - 1;
+		int skill_to_d = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[bow_ptr->k_idx])]/10] - 1;
 
 		if (bow_ptr->sval != SV_ROCKET_LAUNCHER)
 		{

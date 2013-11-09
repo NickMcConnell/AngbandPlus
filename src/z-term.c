@@ -303,7 +303,6 @@ static errr term_win_nuke(term_win *s, int w, int h)
 	C_KILL(s->va, h * w, byte);
 	C_KILL(s->vc, h * w, char);
 
-#ifdef USE_TRANSPARENCY
 
 	/* Free the terrain access arrays */
 	C_KILL(s->ta, h, byte*);
@@ -313,7 +312,6 @@ static errr term_win_nuke(term_win *s, int w, int h)
 	C_KILL(s->vta, h * w, byte);
 	C_KILL(s->vtc, h * w, char);
 
-#endif /* USE_TRANSPARENCY */
 
 	/* Success */
 	return (0);
@@ -335,7 +333,6 @@ static errr term_win_init(term_win *s, int w, int h)
 	C_MAKE(s->va, h * w, byte);
 	C_MAKE(s->vc, h * w, char);
 
-#ifdef USE_TRANSPARENCY
 
 	/* Make the terrain access arrays */
 	C_MAKE(s->ta, h, byte*);
@@ -345,7 +342,6 @@ static errr term_win_init(term_win *s, int w, int h)
 	C_MAKE(s->vta, h * w, byte);
 	C_MAKE(s->vtc, h * w, char);
 
-#endif /* USE_TRANSPARENCY */
 
 
 	/* Prepare the window access arrays */
@@ -354,12 +350,10 @@ static errr term_win_init(term_win *s, int w, int h)
 		s->a[y] = s->va + w * y;
 		s->c[y] = s->vc + w * y;
 
-#ifdef USE_TRANSPARENCY
 
 		s->ta[y] = s->vta + w * y;
 		s->tc[y] = s->vtc + w * y;
 
-#endif /* USE_TRANSPARENCY */
 
 	}
 
@@ -384,7 +378,6 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 		byte *s_aa = s->a[y];
 		char *s_cc = s->c[y];
 
-#ifdef USE_TRANSPARENCY
 
 		byte *f_taa = f->ta[y];
 		char *f_tcc = f->tc[y];
@@ -392,17 +385,14 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 		byte *s_taa = s->ta[y];
 		char *s_tcc = s->tc[y];
 
-#endif /* USE_TRANSPARENCY */
 
 		for (x = 0; x < w; x++)
 		{
 			*s_aa++ = *f_aa++;
 			*s_cc++ = *f_cc++;
 
-#ifdef USE_TRANSPARENCY
 			*s_taa++ = *f_taa++;
 			*s_tcc++ = *f_tcc++;
-#endif /* USE_TRANSPARENCY */
 		}
 	}
 
@@ -494,18 +484,10 @@ static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
 /*
  * Hack -- fake hook for "Term_pict()" (see above)
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	/* Compiler silliness */
-#ifdef USE_TRANSPARENCY
 	if (x || y || n || ap || cp || tap || tcp) return (-2);
-#else /* USE_TRANSPARENCY */
-	if (x || y || n || ap || cp) return (-2);
-#endif /* USE_TRANSPARENCY */
 
 	/* Oops */
 	return (-1);
@@ -521,18 +503,13 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp)
  *
  * Assumes given location and values are valid.
  */
-#ifdef USE_TRANSPARENCY
 void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
-#else /* USE_TRANSPARENCY */
-void Term_queue_char(int x, int y, byte a, char c)
-#endif /* USE_TRANSPARENCY */
 {
 	term_win *scrn = Term->scr; 
 	
 	byte *scr_aa = &scrn->a[y][x];
 	char *scr_cc = &scrn->c[y][x];
 
-#ifdef USE_TRANSPARENCY
 
 	byte *scr_taa = &scrn->ta[y][x];
 	char *scr_tcc = &scrn->tc[y][x];
@@ -541,23 +518,14 @@ void Term_queue_char(int x, int y, byte a, char c)
 	if ((*scr_aa == a) && (*scr_cc == c) &&
 		 (*scr_taa == ta) && (*scr_tcc == tc)) return;
 
-#else /* USE_TRANSPARENCY */
-
-	/* Hack -- Ignore non-changes */
-	if ((*scr_aa == a) && (*scr_cc == c)) return;
-
-#endif /* USE_TRANSPARENCY */
 
 	/* Save the "literal" information */
 	*scr_aa = a;
 	*scr_cc = c;
 
-#ifdef USE_TRANSPARENCY
-
 	*scr_taa = ta;
 	*scr_tcc = tc;
 
-#endif /* USE_TRANSPARENCY */
 
 	/* Check for new min/max row info */
 	if (y < Term->y1) Term->y1 = y;
@@ -580,11 +548,7 @@ void Term_queue_char(int x, int y, byte a, char c)
  * This function is designed to be fast, with no consistancy checking.
  * It is used to update the map in the game.
  */
-#ifdef USE_TRANSPARENCY
 void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc)
-#else /* USE_TRANSPARENCY */
-void Term_queue_line(int x, int y, int n, byte *a, char *c)
-#endif /* USE_TRANSPARENCY */
 {
 	term_win *scrn = Term->scr;
 
@@ -594,18 +558,12 @@ void Term_queue_line(int x, int y, int n, byte *a, char *c)
 	byte *scr_aa = &scrn->a[y][x];
 	char *scr_cc = &scrn->c[y][x];
 
-#ifdef USE_TRANSPARENCY
-
 	byte *scr_taa = &scrn->ta[y][x];
 	char *scr_tcc = &scrn->tc[y][x];
 
-#endif /* USE_TRANSPARENCY */
 
 	while (n--)
 	{
-
-#ifdef USE_TRANSPARENCY
-
 		/* Hack -- Ignore non-changes */
 		if ((*scr_aa == *a) && (*scr_cc == *c) &&
 			(*scr_taa == *ta) && (*scr_tcc == *tc))
@@ -626,20 +584,6 @@ void Term_queue_line(int x, int y, int n, byte *a, char *c)
 		*scr_taa++ = *ta++;
 		*scr_tcc++ = *tc++;
 
-#else /* USE_TRANSPARENCY */
-
-		/* Hack -- Ignore non-changes */
-		if ((*scr_aa == *a) && (*scr_cc == *c))
-		{
-			x++;
-			a++;
-			c++;
-			scr_aa++;
-			scr_cc++;
-			continue;
-		}
-
-#endif /* USE_TRANSPARENCY */
 
 		/* Save the "literal" information */
 		*scr_aa++ = *a++;
@@ -685,20 +629,15 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 #ifdef JP
 	char *scr_cc = Term->scr->c[y];
 
-#ifdef USE_TRANSPARENCY
 	byte *scr_taa = Term->scr->ta[y];
 	char *scr_tcc = Term->scr->tc[y];
-#endif /* USE_TRANSPARENCY */
 
 #else
 	char *scr_cc = Term->scr->c[y];
 
-#ifdef USE_TRANSPARENCY
-
 	byte *scr_taa = Term->scr->ta[y];
 	char *scr_tcc = Term->scr->tc[y];
 
-#endif /* USE_TRANSPARENCY */
 #endif
 
 
@@ -733,16 +672,11 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 			byte na2 = (a | KANJI2);
 
 			if((--n == 0) || !nc2) break;
-#ifdef USE_TRANSPARENCY
 			if(scr_aa[x++] == na1 && scr_aa[x] == na2 &&
 			   scr_cc[x - 1] == nc1 && scr_cc[x] == nc2 &&
 			   (scr_taa[x - 1] == 0) && (scr_taa[x]==0) &&
 			   (scr_tcc[x - 1] == 0) && (scr_tcc[x]==0)    )
 				continue;
-#else
-			if(scr_aa[x++] == na1 && scr_aa[x] == na2 &&
-			   scr_cc[x - 1] == nc1 && scr_cc[x] == nc2) continue;
-#endif
 			scr_aa[x - 1] = na1;
 			scr_aa[x] = na2;
 			scr_cc[x - 1] = nc1;
@@ -757,31 +691,20 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 		byte oa = scr_aa[x];
 		char oc = scr_cc[x];
 
-#ifdef USE_TRANSPARENCY
-
 		byte ota = scr_taa[x];
 		char otc = scr_tcc[x];
 
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
 
-#else /* USE_TRANSPARENCY */
-
-		/* Hack -- Ignore non-changes */
-		if ((oa == a) && (oc == *s)) continue;
-
-#endif /* USE_TRANSPARENCY */
 
 		/* Save the "literal" information */
 		scr_aa[x] = a;
 		scr_cc[x] = *s;
 
-#ifdef USE_TRANSPARENCY
-
 		scr_taa[x] = 0;
 		scr_tcc[x] = 0;
 
-#endif /* USE_TRANSPARENCY */
 
 		/* Note the "range" of window updates */
 		if (x1 < 0) x1 = x;
@@ -843,8 +766,6 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 	byte *scr_aa = Term->scr->a[y];
 	char *scr_cc = Term->scr->c[y];
 
-#ifdef USE_TRANSPARENCY
-
 	byte *old_taa = Term->old->ta[y];
 	char *old_tcc = Term->old->tc[y];
 
@@ -857,7 +778,6 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 	byte nta;
 	char ntc;
 
-#endif /* USE_TRANSPARENCY */
 
 
 	/* Pending length */
@@ -902,7 +822,6 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 /* check */
 		kanji = (iskanji(nc) && !(na & 0x80));
 #endif
-#ifdef USE_TRANSPARENCY
 
 		ota = old_taa[x];
 		otc = old_tcc[x];
@@ -922,30 +841,13 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 #endif
 
 
-#else /* USE_TRANSPARENCY */
-
-		/* Handle unchanged grids */
-#ifdef JP
-		if ((na == oa) && (nc == oc) &&
-		    (!kanji || (scr_aa[x + 1] == old_aa[x + 1] &&
-		                scr_cc[x + 1] == old_cc[x + 1])))
-#else
-		if ((na == oa) && (nc == oc))
-#endif
-
-
-#endif /* USE_TRANSPARENCY */
 		{
 			/* Flush */
 			if (fn)
 			{
 				/* Draw pending attr/char pairs */
-#ifdef USE_TRANSPARENCY
 				(void)((*Term->pict_hook)(fx, y, fn,
 				       &scr_aa[fx], &scr_cc[fx],&scr_taa[fx], &scr_tcc[fx]));
-#else /* USE_TRANSPARENCY */
-				(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx]));
-#endif /* USE_TRANSPARENCY */
 
 				/* Forget */
 				fn = 0;
@@ -967,10 +869,8 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 		old_aa[x] = na;
 		old_cc[x] = nc;
 
-#ifdef USE_TRANSPARENCY
 		old_taa[x] = nta;
 		old_tcc[x] = ntc;
-#endif /* USE_TRANSPARENCY */
 
 		/* Restart and Advance */
 		if (fn++ == 0) fx = x;
@@ -980,12 +880,8 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 	if (fn)
 	{
 		/* Draw pending attr/char pairs */
-#ifdef USE_TRANSPARENCY
 		(void)((*Term->pict_hook)(fx, y, fn,
 			&scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
-#else /* USE_TRANSPARENCY */
-		(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx]));
-#endif /* USE_TRANSPARENCY */
 	}
 }
 
@@ -1007,7 +903,6 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 	byte *scr_aa = Term->scr->a[y];
 	char *scr_cc = Term->scr->c[y];
 
-#ifdef USE_TRANSPARENCY
 	byte *old_taa = Term->old->ta[y];
 	char *old_tcc = Term->old->tc[y];
 	byte *scr_taa = Term->scr->ta[y];
@@ -1017,7 +912,6 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 	char otc;
 	byte nta;
 	char ntc;
-#endif /* USE_TRANSPARENCY */
 
 	/* The "always_text" flag */
 	int always_text = Term->always_text;
@@ -1068,7 +962,6 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 /*		kanji = (iskanji(nc));  */
 		kanji = (iskanji(nc) && !(na & 0x80));
 #endif
-#ifdef USE_TRANSPARENCY
 
 		ota = old_taa[x];
 		otc = old_tcc[x];
@@ -1088,19 +981,6 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 #endif
 
 
-#else /* USE_TRANSPARENCY */
-
-		/* Handle unchanged grids */
-#ifdef JP
-		if ((na == oa) && (nc == oc) &&
-		    (!kanji || (scr_aa[x + 1] == old_aa[x + 1] &&
-		                scr_cc[x + 1] == old_cc[x + 1])))
-#else
-		if ((na == oa) && (nc == oc))
-#endif
-
-
-#endif /* USE_TRANSPARENCY */
 
 		{
 			/* Flush */
@@ -1139,12 +1019,9 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		old_aa[x] = na;
 		old_cc[x] = nc;
 
-#ifdef USE_TRANSPARENCY
-
 		old_taa[x] = nta;
 		old_tcc[x] = ntc;
 
-#endif /* USE_TRANSPARENCY */
 
 		/* 2nd byte of bigtile */
 		if ((na & 0xf0) == 0xf0) continue;
@@ -1171,17 +1048,10 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				fn = 0;
 			}
 
-#ifdef USE_TRANSPARENCY
 
 			/* Hack -- Draw the special attr/char pair */
 			(void)((*Term->pict_hook)(x, y, 1, &na, &nc, &nta, &ntc));
 
-#else /* USE_TRANSPARENCY */
-
-			/* Hack -- Draw the special attr/char pair */
-			(void)((*Term->pict_hook)(x, y, 1, &na, &nc));
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Skip */
 			continue;
@@ -1596,12 +1466,9 @@ errr Term_fresh(void)
 			byte *aa = old->a[y];
 			char *cc = old->c[y];
 
-#ifdef USE_TRANSPARENCY
-
 			byte *taa = old->ta[y];
 			char *tcc = old->tc[y];
 
-#endif /* USE_TRANSPARENCY */
 
 
 			/* Wipe each column */
@@ -1611,12 +1478,9 @@ errr Term_fresh(void)
 				*aa++ = na;
 				*cc++ = nc;
 
-#ifdef USE_TRANSPARENCY
-
 				*taa++ = na;
 				*tcc++ = nc;
 
-#endif /* USE_TRANSPARENCY */
 
 			}
 		}
@@ -1650,13 +1514,11 @@ errr Term_fresh(void)
 			byte *old_aa = old->a[ty];
 			char *old_cc = old->c[ty];
 
-#ifdef USE_TRANSPARENCY
 			byte *old_taa = old->ta[ty];
 			char *old_tcc = old->tc[ty];
 
 			byte ota = old_taa[tx];
 			char otc = old_tcc[tx];
-#endif /* USE_TRANSPARENCY */
 
 #ifdef JP
 			if (tx + 1 < Term->wid && !(old_aa[tx] & 0x80)
@@ -1666,21 +1528,13 @@ errr Term_fresh(void)
 			/* Hack -- use "Term_pict()" always */
 			if (Term->always_pict)
 			{
-#ifdef USE_TRANSPARENCY
 				(void)((*Term->pict_hook)(tx, ty, csize, &old_aa[tx], &old_cc[tx], &ota, &otc));
-#else /* USE_TRANSPARENCY */
-				(void)((*Term->pict_hook)(tx, ty, csize, &old_aa[tx], &old_cc[tx]));
-#endif /* USE_TRANSPARENCY */
 			}
 
 			/* Hack -- use "Term_pict()" sometimes */
 			else if (Term->higher_pict && (old_aa[tx] & 0x80) && (old_cc[tx] & 0x80))
 			{
-#ifdef USE_TRANSPARENCY
 				(void)((*Term->pict_hook)(tx, ty, 1, &old_aa[tx], &old_cc[tx], &ota, &otc));
-#else /* USE_TRANSPARENCY */
-				(void)((*Term->pict_hook)(tx, ty, 1, &old_aa[tx], &old_cc[tx]));
-#endif /* USE_TRANSPARENCY */
 			}
 
 			/* Hack -- restore the actual character */
@@ -1914,11 +1768,7 @@ errr Term_draw(int x, int y, byte a, char c)
 	if (!c) return (-2);
 
 	/* Queue it for later */
-#ifdef USE_TRANSPARENCY
 	Term_queue_char(x, y, a, c, 0, 0);
-#else /* USE_TRANSPARENCY */
-	Term_queue_char(x, y, a, c);
-#endif /* USE_TRANSPARENCY */
 
 	/* Success */
 	return (0);
@@ -1952,11 +1802,7 @@ errr Term_addch(byte a, char c)
 	if (!c) return (-2);
 
 	/* Queue the given character for display */
-#ifdef USE_TRANSPARENCY
 	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c, 0, 0);
-#else /* USE_TRANSPARENCY */
-	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c);
-#endif /* USE_TRANSPARENCY */
 
 	/* Advance the cursor */
 	Term->scr->cx++;
@@ -2114,10 +1960,8 @@ errr Term_erase(int x, int y, int n)
 	byte *scr_aa;
 	char *scr_cc;
 
-#ifdef USE_TRANSPARENCY
 	byte *scr_taa;
 	char *scr_tcc;
-#endif /* USE_TRANSPARENCY */
 
 	/* Place cursor */
 	if (Term_gotoxy(x, y)) return (-1);
@@ -2129,10 +1973,8 @@ errr Term_erase(int x, int y, int n)
 	scr_aa = Term->scr->a[y];
 	scr_cc = Term->scr->c[y];
 
-#ifdef USE_TRANSPARENCY
 	scr_taa = Term->scr->ta[y];
 	scr_tcc = Term->scr->tc[y];
-#endif /* USE_TRANSPARENCY */
 
 #ifdef JP
 	/*
@@ -2173,10 +2015,8 @@ errr Term_erase(int x, int y, int n)
 		scr_aa[x] = na;
 		scr_cc[x] = nc;
 
-#ifdef USE_TRANSPARENCY
 		scr_taa[x] = 0;
 		scr_tcc[x] = 0;
-#endif /* USE_TRANSPARENCY */
 
 		/* Track minimum changed column */
 		if (x1 < 0) x1 = x;
@@ -2229,10 +2069,8 @@ errr Term_clear(void)
 		byte *scr_aa = Term->scr->a[y];
 		char *scr_cc = Term->scr->c[y];
 
-#ifdef USE_TRANSPARENCY
 		byte *scr_taa = Term->scr->ta[y];
 		char *scr_tcc = Term->scr->tc[y];
-#endif /* USE_TRANSPARENCY */
 
 		/* Wipe each column */
 		for (x = 0; x < w; x++)
@@ -2240,10 +2078,8 @@ errr Term_clear(void)
 			scr_aa[x] = na;
 			scr_cc[x] = nc;
 
-#ifdef USE_TRANSPARENCY
 			scr_taa[x] = 0;
 			scr_tcc[x] = 0;
-#endif /* USE_TRANSPARENCY */
 
 		}
 

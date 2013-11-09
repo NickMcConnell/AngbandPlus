@@ -1061,7 +1061,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 	{
 		if (p_ptr->pclass == CLASS_ARCHER)
 		{
-			if (o_ptr->tval == TV_SKELETON ||
+			if (o_ptr->tval == TV_SKELETON || o_ptr->tval == TV_JUNK ||
 			    (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_SKELETON))
 				return FALSE;
 		}

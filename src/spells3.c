@@ -3993,8 +3993,8 @@ int calc_use_mana(int spell, int realm)
 	/* Access the spell */
 	magic_type *s_ptr = &mp_ptr->info[realm - 1][spell];
 
- 	int skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
- 	int magic_var = skill_lev_var[p_ptr->skill_exp[SKILL_SPELL_CAST]];
+ 	int skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]/10);
+ 	int magic_var = skill_lev_var[p_ptr->skill_exp[SKILL_SPELL_CAST]/10];
 
 	/* Extract mana consumption rate */
 	int use_mana = s_ptr->smana * 200 * (19 - magic_var) + 2399;
@@ -4072,9 +4072,9 @@ s16b spell_chance(int spell, int use_realm)
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
 	if (p_ptr->riding)
-		chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level-(skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/100-10,0));
+		chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level-(skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)/100-10,0));
 
-	skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
+	skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]/10);
 
 	use_mana = calc_use_mana(spell, use_realm);
 
@@ -4577,7 +4577,7 @@ put_str(buf, y, x + 29);
 		/* Access the spell */
 		s_ptr = &mp_ptr->info[use_realm - 1][spell];
 
-		skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
+		skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]/10);
 
 		use_mana = calc_use_mana(spell, use_realm);
 
@@ -6236,12 +6236,12 @@ static byte snap_dragon_class_table[][2] =
  */
 static void snap_dragon_class_flags(object_type *o_ptr)
 {
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 24) add_flag(o_ptr->art_flags, TR_FEAR_FIELD);
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 49) add_flag(o_ptr->art_flags, TR_ANTI_MAGIC);
-	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 24) add_flag(o_ptr->art_flags, TR_SLAY_DRAGON);
-	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 49) add_flag(o_ptr->art_flags, TR_KILL_DRAGON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 24) add_flag(o_ptr->art_flags, TR_FEAR_FIELD);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 49) add_flag(o_ptr->art_flags, TR_ANTI_MAGIC);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(o_ptr->art_flags, TR_SLAY_DRAGON);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(o_ptr->art_flags, TR_KILL_DRAGON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
 
 	/* Analyze the class */
 	switch (p_ptr->pclass)
@@ -7175,8 +7175,8 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 		switch (o_ptr->name2)
 		{
 		case EGO_BAT:
-			o_ptr->to_d -= 6;
-			o_ptr->to_h -= 6;
+			o_ptr->to_d -= 2;
+			o_ptr->to_h -= 2;
 			break;
 		case EGO_SIRENE:
 			{
@@ -7185,12 +7185,20 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 				if (one_in_(8)) add_flag(o_ptr->art_flags, TR_EASY_SPELL);
 			}
 			break;
+		case EGO_PROTECTION:
+			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_RES_STONE);
+			break;
+		case EGO_NO_ELEM:
+			o_ptr->ac = 0;
+			o_ptr->to_a = 0;
+			break;
 		}
 		break;
 
 	case TV_SOFT_ARMOR:
 	case TV_HARD_ARMOR:
-		if (((o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) || (o_ptr->sval == SV_DRAGON_SCALE_MAIL)) && do_wish)
+		if ((((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_DRAGON_LEATHER_ARMOR)) ||
+			((o_ptr->tval == TV_HARD_ARMOR) && (o_ptr->sval == SV_DRAGON_SCALE_MAIL))) && do_wish)
 			dragon_resist(o_ptr);
 
 		switch (o_ptr->name2)

@@ -154,6 +154,17 @@
 #include <Memory.h>
 #include <QDOffscreen.h>
 #include <Sound.h>
+#include <AppleEvents.h>
+#include <EPPC.h>
+#include <Folders.h>
+#if TARGET_API_MAC_CARBON
+#include <Navigation.h>
+#include <CFPreferences.h>
+#include <CFNumber.h>
+# ifdef MAC_MPW
+# include <CarbonStdCLib.h>
+# endif
+#endif
 
 #ifdef JP
 
@@ -169,6 +180,9 @@
 #else
 #define PREF_FILE_NAME "TOband2-E Preferences"
 #endif
+
+/* Default creator signature */
+#define ANGBAND_CREATOR 'TOB '
 
 /*
  * Use "malloc()" instead of "NewPtr()"
@@ -203,32 +217,21 @@
 /*
  * Activate some special code
  */
-# define USE_SFL_CODE
 
 #endif /* ANGBAND_LITE_MAC */
 
 
 
-#ifdef USE_SFL_CODE
-
-/*
- * Include the necessary header files
- */
-#include <AppleEvents.h>
-#include <EPPC.h>
-#include <Folders.h>
-
-#endif
-
-
 /*
  * Globals for MPW compilation
  */
-#ifdef MAC_MPW
+#if defined(MACH_O_CARBON) || defined(MAC_MPW)
        /* Globals needed */
+#if !TARGET_API_MAC_CARBON
        QDGlobals qd;
-       u32b _ftype;
-       u32b _fcreator;
+#endif
+       OSType _ftype;
+       OSType _fcreator;
 #endif
 
 
@@ -305,10 +308,6 @@ struct term_data
 	GDHandle mainSWGDH;
 
 #endif /* ANGBAND_LITE_MAC */
-
-	GWorldPtr		bufferPort;
-	PixMapHandle	bufferPixHndl;
-	PixMapPtr		bufferPix;
 
 	Str15		title;
 
@@ -399,6 +398,10 @@ static term_data data[MAX_TERM_DATA];
  */
 static bool initialized = FALSE;
 
+/*
+ * Version of Mac OS - for version specific bug workarounds (; ;)
+ */
+static long mac_os_version;
 
 
 /*
@@ -406,7 +409,6 @@ static bool initialized = FALSE;
  */
 static ModalFilterUPP ynfilterUPP;
 
-#ifdef USE_SFL_CODE
 
 /*
  * Apple Event Hooks
@@ -416,7 +418,6 @@ AEEventHandlerUPP AEH_Quit_UPP;
 AEEventHandlerUPP AEH_Print_UPP;
 AEEventHandlerUPP AEH_Open_UPP;
 
-#endif
 
 /*
 	Extra Sound Mode
@@ -500,7 +501,7 @@ static int soundchoice[] = {
 	SND_TRAP,
 };
 
-static int			soundmode[8];
+static short			soundmode[8];
 
 static int ext_graf = 0;
 
@@ -511,6 +512,55 @@ static int ext_graf = 0;
  * Store this filename in 'buf' (make sure it is long enough)
  * Note that 'fname' looks to be a "pascal" string
  */
+#if TARGET_API_MAC_CARBON
+static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
+{
+	CInfoPBRec pb;
+	Str255 name;
+	int err;
+	int i, j;
+
+	char res[1000];
+	
+	FSSpec spec;
+	short	vref;
+    long	dirID;
+    
+	i=999;
+
+	res[i]=0; i--;
+	for (j=1; j<=fname[0]; j++)
+	{
+		res[i-fname[0]+j] = fname[j];
+	}
+	i-=fname[0];
+
+	vref = vrefnum;
+	dirID = refnum;
+
+	while (1)
+	{
+		pb.dirInfo.ioDrDirID=pb.dirInfo.ioDrParID;
+		err = FSMakeFSSpec( vref, dirID, "\p", &spec );
+		
+		if( err != noErr )
+		    break;
+		
+		res[i] = ':'; i--;
+		for (j=1; j<=spec.name[0]; j++)
+		{
+			res[i-spec.name[0]+j] = spec.name[j];
+		}
+		i -= spec.name[0];
+		
+		dirID = spec.parID;
+	}
+
+	/* Extract the result */
+	for (j = 0, i++; res[i]; j++, i++) buf[j] = res[i];
+	buf[j] = 0;
+}
+#else
 static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
 {
 	DirInfo pb;
@@ -553,7 +603,39 @@ static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
 	for (j = 0, i++; res[i]; j++, i++) buf[j] = res[i];
 	buf[j] = 0;
 }
+#endif
 
+#if TARGET_API_MAC_CARBON
+pascal OSErr FSpLocationFromFullPath(short fullPathLength,
+									 const void *fullPath,
+									 FSSpec *spec)
+{
+	AliasHandle	alias;
+	OSErr		result;
+	Boolean		wasChanged;
+	Str32		nullString;
+	
+	/* Create a minimal alias from the full pathname */
+	nullString[0] = 0;	/* null string to indicate no zone or server name */
+	result = NewAliasMinimalFromFullPath(fullPathLength, fullPath, nullString, nullString, &alias);
+	if ( result == noErr )
+	{
+		/* Let the Alias Manager resolve the alias. */
+		result = ResolveAlias(NULL, alias, spec, &wasChanged);
+		
+		/* work around Alias Mgr sloppy volume matching bug */
+		if ( spec->vRefNum == 0 )
+		{
+			/* invalidate wrong FSSpec */
+			spec->parID = 0;
+			spec->name[0] =  0;
+			result = nsvErr;
+		}
+		DisposeHandle((Handle)alias);	/* Free up memory used */
+	}
+	return ( result );
+}
+#endif
 
 #if 0
 
@@ -599,7 +681,164 @@ static bool askfor_file(char *buf, int len)
 
 #endif
 
+static void local_to_global( Rect *r )
+{
+	Point		temp;
+	
+	temp.h = r->left;
+	temp.v = r->top;
+	
+	LocalToGlobal( &temp );
+	
+	r->left = temp.h;
+	r->top = temp.v;
+	
+	temp.h = r->right;
+	temp.v = r->bottom;
+	
+	LocalToGlobal( &temp );
+	
+	r->right = temp.h;
+	r->bottom = temp.v;
+}
 
+static void global_to_local( Rect *r )
+{
+	Point		temp;
+	
+	temp.h = r->left;
+	temp.v = r->top;
+	
+	GlobalToLocal( &temp );
+	
+	r->left = temp.h;
+	r->top = temp.v;
+	
+	temp.h = r->right;
+	temp.v = r->bottom;
+	
+	GlobalToLocal( &temp );
+	
+	r->right = temp.h;
+	r->bottom = temp.v;
+}
+
+
+#ifdef MAC_MPW
+
+/*
+ * Convert pathname to an appropriate format, because MPW's
+ * CarbonStdCLib chose to use system's native path format,
+ * making our lives harder to create binaries that run on
+ * OS 8/9 and OS X :( -- pelpel
+ */
+void convert_pathname(char* path)
+{
+	char buf[1024];
+
+	/* Nothing has to be done for CarbonLib on Classic */
+	if (mac_os_version >= 0x1000)
+	{
+		/* Convert to POSIX style */
+		ConvertHFSPathToUnixPath(path, buf);
+
+		/* Copy the result back */
+		strcpy(path, buf);
+	}
+
+	/* Done. */
+	return;
+}
+
+# ifdef CHECK_MODIFICATION_TIME
+
+/*
+ * Although there is no easy way to emulate fstat in the old interface,
+ * we still can do stat-like things, because Mac OS is an OS.
+ */
+static int get_modification_time(cptr path, u32b *mod_time)
+{
+	CInfoPBRec pb;
+	Str255 pathname;
+	int i;
+
+	/* Paranoia - make sure the pathname fits in Str255 */
+	i = strlen(path);
+	if (i > 255) return (-1);
+
+	/* Convert pathname to a Pascal string */
+	strncpy((char *)pathname + 1, path, 255);
+	pathname[0] = i;
+
+	/* Set up parameter block */
+	pb.hFileInfo.ioNamePtr = pathname;
+	pb.hFileInfo.ioFDirIndex = 0;
+	pb.hFileInfo.ioVRefNum = app_vol;
+	pb.hFileInfo.ioDirID = 0;
+
+	/* Get catalog information of the file */
+	if (PBGetCatInfoSync(&pb) != noErr) return (-1);
+
+	/* Set modification date and time */
+	*mod_time = pb.hFileInfo.ioFlMdDat;
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * A (non-Mach-O) Mac OS version of check_modification_time, for those
+ * compilers without good enough POSIX-compatibility libraries XXX XXX
+ */
+errr check_modification_date(int fd, cptr template_file)
+{
+#pragma unused(fd)
+	u32b txt_stat, raw_stat;
+	char *p;
+	char fname[32];
+	char buf[1024];
+
+	/* Build the file name */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
+
+	/* XXX XXX XXX */
+	convert_pathname(buf);
+
+	/* Obtain modification time */
+	if (get_modification_time(buf, &txt_stat)) return (-1);
+
+	/* XXX Build filename of the corresponding *.raw file */
+	strnfmt(fname, sizeof(fname), "%s", template_file);
+
+	/* Find last '.' */
+	p = strrchr(fname, '.');
+
+	/* Can't happen */
+	if (p == NULL) return (-1);
+
+	/* Substitute ".raw" for ".txt" */
+	strcpy(p, ".raw");
+
+	/* Build the file name of the raw file */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, fname);
+
+	/* XXX XXX XXX */
+	convert_pathname(buf);
+
+	/* Obtain modification time */
+	if (get_modification_time(buf, &raw_stat)) return (-1);
+
+	/* Ensure the text file is not newer than the raw file */
+	if (txt_stat > raw_stat) return (-1);
+
+	/* Keep using the current .raw file */
+	return (0);
+}
+
+# endif /* CHECK_MODIFICATION_TIME */
+
+#endif /* MAC_MPW */
 
 /*
  * Center a rectangle inside another rectangle
@@ -639,7 +878,6 @@ static void ptocstr(StringPtr src)
 }
 
 
-#if defined(USE_SFL_CODE)
 
 
 /*
@@ -699,9 +937,55 @@ static void PathNameFromDirID(long dirID, short vRefNum, StringPtr fullPathName)
 	}
 }
 
+
+#if TARGET_API_MAC_CARBON
+
+static OSErr ChooseFile( StringPtr filename, FSSpec selfld )
+{
+	NavReplyRecord		reply;
+	NavDialogOptions	dialogOptions;
+	NavTypeListHandle	navTypeList = NULL;
+	OSErr				err;
+	AEDesc	deffld;
+	
+	AECreateDesc( typeFSS, &selfld, sizeof(FSSpec), &deffld );
+	
+	err = NavGetDefaultDialogOptions( &dialogOptions );
+	
+	if( err == noErr ){
+		
+		err = NavChooseFile( &deffld, &reply, &dialogOptions, NULL, NULL, NULL, navTypeList, NULL );
+		
+		if ( reply.validRecord && err == noErr ){
+			// grab the target FSSpec from the AEDesc:
+			FSSpec		finalFSSpec;
+			AEKeyword 	keyWord;
+			DescType 	typeCode;
+			Size 		actualSize = 0;
+
+			// retrieve the returned selection:
+			// there is only one selection here we get only the first AEDescList:
+			if (( err = AEGetNthPtr( &(reply.selection), 1, typeFSS, &keyWord, &typeCode, &finalFSSpec, sizeof( FSSpec ), &actualSize )) == noErr )
+			{
+				refnum_to_name( (char *)filename, finalFSSpec.parID, finalFSSpec.vRefNum, (char *)finalFSSpec.name );
+				// 'finalFSSpec' is the chosen fileノ
+			}
+			
+			err = NavDisposeReply( &reply );
+		}
+		if( navTypeList != NULL )
+		{
+			DisposeHandle( (Handle)navTypeList );
+			navTypeList = NULL;
+		}
+	}
+	
+	AEDisposeDesc( &deffld );
+	
+	return err;
+}
+
 #endif
-
-
 
 /*
  * Activate a given window, if necessary
@@ -712,7 +996,11 @@ static void activate(WindowPtr w)
 	if (active != w)
 	{
 		/* Activate */
+#if TARGET_API_MAC_CARBON
+		if (w) SetPortWindowPort(w);
+#else
 		if (w) SetPort(w);
+#endif
 
 		/* Remember */
 		active = w;
@@ -850,6 +1138,13 @@ static void term_data_check_font(term_data *td)
  */
 static void term_data_check_size(term_data *td)
 {
+	BitMap		screen;
+	
+#if TARGET_API_MAC_CARBON
+	GetQDGlobalsScreenBits( &screen );
+#else
+	screen = qd.screenBits;
+#endif
 	/* Minimal window size */
 	if (td == &data[0])
 	{
@@ -886,27 +1181,27 @@ static void term_data_check_size(term_data *td)
 	td->size_hgt = td->rows * td->tile_hgt + td->size_oh1 + td->size_oh2;
 
 	/* Verify the top */
-	if (td->r.top > qd.screenBits.bounds.bottom - td->size_hgt)
+	if (td->r.top > screen.bounds.bottom - td->size_hgt)
 	{
-		td->r.top = qd.screenBits.bounds.bottom - td->size_hgt;
+		td->r.top = screen.bounds.bottom - td->size_hgt;
 	}
 
 	/* Verify the top */
-	if (td->r.top < qd.screenBits.bounds.top + 30)
+	if (td->r.top < screen.bounds.top + 30)
 	{
-		td->r.top = qd.screenBits.bounds.top + 30;
+		td->r.top = screen.bounds.top + 30;
 	}
 
 	/* Verify the left */
-	if (td->r.left > qd.screenBits.bounds.right - td->size_wid)
+	if (td->r.left > screen.bounds.right - td->size_wid)
 	{
-		td->r.left = qd.screenBits.bounds.right - td->size_wid;
+		td->r.left = screen.bounds.right - td->size_wid;
 	}
 
 	/* Verify the left */
-	if (td->r.left < qd.screenBits.bounds.left)
+	if (td->r.left < screen.bounds.left)
 	{
-		td->r.left = qd.screenBits.bounds.left;
+		td->r.left = screen.bounds.left;
 	}
 
 	/* Calculate bottom right corner */
@@ -930,7 +1225,6 @@ static void term_data_check_size(term_data *td)
 	}
 }
 
-static OSErr XDDSWUpDateGWorldFromPict( term_data *td );
 /*
  * Hack -- resize a term_data
  *
@@ -940,8 +1234,6 @@ static void term_data_resize(term_data *td)
 {
 	/* Actually resize the window */
 	SizeWindow(td->w, td->size_wid, td->size_hgt, 0);
-	
-		XDDSWUpDateGWorldFromPict( td );
 }
 
 
@@ -966,9 +1258,19 @@ static void term_data_redraw(term_data *td)
 
 	/* Restore the old term */
 	Term_activate(old);
-
+	
 	/* No need to redraw */
+#if TARGET_API_MAC_CARBON
+	{
+		RgnHandle		theRgn = NewRgn();
+		GetWindowRegion( td->w, kWindowContentRgn, theRgn );
+		ValidWindowRgn( (WindowRef)(td->w), theRgn );
+		DisposeRgn( theRgn );
+	}
+#else
 	ValidRect(&td->w->portRect);
+#endif
+
 }
 
 
@@ -1031,22 +1333,12 @@ static void BenSWLockFrame(FrameRec *srcFrameP)
 	(void)LockPixels(pixMapH);
 	HLockHi((Handle)pixMapH);
 	srcFrameP->framePixHndl = pixMapH;
+#if TARGET_API_MAC_CARBON
+	srcFrameP->framePix = (PixMapPtr)*(Handle)pixMapH;
+#else
 	srcFrameP->framePix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
+#endif
 	
-}
-
-/*
- * Lock a frame
- */
-static void XDDSWLockFrame( term_data *td )
-{
-	PixMapHandle 		pixMapH;
-
-	pixMapH = GetGWorldPixMap(td->bufferPort);
-	(void)LockPixels(pixMapH);
-	HLockHi((Handle)pixMapH);
-	td->bufferPixHndl = pixMapH;
-	td->bufferPix = (PixMapPtr)*(Handle)pixMapH;
 }
 
 
@@ -1063,20 +1355,6 @@ static void BenSWUnlockFrame(FrameRec *srcFrameP)
 
 	srcFrameP->framePix = NULL;
 	
-}
-
-/*
- * Unlock a frame
- */
-static void XDDSWUnlockFrame( term_data *td )
-{
-	if (td->bufferPort != NULL)
-	{
-		HUnlock((Handle)td->bufferPixHndl);
-		UnlockPixels(td->bufferPixHndl);
-	}
-
-	td->bufferPix = NULL;
 }
 
 static OSErr BenSWCreateGWorldFromPict(
@@ -1137,119 +1415,7 @@ static OSErr BenSWCreateGWorldFromPict(
 }
 
 
-static OSErr XDDSWCreateGWorldFromPict(
-	GWorldPtr *pictGWorld,
-	term_data *td )
-{
-	OSErr err;
-	GWorldPtr saveGWorld;
-	GDHandle saveGDevice;
-	GWorldPtr tempGWorld;
-	Rect pictRect;
-	short depth;
-	GDHandle theGDH;
-	
-	tempGWorld = NULL;
-	
-	/* Reset */
-	*pictGWorld = NULL;
 
-	/* Get depth */
-	depth = td->pixelDepth;
-
-	/* Get GDH */
-	theGDH = td->theGDH;
-
-	/* Obtain size rectangle */
-	pictRect.left = 0;
-	pictRect.right = td->size_wid;
-	pictRect.top = 0;
-	pictRect.bottom = td->tile_hgt;
-	
-	/* Create a GWorld */
-	err = NewGWorld(&tempGWorld, 0, &pictRect, 0, 0, 0);
-	
-	/* Success */
-	if (err != noErr)
-	{
-		return (err);
-	}
-	
-	/* Save pointer */
-	*pictGWorld = tempGWorld;
-	
-	/* Save GWorld */
-	GetGWorld(&saveGWorld, &saveGDevice);
-
-	/* Activate */
-	SetGWorld(tempGWorld, nil);
-
-	/* Dump the pict into the GWorld
-	(void)LockPixels(GetGWorldPixMap(tempGWorld));
-	EraseRect(&pictRect);
-//	DrawPicture(pictH, &pictRect);
-	UnlockPixels(GetGWorldPixMap(tempGWorld));
-
-	/* Restore GWorld */
-	SetGWorld(saveGWorld, saveGDevice);
-
-	return (0);
-}
-
-
-static OSErr XDDSWUpDateGWorldFromPict( term_data *td )
-{
-	GWorldPtr saveGWorld;
-	GDHandle saveGDevice;
-	Rect pictRect;
-	short depth;
-	GDHandle theGDH;
-	
-	GWorldFlags	errflag;
-	
-	/*  */
-	
-	if( td->bufferPort == NULL )
-		return;
-	/* Get depth */
-	depth = td->pixelDepth;
-
-	/* Get GDH */
-	theGDH = td->theGDH;
-	
-	/* Obtain size rectangle */
-	pictRect.top = 0;
-	pictRect.left = 0;
-	pictRect.right = td->size_wid;
-	pictRect.bottom = td->tile_hgt;
-	
-	XDDSWUnlockFrame(td);
-	
-	errflag = UpdateGWorld( &td->bufferPort, depth, &pictRect, 0, 0, 0);
-	XDDSWLockFrame(td);
-	if( errflag & gwFlagErr ){
-		//SysBeep(0);
-		return;
-	}
-
-#if 0	
-	/* Save GWorld */
-	GetGWorld(&saveGWorld, &saveGDevice);
-
-	/* Activate */
-	SetGWorld(td->bufferPort, nil);
-
-	/* Dump the pict into the GWorld */
-	(void)LockPixels(GetGWorldPixMap(td->bufferPort));
-	EraseRect(&td->bufferPort->portRect);
-	
-	UnlockPixels(GetGWorldPixMap(td->bufferPort));
-
-	/* Restore GWorld */
-	SetGWorld(saveGWorld, saveGDevice);
-#endif
-	
-}
 
 /*
  * Init the global "frameP"
@@ -1264,7 +1430,11 @@ static errr globe_init(void)
 	PicHandle newPictH;
 
 	/* Use window XXX XXX XXX */
+#if TARGET_API_MAC_CARBON
+	SetPortWindowPort(data[0].w);
+#else
 	SetPort(data[0].w);
+#endif
 
 
 	/* Get the pict resource */
@@ -1407,12 +1577,13 @@ static void Term_init_mac(term *t)
 		PixMapHandle basePixMap;
 
 		/* Obtain the rect */
-		tempRect = td->w->portRect;
-
-		/* Obtain the global rect */	
-		globalRect = tempRect;
+#if TARGET_API_MAC_CARBON
+		GetWindowBounds( (WindowRef)td->w, kWindowContentRgn, &globalRect );
+#else
+		globalRect = td->w->portRect;
 		LocalToGlobal((Point*)&globalRect.top);
 		LocalToGlobal((Point*)&globalRect.bottom);
+#endif
 
 		/* Obtain the proper GDH */
 		mainGDH = GetMaxDevice(&globalRect);
@@ -1438,26 +1609,37 @@ static void Term_init_mac(term *t)
 
 #endif /* ANGBAND_LITE_MAC */
 
-	/* Clip to the window */
-	ClipRect(&td->w->portRect);
+	{
+		Rect		portRect;
 
-	/* Erase the window */
-	EraseRect(&td->w->portRect);
+#if TARGET_API_MAC_CARBON
+		GetWindowBounds( (WindowRef)td->w, kWindowContentRgn, &portRect );
+		global_to_local( &portRect );
+#else
+		portRect = td->w->portRect;
+#endif
+		/* Clip to the window */
+		ClipRect(&portRect);
 
-	/* Invalidate the window */
-	InvalRect(&td->w->portRect);
+		/* Erase the window */
+		EraseRect(&portRect);
 
-	/* Display the window if needed */
-	if (td->mapped) ShowWindow(td->w);
+		/* Invalidate the window */
+#if TARGET_API_MAC_CARBON
+		InvalWindowRect((WindowRef)(td->w), (const Rect *)(&portRect));
+#else
+		InvalRect(&portRect);
+#endif
 
-	/* Hack -- set "mapped" flag */
-	t->mapped_flag = td->mapped;
+		/* Display the window if needed */
+		if (td->mapped) ShowWindow(td->w);
 
-	/* Forget color */
-	td->last = -1;
-	XDDSWCreateGWorldFromPict( &td->bufferPort, td );
-	
-	XDDSWLockFrame( td );
+		/* Hack -- set "mapped" flag */
+		t->mapped_flag = td->mapped;
+
+		/* Forget color */
+		td->last = -1;
+	}
 	/* Oops */
 /*	if (err == noErr)
 	{
@@ -1608,7 +1790,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_BORED:
 		{
 			/* Process an event */
-			(void)CheckEvents(0);
+			(void)CheckEvents(FALSE);
 
 			/* Success */
 			return (0);
@@ -1647,11 +1829,20 @@ static errr Term_xtra_mac(int n, int v)
 		/* Clear the screen */
 		case TERM_XTRA_CLEAR:
 		{
+			Rect		portRect;
+			
+#if TARGET_API_MAC_CARBON
+			GetWindowBounds( (WindowRef)td->w, kWindowContentRgn, &portRect );
+			global_to_local( &portRect );
+#else
+			portRect = td->w->portRect;
+#endif
+
 			/* No clipping XXX XXX XXX */
-			ClipRect(&td->w->portRect);
+			ClipRect(&portRect);
 
 			/* Erase the window */
-			EraseRect(&td->w->portRect);
+			EraseRect(&portRect);
 
 			/* Set the color */
 			term_data_color(td, TERM_WHITE);
@@ -1663,10 +1854,10 @@ static errr Term_xtra_mac(int n, int v)
 			LineTo(td->size_wid-1, 0);
 
 			/* Clip to the new size */
-			r.left = td->w->portRect.left + td->size_ow1;
-			r.top = td->w->portRect.top + td->size_oh1;
-			r.right = td->w->portRect.right - td->size_ow2;
-			r.bottom = td->w->portRect.bottom - td->size_oh2;
+			r.left = portRect.left + td->size_ow1;
+			r.top = portRect.top + td->size_oh1;
+			r.right = portRect.right - td->size_ow2;
+			r.bottom = portRect.bottom - td->size_oh2;
 			ClipRect(&r);
 
 			/* Success */
@@ -1686,10 +1877,27 @@ static errr Term_xtra_mac(int n, int v)
 			/* If needed */
 			if (v > 0)
 			{
+#if TARGET_API_MAC_CARBON
+				EventRecord tmp;
+				UInt32 ticks;
+
+				/* Convert millisecs to ticks */
+				ticks = (v * 60L) / 1000;
+
+				/*
+				 * Hack? - Put the programme into sleep.
+				 * No events match ~everyEvent, so nothing
+				 * should be lost in Angband's event queue.
+				 * Even if ticks are 0, it's worth calling for
+				 * the above mentioned reasons.
+				 */
+				WaitNextEvent(~everyEvent, &tmp, ticks, nil);
+#else
 				long m = TickCount() + (v * 60L) / 1000;
 
 				/* Wait for it */
 				while (TickCount() < m) /* loop */;
+#endif
 			}
 
 			/* Success */
@@ -1819,39 +2027,27 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
 			  const byte *tap, const char *tcp)
-#else
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
-#endif
 {
 	int i;
 	Rect r2;
-	bool use_buffer = false;
 	term_data *td = (term_data*)(Term->data);
 	GDHandle saveGDevice;
 	GWorldPtr saveGWorld;
 	
 	PixMapHandle PortPix;
 	
-
 	/* Save GWorld */
 	GetGWorld(&saveGWorld, &saveGDevice);
 	
+	r2.left = x * td->tile_wid + td->size_ow1;
+	r2.right = r2.left + td->tile_wid;
+	r2.top = y * td->tile_hgt + td->size_oh1;
+	r2.bottom = r2.top + td->tile_hgt;
+	
 	if( n > 1 )
 	{
-		/* Destination rectangle */
-		r2.left = x * td->tile_wid + td->size_ow1;
-		r2.right = r2.left + td->tile_wid;
-		r2.top = 0;
-		r2.bottom = r2.top + td->tile_hgt;
-	
-		/* Activate */
-		SetGWorld(td->bufferPort, nil);
-		PortPix = GetGWorldPixMap(td->bufferPort );
-		LockPixels( PortPix );
-
 		/* Instantiate font */
 		TextFont(td->font_id);
 		TextSize(td->font_size);
@@ -1860,22 +2056,14 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		/* Restore colors */
 		BackColor(blackColor);
 		ForeColor(whiteColor);
-
-		/* Erase */
-		EraseRect(&td->bufferPort->portRect);
-
-		use_buffer = true;
 	}
 	else
 	{
 		/* Destination rectangle */
-		r2.left = x * td->tile_wid + td->size_ow1;
+/*		r2.left = x * td->tile_wid + td->size_ow1;
 		r2.top = y * td->tile_hgt + td->size_oh1;
-		r2.bottom = r2.top + td->tile_hgt;
+		r2.bottom = r2.top + td->tile_hgt;*/
 		
-		/* no buffering, so we use the normal current port */
-		
-		use_buffer = false;
 	}
 		
 	/* Scan the input */
@@ -1945,58 +2133,10 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		/* Advance */
 		r2.left += td->tile_wid;
 	}
-	
-	if( use_buffer )
-	{
-		/* Now we blast the buffer pixmap onto the screen in the right place */
-		BitMapPtr	srcBitMap = (BitMapPtr)(td->bufferPix);
-
-		BitMapPtr	destBitMap = (BitMapPtr)&(td->w->portBits);
-
-		Rect		srcRect;
-		Rect		destRect;
 		
-		
-		srcRect.left = x * td->tile_wid + td->size_ow1;
-		srcRect.top = 0;
-		srcRect.right = srcRect.left + (td->tile_wid * n);
-		srcRect.bottom = td->tile_hgt;
-		
-		destRect.left = x * td->tile_wid + td->size_ow1;
-		destRect.right = destRect.left + (td->tile_wid * n);
-		destRect.top = y * td->tile_hgt + td->size_oh1;
-		destRect.bottom = destRect.top + td->tile_hgt;
-
-		/* Double width rectangle */
-		if (use_bigtile)
-		{
-			srcRect.right += td->tile_wid * n;
-			destRect.right += td->tile_wid * n;
-		}
-
-		UnlockPixels( PortPix );
-
-		/* Restore GWorld */
-		SetGWorld(saveGWorld, saveGDevice);
-		
-		/* Hardwire CopyBits */
-		BackColor(whiteColor);
-		ForeColor(blackColor);
-		
-		CopyBits( srcBitMap, destBitMap, &srcRect, &destRect, srcCopy, NULL );
-		
-		/* Restore colors */
-		BackColor(blackColor);
-		ForeColor(whiteColor);
-	}
-	
 	/* Success */
 	return (0);
 }
-
-
-
-
 
 
 /*
@@ -2109,6 +2249,257 @@ static void SetupAppDir(void)
 
 
 
+#if TARGET_API_MAC_CARBON
+/*
+ * Using Core Foundation's Preferences services -- pelpel
+ *
+ * Requires OS 8.6 or greater with CarbonLib 1.1 or greater. Or OS X,
+ * of course.
+ *
+ * Without this, we can support older versions of OS 8 as well
+ * (with CarbonLib 1.0.4).
+ *
+ * Frequent allocation/deallocation of small chunks of data is
+ * far from my liking, but since this is only called at the
+ * beginning and the end of a session, I hope this hardly matters.
+ */
+
+
+/*
+ * Store "value" as the value for preferences item name
+ * pointed by key
+ */
+static void save_pref_short(const char *key, short value)
+{
+	CFStringRef cf_key;
+	CFNumberRef cf_value;
+
+	/* allocate and initialise the key */
+	cf_key = CFStringCreateWithCString(NULL, key, kTextEncodingUS_ASCII);
+
+	/* allocate and initialise the value */
+	cf_value = CFNumberCreate(NULL, kCFNumberShortType, &value);
+
+	if ((cf_key != NULL) && (cf_value != NULL))
+	{
+		/* Store the key-value pair in the applications preferences */
+		CFPreferencesSetAppValue(
+			cf_key,
+			cf_value,
+			kCFPreferencesCurrentApplication);
+	}
+
+	/*
+	 * Free CF data - the reverse order is a vain attempt to
+	 * minimise memory fragmentation.
+	 */
+	if (cf_value) CFRelease(cf_value);
+	if (cf_key) CFRelease(cf_key);
+}
+
+
+/*
+ * Load preference value for key, returns TRUE if it succeeds with
+ * vptr updated appropriately, FALSE otherwise.
+ */
+static bool query_load_pref_short(const char *key, short *vptr)
+{
+	CFStringRef cf_key;
+	CFNumberRef cf_value;
+
+	/* allocate and initialise the key */
+	cf_key = CFStringCreateWithCString(NULL, key, kTextEncodingUS_ASCII);
+
+	/* Oops */
+	if (cf_key == NULL) return (FALSE);
+
+	/* Retrieve value for the key */
+	cf_value = CFPreferencesCopyAppValue(
+		cf_key,
+		kCFPreferencesCurrentApplication);
+
+	/* Value not found */
+	if (cf_value == NULL)
+	{
+		CFRelease(cf_key);
+		return (FALSE);
+	}
+
+	/* Convert the value to short */
+	CFNumberGetValue(
+		cf_value,
+		kCFNumberShortType,
+		vptr);
+
+	/* Free CF data */
+	CFRelease(cf_value);
+	CFRelease(cf_key);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
+ * Update short data pointed by vptr only if preferences
+ * value for key is located.
+ */
+static void load_pref_short(const char *key, short *vptr)
+{
+	short tmp;
+
+	if (query_load_pref_short(key, &tmp)) *vptr = tmp;
+	return;
+}
+
+
+/*
+ * Save preferences to preferences file for current host+current user+
+ * current application.
+ */
+static void cf_save_prefs()
+{
+	int i;
+
+	/* Version stamp */
+	save_pref_short("version.major", FAKE_VERSION);
+	save_pref_short("version.minor", T_VER_MAJOR);
+	save_pref_short("version.patch", T_VER_MINOR);
+	save_pref_short("version.extra", T_VER_PATCH);
+
+	/* Gfx settings */
+	save_pref_short("arg.arg_sound", arg_sound);
+
+	/* SoundMode */
+	for( i = 0 ; i < 7 ; i++ )
+		save_pref_short(format("sound%d.on", i), soundmode[i]);
+	
+	/* Windows */
+	for (i = 0; i < MAX_TERM_DATA; i++)
+	{
+		term_data *td = &data[i];
+
+		save_pref_short(format("term%d.mapped", i), td->mapped);
+
+		save_pref_short(format("term%d.font_id", i), td->font_id);
+		save_pref_short(format("term%d.font_size", i), td->font_size);
+		save_pref_short(format("term%d.font_face", i), td->font_face);
+
+		save_pref_short(format("term%d.tile_wid", i), td->tile_wid);
+		save_pref_short(format("term%d.tile_hgt", i), td->tile_hgt);
+
+		save_pref_short(format("term%d.cols", i), td->cols);
+		save_pref_short(format("term%d.rows", i), td->rows);
+		save_pref_short(format("term%d.left", i), td->r.left);
+		save_pref_short(format("term%d.top", i), td->r.top);
+	}
+
+	/*
+	 * Make sure preferences are persistent
+	 */
+	CFPreferencesAppSynchronize(
+		kCFPreferencesCurrentApplication);
+}
+
+
+/*
+ * Load preferences from preferences file for current host+current user+
+ * current application.
+ */
+static void cf_load_prefs()
+{
+	bool ok;
+	short pref_major, pref_minor, pref_patch, pref_extra;
+	int i;
+
+	MenuHandle m;
+
+	/* Assume nothing is wrong, yet */
+	ok = TRUE;
+
+	/* Load version information */
+	ok &= query_load_pref_short("version.major", &pref_major);
+	ok &= query_load_pref_short("version.minor", &pref_minor);
+	ok &= query_load_pref_short("version.patch", &pref_patch);
+	ok &= query_load_pref_short("version.extra", &pref_extra);
+
+	/* Any of the above failed */
+	if (!ok)
+	{
+		/* This may be the first run */
+#ifdef JP
+		mac_warning("初期設定ファイルが見つかりません。");
+#else
+		mac_warning("Preferences are not found.");
+#endif
+
+		/* Ignore the rest */
+		return;
+	}
+
+#if 0
+
+	/* Check version */
+	if ((pref_major != PREF_VER_MAJOR) ||
+		(pref_minor != PREF_VER_MINOR) ||
+		(pref_patch != PREF_VER_PATCH) ||
+		(pref_extra != PREF_VER_EXTRA))
+	{
+		/* Message */
+		mac_warning(
+			format("Ignoring %d.%d.%d.%d preferences.",
+				pref_major, pref_minor, pref_patch, pref_extra));
+
+		/* Ignore */
+		return;
+	}
+
+#endif
+
+	/* Gfx settings */
+	{
+		short pref_tmp;
+
+		/* sound */
+		if (query_load_pref_short("arg.arg_sound", &pref_tmp))
+			arg_sound = pref_tmp;
+
+	}
+
+	/* SoundMode */
+	for( i = 0 ; i < 7 ; i++ )
+	{
+		query_load_pref_short(format("sound%d.on", i), &soundmode[i]);
+	}
+
+	/* Special menu */
+	m = GetMenuHandle(134);
+
+	/* Item "arg_sound" */
+	CheckMenuItem(m, 1, arg_sound);
+
+	/* Windows */
+	for (i = 0; i < MAX_TERM_DATA; i++)
+	{
+		term_data *td = &data[i];
+
+		load_pref_short(format("term%d.mapped", i), &td->mapped);
+
+		load_pref_short(format("term%d.font_id", i), &td->font_id);
+		load_pref_short(format("term%d.font_size", i), &td->font_size);
+		load_pref_short(format("term%d.font_face", i), &td->font_face);
+
+		load_pref_short(format("term%d.tile_wid", i), &td->tile_wid);
+		load_pref_short(format("term%d.tile_hgt", i), &td->tile_hgt);
+
+		load_pref_short(format("term%d.cols", i), &td->cols);
+		load_pref_short(format("term%d.rows", i), &td->rows);
+		load_pref_short(format("term%d.left", i), &td->r.left);
+		load_pref_short(format("term%d.top", i), &td->r.top);
+	}
+}
+
+#else
 /*
  * Global "preference" file pointer
  */
@@ -2121,7 +2512,7 @@ static int getshort(void)
 {
 	int x = 0;
 	char buf[256];
-	if (0 == my_fgets(fff, buf, 256)) x = atoi(buf);
+	if (0 == my_fgets(fff, buf, sizeof(buf))) x = atoi(buf);
 	return (x);
 }
 
@@ -2212,11 +2603,11 @@ static void load_prefs(void)
 	    (old_patch != T_VER_PATCH))
 	{
 		/* Message */
-		#ifdef JP
+#ifdef JP
 		mac_warning("古い初期設定ファイルを無視します.");
-		#else
+#else
 		mac_warning("Ignoring old preferences.");
-		#endif
+#endif
 		/* Ignore */
 		return;
 	}
@@ -2228,8 +2619,8 @@ static void load_prefs(void)
 		soundmode[i] = getshort();
 	
 	/* Special menu */
-	m = GetMenuHandle(134);	//m = GetMHandle(134);
-	
+	m = GetMenuHandle(134);
+
 	/* Item "arg_sound" */
 	CheckItem(m, 1, arg_sound);
 
@@ -2258,6 +2649,7 @@ static void load_prefs(void)
 		if (feof(fff)) break;
 	}
 }
+#endif /* TARGET_API_MAC_CARBON */
 
 
 
@@ -2269,13 +2661,26 @@ static void term_data_hack(term_data *td)
 {
 	short fid;
 
-	#ifdef JP
-	GetFNum( "\pOsaka-等幅", &fid);     /* フォント名からID番号を調べる  */
-	SetFScaleDisable( true );
-	#else
+#if TARGET_API_MAC_CARBON
+#ifdef JP
+	/* Default to Osaka font (Japanese) */
+	fid = FMGetFontFamilyFromName( "\pOsaka−等幅" );
+#else
+	/* Default to Monaco font */
+	fid = FMGetFontFamilyFromName("\pmonaco");
+#endif
+#else
+#ifdef JP
+	/* Default to 等幅明朝 font (Japanese) */
+	GetFNum( "\p等幅明朝", &fid);
+  	SetFScaleDisable( true );
+#else
 	/* Default to Monaco font */
 	GetFNum("\pmonaco", &fid);
-	#endif
+#endif
+#endif /* TARGET_API_MAC_CARBON */
+
+
 	/* Wipe it */
 	WIPE(td, term_data);
 
@@ -2373,13 +2778,16 @@ static void init_windows(void)
 
 	/*** Load preferences ***/
 
+	
+#if TARGET_API_MAC_CARBON
+	cf_load_prefs();
+#else
 	/* Assume failure */
 	oops = TRUE;
 
 	/* Assume failure */
 	fff = NULL;
 
-#ifdef USE_SFL_CODE
 
 	/* Block */
 	if (TRUE)
@@ -2413,7 +2821,6 @@ static void init_windows(void)
 		}
 	}
 
-#endif /* USE_SFL_CODE */
 
 	/* Oops */
 	if (oops)
@@ -2441,6 +2848,7 @@ static void init_windows(void)
 		/* Close the file */
 		my_fclose(fff);
 	}
+#endif
 
 
 	/*** Instantiate ***/
@@ -2470,7 +2878,7 @@ static void init_windows(void)
 static void init_sound( void )
 {
 	int err, i;
-	DirInfo pb;
+	CInfoPBRec pb;
 	SignedByte		permission = fsRdPerm;
 	pascal short	ret;
 	
@@ -2478,45 +2886,45 @@ static void init_sound( void )
 	Str255 sound;
 
 	/* Descend into "lib" folder */
-	pb.ioCompletion = NULL;
-	pb.ioNamePtr = "\plib";
-	pb.ioVRefNum = app_vol;
-	pb.ioDrDirID = app_dir;
-	pb.ioFDirIndex = 0;
+	pb.dirInfo.ioCompletion = NULL;
+	pb.dirInfo.ioNamePtr = "\plib";
+	pb.dirInfo.ioVRefNum = app_vol;
+	pb.dirInfo.ioDrDirID = app_dir;
+	pb.dirInfo.ioFDirIndex = 0;
 
 	/* Check for errors */
 	err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 
 	/* Success */
-	if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+	if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
 	{
 		/* Descend into "lib/save" folder */
-		pb.ioCompletion = NULL;
-		pb.ioNamePtr = "\pxtra";
-		pb.ioVRefNum = app_vol;
-		pb.ioDrDirID = pb.ioDrDirID;
-		pb.ioFDirIndex = 0;
+		pb.dirInfo.ioCompletion = NULL;
+		pb.dirInfo.ioNamePtr = "\pxtra";
+		pb.dirInfo.ioVRefNum = app_vol;
+		pb.dirInfo.ioDrDirID = pb.dirInfo.ioDrDirID;
+		pb.dirInfo.ioFDirIndex = 0;
 
 		/* Check for errors */
 		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 			
 			/* Success */
-		if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+		if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
 		{
 			/* Descend into "lib/save" folder */
-			pb.ioCompletion = NULL;
-			pb.ioNamePtr = "\psound";
-			pb.ioVRefNum = app_vol;
-			pb.ioDrDirID = pb.ioDrDirID;
-			pb.ioFDirIndex = 0;
+			pb.dirInfo.ioCompletion = NULL;
+			pb.dirInfo.ioNamePtr = "\psound";
+			pb.dirInfo.ioVRefNum = app_vol;
+			pb.dirInfo.ioDrDirID = pb.dirInfo.ioDrDirID;
+			pb.dirInfo.ioFDirIndex = 0;
 
 			/* Check for errors */
 			err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 
 			/* Success */
-			if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+			if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
 			{
-				ret = HOpenResFile( app_vol , pb.ioDrDirID , "\psound.rsrc" , permission );
+				ret = HOpenResFile( app_vol , pb.dirInfo.ioDrDirID , "\psound.rsrc" , permission );
 				if( ret != -1 ){
 					ext_sound = 1;
 					
@@ -2546,7 +2954,7 @@ static void init_sound( void )
 static void init_graf( void )
 {
 	int err, i;
-	DirInfo pb;
+	CInfoPBRec pb;
 	SignedByte		permission = fsRdPerm;
 	pascal short	ret;
 	
@@ -2554,53 +2962,53 @@ static void init_graf( void )
 	Str255 graf;
 
 	/* Descend into "lib" folder */
-	pb.ioCompletion = NULL;
-	pb.ioNamePtr = "\plib";
-	pb.ioVRefNum = app_vol;
-	pb.ioDrDirID = app_dir;
-	pb.ioFDirIndex = 0;
+	pb.dirInfo.ioCompletion = NULL;
+	pb.dirInfo.ioNamePtr = "\plib";
+	pb.dirInfo.ioVRefNum = app_vol;
+	pb.dirInfo.ioDrDirID = app_dir;
+	pb.dirInfo.ioFDirIndex = 0;
 
 	/* Check for errors */
 	err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 
 	/* Success */
-	if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+	if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
 	{
 		/* Descend into "lib/xtra" folder */
-		pb.ioCompletion = NULL;
-		pb.ioNamePtr = "\pxtra";
-		pb.ioVRefNum = app_vol;
-		pb.ioDrDirID = pb.ioDrDirID;
-		pb.ioFDirIndex = 0;
+		pb.dirInfo.ioCompletion = NULL;
+		pb.dirInfo.ioNamePtr = "\pxtra";
+		pb.dirInfo.ioVRefNum = app_vol;
+		pb.dirInfo.ioDrDirID = pb.dirInfo.ioDrDirID;
+		pb.dirInfo.ioFDirIndex = 0;
 
 		/* Check for errors */
 		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 			
 		/* Success */
-		if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+		if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
 		{
 			/* Descend into "lib/xtra/graf" folder */
-			pb.ioCompletion = NULL;
-			pb.ioNamePtr = "\pgraf";
-			pb.ioVRefNum = app_vol;
-			pb.ioDrDirID = pb.ioDrDirID;
-			pb.ioFDirIndex = 0;
+			pb.dirInfo.ioCompletion = NULL;
+			pb.dirInfo.ioNamePtr = "\pgraf";
+			pb.dirInfo.ioVRefNum = app_vol;
+			pb.dirInfo.ioDrDirID = pb.dirInfo.ioDrDirID;
+			pb.dirInfo.ioFDirIndex = 0;
 
 			/* Check for errors */
 			err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 
 			/* Success */
-			if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+			if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
 			{
-				ret = HOpenResFile( app_vol , pb.ioDrDirID , "\pgraf.rsrc" , permission );
+				ret = HOpenResFile( app_vol , pb.dirInfo.ioDrDirID , "\pgraf.rsrc" , permission );
 				if (ret != -1)
 				{
 					ext_graf = 1;
-					
+
 					/* Obtain resource XXX XXX XXX */
 					handle = Get1NamedResource('PICT', graf);
 					if ( handle == NULL || ext_graf )
-						handle = GetNamedResource('PICT', graf);
+						handle = GetNamedResource('PICT', "\pgraf.rsrc");
 				}
 			}
 		}
@@ -2668,7 +3076,7 @@ void SoundConfigDLog(void)
 	for( i = 1 ; i < 7 ; i++ )
 		SetCheck( dialog, i+2 , soundmode[i] );
 	
-	ShowWindow(dialog);
+	/* ShowWindow(dialog); */ 
 	for( item_hit = 100 ; cancel < item_hit ; ){
 		ModalDialog(0, &item_hit);
 		
@@ -2691,6 +3099,12 @@ void SoundConfigDLog(void)
 /*
  * Exit the program
  */
+#if TARGET_API_MAC_CARBON
+static void save_pref_file(void)
+{
+	cf_save_prefs();
+}
+#else
 static void save_pref_file(void)
 {
 	bool oops;
@@ -2710,7 +3124,6 @@ static void save_pref_file(void)
 	_ftype = 'TEXT';
 
 
-#ifdef USE_SFL_CODE
 
 	/* Block */
 	if (TRUE)
@@ -2745,7 +3158,6 @@ static void save_pref_file(void)
 		}
 	}
 
-#endif /* USE_SFL_CODE */
 
 	/* Oops */
 	if (oops)
@@ -2775,6 +3187,7 @@ static void save_pref_file(void)
 		my_fclose(fff);
 	}
 }
+#endif
 
 
 
@@ -2806,7 +3219,7 @@ static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
 			Rect r;
 
 			/* Get the button */
-			GetDialogItem(dialog, i, &type, (Handle*)&control, &r);	//GetDItem(dialog, i, &type, (Handle*)&control, &r);
+			GetDialogItem(dialog, i, &type, (Handle*)&control, &r);
 
 			/* Blink button for 1/10 second */
 			HiliteControl(control, 1);
@@ -2823,6 +3236,286 @@ static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
 	return (0);
 }
 
+
+#if TARGET_API_MAC_CARBON
+#ifdef MACH_O_CARBON
+
+/* Carbon File Manager utilities by pelpel */
+
+/*
+ * (Carbon)
+ * Convert a pathname to a corresponding FSSpec.
+ * Returns noErr on success.
+ */
+static OSErr path_to_spec(const char *path, FSSpec *spec)
+{
+	OSErr err;
+	FSRef ref;
+
+	/* Convert pathname to FSRef ... */
+	err = FSPathMakeRef(path, &ref, NULL);
+	if (err != noErr) return (err);
+
+	/* ... then FSRef to FSSpec */
+	err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, spec, NULL);
+	
+	/* Inform caller of success or failure */
+	return (err);
+}
+
+
+/*
+ * (Carbon)
+ * Convert a FSSpec to a corresponding pathname.
+ * Returns noErr on success.
+ */
+static OSErr spec_to_path(const FSSpec *spec, char *buf, size_t size)
+{
+	OSErr err;
+	FSRef ref;
+
+	/* Convert FSSpec to FSRef ... */
+	err = FSpMakeFSRef(spec, &ref);
+	if (err != noErr) return (err);
+
+	/* ... then FSRef to pathname */
+	err = FSRefMakePath(&ref, buf, size);
+
+	/* Inform caller of success or failure */
+	return (err);
+}
+
+
+#endif /* MACH_O_CARBON */
+
+
+/*
+ * Prepare savefile dialogue and set the variable
+ * savefile accordingly. Returns true if it succeeds, false (or
+ * aborts) otherwise. If all is false, only allow files whose type
+ * is 'SAVE'.
+ * Originally written by Peter Ammon
+ */
+static bool select_savefile(bool all)
+{
+	OSErr err;
+	FSSpec theFolderSpec;
+	FSSpec savedGameSpec;
+	NavDialogOptions dialogOptions;
+	NavReplyRecord reply;
+	/* Used only when 'all' is true */
+	NavTypeList types = {ANGBAND_CREATOR, 1, 1, {'SAVE'}};
+	NavTypeListHandle myTypeList;
+	AEDesc defaultLocation;
+
+#ifdef MACH_O_CARBON
+
+	/* Find the save folder */
+	err = path_to_spec(ANGBAND_DIR_SAVE, &theFolderSpec);
+
+#else
+
+	/* Find :lib:save: folder */
+	err = FSMakeFSSpec(app_vol, app_dir, "\p:lib:save:", &theFolderSpec);
+
+#endif
+
+	/* Oops */
+	if (err != noErr) quit("Unable to find the folder :lib:save:");
+
+	/* Get default Navigator dialog options */
+	err = NavGetDefaultDialogOptions(&dialogOptions);
+
+	/* Clear preview option */
+	dialogOptions.dialogOptionFlags &= ~kNavAllowPreviews;
+
+	/* Disable multiple file selection */
+	dialogOptions.dialogOptionFlags &= ~kNavAllowMultipleFiles;
+
+	/* Make descriptor for default location */
+	err = AECreateDesc(typeFSS, &theFolderSpec, sizeof(FSSpec),
+		&defaultLocation);
+
+	/* Oops */
+	if (err != noErr) quit("Unable to allocate descriptor");
+
+	/* We are indifferent to signature and file types */
+	if (all)
+	{
+		myTypeList = (NavTypeListHandle)nil;
+	}
+
+	/* Set up type handle */
+	else
+	{
+		err = PtrToHand(&types, (Handle *)&myTypeList, sizeof(NavTypeList));
+
+		/* Oops */
+		if (err != noErr) quit("Error in PtrToHand. Try enlarging heap");
+
+	}
+
+	/* Call NavGetFile() with the types list */
+	err = NavChooseFile(&defaultLocation, &reply, &dialogOptions, NULL,
+		NULL, NULL, myTypeList, NULL);
+
+	/* Free type list */
+	if (!all) DisposeHandle((Handle)myTypeList);
+
+	/* Error */
+	if (err != noErr)
+	{
+		/* Nothing */
+	}
+
+	/* Invalid response -- allow the user to cancel */
+	else if (!reply.validRecord)
+	{
+		/* Hack -- Fake error */
+		err = -1;
+	}
+
+	/* Retrieve FSSpec from the reply */
+	else
+	{
+		AEKeyword theKeyword;
+		DescType actualType;
+		Size actualSize;
+
+		/* Get a pointer to selected file */
+		(void)AEGetNthPtr(&reply.selection, 1, typeFSS, &theKeyword,
+			&actualType, &savedGameSpec, sizeof(FSSpec), &actualSize);
+
+		/* Dispose NavReplyRecord, resources and descriptors */
+		(void)NavDisposeReply(&reply);
+	}
+
+	/* Dispose location info */
+	AEDisposeDesc(&defaultLocation);
+
+	/* Error */
+	if (err != noErr) return (FALSE);
+
+#ifdef MACH_O_CARBON
+
+	/* Convert FSSpec to pathname and store it in variable savefile */
+	(void)spec_to_path(&savedGameSpec, savefile, sizeof(savefile));
+
+#else
+
+	/* Convert FSSpec to pathname and store it in variable savefile */
+	refnum_to_name(
+		savefile,
+		savedGameSpec.parID,
+		savedGameSpec.vRefNum,
+		(char *)savedGameSpec.name);
+
+#endif
+
+	/* Success */
+	return (TRUE);
+}
+#else /* TARGET_API_MAC_CARBON */
+
+/*
+ * Standard File version of the above.
+ * Moved out of do_menu_file_open for the sake of symmetry and
+ * to reduce the stack usage a little bit.
+ *
+ * Prepare savefile dialogue and set the variable
+ * savefile accordingly. Returns true if it succeeds, false (or
+ * aborts) otherwise. If all is false, only allow files whose type
+ * is 'SAVE'.
+ */
+static bool select_savefile(bool all)
+{
+	int err;
+	short vrefnum;
+	long drefnum;
+	long junk;
+	CInfoPBRec pb;
+	SFTypeList types;
+	short ntypes;
+	SFReply reply;
+	Point topleft;
+
+
+	/* Use what SetupAppDir thinks as current application's vol and dir */
+	vrefnum = app_vol;
+	drefnum = app_dir;
+
+	/* Descend into "lib" folder */
+	pb.dirInfo.ioCompletion = NULL;
+	pb.dirInfo.ioNamePtr = (StringPtr)"\plib";
+	pb.dirInfo.ioVRefNum = vrefnum;
+	pb.dirInfo.ioDrDirID = drefnum;
+	pb.dirInfo.ioFDirIndex = 0;
+
+	/* Check for errors */
+	err = PBGetCatInfoSync(&pb);
+
+	/* Success */
+	if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
+	{
+		/* Descend into "lib/save" folder */
+		pb.dirInfo.ioCompletion = NULL;
+		pb.dirInfo.ioNamePtr = (StringPtr)"\psave";
+		pb.dirInfo.ioVRefNum = vrefnum;
+		/* pb.dirInfo.ioDrDirID = pb.dirInfo.ioDrDirID; */
+		pb.dirInfo.ioFDirIndex = 0;
+
+		/* Check for errors */
+		err = PBGetCatInfoSync(&pb);
+
+		/* Success */
+		if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
+		{
+			/* There are no other ways to do this XXX XXX XXX */
+
+			/* SetSFCurVol(vrefnum); */
+			*((short*)0x214) = -vrefnum;
+
+			/* SetSFCurDir(pb.dirInfo.ioDrDirID); */
+			*((long*)0x398) = pb.dirInfo.ioDrDirID;
+		}
+	}
+
+
+	/* Import - allow any types */
+	if (all)
+	{
+		ntypes = -1;
+	}
+
+	/* Open - allow "save" files */
+	else
+	{
+		types[0] = 'SAVE';
+		ntypes = 1;
+	}
+
+
+	/* Window location */
+	topleft.h = (qd.screenBits.bounds.left+qd.screenBits.bounds.right)/2-344/2;
+	topleft.v = (2*qd.screenBits.bounds.top+qd.screenBits.bounds.bottom)/3-188/2;
+
+	/* Get any file if all is set to true, 'SAVE' files otherwise */
+	SFGetFile(topleft, "\p", NULL, ntypes, types, NULL, &reply);
+
+	/* Allow cancel */
+	if (!reply.good) return (FALSE);
+
+	/* Convert a wdRefNum to volume + dir */
+	GetWDInfo(reply.vRefNum, &vrefnum, &drefnum, &junk);
+
+	/* Extract textual file name for save file */
+	refnum_to_name(savefile, drefnum, vrefnum, (char*)reply.fName);
+
+	/* Success */
+	return (TRUE);
+}
+
+#endif /* TARGET_API_MAC_CARBON */
 
 /*
  * Handle menu: "File" + "New"
@@ -2851,88 +3544,14 @@ static void do_menu_file_new(void)
  */
 static void do_menu_file_open(bool all)
 {
-	int err;
-	short vrefnum;
-	long drefnum;
-	long junk;
-	DirInfo pb;
-	SFTypeList types;
-	SFReply reply;
-	Point topleft;
-
-
-	/* XXX XXX XXX */
-
-	/* vrefnum = GetSFCurVol(); */
-	vrefnum = -*((short*)0x214);
-
-	/* drefnum = GetSFCurDir(); */
-	drefnum = *((long*)0x398);
-
-	/* Descend into "lib" folder */
-	pb.ioCompletion = NULL;
-	pb.ioNamePtr = "\plib";
-	pb.ioVRefNum = vrefnum;
-	pb.ioDrDirID = drefnum;
-	pb.ioFDirIndex = 0;
-
-	/* Check for errors */
-	err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
-
-	/* Success */
-	if ((err == noErr) && (pb.ioFlAttrib & 0x10))
-	{
-		/* Descend into "lib/save" folder */
-		pb.ioCompletion = NULL;
-		pb.ioNamePtr = "\psave";
-		pb.ioVRefNum = vrefnum;
-		pb.ioDrDirID = pb.ioDrDirID;
-		pb.ioFDirIndex = 0;
-
-		/* Check for errors */
-		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
-
-		/* Success */
-		if ((err == noErr) && (pb.ioFlAttrib & 0x10))
-		{
-			/* SetSFCurDir(pb.ioDrDirID); */
-			*((long*)0x398) = pb.ioDrDirID;
-		}
-	}
-
-	/* Window location */
-	topleft.h = (qd.screenBits.bounds.left+qd.screenBits.bounds.right)/2-344/2;
-	topleft.v = (2*qd.screenBits.bounds.top+qd.screenBits.bounds.bottom)/3-188/2;
-
-	/* Allow "all" files */
-	if (all)
-	{
-		/* Get any file */
-		SFGetFile(topleft, "\p", NULL, -1, types, NULL, &reply);
-	}
-
-	/* Allow "save" files */
-	else
-	{
-		/* Legal types */
-		types[0] = 'SAVE';
-
-		/* Get a file */
-		SFGetFile(topleft, "\p", NULL, 1, types, NULL, &reply);
-	}
-
-	/* Allow cancel */
-	if (!reply.good) return;
-
-	/* Extract textual file name for save file */
-	GetWDInfo(reply.vRefNum, &vrefnum, &drefnum, &junk);
-	refnum_to_name(savefile, drefnum, vrefnum, (char*)reply.fName);
+	/* Let the player to choose savefile */
+	if (!select_savefile(all)) return;
 
 	/* Hack */
 	HiliteMenu(0);
 
 	/* Game is in progress */
-	game_in_progress = 1;
+	game_in_progress = TRUE;
 
 	/* Flush input */
 	flush();
@@ -3002,7 +3621,8 @@ static void init_menubar(void)
 	WindowPtr tmpw;
 
 	MenuHandle m;
-
+	OSErr		err;
+	long		response;
 
 	/* Get the "apple" menu */
 	m = GetMenu(128);
@@ -3011,11 +3631,21 @@ static void init_menubar(void)
 	InsertMenu(m, 0);
 
 	/* Add the DA's to the "apple" menu */
-	AppendResMenu	(m, 'DRVR');	//AddResMenu(m, 'DRVR');
-
+#if !TARGET_API_MAC_CARBON
+	AppendResMenu	(m, 'DRVR');
+#endif
 
 	/* Get the "File" menu */
+#if TARGET_API_MAC_CARBON
 	m = GetMenu(129);
+	err = Gestalt( gestaltSystemVersion, &response );
+	if ( (err == noErr) && (response >= 0x00000A00) )
+	{
+		DeleteMenuItem( m, 7 );
+	}
+#else
+	m = GetMenu(129);
+#endif
 
 	/* Insert the menu */
 	InsertMenu(m, 0);
@@ -3029,11 +3659,11 @@ static void init_menubar(void)
 
 
 	/* Make the "Font" menu */
-	#ifdef JP
+#ifdef JP
 	m = NewMenu(131, "\pフォント");
-	#else
+#else
 	m = NewMenu(131, "\pFont");
-	#endif
+#endif
 	
 	/* Insert the menu */
 	InsertMenu(m, 0);
@@ -3054,7 +3684,11 @@ static void init_menubar(void)
 	tmpw = NewWindow(0, &r, "\p", false, documentProc, 0, 0, 0);
 
 	/* Activate the "fake" window */
+#if TARGET_API_MAC_CARBON
+	SetPortWindowPort(tmpw);
+#else
 	SetPort(tmpw);
+#endif
 
 	/* Default mode */
 	TextMode(0);
@@ -3063,10 +3697,14 @@ static void init_menubar(void)
 	TextSize(12);
 
 	/* Add the fonts to the menu */
-	AppendResMenu(m, 'FONT');	//AddResMenu(m, 'FONT');
+	AppendResMenu(m, 'FONT');
 
 	/* Size of menu */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Scan the menu */
 	for (i = n; i >= 4; i--)
@@ -3075,11 +3713,14 @@ static void init_menubar(void)
 		short fontNum;
 
 		/* Acquire the font name */
-		/* GetMenuItemText(m, i, tmpName); */
-		GetMenuItemText(m, i, tmpName);	//GetItem(m, i, tmpName);
+		GetMenuItemText(m, i, tmpName);
 
 		/* Acquire the font index */
+#if TARGET_API_MAC_CARBON
+		fontNum = FMGetFontFamilyFromName( tmpName );
+#else
 		GetFNum(tmpName, &fontNum);
+#endif
 
 		/* Apply the font index */
 		TextFont(fontNum);
@@ -3088,8 +3729,7 @@ static void init_menubar(void)
 		if ((CharWidth('i') != CharWidth('W')) || (CharWidth('W') == 0))
 		{
 			/* Delete the menu item XXX XXX XXX */
-			/* DeleteMenuItem(m, i); */
-			DeleteMenuItem	(m, i);	//DelMenuItem(m, i);
+			DeleteMenuItem	(m, i);
 		}
 	}
 
@@ -3100,15 +3740,15 @@ static void init_menubar(void)
 	AppendMenu(m, "\p-");
 
 	/* Add the fonts to the menu */
-	AppendResMenu	(m, 'FONT');	//AddResMenu(m, 'FONT');
+	AppendResMenu	(m, 'FONT');
 
 
 	/* Make the "Size" menu */
-	#ifdef JP
+#ifdef JP
 	m = NewMenu(132, "\pサイズ");
-	#else
+#else
 	m = NewMenu(132, "\pSize");
-	#endif
+#endif
 	
 	/* Insert the menu */
 	InsertMenu(m, 0);
@@ -3128,11 +3768,11 @@ static void init_menubar(void)
 
 
 	/* Make the "Windows" menu */
-	#ifdef JP
+#ifdef JP
 	m = NewMenu(133, "\pウインドウ");
-	#else
+#else
 	m = NewMenu(133, "\pWindows");
-	#endif
+#endif
 	
 	/* Insert the menu */
 	InsertMenu(m, 0);
@@ -3155,36 +3795,37 @@ static void init_menubar(void)
 
 
 	/* Make the "Special" menu */
-	#ifdef JP
+#ifdef JP
 	m = NewMenu(134, "\p特別");
-	#else
+#else
 	m = NewMenu(134, "\pSpecial");
-	#endif
+#endif
 	
 	/* Insert the menu */
 	InsertMenu(m, 0);
 
 	/* Append the choices */
-	#ifdef JP
+#ifdef JP
 	AppendMenu(m, "\pサウンド使用");
 	AppendMenu(m, "\pサウンド設定...");
+	AppendMenu(m, "\p二倍幅表示");
 	AppendMenu(m, "\p-");
 	AppendMenu(m, "\parg_fiddle");
 	AppendMenu(m, "\parg_wizard");
-	#else
+#else
 	AppendMenu(m, "\parg_sound");
 	AppendMenu(m, "\pSound config");
 	AppendMenu(m, "\p-");
 	AppendMenu(m, "\parg_fiddle");
 	AppendMenu(m, "\parg_wizard");
-	#endif
+#endif
 
 	/* Make the "TileWidth" menu */
-	#ifdef JP
+#ifdef JP
 	m = NewMenu(135, "\pタイル幅");
-	#else
+#else
 	m = NewMenu(135, "\pTileWidth");
-	#endif
+#endif
 
 	/* Insert the menu */
 	InsertMenu(m, 0);
@@ -3204,11 +3845,11 @@ static void init_menubar(void)
 
 
 	/* Make the "TileHeight" menu */
-	#ifdef JP
+#ifdef JP
 	m = NewMenu(136, "\pタイル高");
-	#else
+#else
 	m = NewMenu(136, "\pTileHeight");
-	#endif
+#endif
 
 	/* Insert the menu */
 	InsertMenu(m, 255);
@@ -3260,83 +3901,136 @@ static void setup_menus(void)
 
 
 	/* File menu */
-	m = GetMenuHandle(129);	//m = GetMHandle(129);
+	m = GetMenuHandle(129);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
+#if TARGET_API_MAC_CARBON
+		DisableMenuItem(m, i);
+		CheckMenuItem(m, i, FALSE);
+#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
+#endif
 	}
 
 	/* Enable "new"/"open..."/"import..." */
 	if (initialized && !game_in_progress)
 	{
+#if TARGET_API_MAC_CARBON
+		EnableMenuItem(m, 1);
+		EnableMenuItem(m, 2);
+		EnableMenuItem(m, 3);
+#else
 		EnableItem(m, 1);
 		EnableItem(m, 2);
 		EnableItem(m, 3);
+#endif
 	}
 
 	/* Enable "close" */
 	if (initialized)
 	{
+#if TARGET_API_MAC_CARBON
+		EnableMenuItem(m, 4);
+#else
 		EnableItem(m, 4);
+#endif
 	}
 
 	/* Enable "save" */
 	if (initialized && character_generated)
 	{
+#if TARGET_API_MAC_CARBON
+		EnableMenuItem(m, 5);
+#else
 		EnableItem(m, 5);
+#endif
 	}
 
 	/* Enable "quit" */
 	if (TRUE)
 	{
+#if TARGET_API_MAC_CARBON
+		EnableMenuItem(m, 7);
+#else
 		EnableItem(m, 7);
+#endif
 	}
 
 
 	/* Edit menu */
-	m = GetMenuHandle(130);	//m = GetMHandle(130);
+	m = GetMenuHandle(130);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
+#if TARGET_API_MAC_CARBON
+		DisableMenuItem(m, i);
+		CheckMenuItem(m, i, FALSE);
+#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
+#endif
 	}
 
 	/* Enable "edit" options if "needed" */
 	if (!td)
 	{
+#if TARGET_API_MAC_CARBON
+		EnableMenuItem(m, 1);
+		EnableMenuItem(m, 3);
+		EnableMenuItem(m, 4);
+		EnableMenuItem(m, 5);
+		EnableMenuItem(m, 6);
+#else
 		EnableItem(m, 1);
 		EnableItem(m, 3);
 		EnableItem(m, 4);
 		EnableItem(m, 5);
 		EnableItem(m, 6);
+#endif
 	}
 
 
 	/* Font menu */
-	m = GetMenuHandle(131);	//m = GetMHandle(131);
+	m = GetMenuHandle(131);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
+#if TARGET_API_MAC_CARBON
+		DisableMenuItem(m, i);
+		CheckMenuItem(m, i, FALSE);
+#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
+#endif
 	}
 
 	/* Hack -- look cute XXX XXX */
@@ -3348,6 +4042,33 @@ static void setup_menus(void)
 	/* Active window */
 	if (td)
 	{
+#if TARGET_API_MAC_CARBON
+		/* Enable "bold" */
+		EnableMenuItem(m, 1);
+
+		/* Enable "extend" */
+		EnableMenuItem(m, 2);
+
+		/* Check the appropriate "bold-ness" */
+		if (td->font_face & bold) CheckMenuItem(m, 1, TRUE);
+
+		/* Check the appropriate "wide-ness" */
+		if (td->font_face & extend) CheckMenuItem(m, 2, TRUE);
+
+		/* Analyze fonts */
+		for (i = 4; i <= n; i++)
+		{
+			/* Enable it */
+			EnableMenuItem(m, i);
+
+			/* Analyze font */
+			GetMenuItemText(m, i, s);
+			GetFNum(s, &value);
+
+			/* Check active font */
+			if (td->font_id == value) CheckMenuItem(m, i, TRUE);
+		}
+#else
 		/* Enable "bold" */
 		EnableItem(m, 1);
 
@@ -3367,28 +4088,37 @@ static void setup_menus(void)
 			EnableItem(m, i);
 
 			/* Analyze font */
-			/* GetMenuItemText(m,i,s); */
-			GetMenuItemText(m, i, s);	//GetItem(m, i, s);
+			GetMenuItemText(m, i, s);
 			GetFNum(s, &value);
 
 			/* Check active font */
 			if (td->font_id == value) CheckItem(m, i, TRUE);
 		}
+#endif
 	}
 
 
 	/* Size menu */
-	m = GetMenuHandle(132);	//m = GetMHandle(132);
+	m = GetMenuHandle(132);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
+#if TARGET_API_MAC_CARBON
+		DisableMenuItem(m, i);
+		CheckMenuItem(m, i, FALSE);
+#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
+#endif
 	}
 	
 	/* Active window */
@@ -3397,9 +4127,20 @@ static void setup_menus(void)
 		/* Analyze sizes */
 		for (i = 1; i <= n; i++)
 		{
+#if TARGET_API_MAC_CARBON
 			/* Analyze size */
-			/* GetMenuItemText(m,i,s); */
-			GetMenuItemText(m, i, s);	//GetItem(m, i, s);
+			GetMenuItemText(m, i, s);
+			s[s[0]+1] = '\0';
+			value = atoi((char*)(s+1));
+
+			/* Enable the "real" sizes */
+			if (RealFont(td->font_id, value)) EnableMenuItem(m, i);
+
+			/* Check the current size */
+			if (td->font_size == value) CheckMenuItem(m, i, TRUE);
+#else
+			/* Analyze size */
+			GetMenuItemText(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
@@ -3408,38 +4149,72 @@ static void setup_menus(void)
 
 			/* Check the current size */
 			if (td->font_size == value) CheckItem(m, i, TRUE);
+#endif
 		}
 	}
 
 
 	/* Windows menu */
-	m = GetMenuHandle(133);	//m = GetMHandle(133);
+	m = GetMenuHandle(133);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Check active windows */
 	for (i = 1; i <= n; i++)
 	{
 		/* Check if needed */
+#if TARGET_API_MAC_CARBON
+		CheckMenuItem(m, i, data[i-1].mapped);
+#else
 		CheckItem(m, i, data[i-1].mapped);
+#endif
 	}
 
 
 	/* Special menu */
-	m = GetMenuHandle(134);	//m = GetMHandle(134);
+	m = GetMenuHandle(134);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
+#if TARGET_API_MAC_CARBON
+		DisableMenuItem(m, i);
+		CheckMenuItem(m, i, FALSE);
+#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
+#endif
 	}
 
+#if TARGET_API_MAC_CARBON
+	/* Item "arg_sound" */
+	EnableMenuItem(m, 1);
+	CheckMenuItem(m, 1, arg_sound);
+
+	/* Item "SoundSetting" */
+	EnableMenuItem(m, 2);
+
+	/* Item "arg_fiddle" */
+	EnableMenuItem(m, 4);
+	CheckMenuItem(m, 4, arg_fiddle);
+
+	/* Item "arg_wizard" */
+	EnableMenuItem(m, 5);
+	CheckMenuItem(m, 5, arg_wizard);
+#else
 	/* Item "arg_sound" */
 	EnableItem(m, 1);
 	CheckItem(m, 1, arg_sound);
@@ -3454,19 +4229,29 @@ static void setup_menus(void)
 	/* Item "arg_wizard" */
 	EnableItem(m, 5);
 	CheckItem(m, 5, arg_wizard);
+#endif
 
 	/* TileWidth menu */
-	m = GetMenuHandle(135);	//m = GetMHandle(135);
+	m = GetMenuHandle(135);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
+#if TARGET_API_MAC_CARBON
+		DisableMenuItem(m, i);
+		CheckMenuItem(m, i, FALSE);
+#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
+#endif
 	}
 
 	/* Active window */
@@ -3476,32 +4261,48 @@ static void setup_menus(void)
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			/* GetMenuItemText(m,i,s); */
-			GetMenuItemText(m, i, s);	//GetItem(m, i, s);
+			GetMenuItemText(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
+#if TARGET_API_MAC_CARBON
+			/* Enable */
+			EnableMenuItem(m, i);
+
+			/* Check the current size */
+			if (td->tile_wid == value) CheckMenuItem(m, i, TRUE);
+#else
 			/* Enable */
 			EnableItem(m, i);
 
 			/* Check the current size */
 			if (td->tile_wid == value) CheckItem(m, i, TRUE);
+#endif
 		}
 	}
 
 
 	/* TileHeight menu */
-	m = GetMenuHandle(136);	//m = GetMHandle(136);
+	m = GetMenuHandle(136);
 
 	/* Get menu size */
+#if TARGET_API_MAC_CARBON
+	n = CountMenuItems(m);
+#else
 	n = CountMItems(m);
+#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
+#if TARGET_API_MAC_CARBON
+		DisableMenuItem(m, i);
+		CheckMenuItem(m, i, FALSE);
+#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
+#endif
 	}
 
 	/* Active window */
@@ -3511,16 +4312,23 @@ static void setup_menus(void)
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			/* GetMenuItemText(m,i,s); */
-			GetMenuItemText(m, i, s);	//GetItem(m, i, s);
+			GetMenuItemText(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
+#if TARGET_API_MAC_CARBON
+			/* Enable */
+			EnableMenuItem(m, i);
+
+			/* Check the current size */
+			if (td->tile_hgt == value) CheckMenuItem(m, i, TRUE);
+#else
 			/* Enable */
 			EnableItem(m, i);
 
 			/* Check the current size */
 			if (td->tile_hgt == value) CheckItem(m, i, TRUE);
+#endif
 		}
 	}
 }
@@ -3570,6 +4378,35 @@ static void menu(long mc)
 		case 128:
 		{
 			/* About Angband... */
+#if TARGET_API_MAC_CARBON
+			if (selection == 1)
+			{
+				DialogPtr dialog;
+				short item_hit;
+
+				/* Get the about dialogue */
+				dialog=GetNewDialog(128, 0, (WindowPtr)-1);
+
+				/* Move it to the middle of the screen */
+				RepositionWindow(
+					GetDialogWindow(dialog),
+					NULL,
+					kWindowCenterOnMainScreen);
+
+				/* Show the dialog */
+				TransitionWindow(GetDialogWindow(dialog),
+					kWindowZoomTransitionEffect,
+					kWindowShowTransitionAction,
+					NULL);
+
+				/* Wait for user to click on it */
+				ModalDialog(0, &item_hit);
+
+				/* Free the dialogue */
+				DisposeDialog(dialog);
+				break;
+			}
+#else
 			if (selection == 1)
 			{
 				DialogPtr dialog;
@@ -3583,15 +4420,16 @@ static void menu(long mc)
 				MoveWindow(dialog, r.left, r.top, 1);
 				ShowWindow(dialog);
 				ModalDialog(0, &item_hit);
-				DisposeDialog(dialog);		//DisposDialog(dialog);
+				DisposeDialog(dialog);
 				break;
 			}
 
 			/* Desk accessory */
 			/* GetMenuItemText(GetMHandle(128),selection,s); */
-			GetMenuItemText(GetMenuHandle(128), selection, s);	//GetItem(GetMHandle(128), selection, s);
+			GetMenuItemText(GetMenuHandle(128), selection, s);
 			OpenDeskAcc(s);
 			break;
+#endif
 		}
 
 		/* File Menu */
@@ -3766,8 +4604,7 @@ static void menu(long mc)
 			}
 
 			/* Get a new font name */
-			/* GetMenuItemText(GetMHandle(131), selection, s); */
-			GetMenuItemText(GetMenuHandle(131), selection, s);		//GetItem(GetMHandle(131), selection, s);
+			GetMenuItemText(GetMenuHandle(131), selection, s);
 			GetFNum(s, &fid);
 
 			/* Save the new font id */
@@ -3829,8 +4666,7 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			/* GetMenuItemText(GetMHandle(132), selection, s); */
-			GetMenuItemText(GetMenuHandle(132), selection, s);	//GetItem(GetMHandle(132), selection, s);
+			GetMenuItemText(GetMenuHandle(132), selection, s);
 			s[s[0]+1]=0;
 			td->font_size = atoi((char*)(s+1));
 
@@ -3932,8 +4768,7 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			/* GetMenuItemText(GetMHandle(135), selection, s); */
-			GetMenuItemText(GetMenuHandle(135), selection, s);	//GetItem(GetMHandle(135), selection, s);
+			GetMenuItemText(GetMenuHandle(135), selection, s);
 			s[s[0]+1]=0;
 			td->tile_wid = atoi((char*)(s+1));
 
@@ -3961,8 +4796,7 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			/* GetMenuItemText(GetMHandle(136), selection, s); */
-			GetMenuItemText(GetMenuHandle(136), selection, s);	//GetItem(GetMHandle(136), selection, s);
+			GetMenuItemText(GetMenuHandle(136), selection, s);
 			s[s[0]+1]=0;
 			td->tile_hgt = atoi((char*)(s+1));
 
@@ -3985,8 +4819,6 @@ static void menu(long mc)
 	HiliteMenu(0);
 }
 
-
-#ifdef USE_SFL_CODE
 
 
 /*
@@ -4013,7 +4845,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
  * Apple Event Handler -- Open Application
  */
 static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
-			      const AppleEvent *reply, long handlerRefCon)
+			      AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -4025,15 +4857,42 @@ static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Quit Application
  */
 static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
-			     const AppleEvent *reply, long handlerRefCon)
+			     AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
+#if TARGET_API_MAC_CARBON
 
+	/* Save the game (if necessary) */
+	if (game_in_progress && character_generated)
+	{
+			if (!can_save){
+#ifdef JP
+				plog("今はセーブすることは出来ません。");
+#else
+				plog("You may not do that right now.");
+#endif
+				return;
+			}
+			/* Hack -- Forget messages */
+			msg_flag = FALSE;
+
+			/* Save the game */
+#if 0
+			do_cmd_save_game(FALSE);
+#endif
+			Term_key_push(SPECIAL_KEY_QUIT);
+			return;
+		}
+
+		/* Quit */
+		quit(NULL);
+#else
 	/* Quit later */
 	quit_when_ready = TRUE;
 
 	/* Check arguments */
 	return (CheckRequiredAEParams(theAppleEvent));
+#endif
 }
 
 
@@ -4041,7 +4900,7 @@ static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Print Documents
  */
 static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
-			      const AppleEvent *reply, long handlerRefCon)
+			      AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(theAppleEvent, reply, handlerRefCon)
 
@@ -4063,7 +4922,7 @@ static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
  * snippet from Think Reference 2.0.  (The prior sentence could read
  * "shamelessly swiped & hacked")
  */
-static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
+static pascal OSErr AEH_Open(const AppleEvent *theAppleEvent,
 			     AppleEvent* reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
@@ -4120,7 +4979,6 @@ static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
 }
 
 
-#endif
 
 
 
@@ -4217,15 +5075,18 @@ static bool CheckEvents(bool wait)
 	/* Timestamp last check */
 	lastTicks = curTicks;
 
+#if TARGET_API_MAC_CARBON
+	WaitNextEvent( everyEvent, &event, 1L, nil );
+#else
 	/* Let the "system" run */
 	SystemTask();
 
 	/* Get an event (or null) */
 	GetNextEvent(everyEvent, &event);
+#endif
 
 	/* Hack -- Nothing is ready yet */
 	if (event.what == nullEvent) return (FALSE);
-
 
 	/* Analyze the event */
 	switch (event.what)
@@ -4376,20 +5237,27 @@ static bool CheckEvents(bool wait)
 					HiliteMenu(0);
 					break;
 				}
-
+#if !TARGET_API_MAC_CARBON
 				case inSysWindow:
 				{
 					SystemClick(&event, w);
 					break;
 				}
+#endif
 
 				case inDrag:
 				{
 					Point p;
 
 					WindowPtr old_win;
-
-					r = qd.screenBits.bounds;
+					BitMap screen;
+					Rect portRect;
+#if TARGET_API_MAC_CARBON						
+					GetQDGlobalsScreenBits( &screen );
+#else
+					screen = qd.screenBits;
+#endif	
+					r = screen.bounds;
 					r.top += 20; /* GetMBarHeight() XXX XXX XXX */
 					InsetRect(&r, 4, 4);
 					DragWindow(w, event.where, &r);
@@ -4404,9 +5272,17 @@ static bool CheckEvents(bool wait)
 					activate(td->w);
 
 					/* Analyze */
-					p.h = td->w->portRect.left;
-					p.v = td->w->portRect.top;
+#if TARGET_API_MAC_CARBON
+					GetWindowBounds( (WindowRef)td->w, kWindowContentRgn, &portRect );
+#else
+					portRect = td->w->portRect;
+					local_to_global( &portRect );
+#endif
+					p.h = portRect.left;
+					p.v = portRect.top;
+#if !TARGET_API_MAC_CARBON
 					LocalToGlobal(&p);
+#endif
 					td->r.left = p.h;
 					td->r.top = p.v;
 
@@ -4445,15 +5321,21 @@ static bool CheckEvents(bool wait)
 					s16b x, y;
 
 					term *old = Term;
-
+					BitMap		screen;
+	
+#if TARGET_API_MAC_CARBON
+					GetQDGlobalsScreenBits( &screen );
+#else
+					screen = qd.screenBits;
+#endif
 					/* Oops */
 					if (!td) break;
 
 					/* Fake rectangle */
 					r.left = 20 * td->tile_wid + td->size_ow1;
-					r.right = qd.screenBits.bounds.right;
+					r.right = screen.bounds.right;
 					r.top = 1 * td->tile_hgt + td->size_oh1;
-					r.bottom = qd.screenBits.bounds.bottom;
+					r.bottom = screen.bounds.bottom;
 
 					/* Grow the rectangle */
 					newsize = GrowWindow(w, event.where, &r);
@@ -4501,6 +5383,8 @@ static bool CheckEvents(bool wait)
 		/* Disk Event -- From "Maarten Hazewinkel" */
 		case diskEvt:
 		{
+
+#if !TARGET_API_MAC_CARBON
 			/* check for error when mounting the disk */
 			if (HiWord(event.message) != noErr)
 			{
@@ -4511,7 +5395,7 @@ static bool CheckEvents(bool wait)
 				DIBadMount(p, event.message);
 				DIUnload();
 			}
-
+#endif
 			break;
 		}
 
@@ -4525,8 +5409,17 @@ static bool CheckEvents(bool wait)
 				/* Resuming: activate the front window */
 				if (event.message & resumeFlag)
 				{
+#if TARGET_API_MAC_CARBON
+					Cursor	arrow;
+						
+					SetPortWindowPort( FrontWindow() );
+					
+					GetQDGlobalsArrow( &arrow );
+					SetCursor(&arrow);
+#else
 					SetPort(FrontWindow());
 					SetCursor(&qd.arrow);
+#endif
 				}
 
 				/* Suspend: deactivate the front window */
@@ -4541,19 +5434,21 @@ static bool CheckEvents(bool wait)
 			break;
 		}
 
-#ifdef USE_SFL_CODE
 
 		/* From "Steve Linberg" and "Maarten Hazewinkel" */
 		case kHighLevelEvent:
 		{
+#if TARGET_API_MAC_CARBON
+			AEProcessAppleEvent(&event);
+#else
 			/* Process apple events */
 			if (AEProcessAppleEvent(&event) != noErr)
 			{
-				#ifdef JP
+#ifdef JP
 				plog("Apple Event Handlerのエラーです.");
-				#else
+#else
 				plog("Error in Apple Event Handler!");
-				#endif
+#endif
 			}
 
 			/* Handle "quit_when_ready" */
@@ -4571,11 +5466,10 @@ static bool CheckEvents(bool wait)
 
 			/* Handle "open_when_ready" */
 			handle_open_when_ready();
+#endif
 
 			break;
 		}
-
-#endif
 
 	}
 
@@ -4660,11 +5554,11 @@ static vptr hook_rpanic(huge size)
 		lifeboat = NULL;
 
 		/* Mega-Hack -- Warning */
-		#ifdef JP
+#ifdef JP
 		mac_warning("メモリーが足りません!\r今すぐ終了して下さい!");
-		#else
+#else
 		mac_warning("Running out of Memory!\rAbort this process now!");
-		#endif
+#endif
 
 		/* Mega-Hack -- Never leave this function */
 		while (TRUE) CheckEvents(TRUE);
@@ -4711,18 +5605,18 @@ static void hook_core(cptr str)
 	if (str) mac_warning(str);
 
 	/* Warn, then save player */
-	#ifdef JP
+#ifdef JP
 	mac_warning("致命的なエラーです.\r強制的にセーブして終了します.");
-	#else
+#else
 	mac_warning("Fatal error.\rI will now attempt to save and quit.");
-	#endif
+#endif
 
 	/* Attempt to save */
-	#ifdef JP
+#ifdef JP
 	if (!save_player()) mac_warning("警告 -- セーブに失敗しました!");
-	#else
+#else
 	if (!save_player()) mac_warning("Warning -- save failed!");
-	#endif
+#endif
 	
 	/* Quit */
 	quit(NULL);
@@ -4763,7 +5657,15 @@ static void init_stuff(void)
 
 	char path[1024];
 
+	BitMap screen;
+	Rect screenRect;
 
+#if TARGET_API_MAC_CARBON
+	OSErr err = noErr;
+	NavDialogOptions dialogOptions;
+	FSSpec theFolderSpec;
+	NavReplyRecord theReply;
+#endif
 	/* Fake rectangle */
 	r.left = 0;
 	r.top = 0;
@@ -4771,7 +5673,12 @@ static void init_stuff(void)
 	r.bottom = 188;
 
 	/* Center it */
-	center_rect(&r, &qd.screenBits.bounds);
+#if TARGET_API_MAC_CARBON
+	screenRect = GetQDGlobalsScreenBits(&screen)->bounds;
+#else
+	screenRect = qd.screenBits.bounds;
+#endif
+	center_rect(&r, &screenRect);
 
 	/* Extract corner */
 	topleft.v = r.top;
@@ -4789,32 +5696,104 @@ static void init_stuff(void)
 		init_file_paths(path);
 
 		/* Build the filename */
-		#ifdef JP
-			path_build(path, 1024, ANGBAND_DIR_FILE, "news_j.txt");
-		#else
-			path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
-		#endif
+#ifdef JP
+		path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news_j.txt");
+#else
+		path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
+#endif
 
 		/* Attempt to open and close that file */
 		if (0 == fd_close(fd_open(path, O_RDONLY))) break;
 
 		/* Warning */
-		#ifdef JP
-			plog_fmt("'%s' ファイルをオープン出来ません.", path);
-		#else
-			plog_fmt("Unable to open the '%s' file.", path);
-		#endif
+#ifdef JP
+		plog_fmt("'%s' ファイルをオープン出来ません.", path);
+#else
+		plog_fmt("Unable to open the '%s' file.", path);
+#endif
 
 		/* Warning */
-		#ifdef JP
-			plog("TObandの'lib'フォルダが存在しないか正しく無い可能性があります.");
-		#else
-			plog("The TOband 'lib' folder is probably missing or misplaced.");
-		#endif
+#ifdef JP
+		plog("TObandの'lib'フォルダが存在しないか正しく無い可能性があります.");
+#else
+		plog("The TOband 'lib' folder is probably missing or misplaced.");
+#endif
 
 		/* Warning */
+#ifdef JP
 		plog("Please 'open' any file in any sub-folder of the 'lib' folder.");
+#else
+		plog("Please 'open' any file in any sub-folder of the 'lib' folder.");
+#endif
+		
+#if TARGET_API_MAC_CARBON
+		/* Ask the user to choose the lib folder */
+		err = NavGetDefaultDialogOptions(&dialogOptions);
 
+		/* Paranoia */
+		if (err != noErr) quit(NULL);
+
+		/* Set default location option */
+		dialogOptions.dialogOptionFlags |= kNavSelectDefaultLocation;
+
+		/* Clear preview option */
+		dialogOptions.dialogOptionFlags &= ~(kNavAllowPreviews);
+
+		/* Forbit selection of multiple files */
+		dialogOptions.dialogOptionFlags &= ~(kNavAllowMultipleFiles);
+
+		/* Display location */
+		dialogOptions.location = topleft;
+
+		/* Load the message for the missing folder from the resource fork */
+		GetIndString(dialogOptions.message, 128, 1);
+
+		/* Wait for the user to choose a folder */
+		err = NavChooseFolder(
+			nil,
+			&theReply,
+			&dialogOptions,
+			nil,
+			nil,
+			nil);
+
+		/* Assume the player doesn't want to go on */
+		if ((err != noErr) || !theReply.validRecord) quit(NULL);
+
+		/* Retrieve FSSpec from the reply */
+		{
+			AEKeyword theKeyword;
+			DescType actualType;
+			Size actualSize;
+
+			/* Get a pointer to selected folder */
+			err = AEGetNthPtr(
+				&(theReply.selection),
+				1,
+				typeFSS,
+				&theKeyword,
+				&actualType,
+				&theFolderSpec,
+				sizeof(FSSpec),
+				&actualSize);
+
+			/* Paranoia */
+			if (err != noErr) quit(NULL);
+		}
+
+		/* Free navitagor reply */
+		err = NavDisposeReply(&theReply);
+
+		/* Paranoia */
+		if (err != noErr) quit(NULL);
+
+		/* Extract textual file name for given file */
+		refnum_to_name(
+			path,
+			theFolderSpec.parID,
+			theFolderSpec.vRefNum,
+			(char *)theFolderSpec.name);
+#else
 		/* Allow "text" files */
 		types[0] = 'TEXT';
 
@@ -4833,6 +5812,7 @@ static void init_stuff(void)
 		/* Extract textual file name for given file */
 		GetWDInfo(reply.vRefNum, &vrefnum, &drefnum, &junk);
 		refnum_to_name(path, drefnum, vrefnum, (char*)reply.fName);
+#endif
 
 		/* Hack -- Remove the "filename" */
 		i = strlen(path) - 1;
@@ -4858,15 +5838,18 @@ void main(void)
 	EventRecord tempEvent;
 	int numberOfMasters = 10;
 
+#if !TARGET_API_MAC_CARBON
 	/* Increase stack space by 64K */
 	SetApplLimit(GetApplLimit() - 131072L);//65536L);
 
 	/* Stretch out the heap to full size */
 	MaxApplZone();
+#endif
 
 	/* Get more Masters */
 	while (numberOfMasters--) MoreMasters();
 
+#if !TARGET_API_MAC_CARBON
 	/* Set up the Macintosh */
 	InitGraf(&qd.thePort);
 	InitFonts();
@@ -4874,6 +5857,7 @@ void main(void)
 	InitMenus();
 	/* TEInit(); */
 	InitDialogs(NULL);
+#endif
 	InitCursor();
 
 #ifdef JP
@@ -4915,11 +5899,11 @@ void main(void)
 		/* Check the version */
 		if ((err != noErr) || (versionNumber < 0x0700))
 		{
-			#ifdef JP
+#ifdef JP
 			quit("このプログラムは漢字Talk7.x.x以降で動作します.");
-			#else
+#else
 			quit("You must have System 7 to use this program.");
-			#endif
+#endif
 		}
 	}
 
@@ -4931,31 +5915,31 @@ void main(void)
 		/* Check the environs */
 		if (SysEnvirons(1, &env) != noErr)
 		{
-			#ifdef JP
+#ifdef JP
 			quit("SysEnvirons コールは失敗しました！");
-			#else
+#else
 			quit("The SysEnvirons call failed!");
-			#endif
+#endif
 		}
 
 		/* Check for System Seven Stuff */
 		if (env.systemVersion < 0x0700)
 		{
-			#ifdef JP
+#ifdef JP
 			quit("このプログラムは漢字Talk7.x.x以降で動作します.");
-			#else
+#else
 			quit("You must have System 7 to use this program.");
-			#endif
+#endif
 		}
 
 		/* Check for Color Quickdraw */
 		if (!env.hasColorQD)
 		{
-			#ifdef JP
+#ifdef JP
 			quit("このプログラムはColor Quickdrawが無いと動作しません.");
-			#else
+#else
 			quit("You must have Color Quickdraw to use this program.");
-			#endif
+#endif
 		}
 	}
 
@@ -4963,46 +5947,42 @@ void main(void)
 
 #endif /* ANGBAND_LITE_MAC */
 
-
-#ifdef USE_SFL_CODE
+	/* 
+	 * Remember Mac OS version, in case we have to cope with version-specific
+	 * problems
+	 */
+	(void)Gestalt(gestaltSystemVersion, &mac_os_version);
 
 	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Start_UPP = NewAEEventHandlerProc(AEH_Start);
-
+	AEH_Start_UPP = NewAEEventHandlerUPP(AEH_Start);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenApplication, AEH_Start_UPP,
 			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Quit_UPP = NewAEEventHandlerProc(AEH_Quit);
-
+	AEH_Quit_UPP = NewAEEventHandlerUPP(AEH_Quit);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEQuitApplication, AEH_Quit_UPP,
 			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Print_UPP = NewAEEventHandlerProc(AEH_Print);
-
+	AEH_Print_UPP = NewAEEventHandlerUPP(AEH_Print);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEPrintDocuments, AEH_Print_UPP,
 			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Open_UPP = NewAEEventHandlerProc(AEH_Open);
-
+	AEH_Open_UPP = NewAEEventHandlerUPP(AEH_Open);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments, AEH_Open_UPP,
 			      0L, FALSE);
-
-#endif
-
 
 	/* Find the current application */
 	SetupAppDir();
 
 
 	/* Mark ourself as the file creator */
-	_fcreator = 'TOB ';
+	_fcreator = ANGBAND_CREATOR;
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
@@ -5011,7 +5991,11 @@ void main(void)
 #if defined(__MWERKS__)
 
 	/* Obtian a "Universal Procedure Pointer" */
+#if TARGET_API_MAC_CARBON
+	ynfilterUPP = NewModalFilterUPP(ynfilter);
+#else
 	ynfilterUPP = NewModalFilterProc(ynfilter);
+#endif
 
 #endif
 
@@ -5026,8 +6010,8 @@ void main(void)
 	quit_aux = hook_quit;
 	core_aux = hook_core;
 
-BackColor(blackColor);
-		ForeColor(whiteColor);
+	BackColor(blackColor);
+	ForeColor(whiteColor);
 
 	/* Show the "watch" cursor */
 	SetCursor(*(GetCursor(watchCursor)));
@@ -5046,7 +6030,15 @@ BackColor(blackColor);
 	while (CheckEvents(TRUE)) /* loop */;
 
 	/* Reset the cursor */
-	SetCursor(&qd.arrow);
+#if TARGET_API_MAC_CARBON
+	{
+		Cursor	arrow;
+		GetQDGlobalsArrow( &arrow );
+		SetCursor(&arrow);
+	}
+#else
+	SetCursor( &qd.arrow );
+#endif
 
 
 	/* Mega-Hack -- Allocate a "lifeboat" */
@@ -5074,11 +6066,11 @@ BackColor(blackColor);
 	handle_open_when_ready();
 
 	/* Prompt the user */
-	#ifdef JP
+#ifdef JP
 	prt("'ファイル'メニューより'新規'または'開く...'を選択してください。", 23, 10);
-	#else
+#else
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
-	#endif
+#endif
 
 	/* Flush the prompt */
 	Term_fresh();
