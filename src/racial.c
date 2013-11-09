@@ -1045,6 +1045,16 @@ static bool cmd_racial_power_aux(s32b command)
 				detect_monsters_mind(DETECT_RAD_DEFAULT);
 				break;
 			case -11:
+				if (!buki_motteruka(INVEN_RARM))
+				{
+					if (flush_failure) flush();
+#ifdef JP
+					msg_print("武器を持たないと必殺技は使えない！");
+#else
+					msg_print("You need to wield a weapon!");
+#endif
+					return;
+				}
 				if (!do_cmd_throw_aux(1, PY_THROW_BOOMERANG, 0)) return FALSE;
 				break;
 			case -12:
@@ -1739,7 +1749,7 @@ static bool cmd_racial_power_aux(s32b command)
 				cptr Type_desc = "the elements";
 #endif
 
-				switch (p_ptr->pelem)
+				switch (get_cur_pelem())
 				{
 				case ELEM_FIRE:
 					{
@@ -1803,7 +1813,7 @@ static bool cmd_racial_power_aux(s32b command)
 #endif
 
 				fire_ball(Type, dir,
-				    chp / ((p_ptr->pelem == ELEM_AQUA) ? 3 : 10) + randint1(chp/10),
+				    chp / ((get_cur_pelem() == ELEM_AQUA) ? 3 : 10) + randint1(chp/10),
 				    -(plev / 15) - 1, FALSE);
 			}
 			break;

@@ -4201,6 +4201,16 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 				v = player_base;
 			}
 
+			/* Sex */
+			else if (streq(b+1, "SEX"))
+			{
+#ifdef JP
+					v = sp_ptr->E_title;
+#else
+					v = sp_ptr->title;
+#endif
+			}
+
 			/* Town */
 			else if (streq(b+1, "TOWN"))
 			{

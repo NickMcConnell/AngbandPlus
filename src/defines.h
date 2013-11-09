@@ -40,8 +40,8 @@
 /* Savefile version for TOband 0.0.0 and later */
 #define T_VER_MAJOR 0
 #define T_VER_MINOR 0
-#define T_VER_PATCH 4
-#define T_VER_EXTRA 2
+#define T_VER_PATCH 99
+#define T_VER_EXTRA 0
 
 /* Added for ZAngband (now used for TOband) */
 #define FAKE_VERSION   0

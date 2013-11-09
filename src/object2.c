@@ -2763,12 +2763,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very good */
 			if (power > 1)
 			{
-				if (power > 2)
-				{
-					create_artifact(o_ptr, FALSE);
-					break;
-				}
-
 				o_ptr->name2 = get_random_ego(INVEN_AMMO, TRUE);
 
 				switch (o_ptr->name2)

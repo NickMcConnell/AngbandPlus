@@ -3303,27 +3303,7 @@ static bool enter_debug_mode(void)
 			return FALSE;
 		}
 
-		/* Mention effects */
-#ifdef JP
-msg_print("デバッグ・コマンドはデバッグと実験のためのコマンドです。 ");
-msg_print("デバッグ・コマンドを使うとスコアは記録されません。");
-#else
-		msg_print("The debug commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use debug commands.");
-#endif
-
 		msg_print(NULL);
-
-		/* Verify request */
-#ifdef JP
-if (!get_check("本当にデバッグ・コマンドを使いますか? "))
-#else
-		if (!get_check("Are you sure you want to use debug commands? "))
-#endif
-
-		{
-			return (FALSE);
-		}
 
 #ifdef JP
 		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "デバッグモードに突入してスコアを残せなくなった。");

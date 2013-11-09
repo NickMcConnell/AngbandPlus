@@ -1005,6 +1005,16 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				v = player_base;
 			}
 
+			/* Sex */
+			else if (streq(b+1, "SEX"))
+			{
+#ifdef JP
+					v = sp_ptr->E_title;
+#else
+					v = sp_ptr->title;
+#endif
+			}
+
 			/* Level */
 			else if (streq(b+1, "LEVEL"))
 			{

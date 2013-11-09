@@ -4952,7 +4952,7 @@ static int minus_ac(void)
 	/* Nothing to damage */
 	if (!o_ptr->k_idx) return (FALSE);
 
-	if (o_ptr->tval < TV_BOOTS) return (FALSE);
+	if ((o_ptr->tval < TV_BOOTS) || (o_ptr->tval == TV_RING)) return (FALSE);
 
 	/* No damage left to be done */
 	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
