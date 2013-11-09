@@ -397,7 +397,7 @@ N:36:5.56mm ミスリル弾
 E:& 5.56mm Mithril Bullet~
 G:{:B
 I:13:2:0
-W:60:0:1:40
+W:60:0:1:80
 A:60/5:80/5
 P:0:4d4:0:0:0
 F:SHOW_MODS | SLAY_DEMON | SLAY_UNDEAD
@@ -406,7 +406,7 @@ N:37:5.56mm アダマンタイト弾
 E:& 5.56mm Adamantite Bullet~
 G:{:v
 I:13:3:0
-W:75:0:1:80
+W:75:0:1:160
 A:75/5
 P:0:6d4:0:0:0
 F:SHOW_MODS | SLAY_DEMON | SLAY_UNDEAD
@@ -444,7 +444,7 @@ N:41:7.62mm ミスリル製ライフル弾
 E:& 7.62mm Mithril Rifle Round~
 G:{:B
 I:14:2:0
-W:60:0:1:40
+W:60:0:1:80
 A:60/5:80/5
 P:0:4d5:0:0:0
 F:SHOW_MODS | SLAY_DEMON | SLAY_UNDEAD
@@ -453,7 +453,7 @@ N:42:7.62mm アダマンタイト製ライフル弾
 E:& 7.62mm Adamantite Rifle Round~
 G:{:v
 I:14:3:0
-W:75:0:1:80
+W:75:0:1:160
 A:75/5
 P:0:6d5:0:0:0
 F:SHOW_MODS | SLAY_DEMON | SLAY_UNDEAD
@@ -482,7 +482,7 @@ N:45:12.7mm ミスリル製散弾
 E:& 12.7mm Mithril Shot Shell~
 G:{:B
 I:15:2:0
-W:60:0:4:480
+W:60:0:4:600
 A:60/5:80/5
 P:0:4d2:0:0:0
 F:SHOW_MODS | SLAY_DEMON | SLAY_UNDEAD
@@ -2245,7 +2245,7 @@ I:40:19:0
 W:30:0:3:25000
 F:INSTA_ART | FIXED_FLAVOR
 
-N:234:十字架:"赤めのうの
+N:234:十字架:赤めのうの
 E:& Cross~:Carnelian
 G:":r
 I:40:20:0
@@ -5520,4 +5520,24 @@ A:10/1:15/1
 P:0:3d5:0:0:0
 F:SHOW_MODS
 D:刃で作られた鞭
+
+N:580:聖水
+E:& Holy water~
+G:!:w
+I:75:0:50
+W:40:0:4:500
+A:40/1:50/1:60/1:80/1
+P:0:10d10:0:0:0
+F:FULL_NAME
+D:それは飲むと体を浄化する。
+
+N:581:不浄な水
+E:& Cursed water~
+G:!:w
+I:75:1:50
+W:40:0:4:5
+A:40/1:50/1:60/1:80/1
+P:0:10d10:0:0:0
+F:FULL_NAME
+D:それは飲むと体を穢す。
 

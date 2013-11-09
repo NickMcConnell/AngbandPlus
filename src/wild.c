@@ -860,6 +860,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 
 	if (wilderness[y][x].entrance && !wilderness[y][x].town &&
 		!(d_info[wilderness[y][x].entrance].flags1 & DF1_CLOSED) &&
+		(p_ptr->max_max_dlv >= d_info[wilderness[y][x].entrance].min_plev) &&
 		(p_ptr->total_winner || !(d_info[wilderness[y][x].entrance].flags1 & DF1_WINNER)))
 	{
 		int dy, dx;
@@ -1170,6 +1171,7 @@ void wilderness_gen_small()
 			}
 			else if (wilderness[j][i].road) cave[j][i].feat = FEAT_FLOOR;
 			else if (wilderness[j][i].entrance && !(d_info[wilderness[j][i].entrance].flags1 & DF1_CLOSED) &&
+				(p_ptr->max_max_dlv >= d_info[wilderness[j][i].entrance].min_plev) &&
 				(p_ptr->total_winner || !(d_info[wilderness[j][i].entrance].flags1 & DF1_WINNER)))
 			{
 				cave[j][i].feat = (d_info[wilderness[j][i].entrance].flags1 & DF1_UPWARD) ? FEAT_ENTRANCE_UPWARD : FEAT_ENTRANCE;
@@ -1360,6 +1362,11 @@ errr parse_line_wilderness(char *buf, int xmin, int xmax, int *y, int *x)
 		if (!wilderness[d_info[i].dy][d_info[i].dx].town)
 			wilderness[d_info[i].dy][d_info[i].dx].level = d_info[i].mindepth;
 	}
+
+	if (misc_event_flags & EVENT_CLOSE_AIR_GARDEN)
+		wilderness[d_info[DUNGEON_AIR_GARDEN].dy][d_info[DUNGEON_AIR_GARDEN].dx].entrance = DUNGEON_RUINS;
+	else
+		wilderness[d_info[DUNGEON_AIR_GARDEN].dy][d_info[DUNGEON_AIR_GARDEN].dx].entrance = DUNGEON_AIR_GARDEN;
 
 	/* Success */
 	return (0);

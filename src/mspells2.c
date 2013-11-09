@@ -26,8 +26,10 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	u32b flags2 = (r_ptr->flags2 | ms_info[m_ptr->s_idx].flags2);
+
 	/* Determine the radius of the blast */
-	if ((rad < 1) && breath) rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
+	if ((rad < 1) && breath) rad = (flags2 & RF2_POWERFUL) ? 3 : 2;
 
 	/* Handle breath attacks */
 	if (breath) rad = 0 - rad;
@@ -240,6 +242,8 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 	bool resists_tele = FALSE;
 
+	u32b flags2 = (r_ptr->flags2 | ms_info[m_ptr->s_idx].flags2);
+
 	/* Prepare flags for summoning */
 	if (!pet) u_mode |= PM_ALLOW_UNIQUE;
 
@@ -429,7 +433,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 				int dist;
 
 				/* Expected breath radius */
-				int breath_rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
+				int breath_rad = (flags2 & RF2_POWERFUL) ? 3 : 2;
 
 				/* Expected orb spell radius */
 				int orb_rad = (rlev > 29) ? 3 : 2;
@@ -544,13 +548,13 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			if (vs_vampire && !(r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
 				can_use_lite_area = TRUE;
 
-			if (!(r_ptr->flags2 & RF2_STUPID))
+			if (!(flags2 & RF2_STUPID))
 			{
 				if (vs_vampire && !can_use_lite_area) f6 &= ~(RF6_DARKNESS);
 			}
 		}
 
-		if (mon_anti_magic && !(r_ptr->flags2 & RF2_STUPID))
+		if (mon_anti_magic && !(flags2 & RF2_STUPID))
 		{
 			f4 &= (RF4_NOMAGIC_MASK);
 			f5 &= (RF5_NOMAGIC_MASK);
@@ -577,7 +581,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		/* Remove some spells if necessary */
 
 		/* Check for a clean bolt shot */
-		if (!(r_ptr->flags2 & RF2_STUPID) &&
+		if (!(flags2 & RF2_STUPID) &&
 		    !clean_shot(m_ptr->fy, m_ptr->fx, y, x, pet, FALSE))
 		{
 			f4 &= ~(RF4_BOLT_MASK);
@@ -587,7 +591,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		}
 
 		/* Check for a possible summon */
-		if (!(r_ptr->flags2 & RF2_STUPID) &&
+		if (!(flags2 & RF2_STUPID) &&
 		    !(summon_possible(m_idx, y, x)))
 		{
 			/* Remove summoning spells */
@@ -598,7 +602,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		}
 
 		/* Hack -- allow "desperate" spells */
-		if ((r_ptr->flags2 & RF2_SMART) &&
+		if ((flags2 & RF2_SMART) &&
 			(m_ptr->hp < m_ptr->maxhp / 10) &&
 			(randint0(100) < 50))
 		{
@@ -1959,7 +1963,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (randint1(rlev * 3) + 15) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (randint1(rlev * 3) + 15) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_breath_monst(m_idx, y, x, GF_ACID, dam, 2, FALSE, TRUE);
 
 				break;
@@ -1999,7 +2003,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (randint1(rlev * 3 / 2) + 8) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (randint1(rlev * 3 / 2) + 8) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_breath_monst(m_idx, y, x, GF_ELEC, dam, 2, FALSE, TRUE);
 
 				break;
@@ -2039,7 +2043,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (randint1(rlev * 7 / 2) + 10) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (randint1(rlev * 7 / 2) + 10) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_breath_monst(m_idx, y, x, GF_FIRE, dam, 2, FALSE, TRUE);
 
 				break;
@@ -2079,7 +2083,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (randint1(rlev * 3 / 2) + 10) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (randint1(rlev * 3 / 2) + 10) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_breath_monst(m_idx, y, x, GF_COLD, dam, 2, FALSE, TRUE);
 
 				break;
@@ -2119,7 +2123,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = damroll(12, 2) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = damroll(12, 2) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_breath_monst(m_idx, y, x, GF_POIS, dam, 2, FALSE, FALSE);
 
 				break;
@@ -2159,7 +2163,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = 50 + damroll(10, 10) + (rlev * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1));
+				dam = 50 + damroll(10, 10) + (rlev * ((flags2 & RF2_POWERFUL) ? 2 : 1));
 				monst_breath_monst(m_idx, y, x, GF_NETHER, dam, 2, FALSE, FALSE);
 
 				break;
@@ -2205,7 +2209,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = ((r_ptr->flags2 & RF2_POWERFUL) ? randint1(rlev * 3) : randint1(rlev * 2)) + 50;
+				dam = ((flags2 & RF2_POWERFUL) ? randint1(rlev * 3) : randint1(rlev * 2)) + 50;
 				monst_breath_monst(m_idx, y, x, GF_WATER, dam, 4, FALSE, FALSE);
 
 				break;
@@ -2524,7 +2528,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (damroll(7, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (damroll(7, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_bolt_monst(m_idx, y, x, GF_ACID, dam);
 
 				break;
@@ -2551,7 +2555,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (damroll(4, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (damroll(4, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_bolt_monst(m_idx, y, x, GF_ELEC, dam);
 
 				break;
@@ -2578,7 +2582,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (damroll(9, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (damroll(9, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_bolt_monst(m_idx, y, x, GF_FIRE, dam);
 
 				break;
@@ -2605,7 +2609,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (damroll(6, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+				dam = (damroll(6, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 				monst_bolt_monst(m_idx, y, x, GF_COLD, dam);
 
 				break;
@@ -2672,7 +2676,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = 30 + damroll(5, 5) + (rlev * 4) / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3);
+				dam = 30 + damroll(5, 5) + (rlev * 4) / ((flags2 & RF2_POWERFUL) ? 2 : 3);
 				monst_bolt_monst(m_idx, y, x, GF_NETHER, dam);
 
 				break;
@@ -2699,7 +2703,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = damroll(10, 10) + (rlev * 3 / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3));
+				dam = damroll(10, 10) + (rlev * 3 / ((flags2 & RF2_POWERFUL) ? 2 : 3));
 				monst_bolt_monst(m_idx, y, x, GF_WATER, dam);
 
 				break;
@@ -2753,7 +2757,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = 10 + damroll(8, 7) + (rlev * 3 / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3));
+				dam = 10 + damroll(8, 7) + (rlev * 3 / ((flags2 & RF2_POWERFUL) ? 2 : 3));
 				monst_bolt_monst(m_idx, y, x, GF_PLASMA, dam);
 
 				break;
@@ -2780,7 +2784,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = damroll(6, 6) + (rlev * 3 / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3));
+				dam = damroll(6, 6) + (rlev * 3 / ((flags2 & RF2_POWERFUL) ? 2 : 3));
 				monst_bolt_monst(m_idx, y, x, GF_ICE, dam);
 
 				break;
@@ -3316,7 +3320,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 						if (object_is_cursed(o_ptr)) continue;
 						object_flags(o_ptr, flgs);
 
-						if (have_flag(flgs, TR_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT))
+						if (have_flag(flgs, TR_TELEPORT))
 						{
 #ifdef JP
 							cptr msg = "ついていきますか？";
@@ -3896,7 +3900,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (r_ptr->flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 180) : (randint1(rlev * 3 / 2) + 120);
+				dam = (flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 180) : (randint1(rlev * 3 / 2) + 120);
 				monst_beam_monst(m_idx, y, x, GF_GODLY_SPEAR, dam);
 				break;
 			}
@@ -5111,7 +5115,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_FIRE);
+				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_FIRE);
 
 				break;
 			}
@@ -5150,7 +5154,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_COLD);
+				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_COLD);
 
 				break;
 			}
@@ -5189,7 +5193,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ACID);
+				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ACID);
 
 				break;
 			}
@@ -5228,7 +5232,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ELEC);
+				(void)mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ELEC);
 
 				break;
 			}
@@ -5267,7 +5271,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HOLY_FIRE);
+				(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HOLY_FIRE);
 
 				break;
 			}
@@ -5306,7 +5310,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HELL_FIRE);
+				(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HELL_FIRE);
 
 				break;
 			}
@@ -5589,7 +5593,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				dam = (r_ptr->flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 180) : (randint1(rlev * 3 / 2) + 120);
+				dam = (flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 180) : (randint1(rlev * 3 / 2) + 120);
 				monst_beam_monst(m_idx, y, x, pure_elem_typ, dam);
 				break;
 			}
@@ -5653,6 +5657,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		/* A spell was cast */
 		return TRUE;
 	}
-	else if (r_ptr->flags2 & RF2_STUPID) return TRUE;
+	else if (flags2 & RF2_STUPID) return TRUE;
 	else return FALSE;
 }

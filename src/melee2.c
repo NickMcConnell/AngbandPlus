@@ -113,7 +113,9 @@ static bool get_enemy_dir(int m_idx, int *mm)
 			/* Monster must be 'an enemy' */
 			if (!are_enemies(m_ptr, t_ptr)) continue;
 
-			can_pass_wall = (((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall))) || ((r_ptr->flags2 & RF2_KILL_WALL) && (m_idx != p_ptr->riding)));
+			can_pass_wall = ((((r_ptr->flags2 & RF2_PASS_WALL) || (ms_info[m_ptr->s_idx].flags2 & RF2_PASS_WALL)) &&
+				((m_idx != p_ptr->riding) || (p_ptr->pass_wall))) || 
+				(((r_ptr->flags2 & RF2_KILL_WALL)  || (ms_info[m_ptr->s_idx].flags2 & RF2_KILL_WALL)) && (m_idx != p_ptr->riding)));
 
 			/* Monster must be projectable if we can't pass through walls */
 			if (!can_pass_wall &&
@@ -219,6 +221,9 @@ void mon_take_hit_mon(bool force_damage, int m_idx, int dam, bool *fear, cptr no
 	/* Can the player be aware of this attack? */
 	bool known = (m_ptr->cdis <= MAX_SIGHT);
 
+	u32b flags3 = (r_ptr->flags3 | ms_info[m_ptr->s_idx].flags3);
+	u32b flags7 = (r_ptr->flags7 | ms_info[m_ptr->s_idx].flags7);
+
 	/* Extract monster name */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -229,7 +234,7 @@ void mon_take_hit_mon(bool force_damage, int m_idx, int dam, bool *fear, cptr no
 	/* Wake it up */
 	(void)set_monster_csleep(m_idx, 0);
 
-	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+	if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 	if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
@@ -260,9 +265,8 @@ void mon_take_hit_mon(bool force_damage, int m_idx, int dam, bool *fear, cptr no
 	/* It is dead now... or is it? */
 	if (m_ptr->hp < 0)
 	{
-		if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			(r_ptr->flags7 & RF7_NAZGUL) ||
-			(r_ptr->flags1 & RF1_QUESTOR))
+		if ((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ||
+			(r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)))
 		{
 			m_ptr->hp = 0;
 		}
@@ -356,7 +360,7 @@ void mon_take_hit_mon(bool force_damage, int m_idx, int dam, bool *fear, cptr no
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!MON_MONFEAR(m_ptr) && !(r_ptr->flags3 & RF3_NO_FEAR))
+	if (!MON_MONFEAR(m_ptr) && !(flags3 & RF3_NO_FEAR))
 	{
 		/* Percentage of fully healthy */
 		int percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
@@ -510,6 +514,11 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	u32b flags2;
+
+	flags2 = r_ptr->flags2;
+	if (m_ptr->s_idx) flags2 |= ms_info[m_ptr->s_idx].flags2;
+
 	/* Monster location */
 	y1 = m_ptr->fy;
 	x1 = m_ptr->fx;
@@ -522,7 +531,7 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
 	if (now_cost == 0) now_cost = 999;
 
 	/* Can monster bash or open doors? */
-	if (r_ptr->flags2 & (RF2_BASH_DOOR | RF2_OPEN_DOOR))
+	if (flags2 & (RF2_BASH_DOOR | RF2_OPEN_DOOR))
 	{
 		can_open_door = TRUE;
 	}
@@ -547,7 +556,7 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
 		cost = is_pet(m_ptr) ? c_ptr->cost : c_ptr->dcost;
 
 		/* Monster cannot kill or pass walls */
-		if (!(((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || p_ptr->pass_wall)) || (r_ptr->flags2 & RF2_KILL_WALL)))
+		if (!(((flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || p_ptr->pass_wall)) || (flags2 & RF2_KILL_WALL)))
 		{
 			if (cost == 0) continue;
 			if (!can_open_door && is_closed_door(c_ptr->feat)) continue;
@@ -1170,11 +1179,19 @@ static bool get_moves(int m_idx, int *mm)
 	cave_type    *c_ptr;
 	bool         no_flow = ((m_ptr->mflag2 & MFLAG2_NOFLOW) && ((is_pet(m_ptr) ? cave[m_ptr->fy][m_ptr->fx].cost : cave[m_ptr->fy][m_ptr->fx].dcost) > 2));
 	bool         can_pass_wall;
+	u32b         flags2 = r_ptr->flags2;
+	u32b         flags3 = r_ptr->flags3;
+
+	if (m_ptr->s_idx)
+	{
+		flags2 |= ms_info[m_ptr->s_idx].flags2;
+		flags3 |= ms_info[m_ptr->s_idx].flags3;
+	}
 
 	/* Flow towards the player */
 	(void)get_moves_aux(m_idx, &y2, &x2, no_flow);
 
-	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
+	can_pass_wall = ((flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
 	/* Extract the "pseudo-direction" */
 	y = m_ptr->fy - y2;
@@ -1205,8 +1222,8 @@ static bool get_moves(int m_idx, int *mm)
 	 * Animal packs try to get the player out of corridors
 	 * (...unless they can move through walls -- TY)
 	 */
-		if ((r_ptr->flags3 & RF3_ANIMAL) && !can_pass_wall &&
-			 !(r_ptr->flags2 & RF2_KILL_WALL))
+		if ((flags3 & RF3_ANIMAL) && !can_pass_wall &&
+			 !(flags2 & RF2_KILL_WALL))
 		{
 			int i, room = 0;
 
@@ -1224,7 +1241,7 @@ static bool get_moves(int m_idx, int *mm)
 
 				/* Check grid */
 				if (((cave_floor_grid(c_ptr)) || ((c_ptr->feat & 0x60) == 0x60)) &&
-					 monster_can_cross_terrain(c_ptr->feat, r_ptr))
+					 monster_can_enter_terrain(c_ptr->feat, m_ptr))
 				{
 					/* One more room grid */
 					room++;
@@ -2517,10 +2534,21 @@ static void process_monster(int m_idx)
 
 	int             rf1_rand;
 
+	u32b            flags2 = r_ptr->flags2;
+	u32b            flags7 = r_ptr->flags7;
+	u32b            flags8 = r_ptr->flags8;
+
+	if (m_ptr->s_idx)
+	{
+		flags2 |= ms_info[m_ptr->s_idx].flags2;
+		flags7 |= ms_info[m_ptr->s_idx].flags7;
+		flags8 |= ms_info[m_ptr->s_idx].flags8;
+	}
+
 	t_py = (p_ptr->use_decoy && !is_pet(m_ptr)) ? p_ptr->decoy_y : py;
 	t_px = (p_ptr->use_decoy && !is_pet(m_ptr)) ? p_ptr->decoy_x : px;
 
-	if (r_ptr->flags7 & RF7_LONG_RANGE)
+	if (flags7 & RF7_LONG_RANGE)
 	{
 		do_long_range_move = TRUE;
 		escape_from_amgrid = is_anti_magic_grid(m_idx, m_ptr->fy, m_ptr->fx);
@@ -2886,7 +2914,7 @@ static void process_monster(int m_idx)
 		}
 	}
 
-	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
+	can_pass_wall = ((flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
 	/* Hack -- Assume no movement */
 	mm[0] = mm[1] = mm[2] = mm[3] = 0;
@@ -3059,7 +3087,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Hack -- semi-transparent terrains are no obstacle */
-		else if ((c_ptr->feat == FEAT_MOUNTAIN) && ((r_ptr->flags2 & RF2_KILL_WALL) || (!dun_level && ((r_ptr->flags7 & RF7_CAN_FLY) || (r_ptr->flags8 & RF8_WILD_MOUNTAIN)))))
+		else if ((c_ptr->feat == FEAT_MOUNTAIN) && ((flags2 & RF2_KILL_WALL) || (!dun_level && ((flags7 & RF7_CAN_FLY) || (flags8 & RF8_WILD_MOUNTAIN)))))
 		{
 			do_move = TRUE;
 		}
@@ -3076,7 +3104,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Monster destroys walls (and doors) */
-		else if ((r_ptr->flags2 & RF2_KILL_WALL) && (m_idx != p_ptr->riding))
+		else if ((flags2 & RF2_KILL_WALL) && (m_idx != p_ptr->riding))
 		{
 			/* Eat through walls/doors/rubble */
 			do_move = TRUE;
@@ -3113,7 +3141,7 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 
 			/* Creature can open doors. */
-			if ((r_ptr->flags2 & RF2_OPEN_DOOR) &&
+			if ((flags2 & RF2_OPEN_DOOR) &&
 				 (!is_pet(m_ptr) || (p_ptr->pet_extra_flags & PF_OPEN_DOORS)))
 			{
 				/* Closed doors */
@@ -3150,7 +3178,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* Stuck doors -- attempt to bash them down if allowed */
-			if (may_bash && (r_ptr->flags2 & RF2_BASH_DOOR) &&
+			if (may_bash && (flags2 & RF2_BASH_DOOR) &&
 				(!is_pet(m_ptr) || (p_ptr->pet_extra_flags & PF_OPEN_DOORS)))
 			{
 				int k;
@@ -3345,7 +3373,7 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 
 			/* Attack 'enemies' */
-			if (((r_ptr->flags2 & (RF2_KILL_BODY)) &&
+			if (((flags2 & (RF2_KILL_BODY)) &&
 				  (r_ptr->mexp * r_ptr->level > z_ptr->mexp * z_ptr->level) &&
 				  (cave_floor_grid(c_ptr)) &&
 			     (c_ptr->m_idx != p_ptr->riding)) ||
@@ -3364,7 +3392,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* Push past weaker monsters (unless leaving a wall) */
-			else if ((r_ptr->flags2 & RF2_MOVE_BODY) &&
+			else if ((flags2 & RF2_MOVE_BODY) &&
 				(r_ptr->mexp > z_ptr->mexp) && cave_floor_grid(c_ptr) &&
 				(cave_floor_grid(&cave[m_ptr->fy][m_ptr->fx])) &&
 				 (c_ptr->m_idx != p_ptr->riding))
@@ -3385,7 +3413,7 @@ static void process_monster(int m_idx)
 		 * to allow monsters to attack an enemy,
 		 * even if it can't enter the terrain.
 		 */
-		if (do_move && !monster_can_cross_terrain(c_ptr->feat, r_ptr))
+		if (do_move && !monster_can_enter_terrain(c_ptr->feat, m_ptr))
 		{
 			/* Assume no move allowed */
 			do_move = FALSE;
@@ -3417,11 +3445,11 @@ static void process_monster(int m_idx)
 
 			if (c_ptr->feat == FEAT_TREES)
 			{
-				if (r_ptr->flags2 & RF2_KILL_WALL)
+				if (flags2 & RF2_KILL_WALL)
 				{
 					cave_set_feat(ny, nx, FEAT_GRASS);
 				}
-				if (!(r_ptr->flags7 & RF7_CAN_FLY) && !(r_ptr->flags8 & RF8_WILD_WOOD))
+				if (!(flags7 & RF7_CAN_FLY) && !(flags8 & RF8_WILD_WOOD))
 				{
 					m_ptr->energy_need += ENERGY_NEED();
 				}
@@ -3506,11 +3534,11 @@ static void process_monster(int m_idx)
 			}
 
 			/* Take or Kill objects on the floor */
-			if (c_ptr->o_idx && (r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)) &&
-			    (!is_pet(m_ptr) || ((p_ptr->pet_extra_flags & PF_PICKUP_ITEMS) && (r_ptr->flags2 & RF2_TAKE_ITEM))))
+			if (c_ptr->o_idx && (flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)) &&
+			    (!is_pet(m_ptr) || ((p_ptr->pet_extra_flags & PF_PICKUP_ITEMS) && (flags2 & RF2_TAKE_ITEM))))
 			{
 				s16b this_o_idx, next_o_idx;
-				bool do_take = (r_ptr->flags2 & RF2_TAKE_ITEM) ? TRUE : FALSE;
+				bool do_take = (flags2 & RF2_TAKE_ITEM) ? TRUE : FALSE;
 
 				/* Scan all objects in the grid */
 				for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -3575,12 +3603,12 @@ static void process_monster(int m_idx)
 					if (have_flag(flgs, TR_BRAND_POIS))  flgr |= (RFR_RES_POIS);
 
 					/* The object cannot be picked up by the monster */
-					if (object_is_fixed_artifact(o_ptr) || (r_ptr->flags3 & flg3) || (r_ptr->flags2 & flg2) ||
+					if (object_is_fixed_artifact(o_ptr) || (r_ptr->flags3 & flg3) || (flags2 & flg2) ||
 						(o_ptr->art_name)
 						|| ((have_flag(flgs, TR_KILL_LIVING) || have_flag(flgs, TR_SLAY_LIVING)) && monster_living(r_ptr)))
 					{
 						/* Only give a message for "take_item" */
-						if (do_take && (r_ptr->flags2 & RF2_STUPID))
+						if (do_take && (flags2 & RF2_STUPID))
 						{
 							/* Take note */
 							did_take_item = TRUE;
@@ -3697,7 +3725,7 @@ static void process_monster(int m_idx)
 	}
 
 	/* Notice changes in view */
-	if (do_move && ((r_ptr->flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) || (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2))))
+	if (do_move && ((flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) || (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2))))
 	{
 		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);

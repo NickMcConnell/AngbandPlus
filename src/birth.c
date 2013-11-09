@@ -126,7 +126,7 @@ static void load_prev_data(bool swap)
 	p_ptr->psex = previous_char.psex;
 	p_ptr->prace = previous_char.prace;
 	p_ptr->pclass = previous_char.pclass;
-	p_ptr->pelem = previous_char.pelem;
+	p_ptr->pelem = p_ptr->celem = previous_char.pelem;
 	p_ptr->age = previous_char.age;
 	p_ptr->ht = previous_char.ht;
 	p_ptr->wt = previous_char.wt;
@@ -1282,6 +1282,7 @@ static bool get_player_element(void)
 
 	/* Save the element */
 	p_ptr->pelem = i;
+	p_ptr->celem = i;
 
 	return (TRUE);
 }
@@ -1627,7 +1628,6 @@ static bool player_birth_aux_2(void)
 static void edit_history(void)
 {
 	char old_history[4][60];
-	char c;
 	int y = 0, x = 0;
 	int i, j;
 
@@ -1653,6 +1653,9 @@ static void edit_history(void)
 
 	while (TRUE)
 	{
+		int skey;
+		char c;
+
 		for (i = 0; i < 4; i++)
 		{
 			put_str(p_ptr->history[i], i + 12, 10);
@@ -1667,9 +1670,14 @@ static void edit_history(void)
 		/* Place cursor just after cost of current stat */
 		Term_gotoxy(x + 10, y + 12);
 
-		c = inkey();
+		/* Get special key code */
+		skey = inkey_special(TRUE);
 
-		if (c == '8')
+		/* Get a character code */
+		if (!(skey & SKEY_MASK)) c = (char)skey;
+		else c = 0;
+
+		if (skey == SKEY_UP || c == KTRL('p'))
 		{
 			y--;
 			if (y < 0) y = 3;
@@ -1677,7 +1685,7 @@ static void edit_history(void)
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
 		}
-		else if (c == '2')
+		else if (skey == SKEY_DOWN || c == KTRL('n'))
 		{
 			y++;
 			if (y > 3) y = 0;
@@ -1685,7 +1693,7 @@ static void edit_history(void)
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
 		}
-		else if (c == '6')
+		else if (skey == SKEY_RIGHT || c == KTRL('f'))
 		{
 #ifdef JP
 			if (iskanji2(p_ptr->history[y], x)) x++;
@@ -1697,7 +1705,7 @@ static void edit_history(void)
 				if (y < 3) y++;
 			}
 		}
-		else if (c == '4')
+		else if (skey == SKEY_LEFT || c == KTRL('b'))
 		{
 			x--;
 			if (x < 0)
@@ -1716,10 +1724,24 @@ static void edit_history(void)
 		}
 		else if (c == '\r' || c == '\n')
 		{
+			Term_erase(0, 11, 255);
+			Term_erase(0, 17, 255);
+#ifdef JP
+			put_str("(キャラクターの生い立ち - 編集済み)", 11, 20);
+#else
+			put_str("(Character Background - Edited)", 11, 20);
+#endif
 			break;
 		}
 		else if (c == ESCAPE)
 		{
+			clear_from(11);
+#ifdef JP
+			put_str("(キャラクターの生い立ち)", 11, 25);
+#else
+			put_str("(Character Background)", 11, 25);
+#endif
+
 			for (i = 0; i < 4; i++)
 			{
 				sprintf(p_ptr->history[i], "%s", old_history[i]);

@@ -2451,7 +2451,11 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
 	to_speed += ((p_ptr->gx_spd * (p_ptr->lev + cexp_ptr->clev)) / (p_ptr->max_plv + cexp_ptr->max_clev)) / 50;
 	if (to_speed) add_flag(flgs, TR_SPEED);
 
-	for (i = 0; i < TR_FLAG_SIZE; i++) flgs[i] |= (cp_ptr->flags[i] | rp_ptr->flags[i]);
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+	{
+		flgs[i] |= cp_ptr->flags[i];
+		if (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD))) flgs[i] |= rp_ptr->flags[i];
+	}
 
 	/* Classes */
 	switch (p_ptr->pclass)
@@ -2592,83 +2596,96 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (p_ptr->cexp_info[CLASS_WITCH].clev > 29) add_flag(flgs, TR_LEVITATION);
 
 	/* Races */
-	switch (p_ptr->prace)
+	if (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD)))
 	{
-	case RACE_HAWKMAN:
-		if (p_ptr->lev > 14) add_flag(flgs, TR_RES_FEAR);
-		break;
-	case RACE_SKELETON:
-		if (p_ptr->lev > 9) add_flag(flgs, TR_RES_COLD);
-		break;
-	case RACE_GHOST:
-		if (p_ptr->lev > 34) add_flag(flgs, TR_TELEPATHY);
-		break;
-	case RACE_PUMPKINHEAD:
-		if (p_ptr->lev > 19) add_flag(flgs, TR_TELEPATHY);
-		break;
-	case RACE_GORGON:
-		if (p_ptr->lev > 9) add_flag(flgs, TR_RES_COLD);
-		if (p_ptr->lev > 19) add_flag(flgs, TR_RES_ACID);
-		if (p_ptr->lev > 29) add_flag(flgs, TR_RES_CHAOS);
-		if (p_ptr->lev > 39) add_flag(flgs, TR_RES_POIS);
-		if (p_ptr->lev > 49) add_flag(flgs, TR_RES_NETHER);
-		break;
-	case RACE_MERMAID:
-		if (p_ptr->lev > 24) add_flag(flgs, TR_RES_CONF);
-		break;
-	default:
-		break; /* Do nothing */
+		switch (p_ptr->prace)
+		{
+		case RACE_HAWKMAN:
+			if (p_ptr->lev > 14) add_flag(flgs, TR_RES_FEAR);
+			break;
+		case RACE_SKELETON:
+			if (p_ptr->lev > 9) add_flag(flgs, TR_RES_COLD);
+			break;
+		case RACE_GHOST:
+			if (p_ptr->lev > 34) add_flag(flgs, TR_TELEPATHY);
+			break;
+		case RACE_PUMPKINHEAD:
+			if (p_ptr->lev > 19) add_flag(flgs, TR_TELEPATHY);
+			break;
+		case RACE_GORGON:
+			if (p_ptr->lev > 9) add_flag(flgs, TR_RES_COLD);
+			if (p_ptr->lev > 19) add_flag(flgs, TR_RES_ACID);
+			if (p_ptr->lev > 29) add_flag(flgs, TR_RES_CHAOS);
+			if (p_ptr->lev > 39) add_flag(flgs, TR_RES_POIS);
+			if (p_ptr->lev > 49) add_flag(flgs, TR_RES_NETHER);
+			break;
+		case RACE_MERMAID:
+			if (p_ptr->lev > 24) add_flag(flgs, TR_RES_CONF);
+			break;
+		default:
+			break; /* Do nothing */
+		}
+	}
+
+	/* Grace/Curse */
+	if (p_ptr->grace)
+	{
+		if (p_ptr->grace & GRACE_REGEN)
+		{
+			add_flag(flgs, TR_REGEN);
+			add_flag(flgs, TR_SLOW_DIGEST);
+		}
 	}
 
 	/* Mutations */
-	if (p_ptr->muta3)
+	if (p_ptr->mutation)
 	{
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
+		if (p_ptr->mutation & MUT_FLESH_ROT)
 		{
 			remove_flag(flgs, TR_REGEN);
+			add_flag(flgs, TR_RES_POIS);
 		}
 
-		if ((p_ptr->muta3 & MUT3_XTRA_FAT) ||
-			(p_ptr->muta3 & MUT3_XTRA_LEGS) ||
-			(p_ptr->muta3 & MUT3_SHORT_LEG))
+		if (p_ptr->mutation & MUT_XTRA_FAT)
 		{
 			add_flag(flgs, TR_SPEED);
 		}
 
-		if (p_ptr->muta3  & MUT3_ELEC_TOUC)
+		if (p_ptr->mutation  & MUT_ELEC_BODY)
 		{
 			add_flag(flgs, TR_SH_ELEC);
 		}
 
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
+		if (p_ptr->mutation & MUT_FIRE_BODY)
 		{
 			add_flag(flgs, TR_SH_FIRE);
 			add_flag(flgs, TR_LITE);
 		}
 
-		if (p_ptr->muta3 & MUT3_WINGS)
+		if (p_ptr->mutation  & MUT_COLD_BODY)
+		{
+			add_flag(flgs, TR_SH_COLD);
+		}
+
+		if (p_ptr->mutation & MUT_THICK_SKIN)
+		{
+			add_flag(flgs, TR_RES_ELEC);
+			add_flag(flgs, TR_RES_FIRE);
+		}
+
+		if (p_ptr->mutation & MUT_SCALES)
+		{
+			add_flag(flgs, TR_RES_ACID);
+		}
+
+		if (p_ptr->mutation & MUT_FUR)
+		{
+			add_flag(flgs, TR_RES_COLD);
+		}
+
+		if (p_ptr->mutation & MUT_WINGS)
 		{
 			add_flag(flgs, TR_LEVITATION);
-		}
-
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			add_flag(flgs, TR_RES_FEAR);
-		}
-
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			add_flag(flgs, TR_REGEN);
-		}
-
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			add_flag(flgs, TR_TELEPATHY);
-		}
-
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-			add_flag(flgs, TR_FREE_ACT);
 		}
 	}
 
@@ -3187,51 +3204,15 @@ void calc_bonuses(void)
 
 
 	/* I'm adding the mutations here for the lack of a better place... */
-	if (p_ptr->muta3)
+	if (p_ptr->mutation )
 	{
-		/* Hyper Strength */
-		if (p_ptr->muta3 & MUT3_HYPER_STR)
-		{
-			p_ptr->stat_add[A_STR] += 4;
-		}
-
-		/* Puny */
-		if (p_ptr->muta3 & MUT3_PUNY)
-		{
-			p_ptr->stat_add[A_STR] -= 4;
-		}
-
-		/* Living computer */
-		if (p_ptr->muta3 & MUT3_HYPER_INT)
-		{
-			p_ptr->stat_add[A_INT] += 4;
-			p_ptr->stat_add[A_WIS] += 4;
-		}
-
-		/* Moronic */
-		if (p_ptr->muta3 & MUT3_MORONIC)
-		{
-			p_ptr->stat_add[A_INT] -= 4;
-			p_ptr->stat_add[A_WIS] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_RESILIENT)
-		{
-			p_ptr->stat_add[A_CON] += 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_FAT)
+		if (p_ptr->mutation  & MUT_XTRA_FAT)
 		{
 			p_ptr->stat_add[A_CON] += 2;
 			p_ptr->pspeed -= 2;
 		}
 
-		if (p_ptr->muta3 & MUT3_ALBINO)
-		{
-			p_ptr->stat_add[A_CON] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
+		if (p_ptr->mutation  & MUT_FLESH_ROT)
 		{
 			p_ptr->stat_add[A_CON] -= 2;
 			p_ptr->stat_add[A_CHR] -= 1;
@@ -3239,96 +3220,46 @@ void calc_bonuses(void)
 			/* Cancel innate regeneration */
 		}
 
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
-		{
-			p_ptr->stat_add[A_CHR] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_BLANK_FAC)
-		{
-			p_ptr->stat_add[A_CHR] -= 1;
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_EYES)
-		{
-			p_ptr->skill_fos += 15;
-			p_ptr->skill_srh += 15;
-		}
-
-		if (p_ptr->muta3 & MUT3_MAGIC_RES)
-		{
-			p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-		{
-			p_ptr->skill_stl -= 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_INFRAVIS)
-		{
-			p_ptr->see_infra += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-		{
-			p_ptr->pspeed += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
-		{
-			p_ptr->pspeed -= 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-		{
-			p_ptr->sh_elec = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-			p_ptr->sh_fire = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
+		if (p_ptr->mutation  & MUT_THICK_SKIN)
 		{
 			p_ptr->stat_add[A_CHR] -= 2;
-			p_ptr->to_a += 5;
-			p_ptr->dis_to_a += 5;
+			p_ptr->to_a += 10;
+			p_ptr->dis_to_a += 10;
 		}
 
-		if (p_ptr->muta3 & MUT3_SCALES)
+		if (p_ptr->mutation  & MUT_SCALES)
 		{
 			p_ptr->stat_add[A_CHR] -= 1;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 		}
 
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
+		if (p_ptr->mutation  & MUT_FUR)
 		{
-			p_ptr->stat_add[A_DEX] -= 1;
-			p_ptr->to_a += 25;
-			p_ptr->dis_to_a += 25;
+			p_ptr->to_a += 5;
+			p_ptr->dis_to_a += 5;
 		}
 
-		if (p_ptr->muta3 & MUT3_LIMBER)
+	}
+
+	if (p_ptr->grace)
+	{
+		if (p_ptr->grace & GRACE_HIGH_MAGIC)
 		{
-			p_ptr->stat_add[A_DEX] += 3;
+			p_ptr->to_m_chance -= 10;
+		}
+		else if (p_ptr->grace & GRACE_HIGH_MAGIC2)
+		{
+			p_ptr->to_m_chance -= 3;
 		}
 
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
+		if (p_ptr->grace & CURSE_LOW_MAGIC)
 		{
-			p_ptr->stat_add[A_DEX] -= 3;
+			p_ptr->to_m_chance += 10;
 		}
-
-		if (p_ptr->muta3 & MUT3_MOTION)
+		else if (p_ptr->grace & CURSE_LOW_MAGIC2)
 		{
-			p_ptr->skill_stl += 1;
-		}
-
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-			p_ptr->stat_add[A_CHR] = 0;
+			p_ptr->to_m_chance += 3;
 		}
 	}
 
@@ -3388,8 +3319,8 @@ void calc_bonuses(void)
 		/* Affect blows */
 		if (have_flag(flgs, TR_BLOWS))
 		{
-			if ((i == INVEN_RARM || i == INVEN_RIGHT) && !(p_ptr->ryoute || (empty_hands_status & EMPTY_HAND_RARM))) extra_blows[0] += o_ptr->to_misc[OB_BLOWS];
-			else if((i == INVEN_LARM || i == INVEN_LEFT) && !(p_ptr->ryoute || (empty_hands_status & EMPTY_HAND_RARM))) extra_blows[1] += o_ptr->to_misc[OB_BLOWS];
+			if ((i == INVEN_RARM || i == INVEN_RIGHT) && !p_ptr->ryoute) extra_blows[0] += o_ptr->to_misc[OB_BLOWS];
+			else if((i == INVEN_LARM || i == INVEN_LEFT) && !p_ptr->ryoute) extra_blows[1] += o_ptr->to_misc[OB_BLOWS];
 			else {extra_blows[0] += o_ptr->to_misc[OB_BLOWS]; extra_blows[1] += o_ptr->to_misc[OB_BLOWS];}
 		}
 
@@ -3527,7 +3458,7 @@ void calc_bonuses(void)
 		}
 
 		/* Apply the bonuses to armor class */
-		p_ptr->to_a += o_ptr->to_a;
+		if (o_ptr->name2 != EGO_NO_ELEM) p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
 		if (object_is_known(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
@@ -3831,15 +3762,6 @@ void calc_bonuses(void)
 
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
-
-		if ((i == A_CHR) && (p_ptr->muta3 & MUT3_ILL_NORM))
-		{
-			/* 10 to 18/90 charisma, guaranteed, based on level */
-			if (use < 8 + 2 * p_ptr->lev)
-			{
-				use = 8 + 2 * p_ptr->lev;
-			}
-		}
 
 		/* Notice changes */
 		if (p_ptr->stat_use[i] != use)
@@ -4352,16 +4274,64 @@ void calc_bonuses(void)
 		}
 		else if (p_ptr->ryoute && (hold < o_ptr->weight/5)) omoi = TRUE;
 
-		if ((i == 1) && (o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_MAIN_GAUCHE))
+		if (i == 1)
 		{
+			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_MAIN_GAUCHE))
 			p_ptr->to_a += 5;
 			p_ptr->dis_to_a += 5;
+
 			if (pclass_is_(CLASS_SWORDMASTER) && (get_weapon_type(k_ptr) == WT_KATANA))
 			{
 				p_ptr->to_a += 5;
 				p_ptr->dis_to_a += 5;
 				p_ptr->to_d[0] += 5;
 				p_ptr->dis_to_d[0] += 5;
+			}
+		}
+
+		/* Grace/Curse */
+		if (p_ptr->grace)
+		{
+			if (p_ptr->grace & GRACE_HIGH_MELEE)
+			{
+				p_ptr->to_d[i] += 15;
+				p_ptr->dis_to_d[i] += 15;
+			}
+			else if (p_ptr->grace & GRACE_HIGH_MELEE2)
+			{
+				p_ptr->to_d[i] += 5;
+				p_ptr->dis_to_d[i] += 5;
+			}
+			if (p_ptr->grace & GRACE_HIGH_AC)
+			{
+				p_ptr->to_a += 30;
+				p_ptr->dis_to_a += 30;
+			}
+			else if (p_ptr->grace & GRACE_HIGH_AC2)
+			{
+				p_ptr->to_a += 10;
+				p_ptr->dis_to_a += 10;
+			}
+
+			if (p_ptr->grace & CURSE_LOW_MELEE)
+			{
+				p_ptr->to_d[i] -= 15;
+				p_ptr->dis_to_d[i] -= 15;
+			}
+			else if (p_ptr->grace & CURSE_LOW_MELEE2)
+			{
+				p_ptr->to_d[i] -= 5;
+				p_ptr->dis_to_d[i] -= 5;
+			}
+			if (p_ptr->grace & CURSE_LOW_AC)
+			{
+				p_ptr->to_a -= 30;
+				p_ptr->dis_to_a -= 30;
+			}
+			else if (p_ptr->grace & CURSE_LOW_AC2)
+			{
+				p_ptr->to_a -= 10;
+				p_ptr->dis_to_a -= 10;
 			}
 		}
 
@@ -4494,7 +4464,7 @@ void calc_bonuses(void)
 			{
 				p_ptr->to_d[i] += 5;
 				p_ptr->dis_to_d[i] += 5;
-				if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_KATANA))
+				if (get_weapon_type(k_ptr) == WT_KATANA)
 				{
 					p_ptr->to_dd[i]++;
 					p_ptr->to_ds[i]++;
@@ -5375,7 +5345,7 @@ void notice_stuff(void)
 	if (p_ptr->notice & (PN_AUTODESTROY))
 	{
 		p_ptr->notice &= ~(PN_AUTODESTROY);
-		delayed_auto_destroy();
+		autopick_delayed_alter();
 	}
 
 	/* Combine the pack */

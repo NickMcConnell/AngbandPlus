@@ -3510,8 +3510,6 @@ static void store_purchase(void)
 			/* Player can afford it */
 			if (p_ptr->au_sum >= price)
 			{
-				int idx;
-
 				/* Say "okay" */
 				say_comment_1();
 
@@ -3583,15 +3581,14 @@ static void store_purchase(void)
 
 				/* Message */
 #ifdef JP
-		msg_format("%s(%c)を手に入れた。", o_name, index_to_label(item_new));
+				msg_format("%s(%c)を手に入れた。", o_name, index_to_label(item_new));
 #else
 				msg_format("You have %s (%c).",
 						   o_name, index_to_label(item_new));
 #endif
 
 				/* Auto-inscription */
-				idx = is_autopick(&inventory[item_new]);
-				auto_inscribe_item(item_new, idx);
+				autopick_alter_item(item_new, FALSE);
 
 				/* Now, reduce the original stack's pval. */
 				if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))

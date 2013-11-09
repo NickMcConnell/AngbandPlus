@@ -450,6 +450,9 @@ static void rd_monster(monster_type *m_ptr)
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
+	/* Read the monster race */
+	if (!t_older_than(0, 9, 0, 5)) rd_s16b(&m_ptr->s_idx);
+
 	/* Read the monster element */
 	rd_s16b(&m_ptr->elem);
 
@@ -1101,6 +1104,136 @@ static void load_quick_start(void)
 	previous_char.quick_ok = (bool)tmp8u;
 }
 
+
+/* Chaos mutations */
+/* Randomly activating mutations must be MUT2_* */
+#define MUT2_BERS_RAGE                  0x00000001L
+#define MUT2_COWARDICE                  0x00000002L
+#define MUT2_RTELEPORT                  0x00000004L /* Random teleport, instability */
+#define MUT2_ALCOHOL                    0x00000008L
+#define MUT2_HALLU                      0x00000010L
+#define MUT2_ELEM_MULTI                 0x00000020L
+#define MUT2_SCOR_TAIL                  0x00000040L
+#define MUT2_HORNS                      0x00000080L
+#define MUT2_BEAK                       0x00000100L
+#define MUT2_ATT_DEMON                  0x00000200L
+#define MUT2_PROD_MANA                  0x00000400L
+#define MUT2_SPEED_FLUX                 0x00000800L
+#define MUT2_BANISH_ALL                 0x00001000L
+#define MUT2_EAT_LIGHT                  0x00002000L
+#define MUT2_TRUNK                      0x00004000L
+#define MUT2_ATT_ANIMAL                 0x00008000L
+#define MUT2_TENTACLES                  0x00010000L
+#define MUT2_RAW_CHAOS                  0x00020000L
+#define MUT2_NORMALITY                  0x00040000L
+#define MUT2_WRAITH                     0x00080000L
+#define MUT2_POLY_WOUND                 0x00100000L
+#define MUT2_WASTING                    0x00200000L
+#define MUT2_ATT_DRAGON                 0x00400000L
+#define MUT2_WEIRD_MIND                 0x00800000L
+#define MUT2_NAUSEA                     0x01000000L
+#define MUT2_TAROT                      0x02000000L
+#define MUT2_ALTER_REALITY              0x04000000L
+#define MUT2_WARNING                    0x08000000L
+#define MUT2_INVULN                     0x10000000L
+#define MUT2_SP_TO_HP                   0x20000000L
+#define MUT2_HP_TO_SP                   0x40000000L
+#define MUT2_DISARM                     0x80000000L
+
+
+
+/* Other mutations will be mainly in MUT3_* */
+
+#define MUT3_HYPER_STR                  0x00000001L
+#define MUT3_PUNY                       0x00000002L
+#define MUT3_HYPER_INT                  0x00000004L
+#define MUT3_MORONIC                    0x00000008L
+#define MUT3_RESILIENT                  0x00000010L
+#define MUT3_XTRA_FAT                   0x00000020L
+#define MUT3_ALBINO                     0x00000040L
+#define MUT3_FLESH_ROT                  0x00000080L
+#define MUT3_SILLY_VOI                  0x00000100L
+#define MUT3_BLANK_FAC                  0x00000200L
+#define MUT3_ILL_NORM                   0x00000400L
+#define MUT3_XTRA_EYES                  0x00000800L
+#define MUT3_MAGIC_RES                  0x00001000L
+#define MUT3_XTRA_NOIS                  0x00002000L
+#define MUT3_INFRAVIS                   0x00004000L
+#define MUT3_XTRA_LEGS                  0x00008000L
+#define MUT3_SHORT_LEG                  0x00010000L
+#define MUT3_ELEC_TOUC                  0x00020000L
+#define MUT3_FIRE_BODY                  0x00040000L
+#define MUT3_WART_SKIN                  0x00080000L
+#define MUT3_SCALES                     0x00100000L
+#define MUT3_IRON_SKIN                  0x00200000L
+#define MUT3_WINGS                      0x00400000L
+#define MUT3_FEARLESS                   0x00800000L
+#define MUT3_REGEN                      0x01000000L
+#define MUT3_ESP                        0x02000000L
+#define MUT3_LIMBER                     0x04000000L
+#define MUT3_ARTHRITIS                  0x08000000L
+#define MUT3_BAD_LUCK                   0x10000000L
+#define MUT3_VULN_ELEM                  0x20000000L
+#define MUT3_MOTION                     0x40000000L
+#define MUT3_GOOD_LUCK                  0x80000000L
+
+
+static void convert_mutation(u32b muta2, u32b muta3)
+{
+	if (muta2)
+	{
+		if (muta2 & MUT2_ELEM_MULTI)
+			p_ptr->mutation |= MUT_ELEM_UNSTABLE;
+		if (muta2 & MUT2_SPEED_FLUX)
+			p_ptr->mutation |= MUT_SPEED_FLUX;
+		if (muta2 & MUT2_BANISH_ALL)
+			p_ptr->mutation |= MUT_BANISH_ALL;
+		if (muta2 & MUT2_EAT_LIGHT)
+			p_ptr->mutation |= MUT_EAT_LIGHT;
+		if (muta2 & MUT2_NORMALITY)
+			p_ptr->mutation |= MUT_NORMALITY;
+		if (muta2 & MUT2_WASTING)
+			p_ptr->mutation |= MUT_WASTING;
+		if (muta2 & MUT2_ALTER_REALITY)
+			p_ptr->mutation |= MUT_ALTER_REALITY;
+		if (muta2 & MUT2_SP_TO_HP)
+			p_ptr->mutation |= MUT_SP_TO_HP;
+		if (muta2 & MUT2_HP_TO_SP)
+			p_ptr->mutation |= MUT_HP_TO_SP;
+
+		if (muta2 & MUT2_TAROT)
+			p_ptr->gift |= GIFT_TAROT;
+	}
+
+	if (muta3)
+	{
+		if (muta3 & MUT3_XTRA_FAT)
+			p_ptr->mutation |= MUT_XTRA_FAT;
+		if (muta3 & MUT3_FLESH_ROT)
+			p_ptr->mutation |= MUT_FLESH_ROT;
+		if (muta3 & MUT3_ELEC_TOUC)
+			p_ptr->mutation |= MUT_ELEC_BODY;
+		if (muta3 & MUT3_FIRE_BODY)
+			p_ptr->mutation |= MUT_FIRE_BODY;
+		if (muta3 & MUT3_WART_SKIN)
+			p_ptr->mutation |= MUT_THICK_SKIN;
+		if (muta3 & MUT3_SCALES)
+			p_ptr->mutation |= MUT_SCALES;
+		if (muta3 & MUT3_IRON_SKIN)
+			p_ptr->mutation |= MUT_FUR;
+		if (muta3 & MUT3_WINGS)
+			p_ptr->mutation |= MUT_WINGS;
+		if (muta3 & MUT3_VULN_ELEM)
+			p_ptr->mutation |= MUT_VULN_ELEM;
+
+		if (muta3 & MUT3_BAD_LUCK)
+			p_ptr->grace |= CURSE_BAD_LUCK;
+		if (muta3 & MUT3_GOOD_LUCK)
+			p_ptr->grace |= GRACE_GOOD_LUCK;
+	}
+}
+
+
 /*
  * Read the "extra" information
  */
@@ -1141,6 +1274,11 @@ static errr rd_extra(void)
 	mp_ptr = &m_info[p_ptr->pclass];
 
 	rd_s16b(&p_ptr->pelem);
+	if (t_older_than(0, 9, 0, 2))
+		p_ptr->celem = p_ptr->pelem;
+	else
+		rd_s16b(&p_ptr->celem);
+
 	rd_byte(&tmp8u);
 
 	rd_u16b(&p_ptr->expfact);
@@ -1423,9 +1561,27 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->multishadow);
 	rd_s16b(&p_ptr->dustrobe);
 
-	rd_u32b(&p_ptr->muta1);
-	rd_u32b(&p_ptr->muta2);
-	rd_u32b(&p_ptr->muta3);
+	if (t_older_than(0, 9, 0, 1))
+	{
+		u32b muta1;
+		u32b muta2;
+		u32b muta3;
+
+		rd_u32b(&muta1);
+		rd_u32b(&muta2);
+		rd_u32b(&muta3);
+
+		convert_mutation(muta2, muta3);
+	}
+	else
+	{
+		rd_u32b(&p_ptr->mutation);
+		rd_u32b(&p_ptr->grace);
+		rd_u32b(&p_ptr->gift);
+
+		if (!(p_ptr->mutation & MUT_ELEM_MULTI) && (p_ptr->celem != p_ptr->pelem))
+			p_ptr->celem = p_ptr->pelem;
+	}
 
 	rd_u32b(&p_ptr->special_blow);
 
@@ -1451,6 +1607,8 @@ static errr rd_extra(void)
 
 	rd_byte(&p_ptr->action);
 	rd_byte(&tmp8u);
+	p_ptr->autopick_autoregister = tmp8u ? TRUE : FALSE;
+
 	rd_byte((byte *)&preserve_mode);
 
 	/* Future use */
@@ -1561,6 +1719,15 @@ static errr rd_extra(void)
 		rd_byte(&p_ptr->ogre_mult);
 	}
 
+	if (t_older_than(0, 9, 0, 3))
+	{
+		byte max = (byte)max_d_idx;
+
+		for (i = 0; i < max; i++)
+		{
+			if (max_dlv[i] > p_ptr->max_max_dlv) p_ptr->max_max_dlv = max_dlv[i];
+		}
+	}
 
 	/* Success */
 	return 0;
@@ -2786,6 +2953,19 @@ static errr rd_savefile_new_aux(void)
 		}
 	}
 
+	if (t_older_than(0, 9, 0, 4))
+	{
+		if (pclass_is_(CLASS_TEMPLEKNIGHT) && (max_dlv[DUNGEON_AIR_GARDEN] == d_info[DUNGEON_AIR_GARDEN].maxdepth))
+		{
+			misc_event_flags |= EVENT_CLOSE_AIR_GARDEN;
+			max_dlv[DUNGEON_RUINS] = d_info[DUNGEON_RUINS].mindepth;
+		}
+		else if (!r_info[d_info[DUNGEON_AIR_GARDEN].final_guardian].max_num)
+		{
+			misc_event_flags |= EVENT_CLOSE_AIR_GARDEN;
+			max_dlv[DUNGEON_RUINS] = d_info[DUNGEON_RUINS].mindepth;
+		}
+	}
 
 #ifdef VERIFY_CHECKSUMS
 

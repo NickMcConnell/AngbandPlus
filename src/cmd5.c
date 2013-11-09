@@ -630,7 +630,6 @@ void do_cmd_cast(void)
 		{
 			if ((sval == 1) && one_in_(2))
 			{
-				bool happened = FALSE;
 				int power = 100;
 
 				if (!character_dungeon) return;
@@ -703,97 +702,10 @@ void do_cmd_cast(void)
 					}
 
 					/* Else gain permanent insanity */
-					if ((p_ptr->muta3 & MUT3_MORONIC) && /*(p_ptr->muta2 & MUT2_BERS_RAGE) &&*/
-						((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-						((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+					if (p_ptr->resist_fear && p_ptr->resist_chaos)
 					{
 						/* The poor bastard already has all possible insanities! */
 						return;
-					}
-
-					while (!happened)
-					{
-						switch (randint1(13))
-						{
-							case 1:
-								if (!(p_ptr->muta3 & MUT3_MORONIC) && one_in_(5))
-								{
-									if ((p_ptr->stat_use[A_INT] < 4) && (p_ptr->stat_use[A_WIS] < 4))
-									{
-#ifdef JP
-										msg_print("あなたは完璧な馬鹿になったような気がした。しかしそれは元々だった。");
-#else
-										msg_print("You turn into an utter moron!");
-#endif
-									}
-									else
-									{
-#ifdef JP
-										msg_print("あなたは完璧な馬鹿になった！");
-#else
-										msg_print("You turn into an utter moron!");
-#endif
-									}
-
-									if (p_ptr->muta3 & MUT3_HYPER_INT)
-									{
-#ifdef JP
-										msg_print("あなたの脳は生体コンピュータではなくなった。");
-#else
-										msg_print("Your brain is no longer a living computer.");
-#endif
-
-										p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-									}
-									p_ptr->muta3 |= MUT3_MORONIC;
-									happened = TRUE;
-								}
-								break;
-							case 2:
-							case 3:
-							case 4:
-							case 5:
-							case 6:
-							case 7:
-								if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
-								{
-#ifdef JP
-									msg_print("あなたはパラノイアになった！");
-#else
-									msg_print("You become paranoid!");
-#endif
-
-
-									/* Duh, the following should never happen, but anyway... */
-									if (p_ptr->muta3 & MUT3_FEARLESS)
-									{
-#ifdef JP
-										msg_print("あなたはもう恐れ知らずではなくなった。");
-#else
-										msg_print("You are no longer fearless.");
-#endif
-
-										p_ptr->muta3 &= ~(MUT3_FEARLESS);
-									}
-
-									p_ptr->muta2 |= MUT2_COWARDICE;
-									happened = TRUE;
-								}
-								break;
-							default:
-								if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
-								{
-#ifdef JP
-									msg_print("幻覚をひき起こす精神錯乱に陥った！");
-#else
-									msg_print("You are afflicted by a hallucinatory insanity!");
-#endif
-
-									p_ptr->muta2 |= MUT2_HALLU;
-									happened = TRUE;
-								}
-								break;
-						}
 					}
 
 					p_ptr->update |= PU_BONUS;
@@ -846,59 +758,6 @@ void do_cmd_cast(void)
 					if (saving_throw(p_ptr->skill_sav - power))
 					{
 						return;
-					}
-
-					/* Else gain permanent insanity */
-					if ((p_ptr->muta3 & MUT3_MORONIC) && /*(p_ptr->muta2 & MUT2_BERS_RAGE) &&*/
-						((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-						((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
-					{
-						/* The poor bastard already has all possible insanities! */
-						return;
-					}
-
-					while (!happened)
-					{
-						switch (randint1(3))
-						{
-							case 1:
-								if (!(p_ptr->muta2 & MUT2_WASTING))
-								{
-#ifdef JP
-									msg_print("あなたの肉体はおぞましい衰弱病に冒された！");
-#else
-									msg_print("You suddenly contract a horrible wasting disease!");
-#endif
-									p_ptr->muta2 |= MUT2_WASTING;
-									happened = TRUE;
-								}
-								break;
-							case 2:
-								if (!(p_ptr->muta3 & MUT3_FLESH_ROT))
-								{
-#ifdef JP
-									msg_print("あなたの肉体は腐敗する病気に侵された！");
-#else
-									msg_print("Your flesh is afflicted by a rotting disease!");
-#endif
-									p_ptr->muta3 |= MUT3_FLESH_ROT;
-									happened = TRUE;
-								}
-								break;
-							default:
-								if (!(p_ptr->muta3 & MUT3_ALBINO))
-								{
-#ifdef JP
-									msg_print("アルビノになった！弱くなった気がする...");
-#else
-									msg_print("You turn into an albino! You feel frail...");
-#endif
-
-									p_ptr->muta3 |= MUT3_ALBINO;
-									happened = TRUE;
-								}
-								break;
-						}
 					}
 
 					p_ptr->update |= PU_BONUS;
@@ -1063,6 +922,7 @@ void do_cmd_pray(void)
 		case 11:
 			msg_print("祈りは太陽神フィラーハに届いた。");
 			project_hack(GF_HOLY_FIRE, randint1(MAX(p_ptr->align[ALI_GNE], 300)));
+			do_grace(0, 0);
 			no_effect = FALSE;
 			break;
 		}
@@ -1085,6 +945,7 @@ void do_cmd_pray(void)
 			}
 			(void)take_hit(DAMAGE_NOESCAPE, pdam, "天罰");
 			project_hack(GF_ELEC, dam);
+			do_curse(0, 0);
 			no_effect = FALSE;
 		}
 		break;
@@ -1139,22 +1000,24 @@ void check_pets_num_and_align(monster_type *m_ptr, bool inc)
 {
 	s32b old_friend_align_lnc = friend_align_lnc;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	u32b flags3 = (r_ptr->flags3 | ms_info[m_ptr->s_idx].flags3);
+	u32b flags7 = (r_ptr->flags7 | ms_info[m_ptr->s_idx].flags7);
 
 	if (inc)
 	{
 		total_friends++;
-		if (r_ptr->flags3 & RF3_GOOD) friend_align_gne += r_ptr->level / 5;
-		if (r_ptr->flags3 & RF3_EVIL) friend_align_gne -= r_ptr->level / 5;
-		if (r_ptr->flags7 & RF7_LAWFUL) friend_align_lnc += r_ptr->level / 5;
-		if (r_ptr->flags7 & RF7_CHAOTIC) friend_align_lnc -= r_ptr->level / 5;
+		if (flags3 & RF3_GOOD) friend_align_gne += r_ptr->level / 5;
+		if (flags3 & RF3_EVIL) friend_align_gne -= r_ptr->level / 5;
+		if (flags7 & RF7_LAWFUL) friend_align_lnc += r_ptr->level / 5;
+		if (flags7 & RF7_CHAOTIC) friend_align_lnc -= r_ptr->level / 5;
 	}
 	else
 	{
 		total_friends--;
-		if (r_ptr->flags3 & RF3_GOOD) friend_align_gne -= r_ptr->level / 5;
-		if (r_ptr->flags3 & RF3_EVIL) friend_align_gne += r_ptr->level / 5;
-		if (r_ptr->flags7 & RF7_LAWFUL) friend_align_lnc -= r_ptr->level / 5;
-		if (r_ptr->flags7 & RF7_CHAOTIC) friend_align_lnc += r_ptr->level / 5;
+		if (flags3 & RF3_GOOD) friend_align_gne -= r_ptr->level / 5;
+		if (flags3 & RF3_EVIL) friend_align_gne += r_ptr->level / 5;
+		if (flags7 & RF7_LAWFUL) friend_align_lnc -= r_ptr->level / 5;
+		if (flags7 & RF7_CHAOTIC) friend_align_lnc += r_ptr->level / 5;
 	}
 
 	if (old_friend_align_lnc != friend_align_lnc) p_ptr->update |= (PU_BONUS);
@@ -1176,10 +1039,14 @@ int calculate_upkeep(void)
 	{
 		monster_type *m_ptr;
 		monster_race *r_ptr;
+		u32b flags3;
+		u32b flags7;
 
 		m_ptr = &m_list[m_idx];
 		if (!m_ptr->r_idx) continue;
 		r_ptr = &r_info[m_ptr->r_idx];
+		flags3 = (r_ptr->flags3 | ms_info[m_ptr->s_idx].flags3);
+		flags7 = (r_ptr->flags7 | ms_info[m_ptr->s_idx].flags7);
 
 		if (is_pet(m_ptr))
 		{
@@ -1220,10 +1087,10 @@ int calculate_upkeep(void)
 			total_friend_levels += temp_rlev;
 
 			/* Determine pet alignment */
-			if (r_ptr->flags3 & RF3_GOOD) friend_align_gne += r_ptr->level / 5;
-			if (r_ptr->flags3 & RF3_EVIL) friend_align_gne -= r_ptr->level / 5;
-			if (r_ptr->flags7 & RF7_LAWFUL) friend_align_lnc += r_ptr->level / 5;
-			if (r_ptr->flags7 & RF7_CHAOTIC) friend_align_lnc -= r_ptr->level / 5;
+			if (flags3 & RF3_GOOD) friend_align_gne += r_ptr->level / 5;
+			if (flags3 & RF3_EVIL) friend_align_gne -= r_ptr->level / 5;
+			if (flags7 & RF7_LAWFUL) friend_align_lnc += r_ptr->level / 5;
+			if (flags7 & RF7_CHAOTIC) friend_align_lnc -= r_ptr->level / 5;
 		}
 	}
 	if (old_friend_align_lnc != friend_align_lnc) p_ptr->update |= (PU_BONUS);

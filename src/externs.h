@@ -24,7 +24,8 @@ extern cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
  *  List for auto-picker/destroyer entries
  */
 extern int max_autopick;
-extern autopick_type autopick_list[MAX_AUTOPICK];
+extern int max_max_autopick;
+extern autopick_type *autopick_list;
 
 /* tables.c */
 extern s16b ddd[9];
@@ -168,7 +169,6 @@ extern bool inkey_base;
 extern bool inkey_xtra;
 extern bool inkey_scan;
 extern bool inkey_flag;
-extern bool inkey_special;
 extern s16b coin_type;
 extern bool opening_chest;
 extern bool shimmer_monsters;
@@ -218,6 +218,7 @@ extern bool easy_disarm;
 extern bool easy_floor;
 extern bool use_command;
 extern bool over_exert;
+extern bool numpad_as_cursorkey;	/* Use numpad keys as cursor key in editor mode */
 
 
 /*** Map Screen Options ***/
@@ -452,6 +453,9 @@ extern char *e_text;
 extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
+extern monster_special *ms_info;
+extern char *ms_name;
+extern char *ms_text;
 extern dungeon_info_type *d_info;
 extern char *d_name;
 extern char *d_text;
@@ -498,6 +502,7 @@ extern wilderness_type **wilderness;
 extern building_type building[MAX_BLDG];
 extern u16b max_quests;
 extern u16b max_r_idx;
+extern u16b max_ms_idx;
 extern u16b max_k_idx;
 extern u16b max_v_idx;
 extern u16b max_f_idx;
@@ -571,15 +576,15 @@ extern s16b ancestor_inven_cnt;
 extern bool back_from_heaven;
 
 /* autopick.c */
+extern void autopick_load_pref(bool disp_mes);
+extern errr process_autopick_file_command(char *buf);
 extern cptr autopick_line_from_entry(autopick_type *entry);
 extern int is_autopick(object_type *o_ptr);
-extern bool auto_inscribe_object(object_type *o_ptr, int idx);
-extern void auto_inscribe_item(int item, int idx);
-extern bool auto_destroy_item(int item, int autopick_idx);
-extern void delayed_auto_destroy(void);
-extern void auto_pickup_items(cave_type *c_ptr);
-extern void init_autopicker(void);
-extern errr process_pickpref_file_line(char *buf);
+extern void autopick_alter_item(int item, bool destroy);
+extern void autopick_delayed_alter(void);
+extern void autopick_pickup_items(cave_type *c_ptr);
+extern bool autopick_autoregister(object_type *o_ptr);
+extern void do_cmd_edit_autopick(void);
 
 /* birth.c */
 extern int adjust_stat(int value, int amount);
@@ -777,6 +782,7 @@ extern void display_player(int mode);
 extern errr make_character_dump(FILE *fff);
 extern errr file_character(cptr name);
 extern errr process_pref_file_command(char *buf);
+extern cptr process_pref_file_expr(char **sp, char *fp);
 extern errr process_pref_file(cptr name);
 extern errr process_pickpref_file(cptr name);
 extern void print_equippy(void);
@@ -887,6 +893,7 @@ extern void set_pet(monster_type *m_ptr);
 extern void set_hostile(monster_type *m_ptr);
 extern void anger_monster(monster_type *m_ptr);
 extern bool monster_can_cross_terrain(byte feat, monster_race *r_ptr);
+extern bool monster_can_enter_terrain(byte feat, monster_type *m_ptr);
 extern bool monster_can_enter(int y, int x, monster_race *r_ptr);
 extern bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2);
 extern bool monster_has_hostile_alignment(monster_type *m_ptr, monster_race *r_ptr);
@@ -981,7 +988,7 @@ extern void object_copy(object_type *o_ptr, object_type *j_ptr);
 extern bool shooting_star_generation_okay(object_type *o_ptr);
 extern bool assasin_weapon_generation_okay(object_type *o_ptr);
 extern bool baldar_generation_okay(object_type *o_ptr);
-extern void dragon_resist(object_type *o_ptr);
+extern void dragon_resist(object_type *o_ptr, int power);
 extern void apply_magic(object_type *o_ptr, int lev, u32b am_flags);
 extern bool make_object(object_type *j_ptr, u32b am_flags);
 extern void place_object(int y, int x, u32b am_flags);
@@ -1276,7 +1283,8 @@ extern void prt(cptr str, int row, int col);
 extern void c_roff(byte attr, cptr str);
 extern void roff(cptr str);
 extern void clear_from(int row);
-extern bool askfor_aux(char *buf, int len);
+extern bool askfor_aux(char *buf, int len, bool numpad_cursor);
+extern bool askfor(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern bool get_check(cptr prompt);
 extern bool get_check_strict(cptr prompt, int mode);
@@ -1301,6 +1309,8 @@ extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
 extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
 extern char *my_strstr(const char *haystack, const char *needle);
 extern char *my_strchr(const char *ptr, char ch);
+extern void str_tolower(char *str);
+extern int inkey_special(bool numpad_cursor);
 
 
 /* xtra1.c */
@@ -1392,6 +1402,7 @@ extern bool set_earth_spike(int v, bool do_dec);
 extern bool set_wind_guard(int v, bool do_dec);
 extern bool set_tim_resurrection(int v, bool do_dec);
 extern void evolution(int new_race);
+extern void cure_infect(int num, bool cure_all);
 
 /* xtra2.c */
 extern void check_class_experience(void);
@@ -1486,10 +1497,13 @@ extern void survived_finish(void);
 extern int count_bits(u32b x);
 extern bool gain_random_mutation(int choose_mut, bool as_mutation);
 extern bool lose_mutation(int choose_mut);
+extern bool do_grace(int choose, int gain_or_lose);
+extern bool do_curse(int choose, int gain_or_lose);
+extern bool gain_gift(int choose_gift);
+extern bool lose_gift(int choose_gift);
 extern void dump_mutations(FILE *OutFile);
 extern void do_cmd_knowledge_mutations(void);
 extern int calc_mutant_regenerate_mod(void);
-extern bool mutation_power_aux(u32b power);
 
 
 /*

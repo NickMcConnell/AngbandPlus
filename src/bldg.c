@@ -2948,11 +2948,6 @@ static void building_recharge(void)
 			/* Identify it */
 			identify_item(o_ptr);
 
-			{
-				int idx = is_autopick(o_ptr);
-				(void)auto_inscribe_object(o_ptr, idx);
-			}
-
 			/* Description */
 			object_desc(tmp_str, o_ptr, 0);
 
@@ -2961,6 +2956,9 @@ static void building_recharge(void)
 #else
 			msg_format("You have: %s.", tmp_str);
 #endif
+
+			/* Auto-inscription */
+			autopick_alter_item(item, FALSE);
 
 			/* Update the gold display */
 			building_prt_gold();
@@ -3259,11 +3257,10 @@ static void building_recharge_all(void)
 		/* Identify it */
 		if (!object_is_known(o_ptr))
 		{
-			int idx;
 			identify_item(o_ptr);
 
-			idx = is_autopick(o_ptr);
-			(void)auto_inscribe_object(o_ptr, idx);
+			/* Auto-inscription */
+			autopick_alter_item(i, FALSE);
 		}
 
 		/* Recharge */
@@ -4827,6 +4824,7 @@ static void bldg_process_command(building_type *bldg, int i)
 		set_cut(0);
 		set_stun(0);
 		set_stoning(0);
+		if (p_ptr->infected) cure_infect(3, FALSE);
 		paid = TRUE;
 		break;
 	case BACT_RESTORE: /* needs work */
@@ -4869,6 +4867,7 @@ static void bldg_process_command(building_type *bldg, int i)
 			if (d_info[i].flags1 & DF1_CLOSED) continue;
 			if (!d_info[i].maxdepth) continue;
 			if (!max_dlv[i]) continue;
+			if ((i == DUNGEON_AIR_GARDEN) && (misc_event_flags & EVENT_CLOSE_AIR_GARDEN)) continue;
 			if (d_info[i].final_guardian)
 			{
 				if (!r_info[d_info[i].final_guardian].max_num) seiha = TRUE;
@@ -4916,7 +4915,7 @@ static void bldg_process_command(building_type *bldg, int i)
 		max_depth = d_info[select_dungeon].maxdepth;
 
 		/* Limit depth in Death Palace */
-		if (select_dungeon == DUNGEON_PALACE)
+		if (select_dungeon == DUNGEON_RUINS)
 		{
 			if ((quest[QUEST_LANCELOT].status == QUEST_STATUS_TAKEN) ||
 			    (quest[QUEST_DENIM].status == QUEST_STATUS_TAKEN))
@@ -4957,7 +4956,7 @@ static void bldg_process_command(building_type *bldg, int i)
 		break;
 	}
 	case BACT_LOSE_MUTATION:
-		if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+		if (p_ptr->mutation)
 		{
 			while(!lose_mutation(0));
 			paid = TRUE;

@@ -920,6 +920,62 @@ void do_cmd_destroy(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Verify unless quantity given */
+	if (!force && (confirm_destroy || (object_value(o_ptr) > 0)))
+	{
+		object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+
+		/* Make a verification */
+#ifdef JP
+		sprintf(out_val, "本当に%sを壊しますか? [y/n/Auto]", o_name);
+#else
+		sprintf(out_val, "Really destroy %s? [y/n/Auto]", o_name);
+#endif
+
+		msg_print(NULL);
+
+		/* HACK : Add the line to message buffer */
+		message_add(out_val);
+		p_ptr->window |= (PW_MESSAGE);
+		window_stuff();
+
+		/* Get an acceptable answer */
+		while (TRUE)
+		{
+			char i;
+
+			/* Prompt */
+			prt(out_val, 0, 0);
+
+			i = inkey();
+
+			/* Erase the prompt */
+			prt("", 0, 0);
+
+
+			if (i == 'y' || i == 'Y')
+			{
+				break;
+			}
+			if (i == ESCAPE || i == 'n' || i == 'N')
+			{
+				/* Cancel */
+				return;
+			}
+			if (i == 'A')
+			{
+				/* Add an auto-destroy preference line */
+				if (autopick_autoregister(o_ptr))
+				{
+					/* Auto-destroy it */
+					autopick_alter_item(item, TRUE);
+				}
+
+				/* The object is already destroyed. */
+				return;
+			}
+		} /* while (TRUE) */
+	}
 
 	/* See how many items */
 	if (o_ptr->number > 1)
@@ -931,28 +987,11 @@ void do_cmd_destroy(void)
 		if (amt <= 0) return;
 	}
 
-
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
 	object_desc(o_name, o_ptr, 0);
 	o_ptr->number = old_number;
-
-	/* Verify unless quantity given */
-	if (!force)
-	{
-		if (confirm_destroy || (object_value(o_ptr) > 0))
-		{
-			/* Make a verification */
-#ifdef JP
-		sprintf(out_val, "本当に%sを壊しますか? ", o_name);
-#else
-			sprintf(out_val, "Really destroy %s? ", o_name);
-#endif
-
-			if (!get_check(out_val)) return;
-		}
-	}
 
 	/* Take a turn */
 	energy_use = 100;

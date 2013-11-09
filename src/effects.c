@@ -5000,8 +5000,10 @@ int take_hit(u32b damage_type, int damage, cptr hit_from)
 
 	if (p_ptr->infected)
 	{
-		if (p_ptr->chp < increase_infect_level) p_ptr->infected++;
-		if (p_ptr->infected > 49)
+		bool con_check = ((MAX(p_ptr->stat_use[A_CON] - 100, 0) / 2) > randint0(100));
+
+		if ((p_ptr->chp < increase_infect_level) && !con_check) p_ptr->infected++;
+		if ((p_ptr->infected > 49) && (randint1(100) > MAX(p_ptr->stat_use[A_CON] - 100 - p_ptr->infected, 0)))
 		{
 			p_ptr->chp -= 5000;
 			hit_from = "感染のショック";
@@ -5793,4 +5795,20 @@ void evolution(int new_race)
 
 }
 
+void cure_infect(int num, bool cure_all)
+{
+	if (p_ptr->infected)
+	{
+		s16b new_count = p_ptr->infected;
 
+		new_count -= num;
+		if (!cure_all && (new_count < 1)) new_count = 1;
+		else if (new_count < 0)
+		{
+			new_count = 0;
+			msg_print("体が完全に浄化されたような気がする。");
+		}
+
+		p_ptr->infected = new_count;
+	}
+}

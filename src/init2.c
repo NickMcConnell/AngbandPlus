@@ -287,6 +287,7 @@ header k_head;
 header a_head;
 header e_head;
 header r_head;
+header ms_head;
 header d_head;
 header s_head;
 header m_head;
@@ -746,6 +747,27 @@ static errr init_r_info(void)
 
 
 /*
+ * Initialize the "r_ego" array
+ */
+static errr init_r_ego(void)
+{
+	/* Init the header */
+	init_header(&ms_head, max_ms_idx, sizeof(monster_special));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	ms_head.parse_info_txt = parse_r_ego;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("r_ego", &ms_head,
+	                 (void*)&ms_info, (void*)&ms_name, (void*)&ms_text);
+}
+
+
+
+/*
  * Initialize the "d_info" array
  */
 static errr init_d_info(void)
@@ -1144,27 +1166,27 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
+		{ TV_POTION, SV_POTION_HOLY_WATER },
 
+		{ TV_POTION, SV_POTION_HOLY_WATER },
+		{ TV_POTION, SV_POTION_HOLY_WATER },
 		{ TV_POTION, SV_POTION_HEROISM },
 		{ TV_POTION, SV_POTION_HEROISM },
+
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_HEALING },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
@@ -2332,6 +2354,16 @@ void init_angband(void)
 #else
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
+#endif
+
+
+	/* Initialize monster info */
+#ifdef JP
+	note("[データの初期化中... (エゴモンスター)]");
+	if (init_r_ego()) quit("エゴモンスター初期化不能");
+#else
+	note("[Initializing arrays... (ego-monsters)]");
+	if (init_r_ego()) quit("Cannot initialize ego-monsters");
 #endif
 
 

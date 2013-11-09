@@ -236,6 +236,7 @@ static void wr_monster(monster_type *m_ptr)
 
 	/*** Write only un-obvious elements ***/
 	wr_s16b(m_ptr->r_idx);
+	wr_s16b(m_ptr->s_idx);
 	wr_s16b(m_ptr->elem);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
@@ -588,6 +589,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_s16b(p_ptr->pelem);
+	wr_s16b(p_ptr->celem);
 	tmp8u = MAX_CLASS;
 	wr_byte(tmp8u);
 
@@ -753,9 +755,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->multishadow);
 	wr_s16b(p_ptr->dustrobe);
 
-	wr_u32b(p_ptr->muta1);
-	wr_u32b(p_ptr->muta2);
-	wr_u32b(p_ptr->muta3);
+	wr_u32b(p_ptr->mutation);
+	wr_u32b(p_ptr->grace);
+	wr_u32b(p_ptr->gift);
 
 	wr_u32b(p_ptr->special_blow);
 
@@ -769,7 +771,7 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->special_attack);
 	wr_s16b(p_ptr->death_regen);
 	wr_byte(p_ptr->action);
-	wr_byte(0);
+	wr_byte(p_ptr->autopick_autoregister);
 	wr_byte(preserve_mode);
 
 	/* Future use */

@@ -769,7 +769,7 @@ errr process_pref_file_command(char *buf)
  * Output:
  *   result
  */
-static cptr process_pref_file_expr(char **sp, char *fp)
+cptr process_pref_file_expr(char **sp, char *fp)
 {
 	cptr v;
 
@@ -1185,8 +1185,8 @@ static errr process_pref_file_aux(cptr name, bool read_pickpref)
 		if (err)
 		{
 			if (!read_pickpref)
-				break;
-			err = process_pickpref_file_line(buf);
+  				break;
+			err = process_autopick_file_command(buf);
 		}
 	}
 
@@ -2099,17 +2099,10 @@ static void display_player_various(void)
 	int			xdis, xdev, xsav, xstl;
 	cptr		desc;
 	char		raw_desc[10];
-	int         muta_att = 0;
 	u32b flgs[TR_FLAG_SIZE];
 	int		shots, shot_frac;
 
 	object_type		*o_ptr;
-
-	if (p_ptr->muta2 & MUT2_HORNS)     muta_att++;
-	if (p_ptr->muta2 & MUT2_SCOR_TAIL) muta_att++;
-	if (p_ptr->muta2 & MUT2_BEAK)      muta_att++;
-	if (p_ptr->muta2 & MUT2_TRUNK)     muta_att++;
-	if (p_ptr->muta2 & MUT2_TENTACLES) muta_att++;
 
 	xthn = p_ptr->skill_thn + (p_ptr->to_h_m * BTH_PLUS_ADJ);
 	if (xthn > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN)) xthn = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN;
@@ -2250,10 +2243,7 @@ static void display_player_various(void)
 	}
 	display_player_one_line(ENTRY_SKILL_DEVICE, desc, likert_color);
 
-	if (!muta_att)
-		display_player_one_line(ENTRY_BLOWS, format("%d+%d", blows1, blows2), TERM_L_BLUE);
-	else
-		display_player_one_line(ENTRY_BLOWS, format("%d+%d+%d", blows1, blows2, muta_att), TERM_L_BLUE);
+	display_player_one_line(ENTRY_BLOWS, format("%d+%d", blows1, blows2), TERM_L_BLUE);
 
 	display_player_one_line(ENTRY_SHOTS, format("%d.%02d", shots, shot_frac), TERM_L_BLUE);
 
@@ -2530,7 +2520,7 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (p_ptr->muta3 & MUT3_VULN_ELEM)
+	if (p_ptr->mutation & MUT_VULN_ELEM)
 	{
 		add_flag(flgs, TR_RES_ACID);
 		add_flag(flgs, TR_RES_ELEC);
@@ -3257,44 +3247,33 @@ static void display_player_stat_info(void)
 		c = '.';
 
 		/* Mutations ... */
-		if (p_ptr->muta3 || p_ptr->chargespell || p_ptr->zoshonel_protect)
+		if (p_ptr->mutation || p_ptr->chargespell || p_ptr->zoshonel_protect)
 		{
 			int dummy = 0;
 
 			if (stat == A_STR)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
-				if (p_ptr->muta3 & MUT3_PUNY) dummy -= 4;
 				if (p_ptr->zoshonel_protect) dummy += 4;
 			}
 			else if (stat == A_WIS || stat == A_INT)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
-				if (p_ptr->muta3 & MUT3_MORONIC) dummy -= 4;
 				if (p_ptr->chargespell) dummy += 4;
 			}
 			else if (stat == A_DEX)
 			{
-				if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
-				if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
+				if (p_ptr->mutation & MUT_THICK_SKIN) dummy -= 1;
 				if (p_ptr->zoshonel_protect) dummy += 4;
 			}
 			else if (stat == A_CON)
 			{
-				if (p_ptr->muta3 & MUT3_RESILIENT) dummy += 4;
-				if (p_ptr->muta3 & MUT3_XTRA_FAT) dummy += 2;
-				if (p_ptr->muta3 & MUT3_ALBINO) dummy -= 4;
-				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 2;
+				if (p_ptr->mutation & MUT_XTRA_FAT) dummy += 2;
+				if (p_ptr->mutation & MUT_FLESH_ROT) dummy -= 2;
 			}
 			else if (stat == A_CHR)
 			{
-				if (p_ptr->muta3 & MUT3_SILLY_VOI) dummy -= 4;
-				if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_SCALES) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
-				if (p_ptr->muta3 & MUT3_ILL_NORM) dummy = 0;
+				if (p_ptr->mutation & MUT_FLESH_ROT) dummy -= 1;
+				if (p_ptr->mutation & MUT_SCALES) dummy -= 1;
+				if (p_ptr->mutation & MUT_THICK_SKIN) dummy -= 2;
 			}
 
 			/* Boost */
@@ -3360,7 +3339,7 @@ void display_player(int mode)
 
 
 	/* XXX XXX XXX */
-	if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && display_mutations)
+	if (p_ptr->mutation && display_mutations)
 		mode = (mode % 5);
 	else
 		mode = (mode % 4);
@@ -3391,7 +3370,8 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_SOCIAL, format("%d" ,(int)p_ptr->sc), TERM_L_BLUE);
 #endif
 		if (p_ptr->no_elem) display_player_one_line (ENTRY_ELEM, "    ", TERM_DARK);
-		else if ((p_ptr->opposite_pelem) && !(p_ptr->no_elem)) display_player_one_line(ENTRY_ELEM, format("%s(%s)", elem_names[get_cur_pelem()], elem_names[p_ptr->pelem]), TERM_L_BLUE);
+		else if ((p_ptr->opposite_pelem) && !(p_ptr->no_elem)) display_player_one_line(ENTRY_ELEM, format("%s(%s)", elem_names[get_cur_pelem()], elem_names[p_ptr->celem]), TERM_L_BLUE);
+		else if (p_ptr->celem != p_ptr->pelem) display_player_one_line(ENTRY_ELEM, format("%s(%s)", elem_names[p_ptr->celem], elem_names[p_ptr->pelem]), TERM_L_BLUE);
 		else display_player_one_line(ENTRY_ELEM, format("%s", elem_names[get_cur_pelem()]), TERM_L_BLUE);
 		display_player_one_line(ENTRY_ALIGN, format("%s-%s", your_alignment_gne(), your_alignment_lnc()), TERM_L_BLUE);
 
@@ -4360,10 +4340,10 @@ static void dump_aux_chaos_frame(FILE *fff)
  */
 static void dump_aux_mutations(FILE *fff)
 {
-	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+	if (p_ptr->mutation || p_ptr->grace || p_ptr->gift)
 	{
 #ifdef JP
-		fprintf(fff, "\n\n  [突然変異]\n\n");
+		fprintf(fff, "\n\n  [突然変異・恩寵／呪い・ギフト]\n\n");
 #else
 		fprintf(fff, "\n\n  [Mutations]\n\n");
 #endif
@@ -4671,6 +4651,129 @@ errr file_character(cptr name)
 
 
 /*
+ * Display single line of on-line help file
+ *
+ * You can insert some special color tag to change text color.
+ * Such as...
+ * WHITETEXT [[[[y|SOME TEXT WHICH IS DISPLAYED IN YELLOW| WHITETEXT
+ *
+ * A colored segment is between "[[[[y|" and the last "|".
+ * You can use any single character in place of the "|".
+ */
+static void show_file_aux_line(cptr str, int cy, cptr shower)
+{
+	static const char tag_str[] = "[[[[";
+	byte color = TERM_WHITE;
+	char in_tag = '\0';
+	int cx = 0;
+	int i;
+	char lcstr[1024];
+
+	if (shower)
+	{
+		/* Make a lower case version of str for searching */
+		strcpy(lcstr, str);
+		str_tolower(lcstr);
+	}
+
+	/* Initial cursor position */
+	Term_gotoxy(cx, cy);
+
+	for (i = 0; str[i];)
+	{
+		int len = strlen(&str[i]);
+		int showercol = len + 1;
+		int bracketcol = len + 1;
+		int endcol = len;
+		cptr ptr;
+
+		/* Search for a shower string in the line */
+		if (shower)
+		{
+			ptr = my_strstr(&lcstr[i], shower);
+			if (ptr) showercol = ptr - &lcstr[i];
+		}
+
+		/* Search for a color segment tag */
+		ptr = in_tag ? my_strchr(&str[i], in_tag) : my_strstr(&str[i], tag_str);
+		if (ptr) bracketcol = ptr - &str[i];
+
+		/* A color tag is found */
+		if (bracketcol < endcol) endcol = bracketcol;
+
+		/* The shower string is found before the color tag */
+		if (showercol < endcol) endcol = showercol;
+
+		/* Print a segment of the line */
+		Term_addstr(endcol, color, &str[i]);
+		cx += endcol;
+		i += endcol;
+
+		/* Shower string? */
+		if (endcol == showercol)
+		{
+			int showerlen = strlen(shower);
+
+			/* Print the shower string in yellow */
+			Term_addstr(showerlen, TERM_YELLOW, &str[i]);
+			cx += showerlen;
+			i += showerlen;
+		}
+
+		/* Colored segment? */
+		else if (endcol == bracketcol)
+		{
+			if (in_tag)
+			{
+				/* Found the end of colored segment */
+				i++;
+
+				/* Now looking for an another tag_str */
+				in_tag = '\0';
+
+				/* Set back to the default color */
+				color = TERM_WHITE;
+			}
+			else
+			{
+				/* Found a tag_str, and get a tag color */
+				i += sizeof(tag_str)-1;
+
+				/* Get tag color */
+				color = color_char_to_attr(str[i]);
+
+				/* Illegal color tag */
+				if (color == 255 || str[i+1] == '\0')
+				{
+					/* Illegal color tag */
+					color = TERM_WHITE;
+
+					/* Print the broken tag as a string */
+					Term_addstr(-1, TERM_WHITE, tag_str);
+					cx += sizeof(tag_str)-1;
+				}
+				else
+				{
+					/* Skip the color tag */
+					i++;
+
+					/* Now looking for a close tag */
+					in_tag = str[i];
+
+					/* Skip the close-tag-indicator */
+					i++;
+				}
+			}
+		}
+
+	} /* for (i = 0; str[i];) */
+
+	/* Clear rest of line */
+	Term_erase(cx, cy, 255);
+}
+
+
+/*
  * Recursive file perusal.
  *
  * Return FALSE on 'Q', otherwise TRUE.
@@ -4684,7 +4787,7 @@ errr file_character(cptr name)
  */
 bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 {
-	int i, n, k;
+	int i, n, skey;
 
 	/* Number of "real" lines passed by */
 	int next = 0;
@@ -4694,12 +4797,6 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 
 	/* Backup value for "line" */
 	int back = 0;
-
-	/* Color of the next line */
-	byte color = TERM_WHITE;
-
-	/* Loop counter */
-	int cnt;
 
 	/* This screen has sub-screens */
 	bool menu = FALSE;
@@ -4713,11 +4810,13 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	/* Jump to this tag */
 	cptr tag = NULL;
 
-	/* Hold a string to find */
-	char finder[81];
+	/* Hold strings to find/show */
+	char finder_str[81];
+	char shower_str[81];
+	char back_str[81];
 
-	/* Hold a string to show */
-	char shower[81];
+	/* String to show */
+	cptr shower = NULL;
 
 	/* Filename */
 	char filename[1024];
@@ -4731,12 +4830,6 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	/* General buffer */
 	char buf[1024];
 
-	/* Lower case version of the buffer, for searching */
-	char lc_buf[1024];
-
-	/* Aux pointer for making lc_buf (and find!) lowercase */
-	cptr lc_buf_ptr;
-
 	/* Sub-menu information */
 	char hook[68][32];
 
@@ -4748,10 +4841,10 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	rows = hgt - 4;
 
 	/* Wipe finder */
-	strcpy(finder, "");
+	strcpy(finder_str, "");
 
 	/* Wipe shower */
-	strcpy(shower, "");
+	strcpy(shower_str, "");
 
 	/* Wipe caption */
 	strcpy(caption, "");
@@ -4871,14 +4964,10 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	/* Pre-Parse the file */
 	while (TRUE)
 	{
-		char *str;
+		char *str = buf;
 
 		/* Read a line or stop */
 		if (my_fgets(fff, buf, sizeof(buf))) break;
-
-		/* Get a color */
-		if (prefix(buf, "#####")) str = &buf[6];
-		else str = buf;
 
 		/* XXX Parse "menu" items */
 		if (prefix(str, "***** "))
@@ -4886,11 +4975,11 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			/* Notice "menu" requests */
 			if ((str[6] == '[') && isalpha(str[7]))
 			{
+				/* Extract the menu item */
+				int k = str[7] - 'A';
+
 				/* This is a menu file */
 				menu = TRUE;
-
-				/* Extract the menu item */
-				k = str[7] - 'A';
 
 				if ((str[8] == ']') && (str[9] == ' '))
 				{
@@ -4904,8 +4993,13 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			/* Notice "tag" requests */
 			else if (str[6] == '<')
 			{
-				str[strlen(str) - 1] = '\0';
-				if (tag && streq(str + 7, tag)) line = next;
+				size_t len = strlen(str);
+
+				if (str[len - 1] == '>')
+				{
+					str[len - 1] = '\0';
+					if (tag && streq(str + 7, tag)) line = next;
+				}
 			}
 
 			/* Skip this */
@@ -4922,12 +5016,12 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	/* start from bottom when reverse mode */
 	if (line == -1) line = ((size-1)/rows)*rows;
 
+	/* Clear screen */
+	Term_clear();
+
 	/* Display the file */
 	while (TRUE)
 	{
-		/* Clear screen */
-		Term_clear();
-
 		/* Restart when necessary */
 		if (line >= size - rows) line = size - rows;
 		if (line < 0) line = 0;
@@ -4964,8 +5058,7 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 		/* Dump the next 20, or rows, lines of the file */
 		for (i = 0; i < rows; )
 		{
-			int print_x, x;
-			cptr str;
+			cptr str = buf;
 
 			/* Hack -- track the "first" line */
 			if (!i) line = next;
@@ -4976,87 +5069,36 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			/* Hack -- skip "special" lines */
 			if (prefix(buf, "***** ")) continue;
 
-			/* Get a color */
-			if (prefix(buf, "#####"))
-			{
-				color = color_char_to_attr(buf[5]);
-				str = &buf[6];
-			}
-			else
-			{
-				color = TERM_WHITE;
-				str = buf;
-			}
-
 			/* Count the "real" lines */
 			next++;
 
-			/* Make a lower case version of str for searching */
-			strcpy(lc_buf, str);
-
-			for (lc_buf_ptr = lc_buf; *lc_buf_ptr != 0; lc_buf_ptr++)
-			{
-#ifdef JP
-				if (iskanji(*lc_buf_ptr))
-					lc_buf_ptr++;
-				else
-#endif
-					lc_buf[lc_buf_ptr-lc_buf] = tolower(*lc_buf_ptr);
-			}
-
 			/* Hack -- keep searching */
-			if (find && !i && !my_strstr(lc_buf, find)) continue;
+			if (find && !i)
+			{
+				char lc_buf[1024];
+
+				/* Make a lower case version of str for searching */
+				strcpy(lc_buf, str);
+				str_tolower(lc_buf);
+
+				if (!my_strstr(lc_buf, find)) continue;
+			}
 
 			/* Hack -- stop searching */
 			find = NULL;
 
 			/* Dump the line */
-			x = 0;
-			print_x = 0;
-			while (str[x])
-			{
-				/* Color ? */
-				if (prefix(str + x, "[[[[["))
-				{
-					byte c = color_char_to_attr(str[x + 5]);
-					x += 6;
-
-					/* Ok print the link name */
-					while (str[x] != ']')
-					{
-						Term_putch(print_x, i + 2, c, str[x]);
-						x++;
-						print_x++;
-					}
-				}
-				else
-				{
-					Term_putch(print_x, i + 2, color, str[x]);
-					print_x++;
-				}
-
-				x++;
-			}
-
-			/* Hilite "shower" */
-			if (shower[0])
-			{
-				cptr s2 = lc_buf;
-
-				/* Display matches */
-				while ((s2 = my_strstr(s2, shower)) != NULL)
-				{
-					int len = strlen(shower);
-
-					/* Display the match */
-					Term_putstr(s2-lc_buf, i+2, len, TERM_YELLOW, &str[s2-lc_buf]);
-
-					/* Advance */
-					s2 += len;
-				}
-			}
+			show_file_aux_line(str, i + 2, shower);
 
 			/* Count the printed lines */
+			i++;
+		}
+
+		while (i < rows)
+		{
+			/* Clear rest of line */
+			Term_erase(0, i + 2, 255);
+
 			i++;
 		}
 
@@ -5119,15 +5161,13 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 #endif
 		}
 
-		/* Get a keypress */
-		k = inkey();
+		/* Get a special key code */
+		skey = inkey_special(TRUE);
 
-		/* Hack -- return to last screen */
-		if (k == '<') break;
-
-		/* Show the help for the help */
-		if (k == '?')
+		switch (skey)
 		{
+		/* Show the help for the help */
+		case '?':
 			/* Hack - prevent silly recursion */
 #ifdef JP
 			if (strcmp(name, "jhelpinfo.txt") != 0)
@@ -5136,11 +5176,10 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			if (strcmp(name, "helpinfo.txt") != 0)
 				show_file(TRUE, "helpinfo.txt", NULL, 0, mode);
 #endif
-		}
+			break;
 
 		/* Hack -- try showing */
-		if (k == '=')
-		{
+		case '=':
 			/* Get "shower" */
 #ifdef JP
 			prt("強調: ", hgt - 1, 0);
@@ -5148,12 +5187,25 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			prt("Show: ", hgt - 1, 0);
 #endif
 
-			(void)askfor_aux(shower, 80);
-		}
+			strcpy(back_str, shower_str);
+			if (askfor(shower_str, 80))
+			{
+				if (shower_str[0])
+				{
+					/* Make it lowercase */
+					str_tolower(shower_str);
+
+					/* Show it */
+					shower = shower_str;
+				}
+				else shower = NULL; /* Stop showing */
+			}
+			else strcpy(shower_str, back_str);
+			break;
 
 		/* Hack -- try finding */
-		if (k == '/')
-		{
+		case '/':
+		case KTRL('s'):
 			/* Get "finder" */
 #ifdef JP
 			prt("検索: ", hgt - 1, 0);
@@ -5161,96 +5213,113 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			prt("Find: ", hgt - 1, 0);
 #endif
 
-
-			if (askfor_aux(finder, 80))
+			strcpy(back_str, finder_str);
+			if (askfor(finder_str, 80))
 			{
-				/* Find it */
-				find = finder;
-				back = line;
-				line = line + 1;
-
-				/* Make finder lowercase */
-				for (cnt = 0; finder[cnt] != 0; cnt++)
+				if (finder_str[0])
 				{
-#ifdef JP
-					if (iskanji(finder[cnt]))
-						cnt++;
-					else
-#endif
-						finder[cnt] = tolower(finder[cnt]);
-				}
+					/* Find it */
+					find = finder_str;
+					back = line;
+					line = line + 1;
 
-				/* Show it */
-				strcpy(shower, finder);
+					/* Make finder lowercase */
+					str_tolower(finder_str);
+
+					/* Show it */
+					shower = finder_str;
+				}
+				else shower = NULL; /* Stop showing */
 			}
-		}
+			else strcpy(finder_str, back_str);
+			break;
 
 		/* Hack -- go to a specific line */
-		if (k == '#')
-		{
-			char tmp[81];
+		case '#':
+			{
+				char tmp[81];
 #ifdef JP
-			prt("行: ", hgt - 1, 0);
+				prt("行: ", hgt - 1, 0);
 #else
-			prt("Goto Line: ", hgt - 1, 0);
+				prt("Goto Line: ", hgt - 1, 0);
 #endif
 
-			strcpy(tmp, "0");
+				strcpy(tmp, "0");
 
-			if (askfor_aux(tmp, 80))
-			{
-				line = atoi(tmp);
+				if (askfor(tmp, 80)) line = atoi(tmp);
 			}
-		}
+			break;
+
+		/* Hack -- go to the top line */
+		case SKEY_TOP:
+			line = 0;
+			break;
+
+		/* Hack -- go to the bottom line */
+		case SKEY_BOTTOM:
+			line = ((size - 1) / rows) * rows;
+			break;
 
 		/* Hack -- go to a specific file */
-		if (k == '%')
-		{
-			char tmp[81];
+		case '%':
+			{
+				char tmp[81];
 #ifdef JP
-			prt("ファイル・ネーム: ", hgt - 1, 0);
-			strcpy(tmp, "jhelp.hlp");
+				prt("ファイル・ネーム: ", hgt - 1, 0);
+				strcpy(tmp, "jhelp.hlp");
 #else
-			prt("Goto File: ", hgt - 1, 0);
-			strcpy(tmp, "help.hlp");
+				prt("Goto File: ", hgt - 1, 0);
+				strcpy(tmp, "help.hlp");
 #endif
 
-
-			if (askfor_aux(tmp, 80))
-			{
-				if (!show_file(TRUE, tmp, NULL, 0, mode)) k = 'q';
+				if (askfor(tmp, 80))
+				{
+					if (!show_file(TRUE, tmp, NULL, 0, mode)) skey = 'q';
+				}
 			}
-		}
+			break;
 
 		/* Allow backing up */
-		if (k == '-')
-		{
+		case '-':
 			line = line + (reverse ? rows : -rows);
 			if (line < 0) line = 0;
-		}
+			break;
+
+		/* One page up */
+		case SKEY_PGUP:
+			line = line - rows;
+			if (line < 0) line = 0;
+			break;
 
 		/* Advance a single line */
-		if ((k == '\n') || (k == '\r'))
-		{
+		case '\n':
+		case '\r':
 			line = line + (reverse ? -1 : 1);
 			if (line < 0) line = 0;
-		}
-
+			break;
 
 		/* Move up / down */
-		if (k == '8')
-		{
+		case '8':
+		case SKEY_UP:
 			line--;
 			if (line < 0) line = 0;
-		}
+			break;
 
-		if (k == '2') line++;
+		case '2':
+		case SKEY_DOWN:
+			line++;
+			break;
 
 		/* Advance one page */
-		if (k == ' ')
-		{
+		case ' ':
 			line = line + (reverse ? -rows : rows);
-			if (line < 0) line = ((size-1)/rows)*rows;
+			if (line < 0) line = 0;
+			break;
+
+		/* One page down */
+		case SKEY_PGDOWN:
+			line = line + rows;
+			break;
 		}
 
 		/* Recurse on numbers */
@@ -5258,19 +5327,19 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 		{
 			int key = -1;
 
-			if (isalpha(k))
-				key = k - 'A';
+			if (!(skey & SKEY_MASK) && isalpha(skey))
+				key = skey - 'A';
 
 			if ((key > -1) && hook[key][0])
 			{
 				/* Recurse on that file */
 				if (!show_file(TRUE, hook[key], NULL, 0, mode))
-					k = 'q';
+					skey = 'q';
 			}
 		}
 
 		/* Hack, dump to file */
-		if (k == '|')
+		if (skey == '|')
 		{
 			FILE *ffp;
 			char buff[1024];
@@ -5279,19 +5348,13 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			strcpy (xtmp, "");
 
 #ifdef JP
-			if (!get_string("ファイル名: ", xtmp, 80))
+			if (!get_string("ファイル名: ", xtmp, 80)) continue;
 #else
-			if (!get_string("File name: ", xtmp, 80))
+			if (!get_string("File name: ", xtmp, 80)) continue;
 #endif
-			{
-				continue;
-			}
  
 			/* Close it */
 			my_fclose(fff);
-
-			/* Drop priv's */
-			safe_setuid_drop();
 
 			/* Build the filename */
 			path_build(buff, sizeof(buff), ANGBAND_DIR_USER, xtmp);
@@ -5310,11 +5373,11 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 				msg_print("Failed to open file.");
 #endif
 
-				k = ESCAPE;
+				skey = ESCAPE;
 				break;
 			}
 
-			sprintf(xtmp, "%s: %s", player_name, what);
+			sprintf(xtmp, "%s: %s", player_name, what ? what : caption);
 			my_fputs(ffp, xtmp, 80);
 			my_fputs(ffp, "\n", 80);
 
@@ -5325,23 +5388,25 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			my_fclose(fff);
 			my_fclose(ffp);
 
-			/* Grab priv's */
-			safe_setuid_grab();
-
 			/* Hack -- Re-Open the file */
 			fff = my_fopen(path, "r");
 		}
 
-		/* Exit on escape */
-		if (k == ESCAPE) break;
-		if (k == 'q') break;
+		/* Return to last screen */
+		if ((skey == ESCAPE) || (skey == '<')) break;
+
+		/* Exit on the ^q */
+		if (skey == KTRL('q')) skey = 'q';
+
+		/* Exit on the q key */
+		if (skey == 'q') break;
 	}
 
 	/* Close the file */
 	my_fclose(fff);
 
 	/* Escape */
-	if (k == 'q') return (FALSE);
+	if (skey == 'q') return (FALSE);
 
 	/* Normal return */
 	return (TRUE);
@@ -6205,7 +6270,7 @@ static void show_info(void)
 		strcpy(out_val, "");
 
 		/* Ask for filename (or abort) */
-		if (!askfor_aux(out_val, 60)) return;
+		if (!askfor(out_val, 60)) return;
 
 		/* Return means "show on screen" */
 		if (!out_val[0]) break;
@@ -6797,16 +6862,10 @@ errr process_pickpref_file(cptr name)
 
 	errr err = 0;
 
-	/* Drop priv's */
-	safe_setuid_drop();
-
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
 	err = process_pref_file_aux(buf, TRUE);
-
-	/* Grab priv's */
-	safe_setuid_grab();
 
 	/* Result */
 	return (err);

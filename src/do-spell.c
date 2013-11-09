@@ -2833,6 +2833,7 @@ static cptr do_holy_spell(int spell, int mode)
 				hp_player(heal);
 				set_stun(0);
 				set_cut(0);
+				if (p_ptr->infected) cure_infect(3, FALSE);
 			}
 		}
 		break;
@@ -2855,6 +2856,7 @@ static cptr do_holy_spell(int spell, int mode)
 				set_image(0);
 				set_shero(0, TRUE);
 				set_stoning(0);
+				if (p_ptr->infected) cure_infect(1, FALSE);
 			}
 		}
 		break;
@@ -3112,6 +3114,7 @@ static cptr do_holy_spell(int spell, int mode)
 				set_shero(0, TRUE);
 				set_image(0);
 				set_stoning(0);
+				if (p_ptr->infected) cure_infect(10, TRUE);
 			}
 		}
 		break;

@@ -371,7 +371,6 @@ bool object_is_melee_weapon(object_type *o_ptr)
  */
 bool object_is_armour(object_type *o_ptr)
 {
-	if (o_ptr->name2 == EGO_NO_ELEM) return (FALSE);
 	switch (o_ptr->tval)
 	{
 		case TV_HARD_ARMOR:

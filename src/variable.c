@@ -37,7 +37,8 @@ cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
  *  List for auto-picker/destroyer entries
  */
 int max_autopick = 0;
-autopick_type autopick_list[MAX_AUTOPICK];
+int max_max_autopick = 0;
+autopick_type *autopick_list = NULL;
 
 /*
  * Savefile version
@@ -133,7 +134,6 @@ bool inkey_base;		/* See the "inkey()" function */
 bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
-bool inkey_special;		/* See the "inkey()" function */
 
 s16b coin_type;			/* Hack -- force coin type */
 
@@ -189,12 +189,13 @@ bool always_repeat;			/* Repeat obvious commands */
 bool confirm_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_wear;		/* Confirm before putting on known cursed items */
 bool confirm_quest;		/* Prompt before staircases... */
-bool target_pet;
-bool easy_open;
-bool easy_disarm;
-bool easy_floor;
-bool use_command;
-bool over_exert;
+bool target_pet;	/* Allow targetting pets */
+bool easy_open;	/* Automatically open doors */
+bool easy_disarm;	/* Automatically disarm traps */
+bool easy_floor;	/* Display floor stacks in a list */
+bool use_command;	/* Allow unified use command */
+bool over_exert;	/* Allow casting spells when short of mana */
+bool numpad_as_cursorkey;	/* Use numpad keys as cursor key in editor mode */
 
 
 /*** Map Screen Options ***/
@@ -812,6 +813,14 @@ char *r_text;
 
 
 /*
+ * The monster special arrays
+ */
+monster_special *ms_info;
+char *ms_name;
+char *ms_text;
+
+
+/*
  * The dungeon arrays
  */
 dungeon_info_type *d_info;
@@ -1034,6 +1043,11 @@ u16b max_quests;
  * Maximum number of monsters in r_info.txt
  */
 u16b max_r_idx;
+
+/*
+ * Maximum number of ego-monsters in r_ego.txt
+ */
+u16b max_ms_idx;
 
 /*
  * Maximum number of items in k_info.txt

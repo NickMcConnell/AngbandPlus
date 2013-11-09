@@ -1363,7 +1363,14 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			a = r_ptr->x_attr;
 
 			/* Desired char */
-			c = r_ptr->x_char;
+			if (m_ptr->s_idx)
+			{
+				c = ms_info[m_ptr->s_idx].d_char;
+			}
+			else
+			{
+				c = r_ptr->x_char;
+			}
 
 			feat_priority = 30;
 
@@ -2037,7 +2044,7 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 	int len = 0;
 	byte attr;
 
-	object_desc(buf, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+	object_desc(buf, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_ONLY));
 	attr = tval_to_attr[o_ptr->tval % 128];
 
 	if (p_ptr->image)

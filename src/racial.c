@@ -85,7 +85,6 @@ static bool do_cmd_archer(void)
 	{
 		int item;
 		cptr q, s;
-		int idx;
 
 		item_tester_hook = object_is_convertible;
 
@@ -123,7 +122,7 @@ static bool do_cmd_archer(void)
 
 		q_ptr->discount = 99;
 
-		object_desc(o_name, q_ptr, OD_OMIT_INSCRIPTION);
+		object_desc(o_name, q_ptr, 0);
 #ifdef JP
 		msg_format("%sを作った。", o_name);
 #else
@@ -144,8 +143,7 @@ static bool do_cmd_archer(void)
 		}
 
 		/* Auto-inscription */
-		idx = is_autopick(q_ptr);
-		(void)auto_inscribe_object(q_ptr, idx);
+		autopick_alter_item(item, FALSE);
 
 		(void)inven_carry(q_ptr);
 	}
@@ -154,7 +152,6 @@ static bool do_cmd_archer(void)
 	{
 		int item;
 		cptr q, s;
-		int idx;
 
 		item_tester_hook = object_is_convertible;
 
@@ -192,7 +189,7 @@ static bool do_cmd_archer(void)
 
 		q_ptr->discount = 99;
 
-		object_desc(o_name, q_ptr, OD_OMIT_INSCRIPTION);
+		object_desc(o_name, q_ptr, 0);
 #ifdef JP
 		msg_format("%sを作った。", o_name);
 #else
@@ -213,8 +210,7 @@ static bool do_cmd_archer(void)
 		}
 
 		/* Auto-inscription */
-		idx = is_autopick(q_ptr);
-		(void)auto_inscribe_object(q_ptr, idx);
+		autopick_alter_item(item, FALSE);
 
 		(void)inven_carry(q_ptr);
 	}
@@ -796,8 +792,19 @@ static bool do_cmd_hamaya(void)
 	/* Fire the item */
 	{
 		char o_name[MAX_NLEN];
+		object_type *i_ptr;
 
-		object_desc(o_name, &inventory[item], (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NO_PLURAL));
+		/* Access the item (if in the pack) */
+		if (item >= 0)
+		{
+			i_ptr = &inventory[item];
+		}
+		else
+		{
+			i_ptr = &o_list[0 - item];
+		}
+
+		object_desc(o_name, i_ptr, (OD_NAME_ONLY | OD_OMIT_PREFIX | OD_NO_PLURAL));
 #ifdef JP
 		msg_format("祈りをこめて%sを放つ！", o_name);
 #else
@@ -3268,6 +3275,204 @@ void do_cmd_racial_power(void)
 		return;
 	}
 
+	if (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD)))
+	{
+
+		switch (p_ptr->prace)
+		{
+			case RACE_HAWKMAN:
+				if (get_cur_pelem() == ELEM_WIND)
+				{
+#ifdef JP
+					strcpy(power_desc[num].name, "ウィンドショット");
+#else
+					strcpy(power_desc[num].name, "Wind Shot");
+#endif
+					power_desc[num].level = 6;
+					power_desc[num].cost = 8;
+					power_desc[num].stat = A_DEX;
+					power_desc[num].fail = 25;
+					power_desc[num++].number = -1;
+				}
+				break;
+			case RACE_LIZARDMAN:
+				sprintf(power_desc[num].name,
+#ifdef JP
+				        "ブレス (d. %d+d%d)",
+#else
+				        "Breath (d. %d+d%d)",
+#endif
+				        chp / ((get_cur_pelem() == ELEM_AQUA) ? 3 : 10), chp / 10);
+
+				power_desc[num].level = 1;
+				power_desc[num].cost = mhp / 10;
+				power_desc[num].stat = A_CON;
+				power_desc[num].fail = 12;
+				power_desc[num++].number = -1;
+				break;
+			case RACE_FAIRY:
+#ifdef JP
+				strcpy(power_desc[num].name, "眠り粉");
+#else
+				strcpy(power_desc[num].name, "Sleeping Dust");
+#endif
+
+				power_desc[num].level = 12;
+				power_desc[num].cost = 12;
+				power_desc[num].stat = A_INT;
+				power_desc[num].fail = 15;
+				power_desc[num++].number = -1;
+				break;
+			case RACE_GREMLIN:
+#ifdef JP
+				strcpy(power_desc[num].name, "ディープキッス");
+#else
+				strcpy(power_desc[num].name, "Deep Kiss");
+#endif
+
+				power_desc[num].level = 40;
+				power_desc[num].cost = 20;
+				power_desc[num].stat = A_INT;
+				power_desc[num].fail = 70;
+				power_desc[num++].number = -1;
+				break;
+			case RACE_SKELETON:
+#ifdef JP
+				strcpy(power_desc[num].name, "経験値復活");
+#else
+				strcpy(power_desc[num].name, "Restore Life");
+#endif
+
+				power_desc[num].level = 30;
+				power_desc[num].cost = 30;
+				power_desc[num].stat = A_WIS;
+				power_desc[num].fail = 18;
+				power_desc[num++].number = -1;
+				break;
+			case RACE_GHOST:
+#ifdef JP
+				strcpy(power_desc[num].name, "モンスター恐慌");
+#else
+				strcpy(power_desc[num].name, "Scare Monster");
+#endif
+
+				power_desc[num].level = 4;
+				power_desc[num].cost = 6;
+				power_desc[num].stat = A_INT;
+				power_desc[num].fail = 3;
+				power_desc[num++].number = -1;
+				break;
+			case RACE_PUMPKINHEAD:
+			case RACE_MADHALLOWEEN:
+#ifdef JP
+				strcpy(power_desc[num].name, "かぼちゃうぉーず");
+#else
+				strcpy(power_desc[num].name, "Pumpkin Wars");
+#endif
+
+				power_desc[num].level = 2;
+				power_desc[num].cost = 2;
+				power_desc[num].stat = A_CON;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -1;
+#ifdef JP
+				strcpy(power_desc[num].name, "ドラッグイーター");
+#else
+				strcpy(power_desc[num].name, "Drug Eater");
+#endif
+
+				power_desc[num].level = 40;
+				power_desc[num].cost = 80;
+				power_desc[num].stat = A_WIS;
+				power_desc[num].fail = 80;
+				power_desc[num++].number = -2;
+#ifdef JP
+				strcpy(power_desc[num].name, "パンプキンボム");
+#else
+				strcpy(power_desc[num].name, "Pumpkin Bomb");
+#endif
+
+				power_desc[num].level = 45;
+				power_desc[num].cost = 90;
+				power_desc[num].stat = A_CON;
+				power_desc[num].fail = 75;
+				power_desc[num++].number = -3;
+				break;
+			case RACE_GORGON:
+#ifdef JP
+				strcpy(power_desc[num].name, "邪眼");
+#else
+				strcpy(power_desc[num].name, "Stone Gaze");
+#endif
+
+				power_desc[num].level = 25;
+				power_desc[num].cost = 30;
+				power_desc[num].stat = A_INT;
+				power_desc[num].fail = 60;
+				power_desc[num++].number = -1;
+				break;
+			case RACE_MERMAID:
+				strcpy(power_desc[num].name, "水溜まり");
+
+				power_desc[num].level = 1;
+				power_desc[num].cost = 1;
+				power_desc[num].stat = A_WIS;
+				power_desc[num].fail = 0;
+				power_desc[num++].number = -1;
+
+				strcpy(power_desc[num].name, "魅惑の歌");
+
+				power_desc[num].level = 14;
+				power_desc[num].cost = 28;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 25;
+				power_desc[num++].number = -2;
+
+				strcpy(power_desc[num].name, "浸水");
+
+				power_desc[num].level = 26;
+				power_desc[num].cost = 40;
+				power_desc[num].stat = A_WIS;
+				power_desc[num].fail = 50;
+				power_desc[num++].number = -3;
+				break;
+			case RACE_VULTAN:
+				if (get_cur_pelem() == ELEM_WIND)
+				{
+#ifdef JP
+					strcpy(power_desc[num].name, "サンダーアロー");
+#else
+					strcpy(power_desc[num].name, "Thunder Arrow");
+#endif
+					power_desc[num].level = 6;
+					power_desc[num].cost = 8;
+					power_desc[num].stat = A_DEX;
+					power_desc[num].fail = 25;
+					power_desc[num++].number = -1;
+				}
+				break;
+			case RACE_RAVEN:
+				if (get_cur_pelem() == ELEM_FIRE)
+				{
+#ifdef JP
+					strcpy(power_desc[num].name, "ファイアストーム");
+#else
+					strcpy(power_desc[num].name, "Thunder Arrow");
+#endif
+					power_desc[num].level = 6;
+					power_desc[num].cost = 8;
+					power_desc[num].stat = A_DEX;
+					power_desc[num].fail = 25;
+					power_desc[num++].number = -1;
+				}
+				break;
+			default:
+			{
+				break;
+			}
+		}
+	}
+
 	if (!pclass_is_(CLASS_TERRORKNIGHT)
 		&& !pclass_is_(CLASS_SWORDMASTER)
 		&& !pclass_is_(CLASS_NINJA)
@@ -4377,204 +4582,6 @@ void do_cmd_racial_power(void)
 
 	}
 
-	if (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD)))
-	{
-
-	switch (p_ptr->prace)
-	{
-		case RACE_HAWKMAN:
-			if (get_cur_pelem() == ELEM_WIND)
-			{
-#ifdef JP
-				strcpy(power_desc[num].name, "ウィンドショット");
-#else
-				strcpy(power_desc[num].name, "Wind Shot");
-#endif
-				power_desc[num].level = 6;
-				power_desc[num].cost = 8;
-				power_desc[num].stat = A_DEX;
-				power_desc[num].fail = 25;
-				power_desc[num++].number = -1;
-			}
-			break;
-		case RACE_LIZARDMAN:
-			sprintf(power_desc[num].name,
-#ifdef JP
-			        "ブレス (d. %d+d%d)",
-#else
-			        "Breath (d. %d+d%d)",
-#endif
-			        chp / ((get_cur_pelem() == ELEM_AQUA) ? 3 : 10), chp / 10);
-
-			power_desc[num].level = 1;
-			power_desc[num].cost = mhp / 10;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 12;
-			power_desc[num++].number = -1;
-			break;
-		case RACE_FAIRY:
-#ifdef JP
-			strcpy(power_desc[num].name, "眠り粉");
-#else
-			strcpy(power_desc[num].name, "Sleeping Dust");
-#endif
-
-			power_desc[num].level = 12;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 15;
-			power_desc[num++].number = -1;
-			break;
-		case RACE_GREMLIN:
-#ifdef JP
-			strcpy(power_desc[num].name, "ディープキッス");
-#else
-			strcpy(power_desc[num].name, "Deep Kiss");
-#endif
-
-			power_desc[num].level = 40;
-			power_desc[num].cost = 20;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 70;
-			power_desc[num++].number = -1;
-			break;
-		case RACE_SKELETON:
-#ifdef JP
-			strcpy(power_desc[num].name, "経験値復活");
-#else
-			strcpy(power_desc[num].name, "Restore Life");
-#endif
-
-			power_desc[num].level = 30;
-			power_desc[num].cost = 30;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 18;
-			power_desc[num++].number = -1;
-			break;
-		case RACE_GHOST:
-#ifdef JP
-			strcpy(power_desc[num].name, "モンスター恐慌");
-#else
-			strcpy(power_desc[num].name, "Scare Monster");
-#endif
-
-			power_desc[num].level = 4;
-			power_desc[num].cost = 6;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 3;
-			power_desc[num++].number = -1;
-			break;
-		case RACE_PUMPKINHEAD:
-		case RACE_MADHALLOWEEN:
-#ifdef JP
-			strcpy(power_desc[num].name, "かぼちゃうぉーず");
-#else
-			strcpy(power_desc[num].name, "Pumpkin Wars");
-#endif
-
-			power_desc[num].level = 2;
-			power_desc[num].cost = 2;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 10;
-			power_desc[num++].number = -1;
-#ifdef JP
-			strcpy(power_desc[num].name, "ドラッグイーター");
-#else
-			strcpy(power_desc[num].name, "Drug Eater");
-#endif
-
-			power_desc[num].level = 40;
-			power_desc[num].cost = 80;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 80;
-			power_desc[num++].number = -2;
-#ifdef JP
-			strcpy(power_desc[num].name, "パンプキンボム");
-#else
-			strcpy(power_desc[num].name, "Pumpkin Bomb");
-#endif
-
-			power_desc[num].level = 45;
-			power_desc[num].cost = 90;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 75;
-			power_desc[num++].number = -3;
-			break;
-		case RACE_GORGON:
-#ifdef JP
-			strcpy(power_desc[num].name, "邪眼");
-#else
-			strcpy(power_desc[num].name, "Stone Gaze");
-#endif
-
-			power_desc[num].level = 25;
-			power_desc[num].cost = 30;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 60;
-			power_desc[num++].number = -1;
-			break;
-		case RACE_MERMAID:
-			strcpy(power_desc[num].name, "水溜まり");
-
-			power_desc[num].level = 1;
-			power_desc[num].cost = 1;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -1;
-
-			strcpy(power_desc[num].name, "魅惑の歌");
-
-			power_desc[num].level = 14;
-			power_desc[num].cost = 28;
-			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 25;
-			power_desc[num++].number = -2;
-
-			strcpy(power_desc[num].name, "浸水");
-
-			power_desc[num].level = 26;
-			power_desc[num].cost = 40;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 50;
-			power_desc[num++].number = -3;
-			break;
-		case RACE_VULTAN:
-			if (get_cur_pelem() == ELEM_WIND)
-			{
-#ifdef JP
-				strcpy(power_desc[num].name, "サンダーアロー");
-#else
-				strcpy(power_desc[num].name, "Thunder Arrow");
-#endif
-				power_desc[num].level = 6;
-				power_desc[num].cost = 8;
-				power_desc[num].stat = A_DEX;
-				power_desc[num].fail = 25;
-				power_desc[num++].number = -1;
-			}
-			break;
-		case RACE_RAVEN:
-			if (get_cur_pelem() == ELEM_FIRE)
-			{
-#ifdef JP
-				strcpy(power_desc[num].name, "ファイアストーム");
-#else
-				strcpy(power_desc[num].name, "Thunder Arrow");
-#endif
-				power_desc[num].level = 6;
-				power_desc[num].cost = 8;
-				power_desc[num].stat = A_DEX;
-				power_desc[num].fail = 25;
-				power_desc[num++].number = -1;
-			}
-			break;
-		default:
-		{
-			break;
-		}
-	}
-	}
-
 	if (p_ptr->special_blow)
 	{
 		special_blow_type *sb_ptr;
@@ -4594,490 +4601,6 @@ void do_cmd_racial_power(void)
 				power_desc[num].fail = sb_ptr->fail;
 				power_desc[num++].number = -32 - i;
 			}
-		}
-	}
-
-	if (p_ptr->muta1)
-	{
-		if (p_ptr->muta1 & MUT1_SPIT_ACID)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "酸の唾");
-#else
-			strcpy(power_desc[num].name, "Spit Acid");
-#endif
-
-			power_desc[num].level = 9;
-			power_desc[num].cost = 9;
-			power_desc[num].stat = A_DEX;
-			power_desc[num].fail = 15;
-			power_desc[num++].number = MUT1_SPIT_ACID;
-		}
-
-		if (p_ptr->muta1 & MUT1_BR_FIRE)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "炎のブレス");
-#else
-			strcpy(power_desc[num].name, "Fire Breath");
-#endif
-
-			power_desc[num].level = 20;
-			power_desc[num].cost = lvl;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 18;
-			power_desc[num++].number = MUT1_BR_FIRE;
-		}
-
-		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "催眠睨み");
-#else
-			strcpy(power_desc[num].name, "Hypnotic Gaze");
-#endif
-
-			power_desc[num].level = 12;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 18;
-			power_desc[num++].number = MUT1_HYPN_GAZE;
-		}
-
-		if (p_ptr->muta1 & MUT1_TELEKINES)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "念動力");
-#else
-			strcpy(power_desc[num].name, "Telekinesis");
-#endif
-
-			power_desc[num].level = 9;
-			power_desc[num].cost = 9;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 14;
-			power_desc[num++].number = MUT1_TELEKINES;
-		}
-
-		if (p_ptr->muta1 & MUT1_VTELEPORT)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "テレポート");
-#else
-			strcpy(power_desc[num].name, "Teleport");
-#endif
-
-			power_desc[num].level = 7;
-			power_desc[num].cost = 7;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 15;
-			power_desc[num++].number = MUT1_VTELEPORT;
-		}
-
-		if (p_ptr->muta1 & MUT1_MIND_BLST)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "精神攻撃");
-#else
-			strcpy(power_desc[num].name, "Mind Blast");
-#endif
-
-			power_desc[num].level = 5;
-			power_desc[num].cost = 3;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 15;
-			power_desc[num++].number = MUT1_MIND_BLST;
-		}
-
-		if (p_ptr->muta1 & MUT1_RADIATION)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "放射能");
-#else
-			strcpy(power_desc[num].name, "Emit Radiation");
-#endif
-
-			power_desc[num].level = 15;
-			power_desc[num].cost = 15;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 14;
-			power_desc[num++].number = MUT1_RADIATION;
-		}
-
-		if (p_ptr->muta1 & MUT1_VAMPIRISM)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "吸血ドレイン");
-#else
-			strcpy(power_desc[num].name, "Vampiric Drain");
-#endif
-
-			power_desc[num].level = 2;
-			power_desc[num].cost = (1 + (lvl / 3));
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 9;
-			power_desc[num++].number = MUT1_VAMPIRISM;
-		}
-
-		if (p_ptr->muta1 & MUT1_SMELL_MET)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "金属嗅覚");
-#else
-			strcpy(power_desc[num].name, "Smell Metal");
-#endif
-
-			power_desc[num].level = 3;
-			power_desc[num].cost = 2;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 12;
-			power_desc[num++].number = MUT1_SMELL_MET;
-		}
-
-		if (p_ptr->muta1 & MUT1_SMELL_MON)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "敵臭嗅覚");
-#else
-			strcpy(power_desc[num].name, "Smell Monsters");
-#endif
-
-			power_desc[num].level = 5;
-			power_desc[num].cost = 4;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 15;
-			power_desc[num++].number = MUT1_SMELL_MON;
-		}
-
-		if (p_ptr->muta1 & MUT1_BLINK)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "ショート・テレポート");
-#else
-			strcpy(power_desc[num].name, "Blink");
-#endif
-
-			power_desc[num].level = 3;
-			power_desc[num].cost = 3;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 12;
-			power_desc[num++].number = MUT1_BLINK;
-		}
-
-		if (p_ptr->muta1 & MUT1_EAT_ROCK)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "岩食い");
-#else
-			strcpy(power_desc[num].name, "Eat Rock");
-#endif
-
-			power_desc[num].level = 8;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 18;
-			power_desc[num++].number = MUT1_EAT_ROCK;
-		}
-
-		if (p_ptr->muta1 & MUT1_SWAP_POS)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "位置交換");
-#else
-			strcpy(power_desc[num].name, "Swap Position");
-#endif
-
-			power_desc[num].level = 15;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_DEX;
-			power_desc[num].fail = 16;
-			power_desc[num++].number = MUT1_SWAP_POS;
-		}
-
-		if (p_ptr->muta1 & MUT1_SHRIEK)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "叫び");
-#else
-			strcpy(power_desc[num].name, "Shriek");
-#endif
-
-			power_desc[num].level = 20;
-			power_desc[num].cost = 14;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 16;
-			power_desc[num++].number = MUT1_SHRIEK;
-		}
-
-		if (p_ptr->muta1 & MUT1_ILLUMINE)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "照明");
-#else
-			strcpy(power_desc[num].name, "Illuminate");
-#endif
-
-			power_desc[num].level = 3;
-			power_desc[num].cost = 2;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 10;
-			power_desc[num++].number = MUT1_ILLUMINE;
-		}
-
-		if (p_ptr->muta1 & MUT1_DET_CURSE)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "呪い感知");
-#else
-			strcpy(power_desc[num].name, "Detect Curses");
-#endif
-
-			power_desc[num].level = 7;
-			power_desc[num].cost = 14;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 14;
-			power_desc[num++].number = MUT1_DET_CURSE;
-		}
-
-		if (p_ptr->muta1 & MUT1_BERSERK)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "狂戦士化");
-#else
-			strcpy(power_desc[num].name, "Berserk");
-#endif
-
-			power_desc[num].level = 8;
-			power_desc[num].cost = 8;
-			power_desc[num].stat = A_STR;
-			power_desc[num].fail = 14;
-			power_desc[num++].number = MUT1_BERSERK;
-		}
-
-		if (p_ptr->muta1 & MUT1_POLYMORPH)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "変身");
-#else
-			strcpy(power_desc[num].name, "Polymorph");
-#endif
-
-			power_desc[num].level = 18;
-			power_desc[num].cost = 20;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 18;
-			power_desc[num++].number = MUT1_POLYMORPH;
-		}
-
-		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "ミダスの手");
-#else
-			strcpy(power_desc[num].name, "Midas Touch");
-#endif
-
-			power_desc[num].level = 10;
-			power_desc[num].cost = 5;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 12;
-			power_desc[num++].number = MUT1_MIDAS_TCH;
-		}
-
-		if (p_ptr->muta1 & MUT1_GROW_MOLD)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "カビ発生");
-#else
-			strcpy(power_desc[num].name, "Grow Mold");
-#endif
-
-			power_desc[num].level = 1;
-			power_desc[num].cost = 6;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 14;
-			power_desc[num++].number = MUT1_GROW_MOLD;
-		}
-
-		if (p_ptr->muta1 & MUT1_RESIST)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "エレメント耐性");
-#else
-			strcpy(power_desc[num].name, "Resist Elements");
-#endif
-
-			power_desc[num].level = 10;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 12;
-			power_desc[num++].number = MUT1_RESIST;
-		}
-
-		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "地震");
-#else
-			strcpy(power_desc[num].name, "Earthquake");
-#endif
-
-			power_desc[num].level = 12;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_STR;
-			power_desc[num].fail = 16;
-			power_desc[num++].number = MUT1_EARTHQUAKE;
-		}
-
-		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "魔力食い");
-#else
-			strcpy(power_desc[num].name, "Eat Magic");
-#endif
-
-			power_desc[num].level = 17;
-			power_desc[num].cost = 1;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 15;
-			power_desc[num++].number = MUT1_EAT_MAGIC;
-		}
-
-		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "魔力感知");
-#else
-			strcpy(power_desc[num].name, "Weigh Magic");
-#endif
-
-			power_desc[num].level = 6;
-			power_desc[num].cost = 6;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 10;
-			power_desc[num++].number = MUT1_WEIGH_MAG;
-		}
-
-		if (p_ptr->muta1 & MUT1_STERILITY)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "増殖阻止");
-#else
-			strcpy(power_desc[num].name, "Sterilize");
-#endif
-
-			power_desc[num].level = 12;
-			power_desc[num].cost = 23;
-			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 15;
-			power_desc[num++].number = MUT1_STERILITY;
-		}
-
-		if (p_ptr->muta1 & MUT1_PANIC_HIT)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "ヒット＆アウェイ");
-#else
-			strcpy(power_desc[num].name, "Panic Hit");
-#endif
-
-			power_desc[num].level = 10;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_DEX;
-			power_desc[num].fail = 14;
-			power_desc[num++].number = MUT1_PANIC_HIT;
-		}
-
-		if (p_ptr->muta1 & MUT1_DAZZLE)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "眩惑");
-#else
-			strcpy(power_desc[num].name, "Dazzle");
-#endif
-
-			power_desc[num].level = 7;
-			power_desc[num].cost = 15;
-			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 8;
-			power_desc[num++].number = MUT1_DAZZLE;
-		}
-
-		if (p_ptr->muta1 & MUT1_LASER_EYE)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "レーザー・アイ");
-#else
-			strcpy(power_desc[num].name, "Laser Eye");
-#endif
-
-			power_desc[num].level = 7;
-			power_desc[num].cost = 10;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 9;
-			power_desc[num++].number = MUT1_LASER_EYE;
-		}
-
-		if (p_ptr->muta1 & MUT1_RECALL)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "帰還");
-#else
-			strcpy(power_desc[num].name, "Recall");
-#endif
-
-			power_desc[num].level = 17;
-			power_desc[num].cost = 50;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 16;
-			power_desc[num++].number = MUT1_RECALL;
-		}
-
-		if (p_ptr->muta1 & MUT1_BANISH)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "邪悪消滅");
-#else
-			strcpy(power_desc[num].name, "Banish Evil");
-#endif
-
-			power_desc[num].level = 25;
-			power_desc[num].cost = 25;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 18;
-			power_desc[num++].number = MUT1_BANISH;
-		}
-
-		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "凍結の手");
-#else
-			strcpy(power_desc[num].name, "Cold Touch");
-#endif
-
-			power_desc[num].level = 2;
-			power_desc[num].cost = 2;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 11;
-			power_desc[num++].number = MUT1_COLD_TOUCH;
-		}
-
-		if (p_ptr->muta1 & MUT1_LAUNCHER)
-		{
-#ifdef JP
-			strcpy(power_desc[num].name, "アイテム投げ");
-#else
-			strcpy(power_desc[num].name, "Throw Object");
-#endif
-
-			power_desc[num].level = 1;
-			power_desc[num].cost = lvl;
-			power_desc[num].stat = A_STR;
-			power_desc[num].fail = 6;
-			/* XXX_XXX_XXX Hack! MUT1_LAUNCHER counts as negative... */
-			power_desc[num++].number = 3;
 		}
 	}
 
@@ -5313,8 +4836,10 @@ void do_cmd_racial_power(void)
 			cast = special_blow_aux(power_desc[i].number);
 		else if (power_desc[i].number < 0)
 			cast = cmd_racial_power_aux(power_desc[i].number);
+#if 0
 		else
 			cast = mutation_power_aux(power_desc[i].number);
+#endif
 		break;
 	case 0:
 		cast = FALSE;

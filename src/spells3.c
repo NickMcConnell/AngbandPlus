@@ -36,7 +36,6 @@ bool teleport_away(int m_idx, int dis)
 
 	cave_type    *c_ptr;
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 
 	/* Paranoia */
@@ -77,7 +76,7 @@ bool teleport_away(int m_idx, int dis)
 
 			c_ptr = &cave[ny][nx];
 
-			if (!monster_can_cross_terrain(c_ptr->feat, r_ptr)) continue;
+			if (!monster_can_enter_terrain(c_ptr->feat, m_ptr)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (is_glyph_grid(&cave[ny][nx])) continue;
@@ -148,7 +147,6 @@ void teleport_to(int m_idx, int ty, int tx, int dis, int power, bool avoid_fall)
 
 	cave_type    *c_ptr;
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 
 	/* Paranoia */
@@ -194,7 +192,7 @@ void teleport_to(int m_idx, int ty, int tx, int dis, int power, bool avoid_fall)
 
 			c_ptr = &cave[ny][nx];
 
-			if (!monster_can_cross_terrain(c_ptr->feat, r_ptr))
+			if (!monster_can_enter_terrain(c_ptr->feat, m_ptr))
 			{
 				if ((c_ptr->feat != FEAT_AIR) || avoid_fall) continue;
 			}
@@ -775,6 +773,7 @@ static int choose_dungeon(cptr note)
 		if (d_info[i].flags1 & DF1_CLOSED) continue;
 		if (!d_info[i].maxdepth) continue;
 		if (!max_dlv[i]) continue;
+		if ((i == DUNGEON_AIR_GARDEN) && (misc_event_flags & EVENT_CLOSE_AIR_GARDEN)) continue;
 		if (d_info[i].final_guardian)
 		{
 			if (!r_info[d_info[i].final_guardian].max_num) seiha = TRUE;
@@ -1817,8 +1816,6 @@ bool explosive_rune(int plev)
 void identify_pack(void)
 {
 	int i;
-	bool old_known;
-	int idx;
 
 	/* Simply identify and know every item */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1829,16 +1826,10 @@ void identify_pack(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Identify it */
-		old_known = identify_item(o_ptr);
+		identify_item(o_ptr);
 
-		/* Auto-inscription/destroy */
-		idx = is_autopick(o_ptr);
-		auto_inscribe_item(i, idx);
-		if (i <= INVEN_PACK)
-		{
-			if (destroy_identify && !old_known)
-				auto_destroy_item(i, idx);
-		}
+		/* Auto-inscription */
+		autopick_alter_item(i, FALSE);
 	}
 }
 
@@ -1869,6 +1860,8 @@ static int enchant_table[16] =
 static int remove_curse_aux(int all)
 {
 	int i, cnt = 0;
+
+	if (all && do_grace(0, 2)) cnt++;
 
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
@@ -2455,8 +2448,6 @@ bool artifact_scroll(void)
 
 	else
 	{
-		int idx;
-
 		if (o_ptr->number > 1)
 		{
 #ifdef JP
@@ -2504,8 +2495,7 @@ bool artifact_scroll(void)
 		}
 
 		/* Auto-inscription */
-		idx = is_autopick(o_ptr);
-		auto_inscribe_item(item, idx);
+		autopick_alter_item(item, FALSE);
 	}
 
 	/* Failure */
@@ -2596,7 +2586,6 @@ bool ident_spell(bool only_equip)
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
 	bool old_known;
-	int idx;
 
 	item_tester_no_ryoute = TRUE;
 
@@ -2681,10 +2670,7 @@ bool ident_spell(bool only_equip)
 	}
 
 	/* Auto-inscription/destroy */
-	idx = is_autopick(o_ptr);
-	auto_inscribe_item(item, idx);
-	if (destroy_identify && !old_known)
-		auto_destroy_item(item, idx);
+	autopick_alter_item(item, (bool)(destroy_identify && !old_known));
 
 	/* Something happened */
 	return (TRUE);
@@ -2812,7 +2798,6 @@ bool identify_fully(bool only_equip)
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
 	bool old_known;
-	int idx;
 
 	item_tester_no_ryoute = TRUE;
 	if (only_equip)
@@ -2907,10 +2892,7 @@ bool identify_fully(bool only_equip)
 	(void)screen_object(o_ptr, NULL, TRUE);
 
 	/* Auto-inscription/destroy */
-	idx = is_autopick(o_ptr);
-	auto_inscribe_item(item, idx);
-	if (destroy_identify && !old_known)
-		auto_destroy_item(item, idx);
+	autopick_alter_item(item, (bool)(destroy_identify && !old_known));
 
 	/* Success */
 	return (TRUE);
@@ -3630,6 +3612,19 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		case SV_POTION_CURE_MUTATIONS:
 			/* All of the above potions have no effect when shattered */
 			return FALSE;
+
+		case SV_POTION_HOLY_WATER:
+			dt = GF_HOLY_FIRE;
+			dam = damroll(10, 10);
+			angry = TRUE;
+			radius = 1;
+			break;
+		case SV_POTION_CURSED_WATER:
+			dt = GF_HELL_FIRE;
+			dam = damroll(10, 10);
+			angry = TRUE;
+			radius = 1;
+			break;
 		case SV_POTION_SLOWNESS:
 			dt = GF_OLD_SLOW;
 			dam = 5;
@@ -4484,7 +4479,7 @@ int acid_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_acid || (dam <= 0)) return 0;
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
@@ -4527,7 +4522,7 @@ int elec_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_elec || (dam <= 0)) return 0;
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
@@ -4564,7 +4559,7 @@ int fire_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_fire || (dam <= 0)) return 0;
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
@@ -4601,7 +4596,7 @@ int cold_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_cold || (dam <= 0)) return 0;
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 	if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
 
 	/* Resist the damage */
@@ -6557,7 +6552,7 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 	{
 	case TV_BOOTS:
 		if ((o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) && do_wish)
-			dragon_resist(o_ptr);
+			dragon_resist(o_ptr, 4);
 
 		switch (o_ptr->name2)
 		{
@@ -6576,7 +6571,7 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 
 	case TV_GLOVES:
 		if ((o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) && do_wish)
-			dragon_resist(o_ptr);
+			dragon_resist(o_ptr, 3);
 
 		switch (o_ptr->name2)
 		{
@@ -6599,7 +6594,7 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 
 	case TV_HELM:
 		if ((o_ptr->sval == SV_DRAGON_HELM) && do_wish)
-			dragon_resist(o_ptr);
+			dragon_resist(o_ptr, 4);
 
 		switch (o_ptr->name2)
 		{
@@ -6641,7 +6636,7 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 
 	case TV_SHIELD:
 		if ((o_ptr->sval == SV_DRAGON_SHIELD) && do_wish)
-			dragon_resist(o_ptr);
+			dragon_resist(o_ptr, 5);
 
 		switch (o_ptr->name2)
 		{
@@ -6687,7 +6682,7 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 	case TV_HARD_ARMOR:
 		if ((((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_DRAGON_LEATHER_ARMOR)) ||
 			((o_ptr->tval == TV_HARD_ARMOR) && (o_ptr->sval == SV_DRAGON_SCALE_MAIL))) && do_wish)
-			dragon_resist(o_ptr);
+			dragon_resist(o_ptr, (o_ptr->tval == TV_SOFT_ARMOR) ? 4 : 7);
 
 		switch (o_ptr->name2)
 		{
@@ -7329,7 +7324,7 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 	int level, i;
 
 	if (do_wish) level = 127;
-	else level = p_ptr->lev + max_dlv[DUNGEON_PALACE];
+	else level = p_ptr->lev + p_ptr->max_max_dlv;
 
 	if (o_ptr->name1)
 	{
@@ -8019,8 +8014,6 @@ s = "強化できるアイテムがない。";
 
 	else
 	{
-		int idx;
-
 		if (o_ptr->number > 1)
 		{
 #ifdef JP
@@ -8089,8 +8082,7 @@ s = "強化できるアイテムがない。";
 
 
 		/* Auto-inscription */
-		idx = is_autopick(o_ptr);
-		auto_inscribe_item(item, idx);
+		autopick_alter_item(item, FALSE);
 	}
 
 	/* Failure */

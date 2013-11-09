@@ -870,38 +870,36 @@ s32b flag_cost(object_type *o_ptr)
 	s32b tmp_cost;
 	int count;
 	int i;
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	object_flags(o_ptr, flgs);
 
-	if (o_ptr->name1)
+	/*
+	 * Exclude fixed flags of the base item.
+	 * pval bonuses of base item will be treated later.
+	 */
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] &= ~(k_ptr->flags[i]);
+
+	/* Exclude fixed flags of the fixed artifact. */
+	if (object_is_fixed_artifact(o_ptr))
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 		for (i = 0; i < TR_FLAG_SIZE; i++)
 			flgs[i] &= ~(a_ptr->flags[i]);
 	}
-	else
+
+	/* Exclude fixed flags of the ego-item. */
+	else if (object_is_ego(o_ptr))
 	{
-		if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))
-		{
-			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-			for (i = 0; i < TR_FLAG_SIZE; i++)
-				flgs[i] &= ~(k_ptr->flags[i]);
-		}
-
-		if (o_ptr->name2)
-		{
-			ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-			for (i = 0; i < TR_FLAG_SIZE; i++)
-				flgs[i] &= ~(e_ptr->flags[i]);
-		}
-		else if (o_ptr->art_name)
-		{
-			total = 5000;
-		}
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			flgs[i] &= ~(e_ptr->flags[i]);
 	}
+
+	if (o_ptr->art_name) total += 5000;
 
 	if (have_flag(flgs, TR_STR)) total += (1500 * o_ptr->to_stat[A_STR]);
 	if (have_flag(flgs, TR_INT)) total += (1500 * o_ptr->to_stat[A_INT]);
@@ -2966,16 +2964,20 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 }
 
 
-void dragon_resist(object_type *o_ptr)
+void dragon_resist(object_type *o_ptr, int power)
 {
+	int cnt = 0;
+
 	do
 	{
 		if (one_in_(4))
 			one_dragon_ele_resistance(o_ptr);
 		else
 			one_high_resistance(o_ptr);
+
+		cnt++;
 	}
-	while (one_in_(2));
+	while (one_in_(2) || (!one_in_(3) && (cnt < power)));
 }
 
 
@@ -3052,7 +3054,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			{
 				/* Mention the item */
 				if (cheat_peek) object_mention(o_ptr);
-				dragon_resist(o_ptr);
+				dragon_resist(o_ptr, (o_ptr->tval == TV_SOFT_ARMOR) ? 4 : 7);
 				if (!one_in_(3)) break;
 			}
 
@@ -3148,7 +3150,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			{
 				/* Mention the item */
 				if (cheat_peek) object_mention(o_ptr);
-				dragon_resist(o_ptr);
+				dragon_resist(o_ptr, 5);
 				if (!one_in_(3)) break;
 			}
 
@@ -3194,7 +3196,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			{
 				/* Mention the item */
 				if (cheat_peek) object_mention(o_ptr);
-				dragon_resist(o_ptr);
+				dragon_resist(o_ptr, 3);
 				if (!one_in_(3)) break;
 			}
 			if (power > 1)
@@ -3241,7 +3243,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			{
 				/* Mention the item */
 				if (cheat_peek) object_mention(o_ptr);
-				dragon_resist(o_ptr);
+				dragon_resist(o_ptr, 4);
 				if (!one_in_(3)) break;
 			}
 			/* Very good */
@@ -3323,7 +3325,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			{
 				/* Mention the item */
 				if (cheat_peek) object_mention(o_ptr);
-				dragon_resist(o_ptr);
+				dragon_resist(o_ptr, 4);
 				if (!one_in_(3)) break;
 			}
 
@@ -4573,12 +4575,12 @@ void apply_magic(object_type *o_ptr, int lev, u32b am_flags)
 	if (!easy_band && (f2 > d_info[dungeon_type].obj_great))
 		f2 = d_info[dungeon_type].obj_great;
 
-	if (p_ptr->muta3 & MUT3_GOOD_LUCK)
+	if (p_ptr->grace & GRACE_GOOD_LUCK)
 	{
 		f1 += 5;
 		f2 += 2;
 	}
-	else if(p_ptr->muta3 & MUT3_BAD_LUCK)
+	else if(p_ptr->grace & CURSE_BAD_LUCK)
 	{
 		f1 -= 5;
 		f2 -= 2;
@@ -4646,7 +4648,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b am_flags)
 	{
 		/* Roll for an artifact */
 		if (make_artifact(o_ptr)) break;
-		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && one_in_(77))
+		if ((p_ptr->grace & GRACE_GOOD_LUCK) && one_in_(77))
 		{
 			if (make_artifact(o_ptr)) break;
 		}
@@ -5392,7 +5394,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 #endif
 
 	/* Describe object */
-	object_desc(o_name, j_ptr, (OD_NAME_ONLY | OD_STORE));
+	object_desc(o_name, j_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 
 	/* Handle normal "breakage" */
@@ -6873,7 +6875,7 @@ void display_koff(int k_idx)
 	object_prep(q_ptr, k_idx);
 
 	/* Describe */
-	object_desc(o_name, q_ptr, (OD_NAME_ONLY | OD_STORE));
+	object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_STORE));
 
 	/* Mention the object name */
 	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
@@ -6947,14 +6949,14 @@ static void damcalc(int typ, int dam, int limit, int *max)
 	switch (typ)
 	{
 	case GF_ACID:
-		if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+		if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 		if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 		if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
 		if (p_ptr->immune_acid) dam = 0;
 		break;
 
 	case GF_ELEC:
-		if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+		if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 		if (p_ptr->resist_elec) dam = (dam + 2) / 3;
 		if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
 		if (p_ptr->mermaid_in_water) dam = dam * 4 / 3;
@@ -6963,7 +6965,7 @@ static void damcalc(int typ, int dam, int limit, int *max)
 		break;
 
 	case GF_FIRE:
-		if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+		if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 		if (p_ptr->resist_fire) dam = (dam + 2) / 3;
 		if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
 		if (p_ptr->immune_fire) dam = 0;
@@ -6971,7 +6973,7 @@ static void damcalc(int typ, int dam, int limit, int *max)
 
 	case GF_COLD:
 	case GF_ICE:
-		if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+		if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 		if (p_ptr->resist_cold) dam = (dam + 2) / 3;
 		if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
 		if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
@@ -7075,23 +7077,23 @@ static void damcalc(int typ, int dam, int limit, int *max)
 		break;
 
 	case GF_PURE_FIRE:
-		if (!p_ptr->immune_fire && (p_ptr->muta3 & MUT3_VULN_ELEM)) dam *= 2;
+		if (!p_ptr->immune_fire && (p_ptr->mutation & MUT_VULN_ELEM)) dam *= 2;
 		mermaid_dec = FALSE;
 		break;
 
 	case GF_PURE_AQUA:
-		if (!p_ptr->immune_cold && (p_ptr->muta3 & MUT3_VULN_ELEM)) dam *= 2;
+		if (!p_ptr->immune_cold && (p_ptr->mutation & MUT_VULN_ELEM)) dam *= 2;
 		if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
 		mermaid_dec = FALSE;
 		break;
 
 	case GF_PURE_EARTH:
-		if (!p_ptr->immune_acid && (p_ptr->muta3 & MUT3_VULN_ELEM)) dam *= 2;
+		if (!p_ptr->immune_acid && (p_ptr->mutation & MUT_VULN_ELEM)) dam *= 2;
 		mermaid_dec = FALSE;
 		break;
 
 	case GF_PURE_WIND:
-		if (!p_ptr->immune_elec && (p_ptr->muta3 & MUT3_VULN_ELEM)) dam *= 2;
+		if (!p_ptr->immune_elec && (p_ptr->mutation & MUT_VULN_ELEM)) dam *= 2;
 		mermaid_dec = FALSE;
 		break;
 	}
@@ -7137,6 +7139,7 @@ bool process_warning(int xx, int yy)
 			/* f6: yet */
 			fa = r_ptr->flagsa;
 			if (r_ptr->flags2 & RF2_POWERFUL) powerful = TRUE;
+			if (ms_info[m_ptr->s_idx].flags2 & RF2_POWERFUL) powerful = TRUE;
 
 			rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
@@ -7781,9 +7784,10 @@ static void drain_essence_from_obj(object_type *o_ptr, u32b mode)
 
 	if (mode & DE_MODE_AUTO_DESC)
 	{
+		int item = inven_carry(o_ptr);
+
 		/* Auto-inscription */
-		int idx = is_autopick(o_ptr);
-		(void)auto_inscribe_object(o_ptr, idx);
+		autopick_alter_item(item, FALSE);
 	}
 }
 
@@ -7845,8 +7849,7 @@ static void drain_essence_from_pack_or_floor(int item, int amt, u32b mode)
 		if (mode & DE_MODE_AUTO_DESTROY)
 		{
 			/* Auto-destroy */
-			int idx = is_autopick(q_ptr);
-			if (destroy_identify) auto_destroy_item(tmp_item, idx);
+			autopick_alter_item(tmp_item, TRUE);
 		}
 	}
 
@@ -8242,6 +8245,7 @@ static void make_ammo_from_ore(void)
 	int ammo_material_tval = 0;
 	int ammo_material_sval = -1;
 	int ore_sval = 0;
+	int item;
 	char ch;
 
 	/* Specify sval of ammo */
@@ -8344,6 +8348,8 @@ static void make_ammo_from_ore(void)
 	object_aware(q_ptr);
 	object_known(q_ptr);
 
+	item = inven_carry(q_ptr);
+
 	object_desc(o_name, q_ptr, OD_NAME_ONLY);
 #ifdef JP
 	msg_format("$%dの%sで%sを作った。", amt * k_ptr->cost * q_ptr->weight * 2L,
@@ -8355,8 +8361,7 @@ static void make_ammo_from_ore(void)
 
 	{
 		/* Auto-inscription */
-		int idx = is_autopick(q_ptr);
-		(void)auto_inscribe_object(q_ptr, idx);
+		autopick_alter_item(item, FALSE);
 
 		if (inven_carry_okay(q_ptr)) (void)inven_carry(q_ptr);
 		else (void)drop_near(q_ptr, -1, py, px);
@@ -8875,8 +8880,7 @@ static void add_essence(u16b mode)
 		if (q_ptr->tval != TV_ROCKET)
 		{
 			/* Auto-inscription */
-			int idx = is_autopick(q_ptr);
-			(void)auto_inscribe_object(q_ptr, idx);
+			autopick_alter_item(item, FALSE);
 		}
 
 		if (inven_carry_okay(q_ptr)) (void)inven_carry(q_ptr);
@@ -9274,8 +9278,7 @@ static void make_rocket(void)
 
 	{
 		/* Auto-inscription */
-		int idx = is_autopick(q_ptr);
-		(void)auto_inscribe_object(q_ptr, idx);
+		autopick_alter_item(item, FALSE);
 	}
 
 	if (inven_carry_okay(q_ptr)) (void)inven_carry(q_ptr);

@@ -103,7 +103,6 @@ static void sense_object_aux(int item, int sense_type)
 	bool        old_known;
 	object_type *o_ptr;
 	char        o_name[MAX_NLEN];
-	int idx;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -149,7 +148,7 @@ static void sense_object_aux(int item, int sense_type)
 		if (feel)
 		{
 			/* Bad luck */
-			if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !randint0(13))
+			if ((p_ptr->grace & CURSE_BAD_LUCK) && !randint0(13))
 			{
 				switch (feel)
 				{
@@ -245,10 +244,7 @@ static void sense_object_aux(int item, int sense_type)
 		o_ptr->marked |= OM_TOUCHED;
 
 		/* Auto-inscription/destroy */
-		idx = is_autopick(o_ptr);
-		auto_inscribe_item(item, idx);
-		if (destroy_feeling)
-			auto_destroy_item(item, idx);
+		autopick_alter_item(item, destroy_feeling);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -297,10 +293,7 @@ static void sense_object_aux(int item, int sense_type)
 		}
 
 		/* Auto-inscription/destroy */
-		idx = is_autopick(o_ptr);
-		auto_inscribe_item(item, idx);
-		if (destroy_identify && !old_known)
-			auto_destroy_item(item, idx);
+		autopick_alter_item(item, (destroy_identify && !old_known));
 
 		break;
 	}
@@ -687,7 +680,8 @@ static void regen_monsters(void)
 			if (!frac) if (one_in_(2)) frac = 1;
 
 			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & RF2_REGENERATE) frac *= 2;
+			if ((r_ptr->flags2 & RF2_REGENERATE) || (ms_info[m_ptr->s_idx].flags2 & RF2_REGENERATE))
+				frac *= 2;
 
 			/* Hack -- Regenerate */
 			m_ptr->hp += frac;
@@ -1067,7 +1061,7 @@ static void process_world_aux_hp_and_sp(void)
 			cave_no_regen = TRUE;
 
 			/* Get an object description */
-			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
 #ifdef JP
 			sprintf(ouch, "%sを装備したダメージ", o_name);
@@ -1101,7 +1095,7 @@ static void process_world_aux_hp_and_sp(void)
 				cave_no_regen = TRUE;
 
 				/* Get an object description */
-				object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+				object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
 #ifdef JP
 				sprintf(ouch, "%sを装備したダメージ", o_name);
@@ -1370,7 +1364,7 @@ static void process_world_aux_hp_and_sp(void)
 	{
 		regen_amount = regen_amount * 2;
 	}
-	if (p_ptr->cursed & TRC_SLOW_REGEN)
+	if ((p_ptr->cursed & TRC_SLOW_REGEN) || (p_ptr->grace & CURSE_SLOW_REGEN))
 	{
 		regen_amount /= 5;
 	}
@@ -1841,119 +1835,9 @@ static void process_world_aux_light(void)
 static void process_world_aux_mutation(void)
 {
 	/*** Process mutation effects ***/
-	if (p_ptr->muta2 && !p_ptr->wild_mode)
+	if (p_ptr->mutation && !p_ptr->wild_mode)
 	{
-		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && one_in_(3000))
-		{
-			disturb(0, 0);
-#ifdef JP
-			msg_print("ウガァァア！");
-			msg_print("激怒の発作に襲われた！");
-#else
-			msg_print("RAAAAGHH!");
-			msg_print("You feel a fit of rage coming over you!");
-#endif
-
-			(void)set_shero(10 + randint1(p_ptr->lev), FALSE);
-		}
-
-		if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint1(3000) == 13))
-		{
-			if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
-			{
-				disturb(0, 0);
-#ifdef JP
-				msg_print("とても暗い... とても恐い！");
-#else
-				msg_print("It's so dark... so scary!");
-#endif
-
-				set_afraid(p_ptr->afraid + 13 + randint1(26));
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint1(5000) == 88))
-		{
-			if (!(p_ptr->muta1 & MUT1_VTELEPORT) && !(p_ptr->anti_tele || p_ptr->earth_spike))
-			{
-				disturb(0, 0);
-
-				/* Teleport player */
-#ifdef JP
-				msg_print("あなたの位置は突然ひじょうに不確定になった...");
-#else
-				msg_print("Your position suddenly seems very uncertain...");
-#endif
-
-				msg_print(NULL);
-				teleport_player(40);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint1(6400) == 321))
-		{
-			if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
-#ifdef JP
-				msg_print("いひきがもーろーとひてきたきがふる...ヒック！");
-#else
-				msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
-#endif
-
-			}
-
-			if (!p_ptr->resist_conf)
-			{
-				(void)set_confused(p_ptr->confused + randint0(20) + 15);
-			}
-
-			if (!p_ptr->resist_chaos)
-			{
-				if (one_in_(20))
-				{
-					msg_print(NULL);
-					if (one_in_(3)) lose_all_info();
-					else wiz_dark(FALSE);
-					teleport_player(100);
-					wiz_dark(FALSE);
-#ifdef JP
-					msg_print("あなたは見知らぬ場所で目が醒めた...頭が痛い。");
-					msg_print("何も覚えていない。どうやってここに来たかも分からない！");
-#else
-					msg_print("You wake up somewhere with a sore head...");
-					msg_print("You can't remember a thing, or how you got here!");
-#endif
-
-				}
-				else
-				{
-					if (one_in_(3))
-					{
-#ifdef JP
-						msg_print("き〜れいなちょおちょらとんれいる〜");
-#else
-						msg_print("Thishcischs GooDSChtuff!");
-#endif
-
-						(void)set_image(p_ptr->image + randint0(150) + 150);
-					}
-				}
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_HALLU) && (randint1(6400) == 42))
-		{
-			if (!p_ptr->resist_chaos)
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
-				(void)set_image(p_ptr->image + randint0(50) + 20);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_ELEM_MULTI) && (randint1(666) == 1))
+		if ((p_ptr->mutation & MUT_ELEM_UNSTABLE) && (randint1(666) == 1))
 		{
 			p_ptr->pelem = randint0(ELEM_NUM);
 			init_realm_table();
@@ -1965,46 +1849,19 @@ static void process_world_aux_mutation(void)
 			if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(py, px);
 		}
 
-		if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
-		    !p_ptr->anti_magic && one_in_(9000))
+		if ((p_ptr->mutation & MUT_ELEM_MULTI) && one_in_(25))
 		{
-			int dire = 0;
-			disturb(0, 0);
-#ifdef JP
-			msg_print("魔法のエネルギーが突然あなたの中に流れ込んできた！エネルギーを解放しなければならない！");
-#else
-			msg_print("Magical energy flows through you! You must release it!");
-#endif
-
-			flush();
-			msg_print(NULL);
-			(void)get_hack_dir(&dire);
-			fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3, FALSE);
+			p_ptr->celem = randint0(ELEM_NUM);
+			init_realm_table();
+			p_ptr->update |= (PU_BONUS);
+			p_ptr->notice |= (PN_REORDER);
+			(void)combine_and_reorder_home(STORE_HOME);
+			(void)combine_and_reorder_home(STORE_MUSEUM);
+			load_all_pref_files();
+			if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(py, px);
 		}
 
-		if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
-		    !p_ptr->anti_magic && (randint1(6666) == 666))
-		{
-			bool pet = one_in_(6);
-			u32b mode = PM_ALLOW_GROUP;
-
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET | PM_IGNORE_AMGRID);
-
-			if (summon_specific((pet ? -1 : 0), py, px,
-				    dun_level, SUMMON_DEMON, mode))
-			{
-#ifdef JP
-				msg_print("あなたはデーモンを引き寄せた！");
-#else
-				msg_print("You have attracted a demon!");
-#endif
-
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && one_in_(6000))
+		if ((p_ptr->mutation & MUT_SPEED_FLUX) && one_in_(6000))
 		{
 			disturb(0, 0);
 			if (one_in_(2))
@@ -2043,7 +1900,7 @@ static void process_world_aux_mutation(void)
 			}
 			msg_print(NULL);
 		}
-		if ((p_ptr->muta2 & MUT2_BANISH_ALL) && one_in_(9000))
+		if ((p_ptr->mutation & MUT_BANISH_ALL) && one_in_(9000))
 		{
 			disturb(0, 0);
 #ifdef JP
@@ -2066,7 +1923,7 @@ static void process_world_aux_mutation(void)
 			msg_print(NULL);
 		}
 
-		if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && one_in_(3000))
+		if ((p_ptr->mutation & MUT_EAT_LIGHT) && one_in_(3000))
 		{
 			object_type *o_ptr;
 
@@ -2117,41 +1974,7 @@ static void process_world_aux_mutation(void)
 			unlite_area(50, 10);
 		}
 
-		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
-		   !p_ptr->anti_magic && one_in_(7000))
-		{
-			bool pet = one_in_(3);
-			u32b mode = PM_ALLOW_GROUP;
-
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET | PM_IGNORE_AMGRID);
-
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL, mode))
-			{
-#ifdef JP
-				msg_print("動物を引き寄せた！");
-#else
-				msg_print("You have attracted an animal!");
-#endif
-
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_RAW_CHAOS) &&
-		    !p_ptr->anti_magic && one_in_(8000))
-		{
-			disturb(0, 0);
-#ifdef JP
-			msg_print("周りの空間が歪んでいる気がする！");
-#else
-			msg_print("You feel the world warping around you!");
-#endif
-
-			msg_print(NULL);
-			fire_ball(GF_CHAOS, 0, p_ptr->lev, 8, FALSE);
-		}
-		if ((p_ptr->muta2 & MUT2_NORMALITY) && one_in_(5000))
+		if ((p_ptr->mutation & MUT_NORMALITY) && one_in_(5000))
 		{
 			if (!lose_mutation(0))
 #ifdef JP
@@ -2161,23 +1984,8 @@ static void process_world_aux_mutation(void)
 #endif
 
 		}
-		if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic && one_in_(3000))
-		{
-			disturb(0, 0);
-#ifdef JP
-			msg_print("非物質化した！");
-#else
-			msg_print("You feel insubstantial!");
-#endif
 
-			msg_print(NULL);
-			set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
-		}
-		if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
-		{
-			do_poly_wounds();
-		}
-		if ((p_ptr->muta2 & MUT2_WASTING) && one_in_(3000))
+		if ((p_ptr->mutation & MUT_WASTING) && one_in_(3000))
 		{
 			int which_stat = randint0(A_MAX);
 			int sustained = FALSE;
@@ -2225,146 +2033,14 @@ static void process_world_aux_mutation(void)
 				(void)dec_stat(which_stat, randint1(6) + 6, one_in_(3));
 			}
 		}
-		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
-		   !p_ptr->anti_magic && one_in_(3000))
-		{
-			bool pet = one_in_(5);
-			u32b mode = PM_ALLOW_GROUP;
 
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET | PM_IGNORE_AMGRID);
-
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON, mode))
-			{
-#ifdef JP
-				msg_print("ドラゴンを引き寄せた！");
-#else
-				msg_print("You have attracted a dragon!");
-#endif
-
-				disturb(0, 0);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
-			one_in_(3000))
-		{
-			if (p_ptr->tim_esp > 0)
-			{
-#ifdef JP
-				msg_print("精神にもやがかかった！");
-#else
-				msg_print("Your mind feels cloudy!");
-#endif
-
-				set_tim_esp(0, TRUE);
-			}
-			else
-			{
-#ifdef JP
-				msg_print("精神が広がった！");
-#else
-				msg_print("Your mind expands!");
-#endif
-
-				set_tim_esp(p_ptr->lev, FALSE);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest && !p_ptr->no_digest &&
-			one_in_(9000))
-		{
-			disturb(0, 0);
-#ifdef JP
-			msg_print("胃が痙攣し、食事を失った！");
-#else
-			msg_print("Your stomach roils, and you lose your lunch!");
-#endif
-
-			msg_print(NULL);
-			set_food(PY_FOOD_WEAK);
-		}
-
-		if ((p_ptr->muta2 & MUT2_ALTER_REALITY) &&
+		if ((p_ptr->mutation & MUT_ALTER_REALITY) &&
 		   !p_ptr->anti_magic && one_in_(12000) && !p_ptr->inside_arena)
 		{
 			alter_reality();
 		}
 
-		if ((p_ptr->muta2 & MUT2_WARNING) && one_in_(1000))
-		{
-			int danger_amount = 0;
-			int monster;
-
-			for (monster = 0; monster < m_max; monster++)
-			{
-				monster_type    *m_ptr = &m_list[monster];
-				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
-				/* Paranoia -- Skip dead monsters */
-				if (!m_ptr->r_idx) continue;
-
-				if (r_ptr->level >= p_ptr->lev)
-				{
-					danger_amount += r_ptr->level - p_ptr->lev + 1;
-				}
-			}
-
-			if (danger_amount > 100)
-#ifdef JP
-				msg_print("非常に恐ろしい気がする！");
-#else
-				msg_print("You feel utterly terrified!");
-#endif
-
-			else if (danger_amount > 50)
-#ifdef JP
-				msg_print("恐ろしい気がする！");
-#else
-				msg_print("You feel terrified!");
-#endif
-
-			else if (danger_amount > 20)
-#ifdef JP
-				msg_print("非常に心配な気がする！");
-#else
-				msg_print("You feel very worried!");
-#endif
-
-			else if (danger_amount > 10)
-#ifdef JP
-				msg_print("心配な気がする！");
-#else
-				msg_print("You feel paranoid!");
-#endif
-
-			else if (danger_amount > 5)
-#ifdef JP
-				msg_print("ほとんど安全な気がする。");
-#else
-				msg_print("You feel almost safe.");
-#endif
-
-			else
-#ifdef JP
-				msg_print("寂しい気がする。");
-#else
-				msg_print("You feel lonely.");
-#endif
-
-		}
-		if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
-			one_in_(5000))
-		{
-			disturb(0, 0);
-#ifdef JP
-			msg_print("無敵な気がする！");
-#else
-			msg_print("You feel invincible!");
-#endif
-
-			msg_print(NULL);
-			(void)set_invuln(randint1(8) + 8, FALSE);
-		}
-		if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
+		if ((p_ptr->mutation & MUT_SP_TO_HP) && one_in_(2000))
 		{
 			int wounds = p_ptr->mhp - p_ptr->chp;
 
@@ -2381,7 +2057,7 @@ static void process_world_aux_mutation(void)
 				p_ptr->csp -= healing;
 			}
 		}
-		if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
+		if ((p_ptr->mutation & MUT_HP_TO_SP) && !p_ptr->anti_magic &&
 			one_in_(4000))
 		{
 			int wounds = p_ptr->msp - p_ptr->csp;
@@ -2404,40 +2080,122 @@ static void process_world_aux_mutation(void)
 
 			}
 		}
-		if ((p_ptr->muta2 & MUT2_DISARM) && one_in_(10000))
+	}
+}
+
+
+/*
+ * Handle Grace/Curse effects once every 10 game turns
+ */
+static void process_world_aux_grace(void)
+{
+	/*** Process Grace/Curse effects ***/
+	if (p_ptr->grace && !p_ptr->wild_mode)
+	{
+		/* Grace */
+		if ((p_ptr->grace & GRACE_ATT_ANIMAL) &&
+		   !p_ptr->anti_magic && one_in_(7000))
 		{
-			object_type *o_ptr;
+			u32b mode = (PM_ALLOW_GROUP | PM_FORCE_PET);
 
-			disturb(0, 0);
-#ifdef JP
-			msg_print("足がもつれて転んだ！");
-			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "転倒");
-#else
-			msg_print("You trip over your own feet!");
-			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "tripping");
-#endif
-
-
-			msg_print(NULL);
-			if (buki_motteruka(INVEN_RARM))
+			if (summon_specific(-1, py, px, dun_level, SUMMON_ANIMAL, mode))
 			{
-				int slot = INVEN_RARM;
-				o_ptr = &inventory[INVEN_RARM];
-				if (buki_motteruka(INVEN_LARM) && one_in_(2))
-				{
-					o_ptr = &inventory[INVEN_LARM];
-					slot = INVEN_LARM;
-				}
-				if (!object_is_cursed(o_ptr))
-				{
 #ifdef JP
-					msg_print("武器を落してしまった！");
+				msg_print("動物を引き寄せた！");
 #else
-					msg_print("You drop your weapon!");
+				msg_print("You have attracted an animal!");
 #endif
 
-					inven_drop(slot, 1);
-				}
+				disturb(0, 0);
+			}
+		}
+
+		if ((p_ptr->grace & GRACE_ATT_SERVANT) &&
+		    !p_ptr->anti_magic && (randint1(6666) == 666))
+		{
+			int type = SUMMON_ANGEL;
+			u32b mode = (PM_ALLOW_GROUP | PM_FORCE_PET);
+
+			if (get_your_alignment_gne() == ALIGN_GNE_EVIL) type = SUMMON_DEMON;
+
+			if (summon_specific(-1, py, px, dun_level, type, mode))
+			{
+#ifdef JP
+				msg_print("下僕を引き寄せた！");
+#else
+				msg_print("You have attracted a servant!");
+#endif
+
+				disturb(0, 0);
+			}
+		}
+
+		if ((p_ptr->grace & GRACE_ATT_DRAGON) &&
+		   !p_ptr->anti_magic && one_in_(3000))
+		{
+			u32b mode = (PM_ALLOW_GROUP | PM_FORCE_PET);
+
+			if (summon_specific(-1, py, px, dun_level, SUMMON_DRAGON, mode))
+			{
+#ifdef JP
+				msg_print("ドラゴンを引き寄せた！");
+#else
+				msg_print("You have attracted a dragon!");
+#endif
+
+				disturb(0, 0);
+			}
+		}
+
+		/* Curse */
+		if ((p_ptr->grace & CURSE_ATT_ANIMAL) &&
+		   !p_ptr->anti_magic && one_in_(7000))
+		{
+			u32b mode = (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET | PM_IGNORE_AMGRID);
+
+			if (summon_specific(0, py, px, dun_level, SUMMON_ANIMAL, mode))
+			{
+#ifdef JP
+				msg_print("動物を引き寄せた！");
+#else
+				msg_print("You have attracted an animal!");
+#endif
+
+				disturb(0, 0);
+			}
+		}
+
+		if ((p_ptr->grace & CURSE_ATT_DEMON) &&
+		    !p_ptr->anti_magic && (randint1(6666) == 666))
+		{
+			u32b mode = (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET | PM_IGNORE_AMGRID);
+
+			if (summon_specific(0, py, px, dun_level, SUMMON_DEMON, mode))
+			{
+#ifdef JP
+				msg_print("あなたはデーモンを引き寄せた！");
+#else
+				msg_print("You have attracted a demon!");
+#endif
+
+				disturb(0, 0);
+			}
+		}
+
+		if ((p_ptr->grace & CURSE_ATT_DRAGON) &&
+		   !p_ptr->anti_magic && one_in_(3000))
+		{
+			u32b mode = (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET | PM_IGNORE_AMGRID);
+
+			if (summon_specific(0, py, px, dun_level, SUMMON_DRAGON, mode))
+			{
+#ifdef JP
+				msg_print("ドラゴンを引き寄せた！");
+#else
+				msg_print("You have attracted a dragon!");
+#endif
+
+				disturb(0, 0);
 			}
 		}
 	}
@@ -2547,6 +2305,8 @@ static void process_world_aux_curse(void)
 
 				p_ptr->update |= (PU_BONUS);
 			}
+
+			do_curse(0, 0);
 		}
 		/* Call animal */
 		if ((p_ptr->cursed & TRC_CALL_ANIMAL) && one_in_(2500))
@@ -3613,6 +3373,9 @@ static void process_world(void)
 	/* Process mutation effects */
 	process_world_aux_mutation();
 
+	/* Process grace/curse effects */
+	process_world_aux_grace();
+
 	/* Process curse effects */
 	process_world_aux_curse();
 
@@ -4556,6 +4319,12 @@ static void process_command(void)
 			break;
 		}
 
+		case '_':
+		{
+			do_cmd_edit_autopick();
+			break;
+		}
+
 		/* Interact with macros */
 		case '@':
 		{
@@ -5328,12 +5097,33 @@ static void dungeon(void)
 	if ((max_dlv[dungeon_type] < dun_level) && !p_ptr->inside_quest)
 	{
 		max_dlv[dungeon_type] = dun_level;
-		if ((dungeon_type == DUNGEON_PALACE) && (p_ptr->max_max_dlv < dun_level))
+		if ((d_info[dungeon_type].flags1 & DF1_MAIN_DUNGEON) && (p_ptr->max_max_dlv < dun_level))
 		{
+			int min_new_dlv = 127;
+
+			for (i = 0; i < max_d_idx; i++)
+			{
+				if ((d_info[i].min_plev > p_ptr->max_max_dlv) && (min_new_dlv > d_info[i].min_plev))
+					min_new_dlv = d_info[i].min_plev;
+			}
+
 			p_ptr->max_max_dlv = dun_level;
 			p_ptr->max_dlv_mult = 50 + dun_level - p_ptr->max_max_plv;
+
+			if (p_ptr->max_max_dlv >= min_new_dlv)
+#ifdef JP
+				msg_print("新たなダンジョンが現れた！");
+#else
+				msg_print("New dungeon is appeared");
+#endif
 		}
 		if (record_maxdeapth) do_cmd_write_nikki(NIKKI_MAXDEAPTH, dun_level, NULL);
+
+		if (pclass_is_(CLASS_TEMPLEKNIGHT) && (dungeon_type == DUNGEON_AIR_GARDEN) && (max_dlv[dungeon_type] == d_info[dungeon_type].maxdepth))
+		{
+			misc_event_flags |= EVENT_CLOSE_AIR_GARDEN;
+			max_dlv[DUNGEON_RUINS] = d_info[DUNGEON_RUINS].mindepth;
+		}
 	}
 
 	(void)calculate_upkeep();
@@ -5552,6 +5342,8 @@ static void dungeon(void)
 		{
 			if (!p_ptr->wild_mode || wild_regen) dungeon_turn++;
 			else if (p_ptr->wild_mode && !(turn % ((MAX_HGT + MAX_WID) / 2))) dungeon_turn++;
+
+			if (!dun_level && !p_ptr->town_num && !ambush_flag) dungeon_turn += 3;
 		}
 
 		prevent_turn_overflow();
@@ -5595,7 +5387,6 @@ static void dungeon(void)
 void load_all_pref_files(void)
 {
 	char buf[1024];
-	errr err;
 	int i;
 
 	/* Access the "user" pref file */
@@ -5636,26 +5427,8 @@ void load_all_pref_files(void)
 	/* Process that file */
 	process_pref_file(buf);
 
-	/* Free old entries */
-	init_autopicker();
-
-#ifdef JP
-	sprintf(buf, "picktype-%s.prf", player_base);
-#else
-	sprintf(buf, "pickpref-%s.prf", player_base);
-#endif
-
-	err = process_pickpref_file(buf);
-
-	/* Process 'pick????.prf' if 'pick????-<name>.prf' doesn't exist */
-	if (0 > err)
-	{
-#ifdef JP
-		process_pickpref_file("picktype.prf");
-#else
-		process_pickpref_file("pickpref.prf");
-#endif
-	}
+	/* Load an autopick preference file */
+	autopick_load_pref(FALSE);
 
 	/* Access the player's realm pref file */
 	for (i = 1; i <= MAX_REALM; i++)

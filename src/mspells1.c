@@ -79,6 +79,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 	/* Too stupid to know anything */
 	if (r_ptr->flags2 & RF2_STUPID) return;
 
+	if ((m_ptr->s_idx) && (ms_info[m_ptr->s_idx].flags2 & RF2_STUPID)) return;
 
 	/* Must be cheating or learning */
 	if (!smart_cheat && !smart_learn) return;
@@ -647,8 +648,12 @@ static void breath(int y, int x, int m_idx, int typ, int dam_hp, int rad, bool b
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	u32b flags2 = r_ptr->flags2;
+
+	if (m_ptr->s_idx) flags2 |= ms_info[m_ptr->s_idx].flags2;
+
 	/* Determine the radius of the blast */
-	if ((rad < 1) && breath) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+	if ((rad < 1) && breath) rad = (flags2 & (RF2_POWERFUL)) ? 3 : 2;
 
 	/* Handle breath attacks */
 	if (breath) rad = 0 - rad;
@@ -1215,7 +1220,7 @@ static int choose_attack_spell(int m_idx, u16b spells[], u16b num)
 	bool do_erase_elem = FALSE;
 
 	/* Stupid monsters choose randomly */
-	if (r_ptr->flags2 & (RF2_STUPID))
+	if ((r_ptr->flags2 & (RF2_STUPID)) || (ms_info[m_ptr->s_idx].flags2 & RF2_STUPID))
 	{
 		/* Pick at random */
 		return (spells[randint0(num)]);
@@ -1697,6 +1702,8 @@ bool make_attack_spell(int m_idx)
 	int s_num_6 = (easy_band ? 2 : 6);
 	int s_num_4 = (easy_band ? 1 : 4);
 
+	u32b            flags2 = (r_ptr->flags2 | ms_info[m_ptr->s_idx].flags2);
+
 	/* Target location */
 	int y = py;
 	int x = px;
@@ -1773,13 +1780,13 @@ bool make_attack_spell(int m_idx)
 		    !(r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
 			can_use_lite_area = TRUE;
 
-		if (!(r_ptr->flags2 & RF2_STUPID))
+		if (!(flags2 & RF2_STUPID))
 		{
 			if (pclass_is_(CLASS_VAMPIRE) && !can_use_lite_area) f6 &= ~(RF6_DARKNESS);
 		}
 	}
 
-	if (mon_anti_magic && !(r_ptr->flags2 & RF2_STUPID))
+	if (mon_anti_magic && !(flags2 & RF2_STUPID))
 	{
 		f4 &= (RF4_NOMAGIC_MASK);
 		f5 &= (RF5_NOMAGIC_MASK);
@@ -1788,7 +1795,7 @@ bool make_attack_spell(int m_idx)
 	}
 
 	/* Hack -- allow "desperate" spells */
-	if ((r_ptr->flags2 & (RF2_SMART)) &&
+	if ((flags2 & (RF2_SMART)) &&
 		(m_ptr->hp < m_ptr->maxhp / 10) &&
 		(randint0(100) < 50))
 	{
@@ -1817,7 +1824,7 @@ bool make_attack_spell(int m_idx)
 	if (!f4 && !f5 && !f6 && !fa) return (FALSE);
 
 	/* Check for a clean bolt shot */
-	if (!(r_ptr->flags2 & RF2_STUPID) &&
+	if (!(flags2 & RF2_STUPID) &&
 	    !clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE, FALSE))
 	{
 		/* Remove spells that will only hurt friends */
@@ -1828,7 +1835,7 @@ bool make_attack_spell(int m_idx)
 	}
 
 	/* Check for a possible summon */
-	if (!(r_ptr->flags2 & RF2_STUPID) &&
+	if (!(flags2 & RF2_STUPID) &&
 	    !(summon_possible(m_idx, y, x)))
 	{
 		/* Remove summoning spells */
@@ -1921,7 +1928,7 @@ bool make_attack_spell(int m_idx)
 	failrate = 25 - (rlev + 3) / 4;
 
 	/* Hack -- Stupid monsters will never fail (for jellies and such) */
-	if (r_ptr->flags2 & RF2_STUPID) failrate = 0;
+	if (flags2 & RF2_STUPID) failrate = 0;
 
 	/* Check for spell failure (inate attacks never fail) */
 	if (!spell_is_inate(thrown_spell) && ((MON_STUNNED(m_ptr) && one_in_(2)) || (randint0(100) < failrate) || mon_anti_magic))
@@ -2565,7 +2572,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a ball of radiation.", m_name);
 #endif
 
-			dam = (rlev + damroll(10, 6)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (rlev + damroll(10, 6)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_NUKE, dam, 2, FALSE, FALSE);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
@@ -2610,7 +2617,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s invokes a raw chaos.", m_name);
 #endif
 
-			dam = ((r_ptr->flags2 & RF2_POWERFUL) ? (rlev * 3) : (rlev * 2))+ damroll(10, 10);
+			dam = ((flags2 & RF2_POWERFUL) ? (rlev * 3) : (rlev * 2))+ damroll(10, 10);
 			breath(y, x, m_idx, GF_CHAOS, dam, 4, FALSE, FALSE);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;
@@ -2656,7 +2663,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts an acid cloud.", m_name);
 #endif
 
-			dam = (randint1(rlev * 3) + 15) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (randint1(rlev * 3) + 15) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_ACID, dam, 2, FALSE, TRUE);
 			update_smart_learn(m_idx, DRS_ACID);
 			break;
@@ -2678,7 +2685,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a thunder flare.", m_name);
 #endif
 
-			dam = (randint1(rlev * 3 / 2) + 8) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (randint1(rlev * 3 / 2) + 8) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_ELEC, dam, 2, FALSE, TRUE);
 			update_smart_learn(m_idx, DRS_ELEC);
 			break;
@@ -2700,7 +2707,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a fire storm.", m_name);
 #endif
 
-			dam = (randint1(rlev * 7 / 2) + 10) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (randint1(rlev * 7 / 2) + 10) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_FIRE, dam, 2, FALSE, TRUE);
 			update_smart_learn(m_idx, DRS_FIRE);
 			break;
@@ -2722,7 +2729,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts an ice blast.", m_name);
 #endif
 
-			dam = (randint1(rlev * 3 / 2) + 10) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (randint1(rlev * 3 / 2) + 10) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_COLD, dam, 2, FALSE, TRUE);
 			update_smart_learn(m_idx, DRS_COLD);
 			break;
@@ -2744,7 +2751,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a stinking cloud.", m_name);
 #endif
 
-			dam = damroll(12, 2) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = damroll(12, 2) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_POIS, dam, 2, FALSE, FALSE);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
@@ -2766,7 +2773,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a nether ball.", m_name);
 #endif
 
-			dam = 50 + damroll(10, 10) + (rlev * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1));
+			dam = 50 + damroll(10, 10) + (rlev * ((flags2 & RF2_POWERFUL) ? 2 : 1));
 			breath(y, x, m_idx, GF_NETHER, dam, 2, FALSE, FALSE);
 			update_smart_learn(m_idx, DRS_NETH);
 			break;
@@ -2794,7 +2801,7 @@ bool make_attack_spell(int m_idx)
 			msg_print("You are engulfed in a whirlpool.");
 #endif
 
-			dam = ((r_ptr->flags2 & RF2_POWERFUL) ? randint1(rlev * 3) : randint1(rlev * 2)) + 50;
+			dam = ((flags2 & RF2_POWERFUL) ? randint1(rlev * 3) : randint1(rlev * 2)) + 50;
 			breath(y, x, m_idx, GF_WATER, dam, 4, FALSE, FALSE);
 			update_smart_learn(m_idx, DRS_WATER);
 			break;
@@ -3074,7 +3081,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a acid bolt.", m_name);
 #endif
 
-			dam = (damroll(7, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (damroll(7, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			bolt(y, x, m_idx, GF_ACID, dam);
 			update_smart_learn(m_idx, DRS_ACID);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3099,7 +3106,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a lightning bolt.", m_name);
 #endif
 
-			dam = (damroll(4, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (damroll(4, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			bolt(y, x, m_idx, GF_ELEC, dam);
 			update_smart_learn(m_idx, DRS_ELEC);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3124,7 +3131,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a fire bolt.", m_name);
 #endif
 
-			dam = (damroll(9, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (damroll(9, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			bolt(y, x, m_idx, GF_FIRE, dam);
 			update_smart_learn(m_idx, DRS_FIRE);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3149,7 +3156,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a frost bolt.", m_name);
 #endif
 
-			dam = (damroll(6, 8) + (rlev / 3)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
+			dam = (damroll(6, 8) + (rlev / 3)) * ((flags2 & RF2_POWERFUL) ? 2 : 1);
 			bolt(y, x, m_idx, GF_COLD, dam);
 			update_smart_learn(m_idx, DRS_COLD);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3196,7 +3203,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a nether bolt.", m_name);
 #endif
 
-			dam = 30 + damroll(5, 5) + (rlev * 4) / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3);
+			dam = 30 + damroll(5, 5) + (rlev * 4) / ((flags2 & RF2_POWERFUL) ? 2 : 3);
 			bolt(y, x, m_idx, GF_NETHER, dam);
 			update_smart_learn(m_idx, DRS_NETH);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3221,7 +3228,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a water bolt.", m_name);
 #endif
 
-			dam = damroll(10, 10) + (rlev * 3 / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3));
+			dam = damroll(10, 10) + (rlev * 3 / ((flags2 & RF2_POWERFUL) ? 2 : 3));
 			bolt(y, x, m_idx, GF_WATER, dam);
 			update_smart_learn(m_idx, DRS_WATER);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3270,7 +3277,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a plasma bolt.", m_name);
 #endif
 
-			dam = 10 + damroll(8, 7) + (rlev * 3 / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3));
+			dam = 10 + damroll(8, 7) + (rlev * 3 / ((flags2 & RF2_POWERFUL) ? 2 : 3));
 			bolt(y, x, m_idx, GF_PLASMA, dam);
 			update_smart_learn(m_idx, DRS_PLASMA);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3295,7 +3302,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts an ice bolt.", m_name);
 #endif
 
-			dam = damroll(6, 6) + (rlev * 3 / ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 3));
+			dam = damroll(6, 6) + (rlev * 3 / ((flags2 & RF2_POWERFUL) ? 2 : 3));
 			bolt(y, x, m_idx, GF_ICE, dam);
 			update_smart_learn(m_idx, DRS_COLD);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -3758,7 +3765,7 @@ bool make_attack_spell(int m_idx)
 					{
 						object_flags(o_ptr, flgs);
 
-						if (have_flag(flgs, TR_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT))
+						if (have_flag(flgs, TR_TELEPORT))
 						{
 #ifdef JP
 							if(get_check_strict("ついていきますか？", CHECK_OKAY_CANCEL))
@@ -4152,7 +4159,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s throws a godly spear.", m_name);
 #endif
 
-			dam = (r_ptr->flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 150) : (randint1(rlev * 3 / 2) + 100);
+			dam = (flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 150) : (randint1(rlev * 3 / 2) + 100);
 			beam(y, x, m_idx, GF_GODLY_SPEAR, dam);
 			break;
 		}
@@ -5160,7 +5167,7 @@ bool make_attack_spell(int m_idx)
 			msg_format("%^s orders the Salamander to burn you!.", m_name);
 #endif
 
-			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_FIRE))
+			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_FIRE))
 				update_smart_learn(m_idx, DRS_FIRE);
 			break;
 		}
@@ -5176,7 +5183,7 @@ bool make_attack_spell(int m_idx)
 			msg_format("%^s orders the Fenrer to freeze you!.", m_name);
 #endif
 
-			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_COLD))
+			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_COLD))
 				update_smart_learn(m_idx, DRS_COLD);
 			break;
 		}
@@ -5192,7 +5199,7 @@ bool make_attack_spell(int m_idx)
 			msg_format("%^s orders the Gnome to melt you!.", m_name);
 #endif
 
-			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ACID))
+			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ACID))
 				update_smart_learn(m_idx, DRS_ACID);
 			break;
 		}
@@ -5208,7 +5215,7 @@ bool make_attack_spell(int m_idx)
 			msg_format("%^s orders the Thunderbird to hit ligntning on you!.", m_name);
 #endif
 
-			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ELEC))
+			if (mon_cast_call_the_elemental(m_idx, y, x, rlev, (flags2 & (RF2_POWERFUL)) ? 2 : 1, rlev, 5, GF_ELEC))
 				update_smart_learn(m_idx, DRS_ELEC);
 			break;
 		}
@@ -5224,7 +5231,7 @@ bool make_attack_spell(int m_idx)
 			msg_format("%^s orders the Ignis Fatuus to erase you by holy force!.", m_name);
 #endif
 
-			(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HOLY_FIRE);
+			(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HOLY_FIRE);
 			break;
 		}
 
@@ -5239,7 +5246,7 @@ bool make_attack_spell(int m_idx)
 			msg_format("%^s orders the Phantom to slay you by evil force!.", m_name);
 #endif
 
-			(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HELL_FIRE);
+			(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HELL_FIRE);
 			break;
 		}
 
@@ -5453,7 +5460,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s fires a %s beam.", m_name, pure_elem_desc);
 #endif
 
-			dam = (r_ptr->flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 150) : (randint1(rlev * 3 / 2) + 100);
+			dam = (flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 150) : (randint1(rlev * 3 / 2) + 100);
 			beam(y, x, m_idx, pure_elem_typ, dam);
 			break;
 		}

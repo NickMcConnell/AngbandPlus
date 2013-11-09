@@ -1609,6 +1609,16 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 			(void)strcpy(desc, is_a_vowel(name[0]) ? "an " : "a ");
 #endif
 
+#ifdef JP
+			/* Ego monster */
+			if (m_ptr->s_idx)
+			{
+				char *ego_name = ms_name + ms_info[m_ptr->s_idx].name;
+
+				(void)strcat(desc, ego_name);
+			}
+#endif
+
 			(void)strcat(desc, name);
 		}
 
@@ -1630,15 +1640,44 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 				(void)strcpy(desc, "the ");
 #endif
 
+#ifdef JP
+			/* Ego monster */
+			if (m_ptr->s_idx)
+			{
+				char *ego_name = ms_name + ms_info[m_ptr->s_idx].name;
+
+				(void)strcat(desc, ego_name);
+			}
+#endif
+
 			(void)strcat(desc, name);
 		}
+
+#ifndef JP
+		/* Ego monster */
+		if (m_ptr->s_idx)
+		{
+			char *ego_name = ms_name + ms_info[m_ptr->s_idx].name;
+
+			(void)strcat(desc, ego_name);
+		}
+#endif
 
 		if (m_ptr->nickname)
 		{
 #ifdef JP
-			sprintf(buf,"「%s」",quark_str(m_ptr->nickname));
+			if (r_ptr->flags1 & RF1_RAND_U_NAME)
+				sprintf(buf,"『%s』",quark_str(m_ptr->nickname));
+			else
+				sprintf(buf,"「%s」",quark_str(m_ptr->nickname));
 #else
-			sprintf(buf," called %s",quark_str(m_ptr->nickname));
+			if (r_ptr->flags1 & RF1_RAND_U_NAME)
+			{
+				strcpy(buf, desc);
+				sprintf(desc,"%s, ",quark_str(m_ptr->nickname));
+			}
+			else
+				sprintf(buf," called %s",quark_str(m_ptr->nickname));
 #endif
 			strcat(desc,buf);
 		}
@@ -2226,6 +2265,8 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 
 	monster_race	*r_ptr = &r_info[r_idx];
 
+	monster_special *s_ptr;
+
 	cptr		name = (r_name + r_ptr->name);
 
 	/* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
@@ -2442,6 +2483,28 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 		if (r_ptr->flags7 & RF7_ZENOBIAN_FORCES) m_ptr->sub_align |= SUB_ALIGN_WHITE;
 	}
 
+	if ((r_ptr->flags1 & RF1_EGO) && one_in_(5) && !(r_ptr->flags1 & RF1_UNIQUE))
+	{
+		while (!m_ptr->s_idx)
+		{
+			/* Try to apply a random prefix */
+			i = randint0(max_ms_idx);
+			s_ptr = &ms_info[i];
+
+			/* Not a real prefix */
+			if (!s_ptr->rarity) continue;
+
+			if ((s_ptr->flags1 & RF1_MALE) && (r_ptr->flags1 & RF1_FEMALE)) continue;
+			if ((s_ptr->flags1 & RF1_FEMALE) && (r_ptr->flags1 & RF1_MALE)) continue;
+
+			/* Too deep */
+			if (s_ptr->level > MAX(r_ptr->level, monster_level)) continue;
+
+			/* Roll for rarity */
+			if (randint0(s_ptr->rarity) == 0) m_ptr->s_idx = i;
+		}
+	}
+
 	/* Place the monster at the location */
 	m_ptr->fy = y;
 	m_ptr->fx = x;
@@ -2460,7 +2523,22 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 
 	reset_target(m_ptr);
 
-	m_ptr->nickname = 0;
+	if (r_ptr->flags1 & RF1_RAND_U_NAME)
+	{
+		char out_val[80];
+
+		while(!m_ptr->nickname)
+		{
+			byte mon_sex = 0;
+
+			if (r_ptr->flags1 & RF1_MALE) mon_sex = 1;
+			else if (r_ptr->flags1 & RF1_FEMALE) mon_sex = 2;
+
+			if (get_rnd_line("petnam_j.txt", mon_sex, out_val) == 0)
+				m_ptr->nickname = quark_add(out_val);
+		}
+	}
+	else m_ptr->nickname = 0;
 
 	m_ptr->exp = 0;
 
@@ -2549,6 +2627,12 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	/* あとでホワイト／テンプルの調整 */
 
 	m_ptr->max_maxhp = MIN(MAX_MAX_MAXHP, m_ptr->max_maxhp);
+	if (m_ptr->s_idx)
+	{
+		s32b tmp_hp;
+		tmp_hp = m_ptr->max_maxhp * ms_info[m_ptr->s_idx].hp_perc / 100;
+		m_ptr->max_maxhp = MIN(MAX_MAX_MAXHP, tmp_hp);
+	}
 	m_ptr->maxhp = m_ptr->max_maxhp;
 	if (m_ptr->maxhp < 1) m_ptr->maxhp = 1;
 
@@ -2560,6 +2644,8 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
+	if (m_ptr->s_idx) m_ptr->mspeed += ms_info[m_ptr->s_idx].speed_mod;
+
 
 	/* Hack -- small racial variety */
 	if (!(r_ptr->flags1 & RF1_UNIQUE) && !p_ptr->inside_arena)
@@ -2678,7 +2764,7 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 #endif
 
 			o_ptr = choose_warning_item();
-			object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 #ifdef JP
 			msg_format("%sは%s光った。",o_name, color);
 #else

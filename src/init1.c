@@ -132,14 +132,14 @@ static cptr r_info_flags1[] =
 	"MALE",
 	"FEMALE",
 	"CHAR_CLEAR",
-	"XXX",
+	"EGO",
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
 	"FORCE_DEPTH",
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
 	"NO_ESCORT",
-	"XXX1",
+	"RAND_U_NAME",
 	"FRIENDS",
 	"XXX",
 	"ESCORTS",
@@ -729,7 +729,7 @@ static cptr k_info_gen_flags[] =
 static cptr d_info_flags1[] =
 {
 	"WINNER",
-	"MAZE",
+	"MAIN_DUNGEON",
 	"SMALLEST",
 	"BEGINNER",
 	"BIG",
@@ -826,7 +826,7 @@ static cptr c_info_flags[] =
 	"SEE_DARK",
 	"REALM_ELEM_1",
 	"MONK_ARMOUR",
-	"XXX19",
+	"XXX19",         /* Total clevel limit */
 	"XXX20",
 	"XXX21",
 	"XXX22",
@@ -2836,6 +2836,238 @@ errr parse_r_info(char *buf, header *head)
 
 
 /*
+ * Grab one (basic) flag in a monster_special from a textual string
+ */
+static errr grab_one_ego_flag(monster_special *ms_ptr, cptr what)
+{
+	int i;
+
+	/* Scan flags1 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags1[i]))
+		{
+			ms_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags2 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags2[i]))
+		{
+			ms_ptr->flags2 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags3 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags3[i]))
+		{
+			ms_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags7 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags7[i]))
+		{
+			ms_ptr->flags7 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags8 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags8[i]))
+		{
+			ms_ptr->flags8 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flagsR */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flagsr[i]))
+		{
+			ms_ptr->flagsr |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+#ifdef JP
+	msg_format("未知のモンスター・フラグ '%s'。", what);
+#else
+	msg_format("Unknown monster flag '%s'.", what);
+#endif
+
+
+	/* Failure */
+	return (1);
+}
+
+
+/*
+ * Initialize the "r_ego" array, by parsing an ascii "template" file
+ */
+errr parse_r_ego(char *buf, header *head)
+{
+	int i;
+
+	char *s, *t;
+
+	/* Current entry */
+	static monster_special *ms_ptr = NULL;
+
+
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = my_strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (1);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+#ifdef JP
+		/* Paranoia -- require a name */
+		if (!*s) return (1);
+#endif
+		/* Get the index */
+		i = atoi(buf+2);
+
+		/* Verify information */
+		if (i < error_idx) return (4);
+
+		/* Verify information */
+		if (i >= head->info_num) return (2);
+
+		/* Save the index */
+		error_idx = i;
+
+		/* Point at the "info" */
+		ms_ptr = &ms_info[i];
+#ifdef JP
+		/* Store the name */
+		if (!add_name(&ms_ptr->name, head, s)) return (7);
+#endif
+	}
+
+	/* There better be a current r_ptr */
+	else if (!ms_ptr) return (3);
+
+
+#ifdef JP
+	/* 英語名を読むルーチンを追加 */
+	/* 'E' から始まる行は英語名 */
+	else if (buf[0] == 'E')
+	{
+		/* Acquire the Text */
+		s = buf+2;
+
+		/* Store the name */
+		if (!add_name(&ms_ptr->E_name, head, s)) return (7);
+	}
+#else
+	else if (buf[0] == 'E')
+	{
+		/* Acquire the Text */
+		s = buf+2;
+
+		/* Store the name */
+		if (!add_name(&ms_ptr->name, head, s)) return (7);
+	}
+#endif
+
+	/* Process 'G' for "Graphics" (one line only) */
+	else if (buf[0] == 'G')
+	{
+		char sym;
+
+		/* Paranoia */
+		if (!buf[2]) return (1);
+
+		/* Extract the char */
+		sym = buf[2];
+
+		/* Save the values */
+		ms_ptr->d_char = sym;
+	}
+
+	/* Process 'I' for "Info" (one line only) */
+	else if (buf[0] == 'I')
+	{
+		int spd_mod, hp_perc, ac_mod;
+
+		/* Scan for the other values */
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+				&spd_mod, &hp_perc, &ac_mod)) return (1);
+
+		/* Save the values */
+		ms_ptr->speed_mod = spd_mod;
+		ms_ptr->hp_perc = hp_perc;
+		ms_ptr->ac_mod = ac_mod;
+	}
+
+	/* Process 'W' for "More Info" (one line only) */
+	else if (buf[0] == 'W')
+	{
+		int lev, rar, exp_perc;
+
+		/* Scan for the values */
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+				&lev, &rar, &exp_perc)) return (1);
+
+		/* Save the values */
+		ms_ptr->level = lev;
+		ms_ptr->rarity = rar;
+		ms_ptr->exp_perc = exp_perc;
+	}
+
+	/* Process 'F' for "Basic Flags" (multiple lines) */
+	else if (buf[0] == 'F')
+	{
+		/* Parse every entry */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_ego_flag(ms_ptr, s)) return (5);
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
+	/* Oops */
+	else return (6);
+
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Grab one flag for a dungeon type from a textual string
  */
 static errr grab_one_dungeon_flag(dungeon_info_type *d_ptr, cptr what)
@@ -4055,6 +4287,12 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			else if (zz[0][0] == 'R')
 			{
 				max_r_idx = atoi(zz[1]);
+			}
+
+			/* Maximum r_ego */
+			else if (zz[0][0] == 'S')
+			{
+				max_ms_idx = atoi(zz[1]);
 			}
 
 			/* Maximum k_idx */
@@ -5502,6 +5740,8 @@ errr parse_c_info(char *buf, header *head)
 		/* Parse every entry textually */
 		for (s = buf + 2; *s; )
 		{
+			int limit;
+
 			/* Find the end of this entry */
 			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
@@ -5510,6 +5750,22 @@ errr parse_c_info(char *buf, header *head)
 			{
 				*t++ = '\0';
 				while ((*t == ' ') || (*t == '|')) t++;
+			}
+
+			/* XXX XXX XXX Hack -- Read Spawn Child */
+			if (1 == sscanf(s, "CLEVEL_LIMIT_%d", &limit))
+			{
+				/* add flag */
+				pc_ptr->c_flags |= PCF_CLEVEL_LIMIT;
+
+				/* Extract a "Spawn Child" */
+				pc_ptr->clevel_limit = limit;
+
+				/* Start at next entry */
+				s = t;
+
+				/* Continue */
+				continue;
 			}
 
 			/* Parse this entry */

@@ -13,6 +13,33 @@
 #include "angband.h"
 
 
+static int level_factor(s32b clev)
+{
+	if (clev > 47) return 4;
+	else if (clev > 39) return 3;
+	else if (clev > 24) return 2;
+	else return 1;
+}
+
+static int gain_factor(s32b clev, s32b total_clev)
+{
+	int gfact = 2, left;
+
+	gfact += total_clev / clev;
+	left = total_clev % clev;
+
+	if (left > clev * 2 / 3) gfact++;
+	if (left > clev / 3) gfact++;
+
+	if (cp_ptr->c_flags & PCF_NO_CHANGE)
+	{
+		if (clev * 2 >= total_clev) gfact = 2;
+		else if (cp_ptr->c_flags & PCF_SECRET) gfact /= 2;
+	}
+
+	return gfact;
+}
+
 /*
  * Advance class experience levels and print class experience
  */
@@ -88,16 +115,11 @@ void check_class_experience(void)
 		/* Save the highest level */
 		if (cexp_ptr->clev > cexp_ptr->max_clev)
 		{
-			int gfact;
-			int lfact = skill_lev_var[cexp_ptr->clev] / 2;
+			int lfact = level_factor(cexp_ptr->clev);
+			int gfact = gain_factor(cexp_ptr->clev, total_max_clev);
 
 			cexp_ptr->max_clev = cexp_ptr->clev;
 			if (cexp_ptr->max_clev > cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = cexp_ptr->max_clev;
-
-			gfact = 2 + (total_max_clev * total_max_clev / cexp_ptr->clev / cexp_ptr->clev / 2);
-
-			if ((cp_ptr->c_flags & PCF_NO_CHANGE) && (cp_ptr->c_flags & PCF_SECRET)) gfact = 2; 
-			if ((total_max_clev < cexp_ptr->clev * 2) && (cp_ptr->c_flags & PCF_NO_CHANGE)) gfact = 1;
 
 			/* Gain skills */
 			p_ptr->gx_dis += cp_ptr->x_dis * lfact / gfact;
@@ -315,7 +337,7 @@ void check_racial_experience(void)
 			/* Limit skills */
 			if (p_ptr->gx_spd > 30000) p_ptr->gx_spd = 30000;
 
-			if (p_ptr->muta2 & MUT2_TAROT)
+			if (p_ptr->gift & GIFT_TAROT)
 			{
 				level_reward = TRUE;
 			}
@@ -1908,11 +1930,12 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 		if (d_info[dungeon_type].final_artifact)
 		{
 			int a_idx = d_info[dungeon_type].final_artifact;
-
-			artifact_type *a_ptr = &a_info[a_idx];
+			artifact_type *a_ptr;
 
 			/* Hack */
-			if (a_idx == 199) a_idx += p_ptr->pelem;
+			if (a_idx == ART_AMU_FIRE) a_idx += p_ptr->pelem;
+
+			a_ptr = &a_info[a_idx];
 
 			if (a_ptr->cur_num == 0)
 			{
@@ -1963,6 +1986,12 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 #else
 		msg_format("You have conquered %s!",d_name+d_info[dungeon_type].name);
 #endif
+
+		if (dungeon_type == DUNGEON_AIR_GARDEN)
+		{
+			misc_event_flags |= EVENT_CLOSE_AIR_GARDEN;
+			max_dlv[DUNGEON_RUINS] = d_info[DUNGEON_RUINS].mindepth;
+		}
 	}
 
 	/* Determine how much we can drop */
@@ -2131,7 +2160,7 @@ static s32b get_exp_from_mon_aux(int dam, monster_type *m_ptr, s32b max_lev, u32
 	}
 	else
 	{
-		m_exp = (long)r_ptr->mexp * r_ptr->level * extract_energy[m_ptr->mspeed];
+		m_exp = (long)r_ptr->mexp * r_ptr->level * extract_energy[m_ptr->mspeed] * ms_info[m_ptr->s_idx].exp_perc / 100;
 		div = (max_lev + 2) * extract_energy[r_ptr->speed];
 	}
 	m_exp_h = m_exp/0x10000L;
@@ -2581,6 +2610,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_your_alignment(ALI_GNE, r_ptr->level >= p_ptr->lev ? -4 : -2);
 				else if (one_in_((r_ptr->level >= p_ptr->lev) ? 5 : 10))
 					change_your_alignment(ALI_GNE, -1);
+
+				if (r_ptr->d_char == 'A')
+				{
+					if ((get_your_alignment_gne() == ALIGN_GNE_GOOD) && (one_in_(13))) do_curse(0, 0);
+					else if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) && (one_in_(7))) do_grace(0, 0);
+				}
 			}
 			if (r_ptr->flags3 & RF3_EVIL)
 			{
@@ -2588,6 +2623,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_your_alignment(ALI_GNE, r_ptr->level >= p_ptr->lev ? 4 : 2);
 				else if (one_in_((r_ptr->level >= p_ptr->lev) ? 5 : 10))
 					change_your_alignment(ALI_GNE, 1);
+
+				if (r_ptr->flags3 & RF3_DEMON)
+				{
+					if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) && (one_in_(13))) do_curse(0, 0);
+					else if ((get_your_alignment_gne() == ALIGN_GNE_GOOD) && (one_in_(7))) do_grace(0, 0);
+				}
 			}
 			if (r_ptr->flags7 & RF7_LAWFUL)
 			{
@@ -5370,7 +5411,7 @@ bool activate_tarot_power(int effect)
 	switch (effect)
 	{
 	case 0: /* The Blank Card */
-		if (p_ptr->muta2 & MUT2_TAROT)
+		if (p_ptr->gift & GIFT_TAROT)
 		{
 #ifdef JP
 			if (!get_check("タロットカードの力を感じるのをやめますか？ ")) return FALSE;
@@ -5378,7 +5419,7 @@ bool activate_tarot_power(int effect)
 			if (!get_check("Do you stop feeling the power of tarot cards? ")) return FALSE;
 #endif
 			/* Lose the mutation (Power of Tarot Cards) */
-			lose_mutation(110);
+			lose_gift(1);
 		}
 		else
 		{
@@ -5388,7 +5429,7 @@ bool activate_tarot_power(int effect)
 			if (!get_check("You can feel the power of tarot cards... continue? ")) return FALSE;
 #endif
 			/* Gain the mutation (Power of Tarot Cards) */
-			gain_random_mutation(110, FALSE);
+			gain_gift(1);
 		}
 		break;
 
@@ -5709,6 +5750,7 @@ bool activate_tarot_power(int effect)
 
 			change_your_alignment(ALI_GNE, -5);
 			curse_equipment(40, 20);
+			if (one_in_(13)) do_curse(0, 1);
 
 			if (p_ptr->chp > (p_ptr->mhp / 5))
 			{
@@ -6913,8 +6955,8 @@ int skill_exp_level(int skill_exp)
 s16b get_cur_pelem(void)
 {
 	if (p_ptr->no_elem) return NO_ELEM;
-	else if (p_ptr->opposite_pelem) return get_opposite_elem(p_ptr->pelem);
-	else return p_ptr->pelem;
+	else if (p_ptr->opposite_pelem) return get_opposite_elem(p_ptr->celem);
+	else return p_ptr->celem;
 }
 
 /*
@@ -7455,6 +7497,10 @@ bool can_choose_class(byte new_class, byte mode)
 			return TRUE;
 		}
 
+		if ((new_cp_ptr->c_flags & PCF_CLEVEL_LIMIT) &&
+				(total_max_clev >= new_cp_ptr->clevel_limit) &&
+				!p_ptr->cexp_info[new_class].clev) return FALSE;
+
 		/* Several classes cannot change more */
 		if (cp_ptr->c_flags & PCF_NO_CHANGE) return FALSE;
 
@@ -7473,7 +7519,7 @@ bool can_choose_class(byte new_class, byte mode)
 			break;
 
 		case CLASS_HIGHWITCH:
-			if (p_ptr->cexp_info[CLASS_WITCH].clev < 39) return FALSE;
+			if (p_ptr->cexp_info[CLASS_WITCH].clev < 40) return FALSE;
 			if (!(inventory[INVEN_HEAD].k_idx && (inventory[INVEN_HEAD].name1 == ART_DENEB))) return FALSE;
 			break;
 
@@ -7481,37 +7527,37 @@ bool can_choose_class(byte new_class, byte mode)
 			if (chaos_frame[ETHNICITY_WALSTANIAN] < 100) return FALSE;
 			if (chaos_frame[ETHNICITY_GARGASTAN] < 100) return FALSE;
 			if (chaos_frame[ETHNICITY_BACRUM] < 100) return FALSE;
-			if (p_ptr->cexp_info[CLASS_SOLDIER].clev < 29) return FALSE;
+			if (p_ptr->cexp_info[CLASS_SOLDIER].clev < 30) return FALSE;
 			if (p_ptr->cexp_info[CLASS_SOLDIER].max_clev != total_max_clev) return FALSE;
 			break;
 
 		case CLASS_GENERAL:
-			if (p_ptr->cexp_info[CLASS_KNIGHT].clev < 29) return FALSE;
+			if (p_ptr->cexp_info[CLASS_KNIGHT].clev < 30) return FALSE;
 			if ((total_max_clev - p_ptr->cexp_info[CLASS_KNIGHT].clev - p_ptr->cexp_info[CLASS_GENERAL].clev) > 14) return FALSE;
 			break;
 
 		case CLASS_NINJAMASTER:
-			if (p_ptr->cexp_info[CLASS_NINJA].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_NINJA].clev < 35) return FALSE;
 			if ((total_max_clev - p_ptr->cexp_info[CLASS_NINJA].clev - p_ptr->cexp_info[CLASS_NINJAMASTER].clev) > 9) return FALSE;
 			break;
 
 		case CLASS_ARCHMAGE:
-			if (p_ptr->cexp_info[CLASS_WIZARD].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_WIZARD].clev < 35) return FALSE;
 			if ((total_max_clev - p_ptr->cexp_info[CLASS_WIZARD].clev - p_ptr->cexp_info[CLASS_ARCHMAGE].clev) > 19) return FALSE;
 			break;
 
 		case CLASS_FREYA:
-			if (p_ptr->cexp_info[CLASS_VALKYRIE].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_VALKYRIE].clev < 35) return FALSE;
 			if (total_max_clev - p_ptr->cexp_info[CLASS_VALKYRIE].clev > 9) return FALSE;
 			break;
 
 		case CLASS_CRESCENT:
-			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 35) return FALSE;
 			if (total_max_clev - p_ptr->cexp_info[CLASS_ARCHER].clev > 9) return FALSE;
 			break;
 
 		case CLASS_MEDIUM:
-			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 19) return FALSE;
+			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 20) return FALSE;
 			if ((p_ptr->cexp_info[CLASS_CLERIC].clev + p_ptr->cexp_info[CLASS_PRIEST].clev) < 34) return FALSE;
 			if (p_ptr->cexp_info[CLASS_NINJA].max_clev > 0) return FALSE;
 			if (p_ptr->cexp_info[CLASS_WITCH].max_clev > 0) return FALSE;
@@ -7520,15 +7566,12 @@ bool can_choose_class(byte new_class, byte mode)
 		case CLASS_GRAPPLER:
 			if (chaos_frame[ETHNICITY_LODIS] > -50) return FALSE;
 			break;
-		case CLASS_ELEMENTALER:
-			if (total_max_clev > 75) return FALSE;
-			break;
 		case CLASS_RELICSKNIGHT:
 			if (!prace_is_(RACE_GOBLIN)) return FALSE;
 			if (get_your_alignment_gne() != ALIGN_GNE_EVIL) return FALSE;
 			break;
 		case CLASS_ENIGMAHUNTER:
-			if (p_ptr->cexp_info[CLASS_AMAZONESS].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_AMAZONESS].clev < 35) return FALSE;
 			if (!(inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_SILVER_CROSS))) return FALSE;
 			if (get_your_alignment_gne() != ALIGN_GNE_GOOD) return FALSE;
 			break;

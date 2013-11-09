@@ -60,7 +60,7 @@
  * Upper compatibility is always guaranteed.
  */
 #define T_VER_MAJOR 0
-#define T_VER_MINOR 9
+#define T_VER_MINOR 10
 #define T_VER_PATCH 0
 #define T_VER_EXTRA 0
 
@@ -200,111 +200,77 @@
 
 
 /* Chaos mutations */
-
-/* "Activatable" mutations must be in MUT1_* */
-#define MUT1_SPIT_ACID                  0x00000001L
-#define MUT1_BR_FIRE                    0x00000002L
-#define MUT1_HYPN_GAZE                  0x00000004L
-#define MUT1_TELEKINES                  0x00000008L
-#define MUT1_VTELEPORT                  0x00000010L /* Voluntary teleport */
-#define MUT1_MIND_BLST                  0x00000020L
-#define MUT1_RADIATION                  0x00000040L
-#define MUT1_VAMPIRISM                  0x00000080L
-#define MUT1_SMELL_MET                  0x00000100L
-#define MUT1_SMELL_MON                  0x00000200L
-#define MUT1_BLINK                      0x00000400L
-#define MUT1_EAT_ROCK                   0x00000800L
-#define MUT1_SWAP_POS                   0x00001000L
-#define MUT1_SHRIEK                     0x00002000L
-#define MUT1_ILLUMINE                   0x00004000L
-#define MUT1_DET_CURSE                  0x00008000L
-#define MUT1_BERSERK                    0x00010000L
-#define MUT1_POLYMORPH                  0x00020000L
-#define MUT1_MIDAS_TCH                  0x00040000L
-#define MUT1_GROW_MOLD                  0x00080000L
-#define MUT1_RESIST                     0x00100000L
-#define MUT1_EARTHQUAKE                 0x00200000L
-#define MUT1_EAT_MAGIC                  0x00400000L
-#define MUT1_WEIGH_MAG                  0x00800000L
-#define MUT1_STERILITY                  0x01000000L
-#define MUT1_PANIC_HIT                  0x02000000L
-#define MUT1_DAZZLE                     0x04000000L
-#define MUT1_LASER_EYE                  0x08000000L
-#define MUT1_RECALL                     0x10000000L
-#define MUT1_BANISH                     0x20000000L
-#define MUT1_COLD_TOUCH                 0x40000000L
-#define MUT1_LAUNCHER                   0x80000000L
-
-/* Randomly activating mutations must be MUT2_* */
-#define MUT2_BERS_RAGE                  0x00000001L
-#define MUT2_COWARDICE                  0x00000002L
-#define MUT2_RTELEPORT                  0x00000004L /* Random teleport, instability */
-#define MUT2_ALCOHOL                    0x00000008L
-#define MUT2_HALLU                      0x00000010L
-#define MUT2_ELEM_MULTI                 0x00000020L
-#define MUT2_SCOR_TAIL                  0x00000040L
-#define MUT2_HORNS                      0x00000080L
-#define MUT2_BEAK                       0x00000100L
-#define MUT2_ATT_DEMON                  0x00000200L
-#define MUT2_PROD_MANA                  0x00000400L
-#define MUT2_SPEED_FLUX                 0x00000800L
-#define MUT2_BANISH_ALL                 0x00001000L
-#define MUT2_EAT_LIGHT                  0x00002000L
-#define MUT2_TRUNK                      0x00004000L
-#define MUT2_ATT_ANIMAL                 0x00008000L
-#define MUT2_TENTACLES                  0x00010000L
-#define MUT2_RAW_CHAOS                  0x00020000L
-#define MUT2_NORMALITY                  0x00040000L
-#define MUT2_WRAITH                     0x00080000L
-#define MUT2_POLY_WOUND                 0x00100000L
-#define MUT2_WASTING                    0x00200000L
-#define MUT2_ATT_DRAGON                 0x00400000L
-#define MUT2_WEIRD_MIND                 0x00800000L
-#define MUT2_NAUSEA                     0x01000000L
-#define MUT2_TAROT                      0x02000000L
-#define MUT2_ALTER_REALITY              0x04000000L
-#define MUT2_WARNING                    0x08000000L
-#define MUT2_INVULN                     0x10000000L
-#define MUT2_SP_TO_HP                   0x20000000L
-#define MUT2_HP_TO_SP                   0x40000000L
-#define MUT2_DISARM                     0x80000000L
+#define MUT_ELEM_UNSTABLE              0x00000001L
+#define MUT_ELEM_MULTI                 0x00000002L
+#define MUT_SPEED_FLUX                 0x00000004L
+#define MUT_BANISH_ALL                 0x00000008L
+#define MUT_EAT_LIGHT                  0x00000010L
+#define MUT_NORMALITY                  0x00000020L
+#define MUT_WASTING                    0x00000040L
+#define MUT_ALTER_REALITY              0x00000080L
+#define MUT_SP_TO_HP                   0x00000100L
+#define MUT_HP_TO_SP                   0x00000200L
+#define MUT_ELEC_BODY                  0x00000400L
+#define MUT_FIRE_BODY                  0x00000800L
+#define MUT_COLD_BODY                  0x00001000L
+#define MUT_XTRA_FAT                   0x00002000L
+#define MUT_FLESH_ROT                  0x00004000L
+#define MUT_THICK_SKIN                 0x00008000L
+#define MUT_SCALES                     0x00010000L
+#define MUT_FUR                        0x00020000L
+#define MUT_WINGS                      0x00040000L
+#define MUT_VULN_ELEM                  0x00080000L
+#define MUT_XXX21                      0x00100000L
+#define MUT_XXX22                      0x00200000L
+#define MUT_XXX23                      0x00400000L
+#define MUT_XXX24                      0x00800000L
+#define MUT_XXX25                      0x01000000L
+#define MUT_XXX26                      0x02000000L
+#define MUT_XXX27                      0x04000000L
+#define MUT_XXX28                      0x08000000L
+#define MUT_XXX29                      0x10000000L
+#define MUT_XXX30                      0x20000000L
+#define MUT_XXX31                      0x40000000L
+#define MUT_XXX32                      0x80000000L
 
 
+/* Grace or Curse */
+#define GRACE_GOOD_LUCK                0x00000001L
+#define GRACE_ATT_ANIMAL               0x00000002L
+#define GRACE_ATT_SERVANT              0x00000004L
+#define GRACE_ATT_DRAGON               0x00000008L
+#define GRACE_REGEN                    0x00000010L
+#define GRACE_HIGH_MELEE               0x00000020L
+#define GRACE_HIGH_MELEE2              0x00000040L
+#define GRACE_HIGH_AC                  0x00000080L
+#define GRACE_HIGH_AC2                 0x00000100L
+#define GRACE_HIGH_MAGIC               0x00000200L
+#define GRACE_HIGH_MAGIC2              0x00000400L
+#define GRACE_XXX12                    0x00000800L
+#define GRACE_XXX13                    0x00001000L
+#define GRACE_XXX14                    0x00002000L
+#define GRACE_XXX15                    0x00004000L
+#define GRACE_XXX16                    0x00008000L
+#define CURSE_BAD_LUCK                 0x00010000L
+#define CURSE_ATT_ANIMAL               0x00020000L
+#define CURSE_ATT_DEMON                0x00040000L
+#define CURSE_ATT_DRAGON               0x00080000L
+#define CURSE_SLOW_REGEN               0x00100000L
+#define CURSE_LOW_MELEE                0x00200000L
+#define CURSE_LOW_MELEE2               0x00400000L
+#define CURSE_LOW_AC                   0x00800000L
+#define CURSE_LOW_AC2                  0x01000000L
+#define CURSE_LOW_MAGIC                0x02000000L
+#define CURSE_LOW_MAGIC2               0x04000000L
+#define CURSE_XXX28                    0x08000000L
+#define CURSE_XXX29                    0x10000000L
+#define CURSE_XXX30                    0x20000000L
+#define CURSE_XXX31                    0x40000000L
+#define CURSE_XXX32                    0x80000000L
 
-/* Other mutations will be mainly in MUT3_* */
 
-#define MUT3_HYPER_STR                  0x00000001L
-#define MUT3_PUNY                       0x00000002L
-#define MUT3_HYPER_INT                  0x00000004L
-#define MUT3_MORONIC                    0x00000008L
-#define MUT3_RESILIENT                  0x00000010L
-#define MUT3_XTRA_FAT                   0x00000020L
-#define MUT3_ALBINO                     0x00000040L
-#define MUT3_FLESH_ROT                  0x00000080L
-#define MUT3_SILLY_VOI                  0x00000100L
-#define MUT3_BLANK_FAC                  0x00000200L
-#define MUT3_ILL_NORM                   0x00000400L
-#define MUT3_XTRA_EYES                  0x00000800L
-#define MUT3_MAGIC_RES                  0x00001000L
-#define MUT3_XTRA_NOIS                  0x00002000L
-#define MUT3_INFRAVIS                   0x00004000L
-#define MUT3_XTRA_LEGS                  0x00008000L
-#define MUT3_SHORT_LEG                  0x00010000L
-#define MUT3_ELEC_TOUC                  0x00020000L
-#define MUT3_FIRE_BODY                  0x00040000L
-#define MUT3_WART_SKIN                  0x00080000L
-#define MUT3_SCALES                     0x00100000L
-#define MUT3_IRON_SKIN                  0x00200000L
-#define MUT3_WINGS                      0x00400000L
-#define MUT3_FEARLESS                   0x00800000L
-#define MUT3_REGEN                      0x01000000L
-#define MUT3_ESP                        0x02000000L
-#define MUT3_LIMBER                     0x04000000L
-#define MUT3_ARTHRITIS                  0x08000000L
-#define MUT3_BAD_LUCK                   0x10000000L
-#define MUT3_VULN_ELEM                  0x20000000L
-#define MUT3_MOTION                     0x40000000L
-#define MUT3_GOOD_LUCK                  0x80000000L
+/* Gift */
+#define GIFT_TAROT                     0x00000001L
 
 
 /* Monk martial arts... */
@@ -481,7 +447,7 @@
 /*
  * Misc constants
  */
-#define TOWN_DAWN         10000    /* Number of ticks from dawn to dawn XXX */
+#define TOWN_DAWN         7500     /* Number of ticks from dawn to dawn XXX */
 #define TURNS_PER_TICK    10L      /* Number of energy-gain-turns per ticks */
 #define MAX_DAYS          20000    /* Maximum days */
 #define BREAK_GLYPH       550      /* Rune of protection resistance */
@@ -860,6 +826,7 @@
 #define PCF_SEE_DARK_GRID 0x00008000
 #define PCF_REALM_ELEM_1  0x00010000
 #define PCF_MONK_ARMOUR   0x00020000
+#define PCF_CLEVEL_LIMIT  0x00040000
 
 
 /*** Screen Locations ***/
@@ -2207,8 +2174,8 @@
 #define SV_SCROLL_ELEM_WIND             60
 
 /* The "sval" codes for TV_POTION */
-/* #define SV_POTION_WATER                  0 */
-/* #define SV_POTION_APPLE_JUICE            1 */
+#define SV_POTION_HOLY_WATER             0
+#define SV_POTION_CURSED_WATER           1
 /* #define SV_POTION_SLIME_MOLD             2 */
 #define SV_POTION_SLOWNESS               3
 #define SV_POTION_SALT_WATER             4
@@ -2902,7 +2869,7 @@
  * How object is marked (flags in object_type.mark)
  * OM_FOUND --- original boolean flag
  * OM_NOMSG --- temporary flag to suppress messages which were
- *              already printed in auto_pickup_items().
+ *              already printed in autopick_pickup_items().
  */
 #define OM_FOUND        0x01    /* original boolean flag */
 #define OM_NOMSG        0x02    /* temporary flag to suppress messages */
@@ -3258,14 +3225,14 @@
 #define RF1_MALE                0x00000004  /* Male gender */
 #define RF1_FEMALE              0x00000008  /* Female gender */
 #define RF1_CHAR_CLEAR          0x00000010  /* Absorbs symbol */
-#define RF1_XXX0                0x00000020
+#define RF1_EGO                 0x00000020  /* Ego Monster */
 #define RF1_ATTR_CLEAR          0x00000040  /* Absorbs color */
 #define RF1_ATTR_MULTI          0x00000080  /* Changes color */
 #define RF1_FORCE_DEPTH         0x00000100  /* Start at "correct" depth */
 #define RF1_FORCE_MAXHP         0x00000200  /* Start with max hitpoints */
 #define RF1_FORCE_SLEEP         0x00000400  /* Start out sleeping */
 #define RF1_NO_ESCORT           0x00000800  /* Never be escort */
-#define RF1_XXX1                0x00001000  /* XXX */
+#define RF1_RAND_U_NAME         0x00001000  /* With Random name */
 #define RF1_FRIENDS             0x00002000  /* Arrive with some friends */
 #define RF1_ESCORT              0x00004000  /* Arrive with an escort */
 #define RF1_ESCORTS             0x00008000  /* Arrive with some escorts */
@@ -4854,7 +4821,7 @@ extern int PlayerUID;
 
 /*** Dungeon type flags -- DG ***/
 #define DF1_WINNER              0x00000001L
-#define DF1_XXX01               0x00000002L
+#define DF1_MAIN_DUNGEON        0x00000002L
 #define DF1_SMALLEST            0x00000004L
 #define DF1_BEGINNER            0x00000008L
 #define DF1_BIG                 0x00000010L
@@ -4907,6 +4874,7 @@ extern int PlayerUID;
 #define DUNGEON_AIR_GARDEN 17
 #define DUNGEON_HEAVEN     18
 #define DUNGEON_ELEM_CAVE  19
+#define DUNGEON_RUINS      20
 
 
 /*
@@ -5013,6 +4981,23 @@ extern int PlayerUID;
 #define MAX_MACRO_TRIG 200
 
 #define SCREEN_BUF_SIZE 65536           /* max screen dump buffer size */
+
+/*
+ * Special key code used for inkey_special()
+ */
+#define SKEY_MOD_MASK     0x0f00
+#define SKEY_MOD_SHIFT    0x0100
+#define SKEY_MOD_CONTROL  0x0200
+
+#define SKEY_MASK         0xf000
+#define SKEY_DOWN   	  0xf001
+#define SKEY_LEFT   	  0xf002
+#define SKEY_RIGHT  	  0xf003
+#define SKEY_UP     	  0xf004
+#define SKEY_PGUP   	  0xf005
+#define SKEY_PGDOWN 	  0xf006
+#define SKEY_TOP    	  0xf007
+#define SKEY_BOTTOM 	  0xf008
 
 /*
  * Elements of player & monsters & grids
@@ -5206,12 +5191,14 @@ extern int PlayerUID;
 #define EVENT_CANNOT_BE_TEMPLEKNIGHT     0x00000002
 #define EVENT_CANNOT_BE_WHITEKNIGHT      0x00000004
 #define EVENT_LIBERATION_OF_ARMORICA     0x00000008
+#define EVENT_CLOSE_AIR_GARDEN           0x00000010
 
 
 #define IN_HEAVEN_GATE() ((dungeon_type == DUNGEON_HEAVEN_WAY) && (dun_level == d_info[dungeon_type].maxdepth))
 
 #define IS_MERMAID_IN_WATER() \
 	(character_dungeon && (p_ptr->prace == RACE_MERMAID) && \
+	 (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD))) && \
 	 !p_ptr->levitation && !p_ptr->riding && \
 	 ((cave[py][px].feat == FEAT_DEEP_WATER) || \
 	  (cave[py][px].feat == FEAT_SHAL_WATER) || \

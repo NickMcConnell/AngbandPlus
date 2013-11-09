@@ -3383,6 +3383,10 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 	u32b flgs[TR_FLAG_SIZE];
 
+	u32b flags2;
+	u32b flags3;
+	u32b flagsr;
+
 	/* Hack -- "Throwing" */
 	if (!o_ptr->k_idx) return tdam;
 
@@ -3390,6 +3394,19 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 	object_flags(o_ptr, flgs);
 
 	if (xtra_slay) add_flag(flgs, xtra_slay);
+
+	flags2 = r_ptr->flags2;
+	flags3 = r_ptr->flags3;
+	flagsr = r_ptr->flagsr;
+
+	if (m_ptr->s_idx)
+	{
+		flags2 &= ~(RF2_HUMAN);
+
+		flags2 |= ms_info[m_ptr->s_idx].flags2;
+		flags3 |= ms_info[m_ptr->s_idx].flags3;
+		flagsr |= ms_info[m_ptr->s_idx].flagsr;
+	}
 
 	if (inventory[INVEN_BOW].k_idx && (inventory[INVEN_BOW].name1 || object_is_runeweapon(&inventory[INVEN_BOW])))
 	{
@@ -3411,7 +3428,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 		{
 			/* Slay Animal */
 			if ((have_flag(flgs, TR_SLAY_ANIMAL)) &&
-			    (r_ptr->flags3 & RF3_ANIMAL))
+			    (flags3 & RF3_ANIMAL))
 			{
 				if (m_ptr->ml)
 				{
@@ -3423,7 +3440,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Animal */
 			if ((have_flag(flgs, TR_KILL_ANIMAL)) &&
-			    (r_ptr->flags3 & RF3_ANIMAL))
+			    (flags3 & RF3_ANIMAL))
 			{
 				if (m_ptr->ml)
 				{
@@ -3435,7 +3452,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Evil */
 			if ((have_flag(flgs, TR_SLAY_EVIL)) &&
-			    (r_ptr->flags3 & RF3_EVIL))
+			    (flags3 & RF3_EVIL))
 			{
 				if (m_ptr->ml)
 				{
@@ -3447,7 +3464,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Evil */
 			if ((have_flag(flgs, TR_KILL_EVIL)) &&
-			    (r_ptr->flags3 & RF3_EVIL))
+			    (flags3 & RF3_EVIL))
 			{
 				if (m_ptr->ml)
 				{
@@ -3459,7 +3476,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Good */
 			if ((have_flag(flgs, TR_SLAY_GOOD)) &&
-			    (r_ptr->flags3 & RF3_GOOD))
+			    (flags3 & RF3_GOOD))
 			{
 				if (m_ptr->ml)
 				{
@@ -3471,7 +3488,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Good */
 			if ((have_flag(flgs, TR_KILL_GOOD)) &&
-			    (r_ptr->flags3 & RF3_GOOD))
+			    (flags3 & RF3_GOOD))
 			{
 				if (m_ptr->ml)
 				{
@@ -3482,20 +3499,22 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 			}
 
 			/* Slay Living */
-			if ((have_flag(flgs, TR_SLAY_LIVING)) && monster_living(r_ptr))
+			if ((have_flag(flgs, TR_SLAY_LIVING)) && monster_living(r_ptr) &&
+				!(ms_info[m_ptr->s_idx].flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)))
 			{
 				if (mult < 20) mult = 20;
 			}
 
 			/* Kill Living */
-			if ((have_flag(flgs, TR_KILL_LIVING)) && monster_living(r_ptr))
+			if ((have_flag(flgs, TR_KILL_LIVING)) && monster_living(r_ptr) &&
+				!(ms_info[m_ptr->s_idx].flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)))
 			{
 				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Human */
 			if ((have_flag(flgs, TR_SLAY_HUMAN)) &&
-			    (r_ptr->flags2 & RF2_HUMAN))
+			    (flags2 & RF2_HUMAN))
 			{
 				if (m_ptr->ml)
 				{
@@ -3507,7 +3526,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Human */
 			if ((have_flag(flgs, TR_KILL_HUMAN)) &&
-			    (r_ptr->flags2 & RF2_HUMAN))
+			    (flags2 & RF2_HUMAN))
 			{
 				if (m_ptr->ml)
 				{
@@ -3519,7 +3538,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Undead */
 			if ((have_flag(flgs, TR_SLAY_UNDEAD)) &&
-			    (r_ptr->flags3 & RF3_UNDEAD))
+			    (flags3 & RF3_UNDEAD))
 			{
 				if (m_ptr->ml)
 				{
@@ -3531,7 +3550,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Undead */
 			if ((have_flag(flgs, TR_KILL_UNDEAD)) &&
-			    (r_ptr->flags3 & RF3_UNDEAD))
+			    (flags3 & RF3_UNDEAD))
 			{
 				if (m_ptr->ml)
 				{
@@ -3543,7 +3562,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Demon */
 			if ((have_flag(flgs, TR_SLAY_DEMON)) &&
-			    (r_ptr->flags3 & RF3_DEMON))
+			    (flags3 & RF3_DEMON))
 			{
 				if (m_ptr->ml)
 				{
@@ -3555,7 +3574,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Demon */
 			if ((have_flag(flgs, TR_KILL_DEMON)) &&
-			    (r_ptr->flags3 & RF3_DEMON))
+			    (flags3 & RF3_DEMON))
 			{
 				if (m_ptr->ml)
 				{
@@ -3567,7 +3586,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Orc */
 			if ((have_flag(flgs, TR_SLAY_ORC)) &&
-			    (r_ptr->flags3 & RF3_ORC))
+			    (flags3 & RF3_ORC))
 			{
 				if (m_ptr->ml)
 				{
@@ -3579,7 +3598,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Orc */
 			if ((have_flag(flgs, TR_KILL_ORC)) &&
-			    (r_ptr->flags3 & RF3_ORC))
+			    (flags3 & RF3_ORC))
 			{
 				if (m_ptr->ml)
 				{
@@ -3591,7 +3610,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Troll */
 			if ((have_flag(flgs, TR_SLAY_TROLL)) &&
-			    (r_ptr->flags3 & RF3_TROLL))
+			    (flags3 & RF3_TROLL))
 			{
 				if (m_ptr->ml)
 				{
@@ -3603,7 +3622,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Troll */
 			if ((have_flag(flgs, TR_KILL_TROLL)) &&
-			    (r_ptr->flags3 & RF3_TROLL))
+			    (flags3 & RF3_TROLL))
 			{
 				if (m_ptr->ml)
 				{
@@ -3615,7 +3634,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Giant */
 			if ((have_flag(flgs, TR_SLAY_GIANT)) &&
-			    (r_ptr->flags3 & RF3_GIANT))
+			    (flags3 & RF3_GIANT))
 			{
 				if (m_ptr->ml)
 				{
@@ -3627,7 +3646,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Kill Giant */
 			if ((have_flag(flgs, TR_KILL_GIANT)) &&
-			    (r_ptr->flags3 & RF3_GIANT))
+			    (flags3 & RF3_GIANT))
 			{
 				if (m_ptr->ml)
 				{
@@ -3639,7 +3658,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Slay Dragon  */
 			if ((have_flag(flgs, TR_SLAY_DRAGON)) &&
-			    (r_ptr->flags3 & RF3_DRAGON))
+			    (flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
 				{
@@ -3651,7 +3670,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Execute Dragon */
 			if ((have_flag(flgs, TR_KILL_DRAGON)) &&
-			    (r_ptr->flags3 & RF3_DRAGON))
+			    (flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
 				{
@@ -3665,7 +3684,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 			if (have_flag(flgs, TR_BRAND_ACID))
 			{
 				/* Notice resistance */
-				if (r_ptr->flagsr & RFR_RES_ACID)
+				if (flagsr & RFR_RES_ACID)
 				{
 					if (m_ptr->ml)
 					{
@@ -3676,7 +3695,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (r_ptr->flags3 & RF3_HURT_ACID)
+					if (flags3 & RF3_HURT_ACID)
 					{
 						if (mult < 34) mult = 34;
 						if (m_ptr->ml)
@@ -3692,7 +3711,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 			if (have_flag(flgs, TR_BRAND_ELEC))
 			{
 				/* Notice resistance */
-				if (r_ptr->flagsr & RFR_RES_ELEC)
+				if (flagsr & RFR_RES_ELEC)
 				{
 					if (m_ptr->ml)
 					{
@@ -3703,7 +3722,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (r_ptr->flags3 & RF3_HURT_ELEC)
+					if (flags3 & RF3_HURT_ELEC)
 					{
 						if (mult < 34) mult = 34;
 						if (m_ptr->ml)
@@ -3719,7 +3738,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 			if (have_flag(flgs, TR_BRAND_FIRE))
 			{
 				/* Notice resistance */
-				if (r_ptr->flagsr & RFR_RES_FIRE)
+				if (flagsr & RFR_RES_FIRE)
 				{
 					if (m_ptr->ml)
 					{
@@ -3730,7 +3749,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (r_ptr->flags3 & RF3_HURT_FIRE)
+					if (flags3 & RF3_HURT_FIRE)
 					{
 						if (mult < 34) mult = 34;
 						if (m_ptr->ml)
@@ -3746,7 +3765,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 			if (have_flag(flgs, TR_BRAND_COLD))
 			{
 				/* Notice resistance */
-				if (r_ptr->flagsr & RFR_RES_COLD)
+				if (flagsr & RFR_RES_COLD)
 				{
 					if (m_ptr->ml)
 					{
@@ -3756,7 +3775,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (r_ptr->flags3 & RF3_HURT_COLD)
+					if (flags3 & RF3_HURT_COLD)
 					{
 						if (mult < 34) mult = 34;
 						if (m_ptr->ml)
@@ -3772,7 +3791,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 			if (have_flag(flgs, TR_BRAND_POIS))
 			{
 				/* Notice resistance */
-				if (r_ptr->flagsr & RFR_RES_POIS)
+				if (flagsr & RFR_RES_POIS)
 				{
 					if (m_ptr->ml)
 					{
@@ -3789,7 +3808,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 			/* Digging */
 			if (have_flag(flgs, TR_TUNNEL) && (o_ptr->to_misc[OB_TUNNEL] > 0) &&
-			    (r_ptr->flags3 & RF3_HURT_ROCK))
+			    (flags3 & RF3_HURT_ROCK))
 			{
 				if (m_ptr->ml)
 				{
@@ -4327,6 +4346,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, in
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				int ac = r_ptr->ac + MON_STONING(m_ptr) / 5;
+				if (m_ptr->s_idx) ac += ms_info[m_ptr->s_idx].ac_mod;
 
 				/* Check the visibility */
 				visible = m_ptr->ml;
@@ -4753,7 +4773,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 
 	if (pclass_is_(CLASS_BERSERKER) && (o_ptr->tval == TV_POLEARM)
 		&& ((o_ptr->sval == SV_FRANCISCA) || (o_ptr->sval == SV_RUNEAXE)))
-			boomerang = TRUE;
+			return_when_thrown = TRUE;
 
 	if (dungeon_type == DUNGEON_HEAVEN)
 	{
@@ -4974,6 +4994,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			ac = (shooting_star ? ac : 0) + r_ptr->ac + MON_STONING(m_ptr) / 5;
+			if (m_ptr->s_idx) ac += ms_info[m_ptr->s_idx].ac_mod;
 
 			/* Check the visibility */
 			visible = m_ptr->ml;

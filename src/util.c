@@ -10,6 +10,9 @@
 
 static int num_more = 0;
 
+/* Save macro trigger string for use in inkey_special() */
+static char inkey_macro_trigger_string[1024];
+
 
 #ifdef SET_UID
 
@@ -1682,7 +1685,7 @@ static char inkey_aux(void)
 
 	cptr pat, act;
 
-	char buf[1024];
+	char *buf = inkey_macro_trigger_string;
 
 	/* Hack : キー入力待ちで止まっているので、流れた行の記憶は不要。 */
 	num_more = 0;
@@ -1714,9 +1717,6 @@ static char inkey_aux(void)
 
 	/* Inside "macro trigger" */
 	if (parse_under) return (ch);
-
-	/* Parse special key only */
-	if (inkey_special && ch != 31) return (ch);
 
 	/* Save the first key, advance */
 	buf[p++] = ch;
@@ -1827,6 +1827,33 @@ static char inkey_aux(void)
 
 
 /*
+ * Cancel macro action on the queue
+ */
+static void forget_macro_action(void)
+{
+	if (!parse_macro) return;
+
+	/* Drop following macro action string */
+	while (TRUE)
+	{
+		char ch;
+
+		/* End loop if no key ready */
+		if (Term_inkey(&ch, FALSE, TRUE)) break;
+
+		/* End loop if no key ready */
+		if (ch == 0) break;
+
+		/* End of "macro action" */
+		if (ch == 30) break;
+	}
+
+	/* No longer inside "macro action" */
+	parse_macro = FALSE;
+}
+
+
+/*
  * Mega-Hack -- special "inkey_next" pointer.  XXX XXX XXX
  *
  * This special pointer allows a sequence of keys to be "inserted" into
@@ -1928,7 +1955,7 @@ char inkey(void)
 		ch = *inkey_next++;
 
 		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = inkey_special = FALSE;
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1944,7 +1971,7 @@ char inkey(void)
 	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
 	{
 		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = inkey_special = FALSE;
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -2129,7 +2156,7 @@ char inkey(void)
 
 
 	/* Cancel the various "global parameters" */
-	inkey_base = inkey_xtra = inkey_flag = inkey_scan = inkey_special = FALSE;
+	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
 	/* Return the keypress */
 	return (ch);
@@ -3103,33 +3130,36 @@ void clear_from(int row)
 
 
 /*
- * Get some input at the cursor location.
+ * Get some string input at the cursor location.
  * Assume the buffer is initialized to a default string.
- * Note that this string is often "empty" (see below).
- * The default buffer is displayed in yellow until cleared.
- * Pressing RETURN right away accepts the default entry.
- * Normal chars clear the default and append the char.
- * Backspace clears the default or deletes the final char.
+ *
+ * The default buffer is in Overwrite mode and displayed in yellow at
+ * first.  Normal chars clear the yellow text and append the char in
+ * white text.
+ *
+ * LEFT (^B) and RIGHT (^F) movement keys move the cursor position.
+ * If the text is still displayed in yellow (Overwite mode), it will
+ * turns into white (Insert mode) when cursor moves.
+ *
+ * DELETE (^D) deletes a char at the cursor position.
+ * BACKSPACE (^H) deletes a char at the left of cursor position.
  * ESCAPE clears the buffer and the window and returns FALSE.
  * RETURN accepts the current buffer contents and returns TRUE.
  */
-bool askfor_aux(char *buf, int len)
+bool askfor_aux(char *buf, int len, bool numpad_cursor)
 {
 	int y, x;
+	int pos = 0;
 
-	int i = 0;
+	/*
+	 * Text color
+	 * TERM_YELLOW : Overwrite mode
+	 * TERM_WHITE : Insert mode
+	 */
+	byte color = TERM_YELLOW;
 
-	int k = 0;
-
-	bool done = FALSE;
-
-
-#ifdef JP
-    int	k_flag[128];
-#endif
-	/* Locate the cursor */
+	/* Locate the cursor position */
 	Term_locate(&x, &y);
-
 
 	/* Paranoia -- check len */
 	if (len < 1) len = 1;
@@ -3140,107 +3170,232 @@ bool askfor_aux(char *buf, int len)
 	/* Restrict the length */
 	if (x + len > 80) len = 80 - x;
 
-
 	/* Paranoia -- Clip the default entry */
 	buf[len] = '\0';
 
 
-	/* Display the default answer */
-	Term_erase(x, y, len);
-	Term_putstr(x, y, -1, TERM_YELLOW, buf);
-
-
 	/* Process input */
-	while (!done)
+	while (TRUE)
 	{
-		/* Place cursor */
-		Term_gotoxy(x + k, y);
+		int skey;
 
-		/* Get a key */
-		i = inkey();
+		/* Display the string */
+		Term_erase(x, y, len);
+		Term_putstr(x, y, -1, color, buf);
+
+		/* Place cursor */
+		Term_gotoxy(x + pos, y);
+
+		/* Get a special key code */
+		skey = inkey_special(numpad_cursor);
 
 		/* Analyze the key */
-		switch (i)
+		switch (skey)
 		{
-		case ESCAPE:
-			k = 0;
-			done = TRUE;
-			break;
+		case SKEY_LEFT:
+		case KTRL('b'):
+		{
+			int i = 0;
 
-		case '\n':
-		case '\r':
-			k = strlen(buf);
-			done = TRUE;
-			break;
+			/* Now on insert mode */
+			color = TERM_WHITE;
 
-		case 0x7F:
-		case '\010':
-#ifdef JP
-				if (k > 0)
-				{
-					k--;
-					if (k_flag[k] != 0)
-						k--;
-				}
-#else
-			if (k > 0) k--;
-#endif
+			/* No move at beginning of line */
+			if (0 == pos) break;
 
-			break;
-
-		default:
-#ifdef JP
-       {			/* 片山さん作成 */
-                int next;
-
-                                if (iskanji (i)) {
-                                        inkey_base = TRUE;
-                                        next = inkey ();
-                                        if (k+1 < len) {
-                                                buf[k++] = i;
-                                                buf[k] = next;
-                                                k_flag[k++] = 1;
-                                        } else
-                                                bell();
-                                } else {
-#ifdef SJIS
-                    if(k<len && (isprint(i) || (iskana(i)))){
-#else
-                    if(k<len && isprint(i)){
-#endif
-                                                buf[k] = i;
-                                                k_flag[k++] = 0;
-                                        } else
-                                                bell();
-		               }
-		 }
-#else
-			if ((k < len) && (isprint(i)))
+			while (TRUE)
 			{
-				buf[k++] = i;
-			}
-			else
-			{
-				bell();
-			}
+				int next_pos = i + 1;
+
+#ifdef JP
+				if (iskanji(buf[i])) next_pos++;
 #endif
+
+				/* Is there the cursor at next position? */ 
+				if (next_pos >= pos) break;
+
+				/* Move to next */
+				i = next_pos;
+			}
+
+			/* Get previous position */
+			pos = i;
 
 			break;
 		}
 
-		/* Terminate */
-		buf[k] = '\0';
+		case SKEY_RIGHT:
+		case KTRL('f'):
+			/* Now on insert mode */
+			color = TERM_WHITE;
 
-		/* Update the entry */
-		Term_erase(x, y, len);
-		Term_putstr(x, y, -1, TERM_WHITE, buf);
-	}
+			/* No move at end of line */
+			if ('\0' == buf[pos]) break;
 
-	/* Aborted */
-	if (i == ESCAPE) return (FALSE);
+#ifdef JP
+			/* Move right */
+			if (iskanji(buf[pos])) pos += 2;
+			else pos++;
+#else
+			pos++;
+#endif
 
-	/* Success */
-	return (TRUE);
+			break;
+
+		case ESCAPE:
+			/* Cancel input */
+			buf[0] = '\0';
+			return FALSE;
+
+		case '\n':
+		case '\r':
+			/* Success */
+			return TRUE;
+
+		case '\010':
+			/* Backspace */
+		{
+			int i = 0;
+
+			/* Now on insert mode */
+			color = TERM_WHITE;
+
+			/* No move at beginning of line */
+			if (0 == pos) break;
+
+			while (TRUE)
+			{
+				int next_pos = i + 1;
+
+#ifdef JP
+				if (iskanji(buf[i])) next_pos++;
+#endif
+
+				/* Is there the cursor at next position? */ 
+				if (next_pos >= pos) break;
+
+				/* Move to next */
+				i = next_pos;
+			}
+
+			/* Get previous position */
+			pos = i;
+
+			/* Fall through to 'Delete key' */
+		}
+
+		case 0x7F:
+		case KTRL('d'):
+			/* Delete key */
+		{
+			int dst, src;
+
+			/* Now on insert mode */
+			color = TERM_WHITE;
+
+			/* No move at end of line */
+			if ('\0' == buf[pos]) break;
+
+			/* Position of next character */
+			src = pos + 1;
+
+#ifdef JP
+			/* Next character is one more byte away */
+			if (iskanji(buf[pos])) src++;
+#endif
+
+			dst = pos;
+
+			/* Move characters at src to dst */
+			while ('\0' != (buf[dst++] = buf[src++]))
+				/* loop */;
+
+			break;
+		}
+
+		default:
+		{
+			/* Insert a character */
+
+			char tmp[100];
+			char c;
+
+			/* Ignore special keys */
+			if (skey & SKEY_MASK) break;
+
+			/* Get a character code */
+			c = (char)skey;
+
+			if (color == TERM_YELLOW)
+			{
+				/* Overwrite default string */
+				buf[0] = '\0';
+
+				/* Go to insert mode */
+				color = TERM_WHITE;
+			}
+
+			/* Save right part of string */
+			strcpy(tmp, buf + pos);
+#ifdef JP
+			if (iskanji(c))
+			{
+				char next;
+
+				/* Bypass macro processing */
+				inkey_base = TRUE;
+				next = inkey();
+
+				if (pos + 1 < len)
+				{
+					buf[pos++] = c;
+					buf[pos++] = next;
+				}
+				else
+				{
+					bell();
+				}
+			}
+			else
+#endif
+			{
+#ifdef JP
+				if (pos < len && (isprint(c) || iskana(c)))
+#else
+				if (pos < len && isprint(c))
+#endif
+				{
+					buf[pos++] = c;
+				}
+				else
+				{
+					bell();
+				}
+			}
+
+			/* Terminate */
+			buf[pos] = '\0';
+
+			/* Write back the left part of string */
+			my_strcat(buf, tmp, len + 1);
+
+			break;
+		} /* default: */
+
+		}
+
+	} /* while (TRUE) */
+}
+
+
+/*
+ * Get some string input at the cursor location.
+ *
+ * Allow to use numpad keys as cursor keys.
+ */
+bool askfor(char *buf, int len)
+{
+	return askfor_aux(buf, len, TRUE);
 }
 
 
@@ -3265,7 +3420,7 @@ bool get_string(cptr prompt, char *buf, int len)
 	prt(prompt, 0, 0);
 
 	/* Ask the user for a string */
-	res = askfor_aux(buf, len);
+	res = askfor(buf, len);
 
 	/* Clear prompt */
 	prt("", 0, 0);
@@ -3415,10 +3570,9 @@ bool get_com(cptr prompt, char *command, bool z_escape)
  */
 s16b get_quantity(cptr prompt, int max)
 {
+	bool res;
 	int amt;
-
 	char tmp[80];
-
 	char buf[80];
 
 
@@ -3438,6 +3592,8 @@ s16b get_quantity(cptr prompt, int max)
 		return (amt);
 	}
 
+#ifdef ALLOW_REPEAT /* TNB */
+
 	/* Get the item index */
 	if ((max != 1) && repeat_pull(&amt))
 	{
@@ -3451,12 +3607,14 @@ s16b get_quantity(cptr prompt, int max)
 		return (amt);
 	}
 
+#endif /* ALLOW_REPEAT -- TNB */
+
 	/* Build a prompt if needed */
 	if (!prompt)
 	{
 		/* Build a prompt */
 #ifdef JP
-			sprintf(tmp, "いくつですか (1-%d): ", max);
+		sprintf(tmp, "いくつですか (1-%d): ", max);
 #else
 		sprintf(tmp, "Quantity (1-%d): ", max);
 #endif
@@ -3466,6 +3624,11 @@ s16b get_quantity(cptr prompt, int max)
 		prompt = tmp;
 	}
 
+	/* Paranoia XXX XXX XXX */
+	msg_print(NULL);
+
+	/* Display prompt */
+	prt(prompt, 0, 0);
 
 	/* Default to one */
 	amt = 1;
@@ -3473,8 +3636,17 @@ s16b get_quantity(cptr prompt, int max)
 	/* Build the default */
 	sprintf(buf, "%d", amt);
 
-	/* Ask for a quantity */
-	if (!get_string(prompt, buf, 6)) return (0);
+	/*
+	 * Ask for a quantity
+	 * Don't allow to use numpad as cursor key.
+	 */
+	res = askfor_aux(buf, 6, FALSE);
+
+	/* Clear prompt */
+	prt("", 0, 0);
+
+	/* Cancelled */
+	if (!res) return 0;
 
 	/* Extract a number */
 	amt = atoi(buf);
@@ -3488,7 +3660,11 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
+#ifdef ALLOW_REPEAT /* TNB */
+
 	if (amt) repeat_push(amt);
+
+#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Return the result */
 	return (amt);
@@ -5061,6 +5237,173 @@ char *my_strchr(const char *ptr, char ch)
 	}
 
 	return NULL;
+}
+
+
+/*
+ * Convert string to lower case
+ */
+void str_tolower(char *str)
+{
+	/* Force to be lower case string */
+	for (; *str; str++)
+	{
+#ifdef JP
+		if (iskanji(*str))
+		{
+			str++;
+			continue;
+		}
+#endif
+		*str = tolower(*str);
+	}
+}
+
+
+/*
+ * Get a keypress from the user.
+ * And interpret special keys as internal code.
+ *
+ * This function is a Mega-Hack and depend on pref-xxx.prf's.
+ * Currently works on Linux(UNIX), Windows, and Macintosh only.
+ */
+int inkey_special(bool numpad_cursor)
+{
+	static const struct {
+		cptr keyname;
+		int keyflag;
+	} modifier_key_list[] = {
+		{"shift-", SKEY_MOD_SHIFT},
+		{"control-", SKEY_MOD_CONTROL},
+		{NULL, 0},
+	};
+
+	static const struct {
+		bool numpad;
+		cptr keyname;
+		int keycode;
+	} special_key_list[] = {
+		{FALSE, "Down]", SKEY_DOWN},
+		{FALSE, "Left]", SKEY_LEFT},
+		{FALSE, "Right]", SKEY_RIGHT},
+		{FALSE, "Up]", SKEY_UP},
+		{FALSE, "Page_Up]", SKEY_PGUP},
+		{FALSE, "Page_Down]", SKEY_PGDOWN},
+		{FALSE, "Home]", SKEY_TOP},
+		{FALSE, "End]", SKEY_BOTTOM},
+		{TRUE, "KP_Down]", SKEY_DOWN},
+		{TRUE, "KP_Left]", SKEY_LEFT},
+		{TRUE, "KP_Right]", SKEY_RIGHT},
+		{TRUE, "KP_Up]", SKEY_UP},
+		{TRUE, "KP_Page_Up]", SKEY_PGUP},
+		{TRUE, "KP_Page_Down]", SKEY_PGDOWN},
+		{TRUE, "KP_Home]", SKEY_TOP},
+		{TRUE, "KP_End]", SKEY_BOTTOM},
+		{TRUE, "KP_2]", SKEY_DOWN},
+		{TRUE, "KP_4]", SKEY_LEFT},
+		{TRUE, "KP_6]", SKEY_RIGHT},
+		{TRUE, "KP_8]", SKEY_UP},
+		{TRUE, "KP_9]", SKEY_PGUP},
+		{TRUE, "KP_3]", SKEY_PGDOWN},
+		{TRUE, "KP_7]", SKEY_TOP},
+		{TRUE, "KP_1]", SKEY_BOTTOM},
+		{FALSE, NULL, 0},
+	};
+	char buf[1024];
+	cptr str = buf;
+	char key;
+	int skey = 0;
+	int modifier = 0;
+	int i;
+	size_t trig_len;
+
+	/*
+	 * Forget macro trigger ----
+	 * It's important if we are already expanding macro action
+	 */
+	inkey_macro_trigger_string[0] = '\0';
+
+	/* Get a keypress */
+	key = inkey();
+
+	/* Examine trigger string */
+	trig_len = strlen(inkey_macro_trigger_string);
+
+	/* Already known that no special key */
+	if (!trig_len) return (int)((unsigned char)key);
+
+	/*
+	 * Hack -- Ignore macro defined on ASCII characters.
+	 */
+	if (trig_len == 1 && parse_macro)
+	{
+		char c = inkey_macro_trigger_string[0];
+
+		/* Cancel macro action on the queue */
+		forget_macro_action();
+
+		/* Return the originaly pressed key */
+		return (int)((unsigned char)c);
+	}
+
+	/* Convert the trigger */
+	ascii_to_text(buf, inkey_macro_trigger_string);
+
+	/* Check the prefix "\[" */
+	if (prefix(str, "\\["))
+	{
+		/* Skip "\[" */
+		str += 2;
+
+		/* Examine modifier keys */
+		while (TRUE)
+		{
+			for (i = 0; modifier_key_list[i].keyname; i++)
+			{
+				if (prefix(str, modifier_key_list[i].keyname))
+				{
+					/* Get modifier key flag */
+					str += strlen(modifier_key_list[i].keyname);
+					modifier |= modifier_key_list[i].keyflag;
+				}
+			}
+
+			/* No more modifier key found */
+			if (!modifier_key_list[i].keyname) break;
+		}
+
+		/* numpad_as_cursorkey option force numpad keys to input numbers */
+		if (!numpad_as_cursorkey) numpad_cursor = FALSE;
+
+		/* Get a special key code */
+		for (i = 0; special_key_list[i].keyname; i++)
+		{
+			if ((!special_key_list[i].numpad || numpad_cursor) &&
+			    streq(str, special_key_list[i].keyname))
+			{
+				skey = special_key_list[i].keycode;
+				break;
+			}
+		}
+
+		/* A special key found */
+		if (skey)
+		{
+			/* Cancel macro action on the queue */
+			forget_macro_action();
+
+			/* Return special key code and modifier flags */
+			return (skey | modifier);
+		}
+	}
+
+	/* No special key found? */
+
+	/* Don't bother with this trigger no more */
+	inkey_macro_trigger_string[0] = '\0';
+
+	/* Return normal keycode */
+	return (int)((unsigned char)key);
 }
 
 

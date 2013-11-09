@@ -175,6 +175,8 @@ bool make_attack_normal(int m_idx)
 	int syouryaku = 0;
 	int get_damage = 0;
 
+	u32b flags3 = (r_ptr->flags3 | ms_info[m_ptr->s_idx].flags3);
+
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
@@ -291,7 +293,7 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
-			    (r_ptr->flags3 & RF3_EVIL) &&
+			    (flags3 & RF3_EVIL) &&
 			    (p_ptr->lev >= rlev) &&
 			    ((randint0(100) + p_ptr->lev) > 50))
 			{
@@ -2255,7 +2257,7 @@ bool make_attack_normal(int m_idx)
 
 				if (p_ptr->tim_sh_holy && alive && !p_ptr->is_dead)
 				{
-					if (r_ptr->flags3 & RF3_EVIL)
+					if (flags3 & RF3_EVIL)
 					{
 						int dam = damroll(2, 6);
 

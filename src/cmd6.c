@@ -59,6 +59,7 @@ static void do_cmd_eat_food_aux(int item)
 	object_type *o_ptr;
 	char        Rumor[1024];
 	bool        egg_summoned = FALSE;
+	bool        egg_rotten = FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -163,8 +164,7 @@ static void do_cmd_eat_food_aux(int item)
 						(void)set_paralyzed(p_ptr->paralyzed + 4);
 						(void)set_poisoned(p_ptr->poisoned + randint0(15) + 10);
 
-						if (!(p_ptr->muta3 & MUT3_WART_SKIN)) gain_random_mutation(165, FALSE);
-						if (!(p_ptr->muta2 & MUT2_WASTING)) gain_random_mutation(105, FALSE);
+						if (!(p_ptr->mutation & MUT_WASTING)) gain_random_mutation(11, FALSE);
 						break;
 				}
 				break;
@@ -344,7 +344,7 @@ static void do_cmd_eat_food_aux(int item)
 			}
 			case SV_FOOD_WONDER_EGG:
 			{
-				switch (randint1(3))
+				switch (randint1(5))
 				{
 					case 1:
 					{
@@ -354,6 +354,8 @@ static void do_cmd_eat_food_aux(int item)
 						/* Fall through */
 					}
 					case 2:
+					case 3:
+					case 4:
 #ifdef JP
 						msg_print("美味い。");
 #else
@@ -369,8 +371,8 @@ static void do_cmd_eat_food_aux(int item)
 						(void)set_paralyzed(p_ptr->paralyzed + 4);
 						(void)set_poisoned(p_ptr->poisoned + randint0(15) + 10);
 
-						if (!(p_ptr->muta3 & MUT3_WART_SKIN)) gain_random_mutation(165, FALSE);
-						if (!(p_ptr->muta2 & MUT2_WASTING)) gain_random_mutation(105, FALSE);
+						if (!(p_ptr->mutation & MUT_WASTING)) gain_random_mutation(11, FALSE);
+						egg_rotten = TRUE;
 						break;
 				}
 				break;
@@ -455,6 +457,10 @@ static void do_cmd_eat_food_aux(int item)
 			msg_print("The food makes you vomit!");
 #endif
 			(void)set_food(PY_FOOD_STARVE - 1);
+		}
+		else if (egg_rotten)
+		{
+			(void)set_food(p_ptr->food - o_ptr->pval);
 		}
 		else
 		{
@@ -591,6 +597,37 @@ static void do_cmd_quaff_potion_aux(int item)
 	{
 		switch (q_ptr->sval)
 		{
+		case SV_POTION_HOLY_WATER:
+			if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip || (prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))
+			{
+#ifdef JP
+				msg_print("体が焼けるようだ!");
+				take_hit(DAMAGE_LOSELIFE, damroll(10, 10), "聖水");
+#else
+				msg_print("A feeling of heat through your body.");
+				take_hit(DAMAGE_LOSELIFE, damroll(10, 10), "Holy water");
+#endif
+			}
+			change_your_alignment(ALI_GNE, 3);
+			if (p_ptr->infected) cure_infect(1, TRUE);
+			if (one_in_(7)) do_grace(0, 2);
+			break;
+
+		case SV_POTION_CURSED_WATER:
+			if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
+			{
+#ifdef JP
+				msg_print("体が焼けるようだ!");
+				take_hit(DAMAGE_LOSELIFE, damroll(10, 10), "不浄な水");
+#else
+				msg_print("A feeling of heat through your body.");
+				take_hit(DAMAGE_LOSELIFE, damroll(10, 10), "Cursed water");
+#endif
+			}
+			change_your_alignment(ALI_GNE, -3);
+			if (one_in_(13)) do_curse(0, 2);
+			break;
+
 		case SV_POTION_SLOWNESS:
 			if (set_slow(randint1(25) + 15, FALSE)) ident = TRUE;
 			break;
@@ -869,6 +906,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (set_shero(0,TRUE)) ident = TRUE;
+			if (one_in_(3) && p_ptr->infected) cure_infect(1, FALSE);
 			break;
 
 		case SV_POTION_STAR_HEALING:
@@ -879,6 +917,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (set_shero(0,TRUE)) ident = TRUE;
+			if (p_ptr->infected) cure_infect(2, FALSE);
 			break;
 
 		case SV_POTION_LIFE:
@@ -906,6 +945,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			(void)set_shero(0,TRUE);
 			update_stuff();
 			hp_player(5000);
+			p_ptr->infected = 0;
 			ident = TRUE;
 			break;
 
@@ -1036,6 +1076,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (set_image(0)) ident = TRUE;
+			if (one_in_(7) && p_ptr->infected) cure_infect(1, FALSE);
 			break;
 
 		case SV_POTION_INVULNERABILITY:
@@ -1045,7 +1086,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_CURE_MUTATIONS:
 			change_your_alignment(ALI_LNC, 3);
-			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+			if (p_ptr->mutation)
 			{
 #ifdef JP
 				msg_print("全ての突然変異が治った。");
@@ -1053,7 +1094,17 @@ static void do_cmd_quaff_potion_aux(int item)
 				msg_print("You are cured of all mutations.");
 #endif
 
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+				p_ptr->mutation = 0;
+				if (p_ptr->celem != p_ptr->pelem)
+				{
+					p_ptr->celem = p_ptr->pelem;
+					init_realm_table();
+					p_ptr->notice |= (PN_REORDER);
+					(void)combine_and_reorder_home(STORE_HOME);
+					(void)combine_and_reorder_home(STORE_MUSEUM);
+					load_all_pref_files();
+					if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(py, px);
+				}
 				p_ptr->update |= PU_BONUS;
 				handle_stuff();
 				mutant_regenerate_mod = calc_mutant_regenerate_mod();
@@ -1071,11 +1122,12 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (set_cut(0)) ident = TRUE;
 			if (set_stoning(0)) ident = TRUE;
 			if (set_image(0)) ident = TRUE;
+			if (p_ptr->infected) cure_infect(5, TRUE);
 			break;
 
 		case SV_POTION_POLYMORPH:
 			change_your_alignment(ALI_LNC, -3);
-			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && one_in_(23))
+			if ((p_ptr->mutation) && one_in_(23))
 			{
 #ifdef JP
 				msg_print("全ての突然変異が治った。");
@@ -1083,7 +1135,17 @@ static void do_cmd_quaff_potion_aux(int item)
 				msg_print("You are cured of all mutations.");
 #endif
 
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+				p_ptr->mutation = 0;
+				if (p_ptr->celem != p_ptr->pelem)
+				{
+					p_ptr->celem = p_ptr->pelem;
+					init_realm_table();
+					p_ptr->notice |= (PN_REORDER);
+					(void)combine_and_reorder_home(STORE_HOME);
+					(void)combine_and_reorder_home(STORE_MUSEUM);
+					load_all_pref_files();
+					if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(py, px);
+				}
 				p_ptr->update |= PU_BONUS;
 				handle_stuff();
 			}
@@ -4137,6 +4199,7 @@ static void do_cmd_activate_aux(int item)
 				(void)set_stun(0);
 				(void)set_confused(0);
 				(void)set_blind(0);
+				(void)set_afraid(0);
 				(void)set_hero(randint1(25) + 25, FALSE);
 				(void)hp_player(777);
 				o_ptr->timeout = 300;
@@ -5268,6 +5331,7 @@ static void do_cmd_activate_aux(int item)
 				o_ptr->timeout = 100;
 				break;
 			case EGO_RING_BERSERKER:
+				(void)set_afraid(0);
 				(void)set_shero(randint1(25) + 25, FALSE);
 				o_ptr->timeout = randint0(75)+75;
 				break;

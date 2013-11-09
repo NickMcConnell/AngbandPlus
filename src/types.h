@@ -253,6 +253,45 @@ struct monster_blow
 
 
 /*
+ * Monster "special" (ego-monster) information.
+ *
+ * Note that "d_attr" is used for MORE than "visual" stuff. There is no "d_char"
+ * since that must always be the same as the monster_race info.
+ *
+ * Note that "x_attr" and "x_char" are used ONLY for "visual" stuff.
+ *
+ */
+
+
+typedef struct monster_special monster_special;
+
+struct monster_special
+{
+	u32b name;				/* Name (offset) */
+#ifdef JP
+	u32b E_name;                    /* ±Ñ¸ìÌ¾ (offset) */
+#endif
+
+	byte d_char;			/* Default monster character */
+
+	byte level;				/* Minimum depth */
+	byte rarity;			/* Rarity of creature */
+
+	byte exp_perc;			/* Percentage of experience */
+
+	s16b speed_mod;			/* Speed modifier */
+	byte hp_perc;			/* Percentage of normal hp */
+	s16b ac_mod;			/* Armour Class modifier */
+
+	u32b flags1;			/* Flags 1 (general) */
+	u32b flags2;			/* Flags 2 (abilities) */
+	u32b flags3;			/* Flags 3 (race/resist) */
+	u32b flags7;			/* Flags 7 (movement related abilities) */
+	u32b flags8;			/* Flags 8 (wilderness info) */
+	u32b flagsr;			/* Flags R (resistance info) */
+};
+
+/*
  * Monster "race" information, including racial memories
  *
  * Note that "d_attr" and "d_char" are used for MORE than "visual" stuff.
@@ -594,6 +633,7 @@ typedef struct monster_type monster_type;
 struct monster_type
 {
 	s16b r_idx;		/* Monster race index */
+	s16b s_idx;		/* Ego (special) monster index */
 	s16b ap_r_idx;		/* Monster race appearance index */
 	byte sub_align;		/* Sub-alignment for a neutral monster */
 
@@ -921,6 +961,7 @@ struct player_class
 
 	u32b c_flags;			/* Class flags */
 	s16b c_need[A_MAX];		/* Class stats which are need on changing class */
+	s16b clevel_limit;		/* Total Class levels which limit to change class */
 
 	s16b c_gain[A_MAX];		/* Class stats which are gained per level */
 	s16b c_bonus[A_MAX];	/* Class stats which are reincarnate class bonus */
@@ -1009,7 +1050,7 @@ struct player_type
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
 	s16b pelem;			/* Element index */
-	byte oops;			/* Unused */
+	s16b celem;			/* Current Element index */
 
 	u16b expfact;       /* Experience factor */
 	u16b cexpfact[MAX_CLASS];       /* Class Experience factor */
@@ -1111,9 +1152,9 @@ struct player_type
 	s16b multishadow;       /* Timed -- Multi-shadow */
 	s16b dustrobe;          /* Timed -- Robe of dust */
 
-	u32b muta1;
-	u32b muta2;
-	u32b muta3;
+	u32b mutation;
+	u32b grace;
+	u32b gift;
 
 	u32b special_blow;	/* Learned special blow flags */
 
@@ -1193,6 +1234,8 @@ struct player_type
 
 	bool dtrap;               /* Whether you are on trap-safe grids */
 	s16b floor_id;            /* Current floor location */
+
+	bool autopick_autoregister; /* auto register is in-use or not */
 
 	s16b decoy_y;             /* Decoy location on dungeon */
 	s16b decoy_x;

@@ -1,0 +1,96 @@
+# N: serial number : monster name
+# G: symbol
+# I: speed mod : hp percent : armor class mod
+# W: depth : rarity : exp percent
+# F: flag | flag | etc
+
+N:0:人間の
+E:of Human
+G:p
+I:0:100:0
+W:1:1:100
+F:HUMAN |
+
+N:1:ホークマンの
+E:of Hawkman
+G:F
+I:5:100:0
+W:1:3:110
+F:CAN_FLY | NO_FEAR | HUMAN |
+
+
+N:2:リザードマンの
+E:of Lizardman
+G:h
+I:0:130:10
+W:1:3:110
+F:RES_ACID | RES_COLD | RES_FIRE | DRAGON |
+
+
+N:3:フェアリーの
+E:of Fairy
+G:F
+I:10:90:-5
+W:1:3:110
+F:CAN_FLY | RES_LITE | 
+
+
+N:4:グレムリンの
+E:of Gremlin
+G:u
+I:0:110:0
+W:1:3:100
+F:CAN_FLY | RES_DARK | RES_NETH | HURT_LITE | DEMON |
+
+
+N:5:スケルトンの
+E:of Skeleton
+G:s
+I:0:120:10
+W:1:3:100
+F:RES_POIS | RES_SHAR | RES_NETH | HURT_FIRE | UNDEAD |
+F:RES_COLD | RES_EDGED | COLD_BLOOD |
+
+
+N:6:ゴーストの
+E:of Ghost
+G:G
+I:-5:90:0
+W:1:3:120
+F:COLD_BLOOD | PASS_WALL | UNDEAD | NO_SLEEP | RES_EDGED |
+F:RES_COLD | RES_POIS | RES_NETH | CAN_FLY |
+
+
+N:7:パンプキンヘッドの
+E:of Pumpkin-Head
+G:o
+I:5:120:10
+W:1:3:120
+F:RES_CHAO | RES_COLD | RES_ELEC | NO_SLEEP | NO_CONF | RES_POIS |
+F:SELF_LITE_2 | CAN_FLY | MALE |
+
+
+N:8:ゴブリンの
+E:of Goblin
+G:o
+I:3:140:20
+W:1:3:110
+F:RES_DARK
+
+
+N:9:ゴーゴンの
+E:of Gorgon
+G:n
+I:0:140:0
+W:1:3:120
+F:RES_COLD | RES_ACID | RES_POIS | RES_CHAO | RES_NETH | RES_STON |
+F:FEMALE |
+
+
+N:10:マーメイドの
+E:of Mermaid
+G:h
+I:3:110:0
+W:1:3:110
+F:RES_WATE | RES_COLD | NO_CONF | CAN_SWIM |
+

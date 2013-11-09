@@ -3843,6 +3843,68 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 
 
 /*
+ * Check if monster can enter terrain
+ */
+bool monster_can_enter_terrain(byte feat, monster_type *m_ptr)
+{
+	monster_race     *r_ptr = &r_info[m_ptr->r_idx];
+	monster_special  *s_ptr = &ms_info[m_ptr->s_idx];
+
+	u32b flags2 = (r_ptr->flags2 | s_ptr->flags2);
+	u32b flags7 = (r_ptr->flags7 | s_ptr->flags7);
+	u32b flagsr = (r_ptr->flagsr | s_ptr->flagsr);
+
+	/* Deep water */
+	if (feat == FEAT_DEEP_WATER)
+	{
+		if ((flags7 & RF7_AQUATIC) ||
+		    (flags7 & RF7_CAN_FLY) ||
+		    (flags7 & RF7_CAN_SWIM))
+			return TRUE;
+		else
+			return FALSE;
+	}
+	/* Shallow water */
+	else if ((feat == FEAT_SHAL_WATER) || (feat == FEAT_SWAMP))
+	{
+		if (!(flags2 & RF2_AURA_FIRE) ||
+		    (flags7 & RF7_AQUATIC) ||
+		    (flags7 & RF7_CAN_FLY) ||
+		    (flags7 & RF7_CAN_SWIM))
+			return TRUE;
+		else
+			return FALSE;
+	}
+	/* Aquatic monster */
+	else if ((flags7 & RF7_AQUATIC) &&
+		    !(flags7 & RF7_CAN_FLY))
+	{
+		return FALSE;
+	}
+	/* Lava */
+	else if ((feat == FEAT_SHAL_LAVA) ||
+	    (feat == FEAT_DEEP_LAVA))
+	{
+		if ((flagsr & RFR_RES_FIRE) ||
+		    (flags7 & RF7_CAN_FLY))
+			return TRUE;
+		else
+			return FALSE;
+	}
+	/* Pit & Air */
+	else if ((feat == FEAT_DARK_PIT) || (feat == FEAT_AIR))
+	{
+		if (flags7 & RF7_CAN_FLY)
+			return TRUE;
+		else
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+/*
  * Check if this monster has "hostile" alignment (aux)
  */
 static bool monster_has_hostile_alignment_aux(byte sub_align1, byte sub_align2)

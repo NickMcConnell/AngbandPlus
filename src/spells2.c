@@ -79,8 +79,8 @@ void self_knowledge(void)
 		if (p_ptr->align[ALI_GNE] > -300) p_ptr->align[ALI_GNE] = -300;
 
 #ifdef JP
-	sprintf(Dummy, "現在のアラインメント : %s(%ld)-%s(%ld)",
-		your_alignment_gne(), p_ptr->align[ALI_GNE], your_alignment_lnc(), p_ptr->align[ALI_LNC]);
+	sprintf(Dummy, "現在のアラインメント : %s(%ld(%d))-%s(%ld(%d))",
+		your_alignment_gne(), p_ptr->align[ALI_GNE], p_ptr->align_self[ALI_GNE], your_alignment_lnc(), p_ptr->align[ALI_LNC], p_ptr->align_self[ALI_LNC]);
 #else
 	sprintf(Dummy, "Your alighnment : %s(%ld)-%s(%ld)",
 		your_alignment_gne(), p_ptr->align[ALI_GNE], your_alignment_lnc(), p_ptr->align[ALI_LNC]);
@@ -632,346 +632,9 @@ void self_knowledge(void)
 			break;
 	}
 
-	if (p_ptr->muta1)
+	if (p_ptr->mutation)
 	{
-		if (p_ptr->muta1 & MUT1_SPIT_ACID)
-		{
-#ifdef JP
-			info[i++] = "あなたは酸を吹きかけることができる。(ダメージ レベルX1)";
-#else
-			info[i++] = "You can spit acid (dam lvl).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_BR_FIRE)
-		{
-#ifdef JP
-			info[i++] = "あなたは炎のブレスを吐くことができる。(ダメージ レベルX2)";
-#else
-			info[i++] = "You can breathe fire (dam lvl * 2).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
-		{
-#ifdef JP
-			info[i++] = "あなたの睨みは催眠効果をもつ。";
-#else
-			info[i++] = "Your gaze is hypnotic.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_TELEKINES)
-		{
-#ifdef JP
-			info[i++] = "あなたは念動力をもっている。";
-#else
-			info[i++] = "You are telekinetic.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_VTELEPORT)
-		{
-#ifdef JP
-			info[i++] = "あなたは自分の意思でテレポートできる。";
-#else
-			info[i++] = "You can teleport at will.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_MIND_BLST)
-		{
-#ifdef JP
-			info[i++] = "あなたは精神攻撃を行える。(ダメージ 3〜12d3)";
-#else
-			info[i++] = "You can Mind Blast your enemies (3 to 12d3 dam).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_RADIATION)
-		{
-#ifdef JP
-			info[i++] = "あなたは自分の意思で強い放射線を発生することができる。(ダメージ レベルX2)";
-#else
-			info[i++] = "You can emit hard radiation at will (dam lvl * 2).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_VAMPIRISM)
-		{
-#ifdef JP
-			info[i++] = "あなたは吸血鬼のように敵から生命力を吸収することができる。(ダメージ レベルX2)";
-#else
-			info[i++] = "You can drain life from a foe like a vampire (dam lvl * 2).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MET)
-		{
-#ifdef JP
-			info[i++] = "あなたは近くにある貴金属をかぎ分けることができる。";
-#else
-			info[i++] = "You can smell nearby precious metal.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MON)
-		{
-#ifdef JP
-			info[i++] = "あなたは近くのモンスターの存在をかぎ分けることができる。";
-#else
-			info[i++] = "You can smell nearby monsters.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_BLINK)
-		{
-#ifdef JP
-			info[i++] = "あなたは短い距離をテレポートできる。";
-#else
-			info[i++] = "You can teleport yourself short distances.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_EAT_ROCK)
-		{
-#ifdef JP
-			info[i++] = "あなたは硬い岩を食べることができる。";
-#else
-			info[i++] = "You can consume solid rock.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_SWAP_POS)
-		{
-#ifdef JP
-			info[i++] = "あなたは他の者と場所を入れ替わることができる。";
-#else
-			info[i++] = "You can switch locations with another being.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_SHRIEK)
-		{
-#ifdef JP
-			info[i++] = "あなたは身の毛もよだつ叫び声を発することができる。(ダメージ レベルX2)";
-#else
-			info[i++] = "You can emit a horrible shriek (dam 2 * lvl).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_ILLUMINE)
-		{
-#ifdef JP
-			info[i++] = "あなたは明るい光を放つことができる。";
-#else
-			info[i++] = "You can emit bright light.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_DET_CURSE)
-		{
-#ifdef JP
-			info[i++] = "あなたは邪悪な魔法の危険を感じとることができる。";
-#else
-			info[i++] = "You can feel the danger of evil magic.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_BERSERK)
-		{
-#ifdef JP
-			info[i++] = "あなたは自分の意思で狂乱戦闘状態になることができる。";
-#else
-			info[i++] = "You can drive yourself into a berserk frenzy.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_POLYMORPH)
-		{
-#ifdef JP
-			info[i++] = "あなたは自分の意志で変化できる。";
-#else
-			info[i++] = "You can polymorph yourself at will.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
-		{
-#ifdef JP
-			info[i++] = "あなたは通常アイテムを金に変えることができる。";
-#else
-			info[i++] = "You can turn ordinary items to gold.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_GROW_MOLD)
-		{
-#ifdef JP
-			info[i++] = "あなたは周囲にキノコを生やすことができる。";
-#else
-			info[i++] = "You can cause mold to grow near you.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_RESIST)
-		{
-#ifdef JP
-			info[i++] = "あなたは元素の攻撃に対して身を硬くすることができる。";
-#else
-			info[i++] = "You can harden yourself to the ravages of the elements.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
-		{
-#ifdef JP
-			info[i++] = "あなたは周囲のダンジョンを崩壊させることができる。";
-#else
-			info[i++] = "You can bring down the dungeon around your ears.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
-		{
-#ifdef JP
-			info[i++] = "あなたは魔法のエネルギーを自分の物として使用できる。";
-#else
-			info[i++] = "You can consume magic energy for your own use.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
-		{
-#ifdef JP
-			info[i++] = "あなたは自分に影響を与える魔法の力を感じることができる。";
-#else
-			info[i++] = "You can feel the strength of the magics affecting you.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_STERILITY)
-		{
-#ifdef JP
-			info[i++] = "あなたは集団的生殖不能を起こすことができる。";
-#else
-			info[i++] = "You can cause mass impotence.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_PANIC_HIT)
-		{
-#ifdef JP
-			info[i++] = "あなたは攻撃した後身を守るため逃げることができる。";
-#else
-			info[i++] = "You can run for your life after hitting something.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_DAZZLE)
-		{
-#ifdef JP
-			info[i++] = "あなたは混乱と盲目を引き起こす放射能を発生することができる。 ";
-#else
-			info[i++] = "You can emit confusing, blinding radiation.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_LASER_EYE)
-		{
-#ifdef JP
-			info[i++] = "あなたは目からレーザー光線を発することができる。(ダメージ レベルX2)";
-#else
-			info[i++] = "Your eyes can fire laser beams (dam 2 * lvl).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_RECALL)
-		{
-#ifdef JP
-			info[i++] = "あなたは街とダンジョンの間を行き来することができる。";
-#else
-			info[i++] = "You can travel between town and the depths.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_BANISH)
-		{
-#ifdef JP
-			info[i++] = "あなたは邪悪なモンスターを地獄に落とすことができる。";
-#else
-			info[i++] = "You can send evil creatures directly to Hell.";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
-		{
-#ifdef JP
-			info[i++] = "あなたは敵を触って凍らせることができる。(ダメージ レベルX3)";
-#else
-			info[i++] = "You can freeze things with a touch (dam 3 * lvl).";
-#endif
-
-		}
-		if (p_ptr->muta1 & MUT1_LAUNCHER)
-		{
-#ifdef JP
-			info[i++] = "あなたはアイテムを力強く投げることができる。";
-#else
-			info[i++] = "You can hurl objects with great force.";
-#endif
-
-		}
-	}
-
-	if (p_ptr->muta2)
-	{
-		if (p_ptr->muta2 & MUT2_BERS_RAGE)
-		{
-#ifdef JP
-			info[i++] = "あなたは狂戦士化の発作を起こす。";
-#else
-			info[i++] = "You are subject to berserker fits.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_COWARDICE)
-		{
-#ifdef JP
-			info[i++] = "あなたは時々臆病になる。";
-#else
-			info[i++] = "You are subject to cowardice.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_RTELEPORT)
-		{
-#ifdef JP
-			info[i++] = "あなたはランダムにテレポートする。";
-#else
-			info[i++] = "You are teleporting randomly.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_ALCOHOL)
-		{
-#ifdef JP
-			info[i++] = "あなたの体はアルコールを分泌する。";
-#else
-			info[i++] = "Your body produces alcohol.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_HALLU)
-		{
-#ifdef JP
-			info[i++] = "あなたは幻覚を引き起こす精神錯乱に侵されている。";
-#else
-			info[i++] = "You have a hallucinatory insanity.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_ELEM_MULTI)
+		if (p_ptr->mutation  & MUT_ELEM_UNSTABLE)
 		{
 #ifdef JP
 			info[i++] = "あなたの固有エレメントは絶えず変化している。";
@@ -980,52 +643,16 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_PROD_MANA)
+		if (p_ptr->mutation  & MUT_ELEM_MULTI)
 		{
 #ifdef JP
-			info[i++] = "あなたは制御不能な魔法のエネルギーを発している。";
+			info[i++] = "あなたのエレメントは絶えず変化している。";
 #else
-			info[i++] = "You are producing magical energy uncontrollably.";
+			info[i++] = "Your fixed element is constantly changing.";
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_ATT_DEMON)
-		{
-#ifdef JP
-			info[i++] = "あなたはデーモンを引きつける。";
-#else
-			info[i++] = "You attract demons.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
-		{
-#ifdef JP
-			info[i++] = "あなたはサソリの尻尾が生えている。(毒、ダメージ 3d7)";
-#else
-			info[i++] = "You have a scorpion tail (poison, 3d7).";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_HORNS)
-		{
-#ifdef JP
-			info[i++] = "あなたは角が生えている。(ダメージ 2d6)";
-#else
-			info[i++] = "You have horns (dam. 2d6).";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_BEAK)
-		{
-#ifdef JP
-			info[i++] = "あなたはクチバシが生えている。(ダメージ 2d4)";
-#else
-			info[i++] = "You have a beak (dam. 2d4).";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_SPEED_FLUX)
+		if (p_ptr->mutation  & MUT_SPEED_FLUX)
 		{
 #ifdef JP
 			info[i++] = "あなたはランダムに早く動いたり遅く動いたりする。";
@@ -1034,7 +661,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_BANISH_ALL)
+		if (p_ptr->mutation  & MUT_BANISH_ALL)
 		{
 #ifdef JP
 			info[i++] = "あなたは時々近くのモンスターを消滅させる。";
@@ -1043,7 +670,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
+		if (p_ptr->mutation  & MUT_EAT_LIGHT)
 		{
 #ifdef JP
 			info[i++] = "あなたは時々周囲の光を吸収して栄養にする。";
@@ -1052,43 +679,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_TRUNK)
-		{
-#ifdef JP
-			info[i++] = "あなたは象のような鼻を持っている。(ダメージ 1d4)";
-#else
-			info[i++] = "You have an elephantine trunk (dam 1d4).";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
-		{
-#ifdef JP
-			info[i++] = "あなたは動物を引きつける。";
-#else
-			info[i++] = "You attract animals.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_TENTACLES)
-		{
-#ifdef JP
-			info[i++] = "あなたは邪悪な触手を持っている。(ダメージ 2d5)";
-#else
-			info[i++] = "You have evil looking tentacles (dam 2d5).";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
-		{
-#ifdef JP
-			info[i++] = "あなたはしばしば純カオスに包まれる。";
-#else
-			info[i++] = "You occasionally are surrounded with raw chaos.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_NORMALITY)
+		if (p_ptr->mutation  & MUT_NORMALITY)
 		{
 #ifdef JP
 			info[i++] = "あなたは変異していたが、回復してきている。";
@@ -1097,25 +688,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_WRAITH)
-		{
-#ifdef JP
-			info[i++] = "あなたの肉体は幽体化したり実体化したりする。";
-#else
-			info[i++] = "You fade in and out of physical reality.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_POLY_WOUND)
-		{
-#ifdef JP
-			info[i++] = "あなたの健康はカオスの力に影響を受ける。";
-#else
-			info[i++] = "Your health is subject to chaotic forces.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_WASTING)
+		if (p_ptr->mutation  & MUT_WASTING)
 		{
 #ifdef JP
 			info[i++] = "あなたは衰弱する恐ろしい病気にかかっている。";
@@ -1124,43 +697,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
-		{
-#ifdef JP
-			info[i++] = "あなたはドラゴンを引きつける。";
-#else
-			info[i++] = "You attract dragons.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
-		{
-#ifdef JP
-			info[i++] = "あなたの精神はランダムに拡大したり縮小したりしている。";
-#else
-			info[i++] = "Your mind randomly expands and contracts.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_NAUSEA)
-		{
-#ifdef JP
-			info[i++] = "あなたの胃は非常に落ち着きがない。";
-#else
-			info[i++] = "You have a seriously upset stomach.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_TAROT)
-		{
-#ifdef JP
-			info[i++] = "あなたはタロットカードの力を感じる。";
-#else
-			info[i++] = "You feel the power of tarot cards.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_ALTER_REALITY)
+		if (p_ptr->mutation  & MUT_ALTER_REALITY)
 		{
 #ifdef JP
 			info[i++] = "あなたの周りの現実は歪んでいる。";
@@ -1169,25 +706,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_WARNING)
-		{
-#ifdef JP
-			info[i++] = "あなたは敵に関する警告を感じる。";
-#else
-			info[i++] = "You receive warnings about your foes.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_INVULN)
-		{
-#ifdef JP
-			info[i++] = "あなたは時々負け知らずな気分になる。";
-#else
-			info[i++] = "You occasionally feel invincible.";
-#endif
-
-		}
-		if (p_ptr->muta2 & MUT2_SP_TO_HP)
+		if (p_ptr->mutation  & MUT_SP_TO_HP)
 		{
 #ifdef JP
 			info[i++] = "あなたは時々血が筋肉にどっと流れる。";
@@ -1196,7 +715,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_HP_TO_SP)
+		if (p_ptr->mutation  & MUT_HP_TO_SP)
 		{
 #ifdef JP
 			info[i++] = "あなたは時々頭に血がどっと流れる。";
@@ -1205,65 +724,16 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_DISARM)
+		if (p_ptr->mutation  & MUT_ELEC_BODY)
 		{
-#ifdef JP
-			info[i++] = "あなたはよくつまづいて物を落とす。";
-#else
-			info[i++] = "You occasionally stumble and drop things.";
-#endif
-
 		}
-	}
-
-	if (p_ptr->muta3)
-	{
-		if (p_ptr->muta3 & MUT3_HYPER_STR)
+		if (p_ptr->mutation  & MUT_FIRE_BODY)
 		{
-#ifdef JP
-			info[i++] = "あなたは超人的に強い。(腕力+4)";
-#else
-			info[i++] = "You are superhumanly strong (+4 STR).";
-#endif
-
 		}
-		if (p_ptr->muta3 & MUT3_PUNY)
+		if (p_ptr->mutation  & MUT_COLD_BODY)
 		{
-#ifdef JP
-			info[i++] = "あなたは虚弱だ。(腕力-4)";
-#else
-			info[i++] = "You are puny (-4 STR).";
-#endif
-
 		}
-		if (p_ptr->muta3 & MUT3_HYPER_INT)
-		{
-#ifdef JP
-			info[i++] = "あなたの脳は生体コンピュータだ。(知能＆賢さ+4)";
-#else
-			info[i++] = "Your brain is a living computer (+4 INT/WIS).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_MORONIC)
-		{
-#ifdef JP
-			info[i++] = "あなたは精神薄弱だ。(知能＆賢さ-4)";
-#else
-			info[i++] = "You are moronic (-4 INT/WIS).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_RESILIENT)
-		{
-#ifdef JP
-			info[i++] = "あなたは非常にタフだ。(耐久+4)";
-#else
-			info[i++] = "You are very resilient (+4 CON).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_FAT)
+		if (p_ptr->mutation  & MUT_XTRA_FAT)
 		{
 #ifdef JP
 			info[i++] = "あなたは極端に太っている。(耐久+2,スピード-2)";
@@ -1272,16 +742,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta3 & MUT3_ALBINO)
-		{
-#ifdef JP
-			info[i++] = "あなたはアルビノだ。(耐久-4)";
-#else
-			info[i++] = "You are albino (-4 CON).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
+		if (p_ptr->mutation  & MUT_FLESH_ROT)
 		{
 #ifdef JP
 			info[i++] = "あなたの肉体は腐敗している。(耐久-2,魅力-1)";
@@ -1290,114 +751,16 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
+		if (p_ptr->mutation  & MUT_THICK_SKIN)
 		{
 #ifdef JP
-			info[i++] = "あなたの声は間抜けなキーキー声だ。(魅力-4)";
+			info[i++] = "あなたの肌は分厚い皮膚になっている。(魅力-2, AC+10)";
 #else
-			info[i++] = "Your voice is a silly squeak (-4 CHR).";
+			info[i++] = "Your skin is covered with warts (-2 CHR, +10 AC).";
 #endif
 
 		}
-		if (p_ptr->muta3 & MUT3_BLANK_FAC)
-		{
-#ifdef JP
-			info[i++] = "あなたはのっぺらぼうだ。(魅力-1)";
-#else
-			info[i++] = "Your face is featureless (-1 CHR).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-#ifdef JP
-			info[i++] = "あなたは幻影に覆われている。";
-#else
-			info[i++] = "Your appearance is masked with illusion.";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_EYES)
-		{
-#ifdef JP
-			info[i++] = "あなたは余分に二つの目を持っている。(探索+15)";
-#else
-			info[i++] = "You have an extra pair of eyes (+15 search).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_MAGIC_RES)
-		{
-#ifdef JP
-			info[i++] = "あなたは魔法への耐性をもっている。";
-#else
-			info[i++] = "You are resistant to magic.";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-		{
-#ifdef JP
-			info[i++] = "あなたは変な音を発している。(隠密-3)";
-#else
-			info[i++] = "You make a lot of strange noise (-3 stealth).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_INFRAVIS)
-		{
-#ifdef JP
-			info[i++] = "あなたは素晴らしい赤外線視力を持っている。(+3)";
-#else
-			info[i++] = "You have remarkable infravision (+3).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-		{
-#ifdef JP
-			info[i++] = "あなたは余分に二本の足が生えている。(加速+3)";
-#else
-			info[i++] = "You have an extra pair of legs (+3 speed).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
-		{
-#ifdef JP
-			info[i++] = "あなたの足は短い突起だ。(加速-3)";
-#else
-			info[i++] = "Your legs are short stubs (-3 speed).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-		{
-#ifdef JP
-			info[i++] = "あなたの血管には電流が流れている。";
-#else
-			info[i++] = "Electricity is running through your veins.";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-#ifdef JP
-			info[i++] = "あなたの体は炎につつまれている。";
-#else
-			info[i++] = "Your body is enveloped in flames.";
-#endif
-		}
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
-		{
-#ifdef JP
-			info[i++] = "あなたの肌はイボに被われている。(魅力-2, AC+5)";
-#else
-			info[i++] = "Your skin is covered with warts (-2 CHR, +5 AC).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_SCALES)
+		if (p_ptr->mutation  & MUT_SCALES)
 		{
 #ifdef JP
 			info[i++] = "あなたの肌は鱗になっている。(魅力-1, AC+10)";
@@ -1406,16 +769,16 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
+		if (p_ptr->mutation  & MUT_FUR)
 		{
 #ifdef JP
-			info[i++] = "あなたの肌は鉄でできている。(器用-1, AC+25)";
+			info[i++] = "あなたの肌は長い毛に覆われている。(AC+5)";
 #else
-			info[i++] = "Your skin is made of steel (-1 DEX, +25 AC).";
+			info[i++] = "Your skin is made of steel (+5 AC).";
 #endif
 
 		}
-		if (p_ptr->muta3 & MUT3_WINGS)
+		if (p_ptr->mutation  & MUT_WINGS)
 		{
 #ifdef JP
 			info[i++] = "あなたは羽を持っている。";
@@ -1424,37 +787,7 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_LIMBER)
-		{
-#ifdef JP
-			info[i++] = "あなたの体は非常にしなやかだ。(器用+3)";
-#else
-			info[i++] = "Your body is very limber (+3 DEX).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
-		{
-#ifdef JP
-			info[i++] = "あなたはいつも関節に痛みを感じている。(器用-3)";
-#else
-			info[i++] = "Your joints ache constantly (-3 DEX).";
-#endif
-
-		}
-		if (p_ptr->muta3 & MUT3_VULN_ELEM)
+		if (p_ptr->mutation  & MUT_VULN_ELEM)
 		{
 #ifdef JP
 			info[i++] = "あなたは元素の攻撃に弱い。";
@@ -1463,16 +796,11 @@ void self_knowledge(void)
 #endif
 
 		}
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-#ifdef JP
-			info[i++] = "あなたの動作は正確で力強い。(隠密+1)";
-#else
-			info[i++] = "Your movements are precise and forceful (+1 STL).";
-#endif
+	}
 
-		}
-		if (p_ptr->muta3 & MUT3_GOOD_LUCK)
+	if (p_ptr->grace)
+	{
+		if (p_ptr->grace & GRACE_GOOD_LUCK)
 		{
 #ifdef JP
 			info[i++] = "あなたは白いオーラにつつまれている。";
@@ -1480,13 +808,153 @@ void self_knowledge(void)
 			info[i++] = "There is a white aura surrounding you.";
 #endif
 		}
-		if (p_ptr->muta3 & MUT3_BAD_LUCK)
+		if (p_ptr->grace & GRACE_ATT_ANIMAL)
+		{
+#ifdef JP
+			info[i++] = "あなたは動物を引きつける。";
+#else
+			info[i++] = "You attract animals.";
+#endif
+
+		}
+		if (p_ptr->grace & GRACE_ATT_SERVANT)
+		{
+#ifdef JP
+			info[i++] = "あなたは下僕を引きつける。";
+#else
+			info[i++] = "You attract servants.";
+#endif
+
+		}
+		if (p_ptr->grace & GRACE_ATT_DRAGON)
+		{
+#ifdef JP
+			info[i++] = "あなたはドラゴンを引きつける。";
+#else
+			info[i++] = "You attract dragons.";
+#endif
+
+		}
+		if (p_ptr->grace & GRACE_REGEN)
+		{
+#ifdef JP
+			info[i++] = "あなたは急速に回復する。";
+#else
+			info[i++] = "You are regenerating.";
+#endif
+
+		}
+		if (p_ptr->grace & (GRACE_HIGH_MELEE | GRACE_HIGH_MELEE2))
+		{
+#ifdef JP
+			info[i++] = "あなたは攻撃を命中させやすい。";
+#else
+			info[i++] = "You are regenerating.";
+#endif
+
+		}
+		if (p_ptr->grace & (GRACE_HIGH_AC | GRACE_HIGH_AC2))
+		{
+#ifdef JP
+			info[i++] = "あなたは攻撃をかわしやすい。";
+#else
+			info[i++] = "You are regenerating.";
+#endif
+
+		}
+		if (p_ptr->grace & (GRACE_HIGH_MAGIC | GRACE_HIGH_MAGIC2))
+		{
+#ifdef JP
+			info[i++] = "あなたは魔法を成功させやすい。";
+#else
+			info[i++] = "You are subject to success spellcasting.";
+#endif
+
+		}
+
+		if (p_ptr->grace & CURSE_BAD_LUCK)
 		{
 #ifdef JP
 			info[i++] = "あなたは黒いオーラにつつまれている。";
 #else
 			info[i++] = "There is a black aura surrounding you.";
 #endif
+		}
+		if (p_ptr->grace & CURSE_ATT_ANIMAL)
+		{
+#ifdef JP
+			info[i++] = "あなたは動物を引きつける。";
+#else
+			info[i++] = "You attract animals.";
+#endif
+
+		}
+		if (p_ptr->grace & CURSE_ATT_DEMON)
+		{
+#ifdef JP
+			info[i++] = "あなたは悪魔を引きつける。";
+#else
+			info[i++] = "You attract demons.";
+#endif
+
+		}
+		if (p_ptr->grace & CURSE_ATT_DRAGON)
+		{
+#ifdef JP
+			info[i++] = "あなたはドラゴンを引きつける。";
+#else
+			info[i++] = "You attract dragons.";
+#endif
+
+		}
+		if (p_ptr->grace & CURSE_SLOW_REGEN)
+		{
+#ifdef JP
+			info[i++] = "あなたの回復力は非常に遅い。";
+#else
+			info[i++] = "You regenerate slowly.";
+#endif
+
+		}
+		if (p_ptr->grace & (CURSE_LOW_MELEE | CURSE_LOW_MELEE2))
+		{
+#ifdef JP
+			info[i++] = "あなたは攻撃を外しやすい。";
+#else
+			info[i++] = "You are subject to miss blows.";
+#endif
+
+		}
+		if (p_ptr->grace & (CURSE_LOW_AC | CURSE_LOW_AC2))
+		{
+#ifdef JP
+			info[i++] = "あなたは攻撃を受けやすい。";
+#else
+			info[i++] = "You are subject to be hit.";
+#endif
+
+		}
+		if (p_ptr->grace & (CURSE_LOW_MAGIC | CURSE_LOW_MAGIC2))
+		{
+#ifdef JP
+			info[i++] = "あなたは魔法を失敗しやすい。";
+#else
+			info[i++] = "You are subject to fail spellcasting.";
+#endif
+
+		}
+	}
+
+	if (p_ptr->gift)
+	{
+		if (p_ptr->gift  & GIFT_TAROT)
+		{
+#ifdef JP
+			info[i++] = "あなたはタロットカードの力を感じる。";
+#else
+			info[i++] = "You feel the power of tarot cards.";
+#endif
+
 		}
 	}
 
@@ -4887,6 +4355,7 @@ bool probing(void)
 
 			ac = r_ptr->ac;
 			if (MON_STONING(m_ptr)) ac += MON_STONING(m_ptr) / 5;
+			if (m_ptr->s_idx) ac += ms_info[m_ptr->s_idx].ac_mod;
 
 			/* Get the monster's alignment */
 #ifdef JP
@@ -5552,6 +5021,8 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 				monster_type *m_ptr = &m_list[c_ptr->m_idx];
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+				u32b flags2 = (r_ptr->flags2 | ms_info[m_ptr->s_idx].flags2);
+
 				/* Quest monsters */
 				if (r_ptr->flags1 & RF1_QUESTOR)
 				{
@@ -5562,8 +5033,8 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 				}
 
 				/* Most monsters cannot co-exist with rock */
-				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
-				    !(r_ptr->flags2 & (RF2_PASS_WALL)))
+				if (!(flags2 & (RF2_KILL_WALL)) &&
+				    !(flags2 & (RF2_PASS_WALL)))
 				{
 					char m_name[80];
 

@@ -12,7 +12,7 @@
 
 #include "angband.h"
 
-static char T_BUILD[] = "build:2004-12-24";
+static char T_BUILD[] = "build:2005-03-07";
 
 /*
  *  mark strings for auto dump
@@ -1251,23 +1251,26 @@ void do_cmd_message_one(void)
  */
 void do_cmd_messages(int num_now)
 {
-	int i, j, k, n;
-	uint q;
+	int i, n;
 
-	char shower[80];
-	char finder[80];
+	char shower_str[81];
+	char finder_str[81];
+	char back_str[81];
+	cptr shower = NULL;
 	int wid, hgt;
-
+	int num_lines;
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
 
+	/* Number of message lines in a screen */
+	num_lines = hgt - 4;
+
 	/* Wipe finder */
-	strcpy(finder, "");
+	strcpy(finder_str, "");
 
 	/* Wipe shower */
-	strcpy(shower, "");
-
+	strcpy(shower_str, "");
 
 	/* Total messages */
 	n = message_num();
@@ -1275,31 +1278,28 @@ void do_cmd_messages(int num_now)
 	/* Start on first message */
 	i = 0;
 
-	/* Start at leftmost edge */
-	q = 0;
-
 	/* Save the screen */
 	screen_save();
+
+	/* Clear screen */
+	Term_clear();
 
 	/* Process requests until done */
 	while (1)
 	{
-		/* Clear screen */
-		Term_clear();
+		int j;
+		int skey;
 
 		/* Dump up to 20 lines of messages */
-		for (j = 0; (j < hgt - 4) && (i + j < n); j++)
+		for (j = 0; (j < num_lines) && (i + j < n); j++)
 		{
 			cptr msg = message_str(i+j);
 
-			/* Apply horizontal scroll */
-			msg = (strlen(msg) >= q) ? (msg + q) : "";
-
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, hgt-j-3, -1, (bool)(i+j < num_now ? TERM_WHITE : TERM_SLATE), msg);
+			c_prt((i + j < num_now ? TERM_WHITE : TERM_SLATE), msg, num_lines + 1 - j, 0);
 
 			/* Hilite "shower" */
-			if (shower[0])
+			if (shower && shower[0])
 			{
 				cptr str = msg;
 
@@ -1309,7 +1309,7 @@ void do_cmd_messages(int num_now)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, hgt-j-3, len, TERM_YELLOW, shower);
+					Term_putstr(str-msg, num_lines + 1 - j, len, TERM_YELLOW, shower);
 
 					/* Advance */
 					str += len;
@@ -1317,16 +1317,21 @@ void do_cmd_messages(int num_now)
 			}
 		}
 
+		/* Erase remaining lines */
+		for (; j < num_lines; j++)
+		{
+			Term_erase(0, num_lines + 1 - j, 255);
+		}
+
 		/* Display header XXX XXX XXX */
 #ifdef JP
 		/* translation */
-		prt(format("以前のメッセージ %d-%d 全部で(%d) オフセット(%d)",
-		           i, i+j-1, n, q), 0, 0);
+		prt(format("以前のメッセージ %d-%d 全部で(%d)",
+			   i, i + j - 1, n), 0, 0);
 #else
-		prt(format("Message Recall (%d-%d of %d), Offset %d",
-		    i, i+j-1, n, q), 0, 0);
+		prt(format("Message Recall (%d-%d of %d)",
+			   i, i + j - 1, n), 0, 0);
 #endif
-
 
 		/* Display prompt (not very informative) */
 #ifdef JP
@@ -1335,39 +1340,19 @@ void do_cmd_messages(int num_now)
 		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt - 1, 0);
 #endif
 
-
 		/* Get a command */
-		k = inkey();
+		skey = inkey_special(TRUE);
 
 		/* Exit on Escape */
-		if (k == ESCAPE) break;
+		if (skey == ESCAPE) break;
 
 		/* Hack -- Save the old index */
 		j = i;
 
-		/* Horizontal scroll */
-		if (k == '4')
+		switch (skey)
 		{
-			/* Scroll left */
-			q = (q >= 40) ? (q - 40) : 0;
-
-			/* Success */
-			continue;
-		}
-
-		/* Horizontal scroll */
-		if (k == '6')
-		{
-			/* Scroll right */
-			q = q + 40;
-
-			/* Success */
-			continue;
-		}
-
 		/* Hack -- handle show */
-		if (k == '=')
-		{
+		case '=':
 			/* Prompt */
 #ifdef JP
 			prt("強調: ", hgt - 1, 0);
@@ -1375,90 +1360,121 @@ void do_cmd_messages(int num_now)
 			prt("Show: ", hgt - 1, 0);
 #endif
 
-
 			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80)) continue;
+			strcpy(back_str, shower_str);
+			if (askfor(shower_str, 80))
+			{
+				/* Show it */
+				shower = shower_str[0] ? shower_str : NULL;
+			}
+			else strcpy(shower_str, back_str);
 
 			/* Okay */
 			continue;
-		}
 
 		/* Hack -- handle find */
-		if (k == '/')
-		{
-			int z;
+		case '/':
+		case KTRL('s'):
+			{
+				int z;
 
-			/* Prompt */
+				/* Prompt */
 #ifdef JP
-			prt("検索: ", hgt - 1, 0);
+				prt("検索: ", hgt - 1, 0);
 #else
-			prt("Find: ", hgt - 1, 0);
+				prt("Find: ", hgt - 1, 0);
 #endif
 
-
-			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80)) continue;
-
-			/* Show it */
-			strcpy(shower, finder);
-
-			/* Scan messages */
-			for (z = i + 1; z < n; z++)
-			{
-				cptr msg = message_str(z);
-
-				/* Search for it */
-				if (my_strstr(msg, finder))
+				/* Get a "finder" string, or continue */
+				strcpy(back_str, finder_str);
+				if (!askfor(finder_str, 80))
 				{
-					/* New location */
-					i = z;
+					strcpy(finder_str, back_str);
+					continue;
+				}
+				else if (!finder_str[0])
+				{
+					shower = NULL; /* Stop showing */
+					continue;
+				}
 
-					/* Done */
-					break;
+				/* Show it */
+				shower = finder_str;
+
+				/* Scan messages */
+				for (z = i + 1; z < n; z++)
+				{
+					cptr msg = message_str(z);
+
+					/* Search for it */
+					if (my_strstr(msg, finder_str))
+					{
+						/* New location */
+						i = z;
+
+						/* Done */
+						break;
+					}
 				}
 			}
-		}
+			break;
 
 		/* Recall 1 older message */
-		if ((k == '8') || (k == '\n') || (k == '\r'))
-		{
-			/* Go newer if legal */
-			if (i + 1 < n) i += 1;
-		}
+		case SKEY_TOP:
+			/* Go to the oldest line */
+			i = n - num_lines;
+			break;
+
+		/* Recall 1 newer message */
+		case SKEY_BOTTOM:
+			/* Go to the newest line */
+			i = 0;
+			break;
+
+		/* Recall 1 older message */
+		case '8':
+		case SKEY_UP:
+		case '\n':
+		case '\r':
+			/* Go older if legal */
+			i = MIN(i + 1, n - num_lines);
+			break;
 
 		/* Recall 10 older messages */
-		if (k == '+')
-		{
+		case '+':
 			/* Go older if legal */
-			if (i + 10 < n) i += 10;
-		}
+			i = MIN(i + 10, n - num_lines);
+			break;
 
 		/* Recall 20 older messages */
-		if ((k == 'p') || (k == KTRL('P')) || (k == ' '))
-		{
+		case 'p':
+		case KTRL('P'):
+		case ' ':
+		case SKEY_PGUP:
 			/* Go older if legal */
-			if (i + 20 < n) i += 20;
-		}
+			i = MIN(i + num_lines, n - num_lines);
+			break;
 
 		/* Recall 20 newer messages */
-		if ((k == 'n') || (k == KTRL('N')))
-		{
+		case 'n':
+		case KTRL('N'):
+		case SKEY_PGDOWN:
 			/* Go newer (if able) */
-			i = (i >= 20) ? (i - 20) : 0;
-		}
+			i = MAX(0, i - num_lines);
+			break;
 
 		/* Recall 10 newer messages */
-		if (k == '-')
-		{
+		case '-':
 			/* Go newer (if able) */
-			i = (i >= 20) ? (i - 20) : 0;
-		}
+			i = MAX(0, i - 10);
+			break;
 
 		/* Recall 1 newer messages */
-		if (k == '2')
-		{
+		case '2':
+		case SKEY_DOWN:
 			/* Go newer (if able) */
-			i = (i >= 1) ? (i - 1) : 0;
+			i = MAX(0, i - 1);
+			break;
 		}
 
 		/* Hack -- Error of some kind */
@@ -2624,62 +2640,14 @@ void do_cmd_pref(void)
 
 void do_cmd_pickpref(void)
 {
-	char buf[80];
-	errr err;
-
 #ifdef JP
-	if(!get_check("自動拾い設定ファイルをロードしますか? ")) return;
+	if (!get_check("自動拾い設定ファイルをロードしますか? ")) return;
 #else
-	if(!get_check("Reload auto-pick preference file? ")) return;
+	if (!get_check("Reload auto-pick preference file? ")) return;
 #endif
 
-	/* Free old entries */
-	init_autopicker();
-
-	/* キャラ毎の設定ファイルの読み込み */
-#ifdef JP
-	sprintf(buf, "picktype-%s.prf", player_base);
-#else
-	sprintf(buf, "pickpref-%s.prf", player_base);
-#endif
-	err = process_pickpref_file(buf);
-
-	if(err == 0)
-	{
-#ifdef JP
-		msg_format("%sを読み込みました。", buf);
-#else
-		msg_format("loaded '%s'.", buf);
-#endif
-	}
-
-	/* 共通の設定ファイル読み込み */
-
-	/* Process 'pick????.prf' if 'pick????-<name>.prf' doesn't exist */
-	if (0 > err)
-	{
-#ifdef JP
-		err = process_pickpref_file("picktype.prf");
-#else
-		err = process_pickpref_file("pickpref.prf");
-#endif
-
-		if(err == 0)
-		{
-#ifdef JP
-			msg_print("picktype.prfを読み込みました。");
-#else
-			msg_print("loaded 'pickpref.prf'.");
-#endif
-		}
-	}
-
-
-#ifdef JP
-	if(err) msg_print("自動拾い設定ファイルの読み込みに失敗しました。");
-#else
-	if(err) msg_print("Failed to reload autopick preference.");
-#endif
+	/* Load the file with messages */
+	autopick_load_pref(TRUE);
 }
 
 #ifdef ALLOW_MACROS
@@ -3053,7 +3021,7 @@ void do_cmd_macros(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
-			if (!askfor_aux(tmp, 80)) continue;
+			if (!askfor(tmp, 80)) continue;
 
 			/* Process the given filename */
 			err = process_pref_file(tmp);
@@ -3109,7 +3077,7 @@ void do_cmd_macros(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
-			if (!askfor_aux(tmp, 80)) continue;
+			if (!askfor(tmp, 80)) continue;
 
 			/* Dump the macros */
 			(void)macro_dump(tmp);
@@ -3221,7 +3189,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, macro__buf);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor(tmp, 80))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro__buf, tmp);
@@ -3296,7 +3264,7 @@ void do_cmd_macros(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
-			if (!askfor_aux(tmp, 80)) continue;
+			if (!askfor(tmp, 80)) continue;
 
 			/* Dump the macros */
 			(void)keymap_dump(tmp);
@@ -3408,7 +3376,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, macro__buf);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor(tmp, 80))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro__buf, tmp);
@@ -3484,7 +3452,7 @@ void do_cmd_macros(void)
 			tmp[80] = '\0';
 
 			/* Get an encoded action */
-			if (!askfor_aux(buf, 80)) continue;
+			if (!askfor(buf, 80)) continue;
 
 			/* Extract an action */
 			text_to_ascii(macro__buf, buf);
@@ -3645,7 +3613,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Query */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor(tmp, 70)) continue;
 
 			/* Process the given filename */
 			(void)process_pref_file(tmp);
@@ -3679,7 +3647,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "%s.prf", player_base);
 			
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor(tmp, 70)) continue;
 
 			/* Build the filename */
 			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
@@ -3752,7 +3720,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor(tmp, 70)) continue;
 
 			/* Build the filename */
 			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
@@ -3844,7 +3812,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor(tmp, 70)) continue;
 
 			/* Build the filename */
 			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
@@ -4356,7 +4324,7 @@ void do_cmd_colors(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Query */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor(tmp, 70)) continue;
 
 			/* Process the given filename */
 			(void)process_pref_file(tmp);
@@ -4396,7 +4364,7 @@ void do_cmd_colors(void)
 			sprintf(tmp, "%s.prf", player_base);
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor(tmp, 70)) continue;
 
 			/* Build the filename */
 			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
@@ -4793,7 +4761,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	if (p_ptr->muta3 & MUT3_GOOD_LUCK)
+	if (p_ptr->grace & GRACE_GOOD_LUCK)
 		msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
 	else
 		msg_print(do_cmd_feeling_text[p_ptr->feeling]);

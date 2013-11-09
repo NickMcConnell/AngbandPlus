@@ -6727,7 +6727,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				bool double_resist = p_ptr->oppose_fire;
 
-				if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+				if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 				if ((!(double_resist || p_ptr->resist_fire)) && one_in_(HURT_CHANCE)) do_dec_stat(A_STR);
 				if (!(double_resist && p_ptr->resist_fire)) inven_damage(set_fire_destroy, 3);
 			}
@@ -6758,7 +6758,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				bool double_resist = p_ptr->oppose_cold;
 
-				if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+				if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 				if ((!(double_resist || p_ptr->resist_cold)) && one_in_(HURT_CHANCE)) do_dec_stat(A_STR);
 				if (!(double_resist && p_ptr->resist_cold)) inven_damage(set_cold_destroy, 3);
 			}
@@ -6790,7 +6790,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				bool double_resist = p_ptr->oppose_acid;
 
-				if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+				if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 				if ((!(double_resist || p_ptr->resist_acid)) && one_in_(HURT_CHANCE)) do_dec_stat(A_CHR);
 				if (!(double_resist && p_ptr->resist_acid)) inven_damage(set_acid_destroy, 3);
 			}
@@ -6821,7 +6821,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				bool double_resist = p_ptr->oppose_elec;
 
-				if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+				if (p_ptr->mutation & MUT_VULN_ELEM) dam *= 2;
 				if ((!(double_resist || p_ptr->resist_elec)) && one_in_(HURT_CHANCE)) do_dec_stat(A_DEX);
 				if (!(double_resist && p_ptr->resist_elec)) inven_damage(set_elec_destroy, 3);
 			}
@@ -6897,7 +6897,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			else
 			{
 				ACTIVATE_MULTISHADOW();
-				if (!IS_MULTISHADOW(0)) curse_equipment(33, MIN(rlev/2-15, 15));
+				if (!IS_MULTISHADOW(0))
+				{
+					curse_equipment(33, MIN(rlev/2-15, 15));
+					if (one_in_(13)) do_curse(0, 0);
+				}
 				get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 				STOP_MULTISHADOW();
 			}
@@ -6947,7 +6951,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				dam = ((40 + randint1(20)) * p_ptr->chp) / 100;
 				ACTIVATE_MULTISHADOW();
 				get_damage = take_hit(DAMAGE_ATTACK, dam, m_name);
-				if (!IS_MULTISHADOW(0)) curse_equipment(40, 20);
+				if (!IS_MULTISHADOW(0))
+				{
+					curse_equipment(40, 20);
+					if (one_in_(6)) do_curse(0, 0);
+				}
 				STOP_MULTISHADOW();
 
 				if (p_ptr->chp < 1) p_ptr->chp = 1;
