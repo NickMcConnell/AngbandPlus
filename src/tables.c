@@ -135,48 +135,48 @@ byte adj_mag_study[] =
 
 
 /*
- * Stat Table (INT/WIS) -- extra 1/4-mana-points per level
+ * Stat Table (INT/WIS) -- extra 1/4-mana-points per level (plus 128)
  */
 byte adj_mag_mana[] =
 {
-	0       /* 3 */,
-	0       /* 4 */,
-	0       /* 5 */,
-	0       /* 6 */,
-	0       /* 7 */,
-	1       /* 8 */,
-	2       /* 9 */,
-	3       /* 10 */,
-	4       /* 11 */,
-	5       /* 12 */,
-	5       /* 13 */,
-	6       /* 14 */,
-	7       /* 15 */,
-	8       /* 16 */,
-	9       /* 17 */,
-	10      /* 18/00-18/09 */,
-	11      /* 18/10-18/19 */,
-	11      /* 18/20-18/29 */,
-	12      /* 18/30-18/39 */,
-	12      /* 18/40-18/49 */,
-	13      /* 18/50-18/59 */,
-	14      /* 18/60-18/69 */,
-	15      /* 18/70-18/79 */,
-	16      /* 18/80-18/89 */,
-	17      /* 18/90-18/99 */,
-	18      /* 18/100-18/109 */,
-	19      /* 18/110-18/119 */,
-	20      /* 18/120-18/129 */,
-	21      /* 18/130-18/139 */,
-	22      /* 18/140-18/149 */,
-	23      /* 18/150-18/159 */,
-	24      /* 18/160-18/169 */,
-	25      /* 18/170-18/179 */,
-	26      /* 18/180-18/189 */,
-	27      /* 18/190-18/199 */,
-	28      /* 18/200-18/209 */,
-	29      /* 18/210-18/219 */,
-	30      /* 18/220+ */
+	128 + -8	/* 3 */,
+	128 + -6	/* 4 */,
+	128 + -4	/* 5 */,
+	128 + -2	/* 6 */,
+	128 + -1	/* 7 */,
+	128 + 0	/* 8 */,
+	128 + 0	/* 9 */,
+	128 + 0	/* 10 */,
+	128 + 0	/* 11 */,
+	128 + 0	/* 12 */,
+	128 + 0	/* 13 */,
+	128 + 1	/* 14 */,
+	128 + 1	/* 15 */,
+	128 + 2	/* 16 */,
+	128 + 3	/* 17 */,
+	128 + 4	/* 18/00-18/09 */,
+	128 + 5	/* 18/10-18/19 */,
+	128 + 6	/* 18/20-18/29 */,
+	128 + 7	/* 18/30-18/39 */,
+	128 + 8	/* 18/40-18/49 */,
+	128 + 9	/* 18/50-18/59 */,
+	128 + 10	/* 18/60-18/69 */,
+	128 + 11	/* 18/70-18/79 */,
+	128 + 12	/* 18/80-18/89 */,
+	128 + 13	/* 18/90-18/99 */,
+	128 + 14	/* 18/100-18/109 */,
+	128 + 15	/* 18/110-18/119 */,
+	128 + 16	/* 18/120-18/129 */,
+	128 + 17	/* 18/130-18/139 */,
+	128 + 18	/* 18/140-18/149 */,
+	128 + 19	/* 18/150-18/159 */,
+	128 + 20	/* 18/160-18/169 */,
+	128 + 21	/* 18/170-18/179 */,
+	128 + 22	/* 18/180-18/189 */,
+	128 + 23	/* 18/190-18/199 */,
+	128 + 24	/* 18/200-18/209 */,
+	128 + 25	/* 18/210-18/219 */,
+	128 + 26	/* 18/220+ */
 };
 
 
@@ -917,6 +917,52 @@ byte adj_dex_blow[] =
 
 
 /*
+ * Stat Table (DEX) -- index into the "blow" table (bare hand)
+ */
+byte adj_dex_blow_bare_hand[] =
+{
+	0       /* 3 */,
+	0       /* 4 */,
+	0       /* 5 */,
+	0       /* 6 */,
+	0       /* 7 */,
+	0       /* 8 */,
+	0       /* 9 */,
+	1       /* 10 */,
+	1       /* 11 */,
+	1       /* 12 */,
+	1       /* 13 */,
+	1       /* 14 */,
+	2       /* 15 */,
+	2       /* 16 */,
+	2       /* 17 */,
+	2       /* 18/00-18/09 */,
+	3       /* 18/10-18/19 */,
+	3       /* 18/20-18/29 */,
+	3       /* 18/30-18/39 */,
+	4       /* 18/40-18/49 */,
+	4       /* 18/50-18/59 */,
+	6       /* 18/60-18/69 */,
+	6       /* 18/70-18/79 */,
+	8       /* 18/80-18/89 */,
+	8       /* 18/90-18/99 */,
+	10      /* 18/100-18/109 */,
+	10      /* 18/110-18/119 */,
+	14      /* 18/120-18/129 */,
+	14      /* 18/130-18/139 */,
+	18     /* 18/140-18/149 */,
+	18     /* 18/150-18/159 */,
+	24      /* 18/160-18/169 */,
+	24      /* 18/170-18/179 */,
+	30      /* 18/180-18/189 */,
+	30      /* 18/190-18/199 */,
+	36      /* 18/200-18/209 */,
+	36      /* 18/210-18/219 */,
+	42      /* 18/220+ */
+};
+
+
+/*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
  */
 byte adj_dex_safe[] =
@@ -1013,44 +1059,44 @@ byte adj_con_fix[] =
  */
 byte adj_con_mhp[] =
 {
-	128 + -8        /* 3 */,
-	128 + -6        /* 4 */,
-	128 + -4        /* 5 */,
-	128 + -2        /* 6 */,
-	128 + -1 /* 7 */,
-	128 + 0 /* 8 */,
-	128 + 0 /* 9 */,
-	128 + 0 /* 10 */,
-	128 + 0 /* 11 */,
-	128 + 0 /* 12 */,
-	128 + 0 /* 13 */,
-	128 + 1 /* 14 */,
-	128 + 1 /* 15 */,
-	128 + 2 /* 16 */,
-	128 + 3 /* 17 */,
-	128 + 4 /* 18/00-18/09 */,
-	128 + 5 /* 18/10-18/19 */,
-	128 + 6 /* 18/20-18/29 */,
-	128 + 7 /* 18/30-18/39 */,
-	128 + 8 /* 18/40-18/49 */,
-	128 + 9 /* 18/50-18/59 */,
-	128 + 10  /* 18/60-18/69 */,
-	128 + 11 /* 18/70-18/79 */,
-	128 + 12 /* 18/80-18/89 */,
-	128 + 14 /* 18/90-18/99 */,
-	128 + 17         /* 18/100-18/109 */,
-	128 + 20        /* 18/110-18/119 */,
-	128 + 23        /* 18/120-18/129 */,
-	128 + 26        /* 18/130-18/139 */,
-	128 + 29        /* 18/140-18/149 */,
-	128 + 32        /* 18/150-18/159 */,
-	128 + 35        /* 18/160-18/169 */,
-	128 + 38        /* 18/170-18/179 */,
-	128 + 40        /* 18/180-18/189 */,
-	128 + 42        /* 18/190-18/199 */,
-	128 + 44        /* 18/200-18/209 */,
-	128 + 46        /* 18/210-18/219 */,
-	128 + 48        /* 18/220+ */
+	128 + -8	/* 3 */,
+	128 + -6	/* 4 */,
+	128 + -4	/* 5 */,
+	128 + -2	/* 6 */,
+	128 + -1	/* 7 */,
+	128 + 0	/* 8 */,
+	128 + 0	/* 9 */,
+	128 + 0	/* 10 */,
+	128 + 0	/* 11 */,
+	128 + 0	/* 12 */,
+	128 + 0	/* 13 */,
+	128 + 1	/* 14 */,
+	128 + 1	/* 15 */,
+	128 + 2	/* 16 */,
+	128 + 3	/* 17 */,
+	128 + 4	/* 18/00-18/09 */,
+	128 + 5	/* 18/10-18/19 */,
+	128 + 6	/* 18/20-18/29 */,
+	128 + 7	/* 18/30-18/39 */,
+	128 + 8	/* 18/40-18/49 */,
+	128 + 9	/* 18/50-18/59 */,
+	128 + 10	/* 18/60-18/69 */,
+	128 + 11	/* 18/70-18/79 */,
+	128 + 12	/* 18/80-18/89 */,
+	128 + 13	/* 18/90-18/99 */,
+	128 + 14	/* 18/100-18/109 */,
+	128 + 15	/* 18/110-18/119 */,
+	128 + 16	/* 18/120-18/129 */,
+	128 + 17	/* 18/130-18/139 */,
+	128 + 18	/* 18/140-18/149 */,
+	128 + 19	/* 18/150-18/159 */,
+	128 + 20	/* 18/160-18/169 */,
+	128 + 21	/* 18/170-18/179 */,
+	128 + 22	/* 18/180-18/189 */,
+	128 + 23	/* 18/190-18/199 */,
+	128 + 24	/* 18/200-18/209 */,
+	128 + 25	/* 18/210-18/219 */,
+	128 + 26	/* 18/220+ */
 };
 
 
@@ -1101,6 +1147,98 @@ byte adj_chr_chm[] =
 
 
 /*
+ * Stat Table (CHR) -- give money
+ */
+byte adj_chr_give[] =
+{
+	128 + -5      /* 3 */,
+	128 + -4      /* 4 */,
+	128 + -3      /* 5 */,
+	128 + -2      /* 6 */,
+	128 + -1      /* 7 */,
+	128 + 0       /* 8 */,
+	128 + 0       /* 9 */,
+	128 + 0       /* 10 */,
+	128 + 0       /* 11 */,
+	128 + 0       /* 12 */,
+	128 + 0       /* 13 */,
+	128 + 1       /* 14 */,
+	128 + 1       /* 15 */,
+	128 + 2       /* 16 */,
+	128 + 3       /* 17 */,
+	128 + 4       /* 18/00-18/09 */,
+	128 + 5       /* 18/10-18/19 */,
+	128 + 6       /* 18/20-18/29 */,
+	128 + 7       /* 18/30-18/39 */,
+	128 + 8       /* 18/40-18/49 */,
+	128 + 9       /* 18/50-18/59 */,
+	128 + 10      /* 18/60-18/69 */,
+	128 + 11      /* 18/70-18/79 */,
+	128 + 12      /* 18/80-18/89 */,
+	128 + 13      /* 18/90-18/99 */,
+	128 + 14      /* 18/100-18/109 */,
+	128 + 15      /* 18/110-18/119 */,
+	128 + 16      /* 18/120-18/129 */,
+	128 + 17      /* 18/130-18/139 */,
+	128 + 18      /* 18/140-18/149 */,
+	128 + 19      /* 18/150-18/159 */,
+	128 + 20      /* 18/160-18/169 */,
+	128 + 21      /* 18/170-18/179 */,
+	128 + 22      /* 18/180-18/189 */,
+	128 + 23      /* 18/190-18/199 */,
+	128 + 24      /* 18/200-18/209 */,
+	128 + 25      /* 18/210-18/219 */,
+	128 + 26      /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (STR/DEX) -- throwing stone or grave damages and to-hit (plus 128)
+ */
+byte adj_throwing[] =
+{
+	128 + 0     /*  3 */,
+	128 + 0     /*  4 */,
+	128 + 0     /*  5 */,
+	128 + 0     /*  6 */,
+	128 + 0     /*  7 */,
+	128 + 0     /*  8 */,
+	128 + 0     /*  9 */,
+	128 + 0     /* 10 */,
+	128 + 0     /* 11 */,
+	128 + 0     /* 12 */,
+	128 + 0     /* 13 */,
+	128 + 0     /* 14 */,
+	128 + 0     /* 15 */,
+	128 + 0     /* 16 */,
+	128 + 0     /* 17 */,
+	128 + 1     /* 18/00-18/09 */,
+	128 + 1     /* 18/10-18/19 */,
+	128 + 1     /* 18/20-18/29 */,
+	128 + 1     /* 18/30-18/39 */,
+	128 + 1     /* 18/40-18/49 */,
+	128 + 2     /* 18/50-18/59 */,
+	128 + 2     /* 18/60-18/69 */,
+	128 + 2     /* 18/70-18/79 */,
+	128 + 2     /* 18/80-18/89 */,
+	128 + 2     /* 18/90-18/99 */,
+	128 + 3     /* 18/100-18/109 */,
+	128 + 3     /* 18/110-18/119 */,
+	128 + 3     /* 18/120-18/129 */,
+	128 + 3     /* 18/130-18/139 */,
+	128 + 3     /* 18/140-18/149 */,
+	128 + 4     /* 18/150-18/159 */,
+	128 + 4     /* 18/160-18/169 */,
+	128 + 4     /* 18/170-18/179 */,
+	128 + 4     /* 18/180-18/189 */,
+	128 + 4     /* 18/190-18/199 */,
+	128 + 5     /* 18/200-18/209 */,
+	128 + 5     /* 18/210-18/219 */,
+	128 + 5     /* 18/220+ */
+};
+
+
+/*
  * This table is used to help calculate the number of blows the player can
  * make in a single round of attacks (one player turn) with a normal weapon.
  *
@@ -1111,27 +1249,32 @@ byte adj_chr_chm[] =
  *
  * First, from the player class, we extract some values:
  *
- * Warrior       num = 6; mul = 5; div = MAX(70, weapon_weight);
- * Berserker     num = 6; mul = 7; div = MAX(70, weapon_weight);
- * Mage          num = 3; mul = 2; div = MAX(100, weapon_weight);
- * Priest        num = 5; mul = 3; div = MAX(100, weapon_weight);
- * Mindcrafter   num = 5; mul = 3; div = MAX(100, weapon_weight);
- * Rogue         num = 5; mul = 3; div = MAX(40, weapon_weight);
- * Ranger        num = 5; mul = 4; div = MAX(70, weapon_weight);
- * Paladin       num = 5; mul = 4; div = MAX(70, weapon_weight);
- * Kaji          num = 5; mul = 5; div = MAX(150, weapon_weight);
- * Warrior-Mage  num = 5; mul = 3; div = MAX(70, weapon_weight);
- * Chaos Warrior num = 5; mul = 4; div = MAX(70, weapon_weight);
- * Monk          num = 5; mul = 3; div = MAX(60, weapon_weight);
- * Tourist       num = 4; mul = 3; div = MAX(100, weapon_weight);
- * Imitator      num = 5; mul = 4; div = MAX(70, weapon_weight);
- * Beastmaster   num = 5; mul = 3; div = MAX(70, weapon_weight);
- * Sorcerer      num = 1; mul = 1; div = MAX(1, weapon_weight);
- * Archer        num = 4; mul = 2; div = MAX(70, weapon_weight);
- * Magic eater   num = 4; mul = 2; div = MAX(70, weapon_weight);
- * ForceTrainer  num = 4; mul = 2; div = MAX(60, weapon_weight);
- * Mirror Master num = 3; mul = 3; div = MAX(100, weapon_weight);
- * Ninja         num = 4; mul = 1; div = MAX(20, weapon_weight);
+ * Soldier       num = 5; mul = 3; div = MAX(70, weapon_weight)
+ * Knight        num = 6; mul = 5; div = MAX(70, weapon_weight)
+ * Berserker     num = 6; mul = 5; div = MAX(70, weapon_weight)
+ * Terror-Knight num = 6; mul = 6; div = MAX(70, weapon_weight)
+ * BeastTamer    num = 5; mul = 4; div = MAX(70, weapon_weight)
+ * Sword-Master  num = 5; mul = 4; div = MAX(50, weapon_weight)
+ * Dragoon       num = 6; mul = 5; div = MAX(70, weapon_weight)
+ * Ninja         num = 4; mul = 1; div = MAX(20, weapon_weight)
+ * Wizard        num = 3; mul = 2; div = MAX(100, weapon_weight)
+ * Warlock       num = 4; mul = 4; div = MAX(100, weapon_weight)
+ * Exorcist      num = 5; mul = 4; div = MAX(100, weapon_weight)
+ * Amazoness     num = 5; mul = 3; div = MAX(70, weapon_weight)
+ * Valkyrie      num = 5; mul = 4; div = MAX(70, weapon_weight)
+ * Archer        num = 4; mul = 3; div = MAX(100, weapon_weight)
+ * DragonTamer   num = 5; mul = 4; div = MAX(70, weapon_weight)
+ * Witch         num = 4; mul = 3; div = MAX(100, weapon_weight)
+ * Sirene        num = 3; mul = 2; div = MAX(100, weapon_weight)
+ * Cleric        num = 5; mul = 3; div = MAX(100, weapon_weight)
+ * Priest        num = 3; mul = 2; div = MAX(100, weapon_weight)
+ * Lich          num = 3; mul = 2; div = MAX(100, weapon_weight)
+ * Angel-Knight  num = 6; mul = 5; div = MAX(70, weapon_weight)
+ * High-Witch    num = 1; mul = 1; div = MAX(1, weapon_weight)
+ * Gunner        num = 3; mul = 2; div = MAX(100, weapon_weight)
+ * Temple-Knight num = 5; mul = 4; div = MAX(70, weapon_weight)
+ * White-Knight  num = 5; mul = 4; div = MAX(70, weapon_weight)
+ * Octopus       (undefined)
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div".
@@ -1159,30 +1302,102 @@ byte blows_table[12][12] =
 /* 8 */{	1,   2,   3,   3,   4,   4,   4,   5,   5,   5,   6,   6 },
 /* 9 */{	1,   2,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
 /* 10*/{	2,   2,   3,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
-/*11+*/{	2,   2,   3,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
+/*11+*/{	2,   2,   3,   4,   4,   4,   5,   5,   6,   6,   6,   7 },
 
 };
 
-s16b arena_monsters[MAX_ARENA_MONS+2] =
+s16b arena_monsters[MAX_ARENA_MONS + 4] =
 {
-	1059,  1060,	230,	241,	255,	270,	285,
-	293,	321,	348,	367,	395,	396,	403,
-	417,	436,	453,	464,	471,	479,	490,
-	504,	539,	569,	593,	621,	623,	1061,
-	1062,	657,	666,	702,	720,	768,	786,
-	798,	988,	847,	  0,	871
+	MON_SIMON,
+	MON_SOLDIER,
+	MON_AMAZONESS,
+	MON_ARCHER,
+	MON_KNIGHT,
+	MON_PRIEST,
+	MON_BEASTTAMER,
+	MON_BERSERKER,
+	MON_FAIRY,
+	MON_HAWKMAN,
+	MON_DRAGOON,
+	MON_SWORDMASTER,
+	MON_TERROR_KNIGHT,
+	MON_PIXY,
+	MON_WARLOCK,
+	MON_NINJA,
+	MON_BEASTMASTER,
+	MON_PUMPKIN_HEAD,
+	MON_LIZARDMAN,
+	MON_GORGON,
+	MON_GUNNER,
+	MON_COCKATRICE,
+	MON_VALKYRIE,
+	MON_SIRENE,
+	MON_DRAGONTAMER,
+	MON_DARK_PRIEST,
+	MON_SORCERER,
+	MON_VENEFIK,
+	MON_CENTAUR,
+	MON_LADY_CENTAUR,
+	MON_HIGH_PRIEST,
+	MON_NECROMANCER,
+	MON_MAD_HALLOWEEN,
+	MON_GABIAR,
+	MON_ANGEL_KNIGHT,
+	MON_BALANCE_WYRM,
+	MON_FIRE_BRASS,
+	MON_MOLDOUX,
+	0,
+	MON_CANOPUS,
+	0,
+	MON_DENEB
 };
 
 
 
-s16b arena_shouhin[MAX_ARENA_MONS+2] =
+byte arena_object[MAX_ARENA_MONS + 4][2] =
 {
-	  0,	  0,	  0,	  0,	249,	  0,	  0,
-	  0,	  0,	242,	  0,	  0,	  0,	  0,
-	583,	  0,	  0,	  0,	  0,	198,	  0,
-	190,	  0,	363,	  0,	212,	  0,	207,
-	  0,	628,	  0,	422,	  0,	372,	327,
-	199,	325,	374,	  0,	205
+	{TV_BOOTS, SV_PAIR_OF_SANDALS},
+	{TV_POTION, SV_POTION_CURE_CRITICAL},
+	{TV_POTION, SV_POTION_CURE_CRITICAL},
+	{TV_POTION, SV_POTION_SPEED},
+	{TV_POTION, SV_POTION_HEROISM},
+	{TV_POTION, SV_POTION_CURING},
+	{TV_POTION, SV_POTION_CURE_CRITICAL},
+	{TV_POTION, SV_POTION_HEROISM},
+	{TV_POTION, SV_POTION_CURING},
+	{TV_POTION, SV_POTION_HEALING},
+	{TV_POTION, SV_POTION_HEROISM},
+	{TV_POTION, SV_POTION_SPEED},
+	{TV_POTION, SV_POTION_BERSERK_STRENGTH},
+	{TV_POTION, SV_POTION_SPEED},
+	{TV_POTION, SV_POTION_RESTORING},
+	{TV_POTION, SV_POTION_SPEED},
+	{TV_ROD, SV_ROD_STONE_TO_MUD},
+	{TV_ROD, SV_ROD_MAPPING},
+	{TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION},
+	{TV_POTION, SV_POTION_RESTORE_MANA},
+	{TV_BOW, SV_ROCKET_LAUNCHER},
+	{TV_POTION, SV_POTION_CURE_STONING},
+	{TV_POTION, SV_POTION_STAR_HEALING},
+	{TV_SCROLL, SV_SCROLL_ACQUIREMENT},
+	{TV_SCROLL, SV_SCROLL_STAR_ENCHANT_WEAPON},
+	{TV_POTION, SV_POTION_RESTORE_MANA},
+	{TV_SCROLL, SV_SCROLL_GENOCIDE},
+	{TV_POTION, SV_POTION_DEATH},
+	{TV_RING, SV_RING_SHOTS},
+	{TV_RING, SV_RING_DEC_MANA},
+	{TV_POTION, SV_POTION_LIFE},
+	{TV_SCROLL, SV_SCROLL_MASS_GENOCIDE},
+	{TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT},
+	{TV_ROD, SV_ROD_HEALING},
+	{TV_ROD, SV_ROD_SPEED},
+	{TV_ROD, SV_ROD_IDENTIFY},
+	{TV_WAND, SV_WAND_DRAGON_FIRE},
+	{TV_STAFF, SV_STAFF_THE_MAGI},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
 };
 
 
@@ -1204,1392 +1419,425 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General store - 32 unique names */
-/*
-   Raistlin は dragonlance の powerful wizard 。
-   Rincewind the Chicken は Terry Pratchett の Discworld の登場人物 上記のパロディ？、
- */
-
-#ifdef JP
-                { "フレンドリーなビルボ",       200,    170,  108,   5,  15,  RACE_HOBBIT},
-/*                { "憶病者ラストリン",       200,    175,  108,   4,  12,  RACE_HUMAN},  */
-                { "憶病者リンスウィンド",       200,    175,  108,   4,  12,  RACE_HUMAN}, 
-                { "背の低いサルタン",             300,    170,  107,   5,  15,  RACE_GNOME},
-                { "ハンサムなライア=エル",      300,    165,  107,   6,  18,  RACE_ELF},
-#else
-		{ "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
-/*		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN}, */
-		{ "Rincewind the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
-		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_ELF},
-#endif
-
-#ifdef JP
-{ "親切なファリルマウエン",         250,    170, 108,  5, 15, RACE_HOBBIT},
-#else
-		{ "Falilmawen the Friendly",         250,    170, 108,  5, 15, RACE_HOBBIT},
-#endif
-#ifdef JP
-{ "臆病者ヴォワラン",       500,    175, 108,  4, 12, RACE_HUMAN},
-#else
-		{ "Voirin the Cowardly",       500,    175, 108,  4, 12, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "チビのエラシュナク",          750,    170, 107,  5, 15, RACE_BEASTMAN},
-#else
-		{ "Erashnak the Midget",          750,    170, 107,  5, 15, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "ハンサムなグラッグ",        1000,    165, 107,  6, 18, RACE_HALF_TITAN},
-#else
-		{ "Grug the Comely",        1000,    165, 107,  6, 18, RACE_HALF_TITAN},
-#endif
-#ifdef JP
-{ "ケチなフォロビア",         250,    170, 108,  5, 15, RACE_HUMAN},
-#else
-		{ "Forovir the Cheap",         250,    170, 108,  5, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "馬鹿のエリス",       500,    175, 108,  4, 12, RACE_HUMAN},
-#else
-		{ "Ellis the Fool",       500,    175, 108,  4, 12, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "腹ペコのフィルバート",          750,    170, 107,  5, 15, RACE_VAMPIRE},
-#else
-		{ "Filbert the Hungry",          750,    170, 107,  5, 15, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "スナーグル・サシグア",        1000,    165, 107,  6, 18, RACE_MIND_FLAYER},
-#else
-		{ "Fthnargl Psathiggua",        1000,    165, 107,  6, 18, RACE_MIND_FLAYER},
-#endif
-#ifdef JP
-{ "長死きエロワーズ",         250,    170, 108,  5, 15, RACE_SPECTRE},
-#else
-		{ "Eloise Long-Dead",         250,    170, 108,  5, 15, RACE_SPECTRE},
-#endif
-#ifdef JP
-{ "ノロマのフンディ",       500,    175, 108,  4, 12, RACE_ZOMBIE},
-#else
-		{ "Fundi the Slow",       500,    175, 108,  4, 12, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "グランサス",          750,    170, 107,  5, 15, RACE_SKELETON},
-#else
-		{ "Granthus",          750,    170, 107,  5, 15, RACE_SKELETON},
-#endif
-#ifdef JP
-{ "丁寧なロラックス",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
-#else
-		{ "Lorax the Suave",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "ブッチ",         250,    170, 108,  5, 15, RACE_HALF_ORC},
-#else
-		{ "Butch",         250,    170, 108,  5, 15, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "美しきエルベレス",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
-#else
-		{ "Elbereth the Beautiful",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "こそこそサーレス",          750,    170, 107,  5, 15, RACE_GNOME},
-#else
-		{ "Sarleth the Sneaky",          750,    170, 107,  5, 15, RACE_GNOME},
-#endif
-#ifdef JP
-{ "ナーロック",        1000,    165, 107,  6, 18, RACE_DWARF},
-#else
-		{ "Narlock",        1000,    165, 107,  6, 18, RACE_DWARF},
-#endif
-#ifdef JP
-{ "チビのヘイネッカ",         250,    170, 108,  5, 15, RACE_GNOME},
-#else
-		{ "Haneka the Small",         250,    170, 108,  5, 15, RACE_GNOME},
-#endif
-#ifdef JP
-{ "きちがいロワラン",       500,    175, 108,  4, 12, RACE_HALF_GIANT},
-#else
-		{ "Loirin the Mad",       500,    175, 108,  4, 12, RACE_HALF_GIANT},
-#endif
-#ifdef JP
-{ "毒息のウート",          750,    170, 107,  5, 15, RACE_DRACONIAN},
-#else
-		{ "Wuto Poisonbreath",          750,    170, 107,  5, 15, RACE_DRACONIAN},
-#endif
-#ifdef JP
-{ "でぶっちょアラァカ",        1000,    165, 107,  6, 18, RACE_DRACONIAN},
-#else
-		{ "Araaka the Rotund",        1000,    165, 107,  6, 18, RACE_DRACONIAN},
-#endif
-#ifdef JP
-{ "低能なプーゴー",         250,    170, 108,  5, 15, RACE_BEASTMAN},
-#else
-		{ "Poogor the Dumb",         250,    170, 108,  5, 15, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "フェロールフィリアン",       500,    175, 108,  4, 12, RACE_ELF},
-#else
-		{ "Felorfiliand",       500,    175, 108,  4, 12, RACE_ELF},
-#endif
-#ifdef JP
-{ "年寄りマロカ",          750,    170, 107,  5, 15, RACE_GNOME},
-#else
-		{ "Maroka the Aged",          750,    170, 107,  5, 15, RACE_GNOME},
-#endif
-#ifdef JP
-{ " 勇敢なサシン",        1000,    165, 107,  6, 18, RACE_HALF_GIANT},
-#else
-		{ "Sasin the Bold",        1000,    165, 107,  6, 18, RACE_HALF_GIANT},
-#endif
-#ifdef JP
-{ "田舎者アビエマール",         250,    170, 108,  5, 15, RACE_HUMAN},
-#else
-		{ "Abiemar the Peasant",         250,    170, 108,  5, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "貧乏なハーク",       500,    175, 108,  4, 12, RACE_HALF_ORC},
-#else
-		{ "Hurk the Poor",       500,    175, 108,  4, 12, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "みじめなソアリン",          750,    170, 107,  5, 15, RACE_ZOMBIE},
-#else
-		{ "Soalin the Wretched",          750,    170, 107,  5, 15, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "質素なメルラ",        1000,    165, 107,  6, 18, RACE_ELF},
-#else
-		{ "Merulla the Humble",        1000,    165, 107,  6, 18, RACE_ELF},
-#endif
+		{"凋落のエデン",             1000, 180, 109, 5, 15, RACE_GHOST},
+		{"早起きアルファ",           1000, 160, 107, 4, 16, RACE_SKELETON},
+		{"泣き虫ココネ",             1000, 150, 110, 3, 18, RACE_GORGON},
+		{"ガンナーのギークス",       1000, 170, 108, 5, 15, RACE_LIZARDMAN},
+		{"懈怠のマヌエラ",           1000, 200, 110, 6, 12, RACE_HUMAN},
+		{"平明のフネ",               1000, 180, 105, 4, 12, RACE_HUMAN},
+		{"厚顔のベアトリーチェ",     1000, 170, 108, 6, 18, RACE_HAWKMAN},
+		{"大器のホイットマン",       1000, 180, 108, 5, 15, RACE_LIZARDMAN},
+		{"苦渋のスコット",           1000, 160, 110, 6, 18, RACE_FAIRY},
+		{"森人ソロー",               1000, 200, 107, 4, 12, RACE_GREMLIN},
+		{"幸せのロイエンケファリン", 1000, 170, 103, 5, 10, RACE_SKELETON},
+		{"破壊者ダグ",               1000, 200, 104, 4, 12, RACE_GHOST},
+		{"自由の人ムルソー",         1000, 180, 109, 5, 15, RACE_PUMPKINHEAD},
+		{"ロール・ダフネ",           1000, 190, 109, 6, 18, RACE_GORGON},
+		{"ロマン主義者オーウェン",   1000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"イノセント・ルーシー",     1000, 180, 105, 4, 12, RACE_HUMAN},
+		{"マーシャ・ギャブロフ三世", 1000, 170, 108, 6, 18, RACE_HAWKMAN},
+		{"紅顔のセス",               1000, 180, 108, 5, 15, RACE_LIZARDMAN},
+		{"唐紅のセルフィーナ",       1000, 160, 110, 6, 18, RACE_FAIRY},
+		{"紺青のペネローペ",         1000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"狼狽のヴィンセント",       1000, 170, 108, 4, 12, RACE_PUMPKINHEAD},
+		{"粘着のカムラット",         1000, 190, 111, 4, 16, RACE_HUMAN},
+		{"奸人クァド",               1000, 170, 109, 5, 15, RACE_HAWKMAN},
+		{"幻日のジオルス",           1000, 180, 108, 6, 12, RACE_LIZARDMAN},
+		{"フレンドリーなビルボ",     1000, 170, 108, 5, 15, RACE_FAIRY},
+		{"憶病者ラストリン",         1000, 175, 108, 4, 12, RACE_GREMLIN},
+		{"憶病者リンスウィンド",     1000, 175, 108, 4, 12, RACE_SKELETON},
+		{"背の低いサルタン",         1000, 170, 107, 5, 15, RACE_GHOST},
+		{"ハンサムなライア=エル",    1000, 165, 107, 6, 18, RACE_PUMPKINHEAD},
+		{"美しきエルベレス",         1000, 170, 108, 5, 15, RACE_GORGON},
+		{"チビのエラシュナク",       1000, 170, 107, 5, 15, RACE_GOBLIN},
+		{"スナーグル・サシグア",     1000, 165, 107, 6, 18, RACE_HUMAN},
 	},
 	{
-		/* Armoury - 28 unique names */
-#ifdef JP
-                { "醜悪コン=ダー",      5000,   210,  115,   5,   7,  RACE_HALF_ORC},
-                { "頑固者ダーグ=ロウ",  10000,  190,  111,   4,   9,  RACE_HUMAN},
-                { "賢者デカド",                 25000,  200,  112,   4,  10,  RACE_DUNADAN},
-                { "鍛冶屋のウィーランド",   30000,  200,  112,   4,   5,  RACE_DWARF},
-#else
-		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_DUNADAN},
-		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
-#endif
-
-#ifdef JP
-{ "醜悪コン=ダー",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
-#else
-		{ "Kon-Dar the Ugly",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "頑固者ダーグ=ロウ",          15000,  190, 111,  4,  9, RACE_HUMAN},
-#else
-		{ "Darg-Low the Grim",          15000,  190, 111,  4,  9, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "ハンサムなデカド",            25000,  200, 112,  4, 10, RACE_AMBERITE},
-#else
-		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
-#endif
-#ifdef JP
-        { "エロー・ドラゴンスケイル",          30000,  200, 112,  4,  5, RACE_ELF},
-#else
-        { "Elo Dragonscale",          30000,  200, 112,  4,  5, RACE_ELF},
-#endif
-#ifdef JP
-{ "デリカトス",           10000,   210, 115,  5,  7, RACE_SPRITE},
-#else
-		{ "Delicatus",           10000,   210, 115,  5,  7, RACE_SPRITE},
-#endif
-#ifdef JP
-{ "巨大なグルース",          15000,  190, 111,  4,  9, RACE_HALF_GIANT},
-#else
-		{ "Gruce the Huge",          15000,  190, 111,  4,  9, RACE_HALF_GIANT},
-#endif
-#ifdef JP
-{ "アニムス",            25000,  200, 112,  4, 10, RACE_GOLEM},
-#else
-		{ "Animus",            25000,  200, 112,  4, 10, RACE_GOLEM},
-#endif
-#ifdef JP
-        { "マルヴァス",          30000,  200, 112,  4,  5, RACE_HALF_TITAN},
-#else
-        { "Malvus",          30000,  200, 112,  4,  5, RACE_HALF_TITAN},
-#endif
-#ifdef JP
-{ "セラクシス",           10000,   210, 115,  5,  7, RACE_ZOMBIE},
-#else
-		{ "Selaxis",           10000,   210, 115,  5,  7, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "デス・チル",          5000,  190, 111,  4,  9, RACE_SPECTRE},
-#else
-		{ "Deathchill",          5000,  190, 111,  4,  9, RACE_SPECTRE},
-#endif
-#ifdef JP
-{ "微かなドリオス",            25000,  200, 112,  4, 10, RACE_SPECTRE},
-#else
-		{ "Drios the Faint",            25000,  200, 112,  4, 10, RACE_SPECTRE},
-#endif
-#ifdef JP
-        { "冷たいバスリック",          30000,  200, 112,  4,  5, RACE_VAMPIRE},
-#else
-        { "Bathric the Cold",          30000,  200, 112,  4,  5, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "冷酷ヴェンジェラ",           10000,   210, 115,  5,  7, RACE_HALF_TROLL},
-#else
-		{ "Vengella the Cruel",           10000,   210, 115,  5,  7, RACE_HALF_TROLL},
-#endif
-#ifdef JP
-{ "強者ウィラナ",          15000,  190, 111,  4,  9, RACE_HUMAN},
-#else
-		{ "Wyrana the Mighty",          15000,  190, 111,  4,  9, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "ヨジョ二世",            25000,  200, 112,  4, 10, RACE_DWARF},
-#else
-		{ "Yojo II",            25000,  200, 112,  4, 10, RACE_DWARF},
-#endif
-#ifdef JP
-        { "優しいラナラー",          30000,  200, 112,  4,  5, RACE_AMBERITE},
-#else
-        { "Ranalar the Sweet",          30000,  200, 112,  4,  5, RACE_AMBERITE},
-#endif
-#ifdef JP
-{ "不浄のホルバグ",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
-#else
-		{ "Horbag the Unclean",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "テレパスのエレレン",          15000,  190, 111,  4,  9, RACE_DARK_ELF},
-#else
-		{ "Elelen the Telepath",          15000,  190, 111,  4,  9, RACE_DARK_ELF},
-#endif
-#ifdef JP
-{ "イスドリリアス",            25000,  200, 112,  4, 10, RACE_SPRITE},
-#else
-		{ "Isedrelias",            25000,  200, 112,  4, 10, RACE_SPRITE},
-#endif
-#ifdef JP
-        { "一つ目ヴェグナー",          5000,  200, 112,  4,  5, RACE_CYCLOPS},
-#else
-        { "Vegnar One-eye",          5000,  200, 112,  4,  5, RACE_CYCLOPS},
-#endif
-#ifdef JP
-{ "混沌のロディッシュ",           10000,   210, 115,  5,  7, RACE_BEASTMAN},
-#else
-		{ "Rodish the Chaotic",           10000,   210, 115,  5,  7, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "剣豪ヘジン",          15000,  190, 111,  4,  9, RACE_NIBELUNG},
-#else
-		{ "Hesin Swordmaster",          15000,  190, 111,  4,  9, RACE_NIBELUNG},
-#endif
-#ifdef JP
-{ "ずる屋のエルベレリス",           10000,  200, 112,  4, 10, RACE_DARK_ELF},
-#else
-		{ "Elvererith the Cheat",           10000,  200, 112,  4, 10, RACE_DARK_ELF},
-#endif
-#ifdef JP
-        { "インプのザサス",          30000,  200, 112,  4,  5, RACE_IMP},
-#else
-        { "Zzathath the Imp",          30000,  200, 112,  4,  5, RACE_IMP},
-#endif
-#ifdef JP
-{ "醜悪コン=ダー",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
-#else
-		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "頑固者ダーグ=ロウ",          10000,  190, 111,  4,  9, RACE_HUMAN},
-#else
-		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "ハンサムなデカド",            25000,  200, 112,  4, 10, RACE_AMBERITE},
-#else
-		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
-#endif
-#ifdef JP
-{ "鍛冶屋のウィーランド",          30000,  200, 112,  4,  5, RACE_DWARF},
-#else
-		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
-#endif
+		/* Armoury - 32 unique names */
+		{"頑固者カーン",             30000, 200, 114, 5, 15, RACE_HUMAN},
+		{"窮鼠のワイクリフ",         30000, 220, 111, 5, 15, RACE_HAWKMAN},
+		{"英名のナダル",             30000, 190, 115, 4, 12, RACE_LIZARDMAN},
+		{"俗悪のバーバラ",           30000, 200, 109, 5, 15, RACE_FAIRY},
+		{"童顔のマリノフスキー",     30000, 210, 110, 6, 12, RACE_GREMLIN},
+		{"能率のテイラー",           30000, 220, 117, 7, 10, RACE_SKELETON},
+		{"印象派のケミカル",         30000, 190, 109, 5, 10, RACE_GHOST},
+		{"強引なハバン",             30000, 200, 110, 7, 14, RACE_PUMPKINHEAD},
+		{"ダウナーのクレア",         30000, 170, 108, 4,  8, RACE_GORGON},
+		{"賢明なイワン",             30000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"飛行士ナイ",               30000, 160, 106, 4, 12, RACE_PUMPKINHEAD},
+		{"ニケ参長",                 30000, 180, 104, 4, 16, RACE_HAWKMAN},
+		{"倉皇のエイブラハム",       30000, 220, 119, 4, 16, RACE_LIZARDMAN},
+		{"奏効のエステベス",         30000, 200, 111, 5, 10, RACE_FAIRY},
+		{"放念のエッカート",         30000, 180, 108, 6, 12, RACE_GREMLIN},
+		{"悲憤のカーマイン",         30000, 210, 112, 5, 10, RACE_SKELETON},
+		{"妄言のガスティネス",       30000, 180, 108, 4,  8, RACE_GHOST},
+		{"業腹のクララ",             30000, 230, 120, 5, 10, RACE_HUMAN},
+		{"蒼海のグロリア",           30000, 180, 109, 6, 12, RACE_GOBLIN},
+		{"落日のクローディア",       30000, 200, 110, 4, 12, RACE_GORGON},
+		{"斜陽のシングルトン",       30000, 200, 110, 4, 16, RACE_HUMAN},
+		{"尽言のゼベク",             30000, 190, 111, 5, 10, RACE_HAWKMAN},
+		{"泡影のウジェーヌ",         30000, 200, 115, 6, 12, RACE_GREMLIN},
+		{"雷同ゾーンタク",           30000, 190, 110, 7, 14, RACE_SKELETON},
+		{"醜悪コン=ダー",            30000, 210, 115, 5,  7, RACE_GOBLIN},
+		{"頑固者ダーグ=ロウ",        30000, 190, 111, 4,  9, RACE_HUMAN},
+		{"賢者デカド",               30000, 200, 112, 4, 10, RACE_PUMPKINHEAD},
+		{"鍛冶屋のウィーランド",     30000, 200, 112, 4,  5, RACE_HUMAN},
+		{"エロー・ドラゴンスケイル", 30000, 200, 112, 4,  5, RACE_LIZARDMAN},
+		{"デリカトス",               30000, 210, 115, 5,  7, RACE_FAIRY},
+		{"アニムス",                 30000, 200, 112, 4, 10, RACE_GORGON},
+		{"デス・チル",               30000, 190, 111, 4,  9, RACE_GHOST},
 	},
 	{
-		/* Weapon Smith - 28 unique names */
-#ifdef JP
-                { "残忍なるアーノルド",        5000,   210,  115,   6,   6,  RACE_HALF_TROLL},
-                { "獣殺しのアーンダル", 10000,  185,  110,   5,   9,  RACE_HALF_ELF},
-                { "獣マスターのエディー", 25000,  190,  115,   5,   7,  RACE_HOBBIT},
-                { "竜殺しのオグライン", 30000,  195,  112,   4,   8,  RACE_DWARF},
-#else
-		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
-		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
-		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
-#endif
-
-#ifdef JP
-{ "熟練者ドリュー",      10000,   210, 115,  6,  6, RACE_HUMAN},
-#else
-		{ "Drew the Skilled",      10000,   210, 115,  6,  6, RACE_HUMAN},
-#endif
-#ifdef JP
-{"龍の子オラックス",        15000,  185, 110,  5,  9, RACE_DRACONIAN},
-#else
-		{"Orrax Dragonson",        15000,  185, 110,  5,  9, RACE_DRACONIAN},
-#endif
-#ifdef JP
-{ "病気持ちのアンスラックス",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
-#else
-		{ "Anthrax Disease-Carrier",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "頑丈者アルコス",       30000,  195, 112,  4,  8, RACE_DWARF},
-#else
-		{ "Arkhoth the Stout",       30000,  195, 112,  4,  8, RACE_DWARF},
-#endif
-#ifdef JP
-{ "腐れ者のサリアス",      5000,   210, 115,  6,  6, RACE_ZOMBIE},
-#else
-		{ "Sarlyas the Rotten",      5000,   210, 115,  6,  6, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{"晒し骨のトゥエシク",        15000,  185, 110,  5,  9, RACE_SKELETON},
-#else
-		{"Tuethic Bare-Bones",        15000,  185, 110,  5,  9, RACE_SKELETON},
-#endif
-#ifdef JP
-{ "ビリオス",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
-#else
-		{ "Bilious",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "ファスガル",       30000,  195, 112,  4,  8, RACE_ZOMBIE},
-#else
-		{ "Fasgul",       30000,  195, 112,  4,  8, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "パラディンのエレフリス",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
-#else
-		{ "Ellefris the Paladin",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
-#endif
-#ifdef JP
-{"キ'トリッ'ク",        15000,  185, 110,  5,  9, RACE_KLACKON},
-#else
-		{"K'trrik'k",        15000,  185, 110,  5,  9, RACE_KLACKON},
-#endif
-#ifdef JP
-{ "蜘蛛の友ドゥロカス",         25000,  190, 115,  5,  7, RACE_DARK_ELF},
-#else
-		{ "Drocus Spiderfriend",         25000,  190, 115,  5,  7, RACE_DARK_ELF},
-#endif
-#ifdef JP
-{ "巨人殺しのフングス",       30000,  195, 112,  4,  8, RACE_DWARF},
-#else
-		{ "Fungus Giant-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
-#endif
-#ifdef JP
-{ "デランサ",      10000,   210, 115,  6,  6, RACE_ELF},
-#else
-		{ "Delantha",      10000,   210, 115,  6,  6, RACE_ELF},
-#endif
-#ifdef JP
-{"レンジャーのソルビスタニ",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
-#else
-		{"Solvistani the Ranger",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
-#endif
-#ifdef JP
-{ "ノロマのゾリル",         25000,  190, 115,  5,  7, RACE_GOLEM},
-#else
-		{ "Xoril the Slow",         25000,  190, 115,  5,  7, RACE_GOLEM},
-#endif
-#ifdef JP
-{ "イーオン・フラックス",       20000,  195, 112,  4,  8, RACE_HALF_ELF},
-#else
-		{ "Aeon Flux",       20000,  195, 112,  4,  8, RACE_HALF_ELF},
-#endif
-#ifdef JP
-{ "強者ナドック",      10000,   210, 115,  6,  6, RACE_HOBBIT},
-#else
-		{ "Nadoc the Strong",      10000,   210, 115,  6,  6, RACE_HOBBIT},
-#endif
-#ifdef JP
-{"弱虫エラモグ",        15000,  185, 110,  5,  9, RACE_KOBOLD},
-#else
-		{"Eramog the Weak",        15000,  185, 110,  5,  9, RACE_KOBOLD},
-#endif
-#ifdef JP
-{ "公正なエオウィリス",         25000,  190, 115,  5,  7, RACE_VAMPIRE},
-#else
-		{ "Eowilith the Fair",         25000,  190, 115,  5,  7, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "バルログ殺しのヒュイモグ",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
-#else
-		{ "Huimog Balrog-Slayer",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "冷酷ピーダス",      5000,   210, 115,  6,  6, RACE_HUMAN},
-#else
-		{ "Peadus the Cruel",      5000,   210, 115,  6,  6, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "ヴァモグ スレイヤー",        15000,  185, 110,  5,  9, RACE_HALF_OGRE},
-#else
-		{ "Vamog Slayer",        15000,  185, 110,  5,  9, RACE_HALF_OGRE},
-#endif
-#ifdef JP
-{ "性悪フーシュナク",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
-#else
-		{ "Hooshnak the Vicious",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "舞闘バレン",       30000,  195, 112,  4,  8, RACE_BARBARIAN},
-#else
-		{ "Balenn War-Dancer",       30000,  195, 112,  4,  8, RACE_BARBARIAN},
-#endif
-#ifdef JP
-{ " 残忍なるアーノルド",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
-#else
-		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
-#endif
-#ifdef JP
-{ "獣殺しのアーンダル",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
-#else
-		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
-#endif
-#ifdef JP
-{ "ビーストマスター・エディー",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
-#else
-		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "竜殺しのオグライン",       30000,  195, 112,  4,  8, RACE_DWARF},
-#else
-		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
-#endif
+		/* Weapon Smith - 32 unique names */
+		{"第三世代ケルビム",         30000, 200, 114, 5, 15, RACE_PUMPKINHEAD},
+		{"ヒーローのクリス",         30000, 220, 111, 5, 15, RACE_HAWKMAN},
+		{"勇猛のイェレミース",       30000, 190, 115, 4, 12, RACE_LIZARDMAN},
+		{"懊悩のエリヤ",             30000, 200, 109, 5, 15, RACE_FAIRY},
+		{"懶惰のナバル",             30000, 210, 110, 6, 12, RACE_GREMLIN},
+		{"驚愕のチャド",             30000, 220, 117, 7, 10, RACE_SKELETON},
+		{"震駭のトミー",             30000, 190, 109, 5, 10, RACE_GHOST},
+		{"貧困のカチュア",           30000, 200, 110, 7, 14, RACE_GORGON},
+		{"闘争のホッブズ",           30000, 170, 108, 4,  8, RACE_HUMAN},
+		{"倦厭のケンジ",             30000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"電話番のタイラー王子",     30000, 160, 106, 4, 12, RACE_PUMPKINHEAD},
+		{"無関心のラズウェル",       30000, 180, 104, 4, 16, RACE_HAWKMAN},
+		{"強硬なマッケンジー",       30000, 220, 119, 4, 16, RACE_LIZARDMAN},
+		{"女闘士ミレット",           30000, 200, 111, 5, 10, RACE_FAIRY},
+		{"スパルタのローザ",         30000, 180, 108, 6, 12, RACE_GREMLIN},
+		{"太陽の人メルソー",         30000, 210, 112, 5, 10, RACE_SKELETON},
+		{"勇猛なドミートリイ",       30000, 180, 108, 4,  8, RACE_GHOST},
+		{"浩然のセレック",           30000, 230, 120, 5, 10, RACE_HUMAN},
+		{"虚礼のラヴェル",           30000, 180, 109, 6, 12, RACE_GOBLIN},
+		{"夜行のクラウディア",       30000, 200, 110, 4, 12, RACE_GORGON},
+		{"慧眼のマリア",             30000, 200, 110, 4, 16, RACE_GORGON},
+		{"死の商人ゴスペル",         30000, 210, 117, 7, 21, RACE_PUMPKINHEAD},
+		{"邪眼大公ミュルミュール",   30000, 200, 114, 4,  8, RACE_HAWKMAN},
+		{"翼雲のシィン",             30000, 190, 109, 3,  9, RACE_FAIRY},
+		{"残忍なるアーノルド",       30000, 210, 115, 6,  6, RACE_LIZARDMAN},
+		{"獣殺しのアーンダル",       30000, 185, 110, 5,  9, RACE_HUMAN},
+		{"ラフィング・ケトル",       30000, 190, 115, 5,  7, RACE_HAWKMAN},
+		{"竜殺しのオグライン",       30000, 195, 112, 4,  8, RACE_HUMAN},
+		{"晒し骨のトゥエシク",       30000, 185, 110, 5,  9, RACE_SKELETON},
+		{"龍の子オラックス",         30000, 185, 110, 5,  9, RACE_LIZARDMAN},
+		{"パラディンのエレフリス",   30000, 210, 115, 6,  6, RACE_GHOST},
+		{"バルログ殺しのヒュイモグ", 30000, 195, 112, 4,  8, RACE_GOBLIN},
 	},
 	{
-		/* Temple - 22 unique names */
-#ifdef JP
-                { "質素なルードヴィヒ",         5000,   175,  109,   6,  15,  RACE_HUMAN},
-                { "パラディンのガンナー",       10000,  185,  110,   5,  23,  RACE_HUMAN},
-                { "選ばれしトリン",                     25000,  180,  107,   6,  20,  RACE_ELF},
-                { "賢明なるサラストロ",                     30000,  185,  109,   5,  15,  RACE_DWARF},
-#else
-		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
-		{ "Gunnar the Paladin",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#endif
-
-#ifdef JP
-{ "パーシヴァル卿",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-#else
-		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "神聖なるアセナス",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#else
-		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "マッキノン",         10000,   175, 109,  6, 15, RACE_HUMAN},
-#else
-		{ "McKinnon",         10000,   175, 109,  6, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "謹み婦人",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
-#else
-		{ "Mistress Chastity",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "ドルイドのハシュニック",           25000,  180, 107,  6, 20, RACE_HOBBIT},
-#else
-		{ "Hashnik the Druid",           25000,  180, 107,  6, 20, RACE_HOBBIT},
-#endif
-#ifdef JP
-{ "フィナク",          30000,  185, 109,  5, 15, RACE_YEEK},
-#else
-		{ "Finak",          30000,  185, 109,  5, 15, RACE_YEEK},
-#endif
-#ifdef JP
-{ "クリキック",         10000,   175, 109,  6, 15, RACE_KLACKON},
-#else
-		{ "Krikkik",         10000,   175, 109,  6, 15, RACE_KLACKON},
-#endif
-#ifdef JP
-{ "荒くれ者モリヴァル",         15000,  185, 110,  5, 23, RACE_ELF},
-#else
-		{ "Morival the Wild",         15000,  185, 110,  5, 23, RACE_ELF},
-#endif
-#ifdef JP
-{ "暗きホシャック",           25000,  180, 107,  6, 20, RACE_IMP},
-#else
-		{ "Hoshak the Dark",           25000,  180, 107,  6, 20, RACE_IMP},
-#endif
-#ifdef JP
-{ "賢者アタール",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#else
-		{ "Atal the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "清きイベニッド",         10000,   175, 109,  6, 15, RACE_HUMAN},
-#else
-		{ "Ibenidd the Chaste",         10000,   175, 109,  6, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "エリディシュ",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
-#else
-		{ "Eridish",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
-#endif
-#ifdef JP
-{ "呪術師ヴルドゥシュ",           25000,  180, 107,  6, 20, RACE_HALF_OGRE},
-#else
-		{ "Vrudush the Shaman",           25000,  180, 107,  6, 20, RACE_HALF_OGRE},
-#endif
-#ifdef JP
-{ "狂戦士ハオブ",          30000,  185, 109,  5, 15, RACE_BARBARIAN},
-#else
-		{ "Haob the Berserker",          30000,  185, 109,  5, 15, RACE_BARBARIAN},
-#endif
-#ifdef JP
-{ "若きプルーグディシュ",         10000,   175, 109,  6, 15, RACE_HALF_OGRE},
-#else
-		{ "Proogdish the Youthfull",         10000,   175, 109,  6, 15, RACE_HALF_OGRE},
-#endif
-#ifdef JP
-{ "きちがいラムワイズ",         15000,  185, 110,  5, 23, RACE_YEEK},
-#else
-		{ "Lumwise the Mad",         15000,  185, 110,  5, 23, RACE_YEEK},
-#endif
-#ifdef JP
-{ "有徳者ムワート",           25000,  180, 107,  6, 20, RACE_KOBOLD},
-#else
-		{ "Muirt the Virtuous",           25000,  180, 107,  6, 20, RACE_KOBOLD},
-#endif
-#ifdef JP
-{ "弱虫ダードバード",          30000,  185, 109,  5, 15, RACE_SPECTRE},
-#else
-		{ "Dardobard the Weak",          30000,  185, 109,  5, 15, RACE_SPECTRE},
-#endif
-#ifdef JP
-{ "質素なルードヴィヒ",          5000,   175, 109,  6, 15, RACE_DWARF},
-#else
-		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
-#endif
-#ifdef JP
-{ "パラディンのガンナー",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
-#else
-		{ "Gunnar the Paladin",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
-#endif
-#ifdef JP
-{ "選ばれしトリン",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-#else
-		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "賢明なるサラストロ",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#else
-		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "清きパーシヴァル卿",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-#else
-		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "神聖なるアセナス",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#else
-		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "マッキノン",         10000,   175, 109,  6, 15, RACE_HUMAN},
-#else
-		{ "McKinnon",         10000,   175, 109,  6, 15, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "謹み婦人",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
-#else
-		{ "Mistress Chastity",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "ドルイド ハシュニック",           25000,  180, 107,  6, 20, RACE_HOBBIT},
-#else
-		{ "Hashnik the Druid",           25000,  180, 107,  6, 20, RACE_HOBBIT},
-#endif
-#ifdef JP
-{ "フィナク",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
-#else
-		{ "Finak",          30000,  185, 109,  5, 15, RACE_YEEK},
-#endif
+		/* Temple - 32 unique names */
+		{"名望家MEEYA",            30000, 180, 114, 5, 15, RACE_GREMLIN},
+		{"美名のセリーヌ",         30000, 190, 111, 5, 15, RACE_HAWKMAN},
+		{"顕正のパーニャ",         30000, 190, 115, 4, 12, RACE_LIZARDMAN},
+		{"束縛のフロム",           30000, 180, 109, 5, 15, RACE_FAIRY},
+		{"信託のロック",           30000, 180, 110, 6, 12, RACE_GREMLIN},
+		{"理想主義のルソー",       30000, 190, 117, 7, 10, RACE_SKELETON},
+		{"神学者フェルマー",       30000, 190, 109, 5, 10, RACE_GHOST},
+		{"大司教ポシュエ",         30000, 200, 110, 7, 14, RACE_PUMPKINHEAD},
+		{"正統派ミシェル",         30000, 170, 108, 4,  8, RACE_GORGON},
+		{"貧困のラザースフェルド", 30000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"イデア主義者ワイルズ",   30000, 160, 106, 4, 12, RACE_PUMPKINHEAD},
+		{"悲痛のアリスン",         30000, 180, 104, 4, 16, RACE_HAWKMAN},
+		{"神秘家トゥレーヌ",       30000, 160, 119, 4, 16, RACE_LIZARDMAN},
+		{"医師リウー",             30000, 180, 111, 5, 10, RACE_FAIRY},
+		{"誠実なアリョーシャ",     30000, 180, 108, 6, 12, RACE_GREMLIN},
+		{"無邪気なムイシュキン",   30000, 180, 112, 5, 10, RACE_SKELETON},
+		{"旋律のタバサ",           30000, 180, 108, 4,  8, RACE_GHOST},
+		{"拙劣のマチルダ",         30000, 160, 120, 5, 10, RACE_HUMAN},
+		{"妙齢のソフィア",         30000, 180, 109, 6, 12, RACE_GOBLIN},
+		{"角逐のブルース",         30000, 200, 110, 4, 12, RACE_GORGON},
+		{"紛擾のセルジュ",         30000, 200, 110, 4, 16, RACE_HUMAN},
+		{"修道女アクエリアス",     30000, 170, 108, 4, 16, RACE_GHOST},
+		{"祭主オディロン",         30000, 180, 105, 7, 14, RACE_PUMPKINHEAD},
+		{"修女アンジェ",           30000, 160, 106, 6, 12, RACE_GORGON},
+		{"僧侶ラビアン",           30000, 200, 111, 6, 18, RACE_SKELETON},
+		{"殉教者ルガールー",       30000, 180, 108, 4,  8, RACE_GREMLIN},
+		{"質素なルードヴィヒ",     30000, 175, 109, 6, 15, RACE_FAIRY},
+		{"パラディンのガンナー",   30000, 185, 110, 5, 23, RACE_GOBLIN},
+		{"選ばれしトリン",         30000, 180, 107, 6, 20, RACE_LIZARDMAN},
+		{"賢明なるサラストロ",     30000, 185, 109, 5, 15, RACE_HAWKMAN},
+		{"パーシヴァル卿",         30000, 180, 107, 6, 20, RACE_HUMAN},
+		{"謹み婦人",               30000, 185, 110, 5, 23, RACE_HUMAN},
 	},
 	{
-		/* Alchemist - 26 unique names */
-#ifdef JP
-                { "化学者マウザー",             10000,  190,  111,   5,   8,  RACE_HALF_ELF},
-                { "カオスのウィズル",   10000,  190,  110,   6,   8,  RACE_HOBBIT},
-                { "強欲ミダス",              15000,  200,  116,   6,   9,  RACE_GNOME},
-                { "貧弱ジャ=ファー",                   15000,  220,  111,   4,   9,  RACE_ELF},/*FIRST*/
-#else
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
-		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
-		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
-#endif
-
-#ifdef JP
-        { "カカルラカカル",           15000,  200, 116,  6,  9, RACE_KLACKON},
-#else
-        { "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
-#endif
-#ifdef JP
-        { "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_ELF},
-#else
-        { "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
-#endif
-#ifdef JP
-{ "用心深いファネラス",         10000,  190, 111,  5,  8, RACE_DWARF},
-#else
-		{ "Fanelath the Cautious",         10000,  190, 111,  5,  8, RACE_DWARF},
-#endif
-#ifdef JP
-{ "キチガイのルンシー",         10000,  190, 110,  6,  8, RACE_HUMAN},
-#else
-		{ "Runcie the Insane",         10000,  190, 110,  6,  8, RACE_HUMAN},
-#endif
-#ifdef JP
-        { "グランブルワース",           15000,  200, 116,  6,  9, RACE_GNOME},
-#else
-        { "Grumbleworth",           15000,  200, 116,  6,  9, RACE_GNOME},
-#endif
-#ifdef JP
-        { "フリッター",       15000,  220, 111,  4,  9, RACE_SPRITE},
-#else
-        { "Flitter",       15000,  220, 111,  4,  9, RACE_SPRITE},
-#endif
-#ifdef JP
-{ "ザリルス",         10000,  190, 111,  5,  8, RACE_HUMAN},
-#else
-		{ "Xarillus",         10000,  190, 111,  5,  8, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "古きエグバート",         10000,  190, 110,  6,  8, RACE_DWARF},
-#else
-		{ "Egbert the Old",         10000,  190, 110,  6,  8, RACE_DWARF},
-#endif
-#ifdef JP
-        { "誇り高きヴァリンドラ",           15000,  200, 116,  6,  9, RACE_HIGH_ELF},
-#else
-        { "Valindra the Proud",           15000,  200, 116,  6,  9, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-        { "錬金術師タエン",       15000,  220, 111,  4,  9, RACE_HUMAN},
-#else
-        { "Taen the Alchemist",       15000,  220, 111,  4,  9, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "巧言カイド",         10000,  190, 111,  5,  8, RACE_VAMPIRE},
-#else
-		{ "Cayd the Sweet",         10000,  190, 111,  5,  8, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "暗きフリア",         10000,  190, 110,  6,  8, RACE_NIBELUNG},
-#else
-		{ "Fulir the Dark",         10000,  190, 110,  6,  8, RACE_NIBELUNG},
-#endif
-#ifdef JP
-        { "質素なドムリ",           15000,  200, 116,  6,  9, RACE_DWARF},
-#else
-        { "Domli the Humble",           15000,  200, 116,  6,  9, RACE_DWARF},
-#endif
-#ifdef JP
-        { "魔の子ヤァジュッカ",       15000,  220, 111,  4,  9, RACE_IMP},
-#else
-        { "Yaarjukka Demonspawn",       15000,  220, 111,  4,  9, RACE_IMP},
-#endif
-#ifdef JP
-{ "薬草師ジェララルドール",         10000,  190, 111,  5,  8, RACE_HIGH_ELF},
-#else
-		{ "Gelaraldor the Herbmaster",         10000,  190, 111,  5,  8, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "賢者オレラルダン",         10000,  190, 110,  6,  8, RACE_BARBARIAN},
-#else
-		{ "Olelaldan the Wise",         10000,  190, 110,  6,  8, RACE_BARBARIAN},
-#endif
-#ifdef JP
-        { "デモニシストのフゾグロ",           15000,  200, 116,  6,  9, RACE_IMP},
-#else
-        { "Fthoglo the Demonicist",           15000,  200, 116,  6,  9, RACE_IMP},
-#endif
-#ifdef JP
-        { "錬金術師ドゥリアシュ",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
-#else
-        { "Dridash the Alchemist",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "強者ネリア",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
-#else
-		{ "Nelir the Strong",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
-#endif
-#ifdef JP
-{ "辛口リグナス",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
-#else
-		{ "Lignus the Pungent",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
-#endif
-#ifdef JP
-        { "ティルバ",           15000,  200, 116,  6,  9, RACE_HOBBIT},
-#else
-        { "Tilba",           15000,  200, 116,  6,  9, RACE_HOBBIT},
-#endif
-#ifdef JP
-        { "金持ちミリルドリック",       15000,  220, 111,  4,  9, RACE_HUMAN},
-#else
-        { "Myrildric the Wealthy",       15000,  220, 111,  4,  9, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "科学者マウザー",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
-#else
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
-#endif
-#ifdef JP
-{ "カオスのウィズル",         10000,  190, 110,  6,  8, RACE_HOBBIT},
-#else
-		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
-#endif
-#ifdef JP
-{ "強欲ミダス",           15000,  200, 116,  6,  9, RACE_GNOME},
-#else
-		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
-#endif
-#ifdef JP
-{ "錬金術師ジャ=ファー",       15000,  220, 111,  4,  9, RACE_ELF},
-#else
-		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
-#endif
-#ifdef JP
-        { "カカルラカカル",           15000,  200, 116,  6,  9, RACE_KLACKON},
-#else
-        { "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
-#endif
-#ifdef JP
-        { "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_ELF},
-#else
-        { "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
-#endif
+		/* Alchemist - 32 unique names */
+		{"不機嫌なミサゴ",           30000, 200, 114, 5, 15, RACE_GORGON},
+		{"失速のカマス",             30000, 220, 111, 5, 15, RACE_HAWKMAN},
+		{"放浪のアヤセ",             30000, 190, 115, 4, 12, RACE_LIZARDMAN},
+		{"竜尾返し",                 30000, 200, 109, 5, 15, RACE_HAWKMAN},
+		{"傀儡のウッズ",             30000, 210, 110, 6, 12, RACE_GREMLIN},
+		{"痛哭のワカメ",             30000, 220, 117, 7, 10, RACE_SKELETON},
+		{"憂愁のフレーゲ",           30000, 190, 109, 5, 10, RACE_GHOST},
+		{"派閥の領袖ミルズ",         30000, 200, 110, 7, 14, RACE_PUMPKINHEAD},
+		{"引きこもりのサリンジャー", 30000, 170, 108, 4,  8, RACE_HUMAN},
+		{"ヤッピーのトバイアス",     30000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"フェイス・リフトのバニイ", 30000, 160, 106, 4, 12, RACE_PUMPKINHEAD},
+		{"司法官タルド",             30000, 180, 104, 4, 16, RACE_HAWKMAN},
+		{"怠惰なダーニー",           30000, 220, 119, 4, 16, RACE_LIZARDMAN},
+		{"畏敬のセリーヌ",           30000, 200, 111, 5, 10, RACE_GORGON},
+		{"失敬なソリューズ",         30000, 180, 108, 6, 12, RACE_GREMLIN},
+		{"凶報のスウィフト",         30000, 210, 112, 5, 10, RACE_SKELETON},
+		{"妄動のロビンズ",           30000, 180, 108, 4,  8, RACE_GHOST},
+		{"玩弄のソルヴェー",         30000, 230, 120, 5, 10, RACE_HUMAN},
+		{"宵闇のスージー",           30000, 180, 109, 6, 12, RACE_GOBLIN},
+		{"暗闘のスペンサー",         30000, 200, 110, 4, 12, RACE_FAIRY},
+		{"衰勢のホフスタッター",     30000, 200, 110, 4, 16, RACE_HUMAN},
+		{"錬金術師ガッサム",         30000, 220, 122, 4, 24, RACE_HUMAN},
+		{"百禍のユーディカ",         30000, 180, 109, 7, 14, RACE_HUMAN},
+		{"魔女マンゴー",             30000, 170, 107, 4,  8, RACE_HAWKMAN},
+		{"化学者マウザー",           30000, 190, 111, 5,  8, RACE_SKELETON},
+		{"カオスのウィズル",         30000, 190, 110, 6,  8, RACE_LIZARDMAN},
+		{"強欲ミダス",               30000, 200, 116, 6,  9, RACE_PUMPKINHEAD},
+		{"フリッター",               30000, 220, 111, 4,  9, RACE_FAIRY},
+		{"キチガイのルンシー",       30000, 190, 110, 6,  8, RACE_GHOST},
+		{"辛口リグナス",             30000, 190, 110, 6,  8, RACE_GOBLIN},
+		{"魔法少女ネレイド",         30000, 190, 111, 5,  8, RACE_GORGON},
+		{"魔の子ヤァジュッカ",       30000, 220, 111, 4,  9, RACE_GREMLIN},
 	},
 	{
-		/* Magic Shop - 23 unique names */
-#ifdef JP
-                { "ソーサラーのロ=パン",       20000,  200,  110,   7,   8,  RACE_HALF_ELF},
-                { "偉大なるブガービイ",         20000,  215,  113,   6,  10,  RACE_GNOME},
-                { "イェンダーの魔法使い",     30000,  200,  110,   7,  10,  RACE_HUMAN},
-                { "死霊使いリャク",30000,      175,  110,   5,  11,  RACE_HIGH_ELF},
-#else
-		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
-		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
-		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#endif
-
-#ifdef JP
-        { "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
-#else
-        { "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
-#endif
-#ifdef JP
-        { "幻術師キリア",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#else
-        { "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#endif
-#ifdef JP
-        { "死霊術師ニッキ",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#else
-        { "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#endif
-#ifdef JP
-        { "ソロストラン",        15000,  200, 110,  7,  8, RACE_SPRITE},
-#else
-        { "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
-#endif
-#ifdef JP
-{ "烏賊口アチシェ",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-#else
-		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-#endif
-#ifdef JP
-        { "貴族のカザ",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-#else
-        { "Kaza the Noble",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-        { "暗きファジル",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#else
-        { "Fazzil the Dark",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#endif
-#ifdef JP
-        { "偉大なるケルドーン",        15000,  200, 110,  7,  8, RACE_DWARF},
-#else
-        { "Keldorn the Grand",        15000,  200, 110,  7,  8, RACE_DWARF},
-#endif
-#ifdef JP
-{ "フィランスロプス",         20000,  215, 113,  6, 10, RACE_HOBBIT},
-#else
-		{ "Philanthropus",         20000,  215, 113,  6, 10, RACE_HOBBIT},
-#endif
-#ifdef JP
-        { "魔女のアグナー",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#else
-        { "Agnar the Enchantress",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#endif
-#ifdef JP
-        { "死霊術師ビュリアンス",       30000,  175, 110,  5, 11, RACE_BEASTMAN},
-#else
-        { "Buliance the Necromancer",       30000,  175, 110,  5, 11, RACE_BEASTMAN},
-#endif
-#ifdef JP
-        { "ハイメイジのヴイラク",        15000,  200, 110,  7,  8, RACE_BEASTMAN},
-#else
-        { "Vuirak the High-Mage",        15000,  200, 110,  7,  8, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "知恵者マディッシュ",         20000,  215, 113,  6, 10, RACE_BEASTMAN},
-#else
-		{ "Madish the Smart",         20000,  215, 113,  6, 10, RACE_BEASTMAN},
-#endif
-#ifdef JP
-        { "ファレブリンボール",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-#else
-        { "Falebrimbor",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-        { "陰険フェリル=ガンド",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#else
-        { "Felil-Gand the Subtle",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#endif
-#ifdef JP
-        { "呪術師サレゴード",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
-#else
-        { "Thalegord the Shaman",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
-#endif
-#ifdef JP
-{ "神秘家クトゥアロス",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-#else
-		{ "Cthoaloth the Mystic",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-#endif
-#ifdef JP
-        { "幻術師イベリ",       30000,  200, 110,  7, 10, RACE_SKELETON},
-#else
-        { "Ibeli the Illusionist",       30000,  200, 110,  7, 10, RACE_SKELETON},
-#endif
-#ifdef JP
-        { "死霊術師ヘトー",       30000,  175, 110,  5, 11, RACE_YEEK},
-#else
-        { "Heto the Necromancer",       30000,  175, 110,  5, 11, RACE_YEEK},
-#endif
-#ifdef JP
-{ "魔術師ロ=パン",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
-#else
-		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
-#endif
-#ifdef JP
-{ "偉大なるブガービイ",         20000,  215, 113,  6, 10, RACE_GNOME},
-#else
-		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
-#endif
-#ifdef JP
-{ "イェンダーの魔法使い",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#else
-		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "死霊術師リャク",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#else
-		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#endif
-#ifdef JP
-        { "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
-#else
-        { "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
-#endif
-#ifdef JP
-        { "幻術師キリア",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#else
-        { "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
-#endif
-#ifdef JP
-        { "死霊術師ニッキ",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#else
-        { "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-#endif
-#ifdef JP
-        { "ソロストラン",        15000,  200, 110,  7,  8, RACE_SPRITE},
-#else
-        { "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
-#endif
-#ifdef JP
-{ "烏賊口アチシェ",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-#else
-		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-#endif
+		/* Magic Shop - 32 unique names */
+		{"化石のレイン",             30000, 200, 114, 5, 15, RACE_HUMAN},
+		{"悋気のアリアドネ",         30000, 220, 111, 5, 15, RACE_GORGON},
+		{"憧憬のハナ",               30000, 190, 115, 4, 12, RACE_LIZARDMAN},
+		{"慙愧のソフィア",           30000, 200, 109, 5, 15, RACE_FAIRY},
+		{"煩悩のトラヴィス",         30000, 210, 110, 6, 12, RACE_GREMLIN},
+		{"粗忽のハマン",             30000, 220, 117, 7, 10, RACE_SKELETON},
+		{"温顔のタラ",               30000, 190, 109, 5, 10, RACE_GHOST},
+		{"征服王グンプロビッツ",     30000, 200, 110, 7, 14, RACE_PUMPKINHEAD},
+		{"族父のメイン",             30000, 170, 108, 4,  8, RACE_HAWKMAN},
+		{"無限のカントール",         30000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"エポケー・フィリップ",     30000, 160, 106, 4, 12, RACE_PUMPKINHEAD},
+		{"孤独なリースマン",         30000, 180, 104, 4, 16, RACE_HAWKMAN},
+		{"アパシー大佐",             30000, 220, 119, 4, 16, RACE_LIZARDMAN},
+		{"生化学者キャサリン",       30000, 200, 111, 5, 10, RACE_GORGON},
+		{"スイッチ済みのエヴァ",     30000, 180, 108, 6, 12, RACE_GREMLIN},
+		{"七誌のクレイン",           30000, 210, 112, 5, 10, RACE_SKELETON},
+		{"恋愛至上主義者ウォーラー", 30000, 180, 108, 4,  8, RACE_GHOST},
+		{"倦怠のエルヴィッサ",       30000, 230, 120, 5, 10, RACE_HUMAN},
+		{"山犬カートン",             30000, 180, 109, 6, 12, RACE_HUMAN},
+		{"余憤のステロペス",         30000, 200, 110, 4, 12, RACE_FAIRY},
+		{"憤懣のマフディー",         30000, 200, 110, 4, 16, RACE_GOBLIN},
+		{"魔女ババロア",             30000, 210, 112, 5, 15, RACE_GOBLIN},
+		{"魔導師マリーツァ",         30000, 190, 109, 5, 10, RACE_HUMAN},
+		{"遊糸のタズト",             30000, 180, 107, 6, 12, RACE_GORGON},
+		{"ソーサラーのロ=パン",      30000, 200, 110, 7,  8, RACE_HUMAN},
+		{"偉大なるブガービイ",       30000, 215, 113, 6, 10, RACE_PUMPKINHEAD},
+		{"死霊使いリャク",           30000, 175, 110, 5, 11, RACE_GREMLIN},
+		{"魔術師スキドゥニー",       30000, 200, 110, 7,  8, RACE_HAWKMAN},
+		{"幻術師キリア",             30000, 200, 110, 7, 10, RACE_FAIRY},
+		{"死霊術師ニッキ",           30000, 175, 110, 5, 11, RACE_GHOST},
+		{"幻術師イベリ",             30000, 200, 110, 7, 10, RACE_SKELETON},
+		{"からくり師トロイ",         30000, 215, 113, 6, 10, RACE_LIZARDMAN},
 	},
 	{
 		/* Black Market - 32 unique names */
-#ifdef JP
-                { "ガリー=ギガズ",            20000,  250,  150,  10,   5,  RACE_HALF_TROLL},
-                { "ゴブリンのヒストーア",       20000,  250,  150,  10,   5,  RACE_HALF_ORC},
-                { "フェレンギ人クアーク",           30000,  250,  150,  10,   5,  RACE_HUMAN},
-                { "公正なる(?)トッピ",                     30000,  250,  150,  10,   5,  RACE_ELF},
-#else
-		{ "Gary Gygaz",                 20000,  250, 150, 10,  5, RACE_HALF_TROLL},
-		{ "Histor the Goblin",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Quark the Ferengi",          30000,  250, 150, 10,  5, RACE_DWARF},
-		{ "Topi the Fair(?)",           30000,  250, 150, 10,  5, RACE_HUMAN},
-#endif
-
-#ifdef JP
-{ "死人ヴァッサ",             20000,  250, 150, 10,  5, RACE_ZOMBIE},
-#else
-		{ "Vhassa the Dead",             20000,  250, 150, 10,  5, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "裏切り者カイン",          20000,  250, 150, 10,  5, RACE_VAMPIRE},
-#else
-		{ "Kyn the Treacherous",          20000,  250, 150, 10,  5, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "ブボニカス",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
-#else
-		{ "Bubonicus",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "コープスライト",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-#else
-		{ "Corpselight",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-#endif
-#ifdef JP
-{ "血に飢えしパリッシュ",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-#else
-		{ "Parrish the Bloodthirsty",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "ヴァイル",          20000,  250, 150, 10,  5, RACE_SKELETON},
-#else
-		{ "Vile",          20000,  250, 150, 10,  5, RACE_SKELETON},
-#endif
-#ifdef JP
-{ "信頼のプレンティス",          30000,  250, 150, 10,  5, RACE_SKELETON},
-#else
-		{ "Prentice the Trusted",          30000,  250, 150, 10,  5, RACE_SKELETON},
-#endif
-#ifdef JP
-{ "人間殺しのグリエラ",           30000,  250, 150, 10,  5, RACE_IMP},
-#else
-		{ "Griella Humanslayer",           30000,  250, 150, 10,  5, RACE_IMP},
-#endif
-#ifdef JP
-{ "エンジェル",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-#else
-		{ "Angel",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "水膨れフロツァム",          20000,  250, 150, 10,  5, RACE_ZOMBIE},
-#else
-		{ "Flotsam the Bloated",          20000,  250, 150, 10,  5, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "ニーヴァル",          30000,  250, 150, 10,  5, RACE_VAMPIRE},
-#else
-		{ "Nieval",          30000,  250, 150, 10,  5, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "明るいアナスタシア",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-#else
-		{ "Anastasia the Luminous",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-#endif
-#ifdef JP
-{ "死霊術師チャリティー", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
-#else
-		{ "Charity the Necromancer", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
-#endif
-#ifdef JP
-{ "ボクサーのプグナシオス",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
-#else
-		{ "Pugnacious the Pugilist",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
-#endif
-#ifdef JP
-{ "幸運なフットソア",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
-#else
-		{ "Footsore the Lucky",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
-#endif
-#ifdef JP
-{ "光指のシドリア",           30000,  250, 150, 10,  5, RACE_HUMAN},
-#else
-		{ "Sidria Lighfingered",           30000,  250, 150, 10,  5, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "手品師リアソー",                 20000,  250, 150, 10,  5, RACE_HOBBIT},
-#else
-		{ "Riatho the Juggler",                 20000,  250, 150, 10,  5, RACE_HOBBIT},
-#endif
-#ifdef JP
-{ "やりくり上手のジャナッカ",          20000,  250, 150, 10,  5, RACE_GNOME},
-#else
-		{ "Janaaka the Shifty",          20000,  250, 150, 10,  5, RACE_GNOME},
-#endif
-#ifdef JP
-{ "悪党シーナ",          30000,  250, 150, 10,  5, RACE_GNOME},
-#else
-		{ "Cina the Rogue",          30000,  250, 150, 10,  5, RACE_GNOME},
-#endif
-#ifdef JP
-{ "大爪アルニッキ",           30000,  250, 150, 10,  5, RACE_DRACONIAN},
-#else
-		{ "Arunikki Greatclaw",           30000,  250, 150, 10,  5, RACE_DRACONIAN},
-#endif
-#ifdef JP
-{ "貧乏チャエアンド",                 20000,  250, 150, 10,  5, RACE_HUMAN},
-#else
-		{ "Chaeand the Poor",                 20000,  250, 150, 10,  5, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "山賊アファードーフ",          20000,  250, 150, 10,  5, RACE_BARBARIAN},
-#else
-		{ "Afardorf the Brigand",          20000,  250, 150, 10,  5, RACE_BARBARIAN},
-#endif
-#ifdef JP
-{ "強欲ラザクスル",          30000,  250, 150, 10,  5, RACE_MIND_FLAYER},
-#else
-		{ "Lathaxl the Greedy",          30000,  250, 150, 10,  5, RACE_MIND_FLAYER},
-#endif
-#ifdef JP
-{ "ファラレウィン",           30000,  250, 150, 10,  5, RACE_SPRITE},
-#else
-		{ "Falarewyn",           30000,  250, 150, 10,  5, RACE_SPRITE},
-#endif
-#ifdef JP
-{ "しわしわヴォスール",                 20000,  250, 150, 10,  5, RACE_NIBELUNG},
-#else
-		{ "Vosur the Wrinkled",                 20000,  250, 150, 10,  5, RACE_NIBELUNG},
-#endif
-#ifdef JP
-{ "ハンサムなアラオード",          20000,  250, 150, 10,  5, RACE_AMBERITE},
-#else
-		{ "Araord the Handsome",          20000,  250, 150, 10,  5, RACE_AMBERITE},
-#endif
-#ifdef JP
-{ "負け犬セラドフリド",          30000,  250, 150, 10,  5, RACE_HUMAN},
-#else
-		{ "Theradfrid the Loser",          30000,  250, 150, 10,  5, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "片足のエルーロ",           30000,  250, 150, 10,  5, RACE_HALF_OGRE},
-#else
-		{ "One-Legged Eroolo",           30000,  250, 150, 10,  5, RACE_HALF_OGRE},
-#endif
+		{"吝嗇のヘレナ",         30000, 250, 154,  5, 15, RACE_GORGON},
+		{"衰滅のペドロ",         30000, 250, 151,  5, 15, RACE_HUMAN},
+		{"暗鬼のマルティネス",   30000, 250, 155,  4, 12, RACE_LIZARDMAN},
+		{"博学のミカ",           30000, 250, 159,  5, 15, RACE_FAIRY},
+		{"合従連衡のカツオ",     30000, 250, 150,  6, 12, RACE_GREMLIN},
+		{"慷慨のエンノイア",     30000, 250, 157,  7, 10, RACE_SKELETON},
+		{"エイハブ船長",         30000, 250, 155,  5, 10, RACE_GHOST},
+		{"嘆願のコデイン",       30000, 250, 150,  7, 14, RACE_PUMPKINHEAD},
+		{"単眼のソーサ",         30000, 250, 158,  4,  8, RACE_HAWKMAN},
+		{"スレイド教授",         30000, 250, 157,  4, 12, RACE_GOBLIN},
+		{"流れ者イシュメール",   30000, 250, 156,  4, 12, RACE_PUMPKINHEAD},
+		{"覆面のトマス",         30000, 250, 154,  4, 16, RACE_HAWKMAN},
+		{"被虐のレオン",         30000, 250, 159,  4, 16, RACE_LIZARDMAN},
+		{"スメルジャコフ",       30000, 250, 151,  5, 10, RACE_HUMAN},
+		{"憤慨のブロンテス",     30000, 250, 158,  6, 12, RACE_GREMLIN},
+		{"彗星のアルゲス",       30000, 250, 152,  5, 10, RACE_SKELETON},
+		{"篤実のヒルダ",         30000, 250, 158,  4,  8, RACE_GHOST},
+		{"深厚のバーシア",       30000, 250, 150,  5, 10, RACE_GORGON},
+		{"根回しのハーヴェイ",   30000, 250, 159,  6, 12, RACE_HUMAN},
+		{"鏡磨きのパスカル",     30000, 250, 150,  4, 12, RACE_FAIRY},
+		{"深紅のレヴィ",         30000, 250, 150,  4, 16, RACE_GOBLIN},
+		{"魔法使いサリー",       30000, 250, 170,  4,  8, RACE_GREMLIN},
+		{"魔法少女メリル",       30000, 250, 200,  5, 20, RACE_FAIRY},
+		{"十駄のスタビロ",       30000, 250, 150,  6, 12, RACE_LIZARDMAN},
+		{"何でも屋ジャック",     30000, 250, 150,  4, 20, RACE_PUMPKINHEAD},
+		{"累卵のヴァルナ",       30000, 250, 150,  6, 12, RACE_GORGON},
+		{"不軌者ナガテ",         30000, 250, 150,  6, 18, RACE_HAWKMAN},
+		{"情報屋イーグル",         500, 250, 150, 10,  5, RACE_GOBLIN},
+		{"ゴブリンのヒストーア", 30000, 250, 150, 10,  5, RACE_GOBLIN},
+		{"フェレンギ人クアーク", 30000, 250, 150, 10,  5, RACE_GOBLIN},
+		{"死人ヴァッサ",         30000, 250, 150, 10,  5, RACE_GHOST},
+		{"信頼のプレンティス",   30000, 250, 150, 10,  5, RACE_SKELETON},
 	},
 	{
 		/* Home */
 #ifdef JP
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
-		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
+		{ "我が家", 0, 100, 100,  0, 99, 99},
 #else
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
+		{ "Your home", 0, 100, 100,  0, 99, 99},
 #endif
 
 	},
 
 	{
-		/* Bookstore - 21 unique names */
-#ifdef JP
-		{ "強欲ドラフ", 10000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "賢者オドナー", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "中立のガンダー", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
-		{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_ELF},
-#else
-		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
-		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
-#endif
-
-#ifdef JP
-{ "ランドルフ・カーター", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#else
-		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "隼のサライ", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#else
-		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "千里眼ボドリル", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-#else
-		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "沈黙のヴェオロイン", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-#else
-		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "学者のヴァンシラス", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
-#else
-		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
-#endif
-#ifdef JP
-{ "物書きオセイン", 15000, 175, 108, 4, 12, RACE_SKELETON},
-#else
-		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
-#endif
-#ifdef JP
-{ "本の虫オルヴァー", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
-#else
-		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
-#endif
-#ifdef JP
-{ "浅井墓男", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-#else
-		{ "Shallowgrave", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "デスマスク", 30000, 140, 105, 6, 12, RACE_ZOMBIE},
-#else
-		{ "Death Mask", 30000, 140, 105, 6, 12, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "学者のアスーヌ", 15000, 175, 108, 4, 12, RACE_MIND_FLAYER},
-#else
-		{ "Asuunu the Learned", 15000, 175, 108, 4, 12, RACE_MIND_FLAYER},
-#endif
-#ifdef JP
-{ "死人のプリランド", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
-#else
-		{ "Prirand the Dead", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "鉄のロナール", 25000, 120, 110, 7, 19, RACE_GOLEM},
-#else
-		{ "Ronar the Iron", 25000, 120, 110, 7, 19, RACE_GOLEM},
-#endif
-#ifdef JP
-{ "ガリル=ガミル", 30000, 140, 105, 6, 12, RACE_ELF},
-#else
-		{ "Galil-Gamir", 30000, 140, 105, 6, 12, RACE_ELF},
-#endif
-#ifdef JP
-{ "本食いローバグ", 15000, 175, 108, 4, 12, RACE_KOBOLD},
-#else
-		{ "Rorbag Book-Eater", 15000, 175, 108, 4, 12, RACE_KOBOLD},
-#endif
-#ifdef JP
-{ "キリアリキーク", 20000, 120, 105, 6, 16, RACE_KLACKON},
-#else
-		{ "Kiriarikirk", 20000, 120, 105, 6, 16, RACE_KLACKON},
-#endif
-#ifdef JP
-{ "静かなるリリン", 25000, 120, 110, 7, 19, RACE_DWARF},
-#else
-		{ "Rilin the Quiet", 25000, 120, 110, 7, 19, RACE_DWARF},
-#endif
-#ifdef JP
-{ "王者イサング", 30000, 140, 105, 6, 12, RACE_HIGH_ELF},
-#else
-		{ "Isung the Lord", 30000, 140, 105, 6, 12, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "強欲ドラフ", 10000, 175, 108, 4, 12, RACE_HUMAN},
-#else
-		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "賢者オドナー", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
-#else
-		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "中立のガンダー", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
-#else
-		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
-#endif
-#ifdef JP
-{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_ELF},
-#else
-		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
-#endif
-#ifdef JP
-{ "ランドルフ・カーター", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#else
-		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "隼サライ", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#else
-		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
-#endif
-#ifdef JP
-{ "千里眼ボドリル", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-#else
-		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-#endif
-#ifdef JP
-{ "沈黙のヴェオロイン", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-#else
-		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-#endif
-#ifdef JP
-{ "学者のヴァンシラス", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
-#else
-		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
-#endif
-#ifdef JP
-{ "物書きオセイン", 15000, 175, 108, 4, 12, RACE_SKELETON},
-#else
-		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
-#endif
-#ifdef JP
-{ "本の虫オルヴァー", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
-#else
-		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
-#endif
+		/* Bookstore - 32 unique names */
+		{"権威主義者メリアム",       30000, 200, 114, 5, 15, RACE_HUMAN},
+		{"気配りのダール",           30000, 220, 111, 5, 15, RACE_HAWKMAN},
+		{"実力派のラズウェル",       30000, 190, 115, 4, 12, RACE_LIZARDMAN},
+		{"背徳のマックス",           30000, 200, 109, 5, 15, RACE_FAIRY},
+		{"エリートのミヘルス",       30000, 210, 110, 6, 12, RACE_GREMLIN},
+		{"奇声のマルクス",           30000, 220, 117, 7, 10, RACE_SKELETON},
+		{"希世のノイマン",           30000, 190, 109, 5, 10, RACE_GHOST},
+		{"攻性のサミュエルソン",     30000, 200, 110, 7, 14, RACE_PUMPKINHEAD},
+		{"馬面のメンデル",           30000, 170, 108, 4,  8, RACE_HUMAN},
+		{"境界例のデュラム",         30000, 170, 107, 4, 12, RACE_GOBLIN},
+		{"社交的なジンメル",         30000, 160, 106, 4, 12, RACE_PUMPKINHEAD},
+		{"薫陶のモルゲンシュテルン", 30000, 180, 104, 4, 16, RACE_HAWKMAN},
+		{"雑駁のローカス",           30000, 220, 119, 4, 16, RACE_LIZARDMAN},
+		{"的確なパレート",           30000, 200, 111, 5, 10, RACE_FAIRY},
+		{"啓蟄のラッサ＝ウ",         30000, 180, 108, 6, 12, RACE_GREMLIN},
+		{"ユワン教授",               30000, 210, 112, 5, 10, RACE_SKELETON},
+		{"不協和なフェスティンガー", 30000, 180, 108, 4,  8, RACE_GHOST},
+		{"白痴のチューリング",       30000, 230, 120, 5, 10, RACE_HUMAN},
+		{"矯激のヒューゴ",           30000, 180, 109, 6, 12, RACE_GOBLIN},
+		{"群青のディアナ",           30000, 200, 110, 4, 12, RACE_GORGON},
+		{"臙脂のビューティー",       30000, 200, 110, 4, 16, RACE_GORGON},
+		{"魔女リプル",               30000, 190, 109, 6, 18, RACE_HUMAN},
+		{"明星のフレデリック ",      30000, 190, 110, 5, 10, RACE_LIZARDMAN},
+		{"羅綺のエフェミネット",     30000, 200, 112, 4, 12, RACE_HAWKMAN},
+		{"沈黙のナジェージダ",       30000, 120, 110, 7, 19, RACE_GHOST},
+		{"物書きポール",             30000, 175, 108, 4, 12, RACE_SKELETON},
+		{"本の虫ダニエル",           30000, 120, 105, 6, 16, RACE_HUMAN},
+		{"学者のマリーナ",           30000, 175, 108, 4, 12, RACE_FAIRY},
+		{"探偵クィン",               30000, 120, 110, 7, 19, RACE_SKELETON},
+		{"賢者ヘルダーリン",         30000, 120, 105, 6, 16, RACE_PUMPKINHEAD},
+		{"狂女ディキンソン",         30000, 120, 110, 7, 19, RACE_GORGON},
+		{"美貌のシリ",               30000, 120, 110, 7, 19, RACE_HUMAN},
 	},
 
 	{
 		/* Museum */
 #ifdef JP
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
-		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
+		{ "博物館", 0, 100, 100,  0, 99, 99},
 #else
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
-		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
+		{ "Museum", 0, 100, 100,  0, 99, 99},
 #endif
 
 	},
@@ -2650,115 +1898,60 @@ byte extract_energy[200] =
 
 
 /*
- * Base experience levels, may be adjusted up for race and/or class
+ * Base experience levels
  */
 s32b player_exp[PY_MAX_LEVEL] =
 {
-	10,
-	25,
-	45,
-	70,
-	100,
-	140,
-	200,
-	280,
-	380,/*10*/
-	500,
-	650,
-	850,
-	1100,
-	1400,
-	1800,
-	2300,
-	2900,
-	3600,
-	4400,/*20*/
-	5400,
-	6800,
-	8400,
-	10200,
-	12500,
-	17500,
-	25000,
-	35000L,
-	50000L,
-	75000L,/*30*/
-	100000L,
-	150000L,
-	200000L,
-	275000L,
-	350000L,
-	450000L,
-	550000L,
-	700000L,
-	850000L,
-	1000000L,/*40*/
+	12,
+	31,
+	56,
+	87,
+	125,
+	175,
+	250,
+	350,
+	475,
+	625,
+	812,
+	1062,
+	1375,
+	1750,
+	2250,
+	2875,
+	3625,
+	4500,
+	5500,
+	6750,
+	8500,
+	10500,
+	12750,
+	15625,
+	21875,
+	31250,
+	43750L,
+	62500L,
+	93750L,
+	125000L,
+	187500L,
+	250000L,
+	343750L,
+	437500L,
+	562500L,
+	687500L,
+	875000L,
+	1062500L,
 	1250000L,
-	1500000L,
-	1800000L,
-	2100000L,
-	2400000L,
-	2700000L,
+	1562500L,
+	1875000L,
+	2250000L,
+	2625000L,
 	3000000L,
-	3500000L,
-	4000000L,
-	4500000L,/*50*/
-	5000000L
-};
-
-
-s32b player_exp_a[PY_MAX_LEVEL] =
-{
-	20,
-	50,
-	100,
-	170,
-	280,
-	430,
-	650,
-	950,
-	1400,/*10*/
-	1850,
-	2300,
-	2900,
-	3600,
-	4400,
-	5400,
-	6800,
-	8400,
-	10400,
-	12500,/*20*/
-	17500,
-	25000,
-	35000,
-	50000L,
-	75000L,
-	100000L,
-	150000L,
-	200000L,
-	275000L,
-	350000L,/*30*/
-	450000L,
-	550000L,
-	650000L,
-	800000L,
-	950000L,
-	1100000L,
-	1250000L,
-	1400000L,
-	1550000L,
-	1700000L,/*40*/
-	1900000L,
-	2100000L,
-	2300000L,
-	2550000L,
-	2800000L,
-	3050000L,
-	3300000L,
-	3700000L,
-	4100000L,
-	4500000L,/*50*/
-	5000000L
+	3375000L,
+	3750000L,
+	4375000L,
+	5000000L,
+	5625000L,
+	6250000L
 };
 
 
@@ -2772,16 +1965,16 @@ player_sex sex_info[MAX_SEXES] =
 {
 	{
 #ifdef JP
-                "女性",
-                "クイーン",
+		"女性",
+		"クイーン",
 #endif
 		"Female",
 		"Queen"
 	},
 	{
 #ifdef JP
-                "男性",
-                "キング",
+		"男性",
+		"キング",
 #endif
 		"Male",
 		"King"
@@ -2794,13 +1987,15 @@ player_sex sex_info[MAX_SEXES] =
  *
  *      Title,
  *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
- *      hitdie, exp base,
+ *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_spd, r_thn, r_thb,
+ *                                                rx_spd,
+ *      hitdie, manadie, exp base,
  *      Age (Base, Mod),
  *      Male (Hgt, Wgt),
  *      Female (Hgt, Wgt)
  *      infra,
- *      class-choices
+ *      class-choices,
+ *      sex
  */
 player_race race_info[MAX_RACES] =
 {
@@ -2810,555 +2005,215 @@ player_race race_info[MAX_RACES] =
 #endif
 		"Human",
 
+		0L,
 		{  0,  0,  0,  0,  0,  0 },
-		0,  0,  0,  0,  0,  10,  0,  0,
-		10,  100,
+		0,  0,  0,  0,  0,  10,  0,  0,  0,
+		                         0,
+		5, 0, 100,
 		14,  6,
-		72,  6, 180, 25,
-		66,  4, 150, 20,
+		70,  6, 154, 25,
+		63,  5, 124, 20,
 		0,
-                0x7FFFFFF,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-	        "ハーフエルフ",
+		"ホークマン",
 #endif
-		"Half-Elf",
+		"Hawkman",
 
-		{ -1,  1,  1,  1, -1,  1 },
-		2,  3,  2,  1, 6,  11, -1,  5,
-		9,  110,
-		24, 16,
-		66,  6, 130, 15,
-		62,  6, 100, 10,
-		2,
-                0x677E7FF,
-	},
-	{
-#ifdef JP
-	        "エルフ",
-#endif
-		"Elf",
-
-		{ -1,  2,  0,  1, -2,  2 },
-		5,  6,  4,  2, 8,  12, -5, 15,
-		8,  120,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		3,
-                0x677E75B,
-
-	},
-	{
-#ifdef JP
-		"ホビット",
-#endif
-		"Hobbit",
-
-		{ -2,  1,  1,  3,  2,  1 },
-		15, 12, 10, 5, 12,  15, -10, 20,
-		7,  110,
-		21, 12,
-		36,  3, 60,  3,
-		33,  3, 50,  3,
-		4,
-                0x76FFC0B,
-	},
-	{
-#ifdef JP
-		"ノーム",
-#endif
-		"Gnome",
-
-		{ -1,  2,  0,  2,  1, -1 },
-		10, 8, 7,  3, 6,  13, -8, 12,
-		8,  120,
-		50, 40,
-		42,  3, 90,  6,
-		39,  3, 75,  3,
-		4,
-                0x767D60F,
-	},
-	{
-#ifdef JP
-		"ドワーフ",
-#endif
-		"Dwarf",
-
-		{  2, -2,  2, -2,  2, -1 },
-		2,  7,  6,  -1,  7,  10, 15,  0,
-		11,  125,
-		35, 15,
-		48,  3, 150, 10,
-		46,  3, 120, 10,
-		5,
-                0x1890005,
-	},
-	{
-#ifdef JP
-		"ハーフオーク",
-#endif
-		"Half-Orc",
-
-		{  2, -1,  0,  0,  1, -2 },
-		-3, -3, -2,  -1,  0, 7, 12, -5,
-		10,  110,
-		11,  4,
-		66,  1, 150,  5,
-		62,  1, 120,  5,
-		3,
-                0x5D8818D,
-	},
-	{
-#ifdef JP
-		"ハーフトロル",
-#endif
-		"Half-Troll",
-
-		{ 4, -4, -1, -3,  3, -3 },
-		-5, -8, -5, -2,  -1, 5, 20, -10,
-		12,  125,
-		20, 10,
-		96, 10, 250, 50,
-		84,  8, 225, 40,
-		3,
-                0x0880005,
-	},
-	{
-#ifdef JP
-                "アンバライト",
-#endif
-		"Amberite",
-
-		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  3,  2, 3, 13, 15, 10,
-		10,  225,
-		50, 50,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
-		0,
-                0x7FFF7FF,
-	},
-	{
-#ifdef JP
-                "ハイエルフ",
-#endif
-		"High-Elf",
-
-		{  1,  3,  -1,  3,  1,  3 },
-		4,  13, 12,  4,  3, 14, 10, 25,
-		10,  200,
-		100, 30,
-		90, 10, 190, 20,
-		82, 10, 180, 15,
-		4,
-		0x777E75B,
-	},
-	{
-#ifdef JP
-		"野蛮人",
-#endif
-		"Barbarian",
-
-		{ 3, -2,  -1,  1,  2, 0 },
-		-2, -10, 2,  -1,  1, 7, 12, 10,
-		11, 120,
-		14, 8,
-		82, 5, 200, 20,
-		78,  6, 190, 15,
-		0,
-		0x5C0A09D,
-	},
-	{
-#ifdef JP
-		"ハーフオーガ",
-#endif
-		"Half-Ogre",
-
-		{ 3, -2, 0, -1, 3, -2 },
-		-3, -5, -3, -2, -1, 5, 20, 0,
-		12,  145,
-		40, 10,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
-		3,
-		0x0A80407,
-	},
-	{
-#ifdef JP
-		"半巨人",
-#endif
-		"Half-Giant",
-
-		{ 4, -2, -2, -2, 3, -2 },
-		-6, -8, -3, -2, -1, 5, 25, 5,
-		13, 160,
-		40, 10,
-		100,10, 255, 65,
-		80, 10, 240, 64,
-		3,
-		0x0880011,
-	},
-	{
-#ifdef JP
-		"半タイタン",
-#endif
-		"Half-Titan",
-
-		{ 5, 1, 2, -2, 3, 1 },
-		-5, 5, 1, -2, 1, 8, 25, 0,
-		14, 255,
-		100,30,
-		111, 11, 255, 86,
-		99, 11, 250, 86,
-		0,
-		0x23D4727,
-	},
-	{
-#ifdef JP
-		"サイクロプス",
-#endif
-		"Cyclops",
-
-		{ 4, -3, -2, -3, 4, -3 },
-		-4, -5, -3, -2, -2, 5, 20, 12,
-		13, 150,
-		50, 24,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
+		0L,
+		{  1,  -1,  -1,  2,  0,  0 },
+		0,  0,  0,  1,  0,  10,  0,  8,  10,
+		                         3,
+		5, 0, 160,
+		42,  22,
+		75,  7, 185, 27,
+		67,  5, 134, 20,
 		1,
-		0x0888005,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-		"イーク",
+		"リザードマン",
 #endif
-		"Yeek",
+		"Lizardman",
 
-		{ -2, 1, 1, 1, -2, -4 },
-		2, 4, 6, 3, 5, 15, -5, -5,
-		7, 100,
-		14, 3,
-		50,  3, 90,  6,
-		50,  3, 75,  3,
+		0L,
+		{  2,  -1,  -1,  1,  2,  -1 },
+		10,  5,  3,  0,  -1,  10,  0, 10,  5,
+		                           1,
+		6, 0, 145,
+		95,  65,
+		76,  1, 160, 5,
+		72,  1, 130, 5,
 		2,
-		0x667360F,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-		"クラッコン",
+		"フェアリー",
 #endif
-		"Klackon",
+		"Fairy",
 
-		{ 2, -1, -1, 1, 2, -1 },
-		10, 5, 3, 0, -1, 10, 5, 5,
-		12, 190,
-		20, 3,
-		60,  3, 80,  4,
-		54,  3, 70,  4,
-		2,
-		0x04D8011,
-	},
-	{
-#ifdef JP
-		"コボルド",
-#endif
-		"Kobold",
-
-		{ 1, -1, 0, 1, 0, -2 },
-		-2, -3, -1, -1, 1, 8, 10, -8,
-		9, 125,
-		11,  3,
-		60,  1, 130,  5,
-		55,  1, 100,  5,
-		3,
-		0x444A009,
-	},
-	{
-#ifdef JP
-		"ニーベルング",
-#endif
-		"Nibelung",
-
-		{ 1, -1, 2, 0, 2, -2 },
-		3, 5, 6, 1, 5, 10, 9, 0,
-		11, 170,
-		40, 12,
-		43,  3, 92,  6,
-		40,  3, 78,  3,
-		5,
-		0x569040F,
-	},
-	{
-#ifdef JP
-		"ダークエルフ",
-#endif
-		"Dark-Elf",
-
-		{ -1, 3, 2, 2, -2, 1 },
-		5, 10, 12, 3, 8, 12, -5, 10,
-		9, 150,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		5,
-		0x677C7DF,
-	},
-	{
-#ifdef JP
-		"ドラコニアン",
-#endif
-		"Draconian",
-
-		{ 2, 1, 1, 1, 2, -1 },
-		-2, 5, 2, 0, 1, 10, 5, 5,
-		11, 220,
-		75, 33,
-		76,  1, 160,  5,
-		72,  1, 130,  5,
-		2,
-		0x7FFE757,
-	},
-	{
-#ifdef JP
-		"マインドフレア",
-#endif
-		"Mindflayer",
-
-		{ -3, 4, 4, 0, -2, -3 },
-		10, 15, 9, 2, 5, 12, -10, -5,
-		9, 140,
-		100, 25,
-		68,  6, 142, 15,
-		63,  6, 112, 10,
-		4,
-		0x2334746,
-	},
-	{
-#ifdef JP
-		"インプ",
-#endif
-		"Imp",
-
-		{ 0, -1, -1, 1, 2, -1 },
-		-3, 2, -1, 1, -1, 10, 5, -5,
-		10, 115,
-		13,  4,
-		68,  1, 150,  5,
-		64,  1, 120,  5,
-		3,
-		0x6B537CB,
-	},
-	{
-#ifdef JP
-		"ゴーレム",
-#endif
-		"Golem",
-
-		{ 4, -5, -5, -2, 4, -2 },
-		-5, -5, 6, -1, -1, 8, 20, 0,
-		12, 200,
-		1, 100,
-		66,  1, 200,  6,
-		62,  1, 180,  6,
-		4,
-		0x0800001,
-	},
-	{
-#ifdef JP
-		"骸骨",
-#endif
-		"Skeleton",
-
-		{ 0, 1, -2, 0, 1, -2 },
-		-5, 0, 3, -1, -1, 8, 10, 0,
-		10, 145,
-		100, 35,
-		72,  6, 50, 5,
-		66,  4, 50, 5,
-		2,
-		0x234070F,
-	},
-	{
-#ifdef JP
-		"ゾンビ",
-#endif
-		"Zombie",
-
-		{ 2, -6, -6, 1, 4, -3 },
-		-5, -5, 5, -1, -1, 5, 15, 0,
-		13, 150,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		2,
-		0x0800001,
-	},
-	{
-#ifdef JP
-		"吸血鬼",
-#endif
-		"Vampire",
-
-		{ 3, 3, -1, -1, 1, 2 },
-		4, 8, 6, 4, 1, 8, 5, 0,
-		11, 200,
-		100, 30,
-		72,  6, 180, 25,
-		66,  4, 150, 20,
-		5,
-		0x67DC7FF,
-	},
-	{
-#ifdef JP
-		"幽霊",
-#endif
-		"Spectre",
-
-		{ -5, 4, -1, 2, 0, -3 },
-		10, 15, 12, 5, 5, 14, -15, -5,
-		7, 210,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		5,
-		0x631474A,
-	},
-	{
-#ifdef JP
-		"妖精",
-#endif
-		"Sprite",
-
-		{ -4, 3, 3, 3, -2, 2 },
-		10, 8, 6, 4, 10, 10, -12, 0,
-		7, 145,
-		50, 25,
+		0L,
+		{ -2, 1, 1, 1, -2, 1 },
+		10, 8, 6, 4, 10, 10, 0, -12, 8,
+		                     5,
+		3, 1, 155,
+		50, 35,
 		32,  2, 75,  2,
 		29,  2, 65,  2,
 		4,
-		0x623F65E,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-		"獣人",  
+		"グレムリン",
 #endif
-		"Beastman",
+		"Gremlin",
 
-		{ 2, -2, -1, -1, 2, -2 },
-		-5, -2, -1, -1, -1, 5, 12, 5,
-		11, 140,
-		14, 6,
-		65,  6, 150, 20,
-		61,  6, 120, 15,
-		0,
-		0x57887CF,
+		0L,
+		{ -2, 1, -1, 1, -1, -1 },
+		4, 7, 9, 2, 5, 12,  0, -5, 15,
+		                    5,
+		3, 1, 170,
+		65, 35,
+		22,  2,  55,  2,
+		19,  2,  45,  2,
+		4,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-		"エント",
+		"スケルトン",
 #endif
-		"Ent",
-		{ 2,  0,  2, -3,  2,  0 },
-		 -5,  2,  5,  -1, 0, 9,  15, -5,
-		 12, 140,
-		120,  60,
-		111, 11, 255, 50,
-		99, 11, 250, 45,
-		  0,
-                0x0010005,
-	},
-	{
-#ifdef JP
-                "アルコン",
-#endif
-		"Archon",
+		"Skeleton",
 
-		{  2,  0,  4,  1,  2,  3 },
-		0,  12,  8,  2, 2, 11, 10, 10,
-		11,  235,
-		150, 150,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
-		3,
-                0x779F777,
+		PRF_UNDEAD | PRF_NO_DIGEST,
+		{ 0, 0, -2, 0, 1, -2 },
+		-5, 0, 3, -1, -1, 8, 0, 10, 0,
+		                     1,
+		5, 0, 135,
+		120, 35,
+		70,  6, 50, 5,
+		66,  4, 50, 5,
+		2,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-                "バルログ",
-		"Balrog",
-#else
-		"Balrog",
+		"ゴースト",
 #endif
+		"Ghost",
 
-		{  4,  2,  -10,  2,  3,  -5 },
-		-3,  12, 15,  -2,  1, 8, 20, 0,
-		12,  250,
-		255, 255,
-		100,10, 255, 65,
-		80, 10, 240, 64,
+		PRF_UNDEAD | PRF_NO_DIGEST,
+		{ -3, 1, -1, -1, 0, -2 },
+		10, 15, 12, 6, 5, 14, -1, -15, -10,
+		                       0,
+		1, 0, 190,
+		120, 35,
+		70, 6, 20, 5,
+		66, 4, 20, 5,
 		5,
-                0x7EDC4DB,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-                "ドゥナダン",
+		"パンプキンヘッド",
 #endif
-		"Dunadan",
+		"Pumpkin-Head",
 
-		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  3,  2, 3, 13, 15, 10,
-		10,  180,
-		50, 20,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
-		0,
-                0x7FFF7FF,
+		0L,
+		{ -2, -2, 3, 0, 3, 0 },
+		0, 0, 10, 0, 10, 18, 0, -10, -5,
+		                     0,
+		4, 1, 105,
+		11, 9,
+		55, 5, 190, 30,
+		55, 5, 190, 30,
+		8,
+		0x7FFFFFFF,
+		RACE_TYPE_MALE,
 	},
 	{
 #ifdef JP
-		"影フェアリー",
+		"ゴブリン",
 #endif
-		"Shadow-Fairy",
-		{-2,  2,  2,  1, -1,  0 },
-		  7,  8,  0,  6, 12, 15, -10, -5,
-		  7, 120,
-		200, 100,
-		 80,  8, 90, 20,
-		 73,  8, 80, 15,
-		  4,
-		0x633C7DF,
-	},
-	{
-#ifdef JP
-		"クター",
-#endif
-		"Kutar",
+		"Goblin",
 
-		{  0,  -1,  -1,  1,  2,  3 },
-		-2,  5,  5,  5,  -2,  6,  0,  -5,
-		11,  140,
-		14,  6,
-		48,  6, 150, 25,
-		44,  4, 130, 20,
-		0,
-                0x418B7AD,
+		0L,
+		{ 2, -1, 0, 0, 1, -2 },
+		-3, -3, -2, -1, 0, 7, 0, 14, -5,
+		                      1,
+		5, 0, 120,
+		11, 4,
+		66, 1, 150, 5,
+		62, 1, 120, 5,
+		3,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 	{
 #ifdef JP
-		"アンドロイド",
+		"ゴーゴン",
 #endif
-		"Android",
+		"Gorgon",
 
-		{ 4, -5, -5, 0, 4, -2 },
-		0, -5, 0, -2, 3, 14, 20, 10,
-		13, 200,
-		1, 100,
-		72, 12, 240, 64,
-		66, 12, 220, 64,
+		0L,
+		{ 1, 2, -2, 2, -1, 2 },
+		8, 10, 8, 2, 8, 12, 0, 8, 25,
+		                    3,
+		5, 0, 200,
+		100, 30,
+		78, 10, 180, 15,
+		78, 10, 180, 15,
+		3,
+		0x7FFFFFFF,
+		RACE_TYPE_FEMALE,
+	},
+	{
+#ifdef JP
+		"マーメイド",
+#endif
+		"Mermaid",
+
+		PRF_AQUATIC,
+		{ -1, 0, 1, 1, -1, 1 },
+		12, 14, 7, 1, 0, 10, -5, -5, 2,
+		                      0,
+		4, 0, 140,
+		46, 33,
+		72, 6, 156, 25,
+		64, 5, 126, 20,
+		2,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
+	},
+	{
+#ifdef JP
+		"オクトパス",
+#endif
+		"Octopus",
+
+		PRF_AQUATIC | PRF_LARGE,
+		{ 3, -2, 2, 3, 2, -3 },
+		15, 0, 10, 0, 0, 0, -10, 20, 0,
+		                      0,
+		49, 0, 180,
+		13, 264,
+		226, 166, 356, 225,
+		226, 166, 356, 225,
 		0,
-		0x0800001,
+		0x7FFFFFFF,
+		RACE_TYPE_NORMAL,
 	},
 };
 
@@ -3367,188 +2222,195 @@ player_race race_info[MAX_RACES] =
  * Player Classes
  *
  *      Title,
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
- *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *      HD, Exp, pet_upkeep_div
+ *      flags,
+ *      {needSTR,needINT,needWIS,needDEX,needCON,needCHR},
+ *      {gainSTR,gainINT,gainWIS,gainDEX,gainCON,gainCHR},
+ *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_spd, c_thn, c_thb,
+ *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_spd, x_thn, x_thb,
+ *      HD, MD, c_to_a
  */
 player_class class_info[MAX_CLASS] =
 {
 	{
 #ifdef JP
-		"戦士",
+		"ソルジャー",
 #endif
-		"Warrior",
+		"Soldier",
 
-		{ 4, -2, -2, 2, 2, -1},
-		25, 18, 31, 1,  14, 2, 70, 55,
-		12, 7,  10, 0,  0,  0,  30, 30,
-		9,  0, 40
+		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_BIRTH,
+		{0, 0, 0, 0, 0, 0},
+		{03, 03, 03, 03, 03, 02},
+		25, 28, 20,  3, 18, 14, 0, 60, 50,
+		12,  8,  9,  2,  0,  0, 2, 18, 20,
+		13, 3, 0,
 	},
 
 	{
 #ifdef JP
-		"メイジ",
+		"ナイト",
 #endif
-		"Mage",
+		"Knight",
 
-		{-4, 3, 0, 1, -2, 1},
-		30, 40, 38, 3,  16, 20, 34, 20,
-		7,  15, 11,  0,  0,  0,  6, 7,
-		0, 30, 30
+		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_MALE | PCF_BIRTH,
+		{15, 0, 0, 16, 14, 0},
+		{04, 02, 03, 04, 03, 02},
+		17, 18, 17, -1, 14, 13, 0, 68, 52,
+		 9,  7,  8,  0,  0,  0, 1, 28, 23,
+		17, 1, 15,
 	},
 
 	{
 #ifdef JP
-		"プリースト",
+		"バーサーカー",
 #endif
-		"Priest",
+		"Berserker",
 
-		{-1, -3, 3, -1, 0, 2},
-		25, 35, 40, 2,  16, 8, 48, 35,
-		7,  11, 12, 0,  0,  0, 13, 11,
-		2, 20, 35
+		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_BIRTH,
+		{15, 0, 0, 14, 16, 0},
+		{05, 01, 02, 03, 04, 01},
+		26, 11, 18,  1, 19, 15, 0, 70, 49,
+		12,  6,  9,  0,  0,  0, 1, 30, 17,
+		18, 1, 15,
 	},
 
 	{
 #ifdef JP
-		"盗賊",
+		"テラーナイト",
 #endif
-		"Rogue",
+		"Terror-Knight",
 
-		{ 2, 1, -2, 3, 1, -1},
-		45, 37, 36, 5, 32, 24, 60, 66,
-		15, 12, 10, 0,  0,  0, 21, 18,
-		6, 25, 40
+		PCF_ALIGN_CHAOTIC | PCF_SEX_MALE,
+		{18 + 60, 0, 0, 0, 18 + 60, 0},
+		{05, 00, 00, 02, 05, 00},
+		 1,  0, 2, -10, 1, 4, 0, 90, 11,
+		-6, -6, 0, -10, 0, 0, 0, 38,  2,
+		27, 0, 30,
 	},
 
 	{
 #ifdef JP
-		"レンジャー",
+		"ビーストテイマー",
 #endif
-		"Ranger",
+		"BeastTamer",
 
-		{ 2, 2, 0, 1, 1, 1},
-		30, 37, 36, 3,  24, 16, 56, 72,
-		8,  11, 10, 0,  0,  0,  18, 28,
-		4, 40, 35
+		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_BIRTH,
+		{15, 0, 16, 0, 14, 0},
+		{04, 01, 02, 02, 04, 03},
+		28, 27, 25, 1, 12, 16, 0, 62, 56,
+		10,  9,  9, 2,  0,  0, 1, 20, 19,
+		14, 3, 10,
 	},
 
 	{
 #ifdef JP
-		"パラディン",
+		"ソードマスター",
 #endif
-		"Paladin",
+		"Sword-Master",
 
-		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 34, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  21, 18,
-		6, 35, 40
+		PCF_ALIGN_LAWFUL | PCF_SEX_MALE,
+		{18 + 40, 0, 0, 18 + 60, 0, 0},
+		{03, 03, 02, 05, 02, 03},
+		29, 27, 25, 4, 24, 16, 0, 70, 40,
+		10,  9, 10, 4,  0,  0, 3, 23, 18,
+		12, 4, 0,
 	},
 
 	{
 #ifdef JP
-		"魔法戦士",
+		"ドラグーン",
 #endif
-		"Warrior-Mage",
+		"Dragoon",
 
-		{ 2, 2, 0, 1, 0, 1},
-		30, 35, 36, 2,  18, 16, 50, 25,
-		7,  10, 10, 0,  0,  0,  15, 11,
-		4, 40, 35
+		PCF_ALIGN_ANY | PCF_SEX_MALE,
+		{18 + 50, 0, 0, 18 + 50, 18 + 40, 0},
+		{04, 02, 01, 04, 04, 02},
+		24, 14, 24, 1, 18, 16, 0, 68, 23,
+		 8,  6,  9, 0,  0,  0, 0, 33, 12,
+		16, 1, 10,
 	},
 
 	{
 #ifdef JP
-		"混沌の戦士",
+		"ニンジャ",
 #endif
-		"Chaos-Warrior",
+		"Ninja",
 
-		{ 2, 1, -1, 0, 2, -2},
-		20, 25, 34, 1,  14, 12, 65, 40,
-		7,  11, 10, 0,  0,  0,  20, 17,
-		6, 25, 40
+		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_BIRTH,
+		{15, 0, 0, 16, 14, 0},
+		{02, 02, 01, 05, 02, 01},
+		45, 24, 19, 8, 28, 22, 0, 65, 66,
+		15, 10,  8, 5,  0,  0, 6, 19, 18,
+		10, 2, -5,
 	},
 
 	{
 #ifdef JP
-		"修行僧",
+		"ウィザード",
 #endif
-		"Monk",
+		"Wizard",
 
-		{ 2, -1, 1, 3, 2, 1},
-		45, 34, 36, 5, 32, 24, 64, 60,
-		15, 11, 10, 0,  0,  0, 18, 18,
-		6, 30, 35
+		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_BIRTH,
+		{0, 16, 14, 0, 0, 0},
+		{01, 04, 03, 02, 01, 02},
+		30, 36, 30, 2, 16, 20, 0, 34, 20,
+		 7, 13, 13, 0,  0,  0, 1,  6,  7,
+		10, 10, -10,
 	},
 
 	{
 #ifdef JP
-		"超能力者",
+		"ウォーロック",
 #endif
-		"Mindcrafter",
+		"Warlock",
 
-		{-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
-		30, 33, 38, 3,  22, 16, 50, 40,
-		10, 11, 10, 0,   0,  0, 14, 18,
-		2, 25, 35
+		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_MALE,
+		{0, 18 + 70, 18 + 50, 0, 0, 0},
+		{01, 04, 04, 01, 01, 04},
+		32, 38, 28, 2, 18, 16, 0, 52, 21,
+		14, 14, 14, 0,  0,  0, 0, 18, 11,
+		11, 9, -5,
 	},
 
 	{
 #ifdef JP
-		"ハイ=メイジ",
+		"エクソシスト",
 #endif
-		"High-Mage",
+		"Exorcist",
 
-		{-4, 4, 0, 0, -2, 1},
-		30, 40, 38, 3,  16, 20, 34, 20,
-		7,  15, 11,  0,  0,  0,  6, 7,
-		0, 30, 25
+		PCF_ALIGN_LAWFUL | PCF_SEX_MALE | PCF_BIRTH,
+		{0, 12, 14, 0, 14, 0},
+		{03, 02, 04, 02, 03, 02},
+		25, 30, 32, 1, 16, 8, 0, 60, 28,
+		 9,  8,  9, 0,  0, 0, 0, 21,  7,
+		13, 7, 0,
 	},
 
 	{
 #ifdef JP
-		"観光客",
+		"アマゾネス",
 #endif
-		"Tourist",
-		{ -1, -1, -1, -1, -1, -1},
-		15, 18, 28, 1, 12, 2, 40, 20,
-		5, 7, 9, 0,  0,  0,  11, 11,
-		0, -30, 40
+		"Amazoness",
+
+		PCF_ALIGN_ANY | PCF_SEX_FEMALE | PCF_BIRTH,
+		{0, 0, 0, 0, 0, 0},
+		{03, 03, 03, 03, 03, 03},
+		26, 26, 20, 2, 17, 12, 0, 58, 52,
+		11,  9,  9, 2,  0,  0, 2, 16, 22,
+		13, 3, 0,
 	},
 
 	{
 #ifdef JP
-		"ものまね師",
+		"ヴァルキリー",
 #endif
-		"Imitator",
-		{ 0, 1, -1, 2, 0, 1},
-		25, 30, 36, 2,  18, 16, 60, 50,
-		7,  10,  10, 0,  0,  0,  18, 20,
-		5, 10, 20
-	},
+		"Valkyrie",
 
-	{
-#ifdef JP
-		"魔獣使い",
-#endif
-		"BeastMaster",
-		{ 1, -1, -1, 1, 0, 2},
-		20, 25, 32, 2,  18, 16, 52, 63,
-		7,  10, 10, 0,  0,  0,  14, 25,
-		3, 20, 10
-	},
-
-	{
-#ifdef JP
-		"スペルマスター",
-#endif
-		"Sorcerer",
-
-		{-5, 6, -2, 2, 0, -2},
-		30, 48, 75, 2,  12, 22,  0, 0,
-		 7, 18, 13, 0,  0,  0,  0, 0,
-		4, 60, 25
+		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_FEMALE | PCF_BIRTH,
+		{14, 14, 0, 0, 16, 0},
+		{04, 03, 02, 03, 04, 01},
+		30, 28, 28, -1, 18, 16, 0, 64, 48,
+		10, 10,  9,  0,  0,  0, 1, 23, 14,
+		14, 4, 15,
 	},
 
 	{
@@ -3557,506 +2419,289 @@ player_class class_info[MAX_CLASS] =
 #endif
 		"Archer",
 
-		{ 2, -1, -1, 2, 1, 0},
-		38, 24, 35, 4,  24, 16, 56, 82,
-		12, 10, 10, 0,  0,  0,  18, 36,
-		6, 10, 40
+		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_BIRTH,
+		{0, 0, 0, 16, 14, 0},
+		{03, 02, 02, 05, 03, 02},
+		38, 24, 23, 3, 24, 16, 0, 56, 82,
+		12, 10,  8, 1,  0,  0, 3, 13, 36,
+		16, 1, 0,
 	},
 
 	{
 #ifdef JP
-		"魔道具術師",
+		"ドラゴンテイマー",
 #endif
-		"Magic-Eater",
+		"DragonTamer",
 
-		{-1, 2, 1, 2, -2, 1},
-		25, 42, 36, 2,  20, 16, 48, 35,
-		7,  16, 10,  0,  0,  0, 13, 11,
-		3, 30, 30
+		PCF_ALIGN_ANY | PCF_SEX_FEMALE,
+		{18 + 60, 0, 18 + 40, 0, 0, 0},
+		{04, 02, 03, 03, 03, 03},
+		31, 29, 26, 1, 13, 17, 0, 52, 63,
+		13, 10, 10, 2,  0,  0, 2, 17, 25,
+		13, 4, 10,
 	},
 
 	{
 #ifdef JP
-		"吟遊詩人",
+		"ウィッチ",
 #endif
-                "Bard",              /* Note : spell stat is Charisma */
-                {-2, 1, 2, -1, -2, 4},
-                20, 33, 34, -5, 16, 20, 34, 20,
-                8,  13, 11, 0,  0,  0,  10, 8,
-                2, 40, 25
+		"Witch",
+
+		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_BIRTH,
+		{0, 15, 14, 0, 0, 0},
+		{01, 04, 03, 03, 01, 04},
+		32, 41, 29, 2, 18, 19, 0, 45, 51,
+		16, 16, 12, 1,  0,  0, 1, 13, 20,
+		11, 8, -5,
 	},
 
 	{
 #ifdef JP
-		"赤魔道師",
+		"セイレーン",
 #endif
-		"Red-Mage",
+		"Sirene",
 
-		{ 2, 2, -1, 1, 0, -1},
-		20, 34, 34, 1,  16, 10, 56, 25,
-		7,  11, 11, 0,  0,  0,  18, 11,
-		4, 40, 40
+		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_FEMALE,
+		{0, 18 + 20, 18, 0, 0, 0},
+		{01, 05, 03, 02, 01, 02},
+		28, 35, 32, 2, 13, 20, 0, 15, 17,
+		 7, 13, 13, 0,  0,  0, 0,  5,  7,
+		9, 11, -10,
 	},
 
 	{
 #ifdef JP
-		"剣術家",
+		"クレリック",
 #endif
-		"Samurai",
+		"Cleric",
 
-		{ 3, -2, 1, 2, 1, 0},
-		25, 18, 32, 2,  16, 6, 70, 40,
-		12, 7,  10, 0,  0,  0,  23, 18,
-		6,  30, 40
+		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_FEMALE | PCF_BIRTH,
+		{0, 14, 15, 0, 0, 0},
+		{02, 03, 04, 03, 02, 02},
+		25, 34, 30, 2, 12, 12, 0, 40, 50,
+		 8, 11,  9, 0,  0,  0, 1,  9, 18,
+		13, 9, -5,
 	},
 
 	{
 #ifdef JP
-		"練気術師",
+		"プリースト",
 #endif
-		"ForceTrainer",
+		"Priest",
 
-		{ 0, -1, 3, 2, 1, 1},
-		30, 34, 38, 4, 32, 24, 50, 40,
-		10, 11, 11, 0,  0,  0, 14, 15,
-		2, 35, 40
+		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE,
+		{0, 18 + 40, 18 + 60, 0, 0, 0},
+		{01, 04, 05, 02, 01, 02},
+		30, 32, 33, 1, 16, 9, 0, 27, 27,
+		 8,  9, 11, 0,  0, 0, 0,  6,  9,
+		12, 10, -10,
 	},
 
 	{
 #ifdef JP
-		"青魔道師",
+		"リッチ",
 #endif
-		"Blue-Mage",
+		"Lich",
 
-		{-4, 4, -1, 1, -2, -1},
-		30, 40, 36, 3,  20, 16, 40, 25,
-		7,  16, 11,  0,  0,  0,  6, 7,
-		2, 30, 35
+		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_REINCARNATE | PCF_NO_CHANGE | PCF_UNDEAD | PCF_NO_DIGEST,
+		{0, 18 + 100, 18 + 80, 0, 0, 0},
+		{00, 05, 04, 01, 03, 00},
+		29, 28, 31, 1, 4, 13, 0, 8, 10,
+		 7,  8, 12, 0, 0,  0, 0, 6,  4,
+		7, 11, 5,
 	},
 
 	{
 #ifdef JP
-		"騎兵",
+		"エンジェルナイト",
 #endif
-		"Cavalry",
-		{ 2, -2, -2, 2, 2, 0},
-		20, 18, 32, 1,  16, 10, 60, 66,
-		10,  7, 10, 0,  0,  0,  22, 26,
-		5, 20, 35
+		"Angel-Knight",
+
+		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE | PCF_REINCARNATE | PCF_NO_CHANGE | PCF_NO_DIGEST,
+		{18 + 70, 18 + 80, 18 + 40, 18 + 60, 18 + 60, 18 + 100},
+		{04, 03, 04, 03, 03, 03},
+		30, 30, 28, 1, 18, 16, 0, 72, 55,
+		10, 10, 12, 0,  0,  0, 2, 30, 30,
+		13, 7, 30,
 	},
 
 	{
 #ifdef JP
-		"狂戦士",
+		"うぃっち",
 #endif
-		"Berserker",
+		"High-Witch",
 
-		{ 8, -20, -20, 4, 4, -5},
-		-100, -1000, -200, -100,  -100, -100, 120, -2000,
-		0, 0,  0, 0,  0,  0,  50, 0,
-		11,  60, 255
+		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_NO_CHANGE,
+		{0, 18 + 120, 18 + 100, 0, 0, 18 + 150},
+		{00, 05, 04, 02, 00, 05},
+		32, 49, 29, 1, 18, 19, 0, 4, 6,
+		16, 16, 12, 0,  0,  0, 0, 2, 3,
+		4, 16, -50,
 	},
 
 	{
 #ifdef JP
-		"鍛冶師",
+		"ガンナー",
 #endif
-		"Weaponsmith",
+		"Gunner",
 
-		{ 3, -1, -1, 1, 0, -1},
-		30, 28, 28, 1,  20, 10, 60, 45,
-		10, 10,  10, 0,  0,  0,  21, 15,
-		6,  30, 40
+		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_NO_CHANGE,
+		{18 + 20, 0, 0, 18 + 40, 0, 0},
+		{03, 03, 02, 04, 02, 02},
+		38, 0, 10, 2, 24, 24, 0, 56, 76,
+		12, 0,  2, 4,  0,  0, 1, 18, 32,
+		17, 0, -10,
 	},
+
 	{
 #ifdef JP
-		"鏡使い",
+		"テンプルナイト",
 #endif
-		"Mirror-Master",
+		"Temple-Knight",
 
-		{ -2,  3, 1, -1, -2, 1},
-		30, 33, 40, 3, 14, 16, 34,30,
-		10, 11, 12, 0,  0,  0,  6,10,
-		2,  30, 30
+		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE,
+		{18 + 70, 18 + 40, 18 + 60, 18 + 50, 18 + 50, 0},
+		{04, 03, 03, 04, 03, 01},
+		15, 23, 18, -4, 14, 4, 0, 62, 52,
+		 7,  8, 10, -1,  0, 0, 0, 26, 20,
+		13, 7, 10,
 	},
+
 	{
 #ifdef JP
-		"忍者",
+		"ホワイトナイト",
 #endif
-		"Ninja",
+		"White-Knight",
 
-		{ 0,  -1, -1, 3, 2, -1},
-		45, 24, 36, 8, 48, 32, 70,66,
-		15, 10, 10, 0,  0,  0, 25,18,
-		2,  20, 40
+		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE,
+		{18 + 70, 18 + 40, 18 + 60, 18 + 50, 18 + 50, 0},
+		{04, 02, 03, 04, 03, 03},
+		25, 21, 22, -2, 11, 15, 0, 70, 44,
+		10,  7, 10,  0,  0,  0, 0, 27, 14,
+		14, 4, 10,
+	},
+
+	{
+#ifdef JP
+		"オクトパス",
+#endif
+		"Octopus",
+
+		PCF_LARGE,
+		{0, 0, 0, 0, 0, 0},
+		{04, 00, 01, 04, 04, 00},
+		 0, 0, 0, 0, 0, 0, 0,  0, 0,
+		10, 0, 7, 0, 0, 0, 0, 45, 0,
+		 0, 0, 0,
 	},
 };
 
-player_seikaku seikaku_info[MAX_SEIKAKU] =
-{
-	{
-#ifdef JP
-		"ふつう",
-#endif
-		"Ordinary",
-		{  0,  0,  0,  0,  0,  0 },
-		0,  0,  0,  0,  0,  0,  0,  0,
-		0, 1, 0
-	},
-
-	{
-#ifdef JP
-		"ちからじまん",
-#endif
-		"Mighty",
-		{  2,  -2,  -1,  0,  1,  0 },
-		-5,  -5,  -3,  -1,  -2,  -2,  10,  0,
-		1, 1, 0
-	},
-
-	{
-#ifdef JP
-		"きれもの",
-#endif
-		"Shrewd",
-		{  -2,  2,  0,  1,  -1,  -1 },
-		3,  8,  2,  0,  -2,  5,  -8,  -5,
-		-1, 1, 0
-	},
-
-	{
-#ifdef JP
-		"しあわせもの",
-#endif
-		"Pious",
-		{  0,  -1,  2,  -1,  0,  1 },
-		-5,  2,  4,  -1,  3,  -2,  -3,  -6,
-		0, 1, 0
-	},
-
-	{
-#ifdef JP
-		"すばしっこい",
-#endif
-		"Nimble",
-		{  -1,  1,  -1,  2,  -1,  -1 },
-		7,  2,  -1,  1,  5,  5,  0,  10,
-		0, 0, 0
-	},
-
-	{
-#ifdef JP
-		"いのちしらず",
-#endif
-		"Fearless",
-		{  2,  1,  1,  -1,  -1,  0 },
-		-5,  5,  -2,  0,  2,  -2,  10,  10,
-		-1, 1, 0
-	},
-
-	{
-#ifdef JP
-		"コンバット",
-#endif
-		"Combat",
-		{  1,  -1,  -2,  2,  0,  1 },
-		-2,  -3,  -3,  0,  -1,  2,  5,  5,
-		0, 0, 0
-	},
-
-	{
-#ifdef JP
-		"なまけもの",
-#endif
-		"Lazy",
-		{  -2,  -2,  -2,  -2,  -2,  -2 },
-		-5,  -5,  -3,  -1,  -4,  -2,  -8,  -8,
-		-1, 1, 0
-	},
-
-	{
-#ifdef JP
-		"セクシーギャル",
-#endif
-		"Sexy",
-		{  1,  1,  1,  1,  1,  3 },
-		10,  5,  3,  0,  4,  2,  10,  10,
-		0, 1, 1
-	},
-
-	{
-#ifdef JP
-		"ラッキーマン",
-#endif
-		"Lucky",
-		{  -2,  -2,  -2,  -2,  -2,  2 },
-		10,  7,  3,  2, 10,  8,  15,  15,
-		0, 1, 2
-	},
-
-	{
-#ifdef JP
-		"がまんづよい",
-#endif
-		"Patient",
-		{  -1,  -1,  1,  -2,  2,  0 },
-		-5,  -3,  3,  1,  0,  -3,  -6,  -6,
-		1, 0, 0
-	},
-
-	{
-#ifdef JP
-		"いかさま",
-#endif
-		"Munchkin",
-		{ 10,  10,  10,  10,  10,  10 },
-		 20, 40, 30, 10, 40, 40,  80, 80,
-		 15, 1, 0
-	},
-};
-
-
-
-player_race mimic_info[] =
-{
-	{
-#ifdef JP
-		"[標準形態]",
-#endif
-		"Default",
-
-		{  0,  0,  0,  0,  0,  0 },
-		0,  0,  0,  0,  0,  10,  0,  0,
-		10,  100,
-		0,  0,
-		0,  0, 0, 0,
-		0,  0, 0, 0,
-		0,
-                0x000000,
-	},
-	{
-#ifdef JP
-		"[悪魔]",
-#endif
-		"[Demon]",
-
-		{  5,  3,  2,  3,  4,  -6 },
-		-5,  18, 20, -2,  3,  10, 40, 20,
-		12,  0,
-		0,  0,
-		0,  0, 0, 0,
-		0,  0, 0, 0,
-		5,
-                0x000003,
-	},
-	{
-#ifdef JP
-		"[魔王]",
-#endif
-		"[Demon lord]",
-
-		{  20,  20,  20,  20,  20,  20 },
-		20,  20, 25, -2,  3,  10, 70, 40,
-		14,  0,
-		0,  0,
-		0,  0, 0, 0,
-		0,  0, 0, 0,
-		20,
-                0x000003,
-	},
-	{
-#ifdef JP
-		"[吸血鬼]",
-#endif
-		"[Vampire]",
-
-		{ 4, 4, 1, 1, 2, 3 },
-		6, 12, 8, 6, 2, 12, 30, 20,
-		11,  0,
-		0,  0,
-		0,  0, 0, 0,
-		0,  0, 0, 0,
-		5,
-                0x000005,
-	},
-};
-
-
-
-magic_type technic_info[NUM_TECHNIC][32] =
-{
-	{
-		/* Music */
-		{ 1,  1,  10,   2},
-		{ 2,  1,  10,   2},
-		{ 3,  2,  20,   3},
-		{ 4,  2,  20,   4},
-		{ 5,  2,  20,   6},
-		{ 7,  4,  30,   8},
-		{ 9,  3,  30,   10},
-		{ 10, 2,  30,   12},
-
-		{ 12,  3,   40,   20},
-		{ 15, 16,  42,   35},
-		{ 17, 18,  40,   25},
-		{ 18,  2,  45,   30},
-		{ 23,  8,  50,   38},
-		{ 28, 30,  50,   41},
-		{ 33, 35,  60,   42},
-		{ 38, 35,  70,   46},
-
-		{ 10,  4,  20,   13},
-		{ 22,  5,  30,   26},
-		{ 23,  3,  35,   27},
-		{ 26,  28,  37,   29},
-		{ 32,  37,  41,   36},
-		{ 33,  22,  43,   40},
-		{ 37,  35,  46,   42},
-		{ 45,  60,  50,   56},
-
-		{ 23,  18,  20,   23},
-		{ 30,  30,  30,   26},
-		{ 33,  65,  41,   30},
-		{ 37,  35,  43,   35},
-		{ 40,  30,  46,   50},
-		{ 42,  75,  50,   68},
-		{ 45,  58,  62,   73},
-		{ 49,  48,  70,  200}
-	},
-
-	{
-		/* Hissatsu */
-		{ 1,   15,   0,   0},
-		{ 3,   10,   0,   0},
-		{ 6,   15,   0,   0},
-		{ 9,    8,   0,   0},
-		{ 10,  12,   0,   0},
-		{ 12,  25,   0,   0},
-		{ 14,   7,   0,   0},
-		{ 17,  20,   0,   0},
-
-		{ 19,  10,   0,   0},
-		{ 22,  20,   0,   0},
-		{ 24,  30,   0,   0},
-		{ 25,  10,   0,   0},
-		{ 27,  15,   0,   0},
-		{ 29,  45,   0,   0},
-		{ 32,  70,   0,   0},
-		{ 35,  50,   0,   0},
-
-		{ 18,  40,   0,   0},
-		{ 22,  22,   0,   0},
-		{ 24,  30,   0,   0},
-		{ 26,  35,   0,   0},
-		{ 30,  30,   0,   0},
-		{ 32,  60,   0,   0},
-		{ 36,  40,   0,   0},
-		{ 39,  80,   0,   0},
-
-		{ 26,  20,   0,   0},
-		{ 29,  40,   0,   0},
-		{ 31,  35,   0,   0},
-		{ 36,  80,   0,   0},
-		{ 39, 100,   0,   0},
-		{ 42, 110,   0,   0},
-		{ 45, 130,   0,   0},
-		{ 50, 255,   0,   0}
-	},
-};
 
 
 /*
  * Zangband uses this array instead of the spell flags table, as there
  * are 5 realms of magic, each with 4 spellbooks and 8 spells per book -- TY
  */
-u32b fake_spell_flags[4]=
+u32b fake_spell_flags[MAX_REALM][3] =
 {
-	0x000000ff,
-	0x0000ff00,
-	0x00ff0000,
-	0xff000000
+	/* Magery */
+	{
+		0x00001fff,
+		0x03ffe000,
+		0x00000000
+	},
+	/* Fire Magic */
+	{
+		0x00003fff,
+		0x00000000,
+		0x00000000
+	},
+	/* Aqua Magic */
+	{
+		0x00003fff,
+		0x00000000,
+		0x00000000
+	},
+	/* Earth Magic */
+	{
+		0x00001fff,
+		0x00000000,
+		0x00000000
+	},
+	/* Wind Magic */
+	{
+		0x00000fff,
+		0x00000000,
+		0x00000000
+	},
+	/* Holy Magic */
+	{
+		0x00000fff,
+		0x00fff000,
+		0x00000000
+	},
+	/* Death Magic */
+	{
+		0x00001fff,
+		0x01ffe000,
+		0x00000000
+	},
+	/* Symbiotic Magic */
+	{
+		0x00007fff,
+		0x00000000,
+		0x00000000
+	},
+	/* Witch Magic */
+	{
+		0x000003ff,
+		0x000ffc00,
+		0x7ff00000
+	},
+	/* Drakonite Magic */
+	{
+		0x000000ff,
+		0x00000000,
+		0x00000000
+	},
+	/* Crusade Magic */
+	{
+		0x00000fff,
+		0x01fff000,
+		0x00000000
+	},
 };
 
 
-s32b realm_choices1[] =
+s32b realm_choices[] =
 {
-	(CH_NONE),				/* Warrior */
-	(CH_LIFE | CH_SORCERY | CH_NATURE |
-	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-	 CH_CRUSADE),                              /* Mage */
-	(CH_LIFE | CH_DEATH | CH_DAEMON |
-	 CH_CRUSADE),                              /* Priest */
-	(CH_SORCERY | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT),               /* Rogue */
-	(CH_NATURE),                            /* Ranger */
-	(CH_CRUSADE | CH_DEATH),                   /* Paladin */
-	(CH_ARCANE),                            /* Warrior-Mage */
-	(CH_CHAOS | CH_DAEMON),                 /* Chaos-Warrior */
-	(CH_LIFE | CH_NATURE | CH_DEATH |
-	 CH_ENCHANT),                           /* Monk */
-	(CH_NONE),                              /* Mindcrafter */
-	(CH_LIFE | CH_SORCERY | CH_NATURE |
-	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-	 CH_CRUSADE),                              /* High-Mage */
-	(CH_ARCANE),                            /* Tourist */
-	(CH_NONE),                              /* Imitation */
-	(CH_TRUMP),                             /* Beastmaster */
-	(CH_NONE),                              /* Sorcerer */
-	(CH_NONE),                              /* Archer */
-	(CH_NONE),                              /* Magic eater */
-	(CH_MUSIC),                             /* Harper */
-	(CH_NONE),                              /* Red Mage */
-	(CH_HISSATSU),                          /* Samurai */
-	(CH_LIFE | CH_NATURE | CH_DEATH |
-	 CH_ENCHANT | CH_CRUSADE),                 /* ForceTrainer */
-	(CH_NONE),                              /* Blue Mage */
-	(CH_NONE),				/* Kihei */
-	(CH_NONE),				/* Berserker */
-	(CH_NONE),				/* Kaji */
-	(CH_NONE),				/* Mirror-master */
-};
-
-
-s32b realm_choices2[] =
-{
-	(CH_NONE),                              /* Warrior */
-	(CH_LIFE | CH_SORCERY | CH_NATURE |
-	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-	 CH_CRUSADE),                              /* Mage */
-	(CH_LIFE | CH_SORCERY | CH_NATURE |
-	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-	 CH_CRUSADE),                              /* Priest */
-	(CH_NONE),                              /* Rogue */
-	(CH_SORCERY | CH_CHAOS | CH_DEATH |
-	 CH_TRUMP | CH_ARCANE | CH_DAEMON),     /* Ranger */
-	(CH_NONE),                              /* Paladin */
-	(CH_LIFE | CH_NATURE | CH_CHAOS |
-	 CH_DEATH | CH_TRUMP | CH_ARCANE |
-	 CH_SORCERY | CH_ENCHANT | CH_DAEMON |
-	 CH_CRUSADE),                              /* Warrior-Mage */
-	(CH_NONE),                              /* Chaos-Warrior */
-	(CH_NONE),                              /* Monk */
-	(CH_NONE),                              /* Mindcrafter */
-	(CH_NONE),                              /* High-Mage */
-	(CH_NONE),                              /* Tourist */
-	(CH_NONE),                              /* Imitation */
-	(CH_NONE),                              /* Beastmanster */
-	(CH_NONE),                              /* Sorcerer */
-	(CH_NONE),                              /* Archer */
-	(CH_NONE),                              /* Magic eater */
-	(CH_NONE),                              /* Harper */
-	(CH_NONE),                              /* Red Mage */
-	(CH_NONE),                              /* Samurai */
-	(CH_NONE),                              /* ForceTrainer */
-	(CH_NONE),                              /* Blue Mage */
-	(CH_NONE),				/* Kihei */
-	(CH_NONE),				/* Berserker */
-	(CH_NONE),				/* Kaji */
-	(CH_NONE),				/* Mirror-master */
+	(CH_NONE), /* Soldier */
+	(CH_NONE), /* Knight */
+	(CH_NONE), /* Berserker */
+	(CH_NONE), /* Terror-Knight */
+	(CH_SYMBIOTIC), /* BeastTamer */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Sword-Master*/
+	(CH_WITCH), /* Dragoon */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Ninja */
+	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Wizard */
+	(CH_MAGERY | CH_WITCH | CH_DRAKONITE), /* Warlock */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_CRUSADE), /* Exorcist */
+	(CH_NONE), /* Amazoness */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Valkyrie */
+	(CH_NONE), /* Archer */
+	(CH_SYMBIOTIC), /* DragonTamer */
+	(CH_MAGERY | CH_WITCH | CH_DEATH), /* Witch */
+	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Sirene */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY), /* Cleric */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY | CH_CRUSADE), /* Priest */
+	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_DEATH | CH_WITCH), /* Lich */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_CRUSADE), /* Angel-Knight */
+	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY | CH_DEATH |
+	 CH_SYMBIOTIC | CH_WITCH | CH_DRAKONITE | CH_CRUSADE), /* High-Witch */
+	(CH_NONE), /* Gunner */
+	(CH_DEATH), /* Temple-Knight */
+	(CH_HOLY), /* White-Knight */
+	(CH_NONE), /* Octopus */
 };
 
 
@@ -4064,24 +2709,18 @@ s32b realm_choices2[] =
 cptr realm_names[] =
 {
 	"魔法なし",
-	"生命",
-	"仙術",
-	"自然",
-	"カオス",
+	"魔道",
+	"火炎",
+	"水",
+	"大地",
+	"風",
+	"神聖",
 	"暗黒",
-	"トランプ",
-	"秘術",
-	"匠",
-	"悪魔",
+	"共生",
+	"ウィッチ",
+	"竜言語",
 	"破邪",
 	"不明",
-	"不明",
-	"不明",
-	"不明",
-	"不明",
-	"歌",
-	"武芸",
-	"不明"
 };
 #endif
 
@@ -4092,1051 +2731,438 @@ cptr realm_names[]
 #endif
 = {
 	"none",
-	"Life",
-	"Sorcery",
-	"Nature",
-	"Chaos",
+	"Magery",
+	"Fire",
+	"Aqua",
+	"Earth",
+	"Wind",
+	"Holy",
 	"Death",
-	"Trump",
-	"Arcane",
-	"Craft",
-	"Daemon",
+	"Symbiotic",
+	"Witch",
+	"Drakonite",
 	"Crusade",
-	"unknown",
-	"unknown",
-	"unknown",
-	"unknown",
-	"unknown",
-	"Music",
-	"Kendo",
 	"unknown"
 };
 
 /*
  * Names of the spells (mage spells then priest spells)
  */
-#ifdef JP
-cptr spell_names[VALID_REALM][32] =
+cptr spell_names[MAX_REALM][32] =
 {
-	/*** Life Spells ***/
+	/*** Magery Spells ***/
 	{
-		/* Common Life Spellbooks */
-"軽傷の治癒",
-"祝福",
-"軽傷",
-"光の召喚",
-"罠 & 隠し扉感知",
-"重傷の治癒",
-"解毒",
-"空腹充足",
+		"マジック・ミサイル",
+		"モンスター感知",
+		"ショートテレポート",
+		"罠と扉感知",
+		"ライト・エリア",
+		"罠／扉破壊",
+		"テレポート",
+		"魔力炸裂",
+		"岩石溶解",
+		"魔法の地図",
+		"鑑定",
+		"精神感知",
+		"魔力の矢",
 
-"解呪",
-"重傷",
-"致命傷の治癒",
-"耐熱耐寒",
-"周辺感知",
-"パニック・アンデッド",
-"体力回復",
-"結界の紋章",
+		"空腹充足",
+		"帰還の呪文",
+		"調査",
+		"魔力充填",
+		"テレポート・レベル",
+		"テレポート・アウェイ",
+		"全感知",
+		"魔法ロケット",
+		"千里眼",
+		"悪魔召喚",
+		"街移動",
+		"古代の龍召喚",
+		"魔力の嵐",
 
-		/* Rare Life Spellbooks */
-"*解呪*",
-"鑑識",
-"アンデッド退散",
-"凪の刻",
-"致命傷",
-"帰還の詔",
-"真実の祭壇",
-"真・結界",
-
-"不毛化",
-"全感知",
-"アンデッド消滅",
-"千里眼",
-"全復活",
-"*体力回復*",
-"聖なるビジョン",
-"究極の耐性"
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	},
 
-	/*** Sorcery Spells ***/
-
+	/*** Fire Spells ***/
 	{
-		/* Common Sorcery Spellbooks */
-"モンスター感知",
-"ショート・テレポート",
-"罠と扉感知",
-"ライト・エリア",
-"パニック・モンスター",
-"テレポート",
-"スリープ・モンスター",
-"魔力充填",
+		"スパークスフィア",
+		"デフゾショネル",
+		"ファイア・ボルト",
+		"スタンスローター",
+		"ファイアストーム",
+		"クリアスカイ",
+		"ヒートウェポン",
+		"不滅の肉体",
+		"サラマンダー",
+		"クリムゾンノート",
+		"スルトの狂焔",
+		"ストライクノヴァ",
+		"ゾショネルの加護",
+		"スーパーノヴァ",
 
-"魔法の地図",
-"鑑定",
-"スロウ・モンスター",
-"周辺スリープ",
-"テレポート・モンスター",
-"スピード",
-"真・感知",
-"真・鑑定",
-
-		/* Rare Sorcery Spellbooks */
-"物体と財宝感知",
-"チャーム・モンスター",
-"精神感知",
-"街移動",
-"自己分析",
-"テレポート・レベル",
-"帰還の呪文",
-"次元の扉",
-
-"調査",
-"爆発のルーン",
-"念動力",
-"千里眼",
-"魅了の視線",
-"錬金術",
-"怪物追放",
-"無傷の球"
-
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	},
 
-	/*** Nature Spells ***/
-
+	/*** Aqua Spells ***/
 	{
-		/* Common Nature Spellbooks */
-"モンスター感知",
-"稲妻",
-"罠と扉感知",
-"食糧生成",
-"日の光",
-"動物習し",
-"環境への耐性",
-"傷と毒治療",
+		"デフグルーザ",
+		"極寒の矢",
+		"アイスブラスト",
+		"クリアブラッド",
+		"スロウムーブ",
+		"絶対零度",
+		"ウォーター・ボール",
+		"ポイズンハザード",
+		"潜水",
+		"フェンリル",
+		"マーシーレイン",
+		"大洪水",
+		"ブルー・スパイラル",
+		"アイスレクイエム",
 
-"岩石溶解",
-"アイス・ボルト",
-"自然の覚醒",
-"ファイア・ボルト",
-"太陽光線",
-"足かせ",
-"動物召喚",
-"薬草治療",
-
-		/* Rare Nature Spellbooks */
-"階段生成",
-"肌石化",
-"真・耐性",
-"森林創造",
-"動物友和",
-"試金石",
-"石の壁",
-"腐食防止",
-
-"地震",
-"カマイタチ",
-"ブリザード",
-"稲妻嵐",
-"渦潮",
-"陽光召喚",
-"精霊の刃",
-"自然の脅威"
-
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	},
 
-	/*** Chaos Spells ***/
-
+	/*** Earth Spells ***/
 	{
-		/* Common Chaos Spellbooks */
-"マジック・ミサイル",
-"トラップ/ドア破壊",
-"閃光",
-"混乱の手",
-"魔力炸裂",
-"ファイア・ボルト",
-"力の拳",
-"テレポート",
+		"エイクオブゾーン",
+		"デフバーサ",
+		"アシッド・ボルト",
+		"森林創造",
+		"アシッドクラウド",
+		"ジャンプウォール",
+		"肌石化",
+		"地竜精",
+		"大地の楔",
+		"ノーム",
+		"クラッグプレス",
+		"ペトロブレス",
+		"アースクェイク",
 
-"ワンダー",
-"カオス・ボルト",
-"ソニック・ブーム",
-"破滅の矢",
-"ファイア・ボール",
-"テレポート・アウェイ",
-"破壊の言葉",
-"ログルス発動",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+	},
 
-		/* Rare Chaos Spellbooks */
-"他者変容",
-"連鎖稲妻",
-"魔力封入",
-"原子分解",
-"現実変容",
-"マジック・ロケット",
-"混沌の刃",
-"悪魔召喚",
+	/*** Wind Spells ***/
+	{
+		"デッドショット",
+		"デフハーネラ",
+		"風の護り",
+		"サンダー・ボルト",
+		"サンダーフレア",
+		"クイックムーブ",
+		"コールストーム",
+		"トルネード",
+		"サンダーバード",
+		"ハーネラの罵声",
+		"次元の扉",
+		"エアリアルクライ",
 
-"重力光線",
-"流星群",
-"焔の一撃",
-"混沌召来",
-"自己変容",
-"魔力の嵐",
-"ログルスのブレス",
-"虚無召来"
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+	},
 
+	/*** Holy Spells ***/
+	{
+		"邪悪存在感知",
+		"ブレス",
+		"光の召喚",
+		"ヒーリング",
+		"罠 & 隠し扉感知",
+		"空腹充足",
+		"キュアポイズン",
+		"キュアカース",
+		"予見",
+		"神の槍",
+		"結界の紋章",
+		"ヒーリングオール",
+
+		"クリアランス",
+		"対邪悪結界",
+		"ヒーリングプラス",
+		"全耐性",
+		"布教の言葉",
+		"全復活",
+		"神聖なる光",
+		"イグニスファタス",
+		"天使召喚",
+		"真・結界",
+		"パーフェクトヒール",
+		"リザレクション",
+
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	},
 
 	/*** Death Spells ***/
-
 	{
-		/* Common Death Spellbooks */
-"無生命感知",
-"呪殺弾",
-"邪悪感知",
-"悪臭雲",
-"黒い眠り",
-"耐毒",
-"恐慌",
-"アンデッド従属",
+		"アンデッド従属",
+		"暗黒治療",
+		"死体廃熱化",
+		"闇の焔",
+		"チャージスペル",
+		"ナイトメア",
+		"空間歪曲",
+		"モンスター消滅",
+		"死者召喚",
+		"ワードオブペイン",
+		"破壊の言葉",
+		"周辺蘇生",
+		"ペット爆破",
 
-"エントロピーの球",
-"地獄の矢",
-"殺戮雲",
-"モンスター消滅",
-"毒の刃",
-"吸血ドレイン",
-"反魂の術",
-"抹殺",
+		"吸血の刃",
+		"腐敗の大地",
+		"ライフフォース",
+		"ダークロア",
+		"冥界への招待",
+		"抹殺",
+		"暗黒の嵐",
+		"闇の破神剣",
+		"周辺抹殺",
+		"地獄の劫火",
+		"パラダイム",
+		"デッドスクリーム",
 
-		/* Rare Death Spellbooks */
-"狂戦士化",
-"悪霊召喚",
-"暗黒の矢",
-"狂乱戦士",
-"吸血の刃",
-"真・吸血",
-"死の言魂",
-"暗黒の嵐",
-
-"死の光線",
-"死者召喚",
-"死者の秘伝",
-"吸血鬼変化",
-"生命力復活",
-"周辺抹殺",
-"地獄の劫火",
-"幽体化"
-
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	},
 
-	/*** Trump Spells ***/
-
+	/*** Symbiotic Spells ***/
 	{
-		/* Common Trump Spellbooks */
-"ショート・テレポート",
-"蜘蛛のカード",
-"シャッフル",
-"フロア・リセット",
-"テレポート",
-"感知のカード",
-"テレポート・モンスター",
-"動物のカード",
+		"モンスター感知",
+		"動物馴らし",
+		"友人治療",
+		"蔦絡み",
+		"食料生成",
+		"ペット集合",
+		"四足獣召喚",
+		"友からの知らせ",
+		"スピード・モンスター",
+		"動物友和",
+		"増殖阻止",
+		"ハウンド召喚",
+		"友への愛",
+		"動物召喚",
+		"真・友人治療",
 
-"移動のカード",
-"カミカゼのカード",
-"幻霊召喚",
-"スピード・モンスター",
-"テレポート・レベル",
-"次元の扉",
-"帰還の呪文",
-"怪物追放",
-
-		/* Rare Trump Spellbooks */
-"位置交換のカード",
-"アンデッドのカード",
-"爬虫類のカード",
-"モンスターのカード",
-"ハウンドのカード",
-"トランプの刃",
-"人間トランプ",
-"サイバーデーモンのカード",
-
-"予見のカード",
-"知識のカード",
-"回復モンスター",
-"ドラゴンのカード",
-"隕石のカード",
-"デーモンのカード",
-"地獄のカード",
-"古代ドラゴンのカード"
-
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	},
 
-	/*** Arcane Spells (_only_ common spells) ***/
-
+	/*** Witch Spells ***/
 	{
-"電撃",
-"魔法の施錠",
-"透明体感知",
-"モンスター感知",
-"ショート・テレポート",
-"ライト・エリア",
-"罠と扉 破壊",
-"軽傷の治癒",
+		"赤外線視力",
+		"チャーム",
+		"混乱の歌",
+		"ヒーロー気分",
+		"デフエレメント",
+		"風の護り",
+		"クリアブラッド",
+		"クイックムーブ",
+		"スロウムーブ",
+		"窒息の手",
 
-"罠と扉 感知",
-"燃素",
-"財宝感知",
-"魔法 感知",
-"アイテム感知",
-"解毒",
-"耐冷",
-"耐火",
+		"スタンスローター",
+		"爆発のルーン",
+		"ジャンプウォール",
+		"ポイズンクラウド",
+		"ダミー",
+		"全耐性",
+		"マジカルウェポン",
+		"メルトウェポン",
+		"プレイエレメント",
+		"救援召喚",
 
-"耐電",
-"耐酸",
-"重傷の治癒",
-"テレポート",
-"鑑定",
-"岩石溶解",
-"閃光",
-"空腹充足",
+		"*元素*ビーム",
+		"魔法の鎧",
+		"ミダスの手",
+		"モルド召喚",
+		"コールストーム",
+		"魔力消去",
+		"マーシーレイン",
+		"ペトロクラウド",
+		"次元の扉",
+		"チェンジエレメント",
+		"幽体化",
 
-"透明視認",
-"エレメンタル召喚",
-"テレポート・レベル",
-"テレポート・モンスター",
-"元素の球",
-"全感知",
-"帰還の呪文",
-"千里眼",
-
+		"",
 	},
 
-	/*** Craft Spells ***/
-
+	/*** Drakonite Spells ***/
 	{
-		/* Common Craft Spellbooks */
-"赤外線視力",
-"回復力強化",
-"空腹充足",
-"耐冷気",
-"耐火炎",
-"士気高揚",
-"耐電撃",
-"耐酸",
+		"マーティライズ",
+		"ドミニオン",
+		"テンペスト",
+		"アニヒレーション",
+		"メテオストライク",
+		"ホワイトミュート",
+		"リーンカーネイト",
+		"スナップドラゴン",
 
-"透明視認",
-"解呪",
-"耐毒",
-"狂戦士化",
-"自己分析",
-"対邪悪結界",
-"癒し",
-"魔法剣",
-
-		/* Rare Craft Spellbooks */
-"テレパシー",
-"肌石化",
-"全耐性",
-"スピード",
-"壁抜け",
-"盾磨き",
-"ゴーレム製造",
-"魔法の鎧",
-
-"装備無力化",
-"呪い粉砕",
-"完全なる知識",
-"武器強化",
-"防具強化",
-"武器属性付与",
-"人間トランプ",
-"属性への免疫",
-
-	},
-
-	/*** Daemon Spells ***/
-
-	{
-		/* Common Daemon Spellbooks */
-"マジック・ミサイル",
-"無生命感知",
-"邪なる祝福",
-"耐火炎",
-"恐慌",
-"地獄の矢",
-"古代の死霊召喚",
-"地獄の焔",
-
-"デーモン支配",
-"ビジョン",
-"耐地獄",
-"プラズマ・ボルト",
-"ファイア・ボール",
-"炎の刃",
-"地獄球",
-"デーモン召喚",
-
-		/* Rare Daemon Spellbooks */
-"悪魔の目",
-"悪魔のクローク",
-"溶岩流",
-"プラズマ球",
-"悪魔変化",
-"地獄の波動",
-"サキュバスの接吻",
-"破滅の手",
-
-"士気高揚",
-"不滅の肉体",
-"狂気の円環",
-"ペット爆破",
-"グレーターデーモン召喚",
-"地獄嵐",
-"血の呪い",
-"魔王変化",
-
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	},
 
 	/*** Crusade Spells ***/
-
 	{
-		/* Common Crusade Spellbooks */
-"懲罰",
-"邪悪存在感知",
-"恐怖除去",
-"威圧",
-"聖域",
-"入口",
-"スターダスト",
-"身体浄化",
+		"邪悪存在感知",
+		"ライトニングボウ",
+		"聖域",
+		"身体浄化",
+		"透明視認",
+		"スターダスト",
+		"封魔",
+		"聖なる光球",
+		"フェイス",
+		"裁きの雷",
+		"神の怒り",
+		"マジックボム",
 
-"邪悪飛ばし",
-"聖なる光球",
-"悪魔払い",
-"解呪",
-"透明視認",
-"対邪悪結界",
-"裁きの雷",
-"聖なる御言葉",
+		"士気高揚",
+		"イクソシズム",
+		"トランキライズ",
+		"聖なるオーラ",
+		"聖なる刃",
+		"シャイニング",
+		"聖なる御言葉",
+		"スターバースト",
+		"ハルマゲドン",
+		"目には目を",
+		"ホーリーランス",
+		"スターティアラ",
+		"聖戦",
 
-		/* Rare Crusade Spellbooks */
-"開かれた道",
-"封魔",
-"聖なるオーラ",
-"アンデッド&悪魔退散",
-"邪悪退散",
-"聖なる刃",
-"スターバースト",
-"天使召喚",
-
-"士気高揚",
-"呪い退散",
-"邪悪追放",
-"ハルマゲドン",
-"目には目を",
-"神の怒り",
-"神威",
-"聖戦",
-
-	},
-
-	/*** Music Spells ***/
-
-	/* 訳語
-	   Song : 歌, Note : 音色, Pattern : 旋律, 
-	   Ballad : 歌(謡曲→「唄」と訳す?), Chant : 歌声, */
-	{
-		/******* Apprentice Handbook *******/
-		"遅鈍の歌",	/*"Song of Holding"*/
-		"祝福の歌",	/*"Song of Blessing"*/
-		"崩壊の音色",	/*"Wracking Note"*/
-		"朦朧の旋律",	/*"Stun Pattern"*/
-		"生命の流れ",	/*"Flow of Life"*/
-		"太陽の歌",	/*"Song of the Sun"*/
-		"恐怖の歌",
-		"戦いの歌",	/*"Heroic Ballad"*/
-
-		/******* Minstrel's Music *******/
-		"霊的知覚",	/*"Clairaudience"*/
-		"魂の歌",
-		"知識の歌",	/*"Song of Lore"*/
-		"隠遁の歌",
-		"幻影の旋律",	/*"Illusion Pattern"*/
-		"破滅の叫び",	/*"Doomcall"*/
-		"フィリエルの歌",	/*"Firiel's Song"*/
-		"旅の仲間",	/*"Fellowship Chant"*/
-
-		/******* Harps of Rivendell *******/
-		"分解音波",
-		"元素耐性",
-		"ホビットのメロディ",
-		"歪んだ世界",
-		"退散の歌",
-		"サルマンの甘言",
-		"嵐の音色",
-		"もう一つの世界",
-
-		/******* Lays of Beleriand *******/
-		"破壊の旋律",
-		"停滞の歌",
-		"守りの歌",
-		"英雄の詩",
-		"ヤヴァンナの助け",
-		"再生の歌",
-		"サウロンの魔術",
-		"フィンゴルフィンの挑戦",
-	},
-
-	/*** Hissatsuwaza ***/
-
-	{
-		"飛飯綱",
-		"五月雨斬り",
-		"ブーメラン",
-		"焔霊",
-		"殺気感知",
-		"みね打ち",
-		"カウンター",
-		"払い抜け",
-
-		"サーペンツタン",
-		"斬魔剣弐の太刀",
-		"裂風剣",
-		"刀匠の目利き",
-		"破岩斬",
-		"乱れ雪月花",
-		"急所突き",
-		"魔神斬り",
-
-		"捨て身",
-		"雷撃鷲爪斬",
-		"入身",
-		"赤流渦",
-		"激震撃",
-		"地走り",
-		"気迫の雄叫び",
-		"無双三段",
-
-		"吸血鬼の牙",
-		"幻惑",
-		"百人斬り",
-		"天翔龍閃",
-		"二重の剣撃",
-		"虎伏絶刀勢",
-		"慶雲鬼忍剣",
-		"切腹",
-	},
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+	}
 };
-
-#else
-
-cptr spell_names[VALID_REALM][32] =
-{
-	/*** Life Spells ***/
-	{
-		/* Common Life Spellbooks */
-		"Cure Light Wounds",
-		"Bless",
-		"Cause Light Wounds",
-		"Call Light",
-		"Detect Doors & Traps",
-		"Cure Medium Wounds",
-		"Cure Poison",   
-		"Satisfy Hunger",
-
-		"Remove Curse",
-		"Cause Medium Wounds",
-		"Cure Critical Wounds",
-		"Resist Heat and Cold",
-		"Sense Surroundings",
-		"Turn Undead",
-		"Healing",
-		"Glyph of Warding",
-
-		/* Rare Life Spellbooks */
-		"Dispel Curse",
-		"Perception",
-		"Dispel Undead",
-		"Day of the Dove",
-		"Cause Critical Wounds",
-		"Word of Recall",
-		"Alter Reality",
-		"Warding True",
-
-		"Sterilization",
-		"Detection",
-		"Annihilate Undead",
-		"Clairvoyance",
-		"Restoration",
-		"Healing True",
-		"Holy Vision",
-		"Ultimate Resistance",
-	},
-
-	/*** Sorcery Spells ***/
-
-	{
-		/* Common Sorcery Spellbooks */
-		"Detect Monsters",
-		"Phase Door",
-		"Detect Doors and Traps",
-		"Light Area",
-		"Confuse Monster",
-		"Teleport",
-		"Sleep Monster",
-		"Recharging",
-
-		"Magic Mapping",
-		"Identify",
-		"Slow Monster",
-		"Mass Sleep",
-		"Teleport Away",
-		"Haste Self",
-		"Detection True",
-		"Identify True",
-
-		/* Rare Sorcery Spellbooks */
-		"Detect items and Treasure",
-		"Charm Monster",
-		"Sense Minds",
-		"Teleport to town",
-		"Self Knowledge",
-		"Teleport Level",
-		"Word of Recall",
-		"Dimension Door",
-
-		"Probing",
-		"Explosive Rune",
-		"Telekinesis",
-		"Clairvoyance",
-		"Charm monsters",
-		"Alchemy",
-		"Banishment",
-		"Globe of Invulnerability",
-	},
-
-	/*** Nature Spells ***/
-
-	{
-		/* Common Nature Spellbooks */
-		"Detect Creatures",
-		"Lightning",
-		"Detect Doors and Traps",
-		"Produce Food",
-		"Daylight",
-		"Animal Taming",
-		"Resist Environment",
-		"Cure Wounds & Poison",
-
-		"Stone to Mud",
-		"Frost Bolt",
-		"Nature Awareness",
-		"Fire Bolt",
-		"Ray of Sunlight",
-		"Entangle",
-		"Summon Animal",
-		"Herbal Healing",
-
-		/* Rare Nature Spellbooks */
-		"Stair Building",
-		"Stone Skin",
-		"Resistance True",
-		"Forest Creation",
-		"Animal Friendship",
-		"Stone Tell",
-		"Wall of Stone",
-		"Protect from Corrosion",
-
-		"Earthquake",
-		"Cyclone",
-		"Blizzard",
-		"Lightning Storm",
-		"Whirlpool",
-		"Call Sunlight",
-		"Elemental Branding",
-		"Nature's Wrath",
-	},
-
-	/*** Chaos Spells ***/
-
-	{
-		/* Common Chaos Spellbooks */
-		"Magic Missile",
-		"Trap / Door Destruction",
-		"Flash of Light",
-		"Touch of Confusion",
-		"Mana Burst",
-		"Fire Bolt",
-		"Fist of Force",
-		"Teleport Self",
-
-		"Wonder",
-		"Chaos Bolt",
-		"Sonic Boom",
-		"Doom Bolt",
-		"Fire Ball",
-		"Teleport Other",
-		"Word of Destruction",
-		"Invoke Logrus",
-
-		/* Rare Chaos Spellbooks */
-		"Polymorph Other",
-		"Chain Lightning",
-		"Arcane Binding",
-		"Disintegrate",
-		"Alter Reality",
-		"Magic Rocket",
-		"Chaos Branding",
-		"Summon Demon",
-
-		"Beam of Gravity",
-		"Meteor Swarm",
-		"Flame Strike",
-		"Call Chaos",
-		"Polymorph Self",
-		"Mana Storm",
-		"Breathe Logrus",
-		"Call the Void",
-	},
-
-	/*** Death Spells ***/
-
-	{
-		/* Common Death Spellbooks */
-		"Detect Unlife",
-		"Malediction",
-		"Detect Evil",
-		"Stinking Cloud",
-		"Black Sleep",
-		"Resist Poison",
-		"Horrify",
-		"Enslave Undead",
-
-		"Orb of Entropy",
-		"Nether Bolt",
-		"Cloud kill",
-		"Genocide One",
-		"Poison Branding",
-		"Vampiric Drain",
-		"Animate dead",
-		"Genocide",
-
-		/* Rare Death Spellbooks */
-		"Berserk",
-		"Invoke Spirits",
-		"Dark Bolt",
-		"Battle Frenzy",
-		"Vampiric Branding",
-		"Vampirism True",
-		"Nether Wave",
-		"Darkness Storm",
-
-		"Death Ray",
-		"Raise the Dead",
-		"Esoteria",
-		"Polymorph Vampire",
-		"Restore Life",
-		"Mass Genocide",
-		"Hellfire",
-		"Wraithform",
-	},
-
-	/*** Trump Spells ***/
-
-	{
-		/* Common Trump Spellbooks */
-		"Phase Door",
-		"Trump Spiders",
-		"Shuffle",
-		"Reset Recall",
-		"Teleport",
-		"Trump Spying",
-		"Teleport Away",
-		"Trump Animals",
-
-		"Trump Reach",
-		"Trump Kamikaze",
-		"Phantasmal Servant",
-		"Haste Monster",
-		"Teleport Level",
-		"Dimension Door",
-		"Word of Recall",
-		"Banish",
-
-		/* Rare Trump Spellbooks */
-		"Swap Position",
-		"Trump Undead",
-		"Trump Reptiles",
-		"Trump Monsters",
-		"Trump Hounds",
-		"Trump Branding",
-		"Living Trump",
-		"Trump Cyberdemon",
-
-		"Trump Divination",
-		"Trump Lore",
-		"Heal Monster",
-		"Trump Dragon",
-		"Trump Meteor",
-		"Trump Demon",
-		"Trump Greater Undead",
-		"Trump Ancient Dragon",
-	},
-
-	/*** Arcane Spells (_only_ common spells) ***/
-
-	{
-		"Zap",
-		"Wizard Lock",
-		"Detect Invisibility",
-		"Detect Monsters",
-		"Blink",
-		"Light Area",
-		"Trap & Door Destruction",
-		"Cure Light Wounds",
-
-		"Detect Doors & Traps",
-		"Phlogiston",
-		"Detect Treasure",
-		"Detect Enchantment",
-		"Detect Objects",
-		"Cure Poison",
-		"Resist Cold",
-		"Resist Fire",
-
-		"Resist Lightning",
-		"Resist Acid",
-		"Cure Medium Wounds",
-		"Teleport",
-		"Identify",
-		"Stone to Mud",
-		"Ray of Light",
-		"Satisfy Hunger",
-
-		"See Invisible",
-		"Conjure Elemental",
-		"Teleport Level",
-		"Teleport Away",
-		"Elemental Ball",
-		"Detection",
-		"Word of Recall",
-		"Clairvoyance",
-	},
-
-	/*** Craft Spells ***/
-
-	{
-		/* Common Craft Spellbooks */
-		"Infravision",
-		"Regeneration",
-		"Satisfy Hunger",
-		"Resist Cold",
-		"Resist Fire",
-		"Heroism",
-		"Resist Lightning",
-		"Resist Acid",
-
-		"See Invisibility",
-		"Remove Curse",
-		"Resist Poison",
-		"Berserk",
-		"Self Knowledge",
-		"Protection from Evil",
-		"Cure",
-		"Mana Branding",
-
-		/* Rare Craft Spellbooks */
-		"Telepathy",
-		"Stone Skin",
-		"Resistance",
-		"Haste Self",
-		"Walk through Wall",
-		"Polish Shield",
-		"Create Golem",
-		"Magical armor",
-
-		"Remove Enchantment",
-		"Remove All Curse",
-		"Knowledge True", /* "Total Knowledge", */
-		"Enchant Weapon",
-		"Enchant Armor",
-		"Brand Weapon",
-		"Living Trump",
-		"Immunity",
-	},
-
-	/*** Daemon Spells ***/
-
-	{
-		/* Common Daemon Spellbooks */
-		"Magic Missile",
-		"Detect Unlife",
-		"Evil Bless",
-		"Resist Fire",
-		"Horrify",
-		"Nether Bolt",
-		"Summon Manes",
-		"Hellish Flame",
-
-		"Dominate Demon",
-		"Vision",
-		"Resist Nether",
-		"Plasma bolt",
-		"Fire Ball",
-		"Fire Branding",
-		"Nether Ball",
-		"Summon Demon",
-
-		/* Rare Daemon Spellbooks */
-		"Devilish Eye",
-		"Devil Cloak",
-		"The Flow of Lava",
-		"Plasma Ball",
-		"Polymorph Demon",
-		"Nather Wave",
-		"Kiss of Succubus",
-		"Doom Hand",
-
-		"Raise the Morale",
-		"Immortal Body",
-		"Insanity Circle",
-		"Explode Pets",
-		"Summon Greater Demon",
-		"Nether Storm",
-		"Bloody Curse",
-		"Polymorph Demonlord",
-	},
-
-	/*** Crusade Spells ***/
-
-	{
-		/* Common Crusade Spellbooks */
-		"Punishment",
-		"Detect Evil",
-		"Remove Fear",
-		"Scare Monster",
-		"Sanctuary",
-		"Portal",
-		"Star Dust",
-		"Purify",
-
-		"Scatter Evil",
-		"Holy Orb",
-		"Exorcism",
-		"Remove Curse",
-		"Sense Unseen",
-		"Protection from Evil",
-		"Judgment Thunder",
-		"Holy Word",
-
-		/* Rare Crusade Spellbooks */
-		"Unbarring Ways",
-		"Arrest",
-		"Holy Aura",
-		"Dispel Undead & Demons",
-		"Dispel Evil",
-		"Holy Blade",
-		"Star Burst",
-		"Summon Angel",
-
-		"Heroism",
-		"Dispel Curse",
-		"Banish Evil",
-		"Armageddon",
-		"An Eye for an Eye",
-		"Wrath of the God",
-		"Divine Intervention",
-		"Crusade",
-	},
-
-	/*** Music Spells ***/
-
-	{
-		/******* Apprentice Handbook *******/
-		"Song of Holding",
-		"Song of Blessing",
-		"Wrecking Note",
-		"Stun Pattern",
-		"Flow of Life",
-		"Song of the Sun",
-		"Song of Fear", /* 恐怖の歌 */
-		"Heroic Ballad",
-
-		/******* Minstrel's Music *******/
-		"Clairaudience",
-		"Soul Shriek", /* 魂の歌 */
-		"Song of Lore",
-		"Hiding Tune", /* "隠遁の歌", */
-		"Illusion Pattern",
-		"Doomcall",
-		"Firiel's Song",
-		"Fellowship Chant", /* "旅の仲間" */
-
-		/******* Harps of Rivendell *******/
-		"Sound of disintegration", /* 分解音波 */
-		"Finrod's Resistance", /* 元素耐性 */
-		"Hobbit Melodies", /* ホビットのメロディ */
-		"World Contortion", /* 歪んだ世界 */
-		"Dispelling chant", /* 退散の歌 */
-		"The Voice of Saruman", /* サルマンの甘言 */
-		"Song of the Tempest", /* 嵐の音色 */
-		"Ambarkanta", /* もう一つの世界 */
-
-		/******* Lays of Beleriand *******/
-		"Wrecking Pattern", /* 破壊の旋律 */
-		"Stationary Shriek", /* 停滞の歌 */
-		"Endurance", /* 守りの歌 */
-		"The Hero's Poem", /* 英雄の詩 */
-		"Relief of Yavanna", /* "ヤヴァンナの助け" */
-		"Goddess' rebirth", /* "再生の歌" */
-		"Wizardry of Sauron", /* "サウロンの魔術", */
-		"Fingolfin's Challenge", /* "フィンゴルフィンの挑戦", */
-	},
-
-	/*** Hissatsuwaza ***/
-	{
-		"Tobi-Izuna",
-		"3-Way Attack",
-		"Boomerang",
-		"Burning Strike",
-		"Detect Ferocity",
-		"Strike to Stun",
-		"Counter",
-		"Harainuke",
-
-		"Serpent's Tongue",
-		"Zammaken",
-		"Wind Blast",
-		"Judge",
-		"Rock Smash",
-		"Midare-Setsugekka",
-		"Spot Aiming",
-		"Majingiri",
-
-		"Desperate Attack",
-		"Lightning Eagle",
-		"Rush Attack",
-		"Bloody Maelstrom",
-		"Earthquake Blow",
-		"Crack",
-		"War Cry",
-		"Musou-Sandan",
-
-		"Vampire's Fang",
-		"Moon Dazzling",
-		"Hundred Slaughter",
-		"Dragonic Flash",
-		"Twin Slash",
-		"Kofuku-Zettousei",
-		"Keiun-Kininken",
-		"Harakiri",
-	},
-};
-#endif
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -5220,378 +3246,98 @@ int chest_traps[64] =
  * The player gets a new title every five levels, so each class
  * needs only ten titles total.
  */
-#ifdef JP
 cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 {
-	/* Warrior */
+	/* Soldier */
 	{
-                "新参兵",
-                "兵士",
-                "傭兵",
-                "古参兵",
-                "剣士",
-                "闘士",
-                "英雄",
-                "男爵",
-                "伯爵",
-                "領主",
+		"予備兵",
+		"二等兵",
+		"一等兵",
+		"上級兵",
+		"伍長",
+		"軍曹",
+		"曹長",
+		"少尉",
+		"中尉",
+		"大尉",
 	},
-
-	/* Mage */
+	/* Knight */
 	{
-				/*"見習い",*/
-                "練習生",                 /*丁稚、練習生 */
-                "奇術師",               /*詐欺師、ペテン師 */
-                "幻術師",
-                "呪術師",
-                "召霊師",
-                "召魔師",
-                "魔術師",
-                "魔道師",
-                "イプシシマス",
-                "大魔道師",
+		"従士",
+		"見習い騎士",
+		"下級騎士",
+		"中級騎士",
+		"上級騎士",
+		"修道騎士",
+		"参謀",
+		"副団長",
+		"騎士団長",
+		"騎士総長",
 	},
-
-	/* Priest */
+	/* Berserker */
 	{
-                "信者",                 /*信徒 */
-                "侍僧",             /*教会奉仕者、見習い僧、伴僧、従者 */
-                "熟練僧",
-                "聖職者",                 /*聖職者 */
-                "伝道師",               /*司祭評議員、修道会会員 */
-                "牧師",               /*ラマ教の僧 */
-                "聖人",               /*大司教、総主教、総大司教 */
-                "祭司",                 /*祭司、司祭 */
-                "祭司長",               /*大祭司、祭司長 */
-                "教皇",
+		"ごろつき",
+		"ちんぴら",
+		"強盗",
+		"山賊",
+		"賞金首",
+		"賞金稼ぎ",
+		"流血の闘士",
+		"血河の闘士",
+		"屍山の闘士",
+		"伝説の闘士",
 	},
-
-	/* Rogues */
+	/* Terror-Knight */
 	{
-		/* "ごろつき",*/                     /*ごろつき、風来坊、浮浪者 */
-                "すり",
-                "追いはぎ",                     /*追い剥ぎ、強盗、泥棒 */
-                "夜盗",                         /*強盗、夜盗、泥棒 */
-                "こそ泥",                       /*こそ泥、小泥棒 */
-                "ペテン師",                     /*博徒、ペテン師、詐欺師 */
-                "ロウシーフ",
-                "ハイシーフ",
-                "マスターシーフ",
-                "アサシン",						/* 暗殺者 */
-                "ギルドマスター",
+		"ろくでなし",
+		"変質者",
+		"鬼畜",
+		"悪漢",
+		"人殺し",
+		"首切り狂",
+		"殺戮享楽者",
+		"悪魔の騎士",
+		"戦場の悪夢",
+		"殺戮大王",
 	},
-
-	/* Rangers */
+	/* BeastTamer */
 	{
-                "使い走り",
-                "馳夫",
-                "斥候",                         /*斥候、見張り、偵察兵 */
-                "狩人",
-                "追跡者",
-                "先導者",
-                "探険者",                       /*開拓者、探険者 */
-                "野伏",
-                "野伏頭",
-                "野伏の総領",
+		"小鳥の主人",
+		"犬猫の主人",
+		"馬の主人",
+		"狼の主人",
+		"虎の主人",
+		"熊の主人",
+		"獅子の主人",
+		"聖獣の主人",
+		"魔獣の主人",
+		"獣神の友人",
 	},
-
-	/* Paladins */
+	/* Sword-Master */
 	{
-                "勇士",                 /*色男、愛人、しゃれ者、勇敢な人 */
-                "衛士",
-                "保護者",
-                "防衛者",
-                "護衛者",
-                "騎士",
-                "重騎士",
-                "聖騎士",
-                "上級聖騎士",
-                "聖騎士長",
-	},
-
-	/* Warrior-Mage */
-	{
-		"見習い",
-		"徒弟",			/*丁稚、練習生 */
-		"一人前",
-		"古参兵",
-		"魔術兵士",
-		"魔術闘士",
-		"魔術の英雄", /* Mage-Hero */
-		"魔男爵",
-		/* "魔公爵", */
-		"戦闘魔術士",
-		"ウィザードロード",
-	},
-
-	/* Chaos Warrior */
-	{
-                "新参兵",
-                "兵士",
-                "傭兵",
-                "古参兵",
-                "剣士",
-                "闘士",
-                "混沌の英雄",
-                "混沌の男爵",
-                "混沌の公爵",
-                "混沌の王者",
-	},
-
-	/* Monk */
-	{
-		"入門者",
-		"弟子",
-		"直弟子",
+		"初心者",
+		"入門生",
+		"白帯",
+		"黒帯",
 		"師範代",
 		"師範",
-		"道場主",
-		"名人",
-		"大名人",
-		"拳聖",
-		"拳神",
-	},
-
-	/* Mindcrafter */
-	{
-		"練習生",
-		"見習い",
-		"熟練士",
-		"熟達士",
-		"黙想士",
-		"心術士",
-		"サイキック",
-		"サイオニック",
-		"超能力者",
-		"マインドマスター",
-	},
-
-	/* High Mage; same as Mage */
-	{
-				/*"見習い",*/
-                "練習生",                 /*丁稚、練習生 */
-                "奇術師",               /*詐欺師、ペテン師 */
-                "幻術師",
-                "呪術師",
-                "召霊師",
-                "召魔師",
-                "魔術師",
-                "魔道師",
-                "イプシシマス",
-                "大魔道師",
-	},
-
-	/* Tourist */
-	{
-		"プー太郎",
-		"観光客",
-		"周遊旅行者",
-		"遍歴者",
-		"旅行者",
-		"放浪者", /* "旅人", */
-		"航海者",
-		"探検家",
-		"冒険家",
-		"スペランカー",
-	},
-
-	/* Imitator */
-	{
-		"これから",
-		"いまいち",
-		"まだまだ",
-		"ぼちぼち",
-		"そこそこ",
-		"まあまあ",
-		"なかなか",
-		"いけいけ",
-		"そうとう",
-		"えらい",
-	},
-
-	/* Beastmaster */
-	{
-		"イモリ使い",
-		"ヘビ使い",
-		"クモ使い",
-		"狼使い",
-		"トラ使い",
-		"甲虫使い",
-		"ヒドラ使い",
-		"ハウンド使い",
-		"ムーマク使い",
-		"ドラゴン使い",
-	},
-
-	/* Sorcerer; same as Mage */
-	{
-				/*"見習い",*/
-                "練習生",                 /*丁稚、練習生 */
-                "奇術師",               /*詐欺師、ペテン師 */
-                "幻術師",
-                "呪術師",
-                "召霊師",
-                "召魔師",
-                "魔術師",
-                "魔道師",
-                "イプシシマス",
-                "大魔道師",
-	},
-
-	/* Archer */
-	{
-                "新参兵",
-                "兵士",
-                "傭兵",
-                "古参兵",
-                "剣士",
-                "闘士",
-                "英雄",
-                "男爵",
-                "伯爵",
-                "領主",
-	},
-
-	/* Magic eater */
-	{
-                "無知なる者",
-                "入門者",
-                "奇術師",
-                "秘術師",
-                "秘術師",
-                "熟練者",
-                "達人",
-                "達人",
-                "魔道師",
-                "全てを知る者",
-	},
-
-        /* Harper */
-	{
-                "見習い",	/*"Apprentice"*/
-                "作曲家",	/*"Songsmith"*/
-                "吟遊詩人",	/*"Bard"*/
-                "コンパニオン",	/*"Companion"*/
-                "心の癒し手",	/*"Minstrel"*/
-                "竪琴師",	/*"Harper"*/
-                "伝承の紡ぎ手",	/*"Loreweaver"*/
-                "詩神の申し子",	/*"Muse"*/
-                "夢紡ぎ",	/*"Dreamweaver"*/
-                "マスター",	/*"Master Harper"*/
-	},
-
-	/* Red Mage; same as Warrior-Mage */
-	{
-		"見習い",
-		"徒弟",			/*丁稚、練習生 */
-		"一人前",
-		"古参兵",
-		"魔術兵士",
-		"魔術闘士",
-		"魔術の英雄", /* Mage-Hero */
-		"魔男爵",
-		/* "魔公爵", */
-		"戦闘魔術士",
-		"ウィザードロード",
-	},
-
-	/* Samurai */
-	{
-		"入門者",
-		"弟子",
-		"直弟子",
-		"師範代",
-		"師範",
-		"道場主",
-		"名人",
-		"大名人",
+		"宗家",
+		"剣匠",
 		"剣聖",
 		"剣神",
 	},
-
-	/* ForceTrainer; same as Monk(?) */
+	/* Dragoon */
 	{
-		"入門者",
-		"弟子",
-		"直弟子",
-		"師範代",
-		"師範",
-		"道場主",
-		"名人",
-		"大名人",
-		"拳聖",
-		"拳神",
-	},
-
-	/* Blue Mage; same as Mage */
-	{
-				/*"見習い",*/
-                "練習生",                 /*丁稚、練習生 */
-                "奇術師",               /*詐欺師、ペテン師 */
-                "幻術師",
-                "呪術師",
-                "召霊師",
-                "召魔師",
-                "魔術師",
-                "魔道師",
-                "イプシシマス",
-                "大魔道師",
-	},
-
-	/* Kihei */
-	{
-                "新参兵",
-                "兵士",
-                "傭兵",
-                "古参兵",
-                "剣士",
-                "闘士",
-                "英雄",
-                "男爵",
-                "伯爵",
-                "領主",
-	},
-
-	/* Berserker */
-	{
-		"バーサーカー",
-		"バーサーカー",
-		"バーサーカー",
-		"怒りの公爵",
-		"怒りの公爵",
-		"怒りの公爵",
-		"怒りの王",
-		"怒りの王",
-		"怒りの王",
-		"怒りの化身",
-	},
-
-	/* Kaji */
-	{
-		"銅を鍛えし者",
-		"鉄を鍛えし者",
-		"鋼を鍛えし者",
-		"銀を鍛えし者",
-		"竜を鍛えし者",
-		"霊を鍛えし者",
-		"魔を鍛えし者",
-		"魂を鍛えし者",
-		"神を鍛えし者",
-		"全を鍛えし者",
-	},
-
-	/* Mirror Master */
-	{
-		"鏡を見る人",
-		"鏡磨き",
-		"鏡職人",
-		"鏡術師",
-		"鏡導師",
-		"鏡の賢者",
-		"鏡の王",
-		"鏡の皇帝",
-		"鏡の化身",
-		"ラフノール王",
+		"とかげ殺し",
+		"へび殺し",
+		"竜卵盗み",
+		"幼竜殺し",
+		"子竜殺し",
+		"若竜殺し",
+		"成竜殺し",
+		"古竜殺し",
+		"魔竜殺し",
+		"竜王殺し",
 	},
 	/* Ninja */
 	{
@@ -5606,592 +3352,241 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"暗殺者",
 		"死の長き腕",
 	},
-};
-
-#else
-cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
-{
-	/* Warrior */
+	/* Wizard */
 	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
+		"手品師",
+		"奇術師",
+		"占い師",
+		"霊感師",
+		"陰陽師",
+		"召喚師",
+		"妖術師",
+		"魔術師",
+		"魔道師",
+		"大魔法使い",
 	},
-
-	/* Mage */
+	/* Warlock */
 	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
+		"ムーの読者",
+		"神秘主義者",
+		"オカ研部員",
+		"魔法学部学生",
+		"魔学修士課程",
+		"魔学博士課程",
+		"魔学部助教授",
+		"魔法学部教授",
+		"探求者",
+		"全てを識る者",
 	},
-
-	/* Priest */
+	/* Exorcist */
 	{
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Canon",
-		"Priest",
-		"High Priest",
-		"Cardinal",
-		"Inquisitor",
-		"Pope",
+		"信者",
+		"修道僧",
+		"僧兵",
+		"古参僧兵",
+		"熟練僧兵",
+		"聖職者",
+		"悪霊払い",
+		"悪魔払い",
+		"魔を討つ者",
+		"神の処刑者",
 	},
-
-	/* Rogues */
+	/* Amazoness - same as Soldier */
 	{
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Assassin",
-		"Guildmaster",
+		"予備兵",
+		"二等兵",
+		"一等兵",
+		"上級兵",
+		"伍長",
+		"軍曹",
+		"曹長",
+		"少尉",
+		"中尉",
+		"大尉",
 	},
-
-	/* Rangers */
+	/* Valkyrie */
 	{
-		"Runner",
-		"Strider",
-		"Scout",
-		"Courser",
-		"Tracker",
-		"Guide",
-		"Pathfinder",
-		"Low Ranger",
-		"High Ranger",
-		"Ranger Lord",
+		"若芽の槍士",
+		"若草の槍士",
+		"竹の槍士",
+		"石の槍士",
+		"銅の槍士",
+		"青銅の槍士",
+		"鉄の槍士",
+		"鋼鉄の槍士",
+		"銀の槍士",
+		"白銀の槍士",
 	},
-
-	/* Paladins */
-	{
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Low Paladin",
-		"High Paladin",
-		"Paladin Lord",
-	},
-
-	/* Warrior-Mage */
-	{
-		"Novice",
-		"Apprentice",
-		"Journeyman",
-		"Veteran",
-		"Enchanter",
-		"Champion",
-		"Mage-Hero",
-		"Baron Mage",
-		"Battlemage",
-		"Wizard Lord",
-	},
-
-	/* Chaos Warrior */
-	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Chaos Hero",
-		"Chaos Baron",
-		"Chaos Duke",
-		"Chaos Lord",
-	},
-
-	/* Monk */
-	{
-		"Initiate",
-		"Brother",
-		"Disciple",
-		"Immaculate",
-		"Master",
-		"Soft Master",
-		"Hard Master",
-		"Flower Master",
-		"Dragon Master",
-		"Grand Master",
-	},
-
-	/* Mindcrafter */
-	{
-		"Trainee",
-		"Acolyte",
-		"Adept",
-		"Immaculate",
-		"Contemplator",
-		"Mentalist",
-		"Psychic",
-		"Psionicist",
-		"Esper",
-		"Mindmaster",
-	},
-
-	/* High Mage; same as Mage */
-	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
-	},
-
-	/* Tourist */
-	{
-		"Rambler",
-		"Sightseer",
-		"Excursionist",
-		"Peregrinator",
-		"Traveler",
-		"Journeyer",
-		"Voyager",
-		"Explorer",
-		"Adventurer",
-		"Spelunker",
-	},
-
-	/* Imitator */
-	{
-		"Yet",
-		"Lacks",
-		"Still more",
-		"So so",
-		"All right",
-		"Not bad",
-		"Considerable",
-		"Go go",
-		"Sizable",
-		"Great man",
-	},
-
-	/* BeastMaster */
-	{
-		"Newt Master",
-		"Snake Master",
-		"Spider Master",
-		"Wolf Master",
-		"Tiger Master",
-		"Beetle Master",
-		"Hydra Master",
-		"Hound Master",
-		"Mumak Master",
-		"Dragon Master",
-	},
-
-	/* Sorcerer */
-	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
-	},
-
 	/* Archer */
 	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
+		"紙を貫く者",
+		"革を貫く者",
+		"板を貫く者",
+		"鉄を貫く者",
+		"岩を貫く者",
+		"水を貫く者",
+		"闇を貫く者",
+		"光を貫く者",
+		"空を貫く者",
+		"時を貫く者",
 	},
-
-	/* Magic eater */
+	/* DragonTamer */
 	{
-                "Apprentice",
-                "Beginner",
-                "Jagguler",
-                "Skilled",
-                "Conjurer",
-                "Magician",
-                "Master",
-                "Master",
-                "Wizard",
-                "Almighty",
+		"蜥蜴の主人",
+		"幼竜の主人",
+		"子竜の主人",
+		"若竜の主人",
+		"成竜の主人",
+		"古竜の主人",
+		"聖竜の主人",
+		"魔竜の主人",
+		"竜王の主人",
+		"神竜の友人",
 	},
-
-        /* Harper */
+	/* Witch */
 	{
-                "Apprentice",	/*"Apprentice"*/
-                "Songsmith",	/*"Songsmith"*/
-                "Bard",	/*"Bard"*/
-                "Companion",	/*"Companion"*/
-                "Minstrel",	/*"Minstrel"*/
-                "Harper",	/*"Harper"*/
-                "Loreweaver",	/*"Loreweaver"*/
-                "Muse",	/*"Muse"*/
-                "Dreamweaver",	/*"Dreamweaver"*/
-                "Master Harper",	/*"Master Harper"*/
+		"オカルト少女",
+		"見習い魔女",
+		"駆け出し魔女",
+		"お使い魔女",
+		"占い魔女",
+		"白き魔女",
+		"黒き魔女",
+		"紅の魔女",
+		"蒼紺の魔女",
+		"偉大なる魔女",
 	},
-
-	/* Red Mage */
+	/* Sirene - same as Wizard */
 	{
-		"Novice",
-		"Apprentice",
-		"Journeyman",
-		"Veteran",
-		"Enchanter",
-		"Champion",
-		"Mage-Hero",
-		"Baron Mage",
-		"Battlemage",
-		"Wizard Lord",
+		"手品師",
+		"奇術師",
+		"占い師",
+		"霊感師",
+		"陰陽師",
+		"召喚師",
+		"妖術師",
+		"魔術師",
+		"魔道師",
+		"大魔法使い",
 	},
-
-	/* Samurai */
+	/* Cleric */
 	{
-		"Initiate",
-		"Brother",
-		"Disciple",
-		"Immaculate",
-		"Master",
-		"Soft Master",
-		"Hard Master",
-		"Flower Master",
-		"Dragon Master",
-		"Grand Master",
+		"神学生",
+		"侍者",
+		"侍祭",
+		"尼僧",
+		"助任司祭",
+		"聖女",
+		"司祭",
+		"司教",
+		"大司教",
+		"総大司教",
 	},
-
-	/* ForceTrainer */
+	/* Priest */
 	{
-		"Initiate",
-		"Brother",
-		"Disciple",
-		"Immaculate",
-		"Master",
-		"Soft Master",
-		"Hard Master",
-		"Flower Master",
-		"Dragon Master",
-		"Grand Master",
+		"神学生",
+		"侍者",
+		"侍祭",
+		"僧侶",
+		"助任司祭",
+		"司祭",
+		"司教",
+		"大司教",
+		"枢機卿",
+		"教皇",
 	},
-
-	/* Blue Mage */
+	/* Lich */
 	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
+		"新米リッチ",
+		"闇眼の骸",
+		"修行僧リッチ",
+		"ハイリッチ",
+		"鉄のリッチ",
+		"灰色の掠奪者",
+		"デミリッチ",
+		"アーチリッチ",
+		"黒き掠奪者",
+		"永遠を識る者",
 	},
-
-	/* Warrior */
+	/* Angel-Knight */
 	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
+		"清きこころ",
+		"天使",
+		"大天使",
+		"権天使",
+		"能天使",
+		"力天使",
+		"主天使",
+		"座天使",
+		"智天使",
+		"熾天使",
 	},
-
-	/* Berserker */
+	/* High-Witch */
 	{
-		    "Berserker",
-		    "Berserker",
-		    "Berserker",
-		    "Rage Prince",
-		    "Rage Prince",
-		    "Rage Prince",
-		    "Rage King",
-		    "Rage King",
-		    "Rage King",
-		    "God of Rage",
+		"ねずみさん",
+		"マローネ",
+		"シーグル",
+		"ばんぺいくん",
+		"みまわりくん",
+		"三級地霊神",
+		"二級神管理",
+		"二級神一種",
+		"一級神二種",
+		"一級神特務",
 	},
-
-	/* Kaji */
+	/* Gunner */
 	{
-                "Copper smith",
-                "Iron smith",
-                "Steel smith",
-                "Silver smith",
-                "Dragon smith",
-                "Spirit smith",
-                "Magic smith",
-                "Soul smith",
-                "God smith",
-                "AlmightySmith",
+		"不信心者",
+		"無神論者",
+		"銃使い",
+		"新米狙撃手",
+		"古参狙撃手",
+		"熟練狙撃手",
+		"スナイパー",
+		"シューター",
+		"死神",
+		"神を撃つ者",
 	},
-
-	/* Mirror Master */
+	/* Temple-Knight - same as Knight */
 	{
-		"Mirrorstarer",
-		"Mirrorpolisher",
-		"Mirrormaker",
-		"Mirrormagician",
-		"Guru of Mirror ",
-		"Mirror Mage",
-		"Mirror King",
-		"Mirror Emperror",
-		"Avatar of Mirror",
-		"Ruffnor King",
+		"従士",
+		"見習い騎士",
+		"下級騎士",
+		"中級騎士",
+		"上級騎士",
+		"修道騎士",
+		"参謀",
+		"副団長",
+		"騎士団長",
+		"騎士総長",
 	},
-
-	/* Ninja */
+	/* White-Knight - same as Knight */
 	{
-		"Trainee",
-		"Myrmidon",
-		"Initiate",
-		"Knifer",
-		"Bladesman",
-		"Hashishin",
-		"Black Dagger",
-		"Shadowstrike",
-		"Assassinator",
-		"Death Lord",
+		"従士",
+		"見習い騎士",
+		"下級騎士",
+		"中級騎士",
+		"上級騎士",
+		"修道騎士",
+		"参謀",
+		"副団長",
+		"騎士団長",
+		"騎士総長",
+	},
+	/* Octopus */
+	{
+		"小タコ",
+		"中タコ",
+		"大タコ",
+		"小オクトパス",
+		"小オクトパス",
+		"中オクトパス",
+		"中オクトパス",
+		"大オクトパス",
+		"大オクトパス",
+		"オクトパス王",
 	},
 };
-#endif
-
-monster_power monster_powers[MAX_MONSPELLS] =
-{
-/* level,  smana,  %fail,  manedam,  %manefail,  use_stat, name */
-#ifdef JP
-{  1,   1,  10,    0,  15, A_CON,  "叫ぶ"},
-{ 10,   4,  35,   89,  40, A_INT,  "何か"},
-{ 40,  35,  85,    0,  40, A_INT,  "魔力消去"},
-{ 35,  30,  80,  800,  70, A_STR,  "ロケット"},
-{  5,   1,  20,   18,  15, A_DEX,  "射撃"},
-{ 10,   4,  35,   89,  40, A_INT,  "何か"},
-{ 10,   4,  35,   89,  40, A_INT,  "何か"},
-{ 10,   4,  35,   89,  40, A_INT,  "何か"},
-{ 20,  15,  55, 1600,  95, A_CON,  "酸のブレス"},
-{ 20,  15,  55, 1600,  95, A_CON,  "電撃のブレス"},
-{ 20,  15,  55, 1600,  95, A_CON,  "炎のブレス"},
-{ 20,  15,  55, 1600,  95, A_CON,  "冷気のブレス"},
-{ 20,  15,  55,  800,  95, A_CON,  "毒のブレス"},
-{ 20,  15,  70,  550,  95, A_CON,  "地獄のブレス"},
-{ 20,  16,  70,  400,  95, A_CON,  "閃光のブレス"},
-{ 20,  16,  70,  400,  95, A_CON,  "暗黒のブレス"},
-{ 20,  20,  70,  450,  95, A_CON,  "混乱のブレス"},
-{ 20,  20,  70,  450,  95, A_CON,  "轟音のブレス"},
-{ 20,  20,  70,  600,  95, A_CON,  "カオスのブレス"},
-{ 20,  16,  70,  500,  95, A_CON,  "劣化のブレス"},
-{ 30,  25,  80,  250,  95, A_CON,  "因果混乱のブレス"},
-{ 35,  18,  80,  150,  95, A_CON,  "時間逆転のブレス"},
-{ 30,  25,  80,  200,  95, A_CON,  "遅鈍のブレス"},
-{ 30,  28,  90,  200,  95, A_CON,  "重力のブレス"},
-{ 20,  15,  70,  500,  95, A_CON,  "破片のブレス"},
-{ 35,  15,  80,  150,  95, A_CON,  "プラズマのブレス"},
-{ 30,  18,  70,  200,  95, A_CON,  "フォースのブレス"},
-{ 30,  28,  80,  250,  95, A_CON,  "魔力のブレス"},
-{ 25,  20,  95,  320,  80, A_INT,  "放射能球"},
-{ 25,  15,  70,  800,  95, A_CON,  "放射性廃棄物のブレス"},
-{ 30,  32,  85,  400,  80, A_INT,  "純ログルス"},
-{ 35,  40,  95,  150,  95, A_CON,  "分解のブレス"},
-{ 18,  13,  55,  630,  80, A_INT,  "アシッド・ボール"},
-{ 14,  10,  45,  316,  60, A_INT,  "サンダー・ボール"},
-{ 20,  14,  60,  720,  80, A_INT,  "ファイア・ボール"},
-{ 15,  11,  50,  320,  60, A_INT,  "アイス・ボール"},
-{  5,   3,  40,   48,  20, A_INT,  "悪臭雲"},
-{ 25,  18,  70,  350,  80, A_INT,  "地獄球"},
-{ 30,  22,  75,  350,  80, A_INT,  "ウォーター・ボール"},
-{ 44,  45,  85,  550,  95, A_INT,  "魔力の嵐"},
-{ 40,  42,  90,  550,  95, A_INT,  "暗黒の嵐"},
-{ 10,   5,  50,    0,  25, A_INT,  "魔力吸収"},
-{ 25,  10,  60,    0,  30, A_INT,  "精神攻撃"},
-{ 30,  14,  65,    0,  30, A_INT,  "脳攻撃"},
-{  3,   1,  25,   24,  20, A_INT,  "軽傷"},
-{ 12,   2,  35,   64,  25, A_INT,  "重傷"},
-{ 22,   6,  50,  150,  30, A_INT,  "致命傷"},
-{ 32,  10,  70,  225,  35, A_INT,  "秘孔を突く"},
-{ 13,   7,  40,  178,  40, A_INT,  "アシッド・ボルト"},
-{ 10,   5,  35,  130,  35, A_INT,  "サンダー・ボルト"},
-{ 15,   9,  50,  210,  45, A_INT,  "ファイア・ボルト"},
-{ 12,   6,  35,  162,  40, A_INT,  "アイス・ボルト"},
-{ 40,  42,  90,  550,  95, A_INT,  "スター・バースト"},
-{ 25,  17,  60,  255,  60, A_INT,  "地獄の矢"},
-{ 25,  20,  65,  250,  60, A_INT,  "ウォーター・ボルト"},
-{ 25,  24,  90,  400,  80, A_INT,  "魔力の矢"},
-{ 25,  20,  80,  216,  60, A_INT,  "プラズマ・ボルト"},
-{ 25,  16,  60,  186,  60, A_INT,  "極寒の矢"},
-{  3,   1,  25,   12,  20, A_INT,  "マジック・ミサイル"},
-{  5,   3,  35,    0,  20, A_INT,  "恐慌"},
-{ 10,   5,  40,    0,  20, A_INT,  "盲目"},
-{ 10,   5,  40,    0,  20, A_INT,  "パニック・モンスター"},
-{ 10,   5,  40,    0,  20, A_INT,  "スロウ・モンスター"},
-{ 10,   5,  40,    0,  20, A_INT,  "スリープ・モンスター"},
-{ 20,  10,  70,    0,  40, A_INT,  "スピード"},
-{ 45, 120,  95,    0,  60, A_INT,  "破滅の手"},
-{ 20,  15,  70,    0,  20, A_WIS,  "体力回復"},
-{ 45,  65,  80,    0,  60, A_INT,  "無傷の球"},
-{  5,   1,  30,    0,  20, A_INT,  "ショート・テレポート"},
-{ 15,   8,  40,    0,  30, A_INT,  "テレポート"},
-{ 40, 999,  99,    0,  80, A_INT,  "ザ・ワールド"},
-{  1,   0,   0,    0,  15, A_INT,  "何か"},
-{ 15,   8,  50,    0,  30, A_INT,  "引きよせる"},
-{ 20,  13,  80,    0,  30, A_INT,  "テレポート・アウェイ"},
-{ 30,  40,  95,    0,  40, A_INT,  "テレポート・レベル"},
-{ 35,  30,  80,  350,  70, A_INT,  "光の剣"},
-{  5,   1,  20,    0,  15, A_INT,  "暗闇"},
-{  5,   1,  20,    0,  15, A_DEX,  "トラップ創造"},
-{ 15,   3,  40,    0,  30, A_INT,  "記憶喪失"},
-{ 30,  30,  70,    0,  40, A_INT,  "死者復活"},
-{ 40,  70,  85,    0,  45, A_INT,  "援軍を呼ぶ"},
-{ 45,  90,  90,    0,  50, A_INT,  "サイバーデーモンの召喚"},
-{ 25,  20,  65,    0,  30, A_INT,  "モンスターの召喚"},
-{ 35,  30,  75,    0,  40, A_INT,  "複数のモンスターの召喚"},
-{ 25,  25,  65,    0,  25, A_INT,  "アリの召喚"},
-{ 25,  20,  60,    0,  25, A_INT,  "蜘蛛の召喚"},
-{ 35,  26,  75,    0,  40, A_INT,  "ハウンドの召喚"},
-{ 30,  23,  70,    0,  35, A_INT,  "ヒドラの召喚"},
-{ 40,  50,  85,    0,  40, A_INT,  "天使の召喚"},
-{ 35,  50,  80,    0,  35, A_INT,  "デーモンの召喚"},
-{ 30,  30,  75,    0,  35, A_INT,  "アンデッドの召喚"},
-{ 39,  70,  80,    0,  40, A_INT,  "ドラゴンの召喚"},
-{ 43,  85,  85,    0,  45, A_INT,  "上級アンデッドの召喚"},
-{ 46,  90,  85,    0,  45, A_INT,  "古代ドラゴンの召喚"},
-{ 48, 120,  90,    0,  50, A_INT,  "アンバーの王族の召喚"},
-{ 50, 150,  95,    0,  50, A_INT,  "ユニークモンスターの召喚"},
-#else
-{  1,   1,  10,    0,  15, A_CON,  "shriek"},
-{ 10,   4,  35,   89,  40, A_INT,  "something"},
-{ 40,  35,  85,    0,  40, A_INT,  "dispel-magic"},
-{ 35,  30,  80,  800,  70, A_STR,  "rocket"},
-{  2,   1,  15,   10,  15, A_DEX,  "arrow"},
-{  5,   2,  20,   18,  20, A_DEX,  "arrows"},
-{ 12,   3,  25,   30,  25, A_DEX,  "missile"},
-{ 16,   4,  30,   42,  30, A_DEX,  "missiles"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breath acid"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breath lightning"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breath fire"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breath cold"},
-{ 20,  15,  55,  800,  95, A_CON,  "breath poison"},
-{ 20,  15,  70,  550,  95, A_CON,  "breath nether"},
-{ 20,  16,  70,  400,  95, A_CON,  "breath light"},
-{ 20,  16,  70,  400,  95, A_CON,  "breath dark"},
-{ 20,  20,  70,  450,  95, A_CON,  "breath confusion"},
-{ 20,  20,  70,  450,  95, A_CON,  "breath sound"},
-{ 20,  20,  70,  600,  95, A_CON,  "breath chaos"},
-{ 20,  16,  70,  500,  95, A_CON,  "breath disenchantment"},
-{ 30,  25,  80,  250,  95, A_CON,  "breath nexus"},
-{ 35,  18,  80,  150,  95, A_CON,  "breath time"},
-{ 30,  25,  80,  200,  95, A_CON,  "breath inertia"},
-{ 30,  28,  90,  200,  95, A_CON,  "breath gravity"},
-{ 20,  15,  70,  500,  95, A_CON,  "breath shards"},
-{ 35,  15,  80,  150,  95, A_CON,  "breath plasma"},
-{ 30,  18,  70,  200,  95, A_CON,  "breath force"},
-{ 30,  28,  80,  250,  95, A_CON,  "breath mana"},
-{ 25,  20,  95,  320,  80, A_INT,  "nuke ball"},
-{ 25,  15,  70,  800,  95, A_CON,  "breath nuke"},
-{ 30,  32,  85,  400,  80, A_INT,  "raw Logrus"},
-{ 35,  40,  95,  150,  95, A_CON,  "breath disintegrate"},
-{ 18,  13,  55,  630,  80, A_INT,  "acid ball"},
-{ 14,  10,  45,  316,  60, A_INT,  "lightning ball"},
-{ 20,  14,  60,  720,  80, A_INT,  "fire ball"},
-{ 15,  11,  50,  320,  60, A_INT,  "frost ball"},
-{  5,   3,  40,   48,  20, A_INT,  "stinking cloud"},
-{ 25,  18,  70,  350,  80, A_INT,  "nether ball"},
-{ 30,  22,  75,  350,  80, A_INT,  "water ball"},
-{ 44,  45,  85,  550,  95, A_INT,  "mana storm"},
-{ 40,  42,  90,  550,  95, A_INT,  "darkness storm"},
-{ 10,   5,  50,    0,  25, A_INT,  "drain mana"},
-{ 25,  10,  60,    0,  30, A_INT,  "mind blast"},
-{ 30,  14,  65,    0,  30, A_INT,  "brain smash"},
-{  3,   1,  25,   24,  20, A_INT,  "cause light wounds"},
-{ 12,   2,  35,   64,  25, A_INT,  "cause serious wounds"},
-{ 22,   6,  50,  150,  30, A_INT,  "cause critical wounds"},
-{ 32,  10,  70,  225,  35, A_INT,  "cause mortal wounds"},
-{ 13,   7,  40,  178,  40, A_INT,  "acid bolt"},
-{ 10,   5,  35,  130,  35, A_INT,  "lightning bolt"},
-{ 15,   9,  50,  210,  45, A_INT,  "fire bolt"},
-{ 12,   6,  35,  162,  40, A_INT,  "frost bolt"},
-{ 40,  42,  90,  550,  95, A_INT,  "starburst"},
-{ 25,  17,  60,  255,  60, A_INT,  "nether bolt"},
-{ 25,  20,  65,  250,  60, A_INT,  "water bolt"},
-{ 25,  24,  90,  400,  80, A_INT,  "mana bolt"},
-{ 25,  20,  80,  216,  60, A_INT,  "plasma bolt"},
-{ 25,  16,  60,  186,  60, A_INT,  "ice bolt"},
-{  3,   1,  25,   12,  20, A_INT,  "magic missile"},
-{  5,   3,  35,    0,  20, A_INT,  "scare"},
-{ 10,   5,  40,    0,  20, A_INT,  "blind"},
-{ 10,   5,  40,    0,  20, A_INT,  "confuse"},
-{ 10,   5,  40,    0,  20, A_INT,  "slow"},
-{ 10,   5,  40,    0,  20, A_INT,  "sleep"},
-{ 20,  10,  70,    0,  40, A_INT,  "speed"},
-{ 45, 120,  95,    0,  60, A_INT,  "the Hand of Doom"},
-{ 20,  15,  70,    0,  20, A_WIS,  "heal-self"},
-{ 45,  65,  80,    0,  60, A_INT,  "make invulnerable"},
-{  5,   1,  30,    0,  20, A_INT,  "blink-self"},
-{ 15,   8,  40,    0,  30, A_INT,  "teleport-self"},
-{ 40, 999,  99,    0,  80, A_INT,  "The world"},
-{  1,   0,   0,    0,  15, A_INT,  "something"},
-{ 15,   8,  50,    0,  30, A_INT,  "teleport to"},
-{ 20,  13,  80,    0,  30, A_INT,  "teleport away"},
-{ 30,  40,  95,    0,  40, A_INT,  "teleport level"},
-{ 35,  30,  80,  350,  70, A_INT,  "psycho-spear"},
-{  5,   1,  20,    0,  15, A_INT,  "create darkness"},
-{  5,   1,  20,    0,  15, A_DEX,  "create traps"},
-{ 15,   3,  40,    0,  30, A_INT,  "cause amnesia"},
-{ 30,  30,  70,    0,  40, A_INT,  "raise dead"},
-{ 40,  70,  85,    0,  45, A_INT,  "summon aid"},
-{ 45,  90,  90,    0,  50, A_INT,  "summon Cyberdemons"},
-{ 25,  20,  65,    0,  30, A_INT,  "summon a monster"},
-{ 35,  30,  75,    0,  40, A_INT,  "summon monsters"},
-{ 25,  25,  65,    0,  25, A_INT,  "summon ants"},
-{ 25,  20,  60,    0,  25, A_INT,  "summon spiders"},
-{ 35,  26,  75,    0,  40, A_INT,  "summon hounds"},
-{ 30,  23,  70,    0,  35, A_INT,  "summon hydras"},
-{ 40,  50,  85,    0,  40, A_INT,  "summon an angel"},
-{ 35,  50,  80,    0,  35, A_INT,  "summon a daemon"},
-{ 30,  30,  75,    0,  35, A_INT,  "summon an undead"},
-{ 39,  70,  80,    0,  40, A_INT,  "summon a dragon"},
-{ 43,  85,  85,    0,  45, A_INT,  "summon Greater Undead"},
-{ 46,  90,  85,    0,  45, A_INT,  "summon Ancient Dragon"},
-{ 48, 120,  90,    0,  50, A_INT,  "summon Lords of Amber"},
-{ 50, 150,  95,    0,  50, A_INT,  "summon Unique Monsters"},
-#endif
-
-};
-
 
 
 /*
@@ -6200,22 +3595,22 @@ monster_power monster_powers[MAX_MONSPELLS] =
 cptr color_names[16] =
 {
 #ifdef JP
-        "黒",
-        "白",
-        "青灰色",
-        "オレンジ",
-        "赤",
-        "緑",
-        "青",
-        "琥珀色",
-        "灰色",
-        "明青灰色",
-        "紫",
-        "黄",
-        "明るい赤",
-        "明るい緑",
-        "明るい青",
-        "明琥珀色",
+	"黒",
+	"白",
+	"青灰色",
+	"オレンジ",
+	"赤",
+	"緑",
+	"青",
+	"琥珀色",
+	"灰色",
+	"明青灰色",
+	"紫",
+	"黄",
+	"明るい赤",
+	"明るい緑",
+	"明るい青",
+	"明琥珀色",
 #else
 	"Dark",
 	"White",
@@ -6241,10 +3636,10 @@ cptr color_names[16] =
 /*
  * Abbreviations of healthy stats
  */
-cptr stat_names[6] =
+cptr stat_names[A_MAX] =
 {
 #ifdef JP
-        "腕力 :", "知能 :", "賢さ :", "器用 :", "耐久 :", "魅力 :"
+	"腕力 :", "知能 :", "賢さ :", "器用 :", "耐久 :", "魅力 :"
 #else
 	"STR : ", "INT : ", "WIS : ", "DEX : ", "CON : ", "CHR : "
 #endif
@@ -6254,10 +3649,10 @@ cptr stat_names[6] =
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[6] =
+cptr stat_names_reduced[A_MAX] =
 {
 #ifdef JP
-        "腕力x:", "知能x:", "賢さx:", "器用x:", "耐久x:", "魅力x:"
+	"腕力x:", "知能x:", "賢さx:", "器用x:", "耐久x:", "魅力x:"
 #else
 	"Str : ", "Int : ", "Wis : ", "Dex : ", "Con : ", "Chr : "
 #endif
@@ -6282,25 +3677,25 @@ cptr stat_names_reduced[6] =
 cptr window_flag_desc[32] =
 {
 #ifdef JP
-        "持ち物/装備一覧",
+	"持ち物/装備一覧",
 #else
 	"Display inven/equip",
 #endif
 
 #ifdef JP
-        "装備/持ち物一覧",
+	"装備/持ち物一覧",
 #else
 	"Display equip/inven",
 #endif
 
 #ifdef JP
-        "呪文一覧",
+	"呪文一覧",
 #else
 	"Display spell list",
 #endif
 
 #ifdef JP
-        "キャラクタ情報",
+	"キャラクタ情報",
 #else
 	"Display character",
 #endif
@@ -6308,37 +3703,37 @@ cptr window_flag_desc[32] =
 	NULL,
 	NULL,
 #ifdef JP
-        "メッセージ",
+	"メッセージ",
 #else
 	"Display messages",
 #endif
 
 #ifdef JP
-        "ダンジョン全体図",
+	"ダンジョン全体図",
 #else
 	"Display overhead view",
 #endif
 
 #ifdef JP
-        "モンスターの思い出",
+	"モンスターの思い出",
 #else
 	"Display monster recall",
 #endif
 
 #ifdef JP
-        "アイテムの詳細",
+	"アイテムの詳細",
 #else
 	"Display object recall",
 #endif
 
 #ifdef JP
-        "自分の周囲を表示", 
+	"自分の周囲を表示", 
 #else
 	"Display dungeon view",
 #endif
 
 #ifdef JP
-        "記念撮影",
+	"記念撮影",
 #else
 	"Display snap-shot",
 #endif
@@ -6346,13 +3741,13 @@ cptr window_flag_desc[32] =
 	NULL,
 	NULL,
 #ifdef JP
-        "ボーグ・メッセージ",
+	"ボーグ・メッセージ",
 #else
 	"Display borg messages",
 #endif
 
 #ifdef JP
-        "ボーグ・ステータス",
+	"ボーグ・ステータス",
 #else
 	"Display borg status",
 #endif
@@ -6386,7 +3781,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &rogue_like_commands,         FALSE, 1, 0, 0,
-        "rogue_like_commands",          "ローグ風キー配置を使用する" },
+	"rogue_like_commands",          "ローグ風キー配置を使用する" },
 #else
 	{ &rogue_like_commands,         FALSE, 1, 0, 0,
 	"rogue_like_commands",          "Rogue-like commands" },
@@ -6395,7 +3790,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &always_pickup,               FALSE, 1, 0, 5,
-        "always_pickup",                "常にアイテムを拾う" },
+	"always_pickup",                "常にアイテムを拾う" },
 #else
 	{ &always_pickup,               FALSE,  1, 0, 5,
 	"always_pickup",                "Pick things up by default" },
@@ -6413,7 +3808,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &quick_messages,              TRUE,  1, 0, 1,
-     "quick_messages",  "クイック・メッセージを使用する" },
+	"quick_messages",  "クイック・メッセージを使用する" },
 #else
 	{ &quick_messages,              TRUE,  1, 0, 1,
 	"quick_messages",               "Activate quick messages" },
@@ -6422,7 +3817,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &auto_more,                   FALSE, 1, 2, 6,
-        "auto_more",                    "キー待ちしないで連続でメッセージを表示する" },
+	"auto_more",                    "キー待ちしないで連続でメッセージを表示する" },
 #else
 	{ &auto_more,                   FALSE, 1, 2, 6,
 	"auto_more",                    "Automatically clear '-more-' prompts" },
@@ -6431,7 +3826,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &command_menu,                TRUE,  1, 2, 7,
-        "command_menu",                 "メニューによりコマンド選択を有効にする" },
+	"command_menu",                 "メニューによりコマンド選択を有効にする" },
 #else
 	{ &command_menu,                TRUE,  1, 2, 7,
 	"command_menu",                 "Enable command selection menu" },
@@ -6449,7 +3844,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &use_old_target,              FALSE, 1, 0, 4,
-     "use_old_target",  "常に以前のターゲットを指定する" },
+	"use_old_target",  "常に以前のターゲットを指定する" },
 #else
 	{ &use_old_target,              FALSE, 1, 0, 4,
 	"use_old_target",               "Use old target by default" },
@@ -6458,7 +3853,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &always_repeat,               TRUE,  1, 0, 6,
-        "always_repeat",                "コマンド自動繰り返し" },
+	"always_repeat",                "コマンド自動繰り返し" },
 #else
 	{ &always_repeat,               TRUE,  1, 0, 6,
 	"always_repeat",                "Repeat obvious commands" },
@@ -6484,17 +3879,17 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &confirm_stairs,              FALSE, 1, 5, 5,
-	"confirm_stairs",               "別の階に行く時確認する" },
+	{ &confirm_quest,               TRUE, 1, 1, 9,
+	"confirm_quest",                "クエストを諦めて階段で逃げる前に確認する" },
 #else
-	{ &confirm_stairs,              FALSE, 1, 5, 5,
-	"confirm_stairs",               "Prompt before exiting a dungeon level" },
+	{ &confirm_quest,               TRUE, 1, 1, 9,
+	"confirm_quest",                "Prompt before exiting a quest level" },
 #endif
 
 
 #ifdef JP
 	{ &target_pet,                  FALSE,  1, 2, 5,
-        "target_pet",                   "ペットをターゲットにする" },
+	"target_pet",                   "ペットをターゲットにする" },
 #else
 	{ &target_pet,                  FALSE,  1, 2, 5,
 	"target_pet",                   "Allow targetting pets" },
@@ -6556,7 +3951,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &depth_in_feet,               FALSE, 2, 0, 7,
-        "depth_in_feet",                "ダンジョンの深さをフィートで表示する" },
+	"depth_in_feet",                "ダンジョンの深さをフィートで表示する" },
 #else
 	{ &depth_in_feet,               FALSE, 2, 0, 7,
 	"depth_in_feet",                "Show dungeon level in feet" },
@@ -6565,7 +3960,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &show_labels,                 TRUE,  2, 0, 10,
-        "show_labels",                  "装備一覧で装備場所を表示する" },
+	"show_labels",                  "装備一覧で装備場所を表示する" },
 #else
 	{ &show_labels,                 TRUE,  2, 0, 10,
 	"show_labels",                  "Show labels in object listings" },
@@ -6574,7 +3969,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &show_weights,                TRUE,  2, 0, 11,
-        "show_weights",                 "アイテム一覧で重量を表示する" },
+	"show_weights",                 "アイテム一覧で重量を表示する" },
 #else
 	{ &show_weights,                TRUE,  2, 0, 11,
 	"show_weights",                 "Show weights in object listings" },
@@ -6592,7 +3987,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &show_choices,                TRUE,  2, 0, 12,
-        "show_choices",                 "持ち物/装備ウィンドウに選択アイテム表示" },
+	"show_choices",                 "持ち物/装備ウィンドウに選択アイテム表示" },
 #else
 	{ &show_choices,                TRUE,  2, 0, 12,
 	"show_choices",                 "Show choices in certain sub-windows" },
@@ -6601,7 +3996,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &plain_pickup,                FALSE, 2, 6, 6,
-        "plain_pickup",                 "「拾った」メッセージを簡略化する" },
+	"plain_pickup",                 "「拾った」メッセージを簡略化する" },
 #else
 	{ &plain_pickup,                FALSE,99, 6, 6,
 	"plain_pickup",                 "Plain pickup messages(japanese only)" },
@@ -6645,8 +4040,8 @@ option_type option_info[] =
 
 
 #ifdef JP
-        { &center_player,               FALSE, 2, 5, 11,
-        "center_player",                "常にプレイヤーを中心に置く(*遅い*)" },
+	{ &center_player,               FALSE, 2, 5, 11,
+	"center_player",                "常にプレイヤーを中心に置く(*遅い*)" },
 #else
 	{ &center_player,               FALSE, 2, 5, 11,
 	"center_player",                "Center map while walking (*slow*)" },
@@ -6654,8 +4049,8 @@ option_type option_info[] =
 
 
 #ifdef JP
-        { &center_running,              TRUE,  2, 5, 12,
-        "center_running",               "走っている時でも中心に置く" },
+	{ &center_running,              TRUE,  2, 5, 12,
+	"center_running",               "走っている時でも中心に置く" },
 #else
 	{ &center_running,              TRUE,  2, 5, 12,
 	"center_running",               "Centering even while running" },
@@ -6664,7 +4059,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_yellow_lite,            TRUE,  2, 1, 28,
-        "view_yellow_lite",              "明かりの範囲を特別な色で表示する" },
+	"view_yellow_lite",              "明かりの範囲を特別な色で表示する" },
 #else
 	{ &view_yellow_lite,            TRUE,  2, 1, 28,
 	"view_yellow_lite",             "Use special colors for torch-lit grids" },
@@ -6673,7 +4068,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_bright_lite,            TRUE,  2, 1, 29,
-        "view_bright_lite",             "視界の範囲を特別な色で表示する" },
+	"view_bright_lite",             "視界の範囲を特別な色で表示する" },
 #else
 	{ &view_bright_lite,            TRUE,  2, 1, 29,
 	"view_bright_lite",             "Use special colors for 'viewable' grids" },
@@ -6682,7 +4077,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_granite_lite,           TRUE,  2, 1, 30,
-        "view_granite_lite",            "壁を特別な色で表示する(重い)" },
+	"view_granite_lite",            "壁を特別な色で表示する(重い)" },
 #else
 	{ &view_granite_lite,           TRUE,  2, 1, 30,
 	"view_granite_lite",            "Use special colors for wall grids (slow)" },
@@ -6691,7 +4086,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_special_lite,           TRUE,  2, 1, 31,
-        "view_special_lite",            "床を特別な色で表示する(重い)" },
+	"view_special_lite",            "床を特別な色で表示する(重い)" },
 #else
 	{ &view_special_lite,           TRUE,  2, 1, 31,
 	"view_special_lite",            "Use special colors for floor grids (slow)" },
@@ -6699,15 +4094,23 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &new_ascii_graphics,          FALSE, 2, 2, 4,
-        "new_ascii_graphics",           "地形の明暗をはっきりと表示する" },
+	"new_ascii_graphics",           "地形の明暗をはっきりと表示する" },
 #else
 	{ &new_ascii_graphics,          FALSE, 2, 2, 4,
 	"new_ascii_graphics",           "Show a clear contrast between light and dark" },
 #endif
 
 #ifdef JP
+	{ &use_fake_monochrome,         FALSE, 2, 4, 2,
+	"use_fake_monochrome",          "特別な状況でモノクロ表示にする" },
+#else
+	{ &use_fake_monochrome,         FALSE, 2, 4, 2,
+	"use_fake_monochrome",          "Use monochrome display on special occasion" },
+#endif
+
+#ifdef JP
 	{ &display_path,                FALSE, 2, 2, 8,
-        "display_path",                 "魔法や矢の軌跡を表示する" },
+	"display_path",                 "魔法や矢の軌跡を表示する" },
 #else
 	{ &display_path,                FALSE, 2, 2, 8,
 	"display_path",                 "Display actual path before shooting" },
@@ -6716,19 +4119,19 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &always_show_list,            TRUE,  2, 4, 0,
-        "always_show_list",             "選択時には常に一覧を表示する" },
+	"always_show_list",             "選択時には常に一覧を表示する" },
 #else
 	{ &always_show_list,            TRUE,  2, 4, 0,
-        "always_show_list",             "Always show list at first when select items" },
+	"always_show_list",             "Always show list at first when select items" },
 #endif
 
 
 #ifdef JP
 	{ &change_numeral,              TRUE,  2, 4, 5,
-        "change_numeral",               "アイテムの種類によって数え方を変える" },
+	"change_numeral",               "アイテムの種類によって数え方を変える" },
 #else
 	{ &change_numeral,              TRUE,  99, 4, 5,
-        "change_numeral",               "Change a way to counting (japanese only)" },
+	"change_numeral",               "Change a way to counting (japanese only)" },
 #endif
 
 
@@ -6736,7 +4139,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &auto_scum,                   FALSE, 3, 1, 1,
-        "auto_scum",                    "階の雰囲気自動選り好み" },
+	"auto_scum",                    "階の雰囲気自動選り好み" },
 #else
 	{ &auto_scum,                   FALSE, 3, 1, 1,
 	"auto_scum",                    "Auto-scum for good levels" },
@@ -6745,7 +4148,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &stack_force_notes,           TRUE,  3, 0, 8,
-        "stack_force_notes",            "異なる銘のアイテムをまとめる" },
+	"stack_force_notes",            "異なる銘のアイテムをまとめる" },
 #else
 	{ &stack_force_notes,           TRUE,  3, 0, 8,
 	"stack_force_notes",            "Merge inscriptions when stacking" },
@@ -6754,7 +4157,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &stack_force_costs,           FALSE, 3, 0, 9,
-        "stack_force_costs",            "異なる割引表示のアイテムをまとめる" },
+	"stack_force_costs",            "異なる割引表示のアイテムをまとめる" },
 #else
 	{ &stack_force_costs,           FALSE, 3, 0, 9,
 	"stack_force_costs",            "Merge discounts when stacking" },
@@ -6772,7 +4175,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &expand_look,                 TRUE,  3, 1, 4,
-        "expand_look",                  "「回りを調べる」コマンドを拡張する" },
+	"expand_look",                  "「回りを調べる」コマンドを拡張する" },
 #else
 	{ &expand_look,                 TRUE,  3, 1, 4,
 	"expand_look",                  "Expand the power of the look command" },
@@ -6781,7 +4184,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &expand_list,                 TRUE,  3, 1, 5,
-        "expand_list",                  "「一覧」コマンドを拡張する" },
+	"expand_list",                  "「一覧」コマンドを拡張する" },
 #else
 	{ &expand_list,                 TRUE,  3, 1, 5,
 	"expand_list",                  "Expand the power of the list commands" },
@@ -6790,7 +4193,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_perma_grids,            TRUE,  3, 1, 6,
-        "view_perma_grids",             "明るい場所はそのままにする" },
+	"view_perma_grids",             "明るい場所はそのままにする" },
 #else
 	{ &view_perma_grids,            TRUE,  3, 1, 6,
 	"view_perma_grids",             "Map remembers all perma-lit grids" },
@@ -6799,7 +4202,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_torch_grids,            FALSE, 3, 1, 7,
-        "view_torch_grids",             "明かりで照らした場所はそのままにする" },
+	"view_torch_grids",             "明かりで照らした場所はそのままにする" },
 #else
 	{ &view_torch_grids,            FALSE, 3, 1, 7,
 	"view_torch_grids",             "Map remembers all torch-lit grids" },
@@ -6808,7 +4211,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_unsafe_grids,            FALSE, 3, 1, 8,
-        "view_unsafe_grids",             "トラップ感知済みでない場所を表示する" },
+	"view_unsafe_grids",             "トラップ感知済みでない場所を表示する" },
 #else
 	{ &view_unsafe_grids,            FALSE, 3, 1, 8,
 	"view_unsafe_grids",             "Map marked by detect traps" },
@@ -6816,11 +4219,11 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &dungeon_stair,               TRUE,  3, 1, 9,
-        "dungeon_stair",                "階段をつなげてダンジョンを生成する" },
+	{ &show_damage,                  TRUE, 3, 4, 1,
+	"show_damage",                   "受けた/与えたダメージを表示する" },
 #else
-	{ &dungeon_stair,               TRUE,  3, 1, 9,
-	"dungeon_stair",                "Generate dungeons with connected stairs" },
+	{ &show_damage,                  TRUE, 3, 4, 1,
+	"show_damage",                   "Show done/taken damage" },
 #endif
 
 
@@ -6844,7 +4247,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &empty_levels,                TRUE,  3, 0, 31,
-        "empty_levels",                 "空っぽの「アリーナ」レベルの生成を可能にする" },
+	"empty_levels",                 "空っぽの「アリーナ」レベルの生成を可能にする" },
 #else
 	{ &empty_levels,                TRUE,  3, 0, 31,
 	"empty_levels",                 "Allow empty 'arena' levels" },
@@ -6860,14 +4263,12 @@ option_type option_info[] =
 #endif
 
 
-#ifdef WORLD_SCORE
 #ifdef JP
-	{ &send_score,                  TRUE,  3, 4, 6,
-        "send_score",                   "スコアサーバにスコアを送る" },
+	{ &allow_debug_opts,            FALSE, 3, 6, 11,
+	"allow_debug_opts",             "デバッグ/詐欺オプションを許可する" },
 #else
-	{ &send_score,                  TRUE,  3, 4, 6,
-        "send_score",                   "Send score dump to the world score server" },
-#endif
+	{ &allow_debug_opts,            FALSE, 3, 6, 11,
+	"allow_debug_opts",             "Allow use of debug/cheat options" },
 #endif
 
 
@@ -6911,7 +4312,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &disturb_move,                FALSE,  4, 0, 20,
-        "disturb_move",                 "どこのモンスターが動いても行動を中止する" },
+	"disturb_move",                 "どこのモンスターが動いても行動を中止する" },
 #else
 	{ &disturb_move,                FALSE,  4, 0, 20,
 	"disturb_move",                 "Disturb whenever any monster moves" },
@@ -6919,8 +4320,17 @@ option_type option_info[] =
 
 
 #ifdef JP
+	{ &disturb_high,                FALSE,  4, 1, 3,
+	"disturb_high",                 "レベルの高いモンスターが動いたら行動を中止する"},
+#else
+	{ &disturb_high,                FALSE,  4, 1, 3,
+	"disturb_high",                 "Disturb whenever high-level monster moves" },
+#endif
+
+
+#ifdef JP
 	{ &disturb_near,                TRUE,  4, 0, 21,
-        "disturb_near",                 "視界内のモンスターが動いたら行動を中止する" },
+	"disturb_near",                 "視界内のモンスターが動いたら行動を中止する" },
 #else
 	{ &disturb_near,                TRUE,  4, 0, 21,
 	"disturb_near",                 "Disturb whenever viewable monster moves" },
@@ -6938,7 +4348,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &disturb_panel,               TRUE,  4, 0, 22,
-        "disturb_panel",                "画面スクロール時に行動を中止する" },
+	"disturb_panel",                "画面スクロール時に行動を中止する" },
 #else
 	{ &disturb_panel,               TRUE,  4, 0, 22,
 	"disturb_panel",                "Disturb whenever map panel changes" },
@@ -6947,7 +4357,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &disturb_state,               TRUE,  4, 0, 23,
-        "disturb_state",                "自分のステータス変化時に行動を中止する" },
+	"disturb_state",                "自分のステータス変化時に行動を中止する" },
 #else
 	{ &disturb_state,               TRUE,  4, 0, 23,
 	"disturb_state",                "Disturb whenever player state changes" },
@@ -6956,7 +4366,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &disturb_minor,               TRUE,  4, 0, 24,
-        "disturb_minor",                "些細なことが起きても行動を中止する" },
+	"disturb_minor",                "些細なことが起きても行動を中止する" },
 #else
 	{ &disturb_minor,               TRUE,  4, 0, 24,
 	"disturb_minor",                "Disturb whenever boring things happen" },
@@ -6965,7 +4375,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &ring_bell,                   FALSE, 4, 0, 14,
-        "ring_bell",                    "エラー時にビープ音を鳴らす" },
+	"ring_bell",                    "エラー時にビープ音を鳴らす" },
 #else
 	{ &ring_bell,                   FALSE, 4, 0, 14,
 	"ring_bell",                    "Audible bell (on errors, etc)" },
@@ -6974,7 +4384,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &alert_hitpoint,              TRUE, 4, 0, 26,
-        "alert_hitpoint",               "低ヒットポイントの警告時にビープを鳴らす" },
+	"alert_hitpoint",               "低ヒットポイントの警告時にビープを鳴らす" },
 #else
 	{ &alert_hitpoint,              TRUE, 4, 0, 26,
 	"alert_hitpoint",               "Alert user to critical hitpoints" },
@@ -6983,7 +4393,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &disturb_trap_detect,         TRUE, 4, 0, 27,
-        "disturb_trap_detect",          "トラップ感知範囲外に出る直前に行動を中止する" },
+	"disturb_trap_detect",          "トラップ感知範囲外に出る直前に行動を中止する" },
 #else
 	{ &disturb_trap_detect,         TRUE, 4, 0, 27,
 	"disturb_trap_detect",          "Disturb when leaving trap detected area"},
@@ -6991,7 +4401,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &alert_trap_detect,           FALSE, 4, 0, 25,
-        "alert_trap_detect",            "トラップ感知範囲外に出る直前に警告する" },
+	"alert_trap_detect",            "トラップ感知範囲外に出る直前に警告する" },
 #else
 	{ &alert_trap_detect,           FALSE, 4, 0, 25,
 	"alert_trap_detect",            "Alert when leaving trap detected area"},
@@ -7002,7 +4412,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &view_reduce_lite,            FALSE, 5, 1, 16,
-     "view_reduce_lite",  "走っているときは明かりの半径を減少する" },
+	"view_reduce_lite",             "走っているときは明かりの半径を減少する" },
 #else
 	{ &view_reduce_lite,            FALSE, 5, 1, 16,
 	"view_reduce_lite",             "Reduce lite-radius when running" },
@@ -7020,7 +4430,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &check_abort,                 TRUE,  5, 1, 18,
-        "check_abort",                  "連続コマンドはキー入力で中断する" },
+	"check_abort",                  "連続コマンドはキー入力で中断する" },
 #else
 	{ &check_abort,                 TRUE,  5, 1, 18,
 	"check_abort",                  "Check for user abort while continuous command" },
@@ -7029,7 +4439,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &flush_failure,               TRUE,  5, 1, 20,
-        "flush_failure",                "様々なミス発生時に入力をクリアする" },
+	"flush_failure",                "様々なミス発生時に入力をクリアする" },
 #else
 	{ &flush_failure,               TRUE,  5, 1, 20,
 	"flush_failure",                "Flush input on various failures" },
@@ -7038,7 +4448,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &flush_disturb,               FALSE, 5, 1, 21,
-        "flush_disturb",                "障害発生時に入力をクリアする" },
+	"flush_disturb",                "障害発生時に入力をクリアする" },
 #else
 	{ &flush_disturb,               FALSE, 5, 1, 21,
 	"flush_disturb",                "Flush input whenever disturbed" },
@@ -7047,16 +4457,16 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &fresh_before,                TRUE,  5, 1, 23,
-        "fresh_before",                 "連続コマンド中に画面を再描画し続ける" },
+	"fresh_before",                 "連続コマンド中に画面を再描画し続ける" },
 #else
 	{ &fresh_before,                TRUE,  5, 1, 23,
-        "fresh_before",                 "Flush output while continuous command" },
+	"fresh_before",                 "Flush output while continuous command" },
 #endif
 
 
 #ifdef JP
 	{ &fresh_after,                 FALSE, 5, 1, 24,
-        "fresh_after",                  "コマンド後に画面を常に再描画し続ける" },
+	"fresh_after",                  "コマンド後に画面を常に再描画し続ける" },
 #else
 	{ &fresh_after,                 FALSE, 5, 1, 24,
 	"fresh_after",                  "Flush output after monster's move" },
@@ -7074,7 +4484,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &compress_savefile,           FALSE, 5, 1, 26,
-        "compress_savefile",            "セーブ・ファイル中のメッセージを圧縮する" },
+	"compress_savefile",            "セーブ・ファイル中のメッセージを圧縮する" },
 #else
 	{ &compress_savefile,           FALSE, 5, 1, 26,
 	"compress_savefile",            "Compress messages in savefiles" },
@@ -7094,7 +4504,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &manual_haggle,               FALSE, 6, 1, 0,
-        "manual_haggle",                "店で値切り交渉をする" },
+	"manual_haggle",                "店で値切り交渉をする" },
 #else
 	{ &manual_haggle,               FALSE, 6, 1, 0,
 	"manual_haggle",                "Manually haggle in stores" },
@@ -7103,7 +4513,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &easy_band,                   FALSE, 6, 6, 31,
-        "easy_band",                    "初心者用簡単モード(*)" },
+	"easy_band",                    "初心者用簡単モード(*)" },
 #else
 	{ &easy_band,                   FALSE, 6, 6, 31,
 	"easy_band",                    "Easy Mode (*)" },
@@ -7112,7 +4522,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &smart_learn,                 TRUE,  6, 1, 14,
-        "smart_learn",                  "モンスターは失敗を学習する(*)" },
+	"smart_learn",                  "モンスターは失敗を学習する(*)" },
 #else
 	{ &smart_learn,                 TRUE,  6, 1, 14,
 	"smart_learn",                  "Monsters learn from their mistakes (*)" },
@@ -7121,38 +4531,10 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &smart_cheat,                 FALSE, 6, 1, 15,
-        "smart_cheat",                  "モンスターはプレイヤーの弱みを突く(*)" },
+	"smart_cheat",                  "モンスターはプレイヤーの弱みを突く(*)" },
 #else
 	{ &smart_cheat,                 FALSE, 6, 1, 15,
 	"smart_cheat",                  "Monsters exploit players weaknesses (*)" },
-#endif
-
-
-#ifdef JP
-	{ &stupid_monsters,             FALSE, 6, 5, 2,
-	"stupid_monsters",              "モンスターが間抜けな行動をとる(*)" },
-#else
-	{ &stupid_monsters,             FALSE, 6, 5, 2,
-	"stupid_monsters",              "Monsters behave stupidly (*)" },
-#endif
-
-
-
-#ifdef JP
-	{ &vanilla_town,                FALSE, 6, 6, 0,
-	"vanilla_town",                 "元祖の街/クエストと荒野なし" },
-#else
-	{ &vanilla_town,                FALSE, 6, 6, 0,
-	"vanilla_town",                 "Use 'vanilla' town without quests and wilderness" },
-#endif
-
-
-#ifdef JP
-	{ &lite_town,                   FALSE, 6, 6, 1,
-	"lite_town",                    "小規模な街/荒野なし" },
-#else
-	{ &lite_town,                   FALSE, 6, 6, 1,
-	"lite_town",                    "Use 'lite' town without a wilderness" },
 #endif
 
 
@@ -7175,11 +4557,11 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &ironman_downward,            FALSE, 6, 6, 4,
-	"ironman_downward",             "（鉄人用）帰還と上り階段なし(*)" },
+	{ &ironman_forward,            FALSE, 6, 6, 4,
+	"ironman_forward",             "（鉄人用）帰還と戻り階段なし(*)" },
 #else
-	{ &ironman_downward,            FALSE, 6, 6, 4,
-	"ironman_downward",             "Disable recall and use of up stairs (*)" },
+	{ &ironman_forward,            FALSE, 6, 6, 4,
+	"ironman_forward",             "Disable recall and use of back stairs (*)" },
 #endif
 
 
@@ -7193,8 +4575,8 @@ option_type option_info[] =
 
 
 #ifdef JP
-       { &ironman_empty_levels,         FALSE, 6, 6, 8,
-       "ironman_empty_levels",          "（鉄人用）常に空っぽのアリーナレベルを生成(*)" },
+	{ &ironman_empty_levels,         FALSE, 6, 6, 8,
+	"ironman_empty_levels",          "（鉄人用）常に空っぽのアリーナレベルを生成(*)" },
 #else
 	{ &ironman_empty_levels,        FALSE, 6, 6, 8,
 	"ironman_empty_levels",         "Always create empty 'arena' levels (*)" },
@@ -7202,26 +4584,8 @@ option_type option_info[] =
 
 
 #ifdef JP
-       { &terrain_streams,              TRUE,  6, 6, 9,
-       "terrain_streams",               "川や森などをダンジョンに生成(*)" },
-#else
-       { &terrain_streams,              TRUE,  6, 6, 9,
-       "terrain_streams",               "Create terrain 'streamers' in the dungeon (*)" },
-#endif
-
-
-#ifdef JP
-       { &munchkin_death,               FALSE, 6, 6, 11,
-       "munchkin_death",                "（いんちき）死んだ時セーブするか確認する(*)" },
-#else
-	{ &munchkin_death,              FALSE, 6, 6, 11,
-	"munchkin_death",               "(Cheating) Ask for death saves (*)" },
-#endif
-
-
-#ifdef JP
-       { &ironman_rooms,                FALSE, 6, 6, 12,
-       "ironman_rooms",                 "（鉄人用）常に普通でない部屋を生成する(*)" },
+	{ &ironman_rooms,                FALSE, 6, 6, 12,
+	"ironman_rooms",                 "（鉄人用）常に普通でない部屋を生成する(*)" },
 #else
 	{ &ironman_rooms,               FALSE, 6, 6, 12,
 	"ironman_rooms",                "Always generate very unusual rooms (*)" },
@@ -7230,15 +4594,15 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &ironman_nightmare,           FALSE, 6, 6, 18,
-        "ironman_nightmare",	        "（鉄人用）悪夢モード(これは全く不条理です！)(*)" },
+	"ironman_nightmare",	        "（鉄人用）悪夢モード(これは全く不条理です！)(*)" },
 #else
 	{ &ironman_nightmare,           FALSE, 6, 6, 18,
-        "ironman_nightmare",	        "Nightmare mode(it isn't even remotely fair!)(*)" },
+	"ironman_nightmare",	        "Nightmare mode(it isn't even remotely fair!)(*)" },
 #endif
 
 #ifdef JP
-        { &left_hander,                 FALSE, 6, 6, 13,
-        "left_hander",                  "左利きである" },
+	{ &left_hander,                 FALSE, 6, 6, 13,
+	"left_hander",                  "左利きである" },
 #else
 	{ &left_hander,                 FALSE, 6, 6, 13,
 	"left_hander",                  "Left-Hander" },
@@ -7246,8 +4610,8 @@ option_type option_info[] =
 
 
 #ifdef JP
-        { &preserve_mode,               TRUE,  6, 6, 14,
-        "preserve_mode",                "伝説のアイテムを取り逃しても再生成される(*)" },
+	{ &preserve_mode,               TRUE,  6, 6, 14,
+	"preserve_mode",                "伝説のアイテムを取り逃しても再生成される(*)" },
 #else
 	{ &preserve_mode,               TRUE,  6, 6, 14,
 	"preserve_mode",                "Preserve artifacts (*)" },
@@ -7255,212 +4619,202 @@ option_type option_info[] =
 
 
 #ifdef JP
-        { &autoroller,                  TRUE,  6, 6, 15,
-        "autoroller",                   "能力値にオートローラー使用(*)" },
-#else
-	{ &autoroller,                  TRUE,  6, 6, 15,
-	"autoroller",                   "Allow use of autoroller for stats (*)" },
-#endif
-
-
-#ifdef JP
-        { &autochara,                   FALSE, 6, 6, 16,
-        "autochara",                   "体格/地位にオートローラー使用" },
-#else
-	{ &autochara,                   FALSE, 6, 6, 16,
-	"autochara",                    "Autoroll for weight, height and social status" },
-#endif
-
-
-#ifdef JP
 	{ &powerup_home,                TRUE,  6, 4, 3,
-        "powerup_home",                 "我が家を拡張する(*)" },
+	"powerup_home",                 "我が家を拡張する(*)" },
 
 #else
 	{ &powerup_home,                TRUE,  6, 4, 3,
-        "powerup_home",                 "Increase capacity of your home (*)" },
+	"powerup_home",                 "Increase capacity of your home (*)" },
 #endif
 
 
 	/*** Easy Object Auto-Destroyer ***/
 
 #ifdef JP
-        { &destroy_items,               FALSE, 7, 7, 0,
-        "destroy_items",                "アイテムの簡易自動破壊を使用する" },
+	{ &destroy_items,               FALSE, 7, 7, 0,
+	"destroy_items",                "アイテムの簡易自動破壊を使用する" },
 #else
-        { &destroy_items,               FALSE, 7, 7, 0,
-        "destroy_items",                "Use easy auto-destroyer" },
+	{ &destroy_items,               FALSE, 7, 7, 0,
+	"destroy_items",                "Use easy auto-destroyer" },
 #endif
 
 #ifdef JP
-        { &destroy_feeling,               FALSE, 7, 7, 8,
-        "destroy_feeling",                "簡易鑑定したとき自動破壊を適用する" },
+	{ &destroy_feeling,               FALSE, 7, 7, 8,
+	"destroy_feeling",                "簡易鑑定したとき自動破壊を適用する" },
 #else
-        { &destroy_feeling,               FALSE, 7, 7, 8,
-        "destroy_feeling",                "Apply auto-destroy as sense feeling" },
+	{ &destroy_feeling,               FALSE, 7, 7, 8,
+	"destroy_feeling",                "Apply auto-destroy as sense feeling" },
 #endif
 
 #ifdef JP
-        { &destroy_identify,               FALSE, 7, 7, 9,
-        "destroy_identify",                "鑑定したとき自動破壊を適用する" },
+	{ &destroy_identify,               FALSE, 7, 7, 9,
+	"destroy_identify",                "鑑定したとき自動破壊を適用する" },
 #else
-        { &destroy_identify,               FALSE, 7, 7, 9,
-        "destroy_identify",                "Apply auto-destroy as identify an item" },
+	{ &destroy_identify,               FALSE, 7, 7, 9,
+	"destroy_identify",                "Apply auto-destroy as identify an item" },
 #endif
 
 #ifdef JP
-        { &leave_worth,                 TRUE, 7, 7, 2,
-        "leave_worth",                  "価値があるアイテムは壊さない" },
+	{ &leave_worth,                 TRUE, 7, 7, 2,
+	"leave_worth",                  "価値があるアイテムは壊さない" },
 #else
-        { &leave_worth,                 TRUE, 7, 7, 2,
-        "leave_worth",                  "Auto-destroyer leaves known worthy items" },
+	{ &leave_worth,                 TRUE, 7, 7, 2,
+	"leave_worth",                  "Auto-destroyer leaves known worthy items" },
 #endif
 
 #ifdef JP
-        { &leave_equip,                 FALSE, 7, 7, 3,
-        "leave_equip",                  "武器/防具は壊さない" },
+	{ &leave_equip,                 FALSE, 7, 7, 3,
+	"leave_equip",                  "武器/防具は壊さない" },
 #else
-        { &leave_equip,                 FALSE, 7, 7, 3,
-        "leave_equip",                  "Auto-destroyer leaves weapons and armour" },
+	{ &leave_equip,                 FALSE, 7, 7, 3,
+	"leave_equip",                  "Auto-destroyer leaves weapons and armour" },
 #endif
 
 #ifdef JP
-        { &leave_chest,                 TRUE, 7, 7, 7,
-        "leave_chest",                  "開封されていない箱は壊さない" },
+	{ &leave_chest,                 TRUE, 7, 7, 7,
+	"leave_chest",                  "開封されていない箱は壊さない" },
 #else
-        { &leave_chest,                 TRUE, 7, 7, 7,
-        "leave_chest",                  "Auto-destroyer leaves closed chests" },
+	{ &leave_chest,                 TRUE, 7, 7, 7,
+	"leave_chest",                  "Auto-destroyer leaves closed chests" },
 #endif
 
 #ifdef JP
-        { &leave_wanted,                TRUE, 7, 7, 4,
-        "leave_wanted",                 "賞金首の死体/骨は壊さない" },
+	{ &leave_wanted,                TRUE, 7, 7, 4,
+	"leave_wanted",                 "賞金首の死体/骨は壊さない" },
 #else
-        { &leave_wanted,                TRUE, 7, 7, 4,
-        "leave_wanted",                 "Auto-destroyer leaves wanted corpses" },
+	{ &leave_wanted,                TRUE, 7, 7, 4,
+	"leave_wanted",                 "Auto-destroyer leaves wanted corpses" },
 #endif
 
 #ifdef JP
-        { &leave_corpse,                FALSE, 7, 7, 5,
-        "leave_corpse",                 "死体/骨は壊さない" },
+	{ &leave_corpse,                FALSE, 7, 7, 5,
+	"leave_corpse",                 "死体/骨は壊さない" },
 #else
-        { &leave_corpse,                FALSE, 7, 7, 5,
-        "leave_corpse",                 "Auto-destroyer leaves corpses and skeletons" },
+	{ &leave_corpse,                FALSE, 7, 7, 5,
+	"leave_corpse",                 "Auto-destroyer leaves corpses and skeletons" },
 #endif
 
 #ifdef JP
-        { &leave_junk,                  FALSE, 7, 7, 6,
-        "leave_junk",                   "がらくたは壊さない" },
+	{ &leave_junk,                  FALSE, 7, 7, 6,
+	"leave_junk",                   "がらくたは壊さない" },
 #else
-        { &leave_junk,                  FALSE, 7, 7, 6,
-        "leave_junk",                   "Auto-destroyer leaves junk" },
+	{ &leave_junk,                  FALSE, 7, 7, 6,
+	"leave_junk",                   "Auto-destroyer leaves junk" },
+#endif
+
+#ifdef JP
+	{ &leave_special,               TRUE, 7, 7, 1,
+	"leave_special",                "種族/職業で特別に必要なアイテムは壊さない" },
+#else
+	{ &leave_special,               TRUE, 7, 7, 1,
+	"leave_special",                "Auto-destroyer leaves items your race/class needs" },
 #endif
 
 
 	/*** Play-record Options ***/
 
 #ifdef JP
-        { &record_fix_art,              TRUE, 10, 4, 11,
-        "record_fix_art",               "固定アーティファクトの入手を記録する" },
+	{ &record_fix_art,              TRUE, 10, 4, 11,
+	"record_fix_art",               "固定アーティファクトの入手を記録する" },
 #else
-        { &record_fix_art,              TRUE, 10, 4, 11,
-        "record_fix_art",               "Record fixed artifacts" },
+	{ &record_fix_art,              TRUE, 10, 4, 11,
+	"record_fix_art",               "Record fixed artifacts" },
 #endif
 
 #ifdef JP
-        { &record_rand_art,             TRUE, 10, 4, 12,
-        "record_rand_art",              "ランダムアーティファクトの入手を記録する" },
+	{ &record_rand_art,             TRUE, 10, 4, 12,
+	"record_rand_art",              "ランダムアーティファクトの入手を記録する" },
 #else
-        { &record_rand_art,             TRUE, 10, 4, 12,
-        "record_rand_art",              "Record random artifacts" },
+	{ &record_rand_art,             TRUE, 10, 4, 12,
+	"record_rand_art",              "Record random artifacts" },
 #endif
 
 #ifdef JP
-        { &record_destroy_uniq,         TRUE, 10, 4, 13,
-        "record_destroy_uniq",          "ユニークモンスターを倒したときを記録する" },
+	{ &record_destroy_uniq,         TRUE, 10, 4, 13,
+	"record_destroy_uniq",          "ユニークモンスターを倒したときを記録する" },
 #else
-        { &record_destroy_uniq,         TRUE, 10, 4, 13,
-        "record_destroy_uniq",          "Record when destroy unique monster" },
+	{ &record_destroy_uniq,         TRUE, 10, 4, 13,
+	"record_destroy_uniq",          "Record when destroy unique monster" },
 #endif
 
 #ifdef JP
-        { &record_fix_quest,            TRUE, 10, 4, 14,
-        "record_fix_quest",             "固定クエストの達成を記録する" },
+	{ &record_fix_quest,            TRUE, 10, 4, 14,
+	"record_fix_quest",             "固定クエストの達成を記録する" },
 #else
-        { &record_fix_quest,            TRUE, 10, 4, 14,
-        "record_fix_quest",             "Record fixed quests" },
+	{ &record_fix_quest,            TRUE, 10, 4, 14,
+	"record_fix_quest",             "Record fixed quests" },
 #endif
 
 #ifdef JP
-        { &record_rand_quest,           TRUE, 10, 4, 15,
-        "record_rand_quest",            "ランダムクエストの達成を記録する" },
+	{ &record_rand_quest,           TRUE, 10, 4, 15,
+	"record_rand_quest",            "ランダムクエストの達成を記録する" },
 #else
-        { &record_rand_quest,           TRUE, 10, 4, 15,
-        "record_rand_quest",            "Record random quests" },
+	{ &record_rand_quest,           TRUE, 10, 4, 15,
+	"record_rand_quest",            "Record random quests" },
 #endif
 
 #ifdef JP
-        { &record_maxdeapth,            TRUE, 10, 4, 16,
-        "record_maxdeapth",             "最深階を更新したときに記録する" },
+	{ &record_maxdeapth,            TRUE, 10, 4, 16,
+	"record_maxdeapth",             "最深階を更新したときに記録する" },
 #else
-        { &record_maxdeapth,            TRUE, 10, 4, 16,
-        "record_maxdeapth",             "Record movements to deepest level" },
+	{ &record_maxdeapth,            TRUE, 10, 4, 16,
+	"record_maxdeapth",             "Record movements to deepest level" },
 #endif
 
 #ifdef JP
-        { &record_stair,                TRUE, 10, 4, 17,
-        "record_stair",                 "階の移動を記録する" },
+	{ &record_stair,                TRUE, 10, 4, 17,
+	"record_stair",                 "階の移動を記録する" },
 #else
-        { &record_stair,                TRUE, 10, 4, 17,
-        "record_stair",                 "Record recall and stair movements" },
+	{ &record_stair,                TRUE, 10, 4, 17,
+	"record_stair",                 "Record recall and stair movements" },
 #endif
 
 #ifdef JP
-        { &record_buy,                  TRUE, 10, 4, 18,
-        "record_buy",                   "アイテムの購入を記録する" },
+	{ &record_buy,                  TRUE, 10, 4, 18,
+	"record_buy",                   "アイテムの購入を記録する" },
 #else
-        { &record_buy,                  TRUE, 10, 4, 18,
-        "record_buy",                   "Record purchased items" },
+	{ &record_buy,                  TRUE, 10, 4, 18,
+	"record_buy",                   "Record purchased items" },
 #endif
 
 #ifdef JP
-        { &record_sell,                 FALSE, 10, 4, 19,
-        "record_sell",                  "アイテムの売却を記録する" },
+	{ &record_sell,                 FALSE, 10, 4, 19,
+	"record_sell",                  "アイテムの売却を記録する" },
 #else
-        { &record_sell,                 FALSE, 10, 4, 19,
-        "record_sell",                  "Record sold items" },
+	{ &record_sell,                 FALSE, 10, 4, 19,
+	"record_sell",                  "Record sold items" },
 #endif
 
 #ifdef JP
-        { &record_danger,               TRUE, 10, 4, 20,
-        "record_danger",                "ピンチになったときを記録する" },
+	{ &record_danger,               TRUE, 10, 4, 20,
+	"record_danger",                "ピンチになったときを記録する" },
 #else
-        { &record_danger,               TRUE, 10, 4, 20,
-        "record_danger",                "Record hitpoint warning" },
+	{ &record_danger,               TRUE, 10, 4, 20,
+	"record_danger",                "Record hitpoint warning" },
 #endif
 
 #ifdef JP
-        { &record_arena,                TRUE, 10, 4, 21,
-        "record_arena",                 "アリーナでの勝利を記録する" },
+	{ &record_arena,                TRUE, 10, 4, 21,
+	"record_arena",                 "アリーナでの勝利を記録する" },
 #else
-        { &record_arena,                TRUE, 10, 4, 21,
-        "record_arena",                 "Record arena victories" },
+	{ &record_arena,                TRUE, 10, 4, 21,
+	"record_arena",                 "Record arena victories" },
 #endif
 
 #ifdef JP
-        { &record_ident,                TRUE, 10, 4, 22,
-        "record_ident",                 "未判明のアイテムの識別を記録する" },
+	{ &record_ident,                TRUE, 10, 4, 22,
+	"record_ident",                 "未判明のアイテムの識別を記録する" },
 #else
-        { &record_ident,                TRUE, 10, 4, 22,
-        "record_ident",                 "Record first identified items" },
+	{ &record_ident,                TRUE, 10, 4, 22,
+	"record_ident",                 "Record first identified items" },
 #endif
 
 #ifdef JP
-        { &record_named_pet,            FALSE, 10, 4, 23,
-        "record_named_pet",             "名前つきペットの情報を記録する" },
+	{ &record_named_pet,            FALSE, 10, 4, 23,
+	"record_named_pet",             "名前つきペットの情報を記録する" },
 #else
-        { &record_named_pet,            FALSE, 10, 4, 23,
-        "record_named_pet",             "Record informations of named pets" },
+	{ &record_named_pet,            FALSE, 10, 4, 23,
+	"record_named_pet",             "Record informations of named pets" },
 #endif
 
 
@@ -7471,308 +4825,72 @@ option_type option_info[] =
 };
 
 
-#ifdef JP
-cptr chaos_patrons[MAX_PATRON] =
-{
-	"スローター",
-	"マベロード",
-	"チャードロス",
-	"ハイオンハーン",
-	"キシオムバーグ",
 
-	"ピアレー",
-	"バラン",
-	"アリオッチ",
-	"イーカー",
-	"ナージャン",
-
-	"バロ",
-	"コーン",
-	"スラーネッシュ",
-	"ナーグル",
-	"ティーンチ",
-
-	"カイン"
-};
-#else
-cptr chaos_patrons[MAX_PATRON] =
-{
-	"Slortar",
-	"Mabelode",
-	"Chardros",
-	"Hionhurn",
-	"Xiombarg",
-
-	"Pyaray",
-	"Balaan",
-	"Arioch",
-	"Eequor",
-	"Narjhan",
-
-	"Balo",
-	"Khorne",
-	"Slaanesh",
-	"Nurgle",
-	"Tzeentch",
-
-	"Khaine"
-};
-#endif
-
-
-int chaos_stats[MAX_PATRON] =
-{
-	A_CON,  /* Slortar */
-	A_CON,  /* Mabelode */
-	A_STR,  /* Chardros */
-	A_STR,  /* Hionhurn */
-	A_STR,  /* Xiombarg */
-
-	A_INT,  /* Pyaray */
-	A_STR,  /* Balaan */
-	A_INT,  /* Arioch */
-	A_CON,  /* Eequor */
-	A_CHR,  /* Narjhan */
-
-	-1,     /* Balo */
-	A_STR,  /* Khorne */
-	A_CHR,  /* Slaanesh */
-	A_CON,  /* Nurgle */
-	A_INT,  /* Tzeentch */
-
-	A_STR,  /* Khaine */
-};
-
-
-
-
-int chaos_rewards[MAX_PATRON][20] =
-{
-	/* Slortar the Old: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP,
-		REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Mabelode the Faceless: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_H_SUMMON, REW_SUMMON_M,
-		REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_WND,
-		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_ABL, REW_SER_UNDE,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GOOD_OBS
-	},
-
-	/* Chardros the Reaper: */
-	{
-		REW_WRATH, REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_H_SUMMON,
-		REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_DESTRUCT, REW_SER_UNDE,
-		REW_GENOCIDE, REW_MASS_GEN, REW_MASS_GEN, REW_DISPEL_C, REW_GOOD_OBJ,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Hionhurn the Executioner: */
-	{
-		REW_WRATH, REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-		REW_IGNORE, REW_IGNORE, REW_SER_UNDE, REW_DESTRUCT, REW_GENOCIDE,
-		REW_MASS_GEN, REW_MASS_GEN, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Xiombarg the Sword-Queen: */
-	{
-		REW_TY_CURSE, REW_TY_CURSE, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND, REW_POLY_WND,
-		REW_GENOCIDE, REW_DISPEL_C, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS,
-		REW_GAIN_ABL, REW_CHAOS_WP, REW_GAIN_EXP, REW_AUGM_ABL, REW_GOOD_OBS
-	},
-
-
-	/* Pyaray the Tentacled Whisperer of Impossible Secretes: */
-	{
-		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_H_SUMMON, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-		REW_POLY_SLF, REW_SER_DEMO, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_CHAOS_WP, REW_DO_HAVOC, REW_GOOD_OBJ, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Balaan the Grim: */
-	{
-		REW_TY_CURSE, REW_HURT_LOT, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-		REW_SUMMON_M, REW_LOSE_EXP, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-		REW_SER_UNDE, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_GAIN_EXP,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GREA_OBS, REW_AUGM_ABL
-	},
-
-	/* Arioch, Duke of Hell: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_EXP, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-		REW_POLY_SLF, REW_MASS_GEN, REW_SER_DEMO, REW_HEAL_FUL, REW_CHAOS_WP,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GAIN_EXP, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Eequor, Blue Lady of Dismay: */
-	{
-		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_CURSE_WP, REW_RUIN_ABL,
-		REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS, REW_HEAL_FUL, REW_GAIN_EXP,
-		REW_GAIN_ABL, REW_CHAOS_WP, REW_GOOD_OBS, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Narjhan, Lord of Beggars: */
-	{
-		REW_WRATH, REW_CURSE_AR, REW_CURSE_WP, REW_CURSE_WP, REW_CURSE_AR,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF,
-		REW_POLY_WND, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_AUGM_ABL,
-		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Balo the Jester: */
-	{
-		REW_WRATH, REW_SER_DEMO, REW_CURSE_WP, REW_CURSE_AR, REW_LOSE_EXP,
-		REW_GAIN_ABL, REW_LOSE_ABL, REW_POLY_WND, REW_POLY_SLF, REW_IGNORE,
-		REW_DESTRUCT, REW_MASS_GEN, REW_CHAOS_WP, REW_GREA_OBJ, REW_HURT_LOT,
-		REW_AUGM_ABL, REW_RUIN_ABL, REW_H_SUMMON, REW_GREA_OBS, REW_AUGM_ABL
-	},
-
-	/* Khorne the Bloodgod: */
-	{
-		REW_WRATH, REW_HURT_LOT, REW_HURT_LOT, REW_H_SUMMON, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_SER_MONS, REW_SER_DEMO,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GOOD_OBJ,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Slaanesh: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_SER_DEMO,
-		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_EXP,
-		REW_GAIN_EXP, REW_CHAOS_WP, REW_GAIN_ABL, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Nurgle: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_HURT_LOT, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_ABL,
-		REW_GAIN_ABL, REW_SER_UNDE, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Tzeentch: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_CHAOS_WP, REW_GREA_OBJ,
-		REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP, REW_GAIN_EXP, REW_AUGM_ABL
-	},
-
-	/* Khaine: */
-	{
-		REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_LOSE_ABL, REW_LOSE_EXP,
-		REW_IGNORE,   REW_IGNORE,   REW_DISPEL_C, REW_DO_HAVOC, REW_DO_HAVOC,
-		REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_EXP, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_SER_MONS, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GOOD_OBS
-	}
-};
 
 martial_arts ma_blows[MAX_MA] =
 {
 #ifdef JP
-	{ "%sを殴った。",                          1, 0, 1, 5, 0 },
-	{ "%sを蹴った。",                           2, 0, 1, 7, 0 },
-	{ "%sに正拳突きをくらわした。",                         3, 0, 1, 9, 0 },
-	{ "%sに膝蹴りをくらわした。",             5, 5, 2, 4, MA_KNEE },
-	{ "%sに肘打ちをくらわした。",            7, 5, 1, 12, 0 },
-	{ "%sに体当りした。",                           9, 10, 2, 6, 0 },
-	{ "%sを蹴った。",                           11, 10, 3, 6, MA_SLOW },
-	{ "%sにアッパーをくらわした。",                       13, 12, 5, 5, 6 },
-	{ "%sに二段蹴りをくらわした。",                    16, 15, 5, 6, 8 },
-	{ "%sに猫爪撃をくらわした。",          20, 20, 5, 8, 0 },
-	{ "%sに跳空脚をくらわした。",           24, 25, 6, 8, 10 },
-	{ "%sに鷲爪襲をくらわした。",       28, 25, 7, 9, 0 },
-	{ "%sに回し蹴りをくらわした。",         32, 30, 8, 10, 10 },
-	{ "%sに鉄拳撃をくらわした。",          35, 35, 8, 11, 10 },
-	{ "%sに飛空脚をくらわした。",         39, 35, 8, 12, 12 },
-	{ "%sに昇龍拳をくらわした。",         43, 35, 9, 12, 16 },
-	{ "%sに石破天驚拳をくらわした。",       48, 40, 10, 13, 18 },
+	{ "%sを殴った。",                 SKILL_LEVEL_BEGINNER,  0,  1,  5,  0 },
+	{ "%sを蹴った。",                 SKILL_LEVEL_BEGINNER,  0,  1,  7,  0 },
+	{ "%sに正拳突きをくらわした。",   SKILL_LEVEL_NOVICE,    0,  1,  9,  0 },
+	{ "%sに膝蹴りをくらわした。",     SKILL_LEVEL_NOVICE,    5,  2,  4, MA_KNEE },
+	{ "%sに肘打ちをくらわした。",     SKILL_LEVEL_NOVICE,    5,  1, 12,  0 },
+	{ "%sに体当りした。",             SKILL_LEVEL_AVERAGE,  10,  2,  6,  0 },
+	{ "%sを蹴った。",                 SKILL_LEVEL_AVERAGE,  10,  3,  6, MA_SLOW },
+	{ "%sにアッパーをくらわした。",   SKILL_LEVEL_AVERAGE,  12,  5,  5,  6 },
+	{ "%sに二段蹴りをくらわした。",   SKILL_LEVEL_SKILLED,  15,  5,  6,  8 },
+	{ "%sに猫爪撃をくらわした。",     SKILL_LEVEL_SKILLED,  20,  5,  8,  0 },
+	{ "%sに跳空脚をくらわした。",     SKILL_LEVEL_SKILLED,  25,  6,  8, 10 },
+	{ "%sに鷲爪襲をくらわした。",     SKILL_LEVEL_EXPERT,   25,  7,  9,  0 },
+	{ "%sに回し蹴りをくらわした。",   SKILL_LEVEL_EXPERT,   30,  8, 10, 10 },
+	{ "%sに鉄拳撃をくらわした。",     SKILL_LEVEL_EXPERT,   35,  8, 11, 10 },
+	{ "%sに飛空脚をくらわした。",     SKILL_LEVEL_MASTER,   35,  8, 12, 12 },
+	{ "%sに半月蹴をくらわした。",     SKILL_LEVEL_MASTER,   35,  9, 12, 16 },
+	{ "%sに覇王流星脚をくらわした。", SKILL_LEVEL_MASTER,   40, 10, 13, 18 },
 #else
-	{ "You punch %s.",                          1, 0, 1, 4, 0 },
-	{ "You kick %s.",                           2, 0, 1, 6, 0 },
-	{ "You strike %s.",                         3, 0, 1, 7, 0 },
-	{ "You hit %s with your knee.",             5, 5, 2, 3, MA_KNEE },
-	{ "You hit %s with your elbow.",            7, 5, 1, 8, 0 },
-	{ "You butt %s.",                           9, 10, 2, 5, 0 },
-	{ "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-	{ "You uppercut %s.",                       13, 12, 4, 4, 6 },
-	{ "You double-kick %s.",                    16, 15, 5, 4, 8 },
-	{ "You hit %s with a Cat's Claw.",          20, 20, 5, 5, 0 },
-	{ "You hit %s with a jump kick.",           25, 25, 5, 6, 10 },
-	{ "You hit %s with an Eagle's Claw.",       29, 25, 6, 6, 0 },
-	{ "You hit %s with a circle kick.",         33, 30, 6, 8, 10 },
-	{ "You hit %s with an Iron Fist.",          37, 35, 8, 8, 10 },
-	{ "You hit %s with a flying kick.",         41, 35, 8, 10, 12 },
-	{ "You hit %s with a Dragon Fist.",         45, 35, 10, 10, 16 },
-	{ "You hit %s with a Crushing Blow.",       48, 35, 10, 12, 18 },
+	{ "You punch %s.",                                SKILL_LEVEL_BEGINNER,  0,  1,  5,  0 },
+	{ "You kick %s.",                                 SKILL_LEVEL_BEGINNER,  0,  1,  7,  0 },
+	{ "You strike %s.",                               SKILL_LEVEL_NOVICE,    0,  1,  9,  0 },
+	{ "You hit %s with your knee.",                   SKILL_LEVEL_NOVICE,    5,  2,  4, MA_KNEE },
+	{ "You hit %s with your elbow.",                  SKILL_LEVEL_NOVICE,    5,  1, 12,  0 },
+	{ "You butt %s.",                                 SKILL_LEVEL_AVERAGE,  10,  2,  6,  0 },
+	{ "You kick %s.",                                 SKILL_LEVEL_AVERAGE,  10,  3,  6, MA_SLOW },
+	{ "You uppercut %s.",                             SKILL_LEVEL_AVERAGE,  12,  5,  5,  6 },
+	{ "You double-kick %s.",                          SKILL_LEVEL_SKILLED,  15,  5,  6,  8 },
+	{ "You hit %s with a Cat's Claw.",                SKILL_LEVEL_SKILLED,  20,  5,  8,  0 },
+	{ "You hit %s with a jump kick.",                 SKILL_LEVEL_SKILLED,  25,  6,  8, 10 },
+	{ "You hit %s with an Eagle's Claw.",             SKILL_LEVEL_EXPERT,   25,  7,  9,  0 },
+	{ "You hit %s with a circle kick.",               SKILL_LEVEL_EXPERT,   30,  8, 10, 10 },
+	{ "You hit %s with an Iron Fist.",                SKILL_LEVEL_EXPERT,   35,  8, 11, 10 },
+	{ "You hit %s with a flying kick.",               SKILL_LEVEL_MASTER,   35,  8, 12, 12 },
+	{ "You hit %s with a Half-moon Kick.",            SKILL_LEVEL_MASTER,   35,  9, 12, 16 },
+	{ "You hit %s with a Kingly Shooting Star Kick.", SKILL_LEVEL_MASTER,   40, 10, 13, 18 },
 #endif
 
 };
 
-int monk_ave_damage[PY_MAX_LEVEL+1][3] =
+martial_arts octopus_ma_blows[MAX_OCTOPUS_MA] =
 {
-  {0, 0, 0},
-  {249, 249, 249},
-  {324, 324, 324},
-  {382, 438, 382},
-  {382, 439, 382},
-  {390, 446, 390},
-  {394, 473, 394},
-  {425, 528, 425},
-  {430, 535, 430},
-  {505, 560, 435},
-  {517, 575, 444},
-  {566, 655, 474},
-  {585, 713, 486},
-  {653, 843, 527},
-  {678, 890, 544},
-  {703, 973, 558},
-  {765, 1096, 596},
-  {914, 1146, 614},
-  {943, 1240, 629},
-  {971, 1276, 643},
-  {1018, 1350, 667},
-  {1063, 1464, 688},
-  {1099, 1515, 705},
-  {1128, 1559, 721},
-  {1153, 1640, 735},
-  {1336, 1720, 757},
-  {1387, 1789, 778},
-  {1430, 1893, 794},
-  {1610, 2199, 863},
-  {1666, 2280, 885},
-  {1713, 2401, 908},
-  {1755, 2465, 925},
-  {1909, 2730, 984},
-  {2156, 2891, 1009},
-  {2218, 2970, 1031},
-  {2319, 3107, 1063},
-  {2404, 3290, 1098},
-  {2477, 3389, 1125},
-  {2544, 3483, 1150},
-  {2771, 3899, 1228},
-  {2844, 3982, 1259},
-  {3129, 4064, 1287},
-  {3200, 4190, 1313},
-  {3554, 4674, 1432},
-  {3614, 4738, 1463},
-  {3679, 4853, 1485},
-  {3741, 4905, 1512},
-  {3785, 4943, 1538},
-  {4141, 5532, 1652},
-  {4442, 5581, 1679},
-  {4486, 5636, 1702},
+#ifdef JP
+	{ "%sを殴った。",          0,  0, 1,  5,  0 },
+	{ "%sを叩いた。",          7,  0, 2,  6,  0 },
+	{ "%sをひっぱたいた。",   14, 10, 3,  7,  2 },
+	{ "%sをぶん殴った。",     21, 15, 4,  8,  8 },
+	{ "%sを巻き付いた。",     28, 20, 5,  9,  9 },
+	{ "%sを締め付けた。",     35, 25, 6, 10, 11 },
+	{ "%sを掴んで投げた。",   42, 30, 7, 11,  2 },
+	{ "%sをタコ殴りにした。", 49, 35, 8, 12, 15 },
+#else
+	{ "You hit %s.",  0, 0, 1,  1,  0 },
+	{ "You hit %s.",  7, 0, 1,  2,  0 },
+	{ "You hit %s.", 14, 0, 1,  3,  2 },
+	{ "You hit %s.", 21, 0, 1,  4,  8 },
+	{ "You hit %s.", 28, 0, 2,  5,  9 },
+	{ "You hit %s.", 35, 0, 3,  6, 11 },
+	{ "You hit %s.", 42, 0, 4,  7,  2 },
+	{ "You hit %s.", 49, 0, 8, 10, 15 },
+#endif
+
 };
 
 /*
@@ -7787,11 +4905,12 @@ cptr game_inscriptions[] =
 	"恐ろしい",      /* FEEL_TERRIBLE */
 	"無価値",        /* FEEL_WORTHLESS */
 	"呪われている",  /* FEEL_CURSED */
-	"呪いなし",      /* FEEL_UNCURSED */
+	"上質以上",      /* FEEL_UNCURSED */
 	"並",            /* FEEL_AVERAGE */
 	"上質",          /* FEEL_GOOD */
 	"高級品",        /* FEEL_EXCELLENT */
 	"特別製",        /* FEEL_SPECIAL */
+	"未判明",        /* FEEL_TRIED */
 #else
 	"broken",        /* FEEL_BROKEN */
 	"terrible",      /* FEEL_TERRIBLE */
@@ -7802,61 +4921,45 @@ cptr game_inscriptions[] =
 	"good",          /* FEEL_GOOD */
 	"excellent",     /* FEEL_EXCELLENT */
 	"special",       /* FEEL_SPECIAL */
+	"tried",         /* FEEL_TRIED */
 #endif
 
 };
 
-kamae kamae_shurui[MAX_KAMAE] =
+cptr skill_lev_str[MAX_SKILL_LEVEL] =
+#ifdef JP
+{"[初心者]", "[入門者]", "[中級者]", "[熟練者]", "[エキスパート]", "[達人]"};
+#else
+{"[Beginner]", "[Novice]", "[Average]", "[Skilled]", "[Expert]", "[Master]"};
+#endif
+
+#ifdef JP
+cptr skill_unlearned_str = "[未学習]";
+#else
+cptr skill_unlearned_str = "[Unlearned]";
+#endif
+
+s16b skill_lev_var[MAX_SKILL_LEVEL] =
 {
-#ifdef JP
-	{"玄武", 25, ""},
-	{"白虎", 30, ""},
-	{"青竜", 35, ""},
-	{"朱雀", 40, ""},
-#else
-	{"Baihu", 25, "(Black Turtle) "},
-	{"Zuan-wu", 30, "(White Tiger) "},
-	{"Qinglong", 35, "(Blue Chinese Dragon) "},
-	{"Zhuque", 40, "(Red Chinese Phoenix) "},
-#endif
+	1, 2, 3, 4, 6, 8
 };
-
-kamae kata_shurui[MAX_KATA] =
-{
-#ifdef JP
-	{"居合", 25, ""},
-	{"風塵", 30, ""},
-	{"降鬼", 35, ""},
-	{"無想", 40, ""},
-#else
-	{"Iai", 25, ""},
-	{"Huujin", 30, ""},
-	{"Kouki", 35, ""},
-	{"Musou", 40, ""},
-#endif
-};
-
-cptr shougou_moji[5]=
-#ifdef JP
-{"[初心者]", "[入門者]", "[熟練者]", "[エキスパート]", "[達人]"};
-#else
-{"[Unskilled]", "[Beginner]", "[Skilled]", "[Expert]", "[Master]"};
-#endif
 
 byte conv_terrain2feat[MAX_WILDERNESS] =
 {
-  FEAT_PERM_EXTRA,
-  FEAT_TOWN,
-  FEAT_DEEP_WATER,
-  FEAT_SHAL_WATER,
-  FEAT_SWAMP,
-  FEAT_DIRT,
-  FEAT_GRASS,
-  FEAT_TREES,
-  FEAT_DIRT,
-  FEAT_SHAL_LAVA,
-  FEAT_DEEP_LAVA,
-  FEAT_MOUNTAIN
+	FEAT_PERM_SOLID,
+	FEAT_TOWN,
+	FEAT_DEEP_WATER,
+	FEAT_SHAL_WATER,
+	FEAT_SWAMP,
+	FEAT_DIRT,
+	FEAT_GRASS,
+	FEAT_TREES,
+	FEAT_DIRT,
+	FEAT_SHAL_LAVA,
+	FEAT_DEEP_LAVA,
+	FEAT_MOUNTAIN,
+	FEAT_TUNDRA,
+	FEAT_DEEP_SEA
 };
 
 #ifdef JP
@@ -7902,7 +5005,53 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
   "はあなたに卍固めをかけて「1、2、3、ダーッ！」と叫んだ。",
   "は「いくじなし！ばかばかばか！」といって駆け出した。",
   "が「ごらん、ルーベンスの絵だよ」と言って静かに目を閉じた。",
-  "は言った。「変愚蛮怒、絶賛公開中！」。",
+  "は言った。「TOband、絶賛公開中！」",
+};
+
+/* Formatted style for strfmt() */
+cptr silly_attacks_other[MAX_SILLY_ATTACK] =
+{
+  "%sに小便をかけた。",
+  "%sの回りを3回回ってワンと言った。",
+  "%sをしばきまわした。",
+  "%sに靴をなめさせた。",
+  "%sにハナクソを飛ばした。",
+  "%sをジャン拳で攻撃した。",
+  "%sの頬を札束でしばいた。",
+  "%sの前でポージングをした。",
+  "%sにアカンベーした。",
+  "%sに「神の国」発言の撤回を求めた。",
+  "%sにメッ○ールを飲ませた。",
+  "%sにつっこみを入れた。",
+  "%sと踊った。",
+  "%sの顔にらく書きをした。",
+  "%sに借金の返済をせまった。",
+  "%sのスカートをめくった。",
+  "%sの手相を占った。",
+  "%sから役満を上がった。",
+  "%sに愛の告白をした。",
+  "%sを時給500円で雇った。",
+  "%sの100の秘密について熱く語った。",
+  "ニャーと鳴いた。",
+  "%sに気をつけた。",
+  "%sをポリゴン化させた。",
+  "%sを少しかじった。",
+  "アルテマの呪文を唱えた！",
+  "%sのスパイクをブロックした。",
+  "スライド移動した。",
+  "昇龍拳コマンドの入力に失敗した。",
+  "%sに拡散波動砲を発射した。",
+  "%sにデスラー戦法をしかけた。",
+  "%sをライダーキックで攻撃した。",
+  "%sに二週間以内でビデオを人に見せないと死ぬ呪いをかけた。",
+  "パルプンテを唱えた。",
+  "%sにスーパーウルトラギャラクティカマグナムを放った。",
+  "%sをしゃがみ小キックでハメた。",
+  "%sにジェットストリームアタックをかけた。",
+  "%sに卍固めをかけて「1、2、3、ダーッ！」と叫んだ。",
+  "「いくじなし！ばかばかばか！」といって駆け出した。",
+  "「ごらん、ルーベンスの絵だよ」と言って静かに目を閉じた。",
+  "言った。「TOband、絶賛公開中！」",
 };
 #else
 
@@ -7945,3 +5094,993 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 	"pusupusu"
 };
 #endif
+
+#ifdef JP
+cptr elem_names[] =
+{
+	"火",
+	"水",
+	"地",
+	"風"
+};
+#endif
+
+#ifdef JP
+cptr E_elem_names[] =
+#else
+cptr elem_names[] =
+#endif
+{
+	"Fire",
+	"Aqua",
+	"Earth",
+	"Wind"
+};
+
+weather_type weather_table[WEATHER_TYPE_NUM][WEATHER_LEVEL_NUM] =
+{
+	/* Rain */
+	{
+		{
+			"快晴",
+			{ 4, -2,  0,  0}
+		},
+		{
+			"曇天",
+			{ 0,  0,  2,  0}
+		},
+		{
+			"小雨",
+			{-2,  2,  2,  0}
+		},
+		{
+			"豪雨",
+			{-8,  4,  0,  0}
+		}
+	},
+	/* Wind */
+	{
+		{
+			"凪",
+			{-4,  0,  4, -8}
+		},
+		{
+			"微風",
+			{ 2,  0,  0,  1}
+		},
+		{
+			"強風",
+			{ 2,  0, -2,  4}
+		},
+		{
+			"暴風",
+			{ 0,  0, -4,  8}
+		}
+	},
+	/* Temparature */
+	{
+		{
+			"酷暑",
+			{ 4, -4, -2,  0}
+		},
+		{
+			"暑い",
+			{ 2, -2,  2,  0}
+		},
+		{
+			"寒い",
+			{-2,  2,  0,  0}
+		},
+		{
+			"極寒",
+			{-4,  4, -2,  0}
+		}
+	}
+};
+
+cptr ethnicity_names[ETHNICITY_NUM] =
+{
+#ifdef JP
+	"ウォルスタ",
+	"ガルガスタン",
+	"バクラム",
+	"ゼノビア",
+	"ローディス",
+#else
+	"Walstanian",
+	"Gargastan",
+	"Bacrum",
+	"Zenobian",
+	"Lodis",
+#endif
+};
+
+special_blow_type special_blow_info[MAX_SB] =
+{
+	{
+		"鬼哭血散斬",
+		"モンスター1体に現在のHPを攻撃力とする攻撃を行い、自分も現在HPの1/4を失う。",
+		WT_BIT_AXE | WT_BIT_CLAW | WT_BIT_DIGGING,
+		30, 60, 50, A_STR,
+	},
+	{
+		"覇王獄炎波",
+		"モンスター1体に*火炎*攻撃を行う。",
+		WT_BIT_AXE | WT_BIT_WHIP | WT_BIT_HAMMER,
+		35, 45, 55, A_WIS,
+	},
+	{
+		"神鳴明王剣",
+		"モンスター1体に攻撃を行う。",
+		WT_BIT_SMALL_SWORD | WT_BIT_SWORD | WT_BIT_NUNCHAKU,
+		30, 40, 50, A_DEX,
+	},
+	{
+		"天聖雷妙波",
+		"モンスター1体に*風*攻撃を行う。",
+		WT_BIT_SMALL_SWORD | WT_BIT_SPEAR | WT_BIT_SCYTHE,
+		35, 45, 55, A_WIS,
+	},
+	{
+		"怒号魔破拳",
+		"モンスター1体に分解攻撃を行う。",
+		WT_BIT_BOW,
+		30, 40, 50, A_STR,
+	},
+	{
+		"竜牙烈風剣",
+		"モンスター1体に攻撃を行う。装備している武器によって強さが変わる。",
+		WT_BIT_SWORD | WT_BIT_GREAT_SWORD,
+		45, 75, 70, A_STR,
+	},
+	{
+		"月花地霊斬",
+		"モンスター1体に石化攻撃を行い、石化耐性がなければ必ず石化させる。",
+		WT_BIT_SPEAR | WT_BIT_HAMMER | WT_BIT_NUNCHAKU,
+		30, 45, 70, A_STR,
+	},
+	{
+		"風烈天破斬",
+		"モンスター1体に攻撃を行い、ノックバックさせる。",
+		WT_BIT_KATANA | WT_BIT_STAFF | WT_BIT_HAMMER | WT_BIT_DIGGING,
+		30, 40, 50, A_CON,
+	},
+	{
+		"波動次元斬",
+		"モンスター1体の生命力を削る攻撃を行う。",
+		WT_BIT_AXE | WT_BIT_SPEAR | WT_BIT_CLAW,
+		40, 50, 60, A_INT,
+	},
+	{
+		"双魔邪王剣",
+		"モンスター1体に現在の自分の受けているダメージと同じダメージを与える。与えたダメージだけ体力が回復する。",
+		WT_BIT_GREAT_SWORD | WT_BIT_LANCE | WT_BIT_SCYTHE,
+		45, 85, 75, A_INT,
+	},
+};
+
+special_blow_type temple_blow_info[MAX_TEMPLE_SB] =
+{
+	{
+		"ブラックプリズン",
+		"モンスター1体に暗黒攻撃を行い、麻痺させる。",
+		WT_BIT_AXE | WT_BIT_CLAW | WT_BIT_WHIP | WT_BIT_DIGGING,
+		30, 45, 50, A_STR,
+	},
+	{
+		"デーモンローズ",
+		"モンスター1体に*火炎*攻撃を行い、魅了する。",
+		WT_BIT_WHIP | WT_BIT_SCYTHE | WT_BIT_NUNCHAKU,
+		35, 45, 55, A_CHR,
+	},
+	{
+		"デスアベンジャー",
+		"モンスター1体に*大地*攻撃を行い、ノックバックさせる。",
+		WT_BIT_GREAT_SWORD | WT_BIT_AXE | WT_BIT_HAMMER,
+		35, 50, 55, A_CON,
+	},
+	{
+		"フローヴェノム",
+		"モンスター1体に水攻撃を行う。",
+		WT_BIT_SWORD | WT_BIT_SPEAR | WT_BIT_NUNCHAKU,
+		30, 45, 50, A_DEX,
+	},
+	{
+		"サンダーブレイド",
+		"モンスター1体に電撃攻撃を行う。",
+		WT_BIT_CLAW | WT_BIT_SPEAR,
+		25, 40, 40, A_STR,
+	},
+	{
+		"フレイミングデス",
+		"モンスター1体に*火炎*攻撃を行う。",
+		WT_BIT_KATANA | WT_BIT_SPEAR | WT_BIT_STAFF,
+		30, 45, 55, A_WIS,
+	},
+	{
+		"ライアットバーン",
+		"モンスター1体に聖なる攻撃を行い、ユニークでないアンデッドならば確実に消滅させる。",
+		WT_BIT_SMALL_SWORD | WT_BIT_STAFF | WT_BIT_DIGGING,
+		40, 65, 70, A_WIS,
+	},
+	{
+		"アポカリプス",
+		"モンスター1体の生命力を削る攻撃を行う。",
+		WT_BIT_SWORD | WT_BIT_LANCE | WT_BIT_SCYTHE,
+		40, 50, 60, A_INT,
+	},
+};
+
+cptr wt_desc[] =
+{
+#ifdef JP
+	"なし",
+	"小剣・突剣",
+	"カタナ",
+	"剣",
+	"大剣",
+	"斧",
+	"槍",
+	"乗馬槍",
+	"爪",
+	"鎌",
+	"鞭",
+	"ハンマー",
+	"杖",
+	"扇",
+	"ヌンチャク",
+	"弓",
+	"銃",
+	"掘削道具",
+#else
+	"None",
+	"Small Sword",
+	"Katana",
+	"Sword",
+	"Great Sword",
+	"Axe",
+	"Spear",
+	"Lance",
+	"Claw",
+	"Scythe",
+	"Whip",
+	"Hammer",
+	"Staff",
+	"Fan",
+	"Nunchaku",
+	"Bow",
+	"Gun",
+	"Digging",
+#endif
+};
+
+tarot_type tarot_info[] =
+{
+#ifdef JP
+	{
+		"白紙",
+		"それは使うとタロットカードの力を得る。既にある場合は失う。",
+		50000,
+		TRUE,
+	},
+	{
+		"《魔術師》",
+		"それは使うと知能の最大値が上がる。",
+		300000,
+		FALSE,
+	},
+	{
+		"《魔術師》の逆位置",
+		"それは使うと知能の最大値が下がる。",
+		0,
+		FALSE,
+	},
+	{
+		"《女教皇》",
+		"それは使うと体力が完全に回復し、経験値と全ステータスを回復し、盲目・混乱・毒・幻覚・朦朧・切り傷・狂戦士化・徐々に進行する石化を癒す。",
+		25000,
+		TRUE,
+	},
+	{
+		"《女教皇》の逆位置",
+		"それは使うと体力が半減し、経験値と全ステータスが下がり、盲目・混乱・毒・幻覚・朦朧・切り傷・徐々に進行する石化にかかる。",
+		0,
+		FALSE,
+	},
+	{
+		"《女帝》",
+		"それは使うと魅力の最大値が上がる。",
+		300000,
+		FALSE,
+	},
+	{
+		"《女帝》の逆位置",
+		"それは使うと魅力の最大値が下がる。",
+		0,
+		FALSE,
+	},
+	{
+		"《皇帝》",
+		"それは使うと一時的に攻撃回数が増える。",
+		50000,
+		TRUE,
+	},
+	{
+		"《皇帝》の逆位置",
+		"それは使うと一時的に攻撃回数が減少する。",
+		0,
+		FALSE,
+	},
+	{
+		"《法皇》",
+		"それは使うとあらゆる民の支持を得る。",
+		50000,
+		FALSE,
+	},
+	{
+		"《法皇》の逆位置",
+		"それは使うとあらゆる民の支持を失う。",
+		0,
+		FALSE,
+	},
+	{
+		"《恋人》",
+		"それは使うと視界内のモンスターを強力に魅了する。",
+		85000,
+		TRUE,
+	},
+	{
+		"《恋人》の逆位置",
+		"それは使うとフロア内全てのモンスターを目覚めさせる。",
+		0,
+		FALSE,
+	},
+	{
+		"《戦車》",
+		"それは使うと騎乗可能なモンスター1体をペットとして召喚する。",
+		50000,
+		TRUE,
+	},
+	{
+		"《戦車》の逆位置",
+		"それは使うと騎乗可能なモンスター1体を敵として召喚する。",
+		0,
+		FALSE,
+	},
+	{
+		"《力》",
+		"それは使うと腕力の最大値が上がる。",
+		300000,
+		FALSE,
+	},
+	{
+		"《力》の逆位置",
+		"それは使うと腕力の最大値が下がる。",
+		0,
+		FALSE,
+	},
+	{
+		"《隠者》",
+		"それは使うと賢さの最大値が上がる。",
+		300000,
+		FALSE,
+	},
+	{
+		"《隠者》の逆位置",
+		"それは使うと賢さの最大値が下がる。",
+		0,
+		FALSE,
+	},
+	{
+		"《運命の輪》",
+		"それは使うと現在の階を再構成する。",
+		25000,
+		TRUE,
+	},
+	{
+		"《運命の輪》の逆位置",
+		"それは使うと自分を変身させようとする。",
+		5000,
+		FALSE,
+	},
+	{
+		"《正義》",
+		"それは使うとアラインメントが秩序に傾く。",
+		50000,
+		TRUE,
+	},
+	{
+		"《正義》の逆位置",
+		"それは使うとアラインメントが混沌に傾く。",
+		50000,
+		TRUE,
+	},
+	{
+		"《吊られた男》",
+		"それは使うと太古の怨念が発動する。",
+		0,
+		FALSE,
+	},
+	{
+		"《吊られた男》の逆位置",
+		"それは使うと自分のスピードが永久に1下がる。",
+		0,
+		FALSE,
+	},
+	{
+		"《死神》",
+		"それは使うと体力を最大値の20%まで減少させ、体力の最大値と現在値の差分をダメージとしてフロア内全てのモンスターに与える。",
+		25000,
+		FALSE,
+	},
+	{
+		"《死神》の逆位置",
+		"それは使うと全ての能力基本値、体力、MP、技能をいくらかの割合で引き継いだまま自分の最大レベルを1に戻す。",
+		250000,
+		TRUE,
+	},
+	{
+		"《節制》",
+		"それは使うと現在の経験値の半分(100000を超えない)の経験を得る。",
+		25000,
+		FALSE,
+	},
+	{
+		"《節制》の逆位置",
+		"それは使うと現在の経験値の半分(100000を超えない)の経験の最大値を失う。",
+		0,
+		FALSE,
+	},
+	{
+		"《悪魔》",
+		"それは使うとデーモン1体を敵として召喚する。稀にペットになる。",
+		0,
+		FALSE,
+	},
+	{
+		"《悪魔》の逆位置",
+		"それは使うと視界内のデーモンに300のダメージを与える。",
+		25000,
+		TRUE,
+	},
+	{
+		"《塔》",
+		"それは使うと極めて広大な範囲を破壊した後に250のダメージを受ける。",
+		25000,
+		FALSE,
+	},
+	{
+		"《塔》の逆位置",
+		"それは使うと周辺のアイテム、モンスター、地形を破壊する。",
+		5000,
+		FALSE,
+	},
+	{
+		"《星》",
+		"それは使うと複数の高級なアイテムを作り出す。",
+		200000,
+		FALSE,
+	},
+	{
+		"《星》の逆位置",
+		"それは使うと利き腕に装備中の武器を(不良品)に変える。",
+		0,
+		FALSE,
+	},
+	{
+		"《月》",
+		"それは使うと自分から離れた場所に複数のモンスターを召喚する。",
+		0,
+		FALSE,
+	},
+	{
+		"《月》の逆位置",
+		"それは使うと自分から離れた場所のモンスターを複数消し去る。ユニーク・モンスターには無効。",
+		50000,
+		TRUE,
+	},
+	{
+		"《太陽》",
+		"それは使うとその階の地形を完全に知ることができ、その階全体が永久に照らされ、その階の全てのモンスター、罠、扉、階段、財宝、そしてアイテムを感知する。",
+		8000,
+		TRUE,
+	},
+	{
+		"《太陽》の逆位置",
+		"それは使うとその階全体を暗くする。",
+		0,
+		FALSE,
+	},
+	{
+		"《審判》",
+		"それは使うと善良かつ秩序のモンスターとペット以外の全てのモンスターを消し去る。ユニーク・モンスターには無効。",
+		300000,
+		TRUE,
+	},
+	{
+		"《審判》の逆位置",
+		"それは使うと善良かつ秩序のモンスター複数を敵として召喚する。",
+		0,
+		FALSE,
+	},
+	{
+		"《世界》",
+		"それは使うとアイテムを1つ願うことができる。",
+		5000000,
+		TRUE,
+	},
+	{
+		"《世界》の逆位置",
+		"それは使うと1種類のアイテムを消し去る。",
+		0,
+		FALSE,
+	},
+	{
+		"《愚者》",
+		"それは使うと歩き方がおかしくなり、魔法の失敗率も上がる。その階にいる限り効果は続く。",
+		0,
+		FALSE,
+	},
+	{
+		"《愚者》の逆位置",
+		"それは使うと全てのモンスターの歩き方がおかしくなる。その階にいる限り効果は続く。",
+		100000,
+		TRUE,
+	},
+#else
+	{
+		"the Blank Card",
+		"",
+		50000,
+		TRUE,
+	},
+	{
+		"the Magician",
+		"",
+		300000,
+		FALSE,
+	},
+	{
+		"reverted position of the Magician",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the High Priestess",
+		"",
+		25000,
+		TRUE,
+	},
+	{
+		"reverted position of the High Priestess",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Empress",
+		"",
+		300000,
+		FALSE,
+	},
+	{
+		"reverted position of the Empress",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Emperor",
+		"",
+		50000,
+		TRUE,
+	},
+	{
+		"reverted position of the Emperor",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Hierophant",
+		"",
+		50000,
+		FALSE,
+	},
+	{
+		"reverted position of the Hierophant",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Lovers",
+		"",
+		85000,
+		TRUE,
+	},
+	{
+		"reverted position of the Lovers",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Chariot",
+		"",
+		50000,
+		TRUE,
+	},
+	{
+		"reverted position of the Chariot",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Strength",
+		"",
+		300000,
+		FALSE,
+	},
+	{
+		"reverted position of the Strength",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Hermit",
+		"",
+		300000,
+		FALSE,
+	},
+	{
+		"reverted position of the Hermit",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Wheel of Fortune",
+		"",
+		25000,
+		TRUE,
+	},
+	{
+		"reverted position of the Wheel of Fortune",
+		"",
+		5000,
+		FALSE,
+	},
+	{
+		"the Justice",
+		"",
+		50000,
+		TRUE,
+	},
+	{
+		"reverted position of the Justice",
+		"",
+		50000,
+		TRUE,
+	},
+	{
+		"the Hanged Man",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"reverted position of the Hanged Man",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Death",
+		"",
+		25000,
+		FALSE,
+	},
+	{
+		"reverted position of the Death",
+		"",
+		250000,
+		TRUE,
+	},
+	{
+		"the Temperance",
+		"",
+		25000,
+		FALSE,
+	},
+	{
+		"reverted position of the Temperance",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Devil",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"reverted position of the Devil",
+		"",
+		25000,
+		TRUE,
+	},
+	{
+		"the Tower",
+		"",
+		25000,
+		FALSE,
+	},
+	{
+		"reverted position of the Tower",
+		"",
+		5000,
+		FALSE,
+	},
+	{
+		"the Star",
+		"",
+		200000,
+		FALSE,
+	},
+	{
+		"reverted position of the Star",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Moon",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"reverted position of the Moon",
+		"",
+		50000,
+		TRUE,
+	},
+	{
+		"the Sun",
+		"",
+		8000,
+		TRUE,
+	},
+	{
+		"reverted position of the Sun",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Judgement",
+		"",
+		300000,
+		TRUE,
+	},
+	{
+		"reverted position of the Judgement",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the World",
+		"",
+		5000000,
+		TRUE,
+	},
+	{
+		"reverted position of the World",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"the Fool",
+		"",
+		0,
+		FALSE,
+	},
+	{
+		"reverted position of the Fool",
+		"",
+		100000,
+		TRUE,
+	},
+#endif
+};
+
+scratch_card_type scratch_card_info[] =
+{
+	{
+		1,
+		0,
+		0,
+		"ハズレだ。",
+	},
+	{
+		10000000L,
+		0, /* Hack */
+		0, /* Hack */
+		"信じられない！一等大当たりだ！これはきっと夢に違いない！",
+	},
+	{
+		4000000L,
+		TV_LITE,
+		SV_LITE_MAGICAL_LAMP,
+		"二等賞だ！まるで夢のようだ！運が良すぎて怖い！",
+	},
+	{
+		1000000L,
+		TV_SCROLL,
+		SV_SCROLL_SNAP_DRAGON,
+		"いやっほう！三等に当たった！",
+	},
+	{
+		800000L,
+		TV_STAFF,
+		SV_STAFF_GENOCIDE,
+		"四等に当たった！",
+	},
+	{
+		500000L,
+		TV_SCROLL,
+		SV_SCROLL_ARTIFACT,
+		"五等に当たった！",
+	},
+	{
+		200000L,
+		TV_ROD,
+		SV_ROD_IDENTIFY,
+		"六等に当たった！",
+	},
+	{
+		100000L,
+		TV_ROD,
+		SV_ROD_SPEED,
+		"七等に当たった！",
+	},
+	{
+		80000L,
+		TV_WAND,
+		SV_WAND_DRAGON_BREATH,
+		"八等に当たった！",
+	},
+	{
+		40000L,
+		TV_STAFF,
+		SV_STAFF_HEALING,
+		"九等に当たった！",
+	},
+	{
+		20000,
+		TV_AMULET,
+		0, /* Hack */
+		"十等に当たった！",
+	},
+	{
+		10000,
+		TV_AMULET,
+		SV_AMULET_RESISTANCE,
+		"十一等に当たった！",
+	},
+	{
+		5000,
+		TV_SCROLL,
+		SV_SCROLL_DEADLY_BLOW_LEARNING,
+		"十二等に当たった！",
+	},
+	{
+		2000,
+		TV_SCROLL,
+		SV_SCROLL_EGO_CREATION,
+		"十三等に当たった！",
+	},
+	{
+		1000,
+		TV_STONE,
+		0,
+		"十四等に当たった！",
+	},
+	{
+		500,
+		TV_SCROLL,
+		SV_SCROLL_STAR_REMOVE_CURSE,
+		"十五等に当たった！",
+	},
+	{
+		200,
+		TV_CLOAK,
+		SV_RAINCOAT,
+		"十六等に当たった！",
+	},
+	{
+		32,
+		TV_SCROLL,
+		SV_SCROLL_WORD_OF_RECALL,
+		"十七等だ。",
+	},
+	{
+		8,
+		TV_FOOD,
+		SV_FOOD_PINT_OF_WINE,
+		"十八等だ。",
+	},
+	{
+		4,
+		TV_FOOD,
+		SV_FOOD_PINT_OF_ALE,
+		"十九等だ。",
+	},
+	{
+		2,
+		TV_FOOD,
+		SV_FOOD_BISCUIT,
+		"二十等だ。",
+	},
+};
+
+int a_to_tr[A_MAX] =
+{
+	TR_STR,
+	TR_INT,
+	TR_WIS,
+	TR_DEX,
+	TR_CON,
+	TR_CHR,
+};
+
+int ob_to_tr[OB_MAX] =
+{
+	TR_MAGIC_MASTERY,
+	TR_STEALTH,
+	TR_SEARCH,
+	TR_INFRA,
+	TR_TUNNEL,
+	TR_SPEED,
+	TR_BLOWS,
+	TR_ANTI_MAGIC,
+};
+
+int octopus_equip_order[INVEN_TOTAL - INVEN_RARM] = 
+{
+	INVEN_RARM,  /* Ring #1 */
+	INVEN_LARM,  /* Ring #2 */
+	INVEN_BOW,   /* Ring #3 */
+	INVEN_RIGHT, /* Ring #4 */
+	INVEN_LEFT,  /* Ring #5 */
+	INVEN_BODY,  /* Ring #6 */
+	INVEN_HANDS, /* Ring #7 */
+	INVEN_FEET,  /* Ring #8 */
+	INVEN_NECK,
+	INVEN_LITE,
+	INVEN_OUTER,
+	INVEN_HEAD,
+};
+
+int octopus_equip_label_offset[INVEN_TOTAL - INVEN_RARM] = 
+{
+	0,
+	0,
+	0,
+	0,
+	0,
+	3,
+	3,
+	-2,
+	2,
+	2,
+	-4,
+	-4,
+};

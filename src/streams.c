@@ -95,7 +95,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 				{
 					for (tx = x - width - 1; tx <= x + width + 1; tx++)
 					{
-						if (!in_bounds(ty, tx)) continue;
+						if (!in_bounds2(ty, tx)) continue;
 
 						c_ptr = &cave[ty][tx];
 
@@ -105,7 +105,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 						if (distance(ty, tx, y, x) > rand_spread(width, 1)) continue;
 
 						/* Do not convert permanent features */
-						if (cave_perma_grid(c_ptr) && (c_ptr->feat != FEAT_MOUNTAIN)) continue;
+						if (cave_perma_grid(c_ptr) && (c_ptr->feat != FEAT_MOUNTAIN) && (c_ptr->feat != FEAT_AIR)) continue;
 
 						/*
 						 * Clear previous contents, add feature
@@ -116,14 +116,14 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 						else
 							c_ptr->feat = feat1;
 
+						/* Clear garbage of hidden trap or door */
+						c_ptr->mimic = 0;
+
 						/* Lava terrain glows */
 						if ((feat1 == FEAT_DEEP_LAVA) ||  (feat1 == FEAT_SHAL_LAVA))
 						{
 							c_ptr->info |= CAVE_GLOW;
 						}
-
-						/* Hack -- don't teleport here */
-						c_ptr->info |= CAVE_ICKY;
 					}
 				}
 
@@ -210,10 +210,11 @@ void build_streamer(int feat, int chance)
 	bool treasure = FALSE;
 
 	cave_type *c_ptr;
+	cave_type bound_grid;
 
 	/* Hack -- Choose starting point */
-	y = rand_spread(cur_hgt / 2, 10);
-	x = rand_spread(cur_wid / 2, 15);
+	y = rand_spread(cur_hgt / 2, cur_hgt / 6);
+	x = rand_spread(cur_wid / 2, cur_wid / 6);
 
 	/* Choose a random compass direction */
 	dir = ddd[randint0(8)];
@@ -227,18 +228,27 @@ void build_streamer(int feat, int chance)
 		for (i = 0; i < DUN_STR_DEN; i++)
 		{
 			int d = DUN_STR_RNG;
+			bool bound = FALSE;
 
 			/* Pick a nearby grid */
 			while (1)
 			{
 				ty = rand_spread(y, d);
 				tx = rand_spread(x, d);
-				if (!in_bounds(ty, tx)) continue;
+				if (!in_bounds2(ty, tx)) continue;
 				break;
 			}
+			if (!in_bounds(ty, tx)) bound = TRUE;
 
 			/* Access the grid */
 			c_ptr = &cave[ty][tx];
+			if (bound)
+			{
+				COPY(&bound_grid, c_ptr, cave_type);
+				bound_grid.feat = c_ptr->mimic;
+				bound_grid.mimic = 0;
+				c_ptr = &bound_grid;
+			}
 
 			if ((c_ptr->feat >= FEAT_DEEP_WATER) && (c_ptr->feat <= FEAT_SHAL_LAVA)) continue;
 			if ((c_ptr->feat >= FEAT_PERM_EXTRA) && (c_ptr->feat <= FEAT_PERM_SOLID)) continue;
@@ -247,7 +257,7 @@ void build_streamer(int feat, int chance)
 			if ((feat >= FEAT_MAGMA) && (feat <= FEAT_WALL_SOLID))
 			{
 				if (!is_extra_grid(c_ptr) && !is_inner_grid(c_ptr) && !is_outer_grid(c_ptr) && !is_solid_grid(c_ptr)) continue;
-				if ((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_SECRET)) continue;
+				if (is_closed_door(c_ptr->feat)) continue;
 				if ((feat == FEAT_MAGMA) || (feat == FEAT_QUARTZ)) treasure = TRUE;
 			}
 			else
@@ -258,8 +268,21 @@ void build_streamer(int feat, int chance)
 			/* Clear previous contents, add proper vein type */
 			c_ptr->feat = feat;
 
-			/* Hack -- Add some (known) treasure */
-			if (treasure && one_in_(chance)) c_ptr->feat += 0x04;
+			/* Paranoia: Clear mimic field */
+			c_ptr->mimic = 0;
+
+			/* Hack -- Add some known treasure */
+			if (treasure && one_in_(chance))
+				c_ptr->feat += (FEAT_MAGMA_K - FEAT_MAGMA);
+
+			/* Hack -- Add some hidden treasure */
+			else if (treasure && one_in_(chance/4))
+				c_ptr->feat += (FEAT_MAGMA_H - FEAT_MAGMA);
+
+			if (bound)
+			{
+				cave[ty][tx].mimic = c_ptr->feat;
+			}
 		}
 
 		if (dummy >= SAFE_MAX_ATTEMPTS)
@@ -282,7 +305,7 @@ msg_print("警告！ストリーマーを配置できません！");
 		x += ddx[dir];
 
 		/* Quit before leaving the dungeon */
-		if (!in_bounds(y, x)) break;
+		if (!in_bounds2(y, x)) break;
 	}
 }
 
@@ -305,7 +328,6 @@ void place_trees(int x, int y)
 			c_ptr = &cave[j][i];
 
 			if (c_ptr->info & CAVE_ICKY) continue;
-			if (c_ptr->info & CAVE_TRAP) continue;
 			if (c_ptr->o_idx) continue;
 
 			/* Want square to be in the circle and accessable. */
@@ -325,6 +347,9 @@ void place_trees(int x, int y)
 					cave[j][i].feat = FEAT_RUBBLE;
 				}
 
+				/* Clear garbage of hidden trap or door */
+				c_ptr->mimic = 0;
+
 				/* Light area since is open above */
 				cave[j][i].info |= (CAVE_GLOW | CAVE_ROOM);
 			}
@@ -332,7 +357,7 @@ void place_trees(int x, int y)
 	}
 
 	/* No up stairs in ironman mode */
-	if (!ironman_downward && one_in_(3))
+	if (!(ironman_forward || (d_info[dungeon_type].flags1 & DF1_NO_BACK)) && !astral_mode && one_in_(3))
 	{
 		/* up stair */
 		cave[y][x].feat = FEAT_LESS;
@@ -420,6 +445,9 @@ if (cheat_room) msg_print("破壊された階");
 						/* Create floor */
 						place_floor_grid(c_ptr);
 					}
+
+					/* Clear garbage of hidden trap or door */
+					c_ptr->mimic = 0;
 
 					/* No longer part of a room or vault */
 					c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);

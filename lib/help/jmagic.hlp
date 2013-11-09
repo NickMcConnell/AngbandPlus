@@ -1,20 +1,18 @@
-変愚蛮怒の魔法システム
+TObandの魔法システム
 
-参照したいオンライン・ヘルプの番号を押して下さい:
+参照したいオンライン・ヘルプの記号を押して下さい:
 
-    (a) 変愚蛮怒の魔法システム            (jmagic.txt)
-    (b) 職業別魔法使用能力                (jmagic.txt#ClassSpellAbil)
-    (c) 魔法の領域                        (jmagic.txt#MagicRealms)
-    (d) 呪文の使用                        (jmagic.txt#CastingSpells)
-    (e) 呪文の種類                        (jmagic.txt#SpellTypes)
-    (f) ヒントと豆知識                    (jmagic.txt#Hints)
+    (a) TObandの魔法システム              (jmagic.txt)
+    (b) 魔法の領域                        (jmagic.txt#MagicRealms)
+    (c) 呪文の使用                        (jmagic.txt#CastingSpells)
+    (d) 呪文の種類                        (jmagic.txt#SpellTypes)
+    (e) 超能力                            (jmagic.txt#Mindcraft)
 
     (?) ヘルプシステムの使用法            (jhelpinfo.txt)
 
 
 ***** [a] jmagic.txt
-***** [b] jmagic.txt#ClassSpellAbil
-***** [c] jmagic.txt#MagicRealms
-***** [d] jmagic.txt#CastingSpells
-***** [e] jmagic.txt#SpellTypes
-***** [f] jmagic.txt#Hints
+***** [b] jmagic.txt#MagicRealms
+***** [c] jmagic.txt#CastingSpells
+***** [d] jmagic.txt#SpellTypes
+***** [e] jmagic.txt#Mindcraft

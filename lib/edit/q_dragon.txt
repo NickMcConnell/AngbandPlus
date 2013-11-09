@@ -1,0 +1,86 @@
+# q_dragon.txt
+
+# Created by Topi Ylinen
+
+# Name
+Q:$12:N:The dragon ordeal
+Q:12:N:<竜>の試練
+
+# Definition
+Q:$12:Q:6:0:0:0:65:0:0:0:6
+Q:12:Q:6:0:0:0:65:0:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST12 2]
+Q:12:T:おまえが竜言語魔法を継承するに値する者かどうか試させてもらう。
+Q:12:T:見事成し遂げてみよ！
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST12 3]
+Q:$12:T:You have done well. A powerful spellbook awaits you outside.
+Q:12:T:よくやった。強力な魔法書を外に置いておいた。
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST12 5]
+Q:12:T:立ち去れ、無能な馬鹿者め！
+Q:12:T:おまえにこの魔法書を授けるわけにはいかん！
+?:1
+
+# Grass
+F:.:89:8
+
+# Floor with War bear
+F:a:89:8:173
+
+# Floor with Basilisk
+F:b:89:8:453
+
+# Floor with Giant spider
+F:c:89:8:175
+
+# Floor with Earth elemental
+F:d:89:8:525
+
+# Floor with Great Wyrm of Power
+F:e:89:8:847
+
+# Floor with Colossus
+F:g:89:8:558
+
+# Tree
+F:h:96:8
+
+# Node of Nature layout 
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhX
+D:Xhhhhhh...................hhhhhhX
+D:Xhhhh..........hgh..........hhhhX
+D:Xhhh..aaa.hhhhhbbbhhhhh.aaa..hhhX
+D:Xhhaachhhhhhhhh...hhhhhhhhhcaahhX
+D:Xhccchhhhhhhhh..h..hhhhhhhhhccchX
+D:Xh..hhhhbbdd...hhh..ddbbbhhhh..hX
+D:Xh..hhhbbdd...hhhhh..ddbbbhhh..hX
+D:Xh..hhhddghhhhhhhhhhhhhgddhhh..hX
+D:Xh..hhh..hhh.........hhh..hhh..hX
+D:Xh.hhhh..hh....hhhe...hh..hhhh.hX
+D:Xh.hhhh..h....hhehh....h..hhhh.hX
+D:Xh.hhhh..g...hheeehh...g..hhhh.hX
+D:Xh.hhhh..h....hhehh....h..hhhh.hX
+D:Xh.hhhh..hh...ehhh....hh..hhhh.hX
+D:Xh..hhhddhhh.........hhhddhhh..hX
+D:Xh..hhhhbdhhh.......hhhdbhhhh..hX
+D:Xh..hhhhgbd...........dbghhhh..hX
+D:Xhccchhhhgbd.hhhhhhh.dbghhhhc..hX
+D:Xhacahhhhhhhhhhhhhhhhhhhhhhhc..hX
+D:Xhha..hhhhhhhhhhhhhhhhhhhhhacahhX
+D:Xhh.....hhhhhhhhhhhhhhhhh...a.hhX
+D:Xh..........hhhhhhhhh.......hhhhX
+D:Xh<........................hhhhhX
+D:XhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:24:2
+

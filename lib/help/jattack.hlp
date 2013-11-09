@@ -1,6 +1,6 @@
 攻撃と武器
 
-参照したいオンライン・ヘルプの番号を押して下さい:
+参照したいオンライン・ヘルプの記号を押して下さい:
 
     (a) 攻撃と武器                       (jattack.txt)
     (b) 射撃用武器                       (jattack.txt#DistanceAttack)
@@ -9,7 +9,7 @@
     (e) 射撃用武器                       (jattack.txt#MissileLaunch)
     (f) 名のある武器と伝説の武器         (jattack.txt#EgoArtifact)
     (g) 戦闘補助の魔法                   (jattack.txt#MagicalAids)
-    (h) 修行僧の攻撃                     (jattack.txt#MonkAttacks)
+    (h) 素手の攻撃                       (jattack.txt#BareHandAttacks)
     (i) 基本的な戦略                     (jattack.txt#MeleeTactics)
 
     (?) ヘルプシステムの使用法           (jhelpinfo.txt)
@@ -22,5 +22,5 @@
 ***** [e] jattack.txt#MissileLaunch
 ***** [f] jattack.txt#EgoArtifact
 ***** [g] jattack.txt#MagicalAids
-***** [h] jattack.txt#MonkAttacks
+***** [h] jattack.txt#BareHandAttacks
 ***** [i] jattack.txt#MeleeTactics

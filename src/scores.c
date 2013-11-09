@@ -178,9 +178,9 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 		/* Title */
 #ifdef JP
-put_str("                変愚蛮怒: 勇者の殿堂", 0, 0);
+		put_str("                TOband: 勇者の殿堂", 0, 0);
 #else
-		put_str("                Hengband Hall of Fame", 0, 0);
+		put_str("                TOband Hall of Fame", 0, 0);
 #endif
 
 
@@ -188,7 +188,7 @@ put_str("                変愚蛮怒: 勇者の殿堂", 0, 0);
 		if (k > 0)
 		{
 #ifdef JP
-sprintf(tmp_val, "( %d 位以下 )", k + 1);
+			sprintf(tmp_val, "( %d 位以下 )", k + 1);
 #else
 			sprintf(tmp_val, "(from position %d)", k + 1);
 #endif
@@ -199,9 +199,9 @@ sprintf(tmp_val, "( %d 位以下 )", k + 1);
 		/* Dump per_screen entries */
 		for (j = k, n = 0; j < i && n < per_screen; place++, j++, n++)
 		{
-			int pr, pc, pa, clev, mlev, cdun, mdun;
+			int pr, pc, clev, mlev, cdun, mdun, death_type;
 
-			cptr user, gold, when, aged;
+			cptr user, gold, when, aged, die_verb;
 
 
 			/* Hack -- indicate death in yellow */
@@ -229,13 +229,39 @@ sprintf(tmp_val, "( %d 位以下 )", k + 1);
 			/* Extract the race/class */
 			pr = atoi(the_score.p_r);
 			pc = atoi(the_score.p_c);
-			pa = atoi(the_score.p_a);
 
 			/* Extract the level info */
 			clev = atoi(the_score.cur_lev);
 			mlev = atoi(the_score.max_lev);
 			cdun = atoi(the_score.cur_dun);
 			mdun = atoi(the_score.max_dun);
+
+			/* Extract death type */
+			death_type = atoi(the_score.death_type);
+			switch (death_type)
+			{
+			case 1:
+#ifdef JP
+				die_verb = "石化された";
+#else
+				die_verb = "Stoned";
+#endif
+				break;
+			case 2:
+#ifdef JP
+				die_verb = "より武器に変化";
+#else
+				die_verb = "Changed into a weapon";
+#endif
+				break;
+			default:
+#ifdef JP
+				die_verb = "殺された";
+#else
+				die_verb = "Killed";
+#endif
+				break;
+			}
 
 			/* Hack -- extract the gold and such */
 			for (user = the_score.uid; isspace(*user); user++) /* loop */;
@@ -252,27 +278,42 @@ sprintf(tmp_val, "( %d 位以下 )", k + 1);
 			}
 
 			/* Dump some info */
+			if (race_info[pr].r_flags & PRF_LARGE)
+			{
 #ifdef JP
-/*sprintf(out_val, "%3d.%9s  %s%s%sという名の%sの%s (レベル %d)", */
-			sprintf(out_val, "%3d.%9s  %s%s%s - %s%s (レベル %d)",
-			        place, the_score.pts,
- 				seikaku_info[pa].title, (seikaku_info[pa].no ? "の" : ""),
-				the_score.who,
-				race_info[pr].title, class_info[pc].title,
-			        clev);
+				sprintf(out_val, "%3d.%9s  %s - %s (レベル %d)",
+				        place, the_score.pts,
+					the_score.who,
+					race_info[pr].title, clev);
 
 #else
-			sprintf(out_val, "%3d.%9s  %s %s the %s %s, Level %d",
-			        place, the_score.pts,
-				seikaku_info[pa].title,
-				the_score.who, race_info[pr].title, class_info[pc].title,
-			        clev);
+				sprintf(out_val, "%3d.%9s  %s the %s, Level %d",
+				        place, the_score.pts,
+					the_score.who, race_info[pr].title, clev);
 #endif
+			}
+			else
+			{
+#ifdef JP
+				/* sprintf(out_val, "%3d.%9s  %s%s%sという名の%sの%s (レベル %d)", */
+				sprintf(out_val, "%3d.%9s  %s - %s%s (レベル %d)",
+				        place, the_score.pts,
+					the_score.who,
+					race_info[pr].title, class_info[pc].title,
+				        clev);
+
+#else
+				sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
+				        place, the_score.pts,
+					the_score.who, race_info[pr].title, class_info[pc].title,
+				        clev);
+#endif
+			}
 
 
 			/* Append a "maximum level" */
 #ifdef JP
-if (mlev > clev) strcat(out_val, format(" (最高%d)", mlev));
+			if (mlev > clev) strcat(out_val, format(" (最高%d)", mlev));
 #else
 			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
 #endif
@@ -289,21 +330,60 @@ if (mlev > clev) strcat(out_val, format(" (最高%d)", mlev));
 				sprintf(out_val, "             ");
 
 
-                        /* 死亡原因をオリジナルより細かく表示 */
-                        if (streq(the_score.how, "yet"))
-                        {
-                                sprintf(out_val+13, "  まだ生きている (%d%s)",
-                                       cdun, "階");
-                        }
-                        else
-			if (streq(the_score.how, "ripe"))
+			/* 死亡原因をオリジナルより細かく表示 */
+			if (streq(the_score.how, "yet"))
+			{
+				sprintf(out_val+13, "  まだ生きている (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "ripe"))
 			{
 				sprintf(out_val+13, "  勝利の後に引退 (%d%s)",
 					cdun, "階");
 			}
-			else if (streq(the_score.how, "Seppuku"))
+			else if (streq(the_score.how, "snap"))
 			{
-				sprintf(out_val+13, "  勝利の後に切腹 (%d%s)",
+				sprintf(out_val+13, "  勝利の後に武器に変化 (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "walstanian"))
+			{
+				sprintf(out_val+13, "  勝利の後にウォルスタ人の刺客に暗殺された (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "gargastan"))
+			{
+				sprintf(out_val+13, "  勝利の後にガルガスタン人の刺客に暗殺された (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "bacrum"))
+			{
+				sprintf(out_val+13, "  勝利の後にバクラム人の刺客に暗殺された (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "z_or_l"))
+			{
+				sprintf(out_val+13, "  勝利の後に大陸からの刺客に暗殺された (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "valeria"))
+			{
+				sprintf(out_val+13, "  勝利の後に身元不明の刺客に暗殺された (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "lord"))
+			{
+				sprintf(out_val+13, "  勝利の後にヴァレリアの君主となる (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "ogre"))
+			{
+				sprintf(out_val+13, "  勝利の後に真のオウガとなる (%d%s)",
+					cdun, "階");
+			}
+			else if (streq(the_score.how, "survive"))
+			{
+				sprintf(out_val+13, "  死者の宮殿から生還 (%d%s)",
 					cdun, "階");
 			}
 			else
@@ -312,22 +392,22 @@ if (mlev > clev) strcat(out_val, format(" (最高%d)", mlev));
 
 				/* Some people die outside of the dungeon */
 				if (!cdun)
-					sprintf(out_val+13, "  地上で%sに殺された", the_score.how);
+					sprintf(out_val+13, "  地上で%sに%s", the_score.how, die_verb);
 				else
-					sprintf(out_val+13, "  %d階で%sに殺された",
-						cdun, the_score.how);
+					sprintf(out_val+13, "  %d階で%sに%s",
+						cdun, the_score.how, die_verb);
 			}
 
 #else
 			/* Some people die outside of the dungeon */
 			if (!cdun)
 				sprintf(out_val, 
-					"               Killed by %s on the surface",
-					the_score.how);
+					"               %s by %s on the surface",
+					die_verb, the_score.how);
 			else
 				sprintf(out_val, 
-					"               Killed by %s on %s %d",
-					the_score.how, "Dungeon Level", cdun);
+					"               %s by %s on %s %d",
+					die_verb, the_score.how, "Dungeon Level", cdun);
 
 			/* Append a "maximum level" */
 			if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
@@ -338,18 +418,19 @@ if (mlev > clev) strcat(out_val, format(" (最高%d)", mlev));
 
 			/* And still another line of info */
 #ifdef JP
-                        {
-                                char buf[11];
+			{
+				char buf[11];
 
-                                /* 日付を 19yy/mm/dd の形式に変更する */
-                                if (strlen(when) == 8 && when[2] == '/' && when[5] == '/') {
-                                        sprintf(buf, "%d%s/%.5s", 19 + (when[6] < '8'), when + 6, when);
-                                        when = buf;
-                                }
-                                sprintf(out_val,
-                                                "        (ユーザー:%s, 日付:%s, 所持金:%s, ターン:%s)",
-                                                user, when, gold, aged);
-                        }
+				/* 日付を 19yy/mm/dd の形式に変更する */
+				if (strlen(when) == 8 && when[2] == '/' && when[5] == '/')
+				{
+					sprintf(buf, "%d%s/%.5s", 19 + (when[6] < '8'), when + 6, when);
+					when = buf;
+				}
+				sprintf(out_val,
+						"        (ユーザー:%s, 日付:%s, 所持金:%s, ターン:%s)",
+						user, when, gold, aged);
+			}
 
 #else
 			sprintf(out_val,
@@ -388,7 +469,7 @@ void display_scores(int from, int to)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Open the binary high score file, for reading */
 	highscore_fd = fd_open(buf, O_RDONLY);
@@ -419,53 +500,6 @@ if (highscore_fd < 0) quit("スコア・ファイルが使用できません。");
 
 
 
-bool send_world_score(bool do_send)
-{
-#ifdef WORLD_SCORE
-        if(send_score && do_send)
-	{
-		if(easy_band)
-		{
-#ifdef JP
-			msg_print("初心者モードではワールドスコアに登録できません。");
-#else
-			msg_print("Since you are in the Easy Mode, you cannot send score to world score server.");
-#endif
-		}
-#ifdef JP
-		else if(get_check_strict("スコアをスコア・サーバに登録しますか? ", (CHECK_NO_ESCAPE | CHECK_NO_HISTORY)))
-#else
-		else if(get_check_strict("Do you send score to the world score sever? ", (CHECK_NO_ESCAPE | CHECK_NO_HISTORY)))
-#endif
-		{
-			errr err;
-			prt("",0,0);
-#ifdef JP
-			prt("送信中．．",0,0);
-#else
-			prt("Sending...",0,0);
-#endif
-			Term_fresh();
-			screen_save();
-			err = report_score();
-			screen_load();
-			if (err)
-			{
-				return FALSE;
-			}
-#ifdef JP
-			prt("完了。何かキーを押してください。", 0, 0);
-#else
-			prt("Completed.  Hit any key.", 0, 0);
-#endif
-			(void)inkey();
-		}
-		else return FALSE;
-        }
-#endif
-	return TRUE;
-}
-
 /*
  * Enters a players name on a hi-score table, if "legal", and in any
  * case, displays some relevant portion of the high score list.
@@ -485,14 +519,14 @@ errr top_twenty(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	        T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9ld", (long)total_points());
 	the_score.pts[9] = '\0';
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	sprintf(the_score.gold, "%9lu", (long)p_ptr->au_sum);
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
@@ -517,7 +551,6 @@ errr top_twenty(void)
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
 	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
-	sprintf(the_score.p_a, "%2d", p_ptr->pseikaku);
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
@@ -525,41 +558,25 @@ errr top_twenty(void)
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
 	sprintf(the_score.max_dun, "%3d", max_dlv[dungeon_type]);
 
+	/* Save death type */
+	sprintf(the_score.death_type, "%2d", (p_ptr->is_dead & DEATH_SNAP_DRAGON) ? 2 :
+		((p_ptr->is_dead & DEATH_STONED) ? 1 : 0));
+
 	/* Save the cause of death (31 chars) */
+	if (strlen(p_ptr->died_from) >= sizeof(the_score.how))
+	{
 #ifdef JP
-#if 0
-	{
-		/* 2byte 文字を考慮しながらコピー(EUC を仮定) */
-		int cnt = 0;
-		unsigned char *d = (unsigned char*)p_ptr->died_from;
-		unsigned char *h = (unsigned char*)the_score.how;
-		while(*d && cnt < 31){
-			if(iskanji(*d)){
-				if(cnt + 2 > 31) break;
-				*h++ = *d++;
-				*h++ = *d++;
-				cnt += 2;
-			}else{
-				if(cnt + 1 > 31) break;
-				*h++ = *d++;
-				cnt++;
-			}
-		}
-		*h = '\0';
-	}
-#endif
-	if (strlen(p_ptr->died_from) >= 39)
-	{
-		mb_strlcpy(the_score.how, p_ptr->died_from, 37+1);
+		my_strcpy(the_score.how, p_ptr->died_from, sizeof(the_score.how) - 2);
 		strcat(the_score.how, "…");
+#else
+		my_strcpy(the_score.how, p_ptr->died_from, sizeof(the_score.how) - 3);
+		strcat(the_score.how, "...");
+#endif
 	}
 	else
+	{
 		strcpy(the_score.how, p_ptr->died_from);
-
-#else
-	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
-#endif
-
+	}
 
 	/* Lock (for writing) the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_WRLCK)) return (1);
@@ -616,13 +633,13 @@ msg_print("スコア・ファイルが使用できません。");
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	        T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9ld", (long)total_points());
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	sprintf(the_score.gold, "%9lu", (long)p_ptr->au_sum);
 
 	/* Save the current turn */
 	sprintf(the_score.turns, "%9lu", (long)turn_real(turn));
@@ -643,7 +660,6 @@ strcpy(the_score.day, "今日");
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
 	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
-	sprintf(the_score.p_a, "%2d", p_ptr->pseikaku);
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
@@ -651,10 +667,14 @@ strcpy(the_score.day, "今日");
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
 	sprintf(the_score.max_dun, "%3d", max_dlv[dungeon_type]);
 
+	/* Save death type */
+	sprintf(the_score.death_type, "%2d", (p_ptr->is_dead & DEATH_SNAP_DRAGON) ? 2 :
+		((p_ptr->is_dead & DEATH_STONED) ? 1 : 0));
+
 	/* Hack -- no cause of death */
 #ifdef JP
-        /* まだ死んでいないときの識別文字 */
-        strcpy(the_score.how, "yet");
+	/* まだ死んでいないときの識別文字 */
+	strcpy(the_score.how, "yet");
 #else
 	strcpy(the_score.how, "nobody (yet!)");
 #endif
@@ -689,18 +709,17 @@ strcpy(the_score.day, "今日");
  * show_highclass - selectively list highscores based on class
  * -KMW-
  */
-void show_highclass(int building)
+void show_highclass(void)
 {
-
 	register int i = 0, j, m = 0;
-	int pr, pc, pa, clev/*, al*/;
+	int pr, clev/*, al*/;
 	high_score the_score;
 	char buf[1024], out_val[256];
 
 	screen_save();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	highscore_fd = fd_open(buf, O_RDONLY);
 
@@ -730,8 +749,6 @@ msg_print("スコア・ファイルが使用できません。");
 		if (highscore_seek(j)) break;
 		if (highscore_read(&the_score)) break;
 		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		pa = atoi(the_score.p_a);
 		clev = atoi(the_score.cur_lev);
 
 #ifdef JP
@@ -779,7 +796,7 @@ msg_print("スコア・ファイルが使用できません。");
 void race_score(int race_num)
 {
 	register int i = 0, j, m = 0;
-	int pr, pc, pa, clev, lastlev;
+	int pr, clev, lastlev;
 	high_score the_score;
 	char buf[1024], out_val[256], tmp_str[80];
 
@@ -795,7 +812,7 @@ sprintf(tmp_str,"最高の%s", race_info[race_num].title);
 	prt(tmp_str, 5, 15);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	highscore_fd = fd_open(buf, O_RDONLY);
 
@@ -826,8 +843,6 @@ msg_print("スコア・ファイルが使用できません。");
 		if (highscore_seek(j)) break;
 		if (highscore_read(&the_score)) break;
 		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		pa = atoi(the_score.p_a);
 		clev = atoi(the_score.cur_lev);
 
 		if (pr == race_num)
@@ -892,21 +907,266 @@ msg_print("何かキーを押すとゲームに戻ります");
 }
 
 
+typedef struct chaos_frame_sort_type chaos_frame_sort_type;
+
+struct chaos_frame_sort_type
+{
+	int num;
+	int val;
+};
+
+static int chaos_frame_sort_cmp(chaos_frame_sort_type *a, chaos_frame_sort_type *b)
+{
+	return a->val - b->val;
+}
+
+#define ENDING_TYPE_KILLED_BY_WALSTANIAN 1
+#define ENDING_TYPE_KILLED_BY_GARGASTAN  2
+#define ENDING_TYPE_KILLED_BY_BACRUM     3
+#define ENDING_TYPE_KILLED_BY_Z_OR_L     4
+#define ENDING_TYPE_KILLED_BY_VALERIA    5
+#define ENDING_TYPE_LORD                 6
+#define ENDING_TYPE_OGRE                 7
+
+static void display_ending(void)
+{
+	int i, ending_type;
+	int wid, hgt;
+	int cx, cy;
+	chaos_frame_sort_type chaos_frame_sort_array[ETHNICITY_NUM];
+	cptr align_str = NULL, killer_str = NULL;
+
+	Term_get_size(&wid, &hgt);
+	cy = hgt / 2;
+	cx = wid / 2;
+
+	for (i = 0; i < ETHNICITY_NUM; i++)
+	{
+		chaos_frame_sort_array[i].num = i;
+		chaos_frame_sort_array[i].val = chaos_frame[i];
+	}
+	qsort(chaos_frame_sort_array, ETHNICITY_NUM, sizeof(chaos_frame_sort_type), (int(*)(const void *, const void *))chaos_frame_sort_cmp);
+
+	/* Set message type */
+	if (!r_info[MON_FILARHH].max_num)
+	{
+		ending_type = ENDING_TYPE_OGRE;
+	}
+	else if (chaos_frame_sort_array[0].val >= 0)
+	{
+		ending_type = ENDING_TYPE_LORD;
+	}
+	else if (chaos_frame_sort_array[0].val == chaos_frame_sort_array[1].val)
+	{
+		ending_type = ENDING_TYPE_KILLED_BY_VALERIA;
+	}
+	else
+	{
+		switch (chaos_frame_sort_array[0].num)
+		{
+		case ETHNICITY_WALSTANIAN:
+			ending_type = ENDING_TYPE_KILLED_BY_WALSTANIAN;
+			break;
+
+		case ETHNICITY_GARGASTAN:
+			ending_type = ENDING_TYPE_KILLED_BY_GARGASTAN;
+			break;
+
+		case ETHNICITY_BACRUM:
+			ending_type = ENDING_TYPE_KILLED_BY_BACRUM;
+			break;
+
+		default:
+			ending_type = ENDING_TYPE_KILLED_BY_Z_OR_L;
+			break;
+		}
+	}
+
+	/* Clear screen */
+	Term_clear();
+
+	if (ending_type != ENDING_TYPE_OGRE)
+	{
+		put_str("「…大いなる父・フィラーハの名の下に、", cy - 1, cx - 17);
+		put_str(format("汝、%sをヴァレリアの王と認め、", player_name), cy, cx - 17);
+		put_str("ここにヴァレリアの称号を与える……。」", cy + 1, cx - 17);
+
+		/* Flush input */
+		flush();
+
+		/* Wait for response */
+		pause_line(hgt - 1);
+
+		/* Clear screen */
+		Term_clear();
+	}
+
+	switch (ending_type)
+	{
+	case ENDING_TYPE_KILLED_BY_WALSTANIAN:
+	case ENDING_TYPE_KILLED_BY_GARGASTAN:
+	case ENDING_TYPE_KILLED_BY_BACRUM:
+	case ENDING_TYPE_KILLED_BY_Z_OR_L:
+	case ENDING_TYPE_KILLED_BY_VALERIA:
+		switch (get_your_alignment_lnc())
+		{
+		case ALIGN_LNC_LAWFUL:
+			align_str = "偽善者";
+			break;
+		case ALIGN_LNC_NEUTRAL:
+			align_str = "日和見";
+			break;
+		case ALIGN_LNC_CHAOTIC:
+			align_str = "オウガ";
+			break;
+		}
+
+		switch (ending_type)
+		{
+		case ENDING_TYPE_KILLED_BY_WALSTANIAN:
+			killer_str = "ウォルスタに栄光あれーッ！";
+			break;
+		case ENDING_TYPE_KILLED_BY_GARGASTAN:
+			killer_str = "ガルガスタンに栄光あれーッ！";
+			break;
+		case ENDING_TYPE_KILLED_BY_BACRUM:
+			killer_str = "バクラムに栄光あれーッ！";
+			break;
+		case ENDING_TYPE_KILLED_BY_Z_OR_L:
+			killer_str = "大陸の脅威となる前に消えてもらおうッ！";
+			break;
+		case ENDING_TYPE_KILLED_BY_VALERIA:
+			killer_str = "ヴァレリアに栄光あれーッ！";
+			break;
+		}
+
+		put_str(format("「%sを誅すッ！  %s」", align_str, killer_str), cy - 2, cx - 30);
+		sound(SOUND_SHOOT_GUN);
+		put_str("刹那、耳をつんざくような破裂音が響き渡り、", cy, cx - 30);
+		put_str("後には、銃弾で胸を貫かれたあなたの死体が残った。", cy + 1, cx - 30);
+		put_str("その後、ヒッタイト人に統一されるまで、約千年もの間、", cy + 2, cx - 30);
+		put_str("ヴァレリアの歴史は血と涙に彩られたという……。", cy + 3, cx - 30);
+
+		/* Flush input */
+		flush();
+
+		/* Wait for response */
+		pause_line(hgt - 1);
+
+		/* Clear screen */
+		Term_clear();
+
+		put_str("「王は全て善良にして清廉とは限らぬ、", cy - 3, cx - 18);
+		put_str("勝利する者すべてが、王の器ではない。", cy - 2, cx - 18);
+		put_str("殺めるも、強きは絶えぬ、", cy - 1, cx - 18);
+		put_str("深き根に、恐怖は届かぬ。", cy, cx - 18);
+		put_str("灰の中から呪詛の声は蘇り、", cy + 1, cx - 18);
+		put_str("影から憤怒がさしいづるだろう。", cy + 2, cx - 18);
+		put_str("折れた刃は、新たに研がれ、", cy + 3, cx - 18);
+		put_str("冠はまた主を求めることになろう。」", cy + 4, cx - 18);
+		break;
+
+	case ENDING_TYPE_LORD:
+		switch (get_your_alignment_lnc())
+		{
+		case ALIGN_LNC_LAWFUL:
+			align_str = "法治";
+			break;
+		case ALIGN_LNC_NEUTRAL:
+			align_str = "共和";
+			break;
+		case ALIGN_LNC_CHAOTIC:
+			align_str = "自由";
+			break;
+		}
+
+		put_str(format("あなたは%s国家ヴァレリアの初代の君主となった。", align_str), cy - 1, cx - 25);
+		put_str("以後、ヒッタイト人に統一されるまで、約千年もの間、", cy, cx - 25);
+		put_str("ヴァレリアは独立国家として", cy + 1, cx - 25);
+		put_str("その名を歴史に留めることになる……。", cy + 2, cx - 25);
+		break;
+
+	case ENDING_TYPE_OGRE:
+		put_str("「我を祝え。我を讃えよ。」", cy - 3, cx - 27);
+		put_str("「七日七晩火を絶やすな。我こそは真のオウガなり。」", cy - 2, cx - 27);
+		put_str("「血を流せ。肉を捧げよ。我こそは世界の所有者である。」", cy - 1, cx - 27);
+
+		put_str("この後、ヒッタイト人に統一されるまで、約千年もの間、", cy + 1, cx - 27);
+		put_str("ヴァレリアの歴史をうかがい知ることができるものは、", cy + 2, cx - 27);
+		put_str("何ひとつとして存在しない……。", cy + 3, cx - 27);
+		break;
+	}
+
+	/* Flush input */
+	flush();
+
+	/* Wait for response */
+	pause_line(hgt - 1);
+
+	switch (ending_type)
+	{
+	case ENDING_TYPE_KILLED_BY_WALSTANIAN:
+		(void)strcpy(p_ptr->died_from, "walstanian");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "戴冠式式場でウォルスタ人の暗殺者に暗殺された。");
+		break;
+
+	case ENDING_TYPE_KILLED_BY_GARGASTAN:
+		(void)strcpy(p_ptr->died_from, "gargastan");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "戴冠式式場でガルガスタン人の暗殺者に暗殺された。");
+		break;
+
+	case ENDING_TYPE_KILLED_BY_BACRUM:
+		(void)strcpy(p_ptr->died_from, "bacrum");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "戴冠式式場でバクラム人の暗殺者に暗殺された。");
+		break;
+
+	case ENDING_TYPE_KILLED_BY_Z_OR_L:
+		(void)strcpy(p_ptr->died_from, "z_or_l");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "戴冠式式場で大陸からの暗殺者に暗殺された。");
+		break;
+
+	case ENDING_TYPE_KILLED_BY_VALERIA:
+		(void)strcpy(p_ptr->died_from, "valeria");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "戴冠式式場で身元不明の暗殺者に暗殺された。");
+		break;
+
+	case ENDING_TYPE_LORD:
+		(void)strcpy(p_ptr->died_from, "lord");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "戴冠式においてヴァレリアの君主の冠を授けられた。");
+		break;
+
+	case ENDING_TYPE_OGRE:
+		(void)strcpy(p_ptr->died_from, "ogre");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "真のオウガとなり、ヴァレリアに長く暗い冬の時代をもたらした。");
+		break;
+	}
+
+#ifdef JP
+	do_cmd_write_nikki(NIKKI_GAMESTART, 1, "-------- ゲームオーバー --------");
+#else
+	do_cmd_write_nikki(NIKKI_GAMESTART, 1, "--------   Game  Over   --------");
+#endif
+	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "\n\n\n\n");
+}
+
 /*
  * Change the player into a King!			-RAK-
  */
 void kingly(void)
 {
+	int i;
+	int wid, hgt;
+	int cx, cy;
+
 	/* Hack -- retire in town */
 	dun_level = 0;
 
-	/* Fake death */
-	if (!streq(p_ptr->died_from, "Seppuku"))
 #ifdef JP
-	        /* 引退したときの識別文字 */
-        	(void)strcpy(p_ptr->died_from, "ripe");
+	/* Fake death */
+	/* 引退したときの識別文字 */
+	(void)strcpy(p_ptr->died_from, "ripe");
 #else
-		(void)strcpy(p_ptr->died_from, "Ripe Old Age");
+	(void)strcpy(p_ptr->died_from, "Ripe Old Age");
 #endif
 
 
@@ -917,41 +1177,127 @@ void kingly(void)
 	p_ptr->lev = p_ptr->max_plv;
 
 	/* Hack -- Instant Gold */
-	p_ptr->au += 10000000L;
+	p_ptr->au[SV_GOLD_GOLD_3] += 10000000L;
+	p_ptr->update |= (PU_GOLD);
+	update_stuff();
+
+	Term_get_size(&wid, &hgt);
+	cy = hgt / 2;
+	cx = wid / 2;
 
 	/* Clear screen */
 	Term_clear();
 
 	/* Display a crown */
-	put_str("#", 1, 34);
-	put_str("#####", 2, 32);
-	put_str("#", 3, 34);
-	put_str(",,,  $$$  ,,,", 4, 28);
-	put_str(",,=$   \"$$$$$\"   $=,,", 5, 24);
-	put_str(",$$        $$$        $$,", 6, 22);
-	put_str("*>         <*>         <*", 7, 22);
-	put_str("$$         $$$         $$", 8, 22);
-	put_str("\"$$        $$$        $$\"", 9, 22);
-	put_str("\"$$       $$$       $$\"", 10, 23);
-	put_str("*#########*#########*", 11, 24);
-	put_str("*#########*#########*", 12, 24);
+	put_str("#", cy - 11, cx - 1);
+	put_str("#####", cy - 10, cx - 3);
+	put_str("#", cy - 9, cx - 1);
+	put_str(",,,  $$$  ,,,", cy - 8, cx - 7);
+	put_str(",,=$   \"$$$$$\"   $=,,", cy - 7, cx - 11);
+	put_str(",$$        $$$        $$,", cy - 6, cx - 13);
+	put_str("*>         <*>         <*", cy - 5, cx - 13);
+	put_str("$$         $$$         $$", cy - 4, cx - 13);
+	put_str("\"$$        $$$        $$\"", cy - 3, cx - 13);
+	put_str("\"$$       $$$       $$\"", cy - 2, cx - 12);
+	put_str("*#########*#########*", cy - 1, cx - 11);
+	put_str("*#########*#########*", cy, cx - 11);
 
 	/* Display a message */
 #ifdef JP
-put_str("Veni, Vidi, Vici!", 15, 26);
-put_str("来た、見た、勝った！", 16, 25);
-put_str(format("偉大なる%s万歳！", sp_ptr->winner), 17, 22);
+	put_str("Veni, Vidi, Vici!", cy + 3, cx - 9);
+	put_str("来た、見た、勝った！", cy + 4, cx - 10);
+	put_str(format("偉大なる%s万歳！", sp_ptr->winner), cy + 5, cx - 11);
 #else
-	put_str("Veni, Vidi, Vici!", 15, 26);
-	put_str("I came, I saw, I conquered!", 16, 21);
-	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 17, 22);
+	put_str("Veni, Vidi, Vici!", cy + 3, cx - 9);
+	put_str("I came, I saw, I conquered!", cy + 4, cx - 14);
+	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), cy + 5, cx - 13);
+#endif
+
+	/* Flush input */
+	flush();
+
+	/* Wait for response */
+	pause_line(hgt - 1);
+
+	if (p_ptr->is_dead & DEATH_SNAP_DRAGON)
+	{
+		(void)strcpy(p_ptr->died_from, "snap");
+#ifdef JP
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "勝利の後、スナップドラゴンを使い生きた武器に変化した。");
+#else
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "changed into a living weapon after winning.");
 #endif
 
 #ifdef JP
-	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "ダンジョンの探索から引退した。");
+		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "-------- ゲームオーバー --------");
+#else
+		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "--------   Game  Over   --------");
+#endif
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "\n\n\n\n");
+	}
+	else display_ending();
+}
+
+void survived_finish(void)
+{
+	int wid, hgt;
+	int cx, cy;
+	int i;
+
+#ifdef JP
+	/* 引退したときの識別文字 */
+	(void)strcpy(p_ptr->died_from, "survive");
+#else
+	(void)strcpy(p_ptr->died_from, "Ripe Old Age (Retire after survive)");
+#endif
+
+
+	/* Restore the experience */
+	p_ptr->exp = p_ptr->max_exp;
+
+	/* Restore the level */
+	p_ptr->lev = p_ptr->max_plv;
+
+	/* Hack -- Break Runeweapon */
+	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		if (object_is_astral_runeweapon(o_ptr))
+		{
+			inven_item_increase(i, -255);
+			inven_item_optimize(i);
+		}
+	}
+
+	/* Handle stuff */
+	handle_stuff();
+	msg_print(NULL);
+
+	Term_get_size(&wid, &hgt);
+	cy = hgt / 2;
+	cx = wid / 2;
+
+	/* Clear screen */
+	Term_clear();
+
+	put_str("魔剣があなたの心に直接話しかけてくる。", cy - 3, cx - 38);
+	put_str("「よくやった。私の血を引きし者よ。お前は私の押しつけた過酷な運命を撥ね退け、", cy - 2, cx - 38);
+	put_str("私の過ちを正してくれた。これで私の役目は終わった。私の人生は長い旅だったが、", cy - 1, cx - 38);
+	put_str("私はこれで、ようやく旅を終えることができる。ありがとう。強き者よ。お前の", cy, cx - 38);
+	put_str("人生に幸多きことを祈ろう。」", cy + 1, cx - 38);
+
+	put_str("そう言い終わると、魔剣はさらさらと崩れだし、やがて、消えた。", cy + 3, cx - 38);
+
+#ifdef JP
+	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "死者の宮殿から生還した。");
+#else
+	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "survived from Death Palace.");
+#endif
+
+#ifdef JP
 	do_cmd_write_nikki(NIKKI_GAMESTART, 1, "-------- ゲームオーバー --------");
 #else
-	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "retire exploring dungeons.");
 	do_cmd_write_nikki(NIKKI_GAMESTART, 1, "--------   Game  Over   --------");
 #endif
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "\n\n\n\n");
@@ -960,5 +1306,5 @@ put_str(format("偉大なる%s万歳！", sp_ptr->winner), 17, 22);
 	flush();
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(hgt - 1);
 }

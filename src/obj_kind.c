@@ -274,10 +274,37 @@ bool object_is_potion(object_type *o_ptr)
 bool object_is_shoukinkubi(object_type *o_ptr)
 {
 	int i;
+
+	if (astral_mode) return FALSE;
 	if (p_ptr->today_mon > 0 && o_ptr->pval == p_ptr->today_mon) return TRUE;
-	if (o_ptr->pval == MON_TSUCHINOKO) return TRUE;
+	if (o_ptr->pval == MON_ZEBRA) return TRUE;
 	for (i = 0; i < MAX_KUBI; i++)
 		if (o_ptr->pval == kubi_r_idx[i]) break;
 	if (i < MAX_KUBI) return TRUE;
 	return FALSE;
+}
+
+bool object_is_runeweapon(object_type *o_ptr)
+{
+	if (!o_ptr->k_idx) return FALSE;
+	return (k_info[o_ptr->k_idx].gen_flags & TRG_RUNEWEAPON) ? TRUE : FALSE;
+}
+
+bool object_is_snapdragon_runeweapon(object_type *o_ptr)
+{
+	if (object_is_runeweapon(o_ptr) && o_ptr->art_name)
+	{
+		if (o_ptr->xtra3 && (o_ptr->xtra3 <= runeweapon_num)) return TRUE;
+		else if (p_ptr->is_dead & DEATH_SNAP_DRAGON)
+		{
+			if (o_ptr == &runeweapon_list[0].weapon) return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+bool object_is_astral_runeweapon(object_type *o_ptr)
+{
+	return (astral_mode && object_is_runeweapon(o_ptr) && o_ptr->art_name && (o_ptr->xtra3 == 1));
 }

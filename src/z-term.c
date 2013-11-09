@@ -196,6 +196,7 @@
  *   Term->user_hook = Perform user actions
  *   Term->xtra_hook = Perform extra actions
  *   Term->curs_hook = Draw (or Move) the cursor
+ *   Term->bigcurs_hook = Draw (or Move) the big cursor (bigtile mode)
  *   Term->wipe_hook = Draw some blank spaces
  *   Term->text_hook = Draw some text in the window
  *   Term->pict_hook = Draw some attr/chars in the window
@@ -440,10 +441,6 @@ errr Term_xtra(int n, int v)
 	/* Verify the hook */
 	if (!Term->xtra_hook) return (-1);
 
-#ifdef CHUUKEI
-	if( n == TERM_XTRA_CLEAR || n == TERM_XTRA_FRESH || n == TERM_XTRA_SHAPE )
-	  send_xtra_to_chuukei_server(n);
-#endif
 	/* Call the hook */
 	return ((*Term->xtra_hook)(n, v));
 }
@@ -611,7 +608,7 @@ void Term_queue_line(int x, int y, int n, byte *a, char *c)
 
 		/* Hack -- Ignore non-changes */
 		if ((*scr_aa == *a) && (*scr_cc == *c) &&
-		 	(*scr_taa == *ta) && (*scr_tcc == *tc))
+			(*scr_taa == *ta) && (*scr_tcc == *tc))
 		{
 			x++;
 			a++;
@@ -686,7 +683,7 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 
 	byte *scr_aa = Term->scr->a[y];
 #ifdef JP
-        char *scr_cc = Term->scr->c[y];
+	char *scr_cc = Term->scr->c[y];
 
 #ifdef USE_TRANSPARENCY
 	byte *scr_taa = Term->scr->ta[y];
@@ -706,19 +703,19 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 
 
 #ifdef JP
-        /* 表示文字なし */
-        if (n == 0 || *s == 0) return;
-        /*
-         * 全角文字の右半分から文字を表示する場合、
-         * 重なった文字の左部分を消去。
-         * 表示開始位置が左端でないと仮定。
-         */
-        if ((scr_aa[x] & KANJI2) && !(scr_aa[x] & 0x80))
-        {
-                scr_cc[x - 1] = ' ';
-                scr_aa[x - 1] &= KANJIC;
-                x1 = x2 = x - 1;
-        }
+	/* 表示文字なし */
+	if (n == 0 || *s == 0) return;
+	/*
+	 * 全角文字の右半分から文字を表示する場合、
+	 * 重なった文字の左部分を消去。
+	 * 表示開始位置が左端でないと仮定。
+	 */
+	if ((scr_aa[x] & KANJI2) && !(scr_aa[x] & 0x80))
+	{
+		scr_cc[x - 1] = ' ';
+		scr_aa[x - 1] &= KANJIC;
+		x1 = x2 = x - 1;
+	}
 #endif
 	/* Queue the attr/chars */
 	for ( ; n; x++, s++, n--)
@@ -807,7 +804,7 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 		if (x != w && !(scr_aa[x] & 0x80) && (scr_aa[x] & KANJI2))
 		{
 			scr_cc[x] = ' ';
-                        scr_aa[x] &= KANJIC;
+			scr_aa[x] &= KANJIC;
 			if (x1 < 0) x1 = x;
 			x2 = x;
 		}
@@ -918,8 +915,8 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 		if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc)
 		    &&(!kanji || (scr_aa[x + 1] == old_aa[x + 1] &&
 		                  scr_cc[x + 1] == old_cc[x + 1] &&
-                                  scr_taa[x + 1] == old_taa[x + 1] &&
-                                  scr_tcc[x + 1] == old_tcc[x + 1])))
+		                  scr_taa[x + 1] == old_taa[x + 1] &&
+		                  scr_tcc[x + 1] == old_tcc[x + 1])))
 #else
 		if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
 #endif
@@ -1084,8 +1081,8 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc)&&
 		    (!kanji || (scr_aa[x + 1] == old_aa[x + 1] &&
 		                scr_cc[x + 1] == old_cc[x + 1] &&
-                                scr_taa[x + 1] == old_taa[x + 1] &&
-                                scr_tcc[x + 1] == old_tcc[x + 1])))
+		                scr_taa[x + 1] == old_taa[x + 1] &&
+		                scr_tcc[x + 1] == old_tcc[x + 1])))
 #else
 		if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
 #endif
@@ -1112,18 +1109,12 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				/* Draw pending chars (normal) */
 				if (fa || always_text)
 				{
-#ifdef CHUUKEI
-			send_text_to_chuukei_server(fx, y, fn, fa, &scr_cc[fx]);
-#endif
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
 				/* Draw pending chars (black) */
 				else
 				{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(fx, y, fn);
-#endif
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
 
@@ -1167,18 +1158,12 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				/* Draw pending chars (normal) */
 				if (fa || always_text)
 				{
-#ifdef CHUUKEI
-			send_text_to_chuukei_server(fx, y, fn, fa, &scr_cc[fx]);
-#endif
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
 				/* Draw pending chars (black) */
 				else
 				{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(fx, y, fn);
-#endif
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
 
@@ -1216,18 +1201,12 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				/* Draw the pending chars */
 				if (fa || always_text)
 				{
-#ifdef CHUUKEI
-			send_text_to_chuukei_server(fx, y, fn, fa, &scr_cc[fx]);
-#endif
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
 				/* Hack -- Erase "leading" spaces */
 				else
 				{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(fx, y, fn);
-#endif
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
 
@@ -1254,18 +1233,12 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		/* Draw pending chars (normal) */
 		if (fa || always_text)
 		{
-#ifdef CHUUKEI
-			send_text_to_chuukei_server(fx, y, fn, fa, &scr_cc[fx]);
-#endif
 			(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 		}
 
 		/* Draw pending chars (black) */
 		else
 		{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(fx, y, fn);
-#endif
 			(void)((*Term->wipe_hook)(fx, y, fn));
 		}
 	}
@@ -1363,18 +1336,12 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 				/* Draw pending chars (normal) */
 				if (fa || always_text)
 				{
-#ifdef CHUUKEI
-			send_text_to_chuukei_server(fx, y, fn, fa, &scr_cc[fx]);
-#endif
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
 				/* Draw pending chars (black) */
 				else
 				{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(fx, y, fn);
-#endif
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
 
@@ -1413,18 +1380,12 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 				/* Draw the pending chars */
 				if (fa || always_text)
 				{
-#ifdef CHUUKEI
-			send_text_to_chuukei_server(fx, y, fn, fa, &scr_cc[fx]);
-#endif
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
 				/* Hack -- Erase "leading" spaces */
 				else
 				{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(fx, y, fn);
-#endif
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
 
@@ -1451,18 +1412,12 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 		/* Draw pending chars (normal) */
 		if (fa || always_text)
 		{
-#ifdef CHUUKEI
-			send_text_to_chuukei_server(fx, y, fn, fa, &scr_cc[fx]);
-#endif
 			(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 		}
 
 		/* Draw pending chars (black) */
 		else
 		{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(fx, y, fn);
-#endif
 			(void)((*Term->wipe_hook)(fx, y, fn));
 		}
 	}
@@ -1617,6 +1572,7 @@ errr Term_fresh(void)
 
 	/* Paranoia -- use "fake" hooks to prevent core dumps */
 	if (!Term->curs_hook) Term->curs_hook = Term_curs_hack;
+	if (!Term->bigcurs_hook) Term->bigcurs_hook = Term->curs_hook;
 	if (!Term->wipe_hook) Term->wipe_hook = Term_wipe_hack;
 	if (!Term->text_hook) Term->text_hook = Term_text_hack;
 	if (!Term->pict_hook) Term->pict_hook = Term_pict_hack;
@@ -1730,19 +1686,12 @@ errr Term_fresh(void)
 			/* Hack -- restore the actual character */
 			else if (old_aa[tx] || Term->always_text)
 			{
-
-#ifdef CHUUKEI
-				send_text_to_chuukei_server(tx, ty, csize, (old_aa[tx] & 0xf), &old_cc[tx]);
-#endif
 				(void)((*Term->text_hook)(tx, ty, csize, (unsigned char) (old_aa[tx] & 0xf), &old_cc[tx]));
 			}
 
 			/* Hack -- erase the grid */
 			else
 			{
-#ifdef CHUUKEI
-			send_wipe_to_chuukei_server(tx, ty, 1);
-#endif
 				(void)((*Term->wipe_hook)(tx, ty, 1));
 			}
 		}
@@ -1830,11 +1779,23 @@ errr Term_fresh(void)
 		/* Draw the cursor */
 		if (!scr->cu && scr->cv)
 		{
-#ifdef CHUUKEI
-		  send_curs_to_chuukei_server(scr->cx, scr->cy);
+#ifdef JP
+			if ((scr->cx + 1 < w) &&
+			    ((old->a[scr->cy][scr->cx + 1] == 255) ||
+			     (!(old->a[scr->cy][scr->cx] & 0x80) &&
+			      iskanji(old->c[scr->cy][scr->cx]))))
+#else
+			if ((scr->cx + 1 < w) && (old->a[scr->cy][scr->cx + 1] == 255))
 #endif
-			/* Call the cursor display routine */
-			(void)((*Term->curs_hook)(scr->cx, scr->cy));
+			{
+				/* Double width cursor for the Bigtile mode */
+				(void)((*Term->bigcurs_hook)(scr->cx, scr->cy));
+			}
+			else
+			{
+				/* Call the cursor display routine */
+				(void)((*Term->curs_hook)(scr->cx, scr->cy));
+			}
 		}
 	}
 
@@ -1844,9 +1805,6 @@ errr Term_fresh(void)
 		/* The cursor is useless, hide it */
 		if (scr->cu)
 		{
-#ifdef CHUUKEI
-		  send_curs_to_chuukei_server(w - 1, scr->cy);
-#endif
 			/* Paranoia -- Put the cursor NEAR where it belongs */
 			(void)((*Term->curs_hook)(w - 1, scr->cy));
 
@@ -1857,9 +1815,6 @@ errr Term_fresh(void)
 		/* The cursor is invisible, hide it */
 		else if (!scr->cv)
 		{
-#ifdef CHUUKEI
-		  send_curs_to_chuukei_server(scr->cx, scr->cy);
-#endif
 			/* Paranoia -- Put the cursor where it belongs */
 			(void)((*Term->curs_hook)(scr->cx, scr->cy));
 
@@ -1870,9 +1825,6 @@ errr Term_fresh(void)
 		/* The cursor is visible, display it correctly */
 		else
 		{
-#ifdef CHUUKEI
-		  send_curs_to_chuukei_server(scr->cx, scr->cy);
-#endif
 			/* Put the cursor where it belongs */
 			(void)((*Term->curs_hook)(scr->cx, scr->cy));
 
@@ -2121,19 +2073,21 @@ errr Term_putstr_v(int x, int y, int n, byte a, cptr s)
 
 	for (i = 0; i < n && s[i] != 0; i++)
 	{
-	  /* Move first */
-	  if ((res = Term_gotoxy(x, y0)) != 0) return (res);
+		/* Move first */
+		if ((res = Term_gotoxy(x, y0)) != 0) return (res);
 
-	  if (iskanji(s[i]))
-	  {
-	    if ((res = Term_addstr(2, a, &s[i])) != 0) return (res);
-	    i++;
-	    y0++;
-	    if (s[i] == 0) break;
-	  } else {
-	    if ((res = Term_addstr(1, a, &s[i])) != 0) return (res);
-	    y0++;
-	  }
+		if (iskanji(s[i]))
+		{
+			if ((res = Term_addstr(2, a, &s[i])) != 0) return (res);
+			i++;
+			y0++;
+			if (s[i] == 0) break;
+		}
+		else
+		{
+			if ((res = Term_addstr(1, a, &s[i])) != 0) return (res);
+			y0++;
+		}
 	}
 
 	/* Success */
@@ -2181,19 +2135,19 @@ errr Term_erase(int x, int y, int n)
 #endif /* USE_TRANSPARENCY */
 
 #ifdef JP
-        /*
-         * 全角文字の右半分から文字を表示する場合、
-         * 重なった文字の左部分を消去。
-         */
-        if (n > 0 && (((scr_aa[x] & KANJI2) && !(scr_aa[x] & 0x80))
+	/*
+	 * 全角文字の右半分から文字を表示する場合、
+	 * 重なった文字の左部分を消去。
+	 */
+	if (n > 0 && (((scr_aa[x] & KANJI2) && !(scr_aa[x] & 0x80))
 		      || ((byte)scr_cc[x] == 255 && scr_aa[x] == 255)))
 #else
-        if (n > 0 && (byte)scr_cc[x] == 255 && scr_aa[x] == 255)
+	if (n > 0 && (byte)scr_cc[x] == 255 && scr_aa[x] == 255)
 #endif
-        {
-                x--;
-                n++;
-        }
+	{
+		x--;
+		n++;
+	}
 
 	/* Scan every column */
 	for (i = 0; i < n; i++, x++)
@@ -2205,15 +2159,15 @@ errr Term_erase(int x, int y, int n)
 		if ((oa == na) && (oc == nc)) continue;
 
 #ifdef JP
-                /*
-                 * 全角文字の左半分で表示を終了する場合、
-                 * 重なった文字の右部分を消去。
+		/*
+		 * 全角文字の左半分で表示を終了する場合、
+		 * 重なった文字の右部分を消去。
 		 *
 		 * 2001/04/29 -- Habu
 		 * 行の右端の場合はこの処理をしないように修正。
-                 */
-                if ((oa & KANJI1) && (i + 1) == n && x != w - 1)
-                        n++;
+		 */
+		if ((oa & KANJI1) && (i + 1) == n && x != w - 1)
+			n++;
 #endif
 		/* Save the "literal" information */
 		scr_aa[x] = na;
@@ -2562,10 +2516,6 @@ errr Term_inkey(char *ch, bool wait, bool take)
 {
 	/* Assume no key */
 	(*ch) = '\0';
-
-#ifdef CHUUKEI
-	flush_ringbuf();
-#endif
 
 	/* Hack -- get bored */
 	if (!Term->never_bored)

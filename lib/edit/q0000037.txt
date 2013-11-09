@@ -1,0 +1,112 @@
+# q0000037.txt
+
+# Name
+Q:$37:N:The sunken ship 'Ramzen'
+Q:37:N:沈没船ラムゼン号の引き上げ
+
+# Definition
+Q:$37:Q:3:0:0:0:75:0:176:0:6
+Q:37:Q:3:0:0:0:75:0:176:0:6
+
+# Description for quest
+?:[LEQ $QUEST37 2]
+Q:37:T:おお、英雄殿。沈没船ラムゼン号が引き上げられることになりました。あの船に、
+Q:37:T:南方の大陸バルバウダからの貴重な品『銃』が眠っているという噂があります。
+Q:37:T:どうか、船から『銃』を見つけ出し、我々の下へ持ってきてください！
+Q:37:T:『銃』を拾った時点でクエスト達成となるでしょう。しかしながら、
+Q:37:T:あのロスローリアンも『銃』を狙っているという話です。
+Q:37:T:ロスローリアンを出し抜いて、貴重な『銃』を手に入れて来て下さい。
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST37 3]
+Q:37:T:その銃はお持ちください。革命の助力となるでしょう。
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST37 5]
+Q:4:T:なんということでしょう。
+Q:4:T:『銃』を手に入れたロスローリアンは、さらに強大な力を
+Q:4:T:手にしてしまったのです。
+?:1
+
+# Random monster 7 levels out of depth and on no Teleportation grid
+F:5:1:12:*8
+
+# Floor + Zombified soldier
+F:Z:1:8:659
+
+# Floor + Zombified berserker
+F:z:1:8:663
+
+# Floor + Zombified sirene
+F:s:1:8:682
+
+# Floor + Zombified archer
+F:a:1:8:682
+
+# Floor + Martym, the Dark Knight
+F:M:1:12:799
+
+# Floor + Temple knight
+F:p:1:12:492
+
+# Floor + Temple command
+F:P:1:12:597
+
+# FLoor + Rendal, the Gunner
+F:R:1:12:734
+
+# Floor, dark, no teleport
+F:,:1:12
+
+# Deep Water + Dread Master
+F:G:83:12:690
+
+# Deep Water
+F:W:83:12
+
+# Shallow Water
+F:w:84:12
+
+# Broken door
+F:':5:12
+
+# Scroll of Learning Special Blow
+F:?:1:12:0:388
+
+# Floor + 'Assault'
+F:}:1:12:0:0:0:176
+
+# Object 0 levels out of depth on no Teleportation grid
+F:*:1:12:0:*0
+
+# Object 15 levels out of depth on no Teleportation grid
+F:$:1:12:0:*15
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXWWWWX,,,**,,,,,WWXWWWWWWWWWWW*WXWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXWWWWWWWXW,5,,,5,,,,WXW,5,,,,,,,,WWXW*,WW,,WW,,,WXWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXWWWWGWWWWWXW,,,z,,,,,WWXW,,,z,,,5,,WWXWW,5,,z,5,,,WXWWWWWWWXXXXXXXXXXXXX
+D:XXXXXWWWWWWWWWwwwXWWW,,,5,,,,WXWWW,,,,,,,,,WXW,,,,,,,,,,,WXWWWGWWWWWWXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXwXXXXXX'XXXXXXXXXXXXX'XXXXXXXXXXXXX'XXXXXXXwXXXXXXXXXXXXXXXXXXX
+D:X$***,,,,,,,,,,XWwWWWww,WwwWwW,,wwwWWwWwwWw,wWwwWw,,,wwWW,w,X,WWWWWwwWWWWWWXXXX
+D:X?***,,p,,p,,,,X,XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXWX,,WWWWw,wWWWWWWWXX
+D:X*$**p,,p,p,,p,XwX,,,,,,5,z,a,,,,z,,X.5Zaz.z.z.a...s..X,,,,,X,,zWw,wwWWWWWWWWWX
+D:X****,p,pP,p,,,XWXzZz,z,,,ZZ,,a,z,,,XZz.Z........z....X,,,R,X,,,WwwWWWWWGWWWWWX
+D:XWWwp,,,p,p,,p,','za,,z,z,,z,,5,,a,,'zzzazZzz.zz.zZ..zX,<,,,',,,,WwwWWWWWWGWWWX
+D:XW$ww,,p,p,p,p,XWXaZ5,,,z,,z,z,a,,,,XZz..a.....z...Z..X,,,,,X,,,WWw,wWWWGWWWWWX
+D:XWWwwwPMP,,,p,,XwX,,,a,,,,sZZ,,,,z,,X..zZ.5a.z....s...X,,,,,X,,zwwwwWWWWWWWWWWX
+D:XW}wwWwwwwwwwp,X,XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXWX,,WWWwwwwWWWWWWWXX
+D:XWWWWWWWWWWWwwwX,wWw,WwwwwWWwwWWW,ww,,,WwwWWWwWW,ww,,,WWWWWWX,,,,WWw,wWWWWWXXXX
+D:XXXXXXXXXXXXXXXXwXXXXXXX'XXXXXXXXXXXX'XXXXXXXXXXXXX'XXXXXXXwXXXXXXXXXXXXXXXXXXX
+D:XXXXXWWWWWWWWWwwwXWWww,,,,,,,wXw,,,,,,,,,wWWXWWWww,,,wwWWWXwwWGWWWWWWXXXXXXXXXX
+D:XXXXXXXWWWWWGWWwwXWww,5,,z,,wWXWw,,,z,,,,,wWXWww,,,,,,5wWWXWWWWWWWXXXXXXXXXXXXX
+D:XXXXXXXXXXWWWWWWWXWWww,*,5,wWWXWw,5,,,5,,,wWX,,,5,,zwwWWWWXWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXWWWWXWww,*,,,,,wWXw*,,,,,,,,wWWX*,,,,,,wWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:10:57
+

@@ -1,0 +1,76 @@
+# q0000038.txt
+
+# Name
+Q:$38:N:Holy Knights Hideout
+Q:38:N:聖騎士達の隠れ家
+
+# Definition
+Q:$38:Q:6:0:0:0:40:0:0:0:6
+Q:38:Q:6:0:0:0:40:0:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST38 2]
+Q:38:T:ゼノビアの特殊部隊が港町ゴリアテに上陸したとの情報が入った。
+Q:38:T:奴らはゴリアテの反政府ゲリラと結託し、今はゲリラ共の隠れ家に
+Q:38:T:潜伏しているらしい。
+Q:38:T:お前はゴリアテの奴らのアジトに潜入し、全員を始末しろ。
+Q:38:T:…任務達成後は足跡を残さず速やかに撤収するようにな。
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST38 3]
+Q:38:T:おつかれさん。報酬を外に置いておいた。
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST38 5]
+Q:38:T:なんてこった！こんな簡単な任務もこなせないとは！
+Q:38:T:あきれてものも言えんよ。
+?:1
+
+# Floor with Soldier
+F:a:1:8:110
+
+# Floor with Cleric
+F:b:1:8:109
+
+# Floor with White Knight
+F:c:1:8:699
+
+# Floor with Hawkman
+F:d:1:8:322
+
+# Floor with Necromancer
+F:e:1:8:737
+
+# Floor with Long Boots
+F:o:1:8:0:532
+
+# Floor with Kilt
+F:p:1:8:0:515
+
+# Floor with Katyusha
+F:q:1:8:0:529
+
+# Floor with Gloves
+F:r:1:8:0:605
+
+# Dungeon layout
+D:XXXXXXXXX
+D:Xe.D.XopX
+D:X..X.DqrX
+D:XXXX.XXXX
+D:Xc.D.X..X
+D:Xd.X.D.bX
+D:XXXX.XXXX
+D:X..D.X.aX
+D:XccX.D.aX
+D:XXXXDXXXX
+D:X<X.....X
+D:X.X.....X
+D:X.D.....X
+D:XXXXXXXXX
+
+# Starting position
+P:10:1
+

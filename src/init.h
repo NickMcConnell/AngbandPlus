@@ -100,7 +100,6 @@ extern errr init_info_txt(FILE *fp, char *buf, header *head,
                           parse_info_txt_func parse_info_txt_line);
 
 #ifdef ALLOW_TEMPLATES
-extern errr parse_z_info(char *buf, header *head);
 extern errr parse_v_info(char *buf, header *head);
 extern errr parse_f_info(char *buf, header *head);
 extern errr parse_k_info(char *buf, header *head);

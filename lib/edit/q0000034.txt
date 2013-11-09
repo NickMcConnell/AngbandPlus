@@ -1,0 +1,88 @@
+# q0000034.txt
+
+# Name
+Q:$34:N:Vault
+Q:34:N:地下室
+
+# Definition
+Q:$34:Q:6:0:0:0:3:0:0:0:6
+Q:34:Q:6:0:0:0:3:0:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST34 2]
+Q:$34:T:
+Q:$34:T:
+Q:$34:T:
+Q:$34:T:
+Q:$34:T:
+Q:34:T:私の家の地下室に、いつのまにかイモムシやキノコ、カビなどが大発生して
+Q:34:T:しまいました。すみませんが、うちの地下室の掃除をお願いできませんか？
+Q:34:T:
+Q:34:T:もちろん、それなりの報酬は致します。
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST34 3]
+Q:$34:T:
+Q:$34:T:
+Q:34:T:地下室を掃除していただき助かりました。
+Q:34:T:ささやかなお礼を外に用意しておきました。
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST34 5]
+Q:$34:T:
+Q:$34:T:
+Q:34:T:この仕事はあなたには難しかったようですね。清掃業者に連絡して
+Q:34:T:残りの掃除を依頼しますから、もういいですよ。
+?:1
+
+# Floor with White worm mass
+F:a:1:8:31
+
+# Floor with Grey mold
+F:b:1:8:20
+
+# Floor with Giant white centipede
+F:c:1:8:24
+
+# Floor with Floating eye
+F:e:1:8:32
+
+# Floor with Insect swarm
+F:f:1:8:38
+
+# Floor with Shrieker mushroom patch
+F:g:1:8:40
+
+# Floor with Blinking dot
+F:h:1:8:22
+
+# Floor with Scroll of Phase Door
+F:i:1:8:0:185
+
+# Floor with Scroll of Teleportation
+F:j:1:8:0:186
+
+# Floor with Scroll of Identify
+F:k:1:8:0:176
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXX
+D:Xa..Xe..Xb.bX...XiiiXXXX
+D:X.a.X...X...Xa..XiiiXXXX
+D:X..aX...X...X...XiiiXXXX
+D:XXDXXXDXXXDXXXDXXXDXXXXX
+D:X...X...............XXXX
+D:X...X...X...X...X...XXXX
+D:X...D..b.....h......D.<X
+D:X...X...X...X...X...XXXX
+D:X...Xg..............XXXX
+D:X...XXDXXXDXXXDXXXDXXXXX
+D:X...X...X...XkkkXjjjXXXX
+D:X...XcccX...XkkkXjjjXXXX
+D:Xf..X...X...XkkkXjjjXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:7:22

@@ -50,19 +50,20 @@ static void remove_auto_dump(cptr orig_file, cptr mark)
 
 	/* Open a new file */
 	tmp_fff = my_fopen_temp(tmp_file, 1024);
-	if (!tmp_fff) {
+	if (!tmp_fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", tmp_file);
+		msg_format("一時ファイル %s を作成できませんでした。", tmp_file);
 #else
-	    msg_format("Failed to create temporary file %s.", tmp_file);
+		msg_format("Failed to create temporary file %s.", tmp_file);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
-	
+
 	while (1)
 	{
-		if (my_fgets(orig_fff, buf, 1024))
+		if (my_fgets(orig_fff, buf, sizeof(buf)))
 		{
 			if (between_mark)
 			{
@@ -96,7 +97,7 @@ static void remove_auto_dump(cptr orig_file, cptr mark)
 			{
 				int tmp;
 
-			        if (!sscanf(buf + mark_len, " (%d)", &tmp)
+				if (!sscanf(buf + mark_len, " (%d)", &tmp)
 				    || tmp != line_num)
 				{
 					fseek(orig_fff, header_location, SEEK_SET);
@@ -120,7 +121,7 @@ static void remove_auto_dump(cptr orig_file, cptr mark)
 		tmp_fff = my_fopen(tmp_file, "r");
 		orig_fff = my_fopen(orig_file, "w");
 		
-		while (!my_fgets(tmp_fff, buf, 1024))
+		while (!my_fgets(tmp_fff, buf, sizeof(buf)))
 			fprintf(orig_fff, "%s\n", buf);
 		
 		my_fclose(orig_fff);
@@ -223,6 +224,8 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 	char buf[1024];
 	cptr note_level = "";
 	bool do_level = TRUE;
+	char note_level_buf[21];
+	int q_idx;
 
 	static bool disable_nikki = FALSE;
 
@@ -244,7 +247,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		/* Get the quest text */
 		init_flags = INIT_ASSIGN;
 
-		process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 		/* Reset the old quest number */
 		p_ptr->inside_quest = old_quest;
@@ -261,7 +264,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, file_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -283,6 +286,8 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		return (-1);
 	}
 
+	q_idx = quest_number(dun_level);
+
 	if (write_level)
 	{
 		if (p_ptr->inside_arena)
@@ -297,18 +302,23 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #else
 			note_level = "Surface:";
 #endif
-		else if (quest_number(dun_level) && ((quest_number(dun_level) < MIN_RANDOM_QUEST) && !(quest_number(dun_level) == QUEST_OBERON || quest_number(dun_level) == QUEST_SERPENT)))
+		else if (q_idx &&
+			    (quest_is_fixed(q_idx) &&
+			   !(quest[q_idx].flags & QUEST_FLAG_GUARDIAN)))
 #ifdef JP
 			note_level = "クエスト:";
 #else
 			note_level = "Quest:";
 #endif
 		else
+		{
 #ifdef JP
-			note_level = format("%d階(%s):", dun_level, d_name+d_info[dungeon_type].name);
+			sprintf(note_level_buf, "%d階(%s):", dun_level, d_name+d_info[dungeon_type].name);
 #else
-			note_level = format("%s L%d:", d_name+d_info[dungeon_type].name, dun_level);
+			sprintf(note_level_buf, "%s L%d:", d_name+d_info[dungeon_type].name, dun_level);
 #endif
+			note_level = note_level_buf;
+		}
 	}
 
 	switch(type)
@@ -397,7 +407,8 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		case NIKKI_MAXDEAPTH:
 		{
 #ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sの最深階%d階に到達した。\n", hour, min, note_level, d_name+d_info[dungeon_type].name, num);
+			fprintf(fff, " %2d:%02d %20s %sの%s%d階に到達した。\n", hour, min, note_level, d_name+d_info[dungeon_type].name,
+				(d_info[dungeon_type].flags1 & DF1_UPWARD) ? "最高階" : "最深階", num);
 #else
 			fprintf(fff, " %2d:%02d %20s reached level %d of %s for the first time.\n", hour, min, note_level, num, d_name+d_info[dungeon_type].name);
 #endif
@@ -406,7 +417,8 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		case NIKKI_TRUMP:
 		{
 #ifdef JP
-			fprintf(fff, " %2d:%02d %20s %s%sの最深階を%d階にセットした。\n", hour, min, note_level, note, d_name + d_info[num].name, max_dlv[num]);
+			fprintf(fff, " %2d:%02d %20s %s%sの%sを%d階にセットした。\n", hour, min, note_level, note, d_name + d_info[num].name,
+				(d_info[dungeon_type].flags1 & DF1_UPWARD) ? "最高階" : "最深階", max_dlv[num]);
 #else
 			fprintf(fff, " %2d:%02d %20s reset recall level of %s to %d %s.\n", hour, min, note_level, d_name + d_info[num].name, max_dlv[num], note);
 #endif
@@ -415,7 +427,9 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		case NIKKI_STAIR:
 		{
 			cptr to;
-			if (quest_number(dun_level) && ((quest_number(dun_level) < MIN_RANDOM_QUEST) && !(quest_number(dun_level) == QUEST_OBERON || quest_number(dun_level) == QUEST_SERPENT)))
+			if (q_idx &&
+			   (quest_is_fixed(q_idx) &&
+			  !(quest[q_idx].flags & QUEST_FLAG_GUARDIAN)))
 			{
 #ifdef JP
 				to = "地上";
@@ -425,15 +439,19 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 			}
 			else
 			{
+				int num_dummy = num;
+
+				if (d_info[dungeon_type].flags1 & DF1_UPWARD)
+					num_dummy = 0 - num;
 #ifdef JP
-				if (!(dun_level+num)) to = "地上";
-				else to = format("%d階", dun_level+num);
+				if (!(dun_level + num_dummy)) to = "地上";
+				else to = format("%d階", dun_level + num_dummy);
 #else
-				if (!(dun_level+num)) to = "the surfice";
-				else to = format("level %d", dun_level+num);
+				if (!(dun_level + num_dummy)) to = "the surface";
+				else to = format("level %d", dun_level + num_dummy);
 #endif
 			}
-				
+
 #ifdef JP 
 			fprintf(fff, " %2d:%02d %20s %sへ%s。\n", hour, min, note_level, to, note);
 #else
@@ -445,7 +463,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		{
 			if (!num)
 #ifdef JP
-				fprintf(fff, " %2d:%02d %20s 帰還を使って%sの%d階へ下りた。\n", hour, min, note_level, d_name+d_info[dungeon_type].name, max_dlv[dungeon_type]);
+				fprintf(fff, " %2d:%02d %20s 帰還を使って%sの%d階に来た。\n", hour, min, note_level, d_name+d_info[dungeon_type].name, max_dlv[dungeon_type]);
 #else
 				fprintf(fff, " %2d:%02d %20s recall to dungeon level %d of %s.\n", hour, min, note_level, max_dlv[dungeon_type], d_name+d_info[dungeon_type].name);
 #endif
@@ -469,38 +487,10 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		}
 		case NIKKI_TELE_LEV:
 		{
-			cptr to;
-			if (!dun_level)
-			{
 #ifdef JP
-				to = "1階";
+			fprintf(fff, " %2d:%02d %20s レベル・テレポートで脱出した。\n", hour, min, note_level);
 #else
-				to = "level 1";
-#endif
-			}
-			else if (quest_number(dun_level) && ((quest_number(dun_level) < MIN_RANDOM_QUEST) && !(quest_number(dun_level) == QUEST_OBERON || quest_number(dun_level) == QUEST_SERPENT)))
-			{
-#ifdef JP
-				to = "地上";
-#else
-				to = "the surface";
-#endif
-			}
-			else
-			{
-#ifdef JP
-				if (!(dun_level+num)) to = "地上";
-				else to = format("%d階", dun_level+num);
-#else
-				if (!(dun_level+num)) to = "surface";
-				else to = format("level %d", dun_level+num);
-#endif
-			}
-				
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sへとテレポートで移動した。\n", hour, min, note_level, to);
-#else
-			fprintf(fff, " %2d:%02d %20s teleport level to %s.\n", hour, min, note_level, to);
+			fprintf(fff, " %2d:%02d %20s Get out using teleport level.\n", hour, min, note_level);
 #endif
 			break;
 		}
@@ -526,11 +516,13 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		{
 			if (num == 99)
 			{
-
-#ifdef JP
-				fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦で、%sの前に敗れ去った。\n", hour, min, note_level, p_ptr->arena_number + 1, note);
-#else
 				int n =  p_ptr->arena_number + 1;
+
+				if (n > (MAX_ARENA_MONS + 3)) n -= 2;
+				else if (n > (MAX_ARENA_MONS + 1)) n -= 1;
+#ifdef JP
+				fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦で、%sの前に敗れ去った。\n", hour, min, note_level, n, note);
+#else
 				fprintf(fff, " %2d:%02d %20s beaten by %s in the %d%s fight.\n", hour, min, note_level, note, n, (n%10==1?"st":n%10==2?"nd":n%10==3?"rd":"th"));
 #endif
 				break;
@@ -575,34 +567,11 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #else
 				to = format("level %d of %s", dun_level, d_name+d_info[dungeon_type].name);
 #endif
-				
+
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s %sへとウィザード・テレポートで移動した。\n", hour, min, note_level, to);
 #else
 			fprintf(fff, " %2d:%02d %20s wizard-teleport to %s.\n", hour, min, note_level, to);
-#endif
-			break;
-		}
-		case NIKKI_PAT_TELE:
-		{
-			cptr to;
-			if (!dun_level)
-#ifdef JP
-				to = "地上";
-#else
-				to = "the surface";
-#endif
-			else
-#ifdef JP
-				to = format("%d階(%s)", dun_level, d_name+d_info[dungeon_type].name);
-#else
-				to = format("level %d of %s", dun_level, d_name+d_info[dungeon_type].name);
-#endif
-				
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sへとパターンの力で移動した。\n", hour, min, note_level, to);
-#else
-			fprintf(fff, " %2d:%02d %20s use Pattern to teleport to %s.\n", hour, min, note_level, to);
 #endif
 			break;
 		}
@@ -686,6 +655,34 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 					fprintf(fff, "%sが岩石に押し潰された。\n", note);
 #else
 					fprintf(fff, "%s is crushed by falling rocks.\n", note);
+#endif
+					break;
+				case 8:
+#ifdef JP
+					fprintf(fff, "%sが石化してしまった。\n", note);
+#else
+					fprintf(fff, "%s is stoned.\n", note);
+#endif
+					break;
+				case 9:
+#ifdef JP
+					fprintf(fff, "%sが空中に消えてしまった。\n", note);
+#else
+					fprintf(fff, "%s falls into air.\n", note);
+#endif
+					break;
+				case 10:
+#ifdef JP
+					fprintf(fff, "%sを我が家に置いた。\n", note);
+#else
+					fprintf(fff, "put %s on home.\n", note);
+#endif
+					break;
+				case 11:
+#ifdef JP
+					fprintf(fff, "%sを我が家から連れ出した。\n", note);
+#else
+					fprintf(fff, "take %s from home.\n", note);
 #endif
 					break;
 				default:
@@ -793,20 +790,14 @@ static void do_cmd_disp_nikki(void)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, file_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
 
-	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_BERSERKER)
-		strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-1)]);
-	else if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
-		strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-1)+1]);
-	else strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-2)+1]);
+	strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-2)+1]);
 
 #ifdef JP
-	sprintf(nikki_title, "「%s%s%sの伝説 -%s-」",
-		ap_ptr->title, ap_ptr->no ? "の" : "", player_name, tmp);
+	sprintf(nikki_title, "「%sの伝説 -%s-」", player_name, tmp);
 #else
-	sprintf(nikki_title, "Legend of %s %s '%s'",
-		ap_ptr->title, player_name, tmp);
+	sprintf(nikki_title, "Legend of %s '%s'", player_name, tmp);
 #endif
 
 	/* Display the file contents */
@@ -880,7 +871,7 @@ static void do_cmd_erase_nikki(void)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, file_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
 
 	/* Remove the file */
 	fd_kill(buf);
@@ -906,14 +897,6 @@ static void do_cmd_erase_nikki(void)
 	safe_setuid_grab();
 }
 
-#if 0
-void do_debug(void)
-{
-	msg_format("%d %d %d:%d",py,px, p_ptr->energy, p_ptr->skill_dis);
-	msg_print(NULL);
-	battle_monsters();
-}
-#endif
 
 void do_cmd_nikki(void)
 {
@@ -981,11 +964,6 @@ void do_cmd_nikki(void)
 		case '4':
 			do_cmd_erase_nikki();
 			break;
-#if 0
-		case ':':
-			do_debug();
-			break;
-#endif
 		default: /* Unknown option */
 			bell();
 		}
@@ -1053,8 +1031,6 @@ void do_cmd_redraw(void)
 	/* Hack -- update */
 	handle_stuff();
 
-	if (p_ptr->prace == RACE_ANDROID) calc_android_exp();
-
 
 	/* Redraw every window */
 	for (j = 0; j < 8; j++)
@@ -1100,7 +1076,7 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-		if (mode == 6)
+		if (mode == 4)
 		{
 			mode = 0;
 			display_player(mode);
@@ -1126,6 +1102,9 @@ void do_cmd_change_name(void)
 		if (c == 'c')
 		{
 			get_name();
+
+			/* Process the player name */
+			process_player_name(FALSE);
 		}
 
 		/* File dump */
@@ -1141,7 +1120,7 @@ void do_cmd_change_name(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, TRUE);
+					file_character(tmp);
 				}
 			}
 		}
@@ -1422,7 +1401,7 @@ void do_cmd_messages(int num_now)
 /*
  * Number of cheating options
  */
-#define CHEAT_MAX 6
+#define CHEAT_MAX 7
 
 /*
  * Cheating options
@@ -1431,51 +1410,59 @@ static option_type cheat_info[CHEAT_MAX] =
 {
 	{ &cheat_peek,		FALSE,	255,	0x01, 0x00,
 #ifdef JP
-	"cheat_peek",		"アイテムの生成をのぞき見る" },
+	"cheat_peek",		"アイテムの生成をのぞき見る"
 #else
-	"cheat_peek",		"Peek into object creation" },
+	"cheat_peek",		"Peek into object creation"
 #endif
-
+	},
 
 	{ &cheat_hear,		FALSE,	255,	0x02, 0x00,
 #ifdef JP
-	"cheat_hear",		"モンスターの生成をのぞき見る" },
+	"cheat_hear",		"モンスターの生成をのぞき見る"
 #else
-	"cheat_hear",		"Peek into monster creation" },
+	"cheat_hear",		"Peek into monster creation"
 #endif
-
+	},
 
 	{ &cheat_room,		FALSE,	255,	0x04, 0x00,
 #ifdef JP
-	"cheat_room",		"ダンジョンの生成をのぞき見る" },
+	"cheat_room",		"ダンジョンの生成をのぞき見る"
 #else
-	"cheat_room",		"Peek into dungeon creation" },
+	"cheat_room",		"Peek into dungeon creation"
 #endif
-
+	},
 
 	{ &cheat_xtra,		FALSE,	255,	0x08, 0x00,
 #ifdef JP
-	"cheat_xtra",		"その他の事をのぞき見る" },
+	"cheat_xtra",		"その他の事をのぞき見る"
 #else
-	"cheat_xtra",		"Peek into something else" },
+	"cheat_xtra",		"Peek into something else"
 #endif
-
+	},
 
 	{ &cheat_know,		FALSE,	255,	0x10, 0x00,
 #ifdef JP
-	"cheat_know",		"完全なモンスターの思い出を知る" },
+	"cheat_know",		"完全なモンスターの思い出を知る"
 #else
-	"cheat_know",		"Know complete monster info" },
+	"cheat_know",		"Know complete monster info"
 #endif
-
+	},
 
 	{ &cheat_live,		FALSE,	255,	0x20, 0x00,
 #ifdef JP
-	"cheat_live",		"死を回避することを可能にする" }
+	"cheat_live",		"死を回避することを可能にする"
 #else
-	"cheat_live",		"Allow player to avoid death" }
+	"cheat_live",		"Allow player to avoid death"
 #endif
+	},
 
+	{ &cheat_save,		FALSE,	255,	0x40, 0x00,
+#ifdef JP
+	"cheat_save",		"死んだ時セーブするか確認する"
+#else
+	"cheat_save",		"Ask for saving death"
+#endif
+	}
 };
 
 /*
@@ -1496,6 +1483,8 @@ static void do_cmd_options_cheat(cptr info)
 	/* Interact with the player */
 	while (TRUE)
 	{
+		int dir;
+
 		/* Prompt XXX XXX XXX */
 #ifdef JP
 		sprintf(buf, "%s ( リターンで次へ, y/n でセット, ESC で決定 )", info);
@@ -1522,14 +1511,14 @@ static void do_cmd_options_cheat(cptr info)
 
 			/* Display the option text */
 			sprintf(buf, "%-48s: %s (%s)",
-			    cheat_info[i].o_desc,
+			        cheat_info[i].o_desc,
 #ifdef JP
-			    (*cheat_info[i].o_var ? "はい  " : "いいえ"),
+			        (*cheat_info[i].o_var ? "はい  " : "いいえ"),
 #else
-			    (*cheat_info[i].o_var ? "yes" : "no "),
+			        (*cheat_info[i].o_var ? "yes" : "no "),
 #endif
 
-			    cheat_info[i].o_text);
+			        cheat_info[i].o_text);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -1538,6 +1527,14 @@ static void do_cmd_options_cheat(cptr info)
 
 		/* Get a key */
 		ch = inkey();
+
+		/*
+		 * HACK - Try to translate the key into a direction
+		 * to allow using the roguelike keys for navigation.
+		 */
+		dir = get_keymap_dir(ch);
+		if ((dir == 2) || (dir == 4) || (dir == 6) || (dir == 8))
+			ch = I2D(dir);
 
 		/* Analyze */
 		switch (ch)
@@ -1571,7 +1568,7 @@ static void do_cmd_options_cheat(cptr info)
 #ifdef JP
 					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "詐欺オプションをONにして、スコアを残せなくなった。");
 #else
-					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up sending score to use cheating options.");
+					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up recording score to use cheating options.");
 #endif
 				p_ptr->noscore |= (cheat_info[k].o_set * 256 + cheat_info[k].o_bit);
 				(*cheat_info[k].o_var) = TRUE;
@@ -1585,6 +1582,20 @@ static void do_cmd_options_cheat(cptr info)
 			{
 				(*cheat_info[k].o_var) = FALSE;
 				k = (k + 1) % n;
+				break;
+			}
+
+			case '?':
+			{
+#ifdef JP
+				strnfmt(buf, sizeof(buf), "joption.txt#%s", cheat_info[k].o_text);
+#else
+				strnfmt(buf, sizeof(buf), "option.txt#%s", cheat_info[k].o_text);
+#endif
+				/* Peruse the help file */
+				(void)show_file(TRUE, buf, NULL, 0, 0);
+
+				Term_clear(); 
 				break;
 			}
 
@@ -1671,14 +1682,14 @@ static void do_cmd_options_autosave(cptr info)
 
 			/* Display the option text */
 			sprintf(buf, "%-48s: %s (%s)",
-			    autosave_info[i].o_desc,
+			        autosave_info[i].o_desc,
 #ifdef JP
-			    (*autosave_info[i].o_var ? "はい  " : "いいえ"),
+			        (*autosave_info[i].o_var ? "はい  " : "いいえ"),
 #else
-			    (*autosave_info[i].o_var ? "yes" : "no "),
+			        (*autosave_info[i].o_var ? "yes" : "no "),
 #endif
 
-			    autosave_info[i].o_text);
+			        autosave_info[i].o_text);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -1745,11 +1756,25 @@ static void do_cmd_options_autosave(cptr info)
 				autosave_freq = toggle_frequency(autosave_freq);
 #ifdef JP
 				prt(format("自動セーブの頻度： %d ターン毎", 
+				    autosave_freq), 5, 0);
 #else
 				prt(format("Timed autosave frequency: every %d turns",
+				    autosave_freq), 5, 0);
+#endif
+				break;
+			}
+
+			case '?':
+			{
+#ifdef JP
+				(void)show_file(TRUE, "joption.txt#Autosave", NULL, 0, 0);
+#else
+				(void)show_file(TRUE, "option.txt#Autosave", NULL, 0, 0);
 #endif
 
-				    autosave_freq), 5, 0);
+
+				Term_clear(); 
+				break;
 			}
 
 			default:
@@ -1789,23 +1814,27 @@ void do_cmd_options_aux(int page, cptr info)
 	/* Clear screen */
 	Term_clear();
 
-#ifdef JP
-	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 6, 6);
-#else
-	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 6, 3);
-#endif
-
 	/* Interact with the player */
 	while (TRUE)
 	{
+		int dir;
+
 		/* Prompt XXX XXX XXX */
 #ifdef JP
-		sprintf(buf, "%s ( リターンで次へ, y/n でセット, ESC で決定 ) ", info);
+		sprintf(buf, "%s (リターン:次, y/n:変更, ESC:終了, ?:ヘルプ) ", info);
 #else
-		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		sprintf(buf, "%s (RET:next, y/n:change, ESC:accept, ?:help) ", info);
 #endif
 
 		prt(buf, 0, 0);
+
+
+		/* HACK -- description for easy-auto-destroy options */
+#ifdef JP
+		if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 6, 6);
+#else
+		if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 6, 3);
+#endif
 
 		/* Display the options */
 		for (i = 0; i < n; i++)
@@ -1831,11 +1860,20 @@ void do_cmd_options_aux(int page, cptr info)
 
 		if ((page == PAGE_AUTODESTROY) && (k > 2)) l = 3;
 		else l = 0;
+
 		/* Hilite current option */
 		move_cursor(k + 2 + l, 50);
 
 		/* Get a key */
 		ch = inkey();
+
+		/*
+		 * HACK - Try to translate the key into a direction
+		 * to allow using the roguelike keys for navigation.
+		 */
+		dir = get_keymap_dir(ch);
+		if ((dir == 2) || (dir == 4) || (dir == 6) || (dir == 8))
+			ch = I2D(dir);
 
 		/* Analyze */
 		switch (ch)
@@ -1847,8 +1885,6 @@ void do_cmd_options_aux(int page, cptr info)
 
 			case '-':
 			case '8':
-			case 'k':
-			case 'K':
 			{
 				k = (n + k - 1) % n;
 				break;
@@ -1858,8 +1894,6 @@ void do_cmd_options_aux(int page, cptr info)
 			case '\n':
 			case '\r':
 			case '2':
-			case 'j':
-			case 'J':
 			{
 				k = (k + 1) % n;
 				break;
@@ -1868,8 +1902,6 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'y':
 			case 'Y':
 			case '6':
-			case 'l':
-			case 'L':
 			{
 				(*option_info[opt[k]].o_var) = TRUE;
 				k = (k + 1) % n;
@@ -1879,8 +1911,6 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'n':
 			case 'N':
 			case '4':
-			case 'h':
-			case 'H':
 			{
 				(*option_info[opt[k]].o_var) = FALSE;
 				k = (k + 1) % n;
@@ -1891,6 +1921,20 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'T':
 			{
 				(*option_info[opt[k]].o_var) = !(*option_info[opt[k]].o_var);
+				break;
+			}
+
+			case '?':
+			{
+#ifdef JP
+				strnfmt(buf, sizeof(buf), "joption.txt#%s", option_info[opt[k]].o_text);
+#else
+				strnfmt(buf, sizeof(buf), "option.txt#%s", option_info[opt[k]].o_text);
+#endif
+				/* Peruse the help file */
+				(void)show_file(TRUE, buf, NULL, 0, 0);
+
+				Term_clear(); 
 				break;
 			}
 
@@ -2048,6 +2092,19 @@ static void do_cmd_options_win(void)
 				break;
 			}
 
+			case '?':
+			{
+#ifdef JP
+				(void)show_file(TRUE, "joption.txt#Window", NULL, 0, 0);
+#else
+				(void)show_file(TRUE, "option.txt#Window", NULL, 0, 0);
+#endif
+
+
+				Term_clear(); 
+				break;
+			}
+
 			default:
 			{
 				d = get_keymap_dir(ch);
@@ -2102,7 +2159,6 @@ void do_cmd_options(void)
 	/* Save the screen */
 	screen_save();
 
-
 	/* Interact */
 	while (1)
 	{
@@ -2131,9 +2187,7 @@ void do_cmd_options(void)
 		prt("(H) 低ヒットポイント警告", 13, 5);
 		prt("(A)    自動セーブ         オプション", 14, 5);
 		/* Window flags */
-		prt("(W) ウインドウフラグ", 15, 5);
-		/* Cheating */
-		prt("(C)       詐欺            オプション", 16, 5);
+		prt("(W) ウィンドウフラグ", 15, 5);
 #else
 		prt("(1) Input Options", 4, 5);
 		prt("(2) Output Options", 5, 5);
@@ -2151,10 +2205,17 @@ void do_cmd_options(void)
 
 		/* Window flags */
 		prt("(W) Window Flags", 15, 5);
-
-		/* Cheating */
-		prt("(C) Cheating Options", 16, 5);
 #endif
+
+		if (p_ptr->noscore || allow_debug_opts)
+		{
+			/* Cheating */
+#ifdef JP
+			prt("(C)       詐欺            オプション", 16, 5);
+#else
+			prt("(C) Cheating Options", 16, 5);
+#endif
+		}
 
 
 		/* Prompt */
@@ -2239,34 +2300,41 @@ void do_cmd_options(void)
 				break;
 			}
 
-                        /* Object auto-destruction Options */
-                        case '6':
-                        {
-                                /* Spawn */
+			/* Object auto-destruction Options */
+			case '6':
+			{
+				/* Spawn */
 #ifdef JP
-                                do_cmd_options_aux(7, "簡易アイテム自動破壊オプション");
+				do_cmd_options_aux(7, "簡易アイテム自動破壊オプション");
 #else
-                                do_cmd_options_aux(7, "Easy Auto-Destroyer Options");
+				do_cmd_options_aux(7, "Easy Auto-Destroyer Options");
 #endif
-                                break;
-                        }
+				break;
+			}
 
-                        /* Play-record Options */
-                        case 'R':
-                        case 'r':
-                        {
-                                /* Spawn */
+			/* Play-record Options */
+			case 'R':
+			case 'r':
+			{
+				/* Spawn */
 #ifdef JP
-                                do_cmd_options_aux(10, "プレイ記録オプション");
+				do_cmd_options_aux(10, "プレイ記録オプション");
 #else
-                                do_cmd_options_aux(10, "Play-record Option");
+				do_cmd_options_aux(10, "Play-record Option");
 #endif
-                                break;
-                        }
+				break;
+			}
 
 			/* Cheating Options */
 			case 'C':
 			{
+				if (!p_ptr->noscore && !allow_debug_opts)
+				{
+					/* Cheat options are not permitted */
+					bell();
+					break;
+				}
+
 				/* Spawn */
 #ifdef JP
 				do_cmd_options_cheat("詐欺師は決して勝利できない！");
@@ -2320,11 +2388,12 @@ void do_cmd_options(void)
 					int msec = delay_factor * delay_factor * delay_factor;
 #ifdef JP
 					prt(format("現在のウェイト: %d (%dミリ秒)",
+					           delay_factor, msec), 22, 0);
 #else
 					prt(format("Current base delay factor: %d (%d msec)",
+					           delay_factor, msec), 22, 0);
 #endif
 
-					           delay_factor, msec), 22, 0);
 #ifdef JP
 					prt("ウェイト (0-9) ESCで決定: ", 20, 0);
 #else
@@ -2333,7 +2402,16 @@ void do_cmd_options(void)
 
 					k = inkey();
 					if (k == ESCAPE) break;
-					if (isdigit(k)) delay_factor = D2I(k);
+					else if (k == '?')
+					{
+#ifdef JP
+						(void)show_file(TRUE, "joption.txt#BaseDelay", NULL, 0, 0);
+#else
+						(void)show_file(TRUE, "option.txt#BaseDelay", NULL, 0, 0);
+#endif
+						Term_clear(); 
+					}
+					else if (isdigit(k)) delay_factor = D2I(k);
 					else bell();
 				}
 
@@ -2356,27 +2434,45 @@ void do_cmd_options(void)
 				while (1)
 				{
 #ifdef JP
-	    prt(format("現在の低ヒットポイント警告: %d0%%",
-		       hitpoint_warn), 22, 0);
+					prt(format("現在の低ヒットポイント警告: %d0%%",
+					           hitpoint_warn), 22, 0);
 #else
 					prt(format("Current hitpoint warning: %d0%%",
 					           hitpoint_warn), 22, 0);
 #endif
 
 #ifdef JP
-			prt("低ヒットポイント警告 (0-9) ESCで決定: ", 20, 0);
+					prt("低ヒットポイント警告 (0-9) ESCで決定: ", 20, 0);
 #else
 					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
 #endif
 
 					k = inkey();
 					if (k == ESCAPE) break;
-					if (isdigit(k)) hitpoint_warn = D2I(k);
+					else if (k == '?')
+					{
+#ifdef JP
+						(void)show_file(TRUE, "joption.txt#Hitpoint", NULL, 0, 0);
+#else
+						(void)show_file(TRUE, "option.txt#Hitpoint", NULL, 0, 0);
+#endif
+						Term_clear(); 
+					}
+					else if (isdigit(k)) hitpoint_warn = D2I(k);
 					else bell();
 				}
 
 				break;
 			}
+
+			case '?':
+#ifdef JP
+				(void)show_file(TRUE, "joption.txt", NULL, 0, 0);
+#else
+				(void)show_file(TRUE, "option.txt", NULL, 0, 0);
+#endif
+				Term_clear(); 
+				break;
 
 			/* Unknown option */
 			default:
@@ -2501,7 +2597,7 @@ static errr macro_dump(cptr fname)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2666,7 +2762,7 @@ static errr keymap_dump(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2794,15 +2890,15 @@ void do_cmd_macros(void)
 
 #ifdef ALLOW_MACROS
 #ifdef JP
-                prt("(2) ファイルにマクロを追加", 5, 5);
-                prt("(3) マクロの確認", 6, 5);
-                prt("(4) マクロの作成", 7, 5);
-                prt("(5) マクロの削除", 8, 5);
-                prt("(6) ファイルにキー配置を追加", 9, 5);
-                prt("(7) キー配置の確認", 10, 5);
-                prt("(8) キー配置の作成", 11, 5);
-                prt("(9) キー配置の削除", 12, 5);
-                prt("(0) マクロ行動の入力", 13, 5);
+		prt("(2) ファイルにマクロを追加", 5, 5);
+		prt("(3) マクロの確認", 6, 5);
+		prt("(4) マクロの作成", 7, 5);
+		prt("(5) マクロの削除", 8, 5);
+		prt("(6) ファイルにキー配置を追加", 9, 5);
+		prt("(7) キー配置の確認", 10, 5);
+		prt("(8) キー配置の作成", 11, 5);
+		prt("(9) キー配置の削除", 12, 5);
+		prt("(0) マクロ行動の入力", 13, 5);
 #else
 		prt("(2) Append macros to a file", 5, 5);
 		prt("(3) Query a macro", 6, 5);
@@ -3349,6 +3445,9 @@ void do_cmd_visuals(void)
 
 	char buf[1024];
 
+	const char *empty_symbol = "<< ? >>";
+
+	if (use_bigtile) empty_symbol = "<< ?? >>";
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -3482,7 +3581,7 @@ void do_cmd_visuals(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -3497,7 +3596,7 @@ void do_cmd_visuals(void)
 			line_num += 3;
 
 			/* Dump monsters */
-			for (i = 0; i < max_r_idx; i++)
+			for (i = 1; i < (max_r_idx + runeweapon_num); i++)
 			{
 				monster_race *r_ptr = &r_info[i];
 
@@ -3509,7 +3608,7 @@ void do_cmd_visuals(void)
 				line_num++;
 
 				/* Dump the monster attr/char info */
-				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
+				fprintf(fff, "R:%d:0x%02X/0x%02X\n\n", i,
 				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
 				line_num += 2;
 			}
@@ -3555,7 +3654,7 @@ void do_cmd_visuals(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -3570,19 +3669,26 @@ void do_cmd_visuals(void)
 			line_num += 3;
 
 			/* Dump objects */
-			for (i = 0; i < max_k_idx; i++)
+			for (i = 1; i < max_k_idx; i++)
 			{
+				char o_name[80];
 				object_kind *k_ptr = &k_info[i];
 
 				/* Skip non-entries */
 				if (!k_ptr->name) continue;
 
+				/* Skip entries with flavor */
+				if (k_ptr->flavor) continue;
+
+				/* Tidy name */
+				strip_name(o_name, i);
+
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (k_name + k_ptr->name));
+				fprintf(fff, "# %s\n", o_name);
 				line_num++;
 
 				/* Dump the object attr/char info */
-				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
+				fprintf(fff, "K:%d:0x%02X/0x%02X\n\n", i,
 				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
 				line_num += 2;
 			}
@@ -3628,7 +3734,7 @@ void do_cmd_visuals(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -3643,19 +3749,22 @@ void do_cmd_visuals(void)
 			line_num += 3;
 
 			/* Dump features */
-			for (i = 0; i < max_f_idx; i++)
+			for (i = 1; i < max_f_idx; i++)
 			{
 				feature_type *f_ptr = &f_info[i];
 
 				/* Skip non-entries */
 				if (!f_ptr->name) continue;
 
+				/* Skip mimiccing features */
+				if (f_ptr->mimic != i) continue;
+
 				/* Dump a comment */
 				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
 				line_num++;
 
 				/* Dump the feature attr/char info */
-				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
+				fprintf(fff, "F:%d:0x%02X/0x%02X\n\n", i,
 				        (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
 				line_num += 2;
 			}
@@ -3689,7 +3798,8 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				monster_race *r_ptr = &r_info[r];
-				char c;
+				byte a, a2;
+				char c, c2;
 				int t;
 
 				byte da = (r_ptr->d_attr);
@@ -3718,15 +3828,15 @@ void do_cmd_visuals(void)
 				            format("Default attr/char = %3u / %3u", da, dc));
 #endif
 
-				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-				Term_putch(43, 19, da, dc);
-				if (use_bigtile)
-				{
-					if (da & 0x80)
-						Term_putch(44, 19, 255, -1);
-					else
-						Term_putch(44, 19, 0, ' ');
-				}
+				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
+
+				a = da;
+				c = dc;
+				if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+				Term_putch(43, 19, a, c);
+				if (use_bigtile) Term_putch(43 + 1, 19, a2, c2);
+
 
 				/* Label the Current values */
 #ifdef JP
@@ -3737,15 +3847,15 @@ void do_cmd_visuals(void)
 				            format("Current attr/char = %3u / %3u", ca, cc));
 #endif
 
-				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-				Term_putch(43, 20, ca, cc);
-				if (use_bigtile)
-				{
-					if (ca & 0x80)
-						Term_putch(44, 20, 255, -1);
-					else
-						Term_putch(44, 20, 0, ' ');
-				}
+				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
+
+				a = ca;
+				c = cc;
+				if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+				Term_putch(43, 20, a, c);
+				if (use_bigtile) Term_putch(43 + 1, 20, a2, c2);
+
 
 				/* Prompt */
 #ifdef JP
@@ -3769,7 +3879,7 @@ void do_cmd_visuals(void)
 				switch (c)
 				{
 				case 'n':
-					cmd_visuals_aux(i, &r, max_r_idx);
+					cmd_visuals_aux(i, &r, max_r_idx + runeweapon_num);
 					break;
 				case 'a':
 					t = (int)r_ptr->x_attr;
@@ -3802,7 +3912,8 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				object_kind *k_ptr = &k_info[k];
-				char c;
+				byte a, a2;
+				char c, c2;
 				int t;
 
 				byte da = (byte)k_ptr->d_attr;
@@ -3831,15 +3942,14 @@ void do_cmd_visuals(void)
 				            format("Default attr/char = %3d / %3d", da, dc));
 #endif
 
-				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-				Term_putch(43, 19, da, dc);
-				if (use_bigtile)
-				{
-					if (da & 0x80)
-						Term_putch(44, 19, 255, -1);
-					else
-						Term_putch(44, 19, 0, ' ');
-				}
+				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
+				a = da;
+				c = dc;
+				if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+				Term_putch(43, 19, a, c);
+				if (use_bigtile) Term_putch(43 + 1, 19, a2, c2);
+
 
 				/* Label the Current values */
 #ifdef JP
@@ -3850,15 +3960,14 @@ void do_cmd_visuals(void)
 				            format("Current attr/char = %3d / %3d", ca, cc));
 #endif
 
-				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-				Term_putch(43, 20, ca, cc);
-				if (use_bigtile)
-				{
-					if (ca & 0x80)
-						Term_putch(44, 20, 255, -1);
-					else
-						Term_putch(44, 20, 0, ' ');
-				}
+				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
+				a = ca;
+				c = cc;
+				if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+				Term_putch(43, 20, a, c);
+				if (use_bigtile) Term_putch(43 + 1, 20, a2, c2);
+
 
 				/* Prompt */
 #ifdef JP
@@ -3915,7 +4024,8 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				feature_type *f_ptr = &f_info[f];
-				char c;
+				byte a, a2;
+				char c, c2;
 				int t;
 
 				byte da = (byte)f_ptr->d_attr;
@@ -3944,15 +4054,14 @@ void do_cmd_visuals(void)
 				            format("Default attr/char = %3d / %3d", da, dc));
 #endif
 
-				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-				Term_putch(43, 19, da, dc);
-				if (use_bigtile)
-				{
-					if (da & 0x80)
-						Term_putch(44, 19, 255, -1);
-					else
-						Term_putch(44, 19, 0, ' ');
-				}
+				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
+				a = da;
+				c = dc;
+				if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+				Term_putch(43, 19, a, c);
+				if (use_bigtile) Term_putch(43 + 1, 19, a2, c2);
+
 
 				/* Label the Current values */
 #ifdef JP
@@ -3963,15 +4072,14 @@ void do_cmd_visuals(void)
 				            format("Current attr/char = %3d / %3d", ca, cc));
 #endif
 
-				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-				Term_putch(43, 20, ca, cc);
-				if (use_bigtile)
-				{
-					if (ca & 0x80)
-						Term_putch(44, 20, 255, -1);
-					else
-						Term_putch(44, 20, 0, ' ');
-				}
+				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
+				a = ca;
+				c = cc;
+				if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+				Term_putch(43, 20, a, c);
+				if (use_bigtile) Term_putch(43 + 1, 20, a2, c2);
+
 
 				/* Prompt */
 #ifdef JP
@@ -4089,8 +4197,8 @@ void do_cmd_colors(void)
 
 #ifdef ALLOW_COLORS
 #ifdef JP
-                prt("(2) カラーの設定をファイルに書き出す", 5, 5);
-                prt("(3) カラーの設定を変更する", 6, 5);
+		prt("(2) カラーの設定をファイルに書き出す", 5, 5);
+		prt("(3) カラーの設定を変更する", 6, 5);
 #else
 		prt("(2) Dump colors", 5, 5);
 		prt("(3) Modify colors", 6, 5);
@@ -4178,7 +4286,7 @@ void do_cmd_colors(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -4387,14 +4495,13 @@ void do_cmd_note(void)
  */
 void do_cmd_version(void)
 {
-
 	/* Silly message */
 #ifdef JP
-	msg_format("変愚蛮怒(Hengband) %d.%d.%d",
-	            FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	msg_format("TOband %d.%d.%d",
+	            T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 #else
-	msg_format("You are playing Hengband %d.%d.%d.",
-	            FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	msg_format("You are playing TOband %d.%d.%d.",
+	            T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 #endif
 }
 
@@ -4419,76 +4526,6 @@ static cptr do_cmd_feeling_text[11] =
 
 #ifdef JP
 	"恐ろしい死の幻が目に浮かび、気絶しそうになった！",
-#else
-	"You nearly faint as horrible visions of death fill your mind!",
-#endif
-
-#ifdef JP
-	"この階はとても危険なようだ。",
-#else
-	"This level looks very dangerous.",
-#endif
-
-#ifdef JP
-	"とても悪い予感がする...",
-#else
-	"You have a very bad feeling...",
-#endif
-
-#ifdef JP
-	"悪い予感がする...",
-#else
-	"You have a bad feeling...",
-#endif
-
-#ifdef JP
-	"何か緊張する。",
-#else
-	"You feel nervous.",
-#endif
-
-#ifdef JP
-	"少し不運な気がする...",
-#else
-	"You feel your luck is turning...",
-#endif
-
-#ifdef JP
-	"この場所は好きになれない。",
-#else
-	"You don't like the look of this place.",
-#endif
-
-#ifdef JP
-	"この階はそれなりに安全なようだ。",
-#else
-	"This level looks reasonably safe.",
-#endif
-
-#ifdef JP
-	"なんて退屈なところだ..."
-#else
-	"What a boring place..."
-#endif
-
-};
-
-static cptr do_cmd_feeling_text_combat[11] =
-{
-#ifdef JP
-	"この階の雰囲気を感じとれなかった...",
-#else
-	"Looks like any other level.",
-#endif
-
-#ifdef JP
-	"この階には何か特別なものがあるような気がする。",
-#else
-	"You feel there is something special about this level.",
-#endif
-
-#ifdef JP
-	"今夜もまた、誰かが命を落とす...",
 #else
 	"You nearly faint as horrible visions of death fill your mind!",
 #endif
@@ -4611,13 +4648,26 @@ void do_cmd_feeling(void)
 
 			return;
 		}
+		else if (town[p_ptr->town_num].ethnic != NO_ETHNICITY)
+		{
+			if (chaos_frame[(int)(town[p_ptr->town_num].ethnic)] >= CFRAME_GOOD_FEELING)
+			{
+				msg_print("この町の人々はあなたを歓迎しているようだ。");
+			}
+			else if (chaos_frame[(int)(town[p_ptr->town_num].ethnic)] > CFRAME_BAD_FEELING)
+			{
+				msg_print("この町の人々はあなたに対して無関心だ。");
+			}
+			else
+			{
+				msg_print("この町の人々はあなたに敵対心を抱いている。");
+			}
+
+			return;
+		}
 		else
 		{
-#ifdef JP
-			msg_print("典型的な町のようだ。");
-#else
-			msg_print("Looks like a typical town.");
-#endif
+			msg_print("この町の人々はあなたに対して無関心だ。");
 
 			return;
 		}
@@ -4636,24 +4686,851 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-        if (turn - old_turn >= (150 - dun_level)*TURNS_PER_TICK || cheat_xtra)
-        {
-                if (p_ptr->muta3 & MUT3_GOOD_LUCK) msg_print(do_cmd_feeling_text_lucky[feeling]);
-                else {
-					if((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON)){
-						msg_print(do_cmd_feeling_text_combat[feeling]);
-					}else
-						msg_print(do_cmd_feeling_text[feeling]);
-				}
-        }
-        else
-        {
-                msg_print(do_cmd_feeling_text[0]);
-        }
+	if (turn - old_turn >= (150 - dun_level)*TURNS_PER_TICK || cheat_xtra)
+	{
+		if (p_ptr->muta3 & MUT3_GOOD_LUCK) msg_print(do_cmd_feeling_text_lucky[feeling]);
+		else msg_print(do_cmd_feeling_text[feeling]);
+	}
+	else
+	{
+		msg_print(do_cmd_feeling_text[0]);
+	}
 }
 
 
 
+/*
+ * Description of each monster group.
+ */
+static cptr monster_group_text[] = 
+{
+#ifdef JP
+	"ユニーク",	/* "Uniques" */
+	"ウォルスタ",
+	"ガルガスタン",
+	"バクラム",
+	"ゼノビア",
+	"ローディス",
+	"アリ",
+	"コウモリ",
+	"ムカデ",
+	"ドラゴン",
+	"目玉",
+	"ネコ",
+	"ゴーレム",
+	"標準人間型生物",
+	"ベトベト",
+	"ゼリー",
+	"コボルド",
+	"水棲生物",
+	"モルド",
+	"ナーガ",
+	"オーク",
+	"人間",
+	"四足獣",
+	"ネズミ",
+	"スケルトン",
+	"デーモン",
+	"ボルテックス",
+	"イモムシ/大群",
+	/* "unused", */
+	"イーク",
+	"ゾンビ/ミイラ",
+	"天使",
+	"鳥",
+	"犬",
+	/* "古代ドラゴン/ワイアーム", */
+	"エレメンタル",
+	"有翼の亜人",
+	"ゴースト",
+	"雑種",
+	"昆虫",
+	"ヘビ",
+	"キラー・ビートル",
+	"リッチ",
+	"多首の爬虫類",
+	/* "unused", */
+	"オーガ",
+	"巨大人間型生物",
+	"クイルスルグ",
+	"爬虫類/両生類",
+	"蜘蛛/サソリ/ダニ",
+	"トロル",
+	/* "上級デーモン", */
+	"ヴァンパイア",
+	"ワイト/レイス/等",
+	"ゾーン/ザレン/等",
+	"イエティ",
+	"ハウンド",
+	"ミミック(物体)",
+	"ミミック(地形)",
+	"球体",
+	"おばけキノコ",
+#else
+	"Uniques",
+	"Walstanian",
+	"Gargastan",
+	"Bacrum",
+	"Zenobian",
+	"Lodis",
+	"Ant",
+	"Bat",
+	"Centipede",
+	"Dragon",
+	"Floating Eye",
+	"Feline",
+	"Golem",
+	"Hobbit/Elf/Dwarf",
+	"Icky Thing",
+	"Jelly",
+	"Kobold",
+	"Aquatic monster",
+	"Mold",
+	"Naga",
+	"Orc",
+	"Person/Human",
+	"Quadruped",
+	"Rodent",
+	"Skeleton",
+	"Demon",
+	"Vortex",
+	"Worm/Worm-Mass",
+	/* "unused", */
+	"Yeek",
+	"Zombie/Mummy",
+	"Angel",
+	"Bird",
+	"Canine",
+	/* "Ancient Dragon/Wyrm", */
+	"Elemental",
+	"Winged Demihuman",
+	"Ghost",
+	"Hybrid",
+	"Insect",
+	"Snake",
+	"Killer Beetle",
+	"Lich",
+	"Multi-Headed Reptile",
+	/* "unused", */
+	"Ogre",
+	"Giant Humanoid",
+	"Quylthulg",
+	"Reptile/Amphibian",
+	"Spider/Scorpion/Tick",
+	"Troll",
+	/* "Major Demon", */
+	"Vampire",
+	"Wight/Wraith/etc",
+	"Xorn/Xaren/etc",
+	"Yeti",
+	"Zephyr Hound",
+	"Mimic(Object)",
+	"Mimic(Feature)",
+	"Ball",
+	"Mushroom patch",
+#endif
+	NULL
+};
+
+
+/*
+ * Symbols of monsters in each group. Note the "Uniques" group
+ * is handled differently.
+ */
+static cptr monster_group_char[] = 
+{
+	(char *) -1L,
+	(char *) -2L,
+	(char *) -3L,
+	(char *) -4L,
+	(char *) -5L,
+	(char *) -6L,
+	"a",
+	"b",
+	"c",
+	"dD",
+	"e",
+	"f",
+	"g",
+	"h",
+	"i",
+	"j",
+	"k",
+	"l",
+	"m",
+	"n",
+	"o",
+	"pt",
+	"q",
+	"r",
+	"s",
+	"uU",
+	"v",
+	"w",
+	/* "x", */
+	"y",
+	"z",
+	"A",
+	"B",
+	"C",
+	/* "D", */
+	"E",
+	"F",
+	"G",
+	"H",
+	"I",
+	"J",
+	"K",
+	"L",
+	"M",
+	/* "N", */
+	"O",
+	"P",
+	"Q",
+	"R",
+	"S",
+	"T",
+	/* "U", */
+	"V",
+	"W",
+	"X",
+	"Y",
+	"Z",
+	"!$&(+/=?\\`|}",
+	"#%.>~",
+	"*",
+	",",
+	NULL
+};
+
+
+/*
+ * hook function to sort monsters by level
+ */
+static bool ang_sort_comp_monster_level(vptr u, vptr v, int a, int b)
+{
+	u16b *who = (u16b*)(u);
+
+	int w1 = who[a];
+	int w2 = who[b];
+
+	monster_race *r_ptr1 = &r_info[w1];
+	monster_race *r_ptr2 = &r_info[w2];
+
+	if (r_ptr2->level > r_ptr1->level) return TRUE;
+	if (r_ptr1->level > r_ptr2->level) return FALSE;
+
+	if ((r_ptr2->flags1 & RF1_UNIQUE) && !(r_ptr1->flags1 & RF1_UNIQUE)) return TRUE;
+	if ((r_ptr1->flags1 & RF1_UNIQUE) && !(r_ptr2->flags1 & RF1_UNIQUE)) return FALSE;
+	return w1 <= w2;
+}
+
+#define GROUP_TYPE_NONE       0
+#define GROUP_TYPE_UNIQUE     1
+#define GROUP_TYPE_WALSTANIAN 2
+#define GROUP_TYPE_GARGASTAN  3
+#define GROUP_TYPE_BACRUM     4
+#define GROUP_TYPE_ZENOBIAN   5
+#define GROUP_TYPE_LODIS      6
+
+/*
+ * Build a list of monster indexes in the given group. Return the number
+ * of monsters in the group.
+ *
+ * mode & 0x01 : check for non-empty group
+ * mode & 0x02 : cheat?
+ */
+static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
+{
+	int i, mon_cnt = 0;
+	int dummy_why;
+
+	/* Get a list of x_char in this group */
+	cptr group_char = monster_group_char[grp_cur];
+
+	/* XXX Hack -- Check if this is the "Uniques" group */
+	int group_type = GROUP_TYPE_NONE;
+
+	if (group_char == (cptr)-1L) group_type = GROUP_TYPE_UNIQUE;
+	else if (group_char == (cptr)-2L) group_type = GROUP_TYPE_WALSTANIAN;
+	else if (group_char == (cptr)-3L) group_type = GROUP_TYPE_GARGASTAN;
+	else if (group_char == (cptr)-4L) group_type = GROUP_TYPE_BACRUM;
+	else if (group_char == (cptr)-5L) group_type = GROUP_TYPE_ZENOBIAN;
+	else if (group_char == (cptr)-6L) group_type = GROUP_TYPE_LODIS;
+
+	/* Check every race */
+	for (i = 0; i < (max_r_idx + runeweapon_num); i++)
+	{
+		/* Access the race */
+		monster_race *r_ptr = &r_info[i];
+
+		/* Skip empty race */
+		if (!r_ptr->name) continue;
+
+		/* Require known monsters */
+		if (!(mode & 0x02) && !cheat_know && !r_ptr->r_sights) continue;
+
+		switch (group_type)
+		{
+		case GROUP_TYPE_UNIQUE:
+			if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+			break;
+		case GROUP_TYPE_WALSTANIAN:
+			if (!(r_ptr->flags2 & RF2_WALSTANIAN)) continue;
+			break;
+		case GROUP_TYPE_GARGASTAN:
+			if (!(r_ptr->flags2 & RF2_GARGASTAN)) continue;
+			break;
+		case GROUP_TYPE_BACRUM:
+			if (!(r_ptr->flags2 & RF2_BACRUM)) continue;
+			break;
+		case GROUP_TYPE_ZENOBIAN:
+			if (!(r_ptr->flags2 & RF2_ZENOBIAN)) continue;
+			break;
+		case GROUP_TYPE_LODIS:
+			if (!(r_ptr->flags2 & RF2_LODIS)) continue;
+			break;
+		}
+
+		/* Check for race in the group */
+		if ((group_type != GROUP_TYPE_NONE) || strchr(group_char, r_ptr->d_char))
+		{
+			/* Add the race */
+			mon_idx[mon_cnt++] = i;
+
+			/* XXX Hack -- Just checking for non-empty group */
+			if (mode & 0x01) break;
+		}
+	}
+
+	/* Terminate the list */
+	mon_idx[mon_cnt] = 0;
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_monster_level;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort by monster level */
+	ang_sort(mon_idx, &dummy_why, mon_cnt);
+
+	/* Return the number of races */
+	return mon_cnt;
+}
+
+
+/*
+ * Description of each monster group.
+ */
+static cptr object_group_text[] =
+{
+#ifdef JP
+	"食料",	/* "Foods" */
+	"薬",		/* "Potions" */
+	"油つぼ",	/* "Flasks" */
+	"巻物",		/* "Scrolls" */
+	"指輪",		/* "Rings" */
+	"アミュレット",	/* "Amulets" */
+	"石",
+	"光源",		/* "Lanterns" */
+	"魔法棒",	/* "Wands" */
+	"杖",		/* "Staffs" */
+	"ロッド",	/* "Rods" */
+	"カード",	/* "Cards" */
+	"タロットカード",
+	"スピードくじ",
+	"くさび",
+	"箱",
+	"人形",
+	"像",
+	"ゴミ",
+	"空のビン",
+	"骨",
+	"小剣・突剣",
+	"カタナ",
+	"剣",
+	"大剣",
+	"斧",
+	"槍",
+	"乗馬槍",
+	"爪",
+	"鎌",
+	"鞭",
+	"ハンマー",
+	"杖",
+	"扇",
+	"ヌンチャク",
+	"弓",
+	"銃",
+	"掘削道具",
+	"通常弾",
+	"ライフル弾",
+	"散弾",
+	"ロケット弾",
+	"矢",
+	"ボルト",
+	"軽装鎧",	/* "Soft Armor" */
+	"重装鎧",	/* "Hard Armor" */
+	"ドラゴン鎧",	/* "Dragon Armor" */
+	"盾",	/* "Shields" */
+	"クローク",	/* "Cloaks" */
+	"籠手",	/* "Gloves" */
+	"ヘルメット",	/* "Helms" */
+	"冠",	/* "Crowns" */
+	"ブーツ",	/* "Boots" */
+	"魔法書",
+#else
+	"Foods",
+	"Potions",
+	"Flasks",
+	"Scrolls",
+	"Rings",
+	"Amulets",
+	"Stones",
+	"Lanterns",
+	"Wands",
+	"Staves",
+	"Rods",
+	"Cards",
+	"Tarot Cards",
+	"Scratch Cards",
+	"Spikes",
+	"Boxs",
+	"Figurines",
+	"Statues",
+	"Junks",
+	"Bottles",
+	"Skeletons",
+	"Small Swords",
+	"Katanas",
+	"Swords",
+	"Great Swords",
+	"Axes",
+	"Spears",
+	"Lances",
+	"Claws",
+	"Scythes",
+	"Whips",
+	"Hammers",
+	"Staffs",
+	"Fans",
+	"Nunchakus",
+	"Bows",
+	"Guns",
+	"Diggers",
+	"Bullets",
+	"Rifle Rounds",
+	"Shot Shells",
+	"Rockets",
+	"Arrows",
+	"Bolts",
+	"Soft Armor",
+	"Hard Armor",
+	"Dragon Armor",
+	"Shields",
+	"Cloaks",
+	"Gloves",
+	"Helms",
+	"Crowns",
+	"Boots",
+	"Spellbooks",
+#endif
+	NULL
+};
+
+
+/*
+ * TVALs of items in each group
+ */
+static byte object_group_tval[] =
+{
+	TV_FOOD,
+	TV_POTION,
+	TV_FLASK,
+	TV_SCROLL,
+	TV_RING,
+	TV_AMULET,
+	TV_STONE,
+	TV_LITE,
+	TV_WAND,
+	TV_STAFF,
+	TV_ROD,
+	TV_CARD,
+	TV_TAROT,
+	TV_SCRATCH_CARD,
+	TV_SPIKE,
+	TV_CHEST,
+	TV_FIGURINE,
+	TV_STATUE,
+	TV_JUNK,
+	TV_BOTTLE,
+	TV_SKELETON,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	TV_BULLET,
+	TV_ROUND,
+	TV_SHELL,
+	TV_ROCKET,
+	TV_ARROW,
+	TV_BOLT,
+	TV_SOFT_ARMOR,
+	TV_HARD_ARMOR,
+	TV_DRAG_ARMOR,
+	TV_SHIELD,
+	TV_CLOAK,
+	TV_GLOVES,
+	TV_HELM,
+	TV_CROWN,
+	TV_BOOTS,
+	TV_MAGERY_BOOK, /* Hack -- all spellbooks */
+	0
+};
+
+
+/*
+ * WTs of items in each group
+ */
+static byte object_group_wt[] =
+{
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	WT_SMALL_SWORD,
+	WT_KATANA,
+	WT_SWORD,
+	WT_GREAT_SWORD,
+	WT_AXE,
+	WT_SPEAR,
+	WT_LANCE,
+	WT_CLAW,
+	WT_SCYTHE,
+	WT_WHIP,
+	WT_HAMMER,
+	WT_STAFF,
+	WT_FAN,
+	WT_NUNCHAKU,
+	WT_BOW,
+	WT_GUN,
+	WT_DIGGING,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
+
+/*
+ * Build a list of monster indexes in the given group. Return the number
+ * of monsters in the group.
+ */
+static int collect_objects(int grp_cur, int object_idx[])
+{
+	int i, j, k, object_cnt = 0;
+
+	/* Get a list of x_char in this group */
+	byte group_tval = object_group_tval[grp_cur];
+	byte group_wt = object_group_wt[grp_cur];
+
+	/* Check every object */
+	for (i = 0; i < max_k_idx; i++)
+	{
+		/* Access the object */
+		object_kind *k_ptr = &k_info[i];
+
+		/* Skip empty objects */
+		if (!k_ptr->name) continue;
+
+		/* Skip non-flavoured objects */
+		if (!k_ptr->flavor && !p_ptr->wizard) continue;
+
+		/* Skip items with no distribution (special artifacts) */
+		for (j = 0, k = 0; j < 4; j++) k += k_ptr->chance[j];
+		if (!(k))  continue; 
+
+		/* Require objects ever seen*/
+		if (!k_ptr->aware && !p_ptr->wizard) continue;
+
+		if (group_tval)
+		{
+			/* Check for object in the group */
+			if (TV_MAGERY_BOOK == group_tval)
+			{
+				/* Hack -- All spell books */
+				if (TV_MAGERY_BOOK <= k_ptr->tval && k_ptr->tval <= TV_CRUSADE_BOOK)
+				{
+					/* Add the object */
+					object_idx[object_cnt++] = i;
+				}
+			}
+			else if (k_ptr->tval == group_tval)
+			{
+				/* Add the object */
+				object_idx[object_cnt++] = i;
+			}
+		}
+		else if (group_wt)
+		{
+			if (get_weapon_type(k_ptr) == group_wt)
+			{
+				/* Add the object */
+				object_idx[object_cnt++] = i;
+			}
+		}
+	}
+
+	/* Terminate the list */
+	object_idx[object_cnt] = 0;
+
+	/* Return the number of objects */
+	return object_cnt;
+}
+
+
+/*
+ * Description of each feature group.
+ */
+static cptr feature_group_text[] = 
+{
+	"terrains",
+	NULL
+};
+
+
+/*
+ * Build a list of feature indexes in the given group. Return the number
+ * of features in the group.
+ */
+static int collect_features(int *feat_idx)
+{
+	int i, feat_cnt = 0;
+
+	/* Check every feature */
+	for (i = 1; i < max_f_idx; i++)
+	{
+		/* Access the index */
+		feature_type *f_ptr = &f_info[i];
+
+		/* Skip empty index */
+		if (!f_ptr->name) continue;
+
+		/* Skip mimiccing features */
+		if (f_ptr->mimic != i) continue;
+
+		/* Add the index */
+		feat_idx[feat_cnt++] = i;
+	}
+
+	/* Terminate the list */
+	feat_idx[feat_cnt] = 0;
+
+	/* Return the number of races */
+	return feat_cnt;
+}
+
+
+static bool *artifact_okay = NULL;
+static bool *artifact_desc_okay = NULL;
+
+
+#define runeweapon_a_idx_from(specific) (max_a_idx + (specific) - 1)
+#define runeweapon_list_idx_from(a_idx) ((a_idx) - max_a_idx + 1)
+
+
+/*
+ * Sorting hook -- Comp function -- see below
+ *
+ * We use "u" to point to array of artifact indexes,
+ * and "v" to select the type of sorting to perform on "u".
+ */
+static bool ang_sort_art_comp(vptr u, vptr v, int a, int b)
+{
+	int *artifact_idx = (int *)(u);
+
+	int w1 = artifact_idx[a];
+	int w2 = artifact_idx[b];
+
+	int z1, z2;
+
+
+	/* Sort by tvals */
+	/* Extract tvals */
+	z1 = (w1 < max_a_idx) ? a_info[w1].tval : runeweapon_list[runeweapon_list_idx_from(w1)].weapon.tval;
+	z2 = (w2 < max_a_idx) ? a_info[w2].tval : runeweapon_list[runeweapon_list_idx_from(w2)].weapon.tval;
+
+	/* Compare tvals */
+	if (z1 < z2) return TRUE;
+	if (z1 > z2) return FALSE;
+
+
+	/* Sort by svals */
+	/* Extract svals */
+	z1 = (w1 < max_a_idx) ? a_info[w1].sval : runeweapon_list[runeweapon_list_idx_from(w1)].weapon.sval;
+	z2 = (w2 < max_a_idx) ? a_info[w2].sval : runeweapon_list[runeweapon_list_idx_from(w2)].weapon.sval;
+
+	/* Compare svals */
+	if (z1 < z2) return TRUE;
+	if (z1 > z2) return FALSE;
+
+
+	/* Sort by artifact level */
+	/* Extract artifact levels */
+	z1 = (w1 < max_a_idx) ? a_info[w1].level : k_info[runeweapon_list[runeweapon_list_idx_from(w1)].weapon.k_idx].level;
+	z2 = (w2 < max_a_idx) ? a_info[w2].level : k_info[runeweapon_list[runeweapon_list_idx_from(w2)].weapon.k_idx].level;
+
+	/* Compare artifact level */
+	if (z1 < z2) return TRUE;
+	if (z1 > z2) return FALSE;
+
+
+	/* Compare indexes */
+	return w1 <= w2;
+}
+
+
+/*
+ * Sorting hook -- Swap function -- see below
+ *
+ * We use "u" to point to array of artifact indexes,
+ * and "v" to select the type of sorting to perform.
+ */
+static void ang_sort_art_swap(vptr u, vptr v, int a, int b)
+{
+	int *artifact_idx = (int *)(u);
+
+	int holder;
+
+	/* Swap */
+	holder = artifact_idx[a];
+	artifact_idx[a] = artifact_idx[b];
+	artifact_idx[b] = holder;
+}
+
+
+/*
+ * Build a list of monster indexes in the given group. Return the number
+ * of monsters in the group.
+ */
+static int collect_artifacts(int grp_cur, int artifact_idx[])
+{
+	int i, artifact_cnt = 0;
+	int dummy_why;
+
+	/* Get a list of x_char in this group */
+	byte group_tval = object_group_tval[grp_cur];
+	byte group_wt = object_group_wt[grp_cur];
+
+	/* Check every artifact */
+	for (i = 0; i < max_a_idx + runeweapon_num; i++)
+	{
+		byte tval, sval;
+
+		if (p_ptr->wizard)
+		{
+			if (i < max_a_idx)
+			{
+				artifact_type *a_ptr = &a_info[i];
+				if (!a_ptr->name) continue;
+				if (!lookup_kind(a_ptr->tval, a_ptr->sval)) continue;
+			}
+			else
+			{
+				runeweapon_type *runeweapon = &runeweapon_list[runeweapon_list_idx_from(i)];
+				if (!lookup_kind(runeweapon->weapon.tval, runeweapon->weapon.sval)) continue;
+			}
+		}
+		else
+		{
+			if (!artifact_okay[i]) continue;
+		}
+
+		if (i < max_a_idx)
+		{
+			tval = a_info[i].tval;
+			sval = a_info[i].sval;
+		}
+		else
+		{
+			tval = runeweapon_list[runeweapon_list_idx_from(i)].weapon.tval;
+			sval = runeweapon_list[runeweapon_list_idx_from(i)].weapon.sval;
+		}
+
+		/* Check for artifact in the group */
+		if (group_tval)
+		{
+			if (tval == group_tval)
+			{
+				/* Add the artifact */
+				artifact_idx[artifact_cnt++] = i;
+			}
+		}
+		else if (group_wt)
+		{
+			if (get_weapon_type(&k_info[lookup_kind(tval, sval)]) == group_wt)
+			{
+				/* Add the artifact */
+				artifact_idx[artifact_cnt++] = i;
+			}
+		}
+	}
+
+	/* Terminate the list */
+	artifact_idx[artifact_cnt] = 0;
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_art_comp;
+	ang_sort_swap = ang_sort_art_swap;
+
+	/* Sort the array by tvals, svals, levels */
+	ang_sort(artifact_idx, &dummy_why, artifact_cnt);
+
+	/* Return the number of artifacts */
+	return artifact_cnt;
+}
 
 
 /*
@@ -4671,7 +5548,7 @@ static errr photo_fgets(FILE *fff, char *buf, huge n)
 	char tmp[1024];
 
 	/* Read a line */
-	if (fgets(tmp, 1024, fff))
+	if (fgets(tmp, sizeof(tmp), fff))
 	{
 		/* Convert weirdness */
 		for (s = tmp; *s; s++)
@@ -4759,7 +5636,7 @@ void do_cmd_load_screen(void)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
 
 	/* Append to the file */
 	fff = my_fopen(buf, "r");
@@ -4787,7 +5664,7 @@ void do_cmd_load_screen(void)
 	for (y = 0; okay && (y < hgt); y++)
 	{
 		/* Get a line of data */
-		if (photo_fgets(fff, buf, 1024)) okay = FALSE;
+		if (photo_fgets(fff, buf, sizeof(buf))) okay = FALSE;
 
 		/* Show each row */
 		for (x = 0; x < wid - 1; x++)
@@ -4798,14 +5675,14 @@ void do_cmd_load_screen(void)
 	}
 
 	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+	if (my_fgets(fff, buf, sizeof(buf))) okay = FALSE;
 
 
 	/* Dump the screen */
 	for (y = 0; okay && (y < hgt); y++)
 	{
 		/* Get a line of data */
-		if (photo_fgets(fff, buf, 1024)) okay = FALSE;
+		if (photo_fgets(fff, buf, sizeof(buf))) okay = FALSE;
 
 		/* Dump each row */
 		for (x = 0; x < wid - 1; x++)
@@ -4827,7 +5704,7 @@ void do_cmd_load_screen(void)
 
 
 	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+	if (my_fgets(fff, buf, sizeof(buf))) okay = FALSE;
 
 
 	/* Close it */
@@ -4857,220 +5734,224 @@ void do_cmd_load_screen(void)
 
 cptr inven_res_label = 
 #ifdef JP
- "                               酸電火冷毒光闇破轟獄因沌劣 盲怖乱痺透命感消復浮";
+ "                               酸電火冷毒光闇破轟獄石沌劣 盲怖乱痺透命感消復浮";
 #else
- "                               AcElFiCoPoLiDkShSoNtNxCaDi BlFeCfFaSeHlEpSdRgLv";
+ "                               AcElFiCoPoLiDkShSoNtStCaDi BlFeCfFaSeHlEpSdRgLv";
 #endif
 
 /* XTRA HACK RESLIST */
 static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, 
 				       int *j, byte tval, char *where)
 {
-  char o_name[MAX_NLEN];
-  u32b    f[3];
+	char o_name[MAX_NLEN];
+	u32b flgs[TR_FLAG_SIZE];
 
-  if (!o_ptr->k_idx)return;
-  if (o_ptr->tval != tval)return;
+	if (!o_ptr->k_idx) return;
+	if (o_ptr->tval != tval) return;
 
-       /* 
-	* HACK:Ring of Lordly protection and Dragon shield/helm
-        * have random resistances.
-        */
-  if ( ((o_ptr->tval >= TV_BOW && o_ptr->tval<= TV_DRAG_ARMOR && o_ptr->name2)
-       || (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_LORDLY) 
-       || (o_ptr->tval == TV_SHIELD && o_ptr->sval == SV_DRAGON_SHIELD) 
-       || (o_ptr->tval == TV_HELM && o_ptr->sval == SV_DRAGON_HELM) 
-       || (o_ptr->tval == TV_GLOVES && o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) 
-       || (o_ptr->tval == TV_BOOTS && o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) 
-       || o_ptr->art_name || o_ptr->name1) && object_known_p(o_ptr))
-    {
-      int i = 0;
-      object_desc(o_name, o_ptr, TRUE, 0);
-
-      while ( o_name[i] && i < 26 ){
-#ifdef JP
-	if (iskanji(o_name[i])) i++;
-#endif
-	i++;
-      }
-      if(i<28) while(i<28){o_name[i]=' ';i++;}
-      o_name[i]=0;
-      
-      fprintf(fff,"%s %s", where, o_name);
-
-      if (!(o_ptr->ident & (IDENT_MENTAL))) 
+	/* 
+	 * HACK:Ring of Lordly protection and Dragon shield/helm
+	 * have random resistances.
+	 */
+	if ( ((o_ptr->tval >= TV_BOW && o_ptr->tval<= TV_DRAG_ARMOR && o_ptr->name2)
+	     || (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_LORDLY) 
+	     || (o_ptr->tval == TV_SHIELD && o_ptr->sval == SV_DRAGON_SHIELD) 
+	     || (o_ptr->tval == TV_HELM && o_ptr->sval == SV_DRAGON_HELM) 
+	     || (o_ptr->tval == TV_GLOVES && o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) 
+	     || (o_ptr->tval == TV_BOOTS && o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) 
+	     || o_ptr->art_name || o_ptr->name1) && object_known_p(o_ptr))
 	{
+		int i = 0;
+		object_desc(o_name, o_ptr, TRUE, 0);
+
+		while ( o_name[i] && i < 26 )
+		{
 #ifdef JP
-	  fprintf(fff, "-------不明--------------- -------不明---------\n");
-#else
-	  fprintf(fff, "-------unknown------------ -------unknown------\n");
+			if (iskanji(o_name[i])) i++;
 #endif
-	}
-      else {
-	object_flags_known(o_ptr, &f[0], &f[1], &f[2]);
-      
+			i++;
+		}
+		if (i < 28) while (i < 28) { o_name[i] = ' '; i++; }
+		o_name[i] = 0;
+
+		fprintf(fff,"%s %s", where, o_name);
+
+		if (!(o_ptr->ident & (IDENT_MENTAL)))
+		{
 #ifdef JP
-	if (f[1] & TR2_IM_ACID) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_ACID) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-
-	if (f[1] & TR2_IM_ELEC) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_ELEC) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-
-	if (f[1] & TR2_IM_FIRE) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_FIRE) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-
-	if (f[1] & TR2_IM_COLD) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_COLD) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_POIS) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_LITE) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_DARK) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_SHARDS) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_SOUND) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_NETHER) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_NEXUS) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_CHAOS) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_DISEN) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	fprintf(fff," ");
-	
-	if (f[1] & TR2_RES_BLIND) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_FEAR) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_RES_CONF) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_FREE_ACT) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[2] & TR3_SEE_INVIS) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-	
-	if (f[1] & TR2_HOLD_LIFE) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-
-	if (f[2] & TR3_TELEPATHY) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-
-	if (f[2] & TR3_SLOW_DIGEST) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-
-
-	if (f[2] & TR3_REGEN) fprintf(fff,"＋");
-	else fprintf(fff,"・");
-
-	if (f[2] & TR3_FEATHER) fprintf(fff,"＋");
-	else fprintf(fff,"・");
+			fprintf(fff, "-------不明--------------- -------不明---------\n");
 #else
-	if (f[1] & TR2_IM_ACID) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_ACID) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
+			fprintf(fff, "-------unknown------------ -------unknown------\n");
+#endif
+		}
+		else
+		{
+			object_flags_known(o_ptr, flgs);
 
-	if (f[1] & TR2_IM_ELEC) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_ELEC) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
+#ifdef JP
+			if (have_flag(flgs, TR_IM_ACID)) fprintf(fff,"＊");
+			else if (have_flag(flgs, TR_RES_ACID)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
 
-	if (f[1] & TR2_IM_FIRE) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_FIRE) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
+			if (have_flag(flgs, TR_IM_ELEC)) fprintf(fff,"＊");
+			else if (have_flag(flgs, TR_RES_ELEC)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
 
-	if (f[1] & TR2_IM_COLD) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_COLD) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_POIS) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_LITE) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_DARK) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_SHARDS) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_SOUND) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_NETHER) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_NEXUS) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_CHAOS) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_DISEN) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	fprintf(fff," ");
-	
-	if (f[1] & TR2_RES_BLIND) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_FEAR) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_RES_CONF) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_FREE_ACT) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[2] & TR3_SEE_INVIS) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-	
-	if (f[1] & TR2_HOLD_LIFE) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
+			if (have_flag(flgs, TR_IM_FIRE)) fprintf(fff,"＊");
+			else if (have_flag(flgs, TR_RES_FIRE)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
 
-	if (f[2] & TR3_TELEPATHY) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
+			if (have_flag(flgs, TR_IM_COLD)) fprintf(fff,"＊");
+			else if (have_flag(flgs, TR_RES_COLD)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
 
-	if (f[2] & TR3_SLOW_DIGEST) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
+			if (have_flag(flgs, TR_RES_POIS)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
 
+			if (have_flag(flgs, TR_RES_LITE)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
 
-	if (f[2] & TR3_REGEN) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
+			if (have_flag(flgs, TR_RES_DARK)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
 
-	if (f[2] & TR3_FEATHER) fprintf(fff,"+ ");
-	else fprintf(fff,". ");
-#endif	
-	fprintf(fff,"\n");
-      }
-      (*j)++;
-      if(*j==9)
-	{ 
-	  *j=0;
-	  fprintf(fff,"%s\n", inven_res_label);
+			if (have_flag(flgs, TR_RES_SHARDS)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_RES_SOUND)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_RES_NETHER)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_RES_STONE)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_RES_CHAOS)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_RES_DISEN)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			fprintf(fff," ");
+
+			if (have_flag(flgs, TR_RES_BLIND)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_RES_FEAR)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_RES_CONF)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_FREE_ACT)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_SEE_INVIS)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_HOLD_LIFE)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_TELEPATHY)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_SLOW_DIGEST)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_REGEN) && have_flag(flgs, TR_REGEN_MANA)) fprintf(fff,"＋");
+			else if (have_flag(flgs, TR_REGEN)) fprintf(fff,"Ｈ");
+			else if (have_flag(flgs, TR_REGEN_MANA)) fprintf(fff,"Ｍ");
+			else fprintf(fff,"・");
+
+			if (have_flag(flgs, TR_FEATHER)) fprintf(fff,"＋");
+			else fprintf(fff,"・");
+#else
+			if (have_flag(flgs, TR_IM_ACID)) fprintf(fff,"* ");
+			else if (have_flag(flgs, TR_RES_ACID)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_IM_ELEC)) fprintf(fff,"* ");
+			else if (have_flag(flgs, TR_RES_ELEC)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_IM_FIRE)) fprintf(fff,"* ");
+			else if (have_flag(flgs, TR_RES_FIRE)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_IM_COLD)) fprintf(fff,"* ");
+			else if (have_flag(flgs, TR_RES_COLD)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_POIS)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_LITE)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_DARK)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_SHARDS)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_SOUND)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_NETHER)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_STONE)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_CHAOS)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_DISEN)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			fprintf(fff," ");
+
+			if (have_flag(flgs, TR_RES_BLIND)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_FEAR)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_RES_CONF)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_FREE_ACT)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_SEE_INVIS)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_HOLD_LIFE)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_TELEPATHY)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_SLOW_DIGEST)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_REGEN) && have_flag(flgs, TR_REGEN_MANA)) fprintf(fff,"+ ");
+			else if (have_flag(flgs, TR_REGEN)) fprintf(fff,"H ");
+			else if (have_flag(flgs, TR_REGEN_MANA)) fprintf(fff,"M ");
+			else fprintf(fff,". ");
+
+			if (have_flag(flgs, TR_FEATHER)) fprintf(fff,"+ ");
+			else fprintf(fff,". ");
+#endif
+			fprintf(fff,"\n");
+		}
+		(*j)++;
+		if (*j == 9)
+		{
+			*j = 0;
+			fprintf(fff, "%s\n", inven_res_label);
+		}
 	}
-    }
 }
 
 /*
@@ -5088,70 +5969,71 @@ static void do_cmd_knowledge_inven(void)
 
 	byte tval;
 	int i=0;
-        int j=0;
+	int j=0;
 
 	char  where[32];
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporally file %s.", file_name);
+		msg_format("Failed to create temporally file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
 	fprintf(fff,"%s\n",inven_res_label);
 
-        for (tval=TV_BOW; tval <= TV_RING; tval++){
+	for (tval=TV_BOW; tval <= TV_RING; tval++)
+	{
+		if (j != 0)
+		{
+			for (; j < 9; j++) fprintf(fff, "\n");
+			j = 0;
+			fprintf(fff, "%s\n", inven_res_label);
+		}
 
-          if (j!=0) {
-              for (;j<9;j++) fprintf(fff, "\n");
-              j=0;
-	      fprintf(fff,"%s\n",inven_res_label);              
-	  }
-	  
 #ifdef JP
-	  strcpy(where, "装");
+		strcpy(where, "装");
 #else
-	  strcpy(where, "E ");
+		strcpy(where, "E ");
 #endif
-	  for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
-	    {
-	      o_ptr = &inventory[i];
-	      do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
-	    }
-	  
+		for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+		{
+			o_ptr = &inventory[i];
+			do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
+		}
+
 #ifdef JP
-	  strcpy(where, "持");
+		strcpy(where, "持");
 #else
-	  strcpy(where, "I ");
+		strcpy(where, "I ");
 #endif
-	  for (i = 0; i < INVEN_PACK; i++)
-	    {
-	      o_ptr = &inventory[i];
-	      do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
-	    }
-	  
-	  
-	  /* Print all homes in the different towns */
-	  st_ptr = &town[1].store[STORE_HOME];
+		for (i = 0; i < INVEN_PACK; i++)
+		{
+			o_ptr = &inventory[i];
+			do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
+		}
+
+		/* Print all homes in the different towns */
+		st_ptr = &town[1].store[STORE_HOME];
 #ifdef JP
-	  strcpy(where, "家");
+		strcpy(where, "家");
 #else
-	  strcpy(where, "H ");
+		strcpy(where, "H ");
 #endif
-	      
-	  /* Dump all available items */
-	  for (i = 0; i < st_ptr->stock_num; i++)
-	    {
-	      o_ptr = &st_ptr->stock[i];
-	      do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
-	    }
+
+		/* Dump all available items */
+		for (i = 0; i < st_ptr->stock_num; i++)
+		{
+			o_ptr = &st_ptr->stock[i];
+			do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
+		}
 	}
-	  
+
 	/* Close the file */
 	my_fclose(fff);
 
@@ -5207,16 +6089,18 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 	fff = my_fopen(filename, "w");
 
 	/* Oops */
-	if (!fff) {
-		if (message) {
+	if (!fff)
+	{
+		if (message)
+		{
 #ifdef JP
-		    msg_format("ファイル %s を開けませんでした。", filename);
+			msg_format("ファイル %s を開けませんでした。", filename);
 #else
-		    msg_format("Failed to open file %s.", filename);
+			msg_format("Failed to open file %s.", filename);
 #endif
-		    msg_print(NULL);
+			msg_print(NULL);
 		}
-		
+
 		return;
 	}
 
@@ -5225,7 +6109,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 		screen_save();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "htmldump.prf");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "htmldump.prf");
 	tmpfff = my_fopen(buf, "r");
 	if (!tmpfff) {
 		for (i = 0; html_head[i]; i++)
@@ -5233,7 +6117,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 	}
 	else {
 		yomikomu = 0;
-		while (!my_fgets(tmpfff, buf, 1024)) {
+		while (!my_fgets(tmpfff, buf, sizeof(buf))) {
 			if (!yomikomu) {
 				if (strncmp(buf, tags[0], strlen(tags[0])) == 0)
 					yomikomu = 1;
@@ -5296,7 +6180,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 	else {
 		rewind(tmpfff);
 		yomikomu = 0;
-		while (!my_fgets(tmpfff, buf, 1024)) {
+		while (!my_fgets(tmpfff, buf, sizeof(buf))) {
 			if (!yomikomu) {
 				if (strncmp(buf, tags[2], strlen(tags[2])) == 0)
 					yomikomu = 1;
@@ -5346,7 +6230,7 @@ static void do_cmd_save_screen_html(void)
 		return;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 	msg_print(NULL);
 
@@ -5371,10 +6255,8 @@ void (*screendump_aux)(void) = NULL;
  */
 void do_cmd_save_screen(void)
 {
-	bool old_use_graphics = use_graphics;
-	bool html_dump = FALSE;
-
 	int wid, hgt;
+	bool html_dump = FALSE;
 
 #ifdef JP
 	prt("記念撮影しますか？ [(y)es/(h)tml/(n)o] ", 0, 0);
@@ -5399,18 +6281,6 @@ void do_cmd_save_screen(void)
 	}
 
 	Term_get_size(&wid, &hgt);
-
-	if (old_use_graphics)
-	{
-		use_graphics = FALSE;
-		reset_visuals();
-
-		/* Redraw everything */
-		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-		/* Hack -- update */
-		handle_stuff();
-	}
 
 	if (html_dump)
 	{
@@ -5440,7 +6310,7 @@ void do_cmd_save_screen(void)
 		safe_setuid_drop();
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
 
 		/* File type is "TEXT" */
 		FILE_TYPE(FILE_TYPE_TEXT);
@@ -5534,281 +6404,6 @@ void do_cmd_save_screen(void)
 		/* Restore the screen */
 		screen_load();
 	}
-
-	if (old_use_graphics)
-	{
-		use_graphics = TRUE;
-		reset_visuals();
-
-		/* Redraw everything */
-		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-		/* Hack -- update */
-		handle_stuff();
-	}
-}
-
-
-/*
- * Sorting hook -- Comp function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform on "u".
- */
-static bool ang_sort_art_comp(vptr u, vptr v, int a, int b)
-{
-	u16b *who = (u16b*)(u);
-
-	u16b *why = (u16b*)(v);
-
-	int w1 = who[a];
-	int w2 = who[b];
-
-	int z1, z2;
-
-
-	/* Sort by total kills */
-	if (*why >= 3)
-	{
-		/* Extract total kills */
-		z1 = a_info[w1].tval;
-		z2 = a_info[w2].tval;
-
-		/* Compare total kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Sort by monster level */
-	if (*why >= 2)
-	{
-		/* Extract levels */
-		z1 = a_info[w1].sval;
-		z2 = a_info[w2].sval;
-
-		/* Compare levels */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Sort by monster experience */
-	if (*why >= 1)
-	{
-		/* Extract experience */
-		z1 = a_info[w1].level;
-		z2 = a_info[w2].level;
-
-		/* Compare experience */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Compare indexes */
-	return (w1 <= w2);
-}
-
-
-/*
- * Sorting hook -- Swap function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform.
- */
-static void ang_sort_art_swap(vptr u, vptr v, int a, int b)
-{
-	u16b *who = (u16b*)(u);
-
-	u16b holder;
-
-	/* Swap */
-	holder = who[a];
-	who[a] = who[b];
-	who[b] = holder;
-}
-
-
-/*
- * Check the status of "artifacts"
- */
-static void do_cmd_knowledge_artifacts(void)
-{
-	int i, k, z, x, y, n = 0;
-	u16b why = 3;
-	s16b *who;
-
-	FILE *fff;
-
-	char file_name[1024];
-
-	char base_name[MAX_NLEN];
-
-	bool *okay;
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
-
-	/* Allocate the "okay" array */
-	C_MAKE(okay, max_a_idx, bool);
-
-	/* Scan the artifacts */
-	for (k = 0; k < max_a_idx; k++)
-	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* Default */
-		okay[k] = FALSE;
-
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		okay[k] = TRUE;
-	}
-
-	/* Check the dungeon */
-	for (y = 0; y < cur_hgt; y++)
-	{
-		for (x = 0; x < cur_wid; x++)
-		{
-			cave_type *c_ptr = &cave[y][x];
-
-			s16b this_o_idx, next_o_idx = 0;
-
-			/* Scan all objects in the grid */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-			{
-				object_type *o_ptr;
-
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
-
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
-
-				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
-
-				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
-
-				/* Note the artifact */
-				okay[o_ptr->name1] = FALSE;
-			}
-		}
-	}
-
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-	for (k = 0; k < max_a_idx; k++)
-	{
-		if (okay[k]) who[n++] = k;
-	}
-
-        /* Select the sort method */
-        ang_sort_comp = ang_sort_art_comp;
-        ang_sort_swap = ang_sort_art_swap;
-
-        /* Sort the array by dungeon depth of monsters */
-        ang_sort(who, &why, n);
-
-	/* Scan the artifacts */
-	for (k = 0; k < n; k++)
-	{
-		artifact_type *a_ptr = &a_info[who[k]];
-
-		/* Paranoia */
-#ifdef JP
-strcpy(base_name, "未知の伝説のアイテム");
-#else
-		strcpy(base_name, "Unknown Artifact");
-#endif
-
-
-		/* Obtain the base object type */
-		z = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		/* Real object */
-		if (z)
-		{
-			object_type forge;
-			object_type *q_ptr;
-
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Create fake object */
-			object_prep(q_ptr, z);
-
-			/* Make it an artifact */
-			q_ptr->name1 = (byte)who[k];
-
-			/* Describe the artifact */
-			object_desc_store(base_name, q_ptr, FALSE, 0);
-		}
-
-		/* Hack -- Build the artifact name */
-#ifdef JP
-		fprintf(fff, "     %s\n", base_name);
-#else
-		fprintf(fff, "     The %s\n", base_name);
-#endif
-
-	}
-
-	/* Free the "who" array */
-	C_KILL(who, max_r_idx, s16b);
-
-	/* Free the "okay" array */
-	C_KILL(okay, max_a_idx, bool);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-#ifdef JP
-	show_file(TRUE, file_name, "既知の伝説のアイテム", 0, 0);
-#else
-	show_file(TRUE, file_name, "Artifacts Seen", 0, 0);
-#endif
-
-
-	/* Remove the file */
-	fd_kill(file_name);
 }
 
 
@@ -5828,21 +6423,22 @@ static void do_cmd_knowledge_uniques(void)
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
 
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
 
 	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
+	C_MAKE(who, max_r_idx + runeweapon_num, s16b);
 
 	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	for (i = 1; i < (max_r_idx + runeweapon_num); i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -5850,12 +6446,12 @@ static void do_cmd_knowledge_uniques(void)
 		if (r_ptr->name) who[n++] = i;
 	}
 
-        /* Select the sort method */
-        ang_sort_comp = ang_sort_comp_hook;
-        ang_sort_swap = ang_sort_swap_hook;
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
 
-        /* Sort the array by dungeon depth of monsters */
-        ang_sort(who, &why, n);
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Scan the monster races */
 	for (k = 0; k < n; k++)
@@ -5867,6 +6463,10 @@ static void do_cmd_knowledge_uniques(void)
 		{
 			bool dead = (r_ptr->max_num == 0);
 
+			if (monster_is_runeweapon(who[k]))
+			{
+				if (!(runeweapon_list[runeweapon_num_from(who[k])].status & RW_STATUS_FOUND)) dead = FALSE;
+			}
 			if (dead) continue;
 
 			/* Only display "known" uniques */
@@ -5886,7 +6486,7 @@ static void do_cmd_knowledge_uniques(void)
 	}
 
 	/* Free the "who" array */
-	C_KILL(who, max_r_idx, s16b);
+	C_KILL(who, max_r_idx + runeweapon_num, s16b);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -5905,13 +6505,11 @@ static void do_cmd_knowledge_uniques(void)
 
 
 /*
- * Display dead uniques
+ * Display chaos frame
  */
-static void do_cmd_knowledge_uniques_dead(void)
+static void do_cmd_knowledge_chaos_frame(void)
 {
-	int i, k, n = 0;
-	u16b why = 2;
-	s16b *who;
+	int i;
 
 	FILE *fff;
 
@@ -5919,134 +6517,31 @@ static void do_cmd_knowledge_uniques_dead(void)
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
-
-	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	for (i = 0; i < ETHNICITY_NUM; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
-
-		/* Use that monster */
-		if (r_ptr->name) who[n++] = i;
+		fprintf(fff, "%20s  %+4d\n", ethnicity_names[i], chaos_frame[i]);
 	}
 
-        /* Select the sort method */
-        ang_sort_comp = ang_sort_comp_hook;
-        ang_sort_swap = ang_sort_swap_hook;
-
-        /* Sort the array by dungeon depth of monsters */
-        ang_sort(who, &why, n);
-
-	/* Scan the monster races */
-	for (k = 0; k < n; k++)
+	if (!dun_level && p_ptr->town_num)
 	{
-		monster_race *r_ptr = &r_info[who[k]];
-
-		/* Only print Uniques */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (town[p_ptr->town_num].ethnic != NO_ETHNICITY)
 		{
-			bool dead = (r_ptr->max_num == 0);
-
-			if (!dead) continue;
-
-			/* Only display "known" uniques */
-			if (dead || cheat_know || r_ptr->r_sights)
-			{
-				/* Print a message */
 #ifdef JP
-				fprintf(fff, "     %sは既に死んでいる。\n",
-				        (r_name + r_ptr->name));
+			fprintf(fff, "\nこの街は%sに支配されています。\n", ethnicity_names[(int)(town[p_ptr->town_num].ethnic)]);
 #else
-				fprintf(fff, "     %s is dead\n",
-				        (r_name + r_ptr->name));
+			fprintf(fff, "\nThis town is dominated by %s.\n", ethnicity_names[(int)(town[p_ptr->town_num].ethnic)]);
 #endif
-
-			}
-		}
-	}
-
-	/* Free the "who" array */
-	C_KILL(who, max_r_idx, s16b);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-#ifdef JP
-	show_file(TRUE, file_name, "倒したユニーク・モンスター", 0, 0);
-#else
-	show_file(TRUE, file_name, "Dead Uniques", 0, 0);
-#endif
-
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
-/*
- * Display weapon-exp
- */
-static void do_cmd_knowledge_weapon_exp(void)
-{
-	int i,j, num, shougou;
-
-	FILE *fff;
-
-	char file_name[1024];
-	char tmp[30];
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-
-	for(i = 0; i < 5; i++)
-	{
-		for (num = 0; num < 64; num++)
-		{
-			for (j = 0; j < max_k_idx; j++)
-			{
-				object_kind *k_ptr = &k_info[j];
-
-				if ((k_ptr->tval == TV_SWORD-i) && (k_ptr->sval == num))
-				{
-					if((k_ptr->tval == TV_BOW) && (k_ptr->sval == SV_CRIMSON)) continue;
-
-					if(p_ptr->weapon_exp[4-i][num]<4000) shougou=0;
-					else if(p_ptr->weapon_exp[4-i][num]<6000) shougou=1;
-					else if(p_ptr->weapon_exp[4-i][num]<7000) shougou=2;
-					else if(p_ptr->weapon_exp[4-i][num]<8000) shougou=3;
-					else shougou=4;
-					strip_name(tmp, j);
-					fprintf(fff,"%-25s ",tmp);
-					if (p_ptr->weapon_exp[4-i][num] >= s_info[p_ptr->pclass].w_max[4-i][num]) fprintf(fff,"!");
-					else fprintf(fff," ");
-					fprintf(fff,"%s",shougou_moji[shougou]);
-					if (cheat_xtra) fprintf(fff," %d",p_ptr->weapon_exp[4-i][num]);
-					fprintf(fff,"\n");
-					break;
-				}
-			}
 		}
 	}
 
@@ -6055,184 +6550,9 @@ static void do_cmd_knowledge_weapon_exp(void)
 
 	/* Display the file contents */
 #ifdef JP
-	show_file(TRUE, file_name, "武器の経験値", 0, 0);
+	show_file(TRUE, file_name, "カオスフレーム", 0, 0);
 #else
-	show_file(TRUE, file_name, "Weapon Proficiency", 0, 0);
-#endif
-
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
-/*
- * Display spell-exp
- */
-static void do_cmd_knowledge_spell_exp(void)
-{
-	int i=0, shougou;
-
-	FILE *fff;
-	magic_type *s_ptr;
-
-	char file_name[1024];
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-
-	if(p_ptr->realm1 != REALM_NONE)
-	{
-#ifdef JP
-		fprintf(fff,"%sの魔法書\n",realm_names[p_ptr->realm1]);
-#else
-		fprintf(fff,"%s Spellbook\n",realm_names[p_ptr->realm1]);
-#endif
-		for (i = 0; i < 32; i++)
-		{
-			if (!is_magic(p_ptr->realm1))
-			{
-				s_ptr = &technic_info[p_ptr->realm1 - MIN_TECHNIC][i];
-			}
-			else
-			{
-				s_ptr = &mp_ptr->info[p_ptr->realm1 - 1][i];
-			}
-			if(s_ptr->slevel == 99) continue;
-			if(p_ptr->spell_exp[i]<900) shougou=0;
-			else if(p_ptr->spell_exp[i]<1200) shougou=1;
-			else if(p_ptr->spell_exp[i]<1400) shougou=2;
-			else if(p_ptr->spell_exp[i]<1600) shougou=3;
-			else shougou=4;
-			fprintf(fff,"%-25s ",spell_names[technic2magic(p_ptr->realm1)-1][i]);
-			if (p_ptr->realm1 == REALM_HISSATSU)
-				fprintf(fff,"[--]");
-			else
-			{
-				if (shougou == 4) fprintf(fff,"!");
-				else fprintf(fff," ");
-				fprintf(fff,"%s",shougou_moji[shougou]);
-			}
-			if (cheat_xtra) fprintf(fff," %d",p_ptr->spell_exp[i]);
-			fprintf(fff,"\n");
-		}
-	}
-
-	if(p_ptr->realm2 != REALM_NONE)
-	{
-		fprintf(fff,"\n%s Spellbook\n",realm_names[p_ptr->realm2]);
-		for (i = 0; i < 32; i++)
-		{
-			if (!is_magic(p_ptr->realm1))
-			{
-				s_ptr = &technic_info[p_ptr->realm2 - MIN_TECHNIC][i];
-			}
-			else
-			{
-				s_ptr = &mp_ptr->info[p_ptr->realm2 - 1][i];
-			}
-			if(s_ptr->slevel == 99) continue;
-
-			if(p_ptr->spell_exp[i+32]<900) shougou=0;
-			else if(p_ptr->spell_exp[i+32]<1200) shougou=1;
-			else if(p_ptr->spell_exp[i+32]<1400) shougou=2;
-			else shougou=3;
-			fprintf(fff,"%-25s ",spell_names[technic2magic(p_ptr->realm2)-1][i]);
-			if (shougou == 3) fprintf(fff,"!");
-			else fprintf(fff," ");
-			fprintf(fff,"%s",shougou_moji[shougou]);
-			if (cheat_xtra) fprintf(fff," %d",p_ptr->spell_exp[i+32]);
-			fprintf(fff,"\n");
-		}
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-#ifdef JP
-	show_file(TRUE, file_name, "魔法の経験値", 0, 0);
-#else
-	show_file(TRUE, file_name, "Spell Proficiency", 0, 0);
-#endif
-
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
-/*
- * Display skill-exp
- */
-static void do_cmd_knowledge_skill_exp(void)
-{
-	int i=0, shougou;
-
-	FILE *fff;
-
-	char file_name[1024];
-#ifdef JP
-	char skill_name[3][17]={"マーシャルアーツ", "二刀流          ", "乗馬            "};
-#else
-	char skill_name[3][20]={"Martial Arts    ", "Dual Wielding   ", "Riding          "};
-#endif
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-
-	for (i = 0; i < 3; i++)
-	{
-		if(i == GINOU_RIDING)
-		{
-			if(p_ptr->skill_exp[i]<500) shougou=0;
-			else if(p_ptr->skill_exp[i]<2000) shougou=1;
-			else if(p_ptr->skill_exp[i]<5000) shougou=2;
-			else if(p_ptr->skill_exp[i]<8000) shougou=3;
-			else shougou=4;
-		}
-		else
-		{
-			if(p_ptr->skill_exp[i]<4000) shougou=0;
-			else if(p_ptr->skill_exp[i]<6000) shougou=1;
-			else if(p_ptr->skill_exp[i]<7000) shougou=2;
-			else if(p_ptr->skill_exp[i]<8000) shougou=3;
-			else shougou=4;
-		}
-		fprintf(fff,"%-20s ",skill_name[i]);
-		if (p_ptr->skill_exp[i] == s_info[p_ptr->pclass].s_max[i]) fprintf(fff,"!");
-		else fprintf(fff," ");
-		fprintf(fff,"%s",shougou_moji[shougou]);
-		if (cheat_xtra) fprintf(fff," %d",p_ptr->skill_exp[i]);
-		fprintf(fff,"\n");
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-#ifdef JP
-	show_file(TRUE, file_name, "技能の経験値", 0, 0);
-#else
-	show_file(TRUE, file_name, "Miscellaneous Proficiency", 0, 0);
+	show_file(TRUE, file_name, "Chaos Frame", 0, 0);
 #endif
 
 
@@ -6352,9 +6672,9 @@ void plural_aux(char *Name)
 	}
 	else if (suffix(Name, "ch") ||
 	         suffix(Name, "sh") ||
-			 suffix(Name, "nx") ||
-			 suffix(Name, "s") ||
-			 suffix(Name, "o"))
+	         suffix(Name, "nx") ||
+	         suffix(Name, "s") ||
+	         suffix(Name, "o"))
 	{
 		strcpy(&(Name[NameLen]), "es");
 	}
@@ -6379,26 +6699,25 @@ static void do_cmd_knowledge_pets(void)
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
 
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
 	{
-		monster_race *r_ptr;
 		/* Access the monster */
 		m_ptr = &m_list[i];
 
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
-		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Calculate "upkeep" for pets */
 		if (is_pet(m_ptr))
@@ -6406,7 +6725,7 @@ static void do_cmd_knowledge_pets(void)
 			char pet_name[80];
 			t_friends++;
 			monster_desc(pet_name, m_ptr, 0x88);
-			fprintf(fff, "%s (%s)", pet_name, look_mon_desc(i));
+			fprintf(fff, "%s (%s)", pet_name, look_mon_desc(i, 0x00));
 			if (p_ptr->riding == i)
 #ifdef JP
 				fprintf(fff, " 乗馬中");
@@ -6436,7 +6755,7 @@ static void do_cmd_knowledge_pets(void)
 
 	/* Display the file contents */
 #ifdef JP
-show_file(TRUE, file_name, "現在のペット", 0, 0);
+	show_file(TRUE, file_name, "現在のペット", 0, 0);
 #else
 	show_file(TRUE, file_name, "Current Pets", 0, 0);
 #endif
@@ -6468,24 +6787,25 @@ static void do_cmd_knowledge_kill_count(void)
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
 
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
 
 	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
+	C_MAKE(who, max_r_idx + runeweapon_num, s16b);
 
 	{
 		/* Monsters slain */
 		int kk;
 
-		for (kk = 1; kk < max_r_idx; kk++)
+		for (kk = 1; kk < (max_r_idx + runeweapon_num); kk++)
 		{
 			monster_race *r_ptr = &r_info[kk];
 
@@ -6493,6 +6813,10 @@ static void do_cmd_knowledge_kill_count(void)
 			{
 				bool dead = (r_ptr->max_num == 0);
 
+				if (monster_is_runeweapon(kk))
+				{
+					if (!(runeweapon_list[runeweapon_num_from(kk)].status & RW_STATUS_FOUND)) dead = FALSE;
+				}
 				if (dead)
 				{
 					Total++;
@@ -6518,14 +6842,14 @@ static void do_cmd_knowledge_kill_count(void)
 
 		else if (Total == 1)
 #ifdef JP
-			fprintf(fff,"あなたは一匹の敵を倒している。\n\n");
+			fprintf(fff,"あなたは 1 体の敵を倒している。\n\n");
 #else
 			fprintf(fff,"You have defeated one enemy.\n\n");
 #endif
 
 		else
 #ifdef JP
-			fprintf(fff,"あなたは %lu 匹の敵を倒している。\n\n", Total);
+			fprintf(fff,"あなたは %lu 体の敵を倒している。\n\n", Total);
 #else
 			fprintf(fff,"You have defeated %lu enemies.\n\n", Total);
 #endif
@@ -6535,7 +6859,7 @@ static void do_cmd_knowledge_kill_count(void)
 	Total = 0;
 
 	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	for (i = 1; i < (max_r_idx + runeweapon_num); i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -6543,12 +6867,12 @@ static void do_cmd_knowledge_kill_count(void)
 		if (r_ptr->name) who[n++] = i;
 	}
 
-        /* Select the sort method */
-        ang_sort_comp = ang_sort_comp_hook;
-        ang_sort_swap = ang_sort_swap_hook;
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
 
-        /* Sort the array by dungeon depth of monsters */
-        ang_sort(who, &why, n);
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Scan the monster races */
 	for (k = 0; k < n; k++)
@@ -6559,11 +6883,15 @@ static void do_cmd_knowledge_kill_count(void)
 		{
 			bool dead = (r_ptr->max_num == 0);
 
+			if (monster_is_runeweapon(who[k]))
+			{
+				if (!(runeweapon_list[runeweapon_num_from(who[k])].status & RW_STATUS_FOUND)) dead = FALSE;
+			}
 			if (dead)
 			{
 				/* Print a message */
 				fprintf(fff, "     %s\n",
-				    (r_name + r_ptr->name));
+				        (r_name + r_ptr->name));
 				Total++;
 			}
 		}
@@ -6574,11 +6902,11 @@ static void do_cmd_knowledge_kill_count(void)
 			if (This > 0)
 			{
 #ifdef JP
-/* p,tは人と数える by ita*/
-if(strchr("pt",r_ptr->d_char))
-fprintf(fff, "     %3d 人の %s\n", This, r_name + r_ptr->name);
-else
-fprintf(fff, "     %3d 匹の %s\n", This, r_name + r_ptr->name);
+				/* p,tは人と数える by ita*/
+				if (strchr("pt",r_ptr->d_char))
+					fprintf(fff, "     %3d 人の %s\n", This, r_name + r_ptr->name);
+				else
+					fprintf(fff, "     %3d 匹の %s\n", This, r_name + r_ptr->name);
 #else
 				if (This < 2)
 				{
@@ -6608,7 +6936,7 @@ fprintf(fff, "     %3d 匹の %s\n", This, r_name + r_ptr->name);
 
 	fprintf(fff,"----------------------------------------------\n");
 #ifdef JP
-	fprintf(fff,"    合計: %lu 匹を倒した。\n", Total);
+	fprintf(fff,"    合計: %lu 体を倒した。\n", Total);
 #else
 	fprintf(fff,"   Total: %lu creature%s killed.\n",
 	        Total, (Total == 1 ? "" : "s"));
@@ -6616,14 +6944,14 @@ fprintf(fff, "     %3d 匹の %s\n", This, r_name + r_ptr->name);
 
 
 	/* Free the "who" array */
-	C_KILL(who, max_r_idx, s16b);
+	C_KILL(who, max_r_idx + runeweapon_num, s16b);
 
 	/* Close the file */
 	my_fclose(fff);
 
 	/* Display the file contents */
 #ifdef JP
-show_file(TRUE, file_name, "倒した敵の数", 0, 0);
+	show_file(TRUE, file_name, "倒した敵の数", 0, 0);
 #else
 	show_file(TRUE, file_name, "Kill Count", 0, 0);
 #endif
@@ -6635,99 +6963,1707 @@ show_file(TRUE, file_name, "倒した敵の数", 0, 0);
 
 
 /*
- * Display known objects
+ * Display the object groups.
  */
-static void do_cmd_knowledge_objects(void)
+static void display_group_list(int col, int row, int wid, int per_page,
+	int grp_idx[], cptr group_text[], int grp_cur, int grp_top)
 {
-	int k;
+	int i;
 
-	FILE *fff;
-
-	char o_name[MAX_NLEN];
-
-	char file_name[1024];
-
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-
-	/* Scan the object kinds */
-	for (k = 1; k < max_k_idx; k++)
+	/* Display lines until done */
+	for (i = 0; i < per_page && (grp_idx[i] >= 0); i++)
 	{
-		object_kind *k_ptr = &k_info[k];
+		/* Get the group index */
+		int grp = grp_idx[grp_top + i];
 
-		/* Hack -- skip artifacts */
-		if (k_ptr->gen_flags & (TRG_INSTA_ART)) continue;
+		/* Choose a color */
+		byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
 
-		/* List known flavored objects */
-		if (k_ptr->flavor && k_ptr->aware)
-		{
-			object_type *i_ptr;
-			object_type object_type_body;
+		/* Erase the entire line */
+		Term_erase(col, row + i, wid);
 
-			/* Get local object */
-			i_ptr = &object_type_body;
+		/* Display the group label */
+		c_put_str(attr, group_text[grp], row + i, col);
+	}
+}
 
-			/* Create fake object */
-			object_prep(i_ptr, k);
 
-			/* Describe the object */
-			object_desc_store(o_name, i_ptr, FALSE, 0);
+/* 
+ * Move the cursor in a browser window 
+ */
+static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt, 
+						   int *list_cur, int list_cnt)
+{
+	int d;
+	int col = *column;
+	int grp = *grp_cur;
+	int list = *list_cur;
 
-			/* Print a message */
-			fprintf(fff, "     %s\n", o_name);
-		}
+	/* Extract direction */
+	if (ch == ' ')
+	{
+		/* Hack -- scroll up full screen */
+		d = 3;
+	}
+	else if (ch == '-')
+	{
+		/* Hack -- scroll down full screen */
+		d = 9;
+	}
+	else
+	{
+		d = get_keymap_dir(ch);
 	}
 
-	/* Close the file */
-	my_fclose(fff);
+	if (!d) return;
 
-	/* Display the file contents */
-#ifdef JP
-	show_file(TRUE, file_name, "既知のアイテム", 0, 0);
-#else
-	show_file(TRUE, file_name, "Known Objects", 0, 0);
-#endif
+	/* Diagonals - hack */
+	if ((ddx[d] > 0) && ddy[d])
+	{
+		int browser_rows;
+		int wid, hgt;
 
+		/* Get size */
+		Term_get_size(&wid, &hgt);
 
-	/* Remove the file */
-	fd_kill(file_name);
+		browser_rows = hgt - 8;
+
+		/* Browse group list */
+		if (!col)
+		{
+			int old_grp = grp;
+
+			/* Move up or down */
+			grp += ddy[d] * (browser_rows - 1);
+
+			/* Verify */
+			if (grp >= grp_cnt)	grp = grp_cnt - 1;
+			if (grp < 0) grp = 0;
+			if (grp != old_grp)	list = 0;
+		}
+
+		/* Browse sub-list list */
+		else
+		{
+			/* Move up or down */
+			list += ddy[d] * browser_rows;
+
+			/* Verify */
+			if (list >= list_cnt) list = list_cnt - 1;
+			if (list < 0) list = 0;
+		}
+
+		(*grp_cur) = grp;
+		(*list_cur) = list;
+
+		return;
+	}
+
+	if (ddx[d])
+	{
+		col += ddx[d];
+		if (col < 0) col = 0;
+		if (col > 1) col = 1;
+
+		(*column) = col;
+
+		return;
+	}
+
+	/* Browse group list */
+	if (!col)
+	{
+		int old_grp = grp;
+
+		/* Move up or down */
+		grp += ddy[d];
+
+		/* Verify */
+		if (grp >= grp_cnt)	grp = grp_cnt - 1;
+		if (grp < 0) grp = 0;
+		if (grp != old_grp)	list = 0;
+	}
+
+	/* Browse sub-list list */
+	else
+	{
+		/* Move up or down */
+		list += ddy[d];
+
+		/* Verify */
+		if (list >= list_cnt) list = list_cnt - 1;
+		if (list < 0) list = 0;
+	}
+
+	(*grp_cur) = grp;
+	(*list_cur) = list;
 }
 
 
 /*
-* List virtues & status
-*
-*/
+ * Display visuals.
+ */
+static void display_visual_list(int col, int row, int height, int width, byte attr_top, byte char_left)
+{
+	int i, j;
+
+	/* Clear the display lines */
+	for (i = 0; i < height; i++)
+	{
+		Term_erase(col, row + i, width);
+	}
+
+	/* Bigtile mode uses double width */
+	if (use_bigtile) width /= 2;
+
+	/* Display lines until done */
+	for (i = 0; i < height; i++)
+	{
+		/* Display columns until done */
+		for (j = 0; j < width; j++)
+		{
+			byte a, a2;
+			char c, c2;
+			int x = col + j;
+			int y = row + i;
+			int ia, ic;
+
+			/* Bigtile mode uses double width */
+			if (use_bigtile) x += j;
+
+			ia = attr_top + i;
+			ic = char_left + j;
+
+			/* Ignore illegal characters */
+			if (ia > 0x7f || ic > 0xff || ic < ' ' ||
+			    (ic > 0x7f))
+				continue;
+
+			a = (byte)ia;
+			c = (char)ic;
+
+			/* Force correct code for both ASCII character and tile */
+			if (c & 0x80) a |= 0x80;
+
+			if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+			/* Display symbol */
+			Term_putch(x, y, a, c);
+
+			/* Second byte */
+			if (use_bigtile) Term_putch(x + 1, y, a2, c2);
+		}
+	}
+}
+
+
+/*
+ * Place the cursor at the collect position for visual mode
+ */
+static void place_visual_list_cursor(int col, int row, byte a, byte c, byte attr_top, byte char_left)
+{
+	int i = (a & 0x7f) - attr_top;
+	int j = c - char_left;
+
+	int x = col + j;
+	int y = row + i;
+
+	/* Bigtile mode uses double width */
+	if (use_bigtile) x += j;
+
+	/* Place the cursor */
+	Term_gotoxy(x, y);
+}
+
+
+/*
+ *  Clipboard variables for copy&paste in visual mode
+ */
+static byte attr_idx = 0;
+static byte char_idx = 0;
+
+/*
+ *  Do visual mode command -- Change symbols
+ */
+static bool visual_mode_command(char ch, bool *visual_list_ptr, 
+				int height, int width, 
+				byte *attr_top_ptr, byte *char_left_ptr, 
+				byte *cur_attr_ptr, byte *cur_char_ptr)
+{
+	static byte attr_old = 0, char_old = 0;
+
+	switch (ch)
+	{
+	case ESCAPE:
+		if (*visual_list_ptr)
+		{
+			/* Cancel change */
+			*cur_attr_ptr = attr_old;
+			*cur_char_ptr = char_old;
+			*visual_list_ptr = FALSE;
+
+			return TRUE;
+		}
+
+		break;
+
+	case '\n':
+	case '\r':
+		if (*visual_list_ptr)
+		{
+			/* Accept change */
+			*visual_list_ptr = FALSE;
+
+			return TRUE;
+		}
+		break;
+
+	case 'V':
+	case 'v':
+		if (!*visual_list_ptr)
+		{
+			*visual_list_ptr = TRUE;
+
+			*attr_top_ptr = MAX(0, (*cur_attr_ptr & 0x7f) - 5);
+			*char_left_ptr = MAX(0, *cur_char_ptr - 10);
+
+			attr_old = *cur_attr_ptr;
+			char_old = *cur_char_ptr;
+
+			return TRUE;
+		}
+		break;
+
+	case 'C':
+	case 'c':
+		/* Set the visual */
+		attr_idx = *cur_attr_ptr;
+		char_idx = *cur_char_ptr;
+
+		return TRUE;
+
+	case 'P':
+	case 'p':
+		if (attr_idx)
+		{
+			/* Set the char */
+			*cur_attr_ptr = attr_idx;
+			*attr_top_ptr = MAX(0, (*cur_attr_ptr & 0x7f) - 5);
+		}
+
+		if (char_idx)
+		{
+			/* Set the char */
+			*cur_char_ptr = char_idx;
+			*char_left_ptr = MAX(0, *cur_char_ptr - 10);
+		}
+
+		return TRUE;
+
+	default:
+		if (*visual_list_ptr)
+		{
+			int eff_width;
+			int d = get_keymap_dir(ch);
+			byte a = (*cur_attr_ptr & 0x7f);
+			byte c = *cur_char_ptr;
+
+			if (use_bigtile) eff_width = width / 2;
+			else eff_width = width;
+
+			/* Restrict direction */
+			if ((a == 0) && (ddy[d] < 0)) d = 0;
+			if ((c == 0) && (ddx[d] < 0)) d = 0;
+			if ((a == 0x7f) && (ddy[d] > 0)) d = 0;
+			if ((c == 0xff) && (ddx[d] > 0)) d = 0;
+
+			a += ddy[d];
+			c += ddx[d];
+
+			/* Force correct code for both ASCII character and tile */
+			if (c & 0x80) a |= 0x80;
+
+			/* Set the visual */
+			*cur_attr_ptr = a;
+			*cur_char_ptr = c;
+
+
+			/* Move the frame */
+			if ((ddx[d] < 0) && *char_left_ptr > MAX(0, (int)c - 10)) (*char_left_ptr)--;
+			if ((ddx[d] > 0) && *char_left_ptr + eff_width < MIN(0xff, (int)c + 10)) (*char_left_ptr)++;
+			if ((ddy[d] < 0) && *attr_top_ptr > MAX(0, (int)(a & 0x7f) - 4)) (*attr_top_ptr)--;
+			if ((ddy[d] > 0) && *attr_top_ptr + height < MIN(0x7f, (a & 0x7f) + 4)) (*attr_top_ptr)++;
+			return TRUE;
+		}
+
+		break;
+	}
+
+	/* Visual mode command is not used */
+	return FALSE;
+}
+
+
+/*
+ * Display the monsters in a group.
+ */
+static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
+	int mon_cur, int mon_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && mon_idx[mon_top + i]; i++)
+	{
+		byte attr;
+		byte a, a2;
+		char c, c2;
+
+		/* Get the race index */
+		int r_idx = mon_idx[mon_top + i] ;
+
+		/* Access the race */
+		monster_race *r_ptr = &r_info[r_idx];
+
+		bool dead = (r_ptr->max_num == 0);
+
+		if (monster_is_runeweapon(r_idx))
+		{
+			if (!(runeweapon_list[runeweapon_num_from(r_idx)].status & RW_STATUS_FOUND)) dead = FALSE;
+		}
+
+		/* Choose a color */
+		attr = ((i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE);
+
+		/* Display the name */
+		c_prt(attr, (r_name + r_ptr->name), row + i, col);
+
+		/* Hack -- visual_list mode */
+		if (per_page == 1)
+		{
+			c_prt(attr, format("%02x/%02x", r_ptr->x_attr, r_ptr->x_char), row + i, 60);
+		}
+		else if (p_ptr->wizard)
+		{
+			c_prt(attr, format("%d", r_idx), row + i, 60);
+		}
+		else prt("", row + i, 70);
+
+		a = r_ptr->x_attr;
+		c = r_ptr->x_char;
+		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+		/* Display symbol */
+		Term_putch(70, row + i, a, c);
+
+		/* Second byte */
+		if (use_bigtile) Term_putch(70 + 1, row + i, a2, c2);
+
+		/* Display kills */
+		if (!(r_ptr->flags1 & RF1_UNIQUE)) put_str(format("%5d", r_ptr->r_pkills), row + i, 73);
+#ifdef JP
+		else c_put_str((dead ? TERM_L_DARK : TERM_WHITE), (dead ? "死亡" : "生存"), row + i, 73);
+#else
+		else c_put_str((dead ? TERM_L_DARK : TERM_WHITE), (dead ? "dead" : "alive"), row + i, 73);
+#endif
+
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+
+/*
+ * Display known monsters.
+ */
+static void do_cmd_knowledge_monsters(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top, old_grp_cur;
+	int mon_cur, mon_top;
+	int grp_cnt, grp_idx[100];
+	int mon_cnt;
+	s16b *mon_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	bool visual_list = FALSE;
+	byte attr_top = 0, char_left = 0;
+
+	int browser_rows;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
+	/* Allocate the "mon_idx" array */
+	C_MAKE(mon_idx, max_r_idx + runeweapon_num, s16b);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; monster_group_text[i] != NULL; i++)
+	{
+		/* Measure the label */
+		len = strlen(monster_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		/* See if any monsters are known */
+		if ((monster_group_char[i] == ((char *) -1L)) || collect_monsters(i, mon_idx, 0x01))
+		{
+			/* Build a list of groups with known monsters */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	old_grp_cur = -1;
+	grp_cur = grp_top = 0;
+	mon_cur = mon_top = 0;
+	mon_cnt = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+		monster_race *r_ptr;
+
+		if (redraw)
+		{
+			clear_from(0);
+		
+#ifdef JP
+			prt("知識 - モンスター", 2, 0);
+			prt("グループ", 4, 0);
+			prt("名前", 4, max + 3);
+			if (p_ptr->wizard) prt("Idx", 4, 60);
+			prt("文字 殺害数", 4, 67);
+#else
+			prt("Knowledge - Monsters", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			if (p_ptr->wizard) prt("Idx", 4, 60);
+			prt("Sym   Kills", 4, 67);
+#endif
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < browser_rows; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+		/* Display a list of monster groups */
+		display_group_list(0, 6, max, browser_rows, grp_idx, monster_group_text, grp_cur, grp_top);
+
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
+
+			/* Get a list of monsters in the current group */
+			mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
+		}
+
+		/* Scroll monster list */
+		while (mon_cur < mon_top)
+			mon_top = MAX(0, mon_top - browser_rows/2);
+		while (mon_cur >= mon_top + browser_rows)
+			mon_top = MIN(mon_cnt - browser_rows, mon_top + browser_rows/2);
+
+		if (!visual_list)
+		{
+			/* Display a list of monsters in the current group */
+			display_monster_list(max + 3, 6, browser_rows, mon_idx, mon_cur, mon_top);
+		}
+		else
+		{
+			mon_top = mon_cur;
+
+			/* Display a monster name */
+			display_monster_list(max + 3, 6, 1, mon_idx, mon_cur, mon_top);
+
+			/* Display visual list below first monster */
+			display_visual_list(max + 3, 7, browser_rows-1, wid - (max + 3), attr_top, char_left);
+		}
+
+		/* Prompt */
+#ifdef JP
+		prt(format("<方向>, 'r'で思い出を見る%s%s, ESC", visual_list ? ", ENTERで決定" : ", 'v'でシンボル変更", (attr_idx||char_idx) ? ", 'c', 'p'でペースト" : ", 'c'でコピー"), hgt - 1, 0);
+#else
+		prt(format("<dir>, 'r' to recall%s%s, ESC", visual_list ? ", ENTER to accept" : ", 'v' for visuals", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
+#endif
+
+		/* Get the current monster */
+		r_ptr = &r_info[mon_idx[mon_cur]];
+
+		/* Mega Hack -- track this monster race */
+		if (mon_cnt) monster_race_track(mon_idx[mon_cur]);
+
+		/* Hack -- handle stuff */
+		handle_stuff();
+
+		if (visual_list)
+		{
+			place_visual_list_cursor(max + 3, 7, r_ptr->x_attr, r_ptr->x_char, attr_top, char_left);
+		}
+		else if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
+		}
+
+		ch = inkey();
+
+		/* Do visual mode command if needed */
+		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &r_ptr->x_attr, &r_ptr->x_char)) continue;
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				if (mon_idx[mon_cur])
+				{
+					screen_roff(mon_idx[mon_cur], 0);
+
+					(void)inkey();
+
+					redraw = TRUE;
+				}
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, mon_cnt);
+
+				break;
+			}
+		}
+	}
+
+	/* Free the "mon_idx" array */
+	C_KILL(mon_idx, max_r_idx + runeweapon_num, s16b);
+}
+
+
+/*
+ * Display the objects in a group.
+ */
+static void display_object_list(int col, int row, int per_page, int object_idx[],
+	int object_cur, int object_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && object_idx[object_top + i]; i++)
+	{
+		char o_name[80];
+		byte a, a2;
+		char c, c2;
+
+		/* Get the object index */
+		int k_idx = object_idx[object_top + i];
+
+		/* Access the object */
+		object_kind *k_ptr = &k_info[k_idx];
+
+		/* Choose a color */
+		byte attr = (k_ptr->aware ? TERM_WHITE : TERM_SLATE);
+		byte cursor = (k_ptr->aware ? TERM_L_BLUE : TERM_BLUE);
+
+		attr = ((i + object_top == object_cur) ? cursor : attr);
+
+		/* Tidy name */
+		strip_name(o_name, k_idx);
+
+		/* Display the name */
+		c_prt(attr, o_name, row + i, col);
+
+		/* Hack -- visual_list mode */
+		if (per_page == 1)
+		{
+			c_prt(attr, format("%02x/%02x", k_ptr->x_attr, k_ptr->x_char), row + i, 60);
+		}
+		else if (p_ptr->wizard)
+		{
+			c_prt(attr, format ("%d", k_idx), row + i, 70);
+		}
+
+		a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
+		c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
+
+		/* Symbol is unknown */
+		if (!k_ptr->aware && !p_ptr->wizard)
+		{
+			c = ' ';
+			a = TERM_DARK;
+		}
+
+		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+		/* Display symbol */
+		Term_putch(76, row + i, a, c);
+
+		/* Second byte */
+		if (use_bigtile) Term_putch(76 + 1, row + i, a2, c2);
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+/*
+ * Describe fake object
+ */
+static void desc_obj_fake(int k_idx)
+{
+	object_type *o_ptr;
+	object_type object_type_body;
+
+	/* Get local object */
+	o_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(o_ptr);
+
+	/* Create the artifact */
+	object_prep(o_ptr, k_idx);
+
+	/* It's fully know */
+	o_ptr->ident |= IDENT_KNOWN;
+
+	/* Track the object */
+	/* object_actual_track(o_ptr); */
+
+	/* Hack - mark as fake */
+	/* term_obj_real = FALSE; */
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	if (!screen_object(o_ptr, NULL, FALSE))
+	{
+#ifdef JP
+		msg_print("特に変わったところはないようだ。");
+#else
+		msg_print("You see nothing special.");
+#endif
+		msg_print(NULL);
+	}
+}
+
+
+
+/*
+ * Display known objects
+ */
+static void do_cmd_knowledge_objects(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top, old_grp_cur;
+	int object_old, object_cur, object_top;
+	int grp_cnt, grp_idx[100];
+	int object_cnt;
+	int *object_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	bool visual_list = FALSE;
+	byte attr_top = 0, char_left = 0;
+
+	int browser_rows;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
+	/* Allocate the "object_idx" array */
+	C_MAKE(object_idx, max_k_idx, int);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; object_group_text[i] != NULL; i++)
+	{
+		/* Measure the label */
+		len = strlen(object_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		/* See if any monsters are known */
+		if (collect_objects(i, object_idx))
+		{
+			/* Build a list of groups with known monsters */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	old_grp_cur = -1;
+	grp_cur = grp_top = 0;
+	object_cur = object_top = 0;
+	object_old = -1;
+	object_cnt = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+		object_kind *k_ptr;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+#ifdef JP
+			prt("知識 - アイテム", 2, 0);
+			prt("グループ", 4, 0);
+			prt("名前", 4, max + 3);
+			if (p_ptr->wizard) prt("Idx", 4, 70);
+			prt("文字", 4, 75);
+#else
+			prt("Knowledge - objects", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			if (p_ptr->wizard) prt("Idx", 4, 70);
+			prt("Sym", 4, 75);
+#endif
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < browser_rows; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+		/* Display a list of object groups */
+		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
+
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
+
+			/* Get a list of objects in the current group */
+			object_cnt = collect_objects(grp_idx[grp_cur], object_idx);
+		}
+
+		/* Scroll object list */
+		while (object_cur < object_top)
+			object_top = MAX(0, object_top - browser_rows/2);
+		while (object_cur >= object_top + browser_rows)
+			object_top = MIN(object_cnt - browser_rows, object_top + browser_rows/2);
+
+		if (!visual_list)
+		{
+			/* Display a list of objects in the current group */
+			display_object_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top);
+		}
+		else
+		{
+			object_top = object_cur;
+
+			/* Display a list of objects in the current group */
+			display_object_list(max + 3, 6, 1, object_idx, object_cur, object_top);
+
+			/* Display visual list below first object */
+			display_visual_list(max + 3, 7, browser_rows-1, wid - (max + 3), attr_top, char_left);
+		}
+
+		/* Get the current object */
+		k_ptr = &k_info[object_idx[object_cur]];
+
+		/* Mega Hack -- track this object */
+		if (object_cnt) object_kind_track(object_idx[object_cur]);
+
+		/* Prompt */
+#ifdef JP
+		prt(format("<方向>, 'd'で詳細を見る%s%s, ESC", k_ptr->flavor ? "" : visual_list ? ", ENTERで決定" : ", 'v'でシンボル変更", (attr_idx||char_idx) ? ", 'c', 'p'でペースト" : ", 'c'でコピー"), hgt - 1, 0);
+#else
+		prt(format("<dir>, 'd' to detail%s%s, ESC", k_ptr->flavor ? "" : visual_list ? ", ENTER to accept" : ", 'v' for visuals", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
+#endif
+
+		/* The "current" object changed */
+		if (object_old != object_idx[object_cur])
+		{
+			/* Hack -- handle stuff */
+			handle_stuff();
+
+			/* Remember the "current" object */
+			object_old = object_idx[object_cur];
+		}
+
+		if (visual_list)
+		{
+			place_visual_list_cursor(max + 3, 7, k_ptr->x_attr, k_ptr->x_char, attr_top, char_left);
+		}
+		else if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
+		}
+
+		ch = inkey();
+
+		/* Do visual mode command if needed */
+		/* Symbol of objects with flavor cannot be changed */
+		if (!k_ptr->flavor && visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &k_ptr->x_attr, &k_ptr->x_char)) continue;
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'D':
+			case 'd':
+			{
+				/* Detail on screen */
+				if (grp_cnt > 0)
+					desc_obj_fake(object_idx[object_cur]);
+
+				redraw = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				break;
+			}
+		}
+	}
+
+	/* Free the "object_idx" array */
+	C_KILL(object_idx, max_k_idx, int);
+}
+
+
+/*
+ * Display the artifacts in a group.
+ */
+static void display_artifact_list(int col, int row, int per_page, int artifact_idx[],
+	int artifact_cur, int artifact_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && artifact_idx[artifact_top + i]; i++)
+	{
+		char o_name[MAX_NLEN];
+		byte a, a2;
+		char c, c2;
+
+		object_kind *k_ptr;
+		object_type forge;
+		object_type *q_ptr = &forge;
+
+		/* Get the artifact index */
+		int a_idx = artifact_idx[artifact_top + i];
+		bool okay = artifact_okay[a_idx];
+
+		/* Choose a color */
+		byte attr = (okay ? TERM_WHITE : TERM_SLATE);
+		byte cursor = (okay ? TERM_L_BLUE : TERM_BLUE);
+
+		if (a_idx < max_a_idx)
+		{
+			/* Access the artifact */
+			artifact_type *a_ptr = &a_info[a_idx];
+
+			/* Get the object index */
+			int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+			/* Access the object */
+			k_ptr = &k_info[k_idx];
+
+			/* Create fake artifact */
+			object_prep(q_ptr, k_idx);
+			q_ptr->name1 = (byte)a_idx;
+		}
+		else
+		{
+			runeweapon_type *runeweapon = &runeweapon_list[runeweapon_list_idx_from(a_idx)];
+			q_ptr = &runeweapon->weapon;
+
+			/* Access the object */
+			k_ptr = &k_info[lookup_kind(q_ptr->tval, q_ptr->sval)];
+		}
+
+		/* Describe the artifact */
+		object_desc_store(o_name, q_ptr, FALSE, 0);
+
+		attr = ((i + artifact_top == artifact_cur) ? cursor : attr);
+
+		/* Display the name */
+#ifdef JP
+		c_prt(attr, o_name, row + i, col);
+#else
+		c_prt(attr, format("The %s", o_name), row + i, col);
+#endif
+
+		if (p_ptr->wizard)
+		{
+			if (a_idx < max_a_idx)
+			{
+				c_prt(attr, format("%d", a_idx), row + i, 70);
+			}
+			else
+			{
+				c_prt(attr, format("(%d)", runeweapon_list_idx_from(a_idx)), row + i, 70);
+			}
+		}
+
+		a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
+		c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
+
+		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+		/* Display symbol */
+		Term_putch(76, row + i, a, c);
+
+		/* Second byte */
+		if (use_bigtile) Term_putch(76 + 1, row + i, a2, c2);
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+/*
+ * Describe fake artifact
+ */
+static void desc_artifact_fake(int a_idx)
+{
+	object_type *o_ptr;
+	object_type object_type_body;
+
+	if (!p_ptr->wizard && !artifact_desc_okay[a_idx])
+	{
+#ifdef JP
+		msg_print("このアイテムの詳細は参照できない。");
+#else
+		msg_print("You cannot browse detail about that item.");
+#endif
+		msg_print(NULL);
+		return;
+	}
+
+	if (a_idx < max_a_idx)
+	{
+		artifact_type *a_ptr = &a_info[a_idx];
+		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+		int i;
+
+		/* Get local object */
+		o_ptr = &object_type_body;
+
+		/* Wipe the object */
+		object_wipe(o_ptr);
+
+		/* Create the artifact */
+		object_prep(o_ptr, k_idx);
+		o_ptr->name1 = (byte)a_idx;
+
+		/* Extract the fields */
+		o_ptr->pval = a_ptr->pval;
+		o_ptr->ac = a_ptr->ac;
+		o_ptr->dd = a_ptr->dd;
+		o_ptr->ds = a_ptr->ds;
+		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = a_ptr->to_stat[i];
+		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = a_ptr->to_misc[i];
+		o_ptr->to_a = a_ptr->to_a;
+		o_ptr->to_h = a_ptr->to_h;
+		o_ptr->to_d = a_ptr->to_d;
+		o_ptr->weight = a_ptr->weight;
+
+		/* Hack -- extract the "cursed" flag */
+		if (a_ptr->gen_flags & TRG_CURSED) o_ptr->curse_flags |= (TRC_CURSED);
+		if (a_ptr->gen_flags & TRG_HEAVY_CURSE) o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
+		if (a_ptr->gen_flags & TRG_PERMA_CURSE) o_ptr->curse_flags |= (TRC_PERMA_CURSE);
+
+		/* It's fully know */
+		o_ptr->ident |= (IDENT_KNOWN | IDENT_MENTAL);
+	}
+	else
+	{
+		/* Get global object */
+		o_ptr = &runeweapon_list[runeweapon_list_idx_from(a_idx)].weapon;
+	}
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	if (!screen_object(o_ptr, NULL, FALSE))
+	{
+#ifdef JP
+		msg_print("特に変わったところはないようだ。");
+#else
+		msg_print("You see nothing special.");
+#endif
+		msg_print(NULL);
+	}
+}
+
+
+static void build_artifact_okay_list(void)
+{
+	int         i, y, x;
+	object_type *o_ptr;
+	store_type  *st_ptr;
+
+	/* Scan the artifacts */
+	for (i = 0; i < max_a_idx; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+
+		/* Default */
+		artifact_okay[i] = FALSE;
+		artifact_desc_okay[i] = FALSE;
+
+		/* Skip "empty" artifacts */
+		if (!a_ptr->name) continue;
+		if (!lookup_kind(a_ptr->tval, a_ptr->sval)) continue;
+
+		/* Skip "uncreated" artifacts */
+		if (!a_ptr->cur_num) continue;
+
+		/* Assume okay */
+		artifact_okay[i] = TRUE;
+	}
+
+	/* Check the dungeon */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			cave_type *c_ptr = &cave[y][x];
+
+			s16b this_o_idx, next_o_idx = 0;
+
+			/* Scan all objects in the grid */
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Ignore non-artifacts */
+				if (!artifact_p(o_ptr)) continue;
+
+				/* Ignore known items */
+				if (object_known_p(o_ptr))
+				{
+					if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
+					continue;
+				}
+
+				/* Note the artifact */
+				artifact_okay[o_ptr->name1] = FALSE;
+			}
+		}
+	}
+
+	/* Check the inventory and equipment */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Ignore non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore non-artifacts */
+		if (!artifact_p(o_ptr)) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr))
+		{
+			if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
+			continue;
+		}
+
+		/* Note the artifact */
+		artifact_okay[o_ptr->name1] = FALSE;
+	}
+
+	/* Check the home */
+	st_ptr = &town[1].store[STORE_HOME];
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+		o_ptr = &st_ptr->stock[i];
+
+		/* Ignore non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore non-artifacts */
+		if (!artifact_p(o_ptr)) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr))
+		{
+			if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
+			continue;
+		}
+
+		/* Note the artifact */
+		artifact_okay[o_ptr->name1] = FALSE;
+	}
+
+	/* Check the museum */
+	st_ptr = &town[1].store[STORE_MUSEUM];
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+		o_ptr = &st_ptr->stock[i];
+
+		/* Ignore non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore non-artifacts */
+		if (!artifact_p(o_ptr)) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr))
+		{
+			if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
+			continue;
+		}
+
+		/* Note the artifact */
+		artifact_okay[o_ptr->name1] = FALSE;
+	}
+
+	/* Check the "Runeweapon" */
+	for (i = 1; i <= runeweapon_num; i++)
+	{
+		runeweapon_type *runeweapon = &runeweapon_list[i];
+		artifact_okay[runeweapon_a_idx_from(i)] = FALSE;
+		artifact_desc_okay[runeweapon_a_idx_from(i)] = FALSE;
+		if (!lookup_kind(runeweapon->weapon.tval, runeweapon->weapon.sval)) continue;
+		if (!(runeweapon->status & RW_STATUS_FOUND)) continue;
+		artifact_okay[runeweapon_a_idx_from(i)] = TRUE;
+		artifact_desc_okay[runeweapon_a_idx_from(i)] = TRUE;
+	}
+}
+
+
+/*
+ * Display known artifacts
+ */
+static void do_cmd_knowledge_artifacts(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top, old_grp_cur;
+	int artifact_old, artifact_cur, artifact_top;
+	int grp_cnt, grp_idx[100];
+	int artifact_cnt;
+	int *artifact_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	int browser_rows;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
+	/* Allocate the "artifact_idx" array */
+	C_MAKE(artifact_idx, max_a_idx + runeweapon_num, int);
+
+	/* Allocate the "artifact_okay" array */
+	C_MAKE(artifact_okay, max_a_idx + runeweapon_num, bool);
+
+	/* Allocate the "artifact_desc_okay" array */
+	C_MAKE(artifact_desc_okay, max_a_idx + runeweapon_num, bool);
+
+	build_artifact_okay_list();
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; object_group_text[i] != NULL; i++)
+	{
+		/* Measure the label */
+		len = strlen(object_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		/* See if any monsters are known */
+		if (collect_artifacts(i, artifact_idx))
+		{
+			/* Build a list of groups with known monsters */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	old_grp_cur = -1;
+	grp_cur = grp_top = 0;
+	artifact_cur = artifact_top = 0;
+	artifact_old = -1;
+	artifact_cnt = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+#ifdef JP
+			prt("知識 - 伝説のアイテム", 2, 0);
+			prt("グループ", 4, 0);
+			prt("名前", 4, max + 3);
+			if (p_ptr->wizard) prt("Idx", 4, 70);
+			prt("文字", 4, 75);
+#else
+			prt("Knowledge - artifacts", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			if (p_ptr->wizard) prt("Idx", 4, 70);
+			prt("Sym", 4, 75);
+#endif
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < browser_rows; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+		/* Display a list of artifact groups */
+		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
+
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
+
+			/* Get a list of artifacts in the current group */
+			artifact_cnt = collect_artifacts(grp_idx[grp_cur], artifact_idx);
+		}
+
+		/* Scroll artifact list */
+		while (artifact_cur < artifact_top)
+			artifact_top = MAX(0, artifact_top - browser_rows/2);
+		while (artifact_cur >= artifact_top + browser_rows)
+			artifact_top = MIN(artifact_cnt - browser_rows, artifact_top + browser_rows/2);
+
+		/* Display a list of artifacts in the current group */
+		display_artifact_list(max + 3, 6, browser_rows, artifact_idx, artifact_cur, artifact_top);
+
+		/* Prompt */
+#ifdef JP
+		prt("<方向>, 'd'で詳細を見る, ESC", hgt - 1, 0);
+#else
+		prt("<dir>, 'd' to detail, ESC", hgt - 1, 0);
+#endif
+
+		/* The "current" artifact changed */
+		if (artifact_old != artifact_idx[artifact_cur])
+		{
+			/* Hack -- handle stuff */
+			handle_stuff();
+
+			/* Remember the "current" artifact */
+			artifact_old = artifact_idx[artifact_cur];
+		}
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (artifact_cur - artifact_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'D':
+			case 'd':
+			{
+				/* Detail on screen */
+				if (grp_cnt > 0)
+					desc_artifact_fake(artifact_idx[artifact_cur]);
+
+				redraw = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &artifact_cur, artifact_cnt);
+				break;
+			}
+		}
+	}
+
+	/* Free the "artifact_desc_okay" array */
+	C_KILL(artifact_desc_okay, max_a_idx + runeweapon_num, bool);
+
+	/* Free the "artifact_okay" array */
+	C_KILL(artifact_okay, max_a_idx + runeweapon_num, bool);
+
+	/* Free the "artifact_idx" array */
+	C_KILL(artifact_idx, max_a_idx + runeweapon_num, int);
+}
+
+
+/*
+ * Display the features in a group.
+ */
+static void display_feature_list(int col, int row, int per_page, int *feat_idx,
+	int feat_cur, int feat_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && feat_idx[feat_top + i]; i++)
+	{
+		byte a, a2;
+		char c, c2;
+		byte attr;
+
+		/* Get the index */
+		int f_idx = feat_idx[feat_top + i];
+
+		/* Access the index */
+		feature_type *f_ptr = &f_info[f_idx];
+
+		/* Choose a color */
+		attr = ((i + feat_top == feat_cur) ? TERM_L_BLUE : TERM_WHITE);
+
+		/* Display the name */
+		c_prt(attr, f_name + f_ptr->name, row + i, col);
+
+		/* Hack -- visual_list mode */
+		if (per_page == 1)
+		{
+			c_prt(attr, format("%02x/%02x", f_ptr->x_attr, f_ptr->x_char), row + i, 60);
+		}
+
+		a = f_ptr->x_attr;
+		c = f_ptr->x_char;
+
+		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+		/* Display symbol */
+		Term_putch(68, row + i, a, c);
+
+		/* Second byte */
+		if (use_bigtile) Term_putch(68 + 1, row + i, a2, c2);
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+
+/*
+ * Interact with feature visuals.
+ */
+static void do_cmd_knowledge_features(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top, old_grp_cur;
+	int feat_cur, feat_top;
+	int grp_cnt, grp_idx[100];
+	int feat_cnt;
+	int *feat_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	bool visual_list = FALSE;
+	byte attr_top = 0, char_left = 0;
+
+	int browser_rows;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
+	/* Allocate the "feat_idx" array */
+	C_MAKE(feat_idx, max_f_idx, int);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; feature_group_text[i] != NULL; i++)
+	{
+		/* Measure the label */
+		len = strlen(feature_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		/* See if any features are known */
+		if (collect_features(feat_idx))
+		{
+			/* Build a list of groups with known features */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	old_grp_cur = -1;
+	grp_cur = grp_top = 0;
+	feat_cur = feat_top = 0;
+	feat_cnt = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while ((!flag) && (grp_cnt))
+	{
+		char ch;
+		feature_type *f_ptr;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+			prt("Visuals - features", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			prt("Sym", 4, 67);
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < browser_rows; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+		/* Display a list of feature groups */
+		display_group_list(0, 6, max, browser_rows, grp_idx, feature_group_text, grp_cur, grp_top);
+
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
+
+			/* Get a list of features in the current group */
+			feat_cnt = collect_features(feat_idx);
+		}
+
+		/* Scroll feature list */
+		while (feat_cur < feat_top)
+			feat_top = MAX(0, feat_top - browser_rows/2);
+		while (feat_cur >= feat_top + browser_rows)
+			feat_top = MIN(feat_cnt - browser_rows, feat_top + browser_rows/2);
+
+		if (!visual_list)
+		{
+			/* Display a list of features in the current group */
+			display_feature_list(max + 3, 6, browser_rows, feat_idx, feat_cur, feat_top);
+		}
+		else
+		{
+			feat_top = feat_cur;
+
+			/* Display a list of features in the current group */
+			display_feature_list(max + 3, 6, 1, feat_idx, feat_cur, feat_top);
+
+			/* Display visual list below first object */
+			display_visual_list(max + 3, 7, browser_rows-1, wid - (max + 3), attr_top, char_left);
+		}
+
+		/* Prompt */
+#ifdef JP
+		prt(format("<方向>%s%s, ESC", visual_list ? ", ENTERで決定" : ", 'v'でシンボル変更", (attr_idx||char_idx) ? ", 'c', 'p'でペースト" : ", 'c'でコピー"), hgt - 1, 0);
+#else
+		prt(format("<dir>%s%s, ESC", visual_list ? ", ENTER to accept" : ", 'v' for visuals", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
+#endif
+
+		/* Get the current feature */
+		f_ptr = &f_info[feat_idx[feat_cur]];
+
+		if (visual_list)
+		{
+			place_visual_list_cursor(max + 3, 7, f_ptr->x_attr, f_ptr->x_char, attr_top, char_left);
+		}
+		else if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (feat_cur - feat_top));
+		}
+
+		ch = inkey();
+
+		/* Do visual mode command if needed */
+		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &f_ptr->x_attr, &f_ptr->x_char)) continue;
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &feat_cur, feat_cnt);
+				break;
+			}
+		}
+	}
+
+	/* Prompt */
+	if (!grp_cnt) msg_print("No features known.");
+
+	/* Free the "feat_idx" array */
+	C_KILL(feat_idx, max_f_idx, int);
+}
+
+
+/*
+ * List wanted monsters
+ */
 static void do_cmd_knowledge_kubi(void)
 {
 	int i;
 	FILE *fff;
-	
+
 	char file_name[1024];
-	
-	
+
+
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
-	
+
 	if (fff)
 	{
 #ifdef JP
@@ -6752,66 +8688,18 @@ static void do_cmd_knowledge_kubi(void)
 				fprintf(fff, "$%d\n", 300 * (r_info[kubi_r_idx[i]].level + 1));
 		}
 	}
-	
+
 	/* Close the file */
 	my_fclose(fff);
 	
 	/* Display the file contents */
 #ifdef JP
-show_file(TRUE, file_name, "賞金首の一覧", 0, 0);
+	show_file(TRUE, file_name, "賞金首の一覧", 0, 0);
 #else
 	show_file(TRUE, file_name, "Wanted monsters", 0, 0);
 #endif
 
-	
-	/* Remove the file */
-	fd_kill(file_name);
-}
 
-/*
-* List virtues & status
-*
-*/
-static void do_cmd_knowledge_virtues(void)
-{
-	FILE *fff;
-	
-	char file_name[1024];
-	
-	
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-	
-	if (fff)
-	{
-#ifdef JP
-		fprintf(fff, "現在の属性 : %s\n\n", your_alignment());
-#else
-		fprintf(fff, "Your alighnment : %s\n\n", your_alignment());
-#endif
-		dump_virtues(fff);
-	}
-	
-	/* Close the file */
-	my_fclose(fff);
-	
-	/* Display the file contents */
-#ifdef JP
-show_file(TRUE, file_name, "八つの徳", 0, 0);
-#else
-	show_file(TRUE, file_name, "Virtues", 0, 0);
-#endif
-
-	
 	/* Remove the file */
 	fd_kill(file_name);
 }
@@ -6823,23 +8711,24 @@ show_file(TRUE, file_name, "八つの徳", 0, 0);
 static void do_cmd_knowledge_dungeon(void)
 {
 	FILE *fff;
-	
+
 	char file_name[1024];
 	int i;
-	
-	
+
+
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
-	
+
 	if (fff)
 	{
 		for (i = 1; i < max_d_idx; i++)
@@ -6860,18 +8749,18 @@ static void do_cmd_knowledge_dungeon(void)
 #endif
 		}
 	}
-	
+
 	/* Close the file */
 	my_fclose(fff);
-	
+
 	/* Display the file contents */
 #ifdef JP
-show_file(TRUE, file_name, "今までに入ったダンジョン", 0, 0);
+	show_file(TRUE, file_name, "今までに入ったダンジョン", 0, 0);
 #else
 	show_file(TRUE, file_name, "Dungeon", 0, 0);
 #endif
 
-	
+
 	/* Remove the file */
 	fd_kill(file_name);
 }
@@ -6883,60 +8772,40 @@ show_file(TRUE, file_name, "今までに入ったダンジョン", 0, 0);
 static void do_cmd_knowledge_stat(void)
 {
 	FILE *fff;
-	
+
 	char file_name[1024];
 	int percent, v_nr;
-	
+
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-	
-	if (fff)
+	if (!fff)
 	{
-		percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-			(2 * p_ptr->hitdie +
-			((PY_MAX_LEVEL - 1+3) * (p_ptr->hitdie + 1))));
-
 #ifdef JP
-if (p_ptr->knowledge & KNOW_HPRATE) fprintf(fff, "現在の体力ランク : %d/100\n\n", percent);
-else fprintf(fff, "現在の体力ランク : ???\n\n");
-fprintf(fff, "能力の最大値\n\n");
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-		if (p_ptr->knowledge & KNOW_HPRATE) fprintf(fff, "Your current Life Rating is %d/100.\n\n", percent);
-		else fprintf(fff, "Your current Life Rating is ???.\n\n");
-fprintf(fff, "Limits of maximum stats\n\n");
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-		for (v_nr = 0; v_nr < 6; v_nr++)
-		{
-			if ((p_ptr->knowledge & KNOW_STAT) || p_ptr->stat_max[v_nr] == p_ptr->stat_max_max[v_nr]) fprintf(fff, "%s 18/%d\n", stat_names[v_nr], p_ptr->stat_max_max[v_nr]-18);
-			else fprintf(fff, "%s ???\n", stat_names[v_nr]);
-		}
+		msg_print(NULL);
+		return;
 	}
 
 	dump_yourself(fff);
 
 	/* Close the file */
 	my_fclose(fff);
-	
+
 	/* Display the file contents */
 #ifdef JP
-show_file(TRUE, file_name, "自分に関する情報", 0, 0);
+	show_file(TRUE, file_name, "自分に関する情報", 0, 0);
 #else
-	show_file(TRUE, file_name, "HP-rate & Max stat", 0, 0);
+	show_file(TRUE, file_name, "About yourself", 0, 0);
 #endif
 
-	
+
 	/* Remove the file */
 	fd_kill(file_name);
 }
+
 
 /*
  * Print quest status of all active quests
@@ -6950,19 +8819,20 @@ static void do_cmd_knowledge_quests(void)
 	char name[80];
 	monster_race *r_ptr;
 	int i;
-	int rand_level = 100;
+	int rand_level = astral_mode ? 0 : 100;
 	int total = 0;
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
 
 #ifdef JP
@@ -6993,13 +8863,13 @@ static void do_cmd_knowledge_quests(void)
 			/* Get the quest text */
 			init_flags = INIT_SHOW_TEXT;
 
-			process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+			process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 			/* Reset the old quest number */
 			p_ptr->inside_quest = old_quest;
 
-                        /* No info from "silent" quests */
-                        if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+			/* No info from "silent" quests */
+			if (quest[i].flags & QUEST_FLAG_SILENT) continue;
 
 			total++;
 
@@ -7063,11 +8933,11 @@ static void do_cmd_knowledge_quests(void)
 				/* Print the quest info */
 #ifdef JP
 				sprintf(tmp_str, "%s (危険度:%d階相当)%s\n",
+					quest[i].name, quest[i].level, note);
 #else
 				sprintf(tmp_str, "%s (Danger level: %d)%s\n",
-#endif
-
 					quest[i].name, quest[i].level, note);
+#endif
 
 				fprintf(fff, tmp_str);
 
@@ -7078,7 +8948,6 @@ static void do_cmd_knowledge_quests(void)
 #else
 					sprintf(tmp_str, "  Quest Completed - Unrewarded\n");
 #endif
-
 
 					fprintf(fff, tmp_str);
 				}
@@ -7094,23 +8963,27 @@ static void do_cmd_knowledge_quests(void)
 				}
 			}
 			else if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-			         (quest[i].level < rand_level))
+			        ((!astral_mode && (quest[i].level < rand_level)) ||
+			         (astral_mode && (quest[i].level > rand_level))))
 			{
 				/* New random */
 				rand_level = quest[i].level;
 
-				if (max_dlv[DUNGEON_ANGBAND] >= rand_level)
+				if ((!astral_mode && (max_dlv[DUNGEON_PALACE] >= rand_level)) ||
+				    (astral_mode && (dun_level == rand_level)))
 				{
 					/* Print the quest info */
 					r_ptr = &r_info[quest[i].r_idx];
 					strcpy(name, r_name + r_ptr->name);
 
+					total++;
+
 					if (quest[i].max_num > 1)
 					{
 #ifdef JP
-sprintf(rand_tmp_str,"%s (%d 階) - %d 体の%sを倒す。(あと %d 体)\n",
-	quest[i].name, quest[i].level,
-	quest[i].max_num, name, quest[i].max_num-quest[i].cur_num);
+						sprintf(rand_tmp_str,"%s (%d 階) - %d 体の%sを倒す。(あと %d 体)\n",
+							quest[i].name, quest[i].level,
+							quest[i].max_num, name, quest[i].max_num-quest[i].cur_num);
 #else
 						plural_aux(name);
 
@@ -7123,12 +8996,12 @@ sprintf(rand_tmp_str,"%s (%d 階) - %d 体の%sを倒す。(あと %d 体)\n",
 					else
 					{
 #ifdef JP
-sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
+						sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
+							quest[i].name, quest[i].level, name);
 #else
 						sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %s.\n",
-#endif
-
 							quest[i].name, quest[i].level, name);
+#endif
 					}
 				}
 			}
@@ -7154,9 +9027,9 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 	{
 		if (quest[i].status == QUEST_STATUS_FINISHED)
 		{
-			if (i < MIN_RANDOM_QUEST)
+			if (quest_is_fixed(i))
 			{
-                                int old_quest;
+				int old_quest;
 
 				/* Set the quest number temporary */
 				old_quest = p_ptr->inside_quest;
@@ -7165,38 +9038,55 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 				/* Get the quest */
 				init_flags = INIT_ASSIGN;
 
-				process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 				/* Reset the old quest number */
 				p_ptr->inside_quest = old_quest;
 
-                                /* No info from "silent" quests */
-                                if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+				/* No info from "silent" quests */
+				if (quest[i].flags & QUEST_FLAG_SILENT) continue;
 			}
 
 			total++;
 
-			if ((i >= MIN_RANDOM_QUEST) && quest[i].r_idx)
+			if (!quest_is_fixed(i) && quest[i].r_idx)
 			{
 				/* Print the quest info */
-#ifdef JP
-				sprintf(tmp_str, "%s (%d階) - レベル%d\n",
-#else
-				sprintf(tmp_str, "%s (Dungeon level: %d) - level %d\n",
-#endif
 
-					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
+				if (quest[i].complev == 0)
+				{
+					sprintf(tmp_str, 
+#ifdef JP
+					        "%s (%d階) - 不戦勝\n",
+#else
+					        "%s (Dungeon level: %d) - (Cancelled)\n",
+#endif
+					        r_name+r_info[quest[i].r_idx].name,
+					        quest[i].level);
+				}
+				else
+				{
+					sprintf(tmp_str, 
+#ifdef JP
+					        "%s (%d階) - レベル%d\n",
+#else
+					        "%s (Dungeon level: %d) - level %d\n",
+#endif
+					        r_name+r_info[quest[i].r_idx].name,
+					        quest[i].level,
+					        quest[i].complev);
+				}
 			}
 			else
 			{
 				/* Print the quest info */
 #ifdef JP
 				sprintf(tmp_str, "%s (危険度:%d階相当) - レベル%d\n",
+					quest[i].name, quest[i].level, quest[i].complev);
 #else
 				sprintf(tmp_str, "%s (Danger level: %d) - level %d\n",
-#endif
-
 					quest[i].name, quest[i].level, quest[i].complev);
+#endif
 			}
 
 			fprintf(fff, tmp_str);
@@ -7218,9 +9108,9 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 	{
 		if ((quest[i].status == QUEST_STATUS_FAILED_DONE) || (quest[i].status == QUEST_STATUS_FAILED))
 		{
-			if (i < MIN_RANDOM_QUEST)
+			if (quest_is_fixed(i))
 			{
-                                int old_quest;
+				int old_quest;
 
 				/* Set the quest number temporary */
 				old_quest = p_ptr->inside_quest;
@@ -7229,38 +9119,38 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 				/* Get the quest text */
 				init_flags = INIT_ASSIGN;
 
-				process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 				/* Reset the old quest number */
 				p_ptr->inside_quest = old_quest;
 
-                                /* No info from "silent" quests */
-                                if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+				/* No info from "silent" quests */
+				if (quest[i].flags & QUEST_FLAG_SILENT) continue;
 			}
 
 			total++;
 
-			if ((i >= MIN_RANDOM_QUEST) && quest[i].r_idx)
+			if (!quest_is_fixed(i) && quest[i].r_idx)
 			{
 				/* Print the quest info */
 #ifdef JP
 				sprintf(tmp_str, "%s (%d階) - レベル%d\n",
+					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
 #else
 				sprintf(tmp_str, "%s (Dungeon level: %d) - level %d\n",
-#endif
-
 					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
+#endif
 			}
 			else
 			{
 				/* Print the quest info */
 #ifdef JP
 				sprintf(tmp_str, "%s (危険度:%d階相当) - レベル%d\n",
+					quest[i].name, quest[i].level, quest[i].complev);
 #else
 				sprintf(tmp_str, "%s (Danger level: %d) - level %d\n",
-#endif
-
 					quest[i].name, quest[i].level, quest[i].complev);
+#endif
 			}
 			fprintf(fff, tmp_str);
 		}
@@ -7290,11 +9180,11 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 			/* Print the quest info */
 #ifdef JP
 			sprintf(tmp_str, "%s (%d階, %s)\n",
+				quest[i].name, quest[i].level, r_name+r_info[quest[i].r_idx].name);
 #else
 			sprintf(tmp_str, "%s (%d, %s)\n",
-#endif
-
 				quest[i].name, quest[i].level, r_name+r_info[quest[i].r_idx].name);
+#endif
 			fprintf(fff, tmp_str);
 		}
 	}
@@ -7303,7 +9193,7 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 #else
 	if (!total) fprintf(fff, "Nothing.\n");
 #endif
-	}	
+	}
 
 	/* Close the file */
 	my_fclose(fff);
@@ -7323,9 +9213,8 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 
 
 /*
-* List my home
-*
-*/
+ * List my home
+ */
 static void do_cmd_knowledge_home(void)
 {
 	FILE *fff;
@@ -7336,20 +9225,21 @@ static void do_cmd_knowledge_home(void)
 	char o_name[MAX_NLEN];
 	cptr		paren = ")";
 
-	process_dungeon_file("w_info_j.txt", 0, 0, max_wild_y, max_wild_x);
+	process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
+	if (!fff)
+	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
-	
+
 	if (fff)
 	{
 		/* Print all homes in the different towns */
@@ -7370,7 +9260,7 @@ static void do_cmd_knowledge_home(void)
 			for (i = 0; i < st_ptr->stock_num; i++)
 			{
 #ifdef JP
-		                if ((i % 12) == 0) fprintf(fff, "\n ( %d ページ )\n", x++);
+				if ((i % 12) == 0) fprintf(fff, "\n ( %d ページ )\n", x++);
 				object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
 				if (strlen(o_name) <= 80-3)
 				{
@@ -7404,7 +9294,7 @@ static void do_cmd_knowledge_home(void)
 	
 	/* Display the file contents */
 #ifdef JP
-show_file(TRUE, file_name, "我が家のアイテム", 0, 0);
+	show_file(TRUE, file_name, "我が家のアイテム", 0, 0);
 #else
 	show_file(TRUE, file_name, "Home Inventory", 0, 0);
 #endif
@@ -7430,34 +9320,34 @@ static void do_cmd_knowledge_autopick(void)
 	if (!fff)
 	{
 #ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporary file %s.", file_name);
+		msg_format("Failed to create temporary file %s.", file_name);
 #endif
-	    msg_print(NULL);
-	    return;
+		msg_print(NULL);
+		return;
 	}
 
 	if (!max_autopick)
 	{
 #ifdef JP
-	    fprintf(fff, "自動破壊/拾いには何も登録されていません。");
+		fprintf(fff, "自動破壊/拾いには何も登録されていません。");
 #else
-	    fprintf(fff, "No preference for auto picker/destroyer.");
+		fprintf(fff, "No preference for auto picker/destroyer.");
 #endif
 	}
 	else
 	{
 #ifdef JP
-	    fprintf(fff, "   自動拾い/破壊には現在 %d行登録されています。\n\n", max_autopick);
+		fprintf(fff, "   自動拾い/破壊には現在 %d行登録されています。\n\n", max_autopick);
 #else
-	    fprintf(fff, "   There are %d registered lines for auto picker/destroyer.\n\n", max_autopick);
+		fprintf(fff, "   There are %d registered lines for auto picker/destroyer.\n\n", max_autopick);
 #endif
 	}
 
 	for (k = 0; k < max_autopick; k++)
 	{
-		cptr tmp;
+		cptr tmp = NULL;
 		byte act = autopick_list[k].action;
 		if (act & DONT_AUTOPICK)
 		{
@@ -7475,12 +9365,20 @@ static void do_cmd_knowledge_autopick(void)
 			tmp = "Destroy";
 #endif
 		}
-		else
+		else if (act & DO_AUTOPICK)
 		{
 #ifdef JP
 			tmp = "拾う";
 #else
 			tmp = "Pickup";
+#endif
+		}
+		else /* if (act & DO_QUERY_AUTOPICK) */ /* Obvious */
+		{
+#ifdef JP
+			tmp = "確認";
+#else
+			tmp = "Query";
 #endif
 		}
 
@@ -7501,6 +9399,71 @@ static void do_cmd_knowledge_autopick(void)
 	show_file(TRUE, file_name, "自動拾い/破壊 設定リスト", 0, 0);
 #else
 	show_file(TRUE, file_name, "Auto-picker/Destroyer", 0, 0);
+#endif
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
+ * List composition of player's money
+ */
+static void do_cmd_knowledge_money_composition(void)
+{
+	object_kind *k_ptr;
+	int i;
+	FILE *fff;
+	char file_name[1024];
+
+	/* Open a new file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	if (!fff)
+	{
+#ifdef JP
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
+#else
+		msg_format("Failed to create temporary file %s.", file_name);
+#endif
+		msg_print(NULL);
+		return;
+	}
+
+#ifdef JP
+#ifdef L64
+	fprintf(fff, "紙幣             %9d (%9d *    1)\n",
+#else
+	fprintf(fff, "紙幣             %9ld (%9ld *    1)\n",
+#endif
+#else
+#ifdef L64
+	fprintf(fff, "Note             %9d (%9d *    1)\n",
+#else
+	fprintf(fff, "Note             %9ld (%9ld *    1)\n",
+#endif
+#endif
+		p_ptr->au[SV_GOLD_NOTE], p_ptr->au[SV_GOLD_NOTE]);
+	for (i = 1; i <= MAX_GOLD; i++)
+	{
+		k_ptr = &k_info[lookup_kind(TV_GOLD, i)];
+
+#ifdef L64
+		fprintf(fff, "%-16s %9d (%9d * %4d)\n", k_name + k_ptr->name,
+			p_ptr->au[i], p_ptr->au[i] / k_ptr->cost, k_ptr->cost);
+#else
+		fprintf(fff, "%-16s %9ld (%9ld * %4ld)\n", k_name + k_ptr->name,
+			p_ptr->au[i], p_ptr->au[i] / k_ptr->cost, k_ptr->cost);
+#endif
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+	/* Display the file contents */
+#ifdef JP
+	show_file(TRUE, file_name, "所持金の構成", 0, 0);
+#else
+	show_file(TRUE, file_name, "Composition of Money", 0, 0);
 #endif
 
 	/* Remove the file */
@@ -7538,55 +9501,53 @@ void do_cmd_knowledge(void)
 			prt("(1) 既知の伝説のアイテム                 の一覧", 6, 5);
 			prt("(2) 既知のアイテム                       の一覧", 7, 5);
 			prt("(3) 既知の生きているユニーク・モンスター の一覧", 8, 5);
-			prt("(4) 倒したユニーク・モンスター           の一覧", 9, 5);
+			prt("(4) 既知のモンスター                     の一覧", 9, 5);
 			prt("(5) 倒した敵の数                         の一覧", 10, 5);
-			prt("(6) 賞金首                               の一覧", 11, 5);
+			if (!astral_mode) prt("(6) 賞金首                               の一覧", 11, 5);
 			prt("(7) 現在のペット                         の一覧", 12, 5);
 			prt("(8) 我が家のアイテム                     の一覧", 13, 5);
 			prt("(9) *鑑定*済み装備の耐性                 の一覧", 14, 5);
+			prt("(0) 地形の表示文字                       の一覧", 15, 5);
 		} else {
 			prt("(a) 自分に関する情報                     の一覧", 6, 5);
 			prt("(b) 突然変異                             の一覧", 7, 5);
-			prt("(c) 武器の経験値                         の一覧", 8, 5);
-			prt("(d) 魔法の経験値                         の一覧", 9, 5);
-			prt("(e) 技能の経験値                         の一覧", 10, 5);
-			prt("(f) プレイヤーの徳                       の一覧", 11, 5);
-			prt("(g) 入ったダンジョン                     の一覧", 12, 5);
-			prt("(h) 実行中のクエスト                     の一覧", 13, 5);
-			prt("(i) 現在の自動拾い/破壊設定              の一覧", 14, 5);
+			prt("(c) カオスフレーム                       の一覧", 8, 5);
+			prt("(d) 入ったダンジョン                     の一覧", 9, 5);
+			prt("(e) 実行中のクエスト                     の一覧", 10, 5);
+			prt("(f) 現在の自動拾い/破壊設定              の一覧", 11, 5);
+			prt("(g) 所持金の構成                         の一覧", 12, 5);
 		}
 #else
 		if (p == 0) {
 			prt("(1) Display known artifacts", 6, 5);
 			prt("(2) Display known objects", 7, 5);
 			prt("(3) Display remaining uniques", 8, 5);
-			prt("(4) Display dead uniques", 9, 5);
+			prt("(4) Display known monster", 9, 5);
 			prt("(5) Display kill count", 10, 5);
-			prt("(6) Display wanted monsters", 11, 5);
+			if (!astral_mode) prt("(6) Display wanted monsters", 11, 5);
 			prt("(7) Display current pets", 12, 5);
 			prt("(8) Display home inventory", 13, 5);
 			prt("(9) Display *identified* equip.", 14, 5);
+			prt("(0) Display terrain symbols.", 15, 5);
 		} else {
 			prt("(a) Display about yourself", 6, 5);
 			prt("(b) Display mutations", 7, 5);
-			prt("(c) Display weapon proficiency", 8, 5);
-			prt("(d) Display spell proficiency", 9, 5);
-			prt("(e) Display misc. proficiency", 10, 5);
-			prt("(f) Display virtues", 11, 5);
-			prt("(g) Display dungeons", 12, 5);
-			prt("(h) Display current quests", 13, 5);
-			prt("(i) Display auto pick/destroy", 14, 5);
+			prt("(c) Display chaos frame", 8, 5);
+			prt("(d) Display dungeons", 9, 5);
+			prt("(e) Display current quests", 10, 5);
+			prt("(f) Display auto pick/destroy", 11, 5);
+			prt("(g) Display composition of money", 12, 5);
 		}
 #endif
 		/* Prompt */
 #ifdef JP
-		prt("-続く-", 16, 8);
+		prt("-続く-", 17, 8);
 		prt("ESC) 抜ける", 21, 1);
 		prt("SPACE) 次ページ", 21, 30);
 		/*prt("-) 前ページ", 21, 60);*/
 		prt("コマンド:", 20, 0);
 #else
-		prt("-more-", 16, 8);
+		prt("-more-", 17, 8);
 		prt("ESC) Exit menu", 21, 1);
 		prt("SPACE) Next page", 21, 30);
 		/*prt("-) Previous page", 21, 60);*/
@@ -7612,14 +9573,14 @@ void do_cmd_knowledge(void)
 		case '3': /* Uniques */
 			do_cmd_knowledge_uniques();
 			break;
-		case '4': /* Uniques */
-			do_cmd_knowledge_uniques_dead();
+		case '4': /* Monsters */
+			do_cmd_knowledge_monsters();
 			break;
 		case '5': /* Kill count  */
 			do_cmd_knowledge_kill_count();
 			break;
 		case '6': /* wanted */
-			do_cmd_knowledge_kubi();
+			if (!astral_mode) do_cmd_knowledge_kubi();
 			break;
 		case '7': /* Pets */
 			do_cmd_knowledge_pets();
@@ -7630,6 +9591,9 @@ void do_cmd_knowledge(void)
 		case '9': /* Resist list */
 			do_cmd_knowledge_inven();
 			break;
+		case '0': /* Feature list */
+			do_cmd_knowledge_features();
+			break;
 		/* Next page */
 		case 'a': /* Max stat */
 			do_cmd_knowledge_stat();
@@ -7637,26 +9601,20 @@ void do_cmd_knowledge(void)
 		case 'b': /* Mutations */
 			do_cmd_knowledge_mutations();
 			break;
-		case 'c': /* weapon-exp */
-			do_cmd_knowledge_weapon_exp();
+		case 'c': /* Chaos frame */
+			do_cmd_knowledge_chaos_frame();
 			break;
-		case 'd': /* spell-exp */
-			do_cmd_knowledge_spell_exp();
-			break;
-		case 'e': /* skill-exp */
-			do_cmd_knowledge_skill_exp();
-			break;
-		case 'f': /* Virtues */
-			do_cmd_knowledge_virtues();
-			break;
-		case 'g': /* Dungeon */
+		case 'd': /* Dungeon */
 			do_cmd_knowledge_dungeon();
 			break;
-		case 'h': /* Quests */
+		case 'e': /* Quests */
 			do_cmd_knowledge_quests();
 			break;
-		case 'i': /* Autopick */
+		case 'f': /* Autopick */
 			do_cmd_knowledge_autopick();
+			break;
+		case 'g': /* Money composition */
+			do_cmd_knowledge_money_composition();
 			break;
 		default: /* Unknown option */
 			bell();
@@ -7710,7 +9668,7 @@ void do_cmd_time(void)
 	num = 0;
 
 #ifdef JP
-strcpy(desc, "変な時刻だ。");
+	strcpy(desc, "変な時刻だ。");
 #else
 	strcpy(desc, "It is a strange time.");
 #endif
@@ -7718,33 +9676,35 @@ strcpy(desc, "変な時刻だ。");
 
 	/* Message */
 #ifdef JP
-msg_format("%d 日目,時刻は%d:%02d %sです。",
+	msg_format("%d 日目,時刻は%d:%02d %sです。",
+		   day, (hour % 12 == 0) ? 12 : (hour % 12),
+		   min, (hour < 12) ? "AM" : "PM");
 #else
 	msg_format("This is day %d. The time is %d:%02d %s.",
+		   day, (hour % 12 == 0) ? 12 : (hour % 12),
+		   min, (hour < 12) ? "AM" : "PM");
 #endif
 
-				  day, (hour % 12 == 0) ? 12 : (hour % 12),
-				  min, (hour < 12) ? "AM" : "PM");
 
 	/* Find the path */
 	if (!randint0(10) || p_ptr->image)
-		{
+	{
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun_j.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timefun_j.txt");
 #else
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timefun.txt");
 #endif
 
-		}
-		else
-		{
+	}
+	else
+	{
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm_j.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timenorm_j.txt");
 #else
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timenorm.txt");
 #endif
 
-		}
+	}
 
 	/* Open this file */
 	fff = my_fopen(buf, "rt");
@@ -7753,7 +9713,7 @@ msg_format("%d 日目,時刻は%d:%02d %sです。",
 	if (!fff) return;
 
 	/* Find this time */
-	while (!my_fgets(fff, buf, 1024))
+	while (!my_fgets(fff, buf, sizeof(buf)))
 	{
 		/* Ignore comments */
 		if (!buf[0] || (buf[0] == '#')) continue;
@@ -7805,4 +9765,1012 @@ msg_format("%d 日目,時刻は%d:%02d %sです。",
 
 	/* Close the file */
 	my_fclose(fff);
+}
+
+
+/*
+ * Give some money townspeople
+ */
+void do_cmd_give_money(void)
+{
+	int          y, x, dir;
+	int          give_money;
+	cave_type    *c_ptr;
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	char         m_name[80];
+
+	energy_use = 0;
+
+	if (p_ptr->confused || p_ptr->image || p_ptr->inside_quest || p_ptr->inside_arena || dun_level || dungeon_type)
+	{
+#ifdef JP
+		msg_print("今はお金を恵むことができない！");
+#else
+		msg_print("You cannot give money now!");
+#endif
+		return;
+	}
+
+	/* Get a "repeated" direction */
+	if (get_rep_dir(&dir, FALSE))
+	{
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		c_ptr = &cave[y][x];
+
+		if (!c_ptr->m_idx)
+		{
+#ifdef JP
+			msg_print("そこには誰もいません。");
+#else
+			msg_print("You see no one there.");
+#endif
+			return;
+		}
+
+		m_ptr = &m_list[c_ptr->m_idx];
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Monster is not visible */
+		if (!m_ptr->ml)
+		{
+#ifdef JP
+			msg_print("そこには誰もいません。");
+#else
+			msg_print("You see no one there.");
+#endif
+			return;
+		}
+
+		/* Monster is not townspeople */
+		if (r_ptr->d_char != 't')
+		{
+#ifdef JP
+			msg_print("そのモンスターは町の人ではありません。");
+#else
+			msg_print("That monster is not townspeople.");
+#endif
+			return;
+		}
+
+		give_money = ((30 - ((int)adj_chr_give[p_ptr->stat_ind[A_CHR]] - 128)) * p_ptr->lev) / 4;
+		if (p_ptr->au_sum < give_money)
+		{
+#ifdef JP
+			msg_print("恵んでやれるだけのお金を持っていなかった。");
+#else
+			msg_print("You don't have enough money to give.");
+#endif
+			return;
+		}
+
+		monster_desc(m_name, m_ptr, 0);
+
+		p_ptr->au_sum -= give_money;
+
+		/* Update gold */
+		p_ptr->update |= (PU_GOLD);
+
+		/* Redraw gold */
+		p_ptr->redraw |= (PR_GOLD);
+
+		update_stuff();
+
+		change_your_alignment_lnc((m_ptr->r_idx == MON_BEGGAR) ? -2 : -1);
+		if (!dun_level && p_ptr->town_num) change_chaos_frame(town[p_ptr->town_num].ethnic, (m_ptr->r_idx == MON_BEGGAR) ? 2 : 1);
+
+#ifdef JP
+		msg_format("%sに$%dを恵んだ。", m_name, give_money);
+#else
+		msg_format("You give %s $%d.", m_name, give_money);
+#endif
+
+#ifdef JP
+		msg_format("%sは小躍りして喜んだ！", m_name);
+#else
+		msg_format("%s nanka!", m_name);
+#endif
+		if (!(r_ptr->flags1 & RF1_UNIQUE)) delete_monster_idx(c_ptr->m_idx);
+
+		energy_use = 100;
+	}
+}
+
+
+/*
+ * Description of each monster group.
+ */
+static cptr skill_group_text[] =
+{
+#ifdef JP
+	"小剣・突剣",
+	"カタナ",
+	"剣",
+	"大剣",
+	"斧",
+	"槍",
+	"乗馬槍",
+	"爪",
+	"鎌",
+	"鞭",
+	"ハンマー",
+	"杖",
+	"扇",
+	"ヌンチャク",
+	"弓",
+	"銃",
+	"掘削道具",
+	"その他",
+#else
+	"Small Swords",
+	"Katanas",
+	"Swords",
+	"Great Swords",
+	"Axes",
+	"Spears",
+	"Lances",
+	"Claws",
+	"Scythes",
+	"Whips",
+	"Hammers",
+	"Staffs",
+	"Fans",
+	"Nunchakus",
+	"Bows",
+	"Guns",
+	"Diggers",
+	"Others",
+#endif
+	NULL
+};
+
+
+/*
+ * WTs of skill in each group
+ */
+static byte skill_group_wt[] =
+{
+	WT_SMALL_SWORD,
+	WT_KATANA,
+	WT_SWORD,
+	WT_GREAT_SWORD,
+	WT_AXE,
+	WT_SPEAR,
+	WT_LANCE,
+	WT_CLAW,
+	WT_SCYTHE,
+	WT_WHIP,
+	WT_HAMMER,
+	WT_STAFF,
+	WT_FAN,
+	WT_NUNCHAKU,
+	WT_BOW,
+	WT_GUN,
+	WT_DIGGING,
+	255,
+	0,
+};
+
+
+/*
+ * Build a list of skill indexes in the given group. Return the number
+ * of skills in the group.
+ */
+static int collect_skills(int grp_cur, int skill_idx[])
+{
+	int i, skills_cnt = 0;
+
+	byte group_wt = skill_group_wt[grp_cur];
+
+	if (group_wt != 255)
+	{
+		/* Check every object */
+		for (i = 0; i < max_k_idx; i++)
+		{
+			/* Access the object */
+			object_kind *k_ptr = &k_info[i];
+
+			/* Skip empty objects */
+			if (!k_ptr->name) continue;
+
+			/* Check for race in the group */
+			if (get_weapon_type(k_ptr) == group_wt)
+			{
+				/* Add the skill */
+				skill_idx[skills_cnt++] = i;
+			}
+		}
+	}
+	else
+	{
+		/* Misc. skills */
+		for (i = 0; i < MAX_SKILL; i++)
+		{
+			/* Add the skill */
+			skill_idx[skills_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	skill_idx[skills_cnt] = -1;
+
+	/* Return the number of skills */
+	return skills_cnt;
+}
+
+
+static char misc_skill_name[MAX_SKILL][20] =
+{
+#ifdef JP
+	"マーシャルアーツ",
+	"二刀流          ",
+	"乗馬            ",
+	"投擲            ",
+	"ペット維持      ",
+	"武器防具鑑定    ",
+	"装飾品鑑定      ",
+#else
+	"Martial Arts    ",
+	"Dual Wielding   ",
+	"Riding          ",
+	"Throwing        ",
+	"Pet Upkeep      ",
+	"Arms Identify   ",
+	"Acc. Identify   ",
+#endif
+};
+
+
+/*
+ * Display the skills in a group.
+ */
+static void display_skill_list(bool is_misc, int col, int row, int per_page, int skill_idx[],
+	int skill_cur, int skill_top)
+{
+	int i;
+	int skill_lev, attack_var, skill_eff;
+	bool is_master;
+	byte attr, cursor;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && (skill_idx[skill_top + i] >= 0); i++)
+	{
+		char o_name[80];
+		byte a, a2;
+		char c, c2;
+
+		/* Get the skill index */
+		int idx = skill_idx[skill_top + i];
+
+		/* Access the object */
+		object_kind *k_ptr = &k_info[idx];
+
+		if (!is_misc)
+		{
+			skill_lev = p_ptr->weapon_skill_lev[k_ptr->tval - TV_BOW][k_ptr->sval];
+			skill_eff = p_ptr->s_ptr->w_eff[k_ptr->tval - TV_BOW][k_ptr->sval];
+
+			/* Tidy name */
+			strip_name(o_name, idx);
+		}
+		else
+		{
+			skill_lev = p_ptr->misc_skill_lev[idx];
+			skill_eff = p_ptr->s_ptr->m_eff[idx];
+
+			strcpy(o_name, misc_skill_name[idx]);
+		}
+
+		attack_var = skill_lev_var[skill_lev];
+		is_master = (skill_lev == SKILL_LEVEL_MASTER);
+
+		/* Choose a color */
+		attr = (skill_eff && !is_master) ? TERM_WHITE : TERM_SLATE;
+		cursor = (skill_eff && !is_master) ? TERM_L_BLUE : TERM_BLUE;
+		attr = ((i + skill_top == skill_cur) ? cursor : attr);
+
+		/* Display the name */
+		c_prt(attr, o_name, row + i, col);
+		c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
+		c_prt(attr, (skill_eff && !is_master) ?
+		            format("%8d", attack_var * attack_var * skill_eff) :
+#ifdef JP
+		            (!skill_eff ? "成長不可" : "    ----"),
+#else
+		            (!skill_eff ? " No inc." : "    ----"),
+#endif
+		      row + i, 65);
+
+		if (!is_misc)
+		{
+			a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
+			c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
+		}
+		else
+		{
+			/* No symbol */
+			a = TERM_DARK;
+			c = ' ';
+		}
+
+		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+		/* Display symbol */
+		Term_putch(76, row + i, a, c);
+
+		/* Second byte */
+		if (use_bigtile) Term_putch(76 + 1, row + i, a2, c2);
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+
+/*
+ * Confirm to increase skill levels
+ */
+static bool increase_skill_level(bool is_misc, int s_idx)
+{
+	int  skill_lev, attack_var, skill_eff, need_sp;
+
+	/* Access the object */
+	object_kind *k_ptr = &k_info[s_idx];
+
+	if (!is_misc)
+	{
+		skill_lev = p_ptr->weapon_skill_lev[k_ptr->tval - TV_BOW][k_ptr->sval];
+		skill_eff = p_ptr->s_ptr->w_eff[k_ptr->tval - TV_BOW][k_ptr->sval];
+	}
+	else
+	{
+		skill_lev = p_ptr->misc_skill_lev[s_idx];
+		skill_eff = p_ptr->s_ptr->m_eff[s_idx];
+	}
+
+	attack_var = skill_lev_var[skill_lev];
+
+	if (!skill_eff || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
+
+	need_sp = attack_var * attack_var * skill_eff;
+
+	if (need_sp > p_ptr->skill_point)
+	{
+#ifdef JP
+		msg_print("スキルポイントが足りません。");
+#else
+		msg_print("You don't have enough skill point.");
+#endif
+		msg_print(NULL);
+		return FALSE;
+	}
+
+#ifdef JP
+	if (!get_check("このスキルを成長させますか？ ")) return FALSE;
+#else
+	if (!get_check("Increase skill level of this? ")) return FALSE;
+#endif
+
+	p_ptr->skill_point -= need_sp;
+
+	if (!is_misc) p_ptr->weapon_skill_lev[k_ptr->tval - TV_BOW][k_ptr->sval]++;
+	else p_ptr->misc_skill_lev[s_idx]++;
+
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+	return TRUE;
+}
+
+
+/*
+ * Display and increase weapon & misc. skill levels
+ */
+static void do_cmd_weapon_skill_level(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top, old_grp_cur;
+	int skill_cur, skill_top;
+	int grp_cnt, grp_idx[100];
+	int skill_cnt;
+	int *skill_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	int browser_rows;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
+	/* Save the screen */
+	screen_save();
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Allocate the "skill_idx" array */
+	C_MAKE(skill_idx, max_k_idx, int);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; skill_group_text[i]; i++)
+	{
+		/* Measure the label */
+		len = strlen(skill_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		if (collect_skills(i, skill_idx))
+		{
+			/* Build a list of groups with skills */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	old_grp_cur = -1;
+	grp_cur = grp_top = 0;
+	skill_cur = skill_top = 0;
+	skill_cnt = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+		bool is_misc = (skill_group_wt[grp_cur] == 255);
+
+		if (redraw)
+		{
+			clear_from(0);
+
+#ifdef JP
+			prt(format("スキルポイント割り振りメニュー [現在のスキルポイント: %5d]", p_ptr->skill_point), 2, 0);
+			prt("グループ", 4, 0);
+			prt("スキル", 4, max + 3);
+			prt("レベル", 4, 43);
+			prt("  必要SP", 4, 65);
+			prt("文字", 4, 75);
+#else
+			prt(format("Skill point distributing menu [Current Skill Point: %5d]", p_ptr->skill_point), 2, 0);
+			prt("Group", 4, 0);
+			prt("Skill", 4, max + 3);
+			prt("Level", 4, 43);
+			prt(" need SP", 4, 65);
+			prt("Sym", 4, 75);
+#endif
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < browser_rows; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+		/* Display a list of skill groups */
+		display_group_list(0, 6, max, browser_rows, grp_idx, skill_group_text, grp_cur, grp_top);
+
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
+
+			/* Get a list of skills in the current group */
+			skill_cnt = collect_skills(grp_idx[grp_cur], skill_idx);
+		}
+
+		/* Scroll object list */
+		while (skill_cur < skill_top)
+			skill_top = MAX(0, skill_top - browser_rows/2);
+		while (skill_cur >= skill_top + browser_rows)
+			skill_top = MIN(skill_cnt - browser_rows, skill_top + browser_rows/2);
+
+		/* Display a list of skills in the current group */
+		display_skill_list(is_misc, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
+
+		/* Prompt */
+#ifdef JP
+		prt("<方向>, Enterで成長スキルの選択, ESC", hgt - 1, 0);
+#else
+		prt("<dir>, Enter to increase skill level, ESC", hgt - 1, 0);
+#endif
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (skill_cur - skill_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case '\n':
+			case '\r':
+			{
+				redraw = increase_skill_level(is_misc, skill_idx[skill_cur]);
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &skill_cur, skill_cnt);
+				break;
+			}
+		}
+	}
+
+	/* Free the "skill_idx" array */
+	C_KILL(skill_idx, max_k_idx, int);
+
+	/* Restore the screen */
+	screen_load();
+}
+
+
+/* Array for determine spells are in books in inventory */
+static bool **spell_skill_okay;
+
+
+/*
+ * Construct "spell okay list" from books in inventory.
+ * (note: realm is in (1-11))
+ */
+static void build_spell_okay_list(void)
+{
+	int spell;
+	int realm;
+	int i;
+
+	/* Check the inventory and equipment */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Ignore non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore except spell books */
+		if ((TV_MAGERY_BOOK > o_ptr->tval) || (o_ptr->tval > TV_CRUSADE_BOOK)) continue;
+
+		realm = tval2realm(o_ptr->tval);
+		if (!can_use_realm(realm)) continue;
+
+		/* Extract spells */
+		for (spell = 0; spell < 32; spell++)
+		{
+			/* Check for this spell */
+			if ((fake_spell_flags[realm - 1][o_ptr->sval] & (1L << spell)))
+			{
+				magic_type *s_ptr = &mp_ptr->info[realm - 1][spell];
+
+				/* Collect this spell */
+				if (s_ptr->slevel <= p_ptr->lev)
+				{
+					spell_skill_okay[realm - 1][spell] = TRUE;
+				}
+			}
+		}
+	}
+}
+
+
+/*
+ * Return the number of spells in the realm.
+ * (note: realm is in (0-10))
+ */
+static int count_spells(int realm)
+{
+	int i, spells_cnt = 0;
+
+	if (realm < MAX_REALM)
+	{
+		/* Check every spell in realm */
+		for (i = 0; i < 32; i++)
+		{
+			if (!spell_names[realm][i][0]) break;
+
+			/* Increase the spell count */
+			spells_cnt++;
+		}
+	}
+	else
+	{
+		spells_cnt = 1;
+	}
+
+	/* Return the number of spells */
+	return spells_cnt;
+}
+
+
+/*
+ * Display the spell skills in a group.
+ * (note: realm is in (0-10))
+ */
+static void display_spell_skill_list(int col, int row, int per_page, int realm,
+	int spell_skill_cnt, int spell_skill_cur, int spell_skill_top)
+{
+	int i;
+	int skill_lev, need_sp;
+	bool is_master, skill_okay, unlearned;
+	bool is_mindcraft = (realm >= MAX_REALM);
+	byte attr, cursor;
+
+	/* Display lines until done */
+	for (i = 0; (i < per_page) && ((spell_skill_top + i) < spell_skill_cnt); i++)
+	{
+		/* Get the magic skill index */
+		int spell = spell_skill_top + i;
+
+		if (is_mindcraft)
+		{
+			skill_lev = p_ptr->mindcraft_skill_lev;
+			skill_okay = (p_ptr->pclass != CLASS_GUNNER);
+			need_sp = skill_lev_var[skill_lev] * p_ptr->mindcraft_eff[skill_lev];
+		}
+		else
+		{
+			/* Access the spell */
+			magic_type *s_ptr = &mp_ptr->info[realm][spell];
+
+			skill_lev = p_ptr->spell_skill_lev[realm][spell];
+			skill_okay = spell_skill_okay[realm][spell];
+			need_sp = (skill_lev_var[skill_lev] * s_ptr->sfail) / 5;
+		}
+
+		is_master = (skill_lev == SKILL_LEVEL_MASTER);
+		unlearned = (skill_lev == SKILL_LEVEL_BEGINNER);
+
+		/* Choose a color */
+		attr = (skill_okay && !is_master) ? TERM_WHITE : TERM_SLATE;
+		cursor = (skill_okay && !is_master) ? TERM_L_BLUE : TERM_BLUE;
+		attr = ((i + spell_skill_top == spell_skill_cur) ? cursor : attr);
+
+		/* Display the name */
+#ifdef JP
+		if (is_mindcraft) c_prt(attr, "超能力", row + i, col);
+#else
+		if (is_mindcraft) c_prt(attr, "Mindcraft", row + i, col);
+#endif
+		else c_prt(attr, spell_names[realm][spell], row + i, col);
+		if (unlearned) c_prt(attr, format("%s", skill_unlearned_str), row + i, 43);
+		else c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
+		c_prt(attr, (skill_okay && !is_master) ?
+		            format("%8d", need_sp) :
+#ifdef JP
+		            (!skill_okay ? "成長不可" : "    ----"),
+#else
+		            (!skill_okay ? " No inc." : "    ----"),
+#endif
+		      row + i, 65);
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+
+/*
+ * Confirm to increase spell skill levels
+ * (note: realm is in (0-10))
+ */
+static bool increase_spell_skill_level(int realm, int spell)
+{
+	int skill_lev, magic_var, need_sp;
+	bool is_mindcraft = (realm >= MAX_REALM);
+
+	if (is_mindcraft)
+	{
+		skill_lev = p_ptr->mindcraft_skill_lev;
+		magic_var = skill_lev_var[skill_lev];
+
+		if ((p_ptr->pclass == CLASS_GUNNER) || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
+
+		need_sp = magic_var * p_ptr->mindcraft_eff[skill_lev];
+	}
+	else
+	{
+		/* Access the spell */
+		magic_type *s_ptr = &mp_ptr->info[realm][spell];
+
+		skill_lev = p_ptr->spell_skill_lev[realm][spell];
+		magic_var = skill_lev_var[skill_lev];
+
+		if (!spell_skill_okay[realm][spell] || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
+
+		need_sp = (s_ptr->sfail * magic_var) / 5;
+	}
+
+	if (need_sp > p_ptr->skill_point)
+	{
+#ifdef JP
+		msg_print("スキルポイントが足りません。");
+#else
+		msg_print("You don't have enough skill point.");
+#endif
+		msg_print(NULL);
+		return FALSE;
+	}
+
+#ifdef JP
+	if (!get_check("この魔法スキルを成長させますか？ ")) return FALSE;
+#else
+	if (!get_check("Increase skill level of this spell? ")) return FALSE;
+#endif
+
+	p_ptr->skill_point -= need_sp;
+
+	if (is_mindcraft)
+	{
+		learn_mindcraft_power(skill_lev == SKILL_LEVEL_BEGINNER);
+		p_ptr->mindcraft_skill_lev++;
+	}
+	else
+	{
+		p_ptr->spell_skill_lev[realm][spell]++;
+	}
+
+	return TRUE;
+}
+
+
+/*
+ * Display and increase magic skill levels
+ */
+static void do_cmd_magic_skill_level(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top, old_grp_cur;
+	int spell_skill_cur, spell_skill_top;
+	int grp_cnt, grp_idx[MAX_REALM + 2];
+	int spell_skill_cnt;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	int browser_rows;
+	int wid, hgt;
+
+	static cptr realm_text[MAX_REALM + 2];
+
+	for (i = 0; i < MAX_REALM; i++)
+		realm_text[i] = realm_names[i + 1];
+#ifdef JP
+	realm_text[i++] = "その他";
+#else
+	realm_text[i++] = "Others";
+#endif
+	realm_text[i] = NULL;
+
+	C_MAKE(spell_skill_okay, MAX_REALM, bool *);
+	C_MAKE(spell_skill_okay[0], MAX_REALM * 32, bool);
+	for (i = 1; i < MAX_REALM; i++) spell_skill_okay[i] = spell_skill_okay[0] + i * 32;
+
+	build_spell_okay_list();
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
+	/* Save the screen */
+	screen_save();
+
+	/* Clear screen */
+	Term_clear();
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; realm_text[i]; i++)
+	{
+		/* Measure the label */
+		len = strlen(realm_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		if (count_spells(i))
+		{
+			/* Build a list of groups with spell skills */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	old_grp_cur = -1;
+	grp_cur = grp_top = 0;
+	spell_skill_cur = spell_skill_top = 0;
+	spell_skill_cnt = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+#ifdef JP
+			prt(format("スキルポイント割り振りメニュー [現在のスキルポイント: %5d]", p_ptr->skill_point), 2, 0);
+			prt("領域", 4, 0);
+			prt("スキル", 4, max + 3);
+			prt("レベル", 4, 43);
+			prt(" 必要MSP", 4, 65);
+#else
+			prt(format("Skill point distributing menu [Current Skill Point: %5d]", p_ptr->skill_point), 2, 0);
+			prt("Realm", 4, 0);
+			prt("Skill", 4, max + 3);
+			prt("Level", 4, 43);
+			prt("need MSP", 4, 65);
+#endif
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < browser_rows; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+		/* Display a list of realms */
+		display_group_list(0, 6, max, browser_rows, grp_idx, realm_text, grp_cur, grp_top);
+
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
+
+			/* Get a list of spell_skills in the current group */
+			spell_skill_cnt = count_spells(grp_idx[grp_cur]);
+		}
+
+		/* Scroll object list */
+		while (spell_skill_cur < spell_skill_top)
+			spell_skill_top = MAX(0, spell_skill_top - browser_rows/2);
+		while (spell_skill_cur >= spell_skill_top + browser_rows)
+			spell_skill_top = MIN(spell_skill_cnt - browser_rows, spell_skill_top + browser_rows/2);
+
+		/* Display a list of spell_skills in the current group */
+		display_spell_skill_list(max + 3, 6, browser_rows, grp_idx[grp_cur], spell_skill_cnt, spell_skill_cur, spell_skill_top);
+
+		/* Prompt */
+#ifdef JP
+		prt("<方向>, Enterで成長スキルの選択, ESC", hgt - 1, 0);
+#else
+		prt("<dir>, Enter to increase spell skill level, ESC", hgt - 1, 0);
+#endif
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (spell_skill_cur - spell_skill_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case '\n':
+			case '\r':
+			{
+				redraw = increase_spell_skill_level(grp_idx[grp_cur], spell_skill_cur);
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &spell_skill_cur, spell_skill_cnt);
+				break;
+			}
+		}
+	}
+
+	/* Free the "spell_skill_okay" array */
+	C_KILL(spell_skill_okay[0], MAX_REALM * 32, bool);
+	C_KILL(spell_skill_okay, MAX_REALM, bool *);
+
+	/* Restore the screen */
+	screen_load();
+}
+
+void do_cmd_skill_level(void)
+{
+	char ch;
+	char com[80];
+
+	if (rp_ptr->r_flags & PRF_LARGE)
+	{
+#ifdef JP
+		msg_print("この種族にはスキルの概念がない。");
+#else
+		msg_print("Your race do not use skills.");
+#endif
+		return;
+	}
+
+#ifdef JP
+	sprintf(com, "[W]武器/その他, [M]魔法 :");
+#else
+	sprintf(com, "Skill: [W]eapon/misc. or [M]agic ?");
+#endif
+
+	if (!get_com(com, &ch, TRUE)) return;
+
+	switch (ch)
+	{
+	case 'W':
+	case 'w':
+		do_cmd_weapon_skill_level();
+		break;
+
+	case 'M':
+	case 'm':
+		do_cmd_magic_skill_level();
+		break;
+	}
 }

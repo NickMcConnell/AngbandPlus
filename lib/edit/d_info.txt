@@ -1,0 +1,272 @@
+# File: d_info.txt
+
+# This file is used to initialize the "lib/raw/d_info.raw" file, which is
+# used to initialize the "dungeon type" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/d_info.raw" file.
+
+# The dungeon type indexes are defined in "defines.h", and must not be
+# changed.
+
+# N:<index>:<name>
+# D:<long name>
+# W:<min depth>:<max depth>:<min player level>:<flags mode>:<min alloc>:<max alloc chance>:<obj good>:<obj great>:<pit flags>:<nest flags>
+# L:<floor1>:<%1>:<floor2>:<%2>:<floor3>:<%3>
+# A:<wall1>:<%1>:<wall2>:<%2>:<wall3>:<%3>:<outer wall>:<inner wall>:<stream1>:<stream2>
+# F:<flags>
+# M:<monster flags>
+# S:<monster spells>
+
+# Note on the MONSTER_DIV_ dungeon flag
+# It defines the percentage of monsters affected by the restrictions
+# so MONSTER_PERCENT_70 will create 70% of restricted monsters and 30%
+# of absulutly random monsters.
+# by default MONSTER_PERCENT_ is 0%
+
+# Note for <flags mode> :
+# 0 = No restriction
+# 1 = AND
+# 2 = NAND
+# 3 = OR
+# 4 = NOR
+
+# Version stamp (required)
+
+V:0.0.4
+
+### Wilderness(purely cosmetic, never used) ###
+
+N:0:荒野
+E:Wilderness
+D:荒野
+D:$Wilderness
+P:0:0
+W:0:0:0:0:14:160:75:20:0x0000:0x0000
+L:1:100:1:0:1:0:50
+A:56:100:56:0:56:0:57:58:50:51
+F:MONSTER_DIV_64
+
+
+### The principal dungeons, they were created by spliting the vanilla dungeon ###
+
+N:1:死者の宮殿
+E:Death Palace
+D:$The entrance to the Death Palace
+D:死者の宮殿への入り口
+P:11:16
+W:1:127:30:0:14:160:75:20:0xffff:0xffff
+L:1:100:1:0:1:0:50
+A:56:100:56:0:56:0:57:58:50:51
+F:NO_CAVE | ARENA |
+F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
+F:MONSTER_DIV_64
+
+N:2:アルモリカ城
+E:Armorica C.
+D:$Armorica Castle
+D:アルモリカ城
+P:39:72
+W:1:6:1:0:14:240:75:20:0x0000:0x0000
+L:1:100:1:0:1:0:8
+A:56:100:56:0:56:0:57:58:0:0
+F:FINAL_GUARDIAN_112 | FINAL_OBJECT_426 | UPWARD | NO_CAVE |
+F:NO_VAULT | BEGINNER | LITE
+F:MONSTER_DIV_0
+
+N:3:タインマウス
+E:Tynemounth
+D:$Tynemounth Hills
+D:タインマウスの丘
+P:39:62
+W:5:12:5:3:18:200:75:20:0x0000:0x0000
+L:89:93:96:5:93:2:14
+A:89:90:96:5:94:5:89:89:89:89
+F:FINAL_GUARDIAN_219 | FINAL_OBJECT_148 | WATER_RIVER | WILD_LITE | UPWARD |
+F:LAKE_TREE | BIG | NO_DOORS |
+F:MONSTER_DIV_32 
+M:R_CHAR_hFs | ANIMAL |
+
+N:4:ボルダー砂漠
+E:Desert
+D:$The Ballder Desert
+D:バーニシア中央に広がるボルダー砂漠地帯
+P:21:92
+W:40:53:5:3:18:200:75:20:0x0037:0x037d
+L:88:90:89:8:93:2:14
+A:88:80:94:10:56:10:57:58:87:51
+F:FINAL_GUARDIAN_833 | FINAL_OBJECT_521 | WILD_LITE |
+F:BIG | ARENA | NO_DOORS | NO_CAVE |
+F:MONSTER_DIV_32 | LAKE_RUBBLE | LAKE_TREE |
+F:DESTROY | LAKE_LAVA |
+M:R_CHAR_hFs | ANIMAL |
+
+N:5:マドュラ氷原
+E:Ice Field
+D:$Madolath Ice Field
+D:永久凍土の広がる極寒のマドュラ氷原
+P:22:54
+W:60:72:25:3:20:140:75:20:0x0086:0x00c1
+L:88:80:89:20:93:0:0
+A:197:100:97:0:194:0:57:58:197:87
+F:DESTROY | ARENA |
+F:MONSTER_DIV_60 |
+M:DRAGON | R_CHAR_dD
+
+N:6:墓地
+E:Graveyard
+D:$A hole to the Graveyard underground
+D:墓地の地下への穴
+P:29:36
+W:40:70:18:3:14:160:75:20:0x0128:0x027b
+L:1:85:84:15:1:0:30
+A:56:75:87:25:56:0:57:58:84:83
+F:MONSTER_DIV_4 | FINAL_GUARDIAN_804 | FINAL_ARTIFACT_165
+F:WATER_RIVER | DESTROY | ARENA | LAKE_WATER | LAKE_RUBBLE | DESTROY
+M:UNDEAD | NONLIVING
+
+N:7:スウォンジー
+E:Swansea
+D:$Forest of Swansea
+D:スウォンジーの森
+P:35:54
+W:13:40:5:3:14:160:75:20:0x0001:0x00d2
+L:89:85:93:5:84:10:15
+A:96:90:56:10:56:0:94:96:56:94
+F:NO_DOORS | WATER_RIVER | MONSTER_DIV_15 | NO_CAVE | WILD_LITE |
+F:FINAL_GUARDIAN_628 | FINAL_OBJECT_428 | LAKE_TREE
+M:ANIMAL | R_CHAR_SJZ# | WILD_WOOD
+
+N:8:ウェオブリ山
+E:Mt. Weobley
+D:$The Mount Weobley
+D:ヴァレリア本島中央の活火山
+P:31:62
+W:50:90:18:3:14:160:80:30:0x01bf:0x00bd
+L:88:40:86:40:85:20:0
+A:56:90:87:10:56:0:57:58:87:51
+F:CAVE | MONSTER_DIV_0 | CAVERN | LAKE_LAVA | LAVA_RIVER | DESTROY
+F:FINAL_GUARDIAN_846 | FINAL_OBJECT_325 |
+M:RES_FIRE | CAN_FLY | WILD_VOLCANO | 
+
+N:9:魔界への道
+E:Hell Way
+D:$the stairway to the Hell
+D:魔界への階段
+P:22:110
+W:666:696:50:1:14:160:90:77:0x01a8:0x0280
+L:86:80:85:20:1:0:0
+A:85:80:87:20:87:0:57:85:0:0
+F:CAVERN | MONSTER_DIV_0 | LAKE_LAVA | LAVA_RIVER | WINNER
+F:BIG
+M:RES_FIRE | EVIL
+
+N:10:天界への道
+E:Heaven Way
+D:$the way to the heaven
+D:天界へと通じる道
+P:55:30
+W:555:585:50:1:18:160:85:35:0x0040:0x0104
+L:1:100:1:0:1:0:1000
+A:198:100:56:0:56:0:60:58:0:0
+F:MONSTER_DIV_0 | WATER_RIVER | WINNER | BIG | LITE | UPWARD |
+M:GOOD
+
+N:11:ゾード湿原
+E:Marshland
+D:$Zord Marshland
+D:コリタニ地方の中央に広がる広大なゾード湿原
+P:33:42
+W:35:75:30:3:14:160:80:30:0x000a:0x0082
+L:89:90:88:10:1:0:100
+A:194:80:94:10:96:10:94:94:194:84
+F:MONSTER_DIV_0 | LAKE_WATER | WATER_RIVER |
+F:FINAL_GUARDIAN_854 | FINAL_ARTIFACT_107 | NO_DOORS |
+M:CAN_SWIM | CAN_FLY | AQUATIC | WILD_SWAMP |
+
+N:12:ブリガンテス
+E:Brigantes C.
+D:$The entrance to the Brigantes Castle
+D:極寒の地・標高4200バスのブリガニア平原に位置する城
+P:20:49
+W:20:60:30:3:14:160:75:20:0x0000:0x0331
+L:1:100:1:0:1:0:100
+A:56:100:56:0:56:0:57:58:0:0
+F:MONSTER_DIV_16 | ARENA | NO_CAVE | FINAL_GUARDIAN_767 | UPWARD |
+F:FINAL_ARTIFACT_5 | LITE |
+M:HUMAN | R_CHAR_FhHg
+
+N:13:ニムラハバ
+E:Nymlahaba
+D:$Forest of Nymlahaba
+D:ニムラハバの森
+P:6:106
+W:40:55:5:3:14:160:75:20:0x018f:0x00c3
+L:89:65:88:30:93:5:15
+A:96:40:194:30:94:30:96:94:84:194
+F:NO_DOORS | WATER_RIVER | MONSTER_DIV_15 | NO_CAVE |
+F:FINAL_GUARDIAN_914 | FINAL_ARTIFACT_191 | LAKE_TREE | LAKE_WATER |
+M:ANIMAL | R_CHAR_SJH# | WILD_WOOD | WILD_SWAMP |
+
+
+N:14:ヘドン山
+E:Mt. Hedon
+D:$The Mount Hedon
+D:バンハムーバ島中央の活火山
+P:29:24
+W:25:50:20:3:14:160:75:20:0x0087:0x00c1
+L:89:97:93:3:89:0:0
+A:97:100:56:0:56:0:97:56:0:0
+F:MONSTER_DIV_16 | WATER_RIVER | CAVE | CAVERN | NO_DOORS | BIG
+M:TROLL | GIANT | CAN_FLY | ANIMAL | WILD_MOUNTAIN | R_CHAR_OYH
+
+N:15:鉱山
+E:Mine
+D:$The entrance to the Mine Barmamutha
+D:バルマムッサの鉱山
+P:38:33
+W:75:80:50:3:18:80:80:25:0x0000:0x0010
+L:1:100:1:0:1:0:0
+A:56:60:54:20:55:20:57:58:50:51
+F:MONSTER_DIV_1 | WATER_RIVER | CAVE | CAVERN | SMALLEST
+F:LAVA_RIVER | DESTROY
+M:R_CHAR_$
+
+N:16:海辺の洞窟
+E:Seaside Cave
+D:$Seaside Cave
+D:海辺の洞窟
+P:47:64
+W:3:38:1:3:14:240:75:20:0x0002:0x0002
+L:88:100:1:0:1:0:8
+A:56:55:83:45:56:0:57:58:83:84
+F:FINAL_GUARDIAN_595 | FINAL_ARTIFACT_14 |
+F:NO_VAULT | BEGINNER | LAKE_WATER |
+F:MONSTER_DIV_32
+M:AQUATIC | CAN_FLY
+
+N:17:空中庭園
+E:Air Garden
+D:$Garden in the air
+D:空中庭園
+P:22:109
+W:61:79:30:4:18:160:85:35:0x00c0:0x0101
+L:89:85:88:13:96:2:1000
+A:198:100:56:0:56:0:60:58:0:0
+F:MONSTER_DIV_0 | WATER_RIVER | LITE | UPWARD | SMALLER |
+F:LAKE_WATER | LAKE_TREE |
+F:FINAL_GUARDIAN_824 | FINAL_OBJECT_388 |
+M:WALSTANIAN | GARGASTAN | ZENOBIAN
+
+N:18:天界
+E:Heaven
+D:$The heaven
+D:天界
+W:1000:1100:50:1:18:160:85:35:0x0040:0x0104
+L:1:100:1:0:1:0:50
+A:56:100:56:0:56:0:57:58:50:51
+F:MONSTER_DIV_0 | WATER_RIVER | WINNER | LITE | UPWARD | CLOSED | NO_BACK |
+F:NO_CAVE | ARENA | FINAL_GUARDIAN_925
+M:GOOD

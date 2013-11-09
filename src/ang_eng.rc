@@ -40,8 +40,20 @@ ANGBAND MENU
 			MENUITEM "Term-7 window", 217
 		}
 
-		MENUITEM SEPARATOR
+		POPUP "Keep on top"
+		{
+			MENUITEM "Term-1 window", 221
+			MENUITEM "Term-2 window", 222
+			MENUITEM "Term-3 window", 223
+			MENUITEM "Term-4 window", 224
+			MENUITEM "Term-5 window", 225
+			MENUITEM "Term-6 window", 226
+			MENUITEM "Term-7 window", 227
+		}
+
 /*
+		MENUITEM SEPARATOR
+
 		POPUP "Bizarre Display"
 		{
 			MENUITEM "Term-0 window", 230
@@ -54,65 +66,11 @@ ANGBAND MENU
 			MENUITEM "Term-7 window", 237
 		}
 */
-		POPUP "Increase Tile Width"
-		{
-			MENUITEM "Term-0 window", 240
-			MENUITEM "Term-1 window", 241
-			MENUITEM "Term-2 window", 242
-			MENUITEM "Term-3 window", 243
-			MENUITEM "Term-4 window", 244
-			MENUITEM "Term-5 window", 245
-			MENUITEM "Term-6 window", 246
-			MENUITEM "Term-7 window", 247
-		}
-
-		POPUP "Decrease Tile Width"
-		{
-			MENUITEM "Term-0 window", 250
-			MENUITEM "Term-1 window", 251
-			MENUITEM "Term-2 window", 252
-			MENUITEM "Term-3 window", 253
-			MENUITEM "Term-4 window", 254
-			MENUITEM "Term-5 window", 255
-			MENUITEM "Term-6 window", 256
-			MENUITEM "Term-7 window", 257
-		}
-
-		POPUP "Increase Tile Height"
-		{
-			MENUITEM "Term-0 window", 260
-			MENUITEM "Term-1 window", 261
-			MENUITEM "Term-2 window", 262
-			MENUITEM "Term-3 window", 263
-			MENUITEM "Term-4 window", 264
-			MENUITEM "Term-5 window", 265
-			MENUITEM "Term-6 window", 266
-			MENUITEM "Term-7 window", 267
-		}
-
-		POPUP "Decrease Tile Height"
-		{
-			MENUITEM "Term-0 window", 270
-			MENUITEM "Term-1 window", 271
-			MENUITEM "Term-2 window", 272
-			MENUITEM "Term-3 window", 273
-			MENUITEM "Term-4 window", 274
-			MENUITEM "Term-5 window", 275
-			MENUITEM "Term-6 window", 276
-			MENUITEM "Term-7 window", 277
-		}
 	}
 
 	POPUP "&Options"
 	{
-		POPUP "&Graphics"
-		{
-			MENUITEM "&None", 400
-			MENUITEM "&Old tiles", 401
-			MENUITEM "&Adam Bolt's tiles", 402
-			MENUITEM "&Bigtile mode", 409
-		}
-
+		MENUITEM "&Big character mode", 409
 		MENUITEM "&Sound", 410
 		MENUITEM "&Back ground pict", 440
 		MENUITEM "Choose BG pict", 441

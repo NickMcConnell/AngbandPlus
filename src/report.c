@@ -3,8 +3,6 @@
 #define _GNU_SOURCE
 #include "angband.h"
 
-#ifdef WORLD_SCORE
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
@@ -24,17 +22,6 @@
 
 #include <setjmp.h>
 #include <signal.h>
-#endif
-
-#ifdef JP
-#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/hengscore/score.cgi"
-#else
-#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/hengscore-en/score.cgi"
-#endif
-
-/* for debug */
-#if 0
-#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/scoretest/score.cgi"
 #endif
 
 /*
@@ -139,122 +126,6 @@ static int buf_sprintf(BUF *buf, const char *fmt, ...)
 	return ret;
 }
 
-#if 0
-static int buf_read(BUF *buf, int fd)
-{
-	int len;
-#ifndef MACINTOSH
-	char tmp[BUFSIZE];
-#else
-	char *tmp;
-	
-	tmp = calloc( BUFSIZE , sizeof(char) );
-#endif
-
-	while ((len = read(fd, tmp, BUFSIZE)) > 0)
-		buf_append(buf, tmp, len);
-
-	return buf->size;
-}
-#endif
-
-#if 0
-static int buf_write(BUF *buf, int fd)
-{
-	write(fd, buf->data, buf->size);
-
-	return buf->size;
-}
-
-static int buf_search(BUF *buf, const char *str)
-{
-	char *ret;
-
-	ret = strstr(buf->data, str);
-
-	if (!ret) return -1;
-
-	return ret - buf->data;
-}
-
-static BUF * buf_subbuf(BUF *buf, int pos1, size_t sz)
-{
-	BUF *ret;
-
-	if (pos1 < 0) return NULL;
-
-	ret = buf_new();
-
-	if (sz <= 0) sz = buf->size - pos1;
-
-	buf_append(ret, buf->data + pos1, sz);
-
-	return ret;
-}
-#endif
-
-static void http_post(int sd, cptr url, BUF *buf)
-{
-	BUF *output;
-
-	output = buf_new();
-	buf_sprintf(output, "POST %s HTTP/1.0\n", url);
-	buf_sprintf(output, "User-Agent: Hengband %d.%d.%d\n",
-		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-
-	buf_sprintf(output, "Content-Length: %d\n", buf->size);
-	buf_sprintf(output, "Content-Encoding: binary\n");
-	buf_sprintf(output, "Content-Type: application/octet-stream\n");
-	buf_sprintf(output, "\n");
-	buf_append(output, buf->data, buf->size);
-
-	soc_write(sd, output->data, output->size);
-}
-
-
-/* キャラクタダンプを作って BUFに保存 */
-static errr make_dump(BUF* dumpbuf)
-{
-	char		buf[1024];
-	FILE *fff;
-	char file_name[1024];
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff)
-	{
-#ifdef JP
-		msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-		msg_format("Failed to create temporary file %s.", file_name);
-#endif
-		msg_print(NULL);
-		return 1;
-	}
-
-	/* 一旦一時ファイルを作る。通常のダンプ出力と共通化するため。 */
-	(void)make_character_dump(fff);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Open for read */
-	fff = my_fopen(file_name, "r");
-
-	while (fgets(buf, 1024, fff))
-	{
-		(void)buf_sprintf(dumpbuf, "%s", buf);
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Remove the file */
-	fd_kill(file_name);
-
-	/* Success */
-	return (0);
-}
 
 /*
  * Make screen dump to buffer
@@ -279,8 +150,6 @@ cptr make_screen_dump(void)
 		0,
 	};
 
-	bool old_use_graphics = use_graphics;
-
 	int wid, hgt;
 
 	Term_get_size(&wid, &hgt);
@@ -288,18 +157,6 @@ cptr make_screen_dump(void)
 	/* Alloc buffer */
 	screen_buf = buf_new();
 	if (screen_buf == NULL) return (NULL);
-
-	if (old_use_graphics)
-	{
-		use_graphics = FALSE;
-		reset_visuals();
-
-		/* Redraw everything */
-		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-		/* Hack -- update */
-		handle_stuff();
-	}
 
 	for (i = 0; html_head[i]; i++)
 		buf_sprintf(screen_buf, html_head[i]);
@@ -366,155 +223,5 @@ cptr make_screen_dump(void)
 	/* Free buffer */
 	buf_delete(screen_buf);
 
-	if (old_use_graphics)
-	{
-		use_graphics = TRUE;
-		reset_visuals();
-
-		/* Redraw everything */
-		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-		/* Hack -- update */
-		handle_stuff();
-	}
-
 	return ret;
 }
-
-
-errr report_score(void)
-{
-#ifdef MACINTOSH
-	OSStatus err;
-#else
-	errr err = 0;
-#endif
-
-#ifdef WINDOWS
-	WSADATA wsaData;
-	WORD wVersionRequested =(WORD) (( 1) |  ( 1 << 8));
-#endif
-
-	BUF *score;
-	int sd;
-	char seikakutmp[128];
-
-	score = buf_new();
-
-#ifdef JP
-	sprintf(seikakutmp, "%s%s", ap_ptr->title, (ap_ptr->no ? "の" : ""));
-#else
-	sprintf(seikakutmp, "%s ", ap_ptr->title);
-#endif
-
-	buf_sprintf(score, "name: %s\n", player_name);
-#ifdef JP
-	buf_sprintf(score, "version: 変愚蛮怒 %d.%d.%d\n",
-		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#else
-	buf_sprintf(score, "version: Hengband %d.%d.%d\n",
-		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
-	buf_sprintf(score, "score: %d\n", total_points());
-	buf_sprintf(score, "level: %d\n", p_ptr->lev);
-	buf_sprintf(score, "depth: %d\n", dun_level);
-	buf_sprintf(score, "maxlv: %d\n", p_ptr->max_plv);
-	buf_sprintf(score, "maxdp: %d\n", max_dlv[DUNGEON_ANGBAND]);
-	buf_sprintf(score, "au: %d\n", p_ptr->au);
-	buf_sprintf(score, "turns: %d\n", turn_real(turn));
-	buf_sprintf(score, "sex: %d\n", p_ptr->psex);
-	buf_sprintf(score, "race: %s\n", rp_ptr->title);
-	buf_sprintf(score, "class: %s\n", cp_ptr->title);
-	buf_sprintf(score, "seikaku: %s\n", seikakutmp);
-	buf_sprintf(score, "realm1: %s\n", realm_names[p_ptr->realm1]);
-	buf_sprintf(score, "realm2: %s\n", realm_names[p_ptr->realm2]);
-	buf_sprintf(score, "killer: %s\n", p_ptr->died_from);
-	buf_sprintf(score, "-----charcter dump-----\n");
-
-	make_dump(score);
-
-	if (screen_dump)
-	{
-		buf_sprintf(score, "-----screen shot-----\n");
-		buf_append(score, screen_dump, strlen(screen_dump));
-	}
-	
-#ifdef WINDOWS
-	if (WSAStartup(wVersionRequested, &wsaData))
-	{
-		msg_print("Report: WSAStartup failed.");
-		goto report_end;
-	}
-#endif
-
-#ifdef MACINTOSH
-#if TARGET_API_MAC_CARBON
-	err = InitOpenTransportInContext(kInitOTForApplicationMask, NULL);
-#else
-	err = InitOpenTransport();
-#endif
-	if (err != noErr)
-	{
-		msg_print("Report: OpenTransport failed.");
-		return 1;
-	}
-#endif
-
-	Term_clear();
-
-	while (1)
-	{
-		char buff[160];
-#ifdef JP
-		prt("接続中...", 0, 0);
-#else
-		prt("connecting...", 0, 0);
-#endif
-		Term_fresh();
-		
-		sd = connect_scoreserver();
-		if (!(sd < 0)) break;
-#ifdef JP
-		sprintf(buff, "スコア・サーバへの接続に失敗しました。(%s)", soc_err());
-#else
-		sprintf(buff, "Failed to connect to the score server.(%s)", soc_err());
-#endif
-		prt(buff, 0, 0);
-		(void)inkey();
-		
-#ifdef JP
-		if (!get_check_strict("もう一度接続を試みますか? ", CHECK_NO_HISTORY))
-#else
-		if (!get_check_strict("Try again? ", CHECK_NO_HISTORY))
-#endif
-		{
-			err = 1;
-			goto report_end;
-		}
-	}
-#ifdef JP
-	prt("スコア送信中...", 0, 0);
-#else
-	prt("Sending the score...", 0, 0);
-#endif
-	Term_fresh();
-	http_post(sd, SCORE_PATH, score);
-
-	disconnect_server(sd);
- report_end:
-#ifdef WINDOWS
-	WSACleanup();
-#endif
-
-#ifdef MACINTOSH
-#if TARGET_API_MAC_CARBON
-	CloseOpenTransportInContext(NULL);
-#else
-	CloseOpenTransport();
-#endif
-#endif
-
-	return err;
-}
-
-#endif /* WORLD_SCORE */

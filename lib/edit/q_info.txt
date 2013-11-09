@@ -1,0 +1,177 @@
+# File: q_info.txt
+
+# Includes all the quest files
+
+# Quest feature preferences
+%:q_pref.txt
+
+# Thieves Hideout
+?:[EQU $QUEST_NUMBER 1]
+%:q0000001.txt
+
+# Sever
+?:[EQU $QUEST_NUMBER 2]
+%:q0000002.txt
+
+# Druid Shop
+?:[EQU $QUEST_NUMBER 3]
+%:q0000003.txt
+
+# Vault
+?:[EQU $QUEST_NUMBER 4]
+%:q0000004.txt
+
+# Tower
+?:[EQU $QUEST_NUMBER 5]
+%:q0000005.txt
+
+# Tower part 2
+?:[EQU $QUEST_NUMBER 6]
+%:q0000006.txt
+
+# Tower part 3
+?:[EQU $QUEST_NUMBER 7]
+%:q0000007.txt
+
+# Lancelot
+?:[EQU $QUEST_NUMBER 8]
+%:q_Lancelot.txt
+
+# Dolgarua
+?:[EQU $QUEST_NUMBER 9]
+%:q_dolgarua.txt
+
+# The wind ordeal
+?:[EQU $QUEST_NUMBER 10]
+%:q_wind.txt
+
+# The fire ordeal
+?:[EQU $QUEST_NUMBER 11]
+%:q_fire.txt
+
+# The dragon ordeal
+?:[EQU $QUEST_NUMBER 12]
+%:q_dragon.txt
+
+# Quest #13 is still unfinished
+
+# Warg problem
+?:[EQU $QUEST_NUMBER 14]
+%:q_warg.txt
+
+# Castle Bernicia
+?:[EQU $QUEST_NUMBER 15]
+%:q_Bernicia.txt
+
+# Assault on Montsalvat
+?:[EQU $QUEST_NUMBER 16]
+%:q000dekn.txt
+
+# Compensation of Runeweapon
+?:[EQU $QUEST_NUMBER 17]
+%:q_runeweapon.txt
+
+# Water Cave
+?:[EQU $QUEST_NUMBER 18]
+%:q00water.txt
+
+# Doom Quest 1
+?:[EQU $QUEST_NUMBER 19]
+%:q0000019.txt
+
+# Vapor Quest
+?:[EQU $QUEST_NUMBER 20]
+%:q0000020.txt
+
+# Doom Quest 2
+?:[EQU $QUEST_NUMBER 21]
+%:q0000021.txt
+
+# Orc Camp
+?:[EQU $QUEST_NUMBER 22]
+%:q0000022.txt
+
+# Spawning Pits
+?:[EQU $QUEST_NUMBER 23]
+%:q0000023.txt
+
+# Denim
+?:[EQU $QUEST_NUMBER 24]
+%:q_Denim.txt
+
+# Haunted House
+?:[EQU $QUEST_NUMBER 25]
+%:qhaunted.txt
+
+# Killing Fields
+?:[EQU $QUEST_NUMBER 26]
+%:q0fields.txt
+
+# The Old Castle
+?:[EQU $QUEST_NUMBER 27]
+%:q0000027.txt
+
+# Royal Crypt
+?:[EQU $QUEST_NUMBER 28]
+%:q0000028.txt
+
+# The Mimic's Treasure
+?:[EQU $QUEST_NUMBER 29]
+%:q0thief1.txt
+
+# Tengu and Death Swords
+?:[EQU $QUEST_NUMBER 30]
+%:q0thief2.txt
+
+# Old Man Willow Quest
+?:[EQU $QUEST_NUMBER 31]
+%:q0willow.txt
+
+# Dark Elven Lords Quest
+?:[EQU $QUEST_NUMBER 32]
+%:qdarkelf.txt
+
+# The Cloning Pits
+?:[EQU $QUEST_NUMBER 33]
+%:q0clone0.txt
+
+# Vault
+?:[EQU $QUEST_NUMBER 34]
+%:q0000034.txt
+
+# The Genocide of Barmamutha (Lawful)
+?:[EQU $QUEST_NUMBER 35]
+%:q_Barmamutha_a.txt
+
+# The Genocide of Barmamutha (Chaotic)
+?:[EQU $QUEST_NUMBER 36]
+%:q_Barmamutha_b.txt
+
+# The sunken ship 'Ramzen'
+?:[EQU $QUEST_NUMBER 37]
+%:q0000037.txt
+
+# Holy Knights Hideout
+?:[EQU $QUEST_NUMBER 38]
+%:q0000038.txt
+
+# Random quests (always adressed with number 40-49)
+?:[EQU $QUEST_NUMBER 40]
+%:q_random.txt
+
+# Random quests (always adressed with number 50-59 for astral mode)
+?:[EQU $QUEST_NUMBER 50]
+%:q_random.txt
+
+# Heaven quests
+?:[EQU $QUEST_NUMBER 60]
+%:q_heaven.txt
+
+?:[EQU $QUEST_NUMBER 61]
+%:q_heaven.txt
+
+?:[EQU $QUEST_NUMBER 62]
+%:q_heaven.txt
+
+?:[EQU $QUEST_NUMBER 63]
+%:q_heaven.txt

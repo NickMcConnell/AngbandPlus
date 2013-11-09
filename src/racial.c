@@ -44,21 +44,15 @@ static bool do_cmd_archer(void)
 
 	if(p_ptr->lev >= 20)
 #ifdef JP
-		sprintf(com, "[S]弾, [A]矢, [B]クロスボウの矢 :");
+		sprintf(com, "[A]矢, [B]クロスボウの矢 :");
 #else
-		sprintf(com, "Create [S]hots, Create [A]rrow or Create [B]olt ?");
-#endif
-	else if(p_ptr->lev >= 10)
-#ifdef JP
-		sprintf(com, "[S]弾, [A]矢:");
-#else
-		sprintf(com, "Create [S]hots or Create [A]rrow ?");
+		sprintf(com, "Create [A]rrow or Create [B]olt ?");
 #endif
 	else
 #ifdef JP
-		sprintf(com, "[S]弾:");
+		sprintf(com, "[A]矢:");
 #else
-		sprintf(com, "Create [S]hots ?");
+		sprintf(com, "Create [A]rrow ?");
 #endif
 
 	if (p_ptr->confused)
@@ -87,11 +81,6 @@ static bool do_cmd_archer(void)
 		{
 			return FALSE;
 		}
-		if (ch == 'S' || ch == 's')
-		{
-			ext = 1;
-			break;
-		}
 		if ((ch == 'A' || ch == 'a')&&(p_ptr->lev >= 10))
 		{
 			ext = 2;
@@ -104,53 +93,8 @@ static bool do_cmd_archer(void)
 		}
 	}
 
-	/**********Create shots*********/
-	if (ext == 1)
-	{
-		int x,y, dir;
-		cave_type *c_ptr;
-
-		if (!get_rep_dir(&dir, FALSE)) return FALSE;
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-		c_ptr = &cave[y][x];
-		if (c_ptr->feat == FEAT_RUBBLE)
-		{
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Hack -- Give the player some small firestones */
-			object_prep(q_ptr, lookup_kind(TV_SHOT, m_bonus(1, p_ptr->lev) + 1));
-			q_ptr->number = (byte)rand_range(15,30);
-			object_aware(q_ptr);
-			object_known(q_ptr);
-			apply_magic(q_ptr, p_ptr->lev, FALSE, FALSE, FALSE, FALSE);
-			q_ptr->discount = 99;
-
-			(void)inven_carry(q_ptr);
-
-			object_desc(o_name, q_ptr, TRUE, 2);
-#ifdef JP
-			msg_format("岩石を削って%sを作った。",o_name);
-#else
-			msg_print("You make some ammo.");
-#endif
-
-			(void)wall_to_mud(dir);
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-			p_ptr->window |= (PW_OVERHEAD);
-		}
-		else
-		{
-#ifdef JP
-			msg_print("そこには岩石がない。");
-#else
-			msg_print("You need pile of rubble.");
-#endif
-		}
-	}
 	/**********Create arrows*********/
-	else if (ext == 2)
+	if (ext == 2)
 	{
 		int item;
 
@@ -178,7 +122,7 @@ static bool do_cmd_archer(void)
 		else
 		{
 			q_ptr = &o_list[0 - item];
-		}       
+		}
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -188,7 +132,7 @@ static bool do_cmd_archer(void)
 		q_ptr->number = (byte)rand_range(5,10);
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, p_ptr->lev, 0L);
 
 		q_ptr->discount = 99;
 
@@ -242,7 +186,7 @@ static bool do_cmd_archer(void)
 		else
 		{
 			q_ptr = &o_list[0 - item];
-		}       
+		}
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -252,7 +196,7 @@ static bool do_cmd_archer(void)
 		q_ptr->number = (byte)rand_range(4,8);
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, p_ptr->lev, 0L);
 
 		q_ptr->discount = 99;
 
@@ -281,381 +225,200 @@ static bool do_cmd_archer(void)
 	return TRUE;
 }
 
-bool gain_magic(void)
+
+static bool do_cmd_make_golem(void)
 {
-	int item;
-	int pval;
-	int ext = 0;
-	cptr q, s;
-	object_type *o_ptr;
-	char o_name[MAX_NLEN];
+	int ext=0;
+	char ch;
+	int dir, item, i;
+	int plev = p_ptr->lev;
+	int summon_lev = 0;
+	u32b mode = PM_FORCE_PET;
+	int count = 0;
+	int num = 1;
 
-	/* Only accept legal items */
-	item_tester_hook = item_tester_hook_recharge;
+	object_type     *o_ptr;
 
-	/* Get an item */
+	char com[80];
+
 #ifdef JP
-q = "どのアイテムの魔力を取り込みますか? ";
-s = "魔力を取り込めるアイテムがない。";
+	sprintf(com, "[R]岩石から, [C]死体から :");
 #else
-	q = "Gain power of which item? ";
-	s = "You have nothing to gain power.";
+	sprintf(com, "Create from [R]ubble or [C]orpse ?");
 #endif
-
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	if (!object_known_p(o_ptr))
-	{
-#ifdef JP
-		msg_print("鑑定されていないと取り込めない。");
-#else
-		msg_print("You need to identify before absorbing.");
-#endif
-		return FALSE;
-	}
-
-	if (o_ptr->timeout)
-	{
-#ifdef JP
-		msg_print("充填中のアイテムは取り込めない。");
-#else
-		msg_print("This item is still charging.");
-#endif
-		return FALSE;
-	}
-
-	pval = o_ptr->pval;
-	if (o_ptr->tval == TV_ROD)
-		ext = 72;
-	else if (o_ptr->tval == TV_WAND)
-		ext = 36;
-
-	if (o_ptr->tval == TV_ROD)
-	{
-		p_ptr->magic_num2[o_ptr->sval + ext] += o_ptr->number;
-		if (p_ptr->magic_num2[o_ptr->sval + ext] > 99) p_ptr->magic_num2[o_ptr->sval + ext] = 99;
-	}
-	else
-	{
-		int num;
-		for (num = o_ptr->number; num; num--)
-		{
-			int gain_num = pval;
-			if (o_ptr->tval == TV_WAND) gain_num = (pval + num - 1) / num;
-			if (p_ptr->magic_num2[o_ptr->sval + ext])
-			{
-				gain_num *= 256;
-				gain_num = (gain_num/3 + randint0(gain_num/3)) / 256;
-				if (gain_num < 1) gain_num = 1;
-			}
-			p_ptr->magic_num2[o_ptr->sval + ext] += gain_num;
-			if (p_ptr->magic_num2[o_ptr->sval + ext] > 99) p_ptr->magic_num2[o_ptr->sval + ext] = 99;
-			p_ptr->magic_num1[o_ptr->sval + ext] += pval * 0x10000;
-			if (p_ptr->magic_num1[o_ptr->sval + ext] > 99 * 0x10000) p_ptr->magic_num1[o_ptr->sval + ext] = 99 * 0x10000;
-			if (p_ptr->magic_num1[o_ptr->sval + ext] > p_ptr->magic_num2[o_ptr->sval + ext] * 0x10000) p_ptr->magic_num1[o_ptr->sval + ext] = p_ptr->magic_num2[o_ptr->sval + ext] * 0x10000;
-			if (o_ptr->tval == TV_WAND) pval -= (pval + num - 1) / num;
-		}
-	}
-
-	object_desc(o_name, o_ptr, TRUE, 3);
-	/* Message */
-#ifdef JP
-	msg_format("%sの魔力を取り込んだ。", o_name);
-#else
-	msg_format("You absorb magic of %s.", o_name);
-#endif
-
-	/* Eliminate the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -999);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Eliminate the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -999);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-	energy_use = 100;
-	return TRUE;
-}
-
-
-static bool choose_kamae(void)
-{
-	char choice;
-	int new_kamae = 0;
-	int i;
-	char buf[80];
 
 	if (p_ptr->confused)
 	{
 #ifdef JP
-		msg_print("混乱していて構えられない！");
+		msg_print("混乱してる！");
 #else
-		msg_print("Too confused.");
+		msg_print("You are too confused!");
 #endif
 		return FALSE;
 	}
 
-	/* Save screen */
-	screen_save();
-
-#ifdef JP
-	prt(" a) 構えをとく", 2, 20);
-#else
-	prt(" a) No form", 2, 20);
-#endif
-
-	for (i = 0; i < MAX_KAMAE; i++)
+	if (p_ptr->blind)
 	{
-		if (p_ptr->lev >= kamae_shurui[i].min_level)
-		{
-			sprintf(buf," %c) %-12s  %s",I2A(i+1), kamae_shurui[i].desc, kamae_shurui[i].info);
-			prt(buf, 3+i, 20);
-		}
+#ifdef JP
+		msg_print("目が見えない！");
+#else
+		msg_print("You are blind!");
+#endif
+		return FALSE;
 	}
 
-	prt("", 1, 0);
-#ifdef JP
-	prt("        どの構えをとりますか？", 1, 14);
-#else
-	prt("        Choose Form: ", 1, 14);
-#endif
-
-	while(1)
+	while (TRUE)
 	{
-		choice = inkey();
-
-		if (choice == ESCAPE)
+		if (!get_com(com, &ch, TRUE))
 		{
-			screen_load();
 			return FALSE;
 		}
-		else if ((choice == 'a') || (choice == 'A') || (choice == ESCAPE))
+		if ((ch == 'R') || (ch == 'r'))
 		{
-			if (p_ptr->action == ACTION_KAMAE)
-			{
-				set_action(ACTION_NONE);
-			}
-			else
-#ifdef JP
-				msg_print("もともと構えていない。");
-#else
-			        msg_print("You are not assuming a posture.");
-#endif
-			screen_load();
-			return TRUE;
-		}
-		else if ((choice == 'b') || (choice == 'B'))
-		{
-			new_kamae = 0;
+			ext = 1;
 			break;
 		}
-		else if (((choice == 'c') || (choice == 'C')) && (p_ptr->lev > 29))
+		if ((ch == 'C') || (ch == 'c'))
 		{
-			new_kamae = 1;
-			break;
-		}
-		else if (((choice == 'd') || (choice == 'D')) && (p_ptr->lev > 34))
-		{
-			new_kamae = 2;
-			break;
-		}
-		else if (((choice == 'e') || (choice == 'E')) && (p_ptr->lev > 39))
-		{
-			new_kamae = 3;
+			ext = 2;
 			break;
 		}
 	}
-	set_action(ACTION_KAMAE);
 
-	if (p_ptr->special_defense & (KAMAE_GENBU << new_kamae))
+	/**********Create from rubbles*********/
+	if (ext == 1)
+	{
+		int x, y;
+		cave_type *c_ptr;
+
+		if (!get_rep_dir(&dir, FALSE)) return FALSE;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+		c_ptr = &cave[y][x];
+		if (c_ptr->feat == FEAT_RUBBLE)
+		{
+			summon_lev = plev * 2 / 3 + randint1(plev / 2);
+		}
+		else
+		{
+#ifdef JP
+			msg_print("そこには岩石がない。");
+#else
+			msg_print("You need pile of rubble.");
+#endif
+			return FALSE;
+		}
+	}
+	/**********Create from corpses*********/
+	else if (ext == 2)
+	{
+		cptr q, s;
+
+		item_tester_hook = item_tester_hook_corpse;
+
+		/* Get an item */
+#ifdef JP
+		q = "どの死体から作りますか？ ";
+		s = "死体を持っていない。";
+#else
+		q = "Make from which corpse? ";
+		s = "You have no corpse to make.";
+#endif
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
+
+		summon_lev = plev * 2 / 3 + r_info[o_ptr->pval].level;
+	}
+
+	if (plev > 39)
+	{
+		mode |=  PM_ALLOW_GROUP;
+		num = (plev / 25) + randint1(2);
+	}
+
+	for (i = 0; i < num; i++)
+	{
+		if (summon_specific(-1, py, px, summon_lev, SUMMON_GOLEM, mode))
+		{
+			count++;
+		}
+	}
+
+	if (count)
 	{
 #ifdef JP
-		msg_print("構え直した。");
+		msg_print("ゴーレムを作った。");
 #else
-		msg_print("You reassume a posture.");
+		msg_print("You make a golem.");
 #endif
+		if (ext == 1)
+		{
+			(void)wall_to_mud(dir);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			p_ptr->window |= (PW_OVERHEAD);
+		}
+		else if (ext == 2)
+		{
+			if (item >= 0)
+			{
+				inven_item_increase(item, -1);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+			}
+			else
+			{
+				floor_item_increase(0 - item, -1);
+				floor_item_describe(0 - item);
+				floor_item_optimize(0 - item);
+			}
+		}
 	}
 	else
 	{
-		p_ptr->special_defense &= ~(KAMAE_MASK);
-		p_ptr->update |= (PU_BONUS);
-		p_ptr->redraw |= (PR_STATE);
 #ifdef JP
-		msg_format("%sの構えをとった。",kamae_shurui[new_kamae].desc);
+		msg_print("うまくゴーレムを作れなかった。");
 #else
-		msg_format("You assume a posture of %s form.",kamae_shurui[new_kamae].desc);
+		msg_print("No Golems arrive.");
 #endif
-		p_ptr->special_defense |= (KAMAE_GENBU << new_kamae);
 	}
-	p_ptr->redraw |= PR_STATE;
-	screen_load();
+
 	return TRUE;
 }
 
-static bool choose_kata(void)
+
+typedef struct power_desc_type power_desc_type;
+
+struct power_desc_type
 {
-	char choice;
-	int new_kata = 0;
-	int i;
-	char buf[80];
-
-	if (p_ptr->confused)
-	{
-#ifdef JP
-		msg_print("混乱していて構えられない！");
-#else
-		msg_print("Too confused.");
-#endif
-		return FALSE;
-	}
-
-	if (p_ptr->stun)
-	{
-#ifdef JP
-		msg_print("意識がはっきりとしない。");
-#else
-		msg_print("You are not clear headed");
-#endif
-		return FALSE;
-	}
-
-	if (p_ptr->afraid)
-	{
-#ifdef JP
-		msg_print("体が震えて構えられない！");
-#else
-		msg_print("You are trembling with fear!");
-#endif
-		return FALSE;
-	}
-
-	/* Save screen */
-	screen_save();
-
-#ifdef JP
-	prt(" a) 型を崩す", 2, 20);
-#else
-	prt(" a) No Form", 2, 20);
-#endif
-
-	for (i = 0; i < MAX_KATA; i++)
-	{
-		if (p_ptr->lev >= kata_shurui[i].min_level)
-		{
-#ifdef JP
-			sprintf(buf," %c) %sの型    %s",I2A(i+1), kata_shurui[i].desc, kata_shurui[i].info);
-#else
-			sprintf(buf," %c) Form of %-12s  %s",I2A(i+1), kata_shurui[i].desc, kata_shurui[i].info);
-#endif
-			prt(buf, 3+i, 20);
-		}
-	}
-
-	prt("", 1, 0);
-#ifdef JP
-	prt("        どの型で構えますか？", 1, 14);
-#else
-	prt("        Choose Form: ", 1, 14);
-#endif
-
-	while(1)
-	{
-		choice = inkey();
-
-		if (choice == ESCAPE)
-		{
-			screen_load();
-			return FALSE;
-		}
-		else if ((choice == 'a') || (choice == 'A') || (choice == ESCAPE))
-		{
-			if (p_ptr->action == ACTION_KATA)
-			{
-				set_action(ACTION_NONE);
-			}
-			else
-#ifdef JP
-				msg_print("もともと構えていない。");
-#else
-				msg_print("You are not assuming posture.");
-#endif
-			screen_load();
-			return TRUE;
-		}
-		else if ((choice == 'b') || (choice == 'B'))
-		{
-			new_kata = 0;
-			break;
-		}
-		else if (((choice == 'c') || (choice == 'C')) && (p_ptr->lev > 29))
-		{
-			new_kata = 1;
-			break;
-		}
-		else if (((choice == 'd') || (choice == 'D')) && (p_ptr->lev > 34))
-		{
-			new_kata = 2;
-			break;
-		}
-		else if (((choice == 'e') || (choice == 'E')) && (p_ptr->lev > 39))
-		{
-			new_kata = 3;
-			break;
-		}
-	}
-	set_action(ACTION_KATA);
-
-	if (p_ptr->special_defense & (KATA_IAI << new_kata))
-	{
-#ifdef JP
-		msg_print("構え直した。");
-#else
-		msg_print("You reassume a posture.");
-#endif
-	}
-	else
-	{
-		p_ptr->special_defense &= ~(KATA_MASK);
-		p_ptr->update |= (PU_BONUS);
-		p_ptr->update |= (PU_MONSTERS);
-#ifdef JP
-		msg_format("%sの型で構えた。",kata_shurui[new_kata].desc);
-#else
-		msg_format("You assume a posture of %s form.",kata_shurui[new_kata].desc);
-#endif
-		p_ptr->special_defense |= (KATA_IAI << new_kata);
-	}
-	p_ptr->redraw |= (PR_STATE);
-	p_ptr->redraw |= (PR_STATUS);
-	screen_load();
-	return TRUE;
-}
+	char name[40];
+	int  level;
+	int  cost;
+	int  stat;
+	int  fail;
+	int  number;
+};
 
 
 /*
  * Returns the chance to activate a racial power/mutation
  */
-static int racial_chance(s16b min_level, int use_stat, int difficulty)
+static int racial_chance(power_desc_type *pd_ptr)
 {
+	s16b min_level  = pd_ptr->level;
+	int  use_stat   = pd_ptr->stat;
+	int  difficulty = pd_ptr->fail;
+
 	int i;
 	int val;
 	int sum = 0;
@@ -672,7 +435,7 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 	/* Calculate difficulty */
 	if (p_ptr->stun)
 	{
-		difficulty += p_ptr->stun;
+		difficulty += p_ptr->stun / 3;
 	}
 	else if (p_ptr->lev > min_level)
 	{
@@ -700,14 +463,25 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 }
 
 
-/* Note: return value indicates that we have succesfully used the power */
+static int  racial_cost;
+static bool racial_use_hp;
 
-bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
+/*
+ * Note: return value indicates that we have succesfully used the power
+ * 1: Succeeded, 0: Cancelled, -1: Failed
+ */
+
+static int racial_aux(power_desc_type *pd_ptr)
 {
-	bool use_hp = FALSE;
+	s16b min_level  = pd_ptr->level;
+	int  use_stat   = pd_ptr->stat;
+	int  difficulty = pd_ptr->fail;
+
+	racial_cost   = pd_ptr->cost;
+	racial_use_hp = FALSE;
 
 	/* Not enough mana - use hp */
-	if (p_ptr->csp < cost) use_hp = TRUE;
+	if (p_ptr->csp < racial_cost) racial_use_hp = TRUE;
 
 	/* Power is not available yet */
 	if (p_ptr->lev < min_level)
@@ -719,34 +493,34 @@ msg_format("この能力を使用するにはレベル %d に達していなければなりません。", min
 #endif
 
 		energy_use = 0;
-		return FALSE;
+		return 0;
 	}
 
 	/* Too confused */
 	else if (p_ptr->confused)
 	{
 #ifdef JP
-msg_print("混乱していてその能力は使えない。");
+		msg_print("混乱していてその能力は使えない。");
 #else
 		msg_print("You are too confused to use this power.");
 #endif
 
 		energy_use = 0;
-		return FALSE;
+		return 0;
 	}
 
 	/* Risk death? */
-	else if (use_hp && (p_ptr->chp < cost))
+	else if (racial_use_hp && (p_ptr->chp < racial_cost))
 	{
 #ifdef JP
-if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
+		if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
 #else
 		if (!get_check("Really use the power in your weakened state? "))
 #endif
 
 		{
 			energy_use = 0;
-			return FALSE;
+			return 0;
 		}
 	}
 
@@ -771,287 +545,1529 @@ if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
 	/* take time and pay the price */
 	energy_use = 100;
 
-	if (cost)
-	{
-		if (use_hp)
-		{
-#ifdef JP
-			take_hit(DAMAGE_USELIFE, (cost / 2) + randint1(cost / 2),
-				 "過度の集中", -1);
-#else
-			take_hit(DAMAGE_USELIFE, (cost / 2) + randint1(cost / 2),
-				 "concentrating too hard", -1);
-#endif
-
-		}
-		else
-		{
-			p_ptr->csp -= (cost / 2) + randint1(cost / 2);
-		}
-	}
-
-
-	/* Redraw mana and hp */
-	p_ptr->redraw |= (PR_HP | PR_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER | PW_SPELL);
-
 	/* Success? */
 	if (randint1(p_ptr->stat_cur[use_stat]) >=
 	    ((difficulty / 2) + randint1(difficulty / 2)))
 	{
-		return TRUE;
+		return 1;
 	}
 
 #ifdef JP
-msg_print("充分に集中できなかった。");
+	msg_print("充分に集中できなかった。");
 #else
 	msg_print("You've failed to concentrate hard enough.");
 #endif
 	if (flush_failure) flush();
 
-	return FALSE;
+	return -1;
+}
+
+
+static bool do_cmd_racial_throwing(int fake_item)
+{
+	object_type  fake_bow;
+	object_type *j_ptr = &fake_bow;
+	s16b         old_to_h_b = p_ptr->to_h_b;
+	s16b         old_num_fire = p_ptr->num_fire;
+	byte         old_tval_ammo = p_ptr->tval_ammo;
+	bool         old_xtra_might = p_ptr->xtra_might;
+	bool         old_dis_xtra_might = p_ptr->dis_xtra_might;
+	int          fake_sval;
+
+	object_type *o_ptr;
+	u32b         flgs[TR_FLAG_SIZE];
+	int          extra_shots = 0;
+	int          hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
+	int          i;
+
+	bool done;
+
+	switch (fake_item)
+	{
+	case INVEN_PEBBLE:
+		fake_sval = SV_PISTOL;
+		p_ptr->tval_ammo = TV_BULLET;
+		break;
+
+	case INVEN_GRAVE:
+		fake_sval = SV_BOWGUN;
+		p_ptr->tval_ammo = TV_BOLT;
+		break;
+
+	default:
+		return FALSE;
+	}
+
+	/* Prepare the "fake bow" */
+	object_prep(j_ptr, lookup_kind(TV_BOW, fake_sval));
+	object_aware(j_ptr);
+	object_known(j_ptr);
+	j_ptr->to_h = (int)(adj_throwing[p_ptr->stat_ind[A_DEX]]) - 128;
+	j_ptr->to_d = (int)(adj_throwing[p_ptr->stat_ind[A_STR]]) - 128;
+
+	p_ptr->to_h_b = 0;
+	p_ptr->num_fire = 100;
+	p_ptr->tval_ammo = 0;
+	p_ptr->dis_xtra_might = p_ptr->xtra_might = FALSE;
+
+	/* Scan the usable inventory */
+	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	{
+		int bonus_to_h;
+		o_ptr = &inventory[i];
+
+		/* Hack -- ignore "bow" */
+		if (i == INVEN_BOW) continue;
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+		object_flags(o_ptr, flgs);
+
+		/* Boost shots */
+		if (have_flag(flgs, TR_XTRA_SHOTS)) extra_shots++;
+
+		/* Various flags */
+		if (have_flag(flgs, TR_XTRA_MIGHT))
+		{
+			p_ptr->xtra_might = TRUE;
+			if (object_known_p(o_ptr)) p_ptr->dis_xtra_might = TRUE;
+		}
+
+		/* Hack -- do not apply "weapon" bonuses */
+		if (i == INVEN_RARM && buki_motteruka(i)) continue;
+		if (i == INVEN_LARM && buki_motteruka(i)) continue;
+
+		bonus_to_h = o_ptr->to_h;
+		if ((p_ptr->pclass == CLASS_NINJA) && (o_ptr->to_h > 0))
+			bonus_to_h = (o_ptr->to_h + 1) / 2;
+
+		/* Apply the bonuses to hit */
+		p_ptr->to_h_b += bonus_to_h;
+	}
+
+	/* Hack - Mighty throwing is converted to XTRA_SHOTS and XTRA_MIGHT */
+	if (p_ptr->mighty_throw)
+	{
+		extra_shots++;
+		p_ptr->xtra_might = TRUE;
+		p_ptr->dis_xtra_might = p_ptr->dis_mighty_throw;
+	}
+
+	/* Apply temporary status */
+	if (p_ptr->stun > 100) p_ptr->to_h_b -= 20;
+	else if (p_ptr->stun) p_ptr->to_h_b -= 5;
+	if (p_ptr->blessed) p_ptr->to_h_b  += 10;
+	if (p_ptr->hero) p_ptr->to_h_b  += 12;
+	if (p_ptr->shero) p_ptr->to_h_b  -= 12;
+
+	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
+	p_ptr->to_h_b += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+	p_ptr->to_h_b += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+
+	/* It is hard to carholdry a heavy bow */
+	if (hold < j_ptr->weight / 10)
+	{
+		/* Hard to wield a heavy bow */
+		p_ptr->to_h_b  += 2 * (hold - j_ptr->weight / 10);
+	}
+
+	/* Apply special flags */
+	else
+	{
+		/* Extra shots */
+		p_ptr->num_fire += (extra_shots * 100);
+		p_ptr->num_fire += skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]] * 50;
+	}
+
+	if (p_ptr->riding)
+	{
+		int penalty = 0;
+
+		if ((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER))
+		{
+			if (p_ptr->tval_ammo != TV_ARROW) penalty = 5;
+		}
+		else
+		{
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000) / 80;
+			penalty += 30;
+			if (penalty < 30) penalty = 30;
+		}
+		if (p_ptr->tval_ammo == TV_BOLT) penalty *= 2;
+		p_ptr->to_h_b -= penalty;
+	}
+
+	/* Fire with fake bow, fake ammo and fake status */
+	done = do_cmd_fire_aux(fake_item, j_ptr, FALSE);
+
+	/* Restore player's status rerating shooting */
+	p_ptr->to_h_b = old_to_h_b;
+	p_ptr->num_fire = old_num_fire;
+	p_ptr->tval_ammo = old_tval_ammo;
+	p_ptr->xtra_might = old_xtra_might;
+	p_ptr->dis_xtra_might = old_dis_xtra_might;
+
+	return done;
 }
 
 
 static bool cmd_racial_power_aux(s32b command)
 {
 	s16b        plev = p_ptr->lev;
+	s16b        chp = p_ptr->chp;
 	int         dir = 0;
+	bool        done;
 
-	if (command <= -3)
+	if (!(rp_ptr->r_flags & PRF_LARGE)
+		&& (p_ptr->pclass != CLASS_TERRORKNIGHT)
+		&& (p_ptr->pclass != CLASS_SWORDMASTER)
+		&& (p_ptr->pclass != CLASS_NINJA)
+		&& (command == -9))
+	{
+		if (!do_cmd_racial_throwing(INVEN_PEBBLE)) return FALSE;
+	}
+	else if (((p_ptr->pclass == CLASS_KNIGHT)
+		|| (p_ptr->pclass == CLASS_VALKYRIE))
+		&& (command == -10))
+	{
+		char m_name[80];
+		monster_type *m_ptr;
+		monster_race *r_ptr;
+		int rlev;
+
+		if (p_ptr->riding)
+		{
+#ifdef JP
+			msg_print("今は乗馬中だ。");
+#else
+			msg_print("You ARE riding.");
+#endif
+			return FALSE;
+		}
+		if (!do_riding(TRUE)) return FALSE;
+		m_ptr = &m_list[p_ptr->riding];
+		r_ptr = &r_info[m_ptr->r_idx];
+		monster_desc(m_name, m_ptr, 0);
+#ifdef JP
+		msg_format("%sに乗った。",m_name);
+#else
+		msg_format("You ride on %s.",m_name);
+#endif
+		if (is_pet(m_ptr)) return TRUE;
+		rlev = r_ptr->level;
+		if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
+		if (rlev > 60) rlev = 60+(rlev-60)/2;
+		if ((randint1((skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000)/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+randint0(p_ptr->lev/5)))
+		{
+#ifdef JP
+			msg_format("%sを手なずけた。",m_name);
+#else
+			msg_format("You tame %s.",m_name);
+#endif
+			set_pet(m_ptr);
+		}
+		else
+		{
+#ifdef JP
+			msg_format("%sに振り落とされた！",m_name);
+#else
+			msg_format("You have thrown off by %s.",m_name);
+#endif
+			rakuba(1,TRUE);
+		}
+	}
+	else if (((p_ptr->pclass == CLASS_WIZARD)
+		|| (p_ptr->pclass == CLASS_SIRENE)
+		|| (p_ptr->pclass == CLASS_LICH)
+		|| (p_ptr->pclass == CLASS_HIGHWITCH))
+		&& (command == -10))
+	{
+		if (!eat_magic(p_ptr->lev * 2)) return FALSE;
+	}
+	else if (command <= -9)
 	{
 		switch (p_ptr->pclass)
 		{
-		case CLASS_WARRIOR:
+		case CLASS_KNIGHT:
 		{
-			if (racial_aux(40, 75, A_DEX, 35))
+			switch (command)
 			{
-				int y = 0, x = 0, i;
-				cave_type       *c_ptr;
-				monster_type    *m_ptr;
-
-				for (i = 0; i < 6; i++)
+			case -11:
+				(void)detect_monsters_evil(DETECT_RAD_DEFAULT);
+				break;
+			case -12:
 				{
-					dir = randint0(8);
-					y = py + ddy_ddd[dir];
-					x = px + ddx_ddd[dir];
-					c_ptr = &cave[y][x];
+					int tx, ty, nx, ny;
+					int over_1 = 0, over_2 = 0;
+					u16b path_g[16];
+					int path_n, i;
 
-					/* Get the monster */
-					m_ptr = &m_list[c_ptr->m_idx];
+					project_length = 5;
+					if (!get_aim_dir(&dir)) return FALSE;
 
-					/* Hack -- attack monsters */
-					if (c_ptr->m_idx)
-						py_attack(y, x, 0);
+					/* Hack -- Use an actual "target" */
+					if ((dir == 5) && target_okay())
+					{
+						tx = target_col;
+						ty = target_row;
+					}
+					else
+					{
+						/* Use the given direction */
+						ty = py + 99 * ddy[dir];
+						tx = px + 99 * ddx[dir];
+
+						/* If not in bounds... */
+						if (!in_bounds2(ty, tx))
+						{
+							if (ty < 0) over_1 = -ty;
+							else if (ty >= cur_hgt) over_1 = ty - cur_hgt + 1;
+							if (tx < 0) over_2 = -tx;
+							else if (tx >= cur_wid) over_2 = tx - cur_wid + 1;
+
+							if (over_1 < over_2) over_1 = over_2;
+
+							ty += over_1 * (-ddy[dir]);
+							tx += over_1 * (-ddx[dir]);
+						}
+					}
+
+					path_n = project_path(path_g, project_length, py, px, ty, tx, 0L);
+					project_length = 0;
+					ty = py;
+					tx = px;
+
+					/* Project along the path */
+					for (i = 0; i < path_n; ++i)
+					{
+						ny = GRID_Y(path_g[i]);
+						nx = GRID_X(path_g[i]);
+
+						/* Max distance empty floor */
+						if (player_has_los_bold(ny, nx) &&
+							cave_empty_bold(ny, nx) &&
+							player_can_enter(cave[ny][nx].feat))
+						{
+							/* Save the tmp location */
+							ty = ny;
+							tx = nx;
+						}
+
+						if (!p_ptr->ffall && (cave[ny][nx].feat == FEAT_AIR)) break;
+					}
+
+					if ((ty == py) && (tx == px))
+					{
+#ifdef JP
+						msg_print("突撃できません。");
+#else
+						msg_print("You can't charge to that place.");
+#endif
+						return FALSE;
+					}
+
+					project(0, 0, ty, tx, PY_ATTACK_CHARGE, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, MODIFY_ELEM_MODE_MELEE);
+					teleport_player_to(ty, tx, FALSE, FALSE);
+				}
+				break;
+			case -13:
+				if (p_ptr->lev > 44)
+				{
+					if (!identify_fully(TRUE)) return FALSE;
+				}
+				else
+				{
+					if (!ident_spell(TRUE)) return FALSE;
+				}
+				break;
+			}
+			break;
+		}
+		case CLASS_BERSERKER:
+		{
+			if (command == -10)
+			{
+				teleport_player(50 + plev * 2);
+			}
+			break;
+		}
+		case CLASS_TERRORKNIGHT:
+		{
+			switch (command)
+			{
+			case -9:
+				(void)detect_monsters_living(DETECT_RAD_DEFAULT);
+				break;
+			case -10:
+				if (!do_cmd_racial_throwing(INVEN_GRAVE)) return FALSE;
+				break;
+			case -11:
+				{
+					int i, count = 0;
+					u32b mode = PM_NO_PET | PM_ALLOW_GROUP | PM_IGNORE_AMGRID;
+
+					summon_kin_type = 'G';
+
+					for (i = 0; i < 4; i++)
+					{
+						if (summon_specific(0, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_KIN, mode))
+							count++;
+					}
+					if (count)
+					{
+#ifdef JP
+						msg_print("殺してきた者達の霊が現れた。");
+#else
+						msg_print("You summon souls of your victims.");
+#endif
+					}
 					else
 					{
 #ifdef JP
-msg_print("攻撃が空をきった。");
+						msg_print("何も現れなかった。");
 #else
-						msg_print("You attack the empty air.");
+						msg_print("No one arrive.");
 #endif
+					}
+				}
+				break;
+			case -12:
+				earthquake(py, px, 8 + randint0(5));
+				break;
+			case -13:
+				{
+					int              y, x;
+					cave_type       *c_ptr;
+					monster_type    *m_ptr;
+
+					for (dir = 0; dir < 8; dir++)
+					{
+						y = py + ddy_ddd[dir];
+						x = px + ddx_ddd[dir];
+						c_ptr = &cave[y][x];
+
+						/* Get the monster */
+						m_ptr = &m_list[c_ptr->m_idx];
+
+						/* Hack -- attack monsters */
+						if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
+							py_attack(y, x, 0);
+					}
+				}
+				break;
+			case -14:
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			}
+			break;
+		}
+		case CLASS_BEASTTAMER:
+		{
+			switch (command)
+			{
+			case -10:
+				{
+					u32b mode = PM_ALLOW_GROUP | PM_FORCE_PET;
+					if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_SPIDER, mode))
+					{
+#ifdef JP
+						msg_print("クモを召喚した。");
+#else
+						msg_print("You summon spiders.");
+#endif
+					}
+					else
+					{
+#ifdef JP
+						msg_print("クモは現れなかった。");
+#else
+						msg_print("No spider arrive.");
+#endif
+					}
+				}
+				break;
+			case -11:
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball(GF_CONTROL_BEAST, dir, plev * 2, 0, FALSE);
+				break;
+			case -12:
+				{
+					int i, count = 0;
+					u32b mode = PM_ALLOW_GROUP | PM_FORCE_PET;
+					for (i = 0; i < 4; i++)
+					{
+						if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_BEAST, mode))
+							count++;
+					}
+					if (count)
+					{
+#ifdef JP
+						msg_print("魔獣を召喚した。");
+#else
+						msg_print("You summon beasts.");
+#endif
+					}
+					else
+					{
+#ifdef JP
+						msg_print("魔獣は現れなかった。");
+#else
+						msg_print("No beast arrive.");
+#endif
+					}
+				}
+				break;
+			}
+			break;
+		}
+		case CLASS_SWORDMASTER:
+		{
+			switch (command)
+			{
+			case -9:
+				{
+					int pstat = p_ptr->stat_use[A_STR];
+					int attack_var = skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]];
+
+					if (!get_aim_dir(&dir)) return FALSE;
+					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;
+					fire_bolt(GF_BLUNT, dir,
+						damroll((((plev - 10) > 0) ? (plev - 10) : 0) / ((pstat >= (18 + 150)) ? 4 : 5) + 3,
+							((pstat >= (18 + 200)) ? 4 : 3)));
+
+					/* Take partial turn */
+					energy_use = 100 - attack_var * attack_var;
+				}
+				break;
+			case -10:
+				detect_monsters_mind(DETECT_RAD_DEFAULT);
+				break;
+			case -11:
+				if (!do_cmd_throw_aux(1, PY_THROW_BOOMERANG, 0)) return FALSE;
+				break;
+			case -12:
+				{
+					int y, x;
+
+					if (!get_rep_dir2(&dir)) return FALSE;
+					if (dir == 5) return FALSE;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+					if (cave[y][x].m_idx)
+						py_attack(y, x, PY_ATTACK_MINEUCHI);
+					else
+					{
+#ifdef JP
+						msg_print("その方向にはモンスターはいません。");
+#else
+						msg_print("There is no monster.");
+#endif
+						return FALSE;
+					}
+				}
+				break;
+			case -13:
+				{
+					int y, x;
+
+					if (p_ptr->riding)
+					{
+#ifdef JP
+						msg_print("乗馬中には無理だ。");
+#else
+						msg_print("You cannot do it when riding.");
+#endif
+						return FALSE;
+					}
+
+					if (!get_rep_dir2(&dir)) return FALSE;
+
+					if (dir == 5) return FALSE;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+
+					if (!cave[y][x].m_idx)
+					{
+#ifdef JP
+						msg_print("その方向にはモンスターはいません。");
+#else
+						msg_print("There is no monster.");
+#endif
+						return FALSE;
+					}
+
+					py_attack(y, x, 0);
+
+					if (!player_can_enter(cave[y][x].feat) || is_trap(cave[y][x].feat))
+						break;
+
+					y += ddy[dir];
+					x += ddx[dir];
+
+					if (player_can_enter(cave[y][x].feat) && !is_trap(cave[y][x].feat) && !cave[y][x].m_idx)
+					{
+						int oy, ox;
+
+						msg_print(NULL);
+
+						/* Save the old location */
+						oy = py;
+						ox = px;
+
+						/* Move the player */
+						py = y;
+						px = x;
+
+						forget_flow();
+
+						/* Redraw the old spot */
+						lite_spot(oy, ox);
+
+						/* Redraw the new spot */
+						lite_spot(py, px);
+
+						/* Check for new panel (redraw map) */
+						verify_panel();
+
+						set_aquatic_in_water();
+
+						/* Update stuff */
+						p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_BONUS);
+
+						/* Update the monsters */
+						p_ptr->update |= (PU_DISTANCE);
+
+						/* Window stuff */
+						p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+						/* Handle stuff XXX XXX XXX */
+						handle_stuff();
+					}
+				}
+				break;
+			case -14:
+				project_length = 5;
+				if (!get_aim_dir(&dir)) return FALSE;
+				project_hook(GF_ATTACK, dir, PY_ATTACK_NYUSIN, PROJECT_STOP | PROJECT_KILL);
+				break;
+			case -15:
+				{
+					int y, x, i;
+					if (!get_rep_dir2(&dir)) return FALSE;
+					if (dir == 5) return FALSE;
+					for (i = 0; i < 3; i++)
+					{
+						int oy, ox;
+						int ny, nx;
+						int m_idx;
+						monster_type *m_ptr;
+
+						y = py + ddy[dir];
+						x = px + ddx[dir];
+
+						if (cave[y][x].m_idx)
+							py_attack(y, x, PY_ATTACK_3DAN);
+						else
+						{
+#ifdef JP
+							msg_print("その方向にはモンスターはいません。");
+#else
+							msg_print("There is no monster.");
+#endif
+							return FALSE;
+						}
+
+						/* Monster is dead? */
+						if (!cave[y][x].m_idx) break;
+
+						ny = y + ddy[dir];
+						nx = x + ddx[dir];
+						m_idx = cave[y][x].m_idx;
+						m_ptr = &m_list[m_idx];
+
+						/* Monster cannot move back? */
+						if (!monster_can_enter(ny, nx, &r_info[m_ptr->r_idx])) continue;
+
+						cave[y][x].m_idx = 0;
+						cave[ny][nx].m_idx = m_idx;
+						m_ptr->fy = ny;
+						m_ptr->fx = nx;
+
+						update_mon(m_idx, TRUE);
+
+						/* Player can move forward? */
+						if (player_can_enter(cave[y][x].feat))
+						{
+							/* Save the old location */
+							oy = py;
+							ox = px;
+
+							/* Move the player */
+							py = y;
+							px = x;
+
+							if (p_ptr->riding)
+							{
+								int tmp;
+								tmp = cave[py][px].m_idx;
+								cave[py][px].m_idx = cave[oy][ox].m_idx;
+								cave[oy][ox].m_idx = tmp;
+								m_list[p_ptr->riding].fy = py;
+								m_list[p_ptr->riding].fx = px;
+							}
+
+							forget_flow();
+
+							/* Redraw the old spot */
+							lite_spot(oy, ox);
+
+							/* Redraw the new spot */
+							lite_spot(py, px);
+						}
+
+						/* Redraw the old spot */
+						lite_spot(y, x);
+
+						/* Redraw the new spot */
+						lite_spot(ny, nx);
+
+						/* Check for new panel (redraw map) */
+						verify_panel();
+
+						set_aquatic_in_water();
+
+						/* Update stuff */
+						p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+						/* Update the monsters */
+						p_ptr->update |= (PU_DISTANCE);
+
+						/* Window stuff */
+						p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+						/* Handle stuff */
+						handle_stuff();
+
+						/* -more- */
+						if (i < 2) msg_print(NULL);
+					}
+				}
+				break;
+			}
+			break;
+		}
+		case CLASS_NINJA:
+		{
+			switch (command)
+			{
+			case -9:
+				{
+					int pstat = p_ptr->stat_use[A_STR];
+					int attack_var = skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]];
+
+					if (!get_aim_dir(&dir)) return FALSE;
+					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;
+					fire_bolt(GF_EDGED, dir,
+						damroll((((plev - 10) > 0) ? (plev - 10) : 0) / ((pstat >= (18 + 150)) ? 4 : 5) + 3,
+							((pstat >= (18 + 200)) ? 4 : 3)));
+
+					/* Take partial turn */
+					energy_use = 100 - attack_var * attack_var;
+				}
+				break;
+			case -10:
+				if (p_ptr->singing || p_ptr->restart_singing) stop_singing();
+
+				if (p_ptr->action == ACTION_STEALTH) set_action(ACTION_NONE);
+				else set_action(ACTION_STEALTH);
+				energy_use = 0;
+				break;
+			case -11:
+				{
+					int y, x;
+
+					if (!get_rep_dir(&dir, FALSE)) return FALSE;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+					if (cave[y][x].m_idx)
+					{
+						py_attack(y, x, 0);
+						if (randint0(p_ptr->skill_dis) < 7)
+#ifdef JP
+							msg_print("うまく逃げられなかった。");
+#else
+							msg_print("You failed to run away.");
+#endif
+						else
+						{
+							teleport_player(30);
+						}
+					}
+					else
+					{
+#ifdef JP
+						msg_print("その方向にはモンスターはいません。");
+#else
+						msg_print("You don't see any monster in this direction");
+#endif
+
+						msg_print(NULL);
+					}
+				}
+				break;
+			}
+			break;
+		}
+		case CLASS_WARLOCK:
+		{
+			switch (command)
+			{
+			case -10:
+				if (!identify_fully(FALSE)) return FALSE;
+				break;
+			case -11:
+				if (!do_cmd_make_golem()) return FALSE;
+				break;
+			}
+			break;
+		}
+		case CLASS_VALKYRIE:
+		{
+			if (command == -11)
+			{
+				{
+					int y, x;
+					bool do_attack = FALSE;
+
+					if (!get_rep_dir2(&dir)) return FALSE;
+					if (dir == 5) return FALSE;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+					if (cave[y][x].m_idx)
+					{
+						py_attack(y, x, PY_ATTACK_PENET);
+						do_attack = TRUE;
+					}
+					y += ddy[dir];
+					x += ddx[dir];
+					if (in_bounds(y, x))
+					{
+						if (cave[y][x].m_idx)
+						{
+							py_attack(y, x, 0);
+							do_attack = TRUE;
+						}
+					}
+					penet_ac = 0;
+
+					if (!do_attack)
+					{
+#ifdef JP
+						msg_print("その方向にはモンスターはいません。");
+#else
+						msg_print("There is no monster.");
+#endif
+						return FALSE;
 					}
 				}
 			}
 			break;
 		}
-		case CLASS_MAGE:
-		case CLASS_HIGH_MAGE:
-		case CLASS_SORCERER:
+		case CLASS_ARCHER:
 		{
-			if (racial_aux(25, 1, A_INT, 25))
+			switch (command)
 			{
-				if (!eat_magic(p_ptr->lev * 2)) return FALSE;
-			}
-			break;
-		}
-		case CLASS_PRIEST:
-		{
-			if (is_good_realm(p_ptr->realm1))
-			{
-				if (racial_aux(35, 70, A_WIS, 50))
+			case -10:
+				if (!do_cmd_archer()) return FALSE;
+				break;
+			case -11:
+				if (p_ptr->tval_ammo != TV_ARROW)
 				{
-					if (!bless_weapon()) return FALSE;
-				}
-			}
-			else
-			{
-				if (racial_aux(42, 40, A_WIS, 30))
-				{
-					(void)dispel_monsters(plev * 4);
-					turn_monsters(plev * 4);
-					banish_monsters(plev * 4);
-				}
-			}
-			break;
-		}
-		case CLASS_ROGUE:
-		{
-			if (racial_aux(8, 12, A_DEX, 14))
-			{
-				int x, y;
-
-				if (!get_rep_dir(&dir, FALSE)) return FALSE;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				if (cave[y][x].m_idx)
-				{
-					py_attack(y, x, 0);
-					if (randint0(p_ptr->skill_dis) < 7)
 #ifdef JP
-msg_print("うまく逃げられなかった。");
+					msg_print("矢を使う射撃武器が必要です。");
 #else
-						msg_print("You are failed to run away.");
+					msg_print("You need a bow which use arrows.");
 #endif
-					else teleport_player(30);
+					return FALSE;
+				}
+				energy_use = 0;
+				if (!do_cmd_fire(TRUE)) return FALSE;
+				break;
+			case -12:
+				energy_use = 0;
+				p_ptr->to_h_b += 30;
+				done = do_cmd_fire(FALSE);
+				p_ptr->to_h_b -= 30;
+				if (!done) return FALSE;
+				break;
+			case -13:
+				energy_use = 0;
+				p_ptr->to_h_b -= 30;
+				p_ptr->num_fire *= 2;
+				done = do_cmd_fire(FALSE);
+
+				p_ptr->to_h_b += 30;
+				p_ptr->num_fire /= 2;
+				if (!done) return FALSE;
+				break;
+			}
+			break;
+		}
+		case CLASS_DRAGONTAMER:
+		{
+			switch (command)
+			{
+			case -10:
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball(GF_CONTROL_DRAGON, dir, plev * 2, 0, FALSE);
+				break;
+			case -11:
+				if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_DRAGON, PM_FORCE_PET))
+				{
+#ifdef JP
+					msg_print("ドラゴンを召喚した。");
+#else
+					msg_print("You summon a dragon.");
+#endif
 				}
 				else
 				{
 #ifdef JP
-msg_print("その方向にはモンスターはいません。");
+					msg_print("ドラゴンは現れなかった。");
 #else
-					msg_print("You don't see any monster in this direction");
+					msg_print("No dragon arrive.");
 #endif
-
-					msg_print(NULL);
 				}
-			}
-			break;
-		}
-		case CLASS_RANGER:
-		{
-			if (racial_aux(15, 20, A_INT, 12))
-			{
+				break;
+			case -12:
+				if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_HI_DRAGON, PM_FORCE_PET))
+				{
 #ifdef JP
-msg_print("敵を調査した...");
+					msg_print("古代ドラゴンを召喚した。");
 #else
-				msg_print("You examine your foes...");
+					msg_print("You summon an ancient dragon.");
 #endif
-
-				probing();
-			}
-			break;
-		}
-		case CLASS_PALADIN:
-		{
-			if (is_good_realm(p_ptr->realm1))
-			{
-				if (racial_aux(30, 30, A_WIS, 20))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-					fire_beam(GF_HOLY_FIRE, dir, plev * 3);
 				}
-			}
-			else
-			{
-				if (racial_aux(30, 30, A_WIS, 20))
+				else
 				{
-					if (!get_aim_dir(&dir)) return FALSE;
-					fire_beam(GF_HELL_FIRE, dir, plev * 3);
-				}
-			}
-			break;
-		}
-		case CLASS_WARRIOR_MAGE:
-		{
-			if (command == -3)
-			{
-				if (racial_aux(25, 0, A_INT, 10))
-				{
-					int gain_sp;
-					if ((gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, 
 #ifdef JP
-"ＨＰからＭＰへの無謀な変換", -1)))
+					msg_print("古代ドラゴンは現れなかった。");
 #else
-"thoughtless convertion from HP to SP", -1)))
+					msg_print("No ancient dragon arrive.");
 #endif
+				}
+				break;
+			}
+			break;
+		}
+		case CLASS_LICH:
+		{
+			if (command == -11)
+			{
+				if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_HI_UNDEAD, PM_FORCE_PET))
+				{
+#ifdef JP
+					msg_print("上級アンデッドを召喚した。");
+#else
+					msg_print("You summon a greater undead being.");
+#endif
+				}
+				else
+				{
+#ifdef JP
+					msg_print("上級アンデッドは現れなかった。");
+#else
+					msg_print("No greater undead being arrive.");
+#endif
+				}
+			}
+			break;
+		}
+		case CLASS_ANGELKNIGHT:
+		{
+			if ((command == -11) || (command == -12))
+			{
+				if (p_ptr->anti_magic)
+				{
+#ifdef JP
+					msg_print("反魔法バリアが歌を邪魔した！");
+#else
+					msg_print("An anti-magic shell disrupts your singing!");
+#endif
+					return FALSE;
+				}
+				if (is_anti_magic_grid(-1, py, px))
+				{
+#ifdef JP
+					msg_print("反魔法フィールドが歌を邪魔した！");
+#else
+					msg_print("An anti-magic field disrupts your singing!");
+#endif
+					return TRUE;
+				}
+				else if (p_ptr->shero)
+				{
+#ifdef JP
+					msg_format("狂戦士化していて頭が回らない！");
+#else
+					msg_format("You cannot think directly!");
+#endif
+					return FALSE;
+				}
+			}
+			switch (command)
+			{
+			case -10:
+				stop_singing();
+				energy_use = 10;
+				break;
+			case -11:
+				if (p_ptr->singing) stop_singing();
+#ifdef JP
+				msg_print("悲しげで安らかなメロディを奏で始めた...");
+#else
+				msg_print("You weave a slow, sad, soothing melody of imploration...");
+#endif
+				p_ptr->singing = MUSIC_SAD;
+				p_ptr->song_start = MUSIC_SAD;
+				set_action(ACTION_SING);
+				break;
+			case -12:
+				if (p_ptr->singing) stop_singing();
+#ifdef JP
+				msg_print("静かな音楽が辺りの者をも静まり返らせる...");
+#else
+				msg_print("Your quiet music silences all listeners...");
+#endif
+				p_ptr->singing = MUSIC_SILENT;
+				p_ptr->song_start = MUSIC_SILENT;
+				set_action(ACTION_SING);
+				break;
+			}
+			break;
+		}
+		case CLASS_HIGHWITCH:
+		{
+			if (command == -11)
+			{
+				{
+					int i, count = 0;
+					for (i = 0; i < 4; i++)
 					{
-						p_ptr->csp += gain_sp / 5;
-						if (p_ptr->csp > p_ptr->msp)
+						if (summon_named_creature(-1, py, px, MON_PUMPKIN_HEAD, PM_FORCE_PET))
+							count++;
+					}
+					if (count)
+					{
+#ifdef JP
+						msg_print("パンプキンヘッドを召喚した。");
+#else
+						msg_print("You summon Pumpkin-Heads.");
+#endif
+					}
+					else
+					{
+#ifdef JP
+						msg_print("パンプキンヘッドは現れなかった。");
+#else
+						msg_print("No Pumpkin-Head arrive.");
+#endif
+					}
+				}
+			}
+			break;
+		}
+		case CLASS_GUNNER:
+		{
+			switch (command)
+			{
+			case -10:
+				detect_monsters_thermal(DETECT_RAD_DEFAULT);
+				break;
+			case -11:
+				map_area(DETECT_RAD_MAP);
+				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_doors(DETECT_RAD_DEFAULT);
+				(void)detect_stairs(DETECT_RAD_DEFAULT);
+				(void)detect_objects_normal(DETECT_RAD_DEFAULT);
+				(void)detect_treasure(DETECT_RAD_DEFAULT);
+				(void)detect_objects_gold(DETECT_RAD_DEFAULT);
+				break;
+			case -12:
+				{
+					int tx, ty, nx, ny;
+					int over_1 = 0, over_2 = 0;
+					u16b path_g[16];
+					int path_n, i;
+
+					project_length = 5 + plev / 20;
+					if (!get_aim_dir(&dir)) return FALSE;
+
+					/* Hack -- Use an actual "target" */
+					if ((dir == 5) && target_okay())
+					{
+						tx = target_col;
+						ty = target_row;
+					}
+					else
+					{
+						/* Use the given direction */
+						ty = py + 99 * ddy[dir];
+						tx = px + 99 * ddx[dir];
+
+						/* If not in bounds... */
+						if (!in_bounds2(ty, tx))
 						{
-							p_ptr->csp = p_ptr->msp;
-							p_ptr->csp_frac = 0;
+							if (ty < 0) over_1 = -ty;
+							else if (ty >= cur_hgt) over_1 = ty - cur_hgt + 1;
+							if (tx < 0) over_2 = -tx;
+							else if (tx >= cur_wid) over_2 = tx - cur_wid + 1;
+
+							if (over_1 < over_2) over_1 = over_2;
+
+							ty += over_1 * (-ddy[dir]);
+							tx += over_1 * (-ddx[dir]);
 						}
 					}
-					else
-#ifdef JP
-msg_print("変換に失敗した。");
-#else
-				msg_print("You failed to convert.");
-#endif
-				}
-			}
-			else if (command == -4)
-			{
-				if (racial_aux(25, 0, A_INT, 10))
-				{
-					if (p_ptr->csp >= p_ptr->lev/5)
+
+					path_n = project_path(path_g, project_length, py, px, ty, tx, 0L);
+					project_length = 0;
+					ty = py;
+					tx = px;
+
+					/* Project along the path */
+					for (i = 0; i < path_n; ++i)
 					{
-						p_ptr->csp -= p_ptr->lev / 5;
-						hp_player(p_ptr->lev);
+						ny = GRID_Y(path_g[i]);
+						nx = GRID_X(path_g[i]);
+
+						/* Max distance empty floor */
+						if (player_has_los_bold(ny, nx) &&
+							cave_empty_bold(ny, nx) &&
+							player_can_enter(cave[ny][nx].feat))
+						{
+							/* Save the tmp location */
+							ty = ny;
+							tx = nx;
+						}
+
+						if (!p_ptr->ffall && (cave[ny][nx].feat == FEAT_AIR)) break;
 					}
-					else
+
+					if ((ty == py) && (tx == px))
+					{
 #ifdef JP
-msg_print("変換に失敗した。");
+						msg_print("移動できません。");
 #else
-				msg_print("You failed to convert.");
+						msg_print("You can't move to that place.");
 #endif
+						return FALSE;
+					}
+
+					/* Project along the path */
+					for (i = 0; i < path_n; ++i)
+					{
+						ny = GRID_Y(path_g[i]);
+						nx = GRID_X(path_g[i]);
+
+						if ((ny == ty) && (nx == tx)) break;
+
+						if (cave[ny][nx].m_idx)
+						{
+							monster_type *m_ptr = &m_list[cave[ny][nx].m_idx];
+							if (m_ptr->csleep)
+							{
+								m_ptr->csleep = 0;
+								if (m_ptr->ml && !p_ptr->blind)
+								{
+									char m_name[80];
+
+									monster_desc(m_name, m_ptr, 0);
+#ifdef JP
+									msg_format("%^sが目を覚ました。", m_name);
+#else
+									msg_format("%^s wakes up.", m_name);
+#endif
+								}
+							}
+						}
+					}
+
+					teleport_player_to(ty, tx, FALSE, FALSE);
 				}
+				break;
+			case -13:
+				probing();
+				break;
+			case -14:
+				energy_use = 0;
+				p_ptr->to_h_b += 30;
+				done = do_cmd_fire(FALSE);
+				p_ptr->to_h_b -= 30;
+				if (!done) return FALSE;
+				break;
+			case -15:
+				if (!jump_wall()) return FALSE;
+				break;
 			}
 			break;
 		}
-		case CLASS_CHAOS_WARRIOR:
-		{
-			if (racial_aux(40, 50, A_INT, 25))
+		}
+	}
+
+	else 
+	{
+
+	switch (p_ptr->prace)
+	{
+		case RACE_HAWKMAN:
+			if (p_ptr->pelem == ELEM_WIND)
 			{
-#ifdef JP
-msg_print("辺りを睨んだ...");
-#else
-				msg_print("You glare nearby monsters...");
-#endif
-				slow_monsters();
-				stun_monsters(p_ptr->lev * 4);
-				confuse_monsters(p_ptr->lev * 4);
-				turn_monsters(p_ptr->lev * 4);
-				stasis_monsters(p_ptr->lev * 4);
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_bolt(GF_SOUND, dir, plev / 4 + (damroll(((plev - 1) / 4), 4)));
 			}
 			break;
-		}
-		case CLASS_MONK:
-		{
-			if (command == -3)
+
+		case RACE_LIZARDMAN:
 			{
-				if (empty_hands(TRUE) < 2)
+				int Type = GF_MISSILE;
+#ifdef JP
+				cptr Type_desc = "エレメント";
+#else
+				cptr Type_desc = "the elements";
+#endif
+
+				switch (p_ptr->pelem)
+				{
+				case ELEM_FIRE:
+					{
+						Type = GF_FIRE;
+#ifdef JP
+						Type_desc = "火炎";
+#else
+						Type_desc = "fire";
+#endif
+					}
+					break;
+				case ELEM_AQUA:
+					{
+						if ((plev > 39) && (one_in_(5)))
+						{
+							Type = GF_PURE_AQUA;
+#ifdef JP
+							Type_desc = "*水*";
+#else
+							Type_desc = "*aqua*";
+#endif
+						}
+						else
+						{
+							Type = GF_COLD;
+#ifdef JP
+							Type_desc = "冷気";
+#else
+							Type_desc = "cold";
+#endif
+						}
+					}
+					break;
+				case ELEM_EARTH:
+					{
+						Type = GF_ACID;
+#ifdef JP
+						Type_desc = "酸";
+#else
+						Type_desc = "acid";
+#endif
+					}
+					break;
+				case ELEM_WIND:
+					{
+						Type = GF_ELEC;
+#ifdef JP
+						Type_desc = "稲妻";
+#else
+						Type_desc = "lightning";
+#endif
+					}
+					break;
+				}
+
+				if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
+				msg_format("あなたは%sのブレスを吐いた。", Type_desc);
+#else
+				msg_format("You breathe %s.", Type_desc);
+#endif
+
+				fire_ball(Type, dir,
+				    chp / ((p_ptr->pelem == ELEM_AQUA) ? 3 : 10) + randint1(chp/10),
+				    -(plev / 15) - 1, FALSE);
+			}
+			break;
+
+		case RACE_FAIRY:
+#ifdef JP
+msg_print("あなたは魔法の粉を投げつけた...");
+#else
+			msg_print("You throw some magic dust...");
+#endif
+
+			if (plev < 25)
+				sleep_monsters_touch();
+			else
+				(void)sleep_monsters();
+			break;
+
+		case RACE_GREMLIN:
+			{
+				int y, x, dummy = 0;
+				cave_type *c_ptr;
+
+				/* Only works on adjacent monsters */
+				if (!get_rep_dir(&dir, FALSE)) return FALSE;   /* was get_aim_dir */
+				y = py + ddy[dir];
+				x = px + ddx[dir];
+				c_ptr = &cave[y][x];
+
+				if (!c_ptr->m_idx)
 				{
 #ifdef JP
-msg_print("素手じゃないとできません。");
+msg_print("何もない場所に口づけた。");
 #else
-					msg_print("You need to be bare hands.");
+					msg_print("You kiss into thin air.");
 #endif
-					return FALSE;
+
+					break;
 				}
-				if (racial_aux(25, 0, A_DEX, 0))
+
+#ifdef JP
+msg_print("あなたは情熱的なキスをする...");
+#else
+				msg_print("You kiss passionately...");
+#endif
+
+				project_length = 1;
+				dummy = plev * 3;
+				if (fire_ball(GF_NEW_DRAIN, dir, dummy, 0, FALSE))
 				{
-					if (choose_kamae()) energy_use = 100;
-					else energy_use = 0;
-					p_ptr->update |= (PU_BONUS);
-					p_ptr->redraw |= (PR_ARMOR);
+					c_ptr = &cave[y][x];
+					if (c_ptr->m_idx)
+						project(0, 0, y, x, plev * 2, GF_OLD_STONE, PROJECT_KILL, MODIFY_ELEM_MODE_MELEE);
 				}
 			}
-			if (command == -4)
+			break;
+
+		case RACE_SKELETON:
+#ifdef JP
+msg_print("あなたは失ったエネルギーを取り戻そうと試みた。");
+#else
+			msg_print("You attempt to restore your lost energies.");
+#endif
+
+			(void)restore_level();
+			break;
+
+		case RACE_GHOST:
+			if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
+msg_print("あなたはおどろおどろしい叫び声をあげた！");
+#else
+			msg_print("You emit an eldritch howl!");
+#endif
+			(void)fear_monster(dir, plev);
+			break;
+
+		case RACE_PUMPKINHEAD:
+			if (command == -1)
 			{
-				if (empty_hands(TRUE) < 2)
+				if (!get_aim_dir(&dir)) return FALSE;
+				msg_print("ちょっと腐った魔法のカボチャを投げつけた。");
+				fire_ball(GF_PHYSICAL, dir, damroll(2 + plev / 8, 8),
+					(p_ptr->stat_use[A_INT] >= (18 + 150)) ? 3 : 2, FALSE);
+			}
+			else if (command == -2)
+			{
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball_hide(GF_HAND_DOOM, dir, plev + randint1(plev * 2), 0, FALSE);
+			}
+			else if (command == -3)
+			{
+				project(0, 4, py, px,
+					p_ptr->mhp, GF_MISSILE, PROJECT_KILL | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+#ifdef JP
+				take_hit(DAMAGE_USELIFE, p_ptr->mhp / 4, "自殺的なパンプキンボム");
+#else
+				take_hit(DAMAGE_USELIFE, p_ptr->mhp / 4, "a suicidal Pumpkin Bomb");
+#endif
+			}
+			break;
+
+		case RACE_GORGON:
+			if (p_ptr->blind)
+			{
+#ifdef JP
+				msg_print("目が見えないので邪眼は使えない。");
+#else
+				msg_print("You cannot use the stone gaze because you are blind.");
+#endif
+				return FALSE;
+			}
+#ifdef JP
+			msg_print("邪眼で周囲を見渡した。");
+#else
+			msg_print("You look around with stone gaze.");
+#endif
+			stone_gaze(0);
+			break;
+
+		case RACE_MERMAID:
+			switch (command)
+			{
+			case -1:
+				stop_singing();
+				energy_use = 10;
+				break;
+
+			case -2:
+				switch (cave[py][px].feat)
+				{
+				case FEAT_FLOOR:
+				case FEAT_DARK_PIT:
+				case FEAT_DIRT:
+				case FEAT_GRASS:
+				case FEAT_FLOWER:
+				case FEAT_DEEP_GRASS:
+				case FEAT_SWAMP:
+				case FEAT_TUNDRA:
+					cave_set_feat(py, px, FEAT_SHAL_WATER);
+					set_aquatic_in_water();
+					break;
+				default:
+					msg_print("ここは水溜まりに変えられない。");
+					return FALSE;
+				}
+				break;
+
+			case -3:
+				if (p_ptr->anti_magic)
 				{
 #ifdef JP
-msg_print("素手じゃないとできません。");
+					msg_print("反魔法バリアが歌を邪魔した！");
 #else
-					msg_print("You need to be bare hand.");
+					msg_print("An anti-magic shell disrupts your singing!");
 #endif
 					return FALSE;
 				}
-				if (racial_aux(30, 30, A_STR, 20))
+				if (is_anti_magic_grid(-1, py, px))
+				{
+#ifdef JP
+					msg_print("反魔法フィールドが歌を邪魔した！");
+#else
+					msg_print("An anti-magic field disrupts your singing!");
+#endif
+					return TRUE;
+				}
+				else if (p_ptr->shero)
+				{
+#ifdef JP
+					msg_format("狂戦士化していて頭が回らない！");
+#else
+					msg_format("You cannot think directly!");
+#endif
+					return FALSE;
+				}
+
+				if (p_ptr->singing) stop_singing();
+				msg_print("誘惑のメロディを奏で始めた...");
+				p_ptr->singing = MUSIC_TEMPTATION;
+				p_ptr->song_start = MUSIC_TEMPTATION;
+				set_action(ACTION_SING);
+				break;
+
+			case -4:
+				mermaid_water_flow();
+				break;
+			}
+			break;
+
+		case RACE_OCTOPUS:
+			switch (command)
+			{
+			case -1:
+				switch (cave[py][px].feat)
+				{
+				case FEAT_FLOOR:
+				case FEAT_DARK_PIT:
+				case FEAT_DIRT:
+				case FEAT_GRASS:
+				case FEAT_FLOWER:
+				case FEAT_DEEP_GRASS:
+				case FEAT_SWAMP:
+				case FEAT_TUNDRA:
+					cave_set_feat(py, px, FEAT_SHAL_WATER);
+					set_aquatic_in_water();
+					break;
+				default:
+					msg_print("ここは水溜まりに変えられない。");
+					return FALSE;
+				}
+				break;
+
+			case -2:
+				if (!get_aim_dir(&dir)) return FALSE;
+				msg_print("墨を吐いた。");
+				fire_ball(GF_CONFUSION, dir, damroll(2 + plev / 8, 8),
+					(p_ptr->stat_use[A_CON] >= (18 + 150)) ? -3 : -2, FALSE);
+				break;
+
+			case -3:
+				if (!word_of_recall()) return FALSE;
+				break;
+
+			case -4:
+				if (!aqua_diving()) return FALSE;
+				break;
+
+			case -5:
+				(void)set_tim_octopus_immunity(randint1(25) + 50, FALSE);
+				break;
+
+			case -6:
+				{
+					int y, x;
+					cave_type *c_ptr;
+
+					/* Only works on adjacent monsters */
+					if (!get_rep_dir(&dir, FALSE)) return FALSE;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+					c_ptr = &cave[y][x];
+
+					if (!c_ptr->m_idx)
+					{
+#ifdef JP
+						msg_print("そこには誰もいません。");
+#else
+						msg_print("You see no one there.");
+#endif
+						break;
+					}
+
+					msg_print("吸盤のような口で吸い付いた。");
+
+					project_length = 1;
+					(void)fire_ball(GF_NEW_DRAIN, dir, plev * 3, 0, FALSE);
+				}
+				break;
+
+			case -7:
+				if (!alter_with_flood()) return FALSE;
+				break;
+
+			case -8:
 				{
 					int x, y;
 
@@ -1060,1245 +2076,24 @@ msg_print("素手じゃないとできません。");
 					x = px + ddx[dir];
 					if (cave[y][x].m_idx)
 					{
-						if (one_in_(2))
-#ifdef JP
-msg_print("あーたたたたたたたたたたたたたたたたたたたたたた！！！");
-#else
-msg_print("Ahhhtatatatatatatatatatatatatatataatatatatattaaaaa!!!!");
-#endif
-						else
-#ifdef JP
-msg_print("オラオラオラオラオラオラオラオラオラオラオラオラ！！！");
-#else
-msg_print("Oraoraoraoraoraoraoraoraoraoraoraoraoraoraoraoraora!!!!");
-#endif
 						py_attack(y, x, 0);
 						if (cave[y][x].m_idx)
 						{
 							handle_stuff();
 							py_attack(y, x, 0);
 						}
-						p_ptr->energy_need += ENERGY_NEED();
 					}
 					else
 					{
 #ifdef JP
-msg_print("その方向にはモンスターはいません。");
+						msg_print("その方向にはモンスターはいません。");
 #else
 						msg_print("You don't see any monster in this direction");
 #endif
-
-						msg_print(NULL);
+						return FALSE;
 					}
-				}
-			}
-			break;
-		}
-		case CLASS_MINDCRAFTER:
-		case CLASS_FORCETRAINER:
-		{
-			if (total_friends)
-			{
-#ifdef JP
-msg_print("今はペットを操ることに集中していないと。");
-#else
-				msg_print("You need concentration on the pets now.");
-#endif
-				return FALSE;
-			}
-			if (racial_aux(15, 0, A_WIS, 10))
-			{
-#ifdef JP
-msg_print("少し頭がハッキリした。");
-#else
-				msg_print("You feel your head clear a little.");
-#endif
-
-				p_ptr->csp += (3 + p_ptr->lev/20);
-				if (p_ptr->csp >= p_ptr->msp)
-				{
-					p_ptr->csp = p_ptr->msp;
-					p_ptr->csp_frac = 0;
-				}
-			}
-			break;
-		}
-		case CLASS_TOURIST:
-		{
-			if (command == -3)
-			{
-				if (racial_aux(1, 0, A_DEX, 0))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-					project_length = 1;
-					fire_beam(GF_PHOTO, dir, 1);
-				}
-			}
-			else if (command == -4)
-			{
-				if (racial_aux(25, 20, A_INT, 20))
-				{
-					if (!identify_fully(FALSE, FALSE)) return FALSE;
-				}
-			}
-			break;
-		}
-		case CLASS_IMITATOR:
-		{
-			if (racial_aux(30, 100, A_DEX, 30))
-			{
-				handle_stuff();
-				if (!do_cmd_mane(TRUE)) return FALSE;
-			}
-			break;
-		}
-		case CLASS_BEASTMASTER:
-		{
-			if (command == -3)
-			{
-				if (racial_aux(1, (p_ptr->lev+3) / 4, A_CHR, 10))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-					(void)fire_ball_hide(GF_CONTROL_LIVING, dir, p_ptr->lev, 0);
 				}
 				break;
-			}
-			else if (command == -4)
-			{
-				if (racial_aux(30, (p_ptr->lev+20) / 2, A_CHR, 10))
-				{
-					project_hack(GF_CONTROL_LIVING, p_ptr->lev);
-				}
-				break;
-			}
-		}
-		case CLASS_ARCHER:
-		{
-			if (racial_aux(1, 0, A_DEX, 0))
-			{
-				if (!do_cmd_archer()) return FALSE;
-			}
-			break;
-		}
-		case CLASS_MAGIC_EATER:
-		{
-			if (racial_aux(1, 0, A_INT, 0))
-			{
-				if (!gain_magic()) return FALSE;
-			}
-			break;
-		}
-		case CLASS_BARD:
-		{
-			if (racial_aux(1, 0, A_CHR, 0))
-			{
-				stop_singing();
-				energy_use = 10;
-				return FALSE;
-			}
-			break;
-		}
-		case CLASS_RED_MAGE:
-		{
-			if (racial_aux(48, 20, A_INT, 0))
-			{
-				handle_stuff();
-				do_cmd_cast();
-				handle_stuff();
-				if (!p_ptr->paralyzed)
-					do_cmd_cast();
-			}
-			break;
-		}
-		case CLASS_SAMURAI:
-		{
-			if (total_friends)
-			{
-#ifdef JP
-msg_print("今はペットを操ることに集中していないと。");
-#else
-msg_print("You need concentration on the pets now.");
-#endif
-				return FALSE;
-			}
-			if (command == -3)
-			{
-				if (p_ptr->special_defense & KATA_MASK)
-				{
-#ifdef JP
-msg_print("今は構えに集中している。");
-#else
-					msg_print("You need concentration on your form.");
-#endif
-					return FALSE;
-				}
-				if (racial_aux(1, 0, A_WIS, 0))
-				{
-					int max_csp = MAX(p_ptr->msp*4, p_ptr->lev*5+5);
-#ifdef JP
-msg_print("精神を集中して気合いを溜めた。");
-#else
-					msg_print("You concentrate to charge your power.");
-#endif
-
-					p_ptr->csp += p_ptr->msp / 2;
-					if (p_ptr->csp >= max_csp)
-					{
-						p_ptr->csp = max_csp;
-						p_ptr->csp_frac = 0;
-					}
-				}
-			}
-			if (command == -4)
-			{
-				if (!buki_motteruka(INVEN_RARM))
-				{
-#ifdef JP
-msg_print("武器を持たないといけません。");
-#else
-					msg_print("You need to wield a weapon.");
-#endif
-					return FALSE;
-				}
-				if (racial_aux(25, 0, A_DEX, 0))
-				{
-					if (choose_kata()) energy_use = 100;
-					else energy_use = 0;
-					p_ptr->update |= (PU_BONUS);
-					p_ptr->redraw |= (PR_ARMOR);
-				}
-			}
-			break;
-		}
-		case CLASS_BLUE_MAGE:
-		{
-			if (racial_aux(1, 0, A_INT, 0))
-			{
-				if (p_ptr->action == ACTION_LEARN)
-				{
-					set_action(ACTION_NONE);
-				}
-				else
-				{
-					set_action(ACTION_LEARN);
-				}
-				energy_use = 0;
-			}
-			break;
-		}
-		case CLASS_CAVALRY:
-		{
-			if (racial_aux(10, 0, A_STR, 10))
-			{
-				char m_name[80];
-				monster_type *m_ptr;
-				monster_race *r_ptr;
-				int rlev;
-
-				if (p_ptr->riding)
-				{
-#ifdef JP
-					msg_print("今は乗馬中だ。");
-#else
-					msg_print("You ARE riding.");
-#endif
-					return FALSE;
-				}
-				if (!do_riding(TRUE)) return TRUE;
-				m_ptr = &m_list[p_ptr->riding];
-				r_ptr = &r_info[m_ptr->r_idx];
-				monster_desc(m_name, m_ptr, 0);
-#ifdef JP
-				msg_format("%sに乗った。",m_name);
-#else
-				msg_format("You ride on %s.",m_name);
-#endif
-				if (is_pet(m_ptr)) break;
-				rlev = r_ptr->level;
-				if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
-				if (rlev > 60) rlev = 60+(rlev-60)/2;
-				if ((randint1(p_ptr->skill_exp[GINOU_RIDING]/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+randint0(p_ptr->lev/5)))
-				{
-#ifdef JP
-					msg_format("%sを手なずけた。",m_name);
-#else
-					msg_format("You tame %s.",m_name);
-#endif
-					set_pet(m_ptr);
-				}
-				else
-				{
-#ifdef JP
-					msg_format("%sに振り落とされた！",m_name);
-#else
-					msg_format("You have thrown off by %s.",m_name);
-#endif
-					rakuba(1,TRUE);
-				}
-			}
-			break;
-		}
-		case CLASS_BERSERKER:
-		{
-			if (command == -3)
-			{
-				if (racial_aux(5, 5, A_DEX, 10))
-				{
-					(void)set_food(PY_FOOD_MAX - 1);
-				}
-			}
-			else if (command == -4)
-			{
-				if (racial_aux(10, 10, A_DEX, 20))
-				{
-					if (!word_of_recall()) return FALSE;
-				}
-			}
-			break;
-		}
-		case CLASS_SMITH:
-		{
-			if (racial_aux(5, 15, A_INT, 20))
-			{
-				if (p_ptr->lev > 29)
-				{
-					if (!identify_fully(TRUE, FALSE)) return FALSE;
-				}
-				else
-				{
-					if (!ident_spell(TRUE, FALSE)) return FALSE;
-				}
-			}
-			break;
-		}
-		case CLASS_MIRROR_MASTER:
-		{
-			if (command == -3)
-			{
-			  if (racial_aux(1, 0, A_INT, 0)){
-			    int x,y;
-			      for( x=0 ; x < cur_wid ;x++){
-				for( y=0 ; y < cur_hgt ;y++){
-				  if( (cave[y][x].info & CAVE_IN_MIRROR)){
-				    remove_mirror(y,x);
-				    project(0,2,y,x, p_ptr->lev /2 +5 ,GF_SHARDS,(PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_REF|PROJECT_NO_HANGEKI),-1);
-				  }
-				}
-			      }
-			  }
-			}
-			else if (command == -4)
-			{
-			  if (total_friends)
-			  {
-#ifdef JP
-msg_print("今はペットを操ることに集中していないと。");
-#else
-				msg_print("You need concentration on the pets now.");
-#endif
-				  return FALSE;
-			  }
-			  if (racial_aux(30, 0, A_INT, 20)){
-			        if( (cave[py][px].info & CAVE_IN_MIRROR))
-				{
-#ifdef JP
-msg_print("少し頭がハッキリした。");
-#else
-					msg_print("You feel your head clear a little.");
-#endif
-
-					p_ptr->csp += ( 5 + (p_ptr->lev)*(p_ptr->lev)/100);
-					if (p_ptr->csp >= p_ptr->msp)
-					{
-						p_ptr->csp = p_ptr->msp;
-						p_ptr->csp_frac = 0;
-					}
-				}
-				else {
-#ifdef JP
-msg_print("鏡の上でないと集中できない！");
-#else
-					msg_print("Here are not any mirrors!");
-#endif
-
-				}
-			  }
-			}
-			break;
-		}
-		case CLASS_NINJA:
-		{
-			if (command == -3)
-			{
-				if (racial_aux(20, 0, A_DEX, 0))
-				{
-					if (p_ptr->action == ACTION_HAYAGAKE) set_action(ACTION_NONE);
-					else set_action(ACTION_HAYAGAKE);
-					energy_use = 0;
-				}
-			}
-			break;
-		}
-		}
-	}
-	else if (p_ptr->mimic_form)
-	{
-		switch (p_ptr->mimic_form)
-		{
-		case MIMIC_DEMON:
-		case MIMIC_DEMON_LORD:
-			if (racial_aux(15, 10+p_ptr->lev/3, A_CON, 20))
-			{
-				int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"));
-#else
-				msg_format("You breathe %s.",((type == GF_NETHER) ? "nether" : "fire"));
-#endif
-
-				fire_ball(type, dir, plev * 3,
-				    -(plev / 15) - 1);
-			}
-			break;
-		case MIMIC_VAMPIRE:
-			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
-			{
-#ifdef JP
-				msg_print("なぜか攻撃することができない。");
-#else
-				msg_print("Something prevent you from attacking.");
-#endif
-				return FALSE;
-			}
-			if (racial_aux(2, (1 + (plev / 3)), A_CON, 9))
-			{
-				int y, x, dummy = 0;
-				cave_type *c_ptr;
-
-				/* Only works on adjacent monsters */
-				if (!get_rep_dir(&dir,FALSE)) break;   /* was get_aim_dir */
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
-
-				if (!c_ptr->m_idx)
-				{
-#ifdef JP
-msg_print("何もない場所に噛みついた！");
-#else
-					msg_print("You bite into thin air!");
-#endif
-
-					break;
-				}
-
-#ifdef JP
-msg_print("あなたはニヤリとして牙をむいた...");
-#else
-				msg_print("You grin and bare your fangs...");
-#endif
-
-				dummy = plev + randint1(plev) * MAX(1, plev / 10);   /* Dmg */
-				if (drain_life(dir, dummy))
-				{
-					if (p_ptr->food < PY_FOOD_FULL)
-						/* No heal if we are "full" */
-						(void)hp_player(dummy);
-					else
-#ifdef JP
-msg_print("あなたは空腹ではありません。");
-#else
-						msg_print("You were not hungry.");
-#endif
-
-						/* Gain nutritional sustenance: 150/hp drained */
-						/* A Food ration gives 5000 food points (by contrast) */
-						/* Don't ever get more than "Full" this way */
-						/* But if we ARE Gorged,  it won't cure us */
-						dummy = p_ptr->food + MIN(5000, 100 * dummy);
-					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX - 1 : dummy);
-				}
-				else
-#ifdef JP
-msg_print("げぇ。ひどい味だ。");
-#else
-					msg_print("Yechh. That tastes foul.");
-#endif
-
-			}
-			break;
-		}
-
-	}
-
-	else 
-	{
-
-	switch (p_ptr->prace)
-	{
-		case RACE_DWARF:
-			if (racial_aux(5, 5, A_WIS, 12))
-			{
-#ifdef JP
-msg_print("周囲を調べた。");
-#else
-				msg_print("You examine your surroundings.");
-#endif
-
-				(void)detect_traps(DETECT_RAD_DEFAULT);
-				(void)detect_doors(DETECT_RAD_DEFAULT);
-				(void)detect_stairs(DETECT_RAD_DEFAULT);
-			}
-			break;
-
-		case RACE_HOBBIT:
-			if (racial_aux(15, 10, A_INT, 10))
-			{
-				object_type *q_ptr;
-				object_type forge;
-
-				/* Get local object */
-				q_ptr = &forge;
-
-				/* Create the food ration */
-				object_prep(q_ptr, 21);
-
-				/* Drop the object from heaven */
-				(void)drop_near(q_ptr, -1, py, px);
-#ifdef JP
-msg_print("食事を料理して作った。");
-#else
-				msg_print("You cook some food.");
-#endif
-
-			}
-			break;
-
-		case RACE_GNOME:
-			if (racial_aux(5, 5, A_INT, 12))
-			{
-#ifdef JP
-msg_print("パッ！");
-#else
-				msg_print("Blink!");
-#endif
-
-				teleport_player(10);
-			}
-			break;
-
-		case RACE_HALF_ORC:
-			if (racial_aux(3, 5, A_WIS,
-			    ((p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_BERSERKER) ? 5 : 10)))
-			{
-#ifdef JP
-msg_print("勇気を出した。");
-#else
-				msg_print("You play tough.");
-#endif
-
-				(void)set_afraid(0);
-			}
-			break;
-
-		case RACE_HALF_TROLL:
-			if (racial_aux(10, 12, A_STR,
-			    ((p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_BERSERKER) ? 6 : 12)))
-			{
-#ifdef JP
-msg_print("うがぁぁ！");
-#else
-				msg_print("RAAAGH!");
-#endif
-
-				(void)set_afraid(0);
-
-				(void)set_shero(10 + randint1(plev), FALSE);
-				(void)hp_player(30);
-			}
-			break;
-
-		case RACE_AMBERITE:
-			if (command == -2)
-			{
-				if (racial_aux(40, 75, A_WIS, 50))
-				{
-#ifdef JP
-msg_print("あなたは「パターン」を心に描いてその上を歩いた...");
-#else
-					msg_print("You picture the Pattern in your mind and walk it...");
-#endif
-
-					(void)set_poisoned(0);
-					(void)set_image(0);
-					(void)set_stun(0);
-					(void)set_cut(0);
-					(void)set_blind(0);
-					(void)set_afraid(0);
-					(void)do_res_stat(A_STR);
-					(void)do_res_stat(A_INT);
-					(void)do_res_stat(A_WIS);
-					(void)do_res_stat(A_DEX);
-					(void)do_res_stat(A_CON);
-					(void)do_res_stat(A_CHR);
-					(void)restore_level();
-				}
-			}
-
-			else if (command == -1)
-			{
-				if (racial_aux(30, 50, A_INT, 50))
-				{
-					/* No effect in arena or quest */
-					if (p_ptr->inside_arena || p_ptr->inside_quest)
-					{
-#ifdef JP
-msg_print("効果がなかった。");
-#else
-						msg_print("There is no effect.");
-#endif
-
-					}
-					else
-					{
-#ifdef JP
-msg_print("あなたは歩き周り始めた。周囲が変化している。");
-#else
-						msg_print("You start walking around. Your surroundings change.");
-#endif
-
-
-						if (autosave_l) do_cmd_save_game(TRUE);
-
-						/* Leaving */
-						p_ptr->leaving = TRUE;
-					}
-				}
-			}
-			break;
-
-		case RACE_BARBARIAN:
-			if (racial_aux(8, 10, A_STR, ((p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_BERSERKER) ? 6 : 12)))
-			{
-#ifdef JP
-msg_print("うぉぉおお！");
-#else
-				msg_print("Raaagh!");
-#endif
-
-				(void)set_afraid(0);
-
-				(void)set_shero(10 + randint1(plev), FALSE);
-				(void)hp_player(30);
-			}
-			break;
-
-		case RACE_HALF_OGRE:
-			if (racial_aux(25, 35, A_INT, 15))
-			{
-#ifdef JP
-msg_print("爆発のルーンを慎重に仕掛けた...");
-#else
-				msg_print("You carefully set an explosive rune...");
-#endif
-
-				explosive_rune();
-			}
-			break;
-
-		case RACE_HALF_GIANT:
-			if (racial_aux(20, 10, A_STR, 12))
-			{
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_print("石の壁を叩きつけた。");
-#else
-				msg_print("You bash at a stone wall.");
-#endif
-
-				(void)wall_to_mud(dir);
-			}
-			break;
-
-		case RACE_HALF_TITAN:
-			if (racial_aux(15, 10, A_INT, 12))
-			{
-#ifdef JP
-msg_print("敵を調査した...");
-#else
-				msg_print("You examine your foes...");
-#endif
-
-				probing();
-			}
-			break;
-
-		case RACE_CYCLOPS:
-			if (racial_aux(20, 15, A_STR, 12))
-			{
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_print("巨大な岩を投げた。");
-#else
-				msg_print("You throw a huge boulder.");
-#endif
-
-				fire_bolt(GF_MISSILE, dir, (3 * plev) / 2);
-			}
-			break;
-
-		case RACE_YEEK:
-			if (racial_aux(15, 15, A_WIS, 10))
-			{
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_print("身の毛もよだつ叫び声を上げた！");
-#else
-				msg_print("You make a horrible scream!");
-#endif
-
-				(void)fear_monster(dir, plev);
-			}
-			break;
-
-		case RACE_KLACKON:
-			if (racial_aux(9, 9, A_DEX, 14))
-			{
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_print("酸を吐いた。");
-#else
-				msg_print("You spit acid.");
-#endif
-
-				if (plev < 25)
-					fire_bolt(GF_ACID, dir, plev);
-				else
-					fire_ball(GF_ACID, dir, plev, 2);
-			}
-			break;
-
-		case RACE_KOBOLD:
-			if (racial_aux(12, 8, A_DEX, 14))
-			{
-				if(!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_print("毒のダーツを投げた。");
-#else
-				msg_print("You throw a dart of poison.");
-#endif
-
-				fire_bolt(GF_POIS, dir, plev);
-			}
-			break;
-
-		case RACE_NIBELUNG:
-			if (racial_aux(10, 5, A_WIS, 10))
-			{
-#ifdef JP
-msg_print("周囲を調査した。");
-#else
-				msg_print("You examine your surroundings.");
-#endif
-
-				(void)detect_traps(DETECT_RAD_DEFAULT);
-				(void)detect_doors(DETECT_RAD_DEFAULT);
-				(void)detect_stairs(DETECT_RAD_DEFAULT);
-			}
-			break;
-
-		case RACE_DARK_ELF:
-			if (racial_aux(2, 2, A_INT, 9))
-			{
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_print("マジック・ミサイルを放った。");
-#else
-				msg_print("You cast a magic missile.");
-#endif
-
-				fire_bolt_or_beam(10, GF_MISSILE, dir,
-				    damroll(3 + ((plev - 1) / 5), 4));
-			}
-			break;
-
-		case RACE_DRACONIAN:
-			if (racial_aux(1, plev, A_CON, 12))
-			{
-				int  Type = (one_in_(3) ? GF_COLD : GF_FIRE);
-#ifdef JP
-cptr Type_desc = ((Type == GF_COLD) ? "冷気" : "炎");
-#else
-				cptr Type_desc = ((Type == GF_COLD) ? "cold" : "fire");
-#endif
-
-
-				if (randint1(100) < plev)
-				{
-					switch (p_ptr->pclass)
-					{
-						case CLASS_WARRIOR:
-						case CLASS_BERSERKER:
-						case CLASS_RANGER:
-						case CLASS_TOURIST:
-						case CLASS_IMITATOR:
-						case CLASS_ARCHER:
-						case CLASS_SMITH:
-							if (one_in_(3))
-							{
-								Type = GF_MISSILE;
-#ifdef JP
-Type_desc = "エレメント";
-#else
-								Type_desc = "the elements";
-#endif
-
-							}
-							else
-							{
-								Type = GF_SHARDS;
-#ifdef JP
-Type_desc = "破片";
-#else
-								Type_desc = "shards";
-#endif
-
-							}
-							break;
-						case CLASS_MAGE:
-						case CLASS_WARRIOR_MAGE:
-						case CLASS_HIGH_MAGE:
-						case CLASS_SORCERER:
-						case CLASS_MAGIC_EATER:
-						case CLASS_RED_MAGE:
-						case CLASS_BLUE_MAGE:
-						case CLASS_MIRROR_MASTER:
-							if (one_in_(3))
-							{
-								Type = GF_MANA;
-#ifdef JP
-Type_desc = "魔力";
-#else
-								Type_desc = "mana";
-#endif
-
-							}
-							else
-							{
-								Type = GF_DISENCHANT;
-#ifdef JP
-Type_desc = "劣化";
-#else
-								Type_desc = "disenchantment";
-#endif
-
-							}
-							break;
-						case CLASS_CHAOS_WARRIOR:
-							if (!one_in_(3))
-							{
-								Type = GF_CONFUSION;
-#ifdef JP
-Type_desc = "混乱";
-#else
-								Type_desc = "confusion";
-#endif
-
-							}
-							else
-							{
-								Type = GF_CHAOS;
-#ifdef JP
-Type_desc = "カオス";
-#else
-								Type_desc = "chaos";
-#endif
-
-							}
-							break;
-						case CLASS_MONK:
-						case CLASS_SAMURAI:
-						case CLASS_FORCETRAINER:
-							if (!one_in_(3))
-							{
-								Type = GF_CONFUSION;
-#ifdef JP
-Type_desc = "混乱";
-#else
-								Type_desc = "confusion";
-#endif
-
-							}
-							else
-							{
-								Type = GF_SOUND;
-#ifdef JP
-Type_desc = "轟音";
-#else
-								Type_desc = "sound";
-#endif
-
-							}
-							break;
-						case CLASS_MINDCRAFTER:
-							if (!one_in_(3))
-							{
-								Type = GF_CONFUSION;
-#ifdef JP
-Type_desc = "混乱";
-#else
-								Type_desc = "confusion";
-#endif
-
-							}
-							else
-							{
-								Type = GF_PSI;
-#ifdef JP
-Type_desc = "精神エネルギー";
-#else
-								Type_desc = "mental energy";
-#endif
-
-							}
-							break;
-						case CLASS_PRIEST:
-						case CLASS_PALADIN:
-							if (one_in_(3))
-							{
-								Type = GF_HELL_FIRE;
-#ifdef JP
-Type_desc = "地獄の劫火";
-#else
-								Type_desc = "hellfire";
-#endif
-
-							}
-							else
-							{
-								Type = GF_HOLY_FIRE;
-#ifdef JP
-Type_desc = "聖なる炎";
-#else
-								Type_desc = "holy fire";
-#endif
-
-							}
-							break;
-						case CLASS_ROGUE:
-						case CLASS_NINJA:
-							if (one_in_(3))
-							{
-								Type = GF_DARK;
-#ifdef JP
-Type_desc = "暗黒";
-#else
-								Type_desc = "darkness";
-#endif
-
-							}
-							else
-							{
-								Type = GF_POIS;
-#ifdef JP
-Type_desc = "毒";
-#else
-								Type_desc = "poison";
-#endif
-
-							}
-							break;
-						case CLASS_BARD:
-							if (!one_in_(3))
-							{
-								Type = GF_SOUND;
-#ifdef JP
-Type_desc = "轟音";
-#else
-								Type_desc = "sound";
-#endif
-
-							}
-							else
-							{
-								Type = GF_CONFUSION;
-#ifdef JP
-Type_desc = "混乱";
-#else
-								Type_desc = "confusion";
-#endif
-
-							}
-							break;
-					}
-				}
-
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_format("あなたは%sのブレスを吐いた。", Type_desc);
-#else
-				msg_format("You breathe %s.", Type_desc);
-#endif
-
-				fire_ball(Type, dir, plev * 2,
-				    -(plev / 15) - 1);
-			}
-			break;
-
-		case RACE_MIND_FLAYER:
-			if (racial_aux(15, 12, A_INT, 14))
-			{
-				if (!get_aim_dir(&dir)) break;
-				else
-				{
-#ifdef JP
-msg_print("あなたは集中し、目が赤く輝いた...");
-#else
-					msg_print("You concentrate and your eyes glow red...");
-#endif
-
-					fire_bolt(GF_PSI, dir, plev);
-				}
-			}
-			break;
-
-		case RACE_IMP:
-			if (racial_aux(9, 15, A_WIS, 15))
-			{
-				if (!get_aim_dir(&dir)) break;
-				if (plev >= 30)
-				{
-#ifdef JP
-msg_print("ファイアーボールを放った。");
-#else
-					msg_print("You cast a ball of fire.");
-#endif
-
-					fire_ball(GF_FIRE, dir, plev, 2);
-				}
-				else
-				{
-#ifdef JP
-msg_print("ファイアーボルトを放った。");
-#else
-					msg_print("You cast a bolt of fire.");
-#endif
-
-					fire_bolt(GF_FIRE, dir, plev);
-				}
-			}
-			break;
-
-		case RACE_GOLEM:
-			if (racial_aux(20, 15, A_CON, 8))
-			{
-				(void)set_shield(randint1(20) + 30, FALSE);
-			}
-			break;
-
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-			if (racial_aux(30, 30, A_WIS, 18))
-			{
-#ifdef JP
-msg_print("あなたは失ったエネルギーを取り戻そうと試みた。");
-#else
-				msg_print("You attempt to restore your lost energies.");
-#endif
-
-				(void)restore_level();
-			}
-			break;
-
-		case RACE_VAMPIRE:
-			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
-			{
-#ifdef JP
-				msg_print("なぜか攻撃することができない。");
-#else
-				msg_print("Something prevent you from attacking.");
-#endif
-				return FALSE;
-			}
-			if (racial_aux(2, (1 + (plev / 3)), A_CON, 9))
-			{
-				int y, x, dummy = 0;
-				cave_type *c_ptr;
-
-				/* Only works on adjacent monsters */
-				if (!get_rep_dir(&dir,FALSE)) break;   /* was get_aim_dir */
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
-
-				if (!c_ptr->m_idx)
-				{
-#ifdef JP
-msg_print("何もない場所に噛みついた！");
-#else
-					msg_print("You bite into thin air!");
-#endif
-
-					break;
-				}
-
-#ifdef JP
-msg_print("あなたはニヤリとして牙をむいた...");
-#else
-				msg_print("You grin and bare your fangs...");
-#endif
-
-				dummy = plev + randint1(plev) * MAX(1, plev / 10);   /* Dmg */
-				if (drain_life(dir, dummy))
-				{
-					if (p_ptr->food < PY_FOOD_FULL)
-						/* No heal if we are "full" */
-						(void)hp_player(dummy);
-					else
-#ifdef JP
-msg_print("あなたは空腹ではありません。");
-#else
-						msg_print("You were not hungry.");
-#endif
-
-						/* Gain nutritional sustenance: 150/hp drained */
-						/* A Food ration gives 5000 food points (by contrast) */
-						/* Don't ever get more than "Full" this way */
-						/* But if we ARE Gorged,  it won't cure us */
-						dummy = p_ptr->food + MIN(5000, 100 * dummy);
-					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX - 1 : dummy);
-				}
-				else
-#ifdef JP
-msg_print("げぇ。ひどい味だ。");
-#else
-					msg_print("Yechh. That tastes foul.");
-#endif
-
-			}
-			break;
-
-		case RACE_SPECTRE:
-			if (racial_aux(4, 6, A_INT, 3))
-			{
-#ifdef JP
-msg_print("あなたはおどろおどろしい叫び声をあげた！");
-#else
-				msg_print("You emit an eldritch howl!");
-#endif
-
-				if (!get_aim_dir(&dir)) break;
-				(void)fear_monster(dir, plev);
-			}
-			break;
-
-		case RACE_SPRITE:
-			if (racial_aux(12, 12, A_INT, 15))
-			{
-#ifdef JP
-msg_print("あなたは魔法の粉を投げつけた...");
-#else
-				msg_print("You throw some magic dust...");
-#endif
-
-				if (plev < 25)
-					sleep_monsters_touch();
-				else
-					(void)sleep_monsters();
-			}
-			break;
-
-		case RACE_DEMON:
-			if (racial_aux(15, 10+p_ptr->lev/3, A_CON, 20))
-			{
-				int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
-				if (!get_aim_dir(&dir)) break;
-#ifdef JP
-msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"));
-#else
-				msg_format("You breathe %s.",((type == GF_NETHER) ? "nether" : "fire"));
-#endif
-
-				fire_ball(type, dir, plev * 3,
-				    -(plev / 15) - 1);
-			}
-			break;
-
-		case RACE_KUTA:
-			if (racial_aux(20, 15, A_CHR, 8))
-			{
-				(void)set_tsubureru(randint1(20) + 30, FALSE);
-			}
-			break;
-
-		case RACE_ANDROID:
-			if (plev < 10)
-			{
-				if (racial_aux(1, 7, A_STR, 8))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-					msg_print("レイガンを発射した。");
-#else
-					msg_print("You fire your ray gun.");
-#endif
-					fire_bolt(GF_MISSILE, dir, (plev+1) / 2);
-				}
-			}
-			else if (plev < 25)
-			{
-				if (racial_aux(10, 13, A_STR, 10))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-					msg_print("ブラスターを発射した。");
-#else
-					msg_print("You fire your blaster.");
-#endif
-					fire_bolt(GF_MISSILE, dir, plev);
-				}
-			}
-			else if (plev < 35)
-			{
-				if (racial_aux(25, 26, A_STR, 12))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-					msg_print("バズーカを発射した。");
-#else
-					msg_print("You fire your bazooka.");
-#endif
-					fire_ball(GF_MISSILE, dir, plev * 2, 2);
-				}
-			}
-			else if (plev < 45)
-			{
-				if (racial_aux(35, 40, A_STR, 15))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-					msg_print("ビームキャノンを発射した。");
-#else
-					msg_print("You fire a beam cannon.");
-#endif
-					fire_beam(GF_MISSILE, dir, plev * 2);
-				}
-			}
-			else
-			{
-				if (racial_aux(45, 60, A_STR, 18))
-				{
-					if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-					msg_print("ロケットを発射した。");
-#else
-					msg_print("You fire a rocket.");
-#endif
-					fire_ball(GF_ROCKET, dir, plev * 5, 2);
-				}
 			}
 			break;
 
@@ -2308,24 +2103,218 @@ msg_print("この種族は特殊な能力を持っていません。");
 #else
 			msg_print("This race has no bonus power.");
 #endif
-
-			energy_use = 0;
+			return FALSE;
 	}
 	}
 	return TRUE;
 }
 
 
-typedef struct power_desc_type power_desc_type;
-
-struct power_desc_type
+static bool special_blow_aux(s32b command)
 {
-	char name[40];
-	int  level;
-	int  cost;
-	int  fail;
-	int  number;
-};
+	special_blow_type *sb_ptr;
+	cave_type *c_ptr = NULL;
+	monster_type *m_ptr;
+	monster_race *r_ptr = NULL;
+	char m_name[80];
+	int dir = 0;
+	int tx, ty;
+	int i;
+	char buf[160];
+	u32b flg = PROJECT_HIDE | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID;
+	bool fear; /* Dummy */
+	cptr note_dies;
+
+	command = -32 - command;
+	if ((command < 0) || (command >= (MAX_SB + MAX_TEMPLE_SB))) return FALSE;
+
+	if (command >= MAX_SB) sb_ptr = &temple_blow_info[command - MAX_SB];
+	else sb_ptr = &special_blow_info[command];
+
+	if (sb_ptr->weapon_type & WT_BIT_BOW)
+	{
+		if (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx])) & sb_ptr->weapon_type))
+		{
+#ifdef JP
+			msg_print("この必殺技を使うには弓を装備しなければなりません。");
+#else
+			msg_print("You must equip a bow to use this special blow.");
+#endif
+			return FALSE;
+		}
+	}
+	if (sb_ptr->weapon_type & ~(WT_BIT_GUN | WT_BIT_BOW))
+	{
+		if (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx])) & sb_ptr->weapon_type))
+		{
+			strcpy(buf, "この必殺技を使うには");
+			for (i = 1; i <= MAX_WT; i++)
+			{
+				if (weapon_type_bit(i) & (sb_ptr->weapon_type & ~(WT_BIT_GUN | WT_BIT_BOW)))
+				{
+					strcat(buf, wt_desc[i]);
+					strcat(buf, "か");
+				}
+			}
+			buf[strlen(buf) - 2] = '\0';
+			strcat(buf, "を利き腕に装備しなければなりません。");
+			msg_print(buf);
+
+			return FALSE;
+		}
+	}
+
+	if (!get_rep_dir(&dir, FALSE)) return FALSE;
+
+	ty = py;
+	tx = px;
+
+	for (i = 1; i <= 2; i++)
+	{
+		ty += ddy[dir];
+		tx += ddx[dir];
+
+		if (!in_bounds(ty, tx)) break;
+
+		if (!cave_floor_bold(ty, tx)) break;
+
+		c_ptr = &cave[ty][tx];
+
+		/* Found target */
+		if (c_ptr->m_idx)
+		{
+			m_ptr = &m_list[c_ptr->m_idx];
+			r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Get the monster name (BEFORE polymorphing) */
+			monster_desc(m_name, m_ptr, 0);
+			break;
+		}
+	}
+
+	/*
+	 *  0- 9: "Common" special blow
+	 * 10-17: Only for Temple-Knights
+	 */
+	switch (command)
+	{
+	case 0:
+		msg_print("わが魂を鬼神に捧げよう…いけーッ！！鬼哭血散斬ッ！！");
+		project(0, 0, ty, tx, p_ptr->chp, GF_PHYSICAL, flg, MODIFY_ELEM_MODE_MAGIC);
+		take_hit(DAMAGE_USELIFE, p_ptr->chp / 4, "自殺的な鬼哭血散斬");
+		break;
+
+	case 1:
+		msg_print("わが力、炎に変えて刃に宿らさん…くらえーッ！覇王獄炎波ッ！！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_WIS] * 2, GF_PURE_FIRE, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 2:
+		msg_print("わが修練の成果を見せてやろう…いくぞッ！！神鳴明王剣ッ！！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_DEX] * 2, GF_PHYSICAL, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 3:
+		msg_print("わが刃に太古の雷獣を宿らそう…つらぬけーッ！天聖雷妙波ッ！！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_WIS] * 2, GF_PURE_WIND, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 4:
+		msg_print("この拳にすべての力をそそぎ込もう…思い知れーッ！！怒号魔破拳ッ！！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_STR] * 2, GF_DISINTEGRATE, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 5:
+		msg_print("わが剣は竜となり嵐を巻き起こす…、うけてみよッ！竜牙烈風剣ッ！！");
+		{
+			object_type *o_ptr = &inventory[INVEN_RARM];
+			project(0, 0, ty, tx, o_ptr->dd * o_ptr->ds * 10 + o_ptr->to_d, GF_PHYSICAL, flg, MODIFY_ELEM_MODE_MAGIC);
+		}
+		break;
+
+	case 6:
+		msg_print("血の通わぬ石塊に変えてやろう…覚悟しろッ！月花地霊斬ッ！！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_STR], GF_SPECIAL_STONE, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 7:
+		msg_print("風よ、わが刃に宿り、その力を示せ…うなれーッ！！風烈天破斬ッ！！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_CON], GF_PHYSICAL, flg, MODIFY_ELEM_MODE_MAGIC);
+		if (c_ptr->m_idx) knock_back(0, ty, tx, 200);
+		break;
+
+	case 8:
+		msg_print("次元の彼方へ吹き飛ばしてやろう…消えされーッ！波動次元斬ッ！！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_INT] * 2, GF_OLD_DRAIN, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 9:
+		msg_print("わが苦痛の代償をいただこう…これでおわりだッ！双魔邪王剣ッ！！");
+		/* Word of Pain, drain mode */
+		project(0, 0, ty, tx, 1, GF_WORD_OF_PAIN, flg, MODIFY_ELEM_MODE_MELEE);
+		break;
+
+	case 10:
+		msg_print("貴様のツラは見飽きたよ…。終わりにしようぜ！ブラックプリズン！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_STR] * 2, GF_DARK, flg, MODIFY_ELEM_MODE_MAGIC);
+		if (c_ptr->m_idx) project(0, 0, ty, tx, p_ptr->lev + 100, GF_STASIS, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 11:
+		msg_print("根性だけは認めてあげるわ…。でも、そこまでよ、デーモンローズ！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_CHR] * 2, GF_PURE_FIRE, flg, MODIFY_ELEM_MODE_MAGIC);
+		if (c_ptr->m_idx) project(0, 0, ty, tx, p_ptr->lev + 100, GF_CHARM, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 12:
+		msg_print("このオレの奥義が見たいか！？いい度胸だ。デスアベンジャー！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_CON] * 2, GF_PURE_EARTH, flg, MODIFY_ELEM_MODE_MAGIC);
+		if (c_ptr->m_idx) knock_back(0, ty, tx, 200);
+		break;
+
+	case 13:
+		msg_print("このオレとサシで戦おうなんざ、10年早ぇんだよ！バカめッ！フローヴェノム！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_DEX] * 2, GF_WATER, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 14:
+		msg_print("フン！命知らずの愚か者めッ！我が奥義を防げるかな？いくぞッ！サンダーブレイド！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_STR] * 2, GF_ELEC, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 15:
+		msg_print("真の騎士の誇りを貴様に見せてやろう！くらえッ！フレイミングデス！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_WIS] * 2, GF_PURE_FIRE, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+
+	case 16:
+		msg_print("ロスローリアンの力をなめてもらっては困るのだよ…。ライアットバーン！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_WIS] * 2, GF_HOLY_FIRE, flg, MODIFY_ELEM_MODE_MAGIC);
+		if (c_ptr->m_idx)
+		{
+			if ((r_ptr->flags3 & RF3_UNDEAD) &&
+			   !(r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) &&
+			   !(r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)) &&
+			   !p_ptr->inside_arena && !p_ptr->inside_quest)
+			{
+				delete_monster_idx(c_ptr->m_idx);
+#ifdef JP
+				msg_format("%sは消滅した！", m_name);
+#else
+				msg_format("%^s disappered!", m_name);
+#endif
+			}
+		}
+		break;
+
+	case 17:
+		msg_print("ローディスに逆らう愚か者め…。我が奥義を受けてみよ！アポカリプス！");
+		project(0, 0, ty, tx, p_ptr->stat_use[A_INT] * 2, GF_OLD_DRAIN, flg, MODIFY_ELEM_MODE_MAGIC);
+		break;
+	}
+
+	return TRUE;
+}
 
 
 /*
@@ -2337,8 +2326,9 @@ void do_cmd_racial_power(void)
 	int             num, i = 0;
 	int             ask = TRUE;
 	int             lvl = p_ptr->lev;
-	bool            flag, redraw;
-	bool            warrior = ((p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_BERSERKER) ? TRUE : FALSE);
+	int             mhp = p_ptr->mhp;
+	int             chp = p_ptr->chp;
+	bool            flag, redraw, cast = FALSE;
 	char            choice;
 	char            out_val[160];
 	int menu_line = (use_menu ? 1 : 0);
@@ -2364,786 +2354,643 @@ msg_print("混乱していて特殊能力を使えません！");
 		return;
 	}
 
-	if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-	{
-		set_action(ACTION_NONE);
-	}
-
-	switch (p_ptr->pclass)
-	{
-	case CLASS_WARRIOR:
+	if (!(rp_ptr->r_flags & PRF_LARGE)
+		&&(p_ptr->pclass != CLASS_TERRORKNIGHT)
+		&& (p_ptr->pclass != CLASS_SWORDMASTER)
+		&& (p_ptr->pclass != CLASS_NINJA))
 	{
 #ifdef JP
-strcpy(power_desc[num].name, "剣の舞い");
+		strcpy(power_desc[num].name, "投石");
 #else
-		strcpy(power_desc[num].name, "Sword Dancing");
-#endif
-
-		power_desc[num].level = 40;
-		power_desc[num].cost = 75;
-		power_desc[num].fail = 100 - racial_chance(40, A_DEX, 35);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_MAGE:
-	case CLASS_HIGH_MAGE:
-	case CLASS_SORCERER:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "魔力食い");
-#else
-		strcpy(power_desc[num].name, "Eat Magic");
-#endif
-
-		power_desc[num].level = 25;
-		power_desc[num].cost = 1;
-		power_desc[num].fail = 100 - racial_chance(25, A_INT, 25);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_PRIEST:
-	{
-		if (is_good_realm(p_ptr->realm1))
-		{
-#ifdef JP
-strcpy(power_desc[num].name, "武器祝福");
-#else
-			strcpy(power_desc[num].name, "Bless Weapon");
-#endif
-
-			power_desc[num].level = 35;
-			power_desc[num].cost = 70;
-			power_desc[num].fail = 100 - racial_chance(35, A_WIS, 50);
-			power_desc[num++].number = -3;
-		}
-		else
-		{
-#ifdef JP
-strcpy(power_desc[num].name, "召魂");
-#else
-			strcpy(power_desc[num].name, "Evocation");
-#endif
-
-			power_desc[num].level = 42;
-			power_desc[num].cost = 40;
-			power_desc[num].fail = 100 - racial_chance(42, A_WIS, 35);
-			power_desc[num++].number = -3;
-		}
-		break;
-	}
-	case CLASS_ROGUE:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "ヒット＆アウェイ");
-#else
-		strcpy(power_desc[num].name, "Hit and Away");
-#endif
-
-		power_desc[num].level = 8;
-		power_desc[num].cost = 12;
-		power_desc[num].fail = 100 - racial_chance(8, A_DEX, 14);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_RANGER:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "モンスター調査");
-#else
-		strcpy(power_desc[num].name, "Probe Monster");
-#endif
-
-		power_desc[num].level = 15;
-		power_desc[num].cost = 20;
-		power_desc[num].fail = 100 - racial_chance(15, A_INT, 12);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_PALADIN:
-	{
-		if (is_good_realm(p_ptr->realm1))
-		{
-#ifdef JP
-strcpy(power_desc[num].name, "ホーリー・ランス");
-#else
-			strcpy(power_desc[num].name, "Holy Lance");
-#endif
-
-			power_desc[num].level = 30;
-			power_desc[num].cost = 30;
-			power_desc[num].fail = 100 - racial_chance(30, A_WIS, 30);
-			power_desc[num++].number = -3;
-		}
-		else
-		{
-#ifdef JP
-strcpy(power_desc[num].name, "ヘル・ランス");
-#else
-			strcpy(power_desc[num].name, "Hell Lance");
-#endif
-
-			power_desc[num].level = 30;
-			power_desc[num].cost = 30;
-			power_desc[num].fail = 100 - racial_chance(30, A_WIS, 30);
-			power_desc[num++].number = -3;
-		}
-		break;
-	}
-	case CLASS_WARRIOR_MAGE:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "変換: ＨＰ→ＭＰ");
-#else
-		strcpy(power_desc[num].name, "Convert HP to SP");
-#endif
-
-		power_desc[num].level = 25;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(25, A_INT, 10);
-		power_desc[num++].number = -3;
-#ifdef JP
-strcpy(power_desc[num].name, "変換: ＭＰ→ＨＰ");
-#else
-		strcpy(power_desc[num].name, "Convert SP to HP");
-#endif
-
-		power_desc[num].level = 25;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(25, A_INT, 10);
-		power_desc[num++].number = -4;
-		break;
-	}
-	case CLASS_CHAOS_WARRIOR:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "幻惑の光");
-#else
-		strcpy(power_desc[num].name, "Confusing Light");
-#endif
-
-		power_desc[num].level = 40;
-		power_desc[num].cost = 50;
-		power_desc[num].fail = 100 - racial_chance(40, A_INT, 25);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_MONK:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "構える");
-#else
-		strcpy(power_desc[num].name, "Assume a Posture");
-#endif
-
-		power_desc[num].level = 25;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(25, A_DEX, 0);
-		power_desc[num++].number = -3;
-#ifdef JP
-strcpy(power_desc[num].name, "百裂拳");
-#else
-		strcpy(power_desc[num].name, "Double Attack");
-#endif
-
-		power_desc[num].level = 30;
-		power_desc[num].cost = 30;
-		power_desc[num].fail = 100 - racial_chance(30, A_STR, 20);
-		power_desc[num++].number = -4;
-		break;
-	}
-	case CLASS_MINDCRAFTER:
-	case CLASS_FORCETRAINER:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "明鏡止水");
-#else
-		strcpy(power_desc[num].name, "Clear Mind");
-#endif
-
-		power_desc[num].level = 15;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(15, A_WIS, 10);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_TOURIST:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "写真撮影");
-#else
-		strcpy(power_desc[num].name, "Take a Photograph");
+		strcpy(power_desc[num].name, "Throw Pebble");
 #endif
 
 		power_desc[num].level = 1;
 		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(1, A_DEX, 0);
-		power_desc[num++].number = -3;
-#ifdef JP
-strcpy(power_desc[num].name, "真・鑑定");
-#else
-		strcpy(power_desc[num].name, "Identify True");
-#endif
-
-		power_desc[num].level = 25;
-		power_desc[num].cost = 20;
-		power_desc[num].fail = 100 - racial_chance(25, A_INT, 20);
-		power_desc[num++].number = -4;
-		break;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 0;
+		power_desc[num++].number = -9;
 	}
-	case CLASS_IMITATOR:
+
+	if ((p_ptr->pclass == CLASS_KNIGHT)
+		|| (p_ptr->pclass == CLASS_VALKYRIE))
 	{
 #ifdef JP
-strcpy(power_desc[num].name, "倍返し");
-#else
-		strcpy(power_desc[num].name, "Double Revenge");
-#endif
-
-		power_desc[num].level = 30;
-		power_desc[num].cost = 100;
-		power_desc[num].fail = 100 - racial_chance(30, A_DEX, 30);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_BEASTMASTER:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "生物支配");
-#else
-		strcpy(power_desc[num].name, "Dominate a Living Thing");
-#endif
-
-		power_desc[num].level = 1;
-		power_desc[num].cost = (p_ptr->lev+3)/4;
-		power_desc[num].fail = 100 - racial_chance(1, A_CHR, 10);
-		power_desc[num++].number = -3;
-#ifdef JP
-strcpy(power_desc[num].name, "真・生物支配");
-#else
-		strcpy(power_desc[num].name, "Dominate Living Things");
-#endif
-
-		power_desc[num].level = 30;
-		power_desc[num].cost = (p_ptr->lev+20)/2;
-		power_desc[num].fail = 100 - racial_chance(30, A_CHR, 10);
-		power_desc[num++].number = -4;
-		break;
-	}
-	case CLASS_ARCHER:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "弾/矢の製造");
-#else
-		strcpy(power_desc[num].name, "Create Ammo");
-#endif
-
-		power_desc[num].level = 1;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(0, A_DEX, 0);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_MAGIC_EATER:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "魔力の取り込み");
-#else
-		strcpy(power_desc[num].name, "Absorb Magic");
-#endif
-
-		power_desc[num].level = 1;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(0, A_INT, 0);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_BARD:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "歌を止める");
-#else
-		strcpy(power_desc[num].name, "Stop Singing");
-#endif
-
-		power_desc[num].level = 1;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(0, A_CHR, 0);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_RED_MAGE:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "連続魔");
-#else
-		strcpy(power_desc[num].name, "Double Magic");
-#endif
-
-		power_desc[num].level = 48;
-		power_desc[num].cost = 20;
-		power_desc[num].fail = 100 - racial_chance(48, A_INT, 0);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_SAMURAI:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "気合いため");
-#else
-		strcpy(power_desc[num].name, "Concentration");
-#endif
-
-		power_desc[num].level = 1;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(1, A_WIS, 0);
-		power_desc[num++].number = -3;
-#ifdef JP
-strcpy(power_desc[num].name, "型");
-#else
-		strcpy(power_desc[num].name, "Assume a Posture");
-#endif
-
-		power_desc[num].level = 25;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(25, A_DEX, 0);
-		power_desc[num++].number = -4;
-		break;
-	}
-	case CLASS_BLUE_MAGE:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "ラーニング");
-#else
-		strcpy(power_desc[num].name, "Learning");
-#endif
-
-		power_desc[num].level = 1;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(1, A_INT, 0);
-		power_desc[num++].number = -3;
-		break;
-	}
-	case CLASS_CAVALRY:
-	{
-#ifdef JP
-strcpy(power_desc[num].name, "荒馬ならし");
+		strcpy(power_desc[num].name, "荒馬ならし");
 #else
 		strcpy(power_desc[num].name, "Rodeo");
 #endif
 
 		power_desc[num].level = 10;
 		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(10, A_STR, 10);
-		power_desc[num++].number = -3;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 10;
+		power_desc[num++].number = -10;
+	}
+
+	if ((p_ptr->pclass == CLASS_WIZARD)
+		|| (p_ptr->pclass == CLASS_SIRENE)
+		|| (p_ptr->pclass == CLASS_LICH)
+		|| (p_ptr->pclass == CLASS_HIGHWITCH))
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "魔力食い");
+#else
+		strcpy(power_desc[num].name, "Eat Magic");
+#endif
+
+		power_desc[num].level = 25;
+		power_desc[num].cost = 1;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 25;
+		power_desc[num++].number = -10;
+	}
+
+	switch (p_ptr->pclass)
+	{
+	case CLASS_KNIGHT:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "邪悪存在感知");
+#else
+		strcpy(power_desc[num].name, "Detect Evil");
+#endif
+
+		power_desc[num].level = 10;
+		power_desc[num].cost = 5;
+		power_desc[num].stat = A_WIS;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "突撃");
+#else
+		strcpy(power_desc[num].name, "Charge");
+#endif
+
+		power_desc[num].level = 20;
+		power_desc[num].cost = 40;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -12;
+#ifdef JP
+		strcpy(power_desc[num].name, "戦士の目");
+#else
+		strcpy(power_desc[num].name, "Warrior's Eye");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 20;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -13;
 		break;
 	}
 	case CLASS_BERSERKER:
 	{
 #ifdef JP
-strcpy(power_desc[num].name, "空腹充足");
+		strcpy(power_desc[num].name, "とんずら");
 #else
-		strcpy(power_desc[num].name, "Satisfy Hunger");
+		strcpy(power_desc[num].name, "Escape");
+#endif
+
+		power_desc[num].level = 10;
+		power_desc[num].cost = 5;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 30;
+		power_desc[num++].number = -10;
+		break;
+	}
+	case CLASS_TERRORKNIGHT:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "獲物感知");
+#else
+		strcpy(power_desc[num].name, "Detect Victim");
 #endif
 
 		power_desc[num].level = 5;
-		power_desc[num].cost = 5;
-		power_desc[num].fail = 100 - racial_chance(5, A_DEX, 10);
-		power_desc[num++].number = -3;
+		power_desc[num].cost = 1;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -9;
 #ifdef JP
-strcpy(power_desc[num].name, "帰還");
+		strcpy(power_desc[num].name, "墓石投げ");
 #else
-		strcpy(power_desc[num].name, "Recall");
+		strcpy(power_desc[num].name, "Throw Grave");
+#endif
+
+		power_desc[num].level = 10;
+		power_desc[num].cost = 2;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "殺しの勲章");
+#else
+		strcpy(power_desc[num].name, "Killing Award");
+#endif
+
+		power_desc[num].level = 25;
+		power_desc[num].cost = 20;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 50;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "地震");
+#else
+		strcpy(power_desc[num].name, "Earthquake");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 10;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -12;
+#ifdef JP
+		strcpy(power_desc[num].name, "殺人ショー");
+#else
+		strcpy(power_desc[num].name, "Murder Show");
+#endif
+
+		power_desc[num].level = 40;
+		power_desc[num].cost = 20;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 70;
+		power_desc[num++].number = -13;
+#ifdef JP
+		strcpy(power_desc[num].name, "亡霊喰い");
+#else
+		strcpy(power_desc[num].name, "Phantom Eater");
+#endif
+
+		power_desc[num].level = 45;
+		power_desc[num].cost = 6;
+		power_desc[num].stat = A_CON;
+		power_desc[num].fail = 30;
+		power_desc[num++].number = -14;
+		break;
+	}
+	case CLASS_BEASTTAMER:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "クモ召喚");
+#else
+		strcpy(power_desc[num].name, "Summon Spider");
 #endif
 
 		power_desc[num].level = 10;
 		power_desc[num].cost = 10;
-		power_desc[num].fail = 100 - racial_chance(10, A_DEX, 20);
-		power_desc[num++].number = -4;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 30;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "餌付け");
+#else
+		strcpy(power_desc[num].name, "Feeding");
+#endif
+
+		power_desc[num].level = 15;
+		power_desc[num].cost = 8;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 40;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "魔獣召喚");
+#else
+		strcpy(power_desc[num].name, "Summon Beasts");
+#endif
+
+		power_desc[num].level = 35;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 50;
+		power_desc[num++].number = -12;
 		break;
 	}
-	case CLASS_MIRROR_MASTER:
+	case CLASS_SWORDMASTER:
 	{
 #ifdef JP
-strcpy(power_desc[num].name, "鏡割り");
+		strcpy(power_desc[num].name, "指弾");
 #else
-		strcpy(power_desc[num].name, "Break Mirrors");
+		strcpy(power_desc[num].name, "Small Bullet");
 #endif
 
 		power_desc[num].level = 1;
 		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(1, A_INT, 0);
-		power_desc[num++].number = -3;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 0;
+		power_desc[num++].number = -9;
 #ifdef JP
-strcpy(power_desc[num].name, "静水");
+		strcpy(power_desc[num].name, "殺気感知");
 #else
-		strcpy(power_desc[num].name, "Mirror Concentration");
+		strcpy(power_desc[num].name, "Detect Ferocity");
 #endif
 
-		power_desc[num].level = 30;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(30, A_INT, 20);
-		power_desc[num++].number = -4;
-		break;
-	}
-	case CLASS_SMITH:
-	{
+		power_desc[num].level = 1;
+		power_desc[num].cost = 1;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 10;
+		power_desc[num++].number = -10;
 #ifdef JP
-strcpy(power_desc[num].name, "目利き");
+		strcpy(power_desc[num].name, "ブーメラン");
 #else
-		strcpy(power_desc[num].name, "Judgment");
+		strcpy(power_desc[num].name, "Boomerang");
 #endif
 
-		power_desc[num].level = 5;
+		power_desc[num].level = 6;
 		power_desc[num].cost = 15;
-		power_desc[num].fail = 100 - racial_chance(5, A_INT, 20);
-		power_desc[num++].number = -3;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 30;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "みね打ち");
+#else
+		strcpy(power_desc[num].name, "Strike to Stun");
+#endif
+
+		power_desc[num].level = 12;
+		power_desc[num].cost = 10;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 40;
+		power_desc[num++].number = -12;
+#ifdef JP
+		strcpy(power_desc[num].name, "払い抜け");
+#else
+		strcpy(power_desc[num].name, "Harainuke");
+#endif
+
+		power_desc[num].level = 17;
+		power_desc[num].cost = 20;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 50;
+		power_desc[num++].number = -13;
+#ifdef JP
+		strcpy(power_desc[num].name, "入身");
+#else
+		strcpy(power_desc[num].name, "Rush Attack");
+#endif
+
+		power_desc[num].level = 24;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -14;
+#ifdef JP
+		strcpy(power_desc[num].name, "無双三段");
+#else
+		strcpy(power_desc[num].name, "Musou-Sandan");
+#endif
+
+		power_desc[num].level = 39;
+		power_desc[num].cost = 80;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 80;
+		power_desc[num++].number = -15;
 		break;
 	}
 	case CLASS_NINJA:
 	{
 #ifdef JP
-strcpy(power_desc[num].name, "速駆け");
+		strcpy(power_desc[num].name, "手裏剣");
 #else
-		strcpy(power_desc[num].name, "Quick Walk");
+		strcpy(power_desc[num].name, "Syuriken");
+#endif
+
+		power_desc[num].level = 1;
+		power_desc[num].cost = 0;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 0;
+		power_desc[num++].number = -9;
+#ifdef JP
+		strcpy(power_desc[num].name, "忍び足");
+#else
+		strcpy(power_desc[num].name, "Stealth Walk");
+#endif
+
+		power_desc[num].level = 5;
+		power_desc[num].cost = 7;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 10;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "ヒット&アウェイ");
+#else
+		strcpy(power_desc[num].name, "Hit and Away");
+#endif
+
+		power_desc[num].level = 8;
+		power_desc[num].cost = 12;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 14;
+		power_desc[num++].number = -11;
+		break;
+	}
+	case CLASS_WARLOCK:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "*鑑定*");
+#else
+		strcpy(power_desc[num].name, "Identify True");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 20;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "ゴーレム創造");
+#else
+		strcpy(power_desc[num].name, "Create Golem");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 80;
+		power_desc[num++].number = -11;
+		break;
+	}
+	case CLASS_VALKYRIE:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "貫通");
+#else
+		strcpy(power_desc[num].name, "Penetration");
+#endif
+
+		power_desc[num].level = 9;
+		power_desc[num].cost = 16;
+		power_desc[num].stat = A_STR;
+		power_desc[num].fail = 30;
+		power_desc[num++].number = -11;
+		break;
+	}
+	case CLASS_ARCHER:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "弾/矢の製造");
+#else
+		strcpy(power_desc[num].name, "Create Ammo");
+#endif
+
+		power_desc[num].level = 10;
+		power_desc[num].cost = 0;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 0;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "狙い撃ち");
+#else
+		strcpy(power_desc[num].name, "Sniping (1)");
+#endif
+
+		power_desc[num].level = 10;
+		power_desc[num].cost = 5;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "狙撃");
+#else
+		strcpy(power_desc[num].name, "Sniping (2)");
+#endif
+
+		power_desc[num].level = 28;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -12;
+#ifdef JP
+		strcpy(power_desc[num].name, "連射");
+#else
+		strcpy(power_desc[num].name, "Rapidfire");
+#endif
+
+		power_desc[num].level = 35;
+		power_desc[num].cost = 50;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 50;
+		power_desc[num++].number = -13;
+		break;
+	}
+	case CLASS_DRAGONTAMER:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "竜の餌付け");
+#else
+		strcpy(power_desc[num].name, "Feed Dragon");
+#endif
+
+		power_desc[num].level = 25;
+		power_desc[num].cost = 15;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 40;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "ドラゴン召喚");
+#else
+		strcpy(power_desc[num].name, "Summon Dragon");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 25;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 50;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "古代ドラゴン召喚");
+#else
+		strcpy(power_desc[num].name, "Summon Ancient Dragon");
+#endif
+
+		power_desc[num].level = 40;
+		power_desc[num].cost = 40;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -12;
+		break;
+	}
+	case CLASS_LICH:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "サモンダークネス");
+#else
+		strcpy(power_desc[num].name, "Summon Darkness");
+#endif
+
+		power_desc[num].level = 40;
+		power_desc[num].cost = 40;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 70;
+		power_desc[num++].number = -11;
+		break;
+	}
+	case CLASS_ANGELKNIGHT:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "歌を止める");
+#else
+		strcpy(power_desc[num].name, "Stop Singing");
+#endif
+
+		power_desc[num].level = 1;
+		power_desc[num].cost = 0;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 0;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "サッドソング");
+#else
+		strcpy(power_desc[num].name, "Sad Song");
+#endif
+
+		power_desc[num].level = 28;
+		power_desc[num].cost = 20;
+		power_desc[num].stat = A_WIS;
+		power_desc[num].fail = 50;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "サイレントソング");
+#else
+		strcpy(power_desc[num].name, "Silent Song");
+#endif
+
+		power_desc[num].level = 44;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_WIS;
+		power_desc[num].fail = 70;
+		power_desc[num++].number = -12;
+		break;
+	}
+	case CLASS_HIGHWITCH:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "パンプキンヘッド召喚");
+#else
+		strcpy(power_desc[num].name, "Summon Pumpkin-Heads");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -11;
+		break;
+	}
+	case CLASS_GUNNER:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "熱源感知");
+#else
+		strcpy(power_desc[num].name, "Thermal Detection");
+#endif
+
+		power_desc[num].level = 1;
+		power_desc[num].cost = 1;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 10;
+		power_desc[num++].number = -10;
+#ifdef JP
+		strcpy(power_desc[num].name, "地形データ取得");
+#else
+		strcpy(power_desc[num].name, "Feature Data Correcting");
+#endif
+
+		power_desc[num].level = 10;
+		power_desc[num].cost = 25;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 40;
+		power_desc[num++].number = -11;
+#ifdef JP
+		strcpy(power_desc[num].name, "高速移動");
+#else
+		strcpy(power_desc[num].name, "Fast Move");
 #endif
 
 		power_desc[num].level = 20;
-		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(20, A_DEX, 0);
-		power_desc[num++].number = -3;
-		break;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 0;
+		power_desc[num++].number = -12;
+#ifdef JP
+		strcpy(power_desc[num].name, "調査");
+#else
+		strcpy(power_desc[num].name, "Probing");
+#endif
+
+		power_desc[num].level = 25;
+		power_desc[num].cost = 20;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 50;
+		power_desc[num++].number = -13;
+#ifdef JP
+		strcpy(power_desc[num].name, "狙撃");
+#else
+		strcpy(power_desc[num].name, "Sniping");
+#endif
+
+		power_desc[num].level = 28;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -14;
+#ifdef JP
+		strcpy(power_desc[num].name, "ジャンプウォール");
+#else
+		strcpy(power_desc[num].name, "Jump Wall");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 35;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 40;
+		power_desc[num++].number = -15;
 	}
+#if 0
 	default:
 #ifdef JP
 strcpy(power_desc[0].name, "(なし)");
 #else
 		strcpy(power_desc[0].name, "(none)");
 #endif
+#endif
 
 	}
 
-	if (p_ptr->mimic_form)
-	{
-		switch (p_ptr->mimic_form)
-		{
-		case MIMIC_DEMON:
-		case MIMIC_DEMON_LORD:
-#ifdef JP
-sprintf(power_desc[num].name, "地獄/火炎のブレス (ダメージ %d)", lvl * 3);
-#else
-			sprintf(power_desc[num].name, "Nether or Fire Breath (dam %d)", lvl * 3);
-#endif
-
-			power_desc[num].level = 15;
-			power_desc[num].cost = 10+lvl/3;
-			power_desc[num].fail = 100 - racial_chance(15, A_CON, 20);
-			power_desc[num++].number = -1;
-			break;
-		case MIMIC_VAMPIRE:
-#ifdef JP
-strcpy(power_desc[num].name, "生命力吸収");
-#else
-			strcpy(power_desc[num].name, "Drain Life");
-#endif
-
-			power_desc[num].level = 2;
-			power_desc[num].cost = 1 + (lvl / 3);
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 9);
-			power_desc[num++].number = -1;
-			break;
-		}
-	}
-	else
-	{
 	switch (p_ptr->prace)
 	{
-		case RACE_DWARF:
+		case RACE_HAWKMAN:
+			if (p_ptr->pelem == ELEM_WIND)
+			{
 #ifdef JP
-strcpy(power_desc[num].name, "ドアと罠 感知");
+strcpy(power_desc[num].name, "ウィンドショット");
 #else
-			strcpy(power_desc[num].name, "Detect Doors+Traps");
+				strcpy(power_desc[num].name, "Wind Shot");
 #endif
-
-			power_desc[num].level = 5;
-			power_desc[num].cost = 5;
-			power_desc[num].fail = 100 - racial_chance(5, A_WIS, 12);
-			power_desc[num++].number = -1;
+				power_desc[num].level = 6;
+				power_desc[num].cost = 8;
+				power_desc[num].stat = A_DEX;
+				power_desc[num].fail = 25;
+				power_desc[num++].number = -1;
+			}
 			break;
-		case RACE_NIBELUNG:
+		case RACE_LIZARDMAN:
+			sprintf(power_desc[num].name,
 #ifdef JP
-strcpy(power_desc[num].name, "ドアと罠 感知");
+			        "ブレス (d. %d+d%d)",
 #else
-			strcpy(power_desc[num].name, "Detect Doors+Traps");
+			        "Breath (d. %d+d%d)",
 #endif
-
-			power_desc[num].level = 10;
-			power_desc[num].cost = 5;
-			power_desc[num].fail = 100 - racial_chance(10, A_WIS, 10);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_HOBBIT:
-#ifdef JP
-strcpy(power_desc[num].name, "食糧生成");
-#else
-			strcpy(power_desc[num].name, "Create Food");
-#endif
-
-			power_desc[num].level = 15;
-			power_desc[num].cost = 10;
-			power_desc[num].fail = 100 - racial_chance(15, A_INT, 10);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_GNOME:
-#ifdef JP
-sprintf(power_desc[num].name, "ショート・テレポート");
-#else
-			sprintf(power_desc[num].name, "Blink");
-#endif
-
-			power_desc[num].level = 5;
-			power_desc[num].cost = 5;
-			power_desc[num].fail = 100 - racial_chance(5, A_INT, 12);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_HALF_ORC:
-#ifdef JP
-strcpy(power_desc[num].name, "恐怖除去");
-#else
-			strcpy(power_desc[num].name, "Remove Fear");
-#endif
-
-			power_desc[num].level = 3;
-			power_desc[num].cost = 5;
-			power_desc[num].fail = 100 - racial_chance(3, A_WIS, (warrior ? 5 : 10));
-			power_desc[num++].number = -1;
-			break;
-		case RACE_HALF_TROLL:
-#ifdef JP
-strcpy(power_desc[num].name, "狂戦士化");
-#else
-			strcpy(power_desc[num].name, "Berserk");
-#endif
-
-			power_desc[num].level = 10;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(10, A_STR, (warrior ? 6 : 12));
-			power_desc[num++].number = -1;
-			break;
-		case RACE_BARBARIAN:
-#ifdef JP
-strcpy(power_desc[num].name, "狂戦士化");
-#else
-			strcpy(power_desc[num].name, "Berserk");
-#endif
-
-			power_desc[num].level = 8;
-			power_desc[num].cost = 10;
-			power_desc[num].fail = 100 - racial_chance(8, A_STR, (warrior ? 6 : 12));
-			power_desc[num++].number = -1;
-			break;
-		case RACE_AMBERITE:
-#ifdef JP
-strcpy(power_desc[num].name, "シャドウ・シフト");
-#else
-			strcpy(power_desc[num].name, "Shadow Shifting");
-#endif
-
-			power_desc[num].level = 30;
-			power_desc[num].cost = 50;
-			power_desc[num].fail = 100 - racial_chance(30, A_INT, 50);
-			power_desc[num++].number = -1;
-#ifdef JP
-strcpy(power_desc[num].name, "パターン・ウォーク");
-#else
-			strcpy(power_desc[num].name, "Pattern Mindwalking");
-#endif
-
-			power_desc[num].level = 40;
-			power_desc[num].cost = 75;
-			power_desc[num].fail = 100 - racial_chance(40, A_WIS, 50);
-			power_desc[num++].number = -2;
-			break;
-		case RACE_HALF_OGRE:
-#ifdef JP
-strcpy(power_desc[num].name, "爆発のルーン");
-#else
-			strcpy(power_desc[num].name, "Explosive Rune");
-#endif
-
-			power_desc[num].level = 25;
-			power_desc[num].cost = 35;
-			power_desc[num].fail = 100 - racial_chance(25, A_INT, 15);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_HALF_GIANT:
-#ifdef JP
-strcpy(power_desc[num].name, "岩石溶解");
-#else
-			strcpy(power_desc[num].name, "Stone to Mud");
-#endif
-
-			power_desc[num].level = 20;
-			power_desc[num].cost = 10;
-			power_desc[num].fail = 100 - racial_chance(20, A_STR, 12);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_HALF_TITAN:
-#ifdef JP
-strcpy(power_desc[num].name, "スキャン・モンスター");
-#else
-			strcpy(power_desc[num].name, "Probing");
-#endif
-
-			power_desc[num].level = 15;
-			power_desc[num].cost = 10;
-			power_desc[num].fail = 100 - racial_chance(15, A_INT, 12);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_CYCLOPS:
-#ifdef JP
-sprintf(power_desc[num].name, "岩石投げ（ダメージ %d）", (3 * lvl) / 2);
-#else
-			sprintf(power_desc[num].name, "Throw Boulder (dam %d)", (3 * lvl) / 2);
-#endif
-
-			power_desc[num].level = 20;
-			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(20, A_STR, 12);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_YEEK:
-#ifdef JP
-strcpy(power_desc[num].name, "モンスター恐慌");
-#else
-			strcpy(power_desc[num].name, "Scare Monster");
-#endif
-
-			power_desc[num].level = 15;
-			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(15, A_WIS, 10);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_SPECTRE:
-#ifdef JP
-strcpy(power_desc[num].name, "モンスター恐慌");
-#else
-			strcpy(power_desc[num].name, "Scare Monster");
-#endif
-
-			power_desc[num].level = 4;
-			power_desc[num].cost = 6;
-			power_desc[num].fail = 100 - racial_chance(4, A_INT, 3);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_KLACKON:
-#ifdef JP
-sprintf(power_desc[num].name, "酸の唾 (ダメージ %d)", lvl);
-#else
-			sprintf(power_desc[num].name, "Spit Acid (dam %d)", lvl);
-#endif
-
-			power_desc[num].level = 9;
-			power_desc[num].cost = 9;
-			power_desc[num].fail = 100 - racial_chance(9, A_DEX, 14);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_KOBOLD:
-#ifdef JP
-sprintf(power_desc[num].name, "毒のダーツ (ダメージ %d)", lvl);
-#else
-			sprintf(power_desc[num].name, "Poison Dart (dam %d)", lvl);
-#endif
-
-			power_desc[num].level = 12;
-			power_desc[num].cost = 8;
-			power_desc[num].fail = 100 - racial_chance(12, A_DEX, 14);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_DARK_ELF:
-#ifdef JP
-sprintf(power_desc[num].name, "マジック・ミサイル (ダメージ %dd%d)", 3 + ((lvl - 1) / 5), 4);
-#else
-			sprintf(power_desc[num].name, "Magic Missile (dm %dd%d)", 3 + ((lvl - 1) / 5), 4);
-#endif
-
-			power_desc[num].level = 2;
-			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(2, A_INT, 9);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_DRACONIAN:
-#ifdef JP
-sprintf(power_desc[num].name, "ブレス (ダメージ %d)", lvl * 2);
-#else
-			sprintf(power_desc[num].name, "Breath Weapon (dam %d)", lvl * 2);
-#endif
+			        chp / ((p_ptr->pelem == ELEM_AQUA) ? 3 : 10), chp / 10);
 
 			power_desc[num].level = 1;
-			power_desc[num].cost = lvl;
-			power_desc[num].fail = 100 - racial_chance(1, A_CON, 12);
+			power_desc[num].cost = mhp / 10;
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 12;
 			power_desc[num++].number = -1;
 			break;
-		case RACE_MIND_FLAYER:
-#ifdef JP
-sprintf(power_desc[num].name, "精神攻撃 (ダメージ %d)", lvl);
-#else
-			sprintf(power_desc[num].name, "Mind Blast (dam %d)", lvl);
-#endif
-
-			power_desc[num].level = 15;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(15, A_INT, 14);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_IMP:
-#ifdef JP
-sprintf(power_desc[num].name, "ファイア・ボルト/ボール (ダメージ %d)", lvl);
-#else
-			sprintf(power_desc[num].name, "Fire Bolt/Ball (dam %d)", lvl);
-#endif
-
-			power_desc[num].level = 9;
-			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(9, A_WIS, 15);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_GOLEM:
-#ifdef JP
-strcpy(power_desc[num].name, "肌石化 (期間 1d20+30)");
-#else
-			strcpy(power_desc[num].name, "Stone Skin (dur 1d20+30)");
-#endif
-
-			power_desc[num].level = 20;
-			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(20, A_CON, 8);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-#ifdef JP
-strcpy(power_desc[num].name, "経験値復活");
-#else
-			strcpy(power_desc[num].name, "Restore Life");
-#endif
-
-			power_desc[num].level = 30;
-			power_desc[num].cost = 30;
-			power_desc[num].fail = 100 - racial_chance(30, A_WIS, 18);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_VAMPIRE:
-#ifdef JP
-strcpy(power_desc[num].name, "生命力吸収");
-#else
-			strcpy(power_desc[num].name, "Drain Life");
-#endif
-
-			power_desc[num].level = 2;
-			power_desc[num].cost = 1 + (lvl / 3);
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 9);
-			power_desc[num++].number = -1;
-			break;
-		case RACE_SPRITE:
+		case RACE_FAIRY:
 #ifdef JP
 strcpy(power_desc[num].name, "眠り粉");
 #else
@@ -3152,101 +2999,221 @@ strcpy(power_desc[num].name, "眠り粉");
 
 			power_desc[num].level = 12;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(12, A_INT, 15);
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 15;
 			power_desc[num++].number = -1;
 			break;
-		case RACE_DEMON:
+		case RACE_GREMLIN:
 #ifdef JP
-sprintf(power_desc[num].name, "地獄/火炎のブレス (ダメージ %d)", lvl * 3);
+strcpy(power_desc[num].name, "ディープキッス");
 #else
-			sprintf(power_desc[num].name, "Nether or Fire Breath (dam %d)", lvl * 3);
+			strcpy(power_desc[num].name, "Deep Kiss");
 #endif
 
-			power_desc[num].level = 15;
-			power_desc[num].cost = 10+lvl/3;
-			power_desc[num].fail = 100 - racial_chance(15, A_CON, 20);
+			power_desc[num].level = 40;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 70;
 			power_desc[num++].number = -1;
 			break;
-		case RACE_KUTA:
+		case RACE_SKELETON:
 #ifdef JP
-strcpy(power_desc[num].name, "横に伸びる");
+strcpy(power_desc[num].name, "経験値復活");
 #else
-			strcpy(power_desc[num].name, "Expand Horizontally (dur 30+1d20)");
+			strcpy(power_desc[num].name, "Restore Life");
 #endif
 
-			power_desc[num].level = 20;
-			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(15, A_CHR, 8);
+			power_desc[num].level = 30;
+			power_desc[num].cost = 30;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 18;
 			power_desc[num++].number = -1;
 			break;
-		case RACE_ANDROID:
-			if (p_ptr->lev < 10)
-			{
+		case RACE_GHOST:
 #ifdef JP
-strcpy(power_desc[num].name, "レイガン");
+strcpy(power_desc[num].name, "モンスター恐慌");
 #else
-				strcpy(power_desc[num].name, "Ray Gun");
+			strcpy(power_desc[num].name, "Scare Monster");
 #endif
 
-				power_desc[num].level = 1;
-				power_desc[num].cost = 7;
-				power_desc[num].fail = 100 - racial_chance(1, A_STR, 8);
-			}
-			else if (p_ptr->lev < 25)
-			{
-#ifdef JP
-strcpy(power_desc[num].name, "ブラスター");
-#else
-				strcpy(power_desc[num].name, "Blaster");
-#endif
-
-				power_desc[num].level = 10;
-				power_desc[num].cost = 13;
-				power_desc[num].fail = 100 - racial_chance(10, A_STR, 10);
-			}
-			else if (p_ptr->lev < 35)
-			{
-#ifdef JP
-strcpy(power_desc[num].name, "バズーカ");
-#else
-				strcpy(power_desc[num].name, "Bazooka");
-#endif
-
-				power_desc[num].level = 25;
-				power_desc[num].cost = 26;
-				power_desc[num].fail = 100 - racial_chance(25, A_STR, 12);
-			}
-			else if (p_ptr->lev < 45)
-			{
-#ifdef JP
-strcpy(power_desc[num].name, "ビームキャノン");
-#else
-				strcpy(power_desc[num].name, "Beam Cannon");
-#endif
-
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].fail = 100 - racial_chance(35, A_STR, 15);
-			}
-			else
-			{
-#ifdef JP
-strcpy(power_desc[num].name, "ロケット");
-#else
-				strcpy(power_desc[num].name, "Rocket");
-#endif
-
-				power_desc[num].level = 45;
-				power_desc[num].cost = 60;
-				power_desc[num].fail = 100 - racial_chance(45, A_STR, 18);
-			}
+			power_desc[num].level = 4;
+			power_desc[num].cost = 6;
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 3;
 			power_desc[num++].number = -1;
+			break;
+		case RACE_PUMPKINHEAD:
+#ifdef JP
+strcpy(power_desc[num].name, "かぼちゃうぉーず");
+#else
+			strcpy(power_desc[num].name, "Pumpkin Wars");
+#endif
+
+			power_desc[num].level = 2;
+			power_desc[num].cost = 2;
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -1;
+#ifdef JP
+strcpy(power_desc[num].name, "ドラッグイーター");
+#else
+			strcpy(power_desc[num].name, "Drug Eater");
+#endif
+
+			power_desc[num].level = 40;
+			power_desc[num].cost = 80;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 80;
+			power_desc[num++].number = -2;
+#ifdef JP
+strcpy(power_desc[num].name, "パンプキンボム");
+#else
+			strcpy(power_desc[num].name, "Pumpkin Bomb");
+#endif
+
+			power_desc[num].level = 45;
+			power_desc[num].cost = 90;
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 75;
+			power_desc[num++].number = -3;
+			break;
+		case RACE_GORGON:
+#ifdef JP
+strcpy(power_desc[num].name, "邪眼");
+#else
+			strcpy(power_desc[num].name, "Stone Gaze");
+#endif
+
+			power_desc[num].level = 25;
+			power_desc[num].cost = 30;
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 60;
+			power_desc[num++].number = -1;
+			break;
+		case RACE_MERMAID:
+#ifdef JP
+			strcpy(power_desc[num].name, "歌を止める");
+#else
+			strcpy(power_desc[num].name, "Stop Singing");
+#endif
+
+			power_desc[num].level = 1;
+			power_desc[num].cost = 0;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 0;
+			power_desc[num++].number = -1;
+			strcpy(power_desc[num].name, "水溜まり");
+
+			power_desc[num].level = 1;
+			power_desc[num].cost = 1;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 0;
+			power_desc[num++].number = -2;
+
+			strcpy(power_desc[num].name, "魅惑の歌");
+
+			power_desc[num].level = 14;
+			power_desc[num].cost = 28;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 25;
+			power_desc[num++].number = -3;
+
+			strcpy(power_desc[num].name, "浸水");
+
+			power_desc[num].level = 26;
+			power_desc[num].cost = 40;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 50;
+			power_desc[num++].number = -4;
+			break;
+		case RACE_OCTOPUS:
+			strcpy(power_desc[num].name, "水溜まり");
+
+			power_desc[num].level = 1;
+			power_desc[num].cost = 1;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 0;
+			power_desc[num++].number = -1;
+			strcpy(power_desc[num].name, "墨を吐く");
+
+			power_desc[num].level = 2;
+			power_desc[num].cost = 4;
+			power_desc[num].stat = A_STR;
+			power_desc[num].fail = 5;
+			power_desc[num++].number = -2;
+#ifdef JP
+			strcpy(power_desc[num].name, "帰還");
+#else
+			strcpy(power_desc[num].name, "Recall");
+#endif
+
+			power_desc[num].level = 5;
+			power_desc[num].cost = 10;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -3;
+			strcpy(power_desc[num].name, "潜水");
+
+			power_desc[num].level = 26;
+			power_desc[num].cost = 30;
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 45;
+			power_desc[num++].number = -4;
+			strcpy(power_desc[num].name, "タコ壺");
+
+			power_desc[num].level = 32;
+			power_desc[num].cost = 70;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 55;
+			power_desc[num++].number = -5;
+			strcpy(power_desc[num].name, "タコちゅー");
+
+			power_desc[num].level = 34;
+			power_desc[num].cost = 25;
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 60;
+			power_desc[num++].number = -6;
+			strcpy(power_desc[num].name, "大洪水");
+
+			power_desc[num].level = 38;
+			power_desc[num].cost = 100;
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 60;
+			power_desc[num++].number = -7;
+			strcpy(power_desc[num].name, "タコ足千手");
+
+			power_desc[num].level = 47;
+			power_desc[num].cost = 200;
+			power_desc[num].stat = A_STR;
+			power_desc[num].fail = 70;
+			power_desc[num++].number = -8;
 			break;
 		default:
 		{
 			break;
 		}
 	}
+
+	if (p_ptr->special_blow)
+	{
+		special_blow_type *sb_ptr;
+
+		for (i = 0; i < MAX_SB + MAX_TEMPLE_SB; i++)
+		{
+			if (p_ptr->special_blow & (0x00000001L << i))
+			{
+				if (i >= MAX_SB) sb_ptr = &temple_blow_info[i - MAX_SB];
+				else sb_ptr = &special_blow_info[i];
+
+				strcpy(power_desc[num].name, sb_ptr->name);
+
+				power_desc[num].level = sb_ptr->level;
+				power_desc[num].cost = sb_ptr->cost;
+				power_desc[num].stat = sb_ptr->stat;
+				power_desc[num].fail = sb_ptr->fail;
+				power_desc[num++].number = -32 - i;
+			}
+		}
 	}
 
 	if (p_ptr->muta1)
@@ -3261,7 +3228,8 @@ strcpy(power_desc[num].name, "酸の唾");
 
 			power_desc[num].level = 9;
 			power_desc[num].cost = 9;
-			power_desc[num].fail = 100 - racial_chance(9, A_DEX, 15);
+			power_desc[num].stat = A_DEX;
+			power_desc[num].fail = 15;
 			power_desc[num++].number = MUT1_SPIT_ACID;
 		}
 
@@ -3275,7 +3243,8 @@ strcpy(power_desc[num].name, "炎のブレス");
 
 			power_desc[num].level = 20;
 			power_desc[num].cost = lvl;
-			power_desc[num].fail = 100 - racial_chance(20, A_CON, 18);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 18;
 			power_desc[num++].number = MUT1_BR_FIRE;
 		}
 
@@ -3289,7 +3258,8 @@ strcpy(power_desc[num].name, "催眠睨み");
 
 			power_desc[num].level = 12;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(12, A_CHR, 18);
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 18;
 			power_desc[num++].number = MUT1_HYPN_GAZE;
 		}
 
@@ -3303,7 +3273,8 @@ strcpy(power_desc[num].name, "念動力");
 
 			power_desc[num].level = 9;
 			power_desc[num].cost = 9;
-			power_desc[num].fail = 100 - racial_chance(9, A_WIS, 14);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 14;
 			power_desc[num++].number = MUT1_TELEKINES;
 		}
 
@@ -3317,7 +3288,8 @@ strcpy(power_desc[num].name, "テレポート");
 
 			power_desc[num].level = 7;
 			power_desc[num].cost = 7;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 15);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 15;
 			power_desc[num++].number = MUT1_VTELEPORT;
 		}
 
@@ -3331,7 +3303,8 @@ strcpy(power_desc[num].name, "精神攻撃");
 
 			power_desc[num].level = 5;
 			power_desc[num].cost = 3;
-			power_desc[num].fail = 100 - racial_chance(5, A_WIS, 15);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 15;
 			power_desc[num++].number = MUT1_MIND_BLST;
 		}
 
@@ -3345,7 +3318,8 @@ strcpy(power_desc[num].name, "放射能");
 
 			power_desc[num].level = 15;
 			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(15, A_CON, 14);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 14;
 			power_desc[num++].number = MUT1_RADIATION;
 		}
 
@@ -3359,7 +3333,8 @@ strcpy(power_desc[num].name, "吸血ドレイン");
 
 			power_desc[num].level = 2;
 			power_desc[num].cost = (1 + (lvl / 3));
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 9);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 9;
 			power_desc[num++].number = MUT1_VAMPIRISM;
 		}
 
@@ -3373,7 +3348,8 @@ strcpy(power_desc[num].name, "金属嗅覚");
 
 			power_desc[num].level = 3;
 			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(3, A_INT, 12);
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 12;
 			power_desc[num++].number = MUT1_SMELL_MET;
 		}
 
@@ -3387,7 +3363,8 @@ strcpy(power_desc[num].name, "敵臭嗅覚");
 
 			power_desc[num].level = 5;
 			power_desc[num].cost = 4;
-			power_desc[num].fail = 100 - racial_chance(5, A_INT, 15);
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 15;
 			power_desc[num++].number = MUT1_SMELL_MON;
 		}
 
@@ -3401,7 +3378,8 @@ strcpy(power_desc[num].name, "ショート・テレポート");
 
 			power_desc[num].level = 3;
 			power_desc[num].cost = 3;
-			power_desc[num].fail = 100 - racial_chance(3, A_WIS, 12);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 12;
 			power_desc[num++].number = MUT1_BLINK;
 		}
 
@@ -3415,7 +3393,8 @@ strcpy(power_desc[num].name, "岩食い");
 
 			power_desc[num].level = 8;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(8, A_CON, 18);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 18;
 			power_desc[num++].number = MUT1_EAT_ROCK;
 		}
 
@@ -3429,7 +3408,8 @@ strcpy(power_desc[num].name, "位置交換");
 
 			power_desc[num].level = 15;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(15, A_DEX, 16);
+			power_desc[num].stat = A_DEX;
+			power_desc[num].fail = 16;
 			power_desc[num++].number = MUT1_SWAP_POS;
 		}
 
@@ -3443,7 +3423,8 @@ strcpy(power_desc[num].name, "叫び");
 
 			power_desc[num].level = 20;
 			power_desc[num].cost = 14;
-			power_desc[num].fail = 100 - racial_chance(20, A_CON, 16);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 16;
 			power_desc[num++].number = MUT1_SHRIEK;
 		}
 
@@ -3457,7 +3438,8 @@ strcpy(power_desc[num].name, "照明");
 
 			power_desc[num].level = 3;
 			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(3, A_INT, 10);
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 10;
 			power_desc[num++].number = MUT1_ILLUMINE;
 		}
 
@@ -3471,7 +3453,8 @@ strcpy(power_desc[num].name, "呪い感知");
 
 			power_desc[num].level = 7;
 			power_desc[num].cost = 14;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 14);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 14;
 			power_desc[num++].number = MUT1_DET_CURSE;
 		}
 
@@ -3485,7 +3468,8 @@ strcpy(power_desc[num].name, "狂戦士化");
 
 			power_desc[num].level = 8;
 			power_desc[num].cost = 8;
-			power_desc[num].fail = 100 - racial_chance(8, A_STR, 14);
+			power_desc[num].stat = A_STR;
+			power_desc[num].fail = 14;
 			power_desc[num++].number = MUT1_BERSERK;
 		}
 
@@ -3499,7 +3483,8 @@ strcpy(power_desc[num].name, "変身");
 
 			power_desc[num].level = 18;
 			power_desc[num].cost = 20;
-			power_desc[num].fail = 100 - racial_chance(18, A_CON, 18);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 18;
 			power_desc[num++].number = MUT1_POLYMORPH;
 		}
 
@@ -3513,7 +3498,8 @@ strcpy(power_desc[num].name, "ミダスの手");
 
 			power_desc[num].level = 10;
 			power_desc[num].cost = 5;
-			power_desc[num].fail = 100 - racial_chance(10, A_INT, 12);
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 12;
 			power_desc[num++].number = MUT1_MIDAS_TCH;
 		}
 
@@ -3527,7 +3513,8 @@ strcpy(power_desc[num].name, "カビ発生");
 
 			power_desc[num].level = 1;
 			power_desc[num].cost = 6;
-			power_desc[num].fail = 100 - racial_chance(1, A_CON, 14);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 14;
 			power_desc[num++].number = MUT1_GROW_MOLD;
 		}
 
@@ -3541,7 +3528,8 @@ strcpy(power_desc[num].name, "エレメント耐性");
 
 			power_desc[num].level = 10;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(10, A_CON, 12);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 12;
 			power_desc[num++].number = MUT1_RESIST;
 		}
 
@@ -3555,7 +3543,8 @@ strcpy(power_desc[num].name, "地震");
 
 			power_desc[num].level = 12;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(12, A_STR, 16);
+			power_desc[num].stat = A_STR;
+			power_desc[num].fail = 16;
 			power_desc[num++].number = MUT1_EARTHQUAKE;
 		}
 
@@ -3569,7 +3558,8 @@ strcpy(power_desc[num].name, "魔力食い");
 
 			power_desc[num].level = 17;
 			power_desc[num].cost = 1;
-			power_desc[num].fail = 100 - racial_chance(17, A_WIS, 15);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 15;
 			power_desc[num++].number = MUT1_EAT_MAGIC;
 		}
 
@@ -3583,7 +3573,8 @@ strcpy(power_desc[num].name, "魔力感知");
 
 			power_desc[num].level = 6;
 			power_desc[num].cost = 6;
-			power_desc[num].fail = 100 - racial_chance(6, A_INT, 10);
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 10;
 			power_desc[num++].number = MUT1_WEIGH_MAG;
 		}
 
@@ -3597,7 +3588,8 @@ strcpy(power_desc[num].name, "増殖阻止");
 
 			power_desc[num].level = 12;
 			power_desc[num].cost = 23;
-			power_desc[num].fail = 100 - racial_chance(12, A_CHR, 15);
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 15;
 			power_desc[num++].number = MUT1_STERILITY;
 		}
 
@@ -3611,7 +3603,8 @@ strcpy(power_desc[num].name, "ヒット＆アウェイ");
 
 			power_desc[num].level = 10;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(10, A_DEX, 14);
+			power_desc[num].stat = A_DEX;
+			power_desc[num].fail = 14;
 			power_desc[num++].number = MUT1_PANIC_HIT;
 		}
 
@@ -3625,7 +3618,8 @@ strcpy(power_desc[num].name, "眩惑");
 
 			power_desc[num].level = 7;
 			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(7, A_CHR, 8);
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 8;
 			power_desc[num++].number = MUT1_DAZZLE;
 		}
 
@@ -3639,7 +3633,8 @@ strcpy(power_desc[num].name, "レーザー・アイ");
 
 			power_desc[num].level = 7;
 			power_desc[num].cost = 10;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 9);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 9;
 			power_desc[num++].number = MUT1_LASER_EYE;
 		}
 
@@ -3653,7 +3648,8 @@ strcpy(power_desc[num].name, "帰還");
 
 			power_desc[num].level = 17;
 			power_desc[num].cost = 50;
-			power_desc[num].fail = 100 - racial_chance(17, A_INT, 16);
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 16;
 			power_desc[num++].number = MUT1_RECALL;
 		}
 
@@ -3667,7 +3663,8 @@ strcpy(power_desc[num].name, "邪悪消滅");
 
 			power_desc[num].level = 25;
 			power_desc[num].cost = 25;
-			power_desc[num].fail = 100 - racial_chance(25, A_WIS, 18);
+			power_desc[num].stat = A_WIS;
+			power_desc[num].fail = 18;
 			power_desc[num++].number = MUT1_BANISH;
 		}
 
@@ -3681,7 +3678,8 @@ strcpy(power_desc[num].name, "凍結の手");
 
 			power_desc[num].level = 2;
 			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 11);
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 11;
 			power_desc[num++].number = MUT1_COLD_TOUCH;
 		}
 
@@ -3695,7 +3693,8 @@ strcpy(power_desc[num].name, "アイテム投げ");
 
 			power_desc[num].level = 1;
 			power_desc[num].cost = lvl;
-			power_desc[num].fail = 100 - racial_chance(1, A_STR, 6);
+			power_desc[num].stat = A_STR;
+			power_desc[num].fail = 6;
 			/* XXX_XXX_XXX Hack! MUT1_LAUNCHER counts as negative... */
 			power_desc[num++].number = 3;
 		}
@@ -3722,9 +3721,9 @@ if (!repeat_pull(&i) || i<0 || i>=num) {
 	if (use_menu) screen_save();
 	 /* Get a spell from the user */
 
-        choice = (always_show_list || use_menu) ? ESCAPE:1;
-        while (!flag)
-        {
+	choice = (always_show_list || use_menu) ? ESCAPE:1;
+	while (!flag)
+	{
 		if( choice==ESCAPE ) choice = ' '; 
 		else if( !get_com(out_val, &choice, FALSE) )break; 
 
@@ -3737,7 +3736,6 @@ if (!repeat_pull(&i) || i<0 || i>=num) {
 					screen_load();
 					energy_use = 0;
 					return;
-					break;
 				}
 
 				case '8':
@@ -3841,7 +3839,9 @@ prt("                            Lv   MP 失率                            Lv   MP
 							letter = '0' + ctr - 26;
 						sprintf(dummy, " %c) ",letter);
 					}
-					strcat(dummy, format("%-23.23s %2d %4d %3d%%", power_desc[ctr].name, power_desc[ctr].level, power_desc[ctr].cost, power_desc[ctr].fail));
+					strcat(dummy, format("%-23.23s %2d %4d %3d%%",
+						power_desc[ctr].name, power_desc[ctr].level, power_desc[ctr].cost,
+						100 - racial_chance(&power_desc[ctr])));
 					prt(dummy, y1, x1);
 					ctr++;
 				}
@@ -3928,20 +3928,51 @@ prt("                            Lv   MP 失率                            Lv   MP
 	repeat_push(i);
 	} /*if (!repeat_pull(&i) || ...)*/
 #endif /* ALLOW_REPEAT */
-	if (power_desc[i].number < 0)
+	switch (racial_aux(&power_desc[i]))
 	{
-		if (!cmd_racial_power_aux(power_desc[i].number)) energy_use = 0;
-	}
-	else
-	{
-		mutation_power_aux(power_desc[i].number);
+	case 1:
+		if (power_desc[i].number <= -32)
+			cast = special_blow_aux(power_desc[i].number);
+		else if (power_desc[i].number < 0)
+			cast = cmd_racial_power_aux(power_desc[i].number);
+		else
+			cast = mutation_power_aux(power_desc[i].number);
+		break;
+	case 0:
+		cast = FALSE;
+		break;
+	case -1:
+		cast = TRUE;
+		break;
 	}
 
-	/* Redraw mana and hp */
-	p_ptr->redraw |= (PR_HP | PR_MANA);
+	if (cast)
+	{
+		if (racial_cost)
+		{
+			if (racial_use_hp)
+			{
+#ifdef JP
+				take_hit(DAMAGE_USELIFE, (racial_cost / 2) + randint1(racial_cost / 2),
+					 "過度の集中");
+#else
+				take_hit(DAMAGE_USELIFE, (racial_cost / 2) + randint1(racial_cost / 2),
+					 "concentrating too hard");
+#endif
+			}
+			else
+			{
+				p_ptr->csp -= (racial_cost / 2) + randint1(racial_cost / 2);
+			}
 
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER | PW_SPELL);
+			/* Redraw mana and hp */
+			p_ptr->redraw |= (PR_HP | PR_MANA);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER | PW_SPELL);
+		}
+	}
+	else energy_use = 0;
 
 	/* Success */
 	return;

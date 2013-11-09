@@ -165,9 +165,9 @@
  * Cleaning up a couple of things to make these easier to change --AR
  */
 #ifdef JP
-#define PREF_FILE_NAME "Hengband Preferences"
+#define PREF_FILE_NAME "TOband Preferences"
 #else
-#define PREF_FILE_NAME "Hengband-E Preferences"
+#define PREF_FILE_NAME "TOband-E Preferences"
 #endif
 
 /*
@@ -917,23 +917,7 @@ static void term_data_check_size(term_data *td)
 	td->t->higher_pict = FALSE;
 	td->t->always_pict = FALSE;
 
-#ifdef ANGBAND_LITE_MAC
-
 	/* No graphics */
-
-#else /* ANGBAND_LITE_MAC */
-
-	/* Handle graphics */
-	if (use_graphics)
-	{
-		/* Use higher_pict whenever possible */
-		if (td->font_mono) td->t->higher_pict = TRUE;
-
-		/* Use always_pict only when necessary */
-		else td->t->always_pict = TRUE;
-	}
-
-#endif /* ANGBAND_LITE_MAC */
 
 	/* Fake mono-space */
 	if (!td->font_mono ||
@@ -1535,58 +1519,6 @@ static errr Term_xtra_mac_react(void)
 	}
 
 	
-	/* Handle transparency */
-	if (use_newstyle_graphics != arg_newstyle_graphics)
-	{
-		globe_nuke();
-
-		if (globe_init() != 0)
-		{
-			plog("Cannot initialize graphics!");
-			arg_graphics = FALSE;
-			arg_newstyle_graphics = FALSE;
-		}
-
-		/* Apply request */
-		use_newstyle_graphics = arg_newstyle_graphics;
-
-		/* Apply and Verify */
-		term_data_check_size(td);
-
-		/* Resize the window */
-		term_data_resize(td);
- 
-		/* Reset visuals */
-		reset_visuals();
-	}
-	
-	/* Handle graphics */
-	if (use_graphics != arg_graphics)
-	{
-		/* Initialize graphics */
-
-		if (!use_graphics && !frameP && (globe_init() != 0))
-		{
-			#ifdef JP
-			plog("グラフィックの初期化は出来ませんでした.");
-			#else
-			plog("Cannot initialize graphics!");
-			#endif
-			arg_graphics = FALSE;
-		}
-
-		/* Apply request */
-		use_graphics = arg_graphics;
-
-		/* Apply and Verify */
-		term_data_check_size(td);
-
-		/* Resize the window */
-		term_data_resize(td);
-
-		/* Reset visuals */
-		reset_visuals();
-	}
 
 #endif /* ANGBAND_LITE_MAC */
 
@@ -1792,14 +1724,33 @@ static errr Term_curs_mac(int x, int y)
 	r.top = y * td->tile_hgt + td->size_oh1;
 	r.bottom = r.top + td->tile_hgt;
 
-#ifdef JP
-	if (x + 1 < Term->wid &&
-	    ((use_bigtile && Term->old->a[y][x+1] == 255)
-	     || (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
-#else
-	if (use_bigtile && x + 1 < Term->wid && Term->old->a[y][x+1] == 255)
-#endif
-		r.right += td->tile_wid;
+	FrameRect(&r);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Low level graphics (Assumes valid input).
+ * Draw a "big cursor" at (x,y), using a "yellow box".
+ * We are allowed to use "Term_grab()" to determine
+ * the current screen contents (for inverting, etc).
+ */
+static errr Term_bigcurs_mac(int x, int y)
+{
+	Rect r;
+
+	term_data *td = (term_data*)(Term->data);
+
+	/* Set the color */
+	term_data_color(td, TERM_YELLOW);
+
+	/* Frame the grid */
+	r.left = x * td->tile_wid + td->size_ow1;
+	r.right = r.left + 2 * td->tile_wid;
+	r.top = y * td->tile_hgt + td->size_oh1;
+	r.bottom = r.top + td->tile_hgt;
 
 	FrameRect(&r);
 
@@ -1870,7 +1821,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  */
 #ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
-                          const byte *tap, const char *tcp)
+			  const byte *tap, const char *tcp)
 #else
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 #endif
@@ -1947,109 +1898,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		/* Prepare right of rectangle now */
 		r2.right = r2.left + td->tile_wid;
 
-#ifdef ANGBAND_LITE_MAC
-
 		/* No graphics */
-
-#else /* ANGBAND_LITE_MAC */
-
-		/* Graphics -- if Available and Needed */
-		if (use_graphics && ((byte)a & 0x80) && ((byte)c & 0x80))
-		{
-			BitMapPtr srcBitMap = (BitMapPtr)(frameP->framePix);
-			BitMapPtr destBitMap;
-				
-			int col, row;
-			Rect r1;
-
-#ifdef USE_TRANSPARENCY
-			Rect terrain_r;
-			bool terrain_flag = FALSE;
-			byte ta = tap[i];
-			char tc = tcp[i];
-
-			if ((a != ta || c != tc) &&
-			    ((byte)ta & 0x80) && ((byte)tc & 0x80))
-			{
-				/* Row and Col */
-				row = ((byte)ta & 0x7F);
-				col = ((byte)tc & 0x7F);
-
-				/* Terrain Source rectangle */
-				terrain_r.left = col * grafWidth;
-				terrain_r.top = row * grafHeight;
-				terrain_r.right = terrain_r.left + grafWidth;
-				terrain_r.bottom = terrain_r.top + grafHeight;
-
-				terrain_flag = TRUE;
-			}
-#endif
-
-			/* Row and Col */
-			row = ((byte)a & 0x7F);
-			col = ((byte)c & 0x7F);
-			
-			/* Source rectangle */
-			r1.left = col * grafWidth;
-			r1.top = row * grafHeight;
-			r1.right = r1.left + grafWidth;
-			r1.bottom = r1.top + grafHeight;
-
-			/* Hardwire CopyBits */
-			BackColor(whiteColor);
-			ForeColor(blackColor);
-
-			/* Draw the picture */
-
-			if (use_buffer)
-				destBitMap = (BitMapPtr)(td->bufferPix);
-			else
-				destBitMap = (BitMapPtr)&(td->w->portBits);
-				
-			if (use_bigtile) r2.right += td->tile_wid;
-
-#ifdef USE_TRANSPARENCY
-			if (terrain_flag)
-			{
-				/*
-				 * Source mode const = srcCopy:
-				 *
-				 * determine how close the color of the source
-				 * pixel is to black, and assign this relative
-				 * amount of foreground color to the
-				 * destination pixel; determine how close the
-				 * color of the source pixel is to white, and
-				 * assign this relative amount of background
-				 * color to the destination pixel
-				 */
-				CopyBits( srcBitMap, destBitMap, &terrain_r, &r2, srcCopy, NULL );
-				
-				/*
-				 * Draw transparent tile
-				 * BackColor is ignored and the destination is
-				 * left untouched
-				 */
-				BackColor(blackColor);
-				CopyBits( srcBitMap, destBitMap, &r1, &r2, transparent, NULL );
-			}
-			else
-#endif /* USE_TRANSPARENCY */
-			{
-				CopyBits( srcBitMap, destBitMap, &r1, &r2, srcCopy, NULL );
-			}
-
-			/* Restore colors */
-			BackColor(blackColor);
-			ForeColor(whiteColor);
-
-			/* Forget color */
-			td->last = -1;
-
-			/* Done */
-			done = TRUE;
-		}
-
-#endif /* ANGBAND_LITE_MAC */
 
 		/* Normal */
 		if (!done)
@@ -2187,6 +2036,7 @@ static void term_data_link(int i)
 	td->t->xtra_hook = Term_xtra_mac;
 	td->t->wipe_hook = Term_wipe_mac;
 	td->t->curs_hook = Term_curs_mac;
+	td->t->bigcurs_hook = Term_bigcurs_mac;
 	td->t->text_hook = Term_text_mac;
 	td->t->pict_hook = Term_pict_mac;
 
@@ -2298,14 +2148,11 @@ static void save_prefs(void)
 	/*** The current version ***/
 
 	putshort(FAKE_VERSION);
-	putshort(FAKE_VER_MAJOR);
-	putshort(FAKE_VER_MINOR);
-	putshort(FAKE_VER_PATCH);
+	putshort(T_VER_MAJOR);
+	putshort(T_VER_MINOR);
+	putshort(T_VER_PATCH);
 
 	putshort(arg_sound);
-	putshort(arg_graphics);
-	putshort(arg_newstyle_graphics);
-	putshort(arg_bigtile);
 	
 	/* SoundMode */
 	for( i = 0 ; i < 7 ; i++ )
@@ -2360,9 +2207,9 @@ static void load_prefs(void)
 
 	/* Hack -- Verify or ignore */
 	if ((old_version != FAKE_VERSION) ||
-	    (old_major != FAKE_VER_MAJOR) ||
-	    (old_minor != FAKE_VER_MINOR) ||
-	    (old_patch != FAKE_VER_PATCH))
+	    (old_major != T_VER_MAJOR) ||
+	    (old_minor != T_VER_MINOR) ||
+	    (old_patch != T_VER_PATCH))
 	{
 		/* Message */
 		#ifdef JP
@@ -2375,27 +2222,6 @@ static void load_prefs(void)
 	}
 
 	arg_sound = getshort();
-	arg_graphics = getshort();
-	arg_newstyle_graphics = getshort();
-	use_newstyle_graphics = arg_newstyle_graphics;
-	
-	if (use_newstyle_graphics == true)
-	{
-		ANGBAND_GRAF = "new";
-		arg_newstyle_graphics = true;
-		grafWidth = grafHeight = 16;
-		pictID = 1002;
-	}
-	else
-	{
-		ANGBAND_GRAF = "old";
-		arg_newstyle_graphics = false;
-		grafWidth = grafHeight = 8;
-		pictID = 1001;
-	}
-
-	arg_bigtile = getshort();
-	use_bigtile = arg_bigtile;
 	
 	/* SoundMode */
 	for( i = 0 ; i < 7 ; i++ )
@@ -2407,12 +2233,6 @@ static void load_prefs(void)
 	/* Item "arg_sound" */
 	CheckItem(m, 1, arg_sound);
 
-	/* Item "arg_graphics" */
-	CheckItem(m, 2, arg_graphics);
-	
-	/* Item "arg_newstyle_graphics"*/
-	CheckItem(m, 8, arg_newstyle_graphics);
-	
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -2571,7 +2391,7 @@ static void init_windows(void)
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
-		                 &vref, &dirID);
+				 &vref, &dirID);
 
 		/* Success */
 		if (!err)
@@ -2787,57 +2607,6 @@ static void init_graf( void )
 	}
 }
 
-#ifdef CHUUKEI
-/*
-
-*/
-static void init_chuukei( void )
-{
-	char path[1024];
-	char tmp[1024];
-	FILE *fp;
-	
-	path_build(path, 1024, ANGBAND_DIR_XTRA, "chuukei.txt");
-
-	fp = fopen(path, "r");
-	if(!fp)
-		return;
-	
-	/* Read a line */
-	if (fgets(tmp, 1024, fp)){
-		if(tmp[0] == '-'){
-			int n = strlen(tmp);
-			tmp[n-1] = 0;
-			switch(tmp[1]){
-			case 'p':
-			{
-				if (!tmp[2]) break;
-				chuukei_server = TRUE;
-				if(connect_chuukei_server(&tmp[2])<0){
-					msg_print("connect fail");
-					return;
-				}
-				msg_print("connect");
-				msg_print(NULL);
-				break;
-			}
-
-			case 'c':
-			{
-				chuukei_client = TRUE;
-				connect_chuukei_server(&tmp[2]);
-				play_game(FALSE);
-				quit(NULL);
-			}
-			}
-		}
-		
-	}
-	fclose(fp);
-	
-}
-#endif
-
 /*
 
 */
@@ -2953,7 +2722,7 @@ static void save_pref_file(void)
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
-		                 &vref, &dirID);
+				 &vref, &dirID);
 
 		/* Success */
 		if (!err)
@@ -3398,24 +3167,16 @@ static void init_menubar(void)
 	/* Append the choices */
 	#ifdef JP
 	AppendMenu(m, "\pサウンド使用");
-	AppendMenu(m, "\pグラフィック使用");
+	AppendMenu(m, "\pサウンド設定...");
 	AppendMenu(m, "\p-");
 	AppendMenu(m, "\parg_fiddle");
 	AppendMenu(m, "\parg_wizard");
-	AppendMenu(m, "\p-");
-	AppendMenu(m, "\pサウンド設定...");
-	AppendMenu(m, "\p16X16グラフィック");
-	AppendMenu(m, "\p２倍幅タイル表示");
 	#else
 	AppendMenu(m, "\parg_sound");
-	AppendMenu(m, "\parg_graphics");
+	AppendMenu(m, "\pSound config");
 	AppendMenu(m, "\p-");
 	AppendMenu(m, "\parg_fiddle");
 	AppendMenu(m, "\parg_wizard");
-	AppendMenu(m, "\p-");
-	AppendMenu(m, "\pSound config");
-	AppendMenu(m, "\pAdam Bolt tile");
-	AppendMenu(m, "\pBigtile Mode");
 	#endif
 
 	/* Make the "TileWidth" menu */
@@ -3683,9 +3444,8 @@ static void setup_menus(void)
 	EnableItem(m, 1);
 	CheckItem(m, 1, arg_sound);
 
-	/* Item "arg_graphics" */
+	/* Item "SoundSetting" */
 	EnableItem(m, 2);
-	CheckItem(m, 2, arg_graphics);
 
 	/* Item "arg_fiddle" */
 	EnableItem(m, 4);
@@ -3694,18 +3454,6 @@ static void setup_menus(void)
 	/* Item "arg_wizard" */
 	EnableItem(m, 5);
 	CheckItem(m, 5, arg_wizard);
-
-	/* Item "SoundSetting" */
-	EnableItem(m, 7);
-
-	/* Item NewStyle Graphics */
-	EnableItem(m, 8);
-	CheckItem(m, 8, use_newstyle_graphics);
-
-	/* Item Bigtile Mode */
-	EnableItem(m, 9);
-	CheckItem(m, 9, arg_bigtile);
-
 
 	/* TileWidth menu */
 	m = GetMenuHandle(135);	//m = GetMHandle(135);
@@ -4151,12 +3899,7 @@ static void menu(long mc)
 
 				case 2:
 				{
-					/* Toggle arg_graphics */
-					arg_graphics = !arg_graphics;
-
-					/* Hack -- Force redraw */
-					Term_key_push(KTRL('R'));
-
+					SoundConfigDLog();
 					break;
 				}
 
@@ -4172,57 +3915,6 @@ static void menu(long mc)
 					break;
 				}
 
-				case 7:
-				{
-					SoundConfigDLog();
-					break;
-				}
-				case 8:
-				{
-					if (streq(ANGBAND_GRAF, "old"))
-					{
-						ANGBAND_GRAF = "new";
-						arg_newstyle_graphics = true;
-						grafWidth = grafHeight = 16;
-						pictID = 1002;
-					}
-					else
-					{
-						ANGBAND_GRAF = "old";
-						arg_newstyle_graphics = false;
-						grafWidth = grafHeight = 8;
-						pictID = 1001;
-					}
-
-					/* Hack -- Force redraw */
-					Term_key_push(KTRL('R'));
-					break;
-				}
-
-                                case 9: /* bigtile mode */
-				{
-					term_data *td = &data[0];
-
-					if (!can_save){
-#ifdef JP
-						plog("今は変更出来ません。");
-#else
-						plog("You may not do that right now.");
-#endif
-						break;
-					}
-
-					/* Toggle "arg_bigtile" */
-					arg_bigtile = !arg_bigtile;
-
-					/* Activate */
-					Term_activate(td->t);
-
-					/* Resize the term */
-					Term_resize(td->cols, td->rows);
-
-					break;
-				}
 
 			}
 
@@ -4307,7 +3999,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
 	Size	actualSize;
 
 	aeError = AEGetAttributePtr(theAppleEvent, keyMissedKeywordAttr, typeWildCard,
-	                            &returnedType, NULL, 0, &actualSize);
+				    &returnedType, NULL, 0, &actualSize);
 
 	if (aeError == errAEDescNotFound) return (noErr);
 
@@ -4321,7 +4013,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
  * Apple Event Handler -- Open Application
  */
 static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
-                              const AppleEvent *reply, long handlerRefCon)
+			      const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -4333,7 +4025,7 @@ static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Quit Application
  */
 static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
-                             const AppleEvent *reply, long handlerRefCon)
+			     const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -4349,7 +4041,7 @@ static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Print Documents
  */
 static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
-                              const AppleEvent *reply, long handlerRefCon)
+			      const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(theAppleEvent, reply, handlerRefCon)
 
@@ -4372,7 +4064,7 @@ static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
  * "shamelessly swiped & hacked")
  */
 static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
-                             AppleEvent* reply, long handlerRefCon)
+			     AppleEvent* reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -4395,7 +4087,7 @@ static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
 	 */
 
 	err = AEGetNthPtr(&docList, 1L, typeFSS, &keywd,
-	                  &returnedType, (Ptr) &myFSS, sizeof(myFSS), &actualSize);
+			  &returnedType, (Ptr) &myFSS, sizeof(myFSS), &actualSize);
 	if (err) return err;
 
 	/* Only needed to check savefile type below */
@@ -5115,9 +4807,9 @@ static void init_stuff(void)
 
 		/* Warning */
 		#ifdef JP
-			plog("Hengbandの'lib'フォルダが存在しないか正しく無い可能性があります.");
+			plog("TObandの'lib'フォルダが存在しないか正しく無い可能性があります.");
 		#else
-			plog("The Angband 'lib' folder is probably missing or misplaced.");
+			plog("The TOband 'lib' folder is probably missing or misplaced.");
 		#endif
 
 		/* Warning */
@@ -5279,28 +4971,28 @@ void main(void)
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenApplication, AEH_Start_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Quit_UPP = NewAEEventHandlerProc(AEH_Quit);
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEQuitApplication, AEH_Quit_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Print_UPP = NewAEEventHandlerProc(AEH_Print);
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEPrintDocuments, AEH_Print_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Open_UPP = NewAEEventHandlerProc(AEH_Open);
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments, AEH_Open_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 #endif
 
@@ -5310,7 +5002,7 @@ void main(void)
 
 
 	/* Mark ourself as the file creator */
-	_fcreator = 'Heng';
+	_fcreator = 'TOB ';
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
@@ -5380,10 +5072,6 @@ BackColor(blackColor);
 
 	/* Handle "open_when_ready" */
 	handle_open_when_ready();
-
-#ifdef CHUUKEI
-	init_chuukei();
-#endif
 
 	/* Prompt the user */
 	#ifdef JP

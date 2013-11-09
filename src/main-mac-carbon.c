@@ -168,9 +168,9 @@
  * Cleaning up a couple of things to make these easier to change --AR
  */
 #ifdef JP
-#define PREF_FILE_NAME "Hengband Preferences"
+#define PREF_FILE_NAME "TOband Preferences"
 #else
-#define PREF_FILE_NAME "Hengband-E Preferences"
+#define PREF_FILE_NAME "TOband-E Preferences"
 #endif
 
 /*
@@ -1962,7 +1962,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  */
 #ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
-                          const byte *tap, const char *tcp)
+			  const byte *tap, const char *tcp)
 #else
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 #endif
@@ -2341,9 +2341,9 @@ static void save_prefs(void)
 	/*** The current version ***/
 
 	putshort(FAKE_VERSION);
-	putshort(FAKE_VER_MAJOR);
-	putshort(FAKE_VER_MINOR);
-	putshort(FAKE_VER_PATCH);
+	putshort(T_VER_MAJOR);
+	putshort(T_VER_MINOR);
+	putshort(T_VER_PATCH);
 
 	putshort(arg_sound);
 	putshort(arg_graphics);
@@ -2403,9 +2403,9 @@ static void load_prefs(void)
 
 	/* Hack -- Verify or ignore */
 	if ((old_version != FAKE_VERSION) ||
-	    (old_major != FAKE_VER_MAJOR) ||
-	    (old_minor != FAKE_VER_MINOR) ||
-	    (old_patch != FAKE_VER_PATCH))
+	    (old_major != T_VER_MAJOR) ||
+	    (old_minor != T_VER_MINOR) ||
+	    (old_patch != T_VER_PATCH))
 	{
 		/* Message */
 		#ifdef JP
@@ -2631,7 +2631,7 @@ static void init_windows(void)
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
-		                 &vref, &dirID);
+				 &vref, &dirID);
 
 		/* Success */
 		if (!err)
@@ -2850,57 +2850,6 @@ static void init_graf( void )
 	}
 }
 
-#ifdef CHUUKEI
-/*
-
-*/
-static void init_chuukei( void )
-{
-	char path[1024];
-	char tmp[1024];
-	FILE *fp;
-	
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "chuukei.txt");
-
-	fp = fopen(path, "r");
-	if(!fp)
-		return;
-	
-	/* Read a line */
-	if (fgets(tmp, 1024, fp)){
-		if(tmp[0] == '-'){
-			int n = strlen(tmp);
-			tmp[n-1] = 0;
-			switch(tmp[1]){
-			case 'p':
-			{
-				if (!tmp[2]) break;
-				chuukei_server = TRUE;
-				if(connect_chuukei_server(&tmp[2])<0){
-					msg_print("connect fail");
-					return;
-				}
-				msg_print("connect");
-				msg_print(NULL);
-				break;
-			}
-
-			case 'c':
-			{
-				chuukei_client = TRUE;
-				connect_chuukei_server(&tmp[2]);
-				play_game(FALSE);
-				quit(NULL);
-			}
-			}
-		}
-		
-	}
-	fclose(fp);
-	
-}
-#endif
-
 /*
 
 */
@@ -3016,7 +2965,7 @@ static void save_pref_file(void)
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
-		                 &vref, &dirID);
+				 &vref, &dirID);
 
 		/* Success */
 		if (!err)
@@ -4494,6 +4443,12 @@ static void menu(long mc)
 				{
 					/* Toggle arg_graphics */
 					arg_graphics = !arg_graphics;
+					if( arg_graphics == true ){
+						ANGBAND_GRAF = "old";
+						arg_newstyle_graphics = false;
+						grafWidth = grafHeight = 8;
+						pictID = 1001;
+					}
 
 					/* Hack -- Force redraw */
 					Term_key_push(KTRL('R'));
@@ -4540,7 +4495,7 @@ static void menu(long mc)
 					break;
 				}
 
-                                case 9: /* bigtile mode */
+				case 9: /* bigtile mode */
 				{
 					term_data *td = &data[0];
 
@@ -4646,7 +4601,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
 	Size	actualSize;
 
 	aeError = AEGetAttributePtr(theAppleEvent, keyMissedKeywordAttr, typeWildCard,
-	                            &returnedType, NULL, 0, &actualSize);
+				    &returnedType, NULL, 0, &actualSize);
 
 	if (aeError == errAEDescNotFound) return (noErr);
 
@@ -4660,7 +4615,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
  * Apple Event Handler -- Open Application
  */
 static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
-                              const AppleEvent *reply, long handlerRefCon)
+			      const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -4672,7 +4627,7 @@ static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Quit Application
  */
 static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
-                             const AppleEvent *reply, long handlerRefCon)
+			     const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 #if TARGET_API_MAC_CARBON
@@ -4715,7 +4670,7 @@ static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Print Documents
  */
 static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
-                              const AppleEvent *reply, long handlerRefCon)
+			      const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(theAppleEvent, reply, handlerRefCon)
 
@@ -4738,7 +4693,7 @@ static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
  * "shamelessly swiped & hacked")
  */
 static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
-                             AppleEvent* reply, long handlerRefCon)
+			     AppleEvent* reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -4761,7 +4716,7 @@ static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
 	 */
 
 	err = AEGetNthPtr(&docList, 1L, typeFSS, &keywd,
-	                  &returnedType, (Ptr) &myFSS, sizeof(myFSS), &actualSize);
+			  &returnedType, (Ptr) &myFSS, sizeof(myFSS), &actualSize);
 	if (err) return err;
 
 	/* Only needed to check savefile type below */
@@ -5534,9 +5489,9 @@ static void init_stuff(void)
 
 		/* Warning */
 #ifdef JP
-		plog("Hengbandの'lib'フォルダが存在しないか正しく無い可能性があります.");
+		plog("TObandの'lib'フォルダが存在しないか正しく無い可能性があります.");
 #else
-		plog("The Angband 'lib' folder is probably missing or misplaced.");
+		plog("The TOband 'lib' folder is probably missing or misplaced.");
 #endif
 
 		/* Warning */
@@ -5773,25 +5728,25 @@ void main(void)
 	AEH_Start_UPP = NewAEEventHandlerUPP(AEH_Start);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenApplication, AEH_Start_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Quit_UPP = NewAEEventHandlerUPP(AEH_Quit);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEQuitApplication, AEH_Quit_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Print_UPP = NewAEEventHandlerUPP(AEH_Print);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEPrintDocuments, AEH_Print_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Open_UPP = NewAEEventHandlerUPP(AEH_Open);
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments, AEH_Open_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 #endif
 
 	/* Find the current application */
@@ -5799,7 +5754,7 @@ void main(void)
 
 
 	/* Mark ourself as the file creator */
-	_fcreator = 'Heng';
+	_fcreator = 'TOB';
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
@@ -5881,10 +5836,6 @@ void main(void)
 
 	/* Handle "open_when_ready" */
 	handle_open_when_ready();
-
-#ifdef CHUUKEI
-	init_chuukei();
-#endif
 
 	/* Prompt the user */
 #ifdef JP

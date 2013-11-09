@@ -232,12 +232,6 @@
 #define ALLOW_MACROS
 
 /*
- * OPTION: Allow characteres to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
-
-
-/*
  * OPTION: Allow monsters to "flee" when hit hard
  */
 #define ALLOW_FEAR
@@ -387,11 +381,6 @@
 #define USE_SOUND
 
 /*
- * OPTION: Allow the use of "graphics" in various places
- */
-#define USE_GRAPHICS
-
-/*
  * OPTION: Allow the use of "music" in various places
  */
 /* #define USE_MUSIC */
@@ -511,7 +500,7 @@
  * OPTION: Person to bother if something goes wrong.
  */
 /* #define MAINTAINER	"rr9@angband.org" */
-#define MAINTAINER	"echizen@s5.xrea.com"
+#define MAINTAINER	"TOband@egroups.co.jp"
 
 
 #ifdef JP
@@ -717,6 +706,5 @@
 
 #ifndef HAVE_CONFIG_H
 #ifndef MSDOS
-#define WORLD_SCORE
 #endif
 #endif /* HAVE_CONFIG_H */

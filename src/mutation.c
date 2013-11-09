@@ -13,7 +13,7 @@
 #include "angband.h"
 
 
-bool gain_random_mutation(int choose_mut)
+bool gain_random_mutation(int choose_mut, bool as_mutation)
 {
 	int     attempts_left = 20;
 	cptr    muta_desc = "";
@@ -25,7 +25,7 @@ bool gain_random_mutation(int choose_mut)
 
 	while (attempts_left--)
 	{
-		switch (choose_mut ? choose_mut : (p_ptr->pclass == CLASS_BERSERKER ? 74+randint1(119) : randint1(193)))
+		switch (choose_mut ? choose_mut : (p_ptr->pclass == CLASS_TERRORKNIGHT ? 74+randint1(119) : randint1(193)))
 		{
 		case 1: case 2: case 3: case 4:
 			muta_class = &(p_ptr->muta1);
@@ -151,9 +151,9 @@ muta_desc = "壁が美味しそうに見える。";
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SWAP_POS;
 #ifdef JP
-muta_desc = "他人の靴で一マイル歩くような気分がする。";
+muta_desc = "他人の靴で歩くような気分がする。";
 #else
-			muta_desc = "You feel like walking a mile in someone else's shoes.";
+			muta_desc = "You feel like walking in someone else's shoes.";
 #endif
 
 			break;
@@ -399,11 +399,11 @@ muta_desc = "あなたは幻覚を引き起こす精神錯乱に侵された。";
 			break;
 		case 80:
 			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_FLATULENT;
+			muta_which = MUT2_ELEM_MULTI;
 #ifdef JP
-muta_desc = "あなたは制御不能な強烈な屁をこくようになった。";
+muta_desc = "あなたのエレメントが不安定になった。";
 #else
-			muta_desc = "You become subject to uncontrollable flatulence.";
+			muta_desc = "Your element become unstable.";
 #endif
 
 			break;
@@ -421,7 +421,7 @@ muta_desc = "サソリの尻尾が生えてきた！";
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_HORNS;
 #ifdef JP
-muta_desc = "額に角が生えた！";
+muta_desc = "角が額から生えてきた！";
 #else
 			muta_desc = "Horns pop forth into your forehead!";
 #endif
@@ -598,22 +598,18 @@ muta_desc = "胃袋がピクピクしはじめた。";
 
 			break;
 		case 110: case 111:
-			/* Chaos warriors already have a chaos deity */
-			if (p_ptr->pclass != CLASS_CHAOS_WARRIOR)
-			{
-				muta_class = &(p_ptr->muta2);
-				muta_which = MUT2_CHAOS_GIFT;
+			muta_class = &(p_ptr->muta2);
+			muta_which = MUT2_TAROT;
 #ifdef JP
-muta_desc = "あなたはカオスの守護悪魔の注意を惹くようになった。";
+muta_desc = "あなたはタロットカードの力を感じるようになった。";
 #else
-				muta_desc = "You attract the notice of a chaos deity!";
+			muta_desc = "You begin feeling the power of tarot cards.";
 #endif
 
-			}
 			break;
 		case 112:
 			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WALK_SHAD;
+			muta_which = MUT2_ALTER_REALITY;
 #ifdef JP
 muta_desc = "あなたは現実が紙のように薄いと感じるようになった。";
 #else
@@ -952,7 +948,6 @@ muta_desc = "関節が突然痛み出した。";
 
 			break;
 		case 188:
-			if (p_ptr->pseikaku == SEIKAKU_LUCKY) break;
 			muta_class = &(p_ptr->muta3);
 			muta_which = MUT3_BAD_LUCK;
 #ifdef JP
@@ -1019,89 +1014,14 @@ msg_print("普通になった気がする。");
 	}
 	else
 	{
-		chg_virtue(V_CHANCE, 1);
-
-		/*
-		  some races are apt to gain specified mutations
-		  This should be allowed only if "choose_mut" is 0.
-		                                        --- henkma
-		*/
-		if(!choose_mut){
-			if (p_ptr->prace == RACE_VAMPIRE &&
-			  !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
-			   (randint1(10) < 7))
-			{
-				muta_class = &(p_ptr->muta1);
-				muta_which = MUT1_HYPN_GAZE;
+		if (as_mutation)
+		{
 #ifdef JP
-muta_desc = "眼が幻惑的になった...";
+			msg_print("突然変異した！");
 #else
-				muta_desc = "Your eyes look mesmerizing...";
+			msg_print("You mutate!");
 #endif
-
-			}
-
-			else if (p_ptr->prace == RACE_IMP &&
-				 !(p_ptr->muta2 & MUT2_HORNS) &&
-				 (randint1(10) < 7))
-			  {
-			  	muta_class = &(p_ptr->muta2);
-			  	muta_which = MUT2_HORNS;
-#ifdef JP
-muta_desc = "角が額から生えてきた！";
-#else
-			   	muta_desc = "Horns pop forth into your forehead!";
-#endif
-
-			}
-
-			else if (p_ptr->prace == RACE_YEEK &&
-				!(p_ptr->muta1 & MUT1_SHRIEK) &&
-				(randint1(10) < 7))
-			{
-				muta_class = &(p_ptr->muta1);
-				muta_which = MUT1_SHRIEK;
-#ifdef JP
-muta_desc = "声質がかなり強くなった。";
-#else
-				muta_desc = "Your vocal cords get much tougher.";
-#endif
-
-			}
-
-			else if (p_ptr->prace == RACE_BEASTMAN &&
-				!(p_ptr->muta1 & MUT1_POLYMORPH) &&
-				(randint1(10) < 2))
-			{
-				muta_class = &(p_ptr->muta1);
-				muta_which = MUT1_POLYMORPH;
-#ifdef JP
-muta_desc = "あなたの肉体は変化できるようになった、";
-#else
-				muta_desc = "Your body seems mutable.";
-#endif
-
-			}
-
-			else if (p_ptr->prace == RACE_MIND_FLAYER &&
-				!(p_ptr->muta2 & MUT2_TENTACLES) &&
-				(randint1(10) < 7))
-			{
-				muta_class = &(p_ptr->muta2);
-				muta_which = MUT2_TENTACLES;
-#ifdef JP
-muta_desc = "邪悪な触手が口の周りに生えた。";
-#else
-				muta_desc = "Evil-looking tentacles sprout from your mouth.";
-#endif
-
-			}
 		}
-#ifdef JP
-msg_print("突然変異した！");
-#else
-		msg_print("You mutate!");
-#endif
 
 		msg_print(muta_desc);
 		*muta_class |= muta_which;
@@ -1315,6 +1235,8 @@ msg_print("硬いクチバシがなくなった。");
 				}
 			}
 		}
+
+		change_your_alignment_lnc(-10);
 
 		mutant_regenerate_mod = calc_mutant_regenerate_mod();
 		p_ptr->update |= PU_BONUS;
@@ -1710,11 +1632,11 @@ muta_desc = "幻覚をひき起こす精神障害を起こさなくなった！";
 			break;
 		case 80:
 			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_FLATULENT;
+			muta_which = MUT2_ELEM_MULTI;
 #ifdef JP
-muta_desc = "もう強烈な屁はこかなくなった。";
+muta_desc = "あなたのエレメントの変化が止まった。";
 #else
-			muta_desc = "You are no longer subject to uncontrollable flatulence.";
+			muta_desc = "Changing of your element has stopped.";
 #endif
 
 			break;
@@ -1910,19 +1832,19 @@ muta_desc = "胃が痙攣しなくなった。";
 			break;
 		case 110: case 111:
 			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_CHAOS_GIFT;
+			muta_which = MUT2_TAROT;
 #ifdef JP
-muta_desc = "混沌の神々の興味を惹かなくなった。";
+muta_desc = "タロットカードの力を感じなくなった。";
 #else
-			muta_desc = "You lose the attention of the chaos deities.";
+			muta_desc = "You stop feeling the power of tarot cards.";
 #endif
 
 			break;
 		case 112:
 			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WALK_SHAD;
+			muta_which = MUT2_ALTER_REALITY;
 #ifdef JP
-muta_desc = "物質世界に捕らわれている気がする。";
+muta_desc = "現実に捕らわれている気がする。";
 #else
 			muta_desc = "You feel like you're trapped in reality.";
 #endif
@@ -2289,7 +2211,6 @@ muta_desc = "動作の正確さがなくなった。";
 
 			break;
 		case 193:
-			if (p_ptr->pseikaku == SEIKAKU_LUCKY) break;
 			muta_class = &(p_ptr->muta3);
 			muta_which = MUT3_GOOD_LUCK;
 #ifdef JP
@@ -2674,12 +2595,12 @@ fprintf(OutFile, " あなたは幻覚を引き起こす精神錯乱に侵されている。\n");
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_FLATULENT)
+		if (p_ptr->muta2 & MUT2_ELEM_MULTI)
 		{
 #ifdef JP
-fprintf(OutFile, " あなたは制御できない強烈な屁をこく。\n");
+fprintf(OutFile, " あなたの固有エレメントは絶えず変化している。\n");
 #else
-			fprintf(OutFile, " You are subject to uncontrollable flatulence.\n");
+			fprintf(OutFile, " Your fixed element is constantly changing.\n");
 #endif
 
 		}
@@ -2854,21 +2775,21 @@ fprintf(OutFile, " あなたの胃は非常に落ち着きがない。\n");
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
+		if (p_ptr->muta2 & MUT2_TAROT)
 		{
 #ifdef JP
-fprintf(OutFile, " あなたはカオスの守護悪魔から褒美をうけとる。\n");
+fprintf(OutFile, " あなたはタロットカードの力を感じる。\n");
 #else
-			fprintf(OutFile, " Chaos deities give you gifts.\n");
+			fprintf(OutFile, " You feel the power of tarot cards.\n");
 #endif
 
 		}
-		if (p_ptr->muta2 & MUT2_WALK_SHAD)
+		if (p_ptr->muta2 & MUT2_ALTER_REALITY)
 		{
 #ifdef JP
-fprintf(OutFile, " あなたはしばしば他の「影」に迷い込む。\n");
+fprintf(OutFile, " あなたの周りの現実は歪んでいる。\n");
 #else
-			fprintf(OutFile, " You occasionally stumble into other shadows.\n");
+			fprintf(OutFile, " Reality around you is distorted.\n");
 #endif
 
 		}
@@ -3280,13 +3201,6 @@ int calc_mutant_regenerate_mod(void)
 	 * only 5% decrease per additional mutation
 	 */
 
-	if (p_ptr->pseikaku == SEIKAKU_LUCKY) count--;
-	if (p_ptr->prace == RACE_BEASTMAN)
-	{
-		count -= 10;
-		mod = 5;
-	}
-
 	/* No negative modifier */
 	if (count <= 0) return 100;
 
@@ -3299,7 +3213,7 @@ int calc_mutant_regenerate_mod(void)
 }
 
 
-void mutation_power_aux(u32b power)
+bool mutation_power_aux(u32b power)
 {
 	int     dir = 0;
 	int     lvl = p_ptr->lev;
@@ -3308,109 +3222,84 @@ void mutation_power_aux(u32b power)
 	switch (power)
 	{
 		case MUT1_SPIT_ACID:
-			if (racial_aux(9, 9, A_DEX, 15))
-			{
+			if (!get_aim_dir(&dir)) return FALSE;
 #ifdef JP
 msg_print("酸を吐きかけた...");
 #else
-				msg_print("You spit acid...");
+			msg_print("You spit acid...");
 #endif
-
-				if (get_aim_dir(&dir))
-					fire_ball(GF_ACID, dir, lvl, 1 + (lvl / 30));
-			}
+			fire_ball(GF_ACID, dir, lvl, 1 + (lvl / 30), FALSE);
 			break;
 
 		case MUT1_BR_FIRE:
-			if (racial_aux(20, lvl, A_CON, 18))
-			{
+			if (!get_aim_dir(&dir)) return FALSE;
 #ifdef JP
 msg_print("あなたは火炎のブレスを吐いた...");
 #else
-				msg_print("You breathe fire...");
+			msg_print("You breathe fire...");
 #endif
-
-				if (get_aim_dir(&dir))
-					fire_ball(GF_FIRE, dir, lvl * 2, 1 + (lvl / 20));
-			}
+			fire_ball(GF_FIRE, dir, lvl * 2, -1 - (lvl / 20), FALSE);
 			break;
 
 		case MUT1_HYPN_GAZE:
-			if (racial_aux(12, 12, A_CHR, 18))
-			{
+			if (!get_aim_dir(&dir)) return FALSE;
 #ifdef JP
 msg_print("あなたの目は幻惑的になった...");
 #else
 				msg_print("Your eyes look mesmerizing...");
 #endif
-
-				if (get_aim_dir(&dir))
-					(void)charm_monster(dir, lvl);
-			}
+			(void)charm_monster(dir, lvl);
 			break;
 
 		case MUT1_TELEKINES:
-			if (racial_aux(9, 9, A_WIS, 14))
-			{
 #ifdef JP
 msg_print("集中している...");
 #else
-				msg_print("You concentrate...");
+			msg_print("You concentrate...");
 #endif
 
-				if (get_aim_dir(&dir))
-					fetch(dir, lvl * 10, TRUE);
-			}
+			if (!get_aim_dir(&dir)) return FALSE;
+			fetch(dir, lvl * 10, TRUE);
 			break;
 
 		case MUT1_VTELEPORT:
-			if (racial_aux(7, 7, A_WIS, 15))
-			{
 #ifdef JP
 msg_print("集中している...");
 #else
-				msg_print("You concentrate...");
+			msg_print("You concentrate...");
 #endif
 
-				teleport_player(10 + 4 * lvl);
-			}
+			teleport_player(10 + 4 * lvl);
 			break;
 
 		case MUT1_MIND_BLST:
-			if (racial_aux(5, 3, A_WIS, 15))
-			{
 #ifdef JP
 msg_print("集中している...");
 #else
-				msg_print("You concentrate...");
+			msg_print("You concentrate...");
 #endif
 
-				if (!get_aim_dir(&dir)) return;
-					fire_bolt(GF_PSI, dir, damroll(3 + ((lvl - 1) / 5), 3));
-			}
+			if (!get_aim_dir(&dir)) return FALSE;
+			fire_bolt(GF_PSI, dir, damroll(3 + ((lvl - 1) / 5), 3));
 			break;
 
 		case MUT1_RADIATION:
-			if (racial_aux(15, 15, A_CON, 14))
-			{
 #ifdef JP
 msg_print("体から放射能が発生した！");
 #else
-				msg_print("Radiation flows from your body!");
+			msg_print("Radiation flows from your body!");
 #endif
 
-				fire_ball(GF_NUKE, 0, (lvl * 2), 3 + (lvl / 20));
-			}
+			fire_ball(GF_NUKE, 0, (lvl * 2), 3 + (lvl / 20), FALSE);
 			break;
 
 		case MUT1_VAMPIRISM:
-			if (racial_aux(2, (1 + (lvl / 3)), A_CON, 9))
 			{
 				int x, y, dummy;
 				cave_type *c_ptr;
 
 				/* Only works on adjacent monsters */
-				if (!get_rep_dir2(&dir)) break;
+				if (!get_rep_dir2(&dir)) return FALSE;
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
@@ -3437,12 +3326,12 @@ msg_print("あなたはニヤリとして牙をむいた...");
 
 				if (drain_life(dir, dummy))
 				{
-					if (p_ptr->food < PY_FOOD_FULL)
-						/* No heal if we are "full" */
+					if (p_ptr->no_digest || (p_ptr->food < PY_FOOD_FULL))
 						(void)hp_player(dummy);
 					else
+						/* No heal if we are "full" */
 #ifdef JP
-msg_print("あなたは空腹ではありません。");
+						msg_print("あなたは空腹ではありません。");
 #else
 						msg_print("You were not hungry.");
 #endif
@@ -3452,12 +3341,12 @@ msg_print("あなたは空腹ではありません。");
 						/* Don't ever get more than "Full" this way */
 						/* But if we ARE Gorged,  it won't cure us */
 						dummy = p_ptr->food + MIN(5000, 100 * dummy);
-					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
+					if (!p_ptr->no_digest && (p_ptr->food < PY_FOOD_MAX))   /* Not gorged already */
 						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
 				}
 				else
 #ifdef JP
-msg_print("げぇ！ひどい味だ。");
+					msg_print("げぇ！ひどい味だ。");
 #else
 					msg_print("Yechh. That tastes foul.");
 #endif
@@ -3466,40 +3355,30 @@ msg_print("げぇ！ひどい味だ。");
 			break;
 
 		case MUT1_SMELL_MET:
-			if (racial_aux(3, 2, A_INT, 12))
-			{
-				(void)detect_treasure(DETECT_RAD_DEFAULT);
-			}
+			(void)detect_treasure(DETECT_RAD_DEFAULT);
 			break;
 
 		case MUT1_SMELL_MON:
-			if (racial_aux(5, 4, A_INT, 15))
-			{
-				(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
-			}
+			(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
 			break;
 
 		case MUT1_BLINK:
-			if (racial_aux(3, 3, A_WIS, 12))
-			{
-				teleport_player(10);
-			}
+			teleport_player(10);
 			break;
 
 		case MUT1_EAT_ROCK:
-			if (racial_aux(8, 12, A_CON, 18))
 			{
 				int x, y, ox, oy;
 				cave_type *c_ptr;
 
-				if (!get_rep_dir2(&dir)) break;
+				if (!get_rep_dir2(&dir)) return FALSE;
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
-				if (cave_floor_bold(y, x))
+				if (cave_floor_bold(y, x) || boundary_floor_grid(c_ptr))
 				{
 #ifdef JP
-msg_print("何もない場所に噛みついた！");
+					msg_print("何もない場所に噛みついた！");
 #else
 					msg_print("You bite into thin air!");
 #endif
@@ -3511,7 +3390,7 @@ msg_print("何もない場所に噛みついた！");
 					(c_ptr->feat == FEAT_MOUNTAIN))
 				{
 #ifdef JP
-msg_print("いてっ！この壁はあなたの歯より硬い！");
+					msg_print("いてっ！この壁はあなたの歯より硬い！");
 #else
 					msg_print("Ouch!  This wall is harder than your teeth!");
 #endif
@@ -3521,7 +3400,7 @@ msg_print("いてっ！この壁はあなたの歯より硬い！");
 				else if (c_ptr->m_idx)
 				{
 #ifdef JP
-msg_print("何かが邪魔しています！");
+					msg_print("何かが邪魔しています！");
 #else
 					msg_print("There's something in the way!");
 #endif
@@ -3531,7 +3410,7 @@ msg_print("何かが邪魔しています！");
 				else if (c_ptr->feat == FEAT_TREES)
 				{
 #ifdef JP
-msg_print("木はあまり美味しくない！");
+					msg_print("木はあまり美味しくない！");
 #else
 					msg_print("You don't like the woody taste!");
 #endif
@@ -3553,7 +3432,7 @@ msg_print("木はあまり美味しくない！");
 					else
 					{
 #ifdef JP
-msg_print("この花崗岩はとてもおいしい！");
+						msg_print("この花崗岩はとてもおいしい！");
 #else
 						msg_print("This granite is very filling!");
 #endif
@@ -3583,6 +3462,8 @@ msg_print("この花崗岩はとてもおいしい！");
 
 				verify_panel();
 
+				set_aquatic_in_water();
+
 				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 				p_ptr->update |= (PU_DISTANCE);
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
@@ -3590,32 +3471,22 @@ msg_print("この花崗岩はとてもおいしい！");
 			break;
 
 		case MUT1_SWAP_POS:
-			if (racial_aux(15, 12, A_DEX, 16))
-			{
-				project_length = -1;
-				if (get_aim_dir(&dir))
-					(void)teleport_swap(dir);
-				project_length = 0;
-			}
+			project_length = -1;
+			if (!get_aim_dir(&dir)) return FALSE;
+			(void)teleport_swap(dir);
+			project_length = 0;
 			break;
 
 		case MUT1_SHRIEK:
-			if (racial_aux(20, 14, A_CON, 16))
-			{
-				(void)fire_ball(GF_SOUND, 0, 2 * lvl, 8);
-				(void)aggravate_monsters(0);
-			}
+			(void)fire_ball(GF_SOUND, 0, 2 * lvl, 8, FALSE);
+			(void)aggravate_monsters(0);
 			break;
 
 		case MUT1_ILLUMINE:
-			if (racial_aux(3, 2, A_INT, 10))
-			{
-				(void)lite_area(damroll(2, (lvl / 2)), (lvl / 10) + 1);
-			}
+			(void)lite_area(damroll(2, (lvl / 2)), (lvl / 10) + 1);
 			break;
 
 		case MUT1_DET_CURSE:
-			if (racial_aux(7, 14, A_WIS, 14))
 			{
 				int i;
 
@@ -3632,47 +3503,36 @@ msg_print("この花崗岩はとてもおいしい！");
 			break;
 
 		case MUT1_BERSERK:
-			if (racial_aux(8, 8, A_STR, 14))
-			{
-				(void)set_shero(randint1(25) + 25, FALSE);
-				(void)hp_player(30);
-				(void)set_afraid(0);
-			}
+			(void)set_shero(randint1(25) + 25, FALSE);
+			(void)hp_player(30);
+			(void)set_afraid(0);
 			break;
 
 		case MUT1_POLYMORPH:
-			if (racial_aux(18, 20, A_CON, 18))
-			{
 #ifdef JP
-				if (!get_check("変身します。よろしいですか？")) return;
+			if (!get_check("変身します。よろしいですか？")) return FALSE;
 #else
-				if (!get_check("You will polymorph your self. Are you sure? ")) return;
+			if (!get_check("You will polymorph your self. Are you sure? ")) return FALSE;
 #endif
-				do_poly_self();
-			}
+			do_poly_self();
 			break;
 
 		case MUT1_MIDAS_TCH:
-			if (racial_aux(10, 5, A_INT, 12))
-			{
-				(void)alchemy();
-			}
+			if (!alchemy()) return FALSE;
 			break;
 
 		/* Summon pet molds around the player */
 		case MUT1_GROW_MOLD:
-			if (racial_aux(1, 6, A_CON, 14))
 			{
 				int i;
 				for (i = 0; i < 8; i++)
 				{
-					summon_specific(-1, py, px, lvl, SUMMON_BIZARRE1, PM_FORCE_PET);
+					summon_specific(-1, py, px, lvl, SUMMON_MOLD, PM_FORCE_PET);
 				}
 			}
 			break;
 
 		case MUT1_RESIST:
-			if (racial_aux(10, 12, A_CON, 12))
 			{
 				int num = lvl / 10;
 				int dur = randint1(20) + 20;
@@ -3706,48 +3566,35 @@ msg_print("この花崗岩はとてもおいしい！");
 			break;
 
 		case MUT1_EARTHQUAKE:
-			if (racial_aux(12, 12, A_STR, 16))
-			{
-				earthquake(py, px, 10);
-			}
+			earthquake(py, px, 10);
 			break;
 
 		case MUT1_EAT_MAGIC:
-			if (racial_aux(17, 1, A_WIS, 15))
-			{
-				eat_magic(p_ptr->lev * 2);
-			}
+			if (!eat_magic(p_ptr->lev * 2)) return FALSE;
 			break;
 
 		case MUT1_WEIGH_MAG:
-			if (racial_aux(6, 6, A_INT, 10))
-			{
-				report_magics();
-			}
+			report_magics();
 			break;
 
 		case MUT1_STERILITY:
-			if (racial_aux(12, 23, A_CHR, 15))
-			{
-				/* Fake a population explosion. */
+			/* Fake a population explosion. */
 #ifdef JP
 msg_print("突然頭が痛くなった！");
-take_hit(DAMAGE_LOSELIFE, randint1(17) + 17, "禁欲を強いた疲労", -1);
+take_hit(DAMAGE_LOSELIFE, randint1(17) + 17, "禁欲を強いた疲労");
 #else
-				msg_print("You suddenly have a headache!");
-				take_hit(DAMAGE_LOSELIFE, randint1(17) + 17, "the strain of forcing abstinence", -1);
+			msg_print("You suddenly have a headache!");
+			take_hit(DAMAGE_LOSELIFE, randint1(17) + 17, "the strain of forcing abstinence");
 #endif
 
-				num_repro += MAX_REPRO;
-			}
+			num_repro += MAX_REPRO;
 			break;
 
 		case MUT1_PANIC_HIT:
-			if (racial_aux(10, 12, A_DEX, 14))
 			{
 				int x, y;
 
-				if (!get_rep_dir2(&dir)) return;
+				if (!get_rep_dir2(&dir)) return FALSE;
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				if (cave[y][x].m_idx)
@@ -3775,38 +3622,28 @@ msg_print("その方向にはモンスターはいません。");
 			break;
 
 		case MUT1_DAZZLE:
-			if (racial_aux(7, 15, A_CHR, 8))
-			{
-				stun_monsters(lvl * 4);
-				confuse_monsters(lvl * 4);
-				turn_monsters(lvl * 4);
-			}
+			stun_monsters(lvl * 4);
+			confuse_monsters(lvl * 4);
+			turn_monsters(lvl * 4);
 			break;
 
 		case MUT1_LASER_EYE:
-			if (racial_aux(7, 10, A_WIS, 9))
-			{
-				if (get_aim_dir(&dir))
-					fire_beam(GF_LITE, dir, 2 * lvl);
-			}
+			if (!get_aim_dir(&dir)) return FALSE;
+			fire_beam(GF_LITE, dir, 2 * lvl);
 			break;
 
 		case MUT1_RECALL:
-			if (racial_aux(17, 50, A_INT, 16))
-			{
-				(void)word_of_recall();
-			}
+			if (!word_of_recall()) return FALSE;
 			break;
 
 		case MUT1_BANISH:
-			if (racial_aux(25, 25, A_WIS, 18))
 			{
 				int x, y;
 				cave_type *c_ptr;
 				monster_type *m_ptr;
 				monster_race *r_ptr;
 
-				if (!get_rep_dir2(&dir)) return;
+				if (!get_rep_dir2(&dir)) return FALSE;
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
@@ -3855,12 +3692,11 @@ msg_print("祈りは効果がなかった！");
 			break;
 
 		case MUT1_COLD_TOUCH:
-			if (racial_aux(2, 2, A_CON, 11))
 			{
 				int x, y;
 				cave_type *c_ptr;
 
-				if (!get_rep_dir2(&dir)) return;
+				if (!get_rep_dir2(&dir)) return FALSE;
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
@@ -3881,11 +3717,8 @@ msg_print("あなたは何もない場所で手を振った。");
 
 		/* XXX_XXX_XXX Hack!  MUT1_LAUNCHER is negative, see above */
 		case 3: /* MUT1_LAUNCHER */
-			if (racial_aux(1, lvl, A_STR, 6))
-			{
-				/* Gives a multiplier of 2 at first, up to 3 at 40th */
-				do_cmd_throw_aux(2 + lvl / 40, FALSE, 0);
-			}
+			/* Gives a multiplier of 2 at first, up to 3 at 40th */
+			if (!do_cmd_throw_aux(2 + lvl / 40, 0, 0)) return FALSE;
 			break;
 
 		default:
@@ -3895,6 +3728,8 @@ msg_format("能力 %s は実装されていません。", power);
 #else
 			msg_format("Power %s not implemented. Oops.", power);
 #endif
-
+			return FALSE;
 	}
+
+	return TRUE;
 }

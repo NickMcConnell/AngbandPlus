@@ -173,7 +173,7 @@ void init_file_paths(char *path)
 #ifdef PRIVATE_USER_PATH
 
 	/* Build the path to the user specific directory */
-	path_build(buf, 1024, PRIVATE_USER_PATH, VERSION_NAME);
+	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
 
 	/* Build a relative path name */
 	ANGBAND_DIR_USER = string_make(buf);
@@ -251,15 +251,15 @@ cptr err_str[PARSE_ERROR_MAX] =
 {
 	NULL,
 #ifdef JP
-        "文法エラー",
-        "古いファイル",
-        "記録ヘッダがない",
-        "不連続レコード",
-        "おかしなフラグ存在",
-        "未定義命令",
-        "メモリ不足",
-        "座標範囲外",
-        "引数不足",
+	"文法エラー",
+	"古いファイル",
+	"記録ヘッダがない",
+	"不連続レコード",
+	"おかしなフラグ存在",
+	"未定義命令",
+	"メモリ不足",
+	"座標範囲外",
+	"引数不足",
 #else
 	"parse error",
 	"obsolete file",
@@ -300,7 +300,7 @@ static errr check_modification_date(int fd, cptr template_file)
 	struct stat txt_stat, raw_stat;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
 
 	/* Access stats on text file */
 	if (stat(buf, &txt_stat))
@@ -344,7 +344,6 @@ static errr init_info_raw(int fd, header *head)
 	    (test.v_major != head->v_major) ||
 	    (test.v_minor != head->v_minor) ||
 	    (test.v_patch != head->v_patch) ||
-	    (test.v_extra != head->v_extra) ||
 	    (test.info_num != head->info_num) ||
 	    (test.info_len != head->info_len) ||
 	    (test.head_size != head->head_size) ||
@@ -397,10 +396,10 @@ static errr init_info_raw(int fd, header *head)
 static void init_header(header *head, int num, int len)
 {
 	/* Save the "version" */
-	head->v_major = FAKE_VER_MAJOR;
-	head->v_minor = FAKE_VER_MINOR;
-	head->v_patch = FAKE_VER_PATCH;
-	head->v_extra = 0;
+	head->v_major = T_VER_MAJOR;
+	head->v_minor = T_VER_MINOR;
+	head->v_patch = T_VER_PATCH;
+	head->v_extra = T_VER_EXTRA;
 
 	/* Save the "record" information */
 	head->info_num = num;
@@ -439,9 +438,9 @@ static errr init_info(cptr filename, header *head,
 
 	/* Build the filename */
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s_j.raw", filename));
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s_j.raw", filename));
 #else
-	path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 #endif
 
 
@@ -453,7 +452,7 @@ static errr init_info(cptr filename, header *head,
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-                err = check_modification_date(fd, format("%s_j.txt", filename));
+		err = check_modification_date(fd, format("%s.txt", filename));
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -486,14 +485,14 @@ static errr init_info(cptr filename, header *head,
 
 		/* Build the filename */
 
-		path_build(buf, 1024, ANGBAND_DIR_EDIT, format("%s_j.txt", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s.txt", filename));
 
 		/* Open the file */
 		fp = my_fopen(buf, "r");
 
 		/* Parse it */
 #ifdef JP
-		if (!fp) quit(format("'%s_j.txt'ファイルをオープンできません。", filename));
+		if (!fp) quit(format("'%s.txt'ファイルをオープンできません。", filename));
 #else
 		if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
 #endif
@@ -515,13 +514,13 @@ static errr init_info(cptr filename, header *head,
 			oops = ((err > 0) ? err_str[err] : "未知の");
 
 			/* Oops */
-			msg_format("'%s_j.txt'ファイルの %d 行目にエラー。", filename, error_line);
+			msg_format("'%s.txt'ファイルの %d 行目にエラー。", filename, error_line);
 			msg_format("レコード %d は '%s' エラーがあります。", error_idx, oops);
 			msg_format("構文 '%s'。", buf);
 			msg_print(NULL);
 
 			/* Quit */
-			quit(format("'%s_j.txt'ファイルにエラー", filename));
+			quit(format("'%s.txt'ファイルにエラー", filename));
 #else
 			/* Error string */
 			oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
@@ -546,9 +545,9 @@ static errr init_info(cptr filename, header *head,
 
 		/* Build the filename */
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s_j.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s_j.raw", filename));
 #else
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 #endif
 
 
@@ -594,9 +593,9 @@ static errr init_info(cptr filename, header *head,
 
 		/* Build the filename */
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s_j.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s_j.raw", filename));
 #else
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 #endif
 
 
@@ -653,7 +652,7 @@ static errr init_f_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("f_info", &f_head,
-	                 (void*)&f_info, (void*)&f_name, (void*)&f_text);
+	                 (void*)&f_info, (void*)&f_name, NULL);
 }
 
 
@@ -726,7 +725,7 @@ static errr init_e_info(void)
 static errr init_r_info(void)
 {
 	/* Init the header */
-	init_header(&r_head, max_r_idx, sizeof(monster_race));
+	init_header(&r_head, max_r_idx + MAX_RUNEWEAPON, sizeof(monster_race));
 
 #ifdef ALLOW_TEMPLATES
 
@@ -800,7 +799,7 @@ static errr init_s_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("s_info", &s_head,
-	                 (void*)&s_info, (void*)&s_name, (void*)&s_text);
+	                 (void*)&s_info, NULL, NULL);
 }
 
 
@@ -820,7 +819,7 @@ static errr init_m_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("m_info", &m_head,
-	                 (void*)&m_info, (void*)&m_name, (void*)&m_text);
+	                 (void*)&m_info, NULL, NULL);
 }
 
 
@@ -840,18 +839,18 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 
-		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_BISCUIT },
 		{ TV_FOOD, SV_FOOD_JERKY },
 		{ TV_FOOD, SV_FOOD_JERKY },
+		{ TV_SCRATCH_CARD, 0 },
 
 		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
 		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_TORCH },
 
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_SCRATCH_CARD, 0 },
+		{ TV_SCRATCH_CARD, 0 },
 		{ TV_LITE, SV_LITE_LANTERN },
 		{ TV_LITE, SV_LITE_LANTERN },
 
@@ -860,12 +859,12 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
 
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
+		{ TV_SCRATCH_CARD, 0 },
+		{ TV_SCRATCH_CARD, 0 },
 		{ TV_SPIKE, 0 },
 		{ TV_SPIKE, 0 },
 
-		{ TV_SHOT, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_DIGGING, SV_SHOVEL },
@@ -875,24 +874,22 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_FUR_CLOAK },
 
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_FORTUNE_COOKIE },
+		{ TV_FOOD, SV_FOOD_FORTUNE_COOKIE },
+		{ TV_FOOD, SV_FOOD_FORTUNE_COOKIE },
+		{ TV_FOOD, SV_FOOD_EGG },
 
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_FLASK, 0 },
+		{ TV_FLASK, 0 },
 		{ TV_LITE, SV_LITE_LANTERN },
 		{ TV_LITE, SV_LITE_LANTERN },
 
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
+		{ TV_FIGURINE, SV_FIGURINE_NORMAL },
+		{ TV_FIGURINE, SV_FIGURINE_NORMAL },
 
-		{ TV_CAPTURE, 0 },
-
-		{ TV_FIGURINE, 0 },
-
-		{ TV_SHOT, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_DIGGING, SV_SHOVEL }
@@ -901,10 +898,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
 		/* Armoury */
 
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_BATTLE_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_BATTLE_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_DESERT_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_DESERT_BOOTS },
 
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
@@ -921,7 +918,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
 
-		{ TV_SOFT_ARMOR, SV_RHINO_HIDE_ARMOR },
+		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
@@ -939,10 +936,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_METAL_SHIELD },
+		{ TV_SHIELD, SV_TOWER_SHIELD },
 
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_DESERT_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_DESERT_BOOTS },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 
@@ -982,36 +979,36 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_SWORD, SV_BASTARD_SWORD },
 		{ TV_POLEARM, SV_SPEAR },
-		{ TV_POLEARM, SV_AWL_PIKE },
+		{ TV_POLEARM, SV_SLENDER_SPEAR },
 		{ TV_POLEARM, SV_TRIDENT },
 
 		{ TV_POLEARM, SV_PIKE },
-		{ TV_POLEARM, SV_BEAKED_AXE },
+		{ TV_POLEARM, SV_FRANCISCA },
 		{ TV_POLEARM, SV_BROAD_AXE },
 		{ TV_POLEARM, SV_LANCE },
 
 		{ TV_POLEARM, SV_BATTLE_AXE },
 		{ TV_POLEARM, SV_HATCHET },
-		{ TV_BOW, SV_SLING },
+		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_BOW, SV_SHORT_BOW },
 
-		{ TV_BOW, SV_LIGHT_XBOW },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SHOT, SV_AMMO_NORMAL },
+		{ TV_BOW, SV_BOWGUN },
+		{ TV_ARROW, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOW, SV_LIGHT_XBOW },
+		{ TV_BOW, SV_BOWGUN },
 
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOW, SV_SHORT_BOW },
-		{ TV_BOW, SV_LIGHT_XBOW },
+		{ TV_BOW, SV_BOWGUN },
 
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_TANTO },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
 
@@ -1020,10 +1017,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_SCIMITAR },
 		{ TV_SWORD, SV_BROAD_SWORD },
 
-		{ TV_HISSATSU_BOOK, 0 },
-		{ TV_HISSATSU_BOOK, 0 },
-		{ TV_HISSATSU_BOOK, 1 },
-		{ TV_HISSATSU_BOOK, 1 },
+		{ TV_SWORD, SV_SHORT_SWORD },
+		{ TV_SWORD, SV_LONG_SWORD },
+		{ TV_SWORD, SV_SCIMITAR },
+		{ TV_SWORD, SV_BROAD_SWORD },
 	},
 
 	{
@@ -1031,11 +1028,11 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_HAFTED, SV_NUNCHAKU },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
-		{ TV_HAFTED, SV_MACE },
+		{ TV_HAFTED, SV_SCIPPLAYS_STAFF },
 		{ TV_HAFTED, SV_BO_STAFF },
 
-		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_WAR_HAMMER },
+		{ TV_HAFTED, SV_HALT_HAMMER },
+		{ TV_HAFTED, SV_HALT_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
 		{ TV_HAFTED, SV_FLAIL },
 
@@ -1059,30 +1056,30 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
+		{ TV_POTION, SV_POTION_HEROISM },
+		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
+		{ TV_SCROLL, SV_SCROLL_HOLY_PRAYER },
+		{ TV_SCROLL, SV_SCROLL_HOLY_PRAYER },
 
-		{ TV_CRUSADE_BOOK, 0 },
-		{ TV_CRUSADE_BOOK, 0 },
-		{ TV_CRUSADE_BOOK, 1 },
-		{ TV_CRUSADE_BOOK, 1 },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
+		{ TV_SCROLL, SV_SCROLL_RUNE_OF_PROTECTION },
+		{ TV_SCROLL, SV_SCROLL_DISPEL_UNDEAD },
 
 		{ TV_HAFTED, SV_WHIP },
-		{ TV_HAFTED, SV_MACE },
+		{ TV_HAFTED, SV_SCIPPLAYS_STAFF },
 		{ TV_HAFTED, SV_BALL_AND_CHAIN },
-		{ TV_HAFTED, SV_WAR_HAMMER },
+		{ TV_HAFTED, SV_HALT_HAMMER },
 
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_POTION, SV_POTION_HEALING },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_FIGURINE, 0 },
+		{ TV_FIGURINE, SV_FIGURINE_NORMAL },
 		{ TV_STATUE, SV_ANY },
 
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
@@ -1100,23 +1097,18 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_POTION, SV_POTION_RESIST_HEAT },
+		{ TV_POTION, SV_POTION_RESIST_COLD },
 		{ TV_SCROLL, SV_SCROLL_LIGHT },
 
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_TELEPORT },
-		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
-
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
+
 		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
-
-		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
@@ -1147,12 +1139,17 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RES_CON },
 		{ TV_POTION, SV_POTION_RES_CHR },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
+		{ TV_POTION, SV_POTION_RESISTANCE },
 
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER }
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
+
+		{ TV_SCROLL, SV_SCROLL_ELEM_FIRE },
+		{ TV_SCROLL, SV_SCROLL_ELEM_AQUA },
+		{ TV_SCROLL, SV_SCROLL_ELEM_EARTH },
+		{ TV_SCROLL, SV_SCROLL_ELEM_WIND }
 
 	},
 
@@ -1160,12 +1157,12 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		/* Magic-User store */
 
 		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_RING, SV_RING_FEATHER_FALL },
+		{ TV_RING, SV_RING_WIND },
 		{ TV_RING, SV_RING_PROTECTION },
 		{ TV_RING, SV_RING_RESIST_FIRE },
 
 		{ TV_RING, SV_RING_RESIST_COLD },
-		{ TV_AMULET, SV_AMULET_CHARISMA },
+		{ TV_AMULET, SV_AMULET_RESIST_ACID },
 		{ TV_RING, SV_RING_WARNING },
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
 
@@ -1192,7 +1189,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
 
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
@@ -1203,22 +1200,22 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_CURE_LIGHT },
 		{ TV_STAFF, SV_STAFF_PROBING },
 
-		{ TV_FIGURINE, 0 },
+		{ TV_FIGURINE, SV_FIGURINE_NORMAL },
 
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 1 },
-		{ TV_SORCERY_BOOK, 1 },
+		{ TV_RING, SV_RING_SUSTAIN_STR },
+		{ TV_RING, SV_RING_SUSTAIN_INT },
+		{ TV_RING, SV_RING_SUSTAIN_WIS },
+		{ TV_RING, SV_RING_SUSTAIN_DEX },
 
-		{ TV_ARCANE_BOOK, 0 },
-		{ TV_ARCANE_BOOK, 0 },
-		{ TV_ARCANE_BOOK, 1 },
-		{ TV_ARCANE_BOOK, 1 },
+		{ TV_RING, SV_RING_SUSTAIN_CON },
+		{ TV_RING, SV_RING_SUSTAIN_CHR },
+		{ TV_RING, SV_RING_FREE_ACTION },
+		{ TV_RING, SV_RING_SEE_INVIS },
 
-		{ TV_ARCANE_BOOK, 2 },
-		{ TV_ARCANE_BOOK, 2 },
-		{ TV_ARCANE_BOOK, 3 },
-		{ TV_ARCANE_BOOK, 3 },
+		{ TV_RING, SV_RING_RESIST_FIRE },
+		{ TV_RING, SV_RING_RESIST_COLD },
+		{ TV_STAFF, SV_STAFF_SPEED },
+		{ TV_AMULET, SV_AMULET_THE_MAGI },
 
 	},
 
@@ -1296,50 +1293,65 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 	{
 		/* Bookstore */
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 1 },
-		{ TV_SORCERY_BOOK, 1 },
+		{ TV_MAGERY_BOOK, 0 },
+		{ TV_MAGERY_BOOK, 0 },
+		{ TV_MAGERY_BOOK, 0 },
+		{ TV_MAGERY_BOOK, 0 },
 
-		{ TV_NATURE_BOOK, 0 },
-		{ TV_NATURE_BOOK, 0 },
-		{ TV_NATURE_BOOK, 1 },
-		{ TV_NATURE_BOOK, 1 },
+		{ TV_MAGERY_BOOK, 0 },
+		{ TV_MAGERY_BOOK, 0 },
+		{ TV_MAGERY_BOOK, 1 },
+		{ TV_MAGERY_BOOK, 1 },
 
-		{ TV_CHAOS_BOOK, 0 },
-		{ TV_CHAOS_BOOK, 0 },
-		{ TV_CHAOS_BOOK, 1 },
-		{ TV_CHAOS_BOOK, 1 },
+		{ TV_FIRE_BOOK, 0 },
+		{ TV_FIRE_BOOK, 0 },
+		{ TV_AQUA_BOOK, 0 },
+		{ TV_AQUA_BOOK, 0 },
 
+		{ TV_EARTH_BOOK, 0 },
+		{ TV_EARTH_BOOK, 0 },
+		{ TV_WIND_BOOK, 0 },
+		{ TV_WIND_BOOK, 0 },
+
+		{ TV_HOLY_BOOK, 0 },
+		{ TV_HOLY_BOOK, 0 },
+		{ TV_HOLY_BOOK, 0 },
+		{ TV_HOLY_BOOK, 0 },
+
+		{ TV_HOLY_BOOK, 0 },
+		{ TV_HOLY_BOOK, 0 },
+		{ TV_HOLY_BOOK, 1 },
+		{ TV_HOLY_BOOK, 1 },
+
+		{ TV_SYMBIOTIC_BOOK, 0 },
+		{ TV_SYMBIOTIC_BOOK, 0 },
+		{ TV_SYMBIOTIC_BOOK, 0 },
+		{ TV_WITCH_BOOK, 0 },
+
+		{ TV_WITCH_BOOK, 0 },
+		{ TV_WITCH_BOOK, 0 },
+		{ TV_WITCH_BOOK, 0 },
+		{ TV_WITCH_BOOK, 0 },
+
+		{ TV_WITCH_BOOK, 0 },
+		{ TV_WITCH_BOOK, 1 },
+		{ TV_WITCH_BOOK, 1 },
+		{ TV_WITCH_BOOK, 1 },
+
+		{ TV_WITCH_BOOK, 2 },
+		{ TV_CRUSADE_BOOK, 0 },
+		{ TV_CRUSADE_BOOK, 0 },
+		{ TV_CRUSADE_BOOK, 0 },
+
+		{ TV_CRUSADE_BOOK, 0 },
+		{ TV_CRUSADE_BOOK, 0 },
+		{ TV_CRUSADE_BOOK, 0 },
+		{ TV_CRUSADE_BOOK, 1 },
+
+		{ TV_CRUSADE_BOOK, 1 },
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 1 },
-		{ TV_DEATH_BOOK, 1 },
-
-		{ TV_TRUMP_BOOK, 0 },		/* +16 */
-		{ TV_TRUMP_BOOK, 0 },
-		{ TV_TRUMP_BOOK, 1 },
-		{ TV_TRUMP_BOOK, 1 },
-
-		{ TV_ARCANE_BOOK, 0 },
-		{ TV_ARCANE_BOOK, 1 },
-		{ TV_ARCANE_BOOK, 2 },
-		{ TV_ARCANE_BOOK, 3 },
-
-		{ TV_ENCHANT_BOOK, 0 },
-		{ TV_ENCHANT_BOOK, 0 },
-		{ TV_ENCHANT_BOOK, 1 },
-		{ TV_ENCHANT_BOOK, 1 },
-
-		{ TV_DAEMON_BOOK, 0 },
-		{ TV_DAEMON_BOOK, 0 },
-		{ TV_DAEMON_BOOK, 1 },
-		{ TV_DAEMON_BOOK, 1 },
-
-		{ TV_MUSIC_BOOK, 0 },
-		{ TV_MUSIC_BOOK, 0 },
-		{ TV_MUSIC_BOOK, 1 },
-		{ TV_MUSIC_BOOK, 1 },
 	},
 
 	{
@@ -1386,7 +1398,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 static errr init_misc(void)
 {
 	/* Initialize the values */
-	process_dungeon_file("misc_j.txt", 0, 0, 0, 0);
+	process_dungeon_file("misc.txt", 0, 0, 0, 0);
 
 	return 0;
 }
@@ -1515,7 +1527,7 @@ errr init_buildings(void)
 			building[i].member_race[j] = 0;
 		}
 
-		for (j = 0; j < MAX_MAGIC+1; j++)
+		for (j = 0; j < MAX_REALM+1; j++)
 		{
 			building[i].member_realm[j] = 0;
 		}
@@ -1537,9 +1549,17 @@ static errr init_quests(void)
 	/* Allocate the quests */
 	C_MAKE(quest, max_quests, quest_type);
 
-	/* Set all quest to "untaken" */
 	for (i = 0; i < max_quests; i++)
 	{
+		if (quest_is_fixed(i))
+		{
+			init_flags = INIT_ONLY_FEATURES | INIT_QUESTOR_UNIQUES;
+			p_ptr->inside_quest = i;
+			process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+			p_ptr->inside_quest = 0;
+		}
+
+		/* Set all quest to "untaken" */
 		quest[i].status = QUEST_STATUS_UNTAKEN;
 	}
 
@@ -1563,8 +1583,14 @@ static errr init_other(void)
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, max_m_idx, monster_type);
 
-        /* Allocate and Wipe the max dungeon level */
-        C_MAKE(max_dlv, max_d_idx, s16b);
+	/* Allocate and Wipe the anti-magic monster list */
+	C_MAKE(anti_magic_m_idx, max_m_idx, s16b);
+
+	/* Allocate and Wipe the fear field monster list */
+	C_MAKE(fear_field_m_idx, max_m_idx, s16b);
+
+	/* Allocate and Wipe the max dungeon level */
+	C_MAKE(max_dlv, max_d_idx, s16b);
 
 	/* Allocate and wipe each line of the cave */
 	for (i = 0; i < MAX_HGT; i++)
@@ -1688,18 +1714,18 @@ static errr init_other(void)
 	}
 
 	/*
-         *  Set the "default" window flags
+	 *  Set the "default" window flags
 	 *  Window 1 : Display messages
 	 *  Window 2 : Display inven/equip
 	 */
-        window_flag[1] = 1L << 6;
-        window_flag[2] = 1L << 0;
+	window_flag[1] = 1L << 6;
+	window_flag[2] = 1L << 0;
 
 
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Mr.Hoge", MAINTAINER);
+	(void)format("%s (%s).", "TOband", MAINTAINER);
 
 
 	/* Success */
@@ -1738,7 +1764,7 @@ static errr init_alloc(void)
 	alloc_race_size = max_r_idx;
 
 	/* Allocate the alloc_race_table */
-	C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
+	C_MAKE(alloc_race_table, alloc_race_size + MAX_RUNEWEAPON, alloc_entry);
 
 	/* Scan the monsters */
 	for (i = 1; i < max_r_idx; i++)
@@ -1823,7 +1849,7 @@ static errr init_alloc(void)
 	/*** Initialize monster allocation info ***/
 
 	/* Allocate the alloc_race_table */
-	C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
+	C_MAKE(alloc_race_table, alloc_race_size + MAX_RUNEWEAPON, alloc_entry);
 
 	/* Access the table entry */
 	table = alloc_race_table;
@@ -1989,9 +2015,9 @@ void init_angband(void)
 
 	/* Build the filename */
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news_j.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news_j.txt");
 #else
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 #endif
 
 
@@ -2026,9 +2052,9 @@ void init_angband(void)
 
 	/* Build the filename */
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news_j.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news_j.txt");
 #else
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 #endif
 
 
@@ -2041,7 +2067,7 @@ void init_angband(void)
 		int i = 0;
 
 		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
+		while (0 == my_fgets(fp, buf, sizeof(buf)))
 		{
 			/* Display and advance */
 			Term_putstr(0, i++, -1, TERM_WHITE, buf);
@@ -2058,7 +2084,7 @@ void init_angband(void)
 	/*** Verify (or create) the "high score" file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Attempt to open the high score file */
 	fd = fd_open(buf, O_RDONLY);
@@ -2184,10 +2210,10 @@ if (init_misc()) quit("その他の変数を初期化できません");
 	if (init_m_info()) quit("Cannot initialize magic");
 #endif
 
-	/* Initialize weapon_exp info */
+	/* Initialize skill info */
 #ifdef JP
-	note("[データの初期化中... (熟練度)]");
-	if (init_s_info()) quit("熟練度初期化不能");
+	note("[データの初期化中... (スキル)]");
+	if (init_s_info()) quit("スキル初期化不能");
 #else
 	note("[Initializing arrays... (skill)]");
 	if (init_s_info()) quit("Cannot initialize skill");
@@ -2292,6 +2318,12 @@ note("[ユーザー設定ファイルを初期化しています...]");
 
 	/* Process that file */
 	process_pref_file(buf);
+
+	/* Init array for "Snap Dragon Spell" */
+	(void)C_WIPE(runeweapon_list, MAX_RUNEWEAPON + 1, runeweapon_type);
+
+	/* Init array for "Monster Stock" */
+	(void)C_WIPE(stock_mon, MAX_STOCK_MON, monster_type);
 
 	/* Done */
 #ifdef JP

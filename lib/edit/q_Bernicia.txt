@@ -1,0 +1,109 @@
+# q_Bernicia.txt
+#TO# バーニシア城
+#TO# by mita
+# Name
+Q:15:N:バーニシア城
+
+# type:num_mon:cur_num:max_num:level:r_idx:k_idx
+Q:$15:Q:1:0:0:1:70:813:0:0:6
+Q:15:Q:1:0:0:1:70:813:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST15 2]
+Q:15:T:ヴァレリアの正しき支配者であったドルガルア王が姿を消した時、
+Q:15:T:司祭ブランタは自分の支配権を確保すべくすぐさま行動を起こした。
+Q:15:T:ブランタはヴァレリア島の北半分を自分の領土として、ヴァレリア
+Q:15:T:王国からの「独立」を宣言したのだ！バクラム国を認めてはならない。
+Q:15:T:バクラム国を認めれば、ヴァレリア島の各地で民族自決の機運が
+Q:15:T:高まり、再びヴァレリアに戦乱の世が訪れるだろう。
+Q:15:T:急げ若者よ。王都ハイムのバーニシア城へ潜入し、ブランタを倒すのだ！
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST15 3]
+Q:$15:T:You have done well. Please accept this reward.
+Q:15:T:よくやった。礼を受けとってくれ。
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST15 5]
+Q:15:T:ブランタはいまやバクラムの王だ。コリタニ地方ではバルバトス
+Q:15:T:枢機卿がガルガスタン人を中心にガルガスタン王国を建国し、
+Q:15:T:アルモリカ地方で少数民族ウォルスタ人を激しく弾圧している。
+Q:15:T:戦乱の世は訪れた。もはや手遅れになってしまったのだ。
+?:1
+
+# Deep water
+F:W:83:8
+
+# Tree
+F:T:96
+
+# Normal wall
+F:#:56
+
+# Floor + Terror Knight
+F:a:1:8:442
+
+# Floor + ninja
+F:b:1:8:485
+
+# Floor + Gunner
+F:c:1:8:498
+
+# Floor + Beastmaster
+F:d:1:8:497
+
+# Floor + Dragontamer
+F:e:1:8:636
+
+# Floor + sorcerer
+F:f:1:8:638
+
+# Floor + Venefik
+F:g:1:8:647
+
+# Floor + Lord of Chaos
+F:h:1:8:815
+
+# Floor + Branta, the Bishop + item
+F:E:1:8:813:*
+
+# Trap
+F:^:1:8:0:0:0:0:*
+
+# Trap or OOD item
+F:$:1:8:0:*10:0:0:*
+
+# Castle Bernicia
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTX
+D:XTTTTTTTTTTT...........T..TT.TTTTTTTTTTTTTTTTTTTTTTTTT.TTT...........TTTTX
+D:XTTTTTTTTT......WWWWW...T..TTTTT.T..TT.TTTTTT.TT.TTT....T...WWWWW......TTX
+D:XTTTTTTT.......WW#a#WW.......T............TT...............WW#a#WW....T.TX
+D:XTTTT<TT.......W##c##WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW##e##W...TT.TX
+D:XTTT.TT........W#aaa###########.#################.###########aaa#W..TTTTTX
+D:XTT.TT...TT....WafdaD^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^DadafW...TT.TX
+D:XTT....TTT.....W#aaa##############D##########################aaa#W....TTTX
+D:XT......TTT....W##e##^^^^^^^^^^^^DbD^^^^^^^^^^^^^^#****c#gg###c##W..TTTTTX
+D:XT....TTT.TT...WW####^############D#############^^#####D#gg#b#D#WW...TTTTX
+D:XT.........TT...WW#a#^#......Dggggggggggggggggg#^^^^^^^^Dgg#bbb#W...TT.TTX
+D:XT.....TT.TT.....W#D#^#...###############################DD##D##W..TT..TTX
+D:XT......TTT.......D^^^#####***DhheeddgggDgggfgggegggdgggDccD***#W..TT...TX
+D:XT........TT......D^^^#####**EDhheeddgggDgggfgggegggdgggDccD***#W.TT....TX
+D:XTTT.......T.....W#D#^#...###############################DD##D##W.TT...TTX
+D:XTTTT...........WW#a#^#......Dggggggggggggggggg#^^^^^^^^Dgg#bbb#W..TT.TTTX
+D:XTT......T.....WW####^############D#############^^#####D#gg#b#D#WW..TTTTTX
+D:XT..TT....T....W##c##^^^^^^^^^^^^DbD^^^^^^^^^^^^^^#****c#gg###d##W...TTTTX
+D:XT.TT..T.TT....W#aaa##############D##########################aaa#W....TTTX
+D:XTTTT..TTT.....WafdaD^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^DacfaW...TTTTX
+D:XTTTTTTTT......W#aaa###########.#################.###########aaa#W...TTTTX
+D:XT..TTTT.......W##e##WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW##e##W..TTTTTX
+D:XTT..TT........WW###WW............TTT......................WW#a#WW.TTTTTTX
+D:XTTTTTTTT.......WWWWW.....TTT...TTT.TTTTTT..TTT.TTTT..TTT...WWWWW..TTTTTTX
+D:XTTTTTTTTTTT.TT........TTTT....TT.TTTTTT.TTTT.TTTT.TTTTTTTT.......TTTTTTTX
+D:XTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:5:5

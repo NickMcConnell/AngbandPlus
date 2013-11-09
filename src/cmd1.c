@@ -28,9 +28,6 @@ bool test_hit_fire(int chance, int ac, int vis)
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
 
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
-		if (one_in_(20)) return (FALSE);
-
 	/* Never hit */
 	if (chance <= 0) return (FALSE);
 
@@ -60,9 +57,6 @@ bool test_hit_norm(int chance, int ac, int vis)
 
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
-
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
-		if (one_in_(20)) return (FALSE);
 
 	/* Wimpy attack never hits */
 	if (chance <= 0) return (FALSE);
@@ -145,10 +139,10 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
 	i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
-	if ((randint1((p_ptr->pclass == CLASS_NINJA) ? 4444 : 5000) <= i) || (mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN))
+	if ((randint1((p_ptr->pclass == CLASS_NINJA) ? 4444 : 5000) <= i) || (mode == PY_ATTACK_3DAN))
 	{
 		k = weight + randint1(650);
-		if ((mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN)) k+= randint1(650);
+		if (mode == PY_ATTACK_3DAN) k+= randint1(650);
 
 		if (k < 400)
 		{
@@ -207,6 +201,221 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
 
 
 
+void class_weapon_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	switch (p_ptr->pclass)
+	{
+	case CLASS_DRAGOON:
+		add_flag(flgs, TR_KILL_DRAGON);
+		break;
+	case CLASS_EXORCIST:
+		add_flag(flgs, TR_SLAY_UNDEAD);
+		add_flag(flgs, TR_SLAY_DEMON);
+		/* Fall through */
+	case CLASS_CLERIC:
+	case CLASS_PRIEST:
+	case CLASS_ANGELKNIGHT:
+		add_flag(flgs, TR_BLESSED);
+		break;
+	case CLASS_LICH:
+		add_flag(flgs, TR_UNHOLY);
+		break;
+	}
+}
+
+/*
+ * Handle monsters that resist blunt and/or edged weapons.
+ */
+s16b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
+{
+	int div = 10;
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	cptr p;
+	bool resist_weapon = TRUE;
+
+	u32b flgs[TR_FLAG_SIZE];
+
+	/* Extract the flags */
+	object_flags(o_ptr, flgs);
+
+	if (in_hand) class_weapon_flags(flgs);
+
+	/* Get base name of object kind */
+	switch (o_ptr->tval)
+	{
+#ifdef JP
+	case TV_BULLET:
+	case TV_ROUND:
+	case TV_SHELL:
+		p = "銃弾";
+		break;
+	case TV_ARROW:
+	case TV_BOLT:
+		p = "矢";
+		break;
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_DIGGING:
+		p = "武器";
+		break;
+	default:
+		p = "投げた物";
+		break;
+#else
+	case TV_BULLET:
+		p = "bullet";
+		break;
+	case TV_ROUND:
+		p = "rifle round";
+		break;
+	case TV_SHELL:
+		p = "shot";
+		break;
+	case TV_ARROW:
+		p = "arrow";
+		break;
+	case TV_BOLT:
+		p = "bolt";
+		break;
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_DIGGING:
+		p = "weapon";
+		break;
+	default:
+		p = "missile";
+		break;
+#endif
+	}
+
+	/* Hack -- "Throwing" */
+#ifdef JP
+	if (!o_ptr->k_idx) p = "投げた物";
+#else
+	if (!o_ptr->k_idx) p = "missile";
+#endif
+
+	if (have_flag(flgs, TR_UNHOLY) && have_flag(flgs, TR_BLESSED))
+	{
+		resist_weapon = FALSE;
+	}
+	else if (have_flag(flgs, TR_UNHOLY))
+	{
+		if (!(r_ptr->flags3 & RF3_EVIL)) resist_weapon = FALSE;
+	}
+	else if (have_flag(flgs, TR_BLESSED))
+	{
+		if (!(r_ptr->flags3 & RF3_GOOD)) resist_weapon = FALSE;
+	}
+
+	if (!resist_weapon) return div;
+
+	switch (o_ptr->tval)
+	{
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		{
+			if (r_ptr->flagsr & RFR_IM_EDGED)
+			{
+				div = 60;
+
+				if (m_ptr->ml)
+				{
+					/* Message */
+					if (!(r_ptr->r_flagsr & RFR_IM_EDGED))
+					{
+#ifdef JP
+						msg_format("この%sは全く効かないようだ！", p);
+#else
+						msg_format("Your %s doesn't seem to be doing any damage!", p);
+#endif
+						r_ptr->r_flagsr |= RFR_IM_EDGED;
+						if (r_ptr->flagsr & RFR_RES_EDGED) r_ptr->r_flagsr |= RFR_RES_EDGED;
+					}
+				}
+			}
+			else if (r_ptr->flagsr & RFR_RES_EDGED)
+			{
+				div = 20;
+
+				if (m_ptr->ml)
+				{
+					/* Message */
+					if (!(r_ptr->r_flagsr & RFR_RES_EDGED))
+					{
+#ifdef JP
+						msg_format("この%sはあまり効かないようだ！", p);
+#else
+						msg_format("Your %s seems to be doing little damage!", p);
+#endif
+						r_ptr->r_flagsr |= RFR_RES_EDGED;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case TV_BULLET:
+		case TV_ROUND:
+		case TV_SHELL:
+		case TV_HAFTED:
+		default:
+		{
+			if (r_ptr->flagsr & RFR_IM_BLUNT)
+			{
+				div = 60;
+
+				if (m_ptr->ml)
+				{
+					/* Message */
+					if (!(r_ptr->r_flagsr & RFR_IM_BLUNT))
+					{
+#ifdef JP
+						msg_format("この%sは全く効かないようだ！", p);
+#else
+						msg_format("Your %s doesn't seem to be doing any damage!", p);
+#endif
+						r_ptr->r_flagsr |= RFR_IM_BLUNT;
+						if (r_ptr->flagsr & RFR_RES_BLUNT) r_ptr->r_flagsr |= RFR_RES_BLUNT;
+					}
+				}
+			}
+			else if (r_ptr->flagsr & RFR_RES_BLUNT)
+			{
+				div = 20;
+
+				if (m_ptr->ml)
+				{
+					/* Message */
+					if (!(r_ptr->r_flagsr & RFR_RES_BLUNT))
+					{
+#ifdef JP
+						msg_format("この%sはあまり効かないようだ！", p);
+#else
+						msg_format("Your %s seems to be doing little damage!", p);
+#endif
+						r_ptr->r_flagsr |= RFR_RES_BLUNT;
+					}
+				}
+			}
+
+			break;
+		}
+	}
+
+	if (div < 0) div = 10;
+
+	return div;
+}
+
 /*
  * Extract the "total damage" from a given object hitting a given monster.
  *
@@ -216,21 +425,25 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
+s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand)
 {
 	int mult = 10;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
+
+	if (in_hand) class_weapon_flags(flgs);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
 	{
-		case TV_SHOT:
+		case TV_BULLET:
+		case TV_ROUND:
+		case TV_SHELL:
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_HAFTED:
@@ -239,7 +452,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & TR1_SLAY_ANIMAL) &&
+			if ((have_flag(flgs, TR_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
 			{
 				if (m_ptr->ml)
@@ -251,7 +464,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Slay Evil */
-			if ((f1 & TR1_SLAY_EVIL) &&
+			if ((have_flag(flgs, TR_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & RF3_EVIL))
 			{
 				if (m_ptr->ml)
@@ -262,8 +475,27 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 20) mult = 20;
 			}
 
+			/* Slay Good */
+			if (((have_flag(flgs, TR_SLAY_GOOD)) || (p_ptr->special_attack & (ATTACK_EVIL))) &&
+			    (r_ptr->flags3 & RF3_GOOD))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_GOOD;
+				}
+
+				if (mult < 20) mult = 20;
+			}
+
+			/* Slay Living */
+			if (((have_flag(flgs, TR_SLAY_LIVING)) || (p_ptr->special_attack & (ATTACK_EVIL))) &&
+			    monster_living(r_ptr))
+			{
+				if (mult < 30) mult = 30;
+			}
+
 			/* Slay Human */
-			if ((f3 & TR3_SLAY_HUMAN) &&
+			if ((have_flag(flgs, TR_SLAY_HUMAN)) &&
 			    (r_ptr->flags2 & RF2_HUMAN))
 			{
 				if (m_ptr->ml)
@@ -275,7 +507,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Slay Undead */
-			if ((f1 & TR1_SLAY_UNDEAD) &&
+			if (have_flag(flgs, TR_SLAY_UNDEAD) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
 			{
 				if (m_ptr->ml)
@@ -287,7 +519,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Slay Demon */
-			if ((f1 & TR1_SLAY_DEMON) &&
+			if (have_flag(flgs, TR_SLAY_DEMON) &&
 			    (r_ptr->flags3 & RF3_DEMON))
 			{
 				if (m_ptr->ml)
@@ -299,7 +531,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Slay Orc */
-			if ((f1 & TR1_SLAY_ORC) &&
+			if ((have_flag(flgs, TR_SLAY_ORC)) &&
 			    (r_ptr->flags3 & RF3_ORC))
 			{
 				if (m_ptr->ml)
@@ -311,7 +543,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Slay Troll */
-			if ((f1 & TR1_SLAY_TROLL) &&
+			if ((have_flag(flgs, TR_SLAY_TROLL)) &&
 			    (r_ptr->flags3 & RF3_TROLL))
 			{
 				if (m_ptr->ml)
@@ -323,7 +555,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Slay Giant */
-			if ((f1 & TR1_SLAY_GIANT) &&
+			if ((have_flag(flgs, TR_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & RF3_GIANT))
 			{
 				if (m_ptr->ml)
@@ -332,12 +564,10 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				}
 
 				if (mult < 30) mult = 30;
-				if (o_ptr->name1 == ART_HRUNTING)
-					mult *= 3;
 			}
 
 			/* Slay Dragon  */
-			if ((f1 & TR1_SLAY_DRAGON) &&
+			if ((have_flag(flgs, TR_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -349,7 +579,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Execute Dragon */
-			if ((f1 & TR1_KILL_DRAGON) &&
+			if (have_flag(flgs, TR_KILL_DRAGON) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -359,82 +589,77 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 
 				if (mult < 50) mult = 50;
 
-				if ((o_ptr->name1 == ART_NOTHUNG) && (m_ptr->r_idx == MON_FAFNER))
+				if ((o_ptr->name1 == ART_FAFNIR) && (m_ptr->r_idx == MON_FAFNER))
 					mult *= 3;
 			}
 
 			/* Brand (Acid) */
-			if ((f1 & TR1_BRAND_ACID) || (p_ptr->special_attack & (ATTACK_ACID)))
+			if ((have_flag(flgs, TR_BRAND_ACID)) || (p_ptr->special_attack & (ATTACK_ACID)))
 			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ACID)
+				/* Notice resistance */
+				if (r_ptr->flagsr & RFR_RES_ACID)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_ACID;
+						r_ptr->r_flagsr |= RFR_RES_ACID;
 					}
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 25) mult = 25;
+					if (r_ptr->flags3 & RF3_HURT_ACID)
+					{
+						if (mult < 50) mult = 50;
+						if (m_ptr->ml)
+						{
+							r_ptr->r_flags3 |= RF3_HURT_ACID;
+						}
+					}
+					else if (mult < 25) mult = 25;
 				}
 			}
 
 			/* Brand (Elec) */
-			if ((f1 & TR1_BRAND_ELEC) || (p_ptr->special_attack & (ATTACK_ELEC)) || (mode == HISSATSU_ELEC))
+			if ((have_flag(flgs, TR_BRAND_ELEC)) || (p_ptr->special_attack & (ATTACK_ELEC)))
 			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ELEC)
+				/* Notice resistance */
+				if (r_ptr->flagsr & RFR_RES_ELEC)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_ELEC;
+						r_ptr->r_flagsr |= RFR_RES_ELEC;
 					}
 				}
 
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_ELEC) || (p_ptr->special_attack & (ATTACK_ELEC))) && (mode == HISSATSU_ELEC))
-				{
-					if (mult < 70) mult = 70;
-				}
-				else if (mode == HISSATSU_ELEC)
-				{
-					if (mult < 50) mult = 50;
-				}
-
 				else
 				{
-					if (mult < 25) mult = 25;
+					if (r_ptr->flags3 & RF3_HURT_ELEC)
+					{
+						if (mult < 50) mult = 50;
+						if (m_ptr->ml)
+						{
+							r_ptr->r_flags3 |= RF3_HURT_ELEC;
+						}
+					}
+					else if (mult < 25) mult = 25;
 				}
 			}
 
 			/* Brand (Fire) */
-			if ((f1 & TR1_BRAND_FIRE) || (p_ptr->special_attack & (ATTACK_FIRE)) || (mode == HISSATSU_FIRE))
+			if ((have_flag(flgs, TR_BRAND_FIRE)) || (p_ptr->special_attack & (ATTACK_FIRE)))
 			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_FIRE)
+				/* Notice resistance */
+				if (r_ptr->flagsr & RFR_RES_FIRE)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_FIRE;
+						r_ptr->r_flagsr |= RFR_RES_FIRE;
 					}
 				}
 
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_FIRE) || (p_ptr->special_attack & (ATTACK_FIRE))) && (mode == HISSATSU_FIRE))
-				{
-					if (r_ptr->flags3 & RF3_HURT_FIRE)
-					{
-						if (mult < 70) mult = 70;
-						if (m_ptr->ml)
-						{
-							r_ptr->r_flags3 |= RF3_HURT_FIRE;
-						}
-					}
-					else if (mult < 35) mult = 35;
-				}
 				else
 				{
 					if (r_ptr->flags3 & RF3_HURT_FIRE)
@@ -450,29 +675,17 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Brand (Cold) */
-			if ((f1 & TR1_BRAND_COLD) || (p_ptr->special_attack & (ATTACK_COLD)) || (mode == HISSATSU_COLD))
+			if ((have_flag(flgs, TR_BRAND_COLD)) || (p_ptr->special_attack & (ATTACK_COLD)))
 			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_COLD)
+				/* Notice resistance */
+				if (r_ptr->flagsr & RFR_RES_COLD)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_COLD;
+						r_ptr->r_flagsr |= RFR_RES_COLD;
 					}
 				}
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_COLD) || (p_ptr->special_attack & (ATTACK_COLD))) && (mode == HISSATSU_COLD))
-				{
-					if (r_ptr->flags3 & RF3_HURT_COLD)
-					{
-						if (mult < 70) mult = 70;
-						if (m_ptr->ml)
-						{
-							r_ptr->r_flags3 |= RF3_HURT_COLD;
-						}
-					}
-					else if (mult < 35) mult = 35;
-				}
 				else
 				{
 					if (r_ptr->flags3 & RF3_HURT_COLD)
@@ -488,73 +701,50 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Brand (Poison) */
-			if ((f1 & TR1_BRAND_POIS) || (p_ptr->special_attack & (ATTACK_POIS)) || (mode == HISSATSU_POISON))
+			if ((have_flag(flgs, TR_BRAND_POIS)) || (p_ptr->special_attack & (ATTACK_POIS)))
 			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_POIS)
+				/* Notice resistance */
+				if (r_ptr->flagsr & RFR_RES_POIS)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_POIS;
+						r_ptr->r_flagsr |= RFR_RES_POIS;
 					}
 				}
 
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_POIS) || (p_ptr->special_attack & (ATTACK_POIS))) && (mode == HISSATSU_POISON))
-				{
-					if (mult < 35) mult = 35;
-				}
 				else
 				{
 					if (mult < 25) mult = 25;
 				}
 			}
-			if ((mode == HISSATSU_ZANMA) && (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)) && (r_ptr->flags3 & RF3_EVIL))
-			{
-				if (mult < 15) mult = 25;
-				else if (mult < 50) mult = MIN(50, mult+20);
-			}
-			if (mode == HISSATSU_UNDEAD)
-			{
-				if (r_ptr->flags3 & RF3_UNDEAD)
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= RF3_UNDEAD;
-					}
-					if (mult == 10) mult = 70;
-					else if (mult < 140) mult = MIN(140, mult+60);
-				}
-				if (mult == 10) mult = 40;
-				else if (mult < 60) mult = MIN(60, mult+30);
-			}
-			if ((mode == HISSATSU_SEKIRYUKA) && p_ptr->cut && !(r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)))
-			{
-				int tmp = MIN(100, MAX(10, p_ptr->cut / 10));
-				if (mult < tmp) mult = tmp;
-			}
-			if ((mode == HISSATSU_HAGAN) && (r_ptr->flags3 & RF3_HURT_ROCK))
+
+			/* Digging */
+			if (have_flag(flgs, TR_TUNNEL) && (o_ptr->to_misc[OB_TUNNEL] > 0) &&
+			    (r_ptr->flags3 & RF3_HURT_ROCK))
 			{
 				if (m_ptr->ml)
 				{
 					r_ptr->r_flags3 |= RF3_HURT_ROCK;
 				}
-				if (mult == 10) mult = 40;
-				else if (mult < 60) mult = 60;
+
+				if (mult < 50) mult = 50;
 			}
-			if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+
+			if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 			{
 				p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
 				p_ptr->redraw |= (PR_MANA);
-				mult = MIN(60, mult * 7 / 2);
+				mult = mult * 3 / 2 + 20;
 			}
 			break;
 		}
 	}
 	if (mult > 150) mult = 150;
 
+
 	/* Return the total damage */
-	return (tdam * mult / 10);
+	return tdam * mult / 10;
 }
 
 
@@ -589,10 +779,10 @@ void search(void)
 				c_ptr = &cave[y][x];
 
 				/* Invisible trap */
-				if (c_ptr->info & CAVE_TRAP)
+				if (c_ptr->mimic && is_trap(c_ptr->feat))
 				{
 					/* Pick a trap */
-					pick_trap(y, x);
+					disclose_grid(y, x);
 
 					/* Message */
 #ifdef JP
@@ -607,7 +797,7 @@ void search(void)
 				}
 
 				/* Secret door */
-				if (c_ptr->feat == FEAT_SECRET)
+				if (is_hidden_door(c_ptr))
 				{
 					/* Message */
 #ifdef JP
@@ -616,9 +806,8 @@ void search(void)
 					msg_print("You have found a secret door.");
 #endif
 
-
-					/* Pick a door */
-					place_closed_door(y, x);
+					/* Disclose */
+					disclose_grid(y, x);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -639,6 +828,7 @@ void search(void)
 					if (o_ptr->tval != TV_CHEST) continue;
 
 					/* Skip non-trapped chests */
+					if (o_ptr->pval < 0) continue;
 					if (!chest_traps[o_ptr->pval]) continue;
 
 					/* Identify once */
@@ -711,38 +901,51 @@ void py_pickup_aux(int o_idx)
 	/* Delete the object */
 	delete_object_idx(o_idx);
 
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN) identify_item(o_ptr);
+	if (easy_band)
+	{
+		bool old_known;
+		int idx;
+
+		old_known = identify_item(o_ptr);
+
+		/* Auto-inscription/destroy */
+		idx = is_autopick(o_ptr);
+		auto_inscribe_item(slot, idx);
+		if (destroy_identify && !old_known)
+		{
+			auto_destroy_item(slot, idx);
+			if (o_ptr->number <= 0)
+			{
+				inven_item_optimize(slot);
+				return;
+			}
+		}
+	}
 
 	/* Describe the object */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Message */
 #ifdef JP
-	if ((o_ptr->name1 == ART_CRIMSON) && (p_ptr->pseikaku == SEIKAKU_COMBAT))
+	if (plain_pickup)
 	{
-		msg_format("こうして、%sは『クリムゾン』を手に入れた。", player_name);
-		msg_print("しかし今、『混沌のサーペント』の放ったモンスターが、");
-		msg_format("%sに襲いかかる．．．", player_name);
+		msg_format("%s(%c)を持っている。",o_name, index_to_label(slot, FALSE));
 	}
 	else
 	{
-		if (plain_pickup)
+		if (o_ptr->number > hirottakazu)
 		{
-			msg_format("%s(%c)を持っている。",o_name, index_to_label(slot));
+			msg_format("%s拾って、%s(%c)を持っている。",
+			           kazu_str, o_name, index_to_label(slot, FALSE));
 		}
 		else
 		{
-			if (o_ptr->number > hirottakazu) {
-			    msg_format("%s拾って、%s(%c)を持っている。",
-			       kazu_str, o_name, index_to_label(slot));
-			} else {
-				msg_format("%s(%c)を拾った。", o_name, index_to_label(slot));
-			}
+			msg_format("%s(%c)を拾った。", o_name, index_to_label(slot, FALSE));
 		}
 	}
 	strcpy(record_o_name, old_name);
 #else
-	msg_format("You have %s (%c).", o_name, index_to_label(slot));
+	msg_format("You have %s (%c).", o_name, index_to_label(slot, FALSE));
 	strcpy(record_o_name, o_name);
 #endif
 	record_turn = turn;
@@ -753,11 +956,15 @@ void py_pickup_aux(int o_idx)
 	{
 		if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
 		    (quest[i].status == QUEST_STATUS_TAKEN) &&
-			   (quest[i].k_idx == o_ptr->name1))
+		    (quest[i].k_idx == o_ptr->name1))
 		{
 			if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 			quest[i].status = QUEST_STATUS_COMPLETED;
 			quest[i].complev = (byte)p_ptr->lev;
+
+			/* Make a sound */
+			sound(SOUND_QUEST);
+
 #ifdef JP
 			msg_print("クエストを達成した！");
 #else
@@ -765,6 +972,37 @@ void py_pickup_aux(int o_idx)
 #endif
 
 			msg_print(NULL);
+			if (quest_is_fixed(i)) change_your_alignment_lnc(10);
+		}
+	}
+
+	/* Player found the "Runeweapon" finally! */
+	if (object_is_snapdragon_runeweapon(o_ptr))
+	{
+		runeweapon_type *runeweapon = &runeweapon_list[o_ptr->xtra3];
+		if (!(runeweapon->status & RW_STATUS_FOUND))
+		{
+			char t_name[MAX_NLEN];
+			runeweapon->status |= (RW_STATUS_FOUND);
+
+			object_desc(t_name, o_ptr, TRUE, 0);
+			if (runeweapon->ancestor[0])
+			{
+#ifdef JP
+				msg_format("%d階、先祖%sの魂を封じた%sをついに手に入れた！", dun_level, runeweapon->ancestor, t_name);
+#else
+				msg_format("You found %s spirit of ancestor %s sealed in finally on dungeon level %d!", t_name, runeweapon->ancestor, dun_level);
+#endif
+			}
+			else
+			{
+#ifdef JP
+				msg_format("%d階、ヴァレリアの覇者jnkの魂を封じた%sをついに手に入れた！", dun_level, t_name);
+#else
+				msg_format("You found %s spirit of jnk the Champion of Valeria sealed in finally on dungeon level %d!", t_name, dun_level);
+#endif
+			}
+			if (record_fix_art) do_cmd_write_nikki(NIKKI_ART, 0, t_name);
 		}
 	}
 }
@@ -820,16 +1058,8 @@ void carry(int pickup)
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
 
-#ifdef ALLOW_EASY_SENSE /* TNB */
-
-		/* Option: Make item sensing easy */
-		if (easy_sense)
-		{
-			/* Sense the object */
-			(void)sense_object(o_ptr);
-		}
-
-#endif /* ALLOW_EASY_SENSE -- TNB */
+		/* Sense the object */
+		sense_floor_object(this_o_idx);
 
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
@@ -845,13 +1075,16 @@ void carry(int pickup)
 		{
 			int value = (long)o_ptr->pval;
 
+			/* Collect the gold */
+			p_ptr->au[o_ptr->sval] += value;
+
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
 
 			/* Message */
 #ifdef JP
-		msg_format(" $%ld の価値がある%sを見つけた。",
-		           (long)value, o_name);
+			msg_format(" $%ld の価値がある%sを見つけた。",
+			           (long)value, o_name);
 #else
 			msg_format("You collect %ld gold pieces worth of %s.",
 				   (long)value, o_name);
@@ -860,8 +1093,8 @@ void carry(int pickup)
 
 			sound(SOUND_SELL);
 
-			/* Collect the gold */
-			p_ptr->au += value;
+			/* Update gold */
+			p_ptr->update |= (PU_GOLD);
 
 			/* Redraw gold */
 			p_ptr->redraw |= (PR_GOLD);
@@ -873,8 +1106,14 @@ void carry(int pickup)
 		/* Pick up objects */
 		else
 		{
+			/* Hack - some objects were handled in auto_pickup_items(). */
+			if (o_ptr->marked & OM_NOMSG)
+			{
+				/* Clear the flag. */
+				o_ptr->marked &= ~OM_NOMSG;
+			}
 			/* Describe the object */
-			if (!pickup)
+			else if (!pickup)
 
 			{
 #ifdef JP
@@ -941,9 +1180,6 @@ static int check_hit(int power)
 	/* Hack -- 5% hit, 5% miss */
 	if (k < 10) return (k < 5);
 
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
-		if (one_in_(20)) return (TRUE);
-
 	/* Paranoia -- No power */
 	if (power <= 0) return (FALSE);
 
@@ -962,7 +1198,7 @@ static int check_hit(int power)
 /*
  * Handle player hitting a real trap
  */
-static void hit_trap(bool break_trap)
+static void hit_trap(void)
 {
 	int i, num, dam;
 	int x = px, y = py;
@@ -999,10 +1235,12 @@ static void hit_trap(bool break_trap)
 			}
 			else
 			{
+				int  down_num;
+				bool upward_dun = (d_info[dungeon_type].flags1 & DF1_UPWARD) ? TRUE : FALSE;
+				int  dd, dm;
+
 #ifdef JP
 				msg_print("落し戸に落ちた！");
-				if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-					msg_print("くっそ〜！");
 #else
 				msg_print("You have fallen through a trap door!");
 #endif
@@ -1015,18 +1253,45 @@ static void hit_trap(bool break_trap)
 				name = "a trap door";
 #endif
 
-				take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+				take_hit(DAMAGE_NOESCAPE, dam, name);
 
 				/* Still alive and autosave enabled */
 				if (autosave_l && (p_ptr->chp >= 0))
 					do_cmd_save_game(TRUE);
 
 #ifdef JP
-				do_cmd_write_nikki(NIKKI_STAIR, 1, "落し戸に落ちた");
+				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "落し戸に落ちた");
 #else
-				do_cmd_write_nikki(NIKKI_STAIR, 1, "You have fallen through a trap door!");
+				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "You have fallen through a trap door!");
 #endif
-				dun_level++;
+				down_num = randint1(3);
+
+				if (upward_dun) dm = d_info[dungeon_type].mindepth;
+				else dm = d_info[dungeon_type].maxdepth;
+
+				for (i = 1; i < down_num; i++)
+				{
+					dd = dun_level + (upward_dun ? (0 - i) : i);
+					if ((!(upward_dun ^ astral_mode) && quest_number(dd)) || (dd == dm))
+					{
+						down_num = i;
+						break;
+					}
+				}
+
+				switch (down_num)
+				{
+				case 1:
+					prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					break;
+				case 2:
+					prepare_change_floor_mode(CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					break;
+				default:
+					dun_level += upward_dun ? (0 - down_num + 2) : (down_num - 2);
+					prepare_change_floor_mode(CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					break;
+				}
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -1060,7 +1325,7 @@ static void hit_trap(bool break_trap)
 				name = "a pit trap";
 #endif
 
-				take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+				take_hit(DAMAGE_NOESCAPE, dam, name);
 			}
 			break;
 		}
@@ -1079,7 +1344,7 @@ static void hit_trap(bool break_trap)
 			else
 			{
 #ifdef JP
-			msg_print("スパイクが敷かれた落し穴に落ちてしまった！");
+				msg_print("スパイクが敷かれた落し穴に落ちてしまった！");
 #else
 				msg_print("You fall into a spiked pit!");
 #endif
@@ -1115,7 +1380,7 @@ static void hit_trap(bool break_trap)
 				}
 
 				/* Take the damage */
-				take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+				take_hit(DAMAGE_NOESCAPE, dam, name);
 			}
 			break;
 		}
@@ -1188,7 +1453,7 @@ static void hit_trap(bool break_trap)
 				}
 
 				/* Take the damage */
-				take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+				take_hit(DAMAGE_NOESCAPE, dam, name);
 			}
 
 			break;
@@ -1203,7 +1468,7 @@ static void hit_trap(bool break_trap)
 #endif
 
 			c_ptr->info &= ~(CAVE_MARK);
-			cave_set_feat(y, x, floor_type[randint0(100)]);
+			cave_force_set_floor(y, x);
 			num = 2 + randint1(3);
 			for (i = 0; i < num; i++)
 			{
@@ -1232,7 +1497,13 @@ static void hit_trap(bool break_trap)
 			msg_print("You hit a teleport trap!");
 #endif
 
-			teleport_player(100);
+			if (p_ptr->earth_spike)
+#ifdef JP
+				msg_print("しかし効力を跳ね返した！");
+#else
+				msg_print("You resist the effects!");
+#endif
+			else teleport_player(100);
 			break;
 		}
 
@@ -1246,9 +1517,9 @@ static void hit_trap(bool break_trap)
 
 			dam = damroll(4, 6);
 #ifdef JP
-			(void)fire_dam(dam, "炎のトラップ", -1);
+			(void)fire_dam(dam, "炎のトラップ");
 #else
-			(void)fire_dam(dam, "a fire trap", -1);
+			(void)fire_dam(dam, "a fire trap");
 #endif
 
 			break;
@@ -1264,9 +1535,9 @@ static void hit_trap(bool break_trap)
 
 			dam = damroll(4, 6);
 #ifdef JP
-			(void)acid_dam(dam, "酸のトラップ", -1);
+			(void)acid_dam(dam, "酸のトラップ");
 #else
-			(void)acid_dam(dam, "an acid trap", -1);
+			(void)acid_dam(dam, "an acid trap");
 #endif
 
 			break;
@@ -1283,8 +1554,10 @@ static void hit_trap(bool break_trap)
 #endif
 
 				dam = damroll(1, 4);
-				take_hit(DAMAGE_ATTACK, dam, name, -1);
-				(void)set_slow(p_ptr->slow + randint0(20) + 20, FALSE);
+				ACTIVATE_MULTISHADOW();
+				take_hit(DAMAGE_ATTACK, dam, name);
+				if (!IS_MULTISHADOW(0)) (void)set_slow(p_ptr->slow + randint0(20) + 20, FALSE);
+				STOP_MULTISHADOW();
 			}
 			else
 			{
@@ -1309,13 +1582,14 @@ static void hit_trap(bool break_trap)
 #endif
 
 				dam = damroll(1, 4);
+				ACTIVATE_MULTISHADOW();
 #ifdef JP
-				take_hit(DAMAGE_ATTACK, dam, "ダーツの罠", -1);
+				take_hit(DAMAGE_ATTACK, dam, "ダーツの罠");
 #else
-				take_hit(DAMAGE_ATTACK, dam, "a dart trap", -1);
+				take_hit(DAMAGE_ATTACK, dam, "a dart trap");
 #endif
-
-				(void)do_dec_stat(A_STR);
+				if (!IS_MULTISHADOW(0)) (void)do_dec_stat(A_STR);
+				STOP_MULTISHADOW();
 			}
 			else
 			{
@@ -1340,13 +1614,14 @@ static void hit_trap(bool break_trap)
 #endif
 
 				dam = damroll(1, 4);
+				ACTIVATE_MULTISHADOW();
 #ifdef JP
-				take_hit(DAMAGE_ATTACK, dam, "ダーツの罠", -1);
+				take_hit(DAMAGE_ATTACK, dam, "ダーツの罠");
 #else
-				take_hit(DAMAGE_ATTACK, dam, "a dart trap", -1);
+				take_hit(DAMAGE_ATTACK, dam, "a dart trap");
 #endif
-
-				(void)do_dec_stat(A_DEX);
+				if (!IS_MULTISHADOW(0)) (void)do_dec_stat(A_DEX);
+				STOP_MULTISHADOW();
 			}
 			else
 			{
@@ -1371,13 +1646,14 @@ static void hit_trap(bool break_trap)
 #endif
 
 				dam = damroll(1, 4);
+				ACTIVATE_MULTISHADOW();
 #ifdef JP
-				take_hit(DAMAGE_ATTACK, dam, "ダーツの罠", -1);
+				take_hit(DAMAGE_ATTACK, dam, "ダーツの罠");
 #else
-				take_hit(DAMAGE_ATTACK, dam, "a dart trap", -1);
+				take_hit(DAMAGE_ATTACK, dam, "a dart trap");
 #endif
-
-				(void)do_dec_stat(A_CON);
+				if (!IS_MULTISHADOW(0)) (void)do_dec_stat(A_CON);
+				STOP_MULTISHADOW();
 			}
 			else
 			{
@@ -1486,10 +1762,10 @@ msg_print("まばゆい閃光が走った！");
 
 
 			/* Destroy this trap */
-			cave_set_feat(y, x, floor_type[randint0(100)]);
+			cave_force_set_floor(y, x);
 
 			/* Make some new traps */
-			project(0, 1, y, x, 0, GF_MAKE_TRAP, PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID, -1);
+			project(0, 1, y, x, 0, GF_MAKE_TRAP, PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID, MODIFY_ELEM_MODE_NONE);
 
 			break;
 		}
@@ -1506,15 +1782,81 @@ msg_print("まばゆい閃光が走った！");
 
 			break;
 		}
-	}
-	if (break_trap && is_trap(c_ptr->feat))
-	{
-		cave_set_feat(y, x, floor_type[randint0(100)]);
+
+		case FEAT_TRAP_OPEN:
+		{
 #ifdef JP
-		msg_print("トラップを粉砕した。");
+			msg_print("大音響と共にまわりの壁が崩れた！");
 #else
-		msg_print("You destroyed the trap.");
+			msg_print("Suddenly, surrounding walls are opened!");
 #endif
+			(void)project(0, 3, y, x, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, MODIFY_ELEM_MODE_NONE);
+			(void)project(0, 3, y, x - 4, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, MODIFY_ELEM_MODE_NONE);
+			(void)project(0, 3, y, x + 4, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, MODIFY_ELEM_MODE_NONE);
+			aggravate_monsters(0);
+
+			break;
+		}
+
+		case FEAT_TRAP_ARMAGEDDON:
+		{
+			static int levs[10] = {0, 0, 20, 10, 5, 3, 2, 1, 1, 1};
+
+			int lev;
+#ifdef JP
+			msg_print("突然天界の戦争に巻き込まれた！");
+#else
+			msg_print("Suddenly, you are surrounded by immotal beings!");
+#endif
+
+			/* Destroy this trap */
+			cave_force_set_floor(y, x);
+
+			/* Summon Demons and Angels */
+			for (lev = dun_level; lev >= 20; lev -= 1 + lev/16)
+			{
+				num = levs[MIN(lev/10, 9)];
+				for (i = 0; i < num; i++)
+				{
+					int x1 = rand_spread(x, 7);
+					int y1 = rand_spread(y, 5);
+
+					/* Skip illegal grids */
+					if (!in_bounds(y1, x1)) continue;
+
+					/* Require line of sight */
+					if (!player_has_los_bold(y1, x1)) continue;
+
+					(void)summon_specific(0, y1, x1, lev, SUMMON_DEMON, (PM_NO_PET));
+					(void)summon_specific(0, y1, x1, lev, SUMMON_ANGEL, (PM_NO_PET));
+				}
+			}
+			break;
+		}
+
+		case FEAT_TRAP_PIRANHA:
+		{
+#ifdef JP
+			msg_print("突然壁から水が溢れ出した！ピラニアがいる！");
+#else
+			msg_print("Suddenly, the room is filled with water with piranhas!");
+#endif
+
+			/* Destroy this trap */
+			cave_force_set_floor(y, x);
+
+			/* Water fills room */
+			fire_ball_hide(GF_WATER_FLOW, 0, 1, 10, FALSE);
+			set_aquatic_in_water();
+
+			/* Summon Piranhas */
+			num = 1 + dun_level/20;
+			for (i = 0; i < num; i++)
+			{
+				(void)summon_specific(0, y, x, dun_level, SUMMON_PIRANHAS, (PM_ALLOW_GROUP | PM_NO_PET));
+			}
+			break;
+		}
 	}
 }
 
@@ -1545,7 +1887,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			if (p_ptr->oppose_fire) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_fire) aura_damage = (aura_damage + 2) / 3;
 
-			take_hit(DAMAGE_NOESCAPE, aura_damage, aura_dam, -1);
+			take_hit(DAMAGE_NOESCAPE, aura_damage, aura_dam);
 			r_ptr->r_flags2 |= RF2_AURA_FIRE;
 			handle_stuff();
 		}
@@ -1572,7 +1914,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			if (p_ptr->oppose_cold) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_cold) aura_damage = (aura_damage + 2) / 3;
 
-			take_hit(DAMAGE_NOESCAPE, aura_damage, aura_dam, -1);
+			take_hit(DAMAGE_NOESCAPE, aura_damage, aura_dam);
 			r_ptr->r_flags3 |= RF3_AURA_COLD;
 			handle_stuff();
 		}
@@ -1598,7 +1940,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			msg_print("You get zapped!");
 #endif
 
-			take_hit(DAMAGE_NOESCAPE, aura_damage, aura_dam, -1);
+			take_hit(DAMAGE_NOESCAPE | DAMAGE_ELEC, aura_damage, aura_dam);
 			r_ptr->r_flags2 |= RF2_AURA_ELEC;
 			handle_stuff();
 		}
@@ -1617,6 +1959,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	int             dss, ddd;
 
 	cptr            atk_desc;
+
+	int ac = r_ptr->ac;
+
+	if (m_ptr->stoning) ac += m_ptr->stoning / 5;
 
 	switch (attack)
 	{
@@ -1693,9 +2039,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	bonus = p_ptr->to_h_m;
 	bonus += (p_ptr->lev * 6 / 5);
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+	if (chance > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN)) chance = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN;
 
 	/* Test for hit */
-	if ((!(r_ptr->flags2 & RF2_QUANTUM) || !randint0(2)) && test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+	if (test_hit_norm(chance, ac, m_ptr->ml))
 	{
 		/* Sound */
 		sound(SOUND_HIT);
@@ -1719,17 +2066,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Modify the damage */
 		k = mon_damage_mod(m_ptr, k, FALSE);
 
-		/* Complex message */
-		if (p_ptr->wizard)
-		{
-#ifdef JP
-				msg_format("%d/%d のダメージを与えた。", k, m_ptr->hp);
-#else
-			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-#endif
-
-		}
-
 		/* Anger the monster */
 		if (k > 0) anger_monster(m_ptr);
 
@@ -1737,23 +2073,28 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		switch (attack)
 		{
 			case MUT2_SCOR_TAIL:
-				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL | PROJECT_NO_REF, -1);
+				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL, MODIFY_ELEM_MODE_MELEE);
 				*mdeath = (m_ptr->r_idx == 0);
 				break;
 			case MUT2_HORNS:
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				k = modify_dam_by_elem(0, m_idx, k, GF_MISSILE, MODIFY_ELEM_MODE_MELEE);
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL, FALSE);
 				break;
 			case MUT2_BEAK:
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				k = modify_dam_by_elem(0, m_idx, k, GF_MISSILE, MODIFY_ELEM_MODE_MELEE);
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL, FALSE);
 				break;
 			case MUT2_TRUNK:
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				k = modify_dam_by_elem(0, m_idx, k, GF_MISSILE, MODIFY_ELEM_MODE_MELEE);
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL, FALSE);
 				break;
 			case MUT2_TENTACLES:
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				k = modify_dam_by_elem(0, m_idx, k, GF_MISSILE, MODIFY_ELEM_MODE_MELEE);
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL, FALSE);
 				break;
 			default:
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				k = modify_dam_by_elem(0, m_idx, k, GF_MISSILE, MODIFY_ELEM_MODE_MELEE);
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL, FALSE);
 		}
 
 		touch_zap_player(m_ptr);
@@ -1790,17 +2131,19 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
+	int ac = r_ptr->ac;
+
 	object_type     *o_ptr;
+	object_type     dummy_for_octopus;
+	int             slot = hand_to_inventory(hand);
 
 	char            m_name[80];
 
 	bool            success_hit = FALSE;
-	bool            old_success_hit = FALSE;
 	bool            backstab = FALSE;
-	bool            vorpal_cut = FALSE;
+	bool            vorpal_cut;
 	int             chaos_effect = 0;
 	bool            stab_fleeing = FALSE;
-	bool            fuiuchi = FALSE;
 	bool            do_quake = FALSE;
 	bool            weak = FALSE;
 	bool            drain_msg = TRUE;
@@ -1808,69 +2151,26 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            can_drain = FALSE;
 	int             num_blow;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
-	u32b            f1, f2, f3; /* A massive hack -- life-draining weapons */
+	u32b            flgs[TR_FLAG_SIZE]; /* A massive hack -- life-draining weapons */
 	bool            is_human = (r_ptr->d_char == 'p');
-	bool            is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
-	bool            zantetsu_mukou, e_j_mukou;
+	bool            dragoon_hit = ((p_ptr->pclass == CLASS_DRAGOON) && (r_ptr->flags3 & RF3_DRAGON));
 
 
 
-	if (((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA)) && inventory[INVEN_RARM+hand].tval)
+	if (m_ptr->stoning) ac += m_ptr->stoning / 5;
+	if (mode == PY_ATTACK_PENET) penet_ac = ac;
+	else if (penet_ac) ac += penet_ac;
+
+	if ((p_ptr->pclass == CLASS_NINJA) && inventory[slot].tval)
 	{
-		int tmp = p_ptr->lev*6+(p_ptr->skill_stl+10)*4;
-		if (p_ptr->monlite && (mode != HISSATSU_NYUSIN)) tmp /= 3;
-		if (p_ptr->cursed & TRC_AGGRAVATE) tmp /= 2;
-		if (r_ptr->level > (p_ptr->lev*p_ptr->lev/20+10)) tmp /= 3;
 		if (m_ptr->csleep && m_ptr->ml)
 		{
 			/* Can't backstab creatures that we can't see, right? */
 			backstab = TRUE;
 		}
-		else if ((p_ptr->special_defense & NINJA_S_STEALTH) && (randint0(tmp) > (r_ptr->level+20)) && m_ptr->ml && !(r_ptr->flags3 & RF3_RES_ALL))
-		{
-			fuiuchi = TRUE;
-		}
 		else if (m_ptr->monfear && m_ptr->ml)
 		{
 			stab_fleeing = TRUE;
-		}
-	}
-
-	if(!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
-	{
-		if ((r_ptr->level + 10) > p_ptr->lev)
-		{
-			if (p_ptr->skill_exp[GINOU_SUDE] < s_info[p_ptr->pclass].s_max[GINOU_SUDE])
-			{
-				if (p_ptr->skill_exp[GINOU_SUDE] < 4000)
-					p_ptr->skill_exp[GINOU_SUDE]+=40;
-				else if((p_ptr->skill_exp[GINOU_SUDE] < 6000))
-					p_ptr->skill_exp[GINOU_SUDE]+=5;
-				else if((p_ptr->skill_exp[GINOU_SUDE] < 7000) && (p_ptr->lev > 19))
-					p_ptr->skill_exp[GINOU_SUDE]+=1;
-				else if((p_ptr->skill_exp[GINOU_SUDE] < 8000) && (p_ptr->lev > 34))
-					if (one_in_(3)) p_ptr->skill_exp[GINOU_SUDE]+=1;
-				p_ptr->update |= (PU_BONUS);
-			}
-		}
-	}
-	else
-	{
-		if ((r_ptr->level + 10) > p_ptr->lev)
-		{
-			int tval = inventory[INVEN_RARM+hand].tval - TV_BOW;
-			int sval = inventory[INVEN_RARM+hand].sval;
-			int now_exp = p_ptr->weapon_exp[tval][sval];
-			if (now_exp < s_info[p_ptr->pclass].w_max[tval][sval])
-			{
-				int amount = 0;
-				if (now_exp < 4000) amount = 80;
-				else if(now_exp < 6000) amount = 10;
-				else if((now_exp < 7000) && (p_ptr->lev > 19)) amount = 1;
-				else if((p_ptr->lev > 34) && one_in_(2)) amount = 1;
-				p_ptr->weapon_exp[tval][sval] += amount;
-				p_ptr->update |= (PU_BONUS);
-			}
 		}
 	}
 
@@ -1883,57 +2183,41 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Access the weapon */
-	o_ptr = &inventory[INVEN_RARM+hand];
+	if (prace_is_(RACE_OCTOPUS))
+	{
+		o_ptr = &dummy_for_octopus;
+		object_wipe(o_ptr);
+	}
+	else o_ptr = &inventory[slot];
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h[hand] + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-	if (mode == HISSATSU_IAI) chance += 60;
-	if (p_ptr->special_defense & KATA_KOUKIJIN) chance += 150;
+	if (chance > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN)) chance = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN;
 
-	if (p_ptr->sutemi) chance = MAX(chance * 3 / 2, chance + 60);
-
-	vir = virtue_number(V_VALOUR);
-	if (vir)
+	if ((mode == PY_ATTACK_MINEUCHI) || (mode == PY_ATTACK_3DAN)) num_blow = 1;
+	else
 	{
-		chance += (p_ptr->virtues[vir - 1]/10);
+		num_blow = p_ptr->num_blow[hand];
+		if (mode == PY_ATTACK_CHARGE)
+		{
+			num_blow /= 2;
+			if (!num_blow) num_blow = 1;
+		}
 	}
-
-	zantetsu_mukou = ((o_ptr->name1 == ART_ZANTETSU) && (r_ptr->d_char == 'j'));
-	e_j_mukou = ((o_ptr->name1 == ART_EXCALIBUR_J) && (r_ptr->d_char == 'S'));
-
-	if ((mode == HISSATSU_KYUSHO) || (mode == HISSATSU_MINEUCHI) || (mode == HISSATSU_3DAN) || (mode == HISSATSU_IAI)) num_blow = 1;
-	else if (mode == HISSATSU_COLD) num_blow = p_ptr->num_blow[hand]+2;
-	else num_blow = p_ptr->num_blow[hand];
 
 	/* Attack once for each legal blow */
 	while ((num++ < num_blow) && !p_ptr->is_dead)
 	{
-		if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
-		{
-			if (p_ptr->migite && p_ptr->hidarite)
-			{
-				success_hit = one_in_(2);
-			}
-			else success_hit = TRUE;
-		}
-		else if (mode == HISSATSU_MAJIN)
-		{
-			if (num == 1)
-			{
-				if (one_in_(2))
-					success_hit = FALSE;
-				old_success_hit = success_hit;
-			}
-			else success_hit = old_success_hit;
-		}
-		else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flags3 & RF3_RES_ALL))) success_hit = TRUE;
-		else success_hit = test_hit_norm(chance, r_ptr->ac, m_ptr->ml);
+		if ((p_ptr->pclass == CLASS_NINJA) && backstab) success_hit = TRUE;
+		else success_hit = test_hit_norm(chance, ac, m_ptr->ml);
 
 		/* Test for hit */
 		if (success_hit)
 		{
-			int vorpal_chance = ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD)) ? 2 : 4;
+			int vorpal_chance;
+			int vorpal_mult;
+			int ma_special_effect = 0, ma_stun_effect = 0, ma_resist_stun = 0;
 
 			/* Sound */
 			sound(SOUND_HIT);
@@ -1947,14 +2231,6 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 #endif
 
 				    m_name);
-			else if (fuiuchi)
-#ifdef JP
-				msg_format("不意を突いて%sに強烈な一撃を喰らわせた！",
-#else
-				msg_format("You make surprise attack, and hit %s with a powerful blow!",
-#endif
-
-				    m_name);
 			else if (stab_fleeing)
 #ifdef JP
 				msg_format("逃げる%sを背中から突き刺した！",
@@ -1965,9 +2241,9 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				    m_name);
 			else
 			{
-				if (!(((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1)))
+				if (!(empty_hands() & EMPTY_HAND_RARM) && !prace_is_(RACE_OCTOPUS))
 #ifdef JP
-			msg_format("%sを攻撃した。", m_name);
+					msg_format("%sを攻撃した。", m_name);
 #else
 					msg_format("You hit %s.", m_name);
 #endif
@@ -1977,14 +2253,13 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, flgs);
+
+			vorpal_chance = have_flag(flgs, TR_EXTRA_VORPAL) ? 2 : 4;
 
 			/* Select a chaotic effect (50% chance) */
-			if ((f1 & TR1_CHAOTIC) && one_in_(2))
+			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(2))
 			{
-				if (one_in_(10))
-				chg_virtue(V_CHANCE, 1);
-
 				if (randint1(5) < 3)
 				{
 					/* Vampiric (20%) */
@@ -2010,10 +2285,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					/* Polymorph (1.494%) */
 					chaos_effect = 5;
 				}
+
+				change_your_alignment_lnc(-1);
 			}
 
 			/* Vampiric drain */
-			if ((f1 & TR1_VAMPIRIC) || (chaos_effect == 1) || (mode == HISSATSU_DRAIN))
+			if ((have_flag(flgs, TR_VAMPIRIC)) || (chaos_effect == 1))
 			{
 				/* Only drain "living" monsters */
 				if (monster_living(r_ptr))
@@ -2022,47 +2299,59 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					can_drain = FALSE;
 			}
 
-			if ((f1 & TR1_VORPAL) && (randint1(vorpal_chance*3/2) == 1) && !zantetsu_mukou)
-				vorpal_cut = TRUE;
-			else vorpal_cut = FALSE;
-
-			if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
+			vorpal_cut = FALSE;
+			if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_EXTRA_VORPAL))
 			{
-				int special_effect = 0, stun_effect = 0, times = 0, max_times;
-				int min_level = 1;
+				if (randint1(vorpal_chance * 3 / 2) == 1) 
+				{
+					if (mode != PY_ATTACK_MINEUCHI) vorpal_cut = TRUE;
+				}
+			}
+
+			if ((empty_hands() & EMPTY_HAND_RARM) || prace_is_(RACE_OCTOPUS))
+			{
+				int times = 0, max_times;
 				martial_arts *ma_ptr = &ma_blows[0], *old_ptr = &ma_blows[0];
-				int resist_stun = 0;
 				int weight = 8;
 
-				if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
-				if (r_ptr->flags3 & RF3_NO_STUN) resist_stun += 66;
-				if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 33;
-				if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 33;
-				if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
-					resist_stun += 66;
+				if (prace_is_(RACE_OCTOPUS))
+				{
+					ma_ptr = &octopus_ma_blows[0];
+					old_ptr = &octopus_ma_blows[0];
+				}
 
-				if (p_ptr->special_defense & KAMAE_BYAKKO)
-					max_times = (p_ptr->lev < 3 ? 1 : p_ptr->lev / 3);
-				else if (p_ptr->special_defense & KAMAE_SUZAKU)
-					max_times = 1;
-				else if (p_ptr->special_defense & KAMAE_GENBU)
-					max_times = 1;
-				else
-					max_times = (p_ptr->lev < 7 ? 1 : p_ptr->lev / 7);
+				if (r_ptr->flags1 & RF1_UNIQUE) ma_resist_stun += 88;
+				if (r_ptr->flags3 & RF3_NO_STUN) ma_resist_stun += 66;
+				if (r_ptr->flags3 & RF3_NO_CONF) ma_resist_stun += 33;
+				if (r_ptr->flags3 & RF3_NO_SLEEP) ma_resist_stun += 33;
+				if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
+					ma_resist_stun += 66;
+
+				max_times = (p_ptr->lev < 7 ? 1 : p_ptr->lev / 7);
 				/* Attempt 'times' */
 				for (times = 0; times < max_times; times++)
 				{
-					do
+					if (prace_is_(RACE_OCTOPUS))
 					{
-						ma_ptr = &ma_blows[randint0(MAX_MA)];
-						if ((p_ptr->pclass == CLASS_FORCETRAINER) && (ma_ptr->min_level > 1)) min_level = ma_ptr->min_level + 3;
-						else min_level = ma_ptr->min_level;
+						do
+						{
+							ma_ptr = &octopus_ma_blows[randint0(MAX_OCTOPUS_MA)];
+						}
+						while ((ma_ptr->min_lev > p_ptr->lev) ||
+						       (randint1(p_ptr->lev) < ma_ptr->chance));
 					}
-					while ((min_level > p_ptr->lev) ||
-					       (randint1(p_ptr->lev) < ma_ptr->chance));
+					else
+					{
+						do
+						{
+							ma_ptr = &ma_blows[randint0(MAX_MA)];
+						}
+						while ((ma_ptr->min_lev > (int)p_ptr->misc_skill_lev[SKILL_MARTIAL_ARTS]) ||
+						       (randint1(p_ptr->lev) < ma_ptr->chance));
+					}
 
 					/* keep the highest level attack available we found */
-					if ((ma_ptr->min_level > old_ptr->min_level) &&
+					if ((ma_ptr->min_lev > old_ptr->min_lev) &&
 					    !p_ptr->stun && !p_ptr->confused)
 					{
 						old_ptr = ma_ptr;
@@ -2083,10 +2372,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					}
 				}
 
-				if (p_ptr->pclass == CLASS_FORCETRAINER) min_level = MAX(1, ma_ptr->min_level - 3);
-				else min_level = ma_ptr->min_level;
 				k = damroll(ma_ptr->dd, ma_ptr->ds);
-				if (p_ptr->special_attack & ATTACK_SUIKEN) k *= 2;
 
 				if (ma_ptr->effect == MA_KNEE)
 				{
@@ -2099,16 +2385,15 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 #endif
 
 						sound(SOUND_PAIN);
-						special_effect = MA_KNEE;
+						ma_special_effect = MA_KNEE;
 					}
 					else
 						msg_format(ma_ptr->desc, m_name);
 				}
-
 				else if (ma_ptr->effect == MA_SLOW)
 				{
 					if (!((r_ptr->flags1 & RF1_NEVER_MOVE) ||
-					    strchr("~#{}.UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
+					    strchr("~#{}.UjmeEv$,DdsbBIJQSXclnw!=?", r_ptr->d_char)))
 					{
 #ifdef JP
 						msg_format("%sの足首に関節蹴りをくらわした！", m_name);
@@ -2116,7 +2401,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						msg_format("You kick %s in the ankle.", m_name);
 #endif
 
-						special_effect = MA_SLOW;
+						ma_special_effect = MA_SLOW;
 					}
 					else msg_format(ma_ptr->desc, m_name);
 				}
@@ -2124,22 +2409,243 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					if (ma_ptr->effect)
 					{
-						stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
+						ma_stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
 					}
 
 					msg_format(ma_ptr->desc, m_name);
 				}
 
-				if (p_ptr->special_defense & KAMAE_SUZAKU) weight = 4;
-				if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
+				k = critical_norm(p_ptr->lev * weight, p_ptr->lev, k, p_ptr->to_h[0], 0);
+			}
+
+			/* Handle normal weapon */
+			else if (o_ptr->k_idx)
+			{
+				k = damroll(o_ptr->dd + p_ptr->to_dd[hand], o_ptr->ds + p_ptr->to_ds[hand]);
+				k = tot_dam_aux(o_ptr, k, m_ptr, TRUE);
+
+				if (backstab)
 				{
-					weight += (p_ptr->magic_num1[0]/30);
-					if (weight > 20) weight = 20;
+					k *= (3 + (p_ptr->lev / 20));
+				}
+				else if (stab_fleeing)
+				{
+					k = (3 * k) / 2;
 				}
 
-				k = critical_norm(p_ptr->lev * weight, min_level, k, p_ptr->to_h[0], 0);
+				if ((p_ptr->impact[hand] && ((k > 50) || one_in_(7))) ||
+					 (chaos_effect == 2))
+				{
+					do_quake = TRUE;
+				}
 
-				if ((special_effect == MA_KNEE) && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
+
+				drain_result = k;
+
+				if (vorpal_cut)
+				{
+					vorpal_mult = 2;
+
+					/* Try to increase the damage */
+					while (one_in_(vorpal_chance))
+					{
+						vorpal_mult++;
+					}
+
+					k *= vorpal_mult;
+					drain_result = drain_result * 3 / 2;
+				}
+
+				k += o_ptr->to_d;
+				drain_result += o_ptr->to_d;
+			}
+
+			/* Hack -- Handle bare hands slaying */
+			else
+			{
+				switch (p_ptr->pclass)
+				{
+				case CLASS_DRAGOON:
+					if (r_ptr->flags3 & RF3_DRAGON)
+					{
+						k *= 5;
+						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;
+					}
+					break;
+				case CLASS_EXORCIST:
+					if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON))
+					{
+						k *= 3;
+						if (m_ptr->ml)
+						{
+							if (r_ptr->flags3 & RF3_UNDEAD) r_ptr->r_flags3 |= RF3_UNDEAD;
+							if (r_ptr->flags3 & RF3_DEMON) r_ptr->r_flags3 |= RF3_DEMON;
+						}
+					}
+					break;
+				}
+			}
+
+			/* Apply the player damage bonuses */
+			k += p_ptr->to_d[hand];
+			drain_result += p_ptr->to_d[hand];
+
+			if (mode == PY_ATTACK_3DAN) k *= 2;
+
+			/* No negative damage */
+			if (k < 0) k = 0;
+
+			if (mode == PY_ATTACK_MINEUCHI) k = 0;
+
+			/* Modify the damage */
+			k = mon_damage_mod(m_ptr, k, (bool)((p_ptr->pclass == CLASS_TERRORKNIGHT) && one_in_(2)));
+
+			if (o_ptr->k_idx)
+			{
+				if (k > 0) k = k * 10 / tot_dam_div(o_ptr, m_ptr, TRUE);
+
+				if (((p_ptr->pclass == CLASS_NINJA) && !p_ptr->icky_wield[hand]
+					 && ((p_ptr->cur_lite <= 0) || one_in_(7))) || dragoon_hit)
+				{
+					int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+#ifdef JP
+					bool is_hafted = (o_ptr->tval == TV_HAFTED);
+#endif
+
+					if (one_in_(backstab ? 13 : (stab_fleeing ? 15 : 27)))
+					{
+						k *= 5;
+						drain_result *= 2;
+#ifdef JP
+						if (is_hafted) msg_format("%sに深々とめり込んだ！", m_name);
+						else msg_format("刃が%sに深々と突き刺さった！", m_name);
+#else
+						msg_format("You critically injured %s!", m_name);
+#endif
+					}
+					else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*10)) || ((one_in_(666) || (backstab && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
+					{
+						if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || (m_ptr->hp >= maxhp/2))
+						{
+							k = MAX(k*5, m_ptr->hp/2);
+							drain_result *= 2;
+#ifdef JP
+							msg_format("%sに致命傷を負わせた！", m_name);
+#else
+							msg_format("You fatally injured %s!", m_name);
+#endif
+						}
+						else
+						{
+							k = MAX(k, m_ptr->hp + 1);
+#ifdef JP
+							if (is_hafted) msg_format("%sの急所を直撃した！", m_name);
+							else msg_format("刃が%sの急所を貫いた！", m_name);
+#else
+							msg_format("You hit %s on a fatal spot!", m_name);
+#endif
+						}
+					}
+				}
+			}
+
+			k = modify_dam_by_elem(0, c_ptr->m_idx, k, GF_MISSILE, MODIFY_ELEM_MODE_MELEE);
+
+			if (vorpal_cut)
+			{
+#ifdef JP
+				msg_format("%sをグッサリ切り裂いた！", m_name);
+#else
+				msg_format("Your weapon cuts deep into %s!", m_name);
+#endif
+
+				/* Ouch! */
+				if (k > m_ptr->hp)
+				{
+#ifdef JP
+					msg_format("%sを真っ二つにした！", m_name);
+#else
+					msg_format("You cut %s in half!", m_name);
+#endif
+
+				}
+				else
+				{
+					switch (vorpal_mult)
+					{
+#ifdef JP
+						case 2:	msg_format("%sを斬った！", m_name);		break;
+#else
+						case 2:	msg_format("You gouge %s!", m_name);		break;
+#endif
+
+#ifdef JP
+						case 3:	msg_format("%sをぶった斬った！", m_name);			break;
+#else
+						case 3:	msg_format("You maim %s!", m_name);			break;
+#endif
+
+#ifdef JP
+						case 4:	msg_format("%sをメッタ斬りにした！", m_name);		break;
+#else
+						case 4:	msg_format("You carve %s!", m_name);		break;
+#endif
+
+#ifdef JP
+						case 5:	msg_format("%sをメッタメタに斬った！", m_name);		break;
+#else
+						case 5:	msg_format("You cleave %s!", m_name);		break;
+#endif
+
+#ifdef JP
+						case 6:	msg_format("%sを刺身にした！", m_name);		break;
+#else
+						case 6:	msg_format("You smite %s!", m_name);		break;
+#endif
+
+#ifdef JP
+						case 7:	msg_format("%sを斬って斬って斬りまくった！", m_name);	break;
+#else
+						case 7:	msg_format("You eviscerate %s!", m_name);	break;
+#endif
+
+#ifdef JP
+						default:	msg_format("%sを細切れにした！", m_name);		break;
+#else
+						default:	msg_format("You shred %s!", m_name);		break;
+#endif
+					}
+				}
+			}
+
+			if (k <= 0) can_drain = FALSE;
+
+			if (drain_result > m_ptr->hp)
+				drain_result = m_ptr->hp;
+
+			/* Damage, check for fear and death */
+			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL, FALSE))
+			{
+				*mdeath = TRUE;
+				if ((p_ptr->pclass == CLASS_TERRORKNIGHT) && energy_use)
+				{
+					if (p_ptr->migite && p_ptr->hidarite)
+					{
+						if (hand) energy_use = energy_use*3/5+energy_use*num*2/(p_ptr->num_blow[hand]*5);
+						else energy_use = energy_use*num*3/(p_ptr->num_blow[hand]*5);
+					}
+					else
+					{
+						energy_use = energy_use*num/p_ptr->num_blow[hand];
+					}
+				}
+
+				break;
+			}
+			else
+			{
+				if (ma_special_effect == MA_KNEE)
 				{
 #ifdef JP
 					msg_format("%^sは苦痛にうめいている！", m_name);
@@ -2147,11 +2653,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					msg_format("%^s moans in agony!", m_name);
 #endif
 
-					stun_effect = 7 + randint1(13);
-					resist_stun /= 3;
+					ma_stun_effect = 7 + randint1(13);
+					ma_resist_stun /= 3;
 				}
-
-				else if ((special_effect == MA_SLOW) && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
+				else if (ma_special_effect == MA_SLOW)
 				{
 					if (!(r_ptr->flags1 & RF1_UNIQUE) &&
 					    (randint1(p_ptr->lev) > r_ptr->level) &&
@@ -2167,9 +2672,9 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					}
 				}
 
-				if (stun_effect && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
+				if (ma_stun_effect)
 				{
-					if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
+					if (p_ptr->lev > randint1(r_ptr->level + ma_resist_stun + 10))
 					{
 						if (m_ptr->stunned)
 #ifdef JP
@@ -2185,329 +2690,51 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 							msg_format("%^s is stunned.", m_name);
 #endif
 
-
-						m_ptr->stunned += stun_effect;
-					}
-				}
-			}
-
-			/* Handle normal weapon */
-			else if (o_ptr->k_idx)
-			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				if (p_ptr->riding)
-				{
-					if((o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
-					{
-						k += damroll(2, o_ptr->ds);
+						m_ptr->stunned += ma_stun_effect;
 					}
 				}
 
-				k = tot_dam_aux(o_ptr, k, m_ptr, mode);
-
-				if (backstab)
+				if ((mode == PY_ATTACK_MINEUCHI) ||
+					(o_ptr->k_idx && (o_ptr->name2 == EGO_EARTHQUAKES)))
 				{
-					k *= (3 + (p_ptr->lev / 20));
-				}
-				else if (fuiuchi)
-				{
-					k = k*(5+(p_ptr->lev*2/25))/2;
-				}
-				else if (stab_fleeing)
-				{
-					k = (3 * k) / 2;
-				}
+					int tmp = (10 + randint1(15) + p_ptr->lev / 5);
 
-				if ((p_ptr->impact[hand] && ((k > 50) || one_in_(7))) ||
-					 (chaos_effect == 2) || (mode == HISSATSU_QUAKE))
-				{
-					do_quake = TRUE;
-				}
+					anger_monster(m_ptr);
 
-				if ((!(o_ptr->tval == TV_SWORD) || !(o_ptr->sval == SV_DOKUBARI)) && !(mode == HISSATSU_KYUSHO))
-					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
-
-				drain_result = k;
-
-				if (vorpal_cut)
-				{
-					int mult = 2;
-
-					if ((o_ptr->name1 == ART_CHAINSWORD) && !one_in_(2))
+					if (!(r_ptr->flags3 & (RF3_NO_STUN)))
 					{
-						char chainsword_noise[1024];
-#ifdef JP
-       if (!get_rnd_line("chainswd_j.txt", 0, chainsword_noise))
-#else
-						if (!get_rnd_line("chainswd.txt", 0, chainsword_noise))
-#endif
-
-						{
-							msg_print(chainsword_noise);
-						}
-					}
-
-					if (o_ptr->name1 == ART_VORPAL_BLADE)
-					{
-#ifdef JP
-						msg_print("目にも止まらぬボーパル・ブレード、手錬の早業！");
-#else
-						msg_print("Your Vorpal Blade goes snicker-snack!");
-#endif
-
-					}
-					else
-					{
-#ifdef JP
-						msg_format("%sをグッサリ切り裂いた！", m_name);
-#else
-						msg_format("Your weapon cuts deep into %s!", m_name);
-#endif
-
-					}
-
-					/* Try to increase the damage */
-					while (one_in_(vorpal_chance))
-					{
-						mult++;
-					}
-
-					k *= mult;
-
-					/* Ouch! */
-					if (((r_ptr->flags3 & RF3_RES_ALL) ? k/100 : k) > m_ptr->hp)
-					{
-#ifdef JP
-						msg_format("%sを真っ二つにした！", m_name);
-#else
-						msg_format("You cut %s in half!", m_name);
-#endif
-
-					}
-					else
-					{
-						switch(mult)
+						/* Get stunned */
+						if (m_ptr->stunned)
 						{
 #ifdef JP
-case 2:	msg_format("%sを斬った！", m_name);		break;
+							msg_format("%sはひどくもうろうとした。", m_name);
 #else
-							case 2:	msg_format("You gouge %s!", m_name);		break;
+							msg_format("%s is more dazed.", m_name);
 #endif
 
-#ifdef JP
-case 3:	msg_format("%sをぶった斬った！", m_name);			break;
-#else
-							case 3:	msg_format("You maim %s!", m_name);			break;
-#endif
-
-#ifdef JP
-case 4:	msg_format("%sをメッタ斬りにした！", m_name);		break;
-#else
-							case 4:	msg_format("You carve %s!", m_name);		break;
-#endif
-
-#ifdef JP
-case 5:	msg_format("%sをメッタメタに斬った！", m_name);		break;
-#else
-							case 5:	msg_format("You cleave %s!", m_name);		break;
-#endif
-
-#ifdef JP
-case 6:	msg_format("%sを刺身にした！", m_name);		break;
-#else
-							case 6:	msg_format("You smite %s!", m_name);		break;
-#endif
-
-#ifdef JP
-case 7:	msg_format("%sを斬って斬って斬りまくった！", m_name);	break;
-#else
-							case 7:	msg_format("You eviscerate %s!", m_name);	break;
-#endif
-
-#ifdef JP
-default:	msg_format("%sを細切れにした！", m_name);		break;
-#else
-							default:	msg_format("You shred %s!", m_name);		break;
-#endif
-
+							tmp /= 2;
 						}
+						else
+						{
+#ifdef JP
+							msg_format("%sはもうろうとした。", m_name);
+#else
+							msg_format("%s is dazed.", m_name);
+#endif
+						}
+
+						/* Apply stun */
+						m_ptr->stunned = MIN(m_ptr->stunned + tmp, 200);
 					}
-					drain_result = drain_result * 3 / 2;
-				}
-
-				k += o_ptr->to_d;
-				drain_result += o_ptr->to_d;
-			}
-
-			/* Apply the player damage bonuses */
-			k += p_ptr->to_d[hand];
-			drain_result += p_ptr->to_d[hand];
-
-			if ((mode == HISSATSU_SUTEMI) || (mode == HISSATSU_3DAN)) k *= 2;
-			if ((mode == HISSATSU_SEKIRYUKA) && (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON | RF3_NONLIVING))) k = 0;
-			if ((mode == HISSATSU_SEKIRYUKA) && !p_ptr->cut) k /= 2;
-
-			/* No negative damage */
-			if (k < 0) k = 0;
-
-			if ((mode == HISSATSU_ZANMA) && !((r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)) && (r_ptr->flags3 & RF3_EVIL)))
-			{
-				k = 0;
-			}
-
-			if (zantetsu_mukou)
-			{
-#ifdef JP
-				msg_print("こんな軟らかいものは切れん！");
-#else
-				msg_print("You cannot cut such a elastic thing!");
-#endif
-				k = 0;
-			}
-
-			if (e_j_mukou)
-			{
-#ifdef JP
-				msg_print("蜘蛛は苦手だ！");
-#else
-				msg_print("Spiders are difficult for you to deal with!");
-#endif
-				k /= 2;
-			}
-
-			if (mode == HISSATSU_MINEUCHI)
-			{
-				int tmp = (10 + randint1(15) + p_ptr->lev / 5);
-
-				k = 0;
-				anger_monster(m_ptr);
-
-				if (!(r_ptr->flags3 & (RF3_NO_STUN)))
-				{
-					/* Get stunned */
-					if (m_ptr->stunned)
+					else if (mode == PY_ATTACK_MINEUCHI)
 					{
 #ifdef JP
-msg_format("%sはひどくもうろうとした。", m_name);
-#else
-						msg_format("%s is more dazed.", m_name);
-#endif
-
-						tmp /= 2;
-					}
-					else
-					{
-#ifdef JP
-msg_format("%s はもうろうとした。", m_name);
-#else
-						msg_format("%s is dazed.", m_name);
-#endif
-					}
-
-					/* Apply stun */
-					m_ptr->stunned = (tmp < 200) ? tmp : 200;
-				}
-				else
-				{
-#ifdef JP
-msg_format("%s には効果がなかった。", m_name);
+						msg_format("%sには効果がなかった。", m_name);
 #else
 						msg_format("%s is not effected.", m_name);
 #endif
-				}
-			}
-
-			/* Modify the damage */
-			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_BERSERKER) && one_in_(2))));
-			if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
-			{
-				if ((randint1(randint1(r_ptr->level/7)+5) == 1) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
-				{
-					k = m_ptr->hp + 1;
-#ifdef JP
-msg_format("%sの急所を突き刺した！", m_name);
-#else
-					msg_format("You hit %s on a fatal spot!", m_name);
-#endif
-				}
-				else k = 1;
-			}
-			else if ((p_ptr->pclass == CLASS_NINJA) && (!p_ptr->icky_wield[hand]) && ((p_ptr->cur_lite <= 0) || one_in_(7)))
-			{
-				int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
-				if (one_in_(backstab ? 13 : (stab_fleeing || fuiuchi) ? 15 : 27))
-				{
-					k *= 5;
-					drain_result *= 2;
-#ifdef JP
-msg_format("刃が%sに深々と突き刺さった！", m_name);
-#else
-					msg_format("You critically injured %s!", m_name);
-#endif
-				}
-				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*10)) || ((one_in_(666) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
-				{
-					if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || (m_ptr->hp >= maxhp/2))
-					{
-						k = MAX(k*5, m_ptr->hp/2);
-						drain_result *= 2;
-#ifdef JP
-msg_format("%sに致命傷を負わせた！", m_name);
-#else
-					msg_format("You fatally injured %s!", m_name);
-#endif
-					}
-					else
-					{
-						k = m_ptr->hp + 1;
-#ifdef JP
-msg_format("刃が%sの急所を貫いた！", m_name);
-#else
-					msg_format("You hit %s on a fatal spot!", m_name);
-#endif
 					}
 				}
-			}
-
-			/* Complex message */
-			if (p_ptr->wizard || cheat_xtra)
-			{
-#ifdef JP
-				msg_format("%d/%d のダメージを与えた。", k, m_ptr->hp);
-#else
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-#endif
-
-			}
-
-			if (k <= 0) can_drain = FALSE;
-
-			if (drain_result > m_ptr->hp)
-			        drain_result = m_ptr->hp;
-
-			/* Damage, check for fear and death */
-			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
-			{
-				*mdeath = TRUE;
-				if ((p_ptr->pclass == CLASS_BERSERKER) && energy_use)
-				{
-					if (p_ptr->migite && p_ptr->hidarite)
-					{
-						if (hand) energy_use = energy_use*3/5+energy_use*num*2/(p_ptr->num_blow[hand]*5);
-						else energy_use = energy_use*num*3/(p_ptr->num_blow[hand]*5);
-					}
-					else
-					{
-						energy_use = energy_use*num/p_ptr->num_blow[hand];
-					}
-				}
-				if ((o_ptr->name1 == ART_ZANTETSU) && is_lowlevel)
-#ifdef JP
-					msg_print("またつまらぬものを斬ってしまった．．．");
-#else
-					msg_print("Sign..Another trifling thing I've cut....");
-#endif
-				break;
 			}
 
 			/* Anger the monster */
@@ -2602,7 +2829,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 			drain_result = 0;
 
 			/* Confusion attack */
-			if ((p_ptr->special_attack & ATTACK_CONFUSE) || (chaos_effect == 3) || (mode == HISSATSU_CONF))
+			if ((p_ptr->special_attack & ATTACK_CONFUSE) || (chaos_effect == 3))
 			{
 				/* Cancel glowing hands */
 				if (p_ptr->special_attack & ATTACK_CONFUSE)
@@ -2663,7 +2890,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					{
 						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
-	                                        msg_format("%^sには効果がなかった。", m_name);
+						msg_format("%^sには効果がなかった。", m_name);
 #else
 						msg_format("%^s is unaffected!", m_name);
 #endif
@@ -2691,7 +2918,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					msg_format("%^s disappears!", m_name);
 #endif
 
-					teleport_away(c_ptr->m_idx, 50, FALSE);
+					teleport_away(c_ptr->m_idx, 50);
 					num = p_ptr->num_blow[hand] + 1; /* Can't hit it anymore! */
 					*mdeath = TRUE;
 				}
@@ -2701,10 +2928,10 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 			         (randint1(90) > r_ptr->level))
 			{
 				if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-				    !(r_ptr->flags4 & RF4_BR_CHAO) &&
+				    !(r_ptr->flagsr & RFR_RES_CHAO) &&
 				    !(r_ptr->flags1 & RF1_QUESTOR))
 				{
-					if (polymorph_monster(y, x))
+					if (polymorph_monster(y, x, TRUE))
 					{
 #ifdef JP
 						msg_format("%^sは変化した！", m_name);
@@ -2736,169 +2963,24 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					}
 				}
 			}
-			else if (o_ptr->name1 == ART_G_HAMMER)
-			{
-				monster_type *m_ptr = &m_list[c_ptr->m_idx];
-
-				if (m_ptr->hold_o_idx)
-				{
-					object_type *q_ptr = &o_list[m_ptr->hold_o_idx];
-					char o_name[MAX_NLEN];
-
-					object_desc(o_name, q_ptr, TRUE, 0);
-					q_ptr->held_m_idx = 0;
-					q_ptr->marked = FALSE;
-					m_ptr->hold_o_idx = q_ptr->next_o_idx;
-					q_ptr->next_o_idx = 0;
-#ifdef JP
-					msg_format("%sを奪った。", o_name);
-#else
-					msg_format("You snatched %s.", o_name);
-#endif
-					inven_carry(q_ptr);
-				}
-			}
 		}
 
 		/* Player misses */
 		else
 		{
 			backstab = FALSE; /* Clumsy! */
-			fuiuchi = FALSE; /* Clumsy! */
 
-			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
-			{
-				u32b f1, f2, f3;
+			/* Sound */
+			sound(SOUND_MISS);
 
-				/* Sound */
-				sound(SOUND_HIT);
-
-				/* Message */
+			/* Message */
 #ifdef JP
-				msg_format("ミス！ %sにかわされた。", m_name);
+			msg_format("ミス！ %sにかわされた。", m_name);
 #else
-				msg_format("You miss %s.", m_name);
+			msg_format("You miss %s.", m_name);
 #endif
-				/* Message */
-#ifdef JP
-				msg_print("振り回した大鎌が自分自身に返ってきた！");
-#else
-				msg_print("Your scythe returns to you!");
-#endif
-
-				/* Extract the flags */
-				object_flags(o_ptr, &f1, &f2, &f3);
-
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				{
-					int mult;
-					switch (p_ptr->mimic_form)
-					{
-					case MIMIC_NONE:
-						switch (p_ptr->prace)
-						{
-							case RACE_YEEK:
-							case RACE_KLACKON:
-								mult = 20;break;
-							case RACE_HUMAN:
-							case RACE_AMBERITE:
-							case RACE_DUNADAN:
-								mult = 25;break;
-							case RACE_HALF_ORC:
-							case RACE_HALF_TROLL:
-							case RACE_HALF_OGRE:
-							case RACE_HALF_GIANT:
-							case RACE_HALF_TITAN:
-							case RACE_CYCLOPS:
-							case RACE_IMP:
-							case RACE_GOLEM:
-							case RACE_SKELETON:
-							case RACE_ZOMBIE:
-							case RACE_VAMPIRE:
-							case RACE_SPECTRE:
-							case RACE_DEMON:
-								mult = 30;break;
-							case RACE_DRACONIAN:
-								mult = 50;break;
-							default:
-								mult = 1;break;
-						}
-						break;
-					case MIMIC_DEMON:
-					case MIMIC_DEMON_LORD:
-					case MIMIC_VAMPIRE:
-						mult = 30;break;
-					default:
-						mult = 10;break;
-					}
-
-					if (p_ptr->align < 0 && mult < 20)
-						mult = 20;
-					if (!(p_ptr->resist_acid || p_ptr->oppose_acid) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_elec || p_ptr->oppose_elec) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_fire || p_ptr->oppose_fire) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_cold || p_ptr->oppose_cold) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 25))
-						mult = 25;
-
-					if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (p_ptr->msp / 30)))
-					{
-						p_ptr->csp -= (1+(p_ptr->msp / 30));
-						p_ptr->redraw |= (PR_MANA);
-						mult = mult * 35;
-					}
-					k *= mult;
-					k /= 10;
-				}
-
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
-				if (one_in_(6))
-				{
-					int mult = 2;
-#ifdef JP
-					msg_format("グッサリ切り裂かれた！");
-#else
-					msg_format("Your weapon cuts deep into yourself!");
-#endif
-					/* Try to increase the damage */
-					while (one_in_(4))
-					{
-						mult++;
-					}
-
-					k *= mult;
-				}
-				k += (p_ptr->to_d[hand] + o_ptr->to_d);
-
-                                if (k < 0) k = 0;
-
-#ifdef JP
-				take_hit(DAMAGE_FORCE, k, "死の大鎌", -1);
-#else
-				take_hit(DAMAGE_FORCE, k, "Death scythe", -1);
-#endif
-
-				redraw_stuff();
-			}
-			else
-			{
-				/* Sound */
-				sound(SOUND_MISS);
-
-				/* Message */
-#ifdef JP
-				msg_format("ミス！ %sにかわされた。", m_name);
-#else
-				msg_format("You miss %s.", m_name);
-#endif
-			}
 		}
 		backstab = FALSE;
-		fuiuchi = FALSE;
 	}
 
 
@@ -2910,13 +2992,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 		msg_format("%^s seems weakened.", m_name);
 #endif
 	}
-	if (drain_left != MAX_VAMPIRIC_DRAIN)
-	{
-		if (one_in_(4))
-		{
-			chg_virtue(V_UNLIFE, 1);
-		}
-	}
+
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake)
 	{
@@ -2940,12 +3016,6 @@ bool py_attack(int y, int x, int mode)
 
 	energy_use = 100;
 
-	if (m_ptr->csleep) /* It is not honorable etc to attack helpless victims */
-	{
-		if (!(r_info[m_ptr->r_idx].flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_COMPASSION, -1);
-		if (!(r_info[m_ptr->r_idx].flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_HONOUR, -1);
-	}
-
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -2954,30 +3024,6 @@ bool py_attack(int y, int x, int mode)
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
-
-	if ((r_info[m_ptr->r_idx].flags1 & RF1_FEMALE) &&
-	    !(p_ptr->stun || p_ptr->confused || p_ptr->image || !m_ptr->ml))
-	{
-		if ((inventory[INVEN_RARM].name1 == ART_ZANTETSU) || (inventory[INVEN_LARM].name1 == ART_ZANTETSU))
-		{
-#ifdef JP
-			msg_print("拙者、おなごは斬れぬ！");
-#else
-			msg_print("I can not attack women!");
-#endif
-			return FALSE;
-		}
-	}
-
-	if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
-	{
-#ifdef JP
-		msg_print("なぜか攻撃することができない。");
-#else
-		msg_print("Something prevent you from attacking.");
-#endif
-		return FALSE;
-	}
 
 	/* Stop if friendly */
 	if (!is_hostile(m_ptr) &&
@@ -2993,25 +3039,14 @@ bool py_attack(int y, int x, int mode)
 #else
 			msg_format("Your black blade greedily attacks %s!", m_name);
 #endif
-			chg_virtue(V_INDIVIDUALISM, 1);
-			chg_virtue(V_HONOUR, -1);
-			chg_virtue(V_JUSTICE, -1);
-			chg_virtue(V_COMPASSION, -1);
 		}
-		else if (p_ptr->pclass != CLASS_BERSERKER)
+		else
 		{
 #ifdef JP
-			if (get_check("本当に攻撃しますか？"))
+			if (!get_check("本当に攻撃しますか？"))
 #else
-			if (get_check("Really hit it? "))
+			if (!get_check("Really hit it? "))
 #endif
-			{
-				chg_virtue(V_INDIVIDUALISM, 1);
-				chg_virtue(V_HONOUR, -1);
-				chg_virtue(V_JUSTICE, -1);
-				chg_virtue(V_COMPASSION, -1);
-			}
-			else
 			{
 #ifdef JP
 				msg_format("%sを攻撃するのを止めた。", m_name);
@@ -3050,39 +3085,20 @@ bool py_attack(int y, int x, int mode)
 		return FALSE;
 	}
 
-	if (p_ptr->migite && p_ptr->hidarite)
-	{
-		if ((p_ptr->skill_exp[GINOU_NITOURYU] < s_info[p_ptr->pclass].s_max[GINOU_NITOURYU]) && ((p_ptr->skill_exp[GINOU_NITOURYU] - 1000) / 200 < r_info[m_ptr->r_idx].level))
-		{
-			if (p_ptr->skill_exp[GINOU_NITOURYU] < 4000)
-				p_ptr->skill_exp[GINOU_NITOURYU]+=80;
-			else if(p_ptr->skill_exp[GINOU_NITOURYU] < 6000)
-				p_ptr->skill_exp[GINOU_NITOURYU]+=4;
-			else if(p_ptr->skill_exp[GINOU_NITOURYU] < 7000)
-				p_ptr->skill_exp[GINOU_NITOURYU]+=1;
-			else if(p_ptr->skill_exp[GINOU_NITOURYU] < 8000)
-				if (one_in_(3)) p_ptr->skill_exp[GINOU_NITOURYU]+=1;
-			p_ptr->update |= (PU_BONUS);
-		}
-	}
-
-	if (p_ptr->riding)
-	{
-		int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
-		if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && ((p_ptr->skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_ptr->r_idx].level) && (p_ptr->skill_exp[GINOU_RIDING]/100 - 2000 < ridinglevel))
-			p_ptr->skill_exp[GINOU_RIDING]++;
-		if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && (p_ptr->skill_exp[GINOU_RIDING]/100 < ridinglevel))
-		{
-			if (ridinglevel*100 > (p_ptr->skill_exp[GINOU_RIDING] + 1500))
-				p_ptr->skill_exp[GINOU_RIDING] += (1+(ridinglevel - p_ptr->skill_exp[GINOU_RIDING]/100 - 15));
-			else p_ptr->skill_exp[GINOU_RIDING]++;
-		}
-		p_ptr->update |= (PU_BONUS);
-	}
-
 	riding_t_m_idx = c_ptr->m_idx;
-	if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
-	if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+	if (prace_is_(RACE_OCTOPUS))
+	{
+		int i;
+		for (i = 0; i < MAX_OCTOPUS_HANDS; i++)
+		{
+			if (!mdeath) py_attack_aux(y, x, &fear, &mdeath, i, mode);
+		}
+	}
+	else
+	{
+		if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+		if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+	}
 
 	/* Mutations which yield extra 'natural' attacks */
 	if (!mdeath)
@@ -3114,160 +3130,7 @@ bool py_attack(int y, int x, int mode)
 
 	}
 
-	if ((p_ptr->special_defense & KATA_IAI) && ((mode != HISSATSU_IAI) || mdeath))
-	{
-		set_action(ACTION_NONE);
-	}
-
 	return mdeath;
-}
-
-
-static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
-{
-	if (!pattern_tile(c_y, c_x) && !pattern_tile(n_y, n_x))
-		return TRUE;
-
-	if (cave[n_y][n_x].feat == FEAT_PATTERN_START)
-	{
-		if (!pattern_tile(c_y, c_x) &&
-		    !p_ptr->confused && !p_ptr->stun && !p_ptr->image)
-		{
-#ifdef JP
-			if (get_check("パターンの上を歩き始めると、全てを歩かなければなりません。いいですか？"))
-#else
-			if (get_check("If you start walking the Pattern, you must walk the whole way. Ok? "))
-#endif
-
-				return TRUE;
-			else
-				return FALSE;
-		}
-		else
-			return TRUE;
-	}
-	else if ((cave[n_y][n_x].feat == FEAT_PATTERN_OLD) ||
-	         (cave[n_y][n_x].feat == FEAT_PATTERN_END) ||
-	         (cave[n_y][n_x].feat == FEAT_PATTERN_XTRA2))
-	{
-		if (pattern_tile(c_y, c_x))
-		{
-			return TRUE;
-		}
-		else
-		{
-#ifdef JP
-			msg_print("パターンの上を歩くにはスタート地点から歩き始めなくてはなりません。");
-#else
-			msg_print("You must start walking the Pattern from the startpoint.");
-#endif
-
-			return FALSE;
-		}
-	}
-	else if ((cave[n_y][n_x].feat == FEAT_PATTERN_XTRA1) ||
-	         (cave[c_y][c_x].feat == FEAT_PATTERN_XTRA1))
-	{
-		return TRUE;
-	}
-	else if (cave[c_y][c_x].feat == FEAT_PATTERN_START)
-	{
-		if (pattern_tile(n_y, n_x))
-			return TRUE;
-		else
-		{
-#ifdef JP
-			msg_print("パターンの上は正しい順序で歩かねばなりません。");
-#else
-			msg_print("You must walk the Pattern in correct order.");
-#endif
-
-			return FALSE;
-		}
-	}
-	else if ((cave[c_y][c_x].feat == FEAT_PATTERN_OLD) ||
-	         (cave[c_y][c_x].feat == FEAT_PATTERN_END) ||
-	         (cave[c_y][c_x].feat == FEAT_PATTERN_XTRA2))
-	{
-		if (!pattern_tile(n_y, n_x))
-		{
-#ifdef JP
-			msg_print("パターンを踏み外してはいけません。");
-#else
-			msg_print("You may not step off from the Pattern.");
-#endif
-
-			return FALSE;
-		}
-		else
-		{
-			return TRUE;
-		}
-	}
-	else
-	{
-		if (!pattern_tile(c_y, c_x))
-		{
-#ifdef JP
-			msg_print("パターンの上を歩くにはスタート地点から歩き始めなくてはなりません。");
-#else
-			msg_print("You must start walking the Pattern from the startpoint.");
-#endif
-
-			return FALSE;
-		}
-		else
-		{
-			byte ok_move = FEAT_PATTERN_START;
-			switch (cave[c_y][c_x].feat)
-			{
-				case FEAT_PATTERN_1:
-					ok_move = FEAT_PATTERN_2;
-					break;
-				case FEAT_PATTERN_2:
-					ok_move = FEAT_PATTERN_3;
-					break;
-				case FEAT_PATTERN_3:
-					ok_move = FEAT_PATTERN_4;
-					break;
-				case FEAT_PATTERN_4:
-					ok_move = FEAT_PATTERN_1;
-					break;
-				default:
-					if (p_ptr->wizard)
-#ifdef JP
-						msg_format("おかしなパターン歩行、%d。", cave[c_y][c_x]);
-#else
-						msg_format("Funny Pattern walking, %d.", cave[c_y][c_x]);
-#endif
-
-					return TRUE; /* Goof-up */
-			}
-
-			if ((cave[n_y][n_x].feat == ok_move) ||
-			    (cave[n_y][n_x].feat == cave[c_y][c_x].feat))
-				return TRUE;
-			else
-			{
-				if (!pattern_tile(n_y, n_x))
-#ifdef JP
-					msg_print("パターンを踏み外してはいけません。");
-#else
-					msg_print("You may not step off from the Pattern.");
-#endif
-
-				else
-#ifdef JP
-					msg_print("パターンの上は正しい順序で歩かねばなりません。");
-#else
-					msg_print("You must walk the Pattern in correct order.");
-#endif
-
-
-				return FALSE;
-			}
-		}
-	}
 }
 
 
@@ -3277,29 +3140,30 @@ bool player_can_enter(byte feature)
 	bool pass_wall;
 
 	/* Player can not walk through "walls" unless in Shadow Form */
-	if (p_ptr->wraith_form || p_ptr->pass_wall || p_ptr->kabenuke)
+	if (WRAITH_FORM() || p_ptr->pass_wall)
 		pass_wall = TRUE;
 	else
 		pass_wall = FALSE;
 
 	switch (feature)
 	{
-		case FEAT_DEEP_WATER:
-		case FEAT_SHAL_LAVA:
-		case FEAT_DEEP_LAVA:
-			return (TRUE);
-
 		case FEAT_DARK_PIT:
 		{
-			if (p_ptr->ffall)
-				return (TRUE);
-			else
-				return (FALSE);
+			return (p_ptr->ffall);
 		}
 
-		case FEAT_TREES:
+		case FEAT_AIR:
 		{
-			return (TRUE);
+			if (!p_ptr->ffall)
+			{
+				if ((!(d_info[dungeon_type].flags1 & DF1_UPWARD) && (dun_level >= d_info[dungeon_type].maxdepth)) ||
+				     ((d_info[dungeon_type].flags1 & DF1_UPWARD) && (dun_level <= d_info[dungeon_type].mindepth)))
+					return FALSE;
+				else
+					return TRUE;
+			}
+			else
+				return (TRUE);
 		}
 
 		case FEAT_RUBBLE:
@@ -3335,6 +3199,54 @@ bool player_can_enter(byte feature)
 
 
 /*
+ * Fall into air
+ */
+void fall_into_air(void)
+{
+#ifdef JP
+	msg_print("空中に落ちた！");
+#else
+	msg_print("You have fallen into air!");
+#endif
+
+	sound(SOUND_FALL);
+
+	if ((!(d_info[dungeon_type].flags1 & DF1_UPWARD) && (dun_level >= d_info[dungeon_type].maxdepth)) ||
+	     ((d_info[dungeon_type].flags1 & DF1_UPWARD) && (dun_level <= d_info[dungeon_type].mindepth)))
+	{
+#ifdef JP
+		msg_print("あなたはどこまでも落ちていく...");
+#else
+		msg_print("You are falling long long way...");
+#endif
+
+		/* Fatal falling and *DIE* */
+#ifdef JP
+		take_hit(DAMAGE_USELIFE, p_ptr->chp + 1, "空中への致命的な落下");
+#else
+		take_hit(DAMAGE_USELIFE, p_ptr->chp + 1, "Fatal falling into air");
+#endif
+	}
+	else
+	{
+		/* Still alive and autosave enabled */
+		if (autosave_l && (p_ptr->chp >= 0))
+			do_cmd_save_game(TRUE);
+
+#ifdef JP
+		do_cmd_write_nikki(NIKKI_STAIR, 1, "空中に落ちた");
+#else
+		do_cmd_write_nikki(NIKKI_STAIR, 1, "You have fallen into air!");
+#endif
+		prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+	}
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
+}
+
+
+/*
  * Move player in the given direction, with the given "pickup" flag.
  *
  * This routine should (probably) always induce energy expenditure.
@@ -3343,7 +3255,7 @@ bool player_can_enter(byte feature)
  * any monster which might be in the destination grid.  Previously,
  * moving into walls was "free" and did NOT hit invisible monsters.
  */
-void move_player(int dir, int do_pickup, bool break_trap)
+void move_player(int dir, int do_pickup)
 {
 	int y, x;
 
@@ -3365,15 +3277,20 @@ void move_player(int dir, int do_pickup, bool break_trap)
 	/* Examine the destination */
 	c_ptr = &cave[y][x];
 
-
 	/* Exit the area */
-	if (!dun_level && !p_ptr->wild_mode &&
+	if (!dun_level && !p_ptr->wild_mode && !ironman_forward && !astral_mode &&
 		((x == 0) || (x == MAX_WID - 1) ||
 		 (y == 0) || (y == MAX_HGT - 1)))
 	{
 		/* Can the player enter the grid? */
 		if (c_ptr->mimic && player_can_enter(c_ptr->mimic))
 		{
+			s32b old_wilderness_y = p_ptr->wilderness_y;
+			s32b old_wilderness_x = p_ptr->wilderness_x;
+			s16b old_oldpy = p_ptr->oldpy;
+			s16b old_oldpx = p_ptr->oldpx;
+			bool old_ambush_flag = ambush_flag;
+
 			/* Hack: move to new area */
 			if ((y == 0) && (x == 0))
 			{
@@ -3381,7 +3298,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_x--;
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = cur_wid - 2;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
 			else if ((y == 0) && (x == MAX_WID - 1))
@@ -3390,7 +3307,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_x++;
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = 1;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
 			else if ((y == MAX_HGT - 1) && (x == 0))
@@ -3399,7 +3316,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_x--;
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = cur_wid - 2;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
 			else if ((y == MAX_HGT - 1) && (x == MAX_WID - 1))
@@ -3408,7 +3325,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_x++;
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = 1;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
 			else if (y == 0)
@@ -3416,7 +3333,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_y--;
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = x;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
 			else if (y == MAX_HGT - 1)
@@ -3424,7 +3341,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_y++;
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = x;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
 			else if (x == 0)
@@ -3432,7 +3349,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_x--;
 				p_ptr->oldpx = cur_wid - 2;
 				p_ptr->oldpy = y;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
 			else if (x == MAX_WID - 1)
@@ -3440,14 +3357,35 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				p_ptr->wilderness_x++;
 				p_ptr->oldpx = 1;
 				p_ptr->oldpy = y;
-                                ambush_flag = FALSE;
+				ambush_flag = FALSE;
 			}
 
-			p_ptr->leftbldg = TRUE;
-			p_ptr->leaving = TRUE;
-			energy_use = 100;
+			if ((p_ptr->wilderness_y > 0) && (p_ptr->wilderness_y < (max_wild_y - 1)) &&
+				(p_ptr->wilderness_x > 0) && (p_ptr->wilderness_x < (max_wild_x - 1)))
+			{
+				p_ptr->leftbldg = TRUE;
+				p_ptr->leaving = TRUE;
+				energy_use = 100;
 
-			return;
+				return;
+			}
+			else
+			{
+				p_ptr->wilderness_y = old_wilderness_y;
+				p_ptr->wilderness_x = old_wilderness_x;
+				p_ptr->oldpy = old_oldpy;
+				p_ptr->oldpx = old_oldpx;
+				ambush_flag = old_ambush_flag;
+#ifdef JP
+				msg_print("それ以上先には進めない。");
+#else
+				msg_print("You cannot go any more.");
+#endif
+				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+					energy_use = 0;
+				running = 0;
+				return;
+			}
 		}
 
 		oktomove = FALSE;
@@ -3462,10 +3400,10 @@ void move_player(int dir, int do_pickup, bool break_trap)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if (p_ptr->wraith_form || p_ptr->pass_wall || p_ptr->kabenuke)
+	if (WRAITH_FORM() || p_ptr->pass_wall)
 		p_can_pass_walls = TRUE;
-	if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
-	    (cave[y][x].feat <= FEAT_PERM_SOLID))
+	if ((c_ptr->feat >= FEAT_PERM_EXTRA) &&
+	    (c_ptr->feat <= FEAT_PERM_SOLID))
 	{
 		p_can_pass_walls = FALSE;
 	}
@@ -3483,7 +3421,6 @@ void move_player(int dir, int do_pickup, bool break_trap)
 		if (!is_hostile(m_ptr) &&
 		    !(p_ptr->confused || p_ptr->image || !m_ptr->ml || p_ptr->stun ||
 		    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
-		    (pattern_seq(py, px, y, x)) &&
 		    ((cave_floor_bold(y, x)) || (c_ptr->feat == FEAT_TREES) || (p_can_pass_walls)))
 		{
 			m_ptr->csleep = 0;
@@ -3499,7 +3436,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 			if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 			/* displace? */
-			if ((stormbringer && (randint1(1000) > 666)) || (p_ptr->pclass == CLASS_BERSERKER))
+			if (stormbringer && (randint1(1000) > 666))
 			{
 				py_attack(y, x, 0);
 				oktomove = FALSE;
@@ -3563,6 +3500,34 @@ void move_player(int dir, int do_pickup, bool break_trap)
 			oktomove = FALSE;
 		}
 	}
+
+	else if ((c_ptr->feat == FEAT_AIR) && !p_ptr->ffall)
+	{
+		if (((c_ptr->info & (CAVE_MARK)) || (!p_ptr->blind && (c_ptr->info & (CAVE_LITE)))) && !p_ptr->confused)
+		{
+			if (!player_can_enter(FEAT_AIR))
+			{
+#ifdef JP
+				msg_print("ここから空中に踏み出すのは危険だ。");
+#else
+				msg_print("Crossing the air in this level is danger.");
+#endif
+				energy_use = 0;
+				running = 0;
+				oktomove = FALSE;
+			}
+#ifdef JP
+			else if (!get_check("空中に踏み出します。よろしいですか？"))
+#else
+			else if (!get_check("You cross the air. Really? "))
+#endif
+			{
+				energy_use = 0;
+				running = 0;
+				oktomove = FALSE;
+			}
+		}
+	}
 	/*
 	 * Player can move through trees and
 	 * has effective -10 speed
@@ -3571,7 +3536,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 	else if (c_ptr->feat == FEAT_TREES)
 	{
 		oktomove = TRUE;
-		if ((p_ptr->pclass != CLASS_RANGER) && !p_ptr->ffall) energy_use *= 2;
+		if (!p_ptr->ffall) energy_use *= 2;
 	}
 
 	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
@@ -3583,7 +3548,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 	/* Disarm a visible trap */
-	else if ((do_pickup != easy_disarm) && is_trap(c_ptr->feat))
+	else if ((do_pickup != easy_disarm) && is_known_trap(c_ptr))
 	{
 		bool ignore = FALSE;
 		switch (c_ptr->feat)
@@ -3595,7 +3560,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 				if (p_ptr->ffall) ignore = TRUE;
 				break;
 			case FEAT_TRAP_TELEPORT:
-				if (p_ptr->anti_tele) ignore = TRUE;
+				if (p_ptr->anti_tele || p_ptr->earth_spike) ignore = TRUE;
 				break;
 			case FEAT_TRAP_FIRE:
 				if (p_ptr->immune_fire) ignore = TRUE;
@@ -3660,7 +3625,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		disturb(0, 0);
 	}
 
-	else if ((p_ptr->riding && (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_AQUATIC)) && (c_ptr->feat != FEAT_SHAL_WATER) && (c_ptr->feat != FEAT_DEEP_WATER))
+	else if ((p_ptr->riding && (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_AQUATIC)) && (c_ptr->feat != FEAT_SHAL_WATER) && (c_ptr->feat != FEAT_DEEP_WATER) && (c_ptr->feat != FEAT_SWAMP))
 	{
 #ifdef JP
 		msg_print("陸上に上がれない。");
@@ -3696,7 +3661,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		disturb(0, 0);
 	}
 
-	else if ((p_ptr->riding && !(r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_FLY)) && !(r_info[m_list[p_ptr->riding].r_idx].flags3 & (RF3_IM_FIRE))) && ((c_ptr->feat == FEAT_SHAL_LAVA) || (c_ptr->feat == FEAT_DEEP_LAVA)))
+	else if ((p_ptr->riding && !(r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_FLY)) && !(r_info[m_list[p_ptr->riding].r_idx].flagsr & (RFR_RES_FIRE))) && ((c_ptr->feat == FEAT_SHAL_LAVA) || (c_ptr->feat == FEAT_DEEP_LAVA)))
 	{
 #ifdef JP
 		msg_print("溶岩の上に行けない。");
@@ -3725,20 +3690,23 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 	else if ((!cave_floor_bold(y, x)) &&
 		(!p_can_pass_walls))
 	{
+		/* Feature code (applying "mimic" field) */
+		byte feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+
 		oktomove = FALSE;
 
 		/* Disturb the player */
 		disturb(0, 0);
 
 		/* Notice things in the dark */
-		if ((!(c_ptr->info & (CAVE_MARK))) &&
-		    (p_ptr->blind || !(c_ptr->info & (CAVE_LITE))))
+		if (!(c_ptr->info & (CAVE_MARK)) &&
+		     (p_ptr->blind || !(c_ptr->info & (CAVE_LITE))))
 		{
 			/* Rubble */
-			if (c_ptr->feat == FEAT_RUBBLE)
+			if (feat == FEAT_RUBBLE)
 			{
 #ifdef JP
-                                msg_print("岩石が行く手をはばんでいるようだ。");
+				msg_print("岩石が行く手をはばんでいるようだ。");
 #else
 				msg_print("You feel some rubble blocking your way.");
 #endif
@@ -3748,16 +3716,33 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 			}
 
 			/* Closed door */
-			else if (c_ptr->feat < FEAT_SECRET)
+			else if (is_closed_door(feat))
 			{
 #ifdef JP
-                                msg_print("ドアが行く手をはばんでいるようだ。");
+				msg_print("ドアが行く手をはばんでいるようだ。");
 #else
 				msg_print("You feel a closed door blocking your way.");
 #endif
 
 				c_ptr->info |= (CAVE_MARK);
 				lite_spot(y, x);
+			}
+
+			/* Boundary floor mimic */
+			else if (boundary_floor_grid(c_ptr))
+			{
+				if ((c_ptr->mimic == FEAT_AIR) && !p_ptr->ffall)
+				{
+					fall_into_air();
+				}
+				else
+				{
+#ifdef JP
+					msg_print("それ以上先には進めないようだ。");
+#else
+					msg_print("You feel you cannot go any more.");
+#endif
+				}
 			}
 
 			/* Wall (or secret door) */
@@ -3778,7 +3763,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		else
 		{
 			/* Rubble */
-			if (c_ptr->feat == FEAT_RUBBLE)
+			if (feat == FEAT_RUBBLE)
 			{
 #ifdef JP
 				msg_print("岩石が行く手をはばんでいる。");
@@ -3797,7 +3782,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 				 */
 			}
 			/* Closed doors */
-			else if (c_ptr->feat < FEAT_SECRET)
+			else if (is_closed_door(feat))
 			{
 #ifdef ALLOW_EASY_OPEN
 
@@ -3816,6 +3801,50 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 					energy_use = 0;
 			}
 
+			/* Boundary floor mimic */
+			else if (boundary_floor_grid(c_ptr))
+			{
+				if ((c_ptr->mimic == FEAT_AIR) && !p_ptr->ffall)
+				{
+					if (p_ptr->confused)
+					{
+						fall_into_air();
+					}
+					else if (!player_can_enter(FEAT_AIR))
+					{
+#ifdef JP
+						msg_print("ここから空中に踏み出すのは危険だ。");
+#else
+						msg_print("Crossing the air in this level is danger.");
+#endif
+
+					if (!(p_ptr->stun || p_ptr->image))
+						energy_use = 0;
+					}
+#ifdef JP
+					else if (get_check("空中に踏み出します。よろしいですか？"))
+#else
+					else if (get_check("You cross the air. Really? "))
+#endif
+					{
+						fall_into_air();
+					}
+					else if (!(p_ptr->stun || p_ptr->image))
+						energy_use = 0;
+				}
+				else
+				{
+#ifdef JP
+					msg_print("それ以上先には進めない。");
+#else
+					msg_print("You cannot go any more.");
+#endif
+
+					if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+						energy_use = 0;
+				}
+			}
+
 			/* Wall (or secret door) */
 			else
 			{
@@ -3832,21 +3861,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		}
 
 		/* Sound */
-		sound(SOUND_HITWALL);
-	}
-
-	/* Normal movement */
-	if (!pattern_seq(py, px, y, x))
-	{
-		if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
-		{
-			energy_use = 0;
-		}
-
-		/* To avoid a loop with running */
-		disturb(0, 0);
-
-		oktomove = FALSE;
+		if (!boundary_floor_grid(c_ptr)) sound(SOUND_HITWALL);
 	}
 
 	/* Normal movement */
@@ -3856,7 +3871,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 
 		if (p_ptr->warning)
 		{
-			if(!process_frakir(x,y))
+			if (!process_warning(x, y))
 			{
 				energy_use = 25;
 				return;
@@ -3899,36 +3914,24 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 
 		if (p_ptr->riding && (r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_KILL_WALL))
 		{
-			if (cave[py][px].feat > FEAT_SECRET && cave[py][px].feat < FEAT_PERM_SOLID)
+			if (cave[py][px].feat >= FEAT_RUBBLE && cave[py][px].feat < FEAT_PERM_SOLID)
 			{
 				/* Forget the wall */
 				cave[py][px].info &= ~(CAVE_MARK);
 
 				/* Notice */
-				cave_set_feat(py, px, floor_type[randint0(100)]);
+				cave_force_set_floor(py, px);
 			}
 		}
-		if (music_singing(MUSIC_WALL))
-		{
-			project(0, 0, py, px,
-				(60 + p_ptr->lev), GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM, -1);
-		}
-		else if (p_ptr->kill_wall)
+		if (p_ptr->kill_wall)
 		{
 			if (cave_valid_bold(py, px) &&
-				(cave[py][px].feat < FEAT_PATTERN_START ||
-				 cave[py][px].feat > FEAT_PATTERN_XTRA2) &&
 				(cave[py][px].feat < FEAT_DEEP_WATER ||
 				 cave[py][px].feat > FEAT_GRASS))
 			{
-				if (cave[py][px].feat == FEAT_TREES)
-					cave_set_feat(py, px, FEAT_GRASS);
-				else
-				{
-					cave[py][px].feat = floor_type[randint0(100)];
-				}
+				cave_force_set_floor(py, px);
 			}
-				/* Update some things -- similar to GF_KILL_WALL */
+			/* Update some things -- similar to GF_KILL_WALL */
 			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
 		}
 
@@ -3944,26 +3947,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		/* Check for new panel (redraw map) */
 		verify_panel();
 
-                /* For get everything when requested hehe I'm *NASTY* */
-                if (dun_level && (d_info[dungeon_type].flags1 & DF1_FORGET))
-                {
-                        wiz_dark();
-                }
-
-		if ((p_ptr->pclass == CLASS_NINJA))
-		{
-			if (c_ptr->info & (CAVE_GLOW)) set_superstealth(FALSE);
-			else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);
-		}
-		if ((p_ptr->action == ACTION_HAYAGAKE) && !cave_floor_bold(py, px))
-		{
-#ifdef JP
-			msg_print("ここでは素早く動けない。");
-#else
-			msg_print("You cannot run in wall.");
-#endif
-			set_action(ACTION_NONE);
-		}
+		set_aquatic_in_water();
 
 		/* Update stuff */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
@@ -4025,7 +4009,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		}
 
 		/* Handle quest areas -KMW- */
-		else if (cave[y][x].feat == FEAT_QUEST_ENTER)
+		else if (c_ptr->feat == FEAT_QUEST_ENTER)
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -4035,13 +4019,17 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 			command_new = SPECIAL_KEY_QUEST;
 		}
 
-		else if (cave[y][x].feat == FEAT_QUEST_EXIT)
+		else if (c_ptr->feat == FEAT_QUEST_EXIT)
 		{
 			if (quest[p_ptr->inside_quest].type == QUEST_TYPE_FIND_EXIT)
 			{
 				if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, p_ptr->inside_quest, NULL);
 				quest[p_ptr->inside_quest].status = QUEST_STATUS_COMPLETED;
 				quest[p_ptr->inside_quest].complev = (byte)p_ptr->lev;
+
+				/* Make a sound */
+				sound(SOUND_QUEST);
+
 #ifdef JP
 				msg_print("クエストを達成した！");
 #else
@@ -4049,46 +4037,64 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 #endif
 
 				msg_print(NULL);
+				if (quest_is_fixed(p_ptr->inside_quest)) change_your_alignment_lnc(10);
 			}
 
 			leave_quest_check();
 
-			p_ptr->inside_quest = cave[y][x].special;
+			p_ptr->inside_quest = c_ptr->special;
 			dun_level = 0;
 			p_ptr->oldpx = 0;
 			p_ptr->oldpy = 0;
 			p_ptr->leaving = TRUE;
 		}
 
-		/* Discover invisible traps */
-		else if (c_ptr->info & CAVE_TRAP)
+		/* Handle "air" */
+		else if (c_ptr->feat == FEAT_AIR)
 		{
-			/* Disturb */
-			disturb(0, 0);
-
-			/* Message */
-#ifdef JP
-			msg_print("トラップだ！");
-#else
-			msg_print("You found a trap!");
-#endif
-
-
-			/* Pick a trap */
-			pick_trap(py, px);
-
-			/* Hit the trap */
-			hit_trap(break_trap);
+			if (!p_ptr->ffall) fall_into_air();
 		}
 
-		/* Set off an visible trap */
+		/* Set off a trap */
 		else if (is_trap(c_ptr->feat))
 		{
 			/* Disturb */
 			disturb(0, 0);
 
+			/* Hidden trap */
+			if (c_ptr->mimic)
+			{
+				/* Message */
+#ifdef JP
+				msg_print("トラップだ！");
+#else
+				msg_print("You found a trap!");
+#endif
+
+				/* Pick a trap */
+				disclose_grid(py, px);
+			}
+
 			/* Hit the trap */
-			hit_trap(break_trap);
+			hit_trap();
+		}
+
+		if (IN_HEAVEN_GATE())
+		{
+			if ((c_ptr->mimic == FEAT_FLOOR) &&
+				((c_ptr->feat == FEAT_GRASS) || (c_ptr->feat == FEAT_DEEP_GRASS)))
+			{
+				int i;
+
+				for (i = 0; i < INVEN_TOTAL; i++)
+				{
+					if (inventory[i].k_idx && (inventory[i].name1 == ART_BRUNHILD))
+					{
+						msg_print("ブリュンヒルドは激しく震えだした！");
+						break;
+					}
+				}
+			}
 		}
 
 		/* Warn when leaving trap detected region */
@@ -4134,6 +4140,9 @@ msg_format("%sが恐怖していて制御できない。", m_name);
  */
 static int see_wall(int dir, int y, int x)
 {
+	cave_type   *c_ptr;
+	byte feat;
+
 	/* Get the new location */
 	y += ddy[dir];
 	x += ddx[dir];
@@ -4141,39 +4150,119 @@ static int see_wall(int dir, int y, int x)
 	/* Illegal grids are not known walls */
 	if (!in_bounds2(y, x)) return (FALSE);
 
-	/* Non-wall grids are not known walls */
-	if (cave[y][x].feat < FEAT_SECRET) return (FALSE);
+	/* Access grid */
+	c_ptr = &cave[y][x];
 
-	if ((cave[y][x].feat >= FEAT_DEEP_WATER) &&
-	    (cave[y][x].feat <= FEAT_GRASS)) return (FALSE);
-
-	if ((cave[y][x].feat >= FEAT_SHOP_HEAD) &&
-	    (cave[y][x].feat <= FEAT_SHOP_TAIL)) return (FALSE);
-
-	if (cave[y][x].feat == FEAT_DEEP_GRASS) return (FALSE);
-	if (cave[y][x].feat == FEAT_FLOWER) return (FALSE);
-
-	if (cave[y][x].feat == FEAT_MUSEUM) return (FALSE);
-
-	if ((cave[y][x].feat >= FEAT_BLDG_HEAD) &&
-	    (cave[y][x].feat <= FEAT_BLDG_TAIL)) return (FALSE);
-
-/*	if (cave[y][x].feat == FEAT_TREES) return (FALSE); */
+	/* Feature code (applying "mimic" field) */
+	feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 	/* Must be known to the player */
-	if (!(cave[y][x].info & (CAVE_MARK))) return (FALSE);
+	if (c_ptr->info & (CAVE_MARK))
+	{
+		/* Non-wall grids are not known walls */
+		switch (feat)
+		{
+		case FEAT_NONE:
+		case FEAT_FLOOR:
+		case FEAT_INVIS:
+		case FEAT_GLYPH:
+		case FEAT_OPEN:
+		case FEAT_BROKEN:
+		case FEAT_LESS:
+		case FEAT_MORE:
+		case FEAT_QUEST_ENTER:
+		case FEAT_QUEST_EXIT:
+		case FEAT_QUEST_DOWN:
+		case FEAT_QUEST_UP:
+		case FEAT_LESS_LESS:
+		case FEAT_MORE_MORE:
+		case FEAT_TRAP_TRAPDOOR:
+		case FEAT_TRAP_PIT:
+		case FEAT_TRAP_SPIKED_PIT:
+		case FEAT_TRAP_POISON_PIT:
+		case FEAT_TRAP_TY_CURSE:
+		case FEAT_TRAP_TELEPORT:
+		case FEAT_TRAP_FIRE:
+		case FEAT_TRAP_ACID:
+		case FEAT_TRAP_SLOW:
+		case FEAT_TRAP_LOSE_STR:
+		case FEAT_TRAP_LOSE_DEX:
+		case FEAT_TRAP_LOSE_CON:
+		case FEAT_TRAP_BLIND:
+		case FEAT_TRAP_CONFUSE:
+		case FEAT_TRAP_POISON:
+		case FEAT_TRAP_SLEEP:
+		case FEAT_DEEP_WATER:
+		case FEAT_SHAL_WATER:
+		case FEAT_DEEP_LAVA:
+		case FEAT_SHAL_LAVA:
+		case FEAT_DIRT:
+		case FEAT_GRASS:
+		case FEAT_TRAP_TRAPS:
+		case FEAT_TRAP_ALARM:
+		case FEAT_FLOWER:
+		case FEAT_DEEP_GRASS:
+		case FEAT_MUSEUM:
+		case FEAT_TREES:
+		case FEAT_TOWN:
+		case FEAT_ENTRANCE:
+		case FEAT_SWAMP:
+		case FEAT_ENTRANCE_UPWARD:
+		case FEAT_TUNDRA:
+		case FEAT_DEEP_SEA:
+		case FEAT_BETWEEN:
+		case FEAT_TRAP_ARMAGEDDON:
+		case FEAT_TRAP_PIRANHA:
+			return FALSE;
 
-	if (cave[y][x].feat >= FEAT_TOWN) return (FALSE);
+		case FEAT_DARK_PIT:
+		case FEAT_AIR:
+			if (p_ptr->ffall) return FALSE;
+			break;
+
+		case FEAT_MOUNTAIN:
+			if (!dun_level && p_ptr->ffall) return FALSE;
+			break;
+
+		case FEAT_RUBBLE:
+		case FEAT_MAGMA:
+		case FEAT_QUARTZ:
+		case FEAT_MAGMA_H:
+		case FEAT_QUARTZ_H:
+		case FEAT_MAGMA_K:
+		case FEAT_QUARTZ_K:
+		case FEAT_WALL_EXTRA:
+		case FEAT_WALL_INNER:
+		case FEAT_WALL_OUTER:
+		case FEAT_WALL_SOLID:
+		case FEAT_PERM_EXTRA:
+		case FEAT_PERM_INNER:
+		case FEAT_PERM_OUTER:
+		case FEAT_PERM_SOLID:
+		case FEAT_MINOR_GLYPH:
+			break;
+
+		default:
+			if ((feat >= FEAT_DOOR_HEAD) &&
+			    (feat <= FEAT_DOOR_TAIL)) return FALSE;
+
+			if ((feat >= FEAT_SHOP_HEAD) &&
+			    (feat <= FEAT_SHOP_TAIL)) return FALSE;
+			break;
+		}
+
+		return TRUE;
+	}
 
 	/* Default */
-	return (TRUE);
+	return FALSE;
 }
 
 
 /*
  * Hack -- Check for an "unknown corner" (see below)
  */
-static int see_nothing(int dir, int y, int x)
+static bool see_nothing(int dir, int y, int x)
 {
 	/* Get the new location */
 	y += ddy[dir];
@@ -4534,7 +4623,6 @@ static bool run_test(void)
 		/* Access grid */
 		c_ptr = &cave[row][col];
 
-
 		/* Visible monsters abort running */
 		if (c_ptr->m_idx)
 		{
@@ -4566,19 +4654,19 @@ static bool run_test(void)
 		/* Check memorized grids */
 		if (c_ptr->info & (CAVE_MARK))
 		{
+			/* Feature code (applying "mimic" field) */
+			byte feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+
 			bool notice = TRUE;
 
 			/* Examine the terrain */
-			switch (c_ptr->feat)
+			switch (feat)
 			{
 				/* Floors */
 				case FEAT_FLOOR:
 
 				/* Invis traps */
 				case FEAT_INVIS:
-
-				/* Secret doors */
-				case FEAT_SECRET:
 
 				/* Normal veins */
 				case FEAT_MAGMA:
@@ -4611,6 +4699,9 @@ static bool run_test(void)
 				case FEAT_DARK_PIT:
 				case FEAT_TREES:
 				case FEAT_MOUNTAIN:
+				case FEAT_SWAMP:
+				case FEAT_TUNDRA:
+				case FEAT_AIR:
 				{
 					/* Ignore */
 					notice = FALSE;
@@ -4643,7 +4734,7 @@ static bool run_test(void)
 				case FEAT_DEEP_WATER:
 				{
 					/* Ignore */
-					if (p_ptr->ffall || p_ptr->total_weight<= (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]]*(p_ptr->pclass == CLASS_BERSERKER ? 150 : 100))/2)) notice = FALSE;
+					if (p_ptr->can_swim || p_ptr->ffall || (p_ptr->total_weight <= WEIGHT_LIMIT())) notice = FALSE;
 
 					/* Done */
 					break;
@@ -4666,6 +4757,8 @@ static bool run_test(void)
 				case FEAT_LESS_LESS:
 				case FEAT_MORE_MORE:
 				case FEAT_ENTRANCE:
+				case FEAT_ENTRANCE_UPWARD:
+				case FEAT_BETWEEN:
 				{
 					/* Option -- ignore */
 					if (find_ignore_stairs) notice = FALSE;
@@ -4682,10 +4775,8 @@ static bool run_test(void)
 			inv = FALSE;
 		}
 
-		/* Analyze unknown grids and floors */
-/*		if (inv || cave_floor_bold(row, col) || */
-/*		    (cave[row][col].feat == FEAT_TREES)) */
-		if (inv || cave_floor_bold(row, col))
+		/* Analyze unknown grids and floors considering mimic */
+		if (inv || !see_wall(0, row, col))
 		{
 			/* Looking for open area */
 			if (find_openarea)
@@ -4754,22 +4845,8 @@ static bool run_test(void)
 		/* Hack -- look again */
 		for (i = -max; i < 0; i++)
 		{
-			new_dir = cycle[chome[prev_dir] + i];
-
-			row = py + ddy[new_dir];
-			col = px + ddx[new_dir];
-
-			/* Access grid */
-			c_ptr = &cave[row][col];
-
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
-			if (!(c_ptr->info & (CAVE_MARK)) ||
-			    ((c_ptr->feat < FEAT_SECRET) ||
-			     (c_ptr->feat == FEAT_FLOWER) ||
-			     (c_ptr->feat == FEAT_DEEP_GRASS) ||
-			    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-				 (c_ptr->feat <= FEAT_GRASS))))
-
+			if (!see_wall(cycle[chome[prev_dir] + i], py, px))
 			{
 				/* Looking to break right */
 				if (find_breakright)
@@ -4792,22 +4869,8 @@ static bool run_test(void)
 		/* Hack -- look again */
 		for (i = max; i > 0; i--)
 		{
-			new_dir = cycle[chome[prev_dir] + i];
-
-			row = py + ddy[new_dir];
-			col = px + ddx[new_dir];
-
-			/* Access grid */
-			c_ptr = &cave[row][col];
-
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
-			if (!(c_ptr->info & (CAVE_MARK)) ||
-			    ((c_ptr->feat < FEAT_SECRET) ||
-			     (c_ptr->feat == FEAT_FLOWER) ||
-			     (c_ptr->feat == FEAT_DEEP_GRASS) ||
-			    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-				 (c_ptr->feat <= FEAT_GRASS))))
-
+			if (!see_wall(cycle[chome[prev_dir] + i], py, px))
 			{
 				/* Looking to break left */
 				if (find_breakleft)
@@ -4927,12 +4990,11 @@ void run_step(int dir)
 	if (dir)
 	{
 		/* Hack -- do not start silly run */
-		if (see_wall(dir, py, px) &&
-		   (cave[py+ddy[dir]][px+ddx[dir]].feat != FEAT_TREES))
+		if (see_wall(dir, py, px))
 		{
 			/* Message */
 #ifdef JP
-			msg_print("その方向には行けません。");
+			msg_print("その方向には走れません。");
 #else
 			msg_print("You cannot run in that direction.");
 #endif
@@ -4975,11 +5037,11 @@ void run_step(int dir)
 	/* Move the player, using the "pickup" flag */
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
-	move_player(find_current, FALSE, FALSE);
+	move_player(find_current, FALSE);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
-	move_player(find_current, always_pickup, FALSE);
+	move_player(find_current, always_pickup);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 

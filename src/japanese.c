@@ -116,12 +116,14 @@ if( CMPTAIL("る")==0) sprintf(&out[l-2],"った");else
   sprintf(&out[l],"ことや");}
 
 
-void jverb( const char *in , char *out , int flag){
-  switch (flag){
-  case JVERB_AND:jverb1(in , out);break;
-  case JVERB_TO :jverb2(in , out);break;
-  case JVERB_OR :jverb3(in , out);break;
-  }
+void jverb(const char *in, char *out, int flag)
+{
+	switch (flag)
+	{
+	case JVERB_AND: jverb1 (in, out); break;
+	case JVERB_TO:  jverb2 (in, out); break;
+	case JVERB_OR:  jverb3 (in, out); break;
+	}
 }
 
 char* strstr_j(const char* s, const char* t)
@@ -130,9 +132,11 @@ char* strstr_j(const char* s, const char* t)
 
 	l1 = strlen(s);
 	l2 = strlen(t);
-	if (l1 >= l2) {
-		for(i = 0; i <= l1 - l2; i++) {
-			if(!strncmp(s + i, t, l2))
+	if (l1 >= l2)
+	{
+		for (i = 0; i <= l1 - l2; i++)
+		{
+			if (!strncmp(s + i, t, l2))
 				return (char *)s + i;
 			if (iskanji(*(s + i)))
 				i++;
@@ -141,32 +145,6 @@ char* strstr_j(const char* s, const char* t)
 	return NULL;
 }
 
-/* 2バイト文字を考慮しながら最大 n バイト文字列をコピーする */
-size_t mb_strlcpy(char *dst, const char *src, size_t size)
-{
-	unsigned char *d = (unsigned char*)dst;
-	const unsigned char *s = (unsigned char*)src;
-	size_t n = 0;
-
-	/* reserve for NUL termination */
-	size--;
-
-	/* Copy as many bytes as will fit */
-	while(n < size) {
-		if (iskanji(*s)) {
-			if(n + 2 >= size || !*(s+1)) break;
-			*d++ = *s++;
-			*d++ = *s++;
-			n += 2;
-		} else {
-			*d++ = *s++;
-			n++;
-		}
-	}
-	*d = '\0';
-	while(*s++) n++;
-	return n;
-}
 
 /*
  * strを環境に合った文字コードに変換する。

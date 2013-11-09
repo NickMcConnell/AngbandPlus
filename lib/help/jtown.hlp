@@ -1,20 +1,18 @@
 街と荒野
 
-参照したいオンライン・ヘルプの番号を押して下さい:
+参照したいオンライン・ヘルプの記号を押して下さい:
 
     (a) 街と荒野                           (jtown.txt)
     (b) 街と荒野に現れる文字               (jtown.txt#MapSymbols)
     (c) 街のマップ                         (jtown.txt#TownLevel)
-    (d) 標準の街                           (jtown.txt#StandardTown)
-    (e) 小規模な街                         (jtown.txt#LiteTown)
-    (f) 元祖の町                           (jtown.txt#VanillaTown)
-    (g) 街の住民                           (jtown.txt#Townspeople)
-    (h) 街での買い物                       (jtown.txt#Shopping)
-    (i) 売買交渉                           (jtown.txt#Bartering)
-    (j) アイテムの価格                     (jtown.txt#ObjectPricing)
-    (k) 店の一覧                           (jtown.txt#TheShops)
-    (l) 特別な建物                         (jtown.txt#Buildings)
-    (m) 固定クエスト                       (jtown.txt#FixedQuests)
+    (d) 地上マップ                         (jtown.txt#WildMap)
+    (e) 街の住民                           (jtown.txt#Townspeople)
+    (f) 街での買い物                       (jtown.txt#Shopping)
+    (g) 売買交渉                           (jtown.txt#Bartering)
+    (h) アイテムの価格                     (jtown.txt#ObjectPricing)
+    (i) 店の一覧                           (jtown.txt#TheShops)
+    (j) 特別な建物                         (jtown.txt#Buildings)
+    (k) 固定クエスト                       (jtown.txt#FixedQuests)
 
     (?) ヘルプシステムの使用法             (jhelpinfo.txt)
 
@@ -22,13 +20,11 @@
 ***** [a] jtown.txt
 ***** [b] jtown.txt#MapSymbols
 ***** [c] jtown.txt#TownLevel
-***** [d] jtown.txt#StandardTown
-***** [e] jtown.txt#LiteTown
-***** [f] jtown.txt#VanillaTown
-***** [g] jtown.txt#Townspeople
-***** [h] jtown.txt#Shopping
-***** [i] jtown.txt#Bartering
-***** [j] jtown.txt#ObjectPricing
-***** [k] jtown.txt#TheShops
-***** [l] jtown.txt#Buildings
-***** [m] jtown.txt#FixedQuests
+***** [d] jtown.txt#WildMap
+***** [e] jtown.txt#Townspeople
+***** [f] jtown.txt#Shopping
+***** [g] jtown.txt#Bartering
+***** [h] jtown.txt#ObjectPricing
+***** [i] jtown.txt#TheShops
+***** [j] jtown.txt#Buildings
+***** [k] jtown.txt#FixedQuests

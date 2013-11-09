@@ -18,7 +18,7 @@
  * and which also do at least 20 damage, or, sometimes, N damage.
  * This is used only to determine "cuts" and "stuns".
  */
-static int monster_critical(int dice, int sides, int dam)
+static int monster_critical(int dice, int sides, int dam, bool do_stun)
 {
 	int max = 0;
 	int total = dice * sides;
@@ -30,7 +30,7 @@ static int monster_critical(int dice, int sides, int dam)
 	if ((dam < 20) && (randint0(100) >= dam)) return (0);
 
 	/* Perfect damage */
-	if (dam == total && dam >= 40) max++;
+	if (dam >= total && dam >= 40) max++;
 
 	/* Super-charge */
 	if (dam >= 20)
@@ -39,12 +39,24 @@ static int monster_critical(int dice, int sides, int dam)
 	}
 
 	/* Critical damage */
-	if (dam > 45) return (6 + max);
-	if (dam > 33) return (5 + max);
-	if (dam > 25) return (4 + max);
-	if (dam > 18) return (3 + max);
-	if (dam > 11) return (2 + max);
-	return (1 + max);
+	if (do_stun)
+	{
+		if (dam > 140) return (6 + max);
+		if (dam > 100) return (5 + max);
+		if (dam > 70) return (4 + max);
+		if (dam > 40) return (3 + max);
+		if (dam > 21) return (2 + max);
+		return (1 + max);
+	}
+	else
+	{
+		if (dam > 45) return (6 + max);
+		if (dam > 33) return (5 + max);
+		if (dam > 25) return (4 + max);
+		if (dam > 18) return (3 + max);
+		if (dam > 11) return (2 + max);
+		return (1 + max);
+	}
 }
 
 
@@ -56,9 +68,9 @@ static int monster_critical(int dice, int sides, int dam)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match monster power against player armor.
  */
-static int check_hit(int power, int level, int stun)
+static int check_hit(int power, int level, int ac, int stun)
 {
-	int i, k, ac;
+	int i, k;
 
 	/* Percentile dice */
 	k = randint0(100);
@@ -71,10 +83,6 @@ static int check_hit(int power, int level, int stun)
 	/* Calculate the "attack quality" */
 	i = (power + (level * 3));
 
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
-	if (p_ptr->special_attack & ATTACK_SUIKEN) ac += (p_ptr->lev * 2);
-
 	/* Power and Level compete against Armor */
 	if ((i > 0) && (randint1(i) > ((ac * 3) / 4))) return (TRUE);
 
@@ -84,6 +92,15 @@ static int check_hit(int power, int level, int stun)
 
 
 
+static cptr desc_wail[] =
+{
+	"はさめざめと泣いた。",
+	"はむせび声をあげた。",
+	"は悲痛な声で泣いた。",
+	"は嘆き悲しんだ。",
+};
+
+
 /*
  * Hack -- possible "insult" messages
  */
@@ -91,50 +108,19 @@ static cptr desc_insult[] =
 {
 #ifdef JP
 	"があなたを侮辱した！",
-	"があなたの母を侮辱した！",
 	"があなたを軽蔑した！",
 	"があなたを辱めた！",
-	"があなたを汚した！",
+	"があなたを穢した！",
 	"があなたの回りで踊った！",
-	"が猥褻な身ぶりをした！",
-	"があなたをぼんやりと見た！！！",
-	"があなたをパラサイト呼ばわりした！",
-	"があなたをサイボーグ扱いした！"
 #else
 	"insults you!",
-	"insults your mother!",
 	"gives you the finger!",
 	"humiliates you!",
 	"defiles you!",
 	"dances around you!",
-	"makes obscene gestures!",
-	"moons you!!!"
-	"calls you a parasite!",
-	"calls you a cyborg!"
 #endif
-
 };
 
-
-
-/*
- * Hack -- possible "insult" messages
- */
-static cptr desc_moan[] =
-{
-#ifdef JP
-	"は何かを悲しんでいるようだ。",
-	"が彼の飼い犬を見なかったかと尋ねている。",
-	"が縄張りから出て行けと言っている。",
-	"はキノコがどうとか呟いている。"
-#else
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
-	"tells you to get off his land.",
-	"mumbles something about mushrooms."
-#endif
-
-};
 
 
 /*
@@ -148,14 +134,12 @@ bool make_attack_normal(int m_idx)
 
 	int ap_cnt;
 
-	int i, k, tmp, ac, rlev;
+	int i, k, tmp, rlev;
 	int do_cut, do_stun;
 
 	s32b gold;
 
 	object_type *o_ptr;
-
-	object_kind *k_ptr;
 
 	char o_name[MAX_NLEN];
 
@@ -166,7 +150,7 @@ bool make_attack_normal(int m_idx)
 	bool blinked;
 	bool touched = FALSE, fear = FALSE, alive = TRUE;
 	bool explode = FALSE;
-        bool resist_drain = FALSE;
+	bool resist_drain = FALSE;
 	bool do_silly_attack = (one_in_(2) && p_ptr->image);
 	int syouryaku = 0;
 	int get_damage = 0;
@@ -174,13 +158,8 @@ bool make_attack_normal(int m_idx)
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
-	if (d_info[dungeon_type].flags1 & DF1_NO_MELEE) return (FALSE);
-
 	/* ...nor if friendly */
 	if (!is_hostile(m_ptr)) return FALSE;
-
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Extract the effective monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
@@ -191,22 +170,6 @@ bool make_attack_normal(int m_idx)
 
 	/* Get the "died from" information (i.e. "a kobold") */
 	monster_desc(ddesc, m_ptr, 0x288);
-
-	if (p_ptr->special_defense & KATA_IAI)
-	{
-#ifdef JP
-		msg_print("相手が襲いかかる前に素早く武器を振るった。");
-#else
-		msg_format("You took sen, draw and cut in one motion before %s move.", m_name);
-#endif
-		if (py_attack(m_ptr->fy, m_ptr->fx, HISSATSU_IAI)) return TRUE;
-	}
-
-	if ((p_ptr->special_defense & NINJA_KAWARIMI) && (randint0(55) < (p_ptr->lev*3/5+20)))
-	{
-		kawarimi(TRUE);
-		return TRUE;
-	}
 
 	/* Assume no blink */
 	blinked = FALSE;
@@ -227,6 +190,9 @@ bool make_attack_normal(int m_idx)
 		int method = r_ptr->blow[ap_cnt].method;
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
+
+		/* Total armor */
+		int ac = p_ptr->ac + p_ptr->to_a;
 
 
 		if (!m_ptr->r_idx) break;
@@ -288,11 +254,14 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_VAMP:  power =  5; break;
 			case RBE_DR_MANA:   power =  5; break;
 			case RBE_SUPERHURT: power = 60; break;
+			case RBE_STONE:     power =  2; break;
+			case RBE_HOLY:      power = 30; break;
+			case RBE_HELL:      power = 30; break;
 		}
 
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev, m_ptr->stunned))
+		if (!effect || check_hit(power, rlev, ac, m_ptr->stunned))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -313,9 +282,9 @@ bool make_attack_normal(int m_idx)
 				/* Message */
 #ifdef JP
 				if (syouryaku)
-				    msg_format("撃退した。");
+					msg_format("撃退した。");
 				else
-				    msg_format("%^sは撃退された。", m_name);
+					msg_format("%^sは撃退された。", m_name);
 				syouryaku = 1;/*２回目以降は省略 */
 #else
 				msg_format("%^s is repelled.", m_name);
@@ -487,7 +456,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CHARGE:
 				{
 #ifdef JP
-				        syouryaku = -1;
+					syouryaku = -1;
 					act = "は請求書をよこした。";
 #else
 					act = "charges you.";
@@ -501,7 +470,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CRAWL:
 				{
 #ifdef JP
-				        syouryaku = -1;
+					syouryaku = -1;
 					act = "が体の上を這い回った。";
 #else
 					act = "crawls on you.";
@@ -538,7 +507,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_EXPLODE:
 				{
-				        syouryaku = -1;
+					syouryaku = -1;
 #ifdef JP
 					act = "は爆発した。";
 #else
@@ -562,12 +531,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_WAIL:
 				{
-#ifdef JP
-					act = "泣き叫ばれた。";
-#else
-					act = "wails at you.";
-#endif
-
+					syouryaku = -1;
+					act = desc_wail[randint0((sizeof desc_wail) / (sizeof (cptr)))];
 					sound(SOUND_WAIL);
 					break;
 				}
@@ -581,18 +546,6 @@ bool make_attack_normal(int m_idx)
 #endif
 
 					sound(SOUND_SLIME);
-					break;
-				}
-
-				case RBM_XXX4:
-				{
-				        syouryaku = -1;
-#ifdef JP
-					act = "が XXX4 を発射した。";
-#else
-					act = "projects XXX4's at you.";
-#endif
-
 					break;
 				}
 
@@ -610,89 +563,68 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_INSULT:
 				{
-				        syouryaku = -1;
-					act = desc_insult[randint0(m_ptr->r_idx == MON_DEBBY ? 10 : 8)];
+					syouryaku = -1;
+					act = desc_insult[randint0((sizeof desc_insult) / (sizeof (cptr)))];
 					sound(SOUND_MOAN);
 					break;
 				}
 
-				case RBM_MOAN:
+				case RBM_SING:
 				{
-				        syouryaku = -1;
-					act = desc_moan[randint0(4)];
-					sound(SOUND_MOAN);
-					break;
-				}
-
-				case RBM_SHOW:
-				{
-				        syouryaku = -1;
-					if (m_ptr->r_idx == MON_JAIAN)
+					syouryaku = -1;
+					switch (effect)
 					{
-#ifdef JP
-						switch(randint1(15))
+					case RBE_POISON:    act = "は毒々しい歌を歌った。"; break;
+					case RBE_UN_BONUS:  act = "は劣化の歌を歌った。"; break;
+					case RBE_UN_POWER:  act = "は魔力を吸い上げる歌を歌った。"; break;
+					case RBE_EAT_LITE:  act = "は光をかき消す歌を歌った。"; break;
+					case RBE_ACID:      act = "は酸の歌を歌った。"; break;
+					case RBE_ELEC:      act = "は稲妻の歌を歌った。"; break;
+					case RBE_FIRE:      act = "は火炎の歌を歌った。"; break;
+					case RBE_COLD:      act = "は吹雪の歌を歌った。"; break;
+					case RBE_BLIND:     act = "は暗闇の歌を歌った。"; break;
+					case RBE_CONFUSE:   act = "は誘惑の歌を歌った。"; break;
+					case RBE_TERRIFY:   act = "は恐怖の歌を歌った。"; break;
+					case RBE_PARALYZE:  act = "は束縛の歌を歌った。"; break;
+					case RBE_LOSE_STR:  act = "は脆弱の歌を歌った。"; break;
+					case RBE_LOSE_INT:  act = "は無知の歌を歌った。"; break;
+					case RBE_LOSE_WIS:  act = "は愚鈍の歌を歌った。"; break;
+					case RBE_LOSE_DEX:  act = "は不器用の歌を歌った。"; break;
+					case RBE_LOSE_CON:  act = "は不健康の歌を歌った。"; break;
+					case RBE_LOSE_CHR:  act = "は醜悪の歌を歌った。"; break;
+					case RBE_LOSE_ALL:  act = "は腐敗の歌を歌った。"; break;
+					case RBE_SHATTER:   act = "は破壊の歌を歌った。"; break;
+					case RBE_EXP_10:
+					case RBE_EXP_20:
+					case RBE_EXP_40:
+					case RBE_EXP_80:
+						act = "は冥界の歌を歌った。"; break;
+					case RBE_DISEASE:   act = "は肉体を蝕む歌を歌った。"; break;
+					case RBE_TIME:      act = "は時の流れを歪める歌を歌った。"; break;
+					case RBE_EXP_VAMP:  act = "は生命力を奪う歌を歌った。"; break;
+					case RBE_DR_MANA:   act = "は魔力を奪う歌を歌った。"; break;
+					case RBE_STONE:     act = "は石化の歌を歌った。"; break;
+					case RBE_HOLY:
+						switch (randint1(3))
 						{
-						  case 1:
-						  case 6:
-						  case 11:
-							act = "「♪お〜れはジャイアン〜〜ガ〜キだいしょう〜」";
-							break;
-						  case 2:
-							act = "「♪て〜んかむ〜てきのお〜とこだぜ〜〜」";
-							break;
-						  case 3:
-							act = "「♪の〜び太スネ夫はメじゃないよ〜〜」";
-							break;
-						  case 4:
-							act = "「♪け〜んかスポ〜ツ〜どんとこい〜」";
-							break;
-						  case 5:
-							act = "「♪うた〜も〜〜う〜まいぜ〜まかしとけ〜」";
-							break;
-						  case 7:
-							act = "「♪ま〜ちいちば〜んのに〜んきもの〜〜」";
-							break;
-						  case 8:
-							act = "「♪べんきょうしゅくだいメじゃないよ〜〜」";
-							break;
-						  case 9:
-							act = "「♪きはやさし〜くて〜ち〜からもち〜」";
-							break;
-						  case 10:
-							act = "「♪かお〜も〜〜スタイルも〜バツグンさ〜」";
-							break;
-						  case 12:
-							act = "「♪がっこうい〜ちの〜あ〜ばれんぼう〜〜」";
-							break;
-						  case 13:
-							act = "「♪ド〜ラもドラミもメじゃないよ〜〜」";
-							break;
-						  case 14:
-							act = "「♪よじげんぽけっと〜な〜くたって〜」";
-							break;
-						  case 15:
-							act = "「♪あし〜の〜〜ながさ〜は〜まけないぜ〜」";
-							break;
+						case 1: act = "は聖なる歌を歌った。"; break;
+						case 2: act = "は厳かな歌を歌った。"; break;
+						case 3: act = "は安らかな歌を歌った。"; break;
 						}
-#else
-						act = "horribly sings 'I AM GIAAAAAN. THE BOOOSS OF THE KIIIIDS.'";
-#endif
-					}
-					else
-					{
-						if (one_in_(3))
-#ifdef JP
-							act = "は♪僕らは楽しい家族♪と歌っている。";
-						else
-							act = "は♪アイ ラブ ユー、ユー ラブ ミー♪と歌っている。";
-#else
-							act = "sings 'We are a happy family.'";
-						else
-							act = "sings 'I love you, you love me.'";
-#endif
+						break;
+					case RBE_HELL:
+						switch (randint1(4))
+						{
+						case 1: act = "は邪悪な歌を歌った。"; break;
+						case 2: act = "は禍々しい歌を歌った。"; break;
+						case 3: act = "は汚らわしい歌を歌った。"; break;
+						case 4: act = "は呪われた歌を歌った。"; break;
+						}
+						break;
+					default:            act =  "は歌った。"; break;
 					}
 
-					sound(SOUND_SHOW);
+					sound(SOUND_SING);
 					break;
 				}
 			}
@@ -706,12 +638,12 @@ bool make_attack_normal(int m_idx)
 					act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
 				}
 #ifdef JP
-				if(syouryaku==0)
-				    msg_format("%^sに%s", m_name, act);
-				else if(syouryaku==1)
-				    msg_format("%s", act);
-				else /*if(syouryaku==-1)*/
-				    msg_format("%^s%s", m_name, act);
+				if (syouryaku == 0)
+					msg_format("%^sに%s", m_name, act);
+				else if (syouryaku == 1)
+					msg_format("%s", act);
+				else /* if (syouryaku == -1) */
+					msg_format("%^s%s", m_name, act);
 				syouryaku = 1;/*２回目以降は省略 */
 #else
 				msg_format("%^s %s", m_name, act);
@@ -723,6 +655,12 @@ bool make_attack_normal(int m_idx)
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
+			if (m_ptr->melt_weapon)
+			{
+				damage -= 10;
+				if (damage < 0) damage = 0;
+			}
+			damage = modify_dam_by_elem(m_idx, 0, damage, GF_MISSILE, MODIFY_ELEM_MODE_MELEE);
 
 			/*
 			 * Skip the effect when exploding, since the explosion
@@ -746,9 +684,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_SUPERHURT:
 				{
-					int ac = p_ptr->ac+p_ptr->to_a;
 					if ((randint1(rlev*2+300) > (ac+200)) || one_in_(13)) {
-						int tmp_damage = damage-(damage*((ac < 150) ? ac : 150)/250);
+						int tmp_damage = damage-(damage*((ac < 200) ? ac : 200) / 250);
 #ifdef JP
 						msg_print("痛恨の一撃！");
 #else
@@ -758,7 +695,9 @@ bool make_attack_normal(int m_idx)
 						tmp_damage = MAX(damage, tmp_damage*2);
 
 						/* Take damage */
-						get_damage += take_hit(DAMAGE_ATTACK, tmp_damage, ddesc, -1);
+						ACTIVATE_MULTISHADOW();
+						get_damage += take_hit(DAMAGE_ATTACK, tmp_damage, ddesc);
+						STOP_MULTISHADOW();
 						break;
 					}
 				}
@@ -768,10 +707,12 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Hack -- Player armor reduces total damage */
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+					damage -= (damage * ((ac < 200) ? ac : 200) / 250);
 
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
 
 					break;
 				}
@@ -780,17 +721,23 @@ bool make_attack_normal(int m_idx)
 				{
 					if (explode) break;
 
-					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+					if (!p_ptr->tim_octopus_immunity)
 					{
-						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
-						{
-							obvious = TRUE;
-						}
-					}
+						ACTIVATE_MULTISHADOW();
 
-					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+						/* Take "poison" effect */
+						if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && !IS_MULTISHADOW(0))
+						{
+							if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
+							{
+								obvious = TRUE;
+							}
+						}
+
+						/* Take some damage */
+						get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+						STOP_MULTISHADOW();
+					}
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_POIS);
@@ -802,15 +749,18 @@ bool make_attack_normal(int m_idx)
 				{
 					if (explode) break;
 
+					ACTIVATE_MULTISHADOW();
+
 					/* Allow complete resist */
-					if (!p_ptr->resist_disen)
+					if (!p_ptr->resist_disen && !IS_MULTISHADOW(0))
 					{
 						/* Apply disenchantment */
-						if (apply_disenchant(0)) obvious = TRUE;
+						if (apply_disenchant()) obvious = TRUE;
 					}
 
 					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_DISEN);
@@ -821,9 +771,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_UN_POWER:
 				{
 					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Find an item */
 					for (k = 0; k < 10; k++)
@@ -843,9 +799,9 @@ bool make_attack_normal(int m_idx)
 						    (o_ptr->pval))
 						{
 							/* Calculate healed hitpoints */
-							int heal=rlev * o_ptr->pval;
-							if( o_ptr->tval == TV_STAFF)
-							    heal *=  o_ptr->number;
+							int heal = rlev * o_ptr->pval;
+							if (o_ptr->tval == TV_STAFF)
+								heal *= o_ptr->number;
 
 							/* Don't heal more than max hp */
 							heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
@@ -888,12 +844,16 @@ bool make_attack_normal(int m_idx)
 				case RBE_EAT_GOLD:
 				{
 					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
 					/* Confused monsters cannot steal successfully. -LM-*/
-					if (m_ptr->confused) break;
-
-					if (p_ptr->is_dead) break;
+					if (m_ptr->confused || p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Obvious */
 					obvious = TRUE;
@@ -918,11 +878,11 @@ bool make_attack_normal(int m_idx)
 					/* Eat gold */
 					else
 					{
-						gold = (p_ptr->au / 10) + randint1(25);
+						gold = (p_ptr->au_sum / 10) + randint1(25);
 						if (gold < 2) gold = 2;
-						if (gold > 5000) gold = (p_ptr->au / 20) + randint1(3000);
-						if (gold > p_ptr->au) gold = p_ptr->au;
-						p_ptr->au -= gold;
+						if (gold > 5000) gold = (p_ptr->au_sum / 20) + randint1(3000);
+						if (gold > p_ptr->au_sum) gold = p_ptr->au_sum;
+						p_ptr->au_sum -= gold;
 						if (gold <= 0)
 						{
 #ifdef JP
@@ -932,7 +892,7 @@ bool make_attack_normal(int m_idx)
 #endif
 
 						}
-						else if (p_ptr->au)
+						else if (p_ptr->au_sum)
 						{
 #ifdef JP
 							msg_print("財布が軽くなった気がする。");
@@ -941,7 +901,6 @@ bool make_attack_normal(int m_idx)
 							msg_print("Your purse feels lighter.");
 							msg_format("%ld coins were stolen!", (long)gold);
 #endif
-							chg_virtue(V_SACRIFICE, 1);
 						}
 						else
 						{
@@ -952,9 +911,10 @@ bool make_attack_normal(int m_idx)
 							msg_print("Your purse feels lighter.");
 							msg_print("All of your coins were stolen!");
 #endif
-
-							chg_virtue(V_SACRIFICE, 2);
 						}
+
+						/* Update gold */
+						p_ptr->update |= (PU_GOLD);
 
 						/* Redraw gold */
 						p_ptr->redraw |= (PR_GOLD);
@@ -972,12 +932,16 @@ bool make_attack_normal(int m_idx)
 				case RBE_EAT_ITEM:
 				{
 					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
 					/* Confused monsters cannot steal successfully. -LM-*/
-					if (m_ptr->confused) break;
-
-					if (p_ptr->is_dead) break;
+					if (m_ptr->confused || p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
@@ -1025,15 +989,13 @@ bool make_attack_normal(int m_idx)
 						/* Message */
 #ifdef JP
 						msg_format("%s(%c)を%s盗まれた！",
-						           o_name, index_to_label(i),
+						           o_name, index_to_label(i, FALSE),
 						           ((o_ptr->number > 1) ? "一つ" : ""));
 #else
 						msg_format("%sour %s (%c) was stolen!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(i));
+						           o_name, index_to_label(i, FALSE));
 #endif
-
-						chg_virtue(V_SACRIFICE, 1);
 
 
 						/* Make an object */
@@ -1043,36 +1005,35 @@ bool make_attack_normal(int m_idx)
 						if (o_idx)
 						{
 							object_type *j_ptr;
-							
+
 							/* Get new object */
 							j_ptr = &o_list[o_idx];
-							
+
 							/* Copy object */
 							object_copy(j_ptr, o_ptr);
-							
+
 							/* Modify number */
 							j_ptr->number = 1;
-							
+
 							/* Hack -- If a rod or wand, allocate total
 							 * maximum timeouts or charges between those
 							 * stolen and those missed. -LM-
 							 */
 							if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 							{
-								k_ptr = &k_info[o_ptr->k_idx];
 								j_ptr->pval = o_ptr->pval / o_ptr->number;
 								o_ptr->pval -= j_ptr->pval;
 							}
-							
+
 							/* Forget mark */
-							j_ptr->marked = FALSE;
-							
+							j_ptr->marked = 0;
+
 							/* Memorize monster */
 							j_ptr->held_m_idx = m_idx;
-							
+
 							/* Build stack */
 							j_ptr->next_o_idx = m_ptr->hold_o_idx;
-							
+
 							/* Build stack */
 							m_ptr->hold_o_idx = o_idx;
 						}
@@ -1097,9 +1058,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_EAT_FOOD:
 				{
 					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Steal some food */
 					for (k = 0; k < 10; k++)
@@ -1122,12 +1089,12 @@ bool make_attack_normal(int m_idx)
 						/* Message */
 #ifdef JP
 						msg_format("%s(%c)を%s食べられてしまった！",
-						          o_name, index_to_label(i),
+						          o_name, index_to_label(i, FALSE),
 						          ((o_ptr->number > 1) ? "一つ" : ""));
 #else
 						msg_format("%sour %s (%c) was eaten!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(i));
+						           o_name, index_to_label(i, FALSE));
 #endif
 
 
@@ -1151,9 +1118,15 @@ bool make_attack_normal(int m_idx)
 					o_ptr = &inventory[INVEN_LITE];
 
 					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Drain fuel */
 					if ((o_ptr->xtra4 > 0) && (!artifact_p(o_ptr)))
@@ -1184,6 +1157,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_ACID:
 				{
 					if (explode) break;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1196,7 +1170,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					get_damage += acid_dam(damage, ddesc, -1);
+					get_damage += acid_dam(damage, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_ACID);
@@ -1207,6 +1181,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_ELEC:
 				{
 					if (explode) break;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1219,7 +1194,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					get_damage += elec_dam(damage, ddesc, -1);
+					get_damage += elec_dam(damage, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_ELEC);
@@ -1230,6 +1205,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_FIRE:
 				{
 					if (explode) break;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1242,7 +1218,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					get_damage += fire_dam(damage, ddesc, -1);
+					get_damage += fire_dam(damage, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_FIRE);
@@ -1253,6 +1229,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_COLD:
 				{
 					if (explode) break;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1265,7 +1242,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					get_damage += cold_dam(damage, ddesc, -1);
+					get_damage += cold_dam(damage, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_COLD);
@@ -1276,23 +1253,24 @@ bool make_attack_normal(int m_idx)
 				case RBE_BLIND:
 				{
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead)
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
 
 					/* Increase "blind" */
-					if (!p_ptr->resist_blind)
+					if (!p_ptr->resist_blind && !IS_MULTISHADOW(0))
 					{
 						if (set_blind(p_ptr->blind + 10 + randint1(rlev)))
 						{
-#ifdef JP
-							if(m_ptr->r_idx == MON_DIO) msg_print("どうだッ！この血の目潰しはッ！");
-#else
-							/* nanka */
-#endif
 							obvious = TRUE;
 						}
 					}
+					STOP_MULTISHADOW();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_BLIND);
@@ -1303,19 +1281,26 @@ bool make_attack_normal(int m_idx)
 				case RBE_CONFUSE:
 				{
 					if (explode) break;
-					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
-					if (p_ptr->is_dead) break;
+					/* Take damage */
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+
+					if (p_ptr->is_dead)
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_conf)
+					if (!p_ptr->resist_conf && !IS_MULTISHADOW(0))
 					{
 						if (set_confused(p_ptr->confused + 3 + randint1(rlev)))
 						{
 							obvious = TRUE;
 						}
 					}
+					STOP_MULTISHADOW();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_CONF);
@@ -1326,11 +1311,20 @@ bool make_attack_normal(int m_idx)
 				case RBE_TERRIFY:
 				{
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead)
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
 
 					/* Increase "afraid" */
+					if (IS_MULTISHADOW(0))
+					{
+						/* Nothing */
+					}
 					if (p_ptr->resist_fear)
 					{
 #ifdef JP
@@ -1341,7 +1335,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
+					else if ((randint0(100 + r_ptr->level/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
 					{
 #ifdef JP
 						msg_print("しかし恐怖に侵されなかった！");
@@ -1358,6 +1352,7 @@ bool make_attack_normal(int m_idx)
 							obvious = TRUE;
 						}
 					}
+					STOP_MULTISHADOW();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_FEAR);
@@ -1368,11 +1363,20 @@ bool make_attack_normal(int m_idx)
 				case RBE_PARALYZE:
 				{
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead)
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
 
 					/* Increase "paralyzed" */
+					if (IS_MULTISHADOW(0))
+					{
+						/* Nothing */
+					}
 					if (p_ptr->free_act)
 					{
 #ifdef JP
@@ -1383,7 +1387,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
+					else if ((randint0(100 + r_ptr->level/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
 					{
 #ifdef JP
 						msg_print("しかし効力を跳ね返した！");
@@ -1403,6 +1407,7 @@ bool make_attack_normal(int m_idx)
 							}
 						}
 					}
+					STOP_MULTISHADOW();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_FREE);
@@ -1413,9 +1418,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_STR:
 				{
 					/* Damage (physical) */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_STR)) obvious = TRUE;
@@ -1426,9 +1437,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_INT:
 				{
 					/* Damage (physical) */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_INT)) obvious = TRUE;
@@ -1439,9 +1456,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_WIS:
 				{
 					/* Damage (physical) */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_WIS)) obvious = TRUE;
@@ -1452,9 +1475,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_DEX:
 				{
 					/* Damage (physical) */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_DEX)) obvious = TRUE;
@@ -1465,9 +1494,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_CON:
 				{
 					/* Damage (physical) */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CON)) obvious = TRUE;
@@ -1478,9 +1513,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_CHR:
 				{
 					/* Damage (physical) */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CHR)) obvious = TRUE;
@@ -1491,9 +1532,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_ALL:
 				{
 					/* Damage (physical) */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Damage (stats) */
 					if (do_dec_stat(A_STR)) obvious = TRUE;
@@ -1512,10 +1559,12 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Hack -- Reduce damage based on the player armor class */
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+					damage -= (damage * ((ac < 200) ? ac : 200) / 250);
 
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
 
 					/* Radius 8 earthquake centered at the monster */
 					if (damage > 23 || explode)
@@ -1532,14 +1581,17 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
-
-					if (p_ptr->prace == RACE_ANDROID)
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
 					{
+						STOP_MULTISHADOW();
+						break;
 					}
-					else if (p_ptr->hold_life && (randint0(100) < 95))
+					STOP_MULTISHADOW();
+
+					if (p_ptr->hold_life && (randint0(100) < 95))
 					{
 #ifdef JP
 						msg_print("しかし自己の生命力を守りきった！");
@@ -1581,14 +1633,17 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
-
-					if (p_ptr->prace == RACE_ANDROID)
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
 					{
+						STOP_MULTISHADOW();
+						break;
 					}
-					else if (p_ptr->hold_life && (randint0(100) < 90))
+					STOP_MULTISHADOW();
+
+					if (p_ptr->hold_life && (randint0(100) < 90))
 					{
 #ifdef JP
 						msg_print("しかし自己の生命力を守りきった！");
@@ -1630,17 +1685,20 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
-
-					if (p_ptr->prace == RACE_ANDROID)
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
 					{
+						STOP_MULTISHADOW();
+						break;
 					}
-					else if (p_ptr->hold_life && (randint0(100) < 75))
+					STOP_MULTISHADOW();
+
+					if (p_ptr->hold_life && (randint0(100) < 75))
 					{
 #ifdef JP
-                                                msg_print("しかし自己の生命力を守りきった！");
+						msg_print("しかし自己の生命力を守りきった！");
 #else
 						msg_print("You keep hold of your life force!");
 #endif
@@ -1652,7 +1710,7 @@ bool make_attack_normal(int m_idx)
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
-                                                        msg_print("生命力を少し吸い取られた気がする！");
+							msg_print("生命力を少し吸い取られた気がする！");
 #else
 							msg_print("You feel your life slipping away!");
 #endif
@@ -1662,7 +1720,7 @@ bool make_attack_normal(int m_idx)
 						else
 						{
 #ifdef JP
-                                                        msg_print("生命力が体から吸い取られた気がする！");
+							msg_print("生命力が体から吸い取られた気がする！");
 #else
 							msg_print("You feel your life draining away!");
 #endif
@@ -1679,17 +1737,20 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
-
-					if (p_ptr->prace == RACE_ANDROID)
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
 					{
+						STOP_MULTISHADOW();
+						break;
 					}
-					else if (p_ptr->hold_life && (randint0(100) < 50))
+					STOP_MULTISHADOW();
+
+					if (p_ptr->hold_life && (randint0(100) < 50))
 					{
 #ifdef JP
-                                                msg_print("しかし自己の生命力を守りきった！");
+						msg_print("しかし自己の生命力を守りきった！");
 #else
 						msg_print("You keep hold of your life force!");
 #endif
@@ -1701,7 +1762,7 @@ bool make_attack_normal(int m_idx)
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
-                                                        msg_print("生命力を少し吸い取られた気がする！");
+							msg_print("生命力を少し吸い取られた気がする！");
 #else
 							msg_print("You feel your life slipping away!");
 #endif
@@ -1711,7 +1772,7 @@ bool make_attack_normal(int m_idx)
 						else
 						{
 #ifdef JP
-                                                        msg_print("生命力が体から吸い取られた気がする！");
+							msg_print("生命力が体から吸い取られた気がする！");
 #else
 							msg_print("You feel your life draining away!");
 #endif
@@ -1725,9 +1786,15 @@ bool make_attack_normal(int m_idx)
 				case RBE_DISEASE:
 				{
 					/* Take some damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
+					{
+						STOP_MULTISHADOW();
+						break;
+					}
+					STOP_MULTISHADOW();
 
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -1739,7 +1806,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Damage CON (10% chance)*/
-					if ((randint1(100) < 11) && (p_ptr->prace != RACE_ANDROID))
+					if (randint1(100) < 11)
 					{
 						/* 1% chance for perm. damage */
 						bool perm = one_in_(10);
@@ -1760,13 +1827,14 @@ bool make_attack_normal(int m_idx)
 				case RBE_TIME:
 				{
 					if (explode) break;
-					if (!p_ptr->resist_time)
+
+					ACTIVATE_MULTISHADOW();
+					if (!p_ptr->resist_time && !IS_MULTISHADOW(0))
 					{
 						switch (randint1(10))
 						{
 							case 1: case 2: case 3: case 4: case 5:
 							{
-								if (p_ptr->prace == RACE_ANDROID) break;
 #ifdef JP
 								msg_print("人生が逆戻りした気がする。");
 #else
@@ -1779,7 +1847,7 @@ bool make_attack_normal(int m_idx)
 
 							case 6: case 7: case 8: case 9:
 							{
-								int stat = randint0(6);
+								int stat = randint0(A_MAX);
 
 								switch (stat)
 								{
@@ -1817,13 +1885,13 @@ bool make_attack_normal(int m_idx)
 							case 10:
 							{
 #ifdef JP
-	                                        msg_print("あなたは以前ほど力強くなくなってしまった...。");
+								msg_print("あなたは以前ほど力強くなくなってしまった...。");
 #else
 								msg_print("You're not as powerful as you used to be...");
 #endif
 
 
-								for (k = 0; k < 6; k++)
+								for (k = 0; k < A_MAX; k++)
 								{
 									p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 7) / 8;
 									if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
@@ -1833,7 +1901,12 @@ bool make_attack_normal(int m_idx)
 							}
 						}
 					}
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_TIME);
+
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
 
 					break;
 				}
@@ -1843,17 +1916,20 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
+					ACTIVATE_MULTISHADOW();
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
-					if (p_ptr->is_dead) break;
-
-					if (p_ptr->prace == RACE_ANDROID)
+					if (p_ptr->is_dead || IS_MULTISHADOW(0))
 					{
+						STOP_MULTISHADOW();
+						break;
 					}
-					else if (p_ptr->hold_life && (randint0(100) < 50))
+					STOP_MULTISHADOW();
+
+					if (p_ptr->hold_life && (randint0(100) < 50))
 					{
 #ifdef JP
-msg_print("しかし自己の生命力を守りきった！");
+						msg_print("しかし自己の生命力を守りきった！");
 #else
 						msg_print("You keep hold of your life force!");
 #endif
@@ -1866,7 +1942,7 @@ msg_print("しかし自己の生命力を守りきった！");
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
-msg_print("生命力が少し体から抜け落ちた気がする！");
+							msg_print("生命力が少し体から抜け落ちた気がする！");
 #else
 							msg_print("You feel your life slipping away!");
 #endif
@@ -1876,7 +1952,7 @@ msg_print("生命力が少し体から抜け落ちた気がする！");
 						else
 						{
 #ifdef JP
-msg_print("生命力が体から吸い取られた気がする！");
+							msg_print("生命力が体から吸い取られた気がする！");
 #else
 							msg_print("You feel your life draining away!");
 #endif
@@ -1886,15 +1962,8 @@ msg_print("生命力が体から吸い取られた気がする！");
 					}
 
 					/* Heal the attacker? */
-					if ((!(p_ptr->prace == RACE_ZOMBIE ||
-					      p_ptr->prace == RACE_VAMPIRE ||
-					      p_ptr->prace == RACE_SPECTRE ||
-					      p_ptr->prace == RACE_SKELETON ||
-					      p_ptr->prace == RACE_DEMON ||
-					      p_ptr->prace == RACE_GOLEM ||
-					      p_ptr->prace == RACE_ANDROID) ||
-					     !(mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING)) &&
-					    (damage > 5) && !(resist_drain))
+					if (!(rp_ptr->r_flags & PRF_UNDEAD) && !(cp_ptr->c_flags & PCF_UNDEAD) &&
+					    (damage > 5) && !resist_drain)
 					{
 						bool did_heal = FALSE;
 
@@ -1912,7 +1981,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 						if ((m_ptr->ml) && (did_heal))
 						{
 #ifdef JP
-msg_format("%sは体力を回復したようだ。", m_name);
+							msg_format("%sは体力を回復したようだ。", m_name);
 #else
 							msg_format("%^s appears healthier.", m_name);
 #endif
@@ -1924,24 +1993,155 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				}
 				case RBE_DR_MANA:
 				{
-					bool did_heal = FALSE;
-
 					/* Obvious */
 					obvious = TRUE;
 
-					do_cut = 0;
-
-					/* Take damage */
-					p_ptr->csp -= damage;
-					if (p_ptr->csp < 0)
+					ACTIVATE_MULTISHADOW();
+					if (IS_MULTISHADOW(0))
 					{
-						p_ptr->csp = 0;
-						p_ptr->csp_frac = 0;
+#ifdef JP
+						msg_print("攻撃は幻影に命中し、あなたには届かなかった。");
+#else
+						msg_print("The attack hits Shadow, you are unharmed!");
+#endif
+					}
+					else
+					{
+						do_cut = 0;
+
+						/* Take damage */
+						p_ptr->csp -= damage;
+						if (p_ptr->csp < 0)
+						{
+							p_ptr->csp = 0;
+							p_ptr->csp_frac = 0;
+						}
+
+						p_ptr->redraw |= (PR_MANA);
 					}
 
-					if (m_ptr->hp < m_ptr->maxhp) did_heal = TRUE;
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_MANA);
 
-					p_ptr->redraw |= (PR_MANA);
+					STOP_MULTISHADOW();
+					break;
+				}
+				case RBE_STONE:
+				{
+					if (explode) break;
+
+					ACTIVATE_MULTISHADOW();
+					if (IS_MULTISHADOW(0))
+					{
+						/* Nothing */
+					}
+					else if (p_ptr->resist_stone)
+					{
+#ifdef JP
+						msg_print("しかし効果がなかった！");
+#else
+						msg_print("You are unaffected!");
+#endif
+
+						obvious = TRUE;
+					}
+					else if ((randint0(100 + r_ptr->level/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+					{
+#ifdef JP
+						msg_print("しかし効力を跳ね返した！");
+#else
+						msg_print("You resist the effects!");
+#endif
+
+						obvious = TRUE;
+					}
+					else if (p_ptr->resist_acid || p_ptr->oppose_acid || p_ptr->immune_acid || p_ptr->resist_shard)
+					{
+						if (!p_ptr->stoning) set_stoning(1);
+					}
+					else
+					{
+#ifdef JP
+						msg_print("生きたまま石像になっていく...");
+#else
+						msg_print("You are into a living statue...");
+#endif
+						p_ptr->is_dead |= DEATH_STONED;
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_STONE);
+
+					/* Take damage */
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
+
+					break;
+				}
+				case RBE_HOLY:
+				{
+					if (explode) break;
+
+					if (!p_ptr->immune_holy)
+					{
+						ACTIVATE_MULTISHADOW();
+						if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip)
+						{
+#ifdef JP
+							if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
+#else
+							if (!IS_MULTISHADOW(0)) msg_print("You are hit hard!");
+#endif
+							if (get_your_alignment_gne() == ALIGN_GNE_EVIL) damage = damage * 7 / 5;
+							if (p_ptr->ogre_equip) damage *= 2;
+						}
+					}
+
+					/* Hack -- Player armor reduces total damage */
+					damage -= (damage * ((ac < 200) ? ac : 200) / 250);
+
+					if (!p_ptr->immune_holy)
+					{
+						/* Take some damage */
+						get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+						STOP_MULTISHADOW();
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_HOLY);
+
+					break;
+				}
+				case RBE_HELL:
+				{
+					if (explode) break;
+
+					if (!p_ptr->immune_hell)
+					{
+						ACTIVATE_MULTISHADOW();
+						if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
+						{
+#ifdef JP
+							if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
+#else
+							if (!IS_MULTISHADOW(0)) msg_print("You are hit hard!");
+#endif
+							damage = damage * 7 / 5;
+						}
+					}
+
+					/* Hack -- Player armor reduces total damage */
+					damage -= (damage * ((ac < 200) ? ac : 200) / 250);
+
+					if (!p_ptr->immune_hell)
+					{
+						/* Take some damage */
+						get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+						STOP_MULTISHADOW();
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_HELL);
 
 					break;
 				}
@@ -1969,7 +2169,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				int k = 0;
 
 				/* Critical hit (zero if non-critical) */
-				tmp = monster_critical(d_dice, d_side, damage);
+				tmp = monster_critical(d_dice, d_side, damage, FALSE);
 
 				/* Roll for damage */
 				switch (tmp)
@@ -1994,7 +2194,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				int k = 0;
 
 				/* Critical hit (zero if non-critical) */
-				tmp = monster_critical(d_dice, d_side, damage);
+				tmp = monster_critical(d_dice, d_side, damage, TRUE);
 
 				/* Roll for damage */
 				switch (tmp)
@@ -2017,7 +2217,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			{
 				sound(SOUND_EXPLODE);
 
-				if (mon_take_hit(m_idx, m_ptr->hp + 1, &fear, NULL))
+				if (mon_take_hit(m_idx, m_ptr->hp + 1, &fear, NULL, FALSE))
 				{
 					blinked = FALSE;
 					alive = FALSE;
@@ -2028,22 +2228,23 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			{
 				if (p_ptr->sh_fire && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags3 & RF3_IM_FIRE))
+					if (!(r_ptr->flagsr & RFR_RES_FIRE))
 					{
 						int dam = damroll(2, 6);
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
+						dam = modify_dam_by_elem(0, m_idx, dam, GF_FIRE, MODIFY_ELEM_MODE_MELEE);
 
 #ifdef JP
 						msg_format("%^sは突然熱くなった！", m_name);
 						if (mon_take_hit(m_idx, dam, &fear,
-						    "は灰の山になった。"))
+						    "は灰の山になった。", FALSE))
 #else
 						msg_format("%^s is suddenly very hot!", m_name);
 
 						if (mon_take_hit(m_idx, dam, &fear,
-						    " turns into a pile of ash."))
+						    " turns into a pile of ash.", FALSE))
 #endif
 
 						{
@@ -2054,28 +2255,29 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					else
 					{
 						if (m_ptr->ml)
-							r_ptr->r_flags3 |= RF3_IM_FIRE;
+							r_ptr->r_flagsr |= RFR_RES_FIRE;
 					}
 				}
 
 				if (p_ptr->sh_elec && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags3 & RF3_IM_ELEC))
+					if (!(r_ptr->flagsr & RFR_RES_ELEC))
 					{
 						int dam = damroll(2, 6);
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
+						dam = modify_dam_by_elem(0, m_idx, dam, GF_ELEC, MODIFY_ELEM_MODE_MELEE);
 
 #ifdef JP
 						msg_format("%^sは電撃をくらった！", m_name);
 						if (mon_take_hit(m_idx, dam, &fear,
-						    "は燃え殻の山になった。"))
+						    "は燃え殻の山になった。", FALSE))
 #else
 						msg_format("%^s gets zapped!", m_name);
 
 						if (mon_take_hit(m_idx, dam, &fear,
-						    " turns into a pile of cinder."))
+						    " turns into a pile of cinder.", FALSE))
 #endif
 
 						{
@@ -2086,28 +2288,29 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					else
 					{
 						if (m_ptr->ml)
-							r_ptr->r_flags3 |= RF3_IM_ELEC;
+							r_ptr->r_flagsr |= RFR_RES_ELEC;
 					}
 				}
 
 				if (p_ptr->sh_cold && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags3 & RF3_IM_COLD))
+					if (!(r_ptr->flagsr & RFR_RES_COLD))
 					{
 						int dam = damroll(2, 6);
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
+						dam = modify_dam_by_elem(0, m_idx, dam, GF_COLD, MODIFY_ELEM_MODE_MELEE);
 
 #ifdef JP
 						msg_format("%^sは冷気をくらった！", m_name);
 						if (mon_take_hit(m_idx, dam, &fear,
-						    "は凍りついた。"))
+						    "は凍りついた。", FALSE))
 #else
 						msg_format("%^s is very cold!", m_name);
 
 						if (mon_take_hit(m_idx, dam, &fear,
-						    " was frozen."))
+						    " was frozen.", FALSE))
 #endif
 
 						{
@@ -2118,29 +2321,30 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					else
 					{
 						if (m_ptr->ml)
-							r_ptr->r_flags3 |= RF3_IM_COLD;
+							r_ptr->r_flagsr |= RFR_RES_COLD;
 					}
 				}
 
 				/* by henkma */
 				if (p_ptr->dustrobe && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags4 & RF4_BR_SHAR))
+					if (!(r_ptr->flagsr & RFR_RES_SHAR))
 					{
 						int dam = damroll(2, 6);
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
+						dam = modify_dam_by_elem(0, m_idx, dam, GF_SHARDS, MODIFY_ELEM_MODE_MELEE);
 
 #ifdef JP
-						msg_format("%^sは鏡の破片をくらった！", m_name);
+						msg_format("%^sは破片をくらった！", m_name);
 						if (mon_take_hit(m_idx, dam, &fear,
-						    "はズタズタになった。"))
+						    "はズタズタになった。", FALSE))
 #else
 						msg_format("%^s gets zapped!", m_name);
 
 						if (mon_take_hit(m_idx, dam, &fear,
-						    " had torn to pieces."))
+						    " had torn to pieces.", FALSE))
 #endif
 						  
 						{
@@ -2148,8 +2352,10 @@ msg_format("%sは体力を回復したようだ。", m_name);
 							alive = FALSE;
 						}
 					}
-					if( (cave[py][px].info & CAVE_IN_MIRROR)){
-						teleport_player(10);
+					else
+					{
+						if (m_ptr->ml)
+							r_ptr->r_flagsr |= RFR_RES_SHAR;
 					}
 				}
 
@@ -2161,16 +2367,17 @@ msg_format("%sは体力を回復したようだ。", m_name);
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
+						dam = modify_dam_by_elem(0, m_idx, dam, GF_HOLY_FIRE, MODIFY_ELEM_MODE_MELEE);
 
 #ifdef JP
 						msg_format("%^sは聖なるオーラで傷ついた！", m_name);
 						if (mon_take_hit(m_idx, dam, &fear,
-						    "は倒れた。"))
+						    "は倒れた。", FALSE))
 #else
 						msg_format("%^s is injured by holy power!", m_name);
 
 						if (mon_take_hit(m_idx, dam, &fear,
-						    " is destroyed."))
+						    " is destroyed.", FALSE))
 #endif
 
 						{
@@ -2179,30 +2386,6 @@ msg_format("%sは体力を回復したようだ。", m_name);
 						}
 						if (m_ptr->ml)
 							r_ptr->r_flags3 |= RF3_EVIL;
-					}
-				}
-
-				if (p_ptr->tim_sh_touki && alive && !p_ptr->is_dead)
-				{
-					int dam = damroll(2, 6);
-
-					/* Modify the damage */
-					dam = mon_damage_mod(m_ptr, dam, FALSE);
-
-#ifdef JP
-					msg_format("%^sが鋭い闘気のオーラで傷ついた！", m_name);
-					if (mon_take_hit(m_idx, dam, &fear,
-					    "は倒れた。"))
-#else
-					msg_format("%^s is injured by the Force", m_name);
-
-					if (mon_take_hit(m_idx, dam, &fear,
-					    " is destroyed."))
-#endif
-
-					{
-						blinked = FALSE;
-						alive = FALSE;
 					}
 				}
 			}
@@ -2236,9 +2419,9 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					/* Message */
 #ifdef JP
 					if (syouryaku)
-					    msg_format("%sかわした。", (p_ptr->special_attack & ATTACK_SUIKEN) ? "奇妙な動きで" : "");
+						msg_format("かわした。");
 					else
-					    msg_format("%s%^sの攻撃をかわした。", (p_ptr->special_attack & ATTACK_SUIKEN) ? "奇妙な動きで" : "", m_name);
+						msg_format("%^sの攻撃をかわした。", m_name);
 					syouryaku = 1;/*２回目以降は省略 */
 #else
 					msg_format("%^s misses you.", m_name);
@@ -2279,11 +2462,6 @@ msg_format("%^sから落ちてしまった！", m_name);
 #endif
 			}
 		}
-		if (p_ptr->special_defense & NINJA_KAWARIMI)
-		{
-			kawarimi(FALSE);
-			return TRUE;
-		}
 	}
 
 	if (p_ptr->tim_eyeeye && get_damage > 0 && !p_ptr->is_dead)
@@ -2292,31 +2470,16 @@ msg_format("%^sから落ちてしまった！", m_name);
 		msg_format("攻撃が%s自身を傷つけた！", m_name);
 #else
 		char m_name_self[80];
-		
+
 		/* hisself */
 		monster_desc(m_name_self, m_ptr, 0x23);
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
-		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL | PROJECT_NO_REF, -1);
+		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
 		set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 
-
-	if ((p_ptr->counter || (p_ptr->special_defense & KATA_MUSOU)) && alive && !p_ptr->is_dead && m_ptr->ml && (p_ptr->csp > 7))
-	{
-		char m_name[80];
-		monster_desc(m_name, m_ptr, 0);
-
-		p_ptr->csp -= 7;
-#ifdef JP
-		msg_format("%^sに反撃した！", m_name);
-#else
-		msg_format("Your counterattack to %s!", m_name);
-#endif
-		py_attack(m_ptr->fy, m_ptr->fx, HISSATSU_COUNTER);
-		fear = FALSE;
-	}
 
 	/* Blink away */
 	if (blinked && alive && !p_ptr->is_dead)
@@ -2327,7 +2490,7 @@ msg_format("%^sから落ちてしまった！", m_name);
 		msg_print("The thief flees laughing!");
 #endif
 
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5, FALSE);
+		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 	}
 
 
@@ -2346,11 +2509,6 @@ msg_format("%^sから落ちてしまった！", m_name);
 		msg_format("%^s flees in terror!", m_name);
 #endif
 
-	}
-
-	if (p_ptr->special_defense & KATA_IAI)
-	{
-		set_action(ACTION_NONE);
 	}
 
 	/* Assume we attacked */

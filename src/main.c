@@ -83,7 +83,7 @@ static void create_user_dir(void)
 	mkdir(dirpath, 0700);
 
 	/* Build the path to the variant-specific sub-directory */
-	path_build(subdirpath, 1024, dirpath, VERSION_NAME);
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
 
 	/* Create the directory */
 	mkdir(subdirpath, 0700);
@@ -432,14 +432,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'G':
-			case 'g':
-			{
-				/* HACK - Graphics mode switches on the original tiles */
-				arg_graphics = GRAPHICS_ORIGINAL;
-				break;
-			}
-
 			case 'R':
 			case 'r':
 			{
@@ -500,26 +492,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-#ifdef CHUUKEI
-			case 'p':
-			case 'P':
-			{
-				if (!argv[i][2]) goto usage;
-				chuukei_server = TRUE;
-				if (connect_chuukei_server(&argv[i][2]) < 0) chuukei_server = FALSE;
-				break;
-			}
-
-			case 'c':
-			case 'C':
-			{
-				if (!argv[i][2]) goto usage;
-				chuukei_client = TRUE;
-				connect_chuukei_server(&argv[i][2]);
-				break;
-			}
-#endif
-
 			case '-':
 			{
 				argv[i] = argv[0];
@@ -533,12 +505,11 @@ int main(int argc, char *argv[])
 			usage:
 			{
 				/* Dump usage information */
-				puts("Usage: angband [options] [-- subopts]");
+				puts("Usage: TOband [options] [-- subopts]");
 				puts("  -n       Start a new character");
 				puts("  -f       Request fiddle mode");
 				puts("  -w       Request wizard mode");
 				puts("  -v       Request sound mode");
-				puts("  -g       Request graphics mode");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
 				puts("  -M       Request monochrome mode");

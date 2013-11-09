@@ -847,19 +847,19 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
 #ifdef JP
       /* Dump the text */
       for (i = 0; i < n; i++) {
-              if (iskanji(cp[i])) {
-                      char jbuf[3];
-                      jbuf[0] = cp[i++];
-                      jbuf[1] = cp[i];
-                      jbuf[2] = '\0';
-                      cputs(jbuf);
-              } else {
-                      putch(cp[i]);
-              }
+	      if (iskanji(cp[i])) {
+		      char jbuf[3];
+		      jbuf[0] = cp[i++];
+		      jbuf[1] = cp[i];
+		      jbuf[2] = '\0';
+		      cputs(jbuf);
+	      } else {
+		      putch(cp[i]);
+	      }
       }
 #else
-        /* Dump the text */
-        for (i = 0; i < n; i++) putch(cp[i]);
+	/* Dump the text */
+	for (i = 0; i < n; i++) putch(cp[i]);
 #endif
 
 #else /* USE_CONIO */
@@ -1009,198 +1009,6 @@ static void Term_nuke_ibm(term *t)
 
 
 
-#ifdef USE_GRAPHICS
-
-#ifdef USE_286
-
-/*
- * In 286 mode we don't need to worry about translating from a 32bit
- * pointer to a 16 bit pointer so we just call the interrupt function
- *
- * Note the use of "intr()" instead of "int86()" so we can pass
- * segment registers.
- */
-void enable_graphic_font(void *font)
-{
-	union REGPACK regs =
-	{0};
-
-	regs.h.ah = 0x11;           /* Text font function */
-	regs.h.bh = 0x10;           /* Size of a character -- 16 bytes */
-	regs.h.cl = 0xFF;           /* Last character in font */
-	regs.x.es = FP_SEG(font);   /* Pointer to font */
-	regs.x.bp = FP_OFF(font);
-	intr(0x10, &regs);
-};
-
-#else /* USE_286 */
-
-#ifdef USE_WAT
-
-/*
- * This structure is used by the DMPI function to hold registers when
- * doing a real mode interrupt call.  (Stolen from the DJGPP <dpmi.h>
- * header file).
- */
-
-typedef union
-{
-	struct
-	{
-		unsigned long edi;
-		unsigned long esi;
-		unsigned long ebp;
-		unsigned long res;
-		unsigned long ebx;
-		unsigned long edx;
-		unsigned long ecx;
-		unsigned long eax;
-	} d;
-	struct
-	{
-		unsigned short di, di_hi;
-		unsigned short si, si_hi;
-		unsigned short bp, bp_hi;
-		unsigned short res, res_hi;
-		unsigned short bx, bx_hi;
-		unsigned short dx, dx_hi;
-		unsigned short cx, cx_hi;
-		unsigned short ax, ax_hi;
-		unsigned short flags;
-		unsigned short es;
-		unsigned short ds;
-		unsigned short fs;
-		unsigned short gs;
-		unsigned short ip;
-		unsigned short cs;
-		unsigned short sp;
-		unsigned short ss;
-	} x;
-	struct
-	{
-		unsigned char edi[4];
-		unsigned char esi[4];
-		unsigned char ebp[4];
-		unsigned char res[4];
-		unsigned char bl, bh, ebx_b2, ebx_b3;
-		unsigned char dl, dh, edx_b2, edx_b3;
-		unsigned char cl, ch, ecx_b2, ecx_b3;
-		unsigned char al, ah, eax_b2, eax_b3;
-	} h;
-} __dpmi_regs;
-
-unsigned  __dpmi_allocate_dos_memory(int size, unsigned *selector)
-{
-	union REGPACK regs =
-	{0};
-
-	regs.w.ax  = 0x100;   /* DPMI function -- allocate low memory */
-	regs.w.bx  = size;    /* Number of Paragraphs to allocate */
-	intr(0x31, &regs);    /* DPMI interface */
-
-	*selector = regs.w.dx;
-	return (regs.w.ax);
-};
-
-void __dpmi_free_dos_memory(unsigned sel)
-{
-	union REGPACK regs =
-	{0};
-
-	regs.w.ax  = 0x101;      /* DPMI function -- free low memory */
-	regs.x.edx = sel;        /* PM selector for memory block */
-	intr(0x31, &regs);       /* DPMI interface */
-};
-
-void __dpmi_int(int intno, __dpmi_regs *dblock)
-{
-	union REGPACK regs =
-	{0};
-
-	regs.w.ax  = 0x300;           /* DPMI function -- real mode interrupt */
-	regs.h.bl  = intno;           /* interrupt 0x10 */
-	regs.x.edi = FP_OFF(dblock);  /* Pointer to dblock (offset and segment) */
-	regs.x.es  = FP_SEG(dblock);
-	intr(0x31, &regs);            /* DPMI interface */
-};
-
-unsigned short __dpmi_sel = 0x0000;
-#define _farsetsel(x) __dpmi_sel=(x)
-extern void _farnspokeb(unsigned long offset, unsigned char value);
-#pragma aux _farnspokeb =        \
-          "push   fs"            \
-          "mov    fs,__dpmi_sel" \
-          "mov    fs:[eax],bl"   \
-          "pop    fs"            \
-          parm [eax] [bl];
-
-#else /* USE_WAT */
-
-#include <dpmi.h>
-#include <go32.h>
-#include <sys/farptr.h>
-
-#endif /* USE_WAT */
-
-
-/*
- * Since you cannot send 32bit pointers to a 16bit interrupt handler
- * and the video BIOS wants a (16bit) pointer to the font, we have
- * to allocate a block of dos memory, copy the font into it, then
- * translate a 32bit pointer into a 16bit pointer to that block.
- *
- * DPMI - Dos Protected Mode Interface provides functions that let
- *        us do that.
- */
-void enable_graphic_font(const char *font)
-{
-	__dpmi_regs dblock = {{0}};
-
-	unsigned int seg, i;
-	int sel;
-
-	/*
-	 * Allocate a block of memory 4096 bytes big in `low memory' so a real
-	 * mode interrupt can access it.  Real mode pointer is returned as seg:0
-	 * Protected mode pointer is sel:0.
-	 */
-	seg = __dpmi_allocate_dos_memory(256, &sel);
-
-	/* Copy the information into low memory buffer, by copying one byte at
-	 * a time.  According to the info in <sys/farptr.h>, the functions
-	 * _farsetsel() and _farnspokeb() will optimise away completely
-	 */
-	_farsetsel(sel);               /* Set the selector to write to */
-	for (i = 0; i<4096; i++)
-	{
-		_farnspokeb(i, *font++);      /* Copy 1 byte into low (far) memory */
-	}
-
-	/*
-	 * Now we use DPMI as a jumper to call the real mode interrupt.  This
-	 * is needed because loading `es' while in protected mode with a real
-	 * mode pointer will cause an Protection Fault and calling the interrupt
-	 * directly using the protected mode pointer will result in garbage
-	 * being received by the interrupt routine
-	 */
-	dblock.d.eax = 0x1100;         /* BIOS function -- set font */
-	dblock.d.ebx = 0x1000;         /* bh = size of a letter; bl = 0 (reserved) */
-	dblock.d.ecx = 0x00FF;         /* Last character in font */
-	dblock.x.es  = seg;            /* Pointer to font segment */
-	dblock.d.ebp = 0x0000;         /* Pointer to font offset */
-
-	__dpmi_int(0x10, &dblock);
-
-	/* We're done with the low memory, free it */
-	__dpmi_free_dos_memory(sel);
-}
-
-#endif /* USE_286 */
-
-#endif /* ALLOW_GRAPH */
-
-
-
 /*
  * Initialize the IBM "visual module"
  *
@@ -1292,46 +1100,6 @@ errr init_ibm(void)
 		/* Instantiate the color set */
 		activate_color_complex();
 	}
-
-#ifdef USE_GRAPHICS
-
-	/* Try to activate bitmap graphics */
-	if (arg_graphics && use_color_complex)
-	{
-		FILE *f;
-
-		char buf[4096];
-
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_XTRA, "angband.fnt");
-
-		/* Open the file */
-		f = fopen(buf, "rb");
-
-		/* Okay */
-		if (f)
-		{
-			/* Load the bitmap data */
-			if (fread(buf, 1, 4096, f) != 4096)
-			{
-				quit("Corrupt 'angband.fnt' file");
-			}
-
-			/* Close the file */
-			fclose(f);
-
-			/* Enable graphics */
-			enable_graphic_font(buf);
-
-			/* Enable colors (again) */
-			activate_color_complex();
-
-			/* Use graphics */
-			use_graphics = TRUE;
-		}
-	}
-
-#endif
 
 #ifdef USE_CONIO
 #else /* USE_CONIO */

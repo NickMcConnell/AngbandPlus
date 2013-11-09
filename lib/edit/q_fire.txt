@@ -1,0 +1,84 @@
+# q_fire.txt
+
+# Created by Topi Ylinen
+
+# Name
+Q:$11:N:The fire ordeal
+Q:11:N:<火>の試練
+
+# Definition
+Q:$11:Q:6:0:0:0:65:0:0:0:6
+Q:11:Q:6:0:0:0:65:0:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST11 2]
+Q:11:T:火のエレメントが非常に高まる地点でおまえを試させてもらう。
+Q:11:T:見事成し遂げてみよ！
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST11 3]
+Q:$11:T:You have done well. A Food of Wisdom awaits you outside.
+Q:11:T:よくやった。賢さの上がる食料を外に置いておいた。
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST11 5]
+Q:$11:T:Begone, incompetent fool!
+Q:11:T:立ち去れ、無能な馬鹿者め！
+?:1
+
+# Floor with Chaos spawn
+F:a:1:10:574
+
+# Floor with Fire brass
+F:e:1:10:805
+
+# Shallow lava with Fire elemental
+F:c:86:10:510
+
+# Shallow lava with Magma elemental
+F:d:86:10:584
+
+# Deep lava with Great hell wyrm
+F:b:85:10:756
+
+# Deep lava
+F:l:85:2
+
+# Shallow lava
+F:i:86:2
+
+# Mountain
+F:h:97
+
+# Node of Chaos layout 
+D:hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+D:hhllllliiiiiillllliiiiiiillllhh
+D:hllliiiciiiiiillliiiiiciiilillh
+D:hliiiicdciiiiiiiiiiiicdciiiiilh
+D:h.iiihhhhhhhhhccchhhhhhhhhiii.h
+D:h..ihhhhhhhhhcdddchhhhhhhhhi..h
+D:h..ihhh...aaaacccaaaa...hhhi..h
+D:h..ihh....aaaabbbaaaa....hhi..h
+D:h..ihh...hhhhhhhhhhhhh...hhi..h
+D:h..ihh..hh...........hh..hhi..h
+D:h..ihh..h.....cdc.....h..hhi..h
+D:h..ihh..hb...cdbdc...bh..hhi..h
+D:h..ihh..bbb.cdbebdc.bbb..hhi..h
+D:h..ihh..hb...cdbdc...bh..hhi..h
+D:h..ihh..h.....cdc.....h..hhi..h
+D:h..ihh..hh...........hh..hhi..h
+D:h..ihhh..hhh.......hhh..hhhi..h
+D:h..ihhh..aaaaaaaaaaaaa..hhhi..h
+D:h..ihhhh.aaaaabbbaaaaa.hhhhi..h
+D:h..ihhhhhhhhhhhhhhhhhhhhhhhi..h
+D:h..iihhhhhhhhhhhhhhhhhhhhhii..h
+D:h...iiiiiiiiiiiiiiiiiiiiiii...h
+D:h.....iiiiiiiiiiiiiiiiiii.....h
+D:h<...........................hh
+D:hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+
+# Starting position
+P:23:1
+

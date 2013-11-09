@@ -33,9 +33,6 @@ char *macro_modifier_name[MAX_MACRO_MOD];
 char *macro_trigger_name[MAX_MACRO_TRIG];
 char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
-/* レベルアップの時に上昇量を表示するのに使う */
-int level_up = 0;
-
 /* 
  *  List for auto-picker/destroyer entries
  */
@@ -45,16 +42,16 @@ autopick_type autopick_list[MAX_AUTOPICK];
 /*
  * Savefile version
  */
-byte h_ver_major;       /* Savefile version for Hengband 1.1.1 and later */
-byte h_ver_minor;
-byte h_ver_patch;
-byte h_ver_extra;
+byte t_ver_major;       /* Savefile version for TOband 0.0.0 and later */
+byte t_ver_minor;
+byte t_ver_patch;
+byte t_ver_extra;
 
 byte sf_extra;		/* Savefile's encoding key */
 
-byte z_major;           /* Savefile version for Hengband */
-byte z_minor;
-byte z_patch;
+byte t_major;           /* Savefile version for TOband */
+byte t_minor;
+byte t_patch;
 
 /*
  * Savefile information
@@ -99,14 +96,11 @@ s16b command_dir;		/* Gives direction of current command */
 s16b command_see;		/* See "object1.c" */
 s16b command_wrk;		/* See "object1.c" */
 
-s16b command_gap = 999;         /* See "object1.c" */
+s16b command_gap = 999;	/* See "object1.c" */
 
 s16b command_new;		/* Command chaining from inven/equip view */
 
 s16b energy_use;		/* Energy use this turn */
-
-byte create_up_stair;	/* Auto-create "up stairs" */
-byte create_down_stair;	/* Auto-create "down stairs" */
 
 bool msg_flag;			/* Used in msg_print() for "buffering" */
 
@@ -127,7 +121,6 @@ s32b old_turn;			/* Turn when level began (feelings) */
 s32b old_battle;
 
 bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
 bool use_bigtile = FALSE;
 
 s16b signal_count;		/* Hack -- Count interupts */
@@ -150,7 +143,6 @@ bool repair_objects;	/* Hack -- optimize detect objects */
 
 s16b inven_nxt;			/* Hack -- unused */
 bool hack_mind;
-bool hack_mutation;
 
 s16b inven_cnt;			/* Number of items in inventory */
 s16b equip_cnt;			/* Number of items in equipment */
@@ -167,10 +159,11 @@ bool multi_rew = FALSE;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
-s32b total_friend_levels = 0;
-s32b friend_align = 0;
+s32b friend_align_gne = 0;
+s32b friend_align_lnc = 0;
 
 int leaving_quest = 0;
+bool reinit_wilderness = FALSE;
 
 
 /*
@@ -212,6 +205,7 @@ bool find_examine;			/* Run into potential corners */
 
 bool disturb_move;			/* Disturb whenever any monster moves */
 bool disturb_near;			/* Disturb whenever viewable monster moves */
+bool disturb_high;			/* Disturb whenever high-level monster moves */
 bool disturb_panel;			/* Disturb whenever map panel changes */
 bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
@@ -228,9 +222,8 @@ bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
 bool display_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
-bool stupid_monsters;		/* Monsters use old AI */
 bool confirm_destroy;		/* Known worthless items are destroyed without confirmation */
-bool confirm_stairs;		/* Prompt before staircases... */
+bool confirm_quest;		/* Prompt before staircases... */
 bool confirm_wear;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
 
@@ -251,8 +244,9 @@ bool view_perma_grids;		/* Map remembers all perma-lit grids */
 bool view_torch_grids;		/* Map remembers all torch-lit grids */
 bool view_unsafe_grids;		/* Map marked by detect traps */
 
+bool show_damage;			/* Show done/taken damage */
+
 bool dungeon_align;			/* Generate dungeons with aligned rooms */
-bool dungeon_stair;			/* Generate dungeons with connected stairs */
 
 bool track_follow;			/* Monsters follow the player */
 bool track_target;			/* Monsters target the player */
@@ -285,6 +279,7 @@ bool view_bright_lite;		/* Use special colors for 'viewable' grids */
 bool view_granite_lite;		/* Use special colors for wall grids (slow) */
 bool view_special_lite;		/* Use special colors for floor grids (slow) */
 bool new_ascii_graphics;
+bool use_fake_monochrome;
 bool display_path;
 bool target_pet;
 bool plain_pickup;
@@ -292,7 +287,7 @@ bool plain_pickup;
 bool always_show_list;
 bool powerup_home;
 bool change_numeral;
-bool send_score;
+bool allow_debug_opts;   /* Allow use of debug/cheat options */
 
 /* Cheating options */
 
@@ -302,6 +297,7 @@ bool cheat_room;		/* Peek into dungeon creation */
 bool cheat_xtra;		/* Peek into something else */
 bool cheat_know;		/* Know complete monster info */
 bool cheat_live;		/* Allow player to avoid death */
+bool cheat_save;		/* Ask for saving death */
 
 
 /* Special options */
@@ -496,7 +492,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Hengband",
+	"TOband",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -542,11 +538,14 @@ char angband_sound_name[SOUND_MAX][16] =
 	"flee",
 	"drop",
 	"kill",
+	"m_kill",
+	"f_kill",
+	"n_kill",
 	"level",
 	"death",
-	"study",
 	"teleport",
 	"shoot",
+	"shoot_gun",
 	"quaff",
 	"zap",
 	"walk",
@@ -566,8 +565,6 @@ char angband_sound_name[SOUND_MAX][16] =
 	"sell",
 	"warn",
 	"rocket",
-	"n_kill",
-	"u_kill",
 	"quest",
 	"heal",
 	"x_heal",
@@ -598,9 +595,9 @@ char angband_sound_name[SOUND_MAX][16] =
 	"pain",
 	"destitem",
 	"moan",
-	"show",
-	"unused",
+	"sing",
 	"explode",
+	"encount",
 };
 
 
@@ -610,6 +607,26 @@ char angband_sound_name[SOUND_MAX][16] =
  * Not completely hardcoded, that would overflow memory
  */
 cave_type *cave[MAX_HGT];
+
+
+/*
+ * The array of saved floors
+ */
+saved_floor_type saved_floors[MAX_SAVED_FLOORS];
+
+
+/*
+ * Number of floor_id used from birth
+ */
+s16b max_floor_id;
+
+
+/*
+ * Sign for current process used in temporal files.
+ * Actually it is the start time of current process.
+ */
+u32b saved_floor_file_sign;
+
 
 /*
  * The array of dungeon items [max_o_idx]
@@ -637,6 +654,12 @@ town_type *town;
  * The player's inventory [INVEN_TOTAL]
  */
 object_type *inventory;
+
+/*
+ * Partial copy of inventory[INVEN_RARM]
+ */
+s16b mw_old_weight = 0;
+s16b mw_diff_to_melee = 0;
 
 
 /*
@@ -703,7 +726,6 @@ player_type *p_ptr = &p_body;
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-player_seikaku *ap_ptr;
 player_magic *mp_ptr;
 
 
@@ -725,22 +747,17 @@ char *v_text;
  * The skill table
  */
 skill_table *s_info;
-char *s_name;
-char *s_text;
 
 /*
  * The magic info
  */
 player_magic *m_info;
-char *m_name;
-char *m_text;
 
 /*
  * The terrain feature arrays
  */
 feature_type *f_info;
 char *f_name;
-char *f_text;
 
 /*
  * The object kind arrays
@@ -960,6 +977,7 @@ bool leave_wanted;
 bool leave_corpse;
 bool leave_junk;
 bool leave_chest;
+bool leave_special;
 
 /* Nikki */
 bool record_fix_art;
@@ -1083,39 +1101,21 @@ int mutant_regenerate_mod = 100;
  * Startup options
  */
 bool easy_band;
-bool vanilla_town;            /* Use "vanilla" town without set quests */
 bool ironman_shops;           /* Stores are permanently closed */
 bool ironman_small_levels;    /* Always create unusually small dungeon levels */
-bool ironman_downward;        /* Don't allow climbing upwards/recalling */
+bool ironman_forward;         /* Don't allow climbing backwards/recalling */
 bool ironman_autoscum;        /* Permanently enable the autoscummer */
-bool lite_town;               /* Use "lite" town without wilderness */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels */
-bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
-bool munchkin_death;          /* Ask for saving death */
 bool ironman_rooms;           /* Always generate very unusual rooms */
 bool ironman_nightmare;			/* Play the game in Nightmare mode */
 bool left_hander;
 bool preserve_mode;
-bool autoroller;
-bool autochara;
 
 
 bool can_save = FALSE;        /* Game can be saved */
 
-bool world_monster;
-bool world_player;
-
-int cap_mon;
-int cap_mspeed;
-int cap_hp;
-int cap_maxhp;
-u16b cap_nickname;
-
-s16b battle_mon[4];
-int sel_monster;
-int battle_odds;
-int kakekin;
-u32b mon_odds[4];
+bool stop_the_time_monster;
+bool stop_the_time_player;
 
 int pet_t_m_idx;
 int riding_t_m_idx;
@@ -1129,11 +1129,6 @@ bool write_level;
 
 u32b playtime;
 u32b start_time;
-
-int tsuri_dir;
-
-bool sukekaku;
-bool new_mane;
 
 bool mon_fight;
 
@@ -1157,9 +1152,60 @@ bool now_damaged;
 s16b now_message;
 bool use_menu;
 
-#ifdef CHUUKEI
-bool chuukei_server;
-bool chuukei_client;
-char *server_name;
-int server_port;
-#endif
+s16b weather[WEATHER_TYPE_NUM];
+s16b prev_weather[WEATHER_TYPE_NUM]; /* Used only in changing */
+s16b weather_time_to_change;
+
+s16b hack_elem_amount = 0; /* Change amount of elements */
+int hack_elem_mod_mode = -1;
+
+/*
+ * Anti-magic monsters array
+ */
+s16b num_anti_magic = 0;
+s16b *anti_magic_m_idx;
+
+/*
+ * Fear field monsters array
+ */
+s16b num_fear_field = 0;
+s16b *fear_field_m_idx;
+
+int penet_ac = 0;
+
+/*
+ * For "Snap Dragon Spell"
+ */
+runeweapon_type runeweapon_list[MAX_RUNEWEAPON + 1];
+byte runeweapon_num = 0;
+
+/*
+ * Chaos frame
+ */
+s16b chaos_frame[ETHNICITY_NUM];
+
+/*
+ * Status of effect of tarot card "The Fool"
+ */
+byte fool_effect_status = FOOL_STATUS_NONE;
+
+/*
+ * Monster stock
+ */
+monster_type stock_mon[MAX_STOCK_MON];
+
+/*
+ * Flag of astral mode
+ */
+bool astral_mode = FALSE;
+
+/*
+ * Flag of misc events
+ */
+u32b misc_event_flags = 0L;
+
+/*
+ * The inventory [INVEN_TOTAL] of the player's ancestor (For astral mode)
+ */
+object_type *ancestor_inventory;
+s16b ancestor_inven_cnt = 0;

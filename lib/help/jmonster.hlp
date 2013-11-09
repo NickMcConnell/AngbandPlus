@@ -1,15 +1,17 @@
-変愚蛮怒のモンスター
+TObandのモンスター
 
-参照したいオンライン・ヘルプの番号を押して下さい:
+参照したいオンライン・ヘルプの記号を押して下さい:
 
-    (a) 変愚蛮怒のモンスター        (jmonster.txt)
+    (a) TObandのモンスター          (jmonster.txt)
     (b) モンスターの記号            (jmonster.txt#MonsterSymbols)
     (c) モンスターの色              (jmonster.txt#MonsterColors)
     (d) モンスターの思い出          (jmonster.txt#MonsterMemory)
-    (e) ユニークモンスター          (jmonster.txt#Uniques)
-    (f) 正気度チェック              (jmonster.txt#EldritchHorror)
-    (g) ペット                      (jmonster.txt#Pets)
-    (h) 友好的なモンスター          (jmonster.txt#Friendly)
+    (e) モンスターの武器耐性        (jmonster.txt#MonsterResWeapon)
+    (f) モンスターのフィールド      (jmonster.txt#MonsterField)
+    (g) ユニークモンスター          (jmonster.txt#Uniques)
+    (h) 正気度チェック              (jmonster.txt#EldritchHorror)
+    (i) ペット                      (jmonster.txt#Pets)
+    (j) 友好的なモンスター          (jmonster.txt#Friendly)
 
     (?) ヘルプシステムの使用法      (jhelpinfo.txt)
 
@@ -18,7 +20,9 @@
 ***** [b] jmonster.txt#MonsterSymbols
 ***** [c] jmonster.txt#MonsterColors
 ***** [d] jmonster.txt#MonsterMemory
-***** [e] jmonster.txt#Uniques
-***** [f] jmonster.txt#EldritchHorror
-***** [g] jmonster.txt#Pets
-***** [h] jmonster.txt#Friendly
+***** [e] jmonster.txt#MonsterResWeapon
+***** [f] jmonster.txt#MonsterField
+***** [g] jmonster.txt#Uniques
+***** [h] jmonster.txt#EldritchHorror
+***** [i] jmonster.txt#Pets
+***** [j] jmonster.txt#Friendly

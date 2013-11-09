@@ -23,22 +23,22 @@ static cptr attr_to_text(byte a)
 	switch (a)
 	{
 #ifdef JP000
-case TERM_DARK:    return ("XXX¤¤");
-case TERM_WHITE:   return ("Çò¤¤");
-case TERM_SLATE:   return ("ÀÄ³¥¿§¤Î");
-case TERM_ORANGE:  return ("¥ª¥ì¥ó¥¸¤Î");
-case TERM_RED:     return ("ÀÖ¤¤");
-case TERM_GREEN:   return ("ÎÐ¤Î");
-case TERM_BLUE:    return ("ÀÄ¤¤");
-case TERM_UMBER:   return ("àèàá¿§¤Î");
-case TERM_L_DARK:  return ("³¥¿§¤Î");
-case TERM_L_WHITE: return ("ÌÀÀÄ³¥¿§¤Î");
-case TERM_VIOLET:  return ("»ç¤Î");
-case TERM_YELLOW:  return ("²«¿§¤¤");
-case TERM_L_RED:   return ("ÌÀ¤¤ÀÖ¤Î");
-case TERM_L_GREEN: return ("ÌÀ¤¤ÎÐ¤Î");
-case TERM_L_BLUE:  return ("ÌÀ¤¤ÀÄ¤Î");
-case TERM_L_UMBER: return ("ÌÀ¤¤àèàá¿§¤Î");
+		case TERM_DARK:    return ("XXX¤¤");
+		case TERM_WHITE:   return ("Çò¤¤");
+		case TERM_SLATE:   return ("ÀÄ³¥¿§¤Î");
+		case TERM_ORANGE:  return ("¥ª¥ì¥ó¥¸¤Î");
+		case TERM_RED:     return ("ÀÖ¤¤");
+		case TERM_GREEN:   return ("ÎÐ¤Î");
+		case TERM_BLUE:    return ("ÀÄ¤¤");
+		case TERM_UMBER:   return ("àèàá¿§¤Î");
+		case TERM_L_DARK:  return ("³¥¿§¤Î");
+		case TERM_L_WHITE: return ("ÌÀÀÄ³¥¿§¤Î");
+		case TERM_VIOLET:  return ("»ç¤Î");
+		case TERM_YELLOW:  return ("²«¿§¤¤");
+		case TERM_L_RED:   return ("ÌÀ¤¤ÀÖ¤Î");
+		case TERM_L_GREEN: return ("ÌÀ¤¤ÎÐ¤Î");
+		case TERM_L_BLUE:  return ("ÌÀ¤¤ÀÄ¤Î");
+		case TERM_L_UMBER: return ("ÌÀ¤¤àèàá¿§¤Î");
 #else
 		case TERM_DARK:    return ("xxx");
 		case TERM_WHITE:   return ("White");
@@ -93,23 +93,26 @@ typedef struct
 static grouper group_item[] =
 {
 #ifdef JP
-{ TV_SHOT,          "¼Í·âÊª" },
+	{ TV_BULLET,          "¼Í·âÊª" },
 #else
-	{ TV_SHOT,          "Ammo" },
+	{ TV_BULLET,          "Ammo" },
 #endif
 
+	{ TV_ROUND,         NULL },
+	{ TV_SHELL,         NULL },
+	{ TV_ROCKET,        NULL },
 	{ TV_ARROW,         NULL },
 	{ TV_BOLT,          NULL },
 
 #ifdef JP
-{ TV_BOW,           "µÝ" },
+	{ TV_BOW,           "µÝ" },
 #else
 	{ TV_BOW,           "Bows" },
 #endif
 
 
 #ifdef JP
-{ TV_SWORD,         "Éð´ï" },
+	{ TV_SWORD,         "Éð´ï" },
 #else
 	{ TV_SWORD,         "Weapons" },
 #endif
@@ -119,7 +122,7 @@ static grouper group_item[] =
 	{ TV_DIGGING,       NULL },
 
 #ifdef JP
-{ TV_SOFT_ARMOR,    "ËÉ¶ñ¡ÊÂÎ¡Ë" },
+	{ TV_SOFT_ARMOR,    "ËÉ¶ñ¡ÊÂÎ¡Ë" },
 #else
 	{ TV_SOFT_ARMOR,    "Armour (Body)" },
 #endif
@@ -128,7 +131,7 @@ static grouper group_item[] =
 	{ TV_DRAG_ARMOR,    NULL },
 
 #ifdef JP
-{ TV_CLOAK,         "ËÉ¶ñ¡Ê¤½¤ÎÂ¾¡Ë" },
+	{ TV_CLOAK,         "ËÉ¶ñ¡Ê¤½¤ÎÂ¾¡Ë" },
 #else
 	{ TV_CLOAK,         "Armour (Misc)" },
 #endif
@@ -140,8 +143,8 @@ static grouper group_item[] =
 	{ TV_BOOTS,         NULL },
 
 #ifdef JP
-{ TV_AMULET,        "¥¢¥ß¥å¥ì¥Ã¥È" },
-{ TV_RING,          "»ØÎØ" },
+	{ TV_AMULET,        "¥¢¥ß¥å¥ì¥Ã¥È" },
+	{ TV_RING,          "»ØÎØ" },
 #else
 	{ TV_AMULET,        "Amulets" },
 	{ TV_RING,          "Rings" },
@@ -149,9 +152,16 @@ static grouper group_item[] =
 
 
 #ifdef JP
-{ TV_SCROLL,        "´¬Êª" },
-{ TV_POTION,        "Ìô" },
-{ TV_FOOD,          "¿©ÎÁ" },
+	{ TV_LITE,          "¸÷¸»" },
+#else
+	{ TV_LITE,          "Light Sources" },
+#endif
+
+
+#ifdef JP
+	{ TV_SCROLL,        "´¬Êª" },
+	{ TV_POTION,        "Ìô" },
+	{ TV_FOOD,          "¿©ÎÁ" },
 #else
 	{ TV_SCROLL,        "Scrolls" },
 	{ TV_POTION,        "Potions" },
@@ -160,9 +170,9 @@ static grouper group_item[] =
 
 
 #ifdef JP
-{ TV_ROD,           "¥í¥Ã¥É" },
-{ TV_WAND,          "ËâË¡ËÀ" },
-{ TV_STAFF,         "¾ó" },
+	{ TV_ROD,           "¥í¥Ã¥É" },
+	{ TV_WAND,          "ËâË¡ËÀ" },
+	{ TV_STAFF,         "¾ó" },
 #else
 	{ TV_ROD,           "Rods" },
 	{ TV_WAND,          "Wands" },
@@ -171,55 +181,53 @@ static grouper group_item[] =
 
 
 #ifdef JP
-{ TV_LIFE_BOOK,     "ËâË¡½ñ¡ÊÀ¸Ì¿¡Ë" },
-{ TV_SORCERY_BOOK,  "ËâË¡½ñ¡ÊÀç½Ñ¡Ë" },
-{ TV_NATURE_BOOK,   "ËâË¡½ñ¡Ê¼«Á³¡Ë" },
-{ TV_CHAOS_BOOK,    "ËâË¡½ñ¡Ê¥«¥ª¥¹¡Ë" },
-{ TV_DEATH_BOOK,    "ËâË¡½ñ¡Ê°Å¹õ¡Ë" },
-{ TV_TRUMP_BOOK,    "ËâË¡½ñ¡Ê¥È¥é¥ó¥×¡Ë" },
-{ TV_ARCANE_BOOK,   "ËâË¡½ñ¡ÊÈë½Ñ¡Ë" },
-{ TV_ENCHANT_BOOK,  "ËâË¡½ñ¡Ê¾¢¡Ë" },
-{ TV_DAEMON_BOOK,   "ËâË¡½ñ¡Ê°­Ëâ¡Ë" },
-{ TV_CRUSADE_BOOK,     "ËâË¡½ñ¡ÊÇË¼Ù¡Ë" },
-{ TV_MUSIC_BOOK,    "²Î½¸" },
-{ TV_HISSATSU_BOOK, "Éð·Ý¤Î½ñ" },
+	{ TV_MAGERY_BOOK,    "ËâË¡½ñ (ËâÆ»)" },
+	{ TV_FIRE_BOOK,      "ËâË¡½ñ (²Ð±ê)" },
+	{ TV_AQUA_BOOK,      "ËâË¡½ñ (¿å)" },
+	{ TV_EARTH_BOOK,     "ËâË¡½ñ (ÂçÃÏ)" },
+	{ TV_WIND_BOOK,      "ËâË¡½ñ (É÷)" },
+	{ TV_HOLY_BOOK,      "ËâË¡½ñ (¿ÀÀ»)" },
+	{ TV_DEATH_BOOK,     "ËâË¡½ñ (°Å¹õ)" },
+	{ TV_SYMBIOTIC_BOOK, "ËâË¡½ñ (¶¦À¸)" },
+	{ TV_WITCH_BOOK,     "ËâË¡½ñ (¥¦¥£¥Ã¥Á)" },
+	{ TV_DRAKONITE_BOOK, "ËâË¡½ñ (Îµ¸À¸ì)" },
+	{ TV_CRUSADE_BOOK,   "ËâË¡½ñ (ÇË¼Ù)" },
 #else
-	{ TV_LIFE_BOOK,     "Books (Life)" },
-	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
-	{ TV_NATURE_BOOK,   "Books (Nature)" },
-	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
-	{ TV_DEATH_BOOK,    "Books (Death)" },
-	{ TV_TRUMP_BOOK,    "Books (Trump)" },
-	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
-	{ TV_ENCHANT_BOOK,  "Books (Craft)" },
-	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
-	{ TV_CRUSADE_BOOK,     "Books (Crusade)" },
-	{ TV_MUSIC_BOOK,    "Song Books" },
-	{ TV_HISSATSU_BOOK, "Books (Kendo)" },
+	{ TV_MAGERY_BOOK,    "Books (Magery)" },
+	{ TV_FIRE_BOOK,      "Books (Fire)" },
+	{ TV_AQUA_BOOK,      "Books (Aqua)" },
+	{ TV_EARTH_BOOK,     "Books (Earth)" },
+	{ TV_WIND_BOOK,      "Books (Wind)" },
+	{ TV_HOLY_BOOK,      "Books (Holy)" },
+	{ TV_DEATH_BOOK,     "Books (Death)" },
+	{ TV_SYMBIOTIC_BOOK, "Books (Symbiotic)" },
+	{ TV_WITCH_BOOK,     "Books (Witch)" },
+	{ TV_DRAKONITE_BOOK, "Books (Drakonite)" },
+	{ TV_CRUSADE_BOOK,   "Books (Crusade)" },
 #endif
 
 #ifdef JP
-{ TV_PARCHEMENT,    "ÍÓÈé»æ" },
-#else
-{ TV_PARCHEMENT,    "Parchement" },
-#endif
-
-#ifdef JP
-{ TV_CHEST,         "È¢" },
+	{ TV_CHEST,         "È¢" },
 #else
 	{ TV_CHEST,         "Chests" },
 #endif
 
 #ifdef JP
-{ TV_CAPTURE,         "¥­¥ã¥×¥Á¥ã¡¼¡¦¥Ü¡¼¥ë" },
+	{ TV_CARD,         "¥¨¥¯¥¹¥×¥ì¥¹¥«¡¼¥É" },
 #else
-	{ TV_CAPTURE,         "Capture Ball" },
+	{ TV_CARD,         "Express Card" },
 #endif
 
 #ifdef JP
-{ TV_CARD,         "¥¨¥¯¥¹¥×¥ì¥¹¥«¡¼¥É" },
+	{ TV_TAROT,         "¥¿¥í¥Ã¥È¥«¡¼¥É" },
 #else
-	{ TV_CARD,         "Express Card" },
+	{ TV_TAROT,         "Tarot Card" },
+#endif
+
+#ifdef JP
+	{ TV_SCRATCH_CARD,  "¥¹¥Ô¡¼¥É¤¯¤¸" },
+#else
+	{ TV_SCRATCH_CARD,  "Scratch Card" },
 #endif
 
 	{ TV_FIGURINE,      "Magical Figurines" },
@@ -227,19 +235,22 @@ static grouper group_item[] =
 	{ TV_CORPSE,        "Corpses" },
 
 #ifdef JP
-{ TV_WHISTLE,         "Å«" },
-#else
-	{ TV_WHISTLE,         "Whistle" },
-#endif
-
-#ifdef JP
-{ TV_SPIKE,         "¤¯¤µ¤Ó" },
+	{ TV_SPIKE,         "¤¯¤µ¤Ó" },
 #else
 	{ TV_SPIKE,         "Spike" },
 #endif
 
-	{ TV_LITE,          NULL },
-	{ TV_FLASK,         NULL },
+#ifdef JP
+	{ TV_STONE,         "ÀÐ" },
+#else
+	{ TV_STONE,         "Stone" },
+#endif
+
+#ifdef JP
+	{ TV_FLASK,         "¤½¤ÎÂ¾" },
+#else
+	{ TV_FLASK,         "Others" },
+#endif
 	{ TV_JUNK,          NULL },
 	{ TV_BOTTLE,        NULL },
 	{ TV_SKELETON,      NULL },
@@ -255,6 +266,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 {
 	object_type forge;
 	object_type *q_ptr;
+	int i;
 
 
 	/* Get local object */
@@ -268,6 +280,8 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 	/* Cancel bonuses */
 	q_ptr->pval = 0;
+	for (i = 0; i < A_MAX; i++) q_ptr->to_stat[i] = 0;
+	for (i = 0; i < OB_MAX; i++) q_ptr->to_misc[i] = 0;
 	q_ptr->to_a = 0;
 	q_ptr->to_h = 0;
 	q_ptr->to_d = 0;
@@ -301,7 +315,10 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		}
 
 		/* Ammo */
-		case TV_SHOT:
+		case TV_BULLET:
+		case TV_ROUND:
+		case TV_SHELL:
+		case TV_ROCKET:
 		case TV_BOLT:
 		case TV_ARROW:
 		{
@@ -357,7 +374,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -374,8 +391,8 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (Hengband %d.%d.%d)\n\n\n",
-		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "Spoiler File -- Basic Items (TOband %d.%d.%d)\n\n\n",
+		T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
@@ -570,62 +587,52 @@ typedef struct flag_desc flag_desc;
 
 struct flag_desc
 {
-	const u32b flag;
+	const int flag;
 	const char *const desc;
 };
 
 
 
-/*
- * These are used for "+3 to STR, DEX", etc. These are separate from
- * the other pval affected traits to simplify the case where an object
- * affects all stats.  In this case, "All stats" is used instead of
- * listing each stat individually.
- */
-
-static flag_desc stat_flags_desc[] =
+static cptr to_desc_spoil[A_MAX + OB_MAX] =
 {
 #ifdef JP
-	{ TR1_STR,        "ÏÓÎÏ" },
-	{ TR1_INT,        "ÃÎÇ½" },
-	{ TR1_WIS,        "¸­¤µ" },
-	{ TR1_DEX,        "´ïÍÑ¤µ" },
-	{ TR1_CON,        "ÂÑµ×ÎÏ" },
-	{ TR1_CHR,        "Ì¥ÎÏ" }
+	"ÏÓÎÏ",
+	"ÃÎÇ½",
+	"¸­¤µ",
+	"´ïÍÑ¤µ",
+	"ÂÑµ×ÎÏ",
+	"Ì¥ÎÏ",
+	"ËâË¡Æ»¶ñ»ÈÍÑÇ½ÎÏ",
+	"±£Ì©",
+	"Ãµº÷",
+	"ÀÖ³°Àþ»ëÎÏ",
+	"ºÎ·¡",
+	"¥¹¥Ô¡¼¥É",
+	"¹¶·â²ó¿ô",
+	"È¿ËâË¡¥Õ¥£¡¼¥ë¥ÉÈ¾·Â",
 #else
-	{ TR1_STR,        "STR" },
-	{ TR1_INT,        "INT" },
-	{ TR1_WIS,        "WIS" },
-	{ TR1_DEX,        "DEX" },
-	{ TR1_CON,        "CON" },
-	{ TR1_CHR,        "CHR" }
+	"STR",
+	"INT",
+	"WIS",
+	"DEX",
+	"CON",
+	"CHR",
+	"Magic Mastery",
+	"Stealth",
+	"Searching",
+	"Infravision",
+	"Tunneling",
+	"Speed",
+	"Attacks",
+	"Anti-magic Field Radius",
 #endif
 };
 
-/*
- * Besides stats, these are the other player traits
- * which may be affected by an object's pval
- */
-
-static flag_desc pval_flags1_desc[] =
-{
 #ifdef JP
-	{ TR1_MAGIC_MASTERY,    "ËâË¡Æ»¶ñ»ÈÍÑÇ½ÎÏ" },
-	{ TR1_STEALTH,    "±£Ì©" },
-	{ TR1_SEARCH,     "Ãµº÷" },
-	{ TR1_INFRA,      "ÀÖ³°Àþ»ëÎÏ" },
-	{ TR1_TUNNEL,     "ºÎ·¡" },
-	{ TR1_BLOWS,      "¹¶·â²ó¿ô" },
-	{ TR1_SPEED,      "¥¹¥Ô¡¼¥É" }
+static cptr to_all_stats_desc = "Á´Ç½ÎÏ";
 #else
-	{ TR1_STEALTH,    "Stealth" },
-	{ TR1_SEARCH,     "Searching" },
-	{ TR1_INFRA,      "Infravision" },
-	{ TR1_TUNNEL,     "Tunneling" },
-	{ TR1_BLOWS,      "Attacks" },
-	{ TR1_SPEED,      "Speed" }
+static cptr to_all_stats_desc = "All Stats";
 #endif
-};
 
 /*
  * Slaying preferences for weapons
@@ -634,27 +641,31 @@ static flag_desc pval_flags1_desc[] =
 static flag_desc slay_flags_desc[] =
 {
 #ifdef JP
-	{ TR1_SLAY_ANIMAL,        "Æ°Êª" },
-	{ TR1_SLAY_EVIL,          "¼Ù°­" },
-	{ TR3_SLAY_HUMAN,         "¿Í´Ö" },
-	{ TR1_SLAY_UNDEAD,        "¥¢¥ó¥Ç¥Ã¥É" },
-	{ TR1_SLAY_DEMON,         "°­Ëâ" },
-	{ TR1_SLAY_ORC,           "¥ª¡¼¥¯" },
-	{ TR1_SLAY_TROLL,         "¥È¥í¥ë" },
-	{ TR1_SLAY_GIANT,         "µð¿Í" },
-	{ TR1_SLAY_DRAGON,        "¥É¥é¥´¥ó" },
-	{ TR1_KILL_DRAGON,        "*¥É¥é¥´¥ó*" },
+	{ TR_SLAY_ANIMAL,        "Æ°Êª" },
+	{ TR_SLAY_EVIL,          "¼Ù°­" },
+	{ TR_SLAY_GOOD,          "Á±ÎÉ" },
+	{ TR_SLAY_HUMAN,         "¿Í´Ö" },
+	{ TR_SLAY_UNDEAD,        "¥¢¥ó¥Ç¥Ã¥É" },
+	{ TR_SLAY_LIVING,        "À¸Ì¿" },
+	{ TR_SLAY_DEMON,         "°­Ëâ" },
+	{ TR_SLAY_ORC,           "¥ª¡¼¥¯" },
+	{ TR_SLAY_TROLL,         "¥È¥í¥ë" },
+	{ TR_SLAY_GIANT,         "µð¿Í" },
+	{ TR_SLAY_DRAGON,        "¥É¥é¥´¥ó" },
+	{ TR_KILL_DRAGON,        "*¥É¥é¥´¥ó*" },
 #else
-	{ TR1_SLAY_ANIMAL,        "Animal" },
-	{ TR1_SLAY_EVIL,          "Evil" },
-	{ TR3_SLAY_HUMAN,         "Human" },
-	{ TR1_SLAY_UNDEAD,        "Undead" },
-	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
-	{ TR1_SLAY_TROLL,         "Troll" },
-	{ TR1_SLAY_GIANT,         "Giant" },
-	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR_SLAY_ANIMAL,        "Animal" },
+	{ TR_SLAY_EVIL,          "Evil" },
+	{ TR_SLAY_GOOD,          "Good" },
+	{ TR_SLAY_HUMAN,         "Human" },
+	{ TR_SLAY_UNDEAD,        "Undead" },
+	{ TR_SLAY_LIVING,        "Living" },
+	{ TR_SLAY_DEMON,         "Demon" },
+	{ TR_SLAY_ORC,           "Orc" },
+	{ TR_SLAY_TROLL,         "Troll" },
+	{ TR_SLAY_GIANT,         "Giant" },
+	{ TR_SLAY_DRAGON,        "Dragon" },
+	{ TR_KILL_DRAGON,        "Xdragon" }
 #endif
 };
 
@@ -669,72 +680,76 @@ static flag_desc slay_flags_desc[] =
 static flag_desc brand_flags_desc[] =
 {
 #ifdef JP
-	{ TR1_BRAND_ACID,         "ÍÏ²ò" },
-	{ TR1_BRAND_ELEC,         "ÅÅ·â" },
-	{ TR1_BRAND_FIRE,         "¾Æ´þ" },
-	{ TR1_BRAND_COLD,         "Åà·ë" },
-	{ TR1_BRAND_POIS,         "ÆÇ»¦" },
+	{ TR_BRAND_ACID,         "ÍÏ²ò" },
+	{ TR_BRAND_ELEC,         "ÅÅ·â" },
+	{ TR_BRAND_FIRE,         "¾Æ´þ" },
+	{ TR_BRAND_COLD,         "Åà·ë" },
+	{ TR_BRAND_POIS,         "ÆÇ»¦" },
 
-	{ TR1_FORCE_WEAPON,       "ÍýÎÏ" },
-	{ TR1_CHAOTIC,            "º®ÆÙ" },
-	{ TR1_VAMPIRIC,           "µÛ·ì" },
-	{ TR1_IMPACT,             "ÃÏ¿Ì" },
-	{ TR1_VORPAL,             "ÀÚ¤ìÌ£" },
+	{ TR_FORCE_WEAPON,       "ÍýÎÏ" },
+	{ TR_CHAOTIC,            "º®ÆÙ" },
+	{ TR_VAMPIRIC,           "µÛ·ì" },
+	{ TR_IMPACT,             "ÃÏ¿Ì" },
+	{ TR_VORPAL,             "ÀÚ¤ìÌ£" },
+	{ TR_EXTRA_VORPAL,       "*ÀÚ¤ìÌ£*" },
 #else
-	{ TR1_BRAND_ACID,         "Acid Brand" },
-	{ TR1_BRAND_ELEC,         "Lightning Brand" },
-	{ TR1_BRAND_FIRE,         "Flame Tongue" },
-	{ TR1_BRAND_COLD,         "Frost Brand" },
-	{ TR1_BRAND_POIS,         "Poisoned" },
+	{ TR_BRAND_ACID,         "Acid Brand" },
+	{ TR_BRAND_ELEC,         "Lightning Brand" },
+	{ TR_BRAND_FIRE,         "Flame Tongue" },
+	{ TR_BRAND_COLD,         "Frost Brand" },
+	{ TR_BRAND_POIS,         "Poisoned" },
 
-	{ TR1_FORCE_WEAPON,       "Force" },
-	{ TR1_CHAOTIC,            "Mark of Chaos" },
-	{ TR1_VAMPIRIC,           "Vampiric" },
-	{ TR1_IMPACT,             "Earthquake impact on hit" },
-	{ TR1_VORPAL,             "Very sharp" },
+	{ TR_FORCE_WEAPON,       "Force" },
+	{ TR_CHAOTIC,            "Mark of Chaos" },
+	{ TR_VAMPIRIC,           "Vampiric" },
+	{ TR_IMPACT,             "Earthquake impact on hit" },
+	{ TR_VORPAL,             "Very sharp" },
+	{ TR_EXTRA_VORPAL,       "*Very sharp*" },
 #endif
 };
 
 
 /*
- * The 15 resistables
+ * The 16+1 resistables
  */
 static const flag_desc resist_flags_desc[] =
 {
 #ifdef JP
-	{ TR2_RES_ACID,   "»À" },
-	{ TR2_RES_ELEC,   "ÅÅ·â" },
-	{ TR2_RES_FIRE,   "²Ð±ê" },
-	{ TR2_RES_COLD,   "Îäµ¤" },
-	{ TR2_RES_POIS,   "ÆÇ" },
-	{ TR2_RES_FEAR,   "¶²ÉÝ"},
-	{ TR2_RES_LITE,   "Á®¸÷" },
-	{ TR2_RES_DARK,   "°Å¹õ" },
-	{ TR2_RES_BLIND,  "ÌÕÌÜ" },
-	{ TR2_RES_CONF,   "º®Íð" },
-	{ TR2_RES_SOUND,  "¹ì²»" },
-	{ TR2_RES_SHARDS, "ÇËÊÒ" },
-	{ TR2_RES_NETHER, "ÃÏ¹ö" },
-	{ TR2_RES_NEXUS,  "°ø²Ìº®Íð" },
-	{ TR2_RES_CHAOS,  "¥«¥ª¥¹" },
-	{ TR2_RES_DISEN,  "Îô²½" },
+	{ TR_RES_ACID,   "»À" },
+	{ TR_RES_ELEC,   "ÅÅ·â" },
+	{ TR_RES_FIRE,   "²Ð±ê" },
+	{ TR_RES_COLD,   "Îäµ¤" },
+	{ TR_RES_POIS,   "ÆÇ" },
+	{ TR_RES_FEAR,   "¶²ÉÝ"},
+	{ TR_RES_LITE,   "Á®¸÷" },
+	{ TR_RES_DARK,   "°Å¹õ" },
+	{ TR_RES_BLIND,  "ÌÕÌÜ" },
+	{ TR_RES_CONF,   "º®Íð" },
+	{ TR_RES_SOUND,  "¹ì²»" },
+	{ TR_RES_SHARDS, "ÇËÊÒ" },
+	{ TR_RES_NETHER, "ÃÏ¹ö" },
+	{ TR_RES_STONE,  "ÀÐ²½" },
+	{ TR_RES_CHAOS,  "¥«¥ª¥¹" },
+	{ TR_RES_DISEN,  "Îô²½" },
+	{ TR_RES_MAGIC,  "ËâË¡" },
 #else
-	{ TR2_RES_ACID,   "Acid" },
-	{ TR2_RES_ELEC,   "Lightning" },
-	{ TR2_RES_FIRE,   "Fire" },
-	{ TR2_RES_COLD,   "Cold" },
-	{ TR2_RES_POIS,   "Poison" },
-	{ TR2_RES_FEAR,   "Fear"},
-	{ TR2_RES_LITE,   "Light" },
-	{ TR2_RES_DARK,   "Dark" },
-	{ TR2_RES_BLIND,  "Blindness" },
-	{ TR2_RES_CONF,   "Confusion" },
-	{ TR2_RES_SOUND,  "Sound" },
-	{ TR2_RES_SHARDS, "Shards" },
-	{ TR2_RES_NETHER, "Nether" },
-	{ TR2_RES_NEXUS,  "Nexus" },
-	{ TR2_RES_CHAOS,  "Chaos" },
-	{ TR2_RES_DISEN,  "Disenchantment" },
+	{ TR_RES_ACID,   "Acid" },
+	{ TR_RES_ELEC,   "Lightning" },
+	{ TR_RES_FIRE,   "Fire" },
+	{ TR_RES_COLD,   "Cold" },
+	{ TR_RES_POIS,   "Poison" },
+	{ TR_RES_FEAR,   "Fear"},
+	{ TR_RES_LITE,   "Light" },
+	{ TR_RES_DARK,   "Dark" },
+	{ TR_RES_BLIND,  "Blindness" },
+	{ TR_RES_CONF,   "Confusion" },
+	{ TR_RES_SOUND,  "Sound" },
+	{ TR_RES_SHARDS, "Shards" },
+	{ TR_RES_NETHER, "Nether" },
+	{ TR_RES_STONE,  "Stone" },
+	{ TR_RES_CHAOS,  "Chaos" },
+	{ TR_RES_DISEN,  "Disenchantment" },
+	{ TR_RES_MAGIC,  "Magic" },
 #endif
 };
 
@@ -745,15 +760,15 @@ static const flag_desc resist_flags_desc[] =
 static const flag_desc immune_flags_desc[] =
 {
 #ifdef JP
-	{ TR2_IM_ACID,    "»À" },
-	{ TR2_IM_ELEC,    "ÅÅ·â" },
-	{ TR2_IM_FIRE,    "²Ð±ê" },
-	{ TR2_IM_COLD,    "Îäµ¤" },
+	{ TR_IM_ACID,    "»À" },
+	{ TR_IM_ELEC,    "ÅÅ·â" },
+	{ TR_IM_FIRE,    "²Ð±ê" },
+	{ TR_IM_COLD,    "Îäµ¤" },
 #else
-	{ TR2_IM_ACID,    "Acid" },
-	{ TR2_IM_ELEC,    "Lightning" },
-	{ TR2_IM_FIRE,    "Fire" },
-	{ TR2_IM_COLD,    "Cold" },
+	{ TR_IM_ACID,    "Acid" },
+	{ TR_IM_ELEC,    "Lightning" },
+	{ TR_IM_FIRE,    "Fire" },
+	{ TR_IM_COLD,    "Cold" },
 #endif
 };
 
@@ -764,19 +779,19 @@ static const flag_desc immune_flags_desc[] =
 static const flag_desc sustain_flags_desc[] =
 {
 #ifdef JP
-	{ TR2_SUST_STR,   "ÏÓÎÏ" },
-	{ TR2_SUST_INT,   "ÃÎÇ½" },
-	{ TR2_SUST_WIS,   "¸­¤µ" },
-	{ TR2_SUST_DEX,   "´ïÍÑ¤µ" },
-	{ TR2_SUST_CON,   "ÂÑµ×ÎÏ" },
-	{ TR2_SUST_CHR,   "Ì¥ÎÏ" },
+	{ TR_SUST_STR,   "ÏÓÎÏ" },
+	{ TR_SUST_INT,   "ÃÎÇ½" },
+	{ TR_SUST_WIS,   "¸­¤µ" },
+	{ TR_SUST_DEX,   "´ïÍÑ¤µ" },
+	{ TR_SUST_CON,   "ÂÑµ×ÎÏ" },
+	{ TR_SUST_CHR,   "Ì¥ÎÏ" },
 #else
-	{ TR2_SUST_STR,   "STR" },
-	{ TR2_SUST_INT,   "INT" },
-	{ TR2_SUST_WIS,   "WIS" },
-	{ TR2_SUST_DEX,   "DEX" },
-	{ TR2_SUST_CON,   "CON" },
-	{ TR2_SUST_CHR,   "CHR" },
+	{ TR_SUST_STR,   "STR" },
+	{ TR_SUST_INT,   "INT" },
+	{ TR_SUST_WIS,   "WIS" },
+	{ TR_SUST_DEX,   "DEX" },
+	{ TR_SUST_CON,   "CON" },
+	{ TR_SUST_CHR,   "CHR" },
 #endif
 };
 
@@ -787,15 +802,15 @@ static const flag_desc sustain_flags_desc[] =
 static const flag_desc misc_flags2_desc[] =
 {
 #ifdef JP
-	{ TR2_THROW,      "ÅêÚ³" },
-	{ TR2_REFLECT,    "È¿¼Í" },
-	{ TR2_FREE_ACT,   "ËãáãÃÎ¤é¤º" },
-	{ TR2_HOLD_LIFE,  "À¸Ì¿ÎÏ°Ý»ý" },
+	{ TR_THROW,      "ÅêÚ³" },
+	{ TR_REFLECT,    "È¿¼Í" },
+	{ TR_FREE_ACT,   "ËãáãÃÎ¤é¤º" },
+	{ TR_HOLD_LIFE,  "À¸Ì¿ÎÏ°Ý»ý" },
 #else
-	{ TR2_THROW,      "Throwing" },
-	{ TR2_REFLECT,    "Reflection" },
-	{ TR2_FREE_ACT,   "Free Action" },
-	{ TR2_HOLD_LIFE,  "Hold Life" },
+	{ TR_THROW,      "Throwing" },
+	{ TR_REFLECT,    "Reflection" },
+	{ TR_FREE_ACT,   "Free Action" },
+	{ TR_HOLD_LIFE,  "Hold Life" },
 #endif
 };
 
@@ -809,57 +824,71 @@ static const flag_desc misc_flags2_desc[] =
 static const flag_desc misc_flags3_desc[] =
 {
 #ifdef JP
-	{ TR3_SH_FIRE,            "²Ð±ê¥ª¡¼¥é" },
-	{ TR3_SH_ELEC,            "ÅÅ·â¥ª¡¼¥é" },
-	{ TR3_SH_COLD,            "Îäµ¤¥ª¡¼¥é" },
-	{ TR3_NO_TELE,            "È¿¥Æ¥ì¥Ý¡¼¥È" },
-	{ TR3_NO_MAGIC,           "È¿ËâË¡" },
-	{ TR3_FEATHER,            "ÉâÍ·" },
-	{ TR3_SEE_INVIS,          "²Ä»ëÆ©ÌÀ" },
-	{ TR3_TELEPATHY,          "¥Æ¥ì¥Ñ¥·¡¼" },
-	{ TR3_SLOW_DIGEST,        "ÃÙ¾Ã²½" },
-	{ TR3_REGEN,              "µÞÂ®²óÉü" },
-	{ TR3_WARNING,            "·Ù¹ð" },
-/*	{ TR3_XTRA_MIGHT,         "¶¯ÎÏ¼Í·â" }, */
-	{ TR3_XTRA_SHOTS,         "ÄÉ²Ã¼Í·â" },        /* always +1? */
-	{ TR3_DRAIN_EXP,          "·Ð¸³ÃÍµÛ¼ý" },
-	{ TR3_AGGRAVATE,          "È¿´¶" },
-	{ TR3_BLESSED,            "½ËÊ¡" },
-	{ TR3_DEC_MANA,           "¾ÃÈñËâÎÏ¸º¾¯" },
+	{ TR_SH_FIRE,            "²Ð±ê¥ª¡¼¥é" },
+	{ TR_SH_ELEC,            "ÅÅ·â¥ª¡¼¥é" },
+	{ TR_SH_COLD,            "Îäµ¤¥ª¡¼¥é" },
+	{ TR_NO_TELE,            "È¿¥Æ¥ì¥Ý¡¼¥È" },
+	{ TR_NO_MAGIC,           "È¿ËâË¡¥Ð¥ê¥¢" },
+	{ TR_FEATHER,            "ÉâÍ·" },
+	{ TR_SEE_INVIS,          "²Ä»ëÆ©ÌÀ" },
+	{ TR_TELEPATHY,          "¥Æ¥ì¥Ñ¥·¡¼" },
+	{ TR_SLOW_DIGEST,        "ÃÙ¾Ã²½" },
+	{ TR_REGEN,              "µÞÂ®²óÉü" },
+	{ TR_REGEN_MANA,         "ËâÎÏµÞÂ®²óÉü" },
+	{ TR_WARNING,            "·Ù¹ð" },
+/*	{ TR_XTRA_MIGHT,         "¶¯ÎÏ¼Í·â" }, */
+	{ TR_XTRA_SHOTS,         "ÄÉ²Ã¼Í·â" },        /* always +1? */
+	{ TR_DRAIN_EXP,          "·Ð¸³ÃÍµÛ¼ý" },
+	{ TR_AGGRAVATE,          "È¿´¶" },
+	{ TR_BLESSED,            "½ËÊ¡" },
+	{ TR_UNHOLY,             "ÉÔ¾ô" },
+	{ TR_DEC_MANA,           "¾ÃÈñËâÎÏ¸º¾¯" },
+	{ TR_EASY_SPELL,         "ËâË¡Æñ°×ÅÙ¸º¾¯" },
+	{ TR_WRAITH,             "Í©ÂÎ²½" },
+	{ TR_FEAR_FIELD,         "¶²ÉÝ¥Õ¥£¡¼¥ë¥É" },
+	{ TR_FEMALE_ONLY,        "½÷À­ÀìÍÑ" },
+	{ TR_MALE_ONLY,          "ÃËÀ­ÀìÍÑ" },
 #else
-	{ TR3_SH_FIRE,            "Fiery Aura" },
-	{ TR3_SH_ELEC,            "Electric Aura" },
-	{ TR3_SH_COLD,            "Coldly Aura" },
-	{ TR3_NO_TELE,            "Prevent Teleportation" },
-	{ TR3_NO_MAGIC,           "Anti-Magic" },
-	{ TR3_FEATHER,            "Levitation" },
-	{ TR3_SEE_INVIS,          "See Invisible" },
-	{ TR3_TELEPATHY,          "ESP" },
-	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
-	{ TR3_REGEN,              "Regeneration" },
-	{ TR3_WARNING,            "Warning" },
-/*	{ TR3_XTRA_MIGHT,         "Extra Might" }, */
-	{ TR3_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
-	{ TR3_DRAIN_EXP,          "Drains Experience" },
-	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_BLESSED,            "Blessed Blade" },
-	{ TR3_DEC_MANA,           "Decrease Shouhi Mana" },
+	{ TR_SH_FIRE,            "Fiery Aura" },
+	{ TR_SH_ELEC,            "Electric Aura" },
+	{ TR_SH_COLD,            "Coldly Aura" },
+	{ TR_NO_TELE,            "Prevent Teleportation" },
+	{ TR_NO_MAGIC,           "Anti-Magic" },
+	{ TR_FEATHER,            "Levitation" },
+	{ TR_SEE_INVIS,          "See Invisible" },
+	{ TR_TELEPATHY,          "ESP" },
+	{ TR_SLOW_DIGEST,        "Slow Digestion" },
+	{ TR_REGEN,              "Regeneration" },
+	{ TR_REGEN_MANA,         "Mana Regeneration" },
+	{ TR_WARNING,            "Warning" },
+/*	{ TR_XTRA_MIGHT,         "Extra Might" }, */
+	{ TR_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
+	{ TR_DRAIN_EXP,          "Drains Experience" },
+	{ TR_AGGRAVATE,          "Aggravates" },
+	{ TR_BLESSED,            "Blessed Weapon" },
+	{ TR_UNHOLY,             "Unholy Weapon" },
+	{ TR_DEC_MANA,           "Decrease Mana Consumption Rate" },
+	{ TR_EASY_SPELL,         "Decrease Magic Fail Rate" },
+	{ TR_WRAITH,             "Wraith Form" },
+	{ TR_FEAR_FIELD,         "Fear Field" },
+	{ TR_FEMALE_ONLY,        "Ladies Only" },
+	{ TR_MALE_ONLY,          "Mens Only" },
 #endif
 };
 
 
 /*
- * A special type used just for deailing with pvals
+ * A special type used just for deailing with bonuses
  */
 typedef struct
 {
 	/*
 	 * This will contain a string such as "+2", "-10", etc.
 	 */
-	char pval_desc[12];
+	char to_bonus_desc[A_MAX + OB_MAX + 1][12];
 
 	/*
-	 * A list of various player traits affected by an object's pval such
+	 * A list of various player traits affected by an object's bonus such
 	 * as stats, speed, stealth, etc.  "Extra attacks" is NOT included in
 	 * this list since it will probably be desirable to format its
 	 * description differently.
@@ -872,10 +901,8 @@ typedef struct
 	 *
 	 * This list includes extra attacks, for simplicity.
 	 */
-	cptr pval_affects[N_ELEMENTS(stat_flags_desc) - 1 +
-			  N_ELEMENTS(pval_flags1_desc) + 1];
-
-} pval_info_type;
+	bonus_list_type bonus_affects[A_MAX + OB_MAX + 1];
+} to_bonus_info_type;
 
 
 /*
@@ -891,8 +918,8 @@ typedef struct
 	/* "The Longsword Dragonsmiter (6d4) (+20, +25)" */
 	char description[MAX_NLEN];
 
-	/* Description of what is affected by an object's pval */
-	pval_info_type pval_info;
+	/* Description of what is affected by an object's bonus */
+	to_bonus_info_type to_bonus_info;
 
 	/* A list of an object's slaying preferences */
 	cptr slays[N_ELEMENTS(slay_flags_desc) + 1];
@@ -915,6 +942,9 @@ typedef struct
 			+ 1       /* TY curse */
 			+ 1       /* type of curse */
 			+ 1];     /* sentinel NULL */
+
+	/* Additional Ability or Resistance */
+	char addition[80];
 
 	/* A string describing an artifact's activation */
 	cptr activation;
@@ -964,14 +994,15 @@ static void spoiler_underline(cptr str)
  *
  * The possibly updated description pointer is returned.
  */
-static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_ptr,
+static cptr *spoiler_flag_aux(const u32b art_flags[TR_FLAG_SIZE],
+			      const flag_desc *flag_ptr,
 			      cptr *desc_ptr, const int n_elmnts)
 {
 	int i;
 
 	for (i = 0; i < n_elmnts; ++i)
 	{
-		if (art_flags & flag_ptr[i].flag)
+		if (have_flag(art_flags, flag_ptr[i].flag))
 		{
 			*desc_ptr++ = flag_ptr[i].desc;
 		}
@@ -984,7 +1015,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_ptr,
 /*
  * Acquire a "basic" description "The Cloak of Death [1,+10]"
  */
-static void analyze_general (object_type *o_ptr, char *desc_ptr)
+static void analyze_general(object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
 	object_desc_store(desc_ptr, o_ptr, TRUE, 1);
@@ -992,70 +1023,36 @@ static void analyze_general (object_type *o_ptr, char *desc_ptr)
 
 
 /*
- * List "player traits" altered by an artifact's pval. These include stats,
+ * List "player traits" altered by an artifact's bonus. These include stats,
  * speed, infravision, tunneling, stealth, searching, and extra attacks.
  */
-static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
+static void analyze_bonus(object_type *o_ptr, to_bonus_info_type *tbi_ptr)
 {
-	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
-				TR1_DEX | TR1_CON | TR1_CHR);
+	bonus_list_type *cur_bonus;
+	int             i;
 
-	u32b f1, f2, f3;
+	construct_bonus_list(o_ptr, tbi_ptr->bonus_affects, to_desc_spoil, to_all_stats_desc);
 
-	cptr *affects_list;
-
-	/* If pval == 0, there is nothing to do. */
-	if (!o_ptr->pval)
+	cur_bonus = &tbi_ptr->bonus_affects[0];
+	for (i = 0; (i < (A_MAX + OB_MAX)) && cur_bonus->desc[0]; cur_bonus = &tbi_ptr->bonus_affects[++i])
 	{
-		/* An "empty" pval description indicates that pval == 0 */
-		p_ptr->pval_desc[0] = '\0';
-		return;
+		/* Create the "+N" string */
+		sprintf(tbi_ptr->to_bonus_desc[i], "%s%d", POSITIZE(cur_bonus->to_bonus), cur_bonus->to_bonus);
 	}
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	affects_list = p_ptr->pval_affects;
-
-	/* Create the "+N" string */
-	sprintf(p_ptr->pval_desc, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
-
-	/* First, check to see if the pval affects all stats */
-	if ((f1 & all_stats) == all_stats)
-	{
-#ifdef JP
-		*affects_list++ = "Á´Ç½ÎÏ";
-#else
-		*affects_list++ = "All stats";
-#endif
-	}
-
-	/* Are any stats affected? */
-	else if (f1 & all_stats)
-	{
-		affects_list = spoiler_flag_aux(f1, stat_flags_desc,
-						affects_list,
-						N_ELEMENTS(stat_flags_desc));
-	}
-
-	/* And now the "rest" */
-	affects_list = spoiler_flag_aux(f1, pval_flags1_desc,
-					affects_list,
-					N_ELEMENTS(pval_flags1_desc));
-
-	/* Terminate the description list */
-	*affects_list = NULL;
+	/* Terminate */
+	tbi_ptr->to_bonus_desc[i][0] = '\0';
 }
 
 
 /* Note the slaying specialties of a weapon */
-static void analyze_slay (object_type *o_ptr, cptr *slay_list)
+static void analyze_slay(object_type *o_ptr, cptr *slay_list)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
-	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
+	slay_list = spoiler_flag_aux(flgs, slay_flags_desc, slay_list,
 				     N_ELEMENTS(slay_flags_desc));
 
 	/* Terminate the description list */
@@ -1063,13 +1060,13 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 }
 
 /* Note an object's elemental brands */
-static void analyze_brand (object_type *o_ptr, cptr *brand_list)
+static void analyze_brand(object_type *o_ptr, cptr *brand_list)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
-	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
+	brand_list = spoiler_flag_aux(flgs, brand_flags_desc, brand_list,
 				      N_ELEMENTS(brand_flags_desc));
 
 	/* Terminate the description list */
@@ -1078,13 +1075,13 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 
 
 /* Note the resistances granted by an object */
-static void analyze_resist (object_type *o_ptr, cptr *resist_list)
+static void analyze_resist(object_type *o_ptr, cptr *resist_list)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
-	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
+	resist_list = spoiler_flag_aux(flgs, resist_flags_desc,
 				       resist_list, N_ELEMENTS(resist_flags_desc));
 
 	/* Terminate the description list */
@@ -1093,13 +1090,13 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 
 
 /* Note the immunities granted by an object */
-static void analyze_immune (object_type *o_ptr, cptr *immune_list)
+static void analyze_immune(object_type *o_ptr, cptr *immune_list)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
-	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
+	immune_list = spoiler_flag_aux(flgs, immune_flags_desc,
 				       immune_list, N_ELEMENTS(immune_flags_desc));
 
 	/* Terminate the description list */
@@ -1108,29 +1105,30 @@ static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 
 /* Note which stats an object sustains */
 
-static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
+static void analyze_sustains(object_type *o_ptr, cptr *sustain_list)
 {
-	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-				   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
+	u32b flgs[TR_FLAG_SIZE];
 
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	/* Simplify things if an item sustains all stats */
-	if ((f2 & all_sustains) == all_sustains)
+	if (have_flag(flgs, TR_SUST_STR) && have_flag(flgs, TR_SUST_INT) &&
+	    have_flag(flgs, TR_SUST_WIS) && have_flag(flgs, TR_SUST_DEX) &&
+	    have_flag(flgs, TR_SUST_CON) && have_flag(flgs, TR_SUST_CHR))
 	{
 #ifdef JP
 		*sustain_list++ = "Á´Ç½ÎÏ";
 #else
-		*sustain_list++ = "All stats";
+		*sustain_list++ = "All Stats";
 #endif
 	}
 
 	/* Should we bother? */
-	else if ((f2 & all_sustains))
+	else if (have_flag(flgs, TR_SUST_STR) || have_flag(flgs, TR_SUST_INT) ||
+		 have_flag(flgs, TR_SUST_WIS) || have_flag(flgs, TR_SUST_DEX) ||
+		 have_flag(flgs, TR_SUST_CON) || have_flag(flgs, TR_SUST_CHR))
 	{
-		sustain_list = spoiler_flag_aux(f2, sustain_flags_desc,
+		sustain_list = spoiler_flag_aux(flgs, sustain_flags_desc,
 						sustain_list,
 						N_ELEMENTS(sustain_flags_desc));
 	}
@@ -1144,16 +1142,16 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  * Note miscellaneous powers bestowed by an artifact such as see invisible,
  * free action, permanent light, etc.
  */
-static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
+static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
-	misc_list = spoiler_flag_aux(f2, misc_flags2_desc, misc_list,
+	misc_list = spoiler_flag_aux(flgs, misc_flags2_desc, misc_list,
 				     N_ELEMENTS(misc_flags2_desc));
 
-	misc_list = spoiler_flag_aux(f3, misc_flags3_desc, misc_list,
+	misc_list = spoiler_flag_aux(flgs, misc_flags3_desc, misc_list,
 				     N_ELEMENTS(misc_flags3_desc));
 
 	/*
@@ -1171,7 +1169,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Glowing artifacts -- small radius light.
 	 */
-	if (f3 & (TR3_LITE))
+	if (have_flag(flgs, TR_LITE))
 	{
 #ifdef JP
 		*misc_list++ = "±Êµ×¸÷¸»(È¾·Â1)";
@@ -1186,42 +1184,37 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	 * being "lightly cursed".
 	 */
 
-/*	if (cursed_p(o_ptr)) */
-	if (1)
+	if (have_flag(flgs, TR_TY_CURSE))
 	{
-		if (f3 & TR3_TY_CURSE)
-		{
 #ifdef JP
-			*misc_list++ = "ÂÀ¸Å¤Î±åÇ°";
+		*misc_list++ = "ÂÀ¸Å¤Î±åÇ°";
 #else
-			*misc_list++ = "Ancient Curse";
+		*misc_list++ = "Ancient Curse";
 #endif
-		}
-		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
-		{
+	}
+	if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+	{
 #ifdef JP
-			*misc_list++ = "±Ê±ó¤Î¼ö¤¤";
+		*misc_list++ = "±Ê±ó¤Î¼ö¤¤";
 #else
-			*misc_list++ = "Permanently Cursed";
+		*misc_list++ = "Permanently Cursed";
 #endif
-		}
-		else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
-		{
+	}
+	else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
+	{
 #ifdef JP
-			*misc_list++ = "¶¯ÎÏ¤Ê¼ö¤¤";
+		*misc_list++ = "¶¯ÎÏ¤Ê¼ö¤¤";
 #else
-			*misc_list++ = "Heavily Cursed";
+		*misc_list++ = "Heavily Cursed";
 #endif
-		}
-/*		else */
-		else if (o_ptr->curse_flags & TRC_CURSED)
-		{
+	}
+	else if (o_ptr->curse_flags & TRC_CURSED)
+	{
 #ifdef JP
-			*misc_list++ = "¼ö¤¤";
+		*misc_list++ = "¼ö¤¤";
 #else
-			*misc_list++ = "Cursed";
+		*misc_list++ = "Cursed";
 #endif
-		}
 	}
 
 	/* Terminate the description list */
@@ -1229,18 +1222,77 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 }
 
 
+static void analyze_addition(object_type *o_ptr, char *addition)
+{
+	artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+	/* Init */
+	strcpy(addition, "");
+
+#ifdef JP
+	if ((a_ptr->gen_flags & TRG_XTRA_POWER) && (a_ptr->gen_flags & TRG_XTRA_H_RES))
+	{
+		strcat(addition, "Ç½ÎÏandÂÑÀ­");
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_POWER)
+	{
+		strcat(addition, "Ç½ÎÏ");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
+		{
+			strcat(addition, "(1/2¤ÇandÂÑÀ­)");
+		}
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_H_RES)
+	{
+		strcat(addition, "ÂÑÀ­");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
+		{
+			strcat(addition, "(1/2¤ÇandÇ½ÎÏ)");
+		}
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
+	{
+		strcat(addition, "Ç½ÎÏorÂÑÀ­");
+	}
+#else
+	if ((a_ptr->gen_flags & TRG_XTRA_POWER) && (a_ptr->gen_flags & TRG_XTRA_H_RES))
+	{
+		strcat(addition, "Ability and Resistance");
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_POWER)
+	{
+		strcat(addition, "Ability");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
+		{
+			strcat(addition, "(plus Resistance about 1/2)");
+		}
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_H_RES)
+	{
+		strcat(addition, "Resistance");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
+		{
+			strcat(addition, "(plus Ability about 1/2)");
+		}
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
+	{
+		strcat(addition, "Ability or Resistance");
+	}
+#endif
+}
 
 
 /*
  * Determine the minimum depth an artifact can appear, its rarity, its weight,
  * and its value in gold pieces
  */
-static void analyze_misc (object_type *o_ptr, char *misc_desc)
+static void analyze_misc(object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 #ifdef JP
-	sprintf(misc_desc, "¥ì¥Ù¥ë %u, ´õ¾¯ÅÙ %u, %d.%d kg, ¡ð%ld",
+	sprintf(misc_desc, "¥ì¥Ù¥ë %u, ´õ¾¯ÅÙ %u, %d.%d kg, $%ld",
 		a_ptr->level, a_ptr->rarity,
 		lbtokg1(a_ptr->weight), lbtokg2(a_ptr->weight), a_ptr->cost);
 #else
@@ -1257,23 +1309,15 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 {
 	analyze_general(o_ptr, desc_ptr->description);
-
-	analyze_pval(o_ptr, &desc_ptr->pval_info);
-
+	analyze_bonus(o_ptr, &desc_ptr->to_bonus_info);
 	analyze_brand(o_ptr, desc_ptr->brands);
-
 	analyze_slay(o_ptr, desc_ptr->slays);
-
 	analyze_immune(o_ptr, desc_ptr->immunities);
-
 	analyze_resist(o_ptr, desc_ptr->resistances);
-
 	analyze_sustains(o_ptr, desc_ptr->sustains);
-
 	analyze_misc_magic(o_ptr, desc_ptr->misc_magic);
-
+	analyze_addition(o_ptr, desc_ptr->addition);
 	analyze_misc(o_ptr, desc_ptr->misc_desc);
-
 	desc_ptr->activation = item_activation(o_ptr);
 }
 
@@ -1282,8 +1326,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Hengband Version %d.%d.%d",
-	        FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Artifact Spoilers for TOband Version %d.%d.%d",
+	        T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 	spoiler_underline(buf);
 }
 
@@ -1311,10 +1355,10 @@ static void print_header(void)
  * might look like this:
  *
  *     Free Action; Hold Life; See Invisible; Slow Digestion; Regeneration
- *     Blessed Blade
+ *     Blessed Weapon
  *
  * So comparing the two, "Regeneration" has no trailing separator and
- * "Blessed Blade" was not indented. (Also, Ulmo's lists have no headers,
+ * "Blessed Weapon" was not indented. (Also, Ulmo's lists have no headers,
  * but that's not relevant to line wrapping and indention.)
  */
 
@@ -1425,49 +1469,53 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 
 static void spoiler_print_art(obj_desc_list *art_ptr)
 {
-	pval_info_type *pval_ptr = &art_ptr->pval_info;
+	to_bonus_info_type *to_bonus_ptr = &art_ptr->to_bonus_info;
+	bonus_list_type    *cur_bonus;
+	int                i;
 
 	char buf[80];
 
 	/* Don't indent the first line */
 	fprintf(fff, "%s\n", art_ptr->description);
 
-	/* An "empty" pval description indicates that the pval affects nothing */
-	if (pval_ptr->pval_desc[0])
+	cur_bonus = &to_bonus_ptr->bonus_affects[0];
+	for (i = 0; (i < (A_MAX + OB_MAX)) && cur_bonus->desc[0]; cur_bonus = &to_bonus_ptr->bonus_affects[++i])
 	{
-		/* Mention the effects of pval */
+		/* Mention the effects of bonus */
 #ifdef JP
-		sprintf(buf, "%s¤Î½¤Àµ:", pval_ptr->pval_desc);
+		sprintf(buf, "%s¤Î½¤Àµ:", to_bonus_ptr->to_bonus_desc[i]);
 #else
-		sprintf(buf, "%s to", pval_ptr->pval_desc);
+		sprintf(buf, "%s to", to_bonus_ptr->to_bonus_desc[i]);
 #endif
-		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
+		spoiler_outlist(buf, cur_bonus->desc, ITEM_SEP);
 	}
 
 	/* Now deal with the description lists */
 
 #ifdef JP
 	spoiler_outlist("ÂÐ:", art_ptr->slays, ITEM_SEP);
-
 	spoiler_outlist("Éð´ïÂ°À­:", art_ptr->brands, LIST_SEP);
-
 	spoiler_outlist("ÌÈ±Ö:", art_ptr->immunities, ITEM_SEP);
-
 	spoiler_outlist("ÂÑÀ­:", art_ptr->resistances, ITEM_SEP);
-
 	spoiler_outlist("°Ý»ý:", art_ptr->sustains, ITEM_SEP);
 #else
 	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
-
 	spoiler_outlist("", art_ptr->brands, LIST_SEP);
-
 	spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
-
 	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
-
 	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
 #endif
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
+
+
+	if (art_ptr->addition[0])
+	{
+#ifdef JP
+		fprintf(fff, "%sÄÉ²Ã: %s\n", INDENT1, art_ptr->addition);
+#else
+		fprintf(fff, "%sAdditional %s\n", INDENT1, art_ptr->addition);
+#endif
+	}
 
 
 	/* Write out the possible activation at the primary indention level */
@@ -1515,6 +1563,8 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
+	for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = a_ptr->to_stat[i];
+	for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = a_ptr->to_misc[i];
 	o_ptr->to_a = a_ptr->to_a;
 	o_ptr->to_h = a_ptr->to_h;
 	o_ptr->to_d = a_ptr->to_d;
@@ -1541,7 +1591,7 @@ static void spoil_artifact(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1631,7 +1681,7 @@ static void spoil_mon_desc(cptr fname)
 	char exp[80];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1647,11 +1697,12 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
+	C_MAKE(who, max_r_idx + runeweapon_num, s16b);
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Hengband Version %d.%d.%d\n",
-	        FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+
+	fprintf(fff, "Monster Spoilers for TOband Version %d.%d.%d\n",
+	        T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1662,7 +1713,7 @@ static void spoil_mon_desc(cptr fname)
 
 
 	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	for (i = 1; i < (max_r_idx + runeweapon_num); i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1670,12 +1721,12 @@ static void spoil_mon_desc(cptr fname)
 		if (r_ptr->name) who[n++] = i;
 	}
 
-        /* Select the sort method */
-        ang_sort_comp = ang_sort_comp_hook;
-        ang_sort_swap = ang_sort_swap_hook;
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
 
-        /* Sort the array by dungeon depth of monsters */
-        ang_sort(who, &why, n);
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Scan again */
 	for (i = 0; i < n; i++)
@@ -1683,15 +1734,9 @@ static void spoil_mon_desc(cptr fname)
 		monster_race *r_ptr = &r_info[who[i]];
 
 		cptr name = (r_name + r_ptr->name);
-		if (r_ptr->flags7 & (RF7_KAGE)) continue;
 
 		/* Get the "name" */
-/*		if (r_ptr->flags1 & (RF1_QUESTOR)) */
-		if (0)
-		{
-			sprintf(nam, "[Q] %s", name);
-		}
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			sprintf(nam, "[U] %s", name);
 		}
@@ -1727,7 +1772,7 @@ static void spoil_mon_desc(cptr fname)
 		/* Hitpoints */
 		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
 		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
+			sprintf(hp, "%d", MIN(20000000, r_ptr->hdice * r_ptr->hside));
 		}
 		else
 		{
@@ -1751,7 +1796,7 @@ static void spoil_mon_desc(cptr fname)
 
 
 	/* Free the "who" array */
-	C_KILL(who, max_r_idx, s16b);
+	C_KILL(who, max_r_idx + runeweapon_num, s16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -1816,21 +1861,21 @@ static void spoil_out(cptr str)
 	for (; *str; str++)
 	{
 #ifdef JP
-	        char cbak;
-                int k_flag = iskanji((unsigned char)(*str));
+		char cbak;
+		int k_flag = iskanji((unsigned char)(*str));
 #endif
 		char ch = *str;
 		int wrap = (ch == '\n');
 
 #ifdef JP
-                if (!isprint(ch) && !k_flag && !iskanji2) ch = ' ';
+		if (!isprint(ch) && !k_flag && !iskanji2) ch = ' ';
 		if(k_flag && !iskanji2)iskanji2=1;else iskanji2=0;
 #else
 		if (!isprint(ch)) ch = ' ';
 #endif
 
 #ifdef JP
-                if ( roff_p >= roff_buf+( (k_flag) ? 74 : 75) ) wrap=1;
+		if ( roff_p >= roff_buf+( (k_flag) ? 74 : 75) ) wrap=1;
 		if ((ch == ' ') && (roff_p + 2 >= roff_buf + ((k_flag) ? 74 : 75))) wrap = 1;
 #else
 		if (roff_p >= roff_buf + 75) wrap = 1;
@@ -1844,12 +1889,12 @@ static void spoil_out(cptr str)
 			*roff_p = '\0';
 			r = roff_p;
 #ifdef JP
-                                cbak=' ';
+			cbak=' ';
 #endif
 			if (roff_s && (ch != ' '))
 			{
 #ifdef JP
-			        cbak=*roff_s;
+				cbak=*roff_s;
 #endif
 				*roff_s = '\0';
 				r = roff_s + 1;
@@ -1867,16 +1912,18 @@ static void spoil_out(cptr str)
 		if ((roff_p > roff_buf) || (ch != ' '))
 		{
 #ifdef JP
-		  if( !k_flag ){
-			if (ch == ' ' || ch == '(' ) roff_s = roff_p;
-		  }
-		  else{
-		    if( iskanji2 && 
-                        strncmp(str, "¡£", 2) != 0 && 
-			strncmp(str, "¡¢", 2) != 0 &&
-		        strncmp(str, "¥£", 2) != 0 &&
-			strncmp(str, "¡¼", 2) != 0) roff_s = roff_p;
-		  }
+			if (!k_flag)
+			{
+				if (ch == ' ' || ch == '(' ) roff_s = roff_p;
+			}
+			else
+			{
+				if (iskanji2 && 
+				    strncmp(str, "¡£", 2) != 0 &&
+				    strncmp(str, "¡¢", 2) != 0 &&
+				    strncmp(str, "¥£", 2) != 0 &&
+				    strncmp(str, "¡¼", 2) != 0) roff_s = roff_p;
+			}
 #else
 			if (ch == ' ') roff_s = roff_p;
 #endif
@@ -1903,15 +1950,15 @@ static void roff_func(byte attr, cptr str)
 static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
-	int msex, i, l, n=0;
+	int i, l, n=0;
 	bool breath, magic;
-	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7;
+	u32b flags1;
 
 	u16b why = 2;
 	s16b *who;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1928,17 +1975,17 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Hengband Version %d.%d.%d\n",
-	     FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Monster Spoilers for TOband Version %d.%d.%d\n",
+	     T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
+	C_MAKE(who, max_r_idx + runeweapon_num, s16b);
 
 	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	for (i = 1; i < (max_r_idx + runeweapon_num); i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1963,19 +2010,6 @@ static void spoil_mon_info(cptr fname)
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
-		flags2 = r_ptr->flags2;
-		flags3 = r_ptr->flags3;
-		flags4 = r_ptr->flags4;
-		flags5 = r_ptr->flags5;
-		flags6 = r_ptr->flags6;
-		flags7 = r_ptr->flags7;
-		breath = FALSE;
-		magic = FALSE;
-
-		/* Extract a gender (if applicable) */
-		if (flags1 & (RF1_FEMALE)) msex = 2;
-		else if (flags1 & (RF1_MALE)) msex = 1;
-		else msex = 0;
 
 
 		/* Prefix */
@@ -2064,7 +2098,7 @@ static void spoil_mon_info(cptr fname)
 	}
 
 	/* Free the "who" array */
-	C_KILL(who, max_r_idx, s16b);
+	C_KILL(who, max_r_idx + runeweapon_num, s16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -2180,7 +2214,7 @@ prt("¥³¥Þ¥ó¥É:", 18, 0);
 static void random_artifact_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 {
 	analyze_general(o_ptr, desc_ptr->description);
-	analyze_pval(o_ptr, &desc_ptr->pval_info);
+	analyze_bonus(o_ptr, &desc_ptr->to_bonus_info);
 	analyze_brand(o_ptr, desc_ptr->brands);
 	analyze_slay(o_ptr, desc_ptr->slays);
 	analyze_immune(o_ptr, desc_ptr->immunities);
@@ -2201,7 +2235,9 @@ static void random_artifact_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 
 static void spoiler_print_randart(object_type *o_ptr, obj_desc_list *art_ptr)
 {
-	pval_info_type *pval_ptr = &art_ptr->pval_info;
+	to_bonus_info_type *to_bonus_ptr = &art_ptr->to_bonus_info;
+	bonus_list_type    *cur_bonus;
+	int                i;
 
 	char buf[80];
 
@@ -2217,19 +2253,20 @@ static void spoiler_print_randart(object_type *o_ptr, obj_desc_list *art_ptr)
 		fprintf(fff, "%sUnknown\n",INDENT1);
 #endif
 	}
-	else {
-		/* An "empty" pval description indicates that the pval affects nothing */
-		if (pval_ptr->pval_desc[0])
+	else
+	{
+		cur_bonus = &to_bonus_ptr->bonus_affects[0];
+		for (i = 0; (i < (A_MAX + OB_MAX)) && cur_bonus->desc[0]; cur_bonus = &to_bonus_ptr->bonus_affects[++i])
 		{
-			/* Mention the effects of pval */
+			/* Mention the effects of bonus */
 #ifdef JP
-			sprintf(buf, "%s¤Î½¤Àµ:", pval_ptr->pval_desc);
+			sprintf(buf, "%s¤Î½¤Àµ:", to_bonus_ptr->to_bonus_desc[i]);
 #else
-			sprintf(buf, "%s to", pval_ptr->pval_desc);
+			sprintf(buf, "%s to", to_bonus_ptr->to_bonus_desc[i]);
 #endif
-			spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
+			spoiler_outlist(buf, cur_bonus->desc, ITEM_SEP);
 		}
-	  
+
 		/* Now deal with the description lists */
 
 #ifdef JP
@@ -2295,7 +2332,7 @@ void spoil_random_artifact(cptr fname)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);

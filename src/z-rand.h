@@ -69,7 +69,7 @@
  * Evaluate to TRUE "S" percent of the time
  */
 #define saving_throw(S) \
-	(randint0(100) < (S))
+	((randint0(100) < (S)) || p_ptr->tim_immune_magic)
 
 
 /**** Available Variables ****/
@@ -84,9 +84,9 @@ extern u32b Rand_state[RAND_DEG];
 
 extern void Rand_state_init(u32b seed);
 extern s32b Rand_div(u32b m);
-extern s16b randnor(int mean, int stand);
-extern s16b damroll(int num, int sides);
-extern s16b maxroll(int num, int sides);
+extern s32b randnor(int mean, int stand);
+extern s32b damroll(int num, int sides);
+extern s32b maxroll(int num, int sides);
 
 
 #endif

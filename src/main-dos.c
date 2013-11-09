@@ -128,12 +128,6 @@ struct term_data
 
 	FONT *font;
 
-#ifdef USE_GRAPHICS
-
-	BITMAP *tiles;
-
-#endif /* USE_GRAPHICS */
-
 #ifdef USE_BACKGROUND
 
 	int window_type;
@@ -161,16 +155,6 @@ BITMAP *background[17];
  * An array of term_data's
  */
 static term_data data[MAX_TERM_DATA];
-
-
-#ifdef USE_GRAPHICS
-
-/*
- * Are graphics already initialized ?
- */
-static bool graphics_initialized = FALSE;
-
-#endif /* USE_GRAPHICS */
 
 
 /*
@@ -308,14 +292,6 @@ static bool init_sound(void);
 static errr Term_xtra_dos_sound(int v);
 static void play_song(void);
 #endif /* USE_SOUND */
-#ifdef USE_GRAPHICS
-static bool init_graphics(void);
-# ifdef USE_TRANSPARENCY
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
-# endif /* USE_TRANSPARENCY */
-#endif /* USE_GRAPHICS */
 
 
 /*
@@ -486,29 +462,6 @@ static void Term_xtra_dos_react(void)
 		set_color(COLOR_OFFSET + i, &color);
 	}
 
-#ifdef USE_GRAPHICS
-
-	/*
-	 * Handle "arg_graphics"
-	 */
-	if (use_graphics != arg_graphics)
-	{
-		/* Initialize (if needed) */
-		if (arg_graphics && !init_graphics())
-		{
-			/* Warning */
-			plog("Cannot initialize graphics!");
-
-			/* Cannot enable */
-			arg_graphics = GRAPHICS_NONE;
-		}
-
-		/* Change setting */
-		use_graphics = arg_graphics;
-	}
-
-#endif /* USE_GRAPHICS */
-
 #ifdef USE_SOUND
 
 	/*
@@ -616,7 +569,7 @@ static void Term_xtra_dos_clear(void)
 	{
 		/* Draw the Term black */
 		rectfill(screen,
-	        	x1, y1, x1 + w1 - 1, y1 + h1 - 1,
+			x1, y1, x1 + w1 - 1, y1 + h1 - 1,
 			COLOR_OFFSET + TERM_DARK);
 	}
 }
@@ -776,20 +729,6 @@ static errr Term_user_dos(int n)
 		prt("(M) Music Volume", 5, 5);
 #endif /* USE_SOUND */
 
-#ifdef USE_GRAPHICS
-
-		if (arg_graphics)
-		{
-			strcpy(status, "On");
-		}
-		else
-		{
-			strcpy(status, "Off");
-		}
-		prt(format("(G) Graphics : %s", status), 7, 5);
-
-#endif /* USE_GRAPHICS */
-
 #ifdef USE_SOUND
 
 		if (arg_sound)
@@ -900,29 +839,6 @@ static errr Term_user_dos(int n)
 			}
 
 #endif /* USE_SOUND */
-
-#ifdef USE_GRAPHICS
-
-			/* Switch graphics on/off */
-			case 'G':
-			case 'g':
-			{
-				/* Toggle "arg_graphics" */
-				arg_graphics = !arg_graphics;
-
-				/* React to changes */
-				Term_xtra_dos_react();
-
-				/* Reset visuals */
-#ifdef ANGBAND_2_8_1
-				reset_visuals();
-#else /* ANGBAND_2_8_1 */
-				reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
-				break;
-			}
-
-#endif /* USE_GRAPHICS */
 
 #ifdef USE_SOUND
 
@@ -1097,7 +1013,7 @@ static errr Term_wipe_dos(int x, int y, int n)
 	{
 		/* Draw a black block */
 		rectfill(screen, x1, y1, x1 + w1 - 1, y1 + h1 - 1,
-	        	COLOR_OFFSET + TERM_DARK);
+			COLOR_OFFSET + TERM_DARK);
 	}
 
 	/* Success */
@@ -1147,7 +1063,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 		/* Dump the text */
 		textout(screen, td->font, text, x1, y1,
-		       	COLOR_OFFSET + (a & 0x0F));
+			COLOR_OFFSET + (a & 0x0F));
 	}
 	/* Stretch needed */
 	else
@@ -1163,7 +1079,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 			/* Dump some text */
 			textout(screen, td->font, text, x1, y1,
-		        	COLOR_OFFSET + (a & 0x0F));
+				COLOR_OFFSET + (a & 0x0F));
 
 			/* Advance */
 			x1 += td->tile_wid;
@@ -1173,81 +1089,6 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 	/* Success */
 	return (0);
 }
-
-
-#ifdef USE_GRAPHICS
-
-/*
- * Place some attr/char pairs on the screen
- *
- * The given parameters are "valid".
- *
- * To prevent crashes, we must not only remove the high bits of the
- * "ap[i]" and "cp[i]" values, but we must map the resulting value
- * onto the legal bitmap size, which is normally 32x32.  XXX XXX XXX
- */
-#ifdef USE_TRANSPARENCY
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
-{
-	term_data *td = (term_data*)(Term->data);
-
-	int i;
-
-	int w, h;
-
-	int x1, y1;
-	int x2, y2;
-
-# ifdef USE_TRANSPARENCY
-
-	int x3, y3;
-
-# endif /* USE_TRANSPARENCY */
-
-	/* Size */
-	w = td->tile_wid;
-	h = td->tile_hgt;
-
-	/* Location (window) */
-	x1 = x * w + td->x;
-	y1 = y * h + td->y;
-
-	/* Dump the tiles */
-	for (i = 0; i < n; i++)
-	{
-		/* Location (bitmap) */
-		x2 = (cp[i] & 0x7F) * w;
-		y2 = (ap[i] & 0x7F) * h;
-
-# ifdef USE_TRANSPARENCY
-		x3 = (tcp[i] & 0x7F) * w;
-		y3 = (tap[i] & 0x7F) * h;
-
-		/* Blit the tile to the screen */
-		blit(td->tiles, screen, x3, y3, x1, y1, w, h);
-
-		/* Blit the tile to the screen */
-		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# else /* USE_TRANSPARENCY */
-
-		/* Blit the tile to the screen */
-		blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# endif /* USE_TRANSPARENCY */
-
-		/* Advance (window) */
-		x1 += w;
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* USE_GRAPHICS */
 
 
 /*
@@ -1268,13 +1109,6 @@ static void Term_nuke_dos(term *t)
 
 	/* Free the terminal font */
 	if (td->font) destroy_font(td->font);
-
-#ifdef USE_GRAPHICS
-
-	/* Free the terminal bitmap */
-	if (td->tiles) destroy_bitmap(td->tiles);
-
-#endif /* USE_GRAPHICS */
 }
 
 
@@ -1312,16 +1146,6 @@ static void term_data_link(term_data *td)
 	t->wipe_hook = Term_wipe_dos;
 	t->user_hook = Term_user_dos;
 	t->text_hook = Term_text_dos;
-
-#ifdef USE_GRAPHICS
-
-	/* Prepare the graphics hook */
-	t->pict_hook = Term_pict_dos;
-
-	/* Use "Term_pict" for "graphic" data */
-	t->higher_pict = TRUE;
-
-#endif /* USE_GRAPHICS */
 
 	/* Remember where we came from */
 	t->data = (vptr)(td);
@@ -1411,7 +1235,7 @@ static void dos_dump_screen(void)
 	get_palette(pal);
 
 	/* Build the filename for the screen-dump */
-	path_build(filename, 1024, ANGBAND_DIR_USER, "dump.bmp");
+	path_build(filename, sizeof(filename), ANGBAND_DIR_USER, "dump.bmp");
 
 	/* Save it */
 	save_bmp(filename, bmp, pal);
@@ -1675,7 +1499,7 @@ static bool init_windows(void)
 		strcpy(buf, get_config_string(section, "font_file", "xm8x13.fnt"));
 
 		/* Build the name of the font file */
-		path_build(filename, 1024, xtra_font_dir, buf);
+		path_build(filename, sizeof(filename), xtra_font_dir, buf);
 
 		/* Load a "*.fnt" file */
 		if (suffix(filename, ".fnt"))
@@ -1743,7 +1567,7 @@ static void init_background(void)
 		strcpy(buf, get_config_string("Background", format("Background-%d", i), ""));
 
 		/* Build the filename for the background-bitmap */
-		path_build(filename, 1024, xtra_graf_dir, buf);
+		path_build(filename, sizeof(filename), xtra_graf_dir, buf);
 
 		/* Try to open the bitmap file */
 		background[i] = load_bitmap(filename, background_pallete);
@@ -1762,119 +1586,6 @@ static void init_background(void)
 
 #endif /* USE_BACKGROUND */
 
-
-#ifdef USE_GRAPHICS
-
-/*
- * Initialize graphics
- */
-static bool init_graphics(void)
-{
-	char filename[1024];
-	char section[80];
-	char name_tiles[128];
-
-	/* Large bitmap for the tiles */
-	BITMAP *tiles = NULL;
-	PALLETE tiles_pallete;
-
-	/* Size of each bitmap tile */
-	int bitmap_wid;
-	int bitmap_hgt;
-
-	int num_windows;
-
-	if (!graphics_initialized)
-	{
-		/* Section name */
-		sprintf(section, "Mode-%d", resolution);
-
-		/* Get bitmap tile size */
-		bitmap_wid = get_config_int(section, "bitmap_wid", 8);
-		bitmap_hgt = get_config_int(section, "bitmap_hgt", 8);
-
-		/* Get bitmap filename */
-		strcpy(name_tiles, get_config_string(section, "bitmap_file", "8x8.bmp"));
-
-		/* Get number of windows */
-		num_windows = get_config_int(section, "num_windows", 1);
-
-		/* Build the name of the bitmap file */
-		path_build(filename, 1024, xtra_graf_dir, name_tiles);
-
-		/* Open the bitmap file */
-		if ((tiles = load_bitmap(filename, tiles_pallete)) != NULL)
-		{
-			int i;
-
-			/*
-			 * Set the graphics mode to "new" if Adam Bolt's
-			 * new 16x16 tiles are used.
-			 */
-			ANGBAND_GRAF = get_config_string(section, "graf-mode", "old");
-
-			/* Select the bitmap pallete */
-			set_palette_range(tiles_pallete, 0, COLOR_OFFSET - 1, 0);
-
-			/* Prepare the graphics */
-			for (i = 0; i < num_windows; i++)
-			{
-				term_data *td;
-
-				int col, row;
-				int cols, rows;
-				int width, height;
-				int src_x, src_y;
-				int tgt_x, tgt_y;
-
-				td = &data[i];
-
-				cols = tiles->w / bitmap_wid;
-				rows = tiles->h / bitmap_hgt;
-
-				width = td->tile_wid * cols;
-				height = td->tile_hgt * rows;
-
-				/* Initialize the tile graphics */
-				td->tiles = create_bitmap(width, height);
-
-				for (row = 0; row < rows; ++row)
-				{
-					src_y = row * bitmap_hgt;
-					tgt_y = row * td->tile_hgt;
-
-					for (col = 0; col < cols; ++col)
-					{
-						src_x = col * bitmap_wid;
-						tgt_x = col * td->tile_wid;
-
-						stretch_blit(tiles, td->tiles,
-							src_x, src_y,
-							bitmap_wid, bitmap_hgt,
-							tgt_x, tgt_y,
-							td->tile_wid, td->tile_hgt);
-					}
-				}
-			}
-
-			/* Free the old tiles bitmap */
-			if (tiles) destroy_bitmap(tiles);
-
-			graphics_initialized = TRUE;
-
-			/* Success */
-			return (TRUE);
-		}
-
-		/* Failure */
-		return (FALSE);
-	}
-
-	/* Success */
-	return (TRUE);
-}
-
-#endif /* USE_GRAPHICS */
 
 #ifdef USE_SOUND
 
@@ -1913,7 +1624,7 @@ static bool init_sound(void)
 #endif /* USE_MOD_FILES */
 
 		/* Access the new sample */
-		path_build(filename, 1024, xtra_sound_dir, "sound.cfg");
+		path_build(filename, fizeof(filename), xtra_sound_dir, "sound.cfg");
 
 		/* Read config info from "lib/xtra/sound/sound.cfg" */
 		override_config_file(filename);
@@ -1933,7 +1644,7 @@ static bool init_sound(void)
 			for (j = 0; j < sample_count[i]; j++)
 			{
 				/* Access the new sample */
-				path_build(filename, 1024, xtra_sound_dir, argv[j]);
+				path_build(filename, sizeof(filename), xtra_sound_dir, argv[j]);
 
 				/* Load the sample */
 				samples[i][j] = load_sample(filename);
@@ -2033,7 +1744,7 @@ static void play_song(void)
 #endif /* USE_MOD_FILES */
 
 	/* Access the new song */
-	path_build(filename, 1024, xtra_music_dir, music_files[current_song - 1]);
+	path_build(filename, sizeof(filename), xtra_music_dir, music_files[current_song - 1]);
 
 	/* Load and play the new song */
 	midi_song = load_midi(filename);
@@ -2133,16 +1844,16 @@ errr init_dos(void)
 	quit_aux = dos_quit_hook;
 
 	/* Build the "graf" path */
-	path_build(xtra_graf_dir, 1024, ANGBAND_DIR_XTRA, "graf");
+	path_build(xtra_graf_dir, sizeof(xtra_graf_dir), ANGBAND_DIR_XTRA, "graf");
 
 	/* Build the "font" path */
-	path_build(xtra_font_dir, 1024, ANGBAND_DIR_XTRA, "font");
+	path_build(xtra_font_dir, sizeof(xtra_font_dir), ANGBAND_DIR_XTRA, "font");
 
 	/* Build the "sound" path */
-	path_build(xtra_sound_dir, 1024, ANGBAND_DIR_XTRA, "sound");
+	path_build(xtra_sound_dir, sizeof(xtra_sound_dir), ANGBAND_DIR_XTRA, "sound");
 
 	/* Build the "music" path */
-	path_build(xtra_music_dir, 1024, ANGBAND_DIR_XTRA, "music");
+	path_build(xtra_music_dir, sizeof(xtra_music_dir), ANGBAND_DIR_XTRA, "music");
 
 	/* Initialize the windows */
 	init_windows();
@@ -2156,16 +1867,6 @@ errr init_dos(void)
 	}
 
 #endif /* USE_SOUND */
-
-#ifdef USE_GRAPHICS
-
-	/* Look for the graphic preferences in "angdos.cfg" */
-	if (!arg_graphics)
-	{
-		arg_graphics = get_config_int("Angband", "Graphics", GRAPHICS_ORIGINAL);
-	}
-
-#endif /* USE_GRAPHICS */
 
 	/* Initialize the "complex" RNG for the midi-shuffle function */
 	Rand_quick = FALSE;

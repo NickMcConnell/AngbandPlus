@@ -1,0 +1,43 @@
+# q_heaven.txt
+
+?:[EQU $QUEST_NUMBER 60]
+
+# Name
+Q:$60:N:Fellana, the Goddess
+Q:60:N:女神フェルアーナ
+
+# Definition
+Q:$60:Q:1:0:0:1:1025:922:0:18:16
+Q:60:Q:1:0:0:1:1025:922:0:18:16
+
+?:[EQU $QUEST_NUMBER 61]
+
+# Name
+Q:$61:N:Holp, the God
+Q:61:N:知神ホルプ
+
+# Definition
+Q:$61:Q:1:0:0:1:1050:923:0:18:16
+Q:61:Q:1:0:0:1:1050:923:0:18:16
+
+?:[EQU $QUEST_NUMBER 62]
+
+# Name
+Q:$62:N:Ishtalle, the Goddess
+Q:62:N:女神イシュタル
+
+# Definition
+Q:$62:Q:1:0:0:1:1075:924:0:18:16
+Q:62:Q:1:0:0:1:1075:924:0:18:16
+
+?:[EQU $QUEST_NUMBER 63]
+
+# Name
+Q:$63:N:Filarhh, the God of Sun
+Q:63:N:太陽神フィラーハ
+
+# Definition
+Q:$63:Q:1:0:0:1:1100:925:0:18:16
+Q:63:Q:1:0:0:1:1100:925:0:18:16
+
+?:1

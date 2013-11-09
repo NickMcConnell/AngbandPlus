@@ -64,6 +64,7 @@ void place_random_stairs(int y, int x)
 {
 	bool up_stairs = TRUE;
 	bool down_stairs = TRUE;
+	bool upward_dun = (d_info[dungeon_type].flags1 & DF1_UPWARD) ? TRUE : FALSE;
 	cave_type *c_ptr;
 
 	/* Paranoia */
@@ -72,19 +73,44 @@ void place_random_stairs(int y, int x)
 
 	/* Town */
 	if (!dun_level)
+	{
 		up_stairs = FALSE;
+		down_stairs = FALSE;
+	}
 
 	/* Ironman */
-	if (ironman_downward)
-		up_stairs = FALSE;
+	if (ironman_forward)
+	{
+		if (upward_dun ^ astral_mode) down_stairs = FALSE;
+		else up_stairs = FALSE;
+	}
 
-	/* Bottom */
+	if (d_info[dungeon_type].flags1 & DF1_NO_BACK)
+	{
+		if (upward_dun) down_stairs = FALSE;
+		else up_stairs = FALSE;
+	}
+
+	/* Top / Bottom */
 	if (dun_level >= d_info[dungeon_type].maxdepth)
-		down_stairs = FALSE;
+	{
+		if (upward_dun) up_stairs = FALSE;
+		else down_stairs = FALSE;
+	}
+
+	/* Closed */
+	if ((d_info[dungeon_type].flags1 & DF1_CLOSED) && (dun_level <= d_info[dungeon_type].mindepth))
+	{
+		if (upward_dun) down_stairs = FALSE;
+		else up_stairs = FALSE;
+	}
 
 	/* Quest-level */
-	if (quest_number(dun_level) && (dun_level > 1))
-		down_stairs = FALSE;
+	if (quest_number(dun_level))
+	{
+		if (upward_dun ^ astral_mode) up_stairs = FALSE;
+		else down_stairs = FALSE;
+	}
 
 	/* We can't place both */
 	if (down_stairs && up_stairs)
@@ -107,9 +133,13 @@ void place_random_stairs(int y, int x)
 /*
  * Place a random type of door at the given location
  */
-void place_random_door(int y, int x)
+void place_random_door(int y, int x, bool room)
 {
 	int tmp;
+	cave_type *c_ptr = &cave[y][x];
+
+	/* Initialize mimic info */
+	c_ptr->mimic = 0;
 
 	if (d_info[dungeon_type].flags1 & DF1_NO_DOORS)
 	{
@@ -124,21 +154,37 @@ void place_random_door(int y, int x)
 	if (tmp < 300)
 	{
 		/* Create open door */
-		cave_set_feat(y, x, FEAT_OPEN);
+		set_cave_feat(y, x, FEAT_OPEN);
 	}
 
 	/* Broken doors (100/1000) */
 	else if (tmp < 400)
 	{
 		/* Create broken door */
-		cave_set_feat(y, x, FEAT_BROKEN);
+		set_cave_feat(y, x, FEAT_BROKEN);
 	}
 
 	/* Secret doors (200/1000) */
 	else if (tmp < 600)
 	{
 		/* Create secret door */
-		cave_set_feat(y, x, FEAT_SECRET);
+		place_closed_door(y, x);
+
+		/* Hide */
+		c_ptr->mimic = room ? feat_wall_outer : fill_type[randint0(100)];
+
+		/* Floor type terrain cannot hide a door */
+		if (!(c_ptr->mimic & 0x20))
+		{
+			c_ptr->feat = c_ptr->mimic;
+			c_ptr->mimic = 0;
+		}
+
+		/* Permanent wall type terrain cannot hide a door */
+		else if ((c_ptr->mimic >= FEAT_PERM_EXTRA) && (c_ptr->mimic <= FEAT_PERM_SOLID))
+		{
+			c_ptr->mimic = 0;
+		}
 	}
 
 	/* Closed, locked, or stuck doors (400/1000) */
@@ -182,6 +228,9 @@ void place_closed_door(int y, int x)
 		/* Create jammed door */
 		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + randint0(8));
 	}
+
+	/* Now it is not floor */
+	cave[y][x].info &= ~(CAVE_MASK);
 }
 
 
@@ -262,7 +311,7 @@ void vault_objects(int y, int x, int num)
 				if (cheat_room)
 				{
 #ifdef JP
-msg_print("警告！地下室のアイテムを配置できません！");
+msg_print("警告！宝物庫のアイテムを配置できません！");
 #else
 					msg_print("Warning! Could not place vault object!");
 #endif
@@ -278,7 +327,7 @@ msg_print("警告！地下室のアイテムを配置できません！");
 			/* Place an item */
 			if (randint0(100) < 75)
 			{
-				place_object(j, k, FALSE, FALSE);
+				place_object(j, k, AMF_OKAY);
 			}
 
 			/* Place gold */
@@ -322,7 +371,7 @@ void vault_trap_aux(int y, int x, int yd, int xd)
 			if (cheat_room)
 			{
 #ifdef JP
-msg_print("警告！地下室のトラップを配置できません！");
+msg_print("警告！宝物庫のトラップを配置できません！");
 #else
 				msg_print("Warning! Could not place vault trap!");
 #endif
@@ -774,6 +823,10 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 				}
 			}
 		}
+
+		/* Clear mimic type */
+		cave[*y][*x].mimic = 0;
+
 		place_floor_bold(*y, *x);
 
 		return TRUE;
@@ -997,7 +1050,6 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 {
 	int x3, y3, dx, dy;
 	int changex, changey;
-	int midval;
 	int length;
 	int i;
 	bool retval, firstsuccede;
@@ -1029,9 +1081,7 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 			x3 = (x1 + x2) / 2;
 			y3 = (y1 + y2) / 2;
 		}
-		/* cache midvalue */
 		c_ptr = &cave[y3][x3];
-		midval = cave[y3][x3].feat;
 		if (is_solid_grid(c_ptr))
 		{
 			/* move midpoint a bit to avoid problem. */
@@ -1062,7 +1112,6 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 			y3 += dy;
 			x3 += dx;
 			c_ptr = &cave[y3][x3];
-			midval = cave[y3][x3].feat;
 		}
 
 		if (is_floor_grid(c_ptr))

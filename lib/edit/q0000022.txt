@@ -1,0 +1,141 @@
+# q0000022.txt
+
+# Name
+Q:$22:N:Orc Camp
+Q:22:N:オークのキャンプ
+
+# Definition
+Q:$22:Q:6:0:0:0:20:0:0:0:6
+Q:22:Q:6:0:0:0:20:0:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST22 2]
+Q:$22:T:The marauding orcs approach ever closer to our quiet town, as
+Q:$22:T:is happening all over in these troubled times.  To the south
+Q:$22:T:lies a valley where our scouts have found an orc raiding party,
+Q:$22:T:preparing to overrun Rime City once and for all.  Our forces are
+Q:$22:T:committed elsewhere; please repel this threat before they reach
+Q:$22:T:our borders.
+Q:22:T:この厄介なご時勢、ご多分にもれずこの静かな街にもオークの侵略隊が
+Q:22:T:これまでになく接近しています。この街の南にある谷で、我々の斥候が
+Q:22:T:オークの侵略軍を発見しました。彼らは古都ライムに全勢力で最終的
+Q:22:T:な侵攻をするための準備をしています。我々の軍勢は他の場所へ派遣し
+Q:22:T:てしまっています。どうかオークどもが街に達する前に追い払って下さい。
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST22 3]
+Q:$22:T:Thank you for your assistance.  Please accept this token of our
+Q:$22:T:appreciation.  We may have need for your help in future, as well.
+Q:22:T:協力して下さり有難うございます。この感謝の印をお受けとり下さい。
+Q:22:T:また近い将来助けていただくことになるかもしれません。
+Q:22:T:よろしくお願いします。
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST22 5]
+Q:$22:T:I've sent out someone else to do the job.  Now leave me alone!
+Q:22:T:既に他の者に仕事を任せてあります。しばらく私を一人にさせてください！
+?:1
+
+# Floor with Snaga
+F:a:1:8:118
+
+# Floor with Hill orc
+F:b:1:8:149
+
+# Floor with Orc shaman
+F:c:1:8:162
+
+# Floor with Golfimbul, the Hill Orc Chief
+F:d:1:8:215
+
+# Floor with Black orc
+F:e:1:8:244
+
+# Floor with Orc captain
+F:f:1:8:285
+
+# Floor with Half-orc
+F:g:1:8:264
+
+# Floor with Uruk
+F:h:1:8:313
+
+# Floor with Bolg, Son of Azog
+F:i:1:8:330
+
+# Floor with Azog, King of the Uruk-Hai
+F:j:1:8:373
+
+# Floor with Pumpkin-Head
+F:k:1:8:445
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXX.......XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX......h..XXXXX.........XXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX.....h.h...XXXXXXX...h.h.h..XXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX.......hhih..XXXXX.....hhhhhh..XXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX.........hhhhhh..XXX....h.h.hh.......XXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX......h.....h......X...............a...XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........hh.......XXX....................XXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXX..................XXXXXXXXXX.................XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXX.................XXXXXXXXXXXXXX..a......a......XXXXXXXXXXXXXX
+D:XXXXXXXXXXXX................XXXXXXXXX.X.XXXXX.................XXXXXXXXXXXX
+D:XXXXXXXXXXX..............XXXXXXXXX..h.hh..XXXXXX..............XXXXXXXXXXXX
+D:XXXXXXXXXX......b.......XXXXXXXXX....j.....XXXXXX..............XXXXXXXXXXX
+D:XXXXXXXXX......b.b.....XXXXXXXXX.hhh...hhhh.XXXXXX.....c........XXXXXXXXXX
+D:XXXXXXXX........b......XXXXXXXX.hhhhh.hhhhhh.XXXXX...............XXXXXXXXX
+D:XXXXXXX.........b.....XXXXXXXXX.ceefee.efeec.XXXXXX.....a.........XXXXXXXX
+D:XXXXXXX...............XXXXXXXXX...bbbc.cbbb...XXXXX....a.a........XXXXXXXX
+D:XXXXXX...............XXXXXXXXXX...X...........XXXXXX....a.aa.......XXXXXXX
+D:XXXXX................XXXXXXXXX......a....a....XXXXXX................XXXXXX
+D:XXXXX................XXXXXXXXX................XXXXXXX...............XXXXXX
+D:XXXXX.....a.a.......XXXXXXXX.......XXX........XXXXXXX....c...........XXXXX
+D:XXXX.......a.a......XXXXXX......XXXXXXX.......XXXXXXX................XXXXX
+D:XXXX........a.......XXXXk.k...XXXXXXXXX......XXXXXXXX..........b......XXXX
+D:XXX.........a.......XXXX.k.XXXXXXXXXX........XXXXXXXX........b........XXXX
+D:XXX.................XXXXk.XXXXXXXXX.........XXXXXXXXX......b..........XXXX
+D:XX..................XXXXXXXXXXXXXX.........XXXXXXXXXX....bb............XXX
+D:XX..................XXXXXXXXXXXX..h.h.h...XXXXXXXXXXX..................XXX
+D:XX..................XXXXXXXXXXX...hh.h...XXXXXXXXXXXX..................XXX
+D:XX..................XXXXXXXXXX....h.h...XXXXXXXXXXXXX...........c.......XX
+D:X...................XXXXXXXXX.......hh.XXXXXXXXXXXXXX...................XX
+D:X.........b..........XXXXXXX.......h...XXXXXXXXXXXXXX........X..........XX
+D:X.......bb.b.........XXXXXX............XXXXXXXXXXXXXX............a......XX
+D:X.........b..........XXXXXX............XXXXXXXXXXXXXX.............aa....XX
+D:X.....................XXXX..............XXXXXXXXXXXX.............a......XX
+D:X.....................XXX...............XXXXXXXXXXX...............aa.....X
+D:X......................XX................XXXXXXXXXX......................X
+D:X........................................XXXXXXXX........................X
+D:X.........................................XXXXXX.........................X
+D:X..........a..............................XXXX.........bb.b..............X
+D:X..........................a....a.....................bbb..bb...........XX
+D:X........................a..aa...a.....................b...b............XX
+D:X.............a............bbb.ba.a.....................................XX
+D:X.......a...................c.bb.aaaa...................................XX
+D:X.........................bbb.f.a.b.a...........................a...a...XX
+D:XX...........................c.b.aa.....................................XX
+D:XX.........................................................c............XX
+D:XX.....................................................................XXX
+D:XXX.................................................bbbbbbb.....a......XXX
+D:XXX...............aa...a..a.....................bbbbbc..cbbbbb.........XXX
+D:XXX..............a.bbbbbbb.a....................eeee.cd.ceeee.........XXXX
+D:XXX.......a.......eecfeecbb..a.......................eeee.............XXXX
+D:XXXX................eebb....a........................................XXXXX
+D:XXXX...........................................................a.....XXXXX
+D:XXXXX...............................................................XXXXXX
+D:XXXXXX................a.....................a.......a......a........XXXXXX
+D:XXXXXX...........a............................c....................XXXXXXX
+D:XXXXXXX............................................................XXXXXXX
+D:XXXXXXX..............c.................................a..........XXXXXXXX
+D:XXXXXXXX.........................................................XXXXXXXXX
+D:XXXXXXXXX.......................................................XXXXXXXXXX
+D:XXXXXXXXXX..........................<...........................XXXXXXXXXX
+D:XXXXXXXXXXX....................................................XXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:60:37
+

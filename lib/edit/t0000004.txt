@@ -1,0 +1,328 @@
+# Town Name: Rime City
+
+############### Additional default terrain settings ###############
+
+# Default for reward
+F:!:1:3 
+
+# Default for Quest 19 = entrance is tree
+F:z:96:3
+
+# Default for Quest 22 = entrance is tree
+F:y:96:3
+
+# Default for Quest 23 = entrance is tree
+F:x:96:3
+
+
+############### Quest 22 - Orc Camp ###################
+
+# Quest 22 untaken
+?:[EQU $QUEST22 0]
+F:b:129:3:0:0:0:0:0:22
+
+# Quest 22 assigned, entrance is quest entrance
+?:[EQU $QUEST22 1]
+F:y:8:3:0:0:0:0:0:22
+F:b:129:3:0:0:0:0:0:22
+
+# Quest 22 completed
+?:[EQU $QUEST22 2]
+F:b:129:3:0:0:0:0:0:22
+
+# Quest 22 rewarding, reward is Elven Cloak, continue with quest 19
+?:[EQU $QUEST22 3]
+F:b:129:3:0:0:0:0:0:19
+F:!:1:3:0:90
+
+# Quest 22 finished, continue with quest 19
+?:[EQU $QUEST22 4]
+F:b:129:3:0:0:0:0:0:19
+
+# Quest 22 failed
+?:[EQU $QUEST22 5]
+F:b:129:3:0:0:0:0:0:22
+
+# Quest 22 failed but done, continue with quest 19
+?:[EQU $QUEST22 6]
+F:b:129:3:0:0:0:0:0:19
+
+
+############### Quest 19 - Doom Quest 1 ###############
+
+# Quest 19 assigned, entrance is quest entrance
+?:[EQU $QUEST19 1]
+F:z:8:3:0:0:0:0:0:19
+F:b:129:3:0:0:0:0:0:19
+
+# Quest 19 completed
+?:[EQU $QUEST19 2]
+F:b:129:3:0:0:0:0:0:19
+
+# Quest 19 rewarding, reward is Ring of Flames, continue with quest 23
+?:[EQU $QUEST19 3]
+F:b:129:3:0:0:0:0:0:23
+F:!:1:3:0:146
+
+# Quest 19 finished, continue with quest 23
+?:[EQU $QUEST19 4]
+F:b:129:3:0:0:0:0:0:23
+
+# Quest 19 failed
+?:[EQU $QUEST19 5]
+F:b:129:3:0:0:0:0:0:19
+
+# Quest 19 failed but done, continue with quest 23
+?:[EQU $QUEST19 6]
+F:b:129:3:0:0:0:0:0:23
+
+?:1
+
+###################### Quest 23 -- Spawning Pits ####################
+
+# Quest 23 assigned, entrance is quest entrance
+?:[EQU $QUEST23 1]
+F:x:8:3:0:0:0:0:0:23
+F:b:129:3:0:0:0:0:0:23
+
+# Quest 23 completed
+?:[EQU $QUEST23 2]
+F:b:129:3:0:0:0:0:0:23
+
+# Quest 23 rewarding, reward is Magical Lamp, no new quest available
+?:[EQU $QUEST23 3]
+F:b:129:3
+F:!:1:3:0:424
+
+# Quest 23 finished, no new quest available
+?:[EQU $QUEST23 4]
+F:b:129:3
+
+# Quest 23 failed
+?:[EQU $QUEST23 5]
+F:b:129:3:0:0:0:0:0:23
+
+# Quest 23 failed but done, no new quest available
+?:[EQU $QUEST23 6]
+F:b:129:3
+
+?:1
+
+#################### Quest 17 - The City beneath the Sea ####################
+
+# Quest 17 not started
+#?:[EQU $QUEST17 0]
+#F:b:129:3:0:0:0:0:0:17
+
+# Quest 17 assigned
+#?:[EQU $QUEST17 1]
+#F:b:129:3:0:0:0:0:0:17
+
+#?:1
+
+
+############### Buildings ###############
+
+B:$0:N:Library:Alba:Human:1
+B:0:N:図書館:碩学のAlba:人間:1
+B:$0:A:0:Research item:1500:1500:a:1:0
+B:0:A:0:アイテム調査:1500:1500:a:1:0
+B:$0:A:1:Town Overview:0:0:h:2:0
+B:0:A:1:街の概要:0:0:h:2:0
+#B:0:A:2:Race legends:0:0:l:3:0
+B:$0:A:2:Identify item:100:100:i:44:0
+B:0:A:2:アイテム鑑定:100:100:i:44:0
+
+B:$1:N:Manor:Colmanwen:Gorgon:0
+B:1:N:荘園:コルマンウェン:ゴーゴン:0
+#B:1:A:0:Look at busts of Mayors:0:0:l:5:0
+B:$1:A:0:Request quest:0:0:q:6:0
+B:1:A:0:クエスト:0:0:q:6:0
+B:$1:A:1:Donate money:0:0:d:52:0
+B:1:A:1:お金を寄付する:0:0:d:52:0
+
+B:$3:N:Casino:Hentto:Gremlin:0
+B:3:N:カジノ:ヘント:グレムリン:0
+B:$3:A:0:In-Between:0:0:b:12:0
+B:3:A:0:イン・ビトイーン:0:0:b:12:0
+B:$3:A:1:Play craps:0:0:c:14:0
+B:3:A:1:クラップス:0:0:c:14:0
+B:$3:A:2:Spin the wheel:0:0:s:15:0
+B:3:A:2:ルーレット:0:0:s:15:0
+B:$3:A:3:Play dice slots:0:0:d:16:0
+B:3:A:3:ダイス・スロット:0:0:d:16:0
+B:$3:A:4:Poker:0:0:p:43:0
+B:3:A:4:ポーカー:0:0:p:43:0
+B:$3:A:5:Game rules:0:0:r:13:0
+B:3:A:5:ゲームのルール:0:0:r:13:0
+
+B:$4:N:Inn:Dorchel:Hawkman:0
+B:4:N:宿屋:ドーチェル:ホークマン:0
+B:$4:A:0:Rest for the night:25:25:r:17:0
+B:4:A:0:一泊する:25:25:r:17:0
+B:$4:A:1:Buy food and drink:3:3:f:18:1
+B:4:A:1:食事をする:3:3:f:18:1
+B:$4:A:2:Listen for rumors:10:10:u:19:0
+B:4:A:2:噂を聞く:10:10:u:19:0
+B:$4:A:3:Teleport to other town:500:500:m:42:0
+B:4:A:3:他の町へ移動:500:500:m:42:0
+B:$4:R:1:1:1:1:1:0:0:1:1:1:1:1
+B:4:R:1:1:1:1:1:0:0:1:1:1:1:1
+B:$4:C:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:1:1:1:1:1
+B:4:C:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:1:1:1:1:1
+
+B:$5:N:Beastmaster:Aradreth:Lizardman:1
+B:5:N:モンスター仙人:アラドレス:リザードマン:1
+B:$5:A:0:Research monster:1500:1500:r:20:0
+B:5:A:0:モンスター調査:1500:1500:r:20:0
+
+B:$6:N:Weaponmaster:Rodonwin:Human:1
+B:6:N:武器匠:ロドウィン:人間:1
+B:$6:A:0:Compare weapons:400:400:c:21:0
+B:6:A:0:武器を比較する:400:400:c:21:0
+B:$6:A:1:Evaluate AC:400:400:a:54:0
+B:6:A:1:防御について調べる:400:400:a:54:0
+
+B:$7:N:Fighters Hall:Gharz:Goblin:1
+B:7:N:戦士の集会所:ガーツ:ゴブリン:1
+B:$7:A:0:Enchant weapon:900:900:w:23:0
+B:7:A:0:武器を強化する:900:900:w:23:0
+B:$7:A:1:Enchant armor:500:500:a:24:0
+B:7:A:1:防具を強化する:500:500:a:24:0
+B:$7:A:2:Train melee skill:0:0:t:56:0
+B:7:A:2:打撃武器訓練:0:0:t:56:0
+B:$7:A:3:Request quest:0:0:q:6:0
+B:7:A:3:クエスト:0:0:q:6:0
+
+B:$8:N:Wizards Tower:Valceronwe:Fairy:1
+B:8:N:賢者の塔:ヴァルセロン:フェアリー:1
+B:$8:A:0:Recharge item:0:0:r:25:0
+B:8:A:0:再充填:0:0:r:25:0
+B:$8:A:1:Recharge all items:0:0:a:45:0
+B:8:A:1:全てのアイテムを再充填:0:0:a:45:0
+B:$8:A:2:Identify posessions:1000:1000:i:26:0
+B:8:A:2:持ち物全てを鑑定:1000:1000:i:26:0
+
+B:$9:N:Inner Temple:Kabir:Pumpkinhead:1
+B:9:N:寺院:カビー:パンプキンヘッド:1
+B:$9:A:0:Healing prayer:100:100:h:28:0
+B:9:A:0:治療の祈祷:100:100:h:28:0
+B:$9:A:1:Restoration:1000:1000:r:29:0
+B:9:A:1:能力回復:1000:1000:r:29:0
+
+B:$10:N:Thieves Den:Molvrae:Gremlin:1
+B:10:N:盗賊のアジト:モルブラエ:グレムリン:1
+B:$10:A:0:Rest for the night:50:50:r:17:0
+B:10:A:0:一泊する:50:50:r:17:0
+B:$10:A:1:Identify possessions:800:800:i:26:0
+B:10:A:1:持ち物全てを鑑定:800:800:i:26:0
+
+B:$11:N:Archers Tavern:Ino:Gorgon:1
+B:11:N:アーチャーの酒場:イノ:ゴーゴン:1
+B:$11:A:0:Enchant missiles:44:44:a:30:0
+B:11:A:0:矢やボルト等を強化する:44:44:a:30:0
+B:$11:A:1:Enchant bow:500:500:b:31:0
+B:11:A:1:弓を強化する:500:500:b:31:0
+B:$11:A:2:Train bow skill:0:0:t:57:0
+B:11:A:2:弓の訓練:0:0:t:57:0
+
+B:$12:N:Paladins Sanctum:Guildus:Human:1
+B:12:N:聖騎士達の居所:ギルダス:人間:1
+B:$12:A:0:Enchant armor:440:440:a:24:0
+B:12:A:0:防具を強化する:440:440:a:24:0
+B:$12:A:1:See Healers:100:100:h:28:0
+B:12:A:1:治療家に会う:100:100:h:28:0
+B:$12:A:2:Donate money:0:0:d:55:0
+B:12:A:2:お金を寄付する:0:0:d:55:0
+
+B:$13:N:Transportation Tower:Colleuse:Ghost:1
+B:13:N:転送術の塔:コレウス:ゴースト:1
+B:$13:A:0:Recall to dungeon:150:150:r:33:0
+B:13:A:0:ダンジョンへ帰還:150:150:r:33:0
+B:$13:A:1:Teleport to dungeon-level:1000000:1000000:t:34:0
+B:13:A:1:階を指定してテレポート:1000000:1000000:t:34:0
+
+# Town Layout
+D:######################################################################################################################################################################################################
+D:#T--T-T-----T-T---T---T---,T-,T-T--T--T-T---T-T-T-T-T--T---T-T---T-T-,T-WW--T-T---T----T--T--TT-T-T,T-T-T-T---T--T,-T-T,-----T---T-T----,,--T-T---T-T--T----T-T-T--,-,-T-T--T-T----,---TT---T-T--T--T#
+D:#-T---T--T--T--T------T,-T-T----T-T-T-T-------T-T-,--T----T----T-T-T---T-WW-T-T--T---T---T-T-T-T-TT,T-T-T---T---T-T-T---T---T---T-T---T---T--T-T-T--T--T-T---T---T--T--T---T----T-T--T--T-----T--T-,-#
+D:#TT---T--T-T---T,--T---T---T-T-,-T--T---T---T----T-T---T-T----T-T--T-T-T-WWT---T---T--T---T-T--T--T,T----T-T----T-----T-T-T-T---T-----T--T--T----T-T--T-----T-T------T-T-T--T-T-T-T-T---T-T-T--T-T--T#
+D:#--T---T--T---T--T--T----T--,T-T--T----T-T--T-T--T---T-T-,T--T---T----T--TWWT---T-T-,,-T-T----T--,T,T--T--T---T--T-T-T---T----T---T-----T-T-,--T-T-,-T------T-T---T--T-T--------T-----T----T----T-T,T#
+D:#T-----T--T-T-T---T-,,T--T-,-T-T--T---T------T-T---T--T-T-T---T-T-T-T-T-T-WW-T-T--T--T-T----T--TT-T,T-T----T----T--,T--T--T----T-T--,,-T---T---T,--T---T--T-T-T,----T-T--T---T-,T,-T-T--T-T--T--,---T#
+D:#---T-T---T-,-T--T--T-T---TT----T-----T--,T-TT,---T--T-T-T--T--T--TT-T-T-,WW-T-,-T-TT--T-T--T-----T,T---T--T,-TT----T----T-T--T-------T-------T--T,--T--T-T-TT--T-T----T-T--T-T-T--T--T-T---T--T--T-T#
+D:#--TT-T---T-,TT---T---T-T-T---T,--T--T-T-T--T--T--T-T--T-T-T--TT---,T-T---WWT-T-T----T-T-T-TT---T-T,T-T--T-T-T--T-T---T-T---T-----T-T--T-T--T-T,-T--T---TT---T-T----T---T-T----T-,T--T--T-T-T--T-T-T-#
+D:#-T-T--T--T--T--T---T----T-TT---T-T--T--T-TT--T-T-T-TT--T---T-T--T-T---T-TWW--TT-------T--T-T--T--T,T----T-TT---T---T----T-T--T---T--T-T---TT--,-T---T--T--T----,T-T-T---,T-T--T--TT---T---T-T-T--T-T#
+D:#-T--T-T--T-T-T-,,TT--T,-T-T--TT----T-T--T----T----T-######,#######################################,############################################,#######-T---T-T-,--TT-----T---T-T-,--TT-----T---T-T-#
+D:#T---T-----,T-T-----T-T-,T--T----T-T-TT-T---T---TT-T-######,#######################################,############################################,#######--TT-T--T---T-T-----TT-T--T---T-T-----TT-T--T#
+D:#T-T-T-TT-T---T-T--T-T----T-T--T-,T-T---T---T--T---T-##,,,,,,,,,,,,,,,,,,TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,##-TT---T-TT--T-T--T-TT---T-TT--T-T--T-TT---T-T#
+D:#--T--T-T---T---T-TT,-T-T----T-T--TT,-T-T--,T-T-T--T-##,,,,,,,,,,,,,,,,,,TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,##k##,,,,,,,,,,,,,,,,,,,,,##T----T-T-T---,-T-TT----T-T-T---,-T-TT----T-T-#
+D:#-----T-T-T--,T---,T--T---T----TT-T---T----TT-,-T---T##,,,,,,,,,,,,,,,,,,TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#####,,TTTTTTTTTTTTTTT,,,,##--T-T,-T-T-------T--T-T,-T-T-------T--T-T,-T-#
+D:#----,T,--T-T-T--T-T,-TT---T-T-T-TT-T---Tz--T-T---T-T##,,,,,,,,,,,,,,,,,,TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,##7##,TT-------------T,,,,##T-T--T--T---TT---TT-T--T--T---TT---TT-T--T--T#
+D:#--,--T-T--T---T-T---TT---T-T--T-----T-TT--T---T-TT-T##,,,,,,,,,,,,,,,,,,TVVT,,######,,,,,,,#########,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T--###########-TT,,,##---T-T---T-T--T-T----T-T---T-T--T-T----T-T---#
+D:#T--T-TT---T-T-T-TT-T---T-T--T--T---T--,TT---T-T----T##,,,,,,,#1####,,,,,TVVT,,#####8,,,,,,,#########,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T-############--T,,,##-T-T---T--T-T--T---T-T---T--T-T--T---T-T---T-#
+D:#-TT-T-T--T--T,-T----T----T-T--T-T--T--T--T-T-T--TT--##,,,,,,,######,,,,,TVVT,,######,,,,,,,,,0######,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T--############-T,,,##,T----T---T--T--T-,T----T---T--T--T-,T----T--#
+D:#,-,T-T-T----T---T--TT---T----TT----T-----T---TT-T,-T##,,,,,,,######,,,,,TVVT,,######,,,,,,,,,#######,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T----##########-T,,,##T-T----TT--T---T--T-T----TT--T---T--T-T----TT#
+D:#---T----T-T-T--T-T---T--T--T---T-,T---T-T--T-T---T--##,,,,,,,####1#,,,,TVVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T----##########-T,,,##-T--T-T-TT-T--T-T--T--T-T-TT-T--T-T--T--T-T-T#
+D:#-T--T--T-T-,TT---T-T-T--T---T--T--T--T--T---T--TT---##,,,,,,,,,,,,,,,,TVVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T----##########-T,,,##--TT---T--T--T-T-T--TT---T--T--T-T-T--TT---T-#
+D:#-T--,--,T,---T,-T-T---T----TT---T-T---T-T---T-TT-T--##,,,,,,,,,,,,,,,TVVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TTTTT##########-T,,,##-T---T-T----T--T-T-T---T-T----T--T-T-T---T-T-#
+D:#---T-T--T-T--T--T-T-T-T--T--T-T----T-T---T-T-T--T--T##,,,,,,,,,,,,,,TVVVT,,,,,,,,,,#########,,,,,,,,,,,#########,,,,,,,,,,,,,,,,,,,,,,d#########-T,,,##T---T---T--T--T-T-T---T---T--T--T-T-T---T---T#
+D:#---T--T---T-T---T--T--T-T-T,-T--T-T-T-T-T---T--T--T-##,,,,,,,,,,,,,,TVVT,,,,,,,,,,,#########,,,,,,,,,,,2########,,,,,,,,,,,,,,,,,TTTTT##########-T,,,##---T-TT---T-T---T----T-TT---T-T---T----T-TT--#
+D:#T--T---,T---T--T---T-----TT-T--T--T-----T,---TT-T---##,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#########,,,,,,,,,,,#########,,,,,,,,,,,,,,,,,T----##########-T,,,##---T-T--T-T,-T-T-----T-T--T-T,-T-T-----T-T--T#
+D:#T-T---T-T-T--T---TT---T-T--T-TT--T-T----T-T--T--T-T-##,,,,TTTTTTTTT,,,,,,,,,,,,,,,,,,#######,,,,,,##3###########,,,,,,,,,,,,,,,,,T----##########-T,,,##-T----TT--T-T----T-T----TT--T-T----T-T----TT-#
+D:#-T-T-T,,-TT-T-T-T--,-T-T-T-T--T--T--T-T--T-T-----T--##,,,TVVVVVVVVVTTVVT,,,,,,,,,,,,,###4###,,,,,,#############9,,,,,,,,,,,,,,,,,T----##########-T,,,##---T-T-T----T--T-T---T-T-T----T--T-T---T-T-T-#
+D:#----T---,-T-T--T--T-T---T---T-T----T--T--T-----T-T--##,,,TVVVVVVVVVTTVVT,,,,,,,,,,,,,,,,,,,,,,,,,,##############,,,,,,,,,,,,,,,,,T--############-T,,,##-T-T---TT----T--T--T-T---TT----T--T--T-T---TT#
+D:#T--,T---T---TT-T-T-,--T---T-T--TT----T--T,,-T---T-T-##,,,TVV--,,,VVTTVVT,,,,,,,,,,,,,,,,,,,,,,,,,,##############,,,,,,,,,,,,,,,,,T-############--T,,,##-T----T--T--T--T-T-T----T--T--T--T-T-T----T--#
+D:#--T-T---T------T--T-T---T-T----T---TT---T-T---T-T--###,,,TVV--,,,VVTTVVT,,###e###,,,,,,,,,,,,,,,,,####5####6####,,,,,,,,,,,,,,,,,T--###########-TT,,,###-T-T-T-T--,,TT-----T-T-T-T--,,TT-----T-T-T-T#
+D:#T--T-----TT--T-T--T--T--T---T---T-T-T-T-T---T-T---T###,,,TVV-T-,,VVVVVVT,,#######,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TT-------------T,,,,###--,T--TT---T-T-T----,T--TT---T-T-T----,T--TT#
+D:#T--T--T-T-T--T-T---T-,--T-T---T---T-T-T---T-T-T-T-T###,,,TVV----,VVVVVVT,,#######,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TTTTTTTTTTTTTTT,,,,###T-T-T--T-T-T-T--T-T-T-T--T-T-T-T--T-T-T-T--T#
+D:#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TVV--T--,,,,,,,,,#######,,,,TTTTT,,TTTTTTTTTTTTTTTTTTTTTTTTTTTT,,TTTTT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
+D:#-,-T--T--T-T--T-T-T-T----T-T--T-,--T-T--T---T,-TT--###,,,TVV-----,,,,,,,,,,,,,,,,,,,TVVVVV,,VVVVVVVVVVVVVVVVVVVVVVVVVVVV,,VVVVVT,,,,,,,,,,,,,,,,,,,,,###T--T-T----,,-T---TT--T-T----T--T---TT--T-T--#
+D:#T-T-TT-T--T-T-T-----T--T-T--T-T--T--TT-T-T---T-T---###,,,TVV-T---VVVVVVT,,,,,,,,,,,TVVVVVV,,VVVVVVVVVVVVVVVVVVVVVVVVVVVV,,VVVVVVT,,,,,,,,,,,,,,,,,,,,###T----T--TT-,,-T-T-T----T--TT--T-T-T-T----T--#
+D:#--T-T--T---T---T--T-T--T--T-TT-T--T,--T---T-T-,-T--###,,,TVV-----VVVVVVTTTTTTTTTTTTVVVVTTT,,TTTTTTTTTTTTTTTTTTTTTTTTTTTT,,TTTVVVVTTTTTTTTT,,,,,,,,,,,###T-T-T-T--T--,,,T--T-T-T-T--T---T-T--T-T-T-T-#
+D:#-T-T--T-T---TT--T,-T--T--T----T-----T---T-T-----TT-T##,,,TVV-T---VVTTVVVVVVVVVVVVVVVVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TVVVVVVVVVVVVT,,,,,,,,,,##-T---T-T----T-,,,--T---T-T----T-T-,--T---T-T-#
+D:#T----T---T---T----T---T---T-,-T-T--T--T-T---T-,-T-T-##,,,TVV-----VVTTVVVVVVVVVVVVVVVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TVVVVVVVVVVVVT,,,,,,,,,##T--T-T-T--T--T-,,,T--T-T-T--T--T--T-T--T-T-T-#
+D:#-T-----T--,-TT--T--T---T---T-T--T-T-T-T,-T-T,---T---##,,,TVVVVVVVVVTTVVVVTTTTTTTTTTTT,,,,,,,,,,,,,,,,########,,,,,,,,,,,,,,,,,,TTTTTTTTTVVVVTT,,TTTTT##--T-T---T----T-T,,,-T-T---T----T-T-T--T-T---T#
+D:#T----T-T---T-T-T--T--TT-T-T-TT---T--T--T--TT-T--T-T-##,,,TVVVVVVVVVTTVVVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,########,,,,,,,,,,,,,,,,,,,,,,,,,,,TVVVVV,,VVVVV##WWWWWWWWWWWWWWWWW,,WWWWWWWWWWWT--T-TT--T-T-T-#
+D:#--T-T--T-TT---T--T-T-T---T----T-T-T----T-T-T---T----##,,,,TTTTTTTVVTTVVTT,,,,,,,,,,,,,,,,,,,,,,,,,,,,#######j,,,,,,,,,,,,,,,,,,,,,,,,,,,,TVVVV,,VVVVV##WWWWWWWWWWWWWWWWW,,WWWWWWWWWWWWWWWWW,,WWWWWWW#
+D:#-T---T-T---T-T---T--T-T--T,-T--T-T--T--T-----T---T-T##,,,,,,,,,,TVVTTVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#####,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TTTT,,TTTTT##-T--T-T-T-,T-T-----T--T-T-T-WWWWWWWW,,WWWWWWW#
+D:#T-T-T---T--T---T----T--T-T-T----T-T,--,-,T----T-T-T-##TTTTTTTTTTTTTTTVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,l####,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,##--T-T-T,-T--T-TT-T--T-T-T,-T--T-TT-T--T-T-T,-#
+D:#--T----T--T-T-T--T-T--T--T-T--T-TT-T--T-T-T--T-T-T--##--------------TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#####,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,##TTT---TT-T--T--T-TTTT---TT-T--T--T-TTTT---TT-#
+D:#--T-TT--T-T-T--T--TT----T-T--T---T-T---T---T----T--T##--------------TVVT,,,,,,,,,,#######,,,,,,,,,,,,,,,####a,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,##TT---T--T-T--T-T-TTT---T--T-T--T-T-TTT---T--T#
+D:#-T-T---T-T--T-T--T--TT--T--T--T--T-T,---T----T---T--##-----######---TVVT,,,,,,,,,,######g,,,,,,,,,,,,,,,m####,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,##--T--,T-TT--T--T-T--T--,T-TT--T--T-T--T--,T-T#
+D:#-,--T--T--T-TT-T--T--T-T-TT-T---T-,,-T--T-T-TT---T-T##----########--TVVT,,,,,,,,,,#######,,,,,,,,,,,,,,,#####,,,,,,,,,TTTTTT,TTTTTT,,,,,,,,,,,,,,,,,,##T--T-T---T-T-TT-T-T--T-T---T-T-TT-T-T--T-T---#
+D:#-T-T,-T-T---T-T-T-T-T--T--T-T---T--T-T-T-T---T---T-T##------#######-TVVT,,,,,,,,,,,,#####,,,,,,,,,,,,,,,#####,,,,,,,,,TT---T,T---TT,,,,,,,,,,,,,,,,,,##T-T----TT-T-T-T-T-T-T----TT-T-T-T-T-T-T----TT#
+D:#T---T---T-T-T---TT----T---T--T-T-T-T-T-T-T---TT--T-T##--------#i##--TVVT,,,,,,,,,,,,####f,,,,,,,,,,,,,,,h####,,,,,,,,,T--#-T!T-#--T,,,,,,,,,,,,,,,,,,##T-T--T--T--T---T-TT-T--T--T--T---T-TT-T--T--T#
+D:#-T--T,--T-T--T-,T-,T-T---T-T--TT-----T---T-T---T,-T-##--------------TVVT,,,,,,,,,,,,#####,,,,,,,,,,,,,,,#####,,,,,,,,,T-#-##b##-#-T,,,,,,,,,,,,,,,,,,##-T-TT--T-T--T--T-T-T-TT--T-T--T--T-T-T-TT--T-#
+D:#-T--T-T-T-T-TT--T-T-T--T-T---T-,--T-T--T-T---T-T,--T##--------------TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#####,,,,,,,,,T--#######--T,,,,,,,,,,,,,,,,,,##-T--T-T--T--T-,-T--T--T-T--T--T-,-T--T--T-T--#
+D:#T-T---T---T-T-T-T-,-TT-T-T-T--T-T-T-T-T--T-T,-T-T--T##--------#n##--,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,###,,,,,,,,,,TT-#######-TT,,,,,,,,,,,,,,,,,,##--,-T-T-TT-T-T--T---,-T-T-TT-T-T--T---,-T-T-T#
+D:#T----T-TT-T--T----T---T--T-T-T---T-T--T-T-,-T-T---T-##------#######-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#,,,,,,,,,,,T--#######--T,,,,,,,,,,,,,,,,,,##-TT-T--T----T-,-T--TT-T--T----T-,-T--TT-T--T-#
+D:#TT--T---T-T-T--T---T-TT--T-T----T----T---T-T,--T-T--##----########--TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,#-#####-#-T,,,,,,,,,,,,,,,,,,##----T--T-T-T--TT-T----T--T-T-T--TT-T----T--T-#
+D:#-T--T--T-,-T-T---TT-T-T-T--,T-T----T--T-T-T--T-T----##-----######---TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T--#-----#--T,,,,,,,,,,,,,,,,,,##-T---T--T---T-T--T-T---T--T---T-T--T-T---T--T#
+D:#-T-T---T-T-T-T-T-T-T-T--T-T--T--T---T-T-T--T--T--T--##--------------TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TT---------TT,,,,,,,,,,,,,,,,,,##-T--TT-T-T-T--T-T--T--TT-T-T-T--T-T--T--TT-T-#
+D:#T-T--T--T--T-T----T--T-T--T-T-T,--T--T-T-T--T--TT--T##--------------TVVT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TTTTTTTTTTTTT,,,,,,,,,,,,,,,,,,##-T-T---T-T,,-T--,T-T-T---T-T,,-T--,T-T-T---T-#
+D:#-T--T-T-T-TT-T---T--,T-T,--T--T--T-T--T-,T-TT-T--T-T######,#######################################,############################################,#######T--T-T-T-,T--T--TTT--T-T-T-,T--T--TTT--T-T-T-#
+D:#---T-T--T-T-T-TT-T-T-T--T-T---TT-T--T-T--T-T--T-T---######,#######################################,############################################,#######,-TT--T----,T-T-T-,-TT--T----,T-T-T-,-TT--T--#
+D:#T-T-T-T-T--T---T-T--T-T--T--T--T-T-T--T--T--T-T-T-T-T,-T---T-T-T-T---WW-T--T-TT-----T--T,-T-,--T-T-T-T-#######----T---T----TT,-T-T-T--T---T---T-TT--T-T-T,,-T----T----T-TT---T---T---TT,-T-,T-T-----#
+D:#T----T---T----T----T---T--T----T-T,--TT--T-T-T--T-T---TT--T--T-T-----WWT-T--T-T-----T--------TT--------T#####T--T-T-T,--T--T--T----T-T---T-,T--T---T---,T------T-T----T---T-T--TT-T----T---T---T-T-T#
+D:#-T--T,-------T----T----T-T---T----T---T-T-T-T-T-T------T-T--T-T--T---WWT-T-T--T-----T--T--T---T-T--TT-T--###---T-T----T---TT----T--T-T--T---T----T---,T-T--T-T--T-T--T-T-TT---T---T-T---T-----T--T--#
+D:#-T-T-T-,-T-T-T-T--T,-T---TT-T--T-T--T-T,-T--T-T-T--T--TT---T-T---T-T--WWTT--T-T---TT-T---T---T--T--T---T--#,TT-T--,T,--,,T-T--T-T-T-T-,T--T--T-T---T-T--T-TT--T-T---T-T-T--T---T-T--T-T---T---T---T-#
+D:#T-T,---T,-T--T-T-T-T--T-T--T-T-T--TT---T-T--T-TT---T--T,-T-T---T-T,,-T-WWT---T--T----T--,--T--T---y,-T-x---T---T--TT-,-T---T-T----T--T-T----TT---T-T--T-T-T----T---TT---T-T--T---T-TT-T-T-T---TT--T-#
+D:#T-T-T-T-T-T-TT--T-T-TT--TT-T---T----T-T-T-T-T-T-T--TT-T--T-T--T-T-T-T-TWWTT-T-T--T-T--TT-T-T--T-TT-T-T-T-T-T-T-T-T-T--T-T-T-T--TT--T-T-T-T--TT-T-T-T--TT--T-T-T-T----TT-T-T-T-T-T-T-T-T-T-T-T-T--T-T#
+D:######################################################################################################################################################################################################
+
+# Default starting position
+?:[EQU $LEAVING_QUEST 0]
+P:33:67
+
+# Starting position when coming from quest 19
+?:[EQU $LEAVING_QUEST 19]
+P:14:41
+
+# Starting position when coming from quest 22
+?:[EQU $LEAVING_QUEST 22]
+P:63:98
+
+# Starting position when coming from quest 23
+?:[EQU $LEAVING_QUEST 23]
+P:63:102
+

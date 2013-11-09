@@ -435,7 +435,7 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 	char tmp[1024];
 
 	/* Read a line */
-	if (fgets(tmp, 1024, fff))
+	if (fgets(tmp, sizeof(tmp), fff))
 	{
 		/* Convert weirdness */
 		for (s = tmp; *s; s++)
@@ -684,9 +684,12 @@ int fd_make(cptr file, int mode)
 # if defined(MACINTOSH) && defined(MAC_MPW)
 
 	/* setting file type and creator -- AR */
-	errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
-	fsetfileinfo(file, _fcreator, _ftype);
-	return(errr_tmp);
+	{
+		errr errr_tmp;
+		errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
+		fsetfileinfo(file, _fcreator, _ftype);
+		return(errr_tmp);
+	}
 
 # else
 	/* Create the file, fail if exists, write-only, binary */
@@ -1697,8 +1700,20 @@ static char inkey_aux(void)
 	/* Hack : キー入力待ちで止まっているので、流れた行の記憶は不要。 */
 	num_more = 0;
 
-	/* Wait for a keypress */
-	(void)(Term_inkey(&ch, TRUE, TRUE));
+	if (parse_macro)
+	{
+		/* Scan next keypress from macro action */
+		if (Term_inkey(&ch, FALSE, TRUE))
+		{
+			/* Over-flowed? Cancel macro action */
+			parse_macro = FALSE;
+		}
+	}
+	else
+	{
+		/* Wait for a keypress */
+		(void) (Term_inkey(&ch, TRUE, TRUE));
+	}
 
 
 	/* End "macro action" */
@@ -2643,7 +2658,7 @@ void msg_print(cptr msg)
 
 	char buf[1024];
 
-	if (world_monster) return;
+	if (stop_the_time_monster) return;
 
 	/* Hack -- Reset */
 	if (!msg_flag) {
@@ -2949,6 +2964,8 @@ void c_roff(byte a, cptr str)
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			break;
 		}
 
 		/* Clean up the char */
@@ -3312,28 +3329,12 @@ bool get_check_strict(cptr prompt, int mode)
 	/* Hack -- Build a "useful" prompt */
 	if (mode & CHECK_OKAY_CANCEL)
 	{
-#ifdef JP
-		/* (79-8)バイトの指定, promptが長かった場合, 
-		   (79-9)文字の後終端文字が書き込まれる.     
-		   英語の方のstrncpyとは違うので注意.
-		   elseの方の分岐も同様. --henkma
-		*/
-		mb_strlcpy(buf, prompt, 80-15);
-#else
-		strncpy(buf, prompt, 79-15);
-		buf[79-8]='\0';
-#endif
+		my_strcpy(buf, prompt, sizeof(buf)-15);
 		strcat(buf, "[(O)k/(C)ancel]");
-
 	}
 	else
 	{
-#ifdef JP
-		mb_strlcpy(buf, prompt, 80-5);
-#else
-		strncpy(buf, prompt, 79-5);
-		buf[79-5]='\0';
-#endif
+		my_strcpy(buf, prompt, sizeof(buf)-5);
 		strcat(buf, "[y/n]");
 	}
 
@@ -3520,7 +3521,6 @@ s16b get_quantity(cptr prompt, int max)
  */
 void pause_line(int row)
 {
-	int i;
 	prt("", row, 0);
 #ifdef JP
 	put_str("[ 何かキーを押して下さい ]", row, 26);
@@ -3528,7 +3528,7 @@ void pause_line(int row)
 	put_str("[Press any key to continue]", row, 23);
 #endif
 
-	i = inkey();
+	inkey();
 	prt("", row, 0);
 }
 
@@ -3548,7 +3548,7 @@ typedef struct
 } menu_naiyou;
 
 #ifdef JP
-menu_naiyou menu_info[10][10] =
+menu_naiyou menu_info[12][12] =
 {
 	{
 		{"魔法/特殊能力", 1, FALSE},
@@ -3561,13 +3561,17 @@ menu_naiyou menu_info[10][10] =
 		{"設定", 8, FALSE},
 		{"その他", 9, FALSE},
 		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
 	},
 
 	{
 		{"使う(m)", 'm', TRUE},
 		{"調べる(b/P)", 'b', TRUE},
-		{"覚える(G)", 'G', TRUE},
 		{"特殊能力を使う(U/O)", 'U', TRUE},
+		{"神に祈る(P/^G)", 'P', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
@@ -3586,7 +3590,9 @@ menu_naiyou menu_info[10][10] =
 		{"階段を上る(<)", '<', TRUE},
 		{"階段を下りる(>)", '>', TRUE},
 		{"ペットに命令する(p)", 'p', TRUE},
-		{"探索モードのON/OFF(S/#)", 'S', TRUE}
+		{"探索モードのON/OFF(S/#)", 'S', TRUE},
+		{"お金を恵む(G)", 'G', TRUE},
+		{"", 0, FALSE}
 	},
 
 	{
@@ -3599,6 +3605,8 @@ menu_naiyou menu_info[10][10] =
 		{"食べる(E)", 'E', TRUE},
 		{"飛び道具で撃つ(f/t)", 'f', TRUE},
 		{"投げる(v)", 'v', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3612,6 +3620,8 @@ menu_naiyou menu_info[10][10] =
 		{"アイテム一覧(i)", 'i', TRUE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3620,6 +3630,8 @@ menu_naiyou menu_info[10][10] =
 		{"装備を外す(t/T)", 't', TRUE},
 		{"燃料を補給(F)", 'F', TRUE},
 		{"装備一覧(e)", 'e', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
@@ -3638,6 +3650,8 @@ menu_naiyou menu_info[10][10] =
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3651,6 +3665,8 @@ menu_naiyou menu_info[10][10] =
 		{"現在の時刻(^t/')", KTRL('T'), TRUE},
 		{"現在の知識(~)", '~', TRUE},
 		{"プレイ記録(|)", '|', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3662,6 +3678,8 @@ menu_naiyou menu_info[10][10] =
 		{"設定変更コマンド(\")", '\"', TRUE},
 		{"自動拾いをロード($)", '$', TRUE},
 		{"システム(!)", '!', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE}
@@ -3677,11 +3695,43 @@ menu_naiyou menu_info[10][10] =
 		{"記念撮影の表示(()", '(', TRUE},
 		{"バージョン情報(V)", 'V', TRUE},
 		{"引退する(Q)", 'Q', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 };
 #else
-menu_naiyou menu_info[10][10] =
+menu_naiyou menu_info[12][12] =
 {
 	{
 		{"Magic/Special", 1, FALSE},
@@ -3694,13 +3744,17 @@ menu_naiyou menu_info[10][10] =
 		{"Options", 8, FALSE},
 		{"Other commands", 9, FALSE},
 		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
 	},
 
 	{
 		{"Use(m)", 'm', TRUE},
 		{"See tips(b/P)", 'b', TRUE},
-		{"Study(G)", 'G', TRUE},
 		{"Special abilities(U/O)", 'U', TRUE},
+		{"Pray(P/^G)", 'P', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
@@ -3719,7 +3773,9 @@ menu_naiyou menu_info[10][10] =
 		{"Go up stairs(<)", '<', TRUE},
 		{"Go down staies(>)", '>', TRUE},
 		{"Command pets(p)", 'p', TRUE},
-		{"Search mode ON/OFF(S/#)", 'S', TRUE}
+		{"Search mode ON/OFF(S/#)", 'S', TRUE},
+		{"Give money(G)", 'G', TRUE},
+		{"", 0, FALSE}
 	},
 
 	{
@@ -3732,6 +3788,8 @@ menu_naiyou menu_info[10][10] =
 		{"Eat(E)", 'E', TRUE},
 		{"Fire missile weapon(f/t)", 'f', TRUE},
 		{"Throw an item(v)", 'v', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3745,6 +3803,8 @@ menu_naiyou menu_info[10][10] =
 		{"Inventory list(i)", 'i', TRUE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3753,6 +3813,8 @@ menu_naiyou menu_info[10][10] =
 		{"Take off(t/T)", 't', TRUE},
 		{"Refuel(F)", 'F', TRUE},
 		{"Equipment list(e)", 'e', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
@@ -3771,6 +3833,8 @@ menu_naiyou menu_info[10][10] =
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3784,6 +3848,8 @@ menu_naiyou menu_info[10][10] =
 		{"Current time(^t/')", KTRL('T'), TRUE},
 		{"Various infomations(~)", '~', TRUE},
 		{"Play record menu(|)", '|', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 
@@ -3794,6 +3860,8 @@ menu_naiyou menu_info[10][10] =
 		{"Interact with colors(&)", '&', TRUE},
 		{"Enter a user pref(\")", '\"', TRUE},
 		{"Reload auto-pick pref($)", '$', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
 		{"", 0, FALSE},
@@ -3810,6 +3878,38 @@ menu_naiyou menu_info[10][10] =
 		{"Load screen dump())", '(', TRUE},
 		{"Version info(V)", 'V', TRUE},
 		{"Quit(Q)", 'Q', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
 		{"", 0, FALSE}
 	},
 };
@@ -3830,11 +3930,6 @@ typedef struct
 #ifdef JP
 special_menu_naiyou special_menu_info[] =
 {
-	{"超能力/特殊能力", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
-	{"ものまね/特殊能力", 0, 0, MENU_CLASS, CLASS_IMITATOR},
-	{"必殺技/特殊能力", 0, 0, MENU_CLASS, CLASS_SAMURAI},
-	{"練気術/魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
-	{"鏡魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"広域マップ(<)", 2, 6, MENU_WILD, FALSE},
 	{"通常マップ(>)", 2, 7, MENU_WILD, TRUE},
 	{"", 0, 0, 0, 0},
@@ -3842,11 +3937,6 @@ special_menu_naiyou special_menu_info[] =
 #else
 special_menu_naiyou special_menu_info[] =
 {
-	{"MindCraft/Special", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
-	{"Imitation/Special", 0, 0, MENU_CLASS, CLASS_IMITATOR},
-	{"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
-	{"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
-	{"MirrorMagic/Special", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"Enter global map(<)", 2, 6, MENU_WILD, FALSE},
 	{"Enter local map(>)", 2, 7, MENU_WILD, TRUE},
 	{"", 0, 0, 0, 0},
@@ -3861,7 +3951,7 @@ static char inkey_from_menu(void)
 	int menu = 0;
 	bool kisuu;
 
-	if (py - panel_row_min > 10) basey = 2;
+	if (py - panel_row_min > 10) basey = 1;
 	else basey = 13;
 	basex = 15;
 
@@ -3882,9 +3972,10 @@ static char inkey_from_menu(void)
 		put_str("|                                                    |", basey+3, basex);
 		put_str("|                                                    |", basey+4, basex);
 		put_str("|                                                    |", basey+5, basex);
-		put_str("+----------------------------------------------------+", basey+6, basex);
+		put_str("|                                                    |", basey+6, basex);
+		put_str("+----------------------------------------------------+", basey+7, basex);
 
-		for(i = 0; i < 10; i++)
+		for(i = 0; i < 12; i++)
 		{
 			int hoge;
 			if (!menu_info[menu][i].cmd) break;
@@ -4473,8 +4564,8 @@ int get_keymap_dir(char ch)
 	}
 	else
 	{
-                int mode;
-                cptr act, s;
+		int mode;
+		cptr act, s;
 
 		/* Roguelike */
 		if (rogue_like_commands)
@@ -4817,7 +4908,7 @@ void build_gamma_table(int gamma)
 
 #endif /* SUPPORT_GAMMA */
 
-void roff_to_buf(cptr str, int maxlen, char *tbuf)
+void roff_to_buf(cptr str, int maxlen, char *tbuf, size_t bufsize)
 {
 	int read_pt = 0;
 	int write_pt = 0;
@@ -4890,6 +4981,10 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf)
 #ifdef JP
 		if (!kinsoku) word_punct = read_pt;
 #endif
+
+		/* Not enough buffer size */
+		if (write_pt + 3 >= bufsize) break;
+
 		tbuf[write_pt++] = ch[0];
 		line_len++;
 		read_pt++;
@@ -4908,3 +5003,95 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf)
 	return;
 }
 
+
+/*
+ * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
+ * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
+ * not overlap.
+ *
+ * my_strcpy() returns strlen(src).  This makes checking for truncation
+ * easy.  Example: if (my_strcpy(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcpy() function in BSD.
+ */
+size_t my_strcpy(char *buf, const char *src, size_t bufsize)
+{
+#ifdef JP
+
+	char *d = buf;
+	const char *s = src;
+	size_t len = 0;
+
+	/* reserve for NUL termination */
+	bufsize--;
+
+	/* Copy as many bytes as will fit */
+	while (len < bufsize)
+	{
+		if (iskanji(*s))
+		{
+			if (len + 1 >= bufsize || !*(s+1)) break;
+			*d++ = *s++;
+			*d++ = *s++;
+			len += 2;
+		}
+		else
+		{
+			*d++ = *s++;
+			len++;
+		}
+	}
+	*d = '\0';
+	while(*s++) len++;
+
+	return len;
+
+#else
+
+	size_t len = strlen(src);
+	size_t ret = len;
+
+	/* Paranoia */
+	if (bufsize == 0) return ret;
+
+	/* Truncate */
+	if (len >= bufsize) len = bufsize - 1;
+
+	/* Copy the string and terminate it */
+	(void)memcpy(buf, src, len);
+	buf[len] = '\0';
+
+	/* Return strlen(src) */
+	return ret;
+
+#endif
+}
+
+
+/*
+ * The my_strcat() tries to append a string to an existing NUL-terminated string.
+ * It never writes more characters into the buffer than indicated by 'bufsize' and
+ * NUL-terminates the buffer.  The 'buf' and 'src' strings may not overlap.
+ *
+ * my_strcat() returns strlen(buf) + strlen(src).  This makes checking for
+ * truncation easy.  Example:
+ * if (my_strcat(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcat() function in BSD.
+ */
+size_t my_strcat(char *buf, const char *src, size_t bufsize)
+{
+	size_t dlen = strlen(buf);
+
+	/* Is there room left in the buffer? */
+	if (dlen < bufsize - 1)
+	{
+		/* Append as much as possible  */
+		return (dlen + my_strcpy(buf + dlen, src, bufsize - dlen));
+	}
+	else
+	{
+		/* Return without appending */
+		return (dlen + strlen(src));
+	}
+}

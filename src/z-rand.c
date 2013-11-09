@@ -240,7 +240,7 @@ static s16b randnor_table[RANDNOR_NUM] =
  *
  * Note that the binary search takes up to 16 quick iterations.
  */
-s16b randnor(int mean, int stand)
+s32b randnor(int mean, int stand)
 {
 	s16b tmp;
 	s16b offset;
@@ -287,7 +287,7 @@ s16b randnor(int mean, int stand)
 /*
  * Generates damage for "2d6" style dice rolls
  */
-s16b damroll(int num, int sides)
+s32b damroll(int num, int sides)
 {
 	int i, sum = 0;
 	for (i = 0; i < num; i++) sum += randint1(sides);
@@ -298,7 +298,7 @@ s16b damroll(int num, int sides)
 /*
  * Same as above, but always maximal
  */
-s16b maxroll(int num, int sides)
+s32b maxroll(int num, int sides)
 {
 	return (num * sides);
 }

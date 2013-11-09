@@ -1,0 +1,75 @@
+#q_Barmamutha_a.txt
+
+# Name The Genocide of Barmamutha (Lawful)
+Q:$35:N:The Genocide of Barmamutha (Lawful)
+Q:35:N:バルマムッサの虐殺 (秩序)
+
+# Definition 
+Q:$35:Q:6:0:0:0:30:0:0:0:10
+Q:35:Q:6:0:0:0:30:0:0:0:10
+
+# Description for quest
+?:[LEQ $QUEST35 2]
+Q:35:T:バルマムッサの住民は既に戦う気力もなく、武装蜂起させるのはやはり
+Q:35:T:無理のようだな。
+Q:35:T:……。よく聞いてくれ。これから町の住人を一人残らず殺すんだ。
+Q:35:T:こうなることを予想されていた公爵様のご命令なんだ。
+Q:35:T:……従ってくれるな？こうしなければウォルスタに明日はないッ！
+Q:35:T: 
+Q:35:T:…すまない。彼らの犠牲を無駄にはしない。
+Q:35:T:では早速実行にかかろう。君は収容所を頼む。町は私がやる。
+Q:35:T:……一人も逃がさないようにな。
+?:1
+
+# Pitiful looking girl
+F:a:1:8:928
+
+# Scrawny boy
+F:b:1:8:929
+
+# Scruffy old person
+F:c:1:8:930
+
+# Ugry old woman
+F:d:1:8:931
+
+# Haggard woman
+F:e:1:8:932
+
+# The Doors, Floors, an Features 
+# *HEALING* potion
+F:Y:1:8:0:419
+
+# Scroll of Learning Special Blow
+F:S:1:8:0:388
+
+# Scroll of Ego-item Creation
+F:E:1:8:0:600
+
+# potion of Life
+F:L:1:8:0:420
+
+# 至福の聖石
+F:I:1:8:0:0:0:15
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XI.....X........X......X......X........X......X
+D:X..a...D........X..c...D..b...D........X......X
+D:X..c...X........X...d..X..c...X........X..cd..X
+D:X......X...T....D......X......X...T....D......X
+D:X......X........X......X......X........X......X
+D:XXXDXXXXXXXXXXXXXXDXXXXXXXDXXXXXXXXXXXXXXDXXXXX
+D:X......XTT...e.cX......X......XTT...e.eX......X
+D:X......XY..T.dbaX...ee.X......XY..T.dbaX..ee..X
+D:X......XST.e.eebX....d.X......XET.e.cbaX..d...X
+D:X.bbb..XL.d.cabaX......X.bbb..XL.d.caaeX......X
+D:XXXXDXXXXXXXXXXXDXXXDXXXXXXDXXXXXXXXXXXDXXXDXXX
+D:X......X........X......X......X........X......X
+D:X......X..baa...X......X......X..aaa...X......X
+D:X......X...aaa..X......X......X...aab..X......X
+D:X......D....edc.D...T..X......D....cde.D...T..X
+D:X..T...X........X......X..T...X........X......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:16:45

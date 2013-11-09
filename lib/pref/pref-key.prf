@@ -206,3 +206,7 @@ C:1:O
 # Hack - race/mutation power activation
 A:^t
 C:1:'
+
+# Hack - praying
+A:P
+C:1:^G
