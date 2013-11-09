@@ -1,5 +1,5 @@
                   ****************************************
-                  **         PosChengband 2.0.1         **
+                  **         PosChengband 2.0.2         **
                   ****************************************
 
           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke

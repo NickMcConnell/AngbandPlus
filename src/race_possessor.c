@@ -1,5 +1,10 @@
 #include "angband.h"
 
+static int _calc_level(int l)
+{
+    return l + l*l*l/2500;
+}
+
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
@@ -17,6 +22,10 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
     forge.number = 1;
     forge.pval = (byte)rand_range(25, 30);
+    add_outfit(&forge);
+
+    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    forge.to_d = 3;
     add_outfit(&forge);
 }
 
@@ -310,8 +319,7 @@ static void _calc_innate_attacks(void)
             a.effect[1] = GF_DRAIN_MANA;
             break;
         case RBE_SHATTER:
-            /*a.effect[1] = GF_QUAKE;*/
-            a.dd += (a.dd + 1)/2;
+            a.effect[1] = GF_QUAKE;
             break;
         }
 
@@ -340,102 +348,85 @@ static void _possess_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
-            var_set_string(res, "Unpossess");
-        else
-            var_set_string(res, "Possess");
+        var_set_string(res, "Possess");
         break;
     case SPELL_DESC:
-        if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
-            var_set_string(res, "Leave your current form so you may enter a new body. Beware, this will probably destroy your current body!");
-        else
-            var_set_string(res, "Enter the corpse of a new body, gaining the powers and abilities of that form.");
+        var_set_string(res, "Enter the corpse of a new body, gaining the powers and abilities of that form.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, format("Lvl %d", _calc_level(p_ptr->max_plv) + 5));
         break;
     case SPELL_CAST:
+    {
+        int item;
+        char o_name[MAX_NLEN];
+        object_type *o_ptr;
+        object_type copy;
+
         var_set_bool(res, FALSE);
-        if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+
+        if ( p_ptr->current_r_idx != MON_POSSESSOR_SOUL 
+          && !get_check("Your current body will be destroyed. Are you sure? ") )
         {
-            int           old_r_idx = p_ptr->current_r_idx;
-            monster_race *old_r_ptr = &r_info[old_r_idx];
+            return;
+        }
 
-            if (!get_check("Your current body may be destroyed. Are you sure? ")) 
-                return;
-            
-            msg_print("You leave your current body!");
-            if (one_in_(10))
-            {
-                object_type forge;
-                object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
-                apply_magic(&forge, object_level, AM_NO_FIXED_ART);
-                forge.pval = old_r_idx;
-                forge.weight = MAX(40, old_r_ptr->weight * 10);
-                drop_near(&forge, -1, py, px);
-            }
-            else
-                msg_print("Your previous body quickly decays!");
+        item_tester_hook = _obj_can_possess;
+        if (!get_item(&item, "Possess which corpse? ", "You have nothing to possess.", (USE_INVEN | USE_FLOOR))) 
+            return;
 
-            p_ptr->current_r_idx = MON_POSSESSOR_SOUL;
-            if (p_ptr->exp > possessor_max_exp())
-            {
-                p_ptr->exp = possessor_max_exp();
-                check_experience();
-            }
-            else
-                restore_level();
+        if (item >= 0)
+            o_ptr = &inventory[item];
+        else
+            o_ptr = &o_list[0 - item];
 
-            p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-            p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP;
-            equip_on_change_race();
+        object_copy(&copy, o_ptr);
+        copy.number = 1;
+        object_desc(o_name, &copy, OD_NAME_ONLY);
+
+        if (r_info[copy.pval].level > _calc_level(p_ptr->max_plv) + 5)
+        {
+            msg_format("You are not powerful enough to possess %s (Lvl %d).", o_name, r_info[copy.pval].level);
+            return;
+        }
+        else
+            msg_format("You possess %s.", o_name);
+
+        /* Order is important. Changing body forms may result in illegal
+           equipment being placed in the pack, invalidating the item index.
+           This is exacerbated by corpses sorting to the bottom :( */
+        if (item >= 0)
+        {
+            inven_item_increase(item, -1);
+            inven_item_describe(item);
+            inven_item_optimize(item);
         }
         else
         {
-            int item;
-            char o_name[MAX_NLEN];
-            object_type *o_ptr;
-            object_type copy;
-
-            item_tester_hook = _obj_can_possess;
-            if (!get_item(&item, "Possess which corpse? ", "You have nothing to possess.", (USE_INVEN | USE_FLOOR))) 
-                return;
-
-            if (item >= 0)
-                o_ptr = &inventory[item];
-            else
-                o_ptr = &o_list[0 - item];
-
-            object_copy(&copy, o_ptr);
-            copy.number = 1;
-            object_desc(o_name, &copy, OD_NAME_ONLY);
-            msg_format("You possess %s.", o_name);
-
-            p_ptr->current_r_idx = o_ptr->pval;
-            if (p_ptr->exp > possessor_max_exp())
-            {
-                p_ptr->exp = possessor_max_exp();
-                check_experience();
-            }
-            else
-                restore_level();
-
-            p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-            p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP;
-            equip_on_change_race();
-
-            if (item >= 0)
-            {
-                inven_item_increase(item, -1);
-                inven_item_describe(item);
-                inven_item_optimize(item);
-            }
-            else
-            {
-                floor_item_increase(0 - item, -1);
-                floor_item_describe(0 - item);
-                floor_item_optimize(0 - item);
-            }
+            floor_item_increase(0 - item, -1);
+            floor_item_describe(0 - item);
+            floor_item_optimize(0 - item);
         }
+        o_ptr = NULL;
+
+        p_ptr->current_r_idx = copy.pval;
+        if (p_ptr->exp > possessor_max_exp())
+        {
+            p_ptr->exp = possessor_max_exp();
+            check_experience();
+        }
+        else
+            restore_level();
+
+        p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
+        p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP | PR_EQUIPPY;
+
+        /* Apply the new body type to our equipment */
+        equip_on_change_race();
+
         var_set_bool(res, TRUE);
         break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -445,8 +436,49 @@ static void _possess_spell(int cmd, variant *res)
 /**********************************************************************
  * Innate Powers
  **********************************************************************/
+static int _breath_amount(int type)
+{
+    int l = p_ptr->lev;
+    switch (type)
+    {
+    case GF_ACID: case GF_ELEC: case GF_FIRE : case GF_COLD:
+        return MAX(1, MIN(900, p_ptr->chp * (25 + l*l*l/2500) / 100));
 
-static void _breathe_spell(int what, int amt, int cmd, variant *res)
+    case GF_POIS: case GF_NUKE:
+        return MAX(1, MIN(700, p_ptr->chp * (20 + l*l*l/2500) / 100));
+
+    case GF_NETHER:
+        return MAX(1, MIN(650, p_ptr->chp * (20 + l*l*l*30/125000) / 100));
+
+    case GF_LITE: case GF_DARK:
+        return MAX(1, MIN(350, p_ptr->chp * (20 + l*l*l*15/125000) / 100));
+
+    case GF_CONFUSION: case GF_NEXUS: 
+        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*15/125000) / 100));
+
+    case GF_TIME: case GF_INERT: case GF_GRAVITY: case GF_DISINTEGRATE:
+    case GF_PLASMA: case GF_FORCE:
+        return MAX(1, MIN(250, p_ptr->chp * (20 + l*l*l*15/125000) / 100));
+
+    case GF_SOUND:
+        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) / 100));
+
+    case GF_STORM:
+        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*20/125000) / 100));
+
+    case GF_CHAOS: case GF_SHARDS:
+        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l*30/125000) / 100));
+
+    case GF_MANA:
+        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) / 100));
+
+    case GF_DISENCHANT:
+        return MAX(1, MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) / 100));
+    }
+    return 0;
+}
+
+static void _breathe_spell(int what, int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -457,7 +489,7 @@ static void _breathe_spell(int what, int amt, int cmd, variant *res)
         var_set_string(res, format("Breathes %s at your opponent.", gf_name(what)));
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, amt));
+        var_set_string(res, info_damage(0, 0, _breath_amount(what)));
         break;
     case SPELL_CAST:
     {
@@ -465,8 +497,11 @@ static void _breathe_spell(int what, int amt, int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (get_aim_dir(&dir))
         {
-            msg_format("You breathe %s!", gf_name(what));
-            fire_ball(what, dir, amt, -1 - (p_ptr->lev / 20));
+            if (p_ptr->current_r_idx == MON_BOTEI) 
+                msg_print("'Botei-Build cutter!!!'");
+            else
+                msg_format("You breathe %s!", gf_name(what));
+            fire_ball(what, dir, _breath_amount(what), -1 - (p_ptr->lev / 20));
             var_set_bool(res, TRUE);
         }
         break;
@@ -476,29 +511,30 @@ static void _breathe_spell(int what, int amt, int cmd, variant *res)
         break;
     }
 }
-static void _breathe_acid_spell(int cmd, variant *res) { _breathe_spell(GF_ACID, MIN(p_ptr->chp*75/100, 900), cmd, res); }
-static void _breathe_elec_spell(int cmd, variant *res) { _breathe_spell(GF_ELEC, MIN(p_ptr->chp*75/100, 900), cmd, res); }
-static void _breathe_fire_spell(int cmd, variant *res) { _breathe_spell(GF_FIRE, MIN(p_ptr->chp*75/100, 900), cmd, res); }
-static void _breathe_cold_spell(int cmd, variant *res) { _breathe_spell(GF_COLD, MIN(p_ptr->chp*75/100, 900), cmd, res); }
-static void _breathe_poison_spell(int cmd, variant *res) { _breathe_spell(GF_POIS, MIN(p_ptr->chp*65/100, 800), cmd, res); }
-static void _breathe_nether_spell(int cmd, variant *res) { _breathe_spell(GF_NETHER, MIN(p_ptr->chp*50/100, 600), cmd, res); }
-static void _breathe_light_spell(int cmd, variant *res) { _breathe_spell(GF_LITE, MIN(p_ptr->chp*35/100, 350), cmd, res); }
-static void _breathe_dark_spell(int cmd, variant *res) { _breathe_spell(GF_DARK, MIN(p_ptr->chp*35/100, 350), cmd, res); }
-static void _breathe_confusion_spell(int cmd, variant *res) { _breathe_spell(GF_CONFUSION, MIN(p_ptr->chp*25/100, 250), cmd, res); }
-static void _breathe_sound_spell(int cmd, variant *res) { _breathe_spell(GF_SOUND, MIN(p_ptr->chp*50/100, 400), cmd, res); }
-static void _breathe_chaos_spell(int cmd, variant *res) { _breathe_spell(GF_CHAOS, MIN(p_ptr->chp*50/100, 500), cmd, res); }
-static void _breathe_disenchantment_spell(int cmd, variant *res) { _breathe_spell(GF_DISENCHANT, MIN(p_ptr->chp*50/100, 450), cmd, res); }
-static void _breathe_nexus_spell(int cmd, variant *res) { _breathe_spell(GF_NEXUS, MIN(p_ptr->chp*25/100, 300), cmd, res); }
-static void _breathe_storm_spell(int cmd, variant *res) { _breathe_spell(GF_STORM, MIN(p_ptr->chp*25/100, 300), cmd, res); }
-static void _breathe_time_spell(int cmd, variant *res) { _breathe_spell(GF_TIME, MIN(p_ptr->chp*35/100, 250), cmd, res); }
-static void _breathe_inertia_spell(int cmd, variant *res) { _breathe_spell(GF_INERT, MIN(p_ptr->chp*25/100, 250), cmd, res); }
-static void _breathe_gravity_spell(int cmd, variant *res) { _breathe_spell(GF_GRAVITY, MIN(p_ptr->chp*25/100, 250), cmd, res); }
-static void _breathe_shards_spell(int cmd, variant *res) { _breathe_spell(GF_SHARDS, MIN(p_ptr->chp*50/100, 500), cmd, res); }
-static void _breathe_plasma_spell(int cmd, variant *res) { _breathe_spell(GF_PLASMA, MIN(p_ptr->chp*35/100, 300), cmd, res); }
-static void _breathe_force_spell(int cmd, variant *res) { _breathe_spell(GF_FORCE, MIN(p_ptr->chp*35/100, 300), cmd, res); }
-static void _breathe_mana_spell(int cmd, variant *res) { _breathe_spell(GF_MANA, MIN(p_ptr->chp*35/100, 400), cmd, res); }
-static void _breathe_disintegration_spell(int cmd, variant *res) { _breathe_spell(GF_DISINTEGRATE, MIN(p_ptr->chp*25/100, 250), cmd, res); }
-static void _breathe_nuke_spell(int cmd, variant *res) { _breathe_spell(GF_NUKE, MIN(p_ptr->chp*65/100, 500), cmd, res); }
+
+static void _breathe_acid_spell(int cmd, variant *res) { _breathe_spell(GF_ACID, cmd, res); }
+static void _breathe_elec_spell(int cmd, variant *res) { _breathe_spell(GF_ELEC, cmd, res); }
+static void _breathe_fire_spell(int cmd, variant *res) { _breathe_spell(GF_FIRE, cmd, res); }
+static void _breathe_cold_spell(int cmd, variant *res) { _breathe_spell(GF_COLD, cmd, res); }
+static void _breathe_poison_spell(int cmd, variant *res) { _breathe_spell(GF_POIS, cmd, res); }
+static void _breathe_nether_spell(int cmd, variant *res) { _breathe_spell(GF_NETHER, cmd, res); }
+static void _breathe_light_spell(int cmd, variant *res) { _breathe_spell(GF_LITE, cmd, res); }
+static void _breathe_dark_spell(int cmd, variant *res) { _breathe_spell(GF_DARK, cmd, res); }
+static void _breathe_confusion_spell(int cmd, variant *res) { _breathe_spell(GF_CONFUSION, cmd, res); }
+static void _breathe_sound_spell(int cmd, variant *res) { _breathe_spell(GF_SOUND, cmd, res); }
+static void _breathe_chaos_spell(int cmd, variant *res) { _breathe_spell(GF_CHAOS, cmd, res); }
+static void _breathe_disenchantment_spell(int cmd, variant *res) { _breathe_spell(GF_DISENCHANT, cmd, res); }
+static void _breathe_nexus_spell(int cmd, variant *res) { _breathe_spell(GF_NEXUS, cmd, res); }
+static void _breathe_storm_spell(int cmd, variant *res) { _breathe_spell(GF_STORM, cmd, res); }
+static void _breathe_time_spell(int cmd, variant *res) { _breathe_spell(GF_TIME, cmd, res); }
+static void _breathe_inertia_spell(int cmd, variant *res) { _breathe_spell(GF_INERT, cmd, res); }
+static void _breathe_gravity_spell(int cmd, variant *res) { _breathe_spell(GF_GRAVITY, cmd, res); }
+static void _breathe_shards_spell(int cmd, variant *res) { _breathe_spell(GF_SHARDS, cmd, res); }
+static void _breathe_plasma_spell(int cmd, variant *res) { _breathe_spell(GF_PLASMA, cmd, res); }
+static void _breathe_force_spell(int cmd, variant *res) { _breathe_spell(GF_FORCE, cmd, res); }
+static void _breathe_mana_spell(int cmd, variant *res) { _breathe_spell(GF_MANA, cmd, res); }
+static void _breathe_disintegration_spell(int cmd, variant *res) { _breathe_spell(GF_DISINTEGRATE, cmd, res); }
+static void _breathe_nuke_spell(int cmd, variant *res) { _breathe_spell(GF_NUKE, cmd, res); }
 
 static void _multiply_spell(int cmd, variant *res)
 {
@@ -667,13 +703,13 @@ void _healing_spell(int cmd, variant *res)
     case SPELL_INFO:
     {
         monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-        var_set_string(res, format("Heals %d", spell_power(r_ptr->level * 5)));
+        var_set_string(res, format("Heals %d", MIN(300, r_ptr->level * 5)));
         break;
     }
     case SPELL_CAST:
     {
         monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-        hp_player(spell_power(r_ptr->level * 5));
+        hp_player(MIN(300, r_ptr->level * 5));
         set_stun(0, TRUE);
         set_cut(0, TRUE);
         var_set_bool(res, TRUE);
@@ -768,9 +804,9 @@ static int _get_spells(spell_info* spells, int max)
     if (ct < max && (r_ptr->flags5 & RF5_BA_FIRE))
         _add_spell(&spells[ct++], 20, 14, 60, fire_ball_spell, stat_idx);
     if (ct < max && (r_ptr->flags5 & RF5_BO_MANA) && r_ptr->level < 25) /* DE Warlock */
-        _add_spell(&spells[ct++], 20, 15, 80, mana_bolt_I_spell, stat_idx);
+        _add_spell(&spells[ct++], 20, 15, 60, mana_bolt_I_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_HEAL) && r_ptr->level >= 20)
-        _add_spell(&spells[ct++], 20, 20, 70, _healing_spell, stat_idx);
+        _add_spell(&spells[ct++], 20, 35, 70, _healing_spell, stat_idx);
     if (ct < max && (r_ptr->flags5 & RF5_CAUSE_3))
         _add_spell(&spells[ct++], 22, 6, 50, cause_wounds_III_spell, stat_idx);
     if (ct < max && (r_ptr->flags5 & RF5_MIND_BLAST))
@@ -897,19 +933,46 @@ static caster_info * _caster_info(void)
  * Bonuses
  * TODO: Someday, we should have a unified flag system ... sigh.
  **********************************************************************/
+static int ac_percent;
+
+static void _ac_bonus_imp(int slot)
+{
+    object_type *o_ptr = equip_obj(slot);
+    if (o_ptr)
+    {
+        switch (equip_slot_type(slot))
+        {
+        case EQUIP_SLOT_BODY_ARMOR:
+            ac_percent -= 25;
+            break;
+        case EQUIP_SLOT_CLOAK:
+            ac_percent -= 5;
+            break;
+        case EQUIP_SLOT_WEAPON_SHIELD:
+            if (object_is_shield(o_ptr))
+                ac_percent -= 15;
+            break;
+        case EQUIP_SLOT_HELMET:
+            ac_percent -= 7;
+            break;
+        case EQUIP_SLOT_GLOVES:
+            ac_percent -= 5;
+            break;
+        case EQUIP_SLOT_BOOTS:
+            ac_percent -= 5;
+            break;
+        }
+    }
+}
+
 static void _calc_bonuses(void) 
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     int           r_lvl = MAX(1, r_ptr->level);
-    int           p_lvl;
+    int           p_lvl = _calc_level(p_ptr->lev);
 
     if (!p_ptr->current_r_idx) /* Birth hack ... we haven't been "born" yet! */
         return;
-
-    if (p_ptr->lev <= 40)
-        p_lvl = p_ptr->lev;
-    else
-        p_lvl = 40 + (p_ptr->lev - 40)*6;
 
     if ((r_ptr->flags1 & RF1_FEMALE) && p_ptr->psex != SEX_FEMALE)
     {
@@ -923,22 +986,46 @@ static void _calc_bonuses(void)
         sp_ptr = &sex_info[p_ptr->psex];
     }
 
+    if (!equip_can_wield_kind(TV_LITE, SV_LITE_FEANOR))
+        p_ptr->see_nocto = TRUE;
+
     if (r_ptr->flags9 & RF9_POS_GAIN_AC)
     {
         int to_a = r_ptr->ac * MIN(p_lvl, r_lvl) / r_lvl;
-        p_ptr->to_a += to_a;
-        p_ptr->dis_to_a += to_a;
+
+        /* Reduce AC bonus a bit depending on what armor slots are available.
+           For example, Wahha-man has AC200 yet can also wear a full complement of armor! */        
+        ac_percent = 100;
+        equip_for_each_slot(_ac_bonus_imp);
+        to_a = to_a * ac_percent / 100;
+
+        if (to_a > 0)
+        {
+            p_ptr->to_a += to_a;
+            p_ptr->dis_to_a += to_a;
+        }
     }
 
+    /* Add possessor speed info to r_info? The problem is that many end game
+       humanoid forms are too fast! Possessing Great Eagles should be encouraged,
+       as they have severe equipment limitations to compensate. */
     if (r_ptr->speed != 110)
     {
         int sp = (int)r_ptr->speed - 110;
-        int bonus = MIN(sp, 5);
-        
-        if (sp > 5)
-            bonus += ((sp - 5 + 1)/2) * MIN(p_lvl, r_lvl) / r_lvl;
 
-        p_ptr->pspeed += bonus;
+        if (sp < 0)
+            p_ptr->pspeed += sp;
+        else
+        {
+        int bonus;
+
+            if (strchr("hkoOpPTVWz", r_ptr->d_char))
+                sp /= 3;
+
+            bonus = sp * MIN(p_lvl, r_lvl) / r_lvl;
+
+            p_ptr->pspeed += bonus;
+        }
     }
 
     if (r_ptr->flags3 & RF3_GOOD)
@@ -989,6 +1076,8 @@ static void _calc_bonuses(void)
         p_ptr->kill_wall = TRUE;
     if (r_ptr->flags2 & RF2_AURA_REVENGE)
         p_ptr->sh_retaliation = TRUE;
+    if (r_ptr->flags2 & RF2_AURA_FEAR)
+        p_ptr->sh_fear = TRUE;
 
     if (r_ptr->flags3 & RF3_HURT_LITE)
         res_add_vuln(RES_LITE);
@@ -1274,4 +1363,50 @@ s32b possessor_max_exp(void)
         return exp_requirement(max) - 1;
     else
         return 99999999;
+}
+
+void possessor_on_take_hit(void)
+{
+    /* Getting too wounded may eject the possessor! */
+    if ( p_ptr->chp < p_ptr->mhp/4
+      && p_ptr->current_r_idx != MON_POSSESSOR_SOUL )
+    {
+        if (one_in_(66))
+        {
+            int old_r_idx = p_ptr->current_r_idx;
+            monster_race *old_r_ptr = &r_info[old_r_idx];
+
+            msg_print("You can no longer maintain your current body!");
+            if (one_in_(3))
+            {
+                object_type forge;
+                object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
+                apply_magic(&forge, object_level, AM_NO_FIXED_ART);
+                forge.pval = old_r_idx;
+                forge.weight = MIN(30*1000, MAX(40, old_r_ptr->weight * 10));
+                drop_near(&forge, -1, py, px);
+            }
+            else
+                msg_print("Your previous body quickly decays!");
+
+            p_ptr->current_r_idx = MON_POSSESSOR_SOUL;
+            p_ptr->chp = p_ptr->mhp;
+            p_ptr->chp_frac = 0;
+            if (p_ptr->exp > possessor_max_exp())
+            {
+                p_ptr->exp = possessor_max_exp();
+                check_experience();
+            }
+            else
+                restore_level();
+
+            p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
+            p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP | PR_EQUIPPY;
+            equip_on_change_race();
+        }
+        else
+        {
+            msg_print("You struggle to maintain possession of your current body!");
+        }
+    }
 }

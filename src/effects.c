@@ -6069,6 +6069,9 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
     fear_hurt_p(old_chp, p_ptr->chp);
 
+    if (p_ptr->prace == RACE_MON_POSSESSOR)
+        possessor_on_take_hit();
+
     /* Display the hitpoints */
     p_ptr->redraw |= (PR_HP);
 

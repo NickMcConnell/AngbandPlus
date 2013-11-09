@@ -4787,6 +4787,9 @@ static void process_player(void)
             class_ptr->process_player();
     }
 
+    if (load)
+        equip_on_load();
+
     load = FALSE;
 
     /* Fast */

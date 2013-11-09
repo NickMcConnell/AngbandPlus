@@ -671,7 +671,8 @@ G:b:v
 I:120:1d6:20:3:10:10
 W:1:1:10:3:20:114
 B:BITE:HURT:1d3
-F:ANIMAL | CAN_FLY | WILD_WOOD | WILD_SWAMP | DROP_CORPSE
+F:ANIMAL | CAN_FLY | WILD_WOOD | WILD_SWAMP |
+F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Yeek:Sniper
 P:Life:60
 P:Body:Bat
@@ -1630,6 +1631,9 @@ B:CRUSH:HURT:1d10
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_POIS | CAN_FLY | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:DROP_CORPSE
+P:Copy:Barbarian:Rogue
+P:Body:Disembodied Hand
 D:Even today, nobody knows where it lurks... 
 
 N:113:Brown mold
@@ -1648,8 +1652,8 @@ G:b:u
 I:130:3d8:10:15:30:10
 W:6:1:40:10:0:0
 B:BITE:HURT:1d4
-F:RAND_50 | CAN_FLY | WILD_MOUNTAIN | WILD_WOOD |
-F:ANIMAL | DROP_CORPSE
+F:RAND_50 | CAN_FLY | WILD_MOUNTAIN | WILD_WOOD | ANIMAL
+F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Sniper
 P:Life:60
 P:Body:Bat
@@ -1831,11 +1835,13 @@ I:120:3d6:8:16:80:20
 W:7:3:40:15:100:277
 B:BITE:HURT:1d4
 B:STING:POISON:1d5
-F:FRIENDS | DROP_SKELETON
+F:FRIENDS |
 F:WEIRD_MIND | BASH_DOOR | WILD_WOOD
 F:ANIMAL | IM_POIS
-D:It scuttles towards you.
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Yeek:Rogue
 P:Body:Spider
+D:It scuttles towards you.
 
 N:128:Manes
 G:u:R
@@ -2505,10 +2511,12 @@ B:BITE:HURT:1d10
 B:BITE:POISON:1d7
 B:BITE:POISON:1d7
 B:BITE:HURT:1d10
-F:WEIRD_MIND | BASH_DOOR | WILD_ALL | DROP_SKELETON
+F:WEIRD_MIND | BASH_DOOR | WILD_ALL | 
 F:ANIMAL | IM_POIS
-D:It is a vast black spider whose bulbous body is bloated with poison.
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Human:Rogue
 P:Body:Spider
+D:It is a vast black spider whose bulbous body is bloated with poison.
 
 N:176:Giant white tick
 G:S:w
@@ -2517,8 +2525,10 @@ W:10:2:40:27:500:411
 B:BITE:POISON:2d6
 F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL | IM_POIS
-D:It is moving slowly towards you.
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Human:Rogue
 P:Body:Spider
+D:It is moving slowly towards you.
 
 N:177:The Borshin
 G:g:w
@@ -2830,10 +2840,10 @@ B:TOUCH:EAT_ITEM
 F:MALE | HUMAN | THIEF
 F:DROP_1D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DROP_SKELETON
-D:He is eyeing your purse suspiciously.
+F:EVIL | DROP_SKELETON | DROP_CORPSE
 P:Copy:Human:Rogue
 P:Life:90
+D:He is eyeing your purse suspiciously.
 
 N:200:Hobbes the Tiger
 G:f:y
@@ -3128,7 +3138,7 @@ F:DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 S:1_IN_8
 S:SHOOT
-P:Copy:Human:Ranger
+P:Copy:Human:Archer
 D:A warrior trained in melee as well as missile weapons.
 
 N:220:Ixitxachitl
@@ -3324,9 +3334,10 @@ B:SHOOT:HURT:3d6
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
 B:BITE:POISON:1d6
-F:FORCE_SLEEP | 
-F:BASH_DOOR | DROP_SKELETON |
-F:EVIL | IM_POIS
+F:FORCE_SLEEP | BASH_DOOR | EVIL | IM_POIS
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Dark-Elf:Rogue
+P:Body:Drider
 S:1_IN_8 | 
 S:CONF | CAUSE_1 | DARKNESS | MISSILE | SHOOT 
 D:A dark elven torso merged with the bloated form of a giant spider.
@@ -3339,11 +3350,12 @@ B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:POISON:1d8
 F:ANIMAL | EVIL | FRIENDS | CAN_FLY | FORCE_MAXHP |
-F:IM_COLD | IM_ELEC | IM_POIS | WEIRD_MIND | DROP_CORPSE
-D:Devil-bats, notoriously difficult to kill.
+F:IM_COLD | IM_ELEC | IM_POIS | WEIRD_MIND | 
+F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Sniper
 P:Life:80
 P:Body:Bat
+D:Devil-bats, notoriously difficult to kill.
 
 N:236:Killer brown beetle
 G:K:u
@@ -3839,9 +3851,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | SELF_LITE_1 | SELF_LITE_2 |
 F:BASH_DOOR | 
 F:ANIMAL | RES_LITE
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_LITE
-P:Body:Hound
 D:A brilliant canine form whose light hurts your eyes, even at this distance.
 
 N:272:Shadow hound
@@ -3853,9 +3867,11 @@ F:FORCE_SLEEP |
 F:FRIENDS |
 F:BASH_DOOR | HURT_LITE | 
 F:ANIMAL | RES_DARK
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_DARK
-P:Body:Hound
 D:A hole in the air in the shape of a huge hound.  No light falls upon its 
 D:form.
 
@@ -3893,9 +3909,11 @@ B:BITE:POISON:1d6
 B:BITE:POISON:1d6
 B:BITE:POISON:1d6
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL |
-F:ANIMAL | IM_POIS | DROP_SKELETON
-D:A giant spider with hairy black and red legs.
+F:ANIMAL | IM_POIS | 
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Hobbit:Rogue
 P:Body:Spider
+D:A giant spider with hairy black and red legs.
 
 N:276:Giant clear centipede
 G:c:w
@@ -3917,10 +3935,12 @@ B:BITE:POISON:1d6
 B:BITE:POISON:1d6
 F:FRIENDS | WILD_WOOD |
 F:WEIRD_MIND | BASH_DOOR | HURT_LITE |
-F:ANIMAL | EVIL | IM_POIS | RES_DARK | DROP_SKELETON
+F:ANIMAL | EVIL | IM_POIS | RES_DARK | 
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Hobbit:Rogue
+P:Body:Spider
 D:A strong and powerful spider from Mirkwood forest.  Cunning and evil, it 
 D:seeks to taste your juicy insides.
-P:Body:Spider
 
 N:278:Frost giant
 G:P:w
@@ -3972,10 +3992,11 @@ G:h:R
 I:110:7d8:20:20:20:70
 W:15:2:60:40:0:0
 B:HIT:HURT:1d5
-F:MALE | HAS_LITE_1 |
+F:MALE | HAS_LITE_1 | EVIL
 F:FORCE_SLEEP | FRIENDS | DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON
-F:EVIL
+F:OPEN_DOOR | BASH_DOOR | 
+F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_MONSTERS | POS_DETECT_TRAPS
+P:Copy:Gnome:Mage
 S:1_IN_4 | 
 S:BLINK | DARKNESS | BO_COLD | 
 S:S_MONSTER
@@ -3992,6 +4013,8 @@ F:ATTR_CLEAR |
 F:FRIENDS |
 F:INVISIBLE | BASH_DOOR | 
 F:ANIMAL
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
 P:Body:Hound
 D:A completely translucent hound.
 
@@ -4004,13 +4027,15 @@ B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:BITE:HURT:2d6
 F:EMPTY_MIND | COLD_BLOOD | 
-F:BASH_DOOR | KILL_WALL | DROP_SKELETON
+F:BASH_DOOR | KILL_WALL | 
 F:ANIMAL | EVIL | 
 F:IM_POIS | 
 F:HURT_ROCK | NO_CONF | NO_SLEEP
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
+P:Copy:Kobold:Warrior
+P:Body:Umber Hulk
 D:This bizarre creature has glaring eyes and large mandibles capable of 
 D:slicing through rock.
-P:Body:Umber Hulk
 
 N:284:Rust monster
 G:q:o
@@ -4296,8 +4321,10 @@ I:110:11d8:12:44:20:70
 W:17:1:80:62:400:369
 B:BITE:HURT:2d4
 B:STING:LOSE_STR:1d7
-F:WEIRD_MIND | BASH_DOOR | WILD_ALL |
-F:ANIMAL | DROP_SKELETON
+F:WEIRD_MIND | BASH_DOOR | WILD_ALL | ANIMAL | 
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC |
+P:Copy:Hobbit:Warrior
+P:Body:Scorpion
 D:It is fast and poisonous.
 
 N:305:Earth spirit
@@ -4336,9 +4363,11 @@ F:FORCE_SLEEP | SELF_LITE_2 |
 F:FRIENDS | 
 F:BASH_DOOR | HURT_COLD |
 F:ANIMAL | IM_FIRE |
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_10 | 
 S:BR_FIRE
-P:Body:Hound
 D:Flames lick at its feet and its tongue is a blade of fire.  You can feel a 
 D:furnace heat radiating from the creature.
 
@@ -4353,9 +4382,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | HURT_FIRE |
 F:BASH_DOOR |
 F:ANIMAL | IM_COLD
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_10 | 
 S:BR_COLD
-P:Body:Hound
 D:A hound as tall as a man, this creature appears to be composed of angular 
 D:planes of ice.  Cold radiates from it and freezes your breath in the air.
 
@@ -4370,9 +4401,11 @@ F:FORCE_SLEEP | SELF_LITE_2 |
 F:FRIENDS |
 F:BASH_DOOR | 
 F:ANIMAL | IM_ELEC
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_10 | 
 S:BR_ELEC
-P:Body:Hound
 D:Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting 
 D:your fingers as energy builds up in the air around you.
 
@@ -4687,14 +4720,15 @@ W:20:2:999:60:0:0
 B:BITE:HURT:1d8
 B:BITE:POISON:1d6
 B:BITE:POISON:1d6
-F:FRIENDS | WILD_WOOD | DROP_SKELETON
-F:WEIRD_MIND | BASH_DOOR | CAN_SWIM |
+F:FRIENDS | WILD_WOOD | WEIRD_MIND | BASH_DOOR | CAN_SWIM |
 F:ANIMAL | IM_POIS | RES_TELE
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Hobbit:Rogue
+P:Body:Spider
 S:1_IN_5 | 
 S:BLINK | TELE_TO
 D:A spider that never seems quite there.  Everywhere you look it is just 
 D:half-seen in the corner of one eye.
-P:Body:Spider
 
 N:332:Lizard king
 G:h:R
@@ -4781,9 +4815,11 @@ F:FORCE_SLEEP |
 F:FRIENDS |
 F:BASH_DOOR | HURT_ROCK |
 F:ANIMAL | RES_SHAR
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_10 | 
 S:BR_SHAR
-P:Body:Hound
 D:A beautiful crystalline shape does not disguise the danger this hound 
 D:clearly presents.  Your flesh tingles as it approaches.
 
@@ -4799,9 +4835,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | CAN_FLY |
 F:BASH_DOOR |
 F:ANIMAL | IM_POIS
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_10 | 
 S:BR_POIS
-P:Body:Hound
 D:Swirling vapours surround this beast as it floats towards you, seemingly 
 D:walking on air.  Noxious gases sting your throat.
 
@@ -4832,9 +4870,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | 
 F:BASH_DOOR | CAN_SWIM |
 F:ANIMAL | IM_ACID
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_10 | 
 S:BR_ACID
-P:Body:Hound
 D:Liquid footprints follow this hound as it pads around the dungeon.  An 
 D:acrid smell of acid rises from the dog's pelt.
 
@@ -4988,12 +5028,13 @@ F:FORCE_SLEEP |
 F:RAND_50 | SELF_LITE_1 |
 F:BASH_DOOR | CAN_FLY |
 F:ANIMAL | IM_ELEC
-S:1_IN_4 | 
-S:BR_ELEC
-D:It is a glowing blue bat with a sharp tail.
+F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Yeek:Sniper
 P:Life:60
 P:Body:Bat
+S:1_IN_4 | 
+S:BR_ELEC
+D:It is a glowing blue bat with a sharp tail.
 
 N:352:Scroll mimic
 G:?:w
@@ -5235,8 +5276,10 @@ I:110:12d8:12:38:20:120
 W:22:1:60:60:700:524
 B:BITE:HURT:1d8
 B:STING:POISON:2d5
-F:WEIRD_MIND | BASH_DOOR | WILD_ALL |
-F:ANIMAL | DROP_SKELETON
+F:WEIRD_MIND | BASH_DOOR | WILD_ALL | ANIMAL | 
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | 
+P:Copy:Hobbit:Warrior
+P:Body:Scorpion
 D:It is a giant scorpion with a sharp stinger.
 
 N:370:Jade monk
@@ -5330,7 +5373,7 @@ F:ONLY_ITEM | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | FRIENDS
 F:EVIL | IM_POIS | RES_DARK | HURT_LITE
 F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_DETECT_TRAPS
-P:Copy:Dark-Elf:Warlock
+P:Copy:Dark-Elf:Mage
 S:1_IN_5 | 
 S:CONF | MISSILE | DARKNESS | BO_MANA
 D:A dark elven mage with spells of frightening destructive power.
@@ -5355,8 +5398,9 @@ I:130:3d8:12:28:50:15
 W:23:1:70:60:2000:484
 B:BITE:FIRE:1d3
 F:FORCE_SLEEP | RAND_50 | SELF_LITE_1 |
-F:BASH_DOOR | CAN_FLY | DROP_CORPSE
+F:BASH_DOOR | CAN_FLY | 
 F:ANIMAL | IM_FIRE
+F:DROP_CORPSE | POS_GAIN_AC
 S:1_IN_4 | 
 S:BR_FIRE
 P:Copy:Yeek:Sniper
@@ -5647,6 +5691,9 @@ B:BITE:HURT:3d2
 F:RAND_25 | 
 F:EMPTY_MIND | BASH_DOOR | FORCE_MAXHP |
 F:IM_POIS | IM_ELEC | RIDING
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Ent:Warrior
+P:Body:Tree
 D:"...a metallically grey tree... about sixteen feet high with 
 D:very thick cylindrical branches... cylinders further 
 D:divided into six flat circular extensions... and from the top 
@@ -5882,6 +5929,9 @@ B:BITE:FIRE:3d6
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_FIRE | CAN_FLY
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Human:Rogue
+P:Body:Spider
 D:It is smoking and burning with great heat.
 
 N:412:Displacer beast
@@ -6130,9 +6180,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | 
 F:BASH_DOOR | 
 F:ANIMAL | RES_SOUN | NO_CONF | NO_SLEEP |
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_SOUN
-P:Body:Hound
 D:A blurry canine form which seems to be moving as fast as the eye can 
 D:follow.  You can feel the earth resonating beneath your feet.
 
@@ -6148,9 +6200,11 @@ F:FORCE_SLEEP | RES_NEXU |
 F:FRIENDS | 
 F:BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_NEXU
-P:Body:Hound
 D:A locus of conflicting points coalesce to form the vague shape of a huge 
 D:hound.  Or is it just your imagination?
 
@@ -7571,9 +7625,11 @@ F:FRIENDS |
 F:BASH_DOOR | ATTR_MULTI |
 F:ANIMAL | NO_CONF | NO_SLEEP | SELF_LITE_2 |
 F:IM_ELEC | IM_POIS | IM_ACID | IM_FIRE | IM_COLD
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5
 S:BR_ACID | BR_POIS | BR_COLD | BR_FIRE | BR_ELEC
-P:Body:Hound
 D:Shimmering in rainbow hues, this hound is beautiful and deadly. 
 
 N:514:Night stalker
@@ -7737,8 +7793,10 @@ I:120:18d20:12:50:40:200
 W:34:4:80:275:0:0
 B:BITE:HURT:1d6
 B:STING:POISON:1d4
-F:WEIRD_MIND | BASH_DOOR | WILD_ALL | DROP_SKELETON |
-F:ANIMAL
+F:WEIRD_MIND | BASH_DOOR | WILD_ALL | ANIMAL
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC |
+P:Copy:Kutar:Warrior
+P:Body:Scorpion
 D:It is a giant grey scorpion.  It looks poisonous.
 
 N:525:Earth elemental
@@ -7834,8 +7892,6 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
 D:It is a massive deep brown statue, striding towards you with an 
 D:all-too-familiar purpose.  Your magic surprisingly feels much less 
 D:powerful now.
-#D:それは深い茶色の堂々たる巨像で、みんなと仲良くしようと思って大股で歩み寄って
-#D:くる。このモンスターに対してはあまりの魔法の無力さに呆然とするであろう。
 
 N:531:Sheer Heart Attack, the Bomb Hand
 G:{:D
@@ -7983,9 +8039,11 @@ B:CLAW:HURT:3d3
 F:FORCE_SLEEP | FRIENDS |
 F:BASH_DOOR | 
 F:ANIMAL | RES_GRAV | NO_CONF | NO_SLEEP | 
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_GRAV
-P:Body:Hound
 D:Unfettered by the usual constraints of gravity, these unnatural creatures 
 D:are walking on the walls and even the ceiling!  The earth suddenly feels 
 D:rather less solid as you see gravity warp all round the monsters.
@@ -8017,9 +8075,11 @@ B:CLAW:HURT:3d3
 F:FORCE_SLEEP | FRIENDS |
 F:BASH_DOOR | 
 F:ANIMAL | RES_INER | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_INER
-P:Body:Hound
 D:Bizarrely, this hound seems to be hardly moving at all, yet it approaches 
 D:you with deadly menace.  It makes you tired just to look at it.
 
@@ -8035,9 +8095,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | 
 F:BASH_DOOR |
 F:ANIMAL | RES_WALL | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_8 | 
 S:BR_WALL
-P:Body:Hound
 D:A deep brown shape is visible before you, its canine form strikes you with 
 D:an almost physical force.  The dungeon floor buckles as if struck by a 
 D:powerful blow as it stalks towards you.
@@ -8152,9 +8214,11 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:KILL_ITEM | PASS_WALL | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:HURT_ROCK | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Kobold:Warrior
+P:Body:Xorn
 D:A huge creature of the element Earth.  Able to merge with its element, it 
 D:has four huge arms protruding from its enormous torso.
-P:Body:Xorn
 
 N:551:Rogrog the Black Troll
 G:T:D
@@ -8272,6 +8336,9 @@ F:NEVER_MOVE | NEVER_BLOW | NONLIVING |
 F:FORCE_SLEEP | EVIL | COLD_BLOOD | EMPTY_MIND |
 F:FORCE_MAXHP | NO_CONF | NO_FEAR | NO_SLEEP | CHAR_MULTI |
 F:IM_ACID | IM_POIS | IM_COLD | IM_ELEC | HURT_FIRE | RES_NETH | RES_TELE
+F:DROP_CORPSE | POS_GAIN_AC | POS_TELEPATHY | POS_SEE_INVIS
+P:Copy:High-Elf:Mage
+P:Body:Tome
 S:1_IN_2 |
 S:BO_ACID | BR_FIRE | BO_MANA | BR_COLD | BR_POIS |
 S:BO_WATE | BA_POIS | BR_NETH
@@ -8339,9 +8406,9 @@ N:561:Mature green dragon
 G:d:g
 I:110:40d10:20:70:70:250
 W:36:1:999:1100:10000:618
-B:CLAW:HURT:1d4
-B:CLAW:HURT:1d4
-B:BITE:HURT:1d6
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_60 | DROP_90 | DROP_2D2 | 
 F:BASH_DOOR | WILD_MOUNTAIN | WILD_WOOD |
@@ -8538,7 +8605,6 @@ S:1_IN_3 |
 S:BLINK | SLOW | SCARE | DARKNESS | HEAL | ANIM_DEAD
 S:TPORT | TELE_AWAY | HASTE | S_MONSTER | DRAIN_MANA |
 S:S_UNDEAD | S_DEMON | S_DRAGON | S_KIN
-P:Body:Quylthulg
 D:This unholy abomination will crush you too. Flee while you can! 
 
 N:573:Lord Borel of Hendrake
@@ -8633,6 +8699,8 @@ F:FORCE_SLEEP |
 F:CAN_FLY |
 F:WEIRD_MIND | BASH_DOOR | ATTR_MULTI | ATTR_ANY |
 F:RES_CHAO | NO_CONF | NO_SLEEP | EVIL
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Hobbit:Warrior
 S:1_IN_9
 S:BR_CONF | BR_CHAO
 D:"It had the appearance of a butterfly, but but a butterfly with 
@@ -8844,9 +8912,9 @@ N:591:Crystal drake
 G:d:B
 I:120:50d10:25:100:30:250
 W:37:2:999:1500:11000:646
-B:CLAW:HURT:1d4
-B:CLAW:HURT:1d4
-B:BITE:HURT:2d5
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+B:BITE:HURT:2d12
 F:FORCE_SLEEP | FORCE_MAXHP | RIDING
 F:ONLY_ITEM | DROP_4D2 | REFLECTING | ATTR_CLEAR |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -9040,6 +9108,7 @@ F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | CAN_FLY |
 F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
@@ -9059,6 +9128,7 @@ F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:DRAGON | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
@@ -9348,6 +9418,7 @@ F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | CAN_FLY |
 F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
@@ -9367,6 +9438,7 @@ F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
@@ -9475,6 +9547,7 @@ F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
@@ -9529,7 +9602,7 @@ F:ONLY_ITEM | DROP_90 | DROP_4D2 | DROP_GOOD |
 F:SMART | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | HURT_LITE | RES_DARK | NO_CONF | NO_SLEEP | NO_STUN
 F:DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING
-P:Copy:Dark-Elf:Warlock
+P:Copy:Dark-Elf:Mage
 S:1_IN_2 | 
 S:HEAL | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | FORGET | HOLD |
 S:S_MONSTER | S_MONSTERS | S_DEMON | TPORT | BA_NETH | MIND_BLAST |
@@ -9708,10 +9781,10 @@ F:SMART | OPEN_DOOR | BASH_DOOR |
 F:EVIL | NO_CONF | NO_SLEEP
 F:DROP_SKELETON | DROP_CORPSE | 
 F:POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY | POS_SUST_INT
-P:Copy:High-Elf:High-Mage
+P:Copy:High-Elf:Mage
 S:1_IN_2 | 
 S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | TRAPS | 
-S:BO_ACID | BA_FIRE | BA_COLD | 
+S:BO_ACID | BA_FIRE | BA_COLD | BO_MANA
 S:S_MONSTER | S_UNDEAD | S_DRAGON
 D:A human figure in robes, he moves with magically improved speed, and his 
 D:hands are ablur with spell casting.
@@ -9729,8 +9802,10 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:KILL_ITEM | PASS_WALL | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:HURT_ROCK | NO_CONF | NO_SLEEP
-D:It is a tougher relative of the Xorn.  Its hide glitters with metal ores.
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Kobold:Warrior
 P:Body:Xorn
+D:It is a tougher relative of the Xorn.  Its hide glitters with metal ores.
 
 N:640:Jubjub bird
 G:B:u
@@ -9743,7 +9818,6 @@ F:BASH_DOOR | CAN_FLY | WILD_MOUNTAIN | WILD_WOOD |
 F:ANIMAL | IM_ELEC | RIDING
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Dunadan:Mystic
-P:Life:80
 P:Body:Giant Bird
 D:A vast legendary bird, its iron talons rake the most impenetrable of 
 D:surfaces and its screech echoes through the many winding dungeon corridors.
@@ -9752,12 +9826,12 @@ N:641:Minotaur
 G:H:U
 I:130:100d10:13:25:10:250
 W:40:2:70:2100:12000:723
-B:BUTT:HURT:4d6
-B:BUTT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
 B:BUTT:HURT:2d6
 B:BUTT:HURT:2d6
 F:BASH_DOOR | EVIL
-F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
+F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Human:Mauler
 P:Body:Minotaur
 D:It is a cross between a human and a bull.
@@ -9778,7 +9852,7 @@ F:EVIL | IM_ACID | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HOLD | SCARE | CAUSE_3 | BO_FIRE | BO_PLAS | BA_ACID | 
 S:S_HYDRA
-P:Copy:Dunadan:Warrior
+P:Copy:Kobold:Warrior
 P:Body:Naga
 D:Brand's one-time mistress.  Her face could sink a thousand 
 D:ships, but Brand is not too selective.
@@ -9816,6 +9890,7 @@ F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:115
 P:Body:Dragon
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
@@ -9836,6 +9911,7 @@ F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:DRAGON | RES_SOUN | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
@@ -10410,6 +10486,7 @@ F:EVIL | DRAGON | IM_ACID | IM_FIRE | IM_COLD |
 F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_5 | 
 S:BLIND | CONF | SCARE | 
@@ -10750,6 +10827,7 @@ F:BASH_DOOR | POWERFUL | MOVE_BODY | CAN_FLY |
 F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
@@ -10848,6 +10926,7 @@ F:BASH_DOOR | POWERFUL | MOVE_BODY
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
@@ -10877,19 +10956,21 @@ I:120:77d10:20:144:20:180
 W:45:2:999:1200:10000:1037
 B:HIT:HURT:3d12
 B:HIT:HURT:3d12
-F:IM_POIS | IM_FIRE | IM_ELEC | IM_ACID | IM_COLD | GOOD | HUMAN | HAS_LITE_2 |
-F:RES_LITE | RES_DARK | RES_NETH | RES_SHAR | RES_SOUN |
-F:RES_CHAO | RES_NEXU | RES_DISE | RES_TIME | RES_TELE |
+F:GOOD | HUMAN | KNIGHT | FRIENDS | MALE | 
+F:OPEN_DOOR | BASH_DOOR | FORCE_MAXHP | HAS_LITE_2
+F:DROP_1D2 | DROP_90 | DROP_60 | 
+F:IM_POIS | IM_FIRE | IM_ELEC | IM_ACID | IM_COLD | 
+F:RES_TELE | REFLECTING
+#F:RES_LITE | RES_DARK | RES_SHAR | RES_SOUN |
+#F:RES_TIME | RES_DISE | RES_NETH | RES_CHAO | RES_NEXU
 F:NO_SLEEP | NO_CONF | NO_STUN |
-F:DROP_1D2 | DROP_90 | DROP_60 | FRIENDS | REFLECTING | KNIGHT
-F:MALE | OPEN_DOOR | BASH_DOOR | FORCE_MAXHP
 F:DROP_SKELETON | DROP_CORPSE | 
-F:POS_DETECT_EVIL | POS_MAPPING | POS_BLESSING | POS_HEROISM | 
-F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR
+F:POS_DETECT_EVIL | POS_MAPPING | POS_BLESSING | POS_HEROISM
+#F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR | POS_HOLD_LIFE
+P:Copy:Dunadan:Paladin
 S:1_IN_12
 S:HEAL 
 D:Fighting for a good cause, and they consider you an agent of the devil.
-P:Copy:Dunadan:Paladin
 
 N:700:Leprechaun fanatic
 G:h:D
@@ -10960,6 +11041,7 @@ F:OPEN_DOOR | BASH_DOOR | RES_NETH | RES_TELE
 F:ANIMAL | EVIL | DRAGON | IM_ACID | IM_FIRE | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_6 | 
 S:HOLD | SCARE | 
@@ -11093,6 +11175,7 @@ F:BASH_DOOR | POWERFUL | MOVE_BODY | SELF_LITE_2 |
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
@@ -11130,6 +11213,7 @@ F:BASH_DOOR | POWERFUL | MOVE_BODY | RIDING | SELF_LITE_2 |
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | IM_POIS
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 |
 S:BR_FIRE | BR_POIS | SCARE | CAUSE_3 | CONF
@@ -11191,6 +11275,7 @@ F:BASH_DOOR | POWERFUL | MOVE_BODY | CAN_SPEAK |
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | RIDING |
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_5 | 
 S:CONF | CAUSE_3 | 
@@ -11363,9 +11448,11 @@ F:FORCE_SLEEP | SELF_DARK_1 |
 F:FRIENDS | RES_NETH |
 F:OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_NETH
-P:Body:Hound
 D:You feel a soul-tearing chill upon viewing this beast, a ghostly form of 
 D:darkness in the shape of a large dog.
 
@@ -11381,9 +11468,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | RES_TIME | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_8 | 
 S:BR_TIME
-P:Body:Hound
 D:You get a terrible sense of deja vu, or is it a premonition?  All at once 
 D:you see a little puppy and a toothless old dog.  Perhaps you should give 
 D:up and go to bed.
@@ -11400,9 +11489,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | RES_PLAS | SELF_LITE_2 |
 F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | IM_ELEC | IM_FIRE | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_PLAS
-P:Body:Hound
 D:The very air warps as pure elemental energy stalks towards you in the 
 D:shape of a giant hound.  Your hair stands on end and your palms itch as 
 D:you sense trouble.
@@ -11437,6 +11528,7 @@ F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
@@ -11462,7 +11554,7 @@ F:IM_ELEC | IM_COLD | IM_FIRE |
 F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
 P:Stats:5:0:0:1:4:1
-P:Life:120
+P:Life:107
 D:Ulik is the strongest troll who has ever lived. He could challenge 
 D:the immortals and pound them to dust with his great strength.
 
@@ -11499,11 +11591,12 @@ B:HIT:EXP_80
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | IM_FIRE | IM_COLD | IM_POIS | MALE | HUMAN |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | RES_NETH | RES_NEXU | RES_PLAS |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | EVIL
+F:DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS
+P:Copy:Dunadan:Paladin
 S:1_IN_5 |
 S:BLIND | SCARE | CAUSE_3 | BA_NETH | BA_FIRE | BO_PLAS | S_MONSTERS
 D:It is a humanoid form dressed in armour of ancient style.  From beneath 
 D:its helmet, eyes glow with hellfire.
-P:Copy:Dunadan:Paladin
 
 N:732:Bull Gates
 G:p:D
@@ -11544,7 +11637,6 @@ S:CAUSE_4 | HOLD | DRAIN_MANA | SCARE | BLIND | SPECIAL
 S:BA_NETH | FORGET | TRAPS | BRAIN_SMASH | TELE_AWAY 
 D:Why would anybody want to kill Santa Claus? To get all the presents, 
 D:of course!
-P:Copy:Gnome:Priest
 
 N:734:Eihort, the Thing in the Labyrinth
 G:j:R
@@ -11624,13 +11716,14 @@ F:FORCE_SLEEP | FORCE_MAXHP | DROP_SKELETON |
 F:ONLY_ITEM | DROP_4D2 | ATTR_MULTI | SHAPECHANGER | ATTR_ANY |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | SMART | HAS_LITE_2 | RES_CHAO |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING
+P:Copy:Amberite:Mystic
 S:1_IN_2 |
 S:HEAL | MIND_BLAST | BA_CHAO |
 S:S_MONSTERS | S_DEMON | PSY_SPEAR
 D:He is one of the few true masters of the art, being extremely skillful in 
 D:all forms of unarmed combat and controlling the Logrus 
 D:with disdainful ease.
-P:Copy:Amberite:Mystic
 
 N:738:Khamul the Easterling
 G:W:D
@@ -11663,9 +11756,11 @@ B:CLAW:HURT:3d3
 F:FORCE_SLEEP | FRIENDS | RES_NETH | RES_TIME |
 F:INVISIBLE | PASS_WALL | EVIL | CAN_FLY |
 F:ANIMAL | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 |
 S:BLINK | TELE_TO | BR_NETH | BR_TIME
-P:Body:Hound
 D:"They are lean and athirst!... All the evil in the universe
 D:was concentrated in their lean, hungry bodies. Or had they 
 D:bodies? I saw them only for a moment, I cannot be certain."
@@ -11703,6 +11798,7 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
@@ -11937,6 +12033,7 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | IM_COLD |
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_5 | 
 S:CAUSE_3 | BR_NETH | BR_COLD |
@@ -12006,6 +12103,7 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
@@ -12228,6 +12326,7 @@ F:NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:2:0:0:0:2:2
+P:Life:110
 P:Body:Dragon
 S:1_IN_2 | 
 S:BLIND | CONF | SCARE | 
@@ -12351,7 +12450,7 @@ S:S_UNDEAD | S_DEMON | S_DRAGON | PSY_SPEAR
 D:Originally known as the White, Saruman fell prey to Sauron's wiles. He 
 D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
 D:world.
-P:Copy:High-Elf:High-Mage
+P:Copy:High-Elf:Mage
 
 N:772:Gandalf the Grey
 G:p:v
@@ -12375,7 +12474,7 @@ S:S_MONSTER | S_ANGEL | S_DRAGON | S_KIN
 D:The wizard who opposed Saruman, and in the end, was the only 
 D:one of the Istari to succeed in his task. Gandalf is very 
 D:wise and specializes in fire magic.
-P:Copy:High-Elf:High-Mage
+P:Copy:High-Elf:Mage
 
 N:773:Brand, Mad Visionary of Amber
 G:p:v
@@ -12520,9 +12619,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | 
 F:BASH_DOOR | 
 F:ANIMAL | RES_CHAO | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_CHAO
-P:Body:Hound
 D:A constantly changing canine form, this hound rushes towards you as if 
 D:expecting mayhem and chaos ahead.  It appears to have an almost kamikaze 
 D:relish for combat.  You suspect all may not be as it seems.
@@ -12581,6 +12682,7 @@ F:DRAGON | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_9
 S:BR_FIRE | BR_ACID | BR_DARK |
@@ -12603,6 +12705,7 @@ F:EVIL | DRAGON | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
@@ -12627,6 +12730,7 @@ F:DRAGON | RES_SOUN | RES_SHAR | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
@@ -12652,6 +12756,7 @@ F:DRAGON | NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
@@ -12769,6 +12874,7 @@ F:DRAGON | NO_CONF | NO_SLEEP | RIDING | SELF_LITE_2 |
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 |
 S:BR_POIS | BR_ELEC | BR_ACID | BR_FIRE | BR_COLD |
@@ -12836,7 +12942,7 @@ F:DRAGON | NO_CONF | NO_SLEEP | RES_TELE | RIDING
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:1:0:0:0:1:1
-P:Life:105
+P:Life:110
 P:Body:Dragon
 S:1_IN_3 |
 S:BR_ELEC | BR_GRAV | BR_LITE |
@@ -13227,12 +13333,14 @@ F:ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:RES_LITE | RES_DARK | RES_SOUN | RES_CHAO | RES_NETH | RES_DISE |
 F:RES_WALL | RES_INER | RES_TIME | RES_GRAV | RES_PLAS | RES_NEXU | RES_SHAR |
 F:NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_5 | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
 S:BR_LITE | BR_DARK | BR_SOUN | BR_CONF | BR_CHAO |
 S:BR_NETH | BR_DISE | BR_WALL | BR_INER | BR_TIME | 
 S:BR_GRAV | BR_PLAS | BR_NEXU | BR_SHAR | BR_NUKE
-P:Body:Hound
 D:A shifting, swirling form.  It seems to be all colours and sizes and 
 D:shapes, though the dominant form is that of a huge dog.  You feel very 
 D:uncertain all of a sudden.
@@ -13363,7 +13471,6 @@ D:The Norse ruler of Hel is a merciless queen, who ever hunts for more
 D:souls to add to her collection of tortured spirits. She arrives in 
 D:an ominous green robe, a certain sign of impending doom, to claim 
 D:as her own those who die an ignoble death.
-P:Copy:Human:Mage
 
 N:818:The Mouth of Sauron
 G:p:v
@@ -13880,11 +13987,11 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RAND_25 |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:IM_POIS
 F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Barbarian:Mauler
+P:Body:Hound
 S:1_IN_3 | 
 S:SCARE | 
 S:S_MONSTERS | S_HOUND
-P:Copy:Barbarian:Mauler
-P:Body:Hound
 D:Draugluin provides Sauron with a fearsome personal guard.  He is an 
 D:enormous wolf inhabited with a human spirit.  He is chief of all his kind.
 
@@ -14305,7 +14412,6 @@ S:HAND_DOOM | ANIM_DEAD | DISPEL | ANTI_MAGIC | PSY_SPEAR
 D:Mighty in spells and enchantments,
 D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
 D:destroy your soul.  He has many servants, and rarely fights without them.
-P:Copy:Dunadan:Warrior-Mage
 
 N:859:The Unicorn of Order
 G:q:w
@@ -14366,7 +14472,7 @@ D:me in his green and his gold. High, wide and thick, his beard black and
 D:shot with silver, his hair the same. Green rings in gold settings and 
 D:a blade of golden color."
 P:Copy:Amberite:Chaos-Warrior
-P:Stats:3:3:3:3:3:3
+P:Stats:2:0:0:2:2:2
 P:Life:110
 
 # Morgoth, mr normal monster!
@@ -14698,16 +14804,17 @@ I:120:30d10:20:60:30:100
 W:28:3:50:200:0:0
 B:BITE:POISON:1d10
 B:CLAW:HURT:1d4
-F:DROP_60 | RAND_25 | MOVE_BODY | CAN_FLY | DROP_CORPSE |
+F:DROP_60 | RAND_25 | MOVE_BODY | CAN_FLY | 
 F:BASH_DOOR | FRIENDS |
 F:ANIMAL | IM_POIS | RES_DARK
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Kobold:Mystic
+P:Life:90
+P:Body:Giant Bat
 S:1_IN_8 | 
 S:SCARE | BR_POIS | BR_DARK
 D:Fed with horrid meats and grown to enormous size, this slavering creature 
 D:seeks livelier prey.
-P:Copy:Kobold:Mystic
-P:Life:90
-P:Body:Giant Bat
 
 N:878:Dio Brando
 G:V:y
@@ -14877,9 +14984,11 @@ F:FORCE_SLEEP |
 F:FRIENDS | SELF_LITE_1 |
 F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_8 |
 S:BR_MANA
-P:Body:Hound
 D:A powerful aura radiates from this canine creature. It feels 
 D:like... magic?
 
@@ -14925,6 +15034,7 @@ F:BASH_DOOR | POWERFUL | MOVE_BODY | CAN_FLY |
 F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP | RIDING |
 F:DROP_CORPSE | POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Life:110
 P:Body:Dragon
 S:1_IN_6 |
 S:BLIND | CONF | SCARE |
@@ -15076,6 +15186,8 @@ B:HIT:HURT:1d9
 B:HIT:HURT:4d8
 F:MALE | ONLY_ITEM | DROP_1D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR |
 F:NO_SLEEP | FRIENDLY | GOOD | 
+F:DROP_CORPSE | POS_SEE_INVIS
+P:Copy:High-Elf:Ranger
 S:1_IN_3 |
 S:HEAL | BLINK | TPORT | BA_FIRE | SHOOT | BA_COLD
 D:A powerful elven leader who knows some magic as well.
@@ -15885,7 +15997,6 @@ S:1_IN_5 |
 S:BO_MANA | BA_FIRE | BA_COLD | BA_ELEC | BA_ACID | BO_ICEE | BO_PLAS |
 S:BO_WATE | BA_WATE | PSY_SPEAR | CAUSE_3 | CAUSE_4 |
 S:CONF | BLIND | S_MONSTERS | TPORT
-P:Copy:Dunadan:Paladin
 
 # Description in English by Nick Keulmann
 N:950:Hammer brother
@@ -16290,13 +16401,14 @@ F:UNIQUE | FORCE_MAXHP | RAND_25 | RAND_50 | DROP_90
 F:DROP_1D2 | DROP_GOOD | SMART | EMPTY_MIND | OPEN_DOOR
 F:BASH_DOOR | PASS_WALL | MOVE_BODY | TAKE_ITEM | EVIL
 F:ANIMAL | NO_STUN | NO_SLEEP | CAN_FLY
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Kobold:Rogue
+P:Life:90
+P:Body:Giant Bat
 S:1_IN_7 |
 S:S_DRAGON
 D:This bat has been the death of many adventurers, taking their only 
 D:weapon and leaving them to face a dragon.
-P:Copy:Kobold:Rogue
-P:Life:90
-P:Body:Bat
 
 N:976:Eol, the Dark Elven Smith
 G:h:D
@@ -16453,6 +16565,8 @@ B:BITE:LOSE_ALL:3d8
 F:REFLECTING | DROP_1D2 | DROP_2D2 | RES_DISE | ANIMAL |
 F:REGENERATE | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | RES_TELE | CAN_SWIM | RIDING
+F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS
+P:Copy:Kutar:Rogue
 P:Body:Unicorn
 
 N:986:Nekomata
@@ -16480,6 +16594,9 @@ B:BITE:HURT:5d12
 F:REFLECTING | DROP_1D2 | DROP_3D2 | ANIMAL | FORCE_MAXHP | FORCE_SLEEP |
 F:REGENERATE | IM_FIRE | IM_COLD |
 F:NO_CONF | NO_SLEEP | RES_TELE | RIDING |
+F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_2
 S:S_MONSTERS | CAUSE_3 | CAUSE_4 | CONF | BRAIN_SMASH | DRAIN_MANA | SCARE |
 S:HASTE | HOLD |
@@ -16498,6 +16615,9 @@ F:OPEN_DOOR | SMART | POWERFUL | CAN_FLY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_TELE |
 F:RES_DISE | RES_NEXU | RES_NETH | RES_PLAS | RES_LITE | RES_SOUN |
 F:NO_STUN | NO_CONF | NO_SLEEP | RIDING
+F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Archon:Priest
+P:Body:Giant Bird
 S:1_IN_3 |
 S:SCARE | BRAIN_SMASH | DRAIN_MANA |
 S:BR_FIRE | BR_LITE | BR_SOUN | HEAL | S_ANGEL
@@ -16516,9 +16636,11 @@ F:OPEN_DOOR | SMART | POWERFUL | CAN_SWIM |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_TELE |
 F:RES_DISE | RES_NETH | RES_PLAS |
 F:NO_STUN | NO_CONF | NO_SLEEP | RIDING
-S:1_IN_6 |
-S:BLIND | SHRIEK | DISPEL | ANTI_MAGIC | INVULNER | S_ANGEL
+F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Archon:Paladin
 P:Body:Unicorn
+S:1_IN_6 |
+S:BLIND | SHRIEK | DISPEL | ANTI_MAGIC | INVULNER | S_ANGEL | HEAL
 
 N:990:Pegasus
 G:q:w
@@ -16529,6 +16651,8 @@ B:BITE:HURT:3d8
 B:KICK:HURT:4d10
 B:KICK:HURT:4d10
 F:DROP_2D2 | ANIMAL | NO_SLEEP | CAN_FLY | RIDING
+F:DROP_CORPSE | POS_GAIN_AC |
+P:Copy:Kutar:Warrior
 P:Body:Horse
 
 N:991:Sleipnir, the Odin's Steed
@@ -16907,9 +17031,6 @@ S:1_IN_8
 S:BO_MANA | BLINK
 P:Copy:Human:Mystic
 
-#
-# ミサイル
-#
 N:1015:TaepoDong
 G:{:W
 I:120:7d14:10:80:12:20
@@ -16921,9 +17042,6 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING | RES_TELE
 D:A shining machine of death and destruction.
 
-#
-# 蜘蛛召喚する敵が召喚しちゃうと変だけど。訳は「蜘蛛型爆弾」の方がよいかも。
-#
 N:1016:Spider bomb
 G:S:W
 I:120:5d10:30:50:0:30
@@ -16986,9 +17104,6 @@ P:Copy:Kutar:Tourist
 D:It is a biped living thing like the bear. 
 D:It pounces on you expressionlessly.
 
-#
-# OnePiecebandのプレビュー。こうしてみるとなんかサブイ……。
-#
 N:1021:Nami, the Mate
 G:p:o
 I:120:13d12:20:30:20:110
@@ -17045,11 +17160,14 @@ B:HIT:EAT_GOLD:5d5
 F:MALE | DROP_2D2 | HUMAN | THIEF
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL |
+F:DROP_CORPSE | POS_TELEPATHY | POS_SEE_INVIS | 
+F:POS_DETECT_OBJECTS | POS_DETECT_MONSTERS | POS_MAPPING | POS_DETECT_TRAPS
+P:Copy:High-Elf:Rogue
+P:Skills:0:0:0:5:0:0:0:0
 S:1_IN_2 |
 S:BLINK | TPORT | TELE_TO | CONF | TRAPS
 D:A class of its own: you are already too late to protect your possessions 
 D:and he seems to have studied magic too, and is a master of setting traps.
-P:Copy:High-Elf:Rogue
 
 N:1025:Charon, Boatman of the Styx
 G:W:D
@@ -17087,14 +17205,14 @@ F:SMART | OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:EVIL | NO_CONF | NO_SLEEP |
 F:DROP_SKELETON | DROP_CORPSE | 
 F:POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY | POS_TELEPATHY
+P:Copy:Demigod:Mage
 S:1_IN_2 |
 S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | CAUSE_4 | TRAPS |
-S:BO_ACID | BA_FIRE | BA_COLD | BA_POIS |
+S:BO_ACID | BA_FIRE | BA_COLD | BA_POIS | BO_WATE | BO_MANA
 S:S_MONSTER | S_UNDEAD | S_DRAGON | S_HI_DRAGON | S_HI_UNDEAD
 D:A human figure in robes, he moves with magically improved speed, and his 
 D:hands are a blur with spell casting. You stagger at the mighty sound of his 
 D:spells as they echo hollowly through the dungeon.
-P:Copy:Demigod:Sorcerer
 
 N:1027:Red Helm, the King of Bear
 G:q:r
@@ -17179,9 +17297,6 @@ P:Body:Monk
 D:He was the braver of Atlantis. His body was converted by a Shinto priest, 
 D:in order to fight against "Papa". His body is now made by Orihalcon.
 
-#
-#ジャスラのコピー
-#
 N:1032:Madame Debby
 G:k:v
 I:120:24d100:30:100:5:180
@@ -17193,11 +17308,11 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM | ELDRITCH_HORROR | HUMAN |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | SELF_LITE_2 |
 F:EVIL | IM_ACID | IM_FIRE | IM_POIS | RES_CHAO | NO_CONF | NO_SLEEP
+P:Copy:Kobold:Mauler
 S:1_IN_2 | 
 S:HOLD | SCARE | CAUSE_3 | BR_CONF | BR_NETH | BR_CHAO | 
 D:Sukarno's third wife. Her face could sink a thousand 
 D:ships, but Sukarno is not too selective.
-P:Copy:Kobold:Mauler
 
 N:1033:The Defiler
 G:K:D
@@ -17225,13 +17340,13 @@ N:1034:The Minotaur of the Labyrinth
 G:H:U
 I:125:50d10:13:25:10:300
 W:35:3:999:600:0:0
-B:BUTT:HURT:4d6
-B:BUTT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
 B:BUTT:HURT:2d6
 B:BUTT:HURT:2d6
 F:BASH_DOOR | FORCE_MAXHP |
 F:EVIL | UNIQUE
-F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
+F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Demigod:Mauler
 P:Body:Minotaur
 D:It is a cross between a human and a bull.
@@ -17274,6 +17389,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART |
 F:GOOD | NO_SLEEP | HAS_LITE_1 | KNIGHT
 F:DROP_SKELETON | DROP_CORPSE | 
 F:POS_DETECT_EVIL | POS_MAPPING | POS_BLESSING | POS_HEROISM
+P:Copy:Dunadan:Paladin
 S:1_IN_4 | 
 S:HEAL | SCARE | CAUSE_3 | CAUSE_4 | HASTE | BLIND | S_ANGEL
 D:It seems that the more devout the person, the more likely they are to cross 
@@ -17282,7 +17398,6 @@ D:the Order of the Knights Templar: they are among the most pious and
 D:powerful of the religious knightly orders, but noted for their intolerance. 
 D:And thus it is Morgoth's will that is unwittingly done, as the forces of good 
 D:are set against each other.
-P:Copy:Dunadan:Paladin
 
 N:1038:Paladin
 G:p:w
@@ -17458,7 +17573,7 @@ F:IM_FIRE | IM_ELEC | IM_POIS | HURT_COLD
 F:EVIL | DRAGON | NO_STUN | NO_CONF | NO_SLEEP | HURT_ROCK
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Half-Titan:Berserker
-P:Life:80
+P:Life:70
 P:Body:Dragon
 D:A huge dragon all made of stone. It looks very solid...
 
@@ -17477,6 +17592,7 @@ F:IM_FIRE | IM_ELEC | IM_POIS | RES_SHAR |
 F:EVIL | DRAGON | NO_STUN | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Half-Titan:Berserker
+P:Life:80
 P:Body:Dragon
 D:A huge dragon all made of steel. It looks very solid...
 
@@ -17815,7 +17931,6 @@ D:He is one of the greatest trickster. Even greatest warrior cannot
 D: defeat him, and his storm of holy might arrows from the dark have
 D: defeated numerous victims.
 
-# バオー来訪者より
 N:1069:Walken
 G:p:o
 I:125:40d100:100:140:10:170
@@ -17882,9 +17997,6 @@ F:OPEN_DOOR | BASH_DOOR | CAN_SPEAK |
 F:EVIL | ORC | IM_POIS | RES_DARK
 P:Copy:Kobold:Warrior
 
-#
-#ブロッダのコピー
-#
 N:1073:Meng You, the Brother of Meng Huo
 G:p:o
 I:110:25d10:20:25:20:170
@@ -17994,6 +18106,9 @@ F:ONLY_ITEM | DROP_GOOD | DROP_GREAT | DROP_2D2 |
 F:SMART | REGENERATE |
 F:IM_ACID | IM_ELEC | IM_FIRE | IM_POIS | IM_COLD | NO_CONF | NO_SLEEP |
 F:RES_LITE | RES_DARK | RES_NETH | RES_CHAO | RES_NEXU |
+F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Archon:Paladin
+P:Body:Unicorn
 S:1_IN_3 |
 S:BLINK | HEAL | SHRIEK | SCARE | CONF | BLIND |
 S:DARKNESS | FORGET | MIND_BLAST | BRAIN_SMASH |
@@ -18045,13 +18160,16 @@ G:Z:D
 I:120:60d10:30:100:0:150
 W:45:4:999:5000:0:0
 B:BITE:TIME:12d12
-B:TOUCH:UN_POWER
+B:CLAW:UN_POWER:3d6
+B:CLAW:UN_POWER:3d6
 F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | ANIMAL | 
 F:RES_TIME | NO_CONF | NO_SLEEP | FORCE_MAXHP | KILL_WALL
 F:AURA_FEAR | NO_FEAR
+F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
+P:Body:Hound
 S:1_IN_2 | 
 S:BR_TIME | BR_DISI | BR_NETH
-P:Body:Hound
 D:A giant hound, dark as night.  It hunts alone.  Flee!
 
 N:1083:Ultimate Magus
@@ -18186,9 +18304,9 @@ B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 F:DROP_60 | DROP_SKELETON | DROP_CORPSE | HUMAN |
+P:Copy:Human:Time-Lord
 S:1_IN_3 | HASTE | SLOW
 D:A human, clothed in a blue robe, moving with speed uncanny.
-P:Copy:Human:Time-Lord
 
 N:1092:Chronomage
 G:p:b
@@ -18200,10 +18318,10 @@ B:HIT:TIME:3d5
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:DROP_SKELETON | DROP_CORPSE | HUMAN |
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
+P:Copy:Demigod:Time-Lord
 S:1_IN_3 | HASTE | SLOW | TELE_LEVEL
 D:A human, clothed in a blue robe, moving with speed uncanny.
 D:He seems both young and old.
-P:Copy:Demigod:Time-Lord
 
 N:1093:Temporal Champion
 G:p:b
@@ -18217,10 +18335,10 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:DROP_SKELETON | DROP_CORPSE | HUMAN |
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
+P:Copy:Dunadan:Time-Lord
 S:1_IN_3 | HASTE | SLOW | TELE_LEVEL
 D:A human, clothed in a blue robe, moving with speed uncanny.
 D:He seems to be in several places at once.
-P:Copy:Dunadan:Time-Lord
 
 N:1094:The Variant Maintainer
 G:p:r
@@ -18232,12 +18350,12 @@ F:UNIQUE | MALE | CAN_SPEAK | HUMAN |
 F:RAND_25 | FORCE_MAXHP | 
 F:DROP_CORPSE | CAN_FLY | WEIRD_MIND |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
+P:Copy:Imp:Rogue
 S:1_IN_3
 S:S_KIN | POLY
 D:A frazzled stumbling pathetic shadow of a man.  He
 D:seems steeped in confusion while mumbling something
 D:about memory corruption in cmd2.c.
-P:Copy:Imp:Rogue
 
 N:1095:Monkey Clone
 G:H:R
@@ -18901,7 +19019,7 @@ D:massive frame.
 N:1129:Soul
 G:G:B
 I:110:1d1:4:1:40:60
-W:0:0:0:0:10:14
+W:50:0:0:0:10:14
 F:PASS_WALL | INVISIBLE | COLD_BLOOD
 D:A naked spirit of a great sage, who had left his own body forever
 D: to seek and dominate the bodies of others.  It looks like a small
@@ -18909,12 +19027,12 @@ D: cloud of glowing white mist.  In this form it is harmless, but
 D: upon possessing the dead body of another creature it will be able
 D: to use all its powers.
 P:Copy:Snotling:Tourist
-P:Life:20
+P:Life:70
 P:Infra:5
 P:Body:Possessor Soul
 
 N:1130:Marilith
-G:U:r
+G:U:y
 I:125:100d7:20:50:30:180
 W:40:2:999:1000:0:0
 B:SLASH:HURT:6d5

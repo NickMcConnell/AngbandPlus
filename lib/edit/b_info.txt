@@ -7,7 +7,7 @@
 # Warning: Don't monkey with this file while you are 
 # playing a character. You can lose objects this way!
 
-# Note: Currently you may list up to 17 slots for each
+# Note: Currently you may list up to 16 slots for each
 # template, but giving more than the standard 12 is a bit
 # unbalancing!
 
@@ -32,9 +32,12 @@ S:HELMET:Head
 S:GLOVES:Hands
 S:BOOTS:Feet
 
-# The Possessor gets virtually no equipment!
 N:1:Possessor Soul
 S:LITE:Light
+S:RING:Ring
+S:RING:Ring
+S:CLOAK:Cloak
+S:HELMET:Head
 
 # Greater Cyber Wyrm Angel Daemon Liches are fantastically OP!
 N:2:GCWADL
@@ -324,10 +327,14 @@ S:BOOTS:Boots
 N:32:Bird
 S:RING:Talon
 S:RING:Talon
+S:RING:Talon
+S:RING:Talon
 S:AMULET:Neck
 S:LITE:Light
 
 N:33:Giant Bird
+S:RING:Talon
+S:RING:Talon
 S:RING:Talon
 S:RING:Talon
 S:RING:Talon
@@ -382,7 +389,11 @@ S:RING:Tentacle
 S:RING:Tentacle
 S:RING:Tentacle
 S:RING:Tentacle
-S:RING:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
 S:LITE:Light
 
 N:38:Giant Worm
@@ -689,3 +700,43 @@ S:BODY_ARMOR:Body
 S:CLOAK:Cloak
 S:HELMET:Head
 S:BOOTS:Feet
+
+N:66:Disembodied Hand
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:LITE:Light
+
+N:67:Drider
+S:WEAPON_SHIELD:Right Hand:0
+S:WEAPON_SHIELD:Left Hand:1
+S:BOW:Shooting
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:AMULET:Amulet
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:GLOVES:Hands
+S:BOOTS:Boots
+S:BOOTS:Boots
+S:BOOTS:Boots
+S:BOOTS:Boots
+
+N:68:Scorpion
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:BOOTS:Boots
+S:BOOTS:Boots
+
+N:69:Tome
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Head

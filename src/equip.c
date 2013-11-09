@@ -1359,6 +1359,62 @@ void equip_on_init(void)
         _template = &b_info[0];
 }
 
+/* Attempt to gracefully handle changes to body type between
+   releases. New slots may be added, old slots may be removed.
+   Slots may be shuffled or have their types changed. 
+   This is called by process_player() during startup if a 
+   savefile has been loaded. At this point, drop_near is allowed. */
+void equip_on_load(void)
+{
+    int i, ct = 0;
+    object_type temp[EQUIP_MAX_SLOTS] = {0};
+
+    for (i = 0; i < EQUIP_MAX_SLOTS; i++)
+    {
+        int slot = i + EQUIP_BEGIN;
+        
+        if (!inventory[slot].k_idx) continue;
+
+        if (i >= _template->count)
+        {
+            object_copy(&temp[ct++], &inventory[slot]);
+            object_wipe(&inventory[slot]);
+        }
+        else
+        {
+            object_p p = _accept[_template->slots[i].type];
+            if (!p(&inventory[slot]))
+            {
+                object_copy(&temp[ct++], &inventory[slot]);
+                object_wipe(&inventory[slot]);
+            }
+        }
+    }
+
+    for (i = 0; i < ct; i++)
+    {
+        int slot = equip_first_empty_slot(&temp[i]);
+        
+        if (slot)
+            object_copy(&inventory[slot], &temp[i]);
+        else 
+        {
+            char name[MAX_NLEN];
+            object_desc(name, &temp[i], 0);
+            msg_format("You can no longer wield %s.", name);
+            p_ptr->total_weight -= temp[i].weight;
+            if (inven_carry_okay(&temp[i]))
+                inven_carry(&temp[i]);
+            else
+            {
+                msg_print("Your pack overflows!");
+                msg_format("You drop %s.", name);
+                drop_near(&temp[i], -1, py, px);
+            }
+        }
+    }
+}
+
 void equip_on_change_race(void)
 {
     equip_template_ptr old_template = _template;

@@ -35,10 +35,6 @@ rod of acid balls#!s!d!k
 wizardstaff
 ?:1
 
-?:[EQU $RACE Possessor]
-~corpse
-?:1
-
 rod of healing
 staff of healing
 staff of speed
@@ -49,13 +45,15 @@ rune sword
 blade of chaos
 unidentified dice boosted weapons
 
-
-
 #
 # Pick up all wanted corpses for bounty hunting.
 # And inscribe {Wanted} on it.
 #
 wanted corpses or skeletons#Wanted!k!k!k
+
+?:[EQU $RACE Possessor]
+~corpse
+?:1
 
 #
 # Pick up all magical items with unknown effects.

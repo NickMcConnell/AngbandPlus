@@ -2205,6 +2205,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     int             i, j, k;
     int             delay_sleep = 0;
     int             delay_stasis = 0;
+    bool            delay_quake = FALSE;
     int             drain_amt = 0;
     int             steal_ct = 0;
     const int       max_drain_amt = MAX_VAMPIRIC_DRAIN;
@@ -2325,6 +2326,13 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         if (leprechaun_steal(m_idx))
                             steal_ct++;
                         break;
+                    case GF_QUAKE:
+                        if (base_dam > 50 || one_in_(7))
+                        {
+                            delay_quake = TRUE;
+                            project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, GF_STUN, PROJECT_KILL|PROJECT_HIDE, -1);
+                        }
+                        break;
                     default:
                         project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1);
                         *mdeath = (m_ptr->r_idx == 0);
@@ -2346,6 +2354,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         if (mode == WEAPONMASTER_RETALIATION)
             break;
     }
+    if (delay_quake)
+        earthquake(py, px, 10);
     if (delay_sleep && !*mdeath)
         project(0, 0, m_ptr->fy, m_ptr->fx, delay_sleep, GF_OLD_SLEEP, PROJECT_KILL|PROJECT_HIDE, -1);
     if (delay_stasis && !*mdeath)

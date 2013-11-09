@@ -1762,6 +1762,13 @@ bool make_attack_normal(int m_idx)
                     }
                 }
 
+                if (p_ptr->sh_fear && alive && !p_ptr->is_dead)
+                {
+                    project(0, 0, m_ptr->fy, m_ptr->fx, 2*p_ptr->lev, GF_TURN_ALL, PROJECT_KILL|PROJECT_HIDE, -1);
+                    if (MON_MONFEAR(m_ptr))
+                        break;
+                }
+
                 if (p_ptr->tim_sh_holy && alive && !p_ptr->is_dead)
                 {
                     if (r_ptr->flags3 & RF3_EVIL)

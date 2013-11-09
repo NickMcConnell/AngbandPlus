@@ -1012,10 +1012,13 @@ void monster_death(int m_idx, bool drop_item)
         q_ptr->pval = m_ptr->r_idx;
         if (r_ptr->weight && p_ptr->prace == RACE_MON_POSSESSOR)
         {
+            /* Note: object_type.weight is an s16b and stores decipounds.
+                     monster_race.weight is an s16b and stores pounds.
+                     Thus, we might overflow on coversion! */
             if (corpse)
-                q_ptr->weight = r_ptr->weight * 10;
+                q_ptr->weight = MIN(30*1000, r_ptr->weight * 10);
             else
-                q_ptr->weight = r_ptr->weight * 10 / 3;
+                q_ptr->weight = MIN(30*1000, r_ptr->weight * 10 / 3);
         }
 
         /* Drop it in the dungeon */

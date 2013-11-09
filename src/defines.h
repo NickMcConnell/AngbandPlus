@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 2
 #define VER_MINOR 0
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 
 
@@ -3269,8 +3269,9 @@
 #define GF_STEAL    139
 #define GF_WATER2   140
 #define GF_STORM    141
+#define GF_QUAKE    142
 
-#define MAX_GF                141
+#define MAX_GF                142
 
 /*
  * Some things which induce learning
@@ -6168,7 +6169,7 @@ extern int PlayerUID;
 #define MAX_SUMMONS 50
 
 #define EQUIP_BEGIN 24
-#define EQUIP_MAX_SLOTS (INVEN_TOTAL - EQUIP_BEGIN + 1)
+#define EQUIP_MAX_SLOTS (INVEN_TOTAL - EQUIP_BEGIN)
 
 enum slot_e {
     EQUIP_SLOT_NONE,

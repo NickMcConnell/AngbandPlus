@@ -1955,6 +1955,7 @@ extern race_t *mon_xorn_get_race_t(void);
 
 extern bool    possessor_can_gain_exp(void);
 extern s32b    possessor_max_exp(void);
+extern void    possessor_on_take_hit(void);
 extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    jelly_eat_object(object_type *o_ptr);
 extern bool    leprechaun_steal(int m_idx);

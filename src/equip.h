@@ -68,6 +68,7 @@ extern int                equip_which_hand(object_type *o_ptr); /* Hack for slop
 extern object_type       *equip_obj(int slot);
 extern int                equip_weight(object_p p);
 extern void               equip_on_init(void);
+extern void               equip_on_load(void);
 extern void               equip_on_change_race(void);
 extern bool               equip_can_wield_kind(int tval, int sval);
 

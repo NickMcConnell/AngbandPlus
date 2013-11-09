@@ -4834,12 +4834,18 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
                 else if (o_ptr->name2 == EGO_BAT)
                 {
                     o_ptr->pval = randint1(e_ptr->max_pval);
-                    /*if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint1(2);*/
+                    if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint0(2);
                 }
                 else if (o_ptr->name2 == EGO_CLOAK_THIEVERY)
                 {
                     o_ptr->pval = randint1(e_ptr->max_pval);
                     if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint0(2);
+                }
+                else if (o_ptr->name2 == EGO_BERSERKER)
+                {
+                    o_ptr->pval = 1;
+                    if (one_in_(30))
+                        o_ptr->pval++;
                 }
                 else
                 {

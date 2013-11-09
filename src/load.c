@@ -925,23 +925,9 @@ static errr rd_inventory(savefile_ptr file)
 
         if (n >= EQUIP_BEGIN)
         {
-            /*if (equip_verify_slot(n, &forge))*/
-            if (equip_is_valid_slot(n))
-            {
-                forge.marked |= OM_TOUCHED;
-                object_copy(&inventory[n], &forge);
-                p_ptr->total_weight += (forge.number * forge.weight);
-            }
-            else
-            {
-                /* TODO: We could make an effort at repair. For example, put
-                   all of these objects into a side array. Once finished, try
-                   to wield each of them. If failed, try to place each in pack.
-                   If failed, drop each remaining near player. I'm not sure this
-                   is worth the coding effort! */
-                note("Invalid inventory slot!");
-                return (54);
-            }
+            forge.marked |= OM_TOUCHED;
+            object_copy(&inventory[n], &forge);
+            p_ptr->total_weight += (forge.number * forge.weight);
         }
         else if (inven_cnt == INVEN_PACK)
         {

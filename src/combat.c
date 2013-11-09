@@ -828,6 +828,9 @@ int display_innate_attack_info(int which, int row, int col)
         case GF_TURN_ALL:
             c_put_str(TERM_RED, format("Terrifies%s", xtra), r++, c+10);
             break;
+        case GF_QUAKE:
+            c_put_str(TERM_L_BLUE, format("Shatters%s", xtra), r++, c+10);
+            break;
         default:
             sprintf(buf, " %-7.7s: %d (%d-%d)",
                     _effect_name(a->effect[i]),

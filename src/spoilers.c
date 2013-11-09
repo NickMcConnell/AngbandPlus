@@ -459,7 +459,7 @@ static void _show_help(cptr helpfile)
 static void _possessor_stats_help(FILE* fff)
 {
     int i;
-    fprintf(fff, "Name,Lvl,Speed,AC,Attacks,Dam,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
+    fprintf(fff, "Name,Idx,Lvl,Speed,AC,Attacks,Dam,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
     for (i = 0; i < max_r_idx; i++)
     {
         monster_race *r_ptr = &r_info[i];
@@ -481,8 +481,8 @@ static void _possessor_stats_help(FILE* fff)
                 attacks++;
             }
 
-            fprintf(fff, "\"%s\",%d,%d,%d,%d,%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,=\"%d+%d\",=\"%d+%d\"\n", 
-                r_name + r_ptr->name, r_ptr->level, 
+            fprintf(fff, "\"%s\",%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,%d,=\"%d+%d\",=\"%d+%d\"\n", 
+                r_name + r_ptr->name, i, r_ptr->level, 
                 r_ptr->speed - 110, ac, attacks, dam,
                 b_name + b_info[r_ptr->body.body_idx].name,
                 r_ptr->body.stats[A_STR], r_ptr->body.stats[A_INT], r_ptr->body.stats[A_WIS],
@@ -491,7 +491,7 @@ static void _possessor_stats_help(FILE* fff)
                 r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis, 
                 r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev, 
                 r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
-                r_ptr->body.skills.stl, r_ptr->body.extra_skills.stl,
+                r_ptr->body.skills.stl,
                 r_ptr->body.skills.srh, 
                 r_ptr->body.skills.fos,
                 r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn, 

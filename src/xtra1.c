@@ -2631,6 +2631,24 @@ static int _racial_mana_adjust(int i)
     else
         result = race_ptr->stats[i];
 
+    /* TODO: Some possessor forms have too much mana ... */
+    if (p_ptr->prace == RACE_MON_POSSESSOR)
+    {
+        switch (i)
+        {
+        case A_STR: case A_CON:
+            result = -5;
+            break;
+        case A_DEX:
+            result = -1;
+            break;
+        case A_WIS: case A_CHR:
+            if (result > 2)
+                result = 2;
+            break;
+        }
+    }
+
     if (result > 5) result = 5;
     if (result < -5) result = -5;
 
@@ -2641,7 +2659,7 @@ static void calc_mana(void)
 {
     int             msp, lvl, cur_wgt, max_wgt;
     object_type    *o_ptr;
-    caster_info *caster_ptr = get_caster_info();
+    caster_info    *caster_ptr = get_caster_info();
 
     if (!caster_ptr)
     {
@@ -3186,11 +3204,14 @@ void calc_bonuses(void)
 
     p_ptr->life = 0;
     p_ptr->reflect = FALSE;
+    
     p_ptr->sh_fire = FALSE;
     p_ptr->sh_elec = FALSE;
     p_ptr->sh_cold = FALSE;
     p_ptr->sh_shards = FALSE;
     p_ptr->sh_retaliation = FALSE;
+    p_ptr->sh_fear = FALSE;
+
     p_ptr->anti_magic = FALSE;
     p_ptr->anti_tele = FALSE;
     p_ptr->anti_summon = FALSE;

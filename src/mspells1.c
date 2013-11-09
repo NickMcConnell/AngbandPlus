@@ -2183,7 +2183,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
         case 96+24:
         {
             disturb(1, 0);
-            if (m_ptr->r_idx == MON_BOTEI) msg_format("'Boty-Build cutter!!!'");
+            if (m_ptr->r_idx == MON_BOTEI) msg_format("'Botei-Build cutter!!!'");
             else if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes shards.", m_name);
             dam = MIN(m_ptr->hp / 6, 700);
