@@ -3336,7 +3336,7 @@ static int breakage_chance(object_type *o_ptr)
 {
 	int archer_bonus = (p_ptr->cexp_info[CLASS_ARCHER].clev + p_ptr->cexp_info[CLASS_CRESCENT].clev / 2 - 1) / 7;
 
-	if ((p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_CRESCENT)) archer_bonus += 4;
+	if (pclass_is_(CLASS_ARCHER) || pclass_is_(CLASS_CRESCENT)) archer_bonus += 4;
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -3991,7 +3991,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, in
 	int attack_var, skill_to_d = 0;
 	cptr base_name = NULL;
 
-	if (p_ptr->pclass == CLASS_MEDIUM) xtra_slay = TR_SLAY_EVIL;
+	if (pclass_is_(CLASS_MEDIUM)) xtra_slay = TR_SLAY_EVIL;
 
 	if (shot_flgs & DCFA_STORM) xtra_slay = TR_BRAND_ELEC;
 	if (shot_flgs & DCFA_HAMAYA) xtra_slay = TR_KILL_EVIL;
@@ -4751,7 +4751,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	}
 
 
-	if ((p_ptr->pclass == CLASS_BERSERKER) && (o_ptr->tval == TV_POLEARM)
+	if (pclass_is_(CLASS_BERSERKER) && (o_ptr->tval == TV_POLEARM)
 		&& ((o_ptr->sval == SV_FRANCISCA) || (o_ptr->sval == SV_RUNEAXE)))
 			boomerang = TRUE;
 
@@ -4882,7 +4882,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && (have_flag(flgs, TR_THROW)) && (q_ptr->tval == TV_SWORD)) shuriken = TRUE;
+	if ((pclass_is_(CLASS_NINJA) || pclass_is_(CLASS_NINJAMASTER)) && (have_flag(flgs, TR_THROW)) && (q_ptr->tval == TV_SWORD)) shuriken = TRUE;
 	else shuriken = FALSE;
 
 	/* Chance of hitting */
@@ -5025,7 +5025,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 				{
 					int hack_dd = q_ptr->dd;
 
-					if ((p_ptr->pclass == CLASS_BERSERKER) && (q_ptr->tval == TV_POLEARM)
+					if (pclass_is_(CLASS_BERSERKER) && (q_ptr->tval == TV_POLEARM)
 						&& ((q_ptr->sval == SV_FRANCISCA) || (q_ptr->sval == SV_RUNEAXE)))
 					{
 						hack_dd += (1 + p_ptr->cexp_info[CLASS_BERSERKER].clev / 25);

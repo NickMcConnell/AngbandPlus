@@ -903,13 +903,16 @@ W:5:0:345:5
 P:0:1d3:0:0:0
 F:SHOW_MODS | INSTA_ART
 
-N:85:冥界の大鉄杖
+N:85:異界の大槌
 E:& Mighty Hammer~
 G:\:D
-I:21:50:0
-W:15:0:200:1000
-P:0:3d9:0:0:0
-F:SHOW_MODS | INSTA_ART | RIDING
+I:21:16:0
+W:85:0:1000:9500
+A:85/8
+P:0:7d9:0:0:0
+F:SHOW_MODS | SLAY_LIVING | UNHOLY |
+D:邪悪な力の宿る黒い大槌。
+D:生命を持つ存在に大いなる力を発揮する。
 
 N:86:魔槌
 E:& Runehammer~
@@ -2242,10 +2245,12 @@ I:40:19:0
 W:30:0:3:25000
 F:INSTA_ART | FIXED_FLAVOR
 
-#N:234:unused
-#E:nanka
-#G:":d
-#I:40:20:0
+N:234:十字架:"赤めのうの
+E:& Cross~:Carnelian
+G:":r
+I:40:20:0
+W:30:0:3:20000
+F:INSTA_ART
 
 N:235:角笛:錆びた
 E:& Horn~:Rusty
@@ -5498,4 +5503,21 @@ G:~:o
 I:51:0:0
 W:1:255:2:1000
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
+
+N:578:謎の卵
+E:& Wonder Egg~
+G:,:v
+I:80:21:5000
+W:0:0:2:1500
+A:50/1:80/3
+
+N:579:刃の鞭
+E:& Whip of Blade~
+G:\:W
+I:23:17:0
+W:10:0:95:800
+A:10/1:15/1
+P:0:3d5:0:0:0
+F:SHOW_MODS
+D:刃で作られた鞭
 

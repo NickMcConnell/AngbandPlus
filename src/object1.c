@@ -326,6 +326,7 @@ byte get_weapon_type(object_kind *k_ptr)
 		case SV_HALT_HAMMER:
 		case SV_PAUA_HAMMER:
 		case SV_GREAT_HAMMER:
+		case SV_MIGHTY_HAMMER:
 		case SV_RUNEHAMMER:
 			return WT_HAMMER;
 
@@ -341,7 +342,6 @@ byte get_weapon_type(object_kind *k_ptr)
 		case SV_WIZSTAFF:
 		case SV_LIFE_STAFF:
 		case SV_CLEAR_STAFF:
-		case SV_GROND:
 		case SV_RUNESTAFF:
 			return WT_STAFF;
 
@@ -414,6 +414,9 @@ byte get_weapon_type(object_kind *k_ptr)
 		case SV_MADU:
 		case SV_RUNECLAW:
 			return WT_CLAW;
+
+		case SV_BLADE_WHIP:
+			return WT_WHIP;
 		}
 		break;
 	}
@@ -4437,9 +4440,9 @@ cptr describe_use(int i)
 bool check_book_realm(const byte book_tval, const byte book_sval)
 {
 	if ((book_tval < TV_MAGERY_BOOK) || (book_tval > (TV_MAGERY_BOOK + MAX_REALM - 1))) return FALSE;
-	if ((p_ptr->pclass == CLASS_DRAGOON) && (book_tval == TV_WITCH_BOOK))
+	if (pclass_is_(CLASS_DRAGOON) && (book_tval == TV_WITCH_BOOK))
 		return (book_sval == 0);
-	if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_ARCHMAGE)) && (book_tval == TV_DEATH_BOOK))
+	if ((pclass_is_(CLASS_WITCH) || pclass_is_(CLASS_ARCHMAGE)) && (book_tval == TV_DEATH_BOOK))
 		return (book_sval == 0);
 	return can_use_realm(tval2realm(book_tval));
 }

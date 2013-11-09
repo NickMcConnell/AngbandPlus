@@ -5914,7 +5914,7 @@ bool generate_rooms(void)
 	 */
 
 	/* Ironman sees only Greater Vaults */
-	if (ironman_rooms && !((d_info[dungeon_type].flags1 & (DF1_BEGINNER | DF1_SMALLEST))))
+	if (ironman_rooms && !((d_info[dungeon_type].flags1 & (DF1_BEGINNER | DF1_SMALLEST | DF1_VAULT))))
 	{
 		for (i = 0; i < ROOM_T_MAX; i++)
 		{

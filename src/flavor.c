@@ -1618,6 +1618,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			break;
 		}
 
+		case TV_CARD:
+		{
+			break;
+		}
+
 		case TV_STAFF:
 		{
 			/* Color the object */

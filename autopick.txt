@@ -225,7 +225,8 @@
 #          Cleric, Priest, Lich, Angel-Knight, High-Witch, Gunner,
 #          Temple-Knight, White-Knight, Lord, General, Ninjamaster,
 #          Archmage, Freya, Crescent, Vampire, Medium, Succubus,
-#          Grappler, Elementaler
+#          Grappler, Elementaler, Relics-Knight, Enigma-Hunter,
+#          Ranger
 #          のどれか
 #        $PLAYER
 #          プレイヤーの名前を返す。

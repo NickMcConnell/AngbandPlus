@@ -188,7 +188,8 @@ bool object_is_rare(object_type *o_ptr)
 
 	case TV_HAFTED:
 		if (o_ptr->sval == SV_MACE_OF_DISRUPTION ||
-		    o_ptr->sval == SV_WIZSTAFF) return TRUE;
+		    o_ptr->sval == SV_WIZSTAFF ||
+			o_ptr->sval == SV_MIGHTY_HAMMER) return TRUE;
 		break;
 
 	case TV_POLEARM:
@@ -547,7 +548,7 @@ bool object_is_metal(object_type *o_ptr)
 		case SV_FAN:
 		case SV_GREAT_HAMMER:
 		case SV_MACE_OF_DISRUPTION:
-		case SV_GROND:
+		case SV_MIGHTY_HAMMER:
 		case SV_RUNEHAMMER:
 		case SV_RUNEWHIP:
 		case SV_RUNESTAFF:

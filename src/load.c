@@ -794,6 +794,8 @@ static errr rd_store(int town_number, int store_number)
 	/* Read last visit */
 	rd_s32b(&st_ptr->last_visit);
 
+	if ((town_number == NO_TOWN) && (own != 96)) own = 96;
+
 	/* Extract the owner (see above) */
 	st_ptr->owner = own;
 
@@ -1204,7 +1206,7 @@ static errr rd_extra(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > max_c_idx)
+	if (tmp16u > MAX_CLASS)
 	{
 #ifdef JP
 		note(format("クラス経験情報配列が大きすぎる(%u)！", tmp16u));
@@ -2678,7 +2680,7 @@ static errr rd_savefile_new_aux(void)
 		rd_u16b(&tmp16u);
 
 		/* Incompatible save files */
-		if ((tmp8u > max_c_idx) || (tmp16u > PY_MAX_LEVEL))
+		if ((tmp8u > MAX_CLASS) || (tmp16u > PY_MAX_LEVEL))
 		{
 #ifdef JP
 			note(format("クラスHP/MP配列が大きすぎる(%u/%u)！", tmp8u, tmp16u));

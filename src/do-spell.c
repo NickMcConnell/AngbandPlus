@@ -615,10 +615,10 @@ static cptr do_magery_spell(int spell, int mode)
 			int rad = (mlev < 30) ? 2 : 3;
 			int base;
 
-			if (p_ptr->pclass == CLASS_WIZARD ||
-			    p_ptr->pclass == CLASS_SIRENE ||
-			    p_ptr->pclass == CLASS_LICH ||
-			    p_ptr->pclass == CLASS_ARCHMAGE)
+			if (pclass_is_(CLASS_WIZARD) ||
+			    pclass_is_(CLASS_SIRENE) ||
+			    pclass_is_(CLASS_LICH) ||
+			    pclass_is_(CLASS_ARCHMAGE))
 				base = mlev + mlev / 2;
 			else
 				base = mlev + mlev / 4;
@@ -823,7 +823,7 @@ static cptr do_magery_spell(int spell, int mode)
     
 		{
 			int power;
-			if ((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_HIGHWITCH)) power = mlev * 8;
+			if (pclass_is_(CLASS_WITCH) || pclass_is_(CLASS_HIGHWITCH)) power = mlev * 8;
 			else power = mlev * 4;
 
 			if (info) return info_power(power);

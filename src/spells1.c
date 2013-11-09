@@ -5815,7 +5815,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
 
-			if (WRAITH_FORM() || p_ptr->evil_equip || (p_ptr->pclass == CLASS_VAMPIRE)) break;
+			if (WRAITH_FORM() || p_ptr->evil_equip || pclass_is_(CLASS_VAMPIRE)) break;
 
 			if (p_ptr->resist_dark)
 			{
@@ -6340,20 +6340,20 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (!IS_MULTISHADOW(0))
 			{
 				if (!(p_ptr->earth_spike || p_ptr->weak_earth)) teleport_player(5);
-				if (!(p_ptr->ffall || p_ptr->weak_earth))
+				if (!(p_ptr->levitation || p_ptr->weak_earth))
 					(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
-				if (!(p_ptr->resist_sound || p_ptr->weak_earth || p_ptr->ffall))
+				if (!(p_ptr->resist_sound || p_ptr->weak_earth || p_ptr->levitation))
 				{
 					int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
 					(void)set_stun(p_ptr->stun + k);
 				}
 			}
-			if (p_ptr->ffall || p_ptr->weak_earth)
+			if (p_ptr->levitation || p_ptr->weak_earth)
 			{
 				dam = (dam * 2) / 3;
 			}
 
-			if (!p_ptr->ffall || one_in_(13))
+			if (!p_ptr->levitation || one_in_(13))
 			{
 				inven_damage(set_cold_destroy, 2);
 			}
@@ -6738,7 +6738,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				dam = 0;
 			}
 			if (p_ptr->weak_fire) dam *= 4 / 3;
-			if (p_ptr->no_elem) dam /= 2;
+			if (p_ptr->no_elem) dam /= 5;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6770,7 +6770,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			if (p_ptr->weak_aqua) dam *= 4 / 3;
 			if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
-			if (p_ptr->no_elem) dam /= 2;
+			if (p_ptr->no_elem) dam /= 5;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6801,7 +6801,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				dam = 0;
 			}
 			if (p_ptr->weak_earth) dam *= 4 / 3;
-			if (p_ptr->no_elem) dam /= 2;
+			if (p_ptr->no_elem) dam /= 5;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6832,7 +6832,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				dam = 0;
 			}
 			if (p_ptr->weak_wind) dam *= 4 / 3;
-			if (p_ptr->no_elem) dam /= 2;
+			if (p_ptr->no_elem) dam /= 5;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();

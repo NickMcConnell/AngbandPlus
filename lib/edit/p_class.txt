@@ -925,7 +925,7 @@ C:25:28:28:6:14:20:0:80:35
 X:12:10:8:4:0:0:3:35:18
 I:10:5:1:150:50:12
 A:6:70:5
-R:23:63
+R:23:62
 Z:FREE_ACT | HOLD_LIFE | RES_COLD | RES_POIS | RES_DARK | RES_NETHER |
 Z:UNHOLY | SLAY_LIVING | SEE_INVIS | VAMPIRIC | LEVITATION | FEAR_FIELD |
 M:DEATH
@@ -1054,5 +1054,92 @@ T:精霊の友
 T:精霊使い
 T:精霊の主人
 T:精霊王
+
+
+N:36:レリクスナイト
+E:Relics-Knight
+F:CHAOS | MALE | FEMALE | NO_CHANGE | SECRET | 
+F:SUST_STR | SUST_DEX | SUST_CON | HOLD_LIFE | REGEN | FEAR_FIELD |
+F:FREE_ACT | RES_FEAR | RES_CONF | RES_STONE |
+S:138:0:0:98:138:0
+G:05:00:00:03:05:00
+C:13:15:17:-5:1:4:0:90:32
+X:0:0:0:0:0:0:4:48:11
+I:50:7:0:135:0:12
+A:6:70:6
+R:21:60
+Z:SUST_STR | SUST_DEX | SUST_CON | HOLD_LIFE | REGEN | FEAR_FIELD |
+Z:FREE_ACT | RES_FEAR | RES_CONF | RES_STONE |
+D:レリクスと呼ばれる異世界から現れた狂戦士。出会った人間を狩ることが楽しみのよう。 
+D:厚い甲冑の下の素顔を見ることはできない。
+D:このクラスはクラスチェンジできなくなります。
+T:人殺し
+T:悪鬼
+T:羅刹
+T:首切り狂
+T:殺戮享楽者
+T:地獄の使者
+T:悪魔の騎士
+T:戦場の悪夢
+T:生きる狂気
+T:オウガの裔
+
+
+N:37:エニグマハンター
+E:Enigma-Hunter
+F:LAWFUL | NEUTRAL | FEMALE | SECRET | NO_CHANGE
+F:SLAY_UNDEAD | SLAY_DEMON | SEE_INVIS | BLESSED | RES_FEAR |
+S:88:0:78:98:78:0
+G:03:02:02:04:03:02
+C:25:30:32:1:16:8:0:60:28
+X:9:8:9:0:0:0:0:21:7
+I:0:1:2:95:20:9
+A:5:100:4
+R:21:61
+Z:KILL_UNDEAD | KILL_DEMON | SLAY_EVIL | BLESSED |
+D:魔を取り除く銀の十字架を手に、闇の者を追い続ける
+D:ハンター。神の加護を受け邪悪なる者に強力な一撃を加えます。
+D:このクラスはクラスチェンジできなくなります。
+T:見習い
+T:三流ハンター
+T:二流ハンター
+T:熟練ハンター
+T:一流ハンター
+T:悪霊払い
+T:悪魔払い
+T:闇払い
+T:魔を討つ者
+T:神の執行者
+
+
+N:38:レンジャー
+E:Ranger
+F:LAWFUL | NEUTRAL | MALE | BIRTH | REALM_ELEM_1
+S:14:13:0:16:0:0
+G:03:03:02:04:02:02
+C:30:37:36:3:24:16:0:56:72
+X:8:11:10:0:0:0:3:18:28
+I:0:3:1:140:0:12
+A:5:70:4
+R:19:62
+Z:SLAY_ANIMAL | SUST_DEX | XTRA_SHOTS |
+M:FIRE | AQUA | EARTH | WIND
+O:23:5:1:1
+O:19:12:1:1
+O:17:1:15:20
+O:36:4:1:1
+D:ブーメランとテンガロンハットは異国の地の戦士を模
+D:したもの。様々な土地を流浪し、様々な魔法を学んで
+D:いる。魔法を唱えるのに必要な能力は知能です。
+T:使い走り
+T:馳夫
+T:斥候
+T:狩人
+T:追跡者
+T:先導者
+T:探険者
+T:野伏
+T:野伏頭
+T:野伏の総領
 
 

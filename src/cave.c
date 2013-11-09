@@ -4456,7 +4456,7 @@ void map_area(int range)
  * since this would prevent the use of "view_torch_grids" as a method to
  * keep track of what grids have been observed directly.
  */
-void wiz_lite(bool ninja)
+void wiz_lite(bool dark)
 {
 	int i, y, x;
 	byte feat;
@@ -4521,7 +4521,7 @@ void wiz_lite(bool ninja)
 					feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 					/* Memorize normal features */
-					if (ninja)
+					if (dark)
 					{
 						/* Memorize the grid */
 						c_ptr->info |= (CAVE_MARK);

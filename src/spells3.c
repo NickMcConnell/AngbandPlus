@@ -3103,7 +3103,10 @@ s = "魔力を充填すべきアイテムがない。";
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_ARCHMAGE) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH))
+			if (pclass_is_(CLASS_WIZARD) || pclass_is_(CLASS_WARLOCK) || 
+				pclass_is_(CLASS_WITCH) || pclass_is_(CLASS_SIRENE) || 
+				pclass_is_(CLASS_LICH) || pclass_is_(CLASS_HIGHWITCH) || 
+				pclass_is_(CLASS_ARCHMAGE))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -3739,8 +3742,8 @@ void display_spell_list(void)
 	clear_from(0);
 
 	/* They have too many spells to list */
-	if (p_ptr->pclass == CLASS_LICH) return;
-	if (p_ptr->pclass == CLASS_HIGHWITCH) return;
+	if (pclass_is_(CLASS_LICH)) return;
+	if (pclass_is_(CLASS_HIGHWITCH)) return;
 
 	/* Normal spellcaster with books */
 
@@ -5237,7 +5240,10 @@ s = "魔力を吸収できるアイテムがありません。";
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH) || (p_ptr->pclass == CLASS_ARCHMAGE))
+			if (pclass_is_(CLASS_WIZARD) || pclass_is_(CLASS_WARLOCK) || 
+				pclass_is_(CLASS_WITCH) || pclass_is_(CLASS_SIRENE) || 
+				pclass_is_(CLASS_LICH) || pclass_is_(CLASS_HIGHWITCH) || 
+				pclass_is_(CLASS_ARCHMAGE))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -6312,6 +6318,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 		{
 		case EGO_HA:
 			if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) return FALSE;
+			if (o_ptr->tval == TV_HAFTED && (o_ptr->sval == SV_MIGHTY_HAMMER)) return FALSE;
 			if (one_in_(4) && (level > 40))
 			{
 				o_ptr->to_misc[OB_BLOWS]++;
@@ -6324,6 +6331,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			break;
 		case EGO_BLESS_BLADE:
 			if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) return FALSE;
+			if (o_ptr->tval == TV_HAFTED && (o_ptr->sval == SV_MIGHTY_HAMMER)) return FALSE;
 			break;
 		case EGO_ASSASIN_WEAPON:
 			if (!assasin_weapon_generation_okay(o_ptr)) return FALSE;
@@ -6341,7 +6349,9 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			switch (randint1(3))
 			{
 				case 1:
-					if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD))
+					if ((o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) ||
+						(o_ptr->tval == TV_HAFTED && (o_ptr->sval == SV_MIGHTY_HAMMER)))
+
 					{
 						add_flag(o_ptr->art_flags, TR_UNHOLY);
 						add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
@@ -6430,6 +6440,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			break;
 		case EGO_ISHTALLE:
 			if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) return FALSE;
+			if (o_ptr->tval == TV_HAFTED && (o_ptr->sval == SV_MIGHTY_HAMMER)) return FALSE;
 			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
 			if (one_in_(5)) add_flag(o_ptr->art_flags, TR_RES_FEAR);
 			break;

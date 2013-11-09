@@ -839,6 +839,13 @@ char *c_text;
 hist_type *h_info;
 char *h_text;
 
+/*
+ * The shop owner arrays
+ */
+owner_type *ow_info;
+char *ow_name;
+char *ow_text;
+
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -1082,6 +1089,13 @@ u16b max_c_idx;
  * Maximum number of histories in p_hist.txt
  */
 u16b max_h_idx;
+
+/*
+ * Maximum number of owners in ow_info.txt
+ */
+u16b max_ow_idx;
+
+
 
 /*
  * Maximum size of the wilderness

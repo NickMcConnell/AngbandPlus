@@ -828,7 +828,8 @@ static void mass_produce(object_type *o_ptr)
 		case TV_FOOD:
 		{
 			if ((o_ptr->sval == SV_FOOD_EGG) || (o_ptr->sval == SV_FOOD_BIG_EGG) ||
-			    (o_ptr->sval == SV_FOOD_SPECIAL_EGG) || (o_ptr->sval == SV_FOOD_ROTTEN_EGG))
+			    (o_ptr->sval == SV_FOOD_SPECIAL_EGG) || (o_ptr->sval == SV_FOOD_ROTTEN_EGG) ||
+				(o_ptr->sval == SV_FOOD_WONDER_EGG))
 			{
 				size = 1;
 				break;
@@ -979,6 +980,7 @@ static void mass_produce(object_type *o_ptr)
 		case SV_FOOD_BIG_EGG:
 		case SV_FOOD_SPECIAL_EGG:
 		case SV_FOOD_ROTTEN_EGG:
+		case SV_FOOD_WONDER_EGG:
 			if (cheat_peek && discount)
 			{
 #ifdef JP
@@ -1088,6 +1090,7 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 		case SV_FOOD_BIG_EGG:
 		case SV_FOOD_SPECIAL_EGG:
 		case SV_FOOD_ROTTEN_EGG:
+		case SV_FOOD_WONDER_EGG:
 			return FALSE;
 		}
 	}
@@ -2471,22 +2474,15 @@ static void display_store(void)
 	else
 	{
 		cptr store_name = f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name;
-		cptr owner_name = ot_ptr->owner_name;
-		cptr race_name = p_name + race_info[ot_ptr->owner_race].name;
+		cptr owner_name = ow_name + ot_ptr->owner_name;
 
 		if (p_ptr->town_num == NO_TOWN)
 		{
 			store_name = f_name + f_info[FEAT_DENEB_SHOP].name;
-#ifdef JP
-			owner_name = "魔女デネブ";
-#else
-			owner_name = "Deneb, the Witch";
-#endif
-			race_name = p_name + race_info[RACE_HUMAN].name;
 		}
 
 		/* Put the owner name and race */
-		sprintf(buf, "%s (%s)", owner_name, race_name);
+		sprintf(buf, "%s", owner_name);
 		put_str(buf, 3, 10);
 
 		/* Show the max price in the store (above prices) */
@@ -3632,8 +3628,7 @@ static void store_purchase(void)
 						store_shuffle(cur_store_num);
 
 						prt("",3,0);
-						sprintf(buf, "%s (%s)",
-							ot_ptr->owner_name, p_name + race_info[ot_ptr->owner_race].name);
+						sprintf(buf, "%s", ow_name + ot_ptr->owner_name);
 						put_str(buf, 3, 10);
 						sprintf(buf, "%s (%ld)",
 							f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name, max_cost_fix());
@@ -5514,7 +5509,8 @@ static void store_process_command(void)
 		/* Browse a book */
 		case 'b':
 		{
-			if (p_ptr->pclass == CLASS_GUNNER) do_cmd_gunner(TRUE);
+			if (pclass_is_(CLASS_GUNNER)) do_cmd_gunner(TRUE);
+			else if (pclass_is_(CLASS_ELEMENTALER)) do_cmd_element_browse();
 			else do_cmd_browse();
 			break;
 		}
@@ -5895,7 +5891,7 @@ void do_cmd_store(void)
 
 	/* Save the store and owner pointers */
 	st_ptr = &town[p_ptr->town_num].store[cur_store_num];
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &ow_info[cur_store_num * 32 + st_ptr->owner];
 
 
 	/* Start at the beginning */
@@ -6224,7 +6220,7 @@ void store_shuffle(int which)
 	}
 
 	/* Activate the new owner */
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &ow_info[cur_store_num * 32 + st_ptr->owner];
 
 
 	/* Reset the owner data */
@@ -6277,7 +6273,7 @@ void store_maint(int town_num, int store_num)
 	st_ptr = &town[town_num].store[store_num];
 
 	/* Activate the owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
+	ot_ptr = &ow_info[store_num * 32 + st_ptr->owner];
 
 	/* Store keeper forgives the player */
 	st_ptr->insult_cur = 0;
@@ -6358,7 +6354,9 @@ void store_init(int town_num, int store_num)
 	{
 		int i;
 
-		st_ptr->owner = (byte)randint0(MAX_OWNERS);
+		if (town_num == NO_TOWN) st_ptr->owner = 96;
+		else st_ptr->owner = (byte)randint0(MAX_OWNERS);
+
 		for (i = 1;i < max_towns; i++)
 		{
 			if (i == town_num) continue;
@@ -6368,7 +6366,7 @@ void store_init(int town_num, int store_num)
 	}
 
 	/* Activate the new owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
+	ot_ptr = &ow_info[store_num * 32 + st_ptr->owner];
 
 
 	/* Initialize the store */

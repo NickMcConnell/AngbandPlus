@@ -99,8 +99,8 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 	/* No "okay" spells */
 	if (!okay) return (FALSE);
 	if (!can_use_realm(use_realm)) return FALSE;
-	if ((p_ptr->pclass == CLASS_DRAGOON) && ((use_realm) == REALM_WITCH) && (sval > 0)) return FALSE;
-	if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_ARCHMAGE)) && ((use_realm) == REALM_DEATH) && (sval > 0)) return FALSE;
+	if (pclass_is_(CLASS_DRAGOON) && ((use_realm) == REALM_WITCH) && (sval > 0)) return FALSE;
+	if ((pclass_is_(CLASS_WITCH) || pclass_is_(CLASS_ARCHMAGE)) && ((use_realm) == REALM_DEATH) && (sval > 0)) return FALSE;
 
 	/* Assume cancelled */
 	*sn = (-1);
@@ -301,9 +301,9 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 static bool item_tester_learn_spell(object_type *o_ptr)
 {
 	if ((o_ptr->tval < TV_MAGERY_BOOK) || (o_ptr->tval > (TV_MAGERY_BOOK + MAX_REALM - 1))) return (FALSE);
-	if ((p_ptr->pclass == CLASS_DRAGOON) && (o_ptr->tval == TV_WITCH_BOOK))
+	if (pclass_is_(CLASS_DRAGOON) && (o_ptr->tval == TV_WITCH_BOOK))
 		return (o_ptr->sval == 0);
-	if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_ARCHMAGE)) && (o_ptr->tval == TV_DEATH_BOOK))
+	if ((pclass_is_(CLASS_WITCH) || pclass_is_(CLASS_ARCHMAGE)) && (o_ptr->tval == TV_DEATH_BOOK))
 		return (o_ptr->sval == 0);
 	if (can_use_realm(tval2realm(o_ptr->tval))) return (TRUE);
 	return (FALSE);
@@ -1186,11 +1186,11 @@ int calculate_upkeep(void)
 			total_friends++;
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				if (p_ptr->pclass == CLASS_LORD)
+				if (pclass_is_(CLASS_LORD))
 				{
 					temp_rlev = r_ptr->level;
 				}
-				else if (p_ptr->pclass == CLASS_GENERAL)
+				else if (pclass_is_(CLASS_GENERAL))
 				{
 					if ((p_ptr->riding == m_idx) || !have_a_unique)
 						temp_rlev = (r_ptr->level+5)*2;
@@ -1198,7 +1198,7 @@ int calculate_upkeep(void)
 						temp_rlev = (r_ptr->level+5)*7/2;
 					have_a_unique = TRUE;
 				}
-				else if (((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) || ((p_ptr->cexp_info[CLASS_BEASTTAMER].clev > 49) || (p_ptr->cexp_info[CLASS_DRAGONTAMER].clev > 49)))
+				else if ((pclass_is_(CLASS_BEASTTAMER) || pclass_is_(CLASS_DRAGONTAMER)) || ((p_ptr->cexp_info[CLASS_BEASTTAMER].clev > 49) || (p_ptr->cexp_info[CLASS_DRAGONTAMER].clev > 49)))
 				{
 					if (p_ptr->riding == m_idx)
 						temp_rlev = (r_ptr->level+5)*2;
@@ -1214,7 +1214,7 @@ int calculate_upkeep(void)
 			else
 				temp_rlev = r_ptr->level;
 
-			if (((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_VAMPIRE)) && (r_ptr->flags3 & RF3_UNDEAD)) temp_rlev /= 2;
+			if ((pclass_is_(CLASS_LICH) || pclass_is_(CLASS_VAMPIRE)) && (r_ptr->flags3 & RF3_UNDEAD)) temp_rlev /= 2;
 
 			if (r_ptr->flags7 & RF7_EGG_ONLY) temp_rlev /= 3;
 			total_friend_levels += temp_rlev;
@@ -1416,7 +1416,7 @@ bool rakuba(int dam, bool force)
 	if (p_ptr->psex == SEX_MALE) riding_level = p_ptr->cexp_info[CLASS_BEASTTAMER].clev + p_ptr->cexp_info[CLASS_GENERAL].clev;
 	else riding_level = p_ptr->cexp_info[CLASS_DRAGONTAMER].clev + p_ptr->cexp_info[CLASS_FREYA].clev;
 
-	if ((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) riding_level += 15;
+	if (pclass_is_(CLASS_BEASTTAMER) || pclass_is_(CLASS_DRAGONTAMER)) riding_level += 15;
 
 	if (dam >= 0 || force)
 	{
@@ -1511,7 +1511,7 @@ bool rakuba(int dam, bool force)
 	/* Update health track of mount */
 	p_ptr->redraw |= (PR_UHEALTH);
 
-	if (p_ptr->ffall && !force)
+	if (p_ptr->levitation && !force)
 	{
 		if (cave[py][px].feat != FEAT_AIR)
 		{

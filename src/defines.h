@@ -60,7 +60,7 @@
  * Upper compatibility is always guaranteed.
  */
 #define T_VER_MAJOR 0
-#define T_VER_MINOR 8
+#define T_VER_MINOR 9
 #define T_VER_PATCH 0
 #define T_VER_EXTRA 0
 
@@ -813,8 +813,11 @@
 #define CLASS_SUCCUBUS          33
 #define CLASS_GRAPPLER          34
 #define CLASS_ELEMENTALER       35
+#define CLASS_RELICSKNIGHT      36
+#define CLASS_ENIGMAHUNTER      37
+#define CLASS_RANGER            38
 
-#define MAX_CLASS               36
+#define MAX_CLASS               39
 
 
 
@@ -1103,6 +1106,7 @@
 #define ART_RESIST               4
 #define ART_RODERIC              5
 #define ART_EVIL_NECK            6
+#define ART_SILVER_CROSS         18
 #define ART_RED                  139
 #define ART_BLUE                 140
 #define ART_SAVAGE               151
@@ -1272,7 +1276,6 @@
 #define ART_CALDIA               95
 #define ART_GYPSY_QUEEN          102
 #define ART_SANSCION             106
-#define ART_GROND                111
 #define ART_BLOOD_WHIP           114
 #define ART_RAPTURE_ROSE         115
 #define ART_DAGDA                117
@@ -1793,7 +1796,7 @@
 #define SV_LIFE_STAFF                   13	/* 1d3  */
 #define SV_CLEAR_STAFF                  14	/* 1d3  */
 #define SV_SINAI                        15	/* 1d3  */
-#define SV_GROND                        50	/* 3d4  */
+#define SV_MIGHTY_HAMMER                16	/* 7d9  */
 #define SV_RUNEHAMMER                   60  /* 0d0 */
 #define SV_RUNEWHIP                     61  /* 0d0 */
 #define SV_RUNESTAFF                    62  /* 0d0 */
@@ -1835,6 +1838,7 @@
 #define SV_DIAMOND_EDGE                 14  /* 7d5 */
 #define SV_MITHRIL_SWORD                15  /* 2d10 */
 #define SV_MADU                         16  /* 3d2 */
+#define SV_BLADE_WHIP                   17  /* 3d6 */
 #define SV_RUNEBLADE                    62  /* 0d0 */
 #define SV_RUNECLAW                     63  /* 0d0 */
 
@@ -1956,7 +1960,7 @@
 #define SV_AMULET_CAMERA                17
 #define SV_AMULET_RED                   18
 #define SV_AMULET_BLUE                  19
-/* #define SV_AMULET_NANKA                 20 */
+#define SV_AMULET_CROSS                 20
 #define SV_AMULET_HORN                  21
 #define SV_AMULET_HARP                  22
 #define SV_AMULET_MAGIC_MASTERY         23
@@ -2282,6 +2286,7 @@
 #define SV_FOOD_PINT_OF_WINE            18
 #define SV_FOOD_FORTUNE_COOKIE          19
 #define SV_FOOD_ROTTEN_PUMPKIN          20
+#define SV_FOOD_WONDER_EGG              21
 
 
 /*
@@ -4234,19 +4239,19 @@
 	  ((C)->feat == FEAT_DEEP_WATER) || \
 	  ((C)->feat == FEAT_SHAL_WATER) || \
 	  ((C)->feat == FEAT_SHAL_LAVA) || \
-	 (((C)->feat == FEAT_DARK_PIT) && p_ptr->ffall) || \
+	 (((C)->feat == FEAT_DARK_PIT) && p_ptr->levitation) || \
 	  ((C)->feat == FEAT_DIRT) || \
 	  ((C)->feat == FEAT_GRASS) || \
 	  ((C)->feat == FEAT_FLOWER) || \
 	  ((C)->feat == FEAT_DEEP_GRASS) || \
 	  ((C)->feat == FEAT_TREES) || \
-	 (((C)->feat == FEAT_MOUNTAIN) && !dun_level && p_ptr->ffall) || \
+	 (((C)->feat == FEAT_MOUNTAIN) && !dun_level && p_ptr->levitation) || \
 	  ((C)->feat == FEAT_TOWN) || \
 	  ((C)->feat == FEAT_ENTRANCE) || \
 	  ((C)->feat == FEAT_SWAMP) || \
 	  ((C)->feat == FEAT_ENTRANCE_UPWARD) || \
 	  ((C)->feat == FEAT_TUNDRA) || \
-	 (((C)->feat == FEAT_AIR) && p_ptr->ffall) || \
+	 (((C)->feat == FEAT_AIR) && p_ptr->levitation) || \
 	  ((C)->feat == FEAT_DEEP_SEA) || \
 	  ((C)->feat == FEAT_BETWEEN)) && \
 	  !(C)->m_idx)
@@ -4821,6 +4826,7 @@ extern int PlayerUID;
 #define PY_ATTACK_MINEUCHI 3
 #define PY_ATTACK_3DAN     4
 #define PY_ATTACK_PENET    5
+#define PY_ATTACK_WHIP     6
 
 #define PY_THROW_CHOSEN        0x0001
 #define PY_THROW_BOOMERANG     0x0002
@@ -4900,6 +4906,7 @@ extern int PlayerUID;
 #define DUNGEON_SEASIDE    16
 #define DUNGEON_AIR_GARDEN 17
 #define DUNGEON_HEAVEN     18
+#define DUNGEON_ELEM_CAVE  19
 
 
 /*
@@ -4987,6 +4994,7 @@ extern int PlayerUID;
 
 
 #define prace_is_(A) (p_ptr->prace == (A))
+#define pclass_is_(A) (p_ptr->pclass == (A))
 
 /* Sub-alignment flags for neutral monsters */
 #define SUB_ALIGN_NEUTRAL  0x00
@@ -5204,7 +5212,7 @@ extern int PlayerUID;
 
 #define IS_MERMAID_IN_WATER() \
 	(character_dungeon && (p_ptr->prace == RACE_MERMAID) && \
-	 !p_ptr->ffall && !p_ptr->riding && \
+	 !p_ptr->levitation && !p_ptr->riding && \
 	 ((cave[py][px].feat == FEAT_DEEP_WATER) || \
 	  (cave[py][px].feat == FEAT_SHAL_WATER) || \
 	  (cave[py][px].feat == FEAT_SWAMP) || \

@@ -720,7 +720,7 @@ static void regen_captured_monsters(void)
 		object_type *o_ptr = &inventory[i];
 
 		if (!o_ptr->k_idx) continue;
-		if ((o_ptr->tval != TV_CARD) && (o_ptr->tval != SV_MONSTER_CARD)) continue;
+		if ((o_ptr->tval != TV_TRUMP) && (o_ptr->tval != SV_MONSTER_CARD)) continue;
 		if (!o_ptr->pval) continue;
 
 		heal = TRUE;
@@ -1043,7 +1043,7 @@ static void process_world_aux_hp_and_sp(void)
 
 
 	/* (Vampires) Take damage from sunlight */
-	if (p_ptr->pclass == CLASS_VAMPIRE)
+	if (pclass_is_(CLASS_VAMPIRE))
 	{
 		if (inventory[INVEN_LITE].tval &&
 		    (((inventory[INVEN_LITE].sval != SV_LITE_EMPTY) && (inventory[INVEN_LITE].name2 != EGO_LITE_DARKNESS)) ||
@@ -1115,7 +1115,7 @@ static void process_world_aux_hp_and_sp(void)
 	}
 
 	if ((cave[py][px].feat == FEAT_SHAL_LAVA) &&
-		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->ffall)
+		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->levitation)
 	{
 		int damage = 3000 + randint0(2000);
 
@@ -1149,7 +1149,7 @@ static void process_world_aux_hp_and_sp(void)
 		if (p_ptr->resist_fire) damage = damage / 3;
 		if (p_ptr->oppose_fire) damage = damage / 3;
 
-		if (p_ptr->ffall)
+		if (p_ptr->levitation)
 		{
 			damage = damage / 5;
 
@@ -1185,9 +1185,9 @@ static void process_world_aux_hp_and_sp(void)
 		}
 	}
 
-	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall && !p_ptr->can_swim)
+	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->levitation && !p_ptr->can_swim)
 	{
-		if (p_ptr->total_weight > (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) / 2))
+		if (p_ptr->total_weight > (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]] * ((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) ? 150 : 100)) / 2))
 		{
 			/* Take damage */
 #ifdef JP
@@ -1205,7 +1205,7 @@ static void process_world_aux_hp_and_sp(void)
 	if (p_ptr->riding)
 	{
 		int riding_level = p_ptr->cexp_info[CLASS_BEASTTAMER].clev + p_ptr->cexp_info[CLASS_DRAGONTAMER].clev;
-		if ((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) riding_level += 15;
+		if (pclass_is_(CLASS_BEASTTAMER) || pclass_is_(CLASS_DRAGONTAMER)) riding_level += 15;
 
 		if (riding_level < 49)
 		{
@@ -1262,7 +1262,7 @@ static void process_world_aux_hp_and_sp(void)
 	if (!cave_floor_bold(py, px))
 	{
 		/* Player can walk through trees */
-		if ((cave[py][px].feat == FEAT_TREES) || ((cave[py][px].feat == FEAT_MOUNTAIN) && !dun_level && p_ptr->ffall))
+		if ((cave[py][px].feat == FEAT_TREES) || ((cave[py][px].feat == FEAT_MOUNTAIN) && !dun_level && p_ptr->levitation))
 		{
 			/* Do nothing */
 		}
@@ -4195,8 +4195,8 @@ static void process_command(void)
 		/* Browse a book */
 		case 'b':
 		{
-			if (p_ptr->pclass == CLASS_GUNNER) do_cmd_gunner(TRUE);
-			else if (p_ptr->pclass == CLASS_ELEMENTALER) do_cmd_element_browse();
+			if (pclass_is_(CLASS_GUNNER)) do_cmd_gunner(TRUE);
+			else if (pclass_is_(CLASS_ELEMENTALER)) do_cmd_element_browse();
 			else do_cmd_browse();
 			break;
 		}
@@ -4207,7 +4207,7 @@ static void process_command(void)
 			/* -KMW- */
 			if (!p_ptr->wild_mode)
 			{
-				if (!class_info[p_ptr->pclass].realm_choices && (p_ptr->pclass != CLASS_GUNNER) && (p_ptr->pclass != CLASS_ELEMENTALER))
+				if (!class_info[p_ptr->pclass].realm_choices && !pclass_is_(CLASS_GUNNER) && !pclass_is_(CLASS_ELEMENTALER))
 				{
 #ifdef JP
 					msg_print("呪文を唱えられない！");
@@ -4215,7 +4215,7 @@ static void process_command(void)
 					msg_print("You cannot cast spells!");
 #endif
 				}
-				else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_GUNNER))
+				else if (p_ptr->anti_magic && !pclass_is_(CLASS_GUNNER))
 				{
 #ifdef JP
 					cptr which_power = "魔法";
@@ -4236,7 +4236,7 @@ static void process_command(void)
 #endif
 					energy_use = 0;
 				}
-				else if (is_anti_magic_grid(-1, py, px) && (p_ptr->pclass != CLASS_GUNNER))
+				else if (is_anti_magic_grid(-1, py, px) && !pclass_is_(CLASS_GUNNER))
 				{
 #ifdef JP
 					cptr which_power = "魔法";
@@ -4266,8 +4266,8 @@ static void process_command(void)
 #endif
 					energy_use = 0;
 				}
-				else if (p_ptr->pclass == CLASS_GUNNER) do_cmd_gunner(FALSE);
-				else if (p_ptr->pclass == CLASS_ELEMENTALER) do_cmd_element();
+				else if (pclass_is_(CLASS_GUNNER)) do_cmd_gunner(FALSE);
+				else if (pclass_is_(CLASS_ELEMENTALER)) do_cmd_element();
 				else do_cmd_cast();
 			}
 			break;
@@ -4980,9 +4980,6 @@ static void process_player(void)
 		handle_stuff();
 	}
 
-	/* Handle the player song */
-	if (!load) check_music();
-
 	load = FALSE;
 
 	/*** Handle actual user input ***/
@@ -5105,6 +5102,9 @@ static void process_player(void)
 		/* Significant */
 		if (energy_use)
 		{
+			/* Handle the player song */
+			if (!p_ptr->leaving) check_music();
+
 			/* Use some energy */
 			if (stop_the_time_player || (energy_use > 400))
 			{
@@ -5381,7 +5381,7 @@ static void dungeon(void)
 	/* Leave "xtra" mode */
 	character_xtra = FALSE;
 
-	if (p_ptr->prace == RACE_MERMAID) set_mermaid_in_water();
+	if (prace_is_(RACE_MERMAID)) set_mermaid_in_water();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -5679,7 +5679,7 @@ void init_realm_table(void)
 	s32b mask = (CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND);
 
 
-	if (p_ptr->pclass == CLASS_MEDIUM)
+	if (pclass_is_(CLASS_MEDIUM))
 	{
 		cp_ptr->realm_choices = p_ptr->realm_medium;
 		mask &= ~(CH_FIRE << get_cur_pelem());

@@ -89,6 +89,7 @@ extern errr parse_m_info(char *buf, header *head);
 extern errr parse_p_info(char *buf, header *head);
 extern errr parse_c_info(char *buf, header *head);
 extern errr parse_h_info(char *buf, header *head);
+extern errr parse_ow_info(char *buf, header *head);
 
 /*
  * Error tracking

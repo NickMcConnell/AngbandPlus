@@ -28,7 +28,7 @@ static bool can_eat_food(void)
 		return FALSE;
 	}
 
-	if (p_ptr->pclass == CLASS_VAMPIRE) return FALSE;
+	if (pclass_is_(CLASS_VAMPIRE)) return FALSE;
 
 	return TRUE;
 }
@@ -259,7 +259,7 @@ static void arena_comm(int cmd)
 					msg_print(NULL);
 				}
 			}
-			else if (p_ptr->riding && (p_ptr->pclass != CLASS_BEASTTAMER) && (p_ptr->pclass != CLASS_DRAGONTAMER) && (p_ptr->pclass != CLASS_GENERAL) && (p_ptr->pclass != CLASS_FREYA))
+			else if (p_ptr->riding && !pclass_is_(CLASS_BEASTTAMER) && !pclass_is_(CLASS_DRAGONTAMER) && !pclass_is_(CLASS_GENERAL) && !pclass_is_(CLASS_FREYA))
 			{
 #ifdef JP
 				msg_print("ペットに乗ったままではアリーナへ入れさせてもらえなかった。");
@@ -2346,8 +2346,8 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	 else if (have_flag(flgs, TR_SLAY_EVIL)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "邪悪:", TERM_YELLOW);
 	if (have_flag(flgs, TR_KILL_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "善良:", TERM_YELLOW);
 	else if (have_flag(flgs, TR_SLAY_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "善良:", TERM_YELLOW);
-	if (have_flag(flgs, TR_KILL_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "生命:", TERM_YELLOW);
-	 else if (have_flag(flgs, TR_SLAY_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "生命:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "生命:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "生命:", TERM_YELLOW);
 	if (have_flag(flgs, TR_KILL_HUMAN)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "人間:", TERM_YELLOW);
 	 else if (have_flag(flgs, TR_SLAY_HUMAN)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "人間:", TERM_YELLOW);
 	if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "不死:", TERM_YELLOW);
@@ -2376,8 +2376,8 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	 else if (have_flag(flgs, TR_SLAY_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Evil:", TERM_YELLOW);
 	if (have_flag(flgs, TR_KILL_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "Good:", TERM_YELLOW);
 	 else if (have_flag(flgs, TR_SLAY_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Good:", TERM_YELLOW);
-	if (have_flag(flgs, TR_KILL_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Living:", TERM_YELLOW);
-	 else if (have_flag(flgs, TR_SLAY_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Living:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "Living:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Living:", TERM_YELLOW);
 	if (have_flag(flgs, TR_KILL_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "Human:", TERM_YELLOW);
 	 else if (have_flag(flgs, TR_SLAY_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Human:", TERM_YELLOW);
 	if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Undead:", TERM_YELLOW);
@@ -3616,7 +3616,7 @@ static bool change_class(int cmd)
 		break;
 	}
 
-	if (p_ptr->pclass == new_class)
+	if (pclass_is_(new_class))
 	{
 #ifdef JP
 		msg_format("あなたはすでに%sです。", c_name + cp_ptr->name);
@@ -4135,10 +4135,13 @@ static bool research_mon(void)
 
 static bool calc_cost(object_type *dest_ptr, object_type *src_ptr)
 {
-	int price = 0;
+	s32b tmp_cost = 0, price = 0;
 
-	price += k_info[dest_ptr->k_idx].cost + flag_cost(dest_ptr);
-	price += k_info[src_ptr->k_idx].cost + flag_cost(src_ptr);
+	tmp_cost += object_value_real(dest_ptr);
+	tmp_cost += object_value_real(src_ptr);
+	tmp_cost *=3; tmp_cost /= 2;
+
+	price = MAX(tmp_cost, 50000);
 
 	/* Check if the player has enough money */
 	if (p_ptr->au_sum < price)
@@ -4291,9 +4294,12 @@ static void merge_flags2(object_type * dest_ptr, object_type * src_ptr)
 	else if (have_flag(mflgs, TR_EXTRA_VORPAL)) add_flag(src_ptr->art_flags, TR_EXTRA_VORPAL);
 	else if (have_flag(mflgs, TR_VORPAL)) add_flag(src_ptr->art_flags, TR_VORPAL);
 
-	if ((have_flag(flgs1, TR_BLESSED)) && (have_flag(flgs2, TR_UNHOLY))) remove_flag(src_ptr->art_flags, TR_UNHOLY);
+	if ((have_flag(mflgs, TR_BLESSED)) && (have_flag(mflgs, TR_UNHOLY)))
+	{
+		remove_flag(src_ptr->art_flags, TR_BLESSED);
+		remove_flag(src_ptr->art_flags, TR_UNHOLY);
+	}
 	else if (have_flag(mflgs, TR_BLESSED)) add_flag(src_ptr->art_flags, TR_BLESSED);
-	if ((have_flag(flgs1, TR_UNHOLY)) && (have_flag(flgs2, TR_BLESSED))) remove_flag(src_ptr->art_flags, TR_BLESSED);
 	else if (have_flag(mflgs, TR_UNHOLY)) add_flag(src_ptr->art_flags, TR_UNHOLY);
 }
 
@@ -4457,7 +4463,7 @@ static cptr compose_name(int dest_name, int src_name)
 					new_name = "聖魔の";
 					break;
 				default:
-					new_name = "合成";
+					new_name = "聖なる";
 					break;
 			}
 			break;
@@ -4481,7 +4487,40 @@ static cptr compose_name(int dest_name, int src_name)
 			}
 			break;
 		default:
-			new_name = "合成";
+			switch (src_name)
+			{
+				case EGO_HA:
+					new_name = "(*聖戦者*)";
+					break;
+				case EGO_DF:
+					new_name = "(*防衛者*)";
+					break;
+				case EGO_ISHTALLE:
+				case EGO_KILL_EVIL:
+					new_name = "聖なる";
+					break;
+				case EGO_KILL_GOOD:
+				case EGO_ASMODE:
+				case EGO_MORGUL:
+				case EGO_NETHERWORLD:
+					new_name = "(魔戦士)";
+					break;
+				case EGO_PERMANENCE:
+					new_name = "永続の";
+					break;
+				case EGO_ARCH_MAGI:
+					new_name = "大魔術師の";
+					break;
+				case EGO_BALANCE:
+					new_name = "均衡の";
+					break;
+				case EGO_POWER:
+					new_name = "完全耐性の";
+					break;
+				default:
+					new_name = "合成";
+					break;
+			}
 			break;
 	}
 
@@ -4517,12 +4556,17 @@ static bool composite_item(void)
 	int src_item, dest_item;
 	bool is_armor = FALSE;
 
-	object_type *src_ptr, *dest_ptr;
-	object_type tmp_obj;
+	object_type *src_ptr, *dest_ptr, *q_ptr;
+	object_type tmp_src, tmp_dest, forge;
+
+	bool erase_src = FALSE;
 
 	cptr q, s;
 
 	item_tester_hook = item_tester_composite;
+
+	/* Get local object */
+	q_ptr = &forge;
 
 	/* Get an item */
 #ifdef JP
@@ -4535,7 +4579,19 @@ static bool composite_item(void)
 	if (!get_item(&src_item, q, s, (USE_EQUIP | USE_INVEN)))
 		return FALSE;
 
-	src_ptr = &inventory[src_item];
+	if (inventory[src_item].number > 1)
+	{
+		erase_src = TRUE;
+
+		object_copy(&tmp_src, &inventory[src_item]);
+
+		tmp_src.number = 1;
+
+		src_ptr = &tmp_src;
+	}
+	else
+		src_ptr = &inventory[src_item];
+
 	if (object_is_armour(src_ptr)) is_armor = TRUE;
 
 	if (is_armor) item_tester_tval = src_ptr->tval;
@@ -4552,7 +4608,7 @@ static bool composite_item(void)
 	if (!get_item(&dest_item, q, s, (USE_EQUIP | USE_INVEN)))
 		return FALSE;
 
-	if (src_item == dest_item)
+	if ((src_item == dest_item) && (inventory[src_item].number < 2))
 	{
 #ifdef JP
 		msg_print("それ自身には合成できない");
@@ -4561,13 +4617,14 @@ static bool composite_item(void)
 #endif
 		return FALSE;
 	}
+
 	if (inventory[dest_item].number > 1)
 	{
-		object_copy(&tmp_obj, &inventory[dest_item]);
+		object_copy(&tmp_dest, &inventory[dest_item]);
 
-		tmp_obj.number = 1;
+		tmp_dest.number = 1;
 
-		dest_ptr = &tmp_obj;
+		dest_ptr = &tmp_dest;
 	}
 	else
 		dest_ptr = &inventory[dest_item];
@@ -4583,6 +4640,9 @@ static bool composite_item(void)
 	}
 
 	if (!calc_cost(dest_ptr, src_ptr)) return FALSE;
+
+	/* Create the composed object */
+	object_prep(q_ptr, src_ptr->k_idx);
 
 	merge_flags1(dest_ptr, src_ptr);
 	merge_flags2(dest_ptr, src_ptr);
@@ -4604,9 +4664,23 @@ static bool composite_item(void)
 	dest_ptr->number = 1;
 
 	/* Handle the case of there having been more than one copy
-	 * of the destination object. */
+	 * of the source / destination object. */
 	inven_item_increase(dest_item, -1);
 	inven_item_optimize(dest_item);
+
+	if (erase_src)
+	{
+		/* Paranoia. This should never be needed. If it is, the weight
+		 * gets screwed up. */
+		src_ptr->number = 1;
+
+		inven_item_increase(src_item, -1);
+		inven_item_optimize(src_item);
+
+		object_copy(q_ptr, src_ptr);
+
+		(void)inven_carry(q_ptr);
+	}
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

@@ -539,7 +539,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 		if (f6 & RF6_DARKNESS)
 		{
-			bool vs_vampire = (p_ptr->pclass == CLASS_VAMPIRE) && !is_hostile(t_ptr);
+			bool vs_vampire = (pclass_is_(CLASS_VAMPIRE) && !is_hostile(t_ptr));
 		
 			if (vs_vampire && !(r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
 				can_use_lite_area = TRUE;

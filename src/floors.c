@@ -1495,7 +1495,7 @@ void change_floor(void)
 	}
 
 	/* Hack -- Munchkin characters always get whole map */
-	if (easy_band) wiz_lite((bool)((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)));
+	if (easy_band) wiz_lite((bool)pclass_is_(CLASS_VAMPIRE));
 
 	if (p_ptr->inside_quest) sound(SOUND_ENCOUNT);
 

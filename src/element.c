@@ -707,7 +707,7 @@ void do_cmd_element(void)
 			take_hit(DAMAGE_LOSELIFE, damroll(1, elem_cost / 3), "元素エネルギーの逆流");
 #else
 			msg_print("Elemental power unleashes its power in an uncontrollable storm!");
-			take_hit(DAMAGE_LOSELIFE, damroll(o_ptr->sval + 1, 6), "a miscast elemental spell");
+			take_hit(DAMAGE_LOSELIFE, damroll(1, elem_cost / 3), "a miscast elemental spell");
 #endif
 			/* Redraw hp */
 			p_ptr->redraw |= (PR_HP);

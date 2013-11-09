@@ -1769,13 +1769,13 @@ bool make_attack_spell(int m_idx)
 
 	if (f6 & RF6_DARKNESS)
 	{
-		if ((p_ptr->pclass == CLASS_VAMPIRE) &&
+		if (pclass_is_(CLASS_VAMPIRE) &&
 		    !(r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
 			can_use_lite_area = TRUE;
 
 		if (!(r_ptr->flags2 & RF2_STUPID))
 		{
-			if ((p_ptr->pclass == CLASS_VAMPIRE) && !can_use_lite_area) f6 &= ~(RF6_DARKNESS);
+			if (pclass_is_(CLASS_VAMPIRE) && !can_use_lite_area) f6 &= ~(RF6_DARKNESS);
 		}
 	}
 
@@ -4009,7 +4009,7 @@ bool make_attack_spell(int m_idx)
 
 							if (cave[py][px].feat != FEAT_AIR)
 							{
-								if (p_ptr->ffall)
+								if (p_ptr->levitation)
 								{
 #ifdef JP
 									msg_print("あなたは静かに着地した。");

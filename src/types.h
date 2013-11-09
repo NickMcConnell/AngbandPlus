@@ -732,7 +732,7 @@ typedef struct owner_type owner_type;
 
 struct owner_type
 {
-	cptr owner_name;	/* Name */
+	u32b owner_name;	/* Name */
 
 	s32b max_cost;		/* Purse limit */
 
@@ -742,8 +742,6 @@ struct owner_type
 	byte haggle_per;	/* Haggle unit */
 
 	byte insult_max;	/* Insult limit */
-
-	byte owner_race;	/* Owner race */
 };
 
 
@@ -1327,7 +1325,7 @@ struct player_type
 	u32b cursed;            /* Player is cursed */
 
 	bool can_swim;		/* No damage falling */
-	bool ffall;		/* No damage falling */
+	bool levitation;		/* No damage falling */
 	bool lite;		/* Permanent light */
 	bool free_act;		/* Never paralyzed */
 	bool see_inv;		/* Can see invisible */

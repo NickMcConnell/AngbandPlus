@@ -2179,6 +2179,10 @@ void player_birth(void)
 		}
 	}
 
+	/* Init shop of Lost Island */
+	store_init(NO_TOWN, STORE_BLACK);
+
+
 	/* Generate the random seeds for the wilderness */
 	seed_wilderness();
 

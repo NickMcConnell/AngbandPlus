@@ -342,6 +342,39 @@ static void do_cmd_eat_food_aux(int item)
 
 				break;
 			}
+			case SV_FOOD_WONDER_EGG:
+			{
+				switch (randint1(3))
+				{
+					case 1:
+					{
+						int r_idx = MON_EGG_BASE + 5 * randint0(4) + randint0(3);
+						egg_summoned = summon_named_creature(-1, py, px, r_idx, PM_FORCE_PET);
+						if (egg_summoned) break;
+						/* Fall through */
+					}
+					case 2:
+#ifdef JP
+						msg_print("美味い。");
+#else
+						msg_print("That tastes good.");
+#endif
+						break;
+					default:
+#ifdef JP
+						msg_print("腐っている!");
+#else
+						msg_print("It's rotten!");
+#endif
+						(void)set_paralyzed(p_ptr->paralyzed + 4);
+						(void)set_poisoned(p_ptr->poisoned + randint0(15) + 10);
+
+						if (!(p_ptr->muta3 & MUT3_WART_SKIN)) gain_random_mutation(165, FALSE);
+						if (!(p_ptr->muta2 & MUT2_WASTING)) gain_random_mutation(105, FALSE);
+						break;
+				}
+				break;
+			}
 		}
 	}
 
@@ -394,7 +427,7 @@ static void do_cmd_eat_food_aux(int item)
 		msg_print("The food is non-sustenance for you.");
 #endif
 	}
-	else if (p_ptr->pclass == CLASS_VAMPIRE)
+	else if (pclass_is_(CLASS_VAMPIRE))
 	{
 		/* Reduced nutritional benefit */
 		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
@@ -1100,7 +1133,7 @@ static void do_cmd_quaff_potion_aux(int item)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
 	/* Potions can feed the player */
-	if (p_ptr->pclass == CLASS_VAMPIRE) set_food(p_ptr->food + o_ptr->pval / 10);
+	if (pclass_is_(CLASS_VAMPIRE)) set_food(p_ptr->food + o_ptr->pval / 10);
 	else if (!p_ptr->no_digest) set_food(p_ptr->food + o_ptr->pval);
 }
 
@@ -2234,7 +2267,10 @@ static int staff_effect(int sval, bool *use_charge, bool known)
 #endif
 			project(0, 5, py, px,
 				(randint1(200) + 300) * 2, GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID, MODIFY_ELEM_MODE_MAGIC);
-			if ((p_ptr->pclass != CLASS_WIZARD) && (p_ptr->pclass != CLASS_WARLOCK) && (p_ptr->pclass != CLASS_ARCHMAGE) && (p_ptr->pclass != CLASS_WITCH) && (p_ptr->pclass != CLASS_SIRENE) && (p_ptr->pclass != CLASS_LICH) && (p_ptr->pclass != CLASS_HIGHWITCH))
+			if (!pclass_is_(CLASS_WIZARD) && !pclass_is_(CLASS_WARLOCK) && 
+				!pclass_is_(CLASS_WITCH) && !pclass_is_(CLASS_SIRENE) && 
+				!pclass_is_(CLASS_LICH) && !pclass_is_(CLASS_HIGHWITCH) &&
+				!pclass_is_(CLASS_ARCHMAGE) && !pclass_is_(CLASS_SUCCUBUS))
 			{
 #ifdef JP
 				(void)take_hit(DAMAGE_NOESCAPE, 50, "コントロールし難い強力な魔力の解放");
@@ -2337,7 +2373,7 @@ static void do_cmd_use_staff_aux(int item)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE) || (p_ptr->pclass == CLASS_TERRORKNIGHT))
+	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE) || pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT))
 	{
 		if (flush_failure) flush();
 #ifdef JP
@@ -2879,7 +2915,7 @@ static void do_cmd_aim_wand_aux(int item)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE) || (p_ptr->pclass == CLASS_TERRORKNIGHT))
+	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE) || pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT))
 	{
 		if (flush_failure) flush();
 #ifdef JP
@@ -3332,7 +3368,7 @@ static void do_cmd_zap_rod_aux(int item)
 		return;
 	}
 
-	if (p_ptr->pclass == CLASS_TERRORKNIGHT) success = FALSE;
+	if (pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) success = FALSE;
 	else if (chance > fail)
 	{
 		if (randint0(chance*2) < fail) success = FALSE;

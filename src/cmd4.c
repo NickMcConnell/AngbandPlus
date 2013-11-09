@@ -12,7 +12,7 @@
 
 #include "angband.h"
 
-static char T_BUILD[] = "build:2004-10-21";
+static char T_BUILD[] = "build:2004-12-24";
 
 /*
  *  mark strings for auto dump

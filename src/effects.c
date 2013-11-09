@@ -2243,7 +2243,7 @@ bool set_tim_sh_aura(int v, bool do_dec)
 	p_ptr->tim_sh_aura = v;
 
 	/* Redraw status bar */
-	p_ptr->redraw |= (PR_SPEED | PR_STATUS | PR_ARMOR | PR_HP);
+	p_ptr->redraw |= (PR_SPEED | PR_STATUS | PR_ARMOR | PR_HP | PR_MANA);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2255,7 +2255,7 @@ bool set_tim_sh_aura(int v, bool do_dec)
 	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_VIEW | PU_LITE | PU_MON_LITE);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER | PW_SPELL);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -3297,7 +3297,7 @@ bool set_stun(int v)
 
 	if (p_ptr->is_dead) return FALSE;
 
-	if ((p_ptr->pclass == CLASS_TERRORKNIGHT) && (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34)) v = 0;
+	if ((pclass_is_(CLASS_TERRORKNIGHT) && (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34)) || pclass_is_(CLASS_RELICSKNIGHT)) v = 0;
 
 	old_aux = stun_level(p_ptr->stun);
 	new_aux = stun_level(v);

@@ -1182,19 +1182,19 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 
 	if (leave_special)
 	{
-		if ((p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_CRESCENT))
+		if (pclass_is_(CLASS_ARCHER) || pclass_is_(CLASS_CRESCENT))
 		{
 			if (object_is_convertible(o_ptr))
 				return FALSE;
 		}
 
-		else if (p_ptr->pclass == CLASS_GUNNER)
+		else if (pclass_is_(CLASS_GUNNER))
 		{
 			if (object_is_metal(o_ptr))
 				return FALSE;
 		}
 
-		else if ((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_VAMPIRE))
+		else if (pclass_is_(CLASS_LICH) || pclass_is_(CLASS_VAMPIRE))
 		{
 			if ((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_UNHOLY_WEAPON))
 				return FALSE;

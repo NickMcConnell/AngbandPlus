@@ -223,12 +223,13 @@ void self_knowledge(void)
 	}
 	}
 
-	if ((p_ptr->pclass != CLASS_TERRORKNIGHT)
-		&& (p_ptr->pclass != CLASS_SWORDMASTER)
-		&& (p_ptr->pclass != CLASS_NINJA)
-		&& (p_ptr->pclass != CLASS_NINJAMASTER)
-		&& (p_ptr->pclass != CLASS_VAMPIRE)
-		&& (p_ptr->pclass != CLASS_SUCCUBUS))
+	if (!pclass_is_(CLASS_TERRORKNIGHT)
+		&& !pclass_is_(CLASS_SWORDMASTER)
+		&& !pclass_is_(CLASS_NINJA)
+		&& !pclass_is_(CLASS_NINJAMASTER)
+		&& !pclass_is_(CLASS_VAMPIRE)
+		&& !pclass_is_(CLASS_SUCCUBUS)
+		&& !pclass_is_(CLASS_RELICSKNIGHT))
 	{
 #ifdef JP
 		info[i++] = "あなたは小石を投げることができる。(コスト: 0)";
@@ -237,8 +238,8 @@ void self_knowledge(void)
 #endif
 	}
 
-	if ((((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_VALKYRIE)) && (clev > 9))
-		|| (p_ptr->pclass == CLASS_GENERAL))
+	if (((pclass_is_(CLASS_KNIGHT) || pclass_is_(CLASS_VALKYRIE)) && (clev > 9))
+		|| pclass_is_(CLASS_GENERAL))
 		
 	{
 #ifdef JP
@@ -248,10 +249,10 @@ void self_knowledge(void)
 #endif
 	}
 
-	if (((p_ptr->pclass == CLASS_WIZARD)
-		|| (p_ptr->pclass == CLASS_SIRENE)
-		|| (p_ptr->pclass == CLASS_LICH)
-		|| (p_ptr->pclass == CLASS_HIGHWITCH))
+	if ((pclass_is_(CLASS_WIZARD)
+		|| pclass_is_(CLASS_SIRENE)
+		|| pclass_is_(CLASS_LICH)
+		|| pclass_is_(CLASS_HIGHWITCH))
 		&& (clev > 24))
 	{
 #ifdef JP
@@ -388,6 +389,21 @@ void self_knowledge(void)
 				info[i++] = "あなたは死体や岩からゴーレムを製造できる。(コスト: 30)";
 			}
 			break;
+		case CLASS_ENIGMAHUNTER:
+			info[i++] = "あなたは鞭を使った遠隔攻撃が出来る。";
+			if (clev > 5)
+			{
+				info[i++] = "あなたは神に祈りを捧げて祝福を得る事が出来る。(コスト: 15)";
+			}
+			if (clev > 24)
+			{
+				info[i++] = "あなたは邪悪なモンスターに強力な一撃を与える事が出来る。(コスト: 35)";
+			}
+			if (clev > 41)
+			{
+				info[i++] = "あなたは周りの邪悪な生き物を退散させる事が出来る。。(コスト: 80)";
+			}
+			/* Fall through */
 		case CLASS_EXORCIST:
 #ifdef JP
 			info[i++] = "あなたはアンデッドに対して神聖なる力を発揮する。";
@@ -581,6 +597,36 @@ void self_knowledge(void)
 				info[i++] = "あなたは精神を集中してＭＰを回復させることができる。(0 MP)";
 #else
 				info[i++] = "You can concentrate to regenerate your mana (cost 0).";
+#endif
+			}
+			break;
+		case CLASS_RELICSKNIGHT:
+			info[i++] = "あなたは生命のあるモンスターを感知できる。(コスト: 1)";
+			info[i++] = "あなたは大きな石を投げつけることができる。(コスト: 2)";
+			if (clev > 14)
+			{
+				info[i++] = "あなたは複数の敵対する幽霊を召喚できる。(コスト: 20)";
+			}
+			if (clev > 21)
+			{
+				info[i++] = "あなたは地震を起こすことができる。(コスト: 10)";
+			}
+			if (clev > 29)
+			{
+				info[i++] = "あなたは隣接する全方向に攻撃することができる。(コスト: 20)";
+			}
+			if (clev > 34)
+			{
+				info[i++] = "あなたは空腹を満たすことができる。(コスト: 6)";
+			}
+			break;
+		case CLASS_RANGER:
+			if (plev > 14)
+			{
+#ifdef JP
+				info[i++] = "あなたは怪物を調査することができる。(20 MP)";
+#else
+				info[i++] = "You can prove monsters (cost 20).";
 #endif
 			}
 			break;
@@ -1805,7 +1851,7 @@ void self_knowledge(void)
 #endif
 
 	}
-	if (p_ptr->ffall)
+	if (p_ptr->levitation)
 	{
 #ifdef JP
 		info[i++] = "あなたは飛ぶことができる。";
@@ -2232,7 +2278,7 @@ void self_knowledge(void)
 
 	}
 
-	if (WRAITH_FORM() || p_ptr->evil_equip || (p_ptr->pclass == CLASS_VAMPIRE))
+	if (WRAITH_FORM() || p_ptr->evil_equip || pclass_is_(CLASS_VAMPIRE))
 	{
 #ifdef JP
 		info[i++] = "あなたは暗黒に対する完全なる免疫を持っている。";
@@ -8253,7 +8299,7 @@ void knock_back(int who, int y, int x, int base_dam)
 			}
 			if (do_player)
 			{
-				if (!p_ptr->ffall)
+				if (!p_ptr->levitation)
 				{
 					fall_into_air();
 					return;
@@ -8441,11 +8487,7 @@ int mod_element_damage(int dam, int rad, u32b use_element, u32b weather_effect)
 		/* None left */
 		temp_n = 0;
 
-		if (elem_mod < 0) tmp_dam = tmp_dam * rad / 1 + ((0 - elem_mod) / 50);
-		else
-		{
-			tmp_dam += tmp_dam * elem_mod / (200 * rad);
-		}
+		dam += tmp_dam * elem_mod / (500 * rad);
 	}
 
 	if (weather_effect)
@@ -8459,10 +8501,10 @@ int mod_element_damage(int dam, int rad, u32b use_element, u32b weather_effect)
 		if (weather_effect & EFFECT_COLD) weather_mod += 7 - weather[WEATHER_TEMP];
 		if (weather_effect & EFFECT_HOT) weather_mod += weather[WEATHER_TEMP] - 7;
 
-		tmp_dam += tmp_dam * weather_mod / 10;
+		dam += tmp_dam * weather_mod / 10;
 	}
 
-	if (tmp_dam < 0) tmp_dam = 0;
-	return (tmp_dam);
+	if (dam < 0) dam = 0;
+	return (dam);
 }
 

@@ -293,6 +293,7 @@ header m_head;
 header p_head;
 header c_head;
 header h_head;
+header ow_head;
 
 #ifndef MAC_MPW
 #ifdef CHECK_MODIFICATION_TIME
@@ -887,6 +888,25 @@ static errr init_h_info(void)
 	                 (void*)&h_info, NULL, (void*)&h_text);
 }
 
+
+/*
+ * Initialize the "ow_info" array
+ */
+static errr init_ow_info(void)
+{
+	/* Init the header */
+	init_header(&ow_head, max_h_idx, sizeof(owner_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	ow_head.parse_info_txt = parse_ow_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("ow_info", &ow_head,
+	                 (void*)&ow_info, (void*)&ow_name, (void*)&ow_text);
+}
 
 
 /*** Initialize others ***/
@@ -2373,6 +2393,15 @@ void init_angband(void)
 #else
 	note("[Initializing arrays... (histories)]");
 	if (init_h_info()) quit("Cannot initialize histories");
+#endif
+
+	/* Initialize owner info */
+#ifdef JP
+	note("[データの初期化中... (店主)]");
+	if (init_ow_info()) quit("店主初期化不能");
+#else
+	note("[Initializing arrays... (owners)]");
+	if (init_ow_info()) quit("Cannot initialize owners");
 #endif
 
 	/* Initialize wilderness array */

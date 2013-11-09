@@ -158,10 +158,10 @@ void check_class_experience(void)
 			tmp32s = rand_spread(cp_ptr->c_mhp, 1);
 			p_ptr->class_hp[p_ptr->pclass][cexp_ptr->max_clev - 1] = MAX(tmp32s, 0);
 
-			if (p_ptr->pclass != CLASS_GUNNER)
+			if (!pclass_is_(CLASS_GUNNER))
 			{
 				tmp32s = rand_spread(cp_ptr->c_msp, 1);
-				if (p_ptr->pclass == CLASS_TERRORKNIGHT)
+				if (pclass_is_(CLASS_TERRORKNIGHT))
 				{
 					p_ptr->class_sp[p_ptr->pclass][cexp_ptr->max_clev - 1] -= MAX(tmp32s, 0);
 				}
@@ -797,6 +797,7 @@ void check_quest_completion(monster_type *m_ptr)
 					{
 						misc_event_flags |= EVENT_LIBERATION_OF_ARMORICA;
 						r_info[MON_RONWE].max_num = 1;
+						p_ptr->visit &= ~(1L << (TOWN_BARMAMUTHA - 1));
 					}
 
 					/* Finish the main quests without rewarding */
@@ -1174,7 +1175,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 	}
 
 	/* Drop a dead corpse? */
-	if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) &&
+	if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) && (dungeon_type != DUNGEON_ELEM_CAVE) &&
 	    (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) &&
 	    !is_stoned && !(p_ptr->inside_arena || cloned || (!astral_mode && (m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
 	{
@@ -1487,21 +1488,6 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 	{
 		if (m_ptr->r_idx == MON_DOLGARUA)
 		{
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Mega-Hack -- Prepare to make "Grond" */
-			object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_GROND));
-
-			/* Mega-Hack -- Mark this item as "Grond" */
-			q_ptr->name1 = ART_GROND;
-
-			/* Mega-Hack -- Actually create "Grond" */
-			apply_magic(q_ptr, -1, AMF_OKAY | AMF_GOOD | AMF_GREAT);
-
-			/* Drop it in the dungeon */
-			(void)drop_near(q_ptr, -1, y, x);
-
 			/* Get local object */
 			q_ptr = &forge;
 
@@ -2244,8 +2230,8 @@ void get_exp_from_mon(int dam, monster_type *m_ptr)
 		}
 
 		/* Gain experience */
-		gain_class_exp(get_exp_from_mon_aux(dam, m_ptr, total_max_clev, &cexp_ptr->cexp_frac));
-		gain_racial_exp(get_exp_from_mon_aux(dam, m_ptr, p_ptr->max_plv, &p_ptr->exp_frac));
+		gain_class_exp(get_exp_from_mon_aux(dam, m_ptr, total_max_clev + 10 * p_ptr->reincarnate_cnt, &cexp_ptr->cexp_frac));
+		gain_racial_exp(get_exp_from_mon_aux(dam, m_ptr, p_ptr->max_plv + 10 * p_ptr->reincarnate_cnt, &p_ptr->exp_frac));
 	}
 }
 
@@ -2577,8 +2563,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 
 		if (!p_ptr->inside_arena && !(m_ptr->smart1 & SM1_CLONED))
 		{
-			int kill_temple = ((p_ptr->pclass == CLASS_TEMPLEKNIGHT) && (r_ptr->flags3 & RF3_TEMPLE)) ? 2 : 1;
-			int kill_zenobian_forces = ((p_ptr->pclass == CLASS_WHITEKNIGHT) && (r_ptr->flags7 & RF7_ZENOBIAN_FORCES)) ? 2 : 1;
+			int kill_temple = (pclass_is_(CLASS_TEMPLEKNIGHT) && (r_ptr->flags3 & RF3_TEMPLE)) ? 2 : 1;
+			int kill_zenobian_forces = (pclass_is_(CLASS_WHITEKNIGHT) && (r_ptr->flags7 & RF7_ZENOBIAN_FORCES)) ? 2 : 1;
 
 			/* Alignment change */
 			if (r_ptr->d_char == 't')
@@ -2635,7 +2621,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, -10);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, -40 * kill_zenobian_forces);
 					change_chaos_frame(ETHNICITY_LODIS, 40);
-					if (p_ptr->pclass == CLASS_WHITEKNIGHT) expire_current_class();
+					if (pclass_is_(CLASS_WHITEKNIGHT)) expire_current_class();
 					break;
 
 				case MON_RONWE:
@@ -2668,7 +2654,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, -5);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, -20 * kill_zenobian_forces);
 					change_chaos_frame(ETHNICITY_LODIS, 20);
-					if (p_ptr->pclass == CLASS_WHITEKNIGHT) expire_current_class();
+					if (pclass_is_(CLASS_WHITEKNIGHT)) expire_current_class();
 					break;
 
 				case MON_LEONARD:
@@ -2699,7 +2685,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, -5);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, 20);
 					change_chaos_frame(ETHNICITY_LODIS, -20 * kill_temple);
-					if (p_ptr->pclass == CLASS_TEMPLEKNIGHT) expire_current_class();
+					if (pclass_is_(CLASS_TEMPLEKNIGHT)) expire_current_class();
 					break;
 
 				case MON_BERSALIA:
@@ -2714,7 +2700,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, -10);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, 40);
 					change_chaos_frame(ETHNICITY_LODIS, -40 * kill_temple);
-					if (p_ptr->pclass == CLASS_TEMPLEKNIGHT) expire_current_class();
+					if (pclass_is_(CLASS_TEMPLEKNIGHT)) expire_current_class();
 					break;
 
 				case MON_DOLGARUA:
@@ -2751,12 +2737,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 				if (r_ptr->flags2 & RF2_LODIS) change_chaos_frame(ETHNICITY_LODIS, -1 * kill_temple);
 			}
 
-			if ((p_ptr->pclass == CLASS_TEMPLEKNIGHT) && (r_ptr->flags7 & RF7_ZENOBIAN_FORCES))
+			if (pclass_is_(CLASS_TEMPLEKNIGHT) && (r_ptr->flags7 & RF7_ZENOBIAN_FORCES))
 			{
 				change_chaos_frame(ETHNICITY_ZENOBIAN, -10);
 				change_chaos_frame(ETHNICITY_LODIS, 10);
 			}
-			if ((p_ptr->pclass == CLASS_WHITEKNIGHT) && (r_ptr->flags3 & RF3_TEMPLE))
+			if (pclass_is_(CLASS_WHITEKNIGHT) && (r_ptr->flags3 & RF3_TEMPLE))
 			{
 				change_chaos_frame(ETHNICITY_ZENOBIAN, 10);
 				change_chaos_frame(ETHNICITY_LODIS, -10);
@@ -5722,6 +5708,7 @@ bool activate_tarot_power(int effect)
 #endif
 
 			change_your_alignment(ALI_GNE, -5);
+			curse_equipment(40, 20);
 
 			if (p_ptr->chp > (p_ptr->mhp / 5))
 			{
@@ -6869,7 +6856,7 @@ void process_chaos_frame(int ethnic)
 	case ETHNICITY_ZENOBIAN:
 		if (!astral_mode)
 		{
-			if (p_ptr->pclass == CLASS_WHITEKNIGHT)
+			if (pclass_is_(CLASS_WHITEKNIGHT))
 			{
 				if (chaos_frame[ethnic] < 0) expire_current_class();
 			}
@@ -6879,7 +6866,7 @@ void process_chaos_frame(int ethnic)
 	case ETHNICITY_LODIS:
 		if (!astral_mode)
 		{
-			if (p_ptr->pclass == CLASS_TEMPLEKNIGHT)
+			if (pclass_is_(CLASS_TEMPLEKNIGHT))
 			{
 				if (chaos_frame[ethnic] < 0) expire_current_class();
 			}
@@ -7328,7 +7315,11 @@ int modify_dam_by_elem(int a_who, int d_who, int dam, int typ, int mode)
 
 	ret_dam = dam * (((100 + ra - rd) > 0) ? (100 + ra - rd) : 0) / 100;
 
-	if (p_ptr->resist_all && !d_who) ret_dam = ret_dam * 4 / 7;
+	if (p_ptr->resist_all && !d_who)
+	{
+		ret_dam *= 6;
+		ret_dam /= (randint1(4) + 7);
+	}
 
 	if (p_ptr->wizard && show_damage && see_a && see_d)
 	{
@@ -7532,6 +7523,15 @@ bool can_choose_class(byte new_class, byte mode)
 		case CLASS_ELEMENTALER:
 			if (total_max_clev > 75) return FALSE;
 			break;
+		case CLASS_RELICSKNIGHT:
+			if (!prace_is_(RACE_GOBLIN)) return FALSE;
+			if (get_your_alignment_gne() != ALIGN_GNE_EVIL) return FALSE;
+			break;
+		case CLASS_ENIGMAHUNTER:
+			if (p_ptr->cexp_info[CLASS_AMAZONESS].clev < 34) return FALSE;
+			if (!(inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_SILVER_CROSS))) return FALSE;
+			if (get_your_alignment_gne() != ALIGN_GNE_GOOD) return FALSE;
+			break;
 		}
 		break;
 
@@ -7555,12 +7555,12 @@ bool can_choose_class(byte new_class, byte mode)
 		{
 		case CLASS_LICH:
 			/* Magic-user classes only */
-			if ((p_ptr->pclass != CLASS_WIZARD)
-				&& (p_ptr->pclass != CLASS_WARLOCK)
-				&& (p_ptr->pclass != CLASS_EXORCIST)
-				&& (p_ptr->pclass != CLASS_ARCHMAGE)
-				&& (p_ptr->pclass != CLASS_SIRENE)
-				&& (p_ptr->pclass != CLASS_WITCH))
+			if (!pclass_is_(CLASS_WIZARD)
+				&& !pclass_is_(CLASS_WARLOCK)
+				&& !pclass_is_(CLASS_EXORCIST)
+				&& !pclass_is_(CLASS_ARCHMAGE)
+				&& !pclass_is_(CLASS_SIRENE)
+				&& !pclass_is_(CLASS_WITCH))
 				return FALSE;
 			break;
 
@@ -7614,7 +7614,7 @@ bool can_choose_class(byte new_class, byte mode)
 			break;
 
 		case CLASS_SUCCUBUS:
-			if (p_ptr->pclass != CLASS_WITCH) return FALSE;
+			if (!pclass_is_(CLASS_WITCH)) return FALSE;
 			if (rp_ptr->r_flags & PRF_UNDEAD) return FALSE;
 			break;
 		}

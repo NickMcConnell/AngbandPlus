@@ -16,7 +16,7 @@ M:WY:66
 M:R:968
 
 # Maximum number of items in k_info.txt
-M:K:578
+M:K:580
 
 # Maximum number of vaults in v_info.txt
 M:V:129
@@ -43,8 +43,11 @@ M:M:1024
 M:P:14
 
 # Maximum number of player classes
-M:C:36
+M:C:39
 
 # Maximum number of player history lines
 M:H:300
+
+# Maximun number of shop owner lines
+M:B:289
 

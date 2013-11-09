@@ -1640,6 +1640,7 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 			case SV_FOOD_BIG_EGG:
 			case SV_FOOD_SPECIAL_EGG:
 			case SV_FOOD_ROTTEN_EGG:
+			case SV_FOOD_WONDER_EGG:
 				/* Never okay */
 				return FALSE;
 			default:
@@ -2643,6 +2644,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					if (o_ptr->name2 == EGO_HA || o_ptr->name2 == EGO_BLESS_BLADE || o_ptr->name2 == EGO_ISHTALLE)
 					{
 						if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) continue;
+						if (o_ptr->tval == TV_HAFTED && (o_ptr->sval == SV_MIGHTY_HAMMER)) continue;
 					}
 					if (o_ptr->name2 == EGO_SHOOTING_STAR)
 					{
@@ -2695,7 +2697,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					switch (randint1(3))
 					{
 						case 1:
-							if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD))
+							if ((o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) ||
+								(o_ptr->tval == TV_HAFTED && (o_ptr->sval == SV_MIGHTY_HAMMER)))
+
 							{
 								add_flag(o_ptr->art_flags, TR_UNHOLY);
 								add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
@@ -4419,6 +4423,8 @@ static void a_m_aux_4(object_type *o_ptr, int power)
 			/* Pick a random non-unique monster race */
 			while (1)
 			{
+				if (dungeon_type == DUNGEON_ELEM_CAVE) break;
+
 				i = get_mon_num(dun_level);
 
 				r_ptr = &r_info[i];
@@ -4561,7 +4567,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b am_flags)
 	if (f1 > d_info[dungeon_type].obj_good) f1 = d_info[dungeon_type].obj_good;
 
 	/* Base chance of being "great" */
-	f2 = (d_info[dungeon_type].flags1 & DF1_VAULT) ? f1 : f1 * 2 / 3;
+	f2 = f1 * 2 / 3;
 
 	/* Maximal chance of being "great" */
 	if (!easy_band && (f2 > d_info[dungeon_type].obj_great))
@@ -6979,14 +6985,14 @@ static void damcalc(int typ, int dam, int limit, int *max)
 
 	case GF_LITE:
 		if (p_ptr->resist_lite) dam = dam * 4 / 8;
-		if ((prace_is_(RACE_GREMLIN)) || (p_ptr->pclass == CLASS_VAMPIRE)) dam = dam * 4 / 3;
+		if (prace_is_(RACE_GREMLIN) || pclass_is_(CLASS_VAMPIRE)) dam = dam * 4 / 3;
 		if (p_ptr->ogre_equip) dam *= 2;
 		break;
 
 	case GF_DARK:
 		if (p_ptr->resist_dark) dam = dam * 4 / 8;
 		if (prace_is_(RACE_FAIRY)) dam = dam * 4 / 3;
-		if (p_ptr->pclass == CLASS_VAMPIRE) dam = 0;
+		if (pclass_is_(CLASS_VAMPIRE)) dam = 0;
 		if (WRAITH_FORM()) dam = 0;
 		break;
 

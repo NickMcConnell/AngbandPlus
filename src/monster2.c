@@ -2497,7 +2497,7 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	{
 		if (!monster_has_hostile_alignment(NULL, r_ptr)) set_friendly(m_ptr);
 	}
-	else if((p_ptr->pclass == CLASS_MEDIUM) &&
+	else if (pclass_is_(CLASS_MEDIUM) &&
 		 (r_ptr->d_char == 'q') &&
 		 !(r_ptr->flags3 & RF3_EVIL) &&
 		 !(r_ptr->flags1 & RF1_UNIQUE) &&
@@ -2510,14 +2510,14 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 
 	if (!p_ptr->inside_arena)
 	{
-		if (p_ptr->pclass == CLASS_TEMPLEKNIGHT)
+		if (pclass_is_(CLASS_TEMPLEKNIGHT))
 		{
 			if ((r_ptr->flags3 & RF3_TEMPLE) && !(r_ptr->flags1 & RF1_QUESTOR))
 			{
 				if ((who <= 0) && (is_hostile(m_ptr))) set_friendly(m_ptr);
 			}
 		}
-		else if (p_ptr->pclass == CLASS_WHITEKNIGHT)
+		else if (pclass_is_(CLASS_WHITEKNIGHT))
 		{
 			if ((r_ptr->flags7 & RF7_ZENOBIAN_FORCES) && !(r_ptr->flags1 & RF1_QUESTOR))
 			{

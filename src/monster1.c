@@ -826,19 +826,19 @@ static void roff_aux(int r_idx, int mode)
 			i = p_ptr->lev;
 			hooked_roff(format(" %lu レベルのキャラクタにとって", (long)i));
 
-			i = (long)r_ptr->mexp * r_ptr->level / (p_ptr->max_plv+2);
-			j = ((((long)r_ptr->mexp * r_ptr->level % (p_ptr->max_plv+2)) *
+			i = (long)r_ptr->mexp * r_ptr->level / (p_ptr->max_plv+2 + 10 * p_ptr->reincarnate_cnt);
+			j = ((((long)r_ptr->mexp * r_ptr->level % (p_ptr->max_plv+2 + 10 * p_ptr->reincarnate_cnt)) *
 			       (long)1000 / (p_ptr->max_plv+2) + 5) / 10);
 
 			hooked_roff(format(" 約%ld.%02ld ポイントの経験となる。",
 			        (long)i, (long)j ));
 #else
 			/* calculate the integer exp part */
-			i = (long)r_ptr->mexp * r_ptr->level / (p_ptr->max_plv+2);
+			i = (long)r_ptr->mexp * r_ptr->level / (p_ptr->max_plv+2 + 10 * p_ptr->reincarnate_cnt);
 
 			/* calculate the fractional exp part scaled by 100, */
 			/* must use long arithmetic to avoid overflow  */
-			j = ((((long)r_ptr->mexp * r_ptr->level % (p_ptr->max_plv+2)) *
+			j = ((((long)r_ptr->mexp * r_ptr->level % (p_ptr->max_plv+2 + 10 * p_ptr->reincarnate_cnt)) *
 			       (long)1000 / (p_ptr->max_plv+2) + 5) / 10);
 
 			/* Mention the experience */
@@ -1528,7 +1528,7 @@ static void roff_aux(int r_idx, int mode)
 
 	if (flags6 & (RF6_DARKNESS))
 	{
-		if ((p_ptr->pclass != CLASS_VAMPIRE) || (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
+		if (!pclass_is_(CLASS_VAMPIRE) || (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
 		{
 #ifdef JP
 			vp[vn] =  "暗闇"; color[vn++] = TERM_L_DARK;

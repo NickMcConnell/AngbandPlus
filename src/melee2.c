@@ -5024,7 +5024,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 
 	if (is_pet(m_ptr) || is_pet(n_ptr))
 	{
-		if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_HIGHWITCH) || (p_ptr->pclass == CLASS_LORD)) && one_in_(10))
+		if ((pclass_is_(CLASS_WITCH) || pclass_is_(CLASS_HIGHWITCH) || pclass_is_(CLASS_LORD)) && one_in_(10))
 		{
 			monster_type exp_mon;
 

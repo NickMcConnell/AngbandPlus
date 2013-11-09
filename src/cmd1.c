@@ -139,7 +139,7 @@ static s32b critical_norm(int weight, int plus, int dam, int meichuu, int mode)
 	i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
-	if ((randint1(((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) ? 4444 : 5000) <= i) || (mode == PY_ATTACK_3DAN))
+	if ((randint1((pclass_is_(CLASS_NINJA) || pclass_is_(CLASS_NINJAMASTER)) ? 4444 : 5000) <= i) || (mode == PY_ATTACK_3DAN))
 	{
 		k = weight + randint1(650);
 		if (mode == PY_ATTACK_3DAN) k+= randint1(650);
@@ -520,14 +520,13 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 			if (((have_flag(flgs, TR_SLAY_LIVING)) || (p_ptr->special_attack & (ATTACK_EVIL))) &&
 			    monster_living(r_ptr))
 			{
-				if (mult < 30) mult = 30;
+				if (mult < 20) mult = 20;
 			}
 
 			/* Execute Living */
-			if (((have_flag(flgs, TR_SLAY_LIVING)) || (p_ptr->special_attack & (ATTACK_EVIL))) &&
-			    monster_living(r_ptr))
+			if (have_flag(flgs, TR_KILL_LIVING) && monster_living(r_ptr))
 			{
-				if (mult < 50) mult = 50;
+				if (mult < 35) mult = 35;
 			}
 
 			/* Slay Human */
@@ -1329,7 +1328,7 @@ static void hit_trap(void)
 	{
 		case FEAT_TRAP_TRAPDOOR:
 		{
-			if (p_ptr->ffall)
+			if (p_ptr->levitation)
 			{
 #ifdef JP
 				msg_print("落し戸を飛び越えた。");
@@ -1406,7 +1405,7 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_PIT:
 		{
-			if (p_ptr->ffall)
+			if (p_ptr->levitation)
 			{
 #ifdef JP
 				msg_print("落し穴を飛び越えた。");
@@ -1437,7 +1436,7 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_SPIKED_PIT:
 		{
-			if (p_ptr->ffall)
+			if (p_ptr->levitation)
 			{
 #ifdef JP
 				msg_print("トゲのある落し穴を飛び越えた。");
@@ -1492,7 +1491,7 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_POISON_PIT:
 		{
-			if (p_ptr->ffall)
+			if (p_ptr->levitation)
 			{
 #ifdef JP
 				msg_print("トゲのある落し穴を飛び越えた。");
@@ -2251,14 +2250,14 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	int             num_blow;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	u32b            flgs[TR_FLAG_SIZE]; /* A massive hack -- life-draining weapons */
-	bool            dragoon_hit = ((p_ptr->pclass == CLASS_DRAGOON) && (r_ptr->flags3 & RF3_DRAGON));
+	bool            dragoon_hit = (pclass_is_(CLASS_DRAGOON) && (r_ptr->flags3 & RF3_DRAGON));
 
 
 	if (MON_STONING(m_ptr)) ac += MON_STONING(m_ptr) / 5;
 	if (mode == PY_ATTACK_PENET) penet_ac = ac;
 	else if (penet_ac) ac += penet_ac;
 
-	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand])
+	if ((pclass_is_(CLASS_NINJA) || pclass_is_(CLASS_NINJAMASTER)) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand])
 	{
 		if (MON_CSLEEP(m_ptr) && m_ptr->ml)
 		{
@@ -2299,7 +2298,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	/* Attack once for each legal blow */
 	while ((num++ < num_blow) && !p_ptr->is_dead)
 	{
-		if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && backstab) success_hit = TRUE;
+		if ((pclass_is_(CLASS_NINJA) || pclass_is_(CLASS_NINJAMASTER)) && backstab) success_hit = TRUE;
 		else success_hit = test_hit_norm(chance, ac, m_ptr->ml);
 
 		/* Test for hit */
@@ -2418,6 +2417,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				martial_arts *ma_ptr = &ma_blows[0], *old_ptr = &ma_blows[0];
 				int resist_stun = 0;
 				int weight = 8;
+				bool ma_msg = pclass_is_(CLASS_SUCCUBUS) ? FALSE : TRUE;
 
 				if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
 				if (r_ptr->flags3 & RF3_NO_STUN) resist_stun += 66;
@@ -2466,16 +2466,16 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (r_ptr->flags1 & RF1_MALE)
 					{
 #ifdef JP
-						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("%sに金的膝蹴りをくらわした！", m_name);
+						if (ma_msg) msg_format("%sに金的膝蹴りをくらわした！", m_name);
 #else
-						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("You hit %s in the groin with your knee!", m_name);
+						if (ma_msg) msg_format("You hit %s in the groin with your knee!", m_name);
 #endif
 
 						sound(SOUND_PAIN);
 						special_effect = MA_KNEE;
 					}
 					else
-						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format(ma_ptr->desc, m_name);
+						if (ma_msg) msg_format(ma_ptr->desc, m_name);
 				}
 
 				else if (ma_ptr->effect == MA_SLOW)
@@ -2484,14 +2484,14 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					    my_strchr("~#{}.UjmeEv$,DdsbBIJQSXclnw!=?", r_ptr->d_char)))
 					{
 #ifdef JP
-						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("%sの足首に関節蹴りをくらわした！", m_name);
+						if (ma_msg) msg_format("%sの足首に関節蹴りをくらわした！", m_name);
 #else
-						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("You kick %s in the ankle.", m_name);
+						if (ma_msg) msg_format("You kick %s in the ankle.", m_name);
 #endif
 
 						special_effect = MA_SLOW;
 					}
-					else if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format(ma_ptr->desc, m_name);
+					else if (ma_msg) msg_format(ma_ptr->desc, m_name);
 				}
 				else
 				{
@@ -2500,7 +2500,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
 					}
 
-					if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format(ma_ptr->desc, m_name);
+					if (ma_msg) msg_format(ma_ptr->desc, m_name);
 				}
 
 				k = critical_norm(p_ptr->lev * weight, p_ptr->lev, k, p_ptr->to_h[0], 0);
@@ -2712,7 +2712,8 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (k < 0) k = 0;
 
 			if ((mode == PY_ATTACK_MINEUCHI) ||
-				(o_ptr->k_idx && (o_ptr->name2 == EGO_EARTHQUAKES)))
+				(o_ptr->k_idx && (o_ptr->name2 == EGO_EARTHQUAKES)) ||
+				(pclass_is_(CLASS_RELICSKNIGHT) && (get_weapon_type(&k_info[o_ptr->k_idx]) == WT_HAMMER)))
 			{
 				int tmp = (10 + randint1(15) + p_ptr->lev / 5);
 
@@ -2755,13 +2756,13 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			/* Modify the damage */
-			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_TERRORKNIGHT) && one_in_(2))));
+			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) && one_in_(2))));
 
 			if (o_ptr->k_idx)
 			{
 				if (k > 0) k = k * 10 / tot_dam_div(o_ptr, m_ptr, TRUE);
 
-				if ((((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand]
+				if (((pclass_is_(CLASS_NINJA) || pclass_is_(CLASS_NINJAMASTER)) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand]
 					 && (one_in_(7))) || dragoon_hit)
 				{
 					int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
@@ -2817,7 +2818,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL, FALSE))
 			{
 				*mdeath = TRUE;
-				if ((p_ptr->pclass == CLASS_TERRORKNIGHT) && energy_use)
+				if ((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) && energy_use)
 				{
 					if (p_ptr->migite && p_ptr->hidarite)
 					{
@@ -3035,7 +3036,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			backstab = FALSE; /* Clumsy! */
 
-			if ((p_ptr->pclass != CLASS_LICH) && (o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
+			if (!pclass_is_(CLASS_LICH) && (o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
 			{
 				u32b flgs[TR_FLAG_SIZE];
 
@@ -3157,6 +3158,8 @@ bool py_attack(int y, int x, int mode)
 	bool            fear = FALSE;
 	bool            mdeath = FALSE;
 	bool            darksword = FALSE;
+	bool            migite_ok = TRUE;
+	bool            hidarite_ok = TRUE;
 
 	cave_type       *c_ptr = &cave[y][x];
 	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
@@ -3245,9 +3248,12 @@ bool py_attack(int y, int x, int mode)
 		if (!(r_info[m_ptr->r_idx].flags3 & RF3_EVIL) || one_in_(3)) change_your_alignment(ALI_GNE, -1);
 	}
 
+	if ((mode == PY_ATTACK_WHIP) && (get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx]) != WT_WHIP)) migite_ok = FALSE;
+	if ((mode == PY_ATTACK_WHIP) && (get_weapon_type(&k_info[inventory[INVEN_LARM].k_idx]) != WT_WHIP)) hidarite_ok = FALSE;
+
 	riding_t_m_idx = c_ptr->m_idx;
-	if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
-	if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+	if (p_ptr->migite && migite_ok) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+	if (p_ptr->hidarite && !mdeath && hidarite_ok) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
 
 	/* Mutations which yield extra 'natural' attacks */
 	if (!mdeath)
@@ -3298,12 +3304,12 @@ bool player_can_enter(byte feature)
 	{
 		case FEAT_DARK_PIT:
 		{
-			return (p_ptr->ffall);
+			return (p_ptr->levitation);
 		}
 
 		case FEAT_AIR:
 		{
-			if (!p_ptr->ffall)
+			if (!p_ptr->levitation)
 			{
 				if ((!(d_info[dungeon_type].flags1 & DF1_UPWARD) && (dun_level >= d_info[dungeon_type].maxdepth)) ||
 				     ((d_info[dungeon_type].flags1 & DF1_UPWARD) && (dun_level <= d_info[dungeon_type].mindepth)))
@@ -3332,7 +3338,7 @@ bool player_can_enter(byte feature)
 
 		case FEAT_MOUNTAIN:
 		{
-			return (!dun_level && p_ptr->ffall);
+			return (!dun_level && p_ptr->levitation);
 		}
 		case FEAT_PERM_EXTRA:
 		case FEAT_PERM_INNER:
@@ -3616,7 +3622,7 @@ void move_player(int dir, int do_pickup)
 	{
 	}
 
-	else if ((c_ptr->feat == FEAT_DARK_PIT) && !p_ptr->ffall)
+	else if ((c_ptr->feat == FEAT_DARK_PIT) && !p_ptr->levitation)
 	{
 #ifdef JP
 		msg_print("裂け目を横切ることはできません。");
@@ -3631,7 +3637,7 @@ void move_player(int dir, int do_pickup)
 
 	else if (c_ptr->feat == FEAT_MOUNTAIN)
 	{
-		if (dun_level || !p_ptr->ffall)
+		if (dun_level || !p_ptr->levitation)
 		{
 #ifdef JP
 			msg_print("山には登れません！");
@@ -3645,7 +3651,7 @@ void move_player(int dir, int do_pickup)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_AIR) && !p_ptr->ffall)
+	else if ((c_ptr->feat == FEAT_AIR) && !p_ptr->levitation)
 	{
 		if (((c_ptr->info & (CAVE_MARK)) || (!p_ptr->blind && (c_ptr->info & (CAVE_LITE)))) && !p_ptr->confused)
 		{
@@ -3680,7 +3686,7 @@ void move_player(int dir, int do_pickup)
 	else if (c_ptr->feat == FEAT_TREES)
 	{
 		oktomove = TRUE;
-		if (!p_ptr->ffall) energy_use *= 2;
+		if (!pclass_is_(CLASS_RANGER) && !p_ptr->levitation) energy_use *= 2;
 	}
 
 	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
@@ -3699,7 +3705,7 @@ void move_player(int dir, int do_pickup)
 			case FEAT_TRAP_PIT:
 			case FEAT_TRAP_SPIKED_PIT:
 			case FEAT_TRAP_POISON_PIT:
-				if (p_ptr->ffall) ignore = TRUE;
+				if (p_ptr->levitation) ignore = TRUE;
 				break;
 			case FEAT_TRAP_TELEPORT:
 				if (p_ptr->anti_tele || p_ptr->earth_spike) ignore = TRUE;
@@ -3872,7 +3878,7 @@ void move_player(int dir, int do_pickup)
 			/* Boundary floor mimic */
 			else if (boundary_floor_grid(c_ptr))
 			{
-				if ((c_ptr->mimic == FEAT_AIR) && !p_ptr->ffall)
+				if ((c_ptr->mimic == FEAT_AIR) && !p_ptr->levitation)
 				{
 					fall_into_air();
 				}
@@ -3942,7 +3948,7 @@ void move_player(int dir, int do_pickup)
 			/* Boundary floor mimic */
 			else if (boundary_floor_grid(c_ptr))
 			{
-				if ((c_ptr->mimic == FEAT_AIR) && !p_ptr->ffall)
+				if ((c_ptr->mimic == FEAT_AIR) && !p_ptr->levitation)
 				{
 					if (p_ptr->confused)
 					{
@@ -4194,7 +4200,7 @@ void move_player(int dir, int do_pickup)
 		/* Handle "air" */
 		else if (c_ptr->feat == FEAT_AIR)
 		{
-			if (!p_ptr->ffall) fall_into_air();
+			if (!p_ptr->levitation) fall_into_air();
 		}
 
 		/* Set off a trap */
@@ -4351,11 +4357,11 @@ static int see_wall(int dir, int y, int x)
 
 		case FEAT_DARK_PIT:
 		case FEAT_AIR:
-			if (p_ptr->ffall) return FALSE;
+			if (p_ptr->levitation) return FALSE;
 			break;
 
 		case FEAT_MOUNTAIN:
-			if (!dun_level && p_ptr->ffall) return FALSE;
+			if (!dun_level && p_ptr->levitation) return FALSE;
 			break;
 
 		case FEAT_RUBBLE:
@@ -4868,7 +4874,7 @@ static bool run_test(void)
 				case FEAT_DEEP_WATER:
 				{
 					/* Ignore */
-					if (p_ptr->can_swim || p_ptr->ffall || p_ptr->total_weight <= (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]]*(p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100))/2)) notice = FALSE;
+					if (p_ptr->can_swim || p_ptr->levitation || p_ptr->total_weight <= (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]]*((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) ? 150 : 100))/2)) notice = FALSE;
 
 					/* Done */
 					break;

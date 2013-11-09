@@ -43,12 +43,12 @@ void do_cmd_inven(void)
 #ifdef JP
 	sprintf(out_val, "持ち物： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
 	        lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
-	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) 
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * ((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) ? 150 : 100)) 
 	        / 2));
 #else
 	sprintf(out_val, "Inventory: carrying %d.%d pounds (%ld%% of capacity). Command: ",
 	        (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) / 2));
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * ((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) ? 150 : 100)) / 2));
 #endif
 
 
@@ -114,12 +114,12 @@ void do_cmd_equip(void)
 #ifdef JP
 	sprintf(out_val, "装備： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
 	        lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
-	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) 
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * ((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) ? 150 : 100)) 
 	        / 2));
 #else
 	sprintf(out_val, "Equipment: carrying %d.%d pounds (%ld%% of capacity). Command: ",
 	        (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) / 2));
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * ((pclass_is_(CLASS_TERRORKNIGHT) || pclass_is_(CLASS_RELICSKNIGHT)) ? 150 : 100)) / 2));
 #endif
 
 
@@ -536,7 +536,7 @@ s = "おっと。";
 		act = "You are shooting with";
 #endif
 
-		if (p_ptr->pclass == CLASS_GUNNER) energy_use = 0;
+		if (pclass_is_(CLASS_GUNNER)) energy_use = 0;
 	}
 	else if (slot == INVEN_LITE)
 	{
@@ -722,7 +722,7 @@ void do_cmd_takeoff(void)
 	/* Item is cursed */
 	if (object_is_cursed(o_ptr))
 	{
-		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || (p_ptr->pclass != CLASS_TERRORKNIGHT))
+		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || !pclass_is_(CLASS_TERRORKNIGHT) || !pclass_is_(CLASS_RELICSKNIGHT))
 		{
 			/* Oops */
 #ifdef JP
@@ -780,7 +780,7 @@ void do_cmd_takeoff(void)
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
-	if ((p_ptr->pclass == CLASS_GUNNER) && (item == INVEN_BOW)) energy_use = 0;
+	if (pclass_is_(CLASS_GUNNER) && (item == INVEN_BOW)) energy_use = 0;
 
 	kamaenaoshi(item);
 

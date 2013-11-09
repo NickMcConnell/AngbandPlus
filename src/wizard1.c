@@ -1588,6 +1588,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	o_ptr->ds = a_ptr->ds;
 	for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = a_ptr->to_stat[i];
 	for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = a_ptr->to_misc[i];
+	for (i = 0; i < ALI_MAX; i++) o_ptr->to_align[i] = a_ptr->to_align[i];
 	o_ptr->to_a = a_ptr->to_a;
 	o_ptr->to_h = a_ptr->to_h;
 	o_ptr->to_d = a_ptr->to_d;

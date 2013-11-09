@@ -2463,7 +2463,7 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (p_ptr->pclass == CLASS_VAMPIRE)
+	if (pclass_is_(CLASS_VAMPIRE))
 		add_flag(flgs, TR_RES_DARK);
 
 	if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))

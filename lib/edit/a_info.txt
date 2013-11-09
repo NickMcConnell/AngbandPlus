@@ -235,7 +235,14 @@ D:あらゆる色彩の鱗に被われたアダマンタイトの鎧で、完璧にコントロールされた
 D:地、水、火、風および霊的な力が調和し
 D:渾然一体となり、輝く護光となってこの鎧を包んでいる。
 
-# 18 (unused)
+N:18:シルバークロス
+E:Silver cross
+I:40:20:0
+W:30:60:2:20000
+P:0:1d1:0:0:0
+F:INSTA_ART | ALIGN_GNE_10 | WIS_3 | SUST_WIS | FULL_NAME |
+F:SEE_INVIS | RES_LITE | FREE_ACT |
+D:魔を取り除く力を与える銀色の十字架。
 
 N:19:『魂の守り手』
 E:'Soulkeeper'
@@ -1116,21 +1123,7 @@ D:死神が持つ大鎌。
 
 # 110 (unused)
 
-N:111:『グロンド』
-E:'Grond'
-I:21:50:0
-W:100:1:1000:500000
-P:0:9d9:5:25:10
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | NO_MAGIC |
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE |
-F:SLAY_LIVING | SLAY_GOOD | DEC_MANA | RIDING |
-F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART |
-F:QUESTITEM
-D:$The mighty Hammer of the Underworld, blackened by doomspells of shattering, 
-D:$whose wielder holds the lives of all Morgoth's servants in his hand.
-D:あらゆる物を粉砕する暗黒魔法により黒く輝く
-D:冥界の大鉄杖で、これを手にする者は冥界のすべての力を
-D:手中に収める。
+# N:111:(unused)
 
 N:112:凍土の弓
 E:'Tundra Bow'

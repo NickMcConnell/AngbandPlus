@@ -1645,6 +1645,7 @@ static bonus_limit_type misc_bonus_limit[OB_MAX] =
 	{2, 3, 10},
 	{1, 3, 10},
 	{1, 24, 3},
+	{1, 24, 3},
 };
 
 bool create_artifact(object_type *o_ptr, bool a_scroll)
@@ -1692,6 +1693,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	}
 	else artifact_bias = randint1(6);
 	if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD) && artifact_bias == BIAS_LIGHT) artifact_bias = BIAS_DARK;
+	if (o_ptr->tval == TV_HAFTED && (o_ptr->sval == SV_MIGHTY_HAMMER) && artifact_bias == BIAS_LIGHT) artifact_bias = BIAS_DARK;
 
 	strcpy(new_name, "");
 
@@ -1855,7 +1857,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
 		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
-		if ((o_ptr->to_stat[A_WIS] > 0) && (!(o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)))) add_flag(o_ptr->art_flags, TR_BLESSED);
+		if ((o_ptr->to_stat[A_WIS] > 0) && (!have_flag(k_ptr->flags, TR_UNHOLY)) && (!(o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)))) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}
 
 	/* Just to be sure */
@@ -3230,6 +3232,7 @@ bool create_named_art(int a_idx, int y, int x)
 	q_ptr->ds = a_ptr->ds;
 	for (i = 0; i < A_MAX; i++) q_ptr->to_stat[i] = a_ptr->to_stat[i];
 	for (i = 0; i < OB_MAX; i++) q_ptr->to_misc[i] = a_ptr->to_misc[i];
+	for (i = 0; i < ALI_MAX; i++) q_ptr->to_align[i] = a_ptr->to_align[i];
 	q_ptr->to_a = a_ptr->to_a;
 	q_ptr->to_h = a_ptr->to_h;
 	q_ptr->to_d = a_ptr->to_d;

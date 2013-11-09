@@ -4134,6 +4134,12 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				max_h_idx = atoi(zz[1]);
 			}
 
+			/* Process 'H' for "Maximum ow_info[] index" */
+			else if (zz[0][0] == 'B')
+			{
+				max_ow_idx = atoi(zz[1]);
+			}
+
 			return (0);
 		}
 	}
@@ -5620,5 +5626,104 @@ errr parse_h_info(char *buf, header *head)
 	/* Success */
 	return (0);
 }
+
+
+/*
+ * Initialize the "ow_info" array, by parsing an ascii "template" file
+ */
+errr parse_ow_info(char *buf, header *head)
+{
+	int i;
+
+	char *s;
+
+	/* Current entry */
+	static owner_type *ot_ptr = NULL;
+
+
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = my_strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (1);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+#ifdef JP
+		/* Paranoia -- require a name */
+		if (!*s) return (1);
+#endif
+
+		/* Get the index */
+		i = atoi(buf+2);
+
+		/* Verify information */
+		if (i <= error_idx) return (4);
+
+		/* Verify information */
+		if (i >= head->info_num) return (2);
+
+		/* Save the index */
+		error_idx = i;
+
+		/* Point at the "info" */
+		ot_ptr = &ow_info[i];
+
+#ifdef JP
+		/* Store the name */
+		if (!add_name(&ot_ptr->owner_name, head, s)) return (7);
+#endif
+	}
+
+#ifdef JP
+	/* 英語名を読むルーチンを追加 */
+	/* 'E' から始まる行は英語名 */
+	else if (buf[0] == 'E')
+	{
+		/* nothing to do */
+	}
+#else
+	else if (buf[0] == 'E')
+	{
+		/* Acquire the Text */
+		s = buf+2;
+
+		/* Store the name */
+		if (!add_name(&ot_ptr->owner_name, head, s)) return (7);
+	}
+#endif
+
+	/* Process 'I' for "Info" (one line only) */
+	else if (buf[0] == 'I')
+	{
+		int cost, max, min, haggle, insult;
+
+		/* There better be a current ot_ptr */
+		if (!ot_ptr) return (2);
+
+		/* Scan for the values */
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &cost, &max, &min, &haggle, &insult)) return (1);
+
+		/* Save the values */
+		ot_ptr->max_cost = cost;
+		ot_ptr->max_inflate = max;
+		ot_ptr->min_inflate = min;
+		ot_ptr->haggle_per = haggle;
+		ot_ptr->insult_max = insult;
+	}
+
+	/* Oops */
+	else return (6);
+
+	/* Success */
+	return (0);
+}
+
+
 
 
