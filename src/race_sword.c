@@ -169,6 +169,27 @@ static int _calc_amount(int amount, int power)
             result++;
         amount -= power;
         power *= 2;
+        if (power > 1024)
+            power = 1024;
+    }
+
+    return result;
+}
+
+static int _calc_needed(int amount, int power)
+{
+    int result = 0;
+    /* It would be cleaner to loop until _calc_amount increased, but the
+       power required increases exponentially! */
+    for (;;)
+    {
+        result += power;
+        amount -= power;
+        if (amount < 0)
+            break;
+        power *= 2;
+        if (power > 1024)
+            power = 1024;
     }
 
     return result;
@@ -226,44 +247,59 @@ typedef struct {
 } _flag_info_t;
 
 static _flag_info_t _slay_flag_info[] = {
-    { TR_SLAY_EVIL, 15, "Slay Evil" },
-    { TR_SLAY_UNDEAD, 2, "Slay Undead" },
-    { TR_SLAY_DEMON, 2, "Slay Demon" },
-    { TR_SLAY_DRAGON, 5, "Slay Dragon" },
-    { TR_SLAY_HUMAN, 3, "Slay Human" },
-    { TR_SLAY_ANIMAL, 1, "Slay Animal" },
-    { TR_SLAY_ORC, 1, "Slay Orc" },
-    { TR_SLAY_TROLL, 1, "Slay Troll" },
-    { TR_SLAY_GIANT, 1, "Slay Giant" },
+    { TR_SLAY_EVIL, 32, "Slay Evil" },
+    { TR_SLAY_UNDEAD, 16, "Slay Undead" },
+    { TR_SLAY_DEMON, 16, "Slay Demon" },
+    { TR_SLAY_DRAGON, 16, "Slay Dragon" },
+    { TR_SLAY_HUMAN, 16, "Slay Human" },
+    { TR_SLAY_ANIMAL, 8, "Slay Animal" },
+    { TR_SLAY_ORC, 4, "Slay Orc" },
+    { TR_SLAY_TROLL, 8, "Slay Troll" },
+    { TR_SLAY_GIANT, 8, "Slay Giant" },
 
-    { TR_BRAND_ACID, 7, "Brand Acid" },
-    { TR_BRAND_ELEC, 7, "Brand Elec" },
-    { TR_BRAND_FIRE, 7, "Brand Fire" },
-    { TR_BRAND_COLD, 7, "Brand Cold" },
-    { TR_BRAND_POIS, 7, "Brand Poison" },
-    { TR_CHAOTIC, 10, "Chaotic" },
-    { TR_VAMPIRIC, 17, "Vampiric" },
-    { TR_VORPAL, 10, "Vorpal" },
+    { TR_BRAND_ACID, 24, "Brand Acid" },
+    { TR_BRAND_ELEC, 24, "Brand Elec" },
+    { TR_BRAND_FIRE, 24, "Brand Fire" },
+    { TR_BRAND_COLD, 24, "Brand Cold" },
+    { TR_BRAND_POIS, 24, "Brand Poison" },
+    { TR_CHAOTIC, 32, "Chaotic" },
+    { TR_VAMPIRIC, 32, "Vampiric" },
+    { TR_VORPAL, 16, "Vorpal" },
 
-    { TR_KILL_EVIL, 3, "Kill Evil" },
-    { TR_KILL_UNDEAD, 3, "Kill Undead" },
-    { TR_KILL_DEMON, 3, "Kill Demon" },
-    { TR_KILL_DRAGON, 3, "Kill Dragon" },
-    { TR_KILL_HUMAN, 2, "Kill Human" },
-    { TR_KILL_ANIMAL, 2, "Kill Animal"},
-    { TR_KILL_ORC, 2, "Kill Orc" },
-    { TR_KILL_TROLL, 2, "Kill Troll" },
-    { TR_KILL_GIANT, 2, "Kill Giant" },
+    /* Alt: These could be achieved from corresponding slay flags with enough essences */
+    { TR_KILL_EVIL, 16, "Kill Evil" },
+    { TR_KILL_UNDEAD, 8, "Kill Undead" },
+    { TR_KILL_DEMON, 8, "Kill Demon" },
+    { TR_KILL_DRAGON, 8, "Kill Dragon" },
+    { TR_KILL_HUMAN, 8, "Kill Human" },
+    { TR_KILL_ANIMAL, 8, "Kill Animal"},
+    { TR_KILL_ORC, 8, "Kill Orc" },
+    { TR_KILL_TROLL, 8, "Kill Troll" },
+    { TR_KILL_GIANT, 8, "Kill Giant" },
 
     { -1, 0, NULL}
 };
+
+static int _rank_decay(int p)
+{
+    int r = _rank();
+    for (; r < 4; r++)
+        p /= 2;
+
+    return MAX(1, p);
+}
+
+static int _slay_power(int i)
+{
+    return _rank_decay(_slay_flag_info[i].power);
+}
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     int i;
     int to_hit = _calc_amount(_essences[_ESSENCE_TO_HIT], 1);
     int to_dam = _calc_amount(_essences[_ESSENCE_TO_DAM], 1);
-    int to_dd = _calc_amount(_essences[_ESSENCE_XTRA_DICE], 50);
+    int to_dd = _calc_amount(_essences[_ESSENCE_XTRA_DICE], _rank_decay(64));
 
     for (i = 0; i < TR_FLAG_SIZE; i++)
         o_ptr->art_flags[i] = 0;
@@ -274,7 +310,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     {
         int j = _slay_flag_info[i].flag;
         if (j < 0) break;
-        if (_essences[j] >= _slay_flag_info[i].power)
+        if (_essences[j] >= _slay_power(i))
             add_flag(o_ptr->art_flags, j);
     }
 
@@ -301,7 +337,7 @@ static void _calc_bonuses(void)
     p_ptr->dis_to_a += to_a;
 
     p_ptr->pspeed += 1;
-
+    
     p_ptr->lite = TRUE;
     p_ptr->no_cut = TRUE;
     res_add(RES_BLIND);
@@ -335,6 +371,16 @@ static void _calc_bonuses(void)
         for (; n; --n)
             res_add(i);
     }
+    if (_essences[TR_IM_ACID] >= 3)
+        res_add_immune(RES_ACID);
+    if (_essences[TR_IM_ELEC] >= 3)
+        res_add_immune(RES_ELEC);
+    if (_essences[TR_IM_FIRE] >= 3)
+        res_add_immune(RES_FIRE);
+    if (_essences[TR_IM_COLD] >= 3)
+        res_add_immune(RES_COLD);
+
+    p_ptr->life += 3*_calc_amount(_essences[TR_LIFE], 7);
 
     p_ptr->skills.stl += _calc_amount(_essences[TR_STEALTH], 2);
     p_ptr->pspeed += _essences[TR_SPEED];
@@ -387,7 +433,7 @@ static void _calc_bonuses(void)
 
     if (_essences[TR_NO_MAGIC] >= 5)
         p_ptr->anti_magic = TRUE;
-    if (_essences[TR_LEVITATION] >= 3)
+    if (_essences[TR_LEVITATION] >= 2)
         p_ptr->levitation = TRUE;
     if (_essences[TR_FREE_ACT] >= 1)
         p_ptr->free_act = TRUE;
@@ -406,6 +452,18 @@ static void _calc_bonuses(void)
         p_ptr->sh_elec = TRUE;
     if (_essences[TR_SH_COLD] >= 7)
         p_ptr->sh_cold = TRUE;
+}
+
+static void _get_immunities(u32b flgs[TR_FLAG_SIZE]) 
+{
+    if (_essences[TR_IM_ACID] >= 3)
+        add_flag(flgs, TR_RES_ACID);
+    if (_essences[TR_IM_ELEC] >= 3)
+        add_flag(flgs, TR_RES_ELEC);
+    if (_essences[TR_IM_FIRE] >= 3)
+        add_flag(flgs, TR_RES_FIRE);
+    if (_essences[TR_IM_COLD] >= 3)
+        add_flag(flgs, TR_RES_COLD);
 }
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
@@ -463,7 +521,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 
     if (_essences[TR_NO_MAGIC] >= 5)
         add_flag(flgs, TR_NO_MAGIC);
-    if (_essences[TR_LEVITATION] >= 3)
+    if (_essences[TR_LEVITATION] >= 2)
         add_flag(flgs, TR_LEVITATION);
     if (_essences[TR_FREE_ACT] >= 1)
         add_flag(flgs, TR_FREE_ACT);
@@ -666,10 +724,15 @@ static bool _drain_essences(int div)
     return result;
 }
 
+static object_type *_weapon(void)
+{
+    return equip_obj(p_ptr->weapon_info[0].slot);
+}
+
 static void _upgrade_weapon(int tval, int sval)
 {
     bool drained = FALSE;
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[0].slot);
+    object_type *o_ptr = _weapon();
 
     object_prep(o_ptr, lookup_kind(tval, sval));
     o_ptr->to_h = p_ptr->lev / 5;
@@ -683,8 +746,8 @@ static void _upgrade_weapon(int tval, int sval)
     p_ptr->update |= PU_BONUS;
     p_ptr->window |= PW_INVEN | PW_EQUIP | PW_PLAYER;
 
-    if (_drain_essences(10))
-        msg_print("You feel your magic drain to support your new form.");
+    /*if (_drain_essences(10))
+        msg_print("You feel your magic drain to support your new form.");*/
 }
 
 static void _gain_level(int new_level) 
@@ -701,7 +764,7 @@ static void _gain_level(int new_level)
     {
         p_ptr->current_r_idx = MON_POLEAXE_OF_ANIMATED_ATTACK;
         equip_on_change_race();
-        _upgrade_weapon(TV_POLEARM, SV_LOCHABER_AXE);
+        _upgrade_weapon(TV_POLEARM, SV_BATTLE_AXE);
         msg_print("You have evolved into a Poleaxe of Animated Attack.");
         p_ptr->redraw |= PR_MAP;
     }
@@ -724,7 +787,7 @@ static void _gain_level(int new_level)
 
     /* Note: These boosts will be completely wiped out next evolution */
     {
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[0].slot);
+    object_type *o_ptr = _weapon();
 
         if (one_in_(15) && new_level < 45) /* Sorry, Mr. Death Scythe, but you are too powerful! */
         {
@@ -752,9 +815,10 @@ static void _dump_ability_flag(FILE* fff, int which, int threshold, cptr name)
     int n = _essences[which];
     if (n > 0)
     {
-        fprintf(fff, "   %-22.22s %5d %5.5s\n", 
+        fprintf(fff, "   %-22.22s %5d %5d %5.5s\n", 
             name,
             n, 
+            threshold,
             n >= threshold ? "Y" : ""
         );
     }
@@ -764,9 +828,10 @@ static void _dump_bonus_flag(FILE* fff, int which, int power, cptr name)
     int n = _essences[which];
     if (n > 0)
     {
-        fprintf(fff, "   %-22.22s %5d %+5d\n", 
+        fprintf(fff, "   %-22.22s %5d %5d %+5d\n", 
             name,
             n, 
+            _calc_needed(n, power),
             _calc_amount(n, power)
         );
     }
@@ -776,67 +841,76 @@ static void _character_dump(FILE* fff)
 {
     int i;
     fprintf(fff, "\n\n=================================== Essences ==================================\n");
-    fprintf(fff, "\n   %-22.22s Total Bonus\n", "Stats");
-    fprintf(fff, "   ---------------------- ----- -----\n");
+    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Stats");
+    fprintf(fff, "   ---------------------- ----- ----- -----\n");
     for (i = 0; i < 6; i++) /* Assume in order */
         _dump_bonus_flag(fff, TR_STR + i, 3, stat_name_true[A_STR + i]);
 
-    fprintf(fff, "\n   %-22.22s Total Bonus\n", "Skills");
-    fprintf(fff, "   ---------------------- ----- -----\n");
+    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Skills");
+    fprintf(fff, "   ---------------------- ----- ----- -----\n");
     _dump_bonus_flag(fff, _ESSENCE_TO_HIT, 1, "To Hit");
     _dump_bonus_flag(fff, _ESSENCE_TO_DAM, 1, "To Dam");
     if (_essences[_ESSENCE_AC])
     {
-        fprintf(fff, "   %-22.22s %5d %+5d\n", 
+        fprintf(fff, "   %-22.22s %5d %5d %+5d\n", 
             "To AC",
             _essences[_ESSENCE_AC], 
+            2 * (_essences[_ESSENCE_AC]/2 + 1), 
             _essences[_ESSENCE_AC] / 2
         );
     }
     _dump_bonus_flag(fff, TR_STEALTH, 2, "Stealth");
     if (_essences[TR_SPEED])
     {
-        fprintf(fff, "   %-22.22s %5d %+5d\n", 
+        fprintf(fff, "   %-22.22s %5d %5d %+5d\n", 
             "Speed",
             _essences[TR_SPEED], 
+            _essences[TR_SPEED] + 1,
             _essences[TR_SPEED]
         );
     }
     if (_essences[TR_BLOWS])
     {
-        fprintf(fff, "   %-22.22s %5d %5.5s\n", 
+        fprintf(fff, "   %-22.22s %5d %5d %5.5s\n", 
             "Attacks",
             _essences[TR_BLOWS], 
+            25,
             _essences[TR_BLOWS] >= 25 ? "+1" : ""
         );
     }
-    _dump_bonus_flag(fff, _ESSENCE_XTRA_DICE, 50, "Slaying");
+    _dump_bonus_flag(fff, _ESSENCE_XTRA_DICE, _rank_decay(64), "Slaying");
+    _dump_bonus_flag(fff, TR_LIFE, 7, "Life");
     _dump_bonus_flag(fff, TR_SEARCH, 2, "Searching");
     _dump_bonus_flag(fff, TR_INFRA, 2, "Infravision");
     _dump_bonus_flag(fff, TR_TUNNEL, 2, "Digging");
     _dump_bonus_flag(fff, TR_MAGIC_MASTERY, 2, "Magic Mastery");
-
-    fprintf(fff, "\n   %-22.22s Total Bonus\n", "Slays");
-    fprintf(fff, "   ---------------------- ----- -----\n");
+    _dump_bonus_flag(fff, TR_LITE, 1, "Light");
+ 
+    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Slays");
+    fprintf(fff, "   ---------------------- ----- ----- -----\n");
     for (i = 0; ; i++)
     {
         int j = _slay_flag_info[i].flag;
         if (j < 0) break;
-        _dump_ability_flag(fff, j, _slay_flag_info[i].power, _slay_flag_info[i].name);
+        _dump_ability_flag(fff, j, _slay_power(i), _slay_flag_info[i].name);
     }
 
-    fprintf(fff, "\n   %-22.22s Total Bonus\n", "Resistances");
-    fprintf(fff, "   ---------------------- ----- -----\n");
+    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Resistances");
+    fprintf(fff, "   ---------------------- ----- ----- -----\n");
     for (i = 0; i < RES_MAX; i++)
         _dump_bonus_flag(fff, res_get_object_flag(i), _res_power(i), format("%^s", res_name(i)));
 
-    fprintf(fff, "\n   %-22.22s Total Bonus\n", "Abilities");
-    fprintf(fff, "   ---------------------- ----- -----\n");
+    _dump_ability_flag(fff, TR_IM_ACID, 3, "Immune Acid");
+    _dump_ability_flag(fff, TR_IM_ELEC, 3, "Immune Elec");
+    _dump_ability_flag(fff, TR_IM_FIRE, 3, "Immune Fire");
+    _dump_ability_flag(fff, TR_IM_COLD, 3, "Immune Cold");
+
+    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Abilities");
+    fprintf(fff, "   ---------------------- ----- ----- -----\n");
     _dump_ability_flag(fff, TR_FREE_ACT, 1, "Free Action");
     _dump_ability_flag(fff, TR_SEE_INVIS, 1, "See Invisible");
-    _dump_ability_flag(fff, TR_LEVITATION, 3, "Levitation");
+    _dump_ability_flag(fff, TR_LEVITATION, 2, "Levitation");
     _dump_ability_flag(fff, TR_SLOW_DIGEST, 2, "Slow Digestion");
-    _dump_bonus_flag(fff, TR_LITE, 1, "Light");
     _dump_ability_flag(fff, TR_REGEN, 7, "Regeneration");
     _dump_ability_flag(fff, TR_NO_MAGIC, 5, "Antimagic");
     _dump_ability_flag(fff, TR_REFLECT, 3, "Reflection");
@@ -846,8 +920,8 @@ static void _character_dump(FILE* fff)
     for (i = 0; i < 6; i++) /* Assume in order */
         _dump_ability_flag(fff, TR_SUST_STR + i, 5, format("Sustain %s", stat_name_true[A_STR + i]));
 
-    fprintf(fff, "\n   %-22.22s Total Bonus\n", "ESP");
-    fprintf(fff, "   ---------------------- ----- -----\n");
+    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "ESP");
+    fprintf(fff, "   ---------------------- ----- ----- -----\n");
     _dump_ability_flag(fff, TR_TELEPATHY, 2, "Telepathy");
     _dump_ability_flag(fff, TR_ESP_ANIMAL, 2, "ESP Animals");
     _dump_ability_flag(fff, TR_ESP_UNDEAD, 2, "ESP Undead");
@@ -897,6 +971,7 @@ race_t *mon_sword_get_race_t(void)
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.character_dump = _character_dump;
         me.get_flags = _get_flags;
+        me.get_immunities = _get_immunities;
         me.gain_level = _gain_level;
         me.get_powers = _get_powers;
         me.birth = _birth;
