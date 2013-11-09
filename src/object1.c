@@ -2018,6 +2018,11 @@ bool screen_object(object_type *o_ptr, u32b mode)
         info[i++] = "It fights against evil with holy fury.";
 
     }
+    if (have_flag(flgs, TR_SLAY_GOOD))
+    {
+        info[i++] = "It fights against good with hellish glee.";
+
+    }
 
     if (have_flag(flgs, TR_KILL_ANIMAL))
     {

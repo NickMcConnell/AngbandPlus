@@ -128,7 +128,9 @@ static byte spell_color(int type)
             case GF_SUPER_RAY:      return (0x0E);
 
             case GF_ARROW:          return (0x0F);
-            case GF_WATER: case GF_WATER2: return (0x04);
+            case GF_STORM:
+            case GF_WATER: 
+            case GF_WATER2: return (0x04);
             case GF_WEB:          return (0x04);
             case GF_NETHER:         return (0x07);
             case GF_CHAOS:          return (mh_attr(15));
@@ -899,6 +901,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
         case GF_PSY_SPEAR:
         case GF_LITE:
             message = "shrivels in the light.";
+            break;
+        case GF_STORM:
+            message = "is washed away.";
             break;
         case GF_WATER:
         case GF_WATER2:
@@ -2802,7 +2807,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             break;
         }
 
-        /* Gravity -- breathers resist */
+        case GF_STORM: /* TODO */
         case GF_GRAVITY:
         {
             bool resist_tele = FALSE;
@@ -2838,7 +2843,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             else do_dist = 0;
             if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_dist = 0;
 
-            if (r_ptr->flagsr & RFR_RES_GRAV)
+            if (typ == GF_GRAVITY && (r_ptr->flagsr & RFR_RES_GRAV))
             {
                 note = " resists.";
 
@@ -6178,7 +6183,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
     dam = (dam + r) / (r + 1);
 
     /* Yes, it is as ugly as this ... sigh */
-    if (hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
+    if (hack_m_spell >= 96+7 && hack_m_spell <= 96+31)
     {
         bool evaded = FALSE; /* Demigod Scout with Evasion talent *and* Nimble Dodge cast? */
 
@@ -6603,6 +6608,23 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
                         p_ptr->update |= (PU_BONUS);
                         break;
                     }
+                }
+            }
+            get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+            break;
+        }
+        case GF_STORM:
+        {
+            msg_print("You are hit by gale force winds!");
+            if (!CHECK_MULTISHADOW())
+            {
+                teleport_player(5, TELEPORT_PASSIVE);
+                if (!p_ptr->levitation)
+                    (void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
+                if (!(res_save_default(RES_SOUND) || p_ptr->levitation))
+                {
+                    int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
+                    (void)set_stun(p_ptr->stun + k, FALSE);
                 }
             }
             get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);

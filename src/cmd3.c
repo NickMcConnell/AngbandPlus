@@ -224,10 +224,15 @@ void do_cmd_drop(void)
     if (equip_is_valid_slot(item))
     {
         if (object_is_cursed(o_ptr))
+        {
             msg_print("Hmmm, it seems to be cursed.");
+            return;
+        }
         if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+        {
             msg_print("You can't drop yourself, silly!");
-        return;
+            return;
+        }
     }
 
     if (o_ptr->tval == TV_POTION && o_ptr->sval == SV_POTION_BLOOD)

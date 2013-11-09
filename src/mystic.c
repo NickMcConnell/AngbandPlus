@@ -31,52 +31,6 @@ int mystic_get_toggle(void)
     return result;
 }
 
-static bool _do_blow(int type)
-{
-    int x, y;
-    int dir;
-    int m_idx = 0;
-
-    /* For ergonomics sake, use currently targeted monster.  This allows
-       a macro of \e*tmaa or similar to pick an adjacent foe, while
-       \emaa*t won't work, since get_rep_dir2() won't allow a target. */
-    if (use_old_target && target_okay())
-    {
-        y = target_row;
-        x = target_col;
-        m_idx = cave[y][x].m_idx;
-        if (m_idx)
-        {
-            if (m_list[m_idx].cdis > 1)
-                m_idx = 0;
-            else
-                dir = 5;
-        }
-    }
-
-    if (!m_idx)
-    {
-        if (!get_rep_dir2(&dir)) return FALSE;
-        if (dir == 5) return FALSE;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-        m_idx = cave[y][x].m_idx;
-
-        if (!m_idx)
-        {
-            msg_print("There is no monster there.");
-            return FALSE;
-        }
-
-    }
-
-    if (m_idx)
-        py_attack(y, x, type);
-
-    return TRUE;
-}
-
 /****************************************************************
  * Spells
  ****************************************************************/
@@ -115,7 +69,7 @@ static void _acid_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with an acid blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_ACID));
+        var_set_bool(res, do_blow(MYSTIC_ACID));
         break;
     default:
         default_spell(cmd, res);
@@ -134,7 +88,7 @@ static void _cold_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a freezing blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_COLD));
+        var_set_bool(res, do_blow(MYSTIC_COLD));
         break;
     default:
         default_spell(cmd, res);
@@ -153,7 +107,7 @@ static void _confusing_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with confusing blows.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_CONFUSE));
+        var_set_bool(res, do_blow(MYSTIC_CONFUSE));
         break;
     default:
         default_spell(cmd, res);
@@ -172,7 +126,7 @@ static void _crushing_blow_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with crushing blows for extra damage.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_CRITICAL));
+        var_set_bool(res, do_blow(MYSTIC_CRITICAL));
         break;
     default:
         default_spell(cmd, res);
@@ -207,7 +161,7 @@ static void _elec_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a shocking blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_ELEC));
+        var_set_bool(res, do_blow(MYSTIC_ELEC));
         break;
     default:
         default_spell(cmd, res);
@@ -242,7 +196,7 @@ static void _fire_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a flaming blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_FIRE));
+        var_set_bool(res, do_blow(MYSTIC_FIRE));
         break;
     default:
         default_spell(cmd, res);
@@ -261,7 +215,7 @@ static void _killing_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attempt to kill an adjacent opponent with a single blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_KILL));
+        var_set_bool(res, do_blow(MYSTIC_KILL));
         break;
     default:
         default_spell(cmd, res);
@@ -280,7 +234,7 @@ static void _knockout_blow_spell(int cmd, variant *res)
         var_set_string(res, "Attempt to knockout an adjacent opponent.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_KNOCKOUT));
+        var_set_bool(res, do_blow(MYSTIC_KNOCKOUT));
         break;
     default:
         default_spell(cmd, res);
@@ -328,7 +282,7 @@ static void _poison_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a poisonous blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_POIS));
+        var_set_bool(res, do_blow(MYSTIC_POIS));
         break;
     default:
         default_spell(cmd, res);
@@ -379,7 +333,7 @@ static void _stunning_blow_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with stunning blows.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MYSTIC_STUN));
+        var_set_bool(res, do_blow(MYSTIC_STUN));
         break;
     default:
         default_spell(cmd, res);

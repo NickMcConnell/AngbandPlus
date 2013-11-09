@@ -89,7 +89,7 @@ void process_maul_of_vice(void)
     }
 }
 
-static bool _do_blow(int type)
+bool do_blow(int type)
 {
     int x, y;
     int dir;
@@ -213,7 +213,7 @@ static void _critical_blow_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a single devastating blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MAULER_CRITICAL_BLOW));
+        var_set_bool(res, do_blow(MAULER_CRITICAL_BLOW));
         break;
     default:
         default_spell(cmd, res);
@@ -232,7 +232,7 @@ static void _crushing_blow_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a single powerful blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MAULER_CRUSHING_BLOW));
+        var_set_bool(res, do_blow(MAULER_CRUSHING_BLOW));
         break;
     default:
         default_spell(cmd, res);
@@ -313,7 +313,7 @@ static void _knockback_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a single blow. If landed, your foe will be knocked back away from you.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MAULER_KNOCKBACK));
+        var_set_bool(res, do_blow(MAULER_KNOCKBACK));
         break;
     default:
         default_spell(cmd, res);
@@ -332,7 +332,7 @@ static void _knockout_blow_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a single blow aimed to knock your opponent out cold.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MAULER_KNOCKOUT_BLOW));
+        var_set_bool(res, do_blow(MAULER_KNOCKOUT_BLOW));
         break;
     default:
         default_spell(cmd, res);
@@ -481,7 +481,7 @@ static void _stunning_blow_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a single blow aimed to stun.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(MAULER_STUNNING_BLOW));
+        var_set_bool(res, do_blow(MAULER_STUNNING_BLOW));
         break;
     default:
         default_spell(cmd, res);

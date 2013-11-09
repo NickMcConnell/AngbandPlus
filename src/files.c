@@ -2374,21 +2374,22 @@ static void display_player_other_flag_info(void)
     display_flag_aux(row+ 7, col, "Slay Troll :", TR_KILL_TROLL, &f, (DP_WP|DP_IMM));
     display_flag_aux(row+ 8, col, "Slay Giant :", TR_SLAY_GIANT, &f, DP_WP);
     display_flag_aux(row+ 8, col, "Slay Giant :", TR_KILL_GIANT, &f, (DP_WP|DP_IMM));
-    display_flag_aux(row+ 9, col, "Acid Brand :", TR_BRAND_ACID, &f, DP_WP);
-    display_flag_aux(row+10, col, "Elec Brand :", TR_BRAND_ELEC, &f, DP_WP);
-    display_flag_aux(row+11, col, "Fire Brand :", TR_BRAND_FIRE, &f, DP_WP);
-    display_flag_aux(row+12, col, "Cold Brand :", TR_BRAND_COLD, &f, DP_WP);
-    display_flag_aux(row+13, col, "Pois Brand :", TR_BRAND_POIS, &f, DP_WP);
-    display_flag_aux(row+14, col, "Mana Brand :", TR_FORCE_WEAPON, &f, DP_WP);
-    display_flag_aux(row+15, col, "Sharpness  :", TR_VORPAL, &f, DP_WP);
-    display_flag_aux(row+16, col, "Quake      :", TR_IMPACT, &f, DP_WP);
-    display_flag_aux(row+17, col, "Vampiric   :", TR_VAMPIRIC, &f, DP_WP);
-    display_flag_aux(row+18, col, "Chaotic    :", TR_CHAOTIC, &f, DP_WP);
-    display_flag_aux(row+19, col, "Add Blows  :", TR_BLOWS, &f, 0);
-    display_flag_aux(row+20, col, "Blessed    :", TR_BLESSED, &f, 0);
-    display_flag_aux(row+21, col, "Riding     :", TR_RIDING, &f, 0);
-    display_flag_aux(row+22, col, "Tunnel     :", TR_TUNNEL, &f, 0);
-    display_flag_aux(row+23, col, "Throw      :", TR_THROW, &f, 0);
+    display_flag_aux(row+ 9, col, "Slay Good  :", TR_SLAY_GOOD, &f, DP_WP);
+    display_flag_aux(row+10, col, "Acid Brand :", TR_BRAND_ACID, &f, DP_WP);
+    display_flag_aux(row+11, col, "Elec Brand :", TR_BRAND_ELEC, &f, DP_WP);
+    display_flag_aux(row+12, col, "Fire Brand :", TR_BRAND_FIRE, &f, DP_WP);
+    display_flag_aux(row+13, col, "Cold Brand :", TR_BRAND_COLD, &f, DP_WP);
+    display_flag_aux(row+14, col, "Pois Brand :", TR_BRAND_POIS, &f, DP_WP);
+    display_flag_aux(row+15, col, "Mana Brand :", TR_FORCE_WEAPON, &f, DP_WP);
+    display_flag_aux(row+16, col, "Sharpness  :", TR_VORPAL, &f, DP_WP);
+    display_flag_aux(row+17, col, "Quake      :", TR_IMPACT, &f, DP_WP);
+    display_flag_aux(row+18, col, "Vampiric   :", TR_VAMPIRIC, &f, DP_WP);
+    display_flag_aux(row+19, col, "Chaotic    :", TR_CHAOTIC, &f, DP_WP);
+    display_flag_aux(row+20, col, "Add Blows  :", TR_BLOWS, &f, 0);
+    display_flag_aux(row+21, col, "Blessed    :", TR_BLESSED, &f, 0);
+    display_flag_aux(row+22, col, "Riding     :", TR_RIDING, &f, 0);
+    display_flag_aux(row+23, col, "Tunnel     :", TR_TUNNEL, &f, 0);
+    display_flag_aux(row+24, col, "Throw      :", TR_THROW, &f, 0);
 
     /* ESP and Curses */
     row = 2;
@@ -2431,22 +2432,28 @@ static void display_player_other_flag_info(void)
         cptr desc = format("%+3d%%", tmp);
         put_str(desc, row +14, col + 13 + equip_count() + 2);
     }
-
-    display_flag_aux(row+15, col, "Infravision:", TR_INFRA, &f, 0);
-    if (p_ptr->see_infra)
+    display_flag_aux(row+15, col, "Magic Res  :", TR_MAGIC_RESISTANCE, &f, 0);
+    if (p_ptr->magic_resistance)
     {
-        cptr desc = format("%3d'", p_ptr->see_infra * 10);
+        cptr desc = format("%+3d%%", p_ptr->magic_resistance);
         put_str(desc, row +15, col + 13 + equip_count() + 2);
     }
 
-    display_flag_aux(row+16, col, "Stealth    :", TR_STEALTH, &f, 0);
-    display_flag_aux(row+17, col, "Searching  :", TR_SEARCH, &f, 0);
-    display_flag_aux(row+18, col, "Cursed     :", 0, &f, DP_CURSE);
-    display_flag_aux(row+19, col, "Rnd Tele   :", TR_TELEPORT, &f, 0);
-    display_flag_aux(row+20, col, "No Tele    :", TR_NO_TELE, &f, 0);
-    display_flag_aux(row+21, col, "Drain Exp  :", TR_DRAIN_EXP, &f, 0);
-    display_flag_aux(row+22, col, "Aggravate  :", TR_AGGRAVATE, &f, 0);
-    display_flag_aux(row+23, col, "TY Curse   :", TR_TY_CURSE, &f, 0);
+    display_flag_aux(row+16, col, "Infravision:", TR_INFRA, &f, 0);
+    if (p_ptr->see_infra)
+    {
+        cptr desc = format("%3d'", p_ptr->see_infra * 10);
+        put_str(desc, row +16, col + 13 + equip_count() + 2);
+    }
+
+    display_flag_aux(row+17, col, "Stealth    :", TR_STEALTH, &f, 0);
+    display_flag_aux(row+18, col, "Searching  :", TR_SEARCH, &f, 0);
+    display_flag_aux(row+19, col, "Cursed     :", 0, &f, DP_CURSE);
+    display_flag_aux(row+20, col, "Rnd Tele   :", TR_TELEPORT, &f, 0);
+    display_flag_aux(row+21, col, "No Tele    :", TR_NO_TELE, &f, 0);
+    display_flag_aux(row+22, col, "Drain Exp  :", TR_DRAIN_EXP, &f, 0);
+    display_flag_aux(row+23, col, "Aggravate  :", TR_AGGRAVATE, &f, 0);
+    display_flag_aux(row+24, col, "TY Curse   :", TR_TY_CURSE, &f, 0);
 }
 
 
@@ -3253,7 +3260,7 @@ static void dump_aux_display_player(FILE *fff)
     display_player(2);
 
     /* Dump part of the screen */
-    for (y = 0; y < 24; y++)
+    for (y = 0; y < 27; y++)
     {
         /* Dump each row */
         for (x = 0; x < 79; x++)

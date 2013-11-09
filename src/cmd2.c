@@ -2388,7 +2388,9 @@ void do_cmd_walk(bool pickup)
             energy_use /= 3;
         else if (p_ptr->quick_walk)
             energy_use = energy_use * 60 / 100;
-            
+
+        if (prace_is_(RACE_MON_GOLEM))
+            energy_use *= 2;
 
         /* Actually move the character */
         move_player(dir, pickup, FALSE);

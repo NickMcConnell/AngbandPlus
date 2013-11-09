@@ -4689,7 +4689,7 @@ void calc_bonuses(void)
     if (p_ptr->pass_wall && !p_ptr->kill_wall) p_ptr->no_flowed = TRUE;
 
     /* Apply some maximums ... */
-    if (p_ptr->magic_resistance > 15)
+    if (p_ptr->magic_resistance > 15 && !prace_is_(RACE_MON_GOLEM))
         p_ptr->magic_resistance = 15;
 
     /* Hack: Vicious Strike should not put AC below 0, but I can't find out a better

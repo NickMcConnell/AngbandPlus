@@ -1236,7 +1236,7 @@ void teleport_to_spell(int cmd, variant *res)
 static int _boulder_dam(void)
 {
     int l = p_ptr->lev;
-    int dam = 2*l + l*l/50 + l*l*l/2500;
+    int dam = 2*l + l*l/50 + l*l*l/1250;
     return dam;
 }
 void throw_boulder_spell(int cmd, variant *res)
@@ -1263,7 +1263,7 @@ void throw_boulder_spell(int cmd, variant *res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, (_boulder_dam() + 4)/5);
+        var_set_int(res, (_boulder_dam() + 6)/7);
         break;
     default:
         default_spell(cmd, res);

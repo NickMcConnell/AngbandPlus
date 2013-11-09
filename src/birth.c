@@ -157,9 +157,9 @@ static int _menu_choose(menu_ptr menu, int start_choice)
         if (cs != os)
         {
             c_put_str(TERM_WHITE, cur, 12 + (os/3), 1 + 20 * (os%3));
-            put_str("                                    ", 3, 40);
-            put_str("                                    ", 4, 40);
-            put_str("                                    ", 5, 40);
+            put_str("                                      ", 3, 40);
+            put_str("                                      ", 4, 40);
+            put_str("                                      ", 5, 40);
             if(cs == menu->count)
             {
                 sprintf(cur, "*) Random");
@@ -764,7 +764,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
          RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
     { "Monster", "MonsterRaces.txt", 
         {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_SWORD, RACE_MON_DEMON, 
-            RACE_MON_DRAGON, RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_HOUND, 
+            RACE_MON_DRAGON, RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_GOLEM, RACE_MON_HOUND, 
             RACE_MON_HYDRA, RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, 
             RACE_MON_QUYLTHULG, RACE_MON_SPIDER, RACE_MON_TROLL, RACE_MON_XORN, -1} },
 };
@@ -885,6 +885,9 @@ static _name_desc_t _giant_info[GIANT_MAX] = {
     { "Titan", "Titans are huge immortal beings of incredible strength and awesome power. "
                 "Descended from Gaia and Uranus, they ruled during the legendary Golden Age, "
                 "but were overthrown by the Olympians during the War of the Titans." },
+    { "Hru", "Hrus are rock giants, made of stone. Their hides are tough and they are able "
+                "to break through walls effortlessly. Hrus are incredibly strong, but lack "
+                "much in the way of magical powers." },
 };
 static void _giant_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
@@ -900,6 +903,44 @@ static void _giant_menu_fn(int cmd, int which, vptr cookie, variant *res)
 
         c_put_str(TERM_L_BLUE, _giant_info[which].name, 3, 40);
         put_str(": Race modification", 3, 40+strlen(_giant_info[which].name));
+        put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
+        sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->exp);
+        c_put_str(TERM_L_BLUE, buf, 5, 40);
+
+        var_set_bool(res, TRUE);
+        break;
+    }
+    }
+}
+
+static _name_desc_t _golem_info[GOLEM_MAX] = {
+    { "Colossus", "The Colossus is the biggest of all golems, truly immense. "
+                  "Unfortunately, they are also the slowest of all golems on "
+                  "account of their great size." },
+    { "Sky Golem", "The Sky Golem is the product of powerful enchantments, resistant "
+                   "to the ravages of time. They may even breathe time!" },
+    { "Spellwarp Automaton", "The Spellwarp Automaton is nearly indestructible, being "
+                             "almost completely immune to magic. However, their great "
+                             "power takes a seeming eternity to mature." },
+};
+
+static void _golem_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, _golem_info[which].name);
+        break;
+    case MENU_ON_BROWSE:
+    {
+        char buf[100];
+        race_t *race_ptr = get_race_t_aux(RACE_MON_GOLEM, which);
+
+        c_put_str(TERM_L_BLUE, _golem_info[which].name, 3, 40);
+        put_str(": Race modification", 3, 40+strlen(_golem_info[which].name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
             race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
@@ -1216,6 +1257,25 @@ static int _prompt_race(void)
                         p_ptr->psubrace = idx;
                         c_put_str(TERM_L_BLUE, format("%-19s", _giant_info[p_ptr->psubrace].name), 5, 14);
                         if (!_confirm_choice(_giant_info[p_ptr->psubrace].desc, menu3.count)) continue;
+                        idx = _prompt_class();
+                        if (idx == _BIRTH_ESCAPE) continue;
+                        return idx;
+                    }
+                }
+                else if (p_ptr->prace == RACE_MON_GOLEM)
+                {
+                    for (;;)
+                    {
+                        menu_t menu3 = { "Subrace", "MonsterRaces.txt#Golem", "",
+                                            _golem_menu_fn, 
+                                            NULL, GOLEM_MAX};
+                        c_put_str(TERM_WHITE, "                   ", 5, 14);
+                        idx = _menu_choose(&menu3, p_ptr->psubrace);
+                        if (idx == _BIRTH_ESCAPE) break;
+                        if (idx < 0) return idx;
+                        p_ptr->psubrace = idx;
+                        c_put_str(TERM_L_BLUE, format("%-19s", _golem_info[p_ptr->psubrace].name), 5, 14);
+                        if (!_confirm_choice(_golem_info[p_ptr->psubrace].desc, menu3.count)) continue;
                         idx = _prompt_class();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;
@@ -2614,6 +2674,7 @@ void player_outfit(void)
     case RACE_GOLEM:
     case RACE_ZOMBIE:
     case RACE_SPECTRE:
+    case RACE_MON_GOLEM:
         _birth_object(TV_STAFF, SV_STAFF_NOTHING, 1);
         break;
 
@@ -3010,9 +3071,9 @@ static bool player_birth_aux(void)
     /* Clean up */
     put_str("Make your character. ('S' Restart, 'Q' Quit, '?' Help)                ", 9, 10);
     clear_from(10);
-    put_str("                                   ", 3, 40);
-    put_str("                                   ", 4, 40);
-    put_str("                                   ", 5, 40);
+    put_str("                                     ", 3, 40);
+    put_str("                                     ", 4, 40);
+    put_str("                                     ", 5, 40);
 
     screen_save();
     do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");

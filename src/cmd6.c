@@ -383,7 +383,8 @@ static void do_cmd_eat_food_aux(int item)
         jelly_eat_object(o_ptr);
     }
     else if ((prace_is_(RACE_SKELETON) ||
-          prace_is_(RACE_GOLEM) ||
+          prace_is_(RACE_GOLEM) || 
+          prace_is_(RACE_MON_GOLEM) || 
           prace_is_(MIMIC_CLAY_GOLEM) ||
           prace_is_(MIMIC_IRON_GOLEM) ||
           prace_is_(MIMIC_MITHRIL_GOLEM) ||
@@ -553,6 +554,7 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
 
     if (prace_is_(RACE_SKELETON) ||
         prace_is_(RACE_GOLEM) ||
+        prace_is_(RACE_MON_GOLEM) || 
         prace_is_(MIMIC_CLAY_GOLEM) ||
         prace_is_(MIMIC_IRON_GOLEM) ||
         prace_is_(MIMIC_MITHRIL_GOLEM) ||

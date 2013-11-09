@@ -132,7 +132,7 @@ D:Inventor of the incandescent lightbulb.
 N:8:'Frakir'
 I:45:32:1
 W:50:40:2:10000
-F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
+F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | SPEED
 F:RES_POIS | ACTIVATE | SEE_INVIS | SEARCH | WARNING | INSTA_ART
 
 # The Ring of Tulkas
@@ -661,7 +661,7 @@ N:58:of Thanos
 I:31:2:2
 W:10:20:25:0
 P:2:1d1:-11:-12:0
-F:STR | DEX | HIDE_TYPE | RES_DISEN | RES_NEXUS | IM_FIRE |
+F:STR | DEX | HIDE_TYPE | RES_DISEN | RES_NEXUS | IM_FIRE | SLAY_GOOD |
 F:HOLD_LIFE | RES_NETHER | RES_CONF | RES_CHAOS | RES_POIS | IM_COLD |
 F:AGGRAVATE | CURSED | SHOW_MODS | HEAVY_CURSE | TY_CURSE | TELEPORT
 F:RANDOM_CURSE1
@@ -744,37 +744,41 @@ F:FREE_ACT | RES_DARK | SUST_DEX | SEE_INVIS | SHOW_MODS | THROW
 # The Dagger 'Narthanc'
 
 N:66:'Narthanc'
-I:23:4:0
+I:23:4:1
 W:4:10:12:12000
 P:0:1d4:4:6:0
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE | THROW | XTRA_H_RES
+F:SPEED
 D:A fiery dagger finely balanced for deadly throws.
 
 # The Dagger 'Nimthanc'
 
 N:67:'Nimthanc'
-I:23:4:0
+I:23:4:1
 W:3:10:12:11000
 P:0:1d4:4:6:0
 F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS | THROW | XTRA_H_RES
+F:SPEED
 D:A frosty dagger finely balanced for deadly throws.
 
 # The Dagger 'Dethanc'
 
 N:68:'Dethanc'
-I:23:4:0
+I:23:4:1
 W:5:10:12:13000
 P:0:1d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS | THROW | XTRA_H_RES
+F:SPEED
 D:A dagger covered in sparks and finely balanced for deadly throws.
 
 # The Dagger of Rilia
 
 N:69:of Rilia
-I:23:4:0
+I:23:4:1
 W:5:40:12:35000
 P:0:2d4:4:3:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS | BRAND_POIS | THROW
+F:SPEED
 D:A large stiletto dagger that glistens with odorless poison, to which the 
 D:wearer seems oddly immune.
 
@@ -974,10 +978,11 @@ F:ESP_ORC | ESP_TROLL | ESP_HUMAN
 # The Rapier 'Forasgil'
 
 N:86:'Forasgil'
-I:23:7:0
+I:23:7:1
 W:15:8:40:15000
 P:0:1d6:12:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
+F:SPEED
 D:A slender, tapered blade whose wielder strikes icy blows with deadly 
 D:accuracy.
 
@@ -1032,7 +1037,7 @@ N:91:'Doomcaller'
 I:23:30:-3
 W:70:25:180:250000
 P:0:6d6:18:28:0
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL |
+F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_GOOD | BRAND_COLD | SLAY_TROLL |
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:RES_CONF | RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS |
 F:SLAY_HUMAN | CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE | 
@@ -1635,7 +1640,7 @@ N:144:'Muramasa'
 I:23:20:2
 W:60:200:200:1000000
 P:0:10d5:0:0:-20
-F:HIDE_TYPE | BLOWS | VORPAL | VAMPIRIC | SLAY_HUMAN |
+F:HIDE_TYPE | BLOWS | VORPAL | VAMPIRIC | SLAY_HUMAN | SLAY_GOOD |
 F:SHOW_MODS | SPEED | ACTIVATE | RES_DISEN | NO_TELE |
 F:DRAIN_EXP | AGGRAVATE | RES_DARK | RES_NETHER | TY_CURSE |
 
@@ -2039,7 +2044,7 @@ W:45:1:180:100000
 P:0:6d6:16:16:0
 F:VAMPIRIC | STR | CON | FREE_ACT | HOLD_LIFE | RES_NETHER | RES_CONF |
 F:RES_CHAOS | QUESTITEM
-F:SLAY_HUMAN |
+F:SLAY_HUMAN | SLAY_GOOD
 
 N:191:'Narsil'
 I:23:2:1
@@ -2501,7 +2506,7 @@ I:23:21:2
 W:66:6:150:166666
 P:0:6d6:10:10:0
 F:CON | HIDE_TYPE | ACTIVATE | SHOW_MODS |
-F:VORPAL | VAMPIRIC | FREE_ACT | SEE_INVIS |
+F:VORPAL | VAMPIRIC | FREE_ACT | SEE_INVIS | SLAY_GOOD |
 F:RES_CONF | RES_SOUND
 D:This weapon is infused with the soul of the first Blood Knight.  Beware!
 D:It longs for blood, even the wielder's!  But there is no finer weapon for
@@ -2986,12 +2991,12 @@ F:INSTA_ART
 
 N:303:of Ymir
 I:23:25:0
-W:30:15:350:0
+W:30:15:400:0
 P:0:5d10:7:17:0
 F:QUESTITEM
 F:IM_COLD | RES_COLD | BRAND_COLD | VORPAL
 
-N:304:of Raijin
+N:304:of Typhoeus
 I:23:25:0
 W:30:15:400:0
 P:0:5d12:4:14:0
@@ -3000,7 +3005,7 @@ F:IM_ELEC | RES_ELEC | BRAND_ELEC | VORPAL
 
 N:305:of Kronos
 I:22:3:3
-W:10:4:200:10000
+W:10:4:250:10000
 P:0:10d3:15:15:0
 F:QUESTITEM
 F:STR | INT | WIS | DEX | CON | CHR | SPEED
@@ -3122,6 +3127,20 @@ F:QUESTITEM
 F:CHR | SPEED | FREE_ACT | TELEPATHY
 F:RES_BLIND | RES_CONF | RES_CHAOS | SEE_INVIS | REGEN
 F:XTRA_H_RES
+
+N:320:of the Destroyer
+I:31:5:-2
+W:99:150:25:200000
+P:5:0d0:-15:125:0
+F:QUESTITEM
+F:SPEED | REFLECT
+
+N:321:of Atlas
+I:21:50:9
+W:100:1:900:500000
+P:0:9d9:9:19:0
+F:IMPACT | QUESTITEM
+F:STR | SUST_STR
 
 
 # N: serial number : item name

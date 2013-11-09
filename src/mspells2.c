@@ -881,10 +881,38 @@ bool monst_spell_monst(int m_idx)
         /* XXX XXX XXX */
         return FALSE;
 
-    /* RF4_XXX4 */
+    /* RF4_BR_STORM */
     case 96+7:
-        /* XXX XXX XXX */
-        return FALSE;
+        if (known)
+        {
+            if (see_either)
+            {
+                disturb(1, 0);
+
+                if (blind)
+                {
+                    msg_format("%^s breathes.", m_name);
+
+                }
+                else
+                {
+                    msg_format("%^s breathes storm winds at %s.", m_name, t_name);
+
+                }
+            }
+            else
+            {
+                mon_fight = TRUE;
+            }
+
+            sound(SOUND_BREATH);
+        }
+
+        dam = MIN(m_ptr->hp / 5, 350);
+        monst_breath_monst(m_idx, y, x, GF_STORM,
+                   dam, 0, TRUE, 0, FALSE);
+
+        break;
 
     /* RF4_BR_ACID */
     case 96+8:

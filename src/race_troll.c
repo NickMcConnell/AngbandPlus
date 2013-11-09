@@ -100,6 +100,32 @@ static void _aklash_breathe_spell(int cmd, variant *res)
     }
 }
 
+static void _super_attack_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Powerful Attack");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attack an adjacent opponent powerfully.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(PY_POWER_ATTACK));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static power_info _powers[] = 
+{
+    { A_STR, { 10, 10, 30, berserk_spell} },
+    { A_STR, { 22, 20, 50, _super_attack_spell} },
+    { A_CON, { 28, 20, 50, resistance_spell} },
+    {    -1, { -1, -1, -1, NULL}}
+};
 
 static power_info _aklash_powers[] = 
 {
@@ -118,20 +144,27 @@ static power_info _storm_troll_powers[] =
 
 static power_info _troll_king_powers[] = 
 {
-    { A_DEX, {  40, 2, 30, phase_door_spell} },
+    { A_DEX, { 40,  2, 30, phase_door_spell} },
+    { A_CHR, { 40, 30, 50, summon_kin_spell} },
     {    -1, { -1, -1, -1, NULL}}
 };
 
 static int _get_powers(spell_info* spells, int max) 
 {
+    int ct = get_powers_aux(spells, max, _powers);
     switch (p_ptr->current_r_idx)
     {
-    case MON_AKLASH: return get_powers_aux(spells, max, _aklash_powers);
-    case MON_STORM_TROLL: return get_powers_aux(spells, max, _storm_troll_powers);
-    case MON_TROLL_KING: return get_powers_aux(spells, max, _troll_king_powers);
+    case MON_AKLASH: 
+        ct += get_powers_aux(spells + ct, max - ct, _aklash_powers);
+        break;
+    case MON_STORM_TROLL: 
+        ct += get_powers_aux(spells + ct, max - ct, _storm_troll_powers);
+        break;
+    case MON_TROLL_KING: 
+        ct += get_powers_aux(spells + ct, max - ct, _troll_king_powers);
+        break;
     }
-
-    return 0;
+    return ct;
 }
 
 /******************************************************************************

@@ -1994,9 +1994,14 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             }
             break;
         }
-        /* RF4_XXX4 */
+        /* RF4_BR_STORM */
         case 96+7:
         {
+            disturb(1, 0);
+            if (blind) msg_format("%^s breathes.", m_name);
+            else msg_format("%^s breathes storm winds.", m_name);
+            dam = MIN(m_ptr->hp / 5, 350);
+            breath(y, x, m_idx, GF_STORM, dam, 0, TRUE, 0, FALSE);
             break;
         }
         /* RF4_BR_ACID */

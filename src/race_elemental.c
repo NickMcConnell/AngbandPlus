@@ -54,51 +54,6 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_FREE_ACT);
 }
 
-static bool _do_blow(int type)
-{
-    int x, y;
-    int dir;
-    int m_idx = 0;
-
-    /* For ergonomics sake, use currently targeted monster.  This allows
-       a macro of \e*tmaa or similar to pick an adjacent foe, while
-       \emaa*t won't work, since get_rep_dir2() won't allow a target. */
-    if (use_old_target && target_okay())
-    {
-        y = target_row;
-        x = target_col;
-        m_idx = cave[y][x].m_idx;
-        if (m_idx)
-        {
-            if (m_list[m_idx].cdis > 1)
-                m_idx = 0;
-            else
-                dir = 5;
-        }
-    }
-
-    if (!m_idx)
-    {
-        if (!get_rep_dir2(&dir)) return FALSE;
-        if (dir == 5) return FALSE;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-        m_idx = cave[y][x].m_idx;
-
-        if (!m_idx)
-        {
-            msg_print("There is no monster there.");
-            return FALSE;
-        }
-    }
-
-    if (m_idx)
-        py_attack(y, x, type);
-
-    return TRUE;
-}
-
 static bool _elemental_travel(int flag)
 {
     int  rng = p_ptr->lev / 2 + 10;
@@ -527,7 +482,7 @@ static void _confusing_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a confusing blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(HISSATSU_CONF));
+        var_set_bool(res, do_blow(HISSATSU_CONF));
         break;
     default:
         default_spell(cmd, res);
@@ -546,7 +501,7 @@ static void _lightning_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a shocking blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(HISSATSU_ELEC));
+        var_set_bool(res, do_blow(HISSATSU_ELEC));
         break;
     default:
         default_spell(cmd, res);
@@ -554,7 +509,7 @@ static void _lightning_strike_spell(int cmd, variant *res)
     }
 }
 
-void _lightning_storm_spell(int cmd, variant *res)
+static void _lightning_storm_spell(int cmd, variant *res)
 {
     int l = p_ptr->lev;
     int dam = l*2 + l*l/25 + l*l*l/1250;
@@ -789,7 +744,7 @@ static void _acid_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a corrosive blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(PY_ATTACK_ACID));
+        var_set_bool(res, do_blow(PY_ATTACK_ACID));
         break;
     default:
         default_spell(cmd, res);
@@ -1124,7 +1079,7 @@ static void _flaming_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a fiery blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(HISSATSU_FIRE));
+        var_set_bool(res, do_blow(HISSATSU_FIRE));
         break;
     default:
         default_spell(cmd, res);

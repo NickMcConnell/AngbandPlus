@@ -262,6 +262,7 @@ typedef struct {
 
 static _flag_info_t _slay_flag_info[] = {
     { TR_SLAY_EVIL, 32, "Slay Evil" },
+    { TR_SLAY_GOOD, 16, "Slay Good" },
     { TR_SLAY_UNDEAD, 16, "Slay Undead" },
     { TR_SLAY_DEMON, 16, "Slay Demon" },
     { TR_SLAY_DRAGON, 16, "Slay Dragon" },

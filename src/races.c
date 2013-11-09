@@ -128,6 +128,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
     case RACE_MON_GIANT:
         result = mon_giant_get_race_t(psubrace);
         break;
+    case RACE_MON_GOLEM:
+        result = mon_golem_get_race_t(psubrace);
+        break;
     case RACE_MON_HOUND:
         result = mon_hound_get_race_t();
         break;

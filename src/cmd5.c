@@ -2271,6 +2271,19 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_NO_BREEDING;
 
+    if (!use_graphics)
+    {
+        if (p_ptr->pet_extra_flags & PF_HILITE)
+        {
+            power_desc[num] = "highlight pets (now On)";
+        }
+        else
+        {
+            power_desc[num] = "highlight pets (now Off)";
+        }
+        powers[num++] = PET_HILITE;
+    }
+
 #ifdef ALLOW_REPEAT
     if (!(repeat_pull(&i) && (i >= 0) && (i < num)))
     {
@@ -2594,6 +2607,13 @@ void do_cmd_pet(void)
         {
             if (p_ptr->pet_extra_flags & PF_NO_BREEDING) p_ptr->pet_extra_flags &= ~(PF_NO_BREEDING);
             else p_ptr->pet_extra_flags |= PF_NO_BREEDING;
+            break;
+        }
+        case PET_HILITE:
+        {
+            if (p_ptr->pet_extra_flags & PF_HILITE) p_ptr->pet_extra_flags &= ~(PF_HILITE);
+            else p_ptr->pet_extra_flags |= PF_HILITE;
+            p_ptr->redraw |= PR_MAP;
             break;
         }
     }

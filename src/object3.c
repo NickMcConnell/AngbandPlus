@@ -1146,6 +1146,8 @@ s32b weapon_cost(object_type *o_ptr)
         if (have_flag(flgs, TR_KILL_EVIL)) s += (2.5 * 0.8);
         else if (have_flag(flgs, TR_SLAY_EVIL)) s += (1.0 * 0.8);
 
+        if (have_flag(flgs, TR_SLAY_GOOD)) s += (2.5 * 0.20);
+
         if (have_flag(flgs, TR_FORCE_WEAPON))
         {
             s = (s * 1.50 + 1.0) * 0.25 + s * 0.75;

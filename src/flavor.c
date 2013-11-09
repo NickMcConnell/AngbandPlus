@@ -576,6 +576,7 @@ static flag_insc_table flag_insc_slay[] =
     { "U", TR_SLAY_DEMON, TR_KILL_DEMON },
     { "L", TR_SLAY_UNDEAD, TR_KILL_UNDEAD },
     { "Z", TR_SLAY_ANIMAL, TR_KILL_ANIMAL },
+    { "A", TR_SLAY_GOOD, -1 },
     { NULL, 0, -1 }
 };
 

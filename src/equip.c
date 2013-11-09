@@ -1144,7 +1144,8 @@ void equip_calc_bonuses(void)
             _weapon_info_flag(i, flgs, TR_BRAND_ELEC);
             _weapon_info_flag(i, flgs, TR_BRAND_ACID);
             _weapon_info_flag(i, flgs, TR_BRAND_POIS);
-            _weapon_info_flag(i, flgs, TR_IMPACT);
+            _weapon_info_flag(i, flgs, TR_IMPACT);     /* Quaker */
+            _weapon_info_flag(i, flgs, TR_SLAY_GOOD);  /* Thanos */
         }
 
         if (have_flag(flgs, TR_XTRA_SHOTS)) p_ptr->shooter_info.num_fire += 100;

@@ -1248,8 +1248,15 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
                 a = r_ptr->x_attr;
                 c = r_ptr->x_char;
 
+                /* Pets: Ideally, we could tweak the background. And what about tiles? */
+                if (!use_graphics && (p_ptr->pet_extra_flags & PF_HILITE) && is_pet(m_ptr))
+                {
+                    a = TERM_YELLOW;
+                    *ap = a;
+                    *cp = c;
+                }
                 /* Normal monsters */
-                if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR | RF1_SHAPECHANGER | RF1_ATTR_CLEAR
+                else if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR | RF1_SHAPECHANGER | RF1_ATTR_CLEAR
                                        | RF1_ATTR_MULTI | RF1_ATTR_SEMIRAND)))
                 {
                     /* Desired monster attr/char */
