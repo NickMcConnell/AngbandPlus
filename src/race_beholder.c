@@ -102,7 +102,7 @@ static void _calc_innate_attacks(void)
             a.effect_chance[4] = 20 + l/2;
         }
 
-        calc_innate_blows(&a, 4);
+        calc_innate_blows(&a, 400);
         a.msg = "You gaze at %s.";
         a.name = "Gaze";
 

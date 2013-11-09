@@ -3166,44 +3166,52 @@ void display_player(int mode)
     }
 }
 
+static void dump_screen(FILE *fff)
+{
+    bool skip = FALSE;
+    int w, h, x, y;
+    byte a;
+    char c;
+    char buf[1024];
+
+    Term_get_size(&w, &h);
+    for (y = 0; y < h; y++)
+    {
+        for (x = 0; x < 79; x++)
+        {
+            (void)(Term_what(x, y, &a, &c));
+            if (a < 128)
+                buf[x] = c;
+            else
+                buf[x] = ' ';
+        }
+        buf[x] = '\0';
+        while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
+        if (buf[0])
+        {
+            if (skip)
+            {
+                fputc('\n', fff);
+                skip = FALSE;
+            }
+            fprintf(fff, "%s\n", buf);
+        }
+        else
+            skip = TRUE;
+    }
+    fprintf(fff, "\n\n");
+}
 
 /*
  *
  */
 static void dump_aux_display_player(FILE *fff)
 {
-    int x, y, i;
-    byte a;
-    char c;
-    char        buf[1024];
+    int i;
 
     /* Display player */
     display_player(0);
-
-    /* Dump part of the screen */
-    for (y = 1; y < 23; y++)
-    {
-        /* Dump each row */
-        for (x = 0; x < 79; x++)
-        {
-            /* Get the attr/char */
-            (void)(Term_what(x, y, &a, &c));
-
-            /* Dump it */
-            buf[x] = c;
-        }
-
-        /* End the string */
-        buf[x] = '\0';
-
-        /* Kill trailing spaces */
-        while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
-
-        /* End the row */
-        fprintf(fff, "%s\n", buf);
-    }
-
-    fprintf(fff, "\n");
+    dump_screen(fff);
 
     if (equip_count_used())
     {
@@ -3226,96 +3234,15 @@ static void dump_aux_display_player(FILE *fff)
 
     /* Display flags (part 1) */
     display_player(1);
-
-    /* Dump part of the screen */
-    for (y = 0; y < 24; y++)
-    {
-        /* Dump each row */
-        for (x = 0; x < 79; x++)
-        {
-            /* Get the attr/char */
-            (void)(Term_what(x, y, &a, &c));
-
-            /* Dump it (Ignore equippy tile graphic) */
-            if (a < 128)
-                buf[x] = c;
-            else
-                buf[x] = ' ';
-        }
-
-        /* End the string */
-        buf[x] = '\0';
-
-        /* Kill trailing spaces */
-        while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
-
-        /* End the row */
-        if (buf[0])
-            fprintf(fff, "%s\n", buf);
-    }
-
-    fprintf(fff, "\n");
+    dump_screen(fff);
 
     /* Display flags (part 2) */
     display_player(2);
-
-    /* Dump part of the screen */
-    for (y = 0; y < 27; y++)
-    {
-        /* Dump each row */
-        for (x = 0; x < 79; x++)
-        {
-            /* Get the attr/char */
-            (void)(Term_what(x, y, &a, &c));
-
-            /* Dump it (Ignore equippy tile graphic) */
-            if (a < 128)
-                buf[x] = c;
-            else
-                buf[x] = ' ';
-        }
-
-        /* End the string */
-        buf[x] = '\0';
-
-        /* Kill trailing spaces */
-        while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
-
-        /* End the row */
-        if (buf[0])
-            fprintf(fff, "%s\n", buf);
-    }
-
-    fprintf(fff, "\n");
+    dump_screen(fff);
 
     Term_clear();
     display_player_stat_info();
-    for (y = 0; y < 24; y++)
-    {
-        /* Dump each row */
-        for (x = 0; x < 79; x++)
-        {
-            /* Get the attr/char */
-            (void)(Term_what(x, y, &a, &c));
-
-            /* Dump it (Ignore equippy tile graphic) */
-            if (a < 128)
-                buf[x] = c;
-            else
-                buf[x] = ' ';
-        }
-
-        /* End the string */
-        buf[x] = '\0';
-
-        /* Kill trailing spaces */
-        while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
-
-        /* End the row */
-        if (buf[0])
-            fprintf(fff, "%s\n", buf);
-    }
-    fprintf(fff, "\n");
+    dump_screen(fff);
 
     fprintf(fff, "==================================== Melee ====================================\n\n");
     for (i = 0; i < MAX_HANDS; i++)
@@ -3328,79 +3255,22 @@ static void dump_aux_display_player(FILE *fff)
         else
             display_weapon_info(i, 0, 0);
 
-        for (y = 0; y < 22; y++)
-        {
-            for (x = 0; x < 79; x++)
-            {
-                (void)(Term_what(x, y, &a, &c));
-                if (a < 128)
-                    buf[x] = c;
-                else
-                    buf[x] = ' ';
-            }
-            buf[x] = '\0';
-            while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
-            if (buf[0])
-                fprintf(fff, "%s\n", buf);
-        }
-        fprintf(fff, "\n\n");
+        dump_screen(fff);
     }
 
     for (i = 0; i < p_ptr->innate_attack_ct; i++)
     {
         Term_clear();
         display_innate_attack_info(i, 0, 0);
-        for (y = 0; y < 22; y++)
-        {
-            for (x = 0; x < 79; x++)
-            {
-                (void)(Term_what(x, y, &a, &c));
-                if (a < 128)
-                    buf[x] = c;
-                else
-                    buf[x] = ' ';
-            }
-            buf[x] = '\0';
-            while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
-            if (buf[0])
-                fprintf(fff, "%s\n", buf);
-        }
-        fprintf(fff, "\n\n");
+        dump_screen(fff);
     }
 
     if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY))
     {
-        bool skip = FALSE;
-        int w, h;
-        Term_get_size(&w, &h);
         fprintf(fff, "=================================== Shooting ==================================\n\n");
         Term_clear();
         display_shooter_info(0, 0);
-        for (y = 0; y < h; y++)
-        {
-            for (x = 0; x < 79; x++)
-            {
-                (void)(Term_what(x, y, &a, &c));
-                if (a < 128)
-                    buf[x] = c;
-                else
-                    buf[x] = ' ';
-            }
-            buf[x] = '\0';
-            while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
-            if (buf[0])
-            {
-                if (skip)
-                {
-                    fputc('\n', fff);
-                    skip = FALSE;
-                }
-                fprintf(fff, "%s\n", buf);
-            }
-            else
-                skip = TRUE;
-        }
-        fprintf(fff, "\n\n");
+        dump_screen(fff);
     }
 
     {

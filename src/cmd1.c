@@ -2169,6 +2169,33 @@ void touch_zap_player(int m_idx)
     }
 }
 
+/* Fractional Blows: 2.75 is stored as 275 and should give 3 blows 75% of the time. */
+static int _get_num_blow(int hand)
+{
+    int num_blow = NUM_BLOWS(hand);
+    int result = num_blow / 100;
+
+    if (randint0(100) < (num_blow % 100))
+        result++;
+
+    return result;
+}
+
+static int _get_num_blow_innate(int which)
+{
+    int num_blow = p_ptr->innate_attacks[which].blows;
+    int result;
+
+    if (which == 0)
+        num_blow += p_ptr->innate_attack_info.xtra_blow;
+
+    result = num_blow / 100;
+    if (randint0(100) < (num_blow % 100))
+        result++;
+
+    return result;
+}
+
 static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 {
     int             dam, base_dam, to_h, chance;
@@ -2200,10 +2227,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     for (i = 0; i < p_ptr->innate_attack_ct; i++)
     {
         innate_attack_ptr a = &p_ptr->innate_attacks[i];
-        int               blows = a->blows;
-
-        if (i == 0)
-            blows += p_ptr->innate_attack_info.xtra_blow;
+        int               blows = _get_num_blow_innate(i);
 
         for (j = 0; j < blows; j++)
         {
@@ -2553,7 +2577,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
     chance += virtue_current(VIRTUE_VALOUR) / 10;
 
-    num_blow = NUM_BLOWS(hand);
+    num_blow = _get_num_blow(hand);
+
     if (mode == HISSATSU_COLD) num_blow += 2;
     if (mode == WEAPONMASTER_CUNNING_STRIKE) num_blow = (num_blow + 1)/2;
 
@@ -3717,12 +3742,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         backstab = FALSE;
         fuiuchi = FALSE;
 
-        /* Hack: Blood Knights might damage themselves with the Blood Feast (or monster auras).  Since this
-           class gets more attacks as health diminishes, it is only fair that we recalc and bump up attacks.
-           This might be the player's last attack before death, and we wouldn't want to short change them! */
-        if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && !poison_needle && !eviscerator)
-            num_blow = NUM_BLOWS(hand);
-
         /* Hack: Whirlwind first attacks chosen monster, than attempts to strike
            all other monsters adjacent.*/
         if (do_whirlwind)
@@ -4068,7 +4087,9 @@ bool py_attack(int y, int x, int mode)
             if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && !mdeath && !fear_stop)
             {
                 object_type *o_ptr = equip_obj(p_ptr->weapon_info[i].slot);
-                for (j = 0; j < NUM_BLOWS(i); j++)
+                int num_blow = _get_num_blow(i);
+
+                for (j = 0; j < num_blow; j++)
                 {
                     if (o_ptr) /* paranoia */
                     {
@@ -4107,7 +4128,8 @@ bool py_attack(int y, int x, int mode)
             if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && !mdeath && !fear_stop)
             {
                 object_type *o_ptr = equip_obj(p_ptr->weapon_info[i].slot);
-                for (j = 0; j < NUM_BLOWS(i); j++)
+                int num_blow = _get_num_blow(i);
+                for (j = 0; j < num_blow; j++)
                 {
                     if (p_ptr->wizard)
                         msg_format("Attack #%d", j+1);
@@ -4163,7 +4185,8 @@ bool py_attack(int y, int x, int mode)
                 drain_left = MAX_VAMPIRIC_DRAIN;
                 if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && !mdeath && !fear_stop)
                 {
-                    for (j = 0; j < NUM_BLOWS(i); j++)
+                    int num_blow = _get_num_blow(i);
+                    for (j = 0; j < num_blow; j++)
                     {
                         int y, x;
                         int ny, nx;

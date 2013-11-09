@@ -943,6 +943,8 @@ struct player_seikaku
     bool riding_wield;
     int dual_wield_pct; /* Scaled by 10 so 123 = 12.3%. Set to 1000 (ie 100%) if not dual wielding */
     u32b flags[TR_FLAG_SIZE];
+    byte info_attr;
+    cptr info;
 } weapon_info_t, *weapon_info_ptr;
 
 #define NUM_BLOWS(h) (p_ptr->weapon_info[h].base_blow + p_ptr->weapon_info[h].xtra_blow)
@@ -982,7 +984,6 @@ typedef struct {
     int to_h;
     int to_d;
     int blows;
-    int max_blows;
     int weight;
     int effect[MAX_INNATE_EFFECTS];
     int effect_chance[MAX_INNATE_EFFECTS];

@@ -1731,7 +1731,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 
     if (p_ptr->magic_num1[_COMBAT])
     {
-        info_ptr->xtra_blow += (p_ptr->magic_num2[_COMBAT] + 1) / 2;
+        info_ptr->xtra_blow += p_ptr->magic_num2[_COMBAT] * 50;
     }
 }
 

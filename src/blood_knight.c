@@ -492,15 +492,15 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     int frac = p_ptr->chp * 100 / p_ptr->mhp;
     if (frac < 20 && p_ptr->lev > 48)
-        info_ptr->xtra_blow += 9;
+        info_ptr->xtra_blow += 900;
     else if (frac < 40 && p_ptr->lev > 36)
-        info_ptr->xtra_blow += 6;
+        info_ptr->xtra_blow += 600;
     else if (frac < 60 &&  p_ptr->lev > 24)
-        info_ptr->xtra_blow += 4;
+        info_ptr->xtra_blow += 400;
     else if (frac < 80 && p_ptr->lev > 12)
-        info_ptr->xtra_blow += 2;
+        info_ptr->xtra_blow += 200;
     else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
-        info_ptr->xtra_blow += 1;
+        info_ptr->xtra_blow += 100;
 }
 
 static void _on_cast(const spell_info *spell)

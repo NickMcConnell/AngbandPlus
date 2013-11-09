@@ -1949,6 +1949,7 @@ extern race_t *mon_sword_get_race_t(void);
 extern race_t *mon_troll_get_race_t(void);
 extern race_t *mon_xorn_get_race_t(void);
 
+extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    jelly_eat_object(object_type *o_ptr);
 extern bool    leprechaun_steal(int m_idx);
 extern int     leprechaun_get_toggle(void);

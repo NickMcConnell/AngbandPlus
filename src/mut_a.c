@@ -431,7 +431,7 @@ void beak_mut(int cmd, variant *res)
         a.dd = 2;
         a.ds = 4;
         a.weight = 30;
-        a.blows = 1;
+        a.blows = 100;
         a.msg = "You hit %s with your beak.";
         a.name = "Beak";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -1148,7 +1148,7 @@ void horns_mut(int cmd, variant *res)
         a.dd = 2;
         a.ds = 6;
         a.weight = 150;
-        a.blows = 1;
+        a.blows = 100;
         a.msg = "You hit %s with your horns.";
         a.name = "Horns";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -1950,7 +1950,7 @@ void scorpion_tail_mut(int cmd, variant *res)
         a.dd = 3;
         a.ds = 7;
         a.weight = 50;
-        a.blows = 1;
+        a.blows = 100;
         a.effect[0] = GF_POIS;
         a.msg = "You hit %s with your tail.";
         a.name = "Tail";
@@ -2212,7 +2212,7 @@ void tentacles_mut(int cmd, variant *res)
         a.dd = 2;
         a.ds = 5;
         a.weight = 50;
-        a.blows = 1;
+        a.blows = 100;
         a.msg = "You hit %s with your tentacles.";
         a.name = "Tentacles";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -2247,7 +2247,7 @@ void trunk_mut(int cmd, variant *res)
         a.dd = 1;
         a.ds = 4;
         a.weight = 200;
-        a.blows = 1;
+        a.blows = 100;
         a.msg = "You hit %s with your trunk.";
         a.name = "Trunk";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

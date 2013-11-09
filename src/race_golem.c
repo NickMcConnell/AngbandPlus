@@ -88,7 +88,7 @@ static void _calc_innate_attacks(void)
         if (l >= 30)
             a.effect[1] = GF_STUN;
 
-        a.blows = 1;
+        a.blows = 100;
         a.msg = "You punch %s.";
         a.name = "Fist";
 

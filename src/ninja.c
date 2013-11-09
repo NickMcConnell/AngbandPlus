@@ -589,7 +589,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
         info_ptr->icky_wield = TRUE;
         info_ptr->base_blow /= 2;
         info_ptr->xtra_blow /= 2;
-        if (info_ptr->base_blow < 1) info_ptr->base_blow = 1;
+        if (info_ptr->base_blow < 100) info_ptr->base_blow = 100;
     }
 }
 

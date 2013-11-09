@@ -161,7 +161,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
         info_ptr->dis_to_d += to_d;
     }
 
-    info_ptr->xtra_blow += p_ptr->lev/23;
+    info_ptr->xtra_blow += p_ptr->lev*4;
 }
 
 static int _get_powers(spell_info* spells, int max)

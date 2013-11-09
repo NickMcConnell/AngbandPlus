@@ -562,7 +562,7 @@ static int _smash_ground_dam(void)
     
             damage = dd * (ds + 1) * 50;
             damage += o_ptr->to_d * 100;
-            damage *= NUM_BLOWS(hand);
+            damage *= NUM_BLOWS(hand)/100;
             result += damage / 100;
         }
     }
@@ -646,7 +646,7 @@ static bool _club_toss(int hand)
     }
 
     /* Pick a target */
-    info.mult = 1 + NUM_BLOWS(hand);
+    info.mult = 1 + NUM_BLOWS(hand)/100;
     if (p_ptr->mighty_throw) info.mult++;
     {
         int mul, div;
@@ -1156,7 +1156,7 @@ static bool _dagger_toss(int hand)
     }
 
     /* Pick a target */
-    info.mult = NUM_BLOWS(hand);
+    info.mult = NUM_BLOWS(hand)/100;
     if (p_ptr->mighty_throw) info.mult++;
     {
         int mul, div;
@@ -2313,9 +2313,9 @@ bool _design_monkey_clone(void)
             ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
 
             tdam += NUM_BLOWS(hand) * 
-                (dd * (ds + 1)/2 + p_ptr->weapon_info[hand].to_d + o_ptr->to_d);
+                (dd * (ds + 1)/2 + p_ptr->weapon_info[hand].to_d + o_ptr->to_d)/100;
     
-            blows += NUM_BLOWS(hand);
+            blows += NUM_BLOWS(hand)/100;
             acc = hit_chance(hand, o_ptr->to_h, 150);
         }
     }
@@ -3165,30 +3165,47 @@ bool weaponmaster_is_favorite(object_type *o_ptr)
 
 int weaponmaster_get_max_blows(object_type *o_ptr, int hand)
 {
-    int num = 1;
+    int num = 100;
     switch (_specialities[p_ptr->psubclass].kind)
     {
     case _WEAPONMASTER_BOWS:
-        num = 3;
+        num = 300;
         break;
 
     case _WEAPONMASTER_SHIELDS: /* Shieldmaster can bash or melee with aplomb */
-        num = 5;
+        num = 500;
         break;
 
     case _WEAPONMASTER_MELEE:
         if (_check_speciality_aux(o_ptr))
         {
-            num = 5;
-            if (p_ptr->psubclass == WEAPONMASTER_AXES)
+            switch (p_ptr->psubclass)
             {
+            case WEAPONMASTER_AXES:
+                num = 500;
                 if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
-                    num++;
-            }
-            else if (p_ptr->psubclass == WEAPONMASTER_DAGGERS)
-            {
+                    num = 600;
+                break;
+            case WEAPONMASTER_DAGGERS:
+                num = 500;
                 if (_get_toggle() == TOGGLE_FRENZY_STANCE)
-                    num++;
+                    num = 600;
+                break;
+            case WEAPONMASTER_CLUBS:
+                num = 525;
+                break;
+            case WEAPONMASTER_POLEARMS:
+                num = 525;
+                break;
+            case WEAPONMASTER_STAVES:
+                num = 550;
+                break;
+            case WEAPONMASTER_SWORDS:
+                num = 525;
+                break;
+            case WEAPONMASTER_DIGGERS:
+                num = 550;
+                break;
             }
         }
         break;
@@ -3859,20 +3876,20 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     else if (p_ptr->psubclass == WEAPONMASTER_STAVES)
     {
         if (spec1 && p_ptr->speciality_equip && p_ptr->lev >= 45 && p_ptr->chp == p_ptr->mhp)
-            info_ptr->xtra_blow++;
+            info_ptr->xtra_blow += 100;
 
         if (spec1 && p_ptr->speciality_equip)
         {
             switch (_get_toggle())
             {
             case TOGGLE_FLURRY_OF_BLOWS:
-                info_ptr->xtra_blow++;
+                info_ptr->xtra_blow += 100;
                 info_ptr->to_h -= 15;
                 info_ptr->dis_to_h -= 15;
                 break;
 
             case TOGGLE_GREATER_FLURRY:
-                info_ptr->xtra_blow += 2;
+                info_ptr->xtra_blow += 200;
                 info_ptr->to_h -= 30;
                 info_ptr->dis_to_h -= 30;
                 break;
@@ -3886,7 +3903,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             switch (_get_toggle())
             {
             case TOGGLE_INDUSTRIOUS_MORTICIAN:
-                info_ptr->xtra_blow += MIN(o_ptr->pval/2, 3);
+                info_ptr->xtra_blow += MIN(o_ptr->pval*50, 300);
                 break;
             }
         }

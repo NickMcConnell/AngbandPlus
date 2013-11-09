@@ -57,7 +57,7 @@ static void _calc_innate_attacks(void)
         if (p_ptr->lev >= 40)
             a.effect[i++] = GF_DISENCHANT;
         
-        calc_innate_blows(&a, 4);
+        calc_innate_blows(&a, 400);
         a.msg = "You touch %s.";
         a.name = "Finger";
 

@@ -74,7 +74,7 @@ static void _calc_innate_attacks(void)
 
         a.effect[1] = GF_STEAL;
         
-        calc_innate_blows(&a, 3);
+        calc_innate_blows(&a, 300);
 
         a.msg = "You pilfer %s.";
         a.name = "Greedy Hands";

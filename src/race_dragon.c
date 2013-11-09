@@ -296,7 +296,7 @@ static void _calc_innate_attacks(void)
         a.to_d += to_d;
 
         a.weight = 100 + 3 * l;
-        calc_innate_blows(&a, 4);
+        calc_innate_blows(&a, 400);
         a.msg = "You claw %s.";
         a.name = "Claw";
 
@@ -317,9 +317,9 @@ static void _calc_innate_attacks(void)
             a.effect[1] = _bite_effect();
 
         if (p_ptr->lev >= 40)
-            calc_innate_blows(&a, 2);
+            calc_innate_blows(&a, 200);
         else
-            a.blows = 1;
+            a.blows = 100;
         a.msg = "You bite %s.";
         a.name = "Bite";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

@@ -4492,7 +4492,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 
                 if (boomerang)
                 {
-                    tdam *= mult + NUM_BLOWS(0); /* TODO */
+                    tdam *= mult + NUM_BLOWS(0)/100; /* TODO */
                     tdam += p_ptr->to_d_m;
                 }
                 else if (have_flag(flgs, TR_THROW))

@@ -186,7 +186,7 @@ void monk_display_attack_info(int hand, int row, int col)
 
     c_put_str(TERM_YELLOW, "Your Fists", r++, c);
 
-    sprintf(buf, "Number of Blows: %d", blows);
+    sprintf(buf, "Number of Blows: %d.%2.2d", blows/100, blows%100);
     put_str(buf, r++, c);
 
     sprintf(buf, "To Hit:  0  50 100 150 200 (AC)");
@@ -206,36 +206,36 @@ void monk_display_attack_info(int hand, int row, int col)
     c_put_str(TERM_YELLOW, "Average Damage:", r++, c);
     sprintf(buf, "One Strike: %d.%02d", (tot_dam + to_d)/100, (tot_dam + to_d)%100);
     put_str(buf, r++, c+1);
-    sprintf(buf, "One Attack: %d.%02d", blows*(tot_dam + to_d)/100, (blows*(tot_dam + to_d))%100);
+    sprintf(buf, "One Attack: %d.%02d", blows*(tot_dam + to_d)/10000, ((blows*(tot_dam + to_d))/100)%100);
     put_str(buf, r++, c+1);
 
     if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_ACID))
     {
-        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/100, (blows*(tot_dam*17/10 + to_d))%100);
+        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/10000, ((blows*(tot_dam*17/10 + to_d))/100)%100);
         c_put_str(TERM_RED, "      Acid:", r, c+1);
         put_str(buf, r++, c+12);
     }
     if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_ELEC))
     {
-        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/100, (blows*(tot_dam*17/10 + to_d))%100);
+        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/10000, ((blows*(tot_dam*17/10 + to_d))/100)%100);
         c_put_str(TERM_RED, "      Elec:", r, c+1);
         put_str(buf, r++, c+12);
     }
     if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_FIRE))
     {
-        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/100, (blows*(tot_dam*17/10 + to_d))%100);
+        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/10000, ((blows*(tot_dam*17/10 + to_d))/100)%100);
         c_put_str(TERM_RED, "      Fire:", r, c+1);
         put_str(buf, r++, c+12);
     }
     if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_COLD))
     {
-        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/100, (blows*(tot_dam*17/10 + to_d))%100);
+        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/10000, ((blows*(tot_dam*17/10 + to_d))/100)%100);
         c_put_str(TERM_RED, "      Cold:", r, c+1);
         put_str(buf, r++, c+12);
     }
     if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_POIS))
     {
-        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/100, (blows*(tot_dam*17/10 + to_d))%100);
+        sprintf(buf, " %d.%02d", blows*(tot_dam*17/10 + to_d)/10000, ((blows*(tot_dam*17/10 + to_d))/100)%100);
         c_put_str(TERM_RED, "      Pois:", r, c+1);
         put_str(buf, r++, c+12);
     }
@@ -512,9 +512,9 @@ void monk_posture_calc_bonuses(void)
             p_ptr->reflect = TRUE;
             for (i = 0; i < MAX_HANDS; i++)
             {
-                p_ptr->weapon_info[i].xtra_blow -= 2;
+                p_ptr->weapon_info[i].xtra_blow -= 200;
                 if (p_ptr->lev > 42) 
-                    p_ptr->weapon_info[i].xtra_blow--;
+                    p_ptr->weapon_info[i].xtra_blow -= 100;
             }
         }
         else if (p_ptr->special_defense & KAMAE_SUZAKU)

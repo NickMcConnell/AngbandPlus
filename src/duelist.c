@@ -564,9 +564,9 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
         /* Blows should always be 1 ... even with Quickthorn and Shiva's Jacket! 
            But, don't make Tonberry gloves a gimme.  Negative attacks now are 0 attacks!
         */
-        if (info_ptr->base_blow + info_ptr->xtra_blow > 1)
+        if (info_ptr->base_blow + info_ptr->xtra_blow > 100)
         {
-            info_ptr->base_blow = 1;
+            info_ptr->base_blow = 100;
             info_ptr->xtra_blow = 0;
         }
     }

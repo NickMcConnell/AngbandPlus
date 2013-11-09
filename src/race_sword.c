@@ -330,7 +330,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     }
 
     if (_essences[TR_BLOWS] >= 25)
-        info_ptr->xtra_blow++;
+        info_ptr->xtra_blow += 100;
 
     info_ptr->to_h += to_hit;
     info_ptr->dis_to_h += to_hit;

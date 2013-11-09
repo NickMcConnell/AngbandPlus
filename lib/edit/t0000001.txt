@@ -77,6 +77,11 @@ F:!:FLOOR:3:0:97
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:97
 
+# Two-handed Sword
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Monster] [EQU $RACE Giant] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:14
+F:!:FLOOR:3:0:37
+
 # Ring of Warning
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Lich Quylthulg] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14

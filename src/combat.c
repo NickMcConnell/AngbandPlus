@@ -64,174 +64,182 @@ static _blow_info_t _get_blow_info(int hand)
     switch (p_ptr->pclass)
     {
     case CLASS_WARRIOR:
-        result.num = 6; result.wgt = 70; result.mul = 5; 
+        result.num = 600; result.wgt = 70; result.mul = 55; 
         if (p_ptr->lev >= 40) 
         {
-            result.mul = 6;
-            result.num++;
+            result.mul = 65;
+            result.num = 700;
         }
         break;
 
     case CLASS_MAULER:
-        result.num = 3; result.wgt = 280; result.mul = 5; break;
+        result.num = 300; result.wgt = 280; result.mul = 75; break;
 
     case CLASS_BERSERKER:
-        result.num = 6; result.wgt = 70; result.mul = 7; break;
+        result.num = 600; result.wgt = 70; result.mul = 75; break;
 
     case CLASS_RAGE_MAGE:
-        result.num = 3; result.wgt = 70; result.mul = 3; break;
+        result.num = 300; result.wgt = 70; result.mul = 30; break;
                     
     case CLASS_MAGE:
     case CLASS_NECROMANCER:
     case CLASS_BLOOD_MAGE:
     case CLASS_HIGH_MAGE:
     case CLASS_BLUE_MAGE:
-        result.num = 3; result.wgt = 100; result.mul = 2; break;
+        result.num = 300; result.wgt = 100; result.mul = 20; break;
 
     case CLASS_WARLOCK:
-        result.num = 3; result.wgt = 70; result.mul = 2; 
+        result.num = 350; result.wgt = 70; result.mul = 25; 
         if (p_ptr->psubclass == PACT_DRAGON) 
         {
-            result.mul = 4;
-            if (p_ptr->lev >= 35) result.num = 5;
-            else result.num = 4;
+            result.mul = 40;
+            if (p_ptr->lev >= 35) result.num = 500;
+            else result.num = 400;
         }
         break;
 
     case CLASS_PSION:
-        result.num = 3; result.wgt = 100; result.mul = 3; break;
+        result.num = 350; result.wgt = 100; result.mul = 30; break;
 
     case CLASS_PRIEST:
     case CLASS_MAGIC_EATER:
     case CLASS_MINDCRAFTER:
-        result.num = 5; result.wgt = 100; result.mul = 3; break;
+        result.num = 500; result.wgt = 100; result.mul = 35; break;
 
     case CLASS_DEVICEMASTER:
-        result.num = 4; result.wgt = 100; result.mul = 3;
+        result.num = 400; result.wgt = 100; result.mul = 35;
         if (p_ptr->psubclass == DEVICEMASTER_POTIONS || p_ptr->psubclass == DEVICEMASTER_SCROLLS)
-            result.num = 5;
+            result.num = 500;
         break;
 
     case CLASS_ROGUE:
-        result.num = 5; result.wgt = 40; result.mul = 3;
-        if (o_ptr->weight < 50) result.num++;
+        result.num = 525; result.wgt = 40; result.mul = 30;
+        if (o_ptr->weight < 50) result.num = 600;
         break;
 
     case CLASS_SCOUT:
-        result.num = 4; result.wgt = 70; result.mul = 2; break;
+        result.num = 400; result.wgt = 70; result.mul = 25; break;
 
     case CLASS_RANGER:
-        result.num = 5; result.wgt = 70; result.mul = 4; break;
+        result.num = 500; result.wgt = 70; result.mul = 40; break;
 
     case CLASS_PALADIN:
     case CLASS_SAMURAI:
-        result.num = 5; result.wgt = 70; result.mul = 4; break;
+        result.num = 550; result.wgt = 70; result.mul = 45; break;
 
     case CLASS_MYSTIC:
-        result.num = 1; result.wgt = 100; result.mul = 1; break;
+        result.num = 100; result.wgt = 100; result.mul = 10; break;
 
     case CLASS_WEAPONSMITH:
     case CLASS_RUNE_KNIGHT:
-        result.num = 5; result.wgt = 150; result.mul = 5; break;
+        result.num = 525; result.wgt = 150; result.mul = 55; break;
 
     case CLASS_WEAPONMASTER:
         result.num = weaponmaster_get_max_blows(o_ptr, hand); 
-        result.wgt = 70; result.mul = 5; break;
+        result.wgt = 70; result.mul = 50; break;
 
     case CLASS_WARRIOR_MAGE:
     case CLASS_RED_MAGE:
-        result.num = 5; result.wgt = 70; result.mul = 3; break;
+        result.num = 525; result.wgt = 70; result.mul = 30; break;
 
     case CLASS_CHAOS_WARRIOR:
-        result.num = 5; result.wgt = 70; result.mul = 4; break;
+        result.num = 550; result.wgt = 70; result.mul = 45; break;
 
     case CLASS_MONK:
-        result.num = 5; result.wgt = 60; result.mul = 3; break;
+        result.num = 500; result.wgt = 60; result.mul = 30; break;
 
     case CLASS_TOURIST:
     case CLASS_TIME_LORD:
-        result.num = 4; result.wgt = 100; result.mul = 3; break;
+        result.num = 400; result.wgt = 100; result.mul = 30; break;
 
     case CLASS_ARCHAEOLOGIST:
-        result.num = 5; result.wgt = 70; result.mul = 3; 
+        result.num = 500; result.wgt = 70; result.mul = 30; 
         if (p_ptr->lev >= 40 && archaeologist_is_favored_weapon(o_ptr))
         {
-            result.num++;
-            result.mul = 4;
+            result.num = 600;
+            result.mul = 40;
         }
         break;
 
     case CLASS_BLOOD_KNIGHT:
-        result.num = 3; result.wgt = 150; result.mul = 3; break;
+        result.num = 300; result.wgt = 150; result.mul = 30; break;
 
     case CLASS_DUELIST:
-        result.num = 1; result.wgt = 70; result.mul = 4; break;
+        result.num = 100; result.wgt = 70; result.mul = 40; break;
                     
     case CLASS_IMITATOR:
-        result.num = 5; result.wgt = 70; result.mul = 4; break;
+        result.num = 550; result.wgt = 70; result.mul = 40; break;
 
     case CLASS_WILD_TALENT:
-        result.num = 4; result.wgt = 70; result.mul = 4; break;
+        result.num = 450; result.wgt = 70; result.mul = 40; break;
 
     case CLASS_BEASTMASTER:
-        result.num = 5; result.wgt = 70; result.mul = 3; break;
+        result.num = 500; result.wgt = 70; result.mul = 35; break;
 
     case CLASS_CAVALRY:
     {
-        u32b         flgs[TR_FLAG_SIZE];
+        u32b flgs[TR_FLAG_SIZE];
         object_flags(o_ptr, flgs);
-        if (p_ptr->riding && have_flag(flgs, TR_RIDING)) {result.num = 5; result.wgt = 70; result.mul = 4;}
-        else {result.num = 5; result.wgt = 100; result.mul = 3;}
+        if (p_ptr->riding && have_flag(flgs, TR_RIDING)) {result.num = 550; result.wgt = 70; result.mul = 45;}
+        else {result.num = 500; result.wgt = 100; result.mul = 35;}
         break;
     }
     case CLASS_SORCERER:
-        result.num = 1; result.wgt = 1; result.mul = 1; break;
+        result.num = 100; result.wgt = 1; result.mul = 10; break;
 
     case CLASS_ARCHER:
     case CLASS_BARD:
-        result.num = 4; result.wgt = 70; result.mul = 2; break;
+        result.num = 450; result.wgt = 70; result.mul = 20; break;
 
     case CLASS_FORCETRAINER:
-        result.num = 4; result.wgt = 60; result.mul = 2; break;
+        result.num = 400; result.wgt = 60; result.mul = 20; break;
 
     case CLASS_MIRROR_MASTER:
     case CLASS_SNIPER:
-        result.num = 3; result.wgt = 100; result.mul = 3; break;
+        result.num = 300; result.wgt = 100; result.mul = 30; break;
 
     case CLASS_NINJA:
-        result.num = 4; result.wgt = 20; result.mul = 1; break;
+        result.num = 425; result.wgt = 20; result.mul = 10; break;
 
     case CLASS_MONSTER:
-        result.num = 5; result.wgt = 70; result.mul = 5;
+        result.num = 500; result.wgt = 70; result.mul = 50;
         if (prace_is_(RACE_MON_LICH)) 
         {
-            result.num = 4;
-            result.mul = 3;
+            result.num = 400;
+            result.mul = 30;
         }
-        else if ( prace_is_(RACE_MON_GIANT) 
-             /*|| prace_is_(RACE_MON_TROLL) */
-               || prace_is_(RACE_MON_JELLY)
+        else if (prace_is_(RACE_MON_TROLL))
+        {
+            result.num = 550;
+        }
+        else if (prace_is_(RACE_MON_GIANT))
+        {
+            result.num = 550;
+            result.mul = 50 + p_ptr->lev/5;
+            result.wgt = 200;
+            if (giant_is_(GIANT_HRU) && p_ptr->lev >= 40)
+                result.mul = 80;
+        }
+        else if ( prace_is_(RACE_MON_JELLY)
                || demon_is_(DEMON_KHORNE) )  
         {
-            result.num = 6;
-            result.mul = 5 + p_ptr->lev/40;
-            if (giant_is_(GIANT_HRU) && p_ptr->lev >= 40)
-                result.mul = 8;
+            result.num = 600;
+            result.mul = 50 + p_ptr->lev/5;
         }
         else if (prace_is_(RACE_MON_LEPRECHAUN)) 
         {
-            result.num = 3;
-            result.mul = 2;
+            result.num = 300;
+            result.mul = 20;
         }
         else if (prace_is_(RACE_MON_SWORD))
         {
-            result.num = 5;
+            result.num = 525;
             if (p_ptr->lev >= 45) /* Death Scythes retaliate! */
-                result.num = 3;
+                result.num = 300;
         }
         else if (prace_is_(RACE_MON_GOLEM))
         {
-            result.num = 1;
+            result.num = 100;
         }
         break;
     }
@@ -239,42 +247,79 @@ static _blow_info_t _get_blow_info(int hand)
     if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { result.num++; result.wgt /= 2; result.mul += 2; }
     if (p_ptr->tim_building_up && p_ptr->pclass != CLASS_MAULER) 
     { 
-        if (result.num < 4 && p_ptr->lev >= 40) 
-            result.num++; 
+        if (result.num < 400 && p_ptr->lev >= 40) 
+            result.num = 400; 
         result.wgt /= 2; 
-        result.mul += 2; 
-    }
-    else if (prace_is_(MIMIC_COLOSSUS))
-    {
-        if (result.num < 4) 
-            result.num++; 
-        result.wgt /= 2; 
-        result.mul = MAX(result.mul, 5);
-    }
-    else if (prace_is_(MIMIC_MITHRIL_GOLEM))
-    {
-        if (result.num < 4) 
-            result.num++; 
-        result.mul = MAX(result.mul, 4);
-    }
-    else if (prace_is_(MIMIC_CLAY_GOLEM) || prace_is_(MIMIC_IRON_GOLEM))
-    {
-        result.mul = MAX(result.mul, 3);
+        result.mul += 20; 
     }
 
     /* Xorns and Mariliths have multiple sets of arms */
-    result.num -= arm;
-    if (result.num <= 0)
-        result.num = 1;
+    result.num -= arm * 75;
+    if (result.num < 100)
+        result.num = 100;
 
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
-        result.num = 1;
+        result.num = 100;
 
     if (o_ptr->name1 == ART_EVISCERATOR) 
-        result.num = 1;
+        result.num = 100;
 
     return result;
 }
+
+/* New Blows Calc
+   Dex (old dex_index) determines the min/max range of the number of blows (scaled by 100).
+   Str*Mul/Div (old str_index) interpolates this range linearly (110 steps)
+   We now support fractional blows (e.g. 2.75 is stored as 275 and gives 3 blows 75% of the time)
+
+   This is not exactly the same as before, but I think the differences are minor enough.
+*/
+typedef struct {
+    int min;
+    int max;
+} _range_t;
+
+static _range_t _blows_range[] =
+{
+    {   0, 200}       /* 3 */,
+    {   0, 200}       /* 4 */,
+    {  10, 200}       /* 5 */,
+    {  20, 210}       /* 6 */,
+    {  30, 220}       /* 7 */,
+    {  40, 230}       /* 8 */,
+    {  50, 240}       /* 9 */,
+    {  60, 250}       /* 10 */,
+    {  70, 260}       /* 11 */,
+    {  80, 270}       /* 12 */,
+    {  90, 280}       /* 13 */,
+    { 100, 290}       /* 14 */,
+    { 110, 300}       /* 15 */,
+    { 120, 350}       /* 16 */,
+    { 130, 400}       /* 17 */,
+    { 140, 450}       /* 18/00-18/09 */,
+    { 150, 460}       /* 18/10-18/19 */,
+    { 160, 470}       /* 18/20-18/29 */,
+    { 170, 480}       /* 18/30-18/39 */,
+    { 180, 490}       /* 18/40-18/49 */,
+    { 190, 500}       /* 18/50-18/59 */,
+    { 200, 520}       /* 18/60-18/69 */,
+    { 210, 540}       /* 18/70-18/79 */,
+    { 220, 560}       /* 18/80-18/89 */,
+    { 230, 580}       /* 18/90-18/99 */,
+    { 240, 600}       /* 18/100-18/109 */,
+    { 250, 610}       /* 18/110-18/119 */,
+    { 260, 620}       /* 18/120-18/129 */,
+    { 280, 630}       /* 18/130-18/139 */,
+    { 300, 640}       /* 18/140-18/149 */,
+    { 320, 650}       /* 18/150-18/159 */,
+    { 340, 660}       /* 18/160-18/169 */,
+    { 350, 670}       /* 18/170-18/179 */,
+    { 360, 680}       /* 18/180-18/189 */,
+    { 370, 690}       /* 18/190-18/199 */,
+    { 380, 700}       /* 18/200-18/209 */,
+    { 390, 725}       /* 18/210-18/219 */,
+    { 400, 750}       /* 18/220+ */
+};
 
 int calculate_base_blows(int hand, int str_idx, int dex_idx)
 {
@@ -282,32 +327,36 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     int            arm = hand / 2;
     weapon_info_t *info_ptr = &p_ptr->weapon_info[hand];
     object_type   *o_ptr = NULL;
-    int            blow_str_idx, blow_dex_idx;
+    int            blow_str_idx;
     int            div = 0;
     _blow_info_t   blow_info = {0};
+    _range_t       rng = _blows_range[dex_idx];
 
     if (info_ptr->wield_how == WIELD_NONE) return 0;
 
     o_ptr = equip_obj(info_ptr->slot);
     if (!o_ptr) return 0;
-    if (info_ptr->heavy_wield) return 1;
+    if (info_ptr->heavy_wield) return 100;
 
     blow_info = _get_blow_info(hand);
 
     div = (o_ptr->weight < blow_info.wgt) ? blow_info.wgt : o_ptr->weight;
 
-    blow_str_idx = adj_str_blow[str_idx] * blow_info.mul / div;
-    if (info_ptr->wield_how == WIELD_TWO_HANDS && !info_ptr->omoi) blow_str_idx++;
-    if (p_ptr->pclass == CLASS_NINJA) blow_str_idx = MAX(0, blow_str_idx-1);
-    if (blow_str_idx > 11) blow_str_idx = 11;
+    blow_str_idx = adj_str_blow[str_idx] * blow_info.mul / div; /* Scaled by 10 */
+    if (info_ptr->wield_how == WIELD_TWO_HANDS)
+    {
+        if (!info_ptr->omoi)
+            blow_str_idx += 10;
+        if (prace_is_(RACE_MON_GIANT) && giant_is_favorite(o_ptr)) 
+            blow_str_idx += 10;
+    }
+    if (p_ptr->pclass == CLASS_NINJA) blow_str_idx = MAX(0, blow_str_idx-10);
+    if (blow_str_idx > 110) blow_str_idx = 110;
 
-    blow_dex_idx = adj_dex_blow[dex_idx];
-    if (blow_dex_idx > 11) blow_dex_idx = 11;
-
-    result = blows_table[blow_str_idx][blow_dex_idx];
+    result = rng.min + (rng.max - rng.min) * blow_str_idx / 110;
 
     if (p_ptr->pclass == CLASS_MAULER)
-        result = (result + 1)/2;
+        result = 100 + (result - 100)/2;
 
     if (result > blow_info.num) 
         result = blow_info.num;
@@ -317,23 +366,21 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
 
 static int _calc_innate_blows_aux(innate_attack_ptr a, int max, int str_idx, int dex_idx)
 {
-    int result = 0;
-    int blow_str_index, blow_dex_index;
-    int mul = 5, div = MAX(70, a->weight);
+    int      result = 0;
+    int      blow_str_idx;
+    int      mul = 55, div = MAX(70, a->weight);
+    _range_t rng = _blows_range[dex_idx];
 
-    blow_str_index = (adj_str_blow[str_idx] * mul / div);
-    if (blow_str_index > 11) blow_str_index = 11;
+    blow_str_idx = (adj_str_blow[str_idx] * mul / div);
+    if (blow_str_idx > 110) blow_str_idx = 110;
 
-    blow_dex_index = (adj_dex_blow[dex_idx]);
-    if (blow_dex_index > 11) blow_dex_index = 11;
-
-    result = blows_table[blow_str_index][blow_dex_index];
+    result = rng.min + (rng.max - rng.min) * blow_str_idx / 110;
 
     if (prace_is_(RACE_MON_LEPRECHAUN))
-        result = (result + 1) / 2;
+        result /= 2;
 
-    if (result < 1)
-        result = 1;
+    if (result < 100)
+        result = 100;
     if (result > max)
         result = max;
 
@@ -343,7 +390,6 @@ static int _calc_innate_blows_aux(innate_attack_ptr a, int max, int str_idx, int
 void calc_innate_blows(innate_attack_ptr a, int max)
 {
     a->blows = _calc_innate_blows_aux(a, max, p_ptr->stat_ind[A_STR], p_ptr->stat_ind[A_DEX]);
-    a->max_blows = max;
 }
 
 /**********************************************************************
@@ -360,8 +406,8 @@ static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int b
         mult = mult * 3/2 + 100;
     mult = mult * base_mult / 100;
 
-    min = blows * (mult*dd/100 + to_d);
-    max = blows * (mult*dd*ds/100 + to_d);
+    min = blows * (mult*dd/100 + to_d) / 100;
+    max = blows * (mult*dd*ds/100 + to_d) / 100;
 
     sprintf(buf, " %-7.7s", name);
     c_put_str(color, buf, row, col);
@@ -399,7 +445,6 @@ int display_weapon_info(int hand, int row, int col)
     int r,c;
     bool force = FALSE;
     int result = row;
-    _blow_info_t blow_info = _get_blow_info(hand);
 
     if (p_ptr->weapon_info[hand].wield_how == WIELD_NONE) return row;
     if (!o_ptr) return row;
@@ -487,7 +532,7 @@ int display_weapon_info(int hand, int row, int col)
     sprintf(buf, " %-7.7s: %d + %d = %d", "To Dam", to_d, p_ptr->weapon_info[hand].to_d, to_d + p_ptr->weapon_info[hand].to_d);
     put_str(buf, r++, c);
     
-    sprintf(buf, " %-7.7s: %d", "Blows", num_blow);
+    sprintf(buf, " %-7.7s: %d.%2.2d", "Blows", num_blow/100, num_blow%100);
     put_str(buf, r++, c);
 
     if (p_ptr->weapon_info[hand].dual_wield_pct < 1000)
@@ -579,86 +624,20 @@ int display_weapon_info(int hand, int row, int col)
     if (have_flag(flgs, TR_BRAND_POIS))
         _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Poison", TERM_RED, r++, c);
 
-    if (p_ptr->weapon_info[hand].base_blow < blow_info.num)
+    r++;
+    if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
     {
-        int str_idx, dex_idx;
-        char str_txt[20], dex_txt[20];
-        int min_dist = 99;
-        int save_str_idx, save_dex_idx, save_blows = 0;
-        r++;
+        if (p_ptr->weapon_info[hand].omoi)
+            put_str(" Your weapon requires two hands to wield properly.", r++, c);
+        /*else
+            put_str(" You are getting a two handed wielding bonus.", r++, c);*/
+    }
 
-        /* More blows with same strength */
-        str_idx = p_ptr->stat_ind[A_STR];
-        dex_idx = p_ptr->stat_ind[A_DEX];
-        for (; dex_idx <= 40 - 3; dex_idx++)
-        {
-            int blows = calculate_base_blows(hand, str_idx, dex_idx);
-            if (blows > p_ptr->weapon_info[hand].base_blow)
-            {
-                _desc_stat_idx(str_txt, str_idx);
-                _desc_stat_idx(dex_txt, dex_idx);
-
-                min_dist = dex_idx - p_ptr->stat_ind[A_DEX];
-
-                sprintf(buf, " With %s STR and %s DEX you will get %d blows.", str_txt, dex_txt, blows + p_ptr->weapon_info[hand].xtra_blow);
-                put_str(buf, r++, c);
-
-                break;
-            }
-        }
-
-        /* More blows with same dex */
-        str_idx = p_ptr->stat_ind[A_STR];
-        dex_idx = p_ptr->stat_ind[A_DEX];
-        for (; str_idx <= 40 - 3; str_idx++)
-        {
-            int blows = calculate_base_blows(hand, str_idx, dex_idx);
-            if (blows > p_ptr->weapon_info[hand].base_blow)
-            {
-                int dist = str_idx - p_ptr->stat_ind[A_STR];
-
-                if (dist < min_dist)
-                    min_dist = dist;
-
-                _desc_stat_idx(str_txt, str_idx);
-                _desc_stat_idx(dex_txt, dex_idx);
-
-                sprintf(buf, " With %s STR and %s DEX you will get %d blows.", str_txt, dex_txt, blows + p_ptr->weapon_info[hand].xtra_blow);
-                put_str(buf, r++, c);
-
-                break;
-            }
-        }
-
-        /* Shortest path to more blows */
-        for (str_idx = p_ptr->stat_ind[A_STR] + 1; str_idx <= 40 - 3; str_idx++)
-        {
-            for (dex_idx = p_ptr->stat_ind[A_DEX] + 1; dex_idx <= 40 - 3; dex_idx++)
-            {
-                int blows = calculate_base_blows(hand, str_idx, dex_idx);
-                if (blows > p_ptr->weapon_info[hand].base_blow)
-                {
-                    int dist = str_idx - p_ptr->stat_ind[A_STR];
-                    dist += dex_idx - p_ptr->stat_ind[A_DEX];
-
-                    if (dist < min_dist)
-                    {
-                        min_dist = dist;
-                        save_str_idx = str_idx;
-                        save_dex_idx = dex_idx;
-                        save_blows = blows;
-                    }
-                }
-            }
-        }    
-        if (save_blows)
-        {
-            _desc_stat_idx(str_txt, save_str_idx);
-            _desc_stat_idx(dex_txt, save_dex_idx);
-
-            sprintf(buf, " With %s STR and %s DEX you will get %d blows.", str_txt, dex_txt, save_blows + p_ptr->weapon_info[hand].xtra_blow);
-            put_str(buf, r++, c);
-        }
+    if (p_ptr->weapon_info[hand].info)
+    {
+        byte a = p_ptr->weapon_info[hand].info_attr;
+        if (!a) a = TERM_WHITE; /* uninitialized is TERM_DARK???! */
+        c_put_str(a, format(" %s", p_ptr->weapon_info[hand].info), r++, c);
     }
 
     result = MAX(result, r);
@@ -760,7 +739,7 @@ int display_innate_attack_info(int which, int row, int col)
     sprintf(buf, " %-7.7s: %d + %d = %d", "To Dam", a->to_d, p_ptr->to_d_m, to_d);
     put_str(buf, r++, c);
     
-    sprintf(buf, " %-7.7s: %d", "Blows", blows);
+    sprintf(buf, " %-7.7s: %d.%2.2d", "Blows", blows/100, blows%100);
     put_str(buf, r++, c);
 
     sprintf(buf, " %-7.7s", "Damage");
@@ -801,9 +780,9 @@ int display_innate_attack_info(int which, int row, int col)
     {
         sprintf(buf, " %-7.7s: %d (%d-%d)",
                 _effect_name(a->effect[0]),
-                blows * (min + max)/2,
-                blows * min,
-                blows * max
+                blows * (min + max)/200,
+                blows * min/100,
+                blows * max/100
         );
         c_put_str(TERM_WHITE, buf, r++, c);
     }
@@ -844,99 +823,11 @@ int display_innate_attack_info(int which, int row, int col)
         default:
             sprintf(buf, " %-7.7s: %d (%d-%d)",
                     _effect_name(a->effect[i]),
-                    blows * (min2 + max2)/2,
-                    blows * min2,
-                    blows * max2
+                    blows * (min2 + max2)/200,
+                    blows * min2/100,
+                    blows * max2/100
             );
             c_put_str(TERM_RED, buf, r++, c);
-        }
-    }
-
-    if (a->blows < a->max_blows)
-    {
-        int str_idx, dex_idx;
-        char str_txt[20], dex_txt[20];
-        int min_dist = 99;
-        int save_str_idx, save_dex_idx, save_blows = 0;
-        r++;
-
-        /* More blows with same strength */
-        str_idx = p_ptr->stat_ind[A_STR];
-        dex_idx = p_ptr->stat_ind[A_DEX];
-        for (; dex_idx <= 40 - 3; dex_idx++)
-        {
-            int new_blows = _calc_innate_blows_aux(a, a->max_blows, str_idx, dex_idx);
-            if (which == 0)
-                new_blows += p_ptr->innate_attack_info.xtra_blow;
-            if (new_blows > blows)
-            {
-                _desc_stat_idx(str_txt, str_idx);
-                _desc_stat_idx(dex_txt, dex_idx);
-
-                min_dist = dex_idx - p_ptr->stat_ind[A_DEX];
-
-                sprintf(buf, " With %s STR and %s DEX you will get %d blows.", str_txt, dex_txt, new_blows);
-                put_str(buf, r++, c);
-
-                break;
-            }
-        }
-
-        /* More blows with same dex */
-        str_idx = p_ptr->stat_ind[A_STR];
-        dex_idx = p_ptr->stat_ind[A_DEX];
-        for (; str_idx <= 40 - 3; str_idx++)
-        {
-            int new_blows = _calc_innate_blows_aux(a, a->max_blows, str_idx, dex_idx);
-            if (which == 0)
-                new_blows += p_ptr->innate_attack_info.xtra_blow;
-            if (new_blows > blows)
-            {
-                int dist = str_idx - p_ptr->stat_ind[A_STR];
-
-                if (dist < min_dist)
-                    min_dist = dist;
-
-                _desc_stat_idx(str_txt, str_idx);
-                _desc_stat_idx(dex_txt, dex_idx);
-
-                sprintf(buf, " With %s STR and %s DEX you will get %d blows.", str_txt, dex_txt, new_blows);
-                put_str(buf, r++, c);
-
-                break;
-            }
-        }
-
-        /* Shortest path to more blows */
-        for (str_idx = p_ptr->stat_ind[A_STR] + 1; str_idx <= 40 - 3; str_idx++)
-        {
-            for (dex_idx = p_ptr->stat_ind[A_DEX] + 1; dex_idx <= 40 - 3; dex_idx++)
-            {
-                int new_blows = _calc_innate_blows_aux(a, a->max_blows, str_idx, dex_idx);
-                if (which == 0)
-                    new_blows += p_ptr->innate_attack_info.xtra_blow;
-                if (new_blows > blows)
-                {
-                    int dist = str_idx - p_ptr->stat_ind[A_STR];
-                    dist += dex_idx - p_ptr->stat_ind[A_DEX];
-
-                    if (dist < min_dist)
-                    {
-                        min_dist = dist;
-                        save_str_idx = str_idx;
-                        save_dex_idx = dex_idx;
-                        save_blows = new_blows;
-                    }
-                }
-            }
-        }    
-        if (save_blows)
-        {
-            _desc_stat_idx(str_txt, save_str_idx);
-            _desc_stat_idx(dex_txt, save_dex_idx);
-
-            sprintf(buf, " With %s STR and %s DEX you will get %d blows.", str_txt, dex_txt, save_blows);
-            put_str(buf, r++, c);
         }
     }
 

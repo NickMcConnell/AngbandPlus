@@ -52,7 +52,7 @@ static void _calc_innate_attacks(void)
         innate_attack_t    a = {0};
 
         a.effect[0] = GF_OLD_CONF;
-        a.blows = 1;
+        a.blows = 100;
         a.msg = "You gaze at %s.";
         a.name = "Gaze";
 

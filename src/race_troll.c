@@ -58,7 +58,7 @@ static void _calc_innate_attacks(void)
     default:
         a.effect[0] = GF_MISSILE;
     }
-    a.blows = 1;
+    a.blows = 100;
 
     a.msg = "You bite %s.";
     a.name = "Bite";

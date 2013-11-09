@@ -531,7 +531,7 @@ static void _centaur_calc_innate_attacks(void)
     a.to_h += to_h;
 
     a.weight = 150;
-    calc_innate_blows(&a, 2);
+    calc_innate_blows(&a, 200);
     a.msg = "You kick %s.";
     a.name = "Hooves";
 

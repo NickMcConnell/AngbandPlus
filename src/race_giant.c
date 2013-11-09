@@ -24,6 +24,140 @@ static void _birth(void)
     add_outfit(&forge);
 }
 
+/**********************************************************************
+ * Giant Weapon Restrictions
+ * N.B. We could use weapon weight for this, but weight and size aren't
+ *      always the same thing.
+ **********************************************************************/
+static bool _weapon_is_small(int tval, int sval)
+{
+    if (tval == TV_SWORD)
+    {
+        switch (sval)
+        {
+        case SV_BROKEN_DAGGER:
+        case SV_BROKEN_SWORD:
+        case SV_DAGGER:
+        case SV_MAIN_GAUCHE:
+        case SV_TANTO:
+        case SV_RAPIER:
+        case SV_SMALL_SWORD:
+        case SV_BASILLARD:
+        case SV_SHORT_SWORD:
+        case SV_SABRE:
+        case SV_DOKUBARI:
+        case SV_HAYABUSA:
+        case SV_DRAGON_FANG:
+            return TRUE;
+        }
+    }
+    if (tval == TV_POLEARM)
+    {
+        switch (sval)
+        {
+        case SV_HATCHET:
+        case SV_SICKLE:
+        case SV_TSURIZAO:
+            return TRUE;
+        }
+    }
+    if (tval == TV_HAFTED)
+    {
+        switch (sval)
+        {
+        case SV_WHIP:
+        case SV_NUNCHAKU:
+        case SV_JO_STAFF:
+        case SV_THREE_PIECE_ROD:
+            return TRUE;
+        }
+    }
+    if (tval == TV_DIGGING)
+    {
+        switch (sval)
+        {
+        case SV_SHOVEL:
+        case SV_GNOMISH_SHOVEL:
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+static bool _weapon_is_giant(int tval, int sval)
+{
+    if (tval == TV_SWORD)
+    {
+        switch (sval)
+        {
+        case SV_GREAT_SCIMITAR:
+        case SV_FLAMBERGE:
+        case SV_TWO_HANDED_SWORD:
+        case SV_NO_DACHI:
+        case SV_EXECUTIONERS_SWORD:
+        case SV_ZWEIHANDER:
+            return TRUE;
+        }
+    }
+    if (tval == TV_POLEARM)
+    {
+        switch (sval)
+        {
+        case SV_LANCE:
+        case SV_GREAT_AXE:
+        case SV_TRIFURCATE_SPEAR:
+        case SV_LOCHABER_AXE:
+        case SV_HEAVY_LANCE:
+        case SV_SCYTHE_OF_SLICING:
+        case SV_DEATH_SCYTHE:
+            return TRUE;
+        }
+    }
+    if (tval == TV_HAFTED)
+    {
+        switch (sval)
+        {
+        case SV_TWO_HANDED_FLAIL:
+        case SV_GREAT_HAMMER:
+        case SV_MACE_OF_DISRUPTION:
+        case SV_GROND:
+            return TRUE;
+        }
+    }
+    if (tval == TV_DIGGING)
+    {
+        switch (sval)
+        {
+        case SV_MATTOCK:
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+    if (_weapon_is_small(o_ptr->tval, o_ptr->sval))
+    {
+        info_ptr->to_h -= 20;
+        info_ptr->dis_to_h -= 20;
+        info_ptr->to_d -= 5;
+        info_ptr->dis_to_d -= 5;
+        info_ptr->info_attr = TERM_RED;
+        info_ptr->info = "Your weapon is too small.";
+    }
+    if (_weapon_is_giant(o_ptr->tval, o_ptr->sval))
+    {
+        info_ptr->to_h += 5 + p_ptr->lev/5;
+        info_ptr->dis_to_h += 5 + p_ptr->lev/5;
+        info_ptr->to_d += 3 + p_ptr->lev/7;
+        info_ptr->dis_to_d += 3 + p_ptr->lev/7;
+        info_ptr->info_attr = TERM_L_GREEN;
+        info_ptr->info = "You love your weapon.";
+    }
+}
+
+/**********************************************************************
+ * Throw Monster :)
+ **********************************************************************/
 typedef struct {
     int m_idx;
     int wgt;
@@ -33,42 +167,6 @@ typedef struct {
     int ty;
 } _monster_toss_info;
 static void _monster_toss_imp(_monster_toss_info *info);
-
-/* TODO: This should go in r_info.txt */
-static int _mon_get_weight(char c)
-{
-    switch (c)
-    {
-    case 'a': return 20;   case 'A': return 250;
-    case 'b': return 5;    case 'B': return 50;
-    case 'c': return 20;   case 'C': return 100;
-    case 'd': return 300;  case 'D': return 1000;
-    case 'e': return 50;   case 'E': return 300;
-    case 'f': return 75;   case 'F': return 10;
-    case 'g': return 750;  case 'G': return 175;
-    case 'h': return 120;  case 'H': return 500;
-    case 'i': return 70;   case 'I': return 10;
-    case 'J': return 30;   case 'j': return 70;
-    case 'k': return 150;  case 'K': return 300;
-    case 'l': return 10;   case 'L': return 200;
-    case 'm': return 50;   case 'M': return 750;
-    case 'n': return 120;  case 'N': return 100;
-    case 'o': return 200;  case 'O': return 400;
-    case 'p': return 180;  case 'P': return 800;
-    case 'q': return 500;  case 'Q': return 300;
-    case 'r': return 5;    case 'R': return 250;
-    case 's': return 120;  case 'S': return 70;
-    case 't': return 150;  case 'T': return 500;
-    case 'u': return 200;  case 'U': return 666;
-    case 'v': return 100;  case 'V': return 200;
-    case 'w': return 10;   case 'W': return 200;
-                           case 'X': return 300;
-    case 'y': return 90;   case 'Y': return 300;
-    case 'z': return 200;  case 'Z': return 350;
-    case '#': return 500;
-    }
-    return 100;
-}
 
 static bool _monster_toss(int m_idx)
 {
@@ -161,7 +259,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
     chance *= 2;
 
     monster_desc(m_name, m_ptr, 0);
-    msg_format("You toss %s", m_name);
+    msg_format("You toss %s.", m_name);
 
     cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
     lite_spot(m_ptr->fy, m_ptr->fx);
@@ -393,6 +491,7 @@ static int _hru_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _hru_powers);
 }
 static void _hru_calc_bonuses(void) {
+    p_ptr->sustain_str = TRUE;
     if (p_ptr->lev >= 30)
     {
         p_ptr->kill_wall = TRUE;
@@ -401,11 +500,15 @@ static void _hru_calc_bonuses(void) {
     }
     if (p_ptr->lev >= 40)
     {
+        res_add(RES_SHARDS);
         p_ptr->to_a += 15;
         p_ptr->dis_to_a += 15;
     }
 }
 static void _hru_get_flags(u32b flgs[TR_FLAG_SIZE]) {
+    add_flag(flgs, TR_SUST_STR);
+    if (p_ptr->lev >= 40)
+        add_flag(flgs, TR_RES_SHARDS);
 }
 static void _hru_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -452,6 +555,7 @@ static race_t *_hru_get_race_t(void)
         me.birth = _birth;
         me.get_powers = _hru_get_powers;
         me.calc_bonuses = _hru_calc_bonuses;
+        me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.get_flags = _hru_get_flags;
         me.gain_level = _hru_gain_level;
         init = TRUE;
@@ -521,6 +625,7 @@ static int _fire_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _fire_powers);
 }
 static void _fire_calc_bonuses(void) {
+    p_ptr->sustain_str = TRUE;    
     if (p_ptr->lev >= 30)
     {
         res_add(RES_FIRE);
@@ -530,6 +635,7 @@ static void _fire_calc_bonuses(void) {
         res_add(RES_FIRE);
 }
 static void _fire_get_flags(u32b flgs[TR_FLAG_SIZE]) {
+    add_flag(flgs, TR_SUST_STR);
     if (p_ptr->lev >= 30)
     {
         add_flag(flgs, TR_RES_FIRE);
@@ -540,6 +646,7 @@ static void _fire_get_flags(u32b flgs[TR_FLAG_SIZE]) {
 }
 static void _fire_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
+    _calc_weapon_bonuses(o_ptr, info_ptr);
     if (p_ptr->lev >= 40)
         add_flag(info_ptr->flags, TR_BRAND_FIRE);
 }
@@ -651,6 +758,7 @@ static int _frost_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _frost_powers);
 }
 static void _frost_calc_bonuses(void) {
+    p_ptr->sustain_str = TRUE;
     if (p_ptr->lev >= 30)
     {
         res_add(RES_COLD);
@@ -660,6 +768,7 @@ static void _frost_calc_bonuses(void) {
         res_add(RES_COLD);
 }
 static void _frost_get_flags(u32b flgs[TR_FLAG_SIZE]) {
+    add_flag(flgs, TR_SUST_STR);
     if (p_ptr->lev >= 30)
     {
         add_flag(flgs, TR_RES_COLD);
@@ -670,6 +779,7 @@ static void _frost_get_flags(u32b flgs[TR_FLAG_SIZE]) {
 }
 static void _frost_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
+    _calc_weapon_bonuses(o_ptr, info_ptr);
     if (p_ptr->lev >= 40)
         add_flag(info_ptr->flags, TR_BRAND_COLD);
 }
@@ -816,6 +926,7 @@ static int _storm_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _storm_powers);
 }
 static void _storm_calc_bonuses(void) {
+    p_ptr->sustain_str = TRUE;
     if (p_ptr->lev >= 30)
         res_add(RES_ELEC);
 
@@ -826,6 +937,7 @@ static void _storm_calc_bonuses(void) {
     }
 }
 static void _storm_get_flags(u32b flgs[TR_FLAG_SIZE]) {
+    add_flag(flgs, TR_SUST_STR);
     if (p_ptr->lev >= 30)
         add_flag(flgs, TR_RES_ELEC);
     if (p_ptr->lev >= 40)
@@ -836,6 +948,7 @@ static void _storm_get_flags(u32b flgs[TR_FLAG_SIZE]) {
 }
 static void _storm_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
+    _calc_weapon_bonuses(o_ptr, info_ptr);
     if (p_ptr->lev >= 40)
         add_flag(info_ptr->flags, TR_BRAND_ELEC);
 }
@@ -927,6 +1040,7 @@ static int _titan_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _titan_powers);
 }
 static void _titan_calc_bonuses(void) {
+    p_ptr->sustain_str = TRUE;
     if (p_ptr->lev >= 30)
     {
         res_add(RES_CHAOS);
@@ -936,6 +1050,7 @@ static void _titan_calc_bonuses(void) {
         p_ptr->pspeed += 3;
 }
 static void _titan_get_flags(u32b flgs[TR_FLAG_SIZE]) {
+    add_flag(flgs, TR_SUST_STR);
     if (p_ptr->lev >= 30)
     {
         add_flag(flgs, TR_RES_CHAOS);
@@ -987,6 +1102,7 @@ static race_t *_titan_get_race_t(void)
         me.birth = _birth;
         me.get_powers = _titan_get_powers;
         me.calc_bonuses = _titan_calc_bonuses;
+        me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.get_flags = _titan_get_flags;
         me.gain_level = _titan_gain_level;
         init = TRUE;
@@ -1008,6 +1124,13 @@ static race_t *_titan_get_race_t(void)
 /**********************************************************************
  * Public
  **********************************************************************/
+bool giant_is_favorite(object_type *o_ptr)
+{
+    if (prace_is_(RACE_MON_GIANT))
+        return _weapon_is_giant(o_ptr->tval, o_ptr->sval);
+    return FALSE;
+}
+
 race_t *mon_giant_get_race_t(int psubrace)
 {
     race_t *result = NULL;

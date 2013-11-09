@@ -162,6 +162,8 @@ static void _calc_innate_blows(innate_attack_ptr a)
         a->blows = 1;
     if (a->blows > max)
         a->blows = max;
+
+    a->blows *= 100; /* TODO: Fractional Blows! */
 }
 
 static void _calc_innate_attacks(void)

@@ -555,7 +555,7 @@ cptr do_hissatsu_spell(int spell, int mode)
                     basedam /= 9;
                 }
                 damage += basedam;
-                damage *= NUM_BLOWS(hand);
+                damage *= NUM_BLOWS(hand)/100;
                 total_damage += damage / 200;
             }
             fire_beam(GF_FORCE, dir, total_damage);
@@ -835,7 +835,7 @@ cptr do_hissatsu_spell(int spell, int mode)
                 }
                 damage += basedam;
                 damage += p_ptr->weapon_info[hand].to_d * 100;
-                damage *= NUM_BLOWS(hand);
+                damage *= NUM_BLOWS(hand)/100;
                 total_damage += damage / 200;
             }
             project(0, (cave_have_flag_bold(y, x, FF_PROJECT) ? 5 : 0), y, x, total_damage * 3 / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM, -1);

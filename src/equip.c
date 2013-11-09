@@ -945,7 +945,7 @@ void equip_calc_bonuses(void)
                 {
                     p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
                     if (o_ptr->rune == RUNE_AIR)
-                        p_ptr->weapon_info[hand].xtra_blow++;
+                        p_ptr->weapon_info[hand].xtra_blow += 100;
                 }
             }
             else if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC)
@@ -1094,27 +1094,27 @@ void equip_calc_bonuses(void)
                 {
                     if (o_ptr->pval > 0)
                     {
-                        p_ptr->weapon_info[rhand].xtra_blow += (o_ptr->pval + 1)/2;
-                        p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval/2;
+                        p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval*50;
+                        p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval*50;
                     }
                     else
                     {
-                        p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval;
-                        p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval;
+                        p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval*100;
+                        p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval*100;
                     }
                 }
                 else if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval;
+                    p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval*100;
                 else if (p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval;
+                    p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval*100;
                 else
-                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval;
+                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval*100;
                 break;
             }
             case EQUIP_SLOT_WEAPON_SHIELD:
             case EQUIP_SLOT_WEAPON:
                 if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[hand].xtra_blow += o_ptr->pval;
+                    p_ptr->weapon_info[hand].xtra_blow += o_ptr->pval*100;
                 break;
             default:
             {
@@ -1125,13 +1125,14 @@ void equip_calc_bonuses(void)
                 {
                     if (p_ptr->weapon_info[j].wield_how != WIELD_NONE)
                     {
-                        p_ptr->weapon_info[j].xtra_blow += o_ptr->pval;
+                        p_ptr->weapon_info[j].xtra_blow += o_ptr->pval*100;
                         assigned = TRUE;
                         break; /* Assume pval == 1 so first found gets it */
+                               /* TODO: We could prorate pval*100 across # valid slots now! */
                     }
                 }
                 if (!assigned)
-                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval;
+                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval*100;
             }
             }
         }
