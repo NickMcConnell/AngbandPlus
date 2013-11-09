@@ -4807,12 +4807,12 @@ static void add_outer_wall(int x, int y, int light,
 	{
 		/* Set bounding walls */
 		place_outer_bold(y, x);
-		if (light == TRUE) cave[y][x].info |= CAVE_GLOW;
+		if (light) cave[y][x].info |= CAVE_GLOW;
 	}
 	else if (cave[y][x].feat == FEAT_PERM_OUTER)
 	{
 		/* Set bounding walls */
-		if (light == TRUE) cave[y][x].info |= CAVE_GLOW;
+		if (light) cave[y][x].info |= CAVE_GLOW;
 	}
 }
 

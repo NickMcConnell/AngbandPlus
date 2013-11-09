@@ -632,9 +632,8 @@ static void get_extra(bool roll_hitdie)
 
 	(void)C_WIPE(p_ptr->cexp_info, MAX_CLASS, cexp_info_type);
 
-	for (i = 0; i < 5; i++)
-		for (j = 0; j < 64; j++)
-			p_ptr->weapon_exp[i][j] = 0;
+	for (i = 0; i < MAX_WT; i++)
+		p_ptr->weapon_exp[i] = 0;
 
 	for (i = 0; i < 10; i++)
 		p_ptr->skill_exp[i] = 0;

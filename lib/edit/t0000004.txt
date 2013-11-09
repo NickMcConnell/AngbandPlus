@@ -33,7 +33,7 @@ F:b:129:3:0:0:0:0:0:22
 # Quest 22 rewarding, reward is Elven Cloak, continue with quest 19
 ?:[EQU $QUEST22 3]
 F:b:129:3:0:0:0:0:0:19
-F:!:1:3:0:90
+F:!:1:3:0:161
 
 # Quest 22 finished, continue with quest 19
 ?:[EQU $QUEST22 4]
@@ -62,7 +62,7 @@ F:b:129:3:0:0:0:0:0:19
 # Quest 19 rewarding, reward is Ring of Flames, continue with quest 23
 ?:[EQU $QUEST19 3]
 F:b:129:3:0:0:0:0:0:23
-F:!:1:3:0:146
+F:!:1:3:0:261
 
 # Quest 19 finished, continue with quest 23
 ?:[EQU $QUEST19 4]
@@ -92,7 +92,7 @@ F:b:129:3:0:0:0:0:0:23
 # Quest 23 rewarding, reward is Magical Lamp, no new quest available
 ?:[EQU $QUEST23 3]
 F:b:129:3
-F:!:1:3:0:424
+F:!:1:3:0:211
 
 # Quest 23 finished, no new quest available
 ?:[EQU $QUEST23 4]

@@ -1288,17 +1288,18 @@
 #define EGO_BALDAR_HELM        244
 
 /* Cloaks */
-#define EGO_PROTECTION          40
-#define EGO_STEALTH             41
-#define EGO_ARCADIA             42
-#define EGO_AURA_FIRE           43
-#define EGO_ENVELOPING          44
-#define EGO_VULNERABILITY       45
-#define EGO_IRRITATION          46
-#define EGO_AURA_ELEC           47
-#define EGO_AURA_COLD          128
-#define EGO_BAT                129
-#define EGO_SIRENE             238
+#define EGO_NO_ELEM		26
+#define EGO_PROTECTION		40
+#define EGO_STEALTH		41
+#define EGO_ARCADIA		42
+#define EGO_AURA_FIRE		43
+#define EGO_ENVELOPING		44
+#define EGO_VULNERABILITY	45
+#define EGO_IRRITATION		46
+#define EGO_AURA_ELEC		47
+#define EGO_AURA_COLD		128
+#define EGO_BAT			129
+#define EGO_SIRENE		238
 
 /* Gloves */
 #define EGO_FREE_ACTION         48
@@ -1632,22 +1633,22 @@
 #define SV_FIGURINE_NORMAL		0
 
 /* The "sval" codes for TV_STATUE */
-#define SV_WOODEN_STATUE		0
-#define SV_CLAY_STATUE			1
-#define SV_STONE_STATUE			2
-#define SV_IRON_STATUE			3
-#define SV_COPPER_STATUE		4
-#define SV_SILVER_STATUE		5
-#define SV_GOLDEN_STATUE		6
-#define SV_IVORY_STATUE			7
-#define SV_MITHRIL_STATUE		8
-#define SV_ORNATE_STATUE		9
-#define SV_ADAMANTITE_STATUE	10
-#define SV_PHOTO			50
+#define SV_WOODEN_STATUE        0
+#define SV_CLAY_STATUE          1
+#define SV_STONE_STATUE         2
+#define SV_IRON_STATUE          3
+#define SV_COPPER_STATUE        4
+#define SV_SILVER_STATUE        5
+#define SV_GOLDEN_STATUE        6
+#define SV_IVORY_STATUE         7
+#define SV_MITHRIL_STATUE       8
+#define SV_ORNATE_STATUE        9
+#define SV_ADAMANTITE_STATUE   10
+#define SV_PHOTO               50
 
 /* The "sval" codes for TV_CORPSE */
-#define SV_SKELETON 				0
-#define SV_CORPSE					1
+#define SV_SKELETON         0
+#define SV_CORPSE           1
 
 /* The "sval" codes for TV_BULLET/TV_ROUND/TV_SHELL/TV_ROCKET/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT                    0	/* pebbles */
@@ -1691,25 +1692,25 @@
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL                        1
-#define SV_PICK                          4
-#define SV_MATTOCK                       7
+#define SV_PICK                          2
+#define SV_MATTOCK                       3
 
 /* The "sval" values for TV_HAFTED */
 #define SV_CLUB                          1	/* 1d4  */
 #define SV_WHIP                          2	/* 1d6  */
 #define SV_QUARTERSTAFF                  3	/* 1d9  */
-#define SV_SCIPPLAYS_STAFF               5	/* 1d4  */
-#define SV_HALT_HAMMER                   8	/* 3d3  */
-#define SV_PAUA_HAMMER                   9	/* 6d7  */
-#define SV_FLAIL                        13	/* 2d6  */
-#define SV_LEAD_FILLED_MACE             15	/* 3d4  */
-#define SV_FAN                          18	/* 1d6  */
-#define SV_GREAT_HAMMER                 19	/* 4d6  */
-#define SV_MACE_OF_DISRUPTION           20	/* 5d8  */
-#define SV_WIZSTAFF                     21	/* 1d4  */
-#define SV_LIFE_STAFF                   22	/* 1d3  */
-#define SV_CLEAR_STAFF                  23	/* 1d3  */
-#define SV_SINAI                        30	/* 1d3  */
+#define SV_SCIPPLAYS_STAFF               4	/* 1d4  */
+#define SV_HALT_HAMMER                   5	/* 3d3  */
+#define SV_PAUA_HAMMER                   6	/* 6d7  */
+#define SV_FLAIL                         7	/* 2d6  */
+#define SV_LEAD_FILLED_MACE              8	/* 3d4  */
+#define SV_FAN                           9	/* 1d6  */
+#define SV_GREAT_HAMMER                 10	/* 4d6  */
+#define SV_MACE_OF_DISRUPTION           11	/* 5d8  */
+#define SV_WIZSTAFF                     12	/* 1d4  */
+#define SV_LIFE_STAFF                   13	/* 1d3  */
+#define SV_CLEAR_STAFF                  14	/* 1d3  */
+#define SV_SINAI                        15	/* 1d3  */
 #define SV_GROND                        50	/* 3d4  */
 #define SV_RUNEHAMMER                   60  /* 0d0 */
 #define SV_RUNEWHIP                     61  /* 0d0 */
@@ -1717,127 +1718,123 @@
 #define SV_RUNEFAN                      63  /* 0d0 */
 
 /* The "sval" values for TV_POLEARM */
-#define SV_SPEAR                         2	/* 1d6 */
-#define SV_SLENDER_SPEAR                 4	/* 1d8 */
-#define SV_BROAD_SPEAR                   7	/* 1d9 */
-#define SV_FRANCISCA                    10	/* 2d6 */
-#define SV_BROAD_AXE                    11	/* 2d6 */
-#define SV_GLAIVE                       13	/* 2d6 */
-#define SV_HALBERD                      15	/* 3d4 */
-#define SV_SCYTHE                       17	/* 5d3 */
-#define SV_LANCE                        20	/* 2d8 */
-#define SV_BATTLE_AXE                   22	/* 2d8 */
-#define SV_GREAT_AXE                    25	/* 4d4 */
-#define SV_HEAVY_AXE                    26	/* 3d11 */
-#define SV_HEAVY_LANCE                  29  /* 4d8 */
-#define SV_SCYTHE_OF_SLICING            30	/* 8d4 */
+#define SV_SPEAR                         1	/* 1d6 */
+#define SV_SLENDER_SPEAR                 2	/* 1d8 */
+#define SV_BROAD_SPEAR                   3	/* 1d9 */
+#define SV_FRANCISCA                     4	/* 2d6 */
+#define SV_BROAD_AXE                     5	/* 2d6 */
+#define SV_GLAIVE                        6	/* 2d6 */
+#define SV_HALBERD                       7	/* 3d4 */
+#define SV_SCYTHE                        8	/* 5d3 */
+#define SV_LANCE                         9	/* 2d8 */
+#define SV_BATTLE_AXE                   10	/* 2d8 */
+#define SV_GREAT_AXE                    11	/* 4d4 */
+#define SV_HEAVY_AXE                    12	/* 3d11 */
+#define SV_HEAVY_LANCE                  13  /* 4d8 */
+#define SV_SCYTHE_OF_SLICING            14	/* 8d4 */
 #define SV_RUNESPEAR                    62  /* 0d0 */
 #define SV_RUNEAXE                      63  /* 0d0 */
 
 /* The "sval" codes for TV_SWORD */
-#define SV_DAGGER                        4  /* 1d4 */
-#define SV_MAIN_GAUCHE                   5  /* 1d5 */
-#define SV_RAPIER                        7  /* 1d6 */
-#define SV_SHORT_SWORD                  10  /* 1d7 */
-#define SV_BROAD_SWORD                  16  /* 2d5 */
-#define SV_LONG_SWORD                   17  /* 2d5 */
-#define SV_YOUTOU                       19  /* 6d4 */
-#define SV_KATANA                       20  /* 3d4 */
-#define SV_BASTARD_SWORD                21  /* 3d4 */
-#define SV_FALCHION                     22  /* 4d5 */
-#define SV_DARK_SWORD                   23  /* 5d5 */
-#define SV_TWO_HANDED_SWORD             25  /* 3d6 */
-#define SV_DIAMOND_EDGE                 31  /* 7d5 */
-#define SV_MINIMUM_DAGGER               37  /* 1d3 */
-#define SV_MITHRIL_SWORD                38  /* 2d10 */
-#define SV_MADU                         40  /* 3d2 */
+#define SV_MINIMUM_DAGGER                1  /* 1d3 */
+#define SV_DAGGER                        2  /* 1d4 */
+#define SV_MAIN_GAUCHE                   3  /* 1d5 */
+#define SV_RAPIER                        4  /* 1d6 */
+#define SV_SHORT_SWORD                   5  /* 1d7 */
+#define SV_BROAD_SWORD                   6  /* 2d5 */
+#define SV_LONG_SWORD                    7  /* 2d5 */
+#define SV_YOUTOU                        8  /* 6d4 */
+#define SV_KATANA                        9  /* 3d4 */
+#define SV_BASTARD_SWORD                10  /* 3d4 */
+#define SV_FALCHION                     11  /* 4d5 */
+#define SV_DARK_SWORD                   12  /* 5d5 */
+#define SV_TWO_HANDED_SWORD             13  /* 3d6 */
+#define SV_DIAMOND_EDGE                 14  /* 7d5 */
+#define SV_MITHRIL_SWORD                15  /* 2d10 */
+#define SV_MADU                         16  /* 3d2 */
 #define SV_RUNEBLADE                    62  /* 0d0 */
 #define SV_RUNECLAW                     63  /* 0d0 */
 
 /* The "sval" codes for TV_SHIELD */
+#define SV_WOOD_SHIELD                   1
 #define SV_SMALL_LEATHER_SHIELD          2
 #define SV_TOWER_SHIELD                  3
 #define SV_LARGE_LEATHER_SHIELD          4
 #define SV_KITE_SHIELD                   5
 #define SV_DRAGON_SHIELD                 6
 #define SV_KNIGHT_SHIELD                 7
-#define SV_MIRROR_SHIELD                10
+#define SV_MIRROR_SHIELD                 8
 
 /* The "sval" codes for TV_HELM */
+#define SV_FUR_CAP                       1
 #define SV_HARD_LEATHER_CAP              2
 #define SV_METAL_CAP                     3
 #define SV_IRON_HELM                     5
 #define SV_STEEL_HELM                    6
 #define SV_DRAGON_HELM                   7
-#define SV_FUR_CAP                      14
 
 /* The "sval" codes for TV_CROWN */
-#define SV_IRON_CROWN                   10
-#define SV_GOLDEN_CROWN                 11
-#define SV_CORNUTHAUM                   12
-#define SV_STRAW_HAT                    13
-#define SV_KATYUSHA                     14
+#define SV_IRON_CROWN                    1
+#define SV_GOLDEN_CROWN                  2
+#define SV_CORNUTHAUM                    3
+#define SV_KATYUSHA                      4
 #define SV_KING                         50
 
 /* The "sval" codes for TV_BOOTS */
+#define SV_PAIR_OF_SANDALS               1
 #define SV_PAIR_OF_BATTLE_BOOTS          2
 #define SV_PAIR_OF_DESERT_BOOTS          3
 #define SV_PAIR_OF_DRAGON_GREAVE         4
-#define SV_PAIR_OF_STEEL_BOOTS           6
-#define SV_PAIR_OF_SANDALS               7
-#define SV_PAIR_OF_LONG_BOOTS            8
+#define SV_PAIR_OF_STEEL_BOOTS           5
+#define SV_PAIR_OF_LONG_BOOTS            6
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK                         1
 #define SV_BOLMARKAN_CLOAK               2
 #define SV_FUR_CLOAK                     3
-#define SV_CLOAK_OF_IVORY_TOWER          5
-#define SV_SHADOW_CLOAK                  6
-#define SV_RAINCOAT                      7
-#define SV_SIR_COAT                      8
-#define SV_HAORI_HAKAMA                 10
+#define SV_CLOAK_OF_IVORY_TOWER          4
+#define SV_SHADOW_CLOAK                  5
+#define SV_RAINCOAT                      6
+#define SV_SIR_COAT                      7
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES         1
 #define SV_SET_OF_GAUNTLETS              2
 #define SV_SET_OF_DRAGON_GLOVES          3
-#define SV_SET_OF_CESTI                  5
-#define SV_SET_OF_GLOVES                 6
-#define SV_SET_OF_POWER_GLOVES           8
-#define SV_SET_OF_MITHRIL_GLOVES         9
-#define SV_SET_OF_KOTE                   10
+#define SV_SET_OF_CESTI                  4
+#define SV_SET_OF_GLOVES                 5
+#define SV_SET_OF_POWER_GLOVES           6
+#define SV_SET_OF_MITHRIL_GLOVES         7
+#define SV_SET_OF_KOTE                   8
 
 /* The "sval" codes for TV_SOFT_ARMOR */
-#define SV_T_SHIRT                       0
-#define SV_FILTHY_RAG                    1
+#define SV_T_SHIRT                       1
 #define SV_ROBE                          2
+#define SV_APRON                         3
 #define SV_SOFT_LEATHER_ARMOR            4
+#define SV_LEATHER_BELT                  5
 #define SV_HARD_LEATHER_ARMOR            6
 #define SV_DRAGON_LEATHER_ARMOR          7
-#define SV_APRON                         9
-#define SV_LEATHER_SCALE_MAIL           11
-#define SV_KUROSHOUZOKU                 13
-#define SV_ROBE_OF_MAGE                 18
-#define SV_FEATHER_ARMOUR               19
-#define SV_LEOTARD                      20
-#define SV_KILT                         22
-#define SV_ROBE_DECOLLETE               23
-#define SV_ROBE_MONTANTE                24
-#define SV_LEATHER_BELT                 25
-#define SV_SWALLOW_TAILED_COAT          26
-#define SV_FROCK_COAT                   27
+#define SV_LEATHER_SCALE_MAIL            8
+#define SV_KUROSHOUZOKU                  9
+#define SV_ROBE_OF_MAGE                 10
+#define SV_FEATHER_ARMOUR               11
+#define SV_KILT                         12
+#define SV_ROBE_DECOLLETE               13
+#define SV_ROBE_MONTANTE                14
+#define SV_SWALLOW_TAILED_COAT          15
+#define SV_FROCK_COAT                   16
 
 /* The "sval" codes for TV_HARD_ARMOR */
-#define SV_RUSTY_CHAIN_MAIL              1  /* 14- */
-#define SV_METAL_SCALE_MAIL              3  /* 13  */
-#define SV_CHAIN_MAIL                    4  /* 14  */
-#define SV_DOUBLE_CHAIN_MAIL             7  /* 16  */
-#define SV_SPLINT_MAIL                  10  /* 19  */
-#define SV_MITHRIL_SCALE_MAIL           12  /* 25  */
-#define SV_FULL_PLATE_ARMOUR            15  /* 25  */
-#define SV_MITHRIL_CHAIN_MAIL           20  /* 28+ */
-#define SV_MITHRIL_PLATE_MAIL           25  /* 35+ */
-#define SV_DRAGON_SCALE_MAIL   	        30  /* 40+ */
+#define SV_METAL_SCALE_MAIL              1  /* 13  */
+#define SV_CHAIN_MAIL                    2  /* 14  */
+#define SV_DOUBLE_CHAIN_MAIL             3  /* 16  */
+#define SV_SPLINT_MAIL                   4  /* 19  */
+#define SV_FULL_PLATE_ARMOUR             5  /* 25  */
+#define SV_MITHRIL_SCALE_MAIL            6  /* 25  */
+#define SV_MITHRIL_CHAIN_MAIL            7  /* 28+ */
+#define SV_MITHRIL_PLATE_MAIL            8  /* 35+ */
+#define SV_DRAGON_SCALE_MAIL   	         9  /* 40+ */
 
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH                    0
@@ -1862,6 +1859,7 @@
 #define SV_AMULET_RESIST_ACID            4
 #define SV_AMULET_SEARCHING              5
 #define SV_AMULET_EMPTY			 6
+#define SV_AMULET_ALIGNMENT              7
 #define SV_AMULET_THE_MAGI               8
 #define SV_AMULET_REFLECTION             9
 #define SV_AMULET_RESIST_MAGIC          10
@@ -1874,6 +1872,7 @@
 #define SV_AMULET_CAMERA                17
 #define SV_AMULET_RED                   18
 #define SV_AMULET_BLUE                  19
+#define SV_AMULET_NANKA                 20
 #define SV_AMULET_HORN                  21
 #define SV_AMULET_HARP                  22
 #define SV_AMULET_MAGIC_MASTERY         23
@@ -1908,7 +1907,10 @@
 #define SV_RING_FREE_ACTION             21
 #define SV_RING_SEE_INVIS               22
 #define SV_RING_SEARCHING               23
+#define SV_RING_WARNING                 24
 #define SV_RING_ELEC                    25
+#define SV_RING_SHOTS                   26
+#define SV_RING_SUSTAIN                 27
 #define SV_RING_ACCURACY                28
 #define SV_RING_DAMAGE                  29
 #define SV_RING_SLAYING                 30
@@ -1918,6 +1920,7 @@
 #define SV_RING_SACRED                  34
 #define SV_RING_EVIL                    35
 #define SV_RING_DEMON                   36
+#define SV_RING_DEC_MANA                37
 #define SV_RING_RES_FEAR                38
 #define SV_RING_RES_LD                  39
 #define SV_RING_RES_NETHER              40
@@ -1931,10 +1934,6 @@
 #define SV_RING_LORDLY                  48
 #define SV_RING_ATTACKS                 49
 #define SV_RING_LICH                    50
-#define SV_RING_SHOTS                   51
-#define SV_RING_SUSTAIN                 52
-#define SV_RING_DEC_MANA                53
-#define SV_RING_WARNING                 54
 
 #define SV_EXPRESS_CARD                  0
 
@@ -2003,6 +2002,7 @@
 #define SV_WAND_DRAGON_FIRE             26
 #define SV_WAND_DRAGON_COLD             27
 #define SV_WAND_DRAGON_BREATH           28
+#define SV_WAND_PETRO_CLOUD             29
 #define SV_WAND_STRIKING                30
 #define SV_WAND_GENOCIDE                31
 #define SV_WAND_ELEM_FIRE               32
@@ -2116,62 +2116,57 @@
 #define SV_POTION_WATER                  0
 #define SV_POTION_APPLE_JUICE            1
 #define SV_POTION_SLIME_MOLD             2
-/* xxx (fixed color) */
-#define SV_POTION_SLOWNESS               4
-#define SV_POTION_SALT_WATER             5
-#define SV_POTION_POISON                 6
-#define SV_POTION_BLINDNESS              7
-/* xxx */
-#define SV_POTION_CONFUSION              9
-/* xxx */
-#define SV_POTION_SLEEP                 11
-/* xxx */
-#define SV_POTION_LOSE_MEMORIES         13
-/* xxx */
-#define SV_POTION_RUINATION             15
-#define SV_POTION_DEC_STR               16
-#define SV_POTION_DEC_INT               17
-#define SV_POTION_DEC_WIS               18
-#define SV_POTION_DEC_DEX               19
-#define SV_POTION_DEC_CON               20
-#define SV_POTION_DEC_CHR               21
-#define SV_POTION_DETONATIONS           22
-#define SV_POTION_DEATH                 23
-#define SV_POTION_INFRAVISION           24
-#define SV_POTION_DETECT_INVIS          25
-#define SV_POTION_SLOW_POISON           26
-#define SV_POTION_CURE_POISON           27
-#define SV_POTION_BOLDNESS              28
-#define SV_POTION_SPEED                 29
-#define SV_POTION_RESIST_HEAT           30
-#define SV_POTION_RESIST_COLD           31
-#define SV_POTION_HEROISM               32
-#define SV_POTION_BERSERK_STRENGTH      33
-#define SV_POTION_CURE_LIGHT            34
-#define SV_POTION_CURE_SERIOUS          35
-#define SV_POTION_CURE_CRITICAL         36
-#define SV_POTION_HEALING               37
-#define SV_POTION_STAR_HEALING          38
-#define SV_POTION_LIFE                  39
-#define SV_POTION_RESTORE_MANA          40
-#define SV_POTION_RESTORE_EXP           41
-#define SV_POTION_RES_STR               42
-#define SV_POTION_RES_INT               43
-#define SV_POTION_RES_WIS               44
-#define SV_POTION_RES_DEX               45
-#define SV_POTION_RES_CON               46
-#define SV_POTION_RES_CHR               47
-#define SV_POTION_RESTORING             54
-#define SV_POTION_ENLIGHTENMENT         56
-#define SV_POTION_CURE_STONING          57
-#define SV_POTION_SELF_KNOWLEDGE        58
-#define SV_POTION_EXPERIENCE            59
-#define SV_POTION_RESISTANCE            60
-#define SV_POTION_CURING                61
-#define SV_POTION_INVULNERABILITY       62
-#define SV_POTION_CURE_MUTATIONS        63
-#define SV_POTION_STAR_CURING           64
-#define SV_POTION_POLYMORPH             66
+#define SV_POTION_SLOWNESS               3
+#define SV_POTION_SALT_WATER             4
+#define SV_POTION_POISON                 5
+#define SV_POTION_BLINDNESS              6
+#define SV_POTION_CONFUSION              7
+#define SV_POTION_SLEEP                  8
+#define SV_POTION_LOSE_MEMORIES          9
+#define SV_POTION_RUINATION             10
+#define SV_POTION_DEC_STR               11
+#define SV_POTION_DEC_INT               12
+#define SV_POTION_DEC_WIS               13
+#define SV_POTION_DEC_DEX               14
+#define SV_POTION_DEC_CON               15
+#define SV_POTION_DEC_CHR               16
+#define SV_POTION_DETONATIONS           17
+#define SV_POTION_DEATH                 18
+#define SV_POTION_INFRAVISION           19
+#define SV_POTION_DETECT_INVIS          20
+#define SV_POTION_SLOW_POISON           21
+#define SV_POTION_CURE_POISON           22
+#define SV_POTION_BOLDNESS              23
+#define SV_POTION_SPEED                 24
+#define SV_POTION_RESIST_HEAT           25
+#define SV_POTION_RESIST_COLD           26
+#define SV_POTION_HEROISM               27
+#define SV_POTION_BERSERK_STRENGTH      28
+#define SV_POTION_CURE_LIGHT            29
+#define SV_POTION_CURE_SERIOUS          30
+#define SV_POTION_CURE_CRITICAL         31
+#define SV_POTION_HEALING               32
+#define SV_POTION_STAR_HEALING          33
+#define SV_POTION_LIFE                  34
+#define SV_POTION_RESTORE_MANA          35
+#define SV_POTION_RESTORE_EXP           36
+#define SV_POTION_RES_STR               37
+#define SV_POTION_RES_INT               38
+#define SV_POTION_RES_WIS               39
+#define SV_POTION_RES_DEX               40
+#define SV_POTION_RES_CON               41
+#define SV_POTION_RES_CHR               42
+#define SV_POTION_RESTORING             43
+#define SV_POTION_ENLIGHTENMENT         44
+#define SV_POTION_SELF_KNOWLEDGE        45
+#define SV_POTION_EXPERIENCE            46
+#define SV_POTION_RESISTANCE            47
+#define SV_POTION_CURING                48
+#define SV_POTION_INVULNERABILITY       49
+#define SV_POTION_CURE_STONING          50
+#define SV_POTION_CURE_MUTATIONS        51
+#define SV_POTION_STAR_CURING           52
+#define SV_POTION_POLYMORPH             53
 
 /* The "sval" codes for TV_FLASK */
 #define SV_FLASK_OIL                   0
@@ -2188,15 +2183,15 @@
 #define SV_FOOD_BIG_EGG                  9
 #define SV_FOOD_SPECIAL_EGG             10
 #define SV_FOOD_ROTTEN_EGG              11
-#define SV_FOOD_BISCUIT                 32
-#define SV_FOOD_JERKY                   33
-#define SV_FOOD_RATION                  35
-#define SV_FOOD_SLIME_MOLD              36
-#define SV_FOOD_WAYBREAD                37
-#define SV_FOOD_PINT_OF_ALE             38
-#define SV_FOOD_PINT_OF_WINE            39
-#define SV_FOOD_FORTUNE_COOKIE          40
-#define SV_FOOD_ROTTEN_PUMPKIN          41
+#define SV_FOOD_BISCUIT                 12
+#define SV_FOOD_JERKY                   13
+#define SV_FOOD_RATION                  14
+#define SV_FOOD_SLIME_MOLD              15
+#define SV_FOOD_WAYBREAD                16
+#define SV_FOOD_PINT_OF_ALE             17
+#define SV_FOOD_PINT_OF_WINE            18
+#define SV_FOOD_FORTUNE_COOKIE          19
+#define SV_FOOD_ROTTEN_PUMPKIN          20
 
 
 /*
@@ -2237,7 +2232,7 @@
 #define SV_GOLD_ADAMANTITE 18
 
 
-#define OBJ_GOLD_LIST   480     /* First "gold" entry */
+#define OBJ_GOLD_LIST   554     /* First "gold" entry */
 #define MAX_GOLD        18      /* Number of "gold" entries */
 
 
@@ -2308,7 +2303,7 @@
 #define PROJECT_HIDE        0x00000080
 #define PROJECT_DISI        0x00000100
 #define PROJECT_PLAYER      0x00000200
-#define PROJECT_AIMED       0x00000400
+#define PROJECT_MONSTER     0x00000400
 #define PROJECT_REFLECTABLE 0x00000800
 #define PROJECT_NO_HANGEKI  0x00001000
 #define PROJECT_PATH        0x00002000
@@ -4444,12 +4439,12 @@ extern int PlayerUID;
 #define MAX_SKILL_LEVEL      6
 
 /* Proficiency of weapons and misc. skills (except riding) */
-#define SKILL_EXP_BEGINNER      0
-#define SKILL_EXP_NOVICE      100
-#define SKILL_EXP_AVERAGE     800
-#define SKILL_EXP_SKILLED    2000
-#define SKILL_EXP_EXPERT     4000
-#define SKILL_EXP_MASTER     8000
+#define SKILL_EXP_BEGINNER	 0
+#define SKILL_EXP_NOVICE	 3
+#define SKILL_EXP_AVERAGE	10
+#define SKILL_EXP_SKILLED	25
+#define SKILL_EXP_EXPERT	35
+#define SKILL_EXP_MASTER	50
 
 #define SKILL_MARTIAL_ARTS 0
 #define SKILL_NITOURYU     1
@@ -4977,8 +4972,8 @@ extern int PlayerUID;
 #define WT_HAMMER      11
 #define WT_STAFF       12
 #define WT_FAN         13
-#define WT_BOW         15
-#define WT_GUN         16
+#define WT_BOW         14
+#define WT_GUN         15
 
 #define WT_BIT_SMALL_SWORD 0x00000001
 #define WT_BIT_KATANA      0x00000002
@@ -4993,12 +4988,12 @@ extern int PlayerUID;
 #define WT_BIT_HAMMER      0x00000400
 #define WT_BIT_STAFF       0x00000800
 #define WT_BIT_FAN         0x00001000
-#define WT_BIT_BOW         0x00004000
-#define WT_BIT_GUN         0x00008000
+#define WT_BIT_BOW         0x00002000
+#define WT_BIT_GUN         0x00004000
 
 #define weapon_type_bit(wt) (0x00000001L << ((wt) - 1))
 
-#define MAX_WT 17
+#define MAX_WT 16
 
 /*
  * Divider for "skills"

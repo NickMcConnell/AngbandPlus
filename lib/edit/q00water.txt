@@ -63,16 +63,16 @@ F:i:83:8:740
 F:j:83:8:775
 
 # Steel Helm
-F:A:84:8:0:97
+F:A:84:8:0:144
 
 # Metal Boots
-F:B:84:8:0:93
+F:B:84:8:0:129
 
 # Cesti
-F:C:84:8:0:127
+F:C:84:8:0:135
 
 # Blade of Chaos
-F:E:84:8:0:36
+F:E:84:8:0:118
 
 # Quest exit
 F:<:9:8

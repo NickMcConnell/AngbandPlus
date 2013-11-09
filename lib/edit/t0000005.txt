@@ -32,7 +32,7 @@ F:i:136:3:0:0:0:0:0:10
 # Quest 10 rewarding, reward is Potion of Intelligence.
 ?:[EQU $QUEST10 3]
 F:i:136:3
-F:!:1:3:0:228
+F:!:1:3:0:518
 
 # Quest 10 finished, no new quest available
 ?:[EQU $QUEST10 4]
@@ -67,7 +67,7 @@ F:o:142:3:0:0:0:0:0:11
 # Quest 11 rewarding, reward is Potion of Wisdom, no new quest available
 ?:[EQU $QUEST11 3]
 F:o:142:3
-F:$:89:3:0:231
+F:$:89:3:0:519
 
 # Quest 11 finished, no new quest available
 ?:[EQU $QUEST11 4]
@@ -102,7 +102,7 @@ F:p:143:3:0:0:0:0:0:12
 # Quest 12 rewarding, reward is the book, no new quest available
 ?:[EQU $QUEST12 3]
 F:p:143:3
-F:":89:3:0:385
+F:":89:3:0:551
 
 # Quest 12 finished, no new quest available
 ?:[EQU $QUEST12 4]

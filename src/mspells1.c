@@ -669,7 +669,7 @@ static void breath(int y, int x, int m_idx, int typ, int dam_hp, int rad, bool b
 	case GF_CAUSE_3:
 	case GF_CAUSE_4:
 	case GF_HAND_DOOM:
-		flg |= (PROJECT_HIDE | PROJECT_AIMED);
+		flg |= (PROJECT_HIDE);
 		break;
 	}
 
@@ -2006,10 +2006,15 @@ msg_format("%sはシフト・エレメントの呪文を唱えた。", m_name);
 
 			if (p_ptr->riding)
 			{
-				m_list[p_ptr->riding].invulner = 0;
-				m_list[p_ptr->riding].fast = 0;
-				m_list[p_ptr->riding].slow = 0;
-				m_list[p_ptr->riding].opposite_elem = 0;
+				monster_type *riding_ptr = &m_list[p_ptr->riding];
+				if (riding_ptr->invulner)
+				{
+					riding_ptr->invulner = 0;
+					riding_ptr->energy_need += ENERGY_NEED();
+				}
+				riding_ptr->fast = 0;
+				riding_ptr->slow = 0;
+				riding_ptr->opposite_elem = 0;
 				p_ptr->update |= PU_BONUS;
 				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= PR_HEALTH;
 				p_ptr->redraw |= (PR_UHEALTH);
@@ -4915,6 +4920,7 @@ else msg_format("%^sが*火炎*の嵐の呪文を念じた。", m_name);
 
 			dam = (rlev * 4) + 50 + damroll(10, 10);
 			breath(y, x, m_idx, GF_PURE_FIRE, dam, 4, FALSE, FALSE);
+			m_ptr->energy_need += ENERGY_NEED();
 			break;
 		}
 
@@ -4936,6 +4942,7 @@ else msg_format("%^sが*水*の嵐の呪文を念じた。", m_name);
 
 			dam = (rlev * 4) + 50 + damroll(10, 10);
 			breath(y, x, m_idx, GF_PURE_AQUA, dam, 4, FALSE, FALSE);
+			m_ptr->energy_need += ENERGY_NEED();
 			break;
 		}
 
@@ -4957,6 +4964,7 @@ else msg_format("%^sが*大地*の嵐の呪文を念じた。", m_name);
 
 			dam = (rlev * 4) + 50 + damroll(10, 10);
 			breath(y, x, m_idx, GF_PURE_EARTH, dam, 4, FALSE, FALSE);
+			m_ptr->energy_need += ENERGY_NEED();
 			break;
 		}
 
@@ -4978,6 +4986,7 @@ else msg_format("%^sが*風*の嵐の呪文を念じた。", m_name);
 
 			dam = (rlev * 4) + 50 + damroll(10, 10);
 			breath(y, x, m_idx, GF_PURE_WIND, dam, 4, FALSE, FALSE);
+			m_ptr->energy_need += ENERGY_NEED();
 			break;
 		}
 
@@ -5000,6 +5009,7 @@ else msg_format("%^sが*火炎*のブレスを吐いた。", m_name);
 
 			dam = ((m_ptr->hp / 3) > 700 ? 700 : (m_ptr->hp / 3));
 			breath(y, x, m_idx, GF_PURE_FIRE, dam, 0, TRUE, FALSE);
+			m_ptr->energy_need += 2 * ENERGY_NEED();
 			break;
 		}
 
@@ -5022,6 +5032,7 @@ else msg_format("%^sが*水*のブレスを吐いた。", m_name);
 
 			dam = ((m_ptr->hp / 3) > 700 ? 700 : (m_ptr->hp / 3));
 			breath(y, x, m_idx, GF_PURE_AQUA, dam, 0, TRUE, FALSE);
+			m_ptr->energy_need += 2 * ENERGY_NEED();
 			break;
 		}
 
@@ -5044,6 +5055,7 @@ else msg_format("%^sが*大地*のブレスを吐いた。", m_name);
 
 			dam = ((m_ptr->hp / 3) > 700 ? 700 : (m_ptr->hp / 3));
 			breath(y, x, m_idx, GF_PURE_EARTH, dam, 0, TRUE, FALSE);
+			m_ptr->energy_need += 2 * ENERGY_NEED();
 			break;
 		}
 
@@ -5066,6 +5078,7 @@ else msg_format("%^sが*風*のブレスを吐いた。", m_name);
 
 			dam = ((m_ptr->hp / 3) > 700 ? 700 : (m_ptr->hp / 3));
 			breath(y, x, m_idx, GF_PURE_WIND, dam, 0, TRUE, FALSE);
+			m_ptr->energy_need += 2 * ENERGY_NEED();
 			break;
 		}
 

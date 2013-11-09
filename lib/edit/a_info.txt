@@ -207,7 +207,7 @@ D:持つものに至福と遠望を与える。
 
 N:16:リュングヴィドラゴン・スケイルメイル
 E:Rungvie Dragon Scale Mail~
-I:37:30:0
+I:37:9:0
 W:90:9:500:400000
 P:30:2d4:-4:0:25
 F:RES_FIRE | RES_COLD | RES_POIS | RES_LITE | RES_DARK | FULL_NAME |
@@ -219,7 +219,7 @@ D:荒々しい稲光のエネルギーを直に感じる。
 
 N:17:『刀返し』
 E:'Bladeturner'
-I:37:30:0
+I:37:9:0
 W:95:3:600:500000
 P:50:2d4:-8:0:35
 F:HOLD_LIFE | REGEN |
@@ -239,7 +239,7 @@ D:渾然一体となり、輝く護光となってこの鎧を包んでいる。
 
 N:19:『魂の守り手』
 E:'Soulkeeper'
-I:37:30:0
+I:37:8:0
 W:75:9:420:300000
 P:40:2d4:-4:0:20
 F:HOLD_LIFE | SUST_CON | CON_1 |
@@ -254,7 +254,7 @@ D:着用者の生命力を守ることにかけては何物にも優る。
 
 N:20:汗くさい甲冑
 E:Warrior Armor~
-I:37:15:0
+I:37:5:0
 W:100:1:300:50000
 P:25:2d4:0:0:1
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FULL_NAME
@@ -262,7 +262,7 @@ D:幾多の戦士に愛用された甲冑。ちょっとくさいけど…。
 
 N:21:タイタニアメイル
 E:'Titania Mail'
-I:37:12:0
+I:37:6:0
 W:30:13:200:30000
 P:19:1d4:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONF | RES_SOUND | FEATHER
@@ -271,7 +271,7 @@ D:妖精王タイタニアの神殿から盗まれた幻の甲冑。
 
 N:22:聖騎士ランスロットの
 E:of Lancelot the Holy Knight
-I:37:20:0
+I:37:7:0
 W:40:3:150:135000
 P:28:1d4:-1:0:20
 F:SEE_INVIS | ZENOBIAN | WIS_2 | SEARCH_2 |
@@ -286,7 +286,7 @@ D:若さを象徴するかのように白銀に輝く。
 
 N:23:ゴリアテの英雄デニムの
 E:of Denim
-I:36:25:0
+I:36:5:0
 W:40:3:25:5000
 P:5:1d1:0:0:10
 F:CURSED | HEAVY_CURSE | AGGRAVATE | ACTIVATE | INSTA_ART | BACRUM
@@ -295,7 +295,7 @@ D:除名された者たちの怨念がこもっている。
 
 N:24:暗黒騎士ランスロットの
 E:of Lancelot the Dark Knight
-I:37:15:0
+I:37:5:0
 W:40:40:350:150000
 P:23:2d4:-3:0:40
 F:LODIS | INT_2 |
@@ -310,7 +310,7 @@ D:相応の実力を要求する。
 
 N:25:フウェイルメイル
 E:'Leviathan Mail'
-I:37:10:0
+I:37:4:0
 W:25:9:270:40000
 P:16:1d4:-2:0:20
 F:RES_COLD | XTRA_H_RES | CON_3 | FULL_NAME
@@ -319,7 +319,7 @@ D:オベロの海を回遊する巨大な幻獣フウェイルをかたどった鎧。
 
 N:26:教皇の手シビュラの
 E:of Cybil
-I:36:27:0
+I:36:16:0
 W:30:30:120:150000
 P:12:1d2:3:4:20
 F:RES_SHARDS | HOLD_LIFE | SLOW_DIGEST | LODIS | INT_2 | STEALTH_2 |
@@ -397,7 +397,7 @@ D:世界を制覇したものだけが手にできるとされる荘厳な王冠だ。
 
 N:35:ベルナータ王妃の
 E:of Queen Bernata
-I:33:10:0
+I:33:1:0
 W:40:10:20:0
 P:0:1d1:0:0:25
 F:XTRA_POWER | BACRUM | STR_-15
@@ -469,7 +469,7 @@ D:この仮面は力による殺戮を好み、魔力を嫌うと言われる。
 
 N:42:魔界の女王ダニカの
 E:of Danika
-I:33:11:0
+I:33:2:0
 W:40:40:30:125000
 P:0:1d1:0:0:15
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | RES_ELEC | RES_CONF |
@@ -498,7 +498,7 @@ F:ACTIVATE | XTRA_H_RES | INT_2
 
 N:45:少女クレアの
 E:of Clare
-I:36:9:0
+I:36:3:0
 W:5:45:12:10000
 P:1:0d0:0:0:1
 F:INSTA_ART | BACRUM | CHR_4
@@ -526,7 +526,7 @@ D:彼が政権奪取を企む武装派ゲリラによって暗殺されたことから統一戦争が始まった。
 
 N:48:グリンサーコート
 E:Grincer Coat~
-I:35:8:0
+I:35:7:0
 W:3:3:10:11000
 P:1:0d0:0:0:15
 F:RES_ACID | ACTIVATE | FULL_NAME | STEALTH_3
@@ -534,7 +534,7 @@ D:森林に溶けこむように染め上げられたレザーマント。
 
 N:49:妖術士アルビレオの
 E:of Albeleo
-I:35:6:0
+I:35:5:0
 W:40:40:5:55000
 P:6:0d0:0:0:20
 F:ZENOBIAN | INT_2 | STEALTH_4 |
@@ -545,7 +545,7 @@ D:の身を包むクロークだ。
 
 N:50:漆黒の女王エンドラの
 E:of Endora
-I:35:6:0
+I:35:5:0
 W:40:40:5:35000
 P:6:0d0:0:0:12
 F:FREE_ACT | IM_ACID | SEE_INVIS | XTRA_POWER | ZENOBIAN | INT_3 | INFRA_3 |
@@ -555,7 +555,7 @@ D:妖しく美しい女帝に抗うことのできる者は誰もいない。
 
 N:52:白騎士ギルダスの
 E:of Guildus
-I:31:8:0
+I:31:6:0
 W:10:6:5:36000
 P:4:0d0:8:8:15
 F:FREE_ACT | SHOW_MODS | XTRA_RES_OR_POWER | ZENOBIAN | STR_2
@@ -582,7 +582,7 @@ D:拭われたことのない返り血で禍々しいまでに黒く染まっている。
 
 N:55:恐怖の騎士デボルドの
 E:of Debardes
-I:31:9:0
+I:31:7:0
 W:10:20:25:33000
 P:8:1d1:0:0:15
 F:SUST_CON | REGEN | ACTIVATE | GARGASTAN | CON_4
@@ -590,7 +590,7 @@ D:屍術師ニバスの実子デボルドが使用していたミスリル・グラブだ。
 
 N:56:魔女デネブの
 E:of Deneb
-I:33:12:0
+I:33:3:0
 W:50:111:10:190000
 P:2:1d1:0:0:15
 F:TELEPATHY | DEC_MANA |
@@ -601,7 +601,7 @@ D:萌えを誘ってきた。
 
 N:57:むずがゆい小手
 E:Warrior Glove~
-I:31:10:0
+I:31:8:0
 W:100:1:80:5000
 P:2:1d1:0:0:1
 F:RES_POIS | FULL_NAME
@@ -609,7 +609,7 @@ D:幾多の戦士に愛用された小手。ちょっとかゆいけど…。
 
 N:58:『バルムンク』
 E:'Balmung'
-I:23:25:0
+I:23:13:0
 W:30:90:250:100000
 P:0:4d6:13:21:0
 F:VORPAL | KILL_DRAGON | RES_FEAR | STR_2 |
@@ -618,7 +618,7 @@ D:悪竜ファフニールの鋭い爪から作り出された大剣。
 
 N:59:海賊船長エルリグの
 E:of Erig
-I:31:5:0
+I:31:4:0
 W:40:15:40:50000
 P:5:1d1:5:5:14
 F:RES_LITE | RES_POIS | WIS_1 |
@@ -648,7 +648,7 @@ F:RES_NETHER | RES_CHAOS | SUST_CON | XTRA_H_RES
 
 N:62:狂戦士アッシュの
 E:of Ashe
-I:30:6:0
+I:30:5:0
 W:30:25:80:150000
 P:6:1d1:0:0:20
 F:XTRA_H_RES | ZENOBIAN | STR_3 | SPEED_3
@@ -666,7 +666,7 @@ D:のバトルブーツだ。
 
 N:64:ヴォグラス准将の
 E:of Volgras
-I:23:5:0
+I:23:3:0
 W:15:30:30:22500
 P:0:2d5:12:15:0
 F:XTRA_RES_OR_POWER | LODIS | BALDAR | BLOWS_1 |
@@ -679,7 +679,7 @@ D:その罪を弟ハボリムに着せ、ハボリムは眼を潰されて光を失った。
 
 N:65:歌姫ユーリアの
 E:of Yulia
-I:23:37:0
+I:23:1:0
 W:20:80:12:25000
 P:0:1d4:10:15:5
 F:ZENOBIAN | CHR_2 | STEALTH_4 |
@@ -713,7 +713,7 @@ D:神聖な力が所持者を守る。
 
 N:68:射手サラの
 E:of Sara
-I:23:37:0
+I:23:1:0
 W:5:40:12:65000
 P:0:2d4:4:3:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS | BRAND_POIS | THROW |
@@ -724,7 +724,7 @@ D:その身をもって彼女の戦闘力を知らされる羽目に遭う。
 
 N:69:にぎりがくさい剣
 E:Warrior Sword~
-I:21:30:0
+I:21:15:0
 W:100:1:240:3000
 P:0:1d4:1:1:0
 F:RES_SOUND | RES_SHARDS | SHOW_MODS | INSTA_ART | FULL_NAME
@@ -732,7 +732,7 @@ D:数多くの戦士たちに愛用された竹刀。ちょっとくさいけど…。
 
 N:70:暗黒司祭ベルサリアの
 E:of Bersalia
-I:23:4:0
+I:23:2:0
 W:10:40:12:80000
 P:0:2d6:6:9:0
 F:BRAND_COLD | RES_COLD | BACRUM | DEX_2 | SPEED_5 | BLOWS_2 |
@@ -742,7 +742,7 @@ D:暗黒司祭ベルサリア・オヴェリスが護身用に持っていたバルダーダガーだ。
 
 N:71:竜騎士ジュヌーンの
 E:of Genaunes
-I:23:25:0
+I:23:13:0
 W:30:60:140:100000
 P:0:4d6:-20:20:0
 F:GARGASTAN | BALDAR | STR_3 |
@@ -770,21 +770,21 @@ D:充分な殺傷力を誇る。
 #D:思ってたんだけど。」「それは多分、逆だな。」
 #D:（ロジャー・ゼラズニイ、アンバー１０「混沌の王子」）
 
-N:73:『デゼールブレード』
+N:73:デゼールブレード
 E:'Desert Sword'
-I:23:16:0
+I:23:6:0
 W:40:20:80:50000
 P:0:2d8:10:15:0
 F:ZENOBIAN | BALDAR | DEX_3 | INFRA_4 | SPEED_2 |
 F:SLAY_EVIL | BRAND_ELEC | RES_ELEC | RES_STONE | LITE |
-F:SLOW_DIGEST | SHOW_MODS | RIDING
+F:SLOW_DIGEST | SHOW_MODS | RIDING | FULL_NAME
 D:ダルムード砂漠に埋もれた古代王国の廃墟から発見された剛剣。
 
 #N:74:unused
 
 N:75:『ノトス』
 E:'Notos'
-I:23:16:0
+I:23:6:0
 W:20:20:200:40000
 P:0:3d6:10:15:0
 F:SLAY_ANIMAL | SLAY_GIANT | BRAND_ELEC | RES_ELEC | LITE | STR_2 |
@@ -793,7 +793,7 @@ D:南風神ノトスの力を宿した両刃の剣。四風神器のひとつ。
 
 N:76:黒竜の大剣
 E:'Sword of Tiamat'
-I:23:25:0
+I:23:13:0
 W:30:30:200:100000
 P:0:3d6:13:17:0
 F:XTRA_RES_OR_POWER | STR_2 | FULL_NAME
@@ -802,7 +802,7 @@ D:ティアマットの鋭い爪から作り出されたドラゴンスレイヤー。
 
 N:77:流浪の戦士ヴァイスの
 E:of Vice
-I:23:25:0
+I:23:13:0
 W:30:180:250:205000
 P:0:4d6:19:21:0
 F:VORPAL | XTRA_RES_OR_POWER | WALSTANIAN | STR_4 | SPEED_6 | BLOWS_1 |
@@ -815,7 +815,7 @@ D:ヴァイス・ボゼッグの恐るべき大剣だ。
 
 N:78:『レーヴァンテイン』
 E:'Laevateinn'
-I:23:25:0
+I:23:13:0
 W:70:115:250:111111
 P:0:3d6:8:16:0
 F:IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR | SPEED_2 | BLOWS_2 |
@@ -824,7 +824,7 @@ D:巨人スルトの剣。終末の戦いで世界を焼き尽くすといわれる。
 
 N:79:レモニカ王の
 E:of Remonica
-I:23:10:0
+I:23:5:0
 W:20:8:110:28000
 P:0:1d7:10:11:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | GARGASTAN |
@@ -835,7 +835,7 @@ D:弾圧し、今日まで続く民族紛争の発端を開いた。
 
 N:80:『ペニテンス』
 E:'Penitence'
-I:23:25:0
+I:23:13:0
 W:40:15:260:111000
 P:0:4d5:18:19:0
 F:SLAY_LIVING | SLAY_EVIL | SLAY_UNDEAD | SLAY_GOOD | SLAY_HUMAN | STR_2 |
@@ -844,7 +844,7 @@ D:堕天使がもたらしたとされる神聖剣。
 
 N:81:盲目の剣聖ハボリムの
 E:of Haborym
-I:23:20:0
+I:23:9:0
 W:30:25:50:75000
 P:0:8d4:0:0:0
 F:VORPAL | LODIS | DEX_5 | STEALTH_4 | BLOWS_2 |
@@ -852,13 +852,13 @@ F:SUST_DEX | SHOW_MODS | TELEPATHY
 D:盲目にも関わらず、常人を遙かに凌ぐ剣技を見せる剣聖ハボリム・ヴァンダムの
 D:帯剣。彼の魂そのものとも言えるこの剣を止められる者はまずいない。
 
-N:82:『ソニックブレード』
+N:82:ソニックブレード
 E:'Sonic Blade'
-I:23:17:0
+I:23:7:0
 W:20:100:130:300000
 P:0:4d5:22:25:0
 F:REGEN | ACTIVATE | SHOW_MODS | RIDING | ZENOBIAN | DEX_2 | SPEED_6 |
-F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL |
+F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | FULL_NAME
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST |
 D:ディバインドラゴンのウロコを削り出して作られた長剣。
 
@@ -866,7 +866,7 @@ D:ディバインドラゴンのウロコを削り出して作られた長剣。
 
 N:84:『ロンバルディア』
 E:'Zenobia Sword'
-I:23:17:0
+I:23:7:0
 W:20:60:130:150000
 P:0:3d5:10:13:0
 F:REGEN | SLOW_DIGEST | RIDING | ZENOBIAN | WIS_2 | SPEED_2 |
@@ -878,7 +878,7 @@ D:聖騎士のための長剣。ゼノビア王国騎士団長の証でもある。
 
 N:85:『アンビシオン』
 E:'Anbicion'
-I:23:16:0
+I:23:6:0
 W:50:80:150:166666
 P:0:4d5:24:28:0
 F:VORPAL | RIDING | LODIS | EXTRA_VORPAL | STEALTH_4 | BLESSED
@@ -887,7 +887,7 @@ D:乱世の時代、アンビシオン王が神との契約によって授かった神聖剣。
 
 N:86:ルッケンバイン男爵の
 E:of Baron
-I:23:7:0
+I:23:4:0
 W:15:8:40:115000
 P:0:2d6:12:13:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS |
@@ -898,7 +898,7 @@ D:それは冷たい光を放っている。
 
 N:87:蛮勇の士ウーサーの
 E:of Usar
-I:21:8:0
+I:21:5:0
 W:15:2:120:15000
 P:0:3d3:6:8:0
 F:SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | ZENOBIAN | BLOWS_1 |
@@ -908,7 +908,7 @@ D:側につきゼノビア王国と戦ったウーサー・バーンのハルト・ハンマー。
 
 N:88:『オラシオン』
 E:'Oracion'
-I:23:21:0
+I:23:10:0
 W:20:15:140:100000
 P:0:3d4:7:17:0
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | WARNING | CON_3 | SPEED_4 |
@@ -924,9 +924,9 @@ F:XTRA_SHOTS | SLAY_GOOD | SPEED_4 |
 F:SHOW_MODS |
 D:冥界武具。『光速』を意味する魔弾。
 
-N:90:『火竜の剣』
+N:90:火竜の剣
 E:'Firedrake Sword'
-I:23:10:0
+I:23:5:0
 W:20:11:100:29000
 P:0:2d7:10:12:0
 F:KILL_DRAGON | SLOW_DIGEST | REGEN | SHOW_MODS | SEE_INVIS | RES_DISEN |
@@ -935,7 +935,7 @@ D:炎竜のウロコより作られたドラゴンキラー。
 
 N:91:闇の剣
 E:'Doomcaller'
-I:23:23:0
+I:23:12:0
 W:70:55:180:250000
 P:0:8d5:32:32:-20
 F:KILL_DRAGON | SLAY_UNDEAD | SLAY_EVIL | SLAY_GOOD | SLAY_DEMON
@@ -950,7 +950,7 @@ D:敵の肉体に貪欲に食い込む。
 
 N:92:ブリュンヒルド
 E:'Brunhild'
-I:23:17:0
+I:23:7:0
 W:50:185:150:250000
 P:0:5d5:32:32:0
 F:VORPAL | SLAY_LIVING | ACTIVATE | RIDING | WARNING | ZENOBIAN | STR_4 |
@@ -960,7 +960,7 @@ D:下界と天界を結ぶ『カギ』の役割を果たす神聖剣。
 
 N:93:『ボレアス』
 E:'Boreas'
-I:22:22:0
+I:22:10:0
 W:20:15:180:40000
 P:0:2d9:8:18:0
 F:VORPAL | CON_3 |
@@ -969,7 +969,7 @@ D:北風神ボレアスの力を宿した一撃必殺の斧。四風神器のひとつ。
 
 N:94:苦痛の
 E:of Pain
-I:22:13:0
+I:22:6:0
 W:30:25:190:50000
 P:0:9d6:0:30:0
 F:SHOW_MODS | RIDING | UNHOLY
@@ -981,7 +981,7 @@ D:この死の用心棒を振り降ろす時、内に宿る禍々しい破壊の魔力が渦巻いて踊る。
 
 N:95:『カルディア』
 E:'Caldia'
-I:21:18:0
+I:21:9:0
 W:20:8:200:22000
 P:0:3d4:6:9:0
 F:SUST_CHR | GARGASTAN | CHR_2 | INFRA_4 |
@@ -992,7 +992,7 @@ D:ハート型の扇。美の女神をあがめる巫女たちが舞いに用いる。
 
 N:96:オズリックスピア
 E:Osric's Spear~
-I:22:2:0
+I:22:1:0
 W:15:45:150:50000
 P:0:2d6:16:18:5
 F:RIDING | ACTIVATE | FULL_NAME | STR_2 |
@@ -1002,7 +1002,7 @@ D:古代ザモラの王オズリックが邪教タルサを倒すために鍛えた氷の槍。
 
 N:97:『グングニル』
 E:'Gungnir'
-I:22:2:0
+I:22:1:0
 W:15:45:50:180000
 P:0:3d6:15:25:5
 F:BRAND_FIRE | BRAND_ELEC | WIS_2 |
@@ -1014,7 +1014,7 @@ D:ルーン文字が刻まれている。（北欧神話）
 
 N:98:イービルスピア
 E:Evil Spear~
-I:22:2:0
+I:22:1:0
 W:15:27:240:30000
 P:0:3d6:11:14:-10
 F:THROW | SLAY_LIVING | SLAY_GOOD | FULL_NAME | UNHOLY | WIS_-2 | INFRA_4 |
@@ -1024,7 +1024,7 @@ D:悪の使い魔が持つと言われる槍。悲しみや絶望を増幅する。
 
 N:99:風のカノープスの
 E:of Canopus
-I:22:2:0
+I:22:1:0
 W:15:12:50:30000
 P:0:2d6:11:13:0
 F:SUST_STR | FEATHER | RIDING | ZENOBIAN | SPEED_3 |
@@ -1035,7 +1035,7 @@ D:結成直後の神竜騎士団を支える大きな力となった。
 
 N:100:ニルダム家の
 E:of Nirdam
-I:22:20:0
+I:22:9:0
 W:20:23:360:55000
 P:0:3d8:3:21:0
 F:RIDING | STR_2 |
@@ -1046,7 +1046,7 @@ D:やがて倒れた。
 
 N:101:破壊神ディアブロの
 E:of Diablo
-I:22:25:0
+I:22:11:0
 W:30:90:230:150000
 P:0:6d5:10:20:15
 F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | STR_3 |
@@ -1054,7 +1054,7 @@ F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
 
 N:102:『ジプシークィーン』
 E:'Gypsy Queen'
-I:21:18:0
+I:21:9:0
 W:30:80:200:200000
 P:0:4d7:15:18:8
 F:CHAOTIC | UNHOLY | INT_2 | SPEED_2 |
@@ -1065,7 +1065,7 @@ D:堕天使にささげられた巫女の血に染まった扇。元の神聖さは見る影もない。
 
 N:103:下愚バパールの
 E:of Bapalu
-I:22:10:0
+I:22:4:0
 W:5:1:30:1000
 P:0:2d3:8:11:5
 F:SHOW_MODS | THROW | GARGASTAN | CHR_-2
@@ -1074,7 +1074,7 @@ D:使っていた官給品の斧だ。
 
 N:104:『グラムロック』
 E:'Gramlock'
-I:22:22:0
+I:22:10:0
 W:30:25:170:21000
 P:0:3d8:4:23:0
 F:LODIS | STR_2 |
@@ -1083,7 +1083,7 @@ D:天空の火山ムスペルムで作られた炎の斧。
 
 N:105:デステンプラーの
 E:of Death Templer
-I:22:22:0
+I:22:10:0
 W:30:8:250:80000
 P:0:3d8:12:17:0
 F:SLAY_EVIL | SLAY_GIANT | LODIS | SEARCH_8 |
@@ -1092,7 +1092,7 @@ F:SHOW_MODS
 
 N:106:『サンシオン』
 E:'Sanscion'
-I:21:19:0
+I:21:10:0
 W:20:8:160:50000
 P:0:4d6:13:19:0
 F:LODIS | CON_3 |
@@ -1100,32 +1100,32 @@ F:BRAND_ACID | SLAY_TROLL | SLAY_GIANT | SLAY_ORC |
 F:SEE_INVIS | SHOW_MODS
 D:魔界の将軍ガルフが愛用した地脈を操る大地のハンマー。
 
-N:107:『コルヌリコルヌ』
+N:107:コルヌリコルヌ
 E:'Culnrikolnne'
-I:22:2:0
+I:22:1:0
 W:15:45:350:90000
 P:0:3d8:16:18:0
 F:SLAY_EVIL | SLAY_UNDEAD | RES_LITE | SEE_INVIS | WIS_2 |
-F:BLESSED | SHOW_MODS | RIDING | SLAY_DEMON |
+F:BLESSED | SHOW_MODS | RIDING | SLAY_DEMON | FULL_NAME
 D:伝説の聖獣ユニコーンの角に数々の神聖文字が書かれた槍。
 
-N:108:『ベンティスカ』
+N:108:ベンティスカ
 E:'Bentisca'
-I:22:20:0
+I:22:9:0
 W:30:90:70:120000
 P:0:3d8:15:19:0
-F:RIDING |
+F:RIDING | FULL_NAME
 F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE | IM_ACID | DEX_1 |
 F:RES_NETHER | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE |
 F:BLESSED | SHOW_MODS
 D:北方の英雄ニブルの倒したイセベルクの竜の洞窟から発見された槍。
 
-N:109:『サタンブローバー』
+N:109:サタンブローバー
 E:'Satan's Bullova'
-I:22:17:0
+I:22:8:0
 W:40:8:250:120000
 P:0:7d4:8:8:10
-F:SLAY_LIVING | SLAY_HUMAN | UNHOLY |
+F:SLAY_LIVING | SLAY_HUMAN | UNHOLY | FULL_NAME
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD |
 F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:死神が持つ大鎌。
@@ -1187,7 +1187,7 @@ D:燠火の如く再び怒りに燃え上がる。
 
 N:116:妖女ザドバの
 E:of Zadova
-I:32:14:0
+I:32:1:0
 W:65:75:15:195000
 P:2:1d1:0:0:28
 F:INSTA_ART | ACTIVATE | SEE_INVIS | RES_CHAOS | NO_MAGIC | CHR_2 | INFRA_6 |
@@ -1200,7 +1200,7 @@ D:付かないほどの防御力を持つ。
 
 N:117:ダグザハンマー
 E:Dagda's Hammer~
-I:21:8:0
+I:21:5:0
 W:40:75:150:250000
 P:0:7d5:19:21:5
 F:RIDING | FULL_NAME | UNHOLY | STR_2 |
@@ -1211,7 +1211,7 @@ D:暗黒神ダグザの血液からできたとされる伝説のハンマー。暗黒魔道器のひとつ。
 
 N:118:『ロンギコルニス』
 E:'Longicolnis'
-I:22:29:0
+I:22:13:0
 W:70:110:440:234567
 P:0:5d8:16:22:10
 F:RES_NETHER | RES_DISEN | RES_FEAR | STR_2 | TUNNEL_4 |
@@ -1222,7 +1222,7 @@ D:堕天使の角から作り出された聖魔の障壁を貫く漆黒の槍。
 
 N:119:魔術師バイアンの
 E:of Baian
-I:21:5:0
+I:21:4:0
 W:15:18:150:20000
 P:0:2d4:3:5:0
 F:BACRUM | EASY_SPELL | INT_2 |
@@ -1231,7 +1231,7 @@ D:旧ヴァレリア魔法アカデミーの魔術指導師バイアン・ローゼン・オーンの杖だ。
 
 N:120:占星術師ウォーレンの
 E:of Warren
-I:21:21:0
+I:21:12:0
 W:30:105:150:190000
 P:0:2d9:10:13:0
 F:BRAND_FIRE | XTRA_POWER | ZENOBIAN | INT_5 | SEARCH_6 |
@@ -1242,7 +1242,7 @@ D:頼りにしていたといわれる杖だ。
 
 N:121:『死の復讐者』
 E:'Deathwreaker'
-I:21:20:0
+I:21:11:0
 W:80:38:400:444444
 P:0:7d8:18:18:0
 F:NO_TELE | STR_3 | TUNNEL_6 |
@@ -1262,7 +1262,7 @@ D:「龍どもの畏怖」であり「亡者共の絶望」なのだ！
 
 N:122:『トゥアミル』
 E:'Turmil'
-I:22:12:0
+I:21:8:0
 W:20:15:120:30000
 P:0:3d5:10:6:8
 F:BLESSED | WIS_1 | SEARCH_1 |
@@ -1276,7 +1276,7 @@ D:その打撃は敵の肉体だけでなく精神をも打ち砕くことができる。
 
 N:123:ニフリートソード
 E:'Nephrite Sword'
-I:23:17:0
+I:23:7:0
 W:80:60:150:200000
 P:0:4d5:15:15:0
 F:VAMPIRIC | HOLD_LIFE | SLAY_LIVING | BRAND_COLD | SLAY_GOOD | UNHOLY |
@@ -1369,22 +1369,22 @@ F:RES_ACID | RES_LITE | SHOW_MODS | BRAND_ACID | STEALTH_3
 F:FULL_NAME
 D:砂漠の中に埋没した古代王国ハビラムより伝わる弓。
 
-N:133:『エクスカリバー』
+N:133:エクスカリバー
 E:'Excalibur'
-I:23:17:0
+I:23:7:0
 W:50:80:130:300000
 P:0:5d5:21:19:5
 F:SUST_WIS | SUST_CHR | WIS_2 |
 F:VORPAL | WARNING | RIDING |
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
 F:RES_SHARDS | RES_FEAR | BLESSED | HOLD_LIFE | 
-F:SEE_INVIS | SHOW_MODS
+F:SEE_INVIS | SHOW_MODS | FULL_NAME
 D:「妖精郷にて鍛えられし我はいや高き刃なりて、相応しき王の佩刀とならん」
 D:（トマス・マロリー、アーサー王の死）
 
 N:134:『エウロス』
 E:'Euros'
-I:21:8:0
+I:21:5:0
 W:20:50:180:90000
 P:0:4d5:10:12:2
 F:BRAND_ELEC | SHOW_MODS | RIDING | CON_2 |
@@ -1393,7 +1393,7 @@ D:東風神エウロスの力を宿したハンマー。四風神器のひとつ。
 
 N:135:『ゼピュロス』
 E:'Zephyrus'
-I:22:4:0
+I:22:2:0
 W:50:80:200:150000
 P:0:3d8:24:23:0
 F:SUST_DEX | RIDING | DEX_2 |
@@ -1404,7 +1404,7 @@ D:西風神ゼピュロスの力を宿した槍。四風神器のひとつ。
 
 N:136:『ザンジバル』
 E:'Zanzibar'
-I:23:25:0
+I:23:13:0
 W:80:199:450:300000
 P:0:5d7:5:25:10
 F:SEE_INVIS | VORPAL | BALDAR | STR_6 | SPEED_2 | BLOWS_1
@@ -1422,7 +1422,7 @@ D:アルモリカ騎士団長レオナール・レシ・リモンのバルダー・シールドだ。
 
 N:138:ボルセニアの
 E:of Bolsenia
-I:33:11:0
+I:33:2:0
 W:60:15:40:80000
 P:0:1d1:0:0:15
 F:RES_SHARDS | RES_SOUND | RES_LITE | INT_3 | STEALTH_4 |
@@ -1463,13 +1463,13 @@ F:FEATHER | SLOW_DIGEST | REGEN | LITE | WARNING |
 F:INSTA_ART | QUESTITEM
 
 # The Spear 'GaeBolg'
-N:142:『ガエボルグ』
+N:142:ガエボルグ
 E:'GaeBolg'
-I:22:2:0
+I:22:1:0
 W:45:90:80:150000
 P:0:3d6:16:18:0
 F:BRAND_ELEC | SLAY_EVIL | SLAY_GIANT | STR_2 | STEALTH_3 |
-F:RES_ELEC | RES_LITE | RES_DARK | RIDING |
+F:RES_ELEC | RES_LITE | RES_DARK | RIDING | FULL_NAME
 F:LITE | SEE_INVIS | RES_BLIND | SHOW_MODS
 D:ケルトの英雄クーフーリンの、海竜の骨から削られた長槍だ。
 D:つねに目映く発せられるその閃光は敵の目をくらまし、
@@ -1477,7 +1477,7 @@ D:逆に所有者の視力を守る。
 
 N:143:ホーリーランス
 E:Holy Lance~
-I:22:20:0
+I:22:9:0
 W:60:130:380:340000
 P:0:4d7:15:24:0
 F:THROW | SLAY_UNDEAD | RIDING | SLAY_EVIL | FULL_NAME | WIS_2 |
@@ -1487,7 +1487,7 @@ D:神の騎士団が地上に降臨した時に所持していたとされる槍。
 
 N:144:『イグニス』
 E:'Ignis'
-I:22:2:0
+I:22:1:0
 W:75:145:80:140000
 P:0:3d9:15:25:10
 F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | LITE | UNHOLY | STR_2 |
@@ -1497,7 +1497,7 @@ D:冥府の炎で鍛えられた槍。
 
 N:145:天使の鎧
 E:'Angelic Armor'
-I:36:19:0
+I:36:11:0
 W:25:15:30:135000
 P:6:0d0:0:0:25
 F:RES_LITE | LITE | TELEPATHY | XTRA_RES_OR_POWER | FEATHER | SPEED_2 |
@@ -1517,7 +1517,7 @@ D:とって大きな脅威だった。
 
 N:147:リプルズスタッフ
 E:'Ripple's Staff'
-I:21:5:0
+I:21:4:0
 W:20:128:20:270000
 P:0:3d4:10:20:0
 F:RES_CONF | RES_SOUND | RES_STONE | INT_4 | INFRA_6 |
@@ -1541,7 +1541,7 @@ D:偉大なる魔女リプルが愛用した杖。
 
 N:149:竜使いオクシオーヌの
 E:of Oxyones
-I:23:16:0
+I:23:6:0
 W:20:20:150:35000
 P:0:2d5:18:9:0
 F:GARGASTAN | CON_1 | SEARCH_1 | BLOWS_1 | KILL_DRAGON | SHOW_MODS
@@ -1568,7 +1568,7 @@ D:ガラバ族が愛用した戦いの角笛。嵐を呼ぶ効果を持つ。
 
 N:152:聖者プレザンスの
 E:of Presance
-I:21:15:0
+I:21:8:0
 W:20:15:180:50000
 P:0:6d4:12:12:0
 F:WALSTANIAN | WIS_2 | BLESSED |
@@ -1602,7 +1602,7 @@ D:一振りするたびに白い光を放つ聖なるムチ。
 
 N:155:『ヴォルケイトス』
 E:'Volcaetus'
-I:22:20:0
+I:22:9:0
 W:15:45:150:40000
 P:0:2d8:15:25:10
 F:RIDING | STR_1 |
@@ -1613,7 +1613,7 @@ D:かつて猛威をふるったヴォルケナ火山から発見された幻の槍。
 
 N:156:フレイムフレイル
 E:Flame Flail~
-I:21:13:0
+I:21:7:0
 W:10:2:150:13530
 P:0:3d6:8:10:0
 F:BRAND_FIRE | LITE | RIDING | FULL_NAME |
@@ -1623,7 +1623,7 @@ D:振り回すと光と熱を発する魔法のチェーンフレイル。
 
 N:157:『イセベルグ』
 E:'Isleberg Blade'
-I:23:25:0
+I:23:13:0
 W:40:10:200:51600
 P:0:2d8:11:16:0
 F:REGEN | FREE_ACT | ZENOBIAN | CON_2 | BLOWS_1 |
@@ -1633,7 +1633,7 @@ D:北方の英雄ニブルが愛用した両手持ちの大剣。
 
 N:158:『ブラックキャット』
 E:'Black Cat'
-I:23:40:0
+I:23:16:0
 W:60:180:100:100000
 P:0:5d4:14:9:0
 F:BRAND_POIS | VORPAL | XTRA_RES_OR_POWER | PERMA_CURSE | DEX_4 | SPEED_2 |
@@ -1642,7 +1642,7 @@ D:黒猫の魂を封じ込めた呪われた爪。
 
 N:159:マリーツァの杖
 E:Charge Staff~
-I:21:5:0
+I:21:4:0
 W:25:20:40:150000
 P:0:1d4:6:3:0
 F:FULL_NAME | EASY_SPELL | WIS_3 | MAGIC_MASTERY_2 |
@@ -1652,7 +1652,7 @@ D:偉大なる魔導士マリーツァが愛用した杖。
 
 N:160:死神の
 E:of Death
-I:37:18:0
+I:37:5:0
 W:60:60:380:150000
 P:28:2d4:-3:0:30
 F:SUST_INT | SUST_STR | FREE_ACT | RES_DARK | BLOWS_1 |
@@ -1673,7 +1673,7 @@ D:悪魔の代名詞とされるオウガが鍛えた兜。かなり重いが防御力は高い。
 
 N:162:オウガアーマー
 E:'Ogre Armor'
-I:37:15:0
+I:37:5:0
 W:45:160:580:435000
 P:25:2d4:-3:0:40
 F:HOLD_LIFE | RES_LITE | RES_SOUND | RES_DISEN | RES_STONE | QUESTITEM |
@@ -1694,7 +1694,7 @@ D:悪魔の代名詞とされるオウガが造った盾。かなり重いが防御力は高い。
 
 N:164:オウガブレード
 E:'Ogre Blade'
-I:23:23:0
+I:23:12:0
 W:40:180:460:850000
 P:0:9d9:20:30:0
 F:VAMPIRIC | VORPAL | SLAY_GOOD | QUESTITEM |
@@ -1713,7 +1713,7 @@ D:不死の秘法を実現するために欠かせない魔法の指輪。
 
 N:166:回復の杖
 E:Life Staff~
-I:21:22:0
+I:21:13:0
 W:10:2:40:10000
 P:0:1d3:0:0:0
 F:FULL_NAME | WIS_1 |
@@ -1721,7 +1721,7 @@ F:SHOW_MODS | INSTA_ART | ACTIVATE
 
 N:167:浄化の杖
 E:Clear Staff~
-I:21:23:0
+I:21:14:0
 W:10:2:40:10000
 P:0:1d3:0:0:0
 F:FULL_NAME | WIS_1 |
@@ -1751,7 +1751,7 @@ F:INSTA_ART | TY_CURSE | LODIS | SPEED_3
 
 N:171:ペルセウスの
 E:of Perseus
-I:34:10:0
+I:34:8:0
 W:30:10:100:45000
 P:10:1d2:0:0:15
 F:RES_ACID | RES_COLD | RES_FEAR | RES_STONE | STR_2 |
@@ -1809,7 +1809,7 @@ D:ドラゴンのウロコすらつらぬくといわれる。
 
 N:177:『トゥルエノ』
 E:'Touelno'
-I:23:40:0
+I:23:16:0
 W:30:20:40:20000
 P:0:3d2:18:12:0
 F:BRAND_ELEC | XTRA_RES_OR_POWER | 
@@ -1818,7 +1818,7 @@ D:雷竜の爪から作られた武器。雷をまとっている。
 
 N:178:青竜の爪
 E:'Cyanic Claw'
-I:23:40:0
+I:23:16:0
 W:30:40:40:30000
 P:0:3d2:16:19:0
 F:SLAY_DRAGON | KILL_DRAGON | TUNNEL_4 |
@@ -1827,7 +1827,7 @@ D:青竜の爪を何枚も重ねて作られたドラゴンキラー。
 
 N:179:『プロクス』
 E:'Prox'
-I:22:22:0
+I:22:10:0
 W:20:10:170:25000
 P:0:3d7:11:17:0
 F:SUST_STR | STR_2 |
@@ -1849,7 +1849,7 @@ D:魔法の効果を打ち消す。
 
 N:181:ペレグリンメイル
 E:'Peregrine Mail'
-I:36:19:0
+I:36:11:0
 W:45:30:30:130000
 P:6:1d1:0:0:16
 F:RES_SHARDS | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | INFRA_4 |
@@ -1858,7 +1858,7 @@ D:大空を飛ぶ幻獣ペレグリンの羽根から作られた鎧。
 
 N:182:ナサロークメイル
 E:'Nathalork Mail'
-I:36:11:0
+I:36:8:0
 W:55:30:180:65000
 P:18:1d1:-1:0:18
 F:SUST_CON | CON_2 |
@@ -1868,7 +1868,7 @@ D:猛獣ナサロークの岩のように固い皮膚を使った鎧。
 
 N:183:ポイニクスメイル
 E:'Phoenix Mail'
-I:36:19:0
+I:36:11:0
 W:45:60:30:60000
 P:6:1d1:0:0:20
 F:IM_FIRE | RES_NETHER | RES_SOUND | RES_CONF | INFRA_6 |
@@ -1915,7 +1915,7 @@ D:妖精王タイタニアに仕えた神官たちの着衣。水の精霊の加護を得る。
 
 N:188:賢者の衣
 E:'Robe of the Wise'
-I:36:18:0
+I:36:10:0
 W:50:40:60:148000
 P:6:1d4:0:0:20
 F:DEC_MANA | WIS_4 |
@@ -1925,7 +1925,7 @@ D:クリスタルを編み込んだそのローブは魔力を高めるという。
 
 N:189:白の魔導衣
 E:'Purified Robe'
-I:36:18:0
+I:36:10:0
 W:60:40:60:48000
 P:6:1d4:0:0:22
 F:REGEN_MANA | WIS_3 | FULL_NAME
@@ -1935,7 +1935,7 @@ D:聖職者が身にまとう着衣。神の加護によって闇の力を防ぐ。
 
 N:190:黒の魔導衣
 E:'Bloodstained Robe'
-I:36:18:0
+I:36:10:0
 W:70:40:60:48000
 P:6:1d4:0:0:28
 F:REGEN_MANA | INT_3 | FULL_NAME
@@ -1961,7 +1961,7 @@ D:高級そうなブランド品のカメラ。
 
 N:193:『ベルセルク』
 E:'Berserk'
-I:23:40:0
+I:23:16:0
 W:20:12:40:20000
 P:0:6d2:-5:32:0
 F:SHOW_MODS | RES_ACID | RES_SHARDS | RES_STONE | SUST_STR | STR_6
@@ -1970,7 +1970,7 @@ D:云われる。
 
 N:194:『ヴォラプチュウス』
 E:'Voluptuous'
-I:36:23:0
+I:36:13:0
 W:45:255:8:8000000
 P:0:0d0:0:0:23
 F:SUST_CHR | ZENOBIAN | FEMALE_ONLY | CHR_7 | MAGIC_MASTERY_7 | BLOWS_1 |
@@ -1997,7 +1997,7 @@ D:矢尻に火薬が仕掛けられ、命中すると爆発する弓。
 
 N:197:地竜の戦斧
 E:'Earth Dragon Axe'
-I:22:11:0
+I:22:5:0
 W:40:15:230:30000
 P:0:4d4:8:16:0
 F:SUST_STR | REGEN | STR_2 | TUNNEL_5 |

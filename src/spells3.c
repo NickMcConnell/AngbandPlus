@@ -2192,6 +2192,7 @@ static bool item_tester_hook_weapon2(object_type *o_ptr)
  */
 bool item_tester_hook_armour(object_type *o_ptr)
 {
+	if (o_ptr->name2 == EGO_NO_ELEM) return (FALSE);
 	switch (o_ptr->tval)
 	{
 		case TV_HARD_ARMOR:
@@ -3993,7 +3994,7 @@ int calc_use_mana(int spell, int realm)
 	magic_type *s_ptr = &mp_ptr->info[realm - 1][spell];
 
  	int skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
- 	int magic_var = skill_lev_var[skill_lev];
+ 	int magic_var = skill_lev_var[p_ptr->skill_exp[SKILL_SPELL_CAST]];
 
 	/* Extract mana consumption rate */
 	int use_mana = s_ptr->smana * 200 * (19 - magic_var) + 2399;
@@ -4065,13 +4066,13 @@ s16b spell_chance(int spell, int use_realm)
 	if (use_realm == (REALM_FIRE + get_opposite_elem(get_cur_pelem()))) chance += 5;
 
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * ((p_ptr->cexp_info[p_ptr->pclass].clev + p_ptr->magic_exp[use_realm - 1] / 10) / 2 - s_ptr->slevel);
+	chance -= 3 * (p_ptr->magic_exp[use_realm] / 10 - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
 	if (p_ptr->riding)
-		chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level-(skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/100-10,0));
+		chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level-(skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/100-10,0));
 
 	skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
 
@@ -4178,7 +4179,7 @@ bool spell_okay(int spell, int use_realm)
  */
 static void spell_info(char *p, int spell, int use_realm)
 {
-	int plev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int plev = p_ptr->magic_exp[use_realm]/10;
 	int pstat;
 	int dummy;
 	char dummy_buf[16];
@@ -8010,7 +8011,8 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 				if (level < 50) o_ptr->to_misc[OB_SPEED] = randint1(o_ptr->to_misc[OB_SPEED]);
 				break;
 			case EGO_ATTACKS:
-				o_ptr->to_misc[OB_BLOWS] = randint1(e_ptr->max_to_misc[OB_BLOWS]*level/100+1);
+				if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_YOUTOU) o_ptr->to_misc[OB_BLOWS] = randint1(e_ptr->max_to_misc[OB_BLOWS]*level/100+1)+3;
+				else o_ptr->to_misc[OB_BLOWS] = randint1(e_ptr->max_to_misc[OB_BLOWS]*level/100+1);
 				if (o_ptr->to_misc[OB_BLOWS] > e_ptr->max_to_misc[OB_BLOWS]) o_ptr->to_misc[OB_BLOWS] = e_ptr->max_to_misc[OB_BLOWS];
 				break;
 			case EGO_AMU_ANTI_MAGIC:

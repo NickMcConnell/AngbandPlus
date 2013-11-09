@@ -367,7 +367,7 @@ static bool do_cmd_make_golem(void)
 		if (ext == 1)
 		{
 			(void)wall_to_mud(dir);
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
 			p_ptr->window |= (PW_OVERHEAD);
 		}
 		else if (ext == 2)
@@ -731,7 +731,7 @@ static bool do_cmd_racial_throwing(int fake_item)
 	{
 		/* Extra shots */
 		p_ptr->num_fire += (extra_shots * 100);
-		p_ptr->num_fire += skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])] * 50;
+		p_ptr->num_fire += skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]] * 50;
 	}
 
 	if (p_ptr->riding)
@@ -744,7 +744,7 @@ static bool do_cmd_racial_throwing(int fake_item)
 		}
 		else
 		{
-			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000) / 80;
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) / 80;
 			penalty += 30;
 			if (penalty < 30) penalty = 30;
 		}
@@ -814,7 +814,7 @@ static bool cmd_racial_power_aux(s32b command)
 		rlev = r_ptr->level;
 		if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
 		if (rlev > 60) rlev = 60+(rlev-60)/2;
-		if ((randint1((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/120+plev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < plev*3/2+randint0(plev/5)))
+		if ((randint1((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/120+plev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < plev*3/2+randint0(plev/5)))
 		{
 #ifdef JP
 			msg_format("%sを手なずけた。",m_name);
@@ -1084,7 +1084,7 @@ static bool cmd_racial_power_aux(s32b command)
 			case -4:
 				{
 					int pstat = p_ptr->stat_use[A_STR];
-					int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
+					int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
 
 					if (!get_aim_dir(&dir)) return FALSE;
 					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;
@@ -1319,7 +1319,7 @@ static bool cmd_racial_power_aux(s32b command)
 			case -4:
 				{
 					int pstat = p_ptr->stat_use[A_STR];
-					int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
+					int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
 
 					if (!get_aim_dir(&dir)) return FALSE;
 					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;

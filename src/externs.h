@@ -89,7 +89,7 @@ extern option_type option_info[];
 extern martial_arts ma_blows[MAX_MA];
 extern cptr game_inscriptions[];
 extern cptr skill_lev_str[MAX_SKILL_LEVEL];
-extern s16b skill_lev_var[MAX_SKILL_LEVEL];
+extern s16b skill_lev_var[51];
 extern byte conv_terrain2feat[MAX_WILDERNESS];
 extern cptr silly_attacks[MAX_SILLY_ATTACK];
 #ifdef JP
@@ -705,6 +705,7 @@ extern void do_cmd_use(void);
 /* dungeon.c */
 extern void sense_floor_object(int o_idx);
 extern void leave_quest_check(void);
+extern void extract_option_vars(void);
 extern void play_game(bool new_game);
 extern void leave_level(int level);
 extern void enter_level(int level);
@@ -1378,7 +1379,6 @@ extern int cut_level(int cut);
 extern int stun_level(int stun);
 extern int weapon_exp_level(int weapon_exp);
 extern int skill_exp_level(int skill_exp);
-extern int spell_exp_level(int spell_exp);
 
 /* mspells1.c */
 extern bool clean_shot(int y1, int x1, int y2, int x2, bool friend, bool strict);

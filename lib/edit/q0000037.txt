@@ -73,7 +73,7 @@ F:w:84:12
 F:':5:12
 
 # Scroll of Learning Special Blow
-F:?:1:12:0:388
+F:?:1:12:0:452
 
 # Floor + 'Assault'
 F:}:1:12:0:0:0:176

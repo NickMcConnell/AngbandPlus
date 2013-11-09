@@ -61,7 +61,7 @@ F:b:129:3:0:0:0:0:0:20
 
 # Quest 20 rewarding, reward is a Rod of Detection
 ?:[EQU $QUEST20 3]
-F:~:1:3:0:375
+F:~:1:3:0:372
 
 # "Quest 20 - Vapor Quest" failed, wait for the player to enter the castle
 ?:[EQU $QUEST20 5]
@@ -97,7 +97,7 @@ F:b:129:3:0:0:0:0:0:21
 
 ?:[EQU $QUEST21 3]
 F:b:129:3:0:0:0:0:0:27
-F:~:1:3:0:205
+F:~:1:3:0:453
 
 # Quest 21 finished, no new quest available
 ?:[EQU $QUEST21 4]
@@ -128,7 +128,7 @@ F:b:129:3:0:0:0:0:0:27
 # continue with quest 33
 ?:[EQU $QUEST27 3]
 F:b:129:3
-F:~:1:3:0:418
+F:~:1:3:0:523
 
 # Quest 27 finished, continue with quest 33
 ?:[EQU $QUEST27 4]
@@ -160,11 +160,11 @@ F:k:138:3:0:0:0:0:0:29
 ?:[EQU $QUEST29 2]
 F:k:138:3:0:0:0:0:0:29
 
-# Quest 29 rewarding, reward is Potion of Dexterity
+# Quest 29 rewarding, reward is Potion of Charisma
 # continue with quest 30
 ?:[EQU $QUEST29 3]
 F:k:138:3:0:0:0:0:0:30
-F:@:1:3:0:251
+F:@:1:3:0:522
 
 # Quest 29 finished, continue with quest 30
 ?:[EQU $QUEST29 4]
@@ -192,11 +192,11 @@ F:k:138:3:0:0:0:0:0:30
 ?:[EQU $QUEST30 2]
 F:k:138:3:0:0:0:0:0:30
 
-# Quest 30 rewarding, reward is Potion of Charisma
+# Quest 30 rewarding, reward is Potion of Dexterity
 # no new quest available
 ?:[EQU $QUEST30 3]
 F:k:138:3
-F:@:1:3:0:234
+F:@:1:3:0:520
 
 # Quest 30 finished, no new quest available
 ?:[EQU $QUEST30 4]
@@ -232,19 +232,19 @@ F:h:135:3:0:0:0:0:0:38
 
 ?:[AND [EQU $QUEST38 3] [EQU $ELEM Fire]]
 F:h:135:3:0:0:0:0:0:16
-F:!:1:3:0:669
+F:!:1:3:0:239
 
 ?:[AND [EQU $QUEST38 3] [EQU $ELEM Aqua]]
 F:h:135:3:0:0:0:0:0:16
-F:!:1:3:0:670
+F:!:1:3:0:240
 
 ?:[AND [EQU $QUEST38 3] [EQU $ELEM Earth]]
 F:h:135:3:0:0:0:0:0:16
-F:!:1:3:0:671
+F:!:1:3:0:241
 
 ?:[AND [EQU $QUEST38 3] [EQU $ELEM Wind]]
 F:h:135:3:0:0:0:0:0:16
-F:!:1:3:0:672
+F:!:1:3:0:242
 
 # Quest 38 finished, continue with quest 16
 ?:[EQU $QUEST38 4]
@@ -275,7 +275,7 @@ F:h:135:3:0:0:0:0:0:16
 # no new quest available
 ?:[EQU $QUEST16 3]
 F:h:135:3
-F:!:1:3:0:520
+F:!:1:3:0:223
 
 # Quest 16 finished, no new quest available
 ?:[EQU $QUEST16 4]

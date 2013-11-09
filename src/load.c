@@ -1226,7 +1226,7 @@ static errr rd_extra(void)
 
 	rd_s32b(&p_ptr->lev);
 
-	for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) rd_s16b(&p_ptr->weapon_exp[i][j]);
+	for (i = 0; i < MAX_WT; i++) rd_s16b(&p_ptr->weapon_exp[i]);
 	for (i = 0; i < 10; i++) rd_s16b(&p_ptr->skill_exp[i]);
 	for (i = 0; i < MAX_REALM + 1; i++) rd_s16b(&p_ptr->magic_exp[i]);
 

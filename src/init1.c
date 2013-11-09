@@ -1039,18 +1039,17 @@ errr parse_s_info(char *buf, header *head)
 	/* Process 'W' for "Weapon skill gain rate" */
 	else if (buf[0] == 'W')
 	{
-		int tval, sval, eff;
+		int wt, eff;
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-				&tval, &sval, &eff)) return (1);
+		if (2 != sscanf(buf+2, "%d:%d",
+				&wt, &eff)) return (1);
 
-		if (eff > 200) return (200);
-		if (eff < 0) return (8);
-		if ((eff > 0) && (eff < 4)) return (8);
+		if (eff > 7) return (99);
+		if (eff < 1) return (0);
 
 		/* Save the values */
-		s_ptr->w_eff[tval][sval] = eff;
+		s_ptr->w_eff[wt] = eff;
 	}
 
 	/* Process 'M' for "Misc. skill efficiency" */
@@ -1062,15 +1061,14 @@ errr parse_s_info(char *buf, header *head)
 		if (2 != sscanf(buf+2, "%d:%d",
 				&num, &eff)) return (1);
 
-		if (eff > 200) return (200);
-		if (eff < 0) return (8);
-		if ((eff > 0) && (eff < 4)) return (8);
+		if (eff > 7) return (99);
+		if (eff < 1) return (0);
 
 		/* Save the values */
 		s_ptr->m_eff[num] = eff;
 	}
 
-	/* Process 'S' for "Magic skill efficiency" */
+	/* Process 'S' for "Spell skill efficiency" */
 	else if (buf[0] == 'S')
 	{
 		int realm, eff;
@@ -1079,13 +1077,12 @@ errr parse_s_info(char *buf, header *head)
 		if (2 != sscanf(buf+2, "%d:%d",
 				&realm, &eff)) return (1);
 
-		if ((eff < 0) || (eff > 64)) return (8);
-		if ((eff > 0) && (eff < 4)) return (8);
+		if (eff > 20) return (20);
+		if (eff < 0) return (0);
 
 		/* Save the values */
 		s_ptr->s_eff[realm] = eff;
 	}
-
 
 	/* Oops */
 	else return (6);
@@ -3699,7 +3696,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				if (a_info[artifact_index].cur_num)
 				{
-					int k_idx = 198;
+					int k_idx = 447;
 					object_type forge;
 					object_type *q_ptr = &forge;
 

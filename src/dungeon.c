@@ -2669,7 +2669,10 @@ if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
 			}
 		}
 		/* TY Curse */
-		if ((p_ptr->cursed & TRC_TY_CURSE) && one_in_(((inventory[INVEN_RARM].sval == SV_DARK_SWORD) || (inventory[INVEN_LARM].sval == SV_DARK_SWORD)) ? 20 + weapon_exp_level(p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU]) * weapon_exp_level(p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU]) : TY_CURSE_CHANCE))
+/* あとで 
+ * TY_CURSE_CHANCE += TY_CURSE_CHANCE * skill_exp_level(p_ptr->cexp_info[CLASS_LICH].clev)
+ */
+		if ((p_ptr->cursed & TRC_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
 		{
 			int count = 0;
 			(void)activate_ty_curse(FALSE, &count);
@@ -2877,13 +2880,14 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 
 
 	/* Take damage from Youtou */
-	if (((inventory[INVEN_RARM].sval == SV_YOUTOU) ||
-	    (inventory[INVEN_LARM].sval == SV_YOUTOU)) && (p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU] < 8000))
+	if ((((inventory[INVEN_RARM].tval == TV_SWORD) && (inventory[INVEN_RARM].sval == SV_YOUTOU)) ||
+		((inventory[INVEN_LARM].tval == TV_SWORD) && (inventory[INVEN_LARM].sval == SV_YOUTOU))) &&
+			(p_ptr->cexp_info[CLASS_SWORDMASTER].clev < 50))
 	{
-		take_hit(DAMAGE_LOSELIFE, (5 - weapon_exp_level(p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU])) * 10, "妖刀");
+		int lev = skill_exp_level(p_ptr->cexp_info[CLASS_SWORDMASTER].clev);
+		take_hit(DAMAGE_LOSELIFE, (4 - lev) * 10 + randint1(10), "妖刀");
 
 	}
-
 
 	/* Process equipment */
 	for (j = 0, i = INVEN_RARM; i < INVEN_TOTAL; i++)
@@ -4469,7 +4473,7 @@ msg_format("%^sを起こした。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_ptr->level) < (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->stunned;
@@ -4509,7 +4513,7 @@ msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_ptr->level) < (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->confused;
@@ -4549,7 +4553,7 @@ msg_format("%^sを混乱状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_ptr->level) < (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->monfear;

@@ -16471,11 +16471,11 @@ E:Light jelly fish
 G:j:w
 I:110:5d5:20:10:0
 W:5:1:0:30:0:0
-B:TOUCH:HURT:1d7
+B:TOUCH:PARALYZE:1d7
 F:FORCE_SLEEP | ANIMAL | AQUATIC | WILD_OCEAN | ELEM_AQUA
 F:RAND_50 | RAND_25 | EMPTY_MIND | SELF_LITE_1 
 D:$A strange water creature, whose touch can be deadly.
-D:発光する奇妙な水棲生物で、大した害はない。
+D:発光する奇妙な水棲生物で、神経毒を持つ。
 
 
 #TO#
@@ -16513,11 +16513,11 @@ E:Clear jelly fish
 G:j:B
 I:110:5d5:20:10:0
 W:5:1:0:55:0:0
-B:TOUCH:HURT:1d7
+B:TOUCH:POISON:2d7
 F:FORCE_SLEEP | ANIMAL | AQUATIC | WILD_OCEAN | ELEM_AQUA
 F:RAND_50 | RAND_25 | EMPTY_MIND | INVISIBLE 
 D:$A strange water creature, whose touch can be deadly.
-D:非常に透き通った体を持つ水棲生物で、大した害はない。
+D:非常に透き通った体を持つ水棲生物で、その触手に毒を持つ。
 
 N:868:反魔力ハウンド
 E:Anti-magic hound

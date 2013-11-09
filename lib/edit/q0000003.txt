@@ -48,13 +48,13 @@ Q:3:T:彼が二度と戻ってこないことを願いましょう。
 F:a:1:8:498
 
 # Floor with Double Barrelled Shotgun
-F:b:1:8:0:5
+F:b:1:8:0:59
 
 # Floor with Assault Rifle
-F:c:1:8:0:3
+F:c:1:8:0:57
 
 # Floor with Sniper Rifle
-F:d:1:8:0:4
+F:d:1:8:0:58
 
 # Dungeon
 D:XXXXXXXXXXXXXXX

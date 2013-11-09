@@ -209,6 +209,7 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 	int div = 10;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	cptr p;
 	bool resist_weapon = TRUE;
@@ -220,18 +221,21 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 
 	if (in_hand)
 	{
-		if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
-		if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 49) add_flag(flgs, TR_KILL_DRAGON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_DEMON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_UNDEAD);
+		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
+		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
+		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
+		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
+		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
 		switch (p_ptr->pclass)
 		{
 		case CLASS_DRAGOON:
-			add_flag(flgs, TR_KILL_DRAGON);
+			if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
+			else add_flag(flgs, TR_SLAY_DRAGON);
 			break;
 		case CLASS_EXORCIST:
+			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
+			if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
 			add_flag(flgs, TR_SLAY_UNDEAD);
-			add_flag(flgs, TR_SLAY_DEMON);
 			/* Fall through */
 		case CLASS_CLERIC:
 		case CLASS_PRIEST:
@@ -2993,8 +2997,8 @@ bool py_attack(int y, int x, int mode)
 	    !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
 	    p_ptr->shero || !m_ptr->ml))
 	{
-		if ((inventory[INVEN_RARM].sval == SV_YOUTOU) || (inventory[INVEN_RARM].sval == SV_DARK_SWORD)) darksword = TRUE;
-		if ((inventory[INVEN_LARM].sval == SV_YOUTOU) || (inventory[INVEN_LARM].sval == SV_DARK_SWORD)) darksword = TRUE;
+		if ((inventory[INVEN_RARM].tval == TV_SWORD) && ((inventory[INVEN_RARM].sval == SV_YOUTOU) || (inventory[INVEN_RARM].sval == SV_DARK_SWORD))) darksword = TRUE;
+		if ((inventory[INVEN_LARM].tval == TV_SWORD) && ((inventory[INVEN_LARM].sval == SV_YOUTOU) || (inventory[INVEN_LARM].sval == SV_DARK_SWORD))) darksword = TRUE;
 		if (darksword)
 		{
 #ifdef JP
@@ -3347,8 +3351,8 @@ void move_player(int dir, int do_pickup)
 	m_ptr = &m_list[c_ptr->m_idx];
 
 
-	if ((inventory[INVEN_RARM].sval == SV_YOUTOU) || (inventory[INVEN_RARM].sval == SV_DARK_SWORD)) darksword = TRUE;
-	if ((inventory[INVEN_LARM].sval == SV_YOUTOU) || (inventory[INVEN_LARM].sval == SV_DARK_SWORD)) darksword = TRUE;
+	if ((inventory[INVEN_RARM].tval == TV_SWORD) && ((inventory[INVEN_RARM].sval == SV_YOUTOU) || (inventory[INVEN_RARM].sval == SV_DARK_SWORD))) darksword = TRUE;
+	if ((inventory[INVEN_LARM].tval == TV_SWORD) && ((inventory[INVEN_LARM].sval == SV_YOUTOU) || (inventory[INVEN_LARM].sval == SV_DARK_SWORD))) darksword = TRUE;
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */

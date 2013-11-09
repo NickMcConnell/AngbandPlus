@@ -41,13 +41,13 @@ F:e:1:8:932
 F:Y:1:8:0:419
 
 # Scroll of Learning Special Blow
-F:S:1:8:0:388
+F:S:1:8:0:452
 
 # Scroll of Ego-item Creation
-F:E:1:8:0:600
+F:E:1:8:0:456
 
 # potion of Life
-F:L:1:8:0:420
+F:L:1:8:0:496
 
 # ªÍ °§Œ¿ª¿–
 F:I:1:8:0:0:0:15

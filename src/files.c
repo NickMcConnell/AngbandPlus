@@ -1743,7 +1743,7 @@ static void display_player_middle(void)
 	/* Apply weapon bonuses */
 	if (o_ptr->k_idx)
 	{
-		int attack_var = skill_lev_var[weapon_exp_level(p_ptr->weapon_exp[0][o_ptr->sval])];
+		int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]];
 
 		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
 		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
@@ -2276,12 +2276,13 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (to_speed) add_flag(flgs, TR_SPEED);
 
 	/* Class Master get Flag */
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 24) add_flag(flgs, TR_FEAR_FIELD);
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 49) add_flag(flgs, TR_ANTI_MAGIC);
-	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
-	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 49) add_flag(flgs, TR_KILL_DRAGON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_DEMON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_UNDEAD);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 39) add_flag(flgs, TR_FEAR_FIELD);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 49) add_flag(flgs, TR_ANTI_MAGIC);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
 
 	/* Classes */
 	switch (p_ptr->pclass)
@@ -2312,9 +2313,10 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		if (heavy_armor()) add_flag(flgs, TR_SPEED);
 		break;
 	case CLASS_EXORCIST:
-		add_flag(flgs, TR_SLAY_DEMON);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
 		add_flag(flgs, TR_SLAY_UNDEAD);
-		add_flag(flgs, TR_BLESSED);
+		add_flag(flgs, TR_SEE_INVIS);
 		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_FEAR);
 		/* Fall through */
 	case CLASS_CLERIC:

@@ -2740,6 +2740,13 @@ static int wand_effect(int sval, int dir)
 			break;
 		}
 
+		case SV_WAND_PETRO_CLOUD:
+		{
+			fire_ball(GF_STONE, dir, 200 + randint1(p_ptr->lev * 2), 2, FALSE);
+			ident = TRUE;
+			break;
+		}
+
 		case SV_WAND_DISINTEGRATE:
 		{
 			fire_ball(GF_DISINTEGRATE, dir, 200 + randint1(p_ptr->lev * 2), 2, FALSE);

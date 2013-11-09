@@ -2228,19 +2228,19 @@ act = "%sを侮辱した。";
 				if (!explode)
 				{
 					project(m_idx, 0, fy, fx,
-						damage, pt, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
+						damage, pt, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
 				}
 
 				if (fear_effect)
 				{
 					project(m_idx, 0, fy, fx,
-						r_ptr->level, GF_TURN_ALL, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
+						r_ptr->level, GF_TURN_ALL, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
 				}
 
 				if (sleep_effect)
 				{
 					project(m_idx, 0, fy, fx,
-						r_ptr->level, GF_OLD_SLEEP, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
+						r_ptr->level, GF_OLD_SLEEP, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
 				}
 
 				if (heal_effect && !target_is_decoy)
@@ -2293,7 +2293,7 @@ msg_format("%^sは突然熱くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
+							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
 					}
 
 					/* Aura cold */
@@ -2315,7 +2315,7 @@ msg_format("%^sは突然寒くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
+							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
 					}
 
 					/* Aura elec */
@@ -2337,7 +2337,7 @@ msg_format("%^sは電撃を食らった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
+							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
 					}
 
 				}

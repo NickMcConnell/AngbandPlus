@@ -46,7 +46,7 @@ F:b:129:3:0:0:0:0:0:2
 # Quest 2 rewarding, reward is Feanorian lamp
 ?:[EQU $QUEST2 3]
 F:b:129:3:0:0:0:0:0:3
-F:!:1:3:0:582
+F:!:1:3:0:203
 
 # Quest 2 finished
 ?:[EQU $QUEST2 4]
@@ -76,7 +76,7 @@ F:b:129:3:0:0:0:0:0:3
 # Quest 3 rewarding, reward is Rod of Disarming
 ?:[EQU $QUEST3 3]
 F:b:129:3:0:0:0:0:0:4
-F:!:1:3:0:365
+F:!:1:3:0:380
 
 # Quest 3 finished
 ?:[EQU $QUEST3 4]
@@ -158,7 +158,7 @@ F:b:129:3:0:0:0:0:0:26
 # Reward is Potion of Constitution
 ?:[EQU $QUEST26 3]
 F:b:129:3:0:0:0:0:0:37
-F:!:1:3:0:243
+F:!:1:3:0:521
 
 # Quest 26 finished, continue with quest 37
 ?:[EQU $QUEST26 4]

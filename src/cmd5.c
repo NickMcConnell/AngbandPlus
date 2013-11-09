@@ -481,7 +481,7 @@ s = "読める本がない。";
 static bool cast_magery_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_MAGERY]/10;
 
 	switch (spell)
 	{
@@ -656,7 +656,7 @@ msg_print("「卑しき者よ、我は汝の下僕にあらず！ お前の魂を頂くぞ！」");
 static bool cast_fire_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_FIRE]/10;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -788,7 +788,7 @@ static bool cast_fire_spell(int spell)
 static bool cast_aqua_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_AQUA]/10;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -890,7 +890,7 @@ static bool cast_aqua_spell(int spell)
 static bool cast_earth_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_EARTH]/10;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -979,7 +979,7 @@ static bool cast_earth_spell(int spell)
 static bool cast_wind_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_WIND]/10;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -1072,7 +1072,7 @@ static bool cast_wind_spell(int spell)
 static bool cast_holy_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_HOLY]/10;
 
 	switch (spell)
 	{
@@ -1253,7 +1253,7 @@ msg_print("「我は汝の下僕にあらず！ 悪行者よ、悔い改めよ！」");
 static bool cast_death_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_DEATH]/10;
 	int	dummy = 0;
 	int pstat;
 	int k;
@@ -1506,7 +1506,7 @@ static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 static bool cast_symbiotic_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_SYMBIOTIC]/10;
 
 	switch (spell)
 	{
@@ -1714,7 +1714,7 @@ static bool cast_symbiotic_spell(int spell)
 static bool cast_witch_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_WITCH]/10;
 	int pstat;
 	int k;
 	s16b chosen_elem;
@@ -2145,7 +2145,7 @@ static bool cast_witch_spell(int spell)
 
 static bool cast_drakonite_spell(int spell)
 {
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_DRAKONITE]/10;
 	int i;
 
 	switch (spell)
@@ -2276,7 +2276,7 @@ static bool cast_drakonite_spell(int spell)
 static bool cast_crusade_spell(int spell)
 {
 	int	dir;
-	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	int	clev = p_ptr->magic_exp[REALM_CRUSADE]/10;
 	int pstat;
 
 	switch (spell)
@@ -2481,7 +2481,8 @@ void stop_singing(void)
 	}
 	if (!p_ptr->singing) return;
 
-	set_action(ACTION_NONE);
+	/* Hack -- if called from set_action(), avoid recursive loop */
+	if (p_ptr->action == ACTION_SING) set_action(ACTION_NONE);
 
 	switch (p_ptr->singing)
 	{
@@ -2766,8 +2767,9 @@ msg_format("%sをうまく唱えられなかった！", prayer);
 	}
 
 	/* Take a turn */
-	energy_use = 115 - skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST])] * 5;
-	if (p_ptr->cexp_info[CLASS_HIGHWITCH].max_clev > 49) energy_use = 50;
+	energy_use = 115 - skill_lev_var[p_ptr->skill_exp[SKILL_SPELL_CAST]] * 5;
+	if (p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 49) energy_use -= 50;
+	else if ((p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 29) || (p_ptr->cexp_info[CLASS_SIRENE].clev > 44) || (p_ptr->cexp_info[CLASS_WIZARD].clev > 44)) energy_use -= 25;
 
 	/* Sufficient mana */
 	if (use_mana <= p_ptr->csp)
@@ -3194,7 +3196,7 @@ bool rakuba(int dam, bool force)
 		{
 			int level = r_ptr->level;
 			if (p_ptr->riding_ryoute) level += 20;
-			if (randint0(dam/2 + level*2) < ((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/30+10))
+			if (randint0(dam/2 + level*2) < ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/30+10))
 			{
 				if ((!p_ptr->riding_ryoute) || !one_in_(p_ptr->cexp_info[p_ptr->psex == SEX_MALE ? CLASS_BEASTTAMER : CLASS_DRAGONTAMER].clev * (p_ptr->riding_ryoute ? 2 : 3)+30))
 				{
@@ -3268,7 +3270,7 @@ msg_format("%sから振り落とされそうになって、壁にぶつかった。",m_name);
 	p_ptr->update |= (PU_BONUS);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -3398,7 +3400,7 @@ msg_print("その場所にはモンスターはいません。");
 
 			return FALSE;
 		}
-		if (r_info[m_ptr->r_idx].level > randint1(((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/50 + p_ptr->lev/2 +20)))
+		if (r_info[m_ptr->r_idx].level > randint1(((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)/50 + p_ptr->lev/2 +20)))
 		{
 #ifdef JP
 msg_print("うまく乗れなかった。");
@@ -3453,7 +3455,7 @@ msg_format("%sを起こした。", m_name);
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);

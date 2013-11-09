@@ -20,7 +20,7 @@
  */
 static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int rad, bool breath, bool no_reduce)
 {
-	u32b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+	u32b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER;
 	int mod_elem_mode = MODIFY_ELEM_MODE_MAGIC;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -45,7 +45,7 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
 	case GF_CAUSE_3:
 	case GF_CAUSE_4:
 	case GF_HAND_DOOM:
-		flg |= (PROJECT_HIDE | PROJECT_AIMED);
+		flg |= (PROJECT_HIDE);
 		break;
 	}
 	if (no_reduce) flg |= PROJECT_NO_REDUCE;
@@ -61,7 +61,7 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
  */
 static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
 {
-	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE | PROJECT_AVOIDABLE;
+	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_MONSTER | PROJECT_REFLECTABLE | PROJECT_AVOIDABLE;
 	int mod_elem_mode = MODIFY_ELEM_MODE_MAGIC;
 
 	switch (typ)
@@ -79,7 +79,7 @@ static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
 
 static void monst_beam_monst(int m_idx, int y, int x, int typ, int dam_hp)
 {
-	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_THRU;
+	u32b flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU | PROJECT_MONSTER;
 	int mod_elem_mode = MODIFY_ELEM_MODE_MAGIC;
 
 	switch (typ)
@@ -96,7 +96,7 @@ static void monst_beam_monst(int m_idx, int y, int x, int typ, int dam_hp)
 
 static void monst_special_blow_monst(int y, int x, int m_idx, int typ, int dam_hp)
 {
-	u32b flg = PROJECT_HIDE | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_AIMED;
+	u32b flg = PROJECT_HIDE | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_MONSTER;
 
 	project_length = 2;
 
@@ -346,6 +346,16 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 	{
 		/* Extract the monster level */
 		rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+
+		/* Remove unimplemented spells */
+		f4 &= ~(RF4_DISPEL);
+		f6 &= ~(RF6_FORGET);
+
+		/* Remove unimplemented special moves */
+		if (f6 & RF6_SPECIAL)
+		{
+			if (r_ptr->d_char != 'B') f6 &= ~(RF6_SPECIAL);
+		}
 
 		if (pet)
 		{
@@ -3900,7 +3910,7 @@ msg_format("%^sは暗闇に包まれた。", t_name);
 						}
 					}
 
-					(void)project(m_idx, 3, y, x, 0, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
+					(void)project(m_idx, 3, y, x, 0, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL | PROJECT_MONSTER, MODIFY_ELEM_MODE_MAGIC);
 
 					unlite_room(y, x);
 				}
@@ -3933,7 +3943,7 @@ msg_format("%^sは光に包まれた。", t_name);
 						}
 					}
 
-					(void)project(m_idx, 3, y, x, 0, GF_LITE_WEAK, PROJECT_GRID | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
+					(void)project(m_idx, 3, y, x, 0, GF_LITE_WEAK, PROJECT_GRID | PROJECT_KILL | PROJECT_MONSTER, MODIFY_ELEM_MODE_MAGIC);
 
 					lite_room(y, x);
 				}

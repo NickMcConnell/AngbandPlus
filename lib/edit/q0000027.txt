@@ -143,37 +143,37 @@ F:|:39:8
 
 # The Objects
 # Çú±ê¤Î½ñ on no Teleportation grid
-F:c:1:12:0:332
+F:c:1:12:0:539
 
 # ¿å¤Î²¸Ãþ on no Teleportation grid
-F:p:1:12:0:333
+F:p:1:12:0:540
 
 # ÂçÃÏ¤Î·Ã¤ß on no Teleportation grid
-F:n:1:12:0:334
+F:n:1:12:0:541
 
 # É÷¤Îµ°À× on no Teleportation grid
-F:i:1:12:0:335
+F:i:1:12:0:542
 
 # ¶Ø¼öÂçÁ´ on no Teleportation grid
-F:b:1:12:0:331
+F:b:1:12:0:538
 
 # ¿ÀÀ»½ËÊ¡ on no Teleportation grid
-F:f:1:12:0:337
+F:f:1:12:0:544
 
 # Ì½³¦¤ÎÈâ on no Teleportation grid
-F:y:1:12:0:379
+F:y:1:12:0:545
 
 # ±¿Ì¿¤ÎËâ½÷ on no Teleportation grid
-F:k:1:12:0:384
+F:k:1:12:0:550
 
 # ¥á¥®¥É¤ÎÍë±ê on no Teleportation grid
-F:J:1:12:0:387
+F:J:1:12:0:553
 
 # *HEALING* potion
-F:Y:1:8:0:419
+F:Y:1:8:0:495
 
 # *IDENTIFY* scroll on no Teleportation grid
-F:e:1:12:0:177
+F:e:1:12:0:414
 
 # Object 0 levels out of depth
 F:h:1:8:0:*0

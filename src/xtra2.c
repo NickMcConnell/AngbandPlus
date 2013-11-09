@@ -83,21 +83,35 @@ void check_class_experience(void)
 		/* Save the highest level */
 		if (cexp_ptr->clev > cexp_ptr->max_clev)
 		{
-			int i, j;
+			int i, j, gfact;
+			int lfact = skill_exp_level(cexp_ptr->clev + 1);
+			int total_max_clev = 0;
+
 
 			cexp_ptr->max_clev = cexp_ptr->clev;
 			if (cexp_ptr->max_clev > cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = cexp_ptr->max_clev;
 
+			for (i = 0; i < MAX_CLASS; i++)
+				{
+				if (p_ptr->cexp_info[i].max_clev > 0) total_max_clev += p_ptr->cexp_info[i].max_clev;
+				}
+			if (total_max_clev == cexp_ptr->clev) gfact = 2;
+			else if ((total_max_clev > cexp_ptr->clev) && (total_max_clev < cexp_ptr->clev * 2)) gfact = 3;
+			else gfact = 5;
+			
+			if ((total_max_clev < cexp_ptr->clev * 2) && 
+				((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_ANGELKNIGHT) || (p_ptr->pclass == CLASS_GUNNER))) gfact = 1;
+
 			/* Gain skills */
-			p_ptr->gx_dis += cp_ptr->x_dis;
-			p_ptr->gx_dev += cp_ptr->x_dev;
-			p_ptr->gx_sav += cp_ptr->x_sav;
-			p_ptr->gx_stl += cp_ptr->x_stl;
-			p_ptr->gx_srh += cp_ptr->x_srh;
-			p_ptr->gx_fos += cp_ptr->x_fos;
-			p_ptr->gx_spd += cp_ptr->x_spd;
-			p_ptr->gx_thn += cp_ptr->x_thn;
-			p_ptr->gx_thb += cp_ptr->x_thb;
+			p_ptr->gx_dis += cp_ptr->x_dis * lfact / gfact;
+			p_ptr->gx_dev += cp_ptr->x_dev * lfact / gfact;
+			p_ptr->gx_sav += cp_ptr->x_sav * lfact / gfact;
+			p_ptr->gx_stl += cp_ptr->x_stl * lfact / gfact;
+			p_ptr->gx_srh += cp_ptr->x_srh * lfact / gfact;
+			p_ptr->gx_fos += cp_ptr->x_fos * lfact / gfact;
+			p_ptr->gx_spd += cp_ptr->x_spd * lfact / gfact;
+			p_ptr->gx_thn += cp_ptr->x_thn * lfact / gfact;
+			p_ptr->gx_thb += cp_ptr->x_thb * lfact / gfact;
 
 			/* Limit skills */
 			if (p_ptr->gx_dis > 30000) p_ptr->gx_dis = 30000;
@@ -111,25 +125,52 @@ void check_class_experience(void)
 			if (p_ptr->gx_thb > 30000) p_ptr->gx_thb = 30000;
 
 
-			for (i = 0; i < 5; i++) for (j = 0; j < 64; j++)
+			for (i = 1; i < MAX_WT; i++)
 				{
-				p_ptr->weapon_exp[i][j] += p_ptr->s_ptr->w_eff[i][j];
-				if (p_ptr->weapon_exp[i][j] > 8000) p_ptr->weapon_exp[i][j] = 8000;
+				int wlev;
+
+				if ((p_ptr->s_ptr->w_eff[i] > 1) && (p_ptr->s_ptr->w_eff[i] < 8))
+				{
+					if (cexp_ptr->clev > 29) wlev = p_ptr->s_ptr->w_eff[i] / 2;
+					else wlev = p_ptr->s_ptr->w_eff[i];
+		
+					if (p_ptr->weapon_exp[i] > cexp_ptr->max_clev * 2) wlev *= 2;
+					else if (p_ptr->weapon_exp[i] > cexp_ptr->max_clev * 3 / 2) wlev += 1;
+
+					if (!(cexp_ptr->max_clev % wlev)) p_ptr->weapon_exp[i]++;
+					if (p_ptr->weapon_exp[i] > 50) p_ptr->weapon_exp[i] = 50;
+				}
 				}
 
 			for (i = 0; i < 10; i++)
 				{
-				p_ptr->skill_exp[i] += p_ptr->s_ptr->m_eff[i];
-				if (p_ptr->skill_exp[i] > 8000) p_ptr->skill_exp[i] = 8000;
+				int mlev;
+
+				if ((p_ptr->s_ptr->m_eff[i] > 1) && (p_ptr->s_ptr->m_eff[i] < 8))
+				{
+					if (cexp_ptr->clev > 29) mlev = p_ptr->s_ptr->m_eff[i] / 2;
+					else mlev = p_ptr->s_ptr->m_eff[i];
+
+					if (p_ptr->skill_exp[i] > cexp_ptr->max_clev * 2) mlev *= 2;
+					else if (p_ptr->skill_exp[i] > cexp_ptr->max_clev * 3 / 2) mlev += 1;
+
+					if (!(cexp_ptr->max_clev % mlev)) p_ptr->skill_exp[i]++;
+					if (p_ptr->skill_exp[i] > 50) p_ptr->skill_exp[i] = 50;
+				}
 				}
 
 			for (i = 0; i < MAX_REALM + 1; i++)
 				{
-				p_ptr->magic_exp[i] += p_ptr->s_ptr->s_eff[i];
+				if (p_ptr->magic_exp[i] >= (cexp_ptr->clev - 1) * 20) p_ptr->magic_exp[i] += 0;
+				else if (p_ptr->magic_exp[i] >= (cexp_ptr->clev - 1) * 30 / 2) p_ptr->magic_exp[i] += p_ptr->s_ptr->s_eff[i] / 3;
+				else if (p_ptr->magic_exp[i] >= (cexp_ptr->clev - 1) * 40 / 3) p_ptr->magic_exp[i] += p_ptr->s_ptr->s_eff[i] * 2 / 3;
+				else p_ptr->magic_exp[i] += p_ptr->s_ptr->s_eff[i];
 				if (p_ptr->magic_exp[i] > 500) p_ptr->magic_exp[i] = 500;
 				}
 
-			level_inc_stat = TRUE;
+			
+			
+			if (!(cexp_ptr->max_clev % gfact)) level_inc_stat = TRUE;
 
 			if (p_ptr->pclass != CLASS_GUNNER)
 			{
@@ -138,6 +179,14 @@ void check_class_experience(void)
 			}
 			else p_ptr->race_sp[cexp_ptr->max_clev - 1] = 0;
 
+			/*　クラスの得意な武器レベルをあげる。 */
+			if ((p_ptr->pclass == CLASS_SWORDMASTER) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_KATANA] = cexp_ptr->clev;
+			if ((p_ptr->pclass == CLASS_NINJA) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_CLAW] = cexp_ptr->clev;
+			if ((p_ptr->pclass == CLASS_ARCHER) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_BOW] = cexp_ptr->clev;
+			if ((p_ptr->pclass == CLASS_GUNNER) && (p_ptr->weapon_exp[WT_GUN] < cexp_ptr->clev)) p_ptr->weapon_exp[WT_GUN] = cexp_ptr->clev;
+
+			if (((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) && (p_ptr->skill_exp[SKILL_RIDING] < cexp_ptr->clev)) p_ptr->skill_exp[SKILL_RIDING] = cexp_ptr->clev;
+			if ((p_ptr->pclass == CLASS_HIGHWITCH) && (p_ptr->skill_exp[SKILL_SPELL_CAST] < cexp_ptr->clev)) p_ptr->skill_exp[SKILL_SPELL_CAST] = cexp_ptr->clev;
 		}
 
 		/* Update some stuff */
@@ -197,7 +246,7 @@ void check_racial_experience(void)
 {
 	int  prev_lev;
 	bool level_reward = FALSE;
-//	bool level_inc_stat = FALSE;
+	bool level_inc_stat = FALSE;
 	s32b tmp32s;
 
 
@@ -276,7 +325,7 @@ void check_racial_experience(void)
 			{
 				level_reward = TRUE;
 			}
-//			level_inc_stat = TRUE;
+			level_inc_stat = TRUE;
 
 			do_cmd_write_nikki(NIKKI_LEVELUP, p_ptr->lev, NULL);
 		}
@@ -291,7 +340,7 @@ void check_racial_experience(void)
 		msg_format("Welcome to level %d.", p_ptr->lev);
 #endif
 
-		if (!(p_ptr->max_plv % 5))
+		if (level_inc_stat && !(p_ptr->max_plv % 5))
 		{
 			int choice;
 			screen_save();
@@ -1678,7 +1727,7 @@ msg_print("地面に落とされた。");
 	}
 	if ((r_ptr->flags7 & RF7_GUARDIAN) && (d_info[dungeon_type].final_guardian == m_ptr->r_idx))
 	{
-		int k_idx = 198; /* Acquirement */;
+		int k_idx = 447; /* Acquirement */;
 
 		if (d_info[dungeon_type].final_object)
 			k_idx = d_info[dungeon_type].final_object;

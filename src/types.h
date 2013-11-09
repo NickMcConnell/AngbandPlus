@@ -396,10 +396,9 @@ typedef struct skill_table skill_table;
 
 struct skill_table
 {
-	byte gain_sp_rate; /* Rate for gain skill points */
-	byte w_eff[5][64]; /* Weapon skill efficiency */
+	byte w_eff[17];    /* Weapon skill efficiency */
 	byte m_eff[10];    /* Misc. skill efficiency */
-	byte s_eff[14];    /* Misc. skill efficiency */
+	byte s_eff[14];    /* Spell. skill efficiency */
 };
 
 
@@ -1125,9 +1124,9 @@ struct player_type
 
 	skill_table *s_ptr;		/* Skill of weapons & misc. */
 
-	s16b weapon_exp[5][64];   /* Proficiency of weapons */
-	s16b skill_exp[10];       /* Proficiency of misc. skill */
-	s16b magic_exp[MAX_REALM];       /* Proficiency of misc. skill */
+	s16b weapon_exp[MAX_WT];	/* Proficiency of weapon skill */
+	s16b skill_exp[10];       	/* Proficiency of misc. skill */
+	s16b magic_exp[MAX_REALM+1];	/* Proficiency of spell skill */
 
 	s32b essence_box[108];     /* Array for essences of gunner */
 	byte singing;              /* For Angel-Knight's singing */

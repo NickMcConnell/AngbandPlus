@@ -59,13 +59,13 @@ F:g:1:8:40
 F:h:1:8:22
 
 # Floor with Scroll of Phase Door
-F:i:1:8:0:185
+F:i:1:8:0:409
 
 # Floor with Scroll of Teleportation
-F:j:1:8:0:186
+F:j:1:8:0:410
 
 # Floor with Scroll of Identify
-F:k:1:8:0:176
+F:k:1:8:0:413
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXX

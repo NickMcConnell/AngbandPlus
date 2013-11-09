@@ -5164,7 +5164,7 @@ bool earthquake(int cy, int cx, int r)
 	}
 
 	/* First, affect the player (if necessary) */
-	if (hurt && (p_ptr->prace != RACE_GHOST) && !WRAITH_FORM())
+	if (hurt && !prace_is_(RACE_GHOST) && !WRAITH_FORM())
 	{
 		/* Check around the player */
 		for (i = 0; i < 8; i++)
@@ -5631,7 +5631,7 @@ void discharge_minion(void)
 		fx = m_ptr->fx;
 		delete_monster_idx(i);
 		project(0, 2+(r_ptr->level/20), fy, fx, dam, GF_PLASMA,
-			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP, MODIFY_ELEM_MODE_MAGIC);
+			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER | PROJECT_JUMP, MODIFY_ELEM_MODE_MAGIC);
 	}
 }
 
@@ -6335,14 +6335,7 @@ msg_print("テレポートを邪魔された！");
 	set_mermaid_in_water();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_BONUS);
-
-	/* Notice changes in view */
-	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
-	{
-		/* Update some things */
-		p_ptr->update |= (PU_MON_LITE);
-	}
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_BONUS | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);

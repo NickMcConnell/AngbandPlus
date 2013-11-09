@@ -3510,7 +3510,9 @@ void calc_bonuses(void)
 		p_ptr->shero = 1;
 	}
 
-	if (((inventory[INVEN_RARM].sval == SV_DARK_SWORD) || (inventory[INVEN_LARM].sval == SV_DARK_SWORD)) && p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_DARK_SWORD] < 7000)
+	if ((((inventory[INVEN_RARM].tval == TV_SWORD) && (inventory[INVEN_RARM].sval == SV_DARK_SWORD)) || 
+		((inventory[INVEN_LARM].tval == TV_SWORD) && (inventory[INVEN_LARM].sval == SV_DARK_SWORD))) &&
+			(p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev < 34))
 	{
 			p_ptr->cursed |= (TRC_TY_CURSE | TRC_DRAIN_EXP);
 	}
@@ -3821,7 +3823,7 @@ void calc_bonuses(void)
 
 	if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
 	{
-		int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_MARTIAL_ARTS])];
+		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]];
 		p_ptr->to_h[0] += attack_var * 4 - 8;
 		p_ptr->dis_to_h[0] += attack_var * 4 - 8;
 		p_ptr->to_d[0] += attack_var * 2 - 2;
@@ -3830,7 +3832,7 @@ void calc_bonuses(void)
 
 	if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
-		int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_NITOURYU])];
+		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_NITOURYU]];
 		int penalty1 = (100 - attack_var * attack_var) - (130 - inventory[INVEN_RARM].weight) / 8;
 		int penalty2 = (100 - attack_var * attack_var) - (130 - inventory[INVEN_LARM].weight) / 8;
 		if (easy_2weapon)
@@ -3862,7 +3864,7 @@ void calc_bonuses(void)
 		int speed = m_list[p_ptr->riding].mspeed;
 		if (m_list[p_ptr->riding].mspeed > 110)
 		{
-			p_ptr->pspeed = 110 + ((speed - 110)*((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)*3 + p_ptr->lev*160L - 10000L)/(22000L));
+			p_ptr->pspeed = 110 + ((speed - 110)*((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000)*3 + p_ptr->lev*160L - 10000L)/(22000L));
 			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
 		}
 		else
@@ -3874,7 +3876,7 @@ void calc_bonuses(void)
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
 
-		if ((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000) < 2000) j += (p_ptr->wt*3*(2000 - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)))/2000;
+		if ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) < 2000) j += (p_ptr->wt*3*(2000 - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)))/2000;
 
 		i = 3000 + r_info[m_list[p_ptr->riding].r_idx].level * 50;
 	}
@@ -3982,7 +3984,7 @@ void calc_bonuses(void)
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
-			int attack_var = skill_lev_var[weapon_exp_level(p_ptr->weapon_exp[0][o_ptr->sval])];
+			int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx])]];
 
 			/* Extra shots */
 			p_ptr->num_fire += (extra_shots * 100);
@@ -4080,7 +4082,7 @@ void calc_bonuses(void)
 			int str_index, dex_index;
 
 			int num = 0, wgt = 0, mul = 0, div = 0;
-			int skill_level = weapon_exp_level(p_ptr->weapon_exp[o_ptr->tval - TV_BOW][o_ptr->sval]);
+			int skill_level = p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])];
 			int attack_var = skill_lev_var[skill_level];
 
 			/* Analyze the class */
@@ -4274,7 +4276,7 @@ void calc_bonuses(void)
 		case CLASS_SIRENE:
 		case CLASS_LICH:
 		case CLASS_HIGHWITCH:
-			if (!p_ptr->s_ptr->w_eff[o_ptr->tval - TV_BOW][o_ptr->sval])
+			if ((!p_ptr->s_ptr->w_eff[get_weapon_type(k_ptr)]) && (p_ptr->weapon_exp[get_weapon_type(k_ptr)] < SKILL_EXP_SKILLED))
 			{
 				/* Icky weapon */
 				p_ptr->icky_wield[i] += 10;
@@ -4352,7 +4354,7 @@ void calc_bonuses(void)
 
 		case CLASS_ARCHER:
 		case CLASS_GUNNER:
-			if (!p_ptr->s_ptr->w_eff[o_ptr->tval - TV_BOW][o_ptr->sval])
+			if (!p_ptr->s_ptr->w_eff[get_weapon_type(&k_info[o_ptr->k_idx])])
 			{
 				p_ptr->to_h_b -= 10;
 				p_ptr->dis_to_h_b -= 10;
@@ -4472,7 +4474,7 @@ void calc_bonuses(void)
 				}
 				else
 				{
-					penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000) / 80;
+					penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) / 80;
 					penalty += 30;
 					if (penalty < 30) penalty = 30;
 				}
@@ -4499,7 +4501,7 @@ void calc_bonuses(void)
 		}
 		else
 		{
-			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000) / 80;
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]] * 1000) / 80;
 			penalty += 30;
 			if (penalty < 30) penalty = 30;
 		}
@@ -4532,7 +4534,7 @@ void calc_bonuses(void)
 
 		p_ptr->num_blow[0] += extra_blows[0];
 
-		p_ptr->num_blow[0] += skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_MARTIAL_ARTS])] - 1;
+		p_ptr->num_blow[0] += skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]] - 1;
 		if (empty_hands_status & EMPTY_HAND_LARM) dual_bare_hand = TRUE;
 	}
 
@@ -4549,10 +4551,8 @@ void calc_bonuses(void)
 
 		if (buki_motteruka(INVEN_RARM+i))
 		{
-			int tval = o_ptr->tval - TV_BOW;
-			int sval = o_ptr->sval;
-			int attack_var = skill_lev_var[weapon_exp_level(p_ptr->weapon_exp[tval][sval])];
-			int w_eff = p_ptr->s_ptr->w_eff[tval][sval];
+			int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]];
+			int w_eff = p_ptr->s_ptr->w_eff[get_weapon_type(&k_info[o_ptr->k_idx])];
 
 			p_ptr->to_h[i] += attack_var * 4 - 8;
 			p_ptr->dis_to_h[i] += attack_var * 4 - 8;
@@ -4950,6 +4950,35 @@ msg_print("バランスがとれるようになった。");
 			p_ptr->align += 50;
 		else if (o_ptr->sval == SV_CLOAK_OF_IVORY_TOWER)
 			p_ptr->align -= 50;
+	}
+
+	if (inventory[INVEN_RARM].k_idx)
+	{
+		o_ptr = &inventory[INVEN_RARM];
+		if ((o_ptr->tval == TV_SWORD) && ((o_ptr->sval == SV_YOUTOU) || (o_ptr->sval == SV_DARK_SWORD)))
+			p_ptr->align -= 100;
+		else if (have_flag(flgs, TR_UNHOLY))
+			p_ptr->align -= 30;
+		else if (have_flag(flgs, TR_BLESSED))
+			p_ptr->align += 30;
+	}
+	
+	if (inventory[INVEN_LARM].k_idx)
+	{
+		o_ptr = &inventory[INVEN_LARM];
+		if ((o_ptr->tval == TV_SWORD) && ((o_ptr->sval == SV_YOUTOU) || (o_ptr->sval == SV_DARK_SWORD)))
+			p_ptr->align -= 100;
+		else if (have_flag(flgs, TR_UNHOLY))
+			p_ptr->align -= 30;
+		else if (have_flag(flgs, TR_BLESSED))
+			p_ptr->align += 30;
+	}
+
+	if (inventory[INVEN_NECK].k_idx)
+	{
+		o_ptr = &inventory[INVEN_NECK];
+		if (o_ptr->sval == SV_AMULET_ALIGNMENT)
+			p_ptr->align *= -1;
 	}
 
 	/* Limit player alignment (LNC) */

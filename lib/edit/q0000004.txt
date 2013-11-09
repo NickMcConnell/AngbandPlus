@@ -46,49 +46,49 @@ Q:4:T:のにとても役に立ったでしょうに。
 F:a:1:8:0:0:0:88
 
 # Floor with "Bastard sword"
-F:b:1:8:0:31
+F:b:1:8:0:115
 
 # Floor with "Bastard sword"
-F:c:1:8:0:31
+F:c:1:8:0:115
 
 # Floor with "Bastard sword"
-F:d:1:8:0:31
+F:d:1:8:0:115
 
 ?:[EQU $RANDOM4 1]
 # Floor with "Bastard sword"
-F:a:1:8:0:31
+F:a:1:8:0:115
 
 # Floor with "Oracion"
 F:b:1:8:0:0:0:88
 
 # Floor with "Bastard sword"
-F:c:1:8:0:31
+F:c:1:8:0:115
 
 # Floor with "Bastard sword"
-F:d:1:8:0:31
+F:d:1:8:0:115
 
 ?:[EQU $RANDOM4 2]
 # Floor with "Bastard sword"
-F:a:1:8:0:31
+F:a:1:8:0:115
 
 # Floor with "Bastard sword"
-F:b:1:8:0:31
+F:b:1:8:0:115
 
 # Floor with "Oracion"
 F:c:1:8:0:0:0:88
 
 # Floor with "Bastard sword"
-F:d:1:8:0:31
+F:d:1:8:0:115
 
 ?:[EQU $RANDOM4 3]
 # Floor with "Bastard sword"
-F:a:1:8:0:31
+F:a:1:8:0:115
 
 # Floor with "Bastard sword"
-F:b:1:8:0:31
+F:b:1:8:0:115
 
 # Floor with "Bastard sword"
-F:c:1:8:0:31
+F:c:1:8:0:115
 
 # Floor with "Oracion"
 F:d:1:8:0:0:0:88

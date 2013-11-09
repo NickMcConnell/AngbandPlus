@@ -3889,7 +3889,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 	{
 		int avgdam, turnavg;
 
-		attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
+		attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
 		skill_to_d = attack_var - 1;
 
 		o_ptr = &thrown;
@@ -3969,7 +3969,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 
 		if ((j_ptr->sval == SV_PISTOL) && (o_ptr->sval == SV_MAGNUM_BULLET)) as_beam = TRUE;
 
-		attack_var = skill_lev_var[weapon_exp_level(p_ptr->weapon_exp[0][j_ptr->sval])];
+		attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx])]];
 		skill_to_d = attack_var - 1;
 	}
 
@@ -4481,7 +4481,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 
 	int ac = 0;
 
-	int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
+	int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_THROWING]];
 
 
 	if (mode & PY_THROW_CHOSEN)

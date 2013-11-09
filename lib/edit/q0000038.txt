@@ -44,16 +44,16 @@ F:d:1:8:322
 F:e:1:8:737
 
 # Floor with Long Boots
-F:o:1:8:0:532
+F:o:1:8:0:130
 
 # Floor with Kilt
-F:p:1:8:0:515
+F:p:1:8:0:187
 
 # Floor with Katyusha
-F:q:1:8:0:529
+F:q:1:8:0:149
 
 # Floor with Gloves
-F:r:1:8:0:605
+F:r:1:8:0:136
 
 # Dungeon layout
 D:XXXXXXXXX

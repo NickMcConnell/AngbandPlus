@@ -648,7 +648,7 @@ bool make_attack_normal(int m_idx)
 					msg_format("%^s%s", m_name, act);
 				syouryaku = 1;/*£≤≤ÛÃ‹∞ πﬂ§œæ Œ¨ */
 #else
-				msg_format("%^s %s", m_name, act);
+				msg_format("%^s %s%s", m_name, act, do_silly_attack ? " you." : "");
 #endif
 			}
 

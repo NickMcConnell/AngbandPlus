@@ -1676,7 +1676,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 	/* Assume a default death */
 	cptr note_dies = extract_note_dies(r_ptr);
 
-
 	/* Nobody here */
 	if (!c_ptr->m_idx) return (FALSE);
 
@@ -2786,12 +2785,13 @@ note = "には効果がなかった！";
 		{
 			if (seen) obvious = TRUE;
 
-			if ((r_ptr->flags3 & RF3_UNDEAD) ||
-			    (r_ptr->flags3 & RF3_NONLIVING))
+			if (!monster_living(r_ptr))
 			{
-				if (r_ptr->flags3 & RF3_UNDEAD)
+				if (seen)
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (r_ptr->flags3 & RF3_DEMON) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (r_ptr->flags3 & RF3_UNDEAD) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (r_ptr->flags3 & RF3_NONLIVING) r_ptr->r_flags3 |= (RF3_NONLIVING);
 				}
 
 #ifdef JP
@@ -3388,14 +3388,11 @@ note = "は眠り込んでしまった！";
 
 			if (!monster_living(r_ptr))
 			{
-				if (r_ptr->flags3 & RF3_UNDEAD)
+				if (seen)
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
-				}
-
-				if (r_ptr->flags3 & (RF3_DEMON))
-				{
-					if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (r_ptr->flags3 & RF3_DEMON) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (r_ptr->flags3 & RF3_UNDEAD) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (r_ptr->flags3 & RF3_NONLIVING) r_ptr->r_flags3 |= (RF3_NONLIVING);
 				}
 
 #ifdef JP
@@ -5428,6 +5425,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 	/* Source monster */
 	monster_type *m_ptr = NULL;
+	object_type *o_ptr;
 
 	/* Monster name (for attacks) */
 	char m_name[80];
@@ -6576,6 +6574,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_fire)) inven_damage(set_fire_destroy, 3);
 			}
 
+			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6600,6 +6599,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_cold)) inven_damage(set_cold_destroy, 3);
 			}
 
+			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
 			if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
@@ -6625,6 +6625,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_acid)) inven_damage(set_acid_destroy, 3);
 			}
 
+			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6649,6 +6650,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_elec)) inven_damage(set_elec_destroy, 3);
 			}
 
+			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -8239,7 +8241,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 
 						ref_ptr->r_flags2 |= RF2_REFLECTING;
 					}
-					flg &= ~(PROJECT_AIMED);
+					flg &= ~(PROJECT_MONSTER);
 					flg |= (PROJECT_THRU | PROJECT_PLAYER | PROJECT_REFLECTABLE);
 
 					project(cave[y][x].m_idx, 0, t_y, t_x, dam, typ, flg, mod_elem_mode);
@@ -8252,80 +8254,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 					else if (project_m(who, dist, y, x, dam, typ, flg, mod_elem_mode)) notice = TRUE;
 				}
 
-				/* There is the riding player on this monster */
-				if (p_ptr->riding && (y == py) && (x == px))
-				{
-					/* Aimed on the player */
-					if (flg & PROJECT_PLAYER)
-					{
-						if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE | PROJECT_AIMED))
-						{
-							/*
-							 * A beam or bolt is well aimed
-							 * at the PLAYER!
-							 * So don't affects the mount.
-							 */
-							continue;
-						}
-						else
-						{
-							/*
-							 * The spell is not well aimed, 
-							 * So partly affect the mount too.
-							 */
-							dist++;
-						}
 					}
-
-					/*
-					 * This grid is the original target.
-					 * Or aimed on your horse.
-					 */
-					else if (((y == y2) && (x == x2)) || (flg & PROJECT_AIMED))
-					{
-						/* Hit the mount with full damage */
-					}
-
-					/*
-					 * Otherwise this grid is not the
-					 * original target, it means that line
-					 * of fire is obstructed by this
-					 * monster.
-					 */
-					/*
-					 * A beam or bolt will hit either
-					 * player or mount.  Choose randomly.
-					 */
-					else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE))
-					{
-						if (one_in_(2))
-						{
-							/* Hit the mount with full damage */
-						}
-						else
-						{
-							/* Hit the player later */
-							flg |= PROJECT_PLAYER;
-
-							/* Don't affect the mount */
-							continue;
-						}
-					}
-
-					/*
-					 * The spell is not well aimed, so
-					 * partly affect both player and
-					 * mount.
-					 */
-					else
-					{
-						dist++;
-					}
-				}
-			
-				/* Affect the monster in the grid */
-				if (project_m(who, dist, y, x, dam, typ, flg, mod_elem_mode)) notice = TRUE;
-			}
 		}
 		
 	
@@ -8432,46 +8361,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 			if (breath) d = dist_to_line(y, x, y1, x1, y2, x2);
 			else d = dist;
 
-			if ((y == y2) && (x == x2) && (y == py) && (x == px) && (!flg & PROJECT_AIMED)) d++;
-
-			/* Target may be your horse */
-			if (p_ptr->riding)
-			{
-				/* Aimed on the player */
-				if (flg & PROJECT_PLAYER)
-				{
-					/* Hit the player with full damage */
-				}
-
-				/*
-				 * Hack -- When this grid was not the
-				 * original target, a beam or bolt
-				 * would hit either player or mount,
-				 * and should be choosen randomly.
-				 *
-				 * But already choosen to hit the
-				 * mount at this point.
-				 *
-				 * Or aimed on your horse.
-				 */
-				else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE | PROJECT_AIMED))
-				{
-					/*
-					 * A beam or bolt is well aimed
-					 * at the mount!
-					 * So don't affects the player.
-					 */
-					continue;
-				}
-				else
-				{
-					/*
-					 * The spell is not well aimed, 
-					 * So partly affect the player too.
-					 */
-					d++;
-				}
-			}
+			if ((y == y2) && (x == x2) && (y == py) && (x == px) && (!flg & PROJECT_MONSTER)) d++;
 
 			/* Affect the player */
 			if (project_p(who, who_name, d, y, x, dam, typ, flg, mod_elem_mode)) notice = TRUE;

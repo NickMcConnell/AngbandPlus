@@ -14,13 +14,15 @@
 
 void set_action(int typ)
 {
-	if (typ == p_ptr->action)
+	int prev_typ = p_ptr->action;
+
+	if (typ == prev_typ)
 	{
 		return;
 	}
 	else
 	{
-		switch(p_ptr->action)
+		switch (prev_typ)
 		{
 			case ACTION_SEARCH:
 			{
@@ -71,7 +73,10 @@ void set_action(int typ)
 
 	p_ptr->action = typ;
 
-	switch(p_ptr->action)
+	/* If we are requested other action, stop singing */
+	if (prev_typ == ACTION_SING) stop_singing();
+
+	switch (p_ptr->action)
 	{
 		case ACTION_SEARCH:
 		{
@@ -266,7 +271,7 @@ msg_print("やっと目が見えるようになった。");
 	if (disturb_state) disturb(0, 0);
 
 	/* Fully update the visuals */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS);
+	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);

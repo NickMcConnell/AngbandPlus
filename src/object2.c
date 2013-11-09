@@ -2880,7 +2880,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		{
-			if ((o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) || (o_ptr->sval == SV_DRAGON_SCALE_MAIL))
+			if (((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_DRAGON_LEATHER_ARMOR)) || 
+				((o_ptr->tval == TV_HARD_ARMOR) && (o_ptr->sval == SV_DRAGON_SCALE_MAIL)))
 			{
 				/* Rating boost */
 				rating += 5;
@@ -2894,7 +2895,9 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			/* Very good */
 			if (power > 1)
 			{
-				if ((power == 2) && ((o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) || (o_ptr->sval == SV_DRAGON_SCALE_MAIL)))
+				if ((power == 2) && 
+					(((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_DRAGON_LEATHER_ARMOR)) || 
+						((o_ptr->tval == TV_HARD_ARMOR) && (o_ptr->sval == SV_DRAGON_SCALE_MAIL))))
 				{
 					if (randint0(100) < 2)
 					{
@@ -3246,6 +3249,13 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					break;
 				case EGO_SIRENE:
 					if (one_in_(8)) add_flag(o_ptr->art_flags, TR_EASY_SPELL);
+					break;
+				case EGO_PROTECTION:
+					if (one_in_(3)) add_flag(o_ptr->art_flags, TR_RES_STONE);
+					break;
+				case EGO_NO_ELEM:
+					o_ptr->ac = 0;
+					o_ptr->to_a = 0;
 					break;
 				}
 
@@ -4652,7 +4662,8 @@ void apply_magic(object_type *o_ptr, int lev, u32b am_flags)
 					o_ptr->to_misc[OB_SPEED] = randint1(o_ptr->to_misc[OB_SPEED]);
 				break;
 			case EGO_ATTACKS:
-				o_ptr->to_misc[OB_BLOWS] = randint1(e_ptr->max_to_misc[OB_BLOWS]*lev/100+1);
+				if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_YOUTOU) o_ptr->to_misc[OB_BLOWS] = randint1(e_ptr->max_to_misc[OB_BLOWS]*lev/100+1)+3;
+				else o_ptr->to_misc[OB_BLOWS] = randint1(e_ptr->max_to_misc[OB_BLOWS]*lev/100+1);
 				if (o_ptr->to_misc[OB_BLOWS] > e_ptr->max_to_misc[OB_BLOWS]) o_ptr->to_misc[OB_BLOWS] = e_ptr->max_to_misc[OB_BLOWS];
 				break;
 			case EGO_AMU_ANTI_MAGIC:

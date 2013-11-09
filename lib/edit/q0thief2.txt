@@ -48,7 +48,7 @@ F:j:1:8:541
 
 # The doors, floors and treasures
 # Floor with amulet of Anti-Teleportation
-F:":1:8:0:522
+F:":1:8:0:228
 
 # Normal floor
 F: :1:8

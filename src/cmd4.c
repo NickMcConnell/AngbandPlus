@@ -9477,21 +9477,7 @@ void do_cmd_give_money(void)
 static cptr skill_group_text[] =
 {
 #ifdef JP
-	"小剣・突剣",
-	"カタナ",
-	"剣",
-	"大剣",
-	"斧",
-	"槍",
-	"乗馬槍",
-	"爪",
-	"鎌",
-	"鞭",
-	"ハンマー",
-	"杖",
-	"扇",
-	"弓",
-	"銃",
+	"武器",
 	"その他",
 	"魔法",
 #else
@@ -9522,21 +9508,7 @@ static cptr skill_group_text[] =
  */
 static byte skill_group_wt[] =
 {
-	WT_SMALL_SWORD,
-	WT_KATANA,
-	WT_SWORD,
-	WT_GREAT_SWORD,
-	WT_AXE,
-	WT_SPEAR,
-	WT_LANCE,
-	WT_CLAW,
-	WT_SCYTHE,
-	WT_WHIP,
-	WT_HAMMER,
-	WT_STAFF,
-	WT_FAN,
-	WT_BOW,
-	WT_GUN,
+	200,
 	255,
 	250,
 	0,
@@ -9553,26 +9525,16 @@ static int collect_skills(int grp_cur, int skill_idx[])
 
 	byte group_wt = skill_group_wt[grp_cur];
 
-	if ((group_wt != 250) && (group_wt != 255))
+	if (group_wt == 200)
 	{
-		/* Check every object */
-		for (i = 0; i < max_k_idx; i++)
+		/* Magic skills */
+		for (i = 1; i < MAX_WT; i++)
 		{
-			/* Access the object */
-			object_kind *k_ptr = &k_info[i];
-
-			/* Skip empty objects */
-			if (!k_ptr->name) continue;
-
-			/* Check for race in the group */
-			if (get_weapon_type(k_ptr) == group_wt)
-			{
-				/* Add the skill */
-				skill_idx[skills_cnt++] = i;
-			}
+			/* Add the skill */
+			skill_idx[skills_cnt++] = i;
 		}
 	}
-	else if (group_wt != 250)
+	else if (group_wt == 255)
 	{
 		/* Misc. skills */
 		for (i = 0; i < MAX_SKILL; i++)
@@ -9581,7 +9543,7 @@ static int collect_skills(int grp_cur, int skill_idx[])
 			skill_idx[skills_cnt++] = i;
 		}
 	}
-	else
+	else if  (group_wt == 250)
 	{
 		/* Magic skills */
 		for (i = 0; i < MAX_REALM; i++)
@@ -9621,11 +9583,41 @@ static char misc_skill_name[MAX_SKILL][20] =
 #endif
 };
 
+static char weapon_skill_name[MAX_WT][20] =
+{
+#ifdef JP
+	"なし",
+	"小剣・突剣",
+	"カタナ    ",
+	"剣        ",
+	"大剣      ",
+	"斧        ",
+	"槍        ",
+	"乗馬槍    ",
+	"爪        ",
+	"鎌        ",
+	"鞭        ",
+	"ハンマー  ",
+	"杖        ",
+	"扇        ",
+	"弓        ",
+	"銃        ",
+#else
+	"Martial Arts    ",
+	"Dual Wielding   ",
+	"Riding          ",
+	"Throwing        ",
+	"Pet Upkeep      ",
+	"Arms Identify   ",
+	"Acc. Identify   ",
+#endif
+};
+
 
 /*
  * Display the skills in a group.
  */
-static void display_skill_list(bool is_misc, bool is_magic, int col, int row, int per_page, int skill_idx[],
+static void display_skill_list(bool is_misc, bool is_magic, bool is_nanka, int col, int row, int per_page, int skill_idx[],
 	int skill_cur, int skill_top)
 {
 	int i;
@@ -9646,23 +9638,24 @@ static void display_skill_list(bool is_misc, bool is_magic, int col, int row, in
 		/* Access the object */
 		object_kind *k_ptr = &k_info[idx];
 
-		if ((!is_misc) && (!is_magic))
+		if (is_nanka)
 		{
-			skill_lev = weapon_exp_level(p_ptr->weapon_exp[k_ptr->tval - TV_BOW][k_ptr->sval]);
-			skill_eff = p_ptr->s_ptr->w_eff[k_ptr->tval - TV_BOW][k_ptr->sval];
+//			skill_lev = p_ptr->weapon_exp[idx];
+			skill_lev = weapon_exp_level(p_ptr->weapon_exp[idx]);
+			skill_eff = p_ptr->s_ptr->w_eff[idx];
 
-			/* Tidy name */
-			strip_name(o_name, idx);
+			strcpy(o_name, weapon_skill_name[idx]);
 		}
-		else if (!is_misc)
+		else if (is_magic)
 		{
 			skill_lev = (p_ptr->magic_exp[idx] / 10);
 			skill_eff = p_ptr->s_ptr->s_eff[idx];
 
 			strcpy(o_name, realm_names[idx]);
 		}
-		else
+		else if (is_misc)
 		{
+//			skill_lev = p_ptr->skill_exp[idx];
 			skill_lev = skill_exp_level(p_ptr->skill_exp[idx]);
 			skill_eff = p_ptr->s_ptr->m_eff[idx];
 
@@ -9674,14 +9667,14 @@ static void display_skill_list(bool is_misc, bool is_magic, int col, int row, in
 
 		/* Choose a color */
 		attr = (skill_eff && !is_master) ? TERM_WHITE : TERM_SLATE;
-		cursor = (skill_eff && !is_master) ? TERM_L_BLUE : TERM_BLUE;
-		attr = ((i + skill_top == skill_cur) ? cursor : attr);
+//		cursor = (skill_eff && !is_master) ? TERM_L_BLUE : TERM_BLUE;
+//		attr = ((i + skill_top == skill_cur) ? cursor : attr);
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
 		if (!is_magic) c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
-		if (is_magic) c_prt(attr, format("%2d", skill_lev), row + i, 43);
-		if (!is_magic)
+		else c_prt(attr, format("%2d", skill_lev), row + i, 43);
+/*		if ((!is_magic) && (!is_nanka))
 		{
 		c_prt(attr, (!is_master) ?
 		            format("%8d", skill_eff) :
@@ -9692,17 +9685,11 @@ static void display_skill_list(bool is_misc, bool is_magic, int col, int row, in
 #endif
 		      row + i, 65);
 		}
-		else
+		else 
 		{
 				c_prt(attr, format("%8d", skill_eff), row + i, 65);
 		}
-
-		if ((!is_misc) && (!is_magic))
-		{
-			a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
-			c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
-		}
-		else
+*/
 		{
 			/* No symbol */
 			a = TERM_DARK;
@@ -9725,65 +9712,7 @@ static void display_skill_list(bool is_misc, bool is_magic, int col, int row, in
 	}
 }
 
-#if 0
-/*
- * Confirm to increase skill levels
- */
-static bool increase_skill_level(bool is_misc, int s_idx)
-{
-	int skill_lev, attack_var, skill_eff, need_sp;
 
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
-
-	/* Access the object */
-	object_kind *k_ptr = &k_info[s_idx];
-
-	if (!is_misc)
-	{
-		skill_lev = weapon_exp_level(p_ptr->weapon_exp[k_ptr->tval - TV_BOW][k_ptr->sval]);
-		skill_eff = p_ptr->s_ptr->w_eff[k_ptr->tval - TV_BOW][k_ptr->sval];
-	}
-	else
-	{
-		skill_lev = p_ptr->misc_skill_lev[s_idx];
-		skill_eff = p_ptr->s_ptr->m_eff[s_idx];
-	}
-
-	attack_var = skill_lev_var[skill_lev];
-
-	if (!skill_eff || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
-
-	need_sp = attack_var * attack_var * skill_eff;
-
-	if (need_sp > cexp_ptr->skill_point)
-	{
-#ifdef JP
-		msg_print("スキルポイントが足りません。");
-#else
-		msg_print("You don't have enough skill point.");
-#endif
-		msg_print(NULL);
-		return FALSE;
-	}
-
-#ifdef JP
-	if (!get_check("このスキルを成長させますか？ ")) return FALSE;
-#else
-	if (!get_check("Increase skill level of this? ")) return FALSE;
-#endif
-
-	cexp_ptr->skill_point -= need_sp;
-
-	if (!is_misc) weapon_exp_level(p_ptr->weapon_exp[k_ptr->tval - TV_BOW][k_ptr->sval])++;
-	else p_ptr->misc_skill_lev[s_idx]++;
-
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-	return TRUE;
-}
-
-#endif
 /*
  * Display and increase weapon & misc. skill levels
  */
@@ -9854,18 +9783,17 @@ void do_cmd_weapon_skill_level(void)
 		char ch;
 		bool is_misc = (skill_group_wt[grp_cur] == 255);
 		bool is_magic = (skill_group_wt[grp_cur] == 250);
+		bool is_nanka = (skill_group_wt[grp_cur] == 200);
 
 		if (redraw)
 		{
 			clear_from(0);
 
 #ifdef JP
-			prt(format("スキルポイント割り振りメニュー "), 2, 0);
+			prt(format("現在のスキル "), 2, 0);
 			prt("グループ", 4, 0);
 			prt("スキル", 4, max + 3);
 			prt("レベル", 4, 43);
-			prt("成長率", 4, 65);
-			prt("文字", 4, 75);
 #else
 			prt(format("Skill point distributing menu [Current Skill Point: %5d]", cexp_ptr->skill_point), 2, 0);
 			prt("Group", 4, 0);
@@ -9875,7 +9803,7 @@ void do_cmd_weapon_skill_level(void)
 			prt("Sym", 4, 75);
 #endif
 
-			for (i = 0; i < 78; i++)
+			for (i = 0; i < 55; i++)
 			{
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
@@ -9910,13 +9838,15 @@ void do_cmd_weapon_skill_level(void)
 			skill_top = MIN(skill_cnt - browser_rows, skill_top + browser_rows/2);
 
 		/* Display a list of skills in the current group */
-		display_skill_list(is_misc, is_magic, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
+		display_skill_list(is_misc, is_magic, is_nanka, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
 
+#if 0
 		/* Prompt */
 #ifdef JP
 		prt("<方向>, Enterで成長スキルの選択, ESC", 23, 0);
 #else
 		prt("<dir>, Enter to increase skill level, ESC", 23, 0);
+#endif
 #endif
 
 		if (!column)

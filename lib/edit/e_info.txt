@@ -210,7 +210,15 @@ F:LITE | RES_DARK
 
 # 24 (unused)
 # 25 (unused)
-# 26 (unused)
+
+# 無のクローク
+# *元素*の攻撃ダメージを半減、[0, +0]から強化できない。
+N:26:*無*の
+E:of anti-*element*
+X:32:20
+W:0:36:0:15000
+C:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OneAbility
 
@@ -310,12 +318,12 @@ F:STR_5 | DEX_5 | CON_5
 
 ### Cloaks ###
 
-N:40:守りの
+N:40:大地の
 E:of Protection
-X:32:10
-W:0:5:0:500
+X:32:15
+W:0:10:0:5000
 C:0:0:10
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | RES_SHARDS
 
 #J0#
 #J0# 岸さんの訳です

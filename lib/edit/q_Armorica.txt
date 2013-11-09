@@ -25,6 +25,6 @@ Q:$14:T:Since most of the supplies have been send to our troops
 Q:$14:T:in the dungeon, we can only give you a small reward.
 Q:$14:T:It awaits you outside.
 Q:14:T:ありがとうございました。ようやくこの街に活気が戻ってきました。
-Q:14:T:あと、お礼を外に置いてあります。
+Q:14:T:お礼を外に置いてあります。
 ?:1
 
