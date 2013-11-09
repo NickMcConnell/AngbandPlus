@@ -110,7 +110,7 @@ I:40:12:0
 W:70:70:3:75000
 P:0:1d1:10:10:0
 F:SHOW_MODS | FULL_NAME | FEAR_FIELD | INFRA_3 |
-F:SEE_INVIS | FREE_ACT | INSTA_ART
+F:SEE_INVIS | FREE_ACT | INSTA_ART | ALIGN_GNE_-3 |
 D:悪魔の干し首のネックレス。周囲に恐怖を撒き散らし、
 D:戦意を失わせる。
 
@@ -145,7 +145,7 @@ P:0:1d1:10:10:0
 F:FULL_NAME | ALL_STATS_1 | SPEED_2 |
 F:FREE_ACT | SEE_INVIS | ACTIVATE |
 F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE |
-F:INSTA_ART
+F:INSTA_ART | ALIGN_GNE_5 |
 D:天使長ユーシスの加護により、活力を与える指輪。
 
 N:11:死霊の指輪
@@ -157,7 +157,7 @@ F:FULL_NAME | FEAR_FIELD | INT_4 | INFRA_4 |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:FEATHER | REGEN | SHOW_MODS |
 F:SUST_INT | SUST_WIS | IM_COLD |
-F:INSTA_ART | XTRA_POWER
+F:INSTA_ART | XTRA_POWER | ALIGN_GNE_-5 |
 D:恐怖と狂気を喰らう魔神オズモの指輪。暗黒魔道器のひとつ。
 
 N:12:ルシファーリング
@@ -169,7 +169,7 @@ F:DEC_MANA | WIS_6 | SPEED_2 | BLOWS_1 |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | FULL_NAME |
 F:FEATHER | SLOW_DIGEST | REGEN | RES_LITE | RES_DARK |
 F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC |
-F:INSTA_ART | XTRA_POWER
+F:INSTA_ART | XTRA_POWER | ALIGN_GNE_-5 |
 D:堕天使が持つ、黒く染まった天使の輪。
 D:大魔王の名の元に、堕天使の加護を得る。
 
@@ -193,7 +193,7 @@ E:of Blessing
 I:39:8:0
 W:50:60:10:60000
 P:0:1d1:0:0:0
-F:FEATHER | HOLD_LIFE | INSTA_ART
+F:FEATHER | HOLD_LIFE | INSTA_ART | ALIGN_GNE_-5 |
 D:それは暗黒神アスモデに祝福された聖石だ。
 
 N:15:至福の
@@ -201,7 +201,7 @@ E:of Bliss
 I:39:7:0
 W:50:150:10:60000
 P:0:1d1:0:0:0
-F:TELEPATHY | INSTA_ART | REGEN
+F:TELEPATHY | INSTA_ART | REGEN | ALIGN_GNE_5 |
 D:光と戦争の神イシュタルに祝福されたこの白く輝く不滅の水晶球は、
 D:持つものに至福と遠望を与える。
 
@@ -752,23 +752,7 @@ D:元ガルガスタン王国軍竜騎兵団長のドラグーン、ジュヌーン・アパタイザ
 D:が王国竜騎士団所属時に使用していた大剣。その刃は竜族以外に対しても
 D:充分な殺傷力を誇る。
 
-#N:72:『グレイスワンダー』
-#E:'Grayswandir'
-#I:23:11:0
-#W:20:45:50:175000
-#P:0:2d7:20:12:0
-#F:SUST_CON | SUST_STR | DEX_3 |
-#F:REGEN | FREE_ACT | SEE_INVIS |
-#F:RES_CHAOS | RES_NETHER | HOLD_LIFE | RES_FEAR |
-#F:RES_COLD | BRAND_COLD | RIDING |
-#F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD |
-#F:SLOW_DIGEST | SHOW_MODS | BLESSED
-#D:アンバーの王子コーウィンが使っていた、月の光により
-#D:鍛えられた銀のサーベル。持ち主と同じく黒と銀のコントラスト
-#D:を見せる。
-#D:「グレイスワンダーには<パターン>の一部が複製されてると
-#D:思ってたんだけど。」「それは多分、逆だな。」
-#D:（ロジャー・ゼラズニイ、アンバー１０「混沌の王子」）
+#N:72:unused
 
 N:73:デゼールブレード
 E:'Desert Sword'
@@ -848,7 +832,7 @@ I:23:9:0
 W:30:25:50:75000
 P:0:8d4:0:0:0
 F:VORPAL | LODIS | DEX_5 | STEALTH_4 | BLOWS_2 |
-F:SUST_DEX | SHOW_MODS | TELEPATHY
+F:SUST_DEX | SHOW_MODS | TELEPATHY | ALIGN_LNC_10 |
 D:盲目にも関わらず、常人を遙かに凌ぐ剣技を見せる剣聖ハボリム・ヴァンダムの
 D:帯剣。彼の魂そのものとも言えるこの剣を止められる者はまずいない。
 
@@ -955,7 +939,7 @@ W:50:185:150:250000
 P:0:5d5:32:32:0
 F:VORPAL | SLAY_LIVING | ACTIVATE | RIDING | WARNING | ZENOBIAN | STR_4 |
 F:FREE_ACT | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED_2 |
-F:EXTRA_VORPAL | SHOW_MODS | FULL_NAME |
+F:EXTRA_VORPAL | SHOW_MODS | FULL_NAME | ALIGN_GNE_10 |
 D:下界と天界を結ぶ『カギ』の役割を果たす神聖剣。
 
 N:93:『ボレアス』
@@ -1206,7 +1190,7 @@ P:0:7d5:19:21:5
 F:RIDING | FULL_NAME | UNHOLY | STR_2 |
 F:KILL_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON |
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_STONE |
-F:SEE_INVIS | SHOW_MODS
+F:SEE_INVIS | SHOW_MODS | ALIGN_GNE_-5 |
 D:暗黒神ダグザの血液からできたとされる伝説のハンマー。暗黒魔道器のひとつ。
 
 N:118:『ロンギコルニス』
@@ -1291,7 +1275,7 @@ W:60:175:160:80000
 P:0:0d0:8:26:0
 F:RES_DISEN | TY_CURSE | SHOW_MODS | STR_2 |
 F:SLAY_GOOD | SLAY_LIVING | DRAIN_EXP | TELEPORT | AGGRAVATE |
-F:CURSED | HEAVY_CURSE | FULL_NAME
+F:CURSED | HEAVY_CURSE | FULL_NAME | ALIGN_GNE_-10 |
 D:魂と引き換えに快楽を約束されたジィルガの骨の大弓。
 
 N:125:射手アロセールの
@@ -1315,18 +1299,7 @@ D:星に恋心を抱いた乙女が恋文をつけ撃ったといわれる弓。
 
 # 127 (unused)
 
-#N:128:『村正』
-#E:'Muramasa'
-#I:23:20:0
-#W:60:100:50:1000000
-#P:0:10d5:0:0:-20
-#F:VORPAL | VAMPIRIC | NO_TELE | UNHOLY | SPEED_2 |
-#F:SHOW_MODS | ACTIVATE | NO_MAGIC | RES_DISEN |
-#F:DRAIN_EXP | AGGRAVATE | RES_DARK | RES_NETHER 
-#D:「魔物に遭うては魔物を斬り、神に遭うては神を斬る。」
-#D:伝説の刀匠村正が全身全霊を込めて鍛えたこの妖刀は
-#D:数え切れない人間の血を啜ってきた。その刃は
-#D:血に飢え、常に獲物を求めている。
+#N:128:unused
 
 N:129:風のシスティーナの園服風
 E:of Windy Sisteena
@@ -1338,19 +1311,7 @@ F:SUST_DEX | SUST_CHR | XTRA_RES_OR_POWER |
 F:RES_ACID | RES_COLD |
 D:風のシスティーナがいつも着ている園服風のローブ。
 
-#N:130:『龍争虎鬪』
-#E:of Xiaolong
-#I:21:4:0
-#W:45:12:60:100000
-#P:0:8d3:25:10:10
-#F:SUST_DEX | SUST_CON | SUST_STR | SPEED_5 |
-#F:RES_FIRE | BRAND_FIRE |
-#F:SLAY_ANIMAL | SLAY_DRAGON | RES_FEAR | FREE_ACT |
-#F:REGEN | SHOW_MODS
-#D:伝説の格闘家の霊力が宿った強力なヌンチャクだ。
-#D:拳法を操る者が手にすれば自らの体の一部のように
-#D:操ることができ、素手の時と同じくらい素早い攻撃が
-#D:可能だ。
+#N:130:unused
 
 N:131:射手アロセールの黒い
 E:of Aloser
@@ -1408,6 +1369,7 @@ I:23:13:0
 W:80:199:450:300000
 P:0:5d7:5:25:10
 F:SEE_INVIS | VORPAL | BALDAR | STR_6 | SPEED_2 | BLOWS_1
+F:ALIGN_GNE_3 |
 D:神と同等の力を持つことができるといわれる神聖剣。
 
 N:137:騎士レオナールの
@@ -1482,7 +1444,7 @@ W:60:130:380:340000
 P:0:4d7:15:24:0
 F:THROW | SLAY_UNDEAD | RIDING | SLAY_EVIL | FULL_NAME | WIS_2 |
 F:BRAND_COLD | SLAY_GIANT | SLAY_DEMON | FREE_ACT | RES_COLD | 
-F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS
+F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS | ALIGN_GNE_3 |
 D:神の騎士団が地上に降臨した時に所持していたとされる槍。
 
 N:144:『イグニス』
@@ -1491,7 +1453,7 @@ I:22:1:0
 W:75:145:80:140000
 P:0:3d9:15:25:10
 F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | LITE | UNHOLY | STR_2 |
-F:SLAY_ANIMAL | SLAY_LIVING | SLAY_GOOD | RIDING |
+F:SLAY_ANIMAL | SLAY_LIVING | SLAY_GOOD | RIDING | ALIGN_GNE_-5 |
 F:ACTIVATE | SHOW_MODS
 D:冥府の炎で鍛えられた槍。
 
@@ -1502,6 +1464,7 @@ W:25:15:30:135000
 P:6:0d0:0:0:25
 F:RES_LITE | LITE | TELEPATHY | XTRA_RES_OR_POWER | FEATHER | SPEED_2 |
 F:RES_CHAOS | RES_COLD | RES_CONF | SH_COLD | ACTIVATE | FULL_NAME
+F:ALIGN_GNE_5 |
 D:天から舞い降りたエンジェルナイトが身に付けた伝説の鎧。
 
 N:146:カマンダスガン
@@ -1525,19 +1488,7 @@ F:SLAY_UNDEAD | BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE | DEC_MANA |
 F:ACTIVATE | FORCE_WEAPON | FULL_NAME
 D:偉大なる魔女リプルが愛用した杖。
 
-#N:148:『ストームブリンガー』
-#E:'Stormbringer'
-#I:23:30:0
-#W:45:1:180:100000
-#P:0:6d6:16:16:0
-#F:VAMPIRIC | FREE_ACT | HOLD_LIFE | RES_NETHER | RES_CONF |
-#F:RES_CHAOS | RES_STONE | QUESTITEM |
-#F:CURSED | HEAVY_CURSE | DRAIN_EXP | NO_TELE
-#D:一万年の長きにわたり、栄華を誇りしメルニボネの光の帝国の末期、大いなる
-#D:異変天地にありて、人と神々の運命は〈宿命〉のかなてこの上に鍛へられ、
-#D:恐ろしき戦あり、もろもろの勲し行なはれたり。このときあまたの勇者
-#D:輩出せり。なれど衆に優れたるはメルニボネ最後の王エルリック、ルーンの
-#D:刻まれし黒き剣のになひ手なりき。
+#N:148:unused
 
 N:149:竜使いオクシオーヌの
 E:of Oxyones
@@ -1552,6 +1503,7 @@ I:19:24:0
 W:40:20:100:300000
 P:0:1d1:16:17:0
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | FULL_NAME | WIS_2
+F:ALIGN_GNE_5 |
 D:聖騎士が用いるクロスボウ。神聖文字が刻まれ装飾品としても
 D:高い価値がある。
 
@@ -1597,7 +1549,7 @@ W:5:20:40:20000
 P:0:2d6:14:10:0
 F:SLAY_DEMON | WIS_1 |
 F:SLAY_UNDEAD | SEE_INVIS | BLESSED |
-F:SHOW_MODS | XTRA_POWER | ACTIVATE
+F:SHOW_MODS | XTRA_POWER | ACTIVATE | ALIGN_GNE_5 |
 D:一振りするたびに白い光を放つ聖なるムチ。
 
 N:155:『ヴォルケイトス』
@@ -1637,7 +1589,7 @@ I:23:16:0
 W:60:180:100:100000
 P:0:5d4:14:9:0
 F:BRAND_POIS | VORPAL | XTRA_RES_OR_POWER | PERMA_CURSE | DEX_4 | SPEED_2 |
-F:SHOW_MODS | CURSED | HEAVY_CURSE | AGGRAVATE | BLOWS_2 |
+F:SHOW_MODS | CURSED | HEAVY_CURSE | AGGRAVATE | BLOWS_2 | ALIGN_GNE_-3 |
 D:黒猫の魂を封じ込めた呪われた爪。
 
 N:159:マリーツァの杖
@@ -1657,7 +1609,7 @@ W:60:60:380:150000
 P:28:2d4:-3:0:30
 F:SUST_INT | SUST_STR | FREE_ACT | RES_DARK | BLOWS_1 |
 F:RES_NETHER | SH_COLD | NO_MAGIC | SLOW_DIGEST | REGEN |
-F:DRAIN_EXP | TELEPORT | CURSED | HEAVY_CURSE
+F:DRAIN_EXP | TELEPORT | CURSED | HEAVY_CURSE | ALIGN_GNE_-5 |
 D:まとう者の精気を吸い取る闇の鎧。暗黒魔導器のひとつ。
 
 #オウガシリーズ#
@@ -1668,7 +1620,7 @@ W:40:150:360:400000
 P:10:1d3:0:10:20
 F:RES_FEAR | RES_DARK | RES_NETHER | SUST_STR | SUST_CON | QUESTITEM |
 F:SHOW_MODS | SH_FIRE | TELEPATHY | FULL_NAME
-F:CURSED | HEAVY_CURSE | AGGRAVATE |
+F:CURSED | HEAVY_CURSE | AGGRAVATE | ALIGN_GNE_-10 |
 D:悪魔の代名詞とされるオウガが鍛えた兜。かなり重いが防御力は高い。
 
 N:162:オウガアーマー
@@ -1678,7 +1630,7 @@ W:45:160:580:435000
 P:25:2d4:-3:0:40
 F:HOLD_LIFE | RES_LITE | RES_SOUND | RES_DISEN | RES_STONE | QUESTITEM |
 F:SH_COLD | NO_MAGIC | DRAIN_EXP | AGGRAVATE | CURSED | HEAVY_CURSE |
-F:SUST_INT | SUST_WIS | RES_CHAOS | RES_SHARDS | FULL_NAME
+F:SUST_INT | SUST_WIS | RES_CHAOS | RES_SHARDS | FULL_NAME | ALIGN_GNE_-10 |
 D:悪魔の代名詞とされるオウガが鍛えた重厚な甲冑。
 
 N:163:オウガシールド
@@ -1689,7 +1641,7 @@ P:15:1d3:0:0:20
 F:SH_ELEC | RES_POIS | SUST_DEX | SUST_CHR | QUESTITEM |
 F:REFLECT | RES_BLIND | RES_CONF | SEE_INVIS | SLOW_DIGEST |
 F:REGEN | FREE_ACT | FULL_NAME
-F:CURSED | HEAVY_CURSE | AGGRAVATE |
+F:CURSED | HEAVY_CURSE | AGGRAVATE | ALIGN_GNE_-10 |
 D:悪魔の代名詞とされるオウガが造った盾。かなり重いが防御力は高い。
 
 N:164:オウガブレード
@@ -1699,7 +1651,7 @@ W:40:180:460:850000
 P:0:9d9:20:30:0
 F:VAMPIRIC | VORPAL | SLAY_GOOD | QUESTITEM |
 F:NO_TELE | ACTIVATE | SLAY_LIVING | BLOWS_2
-F:SHOW_MODS | FULL_NAME | PERMA_CURSE |
+F:SHOW_MODS | FULL_NAME | PERMA_CURSE | ALIGN_GNE_-10 |
 D:悪魔の代名詞とされるオウガが鍛えた巨大な剣。
 
 N:165:死者の
@@ -1708,7 +1660,7 @@ I:45:50:0
 W:66:6:2:66666
 P:0:1d1:0:0:0
 F:RES_POIS | RES_NETHER | RES_DARK | INT_2 |
-F:INSTA_ART
+F:INSTA_ART | ALIGN_GNE_-10 |
 D:不死の秘法を実現するために欠かせない魔法の指輪。
 
 N:166:回復の杖
@@ -1735,17 +1687,8 @@ P:0:1d1:0:0:0
 F:ACTIVATE
 F:INSTA_ART | TY_CURSE | LODIS | SPEED_3
 
-# 変愚蛮怒より
 
-#N:169:『神罰の鉄球』
-#E:'Iron ball'
-#I:21:6:0
-#W:45:40:1666:66666
-#P:0:25d4:-30:0:20
-#F:IMPACT | SHOW_MODS | WIS_-6 | STEALTH_-6 |
-#F:CURSED | HEAVY_CURSE
-#D:不信心者の足にくくりつけられ、その動きを阻害する。
-#D:重いが武器としても使えない事はない。
+#N:169:unused
 
 # 170 (unused)
 
@@ -1759,20 +1702,9 @@ F:REFLECT | SUST_STR |
 D:蛇の髪を持つメドゥーサの石化の睨みも、この反射の盾の前には
 D:効果がなかった。
 
-#N:172:抜け忍カムイの
-#E:of Kamui the Escapee
-#I:23:19:0
-#W:20:20:100:60000
-#P:0:2d9:15:2:0
-#F:RES_FIRE | BRAND_POIS | DEX_4 | STEALTH_6 |
-#F:ACTIVATE | SEE_INVIS | SHOW_MODS | WARNING |
+#N:172:unused
 
-#N:173:『ブラッディ・ムーン』
-#E:'Bloody Moon'
-#I:22:30:2
-#W:70:12:250:180000
-#P:0:8d4:8:8:8
-#F:ACTIVATE | SHOW_MODS
+#N:173:unused
 
 N:174:宵闇の
 E:of The Pitch Dark Night
@@ -1930,7 +1862,7 @@ W:60:40:60:48000
 P:6:1d4:0:0:22
 F:REGEN_MANA | WIS_3 | FULL_NAME
 F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC |
-F:RES_LITE | RES_DARK | RES_BLIND | RES_CONF |
+F:RES_LITE | RES_DARK | RES_BLIND | RES_CONF | ALIGN_GNE_5 |
 D:聖職者が身にまとう着衣。神の加護によって闇の力を防ぐ。
 
 N:190:黒の魔導衣
@@ -1940,7 +1872,7 @@ W:70:40:60:48000
 P:6:1d4:0:0:28
 F:REGEN_MANA | INT_3 | FULL_NAME
 F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | RES_POIS |
-F:RES_LITE | RES_DARK | RES_NETHER | RES_CHAOS |
+F:RES_LITE | RES_DARK | RES_NETHER | RES_CHAOS | ALIGN_GNE_-5 |
 D:悪魔の血で染められたローブ。その闇の力はすべての光を吸い取る。
 
 N:191:火喰い鳥の羽
@@ -2034,7 +1966,7 @@ P:0:0d0:5:5:10
 I:40:30:0
 F:ALL_STATS_1 | SPEED_3 | REGEN | DEC_MANA |
 F:INSTA_ART | QUESTITEM | ACTIVATE | HOLD_LIFE
-F:SH_COLD
+F:IM_COLD | SH_COLD
 D:水のエレメントに対して耐性を与えるが、火のエレメントの力に弱くなってしまう。
 
 

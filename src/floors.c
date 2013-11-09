@@ -175,6 +175,9 @@ static void kill_saved_floor(saved_floor_type *sf_ptr)
 {
 	char floor_savefile[1024];
 
+	/* Paranoia */
+	if (!sf_ptr) return;
+
 	/* Already empty */
 	if (!sf_ptr->floor_id) return;
 
@@ -253,8 +256,8 @@ s16b get_new_floor_id(void)
 	sf_ptr->lower_floor_id = 0;
 	sf_ptr->visit_mark = latest_visit_mark++;
 
-	/* sf_ptr->dun_level is not yet decided */
-
+	/* sf_ptr->dun_level may be changed later */
+	sf_ptr->dun_level = dun_level;
 
 	/* Increment number of floor_id */
 	if (max_floor_id < MAX_SHORT) max_floor_id++;
@@ -367,7 +370,7 @@ static void preserve_pet(void)
 				int dis = distance(py, px, m_ptr->fy, m_ptr->fx);
 
 				/* Confused (etc.) monsters don't follow. */
-				if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+				if (MON_CONFUSED(m_ptr) || MON_STUNNED(m_ptr) || MON_CSLEEP(m_ptr)) continue;
 
 				/* Pet of other pet don't follow. */
 				if (m_ptr->parent_m_idx) continue;
@@ -409,8 +412,8 @@ static void preserve_pet(void)
 			if (!m_ptr->nickname) continue;
 			if (p_ptr->riding == i) continue;
 
-			monster_desc(m_name, m_ptr, 0x88);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, 4, m_name);
+			monster_desc(m_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_MOVED, m_name);
 		}
 	}
 
@@ -526,7 +529,7 @@ static void place_pet(void)
 			m_ptr->fy = cy;
 			m_ptr->fx = cx;
 			m_ptr->ml = TRUE;
-			m_ptr->csleep = 0;
+			m_ptr->mtimed[MTIMED_CSLEEP] = 0;
 
 			/* Paranoia */
 			m_ptr->hold_o_idx = 0;
@@ -576,8 +579,8 @@ static void place_pet(void)
 #endif
 			if (record_named_pet && m_ptr->nickname)
 			{
-				monster_desc(m_name, m_ptr, 0x08);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_LOST_SIGHT, m_name);
 			}
 
 			/* Pre-calculated in precalc_cur_num_of_pet(), but need to decrease */
@@ -630,7 +633,7 @@ static void update_unique_artifact(s16b cur_floor_id)
 		if (!o_ptr->k_idx) continue;
 
 		/* Memorize location of the artifact */
-		if (artifact_p(o_ptr))
+		if (object_is_fixed_artifact(o_ptr))
 		{
 			a_info[o_ptr->name1].floor_id = cur_floor_id;
 		}
@@ -738,7 +741,7 @@ static void locate_connected_stairs(saved_floor_type *sf_ptr)
  * When a monster is at a place where player will return,
  * Get out of the my way!
  */
-static void get_out_monster()
+static void get_out_monster(void)
 {
 	int tries = 0;
 	int dis = 1;
@@ -876,7 +879,7 @@ void leave_floor(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Delete old memorized location of the artifact */
-		if (artifact_p(o_ptr))
+		if (object_is_fixed_artifact(o_ptr))
 		{
 			a_info[o_ptr->name1].floor_id = 0;
 		}
@@ -1167,35 +1170,19 @@ void change_floor(void)
 					/* Restore HP */
 					m_ptr->hp = m_ptr->maxhp = m_ptr->max_maxhp;
 
-					/* Remove fear */
-					m_ptr->monfear = 0;
-
-					/* Remove invulnerability */
-					m_ptr->invulner = 0;
-
-					/* Remove fast status */
-					m_ptr->fast = 0;
-
-					/* Remove slow status */
-					m_ptr->slow = 0;
-
-					/* Remove stun */
-					m_ptr->stunned = 0;
-
-					/* Remove confusion */
-					m_ptr->confused = 0;
-
-					/* Remove stoning */
-					m_ptr->stoning = 0;
-
-					/* Remove Melt Weapon */
-					m_ptr->melt_weapon = 0;
-
-					/* Remove Opposite Element */
-					m_ptr->opposite_elem = 0;
+					/* Remove timed status (except MTIMED_CSLEEP) */
+					(void)set_monster_fast(i, 0);
+					(void)set_monster_slow(i, 0);
+					(void)set_monster_stunned(i, 0);
+					(void)set_monster_confused(i, 0);
+					(void)set_monster_monfear(i, 0);
+					(void)set_monster_stoning(i, 0);
+					(void)set_monster_melt_weapon(i, 0);
+					(void)set_monster_opposite_elem(i, 0);
+					(void)set_monster_silent(i, 0);
+					(void)set_monster_invulner(i, 0, FALSE);
 
 					/* Remove Silence */
-					m_ptr->silent = 0;
 					m_ptr->silent_song = FALSE;
 				}
 
@@ -1223,7 +1210,7 @@ void change_floor(void)
 				if (!o_ptr->k_idx) continue;
 
 				/* Ignore non-artifact */
-				if (!artifact_p(o_ptr)) continue;
+				if (!object_is_fixed_artifact(o_ptr)) continue;
 
 				/* Appear at a different floor? */
 				if (a_info[o_ptr->name1].floor_id != new_floor_id)
@@ -1365,8 +1352,6 @@ void change_floor(void)
 				(change_floor_mode & CFM_SAVE_FLOORS) &&
 				!(change_floor_mode & CFM_NO_RETURN))
 			{
-				bool ok = FALSE;
-
 				/* Extract stair position */
 				cave_type *c_ptr = &cave[py][px];
 
@@ -1590,6 +1575,14 @@ void stair_creation(void)
 
 	/* Extract current floor data */
 	sf_ptr = get_sf_ptr(p_ptr->floor_id);
+
+	/* Paranoia */
+	if (!sf_ptr)
+	{
+		/* No floor id? -- Create now! */
+		p_ptr->floor_id = get_new_floor_id();
+		sf_ptr = get_sf_ptr(p_ptr->floor_id);
+	} 
 
 	/* Choose randomly */
 	if (up && down)

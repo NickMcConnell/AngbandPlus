@@ -1,0 +1,261 @@
+# File: p_race.txt
+
+
+# === Understanding p_race.txt ===
+
+# Format:
+# N:race number:race name
+# E:race english name
+# F:racial flags
+# S:str:int:wis:dex:con:chr
+# R:dis:dev:sav:stl:srh:fos:spd:thn:thb
+# X:x_spd
+# I:hitdie:manadie:expbase:agebase:agemod:history:infra
+# H:hgtmale:modhgtmale:hgtfemale:modhgtfemale
+# W:wgtmale:modwgtmale:wgtfemale:modwgtfemale
+# Z:runeweapon flags
+# D:text
+
+
+# Version stamp (required)
+
+V:0.6.0
+
+N:0:人間
+E:Human
+S:0:0:0:0:0:0
+R:0:0:0:0:0:10:0:0:0
+X:0
+I:14:0:100:14:6:1:0
+H:70:6:63:5
+W:154:25:124:20
+Z:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+D:人間は基本となるキャラクタです。他の全ての種族は人間と比較されます。
+D:人間はどんなクラスに就くこともでき、どのクラスでも平均的にこなせます。
+D:人間は寿命が短いため、レベル上昇が他のどんな種族よりも早くなる傾向があります。
+D:また、特別な修正や特性は持っていません。
+
+
+N:1:ホークマン
+E:Hawkman
+F:FEATHER |
+S:1:-1:-1:2:0:0
+R:0:0:0:1:0:10:0:8:10
+X:3
+I:14:0:160:42:22:12:1
+H:75:7:67:5
+W:185:27:134:20
+Z:SUST_DEX | RES_FEAR | FEATHER |
+D:ホークマンは気性が荒く、戦闘を好む有翼の種族です。
+D:彼らは長命で人の3倍の寿命を誇ります。また翼を使うことで
+D:落とし穴や危険な地形を避けることができます。
+
+
+N:2:リザードマン
+E:Lizardman
+F:RES_ACID | RES_COLD |
+S:2:-1:-1:1:2:-1
+R:10:5:3:0:-1:10:0:10:5
+X:1
+I:15:0:145:95:65:17:2
+H:76:1:72:1
+W:160:5:130:5
+Z:SLAY_TROLL | SUST_STR | RES_ACID | RES_COLD |
+D:リザードマンは硬いウロコを持つ水陸両用の種族です。
+D:そのウロコにより酸と冷気の耐性を持ちます。
+D:また彼らは戦闘に優れており、HPの上昇率が高く、
+D:罠の解除や魔道具使用もそれなりにこなします。
+
+
+N:3:フェアリー
+E:Fairy
+F:RES_LITE | FEATHER |
+S:-2:1:1:1:-2:1
+R:10:8:6:4:10:10:0:-12:8
+X:5
+I:12:1:155:50:35:24:4
+H:32:2:29:2
+W:75:2:65:2
+Z:SLAY_UNDEAD | SUST_CHR | RES_LITE | FEATHER | LITE |
+D:フェアリーは非常に小さいです。彼らは小さな翼を持ち、
+D:罠や危険な地形を飛び越えることができます。
+D:彼らは日光を大変好み、光に対する耐性を持っていますが、
+D:暗闇によって大きなダメージを受けてしまいます。
+D:高レベルではより速く飛ぶことができるようになります。
+
+
+N:4:グレムリン
+E:Gremlin
+F:DEMON |
+F:RES_DARK | RES_NETHER | FEATHER |
+S:-2:1:-1:1:-1:-1
+R:4:7:9:2:5:12:0:-5:15
+X:5
+I:12:1:170:65:35:29:4
+H:22:2:19:2
+W:55:2:45:2
+Z:VAMPIRIC | SUST_DEX | RES_DARK | RES_NETHER | SLAY_LIVING | FEATHER |
+D:グレムリンはフェアリーの対極です。
+D:翼を持ち、罠や危険な地形を飛び越えることができます。
+D:彼らは暗闇を大変好み、暗黒と地獄に対する耐性を持っていますが、
+D:光によって大きなダメージを受けてしまいます。
+D:高レベルではより速く飛ぶことができるようになります。
+
+
+N:5:スケルトン
+E:Skeleton
+F:UNDEAD | NO_DIGEST
+F:RES_POIS | RES_SHARDS | RES_NETHER | SEE_INVIS | HOLD_LIFE |
+S:0:0:-2:0:1:-2
+R:-5:0:3:-1:-1:8:0:10:0
+X:1
+I:14:0:135:120:35:36:2
+H:70:6:66:4
+W:50:5:50:5
+Z:SLAY_DRAGON | SUST_CON | HOLD_LIFE | RES_COLD | RES_POIS | RES_SHARDS | SEE_INVIS |
+D:アンデッドであるスケルトンは、毒や生命力吸収攻撃を心配する必要はありません。
+D:彼らは物体を知覚するのに眼を利用していないため、見えない物に騙されません。
+D:彼らの骨はとがった破片のようなものに耐性を持ち、レベルが上がれば冷気に対する耐性を獲得します。
+D:薬や食物の持つ効果はスケルトンの胃（存在しませんが）を通過することなくその力を発揮しますが、
+D:薬や食物自体は彼の顎を通り抜けて落ちてしまい、栄養を吸収することはできません。
+D:スケルトンは食料を必要としません。
+
+
+N:6:ゴースト
+E:Ghost
+F:UNDEAD | NO_DIGEST
+F:RES_COLD | RES_POIS | RES_NETHER | FREE_ACT | SEE_INVIS | HOLD_LIFE | FEATHER |
+S:-3:1:-1:-1:0:-2
+R:10:15:12:6:5:14:-1:-15:-10
+X:0
+I:10:0:190:120:35:41:5
+H:70:6:66:4
+W:20:5:20:5
+Z:SUST_INT | FREE_ACT | HOLD_LIFE | RES_COLD | RES_POIS | RES_NETHER | SLAY_LIVING |
+Z:FEATHER | SEE_INVIS |
+D:ゴーストは強力なアンデッドの一種です。半物質的な存在である彼らは、
+D:壁を通り抜けることができますが、そのときには壁の密度によって傷つけられてしまいます。
+D:他のアンデッド同様、彼らも生命力を吸収されることがなく、見えないものを見ることができ、
+D:毒と冷気に対して耐性を備え、さらに地獄に対する免疫も持っています。
+D:レベルが十分に上がると彼らはテレパシーを獲得します。
+D:ゴーストは卓越した魔法使いになることができますが、その身体的特性は非常に貧弱です。
+D:ゴーストは食料を必要としません。
+
+
+N:7:パンプキンヘッド
+E:Pumpkin-Head
+F:MALE | DEMON |
+F:RES_CHAOS | RES_DISEN | FREE_ACT | HOLD_LIFE | SLOW_DIGEST | AGGRAVATE |
+S:-2:-2:3:0:3:0
+R:0:0:10:0:10:18:0:-10:-5
+X:0
+I:13:1:105:11:9:48:8
+H:55:5:55:5
+W:190:30:190:30
+Z:CHAOTIC | SLAY_ANIMAL | SLAY_DEMON | SLAY_UNDEAD | SLAY_GIANT | SUST_WIS |
+Z:REFLECT | FREE_ACT | HOLD_LIFE | RES_CHAOS | RES_DISEN | TELEPATHY | SLOW_DIGEST |
+Z:AGGRAVATE |
+D:パンプキンヘッドは魔女デネブによって作られたカボチャのおばけです。
+D:パンプキンヘッドは敵の嗜虐心をくすぐるため、敵から優先的に狙われます。
+D:パンプキンヘッドは肉体的に貧弱ですが、麻痺免疫とカオスや劣化への耐性を持ち、
+D:生命力を維持し、レベルが上がればテレパシーを得ます。
+
+
+N:8:ゴブリン
+E:Goblin
+F:RES_DARK |
+S:2:-1:0:0:1:-2
+R:-3:-3:-2:-1:0:7:0:14:-5
+X:1
+I:14:0:120:11:4:54:3
+H:66:1:62:1
+W:150:5:120:5
+Z:SLAY_GIANT | SUST_CON | RES_DARK |
+D:ゴブリンはよい戦士になれますが、魔法は期待できません。
+D:彼らは隠密行動が悪く、また探索や解除, 知覚もひどいです。
+D:ゴブリンは醜く、店での買い物ではより高い金額を要求されがちです。
+D:彼らは地下に住むことを好むため、ゴブリンは暗闇に対する耐性を備えています。
+
+
+N:9:ゴーゴン
+E:Gorgon
+F:FEMALE
+F:RES_STONE |
+S:1:2:-2:2:-1:2
+R:8:10:8:2:8:12:0:8:25
+X:3
+I:14:0:200:100:30:60:3
+H:78:10:78:10
+W:180:15:180:15
+Z:SUST_INT | REFLECT | RES_STONE |
+D:ゴーゴンは頭髪の代わりに無数のヘビが生え、人魚ならぬヘビの下肢を持つモンスターです。
+D:彼女らはあらゆるスキルをそつなくこなし、中でも弓は他種族より格段に優れています。
+D:彼女らは石化の耐性を持ち、レベルが上がれば酸や冷気や毒や地獄やカオスの耐性も得ることが
+D:できます。それらに加えて、見た者を石に変えてしまう“邪眼”も行使可能になるので、
+D:非常に強力な種族です。
+
+
+N:10:マーメイド
+E:Mermaid
+F:RES_ACID |
+S:-1:0:1:1:-1:1
+R:12:14:7:1:0:10:-5:-5:2
+X:3
+I:13:0:140:46:33:66:2
+H:72:6:64:5
+W:156:25:126:20
+Z:CHAOTIC | SUST_CHR | RES_ACID |
+D:マーメイドは上半身が人間で下半身が魚の、海に住む種族です。
+D:彼らは水中を好み、水の中では高い戦闘能力を期待できます。反面陸上は苦手で、
+D:移動に手間がかかります。また彼らは優秀な歌い手であり、
+D:モンスターを魅惑する歌を歌うことができます。
+
+
+N:11:マッドハロウィン
+E:Mad-Halloween
+F:MALE | DEMON | EVOLUTION |
+F:RES_COLD | RES_ELEC | RES_DARK |
+F:RES_CHAOS | RES_DISEN | FREE_ACT | HOLD_LIFE | SLOW_DIGEST | AGGRAVATE |
+F:RES_CONF | RES_POIS | FEATHER | TELEPATHY | LITE |
+S:4:2:4:2:5:0
+R:0:0:10:0:10:18:0:-10:-5
+X:4
+I:16:2:105:11:9:48:8
+H:55:5:55:5
+W:190:30:190:30
+Z:CHAOTIC | SLAY_ANIMAL | SLAY_DEMON | SLAY_UNDEAD | SLAY_GIANT | SUST_WIS |
+Z:REFLECT | FREE_ACT | HOLD_LIFE | RES_CHAOS | RES_DISEN | TELEPATHY | SLOW_DIGEST |
+Z:AGGRAVATE |
+D:マッドハロウィンはパンプキンヘッドが腐ったカボチャによって強化された種族で
+D:パンプキンヘッドよりも肉体的に優れています。。
+
+
+N:12:バルタン
+E:Vultan
+F:GOOD | EVOLUTION |
+F:FEATHER | RES_ELEC | RES_FEAR |
+S:1:0:-1:2:0:2
+R:0:0:0:1:0:10:0:8:10
+X:3
+I:14:0:160:42:22:12:1
+H:75:7:67:5
+W:185:27:134:20
+Z:SUST_DEX | RES_ELEC | RES_FEAR | FEATHER |
+D:天界を支配したと云われる古代有翼人の末裔。
+D:燃えるような赤い髪が、その高貴な血の証である。
+
+
+N:13:レイブン
+E:Raven
+F:EVIL | EVOLUTION |
+F:FEATHER | RES_FIRE | RES_FEAR |
+S:2:0:-1:3:0:-3
+R:0:0:0:1:0:10:0:8:10
+X:3
+I:16:0:160:42:22:12:1
+H:75:7:67:5
+W:185:27:134:20
+Z:SUST_DEX | RES_FEAR | FEATHER |
+D:漆黒の羽で空を舞う、暗黒道に堕ちた有翼人。
+D:争いそのものよりも血を好む、極めて凶暴な種族。
+

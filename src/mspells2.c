@@ -232,7 +232,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 	bool pet = is_pet(m_ptr);
 
-	bool mon_anti_magic = (m_ptr->silent || m_ptr->silent_song);
+	bool mon_anti_magic = (MON_SILENT(m_ptr) || m_ptr->silent_song);
 
 	int  do_disi_type = DO_DISI_TYPE_NONE;
 
@@ -242,7 +242,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 	if (!pet) u_mode |= PM_ALLOW_UNIQUE;
 
 	/* Cannot cast spells when confused */
-	if (m_ptr->confused) return (FALSE);
+	if (MON_CONFUSED(m_ptr)) return (FALSE);
 
 	start = m_max + 1;
 
@@ -278,7 +278,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			strcpy(t_name, "your decoy");
 #endif
 		/* Get the silly name */
-		else monster_desc(t_name, m_ptr, 0);
+		else monster_desc(t_name, m_ptr, 0x00);
 
 		see_t = player_has_los_bold(fy, fx);
 		known = (m_ptr->cdis <= MAX_SIGHT) || (distance(py, px, fy, fx) <= MAX_SIGHT);
@@ -645,10 +645,10 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		monster_desc(m_name, m_ptr, 0x00);
 
 		/* Get the monster possessive ("his"/"her"/"its") */
-		monster_desc(m_poss, m_ptr, 0x22);
+		monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
 
 		/* Hack -- Get the "died from" name */
-		monster_desc(ddesc, m_ptr, 0x88);
+		monster_desc(ddesc, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 		/* Choose a spell to cast */
 		switch (do_disi_type)
@@ -670,7 +670,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
 		/* Check for spell failure (inate attacks never fail) */
-		if (!spell_is_inate(thrown_spell) && ((m_ptr->stunned && one_in_(2)) || mon_anti_magic))
+		if (!spell_is_inate(thrown_spell) && ((MON_STUNNED(m_ptr) && one_in_(2)) || mon_anti_magic))
 		{
 			disturb(1, 0);
 			/* Message */
@@ -2841,9 +2841,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 					else
 					{
-						if (!t_ptr->monfear) fear = TRUE;
-
-						t_ptr->monfear += randint0(4) + 4;
+						if (set_monster_monfear(t_idx, MON_MONFEAR(t_ptr) + randint0(4) + 4)) fear = TRUE;
 					}
 
 					wake_up = TRUE;
@@ -2904,7 +2902,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 #endif
 
 
-						t_ptr->confused += 12 + (byte)randint0(4);
+						(void)set_monster_confused(t_idx, MON_CONFUSED(t_ptr) + 12 + randint0(4));
 					}
 
 					wake_up = TRUE;
@@ -2963,7 +2961,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 #endif
 
 
-						t_ptr->confused += 12 + (byte)randint0(4);
+						(void)set_monster_confused(t_idx, MON_CONFUSED(t_ptr) + 12 + randint0(4));
 					}
 
 					wake_up = TRUE;
@@ -3016,7 +3014,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 					else
 					{
-						if (!t_ptr->slow)
+						if (set_monster_slow(t_idx, MON_SLOW(t_ptr) + 50))
 						{
 #ifdef JP
 						if (see_t) msg_format("%sの動きが遅くなった。", t_name);
@@ -3024,8 +3022,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 						if (see_t) msg_format("%^s starts moving slower.", t_name);
 #endif
 						}
-
-						t_ptr->slow = MIN(200, t_ptr->slow + 50);
 					}
 
 					wake_up = TRUE;
@@ -3085,7 +3081,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 #endif
 
 
-						t_ptr->stunned += randint1(4) + 4;
+						(void)set_monster_stunned(t_idx, MON_STUNNED(t_ptr) + randint1(4) + 4);
 					}
 
 					wake_up = TRUE;
@@ -3116,17 +3112,14 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 				}
 
 				/* Allow quick speed increases to base+10 */
-				if (!m_ptr->fast)
+				if (set_monster_fast(m_idx, MON_FAST(m_ptr) + 100))
 				{
 #ifdef JP
 					if (see_m) msg_format("%^sの動きが速くなった。", m_name);
 #else
 					if (see_m) msg_format("%^s starts moving faster.", m_name);
 #endif
-
 				}
-				m_ptr->fast = MIN(200, m_ptr->fast + 100);
-				if (p_ptr->riding == m_idx) p_ptr->update |= PU_BONUS;
 				break;
 			}
 
@@ -3169,7 +3162,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 #else
 						msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
 #endif
-
 					}
 					else
 					{
@@ -3195,7 +3187,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 #else
 							msg_format("%^s looks completely healed!", m_name);
 #endif
-
 						}
 						else
 						{
@@ -3214,7 +3205,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 #else
 						msg_format("%^s looks healthier.", m_name);
 #endif
-
 					}
 					else
 					{
@@ -3227,10 +3217,10 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 				/* Cancel fear */
-				if (m_ptr->monfear)
+				if (MON_MONFEAR(m_ptr))
 				{
 					/* Cancel fear */
-					m_ptr->monfear = 0;
+					(void)set_monster_monfear(m_idx, 0);
 
 					/* Message */
 #ifdef JP
@@ -3238,7 +3228,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 #else
 					if (see_m) msg_format("%^s recovers %s courage.", m_name, m_poss);
 #endif
-
 				}
 
 				break;
@@ -3265,10 +3254,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				if (!m_ptr->invulner) m_ptr->invulner = randint1(4) + 4;
-
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+				if (!MON_INVULNER(m_ptr)) (void)set_monster_invulner(m_idx, randint1(4) + 4, FALSE);
 				break;
 			}
 
@@ -3312,7 +3298,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 						u32b flgs[TR_FLAG_SIZE];
 						object_type *o_ptr = &inventory[i];
 
-						if (cursed_p(o_ptr)) continue;
+						if (object_is_cursed(o_ptr)) continue;
 						object_flags(o_ptr, flgs);
 
 						if (have_flag(flgs, TR_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT))
@@ -3612,7 +3598,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 										char m_name_self[80];
 
 										/* hisself */
-										monster_desc(m_name_self, m_ptr, 0x23);
+										monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 										msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
@@ -4135,42 +4121,9 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 				break;
 			}
 
-			/* RF6_S_CYBER */
+			/* RF6_S_XXX1 */
 			case 160+17:
 			{
-				if (known)
-				{
-					if (see_either)
-					{
-						disturb(1, 0);
-
-#ifdef JP
-						msg_format("%^sがサイバーデーモンを召喚した！", m_name);
-#else
-						msg_format("%^s magically summons Cyberdemons!", m_name);
-#endif
-
-					}
-					else
-					{
-						mon_fight = TRUE;
-					}
-				}
-
-				if (is_friendly(m_ptr))
-				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_CYBER, (PM_ALLOW_GROUP));
-				}
-				else
-				{
-					count += summon_cyber(m_idx, y, x);
-				}
-
-				if (known && !see_t && count)
-				{
-					mon_fight = TRUE;
-				}
-
 				break;
 			}
 
@@ -4691,9 +4644,19 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 				{
 					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 				}
-				for (k = count; k < s_num_4; k++)
+
 				{
-					count += summon_specific(m_idx, y, x, rlev, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					int non_unique_type = SUMMON_HI_UNDEAD;
+
+					if ((m_ptr->sub_align & (SUB_ALIGN_GOOD | SUB_ALIGN_EVIL)) == (SUB_ALIGN_GOOD | SUB_ALIGN_EVIL))
+						non_unique_type = 0;
+					else if (m_ptr->sub_align & SUB_ALIGN_GOOD)
+						non_unique_type = SUMMON_ANGEL;
+
+					for (k = count; k < s_num_4; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, non_unique_type, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					}
 				}
 
 				if (known && !see_t && count)
@@ -5644,11 +5607,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			}
 		}
 
-		if (wake_up)
-		{
-			t_ptr->csleep = 0;
-			if (tr_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
-		}
+		if (wake_up) (void)set_monster_csleep(t_idx, 0);
 
 		if (fear && see_t)
 		{
@@ -5706,4 +5665,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		/* A spell was cast */
 		return TRUE;
 	}
+	else if (r_ptr->flags2 & RF2_STUPID) return TRUE;
+	else return FALSE;
 }

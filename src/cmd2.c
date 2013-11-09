@@ -26,18 +26,6 @@ void do_cmd_go_up(void)
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
-	/* Verify stairs */
-	if ((c_ptr->feat != FEAT_LESS) && (c_ptr->feat != FEAT_LESS_LESS) && (c_ptr->feat != FEAT_ENTRANCE_UPWARD))
-	{
-#ifdef JP
-		msg_print("ここには上り階段が見当たらない。");
-#else
-		msg_print("I see no up staircase here.");
-#endif
-
-		return;
-	}
-
 	/* Quest up stairs */
 	if (c_ptr->feat == FEAT_QUEST_UP)
 	{
@@ -71,6 +59,18 @@ void do_cmd_go_up(void)
 		p_ptr->oldpy = 0;
 
 		/* End the command */
+		return;
+	}
+
+	/* Verify stairs */
+	if ((c_ptr->feat != FEAT_LESS) && (c_ptr->feat != FEAT_LESS_LESS) && (c_ptr->feat != FEAT_ENTRANCE_UPWARD))
+	{
+#ifdef JP
+		msg_print("ここには上り階段が見当たらない。");
+#else
+		msg_print("I see no up staircase here.");
+#endif
+
 		return;
 	}
 
@@ -288,18 +288,6 @@ void do_cmd_go_down(void)
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
-	/* Verify stairs */
-	if ((c_ptr->feat != FEAT_MORE) && (c_ptr->feat != FEAT_MORE_MORE) && (c_ptr->feat != FEAT_ENTRANCE) && !fall_type)
-	{
-#ifdef JP
-		msg_print("ここには下り階段が見当たらない。");
-#else
-		msg_print("I see no down staircase here.");
-#endif
-
-		return;
-	}
-
 	/* MUST be actived now */
 	if (between_effect(c_ptr)) return;
 
@@ -358,6 +346,18 @@ void do_cmd_go_down(void)
 		p_ptr->oldpy = 0;
 
 		/* End the command */
+		return;
+	}
+
+	/* Verify stairs */
+	if ((c_ptr->feat != FEAT_MORE) && (c_ptr->feat != FEAT_MORE_MORE) && (c_ptr->feat != FEAT_ENTRANCE) && !fall_type)
+	{
+#ifdef JP
+		msg_print("ここには下り階段が見当たらない。");
+#else
+		msg_print("I see no down staircase here.");
+#endif
+
 		return;
 	}
 
@@ -1186,7 +1186,7 @@ static int count_chests(int *y, int *x, bool trapped)
 		if (o_ptr->pval == 0) continue;
 
 		/* No (known) traps here */
-		if (trapped && (!object_known_p(o_ptr) ||
+		if (trapped && (!object_is_known(o_ptr) ||
 			!chest_traps[o_ptr->pval])) continue;
 
 		/* OK */
@@ -1786,7 +1786,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 #else
 			msg_print("You have cleared away the trees.");
 #endif
-			if (one_in_(20)) change_your_alignment_lnc(-1);
+			if (one_in_(20)) change_your_alignment(ALI_LNC, -1);
 		}
 
 		/* Keep trying */
@@ -2268,7 +2268,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	if (j < 2) j = 2;
 
 	/* Must find the trap first. */
-	if (!object_known_p(o_ptr))
+	if (!object_is_known(o_ptr))
 	{
 #ifdef JP
 		msg_print("トラップが見あたらない。");
@@ -3220,7 +3220,7 @@ void do_cmd_stay(int pickup)
 #endif
 
 			msg_print(NULL);
-			if (quest_is_fixed(q_index)) change_your_alignment_lnc(10);
+			if (quest_is_fixed(q_index)) change_your_alignment(ALI_LNC, 10);
 		}
 
 		leave_quest_check();
@@ -3301,7 +3301,7 @@ void do_cmd_rest(void)
 	     p_ptr->alter_reality || p_ptr->inhibit_flood ||
 	     p_ptr->tim_dec_blow)
 	{
-		if (one_in_(50)) change_your_alignment_lnc(-1);
+		if (one_in_(50)) change_your_alignment(ALI_LNC, -1);
 	}
 
 	/* Save the rest code */
@@ -3386,7 +3386,7 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, 
 
 	if (xtra_slay) add_flag(flgs, xtra_slay);
 
-	if (inventory[INVEN_BOW].k_idx && (inventory[INVEN_BOW].name1) || object_is_runeweapon(&inventory[INVEN_BOW]))
+	if (inventory[INVEN_BOW].k_idx && (inventory[INVEN_BOW].name1 || object_is_runeweapon(&inventory[INVEN_BOW])))
 	{
 		u32b flgs_g[TR_FLAG_SIZE];
 		int i;
@@ -4070,7 +4070,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, in
 		}
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, FALSE, 3);
+		object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
 		if ((j_ptr->sval == SV_ASSAULT_RIFLE) || (j_ptr->sval == SV_RUNEGUN)) n_fire = 3;
 		else if (p_ptr->tval_ammo == TV_SHELL) n_fire = 12;
@@ -4229,6 +4229,8 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, in
 #endif
 				cave_set_feat(ny, nx, (one_in_(3) ? FEAT_DEEP_GRASS : FEAT_GRASS));
 
+				if (one_in_(5)) change_your_alignment(ALI_LNC, -1);
+
 				/* Update some things */
 				p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
@@ -4250,6 +4252,8 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, in
 					if (cave_perma_bold(ny, nx)) break;
 
 					cave_force_set_floor(ny, nx);
+
+					if (one_in_(5)) change_your_alignment(ALI_LNC, -1);
 
 					/* Update some things */
 					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
@@ -4317,13 +4321,18 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, in
 				monster_type *m_ptr = &m_list[c_ptr->m_idx];
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-				int ac = r_ptr->ac + m_ptr->stoning / 5;
+				int ac = r_ptr->ac + MON_STONING(m_ptr) / 5;
 
 				/* Check the visibility */
 				visible = m_ptr->ml;
 
 				/* Note the collision */
 				hit_body = TRUE;
+
+				if (MON_CSLEEP(m_ptr))
+				{
+					if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) change_your_alignment(ALI_GNE, -1);
+				}
 
 				/* Hit effect */
 				if (penetrate > 0)
@@ -4546,7 +4555,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, in
 			object_copy(o_ptr, q_ptr);
 
 			/* Forget mark */
-			o_ptr->marked = 0;
+			o_ptr->marked &= OM_TOUCHED;
 
 			/* Forget location */
 			o_ptr->iy = o_ptr->ix = 0;
@@ -4635,15 +4644,6 @@ bool do_cmd_fire(int shot_flgs, int x_to_h, int x_to_d, int penetrate, bool dire
 }
 
 
-static bool item_tester_hook_boomerang(object_type *o_ptr)
-{
-	if ((o_ptr->tval==TV_DIGGING) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) || (o_ptr->tval == TV_HAFTED)) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
-}
-
-
 /*
  * Throw an object from the pack or floor.
  *
@@ -4695,9 +4695,9 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	}
 	else if (boomerang)
 	{
-		if ((buki_motteruka(INVEN_LARM)) && (p_ptr->pclass != CLASS_BERSERKER))
+		if (buki_motteruka(INVEN_LARM))
 		{
-			item_tester_hook = item_tester_hook_boomerang;
+			item_tester_hook = object_is_melee_weapon;
 #ifdef JP
 			q = "どの武器を投げますか? ";
 			s = "投げる武器がない。";
@@ -4746,9 +4746,13 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	}
 
 
+	if ((p_ptr->pclass == CLASS_BERSERKER) && (o_ptr->tval == TV_POLEARM)
+		&& ((o_ptr->sval == SV_FRANCISCA) || (o_ptr->sval == SV_RUNEAXE)))
+			boomerang = TRUE;
+
 	if (dungeon_type == DUNGEON_HEAVEN)
 	{
-		if (object_known_p(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
+		if (object_is_known(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
 		{
 			msg_print("天界から帰還するにはブリュンヒルドが必要です。");
 			return FALSE;
@@ -4756,7 +4760,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	}
 
 	/* Item is cursed */
-	if (cursed_p(o_ptr) && (item >= INVEN_RARM))
+	if (object_is_cursed(o_ptr) && (item >= INVEN_RARM))
 	{
 		/* Oops */
 #ifdef JP
@@ -4798,7 +4802,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	q_ptr->number = 1;
 
 	/* Description */
-	object_desc(o_name, q_ptr, FALSE, 3);
+	object_desc(o_name, q_ptr, OD_OMIT_PREFIX);
 
 	if (p_ptr->mighty_throw) mult += 3;
 	if (shooting_star) mult += 3;
@@ -4964,7 +4968,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			ac = (shooting_star ? ac : 0) + r_ptr->ac + m_ptr->stoning / 5;
+			ac = (shooting_star ? ac : 0) + r_ptr->ac + MON_STONING(m_ptr) / 5;
 
 			/* Check the visibility */
 			visible = m_ptr->ml;
@@ -5120,15 +5124,15 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	{
 		j = 100;
 
-		if (!(summon_named_creature((cursed_p(q_ptr) ? 0 : -1), y, x, q_ptr->pval,
-					    !(cursed_p(q_ptr)) ? PM_FORCE_PET : PM_IGNORE_AMGRID)))
+		if (!(summon_named_creature((object_is_cursed(q_ptr) ? 0 : -1), y, x, q_ptr->pval,
+					    !(object_is_cursed(q_ptr)) ? PM_FORCE_PET : PM_IGNORE_AMGRID)))
 #ifdef JP
 			msg_print("人形は捻じ曲がり砕け散ってしまった！");
 #else
 			msg_print("The Figurine writhes and then shatters.");
 #endif
 
-		else if (cursed_p(q_ptr))
+		else if (object_is_cursed(q_ptr))
 #ifdef JP
 			msg_print("これはあまり良くない気がする。");
 #else
@@ -5158,7 +5162,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 				/* ToDo (Robert): fix the invulnerability */
 				if (cave[y][x].m_idx &&
 				    is_friendly(&m_list[cave[y][x].m_idx]) &&
-				    !(m_ptr->invulner))
+				    !MON_INVULNER(m_ptr))
 				{
 					char m_name[80];
 					monster_desc(m_name, &m_list[cave[y][x].m_idx], 0);
@@ -5186,7 +5190,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 
 		j = -1;
 		if (boomerang) back_chance += 4+randint1(5);
-		object_desc(o2_name, q_ptr, FALSE, 0);
+		object_desc(o2_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 		if((back_chance > 30) && !one_in_(100))
 		{

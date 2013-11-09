@@ -209,7 +209,6 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 	int div = 10;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	cptr p;
 	bool resist_weapon = TRUE;
@@ -221,44 +220,12 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 
 	if (in_hand)
 	{
-		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
-		else if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
-		switch (p_ptr->pclass)
-		{
-		case CLASS_DRAGOON:
-			if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
-			else add_flag(flgs, TR_SLAY_DRAGON);
-			break;
-		case CLASS_EXORCIST:
-			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
-			if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
-			add_flag(flgs, TR_SLAY_UNDEAD);
-		case CLASS_FREYA:
-			if (cexp_ptr->clev > 34) add_flag(flgs, TR_SLAY_EVIL);
-			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_DEMON);
-			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
-			/* Fall through */
-		case CLASS_CLERIC:
-		case CLASS_PRIEST:
-		case CLASS_ANGELKNIGHT:
-		case CLASS_MEDIUM:
-			add_flag(flgs, TR_BLESSED);
-			break;
-		case CLASS_VAMPIRE:
-			add_flag(flgs, TR_SLAY_LIVING);
-		case CLASS_LICH:
-			add_flag(flgs, TR_UNHOLY);
-			break;
-		case CLASS_LORD:
-			if ((p_ptr->action == ACTION_AURA) && (o_ptr->tval == TV_SWORD) && (cexp_ptr->clev > 34))
-			{
-				add_flag(flgs, TR_VORPAL);
-			}
-			break;
-		}
+		int i;
+
+		/* Extract flags and store */
+		player_flags(p_ptr->flags);
+
+		for (i = 0; i < TR_FLAG_SIZE; i++) flgs[i] |= p_ptr->flags[i];
 	}
 
 	/* Get base name of object kind */
@@ -447,8 +414,8 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand)
 {
 	int mult = 10;
+	int i;
 
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	u32b flgs[TR_FLAG_SIZE];
@@ -458,33 +425,10 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 
 	if (in_hand)
 	{
-		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
-		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
-		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
-		switch (p_ptr->pclass)
-		{
-		case CLASS_DRAGOON:
-			if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
-			else add_flag(flgs, TR_SLAY_DRAGON);
-			break;
-		case CLASS_EXORCIST:
-			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
-			if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
-			add_flag(flgs, TR_SLAY_UNDEAD);
-			/* Fall through */
-		case CLASS_CLERIC:
-		case CLASS_PRIEST:
-		case CLASS_ANGELKNIGHT:
-		case CLASS_MEDIUM:
-			add_flag(flgs, TR_BLESSED);
-			break;
-		case CLASS_LICH:
-		case CLASS_VAMPIRE:
-			add_flag(flgs, TR_UNHOLY);
-			break;
-		}
+		/* Extract flags and store */
+		player_flags(p_ptr->flags);
+
+		for (i = 0; i < TR_FLAG_SIZE; i++) flgs[i] |= p_ptr->flags[i];
 	}
 
 	/* Some "weapons" and "ammo" do extra damage */
@@ -994,7 +938,7 @@ void search(void)
 					if (!chest_traps[o_ptr->pval]) continue;
 
 					/* Identify once */
-					if (!object_known_p(o_ptr))
+					if (!object_is_known(o_ptr))
 					{
 						/* Message */
 #ifdef JP
@@ -1050,7 +994,7 @@ void py_pickup_aux(int o_idx)
 
 #ifdef JP
 	/* Describe the object */
-	object_desc(old_name, o_ptr, TRUE, 0);
+	object_desc(old_name, o_ptr, OD_NAME_ONLY);
 	object_desc_kosuu(kazu_str, o_ptr);
 	hirottakazu = o_ptr->number;
 #endif
@@ -1085,7 +1029,7 @@ void py_pickup_aux(int o_idx)
 	}
 
 	/* Describe the object */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Message */
 #ifdef JP
@@ -1134,7 +1078,7 @@ void py_pickup_aux(int o_idx)
 #endif
 
 			msg_print(NULL);
-			if (quest_is_fixed(i)) change_your_alignment_lnc(10);
+			if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
 		}
 	}
 
@@ -1147,7 +1091,7 @@ void py_pickup_aux(int o_idx)
 			char t_name[MAX_NLEN];
 			runeweapon->status |= (RW_STATUS_FOUND);
 
-			object_desc(t_name, o_ptr, TRUE, 0);
+			object_desc(t_name, o_ptr, OD_NAME_ONLY);
 			if (runeweapon->ancestor[0])
 			{
 #ifdef JP
@@ -1219,7 +1163,7 @@ void carry(int pickup)
 		sense_floor_object(this_o_idx);
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -2028,7 +1972,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x288);
+			monster_desc(aura_dam, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 #ifdef JP
 			msg_print("突然とても熱くなった！");
@@ -2055,7 +1999,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x288);
+			monster_desc(aura_dam, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 #ifdef JP
 			msg_print("突然とても寒くなった！");
@@ -2082,7 +2026,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x288);
+			monster_desc(aura_dam, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 			if (p_ptr->oppose_elec) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_elec) aura_damage = (aura_damage + 2) / 3;
@@ -2115,7 +2059,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	int ac = r_ptr->ac;
 
-	if (m_ptr->stoning) ac += m_ptr->stoning / 5;
+	if (MON_STONING(m_ptr)) ac += MON_STONING(m_ptr) / 5;
 
 	switch (attack)
 	{
@@ -2281,8 +2225,6 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	cave_type       *c_ptr = &cave[y][x];
 
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
-
 	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -2306,31 +2248,27 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	u32b            flgs[TR_FLAG_SIZE]; /* A massive hack -- life-draining weapons */
 	bool            dragoon_hit = ((p_ptr->pclass == CLASS_DRAGOON) && (r_ptr->flags3 & RF3_DRAGON));
-	bool            lord_vorpal = FALSE;
 
 
-
-	if (m_ptr->stoning) ac += m_ptr->stoning / 5;
+	if (MON_STONING(m_ptr)) ac += MON_STONING(m_ptr) / 5;
 	if (mode == PY_ATTACK_PENET) penet_ac = ac;
 	else if (penet_ac) ac += penet_ac;
 
 	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand])
 	{
-		if (m_ptr->csleep && m_ptr->ml)
+		if (MON_CSLEEP(m_ptr) && m_ptr->ml)
 		{
 			/* Can't backstab creatures that we can't see, right? */
 			backstab = TRUE;
 		}
-		else if (m_ptr->monfear && m_ptr->ml)
+		else if (MON_MONFEAR(m_ptr) && m_ptr->ml)
 		{
 			stab_fleeing = TRUE;
 		}
 	}
 
 	/* Disturb the monster */
-	m_ptr->csleep = 0;
-	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2))
-		p_ptr->update |= (PU_MON_LITE);
+	(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -2401,13 +2339,26 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			object_flags(o_ptr, flgs);
 
-			if ((p_ptr->pclass == CLASS_LORD) && (p_ptr->action == ACTION_AURA) && (o_ptr->tval == TV_SWORD) && (cexp_ptr->clev > 34))
+			if ((p_ptr->action == ACTION_AURA) && (o_ptr->tval == TV_SWORD))
 			{
-				lord_vorpal = TRUE;
-				if (have_flag(flgs, TR_EXTRA_VORPAL) || (cexp_ptr->clev > 44)) vorpal_chance = 2;
-				else vorpal_chance = 4;
+				/* Extract flags and store */
+				player_flags(p_ptr->flags);
+
+				if (have_flag(p_ptr->flags, TR_VORPAL)) add_flag(flgs, TR_VORPAL);
+				if (have_flag(p_ptr->flags, TR_EXTRA_VORPAL)) add_flag(flgs, TR_EXTRA_VORPAL);
 			}
-			else vorpal_chance = have_flag(flgs, TR_EXTRA_VORPAL) ? 2 : 4;
+
+			vorpal_chance = have_flag(flgs, TR_EXTRA_VORPAL) ? 2 : 4;
+
+			if (have_flag(flgs, TR_BLESSED) && (r_ptr->flags3 & RF3_EVIL))
+				change_your_alignment(ALI_GNE, 1);
+			else if (have_flag(flgs, TR_BLESSED) && one_in_(3))
+				change_your_alignment(ALI_GNE, 1);
+
+			if (have_flag(flgs, TR_UNHOLY) && (r_ptr->flags3 & RF3_GOOD))
+				change_your_alignment(ALI_GNE, -1);
+			else if (have_flag(flgs, TR_UNHOLY) && one_in_(3))
+				change_your_alignment(ALI_GNE, -1);
 
 			/* Select a chaotic effect (50% chance) */
 			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(2))
@@ -2438,7 +2389,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					chaos_effect = 5;
 				}
 
-				change_your_alignment_lnc(-1);
+				change_your_alignment(ALI_LNC, -1);
 			}
 
 			/* Vampiric drain */
@@ -2452,7 +2403,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			vorpal_cut = FALSE;
-			if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_EXTRA_VORPAL) || lord_vorpal)
+			if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_EXTRA_VORPAL))
 			{
 				if (randint1(vorpal_chance * 3 / 2) == 1) vorpal_cut = TRUE;
 			}
@@ -2511,32 +2462,32 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (r_ptr->flags1 & RF1_MALE)
 					{
 #ifdef JP
-						msg_format("%sに金的膝蹴りをくらわした！", m_name);
+						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("%sに金的膝蹴りをくらわした！", m_name);
 #else
-						msg_format("You hit %s in the groin with your knee!", m_name);
+						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("You hit %s in the groin with your knee!", m_name);
 #endif
 
 						sound(SOUND_PAIN);
 						special_effect = MA_KNEE;
 					}
 					else
-						msg_format(ma_ptr->desc, m_name);
+						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format(ma_ptr->desc, m_name);
 				}
 
 				else if (ma_ptr->effect == MA_SLOW)
 				{
 					if (!((r_ptr->flags1 & RF1_NEVER_MOVE) ||
-					    strchr("~#{}.UjmeEv$,DdsbBIJQSXclnw!=?", r_ptr->d_char)))
+					    my_strchr("~#{}.UjmeEv$,DdsbBIJQSXclnw!=?", r_ptr->d_char)))
 					{
 #ifdef JP
-						msg_format("%sの足首に関節蹴りをくらわした！", m_name);
+						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("%sの足首に関節蹴りをくらわした！", m_name);
 #else
-						msg_format("You kick %s in the ankle.", m_name);
+						if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format("You kick %s in the ankle.", m_name);
 #endif
 
 						special_effect = MA_SLOW;
 					}
-					else msg_format(ma_ptr->desc, m_name);
+					else if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format(ma_ptr->desc, m_name);
 				}
 				else
 				{
@@ -2545,7 +2496,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
 					}
 
-					msg_format(ma_ptr->desc, m_name);
+					if (p_ptr->pclass != CLASS_SUCCUBUS) msg_format(ma_ptr->desc, m_name);
 				}
 
 				k = critical_norm(p_ptr->lev * weight, p_ptr->lev, k, p_ptr->to_h[0], 0);
@@ -2582,22 +2533,22 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
 					{
-						if (m_ptr->stunned)
-#ifdef JP
-							msg_format("%^sはさらにフラフラになった。", m_name);
-#else
-							msg_format("%^s is more stunned.", m_name);
-#endif
-
-						else
+						if (set_monster_stunned(c_ptr->m_idx, stun_effect + MON_STUNNED(m_ptr)))
+						{
 #ifdef JP
 							msg_format("%^sはフラフラになった。", m_name);
 #else
 							msg_format("%^s is stunned.", m_name);
 #endif
-
-
-						m_ptr->stunned += stun_effect;
+						}
+						else
+						{
+#ifdef JP
+							msg_format("%^sはさらにフラフラになった。", m_name);
+#else
+							msg_format("%^s is more stunned.", m_name);
+#endif
+						}
 					}
 				}
 			}
@@ -2713,38 +2664,37 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Hack -- Handle bare hands slaying */
 			else
 			{
-				switch (p_ptr->pclass)
+				/* Extract flags and store */
+				player_flags(p_ptr->flags);
+
+				if ((r_ptr->flags3 & RF3_DRAGON) && have_flag(p_ptr->flags, TR_KILL_DRAGON))
 				{
-				case CLASS_DRAGOON:
-					if (r_ptr->flags3 & RF3_DRAGON)
-					{
-						k *= (cexp_ptr->clev > 24 ? 5 : 3);
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;
-					}
-					break;
-				case CLASS_EXORCIST:
-					if (r_ptr->flags3 & RF3_UNDEAD)
-					{
-						k *= 3;
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_UNDEAD;
-					}
-					if ((r_ptr->flags3 &  RF3_DEMON) && cexp_ptr->clev > 9)
-					{
-						k *= 3;
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DEMON;
-					}
-					if ((r_ptr->flags3 & RF3_EVIL) && cexp_ptr->clev > 19)
-					{
-						k *= 2;
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_EVIL;
-					}
-					break;
-				case CLASS_VAMPIRE:
-					if (r_ptr->flags3 & monster_living(r_ptr))
-					{
-						k *= 2;
-					}
-					break;
+					k *= 5;
+					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;
+				}
+				if ((r_ptr->flags3 & RF3_DRAGON) && have_flag(p_ptr->flags, TR_SLAY_DRAGON))
+				{
+					k *= 3;
+					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;
+				}
+				if ((r_ptr->flags3 & RF3_UNDEAD) && have_flag(p_ptr->flags, TR_SLAY_UNDEAD))
+				{
+					k *= 3;
+					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_UNDEAD;
+				}
+				if ((r_ptr->flags3 &  RF3_DEMON) && have_flag(p_ptr->flags, TR_SLAY_DEMON))
+				{
+					k *= 3;
+					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DEMON;
+				}
+				if ((r_ptr->flags3 & RF3_EVIL) && have_flag(p_ptr->flags, TR_SLAY_EVIL))
+				{
+					k *= 2;
+					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_EVIL;
+				}
+				if ((r_ptr->flags3 & monster_living(r_ptr)) && have_flag(p_ptr->flags, TR_SLAY_LIVING))
+				{
+					k *= 2;
 				}
 			}
 
@@ -2768,7 +2718,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				if (!(r_ptr->flags3 & (RF3_NO_STUN)))
 				{
 					/* Get stunned */
-					if (m_ptr->stunned)
+					if (MON_STUNNED(m_ptr))
 					{
 #ifdef JP
 						msg_format("%sはひどくもうろうとした。", m_name);
@@ -2788,7 +2738,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					}
 
 					/* Apply stun */
-					m_ptr->stunned = MIN(m_ptr->stunned + tmp, 200);
+					(void)set_monster_stunned(c_ptr->m_idx, MON_STUNNED(m_ptr) + tmp);
 				}
 				else if (mode == PY_ATTACK_MINEUCHI)
 				{
@@ -2988,7 +2938,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					msg_format("%^s appears confused.", m_name);
 #endif
 
-					m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
+					(void)set_monster_confused(c_ptr->m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
 				}
 			}
 
@@ -3051,16 +3001,6 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						msg_format("%^s changes!", m_name);
 #endif
 
-
-						/* Hack -- Get new monster */
-						m_ptr = &m_list[c_ptr->m_idx];
-
-						/* Oops, we need a different name... */
-						monster_desc(m_name, m_ptr, 0);
-
-						/* Hack -- Get new race */
-						r_ptr = &r_info[m_ptr->r_idx];
-
 						*fear = FALSE;
 						weak = FALSE;
 					}
@@ -3073,6 +3013,15 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 #endif
 
 					}
+
+					/* Hack -- Get new monster */
+					m_ptr = &m_list[c_ptr->m_idx];
+
+					/* Oops, we need a different name... */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Hack -- Get new race */
+					r_ptr = &r_info[m_ptr->r_idx];
 				}
 			}
 		}
@@ -3082,7 +3031,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			backstab = FALSE; /* Clumsy! */
 
-			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
+			if ((p_ptr->pclass != CLASS_LICH) && (o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
 			{
 				u32b flgs[TR_FLAG_SIZE];
 
@@ -3124,22 +3073,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 								default:
 									mult = 25;break;
 							}
-							break;
 					}
-					break;
-
-					if (p_ptr->align < 0 && mult < 20)
-						mult = 20;
-					if (!(p_ptr->resist_acid || p_ptr->oppose_acid || p_ptr->immune_acid) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_elec || p_ptr->oppose_elec || p_ptr->immune_elec) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_fire || p_ptr->oppose_fire || p_ptr->immune_fire) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_cold || p_ptr->oppose_cold || p_ptr->immune_cold) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 25))
-						mult = 25;
 
 					if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (p_ptr->msp / 30)))
 					{
@@ -3173,7 +3107,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				if (k < 0) k = 0;
 
 #ifdef JP
-				take_hit(DAMAGE_FORCE, k, "死の大鎌");
+				take_hit(DAMAGE_FORCE, k, "死神の鎌");
 #else
 				take_hit(DAMAGE_FORCE, k, "Death scythe");
 #endif
@@ -3222,7 +3156,6 @@ bool py_attack(int y, int x, int mode)
 
 	cave_type       *c_ptr = &cave[y][x];
 	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 	char            m_name[80];
 
 	/* Disturb the player */
@@ -3253,14 +3186,19 @@ bool py_attack(int y, int x, int mode)
 #else
 			msg_format("Your black blade greedily attacks %s!", m_name);
 #endif
+			change_your_alignment(ALI_GNE, -3);
 		}
 		else
 		{
 #ifdef JP
-			if (!get_check("本当に攻撃しますか？"))
+			if (get_check("本当に攻撃しますか？"))
 #else
-			if (!get_check("Really hit it? "))
+			if (get_check("Really hit it? "))
 #endif
+			{
+				change_your_alignment(ALI_GNE, -3);
+			}
+			else
 			{
 #ifdef JP
 				msg_format("%sを攻撃するのを止めた。", m_name);
@@ -3292,11 +3230,15 @@ bool py_attack(int y, int x, int mode)
 #endif
 
 		/* Disturb the monster */
-		m_ptr->csleep = 0;
-		if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+		(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 		/* Done */
 		return FALSE;
+	}
+
+	if (MON_CSLEEP(m_ptr)) /* It is not honorable etc to attack helpless victims */
+	{
+		if (!(r_info[m_ptr->r_idx].flags3 & RF3_EVIL) || one_in_(3)) change_your_alignment(ALI_GNE, -1);
 	}
 
 	riding_t_m_idx = c_ptr->m_idx;
@@ -3621,8 +3563,8 @@ void move_player(int dir, int do_pickup)
 		    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
 		    ((cave_floor_bold(y, x)) || (c_ptr->feat == FEAT_TREES) || (p_can_pass_walls)))
 		{
-			m_ptr->csleep = 0;
-			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+			/* Disturb the monster */
+			(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 			/* Extract monster name (or "it") */
 			monster_desc(m_name, m_ptr, 0);
@@ -3797,7 +3739,7 @@ void move_player(int dir, int do_pickup)
 		disturb(0, 0);
 	}
 
-	else if (p_ptr->riding && riding_m_ptr->monfear)
+	else if (p_ptr->riding && MON_MONFEAR(riding_m_ptr))
 	{
 		char m_name[80];
 
@@ -3868,7 +3810,7 @@ void move_player(int dir, int do_pickup)
 		disturb(0, 0);
 	}
 
-	else if (p_ptr->riding && riding_m_ptr->stunned && one_in_(2))
+	else if (p_ptr->riding && MON_STUNNED(riding_m_ptr) && one_in_(2))
 	{
 		char m_name[80];
 		monster_desc(m_name, riding_m_ptr, 0);
@@ -4228,7 +4170,7 @@ void move_player(int dir, int do_pickup)
 #endif
 
 				msg_print(NULL);
-				if (quest_is_fixed(p_ptr->inside_quest)) change_your_alignment_lnc(10);
+				if (quest_is_fixed(p_ptr->inside_quest)) change_your_alignment(ALI_LNC, 10);
 			}
 
 			leave_quest_check();

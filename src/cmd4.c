@@ -212,6 +212,28 @@ static void close_auto_dump(FILE *fff, cptr mark, int line_num)
 }
 
 
+#ifndef JP
+/*
+ * Return suffix of ordinal number
+ */
+cptr get_ordinal_number_suffix(int num)
+{
+	num = ABS(num) % 100;
+	switch (num % 10)
+	{
+	case 1:
+		return (num == 11) ? "th" : "st";
+	case 2:
+		return (num == 12) ? "th" : "nd";
+	case 3:
+		return (num == 13) ? "th" : "rd";
+	default:
+		return "th";
+	}
+}
+#endif
+
+
 /*
  *   Take note to the diary.
  */
@@ -524,14 +546,14 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 				fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦で、%sの前に敗れ去った。\n", hour, min, note_level, n, note);
 #else
-				fprintf(fff, " %2d:%02d %20s beaten by %s in the %d%s fight.\n", hour, min, note_level, note, n, (n%10==1?"st":n%10==2?"nd":n%10==3?"rd":"th"));
+				fprintf(fff, " %2d:%02d %20s beaten by %s in the %d%s fight.\n", hour, min, note_level, note, n, get_ordinal_number_suffix(n));
 #endif
 				break;
 			}
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦(%s)に勝利した。\n", hour, min, note_level, num, note);
 #else
-			fprintf(fff, " %2d:%02d %20s won the %d%s fight (%s).\n", hour, min, note_level, num, (num%10==1?"st":num%10==2?"nd":num%10==3?"rd":"th"), note);
+			fprintf(fff, " %2d:%02d %20s won the %d%s fight (%s).\n", hour, min, note_level, num, get_ordinal_number_suffix(num), note);
 #endif
 			if (num == MAX_ARENA_MONS)
 			{
@@ -602,88 +624,137 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 			fprintf(fff, " %2d:%02d %20s ", hour, min, note_level);
 			switch (num)
 			{
-				case 0:
+				case RECORD_NAMED_PET_NAME:
 #ifdef JP
 					fprintf(fff, "%sを旅の友にすることに決めた。\n", note);
 #else
 					fprintf(fff, "decided to travel together with %s.\n", note);
 #endif
 					break;
-				case 1:
+				case RECORD_NAMED_PET_UNNAME:
 #ifdef JP
 					fprintf(fff, "%sの名前を消した。\n", note);
 #else
 					fprintf(fff, "unnamed %s.\n", note);
 #endif
 					break;
-				case 2:
+				case RECORD_NAMED_PET_DISMISS:
 #ifdef JP
 					fprintf(fff, "%sを解放した。\n", note);
 #else
 					fprintf(fff, "dismissed %s.\n", note);
 #endif
 					break;
-				case 3:
+				case RECORD_NAMED_PET_DEATH:
 #ifdef JP
 					fprintf(fff, "%sが死んでしまった。\n", note);
 #else
 					fprintf(fff, "%s died.\n", note);
 #endif
 					break;
-				case 4:
+				case RECORD_NAMED_PET_MOVED:
 #ifdef JP
 					fprintf(fff, "%sをおいて別のマップへ移動した。\n", note);
 #else
 					fprintf(fff, "moved to another map leaving %s behind.\n", note);
 #endif
 					break;
-				case 5:
+				case RECORD_NAMED_PET_LOST_SIGHT:
 #ifdef JP
 					fprintf(fff, "%sとはぐれてしまった。\n", note);
 #else
 					fprintf(fff, "lost sight of %s.\n", note);
 #endif
 					break;
-				case 6:
+				case RECORD_NAMED_PET_DESTROY:
 #ifdef JP
 					fprintf(fff, "%sが*破壊*によって消え去った。\n", note);
 #else
 					fprintf(fff, "%s was made disappeared by *destruction*.\n", note);
 #endif
 					break;
-				case 7:
+				case RECORD_NAMED_PET_EARTHQUAKE:
 #ifdef JP
 					fprintf(fff, "%sが岩石に押し潰された。\n", note);
 #else
 					fprintf(fff, "%s was crushed by falling rocks.\n", note);
 #endif
 					break;
-				case 8:
+				case RECORD_NAMED_PET_STONED:
 #ifdef JP
 					fprintf(fff, "%sが石化してしまった。\n", note);
 #else
 					fprintf(fff, "%s is stoned.\n", note);
 #endif
 					break;
-				case 9:
+				case RECORD_NAMED_PET_FALL_AIR:
 #ifdef JP
 					fprintf(fff, "%sが空中に消えてしまった。\n", note);
 #else
 					fprintf(fff, "%s falls into air.\n", note);
 #endif
 					break;
-				case 10:
+				case RECORD_NAMED_PET_PUT_HOME:
 #ifdef JP
 					fprintf(fff, "%sを我が家に置いた。\n", note);
 #else
 					fprintf(fff, "put %s on home.\n", note);
 #endif
 					break;
-				case 11:
+				case RECORD_NAMED_PET_TAKE_HOME:
 #ifdef JP
 					fprintf(fff, "%sを我が家から連れ出した。\n", note);
 #else
 					fprintf(fff, "take %s from home.\n", note);
+#endif
+					break;
+				case RECORD_NAMED_PET_GENOCIDE:
+#ifdef JP
+					fprintf(fff, "%sが抹殺によって消え去った。\n", note);
+#else
+					fprintf(fff, "%s was made disappeared by genocide.\n", note);
+#endif
+					break;
+				case RECORD_NAMED_PET_WIZ_ZAP:
+#ifdef JP
+					fprintf(fff, "%sがデバッグコマンドによって消え去った。\n", note);
+#else
+					fprintf(fff, "%s was removed by debug command.\n", note);
+#endif
+					break;
+				case RECORD_NAMED_PET_TELE_LEVEL:
+#ifdef JP
+					fprintf(fff, "%sがテレポート・レベルによって消え去った。\n", note);
+#else
+					fprintf(fff, "%s was made disappeared by teleport level.\n", note);
+#endif
+					break;
+				case RECORD_NAMED_PET_BLAST:
+#ifdef JP
+					fprintf(fff, "%sを爆破した。\n", note);
+#else
+					fprintf(fff, "blasted %s.\n", note);
+#endif
+					break;
+				case RECORD_NAMED_PET_HEAL_LEPER:
+#ifdef JP
+					fprintf(fff, "%sの病気が治り旅から外れた。\n", note);
+#else
+					fprintf(fff, "%s was healed and left.\n", note);
+#endif
+					break;
+				case RECORD_NAMED_PET_COMPACT:
+#ifdef JP
+					fprintf(fff, "%sがモンスター情報圧縮によって消え去った。\n", note);
+#else
+					fprintf(fff, "%s was made disappeared by compacting monsters.\n", note);
+#endif
+					break;
+				case RECORD_NAMED_PET_LOSE_PARENT:
+#ifdef JP
+					fprintf(fff, "%sの召喚者が既にいないため消え去った。\n", note);
+#else
+					fprintf(fff, "%s disappeared because there does not exist summoner.\n", note);
 #endif
 					break;
 				default:
@@ -1232,7 +1303,7 @@ void do_cmd_messages(int num_now)
 				cptr str = msg;
 
 				/* Display matches */
-				while ((str = strstr(str, shower)) != NULL)
+				while ((str = my_strstr(str, shower)) != NULL)
 				{
 					int len = strlen(shower);
 
@@ -1336,7 +1407,7 @@ void do_cmd_messages(int num_now)
 				cptr msg = message_str(z);
 
 				/* Search for it */
-				if (strstr(msg, finder))
+				if (my_strstr(msg, finder))
 				{
 					/* New location */
 					i = z;
@@ -1788,8 +1859,6 @@ static void do_cmd_options_autosave(cptr info)
 }
 
 
-#define PAGE_AUTODESTROY 7
-
 /*
  * Interact with some options
  */
@@ -1799,6 +1868,8 @@ void do_cmd_options_aux(int page, cptr info)
 	int     i, k = 0, n = 0, l;
 	int     opt[24];
 	char    buf[80];
+	bool    browse_only = (page == OPT_PAGE_BIRTH) && character_generated &&
+	                      (!p_ptr->wizard || !allow_debug_opts);
 
 
 	/* Lookup the options */
@@ -1822,9 +1893,9 @@ void do_cmd_options_aux(int page, cptr info)
 
 		/* Prompt XXX XXX XXX */
 #ifdef JP
-		sprintf(buf, "%s (リターン:次, y/n:変更, ESC:終了, ?:ヘルプ) ", info);
+		sprintf(buf, "%s (リターン:次, %sESC:終了, ?:ヘルプ) ", info, browse_only ? "" : "y/n:変更, ");
 #else
-		sprintf(buf, "%s (RET:next, y/n:change, ESC:accept, ?:help) ", info);
+		sprintf(buf, "%s (RET:next, %s, ?:help) ", info, browse_only ? "ESC:exit" : "y/n:change, ESC:accept");
 #endif
 
 		prt(buf, 0, 0);
@@ -1832,9 +1903,9 @@ void do_cmd_options_aux(int page, cptr info)
 
 		/* HACK -- description for easy-auto-destroy options */
 #ifdef JP
-		if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 6, 6);
+		if (page == OPT_PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 6, 6);
 #else
-		if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 6, 3);
+		if (page == OPT_PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 6, 3);
 #endif
 
 		/* Display the options */
@@ -1855,11 +1926,11 @@ void do_cmd_options_aux(int page, cptr info)
 #endif
 
 			        option_info[opt[i]].o_text);
-			if ((page == PAGE_AUTODESTROY) && i > 2) c_prt(a, buf, i + 5, 0);
+			if ((page == OPT_PAGE_AUTODESTROY) && i > 2) c_prt(a, buf, i + 5, 0);
 			else c_prt(a, buf, i + 2, 0);
 		}
 
-		if ((page == PAGE_AUTODESTROY) && (k > 2)) l = 3;
+		if ((page == OPT_PAGE_AUTODESTROY) && (k > 2)) l = 3;
 		else l = 0;
 
 		/* Hilite current option */
@@ -1904,6 +1975,7 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'Y':
 			case '6':
 			{
+				if (browse_only) break;
 				(*option_info[opt[k]].o_var) = TRUE;
 				k = (k + 1) % n;
 				break;
@@ -1913,6 +1985,7 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'N':
 			case '4':
 			{
+				if (browse_only) break;
 				(*option_info[opt[k]].o_var) = FALSE;
 				k = (k + 1) % n;
 				break;
@@ -1921,7 +1994,7 @@ void do_cmd_options_aux(int page, cptr info)
 			case 't':
 			case 'T':
 			{
-				(*option_info[opt[k]].o_var) = !(*option_info[opt[k]].o_var);
+				if (!browse_only) (*option_info[opt[k]].o_var) = !(*option_info[opt[k]].o_var);
 				break;
 			}
 
@@ -2177,11 +2250,11 @@ void do_cmd_options(void)
 		/* Give some choices */
 #ifdef JP
 		prt("(1)     キー入力          オプション", 4, 5);
-		prt("(2)     画面出力          オプション", 5, 5);
-		prt("(3)   ゲームプレイ        オプション", 6, 5);
-		prt("(4)   行動中止関係        オプション", 7, 5);
-		prt("(5)      効率化           オプション", 8, 5);
-		prt("(6) 簡易アイテム自動破壊  オプション", 9, 5);
+		prt("(2)     マップ画面       オプション", 5, 5);
+		prt("(3)    テキスト表示      オプション", 6, 5);
+		prt("(4)   ゲームプレイ        オプション", 7, 5);
+		prt("(5)   行動中止関係        オプション", 8, 5);
+		prt("(6)    簡易自動破壊      オプション", 9, 5);
 		prt("(R)    プレイ記録         オプション", 10, 5);
 		/* Special choices */
 		prt("(D)  基本ウェイト量", 12, 5);
@@ -2191,10 +2264,10 @@ void do_cmd_options(void)
 		prt("(W) ウィンドウフラグ", 15, 5);
 #else
 		prt("(1) Input Options", 4, 5);
-		prt("(2) Output Options", 5, 5);
-		prt("(3) Game-Play Options", 6, 5);
-		prt("(4) Disturbance Options", 7, 5);
-		prt("(5) Efficiency Options", 8, 5);
+		prt("(2) Map Screen Options", 5, 5);
+		prt("(3) Text Display Options", 6, 5);
+		prt("(4) Game-Play Options", 7, 5);
+		prt("(5) Disturbance Options", 8, 5);
 		prt("(6) Easy Auto-Destroyer Options", 9, 5);
 		prt("(R) Play-record Options", 10, 5);
 
@@ -2208,22 +2281,41 @@ void do_cmd_options(void)
 		prt("(W) Window Flags", 15, 5);
 #endif
 
+		if (!p_ptr->wizard || !allow_debug_opts)
+		{
+			/* Birth */
+#ifdef JP
+			prt("(B)        初期          オプション (参照のみ)", 16, 5);
+#else
+			prt("(B) Birth Options (Browse Only)", 16, 5);
+#endif
+		}
+		else
+		{
+			/* Birth */
+#ifdef JP
+			prt("(B)        初期          オプション", 16, 5);
+#else
+			prt("(B) Birth Options", 16, 5);
+#endif
+		}
+
 		if (p_ptr->noscore || allow_debug_opts)
 		{
 			/* Cheating */
 #ifdef JP
-			prt("(C)       詐欺            オプション", 16, 5);
+			prt("(C)       詐欺            オプション", 17, 5);
 #else
-			prt("(C) Cheating Options", 16, 5);
+			prt("(C) Cheating Options", 17, 5);
 #endif
 		}
 
 
 		/* Prompt */
 #ifdef JP
-		prt("コマンド:", 18, 0);
+		prt("コマンド:", 19, 0);
 #else
-		prt("Command: ", 18, 0);
+		prt("Command: ", 19, 0);
 #endif
 
 
@@ -2236,92 +2328,85 @@ void do_cmd_options(void)
 		/* Analyze */
 		switch (k)
 		{
-			/* General Options */
 			case '1':
 			{
 				/* Process the general options */
 #ifdef JP
-				do_cmd_options_aux(1, "キー入力オプション");
+				do_cmd_options_aux(OPT_PAGE_INPUT, "キー入力オプション");
 #else
-				do_cmd_options_aux(1, "Input Options");
+				do_cmd_options_aux(OPT_PAGE_INPUT, "Input Options");
 #endif
 
 				break;
 			}
 
-			/* General Options */
 			case '2':
 			{
 				/* Process the general options */
 #ifdef JP
-				do_cmd_options_aux(2, "画面出力オプション");
+				do_cmd_options_aux(OPT_PAGE_MAPSCREEN, "マップ画面オプション");
 #else
-				do_cmd_options_aux(2, "Output Options");
+				do_cmd_options_aux(OPT_PAGE_MAPSCREEN, "Map Screen Options");
 #endif
 
 				break;
 			}
 
-			/* Inventory Options */
 			case '3':
 			{
 				/* Spawn */
 #ifdef JP
-				do_cmd_options_aux(3, "ゲームプレイ・オプション");
+				do_cmd_options_aux(OPT_PAGE_TEXT, "テキスト表示オプション");
 #else
-				do_cmd_options_aux(3, "Game-Play Options");
+				do_cmd_options_aux(OPT_PAGE_TEXT, "Text Display Options");
 #endif
 
 				break;
 			}
 
-			/* Disturbance Options */
 			case '4':
 			{
 				/* Spawn */
 #ifdef JP
-				do_cmd_options_aux(4, "行動中止関係のオプション");
+				do_cmd_options_aux(OPT_PAGE_GAMEPLAY, "ゲームプレイ・オプション");
 #else
-				do_cmd_options_aux(4, "Disturbance Options");
+				do_cmd_options_aux(OPT_PAGE_GAMEPLAY, "Game-Play Options");
 #endif
 
 				break;
 			}
 
-			/* Efficiency Options */
 			case '5':
 			{
 				/* Spawn */
 #ifdef JP
-				do_cmd_options_aux(5, "効率化オプション");
+				do_cmd_options_aux(OPT_PAGE_DISTURBANCE, "行動中止関係のオプション");
 #else
-				do_cmd_options_aux(5, "Efficiency Options");
+				do_cmd_options_aux(OPT_PAGE_DISTURBANCE, "Disturbance Options");
 #endif
 
 				break;
 			}
 
-			/* Object auto-destruction Options */
 			case '6':
 			{
 				/* Spawn */
 #ifdef JP
-				do_cmd_options_aux(7, "簡易アイテム自動破壊オプション");
+				do_cmd_options_aux(OPT_PAGE_AUTODESTROY, "簡易自動破壊オプション");
 #else
-				do_cmd_options_aux(7, "Easy Auto-Destroyer Options");
+				do_cmd_options_aux(OPT_PAGE_AUTODESTROY, "Easy Auto-Destroyer Options");
 #endif
 				break;
 			}
 
-			/* Play-record Options */
 			case 'R':
 			case 'r':
 			{
 				/* Spawn */
 #ifdef JP
-				do_cmd_options_aux(10, "プレイ記録オプション");
+				do_cmd_options_aux(OPT_PAGE_PLAYRECORD, "プレイ記録オプション");
 #else
-				do_cmd_options_aux(10, "Play-record Option");
+				do_cmd_options_aux(OPT_PAGE_PLAYRECORD, "Play-record Option");
 #endif
 				break;
 			}
@@ -2353,6 +2438,20 @@ void do_cmd_options(void)
 				do_cmd_options_autosave("自動セーブ");
 #else
 				do_cmd_options_autosave("Autosave");
+#endif
+
+				break;
+			}
+
+			/* Birth Options */
+			case 'B':
+			case 'b':
+			{
+				/* Spawn */
+#ifdef JP
+				do_cmd_options_aux(OPT_PAGE_BIRTH, (!p_ptr->wizard || !allow_debug_opts) ? "初期オプション(参照のみ)" : "初期オプション((*)はスコアに影響)");
+#else
+				do_cmd_options_aux(OPT_PAGE_BIRTH, (!p_ptr->wizard || !allow_debug_opts) ? "Birth Options(browse only)" : "Birth Options((*)s effect score)");
 #endif
 
 				break;
@@ -2538,9 +2637,9 @@ void do_cmd_pickpref(void)
 
 	/* キャラ毎の設定ファイルの読み込み */
 #ifdef JP
-	sprintf(buf, "picktype-%s.prf", player_name);
+	sprintf(buf, "picktype-%s.prf", player_base);
 #else
-	sprintf(buf, "pickpref-%s.prf", player_name);
+	sprintf(buf, "pickpref-%s.prf", player_base);
 #endif
 	err = process_pickpref_file(buf);
 
@@ -2950,7 +3049,7 @@ void do_cmd_macros(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
@@ -3006,7 +3105,7 @@ void do_cmd_macros(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
@@ -3193,7 +3292,7 @@ void do_cmd_macros(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
@@ -3542,7 +3641,7 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Query */
 			if (!askfor_aux(tmp, 70)) continue;
@@ -3576,7 +3675,7 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 			
 			/* Get a filename */
 			if (!askfor_aux(tmp, 70)) continue;
@@ -3649,7 +3748,7 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Get a filename */
 			if (!askfor_aux(tmp, 70)) continue;
@@ -3679,10 +3778,22 @@ void do_cmd_visuals(void)
 				if (!k_ptr->name) continue;
 
 				/* Skip entries with flavor */
-				if (k_ptr->flavor) continue;
+				if (!k_ptr->flavor)
+				{
 
-				/* Tidy name */
-				strip_name(o_name, i);
+					/* Tidy name */
+					strip_name(o_name, i);
+				}
+				else
+				{
+					object_type forge;
+
+					/* Prepare dummy object */
+					object_prep(&forge, i);
+
+					/* Get un-shuffled flavor name */
+					object_desc(o_name, &forge, OD_FORCE_FLAVOR);
+				}
 
 				/* Dump a comment */
 				fprintf(fff, "# %s\n", o_name);
@@ -3729,7 +3840,7 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Get a filename */
 			if (!askfor_aux(tmp, 70)) continue;
@@ -4241,7 +4352,7 @@ void do_cmd_colors(void)
 
 
 			/* Default file */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Query */
 			if (!askfor_aux(tmp, 70)) continue;
@@ -4281,7 +4392,7 @@ void do_cmd_colors(void)
 
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Get a filename */
 			if (!askfor_aux(tmp, 70)) continue;
@@ -4941,7 +5052,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 		if (grp_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
 
 		/* Check for race in the group */
-		if (grp_unique || strchr(group_char, r_ptr->d_char))
+		if (grp_unique || my_strchr(group_char, r_ptr->d_char))
 		{
 			/* Add the race */
 			mon_idx[mon_cnt++] = i;
@@ -5473,7 +5584,7 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 	 * HACK:Ring of Lordly protection and Dragon shield/helm
 	 * have random resistances.
 	 */
-	if ( ((o_ptr->tval >= TV_BOW && o_ptr->tval<= TV_HARD_ARMOR && o_ptr->name2)
+	if ( ((object_is_equipment(o_ptr) && object_is_ego(o_ptr))
 	     || (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_LORDLY) 
 	     || (o_ptr->tval == TV_SHIELD && o_ptr->sval == SV_DRAGON_SHIELD) 
 	     || (o_ptr->tval == TV_HELM && o_ptr->sval == SV_DRAGON_HELM) 
@@ -5481,10 +5592,10 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 	     || (o_ptr->tval == TV_BOOTS && o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) 
 	     || (o_ptr->tval == TV_SOFT_ARMOR && o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) 
 	     || (o_ptr->tval == TV_HARD_ARMOR && o_ptr->sval == SV_DRAGON_SCALE_MAIL) 
-	     || o_ptr->art_name || o_ptr->name1) && object_known_p(o_ptr))
+	     || object_is_artifact(o_ptr)) && object_is_known(o_ptr))
 	{
 		int i = 0;
-		object_desc(o_name, o_ptr, TRUE, 0);
+		object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
 		while ( o_name[i] && i < 26 )
 		{
@@ -6289,10 +6400,10 @@ static void do_cmd_knowledge_artifacts(void)
 				next_o_idx = o_ptr->next_o_idx;
 
 				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
+				if (!object_is_fixed_artifact(o_ptr)) continue;
 
 				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
+				if (object_is_known(o_ptr)) continue;
 
 				/* Note the artifact */
 				okay[o_ptr->name1] = FALSE;
@@ -6309,10 +6420,10 @@ static void do_cmd_knowledge_artifacts(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
+		if (!object_is_fixed_artifact(o_ptr)) continue;
 
 		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
+		if (object_is_known(o_ptr)) continue;
 
 		/* Note the artifact */
 		okay[o_ptr->name1] = FALSE;
@@ -6361,8 +6472,11 @@ static void do_cmd_knowledge_artifacts(void)
 			/* Make it an artifact */
 			q_ptr->name1 = (byte)who[k];
 
+			/* Display as if known */
+			q_ptr->ident |= IDENT_STORE;
+
 			/* Describe the artifact */
-			object_desc_store(base_name, q_ptr, FALSE, 0);
+			object_desc(base_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 		}
 
 		/* Hack -- Build the artifact name */
@@ -6380,7 +6494,7 @@ static void do_cmd_knowledge_artifacts(void)
 		if (runeweapon->status & RW_STATUS_FOUND)
 		{
 			/* Print a message */
-			object_desc(base_name, &runeweapon->weapon, TRUE, 0);
+			object_desc(base_name, &runeweapon->weapon, OD_NAME_ONLY);
 #ifdef JP
 			fprintf(fff, "     %s\n", base_name);
 #else
@@ -6573,25 +6687,25 @@ void plural_aux(char *Name)
 {
 	int NameLen = strlen(Name);
 
-	if (strstr(Name, "Disembodied hand"))
+	if (my_strstr(Name, "Disembodied hand"))
 	{
 		strcpy(Name, "Disembodied hands that strangled people");
 	}
-	else if (strstr(Name, "Colour out of space"))
+	else if (my_strstr(Name, "Colour out of space"))
 	{
 		strcpy(Name, "Colours out of space");
 	}
-	else if (strstr(Name, "stairway to hell"))
+	else if (my_strstr(Name, "stairway to hell"))
 	{
 		strcpy(Name, "stairways to hell");
 	}
-	else if (strstr(Name, "Dweller on the threshold"))
+	else if (my_strstr(Name, "Dweller on the threshold"))
 	{
 		strcpy(Name, "Dwellers on the threshold");
 	}
-	else if (strstr(Name, " of "))
+	else if (my_strstr(Name, " of "))
 	{
-		cptr aider = strstr(Name, " of ");
+		cptr aider = my_strstr(Name, " of ");
 		char dummy[80];
 		int i = 0;
 		cptr ctr = Name;
@@ -6615,7 +6729,7 @@ void plural_aux(char *Name)
 		strcpy(&(dummy[i+1]), aider);
 		strcpy(Name, dummy);
 	}
-	else if (strstr(Name, "coins"))
+	else if (my_strstr(Name, "coins"))
 	{
 		char dummy[80];
 		strcpy(dummy, "piles of ");
@@ -6623,7 +6737,7 @@ void plural_aux(char *Name)
 		strcpy(Name, dummy);
 		return;
 	}
-	else if (strstr(Name, "Manes"))
+	else if (my_strstr(Name, "Manes"))
 	{
 		return;
 	}
@@ -6729,7 +6843,7 @@ static void do_cmd_knowledge_pets(void)
 		{
 			char pet_name[80];
 			t_friends++;
-			monster_desc(pet_name, m_ptr, 0x88);
+			monster_desc(pet_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 			fprintf(fff, "%s (%s)", pet_name, look_mon_desc(i, 0x00));
 			if (p_ptr->riding == i)
 #ifdef JP
@@ -6908,14 +7022,14 @@ static void do_cmd_knowledge_kill_count(void)
 			{
 #ifdef JP
 				/* p,tは人と数える by ita*/
-				if (strchr("pt",r_ptr->d_char))
+				if (my_strchr("pt",r_ptr->d_char))
 					fprintf(fff, "     %3d 人の %s\n", This, r_name + r_ptr->name);
 				else
 					fprintf(fff, "     %3d 匹の %s\n", This, r_name + r_ptr->name);
 #else
 				if (This < 2)
 				{
-					if (strstr(r_name + r_ptr->name, "coins"))
+					if (my_strstr(r_name + r_ptr->name, "coins"))
 					{
 						fprintf(fff, "     1 pile of %s\n", (r_name + r_ptr->name));
 					}
@@ -7602,6 +7716,7 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		char o_name[80];
 		byte a, a2;
 		char c, c2;
+		object_kind *flavor_k_ptr;
 
 		/* Get the object index */
 		int k_idx = object_idx[object_top + i];
@@ -7613,10 +7728,32 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		byte attr = (k_ptr->aware ? TERM_WHITE : TERM_SLATE);
 		byte cursor = (k_ptr->aware ? TERM_L_BLUE : TERM_BLUE);
 
+
+		if (k_ptr->flavor)
+		{
+			/* Appearance of this object is shuffled */
+			flavor_k_ptr = &k_info[k_ptr->flavor];
+		}
+		else
+		{
+			/* Appearance of this object is very normal */
+			flavor_k_ptr = k_ptr;
+		}
+
+
+
 		attr = ((i + object_top == object_cur) ? cursor : attr);
 
-		/* Tidy name */
-		strip_name(o_name, k_idx);
+		if (!k_ptr->flavor || k_ptr->aware)
+		{
+			/* Tidy name */
+			strip_name(o_name, k_idx);
+		}
+		else
+		{
+			/* Flavor name */
+			strcpy(o_name, k_name + flavor_k_ptr->flavor_name);
+		}
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
@@ -7624,22 +7761,15 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		/* Hack -- visual_list mode */
 		if (per_page == 1)
 		{
-			c_prt(attr, format("%02x/%02x", k_ptr->x_attr, k_ptr->x_char), row + i, 60);
+			c_prt(attr, format("%02x/%02x", flavor_k_ptr->x_attr, flavor_k_ptr->x_char), row + i, 60);
 		}
 		else if (p_ptr->wizard)
 		{
 			c_prt(attr, format ("%d", k_idx), row + i, 70);
 		}
 
-		a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
-		c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
-
-		/* Symbol is unknown */	
-		if (!k_ptr->aware && !p_ptr->wizard)
-		{
-			c = ' ';
-			a = TERM_DARK;
-		}
+		a = flavor_k_ptr->x_attr;
+		c = flavor_k_ptr->x_char;
 
 		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
 
@@ -7764,7 +7894,7 @@ static void do_cmd_knowledge_objects(void)
 	while (!flag)
 	{
 		char ch;
-		object_kind *k_ptr;
+		object_kind *k_ptr, *flavor_k_ptr;
 
 		if (redraw)
 		{
@@ -7837,14 +7967,25 @@ static void do_cmd_knowledge_objects(void)
 		/* Get the current object */
 		k_ptr = &k_info[object_idx[object_cur]];
 
+		if (k_ptr->flavor)
+		{
+			/* Appearance of this object is shuffled */
+			flavor_k_ptr = &k_info[k_ptr->flavor];
+		}
+		else
+		{
+			/* Appearance of this object is very normal */
+			flavor_k_ptr = k_ptr;
+		}
+
 		/* Mega Hack -- track this object */
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
 
 		/* Prompt */
 #ifdef JP
-		prt(format("<方向>, 'd'で詳細を見る%s%s, ESC", k_ptr->flavor ? "" : visual_list ? ", ENTERで決定" : ", 'v'でシンボル変更", (attr_idx||char_idx) ? ", 'c', 'p'でペースト" : ", 'c'でコピー"), hgt - 1, 0);
+		prt(format("<方向>, 'd'で詳細を見る%s%s, ESC", visual_list ? ", ENTERで決定" : ", 'v'でシンボル変更", (attr_idx||char_idx) ? ", 'c', 'p'でペースト" : ", 'c'でコピー"), hgt - 1, 0);
 #else
-		prt(format("<dir>, 'd' to detail%s%s, ESC", k_ptr->flavor ? "" : visual_list ? ", ENTER to accept" : ", 'v' for visuals", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
+		prt(format("<dir>, 'd' to detail%s%s, ESC", visual_list ? ", ENTER to accept" : ", 'v' for visuals", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
 #endif
 
 		/* The "current" object changed */
@@ -7859,7 +8000,7 @@ static void do_cmd_knowledge_objects(void)
 
 		if (visual_list)
 		{
-			place_visual_list_cursor(max + 3, 7, k_ptr->x_attr, k_ptr->x_char, attr_top, char_left);
+			place_visual_list_cursor(max + 3, 7, flavor_k_ptr->x_attr, flavor_k_ptr->x_char, attr_top, char_left);
 		}
 		else if (!column)
 		{
@@ -7873,8 +8014,7 @@ static void do_cmd_knowledge_objects(void)
 		ch = inkey();
 
 		/* Do visual mode command if needed */
-		/* Symbol of objects with flavor cannot be changed */
-		if (!k_ptr->flavor && visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &k_ptr->x_attr, &k_ptr->x_char)) continue;
+		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &flavor_k_ptr->x_attr, &flavor_k_ptr->x_char)) continue;
 
 		switch (ch)
 		{
@@ -8308,6 +8448,349 @@ static void do_cmd_knowledge_stat(void)
 
 
 /*
+ * Description of each monster group.
+ */
+static cptr skill_group_text[] =
+{
+#ifdef JP
+	"武器",
+	"その他",
+	"魔法",
+#else
+	"Weapon",
+	"Misc",
+	"Magic",
+#endif
+	NULL
+};
+
+
+/*
+ * WTs of skill in each group
+ */
+static byte skill_group_id[] =
+{
+	1,
+	2,
+	4,
+	0,
+};
+
+
+/*
+ * Build a list of skill indexes in the given group. Return the number
+ * of skills in the group.
+ */
+static int collect_skills(int grp_cur, int skill_idx[])
+{
+	int i, skills_cnt = 0;
+
+	byte group_id = skill_group_id[grp_cur];
+
+	if (group_id == 1)
+	{
+		/* Magic skills */
+		for (i = 1; i < MAX_WT; i++)
+		{
+			/* Add the skill */
+			skill_idx[skills_cnt++] = i;
+		}
+	}
+	else if (group_id == 2)
+	{
+		/* Misc. skills */
+		for (i = 0; i < MAX_SKILL; i++)
+		{
+			/* Add the skill */
+			skill_idx[skills_cnt++] = i;
+		}
+	}
+	else if  (group_id == 4)
+	{
+		/* Magic skills */
+		for (i = 0; i < MAX_REALM; i++)
+		{
+			/* Add the skill */
+			skill_idx[skills_cnt++] = i+1;
+		}
+	}
+
+	/* Terminate the list */
+	skill_idx[skills_cnt] = -1;
+
+	/* Return the number of skills */
+	return skills_cnt;
+}
+
+
+static char misc_skill_name[MAX_SKILL][20] =
+{
+#ifdef JP
+	"マーシャルアーツ",
+	"二刀流          ",
+	"乗馬            ",
+	"投擲            ",
+	"ペット維持      ",
+	"武器防具鑑定    ",
+	"装飾品鑑定      ",
+	"魔法の詠唱      ",
+#else
+	"Martial Arts    ",
+	"Dual Wielding   ",
+	"Riding          ",
+	"Throwing        ",
+	"Pet Upkeep      ",
+	"Arms Identify   ",
+	"Acc. Identify   ",
+#endif
+};
+
+
+/*
+ * Display the skills in a group.
+ */
+static void display_skill_list(bool is_weapon, bool is_misc, bool is_magic, int col, int row, int per_page, int skill_idx[],
+	int skill_cur, int skill_top)
+{
+	int i;
+	int skill_lev, skill_eff;
+	bool is_master = FALSE;
+	byte attr;
+
+	/* unused */
+	(void)skill_cur;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && (skill_idx[skill_top + i] >= 0); i++)
+	{
+		char o_name[80];
+		byte a, a2;
+		char c, c2;
+
+		/* Get the skill index */
+		int idx = skill_idx[skill_top + i];
+
+
+		if (is_weapon)
+		{
+			skill_lev = skill_exp_level(p_ptr->weapon_exp[idx]/10);
+			skill_eff = p_ptr->s_ptr->w_eff[idx];
+
+			strcpy(o_name, weapon_skill_name[idx]);
+		}
+		else if (is_misc)
+		{
+			skill_lev = skill_exp_level(p_ptr->skill_exp[idx]/10);
+			skill_eff = p_ptr->s_ptr->m_eff[idx];
+
+			strcpy(o_name, misc_skill_name[idx]);
+		}
+		else if (is_magic)
+		{
+			skill_lev = (p_ptr->magic_exp[idx] / 10);
+			skill_eff = p_ptr->s_ptr->s_eff[idx];
+
+			strcpy(o_name, realm_names[idx]);
+		}
+
+		if (!is_magic) is_master = (skill_lev == SKILL_LEVEL_MASTER);
+
+		/* Choose a color */
+		if (is_master) attr = TERM_BLUE;
+		else if ((skill_eff > 9) && !is_master) attr = TERM_L_BLUE;
+		else if ((skill_eff > 6) && !is_master) attr = TERM_WHITE;
+		else if ((skill_eff > 3) && !is_master) attr = TERM_YELLOW;
+		else if (skill_eff && !is_master) attr = TERM_RED;
+		else attr =  TERM_SLATE;
+
+		/* Display the name */
+		c_prt(attr, o_name, row + i, col);
+		if (!is_magic) c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
+		else c_prt(attr, format("%2d", skill_lev), row + i, 43);
+		{
+			/* No symbol */
+			a = TERM_DARK;
+			c = ' ';
+		}
+
+		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
+		/* Display symbol */
+		Term_putch(76, row + i, a, c);
+
+		/* Second byte */
+		if (use_bigtile) Term_putch(76 + 1, row + i, a2, c2);
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+
+/*
+ * Display weapon & misc. skill levels
+ */
+static void do_cmd_skill_level(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top, old_grp_cur;
+	int skill_cur, skill_top;
+	int grp_cnt, grp_idx[100];
+	int skill_cnt;
+	int *skill_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	int browser_rows;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
+	/* Save the screen */
+	screen_save();
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Allocate the "skill_idx" array */
+	C_MAKE(skill_idx, max_k_idx, int);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; skill_group_text[i]; i++)
+	{
+		/* Measure the label */
+		len = strlen(skill_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		if (collect_skills(i, skill_idx))
+		{
+			/* Build a list of groups with skills */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	old_grp_cur = -1;
+	grp_cur = grp_top = 0;
+	skill_cur = skill_top = 0;
+	skill_cnt = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+		bool is_weapon = (skill_group_id[grp_cur] == 1);
+		bool is_misc = (skill_group_id[grp_cur] == 2);
+		bool is_magic = (skill_group_id[grp_cur] == 4);
+
+		if (redraw)
+		{
+			clear_from(0);
+
+#ifdef JP
+			prt(format("現在のスキル "), 2, 0);
+			prt("グループ", 4, 0);
+			prt("スキル", 4, max + 3);
+			prt("レベル", 4, 43);
+#else
+			prt(format("Current Skill"), 2, 0);
+			prt("Group", 4, 0);
+			prt("Skill", 4, max + 3);
+			prt("Level", 4, 43);
+#endif
+
+			for (i = 0; i < 59; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < browser_rows; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+		/* Display a list of skill groups */
+		display_group_list(0, 6, max, browser_rows, grp_idx, skill_group_text, grp_cur, grp_top);
+
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
+
+			/* Get a list of skills in the current group */
+			skill_cnt = collect_skills(grp_idx[grp_cur], skill_idx);
+		}
+
+		/* Scroll object list */
+		while (skill_cur < skill_top)
+			skill_top = MAX(0, skill_top - browser_rows/2);
+		while (skill_cur >= skill_top + browser_rows)
+			skill_top = MIN(skill_cnt - browser_rows, skill_top + browser_rows/2);
+
+		/* Display a list of skills in the current group */
+		display_skill_list(is_weapon, is_misc, is_magic, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
+
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (skill_cur - skill_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &skill_cur, skill_cnt);
+				break;
+			}
+		}
+	}
+
+	/* Free the "skill_idx" array */
+	C_KILL(skill_idx, max_k_idx, int);
+
+	/* Restore the screen */
+	screen_load();
+}
+
+
+/*
  * Print all active quests
  */
 static void do_cmd_knowledge_quests_current(FILE *fff)
@@ -8521,15 +9004,17 @@ void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
 	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{
-		if (quest[i].status == QUEST_STATUS_FINISHED)
+		int q_idx = quest_num[i];
+
+		if (quest[q_idx].status == QUEST_STATUS_FINISHED)
 		{
-			if (quest_is_fixed(i))
+			if (quest_is_fixed(q_idx))
 			{
 				int old_quest;
 
 				/* Set the quest number temporary */
 				old_quest = p_ptr->inside_quest;
-				p_ptr->inside_quest = i;
+				p_ptr->inside_quest = q_idx;
 
 				/* Get the quest */
 				init_flags = INIT_ASSIGN;
@@ -8540,16 +9025,16 @@ void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
 				p_ptr->inside_quest = old_quest;
 
 				/* No info from "silent" quests */
-				if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+				if (quest[q_idx].flags & QUEST_FLAG_SILENT) continue;
 			}
 
 			total++;
 
-			if (!quest_is_fixed(i) && quest[i].r_idx)
+			if (!quest_is_fixed(q_idx) && quest[q_idx].r_idx)
 			{
 				/* Print the quest info */
 
-				if (quest[i].complev == 0)
+				if (quest[q_idx].complev == 0)
 				{
 					sprintf(tmp_str, 
 #ifdef JP
@@ -8557,8 +9042,8 @@ void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
 #else
 					        "%s (Dungeon level: %d) - (Cancelled)\n",
 #endif
-					        r_name+r_info[quest[i].r_idx].name,
-					        quest[i].level);
+					        r_name+r_info[quest[q_idx].r_idx].name,
+					        quest[q_idx].level);
 				}
 				else
 				{
@@ -8568,9 +9053,9 @@ void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
 #else
 					        "%s (Dungeon level: %d) - level %d\n",
 #endif
-					        r_name+r_info[quest[i].r_idx].name,
-					        quest[i].level,
-					        quest[i].complev);
+					        r_name+r_info[quest[q_idx].r_idx].name,
+					        quest[q_idx].level,
+					        quest[q_idx].complev);
 				}
 			}
 			else
@@ -8578,10 +9063,10 @@ void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
 				/* Print the quest info */
 #ifdef JP
 				sprintf(tmp_str, "%s (危険度:%d階相当) - レベル%d\n",
-					quest[i].name, quest[i].level, quest[i].complev);
+					quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
 #else
 				sprintf(tmp_str, "%s (Danger level: %d) - level %d\n",
-					quest[i].name, quest[i].level, quest[i].complev);
+					quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
 #endif
 			}
 
@@ -8613,15 +9098,17 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
 	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{
-		if ((quest[i].status == QUEST_STATUS_FAILED_DONE) || (quest[i].status == QUEST_STATUS_FAILED))
+		int q_idx = quest_num[i];
+
+		if ((quest[q_idx].status == QUEST_STATUS_FAILED_DONE) || (quest[q_idx].status == QUEST_STATUS_FAILED))
 		{
-			if (quest_is_fixed(i))
+			if (quest_is_fixed(q_idx))
 			{
 				int old_quest;
 
 				/* Set the quest number temporary */
 				old_quest = p_ptr->inside_quest;
-				p_ptr->inside_quest = i;
+				p_ptr->inside_quest = q_idx;
 
 				/* Get the quest text */
 				init_flags = INIT_ASSIGN;
@@ -8632,20 +9119,20 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
 				p_ptr->inside_quest = old_quest;
 
 				/* No info from "silent" quests */
-				if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+				if (quest[q_idx].flags & QUEST_FLAG_SILENT) continue;
 			}
 
 			total++;
 
-			if (!quest_is_fixed(i) && quest[i].r_idx)
+			if (!quest_is_fixed(q_idx) && quest[q_idx].r_idx)
 			{
 				/* Print the quest info */
 #ifdef JP
 				sprintf(tmp_str, "%s (%d階) - レベル%d\n",
-					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
+					r_name+r_info[quest[q_idx].r_idx].name, quest[q_idx].level, quest[q_idx].complev);
 #else
 				sprintf(tmp_str, "%s (Dungeon level: %d) - level %d\n",
-					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
+					r_name+r_info[quest[q_idx].r_idx].name, quest[q_idx].level, quest[q_idx].complev);
 #endif
 			}
 			else
@@ -8653,10 +9140,10 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
 				/* Print the quest info */
 #ifdef JP
 				sprintf(tmp_str, "%s (危険度:%d階相当) - レベル%d\n",
-					quest[i].name, quest[i].level, quest[i].complev);
+					quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
 #else
 				sprintf(tmp_str, "%s (Danger level: %d) - level %d\n",
-					quest[i].name, quest[i].level, quest[i].complev);
+					quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
 #endif
 			}
 			fprintf(fff, tmp_str);
@@ -8851,7 +9338,7 @@ static void do_cmd_knowledge_home(void)
 			{
 #ifdef JP
 				if ((i % 12) == 0) fprintf(fff, "\n ( %d ページ )\n", x++);
-				object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+				object_desc(o_name, &st_ptr->stock[i], 0);
 				if (strlen(o_name) <= 80-3)
 				{
 					fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
@@ -8868,7 +9355,7 @@ static void do_cmd_knowledge_home(void)
 					fprintf(fff, "   %.77s\n", o_name+n);
 				}
 #else
-				object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+				object_desc(o_name, &st_ptr->stock[i], 0);
 				fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 #endif
 
@@ -9092,7 +9579,7 @@ static void do_cmd_knowledge_classes(void)
 #endif
 	fprintf(fff, "--------------------------------------------------------------\n");
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
 
@@ -9101,10 +9588,10 @@ static void do_cmd_knowledge_classes(void)
 		if (cexp_ptr->max_clev)
 		{
 #ifdef L64
-			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d\n", c_name + class_info[i].name,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #else
-			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld\n", c_name + class_info[i].name,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #endif
 		}
@@ -9112,10 +9599,10 @@ static void do_cmd_knowledge_classes(void)
 		{
 #ifdef L64
 			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------\n",
-				class_info[i].title, cexp_ptr->max_max_clev);
+				c_name + class_info[i].name, cexp_ptr->max_max_clev);
 #else
 			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------\n",
-				class_info[i].title, cexp_ptr->max_max_clev);
+				c_name + class_info[i].name, cexp_ptr->max_max_clev);
 #endif
 		}
 
@@ -9192,13 +9679,14 @@ void do_cmd_knowledge(void)
 			prt("(0) 地形の表示文字                       の一覧", 15, 5);
 		} else {
 			prt("(a) 自分に関する情報                     の一覧", 6, 5);
-			prt("(b) 突然変異                             の一覧", 7, 5);
-			prt("(c) カオスフレーム                       の一覧", 8, 5);
-			prt("(d) 入ったダンジョン                     の一覧", 9, 5);
-			prt("(e) 実行中のクエスト                     の一覧", 10, 5);
-			prt("(f) 現在の自動拾い/破壊設定              の一覧", 11, 5);
-			prt("(g) 所持金の構成                         の一覧", 12, 5);
-			prt("(h) 倒した敵の数                         の一覧", 13, 5);
+			prt("(b) 現在のスキルレベル                   の一覧", 7, 5);
+			prt("(c) 突然変異                             の一覧", 8, 5);
+			prt("(d) カオスフレーム                       の一覧", 9, 5);
+			prt("(e) 入ったダンジョン                     の一覧", 10, 5);
+			prt("(f) 実行中のクエスト                     の一覧", 11, 5);
+			prt("(g) 現在の自動拾い/破壊設定              の一覧", 12, 5);
+			prt("(h) 所持金の構成                         の一覧", 13, 5);
+			prt("(i) 倒した敵の数                         の一覧", 14, 5);
 		}
 #else
 		if (p == 0) {
@@ -9214,13 +9702,14 @@ void do_cmd_knowledge(void)
 			prt("(0) Display terrain symbols.", 15, 5);
 		} else {
 			prt("(a) Display about yourself", 6, 5);
-			prt("(b) Display mutations", 7, 5);
-			prt("(c) Display chaos frame", 8, 5);
-			prt("(d) Display dungeons", 9, 5);
-			prt("(e) Display current quests", 10, 5);
-			prt("(f) Display auto pick/destroy", 11, 5);
-			prt("(g) Display composition of money", 12, 5);
-			prt("(h) Display kill count", 13, 5);
+			prt("(b) Display Skills", 7, 5);
+			prt("(b) Display mutations", 8, 5);
+			prt("(c) Display chaos frame", 9, 5);
+			prt("(d) Display dungeons", 10, 5);
+			prt("(e) Display current quests", 11, 5);
+			prt("(f) Display auto pick/destroy", 12, 5);
+			prt("(g) Display composition of money", 13, 5);
+			prt("(h) Display kill count", 14, 5);
 		}
 #endif
 		/* Prompt */
@@ -9282,25 +9771,28 @@ void do_cmd_knowledge(void)
 		case 'a': /* Max stat */
 			do_cmd_knowledge_stat();
 			break;
-		case 'b': /* Mutations */
+		case 'b': /* Skills */
+			do_cmd_skill_level();
+			break;
+		case 'c': /* Mutations */
 			do_cmd_knowledge_mutations();
 			break;
-		case 'c': /* Chaos frame */
+		case 'd': /* Chaos frame */
 			do_cmd_knowledge_chaos_frame();
 			break;
-		case 'd': /* Dungeon */
+		case 'e': /* Dungeon */
 			do_cmd_knowledge_dungeon();
 			break;
-		case 'e': /* Quests */
+		case 'f': /* Quests */
 			do_cmd_knowledge_quests();
 			break;
-		case 'f': /* Autopick */
+		case 'g': /* Autopick */
 			do_cmd_knowledge_autopick();
 			break;
-		case 'g': /* Money composition */
+		case 'h': /* Money composition */
 			do_cmd_knowledge_money_composition();
 			break;
-		case 'h': /* Kill count */
+		case 'i': /* Kill count */
 			do_cmd_knowledge_kill_count();
 			break;
 		default: /* Unknown option */
@@ -9549,7 +10041,7 @@ void do_cmd_give_money(void)
 
 		update_stuff();
 
-		change_your_alignment_lnc((m_ptr->r_idx == MON_BEGGAR) ? -2 : -1);
+		change_your_alignment(ALI_LNC, (m_ptr->r_idx == MON_BEGGAR) ? -2 : -1);
 		if (!dun_level && p_ptr->town_num) change_chaos_frame(town[p_ptr->town_num].ethnic, (m_ptr->r_idx == MON_BEGGAR) ? 2 : 1);
 
 #ifdef JP
@@ -9569,357 +10061,4 @@ void do_cmd_give_money(void)
 	}
 }
 
-
-/*
- * Description of each monster group.
- */
-static cptr skill_group_text[] =
-{
-#ifdef JP
-	"武器",
-	"その他",
-	"魔法",
-#else
-	"Small Sword",
-	"Katana",
-	"Sword",
-	"Great Sword",
-	"Axe",
-	"Spear",
-	"Lance",
-	"Claw",
-	"Scythe",
-	"Whip",
-	"Hammer",
-	"Staff",
-	"Fan",
-	"Bow",
-	"Gun",
-	"Digging",
-	"Others",
-#endif
-	NULL
-};
-
-
-/*
- * WTs of skill in each group
- */
-static byte skill_group_wt[] =
-{
-	200,
-	255,
-	250,
-	0,
-};
-
-
-/*
- * Build a list of skill indexes in the given group. Return the number
- * of skills in the group.
- */
-static int collect_skills(int grp_cur, int skill_idx[])
-{
-	int i, skills_cnt = 0;
-
-	byte group_wt = skill_group_wt[grp_cur];
-
-	if (group_wt == 200)
-	{
-		/* Magic skills */
-		for (i = 1; i < MAX_WT; i++)
-		{
-			/* Add the skill */
-			skill_idx[skills_cnt++] = i;
-		}
-	}
-	else if (group_wt == 255)
-	{
-		/* Misc. skills */
-		for (i = 0; i < MAX_SKILL; i++)
-		{
-			/* Add the skill */
-			skill_idx[skills_cnt++] = i;
-		}
-	}
-	else if  (group_wt == 250)
-	{
-		/* Magic skills */
-		for (i = 0; i < MAX_REALM; i++)
-		{
-			/* Add the skill */
-			skill_idx[skills_cnt++] = i+1;
-		}
-	}
-
-	/* Terminate the list */
-	skill_idx[skills_cnt] = -1;
-
-	/* Return the number of skills */
-	return skills_cnt;
-}
-
-
-static char misc_skill_name[MAX_SKILL][20] =
-{
-#ifdef JP
-	"マーシャルアーツ",
-	"二刀流          ",
-	"乗馬            ",
-	"投擲            ",
-	"ペット維持      ",
-	"武器防具鑑定    ",
-	"装飾品鑑定      ",
-	"魔法の詠唱      ",
-#else
-	"Martial Arts    ",
-	"Dual Wielding   ",
-	"Riding          ",
-	"Throwing        ",
-	"Pet Upkeep      ",
-	"Arms Identify   ",
-	"Acc. Identify   ",
-#endif
-};
-
-
-/*
- * Display the skills in a group.
- */
-static void display_skill_list(bool is_misc, bool is_magic, bool is_weapon, int col, int row, int per_page, int skill_idx[],
-	int skill_cur, int skill_top)
-{
-	int i;
-	int skill_lev, skill_eff;
-	bool is_master = FALSE;
-	byte attr;
-
-	/* unused */
-	(void)skill_cur;
-
-	/* Display lines until done */
-	for (i = 0; i < per_page && (skill_idx[skill_top + i] >= 0); i++)
-	{
-		char o_name[80];
-		byte a, a2;
-		char c, c2;
-
-		/* Get the skill index */
-		int idx = skill_idx[skill_top + i];
-
-
-		if (is_weapon)
-		{
-			skill_lev = skill_exp_level(p_ptr->weapon_exp[idx]/10);
-			skill_eff = p_ptr->s_ptr->w_eff[idx];
-
-			strcpy(o_name, weapon_skill_name[idx]);
-		}
-		else if (is_magic)
-		{
-			skill_lev = (p_ptr->magic_exp[idx] / 10);
-			skill_eff = p_ptr->s_ptr->s_eff[idx];
-
-			strcpy(o_name, realm_names[idx]);
-		}
-		else if (is_misc)
-		{
-			skill_lev = skill_exp_level(p_ptr->skill_exp[idx]/10);
-			skill_eff = p_ptr->s_ptr->m_eff[idx];
-
-			strcpy(o_name, misc_skill_name[idx]);
-		}
-
-		if (!is_magic) is_master = (skill_lev == SKILL_LEVEL_MASTER);
-
-		/* Choose a color */
-		if (is_master) attr = TERM_BLUE;
-		else if (skill_eff && !is_master) attr = TERM_WHITE;
-		else attr =  TERM_SLATE;
-
-		/* Display the name */
-		c_prt(attr, o_name, row + i, col);
-		if (!is_magic) c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
-		else c_prt(attr, format("%2d", skill_lev), row + i, 43);
-		{
-			/* No symbol */
-			a = TERM_DARK;
-			c = ' ';
-		}
-
-		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
-
-		/* Display symbol */
-		Term_putch(76, row + i, a, c);
-
-		/* Second byte */
-		if (use_bigtile) Term_putch(76 + 1, row + i, a2, c2);
-	}
-
-	/* Clear remaining lines */
-	for (; i < per_page; i++)
-	{
-		Term_erase(col, row + i, 255);
-	}
-}
-
-
-/*
- * Display and increase weapon & misc. skill levels
- */
-void do_cmd_skill_level(void)
-{
-	int i, len, max;
-	int grp_cur, grp_top, old_grp_cur;
-	int skill_cur, skill_top;
-	int grp_cnt, grp_idx[100];
-	int skill_cnt;
-	int *skill_idx;
-
-	int column = 0;
-	bool flag;
-	bool redraw;
-
-	int browser_rows;
-	int wid, hgt;
-
-	/* Get size */
-	Term_get_size(&wid, &hgt);
-
-	browser_rows = hgt - 8;
-
-	/* Save the screen */
-	screen_save();
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Allocate the "skill_idx" array */
-	C_MAKE(skill_idx, max_k_idx, int);
-
-	max = 0;
-	grp_cnt = 0;
-
-	/* Check every group */
-	for (i = 0; skill_group_text[i]; i++)
-	{
-		/* Measure the label */
-		len = strlen(skill_group_text[i]);
-
-		/* Save the maximum length */
-		if (len > max) max = len;
-
-		if (collect_skills(i, skill_idx))
-		{
-			/* Build a list of groups with skills */
-			grp_idx[grp_cnt++] = i;
-		}
-	}
-
-	/* Terminate the list */
-	grp_idx[grp_cnt] = -1;
-
-	old_grp_cur = -1;
-	grp_cur = grp_top = 0;
-	skill_cur = skill_top = 0;
-	skill_cnt = 0;
-
-	flag = FALSE;
-	redraw = TRUE;
-
-	while (!flag)
-	{
-		char ch;
-		bool is_misc = (skill_group_wt[grp_cur] == 255);
-		bool is_magic = (skill_group_wt[grp_cur] == 250);
-		bool is_weapon = (skill_group_wt[grp_cur] == 200);
-
-		if (redraw)
-		{
-			clear_from(0);
-
-#ifdef JP
-			prt(format("現在のスキル "), 2, 0);
-			prt("グループ", 4, 0);
-			prt("スキル", 4, max + 3);
-			prt("レベル", 4, 43);
-#else
-			prt(format("Current Skill"), 2, 0);
-			prt("Group", 4, 0);
-			prt("Skill", 4, max + 3);
-			prt("Level", 4, 43);
-#endif
-
-			for (i = 0; i < 55; i++)
-			{
-				Term_putch(i, 5, TERM_WHITE, '=');
-			}
-
-			for (i = 0; i < browser_rows; i++)
-			{
-				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
-			}
-
-			redraw = FALSE;
-		}
-
-		/* Scroll group list */
-		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
-
-		/* Display a list of skill groups */
-		display_group_list(0, 6, max, browser_rows, grp_idx, skill_group_text, grp_cur, grp_top);
-
-		if (old_grp_cur != grp_cur)
-		{
-			old_grp_cur = grp_cur;
-
-			/* Get a list of skills in the current group */
-			skill_cnt = collect_skills(grp_idx[grp_cur], skill_idx);
-		}
-
-		/* Scroll object list */
-		while (skill_cur < skill_top)
-			skill_top = MAX(0, skill_top - browser_rows/2);
-		while (skill_cur >= skill_top + browser_rows)
-			skill_top = MIN(skill_cnt - browser_rows, skill_top + browser_rows/2);
-
-		/* Display a list of skills in the current group */
-		display_skill_list(is_misc, is_magic, is_weapon, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
-
-
-		if (!column)
-		{
-			Term_gotoxy(0, 6 + (grp_cur - grp_top));
-		}
-		else
-		{
-			Term_gotoxy(max + 3, 6 + (skill_cur - skill_top));
-		}
-
-		ch = inkey();
-
-		switch (ch)
-		{
-			case ESCAPE:
-			{
-				flag = TRUE;
-				break;
-			}
-
-			default:
-			{
-				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &skill_cur, skill_cnt);
-				break;
-			}
-		}
-	}
-
-	/* Free the "skill_idx" array */
-	C_KILL(skill_idx, max_k_idx, int);
-
-	/* Restore the screen */
-	screen_load();
-}
 

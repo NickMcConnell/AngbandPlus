@@ -733,7 +733,7 @@ static void prt_title(void)
 	/* Normal */
 	else
 	{
-		my_strcpy(str, player_title[p_ptr->pclass][(p_ptr->cexp_info[p_ptr->pclass].clev - 1) / 5], sizeof(str));
+		my_strcpy(str, c_text + class_info[p_ptr->pclass].title[(p_ptr->cexp_info[p_ptr->pclass].clev - 1) / 5], sizeof(str));
 		p = str;
 	}
 
@@ -1367,8 +1367,9 @@ static void prt_speed(void)
 	{
 		if (p_ptr->riding)
 		{
-			if (m_list[p_ptr->riding].fast && !m_list[p_ptr->riding].slow) attr = TERM_L_BLUE;
-			else if (m_list[p_ptr->riding].slow && !m_list[p_ptr->riding].fast) attr = TERM_VIOLET;
+			monster_type *m_ptr = &m_list[p_ptr->riding];
+			if (MON_FAST(m_ptr) && !MON_SLOW(m_ptr)) attr = TERM_L_BLUE;
+			else if (MON_SLOW(m_ptr) && !MON_FAST(m_ptr)) attr = TERM_VIOLET;
 			else attr = TERM_GREEN;
 		}
 		else if (is_fast && !p_ptr->slow) attr = TERM_YELLOW;
@@ -1387,8 +1388,9 @@ static void prt_speed(void)
 	{
 		if (p_ptr->riding)
 		{
-			if (m_list[p_ptr->riding].fast && !m_list[p_ptr->riding].slow) attr = TERM_L_BLUE;
-			else if (m_list[p_ptr->riding].slow && !m_list[p_ptr->riding].fast) attr = TERM_VIOLET;
+			monster_type *m_ptr = &m_list[p_ptr->riding];
+			if (MON_FAST(m_ptr) && !MON_SLOW(m_ptr)) attr = TERM_L_BLUE;
+			else if (MON_SLOW(m_ptr) && !MON_FAST(m_ptr)) attr = TERM_VIOLET;
 			else attr = TERM_RED;
 		}
 		else if (is_fast && !p_ptr->slow) attr = TERM_YELLOW;
@@ -1486,16 +1488,16 @@ static void health_redraw(void)
 		if (pct >= 100) attr = TERM_L_GREEN;
 
 		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
+		if (MON_MONFEAR(m_ptr)) attr = TERM_VIOLET;
 
 		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
+		if (MON_CSLEEP(m_ptr)) attr = TERM_BLUE;
 
 		/* Stoning */
-		if (m_ptr->stoning) attr = TERM_SLATE;
+		if (MON_STONING(m_ptr)) attr = TERM_SLATE;
 
 		/* Invulnerable */
-		if (m_ptr->invulner) attr = TERM_WHITE;
+		if (MON_INVULNER(m_ptr)) attr = TERM_WHITE;
 
 		/* Convert percent into "health" */
 		len = (pct2 < 10) ? 1 : (pct2 < 90) ? (pct2 / 10 + 1) : 10;
@@ -1560,13 +1562,13 @@ static void riding_health_redraw(void)
 		if (pct >= 100) attr = TERM_L_GREEN;
 
 		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
+		if (MON_MONFEAR(m_ptr)) attr = TERM_VIOLET;
 
 		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
+		if (MON_CSLEEP(m_ptr)) attr = TERM_BLUE;
 
 		/* Invulnerable */
-		if (m_ptr->invulner) attr = TERM_WHITE;
+		if (MON_INVULNER(m_ptr)) attr = TERM_WHITE;
 
 		/* Convert percent into "health" */
 		len = (pct2 < 10) ? 1 : (pct2 < 90) ? (pct2 / 10 + 1) : 10;
@@ -1589,10 +1591,10 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	if (!(cp_ptr->c_flags & PCF_REINCARNATE))
+	if (!(cp_ptr->c_flags & PCF_REINCARNATE) && (p_ptr->pclass != CLASS_SUCCUBUS))
 	{
 		char str[14];
-		my_strcpy(str, rp_ptr->title, sizeof(str));
+		my_strcpy(str, p_name + rp_ptr->name, sizeof(str));
 		prt_field(str, ROW_RACE, COL_RACE);
 	}
 	else
@@ -2016,7 +2018,7 @@ static void calc_mana(void)
 	msp = p_ptr->player_gsp;
 	for (i = 0; i < p_ptr->lev; i++) msp += p_ptr->race_sp[i];
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		if (p_ptr->cexp_info[i].clev > 0)
 		{
@@ -2073,72 +2075,10 @@ static void calc_mana(void)
 	cur_wgt += inventory[INVEN_FEET].weight;
 
 	/* Subtract a percentage of maximum mana. */
-	switch (p_ptr->pclass)
+	if (cp_ptr->w_limit != 0)
 	{
-		/* For these classes, mana is halved if armour 
-		 * is 30 pounds over their weight limit. */
-		case CLASS_WIZARD:
-		case CLASS_SIRENE:
-		case CLASS_PRIEST:
-		case CLASS_LICH:
-		case CLASS_HIGHWITCH:
-		case CLASS_ARCHMAGE:
-		case CLASS_MEDIUM:
-		{
-			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight;
-			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight;
-			break;
-		}
-
-		/* Mana halved if armour is 40 pounds over weight limit. */
-		case CLASS_WARLOCK:
-		case CLASS_WITCH:
-		case CLASS_CLERIC:
-		{
-			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight*2/3;
-			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight*2/3;
-			break;
-		}
-
-		case CLASS_NINJA:
-		case CLASS_EXORCIST:
-		{
-			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight/2;
-			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight/2;
-			break;
-		}
-
-		/* Mana halved if armour is 50 pounds over weight limit. */
-		case CLASS_BEASTTAMER:
-		case CLASS_SWORDMASTER:
-		case CLASS_DRAGONTAMER:
-		case CLASS_NINJAMASTER:
-		case CLASS_CRESCENT:
-		{
-			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight/3;
-			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight/3;
-			break;
-		}
-
-		/* Mana halved if armour is 60 pounds over weight limit. */
-		case CLASS_DRAGOON:
-		case CLASS_VALKYRIE:
-		case CLASS_TEMPLEKNIGHT:
-		case CLASS_WHITEKNIGHT:
-		case CLASS_LORD:
-		case CLASS_FREYA:
-		case CLASS_VAMPIRE:
-		{
-			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight/5;
-			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight/5;
-			break;
-		}
-
-		/* For new classes created, but not yet added to this formula. */
-		default:
-		{
-			break;
-		}
+		if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight * 10 / cp_ptr->w_limit;
+		if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight * 10 / cp_ptr->w_limit;
 	}
 
 	/* Determine the weight allowance */
@@ -2150,78 +2090,7 @@ static void calc_mana(void)
 		/* Encumbered */
 		p_ptr->cumber_armor = TRUE;
 
-		/* Subtract a percentage of maximum mana. */
-		switch (p_ptr->pclass)
-		{
-			/* For these classes, mana is halved if armour 
-			 * is 30 pounds over their weight limit. */
-			case CLASS_NINJA:
-			case CLASS_WIZARD:
-			case CLASS_SIRENE:
-			case CLASS_PRIEST:
-			case CLASS_LICH:
-			case CLASS_HIGHWITCH:
-			case CLASS_ARCHMAGE:
-			case CLASS_NINJAMASTER:
-			case CLASS_MEDIUM:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 600;
-				break;
-			}
-
-			/* Mana halved if armour is 40 pounds over weight limit. */
-			case CLASS_WARLOCK:
-			case CLASS_WITCH:
-			case CLASS_CLERIC:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 800;
-				break;
-			}
-
-			case CLASS_EXORCIST:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 900;
-				break;
-			}
-
-			/* Mana halved if armour is 50 pounds over weight limit. */
-			case CLASS_BEASTTAMER:
-			case CLASS_SWORDMASTER:
-			case CLASS_DRAGONTAMER:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 1000;
-				break;
-			}
-
-			/* Mana halved if armour is 60 pounds over weight limit. */
-			case CLASS_SOLDIER:
-			case CLASS_KNIGHT:
-			case CLASS_BERSERKER:
-			case CLASS_TERRORKNIGHT:
-			case CLASS_DRAGOON:
-			case CLASS_AMAZONESS:
-			case CLASS_VALKYRIE:
-			case CLASS_ARCHER:
-			case CLASS_ANGELKNIGHT:
-			case CLASS_TEMPLEKNIGHT:
-			case CLASS_WHITEKNIGHT:
-			case CLASS_LORD:
-			case CLASS_GENERAL:
-			case CLASS_FREYA:
-			case CLASS_CRESCENT:
-			case CLASS_VAMPIRE:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 1200;
-				break;
-			}
-
-			/* For new classes created, but not yet added to this formula. */
-			default:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 800;
-				break;
-			}
-		}
+		msp -= msp * (cur_wgt - max_wgt) / (cp_ptr->t_limit * 100);
 	}
 
 	/* Mana can never be negative */
@@ -2260,7 +2129,7 @@ static void calc_mana(void)
 	if (p_ptr->old_cumber_glove != p_ptr->cumber_glove)
 	{
 		/* Message */
-		if (realm_choices[p_ptr->pclass])
+		if (class_info[p_ptr->pclass].realm_choices)
 		{
 			if (p_ptr->cumber_glove)
 			{
@@ -2291,7 +2160,7 @@ static void calc_mana(void)
 	if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
 	{
 		/* Message */
-		if (realm_choices[p_ptr->pclass])
+		if (class_info[p_ptr->pclass].realm_choices)
 		{
 			if (p_ptr->cumber_armor)
 			{
@@ -2337,7 +2206,7 @@ static void calc_hitpoints(void)
 
 	for (i = 0; i < p_ptr->lev; i++) mhp += p_ptr->race_hp[i];
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		if (p_ptr->cexp_info[i].clev > 0)
 		{
@@ -2443,7 +2312,7 @@ static void calc_torch(void)
 			}
 
 			/* Artifact Lites provide permanent, bright, lite */
-			else if (artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP))
+			else if (object_is_fixed_artifact(o_ptr) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP))
 			{
 				p_ptr->cur_lite += 3;
 			}
@@ -2568,10 +2437,220 @@ bool buki_motteruka(int i)
 }
 
 
-#ifdef JP
-#undef strchr
-#define strchr strchr_j
-#endif
+/*
+ * Obtain the "flags" for the player as if he was an item
+ */
+void player_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	int to_speed;
+	int i;
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
+	/* Clear */
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] = 0L;
+
+	to_speed = rp_ptr->r_spd + cp_ptr->c_spd;
+	to_speed += ((p_ptr->gx_spd * (p_ptr->lev + cexp_ptr->clev)) / (p_ptr->max_plv + cexp_ptr->max_clev)) / 50;
+	if (to_speed) add_flag(flgs, TR_SPEED);
+
+	for (i = 0; i < TR_FLAG_SIZE; i++) flgs[i] |= (cp_ptr->flags[i] | rp_ptr->flags[i]);
+
+	/* Classes */
+	switch (p_ptr->pclass)
+	{
+	case CLASS_TERRORKNIGHT:
+		if (cexp_ptr->clev > 14)
+		{
+			add_flag(flgs, TR_REGEN);
+			add_flag(flgs, TR_FREE_ACT);
+			add_flag(flgs, TR_FEAR_FIELD);
+		}
+		if (cexp_ptr->clev > 24)
+		{
+			add_flag(flgs, TR_RES_FEAR);
+			add_flag(flgs, TR_ANTI_MAGIC);
+		}
+		if (cexp_ptr->clev > 34) add_flag(flgs, TR_RES_CONF);
+		if (cexp_ptr->clev > 44) add_flag(flgs, TR_RES_NETHER);
+		break;
+	case CLASS_DRAGOON:
+		if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
+		break;
+	case CLASS_NINJA:
+	case CLASS_NINJAMASTER:
+		if (heavy_armor()) add_flag(flgs, TR_SPEED);
+		break;
+	case CLASS_EXORCIST:
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_FEAR);
+		break;
+	case CLASS_WITCH:
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_FEATHER);
+		break;
+	case CLASS_ANGELKNIGHT:
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_RES_FEAR);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SUST_WIS);
+		if (cexp_ptr->clev > 29) add_flag(flgs, TR_RES_CONF);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_TELEPATHY);
+		break;
+	case CLASS_HIGHWITCH:
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_EASY_SPELL);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_DEC_MANA);
+		break;
+	case CLASS_LORD:
+		if (p_ptr->action == ACTION_AURA)
+		{
+			add_flag(flgs, TR_LITE);
+			add_flag(flgs, TR_REGEN);
+			if (cexp_ptr->clev > 29) add_flag(flgs, TR_TELEPATHY);
+			if ((inventory[INVEN_RARM].tval == TV_SWORD) || (inventory[INVEN_LARM].tval == TV_SWORD))
+			{
+				if (cexp_ptr->clev > 34) add_flag(flgs, TR_VORPAL);
+				if (cexp_ptr->clev > 44) add_flag(flgs, TR_EXTRA_VORPAL);
+			}
+		}
+		break;
+	case CLASS_FREYA:
+		if (cexp_ptr->clev > 34) add_flag(flgs, TR_SLAY_EVIL);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_DEMON);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
+		break;
+	case CLASS_CRESCENT:
+		if (cexp_ptr->clev > 24) add_flag(flgs, TR_ANTI_MAGIC);
+		if ((cexp_ptr->clev > 39) && (get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx]) == WT_BOW))
+			add_flag(flgs, TR_XTRA_MIGHT);
+		break;
+	case CLASS_VAMPIRE:
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_LITE);
+		if (!is_daytime())
+		{
+			add_flag(flgs, TR_REGEN);
+			add_flag(flgs, TR_RES_FEAR);
+			if (cexp_ptr->clev > 14) add_flag(flgs, TR_FEAR_FIELD);
+			if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_MAGIC);
+		}
+		else if (cexp_ptr->clev < 40) add_flag(flgs, TR_SPEED);
+		break;
+	default:
+		break; /* Do nothing */
+	}
+
+	/* Class Master get Flag - Terror-Knight */
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34)
+	{
+		add_flag(flgs, TR_REGEN);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_FEAR_FIELD);
+	}
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 44)
+	{
+		add_flag(flgs, TR_RES_FEAR);
+		add_flag(flgs, TR_ANTI_MAGIC);
+	}
+
+	/* Class Master get Flag - Dragoon */
+	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
+	else if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
+
+	/* Class Master get Flag - Exorcist */
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
+
+	/* Class Master get Flag - Witch */
+	if (p_ptr->cexp_info[CLASS_WITCH].clev > 29) add_flag(flgs, TR_FEATHER);
+
+	/* Races */
+	switch (p_ptr->prace)
+	{
+	case RACE_HAWKMAN:
+		if (p_ptr->lev > 14) add_flag(flgs, TR_RES_FEAR);
+		break;
+	case RACE_SKELETON:
+		if (p_ptr->lev > 9) add_flag(flgs, TR_RES_COLD);
+		break;
+	case RACE_GHOST:
+		if (p_ptr->lev > 34) add_flag(flgs, TR_TELEPATHY);
+		break;
+	case RACE_PUMPKINHEAD:
+		if (p_ptr->lev > 19) add_flag(flgs, TR_TELEPATHY);
+		break;
+	case RACE_GORGON:
+		if (p_ptr->lev > 9) add_flag(flgs, TR_RES_COLD);
+		if (p_ptr->lev > 19) add_flag(flgs, TR_RES_ACID);
+		if (p_ptr->lev > 29) add_flag(flgs, TR_RES_CHAOS);
+		if (p_ptr->lev > 39) add_flag(flgs, TR_RES_POIS);
+		if (p_ptr->lev > 49) add_flag(flgs, TR_RES_NETHER);
+		break;
+	case RACE_MERMAID:
+		if (p_ptr->lev > 24) add_flag(flgs, TR_RES_CONF);
+		break;
+	default:
+		break; /* Do nothing */
+	}
+
+	/* Mutations */
+	if (p_ptr->muta3)
+	{
+		if (p_ptr->muta3 & MUT3_FLESH_ROT)
+		{
+			remove_flag(flgs, TR_REGEN);
+		}
+
+		if ((p_ptr->muta3 & MUT3_XTRA_FAT) ||
+			(p_ptr->muta3 & MUT3_XTRA_LEGS) ||
+			(p_ptr->muta3 & MUT3_SHORT_LEG))
+		{
+			add_flag(flgs, TR_SPEED);
+		}
+
+		if (p_ptr->muta3  & MUT3_ELEC_TOUC)
+		{
+			add_flag(flgs, TR_SH_ELEC);
+		}
+
+		if (p_ptr->muta3 & MUT3_FIRE_BODY)
+		{
+			add_flag(flgs, TR_SH_FIRE);
+			add_flag(flgs, TR_LITE);
+		}
+
+		if (p_ptr->muta3 & MUT3_WINGS)
+		{
+			add_flag(flgs, TR_FEATHER);
+		}
+
+		if (p_ptr->muta3 & MUT3_FEARLESS)
+		{
+			add_flag(flgs, TR_RES_FEAR);
+		}
+
+		if (p_ptr->muta3 & MUT3_REGEN)
+		{
+			add_flag(flgs, TR_REGEN);
+		}
+
+		if (p_ptr->muta3 & MUT3_ESP)
+		{
+			add_flag(flgs, TR_TELEPATHY);
+		}
+
+		if (p_ptr->muta3 & MUT3_MOTION)
+		{
+			add_flag(flgs, TR_FREE_ACT);
+		}
+	}
+
+	if (easy_band)
+	{
+		add_flag(flgs, TR_RES_BLIND);
+		add_flag(flgs, TR_RES_CONF);
+		add_flag(flgs, TR_HOLD_LIFE);
+		if ((p_ptr->pclass != CLASS_NINJA) && (p_ptr->pclass != CLASS_NINJAMASTER)) add_flag(flgs, TR_LITE);
+	}
+}
 
 
 /*
@@ -2616,6 +2695,7 @@ void calc_bonuses(void)
 	byte            empty_hands_status;
 	bool            dual_bare_hand = FALSE;
 	cexp_info_type  *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+	bool            status_change = FALSE;
 
 
 	/* Save the old speed */
@@ -2755,7 +2835,11 @@ void calc_bonuses(void)
 	p_ptr->no_flowed = FALSE;
 
 	/* Initialize alignment (LNC) */
-	p_ptr->align = p_ptr->align_self + friend_align_lnc;
+	p_ptr->align[ALI_LNC] = p_ptr->align_self[ALI_LNC] + friend_align_lnc;
+
+	/* Initialize alignment (GNE) */
+	p_ptr->align[ALI_GNE] = p_ptr->align_self[ALI_GNE] + friend_align_gne;
+	for (i = 0; i < ETHNICITY_NUM; i++) p_ptr->align[ALI_GNE] += chaos_frame[i];
 
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = rp_ptr->infra;
@@ -2798,34 +2882,19 @@ void calc_bonuses(void)
 	if (buki_motteruka(INVEN_RARM) || !buki_motteruka(INVEN_LARM)) p_ptr->migite = TRUE;
 	if (buki_motteruka(INVEN_LARM)) p_ptr->hidarite = TRUE;
 
+	if (cp_ptr->c_flags & PCF_SEE_DARK_GRID) p_ptr->see_dark_grid = TRUE;
+
+	/* Extract flags and store */
+	player_flags(p_ptr->flags);
+
+	if (have_flag(p_ptr->flags, TR_LITE)) p_ptr->lite = TRUE;
+
 	switch (p_ptr->pclass)
 	{
 		case CLASS_TERRORKNIGHT:
-			p_ptr->sustain_str = TRUE;
-			p_ptr->sustain_dex = TRUE;
-			p_ptr->sustain_con = TRUE;
-			p_ptr->hold_life = TRUE;
-			if (cexp_ptr->clev > 14)
-			{
-				p_ptr->regenerate = TRUE;
-				p_ptr->free_act = TRUE;
-				p_ptr->fear_field = TRUE;
-			}
-			if (cexp_ptr->clev > 24)
-			{
-				p_ptr->resist_fear = TRUE;
-				p_ptr->anti_magic_field += 3;
-			}
-			if (cexp_ptr->clev > 34)
-			{
-				p_ptr->resist_conf = TRUE;
-				p_ptr->anti_magic_field++;
-			}
-			if (cexp_ptr->clev > 44)
-			{
-				p_ptr->resist_neth = TRUE;
-				p_ptr->anti_magic_field++;
-			}
+			if (cexp_ptr->clev > 24) p_ptr->anti_magic_field += 3;
+			if (cexp_ptr->clev > 34) p_ptr->anti_magic_field++;
+			if (cexp_ptr->clev > 44) p_ptr->anti_magic_field++;
 			break;
 		case CLASS_SWORDMASTER:
 			easy_2weapon = TRUE;
@@ -2844,33 +2913,40 @@ void calc_bonuses(void)
 			break;
 		case CLASS_NINJA:
 		case CLASS_NINJAMASTER:
-			p_ptr->see_dark_grid = TRUE;
 			if (heavy_armor())
 			{
 				p_ptr->pspeed -= cexp_ptr->clev / 10;
 				p_ptr->skill_stl -= cexp_ptr->clev / 10;
 			}
 			break;
-		case CLASS_EXORCIST:
-			if (cexp_ptr->clev > 39) p_ptr->resist_fear = TRUE;
+		case CLASS_GUNNER:
+			p_ptr->skill_dig += (cexp_ptr->clev / 8);
 			break;
-		case CLASS_WITCH:
-			if (cexp_ptr->clev > 9) p_ptr->ffall = TRUE;
+		case CLASS_LORD:
+			if (p_ptr->action == ACTION_AURA)
+			{
+				p_ptr->pspeed += 5 + cexp_ptr->clev / 10;
+				p_ptr->skill_sav += cexp_ptr->clev;
+				p_ptr->to_a += 10 + cexp_ptr->clev / 5;
+				p_ptr->dis_to_a += 10 + cexp_ptr->clev / 5;
+				for (i = 0; i < 2; i++)
+				{
+					p_ptr->to_d[i] += 10 + cexp_ptr->clev / 5;
+					p_ptr->dis_to_d[i] += 10 + cexp_ptr->clev / 5;
+				}
+			}
+			break;
+		case CLASS_CRESCENT:
+			if (cexp_ptr->clev > 24) p_ptr->anti_magic_field += 3;
+			if (cexp_ptr->clev > 34) p_ptr->anti_magic_field++;
+			if (cexp_ptr->clev > 39)
+				if (get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx]) == WT_BOW) p_ptr->xtra_might = p_ptr->dis_xtra_might = TRUE;
+			if (cexp_ptr->clev > 44) p_ptr->anti_magic_field++;
 			break;
 		case CLASS_VAMPIRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->ffall = TRUE;
-			p_ptr->see_dark_grid = TRUE;
 			p_ptr->hurt_lite = TRUE;
-			if (cexp_ptr->clev > 39) p_ptr->resist_lite = TRUE;
 			if (!is_daytime())
-			{
-				p_ptr->regenerate = TRUE;
-				p_ptr->resist_fear = TRUE;
 				for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] += cexp_ptr->clev / 10;
-				if (cexp_ptr->clev > 14) p_ptr->fear_field = TRUE;
-				if (cexp_ptr->clev > 39) resist_magic = TRUE;
-			}
 			else if (cexp_ptr->clev < 40)
 			{
 				for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] -= 220;
@@ -2879,74 +2955,19 @@ void calc_bonuses(void)
 				p_ptr->pspeed -= 15;
 				p_ptr->skill_stl -= 20 - cexp_ptr->clev / 10;
 			}
-		case CLASS_LICH:
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->hold_life = TRUE;
 			break;
-		case CLASS_ANGELKNIGHT:
-			p_ptr->ffall = TRUE;
-			if (cexp_ptr->clev > 9) p_ptr->resist_fear = TRUE;
-			if (cexp_ptr->clev > 19) p_ptr->sustain_wis = TRUE;
-			if (cexp_ptr->clev > 29) p_ptr->resist_conf = TRUE;
-			if (cexp_ptr->clev > 39) p_ptr->telepathy = TRUE;
-			break;
-		case CLASS_HIGHWITCH:
-			if (cexp_ptr->clev > 9) p_ptr->ffall = TRUE;
-			break;
-		case CLASS_GUNNER:
-			p_ptr->resist_sound = TRUE;
-			p_ptr->resist_shard = TRUE;
-			p_ptr->anti_tele = TRUE;
-			p_ptr->skill_dig += (cexp_ptr->clev / 8);
-			p_ptr->see_dark_grid = TRUE;
-			break;
-		case CLASS_LORD:
-			if (p_ptr->action == ACTION_AURA)
-			{
-				p_ptr->lite = TRUE;
-				p_ptr->regenerate = TRUE;
-				if (cexp_ptr->clev > 29) p_ptr->telepathy = TRUE;
-			}
-			break;
-		case CLASS_CRESCENT:
-			if (cexp_ptr->clev > 24)
-			{
-				p_ptr->anti_magic_field += 3;
-			}
-			if (cexp_ptr->clev > 34)
-			{
-				p_ptr->anti_magic_field++;
-			}
-			if (cexp_ptr->clev > 39)
-			{
-				if (get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx]) == WT_BOW) p_ptr->xtra_might = p_ptr->dis_xtra_might = TRUE;
-			}
-			if (cexp_ptr->clev > 44)
-			{
-				p_ptr->anti_magic_field++;
-			}
+		default:
+			/* Nothing */
 			break;
 	}
 
-	if (p_ptr->pclass != CLASS_TERRORKNIGHT)
-	{
-		if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 24)
-		{
-			p_ptr->regenerate = TRUE;
-			p_ptr->free_act = TRUE;
-			p_ptr->fear_field = TRUE;
-		}
-		if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 44)
-		{
-			p_ptr->resist_fear = TRUE;
-			p_ptr->anti_magic_field += 3;
-		}
-	}
+	/* Class Master get Flag - Terror-Knight */
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 44) p_ptr->anti_magic_field += 3;
 
+	/* Class Master get Flag - Dragoon */
+	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 44) p_ptr->esp_dragon = TRUE;
+
+	/* Class Master get Flag - Swordmaster */
 	if (p_ptr->pclass != CLASS_SWORDMASTER)
 	{
 		if (p_ptr->cexp_info[CLASS_SWORDMASTER].clev > 49)
@@ -2964,11 +2985,7 @@ void calc_bonuses(void)
 		}
 	}
 
-	if (p_ptr->pclass != CLASS_DRAGOON)
-		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 44) p_ptr->esp_dragon = TRUE;
-
-	if ((p_ptr->cexp_info[CLASS_WITCH].clev > 29) || (p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 29)) p_ptr->ffall = TRUE;
-
+	/* Class Master get Flag - Ninja, Gunner, Ninjamaster */
 	if ((p_ptr->cexp_info[CLASS_NINJA].clev > 49) || (p_ptr->cexp_info[CLASS_GUNNER].clev > 49) || (p_ptr->cexp_info[CLASS_NINJAMASTER].clev > 29)) p_ptr->see_dark_grid = TRUE;
 
 	if ((rp_ptr->r_flags & PRF_NO_DIGEST) || (cp_ptr->c_flags & PCF_NO_DIGEST)) p_ptr->no_digest = TRUE;
@@ -2985,66 +3002,14 @@ void calc_bonuses(void)
 	/***** Races ****/
 	switch (p_ptr->prace)
 	{
-		case RACE_HAWKMAN:
-			p_ptr->ffall = TRUE;
-			if (p_ptr->lev > 14) p_ptr->resist_fear = TRUE;
-			break;
-		case RACE_LIZARDMAN:
-			p_ptr->resist_acid = TRUE;
-			p_ptr->resist_cold = TRUE;
-			break;
-		case RACE_FAIRY:
-			p_ptr->resist_lite = TRUE;
-			p_ptr->ffall = TRUE;
-			break;
 		case RACE_GREMLIN:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->ffall = TRUE;
 			p_ptr->hurt_lite = TRUE;
 			break;
-		case RACE_SKELETON:
-			p_ptr->resist_pois = TRUE;
-			p_ptr->resist_shard = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->hold_life = TRUE;
-			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-			break;
 		case RACE_GHOST:
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->ffall = TRUE;
 			p_ptr->pass_wall = TRUE;
-			if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
-			break;
-		case RACE_PUMPKINHEAD:
-			p_ptr->resist_chaos = TRUE;
-			p_ptr->resist_disen = TRUE;
-			p_ptr->free_act = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->slow_digest = TRUE;
-			if (p_ptr->lev > 19) p_ptr->telepathy = TRUE;
-			break;
-		case RACE_GOBLIN:
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_GORGON:
-			p_ptr->resist_stone = TRUE;
-			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-			if (p_ptr->lev > 19) p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 29) p_ptr->resist_chaos = TRUE;
-			if (p_ptr->lev > 39) p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 49) p_ptr->resist_neth = TRUE;
 			break;
 		case RACE_MERMAID:
-			p_ptr->resist_acid = TRUE;
-			p_ptr->resist_water = TRUE;
 			p_ptr->can_swim = TRUE;
-			if (p_ptr->lev > 24) p_ptr->resist_conf = TRUE;
 			break;
 		default:
 			/* Do nothing */
@@ -3085,16 +3050,6 @@ void calc_bonuses(void)
 		p_ptr->stat_add[A_STR] += 4;
 		p_ptr->stat_add[A_DEX] += 4;
 		p_ptr->pspeed += 4;
-	}
-
-	if (prace_is_(RACE_PUMPKINHEAD)) p_ptr->cursed |= (TRC_AGGRAVATE);
-
-	if (easy_band)
-	{
-		p_ptr->resist_blind = TRUE;
-		p_ptr->resist_conf  = TRUE;
-		p_ptr->hold_life = TRUE;
-		if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
 	}
 
 	if (p_ptr->riding)
@@ -3218,7 +3173,6 @@ void calc_bonuses(void)
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
 		{
 			p_ptr->sh_fire = TRUE;
-			p_ptr->lite = TRUE;
 		}
 
 		if (p_ptr->muta3 & MUT3_WART_SKIN)
@@ -3242,26 +3196,6 @@ void calc_bonuses(void)
 			p_ptr->dis_to_a += 25;
 		}
 
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			p_ptr->ffall = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			p_ptr->resist_fear = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			p_ptr->regenerate = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			p_ptr->telepathy = TRUE;
-		}
-
 		if (p_ptr->muta3 & MUT3_LIMBER)
 		{
 			p_ptr->stat_add[A_DEX] += 3;
@@ -3274,7 +3208,6 @@ void calc_bonuses(void)
 
 		if (p_ptr->muta3 & MUT3_MOTION)
 		{
-			p_ptr->free_act = TRUE;
 			p_ptr->skill_stl += 1;
 		}
 
@@ -3303,6 +3236,9 @@ void calc_bonuses(void)
 
 		/* Extract the item flags */
 		object_flags(o_ptr, flgs);
+
+		if (i == INVEN_RARM)
+			for (j = 0; j < TR_FLAG_SIZE; j++) flgs[j] |= p_ptr->flags[j];
 
 		p_ptr->cursed |= (o_ptr->curse_flags & (0xFFFFFFF0L));
 
@@ -3362,7 +3298,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_XTRA_MIGHT))
 		{
 			p_ptr->xtra_might = TRUE;
-			if (object_known_p(o_ptr)) p_ptr->dis_xtra_might = TRUE;
+			if (object_is_known(o_ptr)) p_ptr->dis_xtra_might = TRUE;
 		}
 		if (have_flag(flgs, TR_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
 		if (have_flag(flgs, TR_REGEN))       p_ptr->regenerate = TRUE;
@@ -3375,19 +3311,19 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_FEAR_FIELD))  p_ptr->fear_field = TRUE;
 		if (have_flag(flgs, TR_WRAITH))      p_ptr->wraith_form_perm = TRUE;
 		if (have_flag(flgs, TR_WARNING)){
-			if (!o_ptr->inscription || !(strchr(quark_str(o_ptr->inscription),'$')))
+			if (!o_ptr->inscription || !(my_strchr(quark_str(o_ptr->inscription),'$')))
 			  p_ptr->warning = TRUE;
 		}
 
 		if (have_flag(flgs, TR_TELEPORT))
 		{
-			if (cursed_p(o_ptr)) p_ptr->cursed |= TRC_TELEPORT;
+			if (object_is_cursed(o_ptr)) p_ptr->cursed |= TRC_TELEPORT;
 			else
 			{
 				cptr insc = quark_str(o_ptr->inscription);
 
 				if (o_ptr->inscription &&
-				    (strchr(insc, '.') || strchr(insc, '%')))
+				    (my_strchr(insc, '.') || my_strchr(insc, '%')))
 				{
 					/*
 					 * {.} will stop random teleportation.
@@ -3446,7 +3382,7 @@ void calc_bonuses(void)
 		if (o_ptr->name2 == EGO_RING_THROW)
 		{
 			p_ptr->mighty_throw = TRUE;
-			if (object_known_p(o_ptr)) p_ptr->dis_mighty_throw = TRUE;
+			if (object_is_known(o_ptr)) p_ptr->dis_mighty_throw = TRUE;
 		}
 		if (have_flag(flgs, TR_EASY_SPELL)) p_ptr->easy_spell = TRUE;
 		if (o_ptr->name2 == EGO_AMU_FOOL) p_ptr->heavy_spell = TRUE;
@@ -3468,7 +3404,7 @@ void calc_bonuses(void)
 		p_ptr->ac += o_ptr->ac;
 
 		/* The base armor class is not always known */
-		if (object_known_p(o_ptr))
+		if (object_is_known(o_ptr))
 		{
 			p_ptr->dis_ac += o_ptr->ac;
 		}
@@ -3482,7 +3418,7 @@ void calc_bonuses(void)
 		p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
+		if (object_is_known(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
 		if (o_ptr->curse_flags & TRC_LOW_MELEE)
 		{
@@ -3547,7 +3483,7 @@ void calc_bonuses(void)
 		p_ptr->to_d_m += bonus_to_d;
 
 		/* Apply the mental bonuses tp hit/damage, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_h_b += bonus_to_h;
+		if (object_is_known(o_ptr)) p_ptr->dis_to_h_b += bonus_to_h;
 
 		/* To Melee */
 		if ((i == INVEN_LEFT || i == INVEN_RIGHT) && !p_ptr->ryoute)
@@ -3557,7 +3493,7 @@ void calc_bonuses(void)
 			p_ptr->to_d[i-INVEN_RIGHT] += bonus_to_d;
 
 			/* Apply the mental bonuses tp hit/damage, if known */
-			if (object_known_p(o_ptr))
+			if (object_is_known(o_ptr))
 			{
 				p_ptr->dis_to_h[i-INVEN_RIGHT] += bonus_to_h;
 				p_ptr->dis_to_d[i-INVEN_RIGHT] += bonus_to_d;
@@ -3572,7 +3508,7 @@ void calc_bonuses(void)
 			p_ptr->to_d[1] += (bonus_to_d > 0) ? bonus_to_d/2 : bonus_to_d;
 
 			/* Apply the mental bonuses tp hit/damage, if known */
-			if (object_known_p(o_ptr))
+			if (object_is_known(o_ptr))
 			{
 				p_ptr->dis_to_h[0] += (bonus_to_h > 0) ? (bonus_to_h+1)/2 : bonus_to_h;
 				p_ptr->dis_to_h[1] += (bonus_to_h > 0) ? bonus_to_h/2 : bonus_to_h;
@@ -3587,7 +3523,7 @@ void calc_bonuses(void)
 			p_ptr->to_d[0] += bonus_to_d;
 
 			/* Apply the mental bonuses tp hit/damage, if known */
-			if (object_known_p(o_ptr))
+			if (object_is_known(o_ptr))
 			{
 				p_ptr->dis_to_h[0] += bonus_to_h;
 				p_ptr->dis_to_d[0] += bonus_to_d;
@@ -3597,6 +3533,33 @@ void calc_bonuses(void)
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].tval == TV_CLOAK) && (inventory[INVEN_OUTER].sval == SV_RAINCOAT))
 		p_ptr->resist_water = TRUE;
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].tval == TV_CLOAK) && (inventory[INVEN_OUTER].sval == SV_MITHRIL_CLOAK))
+			p_ptr->skill_sav += 50;
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ACID))
+	{
+		p_ptr->oppose_acid = 1;
+		status_change = TRUE;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_FIRE))
+	{
+		p_ptr->oppose_fire = 1;
+		status_change = TRUE;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_COLD))
+	{
+		p_ptr->oppose_cold = 1;
+		status_change = TRUE;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ELEC))
+	{
+		p_ptr->oppose_elec = 1;
+		status_change = TRUE;
+	}
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_BAT))
 	{
@@ -3689,6 +3652,7 @@ void calc_bonuses(void)
 	    (inventory[INVEN_LARM].k_idx && (inventory[INVEN_LARM].name1 == ART_BERSERK)))
 	{
 		p_ptr->shero = 1;
+		status_change = TRUE;
 	}
 
 	if (((inventory[INVEN_RARM].tval == TV_SWORD) && (inventory[INVEN_RARM].sval == SV_DARK_SWORD)) || 
@@ -3707,7 +3671,7 @@ void calc_bonuses(void)
 
 	if (inventory[INVEN_HEAD].k_idx && (inventory[INVEN_HEAD].name1 == ART_SKULL_MASK))
 	{
-		if (realm_choices[p_ptr->pclass])
+		if (class_info[p_ptr->pclass].realm_choices)
 		{
 			p_ptr->cursed |= (TRC_AGGRAVATE | TRC_TY_CURSE);
 			p_ptr->skull_mask_hates = TRUE;
@@ -3716,6 +3680,8 @@ void calc_bonuses(void)
 
 	/* Always calculate HP & mana */
 	p_ptr->update |= (PU_HP | PU_MANA);
+
+	if (status_change) p_ptr->redraw |= (PR_STATUS);
 
 	/* Calculate stats */
 	for (i = 0; i < A_MAX; i++)
@@ -4047,8 +4013,11 @@ void calc_bonuses(void)
 
 	if (p_ptr->riding)
 	{
+		monster_type *riding_m_ptr = &m_list[p_ptr->riding];
+		monster_race *riding_r_ptr = &r_info[riding_m_ptr->r_idx];
 		int speed = m_list[p_ptr->riding].mspeed;
-		if (m_list[p_ptr->riding].mspeed > 110)
+
+		if (riding_m_ptr->mspeed > 110)
 		{
 			p_ptr->pspeed = 110 + ((speed - 110)*((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)*3 + p_ptr->lev*160L - 10000L)/(22000L));
 			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
@@ -4057,10 +4026,11 @@ void calc_bonuses(void)
 		{
 			p_ptr->pspeed = speed;
 		}
-		if (m_list[p_ptr->riding].fast) p_ptr->pspeed += 10;
-		if (m_list[p_ptr->riding].slow) p_ptr->pspeed -= 10;
-		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
-		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
+		p_ptr->pspeed += ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000) + p_ptr->lev *160L)/3200;
+		if (MON_FAST(riding_m_ptr)) p_ptr->pspeed += 10;
+		if (MON_SLOW(riding_m_ptr)) p_ptr->pspeed -= 10;
+		if (riding_r_ptr->flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
+		if (riding_r_ptr->flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
 
 		if ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000) < 2000) j += (p_ptr->wt*3*(2000 - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)))/2000;
 
@@ -4080,22 +4050,6 @@ void calc_bonuses(void)
 	{
 		p_ptr->pspeed -= 10;
 		p_ptr->skill_stl += 10;
-	}
-
-	/* Lord Aura gain some power */
-	if (p_ptr->action == ACTION_AURA)
-	{
-		int clev = p_ptr->cexp_info[CLASS_LORD].clev;
-		
-		p_ptr->skill_sav += clev;
-		p_ptr->to_a += 10 + clev / 5;
-		p_ptr->dis_to_a += 10 + clev / 5;
-		for (i = 0; i < 2; i++)
-		{
-			p_ptr->to_d[i] += 10 + clev / 5;
-			p_ptr->dis_to_d[i] += 10 + clev / 5;
-		}
-		if (clev > 30) p_ptr->pspeed += 5 + clev / 10;
 	}
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
@@ -4283,79 +4237,17 @@ void calc_bonuses(void)
 		{
 			int str_index, dex_index;
 
-			int num = 0, wgt = 0, mul = 0, div = 0;
+			int div = 0;
 			int skill_level = p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]/10;
 			int attack_var = skill_lev_var[skill_level];
+			int max_attacks = cp_ptr->max_attacks;
 
-			/* Analyze the class */
-			switch (p_ptr->pclass)
-			{
-				case CLASS_SOLDIER:
-					num = 5; wgt = 70; mul = 3; break;
-
-				case CLASS_KNIGHT:
-				case CLASS_BERSERKER:
-				case CLASS_DRAGOON:
-				case CLASS_ANGELKNIGHT:
-				case CLASS_LORD:
-				case CLASS_GENERAL:
-				case CLASS_FREYA:
-				case CLASS_VAMPIRE:
-					num = 6; wgt = 70; mul = 5; break;
-
-				case CLASS_TERRORKNIGHT:
-					num = 6; wgt = 70; mul = 6; break;
-
-				case CLASS_BEASTTAMER:
-				case CLASS_VALKYRIE:
-				case CLASS_DRAGONTAMER:
-				case CLASS_TEMPLEKNIGHT:
-				case CLASS_WHITEKNIGHT:
-					num = 5; wgt = 70; mul = 4; break;
-
-				case CLASS_SWORDMASTER:
-					num = 5; wgt = 50; mul = 4; break;
-
-				case CLASS_NINJA:
-					num = 4; wgt = 20; mul = 1; break;
-
-				case CLASS_NINJAMASTER:
-					num = 5; wgt = 50; mul = 1; break;
-
-				case CLASS_WIZARD:
-				case CLASS_SIRENE:
-				case CLASS_PRIEST:
-				case CLASS_LICH:
-				case CLASS_HIGHWITCH:
-				case CLASS_GUNNER:
-				case CLASS_ARCHMAGE:
-				case CLASS_MEDIUM:
-					num = 3; wgt = 100; mul = 2; break;
-
-				case CLASS_WARLOCK:
-					num = 4; wgt = 100; mul = 4; break;
-
-				case CLASS_EXORCIST:
-					num = 5; wgt = 100; mul = 4; break;
-
-				case CLASS_AMAZONESS:
-					num = 5; wgt = 70; mul = 3; break;
-
-				case CLASS_ARCHER:
-				case CLASS_WITCH:
-				case CLASS_CRESCENT:
-					num = 4; wgt = 100; mul = 3; break;
-
-				case CLASS_CLERIC:
-					num = 5; wgt = 100; mul = 3; break;
-
-			}
 
 			/* Enforce a minimum "weight" (tenth pounds) */
-			div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+			div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 
 			/* Access the strength vs weight */
-			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
 
 			if (p_ptr->ryoute && !omoi) str_index++;
 			if ((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) str_index = MAX(0, str_index-1);
@@ -4371,10 +4263,10 @@ void calc_bonuses(void)
 			switch (skill_level)
 			{
 			case SKILL_LEVEL_BEGINNER:
-				if (num > 1) num--;
+				if (cp_ptr->max_attacks > 1) max_attacks--;
 				break;
 			case SKILL_LEVEL_MASTER:
-				num++;
+				max_attacks++;
 				break;
 			}
 
@@ -4386,7 +4278,7 @@ void calc_bonuses(void)
 			p_ptr->num_blow[i] = blows_table[str_index][dex_index];
 
 			/* Maximal value */
-			if (p_ptr->num_blow[i] > num) p_ptr->num_blow[i] = num;
+			if (p_ptr->num_blow[i] > max_attacks) p_ptr->num_blow[i] = max_attacks;
 
 			/* Add in the "bonus blows" */
 			p_ptr->num_blow[i] += extra_blows[i];
@@ -4634,6 +4526,12 @@ void calc_bonuses(void)
 				p_ptr->icky_wield[i] += 25;
 			}
 			break;
+
+		case CLASS_SUCCUBUS:
+			if (get_weapon_type(k_ptr) != WT_CLAW)
+				/* Icky weapon */
+				p_ptr->icky_wield[i] = -1;
+			break;
 		}
 
 		/* Hafted weapon's SP bonus for some classes */
@@ -4815,6 +4713,7 @@ void calc_bonuses(void)
 			case CLASS_ARCHER:
 			case CLASS_GUNNER:
 			case CLASS_CRESCENT:
+			case CLASS_SUCCUBUS:
 				if (o_ptr->k_idx && (o_ptr->tval == TV_SHIELD) && (o_ptr->weight >= 70))
 				{
 					p_ptr->to_h_b -= 40;
@@ -5243,42 +5142,21 @@ void calc_bonuses(void)
 	}
 
 	/* Determine player alignment (LNC) by equipment */
-	if (inventory[INVEN_OUTER].k_idx)
+	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &inventory[INVEN_OUTER];
-		if ((o_ptr->name2 == EGO_ARCADIA) && (o_ptr->sval == SV_CLOAK_OF_IVORY_TOWER))
-			p_ptr->align += 100;
-		else if (o_ptr->name2 == EGO_ARCADIA)
-			p_ptr->align += 50;
-		else if (o_ptr->sval == SV_CLOAK_OF_IVORY_TOWER)
-			p_ptr->align -= 50;
-	}
+		/* Access object */
+		o_ptr = &inventory[i];
 
-	if (inventory[INVEN_RARM].k_idx)
-	{
-		o_ptr = &inventory[INVEN_RARM];
-		if ((o_ptr->tval == TV_SWORD) && ((o_ptr->sval == SV_YOUTOU) || (o_ptr->sval == SV_DARK_SWORD)))
-			p_ptr->align -= 100;
-		else if (have_flag(flgs, TR_UNHOLY))
-			p_ptr->align -= 30;
-		else if (have_flag(flgs, TR_BLESSED))
-			p_ptr->align += 30;
-	}
-	
-	if (inventory[INVEN_LARM].k_idx)
-	{
-		o_ptr = &inventory[INVEN_LARM];
-		if ((o_ptr->tval == TV_SWORD) && ((o_ptr->sval == SV_YOUTOU) || (o_ptr->sval == SV_DARK_SWORD)))
-			p_ptr->align -= 100;
-		else if (have_flag(flgs, TR_UNHOLY))
-			p_ptr->align -= 30;
-		else if (have_flag(flgs, TR_BLESSED))
-			p_ptr->align += 30;
+		/* Extract the item flags */
+		object_flags(o_ptr, flgs);
+
+		if (have_flag(flgs, TR_ALIGN_LNC)) p_ptr->align[ALI_LNC] += o_ptr->to_align[ALI_LNC] * 10;
+		if (have_flag(flgs, TR_ALIGN_GNE)) p_ptr->align[ALI_GNE] += o_ptr->to_align[ALI_GNE] * 10;
 	}
 
 	/* Limit player alignment (LNC) */
-	if (p_ptr->align > 300) p_ptr->align = 300;
-	if (p_ptr->align < -300) p_ptr->align = -300;
+	if (p_ptr->align[ALI_LNC] > 300) p_ptr->align[ALI_LNC] = 300;
+	if (p_ptr->align[ALI_LNC] < -300) p_ptr->align[ALI_LNC] = -300;
 
 	if ((p_ptr->pass_wall && !p_ptr->kill_wall) || WRAITH_FORM()) p_ptr->no_flowed = TRUE;
 
@@ -5491,7 +5369,7 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_MISC);
 		if (!(cp_ptr->c_flags & PCF_REINCARNATE))
-			prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+			prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 		else
 			prt_field("             ", ROW_RACE, COL_RACE);
 		/* prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS); */
@@ -5757,27 +5635,3 @@ bool heavy_armor(void)
 	return (monk_arm_wgt > (100 + (ninja_level * 4)));
 }
 
-void change_alignment(void)
-{
-	switch(randint1(19))
-	{
-		case 1: case 2: case 3: case 4: case 5:
-			change_your_alignment_lnc(randint1(50));
-			break;
-		case 6: case 7: case 8: case 9: case 10:
-			change_your_alignment_lnc(-randint1(50));
-			break;
-		case 11: case 12: case 13:
-			change_your_alignment_lnc(100 + randint1(50));
-			break;
-		case 14: case 15: case 16:
-			change_your_alignment_lnc(-(100 + randint1(50)));
-			break;
-		case 17: case 18:
-			p_ptr->align_self = 0;
-			break;
-		default:
-			p_ptr->align_self = 0 - p_ptr->align_self;
-			break;
-	}
-}

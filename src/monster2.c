@@ -12,140 +12,6 @@
 
 #include "angband.h"
 
-cptr horror_desc[MAX_SAN_HORROR] =
-{
-#ifdef JP
-	"忌まわしい",
-	"底知れぬ",
-	"ぞっとする",
-	"破滅的な",
-	"冒涜的な",
-
-	"いやな",
-	"恐ろしい",
-	"不潔な",
-	"容赦のない",
-	"おぞましい",
-
-	"地獄の",
-	"身の毛もよだつ",
-	"地獄の",
-	"忌まわしい",
-	"悪夢のような",
-
-	"嫌悪を感じる",
-	"罰当たりな",
-	"恐い",
-	"不浄な",
-	"言うもおぞましい",
-#else
-	"abominable",
-	"abysmal",
-	"appalling",
-	"baleful",
-	"blasphemous",
-
-	"disgusting",
-	"dreadful",
-	"filthy",
-	"grisly",
-	"hideous",
-
-	"hellish",
-	"horrible",
-	"infernal",
-	"loathsome",
-	"nightmarish",
-
-	"repulsive",
-	"sacrilegious",
-	"terrible",
-	"unclean",
-	"unspeakable",
-#endif
-
-};
-
-cptr funny_desc[MAX_SAN_FUNNY] =
-{
-#ifdef JP
-	"間抜けな",
-	"滑稽な",
-	"ばからしい",
-	"無味乾燥な",
-	"馬鹿げた",
-
-	"笑える",
-	"ばかばかしい",
-	"ぶっとんだ",
-	"いかした",
-	"ポストモダンな",
-
-	"ファンタスティックな",
-	"ダダイズム的な",
-	"キュビズム的な",
-	"宇宙的な",
-	"卓越した",
-
-	"理解不能な",
-	"ものすごい",
-	"驚くべき",
-	"信じられない",
-	"カオティックな",
-
-	"野性的な",
-	"非常識な",
-#else
-	"silly",
-	"hilarious",
-	"absurd",
-	"insipid",
-	"ridiculous",
-
-	"laughable",
-	"ludicrous",
-	"far-out",
-	"groovy",
-	"postmodern",
-
-	"fantastic",
-	"dadaistic",
-	"cubistic",
-	"cosmic",
-	"awesome",
-
-	"incomprehensible",
-	"fabulous",
-	"amazing",
-	"incredible",
-	"chaotic",
-
-	"wild",
-	"preposterous",
-#endif
-
-};
-
-cptr funny_comments[MAX_SAN_COMMENT] =
-{
-#ifdef JP
-  /* nuke me */
-	"最高だぜ！",
-	"うひょー！",
-	"いかすぜ！",
-	"すんばらしい！",
-	"ぶっとびー！"
-#else
-	"Wow, cosmic, man!",
-	"Rad!",
-	"Groovy!",
-	"Cool!",
-	"Far out!"
-#endif
-
-};
-
-
 /*
  * Set the target of counter attack
  */
@@ -242,6 +108,18 @@ void delete_monster_idx(int i)
 	}
 
 
+	if (MON_CSLEEP(m_ptr)) (void)set_monster_csleep(i, 0);
+	if (MON_FAST(m_ptr)) (void)set_monster_fast(i, 0);
+	if (MON_SLOW(m_ptr)) (void)set_monster_slow(i, 0);
+	if (MON_STUNNED(m_ptr)) (void)set_monster_stunned(i, 0);
+	if (MON_CONFUSED(m_ptr)) (void)set_monster_confused(i, 0);
+	if (MON_MONFEAR(m_ptr)) (void)set_monster_monfear(i, 0);
+	if (MON_STONING(m_ptr)) (void)set_monster_stoning(i, 0);
+	if (MON_MELT_WEAPON(m_ptr)) (void)set_monster_melt_weapon(i, 0);
+	if (MON_OPPOSITE_ELEM(m_ptr)) (void)set_monster_opposite_elem(i, 0);
+	if (MON_SILENT(m_ptr)) (void)set_monster_silent(i, 0);
+	if (MON_INVULNER(m_ptr)) (void)set_monster_invulner(i, 0, FALSE);
+
 	/* Hack -- remove target monster */
 	if (i == target_who) target_who = 0;
 
@@ -275,6 +153,9 @@ void delete_monster_idx(int i)
 		/* Delete the object */
 		delete_object_idx(this_o_idx);
 	}
+
+
+	if (is_pet(m_ptr)) check_pets_num_and_align(m_ptr, FALSE);
 
 
 	/* Wipe the Monster */
@@ -387,6 +268,11 @@ static void compact_monsters_aux(int i1, int i2)
 	/* Wipe the hole */
 	(void)WIPE(&m_list[i1], monster_type);
 
+	for (i = 0; i < MAX_MTIMED; i++)
+	{
+		int mproc_idx = get_mproc_idx(i1, i);
+		if (mproc_idx >= 0) mproc_list[i][mproc_idx] = i2;
+	}
 }
 
 
@@ -456,6 +342,14 @@ void compact_monsters(int size)
 
 			/* Check for quest completion */
 			check_quest_completion(m_ptr);
+
+			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+			{
+				char m_name[80];
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_COMPACT, m_name);
+			}
 
 			/* Delete the monster */
 			delete_monster_idx(i);
@@ -547,6 +441,9 @@ void wipe_m_list(void)
 
 	/* Reset "m_cnt" */
 	m_cnt = 0;
+
+	/* Reset "mproc_max[]" */
+	for (i = 0; i < MAX_MTIMED; i++) mproc_max[i] = 0;
 
 	/* Hack -- reset "reproducer" count */
 	num_repro = 0;
@@ -751,13 +648,6 @@ static bool summon_specific_aux(int r_idx)
 			break;
 		}
 
-		case SUMMON_CYBER:
-		{
-			okay = ((r_ptr->d_char == 'U') &&
-			        (r_ptr->flags4 & RF4_ROCKET));
-			break;
-		}
-
 		case SUMMON_KIN:
 		{
 			okay = ((r_ptr->d_char == summon_kin_type) &&
@@ -774,7 +664,7 @@ static bool summon_specific_aux(int r_idx)
 		case SUMMON_ANIMAL_RANGER:
 		{
 			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
-			       (strchr("abcflqrwBCHIJKMRS", r_ptr->d_char)) &&
+			       (my_strchr("abcflqrwBCHIJKMRS", r_ptr->d_char)) &&
 			       !(r_ptr->flags3 & (RF3_DRAGON)) &&
 			       !(r_ptr->flags3 & (RF3_EVIL)) &&
 			       !(r_ptr->flags3 & (RF3_UNDEAD)) &&
@@ -1525,7 +1415,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	name = (r_name + r_ptr->name);
 
 	/* Are we hallucinating? (Idea from Nethack...) */
-	if (p_ptr->image && !(mode & 0x200))
+	if (p_ptr->image && !(mode & MD_IGNORE_HALLU))
 	{
 		if (one_in_(2))
 		{
@@ -1556,10 +1446,10 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	}
 
 	/* Can we "see" it (exists + forced, or visible + not unforced) */
-	seen = (m_ptr && ((mode & 0x80) || (!(mode & 0x40) && m_ptr->ml)));
+	seen = (m_ptr && ((mode & MD_ASSUME_VISIBLE) || (!(mode & MD_ASSUME_HIDDEN) && m_ptr->ml)));
 
 	/* Sexed Pronouns (seen and allowed, or unseen and allowed) */
-	pron = (m_ptr && ((seen && (mode & 0x20)) || (!seen && (mode & 0x10))));
+	pron = (m_ptr && ((seen && (mode & MD_PRON_VISIBLE)) || (!seen && (mode & MD_PRON_HIDDEN))));
 
 
 	/* First, try using pronouns, or describing hidden monsters */
@@ -1585,71 +1475,71 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
 
 		/* Brute force: split on the possibilities */
-		switch (kind + (mode & 0x07))
+		switch (kind + (mode & (MD_INDEF_HIDDEN | MD_POSSESSIVE | MD_OBJECTIVE)))
 		{
 			/* Neuter, or unknown */
 #ifdef JP
-			case 0x00: res = "何か"; break;
-			case 0x01: res = "何か"; break;
-			case 0x02: res = "何かの"; break;
-			case 0x03: res = "何か自身"; break;
-			case 0x04: res = "何か"; break;
-			case 0x05: res = "何か"; break;
-			case 0x06: res = "何か"; break;
-			case 0x07: res = "それ自身"; break;
+			case 0x00:                                                    res = "何か"; break;
+			case 0x00 + (MD_OBJECTIVE):                                   res = "何か"; break;
+			case 0x00 + (MD_POSSESSIVE):                                  res = "何かの"; break;
+			case 0x00 + (MD_POSSESSIVE | MD_OBJECTIVE):                   res = "何か自身"; break;
+			case 0x00 + (MD_INDEF_HIDDEN):                                res = "何か"; break;
+			case 0x00 + (MD_INDEF_HIDDEN | MD_OBJECTIVE):                 res = "何か"; break;
+			case 0x00 + (MD_INDEF_HIDDEN | MD_POSSESSIVE):                res = "何か"; break;
+			case 0x00 + (MD_INDEF_HIDDEN | MD_POSSESSIVE | MD_OBJECTIVE): res = "それ自身"; break;
 #else
-			case 0x00: res = "it"; break;
-			case 0x01: res = "it"; break;
-			case 0x02: res = "its"; break;
-			case 0x03: res = "itself"; break;
-			case 0x04: res = "something"; break;
-			case 0x05: res = "something"; break;
-			case 0x06: res = "something's"; break;
-			case 0x07: res = "itself"; break;
+			case 0x00:                                                    res = "it"; break;
+			case 0x00 + (MD_OBJECTIVE):                                   res = "it"; break;
+			case 0x00 + (MD_POSSESSIVE):                                  res = "its"; break;
+			case 0x00 + (MD_POSSESSIVE | MD_OBJECTIVE):                   res = "itself"; break;
+			case 0x00 + (MD_INDEF_HIDDEN):                                res = "something"; break;
+			case 0x00 + (MD_INDEF_HIDDEN | MD_OBJECTIVE):                 res = "something"; break;
+			case 0x00 + (MD_INDEF_HIDDEN | MD_POSSESSIVE):                res = "something's"; break;
+			case 0x00 + (MD_INDEF_HIDDEN | MD_POSSESSIVE | MD_OBJECTIVE): res = "itself"; break;
 #endif
 
 
 			/* Male (assume human if vague) */
 #ifdef JP
-			case 0x10: res = "彼"; break;
-			case 0x11: res = "彼"; break;
-			case 0x12: res = "彼の"; break;
-			case 0x13: res = "彼自身"; break;
-			case 0x14: res = "誰か"; break;
-			case 0x15: res = "誰か"; break;
-			case 0x16: res = "誰かの"; break;
-			case 0x17: res = "彼自身"; break;
+			case 0x10:                                                    res = "彼"; break;
+			case 0x10 + (MD_OBJECTIVE):                                   res = "彼"; break;
+			case 0x10 + (MD_POSSESSIVE):                                  res = "彼の"; break;
+			case 0x10 + (MD_POSSESSIVE | MD_OBJECTIVE):                   res = "彼自身"; break;
+			case 0x10 + (MD_INDEF_HIDDEN):                                res = "誰か"; break;
+			case 0x10 + (MD_INDEF_HIDDEN | MD_OBJECTIVE):                 res = "誰か"; break;
+			case 0x10 + (MD_INDEF_HIDDEN | MD_POSSESSIVE):                res = "誰かの"; break;
+			case 0x10 + (MD_INDEF_HIDDEN | MD_POSSESSIVE | MD_OBJECTIVE): res = "彼自身"; break;
 #else
-			case 0x10: res = "he"; break;
-			case 0x11: res = "him"; break;
-			case 0x12: res = "his"; break;
-			case 0x13: res = "himself"; break;
-			case 0x14: res = "someone"; break;
-			case 0x15: res = "someone"; break;
-			case 0x16: res = "someone's"; break;
-			case 0x17: res = "himself"; break;
+			case 0x10:                                                    res = "he"; break;
+			case 0x10 + (MD_OBJECTIVE):                                   res = "him"; break;
+			case 0x10 + (MD_POSSESSIVE):                                  res = "his"; break;
+			case 0x10 + (MD_POSSESSIVE | MD_OBJECTIVE):                   res = "himself"; break;
+			case 0x10 + (MD_INDEF_HIDDEN):                                res = "someone"; break;
+			case 0x10 + (MD_INDEF_HIDDEN | MD_OBJECTIVE):                 res = "someone"; break;
+			case 0x10 + (MD_INDEF_HIDDEN | MD_POSSESSIVE):                res = "someone's"; break;
+			case 0x10 + (MD_INDEF_HIDDEN | MD_POSSESSIVE | MD_OBJECTIVE): res = "himself"; break;
 #endif
 
 
 			/* Female (assume human if vague) */
 #ifdef JP
-			case 0x20: res = "彼女"; break;
-			case 0x21: res = "彼女"; break;
-			case 0x22: res = "彼女の"; break;
-			case 0x23: res = "彼女自身"; break;
-			case 0x24: res = "誰か"; break;
-			case 0x25: res = "誰か"; break;
-			case 0x26: res = "誰かの"; break;
-			case 0x27: res = "彼女自身"; break;
+			case 0x20:                                                    res = "彼女"; break;
+			case 0x20 + (MD_OBJECTIVE):                                   res = "彼女"; break;
+			case 0x20 + (MD_POSSESSIVE):                                  res = "彼女の"; break;
+			case 0x20 + (MD_POSSESSIVE | MD_OBJECTIVE):                   res = "彼女自身"; break;
+			case 0x20 + (MD_INDEF_HIDDEN):                                res = "誰か"; break;
+			case 0x20 + (MD_INDEF_HIDDEN | MD_OBJECTIVE):                 res = "誰か"; break;
+			case 0x20 + (MD_INDEF_HIDDEN | MD_POSSESSIVE):                res = "誰かの"; break;
+			case 0x20 + (MD_INDEF_HIDDEN | MD_POSSESSIVE | MD_OBJECTIVE): res = "彼女自身"; break;
 #else
-			case 0x20: res = "she"; break;
-			case 0x21: res = "her"; break;
-			case 0x22: res = "her"; break;
-			case 0x23: res = "herself"; break;
-			case 0x24: res = "someone"; break;
-			case 0x25: res = "someone"; break;
-			case 0x26: res = "someone's"; break;
-			case 0x27: res = "herself"; break;
+			case 0x20:                                                    res = "she"; break;
+			case 0x20 + (MD_OBJECTIVE):                                   res = "her"; break;
+			case 0x20 + (MD_POSSESSIVE):                                  res = "her"; break;
+			case 0x20 + (MD_POSSESSIVE | MD_OBJECTIVE):                   res = "herself"; break;
+			case 0x20 + (MD_INDEF_HIDDEN):                                res = "someone"; break;
+			case 0x20 + (MD_INDEF_HIDDEN | MD_OBJECTIVE):                 res = "someone"; break;
+			case 0x20 + (MD_INDEF_HIDDEN | MD_POSSESSIVE):                res = "someone's"; break;
+			case 0x20 + (MD_INDEF_HIDDEN | MD_POSSESSIVE | MD_OBJECTIVE): res = "herself"; break;
 #endif
 
 		}
@@ -1660,7 +1550,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
 
 	/* Handle visible monsters, "reflexive" request */
-	else if ((mode & 0x02) && (mode & 0x01))
+	else if ((mode & (MD_POSSESSIVE | MD_OBJECTIVE)) == (MD_POSSESSIVE | MD_OBJECTIVE))
 	{
 		/* The monster is visible, so use its gender */
 #ifdef JP
@@ -1701,14 +1591,14 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 		else
 
 		/* It could be a Unique */
-		if ((r_ptr->flags1 & RF1_UNIQUE) && !(p_ptr->image && !(mode & 0x200)))
+		if ((r_ptr->flags1 & RF1_UNIQUE) && !(p_ptr->image && !(mode & MD_IGNORE_HALLU)))
 		{
 			/* Start with the name (thus nominative and objective) */
 			(void)strcpy(desc, name);
 		}
 
 		/* It could be an indefinite monster */
-		else if (mode & 0x08)
+		else if (mode & MD_INDEF_VISIBLE)
 		{
 			/* XXX Check plurality for "some" */
 
@@ -1762,13 +1652,13 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 #endif
 		}
 
-		if ((mode & 0x200) && m_ptr->ap_r_idx != m_ptr->r_idx)
+		if ((mode & MD_IGNORE_HALLU) && m_ptr->ap_r_idx != m_ptr->r_idx)
 		{
 			strcat(desc, format("(%s)", r_name + r_info[m_ptr->r_idx].name));
 		}
 
 		/* Handle the Possessive as a special afterthought */
-		if (mode & 0x02)
+		if (mode & MD_POSSESSIVE)
 		{
 			/* XXX Check for trailing "s" */
 			
@@ -2328,7 +2218,7 @@ static int initial_r_appearance(int r_idx)
  */
 static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 {
-	int			i;
+	int			i, cmi;
 
 	cave_type		*c_ptr;
 
@@ -2560,13 +2450,8 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	if (r_ptr->r_elem == NO_ELEM) m_ptr->elem = randint0(ELEM_NUM);
 	else m_ptr->elem = r_ptr->r_elem;
 
-	/* No "damage" yet */
-	m_ptr->stunned = 0;
-	m_ptr->confused = 0;
-	m_ptr->monfear = 0;
-	m_ptr->stoning = 0;
-	m_ptr->opposite_elem = 0;
-	m_ptr->silent = 0;
+	/* No "timed status" yet */
+	for (cmi = 0; cmi < MAX_MTIMED; cmi++) m_ptr->mtimed[cmi] = 0;
 	m_ptr->silent_song = FALSE;
 
 	/* Unknown distance */
@@ -2642,13 +2527,13 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	}
 
 	/* Assume no sleeping */
-	m_ptr->csleep = 0;
+	m_ptr->mtimed[MTIMED_CSLEEP] = 0;
 
 	/* Enforce sleeping if needed */
 	if ((mode & PM_ALLOW_SLEEP) && r_ptr->sleep)
 	{
 		int val = r_ptr->sleep;
-		m_ptr->csleep = ((val * 2) + randint1(val * 10));
+		(void)set_monster_csleep(c_ptr->m_idx, (val * 2) + randint1(val * 10));
 	}
 
 	/* Assign maximal hitpoints */
@@ -2690,7 +2575,7 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	  }
 	}
 
-	if (mode & PM_HASTE) m_ptr->fast = 100;
+	if (mode & PM_HASTE) (void)set_monster_fast(c_ptr->m_idx, 100);
 
 	if (m_ptr->mspeed > 199) m_ptr->mspeed = 199;
 
@@ -2793,7 +2678,7 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 #endif
 
 			o_ptr = choose_warning_item();
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
 #ifdef JP
 			msg_format("%sは%s光った。",o_name, color);
 #else
@@ -3561,7 +3446,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Mushrooms, Eyes, Jellies, Molds, Vortices, Worms, Quylthulgs */
-	if (strchr(",ejmvwQ", r_ptr->d_char))
+	if (my_strchr(",ejmvwQ", r_ptr->d_char))
 	{
 #ifdef JP
 		if (percentage > 95)
@@ -3599,7 +3484,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Fish */
-	else if (strchr("l", r_ptr->d_char))
+	else if (my_strchr("l", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -3647,7 +3532,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Golems, Walls, Doors, Stairs */
-	else if (strchr("g#+<>", r_ptr->d_char))
+	else if (my_strchr("g#+<>", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -3695,7 +3580,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Snakes, Hydrae, Reptiles, Mimics */
-	else if (strchr("JMR", r_ptr->d_char) || !isalpha(r_ptr->d_char))
+	else if (my_strchr("JMR", r_ptr->d_char) || !isalpha(r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -3743,7 +3628,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Felines */
-	else if (strchr("f", r_ptr->d_char))
+	else if (my_strchr("f", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -3791,7 +3676,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Ants, Centipedes, Flies, Insects, Beetles, Spiders */
-	else if (strchr("acIKS", r_ptr->d_char))
+	else if (my_strchr("acIKS", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -3845,7 +3730,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Birds */
-	else if (strchr("B", r_ptr->d_char))
+	else if (my_strchr("B", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -3900,7 +3785,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Dragons, Demons, High Undead */
-	else if (strchr("duDLUW", r_ptr->d_char))
+	else if (my_strchr("duDLUW", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -3955,7 +3840,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Skeletons */
-	else if (strchr("s", r_ptr->d_char))
+	else if (my_strchr("s", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -4010,7 +3895,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Zombies */
-	else if (strchr("z", r_ptr->d_char))
+	else if (my_strchr("z", r_ptr->d_char))
 	{
 		if (percentage > 95)
 #ifdef JP
@@ -4065,7 +3950,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Ghosts */
-	else if (strchr("G", r_ptr->d_char))
+	else if (my_strchr("G", r_ptr->d_char))
 
 	{
 		if (percentage > 95)
@@ -4121,7 +4006,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Dogs and Hounds */
-	else if (strchr("CZ", r_ptr->d_char))
+	else if (my_strchr("CZ", r_ptr->d_char))
 	{
 #ifdef JP
 		if (percentage > 95)
@@ -4158,7 +4043,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
-	else if (strchr("Xbilqrt", r_ptr->d_char))
+	else if (my_strchr("Xbilqrt", r_ptr->d_char))
 	{
 #ifdef JP
 		if (percentage > 95)
@@ -4350,6 +4235,7 @@ void update_smart_learn(int m_idx, int what)
 		break;
 
 	case DRS_DRAIN:
+		if ((rp_ptr->r_flags & PRF_DEMON) || (cp_ptr->c_flags & PCF_DEMON)) m_ptr->smart2 |= (SM2_IMM_DRAIN);
 		if ((rp_ptr->r_flags & PRF_UNDEAD) || (cp_ptr->c_flags & PCF_UNDEAD)) m_ptr->smart2 |= (SM2_IMM_DRAIN);
 		break;
 
@@ -4893,6 +4779,8 @@ bool create_runeweapon(int specific)
 			break;
 
 		case RACE_HAWKMAN:
+		case RACE_VULTAN:
+		case RACE_RAVEN:
 			r_ptr->flags2 |= (RF2_HUMAN);
 			r_ptr->flags7 |= (RF7_CAN_FLY);
 			break;
@@ -5064,6 +4952,14 @@ void verify_runeweapon(void)
 			{
 				/* Check for quest completion */
 				check_quest_completion(m_ptr);
+
+				if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+				{
+					char m_name[80];
+
+					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+					do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_COMPACT, m_name);
+				}
 
 				delete_monster_idx(i);
 				break;

@@ -400,6 +400,15 @@ static void rd_item(object_type *o_ptr)
 		else o_ptr->to_misc[i] = 0;
 	}
 
+	if (!t_older_than(0, 6, 0, 3))
+	{
+		for (i = 0; i < ALI_MAX; i++)
+		{
+			if (bonus_flags & (1UL << (i + A_MAX + OB_MAX))) rd_s16b(&o_ptr->to_align[i]);
+			else o_ptr->to_align[i] = 0;
+		}
+	}
+
 	 convert_object(o_ptr);
 
 }
@@ -410,6 +419,7 @@ static void rd_item(object_type *o_ptr)
  */
 static void rd_monster(monster_type *m_ptr)
 {
+	byte tmp8u;
 	u32b flags;
 	char buf[128];
 
@@ -438,31 +448,104 @@ static void rd_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_SUB_ALIGN) rd_byte(&m_ptr->sub_align);
 	else m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
 
-	if (flags & SAVE_MON_CSLEEP) rd_s16b(&m_ptr->csleep);
-	else m_ptr->csleep = 0;
+	if (flags & SAVE_MON_CSLEEP) rd_s16b(&m_ptr->mtimed[MTIMED_CSLEEP]);
+	else m_ptr->mtimed[MTIMED_CSLEEP] = 0;
 
 	rd_byte(&m_ptr->mspeed);
 
 	rd_s16b(&m_ptr->energy_need);
 
-	if (flags & SAVE_MON_FAST) rd_byte(&m_ptr->fast);
-	else m_ptr->fast = 0;
-	if (flags & SAVE_MON_SLOW) rd_byte(&m_ptr->slow);
-	else m_ptr->slow = 0;
-	if (flags & SAVE_MON_STUNNED) rd_byte(&m_ptr->stunned);
-	else m_ptr->stunned = 0;
-	if (flags & SAVE_MON_CONFUSED) rd_byte(&m_ptr->confused);
-	else m_ptr->confused = 0;
-	if (flags & SAVE_MON_MONFEAR) rd_byte(&m_ptr->monfear);
-	else m_ptr->monfear = 0;
-	if (flags & SAVE_MON_STONING) rd_byte(&m_ptr->stoning);
-	else m_ptr->stoning = 0;
-	if (flags & SAVE_MON_MELT_WEAPON) rd_byte(&m_ptr->melt_weapon);
-	else m_ptr->melt_weapon = 0;
-	if (flags & SAVE_MON_OPPOSITE_ELEM) rd_byte(&m_ptr->opposite_elem);
-	else m_ptr->opposite_elem = 0;
-	if (flags & SAVE_MON_SILENT) rd_byte(&m_ptr->silent);
-	else m_ptr->silent = 0;
+	if (flags & SAVE_MON_FAST)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_FAST] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_FAST]);
+	}
+	else m_ptr->mtimed[MTIMED_FAST] = 0;
+	if (flags & SAVE_MON_SLOW)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_SLOW] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_SLOW]);
+	}
+	else m_ptr->mtimed[MTIMED_SLOW] = 0;
+	if (flags & SAVE_MON_STUNNED)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_STUNNED] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_STUNNED]);
+	}
+	else m_ptr->mtimed[MTIMED_STUNNED] = 0;
+	if (flags & SAVE_MON_CONFUSED)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_CONFUSED] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_CONFUSED]);
+	}
+	else m_ptr->mtimed[MTIMED_CONFUSED] = 0;
+	if (flags & SAVE_MON_MONFEAR)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_MONFEAR] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_MONFEAR]);
+	}
+	else m_ptr->mtimed[MTIMED_MONFEAR] = 0;
+	if (flags & SAVE_MON_STONING)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_STONING] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_STONING]);
+	}
+	else m_ptr->mtimed[MTIMED_STONING] = 0;
+	if (flags & SAVE_MON_MELT_WEAPON)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_MELT_WEAPON] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_MELT_WEAPON]);
+	}
+	else m_ptr->mtimed[MTIMED_MELT_WEAPON] = 0;
+	if (flags & SAVE_MON_OPPOSITE_ELEM)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_OPPOSITE_ELEM] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_OPPOSITE_ELEM]);
+	}
+	else m_ptr->mtimed[MTIMED_OPPOSITE_ELEM] = 0;
+	if (flags & SAVE_MON_SILENT)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_SILENT] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_SILENT]);
+	}
+	else m_ptr->mtimed[MTIMED_SILENT] = 0;
+
 	if (flags & SAVE_MON_SILENT_SONG) m_ptr->silent_song = TRUE;
 	else m_ptr->silent_song = FALSE;
 
@@ -471,8 +554,16 @@ static void rd_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_TARGET_X) rd_s16b(&m_ptr->target_x);
 	else m_ptr->target_x = 0;
 
-	if (flags & SAVE_MON_INVULNER) rd_byte(&m_ptr->invulner);
-	else m_ptr->invulner = 0;
+	if (flags & SAVE_MON_INVULNER)
+	{
+		if (t_older_than(0, 6, 0, 1))
+		{
+			rd_byte(&tmp8u);
+			m_ptr->mtimed[MTIMED_INVULNER] = (s16b)tmp8u;
+		}
+		else rd_s16b(&m_ptr->mtimed[MTIMED_INVULNER]);
+	}
+	else m_ptr->mtimed[MTIMED_INVULNER] = 0;
 
 	if (flags & SAVE_MON_SMART1) rd_u32b(&m_ptr->smart1);
 	else m_ptr->smart1 = 0;
@@ -651,16 +742,16 @@ static void home_carry(store_type *st_ptr, object_type *o_ptr)
 		if (o_ptr->tval < j_ptr->tval) continue;
 
 		/* Can happen in the home */
-		if (!object_aware_p(o_ptr)) continue;
-		if (!object_aware_p(j_ptr)) break;
+		if (!object_is_aware(o_ptr)) continue;
+		if (!object_is_aware(j_ptr)) break;
 
 		/* Objects sort by increasing sval */
 		if (o_ptr->sval < j_ptr->sval) break;
 		if (o_ptr->sval > j_ptr->sval) continue;
 
 		/* Objects in the home can be unknown */
-		if (!object_known_p(o_ptr)) continue;
-		if (!object_known_p(j_ptr)) break;
+		if (!object_is_known(o_ptr)) continue;
+		if (!object_is_known(j_ptr)) break;
 
 		/*
 		 * Hack:  otherwise identical rods sort by
@@ -1073,13 +1164,12 @@ static errr rd_extra(void)
 	if (t_older_than(0, 5, 0, 0))
 	{
 		if (t_older_than(0, 1, 0, 8)) rd_u16b(&p_ptr->cexpfact[p_ptr->pclass]);
-		else if (t_older_than(0, 1, 0, 10))
-		{
-			for (i = 0; i < MAX_CLASS - 2; i++) rd_u16b(&p_ptr->cexpfact[i]);
-		}
 		else
 		{
-			for (i = 0; i < MAX_CLASS - 1; i++) rd_u16b(&p_ptr->cexpfact[i]);
+			if (t_older_than(0, 1, 0, 10)) tmp8u = 31;
+			else tmp8u = 32;
+
+			for (i = 0; i < tmp8u; i++) rd_u16b(&p_ptr->cexpfact[i]);
 		}
 	}
 	else for (i = 0; i < tmp8u; i++) rd_u16b(&p_ptr->cexpfact[i]);
@@ -1133,7 +1223,7 @@ static errr rd_extra(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_CLASS)
+	if (tmp16u > max_c_idx)
 	{
 #ifdef JP
 		note(format("クラス経験情報配列が大きすぎる(%u)！", tmp16u));
@@ -1172,12 +1262,12 @@ static errr rd_extra(void)
 		{
 			int expd_classes = 0;
 
-			for (i = 0; i < MAX_CLASS; i++)
+			for (i = 0; i < max_c_idx; i++)
 			{
 				if (p_ptr->cexp_info[i].max_clev > 0) expd_classes++;
 			}
 
-			for (i = 0; i < MAX_CLASS; i++)
+			for (i = 0; i < max_c_idx; i++)
 			{
 				if ((p_ptr->cexp_info[i].max_clev > 0) && (i != previous_char.pclass)) p_ptr->cexpfact[i] = class_info[i].c_exp + expd_classes * 50;
 				else p_ptr->cexpfact[i] = class_info[i].c_exp;
@@ -1283,7 +1373,11 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
 	rd_byte(&p_ptr->infected);
-	strip_bytes(3); /* Old "protection" */
+	rd_byte(&tmp8u);
+	if (tmp8u == 0) p_ptr->smithy_town_num = randint1(7);
+	else p_ptr->smithy_town_num = tmp8u;
+	rd_byte(&p_ptr->pumpkin);
+	strip_bytes(1); /* Old "protection" */
 
 	rd_s16b(&p_ptr->energy_need);
 
@@ -1349,7 +1443,15 @@ static errr rd_extra(void)
 
 	rd_u32b(&p_ptr->special_blow);
 
-	rd_s16b(&p_ptr->align_self);
+	if (t_older_than(0, 6, 0, 3))
+	{
+		rd_s16b(&p_ptr->align_self[ALI_LNC]);
+		p_ptr->align_self[ALI_GNE] = 0;
+	}
+	else for (i = 0; i < ALI_MAX; i++)
+	{
+		rd_s16b(&p_ptr->align_self[i]);
+	}
 
 	/* Calc the regeneration modifier for mutations */
 	mutant_regenerate_mod = calc_mutant_regenerate_mod();
@@ -1516,6 +1618,9 @@ static errr rd_inventory(void)
 		/* Wield equipment */
 		if (n >= INVEN_RARM)
 		{
+			/* Player touches it */
+			q_ptr->marked |= OM_TOUCHED;
+
 			/* Copy object */
 			object_copy(&inventory[n], q_ptr);
 
@@ -1531,7 +1636,7 @@ static errr rd_inventory(void)
 		{
 			/* Oops */
 #ifdef JP
-note("持ち物の中のアイテムが多すぎる！");
+			note("持ち物の中のアイテムが多すぎる！");
 #else
 			note("Too many items in the inventory!");
 #endif
@@ -1546,6 +1651,9 @@ note("持ち物の中のアイテムが多すぎる！");
 		{
 			/* Get a slot */
 			n = slot++;
+
+			/* Player touches it */
+			q_ptr->marked |= OM_TOUCHED;
 
 			/* Copy object */
 			object_copy(&inventory[n], q_ptr);
@@ -2514,7 +2622,7 @@ static errr rd_savefile_new_aux(void)
 		/* 再計算 */
 		(void)C_WIPE(p_ptr->race_hp, PY_MAX_LEVEL, s32b);
 		(void)C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s32b);
-		for (i = 0; i < MAX_CLASS; i++)
+		for (i = 0; i < max_c_idx; i++)
 		{
 			(void)C_WIPE(p_ptr->class_hp[i], PY_MAX_LEVEL, s32b);
 			(void)C_WIPE(p_ptr->class_sp[i], PY_MAX_LEVEL, s32b);
@@ -2529,7 +2637,7 @@ static errr rd_savefile_new_aux(void)
 			p_ptr->race_sp[i] = MAX(tmp32s, 0);
 		}
 
-		for (i = 0; i < MAX_CLASS; i++)
+		for (i = 0; i < max_c_idx; i++)
 		{
 			for (j = 0; j < p_ptr->cexp_info[i].max_clev; j++)
 			{
@@ -2570,7 +2678,7 @@ static errr rd_savefile_new_aux(void)
 		rd_u16b(&tmp16u);
 
 		/* Incompatible save files */
-		if ((tmp8u > MAX_CLASS) || (tmp16u > PY_MAX_LEVEL))
+		if ((tmp8u > max_c_idx) || (tmp16u > PY_MAX_LEVEL))
 		{
 #ifdef JP
 			note(format("クラスHP/MP配列が大きすぎる(%u/%u)！", tmp8u, tmp16u));

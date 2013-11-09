@@ -334,7 +334,7 @@ void do_cmd_browse(void)
 	cptr q, s;
 
 	/* Warriors are illiterate */
-	if (!realm_choices[p_ptr->pclass])
+	if (!class_info[p_ptr->pclass].realm_choices)
 	{
 #ifdef JP
 		msg_print("本を読むことができない！");
@@ -1846,14 +1846,14 @@ static bool cast_witch_spell(int spell)
 					msg_format("%^s is unaffected!", m_name);
 #endif
 				}
-				else if (!m_ptr->melt_weapon)
+				else if (!MON_MELT_WEAPON(m_ptr))
 				{
 #ifdef JP
 					msg_format("%^sの攻撃力が弱まったようだ。", m_name);
 #else
 					msg_format("Damage of %^s is seems to weakened.", m_name);
 #endif
-					m_ptr->melt_weapon = power;
+					(void)set_monster_melt_weapon(cave[ty][tx].m_idx, power);
 				}
 			}
 		}
@@ -1970,73 +1970,11 @@ static bool cast_witch_spell(int spell)
 			{
 				dispel_player();
 
-				if (p_ptr->riding)
-				{
-					m_list[p_ptr->riding].invulner = 0;
-					m_list[p_ptr->riding].fast = 0;
-					m_list[p_ptr->riding].slow = 0;
-					m_list[p_ptr->riding].melt_weapon = 0;
-					m_list[p_ptr->riding].opposite_elem = 0;
-					p_ptr->update |= PU_BONUS;
-					if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= PR_HEALTH;
-					p_ptr->redraw |= (PR_UHEALTH);
-				}
+				if (p_ptr->riding) dispel_monster_status(p_ptr->riding);
 			}
 			else if (cave[ty][tx].m_idx)
 			{
-				monster_type *m_ptr = &m_list[cave[ty][tx].m_idx];
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, 0);
-				if (m_ptr->invulner)
-				{
-					m_ptr->invulner = 0;
-#ifdef JP
-					msg_format("%sはもう無敵ではない。", m_name);
-#else
-					msg_format("%^s is no longer invulnerable.", m_name);
-#endif
-					m_ptr->energy_need += ENERGY_NEED();
-				}
-				if (m_ptr->fast)
-				{
-					m_ptr->fast = 0;
-#ifdef JP
-					msg_format("%sはもう加速されていない。", m_name);
-#else
-					msg_format("%^s is no longer fast.", m_name);
-#endif
-				}
-				if (m_ptr->slow)
-				{
-					m_ptr->slow = 0;
-#ifdef JP
-					msg_format("%sはもう減速されていない。", m_name);
-#else
-					msg_format("%^s is no longer slow.", m_name);
-#endif
-				}
-				if (m_ptr->melt_weapon)
-				{
-					m_ptr->melt_weapon = 0;
-#ifdef JP
-					msg_format("%^sの攻撃力が元に戻ったようだ。", m_name);
-#else
-					msg_format("Damage of %^s is seems to restored.", m_name);
-#endif
-				}
-				if (m_ptr->opposite_elem)
-				{
-					m_ptr->opposite_elem = 0;
-#ifdef JP
-					msg_format("%^sのエレメントの反転が消えた。", m_name);
-#else
-					msg_format("Elements of %^s are no longer reverted.", m_name);
-#endif
-					if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(m_ptr->fy, m_ptr->fx);
-				}
-				p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->riding == cave[ty][tx].m_idx) p_ptr->redraw |= (PR_UHEALTH);
+				dispel_monster_status(cave[ty][tx].m_idx);
 			}
 		}
 		break;
@@ -2102,14 +2040,14 @@ static bool cast_witch_spell(int spell)
 					msg_format("%^s is unaffected!", m_name);
 #endif
 				}
-				else if (!m_ptr->opposite_elem)
+				else if (!MON_OPPOSITE_ELEM(m_ptr))
 				{
 #ifdef JP
 					msg_format("%^sのエレメントが反転した。", m_name);
 #else
 					msg_format("Elements of %^s are reverted.", m_name);
 #endif
-					m_ptr->opposite_elem = power;
+					(void)set_monster_opposite_elem(cave[ty][tx].m_idx, power);
 					if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(m_ptr->fy, m_ptr->fx);
 				}
 			}
@@ -2511,7 +2449,7 @@ void do_cmd_cast(void)
 	cptr q, s;
 
 	/* Require spell ability */
-	if (!realm_choices[p_ptr->pclass])
+	if (!class_info[p_ptr->pclass].realm_choices)
 	{
 #ifdef JP
 		msg_print("呪文を唱えられない！");
@@ -3015,12 +2953,14 @@ void do_cmd_cast(void)
 		{
 		case REALM_HOLY: /* * HOLY * */
 		case REALM_CRUSADE: /* * CRUSADE * */
-			if (randint0(100) < s_ptr->slevel) change_your_alignment_lnc(1);
+			if (randint0(100) < s_ptr->slevel) change_your_alignment(ALI_GNE, 1);
+			break;
+		case REALM_SYMBIOTIC: /* * SYMBIOTIC * */
+			if (randint0(100) < s_ptr->slevel) change_your_alignment(ALI_LNC, -1);
 			break;
 		case REALM_DEATH: /* * DEATH * */
-		case REALM_SYMBIOTIC: /* * SYMBIOTIC * */
 		case REALM_WITCH: /* * WITCH * */
-			if (randint0(100) < s_ptr->slevel) change_your_alignment_lnc(-1);
+			if (randint0(100) < s_ptr->slevel) change_your_alignment(ALI_GNE, -1);
 			break;
 		}
 	}
@@ -3098,9 +3038,6 @@ void do_cmd_cast(void)
 void do_cmd_pray(void)
 {
 	bool no_effect = TRUE;
-	int  align_gne = 0, i;
-
-	for (i = 0; i < ETHNICITY_NUM; i++) align_gne += chaos_frame[i];
 
 	switch (get_your_alignment_gne())
 	{
@@ -3141,7 +3078,7 @@ void do_cmd_pray(void)
 
 		case 11:
 			msg_print("祈りは太陽神フィラーハに届いた。");
-			project_hack(GF_HOLY_FIRE, randint1(MAX(align_gne, 300)));
+			project_hack(GF_HOLY_FIRE, randint1(MAX(p_ptr->align[ALI_GNE], 300)));
 			no_effect = FALSE;
 			break;
 		}
@@ -3149,7 +3086,7 @@ void do_cmd_pray(void)
 
 	case ALIGN_GNE_EVIL:
 		{
-			int dam = 200 + randint1(MAX(0 - align_gne, 300) / 500);
+			int dam = 200 + randint1(MAX(0 - p_ptr->align[ALI_GNE], 300) / 500);
 			int pdam = dam * 2;
 
 			msg_print("天罰が下った!");
@@ -3212,6 +3149,31 @@ static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
 	if (m_ptr2->hp > m_ptr1->hp) return FALSE;
 	
 	return w1 <= w2;
+}
+
+void check_pets_num_and_align(monster_type *m_ptr, bool inc)
+{
+	s32b old_friend_align_lnc = friend_align_lnc;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	if (inc)
+	{
+		total_friends++;
+		if (r_ptr->flags3 & RF3_GOOD) friend_align_gne += r_ptr->level / 5;
+		if (r_ptr->flags3 & RF3_EVIL) friend_align_gne -= r_ptr->level / 5;
+		if (r_ptr->flags7 & RF7_LAWFUL) friend_align_lnc += r_ptr->level / 5;
+		if (r_ptr->flags7 & RF7_CHAOTIC) friend_align_lnc -= r_ptr->level / 5;
+	}
+	else
+	{
+		total_friends--;
+		if (r_ptr->flags3 & RF3_GOOD) friend_align_gne -= r_ptr->level / 5;
+		if (r_ptr->flags3 & RF3_EVIL) friend_align_gne += r_ptr->level / 5;
+		if (r_ptr->flags7 & RF7_LAWFUL) friend_align_lnc -= r_ptr->level / 5;
+		if (r_ptr->flags7 & RF7_CHAOTIC) friend_align_lnc += r_ptr->level / 5;
+	}
+
+	if (old_friend_align_lnc != friend_align_lnc) p_ptr->update |= (PU_BONUS);
 }
 
 int calculate_upkeep(void)
@@ -3340,7 +3302,7 @@ void do_cmd_pet_dismiss(void)
 
 		delete_this = FALSE;
 		kakunin = ((pet_ctr == p_ptr->riding) || (m_ptr->nickname));
-		monster_desc(friend_name, m_ptr, 0x80);
+		monster_desc(friend_name, m_ptr, MD_ASSUME_VISIBLE);
 		
 		if (!all_pets)
 		{
@@ -3400,8 +3362,8 @@ void do_cmd_pet_dismiss(void)
 			{
 				char m_name[80];
 				
-				monster_desc(m_name, m_ptr, 0x08);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, 2, m_name);
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DISMISS, m_name);
 			}
 			
 			if (pet_ctr == p_ptr->riding)
@@ -3694,11 +3656,11 @@ bool do_riding(bool force)
 
 			return FALSE;
 		}
-		if (m_ptr->csleep)
+		if (MON_CSLEEP(m_ptr))
 		{
 			char m_name[80];
 			monster_desc(m_name, m_ptr, 0);
-			m_ptr->csleep = 0;
+			(void)set_monster_csleep(c_ptr->m_idx, 0);
 #ifdef JP
 			msg_format("%sを起こした。", m_name);
 #else
@@ -3842,8 +3804,8 @@ static void do_name_pet(void)
 				{
 					char m_name[80];
 
-					monster_desc(m_name, m_ptr, 0x08);
-					do_cmd_write_nikki(NIKKI_NAMED_PET, 0, m_name);
+					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+					do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_NAME, m_name);
 				}
 			}
 			else
@@ -3852,8 +3814,8 @@ static void do_name_pet(void)
 				{
 					char m_name[80];
 
-					monster_desc(m_name, m_ptr, 0x08);
-					do_cmd_write_nikki(NIKKI_NAMED_PET, 1, m_name);
+					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+					do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_UNNAME, m_name);
 				}
 				m_ptr->nickname = 0;
 			}

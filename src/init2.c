@@ -290,6 +290,9 @@ header r_head;
 header d_head;
 header s_head;
 header m_head;
+header p_head;
+header c_head;
+header h_head;
 
 #ifndef MAC_MPW
 #ifdef CHECK_MODIFICATION_TIME
@@ -400,7 +403,7 @@ static void init_header(header *head, int num, int len)
 	head->v_major = T_VER_MAJOR;
 	head->v_minor = T_VER_MINOR;
 	head->v_patch = T_VER_PATCH;
-	head->v_extra = T_VER_EXTRA;
+	head->v_extra = 0;
 
 	/* Save the "record" information */
 	head->info_num = num;
@@ -790,7 +793,7 @@ errr init_v_info(void)
 static errr init_s_info(void)
 {
 	/* Init the header */
-	init_header(&s_head, MAX_CLASS, sizeof(skill_table));
+	init_header(&s_head, max_c_idx, sizeof(skill_table));
 
 #ifdef ALLOW_TEMPLATES
 
@@ -810,7 +813,7 @@ static errr init_s_info(void)
 static errr init_m_info(void)
 {
 	/* Init the header */
-	init_header(&m_head, MAX_CLASS, sizeof(player_magic));
+	init_header(&m_head, max_c_idx, sizeof(player_magic));
 
 #ifdef ALLOW_TEMPLATES
 
@@ -821,6 +824,67 @@ static errr init_m_info(void)
 
 	return init_info("m_info", &m_head,
 	                 (void*)&m_info, NULL, NULL);
+}
+
+
+
+/*
+ * Initialize the "p_race" array
+ */
+static errr init_p_info(void)
+{
+	/* Init the header */
+	init_header(&p_head, max_p_idx, sizeof(player_race));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	p_head.parse_info_txt = parse_p_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("p_race", &p_head,
+	                 (void*)&race_info, (void*)&p_name, (void*)&p_text);
+}
+
+
+/*
+ * Initialize the "p_class" array
+ */
+static errr init_c_info(void)
+{
+	/* Init the header */
+	init_header(&c_head, max_c_idx, sizeof(player_class));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	c_head.parse_info_txt = parse_c_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("p_class", &c_head,
+	                 (void*)&class_info, (void*)&c_name, (void*)&c_text);
+}
+
+
+/*
+ * Initialize the "p_hist" array
+ */
+static errr init_h_info(void)
+{
+	/* Init the header */
+	init_header(&h_head, max_h_idx, sizeof(hist_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	h_head.parse_info_txt = parse_h_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("p_hist", &h_head,
+	                 (void*)&h_info, NULL, (void*)&h_text);
 }
 
 
@@ -1517,12 +1581,12 @@ errr init_buildings(void)
 		}
 
 #if 0
-		for (j = 0; j < MAX_CLASS; j++)
+		for (j = 0; j < max_c_idx; j++)
 		{
 			building[i].member_class[j] = 0;
 		}
 
-		for (j = 0; j < MAX_RACES; j++)
+		for (j = 0; j < max_p_idx; j++)
 		{
 			building[i].member_race[j] = 0;
 		}
@@ -1571,6 +1635,122 @@ static errr init_quests(void)
 /*
  * Initialize some other arrays
  */
+static errr init_object_alloc(void)
+{
+	int i, j;
+	object_kind *k_ptr;
+	alloc_entry *table;
+	s16b num[MAX_DEPTH];
+	s16b aux[MAX_DEPTH];
+
+
+	/*** Analyze object allocation info ***/
+
+	/* Clear the "aux" array */
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+
+	/* Clear the "num" array */
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+
+	/* Free the old "alloc_kind_table" (if it exists) */
+	if (alloc_kind_table)
+	{
+		C_KILL(alloc_kind_table, alloc_kind_size, alloc_entry);
+	}
+
+	/* Size of "alloc_kind_table" */
+	alloc_kind_size = 0;
+
+	/* Scan the objects */
+	for (i = 1; i < max_k_idx; i++)
+	{
+		k_ptr = &k_info[i];
+
+		/* Scan allocation pairs */
+		for (j = 0; j < 4; j++)
+		{
+			/* Count the "legal" entries */
+			if (k_ptr->chance[j])
+			{
+				/* Count the entries */
+				alloc_kind_size++;
+
+				/* Group by level */
+				num[k_ptr->locale[j]]++;
+			}
+		}
+	}
+
+	/* Collect the level indexes */
+	for (i = 1; i < MAX_DEPTH; i++)
+	{
+		/* Group by level */
+		num[i] += num[i-1];
+	}
+
+	/* Paranoia */
+#ifdef JP
+if (!num[0]) quit("町のアイテムがない！");
+#else
+	if (!num[0]) quit("No town objects!");
+#endif
+
+
+
+	/*** Initialize object allocation info ***/
+
+	/* Allocate the alloc_kind_table */
+	C_MAKE(alloc_kind_table, alloc_kind_size, alloc_entry);
+
+	/* Access the table entry */
+	table = alloc_kind_table;
+
+	/* Scan the objects */
+	for (i = 1; i < max_k_idx; i++)
+	{
+		k_ptr = &k_info[i];
+
+		/* Scan allocation pairs */
+		for (j = 0; j < 4; j++)
+		{
+			/* Count the "legal" entries */
+			if (k_ptr->chance[j])
+			{
+				int p, x, y, z;
+
+				/* Extract the base level */
+				x = k_ptr->locale[j];
+
+				/* Extract the base probability */
+				p = (100 / k_ptr->chance[j]);
+
+				/* Skip entries preceding our locale */
+				y = (x > 0) ? num[x-1] : 0;
+
+				/* Skip previous entries at this locale */
+				z = y + aux[x];
+
+				/* Load the entry */
+				table[z].index = i;
+				table[z].level = x;
+				table[z].prob1 = p;
+				table[z].prob2 = p;
+				table[z].prob3 = p;
+
+				/* Another entry complete for this locale */
+				aux[x]++;
+			}
+		}
+	}
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize some other arrays
+ */
 static errr init_other(void)
 {
 	int i, n;
@@ -1589,6 +1769,12 @@ static errr init_other(void)
 
 	/* Allocate and Wipe the fear field monster list */
 	C_MAKE(fear_field_m_idx, max_m_idx, s16b);
+
+	/* Allocate and Wipe the monster process list */
+	for (i = 0; i < MAX_MTIMED; i++)
+	{
+		C_MAKE(mproc_list[i], max_m_idx, s16b);
+	}
 
 	/* Allocate and Wipe the max dungeon level */
 	C_MAKE(max_dlv, max_d_idx, s16b);
@@ -2179,6 +2365,33 @@ void init_angband(void)
 	if (init_s_info()) quit("Cannot initialize skill");
 #endif
 
+	/* Initialize race info */
+#ifdef JP
+	note("[データの初期化中... (種族)]");
+	if (init_p_info()) quit("種族初期化不能");
+#else
+	note("[Initializing arrays... (races)]");
+	if (init_p_info()) quit("Cannot initialize races");
+#endif
+
+	/* Initialize race info */
+#ifdef JP
+	note("[データの初期化中... (クラス)]");
+	if (init_c_info()) quit("クラス初期化不能");
+#else
+	note("[Initializing arrays... (classes)]");
+	if (init_c_info()) quit("Cannot initialize classes");
+#endif
+
+	/* Initialize history info */
+#ifdef JP
+	note("[データの初期化中... (生い立ち)]");
+	if (init_h_info()) quit("生い立ち初期化不能");
+#else
+	note("[Initializing arrays... (histories)]");
+	if (init_h_info()) quit("Cannot initialize histories");
+#endif
+
 	/* Initialize wilderness array */
 #ifdef JP
 	note("[配列を初期化しています... (荒野)]");
@@ -2234,6 +2447,13 @@ void init_angband(void)
 	if (init_quests()) quit("Cannot initialize quests");
 #endif
 
+
+	/* Initialize vault info */
+#ifdef JP
+	if (init_v_info()) quit("vaults を初期化できません");
+#else
+	if (init_v_info()) quit("Cannot initialize vaults");
+#endif
 
 	/* Initialize some other arrays */
 #ifdef JP
@@ -2293,3 +2513,24 @@ void init_angband(void)
 #endif
 
 }
+
+/*
+ *  Get check sum in string form
+ */
+cptr get_check_sum(void)
+{
+	return format("%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+		      f_head.v_extra, 
+		      k_head.v_extra, 
+		      a_head.v_extra, 
+		      e_head.v_extra, 
+		      r_head.v_extra, 
+		      d_head.v_extra, 
+		      m_head.v_extra, 
+		      s_head.v_extra, 
+		      p_head.v_extra, 
+		      c_head.v_extra, 
+		      h_head.v_extra, 
+		      v_head.v_extra);
+}
+

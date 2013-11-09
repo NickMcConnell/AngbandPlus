@@ -1236,7 +1236,7 @@ muta_desc = "関節が突然痛み出した。";
 			}
 		}
 
-		change_your_alignment_lnc(-10);
+		change_your_alignment(ALI_LNC, -10);
 
 		mutant_regenerate_mod = calc_mutant_regenerate_mod();
 		p_ptr->update |= PU_BONUS;
@@ -2241,6 +2241,8 @@ muta_desc = "白いオーラは輝いて消えた。";
 	}
 	else
 	{
+		change_your_alignment(ALI_LNC, 1);
+
 		msg_print(muta_desc);
 		*(muta_class) &= ~(muta_which);
 
@@ -3495,7 +3497,7 @@ bool mutation_power_aux(u32b power)
 					object_type *o_ptr = &inventory[i];
 
 					if (!o_ptr->k_idx) continue;
-					if (!cursed_p(o_ptr)) continue;
+					if (!object_is_cursed(o_ptr)) continue;
 
 					o_ptr->feeling = FEEL_CURSED;
 				}
@@ -3669,6 +3671,14 @@ bool mutation_power_aux(u32b power)
 					(r_ptr->level < randint1(lvl+50)) &&
 					!(m_ptr->mflag2 & MFLAG2_NOGENO))
 				{
+					if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+					{
+						char m_name[80];
+
+						monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+						do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+					}
+
 					/* Delete the monster, rather than killing it. */
 					delete_monster_idx(c_ptr->m_idx);
 #ifdef JP

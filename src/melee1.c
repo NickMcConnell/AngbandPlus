@@ -125,9 +125,12 @@ static cptr desc_insult[] =
 static bool is_infectable(void)
 {
 	if (p_ptr->infected) return FALSE;
-	else if (p_ptr->psex == SEX_FEMALE) return FALSE;
-	else if (rp_ptr->r_flags & PRF_UNDEAD) return FALSE;
-	else if (cp_ptr->c_flags & PCF_UNDEAD) return FALSE;
+	if (p_ptr->psex == SEX_FEMALE) return FALSE;
+	if (rp_ptr->r_flags & PRF_DEMON) return FALSE;
+	if (rp_ptr->r_flags & PRF_UNDEAD) return FALSE;
+
+	if (cp_ptr->c_flags & PCF_DEMON) return FALSE;
+	if (cp_ptr->c_flags & PCF_UNDEAD) return FALSE;
 
 	switch (p_ptr->prace)
 	{
@@ -135,10 +138,8 @@ static bool is_infectable(void)
 		case RACE_GREMLIN:
 		case RACE_PUMPKINHEAD:
 			return FALSE;
-			break;
 		default:
 			return TRUE;
-			break;
 	}
 }
 
@@ -188,7 +189,7 @@ bool make_attack_normal(int m_idx)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, m_ptr, 0x288);
+	monster_desc(ddesc, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 	/* Assume no blink */
 	blinked = FALSE;
@@ -282,7 +283,7 @@ bool make_attack_normal(int m_idx)
 
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev, ac, m_ptr->stunned))
+		if (!effect || check_hit(power, rlev, ac, MON_STUNNED(m_ptr)))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -676,7 +677,7 @@ bool make_attack_normal(int m_idx)
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
-			if (m_ptr->melt_weapon)
+			if (MON_MELT_WEAPON(m_ptr))
 			{
 				damage -= 10;
 				if (damage < 0) damage = 0;
@@ -871,7 +872,7 @@ bool make_attack_normal(int m_idx)
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
 					/* Confused monsters cannot steal successfully. -LM-*/
-					if (m_ptr->confused || p_ptr->is_dead || IS_MULTISHADOW(0))
+					if (MON_CONFUSED(m_ptr) || p_ptr->is_dead || IS_MULTISHADOW(0))
 					{
 						STOP_MULTISHADOW();
 						break;
@@ -959,7 +960,7 @@ bool make_attack_normal(int m_idx)
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
 
 					/* Confused monsters cannot steal successfully. -LM-*/
-					if (m_ptr->confused || p_ptr->is_dead || IS_MULTISHADOW(0))
+					if (MON_CONFUSED(m_ptr) || p_ptr->is_dead || IS_MULTISHADOW(0))
 					{
 						STOP_MULTISHADOW();
 						break;
@@ -1004,10 +1005,10 @@ bool make_attack_normal(int m_idx)
 						if (!o_ptr->k_idx) continue;
 
 						/* Skip artifacts */
-						if (artifact_p(o_ptr) || o_ptr->art_name) continue;
+						if (object_is_artifact(o_ptr)) continue;
 
 						/* Get a description */
-						object_desc(o_name, o_ptr, FALSE, 3);
+						object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
 						/* Message */
 #ifdef JP
@@ -1049,7 +1050,7 @@ bool make_attack_normal(int m_idx)
 							}
 
 							/* Forget mark */
-							j_ptr->marked = 0;
+							j_ptr->marked = OM_TOUCHED;
 
 							/* Memorize monster */
 							j_ptr->held_m_idx = m_idx;
@@ -1107,7 +1108,7 @@ bool make_attack_normal(int m_idx)
 						if ((o_ptr->tval != TV_FOOD) && !((o_ptr->tval == TV_CORPSE) && (o_ptr->sval))) continue;
 
 						/* Get a description */
-						object_desc(o_name, o_ptr, FALSE, 0);
+						object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 						/* Message */
 #ifdef JP
@@ -1152,7 +1153,7 @@ bool make_attack_normal(int m_idx)
 					STOP_MULTISHADOW();
 
 					/* Drain fuel */
-					if ((o_ptr->xtra4 > 0) && (!artifact_p(o_ptr)))
+					if ((o_ptr->xtra4 > 0) && (!object_is_fixed_artifact(o_ptr)))
 					{
 						/* Reduce fuel */
 						o_ptr->xtra4 -= (250 + randint1(250));
@@ -1843,7 +1844,13 @@ bool make_attack_normal(int m_idx)
 					resist_drain = !drain_exp(rd, cd, rd / 10, cd / 10, 50);
 
 					/* Heal the attacker? */
-					if ((rp_ptr->r_flags & PRF_UNDEAD) && (cp_ptr->c_flags & PCF_UNDEAD))
+					if ((rp_ptr->r_flags & PRF_DEMON) || (cp_ptr->c_flags & PCF_DEMON))
+					{
+						resist_drain = TRUE;
+						break;
+					}
+
+					if ((rp_ptr->r_flags & PRF_UNDEAD) || (cp_ptr->c_flags & PCF_UNDEAD))
 					{
 						resist_drain = TRUE;
 						break;
@@ -2352,7 +2359,7 @@ bool make_attack_normal(int m_idx)
 		char m_name_self[80];
 
 		/* hisself */
-		monster_desc(m_name_self, m_ptr, 0x23);
+		monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif

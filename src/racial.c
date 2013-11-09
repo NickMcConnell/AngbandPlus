@@ -13,19 +13,6 @@
 #include "angband.h"
 
 /*
- * Hook to determine if an object is contertible in an arrow/bolt
- */
-bool item_tester_hook_convertible(object_type *o_ptr)
-{
-	if((o_ptr->tval==TV_JUNK) || (o_ptr->tval==TV_SKELETON)) return TRUE;
-
-	if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON)) return TRUE;
-	/* Assume not */
-	return (FALSE);
-}
-
-
-/*
  * do_cmd_cast calls this function if the player's class
  * is 'archer'.
  */
@@ -103,7 +90,7 @@ static bool do_cmd_archer(void)
 
 		cptr q, s;
 
-		item_tester_hook = item_tester_hook_convertible;
+		item_tester_hook = object_is_convertible;
 
 		/* Get an item */
 #ifdef JP
@@ -139,7 +126,7 @@ static bool do_cmd_archer(void)
 
 		q_ptr->discount = 99;
 
-		object_desc(o_name, q_ptr, TRUE, 2);
+		object_desc(o_name, q_ptr, OD_OMIT_INSCRIPTION);
 #ifdef JP
 		msg_format("%sを作った。", o_name);
 #else
@@ -167,7 +154,7 @@ static bool do_cmd_archer(void)
 
 		cptr q, s;
 
-		item_tester_hook = item_tester_hook_convertible;
+		item_tester_hook = object_is_convertible;
 
 		/* Get an item */
 #ifdef JP
@@ -203,7 +190,7 @@ static bool do_cmd_archer(void)
 
 		q_ptr->discount = 99;
 
-		object_desc(o_name, q_ptr, TRUE, 2);
+		object_desc(o_name, q_ptr, OD_OMIT_INSCRIPTION);
 #ifdef JP
 		msg_format("%sを作った。", o_name);
 #else
@@ -225,6 +212,94 @@ static bool do_cmd_archer(void)
 
 		(void)inven_carry(q_ptr);
 	}
+	return TRUE;
+}
+
+
+static bool do_cmd_enchant_ammo(void)
+{
+	int         item;
+	bool        okay = FALSE;
+	object_type *o_ptr;
+	cptr        q, s;
+	int num_hit = randint1(3), num_dam =randint1(3);
+	char o_name[MAX_NLEN];
+
+	if (p_ptr->confused)
+	{
+#ifdef JP
+		msg_print("混乱してる！");
+#else
+		msg_print("You are too confused!");
+#endif
+		return FALSE;
+	}
+
+	if (p_ptr->blind)
+	{
+#ifdef JP
+		msg_print("目が見えない！");
+#else
+		msg_print("You are blind!");
+#endif
+		return FALSE;
+	}
+
+	item_tester_hook = object_is_ammo;
+
+	/* Get an item */
+#ifdef JP
+	q = "どのアイテムを改良しますか？";
+	s = "改良できるものがありません。";
+#else
+	q = "Improve which item? ";
+	s = "You have nothing to improve.";
+#endif
+
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+	/* Describe */
+#ifdef JP
+	msg_format("%s は明るく輝いた！", o_name);
+#else
+	msg_format("%s %s glow%s brightly!",
+		   ((item >= 0) ? "Your" : "The"), o_name,
+		   ((o_ptr->number > 1) ? "" : "s"));
+#endif
+
+	/* Enchant */
+	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
+	if (enchant(o_ptr, num_dam, ENCH_TODAM)) okay = TRUE;
+
+	/* Failure */
+	if (!okay)
+	{
+		/* Flush */
+		if (flush_failure) flush();
+
+		/* Message */
+#ifdef JP
+		msg_print("強化に失敗した。");
+#else
+		msg_print("The enchantment failed.");
+#endif
+	}
+
 	return TRUE;
 }
 
@@ -317,7 +392,7 @@ static bool do_cmd_make_golem(void)
 	{
 		cptr q, s;
 
-		item_tester_hook = item_tester_hook_corpse;
+		item_tester_hook = object_is_corpse;
 
 		/* Get an item */
 #ifdef JP
@@ -399,6 +474,274 @@ static bool do_cmd_make_golem(void)
 	return TRUE;
 }
 
+static bool do_cmd_charge(void)
+{
+	int tx, ty, nx, ny;
+	int dir = 0;
+	int over_1 = 0, over_2 = 0;
+	u16b path_g[16];
+	int path_n, i;
+
+	monster_type *riding_m_ptr = &m_list[p_ptr->riding];
+	monster_race *riding_r_ptr = &r_info[p_ptr->riding ? riding_m_ptr->r_idx : 0]; /* Paranoia */
+
+	if (p_ptr->riding && (riding_r_ptr->flags1 & RF1_NEVER_MOVE))
+	{
+#ifdef JP
+		msg_print("動けない！");
+#else
+		msg_print("Can't move!");
+#endif
+		return FALSE;
+	}
+
+	if (p_ptr->riding && MON_MONFEAR(riding_m_ptr))
+	{
+		char m_name[80];
+
+		/* Acquire the monster name */
+		monster_desc(m_name, riding_m_ptr, 0);
+
+		/* Dump a message */
+#ifdef JP
+		msg_format("%sが恐怖していて制御できない。", m_name);
+#else
+		msg_format("%^s is too scared to control.", m_name);
+#endif
+		return FALSE;
+	}
+
+	if (p_ptr->riding && (MON_STUNNED(riding_m_ptr) || MON_CONFUSED(riding_m_ptr) || p_ptr->riding_ryoute))
+	{
+#ifdef JP
+		msg_print("うまく制御できない！");
+#else
+		msg_print("Can't control!");
+#endif
+		return FALSE;
+	}
+
+	project_length = 5;
+	if (!get_aim_dir(&dir)) return FALSE;
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+	}
+	else
+	{
+		/* Use the given direction */
+		ty = py + 99 * ddy[dir];
+		tx = px + 99 * ddx[dir];
+
+		/* If not in bounds... */
+		if (!in_bounds2(ty, tx))
+		{
+			if (ty < 0) over_1 = -ty;
+			else if (ty >= cur_hgt) over_1 = ty - cur_hgt + 1;
+			if (tx < 0) over_2 = -tx;
+			else if (tx >= cur_wid) over_2 = tx - cur_wid + 1;
+
+			if (over_1 < over_2) over_1 = over_2;
+
+			ty += over_1 * (-ddy[dir]);
+			tx += over_1 * (-ddx[dir]);
+		}
+	}
+
+	path_n = project_path(path_g, project_length, py, px, ty, tx, 0L);
+	project_length = 0;
+	ty = py;
+	tx = px;
+
+	/* Project along the path */
+	for (i = 0; i < path_n; ++i)
+	{
+		ny = GRID_Y(path_g[i]);
+		nx = GRID_X(path_g[i]);
+
+		/* Max distance empty floor */
+		if (player_has_los_bold(ny, nx) &&
+			cave_empty_bold(ny, nx) &&
+			player_can_enter(cave[ny][nx].feat))
+		{
+			/* Save the tmp location */
+			ty = ny;
+			tx = nx;
+		}
+
+		if (!(riding_r_ptr->flags7 & RF7_CAN_FLY) && (cave[ny][nx].feat == FEAT_AIR)) break;
+		if ((riding_r_ptr->flags7 & RF7_AQUATIC) && (cave[ny][nx].feat != FEAT_SHAL_WATER) && (cave[ny][nx].feat != FEAT_DEEP_WATER) && (cave[ny][nx].feat != FEAT_SWAMP)) break;
+		if (!(riding_r_ptr->flags7 & (RF7_AQUATIC | RF7_CAN_SWIM | RF7_CAN_FLY)) && (cave[ny][nx].feat == FEAT_DEEP_WATER)) break;
+		if (((riding_r_ptr->flags2 & RF2_AURA_FIRE) && !(riding_r_ptr->flags7 & RF7_CAN_FLY)) && (cave[ny][nx].feat == FEAT_SHAL_WATER)) break;
+		if (!(riding_r_ptr->flags7 & RF7_CAN_FLY) && !(riding_r_ptr->flagsr & RFR_RES_FIRE) && ((cave[ny][nx].feat == FEAT_SHAL_LAVA) || (cave[ny][nx].feat == FEAT_DEEP_LAVA))) break;
+
+	}
+
+	if ((ty == py) && (tx == px))
+	{
+#ifdef JP
+		msg_print("突撃できません。");
+#else
+		msg_print("You can't charge to that place.");
+#endif
+		return FALSE;
+	}
+
+	project(0, 0, ty, tx, PY_ATTACK_CHARGE, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, MODIFY_ELEM_MODE_MELEE);
+	teleport_player_to(ty, tx, FALSE, FALSE);
+
+	return TRUE;
+}
+
+static bool do_cmd_sandan(void)
+{
+	int y, x, i;
+	int dir = 0;
+
+	if (!get_rep_dir2(&dir)) return FALSE;
+	if (dir == 5) return FALSE;
+	for (i = 0; i < 3; i++)
+	{
+		int oy, ox;
+		int ny, nx;
+		int m_idx;
+		monster_type *m_ptr;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, PY_ATTACK_3DAN);
+		else
+		{
+#ifdef JP
+			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
+			return FALSE;
+		}
+
+		/* Monster is dead? */
+		if (!cave[y][x].m_idx) break;
+
+		ny = y + ddy[dir];
+		nx = x + ddx[dir];
+		m_idx = cave[y][x].m_idx;
+		m_ptr = &m_list[m_idx];
+
+		/* Monster cannot move back? */
+		if (!monster_can_enter(ny, nx, &r_info[m_ptr->r_idx])) continue;
+
+		cave[y][x].m_idx = 0;
+		cave[ny][nx].m_idx = m_idx;
+		m_ptr->fy = ny;
+		m_ptr->fx = nx;
+
+		update_mon(m_idx, TRUE);
+
+		/* Player can move forward? */
+		if (player_can_enter(cave[y][x].feat))
+		{
+			/* Save the old location */
+			oy = py;
+			ox = px;
+
+			/* Move the player */
+			py = y;
+			px = x;
+
+		if (p_ptr->riding)
+		{
+			cave[oy][ox].m_idx = cave[py][px].m_idx;
+			cave[py][px].m_idx = p_ptr->riding;
+			m_list[p_ptr->riding].fy = py;
+			m_list[p_ptr->riding].fx = px;
+			update_mon(p_ptr->riding, TRUE);
+		}
+
+			forget_flow();
+
+			/* Redraw the old spot */
+			lite_spot(oy, ox);
+
+			/* Redraw the new spot */
+			lite_spot(py, px);
+		}
+
+		/* Redraw the old spot */
+		lite_spot(y, x);
+
+		/* Redraw the new spot */
+		lite_spot(ny, nx);
+
+		/* Check for new panel (redraw map) */
+		verify_panel();
+
+		set_mermaid_in_water();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_DISTANCE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+		/* Handle stuff */
+		handle_stuff();
+
+		/* -more- */
+		if (i < 2) msg_print(NULL);
+	}
+
+	return TRUE;
+}
+
+static bool do_cmd_penetration(void)
+{
+	int y, x;
+	int dir = 0;
+	bool do_attack = FALSE;
+
+	if (!get_rep_dir2(&dir)) return FALSE;
+	if (dir == 5) return FALSE;
+	y = py + ddy[dir];
+	x = px + ddx[dir];
+	if (cave[y][x].m_idx)
+	{
+		py_attack(y, x, PY_ATTACK_PENET);
+		do_attack = TRUE;
+	}
+	y += ddy[dir];
+	x += ddx[dir];
+	if (in_bounds(y, x))
+	{
+		if (cave[y][x].m_idx)
+		{
+			py_attack(y, x, 0);
+			do_attack = TRUE;
+		}
+	}
+	penet_ac = 0;
+
+	if (!do_attack)
+	{
+#ifdef JP
+		msg_print("その方向にはモンスターはいません。");
+#else
+		msg_print("There is no monster.");
+#endif
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 /*
  * do_cmd_cast calls this function if the player's class
  * is 'Medium'.
@@ -448,7 +791,7 @@ static bool do_cmd_hamaya(void)
 	{
 		char o_name[MAX_NLEN];
 
-		object_desc(o_name, &inventory[item], FALSE, 3);
+		object_desc(o_name, &inventory[item], (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NO_PLURAL));
 #ifdef JP
 		msg_format("祈りをこめて%sを放つ！", o_name);
 #else
@@ -733,11 +1076,12 @@ static int racial_aux(power_desc_type *pd_ptr)
 		return 0;
 	}
 
-	/* バーサーカーに新レイシャル */
-	else if ((p_ptr->pclass == CLASS_BERSERKER) && (pd_ptr->number == -5) && (!((inventory[INVEN_RARM].tval == TV_POLEARM) && ((inventory[INVEN_RARM].sval == SV_FRANCISCA) || (inventory[INVEN_RARM].sval == SV_RUNEAXE)))))
+	/* クラスレイシャルの発動依存チェック */
+	else if ((((p_ptr->pclass == CLASS_KNIGHT) && (pd_ptr->number == -7)) || ((p_ptr->pclass == CLASS_GENERAL) && (pd_ptr->number == -6))) &&
+			 ((!p_ptr->riding) || (get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx]) != WT_LANCE)))
 	{
 #ifdef JP
-		msg_print("利き腕に投げ斧を装備しないと！");
+		msg_print("この技を使うには乗馬槍を装備して乗馬していなければいけない！");
 #else
 		msg_print("You need to wield a weapon!");
 #endif
@@ -746,7 +1090,6 @@ static int racial_aux(power_desc_type *pd_ptr)
 		return 0;
 	}
 		
-	/* Swordmaster is not wield weapon */
 	else if ((p_ptr->pclass == CLASS_SWORDMASTER) && (!buki_motteruka(INVEN_RARM)) && ((pd_ptr->number >= -10) && (pd_ptr->number <= -6)))
 	{
 #ifdef JP
@@ -759,7 +1102,6 @@ static int racial_aux(power_desc_type *pd_ptr)
 		return 0;
 	}
 
-	/* 新クラスの新レイシャル */
 	else if ((p_ptr->pclass == CLASS_GENERAL) && (pd_ptr->number == -7) && (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx])) & (WT_BIT_SMALL_SWORD | WT_BIT_SWORD | WT_BIT_GREAT_SWORD))))
 	{
 #ifdef JP
@@ -772,7 +1114,19 @@ static int racial_aux(power_desc_type *pd_ptr)
 		return 0;
 	}
 		
-	else if ((p_ptr->pclass == CLASS_FREYA) && ((pd_ptr->number == -6) || (pd_ptr->number == -7)) && (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx])) & (WT_BIT_SPEAR | WT_BIT_LANCE))))
+	else if ((p_ptr->pclass == CLASS_VALKYRIE) && (pd_ptr->number == -6) && (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx])) & (WT_BIT_SPEAR | WT_BIT_LANCE))))
+	{
+#ifdef JP
+		msg_print("この技を使うには槍を利き腕に装備しないといけない！");
+#else
+		msg_print("You need to wield a weapon!");
+#endif
+
+		energy_use = 0;
+		return 0;
+	}
+
+	else if ((p_ptr->pclass == CLASS_FREYA) && ((pd_ptr->number <= -5) || (pd_ptr->number >= -7)) && (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx])) & (WT_BIT_SPEAR | WT_BIT_LANCE))))
 	{
 #ifdef JP
 		msg_print("この技を使うには槍を利き腕に装備しないといけない！");
@@ -907,7 +1261,7 @@ static bool do_cmd_racial_throwing(int fake_item)
 		if (have_flag(flgs, TR_XTRA_MIGHT))
 		{
 			p_ptr->xtra_might = TRUE;
-			if (object_known_p(o_ptr)) p_ptr->dis_xtra_might = TRUE;
+			if (object_is_known(o_ptr)) p_ptr->dis_xtra_might = TRUE;
 		}
 
 		/* Hack -- do not apply "weapon" bonuses */
@@ -1014,6 +1368,7 @@ static bool cmd_racial_power_aux(s32b command)
 		&& (p_ptr->pclass != CLASS_NINJA)
 		&& (p_ptr->pclass != CLASS_NINJAMASTER)
 		&& (p_ptr->pclass != CLASS_VAMPIRE)
+		&& (p_ptr->pclass != CLASS_SUCCUBUS)
 		&& (command == -4))
 	{
 		if (!do_cmd_racial_throwing(INVEN_PEBBLE)) return FALSE;
@@ -1089,79 +1444,7 @@ static bool cmd_racial_power_aux(s32b command)
 				(void)detect_monsters_evil(DETECT_RAD_DEFAULT);
 				break;
 			case -7:
-				{
-					int tx, ty, nx, ny;
-					int over_1 = 0, over_2 = 0;
-					u16b path_g[16];
-					int path_n, i;
-
-					project_length = 5;
-					if (!get_aim_dir(&dir)) return FALSE;
-
-					/* Hack -- Use an actual "target" */
-					if ((dir == 5) && target_okay())
-					{
-						tx = target_col;
-						ty = target_row;
-					}
-					else
-					{
-						/* Use the given direction */
-						ty = py + 99 * ddy[dir];
-						tx = px + 99 * ddx[dir];
-
-						/* If not in bounds... */
-						if (!in_bounds2(ty, tx))
-						{
-							if (ty < 0) over_1 = -ty;
-							else if (ty >= cur_hgt) over_1 = ty - cur_hgt + 1;
-							if (tx < 0) over_2 = -tx;
-							else if (tx >= cur_wid) over_2 = tx - cur_wid + 1;
-
-							if (over_1 < over_2) over_1 = over_2;
-
-							ty += over_1 * (-ddy[dir]);
-							tx += over_1 * (-ddx[dir]);
-						}
-					}
-
-					path_n = project_path(path_g, project_length, py, px, ty, tx, 0L);
-					project_length = 0;
-					ty = py;
-					tx = px;
-
-					/* Project along the path */
-					for (i = 0; i < path_n; ++i)
-					{
-						ny = GRID_Y(path_g[i]);
-						nx = GRID_X(path_g[i]);
-
-						/* Max distance empty floor */
-						if (player_has_los_bold(ny, nx) &&
-							cave_empty_bold(ny, nx) &&
-							player_can_enter(cave[ny][nx].feat))
-						{
-							/* Save the tmp location */
-							ty = ny;
-							tx = nx;
-						}
-
-						if (!p_ptr->ffall && (cave[ny][nx].feat == FEAT_AIR)) break;
-					}
-
-					if ((ty == py) && (tx == px))
-					{
-#ifdef JP
-						msg_print("突撃できません。");
-#else
-						msg_print("You can't charge to that place.");
-#endif
-						return FALSE;
-					}
-
-					project(0, 0, ty, tx, PY_ATTACK_CHARGE, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, MODIFY_ELEM_MODE_MELEE);
-					teleport_player_to(ty, tx, FALSE, FALSE);
-				}
+				if (!do_cmd_charge()) return FALSE;
 				break;
 			case -8:
 				if (plev > 44)
@@ -1181,9 +1464,6 @@ static bool cmd_racial_power_aux(s32b command)
 			switch (command)
 			{
 			case -5:
-				if (!do_cmd_throw_aux(1, PY_THROW_BOOMERANG, 0)) return FALSE;
-				break;
-			case -6:
 				teleport_player(50 + plev * 2);
 				break;
 			}
@@ -1449,106 +1729,7 @@ static bool cmd_racial_power_aux(s32b command)
 				project_hook(GF_ATTACK, dir, PY_ATTACK_NYUSIN, PROJECT_STOP | PROJECT_KILL);
 				break;
 			case -10:
-				{
-					int y, x, i;
-					if (!get_rep_dir2(&dir)) return FALSE;
-					if (dir == 5) return FALSE;
-					for (i = 0; i < 3; i++)
-					{
-						int oy, ox;
-						int ny, nx;
-						int m_idx;
-						monster_type *m_ptr;
-
-						y = py + ddy[dir];
-						x = px + ddx[dir];
-
-						if (cave[y][x].m_idx)
-							py_attack(y, x, PY_ATTACK_3DAN);
-						else
-						{
-#ifdef JP
-							msg_print("その方向にはモンスターはいません。");
-#else
-							msg_print("There is no monster.");
-#endif
-							return FALSE;
-						}
-
-						/* Monster is dead? */
-						if (!cave[y][x].m_idx) break;
-
-						ny = y + ddy[dir];
-						nx = x + ddx[dir];
-						m_idx = cave[y][x].m_idx;
-						m_ptr = &m_list[m_idx];
-
-						/* Monster cannot move back? */
-						if (!monster_can_enter(ny, nx, &r_info[m_ptr->r_idx])) continue;
-
-						cave[y][x].m_idx = 0;
-						cave[ny][nx].m_idx = m_idx;
-						m_ptr->fy = ny;
-						m_ptr->fx = nx;
-
-						update_mon(m_idx, TRUE);
-
-						/* Player can move forward? */
-						if (player_can_enter(cave[y][x].feat))
-						{
-							/* Save the old location */
-							oy = py;
-							ox = px;
-
-							/* Move the player */
-							py = y;
-							px = x;
-
-						if (p_ptr->riding)
-						{
-							cave[oy][ox].m_idx = cave[py][px].m_idx;
-							cave[py][px].m_idx = p_ptr->riding;
-							m_list[p_ptr->riding].fy = py;
-							m_list[p_ptr->riding].fx = px;
-							update_mon(p_ptr->riding, TRUE);
-						}
-
-							forget_flow();
-
-							/* Redraw the old spot */
-							lite_spot(oy, ox);
-
-							/* Redraw the new spot */
-							lite_spot(py, px);
-						}
-
-						/* Redraw the old spot */
-						lite_spot(y, x);
-
-						/* Redraw the new spot */
-						lite_spot(ny, nx);
-
-						/* Check for new panel (redraw map) */
-						verify_panel();
-
-						set_mermaid_in_water();
-
-						/* Update stuff */
-						p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-						/* Update the monsters */
-						p_ptr->update |= (PU_DISTANCE);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-						/* Handle stuff */
-						handle_stuff();
-
-						/* -more- */
-						if (i < 2) msg_print(NULL);
-					}
-				}
+				if (!do_cmd_sandan()) return FALSE;
 				break;
 			}
 			break;
@@ -1631,41 +1812,7 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			if (command == -6)
 			{
-				{
-					int y, x;
-					bool do_attack = FALSE;
-
-					if (!get_rep_dir2(&dir)) return FALSE;
-					if (dir == 5) return FALSE;
-					y = py + ddy[dir];
-					x = px + ddx[dir];
-					if (cave[y][x].m_idx)
-					{
-						py_attack(y, x, PY_ATTACK_PENET);
-						do_attack = TRUE;
-					}
-					y += ddy[dir];
-					x += ddx[dir];
-					if (in_bounds(y, x))
-					{
-						if (cave[y][x].m_idx)
-						{
-							py_attack(y, x, 0);
-							do_attack = TRUE;
-						}
-					}
-					penet_ac = 0;
-
-					if (!do_attack)
-					{
-#ifdef JP
-						msg_print("その方向にはモンスターはいません。");
-#else
-						msg_print("There is no monster.");
-#endif
-						return FALSE;
-					}
-				}
+				if (!do_cmd_penetration()) return FALSE;
 			}
 			break;
 		}
@@ -1967,9 +2114,9 @@ static bool cmd_racial_power_aux(s32b command)
 						if (cave[ny][nx].m_idx)
 						{
 							monster_type *m_ptr = &m_list[cave[ny][nx].m_idx];
-							if (m_ptr->csleep)
+							if (MON_CSLEEP(m_ptr))
 							{
-								m_ptr->csleep = 0;
+								(void)set_monster_csleep(cave[ny][nx].m_idx, 0);
 								if (m_ptr->ml && !p_ptr->blind)
 								{
 									char m_name[80];
@@ -2060,79 +2207,7 @@ static bool cmd_racial_power_aux(s32b command)
 			switch (command)
 			{
 			case -6:
-				{
-					int tx, ty, nx, ny;
-					int over_1 = 0, over_2 = 0;
-					u16b path_g[16];
-					int path_n, i;
-
-					project_length = 5;
-					if (!get_aim_dir(&dir)) return FALSE;
-
-					/* Hack -- Use an actual "target" */
-					if ((dir == 5) && target_okay())
-					{
-						tx = target_col;
-						ty = target_row;
-					}
-					else
-					{
-						/* Use the given direction */
-						ty = py + 99 * ddy[dir];
-						tx = px + 99 * ddx[dir];
-
-						/* If not in bounds... */
-						if (!in_bounds2(ty, tx))
-						{
-							if (ty < 0) over_1 = -ty;
-							else if (ty >= cur_hgt) over_1 = ty - cur_hgt + 1;
-							if (tx < 0) over_2 = -tx;
-							else if (tx >= cur_wid) over_2 = tx - cur_wid + 1;
-
-							if (over_1 < over_2) over_1 = over_2;
-
-							ty += over_1 * (-ddy[dir]);
-							tx += over_1 * (-ddx[dir]);
-						}
-					}
-
-					path_n = project_path(path_g, project_length, py, px, ty, tx, 0L);
-					project_length = 0;
-					ty = py;
-					tx = px;
-
-					/* Project along the path */
-					for (i = 0; i < path_n; ++i)
-					{
-						ny = GRID_Y(path_g[i]);
-						nx = GRID_X(path_g[i]);
-
-						/* Max distance empty floor */
-						if (player_has_los_bold(ny, nx) &&
-							cave_empty_bold(ny, nx) &&
-							player_can_enter(cave[ny][nx].feat))
-						{
-							/* Save the tmp location */
-							ty = ny;
-							tx = nx;
-						}
-
-						if (!p_ptr->ffall && (cave[ny][nx].feat == FEAT_AIR)) break;
-					}
-
-					if ((ty == py) && (tx == px))
-					{
-#ifdef JP
-						msg_print("突撃できません。");
-#else
-						msg_print("You can't charge to that place.");
-#endif
-						return FALSE;
-					}
-
-					project(0, 0, ty, tx, PY_ATTACK_CHARGE, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, MODIFY_ELEM_MODE_MELEE);
-					teleport_player_to(ty, tx, FALSE, FALSE);
-				}
+				if (!do_cmd_charge()) return FALSE;
 				break;
 			case -7:
 				{
@@ -2184,145 +2259,10 @@ static bool cmd_racial_power_aux(s32b command)
 			switch (command)
 			{
 			case -5:
-				{
-					{
-						int y, x;
-						bool do_attack = FALSE;
-
-						if (!get_rep_dir2(&dir)) return FALSE;
-						if (dir == 5) return FALSE;
-						y = py + ddy[dir];
-						x = px + ddx[dir];
-						if (cave[y][x].m_idx)
-						{
-							py_attack(y, x, PY_ATTACK_PENET);
-							do_attack = TRUE;
-						}
-						y += ddy[dir];
-						x += ddx[dir];
-						if (in_bounds(y, x))
-						{
-							if (cave[y][x].m_idx)
-							{
-								py_attack(y, x, 0);
-								do_attack = TRUE;
-							}
-						}
-						penet_ac = 0;
-
-						if (!do_attack)
-						{
-#ifdef JP
-							msg_print("その方向にはモンスターはいません。");
-#else
-							msg_print("There is no monster.");
-#endif
-							return FALSE;
-						}
-					}
-				}
+				if (!do_cmd_penetration()) return FALSE;
 				break;
 			case -6:
-				{
-					int y, x, i;
-					if (!get_rep_dir2(&dir)) return FALSE;
-					if (dir == 5) return FALSE;
-					for (i = 0; i < 3; i++)
-					{
-						int oy, ox;
-						int ny, nx;
-						int m_idx;
-						monster_type *m_ptr;
-
-						y = py + ddy[dir];
-						x = px + ddx[dir];
-
-						if (cave[y][x].m_idx)
-							py_attack(y, x, PY_ATTACK_3DAN);
-						else
-						{
-#ifdef JP
-							msg_print("その方向にはモンスターはいません。");
-#else
-							msg_print("There is no monster.");
-#endif
-							return FALSE;
-						}
-
-						/* Monster is dead? */
-						if (!cave[y][x].m_idx) break;
-
-						ny = y + ddy[dir];
-						nx = x + ddx[dir];
-						m_idx = cave[y][x].m_idx;
-						m_ptr = &m_list[m_idx];
-
-						/* Monster cannot move back? */
-						if (!monster_can_enter(ny, nx, &r_info[m_ptr->r_idx])) continue;
-
-						cave[y][x].m_idx = 0;
-						cave[ny][nx].m_idx = m_idx;
-						m_ptr->fy = ny;
-						m_ptr->fx = nx;
-
-						update_mon(m_idx, TRUE);
-
-						/* Player can move forward? */
-						if (player_can_enter(cave[y][x].feat))
-						{
-							/* Save the old location */
-							oy = py;
-							ox = px;
-
-							/* Move the player */
-							py = y;
-							px = x;
-
-						if (p_ptr->riding)
-						{
-							cave[oy][ox].m_idx = cave[py][px].m_idx;
-							cave[py][px].m_idx = p_ptr->riding;
-							m_list[p_ptr->riding].fy = py;
-							m_list[p_ptr->riding].fx = px;
-							update_mon(p_ptr->riding, TRUE);
-						}
-
-							forget_flow();
-
-							/* Redraw the old spot */
-							lite_spot(oy, ox);
-
-							/* Redraw the new spot */
-							lite_spot(py, px);
-						}
-
-						/* Redraw the old spot */
-						lite_spot(y, x);
-
-						/* Redraw the new spot */
-						lite_spot(ny, nx);
-
-						/* Check for new panel (redraw map) */
-						verify_panel();
-
-						set_mermaid_in_water();
-
-						/* Update stuff */
-						p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-						/* Update the monsters */
-						p_ptr->update |= (PU_DISTANCE);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-						/* Handle stuff */
-						handle_stuff();
-
-						/* -more- */
-						if (i < 2) msg_print(NULL);
-					}
-				}
+				if (!do_cmd_sandan()) return FALSE;
 				break;
 			case -7:
 				{
@@ -2356,11 +2296,15 @@ static bool cmd_racial_power_aux(s32b command)
 				if (!do_cmd_archer()) return FALSE;
 				break;
 			case -6:
+				item_tester_hook = object_is_ammo;
+				if (!do_cmd_enchant_ammo()) return FALSE;
+				break;
+			case -7:
 				energy_use = 0;
 				done = do_cmd_fire(DCFA_STORM, 0, 0, (p_ptr->cexp_info[CLASS_CRESCENT].clev - 30) * 10 / 3 + 35, FALSE);
 				if (!done) return FALSE;
 				break;
-			case -7:
+			case -8:
 				if (p_ptr->tval_ammo != TV_ARROW)
 				{
 #ifdef JP
@@ -2470,13 +2414,124 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_MEDIUM:
 		{
-			if (command == -5)
+			switch (command)
 			{
+			case -5:
 				if (!do_cmd_hamaya()) return FALSE;
-			}
-			else if (command == -6)
-			{
+				break;
+			case -6:
 				if (!do_cmd_ablution()) return FALSE;
+				break;
+			}
+			break;
+		}
+		case CLASS_SUCCUBUS:
+		{
+			switch (command)
+			{
+			case -4:
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball(GF_MISSILE, dir, damroll(10, plev), plev / 13, TRUE);
+				break;
+			case -5:
+				{
+					int y, x;
+					int drain_dam = damroll(10, plev);
+					int charm_power = p_ptr->stat_use[A_CHR] / 2;
+					cave_type *c_ptr;
+
+					/* Only works on adjacent monsters */
+					if (!get_rep_dir(&dir,FALSE)) return FALSE;   /* was get_aim_dir */
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+					c_ptr = &cave[y][x];
+
+					if (!c_ptr->m_idx)
+					{
+#ifdef JP
+						msg_print("そこには誰もいない！");
+#else
+						msg_print("You bite into thin air!");
+#endif
+
+						break;
+					}
+
+#ifdef JP
+					msg_print("あなたは魅惑的なキスをする...");
+#else
+					msg_print("You grin and bare your fangs...");
+#endif
+
+					if (!(r_info[m_list[c_ptr->m_idx].r_idx].flags1 & RF1_MALE))
+					{
+						drain_dam /= 3;
+						charm_power /= 5;
+					}
+					fire_ball(GF_DRAIN_SOUL, dir, drain_dam, 0, FALSE);
+					(void)project(0, 0, y, x, charm_power, GF_CHARM, (PROJECT_KILL | PROJECT_HIDE), MODIFY_ELEM_MODE_MAGIC);
+				}
+				break;
+			case -6:
+				{
+					int x, y;
+					int attack = randint1(3);
+
+					if (!(empty_hands() & EMPTY_HAND_RARM))
+					{
+#ifdef JP
+						msg_print("素手じゃないとできません。");
+#else
+						msg_print("You need to be bare hand.");
+#endif
+						return FALSE;
+					}
+					if (p_ptr->riding)
+					{
+#ifdef JP
+						msg_print("乗馬中には無理だ。");
+#else
+						msg_print("You cannot do it when riding.");
+#endif
+						return FALSE;
+					}
+
+					if (!get_rep_dir(&dir, FALSE)) return FALSE;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+					if (cave[y][x].m_idx)
+					{
+#ifdef JP
+						if (one_in_(2)) msg_print("お仕置きよ……気持ちいいでしょ？");
+						else msg_print("あははははっ！");
+#else
+						if (one_in_(2)) msg_print("Ahhhtatatatatatatatatatatatatatataatatatatattaaaaa!!!!");
+						else msg_print("Oraoraoraoraoraoraoraoraoraoraoraoraoraoraoraoraora!!!!");
+#endif
+
+						py_attack(y, x, 0);
+						while (attack)
+						{
+							if (cave[y][x].m_idx)
+							{
+								handle_stuff();
+								py_attack(y, x, 0);
+							}
+							attack--;
+						}
+						p_ptr->energy_need += ENERGY_NEED();
+					}
+					else
+					{
+#ifdef JP
+						msg_print("その方向にはモンスターはいません。");
+#else
+						msg_print("You don't see any monster in this direction");
+#endif
+
+						msg_print(NULL);
+					}
+				}
 			}
 			break;
 		}
@@ -2647,6 +2702,8 @@ static bool cmd_racial_power_aux(s32b command)
 			break;
 
 		case RACE_PUMPKINHEAD:
+		case RACE_MADHALLOWEEN:
+			if (prace_is_(RACE_MADHALLOWEEN)) plev = plev * 5 / 4;
 			if (command == -1)
 			{
 				if (!get_aim_dir(&dir)) return FALSE;
@@ -2751,6 +2808,22 @@ static bool cmd_racial_power_aux(s32b command)
 			case -3:
 				mermaid_water_flow();
 				break;
+			}
+			break;
+
+		case RACE_VULTAN:
+			if (get_cur_pelem() == ELEM_WIND)
+			{
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_bolt_or_beam(10, GF_ELEC, dir, plev + (damroll(((plev - 1) / 4), 4)));
+			}
+			break;
+
+		case RACE_RAVEN:
+			if (get_cur_pelem() == ELEM_FIRE)
+			{
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball(GF_FIRE, dir, plev + (damroll((plev - 1), 4)), -(plev / 15) - 1, FALSE);
 			}
 			break;
 
@@ -2956,6 +3029,14 @@ static bool special_blow_aux(s32b command)
 			   !(r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)) &&
 			   !p_ptr->inside_arena && !p_ptr->inside_quest)
 			{
+				if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+				{
+					char m_name[80];
+
+					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+					do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+				}
+
 				delete_monster_idx(c_ptr->m_idx);
 #ifdef JP
 				msg_format("%sは消滅した！", m_name);
@@ -3017,7 +3098,8 @@ void do_cmd_racial_power(void)
 		&& (p_ptr->pclass != CLASS_SWORDMASTER)
 		&& (p_ptr->pclass != CLASS_NINJA)
 		&& (p_ptr->pclass != CLASS_NINJAMASTER)
-		&& (p_ptr->pclass != CLASS_VAMPIRE))
+		&& (p_ptr->pclass != CLASS_VAMPIRE)
+		&& (p_ptr->pclass != CLASS_SUCCUBUS))
 	{
 #ifdef JP
 		strcpy(power_desc[num].name, "投石");
@@ -3138,17 +3220,6 @@ void do_cmd_racial_power(void)
 	case CLASS_BERSERKER:
 	{
 #ifdef JP
-		strcpy(power_desc[num].name, "トマホーク");
-#else
-		strcpy(power_desc[num].name, "Boomerang");
-#endif
-
-		power_desc[num].level = 5;
-		power_desc[num].cost = 15;
-		power_desc[num].stat = A_DEX;
-		power_desc[num].fail = 20;
-		power_desc[num++].number = -5;
-#ifdef JP
 		strcpy(power_desc[num].name, "とんずら");
 #else
 		strcpy(power_desc[num].name, "Escape");
@@ -3158,7 +3229,7 @@ void do_cmd_racial_power(void)
 		power_desc[num].cost = 5;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 30;
-		power_desc[num++].number = -6;
+		power_desc[num++].number = -5;
 		break;
 	}
 	case CLASS_TERRORKNIGHT:
@@ -3430,7 +3501,7 @@ void do_cmd_racial_power(void)
 	case CLASS_ARCHER:
 	{
 #ifdef JP
-		strcpy(power_desc[num].name, "弾/矢の製造");
+		strcpy(power_desc[num].name, "矢の製造");
 #else
 		strcpy(power_desc[num].name, "Create Ammo");
 #endif
@@ -3800,7 +3871,7 @@ void do_cmd_racial_power(void)
 	case CLASS_CRESCENT:
 	{
 #ifdef JP
-		strcpy(power_desc[num].name, "弾/矢の製造");
+		strcpy(power_desc[num].name, "矢の製造");
 #else
 		strcpy(power_desc[num].name, "Create Ammo");
 #endif
@@ -3811,6 +3882,17 @@ void do_cmd_racial_power(void)
 		power_desc[num].fail = 0;
 		power_desc[num++].number = -5;
 #ifdef JP
+		strcpy(power_desc[num].name, "矢の強化");
+#else
+		strcpy(power_desc[num].name, "Enchant Ammo");
+#endif
+
+		power_desc[num].level = 15;
+		power_desc[num].cost = 25;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 20;
+		power_desc[num++].number = -6;
+#ifdef JP
 		strcpy(power_desc[num].name, "矢<雷>");
 #else
 		strcpy(power_desc[num].name, "Sniping (1)");
@@ -3820,7 +3902,7 @@ void do_cmd_racial_power(void)
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -6;
+		power_desc[num++].number = -7;
 #ifdef JP
 		strcpy(power_desc[num].name, "矢<風>");
 #else
@@ -3831,7 +3913,7 @@ void do_cmd_racial_power(void)
 		power_desc[num].cost = 50;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -7;
+		power_desc[num++].number = -8;
 		break;
 	}
 
@@ -3904,6 +3986,43 @@ void do_cmd_racial_power(void)
 		power_desc[num].cost = 10;
 		power_desc[num].stat = A_WIS;
 		power_desc[num].fail = 5;
+		power_desc[num++].number = -6;
+		break;
+	}
+	case CLASS_SUCCUBUS:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "ソウルフィスト");
+#else
+		strcpy(power_desc[num].name, "Soul-fist");
+#endif
+
+		power_desc[num].level = 1;
+		power_desc[num].cost = 10;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 9;
+		power_desc[num++].number = -4;
+#ifdef JP
+		strcpy(power_desc[num].name, "ベクタードレイン");
+#else
+		strcpy(power_desc[num].name, "Drain Soul");
+#endif
+
+		power_desc[num].level = 15;
+		power_desc[num].cost = 1;
+		power_desc[num].stat = A_CHR;
+		power_desc[num].fail = 25;
+		power_desc[num++].number = -5;
+#ifdef JP
+		strcpy(power_desc[num].name, "ダクネス");
+#else
+		strcpy(power_desc[num].name, "Darkness Illusion");
+#endif
+
+		power_desc[num].level = 30;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 20;
 		power_desc[num++].number = -6;
 		break;
 	}
@@ -4003,6 +4122,7 @@ void do_cmd_racial_power(void)
 			power_desc[num++].number = -1;
 			break;
 		case RACE_PUMPKINHEAD:
+		case RACE_MADHALLOWEEN:
 #ifdef JP
 			strcpy(power_desc[num].name, "かぼちゃうぉーず");
 #else
@@ -4074,6 +4194,36 @@ void do_cmd_racial_power(void)
 			power_desc[num].stat = A_WIS;
 			power_desc[num].fail = 50;
 			power_desc[num++].number = -3;
+			break;
+		case RACE_VULTAN:
+			if (get_cur_pelem() == ELEM_WIND)
+			{
+#ifdef JP
+				strcpy(power_desc[num].name, "サンダーアロー");
+#else
+				strcpy(power_desc[num].name, "Thunder Arrow");
+#endif
+				power_desc[num].level = 6;
+				power_desc[num].cost = 8;
+				power_desc[num].stat = A_DEX;
+				power_desc[num].fail = 25;
+				power_desc[num++].number = -1;
+			}
+			break;
+		case RACE_RAVEN:
+			if (get_cur_pelem() == ELEM_FIRE)
+			{
+#ifdef JP
+				strcpy(power_desc[num].name, "ファイアストーム");
+#else
+				strcpy(power_desc[num].name, "Thunder Arrow");
+#endif
+				power_desc[num].level = 6;
+				power_desc[num].cost = 8;
+				power_desc[num].stat = A_DEX;
+				power_desc[num].fail = 25;
+				power_desc[num++].number = -1;
+			}
 			break;
 		default:
 		{

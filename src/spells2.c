@@ -29,7 +29,6 @@
 void self_knowledge(void)
 {
 	int i = 0, j, k;
-	s32b align_gne = friend_align_gne;
 
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -47,7 +46,14 @@ void self_knowledge(void)
 	int chp = p_ptr->chp;
 
 	for (j = 0; j < TR_FLAG_SIZE; j++)
+	{
 		flgs[j] = 0L;
+
+		/* Extract flags and store */
+		player_flags(p_ptr->flags);
+
+		flgs[j] |= p_ptr->flags[j];
+	}
 
 	/* Acquire item flags from equipment */
 	for (k = INVEN_RARM; k < INVEN_TOTAL; k++)
@@ -66,26 +72,18 @@ void self_knowledge(void)
 			flgs[j] |= tflgs[j];
 	}
 
-	for (k = 0; k < ETHNICITY_NUM; k++) align_gne += chaos_frame[k];
+	if ((rp_ptr->r_flags & PRF_ALIGN_GOOD) || (cp_ptr->c_flags & PCF_ALIGN_GOOD))
+		if (p_ptr->align[ALI_GNE] < 300) p_ptr->align[ALI_GNE] = 300;
 
-	switch (p_ptr->pclass)
-	{
-	case CLASS_LICH:
-	case CLASS_VAMPIRE:
-		if (align_gne > -300) align_gne = -300;
-		break;
-
-	case CLASS_ANGELKNIGHT:
-		if (align_gne < 300) align_gne = 300;
-		break;
-	}
+	if ((rp_ptr->r_flags & PRF_ALIGN_EVIL) || (cp_ptr->c_flags & PCF_ALIGN_EVIL))
+		if (p_ptr->align[ALI_GNE] > -300) p_ptr->align[ALI_GNE] = -300;
 
 #ifdef JP
 	sprintf(Dummy, "現在のアラインメント : %s(%ld)-%s(%ld)",
-		your_alignment_gne(), align_gne, your_alignment_lnc(), p_ptr->align);
+		your_alignment_gne(), p_ptr->align[ALI_GNE], your_alignment_lnc(), p_ptr->align[ALI_LNC]);
 #else
 	sprintf(Dummy, "Your alighnment : %s(%ld)-%s(%ld)",
-		your_alignment_gne(), align_gne, your_alignment_lnc(), p_ptr->align);
+		your_alignment_gne(), p_ptr->align[ALI_GNE], your_alignment_lnc(), p_ptr->align[ALI_LNC]);
 #endif
 	strcpy(buf, Dummy);
 	info[i++] = buf;
@@ -152,6 +150,7 @@ void self_knowledge(void)
 
 			break;
 		case RACE_PUMPKINHEAD:
+		case RACE_MADHALLOWEEN:
 			if (plev > 1)
 #ifdef JP
 				info[i++] = "あなたは腐った魔法のカボチャで攻撃することができる。(3 MP)";
@@ -196,6 +195,26 @@ void self_knowledge(void)
 				info[i++] = "あなたは周囲を水浸しにすることができる。(コスト: 40)";
 			}
 			break;
+		case RACE_VULTAN:
+			if (get_cur_pelem() == ELEM_WIND)
+			{
+#ifdef JP
+				info[i++] = "あなたは電撃の力で攻撃することができる。(8 MP)";
+#else
+				info[i++] = "You can attack using elec force (cost 8).";
+#endif
+			}
+			break;
+		case RACE_RAVEN:
+			if (get_cur_pelem() == ELEM_FIRE)
+			{
+#ifdef JP
+				info[i++] = "あなたは火炎の力で攻撃することができる。(8 MP)";
+#else
+				info[i++] = "You can attack using fire force (cost 8).";
+#endif
+			}
+			break;
 		default:
 			break;
 	}
@@ -213,7 +232,7 @@ void self_knowledge(void)
 #endif
 	}
 
-	if (((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_VALKYRIE) && (clev > 9))
+	if ((((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_VALKYRIE)) && (clev > 9))
 		|| (p_ptr->pclass == CLASS_GENERAL))
 		
 	{
@@ -2086,6 +2105,15 @@ void self_knowledge(void)
 #endif
 
 	}
+	if (prace_is_(RACE_PUMPKINHEAD))
+	{
+#ifdef JP
+		info[i++] = "あなたは火炎に弱い。";
+#else
+		info[i++] = "You are susceptible to damage from fire.";
+#endif
+
+	}
 
 	if (p_ptr->immune_cold)
 	{
@@ -3687,9 +3715,8 @@ bool detect_objects_magic(int range)
 		tv = o_ptr->tval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
-		if (artifact_p(o_ptr) ||
-		    ego_item_p(o_ptr) ||
-		    o_ptr->art_name ||
+		if (object_is_artifact(o_ptr) ||
+		    object_is_ego(o_ptr) ||
 		    (tv == TV_STONE) ||
 		    (tv == TV_AMULET) ||
 		    (tv == TV_RING) ||
@@ -4221,7 +4248,7 @@ bool detect_monsters_string(int range, cptr Match)
 		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect monsters with the same symbol */
-		if (strchr(Match, r_ptr->d_char))
+		if (my_strchr(Match, r_ptr->d_char))
 		{
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -4352,7 +4379,10 @@ bool sleep_monsters(int plev)
  */
 bool banish_evil(int dist)
 {
-	return (project_hack(GF_AWAY_EVIL, dist));
+	bool tester = (project_hack(GF_AWAY_EVIL, dist));
+	if (tester)
+		change_your_alignment(ALI_GNE, 1);
+	return tester;
 }
 
 
@@ -4361,7 +4391,10 @@ bool banish_evil(int dist)
  */
 bool dispel_undead(int dam)
 {
-	return project_hack(GF_DISP_UNDEAD, dam);
+	bool tester = project_hack(GF_DISP_UNDEAD, dam);
+	if (tester)
+		change_your_alignment(ALI_GNE, 1);
+	return tester;
 }
 
 /*
@@ -4369,7 +4402,10 @@ bool dispel_undead(int dam)
  */
 bool dispel_evil(int dam)
 {
-	return (project_hack(GF_DISP_EVIL, dam));
+	bool tester = (project_hack(GF_DISP_EVIL, dam));
+	if (tester)
+		change_your_alignment(ALI_GNE, 1);
+	return tester;
 }
 
 /*
@@ -4377,7 +4413,10 @@ bool dispel_evil(int dam)
  */
 bool dispel_good(int dam)
 {
-	return (project_hack(GF_DISP_GOOD, dam));
+	bool tester = (project_hack(GF_DISP_GOOD, dam));
+	if (tester)
+		change_your_alignment(ALI_GNE, -1);
+	return tester;
 }
 
 /*
@@ -4424,11 +4463,10 @@ void aggravate_monsters(int who)
 		if ((who ? m_ptr->ddis : m_ptr->cdis) < MAX_SIGHT * 2)
 		{
 			/* Wake up */
-			if (m_ptr->csleep)
+			if (MON_CSLEEP(m_ptr))
 			{
 				/* Wake up */
-				m_ptr->csleep = 0;
-				if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+				(void)set_monster_csleep(i, 0);
 				sleep = TRUE;
 			}
 			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG2_NOPET;
@@ -4439,7 +4477,7 @@ void aggravate_monsters(int who)
 		{
 			if (!is_pet(m_ptr))
 			{
-				m_ptr->fast = MIN(200, m_ptr->fast + 100);
+				(void)set_monster_fast(i, MON_FAST(m_ptr) + 100);
 				speed = TRUE;
 			}
 		}
@@ -4513,7 +4551,18 @@ bool symbol_genocide(int power, int player_cast)
 		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
-		else delete_monster_idx(i);
+		else
+		{
+			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+			{
+				char m_name[80];
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+			}
+
+			delete_monster_idx(i);
+		}
 
 		if (angry && player_cast)
 		{
@@ -4526,10 +4575,9 @@ bool symbol_genocide(int power, int player_cast)
 				msg_format("%^s is unaffected.", m_name);
 #endif
 			}
-			if (m_ptr->csleep)
+			if (MON_CSLEEP(m_ptr))
 			{
-				m_ptr->csleep = 0;
-				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+				(void)set_monster_csleep(i, 0);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4587,6 +4635,9 @@ bool symbol_genocide(int power, int player_cast)
 		result = TRUE;
 	}
 
+	if (result)
+		change_your_alignment(ALI_GNE, -1);
+
 	return (result);
 }
 
@@ -4638,7 +4689,17 @@ bool mass_genocide(int power, int player_cast)
 		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
-		else delete_monster_idx(i);
+		{
+			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+			{
+				char m_name[80];
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+			}
+
+			delete_monster_idx(i);
+		}
 
 		if (angry && player_cast)
 		{
@@ -4651,10 +4712,9 @@ bool mass_genocide(int power, int player_cast)
 				msg_format("%^s is unaffected.", m_name);
 #endif
 			}
-			if (m_ptr->csleep)
+			if (MON_CSLEEP(m_ptr))
 			{
-				m_ptr->csleep = 0;
-				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+				(void)set_monster_csleep(i, 0);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4711,6 +4771,9 @@ bool mass_genocide(int power, int player_cast)
 		result = TRUE;
 	}
 
+	if (result)
+		change_your_alignment(ALI_GNE, -1);
+
 	return (result);
 }
 
@@ -4765,7 +4828,17 @@ bool mass_genocide_undead(int power, int player_cast)
 		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
-		else delete_monster_idx(i);
+		{
+			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+			{
+				char m_name[80];
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+			}
+
+			delete_monster_idx(i);
+		}
 
 		if (angry && player_cast)
 		{
@@ -4778,10 +4851,9 @@ bool mass_genocide_undead(int power, int player_cast)
 				msg_format("%^s is unaffected.", m_name);
 #endif
 			}
-			if (m_ptr->csleep)
+			if (MON_CSLEEP(m_ptr))
 			{
-				m_ptr->csleep = 0;
-				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+				(void)set_monster_csleep(i, 0);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4837,6 +4909,9 @@ bool mass_genocide_undead(int power, int player_cast)
 		/* Note effect */
 		result = TRUE;
 	}
+
+	if (result)
+		change_your_alignment(ALI_GNE, 1);
 
 	return (result);
 }
@@ -4895,15 +4970,15 @@ bool probing(void)
 				lite_spot(m_ptr->fy, m_ptr->fx);
 			}
 			/* Get "the monster" or "something" */
-			monster_desc(m_name, m_ptr, 0x204);
+			monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_INDEF_HIDDEN);
 
 			speed = m_ptr->mspeed - 110;
-			if (m_ptr->stoning) speed -= m_ptr->stoning / 5;
-			if(m_ptr->fast) speed += 10;
-			if(m_ptr->slow) speed -= 10;
+			if (MON_STONING(m_ptr)) speed -= MON_STONING(m_ptr) / 5;
+			if(MON_FAST(m_ptr)) speed += 10;
+			if(MON_SLOW(m_ptr)) speed -= 10;
 
 			ac = r_ptr->ac;
-			if (m_ptr->stoning) ac += m_ptr->stoning / 5;
+			if (MON_STONING(m_ptr)) ac += MON_STONING(m_ptr) / 5;
 
 			/* Get the monster's alignment */
 #ifdef JP
@@ -4964,21 +5039,21 @@ bool probing(void)
 			}
 
 #ifdef JP
-			if (m_ptr->csleep) strcat(buf,"睡眠 ");
-			if (m_ptr->stunned) strcat(buf,"朦朧 ");
-			if (m_ptr->monfear) strcat(buf,"恐怖 ");
-			if (m_ptr->confused) strcat(buf,"混乱 ");
-			if (m_ptr->stoning) strcat(buf,"石化 ");
-			if (m_ptr->silent || m_ptr->silent_song) strcat(buf,"沈黙 ");
-			if (m_ptr->invulner) strcat(buf,"無敵 ");
+			if (MON_CSLEEP(m_ptr)) strcat(buf,"睡眠 ");
+			if (MON_STUNNED(m_ptr)) strcat(buf,"朦朧 ");
+			if (MON_MONFEAR(m_ptr)) strcat(buf,"恐怖 ");
+			if (MON_CONFUSED(m_ptr)) strcat(buf,"混乱 ");
+			if (MON_STONING(m_ptr)) strcat(buf,"石化 ");
+			if (MON_SILENT(m_ptr) || m_ptr->silent_song) strcat(buf,"沈黙 ");
+			if (MON_INVULNER(m_ptr)) strcat(buf,"無敵 ");
 #else
-			if (m_ptr->csleep) strcat(buf,"sleeping ");
-			if (m_ptr->stunned) strcat(buf,"stunned ");
-			if (m_ptr->monfear) strcat(buf,"scared ");
-			if (m_ptr->confused) strcat(buf,"confused ");
-			if (m_ptr->stoning) strcat(buf,"stoning ");
-			if (m_ptr->silent || m_ptr->silent_song) strcat(buf,"silent ");
-			if (m_ptr->invulner) strcat(buf,"invulnerable ");
+			if (MON_CSLEEP(m_ptr)) strcat(buf,"sleeping ");
+			if (MON_STUNNED(m_ptr)) strcat(buf,"stunned ");
+			if (MON_MONFEAR(m_ptr)) strcat(buf,"scared ");
+			if (MON_CONFUSED(m_ptr)) strcat(buf,"confused ");
+			if (MON_STONING(m_ptr)) strcat(buf,"stoning ");
+			if (MON_SILENT(m_ptr) || m_ptr->silent_song) strcat(buf,"silent ");
+			if (MON_INVULNER(m_ptr)) strcat(buf,"invulnerable ");
 #endif
 			buf[strlen(buf)-1] = '\0';
 			prt(buf,0,0);
@@ -5027,6 +5102,8 @@ bool probing(void)
 	/* Done */
 	if (probe)
 	{
+		change_your_alignment(ALI_LNC, 1);
+
 #ifdef JP
 		msg_print("これで全部です。");
 #else
@@ -5119,8 +5196,8 @@ bool destroy_area(int y1, int x1, int r)
 					{
 						char m_name[80];
 
-						monster_desc(m_name, &m_list[c_ptr->m_idx], 0x08);
-						do_cmd_write_nikki(NIKKI_NAMED_PET, 6, m_name);
+						monster_desc(m_name, &m_list[c_ptr->m_idx], MD_INDEF_VISIBLE);
+						do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DESTROY, m_name);
 					}
 				}
 				/* Delete the monster (if any) */
@@ -5143,7 +5220,7 @@ bool destroy_area(int y1, int x1, int r)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Hack -- Preserve unknown artifacts */
-					if (artifact_p(o_ptr) && !object_known_p(o_ptr))
+					if (object_is_fixed_artifact(o_ptr) && !object_is_known(o_ptr))
 					{
 						/* Mega-Hack -- Preserve the artifact */
 						a_info[o_ptr->name1].cur_num = 0;
@@ -5265,8 +5342,8 @@ bool mon_fall_into_air(int m_idx)
 		{
 			char pm_name[80];
 
-			monster_desc(pm_name, m_ptr, 0x08);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, 9, pm_name);
+			monster_desc(pm_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_FALL_AIR, pm_name);
 		}
 
 		/* Check for quest completion */
@@ -5521,7 +5598,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 				monster_type *m_ptr = &m_list[m_idx];
 
 				/* Get the monster's real name */
-				monster_desc(m_name, m_ptr, 0x288);
+				monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 #ifdef JP
 				killer = format("%sの起こした地震", m_name);
@@ -5633,7 +5710,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
 
 					/* Monster is certainly awake */
-					m_ptr->csleep = 0;
+					(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 					/* Apply damage directly */
 					m_ptr->hp -= damage;
@@ -5660,8 +5737,8 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 							{
 								char m2_name[80];
 
-								monster_desc(m2_name, m_ptr, 0x08);
-								do_cmd_write_nikki(NIKKI_NAMED_PET, 7, m2_name);
+								monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
+								do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_EARTHQUAKE, m2_name);
 							}
 						}
 
@@ -5851,6 +5928,14 @@ void discharge_minion(void)
 		if (dam > 666) dam = 666;
 		fy = m_ptr->fy;
 		fx = m_ptr->fx;
+		if (record_named_pet && m_ptr->nickname)
+		{
+			char m_name[80];
+
+			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_BLAST, m_name);
+		}
+
 		delete_monster_idx(i);
 		project(0, 2+(r_ptr->level/20), fy, fx, dam, GF_PLASMA,
 			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER | PROJECT_JUMP, MODIFY_ELEM_MODE_MAGIC);
@@ -5913,12 +5998,10 @@ static void cave_temp_room_lite(void)
 			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
 
 			/* Sometimes monsters wake up */
-			if (m_ptr->csleep && (randint0(100) < chance))
+			if (MON_CSLEEP(m_ptr) && (randint0(100) < chance))
 			{
 				/* Wake up! */
-				m_ptr->csleep = 0;
-
-				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+				(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
@@ -5934,10 +6017,6 @@ static void cave_temp_room_lite(void)
 #else
 					msg_format("%^s wakes up.", m_name);
 #endif
-					/* Redraw the health bar */
-					if (p_ptr->health_who == c_ptr->m_idx)
-						p_ptr->redraw |= (PR_HEALTH);
-
 				}
 			}
 		}
@@ -6506,8 +6585,7 @@ bool teleport_swap(int dir, int plev)
 		msg_print("Your teleportation is blocked!");
 #endif
 
-		m_ptr->csleep = 0;
-		if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+		(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 		/* Failure */
 		return FALSE;
@@ -6540,7 +6618,7 @@ bool teleport_swap(int dir, int plev)
 	tx = m_ptr->fx;
 	ty = m_ptr->fy;
 
-	m_ptr->csleep = 0;
+	(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 	/* Update the monster (new location) */
 	update_mon(cave[ty][tx].m_idx, TRUE);
@@ -6739,7 +6817,10 @@ bool stun_monster(int dir, int plev)
 bool poly_monster(int dir, int plev)
 {
 	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
-	return project_hook(GF_OLD_POLY, dir, plev, flg);
+	bool tester = (project_hook(GF_OLD_POLY, dir, plev, flg));
+	if (tester)
+		change_your_alignment(ALI_LNC, -1);
+	return (tester);
 }
 
 
@@ -6904,8 +6985,8 @@ static void wall_breaker(void)
 
 /*
  * Activate the evil Topi Ylinen curse
- * rr9: Stop the nasty things when a Cyberdemon is summoned
- * or the player gets paralyzed.
+ * rr9: Stop the nasty things when 
+ * the player gets paralyzed.
  */
 bool activate_ty_curse(bool stop_ty, int *count)
 {
@@ -7034,12 +7115,9 @@ bool activate_ty_curse(bool stop_ty, int *count)
 			lose_all_info();
 			if (!one_in_(6)) break;
 		case 25:
-			/*
-			 * Only summon Cyberdemons deep in the dungeon.
-			 */
 			if ((dun_level > 65) && !stop_ty)
 			{
-				(*count) += summon_cyber(0, py, px);
+				(*count) += summon_specific(0, py, px, 100, SUMMON_HI_DEMON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 				stop_ty = TRUE;
 				break;
 			}
@@ -7074,7 +7152,7 @@ int activate_hi_summon(int y, int x)
 
 	for (i = 0; i < (randint1(7) + (dun_level / 40)); i++)
 	{
-		switch (randint1(25) + (dun_level / 20))
+		switch (randint1(24) + (dun_level / 20))
 		{
 			case 1: case 2:
 				count += summon_specific(0, y, x, summon_lev, SUMMON_ANT, mode);
@@ -7109,38 +7187,9 @@ int activate_hi_summon(int y, int x)
 			case 22: case 23:
 				count += summon_specific(0, y, x, summon_lev, SUMMON_HI_DRAGON, (mode | PM_ALLOW_UNIQUE));
 				break;
-			case 24:
-				count += summon_specific(0, y, x, 100, SUMMON_CYBER, mode);
-				break;
 			default:
 				count += summon_specific(0, y, x, (((summon_lev * 3) / 2) + 5), 0, (mode | PM_ALLOW_UNIQUE));
 		}
-	}
-
-	return count;
-}
-
-
-/* ToDo: check */
-int summon_cyber(int who, int y, int x)
-{
-	int i;
-	int max_cyber = (easy_band ? 1 : (dun_level / 50) + randint1(2));
-	int count = 0;
-	u32b mode = PM_ALLOW_GROUP;
-
-	/* Summoned by a monster */
-	if (who > 0)
-	{
-		monster_type *m_ptr = &m_list[who];
-		if (is_pet(m_ptr)) mode |= PM_FORCE_PET;
-	}
-
-	if (max_cyber > 4) max_cyber = 4;
-
-	for (i = 0; i < max_cyber; i++)
-	{
-		count += summon_specific(who, y, x, 100, SUMMON_CYBER, mode);
 	}
 
 	return count;
@@ -7736,7 +7785,7 @@ bool stone_gaze(int who)
 		if (distance(gy, gx, y, x) > MAX_SIGHT) continue;
 
 		/* Sleeping monsters are not affected */
-		if (m_ptr->csleep)
+		if (MON_CSLEEP(m_ptr))
 		{
 			if (m_ptr->ml)
 			{
@@ -7754,7 +7803,7 @@ bool stone_gaze(int who)
 		}
 
 		/* Confusing monsters are not affected */
-		if (m_ptr->confused)
+		if (MON_CONFUSED(m_ptr))
 		{
 			if (m_ptr->ml)
 			{
@@ -7961,9 +8010,9 @@ bool mermaid_water_flow(void)
 			{
 				monster_type *m_ptr = &m_list[c_ptr->m_idx];
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
-				if (!(r_ptr->flags7 & RF7_CAN_FLY) && m_ptr->csleep)
+				if (!(r_ptr->flags7 & RF7_CAN_FLY) && MON_CSLEEP(m_ptr))
 				{
-					m_ptr->csleep = 0;
+					(void)set_monster_csleep(c_ptr->m_idx, 0);
 					if (m_ptr->ml && !p_ptr->blind)
 					{
 						char m_name[80];
@@ -8045,12 +8094,12 @@ void song_of_silence(int dam)
 			{
 				m_ptr->silent_song = TRUE;
 			}
-			m_ptr->csleep = 0;
+			(void)set_monster_csleep(i, 0);
 		}
 
 		if (seen)
 		{
-			if ((m_ptr->silent_song != old_silent_song) && !m_ptr->silent)
+			if ((m_ptr->silent_song != old_silent_song) && !MON_SILENT(m_ptr))
 			{
 				if (m_ptr->silent_song)
 				{
@@ -8150,7 +8199,7 @@ void knock_back(int who, int y, int x, int base_dam)
 
 	if (who > 0)
 	{
-		monster_desc(killer, &m_list[who], 0x288);
+		monster_desc(killer, &m_list[who], MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 		mover_y = m_list[who].fy;
 		mover_x = m_list[who].fx;
 	}
@@ -8175,7 +8224,7 @@ void knock_back(int who, int y, int x, int base_dam)
 		m_ptr = &m_list[c_ptr->m_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
-		m_ptr->csleep = 0;
+		(void)set_monster_csleep(c_ptr->m_idx, 0);
 		target_m_idx = c_ptr->m_idx;
 		do_monster = TRUE;
 
@@ -8237,7 +8286,7 @@ void knock_back(int who, int y, int x, int base_dam)
 			if (p_ptr->riding == c_ptr->m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 			/* Monster is certainly awake */
-			n_ptr->csleep = 0;
+			(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 			dam3 = randint1(dam2);
 
@@ -8289,6 +8338,14 @@ void knock_back(int who, int y, int x, int base_dam)
 
 				/* Generate treasure, etc */
 				monster_death(c_ptr->m_idx, FALSE, FALSE);
+
+				if (record_named_pet && m_ptr->nickname)
+				{
+					char m_name[80];
+
+					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+					do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DEATH, m_name);
+				}
 
 				/* Delete the monster */
 				delete_monster_idx(c_ptr->m_idx);

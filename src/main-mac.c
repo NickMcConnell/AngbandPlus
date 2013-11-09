@@ -196,11 +196,6 @@
 #define ANGBAND_CREATOR 'TOB '
 
 /*
- * Use rewritten asynchronous sound player
- */
-#define USE_ASYNC_SOUND
-
-/*
  * Use "malloc()" instead of "NewPtr()"
  */
 /* #define USE_MALLOC */
@@ -401,8 +396,6 @@ AEEventHandlerUPP AEH_Quit_UPP;
 AEEventHandlerUPP AEH_Print_UPP;
 AEEventHandlerUPP AEH_Open_UPP;
 
-
-# ifdef USE_ASYNC_SOUND
 
 /*
  * Asynchronous sound player revised
@@ -865,41 +858,6 @@ static void play_sound(int num, SInt16 vol)
 	if (next_chan >= MAX_CHANNELS) next_chan = 0;
 }
 
-# else /* USE_ASYNC_SOUND */
-
-/*
- * Play sound synchronously
- *
- * This may not be your choice, but much safer and much less resource hungry.
- */
-static void play_sound(int num, SInt16 vol)
-{
-	Handle handle;
-	Str255 sound;
-
-	/* Get the proper sound name */
-	strnfmt((char*)sound + 1, 255, "%.16s.wav", angband_sound_name[num]);
-	sound[0] = strlen((char*)sound + 1);
-
-	/* Obtain resource XXX XXX XXX */
-	handle = GetNamedResource('snd ', sound);
-
-	/* Oops */
-	if (handle == NULL) return;
-
-	/* Load and Lock */
-	LoadResource(handle);
-	HLockHi(handle);
-
-	/* Play sound (wait for completion) */
-	SndPlay(NULL, (SndListHandle)handle, FALSE);
-
-	/* Unlock and release */
-	HUnlock(handle);
-	ReleaseResource(handle);
-}
-
-# endif /* USE_ASYNC_SOUND */
 
 #ifndef MACH_O_CARBON
 
@@ -1087,7 +1045,7 @@ static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
 }
 #endif
 
-#if TARGET_API_MAC_CARBON
+#if 0
 pascal OSErr FSpLocationFromFullPath(short fullPathLength,
 									 const void *fullPath,
 									 FSSpec *spec)
@@ -2243,6 +2201,10 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
 	GDHandle saveGDevice;
 	GWorldPtr saveGWorld;
 
+	/* unused */
+	(void)tap;
+	(void)tcp;
+
 	/* Save GWorld */
 	GetGWorld(&saveGWorld, &saveGDevice);
 	
@@ -3233,7 +3195,7 @@ static void init_sound( void )
 #endif /* MACH_O_CARBON */
 
 
-short InevrtCheck( DialogPtr targetDlg, short check )
+static short InevrtCheck( DialogPtr targetDlg, short check )
 {
 	Handle 	checkH;
 	short 	itemType;
@@ -3250,7 +3212,7 @@ short InevrtCheck( DialogPtr targetDlg, short check )
 /*
 
 */
-short SetCheck( DialogPtr targetDlg, short check, long result )
+static short SetCheck( DialogPtr targetDlg, short check, long result )
 {
 	Handle 	checkH;
 	short 	itemType;
@@ -3266,7 +3228,7 @@ short SetCheck( DialogPtr targetDlg, short check, long result )
 /*
 
 */
-short GetCheck( DialogPtr targetDlg, short check )
+static short GetCheck( DialogPtr targetDlg, short check )
 {
 	Handle 	checkH;
 	short 	itemType;
@@ -3278,7 +3240,7 @@ short GetCheck( DialogPtr targetDlg, short check )
 	return result ;
 
 }
-void SoundConfigDLog(void)
+static void SoundConfigDLog(void)
 {
 	DialogPtr dialog;
 	short item_hit;
@@ -5029,6 +4991,7 @@ static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
 {
 #pragma unused(reply, handlerRefCon)
 #if TARGET_API_MAC_CARBON
+#pragma unused(theAppleEvent)
 
 	/* Save the game (if necessary) */
 	if (game_in_progress && character_generated)
@@ -5764,12 +5727,8 @@ static void hook_quit(cptr str)
 	/* Warning if needed */
 	if (str) mac_warning(str);
 
-#ifdef USE_ASYNC_SOUND
-
 	/* Clean up sound support */
 	cleanup_sound();
-
-#endif /* USE_ASYNC_SOUND */
 
 	/* Write a preference file */
 	save_pref_file();

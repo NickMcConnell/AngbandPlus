@@ -194,16 +194,6 @@ static bool item_tester_hook_mochikae(object_type *o_ptr)
 }
 
 
-static bool item_tester_hook_melee_weapon(object_type *o_ptr)
-{
-	/* Check for a usable slot */
-	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD))return (TRUE);
-
-	/* Assume not wearable */
-	return (FALSE);
-}
-
-
 /*
  * Wield or wear a single item from the pack or floor
  */
@@ -283,7 +273,7 @@ s = "おっと。";
 		buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
 		/* Restrict the choices */
-		item_tester_hook = item_tester_hook_melee_weapon;
+		item_tester_hook = object_is_melee_weapon;
 		item_tester_no_ryoute = TRUE;
 
 		/* Choose a weapon from the equipment only */
@@ -301,7 +291,7 @@ s = "おっと。";
 
 		if (!get_item(&slot, q, s, (USE_EQUIP)))
 			return;
-		if ((slot == INVEN_RARM) && !cursed_p(&inventory[INVEN_RARM]))
+		if ((slot == INVEN_RARM) && !object_is_cursed(&inventory[INVEN_RARM]))
 		{
 			object_type *or_ptr = &inventory[INVEN_RARM];
 			object_type *ol_ptr = &inventory[INVEN_LARM];
@@ -311,7 +301,7 @@ s = "おっと。";
 
 			otmp_ptr = &object_tmp;
 
-			object_desc(ol_name, ol_ptr, FALSE, 0);
+			object_desc(ol_name, ol_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 			object_copy(otmp_ptr, ol_ptr);
 			object_copy(ol_ptr, or_ptr);
@@ -365,10 +355,10 @@ s = "おっと。";
 	}
 
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
+	if (object_is_cursed(&inventory[slot]))
 	{
 		/* Describe it */
-		object_desc(o_name, &inventory[slot], FALSE, 0);
+		object_desc(o_name, &inventory[slot], (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 		/* Message */
 #ifdef JP
@@ -384,13 +374,13 @@ s = "おっと。";
 		return;
 	}
 
-	if (cursed_p(o_ptr) && confirm_wear &&
-	    (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
+	if (object_is_cursed(o_ptr) && confirm_wear &&
+	    (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 	{
 		char dummy[MAX_NLEN+80];
 
 		/* Describe it */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 #ifdef JP
 		sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
@@ -424,7 +414,7 @@ s = "おっと。";
 #endif
 
 			msg_print(NULL);
-			if (quest_is_fixed(i)) change_your_alignment_lnc(10);
+			if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
 		}
 	}
 
@@ -437,7 +427,7 @@ s = "おっと。";
 			char t_name[MAX_NLEN];
 			runeweapon->status |= (RW_STATUS_FOUND);
 
-			object_desc(t_name, o_ptr, TRUE, 0);
+			object_desc(t_name, o_ptr, OD_NAME_ONLY);
 			if (runeweapon->ancestor[0])
 			{
 #ifdef JP
@@ -498,6 +488,9 @@ s = "おっと。";
 
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
+
+	/* Player touches it */
+	o_ptr->marked |= OM_TOUCHED;
 
 	/* Increase the weight */
 	p_ptr->total_weight += q_ptr->weight;
@@ -561,7 +554,7 @@ s = "おっと。";
 	}
 
 	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Message */
 #ifdef JP
@@ -572,7 +565,7 @@ s = "おっと。";
 
 
 	/* Cursed! */
-	if (cursed_p(o_ptr))
+	if (object_is_cursed(o_ptr))
 	{
 		/* Warn the player */
 #ifdef JP
@@ -581,6 +574,7 @@ s = "おっと。";
 		msg_print("Oops! It feels deathly cold!");
 #endif
 
+		change_your_alignment(ALI_LNC, -1);
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -589,7 +583,7 @@ s = "おっと。";
 	/* 属性転換のアミュレット仕様変更 */
 	if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_ALIGNMENT))
 	{
-		change_alignment();
+		change_alignment_lnc();
 		
 		inven_item_increase(INVEN_NECK, -1);
 		inven_item_optimize(INVEN_NECK);
@@ -629,7 +623,7 @@ void kamaenaoshi(int item)
 		p_ptr->total_weight += o2_ptr->weight;
 		inven_item_increase(INVEN_LARM,-1);
 		inven_item_optimize(INVEN_LARM);
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
 #ifdef JP
 			msg_format("%sを両手で構えた。", o_name );
@@ -646,7 +640,7 @@ void kamaenaoshi(int item)
 	else if ((item == INVEN_LARM) && buki_motteruka(INVEN_RARM))
 	{
 		o_ptr = &inventory[INVEN_RARM];
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
 #ifdef JP
 			msg_format("%sを両手で構えた。", o_name );
@@ -662,7 +656,7 @@ void kamaenaoshi(int item)
 		p_ptr->total_weight += o2_ptr->weight;
 		inven_item_increase(INVEN_RARM,-1);
 		inven_item_optimize(INVEN_RARM);
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 #ifdef JP
 		msg_format("%sを持ち替えた。", o_name );
 #else
@@ -710,7 +704,7 @@ void do_cmd_takeoff(void)
 
 	if (dungeon_type == DUNGEON_HEAVEN)
 	{
-		if (object_known_p(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
+		if (object_is_known(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
 		{
 			if (inven_cnt >= INVEN_PACK)
 			{
@@ -722,7 +716,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Item is cursed */
-	if (cursed_p(o_ptr))
+	if (object_is_cursed(o_ptr))
 	{
 		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || (p_ptr->pclass != CLASS_TERRORKNIGHT))
 		{
@@ -828,7 +822,7 @@ void do_cmd_drop(void)
 
 	if (dungeon_type == DUNGEON_HEAVEN)
 	{
-		if (object_known_p(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
+		if (object_is_known(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
 		{
 			msg_print("天界から帰還するにはブリュンヒルドが必要です。");
 			return;
@@ -837,7 +831,7 @@ void do_cmd_drop(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_RARM) && cursed_p(o_ptr))
+	if ((item >= INVEN_RARM) && object_is_cursed(o_ptr))
 	{
 		/* Oops */
 #ifdef JP
@@ -937,7 +931,7 @@ void do_cmd_destroy(void)
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 	o_ptr->number = old_number;
 
 	/* Verify unless quantity given */
@@ -1004,6 +998,27 @@ void do_cmd_destroy(void)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
+
+	if (q_ptr->tval == TV_HOLY_BOOK)
+		change_your_alignment(ALI_GNE, -1 * q_ptr->sval);
+
+	else if (q_ptr->tval == TV_DEATH_BOOK)
+		change_your_alignment(ALI_GNE, q_ptr->sval);
+
+	else if (q_ptr->tval == TV_SYMBIOTIC_BOOK)
+		change_your_alignment(ALI_LNC, -1);
+
+	else if (q_ptr->tval == TV_WITCH_BOOK)
+		change_your_alignment(ALI_LNC, q_ptr->sval);
+
+	else if (q_ptr->tval == TV_CRUSADE_BOOK)
+		change_your_alignment(ALI_GNE, -1 * q_ptr->sval);
+
+	else if (object_value_real(q_ptr) > 30000)
+		change_your_alignment(ALI_LNC, -2);
+
+	else if (object_value_real(q_ptr) > 10000)
+		change_your_alignment(ALI_LNC, -1);
 }
 
 
@@ -1059,7 +1074,7 @@ void do_cmd_observe(void)
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Describe */
 #ifdef JP
@@ -1190,7 +1205,7 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Describe the activity */
-	object_desc(o_name, o_ptr, TRUE, 2);
+	object_desc(o_name, o_ptr, OD_OMIT_INSCRIPTION);
 
 	/* Message */
 #ifdef JP
@@ -1944,9 +1959,9 @@ void do_cmd_query_symbol(void)
 				if (isupper(temp2[xx])) temp2[xx] = tolower(temp2[xx]);
 
 #ifdef JP
-			if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp))
+			if (my_strstr(temp2, temp) || my_strstr(r_name + r_ptr->name, temp))
 #else
-			if (strstr(temp2, temp))
+			if (my_strstr(temp2, temp))
 #endif
 				who[n++] = i;
 		}

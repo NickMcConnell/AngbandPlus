@@ -13,21 +13,8 @@
 /*
  * Forward declare
  */
-typedef struct hist_type hist_type;
+//typedef struct hist_type hist_type;
 typedef struct birth_menu birth_menu;
-
-/*
- * Player background information
- */
-struct hist_type
-{
-	cptr info;			    /* Textual History */
-
-	byte roll;			    /* Frequency of this entry */
-	byte chart;			    /* Chart index */
-	byte next;			    /* Next chart index */
-	byte bonus;			    /* Social Class Bonus + 50 */
-};
 
 /*
  * A structure to hold the menus
@@ -38,401 +25,6 @@ struct birth_menu
 	int real;
 };
 
-
-/*
- * Background information (see below)
- *
- * XXX XXX XXX This table *must* be correct or drastic errors may occur!
- */
-static hist_type bg[] =
-{
-	/* Human*/
-	{"あなたはウォルスタ人とガルガスタン人の", 10, 1, 9,  65 },
-	{"あなたはウォルスタ人とバクラム人の",     15, 1, 9,  80 },
-	{"あなたはガルガスタン人とバクラム人の",   25, 1, 9,  90 },
-	{"あなたはウォルスタ人の",                 45, 1, 2,  70 },
-	{"あなたはガルガスタン人の",               75, 1, 2,  95 },
-	{"あなたはバクラム人の",                   93, 1, 2, 120 },
-	{"あなたはゼノビア人の",                   96, 1, 2, 130 },
-	{"あなたはローディス人の",                 99, 1, 2, 130 },
-	{"あなたはドルガルア王が侍女に産ませた子供のうちの一人で、誕生後すぐ里子に出され、", 100, 1, 10, 90 },
-
-	{"間に生まれた",  20, 9, 11, 50 },
-	{"間に生まれた", 100, 9,  2, 50 },
-
-	{"私生児で、",                    20, 2,  3, 35 },
-	{"何人かの子供のうちの一人で、",  70, 2,  3, 45 },
-	{"末子で、",                      84, 2,  3, 50 },
-	{"長子で、",                      98, 2,  3, 55 },
-	{"子供で、戦争で両親を亡くして",  99, 2, 10, 20 },
-	{"望まれぬ子で、親に捨てられて", 100, 2, 10, 15 },
-
-	{"子供で、戦争で両親を亡くして",  45, 11, 10, 20 },
-	{"私生児で、親に捨てられて",      70, 11, 10, 10 },
-	{"望まれぬ子で、親に捨てられて", 100, 11, 10, 15 },
-
-	{"貧民街の福祉施設で育ちました。",            50, 10, 4,  50 },
-	{"教会で育ちました。",                        90, 10, 4,  70 },
-	{"さる高名な篤志家の養子として育ちました。", 100, 10, 4, 100 },
-	{"家族から空気同然に扱われています。",        15,  3, 4,  40 },
-	{"家族から白い目で見られています。",          20,  3, 4,  35 },
-	{"家族から大切にされています。",              80,  3, 4,  55 },
-	{"家族の期待を一身に受けています。",         100,  3, 4,  60 },
-
-	{"あなたは眠たげな",        10, 4, 5, 50 },
-	{"あなたは目つきの悪い",    20, 4, 5, 45 },
-	{"あなたは人の良さそうな",  30, 4, 5, 55 },
-	{"あなたは暗そうな",        40, 4, 5, 50 },
-	{"あなたは涼しげな",        50, 4, 5, 50 },
-	{"あなたはくすんだ",        60, 4, 5, 50 },
-	{"あなたは美しい",          70, 4, 5, 55 },
-	{"あなたは血走った",        80, 4, 5, 45 },
-	{"あなたは凛とした",        90, 4, 5, 55 },
-	{"あなたはきらきら輝く",   100, 4, 5, 55 },
-
-	{"青い瞳と、",    20, 5, 6, 50 },
-	{"黒い瞳と、",    50, 5, 6, 50 },
-	{"金色の瞳と、",  55, 5, 6, 50 },
-	{"深紅の瞳と、",  60, 5, 6, 50 },
-	{"茶色の瞳と、",  90, 5, 6, 50 },
-	{"緑の瞳と、",    95, 5, 6, 50 },
-	{"灰色の瞳と、", 100, 5, 6, 50 },
-
-	{"真っ直ぐな",      70, 6, 7, 50 },
-	{"ゆるく波打った",  90, 6, 7, 50 },
-	{"きつく巻いた",   100, 6, 7, 50 },
-
-	{"黒い髪、",    30, 7, 8, 50 },
-	{"灰色の髪、",  40, 7, 8, 50 },
-	{"茶色の髪、",  60, 7, 8, 50 },
-	{"赤い髪、",    75, 7, 8, 50 },
-	{"金色の髪、",  90, 7, 8, 50 },
-	{"白い髪、",   100, 7, 8, 50 },
-
-	{"漆黒の肌をしています。",              10, 8, 0, 50 },
-	{"黒い肌をしています。",                20, 8, 0, 50 },
-	{"普通の肌をしています。",              70, 8, 0, 50 },
-	{"白い肌をしています。",                90, 8, 0, 50 },
-	{"透き通るような白い肌をしています。", 100, 8, 0, 50 },
-
-	/* Hawkman */
-	{"あなたはホークマンの", 100, 12, 13, 50 },
-
-	{"の長子です。",                      30, 14, 15, 55 },
-	{"の末子です。",                      50, 14, 15, 50 },
-	{"の養子です。",                      55, 14, 15, 50 },
-	{"の孤児です。",                      60, 14, 15, 45 },
-	{"の幾人かの子供のうちの一人です。",  85, 14, 15, 50 },
-	{"の一粒種です。",                   100, 14, 15, 55 },
-
-	{"乞食",    10, 13, 14,  20 },
-	{"盗賊",    21, 13, 14,  30 },
-	{"水夫",    26, 13, 14,  45 },
-	{"傭兵",    42, 13, 14,  45 },
-	{"戦士",    73, 13, 14,  50 },
-	{"商人",    78, 13, 14,  50 },
-	{"鍛冶屋",  85, 13, 14,  55 },
-	{"建築家",  89, 13, 14,  60 },
-	{"僧侶",    94, 13, 14,  65 },
-	{"魔術師",  97, 13, 14,  70 },
-	{"学者",    99, 13, 14,  80 },
-	{"貴族",   100, 13, 14, 100 },
-
-	{"あなたは", 100, 15, 16, 50 },
-
-	{"は黒灰色の翼と肌、そして灰色の髪をしています。",    11, 16, 0, 50 },
-	{"ブロンズ色の翼と肌、そして銅色の髪をしています。",  16, 16, 0, 50 },
-	{"黄金の翼を持ち、黄金の肌をしています。",            24, 16, 0, 50 },
-	{"白い翼を持ち、白い肌をしています。",                26, 16, 0, 60 },
-	{"青い翼と肌、そして水色の髪をしています。",          32, 16, 0, 50 },
-	{"万色の翼を持ち、肌も万色です。",                    33, 16, 0, 70 },
-	{"茶色の翼を持ち、茶色の肌をしています。",            37, 16, 0, 45 },
-	{"黒い翼と肌、そして白い髪をしています。",            41, 16, 0, 50 },
-	{"薄紫色の翼と肌、そして白い髪をしています。",        48, 16, 0, 50 },
-	{"緑色の翼と肌、そして黄色い髪をしています。",        65, 16, 0, 50 },
-	{"緑色の翼を持ち、緑色の肌をしています。",            75, 16, 0, 50 },
-	{"赤い翼を持ち、赤い肌をしています。",                88, 16, 0, 50 },
-	{"黒い翼を持ち、黒い肌をしています。",                94, 16, 0, 50 },
-	{"きらめく翼を持ち、金属的な肌をしています。",       100, 16, 0, 55 },
-
-	/* Lizardman */
-	{"あなたは奴隷のリザードマンの",      10, 17, 18,  20 },
-	{"あなたは労働者のリザードマンの",    35, 17, 18,  40 },
-	{"あなたは水辺に住むリザードマンの",  70, 17, 18,  50 },
-	{"あなたは森で暮らすリザードマンの",  82, 17, 18,  50 },
-	{"あなたは裕福なリザードマンの",      87, 17, 18,  80 },
-	{"あなたは貴族のリザードマンの",      92, 17, 18,  95 },
-	{"あなたは聖職者のリザードマンの",    97, 17, 18,  90 },
-	{"あなたはリザードマンの王の",       100, 17, 18, 110 },
-
-	{"幾人かの子供のうちの一人で、",  60, 18, 19, 50 },
-	{"一粒種で、",                   100, 18, 19, 55 },
-
-	{"あなたは一家のお荷物です。",          20, 19, 20, 20 },
-	{"あなたは一家の誇りです。",            80, 19, 20, 55 },
-	{"あなたは家族に大切にされています。", 100, 19, 20, 60 },
-
-	{"あなたは", 100, 20, 21, 50 },
-
-	{"緑色の鱗と",    55, 21, 22, 50 },
-	{"青い鱗と",      68, 21, 22, 50 },
-	{"暗褐色の鱗と",  78, 21, 22, 50 },
-	{"黒灰色の鱗と",  84, 21, 22, 50 },
-	{"白銀の鱗と",    87, 21, 22, 60 },
-	{"金色の鱗と",    89, 21, 22, 55 },
-	{"白い鱗と",      99, 21, 22, 40 },
-	{"ピンクの鱗と", 100, 21, 22, 10 },
-
-	{"白い腹を持ち、",      50, 22, 23, 50 },
-	{"緑色の腹を持ち、",    75, 22, 23, 50 },
-	{"黄色の腹を持ち、",    90, 22, 23, 50 },
-	{"象牙色の腹を持ち、", 100, 22, 23, 60 },
-
-	{"青く光る瞳をしています。",    25, 23, 0, 50 },
-	{"赤く輝く瞳をしています。",    50, 23, 0, 50 },
-	{"小さな黒い瞳をしています。",  75, 23, 0, 50 },
-	{"赤銅色の瞳をしています。",   100, 23, 0, 50 },
-
-	/* Fairy */
-	{"あなたの両親は", 100, 24, 25, 50 },
-
-	{"ピクシーでした。",    20, 25, 26, 35 },
-	{"ニクシーでした。",    30, 25, 26, 25 },
-	{"森の妖精でした。",    75, 25, 26, 50 },
-	{"森の精霊でした。",    90, 25, 26, 75 },
-	{"妖精の貴族でした。", 100, 25, 26, 85 },
-
-	{"あなたは背中にライトグリーンの羽根が生えていて、",  30, 26, 27, 50 },
-	{"あなたは背中にライトブルーの羽根が生えていて、",   100, 26, 27, 50 },
-
-	{"なめらかな金髪、",        50, 27, 28, 50},
-	{"波打った金髪、",          80, 27, 28, 50},
-	{"なめらかな深緑色の髪、",  90, 27, 28, 50},
-	{"波打った深緑色の髪、",   100, 27, 28, 50},
-
-	{"青い瞳、そして非常に生き生きとした肌をしています。",        70, 28, 0, 50},
-	{"グリーンの瞳、そして非常に生き生きとした肌をしています。", 100, 28, 0, 50},
-
-	/* Gremlin */
-	{"あなた", 100, 29, 30, 50 },
-
-	{"は元々モグワイという不思議な動物でしたが、愚かな飼い主が",  20, 30, 31, 65 },
-	{"の祖先は",                                                  70, 30, 34, 55 },
-	{"はグレムリンが分裂増殖してできたグレムリンです。",         100, 30, 33, 40 },
-
-	{"水に濡らしたため",                    40, 31, 32, 50 },
-	{"太陽の光に当ててしまい",              80, 31, 32, 50 },
-	{"夜中の12時すぎに食事を与えたせいで", 100, 31, 32, 50 },
-
-	{"グレムリンに変化しました。", 100, 32, 33, 50 },
-
-	{"心を持たない地獄の低級な生物でした。",  30, 34, 33, 20 },
-	{"ゴブリンでした。",                      60, 34, 33, 45 },
-	{"下級悪魔でした。",                      70, 34, 33, 55 },
-	{"上級悪魔でした。",                      90, 34, 33, 75 },
-	{"魔王でした。",                         100, 34, 33, 99 },
-
-	{"あなたは赤い肌と",    10, 33, 35, 45 },
-	{"あなたは茶色い肌と",  40, 33, 35, 50 },
-	{"あなたは漆黒の肌と",  60, 33, 35, 55 },
-	{"あなたは黒い肌と",   100, 33, 35, 50 },
-
-	{"赤く燃える瞳をしていて、鉤爪と牙と刺と翼が生えています。",  40, 35, 0, 55 },
-	{"赤く燃える瞳をしていて、鉤爪と牙と翼が生えています。",      70, 35, 0, 50 },
-	{"赤く燃える瞳をしていて、鉤爪と翼が生えています。",         100, 35, 0, 45 },
-
-	/* Skeleton */
-	{"あなたは", 100, 36, 37, 50 },
-
-	{"死霊術士により作り出されました。",      30, 37, 38, 50 },
-	{"魔法の実験により作り出されました。",    50, 37, 38, 50 },
-	{"邪悪な僧侶により作り出されました。",    70, 37, 38, 50 },
-	{"悪魔との契約により生み出されました。",  75, 37, 38, 50 },
-	{"怨霊から生まれました。",                85, 37, 38, 50 },
-	{"呪いから生まれました。",                95, 37, 38, 30 },
-	{"神名濫用により生み出されました。",     100, 37, 38, 50 },
-
-	{"あなたは", 100, 38, 39, 50 },
-
-	{"古く汚れた骨で出来ていて、",        40, 39, 40, 50 },
-	{"腐った黒い骨で出来ていて、",        60, 39, 40, 50 },
-	{"うす汚れた茶色い骨で出来ていて、",  80, 39, 40, 50 },
-	{"白く輝く骨で出来ていて、",         100, 39, 40, 50 },
-
-	{"光る目をしています。",                    30, 40, 0, 50 },
-	{"地獄の劫火が燃えさかる目をしています。",  50, 40, 0, 50 },
-	{"眼窩はからっぽです。",                   100, 40, 0, 50 },
-
-	/* Ghost */
-	{"あなたは", 100, 41, 42, 50 },
-
-	{"電子ネットの海から自然発生した情報生命体です。あなたは無数の人々の情念により形成されました。あなたは不可視の存在であり、無数の電子に覆われています。", 1, 42, 0, 50 },
-	{"死霊術士により作り出されました。",      30, 42, 43, 50 },
-	{"魔法の実験により作り出されました。",    50, 42, 43, 50 },
-	{"邪悪な僧侶により作り出されました。",    70, 42, 43, 50 },
-	{"悪魔との契約により生み出されました。",  75, 42, 43, 50 },
-	{"怨霊から生まれました。",                85, 42, 43, 50 },
-	{"呪いから生まれました。",                95, 42, 43, 30 },
-	{"神名濫用により生み出されました。",     100, 42, 43, 50 },
-
-	{"あなたは", 100, 43, 44, 50 },
-
-	{"漆黒の髪、",              25, 44, 45, 50 },
-	{"もつれたブラウンの髪、",  50, 44, 45, 50 },
-	{"白い髪、",                75, 44, 45, 50 },
-	{"髪のない頭、",           100, 44, 45, 50 },
-
-	{"燃える石炭のような瞳、",  25, 45, 46, 50 },
-	{"瞳のない目、",            50, 45, 46, 50 },
-	{"凶暴な黄色い瞳、",        75, 45, 46, 50 },
-	{"血走った赤い瞳、",       100, 45, 46, 50 },
-
-	{"そして死人のような土色の肌をしています。", 100, 46, 47, 50 },
-
-	{"あなたの周りには不気味な緑色のオーラがただよっています。", 100, 47, 0, 50 },
-
-	/* Pumpkin-Head */
-	{"あなたは", 100, 48, 49, 50 },
-	
-	{"魔女デネブが近くの畑から盗んできた",          50, 49, 50, 45 },
-	{"魔女デネブがプエルトモントの市場で購入した",  55, 49, 50, 50 },
-	{"魔女デネブがロスアンヘルスの市場で購入した",  60, 49, 50, 50 },
-	{"魔女デネブがバルジビアの市場で購入した",      65, 49, 50, 50 },
-	{"魔女デネブがコリタニの市場で購入した",        70, 49, 50, 50 },
-	{"魔女デネブが王都ハイムの市場で購入した",      75, 49, 50, 50 },
-	{"魔女デネブがアルモリカの市場で購入した",      85, 49, 50, 50 },
-	{"魔女デネブが港町アシュトンの市場で購入した",  90, 49, 50, 50 },
-	{"魔女デネブが港町ゴリアテの市場で購入した",    95, 49, 50, 50 },
-	{"魔女デネブが死者の宮殿で拾ったガラスの",     100, 49, 50, 60 },
-
-	{"カボチャから作られた人工生命体です。", 100, 50, 51, 50 },
-
-	{"あなたは", 100, 51, 52, 50 },
-
-	{"ガサガサした緑黄色の肌と",    30, 52, 53, 50 },
-	{"ゴワゴワした深緑色の肌と",    50, 52, 53, 50 },
-	{"ガサガサした薄茶色の肌と",    70, 52, 53, 50 },
-	{"ゴワゴワしたレンガ色の肌と", 100, 52, 53, 50 },
-
-	{"ナイフでくりぬかれた目、とってつけたような手足をしています。",  70, 53, 0, 50 },
-	{"マジックで書かれた目、とってつけたような手足をしています。",   100, 53, 0, 50 },
-
-	/* Goblin */
-	{"あなたは悪戯好きのゴブリン",  40, 54, 55,  50 },
-	{"あなたはゴブリン",            75, 54, 55,  55 },
-	{"あなたはホブゴブリン",        95, 54, 55,  65 },
-	{"あなたは古代オウガの末裔",   100, 54, 55, 100 },
-
-	{"の何人かの子供のうちの一人です。 ", 100, 55, 56, 50 },
-
-	{"あなたは青い瞳と",        25, 56, 57, 50 },
-	{"あなたは光る瞳と",        50, 56, 57, 50 },
-	{"あなたは小さな黒い瞳と",  75, 56, 57, 50 },
-	{"あなたは黒く輝く瞳と",   100, 56, 57, 50 },
-
-	{"髪のない頭に小さく尖った角、",          20, 57, 58, 50 },
-	{"黒く短い髪と小さく尖った角、",          40, 57, 58, 50 },
-	{"黒く長い髪と小さく尖った角、",          60, 57, 58, 50 },
-	{"燃えるような赤い髪と小さく尖った角、",  96, 57, 58, 50 },
-	{"色のない白い髪と小さく尖った角、",     100, 57, 58, 50 },
-
-	{"土色の",    25, 58, 59, 50},
-	{"赤茶色の",  70, 58, 59, 50},
-	{"青い",      85, 58, 59, 50},
-	{"黒い",     100, 58, 59, 50},
-
-	{"ブツブツした肌をしています。",      33, 59, 0, 50},
-	{"カサブタだらけの肌をしています。",  59, 59, 0, 50},
-	{"ガサガサの肌をしています。",       100, 59, 0, 50},
-
-	/* Gorgon */
-	{"あなたは名もなきゴーゴンの",              90, 60, 61,  50 },
-	{"あなたはゴーゴンの三姉妹ステンノの",      94, 60, 61, 100 },
-	{"あなたはゴーゴンの三姉妹エウリュアレの",  98, 60, 61, 110 },
-	{"あなたはゴーゴンの三姉妹メデューサの",   100, 60, 61, 120 },
-
-	{"末裔の一人です。", 100, 61, 62, 50 },
-
-	{"あなたは見る者を石に変える邪悪な瞳と、", 100, 62, 63, 50 },
-
-	{"頭髪のかわりに蠢く12匹の",  60, 63, 64, 50 },
-	{"頭髪のかわりに蠢く24匹の",  91, 63, 64, 50 },
-	{"頭髪のかわりに蠢く36匹の", 100, 63, 64, 50 },
-
-	{"緑のまだら模様の蛇をもち、",    47, 64, 65, 50 },
-	{"青のまだら模様の蛇をもち、",    75, 64, 65, 50 },
-	{"赤のまだら模様の蛇をもち、",    86, 64, 65, 50 },
-	{"黄色のまだら模様の蛇をもち、",  94, 64, 65, 50 },
-	{"金色に輝く蛇をもち、",         100, 64, 65, 55 },
-
-	{"下肢は蛇の体をしています。", 100, 65,  0, 50 },
-
-	/* Mermaid */
-	{"あなたは水の王の長子です。",                                     5, 66, 67, 140 },
-	{"あなたの両親はマーメイドの貴族です。",                          20, 66, 67, 120 },
-	{"あなたの両親は平和を愛する自由奔放なマーメイドでした。",        80, 66, 67,  55 },
-	{"あなたは禁じられた恋によって産まれたマーメイドの私生児です。", 100, 66, 67,  50 },
-
-	{"あなたはパールグレイの波打った美しい髪を持ち、",  25, 67, 68, 55 },
-	{"あなたは青緑色のまっすぐな髪を持ち、",            75, 67, 68, 50 },
-	{"あなたはさらさらした美しい金髪で、",             100, 67, 68, 55 },
-
-	{"下半身は水色の鱗に覆われた魚の尾をしています。" ,   25, 68, 0, 50 },
-	{"下半身は深緑色の鱗に覆われた魚の尾をしています。",  75, 68, 0, 50 },
-	{"下半身は金色の鱗に覆われた魚の尾をしています。",   100, 68, 0, 60 },
-};
-
-static cptr race_jouhou[MAX_RACES] =
-{
-"人間は基本となるキャラクタです。他の全ての種族は人間と比較されます。人間はどんなクラスに就くこともでき、どのクラスでも平均的にこなせます。人間は寿命が短いため、レベル上昇が他のどんな種族よりも早くなる傾向があります。また、特別な修正や特性は持っていません。",
-"ホークマンは気性が荒く、戦闘を好む有翼の種族です。彼らは長命で人の3倍の寿命を誇ります。また翼を使うことで落とし穴や危険な地形を避けることができます。",
-"リザードマンは硬いウロコを持つ水陸両用の種族です。そのウロコにより酸と冷気の耐性を持ちます。また彼らは戦闘に優れており、HPの上昇率が高く、罠の解除や魔道具使用もそれなりにこなします。",
-"フェアリーは非常に小さいです。彼らは小さな翼を持ち、罠や危険な地形を飛び越えることができます。彼らは日光を大変好み、光に対する耐性を持っていますが、暗闇によって大きなダメージを受けてしまいます。高レベルではより速く飛ぶことができるようになります。",
-"グレムリンはフェアリーの対極です。翼を持ち、罠や危険な地形を飛び越えることができます。彼らは暗闇を大変好み、暗黒と地獄に対する耐性を持っていますが、光によって大きなダメージを受けてしまいます。高レベルではより速く飛ぶことができるようになります。",
-"アンデッドであるスケルトンは、毒や生命力吸収攻撃を心配する必要はありません。彼らは物体を知覚するのに眼を利用していないため、見えない物に騙されません。彼らの骨はとがった破片のようなものに耐性を持ち、レベルが上がれば冷気に対する耐性を獲得します。薬や食物の持つ効果はスケルトンの胃（存在しませんが）を通過することなくその力を発揮しますが、薬や食物自体は彼の顎を通り抜けて落ちてしまい、栄養を吸収することはできません。スケルトンは食料を必要としません。",
-"ゴーストは強力なアンデッドの一種です。半物質的な存在である彼らは、壁を通り抜けることができますが、そのときには壁の密度によって傷つけられてしまいます。他のアンデッド同様、彼らも生命力を吸収されることがなく、見えないものを見ることができ、毒と冷気に対して耐性を備え、さらに地獄に対する免疫も持っています。レベルが十分に上がると彼らはテレパシーを獲得します。ゴーストは卓越した魔法使いになることができますが、その身体的特性は非常に貧弱です。ゴーストは食料を必要としません。",
-"パンプキンヘッドは魔女デネブによって作られたカボチャのおばけです。パンプキンヘッドは敵の嗜虐心をくすぐるため、敵から優先的に狙われます。パンプキンヘッドは肉体的に貧弱ですが、麻痺免疫とカオスや劣化への耐性を持ち、生命力を維持し、レベルが上がればテレパシーを得ます。",
-"ゴブリンはよい戦士になれますが、魔法は期待できません。彼らは隠密行動が悪く、また探索や解除, 知覚もひどいです。ゴブリンは醜く、店での買い物ではより高い金額を要求されがちです。彼らは地下に住むことを好むため、ゴブリンは暗闇に対する耐性を備えています。",
-"ゴーゴンは頭髪の代わりに無数のヘビが生え、人魚ならぬヘビの下肢を持つモンスターです。彼女らはあらゆるスキルをそつなくこなし、中でも弓は他種族より格段に優れています。彼女らは石化の耐性を持ち、レベルが上がれば酸や冷気や毒や地獄やカオスの耐性も得ることができます。それらに加えて、見た者を石に変えてしまう“邪眼”も行使可能になるので、非常に強力な種族です。",
-"マーメイドは上半身が人間で下半身が魚の、海に住む種族です。彼らは水中を好み、水の中では高い戦闘能力を期待できます。反面陸上は苦手で、移動に手間がかかります。また彼らは優秀な歌い手であり、モンスターを魅惑する歌を歌うことができます。",
-};
-
-cptr class_jouhou[MAX_CLASS] =
-{
-"ソルジャーは男性ユニットの基本となるクラスです。クラスとしての特殊技能もなく、パラメータも平均的に上昇するため、ソルジャーのまま育てると中途半端な器用貧乏ユニットになるでしょう。しかし、スペシャリストに育ちすぎたキャラの矯正という目的であればかなり有用なクラスです。",
-"ナイトは武に優れ、忠を重んじる騎士道の伝道師です。魔法は使えませんが、ソルジャーよりも防御に優れ、刀剣類、竿状武器を得意とします。乗馬もそこそここなし、特に乗馬してランスを振るう際の攻撃力は破壊的です。",
-"バーサーカーは強靭な肉体と人並みはずれたパワーで血路を切り開く凶暴な戦士です。斧や鈍器を得意とします。魔法は使えず、魔道具使用も下手ですが、戦場で鍛えたカンは鋭く、解除や知覚・探索能力に優れます。",
-"テラーナイトは今まで殺してきた者たちの霊を得意げに引き連れる恐怖の騎士です。その殺戮能力は神話的ですらあります。ですが魔法的な能力は皆無と言っていいでしょう。",
-"ビーストテイマーは魔獣とともに戦う戦士です。ムチを得意武器とし、ペットを支援する共生魔法を使うことができます。乗馬も得意で、乗馬に向かない武器を装備してもペナルティが少ないというメリットがあります。魔法を唱えるのに必要な能力は賢さです。",
-"ソードマスターは剣技を極めることで己の魂を磨き、業を乗り越えんとする求道者です。すばらしい剣技を持ち、二刀流が得意で、かつ自属性の魔法を使うことができます。魔法を唱えるのに必要な能力は知能です。",
-"剣を得意武器とし、ドラゴンに対して圧倒的な殺傷力を誇るクラスです。また簡単な魔法であれば使用できます。魔法を唱えるの必要なのは知能です。",
-"隠密が高く、剣技に長け、二刀流をすることができ、自属性の魔法も使える優秀な闇の戦士です。魔法を唱えるのに必要な能力は知能です。",
-"ウィザードは幅広い知識と豊富な経験から多くの攻撃魔法を使いこなす魔法使いです。魔道の魔法に加えて四属性の魔法を駆使することができます。魔法を唱えるのに必要な能力は知能です。",
-"ウォーロックは学者肌の魔法使いです。ウィッチの魔法と魔道の魔法2冊と竜言語魔法を使いこなし、そこそこの打撃攻撃力があり、またゴーレムを召喚することができます。魔法を唱えるのに必要な能力は知能です。",
-"エクソシストは悪魔や悪霊退治のスペシャリストです。破邪の魔法を駆使することで邪悪な悪魔やアンデッドには無類の強さを発揮します。また、そこそこに打撃力もあり、打撃で活路を見出すこともできます。魔法を唱えるのに必要な能力は賢さです。",
-"アマゾネスは女性の基本クラスです。魔法こそ使えませんが、それ以外のことはそつなくなくこなします。しかし、力不足の感は否めないので、アマゾネスのまま最後まで成長させるのは得策ではないでしょう。",
-"ヴァルキリーは槍が得意な魔法戦士です。また、乗馬もこなします。馬上からの槍の一撃は破壊的な力を持つことでしょう。魔法を唱えるのに必要な能力は賢さです。",
-"アーチャーは弓系武器の専門家です。魔法は使うことができませんが、その射撃能力は絶大です。次々と敵を射ち殺すことができるでしょう。",
-"ドラゴンテイマーはドラゴンと共に自らも剣を取って戦う魔法戦士です。彼女は特別に竜に好かれていて、いつでもドラゴンの力を借りることが出来ます。魔法を唱えるのに必要な能力は賢さです。",
-"ウィッチは補助魔法や魔道具使用を得意とする魔女です。魔法はウィッチ、魔道、それに暗黒魔法の1冊目が行使可能です。魔法を唱えるのに必要な能力は知能です。",
-"セイレーンは多くの攻撃魔法と行使する美しき魔女です。実態はウィザードとほとんど変わりません。魔法を唱えるのに必要な能力は知能です。",
-"クレリックは回復魔法を得意とする僧侶です。神聖の魔法と自属性の魔法が行使できます。また、他の魔法系に比べると弓も多少使うことが出来ます。クレリックは、プリーストにチェンジするまでの下積みクラスだと考えてよいでしょう。魔法を唱えるのに必要な能力は賢さです。",
-"プリーストは攻撃魔法と回復魔法の両方を駆使する僧侶です。神聖と破邪と自属性の魔法が行使できます。クレリックの上級クラスと考えてよいでしょう。回復魔法はクレリックに比べるとやや劣ります。魔法を唱えるのに必要な能力は賢さです。",
-"「死者の指輪」を装備したウィザード・ウォーロック・エクソシスト・セイレーン・ウィッチが死亡後に転生する転生クラスです。死者の指輪の力によって復活を遂げたことで、さらにハイレベルの能力を身につけています。神聖と共生と破邪と竜言語以外の全ての魔法領域を使えますが、もはやクラスチェンジできません。魔法を唱えるのに必要な能力は知能です。リッチは食料を必要としません。",
-"エンジェルナイトは心清き女性ユニットが死亡後に転生できる場合がある転生クラスです。肉弾、魔法共に高い戦闘能力を誇りますが、もはやクラスチェンジできません。エンジェルナイトは破邪と自属性の魔法を使うことができます。魔法を唱えるのに必要な能力は賢さです。エンジェルナイトは食料を必要としません。",
-"うぃっちは「ウィッチと同じ？失礼ね。一緒にしないでよ。アタシの方が美人だしグラマーだし（中略）人に何かを問いかけるときのようにちょっと尻上がりに発音するのがコツなの（はぁと）」です。このクラスはクラスチェンジできなくなります。魔法を唱えるのに必要な能力は知能です。",
-"南方の大陸バルバウダで製造された剣に代わる強力な武器『銃』を扱える唯一のクラスです。魔法などの超自然科学に対する信奉を捨てたため魔法に対する耐久力が著しく低下しており、他のクラスにクラスチェンジできなくなります。",
-"テンプルナイトはロスローリアンに忠誠を誓う騎士です。あらゆる武器を扱うことができ、暗黒魔法を唱えることができます。また、このクラスに就いている間は他のクラスへクラスチェンジできなくなります。魔法を唱えるのに必要な能力は賢さです。",
-"ホワイトナイトは新生ゼノビア王国に忠誠を誓う騎士です。あらゆる武器を扱うことができ、神聖魔法を唱えることができます。また、このクラスに就いている間は他のクラスへクラスチェンジできなくなります。魔法を唱えるのに必要な能力は賢さです。",
-"ロードはヴァレリア王国の後継者としてフィラーハ教団が認めた者です。その能力はパラディンをしのぎ、解放軍を束ねる指導者にふさわしい。魔法を唱えるのに必要な能力は賢さです。",
-"一軍を率いる能力と、その資格を高位の騎士。剣技に秀で、音速を超える剣先から衝撃波を放つ。",
-"隠密が高く、剣技に長け、二刀流をすることができ、四属性の魔法も使える優秀な闇の戦士です。魔法を唱えるのに必要な能力は知能です。",
-"飽くなき探求の末に、強大な魔力を手にした者。魔法を唱えるのに必要な能力は知能です。",
-"フレイヤは神に仕え、神の加護を得る女性戦士。強靭な肉体と精神を併せ持ち、槍術と魔法を駆使して戦う。魔法を唱えるのに必要な能力は賢さです。",
-"クレセントは風の領域の魔法が使える女闘士です。周囲に反魔法フィールドをはることができます。魔法を唱えるのに必要な能力は知能です。",
-"ヴァンパイアは夜の闇の中で真の力を発揮する事が出来ます。武器による直接攻撃と暗黒魔法を駆使して戦うことができます。魔法に必要な能力は知能です。",
-"巫女は神にその身を捧げた乙女です。非力な彼女達は武器で直接敵と戦うことは苦手ですが、弓を構え心を研ぎすまして放つ矢は、敵をはずすことがありません。また、レベルが上がると、木をなぎ倒し敵を射貫く聖なる力を矢にこめて放つことができるようになります。また、水の上で身を清めることにより、邪悪な穢れを払うこともできます。神に仕える彼女達は祈りを唱えることができます。巫女は神に祝福された武器以外を身に付けることを好まず、弓を引くのに邪魔になる盾を持つことも好みません。これらを装備すると祈りの集中が乱れて失敗しやすくなり、また、矢もうまく撃てなくなってしまいます。巫女に必要な能力は器用さと賢さです。",
-};
 
 static cptr realm_jouhou[MAX_REALM] =
 {
@@ -640,9 +232,9 @@ static void get_extra(bool roll_hitdie)
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp;
-	for (i = 0; i < MAX_CLASS; i++) p_ptr->cexpfact[i] = class_info[i].c_exp;
+	for (i = 0; i < max_c_idx; i++) p_ptr->cexpfact[i] = class_info[i].c_exp;
 
-	(void)C_WIPE(p_ptr->cexp_info, MAX_CLASS, cexp_info_type);
+	(void)C_WIPE(p_ptr->cexp_info, max_c_idx, cexp_info_type);
 
 	for (i = 0; i < MAX_WT; i++)
 		p_ptr->weapon_exp[i] = 0;
@@ -681,7 +273,7 @@ static void get_extra(bool roll_hitdie)
 		p_ptr->race_hp[i] = p_ptr->race_sp[i] = 0;
 	}
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		for (j = (i == p_ptr->pclass) ? 1 : 0; j < PY_MAX_LEVEL; j++)
 		{
@@ -712,7 +304,7 @@ static void get_extra(bool roll_hitdie)
 	p_ptr->gx_thn = cp_ptr->x_thn;
 	p_ptr->gx_thb = cp_ptr->x_thb;
 
-	p_ptr->death_regen = 999;
+	p_ptr->death_regen = 5000;
 }
 
 
@@ -744,69 +336,7 @@ static void get_history(void)
 		social_class = randint1(4);
 
 		/* Starting place */
-		switch (p_ptr->prace)
-		{
-			case RACE_HUMAN:
-			{
-				chart = 1;
-				break;
-			}
-			case RACE_HAWKMAN:
-			{
-				chart = 12;
-				break;
-			}
-			case RACE_LIZARDMAN:
-			{
-				chart = 17;
-				break;
-			}
-			case RACE_FAIRY:
-			{
-				chart = 24;
-				break;
-			}
-			case RACE_GREMLIN:
-			{
-				chart = 29;
-				break;
-			}
-			case RACE_SKELETON:
-			{
-				chart = 36;
-				break;
-			}
-			case RACE_GHOST:
-			{
-				chart = 41;
-				break;
-			}
-			case RACE_PUMPKINHEAD:
-			{
-				chart = 48;
-				break;
-			}
-			case RACE_GOBLIN:
-			{
-				chart = 54;
-				break;
-			}
-			case RACE_GORGON:
-			{
-				chart = 60;
-				break;
-			}
-			case RACE_MERMAID:
-			{
-				chart = 66;
-				break;
-			}
-			default:
-			{
-				chart = 0;
-				break;
-			}
-		}
+		chart = rp_ptr->hist;
 
 
 		/* Process the history */
@@ -820,16 +350,16 @@ static void get_history(void)
 
 
 			/* Access the proper entry in the table */
-			while ((chart != bg[i].chart) || (roll > bg[i].roll)) i++;
+			while ((chart != h_info[i].chart) || (roll > h_info[i].roll)) i++;
 
 			/* Acquire the textual history */
-			(void)strcat(buf, bg[i].info);
+			my_strcat(buf, (h_text + h_info[i].text), sizeof(buf));
 
 			/* Add in the social class */
-			social_class += (int)(bg[i].bonus) - 50;
+			social_class += (int)(h_info[i].bonus) - 50;
 
 			/* Enter the next chart */
-			chart = bg[i].next;
+			chart = h_info[i].next;
 		}
 
 
@@ -901,6 +431,24 @@ static void get_ahw(void)
 	}
 }
 
+
+
+static void k_info_reset(void)
+{
+	int i;
+
+	/* Reset the "objects" */
+	for (i = 1; i < max_k_idx; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Reset "tried" */
+		k_ptr->tried = FALSE;
+
+		/* Reset "aware" */
+		k_ptr->aware = FALSE;
+	}
+}
 
 
 /*
@@ -1180,35 +728,30 @@ static void init_turn(void)
  */
 void player_outfit(void)
 {
+	int i;
 	object_type	forge;
 	object_type	*q_ptr;
+	const start_item *e_ptr;
 
 
 	/* Get local object */
 	q_ptr = &forge;
 
 	/* Give the player some food */
-	switch (p_ptr->prace)
+	if (!(rp_ptr->r_flags & PRF_NO_DIGEST))
 	{
-	case RACE_SKELETON:
-	case RACE_GHOST:
-		/* Nothing */
-		break;
-	default:
 		/* Food rations */
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 		q_ptr->number = (byte)rand_range(3, 7);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
-		break;
 	}
-
 	/* Get local object */
 	q_ptr = &forge;
 
 	/* Hack -- Give the player some torches */
-	if (p_ptr->pclass != CLASS_NINJA)
+	if (!(class_info[p_ptr->pclass].c_flags & PCF_SEE_DARK_GRID))
 	{
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 		q_ptr->number = (byte)rand_range(3, 6);
@@ -1218,152 +761,31 @@ void player_outfit(void)
 		(void)inven_carry(q_ptr);
 	}
 
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Hack -- Give the player three useful objects */
-	switch (p_ptr->pclass)
+	/* Hack -- Give the player his equipment */
+	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
-	case CLASS_SOLDIER:
-	case CLASS_NINJA:
-	case CLASS_AMAZONESS:
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_MINIMUM_DAGGER));
-		q_ptr->number = (byte)rand_range(1, 4);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		if (p_ptr->pclass == CLASS_NINJA)
+		/* Access the item */
+		e_ptr = &(cp_ptr->start_items[i]);
+
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Hack	-- Give the player an object */
+		if (e_ptr->tval > 0)
 		{
-			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_MADU));
+			/* Get the object_kind */
+			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+			/* Valid item? */
+			if (!k_idx) continue;
+
+			/* Prepare the item */
+			object_prep(q_ptr, k_idx);
+			q_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
 			object_aware(q_ptr);
 			object_known(q_ptr);
 			(void)inven_carry(q_ptr);
 		}
-		break;
-
-	case CLASS_KNIGHT:
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_BERSERKER:
-		object_prep(q_ptr, lookup_kind(TV_POLEARM, SV_BROAD_AXE));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_BEASTTAMER:
-		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_WHIP));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_WIZARD:
-		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_SCIPPLAYS_STAFF));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_MAGERY_BOOK, 0));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_EXORCIST:
-		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_FLAIL));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_CRUSADE_BOOK, 0));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_VALKYRIE:
-		object_prep(q_ptr, lookup_kind(TV_POLEARM, SV_SPEAR));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_ARCHER:
-		object_prep(q_ptr, lookup_kind(TV_BOW, SV_LONG_BOW));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
-		q_ptr->number = (byte)rand_range(15, 20);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_WITCH:
-		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_SCIPPLAYS_STAFF));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_WITCH_BOOK, 0));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
-	case CLASS_CLERIC:
-		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_SCIPPLAYS_STAFF));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_HOLY_BOOK, 0));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
 	}
 
 	if (astral_mode)
@@ -1420,6 +842,7 @@ void player_outfit(void)
 
 #define INVALID_CHOICE 255
 
+#define MAX_MENUS		25
 
 /*
  * Clear the previous question
@@ -1527,9 +950,9 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		case '=':
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Startup Opts((*)s effect score)");
 #endif
 			screen_load();
 			break;
@@ -1621,7 +1044,7 @@ static void race_aux_hook(int race)
 	int i;
 	char s[50];
 
-	if ((race < 0) || (race >= MAX_RACES)) return;
+	if ((race < 0) || (race >= max_p_idx)) return;
 
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
@@ -1658,7 +1081,7 @@ static void race_aux_hook(int race)
 static bool get_player_race(void)
 {
 	int i, num = 0;
-	birth_menu races[MAX_RACES];
+	birth_menu races[MAX_MENUS];
 
 	/* Extra info */
 #ifdef JP
@@ -1670,13 +1093,14 @@ static bool get_player_race(void)
 #endif
 
 	/* Tabulate races */
-	for (i = 0; i < MAX_RACES; i++)
+	for (i = 0; i < max_p_idx; i++)
 	{
-		if (((race_info[i].sex == RACE_TYPE_MALE) && (p_ptr->psex == SEX_FEMALE))
-			|| ((race_info[i].sex == RACE_TYPE_FEMALE) && (p_ptr->psex == SEX_MALE)))
+		if (((race_info[i].r_flags & PRF_SEX_MALE) && (p_ptr->psex == SEX_FEMALE))
+			|| ((race_info[i].r_flags == PRF_SEX_FEMALE) && (p_ptr->psex == SEX_MALE))
+			|| (race_info[i].r_flags & PRF_EVOLUTION))
 			continue;
 
-		races[num].name = race_info[i].title;
+		races[num].name = p_name + race_info[i].name;
 		races[num++].real = i;
 	}
 
@@ -1709,7 +1133,7 @@ static void class_aux_hook(int class_idx)
 	int i;
 	char s[128], buf[8];
 
-	if ((class_idx < 0) || (class_idx >= MAX_CLASS)) return;
+	if ((class_idx < 0) || (class_idx >= max_c_idx)) return;
 
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
@@ -1728,7 +1152,7 @@ static void class_aux_hook(int class_idx)
 static bool get_player_class(void)
 {
 	int  i, num = 0;
-	birth_menu classes[MAX_CLASS];
+	birth_menu classes[MAX_MENUS];
 
 #ifdef JP
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
@@ -1739,12 +1163,12 @@ static bool get_player_class(void)
 #endif
 
 	/* Tabulate classes */
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		if (can_choose_class(i, CLASS_CHOOSE_MODE_BIRTH))
 		{
 			/* Save the string */
-			classes[num].name = class_info[i].title;
+			classes[num].name = c_name + class_info[i].name;
 			classes[num++].real = i;
 		}
 	}
@@ -1934,9 +1358,9 @@ static bool player_birth_aux_1(void)
 
 	screen_save();
 #ifdef JP
-	do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+	do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-	do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+	do_cmd_options_aux(OPT_PAGE_BIRTH, "Startup Opts((*)s effect score)");
 #endif
 	screen_load();
 
@@ -2031,8 +1455,8 @@ static bool player_birth_aux_2(void)
 	put_str("          Base     Min     Max    (Cost)  Race      Total", POINT_ROW - 1, POINT_COL);
 #endif
 	c_put_str(TERM_L_BLUE, sp_ptr->title, INSTRUCT_ROW, QUESTION_COL + 8);
-	c_put_str(TERM_L_BLUE, rp_ptr->title, INSTRUCT_ROW + 1, QUESTION_COL + 8);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, INSTRUCT_ROW + 2, QUESTION_COL + 8);
+	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, INSTRUCT_ROW + 1, QUESTION_COL + 8);
+	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, INSTRUCT_ROW + 2, QUESTION_COL + 8);
 
 	for (i = 0; i < A_MAX; i++)
 	{
@@ -2378,8 +1802,10 @@ static bool player_birth_full(void)
 	edit_history();
 
 	/* Get a name, recolor it, prepare savefile */
-
 	get_name();
+
+	/* Process the player name (accept as savefile name) */
+	process_player_name(creating_savefile);
 
 	/* Display the player */
 	display_player(0);
@@ -2410,9 +1836,6 @@ static bool player_birth_full(void)
 	/* Save character data for quick start */
 	save_prev_data(&previous_char);
 	previous_char.quick_ok = TRUE;
-
-	/* Process the player name */
-	process_player_name(FALSE);
 
 	/* Accept */
 	return (TRUE);
@@ -2541,7 +1964,7 @@ static bool player_birth_quick(bool prepare_astral)
 				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 				p_ptr->inside_quest = 0;
 
-				sprintf(tmp_str, "%s (%s)", runeweapon->ancestor, race_info[runeweapon->race].title);
+				sprintf(tmp_str, "%s (%s)", runeweapon->ancestor, p_name + race_info[runeweapon->race].name);
 				prt(tmp_str, 2, 1);
 
 				prt(quest[QUEST_RUNEWEAPON].name, 7, 0);
@@ -2680,16 +2103,16 @@ void player_birth(void)
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
 
 #ifdef JP
-	sprintf(buf,"                            種族に%sを選択した。", race_info[p_ptr->prace].title);
+	sprintf(buf,"                            種族に%sを選択した。", p_name + race_info[p_ptr->prace].name);
 #else
-	sprintf(buf,"                            choose %s race.", race_info[p_ptr->prace].title);
+	sprintf(buf,"                            choose %s race.", p_name + race_info[p_ptr->prace].name);
 #endif
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
 
 #ifdef JP
-	sprintf(buf,"                            クラスに%sを選択した。", class_info[p_ptr->pclass].title);
+	sprintf(buf,"                            クラスに%sを選択した。", c_name + class_info[p_ptr->pclass].name);
 #else
-	sprintf(buf,"                            choose %s class.", class_info[p_ptr->pclass].title);
+	sprintf(buf,"                            choose %s class.", c_name + class_info[p_ptr->pclass].name);
 #endif
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
 
@@ -2771,12 +2194,12 @@ void dump_yourself(FILE *fff)
 
 	if (!fff) return;
 
-	roff_to_buf(race_jouhou[p_ptr->prace], 78, temp, sizeof temp);
+	roff_to_buf(p_text + race_info[p_ptr->prace].text, 78, temp, sizeof temp);
 	fprintf(fff, "\n\n");
 #ifdef JP
-	fprintf(fff, "種族: %s\n", race_info[p_ptr->prace].title);
+	fprintf(fff, "種族: %s\n", p_name + race_info[p_ptr->prace].name);
 #else
-	fprintf(fff, "Race: %s\n", race_info[p_ptr->prace].title);
+	fprintf(fff, "Race: %s\n", p_name + race_info[p_ptr->prace].name);
 #endif
 	t = temp;
 	for (i = 0; i < 10; i++)
@@ -2785,12 +2208,12 @@ void dump_yourself(FILE *fff)
 		fprintf(fff, "%s\n",t);
 		t += strlen(t) + 1;
 	}
-	roff_to_buf(class_jouhou[p_ptr->pclass], 78, temp, sizeof temp);
+	roff_to_buf(c_text + class_info[p_ptr->pclass].text, 78, temp, sizeof temp);
 	fprintf(fff, "\n");
 #ifdef JP
-	fprintf(fff, "クラス: %s\n", class_info[p_ptr->pclass].title);
+	fprintf(fff, "クラス: %s\n", c_name + class_info[p_ptr->pclass].name);
 #else
-	fprintf(fff, "Class: %s\n", class_info[p_ptr->pclass].title);
+	fprintf(fff, "Class: %s\n", c_name + class_info[p_ptr->pclass].name);
 #endif
 	t = temp;
 	for (i = 0; i < 10; i++)

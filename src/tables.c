@@ -1933,702 +1933,6 @@ player_sex sex_info[MAX_SEXES] =
 };
 
 
-/*
- * Player Races
- *
- *      Title,
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_spd, r_thn, r_thb,
- *                                                rx_spd,
- *      hitdie, manadie, exp base,
- *      Age (Base, Mod),
- *      Male (Hgt, Wgt),
- *      Female (Hgt, Wgt)
- *      infra,
- *      class-choices,
- *      sex
- */
-player_race race_info[MAX_RACES] =
-{
-	{
-#ifdef JP
-		"人間",
-#endif
-		"Human",
-
-		0L,
-		{  0,  0,  0,  0,  0,  0 },
-		0,  0,  0,  0,  0,  10,  0,  0,  0,
-		                         0,
-		14, 0, 100,
-		14,  6,
-		70,  6, 154, 25,
-		63,  5, 124, 20,
-		0,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"ホークマン",
-#endif
-		"Hawkman",
-
-		0L,
-		{  1,  -1,  -1,  2,  0,  0 },
-		0,  0,  0,  1,  0,  10,  0,  8,  10,
-		                         3,
-		14, 0, 160,
-		42,  22,
-		75,  7, 185, 27,
-		67,  5, 134, 20,
-		1,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"リザードマン",
-#endif
-		"Lizardman",
-
-		0L,
-		{  2,  -1,  -1,  1,  2,  -1 },
-		10,  5,  3,  0,  -1,  10,  0, 10,  5,
-		                           1,
-		15, 0, 145,
-		95,  65,
-		76,  1, 160, 5,
-		72,  1, 130, 5,
-		2,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"フェアリー",
-#endif
-		"Fairy",
-
-		0L,
-		{ -2, 1, 1, 1, -2, 1 },
-		10, 8, 6, 4, 10, 10, 0, -12, 8,
-		                     5,
-		12, 1, 155,
-		50, 35,
-		32,  2, 75,  2,
-		29,  2, 65,  2,
-		4,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"グレムリン",
-#endif
-		"Gremlin",
-
-		0L,
-		{ -2, 1, -1, 1, -1, -1 },
-		4, 7, 9, 2, 5, 12,  0, -5, 15,
-		                    5,
-		12, 1, 170,
-		65, 35,
-		22,  2,  55,  2,
-		19,  2,  45,  2,
-		4,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"スケルトン",
-#endif
-		"Skeleton",
-
-		PRF_UNDEAD | PRF_NO_DIGEST,
-		{ 0, 0, -2, 0, 1, -2 },
-		-5, 0, 3, -1, -1, 8, 0, 10, 0,
-		                     1,
-		14, 0, 135,
-		120, 35,
-		70,  6, 50, 5,
-		66,  4, 50, 5,
-		2,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"ゴースト",
-#endif
-		"Ghost",
-
-		PRF_UNDEAD | PRF_NO_DIGEST,
-		{ -3, 1, -1, -1, 0, -2 },
-		10, 15, 12, 6, 5, 14, -1, -15, -10,
-		                       0,
-		10, 0, 190,
-		120, 35,
-		70, 6, 20, 5,
-		66, 4, 20, 5,
-		5,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"パンプキンヘッド",
-#endif
-		"Pumpkin-Head",
-
-		0L,
-		{ -2, -2, 3, 0, 3, 0 },
-		0, 0, 10, 0, 10, 18, 0, -10, -5,
-		                     0,
-		13, 1, 105,
-		11, 9,
-		55, 5, 190, 30,
-		55, 5, 190, 30,
-		8,
-		0x7FFFFFFF,
-		RACE_TYPE_MALE,
-	},
-	{
-#ifdef JP
-		"ゴブリン",
-#endif
-		"Goblin",
-
-		0L,
-		{ 2, -1, 0, 0, 1, -2 },
-		-3, -3, -2, -1, 0, 7, 0, 14, -5,
-		                      1,
-		14, 0, 120,
-		11, 4,
-		66, 1, 150, 5,
-		62, 1, 120, 5,
-		3,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"ゴーゴン",
-#endif
-		"Gorgon",
-
-		0L,
-		{ 1, 2, -2, 2, -1, 2 },
-		8, 10, 8, 2, 8, 12, 0, 8, 25,
-		                    3,
-		14, 0, 200,
-		100, 30,
-		78, 10, 180, 15,
-		78, 10, 180, 15,
-		3,
-		0x7FFFFFFF,
-		RACE_TYPE_FEMALE,
-	},
-	{
-#ifdef JP
-		"マーメイド",
-#endif
-		"Mermaid",
-
-		0L,
-		{ -1, 0, 1, 1, -1, 1 },
-		12, 14, 7, 1, 0, 10, -5, -5, 2,
-		                      3,
-		13, 0, 140,
-		46, 33,
-		72, 6, 156, 25,
-		64, 5, 126, 20,
-		2,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-};
-
-
-/*
- * Player Classes
- *
- *      Title,
- *      flags,
- *      {needSTR,needINT,needWIS,needDEX,needCON,needCHR},
- *      {gainSTR,gainINT,gainWIS,gainDEX,gainCON,gainCHR},
- *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_spd, c_thn, c_thb,
- *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_spd, x_thn, x_thb,
- *      c_to_a, hitdie, manadie, exp base
- */
-player_class class_info[MAX_CLASS] =
-{
-	{
-#ifdef JP
-		"ソルジャー",
-#endif
-		"Soldier",
-
-		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_BIRTH,
-		{0, 0, 0, 0, 0, 0},
-		{03, 03, 03, 03, 03, 02},
-		25, 28, 20,  3, 18, 14, 0, 60, 50,
-		12,  8,  9,  2,  0,  0, 3, 18, 20,
-		0, 1, 0, 60,
-	},
-
-	{
-#ifdef JP
-		"ナイト",
-#endif
-		"Knight",
-
-		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_MALE | PCF_BIRTH,
-		{15, 0, 0, 16, 14, 0},
-		{04, 02, 03, 04, 03, 02},
-		17, 18, 17, -1, 14, 13, 0, 68, 52,
-		 9,  7,  8,  0,  0,  0, 1, 28, 23,
-		15, 2, 0, 75,
-	},
-
-	{
-#ifdef JP
-		"バーサーカー",
-#endif
-		"Berserker",
-
-		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_BIRTH,
-		{15, 0, 0, 14, 16, 0},
-		{05, 01, 02, 03, 04, 01},
-		26, 11, 18,  1, 19, 15, 0, 70, 49,
-		12,  6,  9,  0,  0,  0, 1, 30, 17,
-		15, 3, 0, 80,
-	},
-
-	{
-#ifdef JP
-		"テラーナイト",
-#endif
-		"Terror-Knight",
-
-		PCF_ALIGN_CHAOTIC | PCF_SEX_MALE,
-		{18 + 60, 0, 0, 0, 18 + 60, 0},
-		{05, 00, 00, 02, 05, 00},
-		 1,  0, 2, -10, 1, 4, 0, 90, 11,
-		-6, -6, 0, -10, 0, 0, 0, 38,  2,
-		30, 5, 2, 115,
-	},
-
-	{
-#ifdef JP
-		"ビーストテイマー",
-#endif
-		"BeastTamer",
-
-		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_BIRTH,
-		{15, 0, 16, 0, 14, 0},
-		{04, 01, 02, 02, 04, 03},
-		28, 27, 25, 1, 12, 16, 0, 62, 56,
-		10,  9,  9, 2,  0,  0, 1, 20, 19,
-		10, 3, 2, 105, 
-	},
-
-	{
-#ifdef JP
-		"ソードマスター",
-#endif
-		"Sword-Master",
-
-		PCF_ALIGN_LAWFUL | PCF_SEX_MALE,
-		{18 + 40, 0, 0, 18 + 60, 0, 0},
-		{03, 03, 02, 05, 02, 03},
-		29, 27, 25, 4, 24, 16, 0, 70, 40,
-		10,  9, 10, 4,  0,  0, 3, 23, 18,
-		0, 4, 1, 115,
-	},
-
-	{
-#ifdef JP
-		"ドラグーン",
-#endif
-		"Dragoon",
-
-		PCF_ALIGN_ANY | PCF_SEX_MALE,
-		{18 + 50, 0, 0, 18 + 50, 18 + 40, 0},
-		{04, 02, 01, 04, 04, 02},
-		24, 14, 24, 1, 18, 16, 0, 68, 23,
-		 8,  6,  9, 0,  0,  0, 0, 33, 12,
-		10, 3, 1, 110,
-	},
-
-	{
-#ifdef JP
-		"ニンジャ",
-#endif
-		"Ninja",
-
-		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_BIRTH,
-		{15, 0, 0, 16, 14, 0},
-		{02, 02, 01, 05, 02, 01},
-		45, 24, 19, 8, 28, 22, 0, 65, 66,
-		15, 10,  8, 5,  0,  0, 6, 19, 18,
-		-5, 0, 0, 105,
-	},
-
-	{
-#ifdef JP
-		"ウィザード",
-#endif
-		"Wizard",
-
-		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_BIRTH,
-		{0, 16, 14, 0, 0, 0},
-		{01, 04, 03, 02, 01, 02},
-		30, 36, 30, 2, 16, 20, 0, 34, 20,
-		 7, 13, 13, 0,  0,  0, 1,  6,  7,
-		-10, 0, 3, 100,
-	},
-
-	{
-#ifdef JP
-		"ウォーロック",
-#endif
-		"Warlock",
-
-		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_MALE,
-		{0, 18 + 70, 18 + 50, 0, 0, 0},
-		{01, 04, 04, 01, 01, 04},
-		32, 38, 28, 2, 18, 16, 0, 52, 21,
-		14, 14, 14, 0,  0,  0, 0, 18, 11,
-		-5, 0, 2, 125,
-	},
-
-	{
-#ifdef JP
-		"エクソシスト",
-#endif
-		"Exorcist",
-
-		PCF_ALIGN_LAWFUL | PCF_SEX_MALE | PCF_BIRTH,
-		{0, 12, 14, 0, 14, 0},
-		{03, 02, 04, 02, 03, 02},
-		25, 30, 32, 1, 16, 8, 0, 60, 28,
-		 9,  8,  9, 0,  0, 0, 0, 21,  7,
-		0, 1, 2, 95,
-	},
-
-	{
-#ifdef JP
-		"アマゾネス",
-#endif
-		"Amazoness",
-
-		PCF_ALIGN_ANY | PCF_SEX_FEMALE | PCF_BIRTH,
-		{0, 0, 0, 0, 0, 0},
-		{03, 03, 03, 03, 03, 03},
-		26, 26, 20, 2, 17, 12, 0, 58, 52,
-		11,  9,  9, 2,  0,  0, 3, 16, 22,
-		0, 1, 0, 60,
-	},
-
-	{
-#ifdef JP
-		"ヴァルキリー",
-#endif
-		"Valkyrie",
-
-		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_FEMALE | PCF_BIRTH,
-		{14, 0, 14, 0, 16, 0},
-		{04, 02, 03, 03, 04, 01},
-		30, 28, 28, -1, 18, 16, 0, 64, 48,
-		10, 10,  9,  0,  0,  0, 1, 23, 14,
-		15, 2, 1, 85,
-	},
-
-	{
-#ifdef JP
-		"アーチャー",
-#endif
-		"Archer",
-
-		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_BIRTH,
-		{0, 0, 0, 16, 14, 0},
-		{03, 02, 02, 05, 03, 02},
-		38, 24, 23, 3, 24, 16, 0, 56, 82,
-		12, 10,  8, 1,  0,  0, 5, 13, 36,
-		0, 3, 0, 110,
-	},
-
-	{
-#ifdef JP
-		"ドラゴンテイマー",
-#endif
-		"DragonTamer",
-
-		PCF_ALIGN_ANY | PCF_SEX_FEMALE,
-		{18 + 60, 0, 18 + 40, 0, 0, 0},
-		{04, 02, 03, 03, 03, 03},
-		31, 29, 26, 1, 13, 17, 0, 52, 63,
-		13, 10, 10, 2,  0,  0, 2, 17, 25,
-		10, 2, 1, 105,
-	},
-
-	{
-#ifdef JP
-		"ウィッチ",
-#endif
-		"Witch",
-
-		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_BIRTH,
-		{0, 15, 14, 0, 0, 0},
-		{01, 04, 03, 03, 01, 04},
-		32, 41, 29, 2, 18, 19, 0, 45, 51,
-		16, 16, 12, 1,  0,  0, 1, 13, 20,
-		-5, 0, 2, 95,
-	},
-
-	{
-#ifdef JP
-		"セイレーン",
-#endif
-		"Sirene",
-
-		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_FEMALE,
-		{0, 18 + 20, 18, 0, 0, 0},
-		{01, 05, 03, 02, 01, 02},
-		28, 35, 32, 2, 13, 20, 0, 15, 17,
-		 7, 13, 13, 0,  0,  0, 0,  5,  7,
-		-10, 0, 3, 100,
-	},
-
-	{
-#ifdef JP
-		"クレリック",
-#endif
-		"Cleric",
-
-		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_FEMALE | PCF_BIRTH,
-		{0, 14, 15, 0, 0, 0},
-		{02, 03, 04, 03, 02, 02},
-		25, 34, 30, 2, 12, 12, 0, 40, 50,
-		 8, 11,  9, 0,  0,  0, 1,  9, 18,
-		-5, 1, 2, 95,
-	},
-
-	{
-#ifdef JP
-		"プリースト",
-#endif
-		"Priest",
-
-		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE,
-		{0, 18 + 40, 18 + 60, 0, 0, 0},
-		{01, 04, 05, 02, 01, 02},
-		30, 32, 33, 1, 16, 9, 0, 27, 27,
-		 8,  9, 11, 0,  0, 0, 0,  6,  9,
-		-10, 1, 2, 75,
-	},
-
-	{
-#ifdef JP
-		"リッチ",
-#endif
-		"Lich",
-
-		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_REINCARNATE | PCF_NO_CHANGE | PCF_UNDEAD | PCF_NO_DIGEST,
-		{0, 18 + 100, 18 + 80, 0, 0, 0},
-		{00, 05, 04, 01, 03, 00},
-		29, 28, 31, 1, 4, 13, 0, 8, 10,
-		 7,  8, 12, 0, 0,  0, 0, 6,  4,
-		5, 2, 3, 135,
-	},
-
-	{
-#ifdef JP
-		"エンジェルナイト",
-#endif
-		"Angel-Knight",
-
-		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE | PCF_REINCARNATE | PCF_NO_CHANGE | PCF_NO_DIGEST,
-		{18 + 70, 18 + 80, 18 + 40, 18 + 60, 18 + 60, 18 + 100},
-		{04, 03, 04, 03, 03, 03},
-		30, 30, 28, 1, 18, 16, 0, 72, 55,
-		10, 10, 12, 0,  0,  0, 2, 30, 30,
-		30, 2, 2, 135,
-	},
-
-	{
-#ifdef JP
-		"うぃっち",
-#endif
-		"High-Witch",
-
-		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_NO_CHANGE,
-		{0, 0, 0, 0, 0, 18 + 120},
-		{00, 05, 04, 02, 00, 05},
-		32, 49, 29, 1, 18, 19, 0, 4, 6,
-		16, 16, 12, 0,  0,  0, 0, 2, 3,
-		-20, 0, 4, 150,
-	},
-
-	{
-#ifdef JP
-		"ガンナー",
-#endif
-		"Gunner",
-
-		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_NO_CHANGE,
-		{18 + 20, 0, 0, 18 + 40, 0, 0},
-		{03, 03, 02, 04, 02, 02},
-		38, 0, 10, 2, 24, 24, 0, 56, 76,
-		12, 0,  2, 4,  0,  0, 1, 18, 32,
-		-10, 3, 0, 145,
-	},
-
-	{
-#ifdef JP
-		"テンプルナイト",
-#endif
-		"Temple-Knight",
-
-		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE | PCF_ALIEN,
-		{18 + 70, 18 + 40, 18 + 60, 18 + 50, 18 + 50, 0},
-		{04, 03, 03, 04, 03, 01},
-		15, 23, 18, -4, 14, 4, 0, 62, 52,
-		 7,  8, 10, -1,  0, 0, 0, 26, 20,
-		10, 3, 0, 135,
-	},
-
-	{
-#ifdef JP
-		"ホワイトナイト",
-#endif
-		"White-Knight",
-
-		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE | PCF_ALIEN,
-		{18 + 70, 18 + 40, 18 + 60, 18 + 50, 18 + 50, 0},
-		{04, 02, 03, 04, 03, 03},
-		25, 21, 22, -2, 11, 15, 0, 70, 44,
-		10,  7, 10,  0,  0,  0, 0, 27, 14,
-		10, 3, 0, 120,
-	},
-
-	{
-#ifdef JP
-		"ロード",
-#endif
-		"Lord",
-
-		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_NO_CHANGE | PCF_SECRET,
-		{0, 0, 0, 0, 0, 0},
-		{05, 03, 04, 05, 05, 04},
-		25, 28, 28,  5, 25, 14, 0, 80, 50,
-		12,  8, 10,  4,  0,  0, 3, 35, 20,
-		10, 5, 1, 120,
-	},
-
-	{
-#ifdef JP
-		"ジェネラル",
-#endif
-		"General",
-
-		PCF_ALIGN_LAWFUL | PCF_SEX_MALE | PCF_NO_CHANGE | PCF_SECRET,
-		{0, 0, 0, 0, 0, 0},
-		{04, 03, 03, 05, 03, 04},
-		29, 27, 25, 4, 24, 16, 0, 70, 40,
-		10,  9, 10, 4,  0,  0, 3, 32, 18,
-		30, 4, 0, 115,
-	},
-
-
-	{
-#ifdef JP
-		"ニンジャマスター",
-#endif
-		"Ninjamaster",
-
-		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE | PCF_SECRET,
-		{0, 0, 0, 0, 0, 0},
-		{02, 02, 01, 05, 02, 01},
-		45, 24, 19, 8, 28, 22, 0, 65, 66,
-		15, 10,  8, 5,  0,  0, 6, 19, 18,
-		5, 1, 0, 105,
-	},
-
-	{
-#ifdef JP
-		"ゴエティック",
-#endif
-		"Archmage",
-
-		PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_NO_CHANGE | PCF_SECRET,
-		{0, 0, 0, 0, 0, 0},
-		{01, 04, 03, 02, 01, 02},
-		30, 36, 30, 2, 16, 20, 0, 34, 20,
-		 7, 13, 13, 0,  0,  0, 1,  6,  7,
-		-5, 0, 4, 100,
-	},
-
-	{
-#ifdef JP
-		"フレイヤ",
-#endif
-		"Freya",
-
-		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE | PCF_NO_CHANGE | PCF_SECRET,
-		{0, 0, 0, 0, 0, 0},
-		{04, 03, 04, 03, 04, 03},
-		34, 30, 30,  1, 18, 16, 0, 70, 48,
-		12, 12, 12,  0,  0,  0, 2, 23, 14,
-		15, 3, 1, 95,
-	},
-
-	{
-#ifdef JP
-		"クレセント",
-#endif
-		"Crescent",
-
-		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_NO_CHANGE | PCF_SECRET,
-		{0, 0, 0, 0, 0, 0},
-		{04, 03, 02, 05, 04, 02},
-		42, 26, 28, 4, 24, 16, 0, 60, 90,
-		12, 10,  9, 2,  2,  0, 6, 16, 42,
-		10, 4, 0, 140,
-	},
-
-	{
-#ifdef JP
-		"ヴァンパイア",
-#endif
-		"Vampire",
-
-		PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_REINCARNATE | PCF_NO_CHANGE | PCF_UNDEAD,
-		{18 + 70, 18 + 80, 18 + 40, 18 + 60, 18 + 60, 18 + 40},
-		{05, 04, 03, 05, 05, 04},
-		25, 28, 28,  6, 14, 20, 0, 80, 35,
-		12, 10,  8,  4,  0,  0, 3, 35, 18,
-		10, 5, 1, 150,
-	},
-
-	{
-#ifdef JP
-		"巫女",
-#endif
-		"Medium",
-
-		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE | PCF_NO_CHANGE | PCF_SECRET,
-		{0, 0, 0, 0, 0, 0},
-		{02, 04, 05, 03, 02, 02},
-		30, 32, 33, 5, 16, 10, 0, 34, 65,
-		 8,  9, 11, 0,  0, 0, 0,  6,  35,
-		0, 0, 2, 160
-	},
-};
-
-
 
 /*
  * Zangband uses this array instead of the spell flags table, as there
@@ -2702,46 +2006,6 @@ u32b fake_spell_flags[MAX_REALM][3] =
 		0x01fff000,
 		0x00000000
 	},
-};
-
-
-s32b realm_choices[] =
-{
-	(CH_NONE), /* Soldier */
-	(CH_NONE), /* Knight */
-	(CH_NONE), /* Berserker */
-	(CH_NONE), /* Terror-Knight */
-	(CH_SYMBIOTIC), /* BeastTamer */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Sword-Master*/
-	(CH_WITCH), /* Dragoon */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Ninja */
-	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Wizard */
-	(CH_MAGERY | CH_WITCH | CH_DRAKONITE), /* Warlock */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_CRUSADE), /* Exorcist */
-	(CH_NONE), /* Amazoness */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Valkyrie */
-	(CH_NONE), /* Archer */
-	(CH_SYMBIOTIC), /* DragonTamer */
-	(CH_MAGERY | CH_WITCH | CH_DEATH), /* Witch */
-	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Sirene */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY), /* Cleric */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY | CH_CRUSADE), /* Priest */
-	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_DEATH | CH_WITCH), /* Lich */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_CRUSADE), /* Angel-Knight */
-	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY | CH_DEATH |
-	 CH_SYMBIOTIC | CH_WITCH | CH_DRAKONITE | CH_CRUSADE), /* High-Witch */
-	(CH_NONE), /* Gunner */
-	(CH_DEATH), /* Temple-Knight */
-	(CH_HOLY), /* White-Knight */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY), /* Load */
-	(CH_NONE), /* General */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Ninjamaster */
-	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_DEATH), /* Archmage */
-	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_CRUSADE), /* Freya */
-	(CH_WIND), /* Crescent */
-	(CH_DEATH), /* Vampire */
-	(CH_NONE), /* Medium */
-//	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY | CH_CRUSADE), /* Medium */
 };
 
 
@@ -3281,446 +2545,6 @@ int chest_traps[64] =
 
 
 /*
- * Class titles for the player.
- *
- * The player gets a new title every five levels, so each class
- * needs only ten titles total.
- */
-cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
-{
-	/* Soldier */
-	{
-		"予備兵",
-		"二等兵",
-		"一等兵",
-		"上級兵",
-		"伍長",
-		"軍曹",
-		"曹長",
-		"少尉",
-		"中尉",
-		"大尉",
-	},
-	/* Knight */
-	{
-		"従士",
-		"見習い騎士",
-		"下級騎士",
-		"中級騎士",
-		"上級騎士",
-		"修道騎士",
-		"参謀",
-		"副団長",
-		"騎士団長",
-		"騎士総長",
-	},
-	/* Berserker */
-	{
-		"ごろつき",
-		"ちんぴら",
-		"強盗",
-		"山賊",
-		"賞金首",
-		"賞金稼ぎ",
-		"流血の闘士",
-		"血河の闘士",
-		"屍山の闘士",
-		"伝説の闘士",
-	},
-	/* Terror-Knight */
-	{
-		"ろくでなし",
-		"変質者",
-		"鬼畜",
-		"悪漢",
-		"人殺し",
-		"首切り狂",
-		"殺戮享楽者",
-		"悪魔の騎士",
-		"戦場の悪夢",
-		"殺戮大王",
-	},
-	/* BeastTamer */
-	{
-		"小鳥の主人",
-		"犬猫の主人",
-		"馬の主人",
-		"狼の主人",
-		"虎の主人",
-		"熊の主人",
-		"獅子の主人",
-		"聖獣の主人",
-		"魔獣の主人",
-		"獣神の友人",
-	},
-	/* Sword-Master */
-	{
-		"初心者",
-		"入門生",
-		"白帯",
-		"黒帯",
-		"師範代",
-		"師範",
-		"宗家",
-		"剣匠",
-		"剣聖",
-		"剣神",
-	},
-	/* Dragoon */
-	{
-		"とかげ殺し",
-		"へび殺し",
-		"竜卵盗み",
-		"幼竜殺し",
-		"子竜殺し",
-		"若竜殺し",
-		"成竜殺し",
-		"古竜殺し",
-		"魔竜殺し",
-		"竜王殺し",
-	},
-	/* Ninja */
-	{
-		"訓練生",
-		"仕手",
-		"熟達者",
-		"短刀使い",
-		"切り裂き",
-		"凄腕",
-		"漆黒の刃",
-		"闇の一撃",
-		"暗殺者",
-		"死の長き腕",
-	},
-	/* Wizard */
-	{
-		"手品師",
-		"奇術師",
-		"占い師",
-		"霊感師",
-		"陰陽師",
-		"召喚師",
-		"妖術師",
-		"魔術師",
-		"魔道師",
-		"大魔法使い",
-	},
-	/* Warlock */
-	{
-		"ムーの読者",
-		"神秘主義者",
-		"オカ研部員",
-		"魔法学部学生",
-		"魔学修士課程",
-		"魔学博士課程",
-		"魔学部助教授",
-		"魔法学部教授",
-		"探求者",
-		"全てを識る者",
-	},
-	/* Exorcist */
-	{
-		"信者",
-		"修道僧",
-		"僧兵",
-		"古参僧兵",
-		"熟練僧兵",
-		"聖職者",
-		"悪霊払い",
-		"悪魔払い",
-		"魔を討つ者",
-		"神の処刑者",
-	},
-	/* Amazoness - same as Soldier */
-	{
-		"予備兵",
-		"二等兵",
-		"一等兵",
-		"上級兵",
-		"伍長",
-		"軍曹",
-		"曹長",
-		"少尉",
-		"中尉",
-		"大尉",
-	},
-	/* Valkyrie */
-	{
-		"若芽の槍士",
-		"若草の槍士",
-		"竹の槍士",
-		"石の槍士",
-		"銅の槍士",
-		"青銅の槍士",
-		"鉄の槍士",
-		"鋼鉄の槍士",
-		"銀の槍士",
-		"白銀の槍士",
-	},
-	/* Archer */
-	{
-		"紙を貫く者",
-		"革を貫く者",
-		"板を貫く者",
-		"鉄を貫く者",
-		"岩を貫く者",
-		"水を貫く者",
-		"闇を貫く者",
-		"光を貫く者",
-		"空を貫く者",
-		"時を貫く者",
-	},
-	/* DragonTamer */
-	{
-		"蜥蜴の主人",
-		"幼竜の主人",
-		"子竜の主人",
-		"若竜の主人",
-		"成竜の主人",
-		"古竜の主人",
-		"聖竜の主人",
-		"魔竜の主人",
-		"竜王の主人",
-		"神竜の友人",
-	},
-	/* Witch */
-	{
-		"オカルト少女",
-		"見習い魔女",
-		"駆け出し魔女",
-		"お使い魔女",
-		"占い魔女",
-		"白き魔女",
-		"黒き魔女",
-		"紅の魔女",
-		"蒼紺の魔女",
-		"偉大なる魔女",
-	},
-	/* Sirene - same as Wizard */
-	{
-		"手品師",
-		"奇術師",
-		"占い師",
-		"霊感師",
-		"陰陽師",
-		"召喚師",
-		"妖術師",
-		"魔術師",
-		"魔道師",
-		"大魔法使い",
-	},
-	/* Cleric */
-	{
-		"神学生",
-		"侍者",
-		"侍祭",
-		"尼僧",
-		"助任司祭",
-		"聖女",
-		"司祭",
-		"司教",
-		"大司教",
-		"総大司教",
-	},
-	/* Priest */
-	{
-		"神学生",
-		"侍者",
-		"侍祭",
-		"僧侶",
-		"助任司祭",
-		"司祭",
-		"司教",
-		"大司教",
-		"枢機卿",
-		"教皇",
-	},
-	/* Lich */
-	{
-		"新米リッチ",
-		"闇眼の骸",
-		"修行僧リッチ",
-		"ハイリッチ",
-		"鉄のリッチ",
-		"灰色の掠奪者",
-		"デミリッチ",
-		"アーチリッチ",
-		"黒き掠奪者",
-		"永遠を識る者",
-	},
-	/* Angel-Knight */
-	{
-		"清きこころ",
-		"天使",
-		"大天使",
-		"権天使",
-		"能天使",
-		"力天使",
-		"主天使",
-		"座天使",
-		"智天使",
-		"熾天使",
-	},
-	/* High-Witch */
-	{
-		"ねずみさん",
-		"マローネ",
-		"シーグル",
-		"ばんぺいくん",
-		"みまわりくん",
-		"三級地霊神",
-		"二級神管理",
-		"二級神一種",
-		"一級神二種",
-		"一級神特務",
-	},
-	/* Gunner */
-	{
-		"不信心者",
-		"無神論者",
-		"銃使い",
-		"新米狙撃手",
-		"古参狙撃手",
-		"熟練狙撃手",
-		"スナイパー",
-		"シューター",
-		"死神",
-		"神を撃つ者",
-	},
-	/* Temple-Knight - same as Knight */
-	{
-		"従士",
-		"見習い騎士",
-		"下級騎士",
-		"中級騎士",
-		"上級騎士",
-		"修道騎士",
-		"参謀",
-		"副団長",
-		"騎士団長",
-		"騎士総長",
-	},
-	/* White-Knight - same as Knight */
-	{
-		"従士",
-		"見習い騎士",
-		"下級騎士",
-		"中級騎士",
-		"上級騎士",
-		"修道騎士",
-		"参謀",
-		"副団長",
-		"騎士団長",
-		"騎士総長",
-	},
-	/* Load - same as Soldier */
-	{
-		"予備兵",
-		"二等兵",
-		"一等兵",
-		"上級兵",
-		"伍長",
-		"軍曹",
-		"曹長",
-		"少尉",
-		"中尉",
-		"大尉",
-	},
-	/* General - same as Knight */
-	{
-		"従士",
-		"見習い騎士",
-		"下級騎士",
-		"中級騎士",
-		"上級騎士",
-		"修道騎士",
-		"参謀",
-		"副団長",
-		"騎士団長",
-		"騎士総長",
-	},
-	/* Ninjamaster */
-	{
-		"訓練生",
-		"仕手",
-		"熟達者",
-		"短刀使い",
-		"切り裂き",
-		"凄腕",
-		"漆黒の刃",
-		"闇の一撃",
-		"暗殺者",
-		"死の長き腕",
-	},
-	/* Archmage */
-	{
-		"手品師",
-		"奇術師",
-		"占い師",
-		"霊感師",
-		"陰陽師",
-		"召喚師",
-		"妖術師",
-		"魔術師",
-		"魔道師",
-		"大魔法使い",
-	},
-	/* Freya */
-	{
-		"若芽の槍士",
-		"若草の槍士",
-		"竹の槍士",
-		"石の槍士",
-		"銅の槍士",
-		"青銅の槍士",
-		"鉄の槍士",
-		"鋼鉄の槍士",
-		"銀の槍士",
-		"戦乙女",
-	},
-	/* Crescent */
-	{
-		"紙を貫く者",
-		"革を貫く者",
-		"板を貫く者",
-		"鉄を貫く者",
-		"岩を貫く者",
-		"水を貫く者",
-		"闇を貫く者",
-		"光を貫く者",
-		"空を貫く者",
-		"アルテミス",
-	},
-	/* Vampire */
-	{
-		"吸血生物",
-		"吸血生物",
-		"吸血生物",
-		"吸血生物",
-		"伯爵",
-		"公爵",
-		"夜の帝王",
-		"夜の支配者",
-		"闇の支配者",
-		"真祖",
-	},
-	/* Medium */
-	{
-		"無垢な少女",
-		"御神馬の少女",
-		"聖少女",
-		"朝霧の巫女",
-		"夕月の巫女",
-		"姫巫女",
-		"山神の巫女",
-		"龍神の巫女",
-		"神子",
-		"常乙女",
-	},
-};
-
-
-/*
  * Hack -- the "basic" color names (see "TERM_xxx")
  */
 cptr color_names[16] =
@@ -3911,700 +2735,718 @@ option_type option_info[] =
 	/*** Input Options ***/
 
 #ifdef JP
-	{ &rogue_like_commands,         FALSE, 1, 0, 0,
+	{ &rogue_like_commands,         FALSE, OPT_PAGE_INPUT, 0, 0,
 	"rogue_like_commands",          "ローグ風キー配置を使用する" },
 #else
-	{ &rogue_like_commands,         FALSE, 1, 0, 0,
+	{ &rogue_like_commands,         FALSE, OPT_PAGE_INPUT, 0, 0,
 	"rogue_like_commands",          "Rogue-like commands" },
 #endif
 
 
 #ifdef JP
-	{ &always_pickup,               FALSE, 1, 0, 5,
+	{ &always_pickup,               FALSE, OPT_PAGE_INPUT, 0, 5,
 	"always_pickup",                "常にアイテムを拾う" },
 #else
-	{ &always_pickup,               FALSE,  1, 0, 5,
+	{ &always_pickup,               FALSE, OPT_PAGE_INPUT, 0, 5,
 	"always_pickup",                "Pick things up by default" },
 #endif
 
 
 #ifdef JP
-	{ &carry_query_flag,            FALSE, 1, 0, 3,
-	"carry_query_flag",  "アイテムを拾う前に確認する" },
+	{ &carry_query_flag,            FALSE, OPT_PAGE_INPUT, 0, 3,
+	"carry_query_flag",             "アイテムを拾う前に確認する" },
 #else
-	{ &carry_query_flag,            FALSE, 1, 0, 3,
+	{ &carry_query_flag,            FALSE, OPT_PAGE_INPUT, 0, 3,
 	"carry_query_flag",             "Prompt before picking things up" },
 #endif
 
 
 #ifdef JP
-	{ &quick_messages,              TRUE,  1, 0, 1,
-	"quick_messages",  "クイック・メッセージを使用する" },
+	{ &quick_messages,              TRUE,  OPT_PAGE_INPUT, 0, 1,
+	"quick_messages",               "クイック・メッセージを使用する" },
 #else
-	{ &quick_messages,              TRUE,  1, 0, 1,
+	{ &quick_messages,              TRUE,  OPT_PAGE_INPUT, 0, 1,
 	"quick_messages",               "Activate quick messages" },
 #endif
 
 
 #ifdef JP
-	{ &auto_more,                   FALSE, 1, 2, 6,
+	{ &auto_more,                   FALSE, OPT_PAGE_INPUT, 2, 6,
 	"auto_more",                    "キー待ちしないで連続でメッセージを表示する" },
 #else
-	{ &auto_more,                   FALSE, 1, 2, 6,
+	{ &auto_more,                   FALSE, OPT_PAGE_INPUT, 2, 6,
 	"auto_more",                    "Automatically clear '-more-' prompts" },
 #endif
 
 
 #ifdef JP
-	{ &command_menu,                TRUE,  1, 2, 7,
+	{ &command_menu,                TRUE,  OPT_PAGE_INPUT, 2, 7,
 	"command_menu",                 "メニューによりコマンド選択を有効にする" },
 #else
-	{ &command_menu,                TRUE,  1, 2, 7,
+	{ &command_menu,                TRUE,  OPT_PAGE_INPUT, 2, 7,
 	"command_menu",                 "Enable command selection menu" },
 #endif
 
 
 #ifdef JP
-	{ &other_query_flag,            FALSE, 1, 0, 2,
+	{ &other_query_flag,            FALSE, OPT_PAGE_INPUT, 0, 2,
 	"other_query_flag",             "床上のアイテムを使用するときに確認する" },
 #else
-	{ &other_query_flag,            FALSE, 1, 0, 2,
+	{ &other_query_flag,            FALSE, OPT_PAGE_INPUT, 0, 2,
 	"other_query_flag",             "Prompt for floor item selection" },
 #endif
 
 
 #ifdef JP
-	{ &use_old_target,              FALSE, 1, 0, 4,
-	"use_old_target",  "常に以前のターゲットを指定する" },
+	{ &use_old_target,              FALSE, OPT_PAGE_INPUT, 0, 4,
+	"use_old_target",               "常に以前のターゲットを指定する" },
 #else
-	{ &use_old_target,              FALSE, 1, 0, 4,
+	{ &use_old_target,              FALSE, OPT_PAGE_INPUT, 0, 4,
 	"use_old_target",               "Use old target by default" },
 #endif
 
 
 #ifdef JP
-	{ &always_repeat,               TRUE,  1, 0, 6,
+	{ &always_repeat,               TRUE,  OPT_PAGE_INPUT, 0, 6,
 	"always_repeat",                "コマンド自動繰り返し" },
 #else
-	{ &always_repeat,               TRUE,  1, 0, 6,
+	{ &always_repeat,               TRUE,  OPT_PAGE_INPUT, 0, 6,
 	"always_repeat",                "Repeat obvious commands" },
 #endif
 
 
 #ifdef JP
-	{ &confirm_destroy,             FALSE, 1, 5, 3,
+	{ &confirm_destroy,             FALSE, OPT_PAGE_INPUT, 5, 3,
 	"confirm_destroy",              "「無価値」なアイテムを破壊する時確認する" },
 #else
-	{ &confirm_destroy,             FALSE, 1, 5, 3,
+	{ &confirm_destroy,             FALSE, OPT_PAGE_INPUT, 5, 3,
 	"confirm_destroy",              "Prompt for destruction of known worthless items" },
 #endif
 
 
 #ifdef JP
-	{ &confirm_wear,                TRUE, 1, 5, 4,
+	{ &confirm_wear,                TRUE,  OPT_PAGE_INPUT, 5, 4,
 	"confirm_wear",                 "呪われた物を装備する時確認する" },
 #else
-	{ &confirm_wear,                TRUE, 1, 5, 4,
+	{ &confirm_wear,                TRUE,  OPT_PAGE_INPUT, 5, 4,
 	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
 #endif
 
 
 #ifdef JP
-	{ &confirm_quest,               TRUE, 1, 1, 9,
+	{ &confirm_quest,               TRUE,  OPT_PAGE_INPUT, 1, 9,
 	"confirm_quest",                "クエストを諦めて階段で逃げる前に確認する" },
 #else
-	{ &confirm_quest,               TRUE, 1, 1, 9,
+	{ &confirm_quest,               TRUE,  OPT_PAGE_INPUT, 1, 9,
 	"confirm_quest",                "Prompt before exiting a quest level" },
 #endif
 
 
 #ifdef JP
-	{ &target_pet,                  FALSE,  1, 2, 5,
+	{ &target_pet,                  FALSE, OPT_PAGE_INPUT, 2, 5,
 	"target_pet",                   "ペットをターゲットにする" },
 #else
-	{ &target_pet,                  FALSE,  1, 2, 5,
+	{ &target_pet,                  FALSE, OPT_PAGE_INPUT, 2, 5,
 	"target_pet",                   "Allow targetting pets" },
 #endif
 
 
 #ifdef JP
-	{ &easy_open,                   TRUE,  1, 5, 7,
+	{ &easy_open,                   TRUE,  OPT_PAGE_INPUT, 5, 7,
 	"easy_open",                    "自動的にドアを開ける" },
 #else
-	{ &easy_open,                   TRUE,  1, 5, 7,
+	{ &easy_open,                   TRUE,  OPT_PAGE_INPUT, 5, 7,
 	"easy_open",                    "Automatically open doors" },
 #endif
 
 
 #ifdef JP
-	{ &easy_disarm,                 TRUE,  1, 5, 8,
+	{ &easy_disarm,                 TRUE,  OPT_PAGE_INPUT, 5, 8,
 	"easy_disarm",                  "自動的に罠を解除する" },
 #else
-	{ &easy_disarm,                 TRUE,  1, 5, 8,
+	{ &easy_disarm,                 TRUE,  OPT_PAGE_INPUT, 5, 8,
 	"easy_disarm",                  "Automatically disarm traps" },
 #endif
 
 
 #ifdef JP
-	{ &easy_floor,                  FALSE, 1, 5, 9,
+	{ &easy_floor,                  FALSE, OPT_PAGE_INPUT, 5, 9,
 	"easy_floor",                   "床上で重なったアイテムをリストする" },
 #else
-	{ &easy_floor,                  FALSE, 1, 5, 9,
+	{ &easy_floor,                  FALSE, OPT_PAGE_INPUT, 5, 9,
 	"easy_floor",                   "Display floor stacks in a list" },
 #endif
 
 
 #ifdef JP
-	{ &use_command,                 FALSE, 1, 5, 10,
+	{ &use_command,                 FALSE, OPT_PAGE_INPUT, 5, 10,
 	"use_command",                  "「使う(a)」コマンドでアイテムを何でも使える" },
 #else
-	{ &use_command,                 FALSE, 1, 5, 10,
+	{ &use_command,                 FALSE, OPT_PAGE_INPUT, 5, 10,
 	"use_command",                  "Allow unified use command" },
 #endif
 
 
 #ifdef JP
-	{ &over_exert,                  FALSE,  1, 0, 29,
+	{ &over_exert,                  FALSE, OPT_PAGE_INPUT, 0, 29,
 	"over_exert",                   "MPが足りなくても魔法に挑戦する" },
 #else
-	{ &over_exert,                  FALSE,  1, 0, 29,
+	{ &over_exert,                  FALSE, OPT_PAGE_INPUT, 0, 29,
 	"over_exert",                   "Allow casting spells when short of mana" },
 #endif
 
 
-	/*** Output Options ***/
+	/*** Map Screen Options ***/
 
 #ifdef JP
-	{ &depth_in_feet,               FALSE, 2, 0, 7,
-	"depth_in_feet",                "ダンジョンの深さをフィートで表示する" },
-#else
-	{ &depth_in_feet,               FALSE, 2, 0, 7,
-	"depth_in_feet",                "Show dungeon level in feet" },
-#endif
-
-
-#ifdef JP
-	{ &show_labels,                 TRUE,  2, 0, 10,
-	"show_labels",                  "装備一覧で装備場所を表示する" },
-#else
-	{ &show_labels,                 TRUE,  2, 0, 10,
-	"show_labels",                  "Show labels in object listings" },
-#endif
-
-
-#ifdef JP
-	{ &show_weights,                TRUE,  2, 0, 11,
-	"show_weights",                 "アイテム一覧で重量を表示する" },
-#else
-	{ &show_weights,                TRUE,  2, 0, 11,
-	"show_weights",                 "Show weights in object listings" },
-#endif
-
-
-#ifdef JP
-	{ &show_item_graph,             TRUE,  2, 2, 0,
-	"show_item_graph",              "アイテムのシンボルを表示する" },
-#else
-	{ &show_item_graph,             TRUE,  2, 2, 0,
-	"show_item_graph",              "Show items graphics" },
-#endif
-
-#ifdef JP
-	{ &plain_pickup,                FALSE, 2, 6, 6,
-	"plain_pickup",                 "「拾った」メッセージを簡略化する" },
-#else
-	{ &plain_pickup,                FALSE,99, 6, 6,
-	"plain_pickup",                 "Plain pickup messages(japanese only)" },
-#endif
-
-
-#ifdef JP
-	{ &equippy_chars,               TRUE,  2, 1, 12,
-	"equippy_chars",                "ステータスに文字で装備を表示する" },
-#else
-	{ &equippy_chars,               TRUE,  2, 1, 12,
-	"equippy_chars",                "Display 'equippy' chars" },
-#endif
-
-
-#ifdef JP
-	{ &display_mutations,              FALSE, 2, 5, 0,
-	"display_mutations",               "'C'コマンドで突然変異を表示する" },
-#else
-	{ &display_mutations,              FALSE, 2, 5, 0,
-	"display_mutations",               "Display mutations in 'C'haracter Display" },
-#endif
-
-
-#ifdef JP
-	{ &center_player,               FALSE, 2, 5, 11,
+	{ &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
 	"center_player",                "常にプレイヤーを中心に置く(*遅い*)" },
 #else
-	{ &center_player,               FALSE, 2, 5, 11,
+	{ &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
 	"center_player",                "Center map while walking (*slow*)" },
 #endif
 
 
 #ifdef JP
-	{ &center_running,              TRUE,  2, 5, 12,
+	{ &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
 	"center_running",               "走っている時でも中心に置く" },
 #else
-	{ &center_running,              TRUE,  2, 5, 12,
+	{ &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
 	"center_running",               "Centering even while running" },
 #endif
 
 
 #ifdef JP
-	{ &view_yellow_lite,            TRUE,  2, 1, 28,
+	{ &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
 	"view_yellow_lite",              "明かりの範囲を特別な色で表示する" },
 #else
-	{ &view_yellow_lite,            TRUE,  2, 1, 28,
+	{ &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
 	"view_yellow_lite",             "Use special colors for torch-lit grids" },
 #endif
 
 
 #ifdef JP
-	{ &view_bright_lite,            TRUE,  2, 1, 29,
+	{ &view_bright_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
 	"view_bright_lite",             "視界の範囲を特別な色で表示する" },
 #else
-	{ &view_bright_lite,            TRUE,  2, 1, 29,
+	{ &view_bright_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
 	"view_bright_lite",             "Use special colors for 'viewable' grids" },
 #endif
 
 
 #ifdef JP
-	{ &view_granite_lite,           TRUE,  2, 1, 30,
+	{ &view_granite_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
 	"view_granite_lite",            "壁を特別な色で表示する(重い)" },
 #else
-	{ &view_granite_lite,           TRUE,  2, 1, 30,
+	{ &view_granite_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
 	"view_granite_lite",            "Use special colors for wall grids (slow)" },
 #endif
 
 
 #ifdef JP
-	{ &view_special_lite,           TRUE,  2, 1, 31,
+	{ &view_special_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 31,
 	"view_special_lite",            "床を特別な色で表示する(重い)" },
 #else
-	{ &view_special_lite,           TRUE,  2, 1, 31,
+	{ &view_special_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 31,
 	"view_special_lite",            "Use special colors for floor grids (slow)" },
 #endif
 
 #ifdef JP
-	{ &new_ascii_graphics,          FALSE, 2, 2, 4,
+	{ &new_ascii_graphics,          FALSE, OPT_PAGE_MAPSCREEN, 2, 4,
 	"new_ascii_graphics",           "地形の明暗をはっきりと表示する" },
 #else
-	{ &new_ascii_graphics,          FALSE, 2, 2, 4,
+	{ &new_ascii_graphics,          FALSE, OPT_PAGE_MAPSCREEN, 2, 4,
 	"new_ascii_graphics",           "Show a clear contrast between light and dark" },
 #endif
 
 #ifdef JP
-	{ &use_fake_monochrome,         FALSE, 2, 4, 2,
+	{ &use_fake_monochrome,         FALSE, OPT_PAGE_MAPSCREEN, 4, 2,
 	"use_fake_monochrome",          "特別な状況でモノクロ表示にする" },
 #else
-	{ &use_fake_monochrome,         FALSE, 2, 4, 2,
+	{ &use_fake_monochrome,         FALSE, OPT_PAGE_MAPSCREEN, 4, 2,
 	"use_fake_monochrome",          "Use monochrome display on special occasion" },
 #endif
 
-#ifdef JP
-	{ &display_path,                FALSE, 2, 2, 8,
-	"display_path",                 "魔法や矢の軌跡を表示する" },
-#else
-	{ &display_path,                FALSE, 2, 2, 8,
-	"display_path",                 "Display actual path before shooting" },
-#endif
-
 
 #ifdef JP
-	{ &always_show_list,            TRUE,  2, 4, 0,
-	"always_show_list",             "選択時には常に一覧を表示する" },
-#else
-	{ &always_show_list,            TRUE,  2, 4, 0,
-	"always_show_list",             "Always show list at first when select items" },
-#endif
-
-
-	/*** Game-Play ***/
-
-#ifdef JP
-	{ &stack_force_notes,           TRUE,  3, 0, 8,
-	"stack_force_notes",            "異なる銘のアイテムをまとめる" },
-#else
-	{ &stack_force_notes,           TRUE,  3, 0, 8,
-	"stack_force_notes",            "Merge inscriptions when stacking" },
-#endif
-
-
-#ifdef JP
-	{ &stack_force_costs,           FALSE, 3, 0, 9,
-	"stack_force_costs",            "異なる割引表示のアイテムをまとめる" },
-#else
-	{ &stack_force_costs,           FALSE, 3, 0, 9,
-	"stack_force_costs",            "Merge discounts when stacking" },
-#endif
-
-
-#ifdef JP
-	{ &expand_list,                 TRUE,  3, 1, 5,
-	"expand_list",                  "「一覧」コマンドを拡張する" },
-#else
-	{ &expand_list,                 TRUE,  3, 1, 5,
-	"expand_list",                  "Expand the power of the list commands" },
-#endif
-
-
-#ifdef JP
-	{ &view_perma_grids,            TRUE,  3, 1, 6,
+	{ &view_perma_grids,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 6,
 	"view_perma_grids",             "明るい場所はそのままにする" },
 #else
-	{ &view_perma_grids,            TRUE,  3, 1, 6,
+	{ &view_perma_grids,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 6,
 	"view_perma_grids",             "Map remembers all perma-lit grids" },
 #endif
 
 
 #ifdef JP
-	{ &view_torch_grids,            FALSE, 3, 1, 7,
+	{ &view_torch_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 7,
 	"view_torch_grids",             "明かりで照らした場所はそのままにする" },
 #else
-	{ &view_torch_grids,            FALSE, 3, 1, 7,
+	{ &view_torch_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 7,
 	"view_torch_grids",             "Map remembers all torch-lit grids" },
 #endif
 
 
 #ifdef JP
-	{ &view_unsafe_grids,            FALSE, 3, 1, 8,
+	{ &view_unsafe_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 8,
 	"view_unsafe_grids",             "トラップ感知済みでない場所を表示する" },
 #else
-	{ &view_unsafe_grids,            FALSE, 3, 1, 8,
+	{ &view_unsafe_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 8,
 	"view_unsafe_grids",             "Map marked by detect traps" },
 #endif
 
 
 #ifdef JP
-	{ &show_damage,                  TRUE, 3, 4, 1,
-	"show_damage",                   "受けた/与えたダメージを表示する" },
-#else
-	{ &show_damage,                  TRUE, 3, 4, 1,
-	"show_damage",                   "Show done/taken damage" },
-#endif
-
-
-#ifdef JP
-	{ &small_levels,                TRUE,  3, 0, 30,
-	"small_levels",                 "非常に小さいフロアの生成を可能にする" },
-#else
-	{ &small_levels,                TRUE,  3, 0, 30,
-	"small_levels",                 "Allow unusually small dungeon levels" },
-#endif
-
-
-#ifdef JP
-	{ &always_small_levels,         FALSE, 3, 2, 3,
-	"always_small_levels",          "常に非常に小さいフロアを生成する" },
-#else
-	{ &always_small_levels,         FALSE, 3, 2, 3,
-	"always_small_levels",          "Always create unusually small dungeon levels" },
-#endif
-
-
-#ifdef JP
-	{ &empty_levels,                TRUE,  3, 0, 31,
-	"empty_levels",                 "空っぽの「アリーナ」レベルの生成を可能にする" },
-#else
-	{ &empty_levels,                TRUE,  3, 0, 31,
-	"empty_levels",                 "Allow empty 'arena' levels" },
-#endif
-
-
-#ifdef JP
-	{ &last_words,                  TRUE, 3, 0, 28,
-	"last_words",                   "キャラクターが死んだ時遺言をのこす" },
-#else
-	{ &last_words,                  TRUE, 3, 0, 28,
-	"last_words",                   "Leave last words when your character dies" },
-#endif
-
-
-#ifdef JP
-	{ &allow_debug_opts,            FALSE, 3, 6, 11,
-	"allow_debug_opts",             "デバッグ/詐欺オプションを許可する" },
-#else
-	{ &allow_debug_opts,            FALSE, 3, 6, 11,
-	"allow_debug_opts",             "Allow use of debug/cheat options" },
-#endif
-
-
-	/*** Disturbance ***/
-
-#ifdef JP
-	{ &find_ignore_stairs,          FALSE, 4, 0, 16,
-	"find_ignore_stairs",           "階段は通過する" },
-#else
-	{ &find_ignore_stairs,          FALSE, 4, 0, 16,
-	"find_ignore_stairs",           "Run past stairs" },
-#endif
-
-
-#ifdef JP
-	{ &find_ignore_doors,           TRUE,  4, 0, 17,
-	"find_ignore_doors",            "ドアは通過する" },
-#else
-	{ &find_ignore_doors,           TRUE,  4, 0, 17,
-	"find_ignore_doors",            "Run through open doors" },
-#endif
-
-
-#ifdef JP
-	{ &find_cut,                    FALSE, 4, 0, 18,
-	"find_cut",                     "曲り角を斜めに最短距離で通過する" },
-#else
-	{ &find_cut,                    FALSE, 4, 0, 18,
-	"find_cut",                     "Run past known corners" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_move,                FALSE,  4, 0, 20,
-	"disturb_move",                 "どこのモンスターが動いても行動を中止する" },
-#else
-	{ &disturb_move,                FALSE,  4, 0, 20,
-	"disturb_move",                 "Disturb whenever any monster moves" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_high,                FALSE,  4, 1, 3,
-	"disturb_high",                 "レベルの高いモンスターが動いたら行動を中止する"},
-#else
-	{ &disturb_high,                FALSE,  4, 1, 3,
-	"disturb_high",                 "Disturb whenever high-level monster moves" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_near,                TRUE,  4, 0, 21,
-	"disturb_near",                 "視界内のモンスターが動いたら行動を中止する" },
-#else
-	{ &disturb_near,                TRUE,  4, 0, 21,
-	"disturb_near",                 "Disturb whenever viewable monster moves" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_pets,                FALSE, 4, 5, 6,
-	"disturb_pets",                 "視界内のペットが動いたら行動を中止する" },
-#else
-	{ &disturb_pets,                FALSE, 4, 5, 6,
-	"disturb_pets",                 "Disturb when visible pets move" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_panel,               TRUE,  4, 0, 22,
-	"disturb_panel",                "画面スクロール時に行動を中止する" },
-#else
-	{ &disturb_panel,               TRUE,  4, 0, 22,
-	"disturb_panel",                "Disturb whenever map panel changes" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_state,               TRUE,  4, 0, 23,
-	"disturb_state",                "自分のステータス変化時に行動を中止する" },
-#else
-	{ &disturb_state,               TRUE,  4, 0, 23,
-	"disturb_state",                "Disturb whenever player state changes" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_minor,               TRUE,  4, 0, 24,
-	"disturb_minor",                "些細なことが起きても行動を中止する" },
-#else
-	{ &disturb_minor,               TRUE,  4, 0, 24,
-	"disturb_minor",                "Disturb whenever boring things happen" },
-#endif
-
-
-#ifdef JP
-	{ &ring_bell,                   FALSE, 4, 0, 14,
-	"ring_bell",                    "エラー時にビープ音を鳴らす" },
-#else
-	{ &ring_bell,                   FALSE, 4, 0, 14,
-	"ring_bell",                    "Audible bell (on errors, etc)" },
-#endif
-
-
-#ifdef JP
-	{ &disturb_trap_detect,         TRUE, 4, 0, 27,
-	"disturb_trap_detect",          "トラップ感知範囲外に出る直前に行動を中止する" },
-#else
-	{ &disturb_trap_detect,         TRUE, 4, 0, 27,
-	"disturb_trap_detect",          "Disturb when leaving trap detected area"},
-#endif
-
-#ifdef JP
-	{ &alert_trap_detect,           FALSE, 4, 0, 25,
-	"alert_trap_detect",            "トラップ感知範囲外に出る直前に警告する" },
-#else
-	{ &alert_trap_detect,           FALSE, 4, 0, 25,
-	"alert_trap_detect",            "Alert when leaving trap detected area"},
-#endif
-
-
-	/*** Efficiency ***/
-
-#ifdef JP
-	{ &view_reduce_view,            FALSE, 5, 1, 17,
+	{ &view_reduce_view,            FALSE, OPT_PAGE_MAPSCREEN, 1, 17,
 	"view_reduce_view",             "街では視野を狭くする" },
 #else
-	{ &view_reduce_view,            FALSE, 5, 1, 17,
+	{ &view_reduce_view,            FALSE, OPT_PAGE_MAPSCREEN, 1, 17,
 	"view_reduce_view",             "Reduce view-radius in town" },
 #endif
 
 
 #ifdef JP
-	{ &check_abort,                 TRUE,  5, 1, 18,
-	"check_abort",                  "連続コマンドはキー入力で中断する" },
-#else
-	{ &check_abort,                 TRUE,  5, 1, 18,
-	"check_abort",                  "Check for user abort while continuous command" },
-#endif
-
-
-#ifdef JP
-	{ &flush_failure,               TRUE,  5, 1, 20,
-	"flush_failure",                "様々なミス発生時に入力をクリアする" },
-#else
-	{ &flush_failure,               TRUE,  5, 1, 20,
-	"flush_failure",                "Flush input on various failures" },
-#endif
-
-
-#ifdef JP
-	{ &flush_disturb,               FALSE, 5, 1, 21,
-	"flush_disturb",                "障害発生時に入力をクリアする" },
-#else
-	{ &flush_disturb,               FALSE, 5, 1, 21,
-	"flush_disturb",                "Flush input whenever disturbed" },
-#endif
-
-
-#ifdef JP
-	{ &fresh_before,                TRUE,  5, 1, 23,
+	{ &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
 	"fresh_before",                 "連続コマンド中に画面を再描画し続ける" },
 #else
-	{ &fresh_before,                TRUE,  5, 1, 23,
+	{ &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
 	"fresh_before",                 "Flush output while continuous command" },
 #endif
 
 
 #ifdef JP
-	{ &fresh_after,                 FALSE, 5, 1, 24,
+	{ &fresh_after,                 FALSE, OPT_PAGE_MAPSCREEN, 1, 24,
 	"fresh_after",                  "コマンド後に画面を常に再描画し続ける" },
 #else
-	{ &fresh_after,                 FALSE, 5, 1, 24,
+	{ &fresh_after,                 FALSE, OPT_PAGE_MAPSCREEN, 1, 24,
 	"fresh_after",                  "Flush output after monster's move" },
 #endif
 
 
 #ifdef JP
-	{ &fresh_message,               FALSE, 5, 1, 25,
+	{ &fresh_message,               FALSE, OPT_PAGE_MAPSCREEN, 1, 25,
 	"fresh_message",                "メッセージの後に画面を再描画する" },
 #else
-	{ &fresh_message,               FALSE, 5, 1, 25,
+	{ &fresh_message,               FALSE, OPT_PAGE_MAPSCREEN, 1, 25,
 	"fresh_message",                "Flush output after every message" },
 #endif
 
 
 #ifdef JP
-	{ &compress_savefile,           FALSE, 5, 1, 26,
+	{ &hilite_player,               FALSE,  OPT_PAGE_MAPSCREEN, 1, 27,
+	"hilite_player",                "プレイヤーにカーソルを合わせる" },
+#else
+	{ &hilite_player,               FALSE,  OPT_PAGE_MAPSCREEN, 1, 27,
+	"hilite_player",                "Hilite the player with the cursor" },
+#endif
+
+
+#ifdef JP
+	{ &display_path,                FALSE, OPT_PAGE_MAPSCREEN, 2, 8,
+	"display_path",                 "魔法や矢の軌跡を表示する" },
+#else
+	{ &display_path,                FALSE, OPT_PAGE_MAPSCREEN, 2, 8,
+	"display_path",                 "Display actual path before shooting" },
+#endif
+
+
+	/*** Text Display Options ***/
+
+#ifdef JP
+	{ &plain_pickup,                FALSE, OPT_PAGE_TEXT, 6, 6,
+	"plain_pickup",                 "「拾った」メッセージを簡略化する" },
+#else
+	{ &plain_pickup,                FALSE, OPT_PAGE_JAPANESE_ONLY, 6, 6,
+	"plain_pickup",                 "Plain pickup messages(japanese only)" },
+#endif
+
+
+#ifdef JP
+	{ &always_show_list,            TRUE,  OPT_PAGE_TEXT, 4, 0,
+	"always_show_list",             "選択時には常に一覧を表示する" },
+#else
+	{ &always_show_list,            TRUE,  OPT_PAGE_TEXT, 4, 0,
+	"always_show_list",             "Always show list at first when select items" },
+#endif
+
+
+#ifdef JP
+	{ &depth_in_feet,               FALSE, OPT_PAGE_TEXT, 0, 7,
+	"depth_in_feet",                "ダンジョンの深さをフィートで表示する" },
+#else
+	{ &depth_in_feet,               FALSE, OPT_PAGE_TEXT, 0, 7,
+	"depth_in_feet",                "Show dungeon level in feet" },
+#endif
+
+
+#ifdef JP
+	{ &show_damage,                  TRUE, OPT_PAGE_TEXT, 4, 1,
+	"show_damage",                   "受けた/与えたダメージを表示する" },
+#else
+	{ &show_damage,                  TRUE, OPT_PAGE_TEXT, 4, 1,
+	"show_damage",                   "Show done/taken damage" },
+#endif
+
+
+#ifdef JP
+	{ &show_labels,                 TRUE,  OPT_PAGE_TEXT, 0, 10,
+	"show_labels",                  "装備一覧で装備場所を表示する" },
+#else
+	{ &show_labels,                 TRUE,  OPT_PAGE_TEXT, 0, 10,
+	"show_labels",                  "Show labels in object listings" },
+#endif
+
+
+#ifdef JP
+	{ &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
+	"show_weights",                 "アイテム一覧で重量を表示する" },
+#else
+	{ &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
+	"show_weights",                 "Show weights in object listings" },
+#endif
+
+
+#ifdef JP
+	{ &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
+	"show_item_graph",              "アイテムのシンボルを表示する" },
+#else
+	{ &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
+	"show_item_graph",              "Show items graphics" },
+#endif
+
+#ifdef JP
+	{ &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
+	"equippy_chars",                "ステータスに文字で装備を表示する" },
+#else
+	{ &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
+	"equippy_chars",                "Display 'equippy' chars" },
+#endif
+
+
+#ifdef JP
+	{ &display_mutations,           FALSE, OPT_PAGE_TEXT, 5, 0,
+	"display_mutations",            "'C'コマンドで突然変異を表示する" },
+#else
+	{ &display_mutations,           FALSE, OPT_PAGE_TEXT, 5, 0,
+	"display_mutations",            "Display mutations in 'C'haracter Display" },
+#endif
+
+
+#ifdef JP
+	{ &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
 	"compress_savefile",            "セーブ・ファイル中のメッセージを圧縮する" },
 #else
-	{ &compress_savefile,           FALSE, 5, 1, 26,
+	{ &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
 	"compress_savefile",            "Compress messages in savefiles" },
 #endif
 
 
 #ifdef JP
-	{ &hilite_player,               FALSE,  5, 1, 27,
-	"hilite_player",                "プレイヤーにカーソルを合わせる" },
+	{ &abbrev_extra,                FALSE, OPT_PAGE_TEXT, 2, 10,
+	"abbrev_extra",                 "アイテムに追加耐性/能力の略称を刻む" },
 #else
-	{ &hilite_player,               FALSE,  5, 1, 27,
-	"hilite_player",                "Hilite the player with the cursor" },
+	{ &abbrev_extra,                FALSE, OPT_PAGE_TEXT, 2, 10,
+	"abbrev_extra",                 "Describe obj's extra resistances by abbreviation" },
+#endif
+
+#ifdef JP
+	{ &abbrev_all,                  FALSE, OPT_PAGE_TEXT, 2, 11,
+	"abbrev_all",                   "アイテムに全ての耐性/能力の略称を刻む" },
+#else
+	{ &abbrev_all,                  FALSE, OPT_PAGE_TEXT, 2, 11,
+	"abbrev_all",                   "Describe obj's all resistances by abbreviation" },
+#endif
+
+
+	/*** Game-Play Options ***/
+
+#ifdef JP
+	{ &stack_force_notes,           TRUE,  OPT_PAGE_GAMEPLAY, 0, 8,
+	"stack_force_notes",            "異なる銘のアイテムをまとめる" },
+#else
+	{ &stack_force_notes,           TRUE,  OPT_PAGE_GAMEPLAY, 0, 8,
+	"stack_force_notes",            "Merge inscriptions when stacking" },
+#endif
+
+
+#ifdef JP
+	{ &stack_force_costs,           FALSE, OPT_PAGE_GAMEPLAY, 0, 9,
+	"stack_force_costs",            "異なる割引表示のアイテムをまとめる" },
+#else
+	{ &stack_force_costs,           FALSE, OPT_PAGE_GAMEPLAY, 0, 9,
+	"stack_force_costs",            "Merge discounts when stacking" },
+#endif
+
+
+#ifdef JP
+	{ &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
+	"expand_list",                  "「一覧」コマンドを拡張する" },
+#else
+	{ &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
+	"expand_list",                  "Expand the power of the list commands" },
+#endif
+
+
+#ifdef JP
+	{ &small_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 30,
+	"small_levels",                 "非常に小さいフロアの生成を可能にする" },
+#else
+	{ &small_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 30,
+	"small_levels",                 "Allow unusually small dungeon levels" },
+#endif
+
+
+#ifdef JP
+	{ &always_small_levels,         FALSE, OPT_PAGE_GAMEPLAY, 2, 3,
+	"always_small_levels",          "常に非常に小さいフロアを生成する" },
+#else
+	{ &always_small_levels,         FALSE, OPT_PAGE_GAMEPLAY, 2, 3,
+	"always_small_levels",          "Always create unusually small dungeon levels" },
+#endif
+
+
+#ifdef JP
+	{ &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
+	"empty_levels",                 "空っぽの「アリーナ」レベルの生成を可能にする" },
+#else
+	{ &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
+	"empty_levels",                 "Allow empty 'arena' levels" },
+#endif
+
+
+#ifdef JP
+	{ &last_words,                  TRUE, OPT_PAGE_GAMEPLAY, 0, 28,
+	"last_words",                   "キャラクターが死んだ時遺言をのこす" },
+#else
+	{ &last_words,                  TRUE, OPT_PAGE_GAMEPLAY, 0, 28,
+	"last_words",                   "Leave last words when your character dies" },
+#endif
+
+
+#ifdef JP
+	{ &allow_debug_opts,            FALSE, OPT_PAGE_GAMEPLAY, 6, 11,
+	"allow_debug_opts",             "デバッグ/詐欺オプションを許可する" },
+#else
+	{ &allow_debug_opts,            FALSE, OPT_PAGE_GAMEPLAY, 6, 11,
+	"allow_debug_opts",             "Allow use of debug/cheat options" },
+#endif
+
+
+	/*** Disturbance Options ***/
+
+#ifdef JP
+	{ &find_ignore_stairs,          FALSE, OPT_PAGE_DISTURBANCE, 0, 16,
+	"find_ignore_stairs",           "階段は通過する" },
+#else
+	{ &find_ignore_stairs,          FALSE, OPT_PAGE_DISTURBANCE, 0, 16,
+	"find_ignore_stairs",           "Run past stairs" },
+#endif
+
+
+#ifdef JP
+	{ &find_ignore_doors,           TRUE,  OPT_PAGE_DISTURBANCE, 0, 17,
+	"find_ignore_doors",            "ドアは通過する" },
+#else
+	{ &find_ignore_doors,           TRUE,  OPT_PAGE_DISTURBANCE, 0, 17,
+	"find_ignore_doors",            "Run through open doors" },
+#endif
+
+
+#ifdef JP
+	{ &find_cut,                    FALSE, OPT_PAGE_DISTURBANCE, 0, 18,
+	"find_cut",                     "曲り角を斜めに最短距離で通過する" },
+#else
+	{ &find_cut,                    FALSE, OPT_PAGE_DISTURBANCE, 0, 18,
+	"find_cut",                     "Run past known corners" },
+#endif
+
+
+#ifdef JP
+	{ &check_abort,                 TRUE,  OPT_PAGE_DISTURBANCE, 1, 18,
+	"check_abort",                  "連続コマンドはキー入力で中断する" },
+#else
+	{ &check_abort,                 TRUE,  OPT_PAGE_DISTURBANCE, 1, 18,
+	"check_abort",                  "Check for user abort while continuous command" },
+#endif
+
+
+#ifdef JP
+	{ &flush_failure,               TRUE,  OPT_PAGE_DISTURBANCE, 1, 20,
+	"flush_failure",                "様々なミス発生時に入力をクリアする" },
+#else
+	{ &flush_failure,               TRUE,  OPT_PAGE_DISTURBANCE, 1, 20,
+	"flush_failure",                "Flush input on various failures" },
+#endif
+
+
+#ifdef JP
+	{ &flush_disturb,               FALSE, OPT_PAGE_DISTURBANCE, 1, 21,
+	"flush_disturb",                "障害発生時に入力をクリアする" },
+#else
+	{ &flush_disturb,               FALSE, OPT_PAGE_DISTURBANCE, 1, 21,
+	"flush_disturb",                "Flush input whenever disturbed" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_move,                FALSE,  OPT_PAGE_DISTURBANCE, 0, 20,
+	"disturb_move",                 "どこのモンスターが動いても行動を中止する" },
+#else
+	{ &disturb_move,                FALSE,  OPT_PAGE_DISTURBANCE, 0, 20,
+	"disturb_move",                 "Disturb whenever any monster moves" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_high,                FALSE,  OPT_PAGE_DISTURBANCE, 1, 3,
+	"disturb_high",                 "レベルの高いモンスターが動いたら行動を中止する"},
+#else
+	{ &disturb_high,                FALSE,  OPT_PAGE_DISTURBANCE, 1, 3,
+	"disturb_high",                 "Disturb whenever high-level monster moves" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_near,                TRUE,  OPT_PAGE_DISTURBANCE, 0, 21,
+	"disturb_near",                 "視界内のモンスターが動いたら行動を中止する" },
+#else
+	{ &disturb_near,                TRUE,  OPT_PAGE_DISTURBANCE, 0, 21,
+	"disturb_near",                 "Disturb whenever viewable monster moves" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_pets,                FALSE, OPT_PAGE_DISTURBANCE, 5, 6,
+	"disturb_pets",                 "視界内のペットが動いたら行動を中止する" },
+#else
+	{ &disturb_pets,                FALSE, OPT_PAGE_DISTURBANCE, 5, 6,
+	"disturb_pets",                 "Disturb when visible pets move" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_panel,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 22,
+	"disturb_panel",                "画面スクロール時に行動を中止する" },
+#else
+	{ &disturb_panel,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 22,
+	"disturb_panel",                "Disturb whenever map panel changes" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_state,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 23,
+	"disturb_state",                "自分のステータス変化時に行動を中止する" },
+#else
+	{ &disturb_state,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 23,
+	"disturb_state",                "Disturb whenever player state changes" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_minor,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 24,
+	"disturb_minor",                "些細なことが起きても行動を中止する" },
+#else
+	{ &disturb_minor,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 24,
+	"disturb_minor",                "Disturb whenever boring things happen" },
+#endif
+
+
+#ifdef JP
+	{ &ring_bell,                   FALSE, OPT_PAGE_DISTURBANCE, 0, 14,
+	"ring_bell",                    "エラー時にビープ音を鳴らす" },
+#else
+	{ &ring_bell,                   FALSE, OPT_PAGE_DISTURBANCE, 0, 14,
+	"ring_bell",                    "Audible bell (on errors, etc)" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_trap_detect,         TRUE, OPT_PAGE_DISTURBANCE, 0, 27,
+	"disturb_trap_detect",          "トラップ感知範囲外に出る直前に行動を中止する" },
+#else
+	{ &disturb_trap_detect,         TRUE, OPT_PAGE_DISTURBANCE, 0, 27,
+	"disturb_trap_detect",          "Disturb when leaving trap detected area"},
+#endif
+
+#ifdef JP
+	{ &alert_trap_detect,           FALSE, OPT_PAGE_DISTURBANCE, 0, 25,
+	"alert_trap_detect",            "トラップ感知範囲外に出る直前に警告する" },
+#else
+	{ &alert_trap_detect,           FALSE, OPT_PAGE_DISTURBANCE, 0, 25,
+	"alert_trap_detect",            "Alert when leaving trap detected area"},
 #endif
 
 
 	/*** Birth Options ***/
 
 #ifdef JP
-	{ &manual_haggle,               FALSE, 6, 1, 0,
+	{ &manual_haggle,               FALSE, OPT_PAGE_BIRTH, 1, 0,
 	"manual_haggle",                "店で値切り交渉をする" },
 #else
-	{ &manual_haggle,               FALSE, 6, 1, 0,
+	{ &manual_haggle,               FALSE, OPT_PAGE_BIRTH, 1, 0,
 	"manual_haggle",                "Manually haggle in stores" },
 #endif
 
 
 #ifdef JP
-	{ &easy_band,                   FALSE, 6, 6, 31,
+	{ &easy_band,                   FALSE, OPT_PAGE_BIRTH, 6, 31,
 	"easy_band",                    "初心者用簡単モード(*)" },
 #else
-	{ &easy_band,                   FALSE, 6, 6, 31,
+	{ &easy_band,                   FALSE, OPT_PAGE_BIRTH, 6, 31,
 	"easy_band",                    "Easy Mode (*)" },
 #endif
 
 
 #ifdef JP
-	{ &smart_learn,                 TRUE,  6, 1, 14,
+	{ &smart_learn,                 TRUE,  OPT_PAGE_BIRTH, 1, 14,
 	"smart_learn",                  "モンスターは失敗を学習する(*)" },
 #else
-	{ &smart_learn,                 TRUE,  6, 1, 14,
+	{ &smart_learn,                 TRUE,  OPT_PAGE_BIRTH, 1, 14,
 	"smart_learn",                  "Monsters learn from their mistakes (*)" },
 #endif
 
 
 #ifdef JP
-	{ &smart_cheat,                 FALSE, 6, 1, 15,
+	{ &smart_cheat,                 FALSE, OPT_PAGE_BIRTH, 1, 15,
 	"smart_cheat",                  "モンスターはプレイヤーの弱みを突く(*)" },
 #else
-	{ &smart_cheat,                 FALSE, 6, 1, 15,
+	{ &smart_cheat,                 FALSE, OPT_PAGE_BIRTH, 1, 15,
 	"smart_cheat",                  "Monsters exploit players weaknesses (*)" },
 #endif
 
 
 #ifdef JP
-	{ &ironman_rooms,                FALSE, 6, 6, 12,
+	{ &ironman_rooms,                FALSE, OPT_PAGE_BIRTH, 6, 12,
 	"ironman_rooms",                 "（鉄人用）常に普通でない部屋を生成する(*)" },
 #else
-	{ &ironman_rooms,               FALSE, 6, 6, 12,
+	{ &ironman_rooms,               FALSE, OPT_PAGE_BIRTH, 6, 12,
 	"ironman_rooms",                "Always generate very unusual rooms (*)" },
 #endif
 
 
 #ifdef JP
-	{ &left_hander,                 FALSE, 6, 6, 13,
+	{ &left_hander,                 FALSE, OPT_PAGE_BIRTH, 6, 13,
 	"left_hander",                  "左利きである" },
 #else
-	{ &left_hander,                 FALSE, 6, 6, 13,
+	{ &left_hander,                 FALSE, OPT_PAGE_BIRTH, 6, 13,
 	"left_hander",                  "Left-Hander" },
 #endif
 
 
 #ifdef JP
-	{ &preserve_mode,               TRUE,  6, 6, 14,
+	{ &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
 	"preserve_mode",                "伝説のアイテムを取り逃しても再生成される(*)" },
 #else
-	{ &preserve_mode,               TRUE,  6, 6, 14,
+	{ &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
 	"preserve_mode",                "Preserve artifacts (*)" },
 #endif
 
 
 #ifdef JP
-	{ &powerup_home,                TRUE,  6, 4, 3,
+	{ &powerup_home,                TRUE,  OPT_PAGE_BIRTH, 4, 3,
 	"powerup_home",                 "我が家を拡張する(*)" },
 
 #else
-	{ &powerup_home,                TRUE,  6, 4, 3,
+	{ &powerup_home,                TRUE,  OPT_PAGE_BIRTH, 4, 3,
 	"powerup_home",                 "Increase capacity of your home (*)" },
 #endif
 
@@ -4612,82 +3454,82 @@ option_type option_info[] =
 	/*** Easy Object Auto-Destroyer ***/
 
 #ifdef JP
-	{ &destroy_items,               FALSE, 7, 7, 0,
+	{ &destroy_items,               FALSE, OPT_PAGE_AUTODESTROY, 7, 0,
 	"destroy_items",                "アイテムの簡易自動破壊を使用する" },
 #else
-	{ &destroy_items,               FALSE, 7, 7, 0,
+	{ &destroy_items,               FALSE, OPT_PAGE_AUTODESTROY, 7, 0,
 	"destroy_items",                "Use easy auto-destroyer" },
 #endif
 
 #ifdef JP
-	{ &destroy_feeling,               FALSE, 7, 7, 8,
+	{ &destroy_feeling,               FALSE, OPT_PAGE_AUTODESTROY, 7, 8,
 	"destroy_feeling",                "簡易鑑定したとき自動破壊を適用する" },
 #else
-	{ &destroy_feeling,               FALSE, 7, 7, 8,
+	{ &destroy_feeling,               FALSE, OPT_PAGE_AUTODESTROY, 7, 8,
 	"destroy_feeling",                "Apply auto-destroy as sense feeling" },
 #endif
 
 #ifdef JP
-	{ &destroy_identify,               FALSE, 7, 7, 9,
+	{ &destroy_identify,               FALSE, OPT_PAGE_AUTODESTROY, 7, 9,
 	"destroy_identify",                "鑑定したとき自動破壊を適用する" },
 #else
-	{ &destroy_identify,               FALSE, 7, 7, 9,
+	{ &destroy_identify,               FALSE, OPT_PAGE_AUTODESTROY, 7, 9,
 	"destroy_identify",                "Apply auto-destroy as identify an item" },
 #endif
 
 #ifdef JP
-	{ &leave_worth,                 TRUE, 7, 7, 2,
+	{ &leave_worth,                 TRUE, OPT_PAGE_AUTODESTROY, 7, 2,
 	"leave_worth",                  "価値があるアイテムは壊さない" },
 #else
-	{ &leave_worth,                 TRUE, 7, 7, 2,
+	{ &leave_worth,                 TRUE, OPT_PAGE_AUTODESTROY, 7, 2,
 	"leave_worth",                  "Auto-destroyer leaves known worthy items" },
 #endif
 
 #ifdef JP
-	{ &leave_equip,                 FALSE, 7, 7, 3,
+	{ &leave_equip,                 FALSE, OPT_PAGE_AUTODESTROY, 7, 3,
 	"leave_equip",                  "武器/防具は壊さない" },
 #else
-	{ &leave_equip,                 FALSE, 7, 7, 3,
+	{ &leave_equip,                 FALSE, OPT_PAGE_AUTODESTROY, 7, 3,
 	"leave_equip",                  "Auto-destroyer leaves weapons and armour" },
 #endif
 
 #ifdef JP
-	{ &leave_chest,                 TRUE, 7, 7, 7,
+	{ &leave_chest,                 TRUE, OPT_PAGE_AUTODESTROY, 7, 7,
 	"leave_chest",                  "開封されていない箱は壊さない" },
 #else
-	{ &leave_chest,                 TRUE, 7, 7, 7,
+	{ &leave_chest,                 TRUE, OPT_PAGE_AUTODESTROY, 7, 7,
 	"leave_chest",                  "Auto-destroyer leaves closed chests" },
 #endif
 
 #ifdef JP
-	{ &leave_wanted,                TRUE, 7, 7, 4,
+	{ &leave_wanted,                TRUE, OPT_PAGE_AUTODESTROY, 7, 4,
 	"leave_wanted",                 "賞金首の死体/骨は壊さない" },
 #else
-	{ &leave_wanted,                TRUE, 7, 7, 4,
+	{ &leave_wanted,                TRUE, OPT_PAGE_AUTODESTROY, 7, 4,
 	"leave_wanted",                 "Auto-destroyer leaves wanted corpses" },
 #endif
 
 #ifdef JP
-	{ &leave_corpse,                FALSE, 7, 7, 5,
+	{ &leave_corpse,                FALSE, OPT_PAGE_AUTODESTROY, 7, 5,
 	"leave_corpse",                 "死体/骨は壊さない" },
 #else
-	{ &leave_corpse,                FALSE, 7, 7, 5,
+	{ &leave_corpse,                FALSE, OPT_PAGE_AUTODESTROY, 7, 5,
 	"leave_corpse",                 "Auto-destroyer leaves corpses and skeletons" },
 #endif
 
 #ifdef JP
-	{ &leave_junk,                  FALSE, 7, 7, 6,
+	{ &leave_junk,                  FALSE, OPT_PAGE_AUTODESTROY, 7, 6,
 	"leave_junk",                   "がらくたは壊さない" },
 #else
-	{ &leave_junk,                  FALSE, 7, 7, 6,
+	{ &leave_junk,                  FALSE, OPT_PAGE_AUTODESTROY, 7, 6,
 	"leave_junk",                   "Auto-destroyer leaves junk" },
 #endif
 
 #ifdef JP
-	{ &leave_special,               TRUE, 7, 7, 1,
+	{ &leave_special,               TRUE, OPT_PAGE_AUTODESTROY, 7, 1,
 	"leave_special",                "種族/職業で特別に必要なアイテムは壊さない" },
 #else
-	{ &leave_special,               TRUE, 7, 7, 1,
+	{ &leave_special,               TRUE, OPT_PAGE_AUTODESTROY, 7, 1,
 	"leave_special",                "Auto-destroyer leaves items your race/class needs" },
 #endif
 
@@ -4695,106 +3537,106 @@ option_type option_info[] =
 	/*** Play-record Options ***/
 
 #ifdef JP
-	{ &record_fix_art,              TRUE, 10, 4, 11,
+	{ &record_fix_art,              TRUE, OPT_PAGE_PLAYRECORD, 4, 11,
 	"record_fix_art",               "固定アーティファクトの入手を記録する" },
 #else
-	{ &record_fix_art,              TRUE, 10, 4, 11,
+	{ &record_fix_art,              TRUE, OPT_PAGE_PLAYRECORD, 4, 11,
 	"record_fix_art",               "Record fixed artifacts" },
 #endif
 
 #ifdef JP
-	{ &record_rand_art,             TRUE, 10, 4, 12,
+	{ &record_rand_art,             TRUE, OPT_PAGE_PLAYRECORD, 4, 12,
 	"record_rand_art",              "ランダムアーティファクトの入手を記録する" },
 #else
-	{ &record_rand_art,             TRUE, 10, 4, 12,
+	{ &record_rand_art,             TRUE, OPT_PAGE_PLAYRECORD, 4, 12,
 	"record_rand_art",              "Record random artifacts" },
 #endif
 
 #ifdef JP
-	{ &record_destroy_uniq,         TRUE, 10, 4, 13,
+	{ &record_destroy_uniq,         TRUE, OPT_PAGE_PLAYRECORD, 4, 13,
 	"record_destroy_uniq",          "ユニークモンスターを倒したときを記録する" },
 #else
-	{ &record_destroy_uniq,         TRUE, 10, 4, 13,
+	{ &record_destroy_uniq,         TRUE, OPT_PAGE_PLAYRECORD, 4, 13,
 	"record_destroy_uniq",          "Record when destroy unique monster" },
 #endif
 
 #ifdef JP
-	{ &record_fix_quest,            TRUE, 10, 4, 14,
+	{ &record_fix_quest,            TRUE, OPT_PAGE_PLAYRECORD, 4, 14,
 	"record_fix_quest",             "固定クエストの達成を記録する" },
 #else
-	{ &record_fix_quest,            TRUE, 10, 4, 14,
+	{ &record_fix_quest,            TRUE, OPT_PAGE_PLAYRECORD, 4, 14,
 	"record_fix_quest",             "Record fixed quests" },
 #endif
 
 #ifdef JP
-	{ &record_rand_quest,           TRUE, 10, 4, 15,
+	{ &record_rand_quest,           TRUE, OPT_PAGE_PLAYRECORD, 4, 15,
 	"record_rand_quest",            "ランダムクエストの達成を記録する" },
 #else
-	{ &record_rand_quest,           TRUE, 10, 4, 15,
+	{ &record_rand_quest,           TRUE, OPT_PAGE_PLAYRECORD, 4, 15,
 	"record_rand_quest",            "Record random quests" },
 #endif
 
 #ifdef JP
-	{ &record_maxdeapth,            TRUE, 10, 4, 16,
+	{ &record_maxdeapth,            TRUE, OPT_PAGE_PLAYRECORD, 4, 16,
 	"record_maxdeapth",             "最深階を更新したときに記録する" },
 #else
-	{ &record_maxdeapth,            TRUE, 10, 4, 16,
+	{ &record_maxdeapth,            TRUE, OPT_PAGE_PLAYRECORD, 4, 16,
 	"record_maxdeapth",             "Record movements to deepest level" },
 #endif
 
 #ifdef JP
-	{ &record_stair,                TRUE, 10, 4, 17,
+	{ &record_stair,                TRUE, OPT_PAGE_PLAYRECORD, 4, 17,
 	"record_stair",                 "階の移動を記録する" },
 #else
-	{ &record_stair,                TRUE, 10, 4, 17,
+	{ &record_stair,                TRUE, OPT_PAGE_PLAYRECORD, 4, 17,
 	"record_stair",                 "Record recall and stair movements" },
 #endif
 
 #ifdef JP
-	{ &record_buy,                  TRUE, 10, 4, 18,
+	{ &record_buy,                  TRUE, OPT_PAGE_PLAYRECORD, 4, 18,
 	"record_buy",                   "アイテムの購入を記録する" },
 #else
-	{ &record_buy,                  TRUE, 10, 4, 18,
+	{ &record_buy,                  TRUE, OPT_PAGE_PLAYRECORD, 4, 18,
 	"record_buy",                   "Record purchased items" },
 #endif
 
 #ifdef JP
-	{ &record_sell,                 FALSE, 10, 4, 19,
+	{ &record_sell,                 FALSE, OPT_PAGE_PLAYRECORD, 4, 19,
 	"record_sell",                  "アイテムの売却を記録する" },
 #else
-	{ &record_sell,                 FALSE, 10, 4, 19,
+	{ &record_sell,                 FALSE, OPT_PAGE_PLAYRECORD, 4, 19,
 	"record_sell",                  "Record sold items" },
 #endif
 
 #ifdef JP
-	{ &record_danger,               TRUE, 10, 4, 20,
+	{ &record_danger,               TRUE, OPT_PAGE_PLAYRECORD, 4, 20,
 	"record_danger",                "ピンチになったときを記録する" },
 #else
-	{ &record_danger,               TRUE, 10, 4, 20,
+	{ &record_danger,               TRUE, OPT_PAGE_PLAYRECORD, 4, 20,
 	"record_danger",                "Record hitpoint warning" },
 #endif
 
 #ifdef JP
-	{ &record_arena,                TRUE, 10, 4, 21,
+	{ &record_arena,                TRUE, OPT_PAGE_PLAYRECORD, 4, 21,
 	"record_arena",                 "アリーナでの勝利を記録する" },
 #else
-	{ &record_arena,                TRUE, 10, 4, 21,
+	{ &record_arena,                TRUE, OPT_PAGE_PLAYRECORD, 4, 21,
 	"record_arena",                 "Record arena victories" },
 #endif
 
 #ifdef JP
-	{ &record_ident,                TRUE, 10, 4, 22,
+	{ &record_ident,                TRUE, OPT_PAGE_PLAYRECORD, 4, 22,
 	"record_ident",                 "未判明のアイテムの識別を記録する" },
 #else
-	{ &record_ident,                TRUE, 10, 4, 22,
+	{ &record_ident,                TRUE, OPT_PAGE_PLAYRECORD, 4, 22,
 	"record_ident",                 "Record first identified items" },
 #endif
 
 #ifdef JP
-	{ &record_named_pet,            FALSE, 10, 4, 23,
+	{ &record_named_pet,            FALSE, OPT_PAGE_PLAYRECORD, 4, 23,
 	"record_named_pet",             "名前つきペットの情報を記録する" },
 #else
-	{ &record_named_pet,            FALSE, 10, 4, 23,
+	{ &record_named_pet,            FALSE, OPT_PAGE_PLAYRECORD, 4, 23,
 	"record_named_pet",             "Record informations of named pets" },
 #endif
 
@@ -6051,6 +4893,12 @@ int ob_to_tr[OB_MAX] =
 	TR_SPEED,
 	TR_BLOWS,
 	TR_ANTI_MAGIC,
+};
+
+int ali_to_tr[ALI_MAX] =
+{
+	TR_ALIGN_LNC,
+	TR_ALIGN_GNE,
 };
 
 cptr weapon_skill_name[MAX_WT] =

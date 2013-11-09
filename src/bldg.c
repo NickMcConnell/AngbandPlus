@@ -1610,6 +1610,7 @@ static bool gamble_comm(int cmd)
 #else
 				msg_print("You came out a winner! We'll win next time, I'm sure.");
 #endif
+				change_your_alignment(ALI_LNC, -3);
 			}
 			else
 			{
@@ -1618,6 +1619,7 @@ static bool gamble_comm(int cmd)
 #else
 				msg_print("You lost gold! Haha, better head home.");
 #endif
+				change_your_alignment(ALI_LNC, 3);
 			}
 		}
 		msg_print(NULL);
@@ -1736,7 +1738,7 @@ static bool kankin(void)
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == MON_ZEBRA))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -1756,7 +1758,7 @@ static bool kankin(void)
 				inven_item_increase(i, -o_ptr->number);
 				inven_item_describe(i);
 				inven_item_optimize(i);
-				change_your_alignment_lnc(5 * o_ptr->number);
+				change_your_alignment(ALI_GNE, -10);
 			}
 			change = TRUE;
 		}
@@ -1767,7 +1769,7 @@ static bool kankin(void)
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == MON_ZEBRA))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -1787,7 +1789,7 @@ static bool kankin(void)
 				inven_item_increase(i, -o_ptr->number);
 				inven_item_describe(i);
 				inven_item_optimize(i);
-				change_your_alignment_lnc(5 * o_ptr->number);
+				change_your_alignment(ALI_GNE, -10);
 			}
 			change = TRUE;
 		}
@@ -1799,7 +1801,7 @@ static bool kankin(void)
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name)))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -1819,7 +1821,7 @@ static bool kankin(void)
 				inven_item_increase(i, -o_ptr->number);
 				inven_item_describe(i);
 				inven_item_optimize(i);
-				change_your_alignment_lnc(5 * o_ptr->number);
+				change_your_alignment(ALI_GNE, 5);
 			}
 			change = TRUE;
 		}
@@ -1830,7 +1832,7 @@ static bool kankin(void)
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name)))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -1850,7 +1852,7 @@ static bool kankin(void)
 				inven_item_increase(i, -o_ptr->number);
 				inven_item_describe(i);
 				inven_item_optimize(i);
-				change_your_alignment_lnc(5 * o_ptr->number);
+				change_your_alignment(ALI_GNE, 5);
 			}
 			change = TRUE;
 		}
@@ -1866,7 +1868,7 @@ static bool kankin(void)
 				(o_ptr->pval == kubi_r_idx[j]))
 			{
 				char buf[MAX_NLEN+20];
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, o_ptr, 0);
 #ifdef JP
 				sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -1886,7 +1888,7 @@ static bool kankin(void)
 					inven_item_increase(i, -o_ptr->number);
 					inven_item_describe(i);
 					inven_item_optimize(i);
-					change_your_alignment_lnc(20);
+					change_your_alignment(ALI_GNE, 20);
 					kubi_r_idx[j] += 10000;
 				}
 				change = TRUE;
@@ -1906,7 +1908,6 @@ static bool kankin(void)
 	}
 	return TRUE;
 }
-
 
 
 /*
@@ -1994,7 +1995,7 @@ static bool inn_comm(int cmd)
 					if (((oldturn + TURNS_PER_TICK * TOWN_DAWN / 4) % (TURNS_PER_TICK * TOWN_DAWN)) > TURNS_PER_TICK * TOWN_DAWN/4) do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
 					p_ptr->chp = p_ptr->mhp;
 
-					change_your_alignment_lnc(-1);
+					change_your_alignment(ALI_LNC, -1);
 
 					set_blind(0);
 					set_confused(0);
@@ -2320,41 +2321,17 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
  */
 static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 {
-	int mult = 60;
+	int i, mult = 60;
 	u32b flgs[TR_FLAG_SIZE];
 	int blow = p_ptr->num_blow[0];
-	int dragoon_level = p_ptr->cexp_info[CLASS_DRAGOON].clev;
-	int exorcist_level = p_ptr->cexp_info[CLASS_EXORCIST].clev;
 	
 	/* Get the flags of the weapon */
 	object_flags(o_ptr, flgs);
-	switch (p_ptr->pclass)
-	{
-	case CLASS_DRAGOON:
-		if (dragoon_level > 24) add_flag(flgs, TR_KILL_DRAGON);
-		else add_flag(flgs, TR_SLAY_DRAGON);
-		break;
-	case CLASS_EXORCIST:
-		if (exorcist_level > 19) add_flag(flgs, TR_SLAY_EVIL);
-		if (exorcist_level > 9) add_flag(flgs, TR_SLAY_DEMON);
-		add_flag(flgs, TR_SLAY_UNDEAD);
-		break;
-	case CLASS_FREYA:
-		if (p_ptr->cexp_info[CLASS_FREYA].clev > 34) add_flag(flgs, TR_SLAY_EVIL);
-		if (p_ptr->cexp_info[CLASS_FREYA].clev > 19) add_flag(flgs, TR_SLAY_DEMON);
-		if (p_ptr->cexp_info[CLASS_FREYA].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
-		break;
-	case CLASS_VAMPIRE:
-		add_flag(flgs, TR_SLAY_LIVING);
-		break;
-	default:
-		if (dragoon_level > 49) add_flag(flgs, TR_KILL_DRAGON);
-		else if (dragoon_level > 24) add_flag(flgs, TR_SLAY_DRAGON);
-		if (exorcist_level > 39) add_flag(flgs, TR_SLAY_EVIL);
-		if (exorcist_level > 29) add_flag(flgs, TR_SLAY_DEMON);
-		if (exorcist_level > 19) add_flag(flgs, TR_SLAY_UNDEAD);
-		break;
-	}
+
+	/* Extract flags and store */
+	player_flags(p_ptr->flags);
+
+	for (i = 0; i < TR_FLAG_SIZE; i++) flgs[i] |= p_ptr->flags[i];
 
 	if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5))) mult = mult * 7 / 2;
 
@@ -2452,7 +2429,7 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 	int hack_ds = o_ptr->ds + p_ptr->to_ds[0];
 
 	/* Print the weapon name */
-	object_desc(o_name, o_ptr, TRUE, 0);
+	object_desc(o_name, o_ptr, OD_NAME_ONLY);
 	c_put_str(TERM_YELLOW, o_name, row, col);
 
 	/* Print the player's number of blows */
@@ -2514,66 +2491,6 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 
 /*
- * Hook to specify "weapon"
- */
-static bool item_tester_hook_melee_weapon(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_DIGGING:
-		case TV_SWORD:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Hook to specify "ammo"
- */
-static bool item_tester_hook_ammo(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_ARROW:
-		case TV_BOLT:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Hook to specify "bow", except guns
- */
-static bool item_tester_hook_bow(object_type *o_ptr)
-{
-	if (o_ptr->tval == TV_BOW)
-	{
-		switch (o_ptr->sval)
-		{
-		case SV_SHORT_BOW:
-		case SV_LONG_BOW:
-		case SV_BOWGUN:
-		case SV_CROSSBOW:
-		case SV_RUNEBOW:
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-
-/*
  * Compare weapons
  *
  * Copies the weapons to compare into the weapon-slot and
@@ -2598,7 +2515,7 @@ static bool compare_weapons(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Only compare melee weapons */
-	item_tester_hook = item_tester_hook_melee_weapon;
+	item_tester_hook = object_is_melee_weapon;
 
 	/* Get the first weapon */
 #ifdef JP
@@ -2623,7 +2540,7 @@ static bool compare_weapons(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Only compare melee weapons */
-	item_tester_hook = item_tester_hook_melee_weapon;
+	item_tester_hook = object_is_melee_weapon;
 
 	/* Get the second weapon */
 #ifdef JP
@@ -2814,7 +2731,6 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	int         maxenchant = (p_ptr->town_num == 6) ? 15 : (p_ptr->lev / 5);
 	char        tmp_str[MAX_NLEN];
 
-
 	clear_bldg(4, 18);
 #ifdef JP
 	prt(format("現在のあなたの技量だと、+%d まで改良できます。", maxenchant), 5, 0);
@@ -2843,7 +2759,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	/* Check if the player has enough money */
 	if (p_ptr->au_sum < (cost * o_ptr->number))
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 0);
+		object_desc(tmp_str, o_ptr, OD_NAME_ONLY);
 #ifdef JP
 		msg_format("%sを改良するだけのお金がありません！", tmp_str);
 #else
@@ -2917,16 +2833,15 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 		msg_print("The improvement failed.");
 #endif
 
-
 		return (FALSE);
 	}
 	else
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 1);
+		object_desc(tmp_str, o_ptr, OD_NAME_AND_ENCHANT);
 #ifdef JP
-		msg_format("$%d で%sを改良しました。", cost * o_ptr->number, tmp_str );
+		msg_format("$%d で%sに改良しました。", cost * o_ptr->number, tmp_str );
 #else
-		msg_format("Improved %s for %d gold.", tmp_str, cost * o_ptr->number);
+		msg_format("Improved into %s for %d gold.", tmp_str, cost * o_ptr->number);
 #endif
 
 		/* Charge the money */
@@ -2973,7 +2888,7 @@ static void building_recharge(void)
 
 
 	/* Only accept legal items */
-	item_tester_hook = item_tester_hook_recharge;
+	item_tester_hook = object_is_recharge;
 
 	/* Get an item */
 #ifdef JP
@@ -3005,7 +2920,7 @@ static void building_recharge(void)
 	 * the level of the item or the number of charges.
 	 */
 	/* The item must be "known" */
-	if (!object_known_p(o_ptr))
+	if (!object_is_known(o_ptr))
 	{
 #ifdef JP
 		msg_format("充填する前に鑑定されている必要があります！");
@@ -3032,7 +2947,7 @@ static void building_recharge(void)
 			identify_item(o_ptr);
 
 			/* Description */
-			object_desc(tmp_str, o_ptr, TRUE, 3);
+			object_desc(tmp_str, o_ptr, 0);
 
 #ifdef JP
 			msg_format("%s です。", tmp_str);
@@ -3051,7 +2966,7 @@ static void building_recharge(void)
 	}
 
 	/* Extract the object "level" */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Price for a rod */
 	if (o_ptr->tval == TV_ROD)
@@ -3077,7 +2992,7 @@ static void building_recharge(void)
 	else if (o_ptr->tval == TV_STAFF)
 	{
 		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-		price = (get_object_cost(o_ptr) / 10) * o_ptr->number;
+		price = (k_info[o_ptr->k_idx].cost / 10) * o_ptr->number;
 
 		/* Pay at least 10 gold per charge */
 		price = MAX(10, price);
@@ -3085,7 +3000,7 @@ static void building_recharge(void)
 	else
 	{
 		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-		price = (get_object_cost(o_ptr) / 10);
+		price = (k_info[o_ptr->k_idx].cost / 10);
 
 		/* Pay at least 10 gold per charge */
 		price = MAX(10, price);
@@ -3137,7 +3052,7 @@ static void building_recharge(void)
 	/* Check if the player has enough money */
 	if (p_ptr->au_sum < price)
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 0);
+		object_desc(tmp_str, o_ptr, OD_NAME_ONLY);
 #ifdef JP
 		msg_format("%sを再充填するには$%d 必要です！", tmp_str,price );
 #else
@@ -3195,7 +3110,7 @@ static void building_recharge(void)
 	}
 
 	/* Give feedback */
-	object_desc(tmp_str, o_ptr, TRUE, 3);
+	object_desc(tmp_str, o_ptr, 0);
 #ifdef JP
 	msg_format("%sを$%d で再充填しました。", tmp_str, price);
 #else
@@ -3256,10 +3171,10 @@ static void building_recharge_all(void)
 		if (o_ptr->tval < TV_STAFF || o_ptr->tval > TV_ROD) continue;
 
 		/* need identified */
-		if (!object_known_p(o_ptr)) total_cost += 50;
+		if (!object_is_known(o_ptr)) total_cost += 50;
 
 		/* Extract the object "level" */
-		lev = get_object_level(o_ptr);
+		lev = k_info[o_ptr->k_idx].level;
 
 		k_ptr = &k_info[o_ptr->k_idx];
 
@@ -3271,7 +3186,7 @@ static void building_recharge_all(void)
 
 		case TV_STAFF:
 			/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-			price = (get_object_cost(o_ptr) / 10) * o_ptr->number;
+			price = (k_info[o_ptr->k_idx].cost / 10) * o_ptr->number;
 
 			/* Pay at least 10 gold per charge */
 			price = MAX(10, price);
@@ -3282,7 +3197,7 @@ static void building_recharge_all(void)
 
 		case TV_WAND:
 			/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-			price = (get_object_cost(o_ptr) / 10);
+			price = (k_info[o_ptr->k_idx].cost / 10);
 
 			/* Pay at least 10 gold per charge */
 			price = MAX(10, price);
@@ -3336,7 +3251,7 @@ static void building_recharge_all(void)
 		if (o_ptr->tval < TV_STAFF || o_ptr->tval > TV_ROD) continue;
 
 		/* Identify it */
-		if (!object_known_p(o_ptr)) identify_item(o_ptr);
+		if (!object_is_known(o_ptr)) identify_item(o_ptr);
 
 		/* Recharge */
 		switch (o_ptr->tval)
@@ -3657,6 +3572,172 @@ static void get_temple_blow(void)
 	return;
 }
 
+static bool change_class(int cmd)
+{
+	int i, new_class, total_max_clev = 0, experienced_classes = 0;
+	byte old_pclass = p_ptr->pclass;
+	cexp_info_type *cexp_ptr;
+	char buf[80];
+
+	/* Calculate character total class level */
+	for (i = 0; i < max_c_idx; i++)
+	{
+		if (p_ptr->cexp_info[i].max_clev > 0)
+		{
+			total_max_clev += p_ptr->cexp_info[i].max_clev;
+			experienced_classes++;
+		}
+	}
+
+	switch (cmd)
+	{
+	case BACT_JOIN_LODIS_KNIGHTS:
+		new_class = CLASS_TEMPLEKNIGHT;
+		break;
+	case BACT_JOIN_ZENOBIAN_KNIGHTS:
+		new_class = CLASS_WHITEKNIGHT;
+		break;
+	case BACT_CHANGE_SUCCUBUS:
+		new_class = CLASS_SUCCUBUS;
+		break;
+	}
+
+	if (p_ptr->pclass == new_class)
+	{
+#ifdef JP
+		msg_format("あなたはすでに%sです。", c_name + cp_ptr->name);
+#else
+		msg_format("You are already %s.", c_name + cp_ptr->name);
+#endif
+		return FALSE;
+	}
+	else if (!(can_choose_class(new_class, CLASS_CHOOSE_MODE_NORMAL)))
+	{
+#ifdef JP
+		msg_print("クラスチェンジできない。");
+#else
+		msg_print("You cannot choose this class now.");
+#endif
+		return FALSE;
+	}
+	else
+	{
+		char temp[80 * 9];
+		cptr t;
+
+		Term_putstr(CLASS_COL, TABLE_ROW - 5, -1, TERM_L_BLUE, c_name + class_info[new_class].name);
+
+		roff_to_buf(c_text + class_info[new_class].text, 74, temp, sizeof temp);
+		t = temp;
+
+		for (i = 0; i < 9; i++)
+		{
+			if (t[0] == 0)
+				break; 
+			else
+			{
+				prt(t, TABLE_ROW - 3 + i, CLASS_COL);
+				t += strlen(t) + 1;
+			}
+		}
+
+#ifdef JP
+		if (!get_check("クラスチェンジしますか？"))
+#else
+		if (!get_check("Are you sure? "))
+#endif
+		{
+			clear_bldg(4,18);
+			return FALSE;
+		}
+
+	}
+
+	/* Set class */
+	p_ptr->pclass = new_class;
+	cp_ptr = &class_info[p_ptr->pclass];
+	mp_ptr = &m_info[p_ptr->pclass];
+	p_ptr->s_ptr = &s_info[p_ptr->pclass];
+	cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
+#ifdef JP
+	msg_format("%sから%sへとクラスチェンジしました。",
+#else
+	msg_format("Your class has changed from %s to %s.",
+#endif
+		c_name + class_info[old_pclass].name, c_name + cp_ptr->name);
+
+#ifdef JP
+	sprintf(buf,"%sから%sへとクラスチェンジした。", c_name + class_info[old_pclass].name, c_name + cp_ptr->name);
+#else
+	sprintf(buf,"changed class from %s to %s.", c_name + class_info[old_pclass].name, c_name + cp_ptr->name);
+#endif
+	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
+
+	switch (p_ptr->pclass)
+	{
+		case CLASS_TEMPLEKNIGHT:
+			change_level99_quest(TRUE);
+			get_temple_blow();
+			misc_event_flags |= EVENT_CANNOT_BE_WHITEKNIGHT;
+			break;
+		case CLASS_WHITEKNIGHT:
+			misc_event_flags |= EVENT_CANNOT_BE_TEMPLEKNIGHT;
+			break;
+	}
+
+	if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
+
+	for (i = 0; i < MAX_REALM+1; i++)
+		if (p_ptr->magic_exp[i] == 0) p_ptr->magic_exp[i] = p_ptr->s_ptr->s_eff[i];
+
+	if (!cexp_ptr->max_clev)
+	{
+		cexp_ptr->max_clev = cexp_ptr->clev = 1;
+		if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
+		p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
+	}
+
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+	/* Combine / Reorder the pack */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Notice stuff */
+	notice_stuff();
+
+	/* Update stuff */
+	update_stuff();
+
+	if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+	if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+
+	dispel_player();
+	set_action(ACTION_NONE);
+	init_realm_table();
+
+	/* Update stuff */
+	p_ptr->update |= (PU_HP | PU_MANA | PU_LITE);
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE | PW_SPELL | PW_PLAYER);
+
+	/* Reorder the pack (later) */
+	p_ptr->notice |= (PN_REORDER);
+
+	/* Load the "pref" files */
+	load_all_pref_files();
+
+	clear_bldg(4,18);
+
+	return TRUE;
+}
+
+
 bool tele_town(bool magic)
 {
 	int i, x, y;
@@ -3786,7 +3867,7 @@ static bool research_mon(void)
 
 	/* Get a character, or abort */
 #ifdef JP
-if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
+	if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
 #else
 	if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE))
 #endif
@@ -3861,7 +3942,7 @@ if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):
 	else
 	{
 #ifdef JP
-sprintf(buf, "%c - %s", sym, "無効な文字");
+		sprintf(buf, "%c - %s", sym, "無効な文字");
 #else
 		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
 #endif
@@ -3908,9 +3989,9 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 		    if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
   
 #ifdef JP
-		  if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) )
+		  if (my_strstr(temp2, temp) || my_strstr(r_name + r_ptr->name, temp) )
 #else
-		  if (strstr(temp2, temp))
+		  if (my_strstr(temp2, temp))
 #endif
 			  who[n++]=i;
 		}
@@ -3969,7 +4050,7 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 
 		/* Hack -- Complete the prompt */
 #ifdef JP
-Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
+		Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 #else
 		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC, space to continue]");
 #endif
@@ -4038,6 +4119,393 @@ Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 	screen_load();
 
 	return (!notpicked);
+}
+
+
+static bool calc_cost(object_type *dest_ptr, object_type *src_ptr)
+{
+	int price = 0;
+
+	price += k_info[dest_ptr->k_idx].cost + flag_cost(dest_ptr);
+	price += k_info[src_ptr->k_idx].cost + flag_cost(src_ptr);
+
+	/* Check if the player has enough money */
+	if (p_ptr->au_sum < price)
+	{
+#ifdef JP
+		msg_format("合成するには$%d 必要です！", price );
+#else
+		msg_format("You need %d gold to conposite!", price);
+#endif
+		return FALSE;
+	}
+
+	else
+	{
+#ifdef JP
+		if (!get_check(format("$%d で合成しますか？", price)))
+#else
+		if (!get_check(format("Composite objects for %d gold? ",price)))
+#endif
+		{
+			return FALSE;
+		}
+	}
+
+	/* Pay the price */
+	p_ptr->au_sum -= price;
+	p_ptr->update |= (PU_GOLD);
+	update_stuff();
+
+	return TRUE;
+}
+
+
+static void merge_flags1(object_type * dest_ptr, object_type * src_ptr)
+{
+	int i;
+
+	if (dest_ptr->dd > src_ptr->dd) src_ptr->dd += (dest_ptr->dd - k_info[dest_ptr->k_idx].dd) / 2;
+	if (dest_ptr->ds > src_ptr->ds) src_ptr->ds += (dest_ptr->ds - k_info[dest_ptr->k_idx].ds) / 2;
+	if (dest_ptr->ac > src_ptr->ac) src_ptr->ac += (dest_ptr->ac - k_info[dest_ptr->k_idx].ac) / 2;
+	if (dest_ptr->to_h > 0) src_ptr->to_h += (dest_ptr->to_h - k_info[dest_ptr->k_idx].to_h) / 3;
+	else src_ptr->to_h += (dest_ptr->to_h - k_info[dest_ptr->k_idx].to_h);
+	if (dest_ptr->to_d > 0) src_ptr->to_d += (dest_ptr->to_d - k_info[dest_ptr->k_idx].to_d) / 3;
+	else src_ptr->to_d += (dest_ptr->to_d - k_info[dest_ptr->k_idx].to_d);
+	if (dest_ptr->to_a > 0) src_ptr->to_a += (dest_ptr->to_a - k_info[dest_ptr->k_idx].to_a) / 3;
+	else src_ptr->to_a += (dest_ptr->to_a - k_info[dest_ptr->k_idx].to_a);
+
+	if ((src_ptr->to_h) && (src_ptr->to_d)) add_flag(src_ptr->art_flags, TR_SHOW_MODS);
+	if (((src_ptr->to_h) || (src_ptr->to_d)) && (src_ptr->tval == TV_GLOVES)) add_flag(src_ptr->art_flags, TR_SHOW_MODS);
+
+	src_ptr->dd = MIN(8, src_ptr->dd);
+	src_ptr->ds = MIN(8, src_ptr->ds);
+	src_ptr->to_h = MIN(30, src_ptr->to_h);
+	src_ptr->to_d = MIN(30, src_ptr->to_d);
+	src_ptr->to_a = MIN(40, src_ptr->to_a);
+
+
+	for (i = 0; i < A_MAX; i++)
+	{
+		src_ptr->to_stat[i] += dest_ptr->to_stat[i];
+		src_ptr->to_stat[i] = MIN(2, src_ptr->to_stat[i]);
+	}
+
+	for (i = 0; i < OB_MAX; i++) src_ptr->to_misc[i] += dest_ptr->to_misc[i];
+	src_ptr->to_misc[OB_MAGIC_MASTERY] = MIN(9, src_ptr->to_misc[OB_MAGIC_MASTERY]);
+	src_ptr->to_misc[OB_STEALTH] = MIN(9, src_ptr->to_misc[OB_STEALTH]);
+	src_ptr->to_misc[OB_SEARCH] = MIN(10, src_ptr->to_misc[OB_SEARCH]);
+	src_ptr->to_misc[OB_INFRA] = MIN(10, src_ptr->to_misc[OB_INFRA]);
+	src_ptr->to_misc[OB_TUNNEL] = MIN(10, src_ptr->to_misc[OB_TUNNEL]);
+	src_ptr->to_misc[OB_SPEED] = MIN(10, src_ptr->to_misc[OB_SPEED]);
+	src_ptr->to_misc[OB_BLOWS] = MIN(2, src_ptr->to_misc[OB_BLOWS]);
+	src_ptr->to_misc[OB_ANTI_MAGIC] = MIN(3, src_ptr->to_misc[OB_ANTI_MAGIC]);
+
+	for (i = 0; i < ALI_MAX; i++) src_ptr->to_align[i] += dest_ptr->to_align[i];
+}
+
+
+static void merge_flags2(object_type * dest_ptr, object_type * src_ptr)
+{
+	int i;
+	u32b mflgs[TR_FLAG_SIZE];
+	u32b flgs1[TR_FLAG_SIZE];
+	u32b flgs2[TR_FLAG_SIZE];
+
+	/* Get the flags of the weapon */
+	object_flags(dest_ptr, flgs1);
+	object_flags(src_ptr, flgs2);
+	object_flags(src_ptr, mflgs);
+
+	for (i = 0; i < TR_FLAG_SIZE; i++) mflgs[i] |= flgs1[i];
+
+	if ((have_flag(flgs1, TR_SLAY_EVIL)) && (have_flag(flgs2, TR_SLAY_EVIL)) && one_in_(7))
+		add_flag(src_ptr->art_flags, TR_KILL_EVIL);
+	else if (have_flag(mflgs, TR_KILL_EVIL)) add_flag(src_ptr->art_flags, TR_KILL_EVIL);
+	else if (have_flag(mflgs, TR_SLAY_EVIL)) add_flag(src_ptr->art_flags, TR_SLAY_EVIL);
+	if ((have_flag(flgs1, TR_SLAY_GOOD)) && (have_flag(flgs2, TR_SLAY_GOOD)) && one_in_(7))
+		add_flag(src_ptr->art_flags, TR_KILL_GOOD);
+	else if (have_flag(mflgs, TR_KILL_GOOD)) add_flag(src_ptr->art_flags, TR_KILL_GOOD);
+	else if (have_flag(mflgs, TR_SLAY_GOOD)) add_flag(src_ptr->art_flags, TR_SLAY_GOOD);
+	if ((have_flag(flgs1, TR_SLAY_LIVING)) && (have_flag(flgs2, TR_SLAY_LIVING)) && one_in_(7))
+		add_flag(src_ptr->art_flags, TR_KILL_LIVING);
+	else if (have_flag(mflgs, TR_KILL_LIVING)) add_flag(src_ptr->art_flags, TR_KILL_LIVING);
+	else if (have_flag(mflgs, TR_SLAY_LIVING)) add_flag(src_ptr->art_flags, TR_SLAY_LIVING);
+
+	if ((have_flag(flgs1, TR_SLAY_ANIMAL)) && (have_flag(flgs2, TR_SLAY_ANIMAL)))
+		add_flag(src_ptr->art_flags, TR_KILL_ANIMAL);
+	else if (have_flag(mflgs, TR_KILL_ANIMAL)) add_flag(src_ptr->art_flags, TR_KILL_ANIMAL);
+	else if (have_flag(mflgs, TR_SLAY_ANIMAL)) add_flag(src_ptr->art_flags, TR_SLAY_ANIMAL);
+	if ((have_flag(flgs1, TR_SLAY_HUMAN)) && (have_flag(flgs2, TR_SLAY_HUMAN)))
+		add_flag(src_ptr->art_flags, TR_KILL_HUMAN);
+	else if (have_flag(mflgs, TR_KILL_HUMAN)) add_flag(src_ptr->art_flags, TR_KILL_HUMAN);
+	else if (have_flag(mflgs, TR_SLAY_HUMAN)) add_flag(src_ptr->art_flags, TR_SLAY_HUMAN);
+	if ((have_flag(flgs1, TR_SLAY_UNDEAD)) && (have_flag(flgs2, TR_SLAY_UNDEAD)))
+		add_flag(src_ptr->art_flags, TR_KILL_UNDEAD);
+	else if (have_flag(mflgs, TR_KILL_UNDEAD)) add_flag(src_ptr->art_flags, TR_KILL_UNDEAD);
+	else if (have_flag(mflgs, TR_SLAY_UNDEAD)) add_flag(src_ptr->art_flags, TR_SLAY_UNDEAD);
+	if ((have_flag(flgs1, TR_SLAY_DEMON)) && (have_flag(flgs2, TR_SLAY_DEMON)))
+		add_flag(src_ptr->art_flags, TR_KILL_DEMON);
+	else if (have_flag(mflgs, TR_KILL_DEMON)) add_flag(src_ptr->art_flags, TR_KILL_DEMON);
+	else if (have_flag(mflgs, TR_SLAY_DEMON)) add_flag(src_ptr->art_flags, TR_SLAY_DEMON);
+	if ((have_flag(flgs1, TR_SLAY_ORC)) && (have_flag(flgs2, TR_SLAY_ORC)))
+		add_flag(src_ptr->art_flags, TR_SLAY_ORC);
+	else if (have_flag(mflgs, TR_SLAY_ORC)) add_flag(src_ptr->art_flags, TR_SLAY_ORC);
+	else if (have_flag(mflgs, TR_SLAY_ORC)) add_flag(src_ptr->art_flags, TR_SLAY_ORC);
+	if ((have_flag(flgs1, TR_SLAY_TROLL)) && (have_flag(flgs2, TR_SLAY_TROLL)))
+		add_flag(src_ptr->art_flags, TR_KILL_TROLL);
+	else if (have_flag(mflgs, TR_KILL_TROLL)) add_flag(src_ptr->art_flags, TR_KILL_TROLL);
+	else if (have_flag(mflgs, TR_SLAY_TROLL)) add_flag(src_ptr->art_flags, TR_SLAY_TROLL);
+	if ((have_flag(flgs1, TR_SLAY_GIANT)) && (have_flag(flgs2, TR_SLAY_GIANT)))
+		add_flag(src_ptr->art_flags, TR_KILL_GIANT);
+	else if (have_flag(mflgs, TR_KILL_GIANT)) add_flag(src_ptr->art_flags, TR_KILL_GIANT);
+	else if (have_flag(mflgs, TR_SLAY_GIANT)) add_flag(src_ptr->art_flags, TR_SLAY_GIANT);
+	if ((have_flag(flgs1, TR_SLAY_DRAGON)) && (have_flag(flgs2, TR_SLAY_DRAGON)))
+		add_flag(src_ptr->art_flags, TR_KILL_DRAGON);
+	else if (have_flag(mflgs, TR_KILL_DRAGON)) add_flag(src_ptr->art_flags, TR_KILL_DRAGON);
+	else if (have_flag(mflgs, TR_SLAY_DRAGON)) add_flag(src_ptr->art_flags, TR_SLAY_DRAGON);
+
+	if (have_flag(mflgs, TR_FORCE_WEAPON)) add_flag(src_ptr->art_flags, TR_FORCE_WEAPON);
+	if (have_flag(mflgs, TR_CHAOTIC)) add_flag(src_ptr->art_flags, TR_CHAOTIC);
+	if (have_flag(mflgs, TR_VAMPIRIC)) add_flag(src_ptr->art_flags, TR_VAMPIRIC);
+	if (have_flag(mflgs, TR_IMPACT)) add_flag(src_ptr->art_flags, TR_IMPACT);
+	if (have_flag(mflgs, TR_BRAND_ACID)) add_flag(src_ptr->art_flags, TR_BRAND_ACID);
+	if (have_flag(mflgs, TR_BRAND_ELEC)) add_flag(src_ptr->art_flags, TR_BRAND_ELEC);
+	if (have_flag(mflgs, TR_BRAND_FIRE)) add_flag(src_ptr->art_flags, TR_BRAND_FIRE);
+	if (have_flag(mflgs, TR_BRAND_COLD)) add_flag(src_ptr->art_flags, TR_BRAND_COLD);
+	if (have_flag(mflgs, TR_BRAND_POIS)) add_flag(src_ptr->art_flags, TR_BRAND_POIS);
+
+	if ((have_flag(flgs1, TR_VORPAL)) && (have_flag(flgs2, TR_VORPAL)) && one_in_(7))
+		add_flag(src_ptr->art_flags, TR_EXTRA_VORPAL);
+	else if (have_flag(mflgs, TR_EXTRA_VORPAL)) add_flag(src_ptr->art_flags, TR_EXTRA_VORPAL);
+	else if (have_flag(mflgs, TR_VORPAL)) add_flag(src_ptr->art_flags, TR_VORPAL);
+
+	if ((have_flag(flgs1, TR_BLESSED)) && (have_flag(flgs2, TR_UNHOLY))) remove_flag(src_ptr->art_flags, TR_UNHOLY);
+	else if (have_flag(mflgs, TR_BLESSED)) add_flag(src_ptr->art_flags, TR_BLESSED);
+	if ((have_flag(flgs1, TR_UNHOLY)) && (have_flag(flgs2, TR_BLESSED))) remove_flag(src_ptr->art_flags, TR_BLESSED);
+	else if (have_flag(mflgs, TR_UNHOLY)) add_flag(src_ptr->art_flags, TR_UNHOLY);
+}
+
+
+static void merge_flags3(object_type * dest_ptr, object_type * src_ptr)
+{
+	int i;
+	u32b mflgs[TR_FLAG_SIZE];
+	u32b flgs1[TR_FLAG_SIZE];
+
+	/* Get the flags of the weapon */
+	object_flags(dest_ptr, flgs1);
+	object_flags(src_ptr, mflgs);
+
+	for (i = 0; i < TR_FLAG_SIZE; i++) mflgs[i] |= flgs1[i];
+
+	/* Sustain */
+	if (have_flag(mflgs, TR_SUST_STR)) add_flag(src_ptr->art_flags, TR_SUST_STR);
+	if (have_flag(mflgs, TR_SUST_INT)) add_flag(src_ptr->art_flags, TR_SUST_INT);
+	if (have_flag(mflgs, TR_SUST_WIS)) add_flag(src_ptr->art_flags, TR_SUST_WIS);
+	if (have_flag(mflgs, TR_SUST_DEX)) add_flag(src_ptr->art_flags, TR_SUST_DEX);
+	if (have_flag(mflgs, TR_SUST_CON)) add_flag(src_ptr->art_flags, TR_SUST_CON);
+	if (have_flag(mflgs, TR_SUST_CHR)) add_flag(src_ptr->art_flags, TR_SUST_CHR);
+
+	/* Immunity */
+	if (have_flag(mflgs, TR_IM_ACID)) add_flag(src_ptr->art_flags, TR_IM_ACID);
+	if (have_flag(mflgs, TR_IM_ELEC)) add_flag(src_ptr->art_flags, TR_IM_ELEC);
+	if (have_flag(mflgs, TR_IM_COLD)) add_flag(src_ptr->art_flags, TR_IM_COLD);
+	if (have_flag(mflgs, TR_IM_FIRE)) add_flag(src_ptr->art_flags, TR_IM_FIRE);
+
+	/* Resistance */
+	if (have_flag(mflgs, TR_RES_ACID)) add_flag(src_ptr->art_flags, TR_RES_ACID);
+	if (have_flag(mflgs, TR_RES_ELEC)) add_flag(src_ptr->art_flags, TR_RES_ELEC);
+	if (have_flag(mflgs, TR_RES_COLD)) add_flag(src_ptr->art_flags, TR_RES_COLD);
+	if (have_flag(mflgs, TR_RES_FIRE)) add_flag(src_ptr->art_flags, TR_RES_FIRE);
+	if (have_flag(mflgs, TR_RES_POIS)) add_flag(src_ptr->art_flags, TR_RES_POIS);
+	if (have_flag(mflgs, TR_RES_LITE)) add_flag(src_ptr->art_flags, TR_RES_LITE);
+	if (have_flag(mflgs, TR_RES_DARK)) add_flag(src_ptr->art_flags, TR_RES_DARK);
+	if (have_flag(mflgs, TR_RES_SHARDS)) add_flag(src_ptr->art_flags, TR_RES_SHARDS);
+	if (have_flag(mflgs, TR_RES_BLIND)) add_flag(src_ptr->art_flags, TR_RES_BLIND);
+	if (have_flag(mflgs, TR_RES_CONF)) add_flag(src_ptr->art_flags, TR_RES_CONF);
+	if (have_flag(mflgs, TR_RES_SOUND)) add_flag(src_ptr->art_flags, TR_RES_SOUND);
+	if (have_flag(mflgs, TR_RES_NETHER)) add_flag(src_ptr->art_flags, TR_RES_NETHER);
+	if (have_flag(mflgs, TR_RES_STONE)) add_flag(src_ptr->art_flags, TR_RES_STONE);
+	if (have_flag(mflgs, TR_RES_CHAOS)) add_flag(src_ptr->art_flags, TR_RES_CHAOS);
+	if (have_flag(mflgs, TR_RES_DISEN)) add_flag(src_ptr->art_flags, TR_RES_DISEN);
+	if (have_flag(mflgs, TR_RES_FEAR)) add_flag(src_ptr->art_flags, TR_RES_FEAR);
+
+	if (have_flag(mflgs, TR_REFLECT)) add_flag(src_ptr->art_flags, TR_REFLECT);
+	if (have_flag(mflgs, TR_SH_FIRE)) add_flag(src_ptr->art_flags, TR_SH_FIRE);
+	if (have_flag(mflgs, TR_SH_ELEC)) add_flag(src_ptr->art_flags, TR_SH_ELEC);
+	if (have_flag(mflgs, TR_SH_COLD)) add_flag(src_ptr->art_flags, TR_SH_COLD);
+
+	if (have_flag(mflgs, TR_FREE_ACT)) add_flag(src_ptr->art_flags, TR_FREE_ACT);
+	if (have_flag(mflgs, TR_SEE_INVIS)) add_flag(src_ptr->art_flags, TR_SEE_INVIS);
+	if (have_flag(mflgs, TR_HOLD_LIFE)) add_flag(src_ptr->art_flags, TR_HOLD_LIFE);
+	if (have_flag(mflgs, TR_WARNING)) add_flag(src_ptr->art_flags, TR_WARNING);
+	if (have_flag(mflgs, TR_SLOW_DIGEST)) add_flag(src_ptr->art_flags, TR_SLOW_DIGEST);
+	if (have_flag(mflgs, TR_REGEN)) add_flag(src_ptr->art_flags, TR_REGEN);
+	if (have_flag(mflgs, TR_FEATHER)) add_flag(src_ptr->art_flags, TR_FEATHER);
+	if (have_flag(mflgs, TR_LITE)) add_flag(src_ptr->art_flags, TR_LITE);
+
+	if (have_flag(mflgs, TR_TELEPATHY)) add_flag(src_ptr->art_flags, TR_TELEPATHY);
+	if (have_flag(mflgs, TR_REGEN_MANA)) add_flag(src_ptr->art_flags, TR_REGEN_MANA);
+	if (have_flag(mflgs, TR_RES_MAGIC)) add_flag(src_ptr->art_flags, TR_RES_MAGIC);
+	if (have_flag(mflgs, TR_DEC_MANA)) add_flag(src_ptr->art_flags, TR_DEC_MANA);
+	if (have_flag(mflgs, TR_EASY_SPELL)) add_flag(src_ptr->art_flags, TR_EASY_SPELL);
+	if (have_flag(mflgs, TR_WRAITH)) add_flag(src_ptr->art_flags, TR_WRAITH);
+	if (have_flag(mflgs, TR_FEAR_FIELD)) add_flag(src_ptr->art_flags, TR_FEAR_FIELD);
+	if (have_flag(mflgs, TR_DRAIN_EXP)) add_flag(src_ptr->art_flags, TR_DRAIN_EXP);
+	if (have_flag(mflgs, TR_TELEPORT)) add_flag(src_ptr->art_flags, TR_TELEPORT);
+	if (have_flag(mflgs, TR_NO_TELE)) add_flag(src_ptr->art_flags, TR_NO_TELE);
+	if (have_flag(mflgs, TR_NO_MAGIC)) add_flag(src_ptr->art_flags, TR_NO_MAGIC);
+	if (have_flag(mflgs, TR_AGGRAVATE)) add_flag(src_ptr->art_flags, TR_AGGRAVATE);
+	if (have_flag(mflgs, TR_TY_CURSE)) add_flag(src_ptr->art_flags, TR_TY_CURSE);
+
+	if (dest_ptr->curse_flags & TRC_CURSED) src_ptr->curse_flags |= TRC_CURSED;
+	if (dest_ptr->curse_flags & TRC_HEAVY_CURSE) src_ptr->curse_flags |= TRC_HEAVY_CURSE;
+	if (dest_ptr->curse_flags & TRC_PERMA_CURSE) src_ptr->curse_flags |= TRC_PERMA_CURSE;
+}
+
+
+static bool item_tester_composite(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_SHIELD:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+static bool composite_item(void)
+{
+	int src_item, dest_item;
+	bool is_armor = FALSE;
+	char new_name[1024];
+
+	object_type *src_ptr, *dest_ptr;
+	object_type tmp_obj;
+
+	cptr q, s;
+
+	item_tester_hook = item_tester_composite;
+
+	/* Get an item */
+#ifdef JP
+	q = "第一のアイテムは？";
+	s = "合成できるものがありません。";
+#else
+	q = "Fennel which item? ";
+	s = "You have nothing to fennel.";
+#endif
+	if (!get_item(&src_item, q, s, (USE_EQUIP | USE_INVEN)))
+		return FALSE;
+
+	src_ptr = &inventory[src_item];
+	if (object_is_armour(src_ptr)) is_armor = TRUE;
+
+	if (is_armor) item_tester_tval = src_ptr->tval;
+	else item_tester_wt = get_weapon_type(&k_info[src_ptr->k_idx]);
+
+	/* Get an item */
+#ifdef JP
+	q = "第二のアイテムは？";
+	s = "合成できるものがありません。";
+#else
+	q = "Into which other item? ";
+	s = "You have nothing to fennel.";
+#endif
+	if (!get_item(&dest_item, q, s, (USE_EQUIP | USE_INVEN)))
+		return FALSE;
+
+	if (src_item == dest_item)
+	{
+#ifdef JP
+		msg_print("それ自身には合成できない");
+#else
+		msg_print("You cannot fennel an object into itself.");
+#endif
+		return FALSE;
+	}
+	if (inventory[dest_item].number > 1)
+	{
+		object_copy(&tmp_obj, &inventory[dest_item]);
+
+		tmp_obj.number = 1;
+
+		dest_ptr = &tmp_obj;
+	}
+	else
+		dest_ptr = &inventory[dest_item];
+
+	if (object_is_artifact(src_ptr) || object_is_artifact(dest_ptr))
+	{
+#ifdef JP
+		msg_print("アーティファクトは合成できません.");
+#else
+		msg_print("You cannot fennel artifacts.");
+#endif
+		return FALSE;
+	}
+
+	if (!calc_cost(dest_ptr, src_ptr)) return FALSE;
+
+	merge_flags1(dest_ptr, src_ptr);
+	merge_flags2(dest_ptr, src_ptr);
+	merge_flags3(dest_ptr, src_ptr);
+
+	add_flag(src_ptr->art_flags, TR_IGNORE_ACID);
+	add_flag(src_ptr->art_flags, TR_IGNORE_FIRE);
+	add_flag(src_ptr->art_flags, TR_IGNORE_ELEC);
+	add_flag(src_ptr->art_flags, TR_IGNORE_COLD);
+
+	/* Nuke enchantments */
+	src_ptr->name1 = 0;
+	src_ptr->name2 = 0;
+
+#ifdef JP
+	strcpy(new_name, "合成");
+#else
+	strcpy(new_name, "of Composed");
+#endif
+	src_ptr->art_name = quark_add(new_name);
+
+	/* Paranoia. This should never be needed. If it is, the weight
+	 * gets screwed up. */
+	dest_ptr->number = 1;
+
+	/* Handle the case of there having been more than one copy
+	 * of the destination object. */
+	inven_item_increase(dest_item, -1);
+	inven_item_optimize(dest_item);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+	p_ptr->redraw |= (PR_EQUIPPY);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
+	return TRUE;
 }
 
 
@@ -4124,11 +4592,11 @@ static void bldg_process_command(building_type *bldg, int i)
 		paid = compare_weapons();
 		break;
 	case BACT_ENCHANT_WEAPON:
-		item_tester_hook = item_tester_hook_melee_weapon;
+		item_tester_hook = object_is_melee_weapon;
 		enchant_item(bcost, 1, 1, 0);
 		break;
 	case BACT_ENCHANT_ARMOR:
-		item_tester_hook = item_tester_hook_armour;
+		item_tester_hook = object_is_armour;
 		enchant_item(bcost, 0, 0, 1);
 		break;
 	case BACT_RECHARGE:
@@ -4179,11 +4647,11 @@ static void bldg_process_command(building_type *bldg, int i)
 		if (do_res_stat(A_CHR)) paid = TRUE;
 		break;
 	case BACT_ENCHANT_ARROWS:
-		item_tester_hook = item_tester_hook_ammo;
+		item_tester_hook = object_is_ammo;
 		enchant_item(bcost, 1, 1, 0);
 		break;
 	case BACT_ENCHANT_BOW:
-		item_tester_hook = item_tester_hook_bow;
+		item_tester_hook = object_is_bow;
 		enchant_item(bcost, 1, 1, 0);
 		break;
 	case BACT_RECALL:
@@ -4331,7 +4799,7 @@ static void bldg_process_command(building_type *bldg, int i)
 #else
 		msg_print("You received an equalization ritual.");
 #endif
-		p_ptr->align_self = 0;
+		p_ptr->align_self[ALI_LNC] = 0;
 		p_ptr->update |= (PU_BONUS);
 		paid = TRUE;
 		break;
@@ -4339,148 +4807,17 @@ static void bldg_process_command(building_type *bldg, int i)
 		paid = tele_town(FALSE);
 		break;
 	case BACT_INC_STR:
-		if (randint1(100) < 11)
-		{
-			bool perm = one_in_(10);
-			if (dec_stat(A_STR, randint1(10), perm))
-			{
-#ifdef JP
-				msg_print("無理な訓練によって筋肉が萎縮してしまった！");
-#else
-				msg_print("nanka!");
-#endif
-			}
-		}
-		else if (randint1(100) < 31)
-		{
-#ifdef JP
-			msg_print("筋力を高めるのに失敗した！");
-#else
-			msg_print("nanka!");
-#endif
-		}
-		else
-		{
-			do_inc_stat(A_STR);
-		}
-		paid = TRUE;
-		break;
 	case BACT_INC_INT:
-		if (randint1(100) < 11)
-		{
-			bool perm = one_in_(10);
-			if (dec_stat(A_INT, randint1(10), perm))
-			{
-#ifdef JP
-				msg_print("無理な集中によって脳が萎縮してしまった！");
-#else
-				msg_print("nanka!");
-#endif
-			}
-		}
-		else if (randint1(100) < 31)
-		{
-#ifdef JP
-			msg_print("知能を高めるのに失敗した！");
-#else
-			msg_print("nanka!");
-#endif
-		}
-		else
-		{
-			do_inc_stat(A_INT);
-		}
-		paid = TRUE;
-		break;
 	case BACT_INC_WIS:
-		if (randint1(100) < 11)
-		{
-			bool perm = one_in_(10);
-			if (dec_stat(A_WIS, randint1(10), perm))
-			{
-#ifdef JP
-				msg_print("無理な集中によって脳が萎縮してしまった！");
-#else
-				msg_print("nanka!");
-#endif
-			}
-		}
-		else if (randint1(100) < 31)
-		{
-#ifdef JP
-			msg_print("賢さを高めるのに失敗した！");
-#else
-			msg_print("nanka!");
-#endif
-		}
-		else
-		{
-			do_inc_stat(A_WIS);
-		}
-		paid = TRUE;
-		break;
 	case BACT_INC_DEX:
-		if (randint1(100) < 11)
-		{
-			bool perm = one_in_(10);
-			if (dec_stat(A_DEX, randint1(10), perm))
-			{
-#ifdef JP
-				msg_print("無理な訓練によって体を痛めてしまった！");
-#else
-				msg_print("nanka!");
-#endif
-			}
-		}
-		else if (randint1(100) < 31)
-		{
-#ifdef JP
-			msg_print("器用さを高めるのに失敗した！");
-#else
-			msg_print("nanka!");
-#endif
-		}
-		else
-		{
-			do_inc_stat(A_DEX);
-		}
-		paid = TRUE;
-		break;
 	case BACT_INC_CON:
-		if (randint1(100) < 11)
-		{
-			bool perm = one_in_(10);
-			if (dec_stat(A_CON, randint1(10), perm))
-			{
-#ifdef JP
-				msg_print("無理な訓練によって体を痛めてしまった！");
-#else
-				msg_print("nanka!");
-#endif
-			}
-		}
-		else if (randint1(100) < 31)
-		{
-#ifdef JP
-			msg_print("耐久を高めるのに失敗した！");
-#else
-			msg_print("nanka!");
-#endif
-		}
-		else
-		{
-			do_inc_stat(A_CON);
-		}
-		paid = TRUE;
-		break;
 	case BACT_INC_CHR:
 		if (randint1(100) < 11)
 		{
-			bool perm = one_in_(10);
-			if (dec_stat(A_CHR, randint1(10), perm))
+			if (dec_stat((bact - BACT_INC_STR), randint1(10), one_in_(10)))
 			{
 #ifdef JP
-				msg_print("過度のエステによって皮膚がただれてしまった！");
+				msg_print("逆に能力値が下がってしまった！");
 #else
 				msg_print("nanka!");
 #endif
@@ -4489,14 +4826,14 @@ static void bldg_process_command(building_type *bldg, int i)
 		else if (randint1(100) < 31)
 		{
 #ifdef JP
-			msg_print("魅力を高めるのに失敗した！");
+			msg_print("能力を高めるのに失敗した！");
 #else
 			msg_print("nanka!");
 #endif
 		}
 		else
 		{
-			do_inc_stat(A_CHR);
+			do_inc_stat(bact - BACT_INC_STR);
 		}
 		paid = TRUE;
 		break;
@@ -4559,7 +4896,7 @@ static void bldg_process_command(building_type *bldg, int i)
 		if (bact == BACT_DONATION_LODIS) change_chaos_frame(ETHNICITY_LODIS, 10);
 		else if (bact == BACT_DONATION_ZENOBIAN) change_chaos_frame(ETHNICITY_ZENOBIAN, 10);
 		else if (!dun_level && p_ptr->town_num) change_chaos_frame(town[p_ptr->town_num].ethnic, 10);
-		change_your_alignment_lnc(10);
+		change_your_alignment(ALI_LNC, 10);
 		paid = TRUE;
 		break;
 	case BACT_EVAL_AC:
@@ -4567,120 +4904,11 @@ static void bldg_process_command(building_type *bldg, int i)
 		break;
 	case BACT_JOIN_LODIS_KNIGHTS:
 	case BACT_JOIN_ZENOBIAN_KNIGHTS:
-		{
-			int i, new_class, total_max_clev = 0, experienced_classes = 0;
-			cexp_info_type *cexp_ptr;
-
-			/* Calculate character total class level */
-			for (i = 0; i < MAX_CLASS; i++)
-			{
-				if (p_ptr->cexp_info[i].max_clev > 0)
-				{
-					total_max_clev += p_ptr->cexp_info[i].max_clev;
-					experienced_classes++;
-				}
-			}
-
-			switch (bact)
-			{
-			case BACT_JOIN_LODIS_KNIGHTS:
-				new_class = CLASS_TEMPLEKNIGHT;
-
-				if (!(can_choose_class(new_class, CLASS_CHOOSE_MODE_NORMAL)))
-				{
-#ifdef JP
-					msg_print("お前はまだ暗黒騎士団への入団資格を持っていない。");
-#else
-					msg_print("You cannot choose this class now.");
-#endif
-					return;
-				}
-
-#ifdef JP
-				msg_print("暗黒騎士団への入団を認める。");
-#else
-				msg_print("changed class to Temple-Knight.");
-#endif
-
-				change_level99_quest(TRUE);
-				get_temple_blow();
-				misc_event_flags |= EVENT_CANNOT_BE_WHITEKNIGHT;
-				break;
-			case BACT_JOIN_ZENOBIAN_KNIGHTS:
-				new_class = CLASS_WHITEKNIGHT;
-
-				if (!(can_choose_class(new_class, CLASS_CHOOSE_MODE_NORMAL)))
-				{
-#ifdef JP
-					msg_print("お前はまだゼノビア騎士団への入団資格を持っていない。");
-#else
-					msg_print("You cannot choose this class now.");
-#endif
-					return;
-				}
-
-#ifdef JP
-				msg_print("ゼノビア騎士団への入団を認める。");
-#else
-				msg_print("changed class to White-Knight.");
-#endif
-
-				misc_event_flags |= EVENT_CANNOT_BE_TEMPLEKNIGHT;
-				break;
-			}
-
-			/* Set class */
-			p_ptr->pclass = new_class;
-			cp_ptr = &class_info[p_ptr->pclass];
-			mp_ptr = &m_info[p_ptr->pclass];
-			p_ptr->s_ptr = &s_info[p_ptr->pclass];
-			cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
-
-			for (i = 0; i < MAX_REALM+1; i++)
-				if (p_ptr->magic_exp[i] == 0) p_ptr->magic_exp[i] = p_ptr->s_ptr->s_eff[i];
-
-			if (!cexp_ptr->max_clev)
-			{
-				cexp_ptr->max_clev = cexp_ptr->clev = 1;
-				if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
-				p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
-			}
-
-			/* Update stuff */
-			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-			/* Combine / Reorder the pack */
-			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-			/* Notice stuff */
-			notice_stuff();
-
-			/* Update stuff */
-			update_stuff();
-
-			if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
-			if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
-
-			dispel_player();
-			set_action(ACTION_NONE);
-			init_realm_table();
-
-			/* Update stuff */
-			p_ptr->update |= (PU_HP | PU_MANA | PU_LITE);
-
-			/* Redraw stuff */
-			p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_MESSAGE | PW_SPELL | PW_PLAYER);
-
-			/* Reorder the pack (later) */
-			p_ptr->notice |= (PN_REORDER);
-
-			/* Load the "pref" files */
-			load_all_pref_files();
-
-		}
+	case BACT_CHANGE_SUCCUBUS:
+		change_class(bact);
+		break;
+	case BACT_COMPOSITE_ITEM:
+		composite_item();
 		break;
 	}
 
@@ -4763,7 +4991,12 @@ void do_cmd_bldg(void)
 
 	which = (cave[py][px].feat - FEAT_BLDG_HEAD);
 
-	bldg = &building[which];
+	if (dun_level)
+	{
+		process_dungeon_file("t0000000.txt", 0, 0, MAX_HGT, MAX_WID);
+		bldg = &building[which];
+	}
+	else bldg = &building[which];
 
 	/* Don't re-init the wilderness */
 	reinit_wilderness = FALSE;
@@ -4831,6 +5064,17 @@ void do_cmd_bldg(void)
 #endif
 				return;
 			}
+
+			if ((p_ptr->town_num != p_ptr->smithy_town_num) && (which == 31))
+			{
+#ifdef JP
+				msg_print("ドアに鍵がかかっている。");
+#else
+				msg_print("The doors are locked.");
+#endif
+				return;
+			}
+
 		}
 	}
 

@@ -91,6 +91,7 @@ struct object_kind
 {
 	u32b name;			/* Name (offset) */
 	u32b text;			/* Text (offset) */
+	u32b flavor_name;	/* Flavor name (offset) */
 
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
@@ -99,6 +100,7 @@ struct object_kind
 
 	s16b to_stat[A_MAX];		/* Bonus to stats */
 	s16b to_misc[OB_MAX];		/* Bonus to misc */
+	s16b to_align[ALI_MAX];		/* Bonus to alignments */
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
@@ -131,7 +133,7 @@ struct object_kind
 	byte x_char;		/* Desired object character */
 
 
-	byte flavor;			/* Special object flavor (or zero) */
+	s16b flavor;			/* Special object flavor (or zero) */
 
 	bool easy_know;		/* This object is always known (if aware) */
 
@@ -165,6 +167,7 @@ struct artifact_type
 
 	s16b to_stat[A_MAX];		/* Bonus to stats */
 	s16b to_misc[OB_MAX];		/* Bonus to misc */
+	s16b to_align[ALI_MAX];		/* Bonus to alignments */
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
@@ -216,6 +219,7 @@ struct ego_item_type
 	/* byte max_pval; */		/* Maximum pval */
 	byte max_to_stat[A_MAX];		/* Maximum bonus to stats */
 	byte max_to_misc[OB_MAX];		/* Maximum bonus to misc */
+	s16b to_align[ALI_MAX];		/* Maximum bonus to alignments */
 
 	s32b cost;			/* Ego-item "cost" */
 
@@ -400,6 +404,22 @@ struct skill_table
 };
 
 
+typedef struct hist_type hist_type;
+
+/*
+ * Player background information
+ */
+struct hist_type
+{
+	u32b text;			    /* Textual History */
+
+	byte roll;			    /* Frequency of this entry */
+	byte chart;			    /* Chart index */
+	byte next;			    /* Next chart index */
+	byte bonus;			    /* Social Class Bonus + 50 */
+};
+
+
 /*
  * A single "grid" in a Cave
  *
@@ -527,6 +547,7 @@ struct object_type
 
 	s16b to_stat[A_MAX];		/* Plusses to stats */
 	s16b to_misc[OB_MAX];		/* Plusses to misc */
+	s16b to_align[ALI_MAX];		/* Bonus to alignments */
 
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
@@ -555,26 +576,6 @@ struct object_type
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
 
-#ifdef SCRIPT_OBJ_KIND
-	char *name;
-
-	byte d_attr;		/* Default object attribute */
-	byte d_char;		/* Default object character */
-
-
-	byte x_attr;		/* Desired object attribute */
-	byte x_char;		/* Desired object character */
-
-
-	byte flavor;			/* Special object flavor (or zero) */
-
-	bool easy_know;		/* This object is always known (if aware) */
-
-
-	bool aware;			/* The player is "aware" of the item's effects */
-
-	bool tried;			/* The player has "tried" one of the items */
-#endif /* SCRIPT_OBJ_KIND */
 };
 
 
@@ -605,21 +606,10 @@ struct monster_type
 	s32b maxhp;		/* Max Hit points */
 	s32b max_maxhp;		/* Max Max Hit points */
 
-	s16b csleep;		/* Inactive counter */
+	s16b mtimed[MAX_MTIMED];	/* Timed status counter */
 
 	byte mspeed;	        /* Monster "speed" */
 	s16b energy_need;	/* Monster "energy" */
-
-	byte fast;		/* Monster is stunned */
-	byte slow;		/* Monster is stunned */
-	byte stunned;		/* Monster is stunned */
-	byte confused;		/* Monster is confused */
-	byte monfear;		/* Monster is afraid */
-	byte stoning;		/* Monster is stoning */
-	byte melt_weapon;		/* Monster's attack is temporarily low damage */
-	byte opposite_elem;		/* Monster's element is forced to opposite */
-	byte silent;		/* Monster is silent */
-	byte invulner;          /* Monster is temporarily invulnerable */
 
 	bool silent_song;		/* Monster is silent by the song */
 
@@ -855,11 +845,12 @@ typedef struct player_race player_race;
 
 struct player_race
 {
-	cptr title;			/* Type of race */
+	u32b name;			/* Type of race */
 
 #ifdef JP
-	cptr E_title;		/* ±Ñ¸ì¼ïÂ² */
+	u32b E_name;		/* ±Ñ¸ì¼ïÂ² */
 #endif
+	u32b text;				/* Text (offset) */
 
 	u32b r_flags;			/* Racial flags */
 	s16b r_adj[A_MAX];		/* Racial stat bonuses */
@@ -883,6 +874,8 @@ struct player_race
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
 
+	s16b hist;			/* Starting history index */
+
 	byte m_b_ht;		/* base height (males) */
 	byte m_m_ht;		/* mod height (males) */
 	byte m_b_wt;		/* base weight (males) */
@@ -895,10 +888,22 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-	u32b choice;        /* Legal class choices */
-	/* byte choice_xtra; */
+	u32b flags[TR_FLAG_SIZE];		/* Race base Flags */
+	u32b z_flags[TR_FLAG_SIZE];		/* Runeweapon Flags */
+};
 
-	byte sex;
+
+/*
+ * Starting equipment entry
+ */
+typedef struct start_item start_item;
+
+struct start_item
+{
+	byte tval;	/* Item's tval */
+	byte sval;	/* Item's sval */
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
 };
 
 
@@ -910,11 +915,14 @@ typedef struct player_class player_class;
 
 struct player_class
 {
-	cptr title;			/* Type of class */
+	u32b name;			/* Type of class */
 
 #ifdef JP
-	cptr E_title;		/* ±Ñ¸ì¥¯¥é¥¹ */
+	u32b E_name;		/* ±Ñ¸ì¥¯¥é¥¹ */
 #endif
+	u32b text;				/* Text (offset) */
+
+	u32b title[10];		/* Titles - offset */
 
 	u32b c_flags;			/* Class flags */
 	s16b c_need[A_MAX];		/* Class stats which are need on changing class */
@@ -945,6 +953,22 @@ struct player_class
 	s32b c_mhp;			/* class hit-dice modifier */
 	s32b c_msp;			/* class mana-dice modifier */
 	u16b c_exp;			/* class experience factor */
+	byte w_limit;		/* class weapon weight limit mana is halved */
+	byte t_limit;		/* class total weight limit mana is halved */
+
+	u16b max_attacks;	/* Maximum possible attacks */
+	u16b min_weight;	/* Minimum weapon weight for calculations */
+	u16b att_multiply;	/* Multiplier for attack calculations */
+
+	u32b realm_choices;			/* realm flags */
+
+	byte tval;			/* Snap Dragon weapon base item tval */
+	byte sval;			/* Snap Dragon weapon base item sval */
+
+	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
+
+	u32b flags[TR_FLAG_SIZE];		/* class base Flags */
+	u32b z_flags[TR_FLAG_SIZE];		/* Runeweapon Flags */
 };
 
 
@@ -1016,7 +1040,7 @@ struct player_type
 	bool inside_arena;		/* Is character inside arena? */
 	s16b inside_quest;		/* Inside quest level */
 
-	s16b align_self;		/* Good/evil/neutral (own) */
+	s16b align_self[ALI_MAX];	/* Self Alignment LNC/GNE */
 
 	s32b wilderness_x;	/* Coordinates in the wilderness */
 	s32b wilderness_y;
@@ -1109,6 +1133,8 @@ struct player_type
 	s16b food;		  /* Current nutrition */
 
 	byte infected;
+	byte smithy_town_num;
+	byte pumpkin;
 
 	u32b special_attack;	  /* Special attack capacity -LM- */
 	byte action;		  /* Currently action */
@@ -1236,7 +1262,7 @@ struct player_type
 	s16b stat_use[A_MAX];	/* Current modified stats */
 	s16b stat_top[A_MAX];	/* Maximal modified stats */
 
-	s32b align;				/* Good/evil/neutral (total) */
+	s32b align[ALI_MAX];	/* Total Alignment LNC/GNE */
 	s16b run_py;
 	s16b run_px;
 
@@ -1379,6 +1405,8 @@ struct player_type
 	byte tval_ammo;		/* Correct ammo tval */
 
 	s32b pspeed;		/* Current speed */
+
+	u32b flags[TR_FLAG_SIZE];		/* Player Flags */
 };
 
 
@@ -1445,12 +1473,6 @@ struct building_type
 	char letters[8];                /* action letters */
 	s16b actions[8];                /* action codes */
 	s16b action_restr[8];           /* action restrictions */
-
-#if 0
-	s16b member_class[MAX_CLASS];   /* which classes are part of guild */
-	s16b member_race[MAX_RACES];    /* which classes are part of guild */
-	s16b member_realm[MAX_REALM+1]; /* which realms are part of guild */
-#endif
 
 	bool chaos_frame_restr;         /* Restriction by chaos frame */
 };

@@ -218,9 +218,9 @@ static grouper group_item[] =
 #endif
 
 #ifdef JP
-	{ TV_TRUMP,         "ËâË¡¤Î¥«¡¼¥É" },
+	{ TV_TRUMP,         "¥«¡¼¥É" },
 #else
-	{ TV_TRUMP,         "Magic Card" },
+	{ TV_TRUMP,         "Trump" },
 #endif
 
 #ifdef JP
@@ -293,7 +293,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Level */
-	(*lev) = get_object_level(q_ptr);
+	(*lev) = k_info[q_ptr->k_idx].level;
 
 	/* Value */
 	(*val) = object_value(q_ptr);
@@ -304,7 +304,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Description (too brief) */
-	object_desc_store(buf, q_ptr, FALSE, 0);
+	object_desc(buf, q_ptr, (OD_NAME_ONLY | OD_STORE));
 
 
 	/* Misc info */
@@ -1040,7 +1040,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags[TR_FLAG_SIZE],
 static void analyze_general(object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
-	object_desc_store(desc_ptr, o_ptr, TRUE, 1);
+	object_desc(desc_ptr, o_ptr, (OD_NAME_AND_ENCHANT | OD_STORE));
 }
 
 
@@ -1179,7 +1179,7 @@ static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Artifact lights -- large radius light.
 	 */
-	if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
+	if ((o_ptr->tval == TV_LITE) && object_is_fixed_artifact(o_ptr))
 	{
 #ifdef JP
 		*misc_list++ = "±Êµ×¸÷¸»(È¾·Â3)";
@@ -2328,7 +2328,7 @@ static void spoil_random_artifact_aux(object_type *o_ptr, int i)
 {
 	obj_desc_list artifact;
 
-	if (!object_known_p(o_ptr) || !o_ptr->art_name
+	if (!object_is_known(o_ptr) || !o_ptr->art_name
 		|| o_ptr->tval != group_artifact[i].tval)
 		return;
 

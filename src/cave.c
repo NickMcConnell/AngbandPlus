@@ -502,7 +502,7 @@ bool cave_valid_bold(int y, int x)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Forbid artifact grids */
-		if ((o_ptr->art_name) || artifact_p(o_ptr)) return (FALSE);
+		if ((o_ptr->art_name) || object_is_fixed_artifact(o_ptr)) return (FALSE);
 	}
 
 	/* Accept */
@@ -537,7 +537,7 @@ bool cave_valid_grid(cave_type *c_ptr)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Forbid artifact grids */
-		if ((o_ptr->art_name) || artifact_p(o_ptr)) return (FALSE);
+		if ((o_ptr->art_name) || object_is_fixed_artifact(o_ptr)) return (FALSE);
 	}
 
 	/* Accept */
@@ -1368,7 +1368,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			feat_priority = 30;
 
 			/* Mimics' colors vary */
-			if (strchr("\"!=", c) && !(r_ptr->flags1 & RF1_UNIQUE))
+			if (my_strchr("\"!=", c) && !(r_ptr->flags1 & RF1_UNIQUE))
 			{
 				/* Use char */
 				(*cp) = c;
@@ -2037,7 +2037,7 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 	int len = 0;
 	byte attr;
 
-	object_desc(buf, o_ptr, FALSE, 0);
+	object_desc(buf, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 	attr = tval_to_attr[o_ptr->tval % 128];
 
 	if (p_ptr->image)
@@ -3122,7 +3122,7 @@ void update_mon_lite(void)
 
 		/* Exit if has no light */
 		if (!rad) continue;
-		if (!(r_ptr->flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) && (m_ptr->csleep || (!dun_level && is_daytime()))) continue;
+		if (!(r_ptr->flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) && (MON_CSLEEP(m_ptr) || (!dun_level && is_daytime()))) continue;
 
 		if (stop_the_time_monster) continue;
 

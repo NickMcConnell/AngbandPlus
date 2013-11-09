@@ -6259,28 +6259,23 @@ D:アルベリヒの息子で、金で買われた人間の女性との間に生まれた。
 D:グンター王の異父弟にあたり、奸計にってジークフリードを殺害し、
 D:環を奪った犯人。
 
-#JZ#
-N:384:疾翼『メネルドール』
-E:Meneldor the Swift
+
+N:384:『ストラス』
+E:Stlas
 G:B:u
-I:140:13d100:20:65:20
-W:38:1:0:7000:0:0
+I:142:30d100:20:65:20
+W:55:1:0:22222:0:0
 B:CLAW:HURT:7d5
 B:CLAW:HURT:7d5
 B:BITE:HURT:5d7
-F:CAN_FLY | UNIQUE | FORCE_MAXHP | DROP_CORPSE | ELEM_WIND |
-F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO | 
-F:ANIMAL | GOOD | RIDING
+F:CAN_FLY | UNIQUE | ESCORT_U | ESCORTS | FORCE_MAXHP | DROP_CORPSE
+F:ELEM_WIND |
+F:DEMON | EVIL | SMART |
 S:1_IN_2
-S:SPECIAL | S_KIN
-D:$An agent of supernatural beings, this creature looks like a 
-D:$huge eagle.
-#D:この生き物はなにか超自然的な存在の使いだ。 
-#D:そしてそれは大きなワシのように見える。
-D:マンウェに遣わされた偉大な大鷲は人の言葉を話し、
-D:マイアールと同じ魂を持っていると言われる。
-D:メネルドールは一族の中でグワイヒアとその弟ランドローバルに継いで速く、
-D:疾翼と呼ばれる。
+S:S_DEMON | BA_ELEC | WIND_STORM | HEAL | BLINK |
+D:ソロモンの悪魔七十二柱の一体。２６の悪霊軍団を率いる魔界の王子である。
+D:その姿は、フクロウを模した奇妙な鳥である
+
 
 #JZ#
 N:385:幽体獣
@@ -6696,28 +6691,23 @@ S:S_KIN | ANIM_DEAD
 D:$He is out to have a revenge on you who have desecrated his tomb.
 D:彼は自分の墓を汚したあなたに復讐するため甦った。
 
-#JZ#
-N:410:風早彦『グワイヒア』
-E:Gwaihir the Windlord
+
+N:410:『カイム』
+E:Caim
 G:B:u
-I:142:15d100:20:65:20
-W:40:1:0:8000:0:0
-B:CLAW:HURT:15d5
-B:CLAW:HURT:15d5
-B:BITE:HURT:5d10
-F:CAN_FLY | UNIQUE | FORCE_MAXHP | DROP_CORPSE | ELEM_WIND |
-F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO | 
-F:ANIMAL | GOOD | RIDING
+I:142:30d100:20:65:20
+W:55:1:0:22222:0:0
+B:SLASH:HURT:16d5
+B:SLASH:HURT:16d5
+B:CLAW:HURT:6d10
+F:CAN_FLY | UNIQUE | ESCORT_BU | ESCORTS | FORCE_MAXHP | DROP_CORPSE
+F:ELEM_WIND |
+F:DEMON | EVIL |
 S:1_IN_2
-S:SPECIAL | S_KIN
-D:$An agent of supernatural beings, this creature looks like a 
-D:$huge eagle.
-#D:この生き物はなにか超自然的な存在の使いだ。 
-#D:そしてそれは大きなワシのように見える。
-D:マンウェに遣わされた偉大な大鷲は人の言葉を話し、
-D:マイアールと同じ魂を持っていると言われる。
-D:グワイヒアは大鷲の王であり、一族の中で最も強く、速い。
-D:これが風の支配者と呼ばれる所以である。
+S:SPECIAL | S_DEMON
+D:ソロモンの悪魔七十二柱の一体。かつては一介の天使にすぎなかったが、
+D:３０の悪霊軍団を指揮する長官にまで上り詰めた叩き上げである。
+
 
 #J0#
 N:411:巨大赤ダニ
@@ -6841,34 +6831,9 @@ D:$provides all the protection it needs.
 D:小さな腰巻きを身につけた下級の天使だ。その鋼鉄のような肌はどんなものでも
 D:はじき返す。
 
-#JZ#
-#JZ#グール（食屍鬼）
-#JZ#Ｈ・Ｐ・ラヴクラフトの「ピックマンのモデル」などに登場。
-#JZ#顔は犬に似ており、肌は灰色のゴムのようです。人間の子を浚って
-#JZ#自分たちの子と取り替える事も有ります。 by 久留さん
-#JZ#解説は NeSYS さん
-N:418:グール
-E:Ghoul
-G:z:U
-I:110:15d9:30:30:20
-W:26:1:0:95:1000:483
-B:CLAW:DISEASE:1d4
-B:CLAW:DISEASE:1d4
-B:BITE:PARALYZE:1d5
-F:DROP_60 | OPEN_DOOR | BASH_DOOR | CAN_SWIM | RES_DARK | RES_NETH | CHAOTIC |
-F:EVIL | UNDEAD | FRIENDS | RES_POIS | RES_COLD | NO_CONF | NO_SLEEP
-F:COLD_BLOOD | HURT_LITE
-S:1_IN_9
-S:SCARE | HOLD
-D:$Flesh is falling off in chunks from this decaying abomination.
-D:この腐敗した凶々しい者の体からは腐肉の塊がしたたり落ちている。
-D:完全な人間の形をしているわけではないが、限りなく人間に良く似ている場合も
-D:ある。
-D:前かがみの姿勢で２本足で歩き、何処となく犬に似ている。
-D:皮膚はゴムのような感じでカビがこびりついており、耳はぴんと立っている。
-D:半分に割れた蹄と、穴を掘るのに使う鱗のある鉤爪を持つ。
-D:夜行性で、人間のたくさん住む場所の近くにおり、腐肉を好んで食らう。
-D:泣くように、或いはとてつもない早口で話す。
+
+#N:418:海の修道士
+
 
 #JZ#
 #JZ#ニーベルング族の王アルベリヒ
@@ -7482,45 +7447,22 @@ F:EGG_ONLY | GOOD | LAWFUL
 S:1_IN_6
 S:BLINK | TPORT | SALAMANDER | IGNIS_FATUUS
 
-#JZ#
-#JZ#引用は久留さん、解説は NeSYS さんによる
-N:452:深き者
-E:Deep one
-G:u:g
+N:452:サテュロス
+E:Saturos
+G:u:s
 I:120:35d12:20:50:20
 W:28:5:0:150:0:0
-B:CLAW:POISON:2d4
-B:CLAW:POISON:2d4
-B:BITE:HURT:4d4
-F:FRIENDS | WILD_SHORE | DROP_CORPSE | ELEM_AQUA | CHAOTIC |
-F:RAND_25 | 
+B:HIT:POISON:2d4
+B:HIT:POISON:2d4
+B:HIT:HURT:4d4
+F:DROP_CORPSE | CHAOTIC |
 F:DROP_60 | DROP_90 |
 F:CAN_SWIM | BASH_DOOR | RES_TELE |
-F:EVIL | DEMON | RES_FIRE | RES_COLD | RES_POIS | RES_WATE
-D:$"I thought their predominant color was a greyish-green, 
-D:$though they had white bellies. They were mostly shiny and 
-D:$slippery, but the ridges of their backs were scaly. Their 
-D:$forms vaguely suggested the anthropoid, while their heads were 
-D:$the heads of fish, with prodigious bulging eyes that never 
-D:$closed. At the sides of their necks were palpitating gills and 
-D:$their long paws were webbed."
-D:「体の色はおおむね灰色がかった緑色だが、腹は白かった。体の大部分
-D:は光沢があってぬらぬらしていたが、背中のもりあがったところには鱗
-D:があった。その姿はどことなく類人猿じみたところがあったとはいえ、
-D:頭部は魚類のものであり、ふくれあがった大きな目は閉じるということ
-D:がなかった。首の両側には脈打つ鰓があり、長い四肢の先には水かきが
-D:ついていた」
-D:(Ｈ・Ｐ・ラヴクラフト、大瀧啓裕訳「インスマスを覆う影」
-D:『クトゥルー９』、青心社文庫、p.305)
-D:陸上ではぴょんぴょん跳ねるようにして歩き、けろけろという声で鳴く。
-D:しかし、身振りや手振りでコミュニケーションを取ることが多いようだ。
-D:時のない深い海の底で生活し、異様で尊大な生命を持ち、
-D:信じがたいほど冷酷である。
-D:人間と交配することが可能であり、混血児は生後まもなくは人間と変わらないが、
-D:二十歳を過ぎたあたりから魚のような特徴が表れ始め、
-D:最終的には種族の記憶に目覚めて完全なディープワンへと変貌を遂げてしまう。
-D:ディープワンには老化というものが無く、事故死か或いは殺されるまで何万年で
-D:も生き続ける。
+F:EVIL | DEMON | RES_FIRE | RES_COLD | RES_DARK |
+S:1_IN_6
+S:BA_DARK | DARK_FIRE
+D:魔に属する異形の者。山羊の様な角と下半身を持つ
+D:魔界の魔法戦士。人と変わらぬ知能を有する。
 
 #J0#
 N:453:バシリスク
@@ -7809,26 +7751,22 @@ S:BO_MANA | GODLY_SPEAR |
 D:フェアリーの進化した姿。
 D:愛らしさを振りまくだけのマスコット、とはもはや言えない。
 
-#JZ#
-N:468:大鷲王『ソロンドール』
-E:Thorondor
-G:B:u
+
+N:468:『マルファス』
+E:Malphas
+G:B:d
 I:142:30d100:20:65:20
 W:55:1:0:22222:0:0
 B:CLAW:HURT:16d5
 B:CLAW:HURT:16d5
 B:BITE:HURT:6d10
-F:CAN_FLY | UNIQUE | ESCORT_B | ESCORTS | FORCE_MAXHP | DROP_CORPSE
-F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO | ELEM_WIND | FRIENDLY
-F:ANIMAL | GOOD | RIDING
+F:CAN_FLY | UNIQUE | ESCORT_BU | ESCORTS | FORCE_MAXHP | DROP_CORPSE
+F:DEMON | EVIL |
 S:1_IN_2
-S:SPECIAL | S_KIN
-D:$An agent of supernatural being, Thorondor is the lord of eagles.
-#D:ソロンドールは超自然的な存在の使いで、大鷲たちの王だ。
-D:マンウェに遣わされた偉大な大鷲は人の言葉を話し、
-D:マイアールと同じ魂を持っていると言われる。
-D:ソロンドールは全ての大鷲のうちで最初に現われた者であり、最強かつ最大の王だ。
-D:その巨大な体を前にすればモルゴスの卑小な召使い達は逃げ惑うことしか出来ない。
+S:SPECIAL | S_DEMON
+D:ソロモンの悪魔七十二柱の一体。４０の軍団を指揮する長官であると伝えられる。
+D:その姿は野鳩の形をとっている。
+
 
 #J0#
 N:469:巨大青アリ
@@ -9741,16 +9679,10 @@ S:BLINK | DARKNESS | S_DEMON | DARK_FIRE |
 D:$An ugly demon with insect-like extremities and large bulbous eyes.
 D:昆虫のような四肢と大きな球状の眼を持つ醜い悪魔だ。
 
-#JZ#
-#JZ#古きもの
-#JZ#Ｈ・Ｐ・ラヴクラフトの「狂気の山にて」に登場。
-#JZ#十億年前に地球に飛来し、一時は高度な文明を築きましたが、ショゴス
-#JZ#の叛乱、クトゥルフ一族やミ＝ゴウとの闘争によって衰退しました。
-#JZ#身体は樽型で翼と５本の腕を有し、頭部はヒトデのような形状です。 by 久留さん
-#JZ#引用は久留さん、解説は NeSYS さんによる
-N:569:古のもの
-E:Elder thing
-G:u:G
+
+N:569:海の司教
+E:Sea Bishop
+G:h:G
 I:110:35d13:10:70:50
 W:36:3:0:800:0:0
 B:CRUSH:HURT:4d6
@@ -9759,30 +9691,11 @@ B:CRUSH:HURT:4d6
 B:TOUCH:LOSE_WIS
 F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | NONLIVING | CHAOTIC |
 F:DEMON | RES_POIS | RES_ACID | NO_CONF | NO_SLEEP | RES_TELE |
-F:CAN_SWIM |
+F:CAN_SWIM | ELEM_AQUA |
 S:1_IN_4 |
 S:SCARE | TELE_AWAY | BA_NUKE | CAUSE_3 | BA_POIS |
 S:CONF | S_DEMON | S_UNDEAD
-D:$"...some ridged barrel-shaped objects with thin 
-D:$horizontal arms radiating spoke-like from a central ring and with 
-D:$vertical knobs or bulbs projecting from the head and base of the 
-D:$barrel. Each of these knobs was the hub of a system of five long, 
-D:$flat, triangularly tapering arms arranged around it like the arms 
-D:$of a starfish."
-D:「隆起をもった樽状の物体で、水平にのびる腕が中央の輪からスポーク
-D:のように放射状に分出して、ドアの把手のような、球根のようなものが、
-D:樽の上部と下部から垂直に伸びていた、これら把手状のものはそれぞれ、
-D:車輪の中心軸さながらに、長くて平たい、三角形のように先細りになっ
-D:た腕が５本、海星の腕を思わせる格好でまわりに配置されていた」
-D:(Ｈ・Ｐ・ラヴクラフト、大瀧啓裕訳「魔女の家の夢」
-D:『ラヴクラフト全集３』、創元推理文庫、pp.195-196)
-D:彼らの肉体はどんな温度変化や真空にも耐えられ、
-D:食物の摂取も呼吸の必要も無いような化学変化による方法で、宇宙空間を飛行し
-D:てきた。
-D:そして２０億年前に地球に飛来し、偶発的に文明を築いたと考えられる。
-D:地球上で単純な有機体を創造して食物とし、その有機体から更に奴隷として「シ
-D:ョゴス」を創造した。
-D:その他の地球上の様々な生命体も、ショゴスによって作られたと言われている。
+
 
 #J0#
 N:570:氷のエレメンタル
@@ -10247,68 +10160,41 @@ S:BRAIN_SMASH | CONF | SCARE | FORGET | TELE_TO | TELE_AWAY | SHRIEK
 D:$A vastly intelligent whale from the stars.
 D:星々からやってきた非常に知能の高い鯨だ。
 
-#JZ#
-#JZ#父なるダゴン（デイゴン）
-#JZ#Ｈ・Ｐ・ラヴクラフトの「ダゴン」に登場し、「インスマウスの影」
-#JZ#でも言及されています。
-#JZ#古代ペリシテ人にも崇拝されていた半人半魚の神で。クトゥルフに
-#JZ#仕える深きものどもの総帥的存在です。 by 久留さん
-#JZ#引用は久留さん、解説は NeSYS さんによる
-N:595:父なる『ダゴン』
-E:Father Dagon
-G:u:g
-I:120:19d99:12:80:50
+
+N:595:『ケートス』
+E:Cetus
+G:l:g
+I:120:30d100:12:80:50
 W:38:3:0:3250:0:0
 B:CLAW:POISON:8d4
 B:CLAW:POISON:8d4
-B:BITE:HURT:8d8
-F:ESCORT_u
+B:CRUSH:HURT:8d8
 F:DROP_60 | DROP_90 | DROP_1D2 | DROP_GOOD | ONLY_ITEM | DROP_CORPSE
-F:CAN_SWIM | BASH_DOOR | RES_TELE | CAN_SPEAK | ELEM_AQUA |
+F:CAN_SWIM | BASH_DOOR | RES_TELE | ELEM_AQUA |
 F:EVIL | DEMON | RES_FIRE | RES_COLD | RES_POIS | RES_WATE |
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | CHAOTIC |
 F:NO_CONF | NO_SLEEP |
 S:1_IN_7 | 
-S:S_KIN | S_DEMON | BO_WATE | BA_WATE | BO_ACID | BA_ACID 
-D:$The king of the deep ones. "Vast, Polyphemous-like, and loathsome, it 
-D:$darted like a stupendous monster of nightmares..."
-D:ディープワンがサイズ・年齢の面で大きく成長したもの。
-D:並外れて大きな体を持ち、下半身は脚が退化して魚のようになっている。
-D:年齢は何百万歳にもなると考えられている。
-D:深きものどもの王：「単眼巨人ポリュフェーモスを思わせるその忌まわ
-D:しい巨体は、悪夢にあらわれる途方もない怪物のように...」
-D:(Ｈ・Ｐ・ラヴクラフト、大瀧啓裕訳「ダゴン」
-D:『ラヴクラフト全集３』、創元推理文庫、pp.16)
+S:BA_WATE |
 
-#JZ#
-#JZ#母なるハイドラ（ヒュドラ）
-#JZ#Ｈ・Ｐ・ラヴクラフトの「インスマウスの影」で言及されています。 by 久留さん
-#JZ#引用は久留さん、解説は NeSYS さんによる
-N:596:母なる『ハイドラ』
-E:Mother Hydra
-G:u:g
+
+N:596:『ハイドラス』
+E:Hydrus
+G:J:B
 I:120:19d99:12:80:50
 W:38:3:0:3250:0:0
-B:CLAW:POISON:8d4
-B:CLAW:POISON:8d4
-B:BITE:HURT:8d8
-F:ESCORT_u
+B:BITE:POISON:8d4
+B:BITE:POISON:8d4
+B:CRUSH:HURT:8d8
+F:ESCORT_lJ
 F:DROP_60 | DROP_90 | DROP_1D2 | DROP_GOOD | ONLY_ITEM | DROP_CORPSE
-F:CAN_SWIM | BASH_DOOR | RES_TELE | CAN_SPEAK | ELEM_AQUA |
+F:CAN_SWIM | BASH_DOOR | RES_TELE | ELEM_AQUA |
 F:EVIL | DEMON | RES_FIRE | RES_COLD | RES_POIS | RES_WATE |
-F:UNIQUE | FEMALE | FORCE_SLEEP | FORCE_MAXHP | CHAOTIC |
+F:UNIQUE | FORCE_SLEEP | FORCE_MAXHP | CHAOTIC |
 F:NO_CONF | NO_SLEEP |
 S:1_IN_7 | 
-S:S_BEAST | S_DEMON | DARKNESS | BA_WATE | BO_ACID | BA_ACID 
-D:$The queen of the deep ones. "Vast, Polyphemous-like, and loathsome, it 
-D:$darted like a stupendous monster of nightmares..."
-D:ディープワンがサイズ・年齢の面で大きく成長したもの。
-D:並外れて大きな体を持ち、下半身は脚が退化して魚のようになっている。
-D:年齢は何百万歳にもなると考えられている。
-D:深きものどもの女王：「単眼巨人ポリュフェーモスを思わせるその忌ま
-D:わしい巨体は、悪夢にあらわれる途方もない怪物のように...」
-D:(Ｈ・Ｐ・ラヴクラフト、大瀧啓裕訳「ダゴン」
-D:『ラヴクラフト全集３』、創元推理文庫、pp.16)
+S:S_BEAST | TELE_TO | DARKNESS | BA_WATE | BO_ACID | BA_ACID 
+
 
 #TO#
 N:597:テンプルコマンド
@@ -11344,9 +11230,9 @@ D:$lightning speed and its powers make it a tornado of death and destruction.
 D:それは小さな彫像のデーモンだ。その動きは堅い体からは想像もつかない
 D:電光石火のスピードで、その力は死と破壊の竜巻を巻き起こす。
 
-#JZ#
-N:650:超大なる『ギガント』
-E:Giganto the Gargantuan
+
+N:650:『フォルネウス』
+E:Forneus
 G:l:s
 I:110:80d25:20:75:30
 W:38:6:0:7750:0:0
@@ -11354,14 +11240,13 @@ B:CRUSH:HURT:33d2
 B:CRUSH:HURT:33d2
 B:CRUSH:SUPERHURT:8d8
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM | RES_FIRE | ELEM_AQUA |
-F:DROP_60 | DROP_90 | DROP_2D2 | UNIQUE | WEIRD_MIND |
+F:DROP_60 | DROP_90 | DROP_2D2 | UNIQUE | EVIL |
 F:BASH_DOOR | SMART | EVIL | RES_COLD | DROP_CORPSE
 F:NO_CONF | NO_SLEEP | RES_WATE | WILD_OCEAN | RIDING |
 S:1_IN_9 | 
-S:BR_NUKE | BA_WATE
-D:$A gargantuan mutant whale, who has grown legs that enable it to walk 
-D:$on dry land as well.
-D:超巨大な鯨のミュータントで、陸を歩く二本の足を発達させている。
+S:BA_WATE
+D:ソロモンの悪魔七十二柱30番目の悪魔。29軍団の悪霊が従う侯爵であり、巨大なギンザメ
+D:の姿をとる。かつては座天使の位にいたとされる。
 
 #TO#
 N:651:鉄紺の『ウラム』
@@ -12099,48 +11984,9 @@ S:SLOW | HASTE | HEAL | TELE_TO
 D:元ガルガスタン王国軍所属のソードマスター。王国崩壊後も、バルバトスへ
 D:の忠誠は変わる事無く、仇を討つ機会を伺い、ダムザ砦に潜伏していた。
 
-#JZ#
-#JZ#ショゴス
-#JZ#Ｈ・Ｐ・ラヴクラフトの「狂気の山にて」に登場。
-#JZ#古きものが創造した奴隷生物ですが、後に叛乱を起こして古きものどの
-#JZ#の衰退の一因となりました。 by 久留さん
-#JZ#引用は久留さん、解説は NeSYS さんによる
-N:685:ショゴス
-E:Shoggoth
-G:j:D
-I:140:50d20:100:80:20
-W:44:4:0:2500:0:0
-B:CRUSH:ACID:5d6
-B:CRUSH:ACID:5d6
-B:CRUSH:ACID:5d6
-B:CRUSH:HURT:9d9
-F:REGENERATE | KILL_ITEM | CAN_SPEAK | ELEM_EARTH | RES_DARK | CHAOTIC |
-F:BASH_DOOR | EVIL | DEMON | NO_CONF | NO_FEAR | NO_SLEEP | KILL_BODY | CAN_SWIM |
-F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | POWERFUL | 
-F:RES_ACID | RES_FIRE | RES_PLAS | RES_POIS | RES_COLD | RES_ELEC | RES_TELE
-D:$"The nightmare, plastic column of fetid, black iridescence oozed 
-D:$tightly onward... A shapeless congerie of protoplasmic bubbles, 
-D:$faintly self-luminous and with myriads of temporary eyes forming 
-D:$and unforming as pustules of greenish light all over the 
-D:$tunnel-filling front that bore down upon us, crushing the frantic 
-D:$penguins and slithering over glistening floor that it and its 
-D:$kind had swept so evilly free of all litter. Still came that eldritch 
-D:$mocking cry -- 'Tekeli-li! Tekeli-li!'"
-D:「古のもの」によって創造された、黒くネバネバした巨大な多細胞の原形質。
-D:不定形であり、いかなる器官も自由に作り出すことができる。
-D:「テケリ・リ」という独特の鳴き声をあげる。
-D:水陸両棲の、無愛想で不機嫌な召し使い。
-D:もともと知性は低かったが、次第に主人である「古のもの」を模倣するようにな
-D:り、反抗して滅ぼした。
-D:「悪臭放つ虹色に輝く悪夢じみた可塑性のある柱が... 原形質の泡の無
-D:定形の塊が、自らかすかに輝き、わたくしたちに向かいあう、トンネル
-D:を満たす前部のいたることこに、緑がかった光を放つ疣のような何万も
-D:の一時的な眼を構成したり消したりしながら、あわてふためくペンギン
-D:たちを押しつぶし、同類とともに邪悪にもすべてをとりさったなめらか
-D:な床をずるずるすべってきたのだった。なおも不気味な嘲笑うような声
-D:「テケリ・リ！テケリ・リ！」が聞こえ...」
-D:(Ｈ・Ｐ・ラヴクラフト、大瀧啓裕訳「恐怖の山脈にて」
-D:『ラヴクラフト全集４』、創元推理文庫、pp.300-301)
+
+#N:685:unused
+
 
 #TO#
 N:686:激憤の『バヴァン』
@@ -13392,9 +13238,9 @@ S:TPORT | HEAL | ANIM_DEAD
 D:$A lich who is partially immaterial, on its way to a new, ethereal form.
 D:部分的に非物質化したリッチで、霊的な存在に生まれ変わる過程にある。
 
-#J0#
-N:743:『フェニックス』
-E:The Phoenix
+
+N:743:『フェネクス』
+E:The Phenex
 G:B:r
 I:120:36d100:60:130:0
 W:54:3:0:25000:0:0
@@ -13403,17 +13249,16 @@ B:BITE:FIRE:12d6
 B:HIT:FIRE:9d12
 B:HIT:FIRE:9d12
 F:UNIQUE | CAN_SPEAK | RES_PLAS | AURA_FIRE | SELF_LITE_1 | SELF_LITE_2 |
-F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | RES_LITE | ELEM_FIRE | HURT_COLD |
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | RES_LITE | ELEM_FIRE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | LAWFUL |
-F:OPEN_DOOR | BASH_DOOR | RIDING | GOOD |
+F:OPEN_DOOR | BASH_DOOR | RIDING | EVIL |
 F:ANIMAL | RES_ACID | RES_FIRE | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:BO_FIRE | BO_PLAS | BA_FIRE | 
 S:BR_FIRE | BR_LITE | BR_PLAS
-D:$A massive glowing eagle bathed in flames.  The searing heat chars your 
-D:$skin and melts your armour.
-D:炎の中に住む強力な輝くワシだ。焦がすような熱気は冒険者の鎧を溶かし、
-D:皮膚を炭のようにしてしまう。
+S:CONF
+D:ソロモンの悪魔七十二柱の一体。
+D:２０の悪霊軍団を指揮する伯爵である。心に打ち響く歌を歌い続け、
+D:その歌声は聞く者の心を容易く魅了する。
 
 #J0#
 N:744:ナイトクローラー
@@ -14703,9 +14548,9 @@ D:おもに地獄界の第一階層を防衛しているティアマットは手に負えない強敵であり、
 D:立ちふさがるすべての者に五つの首から死のブレスを浴びせかけようとする。
 D:（TRPG AD&D）
 
-#JZ#
-N:796:『ノーサ』
-E:The Norsa
+
+N:796:『テュポン』
+E:Typhon
 G:H:B
 I:130:100d100:20:125:70
 W:70:4:0:47500:0:0
@@ -14713,23 +14558,19 @@ B:CRUSH:ACID:8d12
 B:CRUSH:FIRE:8d12
 B:CRUSH:ELEC:8d12
 B:CRUSH:POISON:10d14
-F:ATTR_MULTI | DROP_CORPSE | ELEM_MULTI | CHAOTIC |
+F:ATTR_MULTI | DROP_CORPSE | ELEM_WIND | CHAOTIC |
 F:UNIQUE | CAN_SPEAK | AURA_FIRE | AURA_ELEC | AURA_COLD |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | RIDING |
+F:EVIL | ESCORT_P
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | CONF | SCARE | 
-S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
+S:BR_FIRE | BR_SOUN
 S:S_HI_DRAGON | S_MONSTERS
-D:$An elephantine horror with five trunks, each capable of breathing 
-D:$destructive blasts of elements. It is said that it is better to 
-D:$face the fury of a thousand raging lions than the Norsa!
-D:この象の姿をとった恐怖には五本の鼻があり、それぞれが破壊的な
-D:エレメントのブレスを吐くことが出来る。『ノーサ』に比べれば
-D:何千匹もの猛り狂ったライオンを相手にする方がまだマシだと言われている！
+D:その体長は蛇のように長く、1000の顔、羽の生えた胴体を持つ。
+
 
 #TO#
 N:797:盲目の剣聖『ハボリム』
@@ -15002,44 +14843,9 @@ D:彼女は光なき闇で覆われており、全ての光をその膨れた腹に吸い込んでしまう。
 D:彼女は常に飢えきっており、飢餓を避けるためには自分の体でさえも食べようと
 D:する。彼女は不潔で忌まわしいブレスを吐くと言われている。
 
-#JZ#
-#JZ#蜘蛛の神アトラク・ナクア
-#JZ#クラーク・アシュトン・スミスの「七つの呪い」に登場。
-#JZ#地底に棲んで巨大な巣を作っています。 by 久留さん
-#JZ#引用は久留さん、解説は NeSYS さんによる。
-N:809:蜘蛛の神『アトラク・ナクア』
-E:Atlach-Nacha, the Spider God
-G:S:D
-I:120:130d100:8:160:80
-W:75:1:0:30000:0:0
-B:BITE:POISON:3d9
-B:BITE:LOSE_STR:3d9
-B:STING:POISON:2d5
-B:STING:LOSE_STR:2d5
-F:UNIQUE | CAN_SPEAK | RES_TELE | RES_DARK |
-F:FORCE_SLEEP | FORCE_MAXHP | CHAOTIC |
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:SMART | BASH_DOOR | MOVE_BODY | NONLIVING |
-F:ANIMAL | EVIL | RES_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_3 |
-S:SCARE | BLIND | CONF | HOLD | BR_POIS |
-S:DARKNESS | BA_DARK | BR_DARK | S_SPIDER | S_DEMON
-D:$"...there was a kind of face on the squat ebon body, low down amid 
-D:$the several-jointed legs. The face peered up with a weird expression 
-D:$of doubt and inquiry..."
-D:巨大で恐ろしい黒い毛に覆われた蜘蛛のような姿をした神性。
-D:人間に似たような頭部を持ち、そこには毛に囲まれた真紅の目がついている。
-D:ツァトゥグァ洞窟の底深くの深淵に、見事な蜘蛛の巣を張り続けているが、その
-D:目的は不明である。
-D:一説には、アトラック＝ナチャによって深淵の谷間に橋が架けられた時、世界が
-D:終わるとも言われている。
-D:アトラック＝ナチャが何処で生まれたのか、何故深淵に橋を架けようとするのか
-D:は定かではない。
-D:「関節のいくつもある足のついた、うずくまったようなように低い漆黒
-D:の体に、顔らしきもののあることがわかった。その顔は、猜疑と好奇心
-D:のいりまじる気味悪い表情をうかべ...」
-D:(クラーク・アシュトン・スミス、池田勝子訳「七つの呪い」
-D:『クトゥルー４』、青心社文庫、p.128)
+
+#N:809:unused
+
 
 #heng#
 N:810:鳳凰
@@ -15187,25 +14993,9 @@ S:BA_CHAO | BA_NUKE
 D:レリクスと呼ばれる異世界から現れた狂戦士。
 D:出会った人間を狩ることが楽しみのよう。
 
-#JZ#
-N:816:サイバーデーモン
-E:Cyberdemon
-G:U:u
-I:120:70d101:90:90:90
-W:77:4:0:30000:0:0
-B:HIT:HURT:1d50
-B:HIT:HURT:1d50
-B:HIT:HURT:1d50
-B:HIT:HURT:1d50
-F:RAND_25 | EVIL | DEMON |
-F:DROP_2D2 | DROP_GOOD | ONLY_ITEM | RES_TELE |
-F:RES_POIS | RES_FIRE | FORCE_SLEEP | FORCE_MAXHP | NONLIVING
-S:1_IN_4 |
-S:ROCKET
-D:$Reverbrant metal steps announce the arrival of this huge creature, 
-D:$half demon half machine. It has an unsurpassable firepower.
-D:響き渡る金属的な足音がこの巨大な、半悪魔半機械の怪物の
-D:到来を告げる。その火力には何者もかなわない。
+
+#N:816:unused
+
 
 #TO#
 N:817:魔女『ベルゼビュート』
@@ -15417,10 +15207,9 @@ D:人質なのだよ、私にとってはなッ！」
 D:(タクティクス・オウガ　第四章『手をとりあって』空中庭園「天と地の狭間」)
 
 
-#JZ#
-N:825:『アングマールの魔王』
-E:The Witch-King of Angmar
-G:W:D
+N:825:『ベリアル』
+E:Belial
+G:U:D
 I:130:60d100:90:120:10
 W:80:3:0:42000:0:0
 B:HIT:HURT:10d10
@@ -15431,20 +15220,15 @@ F:UNIQUE | MALE | CAN_SPEAK | RES_TELE | RES_DARK | FEAR_FIELD |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | RES_EDGED |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | RES_NETH | 
-F:RES_COLD | RES_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | RES_NETH | 
+F:RES_COLD | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE | CAUSE_3 | BRAIN_SMASH | 
 S:BO_MANA | BA_NETH | PURE_ELEM_BEAM |
 S:S_KIN | S_HI_UNDEAD | S_HI_DRAGON | S_MONSTERS | ANIM_DEAD
-D:$The Chief of the Ringwraiths.  A fell being of devastating power.  His 
-D:$spells are lethal and his combat blows crushingly hard.  He moves at 
-D:$speed, and commands legions of evil to do his bidding.  It is said that he 
-D:$is fated never to die by the hand of mortal man.
-D:指輪の幽鬼の隊長であり、破壊的な力を持った恐るべき存在だ。その呪文は信じが
-D:たい威力を持ち、戦闘に際しては全てのものを打ち砕くかのような攻撃力を誇る。
-D:彼は素早く行動し、邪悪の者どもに命令を発して思い通りに操る。彼は死すべき人
-D:間の男の手では決して葬り去ることができないといわれている。
+D:ソロモンの悪魔七十二柱の一体。その名の意味は「無価値」「邪悪」「無益」である。
+D:ベリアルの持つ魔力は強大であり、その実力は計り知れない。
+
 
 #TO#
 N:826:『ダークドラゴン』
@@ -15490,41 +15274,24 @@ D:$as he decides your fate.
 D:地獄界から現れた、羽を持った人間型のモンスターであるパズズは、冒険者の運命
 D:を勝手に決めつけては残酷に笑いかける。
 
-#JZ#
-#JZ#風に乗りて歩むものイタカ
-#JZ#オーガスト・ダーレスの「風に乗りて歩むもの」という小説に登場。
-#JZ#インディアンの伝説におけるウェンディゴに相当します。 by 久留さん
-N:828:風に乗りて歩むもの『イタカ』
-E:Ithaqua the Windwalker
-G:Y:B
+
+N:828:『レラージュ』
+E:Leraje
+G:p:g
 I:140:55d100:40:125:10
 W:82:2:0:32500:0:0
-B:CLAW:COLD:12d12
-B:CLAW:COLD:12d12
-B:CRUSH:HURT:12d12
-B:CRUSH:HURT:12d12
-F:UNIQUE | CAN_SPEAK | ESCORT_Y | RES_TELE | ELEM_WIND |
+B:SHOOT:HURT:30d15
+F:UNIQUE | CAN_SPEAK | RES_TELE | ELEM_WIND | LONG_RANGE |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | AURA_COLD | CHAOTIC |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | AURA_ELEC |
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | NONLIVING |
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | SMART |
 F:EVIL | DEMON | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | 
 F:RES_POIS | NO_CONF | NO_SLEEP | POWERFUL |
-S:1_IN_3 | 
-S:BO_MANA | SCARE | BR_COLD | S_DEMON | BO_ELEC | BA_ELEC | PURE_ELEM_BEAM |
-S:MIND_BLAST | CAUSE_4 | BA_CHAO | BA_WATE | S_HI_UNDEAD | S_KIN
-D:$The Wendigo, moving so fast that you can see little except two 
-D:$glowing eyes burning with hatred. "The stars had been blotted out... 
-D:$the great cloud which had obscured the the sky looked curiously 
-D:$like the outline of a great man. And... where the top of 
-D:$the cloud must have been, where the head of the thing should have 
-D:$been, there were two gleaming stars, burning bright -- like eyes!"
-D:ウェンディゴ、非常に早く動くので、憎悪に燃える二つの輝く目以外は
-D:ほとんど見えない：「星が消えている... 空を覆っていた“雲”が奇妙
-D:にも巨大な人間の輪郭に似ている... “雲”の一番上にちがいない部分、
-D:頭に相当する部分に... 燃えるように明るいふたつの輝く星は、まるで
-D:目のようだったのです」
-D:(オーガスト・ダーレス、菊地秀行・高橋直訳「風に乗りて歩むもの」
-D:『クトゥルー４』、青心社文庫、p.105)
+S:1_IN_1 | 
+S:BO_ICEE | BO_MANA | HEAL | SHOOT |
+D:ソロモンの悪魔七十二柱の一体。レライエ、レラジエとも呼ばれる。
+D:緑の服を着て弓矢で武装した狩人の姿をしており、３０の軍団を率いる侯爵である。
+
 
 #TO#
 N:829:寂寞の巨人
@@ -15591,7 +15358,7 @@ F:RES_COLD | RES_POIS | CHAOTIC
 S:1_IN_3 |
 S:TELE_TO | SCARE | HOLD | BRAIN_SMASH |
 S:S_DEMON | S_HI_UNDEAD | S_UNDEAD | S_HI_DEMON |
-S:BR_FIRE | BR_NETH | S_CYBER | HAND_DOOM | ANIM_DEAD
+S:BR_FIRE | BR_NETH | HAND_DOOM | ANIM_DEAD
 D:$A duke of hell, in the flesh.
 D:地獄の公爵で、これは肉体に宿った姿だ。
 
@@ -15688,7 +15455,7 @@ F:RES_FIRE | NO_CONF | NO_SLEEP | RES_POIS | HURT_COLD | GIANT |
 F:REGENERATE | POWERFUL |
 S:1_IN_3 |
 S:SHRIEK | HASTE | HEAL | DRAIN_MANA | TPORT | TELE_TO | TELE_AWAY |
-S:TELE_LEVEL | FORGET | S_CYBER | S_DEMON | HAND_DOOM | S_HI_UNDEAD |
+S:TELE_LEVEL | FORGET | S_DEMON | HAND_DOOM | S_HI_UNDEAD |
 S:S_UNIQUE | S_HI_DRAGON | BA_DARK | BA_MANA | ANIM_DEAD
 S:INVULNER | DISPEL | PURE_ELEM_BEAM
 D:$Loki, the god of mischief, is a nasty person. He will use every 
@@ -15699,46 +15466,28 @@ D:いたずらの神であるロキはやっかいな奴だ。彼は考えうる全てあるいはそれ以上
 D:の汚い手を使ってくるだろう。最後には、半巨人である彼の中の巨人族の血
 D:が彼を寝返らせ、アスガルドの神々への反逆に追いたてるだろう。
 
-#JZ#
-#JZ#Ｈ・Ｐ・ラヴクラフトの「狂気の山にて」などで言及されています。 by 久留さん
-#JZ#引用は久留さん、解説は NeSYS さんによる
-N:836:クトゥルフの落とし子
-E:Star-spawn of Cthulhu
-G:U:G
+
+N:836:『イポス』
+E:Ipos
+G:C:w
 I:130:75d100:90:90:90
 W:86:2:0:34000:0:0
 B:CLAW:POISON:1d30
 B:CLAW:ACID:1d30
 B:TOUCH:UN_POWER:1d10
 B:CRUSH:UN_BONUS:2d33
-F:RAND_25 | KILL_ITEM | OPEN_DOOR | BASH_DOOR | RES_NETH |
+F:RAND_25 | KILL_ITEM | OPEN_DOOR | BASH_DOOR | RES_NETH | UNIQUE |
 F:DROP_1D2 | DROP_2D2 | DROP_90 | ONLY_ITEM | FORCE_SLEEP | FORCE_MAXHP |
 F:EVIL | DEMON | RES_POIS | RES_COLD | RES_ACID | RES_ELEC | RES_TELE | NONLIVING |
 F:POWERFUL | RES_FIRE | CAN_SWIM | NO_CONF | DROP_GOOD | CHAOTIC
 S:1_IN_3 |
-S:SCARE | CONF | S_DEMON | S_UNDEAD | DRAIN_MANA | BR_ACID |
+S:SCARE | CONF | S_DEMON | S_HI_DEMON | DRAIN_MANA | BR_ACID |
 S:BR_FIRE | TPORT | S_MONSTERS | BRAIN_SMASH | BR_NETH |
 S:HEAL | MIND_BLAST | BA_NUKE | ANIM_DEAD
-D:$The last remnants of sanity threaten to leave your brain as you 
-D:$behold this titanic bat-winged, octopus-headed unholy abomination. 
-D:$"They all lay in stone houses in their great city of R'lyeh, 
-D:$preserved by the spells of mighty Cthulhu for a glorious 
-D:$resurrection when the stars and the earth might once more 
-D:$be ready..."
-D:数千万年前に飛来した大いなる「クトゥルフ」の眷族と考えられる。
-D:ゼラチンめいた緑色をしており、大きな蛸に似た怪物と、
-D:ドラゴンのような翼と鉤爪を持った、顔が髭で覆われている太った怪物の２種類
-D:がいると言われている。
-D:平均身長は１５〜２０メートルだが、
-D:体の各部位の大きさを自由に変える事が出来る。
-D:元々はルルイエに生息していたが、その沈没と共に大部分は封印されている。
-D:しかし、一部のクトゥルフの落し子は、ディープワンによって、
-D:深い海溝の底で養われている。
-D:「すべてがルルイエの巨大な石造りの館に横たわり、強壮なクトゥルー
-D:の呪文にまもられ、星たちと地球がふたたび正しい位置にもどる輝かし
-D:い復活の日を待ちわびているのだ」
-D:(Ｈ・Ｐ・ラヴクラフト、大瀧啓裕訳「クトゥルーの呼び声」
-D:『クトゥルー１』、青心社文庫、p.34)
+D:ソロモンの悪魔七十二柱の一体。
+D:３６の悪魔軍団を支配する力強き王子にして伯爵である。現在・過去・未来を見通し、
+D:特に未来について聞かれれば真実を教えてくれるという。
+
 
 #JZ#
 #JZ#火の巨人スルト
@@ -15760,7 +15509,7 @@ F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | TAKE_ITEM | CAN_SPEAK |
 F:RES_FIRE | NO_CONF | NO_SLEEP | RES_POIS | HURT_COLD | GIANT |
 S:1_IN_5 |
 S:BR_FIRE | BR_PLAS | BLIND | TELE_TO | S_KIN | S_HI_UNDEAD |
-S:HAND_DOOM | TELE_AWAY | S_CYBER | S_DEMON
+S:HAND_DOOM | TELE_AWAY | S_DEMON
 D:$Surtur is also one of the most ancient of all creatures. He is a demonic 
 D:$giant of fire, who is destined to set the nine worlds afire with his 
 D:$accursed sword of doom on the day of Ragnarok.
@@ -15793,33 +15542,30 @@ D:巨大な伝説の爬虫類であるタラスクは、魔法に対する免疫を持ち、殺すことができ
 D:ないと噂されている。その怒りを恐れよ。彼のもたらす破壊は何人も止めることは
 D:できない。
 
-#J0#
-N:839:白炎のバルログ『ルンゴルシン』
-E:Lungorthin, the Balrog of White Fire
+
+N:839:『エリゴス』
+E:Erigos
 G:U:w
 I:130:80d100:20:125:80
 W:85:2:0:37000:0:0
-B:HIT:FIRE:8d12
-B:HIT:FIRE:8d12
+B:HIT:SUPERHURT:8d12
+B:HIT:SUPERHURT:8d12
+B:HIT:SUPERHURT:8d12
 B:CRUSH:SUPERHURT:8d12
-B:TOUCH:UN_POWER
-F:UNIQUE | MALE | SELF_LITE_1 | SELF_LITE_2 | ELEM_FIRE |
+F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT_U | ESCORTS | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DEMON | RES_FIRE | 
+F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC |
+F:EVIL | DEMON | RES_POIS | RES_NETH 
 F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BLIND | CONF | SCARE | 
-S:BR_FIRE | 
 S:S_DEMON | S_HI_UNDEAD
-D:$A massive form cloaked in flame.  Lungorthin stares balefully at you with 
-D:$eyes that smoulder red.  The dungeon floor where he stands is scorched by 
-D:$the heat of his body.
-D:彼はその身に炎をまとった堂々たる姿をしている。ルンゴルシンは赤く煙ったその
-D:瞳で悪意を持って冒険者を睨む。彼の足下の床はその体から
-D:発する熱で焦げてしまっている。
+D:ソロモンの悪魔七十二柱の一体。エリゴル、エリゴール、アビゴールとも呼ばれる。
+D:槍や軍旗、蛇もしくは王杖や笏を持つ端整な黒衣の騎士の姿で描かれ、黒馬に跨り現れる。
+D:６０の軍団を指揮する公爵である。
 
 #TO#
 N:840:幻獣『フウェイル』
@@ -15862,7 +15608,7 @@ F:RES_PLAS | RES_ELEC | RES_SHAR | RES_DISE | RES_CHAO |
 S:1_IN_1 |
 S:FORGET | HEAL | HAND_DOOM | BA_MANA | TPORT | TELE_AWAY |
 S:TELE_LEVEL | CONF | BLIND | BRAIN_SMASH | DRAIN_MANA |
-S:S_MONSTERS | S_KIN | S_CYBER | S_HOUND | S_BEAST | S_DEMON |
+S:S_MONSTERS | S_KIN | S_HOUND | S_BEAST | S_DEMON |
 S:S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD | ROCKET |
 S:CHANGE_ELEM | SHIFT_ELEM | BA_DARK | BA_LITE | PURE_ELEM_BEAM |
 S:PETRO_CLOUD | SAND_STORM | FIRE_STORM | AQUA_STORM |
@@ -16222,12 +15968,9 @@ S:BR_PURE_WIND |
 D:それは最強のガーディアンだ。
 
 
-#JZ#偉大なるクトゥルフ（ク・リトル・リトル、クトゥルー）
-#JZ#Ｈ・Ｐ・ラヴクラフトの「クトゥルフの呼び声」などに登場する神。
-#JZ#現在は海底のルルイエの都に封印されて復活の時を待っています。 by 久留さん
-N:857:『偉大なるクトゥルフ』
-E:Great Cthulhu
-G:U:g
+N:857:『アモン』
+E:Amon
+G:U:r
 I:130:100d100:100:140:100
 W:96:2:0:62500:0:0
 B:CRUSH:SUPERHURT:40d5
@@ -16245,24 +15988,11 @@ S:1_IN_3 |
 S:TPORT | SCARE | BLIND | MIND_BLAST | BRAIN_SMASH | DRAIN_MANA |
 S:BR_POIS | BR_ACID | BR_FIRE | CONF | DARKNESS | FORGET | S_HI_UNDEAD |
 S:BR_NUKE | BR_NETH | BR_CHAO | BR_DISE | BR_DARK | BR_PLAS | BR_CONF
-S:BR_STON | S_DEMON | S_CYBER | S_KIN | BR_DISI | HAND_DOOM | S_HI_DEMON |
+S:BR_STON | S_DEMON | S_KIN | BR_DISI | HAND_DOOM | S_HI_DEMON |
 S:ANIM_DEAD
-D:$This creature is death incarnate. "A monster of vaguely anthropoid 
-D:$outline, but with an octopus-like head whose face was a mass of 
-D:$feelers, a scaly, rubbery-looking body, prodigious claws on hind 
-D:$fore feet, and long, narrow wings behind. This thing... was a 
-D:$somewhat bloated corpulence... It lumbered slobberingly into sight 
-D:$and gropingly squeezed its gelatinous green immensity through the 
-D:$black doorway... A mountain shambled or walked."
-D:この生き物は死の化身である。海底のルルイエの都に封印されて
-D:復活の時を待っている。「おおよそ人間に似た外形をしているが、
-D:頭部は蛸に似て、顔には触腕がおびただしくあり、胴はゴム状で鱗にお
-D:おわれ、前脚と後脚には巨大な鉤爪が備わり、背中に細長い翼をもつ怪
-D:物をあらわしていた。... この怪物は、やや肥大した姿で、... 地ひび
-D:きを立ててぬっとあらわれ、緑色をした膠質の巨体を押しこむようにし
-D:て黒ぐろとした戸口をぬけ... 山が歩きまわり、動きまわったのだ」
-D:(Ｈ・Ｐ・ラヴクラフト、大瀧啓裕訳「クトゥルーの呼び声」
-D:『クトゥルー１』、青心社文庫、pp.23-24、pp.55-56)
+D:ソロモンの悪魔七十二柱の一体。
+D:地獄の大侯爵。くちばしに犬の牙の生えた巨大な鳥の頭と蛇の尾を備えたオオカミの姿で現れる。
+
 
 #TO#
 N:858:屍術師『ニバス』
@@ -17437,7 +17167,7 @@ S:BR_ELEC | BO_ELEC | BR_WALL
 D:ガンプの親友ベルダの子供。
 
 #TO#
-N:921:伝説のオウガ『金現子』
+N:921:『伝説のオウガ』
 E:Legendary Ogre
 G:O:G
 I:145:211d175:25:100:10
@@ -17458,7 +17188,7 @@ S:1_IN_1 |
 S:BA_WATE | SAND_STORM | TPORT | BA_MANA | PURE_ELEM_BEAM | TELE_AWAY | AQUA_STORM |
 S:SALAMANDER | FENRER | GNOME | THUNDERBIRD | DARK_LORE | TELE_LEVEL | S_HI_DEMON |
 S:EARTH_STORM | ANIM_DEAD | S_KIN | CHANGE_ELEM | SHIFT_ELEM | ERASE_ELEM |
-S:DISPEL | S_DEMON | S_CYBER | S_HI_UNDEAD | S_HI_DRAGON | S_MONSTERS | BA_DISI
+S:DISPEL | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON | S_MONSTERS | BA_DISI
 D:彼女はこの世界のあらゆる存在を破壊したとされる伝説の魔女だ。
 D:肉体を変え、輪廻の輪を潜り抜ける彼女に勝てる者は誰もいない。
 
@@ -17582,7 +17312,7 @@ S:BR_PLAS | BR_WALL | BR_MANA | BA_NUKE | BR_NUKE | BA_CHAO | BR_DISI | BA_ACID 
 S:BA_ELEC | BA_FIRE | BA_COLD | BA_POIS | BA_NETH | BA_WATE | BA_MANA | BA_DARK |
 S:BO_PLAS | BO_ICEE | MISSILE | BLIND | CONF | SLOW | HOLD | HASTE | HAND_DOOM |
 S:HEAL | INVULNER | BLINK | TPORT | STOP_TIME | TELE_TO | TELE_AWAY | TELE_LEVEL |
-S:GODLY_SPEAR | DARKNESS | TRAPS | FORGET | ANIM_DEAD | S_KIN | S_CYBER | S_MONSTER |
+S:GODLY_SPEAR | DARKNESS | TRAPS | FORGET | ANIM_DEAD | S_KIN | S_MONSTER |
 S:S_MONSTERS | S_ANT | S_SPIDER | S_HOUND | S_BEAST | S_DEMON | S_UNDEAD |
 S:S_DRAGON | S_HI_UNDEAD | S_UNIQUE | BA_LITE | PURE_ELEM_BEAM |
 S:BR_PURE_FIRE | BR_PURE_EARTH | BR_PURE_AQUA | BR_PURE_WIND |

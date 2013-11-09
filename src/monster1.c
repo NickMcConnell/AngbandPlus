@@ -1649,9 +1649,9 @@ static void roff_aux(int r_idx, int mode)
 #endif
 
 #ifdef JP
-	if (flags6 & (RF6_S_CYBER))         {vp[vn] = "¥µ¥¤¥Ð¡¼¥Ç¡¼¥â¥ó¾¤´­";color[vn++] = TERM_UMBER;}
+	if (flags6 & (RF6_S_XXX1))         {vp[vn] = "XXX1¾¤´­";color[vn++] = TERM_UMBER;}
 #else
-	if (flags6 & (RF6_S_CYBER))         {vp[vn] = "summon Cyberdemons";color[vn++] = TERM_UMBER;}
+	if (flags6 & (RF6_S_XXX1))         {vp[vn] = "summon XXX1";color[vn++] = TERM_UMBER;}
 #endif
 
 #ifdef JP
@@ -3739,6 +3739,8 @@ void set_pet(monster_type *m_ptr)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	if (!is_pet(m_ptr)) check_pets_num_and_align(m_ptr, TRUE);
+
 	/* Check for quest completion */
 	check_quest_completion(m_ptr);
 
@@ -3756,6 +3758,8 @@ void set_pet(monster_type *m_ptr)
  */
 void set_hostile(monster_type *m_ptr)
 {
+	if (is_pet(m_ptr)) check_pets_num_and_align(m_ptr, FALSE);
+
 	m_ptr->smart1 &= ~SM1_PET;
 	m_ptr->smart1 &= ~SM1_FRIENDLY;
 }
@@ -3778,6 +3782,7 @@ void anger_monster(monster_type *m_ptr)
 #endif
 
 		set_hostile(m_ptr);
+		change_your_alignment(ALI_LNC, -2);
 	}
 }
 

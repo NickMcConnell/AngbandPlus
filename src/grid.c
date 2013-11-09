@@ -433,26 +433,6 @@ void vault_monsters(int y1, int x1, int num)
 
 
 /*
- * Count the number of walls adjacent to the given grid.
- *
- * Note -- Assumes "in_bounds(y, x)"
- *
- * We count only granite walls and permanent walls.
- */
-int next_to_walls(int y, int x)
-{
-	int	k = 0;
-
-	if (cave_floor_grid(&cave[y + 1][x])) k++;
-	if (cave_floor_grid(&cave[y - 1][x])) k++;
-	if (cave_floor_grid(&cave[y][x + 1])) k++;
-	if (cave_floor_grid(&cave[y][x - 1])) k++;
-
-	return (k);
-}
-
-
-/*
  * Always picks a correct direction
  */
 void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
@@ -559,7 +539,7 @@ void set_floor(int x, int y)
  *   FEAT_PERM_OUTER -- outer room walls (perma)
  *   FEAT_PERM_SOLID -- dungeon border (perma)
  */
-void build_tunnel(int row1, int col1, int row2, int col2)
+bool build_tunnel(int row1, int col1, int row2, int col2)
 {
 	int y, x;
 	int tmp_row, tmp_col;
@@ -582,7 +562,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 	while ((row1 != row2) || (col1 != col2))
 	{
 		/* Mega-Hack -- Paranoia -- prevent infinite loops */
-		if (main_loop_count++ > 2000) break;
+		if (main_loop_count++ > 2000) return FALSE;
 
 		/* Allow bends in the tunnel */
 		if (randint0(100) < dun_tun_chg)
@@ -659,6 +639,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 				dun->wall[dun->wall_n].x = col1;
 				dun->wall_n++;
 			}
+			else return FALSE;
 
 			/* Forbid re-entry near this piercing */
 			for (y = row1 - 1; y <= row1 + 1; y++)
@@ -697,6 +678,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 				dun->tunn[dun->tunn_n].x = col1;
 				dun->tunn_n++;
 			}
+			else return FALSE;
 
 			/* Allow door in next grid */
 			door_flag = FALSE;
@@ -719,6 +701,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 					dun->door[dun->door_n].x = col1;
 					dun->door_n++;
 				}
+				else return FALSE;
 
 				/* No door in next grid */
 				door_flag = TRUE;
@@ -740,6 +723,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 			}
 		}
 	}
+	return TRUE;
 }
 
 
@@ -780,12 +764,13 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 		/* Save the tunnel location */
 		if (dun->tunn_n < TUNN_MAX)
 		{
-				dun->tunn[dun->tunn_n].y = *y;
-				dun->tunn[dun->tunn_n].x = *x;
-				dun->tunn_n++;
-		}
+			dun->tunn[dun->tunn_n].y = *y;
+			dun->tunn[dun->tunn_n].x = *x;
+			dun->tunn_n++;
 
-		return TRUE;
+			return TRUE;
+		}
+		else return FALSE;
 	}
 
 	if (is_floor_bold(*y, *x))
@@ -803,6 +788,7 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 			dun->wall[dun->wall_n].x = *x;
 			dun->wall_n++;
 		}
+		else return FALSE;
 
 		/* Forbid re-entry near this piercing */
 		for (j = *y - 1; j <= *y + 1; j++)
@@ -1129,6 +1115,7 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 						dun->door[dun->door_n].x = x3;
 						dun->door_n++;
 					}
+					else return FALSE;
 				}
 				firstsuccede = TRUE;
 			}

@@ -199,7 +199,7 @@ errr path_parse(char *buf, int max, cptr file)
 	/* File needs no parsing */
 	if (file[0] != '~')
 	{
-		strcpy(buf, file);
+		(void)strnfmt(buf, max, "%s", file);
 		return (0);
 	}
 
@@ -207,7 +207,7 @@ errr path_parse(char *buf, int max, cptr file)
 	u = file+1;
 
 	/* Look for non-user portion of the file */
-	s = strstr_j(u, PATH_SEP);
+	s = my_strstr(u, PATH_SEP);
 
 	/* Hack -- no long user names */
 	if (s && (s >= u + sizeof(user))) return (1);
@@ -232,10 +232,8 @@ errr path_parse(char *buf, int max, cptr file)
 	if (!pw) return (1);
 
 	/* Make use of the info */
-	(void)strcpy(buf, pw->pw_dir);
-
-	/* Append the rest of the filename, if any */
-	if (s) (void)strcat(buf, s);
+	if (s) strnfmt(buf, max, "%s%s", pw->pw_dir, s);
+	else strnfmt(buf, max, "%s", pw->pw_dir);
 
 	/* Success */
 	return (0);
@@ -360,7 +358,7 @@ FILE *my_fopen(cptr file, cptr mode)
 #if defined(MAC_MPW) || defined(MACH_O_CARBON)
 
 	/* Set file creator and type */
-	if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
+	if (fff && my_strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
 
 #endif
 
@@ -1100,7 +1098,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 	/* Invalid trigger name? */
 	if (i == max_macrotrigger)
 	{
-		str = strchr(str, ']');
+		str = my_strchr(str, ']');
 		if (str)
 		{
 			*s++ = (char)31;
@@ -1299,7 +1297,7 @@ static bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 		switch(ch)
 		{
 		case '&':
-			while ((tmp = strchr(macro_modifier_chr, *str)))
+			while ((tmp = my_strchr(macro_modifier_chr, *str)))
 			{
 				j = (int)(tmp - macro_modifier_chr);
 				tmp = macro_modifier_name[j];
@@ -4374,7 +4372,7 @@ void request_command(int shopping)
 	if (always_repeat && (command_arg <= 0))
 	{
 		/* Hack -- auto repeat certain commands */
-		if (strchr("TBDoc+", command_cmd))
+		if (my_strchr("TBDoc+", command_cmd))
 		{
 			/* Repeat 99 times */
 			command_arg = 99;
@@ -4415,10 +4413,6 @@ void request_command(int shopping)
                 caretcmd = command_cmd;
 #endif
 
-#ifdef JP
-#undef strchr
-#define strchr strchr_j
-#endif
 
 	/* Hack -- Scan equipment */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
@@ -4437,7 +4431,7 @@ void request_command(int shopping)
 		s = quark_str(o_ptr->inscription);
 
 		/* Find a '^' */
-		s = strchr(s, '^');
+		s = my_strchr(s, '^');
 
 		/* Process preventions */
 		while (s)
@@ -4464,7 +4458,7 @@ void request_command(int shopping)
 			}
 
 			/* Find another '^' */
-			s = strchr(s + 1, '^');
+			s = my_strchr(s + 1, '^');
 		}
 	}
 
@@ -4516,7 +4510,7 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 	int		   b_len, t_len, i_len;
 
 	/* Attempt to find the target (modify "buf") */
-	buf = strstr(buf, target);
+	buf = my_strstr(buf, target);
 
 	/* No target found */
 	if (!buf) return (FALSE);
@@ -5104,3 +5098,53 @@ size_t my_strcat(char *buf, const char *src, size_t bufsize)
 		return (dlen + strlen(src));
 	}
 }
+
+
+/*
+ * A copy of ANSI strstr()
+ *
+ * my_strstr() can handle Kanji strings correctly.
+ */
+char *my_strstr(const char *haystack, const char *needle)
+{
+	int i;
+	int l1 = strlen(haystack);
+	int l2 = strlen(needle);
+
+	if (l1 >= l2)
+	{
+		for(i = 0; i <= l1 - l2; i++)
+		{
+			if(!strncmp(haystack + i, needle, l2))
+				return (char *)haystack + i;
+
+#ifdef JP
+			if (iskanji(*(haystack + i))) i++;
+#endif
+		}
+	}
+
+	return NULL;
+}
+
+
+/*
+ * A copy of ANSI my_strchr()
+ *
+ * my_strchr() can handle Kanji strings correctly.
+ */
+char *my_strchr(const char *ptr, char ch)
+{
+	for ( ; *ptr != '\0'; ptr++)
+	{
+		if (*ptr == ch) return (char *)ptr;
+
+#ifdef JP
+		if (iskanji(*ptr)) ptr++;
+#endif
+	}
+
+	return NULL;
+}
+
+

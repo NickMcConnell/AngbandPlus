@@ -125,6 +125,10 @@ static void wr_item(object_type *o_ptr)
 	{
 		if (o_ptr->to_misc[i]) bonus_flags |= 1UL << (i + A_MAX);
 	}
+	for (i = 0; i < ALI_MAX; i++)
+	{
+		if (o_ptr->to_align[i]) bonus_flags |= 1UL << (i + A_MAX + OB_MAX);
+	}
 
 	/*** Item save flags ***/
 	wr_u32b(flags);
@@ -190,6 +194,10 @@ static void wr_item(object_type *o_ptr)
 	{
 		if (bonus_flags & (1UL << (i + A_MAX))) wr_s16b(o_ptr->to_misc[i]);
 	}
+	for (i = 0; i < ALI_MAX; i++)
+	{
+		if (bonus_flags & (1UL << (i + A_MAX + OB_MAX))) wr_s16b(o_ptr->to_align[i]);
+	}
 }
 
 
@@ -202,20 +210,20 @@ static void wr_monster(monster_type *m_ptr)
 
 	if (m_ptr->ap_r_idx != m_ptr->r_idx) flags |= SAVE_MON_AP_R_IDX;
 	if (m_ptr->sub_align != SUB_ALIGN_NEUTRAL) flags |= SAVE_MON_SUB_ALIGN;
-	if (m_ptr->csleep) flags |= SAVE_MON_CSLEEP;
-	if (m_ptr->fast) flags |= SAVE_MON_FAST;
-	if (m_ptr->slow) flags |= SAVE_MON_SLOW;
-	if (m_ptr->stunned) flags |= SAVE_MON_STUNNED;
-	if (m_ptr->confused) flags |= SAVE_MON_CONFUSED;
-	if (m_ptr->monfear) flags |= SAVE_MON_MONFEAR;
-	if (m_ptr->stoning) flags |= SAVE_MON_STONING;
-	if (m_ptr->melt_weapon) flags |= SAVE_MON_MELT_WEAPON;
-	if (m_ptr->opposite_elem) flags |= SAVE_MON_OPPOSITE_ELEM;
-	if (m_ptr->silent) flags |= SAVE_MON_SILENT;
+	if (MON_CSLEEP(m_ptr)) flags |= SAVE_MON_CSLEEP;
+	if (MON_FAST(m_ptr)) flags |= SAVE_MON_FAST;
+	if (MON_SLOW(m_ptr)) flags |= SAVE_MON_SLOW;
+	if (MON_STUNNED(m_ptr)) flags |= SAVE_MON_STUNNED;
+	if (MON_CONFUSED(m_ptr)) flags |= SAVE_MON_CONFUSED;
+	if (MON_MONFEAR(m_ptr)) flags |= SAVE_MON_MONFEAR;
+	if (MON_STONING(m_ptr)) flags |= SAVE_MON_STONING;
+	if (MON_MELT_WEAPON(m_ptr)) flags |= SAVE_MON_MELT_WEAPON;
+	if (MON_OPPOSITE_ELEM(m_ptr)) flags |= SAVE_MON_OPPOSITE_ELEM;
+	if (MON_SILENT(m_ptr)) flags |= SAVE_MON_SILENT;
 	if (m_ptr->silent_song) flags |= SAVE_MON_SILENT_SONG;
 	if (m_ptr->target_y) flags |= SAVE_MON_TARGET_Y;
 	if (m_ptr->target_x) flags |= SAVE_MON_TARGET_X;
-	if (m_ptr->invulner) flags |= SAVE_MON_INVULNER;
+	if (MON_INVULNER(m_ptr)) flags |= SAVE_MON_INVULNER;
 	if (m_ptr->smart1) flags |= SAVE_MON_SMART1;
 	if (m_ptr->smart2) flags |= SAVE_MON_SMART2;
 	if (m_ptr->exp) flags |= SAVE_MON_EXP;
@@ -239,24 +247,25 @@ static void wr_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_AP_R_IDX) wr_s16b(m_ptr->ap_r_idx);
 
 	if (flags & SAVE_MON_SUB_ALIGN) wr_byte(m_ptr->sub_align);
-	if (flags & SAVE_MON_CSLEEP) wr_s16b(m_ptr->csleep);
+	if (flags & SAVE_MON_CSLEEP) wr_s16b(m_ptr->mtimed[MTIMED_CSLEEP]);
 
 	wr_byte(m_ptr->mspeed);
 	wr_s16b(m_ptr->energy_need);
 
-	if (flags & SAVE_MON_FAST) wr_byte(m_ptr->fast);
-	if (flags & SAVE_MON_SLOW) wr_byte(m_ptr->slow);
-	if (flags & SAVE_MON_STUNNED) wr_byte(m_ptr->stunned);
-	if (flags & SAVE_MON_CONFUSED) wr_byte(m_ptr->confused);
-	if (flags & SAVE_MON_MONFEAR) wr_byte(m_ptr->monfear);
-	if (flags & SAVE_MON_STONING) wr_byte(m_ptr->stoning);
-	if (flags & SAVE_MON_MELT_WEAPON) wr_byte(m_ptr->melt_weapon);
-	if (flags & SAVE_MON_OPPOSITE_ELEM) wr_byte(m_ptr->opposite_elem);
-	if (flags & SAVE_MON_SILENT) wr_byte(m_ptr->silent);
+	if (flags & SAVE_MON_FAST) wr_s16b(m_ptr->mtimed[MTIMED_FAST]);
+	if (flags & SAVE_MON_SLOW) wr_s16b(m_ptr->mtimed[MTIMED_SLOW]);
+	if (flags & SAVE_MON_STUNNED) wr_s16b(m_ptr->mtimed[MTIMED_STUNNED]);
+	if (flags & SAVE_MON_CONFUSED) wr_s16b(m_ptr->mtimed[MTIMED_CONFUSED]);
+	if (flags & SAVE_MON_MONFEAR) wr_s16b(m_ptr->mtimed[MTIMED_MONFEAR]);
+	if (flags & SAVE_MON_STONING) wr_s16b(m_ptr->mtimed[MTIMED_STONING]);
+	if (flags & SAVE_MON_MELT_WEAPON) wr_s16b(m_ptr->mtimed[MTIMED_MELT_WEAPON]);
+	if (flags & SAVE_MON_OPPOSITE_ELEM) wr_s16b(m_ptr->mtimed[MTIMED_OPPOSITE_ELEM]);
+	if (flags & SAVE_MON_SILENT) wr_s16b(m_ptr->mtimed[MTIMED_SILENT]);
+
 	/* m_ptr->silent_song is boolean flag, so don't write again */
 	if (flags & SAVE_MON_TARGET_Y) wr_s16b(m_ptr->target_y);
 	if (flags & SAVE_MON_TARGET_X) wr_s16b(m_ptr->target_x);
-	if (flags & SAVE_MON_INVULNER) wr_byte(m_ptr->invulner);
+	if (flags & SAVE_MON_INVULNER) wr_s16b(m_ptr->mtimed[MTIMED_INVULNER]);
 	if (flags & SAVE_MON_SMART1) wr_u32b(m_ptr->smart1);
 	if (flags & SAVE_MON_SMART2) wr_u32b(m_ptr->smart2);
 	if (flags & SAVE_MON_EXP) wr_u32b(m_ptr->exp);
@@ -579,7 +588,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_s16b(p_ptr->pelem);
-	tmp8u = MAX_CLASS;
+	tmp8u = max_c_idx;
 	wr_byte(tmp8u);
 
 	wr_u16b(p_ptr->expfact);
@@ -608,7 +617,7 @@ static void wr_extra(void)
 	for (i = 0; i < 10; i++) wr_s16b(p_ptr->skill_exp[i]);
 	for (i = 0; i < MAX_REALM+1; i++) wr_s16b(p_ptr->magic_exp[i]);
 
-	tmp16u = MAX_CLASS;
+	tmp16u = max_c_idx;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -689,8 +698,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->confused);
 	wr_s16b(p_ptr->food);
 	wr_byte(p_ptr->infected);
-	wr_byte(0);
-	wr_s16b(0);     /* old "protection" */
+	wr_byte(p_ptr->smithy_town_num);
+	wr_byte(p_ptr->pumpkin);
+	wr_byte(0);     /* old "protection" */
 	wr_s16b(p_ptr->energy_need);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
@@ -748,7 +758,10 @@ static void wr_extra(void)
 
 	wr_u32b(p_ptr->special_blow);
 
-	wr_s16b(p_ptr->align_self);
+	for (i = 0; i < ALI_MAX; i++)
+	{
+		wr_s16b(p_ptr->align_self[i]);
+	}
 
 	wr_s16b(p_ptr->magical_weapon);
 	wr_s16b(p_ptr->evil_weapon);
@@ -1485,7 +1498,7 @@ static bool wr_savefile_new(void)
 		wr_s32b(p_ptr->race_sp[i]);
 	}
 
-	tmp8u = MAX_CLASS;
+	tmp8u = max_c_idx;
 	tmp16u = PY_MAX_LEVEL;
 	wr_byte(tmp8u);
 	wr_u16b(tmp16u);

@@ -139,6 +139,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 		if (p_ptr->zoshonel_protect) smart2 |= (SM2_IMM_PLASMA);
 		if (p_ptr->resist_time) smart2 |= (SM2_RES_TIME);
 		if (p_ptr->anti_tele || p_ptr->earth_spike) smart2 |= (SM2_IMM_TELE);
+		if ((rp_ptr->r_flags & PRF_DEMON) || (cp_ptr->c_flags & PCF_DEMON)) smart2 |= (SM2_IMM_DRAIN);
 		if ((rp_ptr->r_flags & PRF_UNDEAD) || (cp_ptr->c_flags & PCF_UNDEAD)) smart2 |= (SM2_IMM_DRAIN);
 		if (p_ptr->wind_guard)
 		{
@@ -728,7 +729,7 @@ void curse_equipment(int chance, int heavy_chance)
 
 	object_flags(o_ptr, oflgs);
 
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Extra, biased saving throw for blessed items */
 	if (have_flag(oflgs, TR_BLESSED) && (randint1(888) > chance))
@@ -745,7 +746,7 @@ void curse_equipment(int chance, int heavy_chance)
 	}
 
 	if ((randint1(100) <= heavy_chance) &&
-		(o_ptr->name1 || o_ptr->name2 || o_ptr->art_name))
+		(object_is_artifact(o_ptr) || object_is_ego(o_ptr)))
 	{
 		if (!(o_ptr->curse_flags & TRC_HEAVY_CURSE))
 			changed = TRUE;
@@ -755,7 +756,7 @@ void curse_equipment(int chance, int heavy_chance)
 	}
 	else
 	{
-		if (!cursed_p(o_ptr))
+		if (!object_is_cursed(o_ptr))
 			changed = TRUE;
 		o_ptr->curse_flags |= TRC_CURSED;
 	}
@@ -1148,7 +1149,7 @@ static bool dispel_check(int m_idx)
 
 	if (p_ptr->riding && (m_list[p_ptr->riding].mspeed < 135))
 	{
-		if (m_list[p_ptr->riding].fast) return (TRUE);
+		if (MON_FAST(&m_list[p_ptr->riding])) return (TRUE);
 	}
 
 	/* Opposite element */
@@ -1347,7 +1348,7 @@ static int choose_attack_spell(int m_idx, u16b spells[], u16b num)
 			case MON_SELYE:
 			case MON_SHELLEY:
 			case MON_OLIVIA:
-				if (!m_ptr->opposite_elem)
+				if (!MON_OPPOSITE_ELEM(m_ptr))
 				{
 					if (cave[m_ptr->fy][m_ptr->fx].elem[get_cur_melem(m_ptr)] < 80)
 						success = TRUE;
@@ -1369,7 +1370,7 @@ static int choose_attack_spell(int m_idx, u16b spells[], u16b num)
 	}
 
 	/* Hurt badly or afraid, attempt to flee */
-	if (((m_ptr->hp < m_ptr->maxhp / 3) || m_ptr->monfear) && one_in_(2))
+	if (((m_ptr->hp < m_ptr->maxhp / 3) || MON_MONFEAR(m_ptr)) && one_in_(2))
 	{
 		/* Choose escape spell if possible */
 		if (escape_num) return (escape[randint0(escape_num)]);
@@ -1461,7 +1462,7 @@ static int choose_attack_spell(int m_idx, u16b spells[], u16b num)
 	}
 
 	/* Cast globe of invulnerability if not already in effect */
-	if (invul_num && !(m_ptr->invulner) && (randint0(100) < 50))
+	if (invul_num && !MON_INVULNER(m_ptr) && (randint0(100) < 50))
 	{
 		/* Choose Globe of Invulnerability */
 		return (invul[randint0(invul_num)]);
@@ -1475,7 +1476,7 @@ static int choose_attack_spell(int m_idx, u16b spells[], u16b num)
 	}
 
 	/* Haste self if we aren't already somewhat hasted (rarely) */
-	if (haste_num && (randint0(100) < 20) && !(m_ptr->fast))
+	if (haste_num && (randint0(100) < 20) && !MON_FAST(m_ptr))
 	{
 		/* Choose haste spell */
 		return (haste[randint0(haste_num)]);
@@ -1709,10 +1710,10 @@ bool make_attack_spell(int m_idx)
 	/* Extract the "see-able-ness" */
 	bool seen = (!blind && m_ptr->ml);
 
-	bool mon_anti_magic = (m_ptr->silent || m_ptr->silent_song);
+	bool mon_anti_magic = (MON_SILENT(m_ptr) || m_ptr->silent_song);
 
 	/* Cannot cast spells when confused */
-	if (m_ptr->confused)
+	if (MON_CONFUSED(m_ptr))
 	{
 		reset_target(m_ptr);
 		return (FALSE);
@@ -1878,10 +1879,10 @@ bool make_attack_spell(int m_idx)
 	monster_desc(m_name, m_ptr, 0x00);
 
 	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, m_ptr, 0x22);
+	monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
 
 	/* Hack -- Get the "died from" name */
-	monster_desc(ddesc, m_ptr, 0x288);
+	monster_desc(ddesc, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 	switch (do_disi_type)
 	{
@@ -1913,7 +1914,7 @@ bool make_attack_spell(int m_idx)
 	if (r_ptr->flags2 & RF2_STUPID) failrate = 0;
 
 	/* Check for spell failure (inate attacks never fail) */
-	if (!spell_is_inate(thrown_spell) && ((m_ptr->stunned && one_in_(2)) || (randint0(100) < failrate) || mon_anti_magic))
+	if (!spell_is_inate(thrown_spell) && ((MON_STUNNED(m_ptr) && one_in_(2)) || (randint0(100) < failrate) || mon_anti_magic))
 	{
 		disturb(1, 0);
 		/* Message */
@@ -1991,21 +1992,7 @@ bool make_attack_spell(int m_idx)
 #endif
 			dispel_player();
 
-			if (p_ptr->riding)
-			{
-				monster_type *riding_ptr = &m_list[p_ptr->riding];
-				if (riding_ptr->invulner)
-				{
-					riding_ptr->invulner = 0;
-					riding_ptr->energy_need += ENERGY_NEED();
-				}
-				riding_ptr->fast = 0;
-				riding_ptr->slow = 0;
-				riding_ptr->opposite_elem = 0;
-				p_ptr->update |= PU_BONUS;
-				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= PR_HEALTH;
-				p_ptr->redraw |= (PR_UHEALTH);
-			}
+			if (p_ptr->riding) dispel_monster_status(p_ptr->riding);
 
 			break;
 		}
@@ -3563,7 +3550,7 @@ bool make_attack_spell(int m_idx)
 			}
 
 			/* Allow quick speed increases to base+10 */
-			if (!m_ptr->fast)
+			if (set_monster_fast(m_idx, MON_FAST(m_ptr) + 100))
 			{
 #ifdef JP
 				msg_format("%^sの動きが速くなった。", m_name);
@@ -3571,8 +3558,6 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s starts moving faster.", m_name);
 #endif
 			}
-			m_ptr->fast = MIN(200, m_ptr->fast + 100);
-			if (p_ptr->riding == m_idx) p_ptr->update |= PU_BONUS;
 			break;
 		}
 
@@ -3675,10 +3660,10 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 			/* Cancel fear */
-			if (m_ptr->monfear)
+			if (MON_MONFEAR(m_ptr))
 			{
 				/* Cancel fear */
-				m_ptr->monfear = 0;
+				(void)set_monster_monfear(m_idx, 0);
 
 				/* Message */
 #ifdef JP
@@ -3716,11 +3701,7 @@ bool make_attack_spell(int m_idx)
 
 			}
 
-			if (!(m_ptr->invulner))
-				m_ptr->invulner = randint1(4) + 4;
-
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (!MON_INVULNER(m_ptr)) (void)set_monster_invulner(m_idx, randint1(4) + 4, FALSE);
 			break;
 		}
 
@@ -3763,7 +3744,7 @@ bool make_attack_spell(int m_idx)
 				for (i=INVEN_RARM;i<INVEN_TOTAL;i++)
 				{
 					o_ptr = &inventory[i];
-					if(!cursed_p(o_ptr))
+					if(!object_is_cursed(o_ptr))
 					{
 						object_flags(o_ptr, flgs);
 
@@ -4052,7 +4033,7 @@ bool make_attack_spell(int m_idx)
 							char m_name_self[80];
 
 							/* hisself */
-							monster_desc(m_name_self, m_ptr, 0x23);
+							monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 							msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
@@ -4358,29 +4339,9 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_CYBER */
+		/* RF6_S_XXX1 */
 		case 160+17:
 		{
-			disturb(1, 0);
-#ifdef JP
-			if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
-#else
-			if (blind) msg_format("%^s mumbles.", m_name);
-#endif
-
-#ifdef JP
-			else msg_format("%^sがサイバーデーモンを召喚した！", m_name);
-#else
-			else msg_format("%^s magically summons Cyberdemons!", m_name);
-#endif
-
-			count += summon_cyber(m_idx, y, x);
-#ifdef JP
-			if (blind && count) msg_print("重厚な足音が近くで聞こえる。");
-#else
-			if (blind && count) msg_print("You hear heavy steps nearby.");
-#endif
-
 			break;
 		}
 
@@ -4870,6 +4831,9 @@ bool make_attack_spell(int m_idx)
 		/* RF6_S_UNIQUE */
 		case 160+31:
 		{
+			bool uniques_are_summoned = FALSE;
+			int non_unique_type = SUMMON_HI_UNDEAD;
+
 			disturb(1, 0);
 #ifdef JP
 			if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -4887,18 +4851,26 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 			}
+
+			if (count) uniques_are_summoned = TRUE;
+
+			if ((m_ptr->sub_align & (SUB_ALIGN_GOOD | SUB_ALIGN_EVIL)) == (SUB_ALIGN_GOOD | SUB_ALIGN_EVIL))
+				non_unique_type = 0;
+			else if (m_ptr->sub_align & SUB_ALIGN_GOOD)
+				non_unique_type = SUMMON_ANGEL;
+
 			for (k = count; k < s_num_4; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+				count += summon_specific(m_idx, y, x, rlev, non_unique_type, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 			}
+
 			if (blind && count)
 			{
 #ifdef JP
-				msg_print("多くの力強いものが間近に現れた音が聞こえる。");
+				msg_format("多くの%sが間近に現れた音が聞こえる。", uniques_are_summoned ? "力強いもの" : "もの");
 #else
-				msg_print("You hear many powerful things appear nearby.");
+				msg_format("You hear many %s appear nearby.", uniques_are_summoned ? "powerful things" : "things");
 #endif
-
 			}
 			break;
 		}

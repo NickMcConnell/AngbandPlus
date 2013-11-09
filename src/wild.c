@@ -650,7 +650,7 @@ static bool genocide_of_barmamutha(void)
 		c_put_str(TERM_YELLOW, "「では早速実行にかかろう。君は収容所を頼む。町は私がやる。", 4, 0);
 		c_put_str(TERM_YELLOW, "……一人も逃がさないようにな」", 5, 0);
 
-		change_your_alignment_lnc(300);
+		change_your_alignment(ALI_LNC, 300);
 		change_chaos_frame(ETHNICITY_WALSTANIAN, -350);
 		change_chaos_frame(ETHNICITY_GARGASTAN, -350);
 		change_chaos_frame(ETHNICITY_BACRUM, -50);
@@ -666,7 +666,7 @@ static bool genocide_of_barmamutha(void)
 		c_put_str(TERM_YELLOW, "それができなければ戦いに参加してはいけない…、", 4, 0);
 		c_put_str(TERM_YELLOW, "いけないんだよッ！！」", 5, 0);
 
-		change_your_alignment_lnc(-300);
+		change_your_alignment(ALI_LNC, -300);
 		change_chaos_frame(ETHNICITY_WALSTANIAN, 20);
 		change_chaos_frame(ETHNICITY_BACRUM, 20);
 		change_chaos_frame(ETHNICITY_ZENOBIAN, 20);
@@ -1433,7 +1433,7 @@ bool change_wild_mode(void)
 
 			if (!m_ptr->r_idx) continue;
 			if (is_pet(m_ptr) && i != p_ptr->riding) have_pet = TRUE;
-			if (m_ptr->csleep) continue;
+			if (MON_CSLEEP(m_ptr)) continue;
 			if (m_ptr->cdis > MAX_SIGHT) continue;
 			if (!is_hostile(m_ptr)) continue;
 #ifdef JP

@@ -39,3 +39,12 @@ M:O:1024
 # Maximum size for "m_list[]"
 M:M:1024
 
+# Maximum number of player races
+M:P:14
+
+# Maximum number of player classes
+M:C:34
+
+# Maximum number of player history lines
+M:H:300
+

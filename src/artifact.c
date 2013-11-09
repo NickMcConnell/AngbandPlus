@@ -166,6 +166,7 @@ static void curse_artifact(object_type * o_ptr)
 		if (o_ptr->to_stat[i] > 0) o_ptr->to_stat[i] = 0 - (o_ptr->to_stat[i] + randint1(4));
 	for (i = 0; i < OB_MAX; i++)
 		if (o_ptr->to_misc[i] > 0) o_ptr->to_misc[i] = 0 - (o_ptr->to_misc[i] + randint1(4));
+	if (o_ptr->to_align[ALI_GNE] > 0) o_ptr->to_align[ALI_GNE] = 0 - o_ptr->to_align[ALI_GNE];
 	if (o_ptr->to_a > 0) o_ptr->to_a = 0 - (o_ptr->to_a + randint1(4));
 	if (o_ptr->to_h > 0) o_ptr->to_h = 0 - (o_ptr->to_h + randint1(4));
 	if (o_ptr->to_d > 0) o_ptr->to_d = 0 - (o_ptr->to_d + randint1(4));
@@ -185,7 +186,7 @@ static void curse_artifact(object_type * o_ptr)
 	if (one_in_(2)) add_flag(o_ptr->art_flags, TR_TELEPORT);
 	else if (one_in_(3)) add_flag(o_ptr->art_flags, TR_NO_TELE);
 
-	if (!realm_choices[p_ptr->pclass] && one_in_(3))
+	if (!class_info[p_ptr->pclass].realm_choices && one_in_(3))
 		add_flag(o_ptr->art_flags, TR_NO_MAGIC);
 }
 
@@ -198,7 +199,7 @@ static bool randart_imm = FALSE;
 
 static void random_plus(object_type * o_ptr)
 {
-	int this_type = (o_ptr->tval < TV_BOOTS ? 23 : 19);
+	int this_type = (object_is_weapon(o_ptr) ? 23 : 19);
 
 	switch (randint1(this_type))
 	{
@@ -301,8 +302,7 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_RES_FIRE);
 			if (one_in_(2)) return;
 		}
-		if ((o_ptr->tval >= TV_CLOAK) &&
-		    (o_ptr->tval <= TV_HARD_ARMOR) &&
+		if (object_is_body_armour(o_ptr) &&
 		    !(have_flag(o_ptr->art_flags, TR_SH_FIRE)))
 		{
 			add_flag(o_ptr->art_flags, TR_SH_FIRE);
@@ -328,8 +328,7 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_RES_COLD);
 			if (one_in_(2)) return;
 		}
-		if ((o_ptr->tval >= TV_CLOAK) &&
-		    (o_ptr->tval <= TV_HARD_ARMOR) &&
+		if (object_is_body_armour(o_ptr) &&
 		    !(have_flag(o_ptr->art_flags, TR_SH_COLD)))
 		{
 			add_flag(o_ptr->art_flags, TR_SH_COLD);
@@ -380,7 +379,7 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_RES_ELEC);
 			if (one_in_(2)) return;
 		}
-		if ((o_ptr->tval >= TV_CLOAK) && (o_ptr->tval <= TV_HARD_ARMOR) &&
+		if (object_is_body_armour(o_ptr) &&
 		    !(have_flag(o_ptr->art_flags, TR_SH_ELEC)))
 		{
 			add_flag(o_ptr->art_flags, TR_SH_ELEC);
@@ -537,13 +536,13 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_RES_DISEN);
 			break;
 		case 39:
-			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
+			if (object_is_body_armour(o_ptr))
 				add_flag(o_ptr->art_flags, TR_SH_ELEC);
 			else
 				random_resistance(o_ptr);
 			break;
 		case 40:
-			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
+			if (object_is_body_armour(o_ptr))
 				add_flag(o_ptr->art_flags, TR_SH_FIRE);
 			else
 				random_resistance(o_ptr);
@@ -556,7 +555,7 @@ static void random_resistance(object_type * o_ptr)
 				random_resistance(o_ptr);
 			break;
 		case 42:
-			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
+			if (object_is_body_armour(o_ptr))
 				add_flag(o_ptr->art_flags, TR_SH_COLD);
 			else
 				random_resistance(o_ptr);
@@ -685,7 +684,7 @@ static void random_misc(object_type * o_ptr)
 		case 24:
 		case 25:
 		case 26:
-			if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR)
+			if (object_is_armour(o_ptr))
 				random_misc(o_ptr);
 			else
 			{
@@ -700,7 +699,7 @@ static void random_misc(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_SHOW_MODS);
 			bonus_h = 4 + (randint1(11));
 			bonus_d = 4 + (randint1(11));
-			if ((o_ptr->tval != TV_SWORD) && (o_ptr->tval != TV_POLEARM) && (o_ptr->tval != TV_HAFTED) && (o_ptr->tval != TV_DIGGING) && (o_ptr->tval != TV_GLOVES) && (o_ptr->tval != TV_RING))
+			if (!object_is_weapon(o_ptr) && (o_ptr->tval != TV_GLOVES) && (o_ptr->tval != TV_RING))
 			{
 				bonus_h /= 2;
 				bonus_d /= 2;
@@ -1652,7 +1651,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 {
 	char    new_name[1024];
 	int     powers = randint1(5) + 1;
-	int     max_type = (o_ptr->tval < TV_BOOTS ? 7 : 5);
+	int     max_type = (object_is_weapon(o_ptr) ? 7 : 5);
 	int     power_level;
 	s32b    total_flags;
 	bool    a_cursed = FALSE;
@@ -1698,7 +1697,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (!a_scroll && one_in_(A_CURSED))
 		a_cursed = TRUE;
-	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && cursed_p(o_ptr))
+	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
 		a_cursed = TRUE;
 
 	while (one_in_(powers) || one_in_(7) || one_in_(10))
@@ -1709,7 +1708,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	/* Randomly sexual restriction */
 	if ((o_ptr->tval >= TV_BOOTS) && !have_flag(o_ptr->art_flags, TR_FEMALE_ONLY) &&
-		!have_flag(o_ptr->art_flags, TR_MALE_ONLY))
+		!have_flag(o_ptr->art_flags, TR_MALE_ONLY) && !a_scroll)
 	{
 		switch (randint1(100))
 		{
@@ -1780,10 +1779,11 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		switch (randint1(max_type))
 		{
 			case 1: case 2:
-				random_plus(o_ptr);
+				if (object_is_ammo(o_ptr)) random_slay(o_ptr);
+				else random_plus(o_ptr);
 				break;
 			case 3: case 4:
-				if (one_in_(2) && (o_ptr->tval < TV_BOOTS) && (o_ptr->tval != TV_BOW))
+				if (one_in_(2) && object_is_weapon(o_ptr) && (o_ptr->tval != TV_BOW))
 				{
 					if (a_cursed && !one_in_(13)) break;
 					if (one_in_(13))
@@ -1799,7 +1799,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 					random_resistance(o_ptr);
 				break;
 			case 5:
-				random_misc(o_ptr);
+				if (object_is_ammo(o_ptr)) random_slay(o_ptr);
+				else random_misc(o_ptr);
 				break;
 			case 6: case 7:
 				random_slay(o_ptr);
@@ -1832,14 +1833,25 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				o_ptr->to_misc[i] = misc_bonus_limit[i].max;
 		}
 	}
+	for (i = 0; i < ALI_MAX; i++)
+	{
+		if ((o_ptr->to_align[i]) || one_in_(5))
+		{
+			if (one_in_(2)) o_ptr->to_align[i] += randint1(10);
+			else o_ptr->to_align[i] -= randint1(10);
+
+			if (!have_flag(k_ptr->flags, ali_to_tr[i])) add_flag(o_ptr->art_flags, ali_to_tr[i]);
+			if (o_ptr->to_align[i] == 0) remove_flag(k_ptr->flags, ali_to_tr[i]);
+		}
+	}
+
 	if (o_ptr->to_misc[OB_BLOWS] > misc_bonus_limit[OB_BLOWS].max)
 		o_ptr->to_misc[OB_BLOWS] = misc_bonus_limit[OB_BLOWS].max;
-	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_YOUTOU) o_ptr->to_misc[OB_BLOWS] += randint1(3);
 
 	/* give it some plusses... */
-	if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR)
+	if (object_is_armour(o_ptr))
 		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
-	else if (o_ptr->tval <= TV_SWORD)
+	else if (object_is_weapon(o_ptr))
 	{
 		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
 		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
@@ -1851,24 +1863,30 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 	case BIAS_FIRE:
 		add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
-		if (o_ptr->tval <= TV_SWORD) o_ptr->to_d += randint1(10);
+		if (object_is_weapon(o_ptr)) o_ptr->to_d += randint1(10);
 		break;
 
 	case BIAS_AQUA:
 		add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
-		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 7 + randint1(5);
+		if (object_is_armour(o_ptr)) o_ptr->to_a += 7 + randint1(5);
 		break;
 
 	case BIAS_EARTH:
 		add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
-		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 15 + randint1(10);
+		if (object_is_armour(o_ptr)) o_ptr->to_a += 15 + randint1(10);
 		o_ptr->weight = o_ptr->weight * 5 / 4;
 		break;
 
 	case BIAS_WIND:
 		add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
-		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_h += randint1(10);
+		if (object_is_armour(o_ptr)) o_ptr->to_h += randint1(10);
 		o_ptr->weight = o_ptr->weight * 4 / 5;
+		break;
+	case BIAS_LIGHT:
+		if (o_ptr->to_align[ALI_GNE] < 0) o_ptr->to_align[ALI_GNE] = 0 - o_ptr->to_align[ALI_GNE];
+		break;
+	case BIAS_DARK:
+		if (o_ptr->to_align[ALI_GNE] > 0) o_ptr->to_align[ALI_GNE] = 0 - o_ptr->to_align[ALI_GNE];
 		break;
 	}
 
@@ -1878,14 +1896,14 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	if (a_cursed) curse_artifact(o_ptr);
 
 	if (!a_cursed &&
-	    (randint1((o_ptr->tval >= TV_BOOTS)
+	    (randint1((object_is_armour(o_ptr))
 	    ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE) == 1))
 	{
 		o_ptr->xtra2 = 0;
 		give_activation_power(o_ptr);
 	}
 
-	if ((o_ptr->tval >= TV_BOOTS) && (o_ptr->tval <= TV_HARD_ARMOR))
+	if (object_is_armour(o_ptr))
 	{
 		while ((o_ptr->to_d+o_ptr->to_h) > 20)
 		{
@@ -1901,7 +1919,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		}
 	}
 
-	if (o_ptr->tval >= TV_BOOTS)
+	if (object_is_weapon(o_ptr))
 	{
 		if (a_cursed) power_level = 0;
 		else if (total_flags < 15000) power_level = 1;
@@ -1938,7 +1956,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 #endif
 
 		{
-			get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+			get_random_name(new_name, object_is_armour(o_ptr), power_level);
 		}
 		else
 		{
@@ -1959,7 +1977,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	}
 	else
 	{
-		get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+		get_random_name(new_name, object_is_armour(o_ptr), power_level);
 	}
 
 	if (cheat_xtra)

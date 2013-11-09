@@ -283,13 +283,13 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			sprintf(out_val, "%3d.%9s  %s - %s%s (レベル %d)",
 			        place, the_score.pts,
 				the_score.who,
-				race_info[pr].title, class_info[pc].title,
+				p_name + race_info[pr].name, c_name + class_info[pc].name,
 			        clev);
 
 #else
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts,
-				the_score.who, race_info[pr].title, class_info[pc].title,
+				the_score.who, p_name + race_info[pr].name, c_name + class_info[pc].name,
 			        clev);
 #endif
 
@@ -736,10 +736,10 @@ void show_highclass(void)
 
 #ifdef JP
 		sprintf(out_val, "   %3d) %sの%s (レベル %2d)",
-		    (m + 1), race_info[pr].title,the_score.who, clev);
+		    (m + 1), p_name + race_info[pr].name, the_score.who, clev);
 #else
 		sprintf(out_val, "%3d) %s the %s (Level %2d)",
-		    (m + 1), the_score.who, race_info[pr].title, clev);
+		    (m + 1), the_score.who, p_name + race_info[pr].name, clev);
 #endif
 
 		prt(out_val, (m + 7), 0);
@@ -749,10 +749,10 @@ void show_highclass(void)
 
 #ifdef JP
 	sprintf(out_val, "あなた) %sの%s (レベル %2ld)",
-	    race_info[p_ptr->prace].title,player_name, p_ptr->lev);
+	    p_name + race_info[p_ptr->prace].name,player_name, p_ptr->lev);
 #else
 	sprintf(out_val, "You) %s the %s (Level %2ld)",
-	    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+	    player_name, p_name + race_info[p_ptr->prace].name, p_ptr->lev);
 #endif
 
 	prt(out_val, (m + 8), 0);
@@ -787,9 +787,9 @@ void race_score(int race_num)
 
 	/* rr9: TODO - pluralize the race */
 #ifdef JP
-	sprintf(tmp_str,"最高の%s", race_info[race_num].title);
+	sprintf(tmp_str,"最高の%s", p_name + race_info[race_num].name);
 #else
-	sprintf(tmp_str,"The Greatest of all the %s", race_info[race_num].title);
+	sprintf(tmp_str,"The Greatest of all the %s", p_name + race_info[race_num].name);
 #endif
 
 	prt(tmp_str, 5, 15);
@@ -832,12 +832,12 @@ void race_score(int race_num)
 		{
 #ifdef JP
 		sprintf(out_val, "   %3d) %sの%s (レベル %2d)",
-			    (m + 1), race_info[pr].title, 
+			    (m + 1), p_name + race_info[pr].name, 
 				the_score.who,clev);
 #else
 			sprintf(out_val, "%3d) %s the %s (Level %3d)",
 			    (m + 1), the_score.who,
-			race_info[pr].title, clev);
+			p_name + race_info[pr].name, clev);
 #endif
 
 			prt(out_val, (m + 7), 0);
@@ -852,10 +852,10 @@ void race_score(int race_num)
 	{
 #ifdef JP
 	sprintf(out_val, "あなた) %sの%s (レベル %2ld)",
-		     race_info[p_ptr->prace].title,player_name, p_ptr->lev);
+		     p_name + race_info[p_ptr->prace].name,player_name, p_ptr->lev);
 #else
 		sprintf(out_val, "You) %s the %s (Level %3ld)",
-		    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+		    player_name, p_name + race_info[p_ptr->prace].name, p_ptr->lev);
 #endif
 
 		prt(out_val, (m + 8), 0);
@@ -874,7 +874,7 @@ void race_legends(void)
 {
 	int i, j;
 
-	for (i = 0; i < MAX_RACES; i++)
+	for (i = 0; i < max_p_idx; i++)
 	{
 		race_score(i);
 #ifdef JP
@@ -1159,7 +1159,7 @@ void kingly(void)
 	/* Restore the level */
 	p_ptr->lev = p_ptr->max_plv;
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
 
@@ -1252,7 +1252,7 @@ void survived_finish(void)
 	/* Restore the level */
 	p_ptr->lev = p_ptr->max_plv;
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
 

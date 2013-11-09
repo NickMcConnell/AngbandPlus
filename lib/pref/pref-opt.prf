@@ -30,15 +30,8 @@ X:easy_floor
 X:use_command
 X:over_exert
 
-##### Output Options #####
+##### Map Screen Options #####
 
-X:depth_in_feet
-Y:show_labels
-Y:show_weights
-Y:show_item_graph
-X:plain_pickup
-Y:equippy_chars
-X:display_mutations
 X:center_player
 Y:center_running
 Y:view_yellow_lite
@@ -47,29 +40,50 @@ Y:view_granite_lite
 Y:view_special_lite
 Y:new_ascii_graphics
 Y:use_fake_monochrome
+Y:view_perma_grids
+X:view_torch_grids
+Y:view_unsafe_grids
+X:view_reduce_view
+Y:fresh_before
+X:fresh_after
+X:fresh_message
+X:hilite_player
 Y:display_path
-Y:always_show_list
 
-##### Game-Play #####
+##### Text Display Options #####
+
+X:plain_pickup
+Y:always_show_list
+X:depth_in_feet
+Y:show_damage
+Y:show_labels
+Y:show_weights
+Y:show_item_graph
+Y:equippy_chars
+X:display_mutations
+X:compress_savefile
+X:abbrev_extra
+X:abbrev_all
+
+##### Game-Play Options #####
 
 Y:stack_force_notes
 X:stack_force_costs
 Y:expand_list
-Y:view_perma_grids
-X:view_torch_grids
-Y:view_unsafe_grids
-Y:show_damage
 Y:small_levels
 X:always_small_levels
 Y:empty_levels
 Y:last_words
 X:allow_debug_opts
 
-##### Disturbance #####
+##### Efficiency #####
 
 X:find_ignore_stairs
 Y:find_ignore_doors
 X:find_cut
+Y:check_abort
+Y:flush_failure
+X:flush_disturb
 X:disturb_move
 X:disturb_high
 Y:disturb_near
@@ -80,18 +94,6 @@ Y:disturb_minor
 X:ring_bell
 Y:disturb_trap_detect
 X:alert_trap_detect
-
-##### Efficiency #####
-
-X:view_reduce_view
-Y:check_abort
-Y:flush_failure
-X:flush_disturb
-Y:fresh_before
-X:fresh_after
-X:fresh_message
-X:compress_savefile
-X:hilite_player
 
 ##### Birth Options #####
 

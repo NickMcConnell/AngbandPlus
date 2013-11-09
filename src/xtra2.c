@@ -51,7 +51,7 @@ void check_class_experience(void)
 	/* Handle stuff */
 	handle_stuff();
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		if (p_ptr->cexp_info[i].max_clev > 0) total_max_clev += p_ptr->cexp_info[i].max_clev;
 	}
@@ -89,7 +89,7 @@ void check_class_experience(void)
 		if (cexp_ptr->clev > cexp_ptr->max_clev)
 		{
 			int gfact;
-			int lfact = skill_lev_var[cexp_ptr->clev];
+			int lfact = skill_lev_var[cexp_ptr->clev] / 2;
 
 			cexp_ptr->max_clev = cexp_ptr->clev;
 			if (cexp_ptr->max_clev > cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = cexp_ptr->max_clev;
@@ -391,6 +391,27 @@ void check_racial_experience(void)
 			do_inc_stat(choice - 'a');
 			screen_load();
 		}
+
+		if ((prace_is_(RACE_HAWKMAN)) && (p_ptr->max_plv == 35))
+		{
+			if (p_ptr->align_self[ALI_GNE] > 99)
+			{
+#ifdef JP
+				if (get_check("進化しますか？")) evolution(RACE_VULTAN);
+#else
+				if (get_check("Are you evolution? ")) evolution(RACE_VULTAN);
+#endif
+			}
+			else if (p_ptr->align_self[ALI_GNE] < -99)
+			{
+#ifdef JP
+				if (get_check("進化しますか？")) evolution(RACE_RAVEN);
+#else
+				if (get_check("Are you evolution? ")) evolution(RACE_RAVEN);
+#endif
+			}
+		}
+
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -650,7 +671,7 @@ void check_quest_completion(monster_type *m_ptr)
 					}
 
 					quest[i].cur_num = 0;
-					if (quest_is_fixed(i)) change_your_alignment_lnc(10);
+					if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
 				}
 				break;
 			}
@@ -693,7 +714,7 @@ void check_quest_completion(monster_type *m_ptr)
 
 							msg_print(NULL);
 						}
-						if (quest_is_fixed(i)) change_your_alignment_lnc(10);
+						if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
 					}
 
 					/* Finish the two "genocide" quests without rewarding */
@@ -794,7 +815,7 @@ void check_quest_completion(monster_type *m_ptr)
 						reward = TRUE;
 						quest[i].status = QUEST_STATUS_FINISHED;
 					}
-					if (quest_is_fixed(i)) change_your_alignment_lnc(10);
+					if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
 				}
 				break;
 			}
@@ -822,7 +843,7 @@ void check_quest_completion(monster_type *m_ptr)
 						msg_print(NULL);
 					}
 					quest[i].cur_num = 0;
-					if (quest_is_fixed(i)) change_your_alignment_lnc(10);
+					if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
 				}
 				break;
 			}
@@ -962,7 +983,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	bool visible = (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE));
+	bool visible = ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE));
 
 	u32b am_flags = AMF_OKAY;
 
@@ -996,8 +1017,8 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 	{
 		char m_name[80];
 
-		monster_desc(m_name, m_ptr, 0x08);
-		do_cmd_write_nikki(NIKKI_NAMED_PET, is_stoned ? 8 : 3, m_name);
+		monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+		do_cmd_write_nikki(NIKKI_NAMED_PET, is_stoned ? RECORD_NAMED_PET_STONED : RECORD_NAMED_PET_DEATH, m_name);
 	}
 
 	/* Let monsters explode! */
@@ -1297,7 +1318,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 		(void)drop_near(q_ptr, -1, y, x);
 	}
 
-	else if ((m_ptr->r_idx == MON_FOOD_MAEMAID) && !p_ptr->inside_arena)
+	else if ((m_ptr->r_idx == MON_FOOD_MERMAID) && !p_ptr->inside_arena)
 	{
 		/* Get local object */
 		q_ptr = &forge;
@@ -2068,7 +2089,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
  */
 int mon_damage_mod(monster_type *m_ptr, int dam, bool force_damage)
 {
-	if (m_ptr->invulner)
+	if (MON_INVULNER(m_ptr))
 	{
 		if (force_damage)
 		{
@@ -2204,7 +2225,7 @@ void get_exp_from_mon(int dam, monster_type *m_ptr)
 		int total_max_clev = 0;
 		int i;
 
-		for (i = 0; i < MAX_CLASS; i++)
+		for (i = 0; i < max_c_idx; i++)
 		{
 			cexp_ptr = &p_ptr->cexp_info[i];
 			if (cexp_ptr->max_clev > 0) total_max_clev += cexp_ptr->max_clev;
@@ -2253,7 +2274,7 @@ static void expire_current_class(void)
 
 	if (old_pclass == CLASS_TEMPLEKNIGHT) change_level99_quest(FALSE);
 
-	sprintf(buf, "%sの資格を剥奪され、%sになった。", class_info[old_pclass].title, cp_ptr->title);
+	sprintf(buf, "%sの資格を剥奪され、%sになった。", c_name + class_info[old_pclass].name, c_name + cp_ptr->name);
 	msg_print(buf);
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
 	msg_print(NULL);
@@ -2355,9 +2376,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 	if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 	/* Wake it up */
-	m_ptr->csleep = 0;
-
-	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+	(void)set_monster_csleep(m_idx, 0);
 
 	if (p_ptr->action == ACTION_STEALTH)
 	{
@@ -2386,7 +2405,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 		if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
 
 		/* Recall even invisible uniques or winners */
-		if (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE))
+		if ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE))
 		{
 			/* Count kills this life */
 			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
@@ -2522,6 +2541,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 			}
 		}
 
+		if (!dun_level && !ambush_flag && !p_ptr->inside_arena)
+		{
+			change_your_alignment(ALI_GNE, -1);
+		}
+
 		if (!p_ptr->inside_arena && !(m_ptr->smart1 & SM1_CLONED))
 		{
 			int kill_temple = ((p_ptr->pclass == CLASS_TEMPLEKNIGHT) && (r_ptr->flags3 & RF3_TEMPLE)) ? 2 : 1;
@@ -2532,19 +2556,33 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 			{
 				if (!dun_level && p_ptr->town_num) change_chaos_frame(town[p_ptr->town_num].ethnic, -1);
 			}
+			if (r_ptr->flags3 & RF3_GOOD)
+			{
+				if (r_ptr->flags1 & RF1_UNIQUE)
+					change_your_alignment(ALI_GNE, r_ptr->level >= p_ptr->lev ? -4 : -2);
+				else if (one_in_((r_ptr->level >= p_ptr->lev) ? 5 : 10))
+					change_your_alignment(ALI_GNE, -1);
+			}
+			if (r_ptr->flags3 & RF3_EVIL)
+			{
+				if (r_ptr->flags1 & RF1_UNIQUE)
+					change_your_alignment(ALI_GNE, r_ptr->level >= p_ptr->lev ? 4 : 2);
+				else if (one_in_((r_ptr->level >= p_ptr->lev) ? 5 : 10))
+					change_your_alignment(ALI_GNE, 1);
+			}
 			if (r_ptr->flags7 & RF7_LAWFUL)
 			{
 				if (r_ptr->flags1 & RF1_UNIQUE)
-					change_your_alignment_lnc(r_ptr->level >= p_ptr->lev ? -4 : -2);
+					change_your_alignment(ALI_LNC, r_ptr->level >= p_ptr->lev ? -4 : -2);
 				else if (one_in_((r_ptr->level >= p_ptr->lev) ? 5 : 10))
-					change_your_alignment_lnc(-1);
+					change_your_alignment(ALI_LNC, -1);
 			}
 			if (r_ptr->flags7 & RF7_CHAOTIC)
 			{
 				if (r_ptr->flags1 & RF1_UNIQUE)
-					change_your_alignment_lnc(r_ptr->level >= p_ptr->lev ? 4 : 2);
+					change_your_alignment(ALI_LNC, r_ptr->level >= p_ptr->lev ? 4 : 2);
 				else if (one_in_((r_ptr->level >= p_ptr->lev) ? 5 : 10))
-					change_your_alignment_lnc(1);
+					change_your_alignment(ALI_LNC, 1);
 			}
 
 			/* Chaos frame change */
@@ -2652,6 +2690,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, 10);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, 10);
 					change_chaos_frame(ETHNICITY_LODIS, 10);
+					change_your_alignment(ALI_GNE, 100);
+					break;
+
+				case MON_FELLANA:
+				case MON_HOLP:
+				case MON_ISHTALLE:
+					change_your_alignment(ALI_GNE, -100);
 					break;
 
 				case MON_FILARHH:
@@ -2660,6 +2705,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, -600);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, -600);
 					change_chaos_frame(ETHNICITY_LODIS, -600);
+					change_your_alignment(ALI_GNE, -300);
 					break;
 				}
 			}
@@ -2706,35 +2752,21 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 #ifdef ALLOW_FEAR
 
 	/* Mega-Hack -- Pain cancels fear */
-	if (m_ptr->monfear && (dam > 0))
+	if (MON_MONFEAR(m_ptr) && (dam > 0))
 	{
-		int tmp = randint1(dam);
-
-		/* Cure a little fear */
-		if (tmp < m_ptr->monfear)
+		/* Cure fear */
+		if (set_monster_monfear(m_idx, MON_MONFEAR(m_ptr) - randint1(dam)))
 		{
-			/* Reduce fear */
-			m_ptr->monfear -= tmp;
-		}
-
-		/* Cure all the fear */
-		else
-		{
-			/* Cure fear */
-			m_ptr->monfear = 0;
-
 			/* No more fear */
 			(*fear) = FALSE;
 		}
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+	if (!MON_MONFEAR(m_ptr) && !(r_ptr->flags3 & (RF3_NO_FEAR)))
 	{
-		int percentage;
-
 		/* Percentage of fully healthy */
-		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+		int percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
 
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
@@ -2747,9 +2779,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 			(*fear) = TRUE;
 
 			/* XXX XXX XXX Hack -- Add some timed fear */
-			m_ptr->monfear = (randint1(10) +
+			(void)set_monster_monfear(m_idx, (randint1(10) +
 			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
-			                   20 : ((11 - percentage) * 5)));
+			                   20 : ((11 - percentage) * 5))));
 		}
 	}
 
@@ -3736,6 +3768,8 @@ static void evaluate_monster_exp(char *buf, monster_type *m_ptr)
 }
 
 
+bool show_gold_on_floor = FALSE;
+
 /*
  * Examine a grid, return a keypress.
  *
@@ -3850,7 +3884,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		boring = FALSE;
 
 		/* Get the monster name ("a kobold") */
-		monster_desc(m_name, m_ptr, 0x08);
+		monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
 
 		/* Hack -- track this monster race */
 		monster_race_track(m_ptr->ap_r_idx);
@@ -3988,7 +4022,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Obtain an object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Describe the object */
 #ifdef JP
@@ -4084,7 +4118,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				o_ptr = &o_list[floor_list[0]];
 
 				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, o_ptr, 0);
 
 				/* Message */
 #ifdef JP
@@ -4140,7 +4174,9 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				screen_save();
 
 				/* Display */
+				show_gold_on_floor = TRUE;
 				(void)show_floor(0, y, x, &min_width);
+				show_gold_on_floor = FALSE;
 
 				/* Prompt */
 #ifdef JP
@@ -4211,7 +4247,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			boring = FALSE;
 
 			/* Obtain an object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Describe the object */
 #ifdef JP
@@ -5181,7 +5217,7 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 		rf1_rand -= 25;
 		if (rf1_rand < 0) rf1_rand = 0;
 
-		if (m_ptr->confused)
+		if (MON_CONFUSED(m_ptr))
 		{
 			/* Standard confusion */
 			if (randint0(100) < 75)
@@ -5216,7 +5252,7 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 			monster_type *m_ptr = &m_list[p_ptr->riding];
 
 			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->confused)
+			if (MON_CONFUSED(m_ptr))
 			{
 #ifdef JP
 				msg_format("%sは混乱している。", m_name);
@@ -5510,7 +5546,7 @@ bool activate_tarot_power(int effect)
 				}
 
 				/* Wake the monster up */
-				m_ptr->csleep = 0;
+				(void)set_monster_csleep(i, 0);
 
 				/* Redraw (later) if needed */
 				if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
@@ -5533,7 +5569,7 @@ bool activate_tarot_power(int effect)
 			if (!m_ptr->r_idx) continue;
 
 			/* Wake up */
-			m_ptr->csleep = 0;
+			(void)set_monster_csleep(i, 0);
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
@@ -5639,12 +5675,12 @@ bool activate_tarot_power(int effect)
 
 	case 21: /* The Justice */
 		msg_print("あふれる正義感を感じる。");
-		change_your_alignment_lnc(100);
+		change_your_alignment(ALI_LNC, 100);
 		break;
 
 	case 22: /* Reverted position of the Justice */
 		msg_print("無秩序な気分になった。");
-		change_your_alignment_lnc(-100);
+		change_your_alignment(ALI_LNC, -100);
 		break;
 
 	case 23: /* The Hanged Man */
@@ -5671,6 +5707,9 @@ bool activate_tarot_power(int effect)
 #else
 			msg_print("The Death throws the Word of Pain.");
 #endif
+
+			change_your_alignment(ALI_GNE, -5);
+
 			if (p_ptr->chp > (p_ptr->mhp / 5))
 			{
 				take_hit(DAMAGE_LOSELIFE, p_ptr->chp - (p_ptr->mhp / 5), tarot_info[effect].name);
@@ -5683,7 +5722,7 @@ bool activate_tarot_power(int effect)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				/* Skip dead monsters */
-				if ((!m_ptr->r_idx) || (m_ptr->r_idx = MON_DEATH)) continue;
+				if ((!m_ptr->r_idx) || (m_ptr->r_idx == MON_DEATH)) continue;
 
 				fear = FALSE;
 				mon_take_hit_mon(FALSE, i, dam, &fear, extract_note_dies(r_ptr), -1);
@@ -5943,7 +5982,7 @@ bool activate_tarot_power(int effect)
 #else
 						msg_format("%s resists the Judgement.", m_name);
 #endif
-					m_ptr->csleep = 0;
+					(void)set_monster_csleep(i, 0);
 
 					/* Redraw (later) if needed */
 					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
@@ -6023,7 +6062,7 @@ bool activate_tarot_power(int effect)
 				o_ptr = &inventory[item];
 
 				/* Get a description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, o_ptr, 0);
 
 #ifdef JP
 				msg_format("%sが消えてしまった！", o_name);
@@ -6613,6 +6652,7 @@ s32b rocket_damage(object_type *o_ptr, int to_d)
 	return dam;
 }
 
+
 /*
  * Return alignment title (GNE)
  */
@@ -6651,20 +6691,14 @@ cptr your_alignment_gne(void)
  */
 int get_your_alignment_gne(void)
 {
-	int i;
-	s32b align_gne = friend_align_gne;
+	if (rp_ptr->r_flags & PRF_ALIGN_GOOD) return ALIGN_GNE_GOOD;
+	if (rp_ptr->r_flags & PRF_ALIGN_EVIL) return ALIGN_GNE_EVIL;
 
-	switch (p_ptr->pclass)
-	{
-	case CLASS_LICH: return ALIGN_GNE_EVIL;
-	case CLASS_ANGELKNIGHT: return ALIGN_GNE_GOOD;
-	case CLASS_VAMPIRE: return ALIGN_GNE_EVIL;
-	}
+	if (cp_ptr->c_flags & PCF_ALIGN_GOOD) return ALIGN_GNE_GOOD;
+	if (cp_ptr->c_flags & PCF_ALIGN_EVIL) return ALIGN_GNE_EVIL;
 
-	for (i = 0; i < ETHNICITY_NUM; i++) align_gne += chaos_frame[i];
-
-	if (align_gne > 299) return ALIGN_GNE_GOOD;
-	else if (align_gne > -300) return ALIGN_GNE_NEUTRAL;
+	if (p_ptr->align[ALI_GNE] > 299) return ALIGN_GNE_GOOD;
+	else if (p_ptr->align[ALI_GNE] > -300) return ALIGN_GNE_NEUTRAL;
 	else return ALIGN_GNE_EVIL;
 }
 
@@ -6706,21 +6740,47 @@ cptr your_alignment_lnc(void)
  */
 int get_your_alignment_lnc(void)
 {
-	if (p_ptr->align > 49) return ALIGN_LNC_LAWFUL;
-	else if (p_ptr->align > -50) return ALIGN_LNC_NEUTRAL;
+	if (p_ptr->align[ALI_LNC] > 49) return ALIGN_LNC_LAWFUL;
+	else if (p_ptr->align[ALI_LNC] > -50) return ALIGN_LNC_NEUTRAL;
 	else return ALIGN_LNC_CHAOTIC;
 }
 
 /*
- * Change alignment (LNC)
+ * Change alignment (LNC/GNE)
  */
-void change_your_alignment_lnc(int amt)
+void change_your_alignment(int align, int amt)
 {
-	p_ptr->align_self += amt;
-	if (p_ptr->align_self > 300) p_ptr->align_self = 300;
-	if (p_ptr->align_self < -300) p_ptr->align_self = -300;
+	p_ptr->align_self[align] += amt;
+	if (p_ptr->align_self[align] > 300) p_ptr->align_self[align] = 300;
+	if (p_ptr->align_self[align] < -300) p_ptr->align_self[align] = -300;
 	p_ptr->update |= (PU_BONUS);
 }
+
+void change_alignment_lnc(void)
+{
+	switch(randint1(19))
+	{
+		case 1: case 2: case 3: case 4: case 5:
+			change_your_alignment(ALI_LNC, randint1(50));
+			break;
+		case 6: case 7: case 8: case 9: case 10:
+			change_your_alignment(ALI_LNC, -randint1(50));
+			break;
+		case 11: case 12: case 13:
+			change_your_alignment(ALI_LNC, 100 + randint1(50));
+			break;
+		case 14: case 15: case 16:
+			change_your_alignment(ALI_LNC, -(100 + randint1(50)));
+			break;
+		case 17: case 18:
+			p_ptr->align_self[ALI_LNC] = 0;
+			break;
+		default:
+			p_ptr->align_self[ALI_LNC] = 0 - p_ptr->align_self[ALI_LNC];
+			break;
+	}
+}
+
 
 /*
  * Change the questor of dungeon level 99
@@ -6863,7 +6923,7 @@ s16b get_cur_melem(monster_type *m_ptr)
 {
 	if (!m_ptr) return NO_ELEM;
 
-	return m_ptr->opposite_elem ? get_opposite_elem(m_ptr->elem) : m_ptr->elem;
+	return MON_OPPOSITE_ELEM(m_ptr) ? get_opposite_elem(m_ptr->elem) : m_ptr->elem;
 }
 
 /*
@@ -7350,7 +7410,7 @@ bool can_choose_class(byte new_class, byte mode)
 	player_class *new_cp_ptr = &class_info[new_class];
 	int i, total_max_clev = 0;
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		if (p_ptr->cexp_info[i].max_clev > 0) total_max_clev += p_ptr->cexp_info[i].max_clev;
 	}
@@ -7456,10 +7516,15 @@ bool can_choose_class(byte new_class, byte mode)
 		}
 		else if (new_class == CLASS_MEDIUM)
 		{
-			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 34) return FALSE;
-			if (p_ptr->cexp_info[CLASS_PRIEST].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 19) return FALSE;
+			if ((p_ptr->cexp_info[CLASS_CLERIC].clev + p_ptr->cexp_info[CLASS_PRIEST].clev) < 44) return FALSE;
 			if (p_ptr->cexp_info[CLASS_NINJA].max_clev > 0) return FALSE;
 			if (p_ptr->cexp_info[CLASS_WITCH].max_clev > 0) return FALSE;
+		}
+		else if (new_class == CLASS_SUCCUBUS)
+		{
+			if (p_ptr->pclass != CLASS_WITCH) return FALSE;
+			if (rp_ptr->r_flags & PRF_UNDEAD) return FALSE;
 		}
 		break;
 

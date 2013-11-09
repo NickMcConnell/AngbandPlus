@@ -39,7 +39,7 @@
 
 /* Savefile version for TOband 0.0.0 and later */
 #define T_VER_MAJOR 0
-#define T_VER_MINOR 6
+#define T_VER_MINOR 7
 #define T_VER_PATCH 0
 #define T_VER_EXTRA 0
 
@@ -176,12 +176,13 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            33
+#define MAX_CLASS            34
 
-/* Number of entries in the sanity-blast descriptions */
-#define MAX_SAN_HORROR 20
-#define MAX_SAN_FUNNY 22
-#define MAX_SAN_COMMENT 5
+/*
+ * Maximum amount of starting equipment
+ */
+#define MAX_START_ITEMS	4
+
 
 /* Chaos mutations */
 
@@ -566,6 +567,7 @@
  */
 #define MAX_SIGHT       20      /* Maximum view distance */
 #define MAX_RANGE       18      /* Maximum range (spells, etc) */
+#define AAF_LIMIT       100     /* Limit of sensing radius */
 
 
 
@@ -651,7 +653,7 @@
 
 #define tval2realm(A) ((A) - TV_MAGERY_BOOK + 1)
 #define is_good_realm(REALM)   ((REALM) == REALM_HOLY || (REALM) == REALM_CRUSADE)
-#define can_use_realm(REALM)   (bool)((realm_choices[p_ptr->pclass] & (1L << ((REALM) - 1))) ? TRUE : FALSE)
+#define can_use_realm(REALM)   (bool)((class_info[p_ptr->pclass].realm_choices & (1L << ((REALM) - 1))) ? TRUE : FALSE)
 
 
 /*
@@ -736,6 +738,9 @@
 #define RACE_GOBLIN              8
 #define RACE_GORGON              9
 #define RACE_MERMAID            10
+#define RACE_MADHALLOWEEN       11
+#define RACE_VULTAN             12
+#define RACE_RAVEN              13
 
 #define RACE_TYPE_NORMAL         0
 #define RACE_TYPE_MALE           1
@@ -775,14 +780,15 @@
 #define CLASS_GUNNER            22
 #define CLASS_TEMPLEKNIGHT      23
 #define CLASS_WHITEKNIGHT       24
-#define CLASS_LORD				25
-#define CLASS_GENERAL			26
-#define CLASS_NINJAMASTER		27
-#define CLASS_ARCHMAGE			28
-#define CLASS_FREYA				29
-#define CLASS_CRESCENT			30
-#define CLASS_VAMPIRE			31
+#define CLASS_LORD              25
+#define CLASS_GENERAL           26
+#define CLASS_NINJAMASTER       27
+#define CLASS_ARCHMAGE          28
+#define CLASS_FREYA             29
+#define CLASS_CRESCENT          30
+#define CLASS_VAMPIRE           31
 #define CLASS_MEDIUM            32
+#define CLASS_SUCCUBUS          33
 
 #define CLASS_CHOOSE_MODE_NORMAL 0
 #define CLASS_CHOOSE_MODE_BIRTH  1
@@ -791,8 +797,15 @@
 /*
  * Player race flags
  */
-#define PRF_UNDEAD        0x00000001
-#define PRF_NO_DIGEST     0x00000002
+#define PRF_DEMON         0x00000001
+#define PRF_UNDEAD        0x00000002
+#define PRF_NO_DIGEST     0x00000004
+#define PRF_SEX_MALE      0x00000008
+#define PRF_SEX_FEMALE    0x00000010
+#define PRF_EVOLUTION     0x00000020
+#define PRF_ALIGN_GOOD    0x00000040
+#define PRF_ALIGN_EVIL    0x00000080
+
 
 /*
  * Player class flags
@@ -800,15 +813,20 @@
 #define PCF_ALIGN_LAWFUL  0x00000001
 #define PCF_ALIGN_NEUTRAL 0x00000002
 #define PCF_ALIGN_CHAOTIC 0x00000004
-#define PCF_SEX_MALE      0x00000008
-#define PCF_SEX_FEMALE    0x00000010
-#define PCF_BIRTH         0x00000020
-#define PCF_REINCARNATE   0x00000040
-#define PCF_NO_CHANGE     0x00000080
-#define PCF_UNDEAD        0x00000100
-#define PCF_NO_DIGEST     0x00000200
-#define PCF_SECRET        0x00000400
-#define PCF_ALIEN         0x00000800
+#define PCF_ALIGN_GOOD    0x00000008
+#define PCF_ALIGN_EVIL    0x00000010
+#define PCF_SEX_MALE      0x00000020
+#define PCF_SEX_FEMALE    0x00000040
+#define PCF_BIRTH         0x00000080
+#define PCF_REINCARNATE   0x00000100
+#define PCF_NO_CHANGE     0x00000200
+#define PCF_DEMON         0x00000400
+#define PCF_UNDEAD        0x00000800
+#define PCF_NO_DIGEST     0x00001000
+#define PCF_SECRET        0x00002000
+#define PCF_ALIEN         0x00004000
+#define PCF_SEE_DARK_GRID 0x00008000
+#define PCF_REALM_ELEM_1  0x00010000
 
 
 #define PCF_ALIGN_ANY     (PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC)
@@ -1309,18 +1327,18 @@
 #define EGO_STUPIDITY           36
 #define EGO_NAIVETY             37
 #define EGO_UGLINESS            38
-#define EGO_SICKLINESS          39
 #define EGO_BALDAR_HELM        244
 
 /* Cloaks */
 #define EGO_NO_ELEM             26
+#define EGO_OPPOSE_ACID         39
 #define EGO_PROTECTION          40
 #define EGO_STEALTH             41
 #define EGO_ARCADIA             42
 #define EGO_AURA_FIRE           43
-#define EGO_ENVELOPING          44
-#define EGO_VULNERABILITY       45
-#define EGO_IRRITATION          46
+#define EGO_OPPOSE_FIRE         44
+#define EGO_OPPOSE_COLD         45
+#define EGO_OPPOSE_ELEC         46
 #define EGO_AURA_ELEC           47
 #define EGO_AURA_COLD          128
 #define EGO_BAT                129
@@ -1829,6 +1847,7 @@
 #define SV_SHADOW_CLOAK                  5
 #define SV_RAINCOAT                      6
 #define SV_SIR_COAT                      7
+#define SV_MITHRIL_CLOAK                 8
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES         1
@@ -1882,16 +1901,16 @@
 #define SV_LITE_FAKE                     9
 #define SV_LITE_MAGICAL_LAMP            10
 #define SV_LITE_FIRECREST               11
-#define SV_LITE_EMPTY			12
+#define SV_LITE_EMPTY                   12
 
 /* The "sval" codes for TV_AMULET */
-#define SV_AMULET_BRILLIANCE                   0
+#define SV_AMULET_BRILLIANCE             0
 #define SV_AMULET_TELEPORT               1
-#define SV_AMULET_CHARISMA              2
+#define SV_AMULET_CHARISMA               2
 #define SV_AMULET_CASSOWARY              3
 #define SV_AMULET_RESIST_ACID            4
 #define SV_AMULET_SEARCHING              5
-#define SV_AMULET_EMPTY			 6
+#define SV_AMULET_EMPTY                  6
 #define SV_AMULET_ALIGNMENT              7
 #define SV_AMULET_THE_MAGI               8
 #define SV_AMULET_REFLECTION             9
@@ -1920,13 +1939,13 @@
 #define SV_AMULET_WIND                  32
 
 /* The sval codes for TV_RING */
-#define SV_RING_MUSCLE                      0
-#define SV_RING_MAGIC             1
-#define SV_RING_INTELLIGENCE                 2
-#define SV_RING_WISDOM                3
+#define SV_RING_MUSCLE                   0
+#define SV_RING_MAGIC                    1
+#define SV_RING_INTELLIGENCE             2
+#define SV_RING_WISDOM                   3
 #define SV_RING_TELEPORTATION            4
 #define SV_RING_SKYWALKER                5
-#define SV_RING_EMPTY			 6
+#define SV_RING_EMPTY                    6
 #define SV_RING_WIND                     7
 #define SV_RING_RESIST_FIRE              8
 #define SV_RING_RESIST_COLD              9
@@ -2545,6 +2564,32 @@
 #define PM_IN_GENERATE    0x00000400
 
 
+/* Bit flags for monster_desc() */
+#define MD_OBJECTIVE      0x00000001 /* Objective (or Reflexive) */
+#define MD_POSSESSIVE     0x00000002 /* Possessive (or Reflexive) */
+#define MD_INDEF_HIDDEN   0x00000004 /* Use indefinites for hidden monsters ("something") */
+#define MD_INDEF_VISIBLE  0x00000008 /* Use indefinites for visible monsters ("a kobold") */
+#define MD_PRON_HIDDEN    0x00000010 /* Pronominalize hidden monsters */
+#define MD_PRON_VISIBLE   0x00000020 /* Pronominalize visible monsters */
+#define MD_ASSUME_HIDDEN  0x00000040 /* Assume the monster is hidden */
+#define MD_ASSUME_VISIBLE 0x00000080 /* Assume the monster is visible */
+#define MD_TRUE_NAME      0x00000100 /* Chameleon's true name */
+#define MD_IGNORE_HALLU   0x00000200 /* Ignore hallucination, and penetrate shape change */
+
+
+/*
+ * Bit flags for object_desc()
+ */
+#define OD_NAME_ONLY        0x00000001  /* Omit values, pval, inscription */
+#define OD_NAME_AND_ENCHANT 0x00000002  /* Omit pval, inscription */
+#define OD_OMIT_INSCRIPTION 0x00000004  /* Omit inscription */
+#define OD_OMIT_PREFIX      0x00000008  /* Omit numeric prefix */
+#define OD_NO_PLURAL        0x00000010  /* Don't use plural */
+#define OD_STORE            0x00000020  /* Assume to be aware and known */
+#define OD_NO_FLAVOR        0x00000040  /* Allow to hidden flavor */
+#define OD_FORCE_FLAVOR     0x00000080  /* Get un-shuffled flavor name */
+
+
 /*
  * Bit flags for the "p_ptr->special_attack" variable. -LM-
  *
@@ -2589,7 +2634,7 @@
 #define SUMMON_TEMPLES              13
 #define SUMMON_UNIQUE               14
 #define SUMMON_MOLD                 15
-#define SUMMON_CYBER                16
+#define SUMMON_XXX1                 16
 #define SUMMON_KIN                  17
 #define SUMMON_ANIMAL               18
 #define SUMMON_ANIMAL_RANGER        19
@@ -2715,8 +2760,9 @@
 #define GF_CAVE_TEMP        96
 #define GF_WATER_FLOW       97
 #define GF_CAPTURE          98
+#define GF_DRAIN_SOUL       99
 
-#define MAX_GF              99
+#define MAX_GF              100
 
 /*
  * Some things which induce learning
@@ -2808,7 +2854,7 @@
 #define IDENT_FIXED     0x02    /* Item has been "haggled" */
 #define IDENT_EMPTY     0x04    /* Item charges are known */
 #define IDENT_KNOWN     0x08    /* Item abilities are known */
-#define IDENT_STOREB    0x10    /* Item is storebought !!!! */
+#define IDENT_STORE     0x10    /* Item is storebought !!!! */
 #define IDENT_MENTAL    0x20    /* Item information is known */
 #define IDENT_TRIED     0x40    /* Item sensing has been "tried" */
 #define IDENT_BROKEN    0x80    /* Item is permanently worthless */
@@ -2824,7 +2870,7 @@
 #define OM_NOMSG        0x02    /* temporary flag to suppress messages */
 #define OM_NO_QUERY     0x04    /* Query for auto-pick was already answered as 'No' */
 #define OM_AUTODESTROY  0x08    /* Destroy later to avoid illegal inventory shift */
-
+#define OM_TOUCHED      0x10    /* Object was touched by player */
 
 
 /*
@@ -2859,6 +2905,10 @@
 #define OB_MAX           8
 
 
+#define ALI_LNC          0
+#define ALI_GNE          1
+
+#define ALI_MAX          2
 /*
  * Object flags
  *
@@ -3012,8 +3062,12 @@
 #define TR_KILL_HUMAN         112
 #define TR_KILL_GOOD          113
 #define TR_KILL_LIVING        114
+#define TR_FIXED_FLAVOR       115
 
-#define TR_FLAG_MAX           115
+#define TR_ALIGN_LNC          116     /* Fake flag - Affect Alignment (LNC) */
+#define TR_ALIGN_GNE          117     /* Fake flag - Affect Alignment (GNE) */
+
+#define TR_FLAG_MAX           118
 #define TR_FLAG_SIZE            4
 
 
@@ -3358,7 +3412,7 @@
 #define RF6_FORGET          0x00004000  /* Cause amnesia */
 #define RF6_RAISE_DEAD      0x00008000  /* Raise Dead */
 #define RF6_S_KIN           0x00010000  /* Summon "kin" */
-#define RF6_S_CYBER         0x00020000  /* Summon Cyberdemons! */
+#define RF6_S_XXX1          0x00020000  /* Summon XXX1 */
 #define RF6_S_MONSTER       0x00040000  /* Summon Monster */
 #define RF6_S_MONSTERS      0x00080000  /* Summon Monsters */
 #define RF6_S_ANT           0x00100000  /* Summon Ants */
@@ -3504,7 +3558,7 @@
 #define RF6_INT_MASK \
    (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
     RF6_HEAL | RF6_INVULNER | RF6_HASTE | RF6_TRAPS | \
-    RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
+    RF6_S_KIN | RF6_S_XXX1 | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_BEAST | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_TEMPLES | RF6_S_UNIQUE)
@@ -3652,7 +3706,7 @@
     0L
 
 #define RF6_SUMMON_MASK \
-	(RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+	(RF6_S_KIN | RF6_S_XXX1 | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
 	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_BEAST | RF6_S_ANGEL | RF6_S_DEMON | \
 	 RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
 	 RF6_S_TEMPLES | RF6_S_UNIQUE)
@@ -3708,7 +3762,7 @@
 #define RF6_INDIRECT_MASK \
 	(RF6_HASTE | RF6_HEAL | RF6_INVULNER | RF6_BLINK | RF6_STOP_TIME | \
 	 RF6_TPORT | RF6_RAISE_DEAD | \
-	 RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
+	 RF6_S_KIN | RF6_S_XXX1 | RF6_S_MONSTER | RF6_S_MONSTERS | \
 	 RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_BEAST | \
 	 RF6_S_ANGEL | RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | \
 	 RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | RF6_S_TEMPLES | RF6_S_UNIQUE)
@@ -3757,6 +3811,21 @@
 	 (bool)((is_friendly(A) || is_pet(A)) ? FALSE : TRUE)
 
 
+/*** Option Definitions ***/
+
+
+#define OPT_PAGE_INPUT          1
+#define OPT_PAGE_MAPSCREEN      2
+#define OPT_PAGE_TEXT           3
+#define OPT_PAGE_GAMEPLAY       4
+#define OPT_PAGE_DISTURBANCE    5
+#define OPT_PAGE_BIRTH          6
+#define OPT_PAGE_AUTODESTROY    7
+#define OPT_PAGE_PLAYRECORD    10
+
+#define OPT_PAGE_JAPANESE_ONLY 99
+
+
 /*** Macro Definitions ***/
 
 
@@ -3766,17 +3835,16 @@
 #define term_screen     (angband_term[0])
 
 
-#ifndef SCRIPT_OBJ_KIND
 /*
  * Determine if a given inventory item is "aware"
  */
-#define object_aware_p(T) \
+#define object_is_aware(T) \
     (k_info[(T)->k_idx].aware)
 
 /*
  * Determine if a given inventory item is "tried"
  */
-#define object_tried_p(T) \
+#define object_is_tried(T) \
     (k_info[(T)->k_idx].tried)
 
 
@@ -3785,7 +3853,7 @@
  * Test One -- Check for special "known" tag
  * Test Two -- Check for "Easy Know" + "Aware"
  */
-#define object_known_p(T) \
+#define object_is_known(T) \
     (((T)->ident & (IDENT_KNOWN)) || \
      (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
 
@@ -3797,7 +3865,7 @@
  */
 #define object_attr(T) \
 	((k_info[(T)->k_idx].flavor) ? \
-	 (misc_to_attr[k_info[(T)->k_idx].flavor]) : \
+	 (k_info[k_info[(T)->k_idx].flavor].x_attr) : \
 	 (k_info[(T)->k_idx].x_attr))
 
 /*
@@ -3807,84 +3875,33 @@
  */
 #define object_char(T) \
 	((k_info[(T)->k_idx].flavor) ? \
-	 (misc_to_char[k_info[(T)->k_idx].flavor]) : \
+	 (k_info[k_info[(T)->k_idx].flavor].x_char) : \
 	 (k_info[(T)->k_idx].x_char))
-
-
-#else /* SCRIPT_OBJ_KIND */
-
-
-/*
- * Determine if a given inventory item is "aware"
- */
-#define object_aware_p(T) \
-    ((T)->aware)
-
-/*
- * Determine if a given inventory item is "tried"
- */
-#define object_tried_p(T) \
-    ((T)->tried)
-
-
-/*
- * Determine if a given inventory item is "known"
- * Test One -- Check for special "known" tag
- * Test Two -- Check for "Easy Know" + "Aware"
- */
-#define object_known_p(T) \
-    (((T)->ident & (IDENT_KNOWN)) || \
-     ((T)->easy_know && (T)->aware))
-
-
-/*
- * Return the "attr" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_attr(T) \
-	(((T)->flavor) ? \
-	 (misc_to_attr[(T)->flavor]) : \
-	 ((T)->x_attr))
-
-/*
- * Return the "char" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_char(T) \
-	(((T)->flavor) ? \
-	 (misc_to_char[(T)->flavor]) : \
-	 ((T)->x_char))
-
-#endif /* SCRIPT_OBJ_KIND */
-
-
 
 
 /*
  * Artifacts use the "name1" field
  */
-#define artifact_p(T) \
+#define object_is_fixed_artifact(T) \
 	((T)->name1 ? TRUE : FALSE)
 
 /*
  * Ego-Items use the "name2" field
  */
-#define ego_item_p(T) \
+#define object_is_ego(T) \
 	((T)->name2 ? TRUE : FALSE)
 
 
 /*
  * Broken items.
  */
-#define broken_p(T) \
+#define object_is_broken(T) \
 	((T)->ident & (IDENT_BROKEN))
 
 /*
  * Cursed items.
  */
-#define cursed_p(T) \
+#define object_is_cursed(T) \
 	((T)->curse_flags)
 
 
@@ -4405,7 +4422,10 @@ extern int PlayerUID;
 #define BACT_DONATION_ZENOBIAN      55
 #define BACT_JOIN_LODIS_KNIGHTS     56
 #define BACT_JOIN_ZENOBIAN_KNIGHTS  57
-#define MAX_BACT                    58
+#define BACT_COMPOSITE_ITEM         58
+#define BACT_CHANGE_SUCCUBUS        59
+
+#define MAX_BACT                    60
 
 /*
  * Quest status
@@ -4554,6 +4574,26 @@ extern int PlayerUID;
 #define NIKKI_WIZ_TELE    20
 #define NIKKI_NAMED_PET   21
 
+#define RECORD_NAMED_PET_NAME        0
+#define RECORD_NAMED_PET_UNNAME      1
+#define RECORD_NAMED_PET_DISMISS     2
+#define RECORD_NAMED_PET_DEATH       3
+#define RECORD_NAMED_PET_MOVED       4
+#define RECORD_NAMED_PET_LOST_SIGHT  5
+#define RECORD_NAMED_PET_DESTROY     6
+#define RECORD_NAMED_PET_EARTHQUAKE  7
+#define RECORD_NAMED_PET_STONED      8
+#define RECORD_NAMED_PET_FALL_AIR    9
+#define RECORD_NAMED_PET_PUT_HOME    10
+#define RECORD_NAMED_PET_TAKE_HOME   11
+#define RECORD_NAMED_PET_GENOCIDE    12
+#define RECORD_NAMED_PET_WIZ_ZAP     13
+#define RECORD_NAMED_PET_TELE_LEVEL  14
+#define RECORD_NAMED_PET_BLAST       15
+#define RECORD_NAMED_PET_HEAL_LEPER  16
+#define RECORD_NAMED_PET_COMPACT     17
+#define RECORD_NAMED_PET_LOSE_PARENT 18
+
 #define MAX_KUBI 20
 
 #define DETECT_RAD_DEFAULT 30
@@ -4656,7 +4696,6 @@ extern int PlayerUID;
 #define MON_FIRE_BRASS    805
 #define MON_BARBAS        807
 #define MON_BRANTA        813
-#define MON_CYBER         816
 #define MON_BELZBUTE      817
 #define MON_OLIVIA        818
 #define MON_RADLUM        819
@@ -4707,7 +4746,7 @@ extern int PlayerUID;
 #define MON_FOOD_SQUID    958
 #define MON_FOOD_BIRD     959
 #define MON_FOOD_COOK     960
-#define MON_FOOD_MAEMAID  961
+#define MON_FOOD_MERMAID  961
 #define MON_ELEM_L_FIRE   962
 #define MON_ELEM_L_AQUA   963
 #define MON_ELEM_L_EARTH  964
@@ -5137,3 +5176,31 @@ extern int PlayerUID;
 	  (cave[py][px].feat == FEAT_SHAL_WATER) || \
 	  (cave[py][px].feat == FEAT_SWAMP) || \
 	  (cave[py][px].feat == FEAT_DEEP_SEA)))
+
+#define MTIMED_CSLEEP         0 /* Monster is sleeping */
+#define MTIMED_FAST           1 /* Monster is temporarily fast */
+#define MTIMED_SLOW           2 /* Monster is temporarily slow */
+#define MTIMED_STUNNED        3 /* Monster is stunned */
+#define MTIMED_CONFUSED       4 /* Monster is confused */
+#define MTIMED_MONFEAR        5 /* Monster is afraid */
+#define MTIMED_STONING        6 /* Monster is stoning */
+#define MTIMED_MELT_WEAPON    7 /* Monster's attack is temporarily low damage */
+#define MTIMED_OPPOSITE_ELEM  8 /* Monster's element is forced to opposite */
+#define MTIMED_SILENT         9 /* Monster is silent */
+#define MTIMED_INVULNER      10 /* Monster is temporarily invulnerable */
+
+
+#define MAX_MTIMED           11
+
+#define MON_CSLEEP(M_PTR)   ((M_PTR)->mtimed[MTIMED_CSLEEP])
+#define MON_FAST(M_PTR)     ((M_PTR)->mtimed[MTIMED_FAST])
+#define MON_SLOW(M_PTR)     ((M_PTR)->mtimed[MTIMED_SLOW])
+#define MON_STUNNED(M_PTR)  ((M_PTR)->mtimed[MTIMED_STUNNED])
+#define MON_CONFUSED(M_PTR) ((M_PTR)->mtimed[MTIMED_CONFUSED])
+#define MON_MONFEAR(M_PTR)  ((M_PTR)->mtimed[MTIMED_MONFEAR])
+#define MON_STONING(M_PTR)  ((M_PTR)->mtimed[MTIMED_STONING])
+#define MON_MELT_WEAPON(M_PTR)  ((M_PTR)->mtimed[MTIMED_MELT_WEAPON])
+#define MON_OPPOSITE_ELEM(M_PTR) ((M_PTR)->mtimed[MTIMED_OPPOSITE_ELEM])
+#define MON_SILENT(M_PTR)  ((M_PTR)->mtimed[MTIMED_SILENT])
+#define MON_INVULNER(M_PTR) ((M_PTR)->mtimed[MTIMED_INVULNER])
+

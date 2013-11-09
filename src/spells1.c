@@ -55,7 +55,7 @@ static byte spell_color(int type)
 	c = s[randint0(strlen(s))];
 
 	/* Lookup this color */
-	a = strchr(color_char, c) - color_char;
+	a = my_strchr(color_char, c) - color_char;
 
 	/* Invalid color (note check for < 0 removed, gave a silly
 	 * warning because bytes are always >= 0 -- RG) */
@@ -575,7 +575,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Update some things */
 			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
-			if (!who && one_in_(20)) change_your_alignment_lnc(-1);
+			if (!who && one_in_(20)) change_your_alignment(ALI_GNE, -1);
 		}
 	}
 
@@ -1110,7 +1110,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ, u32b flg)
 #endif
 
 		/* Check for artifact or tarot */
-		if ((artifact_p(o_ptr) || o_ptr->art_name)) is_art_or_tarot = TRUE;
+		if (object_is_artifact(o_ptr)) is_art_or_tarot = TRUE;
 		else if (o_ptr->tval == TV_TAROT) is_art_or_tarot = TRUE;
 
 		/* Analyze the type */
@@ -1303,7 +1303,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ, u32b flg)
 			/* Holy Fire -- destroys cursed non-artifacts */
 			case GF_HOLY_FIRE:
 			{
-				if (cursed_p(o_ptr) || have_flag(flgs, TR_UNHOLY))
+				if (object_is_cursed(o_ptr) || have_flag(flgs, TR_UNHOLY))
 				{
 					do_kill = TRUE;
 #ifdef JP
@@ -1488,7 +1488,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ, u32b flg)
 			if (known && o_ptr->marked)
 			{
 				obvious = TRUE;
-				object_desc(o_name, o_ptr, FALSE, 0);
+				object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 			}
 
 			/* Artifacts, and other objects, get to resist */
@@ -1697,7 +1697,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, m_ptr, 0x22);
+	monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
 
 	if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) disturb(1, 0);
 
@@ -2141,14 +2141,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 			else if (r_ptr->flagsr & (RFR_RES_ACID | RFR_RES_SHAR))
 			{
-				if (!m_ptr->stoning)
+				if (set_monster_stoning(c_ptr->m_idx, 1))
 				{
 #ifdef JP
 					note = "が石化し始めた！";
 #else
 					note = " gets stoning!";
 #endif
-					m_ptr->stoning = 1;
 				}
 			}
 			else
@@ -2226,7 +2225,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				/* Normal monsters slow down */
 				else
 				{
-					if (!m_ptr->slow)
+					if (set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50))
 					{
 #ifdef JP
 						note = "の動きが遅くなった。";
@@ -2234,9 +2233,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 						note = " starts moving slower.";
 #endif
 					}
-					m_ptr->slow = MIN(200, m_ptr->slow + 50);
-					if (c_ptr->m_idx == p_ptr->riding)
-						p_ptr->update |= (PU_BONUS);
 				}
 			}
 			break;
@@ -2321,7 +2317,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				/* Normal monsters slow down */
 				else
 				{
-					if (!m_ptr->slow)
+					if (set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50))
 					{
 #ifdef JP
 						note = "の動きが遅くなった。";
@@ -2329,9 +2325,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 						note = " starts moving slower.";
 #endif
 					}
-					m_ptr->slow = MIN(200, m_ptr->slow + 50);
-					if (c_ptr->m_idx == p_ptr->riding)
-						p_ptr->update |= (PU_BONUS);
 				}
 
 				/* 2. stun */
@@ -2440,7 +2433,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		case GF_PHYSICAL:
 		{
 			if (seen) obvious = TRUE;
-			if (!test_hit_fire(100 + caster_lev * 4, r_ptr->ac + m_ptr->stoning / 5, (who || m_ptr->ml)))
+			if (!test_hit_fire(100 + caster_lev * 4, r_ptr->ac + MON_STONING(m_ptr) / 5, (who || m_ptr->ml)))
 			{
 #ifdef JP
 				note = "は攻撃をかわした。";
@@ -2458,7 +2451,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		case GF_BLUNT:
 		{
 			if (seen) obvious = TRUE;
-			if (!test_hit_fire(100 + caster_lev * 4, r_ptr->ac + m_ptr->stoning / 5, (who || m_ptr->ml)))
+			if (!test_hit_fire(100 + caster_lev * 4, r_ptr->ac + MON_STONING(m_ptr) / 5, (who || m_ptr->ml)))
 			{
 #ifdef JP
 				note = "は攻撃をかわした。";
@@ -2502,7 +2495,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		case GF_EDGED:
 		{
 			if (seen) obvious = TRUE;
-			if (!test_hit_fire(100 + caster_lev * 4, r_ptr->ac + m_ptr->stoning / 5, (who || m_ptr->ml)))
+			if (!test_hit_fire(100 + caster_lev * 4, r_ptr->ac + MON_STONING(m_ptr) / 5, (who || m_ptr->ml)))
 			{
 #ifdef JP
 				note = "は攻撃をかわした。";
@@ -2894,7 +2887,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 					else
 					{
 						/* Injure +/- confusion */
-						monster_desc(killer, m_ptr, 0x288);
+						monster_desc(killer, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 						ACTIVATE_MULTISHADOW();
 						take_hit(DAMAGE_ATTACK, dam, killer);  /* has already been /3 */
 						if (one_in_(4) && !IS_MULTISHADOW(0))
@@ -3037,9 +3030,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 
 				do_conf = randint0(8) + 8;
 				do_stun = randint0(8) + 8;
-				m_ptr->slow = MIN(200, m_ptr->slow + 10);
-				if (c_ptr->m_idx == p_ptr->riding)
-					p_ptr->update |= (PU_BONUS);
+				(void)set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 10);
 			}
 			break;
 		}
@@ -3148,9 +3139,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			if (seen) obvious = TRUE;
 
 			/* Wake up */
-			m_ptr->csleep = 0;
-
-			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+			(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 			if (m_ptr->maxhp < m_ptr->max_maxhp)
 			{
@@ -3163,14 +3152,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 			if (!dam) break;
 
-			if (m_ptr->stoning)
+			if (MON_STONING(m_ptr))
 			{
 #ifdef JP
 				msg_format("%^sの石化が止まった。", m_name);
 #else
 				msg_format("%^s is no longer stoning.", m_name);
 #endif
-				m_ptr->stoning = 0;
+				(void)set_monster_stoning(c_ptr->m_idx, 0);
 			}
 			/* Fall through */
 		}
@@ -3179,36 +3168,34 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			if (seen) obvious = TRUE;
 
 			/* Wake up */
-			m_ptr->csleep = 0;
+			(void)set_monster_csleep(c_ptr->m_idx, 0);
 
-			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
-
-			if (m_ptr->stunned)
+			if (MON_STUNNED(m_ptr))
 			{
 #ifdef JP
 				msg_format("%^sは朦朧状態から立ち直った。", m_name);
 #else
 				msg_format("%^s is no longer stunned.", m_name);
 #endif
-				m_ptr->stunned = 0;
+				(void)set_monster_stunned(c_ptr->m_idx, 0);
 			}
-			if (m_ptr->confused)
+			if (MON_CONFUSED(m_ptr))
 			{
 #ifdef JP
 				msg_format("%^sは混乱から立ち直った。", m_name);
 #else
 				msg_format("%^s is no longer confused.", m_name);
 #endif
-				m_ptr->confused = 0;
+				(void)set_monster_confused(c_ptr->m_idx, 0);
 			}
-			if (m_ptr->monfear)
+			if (MON_MONFEAR(m_ptr))
 			{
 #ifdef JP
 				msg_format("%^sは勇気を取り戻した。", m_name);
 #else
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 #endif
-				m_ptr->monfear = 0;
+				(void)set_monster_monfear(c_ptr->m_idx, 0);
 			}
 
 			/* Heal */
@@ -3246,7 +3233,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			if (seen) obvious = TRUE;
 
 			/* Speed up */
-			if (!m_ptr->fast)
+			if (set_monster_fast(c_ptr->m_idx, MON_FAST(m_ptr) + 100))
 			{
 #ifdef JP
 				note = "の動きが速くなった。";
@@ -3254,10 +3241,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = " starts moving faster.";
 #endif
 			}
-			m_ptr->fast = MIN(200, m_ptr->fast + 100);
-
-			if (c_ptr->m_idx == p_ptr->riding)
-				p_ptr->update |= (PU_BONUS);
 
 			/* No "real" damage */
 			dam = 0;
@@ -3285,7 +3268,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Normal monsters slow down */
 			else
 			{
-				if (!m_ptr->slow)
+				if (set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50))
 				{
 #ifdef JP
 					note = "の動きが遅くなった。";
@@ -3293,10 +3276,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 					note = " starts moving slower.";
 #endif
 				}
-				m_ptr->slow = MIN(200, m_ptr->slow + 50);
-
-				if (c_ptr->m_idx == p_ptr->riding)
-					p_ptr->update |= (PU_BONUS);
 			}
 
 			/* No "real" damage */
@@ -3438,14 +3417,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 			else if (r_ptr->flagsr & (RFR_RES_ACID | RFR_RES_SHAR))
 			{
-				if (!m_ptr->stoning)
+				if (!MON_STUNNED(m_ptr))
 				{
 #ifdef JP
 					note = "が石化し始めた！";
 #else
 					note = " gets stoning!";
 #endif
-					m_ptr->stoning = 1;
+					(void)set_monster_stoning(c_ptr->m_idx, 1);
 				}
 			}
 			else
@@ -3485,7 +3464,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Normal monsters slow down */
 			else
 			{
-				if (!m_ptr->slow)
+				if (set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + dam))
 				{
 #ifdef JP
 					note = "の動きが遅くなった。";
@@ -3493,10 +3472,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 					note = " starts moving slower.";
 #endif
 				}
-				m_ptr->slow = MIN(200, m_ptr->slow + dam);
-
-				if (c_ptr->m_idx == p_ptr->riding)
-					p_ptr->update |= (PU_BONUS);
 			}
 
 			/* No "real" damage */
@@ -3735,7 +3710,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 			else
 			{
-				if (!m_ptr->silent)
+				if (set_monster_silent(c_ptr->m_idx, MON_SILENT(m_ptr) + 50))
 				{
 #ifdef JP
 					note = "は沈黙した！";
@@ -3743,7 +3718,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 					note = " is quiet!";
 #endif
 				}
-				m_ptr->silent = MIN(200, m_ptr->silent + 50);
 			}
 
 			/* No "real" damage */
@@ -3787,7 +3761,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 					note = " starts moving faster.";
 #endif
 
-					m_ptr->fast = MIN(200, m_ptr->fast + 100);
+					(void)set_monster_fast(c_ptr->m_idx, MON_FAST(m_ptr) + 100);
 					success = TRUE;
 				}
 
@@ -3810,7 +3784,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 #endif
 
 					set_pet(m_ptr);
-					m_ptr->fast = MIN(200, m_ptr->fast + 100);
+					(void)set_monster_fast(c_ptr->m_idx, MON_FAST(m_ptr) + 100);
 
 					success = TRUE;
 				}
@@ -4341,6 +4315,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			bool angry = FALSE;
 			if (seen) obvious = TRUE;
 
+			if (one_in_(3)) change_your_alignment(ALI_GNE, -1);
+
 			if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_UNIQUE2)) || (c_ptr->m_idx == p_ptr->riding)) || p_ptr->inside_arena || p_ptr->inside_quest)
 			{
 				dam = 0;
@@ -4355,6 +4331,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				}
 				else
 				{
+					if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+					{
+						char m2_name[80];
+
+						monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
+						do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m2_name);
+					}
+
 					delete_monster_idx(c_ptr->m_idx);
 #ifdef JP
 					msg_format("%sは消滅した！",m_name);
@@ -4397,6 +4381,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		{
 			bool angry = FALSE;
 			if (seen) obvious = TRUE;
+
+			if (one_in_(3)) change_your_alignment(ALI_GNE, 1);
 
 			if (!(r_ptr->flags3 & RF3_UNDEAD))
 			{
@@ -4773,14 +4759,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 			else if (r_ptr->flagsr & (RFR_RES_ACID | RFR_RES_SHAR))
 			{
-				if (!m_ptr->stoning)
+				if (!MON_STONING(m_ptr))
 				{
 #ifdef JP
 					note = "が石化し始めた！";
 #else
 					note = " gets stoning!";
 #endif
-					m_ptr->stoning = 1;
+					(void)set_monster_stoning(c_ptr->m_idx, 1);
 				}
 			}
 			else
@@ -4874,6 +4860,56 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			break;
 		}
 
+		/* Drain Life (Type-4: Drain HP & Mana) */
+		case GF_DRAIN_SOUL:
+		{
+			if (seen) obvious = TRUE;
+
+			if ((r_ptr->flags3 & RF3_NONLIVING) || (r_ptr->flags2 & RF2_EMPTY_MIND))
+			{
+					if ((r_ptr->flags2 & (RF2_EMPTY_MIND)) && seen) r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
+					if ((r_ptr->flags3 & (RF3_DEMON)) && seen) r_ptr->r_flags3 |= (RF3_NONLIVING);
+
+#ifdef JP
+				note = "には効果がなかった！";
+#else
+				note = " is unaffected!";
+#endif
+
+				obvious = FALSE;
+				dam = 0;
+			}
+			else if (r_ptr->flags2 & RF2_WEIRD_MIND)
+			{
+				if (seen) r_ptr->r_flags2 |= (RF2_WEIRD_MIND);
+
+#ifdef JP
+				note = "には耐性がある。";
+#else
+				note = " resists.";
+#endif
+
+				obvious = FALSE;
+				dam /= 2;
+			}
+			else
+			{
+				/* Message */
+#ifdef JP
+ 				msg_format("%sからエネルギーを吸いとった。",m_name);
+#else
+				msg_format("You draw energy from %s.", m_name);
+#endif
+				p_ptr->chp += dam / 5;
+				p_ptr->csp += dam / 5;
+				if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+				if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+				p_ptr->redraw |= (PR_HP | PR_MANA);
+			}
+
+			break;
+		}
+
 		/* Default */
 		default:
 		{
@@ -4941,12 +4977,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 
 			/* Turn off the damage */
 			dam = 0;
-
-			/* Hack -- Get new monster */
-			m_ptr = &m_list[c_ptr->m_idx];
-
-			/* Hack -- Get new race */
-			r_ptr = &r_info[m_ptr->r_idx];
 		}
 		else
 		{
@@ -4956,8 +4986,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 #else
 			note = " is unaffected!";
 #endif
-
 		}
+
+		/* Hack -- Get new monster */
+		m_ptr = &m_list[c_ptr->m_idx];
+
+		/* Hack -- Get new race */
+		r_ptr = &r_info[m_ptr->r_idx];
 	}
 
 	/* Handle "teleport" */
@@ -4994,7 +5029,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		if (seen) obvious = TRUE;
 
 		/* Get confused */
-		if (m_ptr->stunned)
+		if (MON_STUNNED(m_ptr))
 		{
 #ifdef JP
 			note = "はひどくもうろうとした。";
@@ -5002,7 +5037,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			note = " is more dazed.";
 #endif
 
-			tmp = m_ptr->stunned + (do_stun / 2);
+			tmp = MON_STUNNED(m_ptr) + (do_stun / 2);
 		}
 		else
 		{
@@ -5016,7 +5051,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		}
 
 		/* Apply stun */
-		m_ptr->stunned = (tmp < 200) ? tmp : 200;
+		(void)set_monster_stunned(c_ptr->m_idx, tmp);
 
 		/* Get angry */
 		get_angry = TRUE;
@@ -5032,7 +5067,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		if (seen) obvious = TRUE;
 
 		/* Already partially confused */
-		if (m_ptr->confused)
+		if (MON_CONFUSED(m_ptr))
 		{
 #ifdef JP
 			note = "はさらに混乱したようだ。";
@@ -5040,7 +5075,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			note = " looks more confused.";
 #endif
 
-			tmp = m_ptr->confused + (do_conf / 2);
+			tmp = MON_CONFUSED(m_ptr) + (do_conf / 2);
 		}
 
 		/* Was not confused */
@@ -5056,7 +5091,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		}
 
 		/* Apply confusion */
-		m_ptr->confused = (tmp < 200) ? tmp : 200;
+		(void)set_monster_confused(c_ptr->m_idx, tmp);
 
 		/* Get angry */
 		get_angry = TRUE;
@@ -5085,11 +5120,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 	/* Fear */
 	if (do_fear)
 	{
-		/* Increase fear */
-		tmp = m_ptr->monfear + do_fear;
-
 		/* Set fear */
-		m_ptr->monfear = (tmp < 200) ? tmp : 200;
+		(void)set_monster_monfear(c_ptr->m_idx, MON_MONFEAR(m_ptr) + do_fear);
 
 		/* Get angry */
 		get_angry = TRUE;
@@ -5206,9 +5238,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		if (p_ptr->riding == c_ptr->m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 		/* Wake the monster up */
-		m_ptr->csleep = 0;
-
-		if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+		(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 		/* Hurt the monster */
 		m_ptr->hp -= dam;
@@ -5295,7 +5325,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 
 			/* Hack -- handle sleep */
-			if (do_sleep) m_ptr->csleep = do_sleep;
+			if (do_sleep) (void)set_monster_csleep(c_ptr->m_idx, do_sleep);
 		}
 	}
 
@@ -5309,6 +5339,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 
 		/* Check for quest completion */
 		check_quest_completion(m_ptr);
+
+		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+		{
+			char m2_name[80];
+
+			monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_HEAL_LEPER, m2_name);
+		}
 
 		delete_monster_idx(c_ptr->m_idx);
 	}
@@ -5364,7 +5402,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 
 			/* Hack -- handle sleep */
-			if (do_sleep) m_ptr->csleep = do_sleep;
+			if (do_sleep) (void)set_monster_csleep(c_ptr->m_idx, do_sleep);
 		}
 	}
 
@@ -5607,6 +5645,10 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 			if (p_ptr->weak_fire) dam *= 4 / 3;
 
+			if (prace_is_(RACE_PUMPKINHEAD))
+			{
+				dam = dam * 4 / 3;
+			}
 			get_damage = fire_dam(dam, killer);
 			break;
 		}
@@ -5829,7 +5871,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 
 			if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
-			if (p_ptr->weak_fire) dam *= 4 / 3;
+			if (p_ptr->weak_aqua) dam *= 4 / 3;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			break;
@@ -5892,7 +5934,6 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				inven_damage(set_cold_destroy, 2);
 			}
-			if (p_ptr->weak_earth) dam *= 4 / 3;
 
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
@@ -6042,6 +6083,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 #endif
 
 			ACTIVATE_MULTISHADOW();
+			if (p_ptr->weak_earth) dam *= 4 / 3;
 			if (p_ptr->resist_stone)
 			{
 				dam *= 6; dam /= (randint1(4) + 7);
@@ -6071,7 +6113,6 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 #endif
 				p_ptr->is_dead |= DEATH_STONED;
 			}
-			if (p_ptr->weak_earth) dam *= 4 / 3;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			break;
@@ -7026,6 +7067,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 
 			/* Some races are immune */
+			if ((rp_ptr->r_flags & PRF_DEMON) || (cp_ptr->c_flags & PCF_DEMON))
+			{
+				dam = 0;
+			}
+
 			if ((rp_ptr->r_flags & PRF_UNDEAD) || (cp_ptr->c_flags & PCF_UNDEAD))
 			{
 				dam = 0;
@@ -7129,7 +7175,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		char m_name_self[80];
 		
 		/* hisself */
-		monster_desc(m_name_self, m_ptr, 0x23);
+		monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
@@ -7806,7 +7852,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 	}
 
 	/* Attacker's name (prepared before polymorph)*/
-	if (who > 0) monster_desc(who_name, &m_list[who], 0x288);
+	if (who > 0) monster_desc(who_name, &m_list[who], MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 	y_saver = y1;
 	x_saver = x1;
@@ -8383,6 +8429,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 					case GF_OLD_DRAIN:
 					case GF_NEW_DRAIN:
 					case GF_DUAL_DRAIN:
+					case GF_DRAIN_SOUL:
 						break_decoy();
 					}
 				}

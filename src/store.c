@@ -564,6 +564,8 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7a[randint0(MAX_COMMENT_7A)]);
 
+		change_your_alignment(ALI_GNE, -2);
+
 		/* Sound */
 		sound(SOUND_STORE1);
 	}
@@ -573,6 +575,8 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msg_print(comment_7b[randint0(MAX_COMMENT_7B)]);
+
+		change_your_alignment(ALI_GNE, -1);
 
 		/* Sound */
 		sound(SOUND_STORE2);
@@ -584,6 +588,8 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7c[randint0(MAX_COMMENT_7C)]);
 
+		change_your_alignment(ALI_GNE, 1);
+
 		/* Sound */
 		sound(SOUND_STORE3);
 	}
@@ -593,6 +599,8 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msg_print(comment_7d[randint0(MAX_COMMENT_7D)]);
+
+		change_your_alignment(ALI_GNE, 2);
 
 		/* Sound */
 		sound(SOUND_STORE4);
@@ -1134,6 +1142,15 @@ static int store_check_num(object_type *o_ptr)
 	/* The "home" acts like the player */
 	if ((cur_store_num == STORE_HOME) || (cur_store_num == STORE_MUSEUM))
 	{
+		bool old_stack_force_notes = stack_force_notes;
+		bool old_stack_force_costs = stack_force_costs;
+
+		if (cur_store_num != STORE_HOME)
+		{
+			stack_force_notes = FALSE;
+			stack_force_costs = FALSE;
+		}
+
 		/* Check all the items */
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
@@ -1141,7 +1158,22 @@ static int store_check_num(object_type *o_ptr)
 			j_ptr = &st_ptr->stock[i];
 
 			/* Can the new object be combined with the old one? */
-			if (object_similar(j_ptr, o_ptr)) return -1;
+			if (object_similar(j_ptr, o_ptr))
+			{
+				if (cur_store_num != STORE_HOME)
+				{
+					stack_force_notes = old_stack_force_notes;
+					stack_force_costs = old_stack_force_costs;
+				}
+
+				return -1;
+			}
+		}
+
+		if (cur_store_num != STORE_HOME)
+		{
+			stack_force_notes = old_stack_force_notes;
+			stack_force_costs = old_stack_force_costs;
 		}
 	}
 
@@ -1184,7 +1216,7 @@ static bool is_blessed(object_type *o_ptr)
 {
 	u32b flgs[TR_FLAG_SIZE];
 	object_flags(o_ptr, flgs);
-	if (object_known_p(o_ptr) && have_flag(flgs, TR_BLESSED)) return (TRUE);
+	if (object_is_known(o_ptr) && have_flag(flgs, TR_BLESSED)) return (TRUE);
 	else return (FALSE);
 }
 
@@ -1290,7 +1322,7 @@ static bool store_will_buy(object_type *o_ptr)
 			object_flags(o_ptr, flgs);
 
 			/* Hack - Temple doesn't buy unholy items */
-			if (object_known_p(o_ptr) && have_flag(flgs, TR_UNHOLY)) return FALSE;
+			if (object_is_known(o_ptr) && have_flag(flgs, TR_UNHOLY)) return FALSE;
 
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -1320,7 +1352,7 @@ static bool store_will_buy(object_type *o_ptr)
 						if (r_ptr->flags3 & RF3_ANIMAL) break;
 
 						/* Accept mimics */
-						if (strchr("?!", r_ptr->d_char)) break;
+						if (my_strchr("?!", r_ptr->d_char)) break;
 					}
 				}
 				case TV_POLEARM:
@@ -1429,7 +1461,14 @@ static int home_carry(object_type *o_ptr)
 	s32b			   value, j_value;
 	int 	i;
 	object_type *j_ptr;
+	bool old_stack_force_notes = stack_force_notes;
+	bool old_stack_force_costs = stack_force_costs;
 
+	if (cur_store_num != STORE_HOME)
+	{
+		stack_force_notes = FALSE;
+		stack_force_costs = FALSE;
+	}
 
 	/* Check each existing item (try to combine) */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
@@ -1443,9 +1482,21 @@ static int home_carry(object_type *o_ptr)
 			/* Save the new number of items */
 			object_absorb(j_ptr, o_ptr);
 
+			if (cur_store_num != STORE_HOME)
+			{
+				stack_force_notes = old_stack_force_notes;
+				stack_force_costs = old_stack_force_costs;
+			}
+
 			/* All done */
 			return (slot);
 		}
+	}
+
+	if (cur_store_num != STORE_HOME)
+	{
+		stack_force_notes = old_stack_force_notes;
+		stack_force_costs = old_stack_force_costs;
 	}
 
 	/* No space? */
@@ -1486,16 +1537,16 @@ static int home_carry(object_type *o_ptr)
 		if (o_ptr->tval < j_ptr->tval) continue;
 
 		/* Can happen in the home */
-		if (!object_aware_p(o_ptr)) continue;
-		if (!object_aware_p(j_ptr)) break;
+		if (!object_is_aware(o_ptr)) continue;
+		if (!object_is_aware(j_ptr)) break;
 
 		/* Objects sort by increasing sval */
 		if (o_ptr->sval < j_ptr->sval) break;
 		if (o_ptr->sval > j_ptr->sval) continue;
 
 		/* Objects in the home can be unknown */
-		if (!object_known_p(o_ptr)) continue;
-		if (!object_known_p(j_ptr)) break;
+		if (!object_is_known(o_ptr)) continue;
+		if (!object_is_known(j_ptr)) break;
 
 		/*
 		 * Hack:  otherwise identical rods sort by
@@ -1790,7 +1841,8 @@ static void store_create(void)
 	for (tries = 0; tries < 4; tries++)
 	{
 		/* Black Market */
-		if ((cur_store_num == STORE_BLACK) || (p_ptr->town_num == TOWN_BARMAMUTHA) && (quest[QUEST_BARMAMUTHA_C].status == QUEST_STATUS_FINISHED) && (cur_store_num != STORE_BOOK))
+		if ((cur_store_num == STORE_BLACK) ||
+			((p_ptr->town_num == TOWN_BARMAMUTHA) && (quest[QUEST_BARMAMUTHA_C].status == QUEST_STATUS_FINISHED) && (cur_store_num != STORE_BOOK)))
 		{
 			/* Pick a level for object/magic */
 			level = 25 + randint0(25) + dun_level;
@@ -1837,7 +1889,7 @@ static void store_create(void)
 		object_known(q_ptr);
 
 		/* Mark it storebought */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->ident |= IDENT_STORE;
 
 		/* Mega-Hack -- no chests in stores */
 		if (q_ptr->tval == TV_CHEST) continue;
@@ -1987,7 +2039,7 @@ static void display_entry(int pos)
 		if (show_weights) maxwid -= 10;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 		o_name[maxwid] = '\0';
 		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, cur_col);
 
@@ -2017,7 +2069,7 @@ static void display_entry(int pos)
 		if (show_weights) maxwid -= 7;
 
 		/* Describe the object (fully) */
-		object_desc_store(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 		o_name[maxwid] = '\0';
 		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, cur_col);
 
@@ -2251,7 +2303,7 @@ static void display_store(void)
 	{
 		cptr store_name = f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name;
 		cptr owner_name = ot_ptr->owner_name;
-		cptr race_name = race_info[ot_ptr->owner_race].title;
+		cptr race_name = p_name + race_info[ot_ptr->owner_race].name;
 
 		if (p_ptr->town_num == NO_TOWN)
 		{
@@ -2261,7 +2313,7 @@ static void display_store(void)
 #else
 			owner_name = "Deneb, the Witch";
 #endif
-			race_name = race_info[RACE_HUMAN].title;
+			race_name = p_name + race_info[RACE_HUMAN].name;
 		}
 
 		/* Put the owner name and race */
@@ -3263,7 +3315,7 @@ static void store_purchase(void)
 		else
 		{
 			/* Describe the object (fully) */
-			object_desc_store(o_name, j_ptr, TRUE, 3);
+			object_desc(o_name, j_ptr, 0);
 
 			/* Message */
 #ifdef JP
@@ -3316,7 +3368,7 @@ static void store_purchase(void)
 				j_ptr->ident &= ~(IDENT_FIXED);
 
 				/* Describe the transaction */
-				object_desc(o_name, j_ptr, TRUE, 3);
+				object_desc(o_name, j_ptr, 0);
 
 				/* Message */
 #ifdef JP
@@ -3329,7 +3381,7 @@ static void store_purchase(void)
 				{
 					/* The black market is illegal! */
 					if (cur_store_num == STORE_BLACK)
-						change_your_alignment_lnc(-1);
+						change_your_alignment(ALI_GNE, -1);
 
 					/* Chaos frame change */
 					if (!dun_level && p_ptr->town_num && one_in_(5))
@@ -3345,7 +3397,7 @@ static void store_purchase(void)
 				record_turn = turn;
 
 				if (record_buy) do_cmd_write_nikki(NIKKI_BUY, 0, o_name);
-				object_desc(o_name, o_ptr, TRUE, 0);
+				object_desc(o_name, o_ptr, OD_NAME_ONLY);
 				if(record_rand_art && o_ptr->art_name)
 					do_cmd_write_nikki(NIKKI_ART, 0, o_name);
 
@@ -3354,12 +3406,12 @@ static void store_purchase(void)
 
 				/* Erase the "feeling" */
 				j_ptr->feeling = FEEL_NONE;
-				j_ptr->ident &= ~(IDENT_STOREB);
+				j_ptr->ident &= ~(IDENT_STORE);
 				/* Give it to the player */
 				item_new = inven_carry(j_ptr);
 
 				/* Describe the final result */
-				object_desc(o_name, &inventory[item_new], TRUE, 3);
+				object_desc(o_name, &inventory[item_new], 0);
 
 				/* Message */
 #ifdef JP
@@ -3409,7 +3461,7 @@ static void store_purchase(void)
 
 						prt("",3,0);
 						sprintf(buf, "%s (%s)",
-							ot_ptr->owner_name, race_info[ot_ptr->owner_race].title);
+							ot_ptr->owner_name, p_name + race_info[ot_ptr->owner_race].name);
 						put_str(buf, 3, 10);
 						sprintf(buf, "%s (%ld)",
 							f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name, max_cost_fix());
@@ -3484,7 +3536,7 @@ static void store_purchase(void)
 		item_new = inven_carry(j_ptr);
 
 		/* Describe just the result */
-		object_desc(o_name, &inventory[item_new], TRUE, 3);
+		object_desc(o_name, &inventory[item_new], 0);
 
 		/* Message */
 #ifdef JP
@@ -3644,7 +3696,7 @@ static void store_sell(void)
 
 	if (dungeon_type == DUNGEON_HEAVEN)
 	{
-		if (object_known_p(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
+		if (object_is_known(o_ptr) && (o_ptr->name1 == ART_BRUNHILD))
 		{
 			msg_print("天界から帰還するにはブリュンヒルドが必要です。");
 			return;
@@ -3653,7 +3705,7 @@ static void store_sell(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_RARM) && cursed_p(o_ptr))
+	if ((item >= INVEN_RARM) && object_is_cursed(o_ptr))
 	{
 		/* Oops */
 #ifdef JP
@@ -3700,7 +3752,7 @@ static void store_sell(void)
 	}
 
 	/* Get a full description */
-	object_desc(o_name, q_ptr, TRUE, 3);
+	object_desc(o_name, q_ptr, 0);
 
 	/* Reset magical weapon effect */
 	if (item == INVEN_RARM)
@@ -3818,6 +3870,9 @@ static void store_sell(void)
 			/* Modify quantity */
 			q_ptr->number = amt;
 
+			/* Make it look like known */
+			q_ptr->ident |= IDENT_STORE;
+
 			/*
 			 * Hack -- If a rod or wand, let the shopkeeper know just
 			 * how many charges he really paid for. -LM-
@@ -3831,7 +3886,7 @@ static void store_sell(void)
 			value = object_value(q_ptr) * q_ptr->number;
 
 			/* Get the description all over again */
-			object_desc(o_name, q_ptr, TRUE, 3);
+			object_desc(o_name, q_ptr, 0);
 
 			/* Describe the result (in message buffer) */
 #ifdef JP
@@ -3842,13 +3897,13 @@ static void store_sell(void)
 
 			/* The black market is illegal! */
 			if ((object_value_real(q_ptr) > 500) && (cur_store_num == STORE_BLACK))
-				change_your_alignment_lnc(-1);
+				change_your_alignment(ALI_GNE, -1);
 
 			/* Chaos frame change */
 			if (!dun_level && p_ptr->town_num)
 			{
 				if ((object_value_real(q_ptr) > 500) && one_in_(5)) change_chaos_frame(town[p_ptr->town_num].ethnic, 1);
-				if (cursed_p(q_ptr)) change_chaos_frame(town[p_ptr->town_num].ethnic, -1);
+				if (object_is_cursed(q_ptr)) change_chaos_frame(town[p_ptr->town_num].ethnic, -1);
 				if (object_value_real(q_ptr) > max_cost_fix()) change_chaos_frame(town[p_ptr->town_num].ethnic, 1);
 			}
 			change_chaos_frame(get_object_ethnicity_store(q_ptr), -4);
@@ -3904,7 +3959,7 @@ static void store_sell(void)
 	else if (cur_store_num == STORE_MUSEUM)
 	{
 		char o2_name[MAX_NLEN];
-		object_desc(o2_name, q_ptr, TRUE, 0);
+		object_desc(o2_name, q_ptr, OD_NAME_ONLY);
 
 		if (-1 == store_check_num(q_ptr))
 		{
@@ -4091,7 +4146,7 @@ static void store_examine(void)
 	}
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Describe */
 #ifdef JP
@@ -4141,164 +4196,29 @@ struct cc_menu
 	bool can_choose;
 };
 
-/*
- *
- */
-static cptr realm_jouhou[] =
-{
-"自分の属性と同じエレメントの魔法です。各属性の魔法は対応するエレメントの影響を受けます。",
-"神聖は回復能力に優れた魔法です。治療や防御、感知魔法が多く含まれていますが、攻撃呪文もわずかに持っています。特に高レベルの呪文にはアンデッドを塵に帰す力があると言われています。",
-"破邪は「正義」の魔法です。直接敵を傷つける魔法が多く含まれ、特に邪悪な敵に対する力は恐るべきものがあります。しかし、善良な敵にはあまり効果がありません。",
-};
-
 static void choose_realm(void)
 {
-	int i, select = 0;
-	char ch;
-	char buf[80];
-	bool done = FALSE;
-
 	if (p_ptr->realm_medium) return;
 
-	/*** Instructions ***/
+	p_ptr->realm_medium |= (CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND);
 
-	/* Clear screen */
-	Term_clear();
-
-	/* Display some helpful information */
-#ifdef JP
-	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
-	            "以下のメニューから魔法の領域を選んでください。");
-#else
-	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
-	            "Please select realm from the menu below:");
-#endif
-
-	prt("a) 元素", QUESTION_ROW, 2);
-	prt("b) 神聖", QUESTION_ROW, 17);
-	prt("c) 破邪", QUESTION_ROW, 32);
-
-	/* Choose */
-	while (TRUE)
-	{
-
-		if (done)
-		{
-			char temp[80 * 9];
-			cptr t;
-
-			clear_from(TABLE_ROW);
-			roff_to_buf(realm_jouhou[select], 74, temp, sizeof temp);
-			t = temp;
-
-			for (i = 0; i < 9; i++)
-			{
-				if (t[0] == 0)
-					break; 
-				else
-				{
-					prt(t, TABLE_ROW + 2 + i, CLASS_COL);
-					t += strlen(t) + 1;
-				}
-			}
-
-#ifdef JP
-			if (get_check("よろしいですか？"))
-#else
-			if (get_check("Are you sure? "))
-#endif
-				break;
-
-			clear_from(TABLE_ROW);
-			done = FALSE;
-			continue;
-		}
-
-		ch = inkey();
-
-		switch (ch)
-		{
-		case 'a':
-		case 'A':
-			{
-				select = 0;
-				done = TRUE;
-				break;
-			}
-		case 'b':
-		case 'B':
-			{
-				select = 1;
-				done = TRUE;
-				break;
-			}
-		case 'c':
-		case 'C':
-			{
-				select = 2;
-				done = TRUE;
-				break;
-			}
-		default:
-			bell();
-			break;
-		}
-	}
-
-	/* Clear */
-	clear_from(TABLE_ROW);
-
-	switch(select)
-	{
-	case 0:
-#ifdef JP
-		sprintf(buf, "元素魔法を領域に選んだ。");
-#else
-		sprintf(buf, "You selected realm.");
-#endif
-
-		p_ptr->realm_medium |= (CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND);
-		break;
-	case 1:
-#ifdef JP
-		sprintf(buf, "神聖魔法を領域に選んだ。");
-#else
-		sprintf(buf, "You selected realm.");
-#endif
-
+	if ((p_ptr->cexp_info[CLASS_PRIEST].clev > 19) || (p_ptr->cexp_info[CLASS_CLERIC].clev > 34))
 		p_ptr->realm_medium |= (CH_HOLY);
-		break;
-	case 2:
-#ifdef JP
-		sprintf(buf, "破邪魔法を領域に選んだ。");
-#else
-		sprintf(buf, "You selected realm.");
-#endif
 
+	if (p_ptr->cexp_info[CLASS_PRIEST].clev > 29)
 		p_ptr->realm_medium |= (CH_CRUSADE);
-		break;
-	}
-
-	Term_putstr(QUESTION_COL, TABLE_ROW, -1, TERM_WHITE, buf);
-	message_add(buf);
-#ifdef JP
-	Term_putstr(QUESTION_COL, TABLE_ROW + 2, -1, TERM_WHITE,
-		"[ 何かキーを押してください ]");
-#else
-	Term_putstr(QUESTION_COL, TABLE_ROW + 2, -1, TERM_WHITE,
-		"[Press any key to continue]");
-#endif
-	inkey();
 
 	return;
 }
+
+#define MAX_MENUS			25
 
 /*
  * Change the class of player
  */
 static void change_player_class(void)
 {
-	cc_menu        classes[MAX_CLASS];
+	cc_menu        classes[MAX_MENUS];
 	int            i, hgt;
 	int            num = 0, top = 0, cur = 0, total_max_clev = 0, experienced_classes = 0;
 	char           c;
@@ -4313,7 +4233,7 @@ static void change_player_class(void)
 	/*** Instructions ***/
 
 	/* Calculate character total class level */
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		if (p_ptr->cexp_info[i].max_clev > 0)
 		{
@@ -4368,7 +4288,7 @@ static void change_player_class(void)
 #endif
 
 	/* Tabulate classes */
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		tmp_cp_ptr = &class_info[i];
 
@@ -4424,12 +4344,12 @@ static void change_player_class(void)
 			tmp_cp_ptr = &class_info[classes[i + top].real];
 			if (i + top < 26)
 			{
-				sprintf(buf, "%c) %s", I2A(i + top), tmp_cp_ptr->title);
+				sprintf(buf, "%c) %s", I2A(i + top), c_name + tmp_cp_ptr->name);
 			}
 			else
 			{
 				/* ToDo: Fix the ASCII dependency */
-				sprintf(buf, "%c) %s", 'A' + (i + top - 26), tmp_cp_ptr->title);
+				sprintf(buf, "%c) %s", 'A' + (i + top - 26), c_name + tmp_cp_ptr->name);
 			}
 
 			/* Clear */
@@ -4532,9 +4452,9 @@ static void change_player_class(void)
 			cptr t;
 
 			clear_from(TABLE_ROW);
-			Term_putstr(CLASS_COL, TABLE_ROW, -1, TERM_L_BLUE, tmp_cp_ptr->title);
+			Term_putstr(CLASS_COL, TABLE_ROW, -1, TERM_L_BLUE, c_name + tmp_cp_ptr->name);
 
-			roff_to_buf(class_jouhou[classes[cur].real], 74, temp, sizeof temp);
+			roff_to_buf(c_text + class_info[classes[cur].real].text, 74, temp, sizeof temp);
 			t = temp;
 
 			for (i = 0; i < 9; i++)
@@ -4664,7 +4584,7 @@ static void change_player_class(void)
 #else
 	sprintf(buf, "Your class has changed from %s to %s.",
 #endif
-		class_info[old_pclass].title, cp_ptr->title);
+		c_name + class_info[old_pclass].name, c_name + cp_ptr->name);
 	Term_putstr(QUESTION_COL, TABLE_ROW, -1, TERM_WHITE, buf);
 	message_add(buf);
 #ifdef JP
@@ -4677,9 +4597,9 @@ static void change_player_class(void)
 	inkey();
 
 #ifdef JP
-	sprintf(buf,"%sから%sへとクラスチェンジした。", class_info[old_pclass].title, cp_ptr->title);
+	sprintf(buf,"%sから%sへとクラスチェンジした。", c_name + class_info[old_pclass].name, c_name + cp_ptr->name);
 #else
-	sprintf(buf,"changed class from %s to %s.", class_info[old_pclass].title, cp_ptr->title);
+	sprintf(buf,"changed class from %s to %s.", c_name + class_info[old_pclass].name, c_name + cp_ptr->name);
 #endif
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
 
@@ -4687,7 +4607,7 @@ static void change_player_class(void)
 	{
 	case CLASS_GUNNER:
 		C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s16b);
-		for (i = 0; i < MAX_CLASS; i++) C_WIPE(p_ptr->class_sp[i], PY_MAX_LEVEL, s16b);
+		for (i = 0; i < max_c_idx; i++) C_WIPE(p_ptr->class_sp[i], PY_MAX_LEVEL, s16b);
 		p_ptr->player_gsp = 0;
 		break;
 
@@ -4791,7 +4711,7 @@ static void museum_remove_object(void)
 	o_ptr = &st_ptr->stock[item];
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 
 #ifdef JP
@@ -4953,7 +4873,7 @@ static void display_stock_mon_entry(int pos)
 	maxwid = 75;
 
 	/* Describe the object */
-	monster_desc(m_name, m_ptr, 0x80);
+	monster_desc(m_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 	m_name[maxwid] = '\0';
 	c_put_str(TERM_WHITE, m_name, pos+6, cur_col);
 }
@@ -5064,7 +4984,7 @@ static void take_pet_home(void)
 		if (stock_mon_num > 1)
 			qsort(stock_mon, stock_mon_num, sizeof(monster_type), (int(*)(const void *, const void *))stock_mon_sort_cmp);
 
-		monster_desc(m_name, m_ptr, 0x80);
+		monster_desc(m_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 #ifdef JP
 		msg_format("%sを連れ出した。", m_name);
 #else
@@ -5072,7 +4992,7 @@ static void take_pet_home(void)
 #endif
 		if (record_named_pet && m_ptr->nickname)
 		{
-			do_cmd_write_nikki(NIKKI_NAMED_PET, 11, m_name);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_TAKE_HOME, m_name);
 		}
 
 		p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
@@ -5142,7 +5062,7 @@ static void leave_pet_home(void)
 
 			if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
-			monster_desc(m_name, m_ptr, 0x80);
+			monster_desc(m_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 			have_pet = TRUE;
 #ifdef JP
@@ -5174,7 +5094,7 @@ static void leave_pet_home(void)
 #endif
 			if (record_named_pet && m_ptr->nickname)
 			{
-				do_cmd_write_nikki(NIKKI_NAMED_PET, 10, m_name);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_PUT_HOME, m_name);
 			}
 
 			monster_drop_carried_objects(m_ptr);
@@ -5184,17 +5104,17 @@ static void leave_pet_home(void)
 			dest_ptr->fy = 0;
 			dest_ptr->fx = 0;
 			dest_ptr->hp = dest_ptr->maxhp = dest_ptr->max_maxhp;
-			dest_ptr->csleep = 0;
-			dest_ptr->fast = 0;
-			dest_ptr->slow = 0;
-			dest_ptr->stunned = 0;
-			dest_ptr->confused = 0;
-			dest_ptr->monfear = 0;
-			dest_ptr->stoning = 0;
-			dest_ptr->melt_weapon = 0;
-			dest_ptr->opposite_elem = 0;
-			dest_ptr->silent = 0;
-			dest_ptr->invulner = 0;
+			(void)set_monster_csleep(i, 0);
+			(void)set_monster_fast(i, 0);
+			(void)set_monster_slow(i, 0);
+			(void)set_monster_stunned(i, 0);
+			(void)set_monster_confused(i, 0);
+			(void)set_monster_monfear(i, 0);
+			(void)set_monster_stoning(i, 0);
+			(void)set_monster_melt_weapon(i, 0);
+			(void)set_monster_opposite_elem(i, 0);
+			(void)set_monster_silent(i, 0);
+			(void)set_monster_invulner(i, 0, FALSE);
 			dest_ptr->silent_song = FALSE;
 			dest_ptr->cdis = 0;
 			dest_ptr->ddis = 0;
@@ -5498,6 +5418,8 @@ static void store_process_command(void)
 		case '=':
 		{
 			do_cmd_options();
+			do_cmd_redraw();
+			display_store();
 			break;
 		}
 
@@ -6000,7 +5922,7 @@ void do_cmd_store(void)
 				object_copy(q_ptr, o_ptr);
 
 				/* Describe it */
-				object_desc(o_name, q_ptr, TRUE, 3);
+				object_desc(o_name, q_ptr, 0);
 
 				/* Message */
 #ifdef JP
@@ -6289,7 +6211,7 @@ void move_to_black_market(object_type *o_ptr)
 
 	st_ptr = &town[p_ptr->town_num].store[STORE_BLACK];
 
-	o_ptr->ident |= IDENT_STOREB;
+	o_ptr->ident |= IDENT_STORE;
 
 	(void)store_carry(o_ptr);
 

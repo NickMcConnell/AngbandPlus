@@ -7,7 +7,7 @@
 
 ### Soldier ###
 N:0
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:5	# WT_SMALL_SWORD
 W:2:5	# WT_KATANA
 W:3:5	# WT_SWORD
@@ -48,7 +48,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Knight ###
 N:1
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:2	# WT_SMALL_SWORD
 W:2:2	# WT_KATANA
 W:3:5	# WT_SWORD
@@ -93,7 +93,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Berserker ###
 N:2
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:4	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -138,7 +138,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Terror-Knight ###
 N:3
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:0	# WT_SMALL_SWORD
 W:2:10	# WT_KATANA
 W:3:10	# WT_SWORD
@@ -182,7 +182,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### BeastTamer ###
 N:4
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:5	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:4	# WT_SWORD
@@ -226,7 +226,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Sword-Master ###
 N:5
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:7	# WT_SMALL_SWORD
 W:2:10	# WT_KATANA
 W:3:8	# WT_SWORD
@@ -270,7 +270,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Dragoon ###
 N:6
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:3	# WT_KATANA
 W:3:7	# WT_SWORD
@@ -314,7 +314,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Ninja ###
 N:7
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:8	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:5	# WT_SWORD
@@ -358,7 +358,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Wizard ###
 N:8
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -402,7 +402,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Warlock ###
 N:9
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:4	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:4	# WT_SWORD
@@ -447,7 +447,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Exorcist ###
 N:10
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:0	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -491,7 +491,7 @@ S:11:13 # MAGIC_CRUSADE
 
 ### Amazoness ###
 N:11
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:5	# WT_SMALL_SWORD
 W:2:5	# WT_KATANA
 W:3:5	# WT_SWORD
@@ -508,7 +508,7 @@ W:13:0	# WT_FAN
 W:14:4	# WT_BOW
 W:15:3	# WT_GUN
 # Misc.
-M:0:0 # MARTIAL_ARTS
+M:0:4 # MARTIAL_ARTS
 M:1:3 # NITOURYU
 M:2:0 # RIDING
 M:3:3 # THROWING
@@ -536,7 +536,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Valkyrie ###
 N:12
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:4	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:5	# WT_SWORD
@@ -580,7 +580,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Archer ###
 N:13
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:5	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -624,7 +624,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### DragonTamer ###
 N:14
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:5	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:4	# WT_SWORD
@@ -668,7 +668,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Witch ###
 N:15
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:5	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -712,7 +712,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Sirene ###
 N:16
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -756,7 +756,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Cleric ###
 N:17
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:0	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -800,7 +800,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Priest ###
 N:18
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:0	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -844,7 +844,7 @@ S:11:10 # MAGIC_CRUSADE
 
 ### Lich ###
 N:19
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:3	# WT_SWORD
@@ -888,7 +888,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Angel-Knight ###
 N:20
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:7	# WT_SMALL_SWORD
 W:2:6	# WT_KATANA
 W:3:10	# WT_SWORD
@@ -932,7 +932,7 @@ S:11:20 # MAGIC_CRUSADE
 
 ### High-Witch ###
 N:21
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:2	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -976,7 +976,7 @@ S:11:10 # MAGIC_CRUSADE
 
 ### Gunner ###
 N:22
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -1021,7 +1021,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Temple-Knight ###
 N:23
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:4	# WT_KATANA
 W:3:7	# WT_SWORD
@@ -1065,7 +1065,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### White-Knight ###
 N:24
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:4	# WT_KATANA
 W:3:7	# WT_SWORD
@@ -1105,7 +1105,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Lord ###
 N:25
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:9	# WT_SMALL_SWORD
 W:2:5	# WT_KATANA
 W:3:10	# WT_SWORD
@@ -1147,7 +1147,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### General ###
 N:26
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:7	# WT_SMALL_SWORD
 W:2:2	# WT_KATANA
 W:3:9	# WT_SWORD
@@ -1190,7 +1190,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Ninjamaster ###
 N:27
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:8	# WT_SMALL_SWORD
 W:2:8	# WT_KATANA
 W:3:8	# WT_SWORD
@@ -1234,7 +1234,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Archmage ###
 N:28
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -1275,7 +1275,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Freya ###
 N:29
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:5	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:7	# WT_SWORD
@@ -1317,7 +1317,7 @@ S:11:10 # MAGIC_CRUSADE
 
 ### Crescent ###
 N:30
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:7	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -1358,7 +1358,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Vampire ###
 N:31
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:9	# WT_SMALL_SWORD
 W:2:5	# WT_KATANA
 W:3:10	# WT_SWORD
@@ -1402,7 +1402,7 @@ S:11:0 # MAGIC_CRUSADE
 
 ### Medium ###
 N:32
-# Éð´ïµ»Ç½¥ì¥Ù¥ë
+# Weapon
 W:1:3	# WT_SMALL_SWORD
 W:2:0	# WT_KATANA
 W:3:0	# WT_SWORD
@@ -1443,4 +1443,48 @@ S:11:7 # MAGIC_CRUSADE
 
 
 
+
+
+
+
+
+### Succubus ###
+N:33
+# Weapon
+W:1:0	# WT_SMALL_SWORD
+W:2:0	# WT_KATANA
+W:3:0	# WT_SWORD
+W:4:0	# WT_GREAT_SWORD
+W:5:0	# WT_AXE
+W:6:0	# WT_SPEAR
+W:7:0	# WT_LANCE
+W:8:10	# WT_CLAW
+W:9:0	# WT_SCYTHE
+W:10:0	# WT_WHIP
+W:11:0	# WT_HAMMER
+W:12:0	# WT_STAFF
+W:13:0	# WT_FAN
+W:14:5	# WT_BOW
+W:15:0	# WT_GUN
+# Misc.
+M:0:8 # MARTIAL_ARTS
+M:1:0 # NITOURYU
+M:2:0 # RIDING
+M:3:0 # THROWING
+M:4:6 # PET_UPKEEP
+M:5:0 # SENSE_ARMS
+M:6:10 # SENSE_ACC
+M:7:10 # SPELL_CAST
+# Magic
+S:1:0 # MAGIC_MAGERY
+S:2:0 # MAGIC_FIRE
+S:3:0 # MAGIC_AQUA
+S:4:0 # MAGIC_EARTH
+S:5:0 # MAGIC_WIND
+S:6:0 # MAGIC_HOLY
+S:7:13 # MAGIC_DEATH
+S:8:0 # MAGIC_SYMBIOTIC
+S:9:13 # MAGIC_WITCH
+S:10:0 # MAGIC_DRAKONITE
+S:11:0 # MAGIC_CRUSADE
 

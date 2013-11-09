@@ -597,7 +597,6 @@
  * Python is statically linked into ZAngband
  */
 # define STATIC_PYTHON
-/* # define SCRIPT_OBJ_KIND */
 #endif /* USE_SCRIPT */
 
 #ifndef HAVE_CONFIG_H

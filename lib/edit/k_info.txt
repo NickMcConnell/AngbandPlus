@@ -556,7 +556,15 @@ A:20/4:40/2:50/2
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-#N:51:unused
+N:51:ミスリル・クローク
+E:& Mithhril Cloak~
+G:(:B
+I:35:8:0
+W:50:0:15:2500
+A:50/3
+P:10:0d0:0:0:0
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+D:ミスリル製の繊維が編み込まれたクローク。
 
 N:52:矢
 E:& Black Arrow~
@@ -1217,7 +1225,7 @@ I:23:8:0
 W:60:0:120:2000
 A:60/1
 P:0:6d4:0:0:0
-F:SHOW_MODS | UNHOLY
+F:SHOW_MODS | UNHOLY | ALIGN_GNE_-10 |
 F:VORPAL | BLOWS_2
 
 N:114:カタナ
@@ -1256,13 +1264,13 @@ F:SHOW_MODS | RIDING
 
 N:118:ダーク・ソード
 E:& Dark Sword~
-G:|:D
+G:|:d
 I:23:12:0
 W:40:0:140:4000
 A:40/2
 P:0:5d5:15:15:0
 F:SHOW_MODS | RES_DARK | RES_NETHER | HOLD_LIFE | VORPAL | SLAY_GOOD | SLAY_LIVING
-F:TY_CURSE | DRAIN_EXP |
+F:TY_CURSE | DRAIN_EXP | ALIGN_GNE_-10 |
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
 N:119:グレート・ソード
@@ -1683,6 +1691,7 @@ I:35:4:0
 W:50:0:0:2500
 A:70/4
 P:0:0d0:0:0:10
+F:ALIGN_LNC_-5
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
 
 N:164:影のクローク
@@ -2080,73 +2089,73 @@ P:0:1d1:0:0:0
 
 ##### Amulets #####
 
-N:214:知性
-E:Brilliance
-G:":d
+N:214:知性:琥珀の
+E:Brilliance:Amber
+G:":y
 I:40:0:0
 W:50:0:3:5000
 A:50/4
 F:INT_2 | WIS_2 | CHR_2 | SUST_INT | SUST_WIS | SUST_CHR
 
-N:215:テレポート
-E:Teleportation
-G:":d
+N:215:テレポート:流木の
+E:Teleportation:Driftwood
+G:":U
 I:40:1:0
 W:15:0:3:250
 A:15/1
 F:TELEPORT | CURSED
 
-N:216:魅力
-E:Charisma
-G:":d
+N:216:魅力:サンゴの
+E:Charisma:Coral
+G:":w
 I:40:2:0
 W:20:0:3:500
 A:20/1
 F:CHR_4
 
-N:217:羽
-E:& Feather~
-G:":d
+N:217:羽:めのうの
+E:& Feather~:Agate
+G:":W
 I:40:3:0
 W:35:0:3:10000
 F:INSTA_ART
 
-N:218:耐酸
-E:Resist Acid
-G:":d
+N:218:耐酸:象牙の
+E:Resist Acid:Ivory
+G:":w
 I:40:4:0
 W:20:0:3:300
 A:20/1
 F:RES_ACID | IGNORE_ACID
 
-N:219:探索
-E:Searching
-G:":d
+N:219:探索:黒曜石の
+E:Searching:Obsidian
+G:":D
 I:40:5:0
 W:30:0:3:600
 A:30/4
 F:SEARCH_0
 
-N:220:アミュレット
-E:& amulet~
-G:":o
+N:220:アミュレット:骨の
+E:& amulet~:Bone
+G:":w
 I:40:6:0
 W:40:0:3:100
 A:60/1
 P:0:1d1:0:0:0
 F:FULL_NAME
 
-N:221:属性転換
-E:& Alignment~
-G:":b
+N:221:属性転換:真鍮の
+E:& Alignment~:Brass
+G:":U
 I:40:7:0
 W:70:0:3:10000
 A:70/1
 D:この首飾りはあなたの属性を逆転させる。
 
-N:222:賢者
-E:the Magi
-G:":d
+N:222:賢者:青銅の
+E:the Magi:Bronze
+G:":U
 I:40:8:0
 W:50:0:3:30000
 A:50/4:80/3
@@ -2155,40 +2164,40 @@ F:FREE_ACT | SEE_INVIS | SEARCH_0 | INFRA_0 |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #JZ#
-N:223:反射
-E:Reflection
-G:":d
+N:223:反射:しろめの
+E:Reflection:Pewter
+G:":s
 I:40:9:0
 W:60:0:3:30000
 A:60/4
 F:REFLECT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:224:首飾り
-E:& Amulet~
-G:":d
+N:224:首飾り:べっ甲の
+E:& Amulet~:Tortoise Shell
+G:":g
 I:40:10:0
 W:50:0:3:60000
 F:INSTA_ART
 
-N:225:アミュレット
-E:& Amulet~
-G:":d
+N:225:アミュレット:金の
+E:& Amulet~:Golden
+G:":y
 I:40:11:0
 W:60:0:3:90000
 F:INSTA_ART
 
-N:226:首飾り
-E:& Amulet~
-G:":d
+N:226:首飾り:瑠璃の
+E:& Amulet~:Azure
+G:":B
 I:40:12:0
 W:70:0:3:75000
 F:INSTA_ART
 
 #JZ#
-N:227:反魔法
-E:Anti-Magic
-G:":d
+N:227:反魔法:水晶の
+E:Anti-Magic:Crystal
+G:":B
 I:40:13:0
 W:40:0:3:10000
 A:40/4
@@ -2196,9 +2205,9 @@ F:NO_MAGIC
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #JZ#
-N:228:反テレポート
-E:Anti-Teleportation
-G:":d
+N:228:反テレポート:銀の
+E:Anti-Teleportation:Silver
+G:":W
 I:40:14:0
 W:30:0:3:5000
 A:30/4
@@ -2206,82 +2215,82 @@ F:NO_TELE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #JZ#
-N:229:耐性
-E:Resistance
-G:":d
+N:229:耐性:銅の
+E:Resistance:Copper
+G:":U
 I:40:15:0
 W:50:0:3:25000
 A:50/4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:230:テレパシー
-E:Telepathy
-G:":d
+N:230:テレパシー:卍の
+E:Telepathy:卍の
+G:":v
 I:40:16:0
 W:60:0:3:50000
 A:60/4
 F:TELEPATHY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:231:カメラ
-E:& Camera~
-G:":d
+N:231:カメラ:プラチナの
+E:& Camera~:Platinum
+G:":w
 I:40:17:0
 W:15:0:3:10000
 F:INSTA_ART
 
-N:232:首飾り
-E:& Amulet~
-G:":b
+N:232:首飾り:ルビーの
+E:& Amulet~:Ruby
+G:":r
 I:40:18:0
 W:30:0:3:25000
-F:INSTA_ART
+F:INSTA_ART | FIXED_FLAVOR
 
-N:233:首飾り
-E:& Amulet~
+N:233:首飾り:サファイアの
+E:& Amulet~:Sapphire
 G:":b
 I:40:19:0
 W:30:0:3:25000
-F:INSTA_ART
+F:INSTA_ART | FIXED_FLAVOR
 
 #N:234:unused
 #E:nanka
 #G:":d
 #I:40:20:0
 
-N:235:角笛
-E:& Horn~
-G:":d
+N:235:角笛:錆びた
+E:& Horn~:Rusty
+G:":r
 I:40:21:0
 W:60:0:25:40000
 F:INSTA_ART
 
-N:236:竪琴
-E:& Harp~
-G:":d
+N:236:竪琴:曲がった
+E:& Harp~:Curved
+G:":g
 I:40:22:0
 W:60:0:60:40000
 F:INSTA_ART
 
-N:237:魔法道具支配
-E:Magic Device Mastery
-G:":d
+N:237:魔法道具支配:ドラゴンの爪の
+E:Magic Device Mastery:Dragon's claw
+G:":G
 I:40:23:0
 W:35:0:3:1000
 A:35/4
 F:MAGIC_MASTERY_0
 
-N:238:アミュレット
-E:& Amulet~
-G:":d
+N:238:アミュレット:数珠の
+E:& Amulet~:Rosary
+G:":G
 I:40:24:0
 W:50:0:3:25000
 F:INSTA_ART
 
-N:239:フーペンダント
-E:Fol Charm Necklace~
-G:":d
+N:239:フーペンダント:ひすいの
+E:Fol Charm Necklace~:Jade
+G:":g
 I:40:25:0
 W:0:0:3:50000
 A:60/4
@@ -2289,9 +2298,9 @@ F:ACTIVATE | RES_FIRE | FULL_NAME | WIS_1 |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:燃えさかる炎を封じたクリスタル。炎の神ゾショネルと交信できる。
 
-N:240:オーペンダント
-E:Ohn Charm Necklace~
-G:":d
+N:240:オーペンダント:ミスリルの
+E:Ohn Charm Necklace~:Mithril
+G:":B
 I:40:26:0
 W:0:0:3:50000
 A:60/4
@@ -2299,9 +2308,9 @@ F:ACTIVATE | RES_COLD | FULL_NAME | WIS_1 |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:汚れなき清水を封じたクリスタル。水の神グルーザと交信できる。
 
-N:241:ソルペンダント
-E:Sol Charm Necklace~
-G:":d
+N:241:ソルペンダント:エメラルドの
+E:Sol Charm Necklace~:Emerald
+G:":g
 I:40:27:0
 W:0:0:3:50000
 A:60/4
@@ -2309,9 +2318,9 @@ F:ACTIVATE | RES_ACID | FULL_NAME | WIS_1 |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:大地の恵みを封じたクリスタル。大地の神バーサと交信できる。
 
-N:242:ヴァンペンダント
-E:Van Charm Necklace~
-G:":d
+N:242:ヴァンペンダント:ガーネットの
+E:Van Charm Necklace~:Garnet
+G:":r
 I:40:28:0
 W:0:0:3:50000
 A:60/4
@@ -2321,9 +2330,9 @@ D:雷雲の核を封じたクリスタル。風の神ハーネラと交信できる。
 
 ##### Rings #####
 
-N:243:肉体強化
-E:Reinforce Muscle
-G:=:d
+N:243:肉体強化:金緑石の
+E:Reinforce Muscle:Alexandrite
+G:=:g
 I:45:0:0
 W:50:0:2:5000
 A:50/4
@@ -2331,404 +2340,404 @@ F:STR_2 | DEX_2 | CON_2
 
 #N:244:unused
 
-N:245:知能
-E:Intelligence
-G:=:d
+N:245:知能:アメジストの
+E:Intelligence:Amethyst
+G:=:v
 I:45:2:0
 W:20:0:3:500
 A:20/1
 F:INT_4
 
-N:246:賢さ
-E:Wisdom
-G:=:d
+N:246:賢さ:アクアマリンの
+E:Wisdom:Aquamarine
+G:=:B
 I:45:3:0
 W:20:0:3:500
 A:20/1
 F:WIS_4
 
-N:247:テレポート
-E:Teleportation
-G:=:d
+N:247:テレポート:めのうの
+E:Teleportation:Azurite
+G:=:B
 I:45:4:0
 W:5:0:2:250
 A:5/1
 F:TELEPORT | CURSED
 
-N:248:スピードの指輪
-E:& Ring~ of Speed
-G:=:d
+N:248:スピードの指輪:緑柱石の
+E:& Ring~ of Speed:Beryl
+G:=:G
 I:45:5:0
 W:80:0:2:5000000
 F:INSTA_ART
 
-N:249:指輪
-E:& ring~
-G:=:o
+N:249:指輪:血玉随の
+E:& ring~:Bloodstone
+G:=:r
 I:45:6:0
 W:40:0:2:100
 A:40/1
 P:0:1d1:0:0:0
 F:FULL_NAME
 
-N:250:疾風
-E:Wind
-G:=:d
+N:250:疾風:方解石の
+E:Wind:Calcite
+G:=:w
 I:45:7:0
 W:25:0:2:6000
 A:25/2
 F:FEATHER | SH_ELEC
 
-N:251:耐火
-E:Resist Fire
-G:=:d
+N:251:耐火:赤めのうの
+E:Resist Fire:Carnelian
+G:=:r
 I:45:8:0
 W:10:0:2:250
 A:10/1
 F:RES_FIRE | IGNORE_FIRE
 
-N:252:耐冷
-E:Resist Cold
-G:=:d
+N:252:耐冷:綱玉の
+E:Resist Cold:Corundum
+G:=:s
 I:45:9:0
 W:10:0:2:250
 A:10/1
 F:RES_COLD | IGNORE_COLD
 
-N:253:腕力維持
-E:Sustain Strength
-G:=:d
+N:253:腕力維持:ダイアモンドの
+E:Sustain Strength:Diamond
+G:=:w
 I:45:10:0
 W:30:0:2:750
 A:30/1
 F:SUST_STR
 
-N:254:知能維持
-E:Sustain Intelligence
-G:=:d
+N:254:知能維持:エメラルドの
+E:Sustain Intelligence:Emerald
+G:=:g
 I:45:11:0
 W:30:0:2:600
 A:30/1
 F:SUST_INT
 
-N:255:賢さ維持
-E:Sustain Wisdom
-G:=:d
+N:255:賢さ維持:ホタル石の
+E:Sustain Wisdom:Fluorite
+G:=:G
 I:45:12:0
 W:30:0:2:600
 A:30/1
 F:SUST_WIS
 
-N:256:耐久力維持
-E:Sustain Constitution
-G:=:d
+N:256:耐久力維持:ガーネットの
+E:Sustain Constitution:Garnet
+G:=:r
 I:45:13:0
 W:30:0:2:750
 A:30/1
 F:SUST_CON
 
-N:257:器用さ維持
-E:Sustain Dexterity
-G:=:d
+N:257:器用さ維持:御影石の
+E:Sustain Dexterity:Granite
+G:=:D
 I:45:14:0
 W:30:0:2:750
 A:30/1
 F:SUST_DEX
 
-N:258:魅力維持
-E:Sustain Charisma
-G:=:d
+N:258:魅力維持:ひすいの
+E:Sustain Charisma:Jade
+G:=:G
 I:45:15:0
 W:30:0:2:500
 A:30/1
 F:SUST_CHR
 
-N:259:守り
-E:Protection
-G:=:d
+N:259:守り:ジャスパーの
+E:Protection:ジャスパーの
+G:=:u
 I:45:16:0
 W:10:0:2:500
 A:10/1
 
-N:260:酸
-E:Acid
-G:=:d
+N:260:酸:青瑠璃の
+E:Acid:Lapis Lazuli
+G:=:b
 I:45:17:0
 W:35:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID | ACTIVATE
 
-N:261:火炎
-E:Flames
-G:=:d
+N:261:火炎:クジャク石の
+E:Flames:Malachite
+G:=:g
 I:45:18:0
 W:35:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
 F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 
-N:262:氷
-E:Ice
-G:=:d
+N:262:氷:大理石の
+E:Ice:Marble
+G:=:w
 I:45:19:0
 W:35:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD | ACTIVATE
 
-N:263:耐毒
-E:Poison Resistance
-G:=:d
+N:263:耐毒:ムーンストーンの
+E:Poison Resistance:Moonstone
+G:=:W
 I:45:20:0
 W:40:0:2:16000
 A:40/2
 F:RES_POIS
 
-N:264:麻痺知らず
-E:Free Action
-G:=:d
+N:264:麻痺知らず:縞めのうの
+E:Free Action:Onyx
+G:=:R
 I:45:21:0
 W:20:0:2:1500
 A:20/1
 F:FREE_ACT
 
-N:265:透明物体感知
-E:See Invisible
-G:=:d
+N:265:透明物体感知:オパールの
+E:See Invisible:Opal
+G:=:W
 I:45:22:0
 W:30:0:2:340
 A:30/1
 F:SEE_INVIS
 
-N:266:探索
-E:Searching
-G:=:d
+N:266:探索:真珠の
+E:Searching:Pearl
+G:=:w
 I:45:23:0
 W:5:0:2:250
 A:5/1
 F:SEARCH_0
 
-N:267:警告
-E:Warning
-G:=:d
+N:267:警告:水晶の
+E:Warning:Quartz
+G:=:W
 I:45:24:0
 W:10:0:2:200
 A:10/2
 F:WARNING
 
-N:268:電撃
-E:Lightning
-G:=:d
+N:268:電撃:石英岩の
+E:Lightning:Quartzite
+G:=:W
 I:45:25:0
 W:35:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
 F:RES_ELEC | IGNORE_ELEC | ACTIVATE
 
-N:269:追加射撃
-E:Extra Shots
-G:=:d
+N:269:追加射撃:ザクロ石の
+E:Extra Shots:Rhodonite
+G:=:R
 I:45:26:0
 W:50:0:2:20000
 A:50/2
 F:XTRA_SHOTS
 
-N:270:能力維持
-E:Sustaining
-G:=:d
+N:270:能力維持:ルビーの
+E:Sustaining:Ruby
+G:=:r
 I:45:27:0
 W:60:0:2:10000
 A:60/5
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 
-N:271:精度
-E:Accuracy
-G:=:d
+N:271:精度:サファイアの
+E:Accuracy:Sapphire
+G:=:b
 I:45:28:0
 W:20:0:2:500
 P:0:0d0:1:0:0
 A:20/1
 
-N:272:ダメージ
-E:Damage
-G:=:d
+N:272:ダメージ:虎目石の
+E:Damage:Tiger Eye
+G:=:y
 I:45:29:0
 W:20:0:2:500
 P:0:0d0:0:1:0
 A:20/1
 
-N:273:殺戮
-E:Slaying
-G:=:d
+N:273:殺戮:トパーズの
+E:Slaying:Topaz
+G:=:y
 I:45:30:0
 W:40:0:2:1000
 P:0:0d0:1:1:0
 A:40/1
 F:SHOW_MODS
 
-N:274:スピード
-E:Speed
-G:=:d
+N:274:スピード:トルコ石の
+E:Speed:Turquoise
+G:=:B
 I:45:31:0
 W:80:0:2:50000
 A:80/1
 F:SPEED_0
 
-N:275:リング
-E:& Ring~
-G:=:d
+N:275:リング:ジルコンの
+E:& Ring~:Zircon
+G:=:U
 I:45:32:0
 W:50:0:2:65000
 F:INSTA_ART
 
-N:276:指輪
-E:& Ring~
-G:=:d
+N:276:指輪:プラチナの
+E:& Ring~:Platinum
+G:=:w
 I:45:33:0
 W:70:0:2:150000
 F:INSTA_ART
 
-N:277:指輪
-E:& Ring~
-G:=:d
+N:277:指輪:青銅の
+E:& Ring~:Bronze
+G:=:U
 I:45:34:0
 W:80:0:2:100000
 F:INSTA_ART
 
-N:278:指輪
-E:& Ring~
-G:=:d
+N:278:指輪:金の
+E:& Ring~:Gold
+G:=:y
 I:45:35:0
 W:90:0:2:200000
 F:INSTA_ART
 
-N:279:リング
-E:& Ring~
-G:=:d
+N:279:リング:黒曜石の
+E:& Ring~:Obsidian
+G:=:D
 I:45:36:0
 W:100:0:2:300000
 F:INSTA_ART
 
-N:280:消費魔力減少
-E:Mana
-G:=:d
+N:280:消費魔力減少:銀の
+E:Mana:Silver
+G:=:W
 I:45:37:0
 W:80:0:2:30000
 A:80/8
 F:DEC_MANA
 
 #JZ#
-N:281:恐れ知らず
-E:Fear Resistance
-G:=:d
+N:281:恐れ知らず:べっ甲の
+E:Fear Resistance:Tortoise Shell
+G:=:g
 I:45:38:0
 W:10:0:2:300 
 A:10/2
 F:RES_FEAR
 
 #JZ#
-N:282:耐光耐暗
-E:Light and Darkness Resistance
-G:=:d
+N:282:耐光耐暗:ミスリルの
+E:Light and Darkness Resistance:Mithril
+G:=:B
 I:45:39:0
 W:30:0:2:3000
 A:30/2
 F:RES_LITE | RES_DARK
 
 #JZ#
-N:283:耐地獄
-E:Nether Resistance
-G:=:d
+N:283:耐地獄:黒玉の
+E:Nether Resistance:Jet
+G:=:D
 I:45:40:0
 W:34:0:2:14500
 A:34/2
 F:RES_NETHER | HOLD_LIFE
 
 #JZ#
-N:284:耐石化
-E:Stone Resistance
-G:=:d
+N:284:耐石化:婚約
+E:Stone Resistance:Engagement
+G:=:y
 I:45:41:0
 W:48:0:2:8000
 A:48/4
 F:RES_STONE
 
 #JZ#
-N:285:耐轟音
-E:Sound Resistance
-G:=:d
+N:285:耐轟音:アダマンタイトの
+E:Sound Resistance:Adamantite
+G:=:v
 I:45:42:0
 W:26:0:2:3000
 A:26/2
 F:RES_SOUND
 
 #JZ#
-N:286:耐混乱
-E:Confusion Resistance
-G:=:d
+N:286:耐混乱:針金の
+E:Confusion Resistance:Wire
+G:=:u
 I:45:43:0
 W:22:0:2:3000
 A:22/2
 F:RES_CONF
 
 #JZ#
-N:287:耐破片
-E:Shard Resistance
-G:=:d
+N:287:耐破片:ディリシウムの
+E:Shard Resistance:Dilithium
+G:=:W
 I:45:44:0
 W:25:0:2:3000
 A:25/2
 F:RES_SHARDS
 
 #JZ#
-N:288:耐劣化
-E:Disenchantment Resistance
-G:=:d
+N:288:耐劣化:木の
+E:Disenchantment Resistance:Wooden
+G:=:u
 I:45:45:0
 W:90:0:2:15000
 A:90/10
 F:RES_DISEN
 
 #JZ#
-N:289:耐カオス
-E:Chaos Resistance
-G:=:d
+N:289:耐カオス:蛇の
+E:Chaos Resistance:蛇の
+G:=:g
 I:45:46:0
 W:50:0:2:13000
 A:50/2
 F:RES_CHAOS | RES_CONF
 
 #JZ#
-N:290:耐盲目
-E:Blindness Resistance
-G:=:d
+N:290:耐盲目:結婚
+E:Blindness Resistance:Wedding
+G:=:y
 I:45:47:0
 W:60:0:2:7500
 A:60/2
 F:RES_BLIND
 
 #JZ#
-N:291:王者の加護
-E:Lordly Protection
-G:=:d
+N:291:王者の加護:Wedding
+E:Lordly Protection:Wedding
+G:=:o
 I:45:48:0
 W:100:0:2:100000
 A:100/8
 F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
 
 #JZ#
-N:292:追加攻撃
-E:Extra Attacks
-G:=:d
+N:292:追加攻撃:スカラベの
+E:Extra Attacks:Scarab
+G:=:G
 I:45:49:0
 W:50:0:2:100000
 A:50/2
 F:BLOWS_0
 
-N:293:指輪
-E:& Ring~
-G:=:d
+N:293:指輪:錆びた
+E:& Ring~:Rusty
+G:=:r
 I:45:50:0
 W:66:0:2:66666
 F:INSTA_ART
@@ -2763,9 +2772,9 @@ W:0:0:1:4
 
 ##### Staffs #####
 
-N:297:暗闇
-E:Darkness
-G:_:d
+N:297:暗闇:ポプラの
+E:Darkness:Aspen
+G:_:U
 I:55:0:10
 W:5:0:50:0
 A:5/1:50/1
@@ -2773,9 +2782,9 @@ P:0:1d2:0:0:0
 D:$It darkens nearby area or current room and blinds you when you use it.
 D:それは使うと自分の周囲もしくは部屋全体が暗闇に包まれ、盲目になる。
 
-N:298:のろま
-E:Slowness
-G:_:d
+N:298:のろま:バルサの
+E:Slowness:Balsa
+G:_:U
 I:55:1:10
 W:40:0:50:0
 A:40/1
@@ -2783,9 +2792,9 @@ P:0:1d2:0:0:0
 D:$It slows you down temporarily when you use it.
 D:それは使うと一時的に減速する。
 
-N:299:スピード・モンスター
-E:Haste Monsters
-G:_:d
+N:299:スピード・モンスター:バンヤンの
+E:Haste Monsters:Banyan
+G:_:U
 I:55:2:12
 W:10:0:50:0
 A:10/1
@@ -2793,9 +2802,9 @@ P:0:1d2:0:0:0
 D:$It hastes all monsters in sight when you use it.
 D:それは使うと視界内のモンスターを加速させる。
 
-N:300:召喚
-E:Summoning
-G:_:d
+N:300:召喚:カバの
+E:Summoning:Birch
+G:_:U
 I:55:3:5
 W:10:0:50:0
 A:10/1:50/1
@@ -2803,9 +2812,9 @@ P:0:1d2:0:0:0
 D:$It summons several monsters as enemies when you use it.
 D:それは使うと複数のモンスターを敵として召喚する。
 
-N:301:テレポート
-E:Teleportation
-G:_:d
+N:301:テレポート:西洋スギの
+E:Teleportation:Cedar
+G:_:U
 I:55:4:10
 W:20:0:50:2000
 A:20/1
@@ -2813,9 +2822,9 @@ P:0:1d2:0:0:0
 D:$It teleports you a long distance when you use it.
 D:それは使うと遠距離のテレポートをする。
 
-N:302:鑑定
-E:Perception
-G:_:d
+N:302:鑑定:檜の
+E:Perception:Cottonwood
+G:_:U
 I:55:5:21
 W:10:0:50:400
 A:10/1
@@ -2823,9 +2832,9 @@ P:0:1d2:0:0:0
 D:$It identifies an item when you use it.
 D:それは使うと1個のアイテムを鑑定する。
 
-N:303:解呪
-E:Remove Curse
-G:_:d
+N:303:解呪:イトスギの
+E:Remove Curse:Cypress
+G:_:U
 I:55:6:8
 W:40:0:50:500
 A:40/1
@@ -2833,9 +2842,9 @@ P:0:1d2:0:0:0
 D:$It removes normal curses from equipped items when you use it.
 D:それは使うと装備しているアイテムにかかった弱い呪いを解く。
 
-N:304:スターライト
-E:Starlight
-G:_:d
+N:304:スターライト:ミズキの
+E:Starlight:Dogwood
+G:_:U
 I:55:7:12
 W:20:0:50:800
 A:20/1
@@ -2843,9 +2852,9 @@ P:0:1d2:0:0:0
 D:$It fires a line of light directed randomly for 5d3 times when you use it.
 D:それは使うとランダムな方向への光線を5d3回放つ。
 
-N:305:光
-E:Light
-G:_:d
+N:305:光:ニレの
+E:Light:Elm
+G:_:U
 I:55:8:19
 W:5:0:50:250
 A:5/1
@@ -2853,9 +2862,9 @@ P:0:1d2:0:0:0
 D:$It lights up nearby area or the current room permanently when you use it.
 D:それは使うと自分の周囲もしくは部屋全体を永久に照らす。
 
-N:306:周辺感知
-E:Enlightenment
-G:_:d
+N:306:周辺感知:ユーカリの
+E:Enlightenment:Eucalyptus
+G:_:U
 I:55:9:11
 W:20:0:50:750
 A:20/1
@@ -2863,9 +2872,9 @@ P:0:1d2:0:0:0
 D:$It maps your vicinity when you use it.
 D:それは使うと自分の周辺の地形を感知する。
 
-N:307:財宝感知
-E:Treasure Location
-G:_:d
+N:307:財宝感知:ツガの
+E:Treasure Location:Hemlock
+G:_:U
 I:55:10:19
 W:5:0:50:200
 A:5/1
@@ -2873,9 +2882,9 @@ P:0:1d2:0:0:0
 D:$It detects all treasures in your vicinity when you use it.
 D:それは使うと自分の周辺の財宝を感知する。
 
-N:308:アイテム感知
-E:Object Location
-G:_:d
+N:308:アイテム感知:ブナの
+E:Object Location:Hickory
+G:_:U
 I:55:11:15
 W:5:0:50:200
 A:5/1
@@ -2883,9 +2892,9 @@ P:0:1d2:0:0:0
 D:$It detects all items in your vicinity when you use it.
 D:それは使うと自分の周辺のアイテムを感知する。
 
-N:309:トラップ感知
-E:Trap Location
-G:_:d
+N:309:トラップ感知:黒檀の
+E:Trap Location:Ironwood
+G:_:u
 I:55:12:12
 W:10:0:50:350
 A:10/1
@@ -2893,9 +2902,9 @@ P:0:1d2:0:0:0
 D:$It detects all traps in your vicinity when you use it.
 D:それは使うと自分の周辺のトラップを感知する。
 
-N:310:ドア/階段感知
-E:Door/Stair Location
-G:_:d
+N:310:ドア/階段感知:アカシアの
+E:Door/Stair Location:Locust
+G:_:U
 I:55:13:15
 W:10:0:50:350
 A:10/1
@@ -2903,9 +2912,9 @@ P:0:1d2:0:0:0
 D:$It detects all doors and stairs in your vicinity when you use it.
 D:それは使うと自分の周辺のドア・階段を感知する。
 
-N:311:透明物体感知
-E:Detect Invisible
-G:_:d
+N:311:透明物体感知:マホガニーの
+E:Detect Invisible:Mahogany
+G:_:u
 I:55:14:16
 W:5:0:50:200
 A:5/1
@@ -2913,9 +2922,9 @@ P:0:1d2:0:0:0
 D:$It detects all invisible monsters in your vicinity when you use it.
 D:それは使うと自分の周辺の透明なモンスターを感知する。
 
-N:312:邪悪存在感知
-E:Detect Evil
-G:_:d
+N:312:邪悪存在感知:カエデの
+E:Detect Evil:Maple
+G:_:U
 I:55:15:14
 W:20:0:50:350
 A:20/1
@@ -2923,9 +2932,9 @@ P:0:1d2:0:0:0
 D:$It detects all evil monsters in your vicinity when you use it.
 D:それは使うと自分の周辺の邪悪なモンスターを感知する。
 
-N:313:軽傷の治癒
-E:Cure Light Wounds
-G:_:d
+N:313:軽傷の治癒:クワの
+E:Cure Light Wounds:Mulberry
+G:_:U
 I:55:16:12
 W:5:0:50:350
 A:5/1
@@ -2933,9 +2942,9 @@ P:0:1d2:0:0:0
 D:$It heals you 2d8 and cures berserk when you use it.
 D:それは使うと体力が2d8回復し、狂戦士化を癒す。
 
-N:314:癒し
-E:Curing
-G:_:d
+N:314:癒し:カシの
+E:Curing:Oak
+G:_:U
 I:55:17:8
 W:25:0:50:1000
 A:25/1
@@ -2944,9 +2953,9 @@ D:$It cures blindness, poison, confusion, stunned, cuts, hallucination and
 D:$berserk when you use it.
 D:それは使うと盲目・毒・混乱・朦朧・切り傷・幻覚・狂戦士化を癒す。
 
-N:315:体力回復
-E:Healing
-G:_:d
+N:315:体力回復:松の
+E:Healing:Pine
+G:_:U
 I:55:18:4
 W:70:0:50:5000
 A:70/2
@@ -2954,9 +2963,9 @@ P:0:1d2:0:0:0
 D:$It heals you 300 and cures stunned, cuts and berserk when you use it.
 D:それは使うと体力が300回復し、朦朧・切り傷・狂戦士化を癒す。
 
-N:316:賢者
-E:the Magi
-G:_:d
+N:316:賢者:杉の
+E:the Magi:Redwood
+G:_:r
 I:55:19:5
 W:50:0:50:100000
 A:50/20
@@ -2965,9 +2974,9 @@ D:$It restores mana to full, restores your intelligence and cures berserk when
 D:$you use it.
 D:それは使うと魔力が最大まで回復し、知能を回復し、狂戦士化を癒す。
 
-N:317:スリープ・モンスター
-E:Sleep Monsters
-G:_:d
+N:317:スリープ・モンスター:紫檀の
+E:Sleep Monsters:Rosewood
+G:_:r
 I:55:20:12
 W:10:0:50:700
 A:10/1
@@ -2975,9 +2984,9 @@ P:0:1d2:0:0:0
 D:$It puts all monsters in sight to sleep when you use it.
 D:それは使うと視界内のモンスターを眠らせる。
 
-N:318:スロウ・モンスター
-E:Slow Monsters
-G:_:d
+N:318:スロウ・モンスター:エゾマツの
+E:Slow Monsters:Spruce
+G:_:U
 I:55:21:12
 W:10:0:50:800
 A:10/1
@@ -2985,9 +2994,9 @@ P:0:1d2:0:0:0
 D:$It slows all monsters in sight down when you use it.
 D:それは使うと視界内のモンスターを減速させる。
 
-N:319:スピード
-E:Speed
-G:_:d
+N:319:スピード:イチジクの
+E:Speed:Sycamore
+G:_:U
 I:55:22:8
 W:40:0:50:15000
 A:40/6
@@ -2995,9 +3004,9 @@ P:0:1d2:0:0:0
 D:$It hastes you temporarily when you use it.
 D:それは使うと一時的に加速する。
 
-N:320:調査
-E:Probing
-G:_:d
+N:320:調査:チークの
+E:Probing:Teak
+G:_:U
 I:55:23:9
 W:30:0:50:2000
 A:30/1
@@ -3007,9 +3016,9 @@ D:$true character in sight when you use it.
 D:それは使うと視界内のモンスターの属性・HP・AC・スピード・現在の経験値・正体を
 D:表示する。
 
-N:321:邪悪存在退散
-E:Dispel Evil
-G:_:d
+N:321:邪悪存在退散:クルミの
+E:Dispel Evil:Walnut
+G:_:u
 I:55:24:8
 W:50:0:50:1200
 A:50/1
@@ -3017,9 +3026,9 @@ P:0:1d2:0:0:0
 D:$It does 80 damage to all evil monsters in sight when you use it.
 D:それは使うと視界内の邪悪なモンスターに80のダメージを与える。
 
-N:322:力
-E:Power
-G:_:d
+N:322:力:ヤドリギの
+E:Power::Mistletoe
+G:_:g
 I:55:25:5
 W:70:0:50:4000
 A:70/2
@@ -3027,9 +3036,9 @@ P:0:1d2:0:0:0
 D:$It does 150 damage to all monsters in sight when you use it.
 D:それは使うと視界内のモンスターに150のダメージを与える。
 
-N:323:聖浄
-E:Holiness
-G:_:d
+N:323:聖浄:サンザシの
+E:Holiness:Hawthorn
+G:_:U
 I:55:26:5
 W:70:0:50:4500
 A:70/2
@@ -3041,9 +3050,9 @@ D:それは使うと視界内の邪悪なモンスターに150のダメージを与え、
 D:一時的に弱い邪悪な者の攻撃を回避しやすくなる結界を張り、
 D:毒・朦朧・切り傷を癒し、恐怖を取り除き、体力が50回復する。
 
-N:324:抹殺
-E:Genocide
-G:_:d
+N:324:抹殺:竹の
+E:Genocide:Bamboo
+G:_:U
 I:55:27:4
 W:80:0:50:30000
 A:75/5
@@ -3053,9 +3062,9 @@ D:$Powerful or unique monsters may resist.
 D:それは使うと指定した文字のモンスターを現在の階から消し去る。抵抗されると
 D:無効。
 
-N:325:地震
-E:Earthquakes
-G:_:d
+N:325:地震:銀の
+E:Earthquakes:Silver
+G:_:W
 I:55:28:9
 W:40:0:50:350
 A:40/1
@@ -3063,9 +3072,9 @@ P:0:1d2:0:0:0
 D:$It causes a earthquake nearby you when you use it.
 D:それは使うと自分の周囲に地震を起こす。
 
-N:326:*破壊*
-E:*Destruction*
-G:_:d
+N:326:*破壊*:ルーンの
+E:*Destruction*:Runed
+G:_:u
 I:55:29:5
 W:50:0:50:25500
 A:50/6
@@ -3073,9 +3082,9 @@ P:0:1d2:0:0:0
 D:$It destroys everything nearby you when you use it.
 D:それは使うと自分の周辺の全てのものを破壊する。
 
-N:327:死人返し
-E:Animate Dead
-G:_:d
+N:327:死人返し:金色の
+E:Animate Dead:Golden
+G:_:y
 I:55:30:8
 W:35:0:50:800
 A:35/1
@@ -3084,9 +3093,9 @@ D:$It raises corpses and skeletons nearby you from dead and makes them your
 D:$pet when you use it.
 D:それは使うと自分の周囲の死体や骨を生き返らせてペットにする。
 
-N:328:魔力の嵐
-E:Mana Storm
-G:_:d
+N:328:魔力の嵐:トネリコの
+E:Mana Storm:Ashen
+G:_:s
 I:55:31:5
 W:55:0:50:7000
 A:55/6
@@ -3097,9 +3106,9 @@ D:$when you use it.
 D:それは使うと中心部ダメージ(300+d200)*2の巨大な純粋な魔力の球を自分を
 D:中心として発生する。
 
-N:329:*虚無*
-E:*Void*
-G:_:d
+N:329:*虚無*:月桂樹の
+E:*Void*:Gnarled
+G:_:s
 I:55:32:3
 W:80:0:50:95500
 A:80/6
@@ -3114,9 +3123,9 @@ D:放つ。
 
 ##### Wands #####
 
-N:330:回復モンスター
-E:Heal Monster
-G:-:d
+N:330:回復モンスター:アルミの
+E:Heal Monster:Aluminum
+G:-:B
 I:65:0:6
 W:2:0:10:500
 A:2/10
@@ -3124,9 +3133,9 @@ P:0:1d1:0:0:0
 D:$It heals a monster when you use it.
 D:それは使うと1体のモンスターの体力を回復させる。
 
-N:331:スピード・モンスター
-E:Haste Monster
-G:-:d
+N:331:スピード・モンスター:鋳鉄の
+E:Haste Monster:Cast Iron
+G:-:D
 I:65:1:6
 W:20:0:10:500
 A:20/10
@@ -3139,9 +3148,9 @@ D:それは使うと1体のモンスターを加速させる。
 #G:-:d
 #I:65:2:12
 
-N:333:テレポート・アウェイ
-E:Teleport Other
-G:-:d
+N:333:テレポート・アウェイ:クロムの
+E:Teleport Other:Chromium
+G:-:w
 I:65:3:12
 W:20:0:10:350
 A:20/1
@@ -3149,9 +3158,9 @@ P:0:1d1:0:0:0
 D:$It fires a beam teleports all monsters on the line when you use it.
 D:それは使うとモンスターをテレポートさせるビームを放つ。
 
-N:334:トラップ解除
-E:Disarming
-G:-:d
+N:334:トラップ解除:銅の
+E:Disarming:Copper
+G:-:U
 I:65:4:10
 W:20:0:10:700
 A:20/1
@@ -3159,9 +3168,9 @@ P:0:1d1:0:0:0
 D:$It fires a beam destroys all traps on the line when you use it.
 D:それは使うとトラップを破壊するビームを放つ。
 
-N:335:トラップ/ドア破壊
-E:Trap/Door Destruction
-G:-:d
+N:335:トラップ/ドア破壊:金の
+E:Trap/Door Destruction:Gold
+G:-:y
 I:65:5:15
 W:10:0:10:100
 A:10/1
@@ -3170,9 +3179,9 @@ D:$It fires a beam destroys all traps and doors on the line when you use it.
 D:それは使うとトラップやドアを破壊するビームを放つ。
 
 # More common now...
-N:336:岩石溶解
-E:Stone to Mud
-G:-:d
+N:336:岩石溶解:鉄の
+E:Stone to Mud:Iron
+G:-:s
 I:65:6:12
 W:10:0:10:300
 A:10/1:40/1
@@ -3180,9 +3189,9 @@ P:0:1d1:0:0:0
 D:$It turns a door, rock, wall square to mud when you use it.
 D:それは使うとドアや岩石や壁を溶かす。
 
-N:337:光
-E:Light
-G:-:d
+N:337:光:マグネシウムの
+E:Light:Magnesium
+G:-:W
 I:65:7:17
 W:3:0:10:200
 A:3/1
@@ -3190,9 +3199,9 @@ P:0:1d1:0:0:0
 D:$It fires a line of light when you use it.
 D:それは使うと光線を放つ。
 
-N:338:スリープ・モンスター
-E:Sleep Monster
-G:-:d
+N:338:スリープ・モンスター:モリブデンの
+E:Sleep Monster:Molybdenum
+G:-:W
 I:65:8:16
 W:5:0:10:500
 A:5/1
@@ -3200,9 +3209,9 @@ P:0:1d1:0:0:0
 D:$It puts a monster to sleep when you use it.
 D:それは使うと1体のモンスターを眠らせる。
 
-N:339:スロウ・モンスター
-E:Slow Monster
-G:-:d
+N:339:スロウ・モンスター:ニッケルの
+E:Slow Monster:Nickel
+G:-:U
 I:65:9:17
 W:5:0:10:500
 A:2/1
@@ -3210,9 +3219,9 @@ P:0:1d1:0:0:0
 D:$It slows a monster down when you use it.
 D:それは使うと1体のモンスターを減速させる。
 
-N:340:パニック・モンスター
-E:Confuse Monster
-G:-:d
+N:340:パニック・モンスター:錆びた
+E:Confuse Monster:Rusty
+G:-:r
 I:65:10:15
 W:5:0:10:500
 A:3/1
@@ -3220,9 +3229,9 @@ P:0:1d1:0:0:0
 D:$It confuses a monster when you use it.
 D:それは使うと1体のモンスターを混乱させる。
 
-N:341:恐慌モンスター
-E:Scare Monster
-G:-:d
+N:341:恐慌モンスター:銀の
+E:Scare Monster:Silver
+G:-:W
 I:65:11:9
 W:10:0:10:500
 A:10/4
@@ -3230,9 +3239,9 @@ P:0:1d1:0:0:0
 D:$It scares a monster when you use it.
 D:それは使うと1体のモンスターを恐怖させる。
 
-N:342:生命力吸収
-E:Drain Life
-G:-:d
+N:342:生命力吸収:鋼鉄の
+E:Drain Life:Steel
+G:-:W
 I:65:12:7
 W:50:0:10:1200
 A:50/1
@@ -3240,9 +3249,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt of drain life (damage: 80+level) when you use it.
 D:それは使うとダメージ80+レベルの生命力を削る矢を放つ。
 
-N:343:チェンジ・モンスター
-E:Polymorph
-G:-:d
+N:343:チェンジ・モンスター:ブリキの
+E:Polymorph:Tin
+G:-:W
 I:65:13:15
 W:20:0:10:400
 A:20/1
@@ -3250,9 +3259,9 @@ P:0:1d1:0:0:0
 D:$It changes a monster into another when you use it.
 D:それは使うと1体のモンスターを変身させる。
 
-N:344:悪臭雲
-E:Stinking Cloud
-G:-:d
+N:344:悪臭雲:タングステンの
+E:Stinking Cloud:Tungsten
+G:-:w
 I:65:14:15
 W:5:0:10:400
 A:5/1
@@ -3260,9 +3269,9 @@ P:0:1d1:0:0:0
 D:$It fires a ball of poison (damage: 12+level/4) when you use it.
 D:それは使うとダメージ12+レベル/4の毒の球を放つ。
 
-N:345:マジック・ミサイル
-E:Magic Missile
-G:-:d
+N:345:マジック・ミサイル:チタンの
+E:Magic Missile:Titanium
+G:-:w
 I:65:15:17
 W:2:0:10:200
 A:2/1
@@ -3270,9 +3279,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt or beam of magic (damage: (2+level/10)d6) when you use it.
 D:それは使うとダメージ(2+レベル/10)d6の魔法の矢またはビームを放つ。
 
-N:346:アシッド・ボルト
-E:Acid Bolts
-G:-:d
+N:346:アシッド・ボルト:ジルコンの
+E:Acid Bolts:Zirconium
+G:-:W
 I:65:16:15
 W:30:0:10:950
 A:30/1
@@ -3281,9 +3290,9 @@ D:$It fires a bolt or beam of acid (damage: (6+level/7)d8) when you use it.
 D:それは使うとダメージ(6+レベル/7)d8の酸の矢またはビームを放つ。
 
 #JZ#
-N:347:懐柔
-E:Tame Monster
-G:-:d
+N:347:懐柔:亜鉛の
+E:Tame Monster:Zinc
+G:-:W
 I:65:17:9
 W:30:0:10:1500
 A:30/2
@@ -3291,9 +3300,9 @@ P:0:1d1:0:0:0
 D:$It charms a monster into your pet when you use it.
 D:それは使うと1体のモンスターを魅了してペットにする。
 
-N:348:ファイア・ボルト
-E:Fire Bolts
-G:-:d
+N:348:ファイア・ボルト:銅メッキの
+E:Fire Bolts:Copper-Plated
+G:-:U
 I:65:18:15
 W:30:0:10:1000
 A:30/1
@@ -3301,9 +3310,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt or beam of fire (damage: (7+level/6)d8) when you use it.
 D:それは使うとダメージ(7+レベル/6)d8の火炎の矢またはビームを放つ。
 
-N:349:アイス・ボルト
-E:Frost Bolts
-G:-:d
+N:349:アイス・ボルト:亜鉛メッキの
+E:Frost Bolts:Zinc-Plated
+G:-:W
 I:65:19:12
 W:20:0:10:800
 A:20/1
@@ -3311,9 +3320,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt or beam of cold (damage: (5+level/8)d8) when you use it.
 D:それは使うとダメージ(5+レベル/8)d8の冷気の矢またはビームを放つ。
 
-N:350:アシッド・ボール
-E:Acid Balls
-G:-:d
+N:350:アシッド・ボール:ミスリルの
+E:Acid Balls:Mithril
+G:-:B
 I:65:20:8
 W:50:0:10:1650
 A:50/1
@@ -3322,9 +3331,9 @@ F:IGNORE_ACID
 D:$It fires a ball of acid (damage: 60+3*level/4) when you use it.
 D:それは使うとダメージ60+3*レベル/4の酸の球を放つ。
 
-N:351:サンダー・ボール
-E:Lightning Balls
-G:-:d
+N:351:サンダー・ボール:金メッキの
+E:Lightning Balls:Gold-Plated
+G:-:y
 I:65:21:13
 W:35:0:10:1200
 A:35/1
@@ -3333,9 +3342,9 @@ F:IGNORE_ELEC
 D:$It fires a ball of lightning (damage: 40+3*level/4) when you use it.
 D:それは使うとダメージ40+3*レベル/4の電撃の球を放つ。
 
-N:352:ファイア・ボール
-E:Fire Balls
-G:-:d
+N:352:ファイア・ボール:スズメッキの
+E:Fire Balls:Tin-Plated
+G:-:W
 I:65:22:7
 W:50:0:10:1800
 A:50/1
@@ -3344,9 +3353,9 @@ F:IGNORE_FIRE
 D:$It fires a ball of fire (damage: 70+3*level/4) when you use it.
 D:それは使うとダメージ70+3*レベル/4の火炎の球を放つ。
 
-N:353:アイス・ボール
-E:Cold Balls
-G:-:d
+N:353:アイス・ボール:銀メッキの
+E:Cold Balls:Silver-Plated
+G:-:W
 I:65:23:9
 W:40:0:10:1500
 A:40/1
@@ -3355,9 +3364,9 @@ F:IGNORE_COLD
 D:$It fires a ball of cold (damage: 50+3*level/4) when you use it.
 D:それは使うとダメージ50+3*レベル/4の冷気の球を放つ。
 
-N:354:謎
-E:Wonder
-G:-:d
+N:354:謎:青銅の
+E:Wonder:Bronze
+G:-:U
 I:65:24:24
 W:3:0:10:250
 A:3/1
@@ -3366,9 +3375,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It effects uncertainly when you use it.
 D:それは使うと何が起こるかわからない。
 
-N:355:分解
-E:Disintegrate
-G:-:d
+N:355:分解:真鍮の
+E:Disintegrate:Brass
+G:-:U
 I:65:25:4
 W:60:0:10:3000
 A:60/4
@@ -3377,9 +3386,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It fires a ball of disintegration (damage: 200+d(level*2)) when you use it.
 D:それは使うとダメージ200+d(レベル*2)の分解の球を放つ。
 
-N:356:ドラゴンの火炎
-E:Dragon's Flame
-G:-:d
+N:356:ドラゴンの火炎:プラチナの
+E:Dragon's Flame:Platinum
+G:-:w
 I:65:26:5
 W:50:0:10:24000
 A:60/12
@@ -3388,9 +3397,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It breathes *fire* (damage: 200) when you use it.
 D:それは使うとダメージ200の*火炎*のブレスを放つ。
 
-N:357:ドラゴンの冷気
-E:Dragon's Frost
-G:-:d
+N:357:ドラゴンの冷気:鉛の
+E:Dragon's Frost:Lead
+G:-:s
 I:65:27:5
 W:50:0:10:24000
 A:60/12
@@ -3399,9 +3408,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It breathes *aqua* (damage: 180) when you use it.
 D:それは使うとダメージ180の*水*のブレスを放つ。
 
-N:358:ドラゴン・ブレス
-E:Dragon's Breath
-G:-:d
+N:358:ドラゴン・ブレス:鉛メッキの
+E:Dragon's Breath:Lead-Plated
+G:-:s
 I:65:28:5
 W:60:0:10:240000
 A:80/40
@@ -3413,9 +3422,9 @@ D:それは使うとダメージ240の*大地*のブレス、ダメージ210の*風*のブレス、
 D:ダメージ240の*火炎*のブレス、ダメージ210の*水*のブレス、
 D:ダメージ180の毒のブレスのいずれかを放つ。
 
-N:359:ペトロクラウド
-E:Petro Cloud
-G:-:d
+N:359:ペトロクラウド:象牙の
+E:Petro Cloud:Ivory
+G:-:w
 I:65:29:4
 W:50:0:10:80000
 A:60/8
@@ -3424,9 +3433,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It fires a ball of stone (damage: 200+d(level*2)) when you use it.
 D:それは使うとダメージ200+d(レベル*2)の石化の球を放つ。
 
-N:360:衝撃
-E:Striking
-G:-:d
+N:360:衝撃:アダマンタイトの
+E:Striking:Adamantite
+G:-:v
 I:65:30:6
 W:65:0:10:4000
 A:65/3
@@ -3435,9 +3444,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It fires a bolt of meteor (damage: (15+level/3)d13) when you use it.
 D:それは使うとダメージ(15+レベル/3)d13の隕石の矢を放つ。
 
-N:361:消滅
-E:Annihilation
-G:-:d
+N:361:消滅:六角形の
+E:Annihilation:Hexagonal
+G:-:r
 I:65:31:4
 W:60:0:10:10000
 A:60/4
@@ -3446,9 +3455,9 @@ D:$It removes a monster from current dungeon level unless resisted when you
 D:$use it.
 D:それは使うと1体のモンスターを現在の階から消し去る。抵抗されると無効。
 
-N:362:火のエレメント
-E:Fire Element
-G:-:d
+N:362:火のエレメント:長い
+E:Fire Element:Long
+G:-:B
 I:65:32:18
 W:25:0:10:3000
 A:25/4
@@ -3457,9 +3466,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It increases element of fire in grids when you use it.
 D:それは使うと地形の火のエレメントを活性化させる。
 
-N:363:水のエレメント
-E:Aqua Element
-G:-:d
+N:363:水のエレメント:短い
+E:Aqua Element:Short
+G:-:b
 I:65:33:18
 W:25:0:10:3000
 A:25/4
@@ -3468,9 +3477,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It increases element of water in grids when you use it.
 D:それは使うと地形の水のエレメントを活性化させる。
 
-N:364:地のエレメント
-E:Earth Element
-G:-:d
+N:364:地のエレメント:ルーンが刻まれた
+E:Earth Element:Runed
+G:-:U
 I:65:34:18
 W:25:0:10:3000
 A:25/4
@@ -3479,8 +3488,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It increases element of earth in grids when you use it.
 D:それは使うと地形の地のエレメントを活性化させる。
 
-N:365:風のエレメント
-E:Wind Element
+N:365:風のエレメント:炭素の
+E:Wind Element:Carbonized
 G:-:d
 I:65:35:18
 W:25:0:10:3000
@@ -3492,9 +3501,9 @@ D:それは使うと地形の風のエレメントを活性化させる。
 
 ##### Rods #####
 
-N:366:トラップ感知
-E:Trap Location
-G:-:d
+N:366:トラップ感知:アルミの
+E:Trap Location:Aluminum
+G:-:B
 I:66:0:15
 W:5:0:15:100
 A:3/4:5/1
@@ -3502,8 +3511,8 @@ P:0:1d1:0:0:0
 D:$It detects all traps in your vicinity when you zap it.
 D:それは振ると自分の周辺のトラップを感知する。
 
-N:367:ドア/階段感知
-E:Door/Stair Location
+N:367:ドア/階段感知:鋳鉄の
+E:Door/Stair Location:Cast Iron
 G:-:d
 I:66:1:70
 W:15:0:15:1000
@@ -3512,9 +3521,9 @@ P:0:1d1:0:0:0
 D:$It detects all doors and stairs in your vicinity when you zap it.
 D:それは振ると自分の周辺のドア・階段を感知する。
 
-N:368:鑑定
-E:Perception
-G:-:d
+N:368:鑑定:クロムの
+E:Perception:Chromium
+G:-:w
 I:66:2:10
 W:35:0:15:13000
 A:25/32:50/8
@@ -3522,9 +3531,9 @@ P:0:1d1:0:0:0
 D:$It identifies an item when you zap it.
 D:それは振ると1個のアイテムを鑑定する。
 
-N:369:帰還
-E:Recall
-G:-:d
+N:369:帰還:銅の
+E:Recall:Copper
+G:-:U
 I:66:3:60
 W:30:0:15:4000
 A:15/16:30/4
@@ -3534,9 +3543,9 @@ D:$you zap it.
 D:それは振ると地上にいる時は行ったことのあるダンジョンの到達階へ、
 D:ダンジョンにいる時は地上へと移動する。
 
-N:370:イルミネーション
-E:Illumination
-G:-:d
+N:370:イルミネーション:金の
+E:Illumination:Gold
+G:-:y
 I:66:4:16
 W:12:0:15:1000
 A:6/4:12/1
@@ -3544,9 +3553,9 @@ P:0:1d1:0:0:0
 D:$It lights up nearby area or current room permanently when you zap it.
 D:それは振ると自分の周囲もしくは部屋全体を永久に照らす。
 
-N:371:周辺感知
-E:Enlightenment
-G:-:d
+N:371:周辺感知:鉄の
+E:Enlightenment:Iron
+G:-:s
 I:66:5:99
 W:65:0:15:10000
 A:33/16:65/4
@@ -3554,9 +3563,9 @@ P:0:1d1:0:0:0
 D:$It maps your vicinity when you zap it.
 D:それは振ると自分の周辺の地形を感知する。
 
-N:372:全感知
-E:Detection
-G:-:d
+N:372:全感知:マグネシウムの
+E:Detection:Magnesium
+G:-:W
 I:66:6:99
 W:30:0:15:5000
 A:15/32:30/8
@@ -3566,9 +3575,9 @@ D:$neighborhood when you zap it.
 D:それは振ると自分の周辺のトラップ・ドア・階段・財宝・アイテム・
 D:モンスターを感知する。
 
-N:373:調査
-E:Probing
-G:-:d
+N:373:調査:モリブデンの
+E:Probing:Molybdenum
+G:-:W
 I:66:7:50
 W:40:0:15:4000
 A:20/16:40/4
@@ -3578,9 +3587,9 @@ D:$true character in sight when you zap it.
 D:それは振ると視界内のモンスターの属性・HP・AC・スピード・現在の経験値・正体を
 D:表示する。
 
-N:374:癒し
-E:Curing
-G:-:d
+N:374:癒し:ニッケルの
+E:Curing:Nickel
+G:-:U
 I:66:8:99
 W:65:0:15:15000
 A:33/32:65/8
@@ -3589,9 +3598,9 @@ D:$It cures blindness, poison, confusion, stunned, cuts, hallucination and
 D:$berserk when you zap it.
 D:それは振ると盲目・毒・混乱・朦朧・切り傷・幻覚・狂戦士化を癒す。
 
-N:375:体力回復
-E:Healing
-G:-:d
+N:375:体力回復:錆びた
+E:Healing:Rusty
+G:-:r
 I:66:9:999
 W:80:0:15:20000
 A:40/32:80/8
@@ -3599,9 +3608,9 @@ P:0:1d1:0:0:0
 D:$It heals you 500 and cures stunned, cuts and berserk when you zap it.
 D:それは振ると体力が500回復し、朦朧・切り傷・狂戦士化を癒す。
 
-N:376:全復活
-E:Restoration
-G:-:d
+N:376:全復活:銀の
+E:Restoration:Silver
+G:-:W
 I:66:10:999
 W:80:0:15:25000
 A:40/64:80/16
@@ -3609,9 +3618,9 @@ P:0:1d1:0:0:0
 D:$It restores experience and all your stats when you zap it.
 D:それは振ると経験値と全ステータスが回復する。
 
-N:377:スピード
-E:Speed
-G:-:d
+N:377:スピード:鋼鉄の
+E:Speed:Steel
+G:-:W
 I:66:11:99
 W:60:0:15:50000
 A:48/64:95/16
@@ -3620,9 +3629,9 @@ D:$It hastes you temporarily when you zap it.
 D:それは振ると一時的に加速する。
 
 #JZ#
-N:378:害虫駆除
-E:Pesticide
-G:-:d
+N:378:害虫駆除:ブリキの
+E:Pesticide:Tin
+G:-:W
 I:66:12:2
 W:3:0:15:1000
 A:13/8:25/2
@@ -3630,9 +3639,9 @@ P:0:1d1:0:0:0
 D:$It does 4 damage to all monsters in sight when you zap it.
 D:それは振ると視界内のモンスターに4のダメージを与える。
 
-N:379:テレポート・アウェイ
-E:Teleport Other
-G:-:d
+N:379:テレポート・アウェイ:チタンの
+E:Teleport Other:Titanium
+G:-:w
 I:66:13:25
 W:45:0:15:1400
 A:23/8:45/2
@@ -3640,9 +3649,9 @@ P:0:1d1:0:0:0
 D:$It fires a beam teleports all monsters on the line when you zap it.
 D:それは振るとモンスターをテレポートさせるビームを放つ。
 
-N:380:トラップ解除
-E:Disarming
-G:-:d
+N:380:トラップ解除:タングステンの
+E:Disarming:Tungsten
+G:-:w
 I:66:14:22
 W:35:0:15:2100
 A:18/4:35/1
@@ -3650,9 +3659,9 @@ P:0:1d1:0:0:0
 D:$It fires a beam destroys all traps on the line when you zap it.
 D:それは振るとトラップを破壊するビームを放つ。
 
-N:381:光
-E:Light
-G:-:d
+N:381:光:ジルコンの
+E:Light:Zirconium
+G:-:W
 I:66:15:9
 W:10:0:15:500
 A:5/4:10/1
@@ -3660,9 +3669,9 @@ P:0:1d1:0:0:0
 D:$It fires a line of light when you zap it.
 D:それは振ると光線を放つ。
 
-N:382:スリープ・モンスター
-E:Sleep Monster
-G:-:d
+N:382:スリープ・モンスター:亜鉛の
+E:Sleep Monster:Zinc
+G:-:W
 I:66:16:18
 W:30:0:15:1500
 A:15/4:30/1
@@ -3670,9 +3679,9 @@ P:0:1d1:0:0:0
 D:$It puts a monster to sleep when you zap it.
 D:それは振ると1体のモンスターを眠らせる。
 
-N:383:スロウ・モンスター
-E:Slow Monster
-G:-:d
+N:383:スロウ・モンスター:アルミメッキの
+E:Slow Monster:Aluminum-Plated
+G:-:B
 I:66:17:20
 W:30:0:15:1500
 A:15/4:30/1
@@ -3680,9 +3689,9 @@ P:0:1d1:0:0:0
 D:$It slows a monster down when you zap it.
 D:それは振ると1体のモンスターを減速させる。
 
-N:384:生命力吸収
-E:Drain Life
-G:-:d
+N:384:生命力吸収:銅メッキの
+E:Drain Life:Copper-Plated
+G:-:U
 I:66:18:23
 W:75:0:15:3600
 A:38/16:75/4
@@ -3690,9 +3699,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt of drain life (damage: 70+3*level/2) when you zap it.
 D:それは振るとダメージ70+3*レベル/2の生命力を削る矢を放つ。
 
-N:385:チェンジ・モンスター
-E:Polymorph
-G:-:d
+N:385:チェンジ・モンスター:金メッキの
+E:Polymorph:Gold-Plated
+G:-:y
 I:66:19:25
 W:35:0:15:1200
 A:18/4:35/1
@@ -3700,9 +3709,9 @@ P:0:1d1:0:0:0
 D:$It changes a monster into another when you zap it.
 D:それは振ると1体のモンスターを変身させる。
 
-N:386:アシッド・ボルト
-E:Acid Bolts
-G:-:d
+N:386:アシッド・ボルト:白銅メッキの
+E:Acid Bolts:Nickel-Plated
+G:-:U
 I:66:20:12
 W:40:0:15:3500
 A:20/4:40/1
@@ -3710,9 +3719,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt or beam of acid (damage: (6+level/7)d8) when you zap it.
 D:それは振るとダメージ(6+レベル/7)d8の酸の矢またはビームを放つ。
 
-N:387:サンダー・ボルト
-E:Lightning Bolts
-G:-:d
+N:387:サンダー・ボルト:銀メッキの
+E:Lightning Bolts:Silver-Plated
+G:-:W
 I:66:21:11
 W:20:0:15:2000
 A:10/4:20/1
@@ -3721,9 +3730,9 @@ D:$It fires a bolt or beam of lightning (damage: (4+level/9)d8) when you zap
 D:$it.
 D:それは振るとダメージ(4+レベル/9)d8の電撃の矢またはビームを放つ。
 
-N:388:ファイア・ボルト
-E:Fire Bolts
-G:-:d
+N:388:ファイア・ボルト:鉄メッキの
+E:Fire Bolts:Steel-Plated
+G:-:W
 I:66:22:15
 W:30:0:15:3000
 A:15/4:30/1
@@ -3731,9 +3740,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt or beam of fire (damage: (7+level/6)d8) when you zap it.
 D:それは振るとダメージ(7+レベル/6)d8の火炎の矢またはビームを放つ。
 
-N:389:アイス・ボルト
-E:Frost Bolts
-G:-:d
+N:389:アイス・ボルト:スズメッキの
+E:Frost Bolts:Tin-Plated
+G:-:W
 I:66:23:13
 W:25:0:15:2500
 A:13/4:25/1
@@ -3741,9 +3750,9 @@ P:0:1d1:0:0:0
 D:$It fires a bolt or beam of cold (damage: (5+level/8)d8) when you zap it.
 D:それは振るとダメージ(5+レベル/8)d8の冷気の矢またはビームを放つ。
 
-N:390:アシッド・ボール
-E:Acid Balls
-G:-:d
+N:390:アシッド・ボール:亜鉛メッキの
+E:Acid Balls:Zinc-Plated
+G:-:W
 I:66:24:27
 W:70:0:15:5500
 A:35/4:70/1
@@ -3751,9 +3760,9 @@ P:0:1d1:0:0:0
 D:$It fires a ball of acid (damage: 60+level) when you zap it.
 D:それは振るとダメージ60+レベルの酸の球を放つ。
 
-N:391:サンダー・ボール
-E:Lightning Balls
-G:-:d
+N:391:サンダー・ボール:ミスリルメッキの
+E:Lightning Balls:Mithril-Plated
+G:-:B
 I:66:25:23
 W:55:0:15:4000
 A:28/4:55/1
@@ -3761,9 +3770,9 @@ P:0:1d1:0:0:0
 D:$It fires a ball of lightning (damage: 40+level) when you zap it.
 D:それは振るとダメージ40+レベルの電撃の球を放つ。
 
-N:392:ファイア・ボール
-E:Fire Balls
-G:-:d
+N:392:ファイア・ボール:ミスリルの
+E:Fire Balls:Mithril
+G:-:B
 I:66:26:30
 W:75:0:15:5000
 A:38/4:75/1
@@ -3771,9 +3780,9 @@ P:0:1d1:0:0:0
 D:$It fires a ball of fire (damage: 70+level) when you zap it.
 D:それは振るとダメージ70+レベルの火炎の球を放つ。
 
-N:393:アイス・ボール
-E:Cold Balls
-G:-:d
+N:393:アイス・ボール:ルーンが刻まれた
+E:Cold Balls:Runed
+G:-:u
 I:66:27:25
 W:60:0:15:4500
 A:30/4:60/1
@@ -3782,9 +3791,9 @@ D:$It fires a ball of cold (damage: 50+level) when you zap it.
 D:それは振るとダメージ50+レベルの冷気の球を放つ。
 
 #JZ#
-N:394:壊滅
-E:Havoc
-G:-:d
+N:394:壊滅:青銅の
+E:Havoc:Bronze
+G:-:U
 I:66:28:250
 W:100:0:15:150000
 A:50/32:100/8
@@ -3792,9 +3801,9 @@ P:0:1d1:0:0:0
 D:$It is capable of firing almost anything, at random.
 D:それは振るとランダムな1属性でランダムな攻撃をする。
 
-N:395:岩石溶解
-E:Stone to Mud
-G:-:d
+N:395:岩石溶解:真鍮の
+E:Stone to Mud:Brass
+G:-:U
 I:66:29:25
 W:40:0:10:3000
 A:20/12:40/3
@@ -3802,9 +3811,9 @@ P:0:1d1:0:0:0
 D:$It turns a door, rock and wall square to mud when you zap it.
 D:それは振るとドアや岩石や壁を溶かす。
 
-N:396:反感
-E:Aggravate Monster
-G:-:d
+N:396:反感:プラチナの
+E:Aggravate Monster:Platinum
+G:-:w
 I:66:30:9
 W:30:0:10:0
 A:15/8:30/2
@@ -3812,9 +3821,9 @@ P:0:1d1:0:0:0
 D:$It aggravates monsters in your vicinity when you zap it.
 D:それは振ると自分の周辺のモンスターを怒らせる。
 
-N:397:火のエレメント
-E:Fire Element
-G:-:d
+N:397:火のエレメント:鉛の
+E:Fire Element:Lead
+G:-:s
 I:66:31:25
 W:45:0:15:8000
 A:45/8:75/2
@@ -3823,9 +3832,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It increases element of fire in grids when you zap it.
 D:それは振ると地形の火のエレメントを活性化させる。
 
-N:398:水のエレメント
-E:Aqua Element
-G:-:d
+N:398:水のエレメント:鉛メッキの
+E:Aqua Element:Lead-Plated
+G:-:s
 I:66:32:25
 W:45:0:15:8000
 A:45/8:75/2
@@ -3834,9 +3843,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It increases element of water in grids when you zap it.
 D:それは振ると地形の水のエレメントを活性化させる。
 
-N:399:地のエレメント
-E:Earth Element
-G:-:d
+N:399:地のエレメント:象牙の
+E:Earth Element:Ivory
+G:-:w
 I:66:33:25
 W:45:0:15:8000
 A:45/8:75/2
@@ -3845,9 +3854,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It increases element of earth in grids when you zap it.
 D:それは振ると地形の地のエレメントを活性化させる。
 
-N:400:風のエレメント
-E:Wind Element
-G:-:d
+N:400:風のエレメント:アダマンタイトの
+E:Wind Element:Adamantite
+G:-:v
 I:66:34:25
 W:45:0:15:8000
 A:45/8:75/2
@@ -3858,108 +3867,108 @@ D:それは振ると地形の風のエレメントを活性化させる。
 
 ##### Scrolls #####
 
-N:401:暗闇
-E:Darkness
-G:?:d
+N:401:暗闇:骨動 文攫 羅尾
+E:Darkness:fapay doea
+G:?:w
 I:70:0:0
 W:1:0:5:0
 A:1/1
 D:$It darkens nearby area or current room and blinds you when you read it.
 D:それは読むと自分の周囲もしくは部屋全体が暗闇に包まれ、盲目になる。
 
-N:402:エキサイト・モンスター
-E:Aggravate Monster
-G:?:d
+N:402:エキサイト・モンスター:五惨 竜天 実森
+E:Aggravate Monster:itemar habyt
+G:?:w
 I:70:1:0
 W:5:0:5:0
 A:5/1
 D:$It aggravates monsters in your vicinity when you read it.
 D:それは読むと自分の周辺のモンスターを怒らせる。
 
-N:403:防具呪縛
-E:Curse Armor
-G:?:d
+N:403:防具呪縛:牙感 倒 胆
+E:Curse Armor:alacre re org
+G:?:w
 I:70:2:0
 W:50:0:5:0
 A:50/1
 D:$It makes your current armour (Blasted) when you read it.
 D:それは読むと着ている鎧を(粗悪品)に変える。
 
-N:404:武器呪縛
-E:Curse Weapon
-G:?:d
+N:404:武器呪縛:知津 羅色 垢
+E:Curse Weapon:prokaks wahish
+G:?:w
 I:70:3:0
 W:50:0:5:0
 A:50/1
 D:$It makes your main weapon (Shattered) when you read it.
 D:それは読むと利き腕に装備中の武器を(不良品)に変える。
 
-N:405:サモン・モンスター
-E:Summon Monster
-G:?:d
+N:405:サモン・モンスター:起武 痍 陽翔
+E:Summon Monster:binvom cosmung
+G:?:w
 I:70:4:0
 W:1:0:5:0
 A:1/1
 D:$It summons several monsters as enemies when you read it.
 D:それは読むと複数のモンスターを敵として召喚する。
 
-N:406:サモン・アンデッド
-E:Summon Undead
-G:?:d
+N:406:サモン・アンデッド:毒全 翔完 進事
+E:Summon Undead:umgar danri
+G:?:w
 I:70:5:0
 W:15:0:5:0
 A:15/1
 D:$It summons several undead monsters as enemies when you read it.
 D:それは読むと複数のアンデッドのモンスターを敵として召喚する。
 
-N:407:ペット召喚
-E:Summon Pet
-G:?:d
+N:407:ペット召喚:武鳴 空 神合
+E:Summon Pet:he proktab
+G:?:w
 I:70:6:0
 W:30:0:5:1000
 A:30/2
 D:$It summons a monster as your pet when you read it.
 D:それは読むと1体のペットを召喚する。
 
-N:408:トラップ創造
-E:Trap Creation
-G:?:d
+N:408:トラップ創造:文味 倒魑 扈
+E:Trap Creation:wahx our gre
+G:?:w
 I:70:7:0
 W:10:0:5:0
 A:10/1
 D:$It creates traps on the squares adjacent to you when you read it.
 D:それは読むと自分と隣接する床にトラップを作り出す。
 
-N:409:ショート・テレポート
-E:Phase Door
-G:?:d
+N:409:ショート・テレポート:幻収 縫 落牙
+E:Phase Door:ankh sanfu bit
+G:?:w
 I:70:8:0
 W:1:0:5:15
 A:1/1
 D:$It teleports you a short distance when you read it.
 D:それは読むと近距離のテレポートをする。
 
-N:410:テレポート
-E:Teleportation
-G:?:d
+N:410:テレポート:大 尾歌 胆津
+E:Teleportation:arzemi zunag
+G:?:w
 I:70:9:0
 W:10:0:5:40
 A:10/1
 D:$It teleports you a long distance when you read it.
 D:それは読むと遠距離のテレポートをする。
 
-N:411:テレポート・レベル
-E:Teleport Level
-G:?:d
+N:411:テレポート・レベル:定故 五温 化鳴
+E:Teleport Level:bie xuxuval
+G:?:w
 I:70:10:0
 W:20:0:5:50
 A:20/1
 D:$It teleports you one dungeon level up or down immediately when you read it.
 D:それは読むと瞬時に上か下の階にテレポートする。
 
-N:412:帰還の詔
-E:Word of Recall
-G:?:d
+N:412:帰還の詔:全 津乱 起起
+E:Word of Recall:re ab evssna
+G:?:w
 I:70:11:0
 W:5:0:5:150
 A:5/1
@@ -3968,63 +3977,63 @@ D:$you read it.
 D:それは読むと地上にいる時は行ったことのあるダンジョンの到達階へ、
 D:ダンジョンにいる時は地上へと移動する。
 
-N:413:鑑定
-E:Identify
-G:?:d
+N:413:鑑定:武一 識断 覇澹
+E:Identify:temeep aks el
+G:?:w
 I:70:12:0
 W:1:0:5:50
 A:1/1:5/1:10/1:30/1
 D:$It identifies an item when you read it.
 D:それは読むと1個のアイテムを鑑定する。
 
-N:414:*鑑定*
-E:*Identify*
-G:?:d
+N:414:*鑑定*:刀 鳴 故幻
+E:*Identify*:triapp trolpet
+G:?:w
 I:70:13:0
 W:30:0:5:1500
 A:30/2:50/2:80/2:100/2
 D:$It reveals all information about an item when you read it.
 D:それは読むと1個のアイテムの能力を完全に知る。
 
-N:415:解呪
-E:Remove Curse
-G:?:d
+N:415:解呪:扈 闇歌 身化
+E:Remove Curse:byti sne
+G:?:w
 I:70:14:0
 W:10:0:5:100
 A:10/2:20/1
 D:$It removes normal curses from equipped items when you read it.
 D:それは読むと装備しているアイテムにかかった弱い呪いを解く。
 
-N:416:*解呪*
-E:*Remove Curse*
-G:?:d
+N:416:*解呪*:食地 臓臓 扈知
+E:*Remove Curse*:bluju wex blu
+G:?:w
 I:70:15:0
 W:50:0:5:4000
 A:50/2:75/2
 D:$It removes normal and heavy curses from equipped items when you read it.
 D:それは読むと装備しているアイテムにかかった弱い呪いと重い呪いを解く。
 
-N:417:防具強化
-E:Enchant Armor
-G:?:d
+N:417:防具強化:風起 併蛇 用
+E:Enchant Armor:rolsan triple
+G:?:w
 I:70:16:0
 W:15:0:5:250
 A:15/1
 D:$It increases an armour's to-AC when you read it.
 D:それは読むと防具のAC修正を強化する。
 
-N:418:武器命中率上昇
-E:Enchant Weapon To-Hit
-G:?:d
+N:418:武器命中率上昇:尽惨 吸 楚起
+E:Enchant Weapon To-Hit:mipay sun
+G:?:w
 I:70:17:0
 W:15:0:5:250
 A:15/1
 D:$It increases a weapon's to-hit when you read it.
 D:それは読むと武器の命中修正を強化する。
 
-N:419:武器ダメージ増加
-E:Enchant Weapon To-Dam
-G:?:d
+N:419:武器ダメージ増加:幻横 尽道 万変
+E:Enchant Weapon To-Dam:batuni blaame
+G:?:w
 I:70:18:0
 W:15:0:5:250
 A:15/1
@@ -4033,30 +4042,30 @@ D:それは読むと武器のダメージ修正を強化する。
 
 #N:420:unused
 #E:nanka
-#G:?:d
+#G:?:w
 #I:70:19:0
 
-N:421:*防具強化*
-E:*Enchant Armor*
-G:?:d
+N:421:*防具強化*:出惨 体 未合
+E:*Enchant Armor*:klimon bieder
+G:?:w
 I:70:20:0
 W:50:0:5:1000
 A:50/1
 D:$It increases an armour's to-ac powerfully when you read it.
 D:それは読むと防具のAC修正を複数回強化する。
 
-N:422:*武器強化*
-E:*Enchant Weapon*
-G:?:d
+N:422:*武器強化*:武没 完毒 八回
+E:*Enchant Weapon*:vlytox
+G:?:w
 I:70:21:0
 W:50:0:5:1000
 A:50/1
 D:$It increases a weapon's to-hit and to-dam when you read it.
 D:それは読むと武器の命中修正とダメージ修正を強化する。
 
-N:423:魔力充填
-E:Recharging
-G:?:d
+N:423:魔力充填:乱完 根夏 扈鬼
+E:Recharging:klis glenash
+G:?:w
 I:70:22:0
 W:40:0:5:200
 A:40/1
@@ -4064,9 +4073,9 @@ D:$It recharges wands, staffs or rods when you read it.
 D:それは読むと魔法棒/杖の充填数を回復させたり, 充填中のロッドの充填時間を
 D:縮めたりする。
 
-N:424:凡庸
-E:Mundanity
-G:?:d
+N:424:凡庸:動起 神落 六魎
+E:Mundanity:danseh nejood
+G:?:w
 I:70:23:0
 W:13:0:5:3000
 A:13/10
@@ -4075,72 +4084,72 @@ D:$As a bonus, if you have a stack of them, the extras are destroyed.
 D:それは読むとアイテム1個を並のアイテムに変える。複数のアイテムがまとまって
 D:いる場合は1個を残して壊れる。
 
-N:425:光
-E:Light
-G:?:d
+N:425:光:九 飛腑 魍面
+E:Light:misat dernin
+G:?:w
 I:70:24:0
 W:0:0:5:15
 A:0/1:3/1:10/1
 D:$It lights up nearby area or the current room permanently when you read it.
 D:それは読むと自分の周囲もしくは部屋全体を永久に照らす。
 
-N:426:魔法の地図
-E:Magic Mapping
-G:?:d
+N:426:魔法の地図:陰両 腑 神 万
+E:Magic Mapping:rea fri elip
+G:?:w
 I:70:25:0
 W:5:0:5:40
 A:5/1
 D:$It maps your vicinity when you read it.
 D:それは読むと自分の周辺の地形を感知する。
 
-N:427:財宝感知
-E:Treasure Detection
-G:?:d
+N:427:財宝感知:起転 試覇 柳
+E:Treasure Detection:ner fidtri
+G:?:w
 I:70:26:0
 W:0:0:5:15
 A:0/1
 D:$It detects all treasures in your vicinity when you read it.
 D:それは読むと自分の周辺の財宝を感知する。
 
-N:428:アイテム感知
-E:Object Detection
-G:?:d
+N:428:アイテム感知:覇十 横能 国純
+E:Object Detection:for mic rol
+G:?:w
 I:70:27:0
 W:0:0:5:15
 A:0/1
 D:$It detects all items in your vicinity when you read it.
 D:それは読むと自分の周辺のアイテムを感知する。
 
-N:429:トラップ感知
-E:Trap Detection
-G:?:d
+N:429:トラップ感知:魍四 後両 欠縦
+E:Trap Detection:sri nelgun
+G:?:w
 I:70:28:0
 W:5:0:5:35
 A:5/1:10/1
 D:$It detects all traps in your vicinity when you read it.
 D:それは読むと自分の周辺のトラップを感知する。
 
-N:430:ドア/階段感知
-E:Door/Stair Location
-G:?:d
+N:430:ドア/階段感知:七 乱能 興飛
+E:Door/Stair Location:sehsat ulkab
+G:?:w
 I:70:29:0
 W:5:0:5:35
 A:5/1:10/1
 D:$It detects all doors and stairs in your vicinity when you read it.
 D:それは読むと自分の周辺のドア・階段を感知する。
 
-N:431:透明物体感知
-E:Detect Invisible
-G:?:d
+N:431:透明物体感知:無 日翔 惨魍
+E:Detect Invisible:stafoo lechi
+G:?:w
 I:70:30:0
 W:1:0:5:15
 A:1/1
 D:$It detects all invisible monsters in your vicinity when you read it.
 D:それは読むと自分の周辺の透明なモンスターを感知する。
 
-N:432:武器祝福
-E:Bless Weapon
-G:?:d
+N:432:武器祝福:代風 軽地 感故
+E:Bless Weapon:kli ing tadalf
+G:?:w
 I:70:31:0
 W:50:0:5:10000
 A:50/1
@@ -4148,9 +4157,9 @@ D:$It blesses a weapon when you read it.
 D:それは読むと武器を祝福する。祝福された武器は99%引きになる。呪いを解く
 D:こともできる。永遠の呪いのある、もしくは不浄な武器には無効。
 
-N:433:武器不浄化
-E:Unholy Weapon
-G:?:d
+N:433:武器不浄化:事火 臥 九印
+E:Unholy Weapon:solgre bot
+G:?:w
 I:70:32:0
 W:50:0:5:0
 A:50/1
@@ -4158,99 +4167,99 @@ D:$It unholies a weapon when you read it.
 D:それは読むと武器を不浄にする。不浄にされた武器は99%引きになる。
 D:祝福された武器には無効。
 
-N:434:天恵
-E:Blessing
-G:?:d
+N:434:天恵:断縦 純 絶根
+E:Blessing:ooder dokrog
+G:?:w
 I:70:33:0
 W:1:0:5:15
 A:1/1
 D:$It blesses you temporarily when you read it.
 D:それは読むと一時的に祝福される。
 
-N:435:聖唱歌
-E:Holy Chant
-G:?:d
+N:435:聖唱歌:火回 絶胆 柳
+E:Holy Chant:nihum khomar
+G:?:w
 I:70:34:0
 W:10:0:5:40
 A:10/1
 D:$It blesses you temporarily when you read it.
 D:それは読むと一時的に祝福される。
 
-N:436:聖祈言
-E:Holy Prayer
-G:?:d
+N:436:聖祈言:刀 生動 尾毒
+E:Holy Prayer:wexab jahnag
+G:?:w
 I:70:35:0
 W:25:0:5:2000
 A:25/1
 D:$It blesses you temporarily when you read it.
 D:それは読むと一時的に祝福される。
 
-N:437:パニック・モンスター
-E:Monster Confusion
-G:?:d
+N:437:パニック・モンスター:軽 倒 絶疾 夏
+E:Monster Confusion:blaata arze
+G:?:w
 I:70:36:0
 W:5:0:5:30
 A:5/1
 D:$You can confuse monster you hit just for once when you read it.
 D:それは読むと1度だけモンスターを打撃で混乱させられるようになる。
 
-N:438:対邪悪結界
-E:Protection from Evil
-G:?:d
+N:438:対邪悪結界:頭森 地跳 真骨
+E:Protection from Evil:sefeng danod
+G:?:w
 I:70:37:0
 W:30:0:5:2500
 A:30/1
 D:$It gives temporary protection from lesser evil creatures when you read it.
 D:それは読むと一時的に弱い邪悪な者の攻撃を回避しやすくなる結界を張る。
 
-N:439:守りのルーン
-E:Rune of Protection
-G:?:d
+N:439:守りのルーン:実 新牙 邪忍
+E:Rune of Protection:sef unag famur
+G:?:w
 I:70:38:0
 W:50:0:5:10000
 A:50/4:90/2
 D:$It creates a glyph on the floor you stand when you read it.
 D:それは読むと自分の足元の床に回避の彫像を作り出す。
 
-N:440:トラップ/ドア破壊
-E:Trap/Door Destruction
-G:?:d
+N:440:トラップ/ドア破壊:収生 一 乱
+E:Trap/Door Destruction:erk bieklis
+G:?:w
 I:70:39:0
 W:10:0:5:50
 A:10/1
 D:$It destroys traps on the floors adjacent to you when you read it.
 D:それは読むと自分と隣接するトラップやドアを破壊する。
 
-N:441:幻影
-E:Illusion
-G:?:d
+N:441:幻影:合 起翔 根
+E:Illusion:tab conval sta
+G:?:w
 I:70:40:0
 W:50:0:5:10000
 A:50/4:100/4
 D:それは読むと、12+d12ターンの間、全ての攻撃に対し1/2の確率でダメージを
 D:受けなくなる。
 
-N:442:*破壊*
-E:*Destruction*
-G:?:d
+N:442:*破壊*:魎故 刀 命 直
+E:*Destruction*:denmung ishbul
+G:?:w
 I:70:41:0
 W:40:0:5:250
 A:40/1
 D:$It destroys everything nearby you when you read it.
 D:それは読むと自分の周辺の全てのものを破壊する。
 
-N:443:アンデッド退散
-E:Dispel Undead
-G:?:d
+N:443:アンデッド退散:聞 地 退色
+E:Dispel Undead:wah snofoo
+G:?:w
 I:70:42:0
 W:40:0:5:2000
 A:40/1
 D:$It does 80 damage to all undead monsters in sight when you read it.
 D:それは読むと視界内のアンデッドのモンスターに80のダメージを与える。
 
-N:444:スナップドラゴン
-E:Snap Dragon
-G:?:d
+N:444:スナップドラゴン:大嘗 真吸 回
+E:Snap Dragon:nin xuxucre
+G:?:w
 I:70:43:0
 W:107:0:5:1
 A:107/10
@@ -4259,9 +4268,9 @@ D:$your weapon may be found by descendant.
 D:それは読むとあなた自身を武器に変える。あなたが正しいプレイヤーであれば、
 D:変身した武器は子孫が発見できる可能性がある。
 
-N:445:抹殺
-E:Genocide
-G:?:d
+N:445:抹殺:頭 一回 聞 確
+E:Genocide:ashval paylech
+G:?:w
 I:70:44:0
 W:40:0:5:7500
 A:40/4:80/4
@@ -4270,9 +4279,9 @@ D:$Powerful or unique monsters may resist.
 D:それは読むと指定した文字のモンスターを現在の階から消し去る。抵抗されると
 D:無効。
 
-N:446:周辺抹殺
-E:Mass Genocide
-G:?:d
+N:446:周辺抹殺:衣変 試死 魑
+E:Mass Genocide:trolsee mex
+G:?:w
 I:70:45:0
 W:50:0:5:10000
 A:50/4:100/4
@@ -4280,18 +4289,18 @@ D:$It eliminates all nearby monsters, exhausting you.
 D:$Powerful or unique monsters may be able to resist.
 D:それは読むと自分の周囲のモンスターを現在の階から消し去る。抵抗されると無効。
 
-N:447:獲得
-E:Acquirement
-G:?:d
+N:447:獲得:胆天 嘗面 刀横
+E:Acquirement:klinej ere
+G:?:w
 I:70:46:0
 W:20:0:5:100000
 A:20/8
 D:$It creates one great item when you read it.
 D:それは読むと1個の高級なアイテムを作り出す。
 
-N:448:*獲得*
-E:*Acquirement*
-G:?:d
+N:448:*獲得*:入 痍魑 純闇
+E:*Acquirement*:snetrol uni
+G:?:w
 I:70:47:0
 W:60:0:5:200000
 A:60/16
@@ -4299,9 +4308,9 @@ D:$It creates some great items when you read it.
 D:それは読むと複数の高級なアイテムを作り出す。
 
 #JZ#
-N:449:炎
-E:Fire
-G:?:d
+N:449:炎:死没 完後 両
+E:Fire:onip batsat
+G:?:w
 I:70:48:0
 W:50:0:5:1000
 A:50/4
@@ -4311,9 +4320,9 @@ D:$read it. If you don't have resistance to fire, you take 50+d50 damage.
 D:それは読むと中心部ダメージ666の巨大な炎の球を自分を中心として発生する。
 D:火炎耐性がなければ自分も50+d50のダメージを受ける。
 
-N:450:氷
-E:Ice
-G:?:d
+N:450:氷:転 制 縫尽
+E:Ice:shu urfor
+G:?:w
 I:70:49:0
 W:75:0:5:5000
 A:75/6
@@ -4324,9 +4333,9 @@ D:それは読むと中心部ダメージ777の巨大な極寒の球を自分を中心として発生する。
 D:冷気耐性がなければ自分も100+d100のダメージを受ける。
 
 #JZ#
-N:451:カオス
-E:Chaos
-G:?:d
+N:451:カオス:試 空陽 尽化
+E:Chaos:comp turs
+G:?:w
 I:70:50:0
 W:100:0:5:10000
 A:100/8
@@ -4337,9 +4346,9 @@ D:$damage.
 D:それは読むと中心部ダメージ1000の巨大なカオスの球を自分を中心として
 D:発生する。カオス耐性がなければ自分も111+d111のダメージを受ける。
 
-N:452:必殺技習得
-E:Learning Special Blow
-G:?:d
+N:452:必殺技習得:胆 肉 用竜
+E:Learning Special Blow:an gan nagblaa
+G:?:w
 I:70:51:0
 W:60:0:5:200000
 A:60/40
@@ -4347,9 +4356,9 @@ D:$It gives a special blow you when you read it.
 D:それは読むと必殺技を一つだけ習得できる。
 
 #JZ#
-N:453:アーティファクト生成
-E:Artifact Creation
-G:?:d
+N:453:アーティファクト生成:化九 印制 行八
+E:Artifact Creation:engsno argsan
+G:?:w
 I:70:52:0
 W:90:0:5:200000
 A:90/16
@@ -4358,27 +4367,27 @@ D:$Don't be greedy - you will get only one artifact.
 D:それは読むと無銘の武器・防具からアーティファクトを作り出す。装備品が
 D:積み重なっていた場合は1個を残して壊れる。
 
-N:454:フロア・リセット
-E:Reset Recall
-G:?:d
+N:454:フロア・リセット:併化 万錯 創胆
+E:Reset Recall:unjah blu comp
+G:?:w
 I:70:53:0
 W:20:0:5:500
 A:20/3
 D:$It resets the dungeon level for recall spell when you read it.
 D:それは読むとダンジョンの帰還階を到達した範囲内で設定できる。
 
-N:455:援軍
-E:Summon Kin
-G:?:d
+N:455:援軍:刀化 縦 武魎
+E:Summon Kin:bulther valish
+G:?:w
 I:70:54:0
 W:30:0:5:10000
 A:30/6
 D:$It summons a monster corresponds to your race as your pet when you read it.
 D:それは読むと自分の種族に対応したモンスター1体をペットとして召喚する。
 
-N:456:エゴアイテム生成
-E:Ego-item Creation
-G:?:d
+N:456:エゴアイテム生成:乱頭 面 併 創
+E:Ego-item Creation:evssta marnih
+G:?:w
 I:70:55:0
 W:40:0:5:100000
 A:40/24
@@ -4387,18 +4396,18 @@ D:$Don't be greedy - you will get only one ego-item.
 D:それは読むと無銘の装備品からエゴアイテムを作り出す。装備品が
 D:積み重なっていた場合は1個を残して壊れる。
 
-N:457:反転
-E:Revert Element
-G:?:d
+N:457:反転:秋 八肉 肉新
+E:Revert Element:rhovtue ban
+G:?:w
 I:70:56:0
 W:40:0:5:4000
 A:40/4:60/2:80/2
 D:$It reverts your element temporarily when you read it.
 D:それは読むと一時的にプレイヤーのエレメントを反転させる。
 
-N:458:火のエレメント
-E:Fire Element
-G:?:d
+N:458:火のエレメント:中林 竜用 嘗根
+E:Fire Element:wahdok ing tem
+G:?:w
 I:70:57:0
 W:20:0:5:250
 A:20/1:40/1:60/1
@@ -4407,9 +4416,9 @@ D:$element of aqua is made to inactivate.
 D:それは読むと地形の火のエレメントを活性化させ、
 D:水のエレメントを不活性化させる。
 
-N:459:水のエレメント
-E:Aqua Element
-G:?:d
+N:459:水のエレメント:印空 金千 実
+E:Aqua Element:ur sefgop
+G:?:w
 I:70:58:0
 W:20:0:5:250
 A:20/1:40/1:60/1
@@ -4418,9 +4427,9 @@ D:$element of fire is made to inactivate.
 D:それは読むと地形の水のエレメントを活性化させ、
 D:火のエレメントを不活性化させる。
 
-N:460:地のエレメント
-E:Earth Element
-G:?:d
+N:460:地のエレメント:骨刀 秋新 邪制
+E:Earth Element:bytsta man
+G:?:w
 I:70:59:0
 W:20:0:5:250
 A:20/1:40/1:60/1
@@ -4429,9 +4438,9 @@ D:$element of wind is made to inactivate.
 D:それは読むと地形の地のエレメントを活性化させ、
 D:風のエレメントを不活性化させる。
 
-N:461:風のエレメント
-E:Wind Element
-G:?:d
+N:461:風のエレメント:冬知 空 食人
+E:Wind Element:roaus sri
+G:?:w
 I:70:60:0
 W:20:0:5:250
 A:20/1:40/1:60/1
@@ -4446,9 +4455,9 @@ D:地のエレメントを不活性化させる。
 #N:463:(unused)
 #N:464:(unused)
 
-N:465:のろま
-E:Slowness
-G:!:d
+N:465:のろま:透明な
+E:Slowness:Clear
+G:!:w
 I:75:3:50
 W:1:0:4:0
 A:1/1
@@ -4456,9 +4465,9 @@ P:0:1d1:0:0:0
 D:$It slows you down temporarily when you quaff it.
 D:それは飲むと一時的に減速する。
 
-N:466:塩水
-E:Salt Water
-G:!:d
+N:466:塩水:薄茶色の
+E:Salt Water:Light Brown
+G:!:U
 I:75:4:0
 W:0:0:4:0
 A:0/1
@@ -4467,9 +4476,9 @@ D:$It makes you nearly faint from hunger and paralyzes you,
 D:$but it cures poison when you quaff it.
 D:それは飲むと餓死寸前になり麻痺するが、毒を癒す。
 
-N:467:毒
-E:Poison
-G:!:d
+N:467:毒:よどんだ緑の
+E:Poison:Icky Green
+G:!:g
 I:75:5:0
 W:3:0:4:0
 A:3/1
@@ -4477,9 +4486,9 @@ P:0:1d1:0:0:0
 D:$It poisons you when you quaff it.
 D:それは飲むと毒に冒される。
 
-N:468:盲目
-E:Blindness
-G:!:d
+N:468:盲目:紺碧の
+E:Blindness:Azure
+G:!:B
 I:75:6:0
 W:0:0:4:0
 A:0/1
@@ -4488,9 +4497,9 @@ D:$It blinds you when you quaff it.
 D:それは飲むと盲目になる。
 
 #JZ#
-N:469:酔っ払い
-E:Booze
-G:!:d
+N:469:酔っ払い:青い
+E:Booze:Blue
+G:!:b
 I:75:7:50
 W:0:0:4:0
 A:0/1
@@ -4498,9 +4507,9 @@ P:0:1d1:0:0:0
 D:$It confuses and hallucinates you when you quaff it.
 D:それは飲むと混乱し、幻覚に侵される。
 
-N:470:眠り
-E:Sleep
-G:!:d
+N:470:眠り:青斑の
+E:Sleep:Blue Speckled
+G:!:b
 I:75:8:100
 W:0:0:4:0
 A:0/1
@@ -4508,8 +4517,8 @@ P:0:1d1:0:0:0
 D:$It paralyzes you when you quaff it.
 D:それは飲むと麻痺する。
 
-N:471:記憶喪失
-E:Lose Memories
+N:471:記憶喪失:黒い
+E:Lose Memories:Black
 G:!:d
 I:75:9:0
 W:10:0:4:0
@@ -4518,9 +4527,9 @@ P:0:1d1:0:0:0
 D:$You lose experience when you quaff it.
 D:それは飲むと現在の経験値を失う。
 
-N:472:破滅
-E:Ruination
-G:!:d
+N:472:破滅:茶色の
+E:Ruination:Brown
+G:!:u
 I:75:10:0
 W:40:0:4:0
 A:40/8
@@ -4529,9 +4538,9 @@ D:$You take 10d10 damage and it decreases all your stats permanently when you
 D:$quaff it.
 D:それは飲むと10d10のダメージを受け、全ステータスの最大値が下がる。
 
-N:473:脆弱
-E:Weakness
-G:!:d
+N:473:脆弱:茶斑の
+E:Weakness:Brown Speckled
+G:!:u
 I:75:11:0
 W:3:0:4:0
 A:3/1
@@ -4539,9 +4548,9 @@ P:0:3d12:0:0:0
 D:$It decreases your strength when you quaff it.
 D:それは飲むと腕力の現在値が下がる。
 
-N:474:無知
-E:Stupidity
-G:!:d
+N:474:無知:泡だった
+E:Stupidity:Bubbling
+G:!:W
 I:75:12:0
 W:20:0:4:0
 A:20/1
@@ -4549,9 +4558,9 @@ P:0:1d1:0:0:0
 D:$It decreases your intelligence when you quaff it.
 D:それは飲むと知能の現在値が下がる。
 
-N:475:愚鈍
-E:Naivety
-G:!:d
+N:475:愚鈍:薄黄緑色の
+E:Naivety:Chartreuse
+G:!:G
 I:75:13:0
 W:20:0:4:0
 A:20/1
@@ -4559,9 +4568,9 @@ P:0:1d1:0:0:0
 D:$It decreases your wisdom when you quaff it.
 D:それは飲むと賢さの現在値が下がる。
 
-N:476:不器用
-E:Clumsiness
-G:!:d
+N:476:不器用:濁った
+E:Clumsiness:Cloudy
+G:!:w
 I:75:14:0
 W:5:0:4:0
 A:5/1
@@ -4569,9 +4578,9 @@ P:0:1d1:0:0:0
 D:$It decreases your dexterity when you quaff it.
 D:それは飲むと器用さの現在値が下がる。
 
-N:477:病気
-E:Sickliness
-G:!:d
+N:477:病気:銅斑の
+E:Sickliness:Copper Speckled
+G:!:U
 I:75:15:0
 W:10:0:4:0
 A:10/1
@@ -4579,9 +4588,9 @@ P:0:1d1:0:0:0
 D:$It decreases your constitution when you quaff it.
 D:それは飲むと耐久力の現在値が下がる。
 
-N:478:醜悪
-E:Ugliness
-G:!:d
+N:478:醜悪:紅色の
+E:Ugliness:Crimson
+G:!:r
 I:75:16:0
 W:20:0:4:0
 A:20/1
@@ -4589,9 +4598,9 @@ P:0:1d1:0:0:0
 D:$It decreases your charisma when you quaff it.
 D:それは飲むと魅力の現在値が下がる。
 
-N:479:爆発
-E:Detonations
-G:!:d
+N:479:爆発:シアン色の
+E:Detonations:Cyan
+G:!:B
 I:75:17:0
 W:60:0:4:10000
 A:60/8
@@ -4599,9 +4608,9 @@ P:0:25d25:0:0:0
 D:$You take 50d20 damage and stuns and cuts you when you quaff it.
 D:それは飲むと50d20のダメージを受け、朦朧と切り傷を受ける。
 
-N:480:死
-E:Death
-G:!:d
+N:480:死:群青色の
+E:Death:Dark Blue
+G:!:b
 I:75:18:0
 W:55:0:4:0
 A:55/4
@@ -4609,9 +4618,9 @@ P:0:20d20:0:0:0
 D:$You take 5000 damage when you quaff it.
 D:それは飲むと5000のダメージを受ける。
 
-N:481:赤外線視力
-E:Infra-vision
-G:!:d
+N:481:赤外線視力:深い緑の
+E:Infra-vision:Dark Green
+G:!:g
 I:75:19:0
 W:3:0:4:20
 A:3/1
@@ -4619,9 +4628,9 @@ P:0:1d1:0:0:0
 D:$It gives temporary infravision when you quaff it.
 D:それは飲むと一時的に赤外線視力を強める。
 
-N:482:透明物体感知
-E:Detect Invisible
-G:!:d
+N:482:透明物体感知:深い赤色の
+E:Detect Invisible:Dark Red
+G:!:r
 I:75:20:0
 W:3:0:4:50
 A:3/1
@@ -4629,9 +4638,9 @@ P:0:1d1:0:0:0
 D:$It gives temporary see invisible when you quaff it.
 D:それは飲むと一時的に透明なものが見える能力を得る。
 
-N:483:減毒
-E:Slow Poison
-G:!:d
+N:483:減毒:金斑の
+E:Slow Poison:Gold Speckled
+G:!:y
 I:75:21:0
 W:1:0:4:25
 A:1/1
@@ -4639,9 +4648,9 @@ P:0:1d1:0:0:0
 D:$It reduces poison when you quaff it.
 D:それは飲むと毒を和らげる。
 
-N:484:解毒
-E:Neutralize Poison
-G:!:d
+N:484:解毒:緑色の
+E:Neutralize Poison:Green
+G:!:g
 I:75:22:0
 W:5:0:4:75
 A:5/1
@@ -4649,9 +4658,9 @@ P:0:1d1:0:0:0
 D:$It cures poison when you quaff it.
 D:それは飲むと毒を癒す。
 
-N:485:恐いもの知らず
-E:Boldness
-G:!:d
+N:485:恐いもの知らず:緑斑の
+E:Boldness:Green Speckled
+G:!:g
 I:75:23:0
 W:1:0:4:10
 A:1/1
@@ -4659,9 +4668,9 @@ P:0:1d1:0:0:0
 D:$It removes fear when you quaff it.
 D:それは飲むと恐怖を取り除く。
 
-N:486:スピード
-E:Speed
-G:!:d
+N:486:スピード:灰色の
+E:Speed:Grey
+G:!:s
 I:75:24:0
 W:1:0:4:75
 A:1/1:40/1:60/1
@@ -4669,9 +4678,9 @@ P:0:1d1:0:0:0
 D:$It hastes you temporarily when you quaff it.
 D:それは飲むと一時的に加速する。
 
-N:487:耐火
-E:Resist Heat
-G:!:d
+N:487:耐火:灰斑の
+E:Resist Heat:Grey Speckled
+G:!:s
 I:75:25:0
 W:1:0:4:500
 A:1/1
@@ -4680,9 +4689,9 @@ D:$You get temporary resistance to fire when you quaff it. This resistance
 D:$is cumulative with equipment.
 D:それは飲むと一時的に火炎の耐性を得る。装備による耐性に累積する。
 
-N:488:耐冷
-E:Resist Cold
-G:!:d
+N:488:耐冷:ぼやけた色の
+E:Resist Cold:Hazy
+G:!:W
 I:75:26:0
 W:1:0:4:500
 A:1/1
@@ -4691,9 +4700,9 @@ D:$You get temporary resistance to cold when you quaff it. This resistance
 D:$is cumulative with equipment.
 D:それは飲むと一時的に冷気の耐性を得る。装備による耐性に累積する。
 
-N:489:ヒーロー
-E:Heroism
-G:!:d
+N:489:ヒーロー:藍色の
+E:Heroism:Indigo
+G:!:v
 I:75:27:0
 W:1:0:4:35
 A:1/1
@@ -4702,9 +4711,9 @@ D:$It removes fear, causes you temporary heroism and heals you 10 when you
 D:$quaff it.
 D:それは飲むと恐怖を取り除き、一時的にヒーロー気分になり、体力が10回復する。
 
-N:490:狂戦士化
-E:Berserk Strength
-G:!:d
+N:490:狂戦士化:薄い青色の
+E:Berserk Strength:Light Blue
+G:!:B
 I:75:28:0
 W:20:0:4:100
 A:20/3
@@ -4713,9 +4722,9 @@ D:$It removes fear, causes you to go berserk and heals you 30 when you
 D:$quaff it.
 D:それは飲むと恐怖を取り除き、一時的に狂戦士化し、体力が30回復する。
 
-N:491:軽傷の治癒
-E:Cure Light Wounds
-G:!:d
+N:491:軽傷の治癒:薄い緑色の
+E:Cure Light Wounds:Light Green
+G:!:G
 I:75:29:50
 W:0:0:4:15
 A:0/1:1/1:3/1
@@ -4724,9 +4733,9 @@ D:$It heals you 2d8, cures blindness and berserk and reduces cuts when you
 D:$quaff it.
 D:それは飲むと体力が2d8回復し、盲目・狂戦士化を癒し、切り傷を和らげる。
 
-N:492:重傷の治癒
-E:Cure Serious Wounds
-G:!:d
+N:492:重傷の治癒:マゼンタ色の
+E:Cure Serious Wounds:Magenta
+G:!:r
 I:75:30:100
 W:3:0:4:40
 A:3/1
@@ -4735,9 +4744,9 @@ D:$It heals you 6d8, cures blindness, confusion and berserk and reduces cuts
 D:$when you quaff it.
 D:それは飲むと体力が4d8回復し、盲目・混乱・狂戦士化を癒し、切り傷を和らげる。
 
-N:493:致命傷の治癒
-E:Cure Critical Wounds
-G:!:d
+N:493:致命傷の治癒:青く輝く
+E:Cure Critical Wounds:Metallic Blue
+G:!:b
 I:75:31:100
 W:5:0:4:100
 A:5/1
@@ -4746,9 +4755,9 @@ D:$It heals you 6d8 and cures blindness, confusion, poison, stunned, cuts and
 D:$berserk when you quaff it.
 D:それは飲むと体力が6d8回復し、盲目・混乱・毒・朦朧・切り傷・狂戦士化を癒す。
 
-N:494:体力回復
-E:Healing
-G:!:d
+N:494:体力回復:赤く輝く
+E:Healing:Metallic Red
+G:!:r
 I:75:32:200
 W:15:0:4:2400
 A:15/1:30/1:60/1:80/1
@@ -4757,9 +4766,9 @@ D:$It heals you 300 and cures blindness, confusion, poison, stunned, cuts and
 D:$berserk when you quaff it.
 D:それは飲むと体力が300回復し、盲目・混乱・毒・朦朧・切り傷・狂戦士化を癒す。
 
-N:495:*体力回復*
-E:*Healing*
-G:!:d
+N:495:*体力回復*:緑に輝く
+E:*Healing*:Metallic Green
+G:!:g
 I:75:33:0
 W:40:0:4:5000
 A:40/4:60/2:80/1
@@ -4768,9 +4777,9 @@ D:$It heals you 1200 and cures blindness, confusion, poison, stunned, cuts and
 D:$berserk when you quaff it.
 D:それは飲むと体力が1200回復し、盲目・混乱・毒・朦朧・切り傷・狂戦士化を癒す。
 
-N:496:生命
-E:Life
-G:!:d
+N:496:生命:紫に輝く
+E:Life:Metallic Purple
+G:!:v
 I:75:34:0
 W:60:0:4:5000
 A:60/4:100/2
@@ -4781,9 +4790,9 @@ D:$stoning when you quaff it.
 D:それは飲むと体力が5000回復し、経験値と全ステータスを回復し、盲目・混乱・毒・
 D:幻覚・朦朧・切り傷・狂戦士化・徐々に進行する石化を癒す。
 
-N:497:魔力復活
-E:Restore Mana
-G:!:d
+N:497:魔力復活:霧状の
+E:Restore Mana:Misty
+G:!:W
 I:75:35:0
 W:15:0:4:1000
 A:25/2:40/2:60/2:90/2
@@ -4791,9 +4800,9 @@ P:0:1d1:0:0:0
 D:$It restores mana to full and cures berserk when you quaff it.
 D:それは飲むと魔力が最大まで回復し、狂戦士化を癒す。
 
-N:498:経験値復活
-E:Restore Life Levels
-G:!:d
+N:498:経験値復活:オレンジ色の
+E:Restore Life Levels:Orange
+G:!:o
 I:75:36:0
 W:40:0:4:400
 A:40/1
@@ -4801,9 +4810,9 @@ P:0:1d1:0:0:0
 D:$It restores your experience when you quaff it.
 D:それは飲むと経験値が回復する。
 
-N:499:腕力復活
-E:Restore Strength
-G:!:d
+N:499:腕力復活:オレンジ斑の
+E:Restore Strength:Orange Speckled
+G:!:o
 I:75:37:0
 W:25:0:4:300
 A:25/1
@@ -4811,9 +4820,9 @@ P:0:1d1:0:0:0
 D:$It restores your strength when you quaff it.
 D:それは飲むと腕力が回復する。
 
-N:500:知能復活
-E:Restore Intelligence
-G:!:d
+N:500:知能復活:ピンク色の
+E:Restore Intelligence:Pink
+G:!:R
 I:75:38:0
 W:25:0:4:300
 A:25/1
@@ -4821,9 +4830,9 @@ P:0:1d1:0:0:0
 D:$It restores your intelligence when you quaff it.
 D:それは飲むと知能が回復する。
 
-N:501:賢さ復活
-E:Restore Wisdom
-G:!:d
+N:501:賢さ復活:ピンク斑の
+E:Restore Wisdom:Pink Speckled
+G:!:R
 I:75:39:0
 W:25:0:4:300
 A:25/1
@@ -4831,9 +4840,9 @@ P:0:1d1:0:0:0
 D:$It restores your wisdom when you quaff it.
 D:それは飲むと賢さが回復する。
 
-N:502:器用さ復活
-E:Restore Dexterity
-G:!:d
+N:502:器用さ復活:黒褐色の
+E:Restore Dexterity:Puce
+G:!:v
 I:75:40:0
 W:25:0:4:300
 A:25/1
@@ -4841,9 +4850,9 @@ P:0:1d1:0:0:0
 D:$It restores your dexterity when you quaff it.
 D:それは飲むと器用さが回復する。
 
-N:503:耐久力復活
-E:Restore Constitution
-G:!:d
+N:503:耐久力復活:紫色の
+E:Restore Constitution:Purple
+G:!:v
 I:75:41:0
 W:25:0:4:300
 A:25/1
@@ -4851,9 +4860,9 @@ P:0:1d1:0:0:0
 D:$It restores your constitution when you quaff it.
 D:それは飲むと耐久力が回復する。
 
-N:504:魅力復活
-E:Restore Charisma
-G:!:d
+N:504:魅力復活:うすい紫斑の
+E:Restore Charisma:Purple Speckled
+G:!:v
 I:75:42:0
 W:20:0:4:300
 A:20/1
@@ -4861,18 +4870,18 @@ P:0:1d1:0:0:0
 D:$It restores your charisma when you quaff it.
 D:それは飲むと魅力が回復する。
 
-N:505:全復活
-E:Restoring
-G:!:d
+N:505:全復活:赤い
+E:Restoring:Red
+G:!:r
 I:75:43:100
 W:20:0:4:10000
 A:20/8:30/4:40/1
 D:$It restores all your stats when you quaff it.
 D:それは飲むと全ステータスが回復する。
 
-N:506:啓蒙
-E:Enlightenment
-G:!:d
+N:506:啓蒙:赤斑の
+E:Enlightenment:Red Speckled
+G:!:r
 I:75:44:0
 W:25:0:4:800
 A:25/1:50/1:100/1
@@ -4882,9 +4891,9 @@ D:$entire level when you quaff it.
 D:それは飲むとその階の地形を完全に知ることができ、その階全体が永久に
 D:照らされ、その階の全てのアイテム・モンスターを感知する。
 
-N:507:自己分析
-E:Self Knowledge
-G:!:d
+N:507:自己分析:銀斑の
+E:Self Knowledge:Silver Speckled
+G:!:W
 I:75:45:0
 W:40:0:4:2000
 A:40/1
@@ -4892,8 +4901,8 @@ P:0:1d1:0:0:0
 D:$It gives information about yourself when you quaff it.
 D:それは飲むと自分についての情報を得る。
 
-N:508:経験
-E:Experience
+N:508:経験:煙った
+E:Experience:Smoky
 G:!:d
 I:75:46:0
 W:65:0:4:25000
@@ -4903,9 +4912,9 @@ D:$You gain experience half of your experience (max: 100000) when you quaff it.
 D:それは飲むと現在の経験値の半分(100000を超えない)の経験を得る。
 
 #JZ#
-N:509:耐性
-E:Resistance
-G:!:d
+N:509:耐性:橙色の
+E:Resistance:Tangerine
+G:!:o
 I:75:47:100
 W:20:0:4:2800
 A:20/1:45/1:80/1:100/1
@@ -4916,9 +4925,9 @@ D:$These resistances is cumulative with equipment.
 D:それは飲むと一時的に酸・電撃・火炎・冷気・毒の耐性を得る。
 D:装備による耐性に累積する。
 
-N:510:癒し
-E:Curing
-G:!:d
+N:510:癒し:スミレ色の
+E:Curing:Violet
+G:!:v
 I:75:48:100
 W:18:0:4:250
 A:18/1:40/1
@@ -4928,9 +4937,9 @@ D:$and hallucination when you quaff it.
 D:それは飲むと体力が50回復し、盲目・毒・混乱・朦朧・切り傷・幻覚を癒す。
 
 #JZ#
-N:511:無敵
-E:Invulnerability
-G:!:d
+N:511:無敵:朱色の
+E:Invulnerability:Vermilion
+G:!:r
 I:75:49:-2500
 W:90:0:4:100000
 A:90/9
@@ -4938,9 +4947,9 @@ P:0:1d1:0:0:0
 D:$You get invulnerable temporarily when you quaff it.
 D:それは飲むと一時的に無敵化する。
 
-N:512:石化の治癒
-E:Cure Stoning
-G:!:d
+N:512:石化の治癒:白い
+E:Cure Stoning:White
+G:!:w
 I:75:50:0
 W:20:0:4:800
 A:20/1:40/1
@@ -4949,9 +4958,9 @@ D:$It cures stoning when you quaff it.
 D:それは飲むと徐々に進行する石化を癒す。
 
 #JZ#
-N:513:突然変異治療
-E:Cure Mutations
-G:!:d
+N:513:突然変異治療:黄色い
+E:Cure Mutations:Yellow
+G:!:y
 I:75:51:100
 W:50:0:4:10000
 A:50/20:100/10:120/5
@@ -4959,9 +4968,9 @@ P:0:1d1:0:0:0
 D:$It cures all mutations when you quaff it.
 D:それは飲むと全ての突然変異が消える。
 
-N:514:*癒し*
-E:*Curing*
-G:!:d
+N:514:*癒し*:刺激臭のする
+E:*Curing*:Pungent
+G:!:R
 I:75:52:100
 W:58:0:4:6500
 A:58/1:80/1
@@ -4970,9 +4979,9 @@ D:$It heals you 700 and cures blindness, poison, confusion, stunning, cuts,
 D:$stoning and hallucination when you quaff it.
 D:それは飲むと体力が700回復し、盲目・毒・混乱・朦朧・切り傷・石化・幻覚を癒す。
 
-N:515:突然変異
-E:Polymorph
-G:!:d
+N:515:突然変異:キラキラ光る
+E:Polymorph:Flashing
+G:!:y
 I:75:53:0
 W:50:0:4:5000
 A:50/4
@@ -5434,30 +5443,30 @@ W:1:0:0:80
 
 
 #### TOband2 new item ###
-N:572:アミュレット
-E:& Amulet~
-G:":d
+N:572:アミュレット:ダイアモンドの
+E:& Amulet~:Diamond
+G:":w
 I:40:29:0
 W:127:1:3:50000
 F:INSTA_ART
 
-N:573:アミュレット
-E:& Amulet~
-G:":d
+N:573:アミュレット:アメジストの
+E:& Amulet~:Amethyst
+G:":v
 I:40:30:0
 W:127:1:3:50000
 F:INSTA_ART
 
-N:574:アミュレット
-E:& Amulet~
-G:":d
+N:574:アミュレット:アクアマリンの
+E:& Amulet~:Aquamarine
+G:":B
 I:40:31:0
 W:127:1:3:50000
 F:INSTA_ART
 
-N:575:アミュレット
-E:& Amulet~
-G:":d
+N:575:アミュレット:軟玉の
+E:& Amulet~:Nephrite
+G:":g
 I:40:32:0
 W:127:1:3:50000
 F:INSTA_ART

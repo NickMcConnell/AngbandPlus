@@ -44,7 +44,6 @@
 #define FLG_ZENOBIAN        24
 #define FLG_LODIS           25
 #define FLG_METAL           26
-#define FLG_ARCHER          27
 
 #define FLG_ITEMS           30
 #define FLG_WEAPONS         31
@@ -54,8 +53,8 @@
 #define FLG_DEVICES         35
 #define FLG_LIGHTS          36
 #define FLG_JUNKS           37
-#define FLG_SPELLBOOKS      38
-#define FLG_HAFTED          39
+#define FLG_ARCHER          38
+#define FLG_SPELLBOOKS      39
 #define FLG_SHIELDS         40
 #define FLG_LAUNCHERS       41
 #define FLG_RINGS           42
@@ -112,7 +111,6 @@ static char KEY_BACRUM[] = "¥Ð¥¯¥é¥à¿Í¤Î";
 static char KEY_ZENOBIAN[] = "¥¼¥Î¥Ó¥¢¿Í¤Î";
 static char KEY_LODIS[] = "¥í¡¼¥Ç¥£¥¹¿Í¤Î";
 static char KEY_METAL[] = "¶âÂ°À½¤Î";
-static char KEY_ARCHER[] = "Ìð¤ÎºàÎÁ¤Î";
 
 static char KEY_ITEMS[] = "¥¢¥¤¥Æ¥à";
 static char KEY_WEAPONS[] = "Éð´ï";
@@ -122,8 +120,8 @@ static char KEY_SHOTS[] = "ÃÆ´Ý";
 static char KEY_DEVICES[] = "ËâË¡¥¢¥¤¥Æ¥à";
 static char KEY_LIGHTS[] = "¸÷¸»";
 static char KEY_JUNKS[] = "¤¬¤é¤¯¤¿";
+static char KEY_ARCHER[] = "ºàÎÁ";
 static char KEY_SPELLBOOKS[] = "ËâË¡½ñ";
-static char KEY_HAFTED[] = "Æß´ï";
 static char KEY_SHIELDS[] = "½â";
 static char KEY_LAUNCHERS[] = "¼Í·âÉð´ï";
 static char KEY_RINGS[] = "»ØÎØ";
@@ -179,7 +177,6 @@ static char KEY_BACRUM[] = "bacrum";
 static char KEY_ZENOBIAN[] = "zenobian";
 static char KEY_LODIS[] = "lodis";
 static char KEY_METAL[] = "metal";
-static char KEY_ARCHER[] = "ammo-material";
 
 static char KEY_ITEMS[] = "items";
 static char KEY_WEAPONS[] = "weapons";
@@ -189,8 +186,8 @@ static char KEY_SHOTS[] = "shots";
 static char KEY_DEVICES[] = "magical devices";
 static char KEY_LIGHTS[] = "lights";
 static char KEY_JUNKS[] = "junks";
+static char KEY_ARCHER[] = "ammo-materials";
 static char KEY_SPELLBOOKS[] = "spellbooks";
-static char KEY_HAFTED[] = "hafted weapons";
 static char KEY_SHIELDS[] = "shields";
 static char KEY_LAUNCHERS[] = "launchers";
 static char KEY_RINGS[] = "rings";
@@ -289,7 +286,6 @@ cptr autopick_line_from_entry(autopick_type *entry)
 	if (IS_FLG(FLG_ZENOBIAN)) ADD_KEY(KEY_ZENOBIAN);
 	if (IS_FLG(FLG_LODIS)) ADD_KEY(KEY_LODIS);
 	if (IS_FLG(FLG_METAL)) ADD_KEY(KEY_METAL);
-	if (IS_FLG(FLG_ARCHER)) ADD_KEY(KEY_ARCHER);
 	if (IS_FLG(FLG_WORTHLESS)) ADD_KEY(KEY_WORTHLESS);
 	if (IS_FLG(FLG_GOOD)) ADD_KEY(KEY_GOOD);
 	if (IS_FLG(FLG_NAMELESS)) ADD_KEY(KEY_NAMELESS);
@@ -308,8 +304,8 @@ cptr autopick_line_from_entry(autopick_type *entry)
 	else if (IS_FLG(FLG_DEVICES)) ADD_KEY2(KEY_DEVICES);
 	else if (IS_FLG(FLG_LIGHTS)) ADD_KEY2(KEY_LIGHTS);
 	else if (IS_FLG(FLG_JUNKS)) ADD_KEY2(KEY_JUNKS);
+	else if (IS_FLG(FLG_ARCHER)) ADD_KEY2(KEY_ARCHER);
 	else if (IS_FLG(FLG_SPELLBOOKS)) ADD_KEY2(KEY_SPELLBOOKS);
-	else if (IS_FLG(FLG_HAFTED)) ADD_KEY2(KEY_HAFTED);
 	else if (IS_FLG(FLG_SMALL_SWORDS)) ADD_KEY2(KEY_SMALL_SWORDS);
 	else if (IS_FLG(FLG_KATANAS)) ADD_KEY2(KEY_KATANAS);
 	else if (IS_FLG(FLG_SWORDS)) ADD_KEY2(KEY_SWORDS);
@@ -544,7 +540,6 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 		if (MATCH_KEY(KEY_ZENOBIAN)) ADD_FLG(FLG_ZENOBIAN);
 		if (MATCH_KEY(KEY_LODIS)) ADD_FLG(FLG_LODIS);
 		if (MATCH_KEY(KEY_METAL)) ADD_FLG(FLG_METAL);
-		if (MATCH_KEY(KEY_ARCHER)) ADD_FLG(FLG_ARCHER);
 	}
 
 	/* Not yet found any noun */
@@ -560,8 +555,8 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 	else if (MATCH_KEY2(KEY_DEVICES)) ADD_FLG_NOUN(FLG_DEVICES);
 	else if (MATCH_KEY2(KEY_LIGHTS)) ADD_FLG_NOUN(FLG_LIGHTS);
 	else if (MATCH_KEY2(KEY_JUNKS)) ADD_FLG_NOUN(FLG_JUNKS);
+	else if (MATCH_KEY2(KEY_ARCHER)) ADD_FLG_NOUN(FLG_ARCHER);
 	else if (MATCH_KEY2(KEY_SPELLBOOKS)) ADD_FLG_NOUN(FLG_SPELLBOOKS);
-	else if (MATCH_KEY2(KEY_HAFTED)) ADD_FLG_NOUN(FLG_HAFTED);
 	else if (MATCH_KEY2(KEY_SMALL_SWORDS)) ADD_FLG_NOUN(FLG_SMALL_SWORDS);
 	else if (MATCH_KEY2(KEY_KATANAS)) ADD_FLG_NOUN(FLG_KATANAS);
 	else if (MATCH_KEY2(KEY_SWORDS)) ADD_FLG_NOUN(FLG_SWORDS);
@@ -636,16 +631,16 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 
 	/*** Unidentified ***/
 	if (IS_FLG(FLG_UNIDENTIFIED)
-	    && (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
+	    && (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 		return FALSE;
 
 	/*** Identified ***/
-	if (IS_FLG(FLG_IDENTIFIED) && !object_known_p(o_ptr))
+	if (IS_FLG(FLG_IDENTIFIED) && !object_is_known(o_ptr))
 		return FALSE;
 
 	/*** *Identified* ***/
 	if (IS_FLG(FLG_STAR_IDENTIFIED) &&
-	    (!object_known_p(o_ptr) || !(o_ptr->ident & IDENT_MENTAL)))
+	    (!object_is_known(o_ptr) || !(o_ptr->ident & IDENT_MENTAL)))
 		return FALSE;
 
 	/*** Dice boosted (weapon of slaying) ***/
@@ -657,7 +652,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
-			if (object_known_p(o_ptr) && ((o_ptr->dd != k_ptr->dd) || (o_ptr->ds != k_ptr->ds)))
+			if (object_is_known(o_ptr) && ((o_ptr->dd != k_ptr->dd) || (o_ptr->ds != k_ptr->ds)))
 				break;
 			else
 				return FALSE;
@@ -669,7 +664,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	/*** Weapons which dd*ds is more than nn ***/
 	if (IS_FLG(FLG_MORE_THAN))
 	{
-		if (object_known_p(o_ptr))
+		if (object_is_known(o_ptr))
 		{
 			if (o_ptr->dd * o_ptr->ds < entry->dice)
 				return FALSE;
@@ -687,7 +682,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		int i;
 		bool qualify = FALSE;
 
-		if (!object_known_p(o_ptr)) return FALSE;
+		if (!object_is_known(o_ptr)) return FALSE;
 
 		for (i = 0; (i < A_MAX) && !qualify; i++)
 		{
@@ -712,14 +707,14 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	/*** Artifact object ***/
 	if (IS_FLG(FLG_ARTIFACT))
 	{
-		if (!object_known_p(o_ptr) || (!o_ptr->name1 && !o_ptr->art_name))
+		if (!object_is_known(o_ptr) || !object_is_artifact(o_ptr))
 			return FALSE;
 	}
 
 	/*** Ego object ***/
 	if (IS_FLG(FLG_EGO))
 	{
-		if (!object_known_p(o_ptr) || !o_ptr->name2)
+		if (!object_is_known(o_ptr) || !object_is_ego(o_ptr))
 			return FALSE;
 	}
 
@@ -729,10 +724,10 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		if (!object_is_equipment(o_ptr)) return FALSE;
 
 		/* Identified */
-		if (object_known_p(o_ptr))
+		if (object_is_known(o_ptr))
 		{
 			/* Artifacts and Ego objects are not okay */
-			if (o_ptr->inscription || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
+			if (o_ptr->inscription || object_is_artifact(o_ptr) || object_is_ego(o_ptr))
 				return FALSE;
 
 			/* Average are not okay */
@@ -769,10 +764,10 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		if (!object_is_equipment(o_ptr)) return FALSE;
 
 		/* Identified */
-		if (object_known_p(o_ptr))
+		if (object_is_known(o_ptr))
 		{
 			/* Artifacts and Ego objects are not okay */
-			if (o_ptr->inscription || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
+			if (o_ptr->inscription || object_is_artifact(o_ptr) || object_is_ego(o_ptr))
 				return FALSE;
 
 		}
@@ -804,7 +799,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	}
 
 	/*** Unaware items ***/
-	if (IS_FLG(FLG_UNAWARE) && object_aware_p(o_ptr))
+	if (IS_FLG(FLG_UNAWARE) && object_is_aware(o_ptr))
 		return FALSE;
 
 	/*** Average ***/
@@ -813,14 +808,14 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		if (!object_is_equipment(o_ptr)) return FALSE;
 
 		/* Identified */
-		if (object_known_p(o_ptr))
+		if (object_is_known(o_ptr))
 		{
 			/* Artifacts and Ego objects are not okay */
-			if (o_ptr->inscription || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
+			if (o_ptr->inscription || object_is_artifact(o_ptr) || object_is_ego(o_ptr))
 				return FALSE;
 
 			/* Cursed or broken objects are not okay */
-			if (cursed_p(o_ptr) || broken_p(o_ptr))
+			if (object_is_cursed(o_ptr) || object_is_broken(o_ptr))
 				return FALSE;
 
 			/* Good are not okay */
@@ -906,11 +901,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		return FALSE;
 
 	/*** Metal items ***/
-	if (IS_FLG(FLG_METAL) && !item_tester_hook_metal(o_ptr))
-		return FALSE;
-
-	/*** Ammo materials ***/
-	if (IS_FLG(FLG_ARCHER) && !item_tester_hook_convertible(o_ptr))
+	if (IS_FLG(FLG_METAL) && !object_is_metal(o_ptr))
 		return FALSE;
 
 	/*** Items ***/
@@ -977,14 +968,14 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		default: return FALSE;
 		}
 	}
+	else if (IS_FLG(FLG_ARCHER))
+	{
+		if (!object_is_convertible(o_ptr))
+			return FALSE;
+	}
 	else if (IS_FLG(FLG_SPELLBOOKS))
 	{
 		if (!(o_ptr->tval >= TV_MAGERY_BOOK))
-			return FALSE;
-	}
-	else if (IS_FLG(FLG_HAFTED))
-	{
-		if (!(o_ptr->tval == TV_HAFTED))
 			return FALSE;
 	}
 	else if (IS_FLG(FLG_SMALL_SWORDS))
@@ -1102,11 +1093,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	}
 	else
 	{
-#ifdef JP
-		if (!strstr_j(o_name, ptr)) return FALSE;
-#else
-		if (!strstr(o_name, ptr)) return FALSE;
-#endif
+		if (!my_strstr(o_name, ptr)) return FALSE;
 	}
 
 	/* TRUE when it need not to be 'collecting' */
@@ -1141,7 +1128,7 @@ int is_autopick(object_type *o_ptr)
 
 	if (o_ptr->tval == TV_GOLD) return -1;
 
-	object_desc(o_name, o_ptr, FALSE, 3);
+	object_desc(o_name, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NO_PLURAL));
 
 	/* Force to be lower case string */
 	for (i = 0; o_name[i]; i++)
@@ -1197,13 +1184,13 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 	{
 		if ((p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_CRESCENT))
 		{
-			if (item_tester_hook_convertible(o_ptr))
+			if (object_is_convertible(o_ptr))
 				return FALSE;
 		}
 
 		else if (p_ptr->pclass == CLASS_GUNNER)
 		{
-			if (item_tester_hook_metal(o_ptr))
+			if (object_is_metal(o_ptr))
 				return FALSE;
 		}
 	}
@@ -1310,7 +1297,7 @@ bool auto_destroy_item(int item, int autopick_idx)
 		char o_name[MAX_NLEN];
 
 		/* Describe the object (with {terrible/special}) */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Message */
 #ifdef JP
@@ -1349,7 +1336,7 @@ static void delayed_auto_destroy_aux(int item)
 		char o_name[MAX_NLEN];
 
 		/* Describe the object (with {terrible/special}) */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Eliminate the item (from the pack) */
 		if (item >= 0)
@@ -1435,7 +1422,7 @@ void auto_pickup_items(cave_type *c_ptr)
 				char o_name[MAX_NLEN];
 
 				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, o_ptr, 0);
 
 				/* Message */
 #ifdef JP
@@ -1460,7 +1447,7 @@ void auto_pickup_items(cave_type *c_ptr)
 				}
 
 				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, o_ptr, 0);
 
 #ifdef JP
 				sprintf(out_val, "%s¤ò½¦¤¤¤Þ¤¹¤«? ", o_name);

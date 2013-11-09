@@ -297,9 +297,10 @@ change_menu_type;
 #define CHANGE_ITEM_EXP_CLASS        9
 #define CHANGE_ITEM_EXP_RACE        10
 #define CHANGE_ITEM_LNC             11
-#define CHANGE_ITEM_CF_BASE         12
-#define CHANGE_ITEM_CF_MAX          16
-#define MAX_CHANGE_ITEM             17
+#define CHANGE_ITEM_GNE             12
+#define CHANGE_ITEM_CF_BASE         13
+#define CHANGE_ITEM_CF_MAX          17
+#define MAX_CHANGE_ITEM             18
 
 static void display_change_menu_line(int cur, int max_desc_len, change_menu_type *cur_item, byte attr)
 {
@@ -396,7 +397,7 @@ static void construct_change_menu(change_menu_type menu_list[MAX_CHANGE_ITEM], i
 	cur_item->lower_limit = 0;
 	cur_item->upper_limit = PY_MAX_EXP;
 	cur_item->digit = get_digit(cur_item);
-	sprintf(cur_item->desc, "クラス経験値 (%s) %s", cp_ptr->title, range_string(cur_item));
+	sprintf(cur_item->desc, "クラス経験値 (%s) %s", c_name + cp_ptr->name, range_string(cur_item));
 	desc_len = strlen(cur_item->desc);
 	if (desc_len > *max_desc_len) *max_desc_len = desc_len;
 
@@ -410,11 +411,20 @@ static void construct_change_menu(change_menu_type menu_list[MAX_CHANGE_ITEM], i
 	if (desc_len > *max_desc_len) *max_desc_len = desc_len;
 
 	cur_item = &menu_list[CHANGE_ITEM_LNC];
-	cur_item->var = p_ptr->align_self;
+	cur_item->var = p_ptr->align_self[ALI_LNC];
 	cur_item->lower_limit = -300;
 	cur_item->upper_limit = 300;
 	cur_item->digit = get_digit(cur_item);
 	sprintf(cur_item->desc, "LNCアラインメント %s", range_string(cur_item));
+	desc_len = strlen(cur_item->desc);
+	if (desc_len > *max_desc_len) *max_desc_len = desc_len;
+
+	cur_item = &menu_list[CHANGE_ITEM_GNE];
+	cur_item->var = p_ptr->align_self[ALI_GNE];
+	cur_item->lower_limit = -300;
+	cur_item->upper_limit = 300;
+	cur_item->digit = get_digit(cur_item);
+	sprintf(cur_item->desc, "GNEアラインメント %s", range_string(cur_item));
 	desc_len = strlen(cur_item->desc);
 	if (desc_len > *max_desc_len) *max_desc_len = desc_len;
 
@@ -509,7 +519,16 @@ static void do_cmd_wiz_change_commit(change_menu_type menu_list[MAX_CHANGE_ITEM]
 	if (cur_item->changed)
 	{
 		/* Save it */
-		p_ptr->align_self = cur_item->var;
+		p_ptr->align_self[ALI_LNC] = cur_item->var;
+		p_ptr->update |= (PU_BONUS);
+		update_stuff();
+	}
+
+	cur_item = &menu_list[CHANGE_ITEM_GNE];
+	if (cur_item->changed)
+	{
+		/* Save it */
+		p_ptr->align_self[ALI_GNE] = cur_item->var;
 		p_ptr->update |= (PU_BONUS);
 		update_stuff();
 	}
@@ -782,12 +801,12 @@ static void wiz_display_item(object_type *o_ptr)
 	prt_alloc(o_ptr->tval, o_ptr->sval, 1, 0);
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3);
+	object_desc(buf, o_ptr, OD_STORE);
 
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-	           o_ptr->k_idx, get_object_level(o_ptr),
+	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
 	           o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
@@ -1124,7 +1143,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	tweak_menu_type *cur_item;
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+	if (object_is_fixed_artifact(o_ptr) || o_ptr->art_name) return;
 
 	/* Column 0 */
 	menu_list[0].var = &o_ptr->weight;
@@ -1155,7 +1174,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	prt("Tweak Menu - Move to 2/4/6/8/h/j/k/l, Modify to Enter, Exit to ESC", 2, TWEAK_MENU_COL);
 
 	/* Describe fully */
-	object_desc_store(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 	prt(o_name, 4, TWEAK_MENU_COL);
 
 	for (i = 0; i < menu_num; i++)
@@ -1204,7 +1223,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 			}
 
 			/* Describe fully */
-			object_desc_store(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 			prt(o_name, 4, 2);
 			break;
 
@@ -1266,7 +1285,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+	if (object_is_fixed_artifact(o_ptr) || o_ptr->art_name) return;
 
 
 	/* Get local object */
@@ -1286,7 +1305,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		if (!get_com("[a]ccept, [w]orthless, [c]ursed, [n]ormal, [g]ood, [e]xcellent, [s]pecial? ", &ch, FALSE))
 		{
 			/* Preserve wizard-generated artifacts */
-			if (artifact_p(q_ptr))
+			if (object_is_fixed_artifact(q_ptr))
 			{
 				a_info[q_ptr->name1].cur_num = 0;
 				q_ptr->name1 = 0;
@@ -1304,7 +1323,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		}
 
 		/* Preserve wizard-generated artifacts */
-		if (artifact_p(q_ptr))
+		if (object_is_fixed_artifact(q_ptr))
 		{
 			a_info[q_ptr->name1].cur_num = 0;
 			q_ptr->name1 = 0;
@@ -1353,7 +1372,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 				apply_magic(q_ptr, dun_level, AMF_OKAY | AMF_GOOD | AMF_GREAT | AMF_SPECIAL);
 
 				/* Failed to create normal artifact; make a random one */
-				if (!artifact_p(q_ptr) && !q_ptr->art_name) create_artifact(q_ptr, FALSE);
+				if (!object_is_fixed_artifact(q_ptr) && !q_ptr->art_name) create_artifact(q_ptr, FALSE);
 				break;
 			}
 		}
@@ -1416,7 +1435,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
+	if (object_is_fixed_artifact(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
 
 
 	/* Interact */
@@ -1499,7 +1518,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 			/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
-			if (artifact_p(q_ptr)) a_info[q_ptr->name1].cur_num = 0;
+			if (object_is_fixed_artifact(q_ptr)) a_info[q_ptr->name1].cur_num = 0;
 
 
 			/* Test for the same tval and sval. */
@@ -1569,7 +1588,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (object_is_fixed_artifact(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
 }
 
 
@@ -1584,7 +1603,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 
 	/* Never duplicate artifacts */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+	if (object_is_fixed_artifact(o_ptr) || o_ptr->art_name) return;
 
 	/* Store old quantity. -LM- */
 	tmp_qnt = o_ptr->number;
@@ -2081,14 +2100,20 @@ static void do_cmd_wiz_zap(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Skip the mount */
+		if (i == p_ptr->riding) continue;
+
 		/* Delete nearby monsters */
 		if (m_ptr->cdis <= MAX_SIGHT)
 		{
-			if (i == p_ptr->riding)
+			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
 			{
-				rakuba(-1, FALSE);
-				p_ptr->redraw |= (PR_EXTRA);
+				char m_name[80];
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_WIZ_ZAP, m_name);
 			}
+
 			delete_monster_idx(i);
 		}
 	}
@@ -2110,10 +2135,15 @@ static void do_cmd_wiz_zap_all(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		if (i == p_ptr->riding)
+		/* Skip the mount */
+		if (i == p_ptr->riding) continue;
+
+		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
 		{
-			rakuba(-1, FALSE);
-			p_ptr->redraw |= (PR_EXTRA);
+			char m_name[80];
+
+			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_WIZ_ZAP, m_name);
 		}
 
 		/* Delete this monster */
@@ -2252,7 +2282,7 @@ static void do_cmd_wiz_snap_dragon_info(void)
 		msg_print(buf);
 
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 #ifdef JP
 		msg_format("%sを調べている...", o_name);
 #else

@@ -223,11 +223,31 @@ void reset_tim_flags(void)
 	if ((inventory[INVEN_RARM].k_idx && (inventory[INVEN_RARM].name1 == ART_BERSERK)) ||
 	    (inventory[INVEN_LARM].k_idx && (inventory[INVEN_LARM].name1 == ART_BERSERK))) p_ptr->shero = 1;
 
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ACID))
+	{
+		p_ptr->oppose_acid = 1;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_FIRE))
+	{
+		p_ptr->oppose_fire = 1;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_COLD))
+	{
+		p_ptr->oppose_cold = 1;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ELEC))
+	{
+		p_ptr->oppose_elec = 1;
+	}
+
 	if (p_ptr->riding)
 	{
-		m_list[p_ptr->riding].fast = 0;
-		m_list[p_ptr->riding].slow = 0;
-		m_list[p_ptr->riding].invulner = 0;
+		(void)set_monster_fast(p_ptr->riding, 0);
+		(void)set_monster_slow(p_ptr->riding, 0);
+		(void)set_monster_invulner(p_ptr->riding, 0, FALSE);
 	}
 
 	p_ptr->singing = 0;
@@ -1438,7 +1458,7 @@ bool set_wraith_form(int v, bool do_dec)
 
 			notice = TRUE;
 
-			change_your_alignment_lnc(-3);
+			change_your_alignment(ALI_GNE, -3);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -1531,7 +1551,7 @@ bool set_invuln(int v, bool do_dec)
 
 			notice = TRUE;
 
-			change_your_alignment_lnc(3);
+			change_your_alignment(ALI_LNC, 3);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -2877,6 +2897,8 @@ bool set_oppose_acid(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ACID)) v = 1;
+
 	/* Open */
 	if (v)
 	{
@@ -2942,6 +2964,8 @@ bool set_oppose_elec(int v, bool do_dec)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ELEC)) v = 1;
 
 	/* Open */
 	if (v)
@@ -3009,6 +3033,8 @@ bool set_oppose_fire(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_FIRE)) v = 1;
+
 	/* Open */
 	if (v)
 	{
@@ -3074,6 +3100,8 @@ bool set_oppose_cold(int v, bool do_dec)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_COLD)) v = 1;
 
 	/* Open */
 	if (v)
@@ -3656,6 +3684,7 @@ bool set_food(int v)
 			msg_print("You have gorged yourself!");
 #endif
 
+			change_your_alignment(ALI_LNC, -1);
 			break;
 		}
 
@@ -4256,7 +4285,7 @@ bool restore_level(void)
 		restored = TRUE;
 	}
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		cexp_ptr = &p_ptr->cexp_info[i];
 
@@ -4296,6 +4325,8 @@ bool restore_level(void)
 bool lose_all_info(void)
 {
 	int i;
+
+	change_your_alignment(ALI_LNC, -5);
 
 	/* Forget info about objects */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -4386,6 +4417,8 @@ void do_poly_self(void)
 #else
 	msg_print("You feel a change coming over you...");
 #endif
+
+	change_your_alignment(ALI_LNC, -1);
 
 	if ((power > randint0(20)) && one_in_(3))
 	{
@@ -4604,7 +4637,7 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 		if (!o_ptr->k_idx) return FALSE;
 
 		/* Describe */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Message */
 #ifdef JP
@@ -4645,7 +4678,7 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 		if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
 		/* Calculate character total class level */
-		for (i = 0; i < MAX_CLASS; i++)
+		for (i = 0; i < max_c_idx; i++)
 		{
 			if (p_ptr->cexp_info[i].max_clev > 0)
 			{
@@ -4683,14 +4716,14 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 #ifdef JP
-		msg_format("あなたは%sとして転生した！", cp_ptr->title);
+		msg_format("あなたは%sとして転生した！", c_name + cp_ptr->name);
 #else
-		msg_format("You are reincarnated as %s!", cp_ptr->title);
+		msg_format("You are reincarnated as %s!", c_name + cp_ptr->name);
 #endif
 #ifdef JP
-		sprintf(buf, "1度殺されたが、%sへと転生して復活した。", cp_ptr->title);
+		sprintf(buf, "1度殺されたが、%sへと転生して復活した。", c_name + cp_ptr->name);
 #else
-		sprintf(buf, "once killed, but reincarnated as %s.", cp_ptr->title);
+		sprintf(buf, "once killed, but reincarnated as %s.", c_name + cp_ptr->name);
 #endif
 		/* Load the "pref" files */
 		load_all_pref_files();
@@ -5643,3 +5676,49 @@ bool set_tim_resurrection(int v, bool do_dec)
 	/* Result */
 	return (TRUE);
 }
+
+void evolution(int new_race)
+{
+	int i;
+	s32b tmp32s;
+	cptr title = p_name + race_info[new_race].name;
+
+#ifdef JP
+	msg_format("あなたは%sに変化した！", title);
+#else
+	msg_format("You turn into %s %s!", title);
+#endif
+
+	p_ptr->prace = new_race;
+	rp_ptr = &race_info[p_ptr->prace];
+
+	/* Reset HP/SP */
+	p_ptr->race_hp[0] = p_ptr->race_sp[0] = 0;
+
+	for (i = 1; i < 4; i++)
+	{
+		tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+		p_ptr->race_hp[0] += MAX(tmp32s, 0);
+
+		tmp32s = rand_spread(rp_ptr->r_msp, 1);
+		p_ptr->race_sp[0] += MAX(tmp32s, 0);
+	}
+
+	for (i = 1; i < p_ptr->max_plv; i++)
+	{
+		tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+		p_ptr->race_hp[i] = MAX(tmp32s, 0);
+
+		tmp32s = rand_spread(rp_ptr->r_msp, 1);
+		p_ptr->race_sp[i] = MAX(tmp32s, 0);
+	}
+
+	p_ptr->redraw |= (PR_BASIC);
+
+	p_ptr->update |= (PU_BONUS);
+
+	handle_stuff();
+
+}
+
+

@@ -1,0 +1,10 @@
+B:$31:N:Super Smith:Godoh:Human:1
+B:31:N:╦т╦б├├╠ъ▓░:е┤еЇе╦ех:╦т┬▓:1
+B:$31:A:0:Compose weapon:0:c:58:0
+B:31:A:0:┴ї╚ў╔╩дЄ╣ч└од╣ды:0:c:58:0
+
+B:$30:N:Super Smith:Godoh:Human:1
+B:30:N:╦т┬▓:╠д─ъ:╦т┬▓:1
+B:$30:A:0:Compose weapon:0:c:59:0
+B:30:A:0:епеще╣е┴езеєе╕:0:c:59:0
+

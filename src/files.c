@@ -330,6 +330,7 @@ static named_num gf_desc[] =
 	{"GF_CAVE_TEMP",			GF_CAVE_TEMP		},
 	{"GF_WATER_FLOW",			GF_WATER_FLOW		},
 	{"GF_CAPTURE",				GF_CAPTURE			},
+	{"GF_DRAIN_SOUL",			GF_DRAIN_SOUL		},
 	{NULL, 						0					}
 };
 
@@ -573,7 +574,7 @@ errr process_pref_file_command(char *buf)
 			    option_info[i].o_text &&
 			    streq(option_info[i].o_text, buf + 2))
 			{
-				if (p_ptr->playing && 6 == option_info[i].o_page && !p_ptr->wizard)
+				if (p_ptr->playing && OPT_PAGE_BIRTH == option_info[i].o_page && !p_ptr->wizard)
 				{
 #ifdef JP
 					msg_format("初期オプションは変更できません! '%s'", buf);	
@@ -613,7 +614,7 @@ errr process_pref_file_command(char *buf)
 	case 'Z':
 	{
 		/* Find the colon */
-		char *t = strchr(buf + 2, ':');
+		char *t = my_strchr(buf + 2, ':');
 
 		/* Oops */
 		if (!t) return 1;
@@ -910,7 +911,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 	else
 	{
 		/* Accept all printables except spaces and brackets */
-		while (isprint(*s) && !strchr(" []", *s)) ++s;
+		while (isprint(*s) && !my_strchr(" []", *s)) ++s;
 
 		/* Extract final and Terminate */
 		if ((f = *s) != '\0') *s++ = '\0';
@@ -958,9 +959,9 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "RACE"))
 			{
 #ifdef JP
-				v = rp_ptr->E_title;
+				v = p_name + rp_ptr->E_name;
 #else
-				v = rp_ptr->title;
+				v = p_name + rp_ptr->name;
 #endif
 			}
 
@@ -968,16 +969,31 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "CLASS"))
 			{
 #ifdef JP
-				v = cp_ptr->E_title;
+				v = c_name + cp_ptr->E_name;
 #else
-				v = cp_ptr->title;
+				v = c_name + cp_ptr->name;
 #endif
 			}
 
 			/* Player */
 			else if (streq(b+1, "PLAYER"))
 			{
-				v = player_base;
+				static char tmp_player_name[32];
+				char *pn, *tpn;
+				for (pn = player_name, tpn = tmp_player_name; *pn; pn++, tpn++)
+				{
+#ifdef JP
+					if (iskanji(*pn))
+					{
+						*(tpn++) = *(pn++);
+						*tpn = *pn;
+						continue;
+					}
+#endif
+					*tpn = my_strchr(" []", *pn) ? '_' : *pn;
+				}
+				*tpn = '\0';
+				v = tmp_player_name;
 			}
 
 			/* Sex */
@@ -1014,7 +1030,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				else if (*pp == p1)
 				{
 					char class_name[40];
-					char *rp = strchr(pp + 2, p2);
+					char *rp = my_strchr(pp + 2, p2);
 
 					/* Default */
 					v = "00";
@@ -1027,12 +1043,12 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 						strcpy(class_name, pp);
 						class_name[(int)(rp - pp)] = '\0'; /* Terminate right parentheses */
 
-						for (i = 0; i < MAX_CLASS; i++)
+						for (i = 0; i < max_c_idx; i++)
 						{
 #ifdef JP
-							if (streq(class_info[i].E_title, class_name))
+							if (streq(c_name + class_info[i].E_name, class_name))
 #else
-							if (streq(class_info[i].title, class_name))
+							if (streq(c_name + class_info[i].name, class_name))
 #endif
 							{
 								sprintf(tmp, "%02ld", p_ptr->cexp_info[i].clev);
@@ -1686,8 +1702,8 @@ static void display_player_middle(void)
 		o_ptr = &inventory[INVEN_RARM];
 
 		/* Hack -- add in weapon info if known */
-		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
-		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
+		if (object_is_known(o_ptr)) show_tohit += o_ptr->to_h;
+		if (object_is_known(o_ptr)) show_todam += o_ptr->to_d;
 
 		/* Melee attacks */
 		sprintf(buf, "(%+d,%+d)", show_tohit, show_todam);
@@ -1711,8 +1727,8 @@ static void display_player_middle(void)
 		o_ptr = &inventory[INVEN_LARM];
 
 		/* Hack -- add in weapon info if known */
-		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
-		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
+		if (object_is_known(o_ptr)) show_tohit += o_ptr->to_h;
+		if (object_is_known(o_ptr)) show_todam += o_ptr->to_d;
 
 		/* Melee attacks */
 		sprintf(buf, "(%+d,%+d)", show_tohit, show_todam);
@@ -1736,8 +1752,8 @@ static void display_player_middle(void)
 	{
 		int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]/10];
 
-		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
-		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
+		if (object_is_known(o_ptr)) show_tohit += o_ptr->to_h;
+		if (object_is_known(o_ptr)) show_todam += o_ptr->to_d;
 
 		show_tohit += attack_var * 4 - 8;
 		show_todam += attack_var - 1;
@@ -1804,8 +1820,8 @@ static void display_player_middle(void)
 		}
 		else
 		{
-			if (m_list[p_ptr->riding].fast) tmp_speed += 10;
-			if (m_list[p_ptr->riding].slow) tmp_speed -= 10;
+			if (MON_FAST(&m_list[p_ptr->riding])) tmp_speed += 10;
+			if (MON_SLOW(&m_list[p_ptr->riding])) tmp_speed -= 10;
 		}
 
 		if (tmp_speed)
@@ -2124,7 +2140,7 @@ static void display_player_various(void)
 		if (o_ptr->k_idx)
 		{
 			object_kind *k_ptr = &k_info[o_ptr->k_idx];
-			bool known = object_known_p(o_ptr);
+			bool known = object_is_known(o_ptr);
 			int known_dd = known ? o_ptr->dd : k_ptr->dd;
 			int known_ds = known ? o_ptr->ds : k_ptr->ds;
 
@@ -2245,278 +2261,6 @@ static void display_player_various(void)
 
 	display_player_one_line(ENTRY_INFRA, format("%d feet", p_ptr->see_infra * 10), TERM_WHITE);
 	display_player_one_line(ENTRY_ANTI_MAGIC, format("%d feet", p_ptr->anti_magic_field * 10), TERM_WHITE);
-}
-
-
-
-/*
- * Obtain the "flags" for the player as if he was an item
- */
-static void player_flags(u32b flgs[TR_FLAG_SIZE])
-{
-	int to_speed;
-	int i;
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
-
-	/* Clear */
-	for (i = 0; i < TR_FLAG_SIZE; i++)
-		flgs[i] = 0L;
-
-	to_speed = rp_ptr->r_spd + cp_ptr->c_spd;
-	to_speed += ((p_ptr->gx_spd * (p_ptr->lev + cexp_ptr->clev)) / (p_ptr->max_plv + cexp_ptr->max_clev)) / 50;
-	if (to_speed) add_flag(flgs, TR_SPEED);
-
-	/* Class Master get Flag */
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34) add_flag(flgs, TR_FEAR_FIELD);
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 44) add_flag(flgs, TR_ANTI_MAGIC);
-	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
-	else if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
-
-	/* Classes */
-	switch (p_ptr->pclass)
-	{
-	case CLASS_TERRORKNIGHT:
-		add_flag(flgs, TR_SUST_STR);
-		add_flag(flgs, TR_SUST_DEX);
-		add_flag(flgs, TR_SUST_CON);
-		add_flag(flgs, TR_HOLD_LIFE);
-		if (cexp_ptr->clev > 14)
-		{
-			add_flag(flgs, TR_REGEN);
-			add_flag(flgs, TR_FREE_ACT);
-			add_flag(flgs, TR_FEAR_FIELD);
-		}
-		if (cexp_ptr->clev > 24)
-		{
-			add_flag(flgs, TR_RES_FEAR);
-			add_flag(flgs, TR_ANTI_MAGIC);
-		}
-		if (cexp_ptr->clev > 34) add_flag(flgs, TR_RES_CONF);
-		if (cexp_ptr->clev > 44) add_flag(flgs, TR_RES_NETHER);
-		break;
-	case CLASS_DRAGOON:
-		if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
-		else add_flag(flgs, TR_SLAY_DRAGON);
-		break;
-	case CLASS_NINJA:
-	case CLASS_NINJAMASTER:
-		if (heavy_armor()) add_flag(flgs, TR_SPEED);
-		break;
-	case CLASS_EXORCIST:
-		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
-		if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
-		add_flag(flgs, TR_SLAY_UNDEAD);
-		add_flag(flgs, TR_SEE_INVIS);
-		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_FEAR);
-		/* Fall through */
-	case CLASS_CLERIC:
-	case CLASS_PRIEST:
-		add_flag(flgs, TR_BLESSED);
-		break;
-	case CLASS_WITCH:
-		if (cexp_ptr->clev > 9) add_flag(flgs, TR_FEATHER);
-		break;
-	case CLASS_VAMPIRE:
-		add_flag(flgs, TR_SLAY_LIVING);
-		add_flag(flgs, TR_RES_DARK);
-		add_flag(flgs, TR_FEATHER);
-		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_LITE);
-		if (!is_daytime())
-		{
-			add_flag(flgs, TR_REGEN);
-			add_flag(flgs, TR_RES_FEAR);
-			if (cexp_ptr->clev > 14) add_flag(flgs, TR_FEAR_FIELD);
-			if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_MAGIC);
-		}
-	case CLASS_LICH:
-		add_flag(flgs, TR_RES_COLD);
-		add_flag(flgs, TR_RES_POIS);
-		add_flag(flgs, TR_RES_NETHER);
-		add_flag(flgs, TR_FREE_ACT);
-		add_flag(flgs, TR_SEE_INVIS);
-		add_flag(flgs, TR_HOLD_LIFE);
-		add_flag(flgs, TR_UNHOLY);
-		break;
-	case CLASS_ANGELKNIGHT:
-		add_flag(flgs, TR_FEATHER);
-		add_flag(flgs, TR_BLESSED);
-		if (cexp_ptr->clev > 9) add_flag(flgs, TR_RES_FEAR);
-		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SUST_WIS);
-		if (cexp_ptr->clev > 29) add_flag(flgs, TR_RES_CONF);
-		if (cexp_ptr->clev > 39) add_flag(flgs, TR_TELEPATHY);
-		break;
-	case CLASS_HIGHWITCH:
-		if (cexp_ptr->clev > 9) add_flag(flgs, TR_FEATHER);
-		if (cexp_ptr->clev > 39) add_flag(flgs, TR_EASY_SPELL);
-		if (cexp_ptr->clev > 39) add_flag(flgs, TR_DEC_MANA);
-		break;
-	case CLASS_GUNNER:
-		add_flag(flgs, TR_RES_SOUND);
-		add_flag(flgs, TR_RES_SHARDS);
-		add_flag(flgs, TR_NO_TELE);
-		break;
-	case CLASS_LORD:
-		if (p_ptr->action == ACTION_AURA)
-		{
-			add_flag(flgs, TR_LITE);
-			add_flag(flgs, TR_REGEN);
-			if (cexp_ptr->clev > 29) add_flag(flgs, TR_TELEPATHY);
-			if (cexp_ptr->clev > 34) add_flag(flgs, TR_VORPAL);
-		}
-		break;
-	case CLASS_FREYA:
-		add_flag(flgs, TR_BLESSED);
-		if (cexp_ptr->clev > 34) add_flag(flgs, TR_SLAY_EVIL);
-		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_DEMON);
-		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
-		break;
-	case CLASS_CRESCENT:
-		if (cexp_ptr->clev > 24) add_flag(flgs, TR_ANTI_MAGIC);
-		if (cexp_ptr->clev > 39) add_flag(flgs, TR_XTRA_MIGHT);
-		break;
-	default:
-		break; /* Do nothing */
-	}
-
-	/* Races */
-	switch (p_ptr->prace)
-	{
-	case RACE_HAWKMAN:
-		add_flag(flgs, TR_FEATHER);
-		if (p_ptr->lev > 14)
-			add_flag(flgs, TR_RES_FEAR);
-		break;
-	case RACE_LIZARDMAN:
-		add_flag(flgs, TR_RES_ACID);
-		add_flag(flgs, TR_RES_COLD);
-		break;
-	case RACE_FAIRY:
-		add_flag(flgs, TR_RES_LITE);
-		add_flag(flgs, TR_FEATHER);
-		break;
-	case RACE_GREMLIN:
-		add_flag(flgs, TR_RES_DARK);
-		add_flag(flgs, TR_RES_NETHER);
-		add_flag(flgs, TR_FEATHER);
-		break;
-	case RACE_SKELETON:
-		add_flag(flgs, TR_RES_POIS);
-		add_flag(flgs, TR_RES_SHARDS);
-		add_flag(flgs, TR_RES_NETHER);
-		add_flag(flgs, TR_SEE_INVIS);
-		add_flag(flgs, TR_HOLD_LIFE);
-		if (p_ptr->lev > 9)
-			add_flag(flgs, TR_RES_COLD);
-		break;
-	case RACE_GHOST:
-		add_flag(flgs, TR_RES_COLD);
-		add_flag(flgs, TR_RES_POIS);
-		add_flag(flgs, TR_RES_NETHER);
-		add_flag(flgs, TR_FREE_ACT);
-		add_flag(flgs, TR_SEE_INVIS);
-		add_flag(flgs, TR_HOLD_LIFE);
-		add_flag(flgs, TR_FEATHER);
-		/* XXX pass_wall */
-		if (p_ptr->lev > 34)
-			add_flag(flgs, TR_TELEPATHY);
-		break;
-	case RACE_PUMPKINHEAD:
-		add_flag(flgs, TR_RES_CHAOS);
-		add_flag(flgs, TR_RES_DISEN);
-		add_flag(flgs, TR_FREE_ACT);
-		add_flag(flgs, TR_HOLD_LIFE);
-		add_flag(flgs, TR_SLOW_DIGEST);
-		add_flag(flgs, TR_AGGRAVATE);
-		if (p_ptr->lev > 19)
-			add_flag(flgs, TR_TELEPATHY);
-		break;
-	case RACE_GOBLIN:
-		add_flag(flgs, TR_RES_DARK);
-		break;
-	case RACE_GORGON:
-		add_flag(flgs, TR_RES_STONE);
-		if (p_ptr->lev > 9)
-			add_flag(flgs, TR_RES_COLD);
-		if (p_ptr->lev > 19)
-			add_flag(flgs, TR_RES_ACID);
-		if (p_ptr->lev > 29)
-			add_flag(flgs, TR_RES_CHAOS);
-		if (p_ptr->lev > 39)
-			add_flag(flgs, TR_RES_POIS);
-		if (p_ptr->lev > 49)
-			add_flag(flgs, TR_RES_NETHER);
-		break;
-	case RACE_MERMAID:
-		add_flag(flgs, TR_RES_ACID);
-		if (p_ptr->lev > 24)
-			add_flag(flgs, TR_RES_CONF);
-		break;
-	default:
-		; /* Do nothing */
-	}
-
-	/* Mutations */
-	if (p_ptr->muta3)
-	{
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
-		{
-			remove_flag(flgs, TR_REGEN);
-		}
-
-		if ((p_ptr->muta3 & MUT3_XTRA_FAT) ||
-			(p_ptr->muta3 & MUT3_XTRA_LEGS) ||
-			(p_ptr->muta3 & MUT3_SHORT_LEG))
-		{
-			add_flag(flgs, TR_SPEED);
-		}
-
-		if (p_ptr->muta3  & MUT3_ELEC_TOUC)
-		{
-			add_flag(flgs, TR_SH_ELEC);
-		}
-
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-			add_flag(flgs, TR_SH_FIRE);
-			add_flag(flgs, TR_LITE);
-		}
-
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			add_flag(flgs, TR_FEATHER);
-		}
-
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			add_flag(flgs, TR_RES_FEAR);
-		}
-
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			add_flag(flgs, TR_REGEN);
-		}
-
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			add_flag(flgs, TR_TELEPATHY);
-		}
-
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-			add_flag(flgs, TR_FREE_ACT);
-		}
-	}
-
-	if (easy_band)
-	{
-		add_flag(flgs, TR_RES_BLIND);
-		add_flag(flgs, TR_RES_CONF);
-		add_flag(flgs, TR_HOLD_LIFE);
-		if ((p_ptr->pclass != CLASS_NINJA) && (p_ptr->pclass != CLASS_NINJAMASTER)) add_flag(flgs, TR_LITE);
-	}
 }
 
 
@@ -2719,9 +2463,6 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 	if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))
 		add_flag(flgs, TR_RES_NETHER);
 
-	if (((p_ptr->pclass == CLASS_DRAGOON) && (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24)) || (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49))
-		add_flag(flgs, TR_SLAY_DRAGON);
-
 	if ((rp_ptr->r_flags & PRF_NO_DIGEST) || (cp_ptr->c_flags & PCF_NO_DIGEST))
 		add_flag(flgs, TR_SLOW_DIGEST);
 
@@ -2736,6 +2477,23 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_RES_NETHER);
 		}
 	}
+
+	/* Extract flags and store */
+	player_flags(p_ptr->flags);
+
+	if (have_flag(p_ptr->flags, TR_KILL_EVIL)) add_flag(flgs, TR_SLAY_EVIL);
+	if (have_flag(p_ptr->flags, TR_KILL_GOOD)) add_flag(flgs, TR_SLAY_GOOD);
+	if (have_flag(p_ptr->flags, TR_KILL_UNDEAD)) add_flag(flgs, TR_SLAY_UNDEAD);
+	if (have_flag(p_ptr->flags, TR_KILL_LIVING)) add_flag(flgs, TR_SLAY_LIVING);
+	if (have_flag(p_ptr->flags, TR_KILL_DEMON)) add_flag(flgs, TR_SLAY_DEMON);
+	if (have_flag(p_ptr->flags, TR_KILL_DRAGON)) add_flag(flgs, TR_SLAY_DRAGON);
+	if (have_flag(p_ptr->flags, TR_KILL_HUMAN)) add_flag(flgs, TR_SLAY_HUMAN);
+	if (have_flag(p_ptr->flags, TR_KILL_ANIMAL)) add_flag(flgs, TR_SLAY_ANIMAL);
+	if (have_flag(p_ptr->flags, TR_KILL_ORC)) add_flag(flgs, TR_SLAY_ORC);
+	if (have_flag(p_ptr->flags, TR_KILL_TROLL)) add_flag(flgs, TR_SLAY_TROLL);
+	if (have_flag(p_ptr->flags, TR_KILL_GIANT)) add_flag(flgs, TR_SLAY_GIANT);
+
+	if (have_flag(p_ptr->flags, TR_EXTRA_VORPAL)) add_flag(flgs, TR_VORPAL);
 }
 
 static void tim_player_immunity(u32b flgs[TR_FLAG_SIZE])
@@ -2772,6 +2530,8 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_LITE);
 	if (prace_is_(RACE_FAIRY))
 		add_flag(flgs, TR_RES_DARK);
+	if (prace_is_(RACE_PUMPKINHEAD))
+		add_flag(flgs, TR_RES_FIRE);
 
 	if (p_ptr->ogre_equip)
 	{
@@ -2783,13 +2543,28 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 	}
 
 	if (p_ptr->zoshonel_protect)
-	{
 		add_flag(flgs, TR_RES_COLD);
-	}
 
 	if (p_ptr->mermaid_in_water)
+		add_flag(flgs, TR_RES_ELEC);
+
+	if (p_ptr->weak_fire)
+		add_flag(flgs, TR_RES_FIRE);
+
+	if (p_ptr->weak_aqua)
+		add_flag(flgs, TR_RES_COLD);
+
+	if (p_ptr->weak_earth)
+	{
+		add_flag(flgs, TR_RES_ACID);
+		add_flag(flgs, TR_RES_SHARDS);
+		add_flag(flgs, TR_RES_STONE);
+	}
+
+	if (p_ptr->weak_wind)
 	{
 		add_flag(flgs, TR_RES_ELEC);
+		add_flag(flgs, TR_RES_SOUND);
 	}
 }
 
@@ -2799,7 +2574,6 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
  */
 typedef struct
 {
-	u32b player_flags[TR_FLAG_SIZE];
 	u32b tim_player_flags[TR_FLAG_SIZE];
 	u32b player_imm[TR_FLAG_SIZE];
 	u32b tim_player_imm[TR_FLAG_SIZE];
@@ -2878,7 +2652,7 @@ static void display_flag_aux(int row, int col, cptr header,
 	c_put_str((byte)(vuln ? TERM_RED : TERM_SLATE), ".", row, col);
 
 	/* Player flags */
-	if (have_flag(f->player_flags, flag1)) c_put_str((byte)(vuln ? TERM_L_RED : TERM_WHITE), "+", row, col);
+	if (have_flag(p_ptr->flags, flag1)) c_put_str((byte)(vuln ? TERM_L_RED : TERM_WHITE), "+", row, col);
 
 	/* Timed player flags */
 	if (have_flag(f->tim_player_flags, flag1)) c_put_str((byte)(vuln ? TERM_ORANGE : TERM_YELLOW), "#", row, col);
@@ -2903,7 +2677,7 @@ static void display_player_flag_info(void)
 	all_player_flags f;
 
 	/* Extract flags and store */
-	player_flags(f.player_flags);
+	player_flags(p_ptr->flags);
 	tim_player_flags(f.tim_player_flags);
 	player_immunity(f.player_imm);
 	tim_player_immunity(f.tim_player_imm);
@@ -3030,7 +2804,7 @@ static void display_player_other_flag_info(void)
 	all_player_flags f;
 
 	/* Extract flags and store */
-	player_flags(f.player_flags);
+	player_flags(p_ptr->flags);
 	tim_player_flags(f.tim_player_flags);
 	player_immunity(f.player_imm);
 	tim_player_immunity(f.tim_player_imm);
@@ -3244,8 +3018,8 @@ static void display_player_misc_info(void)
 
 	c_put_str(TERM_L_BLUE, player_name, 1, 34);
 	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
-	if (!(cp_ptr->c_flags & PCF_REINCARNATE)) c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 9);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
+	if (!(cp_ptr->c_flags & PCF_REINCARNATE)) c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 9);
+	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 9);
 
 	/* Display extras */
 #ifdef JP
@@ -3464,9 +3238,6 @@ static void display_player_stat_info(void)
 		col++;
 	}
 
-	/* Player flags */
-	player_flags(flgs);
-
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; stat++)
 	{
@@ -3592,8 +3363,8 @@ void display_player(int mode)
 		/* Name, Sex, Race, Class */
 		display_player_one_line(ENTRY_NAME, player_name, TERM_L_BLUE);
 		display_player_one_line(ENTRY_SEX, sp_ptr->title, TERM_L_BLUE);
-		if (!(cp_ptr->c_flags & PCF_REINCARNATE)) display_player_one_line(ENTRY_RACE, rp_ptr->title, TERM_L_BLUE);
-		display_player_one_line(ENTRY_CLASS, cp_ptr->title, TERM_L_BLUE);
+		if (!(cp_ptr->c_flags & PCF_REINCARNATE) && (p_ptr->pclass != CLASS_SUCCUBUS)) display_player_one_line(ENTRY_RACE, p_name + rp_ptr->name, TERM_L_BLUE);
+		display_player_one_line(ENTRY_CLASS, c_name + cp_ptr->name, TERM_L_BLUE);
 
 		/* Age, Height, Weight, Social */
 		/* 身長はセンチメートルに、体重はキログラムに変更してあります */
@@ -4017,7 +3788,7 @@ static void dump_aux_pet(FILE *fff)
 #endif
 			pet = TRUE;
 		}
-		monster_desc(pet_name, m_ptr, 0x88);
+		monster_desc(pet_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 		fprintf(fff, "%s\n", pet_name);
 	}
 	if (pet) fprintf(fff, "\n");
@@ -4049,7 +3820,7 @@ static void dump_aux_stock_pet(FILE *fff)
 		/* Dump all available pets */
 		for (i = 0; i < stock_mon_num; i++)
 		{
-			monster_desc(m_name, &stock_mon[i], 0x80);
+			monster_desc(m_name, &stock_mon[i], MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 			fprintf(fff, "%c%s %s\n", I2A(i), paren, m_name);
 		}
 
@@ -4075,7 +3846,7 @@ static void dump_aux_class_history(FILE *fff)
 #endif
 	fprintf(fff, "--------------------------------------------------\n");
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
 
@@ -4084,10 +3855,10 @@ static void dump_aux_class_history(FILE *fff)
 		if (cexp_ptr->max_clev)
 		{
 #ifdef L64
-			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d\n", c_name + class_info[i].name,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #else
-			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld\n", c_name + class_info[i].name,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #endif
 		}
@@ -4095,10 +3866,10 @@ static void dump_aux_class_history(FILE *fff)
 		{
 #ifdef L64
 			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------\n",
-				class_info[i].title, cexp_ptr->max_max_clev);
+				c_name + class_info[i].name, cexp_ptr->max_max_clev);
 #else
 			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------\n",
-				class_info[i].title, cexp_ptr->max_max_clev);
+				c_name + class_info[i].name, cexp_ptr->max_max_clev);
 #endif
 		}
 	}
@@ -4611,7 +4382,7 @@ static void dump_aux_runeweapon_ability(FILE *fff)
 		fprintf(fff, "  [Character Ability as a Runeweapon]\n\n");
 #endif
 		o_ptr = &runeweapon_list[0].weapon;
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 		fprintf(fff, "%s\n", o_name);
 		screen_object(o_ptr, fff, TRUE);
 
@@ -4640,7 +4411,7 @@ static void dump_aux_equipment_inventory(FILE *fff)
 
 		for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 		{
-			object_desc(o_name, &inventory[i], TRUE, 3);
+			object_desc(o_name, &inventory[i], 0);
 			if ((i == INVEN_LARM) && p_ptr->ryoute)
 #ifdef JP
 				strcpy(o_name, "(武器を両手持ち)");
@@ -4666,7 +4437,7 @@ static void dump_aux_equipment_inventory(FILE *fff)
 		if (!inventory[i].k_idx) break;
 
 		/* Dump the inventory slots */
-		object_desc(o_name, &inventory[i], TRUE, 3);
+		object_desc(o_name, &inventory[i], 0);
 		fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
 	}
 
@@ -4711,7 +4482,7 @@ static void dump_aux_home_museum(FILE *fff)
 #else
 				fprintf(fff, "\n ( page %d )\n", x++);
 #endif
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+			object_desc(o_name, &st_ptr->stock[i], 0);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 		}
 
@@ -4740,11 +4511,11 @@ static void dump_aux_home_museum(FILE *fff)
 		{
 #ifdef JP
 			if ((i % 12) == 0) fprintf(fff, "\n ( %d ページ )\n", x++);
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+			object_desc(o_name, &st_ptr->stock[i], 0);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 #else
 			if ((i % 12) == 0) fprintf(fff, "\n ( page %d )\n", x++);
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+			object_desc(o_name, &st_ptr->stock[i], 0);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 #endif
 
@@ -4796,6 +4567,12 @@ errr make_character_dump(FILE *fff)
 	dump_aux_runeweapon_ability(fff);
 	dump_aux_equipment_inventory(fff);
 	dump_aux_home_museum(fff);
+
+#ifdef JP
+	fprintf(fff, "  [チェックサム: \"%s\"]\n\n", get_check_sum());
+#else
+	fprintf(fff, "  [Check Sum: \"%s\"]\n\n", get_check_sum());
+#endif
 
 	return 0;
 }
@@ -5217,7 +4994,7 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 			}
 
 			/* Hack -- keep searching */
-			if (find && !i && !strstr(lc_buf, find)) continue;
+			if (find && !i && !my_strstr(lc_buf, find)) continue;
 
 			/* Hack -- stop searching */
 			find = NULL;
@@ -5256,7 +5033,7 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 				cptr s2 = lc_buf;
 
 				/* Display matches */
-				while ((s2 = strstr(s2, shower)) != NULL)
+				while ((s2 = my_strstr(s2, shower)) != NULL)
 				{
 					int len = strlen(shower);
 
@@ -5680,9 +5457,11 @@ void process_player_name(bool sf)
 			player_base[k++] = '_';
 			i += strlen(PATH_SEP);
 		}
-#ifdef MSDOS
 		/* Convert space, dot, and underscore to underscore */
-		else if (strchr(". _", c)) player_base[k++] = '_';
+#ifdef MSDOS
+		else if (my_strchr(" \"*+,./:;<=>?[\\]|", c)) player_base[k++] = '_';
+#elif defined(WINDOWS)
+		else if (my_strchr("\"*,/:;<>?\\|", c)) player_base[k++] = '_';
 #endif
 		else if (isprint(c)) player_base[k++] = c;
 	}
@@ -5717,7 +5496,7 @@ void process_player_name(bool sf)
 		while (1)
 		{
 			cptr t;
-			t = strstr(s, PATH_SEP);
+			t = my_strstr(s, PATH_SEP);
 			if (!t)
 				break;
 			s = t+1;
@@ -5781,7 +5560,8 @@ void get_name(void)
 		/* Use the name */
 		strcpy(player_name, tmp);
 	}
-	else if (0 == strlen(player_name))
+
+	if (0 == strlen(player_name))
 	{
 		/* Use default name */
 		strcpy(player_name, "PLAYER");
@@ -5941,12 +5721,20 @@ void do_cmd_save_game(int is_autosave)
 	/* Save failed (oops) */
 	else
 	{
+#ifdef MACH_O_CARBON
+		char temp[128];
+
+		sprintf(temp, "%ld.save", playtime);
+		path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, temp);
+		if (save_player()) msg_print("別名(playtime.save)で保存しました。");
+		else
+#endif
+
 #ifdef JP
 		prt("ゲームをセーブしています... 失敗！", 0, 0);
 #else
 		prt("Saving game... failed!", 0, 0);
 #endif
-
 	}
 
 	/* Allow suspend again */
@@ -5962,6 +5750,11 @@ void do_cmd_save_game(int is_autosave)
 	(void)strcpy(p_ptr->died_from, "(alive and well)");
 #endif
 
+	/* Update stuff */
+	update_stuff();
+
+	/* Initialize monster process */
+	mproc_init();
 }
 
 
@@ -6191,7 +5984,7 @@ static void print_tomb(void)
 		/* Normal */
 		else
 		{
-			p =  player_title[p_ptr->pclass][(clev - 1) / 5];
+			p = c_text + class_info[p_ptr->pclass].title[(clev - 1) / 5];
 		}
 
 		center_string(buf, player_name);
@@ -6205,7 +5998,7 @@ static void print_tomb(void)
 		put_str(buf, 8, 11);
 
 
-		center_string(buf, cp_ptr->title);
+		center_string(buf, c_name + cp_ptr->name);
 
 		put_str(buf, 10, 11);
 
@@ -6276,10 +6069,10 @@ static void print_tomb(void)
 					for (t = dummy + strlen(dummy) - 2; iskanji(*(t - 1)); t--) /* Loop */;
 					strcpy(t, "…");
 				}
-				else if (strstr_j(tmp, "『") && suffix(dummy, "』"))
+				else if (my_strstr(tmp, "『") && suffix(dummy, "』"))
 				{
 					char dummy2[80];
-					char *name_head = strstr_j(tmp, "『");
+					char *name_head = my_strstr(tmp, "『");
 					sprintf(dummy2, "%s%s", name_head, dummy);
 					if (strlen(dummy2) <= GRAVE_LINE_WIDTH)
 					{
@@ -6287,10 +6080,10 @@ static void print_tomb(void)
 						*name_head = '\0';
 					}
 				}
-				else if (strstr_j(tmp, "「") && suffix(dummy, "」"))
+				else if (my_strstr(tmp, "「") && suffix(dummy, "」"))
 				{
 					char dummy2[80];
-					char *name_head = strstr_j(tmp, "「");
+					char *name_head = my_strstr(tmp, "「");
 					sprintf(dummy2, "%s%s", name_head, dummy);
 					if (strlen(dummy2) <= GRAVE_LINE_WIDTH)
 					{
@@ -6549,7 +6342,7 @@ static void show_info(void)
 					prt(tmp_val, j+2, 4);
 
 					/* Display object description */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					object_desc(o_name, o_ptr, 0);
 					c_put_str(tval_to_attr[o_ptr->tval], o_name, j+2, 7);
 				}
 

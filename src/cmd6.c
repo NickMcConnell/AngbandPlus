@@ -304,7 +304,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_ROTTEN_PUMPKIN:
 			{
-				if (prace_is_(RACE_PUMPKINHEAD))
+				if (prace_is_(RACE_PUMPKINHEAD) || prace_is_(RACE_MADHALLOWEEN))
 				{
 #ifdef JP
 					msg_print("これはひじょうに美味だ。");
@@ -319,6 +319,17 @@ static void do_cmd_eat_food_aux(int item)
 					(void)set_cut(0);
 					(void)set_image(0);
 					(void)set_stoning(0);
+
+					if (prace_is_(RACE_PUMPKINHEAD))
+					{
+						p_ptr->pumpkin++;
+						if (p_ptr->pumpkin > 24)
+						{
+							evolution(RACE_MADHALLOWEEN);
+							p_ptr->pumpkin = 0;
+						}
+					}
+
 				}
 				else
 				{
@@ -403,7 +414,7 @@ static void do_cmd_eat_food_aux(int item)
 	}
 	else
 	{
-		if (!prace_is_(RACE_PUMPKINHEAD) && (o_ptr->sval == SV_FOOD_ROTTEN_PUMPKIN))
+		if (!prace_is_(RACE_PUMPKINHEAD) && !prace_is_(RACE_MADHALLOWEEN) && (o_ptr->sval == SV_FOOD_ROTTEN_PUMPKIN))
 		{
 #ifdef JP
 			msg_print("うげぇ！！ ...吐いてしまった。");
@@ -437,18 +448,6 @@ static void do_cmd_eat_food_aux(int item)
 
 
 /*
- * Hook to determine if an object is eatable
- */
-static bool item_tester_hook_eatable(object_type *o_ptr)
-{
-	if (o_ptr->tval == TV_FOOD) return TRUE;
-
-	/* Assume not */
-	return FALSE;
-}
-
-
-/*
  * Eat some food (from the pack or floor)
  */
 void do_cmd_eat_food(void)
@@ -458,7 +457,7 @@ void do_cmd_eat_food(void)
 
 
 	/* Restrict choices to food */
-	item_tester_hook = item_tester_hook_eatable;
+	item_tester_hook = object_is_food;
 
 	/* Get an item */
 #ifdef JP
@@ -552,7 +551,7 @@ static void do_cmd_quaff_potion_aux(int item)
 	ident = FALSE;
 
 	/* Object level */
-	lev = get_object_level(q_ptr);
+	lev = k_info[q_ptr->k_idx].level;
 
 	/* Analyze the potion */
 	if (q_ptr->tval == TV_POTION)
@@ -602,6 +601,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_CONFUSION: /* Booze */
+			change_your_alignment(ALI_LNC, -1);
 			if (!p_ptr->resist_conf)
 			{
 				if (set_confused(randint0(20) + 15))
@@ -664,6 +664,7 @@ static void do_cmd_quaff_potion_aux(int item)
 				msg_print("You feel your memories fade.");
 #endif
 
+				change_your_alignment(ALI_LNC, -1);
 				lose_class_exp(cexp_ptr->cexp / 4);
 				lose_racial_exp(p_ptr->exp / 4);
 				ident = TRUE;
@@ -727,6 +728,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_DEATH:
+			change_your_alignment(ALI_GNE, -5);
 #ifdef JP
 			msg_print("死の予感が体中を駆けめぐった。");
 			take_hit(DAMAGE_LOSELIFE, 5000, "死の薬");
@@ -847,6 +849,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_LIFE:
+			change_your_alignment(ALI_GNE, 3);
 #ifdef JP
 			msg_print("体中に生命力が満ちあふれてきた！");
 #else
@@ -921,6 +924,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_RESTORING:
+			change_your_alignment(ALI_LNC, 1);
 			if (do_res_stat(A_STR)) ident = TRUE;
 			if (do_res_stat(A_INT)) ident = TRUE;
 			if (do_res_stat(A_WIS)) ident = TRUE;
@@ -936,6 +940,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			msg_print("An image of your surroundings forms in your mind...");
 #endif
 
+			change_your_alignment(ALI_LNC, 1);
 			wiz_lite(FALSE);
 			ident = TRUE;
 			break;
@@ -978,7 +983,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 				ident = TRUE;
 			}
-			change_your_alignment_lnc(1);
+			change_your_alignment(ALI_LNC, 1);
 			break;
 
 		case SV_POTION_RESISTANCE:
@@ -1006,6 +1011,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_CURE_MUTATIONS:
+			change_your_alignment(ALI_LNC, 3);
 			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 			{
 #ifdef JP
@@ -1023,6 +1029,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_STAR_CURING:
+			change_your_alignment(ALI_GNE, 1);
 			if (hp_player(700)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -1034,6 +1041,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_POLYMORPH:
+			change_your_alignment(ALI_LNC, -3);
 			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && one_in_(23))
 			{
 #ifdef JP
@@ -1075,13 +1083,13 @@ static void do_cmd_quaff_potion_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr))) change_your_alignment_lnc(-1);
+	if (!(object_is_aware(o_ptr))) change_your_alignment(ALI_LNC, -1);
 
 	/* The item has been tried */
 	object_tried(q_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(q_ptr))
+	if (ident && !object_is_aware(q_ptr))
 	{
 		object_aware(q_ptr);
 		gain_class_exp((lev + (cexp_ptr->clev >> 1)) / cexp_ptr->clev);
@@ -1098,15 +1106,6 @@ static void do_cmd_quaff_potion_aux(int item)
 
 
 /*
- * Hook to determine if an object can be quaffed
- */
-static bool item_tester_hook_quaff(object_type *o_ptr)
-{
-	return (o_ptr->tval == TV_POTION) ? TRUE : FALSE;
-}
-
-
-/*
  * Quaff some potion (from the pack or floor)
  */
 void do_cmd_quaff_potion(void)
@@ -1115,7 +1114,7 @@ void do_cmd_quaff_potion(void)
 	cptr q, s;
 
 	/* Restrict choices to potions */
-	item_tester_hook = item_tester_hook_quaff;
+	item_tester_hook = object_is_potion;
 
 	/* Get an item */
 #ifdef JP
@@ -1181,7 +1180,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 	ident = FALSE;
 
 	/* Object level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Assume the scroll will get used up */
 	used_up = TRUE;
@@ -1725,6 +1724,8 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
 		msg_print("あなたはスピードくじを開けた。 … ");
 
+		if (one_in_(5)) change_your_alignment(ALI_LNC, -1);
+
 		for (i = 1; i <= MAX_SCRATCH_CARD_INFO; i++)
 		{
 			sci_ptr = &scratch_card_info[i];
@@ -1812,13 +1813,13 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr))) change_your_alignment_lnc(-1);
+	if (!(object_is_aware(o_ptr))) change_your_alignment(ALI_LNC, -1);
 
 	/* The item was tried */
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 		object_aware(o_ptr);
@@ -1853,18 +1854,6 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
-}
-
-
-/*
- * Hook to determine if an object is readable
- */
-static bool item_tester_hook_readable(object_type *o_ptr)
-{
-	if ((o_ptr->tval == TV_TAROT) || (o_ptr->tval == TV_SCRATCH_CARD) || (o_ptr->tval == TV_SCROLL) || (o_ptr->name1 == ART_FIRECREST)) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
 }
 
 
@@ -1908,7 +1897,7 @@ void do_cmd_read_scroll(void)
 
 
 	/* Restrict choices to scrolls */
-	item_tester_hook = item_tester_hook_readable;
+	item_tester_hook = object_is_readable;
 
 	/* Get an item */
 #ifdef JP
@@ -1934,7 +1923,7 @@ void do_cmd_read_scroll(void)
 	}
 
 	/* Read the scroll */
-	do_cmd_read_scroll_aux(item, object_aware_p(o_ptr));
+	do_cmd_read_scroll_aux(item, object_is_aware(o_ptr));
 }
 
 
@@ -2316,7 +2305,7 @@ static void do_cmd_use_staff_aux(int item)
 	energy_use = 100;
 
 	/* Extract the item level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
 
 	/* Base chance of success */
@@ -2384,18 +2373,18 @@ static void do_cmd_use_staff_aux(int item)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-	ident = staff_effect(o_ptr->sval, &use_charge, object_aware_p(o_ptr));
+	ident = staff_effect(o_ptr->sval, &use_charge, object_is_aware(o_ptr));
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr))) change_your_alignment_lnc(-1);
+	if (!(object_is_aware(o_ptr))) change_your_alignment(ALI_LNC, -1);
 
 	/* Tried the item */
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 		object_aware(o_ptr);
@@ -2844,7 +2833,7 @@ static void do_cmd_aim_wand_aux(int item)
 
 
 	/* Allow direction to be cancelled for free */
-	if (object_aware_p(o_ptr) && (o_ptr->sval == SV_WAND_HEAL_MONSTER
+	if (object_is_aware(o_ptr) && (o_ptr->sval == SV_WAND_HEAL_MONSTER
 				      || o_ptr->sval == SV_WAND_HASTE_MONSTER))
 			target_pet = TRUE;
 	if (!get_aim_dir(&dir))
@@ -2858,7 +2847,7 @@ static void do_cmd_aim_wand_aux(int item)
 	energy_use = 100;
 
 	/* Get the level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
 
 	/* Base chance of success */
@@ -2930,13 +2919,13 @@ static void do_cmd_aim_wand_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr))) change_your_alignment_lnc(-1);
+	if (!(object_is_aware(o_ptr))) change_your_alignment(ALI_LNC, -1);
 
 	/* Mark it as tried */
 	object_tried(o_ptr);
 
 	/* Apply identification */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 		object_aware(o_ptr);
@@ -3305,7 +3294,7 @@ static void do_cmd_zap_rod_aux(int item)
 	     (o_ptr->sval != SV_ROD_PESTICIDE) &&
 	     (o_ptr->sval != SV_ROD_AGGRAVATE) &&
 	     !((o_ptr->sval >= SV_ROD_ELEM_FIRE) && (o_ptr->sval <= SV_ROD_ELEM_WIND))) ||
-	     !object_aware_p(o_ptr))
+	     !object_is_aware(o_ptr))
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return;
@@ -3316,7 +3305,7 @@ static void do_cmd_zap_rod_aux(int item)
 	energy_use = 100;
 
 	/* Extract the item level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -3407,13 +3396,13 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr))) change_your_alignment_lnc(-1);
+	if (!(object_is_aware(o_ptr))) change_your_alignment(ALI_LNC, -1);
 
 	/* Tried the object */
 	object_tried(o_ptr);
 
 	/* Successfully determined the object function */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 		object_aware(o_ptr);
@@ -3447,27 +3436,6 @@ void do_cmd_zap_rod(void)
 
 	/* Zap the rod */
 	do_cmd_zap_rod_aux(item);
-}
-
-
-/*
- * Hook to determine if an object is activatable
- */
-static bool item_tester_hook_activate(object_type *o_ptr)
-{
-	u32b flgs[TR_FLAG_SIZE];
-
-	/* Not known */
-	if (!object_known_p(o_ptr)) return (FALSE);
-
-	/* Extract the flags */
-	object_flags(o_ptr, flgs);
-
-	/* Check activation flag */
-	if (have_flag(flgs, TR_ACTIVATE)) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
 }
 
 
@@ -3635,10 +3603,10 @@ static void do_cmd_activate_aux(int item)
 	energy_use = 100;
 
 	/* Extract the item level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+	if (object_is_fixed_artifact(o_ptr)) lev = a_info[o_ptr->name1].level;
 	else if (o_ptr->art_name)
 	{
 		switch (o_ptr->xtra2)
@@ -3826,7 +3794,7 @@ static void do_cmd_activate_aux(int item)
 	}
 
 	/* Artifacts */
-	else if (o_ptr->name1)
+	else if (object_is_fixed_artifact(o_ptr))
 	{
 		/* Choose effect */
 		switch (o_ptr->name1)
@@ -3841,6 +3809,7 @@ static void do_cmd_activate_aux(int item)
 
 				lite_area(damroll(2, 15), 3);
 				o_ptr->timeout = randint0(10) + 10;
+				change_your_alignment(ALI_LNC, 1);
 				break;
 			}
 
@@ -3885,6 +3854,7 @@ static void do_cmd_activate_aux(int item)
 #endif
 				}
 				o_ptr->timeout = randint0(200) + 400;
+				change_your_alignment(ALI_LNC, -1);
 				break;
 			}
 
@@ -3934,6 +3904,7 @@ static void do_cmd_activate_aux(int item)
 #endif
 
 					dispel_evil(p_ptr->lev * 5);
+					change_your_alignment(ALI_GNE, 1);
 					break;
 
 				case ALIGN_GNE_NEUTRAL:
@@ -3954,6 +3925,7 @@ static void do_cmd_activate_aux(int item)
 #endif
 
 					dispel_good(p_ptr->lev * 5);
+					change_your_alignment(ALI_GNE, -1);
 					break;
 				}
 				o_ptr->timeout = randint0(200) + 200;
@@ -5098,7 +5070,7 @@ static void do_cmd_activate_aux(int item)
 
 	else if (o_ptr->tval == TV_RING)
 	{
-		if (o_ptr->name2)
+		if (object_is_ego(o_ptr))
 		{
 			bool success = TRUE;
 
@@ -5257,7 +5229,7 @@ static void do_cmd_activate_aux(int item)
 
 	else if (o_ptr->tval == TV_AMULET)
 	{
-		if (o_ptr->name2)
+		if (object_is_ego(o_ptr))
 		{
 			switch (o_ptr->name2)
 			{
@@ -5672,7 +5644,7 @@ void do_cmd_activate(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Prepare the hook */
-	item_tester_hook = item_tester_hook_activate;
+	item_tester_hook = object_is_activate;
 
 	/* Get an item */
 #ifdef JP
@@ -5691,58 +5663,6 @@ void do_cmd_activate(void)
 
 
 /*
- * Hook to determine if an object is useable
- */
-static bool item_tester_hook_use(object_type *o_ptr)
-{
-	u32b flgs[TR_FLAG_SIZE];
-
-	/* Ammo */
-	if (o_ptr->tval == p_ptr->tval_ammo)
-		return (TRUE);
-
-	/* Useable object */
-	switch (o_ptr->tval)
-	{
-		case TV_SPIKE:
-		case TV_STAFF:
-		case TV_WAND:
-		case TV_ROD:
-		case TV_SCROLL:
-		case TV_POTION:
-		case TV_FOOD:
-		{
-			return (TRUE);
-		}
-
-		default:
-		{
-			int i;
-
-			/* Not known */
-			if (!object_known_p(o_ptr)) return (FALSE);
-
-			/* HACK - only items from the equipment can be activated */
-			for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
-			{
-				if (&inventory[i] == o_ptr)
-				{
-					/* Extract the flags */
-					object_flags(o_ptr, flgs);
-
-					/* Check activation flag */
-					if (have_flag(flgs, TR_ACTIVATE)) return (TRUE);
-				}
-			}
-		}
-	}
-
-	/* Assume not */
-	return (FALSE);
-}
-
-
-/*
  * Use an item
  * XXX - Add actions for other item types
  */
@@ -5754,7 +5674,7 @@ void do_cmd_use(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Prepare the hook */
-	item_tester_hook = item_tester_hook_use;
+	item_tester_hook = object_is_useable;
 
 	/* Get an item */
 #ifdef JP
@@ -5859,7 +5779,7 @@ s = "使えるものがありません。";
 				return;
 			}
 
-		  do_cmd_read_scroll_aux(item, object_aware_p(o_ptr));
+		  do_cmd_read_scroll_aux(item, object_is_aware(o_ptr));
 		  break;
 		}
 

@@ -116,6 +116,8 @@ void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 		if (o_ptr->to_stat[i]) add_flag(flgs, a_to_tr[i]);
 	for (i = 0; i < OB_MAX; i++)
 		if (o_ptr->to_misc[i]) add_flag(flgs, ob_to_tr[i]);
+	for (i = 0; i < ALI_MAX; i++)
+		if (o_ptr->to_align[i]) add_flag(flgs, ali_to_tr[i]);
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] |= o_ptr->art_flags[i];
 
@@ -164,14 +166,14 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (!object_aware_p(o_ptr)) return;
+	if (!object_is_aware(o_ptr)) return;
 
 	/* Base object */
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = k_ptr->flags[i];
 
 	/* Must be identified */
-	if (!object_known_p(o_ptr)) return;
+	if (!object_is_known(o_ptr)) return;
 
 	/* Ego-item (known basic flags) */
 	if (o_ptr->name2)
@@ -185,12 +187,12 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 
 #ifdef SPOIL_ARTIFACTS
 	/* Full knowledge for some artifacts */
-	if (artifact_p(o_ptr) || o_ptr->art_name) spoil = TRUE;
+	if (object_is_artifact(o_ptr)) spoil = TRUE;
 #endif /* SPOIL_ARTIFACTS */
 
 #ifdef SPOIL_EGO_ITEMS
 	/* Full knowledge for some ego-items */
-	if (ego_item_p(o_ptr)) spoil = TRUE;
+	if (object_is_ego(o_ptr)) spoil = TRUE;
 #endif /* SPOIL_EGO_ITEMS */
 
 	/* Need full knowledge or spoilers */
@@ -210,6 +212,8 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 			if (o_ptr->to_stat[i]) add_flag(flgs, a_to_tr[i]);
 		for (i = 0; i < OB_MAX; i++)
 			if (o_ptr->to_misc[i]) add_flag(flgs, ob_to_tr[i]);
+		for (i = 0; i < ALI_MAX; i++)
+			if (o_ptr->to_align[i]) add_flag(flgs, ali_to_tr[i]);
 		for (i = 0; i < TR_FLAG_SIZE; i++)
 			flgs[i] |= o_ptr->art_flags[i];
 	}
@@ -416,40 +420,6 @@ byte get_weapon_type(object_kind *k_ptr)
 
 	return WT_NONE;
 }
-
-
-/*
- * Hack -- describe an item currently in a store's inventory
- * This allows an item to *look* like the player is "aware" of it
- */
-void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
-{
-	/* Save the "aware" flag */
-	bool hack_aware = object_aware_p(o_ptr);
-
-	/* Save the "known" flag */
-	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
-
-
-	/* Set the "known" flag */
-	o_ptr->ident |= (IDENT_KNOWN);
-
-	/* Force "aware" for description */
-	k_info[o_ptr->k_idx].aware = TRUE;
-
-
-	/* Describe the object */
-	object_desc(buf, o_ptr, pref, mode);
-
-
-	/* Restore "aware" flag */
-	k_info[o_ptr->k_idx].aware = hack_aware;
-
-	/* Clear the known flag */
-	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
-}
-
-
 
 
 /*
@@ -2286,6 +2256,17 @@ static char *affect_misc_text[OB_MAX] =
 #endif
 };
 
+static char *affect_align_text[ALI_MAX] =
+{
+#ifdef JP
+	"それは属性(LNC)に影響を及ぼす。",
+	"それは属性(GNE)に影響を及ぼす。",
+#else
+	"It affects your alignment (LNC).",
+	"It affects your alignment (GNE).",
+#endif
+};
+
 static char *print_affect(char *buf, char *text, int val)
 {
 	sprintf(buf, "%s(%c%d)", text, ((val >= 0) ? '+' : '-'), ABS(val));
@@ -2299,7 +2280,6 @@ static char *print_affect(char *buf, char *text, int val)
 bool screen_object(object_type *o_ptr, FILE *fff, bool real)
 {
 	int i = 0, j, k;
-	int trivial_info = 0;
 
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -2309,6 +2289,7 @@ bool screen_object(object_type *o_ptr, FILE *fff, bool real)
 
 	char affect_stat_buf[A_MAX][128];
 	char affect_misc_buf[OB_MAX][128];
+	char affect_align_buf[ALI_MAX][128];
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract the flags */
@@ -2349,12 +2330,6 @@ bool screen_object(object_type *o_ptr, FILE *fff, bool real)
 		roff_to_buf(text_ptr, 77 - 15, temp, sizeof temp);
 		for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
 		{ info[i] = &temp[j]; i++;}
-	}
-
-	if (object_is_equipment(o_ptr))
-	{
-		/* Descriptions of a basic equipment is just a flavor */
-		trivial_info = i;
 	}
 
 	/* Mega-Hack -- describe activation */
@@ -2515,7 +2490,7 @@ info[i++] = "それは無敵のバリアを切り裂く。";
 #endif
 			}
 		}
-		else if (artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP))
+		else if (object_is_fixed_artifact(o_ptr) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP))
 		{
 #ifdef JP
 info[i++] = "それは永遠なる明かり(半径 3)を授ける。";
@@ -2648,6 +2623,14 @@ info[i++] = "それは燃料補給によって明かり(半径 2)を授ける。";
 		{
 			if (real) info[i++] = print_affect(affect_misc_buf[j], affect_misc_text[j], o_ptr->to_misc[j]);
 			else info[i++] = affect_misc_text[j];
+		}
+	}
+	for (j = 0; j < ALI_MAX; j++)
+	{
+		if (have_flag(flgs, ali_to_tr[j]))
+		{
+			if (real) info[i++] = print_affect(affect_align_buf[j], affect_align_text[j], o_ptr->to_align[j]);
+			else info[i++] = affect_align_text[j];
 		}
 	}
 
@@ -3258,6 +3241,25 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
+	if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_MITHRIL_CLOAK))
+	{
+#ifdef JP
+		info[i++] = "それは魔法への耐性を授ける。";
+#else
+		info[i++] = "It provides resistance to magic.";
+#endif
+
+	}
+	if ((o_ptr->tval == TV_HARD_ARMOR) &&
+		((o_ptr->sval == SV_MITHRIL_SCALE_MAIL) || (o_ptr->sval == SV_MITHRIL_CHAIN_MAIL) || (o_ptr->sval == SV_MITHRIL_PLATE_MAIL)))
+	{
+#ifdef JP
+		info[i++] = "それは魔法への耐性を授ける。";
+#else
+		info[i++] = "It provides resistance to magic.";
+#endif
+
+	}
 
 	if (o_ptr->name2 == EGO_BAT)
 	{
@@ -3514,7 +3516,7 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 		}
 	}
 
-	if (cursed_p(o_ptr))
+	if (object_is_cursed(o_ptr))
 	{
 		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
 		{
@@ -3861,9 +3863,9 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 
 		/* Display Item name */
 		if (real)
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 		else
-			object_desc_store(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
 
 		prt(o_name, 0, 0);
 
@@ -4362,7 +4364,13 @@ bool item_tester_okay(object_type *o_ptr)
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Hack -- ignore "gold" */
-	if (o_ptr->tval == TV_GOLD) return (FALSE);
+	if (o_ptr->tval == TV_GOLD)
+	{
+		/* See xtra2.c */
+		extern bool show_gold_on_floor;
+
+		if (!show_gold_on_floor) return (FALSE);
+	}
 
 	/* Check the tval */
 	if (item_tester_tval)
@@ -4373,6 +4381,12 @@ bool item_tester_okay(object_type *o_ptr)
 			return check_book_realm(o_ptr->tval, o_ptr->sval);
 		else
 			if (item_tester_tval != o_ptr->tval) return (FALSE);
+	}
+
+	/* Check the weapon_type */
+	if (item_tester_wt)
+	{
+		if (item_tester_wt != get_weapon_type(&k_info[o_ptr->k_idx])) return FALSE;
 	}
 
 	/* Check the hook */
@@ -4435,7 +4449,7 @@ void display_inven(void)
 		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -4525,7 +4539,7 @@ void display_equip(void)
 		}
 		else
 		{
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 			attr = tval_to_attr[o_ptr->tval % 128];
 		}
 
@@ -4609,7 +4623,7 @@ static int get_tag(int *cp, char tag)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->inscription), '@');
+		s = my_strchr(quark_str(o_ptr->inscription), '@');
 
 		/* Process all tags */
 		while (s)
@@ -4625,7 +4639,7 @@ static int get_tag(int *cp, char tag)
 			}
 
 			/* Find another '@' */
-			s = strchr(s + 1, '@');
+			s = my_strchr(s + 1, '@');
 		}
 	}
 
@@ -4654,7 +4668,7 @@ static int get_tag(int *cp, char tag)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->inscription), '@');
+		s = my_strchr(quark_str(o_ptr->inscription), '@');
 
 		/* Process all tags */
 		while (s)
@@ -4670,7 +4684,7 @@ static int get_tag(int *cp, char tag)
 			}
 
 			/* Find another '@' */
-			s = strchr(s + 1, '@');
+			s = my_strchr(s + 1, '@');
 		}
 	}
 
@@ -4754,7 +4768,7 @@ int show_inven(int target_item)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Save the object index, color, and description */
 		out_index[k] = i;
@@ -4916,7 +4930,7 @@ int show_equip(int target_item)
 		if (!item_tester_okay(o_ptr) && (!((i == INVEN_LARM) && p_ptr->ryoute) || item_tester_no_ryoute)) continue;
 
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		if ((i == INVEN_LARM) && p_ptr->ryoute)
 		{
@@ -5147,7 +5161,7 @@ static bool verify(cptr prompt, int item)
 	}
 
 	/* Describe */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Prompt */
 #ifdef JP
@@ -5160,12 +5174,6 @@ static bool verify(cptr prompt, int item)
 	/* Query */
 	return (get_check(out_val));
 }
-
-
-#ifdef JP
-#undef strchr
-#define strchr strchr_j
-#endif
 
 
 /*
@@ -5195,7 +5203,7 @@ static bool get_item_allow(int item)
 	if (!o_ptr->inscription) return (TRUE);
 
 	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->inscription), '!');
+	s = my_strchr(quark_str(o_ptr->inscription), '!');
 
 	/* Process preventions */
 	while (s)
@@ -5213,7 +5221,7 @@ static bool get_item_allow(int item)
 		}
 
 		/* Find another '!' */
-		s = strchr(s + 1, '!');
+		s = my_strchr(s + 1, '!');
 	}
 
 	/* Allow it */
@@ -5362,6 +5370,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Forget the item_tester_tval restriction */
 				item_tester_tval = 0;
 
+				/* Forget the item_tester_wt restriction */
+				item_tester_wt = 0;
+
 				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
 
@@ -5380,6 +5391,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			{
 				/* Forget the item_tester_tval restriction */
 				item_tester_tval = 0;
+
+				/* Forget the item_tester_wt restriction */
+				item_tester_wt = 0;
 
 				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
@@ -6069,6 +6083,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;
 
+	/* Forget the item_tester_wt restriction */
+	item_tester_wt = 0;
+
 	item_tester_no_ryoute = FALSE;
 
 	/* Forget the item_tester_hook restriction */
@@ -6176,6 +6193,8 @@ int show_floor(int target_item, int y, int x, int *min_width)
 	int floor_list[23], floor_num;
 	int wid, hgt;
 
+	bool dont_need_to_show_weights = TRUE;
+
 	/* Get size */
 	Term_get_size(&wid, &hgt);
 
@@ -6192,7 +6211,7 @@ int show_floor(int target_item, int y, int x, int *min_width)
 		o_ptr = &o_list[floor_list[i]];
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Save the index */
 		out_index[k] = i;
@@ -6209,12 +6228,16 @@ int show_floor(int target_item, int y, int x, int *min_width)
 		/* Be sure to account for the weight */
 		if (show_weights) l += 9;
 
+		if (o_ptr->tval != TV_GOLD) dont_need_to_show_weights = FALSE;
+
 		/* Maintain the maximum length */
 		if (l > len) len = l;
 
 		/* Advance to next "line" */
 		k++;
 	}
+
+	if (show_weights && dont_need_to_show_weights) len -= 9;
 
 	/* Save width */
 	*min_width = len;
@@ -6258,7 +6281,7 @@ int show_floor(int target_item, int y, int x, int *min_width)
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
-		if (show_weights)
+		if (show_weights && (o_ptr->tval != TV_GOLD))
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 #ifdef JP
@@ -6332,6 +6355,9 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				/* Forget the item_tester_tval restriction */
 				item_tester_tval = 0;
 
+				/* Forget the item_tester_wt restriction */
+				item_tester_wt = 0;
+
 				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
 
@@ -6350,6 +6376,9 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 			{
 				/* Forget the item_tester_tval restriction */
 				item_tester_tval = 0;
+
+				/* Forget the item_tester_wt restriction */
+				item_tester_wt = 0;
 
 				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
@@ -7410,6 +7439,9 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;
 
+	/* Forget the item_tester_wt restriction */
+	item_tester_wt = 0;
+
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
@@ -7504,7 +7536,7 @@ void py_pickup_floor(int pickup)
 		o_ptr = &o_list[this_o_idx];
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Access the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -7585,7 +7617,7 @@ void py_pickup_floor(int pickup)
 			sense_floor_object(floor_o_idx);
 
 			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Message */
 #ifdef JP
@@ -7636,7 +7668,7 @@ void py_pickup_floor(int pickup)
 			sense_floor_object(floor_o_idx);
 
 			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Message */
 #ifdef JP
@@ -7678,7 +7710,7 @@ void py_pickup_floor(int pickup)
 			sense_floor_object(floor_o_idx);
 
 			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Build a prompt */
 #ifdef JP

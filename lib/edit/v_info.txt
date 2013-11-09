@@ -2381,7 +2381,26 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # *Greater Vaults* Almost impossible to generate, require Zangband,
 
-# 110 (unused)
+N:110:Bonas Stage Vault
+X:8:10:17:39
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXX%
+D:%X8#8#8#8#8#8#8#8XX.XX8#8#8#8#8#8#8#8X%
+D:%X#XXXXXXXXXXXXX#XX.XX#XXXXXXXXXXXXX#X%
+D:%X8X8#8#8#8#8#8X8XX.XX8X8#8#8#8#8#8X8X%
+D:%X#X#XXXXXXXXX#X#XX.XX#X#XXXXXXXXX#X#X%
+D:%X8X8X8#8X8#8#8X8XX.XX8X8#8#8X8#8X8X8X%
+D:%X#X#X#X#X#XXXXX#XX.XX#XXXXX#X#X#X#X#X%
+D:%X8X8X8X8X8X8#8#8XX.XX8#8#8X8XXX8X8X8X%
+D:%X#X#X#XXX#X#XXXXXX.XXXXXX#X#XXX#X#X#X%
+D:%X8X8X8#8#8X8X...........X8X8#8#8X8X8X%
+D:%X#X#XXXXXXX#X.XXXXXXXXX.X#XXXXXXX#X#X%
+D:%X8X8#8#8#8#8X.AXXXXXXXS.X8#8#8#8#8X8X%
+D:%X#XXXXXXXXXXX.XXXXXXXXX.XXXXXXXXXXX#X%
+D:%X8#8#8#8#8#8#...........#8#8#8#8#8#8X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 # 111 (unused)
 
@@ -2433,7 +2452,17 @@ D:%.#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:%...............................................................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# 113 (unused)
+N:113:Small Town
+X:7:5:9:13
+D:%%%%%%%%%%%%%
+D:%...........%
+D:%.XXX.XXXXX.%
+D:%.XAX.XXSXX.%
+D:%...........%
+D:%...XXBXX...%
+D:%...XXXXX...%
+D:%...........%
+D:%%%%%%%%%%%%%
 
 N:114:Lesser Vault (Interlock)
 X:7:20:17:12
@@ -2456,7 +2485,7 @@ D:%%%%%%%%%%%%%
 D:%...........%
 D:%.XXXXSXXXX.%
 D:%.XXXXXXXXX.%
-D:%.SXXXXXXXS.%
+D:%.AXXXXXXXS.%
 D:%.XXXXXXXXX.%
 D:%.XXXXSXXXX.%
 D:%...........%

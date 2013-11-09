@@ -388,7 +388,7 @@ void teleport_player(int dis)
 				if ((r_ptr->flags6 & RF6_TPORT) &&
 				    !(r_ptr->flags3 & RF3_RES_TELE))
 				{
-					if (!m_ptr->csleep) teleport_to(tmp_m_idx, py, px, 2, r_ptr->level, TRUE);
+					if (!MON_CSLEEP(m_ptr)) teleport_to(tmp_m_idx, py, px, 2, r_ptr->level, TRUE);
 				}
 			}
 		}
@@ -573,7 +573,7 @@ void teleport_level(int m_idx)
 		m_ptr = &m_list[m_idx];
 
 		/* Get the monster name (or "it") */
-		monster_desc(m_name, m_ptr, 0x00);
+		monster_desc(m_name, m_ptr, 0);
 
 		see_m = m_ptr->ml;
 
@@ -742,8 +742,8 @@ void teleport_level(int m_idx)
 		{
 			char m2_name[80];
 
-			monster_desc(m2_name, m_ptr, 0x08);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, 8, m2_name);
+			monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_STONED, m2_name);
 		}
 
 		delete_monster_idx(m_idx);
@@ -1020,11 +1020,11 @@ bool apply_disenchant(void)
 
 
 	/* Describe the object */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 
 	/* Artifacts have 71% chance to resist */
-	if (((artifact_p(o_ptr) || o_ptr->art_name) && (randint0(100) < 71)) ||
+	if (((object_is_artifact(o_ptr)) && (randint0(100) < 71)) ||
 	    object_is_astral_runeweapon(o_ptr))
 	{
 		/* Message */
@@ -1214,22 +1214,6 @@ void phlogiston(void)
 }
 
 
-static bool item_tester_hook_weapon_nobow(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
 /*
  * Brand the current weapon
  */
@@ -1241,7 +1225,7 @@ void brand_weapon(int brand_type)
 
 
 	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon_nobow;
+	item_tester_hook = object_is_melee_weapon;
 	item_tester_no_ryoute = TRUE;
 
 	/* Get an item */
@@ -1271,8 +1255,8 @@ void brand_weapon(int brand_type)
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify cursed items */
 	/* TY: You _can_ modify broken items (if you're silly enough) */
-	if (o_ptr->k_idx && !artifact_p(o_ptr) && !ego_item_p(o_ptr) &&
-	    !o_ptr->art_name && !cursed_p(o_ptr) &&
+	if (o_ptr->k_idx && !object_is_artifact(o_ptr) && !object_is_ego(o_ptr) &&
+	    !object_is_cursed(o_ptr) &&
 	    !((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) &&
 	    !((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)))
 	{
@@ -1280,7 +1264,7 @@ void brand_weapon(int brand_type)
 
 		/* Let's get the name before it is changed... */
 		char o_name[MAX_NLEN];
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 		switch (brand_type)
 		{
@@ -1638,7 +1622,7 @@ void fetch(int dir, int wgt, bool require_los)
 	o_ptr->iy = (byte)py;
 	o_ptr->ix = (byte)px;
 
-	object_desc(o_name, o_ptr, TRUE, 0);
+	object_desc(o_name, o_ptr, OD_NAME_ONLY);
 #ifdef JP
 	msg_format("%^sがあなたの足元に飛んできた。", o_name);
 #else
@@ -1895,7 +1879,7 @@ static int remove_curse_aux(int all)
 		if (!o_ptr->k_idx) continue;
 
 		/* Uncursed already */
-		if (!cursed_p(o_ptr)) continue;
+		if (!object_is_cursed(o_ptr)) continue;
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (o_ptr->curse_flags & TRC_HEAVY_CURSE)) continue;
@@ -2005,7 +1989,7 @@ s = "金に変えられる物がありません。";
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 	o_ptr->number = old_number;
 
 	/* Verify unless quantity given */
@@ -2098,125 +2082,6 @@ s = "金に変えられる物がありません。";
 
 
 /*
- * Hook to specify "weapon"
- */
-bool item_tester_hook_weapon(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		case TV_BOW:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_ROCKET:
-		case TV_SHELL:
-		case TV_ROUND:
-		case TV_BULLET:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-static bool item_tester_hook_weapon2(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_SWORD:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_DIGGING:
-		case TV_BOW:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_ROCKET:
-		case TV_SHELL:
-		case TV_ROUND:
-		case TV_BULLET:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Hook to specify "armour"
- */
-bool item_tester_hook_armour(object_type *o_ptr)
-{
-	if (o_ptr->name2 == EGO_NO_ELEM) return (FALSE);
-	switch (o_ptr->tval)
-	{
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-bool item_tester_hook_corpse(object_type *o_ptr)
-{
-	if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE)) return TRUE;
-
-	/* Assume not */
-	return FALSE;
-}
-
-
-/*
- * Check if an object is weapon or armour (but not arrow, bolt, or shot)
- */
-bool item_tester_hook_weapon_armour(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_SWORD:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_DIGGING:
-		case TV_BOW:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_ROCKET:
-		case TV_SHELL:
-		case TV_ROUND:
-		case TV_BULLET:
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
  * Check if an object is nameless weapon or armour
  */
 static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
@@ -2242,13 +2107,13 @@ static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 		case TV_HELM:
 		case TV_BOOTS:
 		case TV_GLOVES:
-			if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
+			if (object_is_known(o_ptr) && (object_is_artifact(o_ptr) || object_is_ego(o_ptr) || o_ptr->xtra3))
 				return FALSE;
 			else return TRUE;
 		case TV_LITE:
 			if (o_ptr->sval == SV_LITE_EMPTY)
 			{
-				if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
+				if (object_is_known(o_ptr) && (object_is_artifact(o_ptr) || object_is_ego(o_ptr) || o_ptr->xtra3))
 					return FALSE;
 				else return TRUE;
 			}
@@ -2256,7 +2121,7 @@ static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 		case TV_AMULET:
 			if (o_ptr->sval == SV_AMULET_EMPTY)
 			{
-				if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
+				if (object_is_known(o_ptr) && (object_is_artifact(o_ptr) || object_is_ego(o_ptr) || o_ptr->xtra3))
 					return FALSE;
 				else return TRUE;
 			}
@@ -2264,7 +2129,7 @@ static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 		case TV_RING:
 			if (o_ptr->sval == SV_RING_EMPTY)
 			{
-				if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
+				if (object_is_known(o_ptr) && (object_is_artifact(o_ptr) || object_is_ego(o_ptr) || o_ptr->xtra3))
 					return FALSE;
 				else return TRUE;
 			}
@@ -2280,7 +2145,7 @@ static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
  */
 static void break_curse(object_type *o_ptr)
 {
-	if (cursed_p(o_ptr) && !(o_ptr->curse_flags & TRC_PERMA_CURSE) && !(o_ptr->curse_flags & TRC_HEAVY_CURSE) && (randint0(100) < 25))
+	if (object_is_cursed(o_ptr) && !(o_ptr->curse_flags & TRC_PERMA_CURSE) && !(o_ptr->curse_flags & TRC_HEAVY_CURSE) && (randint0(100) < 25))
 	{
 #ifdef JP
 		msg_print("かけられていた呪いが打ち破られた！");
@@ -2316,7 +2181,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 {
 	int     i, chance, prob;
 	bool    res = FALSE;
-	bool    a = (artifact_p(o_ptr) || o_ptr->art_name);
+	bool    a = (object_is_artifact(o_ptr));
 	bool    force = (eflag & ENCH_FORCE);
 
 
@@ -2423,11 +2288,11 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 
 	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon;
+	item_tester_hook = object_is_weapon;
 	item_tester_no_ryoute = TRUE;
 
 	/* Enchant armor if requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
+	if (num_ac) item_tester_hook = object_is_armour;
 
 	/* Get an item */
 #ifdef JP
@@ -2454,7 +2319,7 @@ s = "強化できるアイテムがない。";
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	if ((item == INVEN_RARM) && mw_diff_to_melee)
 	{
@@ -2540,7 +2405,7 @@ bool artifact_scroll(void)
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Describe */
 #ifdef JP
@@ -2551,7 +2416,7 @@ bool artifact_scroll(void)
 	          ((o_ptr->number > 1) ? "" : "s"));
 #endif
 
-	if (o_ptr->name1 || o_ptr->art_name)
+	if (object_is_artifact(o_ptr))
 	{
 #ifdef JP
 		msg_format("%sは既に伝説のアイテムです！", o_name);
@@ -2671,7 +2536,7 @@ bool identify_item(object_type *o_ptr)
 	char o_name[MAX_NLEN];
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	if (o_ptr->ident & IDENT_KNOWN)
 		old_known = TRUE;
@@ -2679,6 +2544,9 @@ bool identify_item(object_type *o_ptr)
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
+
+	/* Player touches it */
+	o_ptr->marked |= OM_TOUCHED;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2693,9 +2561,9 @@ bool identify_item(object_type *o_ptr)
 	record_turn = turn;
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 0);
+	object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
-	if(record_fix_art && !old_known && artifact_p(o_ptr))
+	if(record_fix_art && !old_known && object_is_fixed_artifact(o_ptr))
 		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
 	if(record_rand_art && !old_known && o_ptr->art_name)
 		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
@@ -2706,14 +2574,14 @@ bool identify_item(object_type *o_ptr)
 
 static bool item_tester_hook_identify(object_type *o_ptr)
 {
-	return (bool)!object_known_p(o_ptr);
+	return (bool)!object_is_known(o_ptr);
 }
 
 static bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
 {
-	if (object_known_p(o_ptr))
+	if (object_is_known(o_ptr))
 		return FALSE;
-	return item_tester_hook_weapon_armour(o_ptr);
+	return object_is_weapon_armour(o_ptr);
 }
 
 /*
@@ -2737,24 +2605,32 @@ bool ident_spell(bool only_equip)
 	else
 		item_tester_hook = item_tester_hook_identify;
 
-	if (!can_get_item())
+	if (can_get_item())
+	{
+#ifdef JP
+		q = "どのアイテムを鑑定しますか? ";
+#else
+		q = "Identify which item? ";
+#endif
+	}
+	else
 	{
 		if (only_equip)
-		{
-			item_tester_hook = item_tester_hook_weapon_armour;
-		}
+			item_tester_hook = object_is_weapon_armour;
 		else
-		{
 			item_tester_hook = NULL;
-		}
+
+#ifdef JP
+		q = "すべて鑑定済みです。 ";
+#else
+		q = "All items are identified. ";
+#endif
 	}
 
 	/* Get an item */
 #ifdef JP
-q = "どのアイテムを鑑定しますか? ";
-s = "鑑定するべきアイテムがない。";
+	s = "鑑定するべきアイテムがない。";
 #else
-	q = "Identify which item? ";
 	s = "You have nothing to identify.";
 #endif
 
@@ -2776,7 +2652,7 @@ s = "鑑定するべきアイテムがない。";
 	old_known = identify_item(o_ptr);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Describe */
 	if (item >= INVEN_RARM)
@@ -2826,7 +2702,7 @@ bool mundane_spell(bool only_equip)
 	object_type     *o_ptr;
 	cptr            q, s;
 
-	if (only_equip) item_tester_hook = item_tester_hook_weapon_armour;
+	if (only_equip) item_tester_hook = object_is_weapon_armour;
 	item_tester_no_ryoute = TRUE;
 
 	/* Get an item */
@@ -2915,14 +2791,14 @@ s = "使えるものがありません。";
 
 static bool item_tester_hook_identify_fully(object_type *o_ptr)
 {
-	return (bool)(!object_known_p(o_ptr) || !(o_ptr->ident & IDENT_MENTAL));
+	return (bool)(!object_is_known(o_ptr) || !(o_ptr->ident & IDENT_MENTAL));
 }
 
 static bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
 {
 	if (!item_tester_hook_identify_fully(o_ptr))
 		return FALSE;
-	return item_tester_hook_weapon_armour(o_ptr);
+	return object_is_weapon_armour(o_ptr);
 }
 
 /*
@@ -2944,21 +2820,33 @@ bool identify_fully(bool only_equip)
 	else
 		item_tester_hook = item_tester_hook_identify_fully;
 
-	if (!can_get_item())
+	if (can_get_item())
+	{
+#ifdef JP
+		q = "どのアイテムを*鑑定*しますか? ";
+#else
+		q = "*Identify* which item? ";
+#endif
+	}
+	else
 	{
 		if (only_equip)
-			item_tester_hook = item_tester_hook_weapon_armour;
+			item_tester_hook = object_is_weapon_armour;
 		else
 			item_tester_hook = NULL;
+
+#ifdef JP
+		q = "すべて*鑑定*済みです。 ";
+#else
+		q = "All items are *identified*. ";
+#endif
 	}
 
 	/* Get an item */
 #ifdef JP
-q = "どのアイテムを鑑定しますか? ";
-s = "鑑定するべきアイテムがない。";
+	s = "*鑑定*するべきアイテムがない。";
 #else
-	q = "Identify which item? ";
-	s = "You have nothing to identify.";
+	s = "You have nothing to *identify*.";
 #endif
 
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
@@ -2985,7 +2873,7 @@ s = "鑑定するべきアイテムがない。";
 	handle_stuff();
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Describe */
 	if (item >= INVEN_RARM)
@@ -3032,25 +2920,6 @@ s = "鑑定するべきアイテムがない。";
 
 
 /*
- * Hook for "get_item()".  Determine if something is rechargable.
- */
-bool item_tester_hook_recharge(object_type *o_ptr)
-{
-	/* Recharge staffs */
-	if (o_ptr->tval == TV_STAFF) return TRUE;
-
-	/* Recharge wands */
-	if (o_ptr->tval == TV_WAND) return TRUE;
-
-	/* Hack -- Recharge rods */
-	if (o_ptr->tval == TV_ROD) return TRUE;
-
-	/* Nope */
-	return FALSE;
-}
-
-
-/*
  * Recharge a wand/staff/rod from the pack or on the floor.
  * This function has been rewritten in Oangband and ZAngband.
  *
@@ -3082,7 +2951,7 @@ bool recharge(int power)
 	char o_name[MAX_NLEN];
 
 	/* Only accept legal items */
-	item_tester_hook = item_tester_hook_recharge;
+	item_tester_hook = object_is_recharge;
 
 	/* Get an item */
 #ifdef JP
@@ -3111,7 +2980,7 @@ s = "魔力を充填すべきアイテムがない。";
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract the object "level" */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 
 	/* Recharge a rod */
@@ -3208,9 +3077,9 @@ s = "魔力を充填すべきアイテムがない。";
 	if (fail)
 	{
 		/* Artifacts are never destroyed. */
-		if (artifact_p(o_ptr))
+		if (object_is_fixed_artifact(o_ptr))
 		{
-			object_desc(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, o_ptr, OD_NAME_ONLY);
 #ifdef JP
 			msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 #else
@@ -3229,7 +3098,7 @@ s = "魔力を充填すべきアイテムがない。";
 		else
 		{
 			/* Get the object description */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 			/*** Determine Seriousness of Failure ***/
 
@@ -3408,7 +3277,7 @@ bool bless_weapon(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon2;
+	item_tester_hook = object_is_melee_weapon;
 
 	/* Get an item */
 #ifdef JP
@@ -3436,7 +3305,7 @@ bool bless_weapon(void)
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
@@ -3492,7 +3361,7 @@ bool bless_weapon(void)
 		object_flags(o_ptr, flgs);
 	}
 
-	if (cursed_p(o_ptr))
+	if (object_is_cursed(o_ptr))
 	{
 		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
 		{
@@ -3576,7 +3445,7 @@ bool unholy_weapon(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon2;
+	item_tester_hook = object_is_melee_weapon;
 
 	/* Get an item */
 #ifdef JP
@@ -3604,7 +3473,7 @@ bool unholy_weapon(void)
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
@@ -3965,7 +3834,7 @@ int calc_use_mana(int spell, int realm)
  * Modify spell fail rate
  * Using p_ptr->to_m_chance, p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
  */
-int mod_spell_chance_1(int chance)
+static int mod_spell_chance_1(int chance)
 {
 	chance += p_ptr->to_m_chance;
 
@@ -3979,12 +3848,13 @@ int mod_spell_chance_1(int chance)
 }
 
 
+#if 0
 /*
  * Modify spell fail rate (as "suffix" process)
  * Using p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
  * Note: variable "chance" cannot be negative.
  */
-int mod_spell_chance_2(int chance)
+static int mod_spell_chance_2(int chance)
 {
 	if (p_ptr->dec_mana) chance--;
 
@@ -3992,7 +3862,7 @@ int mod_spell_chance_2(int chance)
 
 	return MAX(chance, 0);
 }
-
+#endif
 
 /*
  * Returns spell chance of failure for spell -RAK-
@@ -4835,7 +4705,7 @@ int inven_damage(inven_func typ, int perc)
 		if (!o_ptr->k_idx) continue;
 
 		/* Hack -- for now, skip artifacts */
-		if (artifact_p(o_ptr) || o_ptr->art_name) continue;
+		if (object_is_artifact(o_ptr)) continue;
 
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
@@ -4850,7 +4720,7 @@ int inven_damage(inven_func typ, int perc)
 			if (amt)
 			{
 				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 3);
+				object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
 				/* Message */
 #ifdef JP
@@ -4932,7 +4802,7 @@ static int minus_ac(void)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
@@ -5146,10 +5016,10 @@ bool curse_armor(void)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
+	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
 	/* Attempt a saving throw for artifacts */
-	if ((o_ptr->art_name || artifact_p(o_ptr)) && (randint0(100) < 50))
+	if (object_is_artifact(o_ptr) && (randint0(100) < 50))
 	{
 		/* Cool */
 #ifdef JP
@@ -5171,6 +5041,8 @@ bool curse_armor(void)
 #else
 		msg_format("A terrible black aura blasts your %s!", o_name);
 #endif
+
+		change_your_alignment(ALI_GNE, -3);
 
 		/* Blast the armor */
 		o_ptr->name1 = 0;
@@ -5225,10 +5097,10 @@ bool curse_weapon(bool force, int slot)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
+	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
 	/* Attempt a saving throw */
-	if (((artifact_p(o_ptr) || o_ptr->art_name) && (randint0(100) < 50) && !force) ||
+	if ((object_is_artifact(o_ptr) && (randint0(100) < 50) && !force) ||
 		object_is_astral_runeweapon(o_ptr) ||
 		((dungeon_type == DUNGEON_HEAVEN) && (o_ptr->name1 == ART_BRUNHILD)))
 	{
@@ -5252,6 +5124,8 @@ bool curse_weapon(bool force, int slot)
 #else
 		if (!force) msg_format("A terrible black aura blasts your %s!", o_name);
 #endif
+
+		change_your_alignment(ALI_GNE, -3);
 
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
@@ -5369,11 +5243,16 @@ bool polymorph_monster(int y, int x, bool change_lnc)
 	if (new_r_idx != old_r_idx)
 	{
 		u32b mode = PM_IGNORE_AMGRID;
+		bool preserve_hold_objects = back_m.hold_o_idx ? TRUE : FALSE;
+		s16b this_o_idx, next_o_idx = 0;
 
 		/* Get the monsters attitude */
 		if (is_friendly(m_ptr)) mode |= PM_FORCE_FRIENDLY;
 		if (is_pet(m_ptr)) mode |= PM_FORCE_PET;
 		if (m_ptr->mflag2 & MFLAG2_NOPET) mode |= PM_NO_PET;
+
+		/* Mega-hack -- ignore held objects */
+		m_ptr->hold_o_idx = 0;
 
 		/* "Kill" the "old" monster */
 		delete_monster_idx(c_ptr->m_idx);
@@ -5381,15 +5260,53 @@ bool polymorph_monster(int y, int x, bool change_lnc)
 		/* Create a new monster (no groups) */
 		if (place_monster_aux(0, y, x, new_r_idx, mode))
 		{
+			m_list[hack_m_idx_ii].nickname = back_m.nickname;
+			m_list[hack_m_idx_ii].parent_m_idx = back_m.parent_m_idx;
+			m_list[hack_m_idx_ii].hold_o_idx = back_m.hold_o_idx;
+
 			/* Success */
 			polymorphed = TRUE;
-			if (change_lnc) change_your_alignment_lnc(-1);
+			if (change_lnc) change_your_alignment(ALI_LNC, -1);
 		}
 		else
 		{
 			/* Placing the new monster failed */
 			if (place_monster_aux(0, y, x, old_r_idx, (mode | PM_IGNORE_TERRAIN)))
+			{
 				m_list[hack_m_idx_ii] = back_m;
+
+				/* Re-initialize monster process */
+				mproc_init();
+			}
+			else preserve_hold_objects = FALSE;
+		}
+
+		/* Mega-hack -- preserve held objects */
+		if (preserve_hold_objects)
+		{
+			for (this_o_idx = back_m.hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				/* Acquire object */
+				object_type *o_ptr = &o_list[this_o_idx];
+
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Held by new monster */
+				o_ptr->held_m_idx = hack_m_idx_ii;
+			}
+		}
+		else if (back_m.hold_o_idx) /* Failed (paranoia) */
+		{
+			/* Delete objects */
+			for (this_o_idx = back_m.hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				/* Acquire next object */
+				next_o_idx = o_list[this_o_idx].next_o_idx;
+
+				/* Delete the object */
+				delete_object_idx(this_o_idx);
+			}
 		}
 
 		if (targeted) target_who = hack_m_idx_ii;
@@ -5545,7 +5462,7 @@ bool eat_magic(int power)
 	cptr q, s;
 	char o_name[MAX_NLEN];
 
-	item_tester_hook = item_tester_hook_recharge;
+	item_tester_hook = object_is_recharge;
 
 	/* Get an item */
 #ifdef JP
@@ -5568,7 +5485,7 @@ s = "魔力を吸収できるアイテムがありません。";
 	}
 
 	k_ptr = &k_info[o_ptr->k_idx];
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	if (o_ptr->tval == TV_ROD)
 	{
@@ -5668,9 +5585,9 @@ s = "魔力を吸収できるアイテムがありません。";
 	if (fail)
 	{
 		/* Artifacts are never destroyed. */
-		if (artifact_p(o_ptr))
+		if (object_is_fixed_artifact(o_ptr))
 		{
-			object_desc(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, o_ptr, OD_NAME_ONLY);
 #ifdef JP
 			msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 #else
@@ -5689,7 +5606,7 @@ s = "魔力を吸収できるアイテムがありません。";
 		else
 		{
 			/* Get the object description */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 			/*** Determine Seriousness of Failure ***/
 
@@ -5868,6 +5785,8 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			break;
 		case RACE_HAWKMAN:
 		case RACE_FAIRY:
+		case RACE_VULTAN:
+		case RACE_RAVEN:
 			summon_kin_type = 'F';
 			break;
 		case RACE_LIZARDMAN:
@@ -5896,6 +5815,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			break;
 		case RACE_PUMPKINHEAD:
 		case RACE_GOBLIN:
+		case RACE_MADHALLOWEEN:
 			summon_kin_type = 'o';
 			break;
 		case RACE_GORGON:
@@ -6001,7 +5921,7 @@ void reincarnation(void)
 		tmp_sp += p_ptr->race_sp[i];
 	}
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		for (j = 0; j < p_ptr->cexp_info[i].max_clev; j++)
 		{
@@ -6034,7 +5954,7 @@ void reincarnation(void)
 	p_ptr->max_exp = p_ptr->exp = p_ptr->exp_frac = 0;
 	(void)C_WIPE(p_ptr->race_hp, PY_MAX_LEVEL, s32b);
 	(void)C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s32b);
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		cexp_ptr = &p_ptr->cexp_info[i];
 		cexp_ptr->max_clev = cexp_ptr->clev = 0;
@@ -6043,13 +5963,20 @@ void reincarnation(void)
 		(void)C_WIPE(p_ptr->class_sp[i], PY_MAX_LEVEL, s32b);
 	}
 
-	/* Race reset (undeads only) */
+	/* Race reset (undeads) */
 	if (rp_ptr->r_flags & PRF_UNDEAD)
 	{
 		p_ptr->prace = RACE_HUMAN;
 		rp_ptr = &race_info[p_ptr->prace];
 
 		if (rp_ptr->r_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
+	}
+
+	/* Race reset (evolutional race) */
+	if (rp_ptr->r_flags & PRF_EVOLUTION)
+	{
+		p_ptr->prace = previous_char.prace;
+		rp_ptr = &race_info[p_ptr->prace];
 	}
 
 	/* Class reset */
@@ -6067,7 +5994,7 @@ void reincarnation(void)
 	if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
 	/* Alignment change */
-	change_alignment();
+	change_alignment_lnc();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -6198,287 +6125,56 @@ void dispel_player(void)
 }
 
 /*
- * Snap Dragon weapon base item table by class
- */
-static byte snap_dragon_class_table[][2] =
-{
-	{TV_SWORD, SV_RUNEBLADE},   /* Soldier */
-	{TV_POLEARM, SV_RUNESPEAR}, /* Knight */
-	{TV_POLEARM, SV_RUNEAXE},   /* Berserker */
-	{TV_HAFTED, SV_RUNEHAMMER}, /* Terror-Knight */
-	{TV_HAFTED, SV_RUNEWHIP},   /* BeastTamer */
-	{TV_SWORD, SV_RUNEBLADE},   /* Sword-Master */
-	{TV_SWORD, SV_RUNEBLADE},   /* Dragoon */
-	{TV_SWORD, SV_RUNECLAW},    /* Ninja */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Wizard */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Warlock */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Exorcist */
-	{TV_SWORD, SV_RUNEBLADE},   /* Amazoness */
-	{TV_POLEARM, SV_RUNESPEAR}, /* Valkyrie */
-	{TV_BOW, SV_RUNEBOW},       /* Archer */
-	{TV_HAFTED, SV_RUNEWHIP},   /* DragonTamer */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Witch */
-	{TV_HAFTED, SV_RUNEFAN},    /* Sirene */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Cleric */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Priest */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Lich */
-	{TV_POLEARM, SV_RUNESPEAR}, /* Angel-Knight */
-	{TV_HAFTED, SV_RUNESTAFF},  /* High-Witch */
-	{TV_BOW, SV_RUNEGUN},       /* Gunner */
-	{TV_SWORD, SV_RUNEBLADE},   /* Temple-Knight */
-	{TV_SWORD, SV_RUNEBLADE},   /* White-Knight */
-	{TV_SWORD, SV_RUNEBLADE},   /* Lord */
-	{TV_POLEARM, SV_RUNESPEAR}, /* General */
-	{TV_SWORD, SV_RUNECLAW},    /* Ninjamaster */
-	{TV_HAFTED, SV_RUNESTAFF},  /* Archmage */
-	{TV_POLEARM, SV_RUNESPEAR}, /* Freya */
-	{TV_BOW, SV_RUNEBOW},       /* Crescent */
-	{TV_SWORD, SV_RUNEBLADE},   /* Vampire */
-	{TV_BOW, SV_RUNEBOW},       /* Medium */
-};
-
-/*
  * Obtain Snap Dragon weapon flags by class
  */
 static void snap_dragon_class_flags(object_type *o_ptr)
 {
+	int i;
+
 	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 24) add_flag(o_ptr->art_flags, TR_FEAR_FIELD);
-	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 49) add_flag(o_ptr->art_flags, TR_ANTI_MAGIC);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 49) o_ptr->to_misc[OB_ANTI_MAGIC] = 3;
 	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(o_ptr->art_flags, TR_SLAY_DRAGON);
 	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(o_ptr->art_flags, TR_KILL_DRAGON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 49) add_flag(o_ptr->art_flags, TR_KILL_DEMON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 49) add_flag(o_ptr->art_flags, TR_KILL_UNDEAD);
+
+	for (i = 0; i < TR_FLAG_SIZE; i++) o_ptr->art_flags[i] |= class_info[p_ptr->pclass].z_flags[i];
 
 	/* Analyze the class */
 	switch (p_ptr->pclass)
 	{
-	case CLASS_SOLDIER:
-		add_flag(o_ptr->art_flags, TR_SLAY_ORC);
-		add_flag(o_ptr->art_flags, TR_VORPAL);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		break;
-
-	case CLASS_KNIGHT:
-		add_flag(o_ptr->art_flags, TR_SLAY_ORC);
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		break;
-
-	case CLASS_BERSERKER:
-		add_flag(o_ptr->art_flags, TR_SLAY_TROLL);
-		add_flag(o_ptr->art_flags, TR_SUST_CON);
-		add_flag(o_ptr->art_flags, TR_REGEN);
-		break;
-
 	case CLASS_TERRORKNIGHT:
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		add_flag(o_ptr->art_flags, TR_SUST_CON);
-		add_flag(o_ptr->art_flags, TR_REGEN);
-		add_flag(o_ptr->art_flags, TR_FEAR_FIELD);
 		o_ptr->to_misc[OB_ANTI_MAGIC] = 3;
 		break;
 
-	case CLASS_BEASTTAMER:
-		add_flag(o_ptr->art_flags, TR_SLAY_ANIMAL);
-		add_flag(o_ptr->art_flags, TR_SUST_CHR);
-		break;
-
 	case CLASS_SWORDMASTER:
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
 		if (one_in_(10)) add_flag(o_ptr->art_flags, TR_EXTRA_VORPAL);
-		break;
-
-	case CLASS_DRAGOON:
-		add_flag(o_ptr->art_flags, TR_KILL_DRAGON);
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		break;
-
-	case CLASS_NINJA:
-		add_flag(o_ptr->art_flags, TR_VORPAL);
-		add_flag(o_ptr->art_flags, TR_BRAND_POIS);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
+		else  add_flag(o_ptr->art_flags, TR_VORPAL);
 		break;
 
 	case CLASS_WIZARD:
-		add_flag(o_ptr->art_flags, TR_SLAY_TROLL);
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
 		if (one_in_(4)) add_flag(o_ptr->art_flags, TR_REGEN_MANA);
 		break;
 
-	case CLASS_WARLOCK:
-		add_flag(o_ptr->art_flags, TR_SLAY_GIANT);
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
-		break;
-
-	case CLASS_EXORCIST:
-		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
-		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_BLESSED);
-		break;
-
-	case CLASS_AMAZONESS:
-		add_flag(o_ptr->art_flags, TR_SLAY_ORC);
-		add_flag(o_ptr->art_flags, TR_VORPAL);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		break;
-
-	case CLASS_VALKYRIE:
-		add_flag(o_ptr->art_flags, TR_SLAY_GIANT);
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		break;
-
-	case CLASS_ARCHER:
-		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
-		break;
-
-	case CLASS_DRAGONTAMER:
-		add_flag(o_ptr->art_flags, TR_SLAY_DRAGON);
-		add_flag(o_ptr->art_flags, TR_SUST_CHR);
-		break;
-
-	case CLASS_WITCH:
-		add_flag(o_ptr->art_flags, TR_SUST_CHR);
-		add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
-		break;
-
 	case CLASS_SIRENE:
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
 		if (one_in_(3)) add_flag(o_ptr->art_flags, TR_REGEN_MANA);
 		break;
 
-	case CLASS_CLERIC:
-		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
-		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_BLESSED);
-		break;
-
-	case CLASS_PRIEST:
-		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
-		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_BLESSED);
-		break;
-
-	case CLASS_LICH:
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
-		add_flag(o_ptr->art_flags, TR_FREE_ACT);
-		add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-		add_flag(o_ptr->art_flags, TR_RES_COLD);
-		add_flag(o_ptr->art_flags, TR_RES_POIS);
-		add_flag(o_ptr->art_flags, TR_RES_NETHER);
-		add_flag(o_ptr->art_flags, TR_UNHOLY);
-		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
-		add_flag(o_ptr->art_flags, TR_SEE_INVIS);
-		add_flag(o_ptr->art_flags, TR_SLOW_DIGEST);
-		break;
-
-	case CLASS_ANGELKNIGHT:
-		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
-		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_RES_FEAR);
-		add_flag(o_ptr->art_flags, TR_RES_CONF);
-		add_flag(o_ptr->art_flags, TR_FEATHER);
-		add_flag(o_ptr->art_flags, TR_SEE_INVIS);
-		add_flag(o_ptr->art_flags, TR_BLESSED);
-		break;
-
 	case CLASS_HIGHWITCH:
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_DEC_MANA);
-		add_flag(o_ptr->art_flags, TR_RES_MAGIC);
 		if (one_in_(2)) add_flag(o_ptr->art_flags, TR_EASY_SPELL);
 		o_ptr->to_a = -20;
 		break;
 
-	case CLASS_GUNNER:
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_RES_SOUND);
-		add_flag(o_ptr->art_flags, TR_RES_SHARDS);
-		add_flag(o_ptr->art_flags, TR_NO_TELE);
-		break;
-
-	case CLASS_TEMPLEKNIGHT:
-		add_flag(o_ptr->art_flags, TR_SLAY_ORC);
-		add_flag(o_ptr->art_flags, TR_SLAY_TROLL);
-		add_flag(o_ptr->art_flags, TR_SLAY_GIANT);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		break;
-
-	case CLASS_WHITEKNIGHT:
-		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-		add_flag(o_ptr->art_flags, TR_VORPAL);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		break;
-
-	case CLASS_LORD:
-		add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
-		add_flag(o_ptr->art_flags, TR_EXTRA_VORPAL);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		break;
-
-	case CLASS_GENERAL:
-		add_flag(o_ptr->art_flags, TR_SLAY_ORC);
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		break;
-
-	case CLASS_NINJAMASTER:
-		add_flag(o_ptr->art_flags, TR_VORPAL);
-		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
-		add_flag(o_ptr->art_flags, TR_BRAND_POIS);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_RES_POIS);
-		break;
-
 	case CLASS_ARCHMAGE:
-		add_flag(o_ptr->art_flags, TR_SLAY_TROLL);
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
-		add_flag(o_ptr->art_flags, TR_DEC_MANA);
 		if (one_in_(4)) add_flag(o_ptr->art_flags, TR_EASY_SPELL);
-		if (one_in_(4)) add_flag(o_ptr->art_flags, TR_REGEN_MANA);
-		break;
-
-	case CLASS_FREYA:
-		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
-		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-		add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		add_flag(o_ptr->art_flags, TR_BLESSED);
+		if (one_in_(2)) add_flag(o_ptr->art_flags, TR_REGEN_MANA);
 		break;
 
 	case CLASS_CRESCENT:
-		add_flag(o_ptr->art_flags, TR_BRAND_ELEC);
-		add_flag(o_ptr->art_flags, TR_KILL_LIVING);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
-		add_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
 		o_ptr->to_misc[OB_ANTI_MAGIC] = 3;
 		break;
 
-	case CLASS_VAMPIRE:
-		add_flag(o_ptr->art_flags, TR_FREE_ACT);
-		add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-		add_flag(o_ptr->art_flags, TR_RES_COLD);
-		add_flag(o_ptr->art_flags, TR_RES_POIS);
-		add_flag(o_ptr->art_flags, TR_RES_NETHER);
-		add_flag(o_ptr->art_flags, TR_UNHOLY);
-		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
-		add_flag(o_ptr->art_flags, TR_SEE_INVIS);
-		add_flag(o_ptr->art_flags, TR_VAMPIRIC);
-		add_flag(o_ptr->art_flags, TR_RES_DARK);
-		add_flag(o_ptr->art_flags, TR_FEATHER);
-		break;
-
-	case CLASS_MEDIUM:
-		add_flag(o_ptr->art_flags, TR_KILL_EVIL);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_BLESSED);
-		add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
+	default:
 		break;
 	}
 }
@@ -6488,98 +6184,18 @@ static void snap_dragon_class_flags(object_type *o_ptr)
  */
 static void snap_dragon_race_flags(object_type *o_ptr)
 {
+	int i;
+
+	for (i = 0; i < TR_FLAG_SIZE; i++) o_ptr->art_flags[i] |= race_info[p_ptr->prace].z_flags[i];
+
 	switch (p_ptr->prace)
 	{
-	case RACE_HUMAN:
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_SUST_CON);
-		add_flag(o_ptr->art_flags, TR_SUST_CHR);
-		break;
-
-	case RACE_HAWKMAN:
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_RES_FEAR);
-		add_flag(o_ptr->art_flags, TR_FEATHER);
-		break;
-
-	case RACE_LIZARDMAN:
-		add_flag(o_ptr->art_flags, TR_SLAY_TROLL);
-		add_flag(o_ptr->art_flags, TR_SUST_STR);
-		add_flag(o_ptr->art_flags, TR_RES_ACID);
-		add_flag(o_ptr->art_flags, TR_RES_COLD);
-		break;
-
-	case RACE_FAIRY:
-		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
-		add_flag(o_ptr->art_flags, TR_SUST_CHR);
-		add_flag(o_ptr->art_flags, TR_RES_LITE);
-		add_flag(o_ptr->art_flags, TR_FEATHER);
-		add_flag(o_ptr->art_flags, TR_LITE);
-		break;
-
-	case RACE_GREMLIN:
-		add_flag(o_ptr->art_flags, TR_VAMPIRIC);
-		add_flag(o_ptr->art_flags, TR_SUST_DEX);
-		add_flag(o_ptr->art_flags, TR_RES_DARK);
-		add_flag(o_ptr->art_flags, TR_RES_NETHER);
-		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
-		add_flag(o_ptr->art_flags, TR_FEATHER);
-		break;
-
-	case RACE_SKELETON:
-		add_flag(o_ptr->art_flags, TR_SLAY_DRAGON);
-		add_flag(o_ptr->art_flags, TR_SUST_CON);
-		add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-		add_flag(o_ptr->art_flags, TR_RES_COLD);
-		add_flag(o_ptr->art_flags, TR_RES_POIS);
-		add_flag(o_ptr->art_flags, TR_RES_SHARDS);
-		add_flag(o_ptr->art_flags, TR_SEE_INVIS);
-		break;
-
 	case RACE_GHOST:
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
-		add_flag(o_ptr->art_flags, TR_FREE_ACT);
-		add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-		add_flag(o_ptr->art_flags, TR_RES_COLD);
-		add_flag(o_ptr->art_flags, TR_RES_POIS);
-		add_flag(o_ptr->art_flags, TR_RES_NETHER);
-		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
-		add_flag(o_ptr->art_flags, TR_FEATHER);
-		add_flag(o_ptr->art_flags, TR_SEE_INVIS);
 		if (one_in_(2)) add_flag(o_ptr->art_flags, TR_TELEPATHY);
 		if (one_in_(5)) add_flag(o_ptr->art_flags, TR_WRAITH);
 		break;
 
-	case RACE_PUMPKINHEAD:
-		add_flag(o_ptr->art_flags, TR_CHAOTIC);
-		add_flag(o_ptr->art_flags, TR_SLAY_ANIMAL);
-		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
-		add_flag(o_ptr->art_flags, TR_SLAY_GIANT);
-		add_flag(o_ptr->art_flags, TR_SUST_WIS);
-		add_flag(o_ptr->art_flags, TR_REFLECT);
-		add_flag(o_ptr->art_flags, TR_FREE_ACT);
-		add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-		add_flag(o_ptr->art_flags, TR_RES_CHAOS);
-		add_flag(o_ptr->art_flags, TR_RES_DISEN);
-		add_flag(o_ptr->art_flags, TR_TELEPATHY);
-		add_flag(o_ptr->art_flags, TR_SLOW_DIGEST);
-		add_flag(o_ptr->art_flags, TR_AGGRAVATE);
-		break;
-
-	case RACE_GOBLIN:
-		add_flag(o_ptr->art_flags, TR_SLAY_GIANT);
-		add_flag(o_ptr->art_flags, TR_SUST_CON);
-		add_flag(o_ptr->art_flags, TR_RES_DARK);
-		break;
-
 	case RACE_GORGON:
-		add_flag(o_ptr->art_flags, TR_SUST_INT);
-		add_flag(o_ptr->art_flags, TR_REFLECT);
-		add_flag(o_ptr->art_flags, TR_RES_STONE);
 		if (!one_in_(5)) add_flag(o_ptr->art_flags, TR_RES_COLD);
 		if (randint1(5) >= 3) add_flag(o_ptr->art_flags, TR_RES_ACID);
 		if (randint1(5) >= 4) add_flag(o_ptr->art_flags, TR_RES_CHAOS);
@@ -6588,10 +6204,10 @@ static void snap_dragon_race_flags(object_type *o_ptr)
 		break;
 
 	case RACE_MERMAID:
-		add_flag(o_ptr->art_flags, TR_CHAOTIC);
-		add_flag(o_ptr->art_flags, TR_SUST_CHR);
-		add_flag(o_ptr->art_flags, TR_RES_ACID);
 		if (one_in_(2)) add_flag(o_ptr->art_flags, TR_RES_CONF);
+		break;
+
+	default:
 		break;
 	}
 };
@@ -6632,7 +6248,7 @@ void snap_dragon(void)
 		tmp_sp += p_ptr->race_sp[i];
 	}
 
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < max_c_idx; i++)
 	{
 		for (j = 0; j < p_ptr->cexp_info[i].max_clev; j++)
 		{
@@ -6658,8 +6274,7 @@ void snap_dragon(void)
 	q_ptr = &runeweapon->weapon;
 
 	/* Prepare a "rune" weapon */
-	object_prep(q_ptr, lookup_kind(snap_dragon_class_table[p_ptr->pclass][0],
-		snap_dragon_class_table[p_ptr->pclass][1]));
+	object_prep(q_ptr, lookup_kind(class_info[p_ptr->pclass].tval, class_info[p_ptr->pclass].sval));
 
 	if (q_ptr->tval != TV_BOW)
 	{
@@ -6748,13 +6363,6 @@ void snap_dragon(void)
 	/* Flags determined by race */
 	snap_dragon_race_flags(q_ptr);
 
-	/* Random resistance or ability */
-	for (i = randint1(3); i; i--)
-	{
-		if (one_in_(2)) one_resistance(q_ptr);
-		else one_ability(q_ptr);
-	}
-
 	if (q_ptr->tval == TV_BOW)
 	{
 		remove_flag(q_ptr->art_flags, TR_FORCE_WEAPON);
@@ -6795,6 +6403,13 @@ void snap_dragon(void)
 	snap_dragon_class_flags(q_ptr);
 	if (cp_ptr->c_to_a > 0) q_ptr->to_a = cp_ptr->c_to_a;
 
+	/* Random resistance or ability */
+	for (i = randint1(3); i; i--)
+	{
+		if (one_in_(2)) one_resistance(q_ptr);
+		else one_ability(q_ptr);
+	}
+
 	object_aware(q_ptr);
 	object_known(q_ptr);
 	q_ptr->ident |= (IDENT_MENTAL);
@@ -6824,9 +6439,9 @@ void snap_dragon(void)
 	else
 	{
 #ifdef JP
-		sprintf(new_name, "%s%sの", cp_ptr->title, player_name);
+		sprintf(new_name, "%s%sの", c_name + cp_ptr->name, player_name);
 #else
-		sprintf(new_name, "of %s the %s", player_name, cp_ptr->title);
+		sprintf(new_name, "of %s the %s", player_name, c_name + cp_ptr->name);
 #endif
 	}
 
@@ -7090,15 +6705,18 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 					{
 						add_flag(o_ptr->art_flags, TR_UNHOLY);
 						add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
+						o_ptr->to_align[ALI_GNE] = -3;
 					}
 					else
 					{
 						add_flag(o_ptr->art_flags, TR_BLESSED);
 						add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
+						o_ptr->to_align[ALI_GNE] = 3;
 					break;
 				case 2:
 					add_flag(o_ptr->art_flags, TR_UNHOLY);
 					add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
+						o_ptr->to_align[ALI_GNE] = -3;
 					break;
 				}
 				case 3:
@@ -7114,9 +6732,11 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 									break;
 								case 2:
 									add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
+									o_ptr->to_align[ALI_GNE] = 1;
 									break;
 								case 3:
 									add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
+									o_ptr->to_align[ALI_GNE] = 1;
 									break;
 								case 4:
 									add_flag(o_ptr->art_flags, TR_SLAY_ORC);
@@ -7135,6 +6755,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 									break;
 								case 9:
 									add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
+									o_ptr->to_align[ALI_GNE] = -3;
 									break;
 							}
 							slay_num--;
@@ -7321,6 +6942,7 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 		case EGO_INTELLIGENCE:
 		case EGO_WISDOM:
 		case EGO_LITE:
+		case EGO_DARK:
 		case EGO_INFRAVISION:
 			break;
 		case EGO_SEEING:
@@ -7971,7 +7593,7 @@ static bool wish_a_m_aux_4(object_type *o_ptr, bool do_wish)
 	{
 	case TV_CHEST:
 		{
-			byte obj_level = get_object_level(o_ptr);
+			byte obj_level = k_info[o_ptr->k_idx].level;
 
 			if (o_ptr->name2) return FALSE;
 
@@ -8133,7 +7755,7 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 		if (e_ptr->gen_flags & (TRG_XTRA_RES)) one_resistance(o_ptr);
 
 		/* Hack -- apply extra penalties if needed */
-		if (cursed_p(o_ptr) || broken_p(o_ptr))
+		if (object_is_cursed(o_ptr) || object_is_broken(o_ptr))
 		{
 			/* Hack -- obtain bonuses */
 			for (i = 0; i < A_MAX; i++)
@@ -8206,6 +7828,9 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 			case EGO_AMU_ANTI_MAGIC:
 				o_ptr->to_misc[OB_ANTI_MAGIC] = e_ptr->max_to_misc[OB_ANTI_MAGIC];
 				break;
+			case EGO_ARCADIA:
+				if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_CLOAK_OF_IVORY_TOWER)) o_ptr->to_align[ALI_LNC] = -10;
+				break;
 			}
 		}
 
@@ -8219,7 +7844,7 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Hack -- acquire "broken" flag */
-		if (!get_object_cost(o_ptr)) o_ptr->ident |= (IDENT_BROKEN);
+		if (!k_info[o_ptr->k_idx].cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- acquire "cursed" flag */
 		if (k_ptr->gen_flags & (TRG_CURSED)) o_ptr->curse_flags |= (TRC_CURSED);
@@ -8302,7 +7927,7 @@ bool wish_object(cptr err_msg)
 			q_ptr->name1 = i;
 
 			/* Describe the artifact */
-			object_desc_store(o_name, q_ptr, FALSE, 0);
+			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 			if (streq(w_o_name, o_name + (only_artifact ? 0 : 2))) add_wish_result(&w_list_top, q_ptr);
 		}
@@ -8387,7 +8012,7 @@ bool wish_object(cptr err_msg)
 
 			object_prep(q_ptr, i);
 			q_ptr->pval = r_idx_found;
-			object_desc_store(o_name, q_ptr, FALSE, 0);
+			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 			if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			break;
 
@@ -8423,7 +8048,7 @@ bool wish_object(cptr err_msg)
 				object_prep(q_ptr, i);
 				q_ptr->name2 = e_found[j];
 				if (!wish_apply_magic(q_ptr, TRUE)) continue;
-				object_desc_store(o_name, q_ptr, FALSE, 0);
+				object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 				if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			}
 			break;
@@ -8440,12 +8065,12 @@ bool wish_object(cptr err_msg)
 		case TV_DRAKONITE_BOOK:
 		case TV_CRUSADE_BOOK:
 			object_prep(q_ptr, i);
-			object_desc_store(o_name, q_ptr, FALSE, 0);
+			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 			if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
-			else if (streq(w_o_name, get_object_name(q_ptr))) add_wish_result(&w_list_top, q_ptr);
+			else if (streq(w_o_name, k_name + k_info[q_ptr->k_idx].name)) add_wish_result(&w_list_top, q_ptr);
 			else
 			{
-				strcpy(o_name, get_object_name(q_ptr) + 1);
+				strcpy(o_name, k_name + k_info[q_ptr->k_idx].name + 1);
 				o_name[strlen(o_name) - 1] = '\0';
 				if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			}
@@ -8455,7 +8080,7 @@ bool wish_object(cptr err_msg)
 		default:
 			object_prep(q_ptr, i);
 			wish_apply_magic(q_ptr, TRUE);
-			object_desc_store(o_name, q_ptr, FALSE, 0);
+			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 			if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			break;
 		}
@@ -8484,10 +8109,10 @@ bool wish_object(cptr err_msg)
 					if (!o_ptr->k_idx) continue;
 
 					/* Ignore non-artifacts */
-					if (!artifact_p(o_ptr)) continue;
+					if (!object_is_fixed_artifact(o_ptr)) continue;
 
 					/* Ignore known items */
-					if (object_known_p(o_ptr)) continue;
+					if (object_is_known(o_ptr)) continue;
 
 					if (o_ptr->name1 != q_ptr->name1) continue;
 
@@ -8620,46 +8245,6 @@ bool set_decoy(void)
 	return TRUE;
 }
 
-/*
- * Check if an object is nameless weapon or armour
- */
-static bool item_tester_hook_ego_creatable(object_type *o_ptr)
-{
-	if (object_is_runeweapon(o_ptr)) return FALSE;
-
-	/* Analyze type */
-	switch (o_ptr->tval)
-	{
-	case TV_BOW:
-	case TV_DIGGING:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-	case TV_BOOTS:
-	case TV_GLOVES:
-	case TV_HELM:
-	case TV_CROWN:
-	case TV_SHIELD:
-	case TV_CLOAK:
-	case TV_SOFT_ARMOR:
-	case TV_HARD_ARMOR:
-	case TV_AMULET:
-	case TV_RING:
-	case TV_LITE:
-		if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return FALSE;
-		if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) return FALSE;
-		if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_EMPTY)) return FALSE;
-		if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_EMPTY)) return FALSE;
-		if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_EMPTY)) return FALSE;
-
-		if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
-			return FALSE;
-		else return TRUE;
-	}
-
-	return FALSE;
-}
-
 bool ego_creation_scroll(void)
 {
 	int             item;
@@ -8673,7 +8258,7 @@ bool ego_creation_scroll(void)
 
 
 	item_tester_no_ryoute = TRUE;
-	item_tester_hook = item_tester_hook_ego_creatable;
+	item_tester_hook = object_is_ego_creatable;
 
 	/* Get an item */
 #ifdef JP
@@ -8700,7 +8285,7 @@ s = "強化できるアイテムがない。";
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Describe */
 #ifdef JP
@@ -8711,7 +8296,7 @@ s = "強化できるアイテムがない。";
 	          ((o_ptr->number > 1) ? "" : "s"));
 #endif
 
-	if (o_ptr->name1 || o_ptr->art_name)
+	if (object_is_artifact(o_ptr))
 	{
 #ifdef JP
 		msg_format("%sは既に伝説のアイテムです！", o_name);
@@ -8789,6 +8374,7 @@ s = "強化できるアイテムがない。";
 		{
 			o_ptr->name2 = randint1(max_e_idx - 1);
 			if (e_info[o_ptr->name2].slot != tval_to_slot(o_ptr->tval)) continue;
+			if (one_in_(3) && !e_info[o_ptr->name2].cost) continue;
 			if (wish_apply_magic(o_ptr, FALSE))
 			{
 				okay = TRUE;
@@ -8848,7 +8434,7 @@ bool get_energy_from_corpse(void)
 	cptr        q, s;
 	char o_name[MAX_NLEN];
 
-	item_tester_hook = item_tester_hook_corpse;
+	item_tester_hook = object_is_corpse;
 
 	/* Get an item */
 #ifdef JP
@@ -8874,7 +8460,7 @@ bool get_energy_from_corpse(void)
 
 	hp_player(66 + randint1(r_info[o_ptr->pval].level * 5));
 
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 #ifdef JP
 	msg_format("%sは灰になった。", o_name);
 #else
