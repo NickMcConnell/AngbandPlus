@@ -405,7 +405,7 @@ static spell_info _marilith_spells[] = {
 	{ 30, 18, 45, cause_wounds_III_spell},
 	{ 32, 20, 50, amnesia_spell},
 	{ 36, 70, 85, summon_demon_spell},
-	{ 40, 70, 90, enchantment_spell},
+	{ 40, 70, 70, enchantment_spell},
 	{ -1, -1, -1, NULL}
 };
 static int _marilith_get_spells(spell_info* spells, int max) {

@@ -5206,7 +5206,7 @@ N:580:£Ô¥·¥ã¥Ä
 E:& T-shirt~
 G:~:w
 I:36:0:0
-W:1:0:0:10:0
+W:1:0:0:10:1
 A:1/255
 P:1:1d1:0:0:0
 
@@ -5966,7 +5966,7 @@ N:671:TRANSLATE
 E:Blood:Blood Red
 G:!:r
 I:75:67:0
-W:75:0:0:4:0
+W:75:0:0:4:1234
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR
 
@@ -6424,7 +6424,7 @@ N:726:TRANSLATE
 E:& Ring~:Black
 G:=:W
 I:45:62:0
-W:50:0:0:2:0
+W:50:0:0:2:1234
 F:INSTA_ART | FIXED_FLAVOR
 
 N:727:TRANSLATE

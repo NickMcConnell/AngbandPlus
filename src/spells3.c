@@ -1223,30 +1223,52 @@ void phlogiston(void)
  */
 bool brand_weapon(int brand_type)
 {
+	bool        result = FALSE;
 	int         item;
 	cptr        q, s;
-	/* Assume enchant weapon */
+
 	item_tester_hook = object_allow_enchant_melee_weapon;
 	item_tester_no_ryoute = TRUE;
 
-	/* Get an item */
-#ifdef JP
-q = "どの武器を強化しますか? ";
-s = "強化できる武器がない。";
-#else
 	q = "Enchant which weapon? ";
 	s = "You have nothing to enchant.";
-#endif
-
 	if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;	
 
-	if (brand_type == -1)
-		return brand_weapon_aux(item);
-	
-	inventory[item].name2 = brand_type;
+	if (inventory[item].name1 || inventory[item].name2)
+	{
+	}
+	else if (brand_type == -1)
+	{
+		result = brand_weapon_aux(item);
+	}
+	else
+	{
+		inventory[item].name2 = brand_type;
+		/* TODO: a_m_aux_1 in object2.c currently handles creation of weapon egos, but
+		   is not re-usable since it conflates ego selection and a few other things.
+		   Please refactor ... e.g.,
+		   void ego_init_weapon(object_type *o_ptr, int ego_type);
+		   void ego_init_armor(object_type *o_ptr, int ego_type);
+		   etc.
+		*/
+		if (brand_type == EGO_TRUMP)
+			inventory[item].pval = randint1(2);
+		result = TRUE;
+	}
+	if (result)
+	{
+		enchant(&inventory[item], randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+		inventory[item].discount = 99;
 
-	virtue_add(VIRTUE_ENCHANTMENT, 2);
-
+		virtue_add(VIRTUE_ENCHANTMENT, 2);
+	}
+	else
+	{
+		if (flush_failure) flush();
+		msg_print("The Branding failed.");
+		virtue_add(VIRTUE_ENCHANTMENT, -2);
+	}
+	calc_android_exp();
 	return TRUE;
 }
 

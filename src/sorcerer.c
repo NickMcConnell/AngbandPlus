@@ -46,7 +46,7 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "spell";
-		me.which_stat = A_INT;
+		me.which_stat = A_CHR;
 		me.weight = 40;
 		me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
 		init = TRUE;
