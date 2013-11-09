@@ -1,26 +1,24 @@
-Q:$34:N:The Lonely Mountain
-Q:34:N:
+Q:34:N:The Lonely Mountain
 
-Q:$34:Q:1:0:0:1:45:697:0:0:6
 Q:34:Q:1:0:0:1:45:697:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST34 2]
-Q:$34:T:A terrible dragon has been attacking us.  Fire,
-Q:$34:T:death and destruction are all that remain for our quiet
-Q:$34:T:little town ... Unless you can help us.  Please, for
-Q:$34:T:the love of all that is holy, help us!
+Q:34:T:A terrible dragon has been attacking us.  Fire,
+Q:34:T:death and destruction are all that remain for our quiet
+Q:34:T:little town ... Unless you can help us.  Please, for
+Q:34:T:the love of all that is holy, help us!
 ?:1
 
 # Description for quest rewarding
 ?:[EQU $QUEST34 3]
-Q:$34:T:You have returned!  Please accept this gift.
+Q:34:T:You have returned!  Please accept this gift.
 ?:1
 
 # Description for quest failed
 ?:[EQU $QUEST34 5]
-Q:$34:T:Oh no! Please, I must go now. You have failed us and now
-Q:$34:T:our town will surely be destroyed.
+Q:34:T:Oh no! Please, I must go now. You have failed us and now
+Q:34:T:our town will surely be destroyed.
 ?:1
 
 # Floor + skeleton (junk)

@@ -4,95 +4,95 @@
 
 bool is_pval_flag(int which)
 {
-	switch (which)
-	{
-	case TR_STR: 
-	case TR_INT: 
-	case TR_WIS: 
-	case TR_DEX: 
-	case TR_CON: 
-	case TR_CHR:
-	case TR_MAGIC_MASTERY:
-	case TR_STEALTH:
-	case TR_SEARCH:
-	case TR_INFRA:
-	case TR_TUNNEL:
-	case TR_SPEED:
-	case TR_BLOWS:
-	case TR_SPELL_POWER:
-	case TR_SPELL_CAP:
-	case TR_WEAPONMASTERY:
-	case TR_LIFE:
-		return TRUE;
-	}
-	return FALSE;
+    switch (which)
+    {
+    case TR_STR: 
+    case TR_INT: 
+    case TR_WIS: 
+    case TR_DEX: 
+    case TR_CON: 
+    case TR_CHR:
+    case TR_MAGIC_MASTERY:
+    case TR_STEALTH:
+    case TR_SEARCH:
+    case TR_INFRA:
+    case TR_TUNNEL:
+    case TR_SPEED:
+    case TR_BLOWS:
+    case TR_SPELL_POWER:
+    case TR_SPELL_CAP:
+    case TR_WEAPONMASTERY:
+    case TR_LIFE:
+        return TRUE;
+    }
+    return FALSE;
 }
 bool have_pval_flags(u32b flgs[TR_FLAG_SIZE])
 {
-	if ( have_flag(flgs, TR_STR)
-	  || have_flag(flgs, TR_INT)
-	  || have_flag(flgs, TR_WIS)
-	  || have_flag(flgs, TR_DEX)
-	  || have_flag(flgs, TR_CON)
-	  || have_flag(flgs, TR_CHR)
-	  || have_flag(flgs, TR_MAGIC_MASTERY)
-	  || have_flag(flgs, TR_STEALTH)
-	  || have_flag(flgs, TR_SEARCH)
-	  || have_flag(flgs, TR_INFRA)
-	  || have_flag(flgs, TR_TUNNEL)
-	  || have_flag(flgs, TR_SPEED)
-	  || have_flag(flgs, TR_BLOWS)
-	  || have_flag(flgs, TR_SPELL_POWER)
-	  || have_flag(flgs, TR_SPELL_CAP) 
-	  || have_flag(flgs, TR_WEAPONMASTERY) 
-	  || have_flag(flgs, TR_LIFE) )
-	{
-		return TRUE;
-	}
-	return FALSE;
+    if ( have_flag(flgs, TR_STR)
+      || have_flag(flgs, TR_INT)
+      || have_flag(flgs, TR_WIS)
+      || have_flag(flgs, TR_DEX)
+      || have_flag(flgs, TR_CON)
+      || have_flag(flgs, TR_CHR)
+      || have_flag(flgs, TR_MAGIC_MASTERY)
+      || have_flag(flgs, TR_STEALTH)
+      || have_flag(flgs, TR_SEARCH)
+      || have_flag(flgs, TR_INFRA)
+      || have_flag(flgs, TR_TUNNEL)
+      || have_flag(flgs, TR_SPEED)
+      || have_flag(flgs, TR_BLOWS)
+      || have_flag(flgs, TR_SPELL_POWER)
+      || have_flag(flgs, TR_SPELL_CAP) 
+      || have_flag(flgs, TR_WEAPONMASTERY) 
+      || have_flag(flgs, TR_LIFE) )
+    {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool object_is_mushroom(object_type *o_ptr)
 {
-	bool result = FALSE;
-	if ( o_ptr->tval == TV_FOOD
-	  && SV_FOOD_MIN_MUSHROOM <= o_ptr->sval
-	  && o_ptr->sval <= SV_FOOD_MAX_MUSHROOM )
-	{
-		result = TRUE;
-	}
-	return result;
+    bool result = FALSE;
+    if ( o_ptr->tval == TV_FOOD
+      && SV_FOOD_MIN_MUSHROOM <= o_ptr->sval
+      && o_ptr->sval <= SV_FOOD_MAX_MUSHROOM )
+    {
+        result = TRUE;
+    }
+    return result;
 }
 
 bool object_is_potion(object_type *o_ptr)
 {
-	return (k_info[o_ptr->k_idx].tval == TV_POTION);
+    return (k_info[o_ptr->k_idx].tval == TV_POTION);
 }
 
 
 bool object_is_shoukinkubi(object_type *o_ptr)
 {
-	int i;
+    int i;
 
-	/* Require corpse or skeleton */
-	if (o_ptr->tval != TV_CORPSE) return FALSE;
+    /* Require corpse or skeleton */
+    if (o_ptr->tval != TV_CORPSE) return FALSE;
 
-	/* No wanted monsters in vanilla town */
-	if (vanilla_town) return FALSE;
+    /* No wanted monsters in vanilla town */
+    if (vanilla_town) return FALSE;
 
-	/* Today's wanted */
-	if (p_ptr->today_mon > 0 && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name))) return TRUE;
+    /* Today's wanted */
+    if (p_ptr->today_mon > 0 && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name))) return TRUE;
 
-	/* Tsuchinoko */
-	if (o_ptr->pval == MON_TSUCHINOKO) return TRUE;
+    /* Tsuchinoko */
+    if (o_ptr->pval == MON_TSUCHINOKO) return TRUE;
 
-	/* Unique monster */
-	for (i = 0; i < MAX_KUBI; i++)
-		if (o_ptr->pval == kubi_r_idx[i]) break;
-	if (i < MAX_KUBI) return TRUE;
+    /* Unique monster */
+    for (i = 0; i < MAX_KUBI; i++)
+        if (o_ptr->pval == kubi_r_idx[i]) break;
+    if (i < MAX_KUBI) return TRUE;
 
-	/* Not wanted */
-	return FALSE;
+    /* Not wanted */
+    return FALSE;
 }
 
 
@@ -101,65 +101,65 @@ bool object_is_shoukinkubi(object_type *o_ptr)
  */
 bool object_is_favorite(object_type *o_ptr)
 {
-	/* Only melee weapons match */
-	if (!(o_ptr->tval == TV_POLEARM ||
-	      o_ptr->tval == TV_SWORD ||
-	      o_ptr->tval == TV_DIGGING ||
-	      o_ptr->tval == TV_HAFTED))
-	{
-		return FALSE;
-	}
+    /* Only melee weapons match */
+    if (!(o_ptr->tval == TV_POLEARM ||
+          o_ptr->tval == TV_SWORD ||
+          o_ptr->tval == TV_DIGGING ||
+          o_ptr->tval == TV_HAFTED))
+    {
+        return FALSE;
+    }
 
-	/* Favorite weapons are varied depend on the class */
-	switch (p_ptr->pclass)
-	{
-	case CLASS_PRIEST:
-	{
-		u32b flgs[TR_FLAG_SIZE];
-		object_flags_known(o_ptr, flgs);
+    /* Favorite weapons are varied depend on the class */
+    switch (p_ptr->pclass)
+    {
+    case CLASS_PRIEST:
+    {
+        u32b flgs[TR_FLAG_SIZE];
+        object_flags_known(o_ptr, flgs);
 
-		if (!have_flag(flgs, TR_BLESSED) && 
-		    !(o_ptr->tval == TV_HAFTED))
-			return FALSE;
-		break;
-	}
+        if (!have_flag(flgs, TR_BLESSED) && 
+            !(o_ptr->tval == TV_HAFTED))
+            return FALSE;
+        break;
+    }
 
-	case CLASS_MYSTIC:
-		return FALSE;
+    case CLASS_MYSTIC:
+        return FALSE;
 
-	case CLASS_MONK:
-	case CLASS_FORCETRAINER:
-	case CLASS_NINJA:
-		if (skills_weapon_is_icky(o_ptr->tval, o_ptr->sval))
-			return FALSE;
-		break;
+    case CLASS_MONK:
+    case CLASS_FORCETRAINER:
+    case CLASS_NINJA:
+        if (skills_weapon_is_icky(o_ptr->tval, o_ptr->sval))
+            return FALSE;
+        break;
 
-	case CLASS_BEASTMASTER:
-	case CLASS_CAVALRY:
-	{
-		u32b flgs[TR_FLAG_SIZE];
-		object_flags_known(o_ptr, flgs);
+    case CLASS_BEASTMASTER:
+    case CLASS_CAVALRY:
+    {
+        u32b flgs[TR_FLAG_SIZE];
+        object_flags_known(o_ptr, flgs);
 
-		/* Is it known to be suitable to using while riding? */
-		if (!(have_flag(flgs, TR_RIDING)))
-			return FALSE;
+        /* Is it known to be suitable to using while riding? */
+        if (!(have_flag(flgs, TR_RIDING)))
+            return FALSE;
 
-		break;
-	}
+        break;
+    }
 
-	case CLASS_WEAPONMASTER:
-		return weaponmaster_is_favorite(o_ptr);
+    case CLASS_WEAPONMASTER:
+        return weaponmaster_is_favorite(o_ptr);
 
 
-	case CLASS_MAULER:
-		return o_ptr->weight >= 280;
+    case CLASS_MAULER:
+        return o_ptr->weight >= 280;
 
-	default:
-		/* All weapons are okay for non-special classes */
-		return TRUE;
-	}
+    default:
+        /* All weapons are okay for non-special classes */
+        return TRUE;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -169,69 +169,69 @@ bool object_is_favorite(object_type *o_ptr)
  */
 bool object_is_rare(object_type *o_ptr)
 {
-	switch(o_ptr->tval)
-	{
-	case TV_HAFTED:
-		if (o_ptr->sval == SV_MACE_OF_DISRUPTION ||
-		    o_ptr->sval == SV_WIZSTAFF) return TRUE;
-		break;
+    switch(o_ptr->tval)
+    {
+    case TV_HAFTED:
+        if (o_ptr->sval == SV_MACE_OF_DISRUPTION ||
+            o_ptr->sval == SV_WIZSTAFF) return TRUE;
+        break;
 
-	case TV_POLEARM:
-		if (o_ptr->sval == SV_SCYTHE_OF_SLICING ||
-		    o_ptr->sval == SV_DEATH_SCYTHE) return TRUE;
-		break;
+    case TV_POLEARM:
+        if (o_ptr->sval == SV_SCYTHE_OF_SLICING ||
+            o_ptr->sval == SV_DEATH_SCYTHE) return TRUE;
+        break;
 
-	case TV_SWORD:
-		if (o_ptr->sval == SV_BLADE_OF_CHAOS ||
-		    o_ptr->sval == SV_DIAMOND_EDGE ||
-		    o_ptr->sval == SV_DOKUBARI ||
-			o_ptr->sval == SV_DRAGON_FANG ||
-		    o_ptr->sval == SV_HAYABUSA) return TRUE;
-		break;
+    case TV_SWORD:
+        if (o_ptr->sval == SV_BLADE_OF_CHAOS ||
+            o_ptr->sval == SV_DIAMOND_EDGE ||
+            o_ptr->sval == SV_DOKUBARI ||
+            o_ptr->sval == SV_DRAGON_FANG ||
+            o_ptr->sval == SV_HAYABUSA) return TRUE;
+        break;
 
-	case TV_SHIELD:
-		if (o_ptr->sval == SV_DRAGON_SHIELD ||
-		    o_ptr->sval == SV_MIRROR_SHIELD) return TRUE;
-		break;
+    case TV_SHIELD:
+        if (o_ptr->sval == SV_DRAGON_SHIELD ||
+            o_ptr->sval == SV_MIRROR_SHIELD) return TRUE;
+        break;
 
-	case TV_HELM:
-		if (o_ptr->sval == SV_DRAGON_HELM) return TRUE;
-		break;
+    case TV_HELM:
+        if (o_ptr->sval == SV_DRAGON_HELM) return TRUE;
+        break;
 
-	case TV_BOOTS:
-		if (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) return TRUE;
-		break;
+    case TV_BOOTS:
+        if (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) return TRUE;
+        break;
 
-	case TV_CLOAK:
-		if (o_ptr->sval == SV_ELVEN_CLOAK ||
-		    o_ptr->sval == SV_ETHEREAL_CLOAK ||
-		    o_ptr->sval == SV_DRAGON_CLOAK ||
-		    o_ptr->sval == SV_SHADOW_CLOAK) return TRUE;
-		break;
+    case TV_CLOAK:
+        if (o_ptr->sval == SV_ELVEN_CLOAK ||
+            o_ptr->sval == SV_ETHEREAL_CLOAK ||
+            o_ptr->sval == SV_DRAGON_CLOAK ||
+            o_ptr->sval == SV_SHADOW_CLOAK) return TRUE;
+        break;
 
-	case TV_GLOVES:
-		if (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) return TRUE;
-		break;
+    case TV_GLOVES:
+        if (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) return TRUE;
+        break;
 
-	case TV_SOFT_ARMOR:
-		if (o_ptr->sval == SV_KUROSHOUZOKU ||
-		    o_ptr->sval == SV_ABUNAI_MIZUGI) return TRUE;
-		break;
+    case TV_SOFT_ARMOR:
+        if (o_ptr->sval == SV_KUROSHOUZOKU ||
+            o_ptr->sval == SV_ABUNAI_MIZUGI) return TRUE;
+        break;
 
-	case TV_DRAG_ARMOR:
-		return TRUE;
+    case TV_DRAG_ARMOR:
+        return TRUE;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	/* Any others are not "rare" objects. */
-	return FALSE;
+    /* Any others are not "rare" objects. */
+    return FALSE;
 }
 
 bool object_is_cursed(object_type *o_ptr)
 {
-	return o_ptr->curse_flags;
+    return o_ptr->curse_flags;
 }
 
 /*
@@ -239,42 +239,42 @@ bool object_is_cursed(object_type *o_ptr)
  */
 bool object_is_weapon(object_type *o_ptr)
 {
-	if (TV_WEAPON_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEAPON_END) return TRUE;
+    if (TV_WEAPON_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEAPON_END) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 bool object_is_cloak(object_type *o_ptr)
 {
-	if (o_ptr->tval == TV_CLOAK) return TRUE;
-	return FALSE;
+    if (o_ptr->tval == TV_CLOAK) return TRUE;
+    return FALSE;
 }
 bool object_is_gloves(object_type *o_ptr)
 {
-	if (o_ptr->tval == TV_GLOVES) return TRUE;
-	return FALSE;
+    if (o_ptr->tval == TV_GLOVES) return TRUE;
+    return FALSE;
 }
 bool object_is_helmet(object_type *o_ptr)
 {
-	if (o_ptr->tval == TV_HELM || o_ptr->tval == TV_CROWN) return TRUE;
-	return FALSE;
+    if (o_ptr->tval == TV_HELM || o_ptr->tval == TV_CROWN) return TRUE;
+    return FALSE;
 }
 
 bool object_is_device(object_type *o_ptr)
 {
-	switch (o_ptr->tval)
-	{
-	case TV_ROD: case TV_WAND: case TV_STAFF: case TV_SCROLL: case TV_POTION:
-		return TRUE;
-	}
-	return FALSE;
+    switch (o_ptr->tval)
+    {
+    case TV_ROD: case TV_WAND: case TV_STAFF: case TV_SCROLL: case TV_POTION:
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool object_can_activate(object_type *o_ptr)
 {
-	u32b flgs[TR_FLAG_SIZE];
-	object_flags(o_ptr, flgs);
-	return have_flag(flgs, TR_ACTIVATE);
+    u32b flgs[TR_FLAG_SIZE];
+    object_flags(o_ptr, flgs);
+    return have_flag(flgs, TR_ACTIVATE);
 }
 
 /*
@@ -282,13 +282,13 @@ bool object_can_activate(object_type *o_ptr)
  */
 bool object_is_weapon_ammo(object_type *o_ptr)
 {
-	if (TV_MISSILE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEAPON_END) return TRUE;
+    if (TV_MISSILE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEAPON_END) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 bool object_is_bow(object_type *o_ptr)
 {
-	return o_ptr->tval == TV_BOW;
+    return o_ptr->tval == TV_BOW;
 }
 
 /*
@@ -296,9 +296,9 @@ bool object_is_bow(object_type *o_ptr)
  */
 bool object_is_ammo(object_type *o_ptr)
 {
-	if (TV_MISSILE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_MISSILE_END) return TRUE;
+    if (TV_MISSILE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_MISSILE_END) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -307,28 +307,28 @@ bool object_is_ammo(object_type *o_ptr)
  */
 bool object_is_armour(object_type *o_ptr)
 {
-	if (TV_ARMOR_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_ARMOR_END) return TRUE;
+    if (TV_ARMOR_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_ARMOR_END) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 bool object_is_shield(object_type *o_ptr)
 {
-	if (o_ptr->tval == TV_SHIELD || o_ptr->tval == TV_CARD) return TRUE;
-	return FALSE;
+    if (o_ptr->tval == TV_SHIELD || o_ptr->tval == TV_CARD) return TRUE;
+    return FALSE;
 }
 
 bool object_is_body_armour(object_type *o_ptr)
 {
-	switch (o_ptr->tval)
-	{
-	case TV_SOFT_ARMOR:
-	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
-		return TRUE;
-		break;
-	}
-	return FALSE;
+    switch (o_ptr->tval)
+    {
+    case TV_SOFT_ARMOR:
+    case TV_HARD_ARMOR:
+    case TV_DRAG_ARMOR:
+        return TRUE;
+        break;
+    }
+    return FALSE;
 }
 
 
@@ -338,11 +338,11 @@ bool object_is_body_armour(object_type *o_ptr)
 bool enchantment_hack = FALSE;
 bool object_is_weapon_armour_ammo(object_type *o_ptr)
 {
-	if (enchantment_hack && o_ptr->name1 == ART_HEPHAESTUS) return FALSE;
+    if (enchantment_hack && o_ptr->name1 == ART_HEPHAESTUS) return FALSE;
 
-	if (object_is_weapon_ammo(o_ptr) || object_is_armour(o_ptr)) return TRUE;
+    if (object_is_weapon_ammo(o_ptr) || object_is_armour(o_ptr)) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -351,21 +351,21 @@ bool object_is_weapon_armour_ammo(object_type *o_ptr)
  */
 bool object_is_melee_weapon(object_type *o_ptr)
 {
-	if (TV_DIGGING <= o_ptr->tval && o_ptr->tval <= TV_SWORD) return TRUE;
+    if (TV_DIGGING <= o_ptr->tval && o_ptr->tval <= TV_SWORD) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 bool object_is_jewelry(object_type *o_ptr)
 {
-	switch (o_ptr->tval)
-	{
-	case TV_RING:
-	case TV_AMULET:
-		return TRUE;
-	}
+    switch (o_ptr->tval)
+    {
+    case TV_RING:
+    case TV_AMULET:
+        return TRUE;
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 /*
@@ -373,9 +373,9 @@ bool object_is_jewelry(object_type *o_ptr)
  */
 bool object_is_wearable(object_type *o_ptr)
 {
-	if (TV_WEARABLE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEARABLE_END) return TRUE;
+    if (TV_WEARABLE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEARABLE_END) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -384,9 +384,9 @@ bool object_is_wearable(object_type *o_ptr)
  */
 bool object_is_equipment(object_type *o_ptr)
 {
-	if (TV_EQUIP_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_EQUIP_END) return TRUE;
+    if (TV_EQUIP_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_EQUIP_END) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -395,10 +395,10 @@ bool object_is_equipment(object_type *o_ptr)
  */
 bool object_refuse_enchant_weapon(object_type *o_ptr)
 {
-	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DOKUBARI) return TRUE;
-	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) return TRUE;
+    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DOKUBARI) return TRUE;
+    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -407,9 +407,9 @@ bool object_refuse_enchant_weapon(object_type *o_ptr)
  */
 bool object_allow_enchant_weapon(object_type *o_ptr)
 {
-	if (object_is_weapon_ammo(o_ptr) && !object_refuse_enchant_weapon(o_ptr)) return TRUE;
+    if (object_is_weapon_ammo(o_ptr) && !object_refuse_enchant_weapon(o_ptr)) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -418,9 +418,9 @@ bool object_allow_enchant_weapon(object_type *o_ptr)
  */
 bool object_allow_enchant_melee_weapon(object_type *o_ptr)
 {
-	if (object_is_melee_weapon(o_ptr) && !object_refuse_enchant_weapon(o_ptr)) return TRUE;
+    if (object_is_melee_weapon(o_ptr) && !object_refuse_enchant_weapon(o_ptr)) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -429,9 +429,9 @@ bool object_allow_enchant_melee_weapon(object_type *o_ptr)
  */
 bool object_is_smith(object_type *o_ptr)
 {
-	if (object_is_weapon_armour_ammo(o_ptr) && o_ptr->xtra3) return TRUE;
+    if (object_is_weapon_armour_ammo(o_ptr) && o_ptr->xtra3) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -440,9 +440,9 @@ bool object_is_smith(object_type *o_ptr)
  */
 bool object_is_artifact(object_type *o_ptr)
 {
-	if (object_is_fixed_artifact(o_ptr) || o_ptr->art_name) return TRUE;
+    if (object_is_fixed_artifact(o_ptr) || o_ptr->art_name) return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -451,10 +451,10 @@ bool object_is_artifact(object_type *o_ptr)
  */
 bool object_is_nameless(object_type *o_ptr)
 {
-	if (!object_is_artifact(o_ptr) && !object_is_ego(o_ptr) && !object_is_smith(o_ptr))
-		return TRUE;
+    if (!object_is_artifact(o_ptr) && !object_is_ego(o_ptr) && !object_is_smith(o_ptr))
+        return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -463,9 +463,9 @@ bool object_is_nameless(object_type *o_ptr)
  */
 bool object_allow_two_hands_wielding(object_type *o_ptr)
 {
-	if (object_is_melee_weapon(o_ptr) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM))) return TRUE;
+    if (object_is_melee_weapon(o_ptr) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM))) return TRUE;
 
-	/* Hack: Shield Mastery technique */
-	if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && object_is_shield(o_ptr)) return TRUE;
-	return FALSE;
+    /* Hack: Shield Mastery technique */
+    if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && object_is_shield(o_ptr)) return TRUE;
+    return FALSE;
 }

@@ -3,38 +3,29 @@
 # Created by Topi Ylinen
 
 # Name
-Q:$12:N:Node of Nature
-Q:12:N:自然魔術の特異点
+Q:12:N:Node of Nature
 
 # Definition
-Q:$12:Q:6:0:0:0:65:0:0:0:6
 Q:12:Q:6:0:0:0:65:0:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST12 2]
-Q:$12:T:The Wizards of Nature have discovered a magical Node of 
-Q:$12:T:Nature in a nearby forest. You must seek the Node and 
-Q:$12:T:dispatch its guardians so that the Tower of Nature can 
-Q:$12:T:claim the mystical energies of the Node.
-Q:12:T:自然魔法の賢者たちが、近くの森に自然エネルギーの特異点の存在を確認
-Q:12:T:した。我々自然魔法の塔がその魔力の所有権を得られるように、おまえは
-Q:12:T:その特異点の場所を見つけてそこに巣食うモンスターを片づけてくるのだ。
+Q:12:T:The Wizards of Nature have discovered a magical Node of 
+Q:12:T:Nature in a nearby forest. You must seek the Node and 
+Q:12:T:dispatch its guardians so that the Tower of Nature can 
+Q:12:T:claim the mystical energies of the Node.
 ?:1
 
 # Description for quest reward
 ?:[EQU $QUEST12 3]
-Q:$12:T:You have done well. A powerful spellbook awaits you outside.
-Q:12:T:よくやった。強力な魔法書を外に置いておいた。
+Q:12:T:You have done well. A powerful spellbook awaits you outside.
 ?:1
 
 # Description for quest failed
 ?:[EQU $QUEST12 5]
-Q:$12:T:Begone, incompetent fool! The dimensional energies of the 
-Q:$12:T:mystic Node have faded away and are lost forever! You had
-Q:$12:T:your chance and botched the job. 
-Q:12:T:立ち去れ、無能な馬鹿者め！魔法の特異点の次元エネルギーは
-Q:12:T:消え去って永遠に失われたのだぞ！お前はせっかくのチャンスを
-Q:12:T:棒にふったのだ。
+Q:12:T:Begone, incompetent fool! The dimensional energies of the 
+Q:12:T:mystic Node have faded away and are lost forever! You had
+Q:12:T:your chance and botched the job. 
 ?:1
 
 # Grass

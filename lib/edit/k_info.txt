@@ -64,301 +64,239 @@
 
 V:2.8.1
 
-
 ##### Something special #####
 
-N:0:何か
-E:something
+N:0:something
 G:&:w
-
 
 ##### Mushrooms #####
 
-N:1:盲目:青い
-E:Blindness:Blue
+N:1:Blindness:Blue
 G:,:b
 I:80:1:500
 W:5:0:30:1:0
 A:5/1
 F:STACK
-D:$It blinds you when you eat it.
-D:それは食べると盲目になる。
+D:It blinds you when you eat it.
 
-N:2:恐怖:黒い
-E:Paranoia:Black
+N:2:Paranoia:Black
 G:,:D
 I:80:2:500
 W:5:0:30:1:0
 A:5/1
 F:STACK
-D:$It scares you when you eat it.
-D:それは食べると恐怖する。
+D:It scares you when you eat it.
 
-N:3:混乱:黒斑の
-E:Confusion:Black Spotted
+N:3:Confusion:Black Spotted
 G:,:D
 I:80:3:500
 W:5:0:30:1:0
 A:5/1
 F:STACK
-D:$It confuses you when you eat it.
-D:それは食べると混乱する。
+D:It confuses you when you eat it.
 
-N:4:幻覚:茶色の
-E:Hallucination:Brown
+N:4:Hallucination:Brown
 G:,:u
 I:80:4:500
 W:10:0:30:1:0
 A:10/1
 F:STACK
-D:$It makes you hallucinate when you eat it.
-D:それは食べると幻覚に侵される。
+D:It makes you hallucinate when you eat it.
 
-N:5:毒消し:群青の
-E:Cure Poison:Dark Blue
+N:5:Cure Poison:Dark Blue
 G:,:b
 I:80:12:500
 W:10:0:30:1:60
 A:10/1
 F:STACK
-D:$It cures poison when you eat it.
-D:それは食べると毒を癒す。
+D:It cures poison when you eat it.
 
-N:6:盲目治癒:深緑の
-E:Cure Blindness:Dark Green
+N:6:Cure Blindness:Dark Green
 G:,:g
 I:80:13:500
 W:10:0:30:1:50
 A:10/1
 F:STACK
-D:$It cures blindness when you eat it.
-D:それは食べると盲目を癒す。
+D:It cures blindness when you eat it.
 
-N:7:恐怖除去:紅色の
-E:Cure Paranoia:Dark Red
+N:7:Cure Paranoia:Dark Red
 G:,:r
 I:80:14:500
 W:10:0:0:1:25
 A:10/1
 F:STACK
-D:$It removes fear when you eat it.
-D:それは食べると恐怖を取り除く。
+D:It removes fear when you eat it.
 
-N:8:混乱脱出:黄色い
-E:Cure Confusion:Yellow
+N:8:Cure Confusion:Yellow
 G:,:y
 I:80:15:500
 W:10:0:40:1:50
 A:10/1
 F:STACK
-D:$It cures confusion when you eat it.
-D:それは食べると混乱から立ち直る。
+D:It cures confusion when you eat it.
 
-N:9:脆弱:苔むした
-E:Weakness:Furry
+N:9:Weakness:Furry
 G:,:W
 I:80:6:500
 W:10:0:30:1:0
 A:10/1
 F:STACK
 P:0:5d5:0:0:0
-D:$You take 6d6 damage and it decreases your strength when you eat it.
-D:それは食べると6d6のダメージを受け、腕力の現在値が下がる。
+D:You take 6d6 damage and it decreases your strength when you eat it.
 
-N:10:病弱:緑の
-E:Unhealth:Green
+N:10:Unhealth:Green
 G:,:g
 I:80:10:500
 W:15:0:40:1:50
 A:15/1
 P:0:10d10:0:0:0
 F:STACK
-D:$You take 10d10 damage and it decreases your constitution when you eat it.
-D:それは食べると10d10のダメージを受け、耐久力の現在値が下がる。
+D:You take 10d10 damage and it decreases your constitution when you eat it.
 
-N:11:耐久力復活:グレーの
-E:Restore Constitution:Grey
+N:11:Restore Constitution:Grey
 G:,:s
 I:80:18:500
 W:20:0:0:1:350
 A:20/1
 F:STACK
-D:$It restores your constitution when you eat it.
-D:それは食べると耐久力が回復する。
+D:It restores your constitution when you eat it.
 
-N:12:全復活:空色の
-E:Restoring:Light Blue
+N:12:Restoring:Light Blue
 G:,:B
 I:80:19:500
 W:20:0:0:1:1000
 A:20/8:30/4:40/1
-D:$It restores all your stats when you eat it.
-D:それは食べると全ステータスが回復する。
+D:It restores all your stats when you eat it.
 
-N:13:無知:黄緑の
-E:Stupidity:Light Green
+N:13:Stupidity:Light Green
 G:,:G
 I:80:8:500
 W:15:0:30:1:0
 A:15/1
 F:STACK
-D:$You take 8d8 damage and it decreases your intelligence when you eat it.
-D:それは食べると8d8のダメージを受け、知能の現在値が下がる。
+D:You take 8d8 damage and it decreases your intelligence when you eat it.
 
-N:14:愚鈍:スミレ色の
-E:Naivety:Violet
+N:14:Naivety:Violet
 G:,:v
 I:80:9:500
 W:15:0:30:1:0
 A:15/1
 F:STACK
-D:$You take 8d8 damage and it decreases your wisdom when you eat it.
-D:それは食べると8d8のダメージを受け、賢さの現在値が下がる。
+D:You take 8d8 damage and it decreases your wisdom when you eat it.
 
-N:15:毒:赤い
-E:Poison:Red
+N:15:Poison:Red
 G:,:r
 I:80:0:500
 W:5:0:30:1:0
 A:5/1:5/1
 P:0:4d4:0:0:0
 F:STACK
-D:$It poisons you when you eat it.
-D:それは食べると毒に冒される。
+D:It poisons you when you eat it.
 
-N:16:病気:ねばねばした
-E:Sickness:Slimy
+N:16:Sickness:Slimy
 G:,:s
 I:80:7:500
 W:10:0:30:1:0
 A:10/1
 P:0:4d4:0:0:0
 F:STACK
-D:$You take 6d6 damage and it decreases your constitution when you eat it.
-D:それは食べると6d6のダメージを受け、耐久力の現在値が下がる。
+D:You take 6d6 damage and it decreases your constitution when you eat it.
 
-N:17:麻痺:黄褐色の
-E:Paralysis:Tan
+N:17:Paralysis:Tan
 G:,:U
 I:80:5:500
 W:20:0:40:1:0
 A:20/1
 F:STACK
-D:$It paralyzes you when you eat it.
-D:それは食べると麻痺する。
+D:It paralyzes you when you eat it.
 
-N:18:腕力復活:白い
-E:Restore Strength:White
+N:18:Restore Strength:White
 G:,:w
 I:80:17:500
 W:20:0:0:1:350
 A:20/1
 F:STACK
-D:$It restores your strength when you eat it.
-D:それは食べると腕力が回復する。
+D:It restores your strength when you eat it.
 
-N:19:疾病:白斑の
-E:Disease:White Spotted
+N:19:Disease:White Spotted
 G:,:w
 I:80:11:500
 W:20:0:40:1:50
 A:20/1
 P:0:10d10:0:0:0
 F:STACK
-D:$You take 10d10 damage and it decreases your strength when you eat it.
-D:それは食べると10d10のダメージを受け、腕力の現在値が下がる。
+D:You take 10d10 damage and it decreases your strength when you eat it.
 
-N:20:重傷の治癒:しわしわの
-E:Cure Serious Wounds:Wrinkled
+N:20:Cure Serious Wounds:Wrinkled
 G:,:u
 I:80:16:500
 W:15:0:0:2:75
 A:15/1
 F:STACK
-D:$It heals you a bit when you eat it.
-D:それは食べると体力が4d8回復する。
+D:It heals you a bit when you eat it.
 
 ##### Normal Food #####
 
-N:21:食料
-E:& Ration~ of Food
+N:21:& Ration~ of Food
 G:,:U
 I:80:35:5000
 W:0:0:0:10:3
 A:0/1:5/1:10/1:20/1
 F:STACK
-D:$This nutritious but fairly bland food is 
-D:$familiar to anyone contemplating long journeys.
-D:栄養はあるが味気ないこの食料は長旅を考える冒険者に良く合う。
+D:This nutritious but fairly bland food is 
+D:familiar to anyone contemplating long journeys.
 
-N:22:ビスケット
-E:& Hard Biscuit~
+N:22:& Hard Biscuit~
 G:,:U
 I:80:32:500
 W:0:0:30:2:1
 F:STACK
-D:$Twice-cooked for good keeping qualities, this lump of bread is as hard as a 
-D:$rock and about as tasty.
-D:日持ちを良くする為に二度焼きした乾パンの一種だ。
-D:岩のように固く、味もだいたいその程度。
+D:Twice-cooked for good keeping qualities, this lump of bread is as hard as a 
+D:rock and about as tasty.
 
 #"鹿肉"は誤訳
-N:23:乾し肉
-E:& Strip~ of Venison
+N:23:& Strip~ of Venison
 G:,:u
 I:80:33:1500
 W:0:0:30:2:2
 F:STACK
-D:$A strip of jerked beef that seems never to spoil.
-D:良く乾燥させた肉。決して腐る事が無さそうだ。
+D:A strip of jerked beef that seems never to spoil.
 
-N:24:スライムモルド
-E:& Slime Mold~
+N:24:& Slime Mold~
 G:,:g
 I:80:36:3000
 W:1:0:20:5:2
 A:1/1
 F:STACK
-D:$An utterly hideous fungal growth.  It is strangely appealing...
-D:ぞっとするような菌類の固まりだ。なぜか食欲を刺激する…。
+D:An utterly hideous fungal growth.  It is strangely appealing...
 
 #waybread now fully satisfies the player, instead of increasing the food count.
-N:25:エルフの行糧
-E:& Piece~ of Elvish Waybread
+N:25:& Piece~ of Elvish Waybread
 G:,:B
 I:80:37:7500
 W:5:0:0:3:30
 A:5/1:10/1
 F:STACK
-D:$Small golden-brown wafers wrapped in silven leaves.  Made with elvish art, 
-D:$it sustains life where nothing else can.
-D:銀色の葉に包まれた小さな山吹色の薄焼き菓子の束だ。エルフの技で作られ、
-D:その滋養は他に食べ物が何も無くとも数週間もの間生命を維持する程である。
+D:Small golden-brown wafers wrapped in silven leaves.  Made with elvish art, 
+D:it sustains life where nothing else can.
 
-N:26:高級エール
-E:& Pint~ of Fine Ale
+N:26:& Pint~ of Fine Ale
 G:,:y
 I:80:38:500
 W:0:0:30:5:1
 F:STACK
-D:$Made from the barley of Eriador, and brewed to golden perfection.
-D:エリアドールの大麦を醸造し、金色になるまで熟成させたものだ。
+D:Made from the barley of Eriador, and brewed to golden perfection.
 
-N:27:高級ワイン
-E:& Pint~ of Fine Wine
+N:27:& Pint~ of Fine Wine
 G:,:r
 I:80:39:1000
 W:0:0:30:10:2
 F:STACK
-D:$A heady wine, almost as good as that served at the Green Dragon at Bywater.
-D:ベイウォーターの緑竜邸で出るのと同じくらい質の良い、
-D:アルコール度の高いワインだ。
+D:A heady wine, almost as good as that served at the Green Dragon at Bywater.
 
 ##### Extra digger #####
 
-#JZ#
-N:28:戦闘用つるはし
-E:& Mattock~
+N:28:& Mattock~
 G:\:D
 I:20:7:2
 W:50:0:0:250:700
@@ -368,9 +306,7 @@ F:SHOW_MODS | TUNNEL
 
 ##### Edged Weapons #####
 
-#JZ#
-N:29:野太刀
-E:& No-dachi~
+N:29:& No-dachi~
 G:|:W
 I:23:27:0
 W:35:0:0:190:579
@@ -378,8 +314,7 @@ A:35/3
 P:0:5d4:0:0:0
 F:SHOW_MODS
 
-N:30:折れたダガー
-E:& Broken Dagger~
+N:30:& Broken Dagger~
 G:|:D
 I:23:1:0
 W:0:0:0:5:1
@@ -387,31 +322,26 @@ A:0/1
 P:0:1d1:-2:-4:0
 F:SHOW_MODS
 
-N:31:バスタード・ソード
-E:& Bastard Sword~
+N:31:& Bastard Sword~
 G:|:W
 I:23:21:0
 W:15:0:0:140:350
 A:15/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
-D:$Also known as the hand-and-a-half blade.  A larger-than-normal straight-
-D:$sided sword with two cutting edges.
-D:片手半剣とも呼ばれる。通常のロングソードよりも長い両刃の直刀だ。
+D:Also known as the hand-and-a-half blade.  A larger-than-normal straight-
+D:sided sword with two cutting edges.
 
-N:32:シミター
-E:& Scimitar~
+N:32:& Scimitar~
 G:|:W
 I:23:18:0
 W:10:0:0:130:250
 A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
-D:$A single-edged slashing sword with a blade like a crescent.
-D:斬る用途に特化した三日月のような刀身を持つ片刃の剣だ。
+D:A single-edged slashing sword with a blade like a crescent.
 
-N:33:タルワール
-E:& Tulwar~
+N:33:& Tulwar~
 G:|:W
 I:23:15:0
 W:5:0:0:100:200
@@ -419,287 +349,236 @@ A:5/1
 P:0:2d4:0:0:0
 F:SHOW_MODS | RIDING
 
-N:34:ブロード・ソード
-E:& Broad Sword~
+N:34:& Broad Sword~
 G:|:W
 I:23:16:0
 W:10:0:0:150:255
 A:10/1:15/1
 P:0:2d5:0:0:0
 F:SHOW_MODS | RIDING
-D:$A heavy, double-edged sword with a strong grip.
-D:重く広い刀身と頑丈な柄を持った両刃の直刀だ。
+D:A heavy, double-edged sword with a strong grip.
 
-N:35:ショート・ソード
-E:& Short Sword~
+N:35:& Short Sword~
 G:|:W
 I:23:10:0
 W:5:0:0:80:90
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
-D:$A short thrusting sword.
-D:主に突く用途に用いる短い剣だ。
+D:A short thrusting sword.
 
-N:36:カオス・ブレード
-E:& Blade~ of Chaos
+N:36:& Blade~ of Chaos
 G:|:v
 I:23:30:0
 W:70:0:0:180:4000
 A:70/8
 P:0:6d5:0:0:0
 F:RES_CHAOS | SHOW_MODS
-D:$This inconstant weapon revels in disorder, hacking and slashing your foes 
-D:$with bloodthirsty glee.
-D:千変万化の姿を持つこの武器は混沌の力によって敵を切り刻み、
-D:殺戮にふける事に残忍な喜びを感じている。
+D:This inconstant weapon revels in disorder, hacking and slashing your foes 
+D:with bloodthirsty glee.
 
-N:37:グレート・ソード
-E:& Two-Handed Sword~
+N:37:& Two-Handed Sword~
 G:|:W
 I:23:25:0
 W:30:0:0:200:775
 A:30/1:40/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
-D:$A great, double-edged broadsword which few can wield in one hand.
-D:非常に大きな両刃の直刀で、これを片手で持てる者はほとんどいない。
+D:A great, double-edged broadsword which few can wield in one hand.
 
-N:38:マン・ゴーシュ
-E:& Main Gauche~
+N:38:& Main Gauche~
 G:|:W
 I:23:5:0
 W:3:0:0:30:25
 A:3/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
-D:$A short thrusting blade with a large guard, primarily used in duels.
-D:拳を防御する大きな鍔を持つ短い剣。主に決闘で防御用の短剣として用いられる。
+D:A short thrusting blade with a large guard, primarily used in duels.
 
-N:39:カットラス
-E:& Cutlass~
+N:39:& Cutlass~
 G:|:W
 I:23:12:0
 W:5:0:0:110:85
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
-D:$A large, curved chopper with a basket hilt, well known to seamen.
-D:大きな曲った刀身と手をカバーする網状の柄を備えた剣だ。船員に良く用いられる。
+D:A large, curved chopper with a basket hilt, well known to seamen.
 
-N:40:首切りソード
-E:& Executioner's Sword~
+N:40:& Executioner's Sword~
 G:|:r
 I:23:28:0
 W:40:0:0:260:850
 A:40/1
 P:0:4d5:0:0:0
 F:SHOW_MODS
-D:$A giant, curved blade designed to cleave the head cleanly from the 
-D:$body.
-D:胴体から頭を綺麗に切り落とす為に作られた、巨大な曲った刃を持つ剣だ。
+D:A giant, curved blade designed to cleave the head cleanly from the 
+D:body.
 
-N:41:カタナ
-E:& Katana~
+N:41:& Katana~
 G:|:W
 I:23:20:0
 W:20:0:0:120:400
 A:20/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
-D:$A slightly curved long-handled slashing sword with a single-edged 
-D:$blade and a chisel tip.
-D:長い柄と微妙に曲った刃を持つ切れ味に優れた片刃の剣だ。
+D:A slightly curved long-handled slashing sword with a single-edged 
+D:blade and a chisel tip.
 
-N:42:ロング・ソード
-E:& Long Sword~
+N:42:& Long Sword~
 G:|:W
 I:23:17:0
 W:10:0:0:130:300
 A:10/1:20/1
 P:0:2d5:0:0:0
 F:SHOW_MODS | RIDING
-D:$A long, straight, two-edged blade, with two hand guards projecting out from 
-D:$the hilt to form a perfect cross.
-D:十字の形に2本の柄が付いた長い両刃の直刀だ。
+D:A long, straight, two-edged blade, with two hand guards projecting out from 
+D:the hilt to form a perfect cross.
 
-N:43:ダガー
-E:& Dagger~
+N:43:& Dagger~
 G:|:W
 I:23:4:0
 W:0:0:0:12:10
 A:0/1:5/1:10/1:20/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
-D:$A two-edged knife with a sharp point.
-D:先端が鋭い両刃の短剣だ。
+D:A two-edged knife with a sharp point.
 
-N:44:レイピア
-E:& Rapier~
+N:44:& Rapier~
 G:|:W
 I:23:7:0
 W:5:0:0:40:42
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
-D:$A long, thin thrusting blade, mainly used in duels.
-D:突きに用いる長く細い刀身を持つ剣。主に決闘に用いられる。
+D:A long, thin thrusting blade, mainly used in duels.
 
-N:45:サーベル
-E:& Sabre~
+N:45:& Sabre~
 G:|:W
 I:23:11:0
 W:5:0:0:50:50
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS | RIDING
-D:$A light, somewhat curved blade that can be used to thrust or slash; familiar 
-D:$to horseman and duelists alike.
-D:軽い少し曲った刃を持ち、切る事も突く事もできる。馬上及び決闘においてよく使われる。
+D:A light, somewhat curved blade that can be used to thrust or slash; familiar 
+D:to horseman and duelists alike.
 
-N:46:スモール・ソード
-E:& Small Sword~
+N:46:& Small Sword~
 G:|:W
 I:23:8:0
 W:5:0:0:75:48
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
-D:$A smaller version of the longsword, perfectly sized for Hobbits.
-D:ロングソードを少し短くしたような剣だ。ホビットにぴったりのサイズだ。
+D:A smaller version of the longsword, perfectly sized for Hobbits.
 
-N:47:折れた剣
-E:& Broken Sword~
+N:47:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:0:30:2
 A:0/1
 P:0:1d2:-2:-4:0
 F:SHOW_MODS
-D:$Above the hilt, a foot of steel rises, ending in a jagged edge.
-D:柄の上でギザギザに折れている。
+D:Above the hilt, a foot of steel rises, ending in a jagged edge.
 
 ##### Hafted Weapons #####
 
-N:48:鎖つき鉄球
-E:& Ball-and-Chain~
+N:48:& Ball-and-Chain~
 G:\:D
 I:21:6:0
 W:20:0:0:150:200
 A:20/1
 P:0:2d4:0:0:0
 F:SHOW_MODS | RIDING
-D:$A weighty iron ball, suspended by a chain from a sturdy oaken handle.
-D:頑丈な木製のハンドルに、重い鉄のボールが鎖で繋っている。
+D:A weighty iron ball, suspended by a chain from a sturdy oaken handle.
 
-N:49:ムチ
-E:& Whip~
+N:49:& Whip~
 G:\:D
 I:21:2:0
 W:3:0:0:30:30
 A:3/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
-D:$A heavy whip, this thick coil is thrown from the shoulder and can 
-D:$knock down a large man.
-D:重い鞭だ。きつく巻いたこの鞭を肩の上から振り下ろすと大の男でも打ち倒す事ができる。
+D:A heavy whip, this thick coil is thrown from the shoulder and can 
+D:knock down a large man.
 
-N:50:フレイル
-E:& Flail~
+N:50:& Flail~
 G:\:D
 I:21:13:0
 W:10:0:0:150:353
 A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | RIDING
-D:$Two heavy bars of wood connected by a short link of chain, capable of 
-D:$delivering crushing blows.
-D:2本の重い木製の棒を短い鎖で繋げた物だ。対象を叩き潰す為に用いる。
+D:Two heavy bars of wood connected by a short link of chain, capable of 
+D:delivering crushing blows.
 
-N:51:ヘヴィ・フレイル
-E:& Two-Handed Flail~
+N:51:& Two-Handed Flail~
 G:\:y
 I:21:18:0
 W:45:0:0:280:590
 A:45/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
-D:$Two great bars of wood connected by a massive chain, needing two hands 
-D:$to properly wield.
-D:2本の非常に大きな木製の棒を重い鎖で継いである。うまく用いるためには両手が必要だ。
+D:Two great bars of wood connected by a massive chain, needing two hands 
+D:to properly wield.
 
-N:52:モーニング・スター
-E:& Morning Star~
+N:52:& Morning Star~
 G:\:D
 I:21:12:0
 W:10:0:0:150:396
 A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
-D:$A war club with an spiked iron ball on the head.
-D:星型のトゲが突き出た鉄球が先端に付いた棍棒だ。
+D:A war club with an spiked iron ball on the head.
 
-N:53:メイス
-E:& Mace~
+N:53:& Mace~
 G:\:D
 I:21:5:0
 W:5:0:0:120:130
 A:5/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
-D:$A war club with an iron head, usually flanged.
-D:鉄球、または鍔付きの多面体形の鉄塊が先端に付いた棍棒だ。
+D:A war club with an iron head, usually flanged.
 
-N:54:クォータースタッフ
-E:& Quarterstaff~
+N:54:& Quarterstaff~
 G:\:U
 I:21:3:0
 W:10:0:0:150:200
 A:10/1
 P:0:1d9:0:0:0
 F:SHOW_MODS
-D:$Six feet of oak which can be wielded in both hands to give a drubbing or 
-D:$block one.
-D:2メートル程度の長さの木製の杖だ。
-D:両手で持って打ち付けたり攻撃を受け止める為に用いられる。
+D:Six feet of oak which can be wielded in both hands to give a drubbing or 
+D:block one.
 
-N:55:ウォー・ハンマー
-E:& War Hammer~
+N:55:& War Hammer~
 G:\:D
 I:21:8:0
 W:5:0:0:120:225
 A:5/1
 P:0:3d3:0:0:0
 F:SHOW_MODS | RIDING
-D:$A mallet with a tapered head and a long handle.
-D:長いハンドルがあり、先の尖った槌が先端から直角に付き出た形をしている。
+D:A mallet with a tapered head and a long handle.
 
-N:56:鉛詰めメイス
-E:& Lead-Filled Mace~
+N:56:& Lead-Filled Mace~
 G:\:D
 I:21:15:0
 W:15:0:0:180:502
 A:15/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
-D:$A heavy war club topped with a mass of lead-filled steel, capable of 
-D:$landing crushing blows.
-D:重い棍棒の先に鉛を詰めた鋼鉄の重りを繋げてある。対象を叩き潰す為に用いる。
+D:A heavy war club topped with a mass of lead-filled steel, capable of 
+D:landing crushing blows.
 
-N:57:粉砕のメイス
-E:& Mace~ of Disruption
+N:57:& Mace~ of Disruption
 G:\:v
 I:21:20:0
 W:80:0:0:400:4300
 A:80/8
 P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS
-D:$A giant's weapon, enchanted with shattering power that breaks bones, bodies, 
-D:$and spirit.
-D:巨人の武器であり、相手の骨を、体を、そして精神をも粉砕する魔法が掛けられている。
+D:A giant's weapon, enchanted with shattering power that breaks bones, bodies, 
+D:and spirit.
 
-N:58:ルツェルン・ハンマー
-E:& Lucerne Hammer~
+N:58:& Lucerne Hammer~
 G:/:B
 I:22:12:0
 W:10:0:0:120:376
@@ -709,45 +588,36 @@ F:SHOW_MODS
 
 ##### Polearms #####
 
-N:59:ビークド・アックス
-E:& Beaked Axe~
+N:59:& Beaked Axe~
 G:/:s
 I:22:10:0
 W:15:0:0:120:408
 A:15/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
-D:$A narrow axe head opposed by a crow's beak, mounted on an oaken shaft.
-D:木製の柄に、背が烏のクチバシを模した突起になった形の幅が狭い斧が付いている。
+D:A narrow axe head opposed by a crow's beak, mounted on an oaken shaft.
 
-N:60:グレイブ
-E:& Glaive~
+N:60:& Glaive~
 G:/:s
 I:22:13:0
 W:20:0:0:190:363
 A:20/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | RIDING
-D:$A reinforced wooden pole eight feet long, topped by a massive knife blade 
-D:$that can can be used to thrust or chop.
-D:2.5メートル程の補強された木製の棒の先端に大きなナイフの刃が真っ直に付いている。
-D:切り裂く事も付き刺す事もできる。
+D:A reinforced wooden pole eight feet long, topped by a massive knife blade 
+D:that can can be used to thrust or chop.
 
-N:61:ハルベルト
-E:& Halberd~
+N:61:& Halberd~
 G:/:s
 I:22:15:0
 W:25:0:0:190:430
 A:25/1
 P:0:3d5:0:0:0
 F:SHOW_MODS
-D:$The most successful of the polearms, the halberd has a long haft mounted 
-D:$with a heavy axe blade and opposing spike, and topped by a thrusting spine.
-D:長い竿に重い斧の刃とその反対側にスパイクが付き、さらに竿の先端に付き刺す為の
-D:穂先が付いている。最も完成されたタイプの竿状武器である。
+D:The most successful of the polearms, the halberd has a long haft mounted 
+D:with a heavy axe blade and opposing spike, and topped by a thrusting spine.
 
-N:62:オウル・パイク
-E:& Awl-Pike~
+N:62:& Awl-Pike~
 G:/:s
 I:22:4:0
 W:10:0:0:160:340
@@ -755,79 +625,62 @@ A:10/1
 P:0:1d8:0:0:0
 F:SHOW_MODS
 
-N:63:パイク
-E:& Pike~
+N:63:& Pike~
 G:/:s
 I:22:8:0
 W:15:0:0:160:358
 A:15/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
-D:$A long, heavy spear with an iron head and reinforced shaft.
-D:補強された柄に鉄の穂先が付いた、非常に長く重い槍だ。
+D:A long, heavy spear with an iron head and reinforced shaft.
 
-N:64:スピア
-E:& Spear~
+N:64:& Spear~
 G:/:s
 I:22:2:0
 W:5:0:0:50:36
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS | RIDING
-D:$The basic polearm, with a double-edged knife mounted on a light shaft.  
-D:$This weapon can be thrown effectively.
-D:最も基本的な竿状武器だ。軽く長い竿の先に尖った両刃の穂先が付いていて、
-D:突き刺すのに適している。
+D:The basic polearm, with a double-edged knife mounted on a light shaft.  
+D:This weapon can be thrown effectively.
 
-N:65:トライデント
-E:& Trident~
+N:65:& Trident~
 G:/:y
 I:22:5:0
 W:5:0:0:70:120
 A:5/1
 P:0:1d8:0:0:0
 F:SHOW_MODS | RIDING
-D:$A three-pronged spear, originally for catching fish.
-D:三又の槍で、元来は魚を捕るのに用いられていた。
+D:A three-pronged spear, originally for catching fish.
 
-N:66:ランス
-E:& Lance~
+N:66:& Lance~
 G:/:s
 I:22:20:0
 W:10:0:0:300:230
 A:10/1
 P:0:2d8:0:0:0
 F:SHOW_MODS | RIDING
-D:大きく長い円錐形の穂先を持った槍だ。
-D:馬上で構えて突撃する為に作られている。
 
-N:67:グレート・アックス
-E:& Great Axe~
+N:67:& Great Axe~
 G:/:s
 I:22:25:0
 W:40:0:0:230:500
 A:40/1
 P:0:4d4:0:0:0
 F:SHOW_MODS
-D:$An enormous two-handed battle axe, carried by Dwarven champions, who 
-D:$compete to see who can cleave the most orc heads.
-D:巨大な両手持ち用の戦斧だ。オークの首を落とした数を競うドワーフの戦士が
-D:愛用している。
+D:An enormous two-handed battle axe, carried by Dwarven champions, who 
+D:compete to see who can cleave the most orc heads.
 
-
-N:68:バトル・アックス
-E:& Battle Axe~
+N:68:& Battle Axe~
 G:/:s
 I:22:22:0
 W:15:0:0:170:334
 A:15/1
 P:0:2d8:0:0:0
 F:SHOW_MODS
-D:$A double-bladed axe.  Very popular among Dwarves.
-D:幅広の両刃の斧だ。ドワーフによく用いられる。
+D:A double-bladed axe.  Very popular among Dwarves.
 
-N:69:ロッホアーバー・アックス
-E:& Lochaber Axe~
+N:69:& Lochaber Axe~
 G:/:D
 I:22:28:0
 W:45:0:0:250:750
@@ -835,80 +688,64 @@ A:45/1
 P:0:3d8:0:0:0
 F:SHOW_MODS
 
-N:70:ブロード・アックス
-E:& Broad Axe~
+N:70:& Broad Axe~
 G:/:s
 I:22:11:0
 W:15:0:0:130:304
 A:15/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
-D:$A simple, single-bladed war axe capable of chopping though limbs or armour.
-D:単純な作りの片刃の戦斧で、対象の胴体や鎧を切断する威力がある。
+D:A simple, single-bladed war axe capable of chopping though limbs or armour.
 
-N:71:大鎌
-E:& Scythe~
+N:71:& Scythe~
 G:/:s
 I:22:17:0
 W:45:0:0:250:800
 A:45/1
 P:0:5d3:0:0:0
 F:SHOW_MODS
-D:$The long crescent blade stands out from the handle of this polearm, and 
-D:$it is swung with two hands to harvest grain or blood.
-D:長い三日月型の刃が長い柄の先端に突けられている。
-D:両手に持って穀物、または生命を苅り取る為に用いられる…。
+D:The long crescent blade stands out from the handle of this polearm, and 
+D:it is swung with two hands to harvest grain or blood.
 
-N:72:切り裂きの大鎌
-E:& Scythe~ of Slicing
+N:72:& Scythe~ of Slicing
 G:/:r
 I:22:30:0
 W:60:0:0:250:3500
 A:60/4
 P:0:8d4:0:0:0
 F:SHOW_MODS | RIDING
-D:$A reaper's weapon, the long blade almost hums in anticipation of the 
-D:$blood it will spill.
-D:死神の武器である。その長い刃は流血の期待に歓喜の声を上げているかのようだ。
-
+D:A reaper's weapon, the long blade almost hums in anticipation of the 
+D:blood it will spill.
 
 ##### Bows, Crossbows, Slings #####
 
-N:73:ショート・ボウ
-E:& Short Bow~
+N:73:& Short Bow~
 G:}:U
 I:19:12:0
 W:30:0:0:30:400
 A:30/2:40/2:60/2:80/2:90/2
 F:SHOW_MODS
-D:$The traditional hunter's weapon, this light bow is easily drawn.
-D:伝統的に狩人に用いられる武器だ。この軽い弓は簡単に引く事ができる。
+D:The traditional hunter's weapon, this light bow is easily drawn.
 
-N:74:ロング・ボウ
-E:& Long Bow~
+N:74:& Long Bow~
 G:}:U
 I:19:13:0
 W:30:0:0:40:400
 A:30/2:40/2:60/2:80/2:90/2
 F:SHOW_MODS
-D:$As tall as a man, the longbow can drive an arrow through the heaviest 
-D:$armour.
-D:人の身長程の長さの弓だ。厚い鉄製の鎧でも貫通する程の威力を持つ。
+D:As tall as a man, the longbow can drive an arrow through the heaviest 
+D:armour.
 
-N:75:ライト・クロスボウ
-E:& Light Crossbow~
+N:75:& Light Crossbow~
 G:}:s
 I:19:23:0
 W:30:0:0:110:500
 A:30/2:40/2:60/2:80/2
 F:SHOW_MODS
-D:$A mechanical bow made of wood, it is cocked to augment the strength of 
-D:$its wielder.
-D:鋼鉄製の弦をあらかじめ引いておき、機械式の引き金を引くだけで矢を発射
-D:する事ができる。ショート・ボウやロング・ボウに比べて扱いが簡単な武器だ。
+D:A mechanical bow made of wood, it is cocked to augment the strength of 
+D:its wielder.
 
-N:76:ヘヴィ・クロスボウ
-E:& Heavy Crossbow~
+N:76:& Heavy Crossbow~
 G:}:s
 I:19:24:0
 W:30:0:0:200:500
@@ -917,28 +754,19 @@ F:SHOW_MODS
 # Not all heavy crossbow is the arbalest with a crank!
 #D:$The arbalest is so powerful it has to be reinforced with metal and 
 #D:$requires a crank to be cocked.
-D:鋼鉄製の弦をあらかじめ引いておき、機械式の引き金を引くだけで矢を発射
-D:する事ができる。ショート・ボウやロング・ボウに比べて扱いが簡単な武器だ。
-D:ヘヴィ・クロスボウはライト・クロスボウに比べて威力は強いが、
-D:弦を引くのに長い時間がかかってしまう。
 
-N:77:スリング
-E:& Sling~
+N:77:& Sling~
 G:}:u
 I:19:2:0
 W:1:0:0:5:5
 A:1/1:10/1:20/1:30/1
 F:SHOW_MODS
-D:$A loop of leather and cords able to hurl stones or shot with tremendous 
-D:$velocity.
-D:長い紐の中間にある革製の石受け部分に石を包み、これを振り回す勢いで
-D:石を飛ばす武器だ。原始的な構造だが威力はある。
-
+D:A loop of leather and cords able to hurl stones or shot with tremendous 
+D:velocity.
 
 ##### Missiles #####
 
-N:78:矢
-E:& Arrow~
+N:78:& Arrow~
 G:{:U
 I:17:1:0
 W:3:0:0:2:1
@@ -946,11 +774,9 @@ A:3/1:15/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 F:STACK
-D:$A standard clothyard arrow, straight and cleanly fletched.
-D:たくみに羽が付けられた真っ直な標準的な矢だ。
+D:A standard clothyard arrow, straight and cleanly fletched.
 
-N:79:追尾の矢
-E:& Seeker Arrow~
+N:79:& Seeker Arrow~
 G:{:G
 I:17:2:0
 W:55:0:0:2:20
@@ -959,13 +785,10 @@ P:0:6d4:0:0:0
 F:SHOW_MODS
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 F:STACK
-D:$Carved from a rare wood, this arrow is inscribed with fell runes and 
-D:$fletched with eagle feathers.
-D:希少な種類の木材から切り出され、鷲の羽を付け、
-D:威力を高めるルーンを刻まれた矢だ。
+D:Carved from a rare wood, this arrow is inscribed with fell runes and 
+D:fletched with eagle feathers.
 
-N:80:クロスボウの矢
-E:& Bolt~
+N:80:& Bolt~
 G:{:s
 I:18:1:0
 W:3:0:0:3:2
@@ -973,11 +796,9 @@ A:3/1:25/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 F:STACK
-D:$A short, heavy arrow shot from a crossbow.
-D:発射時の強い負荷に耐えるように作られた短く重いクロスボウ用の矢だ。
+D:A short, heavy arrow shot from a crossbow.
 
-N:81:追尾クロスボウの矢
-E:& Seeker Bolt~
+N:81:& Seeker Bolt~
 G:{:B
 I:18:2:0
 W:65:0:0:3:25
@@ -986,11 +807,9 @@ P:0:6d5:0:0:0
 F:SHOW_MODS
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 F:STACK
-D:$A mighty quarrel, bound about with battle magics.
-D:威力を高める魔法が掛けられた強力なクロスボウ用の矢だ。
+D:A mighty quarrel, bound about with battle magics.
 
-N:82:丸い小石
-E:& Rounded Pebble~
+N:82:& Rounded Pebble~
 G:{:s
 I:16:0:0
 W:0:0:0:4:1
@@ -999,8 +818,7 @@ P:0:1d2:0:0:0
 F:SHOW_MODS
 F:STACK
 
-N:83:鉄弾
-E:& Iron Shot~
+N:83:& Iron Shot~
 G:{:s
 I:16:1:0
 W:3:0:0:5:2
@@ -1011,84 +829,68 @@ F:STACK
 #D:$A grapestone-shaped slug of lead, the right heft for hurling from a sling.
 #D:スリングで投げるのに適した重さの、葡萄の粒のような鉛の塊だ。
 
-
 ##### Shovels and Picks #####
 
-N:84:シャベル
-E:& Shovel~
+N:84:& Shovel~
 G:\:s
 I:20:1:1
 W:1:0:10:60:10
 A:5/1
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
-D:$A compact and sturdy spade.
-D:小型で頑丈なシャベルだ。
+D:A compact and sturdy spade.
 
-N:85:ノームのシャベル
-E:& Gnomish Shovel~
+N:85:& Gnomish Shovel~
 G:\:G
 I:20:2:2
 W:20:0:0:60:100
 A:20/4
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
-D:$A small spade forged of steel with gnomish craftmanship.
-D:ノームの職人によって作られた鋼鉄製のシャベルだ。
+D:A small spade forged of steel with gnomish craftmanship.
 
-N:86:ドワーフのシャベル
-E:& Dwarven Shovel~
+N:86:& Dwarven Shovel~
 G:\:B
 I:20:3:3
 W:40:0:0:120:200
 A:40/1
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
-D:$A broad shovel, fit for the strong shoulders of a dwarf.  It bears runes 
-D:$of delving and no ordinary rock can resist it.
-D:ドワーフの強力な肩にちょうど良い幅広のシャベルだ。
-D:採掘力を高めるルーンを帯び、普通の岩ならばどんな物でも掘り進む事ができる。
+D:A broad shovel, fit for the strong shoulders of a dwarf.  It bears runes 
+D:of delving and no ordinary rock can resist it.
 
-N:87:つるはし
-E:& Pick~
+N:87:& Pick~
 G:\:s
 I:20:4:1
 W:5:0:30:150:50
 A:10/1
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
-D:$A heavy mining tool with a long, slightly curved head that tapers 
-D:$to chisel points on both ends.
-D:重い採掘用の道具で、微妙に曲った頭部の両端に切先が付いている。
+D:A heavy mining tool with a long, slightly curved head that tapers 
+D:to chisel points on both ends.
 
-N:88:オークのつるはし
-E:& Orcish Pick~
+N:88:& Orcish Pick~
 G:\:g
 I:20:5:2
 W:30:0:0:150:300
 A:30/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
-D:$A crude, ugly, but effective pickaxe.  Made in enormous quantities for 
-D:$the slave-mines of Durthang.
-D:粗雑で醜い作りだが、実用的なつるはしだ。
+D:A crude, ugly, but effective pickaxe.  Made in enormous quantities for 
+D:the slave-mines of Durthang.
 
-N:89:ドワーフのつるはし
-E:& Dwarven Pick~
+N:89:& Dwarven Pick~
 G:\:b
 I:20:6:3
 W:50:0:0:200:600
 A:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
-D:$A short but sturdy pick, like those that delved deep Moria, with runes to 
-D:$break the sinews of mountains.
-D:モリアの深部の採掘に使われていたのと同様な、短く頑丈なつるはしだ。
+D:A short but sturdy pick, like those that delved deep Moria, with runes to 
+D:break the sinews of mountains.
 
 ##### Armor #####
-#JZ#
-N:90:エルフのクローク
-E:& Elven Cloak~
+N:90:& Elven Cloak~
 G:(:G
 I:35:2:1
 W:30:0:0:5:1500
@@ -1096,354 +898,282 @@ A:30/4
 P:4:0d0:0:0:4
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 F:STEALTH | SEARCH
-D:$A mantle made of curious silken material by the Galadrim that wondrously 
-D:$takes on the hues and shapes of its surroundings.
-D:不思議な絹のような素材で作られた外套だ。
-D:その素材は周りの景色の色と形を映し出し、着用者を隠す効果がある。
+D:A mantle made of curious silken material by the Galadrim that wondrously 
+D:takes on the hues and shapes of its surroundings.
 
-N:91:軟革ブーツ
-E:& Pair~ of Soft Leather Boots
+N:91:& Pair~ of Soft Leather Boots
 G:]:U
 I:30:2:0
 W:3:0:0:20:7
 A:3/1
 P:2:1d1:0:0:0
-D:$These are calf-high boots of flexible leather, laced from heel to calf.
-D:ふくらはぎの高さまでの柔軟な革のブーツだ。
-D:踵からふくらはぎまで結び紐が付いている。
+D:These are calf-high boots of flexible leather, laced from heel to calf.
 
-N:92:硬革ブーツ
-E:& Pair~ of Hard Leather Boots
+N:92:& Pair~ of Hard Leather Boots
 G:]:U
 I:30:3:0
 W:5:0:0:40:12
 A:5/1
 P:3:1d1:0:0:0
-D:$A set of sturdy leather boots that will last many weary miles.
-D:長い旅路でも良く保つ丈夫な革製のブーツだ。
+D:A set of sturdy leather boots that will last many weary miles.
 
-N:93:鉄鋲底の靴
-E:& Pair~ of Metal Shod Boots
+N:93:& Pair~ of Metal Shod Boots
 G:]:s
 I:30:6:0
 W:20:0:0:80:50
 A:20/1
 P:6:1d1:0:0:0
-D:$A set of double-lined leather boots, with toes and heels reinforced with 
-D:$iron.
-D:二重の革製ブーツで、踵と爪先が鉄で補強されている。
+D:A set of double-lined leather boots, with toes and heels reinforced with 
+D:iron.
 
-N:94:硬革帽子
-E:& Hard Leather Cap~
+N:94:& Hard Leather Cap~
 G:]:u
 I:32:2:0
 W:3:0:0:15:12
 A:3/1
 P:2:0d0:0:0:0
-D:$A padded skullcap of boiled leather.
-D:煮固めた革製の詰め物入りの帽子だ。
+D:A padded skullcap of boiled leather.
 
-N:95:金属帽子
-E:& Metal Cap~
+N:95:& Metal Cap~
 G:]:s
 I:32:3:0
 W:10:0:0:20:30
 A:10/1
 P:3:1d1:0:0:0
-D:$A pot-helm of steel that protects the skull.
-D:頭部を保護する鋼鉄の帽子だ。
+D:A pot-helm of steel that protects the skull.
 
-N:96:鉄ヘルメット
-E:& Iron Helm~
+N:96:& Iron Helm~
 G:]:s
 I:32:5:0
 W:20:0:0:75:75
 A:20/1
 P:5:1d3:0:0:0
-D:$A mighty helmet of heavy iron, completely enclosing the head.
-D:頭部を完全に覆う鉄製のヘルメットだ。
+D:A mighty helmet of heavy iron, completely enclosing the head.
 
-N:97:鋼鉄ヘルメット
-E:& Steel Helm~
+N:97:& Steel Helm~
 G:]:W
 I:32:6:0
 W:40:0:0:60:200
 A:40/1
 P:6:1d3:0:0:0
-D:$This great helm covers the head and shoulders with plates of steel and a 
-D:$curtain of mail.
-D:鋼鉄板と鎖かたびらを組み合わせて、頭部から肩までを完全に覆う防具だ。
+D:This great helm covers the head and shoulders with plates of steel and a 
+D:curtain of mail.
 
-N:98:鉄冠
-E:& Iron Crown~
+N:98:& Iron Crown~
 G:]:s
 I:33:10:0
 W:40:0:0:20:500
 A:40/1
 P:0:1d1:0:0:0
-D:$A plain band of iron, crowned with iron spikes.  It is a tyrant's 
-D:$symbol.
-D:鉄の環に鉄の突起で飾りが付けられた冠だ。君主の印である。
+D:A plain band of iron, crowned with iron spikes.  It is a tyrant's 
+D:symbol.
 
-N:99:金の冠
-E:& Golden Crown~
+N:99:& Golden Crown~
 G:]:y
 I:33:11:0
 W:45:0:0:30:1000
 A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
-D:$An elegant golden circlet, with slender spines thrusting upward. 
-D:$It looks like it should be resting over the brow of a king.
-D:幾つもの細い突起が上向きに付いた優雅な金の頭飾り。
-D:王の額に相応しい物に見える。
+D:An elegant golden circlet, with slender spines thrusting upward. 
+D:It looks like it should be resting over the brow of a king.
 
-N:100:宝冠
-E:& Jewel Encrusted Crown~
+N:100:& Jewel Encrusted Crown~
 G:]:v
 I:33:12:0
 W:50:0:0:40:2000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
-D:$An elaboratedly decorated crown of massive gold, studded with a rainbow 
-D:$of gems and jewels; worthy of an emperor.
-D:精巧に飾り付けられた重厚な金の冠に様々な宝石が虹色にちりばめられている。
+D:An elaboratedly decorated crown of massive gold, studded with a rainbow 
+D:of gems and jewels; worthy of an emperor.
 
-N:101:ローブ
-E:& Robe~
+N:101:& Robe~
 G:(:b
 I:36:2:0
 W:1:0:0:20:4
 A:1/1:50/1
 P:2:0d0:0:0:0
-D:$A practical garment of thick wool or velvet, draping from neck to heels.
-D:首から踵までを覆う、ビロードまたは綿製の実用的な衣服だ。
+D:A practical garment of thick wool or velvet, draping from neck to heels.
 
-N:102:汚れたボロ服
-E:& Filthy Rag~
+N:102:& Filthy Rag~
 G:(:D
 I:36:1:0
 W:0:0:0:20:1
 A:0/1
 P:1:0d0:0:0:-1
-D:$This tattered rag appears to once have been a robe, but has been patched 
-D:$and re-patched so many times that you can't be sure.
-D:このぼろきれは元々はローブだった物のようだが、
-D:あまりにも継ぎはぎだらけでよく判別できない。
+D:This tattered rag appears to once have been a robe, but has been patched 
+D:and re-patched so many times that you can't be sure.
 
-N:103:軟革よろい
-E:Soft Leather Armour~
+N:103:Soft Leather Armour~
 G:(:U
 I:36:4:0
 W:3:0:0:80:18
 A:3/1
 P:4:0d0:0:0:0
-D:$A cuirass of pliable leather with a thicker leather jack.
-D:しなやかな革の胴当てに薄い革ジャケットが付いた鎧だ。
+D:A cuirass of pliable leather with a thicker leather jack.
 
-N:104:鋲付軟革よろい
-E:Soft Studded Leather~
+N:104:Soft Studded Leather~
 G:(:U
 I:36:5:0
 W:3:0:0:90:35
 A:3/1
 P:5:1d1:0:0:0
-D:$A cuirass of pliable leather studded with metal rivets.
-D:多数の金属製の鋲で補強されたしなやかな革の胴当てだ。
+D:A cuirass of pliable leather studded with metal rivets.
 
-N:105:硬革よろい
-E:Hard Leather Armour~
+N:105:Hard Leather Armour~
 G:(:U
 I:36:6:0
 W:5:0:0:100:150
 A:5/1
 P:6:1d1:-1:0:0
-D:$A boiled leather cuirass and shoulder plates.
-D:煮固めた革製の胴当てと肩当てが付いた鎧だ。
+D:A boiled leather cuirass and shoulder plates.
 
-N:106:鋲付硬革よろい
-E:Hard Studded Leather~
+N:106:Hard Studded Leather~
 G:(:U
 I:36:7:0
 W:10:0:0:110:200
 A:10/1
 P:7:1d2:-1:0:0
-D:$A strong leather breastplate and shoulder guards over a sleeved shirt 
-D:$of cured leather covered with iron studs.
-D:多数の金属製の鋲で補強した革製のシャツに煮固めた革製の胴当てと肩当てが付いた鎧だ。
+D:A strong leather breastplate and shoulder guards over a sleeved shirt 
+D:of cured leather covered with iron studs.
 
-N:107:革製スケイル・メイル
-E:Leather Scale Mail~
+N:107:Leather Scale Mail~
 G:(:U
 I:36:11:0
 W:15:0:0:140:450
 A:15/1
 P:11:1d1:-1:0:0
-D:$A tunic and skirt sewn with thick, overlapping scales of hardened 
-D:$leather.
-D:革製のシャツに煮固めた革製の鱗のような形の部品を多数縫い付けてある鎧だ。
+D:A tunic and skirt sewn with thick, overlapping scales of hardened 
+D:leather.
 
-N:108:金属製スケイル・メイル
-E:Metal Scale Mail~
+N:108:Metal Scale Mail~
 G:[:s
 I:37:3:0
 W:25:0:0:250:550
 A:25/1
 P:13:1d4:-2:0:0
-D:$A heavy shirt of overlapping steel scales backed by leather, with 
-D:$matching skirt and sleeves.
-D:革製の袖付きシャツに鋼鉄製の鱗のような形の部品を多数縫い付けてある鎧だ。
+D:A heavy shirt of overlapping steel scales backed by leather, with 
+D:matching skirt and sleeves.
 
-N:109:鎖かたびら
-E:Chain Mail~
+N:109:Chain Mail~
 G:[:s
 I:37:4:0
 W:25:0:0:220:750
 A:25/1
 P:14:1d4:-2:0:0
-D:$A sleeved hauberk of interlocking steel rings, well padded with leather.  
-D:$Chain mail takes skill to make, but offers good protection and relatively 
-D:$low weight.
-D:鋼鉄の輪が噛み合った袖付きの鎖かたびらで、革が当てられている。
-D:鎖かたびらを作るには熟練を要するが、高い防御力を持ち比較的に軽量に仕上がる。
+D:A sleeved hauberk of interlocking steel rings, well padded with leather.  
+D:Chain mail takes skill to make, but offers good protection and relatively 
+D:low weight.
 
-N:110:錆びた鎖かたびら
-E:Rusty Chain Mail~
+N:110:Rusty Chain Mail~
 G:[:r
 I:37:1:0
 W:25:0:0:200:550
 A:25/1
 P:14:1d4:-5:0:-8
-D:$Each link of this suit is brittle with rust, and the corroded rings 
-D:$are stiff and weakened.
-D:この鎧の各部の継ぎ目は錆で脆くなっており、朽ちた鎖の輪は固まってしまい弱まっ
-D:ている。
+D:Each link of this suit is brittle with rust, and the corroded rings 
+D:are stiff and weakened.
 
 # "hauberk"は元の意味は(袖無しの)胴鎧を指す言葉。 よく鎖かたびらで作ら
 # れたので後に転じてhauberkと言えば鎖かたびらの胴鎧、さらには鎖かたび
 # ら全般をも指すようになったが、ここでは「鎖かたびらの胴鎧」の意味で使
 # われていると思われる。 Mogami
-N:111:重鎖かたびら
-E:Augmented Chain Mail~
+N:111:Augmented Chain Mail~
 G:[:s
 I:37:6:0
 W:30:0:0:270:900
 A:30/1
 P:16:1d4:-2:0:0
-D:$A hauberk, leggings, and sleeves of interlocking steel rings, 
-D:$strategically reinforced at vital locations with a second layer 
-D:$of chain, all over a layer of heavy padding.
-D:噛み合った鋼鉄の輪でできた鎖かたびらの胴鎧と脛当てと袖であり、
-D:2枚目の鎖の層で重要な部分を戦略的に補強しており、
-D:至る所に重い詰め物の層がある。
+D:A hauberk, leggings, and sleeves of interlocking steel rings, 
+D:strategically reinforced at vital locations with a second layer 
+D:of chain, all over a layer of heavy padding.
 
-N:112:強化鎖かたびら
-E:Bar Chain Mail~
+N:112:Bar Chain Mail~
 G:[:s
 I:37:8:0
 W:35:0:0:280:1020
 A:35/1
 P:18:1d4:-2:0:0
 
-N:113:金属製ブリガンダイン・アーマー
-E:Metal Brigandine Armour~
+N:113:Metal Brigandine Armour~
 G:[:s
 I:37:9:0
 W:35:0:0:290:1100
 A:35/1
 P:19:1d4:-3:0:0
 
-N:114:パーシャル・プレート・メイル
-E:Partial Plate Armour~
+N:114:Partial Plate Armour~
 G:[:W
 I:37:12:0
 W:45:0:0:260:1200
 A:45/1
 P:22:1d6:-3:0:0
-D:$A steel corselet and vambraces over a skirt and leggings of chain.
-D:鋼鉄製の胴鎧であり、スカートの上部には腕鎧があり、鎖の脛当てを持つ。
+D:A steel corselet and vambraces over a skirt and leggings of chain.
 
-N:115:金属製ラメラー・アーマー
-E:Metal Lamellar Armour~
+N:115:Metal Lamellar Armour~
 G:[:W
 I:37:13:0
 W:45:0:0:340:1150
 A:45/1
 P:23:1d6:-3:0:0
 
-N:116:フル・プレート・メイル
-E:Full Plate Armour~
+N:116:Full Plate Armour~
 G:[:W
 I:37:15:0
 W:45:0:0:380:1350
 A:45/1
 P:25:2d4:-3:0:0
-D:$A full suit of carefully fitted plates, with hinged joints backed 
-D:$by chain, and light padding underneath.
-D:念入りに体に合わせた鉄板製の全身鎧であり、ちょうつがいで繋がった部分の裏は
-D:鎖で守られ、鎧の裏には軽い詰め物がある。
+D:A full suit of carefully fitted plates, with hinged joints backed 
+D:by chain, and light padding underneath.
 
-N:117:強化プレート・アーマー
-E:Ribbed Plate Armour~
+N:117:Ribbed Plate Armour~
 G:[:W
 I:37:18:0
 W:50:0:0:380:1500
 A:50/1
 P:28:2d4:-3:0:0
 
-N:118:アダマンタイト製プレート・メイル
-E:Adamantite Plate Mail~
+N:118:Adamantite Plate Mail~
 G:[:G
 I:37:30:0
 W:75:0:0:420:20000
 A:75/8
 P:40:2d4:-4:0:0
 F:IGNORE_ACID
-D:$Adamantite, hard as diamonds, forms this exquisite suit; nothing else 
-D:$in Middle Earth gives as much protection.
-D:ダイアモンドのように硬いアダマンタイトでできた精巧で美しい鎧であり、
-D:これほどの防御をもたらす鎧は中つ国には他に存在しない。
+D:Adamantite, hard as diamonds, forms this exquisite suit; nothing else 
+D:in Middle Earth gives as much protection.
 
-N:119:ミスリル製プレート・メイル
-E:Mithril Plate Mail~
+N:119:Mithril Plate Mail~
 G:[:B
 I:37:25:0
 W:60:0:0:300:15000
 A:60/4
 P:35:2d4:-3:0:0
 F:IGNORE_ACID
-D:$A shimmering suit of true-silver, forged long ago by dwarven smiths of 
-D:$legend.  It gleams with purest white as you gaze upon it.
-D:遥かなる昔に伝説のドワーフの鍛冶師に鍛えられた、輝くまことの銀の鎧だ。
-D:凝視すると純白にきらめく。
+D:A shimmering suit of true-silver, forged long ago by dwarven smiths of 
+D:legend.  It gleams with purest white as you gaze upon it.
 
-N:120:ミスリル製鎖かたびら
-E:Mithril Chain Mail~
+N:120:Mithril Chain Mail~
 G:[:B
 I:37:20:0
 W:55:0:0:150:7000
 A:55/4
 P:28:1d4:-1:0:0
 F:IGNORE_ACID
-D:$Rare and wondrous is chain mail made of true-silver, for it offers more 
-D:$protection for the weight than any other armour.
-D:本当に希少で驚くべきまことの銀製の鎖かたびらであり、他の鎧に比べてもその
-D:軽さにしてより高い防御を与える。
+D:Rare and wondrous is chain mail made of true-silver, for it offers more 
+D:protection for the weight than any other armour.
 
-N:121:二重鎖かたびら
-E:Double Chain Mail~
+N:121:Double Chain Mail~
 G:[:s
 I:37:7:0
 W:30:0:0:250:1000
 A:30/1
 P:16:1d4:-2:0:0
 
-
 # This shield does not belong here
 
-N:122:ミラー・シールド
-E:& Mirror Shield~
+N:122:& Mirror Shield~
 G:[:B
 I:34:10:0
 W:70:0:0:100:10000
@@ -1454,138 +1184,111 @@ F:IGNORE_ACID | REFLECT
 #D:$all hurt and harm from you.
 #D:傷と危険から守られるようにルーン文字が刻まれたミスリル製の純白の盾だ。
 
-
 ### The Cloaks ###
 
-N:123:クローク
-E:& Cloak~
+N:123:& Cloak~
 G:(:g
 I:35:1:0
 W:1:0:0:10:3
 A:1/1:20/1
 P:1:0d0:0:0:0
-D:$A traveller's sturdy outer garment.
-D:冒険者用の丈夫な外套だ。
+D:A traveller's sturdy outer garment.
 
-N:124:影のクローク
-E:& Shadow Cloak~
+N:124:& Shadow Cloak~
 G:(:D
 I:35:6:0
 W:60:0:0:5:7500
 A:75/5
 P:6:0d0:0:0:4
 F:RES_DARK | RES_LITE
-D:$A midnight-hued cloak that wreathes the wearer in folds of shadow.
-D:着用者を影の層で包み込む闇夜の色のクロークだ。
-
+D:A midnight-hued cloak that wreathes the wearer in folds of shadow.
 
 ### The Gloves ###
 
-N:125:革グローブ
-E:& Set~ of Leather Gloves
+N:125:& Set~ of Leather Gloves
 G:]:U
 I:31:1:0
 W:1:0:0:5:3
 A:1/1
 P:1:0d0:0:0:0
-D:$Leather hand protection, with an open palm for gripping weapons.
-D:革製の手甲で、手のひらは武器を握るために開いている。
+D:Leather hand protection, with an open palm for gripping weapons.
 
-N:126:ガントレット
-E:& Set~ of Gauntlets
+N:126:& Set~ of Gauntlets
 G:]:U
 I:31:2:0
 W:10:0:0:25:35
 A:10/1
 P:2:1d1:0:0:0
-D:$A set of gloves that completely covers the hand and wrist in steel plating.
-D:手と手首を鋼鉄板で完全に覆うグローブだ。
+D:A set of gloves that completely covers the hand and wrist in steel plating.
 
-N:127:セスタス
-E:& Set~ of Cesti
+N:127:& Set~ of Cesti
 G:]:W
 I:31:5:0
 W:50:0:0:40:100
 A:50/1
 P:5:1d1:0:0:0
-D:$A massive set of hand sheathings, bound with steel and thrice-cured leather.
-D:重厚な手の覆いで、鋼鉄としっかり煮固めた革で縛ってある。
-
+D:A massive set of hand sheathings, bound with steel and thrice-cured leather.
 
 ### The shields ###
 
-N:128:革製スモール・シールド
-E:& Small Leather Shield~
+N:128:& Small Leather Shield~
 G:):U
 I:34:2:0
 W:3:0:0:50:15
 A:3/1
 P:3:1d1:0:0:0
-D:$A circular shield of cured animal hide stretched over layered wooden strips.
-D:煮固めた動物の革を重ねた小さな木の板いっぱいに伸ばして作った丸い盾だ。
+D:A circular shield of cured animal hide stretched over layered wooden strips.
 
-N:129:革製ラージ・シールド
-E:& Large Leather Shield~
+N:129:& Large Leather Shield~
 G:):U
 I:34:4:0
 W:15:0:0:100:100
 A:15/1
 P:6:1d2:0:0:0
-D:$A large oval shield made of layered wooden strips with a thick leather 
-D:$covering.
-D:重ねた木の板を厚い革で覆った大きな楕円形の盾だ。
+D:A large oval shield made of layered wooden strips with a thick leather 
+D:covering.
 
-N:130:金属製スモール・シールド
-E:& Small Metal Shield~
+N:130:& Small Metal Shield~
 G:):s
 I:34:3:0
 W:10:0:0:65:40
 A:10/1
 P:5:1d2:0:0:0
-D:$A round shield of wood reinforced with metal rims and central disk.
-D:金属の縁材と中心の円盤で強化した円形の木の盾だ。
+D:A round shield of wood reinforced with metal rims and central disk.
 
-N:131:金属製ラージ・シールド
-E:& Large Metal Shield~
+N:131:& Large Metal Shield~
 G:):s
 I:34:5:0
 W:30:0:0:120:200
 A:30/1
 P:8:1d3:0:0:0
-D:$An oval shield of wood covered by leather and rimmed with metal.  A large 
-D:$iron shield boss offers excellent hand protection.
-D:革で覆った木の板を金属で縁取った楕円形の盾だ。盾の大きな鉄の突起は素晴らしい
-D:腕の防御をもたらす。
-
+D:An oval shield of wood covered by leather and rimmed with metal.  A large 
+D:iron shield boss offers excellent hand protection.
 
 ##### Rings #####
 
-N:132:腕力:金緑石の
-E:Strength:Alexandrite
+N:132:Strength:Alexandrite
 G:=:g
 I:45:24:0
 W:30:0:60:2:500
 A:30/1
 F:STR | HIDE_TYPE
 
-N:133:器用さ:アメジストの
-E:Dexterity:Amethyst
+N:133:Dexterity:Amethyst
 G:=:v
 I:45:26:0
 W:30:0:60:2:500
 A:30/1
 F:DEX | HIDE_TYPE
 
-N:134:耐久力:アクアマリンの
-E:Constitution:Aquamarine
+N:134:Constitution:Aquamarine
 G:=:B
 I:45:27:0
 W:30:0:70:2:500
 A:30/1
 F:CON | HIDE_TYPE
 
-N:135:電撃:めのうの
-E:Lightning:Azurite
+N:135:Lightning:Azurite
 G:=:B
 I:45:25:0
 W:35:0:0:2:3000
@@ -1593,88 +1296,76 @@ A:50/1
 P:0:0d0:0:0:15
 F:RES_ELEC | IGNORE_ELEC | ACTIVATE
 
-N:136:スピード:緑柱石の
-E:Speed:Beryl
+N:136:Speed:Beryl
 G:=:G
 I:45:31:0
 W:70:0:0:2:50000
 A:70/1
 F:SPEED | HIDE_TYPE
 
-N:137:探索:血玉随の
-E:Searching:Bloodstone
+N:137:Searching:Bloodstone
 G:=:r
 I:45:23:0
 W:5:0:40:2:250
 A:5/1
 F:SEARCH | HIDE_TYPE
 
-N:138:テレポート:方解石の
-E:Teleportation:Calcite
+N:138:Teleportation:Calcite
 G:=:w
 I:45:4:0
 W:5:0:30:2:250
 A:5/1
 F:TELEPORT | CURSED
 
-N:139:遅消化:赤めのうの
-E:Slow Digestion:Carnelian
+N:139:Slow Digestion:Carnelian
 G:=:r
 I:45:6:0
 W:5:0:20:2:250
 F:SLOW_DIGEST
 
-N:140:耐火:綱玉の
-E:Resist Fire:Corundum
+N:140:Resist Fire:Corundum
 G:=:s
 I:45:8:0
 W:10:0:30:2:250
 A:10/1
 F:RES_FIRE | IGNORE_FIRE
 
-N:141:耐冷:ダイアモンドの
-E:Resist Cold:Diamond
+N:141:Resist Cold:Diamond
 G:=:w
 I:45:9:0
 W:10:0:30:2:250
 A:10/1
 F:RES_COLD | IGNORE_COLD
 
-#JZ#
-N:142:浮遊:エメラルドの
-E:Levitation:Emerald
+N:142:Levitation:Emerald
 G:=:g
 I:45:7:0
 W:5:0:30:2:200
 A:5/1
 F:LEVITATION
 
-N:143:耐毒:ホタル石の
-E:Poison Resistance:Fluorite
+N:143:Poison Resistance:Fluorite
 G:=:G
 I:45:20:0
 W:40:0:0:2:16000
 A:40/2
 F:RES_POIS
 
-N:144:麻痺知らず:ガーネットの
-E:Free Action:Garnet
+N:144:Free Action:Garnet
 G:=:r
 I:45:21:0
 W:20:0:60:2:1500
 A:20/1
 F:FREE_ACT
 
-N:145:脆弱:御影石の
-E:Weakness:Granite
+N:145:Weakness:Granite
 G:=:D
 I:45:2:-5
 W:5:0:20:2:0
 A:5/1
 F:CURSED | STR | HIDE_TYPE
 
-N:146:火炎:ひすいの
-E:Flames:Jade
+N:146:Flames:Jade
 G:=:G
 I:45:18:0
 W:35:0:0:2:3000
@@ -1682,8 +1373,7 @@ A:50/1
 P:0:0d0:0:0:15
 F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 
-N:147:酸:ジャスパーの
-E:Acid:Jasper
+N:147:Acid:Jasper
 G:=:u
 I:45:17:0
 W:35:0:0:2:3000
@@ -1691,8 +1381,7 @@ A:50/1
 P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID | ACTIVATE
 
-N:148:氷:青瑠璃の
-E:Ice:Lapis Lazuli
+N:148:Ice:Lapis Lazuli
 G:=:b
 I:45:19:0
 W:35:0:0:2:3000
@@ -1700,8 +1389,7 @@ A:50/1
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD | ACTIVATE
 
-N:149:苦悩:クジャク石の
-E:Woe:Malachite
+N:149:Woe:Malachite
 G:=:g
 I:45:0:-5
 W:50:0:0:2:0
@@ -1709,103 +1397,90 @@ A:50/1
 F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE
 F:RANDOM_CURSE0
 
-N:150:無知:大理石の
-E:Stupidity:Marble
+N:150:Stupidity:Marble
 G:=:w
 I:45:3:-5
 W:5:0:30:2:0
 A:5/1
 F:CURSED | INT | HIDE_TYPE
 
-N:151:ダメージ:ムーンストーンの
-E:Damage:Moonstone
+N:151:Damage:Moonstone
 G:=:W
 I:45:29:0
 W:20:0:0:2:500
 P:0:0d0:0:1:0
 A:20/1
 
-N:152:精度:縞めのうの
-E:Accuracy:Onyx
+N:152:Accuracy:Onyx
 G:=:R
 I:45:28:0
 W:20:0:60:2:500
 P:0:0d0:1:0:0
 A:20/1
 
-N:153:守り:オパールの
-E:Protection:Opal
+N:153:Protection:Opal
 G:=:W
 I:45:16:0
 W:10:0:60:2:500
 A:10/1
 
-N:154:エキサイト・モンスター:真珠の
-E:Aggravate Monster:Pearl
+N:154:Aggravate Monster:Pearl
 G:=:w
 I:45:1:0
 W:5:0:30:2:0
 A:5/1
 F:CURSED | AGGRAVATE
 
-N:155:透明物体感知:水晶の
-E:See Invisible:Quartz
+N:155:See Invisible:Quartz
 G:=:W
 I:45:22:0
 W:30:0:60:2:340
 A:30/1
 F:SEE_INVIS
 
-N:156:腕力維持:石英岩の
-E:Sustain Strength:Quartzite
+N:156:Sustain Strength:Quartzite
 G:=:W
 I:45:10:0
 W:30:0:70:2:750
 A:30/1
 F:SUST_STR
 
-N:157:知能維持:ザクロ石の
-E:Sustain Intelligence:Rhodonite
+N:157:Sustain Intelligence:Rhodonite
 G:=:R
 I:45:11:0
 W:30:0:70:2:600
 A:30/1
 F:SUST_INT
 
-N:158:賢さ維持:ルビーの
-E:Sustain Wisdom:Ruby
+N:158:Sustain Wisdom:Ruby
 G:=:r
 I:45:12:0
 W:30:0:70:2:600
 A:30/1
 F:SUST_WIS
 
-N:159:耐久力維持:サファイアの
-E:Sustain Constitution:Sapphire
+N:159:Sustain Constitution:Sapphire
 G:=:b
 I:45:13:0
 W:30:0:70:2:750
 A:30/1
 F:SUST_CON
 
-N:160:器用さ維持:虎目石の
-E:Sustain Dexterity:Tiger Eye
+N:160:Sustain Dexterity:Tiger Eye
 G:=:y
 I:45:14:0
 W:30:0:70:2:750
 A:30/1
 F:SUST_DEX
 
-N:161:魅力維持:トパーズの
-E:Sustain Charisma:Topaz
+N:161:Sustain Charisma:Topaz
 G:=:y
 I:45:15:0
 W:30:0:70:2:500
 A:30/1
 F:SUST_CHR
 
-N:162:殺戮:トルコ石の
-E:Slaying:Turquoise
+N:162:Slaying:Turquoise
 G:=:B
 I:45:30:0
 W:40:0:0:2:1000
@@ -1815,56 +1490,48 @@ F:SHOW_MODS
 
 ##### Amulets #####
 
-#JZ#
-N:163:知性:琥珀の
-E:Brilliance:Amber
+N:163:Brilliance:Amber
 G:":y
 I:40:6:0
 W:50:0:0:3:5000
 A:50/4
 F:INT | WIS | CHR | SUST_INT | SUST_WIS | SUST_CHR | HIDE_TYPE
 
-N:164:魅力:流木の
-E:Charisma:Driftwood
+N:164:Charisma:Driftwood
 G:":U
 I:40:7:0
 W:20:0:60:3:500
 A:20/1
 F:CHR | HIDE_TYPE
 
-N:165:探索:サンゴの
-E:Searching:Coral
+N:165:Searching:Coral
 G:":w
 I:40:5:0
 W:30:0:50:3:600
 A:30/4
 F:SEARCH | HIDE_TYPE
 
-N:166:テレポート:めのうの
-E:Teleportation:Agate
+N:166:Teleportation:Agate
 G:":W
 I:40:1:0
 W:15:0:30:3:250
 A:15/1
 F:TELEPORT | CURSED
 
-N:167:遅消化:象牙の
-E:Slow Digestion:Ivory
+N:167:Slow Digestion:Ivory
 G:":w
 I:40:3:0
 W:15:0:50:3:200
 F:SLOW_DIGEST
 
-N:168:耐酸:黒曜石の
-E:Resist Acid:Obsidian
+N:168:Resist Acid:Obsidian
 G:":D
 I:40:4:0
 W:20:0:50:3:300
 A:20/1
 F:RES_ACID | IGNORE_ACID
 
-N:169:装飾:骨の
-E:Adornment:Bone
+N:169:Adornment:Bone
 G:":w
 I:40:2:0
 W:15:0:30:3:20
@@ -1872,9 +1539,7 @@ A:15/1
 
 ##### Extra armor #####
 
-#JZ#
-N:170:二重リングメイル
-E:Double Ring Mail~
+N:170:Double Ring Mail~
 G:[:s
 I:37:5:0
 W:25:0:0:230:700
@@ -1883,8 +1548,7 @@ P:15:1d4:-2:0:0
 
 ##### Additional amulets #####
 
-N:171:賢者:真鍮の
-E:the Magi:Brass
+N:171:the Magi:Brass
 G:":U
 I:40:8:0
 W:50:0:0:3:30000
@@ -1893,8 +1557,7 @@ P:0:0d0:0:0:3
 F:FREE_ACT | SEE_INVIS | SEARCH | INFRA |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:172:破壊:青銅の
-E:Destruction:Bronze
+N:172:Destruction:Bronze
 G:":U
 I:40:0:-5
 W:50:0:0:3:0
@@ -1904,32 +1567,27 @@ F:CURSED | HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR |
 F:TY_CURSE | NO_TELE | NO_MAGIC | REGEN | 
 F:HIDE_TYPE | RANDOM_CURSE2
 
-
 ##### Scrolls #####
 
 N:173:Enchant Weapon To-Hit:mipay sun
-E:Enchant Weapon To-Hit:mipay sun
 G:?:w
 I:70:17:0
 W:15:0:0:5:250
 #A:15/1
 
 N:174:Enchant Weapon To-Dam:batuni blaame
-E:Enchant Weapon To-Dam:batuni blaame
 G:?:w
 I:70:18:0
 W:15:0:0:5:250
 #A:15/1
 
 N:175:Enchant Armor:rolsan triple
-E:Enchant Armor:rolsan triple
 G:?:w
 I:70:16:0
 W:15:0:0:5:250
 #A:15/1
 
 N:176:Identify:temeep aks el
-E:Identify:temeep aks el
 G:?:w
 I:70:12:0
 W:1:0:0:5:50
@@ -1937,7 +1595,6 @@ A:1/1:5/1:10/1:30/1
 F:STACK
 
 N:177:*Identify*:triapp trolpet
-E:*Identify*:triapp trolpet
 G:?:w
 I:70:13:0
 W:30:0:0:5:1500
@@ -1945,16 +1602,13 @@ A:30/2:50/2:80/2:100/2
 F:STACK
 
 N:178:Rumour:an gan nagblaa
-E:Rumour:an gan nagblaa
 G:?:w
 I:70:51:0
 W:1:0:30:5:10
 A:1/1
 F:STACK
 
-#JZ#
 N:179:Vengeance:comp turs
-E:Vengeance:comp turs
 G:?:w
 I:70:50:0
 W:80:0:0:5:10000
@@ -1962,7 +1616,6 @@ A:80/8
 F:STACK
 
 N:180:Remove Curse:byti sne
-E:Remove Curse:byti sne
 G:?:w
 I:70:14:0
 W:10:0:0:5:100
@@ -1970,7 +1623,6 @@ A:10/2:20/1
 F:STACK
 
 N:181:Light:misat dernin
-E:Light:misat dernin
 G:?:w
 I:70:24:0
 W:0:0:40:5:15
@@ -1978,7 +1630,6 @@ A:0/1:3/1:10/1
 F:STACK
 
 N:182:Forest Creation:onip batsat
-E:Forest Creation:onip batsat
 G:?:w
 I:70:48:0
 W:50:0:0:5:1000
@@ -1986,7 +1637,6 @@ A:50/4
 F:STACK
 
 N:183:Wall of Stone:shu urfor
-E:Wall of Stone:shu urfor
 G:?:w
 I:70:49:0
 W:75:0:0:5:5000
@@ -1994,7 +1644,6 @@ A:75/6
 F:STACK
 
 N:184:Summon Monster:binvom cosmung
-E:Summon Monster:binvom cosmung
 G:?:w
 I:70:4:0
 W:1:0:50:5:0
@@ -2002,7 +1651,6 @@ A:1/1
 F:STACK
 
 N:185:Phase Door:ankh sanfu bit
-E:Phase Door:ankh sanfu bit
 G:?:w
 I:70:8:0
 W:1:0:0:5:15
@@ -2010,7 +1658,6 @@ A:1/1
 F:STACK
 
 N:186:Teleportation:arzemi zunag
-E:Teleportation:arzemi zunag
 G:?:w
 I:70:9:0
 W:10:0:0:5:40
@@ -2018,7 +1665,6 @@ A:10/1
 F:STACK
 
 N:187:Teleport Level:bie xuxuval
-E:Teleport Level:bie xuxuval
 G:?:w
 I:70:10:0
 W:20:0:0:5:200
@@ -2026,7 +1672,6 @@ A:20/1
 F:STACK
 
 N:188:Monster Confusion:blaata arze
-E:Monster Confusion:blaata arze
 G:?:w
 I:70:36:0
 W:5:0:0:5:30
@@ -2034,7 +1679,6 @@ A:5/1
 F:STACK
 
 N:189:Magic Mapping:rea fri elip
-E:Magic Mapping:rea fri elip
 G:?:w
 I:70:25:0
 W:5:0:0:5:40
@@ -2042,7 +1686,6 @@ A:5/1
 F:STACK
 
 N:190:Rune of Protection:sef unag famur
-E:Rune of Protection:sef unag famur
 G:?:w
 I:70:38:0
 W:35:0:0:5:500
@@ -2050,7 +1693,6 @@ A:35/6:90/2
 F:STACK
 
 N:191:*Remove Curse*:bluju wex blu
-E:*Remove Curse*:bluju wex blu
 G:?:w
 I:70:15:0
 W:35:0:0:5:4000
@@ -2058,7 +1700,6 @@ A:35/4:75/2
 F:STACK
 
 N:192:Treasure Detection:ner fidtri
-E:Treasure Detection:ner fidtri
 G:?:w
 I:70:26:0
 W:0:0:40:5:15
@@ -2066,7 +1707,6 @@ A:0/1
 F:STACK
 
 N:193:Object Detection:for mic rol
-E:Object Detection:for mic rol
 G:?:w
 I:70:27:0
 W:0:0:40:5:15
@@ -2074,7 +1714,6 @@ A:0/1
 F:STACK
 
 N:194:Trap Detection:sri nelgun
-E:Trap Detection:sri nelgun
 G:?:w
 I:70:28:0
 W:5:0:30:5:15
@@ -2083,9 +1722,7 @@ F:STACK
 
 ##### Extra ammunition #####
 
-#JZ#
-N:195:束矢
-E:& Sheaf Arrow~
+N:195:& Sheaf Arrow~
 G:{:o
 I:17:1:0
 W:10:0:0:4:3
@@ -2094,9 +1731,7 @@ P:0:2d4:0:0:0
 F:SHOW_MODS
 F:STACK
 
-#JZ#
-N:196:ミスリルの弾
-E:& Mithril Shot~
+N:196:& Mithril Shot~
 G:{:B
 I:16:2:0
 W:25:0:0:5:15
@@ -2109,7 +1744,6 @@ F:STACK
 ##### Additional scrolls #####
 
 N:197:Door/Stair Location:sehsat ulkab
-E:Door/Stair Location:sehsat ulkab
 G:?:w
 I:70:29:0
 W:5:0:30:5:35
@@ -2117,28 +1751,24 @@ A:5/1:10/1
 F:STACK
 
 N:198:Acquirement:klinej ere
-E:Acquirement:klinej ere
 G:?:w
 I:70:46:0
 W:40:0:0:5:100000
 A:40/6
 
 N:199:*Acquirement*:snetrol uni
-E:*Acquirement*:snetrol uni
 G:?:w
 I:70:47:0
 W:60:0:0:5:200000
 A:60/16
 
 N:200:Mass Genocide:trolsee mex
-E:Mass Genocide:trolsee mex
 G:?:w
 I:70:45:0
 W:50:0:0:5:1000
 A:50/4:100/4
 
 N:201:Detect Invisible:stafoo lechi
-E:Detect Invisible:stafoo lechi
 G:?:w
 I:70:30:0
 W:1:0:30:5:15
@@ -2146,7 +1776,6 @@ A:1/1
 F:STACK
 
 N:202:Aggravate Monster:itemar habyt
-E:Aggravate Monster:itemar habyt
 G:?:w
 I:70:1:0
 W:5:0:30:5:0
@@ -2154,7 +1783,6 @@ A:5/1
 F:STACK
 
 N:203:Trap Creation:wahx our gre
-E:Trap Creation:wahx our gre
 G:?:w
 I:70:7:0
 W:10:0:30:5:0
@@ -2162,7 +1790,6 @@ A:10/1
 F:STACK
 
 N:204:Trap/Door Destruction:erk bieklis
-E:Trap/Door Destruction:erk bieklis
 G:?:w
 I:70:39:0
 W:10:0:40:5:50
@@ -2170,14 +1797,12 @@ A:10/1
 F:STACK
 
 N:205:Artifact Creation:engsno argsan
-E:Artifact Creation:engsno argsan
 G:?:w
 I:70:52:0
 W:91:0:0:5:200000
 A:91/16
 
 N:206:Recharging:klis glenash
-E:Recharging:klis glenash
 G:?:w
 I:70:22:0
 W:35:0:0:5:200
@@ -2185,14 +1810,12 @@ A:35/1
 F:STACK
 
 N:207:Genocide:ashval paylech
-E:Genocide:ashval paylech
 G:?:w
 I:70:44:0
 W:40:0:0:5:750
 A:40/4:80/4
 
 N:208:Darkness:fapay doea
-E:Darkness:fapay doea
 G:?:w
 I:70:0:0
 W:1:0:20:5:0
@@ -2200,7 +1823,6 @@ A:1/1
 F:STACK
 
 N:209:Protection from Evil:sefeng danod
-E:Protection from Evil:sefeng danod
 G:?:w
 I:70:37:0
 W:30:0:0:5:250
@@ -2208,13 +1830,11 @@ A:30/1
 F:STACK
 
 N:210:Satisfy Hunger:kli ing tadalf
-E:Satisfy Hunger:kli ing tadalf
 G:?:w
 I:70:32:0
 W:5:0:0:5:10
 
 N:211:Dispel Undead:wah snofoo
-E:Dispel Undead:wah snofoo
 G:?:w
 I:70:42:0
 W:35:0:70:5:200
@@ -2222,14 +1842,12 @@ A:35/1
 F:STACK
 
 N:212:*Enchant Weapon*:vlytox
-E:*Enchant Weapon*:vlytox
 G:?:w
 I:70:21:0
 W:50:0:0:5:1000
 A:50/1
 
 N:213:Curse Weapon:prokaks wahish
-E:Curse Weapon:prokaks wahish
 G:?:w
 I:70:3:0
 W:50:0:0:5:0
@@ -2237,14 +1855,12 @@ A:50/1
 F:STACK
 
 N:214:*Enchant Armor*:klimon bieder
-E:*Enchant Armor*:klimon bieder
 G:?:w
 I:70:20:0
 W:50:0:0:5:1000
 A:50/1
 
 N:215:Curse Armor:alacre re org
-E:Curse Armor:alacre re org
 G:?:w
 I:70:2:0
 W:50:0:0:5:0
@@ -2252,7 +1868,6 @@ A:50/1
 F:STACK
 
 N:216:Summon Undead:umgar danri
-E:Summon Undead:umgar danri
 G:?:w
 I:70:5:0
 W:15:0:40:5:0
@@ -2260,7 +1875,6 @@ A:15/1
 F:STACK
 
 N:217:Blessing:ooder dokrog
-E:Blessing:ooder dokrog
 G:?:w
 I:70:33:0
 W:1:0:0:5:15
@@ -2268,7 +1882,6 @@ A:1/1
 F:STACK
 
 N:218:Holy Chant:nihum khomar
-E:Holy Chant:nihum khomar
 G:?:w
 I:70:34:0
 W:10:0:0:5:40
@@ -2276,7 +1889,6 @@ A:10/1
 F:STACK
 
 N:219:Holy Prayer:wexab jahnag
-E:Holy Prayer:wexab jahnag
 G:?:w
 I:70:35:0
 W:25:0:0:5:80
@@ -2284,7 +1896,6 @@ A:25/1
 F:STACK
 
 N:220:Word of Recall:re ab evssna
-E:Word of Recall:re ab evssna
 G:?:w
 I:70:11:0
 W:5:0:0:5:150
@@ -2292,7 +1903,6 @@ A:5/1
 F:STACK
 
 N:221:Destruction:denmung ishbul
-E:Destruction:denmung ishbul
 G:?:w
 I:70:41:0
 W:40:0:0:5:250
@@ -2301,7 +1911,6 @@ A:40/1
 ##### Potions #####
 
 N:222:Slime Mold Juice:Icky Green
-E:Slime Mold Juice:Icky Green
 G:!:g
 I:75:2:400
 W:0:0:10:4:2
@@ -2311,7 +1920,6 @@ F:FIXED_FLAVOR
 F:STACK
 
 N:223:Apple Juice:Light Brown
-E:Apple Juice:Light Brown
 G:!:U
 I:75:1:250
 W:0:0:10:4:1
@@ -2321,7 +1929,6 @@ F:FIXED_FLAVOR
 F:STACK
 
 N:224:Water:Clear
-E:Water:Clear
 G:!:w
 I:75:0:200
 W:0:0:0:4:1
@@ -2331,7 +1938,6 @@ F:FIXED_FLAVOR
 F:STACK
 
 N:225:Strength:Azure
-E:Strength:Azure
 G:!:B
 I:75:48:0
 W:30:0:0:4:30000
@@ -2339,7 +1945,6 @@ A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
 
 N:226:Weakness:Blue
-E:Weakness:Blue
 G:!:b
 I:75:16:0
 W:3:0:30:4:0
@@ -2348,7 +1953,6 @@ P:0:3d12:0:0:0
 F:STACK
 
 N:227:Restore Strength:Blue Speckled
-E:Restore Strength:Blue Speckled
 G:!:b
 I:75:42:0
 W:25:0:0:4:300
@@ -2357,7 +1961,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:228:Intelligence:Black
-E:Intelligence:Black
 G:!:D
 I:75:49:0
 W:30:0:0:4:30000
@@ -2365,7 +1968,6 @@ A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
 
 N:229:Stupidity:Brown
-E:Stupidity:Brown
 G:!:u
 I:75:17:0
 W:20:0:30:4:0
@@ -2374,7 +1976,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:230:Restore Intelligence:Brown Speckled
-E:Restore Intelligence:Brown Speckled
 G:!:u
 I:75:43:0
 W:25:0:0:4:300
@@ -2383,7 +1984,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:231:Wisdom:Bubbling
-E:Wisdom:Bubbling
 G:!:W
 I:75:50:0
 W:30:0:0:4:30000
@@ -2391,7 +1991,6 @@ A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
 
 N:232:Naivety:Chartreuse
-E:Naivety:Chartreuse
 G:!:G
 I:75:18:0
 W:20:0:30:4:0
@@ -2400,7 +1999,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:233:Restore Wisdom:Cloudy
-E:Restore Wisdom:Cloudy
 G:!:w
 I:75:44:0
 W:25:0:0:4:300
@@ -2409,7 +2007,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:234:Charisma:Copper Speckled
-E:Charisma:Copper Speckled
 G:!:U
 I:75:53:0
 W:30:0:0:4:30000
@@ -2417,7 +2014,6 @@ A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
 
 N:235:Ugliness:Crimson
-E:Ugliness:Crimson
 G:!:r
 I:75:21:0
 W:20:0:30:4:0
@@ -2426,7 +2022,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:236:Restore Charisma:Cyan
-E:Restore Charisma:Cyan
 G:!:B
 I:75:47:0
 W:20:0:0:4:300
@@ -2435,7 +2030,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:237:Curing:Dark Blue
-E:Curing:Dark Blue
 G:!:b
 I:75:61:100
 W:26:0:0:4:250
@@ -2444,7 +2038,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:238:Invulnerability:Dark Green
-E:Invulnerability:Dark Green
 G:!:g
 I:75:62:-2500
 W:110:0:0:4:100000
@@ -2452,7 +2045,6 @@ A:90/9
 P:0:1d1:0:0:0
 
 N:239:New Life:Dark Red
-E:New Life:Dark Red
 G:!:r
 I:75:63:100
 W:50:0:0:4:25000
@@ -2460,7 +2052,6 @@ A:30/4
 P:0:1d1:0:0:0
 
 N:240:Cure Serious Wounds:Gold Speckled
-E:Cure Serious Wounds:Gold Speckled
 G:!:y
 I:75:35:100
 W:10:0:50:4:40
@@ -2469,7 +2060,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:241:Cure Critical Wounds:Gray
-E:Cure Critical Wounds:Gray
 G:!:s
 I:75:36:100
 W:20:0:0:4:100
@@ -2478,7 +2068,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:242:Healing:Gray Speckled
-E:Healing:Gray Speckled
 G:!:s
 I:75:37:200
 W:31:0:0:4:300
@@ -2486,7 +2075,6 @@ A:31/1:60/1:80/1
 P:0:1d1:0:0:0
 
 N:243:Constitution:Green
-E:Constitution:Green
 G:!:g
 I:75:52:0
 W:30:0:0:4:30000
@@ -2494,7 +2082,6 @@ A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
 
 N:244:Experience:Green Speckled
-E:Experience:Green Speckled
 G:!:g
 I:75:59:0
 W:65:0:0:4:25000
@@ -2502,7 +2089,6 @@ A:65/1
 P:0:1d1:0:0:0
 
 N:245:Sleep:Hazy
-E:Sleep:Hazy
 G:!:W
 I:75:11:100
 W:0:0:20:4:0
@@ -2511,7 +2097,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:246:Blindness:Indigo
-E:Blindness:Indigo
 G:!:v
 I:75:7:0
 W:0:0:20:4:0
@@ -2520,7 +2105,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:247:Booze:Light Blue
-E:Booze:Light Blue
 G:!:B
 I:75:9:50
 W:0:0:20:4:0
@@ -2529,7 +2113,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:248:Poison:Light Green
-E:Poison:Light Green
 G:!:G
 I:75:6:0
 W:3:0:30:4:0
@@ -2538,7 +2121,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:249:Speed:Magenta
-E:Speed:Magenta
 G:!:r
 I:75:29:0
 W:1:0:0:4:75
@@ -2547,7 +2129,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:250:Slowness:Metallic Blue
-E:Slowness:Metallic Blue
 G:!:b
 I:75:4:50
 W:1:0:20:4:0
@@ -2556,7 +2137,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:251:Dexterity:Metallic Red
-E:Dexterity:Metallic Red
 G:!:r
 I:75:51:0
 W:30:0:0:4:30000
@@ -2564,7 +2144,6 @@ A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
 
 N:252:Restore Dexterity:Metallic Green
-E:Restore Dexterity:Metallic Green
 G:!:g
 I:75:45:0
 W:25:0:0:4:300
@@ -2573,7 +2152,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:253:Restore Constitution:Metallic Purple
-E:Restore Constitution:Metallic Purple
 G:!:v
 I:75:46:0
 W:25:0:0:4:300
@@ -2582,7 +2160,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:254:Lose Memories:Orange
-E:Lose Memories:Orange
 G:!:o
 I:75:13:0
 W:10:0:30:4:0
@@ -2591,7 +2168,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:255:Salt Water:Orange Speckled
-E:Salt Water:Orange Speckled
 G:!:o
 I:75:5:0
 W:0:0:20:4:0
@@ -2600,7 +2176,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:256:Enlightenment:Pink
-E:Enlightenment:Pink
 G:!:R
 I:75:56:0
 W:25:0:0:4:800
@@ -2608,7 +2183,6 @@ A:25/1:50/1:100/1
 P:0:1d1:0:0:0
 
 N:257:Heroism:Pink Speckled
-E:Heroism:Pink Speckled
 G:!:R
 I:75:32:0
 W:1:0:0:4:35
@@ -2617,7 +2191,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:258:Berserk Strength:Puce
-E:Berserk Strength:Puce
 G:!:v
 I:75:33:0
 W:20:0:0:4:100
@@ -2626,7 +2199,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:259:Boldness:Purple
-E:Boldness:Purple
 G:!:v
 I:75:28:0
 W:1:0:0:4:200
@@ -2635,7 +2207,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:260:Restore Life Levels:Red
-E:Restore Life Levels:Red
 G:!:r
 I:75:41:0
 W:20:0:0:4:400
@@ -2644,7 +2215,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:261:Resist Heat:Red Speckled
-E:Resist Heat:Red Speckled
 G:!:r
 I:75:30:0
 W:1:0:0:4:150
@@ -2653,7 +2223,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:262:Resist Cold:Silver Speckled
-E:Resist Cold:Silver Speckled
 G:!:W
 I:75:31:0
 W:1:0:0:4:150
@@ -2662,7 +2231,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:263:Detect Invisible:Smoky
-E:Detect Invisible:Smoky
 G:!:D
 I:75:25:0
 W:3:0:30:4:50
@@ -2671,7 +2239,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:264:Slow Poison:Tangerine
-E:Slow Poison:Tangerine
 G:!:o
 I:75:26:0
 W:1:0:20:4:25
@@ -2680,7 +2247,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:265:Neutralize Poison:Violet
-E:Neutralize Poison:Violet
 G:!:v
 I:75:27:0
 W:5:0:30:4:75
@@ -2689,7 +2255,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:266:Restore Mana:Vermilion
-E:Restore Mana:Vermilion
 G:!:r
 I:75:40:0
 W:15:0:0:4:1000
@@ -2697,7 +2262,6 @@ A:25/2:40/2:60/2:90/2
 P:0:1d1:0:0:0
 
 N:267:Infra-vision:White
-E:Infra-vision:White
 G:!:w
 I:75:24:0
 W:3:0:30:4:20
@@ -2706,7 +2270,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:268:Resistance:Yellow
-E:Resistance:Yellow
 G:!:y
 I:75:60:100
 W:20:0:0:4:250
@@ -2716,16 +2279,13 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Wands #####
 N:269:Light:Aluminum
-E:Light:Aluminum
 G:-:B
 I:65:7:17
 W:3:0:30:10:200
 A:3/1
 P:0:1d1:0:0:0
 
-#JZ#
 N:270:Tame Monster:Cast Iron
-E:Tame Monster:Cast Iron
 G:-:D
 I:65:17:9
 W:30:0:60:10:1500
@@ -2733,7 +2293,6 @@ A:30/2
 P:0:1d1:0:0:0
 
 N:271:Frost Bolts:Chromium
-E:Frost Bolts:Chromium
 G:-:w
 I:65:19:12
 W:15:0:30:10:800
@@ -2741,7 +2300,6 @@ A:15/1
 P:0:1d1:0:0:0
 
 N:272:Fire Bolts:Copper
-E:Fire Bolts:Copper
 G:-:U
 I:65:18:15
 W:19:0:40:10:1000
@@ -2749,7 +2307,6 @@ A:19/1
 P:0:1d1:0:0:0
 
 N:273:Stone to Mud:Gold
-E:Stone to Mud:Gold
 G:-:y
 I:65:6:12
 W:10:0:0:10:300
@@ -2757,7 +2314,6 @@ A:10/1:40/1
 P:0:1d1:0:0:0
 
 N:274:Polymorph:Iron
-E:Polymorph:Iron
 G:-:s
 I:65:13:15
 W:15:0:40:10:400
@@ -2765,7 +2321,6 @@ A:15/1
 P:0:1d1:0:0:0
 
 N:275:Heal Monster:Magnesium
-E:Heal Monster:Magnesium
 G:-:W
 I:65:0:6
 W:2:0:20:10:0
@@ -2773,7 +2328,6 @@ A:2/1
 P:0:1d1:0:0:0
 
 N:276:Haste Monster:Molybdenum
-E:Haste Monster:Molybdenum
 G:-:W
 I:65:1:6
 W:20:0:0:10:1
@@ -2781,7 +2335,6 @@ A:20/1
 P:0:1d1:0:0:0
 
 N:277:Slow Monster:Nickel
-E:Slow Monster:Nickel
 G:-:U
 I:65:9:17
 W:5:0:30:10:500
@@ -2789,7 +2342,6 @@ A:2/1
 P:0:1d1:0:0:0
 
 N:278:Confuse Monster:Rusty
-E:Confuse Monster:Rusty
 G:-:r
 I:65:10:15
 W:5:0:30:10:500
@@ -2797,7 +2349,6 @@ A:3/1
 P:0:1d1:0:0:0
 
 N:279:Sleep Monster:Silver
-E:Sleep Monster:Silver
 G:-:W
 I:65:8:16
 W:5:0:30:10:500
@@ -2805,7 +2356,6 @@ A:5/1
 P:0:1d1:0:0:0
 
 N:280:Drain Life:Steel
-E:Drain Life:Steel
 G:-:W
 I:65:12:7
 W:40:0:0:10:1200
@@ -2813,7 +2363,6 @@ A:40/1
 P:0:1d1:0:0:0
 
 N:281:Trap/Door Destruction:Tin
-E:Trap/Door Destruction:Tin
 G:-:W
 I:65:5:15
 W:10:0:50:10:100
@@ -2821,7 +2370,6 @@ A:10/1
 P:0:1d1:0:0:0
 
 N:282:Magic Missile:Titanium
-E:Magic Missile:Titanium
 G:-:w
 I:65:15:17
 W:2:0:30:10:200
@@ -2829,7 +2377,6 @@ A:2/1
 P:0:1d1:0:0:0
 
 N:283:Clone Monster:Tungsten
-E:Clone Monster:Tungsten
 G:-:w
 I:65:2:6
 W:15:0:60:10:0
@@ -2837,7 +2384,6 @@ A:15/1
 P:0:1d1:0:0:0
 
 N:284:Scare Monster:Zirconium
-E:Scare Monster:Zirconium
 G:-:W
 I:65:11:9
 W:10:0:30:10:500
@@ -2845,7 +2391,6 @@ A:10/4
 P:0:1d1:0:0:0
 
 N:285:Teleport Other:Zinc
-E:Teleport Other:Zinc
 G:-:W
 I:65:3:12
 W:20:0:0:10:350
@@ -2853,7 +2398,6 @@ A:20/1
 P:0:1d1:0:0:0
 
 N:286:Disarming:Copper-Plated
-E:Disarming:Copper-Plated
 G:-:U
 I:65:4:10
 W:20:0:0:10:700
@@ -2861,7 +2405,6 @@ A:20/1
 P:0:1d1:0:0:0
 
 N:287:Lightning Balls:Gold-Plated
-E:Lightning Balls:Gold-Plated
 G:-:y
 I:65:21:13
 W:30:0:0:10:1200
@@ -2870,7 +2413,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
 N:288:Cold Balls:Silver-Plated
-E:Cold Balls:Silver-Plated
 G:-:W
 I:65:23:9
 W:30:0:0:10:1500
@@ -2879,7 +2421,6 @@ P:0:1d1:0:0:0
 F:IGNORE_COLD
 
 N:289:Fire Balls:Tin-Plated
-E:Fire Balls:Tin-Plated
 G:-:W
 I:65:22:7
 W:30:0:0:10:1800
@@ -2888,7 +2429,6 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
 N:290:Stinking Cloud:Zinc-Plated
-E:Stinking Cloud:Zinc-Plated
 G:-:W
 I:65:14:15
 W:5:0:30:10:400
@@ -2896,7 +2436,6 @@ A:5/1
 P:0:1d1:0:0:0
 
 N:291:Acid Balls:Mithril
-E:Acid Balls:Mithril
 G:-:B
 I:65:20:8
 W:30:0:0:10:1650
@@ -2905,7 +2444,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID
 
 N:292:Wonder:Bronze
-E:Wonder:Bronze
 G:-:U
 I:65:24:24
 W:3:0:40:10:250
@@ -2915,9 +2453,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Extra ammunition #####
 
-#JZ#
-N:293:細矢
-E:& Flight Arrow~
+N:293:& Flight Arrow~
 G:{:y
 I:17:1:0
 W:3:0:0:1:1
@@ -2929,7 +2465,6 @@ F:SHOW_MODS
 ##### Additional wands #####
 
 N:294:Acid Bolts:Brass
-E:Acid Bolts:Brass
 G:-:U
 I:65:16:15
 W:20:0:40:10:950
@@ -2937,7 +2472,6 @@ A:20/1
 P:0:1d1:0:0:0
 
 N:295:Dragon's Flame:Platinum
-E:Dragon's Flame:Platinum
 G:-:w
 I:65:26:5
 W:40:0:0:10:2400
@@ -2946,7 +2480,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:296:Dragon's Frost:Lead
-E:Dragon's Frost:Lead
 G:-:s
 I:65:27:5
 W:40:0:0:10:2400
@@ -2955,7 +2488,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:297:Dragon's Breath:Lead-Plated
-E:Dragon's Breath:Lead-Plated
 G:-:s
 I:65:28:5
 W:50:0:0:10:2400
@@ -2964,7 +2496,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:298:Disintegrate:Ivory
-E:Disintegrate:Ivory
 G:-:w
 I:65:25:4
 W:50:0:0:10:3000
@@ -2973,7 +2504,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:299:Rockets:Adamantite
-E:Rockets:Adamantite
 G:-:v
 I:65:29:4
 W:75:0:0:10:9500
@@ -2981,11 +2511,9 @@ A:75/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-
 ##### Staffs #####
 
 N:300:Trap Location:Aspen
-E:Trap Location:Aspen
 G:_:U
 I:55:12:12
 W:10:0:30:50:350
@@ -2993,7 +2521,6 @@ A:10/1
 P:0:1d2:0:0:0
 
 N:301:Treasure Location:Balsa
-E:Treasure Location:Balsa
 G:_:U
 I:55:10:19
 W:5:0:30:50:200
@@ -3001,7 +2528,6 @@ A:5/1
 P:0:1d2:0:0:0
 
 N:302:Object Location:Banyan
-E:Object Location:Banyan
 G:_:U
 I:55:11:15
 W:5:0:50:50:200
@@ -3009,7 +2535,6 @@ A:5/1
 P:0:1d2:0:0:0
 
 N:303:Teleportation:Birch
-E:Teleportation:Birch
 G:_:U
 I:55:4:10
 W:20:0:0:50:2000
@@ -3017,7 +2542,6 @@ A:20/1
 P:0:1d2:0:0:0
 
 N:304:Earthquakes:Cedar
-E:Earthquakes:Cedar
 G:_:U
 I:55:28:9
 W:40:0:0:50:350
@@ -3025,7 +2549,6 @@ A:40/1
 P:0:1d2:0:0:0
 
 N:305:Summoning:Cottonwood
-E:Summoning:Cottonwood
 G:_:U
 I:55:3:5
 W:10:0:0:50:0
@@ -3033,7 +2556,6 @@ A:10/1:50/1
 P:0:1d2:0:0:0
 
 N:306:Light:Cypress
-E:Light:Cypress
 G:_:U
 I:55:8:19
 W:5:0:30:50:250
@@ -3041,7 +2563,6 @@ A:5/1
 P:0:1d2:0:0:0
 
 N:307:Destruction:Dogwood
-E:Destruction:Dogwood
 G:_:U
 I:55:29:5
 W:50:0:0:50:2500
@@ -3049,7 +2570,6 @@ A:50/1
 P:0:1d2:0:0:0
 
 N:308:Starlight:Elm
-E:Starlight:Elm
 G:_:U
 I:55:7:12
 W:20:0:0:50:800
@@ -3057,7 +2577,6 @@ A:20/1
 P:0:1d2:0:0:0
 
 N:309:Haste Monsters:Eucalyptus
-E:Haste Monsters:Eucalyptus
 G:_:U
 I:55:2:12
 W:10:0:0:50:0
@@ -3065,7 +2584,6 @@ A:10/1
 P:0:1d2:0:0:0
 
 N:310:Slow Monsters:Hemlock
-E:Slow Monsters:Hemlock
 G:_:U
 I:55:21:12
 W:10:0:40:50:800
@@ -3073,7 +2591,6 @@ A:10/1
 P:0:1d2:0:0:0
 
 N:311:Sleep Monsters:Hickory
-E:Sleep Monsters:Hickory
 G:_:U
 I:55:20:12
 W:10:0:40:50:700
@@ -3081,15 +2598,13 @@ A:10/1
 P:0:1d2:0:0:0
 
 N:312:Cure Wounds:Ironwood
-E:Cure Wounds:Ironwood
 G:_:u
 I:55:16:12
 W:20:0:60:50:1000
 A:20/2
 P:0:1d2:0:0:0
 
-N:313:
-E:Detect Invisible:Locust
+N:313:Detect Invisible:Locust
 G:_:U
 I:55:14:16
 W:5:0:30:50:200
@@ -3097,7 +2612,6 @@ A:5/1
 P:0:1d2:0:0:0
 
 N:314:Speed:Mahogany
-E:Speed:Mahogany
 G:_:u
 I:55:22:8
 W:40:0:0:50:1000
@@ -3105,7 +2619,6 @@ A:40/1
 P:0:1d2:0:0:0
 
 N:315:Slowness:Maple
-E:Slowness:Maple
 G:_:U
 I:55:1:10
 W:40:0:0:50:0
@@ -3113,7 +2626,6 @@ A:40/1
 P:0:1d2:0:0:0
 
 N:316:Door/Stair Location:Mulberry
-E:Door/Stair Location:Mulberry
 G:_:U
 I:55:13:15
 W:10:0:30:50:350
@@ -3121,7 +2633,6 @@ A:10/1
 P:0:1d2:0:0:0
 
 N:317:Remove Curse:Oak
-E:Remove Curse:Oak
 G:_:U
 I:55:6:8
 W:40:0:0:50:500
@@ -3129,7 +2640,6 @@ A:40/1
 P:0:1d2:0:0:0
 
 N:318:Detect Evil:Pine
-E:Detect Evil:Pine
 G:_:U
 I:55:15:14
 W:20:0:50:50:350
@@ -3137,7 +2647,6 @@ A:20/1
 P:0:1d2:0:0:0
 
 N:319:Curing:Redwood
-E:Curing:Redwood
 G:_:r
 I:55:17:8
 W:25:0:0:50:1000
@@ -3145,7 +2654,6 @@ A:25/1
 P:0:1d2:0:0:0
 
 N:320:Dispel Evil:Rosewood
-E:Dispel Evil:Rosewood
 G:_:r
 I:55:24:8
 W:50:0:0:50:1200
@@ -3153,7 +2661,6 @@ A:50/1
 P:0:1d2:0:0:0
 
 N:321:Probing:Spruce
-E:Probing:Spruce
 G:_:U
 I:55:23:9
 W:30:0:0:50:2000
@@ -3161,7 +2668,6 @@ A:30/1
 P:0:1d2:0:0:0
 
 N:322:Darkness:Sycamore
-E:Darkness:Sycamore
 G:_:U
 I:55:0:10
 W:5:0:40:50:0
@@ -3169,7 +2675,6 @@ A:5/1
 P:0:1d2:0:0:0
 
 N:323:Genocide:Teak
-E:Genocide:Teak
 G:_:U
 I:55:27:4
 W:80:0:0:50:30000
@@ -3177,7 +2682,6 @@ A:75/5
 P:0:1d2:0:0:0
 
 N:324:Power:Walnut
-E:Power:Walnut
 G:_:u
 I:55:25:5
 W:50:0:0:50:4000
@@ -3185,7 +2689,6 @@ A:50/2
 P:0:1d2:0:0:0
 
 N:325:the Magi:Mistletoe
-E:the Magi:Mistletoe
 G:_:g
 I:55:19:5
 W:100:0:0:50:100000
@@ -3193,7 +2696,6 @@ A:100/100
 P:0:1d2:0:0:0
 
 N:326:Perception:Hawthorn
-E:Perception:Hawthorn
 G:_:U
 I:55:5:21
 W:10:0:0:50:400
@@ -3201,7 +2703,6 @@ A:10/1
 P:0:1d2:0:0:0
 
 N:327:Holiness:Bamboo
-E:Holiness:Bamboo
 G:_:U
 I:55:26:5
 W:50:0:0:50:4500
@@ -3209,7 +2710,6 @@ A:50/2
 P:0:1d2:0:0:0
 
 N:328:Enlightenment:Silver
-E:Enlightenment:Silver
 G:_:W
 I:55:9:11
 W:20:0:0:50:750
@@ -3217,19 +2717,15 @@ A:20/1
 P:0:1d2:0:0:0
 
 N:329:Healing:Runed
-E:Healing:Runed
 G:_:u
 I:55:18:4
 W:60:0:0:50:5000
 A:60/2
 P:0:1d2:0:0:0
 
-
 ##### Basic Books #####
 
-#JZ#
-N:330:[一般祈祷]
-E:[Book of Common Prayer]
+N:330:[Book of Common Prayer]
 G:?:W
 I:90:0:0
 W:10:0:0:30:100
@@ -3237,18 +2733,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-#JZ#
-N:331:[上級祈祷]
-E:[High Mass]
+N:331:[High Mass]
 G:?:W
 I:90:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:332:[一角獣の書]
-E:[Book of the Unicorn]
+N:332:[Book of the Unicorn]
 G:?:w
 I:90:2:0
 W:50:0:0:30:25000
@@ -3256,9 +2748,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:333:[聖杯の加護]
-E:[Blessings of the Grail]
+N:333:[Blessings of the Grail]
 G:?:w
 I:90:3:0
 W:90:0:0:30:100000
@@ -3266,9 +2756,7 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:334:[入門書]
-E:[Beginner's Handbook]
+N:334:[Beginner's Handbook]
 G:?:B
 I:91:0:0
 W:10:0:0:30:100
@@ -3276,18 +2764,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-#JZ#
-N:335:[仙人の書]
-E:[Master Sorcerer's Handbook]
+N:335:[Master Sorcerer's Handbook]
 G:?:B
 I:91:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:336:[紋様仙術]
-E:[Pattern Sorcery]
+N:336:[Pattern Sorcery]
 G:?:b
 I:91:2:0
 W:50:0:0:30:25000
@@ -3295,9 +2779,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:337:[力の魔道書]
-E:[Grimoire of Power]
+N:337:[Grimoire of Power]
 G:?:b
 I:91:3:0
 W:90:0:0:30:100000
@@ -3307,66 +2789,57 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Chests #####
 
-N:338:小さな木の箱
-E:& Small wooden chest~
+N:338:& Small wooden chest~
 G:&:o
 I:7:1:0
 W:5:0:0:250:20
 A:5/2
 P:0:2d3:0:0:0
 
-N:339:大きな木の箱
-E:& Large wooden chest~
+N:339:& Large wooden chest~
 G:&:U
 I:7:5:0
 W:15:0:0:500:60
 A:15/2
 P:0:2d5:0:0:0
 
-N:340:小さな鉄の箱
-E:& Small iron chest~
+N:340:& Small iron chest~
 G:&:D
 I:7:2:0
 W:25:0:0:300:100
 A:25/2
 P:0:2d4:0:0:0
 
-N:341:大きな鉄の箱
-E:& Large iron chest~
+N:341:& Large iron chest~
 G:&:s
 I:7:6:0
 W:35:0:0:1000:150
 A:35/2
 P:0:2d6:0:0:0
 
-N:342:小さな鋼鉄の箱
-E:& Small steel chest~
+N:342:& Small steel chest~
 G:&:s
 I:7:3:0
 W:45:0:0:500:200
 A:45/2
 P:0:2d4:0:0:0
 
-N:343:大きな鋼鉄の箱
-E:& Large steel chest~
+N:343:& Large steel chest~
 G:&:W
 I:7:7:0
 W:55:0:0:1000:250
 A:55/2
 P:0:2d6:0:0:0
 
-N:344:あばかれた箱
-E:& Ruined chest~
+N:344:& Ruined chest~
 G:&:u
 I:7:0:0
 W:0:0:0:250:0
 A:75/2
 
-
 ##### Various Stuff #####
 
-N:345:鉄のくさび
-E:& Iron Spike~
+N:345:& Iron Spike~
 G:~:W
 I:5:0:0
 W:1:0:20:10:1
@@ -3374,8 +2847,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:346:松明
-E:& Wooden Torch~
+N:346:& Wooden Torch~
 G:~:u
 I:39:0:4000
 W:1:0:20:30:2
@@ -3383,8 +2855,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:347:真鍮のランタン
-E:& Brass Lantern~
+N:347:& Brass Lantern~
 G:~:U
 I:39:1:7500
 W:3:0:30:50:35
@@ -3393,8 +2864,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 F:STACK
 
-N:348:油つぼ
-E:& Flask~ of oil
+N:348:& Flask~ of oil
 G:!:y
 I:77:0:7500
 W:1:0:30:10:3
@@ -3402,8 +2872,7 @@ A:1/1
 P:0:2d6:0:0:0
 F:STACK
 
-N:349:空のビン
-E:& Empty Bottle~
+N:349:& Empty Bottle~
 G:!:w
 I:2:1:0
 W:0:0:10:2:1
@@ -3415,7 +2884,6 @@ F:STACK
 #HACK:pval is the recharge timeout
 
 N:350:Havoc:Aluminum
-E:Havoc:Aluminum
 G:-:B
 I:66:28:35
 W:100:0:0:15:150000
@@ -3423,7 +2891,6 @@ A:50/32:100/8
 P:0:1d1:0:0:0
 
 N:351:Door/Stair Location:Cast Iron
-E:Door/Stair Location:Cast Iron
 G:-:D
 I:66:1:35
 W:15:0:50:15:1000
@@ -3431,7 +2898,6 @@ A:7/4:15/1
 P:0:1d1:0:0:0
 
 N:352:Trap Location:Chromium
-E:Trap Location:Chromium
 G:-:w
 I:66:0:15
 W:5:0:50:15:100
@@ -3439,7 +2905,6 @@ A:3/2:10/1
 P:0:1d1:0:0:0
 
 N:353:Probing:Copper
-E:Probing:Copper
 G:-:U
 I:66:7:50
 W:40:0:0:15:4000
@@ -3447,7 +2912,6 @@ A:20/16:40/4
 P:0:1d1:0:0:0
 
 N:354:Recall:Gold
-E:Recall:Gold
 G:-:y
 I:66:3:60
 W:30:0:0:15:4000
@@ -3455,7 +2919,6 @@ A:15/16:30/4
 P:0:1d1:0:0:0
 
 N:355:Illumination:Iron
-E:Illumination:Iron
 G:-:s
 I:66:4:16
 W:12:0:60:15:1000
@@ -3463,7 +2926,6 @@ A:6/4:12/1
 P:0:1d1:0:0:0
 
 N:356:Light:Magnesium
-E:Light:Magnesium
 G:-:W
 I:66:15:9
 W:10:0:30:15:500
@@ -3471,7 +2933,6 @@ A:5/4:10/1
 P:0:1d1:0:0:0
 
 N:357:Lightning Bolts:Molybdenum
-E:Lightning Bolts:Molybdenum
 G:-:W
 I:66:21:5
 W:20:0:40:15:2000
@@ -3479,7 +2940,6 @@ A:10/4:20/1
 P:0:1d1:0:0:0
 
 N:358:Frost Bolts:Nickel
-E:Frost Bolts:Nickel
 G:-:U
 I:66:23:5
 W:20:0:40:15:2500
@@ -3487,7 +2947,6 @@ A:13/4:20/1
 P:0:1d1:0:0:0
 
 N:359:Fire Bolts:Rusty
-E:Fire Bolts:Rusty
 G:-:r
 I:66:22:5
 W:20:0:40:15:3000
@@ -3495,7 +2954,6 @@ A:15/4:20/1
 P:0:1d1:0:0:0
 
 N:360:Polymorph:Silver
-E:Polymorph:Silver
 G:-:W
 I:66:19:25
 W:35:0:40:15:1200
@@ -3503,7 +2961,6 @@ A:18/4:35/1
 P:0:1d1:0:0:0
 
 N:361:Slow Monster:Steel
-E:Slow Monster:Steel
 G:-:W
 I:66:17:20
 W:30:0:40:15:1500
@@ -3511,7 +2968,6 @@ A:15/4:30/1
 P:0:1d1:0:0:0
 
 N:362:Sleep Monster:Tin
-E:Sleep Monster:Tin
 G:-:W
 I:66:16:18
 W:30:0:40:15:1500
@@ -3519,7 +2975,6 @@ A:15/4:30/1
 P:0:1d1:0:0:0
 
 N:363:Drain Life:Titanium
-E:Drain Life:Titanium
 G:-:w
 I:66:18:13
 W:55:0:0:15:3600
@@ -3527,7 +2982,6 @@ A:38/16:55/4
 P:0:1d1:0:0:0
 
 N:364:Teleport Other:Tungsten
-E:Teleport Other:Tungsten
 G:-:w
 I:66:13:25
 W:45:0:0:15:1400
@@ -3535,7 +2989,6 @@ A:23/8:45/2
 P:0:1d1:0:0:0
 
 N:365:Disarming:Zirconium
-E:Disarming:Zirconium
 G:-:W
 I:66:14:22
 W:35:0:0:15:2100
@@ -3543,7 +2996,6 @@ A:18/4:35/1
 P:0:1d1:0:0:0
 
 N:366:Lightning Balls:Zinc
-E:Lightning Balls:Zinc
 G:-:W
 I:66:25:23
 W:35:0:0:15:4000
@@ -3551,7 +3003,6 @@ A:35/1
 P:0:1d1:0:0:0
 
 N:367:Cold Balls:Copper-Plated
-E:Cold Balls:Copper-Plated
 G:-:U
 I:66:27:25
 W:40:0:0:15:4500
@@ -3559,7 +3010,6 @@ A:40/1
 P:0:1d1:0:0:0
 
 N:368:Fire Balls:Gold-Plated
-E:Fire Balls:Gold-Plated
 G:-:y
 I:66:26:30
 W:40:0:0:15:5000
@@ -3567,7 +3017,6 @@ A:40/1
 P:0:1d1:0:0:0
 
 N:369:Acid Balls:Silver-Plated
-E:Acid Balls:Silver-Plated
 G:-:W
 I:66:24:27
 W:40:0:0:15:5500
@@ -3575,7 +3024,6 @@ A:40/1
 P:0:1d1:0:0:0
 
 N:370:Acid Bolts:Tin-Plated
-E:Acid Bolts:Tin-Plated
 G:-:W
 I:66:20:12
 W:40:0:60:15:3500
@@ -3583,7 +3031,6 @@ A:20/4:40/1
 P:0:1d1:0:0:0
 
 N:371:Enlightenment:Zinc-Plated
-E:Enlightenment:Zinc-Plated
 G:-:W
 I:66:5:30
 W:55:0:0:15:10000
@@ -3591,7 +3038,6 @@ A:33/16:55/4
 P:0:1d1:0:0:0
 
 N:372:Perception:Mithril
-E:Perception:Mithril
 G:-:B
 I:66:2:10
 W:35:0:0:15:13000
@@ -3599,7 +3045,6 @@ A:25/32:50/8
 P:0:1d1:0:0:0
 
 N:373:Curing:Bronze
-E:Curing:Bronze
 G:-:U
 I:66:8:50
 W:65:0:0:15:15000
@@ -3607,7 +3052,6 @@ A:33/32:65/8
 P:0:1d1:0:0:0
 
 N:374:Healing:Brass
-E:Healing:Brass
 G:-:U
 I:66:9:300
 W:80:0:0:15:20000
@@ -3615,7 +3059,6 @@ A:40/32:80/8
 P:0:1d1:0:0:0
 
 N:375:Detection:Platinum
-E:Detection:Platinum
 G:-:w
 I:66:6:50
 W:30:0:0:15:5000
@@ -3623,7 +3066,6 @@ A:15/32:30/6
 P:0:1d1:0:0:0
 
 N:376:Restoration:Lead
-E:Restoration:Lead
 G:-:s
 I:66:10:300
 W:80:0:0:15:25000
@@ -3631,16 +3073,13 @@ A:40/64:80/16
 P:0:1d1:0:0:0
 
 N:377:Speed:Lead-Plated
-E:Speed:Lead-Plated
 G:-:s
 I:66:11:99
 W:60:0:0:15:50000
 A:48/64:95/16
 P:0:1d1:0:0:0
 
-#JZ#
 N:378:Pesticide:Ivory
-E:Pesticide:Ivory
 G:-:w
 I:66:12:2
 W:3:0:40:15:1000
@@ -3649,9 +3088,7 @@ P:0:1d1:0:0:0
 
 ##### Special Books (note resistances) #####
 
-#JZ#
-N:379:[野性の召喚]
-E:[Call of the Wild]
+N:379:[Call of the Wild]
 G:?:G
 I:92:0:0
 W:10:0:0:30:100 
@@ -3659,18 +3096,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-#JZ#
-N:380:[自然の秘術]
-E:[Nature Mastery]
+N:380:[Nature Mastery]
 G:?:G
 I:92:1:0
 W:20:0:0:30:1000 
 A:20/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:381:[自然の恵み]
-E:[Nature's Gifts]
+N:381:[Nature's Gifts]
 G:?:g
 I:92:2:0
 W:50:0:0:30:25000
@@ -3678,9 +3111,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:382:[自然の脅威]
-E:[Nature's Wrath]
+N:382:[Nature's Wrath]
 G:?:g
 I:92:3:0
 W:80:0:0:30:100000
@@ -3688,9 +3119,7 @@ A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:383:[カオスの徴]
-E:[Sign of Chaos]
+N:383:[Sign of Chaos]
 G:?:R
 I:93:0:0
 W:10:0:0:30:100
@@ -3698,18 +3127,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-#JZ#
-N:384:[カオス秘術]
-E:[Chaos Mastery]
+N:384:[Chaos Mastery]
 G:?:R
 I:93:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:385:[カオス魔導]
-E:[Chaos Channels]
+N:385:[Chaos Channels]
 G:?:r
 I:93:2:0
 W:50:0:0:30:25000
@@ -3717,9 +3142,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:386:[ハルマゲドン大全]
-E:[Armageddon Tome]
+N:386:[Armageddon Tome]
 G:?:r
 I:93:3:0
 W:100:0:0:30:100000
@@ -3727,9 +3150,7 @@ A:100/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:387:[暗黒祈祷]
-E:[Black Prayers]
+N:387:[Black Prayers]
 G:?:D
 I:94:0:0
 W:10:0:0:30:100
@@ -3737,9 +3158,7 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-#JZ#
-N:388:[暗黒大成]
-E:[Black Mass]
+N:388:[Black Mass]
 G:?:D
 I:94:1:0
 W:20:0:0:30:1000
@@ -3748,8 +3167,7 @@ P:0:1d1:0:0:0
 
 ##### Junk #####
 
-N:389:陶器のかけら
-E:& Shard~ of Pottery
+N:389:& Shard~ of Pottery
 G:~:r
 I:3:3:0
 W:0:0:10:5:0
@@ -3757,8 +3175,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:390:折れた棒
-E:& Broken Stick~
+N:390:& Broken Stick~
 G:~:r
 I:3:6:0
 W:0:0:10:3:0
@@ -3766,67 +3183,58 @@ A:0/1
 P:0:1d1:0:0:0
 F:STACK
 
-
 ##### Skeletons #####
 
-N:391:頭蓋骨の破片
-E:& Broken Skull~
+N:391:& Broken Skull~
 G:~:w
 I:1:1:0
 W:0:0:20:1:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:392:骨の破片
-E:& Broken Bone~
+N:392:& Broken Bone~
 G:~:w
 I:1:2:0
 W:0:0:20:2:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:393:犬の骨
-E:& Canine Skeleton~
+N:393:& Canine Skeleton~
 G:~:w
 I:1:4:0
 W:1:0:20:10:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:394:ネズミの骨
-E:& Rodent Skeleton~
+N:394:& Rodent Skeleton~
 G:~:w
 I:1:3:0
 W:1:0:20:10:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:395:人間の骨
-E:& Human Skeleton~
+N:395:& Human Skeleton~
 G:~:w
 I:1:8:0
 W:5:0:20:60:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:396:ドワーフの骨
-E:& Dwarf Skeleton~
+N:396:& Dwarf Skeleton~
 G:~:w
 I:1:7:0
 W:5:0:20:50:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:397:エルフの骨
-E:& Elf Skeleton~
+N:397:& Elf Skeleton~
 G:~:w
 I:1:6:0
 W:5:0:20:40:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:398:ノームの骨
-E:& Gnome Skeleton~
+N:398:& Gnome Skeleton~
 G:~:w
 I:1:5:0
 W:5:0:20:30:0
@@ -3835,9 +3243,7 @@ P:0:1d2:0:0:0
 
 ##### Additional weapon #####
 
-#JZ#
-N:399:グレート・ハンマー
-E:& Great Hammer~
+N:399:& Great Hammer~
 G:\:D
 I:21:19:0
 W:45:0:0:300:350
@@ -3847,8 +3253,7 @@ F:SHOW_MODS
 
 ##### Dragon Scale Mail #####
 
-N:400:ブラックドラゴン・スケイルメイル
-E:Black Dragon Scale Mail~
+N:400:Black Dragon Scale Mail~
 G:[:s
 I:38:1:0
 W:60:0:0:200:30000
@@ -3856,11 +3261,9 @@ A:60/8
 P:40:2d4:-2:0:10
 F:RES_ACID |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of utterly black scales, against which no metal or wood can rest.
-D:木や金属が耐えられないかのような漆黒の鱗鎧だ。
+D:A suit of utterly black scales, against which no metal or wood can rest.
 
-N:401:ブルードラゴン・スケイルメイル
-E:Blue Dragon Scale Mail~
+N:401:Blue Dragon Scale Mail~
 G:[:b
 I:38:2:0
 W:40:0:0:200:35000
@@ -3868,12 +3271,10 @@ A:40/8
 P:40:2d4:-2:0:10
 F:RES_ELEC |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales as blue as sapphires, emitting eerie sparks and flashes as 
-D:$you move about in it.
-D:着た者が動くと不気味な稲妻と光を放つ、サファイアのように青い鱗鎧だ。
+D:A suit of scales as blue as sapphires, emitting eerie sparks and flashes as 
+D:you move about in it.
 
-N:402:ホワイトドラゴン・スケイルメイル
-E:White Dragon Scale Mail~
+N:402:White Dragon Scale Mail~
 G:[:w
 I:38:3:0
 W:50:0:0:200:40000
@@ -3881,12 +3282,10 @@ A:50/8
 P:40:2d4:-2:0:10
 F:RES_COLD |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales, coldly gleaming in frosty white.  A shiver runs down 
-D:$through your spine even as you look at it.
-D:冷淡な白に冷たくきらめく鱗鎧だ。それを見る時、背筋が寒くなる。
+D:A suit of scales, coldly gleaming in frosty white.  A shiver runs down 
+D:through your spine even as you look at it.
 
-N:403:レッドドラゴン・スケイルメイル
-E:Red Dragon Scale Mail~
+N:403:Red Dragon Scale Mail~
 G:[:r
 I:38:4:0
 W:80:0:0:200:100000
@@ -3894,12 +3293,10 @@ A:80/8
 P:40:2d4:-2:0:10
 F:RES_FIRE |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales, with all the reds of every fire ever lit.  The scar 
-D:$tissue from an old burn aches as you put this armour on.
-D:常に燃える炎に赤く彩られた鱗鎧だ。これを着ると古い火傷跡が痛む。
+D:A suit of scales, with all the reds of every fire ever lit.  The scar 
+D:tissue from an old burn aches as you put this armour on.
 
-N:404:グリーンドラゴン・スケイルメイル
-E:Green Dragon Scale Mail~
+N:404:Green Dragon Scale Mail~
 G:[:g
 I:38:5:0
 W:70:0:0:200:80000
@@ -3910,11 +3307,9 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 #D:$A suit of scales, glistening in sickly green, out from which falls the 
 #D:$skeleton of a rat who touched it and died in agony.
 #D:病的な緑に光る鱗鎧で、それに触れたネズミは苦痛に死んで白骨化する。
-D:$A suit of scales, glistening in sickly green.
-D:病的な緑に光る鱗鎧だ。
+D:A suit of scales, glistening in sickly green.
 
-N:405:万色ドラゴン・スケイルメイル
-E:Multi-Hued Dragon Scale Mail~
+N:405:Multi-Hued Dragon Scale Mail~
 G:[:v
 I:38:6:0
 W:100:0:0:200:150000
@@ -3922,14 +3317,10 @@ A:100/16
 P:40:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales that throbs with angry energies; it takes all your energy 
-D:$to master the Elements fighting an endless war trapped inside.
-D:怒りのエネルギーに脈打つ鱗鎧で、鎧の中に捕らわれ永遠に戦い続けるエレメント達
-D:を支配するために着る者の力全てを用いる。
+D:A suit of scales that throbs with angry energies; it takes all your energy 
+D:to master the Elements fighting an endless war trapped inside.
 
-#JZ#
-N:406:ドラゴンモドキ・スケイルメイル
-E:Pseudo Dragon Scale Mail~
+N:406:Pseudo Dragon Scale Mail~
 G:[:v
 I:38:10:0
 W:65:0:0:200:60000
@@ -3938,8 +3329,7 @@ P:40:2d4:-2:0:10
 F:RES_LITE | RES_DARK |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:407:ロードラゴン・スケイルメイル
-E:Law Dragon Scale Mail~
+N:407:Law Dragon Scale Mail~
 G:[:B
 I:38:12:0
 W:80:0:0:200:80000
@@ -3947,13 +3337,10 @@ A:80/16
 P:40:2d4:-2:0:10
 F:RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales in stern blue and silver.  You feel the slightest tremor 
-D:$as you touch it, like massed trumpets heard and cyclones felt from afar.
-D:厳粛な青と銀の鱗鎧だ。それに触れると、トランペットの集団の演奏が聞こえるか
-D:遠方からの竜巻を感じるかのようにごく微かな振動を感じる。
+D:A suit of scales in stern blue and silver.  You feel the slightest tremor 
+D:as you touch it, like massed trumpets heard and cyclones felt from afar.
 
-N:408:ブロンズドラゴン・スケイルメイル
-E:Bronze Dragon Scale Mail~
+N:408:Bronze Dragon Scale Mail~
 G:[:U
 I:38:14:0
 W:55:0:0:200:30000
@@ -3961,14 +3348,11 @@ A:55/8
 P:40:2d4:-2:0:10
 F:RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales, gleaming in rich engraved bronze.  The more you look at 
-D:$the the maze of whorls and lines that close inspection reveal on its 
-D:$surface, the less sense you are able to make of them.
-D:贅沢に彫刻された青銅がきらめく鱗鎧だ。近づいて見ると鎧の表面に現れる渦と線の
-D:迷宮を見れば見るほど、どうやってそれらができているのかわからなくなる。
+D:A suit of scales, gleaming in rich engraved bronze.  The more you look at 
+D:the the maze of whorls and lines that close inspection reveal on its 
+D:surface, the less sense you are able to make of them.
 
-N:409:ゴールドドラゴン・スケイルメイル
-E:Gold Dragon Scale Mail~
+N:409:Gold Dragon Scale Mail~
 G:[:y
 I:38:16:0
 W:65:0:0:200:40000
@@ -3976,14 +3360,11 @@ A:65/8
 P:40:2d4:-2:0:10
 F:RES_SOUND |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales in mirror-like gold.  You hear nothing unusual as you 
-D:$wear this armour, yet your ears ache as though in the midst of a 
-D:$cacophony.
-D:鏡のような金の鱗鎧だ。不協和音の中にいるかのように耳が痛くなり、この鎧を着る
-D:と異常なまでに何も聞こえなくなる。
+D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
+D:wear this armour, yet your ears ache as though in the midst of a 
+D:cacophony.
 
-N:410:カオスドラゴン・スケイルメイル
-E:Chaos Dragon Scale Mail~
+N:410:Chaos Dragon Scale Mail~
 G:[:v
 I:38:18:0
 W:75:0:0:200:70000
@@ -3991,13 +3372,10 @@ A:75/16
 P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales.  Every shape, in every color imaginable, riot and 
-D:$contend upon its surface as you stare in fascination.
-D:鱗鎧だ。魅惑されて見つめると、その表面で想像できる限りの色をとる様々な形
-D:すべてが乱舞し争う。
+D:A suit of scales.  Every shape, in every color imaginable, riot and 
+D:contend upon its surface as you stare in fascination.
 
-N:411:バランスドラゴン・スケイルメイル
-E:Balance Dragon Scale Mail~
+N:411:Balance Dragon Scale Mail~
 G:[:v
 I:38:20:0
 W:90:0:0:200:100000
@@ -4005,14 +3383,11 @@ A:90/16
 P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit of scales.  Featureless grey to casual inspection, yet a closer 
-D:$look reveals patterns within patterns of iridescence that throb with 
-D:$leashed energies bound as though by chains of adamant.
-D:鱗鎧だ。何気なく見ると平凡な灰色だが、近づいてよく見るとアダマンタイトの鎖の
-D:ようなものに縛られたエネルギーが脈打つ虹色の紋様の中にも紋様が現れる。
+D:A suit of scales.  Featureless grey to casual inspection, yet a closer 
+D:look reveals patterns within patterns of iridescence that throb with 
+D:leashed energies bound as though by chains of adamant.
 
-N:412:パワードラゴン・スケイルメイル
-E:Power Dragon Scale Mail~
+N:412:Power Dragon Scale Mail~
 G:[:v
 I:38:30:0
 W:110:0:0:200:350000
@@ -4022,30 +3397,23 @@ F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$A suit with scales of every color, surrounded in a nimbus of perfectly 
-D:$untramelled yet inextricably intermingled and utterly mastered powers 
-D:$elemental and ethereal.
-D:すべての色を持つ鱗鎧で、完全な自由でありながら密接に混ざり合い完全に支配され
-D:た元素と天上界の力の後光に包まれている。
+D:A suit with scales of every color, surrounded in a nimbus of perfectly 
+D:untramelled yet inextricably intermingled and utterly mastered powers 
+D:elemental and ethereal.
 
 ## PDSM has been restored to (almost) its former glory in Zangband
 
-#JZ#
-N:413:ドラゴン・ヘルム
-E:& Dragon Helm~
+N:413:& Dragon Helm~
 G:]:G
 I:32:7:0
 W:60:0:0:50:10000
 A:60/5
 P:8:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
-D:$A dragon-winged great helm, glowing in all the colors of the rainbow.  
-D:$It grants resistance to the elements.
-D:ドラゴンの翼飾りのある大きな兜で、虹色に輝く。元素への耐性を保証する。
+D:A dragon-winged great helm, glowing in all the colors of the rainbow.  
+D:It grants resistance to the elements.
 
-#JZ#
-N:414:ドラゴン・シールド
-E:& Dragon Shield~
+N:414:& Dragon Shield~
 G:[:G
 I:34:6:0
 W:60:0:0:100:10000
@@ -4056,7 +3424,6 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 ##### Extra potions #####
 
 N:415:Death:Violet Speckled
-E:Death:Violet Speckled
 G:!:v
 I:75:23:0
 W:55:0:0:4:0
@@ -4064,7 +3431,6 @@ A:55/4
 P:0:20d20:0:0:0
 
 N:416:Ruination:Pungent
-E:Ruination:Pungent
 G:!:R
 I:75:15:0
 W:40:0:80:4:0
@@ -4072,7 +3438,6 @@ A:40/8
 P:0:20d20:0:0:0
 
 N:417:Detonations:Clotted Red
-E:Detonations:Clotted Red
 G:!:r
 I:75:22:0
 W:60:0:80:4:10000
@@ -4080,7 +3445,6 @@ A:60/8
 P:0:25d25:0:0:0
 
 N:418:Augmentation:Viscous Pink
-E:Augmentation:Viscous Pink
 G:!:R
 I:75:55:0
 W:60:0:0:4:150000
@@ -4088,7 +3452,6 @@ A:40/16
 P:0:1d1:0:0:0
 
 N:419:*Healing*:Oily Yellow
-E:*Healing*:Oily Yellow
 G:!:y
 I:75:38:0
 W:80:0:0:4:1500
@@ -4096,7 +3459,6 @@ A:40/4:60/2:80/1
 P:0:1d1:0:0:0
 
 N:420:Life:Gloopy Green
-E:Life:Gloopy Green
 G:!:g
 I:75:39:0
 W:100:0:0:4:5000
@@ -4104,7 +3466,6 @@ A:60/4:100/2
 P:0:1d1:0:0:0
 
 N:421:Self Knowledge:Shimmering
-E:Self Knowledge:Shimmering
 G:!:v
 I:75:58:0
 W:40:0:0:4:2000
@@ -4112,16 +3473,13 @@ A:40/1
 P:0:1d1:0:0:0
 
 N:422:*Enlightenment*:Yellow Speckled
-E:*Enlightenment*:Yellow Speckled
 G:!:y
 I:75:57:0
 W:70:0:0:4:120000
 A:70/4
 P:0:1d1:0:0:0
 
-#JZ#
-N:423:[暗黒魔導]
-E:[Black Channels]
+N:423:[Black Channels]
 G:?:v
 I:94:2:0
 W:50:0:0:30:25000
@@ -4129,9 +3487,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:424:[ネクロノミコン]
-E:[Necronomicon]
+N:424:[Necronomicon]
 G:?:v
 I:94:3:0
 W:90:0:0:30:100000
@@ -4139,115 +3495,90 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:425:恐れ知らず:ジルコンの
-E:Fear Resistance:Zircon
+N:425:Fear Resistance:Zircon
 G:=:U
 I:45:38:0
 W:10:0:30:2:300 
 A:10/5
 F:RES_FEAR
 
-#JZ#
-N:426:耐光耐暗:プラチナの
-E:Light and Darkness Resistance:Platinum
+N:426:Light and Darkness Resistance:Platinum
 G:=:w
 I:45:39:0
 W:20:0:70:2:3000
 A:20/2
 F:RES_LITE | RES_DARK
 
-#JZ#
-N:427:耐地獄:青銅の
-E:Nether Resistance:Bronze
+N:427:Nether Resistance:Bronze
 G:=:U
 I:45:40:0
 W:34:0:70:2:14500
 A:34/2
 F:RES_NETHER | HOLD_LIFE
 
-#JZ#
-N:428:耐因果混乱:金の
-E:Nexus Resistance:Gold
+N:428:Nexus Resistance:Gold
 G:=:y
 I:45:41:0
 W:24:0:70:2:3000
 A:24/2
 F:RES_NEXUS
 
-#JZ#
-N:429:耐轟音:黒曜石の
-E:Sound Resistance:Obsidian
+N:429:Sound Resistance:Obsidian
 G:=:D
 I:45:42:0
 W:26:0:0:2:3000
 A:26/2
 F:RES_SOUND
 
-#JZ#
-N:430:耐混乱:銀の
-E:Confusion Resistance:Silver
+N:430:Confusion Resistance:Silver
 G:=:W
 I:45:43:0
 W:22:0:70:2:3000
 A:22/2
 F:RES_CONF
 
-#JZ#
-N:431:耐破片:べっ甲の
-E:Shard Resistance:Tortoise Shell
+N:431:Shard Resistance:Tortoise Shell
 G:=:g
 I:45:44:0
 W:25:0:0:2:3000
 A:25/2
 F:RES_SHARDS
 
-#JZ#
-N:432:耐劣化:ミスリルの
-E:Disenchantment Resistance:Mithril
+N:432:Disenchantment Resistance:Mithril
 G:=:B
 I:45:45:0
 W:90:0:0:2:15000
 A:90/10
 F:RES_DISEN
 
-#JZ#
-N:433:耐カオス:黒玉の
-E:Chaos Resistance:Jet
+N:433:Chaos Resistance:Jet
 G:=:D
 I:45:46:0
 W:50:0:0:2:13000
 A:50/2
 F:RES_CHAOS | RES_CONF
 
-#JZ#
-N:434:耐盲目:婚約
-E:Blindness Resistance:Engagement
+N:434:Blindness Resistance:Engagement
 G:=:y
 I:45:47:0
 W:60:0:0:2:7500
 A:60/2
 F:RES_BLIND
 
-#JZ#
-N:435:王者の加護:アダマンタイトの
-E:Lordly Protection:Adamantite
+N:435:Lordly Protection:Adamantite
 G:=:v
 I:45:48:0
 W:100:0:0:2:100000
 A:100/8
 F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
 
-#JZ#
-N:436:追加攻撃:針金の
-E:Extra Attacks:Wire
+N:436:Extra Attacks:Wire
 G:=:u
 I:45:49:0
 W:70:0:0:2:100000
 F:BLOWS
 
 N:437:Cure Light Wounds:Gold
-E:Cure Light Wounds:Gold
 G:!:y
 I:75:34:50
 W:0:0:20:4:15
@@ -4256,7 +3587,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:438:Clumsiness:Stinking
-E:Clumsiness:Stinking
 G:!:u
 I:75:19:0
 W:5:0:20:4:0
@@ -4265,7 +3595,6 @@ P:0:1d1:0:0:0
 F:STACK
 
 N:439:Sickliness:Ivory White
-E:Sickliness:Ivory White
 G:!:w
 I:75:20:0
 W:10:0:20:4:0
@@ -4276,7 +3605,6 @@ F:STACK
 ##### Items 440 to 444 reserved (old "fake" objects) #####
 
 ##### Items 445 to 479 reserved (old "terrain" objects) #####
-
 
 # The old "notice_seams" option is currently unused, but much of its
 # old functionality can be obtained by clever use of 'F' commands in
@@ -4289,117 +3617,97 @@ F:STACK
 # player in different colors or whatever for different "states", or even
 # a different picture for various "class" or "race" choices.
 
-
 ##### And here starts the gold/gems #####
 
-N:480:銅塊
-E:copper
+N:480:copper
 G:$:u
 I:127:1:0
 W:1:0:0:0:3
 
-N:481:銅塊
-E:copper
+N:481:copper
 G:$:u
 I:127:2:0
 W:1:0:0:0:4
 
-N:482:銅塊
-E:copper
+N:482:copper
 G:$:u
 I:127:3:0
 W:1:0:0:0:5
 
-N:483:銀塊
-E:silver
+N:483:silver
 G:$:s
 I:127:4:0
 W:1:0:0:0:6
 
-N:484:銀塊
-E:silver
+N:484:silver
 G:$:s
 I:127:5:0
 W:1:0:0:0:7
 
-N:485:銀塊
-E:silver
+N:485:silver
 G:$:s
 I:127:6:0
 W:1:0:0:0:8
 
-N:486:ガーネット
-E:garnets
+N:486:garnets
 G:$:r
 I:127:7:0
 W:1:0:0:0:9
 
-N:487:ガーネット
-E:garnets
+N:487:garnets
 G:$:r
 I:127:8:0
 W:1:0:0:0:10
 
-N:488:金塊
-E:gold
+N:488:gold
 G:$:y
 I:127:9:0
 W:1:0:0:0:12
 
-N:489:金塊
-E:gold
+N:489:gold
 G:$:y
 I:127:10:0
 W:1:0:0:0:14
 
-N:490:金塊
-E:gold
+N:490:gold
 G:$:y
 I:127:11:0
 W:1:0:0:0:16
 
-N:491:オパール
-E:opals
+N:491:opals
 G:$:W
 I:127:12:0
 W:1:0:0:0:18
 
-N:492:サファイア
-E:sapphires
+N:492:sapphires
 G:$:b
 I:127:13:0
 W:1:0:0:0:20
 
-N:493:ルビー
-E:rubies
+N:493:rubies
 G:$:r
 I:127:14:0
 W:1:0:0:0:24
 
-N:494:ダイヤモンド
-E:diamonds
+N:494:diamonds
 G:$:w
 I:127:15:0
 W:1:0:0:0:28
 
-N:495:エメラルド
-E:emeralds
+N:495:emeralds
 G:$:g
 I:127:16:0
 W:1:0:0:0:32
 
-N:496:ミスリル
-E:mithril
+N:496:mithril
 G:$:B
 I:127:17:0
 W:1:0:0:0:40
 
-N:497:アダマンタイト
-E:adamantite
+N:497:adamantite
 G:$:G
 I:127:18:0
 W:1:0:0:0:80
-
 
 ##### Objects 498 and 499 are the "Morgoth Artifacts" #####
 
@@ -4407,22 +3715,19 @@ W:1:0:0:0:80
 # without being turned into artifacts.  This simplifies the
 # code for "killing the winner monster".
 
-N:498:冥界の大鉄杖
-E:& Mighty Hammer~
+N:498:& Mighty Hammer~
 G:\:D
 I:21:50:0
 W:15:0:0:200:1000
 P:0:3d9:0:0:0
 F:SHOW_MODS | INSTA_ART | RIDING
 
-N:499:堂々たる鉄冠
-E:& Massive Iron Crown~
+N:499:& Massive Iron Crown~
 G:]:D
 I:33:50:0
 W:44:0:0:20:1000
 P:0:1d1:0:0:0
 F:INSTA_ART
-
 
 ##### Objects 500 to 511 are the "Special Artifacts" #####
 
@@ -4449,11 +3754,9 @@ F:INSTA_ART
 # have a different "color" and "flavor", and also to allow the use of
 # special "base names" (such as "Necklace").
 
-
 # The Phial of Galadriel -- see artifact list
 
-N:500:玻璃瓶
-E:& Phial~
+N:500:& Phial~
 G:!:y
 I:39:4:0
 W:30:0:0:10:10000
@@ -4462,8 +3765,7 @@ F:INSTA_ART
 
 # The Star of Elendil -- see artifact list
 
-N:501:星
-E:& Star~
+N:501:& Star~
 G:*:y
 I:39:5:0
 W:50:0:0:5:25000
@@ -4472,20 +3774,16 @@ F:INSTA_ART
 
 # The Arkenstone of Thrain -- replaced with Jewel of Judgement
 
-#JZ#
-N:502:宝石
-E:& Jewel~
+N:502:& Jewel~
 G:*:R
 I:39:6:0
 W:70:0:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-
 # The Amulet of Carlammas -- see artifact list
 
-N:503:アミュレット:しろめの
-E:& Amulet~:Pewter
+N:503:& Amulet~:Pewter
 G:":s
 I:40:10:0
 W:50:0:0:3:60000
@@ -4493,8 +3791,7 @@ F:INSTA_ART
 
 # The Amulet of Ingwe -- see artifact list
 
-N:504:アミュレット:べっ甲の
-E:& Amulet~:Tortoise Shell
+N:504:& Amulet~:Tortoise Shell
 G:":g
 I:40:11:0
 W:60:0:0:3:90000
@@ -4502,18 +3799,15 @@ F:INSTA_ART
 
 # The Necklace of the Dwarves -- see artifact list
 
-N:505:頸飾り:金の
-E:& Necklace~:Golden
+N:505:& Necklace~:Golden
 G:":y
 I:40:12:0
 W:70:0:0:3:75000
 F:INSTA_ART
 
-
 # The Ring of Barahir -- see artifact list
 
-N:506:指輪:ディリシウムの
-E:& Ring~:Dilithium
+N:506:& Ring~:Dilithium
 G:=:W
 I:45:32:0
 W:50:0:0:2:65000
@@ -4521,8 +3815,7 @@ F:INSTA_ART
 
 # The Ring of Tulkas -- see artifact list
 
-N:507:指輪:木の
-E:& Ring~:Wooden
+N:507:& Ring~:Wooden
 G:=:u
 I:45:33:0
 W:70:0:0:2:150000
@@ -4530,8 +3823,7 @@ F:INSTA_ART
 
 # The Ring of Power (Narya) -- see artifact list
 
-N:508:力の指輪:蛇の
-E:& Ring~:Serpent
+N:508:& Ring~:Serpent
 G:=:g
 I:45:34:0
 W:80:0:0:2:100000
@@ -4539,8 +3831,7 @@ F:INSTA_ART
 
 # The Ring of Power (Nenya) -- see artifact list
 
-N:509:力の指輪:結婚
-E:& Ring~:Wedding
+N:509:& Ring~:Wedding
 G:=:y
 I:45:35:0
 W:90:0:0:2:200000
@@ -4548,8 +3839,7 @@ F:INSTA_ART
 
 # The Ring of Power (Vilya) -- see artifact list
 
-N:510:力の指輪:真鍮の
-E:& Ring~:Brass
+N:510:& Ring~:Brass
 G:=:o
 I:45:36:0
 W:100:0:0:2:300000
@@ -4557,21 +3847,17 @@ F:INSTA_ART
 
 # The Ring of Power (The One Ring) -- see artifact list
 
-N:511:力の指輪:金無垢の
-E:& Ring~:Plain Gold
+N:511:& Ring~:Plain Gold
 G:=:y
 I:45:37:0
 W:110:0:0:2:5000000
 F:INSTA_ART | FIXED_FLAVOR
 
-
 ### Room for new objects added after 511 (Zangband 2.1.0): 512-575
 
 # Trump Spellbooks
 
-#JZ#
-N:512:[召喚と奇術]
-E:[Conjurings & Tricks]
+N:512:[Conjurings & Tricks]
 G:?:o
 I:95:0:0
 W:10:0:0:30:100
@@ -4579,18 +3865,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-#JZ#
-N:513:[万物のデッキ]
-E:[Deck of Many Things]
+N:513:[Deck of Many Things]
 G:?:o
 I:95:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:514:[運命の切札]
-E:[Trumps of Doom]
+N:514:[Trumps of Doom]
 G:?:u
 I:95:2:0
 W:50:0:0:30:25000
@@ -4598,9 +3880,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:515:[ファイブ・エース]
-E:[Five Aces]
+N:515:[Five Aces]
 G:?:u
 I:95:3:0
 W:90:0:0:30:100000
@@ -4610,9 +3890,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Arcane Spellbooks
 
-#JZ#
-N:516:[初心者教本]
-E:[Cantrips for Beginners]
+N:516:[Cantrips for Beginners]
 G:?:s
 I:96:0:0
 W:10:0:0:30:100
@@ -4620,36 +3898,28 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-#JZ#
-N:517:[小秘術]
-E:[Minor Arcana]
+N:517:[Minor Arcana]
 G:?:s
 I:96:1:0
 W:15:0:0:30:250
 A:15/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:518:[大秘術]
-E:[Major Arcana]
+N:518:[Major Arcana]
 G:?:s
 I:96:2:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:519:[秘術大全]
-E:[Manual of Mastery]
+N:519:[Manual of Mastery]
 G:?:s
 I:96:3:0
 W:25:0:0:30:2500
 A:25/1
 P:0:1d1:0:0:0
 
-#JZ#
-N:520:反射:瑠璃の
-E:Reflection:Azure
+N:520:Reflection:Azure
 G:":B
 I:40:9:0
 W:60:0:0:3:30000
@@ -4659,9 +3929,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #521 and 522 cannot have EASY_KNOW because they may be cursed
 
-#JZ#
-N:521:反魔法:水晶の
-E:Anti-Magic:Crystal
+N:521:Anti-Magic:Crystal
 G:":B
 I:40:13:0
 W:40:0:0:3:10000
@@ -4669,9 +3937,7 @@ A:40/4
 F:NO_MAGIC
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#JZ#
-N:522:反テレポート:銀の
-E:Anti-Teleportation:Silver
+N:522:Anti-Teleportation:Silver
 G:":W
 I:40:14:0
 W:30:0:0:3:5000
@@ -4681,9 +3947,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #523 cannot have EASY_KNOW because it can get random resistances
 
-#JZ#
-N:523:耐性:銅の
-E:Resistance:Copper
+N:523:Resistance:Copper
 G:":U
 I:40:15:0
 W:50:0:0:3:25000
@@ -4693,9 +3957,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### New arms #####
 
-#JZ#
-N:524:ツヴァイハンダー
-E:& Zweihander~
+N:524:& Zweihander~
 G:|:w
 I:23:29:0
 W:40:0:0:280:580
@@ -4703,9 +3965,7 @@ A:40/3
 P:0:4d6:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:525:短刀
-E:& Tanto~
+N:525:& Tanto~
 G:|:W
 I:23:6:0
 W:3:0:0:20:30
@@ -4713,27 +3973,21 @@ A:3/2
 P:0:1d5:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:526:スプリント・メイル
-E:Splint Mail~
+N:526:Splint Mail~
 G:[:D
 I:37:10:0
 W:35:0:0:250:1300
 A:35/1
 P:19:1d4:-2:0:0
 
-#JZ#
-N:527:当世具足
-E:Do-maru~
+N:527:Do-maru~
 G:[:s
 I:37:11:0
 W:40:0:0:290:1250
 A:40/2
 P:20:1d4:-2:0:0
 
-#JZ#
-N:528:三叉槍
-E:& Trifurcate Spear~
+N:528:& Trifurcate Spear~
 G:/:o
 I:22:26:0
 W:35:0:0:140:400
@@ -4741,9 +3995,7 @@ A:35/3
 P:0:2d9:0:0:0
 F:SHOW_MODS | RIDING
 
-#JZ#
-N:529:三節棍
-E:& Three Piece Rod~
+N:529:& Three Piece Rod~
 G:\:u
 I:21:11:0
 W:20:0:0:120:350
@@ -4751,27 +4003,21 @@ A:20/3
 P:0:3d3:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:530:大鎧
-E:O-yoroi~
+N:530:O-yoroi~
 G:[:D
 I:37:16:0
 W:45:0:0:320:1300
 A:45/2
 P:24:1d4:-2:0:0
 
-#JZ#
-N:531:毛皮のクローク
-E:& Fur Cloak~
+N:531:& Fur Cloak~
 G:(:W
 I:35:3:0
 W:20:0:0:30:200
 A:20/2:30/2
 P:3:0d0:0:0:0
 
-#JZ#
-N:532:ラジャタン
-E:& Lajatang~
+N:532:& Lajatang~
 G:/:s
 I:22:14:0
 W:25:0:0:175:330
@@ -4779,9 +4025,7 @@ A:25/2
 P:0:2d7:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:533:ハチェット
-E:& Hatchet~
+N:533:& Hatchet~
 G:/:s
 I:22:1:0
 W:10:0:0:60:120
@@ -4791,18 +4035,14 @@ F:SHOW_MODS
 
 ##### New armor #####
 
-#JZ#
-N:535:サイ皮よろい
-E:Rhino Hide Armour~
+N:535:Rhino Hide Armour~
 G:(:s
 I:36:8:0
 W:15:0:0:110:400
 A:15/1
 P:8:1d1:-1:0:0
 
-#JZ#
-N:536:皮ジャケット
-E:& Leather Jacket~
+N:536:& Leather Jacket~
 G:(:U
 I:36:12:0
 W:20:0:0:130:700
@@ -4811,9 +4051,7 @@ P:12:1d2:-1:0:0
 
 ##### New weapons #####
 
-#JZ#
-N:537:鎌
-E:& Sickle~
+N:537:& Sickle~
 G:/:s
 I:22:3:0
 W:10:0:0:70:110
@@ -4821,9 +4059,7 @@ A:10/3
 P:0:2d3:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:538:鉄棒
-E:& Tetsubo~
+N:538:& Tetsubo~
 G:\:u
 I:21:16:0
 W:25:0:0:190:570
@@ -4831,9 +4067,7 @@ A:25/2
 P:0:2d7:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:539:ヌンチャク
-E:& Nunchaku~
+N:539:& Nunchaku~
 G:\:u
 I:21:4:0
 W:16:0:0:60:120
@@ -4841,9 +4075,7 @@ A:16/2
 P:0:2d3:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:540:六尺棒
-E:& Bo Staff~
+N:540:& Bo Staff~
 G:\:U
 I:21:14:0
 W:20:0:0:160:310
@@ -4851,9 +4083,7 @@ A:20/1
 P:0:1d11:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:541:錫杖
-E:& Jo Staff~
+N:541:& Jo Staff~
 G:\:U
 I:21:7:0
 W:11:0:0:70:200
@@ -4861,9 +4091,7 @@ A:11/2
 P:0:1d7:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:542:棍棒
-E:& Club~
+N:542:& Club~
 G:\:u
 I:21:1:0
 W:0:0:0:100:3
@@ -4871,9 +4099,7 @@ A:0/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:543:ブロード・スピア
-E:& Broad Spear~
+N:543:& Broad Spear~
 G:/:w
 I:22:7:0
 W:14:0:0:100:240
@@ -4881,9 +4107,7 @@ A:14/1
 P:0:1d9:0:0:0
 F:SHOW_MODS | RIDING
 
-#JZ#
-N:544:クォピス
-E:& Khopesh~
+N:544:& Khopesh~
 G:|:W
 I:23:14:0
 W:10:0:0:130:190
@@ -4891,9 +4115,7 @@ A:10/2
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:545:フランベルジュ
-E:& Flamberge~
+N:545:& Flamberge~
 G:|:W
 I:23:26:0
 W:40:0:0:230:600
@@ -4901,9 +4123,7 @@ A:40/2
 P:0:3d7:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:546:クレイモア
-E:& Claymore~
+N:546:& Claymore~
 G:|:W
 I:23:23:0
 W:40:0:0:200:600
@@ -4911,9 +4131,7 @@ A:40/2
 P:0:2d8:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:547:エスパドン
-E:& Espadon~
+N:547:& Espadon~
 G:|:W
 I:23:24:0
 W:40:0:0:200:600
@@ -4921,9 +4139,7 @@ A:40/3
 P:0:2d9:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:548:青龍刀
-E:& Falchion~
+N:548:& Falchion~
 G:|:W
 I:23:22:0
 W:40:0:0:240:500
@@ -4931,9 +4147,7 @@ A:40/3
 P:0:4d5:0:0:0
 F:SHOW_MODS | RIDING
 
-#JZ#
-N:549:脇差し
-E:& Wakizashi~
+N:549:& Wakizashi~
 G:|:W
 I:23:13:0
 W:15:0:0:90:210
@@ -4941,9 +4155,7 @@ A:15/3
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:550:薙刀
-E:& Naginata~
+N:550:& Naginata~
 G:/:s
 I:22:9:0
 W:25:0:0:150:408
@@ -4951,9 +4163,7 @@ A:25/2
 P:0:2d6:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:551:フォシャール
-E:& Fauchard~
+N:551:& Fauchard~
 G:/:s
 I:22:6:0
 W:18:0:0:155:301
@@ -4961,9 +4171,7 @@ A:18/2
 P:0:1d10:0:0:0
 F:SHOW_MODS | RIDING
 
-#JZ#
-N:552:ギザルム
-E:& Guisarme~
+N:552:& Guisarme~
 G:/:s
 I:22:16:0
 W:21:0:0:165:320
@@ -4971,9 +4179,7 @@ A:21/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:553:ヘヴィ・ランス
-E:& Heavy Lance~
+N:553:& Heavy Lance~
 G:/:s
 I:22:29:0
 W:43:0:0:400:700
@@ -4981,9 +4187,7 @@ A:43/4
 P:0:4d8:0:0:0
 F:SHOW_MODS | RIDING
 
-#JZ#
-N:554:バゼラード
-E:& Basillard~
+N:554:& Basillard~
 G:|:w
 I:23:9:0
 W:15:0:0:80:220
@@ -4991,9 +4195,7 @@ A:15/3
 P:0:1d8:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:555:忍者刀
-E:& Ninjato~
+N:555:& Ninjato~
 G:|:s
 I:23:19:0
 W:15:0:0:100:265
@@ -5001,88 +4203,70 @@ A:15/2
 P:0:1d9:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:556:リング・メイル
-E:Ring Mail~
+N:556:Ring Mail~
 G:[:s
 I:37:2:0
 W:20:0:0:200:500
 A:20/1
 P:12:1d4:-2:0:0
 
-#JZ#
-N:557:防護服
-E:Cord Armour~
+N:557:Cord Armour~
 G:(:y
 I:36:9:0
 W:5:0:0:80:200
 A:7/1
 P:6:1d1:0:0:0
 
-#JZ#
-N:558:紙甲
-E:Paper Armour~
+N:558:Paper Armour~
 G:(:w
 I:36:3:0
 W:5:0:0:30:50
 A:7/2
 P:4:1d1:0:0:0
 
-#JZ#
-N:559:厚布よろい
-E:Padded Armour~
+N:559:Padded Armour~
 G:(:y
 I:36:10:0
 W:2:0:0:60:50
 A:5/1
 P:5:1d1:0:0:0
 
-#JZ#
-N:560:星兜
-E:& Kabuto~
+N:560:& Kabuto~
 G:]:D
 I:32:8:0
 W:50:0:0:80:300
 A:50/3
 P:7:1d2:0:0:0
 
-#JZ#
-N:561:皮石よろい
-E:Stone and Hide Armour~
+N:561:Stone and Hide Armour~
 G:(:U
 I:36:15:0
 W:35:0:0:200:1000
 A:35/7
 P:15:1d1:-1:0:0
 
-#JZ#
-N:562:陣笠
-E:& Jingasa~
+N:562:& Jingasa~
 G:]:s
 I:32:4:0
 W:16:0:0:30:60
 A:16/2
 P:4:1d2:0:0:0
 
-#JZ#
-N:563:胴丸
-E:Haramakido~
+N:563:Haramakido~
 G:[:D
 I:37:14:0
 W:32:0:0:280:920
 A:32/2
 P:17:1d4:-2:0:0
 
-N:564:白熱灯
-E:& Incandescent Light~
+N:564:& Incandescent Light~
 G:!:y
 I:39:3:0
 W:20:10:0:5:20000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:565:ダイヤモンド・エッジ
-E:& Diamond Edge~
+N:565:& Diamond Edge~
 G:|:w
 I:23:31:4
 W:90:0:0:150:50000
@@ -5091,127 +4275,111 @@ P:0:7d5:10:10:0
 F:SHOW_MODS | VORPAL | TUNNEL
 
 N:566:Mundanity:danseh nejood
-E:Mundanity:danseh nejood
 G:?:w
 I:70:23:0
 W:13:0:0:5:3000
 A:13/10
 F:STACK
 
-N:567:#の人形
-E:& Magical Figurine~ of #
+N:567:& Magical Figurine~ of #
 G:`:b
 I:8:0:0
 W:32:0:0:50:100
 A:15/6:30/3:65/1
 P:0:1d1:0:0:0
 
-N:568:#の木の像
-E:& Wooden Statue~ of #
+N:568:& Wooden Statue~ of #
 G:`:u
 I:9:0:0
 W:5:0:50:200:75
 A:5/3
 P:0:1d1:0:0:0
 
-N:569:#の粘土像
-E:& Clay Statue~ of #
+N:569:& Clay Statue~ of #
 G:`:U
 I:9:1:0
 W:10:0:50:500:50
 A:10/3
 P:0:1d1:0:0:0
 
-N:570:#の石像
-E:& Stone Statue~ of #
+N:570:& Stone Statue~ of #
 G:`:s
 I:9:2:0
 W:15:0:50:500:100
 A:15/3
 P:0:1d1:0:0:0
 
-N:571:#の鉄の像
-E:& Iron Statue~ of #
+N:571:& Iron Statue~ of #
 G:`:D
 I:9:3:0
 W:20:0:50:500:200
 A:20/3
 P:0:1d1:0:0:0
 
-N:572:#の銅像
-E:& Copper Statue~ of #
+N:572:& Copper Statue~ of #
 G:`:o
 I:9:4:0
 W:25:0:50:500:500
 A:25/3
 P:0:1d1:0:0:0
 
-N:573:#の銀の像
-E:& Silver Statue~ of #
+N:573:& Silver Statue~ of #
 G:`:W
 I:9:5:0
 W:30:0:50:500:1000
 A:30/3
 P:0:1d1:0:0:0
 
-N:574:#の金の像
-E:& Golden Statue~ of #
+N:574:& Golden Statue~ of #
 G:`:y
 I:9:6:0
 W:40:0:60:500:2500
 A:40/3
 P:0:1d1:0:0:0
 
-N:575:#の象牙の像
-E:& Ivory Statue~ of #
+N:575:& Ivory Statue~ of #
 G:`:w
 I:9:7:0
 W:45:0:60:500:2000
 A:45/3
 P:0:1d1:0:0:0
 
-N:576:#のミスリル像
-E:& Mithril Statue~ of #
+N:576:& Mithril Statue~ of #
 G:`:B
 I:9:8:0
 W:80:0:0:500:10000
 A:80/3
 P:0:1d1:0:0:0
 
-N:577:#の装飾された像
-E:& Ornate Statue~ of #
+N:577:& Ornate Statue~ of #
 G:`:v
 I:9:9:0
 W:50:0:70:500:5000
 A:50/3
 P:0:1d1:0:0:0
 
-N:578:の骨
-E:Skeleton~
+N:578:Skeleton~
 G:~:w
 I:10:0:0
 W:1:0:0:20:0
 A:1/2
 P:0:1d1:0:0:0
 
-N:579:の死体
-E:Corpse~
+N:579:Corpse~
 G:~:d
 I:10:1:0
 W:1:0:0:40:0
 A:1/2
 P:0:1d1:0:0:0
 
-N:580:Ｔシャツ
-E:& T-shirt~
+N:580:& T-shirt~
 G:~:w
 I:36:0:0
 W:1:0:0:10:1
 A:1/255
 P:1:1d1:0:0:0
 
-N:581:魔術師の杖
-E:& Wizardstaff~
+N:581:& Wizardstaff~
 G:\:y
 I:21:21:0
 W:25:0:0:40:4000
@@ -5219,8 +4387,7 @@ A:25/4
 P:0:1d2:0:0:0
 F:SHOW_MODS | DEC_MANA
 
-N:582:フェアノールのランプ
-E:& Feanorian Lamp~
+N:582:& Feanorian Lamp~
 G:~:o
 I:39:2:0
 W:15:40:0:60:450
@@ -5229,16 +4396,13 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
 N:583:Stone to Mud:Adamantite
-E:Stone to Mud:Adamantite
 G:-:v
 I:66:29:25
 W:40:0:0:10:3000
 A:20/12:40/3
 P:0:1d1:0:0:0
 
-#JZ#
-N:584:ドラゴン・グローブ
-E:& Set~ of Dragon Gloves
+N:584:& Set~ of Dragon Gloves
 G:]:G
 I:31:3:0
 W:60:0:0:30:10000
@@ -5246,9 +4410,7 @@ A:60/5
 P:4:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
-#JZ#
-N:585:ドラゴン皮の靴
-E:& Pair~ of Dragon Boots
+N:585:& Pair~ of Dragon Boots
 G:]:G
 I:30:4:0
 W:60:0:0:60:10000
@@ -5256,15 +4418,13 @@ A:60/5
 P:5:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
-N:586:腐れの指輪:金有垢の
-E:& Ring~:Plain Goldarn
+N:586:& Ring~:Plain Goldarn
 G:=:y
 I:45:50:0
 W:100:0:0:2:0
 F:INSTA_ART | FIXED_FLAVOR
 
-N:587:テレパシー:卍の
-E:Telepathy:Swastika
+N:587:Telepathy:Swastika
 G:":v
 I:40:16:0
 W:60:0:0:3:50000
@@ -5272,38 +4432,33 @@ A:60/4
 F:TELEPATHY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:588:進化する銃
-E:& Gun~
+N:588:& Gun~
 G:}:r
 I:19:50:0
 W:15:0:0:100:1000
 F:INSTA_ART
 
-N:589:石
-E:& Crystal Ball~
+N:589:& Crystal Ball~
 G:*:y
 I:39:8:0
 W:60:0:0:10:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:590:石
-E:& Stone~
+N:590:& Stone~
 G:*:R
 I:39:7:0
 W:15:0:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:591:アミュレット:プラチナの
-E:& Amulet~:Platinum
+N:591:& Amulet~:Platinum
 G:":w
 I:40:17:0
 W:30:0:0:3:25000
 F:INSTA_ART
 
-N:592:毒針
-E:& Poison Needle~
+N:592:& Poison Needle~
 G:|:g
 I:23:32:0
 W:0:0:0:5:2000
@@ -5312,8 +4467,7 @@ P:0:1d1:0:0:0
 F:SHOW_MODS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:593:モンスター・ボール#
-E:& Capture Ball#
+N:593:& Capture Ball#
 G:~:B
 I:11:0:0
 W:15:0:0:120:1000
@@ -5321,8 +4475,7 @@ A:15/4
 P:0:1d1:0:0:0
 F:ACTIVATE
 
-N:594:死の大鎌
-E:& Death Scythe~ 
+N:594:& Death Scythe~ 
 G:/:R
 I:22:50:0
 W:70:0:0:350:10000
@@ -5335,38 +4488,33 @@ F:BRAND_FIRE | BRAND_ELEC | BRAND_COLD | BRAND_ACID | BRAND_POIS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RIDING
 
 N:595:Neo-Tsuyoshi Special:Sky Blue
-E:Neo-Tsuyoshi Special:Sky Blue
 G:!:B
 I:75:64:0
 W:15:0:50:4:2000
 A:15/6
 P:0:1d1:0:0:0
 
-N:596:追加射撃:スカラベの
-E:Extra Shots:Scarab
+N:596:Extra Shots:Scarab
 G:=:G
 I:45:51:0
 W:50:0:0:2:20000
 A:50/2
 F:XTRA_SHOTS
 
-N:597:エクスプレスカード
-E:& Card
+N:597:& Card
 G:~:G
 I:50:0:0
 W:1:0:0:2:1000
 F:INSTA_ART
 
-N:598:能力維持:錆びた
-E:Sustaining:Rusty
+N:598:Sustaining:Rusty
 G:=:r
 I:45:52:0
 W:60:0:0:2:10000
 A:60/5
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 
-N:599:消費魔力減少:鋼鉄の
-E:Mana:Steel
+N:599:Mana:Steel
 G:=:W
 I:45:53:0
 W:80:0:0:2:30000
@@ -5374,36 +4522,31 @@ A:80/8
 F:DEC_MANA
 
 N:600:Spell:nin xuxucre
-E:Spell:nin xuxucre
 G:?:w
 I:70:43:0
 W:10:0:0:5:1000
 A:10/8
 
 N:601:Summon Pet:he proktab
-E:Summon Pet:he proktab
 G:?:w
 I:70:6:0
 W:30:0:0:5:1000
 A:30/2
 
-N:602:金の首飾り:錆びた
-E:& Torque~:Rusty
+N:602:& Torque~:Rusty
 G:":r
 I:40:18:0
 W:30:0:0:3:25000
 F:INSTA_ART
 
 N:603:Tsuyoshi Special:Silver
-E:Tsuyoshi Special:Silver
 G:!:w
 I:75:65:0
 W:10:0:40:4:0
 A:10/2
 P:0:1d1:0:0:0
 
-N:604:[新弟子用教本]
-E:[Handbook for Pupils]
+N:604:[Handbook for Pupils]
 G:?:y
 I:97:0:0
 W:10:0:0:30:100
@@ -5411,16 +4554,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:605:[有段者への道]
-E:[Grade Holder's Book]
+N:605:[Grade Holder's Book]
 G:?:y
 I:97:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:606:[師範代の書]
-E:[Note of Acting Master]
+N:606:[Note of Acting Master]
 G:?:U
 I:97:2:0
 W:50:0:0:30:25000
@@ -5428,8 +4569,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:607:[悟りの書]
-E:[Spiritual Enlightenment]
+N:607:[Spiritual Enlightenment]
 G:?:U
 I:97:3:0
 W:95:0:0:30:100000
@@ -5438,59 +4578,50 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:608:Animate Dead:Golden
-E:Animate Dead:Golden
 G:_:y
 I:55:30:8
 W:35:0:0:50:800
 A:35/1
 P:0:1d2:0:0:0
 
-N:609:石
-E:& Levitation Stone~
+N:609:& Levitation Stone~
 G:*:B
 I:39:9:0
 W:60:0:0:10:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:610:勾玉:曲がった
-E:& Bead~:Curved
+N:610:& Bead~:Curved
 G:":g
 I:40:19:0
 W:60:0:0:3:90000
 F:INSTA_ART
 
-N:611:天上のクローク
-E:& Ethereal Cloak~
+N:611:& Ethereal Cloak~
 G:(:W
 I:35:5:0
 W:50:0:0:0:2500
 A:70/4
 P:0:0d0:0:0:10
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
-D:$This unearthly, completely transparent body mantle folds and drapes in 
-D:$iridescent patterns around you.  It weighs absolutely nothing.
-D:この世の物ではない、この完全に透明な外套は着る者を虹模様で包み飾る。
-D:それは完全に重さがない。
+D:This unearthly, completely transparent body mantle folds and drapes in 
+D:iridescent patterns around you.  It weighs absolutely nothing.
 
-N:612:鏡
-E:& Mirror~
+N:612:& Mirror~
 G:*:b
 I:34:50:0
 W:65:0:0:50:10000
 P:0:1d1:0:0:10
 F:IGNORE_ACID | REFLECT | INSTA_ART
 
-N:613:矢
-E:& Black Arrow~
+N:613:& Black Arrow~
 G:{:U
 I:17:10:0
 W:35:0:0:2:1
 P:0:1d4:0:0:0
 F:INSTA_ART | SHOW_MODS
 
-N:614:危ない水着
-E:Sexy Swimsuit
+N:614:Sexy Swimsuit
 G:(:v
 I:36:50:0
 W:30:0:0:2:78000
@@ -5498,39 +4629,34 @@ A:30/64
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | AGGRAVATE
 
-N:615:釣り竿
-E:& Fishingpole~
+N:615:& Fishingpole~
 G:/:B
 I:22:40:0
 W:10:0:0:30:30
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:616:印籠:ドラゴンの爪の
-E:& Inro~:Dragon's claw
+N:616:& Inro~:Dragon's claw
 G:":G
 I:40:20:0
 W:50:0:0:3:100000
 F:INSTA_ART
 
 N:617:Polymorph:Bronze
-E:Polymorph:Bronze
 G:!:r
 I:75:66:0
 W:50:0:0:4:5000
 A:50/16
 P:0:1d1:0:0:0
 
-N:618:警告:タンザナイトの
-E:Warning:Tanzanite
+N:618:Warning:Tanzanite
 G:=:B
 I:45:54:0
 W:10:0:50:2:200
 A:10/2
 F:WARNING
 
-N:619:鋼鉄のクロスボウの矢
-E:& Steel Bolt~
+N:619:& Steel Bolt~
 G:{:w
 I:18:1:0
 W:10:0:0:4:10
@@ -5539,62 +4665,54 @@ P:0:3d5:0:0:0
 F:SHOW_MODS
 F:STACK
 
-N:620:おもちゃのカンヅメ
-E:& Can~ of Toys
+N:620:& Can~ of Toys
 G:&:y
 I:7:50:0
 W:1:0:0:50:500000
 A:1/255
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:621:棒
-E:& Stick~
+N:621:& Stick~
 G:\:y
 I:21:63:0
 W:1:0:0:333:1000000
 P:0:1d11:0:0:0
 F:INSTA_ART
 
-N:622:弓
-E:& Yumi~
+N:622:& Yumi~
 G:}:y
 I:19:63:0
 W:1:0:0:50:1000000
 F:INSTA_ART
 
-N:623:服
-E:Clothes~
+N:623:Clothes~
 G:(:y
 I:36:63:0
 W:1:0:0:10:1000000
 F:INSTA_ART
 
-N:624:知能:数珠の
-E:Intelligence:Rosary
+N:624:Intelligence:Rosary
 G:":G
 I:40:21:0
 W:20:0:60:3:500
 A:20/1
 F:INT | HIDE_TYPE
 
-N:625:賢さ:ひすいの
-E:Wisdom:Jade
+N:625:Wisdom:Jade
 G:":g
 I:40:22:0
 W:20:0:60:3:500
 A:20/1
 F:WIS | HIDE_TYPE
 
-N:626:肉体強化:軟玉の
-E:Might:Nephrite
+N:626:Might:Nephrite
 G:=:g
 I:45:55:0
 W:50:0:0:2:5000
 A:50/4
 F:STR | DEX | CON | HIDE_TYPE
 
-N:627:ナイト・シールド
-E:& Knight's Shield~
+N:627:& Knight's Shield~
 G:):W
 I:34:7:0
 W:40:0:0:160:250
@@ -5602,7 +4720,6 @@ A:40/2
 P:10:1d6:0:0:0
 
 N:628:Striking:Uridium
-E:Striking:Uridium
 G:-:R
 I:65:30:6
 W:55:0:0:10:4000
@@ -5611,7 +4728,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:629:Mana Storm:Ashen
-E:Mana Storm:Ashen
 G:_:s
 I:55:31:5
 W:85:0:0:50:7000
@@ -5619,17 +4735,14 @@ A:85/4
 P:0:1d2:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-
 N:630:Reset Recall:unjah blu comp
-E:Reset Recall:unjah blu comp
 G:?:w
 I:70:53:0
 W:20:0:60:5:500
 A:20/3
 F:STACK
 
-N:631:[見習い教本]
-E:[Apprentice Handbook]
+N:631:[Apprentice Handbook]
 G:?:W
 I:105:0:0
 W:10:0:0:30:100
@@ -5637,16 +4750,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:632:[詩人楽曲集]
-E:[Minstrel's Music]
+N:632:[Minstrel's Music]
 G:?:W
 I:105:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:633:[リヴェンデルの竪琴]
-E:[Harps of Rivendell]
+N:633:[Harps of Rivendell]
 G:?:w
 I:105:2:0
 W:50:0:0:30:25000
@@ -5654,8 +4765,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:634:[ベレリアンドの詩]
-E:[Lays of Beleriand]
+N:634:[Lays of Beleriand]
 G:?:w
 I:105:3:0
 W:90:0:0:30:100000
@@ -5663,8 +4773,7 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:635:隼の剣
-E:& Falcon Sword~
+N:635:& Falcon Sword~
 G:|:y
 I:23:33:1
 W:65:0:0:30:3500
@@ -5673,16 +4782,14 @@ P:0:1d6:0:0:0
 F:SHOW_MODS | BLOWS
 
 #JP#
-N:636:冒険者のための中つ国ガイド
-E:Adventurer's guide to Middle Earth
+N:636:Adventurer's guide to Middle Earth
 G:?:o
 I:69:0:0
 W:0:0:0:5:1
 A:0/255
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:637:[武芸諸譜]
-E:[Bugei Shofu]
+N:637:[Bugei Shofu]
 G:?:o
 I:106:0:0
 W:10:0:0:30:100
@@ -5690,16 +4797,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:638:[柳生武芸帳]
-E:[Yagyuu Bugeichou]
+N:638:[Yagyuu Bugeichou]
 G:?:o
 I:106:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:639:[五輪書]
-E:[Gorinnosho]
+N:639:[Gorinnosho]
 G:?:u
 I:106:2:0
 W:50:0:0:30:25000
@@ -5707,8 +4812,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:640:[北辰一刀流皆伝]
-E:[Hokusin Ittouryuu Kaiden]
+N:640:[Hokusin Ittouryuu Kaiden]
 G:?:u
 I:106:3:0
 W:90:0:0:30:100000
@@ -5717,7 +4821,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:641:Annihilation:Hexagonal
-E:Annihilation:Hexagonal
 G:-:r
 I:65:31:4
 W:60:0:0:10:10000
@@ -5725,39 +4828,34 @@ A:60/4
 P:0:1d1:0:0:0
 
 N:642:Aggravate Monster:Uridium
-E:Aggravate Monster:Uridium
 G:-:R
 I:66:30:9
 W:30:0:60:10:0
 A:15/8:30/2
 P:0:1d1:0:0:0
 
-N:643:#の写真
-E:& Photograph~ of #
+N:643:& Photograph~ of #
 G:~:s
 I:9:50:0
 W:0:0:0:1:0
 A:0/255
 P:0:1d1:0:0:0
 
-N:644:魔法道具支配:ミスリルの
-E:Magic Device Mastery:Mithril
+N:644:Magic Device Mastery:Mithril
 G:":B
 I:40:23:0
 W:35:0:0:3:1000
 A:35/8
 F:MAGIC_MASTERY | HIDE_TYPE
 
-N:645:ローブ
-E:& Robe~
+N:645:& Robe~
 G:(:D
 I:36:60:0
 W:1:0:0:20:4
 A:1/255
 P:0:0d0:0:0:0
 
-N:646:[闇夜の呪い]
-E:[Dark Incantations]
+N:646:[Dark Incantations]
 G:?:R
 I:98:0:0
 W:10:0:0:30:100
@@ -5765,16 +4863,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:647:[不朽の儀式]
-E:[Immortal Rituals]
+N:647:[Immortal Rituals]
 G:?:R
 I:98:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:648:[悪魔の叡知]
-E:[Demonthoughts]
+N:648:[Demonthoughts]
 G:?:r
 I:98:2:0
 W:50:0:0:30:25000
@@ -5782,8 +4878,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:649:[劫火の魔書]
-E:[Hellfire Tome]
+N:649:[Hellfire Tome]
 G:?:r
 I:98:3:0
 W:90:0:0:30:100000
@@ -5792,29 +4887,25 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:650:Summon Kin:bulther valish
-E:Summon Kin:bulther valish
 G:?:w
 I:70:54:0
 W:30:0:0:5:1000
 A:30/2
 
-N:651:魔法の笛
-E:& Magic Whistle~
+N:651:& Magic Whistle~
 G:~:o
 I:4:1:0
 W:15:0:60:3:1000
 A:15/2
 F:ACTIVATE
 
-N:652:アミュレット:ルビーの
-E:& Amulet~:Ruby
+N:652:& Amulet~:Ruby
 G:":r
 I:40:24:0
 W:50:0:0:3:25000
 F:INSTA_ART
 
-N:653:黒装束
-E:Black Clothes
+N:653:Black Clothes
 G:(:D
 I:36:13:1
 W:15:0:0:80:5000
@@ -5822,8 +4913,7 @@ A:40/4
 P:4:1d1:0:0:12
 F:STEALTH | IGNORE_FIRE
 
-N:654:[徒弟読本]
-E:[Rites of Initiation]
+N:654:[Rites of Initiation]
 G:?:W
 I:99:0:0
 W:10:0:0:30:100
@@ -5831,16 +4921,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:655:[戦術指南]
-E:[Ways of War]
+N:655:[Ways of War]
 G:?:W
 I:99:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:656:[退魔払邪]
-E:[Exorcism and Dispelling]
+N:656:[Exorcism and Dispelling]
 G:?:w
 I:99:2:0
 W:50:0:0:30:25000
@@ -5848,8 +4936,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:657:[天神怒罰]
-E:[Wrath of God]
+N:657:[Wrath of God]
 G:?:w
 I:99:3:0
 W:95:0:0:30:100000
@@ -5858,43 +4945,37 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:658:& Staff~:Gnarled
-E:& Staff~:Gnarled
 G:_:s
 I:55:32:20
 W:1:0:0:50:20
 P:0:1d2:0:0:0
 F:FULL_NAME
 
-N:659:首飾り:エメラルドの
-E:& Amulet~:Emerald
+N:659:& Amulet~:Emerald
 G:":g
 I:40:25:0
 W:50:0:0:2:77777
 F:INSTA_ART
 
-N:660:首輪:サファイアの
-E:& Collar Harness~:Sapphire
+N:660:& Collar Harness~:Sapphire
 G:":b
 I:40:26:0
 W:50:0:0:30:66666
 F:INSTA_ART
 
-N:661:ペンダント:ガーネットの
-E:& Pendant~:Garnet
+N:661:& Pendant~:Garnet
 G:":r
 I:40:27:0
 W:50:0:0:2:100000
 F:INSTA_ART
 
-N:662:ペンダント:ダイアモンドの
-E:& Pendant~:Diamond
+N:662:& Pendant~:Diamond
 G:":w
 I:40:28:0
 W:50:0:0:2:55555
 F:INSTA_ART
 
-N:663:[呪術入門]
-E:[Handbook of Hex]
+N:663:[Handbook of Hex]
 G:?:v
 I:107:0:0
 W:10:0:0:30:100
@@ -5902,16 +4983,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:664:[上級呪法]
-E:[High Curse]
+N:664:[High Curse]
 G:?:v
 I:107:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:665:[怨恨呪縛]
-E:[Curse and Spelling]
+N:665:[Curse and Spelling]
 G:?:D
 I:107:2:0
 W:50:0:0:30:25000
@@ -5919,8 +4998,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:666:[禁呪法大全]
-E:[Forbidden Cursebook]
+N:666:[Forbidden Cursebook]
 G:?:D
 I:107:3:0
 W:90:0:0:30:100000
@@ -5928,8 +5006,7 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:667:ドラゴン・グローブ
-E:& Pair~ of Dragon Wings
+N:667:& Pair~ of Dragon Wings
 G:(:G
 I:35:7:0
 W:60:0:0:5:10000
@@ -5938,15 +5015,13 @@ P:4:0d0:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 F:LEVITATION
 
-N:668:指輪:ディリシウムの
-E:& Ring~:Dilithium
+N:668:& Ring~:Dilithium
 G:=:W
 I:45:56:0
 W:50:0:0:2:65000
 F:INSTA_ART
 
-N:669:ドラゴン・グローブ
-E:& Wizard Cloak~
+N:669:& Wizard Cloak~
 G:(:v
 I:35:8:0
 W:60:0:0:5:10000
@@ -5955,61 +5030,53 @@ P:4:0d0:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 F:DEC_MANA | EASY_SPELL
 
-N:670:消費魔力減少:鋼鉄の
-E:Spell Power:Steel
+N:670:Spell Power:Steel
 G:=:v
 I:45:57:0
 W:20:0:0:2:1000
 F:SPELL_POWER | STR | DEX | CON
 
-N:671:TRANSLATE
-E:Blood:Blood Red
+N:671:Blood:Blood Red
 G:!:r
 I:75:67:0
 W:75:0:0:4:1234
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR
 
-N:672:TRANSLATE
-E:& Harp~
+N:672:& Harp~
 G:}:U
 I:19:70:0
 W:25:0:0:40:400
 A:25/4
 F:CHR
-D:$A stringed instrument preferred by Bards.
+D:A stringed instrument preferred by Bards.
 
-N:673:TRANSLATE
-E:Rune
+N:673:Rune
 G:*:B
 I:81:1:0
 W:0:0:0:4:500
 P:0:1d1:0:0:0
-D:$A cryptic rune, of powers incomprehensible.
+D:A cryptic rune, of powers incomprehensible.
 
-N:674:TRANSLATE
-E:Spell Capacity:Opal
+N:674:Spell Capacity:Opal
 G:=:v
 I:45:58:0
 W:20:0:0:2:1000
 F:SPELL_CAP
 
-N:675:TRANSLATE
-E:Spell Power:Steel
+N:675:Spell Power:Steel
 G:":y
 I:40:30:0
 W:20:0:0:2:1000
 F:SPELL_POWER | STR | DEX | CON
 
-N:676:TRANSLATE
-E:Spell Capacity:Opal
+N:676:Spell Capacity:Opal
 G:":v
 I:40:31:0
 W:20:0:0:2:1000
 F:SPELL_CAP
 
 N:677:Weapon Branding:enchantus maximus
-E:Weapon Branding:enchantus maximus
 G:?:w
 I:70:55:0
 W:70:0:0:5:100000
@@ -6017,45 +5084,39 @@ A:70/8
 F:FIXED_FLAVOR
 
 N:678:Madness:mumblus incognitus
-E:Madness:mumblus incognitus
 G:?:w
 I:70:56:0
 W:60:0:0:5:100000
 A:60/8
 F:FIXED_FLAVOR
 
-N:679:TRANSLATE
-E:& Pendant~:Sparkling
+N:679:& Pendant~:Sparkling
 G:":w
 I:40:29:0
 W:90:0:0:2:555555
 F:INSTA_ART | FIXED_FLAVOR
 
-N:680:TRANSLATE
-E:& Golden Apple~:Alluring
+N:680:& Golden Apple~:Alluring
 G:":w
 I:40:32:0
 W:90:0:0:2:555555
 F:INSTA_ART | FIXED_FLAVOR
 
-N:681:TRANSLATE
-E:& Hand~:Decrepit
+N:681:& Hand~:Decrepit
 G:]:W
 I:31:6:0
 W:66:0:0:5:66666
 P:0:1d1:0:0:0
 F:INSTA_ART | FIXED_FLAVOR
 
-N:682:TRANSLATE
-E:& Eye~:Shriveled
+N:682:& Eye~:Shriveled
 G:*:R
 I:39:10:0
 W:66:0:0:5:66666
 P:0:1d1:0:0:0
 F:INSTA_ART | FIXED_FLAVOR
 
-N:683:TRANSLATE
-E:[Stench of Death]
+N:683:[Stench of Death]
 G:?:v
 I:100:0:0
 W:10:0:0:30:100
@@ -6063,16 +5124,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:684:TRANSLATE
-E:[Sepulchral Ways]
+N:684:[Sepulchral Ways]
 G:?:v
 I:100:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:685:TRANSLATE
-E:[Return of the Dead]
+N:685:[Return of the Dead]
 G:?:D
 I:100:2:0
 W:50:0:0:30:25000
@@ -6080,8 +5139,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:686:TRANSLATE
-E:[Necromatic Tome]
+N:686:[Necromatic Tome]
 G:?:D
 I:100:3:0
 W:90:0:0:30:100000
@@ -6089,8 +5147,7 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:687:TRANSLATE
-E:& Rune Sword~
+N:687:& Rune Sword~
 G:|:D
 I:23:34:0
 W:70:0:0:150:50000
@@ -6098,12 +5155,11 @@ A:70/16
 P:0:0d0:-50:-50:-50
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:VAMPIRIC
-D:$A black blade, covered with gleaming runes.  It is rumored
-D:$to be an evil weapon of great power that will ultimately control
-D:$its bearer.
+D:A black blade, covered with gleaming runes.  It is rumored
+D:to be an evil weapon of great power that will ultimately control
+D:its bearer.
 
-N:688:TRANSLATE
-E:[Anger Management]
+N:688:[Anger Management]
 G:?:v
 I:108:0:0
 W:10:0:0:30:100
@@ -6111,16 +5167,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:689:TRANSLATE
-E:[Northern Frights]
+N:689:[Northern Frights]
 G:?:v
 I:108:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:690:TRANSLATE
-E:[The Sound and the Fury]
+N:690:[The Sound and the Fury]
 G:?:D
 I:108:2:0
 W:50:0:0:30:25000
@@ -6128,8 +5182,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:691:TRANSLATE
-E:[Dire Ire]
+N:691:[Dire Ire]
 G:?:D
 I:108:3:0
 W:90:0:0:30:100000
@@ -6137,37 +5190,32 @@ A:90/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:692:TRANSLATE
-E:& Ring~:Eternal
+N:692:& Ring~:Eternal
 G:=:W
 I:45:59:0
 W:50:0:0:2:65000
 F:INSTA_ART | FIXED_FLAVOR
 
-N:693:TRANSLATE
-E:& Gun~
+N:693:& Gun~
 G:}:r
 I:19:51:0
 W:15:0:0:100:1000
 F:INSTA_ART
 
-N:694:TRANSLATE
-E:& Ring~:Pulsating
+N:694:& Ring~:Pulsating
 G:=:W
 I:45:60:0
 W:50:0:0:2:65000
 F:INSTA_ART | FIXED_FLAVOR
 
-N:695:TRANSLATE
-E:Giant Strength:Noxious
+N:695:Giant Strength:Noxious
 G:!:U
 I:75:68:250
 W:50:0:0:4:10000
 A:50/8
 P:0:1d1:0:0:0
 
-N:696:TRANSLATE
-E:Stone Skin:Fuming
+N:696:Stone Skin:Fuming
 G:!:U
 I:75:69:250
 W:50:0:0:4:10000
@@ -6175,8 +5223,7 @@ A:50/4
 P:0:1d1:0:0:0
 F:STACK
 
-N:697:TRANSLATE
-E:& Dragon Fang~
+N:697:& Dragon Fang~
 G:|:G
 I:23:35:0
 W:40:0:0:20:10000
@@ -6184,16 +5231,14 @@ A:40/15
 P:0:1d8:3:3:0
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
-N:698:TRANSLATE
-E:High Resistance:Translucent
+N:698:High Resistance:Translucent
 G:":U
 I:40:33:0
 W:50:0:0:3:25000
 A:50/6
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:699:TRANSLATE
-E:Trickery:Golden
+N:699:Trickery:Golden
 G:":U
 I:40:34:3
 W:50:0:0:3:25000
@@ -6202,16 +5247,14 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:STEALTH | DEX | SPEED | SEARCH | SUST_DEX |
 F:RES_POIS | RES_NEXUS
 
-N:700:TRANSLATE
-E:Weaponmastery:Gleaming
+N:700:Weaponmastery:Gleaming
 G:=:y
 I:45:61:0
 W:50:0:0:2:7000
 A:50/12
 F:WEAPONMASTERY
 
-N:701:TRANSLATE
-E:[Burglar's Handbook]
+N:701:[Burglar's Handbook]
 G:?:o
 I:109:0:0
 W:10:0:0:30:100
@@ -6219,16 +5262,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:702:TRANSLATE
-E:[Thieving Ways]
+N:702:[Thieving Ways]
 G:?:o
 I:109:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:703:TRANSLATE
-E:[Great Escapes]
+N:703:[Great Escapes]
 G:?:u
 I:109:2:0
 W:50:0:0:30:25000
@@ -6236,8 +5277,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:704:TRANSLATE
-E:[Book of Shadows]
+N:704:[Book of Shadows]
 G:?:u
 I:109:3:0
 W:90:0:0:30:100000
@@ -6245,124 +5285,109 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:705:TRANSLATE
-E:& Stone
+N:705:& Stone
 G:*:u
 I:39:11:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:706:TRANSLATE
-E:& Stone
+N:706:& Stone
 G:*:w
 I:39:12:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:707:TRANSLATE
-E:& Stone
+N:707:& Stone
 G:*:B
 I:39:13:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:708:TRANSLATE
-E:& Stone
+N:708:& Stone
 G:*:r
 I:39:14:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:709:TRANSLATE
-E:& Stone
+N:709:& Stone
 G:*:D
 I:39:15:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:710:TRANSLATE
-E:& Stone
+N:710:& Stone
 G:*:o
 I:39:16:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:711:TRANSLATE
-E:& Stone
+N:711:& Stone
 G:*:r
 I:39:17:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:712:TRANSLATE
-E:& Stone
+N:712:& Stone
 G:*:w
 I:39:18:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:713:TRANSLATE
-E:& Stone
+N:713:& Stone
 G:*:y
 I:39:19:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:714:TRANSLATE
-E:& Stone
+N:714:& Stone
 G:*:u
 I:39:20:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:715:TRANSLATE
-E:& Goblet~:Golden
+N:715:& Goblet~:Golden
 G:":y
 I:40:35:0
 W:30:0:0:3:60000
 F:INSTA_ART
 
-N:716:TRANSLATE
-E:Clarity:Metallic
+N:716:Clarity:Metallic
 G:!:w
 I:75:70:100
 W:20:0:0:4:300
 A:20/2
 P:0:1d1:0:0:0
-D:$It clears your mind, restoring spell points a bit.
+D:It clears your mind, restoring spell points a bit.
 F:STACK
 
-N:717:TRANSLATE
-E:Great Clarity:Acrid
+N:717:Great Clarity:Acrid
 G:!:y
 I:75:71:200
 W:40:0:0:4:1000
 A:40/2
 P:0:1d1:0:0:0
-D:$It clears your mind, restoring spell points a bit.
+D:It clears your mind, restoring spell points a bit.
 F:STACK
 
-N:718:TRANSLATE
-E:& Serving~ of Ambrosia
+N:718:& Serving~ of Ambrosia
 G:,:y
 I:80:40:7500
 W:90:0:0:3:5000
 A:90/1
-D:$Food of the gods, fragrant and sweet.
-D:$It cures poison, heals hp a bit, and restores your stats and life when eaten.
+D:Food of the gods, fragrant and sweet.
+D:It cures poison, heals hp a bit, and restores your stats and life when eaten.
 
-N:719:TRANSLATE
-E:[Book of Elements]
+N:719:[Book of Elements]
 G:?:R
 I:101:0:0
 W:10:0:0:30:100
@@ -6370,16 +5395,14 @@ A:10/1
 P:0:1d1:0:0:0
 F:STACK
 
-N:720:TRANSLATE
-E:[Earth, Wind and Fire]
+N:720:[Earth, Wind and Fire]
 G:?:R
 I:101:1:0
 W:20:0:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:721:TRANSLATE
-E:[Path of Destruction]
+N:721:[Path of Destruction]
 G:?:r
 I:101:2:0
 W:50:0:0:30:25000
@@ -6387,8 +5410,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:722:TRANSLATE
-E:[Day of Ragnarok]
+N:722:[Day of Ragnarok]
 G:?:r
 I:101:3:0
 W:90:0:0:30:100000
@@ -6397,7 +5419,6 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:723:Detect Monsters:wascally wabbit
-E:Detect Monsters:wascally wabbit
 G:?:w
 I:70:57:0
 W:10:0:50:5:100
@@ -6405,30 +5426,26 @@ A:10/2
 F:STACK
 
 N:724:Monster Location:Black
-E:Monster Location:Black
 G:-:w
 I:66:31:15
 W:15:0:50:15:1000
 A:15/3
 P:0:1d1:0:0:0
 
-N:725:TRANSLATE
-E:& Stone
+N:725:& Stone
 G:*:R
 I:39:21:0
 W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:726:TRANSLATE
-E:& Ring~:Black
+N:726:& Ring~:Black
 G:=:W
 I:45:62:0
 W:50:0:0:2:1234
 F:INSTA_ART | FIXED_FLAVOR
 
-N:727:TRANSLATE
-E:Resistance:Prismatic
+N:727:Resistance:Prismatic
 G:=:o
 I:45:63:0
 W:50:0:0:2:25000
@@ -6436,23 +5453,20 @@ A:50/4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:728:TRANSLATE
-E:High Resistance:White
+N:728:High Resistance:White
 G:=:w
 I:45:64:0
 W:50:0:0:2:25000
 A:50/6
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:729:& Dog Collar~
-E:& Dog Collar~:Amber
+N:729:& Dog Collar~:Amber
 G:":r
 I:40:36:0
 W:50:0:0:30:66666
 F:INSTA_ART
 
 N:730:& Eye
-E:& Eye
 G:*:y
 I:39:22:0
 W:20:0:0:5:25000
@@ -6460,7 +5474,6 @@ P:0:1d1:0:0:0
 F:INSTA_ART
 
 N:731:Resist Fire:Red
-E:Resist Fire:Red
 G:":r
 I:40:37:0
 W:15:0:50:3:300
@@ -6468,7 +5481,6 @@ A:15/1
 F:RES_FIRE | IGNORE_FIRE
 
 N:732:Resist Cold:Blue
-E:Resist Cold:Blue
 G:":B
 I:40:38:0
 W:15:0:50:3:300
@@ -6476,36 +5488,31 @@ A:15/1
 F:RES_COLD | IGNORE_COLD
 
 N:733:Resist Lightning:Shocking
-E:Resist Lightning:Shocking
 G:":b
 I:40:39:0
 W:20:0:50:3:300
 A:20/1
 F:RES_ELEC | IGNORE_ELEC
 
-N:734:& Dog Collar~
-E:& Dog Collar~:Leather
+N:734:& Dog Collar~:Leather
 G:":u
 I:40:40:0
 W:5:0:0:30:5000
 F:INSTA_ART | FIXED_FLAVOR
 
-N:735:& Dog Collar~
-E:& Dog Collar~:Studded
+N:735:& Dog Collar~:Studded
 G:":U
 I:40:41:0
 W:5:0:0:30:5000
 F:INSTA_ART | FIXED_FLAVOR
 
-N:736:& Dog Collar~
-E:& Dog Collar~:Black
+N:736:& Dog Collar~:Black
 G:":u
 I:40:42:0
 W:5:0:0:30:5000
 F:INSTA_ART | FIXED_FLAVOR
 
 N:737:Fire:itus whamko
-E:Fire:itus whamko
 G:?:w
 I:70:58:0
 W:50:0:0:5:1000
@@ -6513,7 +5520,6 @@ A:50/2
 F:STACK | IGNORE_FIRE
 
 N:738:Ice:facwon mailor
-E:Ice:facwon mailor
 G:?:w
 I:70:59:0
 W:70:0:0:5:1000
@@ -6521,7 +5527,6 @@ A:70/3
 F:STACK | IGNORE_COLD
 
 N:739:Logrus:fentwon gerbil
-E:Logrus:fentwon gerbil
 G:?:w
 I:70:60:0
 W:80:0:0:5:5000
@@ -6529,7 +5534,6 @@ A:80/4
 F:STACK | IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 
 N:740:Mana:deedil dorko
-E:Mana:deedil dorko
 G:?:w
 I:70:61:0
 W:90:0:0:5:10000
@@ -6537,7 +5541,6 @@ A:90/6
 F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 
 N:741:Anti-Summoning:Obsidian
-E:Anti-Summoning:Obsidian
 G:":o
 I:40:43:0
 W:100:0:0:3:1000000
@@ -6546,15 +5549,13 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:NO_SUMMON
 
 N:742:Escaping:Translucent
-E:Escaping:Translucent
 G:-:s
 I:66:32:12
 W:30:0:0:15:2500
 A:30/4
 P:0:1d1:0:0:0
 
-N:743:Extra Might
-E:Extra Might:Plain
+N:743:Extra Might:Plain
 G:=:G
 I:45:65:0
 W:70:0:0:2:50000
@@ -6562,7 +5563,6 @@ A:70/6
 F:XTRA_MIGHT
 
 N:744:Mana Balls:Jade
-E:Mana Balls:Jade
 G:-:B
 I:66:33:35
 W:80:0:0:15:50000
@@ -6570,7 +5570,6 @@ A:50/16:80/4
 P:0:1d1:0:0:0
 
 N:745:Mana Bolts:Crystal
-E:Mana Bolts:Crystal
 G:-:B
 I:66:34:35
 W:55:0:0:15:50000

@@ -604,7 +604,7 @@ says, 'Maybe I won't kill you... NOT!'
 yawns at your pathetic efforts to kill it.
 says, 'Another day, another bastard to slaughter...'
 says, 'I can't be bothered... minions, slaughter this fool!'
-says, 'Such a doomed, pathetic gesture as yours  verges on the heroic!'
+says, 'Such a doomed, pathetic gesture as yours verges on the heroic!'
 says, 'Mere mortals such as you should not meddle the affair of the Powers!'
 
 N:873:Combat-Echizen
@@ -643,29 +643,12 @@ says, 'I don't endure your sabotaging...'
 says, 'You are a little barrier of my plan. Die...'
 says, 'Everything is as I like... huh...'
 
-#↓ウォンの台詞の諦めた部分
-#29
-#「自分の力量も測れないのですか。その様な行いを[暴虎馮河]と言うのですよ。」
-#「[酔生夢死]…あなたの一生を物語るにふさわしい言葉ですねぇ…」
-#「[時の宜しきに随う]…この場合、あなたに消えていただくのが最善の処置だという訳です。」
-#「あなたの力は制御できなければ危険すぎます…。[水は舟を載せ、亦、舟を覆す]とも言いますしねぇ。」
-#「あなたの力など[蟷螂の斧]の様なもの。私には痛くも、痒くもありません。」
-#「あなたにはもはや、存在価値がありません。正に、[行尸走肉]といったところですねぇ。」
-#「[生殺与奪]…。フフ…あなたのおかげで、貴重なデータが取れますよ。」
-#「あなたの計画など所詮は[空中楼閣]。絵空事に過ぎなかったのですよ。」
-#「とんだ[羊質虎皮]ですね…。」
-#「時は、人を操り世界を動かす。即ち[唯我独尊]なんですよ。」
-#「人の命は朝露の様な物…。[会者定離]と言う事で諦めて下さい。」
-#「相手の力を過小評価しているからですよ。これを[子且の患]と言います。」
-#「自分の力量も知らないとは…。[雲泥万里]ですねぇ…。」
-#「[夏炉冬扇]……。使えなくなった物は捨てるに限ります。」
-#「生きる為には血族でも踏み台にする…。当たり前の事ですよ。」
-#「全ては[運否天賦]、時の流れも私に味方しているのですよ。」
-
 N:921:Internet Exploder
 is slow.
 throws off some dorky packets.
 tries to download a 100MB service pack.
+requests a reboot, gets tired of asking nicely, and shuts down your PC.
+quietly installs the latest malware.
 
 N:931:Caldarm the third
 says, 'Lookup failure, human race will go to ruin.'
@@ -712,6 +695,7 @@ yells 'The World!' Time has stopped!
 casts Anti-Magic. You feel your spells are blocked!
 throws a large rock.
 invokes a stasis field.
+casts polymorph other ... You turn into a giant toad!
 
 N:1063:lousy, the King of louses
 says, 'You, transform a louse!'
@@ -737,6 +721,7 @@ says, 'If you think I'm tough, you ain't seen nothin' yet!'
 ponders reading a scroll of *destruction* just to save himself the bother.
 asks, 'How do you like 'No Spells'? There's plenty more where that came from!'
 is ticked off!
+says, 'Have you heard about the new version of Hengband?'
 
 N:1095:Monkey Clone
 says, "Monkey see, monkey do!"

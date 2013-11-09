@@ -127,6 +127,4 @@ Y:leave_wanted
 X:leave_corpse
 X:leave_junk
 Y:leave_special
-Y:leave_excellent
-Y:leave_good
 

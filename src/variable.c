@@ -18,11 +18,11 @@
  */
 cptr copyright[5] =
 {
-	"Copyright (c) 1989 James E. Wilson, Robert A. Keoneke",
-	"",
-	"This software may be copied and distributed for educational, research,",
-	"and not for profit purposes provided that this copyright and statement",
-	"are included in all such copies."
+    "Copyright (c) 1989 James E. Wilson, Robert A. Keoneke",
+    "",
+    "This software may be copied and distributed for educational, research,",
+    "and not for profit purposes provided that this copyright and statement",
+    "are included in all such copies."
 };
 
 
@@ -51,7 +51,7 @@ byte h_ver_minor;
 byte h_ver_patch;
 byte h_ver_extra;
 
-byte sf_extra;		/* Savefile's encoding key */
+byte sf_extra;        /* Savefile's encoding key */
 
 byte z_major;           /* Savefile version for Hengband */
 byte z_minor;
@@ -60,111 +60,111 @@ byte z_patch;
 /*
  * Savefile information
  */
-u32b sf_system;			/* Operating system info */
-u32b sf_when;			/* Time when savefile created */
-u16b sf_lives;			/* Number of past "lives" with this file */
-u16b sf_saves;			/* Number of "saves" during this life */
+u32b sf_system;            /* Operating system info */
+u32b sf_when;            /* Time when savefile created */
+u16b sf_lives;            /* Number of past "lives" with this file */
+u16b sf_saves;            /* Number of "saves" during this life */
 
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-byte arg_graphics;			/* Command arg -- Request graphics mode */
-bool arg_monochrome;		/* Command arg -- Request monochrome mode */
-bool arg_force_original;	/* Command arg -- Request original keyset */
-bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
-bool arg_bigtile = FALSE;	/* Command arg -- Request big tile mode */
+bool arg_fiddle;            /* Command arg -- Request fiddle mode */
+bool arg_wizard;            /* Command arg -- Request wizard mode */
+bool arg_sound;                /* Command arg -- Request special sounds */
+byte arg_graphics;            /* Command arg -- Request graphics mode */
+bool arg_monochrome;        /* Command arg -- Request monochrome mode */
+bool arg_force_original;    /* Command arg -- Request original keyset */
+bool arg_force_roguelike;    /* Command arg -- Request roguelike keyset */
+bool arg_bigtile = FALSE;    /* Command arg -- Request big tile mode */
 
 /*
  * Various things
  */
-bool character_generated;	/* The character exists */
-bool character_dungeon;		/* The character has a dungeon */
-bool character_loaded;		/* The character was loaded from a savefile */
-bool character_saved;		/* The character was just saved to a savefile */
+bool character_generated;    /* The character exists */
+bool character_dungeon;        /* The character has a dungeon */
+bool character_loaded;        /* The character was loaded from a savefile */
+bool character_saved;        /* The character was just saved to a savefile */
 
-bool character_icky;		/* The game is in an icky full screen mode */
-bool character_xtra;		/* The game is in an icky startup mode */
+bool character_icky;        /* The game is in an icky full screen mode */
+bool character_xtra;        /* The game is in an icky startup mode */
 
-bool creating_savefile;		/* New savefile is currently created */
+bool creating_savefile;        /* New savefile is currently created */
 
-u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town;			/* Hack -- consistent town layout */
+u32b seed_flavor;        /* Hack -- consistent object colors */
+u32b seed_town;            /* Hack -- consistent town layout */
 
-s16b command_cmd;		/* Current "Angband Command" */
+s16b command_cmd;        /* Current "Angband Command" */
 
-s16b command_arg;		/* Gives argument of current command */
-s16b command_rep;		/* Gives repetition of current command */
-s16b command_dir;		/* Gives direction of current command */
+s16b command_arg;        /* Gives argument of current command */
+s16b command_rep;        /* Gives repetition of current command */
+s16b command_dir;        /* Gives direction of current command */
 
-s16b command_see;		/* See "object1.c" */
-s16b command_wrk;		/* See "object1.c" */
+s16b command_see;        /* See "object1.c" */
+s16b command_wrk;        /* See "object1.c" */
 
 s16b command_gap = 999;         /* See "object1.c" */
 
-s16b command_new;		/* Command chaining from inven/equip view */
+s16b command_new;        /* Command chaining from inven/equip view */
 
-s16b energy_use;		/* Energy use this turn */
+s16b energy_use;        /* Energy use this turn */
 
-bool msg_flag;			/* Used in msg_print() for "buffering" */
+bool msg_flag;            /* Used in msg_print() for "buffering" */
 
-s16b running;			/* Current counter for running, if any */
-s16b resting;			/* Current counter for resting, if any */
+s16b running;            /* Current counter for running, if any */
+s16b resting;            /* Current counter for resting, if any */
 
-s16b cur_hgt;			/* Current dungeon height */
-s16b cur_wid;			/* Current dungeon width */
-s16b dun_level;			/* Current dungeon level */
+s16b cur_hgt;            /* Current dungeon height */
+s16b cur_wid;            /* Current dungeon width */
+s16b dun_level;            /* Current dungeon level */
 s16b unique_count;
-s16b num_repro;			/* Current reproducer count */
+s16b num_repro;            /* Current reproducer count */
 s16b num_repro_kill;
-s16b object_level;		/* Current object creation level */
-s16b monster_level;		/* Current monster creation level */
+s16b object_level;        /* Current object creation level */
+s16b monster_level;        /* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
 
-s32b turn;				/* Current game turn */
-s32b turn_limit;		/* Limit of game turn */
-s32b dungeon_turn;			/* Game turn in dungeon */
-s32b dungeon_turn_limit;	/* Limit of game turn in dungeon */
-s32b old_turn;			/* Turn when level began */
+s32b turn;                /* Current game turn */
+s32b turn_limit;        /* Limit of game turn */
+s32b dungeon_turn;            /* Game turn in dungeon */
+s32b dungeon_turn_limit;    /* Limit of game turn in dungeon */
+s32b old_turn;            /* Turn when level began */
 s32b old_battle;
 
-bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
+bool use_sound;            /* The "sound" mode is enabled */
+bool use_graphics;        /* The "graphics" mode is enabled */
 bool use_bigtile = FALSE;
 
-s16b signal_count;		/* Hack -- Count interupts */
+s16b signal_count;        /* Hack -- Count interupts */
 
-bool inkey_base;		/* See the "inkey()" function */
-bool inkey_xtra;		/* See the "inkey()" function */
-bool inkey_scan;		/* See the "inkey()" function */
-bool inkey_flag;		/* See the "inkey()" function */
-bool get_com_no_macros = FALSE;	/* Expand macros in "get_com" or not */
+bool inkey_base;        /* See the "inkey()" function */
+bool inkey_xtra;        /* See the "inkey()" function */
+bool inkey_scan;        /* See the "inkey()" function */
+bool inkey_flag;        /* See the "inkey()" function */
+bool get_com_no_macros = FALSE;    /* Expand macros in "get_com" or not */
 
-s16b coin_type;			/* Hack -- force coin type */
+s16b coin_type;            /* Hack -- force coin type */
 
-bool opening_chest;		/* Hack -- prevent chest generation */
+bool opening_chest;        /* Hack -- prevent chest generation */
 
-bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
-bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
+bool shimmer_monsters;    /* Hack -- optimize multi-hued monsters */
+bool shimmer_objects;    /* Hack -- optimize multi-hued objects */
 
-bool repair_monsters;	/* Hack -- optimize detect monsters */
-bool repair_objects;	/* Hack -- optimize detect objects */
+bool repair_monsters;    /* Hack -- optimize detect monsters */
+bool repair_objects;    /* Hack -- optimize detect objects */
 
-s16b inven_nxt;			/* Hack -- unused */
+s16b inven_nxt;            /* Hack -- unused */
 bool hack_mind;
 
-s16b inven_cnt;			/* Number of items in inventory */
-s16b equip_cnt;			/* Number of items in equipment */
+s16b inven_cnt;            /* Number of items in inventory */
+s16b equip_cnt;            /* Number of items in equipment */
 
-s16b o_max = 1;			/* Number of allocated objects */
-s16b o_cnt = 0;			/* Number of live objects */
+s16b o_max = 1;            /* Number of allocated objects */
+s16b o_cnt = 0;            /* Number of live objects */
 
-s16b m_max = 1;			/* Number of allocated monsters */
-s16b m_cnt = 0;			/* Number of live monsters */
+s16b m_max = 1;            /* Number of allocated monsters */
+s16b m_cnt = 0;            /* Number of live monsters */
 
-s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
+s16b hack_m_idx = 0;    /* Hack -- see "process_monsters()" */
 int hack_m_spell = 0;   /* Hack -- see process_monsters(), make_attack_spell() and project_p() */
                         /* This is used to implement spell absorption */
 s16b hack_m_idx_ii = 0;
@@ -183,130 +183,130 @@ bool reinit_wilderness = FALSE;
 
 /*** Input Options ***/
 
-bool rogue_like_commands;	/* Rogue-like commands */
-bool always_pickup;	/* Pick things up by default */
-bool carry_query_flag;	/* Prompt before picking things up */
-bool quick_messages;	/* Activate quick messages */
-bool auto_more;	/* Automatically clear '-more-' prompts */
-bool command_menu;	/* Enable command selection menu */
-bool other_query_flag;	/* Prompt for floor item selection */
-bool use_old_target;	/* Use old target by default */
-bool always_repeat;	/* Repeat obvious commands */
-bool confirm_destroy;	/* Prompt for destruction of known worthless items */
-bool confirm_wear;	/* Confirm to wear/wield known cursed items */
-bool confirm_quest;	/* Prompt before exiting a quest level */
-bool target_pet;	/* Allow targetting pets */
+bool rogue_like_commands;    /* Rogue-like commands */
+bool always_pickup;    /* Pick things up by default */
+bool carry_query_flag;    /* Prompt before picking things up */
+bool quick_messages;    /* Activate quick messages */
+bool auto_more;    /* Automatically clear '-more-' prompts */
+bool command_menu;    /* Enable command selection menu */
+bool other_query_flag;    /* Prompt for floor item selection */
+bool use_old_target;    /* Use old target by default */
+bool always_repeat;    /* Repeat obvious commands */
+bool confirm_destroy;    /* Prompt for destruction of known worthless items */
+bool confirm_wear;    /* Confirm to wear/wield known cursed items */
+bool confirm_quest;    /* Prompt before exiting a quest level */
+bool target_pet;    /* Allow targetting pets */
 
 #ifdef ALLOW_EASY_OPEN
-bool easy_open;	/* Automatically open doors */
+bool easy_open;    /* Automatically open doors */
 #endif
 
 #ifdef ALLOW_EASY_DISARM
-bool easy_disarm;	/* Automatically disarm traps */
+bool easy_disarm;    /* Automatically disarm traps */
 #endif
 
 #ifdef ALLOW_EASY_FLOOR
-bool easy_floor;	/* Display floor stacks in a list */
+bool easy_floor;    /* Display floor stacks in a list */
 #endif
 
-bool use_command;	/* Allow unified use command */
-bool over_exert;	/* Allow casting spells when short of mana */
-bool numpad_as_cursorkey;	/* Use numpad keys as cursor key in editor mode */
+bool use_command;    /* Allow unified use command */
+bool over_exert;    /* Allow casting spells when short of mana */
+bool numpad_as_cursorkey;    /* Use numpad keys as cursor key in editor mode */
 
 
 /*** Map Screen Options ***/
 
-bool center_player;	/* Center map while walking (*slow*) */
-bool center_running;	/* Centering even while running */
-bool view_yellow_lite;	/* Use special colors for torch-lit grids */
-bool view_bright_lite;	/* Use special colors for 'viewable' grids */
-bool view_granite_lite;	/* Use special colors for wall grids (slow) */
-bool view_special_lite;	/* Use special colors for floor grids (slow) */
-bool view_perma_grids;	/* Map remembers all perma-lit grids */
-bool view_torch_grids;	/* Map remembers all torch-lit grids */
-bool view_unsafe_grids;	/* Map marked by detect traps */
-bool view_reduce_view;	/* Reduce view-radius in town */
-bool fresh_before;	/* Flush output while continuous command */
-bool fresh_after;	/* Flush output after monster's move */
-bool fresh_message;	/* Flush output after every message */
-bool hilite_player;	/* Hilite the player with the cursor */
-bool display_path;	/* Display actual path before shooting */
+bool center_player;    /* Center map while walking (*slow*) */
+bool center_running;    /* Centering even while running */
+bool view_yellow_lite;    /* Use special colors for torch-lit grids */
+bool view_bright_lite;    /* Use special colors for 'viewable' grids */
+bool view_granite_lite;    /* Use special colors for wall grids (slow) */
+bool view_special_lite;    /* Use special colors for floor grids (slow) */
+bool view_perma_grids;    /* Map remembers all perma-lit grids */
+bool view_torch_grids;    /* Map remembers all torch-lit grids */
+bool view_unsafe_grids;    /* Map marked by detect traps */
+bool view_reduce_view;    /* Reduce view-radius in town */
+bool fresh_before;    /* Flush output while continuous command */
+bool fresh_after;    /* Flush output after monster's move */
+bool fresh_message;    /* Flush output after every message */
+bool hilite_player;    /* Hilite the player with the cursor */
+bool display_path;    /* Display actual path before shooting */
 
 
 /*** Text Display Options ***/
 
-bool plain_descriptions;	/* Plain object descriptions */
-bool plain_pickup;	/* Plain pickup messages(japanese only) */
-bool always_show_list;	/* Always show list when choosing items */
-bool depth_in_feet;	/* Show dungeon level in feet */
-bool show_labels;	/* Show labels in object listings */
-bool show_weights;	/* Show weights in object listings */
+bool plain_descriptions;    /* Plain object descriptions */
+bool plain_pickup;    /* Plain pickup messages(japanese only) */
+bool always_show_list;    /* Always show list when choosing items */
+bool depth_in_feet;    /* Show dungeon level in feet */
+bool show_labels;    /* Show labels in object listings */
+bool show_weights;    /* Show weights in object listings */
 bool show_discounts;
-bool show_item_graph;	/* Show items graphics */
-bool equippy_chars;	/* Display 'equippy' chars */
-bool display_mutations;	/* Display mutations in 'C'haracter Display */
-bool compress_savefile;	/* Compress messages in savefiles */
-bool abbrev_extra;	/* Describe obj's extra resistances by abbreviation */
-bool abbrev_all;	/* Describe obj's all resistances by abbreviation */
-bool exp_need;	/* Show the experience needed for next level */
-bool ignore_unview;	/* Ignore whenever any monster does */
+bool show_item_graph;    /* Show items graphics */
+bool equippy_chars;    /* Display 'equippy' chars */
+bool display_mutations;    /* Display mutations in 'C'haracter Display */
+bool compress_savefile;    /* Compress messages in savefiles */
+bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation */
+bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
+bool exp_need;    /* Show the experience needed for next level */
+bool ignore_unview;    /* Ignore whenever any monster does */
 
 
 /*** Game-Play Options ***/
 
-bool stack_force_notes;	/* Merge inscriptions when stacking */
-bool stack_force_costs;	/* Merge discounts when stacking */
-bool expand_list;	/* Expand the power of the list commands */
-bool small_levels;	/* Allow unusually small dungeon levels */
-bool always_small_levels;	/* Always create unusually small dungeon levels */
-bool empty_levels;	/* Allow empty 'arena' levels */
-bool bound_walls_perm;	/* Boundary walls become 'permanent wall' */
-bool last_words;	/* Leave last words when your character dies */
+bool stack_force_notes;    /* Merge inscriptions when stacking */
+bool stack_force_costs;    /* Merge discounts when stacking */
+bool expand_list;    /* Expand the power of the list commands */
+bool small_levels;    /* Allow unusually small dungeon levels */
+bool always_small_levels;    /* Always create unusually small dungeon levels */
+bool empty_levels;    /* Allow empty 'arena' levels */
+bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
+bool last_words;    /* Leave last words when your character dies */
 
 #ifdef WORLD_SCORE
-bool send_score;	/* Send score dump to the world score server */
+bool send_score;    /* Send score dump to the world score server */
 #endif
 
-bool allow_debug_opts;	/* Allow use of debug/cheat options */
+bool allow_debug_opts;    /* Allow use of debug/cheat options */
 
 
 /*** Disturbance Options ***/
 
-bool find_ignore_stairs;	/* Run past stairs */
-bool find_ignore_doors;	/* Run through open doors */
-bool find_cut;	/* Run past known corners */
-bool check_abort;	/* Check for user abort while continuous command */
-bool flush_failure;	/* Flush input on various failures */
-bool flush_disturb;	/* Flush input whenever disturbed */
-bool disturb_move;	/* Disturb whenever any monster moves */
-bool disturb_high;	/* Disturb whenever high-level monster moves */
-bool disturb_near;	/* Disturb whenever viewable monster moves */
-bool disturb_pets;	/* Disturb when visible pets move */
-bool disturb_panel;	/* Disturb whenever map panel changes */
-bool disturb_state;	/* Disturb whenever player state changes */
-bool disturb_minor;	/* Disturb whenever boring things happen */
-bool ring_bell;	/* Audible bell (on errors, etc) */
-bool disturb_trap_detect;	/* Disturb when leaving trap detected area */
-bool alert_trap_detect;	/* Alert when leaving trap detected area */
+bool find_ignore_stairs;    /* Run past stairs */
+bool find_ignore_doors;    /* Run through open doors */
+bool find_cut;    /* Run past known corners */
+bool check_abort;    /* Check for user abort while continuous command */
+bool flush_failure;    /* Flush input on various failures */
+bool flush_disturb;    /* Flush input whenever disturbed */
+bool disturb_move;    /* Disturb whenever any monster moves */
+bool disturb_high;    /* Disturb whenever high-level monster moves */
+bool disturb_near;    /* Disturb whenever viewable monster moves */
+bool disturb_pets;    /* Disturb when visible pets move */
+bool disturb_panel;    /* Disturb whenever map panel changes */
+bool disturb_state;    /* Disturb whenever player state changes */
+bool disturb_minor;    /* Disturb whenever boring things happen */
+bool ring_bell;    /* Audible bell (on errors, etc) */
+bool disturb_trap_detect;    /* Disturb when leaving trap detected area */
+bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 
 /*** Birth Options ***/
 
-bool manual_haggle;	/* Manually haggle in stores */
-bool easy_band;	/* Easy Mode (*) */
-bool smart_learn;	/* Monsters learn from their mistakes (*) */
-bool smart_cheat;	/* Monsters exploit players weaknesses (*) */
-bool vanilla_town;	/* Use 'vanilla' town without quests and wilderness */
-bool lite_town;	/* Use 'lite' town without a wilderness */
-bool ironman_shops;	/* Stores are permanently closed (*) */
-bool ironman_small_levels;	/* Always create unusually small dungeon levels (*) */
-bool ironman_downward;	/* Disable recall and use of up stairs (*) */
-bool ironman_empty_levels;	/* Always create empty 'arena' levels (*) */
-bool ironman_rooms;	/* Always generate very unusual rooms (*) */
-bool ironman_nightmare;	/* Nightmare mode(it isn't even remotely fair!)(*) */
-bool preserve_mode;	/* Preserve artifacts (*) */
-bool autoroller;	/* Allow use of autoroller for stats (*) */
-bool powerup_home;	/* Increase capacity of your home (*) */
+bool manual_haggle;    /* Manually haggle in stores */
+bool easy_band;    /* Easy Mode (*) */
+bool smart_learn;    /* Monsters learn from their mistakes (*) */
+bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
+bool vanilla_town;    /* Use 'vanilla' town without quests and wilderness */
+bool lite_town;    /* Use 'lite' town without a wilderness */
+bool ironman_shops;    /* Stores are permanently closed (*) */
+bool ironman_small_levels;    /* Always create unusually small dungeon levels (*) */
+bool ironman_downward;    /* Disable recall and use of up stairs (*) */
+bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) */
+bool ironman_rooms;    /* Always generate very unusual rooms (*) */
+bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
+bool preserve_mode;    /* Preserve artifacts (*) */
+bool autoroller;    /* Allow use of autoroller for stats (*) */
+bool powerup_home;    /* Increase capacity of your home (*) */
 bool allow_friendly_monster; /* Allow monsters friendly to player */
 bool allow_hostile_monster; /* Allow monsters hostile to each other */
 bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
@@ -320,39 +320,39 @@ bool enable_virtues;
 
 /*** Easy Object Auto-Destroyer ***/
 
-bool destroy_items;	/* Use easy auto-destroyer */
-bool destroy_feeling;	/* Apply auto-destroy as sense feeling */
-bool destroy_identify;	/* Apply auto-destroy as identify an item */
-bool leave_worth;	/* Auto-destroyer leaves known worthy items */
-bool leave_equip;	/* Auto-destroyer leaves weapons and armour */
-bool leave_chest;	/* Auto-destroyer leaves closed chests */
-bool leave_wanted;	/* Auto-destroyer leaves wanted corpses */
-bool leave_corpse;	/* Auto-destroyer leaves corpses and skeletons */
-bool leave_junk;	/* Auto-destroyer leaves junk */
-bool leave_special;	/* Auto-destroyer leaves items your race/class needs */
+bool destroy_items;    /* Use easy auto-destroyer */
+bool destroy_feeling;    /* Apply auto-destroy as sense feeling */
+bool destroy_identify;    /* Apply auto-destroy as identify an item */
+bool leave_worth;    /* Auto-destroyer leaves known worthy items */
+bool leave_equip;    /* Auto-destroyer leaves weapons and armour */
+bool leave_chest;    /* Auto-destroyer leaves closed chests */
+bool leave_wanted;    /* Auto-destroyer leaves wanted corpses */
+bool leave_corpse;    /* Auto-destroyer leaves corpses and skeletons */
+bool leave_junk;    /* Auto-destroyer leaves junk */
+bool leave_special;    /* Auto-destroyer leaves items your race/class needs */
 
 
 
 /* Cheating options */
 
-bool cheat_peek;	/* Peek into object creation */
-bool cheat_hear;	/* Peek into monster creation */
-bool cheat_room;	/* Peek into dungeon creation */
-bool cheat_xtra;	/* Peek into something else */
-bool cheat_know;	/* Know complete monster info */
-bool cheat_live;	/* Allow player to avoid death */
-bool cheat_save;	/* Ask for saving death */
+bool cheat_peek;    /* Peek into object creation */
+bool cheat_hear;    /* Peek into monster creation */
+bool cheat_room;    /* Peek into dungeon creation */
+bool cheat_xtra;    /* Peek into something else */
+bool cheat_know;    /* Know complete monster info */
+bool cheat_live;    /* Allow player to avoid death */
+bool cheat_save;    /* Ask for saving death */
 
 
 /* Special options */
 
-byte hitpoint_warn = 3;	/* Hitpoint warning (0 to 9) */
-byte mana_warn;	/* Mana color (0 to 9) */
+byte hitpoint_warn = 3;    /* Hitpoint warning (0 to 9) */
+byte mana_warn;    /* Mana color (0 to 9) */
 
-byte delay_factor = 2;	/* Delay factor (0 to 9) */
+byte delay_factor = 2;    /* Delay factor (0 to 9) */
 
-bool autosave_l;	/* Autosave before entering new levels */
-bool autosave_t;	/* Timed autosave */
+bool autosave_l;    /* Autosave before entering new levels */
+bool autosave_t;    /* Timed autosave */
 s16b autosave_freq;     /* Autosave frequency */
 
 
@@ -360,7 +360,7 @@ s16b autosave_freq;     /* Autosave frequency */
  * Dungeon variables
  */
 
-bool closing_flag;		/* Dungeon is closing */
+bool closing_flag;        /* Dungeon is closing */
 
 
 /*
@@ -539,14 +539,14 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"PosChengband",
-	"Term-1",
-	"Term-2",
-	"Term-3",
-	"Term-4",
-	"Term-5",
-	"Term-6",
-	"Term-7"
+    "PosChengband",
+    "Term-1",
+    "Term-2",
+    "Term-3",
+    "Term-4",
+    "Term-5",
+    "Term-6",
+    "Term-7"
 };
 
 
@@ -555,22 +555,22 @@ char angband_term_name[8][16] =
  */
 byte angband_color_table[256][4] =
 {
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
-	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
-	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
-	{0x00, 0x00, 0x00, 0xFF},	/* TERM_BLUE */
-	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x40, 0x40, 0x40},	/* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
-	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
-	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
-	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
-	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+    {0x00, 0x00, 0x00, 0x00},    /* TERM_DARK */
+    {0x00, 0xFF, 0xFF, 0xFF},    /* TERM_WHITE */
+    {0x00, 0x80, 0x80, 0x80},    /* TERM_SLATE */
+    {0x00, 0xFF, 0x80, 0x00},    /* TERM_ORANGE */
+    {0x00, 0xC0, 0x00, 0x00},    /* TERM_RED */
+    {0x00, 0x00, 0x80, 0x40},    /* TERM_GREEN */
+    {0x00, 0x00, 0x00, 0xFF},    /* TERM_BLUE */
+    {0x00, 0x80, 0x40, 0x00},    /* TERM_UMBER */
+    {0x00, 0x40, 0x40, 0x40},    /* TERM_L_DARK */
+    {0x00, 0xC0, 0xC0, 0xC0},    /* TERM_L_WHITE */
+    {0x00, 0xFF, 0x00, 0xFF},    /* TERM_VIOLET */
+    {0x00, 0xFF, 0xFF, 0x00},    /* TERM_YELLOW */
+    {0x00, 0xFF, 0x00, 0x00},    /* TERM_L_RED */
+    {0x00, 0x00, 0xFF, 0x00},    /* TERM_L_GREEN */
+    {0x00, 0x00, 0xFF, 0xFF},    /* TERM_L_BLUE */
+    {0x00, 0xC0, 0x80, 0x40}    /* TERM_L_UMBER */
 };
 
 
@@ -579,72 +579,72 @@ byte angband_color_table[256][4] =
  */
 char angband_sound_name[SOUND_MAX][16] =
 {
-	"",
-	"hit",
-	"miss",
-	"flee",
-	"drop",
-	"kill",
-	"level",
-	"death",
-	"study",
-	"teleport",
-	"shoot",
-	"quaff",
-	"zap",
-	"walk",
-	"tpother",
-	"hitwall",
-	"eat",
-	"store1",
-	"store2",
-	"store3",
-	"store4",
-	"dig",
-	"opendoor",
-	"shutdoor",
-	"tplevel",
-	"scroll",
-	"buy",
-	"sell",
-	"warn",
-	"rocket",
-	"n_kill",
-	"u_kill",
-	"quest",
-	"heal",
-	"x_heal",
-	"bite",
-	"claw",
-	"m_spell",
-	"summon",
-	"breath",
-	"ball",
-	"m_heal",
-	"atkspell",
-	"evil",
-	"touch",
-	"sting",
-	"crush",
-	"slime",
-	"wail",
-	"winner",
-	"fire",
-	"acid",
-	"elec",
-	"cold",
-	"illegal",
-	"fail",
-	"wakeup",
-	"invuln",
-	"fall",
-	"pain",
-	"destitem",
-	"moan",
-	"show",
-	"unused",
-	"explode",
-	"glass",
+    "",
+    "hit",
+    "miss",
+    "flee",
+    "drop",
+    "kill",
+    "level",
+    "death",
+    "study",
+    "teleport",
+    "shoot",
+    "quaff",
+    "zap",
+    "walk",
+    "tpother",
+    "hitwall",
+    "eat",
+    "store1",
+    "store2",
+    "store3",
+    "store4",
+    "dig",
+    "opendoor",
+    "shutdoor",
+    "tplevel",
+    "scroll",
+    "buy",
+    "sell",
+    "warn",
+    "rocket",
+    "n_kill",
+    "u_kill",
+    "quest",
+    "heal",
+    "x_heal",
+    "bite",
+    "claw",
+    "m_spell",
+    "summon",
+    "breath",
+    "ball",
+    "m_heal",
+    "atkspell",
+    "evil",
+    "touch",
+    "sting",
+    "crush",
+    "slime",
+    "wail",
+    "winner",
+    "fire",
+    "acid",
+    "elec",
+    "cold",
+    "illegal",
+    "fail",
+    "wakeup",
+    "invuln",
+    "fall",
+    "pain",
+    "destitem",
+    "moan",
+    "show",
+    "unused",
+    "explode",
+    "glass",
 };
 
 
@@ -855,11 +855,7 @@ cptr ANGBAND_SYS = "xxx";
  * Hack -- The special Angband "Keyboard Suffix"
  * This variable is used to choose an appropriate macro-trigger definition
  */
-#ifdef JP
-cptr ANGBAND_KEYBOARD = "JAPAN";
-#else
 cptr ANGBAND_KEYBOARD = "0";
-#endif
 
 /*
  * Hack -- The special Angband "Graphics Suffix"
@@ -1026,8 +1022,6 @@ bool leave_corpse;
 bool leave_junk;
 bool leave_chest;
 bool leave_special;
-bool leave_excellent;
-bool leave_good;
 
 /* Nikki */
 bool record_fix_art;

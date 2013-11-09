@@ -384,21 +384,21 @@
 
                         STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Clear hound            +1   -3   -5   +2   +1   +0  100%  +22  150%
-  Shadow hound           +1   -3   -5   +2   +1   +0  100%  +22  150%
-  Cold hound             +2   -3   -5   +3   +2   +0  100%  +22  150%
-  Vibration hound        +2   -3   -5   +3   +2   +0  100%  +22  150%
-  Inertia hound          +3   -3   -5   +4   +3   +1  100%  +22  150%
-  Time hound             +4   -3   -5   +4   +3   +1  100%  +22  150%
-  Hound of Tindalos      +4   -3   -5   +5   +4   +1  100%  +22  150%
+  Light hound            +1   -3   -5   +2   +1   +0  100%  +22  150%
+  Fire hound             +2   -3   -5   +3   +2   +0  100%  +22  150%
+  Earth hound            +2   -3   -5   +3   +2   +0  100%  +22  150%
+  Impact hound           +3   -3   -5   +4   +3   +1  100%  +22  150%
+  Plasma hound           +4   -3   -5   +4   +3   +1  100%  +22  150%
+  Mana hound             +4   -3   -5   +5   +4   +1  100%  +22  150%
 
                         Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Clear hound           25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
-  Light hound           25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
-  Cold hound            25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
-  Vibration hound       25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
-  Inertia hound         25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
-  Gravity hound         25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
-  Aether hound          25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Shadow hound          25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Energy hound          25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Multi-hued hound      25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Impact hound          25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Chaos hound           25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Mana hound            25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
 
 
 ***** <Giant>
@@ -633,9 +633,9 @@
 
 
                         STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Cheerful Leprechaun    -2   +1   +1   +3   -2   -2   90%  +15  150%
-  Malicious Leprechaun   -4   +1   +1   +5   -2   -2   90%  +15  150%
-  Death Leprechaun       -6   +1   +1   +7   -2   -2   90%  +15  150%
+  Cheerful Leprechaun    -2   +1   +1   +3   -2   -2   88%  +15  150%
+  Malicious Leprechaun   -4   +1   +1   +5   -2   -2   88%  +15  150%
+  Death Leprechaun       -6   +1   +1   +7   -2   -2   88%  +15  150%
 
                         Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Cheerful Leprechaun   30+12  45+18  38+11  10+1  24+0  16+0  48+13  60+28
@@ -661,8 +661,7 @@
                         Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Ice troll             25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Ettin                 25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
 
@@ -676,8 +675,7 @@
                         Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Ice troll             25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Storm troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
 
@@ -705,8 +703,7 @@
                         Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Fire troll            25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
   Troll king            25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
 
@@ -715,4 +712,4 @@
 
 
 
-Automatically generated for PosChengband 1.0.21.
+Automatically generated for PosChengband 1.0.24.

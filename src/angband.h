@@ -73,36 +73,36 @@
 /* Original copyright message follows. */
 
 /*
- * ANGBAND Version 4.8	COPYRIGHT (c) Robert Alan Koeneke
+ * ANGBAND Version 4.8    COPYRIGHT (c) Robert Alan Koeneke
  *
- *	 I lovingly dedicate this game to hackers and adventurers
- *	 everywhere...
+ *     I lovingly dedicate this game to hackers and adventurers
+ *     everywhere...
  *
- *	 Designer and Programmer:
- *		Robert Alan Koeneke
- *		University of Oklahoma
+ *     Designer and Programmer:
+ *        Robert Alan Koeneke
+ *        University of Oklahoma
  *
- *	 Assistant Programmer:
- *		Jimmey Wayne Todd
- *		University of Oklahoma
+ *     Assistant Programmer:
+ *        Jimmey Wayne Todd
+ *        University of Oklahoma
  *
- *	 Assistant Programmer:
- *		Gary D. McAdoo
- *		University of Oklahoma
+ *     Assistant Programmer:
+ *        Gary D. McAdoo
+ *        University of Oklahoma
  *
- *	 UNIX Port:
- *		James E. Wilson
- *		UC Berkeley
- *		wilson@ernie.Berkeley.EDU
- *		ucbvax!ucbernie!wilson
+ *     UNIX Port:
+ *        James E. Wilson
+ *        UC Berkeley
+ *        wilson@ernie.Berkeley.EDU
+ *        ucbvax!ucbernie!wilson
  */
 
 
 /*
- *	 ANGBAND may be copied and modified freely as long as the above
- *	 credits are retained.	No one who-so-ever may sell or market
- *	 this software in any form without the expressed written consent
- *	 of the author Robert Alan Koeneke.
+ *     ANGBAND may be copied and modified freely as long as the above
+ *     credits are retained.    No one who-so-ever may sell or market
+ *     this software in any form without the expressed written consent
+ *     of the author Robert Alan Koeneke.
  */
 
 

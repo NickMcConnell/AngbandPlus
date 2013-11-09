@@ -120,61 +120,45 @@ F:p:BUILDING_15:3
 
 #################### Buildings ####################
 
-B:$4:N:BrokenSkull Tavern:Celebor:Half-Elf
-B:4:N:宿屋:ケレボール:ハーフエルフ
-B:$4:A:0:Rest for the night:20:20:r:17:0
-B:4:A:0:一泊する:20:20:r:17:0
-B:$4:A:1:Buy food and drink:2:2:f:18:1
-B:4:A:1:食事をする:2:2:f:18:1
-B:$4:A:2:Listen for rumors:10:10:u:19:0
-B:4:A:2:噂を聞く:10:10:u:19:0
-B:$4:A:3:Identify item:100:100:i:44:0
-B:4:A:3:アイテム鑑定:100:100:i:44:0
-B:$4:R:*:Member
-B:$4:R:Golem:None
-B:$4:R:Skeleton:None
-B:$4:R:Zombie:None
-B:$4:R:Vampire:None
-B:$4:R:Spectre:None
-B:$4:R:Ent:None
-B:$4:R:Balrog:None
-B:$4:R:Android:None
-B:$4:R:Demon:None
-B:$4:R:Lich:None
-B:$4:R:Jelly:None
+B:4:N:BrokenSkull Tavern:Celebor:Half-Elf
+B:4:A:0:Rest for the night:20:20:r:17:0
+B:4:A:1:Buy food and drink:2:2:f:18:1
+B:4:A:2:Listen for rumors:10:10:u:19:0
+B:4:A:3:Identify item:100:100:i:44:0
+B:4:R:*:Member
+B:4:R:Golem:None
+B:4:R:Skeleton:None
+B:4:R:Zombie:None
+B:4:R:Vampire:None
+B:4:R:Spectre:None
+B:4:R:Ent:None
+B:4:R:Balrog:None
+B:4:R:Android:None
+B:4:R:Demon:None
+B:4:R:Lich:None
+B:4:R:Jelly:None
 
-B:$8:N:Tower of Sorcery:Tanistil:Elf
-B:8:N:仙術の塔:タニスティル:エルフ
-B:$8:A:0:Recharge item:0:0:r:25:0
-B:8:A:0:再充填:0:0:r:25:0
-B:$8:A:1:Recharge all items:0:0:a:45:0
-B:8:A:1:全てのアイテムを再充填:0:0:a:45:0
-B:$8:A:2:Identify possessions:100:800:i:26:0
-B:8:A:2:持ち物全てを鑑定:100:800:i:26:0
-B:$8:A:3:Request quest:0:0:q:6:1
-B:8:A:3:クエスト:0:0:q:6:1
-B:$8:M:*:None
-B:$8:M:Sorcery:Owner
+B:8:N:Tower of Sorcery:Tanistil:Elf
+B:8:A:0:Recharge item:0:0:r:25:0
+B:8:A:1:Recharge all items:0:0:a:45:0
+B:8:A:2:Identify possessions:100:800:i:26:0
+B:8:A:3:Request quest:0:0:q:6:1
+B:8:M:*:None
+B:8:M:Sorcery:Owner
 
-B:$14:N:Chaos Tower:Xeno:Beastman
-B:14:N:カオスの塔:ゼノ:獣人
-B:$14:A:0:Request quest:0:0:q:6:1
-B:14:A:0:クエスト:0:0:q:6:1
-B:$14:A:1:Cure mutation:1000:5000:m:35:0
-B:14:A:1:突然変異を治療する:1000:5000:m:35:0
-B:$14:R:*:None
-B:$14:R:Beastman:Member
-B:$14:M:*:None
-B:$14:M:Chaos:Owner
+B:14:N:Chaos Tower:Xeno:Beastman
+B:14:A:0:Request quest:0:0:q:6:1
+B:14:A:1:Cure mutation:1000:5000:m:35:0
+B:14:R:*:None
+B:14:R:Beastman:Member
+B:14:M:*:None
+B:14:M:Chaos:Owner
 
-B:$15:N:Nature Tower:Josh:Elf
-B:15:N:自然魔術の塔:ジョッシュ:エルフ
-B:$15:A:0:Request quest:0:0:q:6:1
-B:15:A:0:クエスト:0:0:q:6:1
-B:$15:A:1:Ritual of balance:2000:10000:n:41:0
-B:15:A:1:平衡化の儀式:2000:10000:n:41:0
-B:$15:M:*:None
-B:$15:M:Nature:Owner
+B:15:N:Nature Tower:Josh:Elf
+B:15:A:0:Request quest:0:0:q:6:1
+B:15:A:1:Ritual of balance:2000:10000:n:41:0
+B:15:M:*:None
+B:15:M:Nature:Owner
 
 
 # Town Layout

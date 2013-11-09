@@ -15,2621 +15,2621 @@
 /*
 void foo_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("", ""));
-		break;
-	case SPELL_CALC_BONUS:
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "");
+        break;
+    case SPELL_CALC_BONUS:
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 */
 
 void albino_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Albino", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You turn into an albino! You feel frail...", "アルビノになった！弱くなった気がする..."));
-		mut_lose(MUT_RESILIENT);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer an albino!", "アルビノでなくなった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are albino (-4 CON).", "あなたはアルビノだ。(耐久-4)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CON] -= 4;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Albino");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You turn into an albino! You feel frail...");
+        mut_lose(MUT_RESILIENT);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer an albino!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are albino (-4 CON).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CON] -= 4;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void alcohol_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Alcohol", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your body starts producing alcohol!", "あなたはアルコールを分泌するようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your body stops producing alcohol!", "あなたはアルコールを分泌しなくなった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your body produces alcohol.", "あなたの体はアルコールを分泌する。"));
-		break;
-	case SPELL_PROCESS:
-		if (randint1(6400) == 321)
-		{
-			if (!res_save_default(RES_CONF) && !res_save_default(RES_CHAOS))
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
-				msg_print(T("You feel a SSSCHtupor cOmINg over yOu... *HIC*!", "いひきがもーろーとひてきたきがふる...ヒック！"));
-			}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Alcohol");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your body starts producing alcohol!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your body stops producing alcohol!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your body produces alcohol.");
+        break;
+    case SPELL_PROCESS:
+        if (randint1(6400) == 321)
+        {
+            if (!res_save_default(RES_CONF) && !res_save_default(RES_CHAOS))
+            {
+                disturb(0, 0);
+                p_ptr->redraw |= PR_EXTRA;
+                msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
+            }
 
-			if (!res_save_default(RES_CONF))
-				set_confused(p_ptr->confused + randint0(20) + 15, FALSE);
+            if (!res_save_default(RES_CONF))
+                set_confused(p_ptr->confused + randint0(20) + 15, FALSE);
 
-			if (!res_save_default(RES_CHAOS))
-			{
-				if (one_in_(20))
-				{
-					msg_print(NULL);
-					if (one_in_(3)) lose_all_info();
-					else wiz_dark();
-					teleport_player_aux(100, TELEPORT_NONMAGICAL | TELEPORT_PASSIVE);
-					wiz_dark();
-					msg_print(T("You wake up somewhere with a sore head...", "あなたは見知らぬ場所で目が醒めた...頭が痛い。"));
-					msg_print(T("You can't remember a thing, or how you got here!", "何も覚えていない。どうやってここに来たかも分からない！"));
-				}
-				else if (one_in_(3))
-				{
-					msg_print(T("Thishcischs GooDSChtuff!", "き〜れいなちょおちょらとんれいる〜"));
-					set_image(p_ptr->image + randint0(15) + 15, FALSE);
-				}
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            if (!res_save_default(RES_CHAOS))
+            {
+                if (one_in_(20))
+                {
+                    msg_print(NULL);
+                    if (one_in_(3)) lose_all_info();
+                    else wiz_dark();
+                    teleport_player_aux(100, TELEPORT_NONMAGICAL | TELEPORT_PASSIVE);
+                    wiz_dark();
+                    msg_print("You wake up somewhere with a sore head...");
+                    msg_print("You can't remember a thing, or how you got here!");
+                }
+                else if (one_in_(3))
+                {
+                    msg_print("Thishcischs GooDSChtuff!");
+                    set_image(p_ptr->image + randint0(15) + 15, FALSE);
+                }
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void ambidexterity_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Ambidexterity", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel like dual wielding.", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel like dual wielding.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are ambidextrous.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will be able to dual wield more effectively.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Ambidexterity");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel like dual wielding.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel like dual wielding.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are ambidextrous.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will be able to dual wield more effectively.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void arcane_mastery_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Arcane Mastery", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You gain arcane insights.", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel your arcane mastery slipping away.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have arcane mastery.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Your spells will fail less often.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Arcane Mastery");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You gain arcane insights.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel your arcane mastery slipping away.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have arcane mastery.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Your spells will fail less often.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void arthritis_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Arthritis", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your joints suddenly hurt.", "関節が突然痛み出した。"));
-		mut_lose(MUT_LIMBER);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your joints stop hurting.", "関節が痛くなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your joints ache constantly (-3 DEX).", "あなたはいつも関節に痛みを感じている。(器用-3)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_DEX] -= 3;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Arthritis");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your joints suddenly hurt.");
+        mut_lose(MUT_LIMBER);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your joints stop hurting.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your joints ache constantly (-3 DEX).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_DEX] -= 3;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void astral_guide_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Astral Guide", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You teleport quickly!", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer teleport quickly!", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are an astral guide (Teleport costs less energy).", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Teleportation costs less energy.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Astral Guide");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You teleport quickly!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer teleport quickly!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are an astral guide (Teleport costs less energy).");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Teleportation costs less energy.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void attract_animal_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Attract Animals", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start attracting animals.", "動物を引き付けるようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You stop attracting animals.", "動物を引き寄せなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You attract animals.", "あなたは動物を引きつける。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(7000))
-		{
-			bool pet = one_in_(3);
-			u32b mode = PM_ALLOW_GROUP;
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Attract Animals");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start attracting animals.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You stop attracting animals.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You attract animals.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(7000))
+        {
+            bool pet = one_in_(3);
+            u32b mode = PM_ALLOW_GROUP;
 
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+            if (pet) mode |= PM_FORCE_PET;
+            else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL, mode))
-			{
-				msg_print(T("You have attracted an animal!", "動物を引き寄せた！"));
-				disturb(0, 0);
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL, mode))
+            {
+                msg_print("You have attracted an animal!");
+                disturb(0, 0);
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void attract_demon_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Attract Demons", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start attracting demons.", "悪魔を引き付けるようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You stop attracting demons.", "デーモンを引き寄せなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You attract demons.", "あなたはデーモンを引きつける。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && (randint1(6666) == 666))
-		{
-			bool pet = one_in_(6);
-			u32b mode = PM_ALLOW_GROUP;
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Attract Demons");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start attracting demons.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You stop attracting demons.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You attract demons.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && (randint1(6666) == 666))
+        {
+            bool pet = one_in_(6);
+            u32b mode = PM_ALLOW_GROUP;
 
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+            if (pet) mode |= PM_FORCE_PET;
+            else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-			if (summon_specific((pet ? -1 : 0), py, px,
-						dun_level, SUMMON_DEMON, mode))
-			{
-				msg_print(T("You have attracted a demon!", "あなたはデーモンを引き寄せた！"));
-				disturb(0, 0);
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            if (summon_specific((pet ? -1 : 0), py, px,
+                        dun_level, SUMMON_DEMON, mode))
+            {
+                msg_print("You have attracted a demon!");
+                disturb(0, 0);
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void attract_dragon_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Attract Dragon", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start attracting dragons.", "あなたはドラゴンを引きつけるようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You stop attracting dragons.", "ドラゴンを引き寄せなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You attract dragons.", "あなたはドラゴンを引きつける。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(3000))
-		{
-			bool pet = one_in_(5);
-			u32b mode = PM_ALLOW_GROUP;
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Attract Dragon");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start attracting dragons.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You stop attracting dragons.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You attract dragons.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(3000))
+        {
+            bool pet = one_in_(5);
+            u32b mode = PM_ALLOW_GROUP;
 
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+            if (pet) mode |= PM_FORCE_PET;
+            else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON, mode))
-			{
-				msg_print(T("You have attracted a dragon!", "ドラゴンを引き寄せた！"));
-				disturb(0, 0);
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON, mode))
+            {
+                msg_print("You have attracted a dragon!");
+                disturb(0, 0);
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void black_marketeer_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Black Marketeer");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You become an agent of the black market!");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You are no longer an agent of the black market.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You are an agent of the black market.");
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will gain favorable pricing in the black market.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Black Marketeer");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become an agent of the black market!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer an agent of the black market.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are an agent of the black market.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain favorable pricing in the black market.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void blank_face_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Blank Face", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your face becomes completely featureless!", "のっぺらぼうになった！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your facial features return.", "顔に目鼻が戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your face is featureless (-1 CHR).", "あなたはのっぺらぼうだ。(魅力-1)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CHR] -= 1;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Blank Face");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your face becomes completely featureless!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your facial features return.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your face is featureless (-1 CHR).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CHR] -= 1;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void bad_luck_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Black Aura", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("There is a malignant black aura surrounding you...", "悪意に満ちた黒いオーラがあなたをとりまいた..."));
-		mut_lose(MUT_GOOD_LUCK);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your black aura swirls and fades.", "黒いオーラは渦巻いて消えた。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("There is a black aura surrounding you.", "あなたは黒いオーラにつつまれている。"));
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Black Aura");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("There is a malignant black aura surrounding you...");
+        mut_lose(MUT_GOOD_LUCK);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your black aura swirls and fades.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "There is a black aura surrounding you.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void beak_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Beak");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("Your mouth turns into a sharp, powerful beak!");
-		mut_lose(MUT_TRUNK);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("Your mouth reverts to normal!");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You have a beak.");
-		break;
-	case SPELL_CALC_BONUS:
-	{
-		innate_attack_t	a = {0};
-		a.dd = 2;
-		a.ds = 4;
-		a.weight = 30;
-		a.blows = 1;
-		a.msg = "You hit %s with your beak.";
-		a.name = "Beak";
-		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Beak");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your mouth turns into a sharp, powerful beak!");
+        mut_lose(MUT_TRUNK);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your mouth reverts to normal!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have a beak.");
+        break;
+    case SPELL_CALC_BONUS:
+    {
+        innate_attack_t    a = {0};
+        a.dd = 2;
+        a.ds = 4;
+        a.weight = 30;
+        a.blows = 1;
+        a.msg = "You hit %s with your beak.";
+        a.name = "Beak";
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void berserk_rage_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Berserk Rage", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You become subject to fits of berserk rage!", "あなたは狂暴化の発作を起こすようになった！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer subject to fits of berserk rage!", "凶暴化の発作にさらされなくなった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are subject to berserker fits.", "あなたは狂戦士化の発作を起こす。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->shero && one_in_(3000))
-		{
-			disturb(0, 0);
-			cast_berserk();
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Berserk Rage");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become subject to fits of berserk rage!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer subject to fits of berserk rage!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are subject to berserker fits.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->shero && one_in_(3000))
+        {
+            disturb(0, 0);
+            cast_berserk();
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void chaos_deity_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Chaos Deity", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You attract the notice of a chaos deity!", "あなたはカオスの守護悪魔の注意を惹くようになった。"));
-		/* In case it isn't obvious, every character has a chaos deity assigned at birth. */
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You lose the attention of the chaos deities.", "混沌の神々の興味を惹かなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Chaos deities give you gifts.", "あなたはカオスの守護悪魔から褒美をうけとる。"));
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Chaos Deity");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You attract the notice of a chaos deity!");
+        /* In case it isn't obvious, every character has a chaos deity assigned at birth. */
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose the attention of the chaos deities.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Chaos deities give you gifts.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void cowardice_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Cowardice", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You become an incredible coward!", "信じられないくらい臆病になった！"));
-		mut_lose(MUT_FEARLESS);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer an incredible coward!", "もう信じがたいほど臆病ではなくなった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are subject to cowardice.", "あなたは時々臆病になる。"));
-		break;
-	case SPELL_PROCESS:
-		if (!res_save_default(RES_FEAR) && (randint1(3000) == 13))
-		{
-			disturb(0, 0);
-			msg_print(T("It's so dark... so scary!", "とても暗い... とても恐い！"));
-			fear_add_p(FEAR_SCARED);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Cowardice");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become an incredible coward!");
+        mut_lose(MUT_FEARLESS);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer an incredible coward!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are subject to cowardice.");
+        break;
+    case SPELL_PROCESS:
+        if (!res_save_default(RES_FEAR) && (randint1(3000) == 13))
+        {
+            disturb(0, 0);
+            msg_print("It's so dark... so scary!");
+            fear_add_p(FEAR_SCARED);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void cult_of_personality_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Cult of Personality", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You gain control over your enemy's summons!", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You lose control over your enemy's summons!", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Summoned monsters are sometimes friendly.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Summoned monsters may sometimes switch alliances.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Cult of Personality");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You gain control over your enemy's summons!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose control over your enemy's summons!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Summoned monsters are sometimes friendly.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Summoned monsters may sometimes switch alliances.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void demonic_grasp_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Demonic Grasp", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You have a firm grasp on your magical devices.", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You lose your firm grasp on your magical devices.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You resist charge draining.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You resist charge draining.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Demonic Grasp");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You have a firm grasp on your magical devices.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose your firm grasp on your magical devices.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You resist charge draining.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You resist charge draining.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void eat_light_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Eat Light");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You feel a strange kinship with Ungoliant.");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You feel the world's a brighter place.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You sometimes feed off of the light around you.");
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(3000))
-		{
-			int slot = equip_find_object(TV_LITE, SV_ANY);
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Eat Light");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel a strange kinship with Ungoliant.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel the world's a brighter place.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You sometimes feed off of the light around you.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(3000))
+        {
+            int slot = equip_find_object(TV_LITE, SV_ANY);
 
-			msg_print("A shadow passes over you.");
-			msg_print(NULL);
+            msg_print("A shadow passes over you.");
+            msg_print(NULL);
 
-			if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
-			{
-				hp_player(10);
-			}
+            if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
+            {
+                hp_player(10);
+            }
 
-			if (slot)
-			{
-				object_type *o_ptr = equip_obj(slot);
-				if (!object_is_fixed_artifact(o_ptr) && (o_ptr->xtra4 > 0))
-				{
-					hp_player(o_ptr->xtra4 / 20);
-					o_ptr->xtra4 /= 2;
+            if (slot)
+            {
+                object_type *o_ptr = equip_obj(slot);
+                if (!object_is_fixed_artifact(o_ptr) && (o_ptr->xtra4 > 0))
+                {
+                    hp_player(o_ptr->xtra4 / 20);
+                    o_ptr->xtra4 /= 2;
 
-					msg_print("You absorb energy from your light!");
-					notice_lite_change(o_ptr);
-				}
-			}
-			unlite_area(50, 10);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+                    msg_print("You absorb energy from your light!");
+                    notice_lite_change(o_ptr);
+                }
+            }
+            unlite_area(50, 10);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void einstein_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Living Computer", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your brain evolves into a living computer!", "あなたの脳は生体コンピュータに進化した！"));
-		mut_lose(MUT_MORONIC);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your brain reverts to normal.", "脳が普通に戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your brain is a living computer (+4 INT/WIS).", "あなたの脳は生体コンピュータだ。(知能＆賢さ+4)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_INT] += 4;
-		p_ptr->stat_add[A_WIS] += 4;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Living Computer");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your brain evolves into a living computer!");
+        mut_lose(MUT_MORONIC);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your brain reverts to normal.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your brain is a living computer (+4 INT/WIS).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_INT] += 4;
+        p_ptr->stat_add[A_WIS] += 4;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void elec_aura_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Electric Aura", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Electricity starts running through you!", "血管を電流が流れ始めた！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Electricity stops running through you.", "体を電流が流れなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Electricity is running through your veins.", "あなたの血管には電流が流れている。"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->sh_elec = TRUE;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Electric Aura");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Electricity starts running through you!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Electricity stops running through you.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Electricity is running through your veins.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->sh_elec = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void evasion_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Evasion", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You gain the power of evasion.", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You lose the power of evasion.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You can avoid being crushed by earthquakes and you dodge monster breath attacks.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will dodge enemy breath attacks and have better odds for avoiding earthquakes.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Evasion");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You gain the power of evasion.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose the power of evasion.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You can avoid being crushed by earthquakes and you dodge monster breath attacks.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will dodge enemy breath attacks and have better odds for avoiding earthquakes.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void extra_eyes_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Extra Eyes", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You grow an extra pair of eyes!", "新たに二つの目が出来た！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your extra eyes vanish!", "余分な目が消えてしまった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have an extra pair of eyes (+15 search).", "あなたは余分に二つの目を持っている。(探索+15)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->skills.fos += 15;
-		p_ptr->skills.srh += 15;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Extra Eyes");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You grow an extra pair of eyes!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your extra eyes vanish!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have an extra pair of eyes (+15 search).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->skills.fos += 15;
+        p_ptr->skills.srh += 15;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void extra_legs_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Extra Legs", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You grow an extra pair of legs!", "新たに二本の足が生えてきた！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your extra legs disappear!", "余分な脚が消えてしまった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have an extra pair of legs (+3 speed).", "あなたは余分に二本の足が生えている。(加速+3)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->pspeed += 3;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Extra Legs");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You grow an extra pair of legs!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your extra legs disappear!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have an extra pair of legs (+3 speed).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->pspeed += 3;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void extra_noise_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Extra Noise", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start making strange noise!", "あなたは奇妙な音を立て始めた！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You stop making strange noise!", "奇妙な音を立てなくなった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You make a lot of strange noise (-3 stealth).", "あなたは変な音を発している。(隠密-3)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->skills.stl -= 3;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Extra Noise");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start making strange noise!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You stop making strange noise!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You make a lot of strange noise (-3 stealth).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->skills.stl -= 3;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void fantastic_frenzy_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Fantastic Frenzy", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel a fantastic frenzy...", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel a fantastic frenzy.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have the power of Fantastic Frenzy.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You kill weak monsters more efficiently.");
-		break;
-	default:
-		massacre_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fantastic Frenzy");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel a fantastic frenzy...");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel a fantastic frenzy.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have the power of Fantastic Frenzy.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You kill weak monsters more efficiently.");
+        break;
+    default:
+        massacre_spell(cmd, res);
+        break;
+    }
 }
 
 void fast_learner_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Fast Learner", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You learn things quickly...", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You revert to you normal dull self!", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are a fast learner.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will gain a bonus to experience for each monster slain.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fast Learner");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You learn things quickly...");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You revert to you normal dull self!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are a fast learner.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain a bonus to experience for each monster slain.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void fat_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Extra Fat", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You become sickeningly fat!", "あなたは気持ち悪いくらい太った！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You benefit from a miracle diet!", "奇跡的なダイエットに成功した！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are extremely fat (+2 CON, -2 speed).", "あなたは極端に太っている。(耐久+2,スピード-2)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CON] += 2;
-		p_ptr->pspeed -= 2;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Extra Fat");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become sickeningly fat!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You benefit from a miracle diet!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are extremely fat (+2 CON, -2 speed).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CON] += 2;
+        p_ptr->pspeed -= 2;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void fearless_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Fearless");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You become completely fearless.");
-		mut_lose(MUT_COWARDICE);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You begin to feel fear again.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You are completely fearless.");
-		break;
-	case SPELL_CALC_BONUS:
-		res_add(RES_FEAR);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fearless");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become completely fearless.");
+        mut_lose(MUT_COWARDICE);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You begin to feel fear again.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are completely fearless.");
+        break;
+    case SPELL_CALC_BONUS:
+        res_add(RES_FEAR);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void fell_sorcery_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Fell Sorcery");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "Your spells are more powerful.");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You feel your magic grow more powerful.");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You feel your magic return to normal.");
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Your spells will grow more powerful.");
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->spell_power++;
-		p_ptr->stat_add[A_STR]--;
-		p_ptr->stat_add[A_DEX]--;
-		p_ptr->stat_add[A_CON]--;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fell Sorcery");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your spells are more powerful.");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel your magic grow more powerful.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel your magic return to normal.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Your spells will grow more powerful.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->spell_power++;
+        p_ptr->stat_add[A_STR]--;
+        p_ptr->stat_add[A_DEX]--;
+        p_ptr->stat_add[A_CON]--;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void fire_aura_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Fire Aura", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your body is enveloped in flames!", "あなたの体は炎につつまれている。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your body is no longer enveloped in flames.", "体が炎に包まれなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your body is enveloped in flames.", "あなたの体は炎につつまれている。"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->sh_fire = TRUE;
-		p_ptr->lite = TRUE;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fire Aura");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your body is enveloped in flames!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your body is no longer enveloped in flames.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your body is enveloped in flames.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->sh_fire = TRUE;
+        p_ptr->lite = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void flatulence_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Flatulence", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You become subject to uncontrollable flatulence.", "あなたは制御不能な強烈な屁をこくようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer subject to uncontrollable flatulence.", "もう強烈な屁はこかなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are subject to uncontrollable flatulence.", "あなたは制御できない強烈な屁をこく。"));
-		break;
-	case SPELL_PROCESS:
-		if (randint1(3000) == 13)
-		{
-			disturb(0, 0);
-			/* Seriously, this the best mutation!  Ever!! :D */
-			msg_print(T("BRRAAAP! Oops.", "ブゥーーッ！おっと。"));
-			msg_print(NULL);
-			fire_ball(GF_POIS, 0, p_ptr->lev, 3);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Flatulence");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become subject to uncontrollable flatulence.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer subject to uncontrollable flatulence.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are subject to uncontrollable flatulence.");
+        break;
+    case SPELL_PROCESS:
+        if (randint1(3000) == 13)
+        {
+            disturb(0, 0);
+            /* Seriously, this the best mutation!  Ever!! :D */
+            msg_print("BRRAAAP! Oops.");
+            msg_print(NULL);
+            fire_ball(GF_POIS, 0, p_ptr->lev, 3);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void fleet_of_foot_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Fleet of Foot", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel fleet of foot!", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel like your old plodding self!", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are fleet of foot (Movement costs less energy).", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Movement costs less energy.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fleet of Foot");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel fleet of foot!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel like your old plodding self!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are fleet of foot (Movement costs less energy).");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Movement costs less energy.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void fumbling_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Fumbling");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("Your feet grow to four times their former size.");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("Your feet shrink to their former size.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You occasionally stumble and drop things.");
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(10000))
-		{
-			int slot = equip_random_slot(object_is_melee_weapon);
-			
-			disturb(0, 0);
-			msg_print("You trip over your own feet!");
-			take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), "tripping", -1);
-			msg_print(NULL);
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fumbling");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your feet grow to four times their former size.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your feet shrink to their former size.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You occasionally stumble and drop things.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(10000))
+        {
+            int slot = equip_random_slot(object_is_melee_weapon);
+            
+            disturb(0, 0);
+            msg_print("You trip over your own feet!");
+            take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), "tripping", -1);
+            msg_print(NULL);
 
-			if (slot)
-			{
-				object_type *o_ptr = equip_obj(slot);
-				if (!object_is_cursed(o_ptr))
-				{
-					msg_print("You drop your weapon!");
-					inven_drop(slot, 1);
-					msg_print("Press 'Y' to continue.");
-					flush();
-					for (;;)
-					{
-						char ch = inkey();
-						if (ch == 'Y') break;
-					}
-					prt("", 0, 0);
-					msg_flag = FALSE;
-				}
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            if (slot)
+            {
+                object_type *o_ptr = equip_obj(slot);
+                if (!object_is_cursed(o_ptr))
+                {
+                    msg_print("You drop your weapon!");
+                    inven_drop(slot, 1);
+                    msg_print("Press 'Y' to continue.");
+                    flush();
+                    for (;;)
+                    {
+                        char ch = inkey();
+                        if (ch == 'Y') break;
+                    }
+                    prt("", 0, 0);
+                    msg_flag = FALSE;
+                }
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void good_luck_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("White Aura", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("There is a benevolent white aura surrounding you...", "慈悲深い白いオーラがあなたをとりまいた..."));
-		mut_lose(MUT_BAD_LUCK);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your white aura shimmers and fades.", "白いオーラは輝いて消えた。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("There is a white aura surrounding you.", "あなたは白いオーラにつつまれている。"));
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "White Aura");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("There is a benevolent white aura surrounding you...");
+        mut_lose(MUT_BAD_LUCK);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your white aura shimmers and fades.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "There is a white aura surrounding you.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void hallucination_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Hallucination");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You are afflicted by a hallucinatory insanity!");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You are no longer afflicted by a hallucinatory insanity!");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You have a hallucinatory insanity.");
-		break;
-	case SPELL_PROCESS:
-		if (!res_save_default(RES_CHAOS) && randint1(6400) == 42 && !res_save_default(RES_CHAOS))
-		{
-			disturb(0, 0);
-			p_ptr->redraw |= PR_EXTRA;
-			set_image(p_ptr->image + randint0(50) + 20, FALSE);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Hallucination");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You are afflicted by a hallucinatory insanity!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer afflicted by a hallucinatory insanity!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have a hallucinatory insanity.");
+        break;
+    case SPELL_PROCESS:
+        if (!res_save_default(RES_CHAOS) && randint1(6400) == 42 && !res_save_default(RES_CHAOS))
+        {
+            disturb(0, 0);
+            p_ptr->redraw |= PR_EXTRA;
+            set_image(p_ptr->image + randint0(50) + 20, FALSE);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void he_man_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("He-man", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You turn into a superhuman he-man!", "超人的に強くなった！"));
-		mut_lose(MUT_PUNY);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your muscles revert to normal.", "筋肉が普通に戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are superhumanly strong (+4 STR).", "あなたは超人的に強い。(腕力+4)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_STR] += 4;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "He-man");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You turn into a superhuman he-man!");
+        mut_lose(MUT_PUNY);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your muscles revert to normal.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are superhumanly strong (+4 STR).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_STR] += 4;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void horns_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Horns");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("Horns pop forth into your forehead!");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("Your horns vanish from your forehead!");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You have horns.");
-		break;
-	case SPELL_CALC_BONUS:
-	{
-		innate_attack_t	a = {0};
-		a.dd = 2;
-		a.ds = 6;
-		a.weight = 150;
-		a.blows = 1;
-		a.msg = "You hit %s with your horns.";
-		a.name = "Horns";
-		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Horns");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Horns pop forth into your forehead!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your horns vanish from your forehead!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have horns.");
+        break;
+    case SPELL_CALC_BONUS:
+    {
+        innate_attack_t    a = {0};
+        a.dd = 2;
+        a.ds = 6;
+        a.weight = 150;
+        a.blows = 1;
+        a.msg = "You hit %s with your horns.";
+        a.name = "Horns";
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void illusion_normal_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Reassuring Image", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start projecting a reassuring image.", "心の安らぐ幻影を映し出すようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You stop projecting a reassuring image.", "心が安らぐ幻影を映し出さなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your appearance is masked with illusion.", "あなたは幻影に覆われている。"));
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Reassuring Image");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start projecting a reassuring image.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You stop projecting a reassuring image.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your appearance is masked with illusion.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void infernal_deal_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Infernal Deal", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You make a pact with the devil!", ""));
-		mut_lose(MUT_ARTHRITIS);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your infernal pact is broken.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have made an infernal deal.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will regain hp and sp whenever a nearby monster is slain.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Infernal Deal");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You make a pact with the devil!");
+        mut_lose(MUT_ARTHRITIS);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your infernal pact is broken.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have made an infernal deal.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will regain hp and sp whenever a nearby monster is slain.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void infravision_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Infravision", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your infravision is improved.", "赤外線視力が増した。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your infravision is degraded.", "赤外線視力が落ちた。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have remarkable infravision (+3).", "あなたは素晴らしい赤外線視力を持っている。(+3)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->see_infra += 3;		
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Infravision");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your infravision is improved.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your infravision is degraded.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have remarkable infravision (+3).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->see_infra += 3;        
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void invulnerability_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Invulnerability", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You are blessed with fits of invulnerability.", "あなたは祝福され、無敵状態になる発作を起こすようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer blessed with fits of invulnerability.", "無敵状態の発作を起こさなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You occasionally feel invincible.", "あなたは時々負け知らずな気分になる。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(5000))
-		{
-			disturb(0, 0);
-			msg_print(T("You feel invincible!", "無敵な気がする！"));
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Invulnerability");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You are blessed with fits of invulnerability.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer blessed with fits of invulnerability.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You occasionally feel invincible.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(5000))
+        {
+            disturb(0, 0);
+            msg_print("You feel invincible!");
 
-			msg_print(NULL);
-			set_invuln(randint1(8) + 8, FALSE);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            msg_print(NULL);
+            set_invuln(randint1(8) + 8, FALSE);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void limber_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Limber", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your muscles become limber.", "筋肉がしなやかになった。"));
-		mut_lose(MUT_ARTHRITIS);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your muscles stiffen.", "筋肉が硬くなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your body is very limber (+3 DEX).", "あなたの体は非常にしなやかだ。(器用+3)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_DEX] += 3;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Limber");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your muscles become limber.");
+        mut_lose(MUT_ARTHRITIS);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your muscles stiffen.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your body is very limber (+3 DEX).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_DEX] += 3;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void loremaster_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Loremaster", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel quite knowledgeable.", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You know longer know so much.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are a Loremaster.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Items will automatically identify as you pick them up.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Loremaster");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel quite knowledgeable.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You know longer know so much.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are a Loremaster.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Items will automatically identify as you pick them up.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void magic_resistance_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Magic Resistance", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You become resistant to magic.", "魔法への耐性がついた。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You become susceptible to magic again.", "魔法に弱くなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are resistant to magic.", "あなたは魔法への耐性をもっている。"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->skills.sav += (15 + (p_ptr->lev / 5));
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Magic Resistance");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become resistant to magic.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You become susceptible to magic again.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are resistant to magic.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->skills.sav += (15 + (p_ptr->lev / 5));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void merchants_friend_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Merchant's Friend");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You feel an intense desire to shop!");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You no longer feel like shopping.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You are a Merchant's Friend.");
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will gain new powers of shopping.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Merchant's Friend");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel an intense desire to shop!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel like shopping.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are a Merchant's Friend.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain new powers of shopping.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void moron_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Moron", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your brain withers away...", "脳が萎縮してしまった..."));
-		mut_lose(MUT_HYPER_INT);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your brain reverts to normal.", "脳が普通に戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are moronic (-4 INT/WIS).", "あなたは精神薄弱だ。(知能＆賢さ-4)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_INT] -= 4;
-		p_ptr->stat_add[A_WIS] -= 4;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Moron");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your brain withers away...");
+        mut_lose(MUT_HYPER_INT);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your brain reverts to normal.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are moronic (-4 INT/WIS).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_INT] -= 4;
+        p_ptr->stat_add[A_WIS] -= 4;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void motion_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Motion", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You move with new assurance.", "体の動作がより正確になった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You move with less assurance.", "動作の正確さがなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your movements are precise and forceful (+1 STL).", "あなたの動作は正確で力強い。(隠密+1)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->free_act = TRUE;
-		p_ptr->skills.stl += 1;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Motion");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You move with new assurance.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You move with less assurance.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your movements are precise and forceful (+1 STL).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->free_act = TRUE;
+        p_ptr->skills.stl += 1;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void nausea_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Nausea", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your stomach starts to roil nauseously.", "胃袋がピクピクしはじめた。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your stomach stops roiling.", "胃が痙攣しなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have a seriously upset stomach.", "あなたの胃は非常に落ち着きがない。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->slow_digest && one_in_(9000))
-		{
-			disturb(0, 0);
-			
-			msg_print(T("Your stomach roils, and you lose your lunch!", "胃が痙攣し、食事を失った！"));
-			msg_print(NULL);
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Nausea");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your stomach starts to roil nauseously.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your stomach stops roiling.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have a seriously upset stomach.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->slow_digest && one_in_(9000))
+        {
+            disturb(0, 0);
+            
+            msg_print("Your stomach roils, and you lose your lunch!");
+            msg_print(NULL);
 
-			set_food(PY_FOOD_WEAK);
-			
-			if (music_singing_any()) bard_stop_singing();
-			if (hex_spelling_any()) stop_hex_spell_all();
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            set_food(PY_FOOD_WEAK);
+            
+            if (music_singing_any()) bard_stop_singing();
+            if (hex_spelling_any()) stop_hex_spell_all();
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void normality_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Normality", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel strangely normal.", "あなたは奇妙なほど普通になった気がする。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel normally strange.", "普通に奇妙な感じがする。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You may be mutated, but you're recovering.", "あなたは変異していたが、回復してきている。"));
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(5000))
-		{
-			if (mut_lose_random(NULL))
-				msg_print(T("You feel oddly normal.", "奇妙なくらい普通になった気がする。"));
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Normality");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel strangely normal.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel normally strange.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You may be mutated, but you're recovering.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(5000))
+        {
+            if (mut_lose_random(NULL))
+                msg_print("You feel oddly normal.");
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void one_with_magic_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("One with Magic", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel one with magic.", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel one with magic.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have a chance of resisting Dispel Magic and Antimagic.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will have a chance of resisting Dispel Magic.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "One with Magic");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel one with magic.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel one with magic.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have a chance of resisting Dispel Magic and Antimagic.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will have a chance of resisting Dispel Magic.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void peerless_sniper_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Peerless Sniper", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel distant monsters relax...", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel distant monsters return to their normal grouchy selves.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your missiles no longer anger monsters.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Damaging a monster with a missile weapon no longer provokes a retaliation.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Peerless Sniper");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel distant monsters relax...");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel distant monsters return to their normal grouchy selves.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your missiles no longer anger monsters.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Damaging a monster with a missile weapon no longer provokes a retaliation.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void peerless_tracker_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Peerless Tracker", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel able to track anything...", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You can no longer track so well.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are a peerless tracker.", ""));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("Maps nearby area. Detects all monsters, traps, doors and stairs.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will gain the ability to map your surroundings.");
-		break;
-	case SPELL_CAST:
-	{
-		int rad1 = DETECT_RAD_MAP;
-		int rad2 = DETECT_RAD_DEFAULT;
-		map_area(rad1);
-		detect_traps(rad2, TRUE);
-		detect_doors(rad2);
-		detect_stairs(rad2);
-		detect_monsters_normal(rad2);
-		var_set_bool(res, TRUE);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Peerless Tracker");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel able to track anything...");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You can no longer track so well.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are a peerless tracker.");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Maps nearby area. Detects all monsters, traps, doors and stairs.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain the ability to map your surroundings.");
+        break;
+    case SPELL_CAST:
+    {
+        int rad1 = DETECT_RAD_MAP;
+        int rad2 = DETECT_RAD_DEFAULT;
+        map_area(rad1);
+        detect_traps(rad2, TRUE);
+        detect_doors(rad2);
+        detect_stairs(rad2);
+        detect_monsters_normal(rad2);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void polymorph_wounds_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Polymorph Wounds", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel forces of chaos entering your old scars.", "あなたはカオスの力が古い傷に入り込んでくるのを感じた。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel forces of chaos departing your old scars.", "古い傷からカオスの力が去っていった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your health is subject to chaotic forces.", "あなたの健康はカオスの力に影響を受ける。"));
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(3000))
-			do_poly_wounds();
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Polymorph Wounds");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel forces of chaos entering your old scars.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel forces of chaos departing your old scars.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your health is subject to chaotic forces.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(3000))
+            do_poly_wounds();
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void potion_chugger_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Potion Chugger");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You feel like chugging a six pack of healing potions.");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You no longer feel like chugging your potions.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You chug potions faster than normal.");
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will be able to chug potions much faster than normal.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Potion Chugger");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel like chugging a six pack of healing potions.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel like chugging your potions.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You chug potions faster than normal.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will be able to chug potions much faster than normal.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void produce_mana_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Produce Mana", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start producing magical energy uncontrollably.", "あなたは制御不能な魔法のエネルギーを発生するようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You stop producing magical energy uncontrollably.", "制御不能な魔法のエネルギーを発生しなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are producing magical energy uncontrollably.", "あなたは制御不能な魔法のエネルギーを発している。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(9000))
-		{
-			int dir = 0;
-			disturb(0, 0);
-			msg_print(T("Magical energy flows through you! You must release it!", "魔法のエネルギーが突然あなたの中に流れ込んできた！エネルギーを解放しなければならない！"));
-			flush();
-			msg_print(NULL);
-			(void)get_hack_dir(&dir);
-			fire_ball(GF_MANA, dir, p_ptr->lev * 2, 3);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Produce Mana");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start producing magical energy uncontrollably.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You stop producing magical energy uncontrollably.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are producing magical energy uncontrollably.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(9000))
+        {
+            int dir = 0;
+            disturb(0, 0);
+            msg_print("Magical energy flows through you! You must release it!");
+            flush();
+            msg_print(NULL);
+            (void)get_hack_dir(&dir);
+            fire_ball(GF_MANA, dir, p_ptr->lev * 2, 3);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void puny_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Puny", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your muscles wither away...", "筋肉が弱ってしまった..."));
-		mut_lose(MUT_HYPER_STR);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your muscles revert to normal.", "筋肉が普通に戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are puny (-4 STR).", "あなたは虚弱だ。(腕力-4)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_STR] -= 4;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Puny");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your muscles wither away...");
+        mut_lose(MUT_HYPER_STR);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your muscles revert to normal.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are puny (-4 STR).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_STR] -= 4;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void random_banish_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Random Banish", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel a terrifying power lurking behind you.", "恐ろしい力があなたの背後に潜んでいる気がする。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel a terrifying power lurking behind you.", "背後に恐ろしい力を感じなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You sometimes cause nearby creatures to vanish.", "あなたは時々近くのモンスターを消滅させる。"));
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(9000))
-		{
-			disturb(0, 0);
-			msg_print(T("You suddenly feel almost lonely.", "突然ほとんど孤独になった気がする。"));
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Random Banish");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel a terrifying power lurking behind you.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel a terrifying power lurking behind you.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You sometimes cause nearby creatures to vanish.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(9000))
+        {
+            disturb(0, 0);
+            msg_print("You suddenly feel almost lonely.");
 
-			banish_monsters(100);
-			if (!dun_level && p_ptr->town_num)
-			{
-				int n;
+            banish_monsters(100);
+            if (!dun_level && p_ptr->town_num)
+            {
+                int n;
 
-				/* Pick a random shop (except home) */
-				do
-				{
-					n = randint0(MAX_STORES);
-				}
-				while ((n == STORE_HOME) || (n == STORE_MUSEUM));
+                /* Pick a random shop (except home) */
+                do
+                {
+                    n = randint0(MAX_STORES);
+                }
+                while ((n == STORE_HOME) || (n == STORE_MUSEUM));
 
-				msg_print(T("You see one of the shopkeepers running for the hills!", "店の主人が丘に向かって走っている！"));
-				store_shuffle(n);
-			}
-			msg_print(NULL);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+                msg_print("You see one of the shopkeepers running for the hills!");
+                store_shuffle(n);
+            }
+            msg_print(NULL);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void random_teleport_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Random Teleportation", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your position seems very uncertain...", "あなたの位置は非常に不確定になった。"));
-		mut_lose(MUT_TELEPORT);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your position seems more certain.", "あなたの位置はより確定的になった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are teleporting randomly.", "あなたはランダムにテレポートする。"));
-		break;
-	case SPELL_PROCESS:
-		if (!res_save_default(RES_NEXUS) && !p_ptr->anti_tele && (randint1(5000) == 88))
-		{
-			disturb(0, 0);
-			msg_print(T("Your position suddenly seems very uncertain...", "あなたの位置は突然ひじょうに不確定になった..."));
-			msg_print(NULL);
-			teleport_player(40, TELEPORT_PASSIVE);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Random Teleportation");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your position seems very uncertain...");
+        mut_lose(MUT_TELEPORT);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your position seems more certain.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are teleporting randomly.");
+        break;
+    case SPELL_PROCESS:
+        if (!res_save_default(RES_NEXUS) && !p_ptr->anti_tele && (randint1(5000) == 88))
+        {
+            disturb(0, 0);
+            msg_print("Your position suddenly seems very uncertain...");
+            msg_print(NULL);
+            teleport_player(40, TELEPORT_PASSIVE);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void raw_chaos_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Raw Chaos", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel the universe is less stable around you.", "周囲の空間が不安定になった気がする。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel the universe is more stable around you.", "周囲の空間が安定した気がする。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You occasionally are surrounded with raw chaos.", "あなたはしばしば純カオスに包まれる。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(8000))
-		{
-			disturb(0, 0);
-			msg_print(T("You feel the world warping around you!", "周りの空間が歪んでいる気がする！"));
-			msg_print(NULL);
-			fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Raw Chaos");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel the universe is less stable around you.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel the universe is more stable around you.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You occasionally are surrounded with raw chaos.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(8000))
+        {
+            disturb(0, 0);
+            msg_print("You feel the world warping around you!");
+            msg_print(NULL);
+            fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void regeneration_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Regeneration", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start regenerating.", "急速に回復し始めた。"));
-		mut_lose(MUT_FLESH_ROT);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You stop regenerating.", "急速回復しなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are regenerating.", "あなたは急速に回復する。"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->regenerate = TRUE;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Regeneration");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start regenerating.");
+        mut_lose(MUT_FLESH_ROT);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You stop regenerating.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are regenerating.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->regenerate = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void resilient_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Resilient", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You become extraordinarily resilient.", "並外れてタフになった。"));
-		mut_lose(MUT_ALBINO);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You become ordinarily resilient again.", "普通の丈夫さに戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are very resilient (+4 CON).", "あなたの体は弾力性に富んでいる。(耐久+4)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CON] += 4;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Resilient");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become extraordinarily resilient.");
+        mut_lose(MUT_ALBINO);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You become ordinarily resilient again.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are very resilient (+4 CON).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CON] += 4;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void rotting_flesh_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Rotting Flesh", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your flesh is afflicted by a rotting disease!", "あなたの肉体は腐敗する病気に侵された！"));
-		mut_lose(MUT_STEEL_SKIN);
-		mut_lose(MUT_REGEN);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your flesh is no longer afflicted by a rotting disease!", "肉体を腐敗させる病気が治った！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your flesh is rotting (-2 CON, -1 CHR).", "あなたの肉体は腐敗している。(耐久-2,魅力-1)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CON] -= 2;
-		p_ptr->stat_add[A_CHR] -= 1;
-		p_ptr->regenerate = FALSE; /* Equip and spells processed later ... */
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Rotting Flesh");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your flesh is afflicted by a rotting disease!");
+        mut_lose(MUT_STEEL_SKIN);
+        mut_lose(MUT_REGEN);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your flesh is no longer afflicted by a rotting disease!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your flesh is rotting (-2 CON, -1 CHR).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CON] -= 2;
+        p_ptr->stat_add[A_CHR] -= 1;
+        p_ptr->regenerate = FALSE; /* Equip and spells processed later ... */
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void sacred_vitality_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Sacred Vitality", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You gain the power of Sacred Vitality!", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You lose the power of Sacred Vitality!", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You gain a bonus to all healing effects.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will gain a bonus to all healing effects.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Sacred Vitality");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You gain the power of Sacred Vitality!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose the power of Sacred Vitality!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You gain a bonus to all healing effects.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain a bonus to all healing effects.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void scales_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Scales", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your skin turns into black scales!", "肌が黒い鱗に変わった！"));
-		mut_lose(MUT_STEEL_SKIN);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your scales vanish!", "鱗が消えた！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your skin has turned into scales (-1 CHR, +10 AC).", "あなたの肌は鱗になっている。(魅力-1, AC+10)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CHR] -= 1;
-		p_ptr->to_a += 10;
-		p_ptr->dis_to_a += 10;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Scales");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your skin turns into black scales!");
+        mut_lose(MUT_STEEL_SKIN);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your scales vanish!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your skin has turned into scales (-1 CHR, +10 AC).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CHR] -= 1;
+        p_ptr->to_a += 10;
+        p_ptr->dis_to_a += 10;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void scorpion_tail_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Scorpion Tail");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You grow a scorpion tail!");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You lose your scorpion tail!");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You have a scorpion tail.");
-		break;
-	case SPELL_CALC_BONUS:
-	{
-		innate_attack_t	a = {0};
-		a.dd = 3;
-		a.ds = 7;
-		a.weight = 50;
-		a.blows = 1;
-		a.effect[0] = GF_POIS;
-		a.msg = "You hit %s with your tail.";
-		a.name = "Tail";
-		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Scorpion Tail");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You grow a scorpion tail!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose your scorpion tail!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have a scorpion tail.");
+        break;
+    case SPELL_CALC_BONUS:
+    {
+        innate_attack_t    a = {0};
+        a.dd = 3;
+        a.ds = 7;
+        a.weight = 50;
+        a.blows = 1;
+        a.effect[0] = GF_POIS;
+        a.msg = "You hit %s with your tail.";
+        a.name = "Tail";
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void shadow_walk_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Shadow Walk", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel like reality is as thin as paper.", "あなたは現実が紙のように薄いと感じるようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel like you're trapped in reality.", "物質世界に捕らわれている気がする。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You occasionally stumble into other shadows.", "あなたはしばしば他の「影」に迷い込む。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(12000) && !p_ptr->inside_arena)
-			alter_reality();
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Shadow Walk");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel like reality is as thin as paper.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel like you're trapped in reality.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You occasionally stumble into other shadows.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(12000) && !p_ptr->inside_arena)
+            alter_reality();
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void short_legs_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Short Legs", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your legs turn into short stubs!", "足が短い突起になってしまった！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your legs lengthen to normal.", "脚の長さが普通に戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your legs are short stubs (-3 speed).", "あなたの足は短い突起だ。(加速-3)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->pspeed -= 3;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Short Legs");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your legs turn into short stubs!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your legs lengthen to normal.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your legs are short stubs (-3 speed).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->pspeed -= 3;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void silly_voice_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Silly Voice", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your voice turns into a ridiculous squeak!", "声が間抜けなキーキー声になった！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your voice returns to normal.", "声質が普通に戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your voice is a silly squeak (-4 CHR).", "あなたの声は間抜けなキーキー声だ。(魅力-4)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CHR] -= 4;		
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Silly Voice");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your voice turns into a ridiculous squeak!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your voice returns to normal.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your voice is a silly squeak (-4 CHR).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CHR] -= 4;        
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 
 void speed_flux_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Speed Flux", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You become manic-depressive.", "あなたは躁鬱質になった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer manic-depressive.", "躁鬱質でなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You move faster or slower randomly.", "あなたはランダムに早く動いたり遅く動いたりする。"));
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(6000))
-		{
-			disturb(0, 0);
-			if (one_in_(2))
-			{
-				msg_print(T("You feel less energetic.", "精力的でなくなった気がする。"));
-				if (p_ptr->fast > 0)
-					set_fast(0, TRUE);
-				else
-					set_slow(randint1(30) + 10, FALSE);
-			}
-			else
-			{
-				msg_print(T("You feel more energetic.", "精力的になった気がする。"));
-				if (p_ptr->slow > 0)
-					set_slow(0, TRUE);
-				else
-					set_fast(randint1(30) + 10, FALSE);
-			}
-			msg_print(NULL);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Speed Flux");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You become manic-depressive.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are no longer manic-depressive.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You move faster or slower randomly.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(6000))
+        {
+            disturb(0, 0);
+            if (one_in_(2))
+            {
+                msg_print("You feel less energetic.");
+                if (p_ptr->fast > 0)
+                    set_fast(0, TRUE);
+                else
+                    set_slow(randint1(30) + 10, FALSE);
+            }
+            else
+            {
+                msg_print("You feel more energetic.");
+                if (p_ptr->slow > 0)
+                    set_slow(0, TRUE);
+                else
+                    set_fast(randint1(30) + 10, FALSE);
+            }
+            msg_print(NULL);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void speed_reader_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Speed Reader");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("You feel like reading a long novel.");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("You no longer read so fast.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You read scrolls faster than normal.");
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will be able to read scrolls much faster than normal.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Speed Reader");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel like reading a long novel.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer read so fast.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You read scrolls faster than normal.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will be able to read scrolls much faster than normal.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void steel_skin_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Steel Skin", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your skin turns to steel!", "あなたの肌は鉄になった！"));
-		mut_lose(MUT_SCALES);
-		mut_lose(MUT_WARTS);
-		mut_lose(MUT_FLESH_ROT);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your skin reverts to flesh!", "肌が肉にもどった！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your skin is made of steel (-1 DEX, +25 AC).", "あなたの肌は鉄でできている。(器用-1, AC+25)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_DEX] -= 1;
-		p_ptr->to_a += 25;
-		p_ptr->dis_to_a += 25;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Steel Skin");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your skin turns to steel!");
+        mut_lose(MUT_SCALES);
+        mut_lose(MUT_WARTS);
+        mut_lose(MUT_FLESH_ROT);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your skin reverts to flesh!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your skin is made of steel (-1 DEX, +25 AC).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_DEX] -= 1;
+        p_ptr->to_a += 25;
+        p_ptr->dis_to_a += 25;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void subtle_casting_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Subtle Casting", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel distant monsters relax...", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel distant monsters return to their normal grouchy selves.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your distance attack spells no longer anger monsters.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "Damaging a monster with distance magic no longer provokes a retaliation.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Subtle Casting");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel distant monsters relax...");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel distant monsters return to their normal grouchy selves.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your distance attack spells no longer anger monsters.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Damaging a monster with distance magic no longer provokes a retaliation.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void telepathy_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Telepathy", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You develop a telepathic ability!", "テレパシーの能力を得た！"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You lose your telepathic ability!", "テレパシーの能力を失った！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are telepathic.", "あなたはテレパシーを持っている。"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->telepathy = TRUE;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Telepathy");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You develop a telepathic ability!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose your telepathic ability!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are telepathic.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->telepathy = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void tentacles_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Tentacles");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("Evil-looking tentacles sprout from your sides.");
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("Your tentacles vanish from your sides.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You have evil looking tentacles.");
-		break;
-	case SPELL_CALC_BONUS:
-	{
-		innate_attack_t	a = {0};
-		a.dd = 2;
-		a.ds = 5;
-		a.weight = 50;
-		a.blows = 1;
-		a.msg = "You hit %s with your tentacles.";
-		a.name = "Tentacles";
-		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Tentacles");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Evil-looking tentacles sprout from your sides.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your tentacles vanish from your sides.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have evil looking tentacles.");
+        break;
+    case SPELL_CALC_BONUS:
+    {
+        innate_attack_t    a = {0};
+        a.dd = 2;
+        a.ds = 5;
+        a.weight = 50;
+        a.blows = 1;
+        a.msg = "You hit %s with your tentacles.";
+        a.name = "Tentacles";
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void trunk_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Elephantine Trunk");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print("Your nose grows into an elephant-like trunk.");
-		mut_lose(MUT_BEAK);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print("Your nose returns to a normal length.");
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, "You have an elephantine trunk.");
-		break;
-	case SPELL_CALC_BONUS:
-	{
-		innate_attack_t	a = {0};
-		a.dd = 1;
-		a.ds = 4;
-		a.weight = 200;
-		a.blows = 1;
-		a.msg = "You hit %s with your trunk.";
-		a.name = "Trunk";
-		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Elephantine Trunk");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your nose grows into an elephant-like trunk.");
+        mut_lose(MUT_BEAK);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your nose returns to a normal length.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have an elephantine trunk.");
+        break;
+    case SPELL_CALC_BONUS:
+    {
+        innate_attack_t    a = {0};
+        a.dd = 1;
+        a.ds = 4;
+        a.weight = 200;
+        a.blows = 1;
+        a.msg = "You hit %s with your trunk.";
+        a.name = "Trunk";
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void untouchable_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Untouchable", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel untouchable!", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your feel touchable!", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are untouchable and gain a bonus to AC.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will gain a bonus to armor class.");
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->to_a += 15;
-		p_ptr->dis_to_a += 15;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Untouchable");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel untouchable!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your feel touchable!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are untouchable and gain a bonus to AC.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain a bonus to armor class.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->to_a += 15;
+        p_ptr->dis_to_a += 15;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void unyielding_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Unyielding", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You will never yield!!", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Heck!  Might as well give up ...", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are unyielding and gain extra hp.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will gain a bonus to hitpoints.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Unyielding");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You will never yield!!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Heck!  Might as well give up ...");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are unyielding and gain extra hp.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain a bonus to hitpoints.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void vulnerability_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Vulnerability", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel strangely exposed.", "妙に無防備になった気がする。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel less exposed.", "無防備な感じはなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are susceptible to damage from the elements.", "あなたは元素の攻撃に弱い。"));
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Vulnerability");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel strangely exposed.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel less exposed.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are susceptible to damage from the elements.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void warning_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Warning", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You suddenly feel paranoid.", "あなたは突然パラノイアになった気がする。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel paranoid.", "パラノイアでなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You receive warnings about your foes.", "あなたは敵に関する警告を感じる。"));
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(1000))
-		{
-			int danger_amount = 0;
-			int monster;
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Warning");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You suddenly feel paranoid.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel paranoid.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You receive warnings about your foes.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(1000))
+        {
+            int danger_amount = 0;
+            int monster;
 
-			for (monster = 0; monster < m_max; monster++)
-			{
-				monster_type    *m_ptr = &m_list[monster];
-				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+            for (monster = 0; monster < m_max; monster++)
+            {
+                monster_type    *m_ptr = &m_list[monster];
+                monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
-				/* Skip dead monsters */
-				if (!m_ptr->r_idx) continue;
+                /* Skip dead monsters */
+                if (!m_ptr->r_idx) continue;
 
-				if (r_ptr->level >= p_ptr->lev)
-				{
-					danger_amount += r_ptr->level - p_ptr->lev + 1;
-				}
-			}
+                if (r_ptr->level >= p_ptr->lev)
+                {
+                    danger_amount += r_ptr->level - p_ptr->lev + 1;
+                }
+            }
 
-			if (danger_amount > 100)
-				msg_print(T("You feel utterly terrified!", "非常に恐ろしい気がする！"));
+            if (danger_amount > 100)
+                msg_print("You feel utterly terrified!");
 
-			else if (danger_amount > 50)
-				msg_print(T("You feel terrified!", "恐ろしい気がする！"));
+            else if (danger_amount > 50)
+                msg_print("You feel terrified!");
 
-			else if (danger_amount > 20)
-				msg_print(T("You feel very worried!", "非常に心配な気がする！"));
+            else if (danger_amount > 20)
+                msg_print("You feel very worried!");
 
-			else if (danger_amount > 10)
-				msg_print(T("You feel paranoid!", "心配な気がする！"));
+            else if (danger_amount > 10)
+                msg_print("You feel paranoid!");
 
-			else if (danger_amount > 5)
-				msg_print(T("You feel almost safe.", "ほとんど安全な気がする。"));
+            else if (danger_amount > 5)
+                msg_print("You feel almost safe.");
 
-			else
-				msg_print(T("You feel lonely.", "寂しい気がする。"));
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            else
+                msg_print("You feel lonely.");
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void warts_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Warts", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Disgusting warts appear everywhere on you!", "気持ち悪いイボイボが体中にできた！"));
-		mut_lose(MUT_STEEL_SKIN);
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your warts disappear!", "イボイボが消えた！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your skin is covered with warts (-2 CHR, +5 AC).", "あなたの肌はイボに被われている。(魅力-2, AC+5)"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CHR] -= 2;
-		p_ptr->to_a += 5;
-		p_ptr->dis_to_a += 5;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Warts");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Disgusting warts appear everywhere on you!");
+        mut_lose(MUT_STEEL_SKIN);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your warts disappear!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your skin is covered with warts (-2 CHR, +5 AC).");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stat_add[A_CHR] -= 2;
+        p_ptr->to_a += 5;
+        p_ptr->dis_to_a += 5;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void wasting_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Horrible Wasting", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You suddenly contract a horrible wasting disease.", "あなたは突然おぞましい衰弱病にかかった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are cured of the horrible wasting disease!", "おぞましい衰弱病が治った！"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have a horrible wasting disease.", "あなたは衰弱する恐ろしい病気にかかっている。"));
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(3000))
-		{
-			int which_stat = randint0(6);
-			int sustained = FALSE;
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Horrible Wasting");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You suddenly contract a horrible wasting disease.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are cured of the horrible wasting disease!");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have a horrible wasting disease.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(3000))
+        {
+            int which_stat = randint0(6);
+            int sustained = FALSE;
 
-			switch (which_stat)
-			{
-			case A_STR:
-				if (p_ptr->sustain_str) sustained = TRUE;
-				break;
-			case A_INT:
-				if (p_ptr->sustain_int) sustained = TRUE;
-				break;
-			case A_WIS:
-				if (p_ptr->sustain_wis) sustained = TRUE;
-				break;
-			case A_DEX:
-				if (p_ptr->sustain_dex) sustained = TRUE;
-				break;
-			case A_CON:
-				if (p_ptr->sustain_con) sustained = TRUE;
-				break;
-			case A_CHR:
-				if (p_ptr->sustain_chr) sustained = TRUE;
-				break;
-			default:
-				msg_print(T("Invalid stat chosen!", "不正な状態！"));
-				sustained = TRUE;
-				break;
-			}
+            switch (which_stat)
+            {
+            case A_STR:
+                if (p_ptr->sustain_str) sustained = TRUE;
+                break;
+            case A_INT:
+                if (p_ptr->sustain_int) sustained = TRUE;
+                break;
+            case A_WIS:
+                if (p_ptr->sustain_wis) sustained = TRUE;
+                break;
+            case A_DEX:
+                if (p_ptr->sustain_dex) sustained = TRUE;
+                break;
+            case A_CON:
+                if (p_ptr->sustain_con) sustained = TRUE;
+                break;
+            case A_CHR:
+                if (p_ptr->sustain_chr) sustained = TRUE;
+                break;
+            default:
+                msg_print("Invalid stat chosen!");
+                sustained = TRUE;
+                break;
+            }
 
-			if (!sustained)
-			{
-				disturb(0, 0);
-				msg_print(T("You can feel yourself wasting away!", "自分が衰弱していくのが分かる！"));
-				msg_print(NULL);
-				dec_stat(which_stat, randint1(6) + 6, one_in_(6));
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+            if (!sustained)
+            {
+                disturb(0, 0);
+                msg_print("You can feel yourself wasting away!");
+                msg_print(NULL);
+                dec_stat(which_stat, randint1(6) + 6, one_in_(6));
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void weapon_skills_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Weapon Versatility", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You feel you may master anything...", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel so masterful.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You may master any weapon.", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You will be able to master any weapon.");
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Weapon Versatility");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel you may master anything...");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel so masterful.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You may master any weapon.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will be able to master any weapon.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void random_telepathy_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Random Telepathy", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("Your thoughts suddenly take off in strange directions.", "あなたの思考は突然おかしな方向に向き始めた。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your thoughts return to boring paths.", "思考が退屈な方向に戻った。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your mind randomly expands and contracts.", "あなたの精神はランダムに拡大したり縮小したりしている。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(3000))
-		{
-			if (p_ptr->tim_esp > 0)
-			{
-				msg_print(T("Your mind feels cloudy!", "精神にもやがかかった！"));
-				set_tim_esp(0, TRUE);
-			}
-			else
-			{
-				msg_print(T("Your mind expands!", "精神が広がった！"));
-				set_tim_esp(p_ptr->lev, FALSE);
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Random Telepathy");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your thoughts suddenly take off in strange directions.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your thoughts return to boring paths.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your mind randomly expands and contracts.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(3000))
+        {
+            if (p_ptr->tim_esp > 0)
+            {
+                msg_print("Your mind feels cloudy!");
+                set_tim_esp(0, TRUE);
+            }
+            else
+            {
+                msg_print("Your mind expands!");
+                set_tim_esp(p_ptr->lev, FALSE);
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void weird_mind_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Weird Mind", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You are no longer bothered by the Eldritch Horror!", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You feel susceptible to the Eldritch Horror again.", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your weird mind is unaffected by the Eldritch Horror and Hallucination", ""));
-		break;
-	case SPELL_HELP_DESC:
-		var_set_string(res, "You resist the Eldritch Horror.");
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->no_eldritch = TRUE;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Weird Mind");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You are no longer bothered by the Eldritch Horror!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel susceptible to the Eldritch Horror again.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your weird mind is unaffected by the Eldritch Horror and Hallucination");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You resist the Eldritch Horror.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->no_eldritch = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void wings_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Wings", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You grow a pair of wings.", "背中に羽が生えた。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("Your wings fall off.", "背中の羽根が取れ落ちた。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have wings.", "あなたは羽を持っている。"));
-		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->levitation = TRUE;
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Wings");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You grow a pair of wings.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your wings fall off.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have wings.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->levitation = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void wraith_mut(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Wraithform", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You start to fade in and out of the physical world.", "あなたは幽体化したり実体化したりするようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are firmly in the physical world.", "あなたは物質世界にしっかり存在している。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You fade in and out of physical reality.", "あなたの肉体は幽体化したり実体化したりする。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(3000))
-		{
-			disturb(0, 0);
-			msg_print(T("You feel insubstantial!", "非物質化した！"));
-			msg_print(NULL);
-			set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Wraithform");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start to fade in and out of the physical world.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are firmly in the physical world.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You fade in and out of physical reality.");
+        break;
+    case SPELL_PROCESS:
+        if (!p_ptr->anti_magic && one_in_(3000))
+        {
+            disturb(0, 0);
+            msg_print("You feel insubstantial!");
+            msg_print(NULL);
+            set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 

@@ -10,9 +10,9 @@
  * Information about a bitmap
  */
 typedef struct {
-	HANDLE hDIB;
-	HANDLE hBitmap;
-	HANDLE hPalette;
+    HANDLE hDIB;
+    HANDLE hBitmap;
+    HANDLE hPalette;
 } DIBINIT;
 
 /* Read a DIB from a file */

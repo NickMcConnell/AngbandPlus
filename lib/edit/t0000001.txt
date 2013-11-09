@@ -968,48 +968,35 @@ F:a:BUILDING_0:3
 
 ############### Buildings ###############
 
-B:$0:N:The White Horse Inn:Otick:Human
-B:0:N:旅の宿『白馬亭』:オティック:人間
-B:$0:A:0:Rest for the night:20:20:r:17:0
-B:0:A:0:一泊する:20:20:r:17:0
-B:$0:A:1:buy Food and drink:1:1:f:18:1
-B:0:A:1:食事をする:1:1:f:18:1
-B:$0:A:2:Listen for rumors:5:5:u:19:0
-B:0:A:2:噂を聞く:5:5:u:19:0
-B:$0:A:3:request Quest:0:0:q:6:0
-B:0:A:3:クエスト:0:0:q:6:0
-B:$0:A:4:Teleport to other town:500:500:m:42:0
-B:0:A:4:他の町へ移動:500:500:m:42:0
-B:$0:R:*:Member
-B:$0:R:Golem:None
-B:$0:R:Skeleton:None
-B:$0:R:Zombie:None
-B:$0:R:Vampire:None
-B:$0:R:Spectre:None
-B:$0:R:Ent:None
-B:$0:R:Balrog:None
-B:$0:R:Android:None
-B:$0:R:Demon:None
-B:$0:R:Lich:None
-B:$0:R:Jelly:None
+B:0:N:The White Horse Inn:Otick:Human
+B:0:A:0:Rest for the night:20:20:r:17:0
+B:0:A:1:buy Food and drink:1:1:f:18:1
+B:0:A:2:Listen for rumors:5:5:u:19:0
+B:0:A:3:request Quest:0:0:q:6:0
+B:0:A:4:Teleport to other town:500:500:m:42:0
+B:0:A:5:Ask about your reputation:1:1:a:55:0
+B:0:R:*:Member
+B:0:R:Golem:None
+B:0:R:Skeleton:None
+B:0:R:Zombie:None
+B:0:R:Vampire:None
+B:0:R:Spectre:None
+B:0:R:Ent:None
+B:0:R:Balrog:None
+B:0:R:Android:None
+B:0:R:Demon:None
+B:0:R:Lich:None
+B:0:R:Jelly:None
 
-B:$1:N:Mayor:Uldrik:Human
-B:1:N:村長:ウルドリック:人間
-B:$1:A:0:Request quest:0:0:q:6:0
-B:1:A:0:クエスト:0:0:q:6:0
-B:$1:A:1:Identify item:100:100:i:44:0
-B:1:A:1:アイテム鑑定:100:100:i:44:0
+B:1:N:Mayor:Uldrik:Human
+B:1:A:0:Request quest:0:0:q:6:0
+B:1:A:1:Identify item:100:100:i:44:0
 
-B:$13:N:Hunter's office:Kopei:Human
-B:13:N:ハンター事務所:こうぺい:人間
-B:$13:A:0:Today's wanted:0:0:a:38:0
-B:13:A:0:日替わり賞金首:0:0:a:38:0
-B:$13:A:1:Wanted unique list:0:0:b:39:0
-B:13:A:1:賞金首リスト:0:0:b:39:0
-B:$13:A:2:Special target:0:0:s:37:0
-B:13:A:2:スペシャル・ターゲット:0:0:s:37:0
-B:$13:A:3:Recieve prize:0:0:c:40:0
-B:13:A:3:報酬を受け取る:0:0:c:40:0
+B:13:N:Hunter's office:Kopei:Human
+B:13:A:0:Today's wanted:0:0:a:38:0
+B:13:A:1:Wanted unique list:0:0:b:39:0
+B:13:A:2:Special target:0:0:s:37:0
+B:13:A:3:Recieve prize:0:0:c:40:0
 
 
 ############### Town Layout ###############

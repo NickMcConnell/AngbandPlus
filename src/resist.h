@@ -2,25 +2,25 @@
 #define RESIST_H
 
 enum {
-	RES_ACID,
-	RES_ELEC,
-	RES_FIRE,
-	RES_COLD,
-	RES_POIS,
-	RES_LITE,
-	RES_DARK,
-	RES_CONF,
-	RES_NETHER,
-	RES_NEXUS,
-	RES_SOUND,
-	RES_SHARDS,
-	RES_CHAOS,
-	RES_DISEN,
-	RES_TIME,
-	RES_BLIND,
-	RES_FEAR,
-	RES_TELEPORT,
-	RES_MAX
+    RES_ACID,
+    RES_ELEC,
+    RES_FIRE,
+    RES_COLD,
+    RES_POIS,
+    RES_LITE,
+    RES_DARK,
+    RES_CONF,
+    RES_NETHER,
+    RES_NEXUS,
+    RES_SOUND,
+    RES_SHARDS,
+    RES_CHAOS,
+    RES_DISEN,
+    RES_TIME,
+    RES_BLIND,
+    RES_FEAR,
+    RES_TELEPORT,
+    RES_MAX
 };
 
 extern void res_add(int which);

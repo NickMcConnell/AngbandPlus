@@ -32,407 +32,407 @@ static cptr _desc =
 
 static void _divide_spell(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Divide");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Replicate yourself.");
-		break;
-	case SPELL_CAST:
-	{
-		summon_named_creature(-1, py, px, p_ptr->current_r_idx, PM_FORCE_PET);
-		var_set_bool(res, TRUE);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Divide");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Replicate yourself.");
+        break;
+    case SPELL_CAST:
+    {
+        summon_named_creature(-1, py, px, p_ptr->current_r_idx, PM_FORCE_PET);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 static power_info _jelly_powers[] = {
-	{ A_CON, { 1, 10, 0, _divide_spell}},
-	{ A_DEX, {10, 10, 70, recall_spell}},
-	{ -1, {-1, -1, -1, NULL} }
+    { A_CON, { 1, 10, 0, _divide_spell}},
+    { A_DEX, {10, 10, 70, recall_spell}},
+    { -1, {-1, -1, -1, NULL} }
 };
 static int _jelly_get_powers(spell_info* spells, int max) {
-	return get_powers_aux(spells, max, _jelly_powers);
+    return get_powers_aux(spells, max, _jelly_powers);
 }
 static void _jelly_calc_innate_attacks(void)
 {
-	if (equip_is_empty_hand(0))
-	{
-		innate_attack_t	a = {0};
-		int l = p_ptr->lev;
+    if (equip_is_empty_hand(0))
+    {
+        innate_attack_t    a = {0};
+        int l = p_ptr->lev;
 
-		a.dd = 2 + l / 10;
-		a.ds = 6 + l / 12;
-		a.to_d += l/5;
-		a.to_d += l*l/250;
-		a.weight = 100;
-		a.effect[0] = GF_ACID;
-		calc_innate_blows(&a, 6);
-		a.msg = "You shoot acid at %s.";
-		a.name = "Pseudopod";
+        a.dd = 2 + l / 10;
+        a.ds = 6 + l / 12;
+        a.to_d += l/5;
+        a.to_d += l*l/250;
+        a.weight = 100;
+        a.effect[0] = GF_ACID;
+        calc_innate_blows(&a, 6);
+        a.msg = "You shoot acid at %s.";
+        a.name = "Pseudopod";
 
-		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-	}
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    }
 }
 
 static equip_template_t _black_ooze_template = 
-	{4, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0} }
+    {4, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0} }
 };
 static void _black_ooze_calc_bonuses(void)
 {
-	res_add(RES_ACID);
-	res_add(RES_POIS);
-	res_add_immune(RES_BLIND);
-	p_ptr->see_nocto = TRUE;
-	p_ptr->no_stun = TRUE;
-	p_ptr->no_cut = TRUE;
+    res_add(RES_ACID);
+    res_add(RES_POIS);
+    res_add_immune(RES_BLIND);
+    p_ptr->see_nocto = TRUE;
+    p_ptr->no_stun = TRUE;
+    p_ptr->no_cut = TRUE;
 }
 static void _black_ooze_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_RES_ACID);
-	add_flag(flgs, TR_RES_POIS);
+    add_flag(flgs, TR_RES_ACID);
+    add_flag(flgs, TR_RES_POIS);
 }
 static void _black_ooze_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_RES_BLIND);
+    add_flag(flgs, TR_RES_BLIND);
 }
 race_t *_black_ooze_get_race_t(void)
 {
-	static race_t me = {0};
-	static bool   init = FALSE;
-	if (!init)
-	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
-	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+    static race_t me = {0};
+    static bool   init = FALSE;
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
+    skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-		me.skills = bs;
-		me.extra_skills = xs;
+        me.skills = bs;
+        me.extra_skills = xs;
 
-		me.subname = "Black Ooze";
+        me.subname = "Black Ooze";
 
-		me.stats[A_STR] =  1;
-		me.stats[A_INT] = -5;
-		me.stats[A_WIS] = -5;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  1;
-		me.stats[A_CHR] = -2;
+        me.stats[A_STR] =  1;
+        me.stats[A_INT] = -5;
+        me.stats[A_WIS] = -5;
+        me.stats[A_DEX] =  1;
+        me.stats[A_CON] =  1;
+        me.stats[A_CHR] = -2;
 
-		me.life = 95;
-		me.infra = 0;
+        me.life = 95;
+        me.infra = 0;
 
-		me.calc_bonuses = _black_ooze_calc_bonuses;
-		me.get_flags = _black_ooze_get_flags;
-		me.get_immunities = _black_ooze_get_immunities;
-		me.equip_template = &_black_ooze_template;
+        me.calc_bonuses = _black_ooze_calc_bonuses;
+        me.get_flags = _black_ooze_get_flags;
+        me.get_immunities = _black_ooze_get_immunities;
+        me.equip_template = &_black_ooze_template;
 
-		init = TRUE;
-	}
-	return &me;
+        init = TRUE;
+    }
+    return &me;
 }
 
 static equip_template_t _gelatinous_cube_template = 
-	{6, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0} }
+    {6, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0} }
 };
 static void _gelatinous_cube_calc_bonuses(void)
 {
-	p_ptr->to_a += p_ptr->lev/3;
-	p_ptr->dis_to_a += p_ptr->lev/3;
-	res_add(RES_ACID);
-	res_add(RES_FIRE);
-	res_add(RES_COLD);
-	res_add(RES_ELEC);
-	_black_ooze_calc_bonuses();
+    p_ptr->to_a += p_ptr->lev/3;
+    p_ptr->dis_to_a += p_ptr->lev/3;
+    res_add(RES_ACID);
+    res_add(RES_FIRE);
+    res_add(RES_COLD);
+    res_add(RES_ELEC);
+    _black_ooze_calc_bonuses();
 }
 static void _gelatinous_cube_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_RES_ACID);
-	add_flag(flgs, TR_RES_FIRE);
-	add_flag(flgs, TR_RES_COLD);
-	add_flag(flgs, TR_RES_ELEC);
-	_black_ooze_get_flags(flgs);
+    add_flag(flgs, TR_RES_ACID);
+    add_flag(flgs, TR_RES_FIRE);
+    add_flag(flgs, TR_RES_COLD);
+    add_flag(flgs, TR_RES_ELEC);
+    _black_ooze_get_flags(flgs);
 }
 race_t *_gelatinous_cube_get_race_t(void)
 {
-	static race_t me = {0};
-	static bool   init = FALSE;
-	if (!init)
-	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
-	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+    static race_t me = {0};
+    static bool   init = FALSE;
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
+    skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-		me.skills = bs;
-		me.extra_skills = xs;
+        me.skills = bs;
+        me.extra_skills = xs;
 
-		me.subname = "Gelatinous Cube";
+        me.subname = "Gelatinous Cube";
 
-		me.stats[A_STR] =  2;
-		me.stats[A_INT] = -10;
-		me.stats[A_WIS] = -10;
-		me.stats[A_DEX] =  2;
-		me.stats[A_CON] =  2;
-		me.stats[A_CHR] = -2;
-		
-		me.life = 105;
-		me.infra = 0;
+        me.stats[A_STR] =  2;
+        me.stats[A_INT] = -10;
+        me.stats[A_WIS] = -10;
+        me.stats[A_DEX] =  2;
+        me.stats[A_CON] =  2;
+        me.stats[A_CHR] = -2;
+        
+        me.life = 105;
+        me.infra = 0;
 
-		me.calc_bonuses = _gelatinous_cube_calc_bonuses;
-		me.get_flags = _gelatinous_cube_get_flags;
-		me.get_immunities = _black_ooze_get_immunities;
-		me.equip_template = &_gelatinous_cube_template;
+        me.calc_bonuses = _gelatinous_cube_calc_bonuses;
+        me.get_flags = _gelatinous_cube_get_flags;
+        me.get_immunities = _black_ooze_get_immunities;
+        me.equip_template = &_gelatinous_cube_template;
 
-		init = TRUE;
-	}
-	return &me;
+        init = TRUE;
+    }
+    return &me;
 }
 
 static equip_template_t _acidic_cytoplasm_template = 
-	{7, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0} }
+    {7, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0},
+          {EQUIP_SLOT_ANY, "Belly", 0} }
 };
 
 static void _acidic_cytoplasm_calc_bonuses(void)
 {
-	p_ptr->pspeed += 3;
-	p_ptr->free_act = TRUE;
-	p_ptr->to_a += p_ptr->lev/3;
-	p_ptr->dis_to_a += p_ptr->lev/3;
-	res_add_immune(RES_ACID);
-	res_add(RES_CONF);
-	res_add_immune(RES_FEAR);
+    p_ptr->pspeed += 3;
+    p_ptr->free_act = TRUE;
+    p_ptr->to_a += p_ptr->lev/3;
+    p_ptr->dis_to_a += p_ptr->lev/3;
+    res_add_immune(RES_ACID);
+    res_add(RES_CONF);
+    res_add_immune(RES_FEAR);
 
-	add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID);
+    add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID);
 
-	_gelatinous_cube_calc_bonuses();
+    _gelatinous_cube_calc_bonuses();
 }
 static void _acidic_cytoplasm_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_SPEED);
-	add_flag(flgs, TR_FREE_ACT);
-	add_flag(flgs, TR_RES_CONF);
-	add_flag(flgs, TR_BRAND_ACID);
+    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, TR_FREE_ACT);
+    add_flag(flgs, TR_RES_CONF);
+    add_flag(flgs, TR_BRAND_ACID);
 
-	_gelatinous_cube_get_flags(flgs);
+    _gelatinous_cube_get_flags(flgs);
 }
 static void _acidic_cytoplasm_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_RES_ACID);
-	add_flag(flgs, TR_RES_FEAR);
-	_black_ooze_get_immunities(flgs);
+    add_flag(flgs, TR_RES_ACID);
+    add_flag(flgs, TR_RES_FEAR);
+    _black_ooze_get_immunities(flgs);
 }
 
 race_t *_acidic_cytoplasm_get_race_t(void)
 {
-	static race_t me = {0};
-	static bool   init = FALSE;
-	if (!init)
-	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 25,  18,  37,   7,  14,   7,  70,  30};
-	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+    static race_t me = {0};
+    static bool   init = FALSE;
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 25,  18,  37,   7,  14,   7,  70,  30};
+    skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-		me.skills = bs;
-		me.extra_skills = xs;
+        me.skills = bs;
+        me.extra_skills = xs;
 
-		me.subname = "Acidic Cytoplasm";
+        me.subname = "Acidic Cytoplasm";
 
-		me.stats[A_STR] =  3;
-		me.stats[A_INT] = -7;
-		me.stats[A_WIS] = -7;
-		me.stats[A_DEX] =  2;
-		me.stats[A_CON] =  3;
-		me.stats[A_CHR] = -1;
-		
-		me.life = 110;
-		me.infra = 0;
+        me.stats[A_STR] =  3;
+        me.stats[A_INT] = -7;
+        me.stats[A_WIS] = -7;
+        me.stats[A_DEX] =  2;
+        me.stats[A_CON] =  3;
+        me.stats[A_CHR] = -1;
+        
+        me.life = 110;
+        me.infra = 0;
 
-		me.calc_bonuses = _acidic_cytoplasm_calc_bonuses;
-		me.get_flags = _acidic_cytoplasm_get_flags;
-		me.get_immunities = _acidic_cytoplasm_get_immunities;
-		me.equip_template = &_acidic_cytoplasm_template;
+        me.calc_bonuses = _acidic_cytoplasm_calc_bonuses;
+        me.get_flags = _acidic_cytoplasm_get_flags;
+        me.get_immunities = _acidic_cytoplasm_get_immunities;
+        me.equip_template = &_acidic_cytoplasm_template;
 
-		init = TRUE;
-	}
-	return &me;
+        init = TRUE;
+    }
+    return &me;
 }
 
 static equip_template_t _shoggoth_template = 
-	{8, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0} }
+    {8, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
+           {EQUIP_SLOT_ANY, "Any", 0},
+           {EQUIP_SLOT_ANY, "Any", 0},
+           {EQUIP_SLOT_ANY, "Any", 0},
+           {EQUIP_SLOT_ANY, "Any", 0},
+           {EQUIP_SLOT_ANY, "Any", 0},
+           {EQUIP_SLOT_ANY, "Any", 0},
+           {EQUIP_SLOT_ANY, "Any", 0} }
 };
 
 static void _shoggoth_calc_bonuses(void)
 {
-	p_ptr->pspeed += 2;
-	p_ptr->regenerate = TRUE;
-	p_ptr->to_a += p_ptr->lev/3;
-	p_ptr->dis_to_a += p_ptr->lev/3;
-	p_ptr->no_eldritch = TRUE;
+    p_ptr->pspeed += 2;
+    p_ptr->regenerate = TRUE;
+    p_ptr->to_a += p_ptr->lev/3;
+    p_ptr->dis_to_a += p_ptr->lev/3;
+    p_ptr->no_eldritch = TRUE;
 
-	res_add(RES_TELEPORT);
+    res_add(RES_TELEPORT);
 
-	_acidic_cytoplasm_calc_bonuses();
+    _acidic_cytoplasm_calc_bonuses();
 }
 static void _shoggoth_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_SPEED);
-	add_flag(flgs, TR_REGEN);
-	_acidic_cytoplasm_get_flags(flgs);
+    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, TR_REGEN);
+    _acidic_cytoplasm_get_flags(flgs);
 }
 static void _shoggoth_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
-	_acidic_cytoplasm_get_immunities(flgs);
+    _acidic_cytoplasm_get_immunities(flgs);
 }
 race_t *_shoggoth_get_race_t(void)
 {
-	static race_t me = {0};
-	static bool   init = FALSE;
-	if (!init)
-	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 25,  18,  37,   2,  14,   7,  70,  30};
-	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+    static race_t me = {0};
+    static bool   init = FALSE;
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 25,  18,  37,   2,  14,   7,  70,  30};
+    skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-		me.skills = bs;
-		me.extra_skills = xs;
+        me.skills = bs;
+        me.extra_skills = xs;
 
-		me.subname = "Shoggoth";
+        me.subname = "Shoggoth";
 
-		me.stats[A_STR] =  5;
-		me.stats[A_INT] = -5;
-		me.stats[A_WIS] = -5;
-		me.stats[A_DEX] =  2;
-		me.stats[A_CON] =  4;
-		me.stats[A_CHR] =  0;
-		
-		me.life = 115;
-		me.infra = 0;
+        me.stats[A_STR] =  5;
+        me.stats[A_INT] = -5;
+        me.stats[A_WIS] = -5;
+        me.stats[A_DEX] =  2;
+        me.stats[A_CON] =  4;
+        me.stats[A_CHR] =  0;
+        
+        me.life = 115;
+        me.infra = 0;
 
-		me.calc_bonuses = _shoggoth_calc_bonuses;
-		me.get_flags = _shoggoth_get_flags;
-		me.get_immunities = _shoggoth_get_immunities;
-		me.equip_template = &_shoggoth_template;
+        me.calc_bonuses = _shoggoth_calc_bonuses;
+        me.get_flags = _shoggoth_get_flags;
+        me.get_immunities = _shoggoth_get_immunities;
+        me.equip_template = &_shoggoth_template;
 
-		init = TRUE;
-	}
-	return &me;
+        init = TRUE;
+    }
+    return &me;
 }
 
 static void _gain_level(int new_level) 
 {
-	if ( p_ptr->current_r_idx == MON_BLACK_OOZE
-	  && new_level >= 10 )
-	{
-		p_ptr->current_r_idx = MON_GELATINOUS_CUBE;
-		msg_print("You have evolved into a Gelatinous Cube.");
-		equip_on_change_race();
-		p_ptr->redraw |= PR_MAP | PR_BASIC;
-	}
-	else if ( p_ptr->current_r_idx == MON_GELATINOUS_CUBE
-	       && new_level >= 25 )
-	{
-		p_ptr->current_r_idx = MON_ACIDIC_CYTOPLASM;
-		msg_print("You have evolved into an Acidic Cytoplasm.");
-		equip_on_change_race();
-		p_ptr->redraw |= PR_MAP | PR_BASIC;
-	}
-	else if ( p_ptr->current_r_idx == MON_ACIDIC_CYTOPLASM
-	       && new_level >= 40 )
-	{
-		p_ptr->current_r_idx = MON_SHOGGOTH;
-		msg_print("You have evolved into a Shoggoth.");
-		equip_on_change_race();
-		p_ptr->redraw |= PR_MAP | PR_BASIC;
-	}
+    if ( p_ptr->current_r_idx == MON_BLACK_OOZE
+      && new_level >= 10 )
+    {
+        p_ptr->current_r_idx = MON_GELATINOUS_CUBE;
+        msg_print("You have evolved into a Gelatinous Cube.");
+        equip_on_change_race();
+        p_ptr->redraw |= PR_MAP | PR_BASIC;
+    }
+    else if ( p_ptr->current_r_idx == MON_GELATINOUS_CUBE
+           && new_level >= 25 )
+    {
+        p_ptr->current_r_idx = MON_ACIDIC_CYTOPLASM;
+        msg_print("You have evolved into an Acidic Cytoplasm.");
+        equip_on_change_race();
+        p_ptr->redraw |= PR_MAP | PR_BASIC;
+    }
+    else if ( p_ptr->current_r_idx == MON_ACIDIC_CYTOPLASM
+           && new_level >= 40 )
+    {
+        p_ptr->current_r_idx = MON_SHOGGOTH;
+        msg_print("You have evolved into a Shoggoth.");
+        equip_on_change_race();
+        p_ptr->redraw |= PR_MAP | PR_BASIC;
+    }
 }
 
 
 static void _birth(void)
 {
-	object_type	forge;
+    object_type    forge;
 
-	p_ptr->current_r_idx = MON_BLACK_OOZE;
-	
-	object_prep(&forge, lookup_kind(TV_RING, SV_RING_STR));
-	forge.pval = 1;
-	add_outfit(&forge);
+    p_ptr->current_r_idx = MON_BLACK_OOZE;
+    
+    object_prep(&forge, lookup_kind(TV_RING, SV_RING_STR));
+    forge.pval = 1;
+    add_outfit(&forge);
 
-	object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
-	forge.to_d = 3;
-	add_outfit(&forge);
+    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    forge.to_d = 3;
+    add_outfit(&forge);
 
-	object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-	add_outfit(&forge);
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
+    add_outfit(&forge);
 }
 
 race_t *mon_jelly_get_race_t(void)
 {
-	race_t *result = NULL;
+    race_t *result = NULL;
 
-	switch (p_ptr->current_r_idx)
-	{
-	case MON_BLACK_OOZE:
-		result = _black_ooze_get_race_t();
-		break;
-	case MON_GELATINOUS_CUBE:
-		result = _gelatinous_cube_get_race_t();
-		break;
-	case MON_ACIDIC_CYTOPLASM:
-		result = _acidic_cytoplasm_get_race_t();
-		break;
-	case MON_SHOGGOTH:
-		result = _shoggoth_get_race_t();
-		break;
-	default: /* Birth code? Startup? Restart from Old Savefile? */
-		result = _black_ooze_get_race_t();
-	}
+    switch (p_ptr->current_r_idx)
+    {
+    case MON_BLACK_OOZE:
+        result = _black_ooze_get_race_t();
+        break;
+    case MON_GELATINOUS_CUBE:
+        result = _gelatinous_cube_get_race_t();
+        break;
+    case MON_ACIDIC_CYTOPLASM:
+        result = _acidic_cytoplasm_get_race_t();
+        break;
+    case MON_SHOGGOTH:
+        result = _shoggoth_get_race_t();
+        break;
+    default: /* Birth code? Startup? Restart from Old Savefile? */
+        result = _black_ooze_get_race_t();
+    }
 
-	result->name = "Jelly";
-	result->desc = _desc;
-	result->exp = 150;
-	result->flags = RACE_IS_MONSTER /* | RACE_IS_ILLITERATE */;
-	result->gain_level = _gain_level;
-	result->get_powers = _jelly_get_powers;
-	result->calc_innate_attacks = _jelly_calc_innate_attacks;
-	result->birth = _birth;
-	result->base_hp = 40;
+    result->name = "Jelly";
+    result->desc = _desc;
+    result->exp = 150;
+    result->flags = RACE_IS_MONSTER /* | RACE_IS_ILLITERATE */;
+    result->gain_level = _gain_level;
+    result->get_powers = _jelly_get_powers;
+    result->calc_innate_attacks = _jelly_calc_innate_attacks;
+    result->birth = _birth;
+    result->base_hp = 40;
 
-	result->boss_r_idx = MON_UBBO_SATHLA;
-	return result;
+    result->boss_r_idx = MON_UBBO_SATHLA;
+    return result;
 }
 
 void jelly_eat_object(object_type *o_ptr)
 {
-	char o_name[MAX_NLEN];
-	object_type copy = *o_ptr;
-	copy.number = 1;
-	object_desc(o_name, &copy, 0);
-	set_food(MIN(PY_FOOD_FULL - 1, p_ptr->food + o_ptr->weight * 50));
-	msg_format("You assimilate %s into your gelatinous frame.", o_name);
-	/* TODO: Consider giving timed benefits based on what is absorbed.
-	   For example, TR_RES_FIRE might give temp fire resistance and 
-	   TR_SPEED might give temporary haste.
-	*/
+    char o_name[MAX_NLEN];
+    object_type copy = *o_ptr;
+    copy.number = 1;
+    object_desc(o_name, &copy, 0);
+    set_food(MIN(PY_FOOD_FULL - 1, p_ptr->food + o_ptr->weight * 50));
+    msg_format("You assimilate %s into your gelatinous frame.", o_name);
+    /* TODO: Consider giving timed benefits based on what is absorbed.
+       For example, TR_RES_FIRE might give temp fire resistance and 
+       TR_SPEED might give temporary haste.
+    */
 }
 

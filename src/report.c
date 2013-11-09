@@ -35,11 +35,7 @@
 #define SCORE_SERVER "www.noscoresyet.com"    /* Default score server url */
 #define SCORE_PORT 80                   /* Default score server port */
 
-#ifdef JP
-#define SCORE_PATH "http://www.noscoresyet.com/~habu/local/hengscore/score.cgi"
-#else
 #define SCORE_PATH "http://www.noscoresyet.com/~habu/local/hengscore-en/score.cgi"
-#endif
 
 /* for debug */
 #if 0
@@ -243,11 +239,7 @@ static errr make_dump(BUF* dumpbuf)
 	fff = my_fopen_temp(file_name, 1024);
 	if (!fff)
 	{
-#ifdef JP
-		msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
 		msg_format("Failed to create temporary file %s.", file_name);
-#endif
 		msg_print(NULL);
 		return 1;
 	}
@@ -424,20 +416,11 @@ errr report_score(void)
 
 	score = buf_new();
 
-#ifdef JP
-	sprintf(seikakutmp, "%s%s", ap_ptr->title, (ap_ptr->no ? "の" : ""));
-#else
 	sprintf(seikakutmp, "%s ", ap_ptr->title);
-#endif
 
 	buf_sprintf(score, "name: %s\n", player_name);
-#ifdef JP
-	buf_sprintf(score, "version: 変愚蛮怒 %d.%d.%d\n",
-		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#else
 	buf_sprintf(score, "version: Hengband %d.%d.%d\n",
 		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
 	buf_sprintf(score, "score: %d\n", total_points());
 	buf_sprintf(score, "level: %d\n", p_ptr->lev);
 	buf_sprintf(score, "depth: %d\n", dun_level);
@@ -488,11 +471,7 @@ errr report_score(void)
 	while (1)
 	{
 		char buff[160];
-#ifdef JP
-		prt("接続中...", 0, 0);
-#else
 		prt("connecting...", 0, 0);
-#endif
 		Term_fresh();
 		
 		/* プロキシを設定する */
@@ -503,29 +482,17 @@ errr report_score(void)
 
 
 		if (!(sd < 0)) break;
-#ifdef JP
-		sprintf(buff, "スコア・サーバへの接続に失敗しました。(%s)", soc_err());
-#else
 		sprintf(buff, "Failed to connect to the score server.(%s)", soc_err());
-#endif
 		prt(buff, 0, 0);
 		(void)inkey();
 		
-#ifdef JP
-		if (!get_check_strict("もう一度接続を試みますか? ", CHECK_NO_HISTORY))
-#else
 		if (!get_check_strict("Try again? ", CHECK_NO_HISTORY))
-#endif
 		{
 			err = 1;
 			goto report_end;
 		}
 	}
-#ifdef JP
-	prt("スコア送信中...", 0, 0);
-#else
 	prt("Sending the score...", 0, 0);
-#endif
 	Term_fresh();
 	http_post(sd, SCORE_PATH, score);
 

@@ -37,7 +37,7 @@
  * For example, if M is 100, you get "percentile dice"
  */
 #define randint0(M) \
-	((s32b)Rand_div(M))
+    ((s32b)Rand_div(M))
 
 /*
  * Generates a random long integer X where A<=X<=B
@@ -45,7 +45,7 @@
  * Note: rand_range(0,N-1) == randint0(N)
  */
 #define rand_range(A,B) \
-	((A) + (randint0(1+(B)-(A))))
+    ((A) + (randint0(1+(B)-(A))))
 
 /*
  * Generate a random long integer X where A-D<=X<=A+D
@@ -53,7 +53,7 @@
  * Note: rand_spread(A,D) == rand_range(A-D,A+D)
  */
 #define rand_spread(A,D) \
-	((A) + (randint0(1+(D)+(D))) - (D))
+    ((A) + (randint0(1+(D)+(D))) - (D))
 
 
 /*
@@ -61,24 +61,24 @@
  * Also, "correctly" handle the case of M<=1
  */
 #define randint1(M) \
-	(randint0(M) + 1)
+    (randint0(M) + 1)
 
 
 /*
  * Evaluate to TRUE "P" percent of the time
  */
 #define magik(P) \
-	((P) <= 0 || randint0(100) < (P))
+    ((P) <= 0 || randint0(100) < (P))
 
 
 #define one_in_(X) \
-	((X) <= 0 || randint0((X)) == 0)
+    ((X) <= 0 || randint0((X)) == 0)
 
 /*
  * Evaluate to TRUE "S" percent of the time
  */
 #define saving_throw(S) \
-	(randint0(100) < (S))
+    (randint0(100) < (S))
 
 
 /**** Available Variables ****/

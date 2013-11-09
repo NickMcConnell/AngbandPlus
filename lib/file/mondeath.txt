@@ -56,6 +56,7 @@ N:1094:The Variant Maintainer
 says, 'I guess PosChengband is too easy!'
 says, 'Wait until you see me next release!'
 says, 'I guess this is the last version of PosChengband!'
+says, 'Well, Hengband was much more fun than this!'
 
 N:*:Default
 shouts, 'AAAARRRGGGHHH!!!'

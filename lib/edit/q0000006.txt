@@ -1,11 +1,9 @@
 # q0000006.txt
 
 # Name
-Q:$6:N:The Tower 2
-Q:6:N:Εγ£²
+Q:6:N:The Tower 2
 
 # Definition
-Q:$6:Q:6:0:0:0:30:0:0:0:3
 Q:6:Q:6:0:0:0:30:0:0:0:3
 
 # Floor with monster 9 levels out of deep as long as the quest is uncompleted

@@ -208,7 +208,7 @@ LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 ##
 ## Variation -- compile for SGI Indigo runnig Irix
 ##
-#CFLAGS = -Wall -O2  -fno-strength-reduce -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include
+#CFLAGS = -Wall -O2  -fno-strength-reduce -g -D"USE_X11" -D"USE_GCU" -I/usr/X11R6/include
 #LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap -lsun
 
 
@@ -239,14 +239,13 @@ LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 ##
 ## Variation -- compile for FreeBSD
 ##
-# (for Japanese ver.)
-#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"JP" -D"EUC" -D"USE_GCU" -I/usr/X11R6/include -DUSE_NCURSES -DDEFAULT_LOCALE="\"ja_JP.EUC\""
+#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"USE_GCU" -I/usr/X11R6/include -DUSE_NCURSES
 #LIBS = -L/usr/X11R6/lib -lX11 -lncurses -lmytinfo -lxpg4
 
 ##
 ## Variation -- compile for other BSD-like OS
 ##
-#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include -DSPECIAL_BSD
+#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"USE_GCU" -I/usr/X11R6/include -DSPECIAL_BSD
 #LIBS = -L/usr/X11R6/lib -lX11 -lcurses
 
 

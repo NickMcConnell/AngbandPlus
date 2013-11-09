@@ -3,37 +3,28 @@
 # By Shayne Steele (steele@cs.fsu.edu)
 
 # Name
-Q:$27:N:The Old Castle
-Q:27:N:古い城
+Q:27:N:The Old Castle
 
 # Definition 
-Q:$27:Q:6:0:0:0:50:0:0:0:6
 Q:27:Q:6:0:0:0:50:0:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST27 2]
-Q:$27:T:The old castle has been taken over by evil beings.  Mighty undead,
-Q:$27:T:evil spell casters, dragons, and even titans are rumored to be
-Q:$27:T:in there.  The entrance to the old castle is in a large clearing 
-Q:$27:T:east of here.  Destroy ALL the monsters within the castle, and your
-Q:$27:T:reward will be an artifact of great value.
-Q:27:T:街の古城が邪悪なモンスターどもに占拠されてしまいまいた。
-Q:27:T:強力なアンデッド、邪悪な魔術師、ドラゴン、さらにはタイタンまでもが
-Q:27:T:中にいると噂されています。城への入口はここの東の広い平地にあります。
-Q:27:T:中にいる全てのモンスターを倒して下さい。報酬はとても価値のある
-Q:27:T:アイテムです。
+Q:27:T:The old castle has been taken over by evil beings.  Mighty undead,
+Q:27:T:evil spell casters, dragons, and even titans are rumored to be
+Q:27:T:in there.  The entrance to the old castle is in a large clearing 
+Q:27:T:east of here.  Destroy ALL the monsters within the castle, and your
+Q:27:T:reward will be an artifact of great value.
 ?:1
 
 # Description for quest reward
 ?:[EQU $QUEST27 3]
-Q:$27:T:Impressive!! Your reward is waiting for you outside.
-Q:27:T:素晴らしい!! お礼を外に置いておきました。
+Q:27:T:Impressive!! Your reward is waiting for you outside.
 ?:1
 
 # Description for quest failed
 ?:[EQU $QUEST27 5]
-Q:$1:T:It seems like this task was too difficult for you.
-Q:1:T:この仕事はあなたには難しかったようですね。
+Q:1:T:It seems like this task was too difficult for you.
 ?:1
 
 # The Monsters

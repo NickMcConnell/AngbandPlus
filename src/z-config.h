@@ -21,17 +21,11 @@
  */
 #define USE_FONTSET
 
-#ifdef JP
-#define USE_XIM
-#endif
 
 #if defined(USE_FONTSET) || defined(USE_XIM)
 #define USE_LOCALE
 #endif
 
-#if defined(JP) && !defined(USE_FONTSET)
-#define USE_JP_FONTSTRUCT
-#endif
 
 #endif /* HAVE_CONFIG_H */
 
@@ -281,7 +275,7 @@
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
-#define MONSTER_FLOW_DEPTH 32
+#define MONSTER_FLOW_DEPTH 64
 
 
 #ifdef USE_SPECIAL
@@ -391,83 +385,22 @@
 
 
 
-#ifdef JP
-#ifndef USE_FONTSET
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT  "a24"
-#define DEFAULT_X11_KFONT "kanji24"
-#define DEFAULT_X11_FONT_SUB  "a16"
-#define DEFAULT_X11_KFONT_SUB "kanji16"
-
+#define DEFAULT_X11_FONT        "9x15"
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_0  DEFAULT_X11_FONT
-#define DEFAULT_X11_KFONT_0 DEFAULT_X11_KFONT
-#define DEFAULT_X11_FONT_1  DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_KFONT_1 DEFAULT_X11_KFONT_SUB
-#define DEFAULT_X11_FONT_2  DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_KFONT_2 DEFAULT_X11_KFONT_SUB
-#define DEFAULT_X11_FONT_3  DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_KFONT_3 DEFAULT_X11_KFONT_SUB
-#define DEFAULT_X11_FONT_4  DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_KFONT_4 DEFAULT_X11_KFONT_SUB
-#define DEFAULT_X11_FONT_5  DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_KFONT_5 DEFAULT_X11_KFONT_SUB
-#define DEFAULT_X11_FONT_6  DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_KFONT_6 DEFAULT_X11_KFONT_SUB
-#define DEFAULT_X11_FONT_7  DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_KFONT_7 DEFAULT_X11_KFONT_SUB
-
-#else
-/*
- * OPTION: Default font (when using X11).
- */
-#define DEFAULT_X11_FONT \
-	"-*-*-medium-r-normal--24-*-*-*-*-*-iso8859-1" \
-	",-*-*-medium-r-normal--24-*-*-*-*-*-jisx0208.1983-0"
-/*	"12x24" \
-	",kanji24"*/
-#define DEFAULT_X11_FONT_SUB \
-	"-*-*-medium-r-normal--16-*-*-*-*-*-iso8859-1" \
-	",-*-*-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0"
-/*	"8x16" \
-	",kanji16"*/
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_0		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_1		DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_FONT_2		DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_FONT_3		DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_FONT_4		DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_FONT_5		DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_FONT_6		DEFAULT_X11_FONT_SUB
-#define DEFAULT_X11_FONT_7		DEFAULT_X11_FONT_SUB
-#endif
-
-#else
-/*
- * OPTION: Default font (when using X11).
- */
-#define DEFAULT_X11_FONT		"9x15"
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_0		"10x20"
-#define DEFAULT_X11_FONT_1		"9x15"
-#define DEFAULT_X11_FONT_2		"9x15"
-#define DEFAULT_X11_FONT_3		"5x8"
-#define DEFAULT_X11_FONT_4		"5x8"
-#define DEFAULT_X11_FONT_5		"5x8"
-#define DEFAULT_X11_FONT_6		"5x8"
-#define DEFAULT_X11_FONT_7		"5x8"
-#endif
+#define DEFAULT_X11_FONT_0        "10x20"
+#define DEFAULT_X11_FONT_1        "9x15"
+#define DEFAULT_X11_FONT_2        "9x15"
+#define DEFAULT_X11_FONT_3        "5x8"
+#define DEFAULT_X11_FONT_4        "5x8"
+#define DEFAULT_X11_FONT_5        "5x8"
+#define DEFAULT_X11_FONT_6        "5x8"
+#define DEFAULT_X11_FONT_7        "5x8"
 
 
 /*

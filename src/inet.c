@@ -277,17 +277,10 @@ int connect_server(int timeout, const char *host, int port)
 	/* タイムアウト、もしくは中断した時の処理。 */
 	if ((ret = sigsetjmp(env,1)) != 0)
 	{
-#ifdef JP
-		if (ret == SIGALRM)
-			errstr = "エラー: タイムアウト";
-		else
-			errstr = "エラー: インタラプト";
-#else
 		if (ret == SIGALRM)
 			errstr = "Error : time out";
 		else
 			errstr = "Error : interupted";
-#endif
 		return -1;
 	}
 	sig_int_saved = signal(SIGINT, interrupt_report);
@@ -305,11 +298,7 @@ int connect_server(int timeout, const char *host, int port)
 	{
 		if ((hp = gethostbyname(proxy)) == NULL)
 		{
-#ifdef JP
-			errstr = "エラー: プロキシのアドレスが不正です";
-#else
 			errstr = "Error : wrong proxy addres";
-#endif
 
 			restore_signal();
 
@@ -318,11 +307,7 @@ int connect_server(int timeout, const char *host, int port)
 	}
 	else if ((hp = gethostbyname(host)) == NULL)
 	{
-#ifdef JP
-		errstr = "エラー: サーバのアドレスが不正です";
-#else
 		errstr = "Error : wrong server adress";
-#endif
 
 		restore_signal();
 
@@ -345,22 +330,14 @@ int connect_server(int timeout, const char *host, int port)
 	if  ((sd = socket(PF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
 #endif
 	{
-#ifdef JP
-		errstr = "エラー: ソケットを生成できません";
-#else
 		errstr = "Error : cannot create socket.";
-#endif
 		restore_signal();
 		return -1;
 	}
 
 	if (connect(sd, (struct sockaddr *)&to, sizeof(to)) < 0)
 	{
-#ifdef JP
-		errstr = "エラー: サーバに接続できません";
-#else
 		errstr = "Error : failed to connect server";
-#endif
 		restore_signal();
 #ifndef WINDOWS
 		close(sd);

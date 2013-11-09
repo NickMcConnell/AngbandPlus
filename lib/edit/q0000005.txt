@@ -6,37 +6,35 @@
 # Please, help me improve this quest :)
 
 # Name
-Q:$5:N:The Barrow Downs
-Q:5:N:TRANSLATE
+Q:5:N:The Barrow Downs
 
 # Definition
-Q:$5:Q:6:0:0:0:35:0:0:0:6
 Q:5:Q:6:0:0:0:35:0:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST5 2]
-Q:$5:T:Lately, a dark evil has been discovered.  An ancient burial ground
-Q:$5:T:has been taken over by something terrible.  Creatures black as night
-Q:$5:T:now inhabit the place.  They attack our villagers, and eat our young.
-Q:$5:T:Please, we are desperate.  We don't have much to offer, but we beg you
-Q:$5:T:to help us!
+Q:5:T:Lately, a dark evil has been discovered.  An ancient burial ground
+Q:5:T:has been taken over by something terrible.  Creatures black as night
+Q:5:T:now inhabit the place.  They attack our villagers, and eat our young.
+Q:5:T:Please, we are desperate.  We don't have much to offer, but we beg you
+Q:5:T:to help us!
 ?:1
 
 # Description for quest reward
 ?:[EQU $QUEST5 3]
-Q:$5:T:Thank you!  You have saved our town.  Our people rejoice!!
-Q:$5:T:I've talked with Astinus, the local librarian, Suiyan, the local
-Q:$5:T:weaponmaster, and Lorien, the local beastmaster. They will offer you
-Q:$5:T:a special discount price when they serve you.  It is not much, but
-Q:$5:T:we are a poor people.
+Q:5:T:Thank you!  You have saved our town.  Our people rejoice!!
+Q:5:T:I've talked with Astinus, the local librarian, Suiyan, the local
+Q:5:T:weaponmaster, and Lorien, the local beastmaster. They will offer you
+Q:5:T:a special discount price when they serve you.  It is not much, but
+Q:5:T:we are a poor people.
 ?:1
 
 # Description for quest failed
 ?:[EQU $QUEST5 5]
-Q:$5:T:Oh no!  We are doomed to periodic culling from the foul denizens of
-Q:$5:T:the Barrow Downs.  You have disappointed me dearly.  Please, begone
-Q:$5:T:for now.  I must inform the village of your failure.  Come back later
-Q:$5:T:after we have had time to grieve.
+Q:5:T:Oh no!  We are doomed to periodic culling from the foul denizens of
+Q:5:T:the Barrow Downs.  You have disappointed me dearly.  Please, begone
+Q:5:T:for now.  I must inform the village of your failure.  Come back later
+Q:5:T:after we have had time to grieve.
 ?:1
 
 ##################################

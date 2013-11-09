@@ -209,4 +209,3 @@ Hengband offers two different methods of auto-pickup/destroy.
   use environment variables: ANGBAND_X11_COLS_0 and
   ANGBAND_X11_ROWS_0.
 
-

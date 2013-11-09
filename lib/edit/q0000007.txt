@@ -1,11 +1,9 @@
 # q0000007.txt
 
 # Name
-Q:$7:N:The Tower 3
-Q:7:N:Εγ£³
+Q:7:N:The Tower 3
 
 # Definition
-Q:$7:Q:6:0:0:0:30:0:0:0:3
 Q:7:Q:6:0:0:0:30:0:0:0:3
 
 # Floor with monster 11 levels out of deep as long as the quest is uncompleted

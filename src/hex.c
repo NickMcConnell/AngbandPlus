@@ -16,109 +16,100 @@ p_ptr->magic_num2
 
 bool stop_hex_spell_all(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < 32; i++)
-	{
-		u32b spell = 1L << i;
-		if (hex_spelling(spell)) do_spell(REALM_HEX, spell, SPELL_STOP);
-	}
+    for (i = 0; i < 32; i++)
+    {
+        u32b spell = 1L << i;
+        if (hex_spelling(spell)) do_spell(REALM_HEX, spell, SPELL_STOP);
+    }
 
-	p_ptr->magic_num1[0] = 0;
-	p_ptr->magic_num2[0] = 0;
+    p_ptr->magic_num1[0] = 0;
+    p_ptr->magic_num2[0] = 0;
 
-	/* Print message */
-	if (p_ptr->action == ACTION_SPELL) set_action(ACTION_NONE);
+    /* Print message */
+    if (p_ptr->action == ACTION_SPELL) set_action(ACTION_NONE);
 
-	/* Redraw status */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-	p_ptr->redraw |= (PR_EXTRA | PR_HP | PR_MANA);
+    /* Redraw status */
+    p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+    p_ptr->redraw |= (PR_EXTRA | PR_HP | PR_MANA);
 
-	return TRUE;
+    return TRUE;
 }
 
 
 bool stop_hex_spell(void)
 {
-	int spell;
-	char choice;
-	char out_val[160];
-	bool flag = FALSE;
-	int y = 1;
-	int x = 20;
-	int sp[MAX_KEEP];
+    int spell;
+    char choice;
+    char out_val[160];
+    bool flag = FALSE;
+    int y = 1;
+    int x = 20;
+    int sp[MAX_KEEP];
 
-	if (!hex_spelling_any())
-	{
-#ifdef JP
-		msg_print("呪文を詠唱していません。");
-#else
-		msg_print("You are casting no spell.");
-#endif
-		return FALSE;
-	}
+    if (!hex_spelling_any())
+    {
+        msg_print("You are casting no spell.");
+        return FALSE;
+    }
 
-	/* Stop all spells */
-	else if ((p_ptr->magic_num2[0] == 1) || (p_ptr->lev < 35))
-	{
-		return stop_hex_spell_all();
-	}
-	else
-	{
-#ifdef JP
-		strnfmt(out_val, 78, "どの呪文の詠唱を中断しますか？(呪文 %c-%c, 'l'全て, ESC)",
-			I2A(0), I2A(p_ptr->magic_num2[0] - 1));
-#else
-		strnfmt(out_val, 78, "Which spell do you stop casting? (Spell %c-%c, 'l' to all, ESC)",
-			I2A(0), I2A(p_ptr->magic_num2[0] - 1));
-#endif
+    /* Stop all spells */
+    else if ((p_ptr->magic_num2[0] == 1) || (p_ptr->lev < 35))
+    {
+        return stop_hex_spell_all();
+    }
+    else
+    {
+        strnfmt(out_val, 78, "Which spell do you stop casting? (Spell %c-%c, 'l' to all, ESC)",
+            I2A(0), I2A(p_ptr->magic_num2[0] - 1));
 
-		screen_save();
+        screen_save();
 
-		while (!flag)
-		{
-			int n = 0;
-			Term_erase(x, y, 255);
-			prt("     名前", y, x + 5);
-			for (spell = 0; spell < 32; spell++)
-			{
-				if (hex_spelling(spell))
-				{
-					Term_erase(x, y + n + 1, 255);
-					put_str(format("%c)  %s", I2A(n), do_spell(REALM_HEX, spell, SPELL_NAME)), y + n + 1, x + 2);
-					sp[n++] = spell;
-				}
-			}
+        while (!flag)
+        {
+            int n = 0;
+            Term_erase(x, y, 255);
+            prt("     名前", y, x + 5);
+            for (spell = 0; spell < 32; spell++)
+            {
+                if (hex_spelling(spell))
+                {
+                    Term_erase(x, y + n + 1, 255);
+                    put_str(format("%c)  %s", I2A(n), do_spell(REALM_HEX, spell, SPELL_NAME)), y + n + 1, x + 2);
+                    sp[n++] = spell;
+                }
+            }
 
-			if (!get_com(out_val, &choice, TRUE)) break;
-			if (isupper(choice)) choice = tolower(choice);
+            if (!get_com(out_val, &choice, TRUE)) break;
+            if (isupper(choice)) choice = tolower(choice);
 
-			if (choice == 'l')	/* All */
-			{
-				screen_load();
-				return stop_hex_spell_all();
-			}
-			if ((choice < I2A(0)) || (choice > I2A(p_ptr->magic_num2[0] - 1))) continue;
-			flag = TRUE;
-		}
-	}
+            if (choice == 'l')    /* All */
+            {
+                screen_load();
+                return stop_hex_spell_all();
+            }
+            if ((choice < I2A(0)) || (choice > I2A(p_ptr->magic_num2[0] - 1))) continue;
+            flag = TRUE;
+        }
+    }
 
-	screen_load();
+    screen_load();
 
-	if (flag)
-	{
-		int n = sp[A2I(choice)];
+    if (flag)
+    {
+        int n = sp[A2I(choice)];
 
-		do_spell(REALM_HEX, n, SPELL_STOP);
-		p_ptr->magic_num1[0] &= ~(1L << n);
-		p_ptr->magic_num2[0]--;
-	}
+        do_spell(REALM_HEX, n, SPELL_STOP);
+        p_ptr->magic_num1[0] &= ~(1L << n);
+        p_ptr->magic_num2[0]--;
+    }
 
-	/* Redraw status */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-	p_ptr->redraw |= (PR_EXTRA | PR_HP | PR_MANA);
+    /* Redraw status */
+    p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+    p_ptr->redraw |= (PR_EXTRA | PR_HP | PR_MANA);
 
-	return flag;
+    return flag;
 }
 
 
@@ -126,197 +117,193 @@ bool stop_hex_spell(void)
    Called from dungeon.c */
 void check_hex(void)
 {
-	magic_type *s_ptr;
-	int spell;
-	s32b need_mana;
-	u32b need_mana_frac;
-	bool res = FALSE;
+    magic_type *s_ptr;
+    int spell;
+    s32b need_mana;
+    u32b need_mana_frac;
+    bool res = FALSE;
 
-	/* Spells spelled by player */
-	if (p_ptr->realm1 != REALM_HEX) return;
-	if (!p_ptr->magic_num1[0] && !p_ptr->magic_num1[1]) return;
+    /* Spells spelled by player */
+    if (p_ptr->realm1 != REALM_HEX) return;
+    if (!p_ptr->magic_num1[0] && !p_ptr->magic_num1[1]) return;
 
-	if (p_ptr->magic_num1[1])
-	{
-		p_ptr->magic_num1[0] = p_ptr->magic_num1[1];
-		p_ptr->magic_num1[1] = 0;
-		res = TRUE;
-	}
+    if (p_ptr->magic_num1[1])
+    {
+        p_ptr->magic_num1[0] = p_ptr->magic_num1[1];
+        p_ptr->magic_num1[1] = 0;
+        res = TRUE;
+    }
 
-	/* Stop all spells when anti-magic ability is given */
-	if (p_ptr->anti_magic)
-	{
-		stop_hex_spell_all();
-		return;
-	}
+    /* Stop all spells when anti-magic ability is given */
+    if (p_ptr->anti_magic)
+    {
+        stop_hex_spell_all();
+        return;
+    }
 
-	need_mana = 0;
-	for (spell = 0; spell < 32; spell++)
-	{
-		if (hex_spelling(spell))
-		{
-			s_ptr = &technic_info[REALM_HEX - MIN_TECHNIC][spell];
-			need_mana += mod_need_mana(s_ptr->smana, spell, REALM_HEX);
-		}
-	}
-
-
-	/* Culcurates final mana cost */
-	need_mana_frac = 0;
-	s64b_div(&need_mana, &need_mana_frac, 0, 3); /* Divide by 3 */
-	need_mana += (p_ptr->magic_num2[0] - 1);
+    need_mana = 0;
+    for (spell = 0; spell < 32; spell++)
+    {
+        if (hex_spelling(spell))
+        {
+            s_ptr = &technic_info[REALM_HEX - MIN_TECHNIC][spell];
+            need_mana += mod_need_mana(s_ptr->smana, spell, REALM_HEX);
+        }
+    }
 
 
-	/* Not enough mana */
-	if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, need_mana, need_mana_frac) < 0)
-	{
-		stop_hex_spell_all();
-		return;
-	}
+    /* Culcurates final mana cost */
+    need_mana_frac = 0;
+    s64b_div(&need_mana, &need_mana_frac, 0, 3); /* Divide by 3 */
+    need_mana += (p_ptr->magic_num2[0] - 1);
 
-	/* Enough mana */
-	else
-	{
-		s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), need_mana, need_mana_frac);
 
-		p_ptr->redraw |= PR_MANA;
-		if (res)
-		{
-#ifdef JP
-			msg_print("詠唱を再開した。");
-#else
-			msg_print("You restart spelling.");
-#endif
-			p_ptr->action = ACTION_SPELL;
+    /* Not enough mana */
+    if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, need_mana, need_mana_frac) < 0)
+    {
+        stop_hex_spell_all();
+        return;
+    }
 
-			/* Recalculate bonuses */
-			p_ptr->update |= (PU_BONUS | PU_HP);
+    /* Enough mana */
+    else
+    {
+        s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), need_mana, need_mana_frac);
 
-			/* Redraw map and status bar */
-			p_ptr->redraw |= (PR_MAP | PR_STATUS | PR_STATE);
+        p_ptr->redraw |= PR_MANA;
+        if (res)
+        {
+            msg_print("You restart spelling.");
+            p_ptr->action = ACTION_SPELL;
 
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
+            /* Recalculate bonuses */
+            p_ptr->update |= (PU_BONUS | PU_HP);
 
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
+            /* Redraw map and status bar */
+            p_ptr->redraw |= (PR_MAP | PR_STATUS | PR_STATE);
 
-	/* Gain experiences of spelling spells */
-	for (spell = 0; spell < 32; spell++)
-	{
-		if (!hex_spelling(spell)) continue;
+            /* Update monsters */
+            p_ptr->update |= (PU_MONSTERS);
 
-		if (p_ptr->spell_exp[spell] < SPELL_EXP_BEGINNER)
-			p_ptr->spell_exp[spell] += 5;
-		else if(p_ptr->spell_exp[spell] < SPELL_EXP_SKILLED)
-		{ if (one_in_(2) && (dun_level > 4) && ((dun_level + 10) > p_ptr->lev)) p_ptr->spell_exp[spell] += 1; }
-		else if(p_ptr->spell_exp[spell] < SPELL_EXP_EXPERT)
-		{ if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
-		else if(p_ptr->spell_exp[spell] < SPELL_EXP_MASTER)
-		{ if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
-	}
+            /* Window stuff */
+            p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+        }
+    }
 
-	/* Do any effects of continual spells */
-	for (spell = 0; spell < 32; spell++)
-	{
-		if (hex_spelling(spell))
-		{
-			do_spell(REALM_HEX, spell, SPELL_CONT);
-		}
-	}
+    /* Gain experiences of spelling spells */
+    for (spell = 0; spell < 32; spell++)
+    {
+        if (!hex_spelling(spell)) continue;
+
+        if (p_ptr->spell_exp[spell] < SPELL_EXP_BEGINNER)
+            p_ptr->spell_exp[spell] += 5;
+        else if(p_ptr->spell_exp[spell] < SPELL_EXP_SKILLED)
+        { if (one_in_(2) && (dun_level > 4) && ((dun_level + 10) > p_ptr->lev)) p_ptr->spell_exp[spell] += 1; }
+        else if(p_ptr->spell_exp[spell] < SPELL_EXP_EXPERT)
+        { if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
+        else if(p_ptr->spell_exp[spell] < SPELL_EXP_MASTER)
+        { if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
+    }
+
+    /* Do any effects of continual spells */
+    for (spell = 0; spell < 32; spell++)
+    {
+        if (hex_spelling(spell))
+        {
+            do_spell(REALM_HEX, spell, SPELL_CONT);
+        }
+    }
 }
 
 
 bool hex_spell_fully(void)
 {
-	int k_max = 0;
+    int k_max = 0;
 
-	k_max = (p_ptr->lev / 15) + 1;
+    k_max = (p_ptr->lev / 15) + 1;
 
-	/* Paranoia */
-	k_max = MIN(k_max, MAX_KEEP);
+    /* Paranoia */
+    k_max = MIN(k_max, MAX_KEEP);
 
-	if (p_ptr->magic_num2[0] < k_max) return FALSE;
+    if (p_ptr->magic_num2[0] < k_max) return FALSE;
 
-	return TRUE;
+    return TRUE;
 }
 
 void revenge_spell()
 {
-	if (p_ptr->realm1 != REALM_HEX) return;
-	if (p_ptr->magic_num2[2] <= 0) return;
+    if (p_ptr->realm1 != REALM_HEX) return;
+    if (p_ptr->magic_num2[2] <= 0) return;
 
-	switch(p_ptr->magic_num2[1])
-	{
-	case 1: do_spell(REALM_HEX, HEX_PATIENCE, SPELL_CONT); break;
-	case 2: do_spell(REALM_HEX, HEX_REVENGE, SPELL_CONT); break;
-	}
+    switch(p_ptr->magic_num2[1])
+    {
+    case 1: do_spell(REALM_HEX, HEX_PATIENCE, SPELL_CONT); break;
+    case 2: do_spell(REALM_HEX, HEX_REVENGE, SPELL_CONT); break;
+    }
 }
 
 void revenge_store(int dam)
 {
-	if (p_ptr->realm1 != REALM_HEX) return;
-	if (p_ptr->magic_num2[2] <= 0) return;
+    if (p_ptr->realm1 != REALM_HEX) return;
+    if (p_ptr->magic_num2[2] <= 0) return;
 
-	p_ptr->magic_num1[2] += dam;
+    p_ptr->magic_num1[2] += dam;
 }
 
 
 bool teleport_barrier(int m_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	if (!hex_spelling(HEX_ANTI_TELE)) return FALSE;
-	if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
+    if (!hex_spelling(HEX_ANTI_TELE)) return FALSE;
+    if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
 
-	return TRUE;
+    return TRUE;
 }
 
 
 bool magic_barrier(int m_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	if (!hex_spelling(HEX_ANTI_MAGIC)) return FALSE;
-	if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
+    if (!hex_spelling(HEX_ANTI_MAGIC)) return FALSE;
+    if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
 
-	return TRUE;
+    return TRUE;
 }
 
 
 bool multiply_barrier(int m_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	if (!hex_spelling(HEX_ANTI_MULTI)) return FALSE;
-	if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
+    if (!hex_spelling(HEX_ANTI_MULTI)) return FALSE;
+    if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
 
-	return TRUE;
+    return TRUE;
 }
 
 void hex_stop_spelling_spell(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Stop Spelling", "詠唱をやめる"));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("", ""));
-		break;
-	case SPELL_ENERGY:
-		var_set_int(res, 10);
-		break;
-	case SPELL_CAST:
-		var_set_bool(res, stop_hex_spell());
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Stop Spelling");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "");
+        break;
+    case SPELL_ENERGY:
+        var_set_int(res, 10);
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, stop_hex_spell());
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }

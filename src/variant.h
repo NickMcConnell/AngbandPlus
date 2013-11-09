@@ -5,22 +5,22 @@
  * A simple variant type (Keep it that way!)
  */
 
-#define VAR_NULL			0
-#define VAR_STRING_INTERNAL	1
-#define VAR_STRING_ALLOC	2
-#define VAR_INT				3
-#define VAR_BOOL			4
+#define VAR_NULL            0
+#define VAR_STRING_INTERNAL    1
+#define VAR_STRING_ALLOC    2
+#define VAR_INT                3
+#define VAR_BOOL            4
 
 #define VAR_INTERNAL_STRING_SIZE  100
 
 typedef struct {
-	s16b tag;
-	union {
-	   int n;
-	   cptr pc;
-	   char buf[VAR_INTERNAL_STRING_SIZE];
-	   bool b;
-	} data;
+    s16b tag;
+    union {
+       int n;
+       cptr pc;
+       char buf[VAR_INTERNAL_STRING_SIZE];
+       bool b;
+    } data;
 } variant;
 
 /* variant.c */

@@ -312,18 +312,5 @@
 # endif
 #endif
 
-#ifdef JP
-# if defined(EUC)
-#  define iskanji(x) (((unsigned char)(x) >= 0xa1 && (unsigned char)(x) <= 0xfe) || (unsigned char)(x) == 0x8e)
-#  define iskana(x)  (0)
-# elif defined(SJIS)
-#  define iskanji(x) ((0x81 <= (unsigned char)(x) && (unsigned char)(x) <= 0x9f) || (0xe0 <= (unsigned char)(x) && (unsigned char)(x) <= 0xfc))
-#  define iskana(x)  (((unsigned char)(x) >= 0xA0) && ((unsigned char)(x) <= 0xDF))
-# elif defined(MSDOS)
-#  include <jctype.h>
-# else
-#  error Oops! Please define "EUC" or "SJIS" for kanji-code of your system.
-# endif /* MSDOS */
-#endif
 
 #endif /* INCLUDED_H_CONFIG_H */

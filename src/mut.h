@@ -129,17 +129,17 @@
 #define MAX_MUTATIONS      121   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
-	MUT_RATING_AWFUL = -2,
-	MUT_RATING_BAD   = -1,
-	MUT_RATING_AVERAGE = 0,
-	MUT_RATING_GOOD = 1,
-	MUT_RATING_GREAT = 2
+    MUT_RATING_AWFUL = -2,
+    MUT_RATING_BAD   = -1,
+    MUT_RATING_AVERAGE = 0,
+    MUT_RATING_GOOD = 1,
+    MUT_RATING_GREAT = 2
 } mutation_rating;
 
 typedef enum {
-	MUT_TYPE_ACTIVATION = 0x01,	/* Mutation activates as a racial power (e.g. Harden to Elements) */
-	MUT_TYPE_EFFECT = 0x02,     /* Mutation has a passive effect (e.g. Flatulence)*/
-	MUT_TYPE_BONUS = 0x04,      /* Mutation confers a passive bonus (e.g. +4 Str) */
+    MUT_TYPE_ACTIVATION = 0x01,    /* Mutation activates as a racial power (e.g. Harden to Elements) */
+    MUT_TYPE_EFFECT = 0x02,     /* Mutation has a passive effect (e.g. Flatulence)*/
+    MUT_TYPE_BONUS = 0x04,      /* Mutation confers a passive bonus (e.g. +4 Str) */
 } mutation_type;
 
 typedef bool (*mut_pred)(int mut_idx);

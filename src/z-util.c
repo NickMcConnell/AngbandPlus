@@ -24,7 +24,7 @@ cptr argv0 = NULL;
  */
 bool streq(cptr a, cptr b)
 {
-	return (!strcmp(a, b));
+    return (!strcmp(a, b));
 }
 
 
@@ -33,14 +33,14 @@ bool streq(cptr a, cptr b)
  */
 bool suffix(cptr s, cptr t)
 {
-	int tlen = strlen(t);
-	int slen = strlen(s);
+    int tlen = strlen(t);
+    int slen = strlen(s);
 
-	/* Check for incompatible lengths */
-	if (tlen > slen) return (FALSE);
+    /* Check for incompatible lengths */
+    if (tlen > slen) return (FALSE);
 
-	/* Compare "t" to the end of "s" */
-	return (!strcmp(s + slen - tlen, t));
+    /* Compare "t" to the end of "s" */
+    return (!strcmp(s + slen - tlen, t));
 }
 
 
@@ -49,15 +49,15 @@ bool suffix(cptr s, cptr t)
  */
 bool prefix(cptr s, cptr t)
 {
-	/* Scan "t" */
-	while (*t)
-	{
-		/* Compare content and length */
-		if (*t++ != *s++) return (FALSE);
-	}
+    /* Scan "t" */
+    while (*t)
+    {
+        /* Compare content and length */
+        if (*t++ != *s++) return (FALSE);
+    }
 
-	/* Matched, we have a prefix */
-	return (TRUE);
+    /* Matched, we have a prefix */
+    return (TRUE);
 }
 
 
@@ -73,11 +73,11 @@ void (*plog_aux)(cptr) = NULL;
  */
 void plog(cptr str)
 {
-	/* Use the "alternative" function if possible */
-	if (plog_aux) (*plog_aux)(str);
+    /* Use the "alternative" function if possible */
+    if (plog_aux) (*plog_aux)(str);
 
-	/* Just do a labeled fprintf to stderr */
-	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
+    /* Just do a labeled fprintf to stderr */
+    else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
 }
 
 
@@ -95,20 +95,20 @@ void (*quit_aux)(cptr) = NULL;
  */
 void quit(cptr str)
 {
-	/* Attempt to use the aux function */
-	if (quit_aux) (*quit_aux)(str);
+    /* Attempt to use the aux function */
+    if (quit_aux) (*quit_aux)(str);
 
-	/* Success */
-	if (!str) (void)(exit(0));
+    /* Success */
+    if (!str) (void)(exit(0));
 
-	/* Extract a "special error code" */
-	if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
+    /* Extract a "special error code" */
+    if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
 
-	/* Send the string to plog() */
-	plog(str);
+    /* Send the string to plog() */
+    plog(str);
 
-	/* Failure */
-	(void)(exit(EXIT_FAILURE));
+    /* Failure */
+    (void)(exit(EXIT_FAILURE));
 }
 
 
@@ -124,19 +124,19 @@ void (*core_aux)(cptr) = NULL;
  */
 void core(cptr str)
 {
-	char *crash = NULL;
+    char *crash = NULL;
 
-	/* Use the aux function */
-	if (core_aux) (*core_aux)(str);
+    /* Use the aux function */
+    if (core_aux) (*core_aux)(str);
 
-	/* Dump the warning string */
-	if (str) plog(str);
+    /* Dump the warning string */
+    if (str) plog(str);
 
-	/* Attempt to Crash */
-	(*crash) = (*crash);
+    /* Attempt to Crash */
+    (*crash) = (*crash);
 
-	/* Be sure we exited */
-	quit("core() failed");
+    /* Be sure we exited */
+    quit("core() failed");
 }
 
 
@@ -145,26 +145,26 @@ void core(cptr str)
 /* Add B to A */
 void s64b_add(s32b *A1, u32b *A2, s32b B1, u32b B2)
 {
-	(*A2) += B2;
+    (*A2) += B2;
 
-	/* Overflawed? */
-	if ((*A2) < B2)
-		(*A1) += B1 + 1;
-	else
-		(*A1) += B1;
+    /* Overflawed? */
+    if ((*A2) < B2)
+        (*A1) += B1 + 1;
+    else
+        (*A1) += B1;
 }
 
 
 /* Subtract B from A */
 void s64b_sub(s32b *A1, u32b *A2, s32b B1, u32b B2)
 {
-	/* Underflaw? */
-	if ((*A2) < B2)
-		(*A1) -= B1 + 1;
-	else
-		(*A1) -= B1;
+    /* Underflaw? */
+    if ((*A2) < B2)
+        (*A1) -= B1 + 1;
+    else
+        (*A1) -= B1;
 
-	(*A2) -= B2;
+    (*A2) -= B2;
 }
 
 
@@ -181,31 +181,31 @@ void s64b_sub(s32b *A1, u32b *A2, s32b B1, u32b B2)
  */
 void s64b_mul(s32b *A1, u32b *A2, s32b B1, u32b B2)
 {
-	s32b tmp1;
-	u32b A2val = (*A2);
+    s32b tmp1;
+    u32b A2val = (*A2);
 
-	u32b B2high = (B2 >> 16);
-	u32b A2high = (A2val >> 16);
+    u32b B2high = (B2 >> 16);
+    u32b A2high = (A2val >> 16);
 
-	(*A2) *= B2;
-	tmp1 = (*A1) * B2;
-	tmp1 += A2val * B1;
-	tmp1 += A2high * B2high;
-	tmp1 += (A2high * (u16b)B2) >> 16;
-	tmp1 += ((u16b)A2val * B2high) >> 16;
+    (*A2) *= B2;
+    tmp1 = (*A1) * B2;
+    tmp1 += A2val * B1;
+    tmp1 += A2high * B2high;
+    tmp1 += (A2high * (u16b)B2) >> 16;
+    tmp1 += ((u16b)A2val * B2high) >> 16;
 
-	(*A1) = tmp1;
+    (*A1) = tmp1;
 }
 
 
 /* Compare A to B */
 int s64b_cmp(s32b A1, u32b A2, s32b B1, u32b B2)
 {
-	if (A1 > B1) return 1;
-	if (A1 < B1) return -1;
-	if (A2 > B2) return 1;
-	if (A2 < B2) return -1;
-	return 0;
+    if (A1 > B1) return 1;
+    if (A1 < B1) return -1;
+    if (A2 > B2) return 1;
+    if (A2 < B2) return -1;
+    return 0;
 }
 
 /*
@@ -215,54 +215,54 @@ int s64b_cmp(s32b A1, u32b A2, s32b B1, u32b B2)
  */
 void s64b_div(s32b *A1, u32b *A2, s32b B1, u32b B2)
 {
-	s32b result1 = 0;
-	u32b result2 = 0;
-	s32b A1val = (*A1);
-	u32b A2val = (*A2);
-	int bit = 0;
+    s32b result1 = 0;
+    u32b result2 = 0;
+    s32b A1val = (*A1);
+    u32b A2val = (*A2);
+    int bit = 0;
 
-	/* No result for B==0 */
-	if (B1 == 0 && B2 == 0) return;
+    /* No result for B==0 */
+    if (B1 == 0 && B2 == 0) return;
 
-	/*
-	 * Find the highest bit of quotient
-	 */
-	while (s64b_cmp(A1val, A2val, B1, B2) == 1)
-	{
-		s64b_LSHIFT(B1, B2, 1);
-		bit++;
-	}
+    /*
+     * Find the highest bit of quotient
+     */
+    while (s64b_cmp(A1val, A2val, B1, B2) == 1)
+    {
+        s64b_LSHIFT(B1, B2, 1);
+        bit++;
+    }
 
-	/* Extract bits of quotient one by one */
-	while (bit >= 0)
-	{
-		if (s64b_cmp(A1val, A2val, B1, B2) >= 0)
-		{
-			if (bit >= 32)
-				result1 |= (0x00000001L << (bit - 32));
-			else
-				result2 |= (0x00000001L << bit);
+    /* Extract bits of quotient one by one */
+    while (bit >= 0)
+    {
+        if (s64b_cmp(A1val, A2val, B1, B2) >= 0)
+        {
+            if (bit >= 32)
+                result1 |= (0x00000001L << (bit - 32));
+            else
+                result2 |= (0x00000001L << bit);
 
-			s64b_sub(&A1val, &A2val, B1, B2);
-		}
-	
-		s64b_RSHIFT(B1, B2, 1);
-		bit--;
-	}
+            s64b_sub(&A1val, &A2val, B1, B2);
+        }
+    
+        s64b_RSHIFT(B1, B2, 1);
+        bit--;
+    }
 
-	(*A1) = result1;
-	(*A2) = result2;
+    (*A1) = result1;
+    (*A2) = result2;
 }
 
 
 /* Reminder of division (A % B) */
 void s64b_mod(s32b *A1, u32b *A2, s32b B1, u32b B2)
 {
-	s32b tmp1 = (*A1);
-	u32b tmp2 = (*A2);
+    s32b tmp1 = (*A1);
+    u32b tmp2 = (*A2);
 
-	s64b_div(&tmp1, &tmp2, B1, B2);
-	s64b_mul(&tmp1, &tmp2, B1, B2);
-	s64b_sub(A1, A2, tmp1, tmp2);
+    s64b_div(&tmp1, &tmp2, B1, B2);
+    s64b_mul(&tmp1, &tmp2, B1, B2);
+    s64b_sub(A1, A2, tmp1, tmp2);
 }
 

@@ -17,14 +17,14 @@
 /*
  * A term_win is a "window" for a Term
  *
- *	- Cursor Useless/Visible codes
- *	- Cursor Location (see "Useless")
+ *    - Cursor Useless/Visible codes
+ *    - Cursor Location (see "Useless")
  *
- *	- Array[h] -- Access to the attribute array
- *	- Array[h] -- Access to the character array
+ *    - Array[h] -- Access to the attribute array
+ *    - Array[h] -- Access to the character array
  *
- *	- Array[h*w] -- Attribute array
- *	- Array[h*w] -- Character array
+ *    - Array[h*w] -- Attribute array
+ *    - Array[h*w] -- Character array
  *
  * Note that the attr/char pair at (x,y) is a[y][x]/c[y][x]
  * and that the row of attr/chars at (0,y) is a[y]/c[y]
@@ -34,20 +34,20 @@ typedef struct term_win term_win;
 
 struct term_win
 {
-	bool cu, cv;
-	byte cx, cy;
+    bool cu, cv;
+    byte cx, cy;
 
-	byte **a;
-	char **c;
+    byte **a;
+    char **c;
 
-	byte *va;
-	char *vc;
+    byte *va;
+    char *vc;
 
-	byte **ta;
-	char **tc;
+    byte **ta;
+    char **tc;
 
-	byte *vta;
-	char *vtc;
+    byte *vta;
+    char *vtc;
 };
 
 
@@ -55,171 +55,171 @@ struct term_win
 /*
  * An actual "term" structure
  *
- *	- Extra "user" info (used by application)
+ *    - Extra "user" info (used by application)
  *
- *	- Extra "data" info (used by implementation)
- *
- *
- *	- Flag "user_flag"
- *	  An extra "user" flag (used by application)
+ *    - Extra "data" info (used by implementation)
  *
  *
- *	- Flag "data_flag"
- *	  An extra "data" flag (used by implementation)
+ *    - Flag "user_flag"
+ *      An extra "user" flag (used by application)
  *
  *
- *	- Flag "active_flag"
- *	  This "term" is "active"
- *
- *	- Flag "mapped_flag"
- *	  This "term" is "mapped"
- *
- *	- Flag "total_erase"
- *	  This "term" should be fully erased
- *
- *	- Flag "fixed_shape"
- *	  This "term" is not allowed to resize
- *
- *	- Flag "icky_corner"
- *	  This "term" has an "icky" corner grid
- *
- *	- Flag "soft_cursor"
- *	  This "term" uses a "software" cursor
- *
- *	- Flag "always_pict"
- *	  Use the "Term_pict()" routine for all text
- *
- *	- Flag "higher_pict"
- *	  Use the "Term_pict()" routine for special text
- *
- *	- Flag "always_text"
- *	  Use the "Term_text()" routine for invisible text
- *
- *	- Flag "unused_flag"
- *	  Reserved for future use
- *
- *	- Flag "never_bored"
- *	  Never call the "TERM_XTRA_BORED" action
- *
- *	- Flag "never_frosh"
- *	  Never call the "TERM_XTRA_FROSH" action
+ *    - Flag "data_flag"
+ *      An extra "data" flag (used by implementation)
  *
  *
- *	- Value "attr_blank"
- *	  Use this "attr" value for "blank" grids
+ *    - Flag "active_flag"
+ *      This "term" is "active"
  *
- *	- Value "char_blank"
- *	  Use this "char" value for "blank" grids
+ *    - Flag "mapped_flag"
+ *      This "term" is "mapped"
+ *
+ *    - Flag "total_erase"
+ *      This "term" should be fully erased
+ *
+ *    - Flag "fixed_shape"
+ *      This "term" is not allowed to resize
+ *
+ *    - Flag "icky_corner"
+ *      This "term" has an "icky" corner grid
+ *
+ *    - Flag "soft_cursor"
+ *      This "term" uses a "software" cursor
+ *
+ *    - Flag "always_pict"
+ *      Use the "Term_pict()" routine for all text
+ *
+ *    - Flag "higher_pict"
+ *      Use the "Term_pict()" routine for special text
+ *
+ *    - Flag "always_text"
+ *      Use the "Term_text()" routine for invisible text
+ *
+ *    - Flag "unused_flag"
+ *      Reserved for future use
+ *
+ *    - Flag "never_bored"
+ *      Never call the "TERM_XTRA_BORED" action
+ *
+ *    - Flag "never_frosh"
+ *      Never call the "TERM_XTRA_FROSH" action
  *
  *
- *	- Ignore this pointer
+ *    - Value "attr_blank"
+ *      Use this "attr" value for "blank" grids
  *
- *	- Keypress Queue -- various data
- *
- *	- Keypress Queue -- pending keys
- *
- *
- *	- Window Width (max 255)
- *	- Window Height (max 255)
- *
- *	- Minimum modified row
- *	- Maximum modified row
- *
- *	- Minimum modified column (per row)
- *	- Maximum modified column (per row)
+ *    - Value "char_blank"
+ *      Use this "char" value for "blank" grids
  *
  *
- *	- Displayed screen image
- *	- Requested screen image
+ *    - Ignore this pointer
  *
- *	- Temporary screen image
- *	- Memorized screen image
+ *    - Keypress Queue -- various data
+ *
+ *    - Keypress Queue -- pending keys
  *
  *
- *	- Hook for init-ing the term
- *	- Hook for nuke-ing the term
+ *    - Window Width (max 255)
+ *    - Window Height (max 255)
  *
- *	- Hook for user actions
+ *    - Minimum modified row
+ *    - Maximum modified row
  *
- *	- Hook for extra actions
+ *    - Minimum modified column (per row)
+ *    - Maximum modified column (per row)
  *
- *	- Hook for placing the cursor
  *
- *	- Hook for drawing some blank spaces
+ *    - Displayed screen image
+ *    - Requested screen image
  *
- *	- Hook for drawing a string of chars using an attr
+ *    - Temporary screen image
+ *    - Memorized screen image
  *
- *	- Hook for drawing a sequence of special attr/char pairs
+ *
+ *    - Hook for init-ing the term
+ *    - Hook for nuke-ing the term
+ *
+ *    - Hook for user actions
+ *
+ *    - Hook for extra actions
+ *
+ *    - Hook for placing the cursor
+ *
+ *    - Hook for drawing some blank spaces
+ *
+ *    - Hook for drawing a string of chars using an attr
+ *
+ *    - Hook for drawing a sequence of special attr/char pairs
  */
 
 typedef struct term term;
 
 struct term
 {
-	vptr user;
+    vptr user;
 
-	vptr data;
+    vptr data;
 
-	bool user_flag;
+    bool user_flag;
 
-	bool data_flag;
+    bool data_flag;
 
-	bool active_flag;
-	bool mapped_flag;
-	bool total_erase;
-	bool fixed_shape;
-	bool icky_corner;
-	bool soft_cursor;
-	bool always_pict;
-	bool higher_pict;
-	bool always_text;
-	bool unused_flag;
-	bool never_bored;
-	bool never_frosh;
+    bool active_flag;
+    bool mapped_flag;
+    bool total_erase;
+    bool fixed_shape;
+    bool icky_corner;
+    bool soft_cursor;
+    bool always_pict;
+    bool higher_pict;
+    bool always_text;
+    bool unused_flag;
+    bool never_bored;
+    bool never_frosh;
 
-	byte attr_blank;
-	char char_blank;
+    byte attr_blank;
+    char char_blank;
 
-	char *key_queue;
+    char *key_queue;
 
-	u16b key_head;
-	u16b key_tail;
-	u16b key_xtra;
-	u16b key_size;
+    u16b key_head;
+    u16b key_tail;
+    u16b key_xtra;
+    u16b key_size;
 
-	byte wid;
-	byte hgt;
+    byte wid;
+    byte hgt;
 
-	byte y1;
-	byte y2;
+    byte y1;
+    byte y2;
 
-	byte *x1;
-	byte *x2;
+    byte *x1;
+    byte *x2;
 
-	term_win *old;
-	term_win *scr;
+    term_win *old;
+    term_win *scr;
 
-	term_win *tmp;
-	term_win *mem;
+    term_win *tmp;
+    term_win *mem;
 
-	void (*init_hook)(term *t);
-	void (*nuke_hook)(term *t);
+    void (*init_hook)(term *t);
+    void (*nuke_hook)(term *t);
 
-	errr (*user_hook)(int n);
+    errr (*user_hook)(int n);
 
-	errr (*xtra_hook)(int n, int v);
+    errr (*xtra_hook)(int n, int v);
 
-	errr (*curs_hook)(int x, int y);
+    errr (*curs_hook)(int x, int y);
 
-	errr (*bigcurs_hook)(int x, int y);
+    errr (*bigcurs_hook)(int x, int y);
 
-	errr (*wipe_hook)(int x, int y, int n);
+    errr (*wipe_hook)(int x, int y, int n);
 
-	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
+    errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
-	void (*resize_hook)(void);
+    void (*resize_hook)(void);
 
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+    errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
 };
 
 
@@ -248,19 +248,19 @@ struct term
  *
  * The other actions do not need a "v" code, so "zero" is used.
  */
-#define TERM_XTRA_EVENT	1	/* Process some pending events */
-#define TERM_XTRA_FLUSH 2	/* Flush all pending events */
-#define TERM_XTRA_CLEAR 3	/* Clear the entire window */
-#define TERM_XTRA_SHAPE 4	/* Set cursor shape (optional) */
-#define TERM_XTRA_FROSH 5	/* Flush one row (optional) */
-#define TERM_XTRA_FRESH 6	/* Flush all rows (optional) */
-#define TERM_XTRA_NOISE 7	/* Make a noise (optional) */
-#define TERM_XTRA_SOUND 8	/* Make a sound (optional) */
-#define TERM_XTRA_BORED 9	/* Handle stuff when bored (optional) */
-#define TERM_XTRA_REACT 10	/* React to global changes (optional) */
-#define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
-#define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
-#define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
+#define TERM_XTRA_EVENT    1    /* Process some pending events */
+#define TERM_XTRA_FLUSH 2    /* Flush all pending events */
+#define TERM_XTRA_CLEAR 3    /* Clear the entire window */
+#define TERM_XTRA_SHAPE 4    /* Set cursor shape (optional) */
+#define TERM_XTRA_FROSH 5    /* Flush one row (optional) */
+#define TERM_XTRA_FRESH 6    /* Flush all rows (optional) */
+#define TERM_XTRA_NOISE 7    /* Make a noise (optional) */
+#define TERM_XTRA_SOUND 8    /* Make a sound (optional) */
+#define TERM_XTRA_BORED 9    /* Handle stuff when bored (optional) */
+#define TERM_XTRA_REACT 10    /* React to global changes (optional) */
+#define TERM_XTRA_ALIVE 11    /* Change the "hard" level (optional) */
+#define TERM_XTRA_LEVEL 12    /* Change the "soft" level (optional) */
+#define TERM_XTRA_DELAY 13    /* Delay some milliseconds (optional) */
 
 
 /**** Available Variables ****/
@@ -289,9 +289,6 @@ extern errr Term_add_bigch(byte a, char c);
 extern errr Term_addstr(int n, byte a, cptr s);
 extern errr Term_putch(int x, int y, byte a, char c);
 extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
-#ifdef JP
-extern errr Term_putstr_v(int x, int y, int n, byte a, cptr s);
-#endif
 extern errr Term_erase(int x, int y, int n);
 extern errr Term_clear(void);
 extern errr Term_redraw(void);

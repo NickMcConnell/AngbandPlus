@@ -39,10 +39,9 @@ V:2.8.1
 
 ### Wilderness(purely cosmetic, never used) ###
 
-N:0:¹ÓÌî
-E:Wilderness
-D:¹ÓÌî
-D:$wilderness
+N:0:Wilderness
+
+D:wilderness
 P:0:0
 W:0:0:0:0:14:160:75:20:0x0000:0x0000
 L:FLOOR:100:FLOOR:0:FLOOR:0:50
@@ -52,19 +51,16 @@ F:MONSTER_DIV_64
 
 ### The principal dungeons, they were created by spliting the vanilla dungeon ###
 
-N:1:Å´¹ö
-E:Angband
-D:$the entrance to the Dungeon of Angband
-D:Å´¹ö¤Ø¤ÎÆþ¤ê¸ý
+N:1:Angband
+D:the entrance to the Dungeon of Angband
 P:40:57
 W:1:127:30:0:14:160:75:20:0xffff:0xffff
 L:FLOOR:100:FLOOR:0:FLOOR:0:50
 A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
 F:MONSTER_DIV_64
 
-N:2:TRANSLATE
-E:Camelot
-D:$the entrance to the fabled land of Camelot
+N:2:Camelot
+D:the entrance to the fabled land of Camelot
 P:48:5
 W:1:35:1:3:14:160:75:20:0x0000:0x0000
 L:FLOOR:100:FLOOR:0:FLOOR:0:8
@@ -73,10 +69,8 @@ F:FINAL_GUARDIAN_1111 | FINAL_OBJECT_122
 F:MONSTER_DIV_32
 M:CAMELOT | KNIGHT | R_CHAR_pHgd
 
-N:3:¥ª¡¼¥¯¤ÎÆ¶·¢
-E:Orc cave
-D:$a dark tunnel leading to an Orc Cave
-D:¥ª¡¼¥¯¤ÎÆ¶·¢¤ØÂ³¤¯Çö°Å¤¤¥È¥ó¥Í¥ë
+N:3:Orc cave
+D:a dark tunnel leading to an Orc Cave
 P:45:30
 W:10:23:5:3:18:200:75:20:0x0031:0x006d
 L:DIRT:70:GRASS:30:FLOOR:0:14
@@ -86,10 +80,8 @@ F:LAKE_TREE | DESTROY | BIG
 F:MONSTER_DIV_32
 M:ORC | R_CHAR_koO | ANIMAL
 
-N:4:ÌÂµÜ
-E:Labyrinth
-D:$the frightening entrance to the Labyrinth
-D:¶²¤ë¤Ù¤­´ñÌ¯¤ÊÌÂµÜ
+N:4:Labyrinth
+D:the frightening entrance to the Labyrinth
 P:57:31
 W:15:28:1:0:80:160:75:20:0x0000:0x0000
 L:FLOOR:100:FLOOR:0:FLOOR:0:100
@@ -97,10 +89,8 @@ A:GRANITE:98:SECRET_DOOR:2:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
 F:MAZE | SMALLEST | FORGET
 F:MONSTER_DIV_64 | FINAL_GUARDIAN_1034 | FINAL_OBJECT_354
 
-N:5:Îµ¤Î½»¤ß¤«
-E:Dragon's lair
-D:$a big tunnel leading to a Dragon's Lair
-D:Îµ¤Î½»¤ß¤«¤ØÂ³¤¯Âç¤­¤¯¡¢Çö°Å¤¤¶²¤ë¤Ù¤­¥È¥ó¥Í¥ë
+N:5:Dragon's lair
+D:a big tunnel leading to a Dragon's Lair
 P:28:74
 W:60:72:25:3:20:140:75:20:0x00a6:0x00c1
 L:DIRT:100:FLOOR:0:FLOOR:0:0
@@ -111,10 +101,8 @@ F:CAVE | LAKE_LAVA | LAKE_TREE | LAKE_RUBBLE
 M:DRAGON | R_CHAR_dD
 
 # Vecna is there, guarding Soulsword
-N:6:ÊèÃÏ
-E:Graveyard
-D:$a hole to the Graveyard underground
-D:ÊèÃÏ¤ÎÃÏ²¼¤Ø¤Î·ê
+N:6:Graveyard
+D:a hole to the Graveyard underground
 P:19:85
 W:40:70:18:3:14:160:75:20:0x0128:0x027b
 L:FLOOR:85:SHALLOW_WATER:15:FLOOR:0:30
@@ -123,10 +111,8 @@ F:MONSTER_DIV_4 | FINAL_GUARDIAN_804 | FINAL_ARTIFACT_89
 F:WATER_RIVER | DESTROY | ARENA | LAKE_WATER | LAKE_RUBBLE | DESTROY
 M:UNDEAD | NONLIVING
 
-N:7:¿¹
-E:Forest
-D:$a path leading to a Forest
-D:¿¹¤ØÂ³¤¯Áð¤ÎÆ»
+N:7:Forest
+D:a path leading to a Forest
 P:53:63
 W:15:32:5:3:14:160:75:20:0x0001:0x0052
 L:GRASS:85:FLOWER:5:SHALLOW_WATER:10:15
@@ -135,10 +121,8 @@ F:NO_DOORS | WATER_RIVER | MONSTER_DIV_15
 F:FINAL_GUARDIAN_481 | FINAL_OBJECT_592
 M:ANIMAL | R_CHAR_SJZ# | WILD_WOOD
 
-N:8:²Ð»³
-E:Volcano
-D:$a hole to the center of the Volcano
-D:²Ð»³¤ÎÃæ¿´¤Ø¤Î·ê
+N:8:Volcano
+D:a hole to the center of the Volcano
 P:53:13
 W:50:60:18:3:14:160:80:30:0x01bf:0x02fd
 L:DIRT:40:SHALLOW_LAVA:40:DEEP_LAVA:20:0
@@ -147,10 +131,8 @@ F:CAVE | MONSTER_DIV_0 | CAVERN | LAKE_LAVA | LAVA_RIVER | DESTROY
 F:FINAL_GUARDIAN_972 | FINAL_OBJECT_629
 M:IM_FIRE | CAN_FLY | WILD_VOLCANO
 
-N:9:ÃÏ¹ö
-E:Hell
-D:$the stairway to the Hell
-D:ÃÏ¹ö¤Ø¤Î³¬ÃÊ
+N:9:Hell
+D:the stairway to the Hell
 P:62:94
 W:666:696:50:1:14:160:90:77:0x0188:0x0280
 L:SHALLOW_LAVA:80:DEEP_LAVA:20:FLOOR:0:0
@@ -159,10 +141,8 @@ F:CAVERN | MONSTER_DIV_0 | LAKE_LAVA | LAVA_RIVER | WINNER
 F:BIG
 M:IM_FIRE | EVIL
 
-N:10:Å·³¦
-E:Heaven
-D:$the way to the heaven
-D:Å·³¦¤Ø¤ÈÄÌ¤¸¤ëÆ»
+N:10:Heaven
+D:the way to the heaven
 P:2:94
 W:555:585:50:1:18:160:85:35:0x0040:0x0104
 L:FLOOR:100:FLOOR:0:FLOOR:0:1000
@@ -171,10 +151,8 @@ F:MONSTER_DIV_0 | WATER_RIVER | WINNER | BIG | GLASS_ROOM
 M:GOOD
 
 # Wrath
-N:11:¿åË×¤·¤¿°äÀ×
-E:Numenor
-D:$a submerged way to the lost land of Numenor
-D:¼º¤ï¤ì¤¿ÃÏ¥Ì¥á¥Î¡¼¥ë¤Ø¤Î¿åË×¤·¤¿Æ»
+N:11:Numenor
+D:a submerged way to the lost land of Numenor
 P:27:30
 W:55:75:30:3:14:160:80:30:0x0000:0x0000
 L:FLOOR:80:SHALLOW_WATER:20:FLOOR:0:100
@@ -183,10 +161,8 @@ F:MONSTER_DIV_0 | LAKE_WATER | WATER_RIVER | DESTROY
 F:FINAL_GUARDIAN_854 | FINAL_ARTIFACT_107
 M:CAN_SWIM | CAN_FLY | AQUATIC | WILD_OCEAN
 
-N:12:¾ë
-E:Castle
-D:$the entrance to the Castle
-D:¾ë
+N:12:Castle
+D:the entrance to the Castle
 P:34:88
 W:20:65:30:3:14:160:75:20:0x037f:0x033f
 L:FLOOR:100:FLOOR:0:FLOOR:0:100
@@ -195,10 +171,8 @@ F:MONSTER_DIV_16 | ARENA | NO_CAVE | CURTAIN | GLASS_ROOM | FINAL_GUARDIAN_882
 M:DEMON | R_CHAR_phHg
 
 # Cth and Razorback
-N:13:¥ë¥ë¥¤¥¨
-E:R'lyeh
-D:$a way to R'lyeh
-D:¥ë¥ë¥¤¥¨
+N:13:R'lyeh
+D:a way to R'lyeh
 P:3:40
 W:80:96:45:3:14:160:75:20:0x01a8:0x023f
 L:FLOOR:50:SHALLOW_WATER:30:DEEP_WATER:20:100
@@ -207,10 +181,8 @@ F:MONSTER_DIV_16 | ARENA | WATER_RIVER | LAKE_WATER |
 F:FINAL_GUARDIAN_857 | FINAL_ARTIFACT_129
 M:DEMON | ELDRITCH_HORROR
 
-N:14:»³
-E:Mountain
-D:$a way leading to the mountain
-D:»³
+N:14:Mountain
+D:a way leading to the mountain
 P:46:76
 W:25:50:20:3:14:160:75:20:0x00b7:0x00df
 L:GRASS:100:GRASS:0:GRASS:0:0
@@ -219,10 +191,8 @@ F:FINAL_GUARDIAN_468 | FINAL_OBJECT_239 |
 F:MONSTER_DIV_16 | WATER_RIVER | CAVE | CAVERN | NO_DOORS | BIG
 M:TROLL | GIANT | CAN_FLY | ANIMAL | WILD_MOUNTAIN | R_CHAR_OYH
 
-N:15:¶â¹Û
-E:Mine
-D:$the entrance to the Mine
-D:¶â¹Û
+N:15:Mine
+D:the entrance to the Mine
 P:23:49
 W:75:80:50:3:18:80:80:25:0x0000:0x0010
 L:FLOOR:100:FLOOR:0:FLOOR:0:0
@@ -231,10 +201,8 @@ F:MONSTER_DIV_1 | WATER_RIVER | CAVE | CAVERN | SMALLEST
 F:LAVA_RIVER | DESTROY
 M:R_CHAR_$
 
-N:16:È¿ËâË¡¤ÎÆ¶·¢
-E:Anti-magic cave
-D:$the entrance to the cave filled with anti-magic cloud
-D:È¿ËâË¡¤ÎÆ¶·¢
+N:16:Anti-magic cave
+D:the entrance to the cave filled with anti-magic cloud
 P:6:84
 W:40:50:30:0:14:160:75:20:0x01ff:0x01ed
 L:FLOOR:100:FLOOR:0:FLOOR:0:50
@@ -243,10 +211,8 @@ F:CAVERN | WATER_RIVER | LAVA_RIVER | ARENA | DESTROY
 F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
 F:MONSTER_DIV_0 | NO_MAGIC
 
-N:17:È¿¹¶·â¤ÎÆ¶·¢
-E:Anti-melee cave
-D:$the entrance to the cave filled with restricting magical field
-D:È¿¹¶·â¤ÎÆ¶·¢
+N:17:Anti-melee cave
+D:the entrance to the cave filled with restricting magical field
 P:45:47
 W:40:50:30:0:14:160:75:20:0x01ff:0x01ed
 L:FLOOR:100:FLOOR:0:FLOOR:0:50
@@ -255,10 +221,8 @@ F:CAVERN | WATER_RIVER | LAVA_RIVER | ARENA | DESTROY | GLASS_ROOM |
 F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
 F:MONSTER_DIV_0 | NO_MELEE
 
-N:18:¥«¥á¥ì¥ª¥óÆ¶
-E:Chameleon cave
-D:$the entrance to the chameleon's den
-D:¥«¥á¥ì¥ª¥ó¤À¤±¤¬À³Â©¤¹¤ëÆ¶·¢
+N:18:Chameleon cave
+D:the entrance to the chameleon's den
 P:52:94
 W:30:45:30:3:30:160:75:20:0x0000:0x0000
 L:FLOOR:100:FLOOR:0:FLOOR:0:50
@@ -268,10 +232,8 @@ F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE | CHAMELEON
 F:MONSTER_DIV_0 | FINAL_GUARDIAN_1041 | FINAL_OBJECT_617
 M:CHAMELEON
 
-N:19:°Å°Ç¤ÎÆ¶·¢
-E:Dark cave
-D:$the dark entrance to the cave filled with magical darkness
-D:°Å°Ç¤ÎÆ¶·¢
+N:19:Dark cave
+D:the dark entrance to the cave filled with magical darkness
 P:12:57
 W:55:72:30:0:14:160:80:30:0xffff:0xffff
 L:FLOOR:100:FLOOR:0:FLOOR:0:50
@@ -281,10 +243,8 @@ F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
 F:MONSTER_DIV_64 | DARKNESS | FINAL_GUARDIAN_803
 F:FINAL_OBJECT_337
 
-N:20:¥¬¥é¥¹¤Î¾ë
-E:Glass castle
-D:$the entrance to the glass castle
-D:¥¬¥é¥¹¤Î¾ë
+N:20:Glass castle
+D:the entrance to the glass castle
 P:40:37
 W:40:60:30:3:14:160:75:20:0x01f8:0x033d
 L:GLASS_FLOOR:100:GLASS_FLOOR:0:GLASS_FLOOR:0:100
@@ -294,10 +254,8 @@ M:INVISIBLE | HAS_LITE_1 | SELF_LITE_1 | HAS_LITE_2 | SELF_LITE_2 |
 M:HAS_DARK_1 | SELF_DARK_1 | HAS_DARK_2 | SELF_DARK_2
 S:BR_LITE | BR_DARK | BA_DARK | BA_LITE
 
-N:21:TRANSLATE
-E:Icky cave
-D:$the entrance to the Icky caves
-D:TRANSLATE
+N:21:Icky cave
+D:the entrance to the Icky caves
 P:50:5
 W:10:35:1:3:14:240:75:20:0x0000:0x0000
 L:SWAMP:20:GRASS:60:SHALLOW_WATER:20:8
@@ -306,10 +264,8 @@ F:FINAL_GUARDIAN_655 | FINAL_OBJECT_147
 F:MONSTER_DIV_32
 M:R_CHAR_ijM
 
-N:22:TRANSLATE
-E:Mount Olympus
-D:$the entrance to Mount Olympus
-D:TRANSLATE
+N:22:Mount Olympus
+D:the entrance to Mount Olympus
 P:9:5
 W:90:99:50:3:14:160:95:40:0xFFFF:0xFFFF
 L:FLOOR:100:FLOOR:0:FLOOR:0:8
@@ -318,10 +274,8 @@ F:FINAL_GUARDIAN_1096
 F:MONSTER_DIV_8 | WATER_RIVER | CAVE | CAVERN | NO_DOORS | BIG
 M:GIANT | OLYMPIAN
 
-N:23:TRANSLATE
-E:Lonely Mountain
-D:$the entrance to the Lonely Mountain
-D:TRANSLATE
+N:23:Lonely Mountain
+D:the entrance to the Lonely Mountain
 P:58:42
 W:25:40:30:3:20:140:75:20:0x00a6:0x00c1
 L:DIRT:100:FLOOR:0:FLOOR:0:0
@@ -332,10 +286,8 @@ F:CAVE | LAKE_LAVA | LAKE_TREE | LAKE_RUBBLE
 F:FINAL_OBJECT_336
 M:DRAGON | R_CHAR_dD
 
-N:24:TRANSLATE
-E:Giant's Hall
-D:$the entrance to the Giant's Hall
-D:TRANSLATE
+N:24:Giant's Hall
+D:the entrance to the Giant's Hall
 P:44:63
 W:20:40:20:3:14:160:75:20:0x00b7:0x00df
 L:GRASS:100:GRASS:0:GRASS:0:0
@@ -344,10 +296,8 @@ F:FINAL_GUARDIAN_683 | FINAL_ARTIFACT_185 |
 F:MONSTER_DIV_2 | WATER_RIVER | CAVE | CAVERN | NO_DOORS | BIG
 M:GIANT
 
-N:25:TRANSLATE
-E:Arena
-D:$the entrance to the Arena
-D:TRANSLATE
+N:25:Arena
+D:the entrance to the Arena
 P:5:66
 W:50:80:20:0:14:160:95:40:0:0
 L:FLOOR:100:FLOOR:0:FLOOR:0:8

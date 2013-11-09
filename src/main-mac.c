@@ -174,22 +174,13 @@
 # endif
 #endif
 
-#ifdef JP
-
-#include <Script.h>
-
-#endif
 
 #endif /* MACH_O_CARBON */
 
 /*
  * Cleaning up a couple of things to make these easier to change --AR
  */
-#ifdef JP
-#define PREF_FILE_NAME "Hengband Preferences"
-#else
 #define PREF_FILE_NAME "Hengband-E Preferences"
-#endif
 
 /*
  * Use "malloc()" instead of "NewPtr()"
@@ -1992,11 +1983,7 @@ static void play_sound(int num, SInt16 vol)
 				}
 
 				/* Notify error */
-#ifdef JP
-				plog("サウンドチャンネルを初期化出来ません!");
-#else
 				plog("Cannot initialise sound channels!");
-#endif
 
 				/* Cancel request */
 				use_sound = arg_sound = FALSE;
@@ -2499,11 +2486,7 @@ static errr Term_xtra_mac_react(void)
 
 		if ((graf_mode_req != GRAF_MODE_NONE) && !frameP && (globe_init() != 0))
 		{
-#ifdef JP
-			plog("グラフィックの初期化は出来ませんでした.");
-#else
 			plog("Cannot initialize graphics!");
-#endif
 
 			/* reject request */
 			graf_mode_req = GRAF_MODE_NONE;
@@ -3001,24 +2984,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
 			/* Move to the correct location */
 			MoveTo(xp, yp);
 
-#ifdef JP
-			if (iskanji(c))
-			{
-				/* Double width rectangle */
-				r2.right += td->tile_wid;
-
-				/* Erase */
-				EraseRect(&r2);
-
-				/* Draw the character */
-				DrawText(cp, i, 2);
-				
-				i++;
-				
-				r2.left += td->tile_wid;
-			}
-			else
-#endif
 			{
 				/* Erase */
 				EraseRect(&r2);
@@ -3185,11 +3150,7 @@ static void SetupAppDir(void)
 	err = PBGetFCBInfo(&fcbBlock, FALSE);
 	if (err != noErr)
 	{
-#ifdef JP
-		sprintf(errString, "PBGetFCBInfo エラー #%d.\r 終了します.", err);
-#else
 		sprintf(errString, "Fatal PBGetFCBInfo Error #%d.\r Exiting.", err);
-#endif
 		mac_warning(errString);
 		ExitToShell();
 	}
@@ -3202,11 +3163,7 @@ static void SetupAppDir(void)
 	err = HSetVol(NULL, app_vol, app_dir);
 	if (err != noErr)
 	{
-#ifdef JP
-		sprintf(errString, "HSetVol エラー #%d.\r 終了します.", err);
-#else
 		sprintf(errString, "Fatal HSetVol Error #%d.\r Exiting.", err);
-#endif
 		mac_warning(errString);
 		ExitToShell();
 	}
@@ -3396,11 +3353,7 @@ static void cf_load_prefs()
 	if (!ok)
 	{
 		/* This may be the first run */
-#ifdef JP
-		mac_warning("初期設定ファイルが見つかりません。");
-#else
 		mac_warning("Preferences are not found.");
-#endif
 
 		/* Ignore the rest */
 		return;
@@ -3561,11 +3514,7 @@ static void load_prefs(void)
 	    (old_patch != FAKE_VER_PATCH))
 	{
 		/* Message */
-		#ifdef JP
-		mac_warning("古い初期設定ファイルを無視します.");
-		#else
 		mac_warning("Ignoring old preferences.");
-		#endif
 		/* Ignore */
 		return;
 	}
@@ -3616,22 +3565,11 @@ static void term_data_hack(term_data *td)
 	short fid;
 
 #if TARGET_API_MAC_CARBON
-#ifdef JP
-	/* Default to Osaka font (Japanese) */
-	fid = FMGetFontFamilyFromName( "\pOsaka−等幅" );
-#else
 	/* Default to Monaco font */
 	fid = FMGetFontFamilyFromName("\pmonaco");
-#endif
-#else
-#ifdef JP
-	/* Default to 等幅明朝 font (Japanese) */
-	GetFNum( "\p等幅明朝", &fid);
-	SetFScaleDisable( true );
 #else
 	/* Default to Monaco font */
 	GetFNum("\pmonaco", &fid);
-#endif
 #endif
 
 	/* Wipe it */
@@ -3977,56 +3915,6 @@ static void init_graf( void )
 
 #endif /* MACH_O_CARBON */
 
-#ifdef CHUUKEI
-/*
-
-*/
-static void init_chuukei( void )
-{
-	char path[1024];
-	char tmp[1024];
-	FILE *fp;
-	
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "chuukei.txt");
-
-	fp = fopen(path, "r");
-	if(!fp)
-		return;
-	
-	/* Read a line */
-	if (fgets(tmp, 1024, fp)){
-		if(tmp[0] == '-'){
-			int n = strlen(tmp);
-			tmp[n-1] = 0;
-			switch(tmp[1]){
-			case 'p':
-			{
-				if (!tmp[2]) break;
-				chuukei_server = TRUE;
-				if(connect_chuukei_server(&tmp[2])<0){
-					msg_print("connect fail");
-					return;
-				}
-				msg_print("connect");
-				msg_print(NULL);
-				break;
-			}
-
-			case 'c':
-			{
-				chuukei_client = TRUE;
-				connect_chuukei_server(&tmp[2]);
-				play_game(FALSE);
-				quit(NULL);
-			}
-			}
-		}
-		
-	}
-	fclose(fp);
-	
-}
-#endif
 
 /*
 
@@ -4655,11 +4543,7 @@ static void init_menubar(void)
 	mbar = GetNewMBar(128);
 
 	/* Whoops! */
-#ifdef JP
-	if (mbar == nil) quit("メニューバー ID 128を見つける事ができません!");
-#else
 	if (mbar == nil) quit("Cannot find menubar('MBAR') id 128!");
-#endif
 
 	/* Insert them into the current menu list */
 	SetMenuBar(mbar);
@@ -5763,11 +5647,7 @@ static void menu(long mc)
 				case ITEM_SAVE:
 				{
 					if (!can_save){
-#ifdef JP
-						plog("今はセーブすることは出来ません。");
-#else
 						plog("You may not do that right now.");
-#endif
 						break;
 					}
 					
@@ -5787,11 +5667,7 @@ static void menu(long mc)
 					if (game_in_progress && character_generated)
 					{
 						if (!can_save){
-#ifdef JP
-							plog("今はセーブすることは出来ません。");
-#else
 							plog("You may not do that right now.");
-#endif
 							break;
 						}
 						/* Hack -- Forget messages */
@@ -6215,11 +6091,7 @@ static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
 	if (game_in_progress && character_generated)
 	{
 			if (!can_save){
-#ifdef JP
-				plog("今はセーブすることは出来ません。");
-#else
 				plog("You may not do that right now.");
-#endif
 				return;
 			}
 			/* Hack -- Forget messages */
@@ -6792,11 +6664,7 @@ static bool CheckEvents(bool wait)
 			/* Process apple events */
 			if (AEProcessAppleEvent(&event) != noErr)
 			{
-				#ifdef JP
-				plog("Apple Event Handlerのエラーです.");
-				#else
 				plog("Error in Apple Event Handler!");
-				#endif
 			}
 
 			/* Handle "quit_when_ready" */
@@ -6904,11 +6772,7 @@ static vptr hook_rpanic(huge size)
 		lifeboat = NULL;
 
 		/* Mega-Hack -- Warning */
-		#ifdef JP
-		mac_warning("メモリーが足りません!\r今すぐ終了して下さい!");
-		#else
 		mac_warning("Running out of Memory!\rAbort this process now!");
-		#endif
 
 		/* Mega-Hack -- Never leave this function */
 		while (TRUE) CheckEvents(TRUE);
@@ -6962,18 +6826,10 @@ static void hook_core(cptr str)
 	if (str) mac_warning(str);
 
 	/* Warn, then save player */
-	#ifdef JP
-	mac_warning("致命的なエラーです.\r強制的にセーブして終了します.");
-	#else
 	mac_warning("Fatal error.\rI will now attempt to save and quit.");
-	#endif
 
 	/* Attempt to save */
-	#ifdef JP
-	if (!save_player()) mac_warning("警告 -- セーブに失敗しました!");
-	#else
 	if (!save_player()) mac_warning("Warning -- save failed!");
-	#endif
 	
 	/* Quit */
 	quit(NULL);
@@ -7059,35 +6915,19 @@ static void init_stuff(void)
 		init_file_paths(path);
 
 		/* Build the filename */
-#ifdef JP
-		path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news_j.txt");
-#else
 		path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
-#endif
 
 		/* Attempt to open and close that file */
 		if (0 == fd_close(fd_open(path, O_RDONLY))) break;
 
 		/* Warning */
-#ifdef JP
-		plog_fmt("'%s' ファイルをオープン出来ません.", path);
-#else
 		plog_fmt("Unable to open the '%s' file.", path);
-#endif
 
 		/* Warning */
-#ifdef JP
-		plog("Hengbandの'lib'フォルダが存在しないか正しく無い可能性があります.");
-#else
 		plog("The Angband 'lib' folder is probably missing or misplaced.");
-#endif
 
 		/* Warning */
-#ifdef JP
 		plog("Please 'open' any file in any sub-folder of the 'lib' folder.");
-#else
-		plog("Please 'open' any file in any sub-folder of the 'lib' folder.");
-#endif
 		
 #if TARGET_API_MAC_CARBON
 		/* Ask the user to choose the lib folder */
@@ -7223,9 +7063,6 @@ int main(void)
 #endif
 	InitCursor();
 
-#ifdef JP
-	KeyScript(smRoman);
-#endif
 
 	/* Flush events */
 	FlushEvents(everyEvent, 0);
@@ -7275,11 +7112,7 @@ int main(void)
 		/* Check the version */
 		if ((err != noErr) || (versionNumber < 0x0700))
 		{
-			#ifdef JP
-			quit("このプログラムは漢字Talk7.x.x以降で動作します.");
-			#else
 			quit("You must have System 7 to use this program.");
-			#endif
 		}
 	}
 
@@ -7291,31 +7124,19 @@ int main(void)
 		/* Check the environs */
 		if (SysEnvirons(1, &env) != noErr)
 		{
-			#ifdef JP
-			quit("SysEnvirons コールは失敗しました！");
-			#else
 			quit("The SysEnvirons call failed!");
-			#endif
 		}
 
 		/* Check for System Seven Stuff */
 		if (env.systemVersion < 0x0700)
 		{
-			#ifdef JP
-			quit("このプログラムは漢字Talk7.x.x以降で動作します.");
-			#else
 			quit("You must have System 7 to use this program.");
-			#endif
 		}
 
 		/* Check for Color Quickdraw */
 		if (!env.hasColorQD)
 		{
-			#ifdef JP
-			quit("このプログラムはColor Quickdrawが無いと動作しません.");
-			#else
 			quit("You must have Color Quickdraw to use this program.");
-			#endif
 		}
 	}
 
@@ -7459,16 +7280,9 @@ int main(void)
 	/* Handle "open_when_ready" */
 	handle_open_when_ready();
 
-#ifdef CHUUKEI
-	init_chuukei();
-#endif
 
 	/* Prompt the user */
-#ifdef JP
-	prt("'ファイル'メニューより'新規'または'開く...'を選択してください。", 23, 10);
-#else
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
-#endif
 
 	/* Flush the prompt */
 	Term_fresh();

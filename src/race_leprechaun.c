@@ -6,54 +6,54 @@
 #define MON_LEPRECHAUN_FANATIC 700
 
 static cptr _desc = 
-	"Leprechauns are small, mischevous creatures, always scheming for gold. "
-	"They are weak, but quick and stealthy. For combat, they prefer not to use "
-	"weapons at all. Rather, by keeping at least one hand free, they may pilfer "
-	"objects or gold from their foes and flee to safety, all in a single action. However, "
-	"they are capable of fighting with normal weapons should the need arise, but "
-	"one seldom hears of leprechauns inspiring fear in combat!\n \n"
-	"Leprechauns value riches above all else and even begin the game with their "
-	"legendary pot of gold. Leprechauns also have the luck of the Irish, and good "
-	"drops are more common for them. For magic, the leprechaun has a few talents "
-	"and even a bit of cursing offense (Malicious and Death Leprechauns are vile, "
-	"evil creatures, after all). They are masters of teleportation and detection. And while "
-	"one never fears their combat (though one despises their thievery, of course), they "
-	"are great masters of bow and device alike. At high levels, they move with incredible "
-	"speed and seem to be in multiple places at once. Dexterity determines the leprechaun's "
-	"skill with their magic.\n \n"
-	"Leprechauns are monsters so can not choose a normal class. Instead, being small, they "
-	"should spend their initial pot of gold wisely and then enter the dungeons in search "
-	"of new treasure. Since gold is so important to the leprechaun, much of their strength "
-	"depends on possessing a large hoard of wealth, and various leprechaun attributes "
-	"are directly affected by the amount of gold on hand.";
+    "Leprechauns are small, mischevous creatures, always scheming for gold. "
+    "They are weak, but quick and stealthy. For combat, they prefer not to use "
+    "weapons at all. Rather, by keeping at least one hand free, they may pilfer "
+    "objects or gold from their foes and flee to safety, all in a single action. However, "
+    "they are capable of fighting with normal weapons should the need arise, but "
+    "one seldom hears of leprechauns inspiring fear in combat!\n \n"
+    "Leprechauns value riches above all else and even begin the game with their "
+    "legendary pot of gold. Leprechauns also have the luck of the Irish, and good "
+    "drops are more common for them. For magic, the leprechaun has a few talents "
+    "and even a bit of cursing offense (Malicious and Death Leprechauns are vile, "
+    "evil creatures, after all). They are masters of teleportation and detection. And while "
+    "one never fears their combat (though one despises their thievery, of course), they "
+    "are great masters of bow and device alike. At high levels, they move with incredible "
+    "speed and seem to be in multiple places at once. Dexterity determines the leprechaun's "
+    "skill with their magic.\n \n"
+    "Leprechauns are monsters so can not choose a normal class. Instead, being small, they "
+    "should spend their initial pot of gold wisely and then enter the dungeons in search "
+    "of new treasure. Since gold is so important to the leprechaun, much of their strength "
+    "depends on possessing a large hoard of wealth, and various leprechaun attributes "
+    "are directly affected by the amount of gold on hand.";
 
 static void _birth(void) 
 { 
-	p_ptr->current_r_idx = MON_CHEERFUL_LEPRECHAUN;
+    p_ptr->current_r_idx = MON_CHEERFUL_LEPRECHAUN;
 
-	msg_print("You feel the luck of the Irish!");
-	mut_gain(MUT_GOOD_LUCK);
-	mut_lock(MUT_GOOD_LUCK);
+    msg_print("You feel the luck of the Irish!");
+    mut_gain(MUT_GOOD_LUCK);
+    mut_lock(MUT_GOOD_LUCK);
 }
 
 static int _get_toggle(void)
 {
-	return p_ptr->magic_num1[0];
+    return p_ptr->magic_num1[0];
 }
 
 static int _set_toggle(s32b toggle)
 {
-	int result = p_ptr->magic_num1[0];
+    int result = p_ptr->magic_num1[0];
 
-	if (toggle == result) return result;
+    if (toggle == result) return result;
 
-	p_ptr->magic_num1[0] = toggle;
+    p_ptr->magic_num1[0] = toggle;
 
-	p_ptr->redraw |= PR_STATUS;
-	p_ptr->update |= PU_BONUS;
-	handle_stuff();
+    p_ptr->redraw |= PR_STATUS;
+    p_ptr->update |= PU_BONUS;
+    handle_stuff();
 
-	return result;
+    return result;
 }
 
 /**********************************************************************
@@ -61,26 +61,26 @@ static int _set_toggle(s32b toggle)
  **********************************************************************/
 static void _calc_innate_attacks(void)
 {
-	if (p_ptr->weapon_ct == 0 && equip_find_empty_hand())
-	{
-		innate_attack_t	a = {0};
-		int l = p_ptr->lev;
-		int i = 0;
+    if (p_ptr->weapon_ct == 0 && equip_find_empty_hand())
+    {
+        innate_attack_t    a = {0};
+        int l = p_ptr->lev;
+        int i = 0;
 
-		a.dd = 1;
-		a.ds = 3 + l / 15;
-		a.weight = 2;
-		a.to_h = p_ptr->lev;
+        a.dd = 1;
+        a.ds = 3 + l / 15;
+        a.weight = 2;
+        a.to_h = p_ptr->lev;
 
-		a.effect[1] = GF_STEAL;
-		
-		calc_innate_blows(&a, 3);
+        a.effect[1] = GF_STEAL;
+        
+        calc_innate_blows(&a, 3);
 
-		a.msg = "You pilfer %s.";
-		a.name = "Greedy Hands";
+        a.msg = "You pilfer %s.";
+        a.name = "Greedy Hands";
 
-		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-	}
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    }
 }
 
 /****************************************************************
@@ -88,42 +88,42 @@ static void _calc_innate_attacks(void)
  ****************************************************************/
 static void _toggle_spell(int which, int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_CAST:
-		var_set_bool(res, FALSE);
-		if (_get_toggle() == which)
-			_set_toggle(TOGGLE_NONE);
-		else
-			_set_toggle(which);
-		var_set_bool(res, TRUE);
-		break;
-	case SPELL_ENERGY:
-		if (_get_toggle() != which)
-			var_set_int(res, 0);	/* no charge for dismissing a technique */
-		else
-			var_set_int(res, 100);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (_get_toggle() == which)
+            _set_toggle(TOGGLE_NONE);
+        else
+            _set_toggle(which);
+        var_set_bool(res, TRUE);
+        break;
+    case SPELL_ENERGY:
+        if (_get_toggle() != which)
+            var_set_int(res, 0);    /* no charge for dismissing a technique */
+        else
+            var_set_int(res, 100);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 static void _blink_toggle_spell(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Blinking Death");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "When using this technique, you will execute a short range, line of sight teleport after every action.");
-		break;
-	default:
-		_toggle_spell(LEPRECHAUN_TOGGLE_BLINK, cmd, res);
-		break;
-	}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Blinking Death");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "When using this technique, you will execute a short range, line of sight teleport after every action.");
+        break;
+    default:
+        _toggle_spell(LEPRECHAUN_TOGGLE_BLINK, cmd, res);
+        break;
+    }
 }
 
 /**********************************************************************
@@ -131,122 +131,122 @@ static void _blink_toggle_spell(int cmd, variant *res)
  **********************************************************************/
 static spell_info _spells[] = 
 {
-	{  1,  2, 20, phase_door_spell},
-	{  1,  3, 20, detect_treasure_spell},
-	{ 10,  5, 30, detection_spell},
-	{ 15,  3, 30, cause_wounds_I_spell}, 
-	{ 15,  5, 30, teleport_spell},
-	{ 15, 12, 40, teleport_to_spell},
-	{ 20, 12, 40, telekinesis_spell}, 
-	{ 30, 15, 50, cause_wounds_III_spell}, 
-	{ 35, 15, 60, animate_dead_spell}, 
-	{ 40,  0,  0, _blink_toggle_spell}, 
-	{ -1, -1, -1, NULL}
+    {  1,  2, 20, phase_door_spell},
+    {  1,  3, 20, detect_treasure_spell},
+    { 10,  5, 30, detection_spell},
+    { 15,  3, 30, cause_wounds_I_spell}, 
+    { 15,  5, 30, teleport_spell},
+    { 15, 12, 40, teleport_to_spell},
+    { 20, 12, 40, telekinesis_spell}, 
+    { 30, 15, 50, cause_wounds_III_spell}, 
+    { 35, 15, 60, animate_dead_spell}, 
+    { 40,  0,  0, _blink_toggle_spell}, 
+    { -1, -1, -1, NULL}
 };
 
 static int _get_spells(spell_info* spells, int max) 
 {
-	return get_spells_aux(spells, max, _spells);
+    return get_spells_aux(spells, max, _spells);
 }
 
 static caster_info * _caster_info(void)
 {
-	static caster_info me = {0};
-	static bool init = FALSE;
-	if (!init)
-	{
-		me.magic_desc = "greedy power";
-		me.which_stat = A_DEX;
-		me.weight = 450;
-		init = TRUE;
-	}
-	return &me;
+    static caster_info me = {0};
+    static bool init = FALSE;
+    if (!init)
+    {
+        me.magic_desc = "greedy power";
+        me.which_stat = A_DEX;
+        me.weight = 450;
+        init = TRUE;
+    }
+    return &me;
 }
 
 static void _calc_bonuses(void) 
 {
-	int ac = MIN(p_ptr->au / 250000, 25);
+    int ac = MIN(p_ptr->au / 250000, 25);
 
-	p_ptr->to_a += ac;
-	p_ptr->dis_to_a += ac;
+    p_ptr->to_a += ac;
+    p_ptr->dis_to_a += ac;
 
-	if (p_ptr->au >= 5 * 1000 * 1000)
-	{
-		p_ptr->spell_power++;
-		p_ptr->spell_cap++;
-	}
-	if (p_ptr->au >= 1000 * 1000)
-	{
-		p_ptr->spell_power++;
-		p_ptr->spell_cap++;
-	}
-	if (p_ptr->au >= 500 * 1000)
-		p_ptr->spell_cap++;
-	if (p_ptr->au >= 100 * 1000)
-		p_ptr->spell_cap++;
+    if (p_ptr->au >= 5 * 1000 * 1000)
+    {
+        p_ptr->spell_power++;
+        p_ptr->spell_cap++;
+    }
+    if (p_ptr->au >= 1000 * 1000)
+    {
+        p_ptr->spell_power++;
+        p_ptr->spell_cap++;
+    }
+    if (p_ptr->au >= 500 * 1000)
+        p_ptr->spell_cap++;
+    if (p_ptr->au >= 100 * 1000)
+        p_ptr->spell_cap++;
 
-	switch (p_ptr->current_r_idx)
-	{
-	case MON_CHEERFUL_LEPRECHAUN:
-		p_ptr->pspeed += 5;
-		break;
-	case MON_MALICIOUS_LEPRECHAUN:
-		p_ptr->pspeed += 7;
-		p_ptr->levitation = TRUE;
-		res_add_vuln(RES_LITE);
-		break;
-	case MON_DEATH_LEPRECHAUN:
-		p_ptr->pspeed += 10;
-		p_ptr->levitation = TRUE;
-		res_add_vuln(RES_LITE);
-		res_add(RES_NETHER);
-		break;
-	}
+    switch (p_ptr->current_r_idx)
+    {
+    case MON_CHEERFUL_LEPRECHAUN:
+        p_ptr->pspeed += 5;
+        break;
+    case MON_MALICIOUS_LEPRECHAUN:
+        p_ptr->pspeed += 7;
+        p_ptr->levitation = TRUE;
+        res_add_vuln(RES_LITE);
+        break;
+    case MON_DEATH_LEPRECHAUN:
+        p_ptr->pspeed += 10;
+        p_ptr->levitation = TRUE;
+        res_add_vuln(RES_LITE);
+        res_add(RES_NETHER);
+        break;
+    }
 }
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
 {
-	if (p_ptr->au >= 100 * 1000)
-		add_flag(flgs, TR_SPELL_CAP);
+    if (p_ptr->au >= 100 * 1000)
+        add_flag(flgs, TR_SPELL_CAP);
 
-	if (p_ptr->au >= 1000 * 1000)
-		add_flag(flgs, TR_SPELL_POWER);
+    if (p_ptr->au >= 1000 * 1000)
+        add_flag(flgs, TR_SPELL_POWER);
 
-	switch (p_ptr->current_r_idx)
-	{
-	case MON_CHEERFUL_LEPRECHAUN:
-		p_ptr->align += 200;
-		add_flag(flgs, TR_SPEED);
-		break;
-	case MON_MALICIOUS_LEPRECHAUN:
-		p_ptr->align -= 200;
-		add_flag(flgs, TR_SPEED);
-		add_flag(flgs, TR_LEVITATION);
-		break;
-	case MON_DEATH_LEPRECHAUN:
-		p_ptr->align -= 200;
-		add_flag(flgs, TR_SPEED);
-		add_flag(flgs, TR_LEVITATION);
-		add_flag(flgs, TR_RES_NETHER);
-		break;
-	}
+    switch (p_ptr->current_r_idx)
+    {
+    case MON_CHEERFUL_LEPRECHAUN:
+        p_ptr->align += 200;
+        add_flag(flgs, TR_SPEED);
+        break;
+    case MON_MALICIOUS_LEPRECHAUN:
+        p_ptr->align -= 200;
+        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, TR_LEVITATION);
+        break;
+    case MON_DEATH_LEPRECHAUN:
+        p_ptr->align -= 200;
+        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, TR_RES_NETHER);
+        break;
+    }
 }
 
 static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
 {
-	switch (p_ptr->current_r_idx)
-	{
-	case MON_MALICIOUS_LEPRECHAUN:
-	case MON_DEATH_LEPRECHAUN:
-		add_flag(flgs, TR_RES_LITE);
-		break;
-	}
+    switch (p_ptr->current_r_idx)
+    {
+    case MON_MALICIOUS_LEPRECHAUN:
+    case MON_DEATH_LEPRECHAUN:
+        add_flag(flgs, TR_RES_LITE);
+        break;
+    }
 }
 
 static void _player_action(int energy_use)
 {
-	if (_get_toggle() == LEPRECHAUN_TOGGLE_BLINK)
-		teleport_player(10, TELEPORT_LINE_OF_SIGHT);
+    if (_get_toggle() == LEPRECHAUN_TOGGLE_BLINK)
+        teleport_player(10, TELEPORT_LINE_OF_SIGHT);
 }
 
 /**********************************************************************
@@ -254,18 +254,18 @@ static void _player_action(int energy_use)
  **********************************************************************/
 static void _gain_level(int new_level) 
 {
-	if (p_ptr->current_r_idx == MON_CHEERFUL_LEPRECHAUN && new_level >= 15)
-	{
-		p_ptr->current_r_idx = MON_MALICIOUS_LEPRECHAUN;
-		msg_print("You have evolved into a Malicious Leprechaun.");
-		p_ptr->redraw |= PR_MAP;
-	}
-	if (p_ptr->current_r_idx == MON_MALICIOUS_LEPRECHAUN && new_level >= 30)
-	{
-		p_ptr->current_r_idx = MON_DEATH_LEPRECHAUN;
-		msg_print("You have evolved into a Death Leprechaun.");
-		p_ptr->redraw |= PR_MAP;
-	}
+    if (p_ptr->current_r_idx == MON_CHEERFUL_LEPRECHAUN && new_level >= 15)
+    {
+        p_ptr->current_r_idx = MON_MALICIOUS_LEPRECHAUN;
+        msg_print("You have evolved into a Malicious Leprechaun.");
+        p_ptr->redraw |= PR_MAP;
+    }
+    if (p_ptr->current_r_idx == MON_MALICIOUS_LEPRECHAUN && new_level >= 30)
+    {
+        p_ptr->current_r_idx = MON_DEATH_LEPRECHAUN;
+        msg_print("You have evolved into a Death Leprechaun.");
+        p_ptr->redraw |= PR_MAP;
+    }
 }
 
 /**********************************************************************
@@ -273,130 +273,130 @@ static void _gain_level(int new_level)
  **********************************************************************/
 int leprechaun_get_toggle(void)
 {
-	int result = TOGGLE_NONE;
-	if (p_ptr->prace == RACE_MON_LEPRECHAUN)
-		result = _get_toggle();
-	return result;
+    int result = TOGGLE_NONE;
+    if (p_ptr->prace == RACE_MON_LEPRECHAUN)
+        result = _get_toggle();
+    return result;
 }
 
 bool leprechaun_steal(int m_idx)
 {
-	bool result = FALSE;
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    bool result = FALSE;
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	if ( !mon_save_p(m_ptr->r_idx, A_DEX) 
-	  || (MON_CSLEEP(m_ptr) && !mon_save_p(m_ptr->r_idx, A_DEX)))
-	{
-		object_type loot = {0};
+    if ( !mon_save_p(m_ptr->r_idx, A_DEX) 
+      || (MON_CSLEEP(m_ptr) && !mon_save_p(m_ptr->r_idx, A_DEX)))
+    {
+        object_type loot = {0};
 
-		if (m_ptr->hold_o_idx && one_in_(2))
-		{
-			object_copy(&loot, &o_list[m_ptr->hold_o_idx]);
-			delete_object_idx(m_ptr->hold_o_idx);
-			loot.held_m_idx = 0;
-		}
-		else if (m_ptr->drop_ct > m_ptr->stolen_ct)
-		{
-			if (get_monster_drop(m_idx, &loot))
-			{
-				m_ptr->stolen_ct++;
-				if (r_ptr->flags1 & RF1_UNIQUE)
-					r_ptr->stolen_ct++;
-			}
-		}
+        if (m_ptr->hold_o_idx && one_in_(2))
+        {
+            object_copy(&loot, &o_list[m_ptr->hold_o_idx]);
+            delete_object_idx(m_ptr->hold_o_idx);
+            loot.held_m_idx = 0;
+        }
+        else if (m_ptr->drop_ct > m_ptr->stolen_ct)
+        {
+            if (get_monster_drop(m_idx, &loot))
+            {
+                m_ptr->stolen_ct++;
+                if (r_ptr->flags1 & RF1_UNIQUE)
+                    r_ptr->stolen_ct++;
+            }
+        }
 
-		if (!loot.k_idx)
-		{
-			msg_print("There is nothing to steal!");
-		}
-		else 
-		{
-			char o_name[MAX_NLEN];
+        if (!loot.k_idx)
+        {
+            msg_print("There is nothing to steal!");
+        }
+        else 
+        {
+            char o_name[MAX_NLEN];
 
-			result = TRUE;
-			object_desc(o_name, &loot, 0);
-			if (mon_save_p(m_ptr->r_idx, A_DEX))
-			{
-				msg_format("Oops! You drop %s.", o_name);
-				drop_near(&loot, -1, py, px);
-			}
-			else if (loot.tval == TV_GOLD)
-			{
-				msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
-				sound(SOUND_SELL);
-				p_ptr->au += loot.pval;
-				p_ptr->redraw |= (PR_GOLD);
-				p_ptr->window |= (PW_PLAYER);
-				if (prace_is_(RACE_MON_LEPRECHAUN))
-					p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
-			}
-			else if (!inven_carry_okay(&loot))
-			{
-				msg_format("You have no room for %s.", o_name);
-				drop_near(&loot, -1, py, px);
-			}
-			else
-			{
-				int          slot = inven_carry(&loot);
-				object_type *o_ptr = &inventory[slot];
+            result = TRUE;
+            object_desc(o_name, &loot, 0);
+            if (mon_save_p(m_ptr->r_idx, A_DEX))
+            {
+                msg_format("Oops! You drop %s.", o_name);
+                drop_near(&loot, -1, py, px);
+            }
+            else if (loot.tval == TV_GOLD)
+            {
+                msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
+                sound(SOUND_SELL);
+                p_ptr->au += loot.pval;
+                p_ptr->redraw |= (PR_GOLD);
+                p_ptr->window |= (PW_PLAYER);
+                if (prace_is_(RACE_MON_LEPRECHAUN))
+                    p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+            }
+            else if (!inven_carry_okay(&loot))
+            {
+                msg_format("You have no room for %s.", o_name);
+                drop_near(&loot, -1, py, px);
+            }
+            else
+            {
+                int          slot = inven_carry(&loot);
+                object_type *o_ptr = &inventory[slot];
 
-				msg_format("You steal %s (%c).", o_name, index_to_label(slot));
-				autopick_alter_item(slot, TRUE);
-			}
-		}
-	}
-	return result;
+                msg_format("You steal %s (%c).", o_name, index_to_label(slot));
+                autopick_alter_item(slot, TRUE);
+            }
+        }
+    }
+    return result;
 }
 
 race_t *mon_leprechaun_get_race_t(void)
 {
-	static race_t me = {0};
-	static bool   init = FALSE;
-	static cptr   titles[3] =  {"Cheerful Leprechaun", "Malicious Leprechaun", "Death Leprechaun"};	
-	int           rank = 0;
+    static race_t me = {0};
+    static bool   init = FALSE;
+    static cptr   titles[3] =  {"Cheerful Leprechaun", "Malicious Leprechaun", "Death Leprechaun"};    
+    int           rank = 0;
 
-	if (p_ptr->lev >= 15) rank++;
-	if (p_ptr->lev >= 30) rank++;
+    if (p_ptr->lev >= 15) rank++;
+    if (p_ptr->lev >= 30) rank++;
 
-	if (!init)
-	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  60 };
-	skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  28 };
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  60 };
+    skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  28 };
 
-		me.skills = bs;
-		me.extra_skills = xs;
+        me.skills = bs;
+        me.extra_skills = xs;
 
-		me.name = "Leprechaun";
-		me.desc = _desc;
+        me.name = "Leprechaun";
+        me.desc = _desc;
 
-		me.infra = 5;
-		me.exp = 150;
-		me.base_hp = 15;
+        me.infra = 5;
+        me.exp = 150;
+        me.base_hp = 15;
 
-		me.get_spells = _get_spells;
-		me.caster_info = _caster_info;
-		me.calc_innate_attacks = _calc_innate_attacks;
-		me.calc_bonuses = _calc_bonuses;
-		me.get_flags = _get_flags;
-		me.get_vulnerabilities = _get_vulnerabilities;
-		me.gain_level = _gain_level;
-		me.birth = _birth;
-		me.player_action = _player_action;
+        me.get_spells = _get_spells;
+        me.caster_info = _caster_info;
+        me.calc_innate_attacks = _calc_innate_attacks;
+        me.calc_bonuses = _calc_bonuses;
+        me.get_flags = _get_flags;
+        me.get_vulnerabilities = _get_vulnerabilities;
+        me.gain_level = _gain_level;
+        me.birth = _birth;
+        me.player_action = _player_action;
 
-		me.flags = RACE_IS_MONSTER;
-		init = TRUE;
-	}
+        me.flags = RACE_IS_MONSTER;
+        init = TRUE;
+    }
 
-	me.life = 80 + MIN(p_ptr->au / 1000000, 20);
+    me.life = 80 + MIN(p_ptr->au / 1000000, 20);
 
-	me.subname = titles[rank];
-	me.stats[A_STR] = -2 - 2*rank;
-	me.stats[A_INT] = 1;
-	me.stats[A_WIS] = 1;
-	me.stats[A_DEX] = 3 + 2*rank;
-	me.stats[A_CON] = -2;
-	me.stats[A_CHR] = -2;
+    me.subname = titles[rank];
+    me.stats[A_STR] = -2 - 2*rank;
+    me.stats[A_INT] = 1;
+    me.stats[A_WIS] = 1;
+    me.stats[A_DEX] = 3 + 2*rank;
+    me.stats[A_CON] = -2;
+    me.stats[A_CHR] = -2;
 
-	return &me;
+    return &me;
 }

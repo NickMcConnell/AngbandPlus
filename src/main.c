@@ -487,32 +487,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-#ifdef CHUUKEI
-			case 'p':
-			case 'P':
-			{
-				if (!argv[i][2]) goto usage;
-				chuukei_server = TRUE;
-				if (connect_chuukei_server(&argv[i][2]) < 0) chuukei_server = FALSE;
-				break;
-			}
-
-			case 'c':
-			case 'C':
-			{
-				if (!argv[i][2]) goto usage;
-				chuukei_client = TRUE;
-				connect_chuukei_server(&argv[i][2]);
-				break;
-			}
-#endif
-
-			case 'x':
-			{
-				if (!argv[i][2]) goto usage;
-			/*	prepare_browse_movie(&argv[i][2]); */
-				break;
-			}			
 
 			case '-':
 			{

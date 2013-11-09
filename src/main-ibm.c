@@ -844,23 +844,8 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
 	/* Set the attribute */
 	textattr(attr);
 
-#ifdef JP
-      /* Dump the text */
-      for (i = 0; i < n; i++) {
-	      if (iskanji(cp[i])) {
-		      char jbuf[3];
-		      jbuf[0] = cp[i++];
-		      jbuf[1] = cp[i];
-		      jbuf[2] = '\0';
-		      cputs(jbuf);
-	      } else {
-		      putch(cp[i]);
-	      }
-      }
-#else
 	/* Dump the text */
 	for (i = 0; i < n; i++) putch(cp[i]);
-#endif
 
 #else /* USE_CONIO */
 

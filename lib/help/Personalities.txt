@@ -139,4 +139,4 @@ Craven           +0    +5    -1    +3    +0    +0    -10   +10
 
 
 
-Automatically generated for PosChengband 1.0.21.
+Automatically generated for PosChengband 1.0.24.

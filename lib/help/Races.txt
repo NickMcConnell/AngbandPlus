@@ -420,6 +420,19 @@
   Their one saving grace is the ability to mimic other races.
 
 
+***** <Centaur>
+--- Centaur ---
+
+  Centaurs are creatures with the head, arms and torso of a human combined with
+  the body and legs of a horse. As such, they are able to move more quickly as
+  they gain experience and are capable of leaping great distances. They may
+  attack monsters with their hooves in addition to any normal melee weapons.
+  Centaurs are strong, agile, and wise, but not so smart. They are skilled in
+  fighting and archery but are rather distrustful of magic. Finally, being at
+  home in the forests of the world, Centaurs are able to move quickly through
+  foliage.
+
+
 ***** <Tables>
 --- Table 1 - Race Statistic Bonus Table ---
 
@@ -462,6 +475,7 @@ Shadow-Fairy    -2   +2   +2   +1   -1   -3   91%  +13  140%
 Kutar           +0   -1   -1   +1   +2   +0  102%  +21  175%
 Android         +3   -1   -5   +1   +3   +0  108%  +26  200%
 Doppelganger    -3   -3   -3   -3   -3   -3   85%  +12  150%
+Centaur         +3   -2   +1   +2   +1   +0  103%  +22  190%
 
 
 --- Table 2 - Race Skill Bonus Table ---
@@ -505,9 +519,10 @@ Shadow-Fairy     +7    +8    +0    +6   +12   +15    -10    -5    40'
 Kutar            -2    +5    +5    +5    -2    +6     +0    -5     0'
 Android          +0    -5    +0    -2    +3   +14    +20   +10     0'
 Doppelganger    -20   -20   -20    +5   -10   +10    -20   -20     0'
+Centaur          +0    -5    +2    +1    +3    +5    +10   +12     0'
 
 
 ***** [a] Demigods.txt
 
 
-Automatically generated for PosChengband 1.0.21.
+Automatically generated for PosChengband 1.0.24.

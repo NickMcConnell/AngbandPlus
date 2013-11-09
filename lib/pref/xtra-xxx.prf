@@ -41,7 +41,7 @@ R:0:0/0x8D
 R:0:0/0x8E
 ?:[EQU $RACE Yeek]
 R:0:0/0x8F
-?:[EQU $RACE Klackon]
+?:[EQU $RACE Klackon Centaur]
 R:0:0/0x90
 ?:[EQU $RACE Kobold]
 R:0:0/0x91

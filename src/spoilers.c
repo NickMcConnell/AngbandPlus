@@ -7,430 +7,430 @@ bool spoiler_hack = FALSE;
 typedef void(*_file_fn)(FILE*);
 static void _text_file(cptr name, _file_fn fn)
 {
-	int		fd = -1;
-	FILE	*fff = NULL;
-	char	buf[1024];
+    int        fd = -1;
+    FILE    *fff = NULL;
+    char    buf[1024];
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_HELP, name);
-	fff = my_fopen(buf, "w");
+    path_build(buf, sizeof(buf), ANGBAND_DIR_HELP, name);
+    fff = my_fopen(buf, "w");
 
-	if (!fff)
-	{
-		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
-		fff = my_fopen(buf, "w");
+    if (!fff)
+    {
+        path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+        fff = my_fopen(buf, "w");
 
-		if (!fff)
-		{
-			prt("Failed!", 0, 0);
-			(void)inkey();
-			return;
-		}
-	}
+        if (!fff)
+        {
+            prt("Failed!", 0, 0);
+            (void)inkey();
+            return;
+        }
+    }
 
-	fn(fff);
-	fprintf(fff, "\n\nAutomatically generated for PosChengband %d.%d.%d.\n",
-		    VER_MAJOR, VER_MINOR, VER_PATCH);
+    fn(fff);
+    fprintf(fff, "\n\nAutomatically generated for PosChengband %d.%d.%d.\n",
+            VER_MAJOR, VER_MINOR, VER_PATCH);
 
-	my_fclose(fff);
-	msg_format("Created %s", buf);
+    my_fclose(fff);
+    msg_format("Created %s", buf);
 }
 
 static void _wrap_text(FILE *fff, cptr text, int col, int width)
 {
-	char buf[5*1024];
-	char fmt[128];
-	cptr t;
+    char buf[5*1024];
+    char fmt[128];
+    cptr t;
 
-	sprintf(fmt, "%%%ds%%s\n", col);
-	
-	roff_to_buf(text, width-col, buf, sizeof(buf));
-	for (t = buf; t[0]; t += strlen(t) + 1)
-		fprintf(fff, fmt, "", t);
+    sprintf(fmt, "%%%ds%%s\n", col);
+    
+    roff_to_buf(text, width-col, buf, sizeof(buf));
+    for (t = buf; t[0]; t += strlen(t) + 1)
+        fprintf(fff, fmt, "", t);
 }
 
 static void _race_help(FILE *fff, int idx)
 {
-	race_t *race_ptr = get_race_t_aux(idx, 0);
+    race_t *race_ptr = get_race_t_aux(idx, 0);
 
-	fprintf(fff, "***** <%s>\n", race_ptr->name);
-	fprintf(fff, "--- %s ---\n\n", race_ptr->name);
-	_wrap_text(fff, race_ptr->desc, 2, 80);
-	if (idx == RACE_DEMIGOD)
-	{
-		fprintf(fff, "\n\n");
-		_wrap_text(fff, "See [a] for more details on demigod parentage.", 2, 80);
-	}
+    fprintf(fff, "***** <%s>\n", race_ptr->name);
+    fprintf(fff, "--- %s ---\n\n", race_ptr->name);
+    _wrap_text(fff, race_ptr->desc, 2, 80);
+    if (idx == RACE_DEMIGOD)
+    {
+        fprintf(fff, "\n\n");
+        _wrap_text(fff, "See [a] for more details on demigod parentage.", 2, 80);
+    }
 
-	fprintf(fff, "\n\n");
+    fprintf(fff, "\n\n");
 }
 
 static void _races_help(FILE* fff)
 {
-	int i;
+    int i;
 
-	fprintf(fff, "=== The Races ===\n\n");
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		if (race_ptr->flags & RACE_IS_MONSTER) continue;
-		_race_help(fff, i);
-	}
+    fprintf(fff, "=== The Races ===\n\n");
+    for (i = 0; i < MAX_RACES; i++)
+    {
+        race_t *race_ptr = get_race_t_aux(i, 0);
+        if (race_ptr->flags & RACE_IS_MONSTER) continue;
+        _race_help(fff, i);
+    }
 
-	fprintf(fff, "***** <Tables>\n");
-	fprintf(fff, "--- Table 1 - Race Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");	
+    fprintf(fff, "***** <Tables>\n");
+    fprintf(fff, "--- Table 1 - Race Statistic Bonus Table ---\n\n");
+    fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");    
 
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		if (race_ptr->flags & RACE_IS_MONSTER) continue;
+    for (i = 0; i < MAX_RACES; i++)
+    {
+        race_t *race_ptr = get_race_t_aux(i, 0);
+        if (race_ptr->flags & RACE_IS_MONSTER) continue;
 
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
-			race_ptr->name,
-			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->life, race_ptr->base_hp, race_ptr->exp
-		);
-	}
-	fprintf(fff, "\n\n");
+        fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
+            race_ptr->name,
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->life, race_ptr->base_hp, race_ptr->exp
+        );
+    }
+    fprintf(fff, "\n\n");
 
-	fprintf(fff, "--- Table 2 - Race Skill Bonus Table ---\n\n");
-	fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		if (race_ptr->flags & RACE_IS_MONSTER) continue;
+    fprintf(fff, "--- Table 2 - Race Skill Bonus Table ---\n\n");
+    fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");
+    for (i = 0; i < MAX_RACES; i++)
+    {
+        race_t *race_ptr = get_race_t_aux(i, 0);
+        if (race_ptr->flags & RACE_IS_MONSTER) continue;
 
-		fprintf(fff, "%-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d  %4d'\n", 
-			race_ptr->name,
-			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
-			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
-			race_ptr->skills.thn, race_ptr->skills.thb, race_ptr->infra*10
-		);
-	}
-	fprintf(fff, "\n\n");
-	fprintf(fff, "***** [a] Demigods.txt\n");
+        fprintf(fff, "%-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d  %4d'\n", 
+            race_ptr->name,
+            race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
+            race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
+            race_ptr->skills.thn, race_ptr->skills.thb, race_ptr->infra*10
+        );
+    }
+    fprintf(fff, "\n\n");
+    fprintf(fff, "***** [a] Demigods.txt\n");
 
 }
 
 static void _monster_races_help(FILE* fff)
 {
-	int i;
-	player_type old = *p_ptr;
+    int i;
+    player_type old = *p_ptr;
 
-	fprintf(fff, "=== Monster Races ===\n\n");
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		int max = 1, j;
-		race_t *race_ptr = get_race_t_aux(i, 0);
+    fprintf(fff, "=== Monster Races ===\n\n");
+    for (i = 0; i < MAX_RACES; i++)
+    {
+        int max = 1, j;
+        race_t *race_ptr = get_race_t_aux(i, 0);
 
-		if (!(race_ptr->flags & RACE_IS_MONSTER)) continue;
+        if (!(race_ptr->flags & RACE_IS_MONSTER)) continue;
 
-		_race_help(fff, i);
+        _race_help(fff, i);
 
-		switch (i)
-		{
-		case RACE_MON_SPIDER: max = SPIDER_MAX; break;
-		case RACE_MON_DEMON: max = DEMON_MAX; break;
-		case RACE_MON_DRAGON: max = DRAGON_MAX; break;
-		case RACE_MON_GIANT: max = GIANT_MAX; break;
-		case RACE_MON_TROLL: max = TROLL_MAX; break;
-		}
+        switch (i)
+        {
+        case RACE_MON_SPIDER: max = SPIDER_MAX; break;
+        case RACE_MON_DEMON: max = DEMON_MAX; break;
+        case RACE_MON_DRAGON: max = DRAGON_MAX; break;
+        case RACE_MON_GIANT: max = GIANT_MAX; break;
+        case RACE_MON_TROLL: max = TROLL_MAX; break;
+        }
 
-		for (j = 0; j < max; j++)
-		{
-			race_t *race_ptr;
-			int     current_r_idx = 0;
+        for (j = 0; j < max; j++)
+        {
+            race_t *race_ptr;
+            int     current_r_idx = 0;
 
-			p_ptr->lev = 1;
-			p_ptr->exp = 0;
-			p_ptr->prace = i;
-			p_ptr->psubrace = j;
+            p_ptr->lev = 1;
+            p_ptr->exp = 0;
+            p_ptr->prace = i;
+            p_ptr->psubrace = j;
 
-			race_ptr = get_race_t();
+            race_ptr = get_race_t();
 
-			fprintf(fff, "  %21s STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n", "");	
-			if (race_ptr->birth)
-				race_ptr->birth();
+            fprintf(fff, "  %21s STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n", "");    
+            if (race_ptr->birth)
+                race_ptr->birth();
 
-			for (;;)
-			{
-				p_ptr->lev++;
-				if (race_ptr->gain_level)
-					race_ptr->gain_level(p_ptr->lev);
+            for (;;)
+            {
+                p_ptr->lev++;
+                if (race_ptr->gain_level)
+                    race_ptr->gain_level(p_ptr->lev);
 
-				if (p_ptr->current_r_idx != current_r_idx)
-				{
-					race_ptr = get_race_t();
+                if (p_ptr->current_r_idx != current_r_idx)
+                {
+                    race_ptr = get_race_t();
 
-					fprintf(fff, "  %-21.21s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
-						race_ptr->subname,
-						race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-						race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-						race_ptr->life, race_ptr->base_hp, race_ptr->exp
-					);
+                    fprintf(fff, "  %-21.21s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
+                        race_ptr->subname,
+                        race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+                        race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+                        race_ptr->life, race_ptr->base_hp, race_ptr->exp
+                    );
 
-					current_r_idx = p_ptr->current_r_idx;
-				}
+                    current_r_idx = p_ptr->current_r_idx;
+                }
 
-				if (p_ptr->lev >= PY_MAX_LEVEL)
-					break;
-			}
-			fprintf(fff, "\n");
+                if (p_ptr->lev >= PY_MAX_LEVEL)
+                    break;
+            }
+            fprintf(fff, "\n");
 
-			current_r_idx = 0;
-			p_ptr->lev = 1;
-			p_ptr->exp = 0;
-			p_ptr->prace = i;
-			p_ptr->psubrace = j;
+            current_r_idx = 0;
+            p_ptr->lev = 1;
+            p_ptr->exp = 0;
+            p_ptr->prace = i;
+            p_ptr->psubrace = j;
 
-			race_ptr = get_race_t();
+            race_ptr = get_race_t();
 
-			fprintf(fff, "  %-21s Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows\n", "");
-			if (race_ptr->birth)
-				race_ptr->birth();
+            fprintf(fff, "  %-21s Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows\n", "");
+            if (race_ptr->birth)
+                race_ptr->birth();
 
-			for (;;)
-			{
-				p_ptr->lev++;
-				if (race_ptr->gain_level)
-					race_ptr->gain_level(p_ptr->lev);
+            for (;;)
+            {
+                p_ptr->lev++;
+                if (race_ptr->gain_level)
+                    race_ptr->gain_level(p_ptr->lev);
 
-				if (p_ptr->current_r_idx != current_r_idx)
-				{
-					race_ptr = get_race_t();
+                if (p_ptr->current_r_idx != current_r_idx)
+                {
+                    race_ptr = get_race_t();
 
-					fprintf(fff, "  %-21.21s %2d+%-2d  %2d+%-2d  %2d+%-2d  %2d+%-2d %2d+%-2d %2d+%-2d %2d+%-2d  %2d+%-2d\n", 
-						race_ptr->subname,
-						race_ptr->skills.dis, race_ptr->extra_skills.dis, 
-						race_ptr->skills.dev, race_ptr->extra_skills.dev, 
-						race_ptr->skills.sav, race_ptr->extra_skills.sav,
-						race_ptr->skills.stl, race_ptr->extra_skills.stl,
-						race_ptr->skills.srh, race_ptr->extra_skills.srh,
-						race_ptr->skills.fos, race_ptr->extra_skills.fos,
-						race_ptr->skills.thn, race_ptr->extra_skills.thn, 
-						race_ptr->skills.thb, race_ptr->extra_skills.thb
-					);
+                    fprintf(fff, "  %-21.21s %2d+%-2d  %2d+%-2d  %2d+%-2d  %2d+%-2d %2d+%-2d %2d+%-2d %2d+%-2d  %2d+%-2d\n", 
+                        race_ptr->subname,
+                        race_ptr->skills.dis, race_ptr->extra_skills.dis, 
+                        race_ptr->skills.dev, race_ptr->extra_skills.dev, 
+                        race_ptr->skills.sav, race_ptr->extra_skills.sav,
+                        race_ptr->skills.stl, race_ptr->extra_skills.stl,
+                        race_ptr->skills.srh, race_ptr->extra_skills.srh,
+                        race_ptr->skills.fos, race_ptr->extra_skills.fos,
+                        race_ptr->skills.thn, race_ptr->extra_skills.thn, 
+                        race_ptr->skills.thb, race_ptr->extra_skills.thb
+                    );
 
-					current_r_idx = p_ptr->current_r_idx;
-				}
+                    current_r_idx = p_ptr->current_r_idx;
+                }
 
-				if (p_ptr->lev >= PY_MAX_LEVEL)
-					break;
-			}
-			fprintf(fff, "\n");
-		}
-		fprintf(fff, "\n");
-	}
-	fprintf(fff, "\n\n");
+                if (p_ptr->lev >= PY_MAX_LEVEL)
+                    break;
+            }
+            fprintf(fff, "\n");
+        }
+        fprintf(fff, "\n");
+    }
+    fprintf(fff, "\n\n");
 
-	*p_ptr = old;
+    *p_ptr = old;
 }
 
 static void _demigod_help(FILE *fff, int idx)
 {
-	fprintf(fff, "***** <%s>\n", demigod_info[idx].name);
-	fprintf(fff, "--- %s ---\n\n", demigod_info[idx].name);
-	_wrap_text(fff, demigod_info[idx].desc, 2, 80);
+    fprintf(fff, "***** <%s>\n", demigod_info[idx].name);
+    fprintf(fff, "--- %s ---\n\n", demigod_info[idx].name);
+    _wrap_text(fff, demigod_info[idx].desc, 2, 80);
 
-	fprintf(fff, "\n\n");
+    fprintf(fff, "\n\n");
 }
 
 static void _demigods_help(FILE* fff)
 {
-	int i;
+    int i;
 
-	fprintf(fff, "=== Demigod Parentage ===\n\n");
-	for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
-	{
-		_demigod_help(fff, i);
-	}
+    fprintf(fff, "=== Demigod Parentage ===\n\n");
+    for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+    {
+        _demigod_help(fff, i);
+    }
 
-	fprintf(fff, "***** <Tables>\n");
-	fprintf(fff, "--- Table 1 - Race Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");	
+    fprintf(fff, "***** <Tables>\n");
+    fprintf(fff, "--- Table 1 - Race Statistic Bonus Table ---\n\n");
+    fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");    
 
-	for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
+    for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+    {
+        race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
 
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n", 
-			demigod_info[i].name,
-			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->life, race_ptr->exp
-		);
-	}
-	fprintf(fff, "\n\n");
+        fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n", 
+            demigod_info[i].name,
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->life, race_ptr->exp
+        );
+    }
+    fprintf(fff, "\n\n");
 
-	fprintf(fff, "--- Table 2 - Race Skill Bonus Table ---\n\n");
-	fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");
-	for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
+    fprintf(fff, "--- Table 2 - Race Skill Bonus Table ---\n\n");
+    fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");
+    for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+    {
+        race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
 
-		fprintf(fff, "%-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d  %4d'\n", 
-			demigod_info[i].name,
-			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
-			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
-			race_ptr->skills.thn, race_ptr->skills.thb, race_ptr->infra*10
-		);
-	}
-	fprintf(fff, "\n\n");
+        fprintf(fff, "%-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d  %4d'\n", 
+            demigod_info[i].name,
+            race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
+            race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
+            race_ptr->skills.thn, race_ptr->skills.thb, race_ptr->infra*10
+        );
+    }
+    fprintf(fff, "\n\n");
 
-	fprintf(fff, "--- Table 3 - Demigod Special Powers ---\n\n");
-	_wrap_text(fff, 
-				"All demigods have access to special powers. When they reach level 20, they may choose "
-				"a single power from the following list. When they reach level, 40, they may choose another. "
-				"These powers can never be removed or changed, so you might want to study this list to "
-				"decide which powers you will choose for your character.", 
-				2, 80);
-	fprintf(fff, "\n");
-	for (i = 0; i < MAX_MUTATIONS; i++)
-	{
-		if (mut_demigod_pred(i))
-		{
-			char b1[255], b2[255];
-			mut_name(i, b1);
-			mut_help_desc(i, b2);
-			fprintf(fff, "%-19s %s\n", b1, b2);
-		}
-	}
-	fprintf(fff, "\n\n");
+    fprintf(fff, "--- Table 3 - Demigod Special Powers ---\n\n");
+    _wrap_text(fff, 
+                "All demigods have access to special powers. When they reach level 20, they may choose "
+                "a single power from the following list. When they reach level, 40, they may choose another. "
+                "These powers can never be removed or changed, so you might want to study this list to "
+                "decide which powers you will choose for your character.", 
+                2, 80);
+    fprintf(fff, "\n");
+    for (i = 0; i < MAX_MUTATIONS; i++)
+    {
+        if (mut_demigod_pred(i))
+        {
+            char b1[255], b2[255];
+            mut_name(i, b1);
+            mut_help_desc(i, b2);
+            fprintf(fff, "%-19s %s\n", b1, b2);
+        }
+    }
+    fprintf(fff, "\n\n");
 }
 
 static void _class_help(FILE *fff, int idx)
 {
-	class_t *class_ptr = get_class_t_aux(idx, 0);
-	
-	fprintf(fff, "***** <%s>\n", class_ptr->name);
-	fprintf(fff, "--- %s ---\n\n", class_ptr->name);
-	_wrap_text(fff, class_ptr->desc, 2, 80);
-	fprintf(fff, "\n\n");
+    class_t *class_ptr = get_class_t_aux(idx, 0);
+    
+    fprintf(fff, "***** <%s>\n", class_ptr->name);
+    fprintf(fff, "--- %s ---\n\n", class_ptr->name);
+    _wrap_text(fff, class_ptr->desc, 2, 80);
+    fprintf(fff, "\n\n");
 }
 
 static void _classes_help(FILE* fff)
 {
-	int i;
+    int i;
 
-	fprintf(fff, "=== The Classes ===\n\n");
-	for (i = 0; i < MAX_CLASS; i++)
-	{
-		_class_help(fff, i);
-	}
+    fprintf(fff, "=== The Classes ===\n\n");
+    for (i = 0; i < MAX_CLASS; i++)
+    {
+        _class_help(fff, i);
+    }
 
-	fprintf(fff, "***** <Tables>\n");
-	fprintf(fff, "--- Table 1 - Class Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");	
+    fprintf(fff, "***** <Tables>\n");
+    fprintf(fff, "--- Table 1 - Class Statistic Bonus Table ---\n\n");
+    fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");    
 
-	for (i = 0; i < MAX_CLASS; i++)
-	{
-		class_t *class_ptr = get_class_t_aux(i, 0);
-		if (i == CLASS_MONSTER) continue;
+    for (i = 0; i < MAX_CLASS; i++)
+    {
+        class_t *class_ptr = get_class_t_aux(i, 0);
+        if (i == CLASS_MONSTER) continue;
 
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
-			class_ptr->name,
-			class_ptr->stats[0], class_ptr->stats[1], class_ptr->stats[2], 
-			class_ptr->stats[3], class_ptr->stats[4], class_ptr->stats[5], 
-			class_ptr->life, class_ptr->base_hp, class_ptr->exp
-		);
-	}
-	fprintf(fff, "\n\n");
+        fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
+            class_ptr->name,
+            class_ptr->stats[0], class_ptr->stats[1], class_ptr->stats[2], 
+            class_ptr->stats[3], class_ptr->stats[4], class_ptr->stats[5], 
+            class_ptr->life, class_ptr->base_hp, class_ptr->exp
+        );
+    }
+    fprintf(fff, "\n\n");
 
-	fprintf(fff, "--- Table 2 - Class Skill Bonus Table ---\n\n");
-	fprintf(fff, "               Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows\n");
-	for (i = 0; i < MAX_CLASS; i++)
-	{
-		class_t *class_ptr = get_class_t_aux(i, 0);
+    fprintf(fff, "--- Table 2 - Class Skill Bonus Table ---\n\n");
+    fprintf(fff, "               Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows\n");
+    for (i = 0; i < MAX_CLASS; i++)
+    {
+        class_t *class_ptr = get_class_t_aux(i, 0);
 
-		if (i == CLASS_BERSERKER) continue;
-		if (i == CLASS_MONSTER) continue;
+        if (i == CLASS_BERSERKER) continue;
+        if (i == CLASS_MONSTER) continue;
 
-		fprintf(fff, "%-14s %2d+%-2d  %2d+%-2d  %2d+%-2d  %4d  %4d  %4d  %2d+%-2d  %2d+%-2d\n", 
-			class_ptr->name,
-			class_ptr->base_skills.dis, class_ptr->extra_skills.dis, 
-			class_ptr->base_skills.dev, class_ptr->extra_skills.dev, 
-			class_ptr->base_skills.sav, class_ptr->extra_skills.sav,
-			class_ptr->base_skills.stl, 
-			class_ptr->base_skills.srh, 
-			class_ptr->base_skills.fos,
-			class_ptr->base_skills.thn, class_ptr->extra_skills.thn, 
-			class_ptr->base_skills.thb, class_ptr->extra_skills.thb
-		);
-	}
-	fprintf(fff, "\n\n");
+        fprintf(fff, "%-14s %2d+%-2d  %2d+%-2d  %2d+%-2d  %4d  %4d  %4d  %2d+%-2d  %2d+%-2d\n", 
+            class_ptr->name,
+            class_ptr->base_skills.dis, class_ptr->extra_skills.dis, 
+            class_ptr->base_skills.dev, class_ptr->extra_skills.dev, 
+            class_ptr->base_skills.sav, class_ptr->extra_skills.sav,
+            class_ptr->base_skills.stl, 
+            class_ptr->base_skills.srh, 
+            class_ptr->base_skills.fos,
+            class_ptr->base_skills.thn, class_ptr->extra_skills.thn, 
+            class_ptr->base_skills.thb, class_ptr->extra_skills.thb
+        );
+    }
+    fprintf(fff, "\n\n");
 }
 
 static void _personality_help(FILE *fff, int idx)
 {
-	player_seikaku *a_ptr = &seikaku_info[idx];
-	fprintf(fff, "***** <%s>\n", a_ptr->title);
-	fprintf(fff, "--- %s ---\n\n", a_ptr->title);
-	_wrap_text(fff, birth_get_personality_desc(idx), 2, 80);
-	fprintf(fff, "\n\n");
+    player_seikaku *a_ptr = &seikaku_info[idx];
+    fprintf(fff, "***** <%s>\n", a_ptr->title);
+    fprintf(fff, "--- %s ---\n\n", a_ptr->title);
+    _wrap_text(fff, birth_get_personality_desc(idx), 2, 80);
+    fprintf(fff, "\n\n");
 }
 
 static void _personalities_help(FILE* fff)
 {
-	int i;
+    int i;
 
-	fprintf(fff, "=== The Personalities ===\n\n");
-	for (i = 0; i < MAX_SEIKAKU; i++)
-	{
-		_personality_help(fff, i);
-	}
+    fprintf(fff, "=== The Personalities ===\n\n");
+    for (i = 0; i < MAX_SEIKAKU; i++)
+    {
+        _personality_help(fff, i);
+    }
 
-	fprintf(fff, "***** <Tables>\n");
-	fprintf(fff, "--- Table 1 - Personality Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");	
+    fprintf(fff, "***** <Tables>\n");
+    fprintf(fff, "--- Table 1 - Personality Statistic Bonus Table ---\n\n");
+    fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");    
 
-	for (i = 0; i < MAX_SEIKAKU; i++)
-	{
-		player_seikaku *a_ptr = &seikaku_info[i];
+    for (i = 0; i < MAX_SEIKAKU; i++)
+    {
+        player_seikaku *a_ptr = &seikaku_info[i];
 
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n", 
-			a_ptr->title,
-			a_ptr->a_adj[0], a_ptr->a_adj[1], a_ptr->a_adj[2], 
-			a_ptr->a_adj[3], a_ptr->a_adj[4], a_ptr->a_adj[5], 
-			a_ptr->life, a_ptr->a_exp
-		);
-	}
-	fprintf(fff, "\n\n");
+        fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n", 
+            a_ptr->title,
+            a_ptr->a_adj[0], a_ptr->a_adj[1], a_ptr->a_adj[2], 
+            a_ptr->a_adj[3], a_ptr->a_adj[4], a_ptr->a_adj[5], 
+            a_ptr->life, a_ptr->a_exp
+        );
+    }
+    fprintf(fff, "\n\n");
 
-	fprintf(fff, "--- Table 2 - Personality Skill Bonus Table ---\n\n");
-	fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows\n");
-	for (i = 0; i < MAX_SEIKAKU; i++)
-	{
-		player_seikaku *a_ptr = &seikaku_info[i];
+    fprintf(fff, "--- Table 2 - Personality Skill Bonus Table ---\n\n");
+    fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows\n");
+    for (i = 0; i < MAX_SEIKAKU; i++)
+    {
+        player_seikaku *a_ptr = &seikaku_info[i];
 
-		fprintf(fff, "%-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d\n", 
-			a_ptr->title,
-			a_ptr->skills.dis, a_ptr->skills.dev, a_ptr->skills.sav,
-			a_ptr->skills.stl, a_ptr->skills.srh, a_ptr->skills.fos,
-			a_ptr->skills.thn, a_ptr->skills.thb
-		);
-	}
-	fprintf(fff, "\n\n");
+        fprintf(fff, "%-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d\n", 
+            a_ptr->title,
+            a_ptr->skills.dis, a_ptr->skills.dev, a_ptr->skills.sav,
+            a_ptr->skills.stl, a_ptr->skills.srh, a_ptr->skills.fos,
+            a_ptr->skills.thn, a_ptr->skills.thb
+        );
+    }
+    fprintf(fff, "\n\n");
 }
 
 static void _show_help(cptr helpfile)
 {
-	screen_save();
-	show_file(TRUE, helpfile, NULL, 0, 0);
-	screen_load();
+    screen_save();
+    show_file(TRUE, helpfile, NULL, 0, 0);
+    screen_load();
 }
 void generate_spoilers(void)
 {
-	spoiler_hack = TRUE;
+    spoiler_hack = TRUE;
 
-	_text_file("Races.txt", _races_help);
-	_text_file("MonsterRaces.txt", _monster_races_help);
-	_text_file("Demigods.txt", _demigods_help);
-	_text_file("Classes.txt", _classes_help);
-	_text_file("Personalities.txt", _personalities_help);
+    _text_file("Races.txt", _races_help);
+    _text_file("MonsterRaces.txt", _monster_races_help);
+    _text_file("Demigods.txt", _demigods_help);
+    _text_file("Classes.txt", _classes_help);
+    _text_file("Personalities.txt", _personalities_help);
 
-/*	_show_help("Personalities.txt"); */
-	spoiler_hack = FALSE;
+/*    _show_help("Personalities.txt"); */
+    spoiler_hack = FALSE;
 }
 
 #endif

@@ -2,49 +2,34 @@
 # a quick creation by Jeff Coleburn <vsp@netaxs.com>
 
 # Name
-Q:$20:N:Vapor Quest
-Q:20:N:謎の障気
+Q:20:N:Vapor Quest
 
 # Definition
-Q:$20:Q:6:0:0:0:25:0:0:0:6
 Q:20:Q:6:0:0:0:25:0:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST20 2]
-Q:$20:T:Something curious has taken root beneath our Inn.  Celebor,
-Q:$20:T:the innkeeper, has reported strange vapors and auras in the
-Q:$20:T:basement that drive out all living things.  A caged canary was
-Q:$20:T:placed there to test the air quality; it died within minutes,
-Q:$20:T:though the strange scents had vanished when the investigators
-Q:$20:T:returned.  Then, suddenly, it was as if the air itself attacked!
-Q:$20:T:Please see if you can detect what is amiss.
-Q:20:T:何か奇妙なことが宿屋の地下で起こっているようです。
-Q:20:T:宿屋の主人ケレボールは、地下室の中の奇妙な蒸気とオーラが
-Q:20:T:生きているもの全てを追い出したと言っています。カナリアを
-Q:20:T:鳥カゴに入れて置いてみたところ、ものの数分で死んでしまいました。
-Q:20:T:奇妙な臭いは調査員が戻った時には消えてしまいましたが、その時突然
-Q:20:T:あたかも空気そのものが襲ってきたと感じたそうです！どうか、何が起
-Q:20:T:きているのか確かめてきて下さい。
+Q:20:T:Something curious has taken root beneath our Inn.  Celebor,
+Q:20:T:the innkeeper, has reported strange vapors and auras in the
+Q:20:T:basement that drive out all living things.  A caged canary was
+Q:20:T:placed there to test the air quality; it died within minutes,
+Q:20:T:though the strange scents had vanished when the investigators
+Q:20:T:returned.  Then, suddenly, it was as if the air itself attacked!
+Q:20:T:Please see if you can detect what is amiss.
 ?:1
 
 # Description for quest reward
 ?:[EQU $QUEST20 3]
-Q:$20:T:Strange tidings indeed.  Where eldritch vapors gather, more 
-Q:$20:T:dangerous creatures are often nearby.  Perhaps this is an ill
-Q:$20:T:omen of dangers yet to come...  We may be in need of your services
-Q:$20:T:again soon; the gift waiting outside may help you detect what
-Q:$20:T:evils plague this land.
-Q:20:T:全く奇妙な話です。おどろおどろしい気が集まる場所には、更に恐ろしい
-Q:20:T:魔物がいるものです。おそらく今回の件は来たるべき危機の凶兆なので
-Q:20:T:しょう。あなたの助けが再び必要となる日がそのうち来ると思います。
-Q:20:T:外に置いてあるお礼は、この地に広がろうとしている邪悪なものを見つける
-Q:20:T:のに役立つでしょう。
+Q:20:T:Strange tidings indeed.  Where eldritch vapors gather, more 
+Q:20:T:dangerous creatures are often nearby.  Perhaps this is an ill
+Q:20:T:omen of dangers yet to come...  We may be in need of your services
+Q:20:T:again soon; the gift waiting outside may help you detect what
+Q:20:T:evils plague this land.
 ?:1
 
 # Description for quest failed
 ?:[EQU $QUEST20 5]
-Q:$20:T:I've sent out someone else to do the job.  Now leave me alone!
-Q:20:T:既に他の者に仕事を任せてあります。しばらく私を一人にさせてください！
+Q:20:T:I've sent out someone else to do the job.  Now leave me alone!
 ?:1
 
 # Floor with Space Monster

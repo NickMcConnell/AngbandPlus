@@ -2,27 +2,27 @@
 #define SAVEFILE_H
 
 typedef struct version_s {
-	byte major;
-	byte minor;
-	byte patch;
-	byte extra;
+    byte major;
+    byte minor;
+    byte patch;
+    byte extra;
 } version_t, *version_ptr;
 
 extern int version_compare(version_ptr left, version_ptr right);
 
 enum {
-	SAVEFILE_READ,
-	SAVEFILE_WRITE
+    SAVEFILE_READ,
+    SAVEFILE_WRITE
 };
 
 typedef struct savefile_s {
-	FILE	 *file;
-	int       type;     /* READ or WRITE */
-	byte      xor_byte;
-	u32b	  v_check;
-	u32b	  x_check;
-	version_t version;
-	int       pos;
+    FILE     *file;
+    int       type;     /* READ or WRITE */
+    byte      xor_byte;
+    u32b      v_check;
+    u32b      x_check;
+    version_t version;
+    int       pos;
 } savefile_t, *savefile_ptr;
 
 extern savefile_ptr savefile_open_read(const char *name);
