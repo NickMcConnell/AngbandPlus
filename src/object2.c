@@ -32,7 +32,6 @@
 #define EGO_TYPE_DIGGER      37
 #define EGO_TYPE_CROWN       38
 
-
 /*
  * Excise a dungeon object from any stacks
  */
@@ -2246,12 +2245,16 @@ static bool make_artifact(object_type *o_ptr)
 /*
  *  Choose random ego type
  */
+int         apply_magic_ego = 0;
 static byte get_random_ego(byte slot, bool good)
 {
     int i, value;
     ego_item_type *e_ptr;
 
     long total = 0L;
+
+    if (apply_magic_ego)
+        return apply_magic_ego;
     
     for (i = 1; i < max_e_idx; i++)
     {
@@ -2364,7 +2367,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power, int mode)
             if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->curse_flags |= TRC_CURSED;
         }
     }
-    
+
+    if (mode & AM_FORCE_EGO)
+        crafting = TRUE; /* Hack to prevent artifacts */
+
     /* Analyze type */
     switch (o_ptr->tval)
     {
@@ -2820,6 +2826,9 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power, int mode)
             if (o_ptr->to_a < 0) o_ptr->curse_flags |= TRC_CURSED;
         }
     }
+
+    if (mode & AM_FORCE_EGO)
+        crafting = TRUE; /* Hack to prevent artifacts */
 
     /* Analyze type */
     switch (o_ptr->tval)
@@ -4539,6 +4548,13 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
     /* Hack -- Get no rolls if not allowed */
     if ((mode & AM_NO_FIXED_ART) || o_ptr->name1 || o_ptr->name3) rolls = 0;
     if (mode & AM_AVERAGE) rolls = 0;
+    if (mode & AM_FORCE_EGO) 
+    {
+        rolls = 0;
+        power = 2;
+    }
+    else
+        apply_magic_ego = 0;
 
     /* Roll for artifacts if allowed */
     for (i = 0; i < rolls; i++)

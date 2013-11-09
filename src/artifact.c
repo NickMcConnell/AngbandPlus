@@ -3623,6 +3623,21 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
         }
     }
 
+    if (o_ptr->name1 == ART_STORMBRINGER)
+    {
+        if (prace_is_(RACE_MON_SWORD))
+        {
+            add_flag(o_ptr->art_flags, TR_BLOWS); /* Just like the good 'ol days :) */
+        }
+        else
+        {
+            add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+            add_flag(o_ptr->art_flags, TR_DRAIN_EXP);
+            o_ptr->curse_flags |=
+                (TRC_CURSED | TRC_HEAVY_CURSE);
+        }
+    }
+
     if (o_ptr->name1 == ART_TERROR) /* Terror Mask is for warriors... */
     {
         if (p_ptr->pclass == CLASS_WARRIOR || 

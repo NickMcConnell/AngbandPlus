@@ -1098,6 +1098,7 @@ extern void object_wipe(object_type *o_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void object_copy(object_type *o_ptr, object_type *j_ptr);
 extern void apply_magic(object_type *o_ptr, int lev, u32b mode);
+extern int  apply_magic_ego;
 extern bool make_object(object_type *j_ptr, u32b mode);
 extern void place_object(int y, int x, u32b mode);
 extern bool make_gold(object_type *j_ptr);
@@ -1949,6 +1950,7 @@ extern void    jelly_eat_object(object_type *o_ptr);
 extern bool    leprechaun_steal(int m_idx);
 extern int     leprechaun_get_toggle(void);
 extern void    sword_absorb_object(object_type *o_ptr);
+extern int     sword_calc_torch(void);
 extern bool    sword_disenchant(void);
 
 /* Mimic Forms */

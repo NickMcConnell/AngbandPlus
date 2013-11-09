@@ -330,6 +330,9 @@ void virtue_init(void)
     case RACE_CENTAUR:
         p_ptr->vir_types[i++] = VIRTUE_NATURE;
         break;
+    case RACE_MON_SWORD:
+        p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
+        break;
     case RACE_MON_ANGEL:
         p_ptr->vir_types[i++] = VIRTUE_FAITH;
         break;

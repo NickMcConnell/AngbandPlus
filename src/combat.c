@@ -225,7 +225,7 @@ static _blow_info_t _get_blow_info(int hand)
         {
             result.num = 5;
             if (p_ptr->lev >= 45) /* Death Scythes retaliate! */
-                result.num = 4;
+                result.num = 3;
         }
         break;
     }

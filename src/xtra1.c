@@ -2955,6 +2955,8 @@ static void calc_torch(void)
         p_ptr->cur_lite++;
     if (prace_is_(RACE_MON_ANGEL))
         p_ptr->cur_lite++;
+    if (prace_is_(RACE_MON_SWORD))
+        p_ptr->cur_lite += sword_calc_torch();
 
     equip_for_each_obj(_calc_torch_imp);
 

@@ -3526,6 +3526,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
             int monster_index = letter[idx].monster;
             int random = letter[idx].random;
             int artifact_index = letter[idx].artifact;
+            int ego_index = letter[idx].ego;
 
             /* Lay down a floor */
             c_ptr->feat = conv_dungeon_feat(letter[idx].feature);
@@ -3648,8 +3649,14 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                     coin_type = 0;
                 }
 
-                /* Apply magic (no messages, no artifacts) */
-                apply_magic(o_ptr, base_level, AM_NO_FIXED_ART | AM_GOOD);
+                if (ego_index)
+                {
+                    /* TODO: Ego initialization needs a rewrite. In the meantime, enjoy this ugly hack ... */
+                    apply_magic_ego = ego_index;
+                    apply_magic(o_ptr, base_level, AM_NO_FIXED_ART | AM_GOOD | AM_FORCE_EGO);
+                }
+                else
+                    apply_magic(o_ptr, base_level, AM_NO_FIXED_ART | AM_GOOD);
 
                 drop_here(o_ptr, *y, *x);
             }

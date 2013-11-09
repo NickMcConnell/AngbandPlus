@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 29
+#define VER_PATCH 30
 #define VER_EXTRA 0
 
 
@@ -3617,6 +3617,7 @@
 #define AM_CRAFTING     0x00000020
 #define AM_AVERAGE      0x00000040
 #define AM_TAILORED     0x00000080 /* For player monster races to force a wearable item */
+#define AM_FORCE_EGO    0x00000100
 
 
 /*** Monster blow constants ***/
