@@ -79,12 +79,6 @@ void place_random_stairs(int y, int x)
 	}
 
 	/* Ironman */
-	if (ironman_forward)
-	{
-		if (upward_dun ^ astral_mode) down_stairs = FALSE;
-		else up_stairs = FALSE;
-	}
-
 	if (d_info[dungeon_type].flags1 & DF1_NO_BACK)
 	{
 		if (upward_dun) down_stairs = FALSE;
@@ -311,7 +305,7 @@ void vault_objects(int y, int x, int num)
 				if (cheat_room)
 				{
 #ifdef JP
-msg_print("警告！宝物庫のアイテムを配置できません！");
+					msg_print("警告！宝物庫のアイテムを配置できません！");
 #else
 					msg_print("Warning! Could not place vault object!");
 #endif
@@ -371,7 +365,7 @@ void vault_trap_aux(int y, int x, int yd, int xd)
 			if (cheat_room)
 			{
 #ifdef JP
-msg_print("警告！宝物庫のトラップを配置できません！");
+				msg_print("警告！宝物庫のトラップを配置できません！");
 #else
 				msg_print("Warning! Could not place vault trap!");
 #endif

@@ -538,6 +538,8 @@ static void save_quick_start(void)
 
 	wr_s32b(previous_char.race_hp_lv1);
 	wr_s32b(previous_char.race_sp_lv1);
+	wr_s32b(previous_char.class_hp_lv1);
+	wr_s32b(previous_char.class_sp_lv1);
 
 	for (i = 0; i < 4; i++) wr_string(previous_char.history[i]);
 
@@ -554,7 +556,7 @@ static void save_quick_start(void)
  */
 static void wr_extra(void)
 {
-	int i, j;
+	int i;
 	byte tmp8u;
 	u16b tmp16u;
 
@@ -577,7 +579,7 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 
 	wr_u16b(p_ptr->expfact);
-	wr_u16b(p_ptr->cexpfact);
+	for (i = 0; i < MAX_CLASS; ++i) wr_u16b(p_ptr->cexpfact[i]);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -600,7 +602,7 @@ static void wr_extra(void)
 
 	for (i = 0; i < MAX_WT; i++) wr_s16b(p_ptr->weapon_exp[i]);
 	for (i = 0; i < 10; i++) wr_s16b(p_ptr->skill_exp[i]);
-	for (i = 0; i < MAX_REALM + 1; i++) wr_s16b(p_ptr->magic_exp[i]);
+	for (i = 0; i < MAX_REALM+1; i++) wr_s16b(p_ptr->magic_exp[i]);
 
 	tmp16u = MAX_CLASS;
 	wr_u16b(tmp16u);
@@ -682,7 +684,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
 	wr_s16b(p_ptr->food);
-	wr_s16b(0);     /* old "food_digested" */
+	wr_byte(p_ptr->infected);
+	wr_byte(0);
 	wr_s16b(0);     /* old "protection" */
 	wr_s16b(p_ptr->energy_need);
 	wr_s16b(p_ptr->fast);
@@ -694,6 +697,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->stoning);
 	wr_s16b(p_ptr->opposite_pelem);
+	wr_s16b(p_ptr->no_elem);
 	wr_s16b(p_ptr->protevil);
 	wr_s16b(p_ptr->invuln);
 	wr_s16b(p_ptr->hero);
@@ -833,6 +837,9 @@ static bool ang_sort_comp_cave_temp(vptr u, vptr v, int a, int b)
 	u16b o1 = who[a].occurrence;
 	u16b o2 = who[b].occurrence;
 
+	/* Unused */
+	(void)v;
+
 	return o2 <= o1;
 }
 
@@ -845,6 +852,9 @@ static void ang_sort_swap_cave_temp(vptr u, vptr v, int a, int b)
 	cave_template_type *who = (cave_template_type *)(u);
 
 	cave_template_type holder;
+
+	/* Unused */
+	(void)v;
 
 	/* Swap */
 	holder = who[a];
@@ -1459,7 +1469,7 @@ static bool wr_savefile_new(void)
 	/* Write the "extra" information */
 	wr_extra();
 
-	/* Dump the "player hp" entries */
+	/* Dump the "player hp/sp" entries */
 	tmp16u = PY_MAX_LEVEL;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
@@ -1467,6 +1477,20 @@ static bool wr_savefile_new(void)
 		wr_s32b(p_ptr->race_hp[i]);
 		wr_s32b(p_ptr->race_sp[i]);
 	}
+
+	tmp8u = MAX_CLASS;
+	tmp16u = PY_MAX_LEVEL;
+	wr_byte(tmp8u);
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp8u; i++)
+	{
+		for (j = 0; j < tmp16u; j++)
+		{
+			wr_s32b(p_ptr->class_hp[i][j]);
+			wr_s32b(p_ptr->class_sp[i][j]);
+		}
+	}
+
 	wr_s32b(p_ptr->player_ghp);
 	wr_s32b(p_ptr->player_gsp);
 

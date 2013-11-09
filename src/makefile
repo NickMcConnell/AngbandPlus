@@ -51,9 +51,10 @@ ANGBAND_RC = angband.rc
 #
 # Set any compiler options
 
-CCOPTS = -Od -jb -j1 -Hc -tW -lGn -e$(EXE_FILE) -g0 \
+CCOPTS = -Od -jb -j1 -Hc -tW -lGn -e$(EXE_FILE) \
+	-wamb -wdef -wnod -wpin -wstu -wstv -wuse \
 	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
-	-DUSE_TRANSPARENCY $(JP_OPT)
+	$(JP_OPT)
 
 # Compile flags:
 CPPFLAGS= $(CCOPTS) $(DBGOPT)

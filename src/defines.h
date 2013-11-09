@@ -35,13 +35,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "TOband"
+#define VERSION_NAME "TOband2"
 
 /* Savefile version for TOband 0.0.0 and later */
 #define T_VER_MAJOR 0
 #define T_VER_MINOR 1
 #define T_VER_PATCH 0
-#define T_VER_EXTRA 4
+#define T_VER_EXTRA 10
 
 /* Added for ZAngband (now used for TOband) */
 #define FAKE_VERSION   0
@@ -175,7 +175,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            25
+#define MAX_CLASS            32
 
 /* Number of entries in the sanity-blast descriptions */
 #define MAX_SAN_HORROR 20
@@ -686,13 +686,6 @@
 
 
 /*
- * A "stack" of items is limited to less than 100 items (hard-coded).
- */
-#define MAX_STACK_SIZE                  100
-
-
-
-/*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
  */
 #define A_STR   0
@@ -769,6 +762,13 @@
 #define CLASS_GUNNER            22
 #define CLASS_TEMPLEKNIGHT      23
 #define CLASS_WHITEKNIGHT       24
+#define CLASS_LORD				25
+#define CLASS_GENERAL			26
+#define CLASS_NINJAMASTER		27
+#define CLASS_ARCHMAGE			28
+#define CLASS_FREYA				29
+#define CLASS_CRESCENT			30
+#define CLASS_VAMPIRE			31
 
 #define CLASS_CHOOSE_MODE_NORMAL 0
 #define CLASS_CHOOSE_MODE_BIRTH  1
@@ -792,7 +792,9 @@
 #define PCF_REINCARNATE   0x00000040
 #define PCF_NO_CHANGE     0x00000080
 #define PCF_UNDEAD        0x00000100
-#define PCF_NO_DIGEST     0x00000100
+#define PCF_NO_DIGEST     0x00000200
+#define PCF_SECRET        0x00000400
+
 
 #define PCF_ALIGN_ANY     (PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC)
 #define PCF_SEX_ANY       (PCF_SEX_MALE | PCF_SEX_FEMALE)
@@ -1000,6 +1002,8 @@
 /* special traps */
 #define FEAT_TRAP_ARMAGEDDON    0xC9
 #define FEAT_TRAP_PIRANHA       0xCA
+
+#define FEAT_DENEB_SHOP         0xCB
 
 /*
  * Wilderness terrains
@@ -1276,6 +1280,8 @@
 
 /* Crowns and Helms */
 #define EGO_DARK                23
+#define EGO_INTELLIGENCE        24
+#define EGO_WISDOM              25
 #define EGO_MAGI                27
 #define EGO_MIGHT               28
 #define EGO_LORDLINESS          29
@@ -1292,22 +1298,25 @@
 #define EGO_BALDAR_HELM        244
 
 /* Cloaks */
-#define EGO_NO_ELEM		26
-#define EGO_PROTECTION		40
-#define EGO_STEALTH		41
-#define EGO_ARCADIA		42
-#define EGO_AURA_FIRE		43
-#define EGO_ENVELOPING		44
-#define EGO_VULNERABILITY	45
-#define EGO_IRRITATION		46
-#define EGO_AURA_ELEC		47
-#define EGO_AURA_COLD		128
-#define EGO_BAT			129
-#define EGO_SIRENE		238
+#define EGO_NO_ELEM             26
+#define EGO_PROTECTION          40
+#define EGO_STEALTH             41
+#define EGO_ARCADIA             42
+#define EGO_AURA_FIRE           43
+#define EGO_ENVELOPING          44
+#define EGO_VULNERABILITY       45
+#define EGO_IRRITATION          46
+#define EGO_AURA_ELEC           47
+#define EGO_AURA_COLD          128
+#define EGO_BAT                129
+#define EGO_SIRENE             238
 
 /* Gloves */
 #define EGO_FREE_ACTION         48
 #define EGO_SLAYING             49
+#define EGO_WHITE_K             50
+#define EGO_DARK_K              51
+#define EGO_ASSASIN             52
 #define EGO_MAGIC_MASTERY       53
 #define EGO_WEAKNESS            54
 #define EGO_CLUMSINESS          55
@@ -1337,7 +1346,7 @@
 #define EGO_BRAND_ELEC          73
 #define EGO_BRAND_FIRE          74
 #define EGO_BRAND_COLD          75
-#define EGO_BRAND_POIS          76
+#define EGO_ASSASIN_WEAPON      76
 #define EGO_CHAOTIC             77
 #define EGO_SHARPNESS           78
 #define EGO_EARTHQUAKES         79
@@ -1433,6 +1442,8 @@
 #define EGO_RING_ALBINO         187
 
 /* Amulets */
+#define EGO_AMU_IDENT           208
+#define EGO_AMU_CHARM           209
 #define EGO_AMU_SLOW_D          210
 #define EGO_AMU_INFRA           211
 #define EGO_AMU_SEE_INVIS       212
@@ -1579,6 +1590,7 @@
 #define TV_SKELETON      1      /* Skeletons ('s'), not specified */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
+#define TV_TAROT        4
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_STONE         6      /* Stones ('*') */
 #define TV_CHEST         7      /* Chests ('&') */
@@ -1608,7 +1620,6 @@
 #define TV_AMULET       40      /* Amulets (including Specials) */
 #define TV_RING         45      /* Rings (including Specials) */
 #define TV_CARD         50
-#define TV_TAROT        51
 #define TV_SCRATCH_CARD 52
 #define TV_STAFF        55
 #define TV_WAND         65
@@ -1856,9 +1867,9 @@
 #define SV_LITE_EMPTY			12
 
 /* The "sval" codes for TV_AMULET */
-#define SV_AMULET_DOOM                   0
+#define SV_AMULET_BRILLIANCE                   0
 #define SV_AMULET_TELEPORT               1
-#define SV_AMULET_ADORNMENT              2
+#define SV_AMULET_CHARISMA              2
 #define SV_AMULET_CASSOWARY              3
 #define SV_AMULET_RESIST_ACID            4
 #define SV_AMULET_SEARCHING              5
@@ -1876,7 +1887,7 @@
 #define SV_AMULET_CAMERA                17
 #define SV_AMULET_RED                   18
 #define SV_AMULET_BLUE                  19
-#define SV_AMULET_NANKA                 20
+/* #define SV_AMULET_NANKA                 20 */
 #define SV_AMULET_HORN                  21
 #define SV_AMULET_HARP                  22
 #define SV_AMULET_MAGIC_MASTERY         23
@@ -1891,10 +1902,10 @@
 #define SV_AMULET_EARTH                 32
 
 /* The sval codes for TV_RING */
-#define SV_RING_WOE                      0
-#define SV_RING_AGGRAVATION              1
-#define SV_RING_WEAKNESS                 2
-#define SV_RING_STUPIDITY                3
+#define SV_RING_MUSCLE                      0
+#define SV_RING_MAGIC             1
+#define SV_RING_INTELLIGENCE                 2
+#define SV_RING_WISDOM                3
 #define SV_RING_TELEPORTATION            4
 #define SV_RING_SKYWALKER                5
 #define SV_RING_EMPTY			 6
@@ -2536,6 +2547,7 @@
 #define ACTION_SING     3
 #define ACTION_STEALTH  4
 #define ACTION_ELEMSCOPE 5
+#define ACTION_AURA     6
 
 /*** General index values ***/
 
@@ -3160,7 +3172,7 @@
 #define RF2_SHAPECHANGER    0x00000400  /* TY: shapechanger */
 #define RF2_ATTR_ANY        0x00000800  /* TY: Attr_any */
 #define RF2_POWERFUL        0x00001000  /* Monster has strong breath */
-#define RF2_ELDRITCH_HORROR 0x00002000  /* Sanity-blasting horror    */
+#define RF2_VAMPIRE         0x00002000
 #define RF2_AURA_FIRE       0x00004000  /* Burns in melee */
 #define RF2_AURA_ELEC       0x00008000  /* Shocks in melee */
 #define RF2_OPEN_DOOR       0x00010000  /* Monster can open doors */
@@ -4021,7 +4033,8 @@
 	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
 	  (cave[Y][X].feat == FEAT_MUSEUM) || \
 	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
-	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)))
+	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
+	  (cave[Y][X].feat == FEAT_DENEB_SHOP))
 
 
 /*
@@ -4069,7 +4082,8 @@
 	  ((C)->feat <= FEAT_SHOP_TAIL)) || \
 	  ((C)->feat == FEAT_MUSEUM) || \
 	 (((C)->feat >= FEAT_BLDG_HEAD) && \
-	  ((C)->feat <= FEAT_BLDG_TAIL)))
+	  ((C)->feat <= FEAT_BLDG_TAIL)) || \
+	  ((C)->feat == FEAT_DENEB_SHOP))
 
 
 /*
@@ -4083,7 +4097,8 @@
 	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
 	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
 	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
-	  (cave[Y][X].feat == FEAT_MUSEUM))
+	  (cave[Y][X].feat == FEAT_MUSEUM) || \
+	  (cave[Y][X].feat == FEAT_DENEB_SHOP))
 
 
 /*
@@ -4519,6 +4534,7 @@ extern int PlayerUID;
 #define MON_AMAZONESS     83
 #define MON_COPPER_COINS  85
 #define MON_BAPALU        97
+#define MON_AGRES         112
 #define MON_SIMON         115
 #define MON_ARCHER        116
 #define MON_SILVER_COINS  117
@@ -4690,6 +4706,10 @@ extern int PlayerUID;
 #define PY_THROW_CHOSEN        0x0001
 #define PY_THROW_BOOMERANG     0x0002
 #define PY_THROW_SHOOTING_STAR 0x0004
+
+#define PY_SHOT_NORMAL		0
+#define PY_SHOT_CRESCENT_1	1
+#define PY_SHOT_CRESCENT_2	2
 
 
 #define ROCKET_MATERIAL_ORIGINAL   0

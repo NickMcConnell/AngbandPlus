@@ -34,49 +34,55 @@
 #define FLG_UNAWARE         14
 #define FLG_WANTED          15
 #define FLG_UNIQUE          16
-#define FLG_METAL           17
-#define FLG_UNREADABLE      18
-#define FLG_FIRST           19
-#define FLG_SECOND          20
-#define FLG_THIRD           21
+#define FLG_WALSTANIAN      17
+#define FLG_GARGASTAN       18
+#define FLG_BACRUM          19
+#define FLG_ZENOBIAN        20
+#define FLG_LODIS           21
+#define FLG_METAL           22
+#define FLG_ARCHER          23
+#define FLG_UNREADABLE      24
+#define FLG_FIRST           25
+#define FLG_SECOND          26
+#define FLG_THIRD           27
 
-#define FLG_ITEMS           22
-#define FLG_WEAPONS         23
-#define FLG_ARMORS          24
-#define FLG_MISSILES        25
-#define FLG_SHOTS           26
-#define FLG_DEVICES         27
-#define FLG_LIGHTS          28
-#define FLG_JUNKS           29
-#define FLG_SPELLBOOKS      30
-#define FLG_HAFTED          31
+#define FLG_ITEMS           28
+#define FLG_WEAPONS         29
+#define FLG_ARMORS          30
+#define FLG_MISSILES        31
+#define FLG_SHOTS           32
+#define FLG_DEVICES         33
+#define FLG_LIGHTS          34
+#define FLG_JUNKS           35
+#define FLG_SPELLBOOKS      36
+#define FLG_HAFTED          37
 
-#define FLG_SMALL_SWORDS    32
-#define FLG_KATANAS         33
-#define FLG_SWORDS          34
-#define FLG_GREAT_SWORDS    35
-#define FLG_AXES            36
-#define FLG_SPEARS          37
-#define FLG_LANCES          38
-#define FLG_CLAWS           39
-#define FLG_SCYTHES         40
-#define FLG_WHIPS           41
-#define FLG_HAMMERS         42
-#define FLG_STAFFS          43
-#define FLG_FANS            44
-#define FLG_BOWS            45
-#define FLG_GUNS            46
-#define FLG_DIGGERS         47
+#define FLG_SMALL_SWORDS    38
+#define FLG_KATANAS         39
+#define FLG_SWORDS          40
+#define FLG_GREAT_SWORDS    41
+#define FLG_AXES            42
+#define FLG_SPEARS          43
+#define FLG_LANCES          44
+#define FLG_CLAWS           45
+#define FLG_SCYTHES         46
+#define FLG_WHIPS           47
+#define FLG_HAMMERS         48
+#define FLG_STAFFS          49
+#define FLG_FANS            50
+#define FLG_BOWS            51
+#define FLG_GUNS            52
+#define FLG_DIGGERS         53
 
-#define FLG_SHIELDS         48
-#define FLG_LAUNCHERS       49
-#define FLG_RINGS           50
-#define FLG_AMULETS         51
-#define FLG_SUITS           52
-#define FLG_CLOAKS          53
-#define FLG_HELMS           54
-#define FLG_GLOVES          55
-#define FLG_BOOTS           56
+#define FLG_SHIELDS         54
+#define FLG_LAUNCHERS       55
+#define FLG_RINGS           56
+#define FLG_AMULETS         57
+#define FLG_SUITS           58
+#define FLG_CLOAKS          59
+#define FLG_HELMS           60
+#define FLG_GLOVES          61
+#define FLG_BOOTS           62
 
 #ifdef JP
 
@@ -107,7 +113,13 @@
 #define KEY_UNAWARE "未判明の"
 #define KEY_WANTED "賞金首の"
 #define KEY_UNIQUE "ユニーク・モンスターの"
+#define KEY_WALSTANIAN "ウォルスタ人の"
+#define KEY_GARGASTAN "ガルガスタン人の"
+#define KEY_BACRUM "バクラム人の"
+#define KEY_ZENOBIAN "ゼノビア人の"
+#define KEY_LODIS "ローディス人の"
 #define KEY_METAL "金属製の"
+#define KEY_ARCHER "矢の材料の"
 #define KEY_UNREADABLE "読めない"
 #define KEY_FIRST "1冊目の"
 #define KEY_SECOND "2冊目の"
@@ -170,7 +182,13 @@
 #define KEY_UNAWARE "unaware"
 #define KEY_WANTED "wanted"
 #define KEY_UNIQUE "unique monster's"
+#define KEY_WALSTANIAN "walstanian"
+#define KEY_GARGASTAN "gargastan"
+#define KEY_BACRUM "bacrum"
+#define KEY_ZENOBIAN "zenobian"
+#define KEY_LODIS "lodis"
 #define KEY_METAL "metal"
+#define KEY_ARCHER "ammo-material"
 #define KEY_UNREADABLE "unreadable"
 #define KEY_FIRST "first"
 #define KEY_SECOND "second"
@@ -285,7 +303,13 @@ cptr autopick_line_from_entry(autopick_type *entry)
 	if (IS_FLG(FLG_THIRD)) ADD_KEY(KEY_THIRD);
 	if (IS_FLG(FLG_WANTED)) ADD_KEY(KEY_WANTED);
 	if (IS_FLG(FLG_UNIQUE)) ADD_KEY(KEY_UNIQUE);
+	if (IS_FLG(FLG_WALSTANIAN)) ADD_KEY(KEY_WALSTANIAN);
+	if (IS_FLG(FLG_GARGASTAN)) ADD_KEY(KEY_GARGASTAN);
+	if (IS_FLG(FLG_BACRUM)) ADD_KEY(KEY_BACRUM);
+	if (IS_FLG(FLG_ZENOBIAN)) ADD_KEY(KEY_ZENOBIAN);
+	if (IS_FLG(FLG_LODIS)) ADD_KEY(KEY_LODIS);
 	if (IS_FLG(FLG_METAL)) ADD_KEY(KEY_METAL);
+	if (IS_FLG(FLG_ARCHER)) ADD_KEY(KEY_ARCHER);
 	if (IS_FLG(FLG_WORTHLESS)) ADD_KEY(KEY_WORTHLESS);
 	if (IS_FLG(FLG_NAMELESS)) ADD_KEY(KEY_NAMELESS);
 	if (IS_FLG(FLG_EGO)) ADD_KEY(KEY_EGO);
@@ -527,7 +551,13 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 		if (MATCH_KEY(KEY_UNAWARE)) ADD_FLG(FLG_UNAWARE);
 		if (MATCH_KEY(KEY_WANTED)) ADD_FLG(FLG_WANTED);
 		if (MATCH_KEY(KEY_UNIQUE)) ADD_FLG(FLG_UNIQUE);
+		if (MATCH_KEY(KEY_WALSTANIAN)) ADD_FLG(FLG_WALSTANIAN);
+		if (MATCH_KEY(KEY_GARGASTAN)) ADD_FLG(FLG_GARGASTAN);
+		if (MATCH_KEY(KEY_BACRUM)) ADD_FLG(FLG_BACRUM);
+		if (MATCH_KEY(KEY_ZENOBIAN)) ADD_FLG(FLG_ZENOBIAN);
+		if (MATCH_KEY(KEY_LODIS)) ADD_FLG(FLG_LODIS);
 		if (MATCH_KEY(KEY_METAL)) ADD_FLG(FLG_METAL);
+		if (MATCH_KEY(KEY_ARCHER)) ADD_FLG(FLG_ARCHER);
 		if (MATCH_KEY(KEY_UNREADABLE)) ADD_FLG(FLG_UNREADABLE);
 		if (MATCH_KEY(KEY_FIRST)) ADD_FLG(FLG_FIRST);
 		if (MATCH_KEY(KEY_SECOND)) ADD_FLG(FLG_SECOND);
@@ -752,8 +782,42 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	     !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
 		return FALSE;
 
+	/*** Walstanian monster's corpse/skeletons/statues ***/
+	if (IS_FLG(FLG_WALSTANIAN) &&
+	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_WALSTANIAN)))
+		return FALSE;
+
+	/*** Gargastan monster's corpse/skeletons/statues ***/
+	if (IS_FLG(FLG_GARGASTAN) &&
+	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_GARGASTAN)))
+		return FALSE;
+
+	/*** Bacrum monster's corpse/skeletons/statues ***/
+	if (IS_FLG(FLG_BACRUM) &&
+	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_BACRUM)))
+		return FALSE;
+
+	/*** Zenobian monster's corpse/skeletons/statues ***/
+	if (IS_FLG(FLG_ZENOBIAN) &&
+	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_ZENOBIAN)))
+		return FALSE;
+
+	/*** Lodis monster's corpse/skeletons/statues ***/
+	if (IS_FLG(FLG_LODIS) &&
+	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_LODIS)))
+		return FALSE;
+
 	/*** Metal items ***/
 	if (IS_FLG(FLG_METAL) && !item_tester_hook_metal(o_ptr))
+		return FALSE;
+
+	/*** Ammo materials ***/
+	if (IS_FLG(FLG_ARCHER) && !item_tester_hook_convertible(o_ptr))
 		return FALSE;
 
 	/*** Unreadable spellbooks ***/
@@ -1059,10 +1123,9 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 
 	if (leave_special)
 	{
-		if (p_ptr->pclass == CLASS_ARCHER)
+		if ((p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_CRESCENT))
 		{
-			if (o_ptr->tval == TV_SKELETON || o_ptr->tval == TV_JUNK ||
-			    (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_SKELETON))
+			if (item_tester_hook_convertible(o_ptr))
 				return FALSE;
 		}
 
@@ -1279,6 +1342,9 @@ void auto_pickup_items(cave_type *c_ptr)
 		/* Acquire object */
 		object_type *o_ptr = &o_list[this_o_idx];
 
+		/* Sense the object */
+		sense_floor_object(this_o_idx);
+
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
@@ -1286,9 +1352,6 @@ void auto_pickup_items(cave_type *c_ptr)
 
 		/* Item index for floor -1,-2,-3,...  */
 		auto_inscribe_item((-this_o_idx), idx);
-
-		/* Sense the object */
-		sense_floor_object(this_o_idx);
 
 		if (idx >= 0 &&
 			(autopick_list[idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)))

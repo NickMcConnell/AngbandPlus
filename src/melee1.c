@@ -2098,14 +2098,14 @@ bool make_attack_normal(int m_idx)
 					if (explode) break;
 
 					ACTIVATE_MULTISHADOW();
-					if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip)
+					if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip || (prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))
 					{
 #ifdef JP
 						if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
 #else
 						if (!IS_MULTISHADOW(0)) msg_print("You are hit hard!");
 #endif
-						if (get_your_alignment_gne() == ALIGN_GNE_EVIL) damage = damage * 7 / 5;
+						if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)) || (get_your_alignment_gne() == ALIGN_GNE_EVIL)) damage = damage * 7 / 5;
 						if (p_ptr->ogre_equip) damage *= 2;
 					}
 
@@ -2123,7 +2123,7 @@ bool make_attack_normal(int m_idx)
 					if (explode) break;
 
 					ACTIVATE_MULTISHADOW();
-					if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
+					if ((get_your_alignment_gne() == ALIGN_GNE_GOOD) && !(prace_is_(RACE_GHOST)) && !(prace_is_(RACE_SKELETON)))
 					{
 #ifdef JP
 						if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
@@ -2223,6 +2223,21 @@ bool make_attack_normal(int m_idx)
 
 			if (touched)
 			{
+				if ((r_ptr->flags2 & RF2_VAMPIRE) && !p_ptr->infected && 
+					(p_ptr->psex == SEX_MALE) && (!(rp_ptr->r_flags & PRF_UNDEAD)) && (!(cp_ptr->c_flags & PCF_UNDEAD)) && 
+					(!prace_is_(RACE_FAIRY)) && (!prace_is_(RACE_GREMLIN)) && (!prace_is_(RACE_PUMPKINHEAD)))
+					
+				{
+					if (p_ptr->lev < randint1(damage + r_ptr->level))
+					{
+#ifdef JP
+						msg_format("傷口が焼けるように熱い！");
+#else
+#endif
+						p_ptr->infected = TRUE;
+					}
+				}
+
 				if (p_ptr->sh_fire && alive && !p_ptr->is_dead)
 				{
 					if (!(r_ptr->flagsr & RFR_RES_FIRE))
@@ -2453,7 +2468,7 @@ bool make_attack_normal(int m_idx)
 			if (rakuba((damage > 200) ? 200 : damage, FALSE))
 			{
 #ifdef JP
-msg_format("%^sから落ちてしまった！", m_name);
+				msg_format("%^sから落ちてしまった！", m_name);
 #else
 				msg_format("You have fallen from %s.", m_name);
 #endif

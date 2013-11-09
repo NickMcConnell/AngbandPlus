@@ -454,7 +454,7 @@ static void place_pet(void)
 			m_ptr->csleep = 0;
 			set_pet(m_ptr);
 
-			if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
+			if (r_ptr->flags1 & RF1_FORCE_SLEEP)
 			{
 				/* Monster is still being nice */
 				m_ptr->mflag |= (MFLAG_NICE);
@@ -752,7 +752,7 @@ void leave_floor(void)
 	if (!dun_level && dungeon_type)
 	{
 		p_ptr->leaving_dungeon = TRUE;
-		if (!ironman_forward && !astral_mode)
+		if (!astral_mode)
 		{
 			p_ptr->wilderness_y = d_info[dungeon_type].dy;
 			p_ptr->wilderness_x = d_info[dungeon_type].dx;
@@ -840,7 +840,7 @@ void leave_floor(void)
 		px = sx;
 
 		/* Hack - Force kill current floor */
-		if (ironman_forward || (d_info[dungeon_type].flags1 & DF1_NO_BACK))
+		if (d_info[dungeon_type].flags1 & DF1_NO_BACK)
 		{
 			kill_saved_floor(get_sf_ptr(p_ptr->floor_id));
 		}
@@ -1045,7 +1045,7 @@ void change_floor(void)
 				}
 			}
 
-			place_quest_monsters();
+			(void)place_quest_monsters();
 
 			/* Place some random monsters */
 			alloc_times = absence_ticks / alloc_chance;
@@ -1110,12 +1110,11 @@ void change_floor(void)
 				/*** Create connected stairs ***/
 
 				/* No stairs forward from Quest */
-				/* No stairs back when ironman_forward */
 				if (change_floor_mode & CFM_UP)
 				{
 					if (upward_dun ^ astral_mode)
 					{
-						if (!ironman_forward && !(d_info[dungeon_type].flags1 & DF1_NO_BACK))
+						if (!(d_info[dungeon_type].flags1 & DF1_NO_BACK))
 						{
 							c_ptr->feat = (change_floor_mode & CFM_SHAFT) ? FEAT_MORE_MORE : FEAT_MORE;
 							apply_grid_effect(py, px, prev_feat, FALSE);
@@ -1146,7 +1145,7 @@ void change_floor(void)
 					}
 					else
 					{
-						if (!ironman_forward && !(d_info[dungeon_type].flags1 & DF1_NO_BACK))
+						if (!(d_info[dungeon_type].flags1 & DF1_NO_BACK))
 						{
 							c_ptr->feat = (change_floor_mode & CFM_SHAFT) ? FEAT_LESS_LESS : FEAT_LESS;
 							apply_grid_effect(py, px, prev_feat, FALSE);
@@ -1252,7 +1251,7 @@ void change_floor(void)
 	}
 
 	/* Hack -- Munchkin characters always get whole map */
-	if (easy_band) wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
+	if (easy_band) wiz_lite((bool)((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)));
 
 	if (p_ptr->inside_quest) sound(SOUND_ENCOUNT);
 
@@ -1281,7 +1280,7 @@ void stair_creation(void)
 
 
 	/* Forbid back staircases on Ironman mode */
-	if (ironman_forward || (d_info[dungeon_type].flags1 & DF1_NO_BACK) ||
+	if ((d_info[dungeon_type].flags1 & DF1_NO_BACK) ||
 	    ((d_info[dungeon_type].flags1 & DF1_CLOSED) && (dun_level <= d_info[dungeon_type].mindepth)))
 	{
 		if (d_info[dungeon_type].flags1 & DF1_UPWARD) down = FALSE;

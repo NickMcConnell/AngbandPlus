@@ -947,25 +947,6 @@ typedef struct flag_insc_table
 } flag_insc_table;
 
 #ifdef JP
-static flag_insc_table flag_insc_plus[] =
-{
-	{ "π∂", "At", TR_BLOWS, -1 },
-	{ "¬Æ", "Sp", TR_SPEED, -1 },
-	{ "…ı", "Am", TR_ANTI_MAGIC, -1 },
-	{ "œ”", "St", TR_STR, -1 },
-	{ "√Œ", "In", TR_INT, -1 },
-	{ "∏≠", "Wi", TR_WIS, -1 },
-	{ "¥Ô", "Dx", TR_DEX, -1 },
-	{ "¬—", "Cn", TR_CON, -1 },
-	{ "Ã•", "Ch", TR_CHR, -1 },
-	{ "∆ª", "Md", TR_MAGIC_MASTERY, -1 },
-	{ "±£", "Sl", TR_STEALTH, -1 },
-	{ "√µ", "Sr", TR_SEARCH, -1 },
-	{ "¿÷", "If", TR_INFRA, -1 },
-	{ "∑°", "Dg", TR_TUNNEL, -1 },
-	{ NULL, NULL, 0, -1 }
-};
-
 static flag_insc_table flag_insc_immune[] =
 {
 	{ "ª¿", "Ac", TR_IM_ACID, -1 },
@@ -1092,25 +1073,6 @@ static flag_insc_table flag_insc_sust[] =
 };
 
 #else
-static flag_insc_table flag_insc_plus[] =
-{
-	{ "At", TR_BLOWS, -1 },
-	{ "Sp", TR_SPEED, -1 },
-	{ "Am", TR_ANTI_MAGIC, -1 },
-	{ "St", TR_STR, -1 },
-	{ "In", TR_INT, -1 },
-	{ "Wi", TR_WIS, -1 },
-	{ "Dx", TR_DEX, -1 },
-	{ "Cn", TR_CON, -1 },
-	{ "Ch", TR_CHR, -1 },
-	{ "Md", TR_MAGIC_MASTERY, -1 },
-	{ "Sl", TR_STEALTH, -1 },
-	{ "Sr", TR_SEARCH, -1 },
-	{ "If", TR_INFRA, -1 },
-	{ "Dg", TR_TUNNEL, -1 },
-	{ NULL, 0, -1 }
-};
-
 static flag_insc_table flag_insc_immune[] =
 {
 	{ "Ac", TR_IM_ACID, -1 },
@@ -1378,14 +1340,6 @@ static void get_inscription(char *buff, object_type *o_ptr)
 				}
 			}
 
-
-			/* Plusses */
-			if (have_flag_of(flag_insc_plus, flgs))
-			{
-				if (kanji)
-					ADD_INSC("+");
-			}
-			ptr = inscribe_flags_aux(flag_insc_plus, flgs, kanji, ptr);
 
 			/* Immunity */
 			if (have_flag_of(flag_insc_immune, flgs))
@@ -2746,7 +2700,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		else if (!o_ptr->pval)
 		{
 #ifdef JP
-t = object_desc_str(t, "(∂ı)");
+			t = object_desc_str(t, "(∂ı)");
 #else
 			t = object_desc_str(t, " (empty)");
 #endif
@@ -2759,7 +2713,7 @@ t = object_desc_str(t, "(∂ı)");
 			if (chest_traps[0 - o_ptr->pval])
 			{
 #ifdef JP
-t = object_desc_str(t, "(≤ÚΩ¸∫—)");
+				t = object_desc_str(t, "(≤ÚΩ¸∫—)");
 #else
 				t = object_desc_str(t, " (disarmed)");
 #endif
@@ -2768,7 +2722,7 @@ t = object_desc_str(t, "(≤ÚΩ¸∫—)");
 			else
 			{
 #ifdef JP
-t = object_desc_str(t, "(»Ûª‹æ˚)");
+				t = object_desc_str(t, "(»Ûª‹æ˚)");
 #else
 				t = object_desc_str(t, " (unlocked)");
 #endif
@@ -2785,7 +2739,7 @@ t = object_desc_str(t, "(»Ûª‹æ˚)");
 				case 0:
 				{
 #ifdef JP
-t = object_desc_str(t, "(ª‹æ˚)");
+					t = object_desc_str(t, "(ª‹æ˚)");
 #else
 					t = object_desc_str(t, " (Locked)");
 #endif
@@ -2795,7 +2749,7 @@ t = object_desc_str(t, "(ª‹æ˚)");
 				case CHEST_LOSE_STR:
 				{
 #ifdef JP
-t = object_desc_str(t, "(∆«øÀ)");
+					t = object_desc_str(t, "(∆«øÀ)");
 #else
 					t = object_desc_str(t, " (Poison Needle)");
 #endif
@@ -2805,7 +2759,7 @@ t = object_desc_str(t, "(∆«øÀ)");
 				case CHEST_LOSE_CON:
 				{
 #ifdef JP
-t = object_desc_str(t, "(∆«øÀ)");
+					t = object_desc_str(t, "(∆«øÀ)");
 #else
 					t = object_desc_str(t, " (Poison Needle)");
 #endif
@@ -2815,7 +2769,7 @@ t = object_desc_str(t, "(∆«øÀ)");
 				case CHEST_POISON:
 				{
 #ifdef JP
-t = object_desc_str(t, "(•¨•π°¶•»•È•√•◊)");
+					t = object_desc_str(t, "(•¨•π°¶•»•È•√•◊)");
 #else
 					t = object_desc_str(t, " (Gas Trap)");
 #endif
@@ -2825,7 +2779,7 @@ t = object_desc_str(t, "(•¨•π°¶•»•È•√•◊)");
 				case CHEST_PARALYZE:
 				{
 #ifdef JP
-t = object_desc_str(t, "(•¨•π°¶•»•È•√•◊)");
+					t = object_desc_str(t, "(•¨•π°¶•»•È•√•◊)");
 #else
 					t = object_desc_str(t, " (Gas Trap)");
 #endif
@@ -2835,7 +2789,7 @@ t = object_desc_str(t, "(•¨•π°¶•»•È•√•◊)");
 				case CHEST_EXPLODE:
 				{
 #ifdef JP
-t = object_desc_str(t, "(«˙»Ø¡ı√÷)");
+					t = object_desc_str(t, "(«˙»Ø¡ı√÷)");
 #else
 					t = object_desc_str(t, " (Explosion Device)");
 #endif
@@ -2848,7 +2802,7 @@ t = object_desc_str(t, "(«˙»Ø¡ı√÷)");
 				case CHEST_H_SUMMON:
 				{
 #ifdef JP
-t = object_desc_str(t, "(æ§¥≠§Œ•Î°º•Û)");
+					t = object_desc_str(t, "(æ§¥≠§Œ•Î°º•Û)");
 #else
 					t = object_desc_str(t, " (Summoning Runes)");
 #endif
@@ -2858,7 +2812,7 @@ t = object_desc_str(t, "(æ§¥≠§Œ•Î°º•Û)");
 				case CHEST_RUNES_OF_EVIL:
 				{
 #ifdef JP
-t = object_desc_str(t, "(ºŸ∞≠§ •Î°º•Û)");
+					t = object_desc_str(t, "(ºŸ∞≠§ •Î°º•Û)");
 #else
 					t = object_desc_str(t, " (Gleaming Black Runes)");
 #endif
@@ -2868,7 +2822,7 @@ t = object_desc_str(t, "(ºŸ∞≠§ •Î°º•Û)");
 				case CHEST_ALARM:
 				{
 #ifdef JP
-t = object_desc_str(t, "(∑Ÿ Û¡ı√÷)");
+					t = object_desc_str(t, "(∑Ÿ Û¡ı√÷)");
 #else
 					t = object_desc_str(t, " (Alarm)");
 #endif
@@ -2878,7 +2832,7 @@ t = object_desc_str(t, "(∑Ÿ Û¡ı√÷)");
 				default:
 				{
 #ifdef JP
-t = object_desc_str(t, "(•ﬁ•Î•¡°¶•»•È•√•◊)");
+					t = object_desc_str(t, "(•ﬁ•Î•¡°¶•»•È•√•◊)");
 #else
 					t = object_desc_str(t, " (Multiple Traps)");
 #endif
@@ -3173,7 +3127,7 @@ t = object_desc_str(t, "(•ﬁ•Î•¡°¶•»•È•√•◊)");
 			else
 			{
 #ifdef JP
-t = object_desc_str(t, "(Ωº≈∂√Ê)");
+				t = object_desc_str(t, "(Ωº≈∂√Ê)");
 #else
 				t = object_desc_str(t, " (charging)");
 #endif
@@ -3190,7 +3144,7 @@ t = object_desc_str(t, "(Ωº≈∂√Ê)");
 	{
 		/* Hack -- Turns of light for normal lites */
 #ifdef JP
-t = object_desc_str(t, "(");
+		t = object_desc_str(t, "(");
 #else
 		t = object_desc_str(t, " (with ");
 #endif
@@ -3198,7 +3152,7 @@ t = object_desc_str(t, "(");
 		if (o_ptr->name2 == EGO_LITE_LONG) t = object_desc_num(t, o_ptr->xtra4*2);
 		else t = object_desc_num(t, o_ptr->xtra4);
 #ifdef JP
-t = object_desc_str(t, "•ø°º•Û§Œº˜Ãø)");
+		t = object_desc_str(t, "•ø°º•Û§Œº˜Ãø)");
 #else
 		t = object_desc_str(t, " turns of light)");
 #endif
@@ -3211,7 +3165,7 @@ t = object_desc_str(t, "•ø°º•Û§Œº˜Ãø)");
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 #ifdef JP
-t = object_desc_str(t, "(Ωº≈∂√Ê)");
+		t = object_desc_str(t, "(Ωº≈∂√Ê)");
 #else
 		t = object_desc_str(t, " (charging)");
 #endif
@@ -3236,7 +3190,7 @@ t = object_desc_str(t, "(Ωº≈∂√Ê)");
 	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
 	{
 #ifdef JP
-strcpy(tmp_val2, "ºˆ§Ô§Ï§∆§§§Î");
+		strcpy(tmp_val2, "ºˆ§Ô§Ï§∆§§§Î");
 #else
 		strcpy(tmp_val2, "cursed");
 #endif
@@ -3250,7 +3204,7 @@ strcpy(tmp_val2, "ºˆ§Ô§Ï§∆§§§Î");
 		 && !((o_ptr->ident)&IDENT_SENSE))
 	{
 #ifdef JP
-strcpy(tmp_val2, "Ã§¥’ƒÍ");
+		strcpy(tmp_val2, "Ã§¥’ƒÍ");
 #else
 		strcpy(tmp_val2, "unidentified");
 #endif
@@ -3260,7 +3214,7 @@ strcpy(tmp_val2, "Ã§¥’ƒÍ");
 	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
 #ifdef JP
-strcpy(tmp_val2, "∂ı");
+		strcpy(tmp_val2, "∂ı");
 #else
 		strcpy(tmp_val2, "empty");
 #endif
@@ -3271,7 +3225,7 @@ strcpy(tmp_val2, "∂ı");
 	else if (!aware && object_tried_p(o_ptr))
 	{
 #ifdef JP
-strcpy(tmp_val2, "Ã§»ΩÃ¿");
+		strcpy(tmp_val2, "Ã§»ΩÃ¿");
 #else
 		strcpy(tmp_val2, "tried");
 #endif

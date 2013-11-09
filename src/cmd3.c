@@ -401,7 +401,7 @@ s = "おっと。";
 		object_desc(o_name, o_ptr, FALSE, 0);
 
 #ifdef JP
-sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
+		sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 #else
 		sprintf(dummy, "Really use the %s {cursed}? ", o_name);
 #endif
@@ -426,7 +426,7 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 			sound(SOUND_QUEST);
 
 #ifdef JP
-msg_print("クエストを達成した！");
+			msg_print("クエストを達成した！");
 #else
 			msg_print("You completed the quest!");
 #endif
@@ -606,9 +606,6 @@ msg_print("クエストを達成した！");
 #else
 		msg_print("The Amulet has destroyed!");
 #endif
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
 
 	/* Recalculate bonuses */
@@ -1996,6 +1993,9 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 	u16b holder;
 
+	/* Unused */
+	(void)v;
+
 	/* Swap */
 	holder = who[a];
 	who[a] = who[b];
@@ -2368,7 +2368,7 @@ bool research_mon(void)
 
 	/* Get a character, or abort */
 #ifdef JP
-if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
+	if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
 #else
 	if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE))
 #endif
@@ -2443,7 +2443,7 @@ if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):
 	else
 	{
 #ifdef JP
-sprintf(buf, "%c - %s", sym, "無効な文字");
+		sprintf(buf, "%c - %s", sym, "無効な文字");
 #else
 		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
 #endif
@@ -2553,7 +2553,7 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 
 		/* Hack -- Complete the prompt */
 #ifdef JP
-Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
+		Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 #else
 		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC, space to continue]");
 #endif

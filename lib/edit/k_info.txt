@@ -556,15 +556,7 @@ A:20/4:40/2:50/2
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-#JZ#
-N:51:細矢
-E:& Flight Arrow~
-G:{:y
-I:17:1:0
-W:3:0:1:1
-A:3/1
-P:0:1d3:0:0:0
-F:SHOW_MODS
+#N:51:unused
 
 N:52:矢
 E:& Black Arrow~
@@ -1270,7 +1262,7 @@ W:40:0:140:4000
 A:40/2
 P:0:5d5:15:15:0
 F:SHOW_MODS | RES_DARK | RES_NETHER | HOLD_LIFE | VORPAL | SLAY_GOOD | SLAY_LIVING
-F:TY_CURSE |
+F:TY_CURSE | DRAIN_EXP |
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
 N:119:グレート・ソード
@@ -1673,7 +1665,7 @@ I:35:2:0
 W:30:0:5:1500
 A:30/4
 P:4:0d0:0:0:4
-F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | SEARCH_1
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | FREE_ACT | RES_FIRE | DEX_2
 
 N:162:毛皮のクローク
 E:& Fur Cloak~
@@ -1700,7 +1692,7 @@ I:35:5:0
 W:60:0:5:7500
 A:75/5
 P:6:0d0:0:0:4
-F:RES_DARK | RES_LITE
+F:RES_DARK | STEALTH_6
 D:$A midnight-hued cloak that wreathes the wearer in folds of shadow.
 #D:未訳
 
@@ -1729,7 +1721,7 @@ N:167:Ｔシャツ
 E:& T-shirt~
 G:~:w
 I:36:1:0
-W:1:0:10:0
+W:1:0:10:1
 A:1/10
 P:1:1d1:0:0:0
 
@@ -1813,7 +1805,7 @@ N:185:魔術師のローブ
 E:& Robe~ of Mage
 G:(:b
 I:36:10:0
-W:25:0:60:1800
+W:25:0:20:1800
 A:25/4
 P:6:1d4:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2088,16 +2080,13 @@ P:0:1d1:0:0:0
 
 ##### Amulets #####
 
-N:214:破壊
-E:Destruction
+N:214:知性
+E:Brilliance
 G:":d
 I:40:0:0
-W:50:0:3:0
-A:50/1
-P:0:7d7:-5:-5:5
-F:CURSED | HEAVY_CURSE | ALL_STATS_-10 |
-F:TY_CURSE | NO_TELE | NO_MAGIC | REGEN | 
-F:RANDOM_CURSE2
+W:50:0:3:5000
+A:50/4
+F:INT_2 | WIS_2 | CHR_2 | SUST_INT | SUST_WIS | SUST_CHR
 
 N:215:テレポート
 E:Teleportation
@@ -2107,12 +2096,13 @@ W:15:0:3:250
 A:15/1
 F:TELEPORT | CURSED
 
-N:216:装飾
-E:Adornment
+N:216:魅力
+E:Charisma
 G:":d
 I:40:2:0
-W:15:0:3:20
-A:15/1
+W:20:0:3:500
+A:20/1
+F:CHR_4
 
 N:217:羽
 E:& Feather~
@@ -2331,38 +2321,31 @@ D:雷雲の核を封じたクリスタル。風の神ハーネラと交信できる。
 
 ##### Rings #####
 
-N:243:苦悩
-E:Woe
+N:243:肉体強化
+E:Reinforce Muscle
 G:=:d
 I:45:0:0
-W:50:0:2:0
-A:50/1
-F:CURSED | TELEPORT | WIS_-10 |
-F:RANDOM_CURSE0
+W:50:0:2:5000
+A:50/4
+F:STR_2 | DEX_2 | CON_2
 
-N:244:エキサイト・モンスター
-E:Aggravate Monster
-G:=:d
-I:45:1:0
-W:5:0:2:0
-A:5/1
-F:CURSED | AGGRAVATE
+#N:244:unused
 
-N:245:脆弱
-E:Weakness
+N:245:知能
+E:Intelligence
 G:=:d
 I:45:2:0
-W:5:0:2:0
-A:5/1
-F:CURSED | STR_-5
+W:20:0:3:500
+A:20/1
+F:INT_4
 
-N:246:無知
-E:Stupidity
+N:246:賢さ
+E:Wisdom
 G:=:d
 I:45:3:0
-W:5:0:2:0
-A:5/1
-F:CURSED | INT_-5
+W:20:0:3:500
+A:20/1
+F:WIS_4
 
 N:247:テレポート
 E:Teleportation
@@ -2764,7 +2747,7 @@ F:INSTA_ART
 N:295:#のタロットカード
 E:& Tarot Card~ of #
 G:~:R
-I:51:0:0
+I:4:0:0
 W:127:0:1:1
 A:127/255
 P:0:0d0:0:0:0

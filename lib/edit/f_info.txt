@@ -870,3 +870,11 @@ N:202:ピラニア・トラップ
 E:Piranha trap
 G:^:b
 I:0:0:0:0:35:10
+
+# 0xCB --> shop -- Deneb's shop (perm)
+
+N:203:デネブの店
+E:Deneb's shop
+G:+:v
+I:0:0:0:0:40:15
+

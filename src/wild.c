@@ -528,7 +528,7 @@ static void generate_wilderness_area(int terrain, u32b seed, bool corner)
 	int roughness = 1; /* The roughness of the level. */
 
 	/* The outer wall is easy */
-	if ((terrain == TERRAIN_EDGE) && !ironman_forward && !astral_mode)
+	if ((terrain == TERRAIN_EDGE) && !astral_mode)
 	{
 		/* Create level background */
 		for (y1 = 0; y1 < MAX_HGT; y1++)
@@ -1417,7 +1417,7 @@ bool change_wild_mode(void)
 	int i;
 	bool have_pet = FALSE;
 
-	if (ironman_forward || astral_mode)
+	if (astral_mode)
 	{
 #ifdef JP
 		msg_print("荒野なんてない。");

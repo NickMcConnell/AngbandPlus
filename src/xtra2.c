@@ -18,7 +18,7 @@
  */
 void check_class_experience(void)
 {
-	int  prev_lev;
+	int  i, prev_lev, total_max_clev = 0;
 	bool level_inc_stat = FALSE;
 	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 	s32b tmp32s;
@@ -51,10 +51,15 @@ void check_class_experience(void)
 	/* Handle stuff */
 	handle_stuff();
 
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		if (p_ptr->cexp_info[i].max_clev > 0) total_max_clev += p_ptr->cexp_info[i].max_clev;
+	}
+
 
 	/* Lose levels while possible */
 	while ((cexp_ptr->clev > 1) &&
-	       (cexp_ptr->cexp < (player_exp[cexp_ptr->clev - 2] * p_ptr->cexpfact / 100L)))
+	       (cexp_ptr->cexp < (player_exp[cexp_ptr->clev - 2] * p_ptr->cexpfact[p_ptr->pclass] / 100L)))
 	{
 		/* Lose a level */
 		cexp_ptr->clev--;
@@ -75,7 +80,7 @@ void check_class_experience(void)
 
 	/* Gain levels while possible */
 	while ((cexp_ptr->clev < PY_MAX_LEVEL) &&
-	       (cexp_ptr->cexp >= (player_exp[cexp_ptr->clev - 1] * p_ptr->cexpfact / 100L)))
+	       (cexp_ptr->cexp >= (player_exp[cexp_ptr->clev - 1] * p_ptr->cexpfact[p_ptr->pclass] / 100L)))
 	{
 		/* Gain a level */
 		cexp_ptr->clev++;
@@ -83,25 +88,16 @@ void check_class_experience(void)
 		/* Save the highest level */
 		if (cexp_ptr->clev > cexp_ptr->max_clev)
 		{
-			int i, j, gfact;
+			int gfact;
 			int lfact = skill_lev_var[cexp_ptr->clev];
-			int total_max_clev = 0;
-
 
 			cexp_ptr->max_clev = cexp_ptr->clev;
 			if (cexp_ptr->max_clev > cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = cexp_ptr->max_clev;
 
-			for (i = 0; i < MAX_CLASS; i++)
-				{
-				if (p_ptr->cexp_info[i].max_clev > 0) total_max_clev += p_ptr->cexp_info[i].max_clev;
-				}
-			gfact = 2 + (total_max_clev *total_max_clev / cexp_ptr->clev / cexp_ptr->clev / 2);
-/*			if (total_max_clev == cexp_ptr->clev) gfact = 2;
-			else if ((total_max_clev > cexp_ptr->clev) && (total_max_clev < cexp_ptr->clev * 2)) gfact = 3;
-			else gfact = 5;
- */			
-			if ((total_max_clev < cexp_ptr->clev * 2) && 
-				((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_ANGELKNIGHT) || (p_ptr->pclass == CLASS_GUNNER))) gfact = 1;
+			gfact = 2 + (total_max_clev * total_max_clev / cexp_ptr->clev / cexp_ptr->clev / 2);
+
+			if ((cp_ptr->c_flags & PCF_NO_CHANGE) && (cp_ptr->c_flags & PCF_SECRET)) gfact = 2; 
+			if ((total_max_clev < cexp_ptr->clev * 2) && (cp_ptr->c_flags & PCF_NO_CHANGE)) gfact = 1;
 
 			/* Gain skills */
 			p_ptr->gx_dis += cp_ptr->x_dis * lfact / gfact;
@@ -146,7 +142,7 @@ void check_class_experience(void)
 				if (p_ptr->skill_exp[i] > 500) p_ptr->skill_exp[i] = 500;
 				}
 
-			for (i = 0; i < MAX_REALM + 1; i++)
+			for (i = 0; i < MAX_REALM+1; i++)
 				{
 				if (p_ptr->magic_exp[i] >= (cexp_ptr->clev - 1) * 20) p_ptr->magic_exp[i] += 0;
 				else if (p_ptr->magic_exp[i] >= (cexp_ptr->clev - 1) * 30 / 2) p_ptr->magic_exp[i] += p_ptr->s_ptr->s_eff[i] / 3;
@@ -159,10 +155,20 @@ void check_class_experience(void)
 			
 			if (!(cexp_ptr->max_clev % gfact)) level_inc_stat = TRUE;
 
+			tmp32s = rand_spread(cp_ptr->c_mhp, 1);
+			p_ptr->class_hp[p_ptr->pclass][cexp_ptr->max_clev - 1] = MAX(tmp32s, 0);
+
 			if (p_ptr->pclass != CLASS_GUNNER)
 			{
 				tmp32s = rand_spread(cp_ptr->c_msp, 1);
-				p_ptr->race_sp[cexp_ptr->max_clev - 1] = p_ptr->race_sp[cexp_ptr->max_clev - 2] + MAX(tmp32s, 0);
+				if (p_ptr->pclass == CLASS_TERRORKNIGHT)
+				{
+					p_ptr->class_sp[p_ptr->pclass][cexp_ptr->max_clev - 1] -= MAX(tmp32s, 0);
+				}
+				else
+				{
+					p_ptr->class_sp[p_ptr->pclass][cexp_ptr->max_clev - 1] = MAX(tmp32s, 0);
+				}
 			}
 			else p_ptr->race_sp[cexp_ptr->max_clev - 1] = 0;
 		}
@@ -198,6 +204,13 @@ void check_class_experience(void)
 				p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
 			}
 		}
+
+		/* Message */
+#ifdef JP
+		msg_format("クラスレベルが %d に上がった。", cexp_ptr->clev);
+#else
+		msg_format("Welcome to Class level %d.", cexp_ptr->clev);
+#endif
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -291,7 +304,10 @@ void check_racial_experience(void)
 			if (p_ptr->max_plv > p_ptr->max_max_plv) p_ptr->max_max_plv = p_ptr->max_plv;
 
 			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
-			p_ptr->race_hp[p_ptr->max_plv - 1] = p_ptr->race_hp[p_ptr->max_plv - 2] + MAX(tmp32s, 0);
+			p_ptr->race_hp[p_ptr->max_plv - 1] = MAX(tmp32s, 0);
+
+			tmp32s = rand_spread(rp_ptr->r_msp, 1);
+			p_ptr->race_sp[p_ptr->max_plv - 1] = MAX(tmp32s, 0);
 
 			/* Gain speed */
 			p_ptr->gx_spd += rp_ptr->rx_spd;
@@ -625,7 +641,7 @@ void check_quest_completion(monster_type *m_ptr)
 						sound(SOUND_QUEST);
 
 #ifdef JP
-msg_print("クエストを達成した！");
+						msg_print("クエストを達成した！");
 #else
 						msg_print("You just completed your quest!");
 #endif
@@ -670,7 +686,7 @@ msg_print("クエストを達成した！");
 							sound(SOUND_QUEST);
 
 #ifdef JP
-msg_print("クエストを達成した！");
+							msg_print("クエストを達成した！");
 #else
 							msg_print("You just completed your quest!");
 #endif
@@ -729,7 +745,7 @@ msg_print("クエストを達成した！");
 					quest[i].complev = (byte)p_ptr->lev;
 					if (!(quest[i].flags & QUEST_FLAG_PRESET))
 					{
-						create_stairs = (!(i == QUEST_ARMORICA) ? TRUE : FALSE);
+						create_stairs = ((i != QUEST_ARMORICA) ? TRUE : FALSE);
 						p_ptr->inside_quest = 0;
 					}
 
@@ -739,7 +755,7 @@ msg_print("クエストを達成した！");
 						sound(SOUND_QUEST);
 
 #ifdef JP
-msg_print("クエストを達成した！");
+						msg_print("クエストを達成した！");
 #else
 						msg_print("You just completed your quest!");
 #endif
@@ -791,7 +807,7 @@ msg_print("クエストを達成した！");
 						sound(SOUND_QUEST);
 
 #ifdef JP
-msg_print("クエストを達成した！");
+						msg_print("クエストを達成した！");
 #else
 						msg_print("You just completed your quest!");
 #endif
@@ -821,7 +837,7 @@ msg_print("クエストを達成した！");
 
 		/* Explain the staircase */
 #ifdef JP
-msg_print("魔法の階段が現れた...");
+		msg_print("魔法の階段が現れた...");
 #else
 		msg_print("A magical staircase appears...");
 #endif
@@ -945,7 +961,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 
 	bool do_gold = (!(r_ptr->flags1 & RF1_ONLY_ITEM));
 	bool do_item = (!(r_ptr->flags1 & RF1_ONLY_GOLD));
-	bool cloned = FALSE;
+	bool cloned = (m_ptr->smart1 & SM1_CLONED) ? TRUE : FALSE;
 	int force_coin = get_coin_type(m_ptr->r_idx);
 
 	object_type forge;
@@ -968,9 +984,6 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-
-	if (m_ptr->smart1 & SM1_CLONED)
-		cloned = TRUE;
 
 	if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
 	{
@@ -1067,7 +1080,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 		if (p_ptr->arena_number > MAX_ARENA_MONS)
 		{
 #ifdef JP
-msg_format("素晴らしい！君こそ%sの勝利者だ。", (p_ptr->arena_number == MAX_ARENA_MONS + 1) ? "至高" : "究極");
+			msg_format("素晴らしい！君こそ%sの勝利者だ。", (p_ptr->arena_number == MAX_ARENA_MONS + 1) ? "至高" : "究極");
 #else
 			msg_format("You are a %s Champion!", (p_ptr->arena_number == MAX_ARENA_MONS + 1) ? "Higher" : "Ultimate");
 #endif
@@ -1075,7 +1088,7 @@ msg_format("素晴らしい！君こそ%sの勝利者だ。", (p_ptr->arena_number == MAX_ARENA
 		else
 		{
 #ifdef JP
-msg_print("勝利！チャンピオンへの道を進んでいる。");
+			msg_print("勝利！チャンピオンへの道を進んでいる。");
 #else
 			msg_print("Victorious! You're on your way to becoming Champion.");
 #endif
@@ -1113,7 +1126,7 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		if (rakuba(-1, FALSE))
 		{
 #ifdef JP
-msg_print("地面に落とされた。");
+			msg_print("地面に落とされた。");
 #else
 			msg_print("You have fallen from your riding pet.");
 #endif
@@ -1122,9 +1135,8 @@ msg_print("地面に落とされた。");
 
 	/* Drop a dead corpse? */
 	if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) &&
-	    ((r_ptr->flags9 & RF9_DROP_CORPSE) ||
-	     (r_ptr->flags9 & RF9_DROP_SKELETON)) &&
-	    !is_stoned && !(p_ptr->inside_arena || (m_ptr->smart1 & SM1_CLONED) || (!astral_mode && (m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
+	    (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) &&
+	    !is_stoned && !(p_ptr->inside_arena || cloned || (!astral_mode && (m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
 	{
 		/* Assume skeleton */
 		bool corpse = FALSE;
@@ -1135,7 +1147,7 @@ msg_print("地面に落とされた。");
 		 */
 		if (!(r_ptr->flags9 & RF9_DROP_SKELETON))
 			corpse = TRUE;
-		else if ((r_ptr->flags9 & RF9_DROP_CORPSE) && (r_ptr->flags1 && RF1_UNIQUE))
+		else if ((r_ptr->flags9 & RF9_DROP_CORPSE) && (r_ptr->flags1 & RF1_UNIQUE))
 			corpse = TRUE;
 
 		/* Else, a corpse is more likely unless we did a "lot" of damage */
@@ -1984,19 +1996,19 @@ msg_print("地面に落とされた。");
 
 		/* Congratulations */
 #ifdef JP
-msg_print("*** おめでとう ***");
+		msg_print("*** おめでとう ***");
 #else
 		msg_print("*** CONGRATULATIONS ***");
 #endif
 
 #ifdef JP
-msg_print("あなたはゲームをコンプリートしました。");
+		msg_print("あなたはゲームをコンプリートしました。");
 #else
 		msg_print("You have won the game!");
 #endif
 
 #ifdef JP
-msg_print("準備が整ったら引退(自殺コマンド)しても結構です。");
+		msg_print("準備が整ったら引退(自殺コマンド)しても結構です。");
 #else
 		msg_print("You may retire (commit suicide) when you are ready.");
 #endif
@@ -2022,7 +2034,7 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool force_damage)
 			if (!p_ptr->blind && m_ptr->ml)
 			{
 #ifdef JP
-msg_print("バリアを切り裂いた！");
+				msg_print("バリアを切り裂いた！");
 #else
 				msg_print("The barrier is penetrated!");
 #endif
@@ -2543,6 +2555,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, -5);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, -20 * kill_zenobian_forces);
 					change_chaos_frame(ETHNICITY_LODIS, 20);
+					if (p_ptr->pclass == CLASS_WHITEKNIGHT) expire_current_class();
 					break;
 
 				case MON_LEONARD:
@@ -2561,12 +2574,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_LODIS, -10);
 					break;
 
+				case MON_OZ:
+				case MON_OZMA:
+				case MON_VOLAC:
+				case MON_MARTYM:
+				case MON_BARBAS:
 				case MON_BALZEPHO:
+				case MON_ANDORAS:
 					change_chaos_frame(ETHNICITY_WALSTANIAN, 5);
 					change_chaos_frame(ETHNICITY_GARGASTAN, 5);
 					change_chaos_frame(ETHNICITY_BACRUM, -5);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, 20);
 					change_chaos_frame(ETHNICITY_LODIS, -20 * kill_temple);
+					if (p_ptr->pclass == CLASS_TEMPLEKNIGHT) expire_current_class();
 					break;
 
 				case MON_BERSALIA:
@@ -2612,13 +2632,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 
 			if ((p_ptr->pclass == CLASS_TEMPLEKNIGHT) && (r_ptr->flags7 & RF7_ZENOBIAN_FORCES))
 			{
-				change_chaos_frame(ETHNICITY_ZENOBIAN, -1);
-				change_chaos_frame(ETHNICITY_LODIS, 1);
+				change_chaos_frame(ETHNICITY_ZENOBIAN, -10);
+				change_chaos_frame(ETHNICITY_LODIS, 10);
 			}
 			if ((p_ptr->pclass == CLASS_WHITEKNIGHT) && (r_ptr->flags3 & RF3_TEMPLE))
 			{
-				change_chaos_frame(ETHNICITY_ZENOBIAN, 1);
-				change_chaos_frame(ETHNICITY_LODIS, -1);
+				change_chaos_frame(ETHNICITY_ZENOBIAN, 10);
+				change_chaos_frame(ETHNICITY_LODIS, -10);
 			}
 		}
 
@@ -2705,7 +2725,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 		if (rakuba((dam > 200) ? 200 : dam, FALSE))
 		{
 #ifdef JP
-msg_format("%^sに振り落とされた！", m_name);
+				msg_format("%^sに振り落とされた！", m_name);
 #else
 				msg_format("%^s has thrown you off!", m_name);
 #endif
@@ -3481,6 +3501,7 @@ static bool target_set_accept(int y, int x)
 		case FEAT_TOWN:
 		case FEAT_ENTRANCE:
 		case FEAT_ENTRANCE_UPWARD:
+		case FEAT_DENEB_SHOP:
 			return TRUE;
 
 		default:
@@ -4285,7 +4306,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		/* Hack -- special introduction for store & building doors -KMW- */
 		if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
 		    ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL)) ||
-		    (feat == FEAT_MUSEUM) ||
+		    (feat == FEAT_MUSEUM) || (feat == FEAT_DENEB_SHOP) ||
 		    (feat == FEAT_ENTRANCE) ||
 		    (feat == FEAT_ENTRANCE_UPWARD))
 		{
@@ -4456,7 +4477,7 @@ bool target_set(int mode)
 			if (target_able(c_ptr->m_idx))
 			{
 #ifdef JP
-strcpy(info, "q止 t決 p自 o現 +次 -前");
+				strcpy(info, "q止 t決 p自 o現 +次 -前");
 #else
 				strcpy(info, "q,t,p,o,+,-,<dir>");
 #endif
@@ -4467,7 +4488,7 @@ strcpy(info, "q止 t決 p自 o現 +次 -前");
 			else
 			{
 #ifdef JP
-strcpy(info, "q止 p自 o現 +次 -前");
+				strcpy(info, "q止 p自 o現 +次 -前");
 #else
 				strcpy(info, "q,p,o,+,-,<dir>");
 #endif
@@ -4698,7 +4719,7 @@ strcpy(info, "q止 p自 o現 +次 -前");
 
 			/* Default prompt */
 #ifdef JP
-strcpy(info, "q止 t決 p自 m近 +次 -前");
+			strcpy(info, "q止 t決 p自 m近 +次 -前");
 #else
 			strcpy(info, "q,t,p,m,+,-,<dir>");
 #endif
@@ -5274,7 +5295,7 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 	{
 		/* Warn the user */
 #ifdef JP
-msg_print("あなたは混乱している。");
+		msg_print("あなたは混乱している。");
 #else
 		msg_print("You are confused.");
 #endif
@@ -6122,7 +6143,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, bool allow_player)
 	y = py;
 
 #ifdef JP
-msg_print("場所を選んでスペースキーを押して下さい。");
+	msg_print("場所を選んでスペースキーを押して下さい。");
 #else
 	msg_print("Select a point and press space.");
 #endif
@@ -6627,8 +6648,9 @@ int get_your_alignment_gne(void)
 
 	switch (p_ptr->pclass)
 	{
-	case CLASS_LICH:        return ALIGN_GNE_EVIL;
+	case CLASS_LICH: return ALIGN_GNE_EVIL;
 	case CLASS_ANGELKNIGHT: return ALIGN_GNE_GOOD;
+	case CLASS_VAMPIRE: return ALIGN_GNE_EVIL;
 	}
 
 	for (i = 0; i < ETHNICITY_NUM; i++) align_gne += chaos_frame[i];
@@ -6802,20 +6824,7 @@ void change_chaos_frame(int ethnic, int amt)
 };
 
 /*
- * Return proficiency level of weapons and misc. skills (except riding)
- */
-int weapon_exp_level(int weapon_exp)
-{
-	if (weapon_exp < SKILL_EXP_NOVICE) return SKILL_LEVEL_BEGINNER;
-	else if (weapon_exp < SKILL_EXP_AVERAGE) return SKILL_LEVEL_NOVICE;
-	else if (weapon_exp < SKILL_EXP_SKILLED) return SKILL_LEVEL_AVERAGE;
-	else if (weapon_exp < SKILL_EXP_EXPERT) return SKILL_LEVEL_SKILLED;
-	else if (weapon_exp < SKILL_EXP_MASTER) return SKILL_LEVEL_EXPERT;
-	else return SKILL_LEVEL_MASTER;
-}
-
-/*
- * Return proficiency level of weapons and misc. skills (except riding)
+ * Return proficiency level of weapons, Magics and misc. skills (except riding)
  */
 int skill_exp_level(int skill_exp)
 {
@@ -6833,7 +6842,7 @@ int skill_exp_level(int skill_exp)
 
 s16b get_cur_pelem(void)
 {
-	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) return NO_ELEM;
+	if (p_ptr->no_elem) return NO_ELEM;
 	else if (p_ptr->opposite_pelem) return get_opposite_elem(p_ptr->pelem);
 	else return p_ptr->pelem;
 }
@@ -7335,7 +7344,12 @@ s16b choose_elem(void)
 bool can_choose_class(byte new_class, byte mode)
 {
 	player_class *new_cp_ptr = &class_info[new_class];
-	int i;
+	int i, total_max_clev = 0;
+
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		if (p_ptr->cexp_info[i].max_clev > 0) total_max_clev += p_ptr->cexp_info[i].max_clev;
+	}
 
 	/* Gender restriction */
 	switch (p_ptr->psex)
@@ -7370,9 +7384,29 @@ bool can_choose_class(byte new_class, byte mode)
 		/* Several classes cannot change more */
 		if (cp_ptr->c_flags & PCF_NO_CHANGE) return FALSE;
 
-		if (new_class == CLASS_TEMPLEKNIGHT)
+		if (new_class == CLASS_TERRORKNIGHT)
+		{
+			if (p_ptr->cexp_info[CLASS_SWORDMASTER].clev > 0) return FALSE;
+		}
+		else if (new_class == CLASS_SWORDMASTER)
+		{
+			if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 0) return FALSE;
+		}
+		else if (new_class == CLASS_HIGHWITCH)
+		{
+			if (p_ptr->cexp_info[CLASS_WITCH].clev < 39) return FALSE;
+			if (!(inventory[INVEN_HEAD].k_idx && (inventory[INVEN_HEAD].name1 == ART_DENEB))) return FALSE;
+		}
+		else if (new_class == CLASS_TEMPLEKNIGHT)
 		{
 			if (misc_event_flags & EVENT_CANNOT_BE_TEMPLEKNIGHT) return FALSE;
+			if (!r_info[MON_OZ].max_num) return FALSE;
+			if (!r_info[MON_OZMA].max_num) return FALSE;
+			if (!r_info[MON_VOLAC].max_num) return FALSE;
+			if (!r_info[MON_MARTYM].max_num) return FALSE;
+			if (!r_info[MON_BARBAS].max_num) return FALSE;
+			if (!r_info[MON_BALZEPHO].max_num) return FALSE;
+			if (!r_info[MON_ANDORAS].max_num) return FALSE;
 			if (!r_info[MON_LANCELOT].max_num) return FALSE;
 			if (chaos_frame[ETHNICITY_LODIS] < 100) return FALSE;
 		}
@@ -7380,7 +7414,41 @@ bool can_choose_class(byte new_class, byte mode)
 		{
 			if (misc_event_flags & EVENT_CANNOT_BE_WHITEKNIGHT) return FALSE;
 			if (!r_info[MON_MAN_LOOK_SEA].max_num) return FALSE;
+			if (!r_info[MON_WARREN].max_num) return FALSE;
 			if (chaos_frame[ETHNICITY_ZENOBIAN] < 100) return FALSE;
+		}
+		else if (new_class == CLASS_LORD)
+		{
+			if (chaos_frame[ETHNICITY_WALSTANIAN] < 100) return FALSE;
+			if (chaos_frame[ETHNICITY_GARGASTAN] < 100) return FALSE;
+			if (chaos_frame[ETHNICITY_BACRUM] < 100) return FALSE;
+			if (p_ptr->cexp_info[CLASS_SOLDIER].clev < 29) return FALSE;
+			if (p_ptr->cexp_info[CLASS_SOLDIER].clev < total_max_clev) return FALSE;
+		}
+		else if (new_class == CLASS_GENERAL)
+		{
+			if (p_ptr->cexp_info[CLASS_KNIGHT].clev < 29) return FALSE;
+			if ((total_max_clev - p_ptr->cexp_info[CLASS_KNIGHT].clev - p_ptr->cexp_info[CLASS_GENERAL].clev) > 14) return FALSE;
+		}
+		else if (new_class == CLASS_NINJAMASTER)
+		{
+			if (p_ptr->cexp_info[CLASS_NINJA].clev < 34) return FALSE;
+			if ((total_max_clev - p_ptr->cexp_info[CLASS_NINJA].clev - p_ptr->cexp_info[CLASS_NINJAMASTER].clev) > 9) return FALSE;
+		}
+		else if (new_class == CLASS_ARCHMAGE)
+		{
+			if (p_ptr->cexp_info[CLASS_WIZARD].clev < 34) return FALSE;
+			if ((total_max_clev - p_ptr->cexp_info[CLASS_WIZARD].clev - p_ptr->cexp_info[CLASS_ARCHMAGE].clev) > 19) return FALSE;
+		}
+		else if (new_class == CLASS_FREYA)
+		{
+			if (p_ptr->cexp_info[CLASS_VALKYRIE].clev < 34) return FALSE;
+			if (total_max_clev - p_ptr->cexp_info[CLASS_VALKYRIE].clev > 9) return FALSE;
+		}
+		else if (new_class == CLASS_CRESCENT)
+		{
+			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 34) return FALSE;
+			if (total_max_clev - p_ptr->cexp_info[CLASS_ARCHER].clev > 9) return FALSE;
 		}
 		break;
 
@@ -7407,6 +7475,7 @@ bool can_choose_class(byte new_class, byte mode)
 			if ((p_ptr->pclass != CLASS_WIZARD)
 				&& (p_ptr->pclass != CLASS_WARLOCK)
 				&& (p_ptr->pclass != CLASS_EXORCIST)
+				&& (p_ptr->pclass != CLASS_ARCHMAGE)
 				&& (p_ptr->pclass != CLASS_SIRENE)
 				&& (p_ptr->pclass != CLASS_WITCH))
 				return FALSE;
@@ -7418,6 +7487,13 @@ bool can_choose_class(byte new_class, byte mode)
 
 			/* Chance is dependent on CHR (Min 40%) */
 			if (randint1(100) > ((MAX(p_ptr->stat_use[A_CHR] - 100, 0) / 2) + 40)) return FALSE;
+			break;
+
+		case CLASS_VAMPIRE:
+			if (!p_ptr->infected) return FALSE;
+
+			/* Chance is dependent on CON (Min 40%) */
+			if (randint1(100) > ((MAX(p_ptr->stat_use[A_CON] - 100, 0) / 2) + 40)) return FALSE;
 			break;
 		}
 		break;

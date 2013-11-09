@@ -478,7 +478,6 @@ static cptr AngList = "AngList";
 /*
  * Directory names
  */
-static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
 static cptr ANGBAND_DIR_XTRA_HELP;
 #ifndef JP
@@ -1303,7 +1302,6 @@ static void load_sound_prefs(void)
  */
 static int new_palette(void)
 {
-	HPALETTE hBmPal;
 	HPALETTE hNewPal;
 	HDC hdc;
 	int i, nEntries;
@@ -2401,6 +2399,12 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
  */
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
 {
+	/* unused */
+	(void)ap;
+	(void)cp;
+	(void)tap;
+	(void)tcp;
+
 	/* Just erase this grid */
 	return (Term_wipe_win(x, y, n));
 }

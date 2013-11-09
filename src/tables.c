@@ -2208,7 +2208,7 @@ player_race race_info[MAX_RACES] =
  *      {gainSTR,gainINT,gainWIS,gainDEX,gainCON,gainCHR},
  *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_spd, c_thn, c_thb,
  *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_spd, x_thn, x_thb,
- *      c_to_a, manadie, exp base
+ *      c_to_a, hitdie, manadie, exp base
  */
 player_class class_info[MAX_CLASS] =
 {
@@ -2223,7 +2223,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 03, 03, 03, 02},
 		25, 28, 20,  3, 18, 14, 0, 60, 50,
 		12,  8,  9,  2,  0,  0, 3, 18, 20,
-		0, 0, 60,
+		0, 1, 0, 60,
 	},
 
 	{
@@ -2237,7 +2237,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 03, 04, 03, 02},
 		17, 18, 17, -1, 14, 13, 0, 68, 52,
 		 9,  7,  8,  0,  0,  0, 1, 28, 23,
-		15, 0, 75,
+		15, 2, 0, 75,
 	},
 
 	{
@@ -2251,7 +2251,7 @@ player_class class_info[MAX_CLASS] =
 		{05, 01, 02, 03, 04, 01},
 		26, 11, 18,  1, 19, 15, 0, 70, 49,
 		12,  6,  9,  0,  0,  0, 1, 30, 17,
-		15, 0, 80,
+		15, 3, 0, 80,
 	},
 
 	{
@@ -2265,7 +2265,7 @@ player_class class_info[MAX_CLASS] =
 		{05, 00, 00, 02, 05, 00},
 		 1,  0, 2, -10, 1, 4, 0, 90, 11,
 		-6, -6, 0, -10, 0, 0, 0, 38,  2,
-		30, 0, 115,
+		30, 5, 2, 115,
 	},
 
 	{
@@ -2279,7 +2279,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 01, 02, 02, 04, 03},
 		28, 27, 25, 1, 12, 16, 0, 62, 56,
 		10,  9,  9, 2,  0,  0, 1, 20, 19,
-		10, 2, 105, 
+		10, 3, 2, 105, 
 	},
 
 	{
@@ -2293,7 +2293,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 02, 05, 02, 03},
 		29, 27, 25, 4, 24, 16, 0, 70, 40,
 		10,  9, 10, 4,  0,  0, 3, 23, 18,
-		0, 0, 115,
+		0, 4, 1, 115,
 	},
 
 	{
@@ -2307,7 +2307,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 01, 04, 04, 02},
 		24, 14, 24, 1, 18, 16, 0, 68, 23,
 		 8,  6,  9, 0,  0,  0, 0, 33, 12,
-		10, 1, 110,
+		10, 3, 1, 110,
 	},
 
 	{
@@ -2321,7 +2321,7 @@ player_class class_info[MAX_CLASS] =
 		{02, 02, 01, 05, 02, 01},
 		45, 24, 19, 8, 28, 22, 0, 65, 66,
 		15, 10,  8, 5,  0,  0, 6, 19, 18,
-		-5, 0, 105,
+		-5, 0, 0, 105,
 	},
 
 	{
@@ -2335,7 +2335,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 03, 02, 01, 02},
 		30, 36, 30, 2, 16, 20, 0, 34, 20,
 		 7, 13, 13, 0,  0,  0, 1,  6,  7,
-		-10, 3, 100,
+		-10, 0, 3, 100,
 	},
 
 	{
@@ -2349,7 +2349,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 04, 01, 01, 04},
 		32, 38, 28, 2, 18, 16, 0, 52, 21,
 		14, 14, 14, 0,  0,  0, 0, 18, 11,
-		-5, 2, 125,
+		-5, 0, 2, 125,
 	},
 
 	{
@@ -2363,7 +2363,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 02, 04, 02, 03, 02},
 		25, 30, 32, 1, 16, 8, 0, 60, 28,
 		 9,  8,  9, 0,  0, 0, 0, 21,  7,
-		0, 2, 95,
+		0, 1, 2, 95,
 	},
 
 	{
@@ -2377,7 +2377,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 03, 03, 03, 03},
 		26, 26, 20, 2, 17, 12, 0, 58, 52,
 		11,  9,  9, 2,  0,  0, 3, 16, 22,
-		0, 0, 60,
+		0, 1, 0, 60,
 	},
 
 	{
@@ -2387,11 +2387,11 @@ player_class class_info[MAX_CLASS] =
 		"Valkyrie",
 
 		PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_SEX_FEMALE | PCF_BIRTH,
-		{14, 14, 0, 0, 16, 0},
-		{04, 03, 02, 03, 04, 01},
+		{14, 0, 14, 0, 16, 0},
+		{04, 02, 03, 03, 04, 01},
 		30, 28, 28, -1, 18, 16, 0, 64, 48,
 		10, 10,  9,  0,  0,  0, 1, 23, 14,
-		15, 1, 85,
+		15, 2, 1, 85,
 	},
 
 	{
@@ -2405,7 +2405,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 02, 02, 05, 03, 02},
 		38, 24, 23, 3, 24, 16, 0, 56, 82,
 		12, 10,  8, 1,  0,  0, 5, 13, 36,
-		0, 0, 110,
+		0, 3, 0, 110,
 	},
 
 	{
@@ -2419,7 +2419,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 03, 03, 03, 03},
 		31, 29, 26, 1, 13, 17, 0, 52, 63,
 		13, 10, 10, 2,  0,  0, 2, 17, 25,
-		10, 1, 105,
+		10, 2, 1, 105,
 	},
 
 	{
@@ -2433,7 +2433,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 03, 03, 01, 04},
 		32, 41, 29, 2, 18, 19, 0, 45, 51,
 		16, 16, 12, 1,  0,  0, 1, 13, 20,
-		-5, 2, 95,
+		-5, 0, 2, 95,
 	},
 
 	{
@@ -2447,7 +2447,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 05, 03, 02, 01, 02},
 		28, 35, 32, 2, 13, 20, 0, 15, 17,
 		 7, 13, 13, 0,  0,  0, 0,  5,  7,
-		-10, 3, 100,
+		-10, 0, 3, 100,
 	},
 
 	{
@@ -2461,7 +2461,7 @@ player_class class_info[MAX_CLASS] =
 		{02, 03, 04, 03, 02, 02},
 		25, 34, 30, 2, 12, 12, 0, 40, 50,
 		 8, 11,  9, 0,  0,  0, 1,  9, 18,
-		-5, 2, 95,
+		-5, 1, 2, 95,
 	},
 
 	{
@@ -2475,7 +2475,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 05, 02, 01, 02},
 		30, 32, 33, 1, 16, 9, 0, 27, 27,
 		 8,  9, 11, 0,  0, 0, 0,  6,  9,
-		-10, 2, 75,
+		-10, 1, 2, 75,
 	},
 
 	{
@@ -2489,7 +2489,7 @@ player_class class_info[MAX_CLASS] =
 		{00, 05, 04, 01, 03, 00},
 		29, 28, 31, 1, 4, 13, 0, 8, 10,
 		 7,  8, 12, 0, 0,  0, 0, 6,  4,
-		5, 3, 135,
+		5, 2, 3, 135,
 	},
 
 	{
@@ -2503,7 +2503,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 03, 04, 03, 03, 03},
 		30, 30, 28, 1, 18, 16, 0, 72, 55,
 		10, 10, 12, 0,  0,  0, 2, 30, 30,
-		30, 2, 135,
+		30, 2, 2, 135,
 	},
 
 	{
@@ -2513,11 +2513,11 @@ player_class class_info[MAX_CLASS] =
 		"High-Witch",
 
 		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_NO_CHANGE,
-		{0, 18 + 120, 18 + 100, 0, 0, 18 + 150},
+		{0, 0, 0, 0, 0, 18 + 120},
 		{00, 05, 04, 02, 00, 05},
 		32, 49, 29, 1, 18, 19, 0, 4, 6,
 		16, 16, 12, 0,  0,  0, 0, 2, 3,
-		-50, 4, 150,
+		-20, 0, 4, 150,
 	},
 
 	{
@@ -2531,7 +2531,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 02, 04, 02, 02},
 		38, 0, 10, 2, 24, 24, 0, 56, 76,
 		12, 0,  2, 4,  0,  0, 1, 18, 32,
-		-10, 0, 145,
+		-10, 3, 0, 145,
 	},
 
 	{
@@ -2545,7 +2545,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 03, 03, 04, 03, 01},
 		15, 23, 18, -4, 14, 4, 0, 62, 52,
 		 7,  8, 10, -1,  0, 0, 0, 26, 20,
-		10, 0, 135,
+		10, 3, 0, 135,
 	},
 
 	{
@@ -2559,8 +2559,108 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 03, 04, 03, 03},
 		25, 21, 22, -2, 11, 15, 0, 70, 44,
 		10,  7, 10,  0,  0,  0, 0, 27, 14,
-		10, 0, 120,
+		10, 3, 0, 120,
 	},
+
+	{
+#ifdef JP
+		"¥í¡¼¥É",
+#endif
+		"Lord",
+
+		PCF_ALIGN_ANY | PCF_SEX_MALE | PCF_NO_CHANGE | PCF_SECRET,
+		{0, 0, 0, 0, 0, 0},
+		{05, 03, 04, 05, 05, 04},
+		25, 28, 28,  5, 25, 14, 0, 80, 50,
+		12,  8, 10,  4,  0,  0, 3, 35, 20,
+		10, 5, 1, 120,
+	},
+
+	{
+#ifdef JP
+		"¥¸¥§¥Í¥é¥ë",
+#endif
+		"General",
+
+		PCF_ALIGN_LAWFUL | PCF_SEX_MALE | PCF_NO_CHANGE | PCF_SECRET,
+		{0, 0, 0, 0, 0, 0},
+		{04, 03, 03, 05, 03, 04},
+		29, 27, 25, 4, 24, 16, 0, 70, 40,
+		10,  9, 10, 4,  0,  0, 3, 32, 18,
+		30, 4, 0, 115,
+	},
+
+
+	{
+#ifdef JP
+		"¥Ë¥ó¥¸¥ã¥Þ¥¹¥¿¡¼",
+#endif
+		"Ninjamaster",
+
+		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE | PCF_SECRET,
+		{0, 0, 0, 0, 0, 0},
+		{02, 02, 01, 05, 02, 01},
+		45, 24, 19, 8, 28, 22, 0, 65, 66,
+		15, 10,  8, 5,  0,  0, 6, 19, 18,
+		5, 1, 0, 105,
+	},
+
+	{
+#ifdef JP
+		"¥´¥¨¥Æ¥£¥Ã¥¯",
+#endif
+		"Archmage",
+
+		PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_NO_CHANGE | PCF_SECRET,
+		{0, 0, 0, 0, 0, 0},
+		{01, 04, 03, 02, 01, 02},
+		30, 36, 30, 2, 16, 20, 0, 34, 20,
+		 7, 13, 13, 0,  0,  0, 1,  6,  7,
+		-5, 0, 4, 100,
+	},
+
+	{
+#ifdef JP
+		"¥Õ¥ì¥¤¥ä",
+#endif
+		"Freya",
+
+		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE | PCF_NO_CHANGE | PCF_SECRET,
+		{0, 0, 0, 0, 0, 0},
+		{04, 03, 04, 03, 04, 03},
+		34, 30, 30,  1, 18, 16, 0, 70, 48,
+		12, 12, 12,  0,  0,  0, 2, 23, 14,
+		15, 3, 1, 95,
+	},
+
+	{
+#ifdef JP
+		"¥¯¥ì¥»¥ó¥È",
+#endif
+		"Crescent",
+
+		PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC | PCF_SEX_FEMALE | PCF_NO_CHANGE | PCF_SECRET,
+		{0, 0, 0, 0, 0, 0},
+		{04, 03, 02, 05, 04, 02},
+		42, 26, 28, 4, 24, 16, 0, 60, 90,
+		12, 10,  9, 2,  2,  0, 6, 16, 42,
+		10, 4, 0, 140,
+	},
+
+	{
+#ifdef JP
+		"¥ô¥¡¥ó¥Ñ¥¤¥¢",
+#endif
+		"Vampire",
+
+		PCF_ALIGN_CHAOTIC | PCF_SEX_MALE | PCF_REINCARNATE | PCF_NO_CHANGE | PCF_UNDEAD,
+		{18 + 70, 18 + 80, 18 + 40, 18 + 60, 18 + 60, 18 + 40},
+		{05, 04, 03, 05, 05, 04},
+		25, 28, 28,  6, 14, 20, 0, 80, 35,
+		12, 10,  8,  4,  0,  0, 3, 35, 18,
+		10, 5, 1, 150,
+	},
+
 };
 
 
@@ -2668,6 +2768,13 @@ s32b realm_choices[] =
 	(CH_NONE), /* Gunner */
 	(CH_DEATH), /* Temple-Knight */
 	(CH_HOLY), /* White-Knight */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY), /* Load */
+	(CH_NONE), /* General */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND), /* Ninjamaster */
+	(CH_MAGERY | CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_DEATH), /* Archmage */
+	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_CRUSADE), /* Freya */
+	(CH_WIND), /* Crescent */
+	(CH_DEATH), /* Vampire */
 };
 
 
@@ -3538,6 +3645,97 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"ÉûÃÄÄ¹",
 		"µ³»ÎÃÄÄ¹",
 		"µ³»ÎÁíÄ¹",
+	},
+	/* Load - same as Soldier */
+	{
+		"Í½È÷Ê¼",
+		"ÆóÅùÊ¼",
+		"°ìÅùÊ¼",
+		"¾åµéÊ¼",
+		"¸àÄ¹",
+		"·³Áâ",
+		"ÁâÄ¹",
+		"¾¯°Ó",
+		"Ãæ°Ó",
+		"Âç°Ó",
+	},
+	/* General - same as Knight */
+	{
+		"½¾»Î",
+		"¸«½¬¤¤µ³»Î",
+		"²¼µéµ³»Î",
+		"Ãæµéµ³»Î",
+		"¾åµéµ³»Î",
+		"½¤Æ»µ³»Î",
+		"»²ËÅ",
+		"ÉûÃÄÄ¹",
+		"µ³»ÎÃÄÄ¹",
+		"µ³»ÎÁíÄ¹",
+	},
+	/* Ninjamaster */
+	{
+		"·±ÎýÀ¸",
+		"»Å¼ê",
+		"½ÏÃ£¼Ô",
+		"Ã»Åá»È¤¤",
+		"ÀÚ¤êÎö¤­",
+		"À¨ÏÓ",
+		"¼¿¹õ¤Î¿Ï",
+		"°Ç¤Î°ì·â",
+		"°Å»¦¼Ô",
+		"»à¤ÎÄ¹¤­ÏÓ",
+	},
+	/* Archmage */
+	{
+		"¼êÉÊ»Õ",
+		"´ñ½Ñ»Õ",
+		"Àê¤¤»Õ",
+		"Îî´¶»Õ",
+		"±¢ÍÛ»Õ",
+		"¾¤´­»Õ",
+		"ÍÅ½Ñ»Õ",
+		"Ëâ½Ñ»Õ",
+		"ËâÆ»»Õ",
+		"ÂçËâË¡»È¤¤",
+	},
+	/* Freya */
+	{
+		"¼ã²ê¤ÎÁä»Î",
+		"¼ãÁð¤ÎÁä»Î",
+		"ÃÝ¤ÎÁä»Î",
+		"ÀÐ¤ÎÁä»Î",
+		"Æ¼¤ÎÁä»Î",
+		"ÀÄÆ¼¤ÎÁä»Î",
+		"Å´¤ÎÁä»Î",
+		"¹ÝÅ´¤ÎÁä»Î",
+		"¶ä¤ÎÁä»Î",
+		"Àï²µ½÷",
+	},
+	/* Crescent */
+	{
+		"»æ¤ò´Ó¤¯¼Ô",
+		"³×¤ò´Ó¤¯¼Ô",
+		"ÈÄ¤ò´Ó¤¯¼Ô",
+		"Å´¤ò´Ó¤¯¼Ô",
+		"´ä¤ò´Ó¤¯¼Ô",
+		"¿å¤ò´Ó¤¯¼Ô",
+		"°Ç¤ò´Ó¤¯¼Ô",
+		"¸÷¤ò´Ó¤¯¼Ô",
+		"¶õ¤ò´Ó¤¯¼Ô",
+		"¥¢¥ë¥Æ¥ß¥¹",
+	},
+	/* Vampire */
+	{
+		"µÛ·ìÀ¸Êª",
+		"µÛ·ìÀ¸Êª",
+		"µÛ·ìÀ¸Êª",
+		"µÛ·ìÀ¸Êª",
+		"Çì¼ß",
+		"¸ø¼ß",
+		"Ìë¤ÎÄë²¦",
+		"Ìë¤Î»ÙÇÛ¼Ô",
+		"°Ç¤Î»ÙÇÛ¼Ô",
+		"¿¿ÁÄ",
 	},
 };
 
@@ -4492,51 +4690,6 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &ironman_shops,               FALSE, 6, 6, 2,
-	"ironman_shops",                "¡ÊÅ´¿ÍÍÑ¡ËÅ¹¤ò»ÈÍÑ¤·¤Ê¤¤(*)" },
-#else
-	{ &ironman_shops,               FALSE, 6, 6, 2,
-	"ironman_shops",                "Stores are permanently closed (*)" },
-#endif
-
-
-#ifdef JP
-	{ &ironman_small_levels,        FALSE, 6, 6, 3,
-	"ironman_small_levels",         "¡ÊÅ´¿ÍÍÑ¡Ë¾ï¤ËÈó¾ï¤Ë¾®¤µ¤¤¥Õ¥í¥¢¤òÀ¸À®(*)" },
-#else
-	{ &ironman_small_levels,        FALSE, 6, 6, 3,
-	"ironman_small_levels",         "Always create unusually small dungeon levels (*)" },
-#endif
-
-
-#ifdef JP
-	{ &ironman_forward,            FALSE, 6, 6, 4,
-	"ironman_forward",             "¡ÊÅ´¿ÍÍÑ¡Ëµ¢´Ô¤ÈÌá¤ê³¬ÃÊ¤Ê¤·(*)" },
-#else
-	{ &ironman_forward,            FALSE, 6, 6, 4,
-	"ironman_forward",             "Disable recall and use of back stairs (*)" },
-#endif
-
-
-#ifdef JP
-	{ &ironman_autoscum,            FALSE, 6, 6, 5,
-	"ironman_autoscum",             "¡ÊÅ´¿ÍÍÑ¡Ë¾ï¤Ë³¬¤ÎÊ·°Ïµ¤¤ò¼«Æ°Áª¤ê¹¥¤ß¤¹¤ë" },
-#else
-	{ &ironman_autoscum,            FALSE, 6, 6, 5,
-	"ironman_autoscum",             "Permanently enable the autoscummer" },
-#endif
-
-
-#ifdef JP
-	{ &ironman_empty_levels,         FALSE, 6, 6, 8,
-	"ironman_empty_levels",          "¡ÊÅ´¿ÍÍÑ¡Ë¾ï¤Ë¶õ¤Ã¤Ý¤Î¥¢¥ê¡¼¥Ê¥ì¥Ù¥ë¤òÀ¸À®(*)" },
-#else
-	{ &ironman_empty_levels,        FALSE, 6, 6, 8,
-	"ironman_empty_levels",         "Always create empty 'arena' levels (*)" },
-#endif
-
-
-#ifdef JP
 	{ &ironman_rooms,                FALSE, 6, 6, 12,
 	"ironman_rooms",                 "¡ÊÅ´¿ÍÍÑ¡Ë¾ï¤ËÉáÄÌ¤Ç¤Ê¤¤Éô²°¤òÀ¸À®¤¹¤ë(*)" },
 #else
@@ -4544,14 +4697,6 @@ option_type option_info[] =
 	"ironman_rooms",                "Always generate very unusual rooms (*)" },
 #endif
 
-
-#ifdef JP
-	{ &ironman_nightmare,           FALSE, 6, 6, 18,
-	"ironman_nightmare",	        "¡ÊÅ´¿ÍÍÑ¡Ë°­Ì´¥â¡¼¥É(¤³¤ì¤ÏÁ´¤¯ÉÔ¾òÍý¤Ç¤¹¡ª)(*)" },
-#else
-	{ &ironman_nightmare,           FALSE, 6, 6, 18,
-	"ironman_nightmare",	        "Nightmare mode(it isn't even remotely fair!)(*)" },
-#endif
 
 #ifdef JP
 	{ &left_hander,                 FALSE, 6, 6, 13,

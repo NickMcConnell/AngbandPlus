@@ -77,7 +77,7 @@ void do_cmd_go_up(void)
 
 	if (!dun_level)
 	{
-		if ((ironman_forward || astral_mode) && (c_ptr->special != DUNGEON_PALACE))
+		if ((astral_mode) && (c_ptr->special != DUNGEON_PALACE))
 		{
 #ifdef JP
 			msg_print("ダンジョンの入口は塞がれている！");
@@ -350,7 +350,7 @@ void do_cmd_go_down(void)
 
 	if (!dun_level)
 	{
-		if ((ironman_forward || astral_mode) && (c_ptr->special != DUNGEON_PALACE))
+		if ((astral_mode) && (c_ptr->special != DUNGEON_PALACE))
 		{
 #ifdef JP
 			msg_print("ダンジョンの入口は塞がれている！");
@@ -2045,7 +2045,7 @@ void do_cmd_tunnel(void)
 		if (((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
 		    ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL)) ||
 		    ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
-		    (feat == FEAT_MUSEUM))
+		    (feat == FEAT_MUSEUM) || (feat == FEAT_DENEB_SHOP))
 		{
 			/* Message */
 #ifdef JP
@@ -3201,7 +3201,8 @@ void do_cmd_stay(int pickup)
 	/* Hack -- enter a store if we are on one */
 	if (((c_ptr->feat >= FEAT_SHOP_HEAD) &&
 	    (c_ptr->feat <= FEAT_SHOP_TAIL)) ||
-	    (c_ptr->feat == FEAT_MUSEUM))
+	    (c_ptr->feat == FEAT_MUSEUM) ||
+	    (c_ptr->feat == FEAT_DENEB_SHOP))
 	{
 		/* Disturb */
 		disturb(0, 0);
@@ -3352,7 +3353,9 @@ void do_cmd_rest(void)
  */
 static int breakage_chance(object_type *o_ptr)
 {
-	int archer_bonus = ((p_ptr->pclass == CLASS_ARCHER) ? ((p_ptr->cexp_info[CLASS_ARCHER].clev - 1) / 7 + 4) : ((p_ptr->cexp_info[CLASS_ARCHER].clev - 1) / 7));
+	int archer_bonus = (p_ptr->cexp_info[CLASS_ARCHER].clev + p_ptr->cexp_info[CLASS_CRESCENT].clev / 2 - 1) / 7;
+
+	if ((p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_CRESCENT)) archer_bonus += 4;
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -3717,7 +3720,6 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 static void get_shot_shell_target(int ty, int tx, int dist, int *ny, int *nx, int dev)
 {
 	int ly, lx, ld;
-	int i;
 
 	/* Use an actual "target" */
 	lx = dist * (tx - px) + px;
@@ -3853,7 +3855,7 @@ static bool hit_rocket(int y, int x, object_type *o_ptr, object_type *launcher_p
  *
  * Note that Bows of "Extra Shots" give an extra shot.
  */
-bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
+bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 {
 	int dir;
 	int j, y, x, ny, nx, ty, tx, t_ty, t_tx;
@@ -3861,9 +3863,13 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 	int bonus, chance;
 	int cur_dis, visible;
 	int count, n_fire = 1;
+	int typ = GF_MISSILE;
 	bool used_up = FALSE;
 	bool explode_rocket = FALSE;
 	bool as_beam = FALSE;
+	bool force_damege = FALSE;
+	bool crescent_shot_storm = (shot_typ & PY_SHOT_CRESCENT_1) ? TRUE : FALSE;
+	bool crescent_shot_pure_wind = (shot_typ & PY_SHOT_CRESCENT_2) ? TRUE : FALSE;
 
 	object_type forge;
 	object_type thrown;
@@ -4100,7 +4106,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 		for (cur_dis = 0; cur_dis <= tdis; )
 		{
 			/* Hack -- Stop at the target */
-			if ((y == t_ty) && (x == t_tx))
+			if ((!crescent_shot_storm) && (y == t_ty) && (x == t_tx))
 			{
 				if (p_ptr->tval_ammo == TV_ROCKET) explode_rocket = hit_rocket(y, x, q_ptr, j_ptr, skill_to_d);
 				break;
@@ -4114,8 +4120,31 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 			/* Stopped by walls/doors */
 			if (!cave_floor_bold(ny, nx) && !cave[ny][nx].m_idx)
 			{
-				if (p_ptr->tval_ammo == TV_ROCKET) explode_rocket = hit_rocket(y, x, q_ptr, j_ptr, skill_to_d);
-				break;
+				int yy = ny;
+				int xx = nx;
+
+				if (crescent_shot_storm)
+				{
+					if (cave_perma_bold(yy, xx)) break;
+
+					cave_force_set_floor(yy, xx);
+
+					/* Notice */
+					note_spot(yy, xx);
+
+					/* Update some things */
+					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+					update_stuff();
+				}
+				else if (p_ptr->tval_ammo == TV_ROCKET)
+				{
+					explode_rocket = hit_rocket(y, x, q_ptr, j_ptr, skill_to_d);
+					break;
+				}
+				else
+				{
+					break;
+				}
 			}
 
 			/* Advance the distance */
@@ -4224,9 +4253,15 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 						if (tdam < 0) tdam = 0;
 
 						/* Modify the damage */
-						tdam = mon_damage_mod(m_ptr, tdam, FALSE);
+						if (crescent_shot_storm) typ = GF_ELEC;
+						if (crescent_shot_pure_wind)
+						{
+							force_damege = TRUE;
+							typ = GF_PURE_WIND;
+						}
+						tdam = mon_damage_mod(m_ptr, tdam, force_damege);
 						if (tdam > 0) tdam = tdam * 10 / tot_dam_div(q_ptr, m_ptr, FALSE);
-						tdam = modify_dam_by_elem(0, c_ptr->m_idx, tdam, GF_MISSILE, modify_dam_mode);
+						tdam = modify_dam_by_elem(0, c_ptr->m_idx, tdam, typ, modify_dam_mode);
 
 						/* Hit the monster, check for death */
 						if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(r_ptr), FALSE))
@@ -4306,7 +4341,8 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 				}
 
 				/* Stop looking */
-				if (!as_beam || !cave_floor_bold(y, x)) break;
+  				if (!as_beam || !cave_floor_bold(y, x) || !crescent_shot_storm) break;
+
 			}
 		}
 
@@ -4316,6 +4352,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 
 		/* Chance of breakage (during attacks) */
 		j = (hit_body ? breakage_chance(q_ptr) : 0);
+		if ((crescent_shot_storm) || (crescent_shot_pure_wind)) j = 100;
 
 		if(stick_to)
 		{
@@ -4386,7 +4423,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 }
 
 
-bool do_cmd_fire(bool direct)
+bool do_cmd_fire(u16b shot_typ, bool direct)
 {
 	int item;
 	object_type *j_ptr;
@@ -4426,7 +4463,7 @@ bool do_cmd_fire(bool direct)
 	}
 
 	/* Fire the item */
-	return do_cmd_fire_aux(item, j_ptr, direct);
+	return do_cmd_fire_aux(item, j_ptr, shot_typ, direct);
 }
 
 
@@ -4668,7 +4705,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	if ((p_ptr->pclass == CLASS_NINJA) && (have_flag(flgs, TR_THROW)) && (q_ptr->tval == TV_SWORD)) shuriken = TRUE;
+	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && (have_flag(flgs, TR_THROW)) && (q_ptr->tval == TV_SWORD)) shuriken = TRUE;
 	else shuriken = FALSE;
 
 	/* Chance of hitting */
@@ -4845,6 +4882,8 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 				if (shuriken)
 				{
 					int clev = p_ptr->cexp_info[CLASS_NINJA].clev;
+					if (p_ptr->cexp_info[CLASS_NINJA].clev < p_ptr->cexp_info[CLASS_NINJAMASTER].clev)
+						clev = p_ptr->cexp_info[CLASS_NINJAMASTER].clev;
 					tdam += ((clev+30)*(clev+30)-900)/55;
 				}
 
@@ -4916,14 +4955,14 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 		if (!(summon_named_creature((cursed_p(q_ptr) ? 0 : -1), y, x, q_ptr->pval,
 					    !(cursed_p(q_ptr)) ? PM_FORCE_PET : PM_IGNORE_AMGRID)))
 #ifdef JP
-msg_print("人形は捻じ曲がり砕け散ってしまった！");
+			msg_print("人形は捻じ曲がり砕け散ってしまった！");
 #else
 			msg_print("The Figurine writhes and then shatters.");
 #endif
 
 		else if (cursed_p(q_ptr))
 #ifdef JP
-msg_print("これはあまり良くない気がする。");
+			msg_print("これはあまり良くない気がする。");
 #else
 			msg_print("You have a bad feeling about this.");
 #endif

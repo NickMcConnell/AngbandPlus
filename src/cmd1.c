@@ -139,7 +139,7 @@ static s32b critical_norm(int weight, int plus, int dam, int meichuu, int mode)
 	i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
-	if ((randint1((p_ptr->pclass == CLASS_NINJA) ? 4444 : 5000) <= i) || (mode == PY_ATTACK_3DAN))
+	if ((randint1(((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) ? 4444 : 5000) <= i) || (mode == PY_ATTACK_3DAN))
 	{
 		k = weight + randint1(650);
 		if (mode == PY_ATTACK_3DAN) k+= randint1(650);
@@ -221,8 +221,8 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 
 	if (in_hand)
 	{
-		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
 		if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
+		else if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
 		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
 		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
 		if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
@@ -236,14 +236,27 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
 			if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
 			add_flag(flgs, TR_SLAY_UNDEAD);
+		case CLASS_FREYA:
+			if (cexp_ptr->clev > 34) add_flag(flgs, TR_SLAY_EVIL);
+			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_DEMON);
+			if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
 			/* Fall through */
 		case CLASS_CLERIC:
 		case CLASS_PRIEST:
 		case CLASS_ANGELKNIGHT:
 			add_flag(flgs, TR_BLESSED);
 			break;
+		case CLASS_VAMPIRE:
+			add_flag(flgs, TR_SLAY_LIVING);
 		case CLASS_LICH:
 			add_flag(flgs, TR_UNHOLY);
+			break;
+		case CLASS_LORD:
+			if (p_ptr->action == ACTION_AURA)
+			{
+				if (cexp_ptr->clev > 34) add_flag(flgs, TR_VORPAL);
+				if (cexp_ptr->clev > 44) add_flag(flgs, TR_EXTRA_VORPAL);
+			}
 			break;
 		}
 	}
@@ -467,6 +480,7 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 			add_flag(flgs, TR_BLESSED);
 			break;
 		case CLASS_LICH:
+		case CLASS_VAMPIRE:
 			add_flag(flgs, TR_UNHOLY);
 			break;
 		}
@@ -1755,30 +1769,11 @@ static void hit_trap(void)
 			if (!p_ptr->free_act)
 			{
 #ifdef JP
-msg_print("あなたは眠りに就いた。");
+				msg_print("あなたは眠りに就いた。");
 #else
 				msg_print("You fall asleep.");
 #endif
 
-
-				if (ironman_nightmare)
-				{
-#ifdef JP
-msg_print("身の毛もよだつ光景が頭に浮かんだ。");
-#else
-					msg_print("A horrible vision enters your mind.");
-#endif
-
-
-					/* Pick a nightmare */
-					get_mon_num_prep(get_nightmare, NULL);
-
-					/* Have some nightmares */
-					have_nightmare(get_mon_num(MAX_DEPTH));
-
-					/* Remove the monster restriction */
-					get_mon_num_prep(NULL, NULL);
-				}
 				(void)set_paralyzed(p_ptr->paralyzed + randint0(10) + 5);
 			}
 			break;
@@ -1787,7 +1782,7 @@ msg_print("身の毛もよだつ光景が頭に浮かんだ。");
 		case FEAT_TRAP_TRAPS:
 		{
 #ifdef JP
-msg_print("まばゆい閃光が走った！");
+			msg_print("まばゆい閃光が走った！");
 #else
 			msg_print("There is a bright flash of light!");
 #endif
@@ -2156,7 +2151,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
  */
 static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int mode)
 {
-	int		num = 0, k, bonus, chance, vir;
+	int		num = 0, k, bonus, chance;
 
 	cave_type       *c_ptr = &cave[y][x];
 
@@ -2184,7 +2179,6 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	int             num_blow;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	u32b            flgs[TR_FLAG_SIZE]; /* A massive hack -- life-draining weapons */
-	bool            is_human = (r_ptr->d_char == 'p');
 	bool            dragoon_hit = ((p_ptr->pclass == CLASS_DRAGOON) && (r_ptr->flags3 & RF3_DRAGON));
 
 
@@ -2193,7 +2187,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if (mode == PY_ATTACK_PENET) penet_ac = ac;
 	else if (penet_ac) ac += penet_ac;
 
-	if ((p_ptr->pclass == CLASS_NINJA) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand])
+	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand])
 	{
 		if (m_ptr->csleep && m_ptr->ml)
 		{
@@ -2236,7 +2230,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	/* Attack once for each legal blow */
 	while ((num++ < num_blow) && !p_ptr->is_dead)
 	{
-		if ((p_ptr->pclass == CLASS_NINJA) && backstab) success_hit = TRUE;
+		if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && backstab) success_hit = TRUE;
 		else success_hit = test_hit_norm(chance, ac, m_ptr->ml);
 
 		/* Test for hit */
@@ -2282,6 +2276,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			vorpal_chance = have_flag(flgs, TR_EXTRA_VORPAL) ? 2 : 4;
 
+			if ((p_ptr->pclass == CLASS_LORD) && (p_ptr->action == ACTION_AURA))
+			{
+				if (cexp_ptr->clev > 44) vorpal_chance = 2;
+				else if (cexp_ptr->clev > 34) vorpal_chance = 4;
+			}
+
 			/* Select a chaotic effect (50% chance) */
 			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(2))
 			{
@@ -2325,7 +2325,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			vorpal_cut = FALSE;
-			if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_EXTRA_VORPAL))
+			if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_EXTRA_VORPAL) || ((p_ptr->pclass == CLASS_LORD) && (p_ptr->action == ACTION_AURA) && (cexp_ptr->clev > 34)))
 			{
 				if (randint1(vorpal_chance * 3 / 2) == 1) vorpal_cut = TRUE;
 			}
@@ -2533,43 +2533,43 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						switch(mult)
 						{
 #ifdef JP
-case 2:	msg_format("%sを斬った！", m_name);		break;
+							case 2:	msg_format("%sを斬った！", m_name);		break;
 #else
 							case 2:	msg_format("You gouge %s!", m_name);		break;
 #endif
 
 #ifdef JP
-case 3:	msg_format("%sをぶった斬った！", m_name);			break;
+							case 3:	msg_format("%sをぶった斬った！", m_name);			break;
 #else
 							case 3:	msg_format("You maim %s!", m_name);			break;
 #endif
 
 #ifdef JP
-case 4:	msg_format("%sをメッタ斬りにした！", m_name);		break;
+							case 4:	msg_format("%sをメッタ斬りにした！", m_name);		break;
 #else
 							case 4:	msg_format("You carve %s!", m_name);		break;
 #endif
 
 #ifdef JP
-case 5:	msg_format("%sをメッタメタに斬った！", m_name);		break;
+							case 5:	msg_format("%sをメッタメタに斬った！", m_name);		break;
 #else
 							case 5:	msg_format("You cleave %s!", m_name);		break;
 #endif
 
 #ifdef JP
-case 6:	msg_format("%sを刺身にした！", m_name);		break;
+							case 6:	msg_format("%sを刺身にした！", m_name);		break;
 #else
 							case 6:	msg_format("You smite %s!", m_name);		break;
 #endif
 
 #ifdef JP
-case 7:	msg_format("%sを斬って斬って斬りまくった！", m_name);	break;
+							case 7:	msg_format("%sを斬って斬って斬りまくった！", m_name);	break;
 #else
 							case 7:	msg_format("You eviscerate %s!", m_name);	break;
 #endif
 
 #ifdef JP
-default:	msg_format("%sを細切れにした！", m_name);		break;
+							default:	msg_format("%sを細切れにした！", m_name);		break;
 #else
 							default:	msg_format("You shred %s!", m_name);		break;
 #endif
@@ -2608,8 +2608,14 @@ default:	msg_format("%sを細切れにした！", m_name);		break;
 					}
 					if ((r_ptr->flags3 & RF3_EVIL) && cexp_ptr->clev > 19)
 					{
-						k *= 3;
+						k *= 2;
 						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_EVIL;
+					}
+					break;
+				case CLASS_VAMPIRE:
+					if (r_ptr->flags3 & monster_living(r_ptr))
+					{
+						k *= 2;
 					}
 					break;
 				}
@@ -2638,7 +2644,7 @@ default:	msg_format("%sを細切れにした！", m_name);		break;
 					if (m_ptr->stunned)
 					{
 #ifdef JP
-msg_format("%sはひどくもうろうとした。", m_name);
+						msg_format("%sはひどくもうろうとした。", m_name);
 #else
 						msg_format("%s is more dazed.", m_name);
 #endif
@@ -2648,7 +2654,7 @@ msg_format("%sはひどくもうろうとした。", m_name);
 					else
 					{
 #ifdef JP
-msg_format("%sはもうろうとした。", m_name);
+						msg_format("%sはもうろうとした。", m_name);
 #else
 						msg_format("%s is dazed.", m_name);
 #endif
@@ -2660,7 +2666,7 @@ msg_format("%sはもうろうとした。", m_name);
 				else if (mode == PY_ATTACK_MINEUCHI)
 				{
 #ifdef JP
-msg_format("%s には効果がなかった。", m_name);
+						msg_format("%s には効果がなかった。", m_name);
 #else
 						msg_format("%s is not effected.", m_name);
 #endif
@@ -2674,7 +2680,7 @@ msg_format("%s には効果がなかった。", m_name);
 			{
 				if (k > 0) k = k * 10 / tot_dam_div(o_ptr, m_ptr, TRUE);
 
-				if (((p_ptr->pclass == CLASS_NINJA) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand]
+				if ((((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand]
 					 && (one_in_(7))) || dragoon_hit)
 				{
 					int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
@@ -3249,7 +3255,7 @@ void move_player(int dir, int do_pickup)
 	c_ptr = &cave[y][x];
 
 	/* Exit the area */
-	if (!dun_level && !p_ptr->wild_mode && !ironman_forward && !astral_mode &&
+	if (!dun_level && !p_ptr->wild_mode && !astral_mode &&
 		((x == 0) || (x == MAX_WID - 1) ||
 		 (y == 0) || (y == MAX_HGT - 1)))
 	{
@@ -3957,7 +3963,8 @@ void move_player(int dir, int do_pickup)
 		/* Handle "store doors" */
 		if (((c_ptr->feat >= FEAT_SHOP_HEAD) &&
 		    (c_ptr->feat <= FEAT_SHOP_TAIL)) ||
-		    (c_ptr->feat == FEAT_MUSEUM))
+		    (c_ptr->feat == FEAT_MUSEUM) ||
+			(c_ptr->feat == FEAT_DENEB_SHOP))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -4175,6 +4182,7 @@ static int see_wall(int dir, int y, int x)
 		case FEAT_BETWEEN:
 		case FEAT_TRAP_ARMAGEDDON:
 		case FEAT_TRAP_PIRANHA:
+		case FEAT_DENEB_SHOP:
 			return FALSE;
 
 		case FEAT_DARK_PIT:

@@ -383,6 +383,24 @@ static void do_cmd_eat_food_aux(int item)
 		msg_print("The food is non-sustenance for you.");
 #endif
 	}
+	else if (p_ptr->pclass == CLASS_VAMPIRE)
+	{
+		/* Reduced nutritional benefit */
+		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
+#ifdef JP
+		msg_print("あなたのような者にとって食糧など僅かな栄養にしかならない。");
+#else
+		msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
+#endif
+
+		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
+#ifdef JP
+			msg_print("あなたの飢えは新鮮な血によってのみ満たされる！");
+#else
+			msg_print("Your hunger can only be satisfied with fresh blood!");
+#endif
+
+	}
 	else
 	{
 		if (!prace_is_(RACE_PUMPKINHEAD) && (o_ptr->sval == SV_FOOD_ROTTEN_PUMPKIN))
@@ -659,24 +677,6 @@ static void do_cmd_quaff_potion_aux(int item)
 #endif
 
 
-				if (ironman_nightmare)
-				{
-#ifdef JP
-					msg_print("恐ろしい光景が頭に浮かんできた。");
-#else
-					msg_print("A horrible vision enters your mind.");
-#endif
-
-
-					/* Pick a nightmare */
-					get_mon_num_prep(get_nightmare, NULL);
-
-					/* Have some nightmares */
-					have_nightmare(get_mon_num(MAX_DEPTH));
-
-					/* Remove the monster restriction */
-					get_mon_num_prep(NULL, NULL);
-				}
 				if (set_paralyzed(p_ptr->paralyzed + randint0(4) + 4))
 				{
 					ident = TRUE;
@@ -1038,7 +1038,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 			{
 #ifdef JP
-msg_print("全ての突然変異が治った。");
+				msg_print("全ての突然変異が治った。");
 #else
 				msg_print("You are cured of all mutations.");
 #endif
@@ -1066,7 +1066,7 @@ msg_print("全ての突然変異が治った。");
 			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && one_in_(23))
 			{
 #ifdef JP
-msg_print("全ての突然変異が治った。");
+				msg_print("全ての突然変異が治った。");
 #else
 				msg_print("You are cured of all mutations.");
 #endif
@@ -1093,7 +1093,7 @@ msg_print("全ての突然変異が治った。");
 	if (prace_is_(RACE_SKELETON))
 	{
 #ifdef JP
-msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
+		msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 #else
 		msg_print("Some of the fluid falls through your jaws!");
 #endif
@@ -1121,7 +1121,8 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
 	/* Potions can feed the player */
-	if (!p_ptr->no_digest) set_food(p_ptr->food + o_ptr->pval);
+	if (p_ptr->pclass == CLASS_VAMPIRE) set_food(p_ptr->food + o_ptr->pval / 10);
+	else if (!p_ptr->no_digest) set_food(p_ptr->food + o_ptr->pval);
 }
 
 
@@ -1548,7 +1549,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 				ident = TRUE;
 			else
 #ifdef JP
-msg_print("ダンジョンが揺れた...");
+				msg_print("ダンジョンが揺れた...");
 #else
 				msg_print("The dungeon trembles...");
 #endif
@@ -1604,7 +1605,7 @@ msg_print("ダンジョンが揺れた...");
 			/* Note: "Double" damage since it is centered on the player ... */
 			if (!(p_ptr->oppose_fire || p_ptr->resist_fire || p_ptr->immune_fire))
 #ifdef JP
-take_hit(DAMAGE_NOESCAPE, 50+randint1(50), "炎の巻物");
+				take_hit(DAMAGE_NOESCAPE, 50+randint1(50), "炎の巻物");
 #else
 				take_hit(DAMAGE_NOESCAPE, 50 + randint1(50), "a Scroll of Fire");
 #endif
@@ -1619,7 +1620,7 @@ take_hit(DAMAGE_NOESCAPE, 50+randint1(50), "炎の巻物");
 			fire_ball(GF_ICE, 0, 777, 4, TRUE);
 			if (!(p_ptr->oppose_cold || p_ptr->resist_cold || p_ptr->immune_cold))
 #ifdef JP
-take_hit(DAMAGE_NOESCAPE, 100+randint1(100), "氷の巻物");
+				take_hit(DAMAGE_NOESCAPE, 100+randint1(100), "氷の巻物");
 #else
 				take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "a Scroll of Ice");
 #endif
@@ -1633,7 +1634,7 @@ take_hit(DAMAGE_NOESCAPE, 100+randint1(100), "氷の巻物");
 			fire_ball(GF_CHAOS, 0, 1000, 4, TRUE);
 			if (!p_ptr->resist_chaos)
 #ifdef JP
-take_hit(DAMAGE_NOESCAPE, 111+randint1(111), "カオスの巻物");
+				take_hit(DAMAGE_NOESCAPE, 111+randint1(111), "カオスの巻物");
 #else
 				take_hit(DAMAGE_NOESCAPE, 111 + randint1(111), "a Scroll of Chaos");
 #endif
@@ -2239,7 +2240,7 @@ static int staff_effect(int sval, bool *use_charge, bool known)
 				ident = TRUE;
 			else
 #ifdef JP
-msg_print("ダンジョンが揺れた。");
+				msg_print("ダンジョンが揺れた。");
 #else
 				msg_print("The dungeon trembles.");
 #endif
@@ -2273,7 +2274,7 @@ msg_print("ダンジョンが揺れた。");
 #endif
 			project(0, 5, py, px,
 				(randint1(200) + 300) * 2, GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID, MODIFY_ELEM_MODE_MAGIC);
-			if ((p_ptr->pclass != CLASS_WIZARD) && (p_ptr->pclass != CLASS_WARLOCK) && (p_ptr->pclass != CLASS_WITCH) && (p_ptr->pclass != CLASS_SIRENE) && (p_ptr->pclass != CLASS_LICH) && (p_ptr->pclass != CLASS_HIGHWITCH))
+			if ((p_ptr->pclass != CLASS_WIZARD) && (p_ptr->pclass != CLASS_WARLOCK) && (p_ptr->pclass != CLASS_ARCHMAGE) && (p_ptr->pclass != CLASS_WITCH) && (p_ptr->pclass != CLASS_SIRENE) && (p_ptr->pclass != CLASS_LICH) && (p_ptr->pclass != CLASS_HIGHWITCH))
 			{
 #ifdef JP
 				(void)take_hit(DAMAGE_NOESCAPE, 50, "コントロールし難い強力な魔力の解放");
@@ -3416,7 +3417,7 @@ static void do_cmd_zap_rod_aux(int item)
 	{
 		if (flush_failure) flush();
 #ifdef JP
-msg_print("そのロッドはまだ充填中です。");
+		msg_print("そのロッドはまだ充填中です。");
 #else
 		msg_print("The rods are all still charging.");
 #endif
@@ -4146,7 +4147,7 @@ static void do_cmd_activate_aux(int item)
 			case ART_LANCELOT_H:
 			{
 #ifdef JP
-msg_print("天国の歌が聞こえる...");
+				msg_print("天国の歌が聞こえる...");
 #else
 				msg_print("A heavenly choir sings...");
 #endif
@@ -4468,7 +4469,7 @@ msg_print("天国の歌が聞こえる...");
 			{
 				cave_type *c_ptr = &cave[py][px];
 
-				if (ironman_forward || astral_mode)
+				if (astral_mode)
 				{
 #ifdef JP
 					msg_print("何も起こらなかった。");
@@ -4590,7 +4591,7 @@ msg_print("天国の歌が聞こえる...");
 			case ART_GUNGNIR:
 			{
 #ifdef JP
-msg_print("あなたの槍は電気でスパークしている...");
+				msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("Your spear crackles with electricity...");
 #endif
@@ -5229,6 +5230,15 @@ msg_print("あなたの槍は電気でスパークしている...");
 		{
 			switch (o_ptr->name2)
 			{
+			case EGO_AMU_IDENT:
+				if (!ident_spell(FALSE)) return;
+				o_ptr->timeout = 10;
+				break;
+			case EGO_AMU_CHARM:
+				if (!get_aim_dir(&dir)) return;
+				charm_monster(dir, MAX(20, p_ptr->lev));
+				o_ptr->timeout = 200;
+				break;
 			case EGO_AMU_JUMP:
 				teleport_player(10);
 				o_ptr->timeout = randint0(10) + 10;
@@ -5393,7 +5403,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 		}
 		else
 		{
-			if (p_ptr->inside_arena || ironman_forward || astral_mode || (d_info[dungeon_type].flags1 & DF1_CLOSED) ||
+			if (p_ptr->inside_arena || astral_mode || (d_info[dungeon_type].flags1 & DF1_CLOSED) ||
 				(p_ptr->inside_quest && (quest[p_ptr->inside_quest].flags & QUEST_FLAG_NO_RECALL)))
 			{
 #ifdef JP
@@ -5649,7 +5659,7 @@ s = "使えるものがありません。";
 			if (p_ptr->blind)
 			{
 #ifdef JP
-msg_print("目が見えない。");
+				msg_print("目が見えない。");
 #else
 				msg_print("You can't see anything.");
 #endif
@@ -5659,7 +5669,7 @@ msg_print("目が見えない。");
 			if (no_lite())
 			{
 #ifdef JP
-msg_print("明かりがないので、暗くて読めない。");
+				msg_print("明かりがないので、暗くて読めない。");
 #else
 				msg_print("You have no light to read by.");
 #endif
@@ -5669,7 +5679,7 @@ msg_print("明かりがないので、暗くて読めない。");
 			if (p_ptr->confused)
 			{
 #ifdef JP
-msg_print("混乱していて読めない！");
+				msg_print("混乱していて読めない！");
 #else
 				msg_print("You are too confused!");
 #endif
@@ -5689,7 +5699,7 @@ msg_print("混乱していて読めない！");
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			(void)do_cmd_fire_aux(item, &inventory[INVEN_BOW], FALSE);
+			(void)do_cmd_fire_aux(item, &inventory[INVEN_BOW], 0, FALSE);
 			break;
 		}
 

@@ -147,7 +147,7 @@ static void roff_aux(int r_idx, int mode)
 #endif
 	int             msex = 0;
 
-	int speed = (ironman_nightmare) ? r_ptr->speed + 5 : r_ptr->speed;
+	int speed = r_ptr->speed;
 
 	bool            breath = FALSE;
 	bool            magic = FALSE;
@@ -738,12 +738,6 @@ static void roff_aux(int r_idx, int mode)
 
 
 		/* Describe the "quality" */
-#ifdef JP
-		if (flags2 & RF2_ELDRITCH_HORROR) hook_c_roff(TERM_VIOLET, "狂気を誘う");/*nuke me*/
-#else
-		if (flags2 & RF2_ELDRITCH_HORROR) hooked_roff(" sanity-blasting");
-#endif
-
 #ifdef JP
 		if (flags3 & RF3_ANIMAL)          hook_c_roff(TERM_L_GREEN, "自然界の");
 #else
@@ -1983,55 +1977,55 @@ static void roff_aux(int r_idx, int mode)
 	/* Collect special abilities. */
 	vn = 0;
 #ifdef JP
-if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) vp[vn++] = "ダンジョンを照らす";
+	if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) vp[vn++] = "ダンジョンを照らす";
 #else
 	if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) vp[vn++] = "illuminate the dungeon";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_OPEN_DOOR) vp[vn++] = "ドアを開ける";
+	if (flags2 & RF2_OPEN_DOOR) vp[vn++] = "ドアを開ける";
 #else
 	if (flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_BASH_DOOR) vp[vn++] = "ドアを打ち破る";
+	if (flags2 & RF2_BASH_DOOR) vp[vn++] = "ドアを打ち破る";
 #else
 	if (flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_PASS_WALL) vp[vn++] = "壁をすり抜ける";
+	if (flags2 & RF2_PASS_WALL) vp[vn++] = "壁をすり抜ける";
 #else
 	if (flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_KILL_WALL) vp[vn++] = "壁を掘り進む";
+	if (flags2 & RF2_KILL_WALL) vp[vn++] = "壁を掘り進む";
 #else
 	if (flags2 & RF2_KILL_WALL) vp[vn++] = "bore through walls";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_MOVE_BODY) vp[vn++] = "弱いモンスターを押しのける";
+	if (flags2 & RF2_MOVE_BODY) vp[vn++] = "弱いモンスターを押しのける";
 #else
 	if (flags2 & RF2_MOVE_BODY) vp[vn++] = "push past weaker monsters";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_KILL_BODY) vp[vn++] = "弱いモンスターを倒す";
+	if (flags2 & RF2_KILL_BODY) vp[vn++] = "弱いモンスターを倒す";
 #else
 	if (flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_TAKE_ITEM) vp[vn++] = "アイテムを拾う";
+	if (flags2 & RF2_TAKE_ITEM) vp[vn++] = "アイテムを拾う";
 #else
 	if (flags2 & RF2_TAKE_ITEM) vp[vn++] = "pick up objects";
 #endif
 
 #ifdef JP
-if (flags2 & RF2_KILL_ITEM) vp[vn++] = "アイテムを壊す";
+	if (flags2 & RF2_KILL_ITEM) vp[vn++] = "アイテムを壊す";
 #else
 	if (flags2 & RF2_KILL_ITEM) vp[vn++] = "destroy objects";
 #endif
@@ -2853,134 +2847,134 @@ if (flags2 & RF2_KILL_ITEM) vp[vn++] = "アイテムを壊す";
 		switch (method)
 		{
 #ifdef JP
-case RBM_HIT:		p = "殴る"; break;
+			case RBM_HIT:		p = "殴る"; break;
 #else
 			case RBM_HIT:		p = "hit"; break;
 #endif
 
 #ifdef JP
-case RBM_TOUCH:		p = "触る"; break;
+			case RBM_TOUCH:		p = "触る"; break;
 #else
 			case RBM_TOUCH:		p = "touch"; break;
 #endif
 
 #ifdef JP
-case RBM_PUNCH:		p = "パンチする"; break;
+			case RBM_PUNCH:		p = "パンチする"; break;
 #else
 			case RBM_PUNCH:		p = "punch"; break;
 #endif
 
 #ifdef JP
-case RBM_KICK:		p = "蹴る"; break;
+			case RBM_KICK:		p = "蹴る"; break;
 #else
 			case RBM_KICK:		p = "kick"; break;
 #endif
 
 #ifdef JP
-case RBM_CLAW:		p = "ひっかく"; break;
+			case RBM_CLAW:		p = "ひっかく"; break;
 #else
 			case RBM_CLAW:		p = "claw"; break;
 #endif
 
 #ifdef JP
-case RBM_BITE:		p = "噛む"; break;
+			case RBM_BITE:		p = "噛む"; break;
 #else
 			case RBM_BITE:		p = "bite"; break;
 #endif
 
 #ifdef JP
-case RBM_STING:		p = "刺す"; break;
+			case RBM_STING:		p = "刺す"; break;
 #else
 			case RBM_STING:		p = "sting"; break;
 #endif
 
 #ifdef JP
-case RBM_SLASH:		p = "斬る"; break;
+			case RBM_SLASH:		p = "斬る"; break;
 #else
 			case RBM_SLASH:		p = "slash"; break;
 #endif
 
 #ifdef JP
-case RBM_BUTT:		p = "角で突く"; break;
+			case RBM_BUTT:		p = "角で突く"; break;
 #else
 			case RBM_BUTT:		p = "butt"; break;
 #endif
 
 #ifdef JP
-case RBM_CRUSH:		p = "体当たりする"; break;
+			case RBM_CRUSH:		p = "体当たりする"; break;
 #else
 			case RBM_CRUSH:		p = "crush"; break;
 #endif
 
 #ifdef JP
-case RBM_ENGULF:	p = "飲み込む"; break;
+			case RBM_ENGULF:	p = "飲み込む"; break;
 #else
 			case RBM_ENGULF:	p = "engulf"; break;
 #endif
 
 #ifdef JP
-case RBM_CHARGE: 	p = "請求書をよこす"; break;
+			case RBM_CHARGE: 	p = "請求書をよこす"; break;
 #else
 			case RBM_CHARGE: 	p = "charge";   break;
 #endif
 
 #ifdef JP
-case RBM_CRAWL:		p = "体の上を這い回る"; break;
+			case RBM_CRAWL:		p = "体の上を這い回る"; break;
 #else
 			case RBM_CRAWL:		p = "crawl on you"; break;
 #endif
 
 #ifdef JP
-case RBM_DROOL:		p = "よだれをたらす"; break;
+			case RBM_DROOL:		p = "よだれをたらす"; break;
 #else
 			case RBM_DROOL:		p = "drool on you"; break;
 #endif
 
 #ifdef JP
-case RBM_SPIT:		p = "つばを吐く"; break;
+			case RBM_SPIT:		p = "つばを吐く"; break;
 #else
 			case RBM_SPIT:		p = "spit"; break;
 #endif
 
 #ifdef JP
-case RBM_EXPLODE:	p = "爆発する"; break;
+			case RBM_EXPLODE:	p = "爆発する"; break;
 #else
 			case RBM_EXPLODE:	p = "explode"; break;
 #endif
 
 #ifdef JP
-case RBM_GAZE:		p = "にらむ"; break;
+			case RBM_GAZE:		p = "にらむ"; break;
 #else
 			case RBM_GAZE:		p = "gaze"; break;
 #endif
 
 #ifdef JP
-case RBM_WAIL:		p = "泣き叫ぶ"; break;
+			case RBM_WAIL:		p = "泣き叫ぶ"; break;
 #else
 			case RBM_WAIL:		p = "wail"; break;
 #endif
 
 #ifdef JP
-case RBM_SPORE:		p = "胞子を飛ばす"; break;
+			case RBM_SPORE:		p = "胞子を飛ばす"; break;
 #else
 			case RBM_SPORE:		p = "release spores"; break;
 #endif
 
 			case RBM_XXX4:		break;
 #ifdef JP
-case RBM_BEG:		p = "金をせがむ"; break;
+			case RBM_BEG:		p = "金をせがむ"; break;
 #else
 			case RBM_BEG:		p = "beg"; break;
 #endif
 
 #ifdef JP
-case RBM_INSULT:	p = "侮辱する"; break;
+			case RBM_INSULT:	p = "侮辱する"; break;
 #else
 			case RBM_INSULT:	p = "insult"; break;
 #endif
 
 #ifdef JP
-case RBM_SING:  	p = "歌う"; break;
+			case RBM_SING:  	p = "歌う"; break;
 #else
 			case RBM_SING:  	p = "sing"; break;
 #endif
@@ -3781,7 +3775,7 @@ monster_hook_type get_monster_hook2(int y, int x)
 	case FEAT_AIR:
 		return (monster_hook_type)mon_hook_flying;
 	default:
-		return NULL;
+		return (monster_hook_type)mon_hook_floor;;
 	}
 }
 
@@ -3828,7 +3822,7 @@ void anger_monster(monster_type *m_ptr)
 
 		monster_desc(m_name, m_ptr, 0);
 #ifdef JP
-msg_format("%^sは怒った！", m_name);
+		msg_format("%^sは怒った！", m_name);
 #else
 		msg_format("%^s gets angry!", m_name);
 #endif
@@ -4024,7 +4018,6 @@ bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_race *s_ptr = &r_info[n_ptr->r_idx];
-	byte m_sub_align, n_sub_align;
 
 	if ((r_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL))
 	    && (s_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL)))

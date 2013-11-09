@@ -427,7 +427,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 		/* Wait for response */
 #ifdef JP
-prt("[ ESCで中断, その他のキーで続けます ]", hgt - 1, 21);
+		prt("[ ESCで中断, その他のキーで続けます ]", hgt - 1, 21);
 #else
 		prt("[Press ESC to quit, any other key to continue.]", hgt - 1, 17);
 #endif
@@ -459,7 +459,7 @@ void display_scores(int from, int to)
 
 	/* Paranoia -- No score file */
 #ifdef JP
-if (highscore_fd < 0) quit("スコア・ファイルが使用できません。");
+	if (highscore_fd < 0) quit("スコア・ファイルが使用できません。");
 #else
 	if (highscore_fd < 0) quit("Score file unavailable.");
 #endif
@@ -604,7 +604,7 @@ errr predict_score(void)
 	if (highscore_fd < 0)
 	{
 #ifdef JP
-msg_print("スコア・ファイルが使用できません。");
+		msg_print("スコア・ファイルが使用できません。");
 #else
 		msg_print("Score file unavailable.");
 #endif
@@ -629,7 +629,7 @@ msg_print("スコア・ファイルが使用できません。");
 
 	/* Hack -- no time needed */
 #ifdef JP
-strcpy(the_score.day, "今日");
+	strcpy(the_score.day, "今日");
 #else
 	strcpy(the_score.day, "TODAY");
 #endif
@@ -709,7 +709,7 @@ void show_highclass(void)
 	if (highscore_fd < 0)
 	{
 #ifdef JP
-msg_print("スコア・ファイルが使用できません。");
+		msg_print("スコア・ファイルが使用できません。");
 #else
 		msg_print("Score file unavailable.");
 #endif
@@ -787,7 +787,7 @@ void race_score(int race_num)
 
 	/* rr9: TODO - pluralize the race */
 #ifdef JP
-sprintf(tmp_str,"最高の%s", race_info[race_num].title);
+	sprintf(tmp_str,"最高の%s", race_info[race_num].title);
 #else
 	sprintf(tmp_str,"The Greatest of all the %s", race_info[race_num].title);
 #endif
@@ -802,7 +802,7 @@ sprintf(tmp_str,"最高の%s", race_info[race_num].title);
 	if (highscore_fd < 0)
 	{
 #ifdef JP
-msg_print("スコア・ファイルが使用できません。");
+		msg_print("スコア・ファイルが使用できません。");
 #else
 		msg_print("Score file unavailable.");
 #endif
@@ -878,7 +878,7 @@ void race_legends(void)
 	{
 		race_score(i);
 #ifdef JP
-msg_print("何かキーを押すとゲームに戻ります");
+		msg_print("何かキーを押すとゲームに戻ります");
 #else
 		msg_print("Hit any key to continue");
 #endif

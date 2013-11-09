@@ -245,125 +245,34 @@ static void strip_bytes(int n)
 	while (n--) rd_byte(&tmp8u);
 }
 
-
 /*
- * Read an object (Old method)
- *
- * This function attempts to "repair" old savefiles, and to extract
- * the most up to date values for various object fields.
- *
- * Note that Angband 2.7.9 introduced a new method for object "flags"
- * in which the "flags" on an object are actually extracted when they
- * are needed from the object kind, artifact index, ego-item index,
- * and two special "xtra" fields which are used to encode any "extra"
- * power of certain ego-items.  This had the side effect that items
- * imported from pre-2.7.9 savefiles will lose any "extra" powers they
- * may have had, and also, all "uncursed" items will become "cursed"
- * again, including Calris, even if it is being worn at the time.  As
- * a complete hack, items which are inscribed with "uncursed" will be
- * "uncursed" when imported from pre-2.7.9 savefiles.
+ * Object conversion
  */
-static void rd_item_old(object_type *o_ptr)
+static void convert_object(object_type *o_ptr)
 {
-	char buf[128];
-
-
-	/* Kind */
-	rd_s16b(&o_ptr->k_idx);
-
-	/* Location */
-	rd_byte(&o_ptr->iy);
-	rd_byte(&o_ptr->ix);
-
-	/* Type/Subtype */
-	rd_byte(&o_ptr->tval);
-	rd_byte(&o_ptr->sval);
-
-	/* Special pval */
-	rd_s16b(&o_ptr->pval);
-
-	rd_byte(&o_ptr->discount);
-	rd_byte(&o_ptr->number);
-	rd_s16b(&o_ptr->weight);
-
-	rd_byte(&o_ptr->name1);
-	rd_byte(&o_ptr->name2);
-	rd_s16b(&o_ptr->timeout);
-
-	rd_s16b(&o_ptr->to_h);
-	rd_s16b(&o_ptr->to_d);
-	rd_s16b(&o_ptr->to_a);
-
-	rd_s16b(&o_ptr->ac);
-
-	rd_byte(&o_ptr->dd);
-	rd_byte(&o_ptr->ds);
-
-	rd_byte(&o_ptr->ident);
-
-	rd_byte(&o_ptr->marked);
-
-	/* Old flags */
-	rd_u32b(&o_ptr->art_flags[0]);
-	rd_u32b(&o_ptr->art_flags[1]);
-	rd_u32b(&o_ptr->art_flags[2]);
-	rd_u32b(&o_ptr->art_flags[3]);
-	rd_u32b(&o_ptr->curse_flags);
-
-	/* Monster holding object */
-	rd_s16b(&o_ptr->held_m_idx);
-
-	/* Special powers */
-	rd_byte(&o_ptr->xtra1);
-	rd_byte(&o_ptr->xtra2);
-	rd_byte(&o_ptr->xtra3);
-	rd_s16b(&o_ptr->xtra4);
-	rd_s16b(&o_ptr->xtra5);
-
-	/* Feeling */
-	rd_byte(&o_ptr->feeling);
-
-	/* Inscription */
-	rd_string(buf, sizeof(buf));
-
-	/* Save the inscription */
-	if (buf[0]) o_ptr->inscription = quark_add(buf);
-
-	rd_string(buf, sizeof(buf));
-	if (buf[0]) o_ptr->art_name = quark_add(buf);
-
-	/* The Python object */
+	if (t_older_than(0, 1, 0, 7))
 	{
-		s32b tmp32s;
-
-		rd_s32b(&tmp32s);
-		strip_bytes(tmp32s);
+		if (o_ptr->k_idx == 295) /* Tarot */
+		{
+			o_ptr->tval = TV_TAROT;
+		}
 	}
-
-	/* Paranoia */
-	if (o_ptr->name1)
+	if (t_older_than(0, 1, 0, 8))
 	{
-		artifact_type *a_ptr;
+		if (o_ptr->k_idx == 51) /* Flight Arrow */
+		{
+			object_kind *k_ptr;
 
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
-
-		/* Verify that artifact */
-		if (!a_ptr->name) o_ptr->name1 = 0;
+			o_ptr->k_idx = 48;
+			k_ptr = &k_info[o_ptr->k_idx];
+			o_ptr->tval = TV_ARROW;
+			o_ptr->sval = SV_AMMO_NORMAL;
+			o_ptr->dd = k_ptr->dd;
+			o_ptr->ds = k_ptr->ds;
+			o_ptr->weight = k_ptr->weight;
+		}
 	}
-
-	/* Paranoia */
-	if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr;
-
-		/* Obtain the ego-item info */
-		e_ptr = &e_info[o_ptr->name2];
-
-		/* Verify that ego-item */
-		if (!e_ptr->name) o_ptr->name2 = 0;
-
-	}
+	if (o_ptr->ac < 0) o_ptr->ac = 0;
 }
 
 
@@ -490,64 +399,9 @@ static void rd_item(object_type *o_ptr)
 		if (bonus_flags & (1UL << (i + A_MAX))) rd_s16b(&o_ptr->to_misc[i]);
 		else o_ptr->to_misc[i] = 0;
 	}
-}
 
+	 convert_object(o_ptr);
 
-/*
- * Read a monster (Old method)
- */
-static void rd_monster_old(monster_type *m_ptr)
-{
-	byte tmp8u;
-	char buf[128];
-
-	/* Read the monster race */
-	rd_s16b(&m_ptr->r_idx);
-
-	rd_s16b(&m_ptr->ap_r_idx);
-
-	rd_byte(&m_ptr->sub_align);
-
-	/* Read the other information */
-	rd_byte(&m_ptr->fy);
-	rd_byte(&m_ptr->fx);
-	rd_s16b(&m_ptr->elem);
-	rd_s32b(&m_ptr->hp);
-	rd_s32b(&m_ptr->maxhp);
-	rd_s32b(&m_ptr->max_maxhp);
-	rd_s16b(&m_ptr->csleep);
-	rd_byte(&m_ptr->mspeed);
-	rd_s16b(&m_ptr->energy_need);
-
-	rd_byte(&m_ptr->fast);
-	rd_byte(&m_ptr->slow);
-	rd_byte(&m_ptr->stunned);
-	rd_byte(&m_ptr->confused);
-	rd_byte(&m_ptr->monfear);
-	rd_byte(&m_ptr->stoning);
-	rd_byte(&m_ptr->melt_weapon);
-	rd_byte(&m_ptr->opposite_elem);
-	rd_byte(&m_ptr->silent);
-	rd_byte(&tmp8u);
-	m_ptr->silent_song = (bool)tmp8u;
-
-	rd_s16b(&m_ptr->target_y);
-	rd_s16b(&m_ptr->target_x);
-
-	/* Monster invulnerability */
-	rd_byte(&m_ptr->invulner);
-
-	rd_u32b(&m_ptr->smart1);
-	m_ptr->smart2 = 0L;
-
-	rd_u32b(&m_ptr->exp);
-
-	rd_byte(&m_ptr->mflag2);
-
-	rd_string(buf, sizeof(buf));
-	if (buf[0]) m_ptr->nickname = quark_add(buf);
-
-	rd_byte(&tmp8u);
 }
 
 
@@ -848,7 +702,6 @@ static errr rd_store(int town_number, int store_number)
 	int j;
 
 	byte own;
-	byte tmp8u;
 	s16b num;
 
 	bool sort = FALSE;
@@ -1133,7 +986,6 @@ static void rd_ghost(void)
 static void load_quick_start(void)
 {
 	byte tmp8u;
-	s16b tmp16s;
 	int i;
 
 	rd_byte(&previous_char.psex);
@@ -1152,6 +1004,16 @@ static void load_quick_start(void)
 
 	rd_s32b(&previous_char.race_hp_lv1);
 	rd_s32b(&previous_char.race_sp_lv1);
+	if (t_older_than(0, 1, 0, 9))
+	{
+		previous_char.class_hp_lv1 = previous_char.class_sp_lv1 = 0;
+	}
+	else
+	{
+		rd_s32b(&previous_char.class_hp_lv1);
+		rd_s32b(&previous_char.class_sp_lv1);
+	}
+	
 
 	for (i = 0; i < 4; i++) rd_string(previous_char.history[i], sizeof(previous_char.history[i]));
 
@@ -1166,12 +1028,11 @@ static void load_quick_start(void)
  */
 static errr rd_extra(void)
 {
-	int i, j;
+	int i;
 
 	byte tmp8u;
 	s16b tmp16s;
 	u16b tmp16u;
-	s32b tmp32s;
 
 	rd_string(player_name, sizeof(player_name));
 
@@ -1204,7 +1065,16 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u); /* oops */
 
 	rd_u16b(&p_ptr->expfact);
-	rd_u16b(&p_ptr->cexpfact);
+	if (t_older_than(0, 1, 0, 10))
+	{
+		if (t_older_than(0, 1, 0, 8)) rd_u16b(&p_ptr->cexpfact[p_ptr->pclass]);
+		else
+		{
+			for (i = 0; i < MAX_CLASS - 1; i++) rd_u16b(&p_ptr->cexpfact[i]);
+			p_ptr->cexpfact[CLASS_VAMPIRE] = class_info[CLASS_VAMPIRE].c_exp;
+		}
+	}
+	else for (i = 0; i < MAX_CLASS; i++) rd_u16b(&p_ptr->cexpfact[i]);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -1241,7 +1111,7 @@ static errr rd_extra(void)
 			if (p_ptr->skill_exp[i] > 500) p_ptr->skill_exp[i] = 500;
 		}
 	}
-	for (i = 0; i < MAX_REALM + 1; i++) rd_s16b(&p_ptr->magic_exp[i]);
+	for (i = 0; i <= MAX_REALM; i++) rd_s16b(&p_ptr->magic_exp[i]);
 
 	rd_u16b(&tmp16u);
 
@@ -1267,6 +1137,31 @@ static errr rd_extra(void)
 		rd_s32b(&cexp_ptr->clev);
 		rd_s32b(&cexp_ptr->max_clev);
 		rd_s32b(&cexp_ptr->max_max_clev);
+	}
+
+	if (t_older_than(0, 1, 0, 10))
+	{
+		if (t_older_than(0, 1, 0, 8))
+		{
+			int expd_classes = 0;
+
+			for (i = 0; i < MAX_CLASS; i++)
+			{
+				if (p_ptr->cexp_info[i].max_clev > 0) expd_classes++;
+			}
+
+			for (i = 0; i < MAX_CLASS; i++)
+			{
+				if ((p_ptr->cexp_info[i].max_clev > 0) && (i != previous_char.pclass)) p_ptr->cexpfact[i] = class_info[i].c_exp + expd_classes * 50;
+				else p_ptr->cexpfact[i] = class_info[i].c_exp;
+			}
+		}
+		else
+		{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[tmp16u+1];
+
+		cexp_ptr->max_max_cexp = cexp_ptr->max_cexp = cexp_ptr->cexp = cexp_ptr->cexp_frac = cexp_ptr->clev = cexp_ptr->max_clev = cexp_ptr->max_max_clev = 0;
+		}
 	}
 
 	for (i = 0; i < 108; i++) rd_s32b(&p_ptr->essence_box[i]);
@@ -1344,7 +1239,8 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
-	strip_bytes(4); /* Old "food_digested" / "protection" */
+	rd_byte(&p_ptr->infected);
+	strip_bytes(3); /* Old "protection" */
 
 	rd_s16b(&p_ptr->energy_need);
 
@@ -1357,6 +1253,8 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->stoning);
 	rd_s16b(&p_ptr->opposite_pelem);
+	if (t_older_than(0, 1, 0, 5)) p_ptr->no_elem = 0;
+	else  rd_s16b(&p_ptr->no_elem);
 	rd_s16b(&p_ptr->protevil);
 	rd_s16b(&p_ptr->invuln);
 	rd_s16b(&p_ptr->hero);
@@ -1628,375 +1526,6 @@ static void rd_messages(void)
 		/* Save the message */
 		message_add(buf);
 	}
-}
-
-
-
-/* Old hidden trap flag */
-#define CAVE_TRAP       0x8000
-
-/*
- * Read the dungeon (old method)
- *
- * The monsters/objects must be loaded in the same order
- * that they were stored, since the actual indexes matter.
- */
-static errr rd_dungeon_old(void)
-{
-	int i, y, x;
-	int ymax, xmax;
-	int cur_elem;
-	byte count;
-	byte tmp8u;
-	s16b tmp16s;
-	u16b limit;
-	cave_type *c_ptr;
-
-
-	/*** Basic info ***/
-
-	/* Header info */
-	rd_s16b(&dun_level);
-	rd_byte(&dungeon_type);
-
-	/* Set the base level for old versions */
-	base_level = dun_level;
-
-	rd_s16b(&base_level);
-
-	rd_s16b(&num_repro);
-	rd_s16b(&tmp16s);
-	py = (int)tmp16s;
-	rd_s16b(&tmp16s);
-	px = (int)tmp16s;
-	rd_s16b(&cur_hgt);
-	rd_s16b(&cur_wid);
-	rd_s16b(&tmp16s); /* max_panel_rows */
-	rd_s16b(&tmp16s); /* max_panel_cols */
-
-#if 0
-	if (!py || !px) {py = 10;px = 10;}/* ダンジョン生成に失敗してセグメンテったときの復旧用 */
-#endif
-
-	/* Maximal size */
-	ymax = cur_hgt;
-	xmax = cur_wid;
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_s16b(&tmp16s);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "info" */
-			c_ptr->info = tmp16s;
-
-			/* Decline invalid flags */
-			c_ptr->info &= ~(CAVE_LITE | CAVE_VIEW | CAVE_MNLT);
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "feat" */
-			c_ptr->feat = tmp8u;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "mimic" */
-			c_ptr->mimic = tmp8u;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_s16b(&tmp16s);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "special" */
-			c_ptr->special = tmp16s;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-	for (cur_elem = MIN_ELEM; cur_elem < ELEM_NUM; cur_elem++)
-	{
-		/*** Run length decoding ***/
-
-		/* Load the dungeon data */
-		for (x = y = 0; y < ymax; )
-		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_s16b(&tmp16s);
-
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
-			{
-				/* Access the cave */
-				c_ptr = &cave[y][x];
-
-				/* Extract current element */
-				c_ptr->elem[cur_elem] = tmp16s;
-
-				/* Advance/Wrap */
-				if (++x >= xmax)
-				{
-					/* Wrap */
-					x = 0;
-
-					/* Advance/Wrap */
-					if (++y >= ymax) break;
-				}
-			}
-		}
-	}
-
-	/*** Objects ***/
-
-	/* Read the item count */
-	rd_u16b(&limit);
-
-	/* Verify maximum */
-	if (limit > max_o_idx)
-	{
-#ifdef JP
-note(format("アイテムの配列が大きすぎる(%d)！", limit));
-#else
-		note(format("Too many (%d) object entries!", limit));
-#endif
-
-		return (151);
-	}
-
-	/* Read the dungeon items */
-	for (i = 1; i < limit; i++)
-	{
-		int o_idx;
-
-		object_type *o_ptr;
-
-
-		/* Get a new record */
-		o_idx = o_pop();
-
-		/* Oops */
-		if (i != o_idx)
-		{
-#ifdef JP
-note(format("アイテム配置エラー (%d <> %d)", i, o_idx));
-#else
-			note(format("Object allocation error (%d <> %d)", i, o_idx));
-#endif
-
-			return (152);
-		}
-
-
-		/* Acquire place */
-		o_ptr = &o_list[o_idx];
-
-		/* Read the item */
-		rd_item(o_ptr);
-
-
-		/* XXX XXX XXX XXX XXX */
-
-		/* Monster */
-		if (o_ptr->held_m_idx)
-		{
-			monster_type *m_ptr;
-
-			/* Monster */
-			m_ptr = &m_list[o_ptr->held_m_idx];
-
-			/* Build a stack */
-			o_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-			/* Place the object */
-			m_ptr->hold_o_idx = o_idx;
-		}
-
-		/* Dungeon */
-		else
-		{
-			/* Access the item location */
-			c_ptr = &cave[o_ptr->iy][o_ptr->ix];
-
-			/* Build a stack */
-			o_ptr->next_o_idx = c_ptr->o_idx;
-
-			/* Place the object */
-			c_ptr->o_idx = o_idx;
-		}
-	}
-
-
-	/*** Monsters ***/
-
-	/* Read the monster count */
-	rd_u16b(&limit);
-
-	/* Hack -- verify */
-	if (limit > max_m_idx)
-	{
-#ifdef JP
-note(format("モンスターの配列が大きすぎる(%d)！", limit));
-#else
-		note(format("Too many (%d) monster entries!", limit));
-#endif
-
-		return (161);
-	}
-
-	/* Read the monsters */
-	for (i = 1; i < limit; i++)
-	{
-		int m_idx;
-		monster_type *m_ptr;
-		monster_race *r_ptr;
-
-
-		/* Get a new record */
-		m_idx = m_pop();
-
-		/* Oops */
-		if (i != m_idx)
-		{
-#ifdef JP
-note(format("モンスター配置エラー (%d <> %d)", i, m_idx));
-#else
-			note(format("Monster allocation error (%d <> %d)", i, m_idx));
-#endif
-
-			return (162);
-		}
-
-
-		/* Acquire monster */
-		m_ptr = &m_list[m_idx];
-
-		/* Read the monster */
-		rd_monster(m_ptr);
-
-
-		/* Access grid */
-		c_ptr = &cave[m_ptr->fy][m_ptr->fx];
-
-		/* Mark the location */
-		c_ptr->m_idx = m_idx;
-
-
-		/* Access real race */
-		r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Count */
-		real_r_ptr(m_ptr)->cur_num++;
-
-		/* Hack -- Count the number of "anti-magic monsters" */
-		if (r_ptr->flags3 & RF3_ANTI_MAGIC)
-			anti_magic_m_idx[num_anti_magic++] = m_idx;
-
-		/* Hack -- Count the number of "fear field monsters" */
-		if (r_ptr->flags3 & RF3_FEAR_FIELD)
-			fear_field_m_idx[num_fear_field++] = m_idx;
-	}
-
-	/*** Success ***/
-
-	/* The dungeon is ready */
-	character_dungeon = TRUE;
-
-	/* Success */
-	return (0);
 }
 
 
@@ -2448,13 +1977,12 @@ static errr rd_savefile_new_aux(void)
 	s32b wild_y_size;
 
 	byte tmp8u;
-	s16b tmp16s;
 	u16b tmp16u;
 	u32b tmp32u;
+	s32b tmp32s;
 
 	byte tmp_runeweapon_num;
 
-	byte level_gained_class[50]; /* Note: 50 is PY_MAX_LEVEL on 0.0.3.3 or older */
 
 #ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
@@ -2517,7 +2045,7 @@ static errr rd_savefile_new_aux(void)
 	/* Read RNG state */
 	rd_randomizer();
 #ifdef JP
-if (arg_fiddle) note("乱数情報をロードしました");
+	if (arg_fiddle) note("乱数情報をロードしました");
 #else
 	if (arg_fiddle) note("Loaded Randomizer Info");
 #endif
@@ -2527,7 +2055,7 @@ if (arg_fiddle) note("乱数情報をロードしました");
 	/* Then the options */
 	rd_options();
 #ifdef JP
-if (arg_fiddle) note("オプションをロードしました");
+	if (arg_fiddle) note("オプションをロードしました");
 #else
 	if (arg_fiddle) note("Loaded Option Flags");
 #endif
@@ -2535,7 +2063,7 @@ if (arg_fiddle) note("オプションをロードしました");
 	/* Then the "messages" */
 	rd_messages();
 #ifdef JP
-if (arg_fiddle) note("メッセージをロードしました");
+	if (arg_fiddle) note("メッセージをロードしました");
 #else
 	if (arg_fiddle) note("Loaded Messages");
 #endif
@@ -2601,7 +2129,7 @@ if (arg_fiddle) note("メッセージをロードしました");
 	if (tmp16u > max_r_idx)
 	{
 #ifdef JP
-note(format("モンスターの種族が多すぎる(%u)！", tmp16u));
+		note(format("モンスターの種族が多すぎる(%u)！", tmp16u));
 #else
 		note(format("Too many (%u) monster races!", tmp16u));
 #endif
@@ -2623,7 +2151,7 @@ note(format("モンスターの種族が多すぎる(%u)！", tmp16u));
 	}
 
 #ifdef JP
-if (arg_fiddle) note("モンスターの思い出をロードしました");
+	if (arg_fiddle) note("モンスターの思い出をロードしました");
 #else
 	if (arg_fiddle) note("Loaded Monster Memory");
 #endif
@@ -2637,7 +2165,7 @@ if (arg_fiddle) note("モンスターの思い出をロードしました");
 	if (tmp16u > max_k_idx)
 	{
 #ifdef JP
-note(format("アイテムの種類が多すぎる(%u)！", tmp16u));
+		note(format("アイテムの種類が多すぎる(%u)！", tmp16u));
 #else
 		note(format("Too many (%u) object kinds!", tmp16u));
 #endif
@@ -2657,7 +2185,7 @@ note(format("アイテムの種類が多すぎる(%u)！", tmp16u));
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
 	}
 #ifdef JP
-if (arg_fiddle) note("アイテムの記録をロードしました");
+	if (arg_fiddle) note("アイテムの記録をロードしました");
 #else
 	if (arg_fiddle) note("Loaded Object Memory");
 #endif
@@ -2704,7 +2232,7 @@ if (arg_fiddle) note("アイテムの記録をロードしました");
 		if (max_towns_load > max_towns)
 		{
 #ifdef JP
-note(format("町が多すぎる(%u)！", max_towns_load));
+			note(format("町が多すぎる(%u)！", max_towns_load));
 #else
 			note(format("Too many (%u) towns!", max_towns_load));
 #endif
@@ -2721,7 +2249,7 @@ note(format("町が多すぎる(%u)！", max_towns_load));
 		if (max_quests_load > max_quests)
 		{
 #ifdef JP
-note(format("クエストが多すぎる(%u)！", max_quests_load));
+			note(format("クエストが多すぎる(%u)！", max_quests_load));
 #else
 			note(format("Too many (%u) quests!", max_quests_load));
 #endif
@@ -2832,7 +2360,7 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 		if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
 		{
 #ifdef JP
-note(format("荒野が大きすぎる(%u/%u)！", wild_x_size, wild_y_size));
+			note(format("荒野が大きすぎる(%u/%u)！", wild_x_size, wild_y_size));
 #else
 			note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
 #endif
@@ -2850,8 +2378,14 @@ note(format("荒野が大きすぎる(%u/%u)！", wild_x_size, wild_y_size));
 		}
 	}
 
+	if (t_older_than(0, 1, 0, 10))
+	{
+		if ((quest[QUEST_ARMORICA].status == QUEST_STATUS_TAKEN || quest[QUEST_ARMORICA].status == QUEST_STATUS_UNTAKEN) && !r_info[MON_AGRES].max_num)
+			r_info[MON_AGRES].max_num = 1;
+	}
+
 #ifdef JP
-if (arg_fiddle) note("クエスト情報をロードしました");
+	if (arg_fiddle) note("クエスト情報をロードしました");
 #else
 	if (arg_fiddle) note("Loaded Quests");
 #endif
@@ -2863,7 +2397,7 @@ if (arg_fiddle) note("クエスト情報をロードしました");
 	if (tmp16u > max_a_idx)
 	{
 #ifdef JP
-note(format("伝説のアイテムが多すぎる(%u)！", tmp16u));
+		note(format("伝説のアイテムが多すぎる(%u)！", tmp16u));
 #else
 		note(format("Too many (%u) artifacts!", tmp16u));
 #endif
@@ -2882,7 +2416,7 @@ note(format("伝説のアイテムが多すぎる(%u)！", tmp16u));
 		rd_s16b(&a_ptr->floor_id);
 	}
 #ifdef JP
-if (arg_fiddle) note("伝説のアイテムをロードしました");
+	if (arg_fiddle) note("伝説のアイテムをロードしました");
 #else
 	if (arg_fiddle) note("Loaded Artifacts");
 #endif
@@ -2904,7 +2438,7 @@ if (arg_fiddle) note("伝説のアイテムをロードしました");
 	if (p_ptr->energy_need < -999) stop_the_time_player = TRUE;
 
 #ifdef JP
-if (arg_fiddle) note("特別情報をロードしました");
+	if (arg_fiddle) note("特別情報をロードしました");
 #else
 	if (arg_fiddle) note("Loaded extra information");
 #endif
@@ -2932,6 +2466,94 @@ if (arg_fiddle) note("特別情報をロードしました");
 		rd_s32b(&p_ptr->race_sp[i]);
 	}
 
+	if (t_older_than(0, 1, 0, 9))
+	{
+		/* 再計算 */
+		(void)C_WIPE(p_ptr->race_hp, PY_MAX_LEVEL, s32b);
+		(void)C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s32b);
+		for (i = 0; i < MAX_CLASS; i++)
+		{
+			(void)C_WIPE(p_ptr->class_hp[i], PY_MAX_LEVEL, s32b);
+			(void)C_WIPE(p_ptr->class_sp[i], PY_MAX_LEVEL, s32b);
+		}
+
+		for (i = 0; i < p_ptr->max_plv; i++)
+		{
+			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+			p_ptr->race_hp[i] = MAX(tmp32s, 0);
+
+			tmp32s = rand_spread(rp_ptr->r_msp, 1);
+			p_ptr->race_sp[i] = MAX(tmp32s, 0);
+		}
+
+		for (i = 0; i < MAX_CLASS; i++)
+		{
+			for (j = 0; j < p_ptr->cexp_info[i].max_clev; j++)
+			{
+				tmp32s = rand_spread(cp_ptr->c_mhp, 1);
+				p_ptr->class_hp[i][j] = MAX(tmp32s, 0);
+
+				tmp32s = rand_spread(cp_ptr->c_msp, 1);
+				p_ptr->class_sp[i][j] = MAX(tmp32s, 0);
+			}
+		}
+
+		for (i = 1; i < 3; i++)
+		{
+			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+			p_ptr->race_hp[0] += MAX(tmp32s, 0);
+
+			tmp32s = rand_spread(rp_ptr->r_msp, 1);
+			p_ptr->race_sp[0] += MAX(tmp32s, 0);
+
+			cp_ptr = &class_info[previous_char.pclass];
+
+			tmp32s = rand_spread(cp_ptr->c_mhp, 1);
+			p_ptr->class_hp[previous_char.pclass][0] += MAX(tmp32s, 0);
+
+			tmp32s = rand_spread(cp_ptr->c_msp, 1);
+			p_ptr->class_sp[previous_char.pclass][0] += MAX(tmp32s, 0);
+		}
+
+		previous_char.race_hp_lv1 = p_ptr->race_hp[0];
+		previous_char.race_sp_lv1 = p_ptr->race_sp[0];
+		previous_char.class_hp_lv1 = p_ptr->class_hp[previous_char.pclass][0];
+		previous_char.class_sp_lv1 = p_ptr->class_sp[previous_char.pclass][0];
+	}
+	else
+	{
+		/* Read the class_hp array */
+		rd_byte(&tmp8u);
+		rd_u16b(&tmp16u);
+
+		/* Incompatible save files */
+		if ((tmp8u > MAX_CLASS) || (tmp16u > PY_MAX_LEVEL))
+		{
+#ifdef JP
+			note(format("クラスHP/MP配列が大きすぎる(%u/%u)！", tmp8u, tmp16u));
+#else
+			note(format("Too many (%u/%u) racial HP/mana entries!", tmp8u, tmp16u));
+#endif
+
+			return (25);
+		}
+
+		/* Read the race_hp array */
+		for (i = 0; i < tmp8u; i++)
+		{
+			for (j = 0; j < tmp16u; j++)
+			{
+				rd_s32b(&p_ptr->class_hp[i][j]);
+				rd_s32b(&p_ptr->class_sp[i][j]);
+			}
+		}
+
+		if (t_older_than(0, 1, 0, 10))
+		{
+			for (i = 0; i < tmp16u; i++) p_ptr->class_hp[CLASS_VAMPIRE][i] = p_ptr->class_sp[CLASS_VAMPIRE][i] = 0;
+		}
+	}
+
 	rd_s32b(&p_ptr->player_ghp);
 	rd_s32b(&p_ptr->player_gsp);
 
@@ -2939,7 +2561,7 @@ if (arg_fiddle) note("特別情報をロードしました");
 	if (rd_inventory())
 	{
 #ifdef JP
-note("持ち物情報を読み込むことができません");
+		note("持ち物情報を読み込むことができません");
 #else
 		note("Unable to read inventory");
 #endif
@@ -2984,7 +2606,7 @@ note("持ち物情報を読み込むことができません");
 	{
 		/* Dead players have no dungeon */
 #ifdef JP
-note("ダンジョン復元中...");
+		note("ダンジョン復元中...");
 #else
 		note("Restoring Dungeon...");
 #endif
@@ -2992,7 +2614,7 @@ note("ダンジョン復元中...");
 		if (rd_dungeon())
 		{
 #ifdef JP
-note("ダンジョンデータ読み込み失敗");
+			note("ダンジョンデータ読み込み失敗");
 #else
 			note("Error reading dungeon data");
 #endif
@@ -3024,7 +2646,7 @@ note("ダンジョンデータ読み込み失敗");
 	if (o_v_check != n_v_check)
 	{
 #ifdef JP
-note("チェックサムがおかしい");
+		note("チェックサムがおかしい");
 #else
 		note("Invalid checksum");
 #endif
@@ -3044,7 +2666,7 @@ note("チェックサムがおかしい");
 	if (o_x_check != n_x_check)
 	{
 #ifdef JP
-note("エンコードされたチェックサムがおかしい");
+		note("エンコードされたチェックサムがおかしい");
 #else
 		note("Invalid encoded checksum");
 #endif

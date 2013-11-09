@@ -465,13 +465,7 @@ extern int init_flags;
 extern int highscore_fd;
 extern int mutant_regenerate_mod;
 extern bool easy_band;
-extern bool ironman_shops;
-extern bool ironman_small_levels;
-extern bool ironman_forward;
-extern bool ironman_autoscum;
-extern bool ironman_empty_levels;
 extern bool ironman_rooms;
-extern bool ironman_nightmare;
 extern bool left_hander;
 extern bool preserve_mode;
 extern bool can_save;
@@ -621,8 +615,8 @@ extern void do_cmd_walk(int pickup);
 extern void do_cmd_stay(int pickup);
 extern void do_cmd_run(void);
 extern void do_cmd_rest(void);
-extern bool do_cmd_fire(bool direct);
-extern bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct);
+extern bool do_cmd_fire(u16b shot_typ, bool direct);
+extern bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct);
 extern void do_cmd_throw(void);
 extern bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item);
 
@@ -693,7 +687,6 @@ extern void do_cmd_aim_wand(void);
 extern void do_cmd_use_staff(void);
 extern void do_cmd_zap_rod(void);
 extern void do_cmd_activate(void);
-extern void do_cmd_rerate(void);
 extern void ring_of_power(int dir);
 extern void do_cmd_use(void);
 
@@ -763,7 +756,7 @@ extern void stair_creation(void);
 
 /* generate.c */
 extern void place_closed_door(int y, int x);
-extern void place_quest_monsters(void);
+extern bool place_quest_monsters(void);
 extern void clear_cave(void);
 extern void generate_cave(void);
 
@@ -834,7 +827,6 @@ extern s16b get_mon_num(int level);
 extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
 extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
-extern void sanity_blast(monster_type *m_ptr, bool necro);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
 extern bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode);
@@ -908,6 +900,7 @@ extern void object_wipe(object_type *o_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void object_copy(object_type *o_ptr, object_type *j_ptr);
 extern bool shooting_star_generation_okay(object_type *o_ptr);
+extern bool assasin_weapon_generation_okay(object_type *o_ptr);
 extern bool baldar_generation_okay(object_type *o_ptr);
 extern void dragon_resist(object_type *o_ptr);
 extern void apply_magic(object_type *o_ptr, int lev, u32b am_flags);
@@ -943,6 +936,7 @@ extern void process_runeweapon_list(void);
 
 /* racial.c */
 extern void do_cmd_racial_power(void);
+extern bool item_tester_hook_convertible(object_type *o_ptr);
 
 /* save.c */
 extern bool save_player(void);
@@ -1153,8 +1147,6 @@ extern void move_to_black_market(object_type * o_ptr);
 extern void move_inventory_to_home(void);
 
 /* bldg.c */
-extern bool get_nightmare(int r_idx);
-extern void have_nightmare(int r_idx);
 extern void do_cmd_bldg(void);
 extern void do_cmd_quest(void);
 extern void quest_discovery(int q_idx);
@@ -1261,6 +1253,7 @@ extern bool set_paralyzed(int v);
 extern bool set_image(int v);
 extern bool set_stoning(int v);
 extern bool set_opposite_pelem(int v);
+extern bool set_no_elem(int v);
 extern bool set_fast(int v, bool do_dec);
 extern bool set_slow(int v, bool do_dec);
 extern bool set_shield(int v, bool do_dec);
@@ -1372,7 +1365,6 @@ extern s16b choose_elem(void);
 extern bool can_choose_class(byte new_class, byte mode);
 extern int cut_level(int cut);
 extern int stun_level(int stun);
-extern int weapon_exp_level(int weapon_exp);
 extern int skill_exp_level(int skill_exp);
 
 /* mspells1.c */

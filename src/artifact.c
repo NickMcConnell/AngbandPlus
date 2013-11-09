@@ -275,8 +275,12 @@ static void random_plus(object_type * o_ptr)
 	case 20: case 21:
 		if (randart_misc_bonus_cur < randart_misc_bonus_max)
 		{
-			o_ptr->to_misc[OB_TUNNEL] = 1;
-			randart_misc_bonus_cur++;
+			if (o_ptr->tval == TV_BOW) random_plus(o_ptr);
+			else
+			{
+				o_ptr->to_misc[OB_TUNNEL] = 1;
+				randart_misc_bonus_cur++;
+			}
 		}
 		break;
 	case 22: case 23:
@@ -1549,7 +1553,7 @@ static void get_random_name(char *return_name, bool armour, int power)
 				{
 					case 0:
 #ifdef JP
-filename = "a_cursed_j.txt";
+						filename = "a_cursed_j.txt";
 #else
 						filename = "a_cursed.txt";
 #endif
@@ -1557,7 +1561,7 @@ filename = "a_cursed_j.txt";
 						break;
 					case 1:
 #ifdef JP
-filename = "a_low_j.txt";
+						filename = "a_low_j.txt";
 #else
 						filename = "a_low.txt";
 #endif
@@ -1565,7 +1569,7 @@ filename = "a_low_j.txt";
 						break;
 					case 2:
 #ifdef JP
-filename = "a_med_j.txt";
+						filename = "a_med_j.txt";
 #else
 						filename = "a_med.txt";
 #endif
@@ -1573,7 +1577,7 @@ filename = "a_med_j.txt";
 						break;
 					default:
 #ifdef JP
-filename = "a_high_j.txt";
+						filename = "a_high_j.txt";
 #else
 						filename = "a_high.txt";
 #endif
@@ -1585,7 +1589,7 @@ filename = "a_high_j.txt";
 				{
 					case 0:
 #ifdef JP
-filename = "w_cursed_j.txt";
+						filename = "w_cursed_j.txt";
 #else
 						filename = "w_cursed.txt";
 #endif
@@ -1593,7 +1597,7 @@ filename = "w_cursed_j.txt";
 						break;
 					case 1:
 #ifdef JP
-filename = "w_low_j.txt";
+						filename = "w_low_j.txt";
 #else
 						filename = "w_low.txt";
 #endif
@@ -1601,7 +1605,7 @@ filename = "w_low_j.txt";
 						break;
 					case 2:
 #ifdef JP
-filename = "w_med_j.txt";
+						filename = "w_med_j.txt";
 #else
 						filename = "w_med.txt";
 #endif
@@ -1609,7 +1613,7 @@ filename = "w_med_j.txt";
 						break;
 					default:
 #ifdef JP
-filename = "w_high_j.txt";
+						filename = "w_high_j.txt";
 #else
 						filename = "w_high.txt";
 #endif
@@ -1619,7 +1623,7 @@ filename = "w_high_j.txt";
 
 		(void)get_rnd_line(filename, artifact_bias, return_name);
 #ifdef JP
- if(return_name[0]==0)get_table_name(return_name);
+		if(return_name[0]==0)get_table_name(return_name);
 #endif
 	}
 }
@@ -1688,6 +1692,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		}
 	}
 	else artifact_bias = randint1(6);
+	if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD) && artifact_bias == BIAS_LIGHT) artifact_bias = BIAS_DARK;
 
 	strcpy(new_name, "");
 
@@ -1829,6 +1834,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	}
 	if (o_ptr->to_misc[OB_BLOWS] > misc_bonus_limit[OB_BLOWS].max)
 		o_ptr->to_misc[OB_BLOWS] = misc_bonus_limit[OB_BLOWS].max;
+	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_YOUTOU) o_ptr->to_misc[OB_BLOWS] += randint1(3);
 
 	/* give it some plusses... */
 	if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR)
@@ -1837,7 +1843,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
 		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
-		if (o_ptr->to_stat[A_WIS] > 0) add_flag(o_ptr->art_flags, TR_BLESSED);
+		if ((o_ptr->to_stat[A_WIS] > 0) && (!(o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)))) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}
 
 	/* Just to be sure */
@@ -1845,23 +1851,23 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 	case BIAS_FIRE:
 		add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
-		if (o_ptr->tval <= TV_SWORD) o_ptr->to_d += 5;
+		if (o_ptr->tval <= TV_SWORD) o_ptr->to_d += randint1(10);
 		break;
 
 	case BIAS_AQUA:
 		add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
-		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 10;
+		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 7 + randint1(5);
 		break;
 
 	case BIAS_EARTH:
 		add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
-		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 20;
+		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 15 + randint1(10);
 		o_ptr->weight = o_ptr->weight * 5 / 4;
 		break;
 
 	case BIAS_WIND:
 		add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
-		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_h += 5;
+		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_h += randint1(10);
 		o_ptr->weight = o_ptr->weight * 4 / 5;
 		break;
 	}
@@ -1959,7 +1965,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	if (cheat_xtra)
 	{
 #ifdef JP
-msg_format("エレメント %d を持ったアーティファクト。", artifact_bias);
+		msg_format("エレメント %d を持ったアーティファクト。", artifact_bias);
 #else
 		msg_format("Artifact has element %d.", artifact_bias);
 #endif

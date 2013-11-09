@@ -752,9 +752,9 @@ errr fd_lock(int fd, int what)
 
 #ifdef SET_UID
 
-# ifdef USG
+#ifdef USG
 
-#  if defined(F_ULOCK) && defined(F_LOCK)
+#if defined(F_ULOCK) && defined(F_LOCK)
 
 	/* Un-Lock */
 	if (what == F_UNLCK)
@@ -770,11 +770,11 @@ errr fd_lock(int fd, int what)
 		if (lockf(fd, F_LOCK, 0) != 0) return (1);
 	}
 
-#  endif
+#endif
 
-# else
+#else
 
-#  if defined(LOCK_UN) && defined(LOCK_EX)
+#if defined(LOCK_UN) && defined(LOCK_EX)
 
 	/* Un-Lock */
 	if (what == F_UNLCK)
@@ -790,9 +790,9 @@ errr fd_lock(int fd, int what)
 		if (flock(fd, LOCK_EX) != 0) return (1);
 	}
 
-#  endif
+#endif
 
-# endif
+#endif
 
 #endif
 
@@ -4297,7 +4297,7 @@ void request_command(int shopping)
 
 				/* Show current count */
 #ifdef JP
-prt(format("回数: %d", command_arg), 0, 0);
+				prt(format("回数: %d", command_arg), 0, 0);
 #else
 				prt(format("Count: %d", command_arg), 0, 0);
 #endif
@@ -5008,7 +5008,7 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf, size_t bufsize)
 #endif
 
 		/* Not enough buffer size */
-		if (write_pt + 3 >= bufsize) break;
+		if ((size_t)(write_pt + 3) >= bufsize) break;
 
 		tbuf[write_pt++] = ch[0];
 		line_len++;

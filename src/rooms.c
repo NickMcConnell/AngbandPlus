@@ -2466,7 +2466,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 
 				/* Black market in a dungeon */
 			case 'S':
-				cave_set_feat(y, x, FEAT_SHOP_HEAD + STORE_BLACK);
+				cave_set_feat(y, x, FEAT_DENEB_SHOP);
 				store_init(NO_TOWN, STORE_BLACK);
 				break;
 			}
@@ -2656,7 +2656,7 @@ static void build_type7(int by0, int bx0)
 		if (cheat_room)
 		{
 #ifdef JP
-msg_print("警告！小さな地下室を配置できません！");
+			msg_print("警告！小さな地下室を配置できません！");
 #else
 			msg_print("Warning! Could not place lesser vault!");
 #endif
@@ -2756,7 +2756,7 @@ static void build_type8(int by0, int bx0)
 		if (cheat_room)
 		{
 #ifdef JP
-msg_print("警告！巨大な地下室を配置できません！");
+			msg_print("警告！巨大な地下室を配置できません！");
 #else
 			msg_print("Warning! Could not place greater vault!");
 #endif

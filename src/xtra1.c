@@ -1000,7 +1000,7 @@ static void prt_depth(void)
 	else if (p_ptr->inside_quest && !dungeon_type)
 	{
 #ifdef JP
-strcpy(depths, "地上");
+		strcpy(depths, "地上");
 #else
 		strcpy(depths, "Quest");
 #endif
@@ -1009,7 +1009,7 @@ strcpy(depths, "地上");
 	else if (depth_in_feet)
 	{
 #ifdef JP
-(void)sprintf(depths, "%d ft", dun_level * 50);
+		(void)sprintf(depths, "%d ft", dun_level * 50);
 #else
 		(void)sprintf(depths, "%d ft", dun_level * 50);
 #endif
@@ -1018,7 +1018,7 @@ strcpy(depths, "地上");
 	else
 	{
 #ifdef JP
-sprintf(depths, "%d 階", dun_level);
+		(void)sprintf(depths, "%d 階", dun_level);
 #else
 		(void)sprintf(depths, "Lev %d", dun_level);
 #endif
@@ -1176,7 +1176,7 @@ static void prt_state(void)
 		if (command_rep > 999)
 		{
 #ifdef JP
-sprintf(text, "%2d00", command_rep / 100);
+			(void)sprintf(text, "%2d00", command_rep / 100);
 #else
 			(void)sprintf(text, "%2d00", command_rep / 100);
 #endif
@@ -1185,7 +1185,7 @@ sprintf(text, "%2d00", command_rep / 100);
 		else
 		{
 #ifdef JP
-sprintf(text, "  %2d", command_rep);
+			(void)sprintf(text, "  %2d", command_rep);
 #else
 			(void)sprintf(text, "  %2d", command_rep);
 #endif
@@ -1291,6 +1291,15 @@ sprintf(text, "  %2d", command_rep);
 				strcpy(text, "精視");
 #else
 				strcpy(text, "Elem");
+#endif
+				break;
+			}
+			case ACTION_AURA:
+			{
+#ifdef JP
+				strcpy(text, "闘気");
+#else
+				strcpy(text, "Aura");
 #endif
 				break;
 			}
@@ -1968,7 +1977,7 @@ static void fix_object(void)
  */
 static void calc_mana(void)
 {
-	int		cur_wgt, max_wgt, i;
+	int		cur_wgt, max_wgt, i, j;
 	s32b msp;
 
 	object_type	*o_ptr;
@@ -1990,11 +1999,14 @@ static void calc_mana(void)
 
 	/* Calculate mana */
 	msp = p_ptr->player_gsp;
+	for (i = 0; i < p_ptr->lev; i++) msp += p_ptr->race_sp[i];
 
 	for (i = 0; i < MAX_CLASS; i++)
 	{
-		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
-		if (cexp_ptr->clev > 0) msp += p_ptr->race_sp[cexp_ptr->clev - 1];
+		if (p_ptr->cexp_info[i].clev > 0)
+		{
+			for (j = 0; j < p_ptr->cexp_info[i].clev; j++) msp += p_ptr->class_sp[i][j];
+		}
 	}
 
 	for (i = 0; i < 2; i++) msp = msp * (100 + p_ptr->inc_msp[i]) / 100;
@@ -2055,6 +2067,7 @@ static void calc_mana(void)
 		case CLASS_PRIEST:
 		case CLASS_LICH:
 		case CLASS_HIGHWITCH:
+		case CLASS_ARCHMAGE:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight;
 			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight;
@@ -2083,6 +2096,8 @@ static void calc_mana(void)
 		case CLASS_BEASTTAMER:
 		case CLASS_SWORDMASTER:
 		case CLASS_DRAGONTAMER:
+		case CLASS_NINJAMASTER:
+		case CLASS_CRESCENT:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight/3;
 			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight/3;
@@ -2094,6 +2109,9 @@ static void calc_mana(void)
 		case CLASS_VALKYRIE:
 		case CLASS_TEMPLEKNIGHT:
 		case CLASS_WHITEKNIGHT:
+		case CLASS_LORD:
+		case CLASS_FREYA:
+		case CLASS_VAMPIRE:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight/5;
 			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight/5;
@@ -2127,6 +2145,8 @@ static void calc_mana(void)
 			case CLASS_PRIEST:
 			case CLASS_LICH:
 			case CLASS_HIGHWITCH:
+			case CLASS_ARCHMAGE:
+			case CLASS_NINJAMASTER:
 			{
 				msp -= msp * (cur_wgt - max_wgt) / 600;
 				break;
@@ -2168,6 +2188,11 @@ static void calc_mana(void)
 			case CLASS_ANGELKNIGHT:
 			case CLASS_TEMPLEKNIGHT:
 			case CLASS_WHITEKNIGHT:
+			case CLASS_LORD:
+			case CLASS_GENERAL:
+			case CLASS_FREYA:
+			case CLASS_CRESCENT:
+			case CLASS_VAMPIRE:
 			{
 				msp -= msp * (cur_wgt - max_wgt) / 1200;
 				break;
@@ -2284,17 +2309,28 @@ static void calc_mana(void)
  */
 static void calc_hitpoints(void)
 {
-	int bonus;
+	int bonus, i, j;
 	s32b mhp;
 
 	/* Un-inflate "half-hitpoint bonus per level" value */
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128) * p_ptr->lev / 5;
 
 	/* Calculate hitpoints */
-	mhp = p_ptr->race_hp[p_ptr->lev - 1] + p_ptr->player_ghp;
+	mhp = p_ptr->player_ghp;
+
+	for (i = 0; i < p_ptr->lev; i++) mhp += p_ptr->race_hp[i];
+
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		if (p_ptr->cexp_info[i].clev > 0)
+		{
+			for (j = 0; j < p_ptr->cexp_info[i].clev; j++) mhp += p_ptr->class_hp[i][j];
+		}
+	}
 
 	if (p_ptr->ogre_equip) mhp *= 5;
 	if (p_ptr->zoshonel_protect) mhp = mhp * 6 / 5;
+	if (p_ptr->action == ACTION_AURA) mhp = mhp * 6 / 5;
 
 	mhp += bonus;
 
@@ -2796,6 +2832,7 @@ void calc_bonuses(void)
 			if (cexp_ptr->clev > 24) p_ptr->esp_dragon = TRUE;
 			break;
 		case CLASS_NINJA:
+		case CLASS_NINJAMASTER:
 			p_ptr->see_dark_grid = TRUE;
 			if (heavy_armor())
 			{
@@ -2809,6 +2846,27 @@ void calc_bonuses(void)
 		case CLASS_WITCH:
 			if (cexp_ptr->clev > 9) p_ptr->ffall = TRUE;
 			break;
+		case CLASS_VAMPIRE:
+			p_ptr->resist_dark = TRUE;
+			p_ptr->ffall = TRUE;
+			p_ptr->lite = TRUE;
+			if (cexp_ptr->clev > 39) p_ptr->resist_lite = TRUE;
+			if (!is_daytime())
+			{
+				p_ptr->regenerate = TRUE;
+				p_ptr->resist_fear = TRUE;
+				for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] += cexp_ptr->clev / 10;
+				if (cexp_ptr->clev > 14) p_ptr->fear_field = TRUE;
+				if (cexp_ptr->clev > 39) resist_magic = TRUE;
+			}
+			else if (cexp_ptr->clev < 40)
+			{
+				for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] -= 220;
+				p_ptr->to_a += 200;
+				p_ptr->dis_to_a += 200;
+				p_ptr->pspeed -= 15;
+				p_ptr->skill_stl -= 20 - cexp_ptr->clev / 10;
+			}
 		case CLASS_LICH:
 			p_ptr->resist_cold = TRUE;
 			p_ptr->resist_pois = TRUE;
@@ -2833,6 +2891,32 @@ void calc_bonuses(void)
 			p_ptr->anti_tele = TRUE;
 			p_ptr->skill_dig += (cexp_ptr->clev / 8);
 			p_ptr->see_dark_grid = TRUE;
+			break;
+		case CLASS_LORD:
+			if (p_ptr->action == ACTION_AURA)
+			{
+				p_ptr->lite = TRUE;
+				p_ptr->regenerate = TRUE;
+				if (cexp_ptr->clev > 29) p_ptr->telepathy = TRUE;
+			}
+			break;
+		case CLASS_CRESCENT:
+			if (cexp_ptr->clev > 24)
+			{
+				p_ptr->anti_magic_field += 3;
+			}
+			if (cexp_ptr->clev > 34)
+			{
+				p_ptr->anti_magic_field++;
+			}
+			if (cexp_ptr->clev > 39)
+			{
+				if (get_weapon_type(&k_info[inventory[INVEN_BOW].k_idx]) == WT_BOW) p_ptr->xtra_might = p_ptr->dis_xtra_might = TRUE;
+			}
+			if (cexp_ptr->clev > 44)
+			{
+				p_ptr->anti_magic_field++;
+			}
 			break;
 	}
 
@@ -2873,7 +2957,7 @@ void calc_bonuses(void)
 
 	if ((p_ptr->cexp_info[CLASS_WITCH].clev > 29) || (p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 29)) p_ptr->ffall = TRUE;
 
-	if ((p_ptr->cexp_info[CLASS_NINJA].clev > 49) || (p_ptr->cexp_info[CLASS_GUNNER].clev > 49)) p_ptr->see_dark_grid = TRUE;
+	if ((p_ptr->cexp_info[CLASS_NINJA].clev > 49) || (p_ptr->cexp_info[CLASS_GUNNER].clev > 49) || (p_ptr->cexp_info[CLASS_NINJAMASTER].clev > 29)) p_ptr->see_dark_grid = TRUE;
 
 	if ((rp_ptr->r_flags & PRF_NO_DIGEST) || (cp_ptr->c_flags & PCF_NO_DIGEST)) p_ptr->no_digest = TRUE;
 
@@ -3504,6 +3588,12 @@ void calc_bonuses(void)
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_BAT))
 		p_ptr->see_dark_grid = TRUE;
 
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM))
+	{
+		p_ptr->no_elem = TRUE;
+		init_realm_table();
+	}
+
 	if (inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_AMU_FIRE))
 		p_ptr->weak_aqua = TRUE;
 
@@ -3579,12 +3669,17 @@ void calc_bonuses(void)
 		p_ptr->shero = 1;
 	}
 
-	if ((((inventory[INVEN_RARM].tval == TV_SWORD) && (inventory[INVEN_RARM].sval == SV_DARK_SWORD)) || 
-		((inventory[INVEN_LARM].tval == TV_SWORD) && (inventory[INVEN_LARM].sval == SV_DARK_SWORD))) &&
-			(p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev < 34))
+	if (((inventory[INVEN_RARM].tval == TV_SWORD) && (inventory[INVEN_RARM].sval == SV_DARK_SWORD)) || 
+		((inventory[INVEN_LARM].tval == TV_SWORD) && (inventory[INVEN_LARM].sval == SV_DARK_SWORD)))
 	{
-			p_ptr->cursed |= TRC_DRAIN_EXP;
+		if ((p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34) || (p_ptr->pclass == CLASS_VAMPIRE))
+		{
+			p_ptr->cursed &= ~(TRC_DRAIN_EXP);
+			p_ptr->cursed &= ~(TRC_TY_CURSE);
+		}
 	}
+
+	if (p_ptr->cexp_info[CLASS_LICH].clev > 49) p_ptr->cursed &= ~(TRC_TY_CURSE);
 
 	p_ptr->skull_mask_hates = FALSE;
 
@@ -3965,6 +4060,22 @@ void calc_bonuses(void)
 		p_ptr->skill_stl += 10;
 	}
 
+	/* Lord Aura gain some power */
+	if (p_ptr->action == ACTION_AURA)
+	{
+		int clev = p_ptr->cexp_info[CLASS_LORD].clev;
+		
+		p_ptr->skill_sav += clev;
+		p_ptr->to_a += 10 + clev / 5;
+		p_ptr->dis_to_a += 10 + clev / 5;
+		for (i = 0; i < 2; i++)
+		{
+			p_ptr->to_d[i] += 10 + clev / 5;
+			p_ptr->dis_to_d[i] += 10 + clev / 5;
+		}
+		if (clev > 30) p_ptr->pspeed += 5 + clev / 10;
+	}
+
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d[0] += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
@@ -4164,6 +4275,10 @@ void calc_bonuses(void)
 				case CLASS_BERSERKER:
 				case CLASS_DRAGOON:
 				case CLASS_ANGELKNIGHT:
+				case CLASS_LORD:
+				case CLASS_GENERAL:
+				case CLASS_FREYA:
+				case CLASS_VAMPIRE:
 					num = 6; wgt = 70; mul = 5; break;
 
 				case CLASS_TERRORKNIGHT:
@@ -4182,11 +4297,16 @@ void calc_bonuses(void)
 				case CLASS_NINJA:
 					num = 4; wgt = 20; mul = 1; break;
 
+				case CLASS_NINJAMASTER:
+					num = 5; wgt = 50; mul = 1; break;
+
 				case CLASS_WIZARD:
 				case CLASS_SIRENE:
 				case CLASS_PRIEST:
 				case CLASS_LICH:
+				case CLASS_HIGHWITCH:
 				case CLASS_GUNNER:
+				case CLASS_ARCHMAGE:
 					num = 3; wgt = 100; mul = 2; break;
 
 				case CLASS_WARLOCK:
@@ -4200,13 +4320,12 @@ void calc_bonuses(void)
 
 				case CLASS_ARCHER:
 				case CLASS_WITCH:
+				case CLASS_CRESCENT:
 					num = 4; wgt = 100; mul = 3; break;
 
 				case CLASS_CLERIC:
 					num = 5; wgt = 100; mul = 3; break;
 
-				case CLASS_HIGHWITCH:
-					num = 1; wgt = 1; mul = 1; break;
 			}
 
 			/* Enforce a minimum "weight" (tenth pounds) */
@@ -4216,7 +4335,7 @@ void calc_bonuses(void)
 			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
 
 			if (p_ptr->ryoute && !omoi) str_index++;
-			if (p_ptr->pclass == CLASS_NINJA) str_index = MAX(0, str_index-1);
+			if ((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) str_index = MAX(0, str_index-1);
 
 			/* Maximal value */
 			if (str_index > 11) str_index = 11;
@@ -4250,7 +4369,7 @@ void calc_bonuses(void)
 			p_ptr->num_blow[i] += extra_blows[i];
 
 
-			if ((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_BERSERKER))
+			if ((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_GENERAL))
 				p_ptr->num_blow[i] += (cexp_ptr->clev / 40);
 			else if (p_ptr->pclass == CLASS_TERRORKNIGHT)
 			{
@@ -4268,6 +4387,7 @@ void calc_bonuses(void)
 		switch (p_ptr->pclass)
 		{
 		case CLASS_KNIGHT:
+		case CLASS_GENERAL:
 			if (weapon_type_bit(get_weapon_type(k_ptr)) & (WT_BIT_SMALL_SWORD | WT_BIT_KATANA | WT_BIT_SWORD | WT_BIT_GREAT_SWORD | WT_BIT_SPEAR | WT_BIT_LANCE))
 			{
 				p_ptr->to_d[i] += 5;
@@ -4324,7 +4444,23 @@ void calc_bonuses(void)
 			else p_ptr->icky_wield[i] = -1;
 			break;
 
+		case CLASS_LORD:
+		case CLASS_VAMPIRE:
+			if (weapon_type_bit(get_weapon_type(k_ptr)) & (WT_BIT_SMALL_SWORD | WT_BIT_SWORD | WT_BIT_GREAT_SWORD))
+			{
+				p_ptr->to_d[i] += 5;
+				p_ptr->dis_to_d[i] += 5;
+				if (o_ptr->tval == TV_SWORD)
+				{
+					p_ptr->to_dd[i]++;
+					p_ptr->to_ds[i]++;
+				}
+			}
+			else p_ptr->icky_wield[i] = -1;
+			break;
+
 		case CLASS_NINJA:
+		case CLASS_NINJAMASTER:
 			if (get_weapon_type(k_ptr) == WT_CLAW)
 			{
 				p_ptr->to_h[i] += 10;
@@ -4341,6 +4477,7 @@ void calc_bonuses(void)
 
 		case CLASS_WIZARD:
 		case CLASS_WARLOCK:
+		case CLASS_ARCHMAGE:
 		case CLASS_WITCH:
 		case CLASS_SIRENE:
 		case CLASS_LICH:
@@ -4353,7 +4490,7 @@ void calc_bonuses(void)
 			}
 
 			/* Lich weapon penalty for blessed weapons */
-			if (p_ptr->pclass == CLASS_LICH)
+			if ((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_VAMPIRE))
 			{
 				if (have_flag(flgs, TR_BLESSED))
 				{
@@ -4414,6 +4551,7 @@ void calc_bonuses(void)
 			break;
 
 		case CLASS_VALKYRIE:
+		case CLASS_FREYA:
 			if (weapon_type_bit(get_weapon_type(k_ptr)) & (WT_BIT_SPEAR | WT_BIT_LANCE))
 			{
 				p_ptr->to_d[i] += 5;
@@ -4423,6 +4561,7 @@ void calc_bonuses(void)
 
 		case CLASS_ARCHER:
 		case CLASS_GUNNER:
+		case CLASS_CRESCENT:
 			if (!p_ptr->s_ptr->w_eff[get_weapon_type(&k_info[o_ptr->k_idx])])
 			{
 				p_ptr->to_h_b -= 10;
@@ -4481,6 +4620,7 @@ void calc_bonuses(void)
 			{
 			case CLASS_WIZARD:
 			case CLASS_WARLOCK:
+			case CLASS_ARCHMAGE:
 			case CLASS_WITCH:
 			case CLASS_SIRENE:
 			case CLASS_CLERIC:
@@ -4517,12 +4657,12 @@ void calc_bonuses(void)
 				p_ptr->to_h[i] += 15;
 				p_ptr->dis_to_h[i] += 15;
 				p_ptr->to_dd[i] += 2;
-				if (p_ptr->pclass == CLASS_KNIGHT)
+				if ((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_GENERAL))
 				{
 					p_ptr->to_dd[i]++;
 					p_ptr->to_ds[i]++;
 				}
-				else if (p_ptr->pclass == CLASS_VALKYRIE)
+				else if ((p_ptr->pclass == CLASS_VALKYRIE) || (p_ptr->pclass == CLASS_FREYA))
 				{
 					p_ptr->to_dd[i]++;
 					p_ptr->to_ds[i]++;
@@ -4621,18 +4761,11 @@ void calc_bonuses(void)
 		if (buki_motteruka(INVEN_RARM+i))
 		{
 			int attack_var = skill_lev_var[p_ptr->weapon_exp[get_weapon_type(&k_info[o_ptr->k_idx])]/10];
-			int w_eff = p_ptr->s_ptr->w_eff[get_weapon_type(&k_info[o_ptr->k_idx])];
 
 			p_ptr->to_h[i] += attack_var * 4 - 8;
 			p_ptr->dis_to_h[i] += attack_var * 4 - 8;
 			p_ptr->to_d[i] += attack_var * 2 - 2;
 			p_ptr->dis_to_d[i] += attack_var * 2 - 2;
-#if 0
-			if ((p_ptr->pclass == CLASS_NINJA) && ((w_eff < 4) || (w_eff > 6)))
-			{
-				p_ptr->icky_wield[i] = -1;
-			}
-#endif
 		}
 		else
 		{
@@ -4640,6 +4773,7 @@ void calc_bonuses(void)
 			{
 			case CLASS_ARCHER:
 			case CLASS_GUNNER:
+			case CLASS_CRESCENT:
 				if (o_ptr->k_idx && (o_ptr->tval == TV_SHIELD) && (o_ptr->weight >= 70))
 				{
 					p_ptr->to_h_b -= 40;
@@ -4654,6 +4788,7 @@ void calc_bonuses(void)
 
 		if (p_ptr->tim_inc_blow) p_ptr->num_blow[i]++;
 		if (p_ptr->tim_dec_blow && (p_ptr->num_blow[i] > 1)) p_ptr->num_blow[i]--;
+		if ((p_ptr->action == ACTION_AURA) && (p_ptr->cexp_info[CLASS_LORD].clev > 40)) p_ptr->num_blow[i]++;
 
 		/* Hack - If SP bonus < 0, mark as "icky" with no failrate penalty */
 		if ((p_ptr->inc_msp[i] < 0) && !p_ptr->icky_wield[i])
@@ -4989,19 +5124,19 @@ void calc_bonuses(void)
 		p_ptr->old_riding_ryoute = p_ptr->riding_ryoute;
 	}
 
-	if ((p_ptr->pclass == CLASS_NINJA) && (monk_armour_aux != monk_notify_aux))
+	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && (monk_armour_aux != monk_notify_aux))
 	{
 		if (heavy_armor())
 		{
 #ifdef JP
-msg_print("装備が重くてバランスを取れない。");
+			msg_print("装備が重くてバランスを取れない。");
 #else
 			msg_print("The weight of your armor disrupts your balance.");
 #endif
 		}
 		else
 #ifdef JP
-msg_print("バランスがとれるようになった。");
+			msg_print("バランスがとれるようになった。");
 #else
 			msg_print("You regain your balance.");
 #endif
@@ -5509,9 +5644,8 @@ byte empty_hands(void)
 
 bool heavy_armor(void)
 {
+	int ninja_level = p_ptr->cexp_info[CLASS_NINJA].clev + p_ptr->cexp_info[CLASS_NINJAMASTER].clev / 2;
 	u16b monk_arm_wgt = 0;
-
-	if (p_ptr->pclass != CLASS_NINJA) return FALSE;
 
 	/* Weight the armor */
 	if(inventory[INVEN_RARM].tval > TV_SWORD) monk_arm_wgt += inventory[INVEN_RARM].weight;
@@ -5522,7 +5656,7 @@ bool heavy_armor(void)
 	monk_arm_wgt += inventory[INVEN_HANDS].weight;
 	monk_arm_wgt += inventory[INVEN_FEET].weight;
 
-	return (monk_arm_wgt > (100 + (p_ptr->cexp_info[CLASS_NINJA].clev * 4)));
+	return (monk_arm_wgt > (100 + (ninja_level * 4)));
 }
 
 int number_of_quests(void)

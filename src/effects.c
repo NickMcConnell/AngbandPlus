@@ -68,6 +68,16 @@ void set_action(int typ)
 				p_ptr->redraw |= (PR_MAP);
 				break;
 			}
+			case ACTION_AURA:
+			{
+#ifdef JP
+				msg_print("¤â¤¦Æ®µ¤¤ËÊñ¤Þ¤ì¤Æ¤¤¤Ê¤¤¡£");
+#else
+				msg_print("You stopped feeling elements.");
+#endif
+				p_ptr->redraw |= (PR_SPEED | PR_STATUS | PR_ARMOR | PR_HP);
+				break;
+			}
 		}
 	}
 
@@ -108,6 +118,19 @@ void set_action(int typ)
 			p_ptr->redraw |= (PR_SPEED);
 			break;
 		}
+		case ACTION_AURA:
+		{
+#ifdef JP
+			msg_print("Æ®µ¤¤ËÊñ¤Þ¤ì¤¿¡£");
+#else
+			msg_print("You begin to walk silently.");
+#endif
+			p_ptr->redraw |= (PR_SPEED | PR_STATUS | PR_ARMOR | PR_HP);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER);
+			break;
+		}
 		default:
 		{
 			break;
@@ -136,6 +159,7 @@ void reset_tim_flags(void)
 	p_ptr->stun = 0;            /* Timed -- Stun */
 	p_ptr->stoning = 0;         /* Timed -- Stoning */
 	p_ptr->opposite_pelem = 0;  /* Timed -- Forced to opposite element */
+	p_ptr->no_elem = 0;  /* Timed -- Forced to no element */
 
 	p_ptr->protevil = 0;        /* Timed -- Protection */
 	p_ptr->invuln = 0;          /* Timed -- Invulnerable */
@@ -234,7 +258,7 @@ bool set_blind(int v)
 		if (!p_ptr->blind)
 		{
 #ifdef JP
-msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¯¤Ê¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
+			msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¯¤Ê¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 #else
 			msg_print("You are blind!");
 #endif
@@ -249,7 +273,7 @@ msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¯¤Ê¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 		if (p_ptr->blind)
 		{
 #ifdef JP
-msg_print("¤ä¤Ã¤ÈÌÜ¤¬¸«¤¨¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡£");
+			msg_print("¤ä¤Ã¤ÈÌÜ¤¬¸«¤¨¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You can see again.");
 #endif
@@ -305,7 +329,7 @@ bool set_confused(int v)
 		if (!p_ptr->confused)
 		{
 #ifdef JP
-msg_print("¤¢¤Ê¤¿¤Ïº®Íð¤·¤¿¡ª");
+			msg_print("¤¢¤Ê¤¿¤Ïº®Íð¤·¤¿¡ª");
 #else
 			msg_print("You are confused!");
 #endif
@@ -320,7 +344,7 @@ msg_print("¤¢¤Ê¤¿¤Ïº®Íð¤·¤¿¡ª");
 		if (p_ptr->confused)
 		{
 #ifdef JP
-msg_print("¤ä¤Ã¤Èº®Íð¤¬¤ª¤µ¤Þ¤Ã¤¿¡£");
+			msg_print("¤ä¤Ã¤Èº®Íð¤¬¤ª¤µ¤Þ¤Ã¤¿¡£");
 #else
 			msg_print("You feel less confused now.");
 #endif
@@ -367,7 +391,7 @@ bool set_poisoned(int v)
 		if (!p_ptr->poisoned)
 		{
 #ifdef JP
-msg_print("ÆÇ¤Ë¿¯¤µ¤ì¤Æ¤·¤Þ¤Ã¤¿¡ª");
+			msg_print("ÆÇ¤Ë¿¯¤µ¤ì¤Æ¤·¤Þ¤Ã¤¿¡ª");
 #else
 			msg_print("You are poisoned!");
 #endif
@@ -382,7 +406,7 @@ msg_print("ÆÇ¤Ë¿¯¤µ¤ì¤Æ¤·¤Þ¤Ã¤¿¡ª");
 		if (p_ptr->poisoned)
 		{
 #ifdef JP
-msg_print("¤ä¤Ã¤ÈÆÇ¤ÎÄË¤ß¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("¤ä¤Ã¤ÈÆÇ¤ÎÄË¤ß¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You are no longer poisoned.");
 #endif
@@ -429,7 +453,7 @@ bool set_afraid(int v)
 		if (!p_ptr->afraid)
 		{
 #ifdef JP
-msg_print("²¿¤â¤«¤â¶²¤¯¤Ê¤Ã¤Æ¤­¤¿¡ª");
+			msg_print("²¿¤â¤«¤â¶²¤¯¤Ê¤Ã¤Æ¤­¤¿¡ª");
 #else
 			msg_print("You are terrified!");
 #endif
@@ -444,7 +468,7 @@ msg_print("²¿¤â¤«¤â¶²¤¯¤Ê¤Ã¤Æ¤­¤¿¡ª");
 		if (p_ptr->afraid)
 		{
 #ifdef JP
-msg_print("¤ä¤Ã¤È¶²ÉÝ¤ò¿¶¤êÊ§¤Ã¤¿¡£");
+			msg_print("¤ä¤Ã¤È¶²ÉÝ¤ò¿¶¤êÊ§¤Ã¤¿¡£");
 #else
 			msg_print("You feel bolder now.");
 #endif
@@ -491,7 +515,7 @@ bool set_paralyzed(int v)
 		if (!p_ptr->paralyzed)
 		{
 #ifdef JP
-msg_print("ÂÎ¤¬Ëãáã¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
+			msg_print("ÂÎ¤¬Ëãáã¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
 #else
 			msg_print("You are paralyzed!");
 #endif
@@ -506,7 +530,7 @@ msg_print("ÂÎ¤¬Ëãáã¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
 		if (p_ptr->paralyzed)
 		{
 #ifdef JP
-msg_print("¤ä¤Ã¤ÈÆ°¤±¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡£");
+			msg_print("¤ä¤Ã¤ÈÆ°¤±¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You can move again.");
 #endif
@@ -559,7 +583,7 @@ bool set_image(int v)
 		if (!p_ptr->image)
 		{
 #ifdef JP
-msg_print("¥ï¡¼¥ª¡ª²¿¤â¤«¤âÆú¿§¤Ë¸«¤¨¤ë¡ª");
+			msg_print("¥ï¡¼¥ª¡ª²¿¤â¤«¤âÆú¿§¤Ë¸«¤¨¤ë¡ª");
 #else
 			msg_print("Oh, wow! Everything looks so cosmic now!");
 #endif
@@ -574,7 +598,7 @@ msg_print("¥ï¡¼¥ª¡ª²¿¤â¤«¤âÆú¿§¤Ë¸«¤¨¤ë¡ª");
 		if (p_ptr->image)
 		{
 #ifdef JP
-msg_print("¤ä¤Ã¤È¤Ï¤Ã¤­¤ê¤ÈÊª¤¬¸«¤¨¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡£");
+			msg_print("¤ä¤Ã¤È¤Ï¤Ã¤­¤ê¤ÈÊª¤¬¸«¤¨¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You can see clearly again.");
 #endif
@@ -757,6 +781,76 @@ bool set_opposite_pelem(int v)
 
 
 /*
+ * Set "p_ptr->no_elem", notice observable changes
+ */
+bool set_no_elem(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) v = 1;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->no_elem)
+		{
+#ifdef JP
+			msg_print("¥¨¥ì¥á¥ó¥È¤ÎÎÏ¤ò´¶¤¸¤Ê¤¯¤Ê¤Ã¤¿¡£");
+#else
+			msg_print("Your elements are reverted.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->no_elem)
+		{
+#ifdef JP
+			msg_print("ºÆ¤Ó¥¨¥ì¥á¥ó¥È¤ÎÎÏ¤ò´¶¤¸¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡£");
+#else
+			msg_print("Your elements are no longer reverted.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->no_elem = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	init_realm_table();
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(py, px);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
  * Set "p_ptr->fast", notice observable changes
  */
 bool set_fast(int v, bool do_dec)
@@ -778,7 +872,7 @@ bool set_fast(int v, bool do_dec)
 		else if (!p_ptr->fast)
 		{
 #ifdef JP
-msg_print("ÁÇÁá¤¯Æ°¤±¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡ª");
+			msg_print("ÁÇÁá¤¯Æ°¤±¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡ª");
 #else
 			msg_print("You feel yourself moving much faster!");
 #endif
@@ -793,7 +887,7 @@ msg_print("ÁÇÁá¤¯Æ°¤±¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¡ª");
 		if (p_ptr->fast)
 		{
 #ifdef JP
-msg_print("Æ°¤­¤ÎÁÇÁá¤µ¤¬¤Ê¤¯¤Ê¤Ã¤¿¤è¤¦¤À¡£");
+			msg_print("Æ°¤­¤ÎÁÇÁá¤µ¤¬¤Ê¤¯¤Ê¤Ã¤¿¤è¤¦¤À¡£");
 #else
 			msg_print("You feel yourself slow down.");
 #endif
@@ -844,7 +938,7 @@ bool set_slow(int v, bool do_dec)
 		else if (!p_ptr->slow)
 		{
 #ifdef JP
-msg_print("ÂÎ¤ÎÆ°¤­¤¬ÃÙ¤¯¤Ê¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
+			msg_print("ÂÎ¤ÎÆ°¤­¤¬ÃÙ¤¯¤Ê¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 #else
 			msg_print("You feel yourself moving slower!");
 #endif
@@ -859,7 +953,7 @@ msg_print("ÂÎ¤ÎÆ°¤­¤¬ÃÙ¤¯¤Ê¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 		if (p_ptr->slow)
 		{
 #ifdef JP
-msg_print("Æ°¤­¤ÎÃÙ¤µ¤¬¤Ê¤¯¤Ê¤Ã¤¿¤è¤¦¤À¡£");
+			msg_print("Æ°¤­¤ÎÃÙ¤µ¤¬¤Ê¤¯¤Ê¤Ã¤¿¤è¤¦¤À¡£");
 #else
 			msg_print("You feel yourself speed up.");
 #endif
@@ -910,7 +1004,7 @@ bool set_shield(int v, bool do_dec)
 		else if (!p_ptr->shield)
 		{
 #ifdef JP
-msg_print("È©¤¬ÀÐ¤Ë¤Ê¤Ã¤¿¡£");
+			msg_print("È©¤¬ÀÐ¤Ë¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("Your skin turns to stone.");
 #endif
@@ -925,7 +1019,7 @@ msg_print("È©¤¬ÀÐ¤Ë¤Ê¤Ã¤¿¡£");
 		if (p_ptr->shield)
 		{
 #ifdef JP
-msg_print("È©¤¬¸µ¤ËÌá¤Ã¤¿¡£");
+			msg_print("È©¤¬¸µ¤ËÌá¤Ã¤¿¡£");
 #else
 			msg_print("Your skin returns to normal.");
 #endif
@@ -1050,7 +1144,7 @@ bool set_blessed(int v, bool do_dec)
 		else if (!p_ptr->blessed)
 		{
 #ifdef JP
-msg_print("¹â·é¤Êµ¤Ê¬¤Ë¤Ê¤Ã¤¿¡ª");
+			msg_print("¹â·é¤Êµ¤Ê¬¤Ë¤Ê¤Ã¤¿¡ª");
 #else
 			msg_print("You feel righteous!");
 #endif
@@ -1065,7 +1159,7 @@ msg_print("¹â·é¤Êµ¤Ê¬¤Ë¤Ê¤Ã¤¿¡ª");
 		if (p_ptr->blessed)
 		{
 #ifdef JP
-msg_print("¹â·é¤Êµ¤Ê¬¤¬¾Ã¤¨¼º¤»¤¿¡£");
+			msg_print("¹â·é¤Êµ¤Ê¬¤¬¾Ã¤¨¼º¤»¤¿¡£");
 #else
 			msg_print("The prayer has expired.");
 #endif
@@ -1119,7 +1213,7 @@ bool set_hero(int v, bool do_dec)
 		else if (!p_ptr->hero)
 		{
 #ifdef JP
-msg_print("¥Ò¡¼¥í¡¼¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("¥Ò¡¼¥í¡¼¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel like a hero!");
 #endif
@@ -1134,7 +1228,7 @@ msg_print("¥Ò¡¼¥í¡¼¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->hero)
 		{
 #ifdef JP
-msg_print("¥Ò¡¼¥í¡¼¤Îµ¤Ê¬¤¬¾Ã¤¨¼º¤»¤¿¡£");
+			msg_print("¥Ò¡¼¥í¡¼¤Îµ¤Ê¬¤¬¾Ã¤¨¼º¤»¤¿¡£");
 #else
 			msg_print("The heroism wears off.");
 #endif
@@ -1194,7 +1288,7 @@ bool set_shero(int v, bool do_dec)
 		else if (!p_ptr->shero)
 		{
 #ifdef JP
-msg_print("»¦Ù¤¥Þ¥·¡¼¥ó¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("»¦Ù¤¥Þ¥·¡¼¥ó¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel like a killing machine!");
 #endif
@@ -1209,7 +1303,7 @@ msg_print("»¦Ù¤¥Þ¥·¡¼¥ó¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->shero)
 		{
 #ifdef JP
-msg_print("ÌîÈÚ¤Êµ¤»ý¤Á¤¬¾Ã¤¨¼º¤»¤¿¡£");
+			msg_print("ÌîÈÚ¤Êµ¤»ý¤Á¤¬¾Ã¤¨¼º¤»¤¿¡£");
 #else
 			msg_print("You feel less Berserk.");
 #endif
@@ -1266,7 +1360,7 @@ bool set_protevil(int v, bool do_dec)
 		else if (!p_ptr->protevil)
 		{
 #ifdef JP
-msg_print("¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¤è¤¦¤Ê´¶¤¸¤¬¤¹¤ë¡ª");
+			msg_print("¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¤è¤¦¤Ê´¶¤¸¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel safe from evil!");
 #endif
@@ -1281,7 +1375,7 @@ msg_print("¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¤è¤¦¤Ê´¶¤¸¤¬¤¹¤ë¡ª");
 		if (p_ptr->protevil)
 		{
 #ifdef JP
-msg_print("¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë´¶¤¸¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë´¶¤¸¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You no longer feel safe from evil.");
 #endif
@@ -1424,7 +1518,7 @@ bool set_invuln(int v, bool do_dec)
 		else if (!p_ptr->invuln)
 		{
 #ifdef JP
-msg_print("ÌµÅ¨¤À¡ª");
+			msg_print("ÌµÅ¨¤À¡ª");
 #else
 			msg_print("Invulnerability!");
 #endif
@@ -1450,7 +1544,7 @@ msg_print("ÌµÅ¨¤À¡ª");
 		if (p_ptr->invuln)
 		{
 #ifdef JP
-msg_print("ÌµÅ¨¤Ç¤Ï¤Ê¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("ÌµÅ¨¤Ç¤Ï¤Ê¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("The invulnerability wears off.");
 #endif
@@ -1515,7 +1609,7 @@ bool set_tim_esp(int v, bool do_dec)
 		else if (!p_ptr->tim_esp)
 		{
 #ifdef JP
-msg_print("°Õ¼±¤¬¹­¤¬¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("°Õ¼±¤¬¹­¤¬¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel your consciousness expand!");
 #endif
@@ -1530,7 +1624,7 @@ msg_print("°Õ¼±¤¬¹­¤¬¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->tim_esp)
 		{
 #ifdef JP
-msg_print("°Õ¼±¤Ï¸µ¤ËÌá¤Ã¤¿¡£");
+			msg_print("°Õ¼±¤Ï¸µ¤ËÌá¤Ã¤¿¡£");
 #else
 			msg_print("Your consciousness contracts again.");
 #endif
@@ -1587,7 +1681,7 @@ bool set_tim_invis(int v, bool do_dec)
 		else if (!p_ptr->tim_invis)
 		{
 #ifdef JP
-msg_print("ÌÜ¤¬Èó¾ï¤ËÉÒ´¶¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("ÌÜ¤¬Èó¾ï¤ËÉÒ´¶¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("Your eyes feel very sensitive!");
 #endif
@@ -1602,7 +1696,7 @@ msg_print("ÌÜ¤¬Èó¾ï¤ËÉÒ´¶¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->tim_invis)
 		{
 #ifdef JP
-msg_print("ÌÜ¤ÎÉÒ´¶¤µ¤¬¤Ê¤¯¤Ê¤Ã¤¿¤è¤¦¤À¡£");
+			msg_print("ÌÜ¤ÎÉÒ´¶¤µ¤¬¤Ê¤¯¤Ê¤Ã¤¿¤è¤¦¤À¡£");
 #else
 			msg_print("Your eyes feel less sensitive.");
 #endif
@@ -1659,7 +1753,7 @@ bool set_tim_infra(int v, bool do_dec)
 		else if (!p_ptr->tim_infra)
 		{
 #ifdef JP
-msg_print("ÌÜ¤¬¥é¥ó¥é¥ó¤Èµ±¤­»Ï¤á¤¿¡ª");
+			msg_print("ÌÜ¤¬¥é¥ó¥é¥ó¤Èµ±¤­»Ï¤á¤¿¡ª");
 #else
 			msg_print("Your eyes begin to tingle!");
 #endif
@@ -1674,7 +1768,7 @@ msg_print("ÌÜ¤¬¥é¥ó¥é¥ó¤Èµ±¤­»Ï¤á¤¿¡ª");
 		if (p_ptr->tim_infra)
 		{
 #ifdef JP
-msg_print("ÌÜ¤Îµ±¤­¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("ÌÜ¤Îµ±¤­¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("Your eyes stop tingling.");
 #endif
@@ -1729,7 +1823,7 @@ bool set_chargespell(int v, bool do_dec)
 		else if (!p_ptr->chargespell)
 		{
 #ifdef JP
-msg_print("Á´¿È¤ËËâÎÏ¤¬¤ß¤Ê¤®¤ê¡¢Æ¬Ç¾¤¬¥¯¥ê¥¢¤Ë¤Ê¤Ã¤¿¡ª");
+			msg_print("Á´¿È¤ËËâÎÏ¤¬¤ß¤Ê¤®¤ê¡¢Æ¬Ç¾¤¬¥¯¥ê¥¢¤Ë¤Ê¤Ã¤¿¡ª");
 #else
 			msg_print("You are filled with mana, and your brain became clear.");
 #endif
@@ -1744,7 +1838,7 @@ msg_print("Á´¿È¤ËËâÎÏ¤¬¤ß¤Ê¤®¤ê¡¢Æ¬Ç¾¤¬¥¯¥ê¥¢¤Ë¤Ê¤Ã¤¿¡ª");
 		if (p_ptr->chargespell)
 		{
 #ifdef JP
-msg_print("ËâÎÏ¤Î½¼¼Â¤¬¼º¤ï¤ì¤¿¤è¤¦¤À¡£");
+			msg_print("ËâÎÏ¤Î½¼¼Â¤¬¼º¤ï¤ì¤¿¤è¤¦¤À¡£");
 #else
 			msg_print("You are no longer filled with mana.");
 #endif
@@ -1833,7 +1927,7 @@ bool set_tim_sh_fire(int v, bool do_dec)
 		else if (!p_ptr->tim_sh_fire)
 		{
 #ifdef JP
-msg_print("ÂÎ¤¬±ê¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
+			msg_print("ÂÎ¤¬±ê¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 #else
 			msg_print("You have enveloped by fiery aura!");
 #endif
@@ -1848,7 +1942,7 @@ msg_print("ÂÎ¤¬±ê¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 		if (p_ptr->tim_sh_fire)
 		{
 #ifdef JP
-msg_print("±ê¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
+			msg_print("±ê¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
 #else
 			msg_print("Fiery aura disappeared.");
 #endif
@@ -1902,7 +1996,7 @@ bool set_tim_sh_elec(int v, bool do_dec)
 		else if (!p_ptr->tim_sh_elec)
 		{
 #ifdef JP
-msg_print("ÂÎ¤¬ÅÅµ¤¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
+			msg_print("ÂÎ¤¬ÅÅµ¤¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 #else
 			msg_print("You have enveloped by electrical aura!");
 #endif
@@ -1917,7 +2011,7 @@ msg_print("ÂÎ¤¬ÅÅµ¤¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 		if (p_ptr->tim_sh_elec)
 		{
 #ifdef JP
-msg_print("ÅÅµ¤¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
+			msg_print("ÅÅµ¤¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
 #else
 			msg_print("Electrical aura disappeared.");
 #endif
@@ -1971,7 +2065,7 @@ bool set_tim_sh_cold(int v, bool do_dec)
 		else if (!p_ptr->tim_sh_cold)
 		{
 #ifdef JP
-msg_print("ÂÎ¤¬Îäµ¤¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
+			msg_print("ÂÎ¤¬Îäµ¤¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 #else
 			msg_print("You have enveloped by aura of coldness!");
 #endif
@@ -1986,7 +2080,7 @@ msg_print("ÂÎ¤¬Îäµ¤¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 		if (p_ptr->tim_sh_cold)
 		{
 #ifdef JP
-msg_print("Îäµ¤¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
+			msg_print("Îäµ¤¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
 #else
 			msg_print("Aura of coldness disappeared.");
 #endif
@@ -2040,7 +2134,7 @@ bool set_tim_sh_holy(int v, bool do_dec)
 		else if (!p_ptr->tim_sh_holy)
 		{
 #ifdef JP
-msg_print("ÂÎ¤¬À»¤Ê¤ë¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
+			msg_print("ÂÎ¤¬À»¤Ê¤ë¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 #else
 			msg_print("You have enveloped by holy aura!");
 #endif
@@ -2055,7 +2149,7 @@ msg_print("ÂÎ¤¬À»¤Ê¤ë¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 		if (p_ptr->tim_sh_holy)
 		{
 #ifdef JP
-msg_print("À»¤Ê¤ë¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
+			msg_print("À»¤Ê¤ë¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
 #else
 			msg_print("Holy aura disappeared.");
 #endif
@@ -2109,7 +2203,7 @@ bool set_tim_eyeeye(int v, bool do_dec)
 		else if (!p_ptr->tim_eyeeye)
 		{
 #ifdef JP
-msg_print("Ë¡¤Î¼é¤ê¼ê¤Ë¤Ê¤Ã¤¿µ¤¤¬¤·¤¿¡ª");
+			msg_print("Ë¡¤Î¼é¤ê¼ê¤Ë¤Ê¤Ã¤¿µ¤¤¬¤·¤¿¡ª");
 #else
 			msg_print("You feel like a keeper of commandments!");
 #endif
@@ -2124,7 +2218,7 @@ msg_print("Ë¡¤Î¼é¤ê¼ê¤Ë¤Ê¤Ã¤¿µ¤¤¬¤·¤¿¡ª");
 		if (p_ptr->tim_eyeeye)
 		{
 #ifdef JP
-msg_print("Ä¨È³¤ò¼¹¹Ô¤¹¤ë¤³¤È¤¬¤Ç¤­¤Ê¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("Ä¨È³¤ò¼¹¹Ô¤¹¤ë¤³¤È¤¬¤Ç¤­¤Ê¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You no longer feel like a keeper.");
 #endif
@@ -2385,7 +2479,7 @@ bool set_multishadow(int v, bool do_dec)
 		else if (!p_ptr->multishadow)
 		{
 #ifdef JP
-msg_print("¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¸¸±Æ¤¬À¸¤Þ¤ì¤¿¡£");
+			msg_print("¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¸¸±Æ¤¬À¸¤Þ¤ì¤¿¡£");
 #else
 			msg_print("Your Shadow enveloped you.");
 #endif
@@ -2400,7 +2494,7 @@ msg_print("¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¸¸±Æ¤¬À¸¤Þ¤ì¤¿¡£");
 		if (p_ptr->multishadow)
 		{
 #ifdef JP
-msg_print("¸¸±Æ¤¬¾Ã¤¨¤¿¡£");
+			msg_print("¸¸±Æ¤¬¾Ã¤¨¤¿¡£");
 #else
 			msg_print("Your Shadow disappears.");
 #endif
@@ -2454,7 +2548,7 @@ bool set_dustrobe(int v, bool do_dec)
 		else if (!p_ptr->dustrobe)
 		{
 #ifdef JP
-msg_print("ÂÎ¤¬ÇËÊÒ¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
+			msg_print("ÂÎ¤¬ÇËÊÒ¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 #else
 			msg_print("You were enveloped by shards.");
 #endif
@@ -2469,7 +2563,7 @@ msg_print("ÂÎ¤¬ÇËÊÒ¤Î¥ª¡¼¥é¤ÇÊ¤¤ï¤ì¤¿¡£");
 		if (p_ptr->dustrobe)
 		{
 #ifdef JP
-msg_print("ÇËÊÒ¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
+			msg_print("ÇËÊÒ¤Î¥ª¡¼¥é¤¬¾Ã¤¨¤¿¡£");
 #else
 			msg_print("The shards disappear.");
 #endif
@@ -2787,7 +2881,7 @@ bool set_oppose_acid(int v, bool do_dec)
 		else if (!p_ptr->oppose_acid)
 		{
 #ifdef JP
-msg_print("»À¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("»À¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel resistant to acid!");
 #endif
@@ -2802,7 +2896,7 @@ msg_print("»À¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->oppose_acid)
 		{
 #ifdef JP
-msg_print("»À¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
+			msg_print("»À¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
 #else
 			msg_print("You feel less resistant to acid.");
 #endif
@@ -2853,7 +2947,7 @@ bool set_oppose_elec(int v, bool do_dec)
 		else if (!p_ptr->oppose_elec)
 		{
 #ifdef JP
-msg_print("ÅÅ·â¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("ÅÅ·â¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel resistant to electricity!");
 #endif
@@ -2868,7 +2962,7 @@ msg_print("ÅÅ·â¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->oppose_elec)
 		{
 #ifdef JP
-msg_print("ÅÅ·â¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
+			msg_print("ÅÅ·â¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
 #else
 			msg_print("You feel less resistant to electricity.");
 #endif
@@ -2919,7 +3013,7 @@ bool set_oppose_fire(int v, bool do_dec)
 		else if (!p_ptr->oppose_fire)
 		{
 #ifdef JP
-msg_print("²Ð¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("²Ð¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel resistant to fire!");
 #endif
@@ -2934,7 +3028,7 @@ msg_print("²Ð¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->oppose_fire)
 		{
 #ifdef JP
-msg_print("²Ð¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
+			msg_print("²Ð¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
 #else
 			msg_print("You feel less resistant to fire.");
 #endif
@@ -2985,7 +3079,7 @@ bool set_oppose_cold(int v, bool do_dec)
 		else if (!p_ptr->oppose_cold)
 		{
 #ifdef JP
-msg_print("Îäµ¤¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("Îäµ¤¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel resistant to cold!");
 #endif
@@ -3000,7 +3094,7 @@ msg_print("Îäµ¤¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->oppose_cold)
 		{
 #ifdef JP
-msg_print("Îäµ¤¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
+			msg_print("Îäµ¤¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
 #else
 			msg_print("You feel less resistant to cold.");
 #endif
@@ -3051,7 +3145,7 @@ bool set_oppose_pois(int v, bool do_dec)
 		else if (!p_ptr->oppose_pois)
 		{
 #ifdef JP
-msg_print("ÆÇ¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("ÆÇ¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel resistant to poison!");
 #endif
@@ -3066,7 +3160,7 @@ msg_print("ÆÇ¤Ø¤ÎÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->oppose_pois)
 		{
 #ifdef JP
-msg_print("ÆÇ¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
+			msg_print("ÆÇ¤Ø¤ÎÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
 #else
 			msg_print("You feel less resistant to poison.");
 #endif
@@ -3511,7 +3605,7 @@ bool set_food(int v)
 			/* Weak */
 			case 1:
 #ifdef JP
-msg_print("¤Þ¤À¶õÊ¢¤ÇÅÝ¤ì¤½¤¦¤À¡£");
+			msg_print("¤Þ¤À¶õÊ¢¤ÇÅÝ¤ì¤½¤¦¤À¡£");
 #else
 			msg_print("You are still weak.");
 #endif
@@ -3521,7 +3615,7 @@ msg_print("¤Þ¤À¶õÊ¢¤ÇÅÝ¤ì¤½¤¦¤À¡£");
 			/* Hungry */
 			case 2:
 #ifdef JP
-msg_print("¤Þ¤À¶õÊ¢¤À¡£");
+			msg_print("¤Þ¤À¶õÊ¢¤À¡£");
 #else
 			msg_print("You are still hungry.");
 #endif
@@ -3531,7 +3625,7 @@ msg_print("¤Þ¤À¶õÊ¢¤À¡£");
 			/* Normal */
 			case 3:
 #ifdef JP
-msg_print("¶õÊ¢´¶¤¬¤ª¤µ¤Þ¤Ã¤¿¡£");
+			msg_print("¶õÊ¢´¶¤¬¤ª¤µ¤Þ¤Ã¤¿¡£");
 #else
 			msg_print("You are no longer hungry.");
 #endif
@@ -3541,7 +3635,7 @@ msg_print("¶õÊ¢´¶¤¬¤ª¤µ¤Þ¤Ã¤¿¡£");
 			/* Full */
 			case 4:
 #ifdef JP
-msg_print("ËþÊ¢¤À¡ª");
+			msg_print("ËþÊ¢¤À¡ª");
 #else
 			msg_print("You are full!");
 #endif
@@ -3551,7 +3645,7 @@ msg_print("ËþÊ¢¤À¡ª");
 			/* Bloated */
 			case 5:
 #ifdef JP
-msg_print("¿©¤Ù²á¤®¤À¡ª");
+			msg_print("¿©¤Ù²á¤®¤À¡ª");
 #else
 			msg_print("You have gorged yourself!");
 #endif
@@ -3572,7 +3666,7 @@ msg_print("¿©¤Ù²á¤®¤À¡ª");
 			/* Fainting / Starving */
 			case 0:
 #ifdef JP
-msg_print("¤¢¤Þ¤ê¤Ë¤â¶õÊ¢¤Çµ¤¤ò¼º¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
+			msg_print("¤¢¤Þ¤ê¤Ë¤â¶õÊ¢¤Çµ¤¤ò¼º¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 #else
 			msg_print("You are getting faint from hunger!");
 #endif
@@ -3582,7 +3676,7 @@ msg_print("¤¢¤Þ¤ê¤Ë¤â¶õÊ¢¤Çµ¤¤ò¼º¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 			/* Weak */
 			case 1:
 #ifdef JP
-msg_print("¤ªÊ¢¤¬¶õ¤¤¤ÆÅÝ¤ì¤½¤¦¤À¡£");
+			msg_print("¤ªÊ¢¤¬¶õ¤¤¤ÆÅÝ¤ì¤½¤¦¤À¡£");
 #else
 			msg_print("You are getting weak from hunger!");
 #endif
@@ -3592,7 +3686,7 @@ msg_print("¤ªÊ¢¤¬¶õ¤¤¤ÆÅÝ¤ì¤½¤¦¤À¡£");
 			/* Hungry */
 			case 2:
 #ifdef JP
-msg_print("¤ªÊ¢¤¬¶õ¤¤¤Æ¤­¤¿¡£");
+			msg_print("¤ªÊ¢¤¬¶õ¤¤¤Æ¤­¤¿¡£");
 #else
 			msg_print("You are getting hungry.");
 #endif
@@ -3602,7 +3696,7 @@ msg_print("¤ªÊ¢¤¬¶õ¤¤¤Æ¤­¤¿¡£");
 			/* Normal */
 			case 3:
 #ifdef JP
-msg_print("ËþÊ¢´¶¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("ËþÊ¢´¶¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You are no longer full.");
 #endif
@@ -3612,7 +3706,7 @@ msg_print("ËþÊ¢´¶¤¬¤Ê¤¯¤Ê¤Ã¤¿¡£");
 			/* Full */
 			case 4:
 #ifdef JP
-msg_print("¤ä¤Ã¤È¤ªÊ¢¤¬¤­¤Ä¤¯¤Ê¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("¤ä¤Ã¤È¤ªÊ¢¤¬¤­¤Ä¤¯¤Ê¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You are no longer gorged.");
 #endif
@@ -3899,7 +3993,7 @@ bool hp_player(int num)
 		if (num < 5)
 		{
 #ifdef JP
-msg_print("¾¯¤·µ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("¾¯¤·µ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You feel a little better.");
 #endif
@@ -3910,7 +4004,7 @@ msg_print("¾¯¤·µ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 		else if (num < 15)
 		{
 #ifdef JP
-msg_print("µ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("µ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You feel better.");
 #endif
@@ -3921,7 +4015,7 @@ msg_print("µ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 		else if (num < 35)
 		{
 #ifdef JP
-msg_print("¤È¤Æ¤âµ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("¤È¤Æ¤âµ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You feel much better.");
 #endif
@@ -3932,7 +4026,7 @@ msg_print("¤È¤Æ¤âµ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 		else
 		{
 #ifdef JP
-msg_print("¤Ò¤¸¤ç¤¦¤Ëµ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
+			msg_print("¤Ò¤¸¤ç¤¦¤Ëµ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 #else
 			msg_print("You feel very good.");
 #endif
@@ -3954,37 +4048,37 @@ msg_print("¤Ò¤¸¤ç¤¦¤Ëµ¤Ê¬¤¬ÎÉ¤¯¤Ê¤Ã¤¿¡£");
 static cptr desc_stat_pos[] =
 {
 #ifdef JP
-"¶¯¤¯",
+	"¶¯¤¯",
 #else
 	"strong",
 #endif
 
 #ifdef JP
-"ÃÎÅª¤Ë",
+	"ÃÎÅª¤Ë",
 #else
 	"smart",
 #endif
 
 #ifdef JP
-"¸­¤¯",
+	"¸­¤¯",
 #else
 	"wise",
 #endif
 
 #ifdef JP
-"´ïÍÑ¤Ë",
+	"´ïÍÑ¤Ë",
 #else
 	"dextrous",
 #endif
 
 #ifdef JP
-"·ò¹¯¤Ë",
+	"·ò¹¯¤Ë",
 #else
 	"healthy",
 #endif
 
 #ifdef JP
-"Èþ¤·¤¯"
+	"Èþ¤·¤¯"
 #else
 	"cute"
 #endif
@@ -3998,12 +4092,12 @@ static cptr desc_stat_pos[] =
 static cptr desc_stat_neg[] =
 {
 #ifdef JP
-"¼å¤¯",
-"ÌµÃÎ¤Ë",
-"¶ò¤«¤Ë",
-"ÉÔ´ïÍÑ¤Ë",
-"ÉÔ·ò¹¯¤Ë",
-"½¹¤¯"
+	"¼å¤¯",
+	"ÌµÃÎ¤Ë",
+	"¶ò¤«¤Ë",
+	"ÉÔ´ïÍÑ¤Ë",
+	"ÉÔ·ò¹¯¤Ë",
+	"½¹¤¯"
 #else
 	"weak",
 	"stupid",
@@ -4035,11 +4129,11 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust && (!ironman_nightmare || randint0(13)))
+	if (sust && randint0(13))
 	{
 		/* Message */
 #ifdef JP
-msg_format("%s¤Ê¤Ã¤¿µ¤¤¬¤·¤¿¤¬¡¢¤¹¤°¤Ë¸µ¤ËÌá¤Ã¤¿¡£",
+		msg_format("%s¤Ê¤Ã¤¿µ¤¤¬¤·¤¿¤¬¡¢¤¹¤°¤Ë¸µ¤ËÌá¤Ã¤¿¡£",
 #else
 		msg_format("You feel %s for a moment, but the feeling passes.",
 #endif
@@ -4051,11 +4145,11 @@ msg_format("%s¤Ê¤Ã¤¿µ¤¤¬¤·¤¿¤¬¡¢¤¹¤°¤Ë¸µ¤ËÌá¤Ã¤¿¡£",
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, (ironman_nightmare && !randint0(13))))
+	if (dec_stat(stat, 10, (!randint0(13))))
 	{
 		/* Message */
 #ifdef JP
-msg_format("¤Ò¤É¤¯%s¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£", desc_stat_neg[stat]);
+		msg_format("¤Ò¤É¤¯%s¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£", desc_stat_neg[stat]);
 #else
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
 #endif
@@ -4080,7 +4174,7 @@ bool do_res_stat(int stat)
 	{
 		/* Message */
 #ifdef JP
-msg_format("¸µÄÌ¤ê¤Ë%s¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£", desc_stat_pos[stat]);
+		msg_format("¸µÄÌ¤ê¤Ë%s¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£", desc_stat_pos[stat]);
 #else
 		msg_format("You feel less %s.", desc_stat_neg[stat]);
 #endif
@@ -4110,7 +4204,7 @@ bool do_inc_stat(int stat)
 	{
 		/* Message */
 #ifdef JP
-msg_format("¥ï¡¼¥ª¡ª¤È¤Æ¤â%s¤Ê¤Ã¤¿¡ª", desc_stat_pos[stat]);
+		msg_format("¥ï¡¼¥ª¡ª¤È¤Æ¤â%s¤Ê¤Ã¤¿¡ª", desc_stat_pos[stat]);
 #else
 		msg_format("Wow!  You feel very %s!", desc_stat_pos[stat]);
 #endif
@@ -4125,7 +4219,7 @@ msg_format("¥ï¡¼¥ª¡ª¤È¤Æ¤â%s¤Ê¤Ã¤¿¡ª", desc_stat_pos[stat]);
 	{
 		/* Message */
 #ifdef JP
-msg_format("¸µÄÌ¤ê¤Ë%s¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£", desc_stat_pos[stat]);
+		msg_format("¸µÄÌ¤ê¤Ë%s¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£", desc_stat_pos[stat]);
 #else
 		msg_format("You feel less %s.", desc_stat_neg[stat]);
 #endif
@@ -4252,7 +4346,7 @@ void do_poly_wounds(void)
 	if (!(wounds || hit_p || Nasty_effect)) return;
 
 #ifdef JP
-msg_print("½ý¤¬¤è¤ê·Ú¤¤¤â¤Î¤ËÊÑ²½¤·¤¿¡£");
+	msg_print("½ý¤¬¤è¤ê·Ú¤¤¤â¤Î¤ËÊÑ²½¤·¤¿¡£");
 #else
 	msg_print("Your wounds are polymorphed into less serious ones.");
 #endif
@@ -4261,8 +4355,8 @@ msg_print("½ý¤¬¤è¤ê·Ú¤¤¤â¤Î¤ËÊÑ²½¤·¤¿¡£");
 	if (Nasty_effect)
 	{
 #ifdef JP
-msg_print("¿·¤¿¤Ê½ý¤¬¤Ç¤­¤¿¡ª");
-take_hit(DAMAGE_LOSELIFE, change / 2, "ÊÑ²½¤·¤¿½ý");
+		msg_print("¿·¤¿¤Ê½ý¤¬¤Ç¤­¤¿¡ª");
+		take_hit(DAMAGE_LOSELIFE, change / 2, "ÊÑ²½¤·¤¿½ý");
 #else
 		msg_print("A new wound was created!");
 		take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound");
@@ -4282,7 +4376,7 @@ void do_poly_self(void)
 	int power = p_ptr->lev;
 
 #ifdef JP
-msg_print("¤¢¤Ê¤¿¤ÏÊÑ²½¤ÎË¬¤ì¤ò´¶¤¸¤¿...");
+	msg_print("¤¢¤Ê¤¿¤ÏÊÑ²½¤ÎË¬¤ì¤ò´¶¤¸¤¿...");
 #else
 	msg_print("You feel a change coming over you...");
 #endif
@@ -4305,7 +4399,7 @@ msg_print("¤¢¤Ê¤¿¤ÏÊÑ²½¤ÎË¬¤ì¤ò´¶¤¸¤¿...");
 				p_ptr->psex = SEX_FEMALE;
 				sp_ptr = &sex_info[p_ptr->psex];
 #ifdef JP
-sprintf(effect_msg, "½÷À­");
+				sprintf(effect_msg, "½÷À­");
 #else
 				sprintf(effect_msg, "female");
 #endif
@@ -4316,7 +4410,7 @@ sprintf(effect_msg, "½÷À­");
 				p_ptr->psex = SEX_MALE;
 				sp_ptr = &sex_info[p_ptr->psex];
 #ifdef JP
-sprintf(effect_msg, "ÃËÀ­");
+				sprintf(effect_msg, "ÃËÀ­");
 #else
 				sprintf(effect_msg, "male");
 #endif
@@ -4374,7 +4468,7 @@ sprintf(effect_msg, "ÃËÀ­");
 
 			if (!lose_mutation(0))
 #ifdef JP
-msg_print("´ñÌ¯¤Ê¤¯¤é¤¤ÉáÄÌ¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£");
+				msg_print("´ñÌ¯¤Ê¤¯¤é¤¤ÉáÄÌ¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£");
 #else
 				msg_print("You feel oddly normal.");
 #endif
@@ -4429,7 +4523,7 @@ msg_print("´ñÌ¯¤Ê¤¯¤é¤¤ÉáÄÌ¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£");
 		power -= 20;
 
 #ifdef JP
-msg_format("ÆâÂ¡¤Î¹½À®¤¬ÊÑ²½¤·¤¿¡ª");
+		msg_format("ÆâÂ¡¤Î¹½À®¤¬ÊÑ²½¤·¤¿¡ª");
 #else
 		msg_print("Your internal organs are rearranged!");
 #endif
@@ -4456,8 +4550,6 @@ msg_format("ÆâÂ¡¤Î¹½À®¤¬ÊÑ²½¤·¤¿¡ª");
 	if ((power > randint0(20)) && one_in_(4))
 	{
 		power -= 10;
-
-		do_cmd_rerate();
 	}
 
 	while ((power > randint0(15)) && one_in_(3))
@@ -4488,7 +4580,6 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 {
 	object_type *o_ptr;
 	char         o_name[MAX_NLEN];
-	int          i, j;
 	char         buf[80];
 
 	/* If you use Snap Dragon Spell, you cannot revive. */
@@ -4541,6 +4632,8 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 		cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 		change_level99_quest(FALSE);
+
+		p_ptr->infected = FALSE;
 
 		if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
@@ -4831,6 +4924,7 @@ int take_hit(u32b damage_type, int damage, cptr hit_from)
 				if (resurrect_player(INVEN_LEFT, 100, CLASS_LICH)) return damage;
 			}
 			if (resurrect_player(-1, 100, CLASS_ANGELKNIGHT)) return damage;
+			if (resurrect_player(-1, 100, CLASS_VAMPIRE)) return damage;
 		}
 
 		/* »à¤ó¤À»þ¤Ë¶¯À©½ªÎ»¤·¤Æ»à¤ò²óÈò¤Ç¤­¤Ê¤¯¤·¤Æ¤ß¤¿ by Habu */
@@ -4923,7 +5017,7 @@ int take_hit(u32b damage_type, int damage, cptr hit_from)
 			flush();
 
 #ifdef JP
-if (get_check_strict("²èÌÌ¤òÊÝÂ¸¤·¤Þ¤¹¤«¡©", CHECK_NO_HISTORY))
+			if (get_check_strict("²èÌÌ¤òÊÝÂ¸¤·¤Þ¤¹¤«¡©", CHECK_NO_HISTORY))
 #else
 			if (get_check_strict("Dump the screen? ", CHECK_NO_HISTORY))
 #endif
@@ -4938,7 +5032,7 @@ if (get_check_strict("²èÌÌ¤òÊÝÂ¸¤·¤Þ¤¹¤«¡©", CHECK_NO_HISTORY))
 			if (!last_words && !(p_ptr->is_dead & DEATH_SNAP_DRAGON))
 			{
 #ifdef JP
-msg_format("¤¢¤Ê¤¿¤Ï%s¤Þ¤·¤¿¡£", (p_ptr->is_dead & DEATH_STONED) ? "ÀÐ²½¤·" : "»à¤Ë");
+				msg_format("¤¢¤Ê¤¿¤Ï%s¤Þ¤·¤¿¡£", (p_ptr->is_dead & DEATH_STONED) ? "ÀÐ²½¤·" : "»à¤Ë");
 #else
 				msg_print((p_ptr->is_dead & DEATH_STONED) ? "You are stoned." : "You die.");
 #endif
@@ -5007,7 +5101,7 @@ msg_format("¤¢¤Ê¤¿¤Ï%s¤Þ¤·¤¿¡£", (p_ptr->is_dead & DEATH_STONED) ? "ÀÐ²½¤·" : "»
 
 		/* Message */
 #ifdef JP
-msg_print("*** ·Ù¹ð:Äã¥Ò¥Ã¥È¡¦¥Ý¥¤¥ó¥È¡ª ***");
+		msg_print("*** ·Ù¹ð:Äã¥Ò¥Ã¥È¡¦¥Ý¥¤¥ó¥È¡ª ***");
 #else
 		msg_print("*** LOW HITPOINT WARNING! ***");
 #endif
@@ -5147,7 +5241,7 @@ bool set_tim_res_time(int v, bool do_dec)
 		else if (!p_ptr->tim_res_time)
 		{
 #ifdef JP
-msg_print("»þ´ÖµÕÅ¾¤ÎÎÏ¤ËÂÐ¤·¤ÆÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
+			msg_print("»þ´ÖµÕÅ¾¤ÎÎÏ¤ËÂÐ¤·¤ÆÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 #else
 			msg_print("You feel time resistant!");
 #endif
@@ -5162,7 +5256,7 @@ msg_print("»þ´ÖµÕÅ¾¤ÎÎÏ¤ËÂÐ¤·¤ÆÂÑÀ­¤¬¤Ä¤¤¤¿µ¤¤¬¤¹¤ë¡ª");
 		if (p_ptr->tim_res_time)
 		{
 #ifdef JP
-msg_print("»þ´ÖµÕÅ¾¤ÎÎÏ¤ËÂÐ¤¹¤ëÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
+			msg_print("»þ´ÖµÕÅ¾¤ÎÎÏ¤ËÂÐ¤¹¤ëÂÑÀ­¤¬Çö¤ì¤¿µ¤¤¬¤¹¤ë¡£");
 #else
 			msg_print("You feel less time resistant");
 #endif

@@ -1101,13 +1101,7 @@ int mutant_regenerate_mod = 100;
  * Startup options
  */
 bool easy_band;
-bool ironman_shops;           /* Stores are permanently closed */
-bool ironman_small_levels;    /* Always create unusually small dungeon levels */
-bool ironman_forward;         /* Don't allow climbing backwards/recalling */
-bool ironman_autoscum;        /* Permanently enable the autoscummer */
-bool ironman_empty_levels;    /* Always create empty 'arena' levels */
 bool ironman_rooms;           /* Always generate very unusual rooms */
-bool ironman_nightmare;			/* Play the game in Nightmare mode */
 bool left_hander;
 bool preserve_mode;
 

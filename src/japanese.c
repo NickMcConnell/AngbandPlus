@@ -10,110 +10,116 @@
 #define CMPTAIL(y) strncmp(&in[l-strlen(y)],y,strlen(y))
 
 /* 殴る,蹴る＞殴り,蹴る */
-void jverb1( const char *in , char *out){
-int l=strlen(in);
-strcpy(out,in);
+void jverb1( const char *in , char *out)
+{
+	int l=strlen(in);
+	strcpy(out,in);
 
-if( CMPTAIL("する")==0) sprintf(&out[l-4],"し");else
-if( CMPTAIL("いる")==0) sprintf(&out[l-4],"いて");else
+	if( CMPTAIL("する")==0) sprintf(&out[l-4],"し");else
+	if( CMPTAIL("いる")==0) sprintf(&out[l-4],"いて");else
 
-if( CMPTAIL("える")==0) sprintf(&out[l-4],"え");else
-if( CMPTAIL("ける")==0) sprintf(&out[l-4],"け");else
-if( CMPTAIL("げる")==0) sprintf(&out[l-4],"げ");else
-if( CMPTAIL("せる")==0) sprintf(&out[l-4],"せ");else
-if( CMPTAIL("ぜる")==0) sprintf(&out[l-4],"ぜ");else
-if( CMPTAIL("てる")==0) sprintf(&out[l-4],"て");else
-if( CMPTAIL("でる")==0) sprintf(&out[l-4],"で");else
-if( CMPTAIL("ねる")==0) sprintf(&out[l-4],"ね");else
-if( CMPTAIL("へる")==0) sprintf(&out[l-4],"へ");else
-if( CMPTAIL("べる")==0) sprintf(&out[l-4],"べ");else
-if( CMPTAIL("める")==0) sprintf(&out[l-4],"め");else
-if( CMPTAIL("れる")==0) sprintf(&out[l-4],"れ");else
+	if( CMPTAIL("える")==0) sprintf(&out[l-4],"え");else
+	if( CMPTAIL("ける")==0) sprintf(&out[l-4],"け");else
+	if( CMPTAIL("げる")==0) sprintf(&out[l-4],"げ");else
+	if( CMPTAIL("せる")==0) sprintf(&out[l-4],"せ");else
+	if( CMPTAIL("ぜる")==0) sprintf(&out[l-4],"ぜ");else
+	if( CMPTAIL("てる")==0) sprintf(&out[l-4],"て");else
+	if( CMPTAIL("でる")==0) sprintf(&out[l-4],"で");else
+	if( CMPTAIL("ねる")==0) sprintf(&out[l-4],"ね");else
+	if( CMPTAIL("へる")==0) sprintf(&out[l-4],"へ");else
+	if( CMPTAIL("べる")==0) sprintf(&out[l-4],"べ");else
+	if( CMPTAIL("める")==0) sprintf(&out[l-4],"め");else
+	if( CMPTAIL("れる")==0) sprintf(&out[l-4],"れ");else
 
-if( CMPTAIL("う")==0) sprintf(&out[l-2],"い");else
-if( CMPTAIL("く")==0) sprintf(&out[l-2],"き");else
-if( CMPTAIL("ぐ")==0) sprintf(&out[l-2],"ぎ");else
-if( CMPTAIL("す")==0) sprintf(&out[l-2],"し");else
-if( CMPTAIL("ず")==0) sprintf(&out[l-2],"じ");else
-if( CMPTAIL("つ")==0) sprintf(&out[l-2],"ち");else
-if( CMPTAIL("づ")==0) sprintf(&out[l-2],"ぢ");else
-if( CMPTAIL("ぬ")==0) sprintf(&out[l-2],"に");else
-if( CMPTAIL("ふ")==0) sprintf(&out[l-2],"ひ");else
-if( CMPTAIL("ぶ")==0) sprintf(&out[l-2],"び");else
-if( CMPTAIL("む")==0) sprintf(&out[l-2],"み");else
-if( CMPTAIL("る")==0) sprintf(&out[l-2],"り");else
+	if( CMPTAIL("う")==0) sprintf(&out[l-2],"い");else
+	if( CMPTAIL("く")==0) sprintf(&out[l-2],"き");else
+	if( CMPTAIL("ぐ")==0) sprintf(&out[l-2],"ぎ");else
+	if( CMPTAIL("す")==0) sprintf(&out[l-2],"し");else
+	if( CMPTAIL("ず")==0) sprintf(&out[l-2],"じ");else
+	if( CMPTAIL("つ")==0) sprintf(&out[l-2],"ち");else
+	if( CMPTAIL("づ")==0) sprintf(&out[l-2],"ぢ");else
+	if( CMPTAIL("ぬ")==0) sprintf(&out[l-2],"に");else
+	if( CMPTAIL("ふ")==0) sprintf(&out[l-2],"ひ");else
+	if( CMPTAIL("ぶ")==0) sprintf(&out[l-2],"び");else
+	if( CMPTAIL("む")==0) sprintf(&out[l-2],"み");else
+	if( CMPTAIL("る")==0) sprintf(&out[l-2],"り");else
 
-  sprintf(&out[l],"そして");}
+	sprintf(&out[l],"そして");
+}
 
 /* 殴る,蹴る> 殴って蹴る */
-void jverb2( const char *in , char *out){
-int l=strlen(in);
-strcpy(out,in);
+void jverb2( const char *in , char *out)
+{
+	int l=strlen(in);
+	strcpy(out,in);
 
-if( CMPTAIL("する")==0) sprintf(&out[l-4],"して");else
-if( CMPTAIL("いる")==0) sprintf(&out[l-4],"いて");else
+	if( CMPTAIL("する")==0) sprintf(&out[l-4],"して");else
+	if( CMPTAIL("いる")==0) sprintf(&out[l-4],"いて");else
 
-if( CMPTAIL("える")==0) sprintf(&out[l-4],"えて");else
-if( CMPTAIL("ける")==0) sprintf(&out[l-4],"けて");else
-if( CMPTAIL("げる")==0) sprintf(&out[l-4],"げて");else
-if( CMPTAIL("せる")==0) sprintf(&out[l-4],"せて");else
-if( CMPTAIL("ぜる")==0) sprintf(&out[l-4],"ぜて");else
-if( CMPTAIL("てる")==0) sprintf(&out[l-4],"てって");else
-if( CMPTAIL("でる")==0) sprintf(&out[l-4],"でて");else
-if( CMPTAIL("ねる")==0) sprintf(&out[l-4],"ねて");else
-if( CMPTAIL("へる")==0) sprintf(&out[l-4],"へて");else
-if( CMPTAIL("べる")==0) sprintf(&out[l-4],"べて");else
-if( CMPTAIL("める")==0) sprintf(&out[l-4],"めて");else
-if( CMPTAIL("れる")==0) sprintf(&out[l-4],"れて");else
+	if( CMPTAIL("える")==0) sprintf(&out[l-4],"えて");else
+	if( CMPTAIL("ける")==0) sprintf(&out[l-4],"けて");else
+	if( CMPTAIL("げる")==0) sprintf(&out[l-4],"げて");else
+	if( CMPTAIL("せる")==0) sprintf(&out[l-4],"せて");else
+	if( CMPTAIL("ぜる")==0) sprintf(&out[l-4],"ぜて");else
+	if( CMPTAIL("てる")==0) sprintf(&out[l-4],"てって");else
+	if( CMPTAIL("でる")==0) sprintf(&out[l-4],"でて");else
+	if( CMPTAIL("ねる")==0) sprintf(&out[l-4],"ねて");else
+	if( CMPTAIL("へる")==0) sprintf(&out[l-4],"へて");else
+	if( CMPTAIL("べる")==0) sprintf(&out[l-4],"べて");else
+	if( CMPTAIL("める")==0) sprintf(&out[l-4],"めて");else
+	if( CMPTAIL("れる")==0) sprintf(&out[l-4],"れて");else
 
-if( CMPTAIL("う")==0) sprintf(&out[l-2],"って");else
-if( CMPTAIL("く")==0) sprintf(&out[l-2],"いて");else
-if( CMPTAIL("ぐ")==0) sprintf(&out[l-2],"いで");else
-if( CMPTAIL("す")==0) sprintf(&out[l-2],"して");else
-if( CMPTAIL("ず")==0) sprintf(&out[l-2],"じて");else
-if( CMPTAIL("つ")==0) sprintf(&out[l-2],"って");else
-if( CMPTAIL("づ")==0) sprintf(&out[l-2],"って");else
-if( CMPTAIL("ぬ")==0) sprintf(&out[l-2],"ねて");else
-if( CMPTAIL("ふ")==0) sprintf(&out[l-2],"へて");else
-if( CMPTAIL("ぶ")==0) sprintf(&out[l-2],"んで");else
-if( CMPTAIL("む")==0) sprintf(&out[l-2],"んで");else
-if( CMPTAIL("る")==0) sprintf(&out[l-2],"って");else
-  sprintf(&out[l],"ことにより");}
+	if( CMPTAIL("う")==0) sprintf(&out[l-2],"って");else
+	if( CMPTAIL("く")==0) sprintf(&out[l-2],"いて");else
+	if( CMPTAIL("ぐ")==0) sprintf(&out[l-2],"いで");else
+	if( CMPTAIL("す")==0) sprintf(&out[l-2],"して");else
+	if( CMPTAIL("ず")==0) sprintf(&out[l-2],"じて");else
+	if( CMPTAIL("つ")==0) sprintf(&out[l-2],"って");else
+	if( CMPTAIL("づ")==0) sprintf(&out[l-2],"って");else
+	if( CMPTAIL("ぬ")==0) sprintf(&out[l-2],"ねて");else
+	if( CMPTAIL("ふ")==0) sprintf(&out[l-2],"へて");else
+	if( CMPTAIL("ぶ")==0) sprintf(&out[l-2],"んで");else
+	if( CMPTAIL("む")==0) sprintf(&out[l-2],"んで");else
+	if( CMPTAIL("る")==0) sprintf(&out[l-2],"って");else
+	sprintf(&out[l],"ことにより");
+}
 
 /* 殴る,蹴る > 殴ったり蹴ったり */
-void jverb3( const char *in , char *out){
-int l=strlen(in);
-strcpy(out,in);
+void jverb3( const char *in , char *out)
+{
+	int l=strlen(in);
+	strcpy(out,in);
 
-if( CMPTAIL("する")==0) sprintf(&out[l-4],"した");else
-if( CMPTAIL("いる")==0) sprintf(&out[l-4],"いた");else
+	if( CMPTAIL("する")==0) sprintf(&out[l-4],"した");else
+	if( CMPTAIL("いる")==0) sprintf(&out[l-4],"いた");else
 
-if( CMPTAIL("える")==0) sprintf(&out[l-4],"えた");else
-if( CMPTAIL("ける")==0) sprintf(&out[l-4],"けた");else
-if( CMPTAIL("げる")==0) sprintf(&out[l-4],"げた");else
-if( CMPTAIL("せる")==0) sprintf(&out[l-4],"せた");else
-if( CMPTAIL("ぜる")==0) sprintf(&out[l-4],"ぜた");else
-if( CMPTAIL("てる")==0) sprintf(&out[l-4],"てった");else
-if( CMPTAIL("でる")==0) sprintf(&out[l-4],"でた");else
-if( CMPTAIL("ねる")==0) sprintf(&out[l-4],"ねた");else
-if( CMPTAIL("へる")==0) sprintf(&out[l-4],"へた");else
-if( CMPTAIL("べる")==0) sprintf(&out[l-4],"べた");else
-if( CMPTAIL("める")==0) sprintf(&out[l-4],"めた");else
-if( CMPTAIL("れる")==0) sprintf(&out[l-4],"れた");else
+	if( CMPTAIL("える")==0) sprintf(&out[l-4],"えた");else
+	if( CMPTAIL("ける")==0) sprintf(&out[l-4],"けた");else
+	if( CMPTAIL("げる")==0) sprintf(&out[l-4],"げた");else
+	if( CMPTAIL("せる")==0) sprintf(&out[l-4],"せた");else
+	if( CMPTAIL("ぜる")==0) sprintf(&out[l-4],"ぜた");else
+	if( CMPTAIL("てる")==0) sprintf(&out[l-4],"てった");else
+	if( CMPTAIL("でる")==0) sprintf(&out[l-4],"でた");else
+	if( CMPTAIL("ねる")==0) sprintf(&out[l-4],"ねた");else
+	if( CMPTAIL("へる")==0) sprintf(&out[l-4],"へた");else
+	if( CMPTAIL("べる")==0) sprintf(&out[l-4],"べた");else
+	if( CMPTAIL("める")==0) sprintf(&out[l-4],"めた");else
+	if( CMPTAIL("れる")==0) sprintf(&out[l-4],"れた");else
 
-if( CMPTAIL("う")==0) sprintf(&out[l-2],"った");else
-if( CMPTAIL("く")==0) sprintf(&out[l-2],"いた");else
-if( CMPTAIL("ぐ")==0) sprintf(&out[l-2],"いだ");else
-if( CMPTAIL("す")==0) sprintf(&out[l-2],"した");else
-if( CMPTAIL("ず")==0) sprintf(&out[l-2],"じた");else
-if( CMPTAIL("つ")==0) sprintf(&out[l-2],"った");else
-if( CMPTAIL("づ")==0) sprintf(&out[l-2],"った");else
-if( CMPTAIL("ぬ")==0) sprintf(&out[l-2],"ねた");else
-if( CMPTAIL("ふ")==0) sprintf(&out[l-2],"へた");else
-if( CMPTAIL("ぶ")==0) sprintf(&out[l-2],"んだ");else
-if( CMPTAIL("む")==0) sprintf(&out[l-2],"んだ");else
-if( CMPTAIL("る")==0) sprintf(&out[l-2],"った");else
-  sprintf(&out[l],"ことや");}
+	if( CMPTAIL("う")==0) sprintf(&out[l-2],"った");else
+	if( CMPTAIL("く")==0) sprintf(&out[l-2],"いた");else
+	if( CMPTAIL("ぐ")==0) sprintf(&out[l-2],"いだ");else
+	if( CMPTAIL("す")==0) sprintf(&out[l-2],"した");else
+	if( CMPTAIL("ず")==0) sprintf(&out[l-2],"じた");else
+	if( CMPTAIL("つ")==0) sprintf(&out[l-2],"った");else
+	if( CMPTAIL("づ")==0) sprintf(&out[l-2],"った");else
+	if( CMPTAIL("ぬ")==0) sprintf(&out[l-2],"ねた");else
+	if( CMPTAIL("ふ")==0) sprintf(&out[l-2],"へた");else
+	if( CMPTAIL("ぶ")==0) sprintf(&out[l-2],"んだ");else
+	if( CMPTAIL("む")==0) sprintf(&out[l-2],"んだ");else
+	if( CMPTAIL("る")==0) sprintf(&out[l-2],"った");else
+	sprintf(&out[l],"ことや");
+}
 
 
 void jverb(const char *in, char *out, int flag)

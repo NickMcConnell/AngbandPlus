@@ -137,7 +137,7 @@ static bool alloc_stairs(int feat, int num, int walls)
 			if (astral_mode)
 			{
 				/* No up stairs in town or in ironman mode (astral mode) */
-				if (ironman_forward || !dun_level) return TRUE;
+				if (!dun_level) return TRUE;
 			}
 			else
 			{
@@ -177,7 +177,7 @@ static bool alloc_stairs(int feat, int num, int walls)
 			else
 			{
 				/* No up stairs in town or in ironman mode */
-				if (ironman_forward || !dun_level) return TRUE;
+				if (!dun_level) return TRUE;
 			}
 
 			/* No up stairs at the top of closed downward dungeon */
@@ -208,7 +208,7 @@ static bool alloc_stairs(int feat, int num, int walls)
 			else
 			{
 				/* No down stairs in town or in ironman mode */
-				if (ironman_forward || !dun_level) return TRUE;
+				if (!dun_level) return TRUE;
 			}
 
 			/* No down stairs at the bottom of closed upward dungeon */
@@ -222,7 +222,7 @@ static bool alloc_stairs(int feat, int num, int walls)
 			if (astral_mode)
 			{
 				/* No down stairs in town or in ironman mode (astral mode) */
-				if (ironman_forward || !dun_level) return TRUE;
+				if (!dun_level) return TRUE;
 			}
 			else
 			{
@@ -557,7 +557,7 @@ static void heaven_gate_gen(void)
 
 
 /* Place quest monsters */
-void place_quest_monsters(void)
+bool place_quest_monsters(void)
 {
 	int i;
 
@@ -614,7 +614,7 @@ void place_quest_monsters(void)
 				}
 
 				/* Failed to place */
-				if (!l) break;
+				if (!l) return FALSE;
 
 				/* Try to place the monster */
 				if (place_monster_aux(0, y, x, quest[i].r_idx, mode))
@@ -628,8 +628,12 @@ void place_quest_monsters(void)
 					continue;
 				}
 			}
+
+			/* Failed to place */
+			if (k ==SAFE_MAX_ATTEMPTS) return FALSE;
 		}
 	}
+	return TRUE;
 }
 
 
@@ -687,13 +691,13 @@ static bool cave_gen(void)
 	dun_tun_jct = rand_range(DUN_TUN_JCT_MIN, DUN_TUN_JCT_MAX);
 
 	/* Empty arena levels */
-	if (ironman_empty_levels || ((d_info[dungeon_type].flags1 & DF1_ARENA) && (empty_levels && one_in_(EMPTY_LEVEL))))
+	if ((d_info[dungeon_type].flags1 & DF1_ARENA) && (empty_levels && one_in_(EMPTY_LEVEL)))
 	{
 		empty_level = TRUE;
 
 		if (cheat_room)
 #ifdef JP
-msg_print("アリーナレベル");
+			msg_print("アリーナレベル");
 #else
 			msg_print("Arena level.");
 #endif
@@ -785,7 +789,7 @@ msg_print("アリーナレベル");
 		{
 			if (cheat_room)
 #ifdef JP
-msg_print("湖を生成。");
+				msg_print("湖を生成。");
 #else
 				msg_print("Lake on the level.");
 #endif
@@ -804,7 +808,7 @@ msg_print("湖を生成。");
 
 		if (cheat_room)
 #ifdef JP
-msg_print("洞窟を生成。");
+			msg_print("洞窟を生成。");
 #else
 			msg_print("Cavern on level.");
 #endif
@@ -886,7 +890,7 @@ msg_print("洞窟を生成。");
 					else
 					{
 #ifdef JP
-if (cheat_room) msg_print("巨大な宝物庫を却下します。");
+						if (cheat_room) msg_print("巨大な宝物庫を却下します。");
 #else
 						if (cheat_room) msg_print("Refusing a greater vault.");
 #endif
@@ -904,7 +908,7 @@ if (cheat_room) msg_print("巨大な宝物庫を却下します。");
 					else
 					{
 #ifdef JP
-if (cheat_room) msg_print("小さな宝物庫を却下します。");
+						if (cheat_room) msg_print("小さな宝物庫を却下します。");
 #else
 						if (cheat_room) msg_print("Refusing a lesser vault.");
 #endif
@@ -1202,7 +1206,7 @@ if (cheat_room) msg_print("小さな宝物庫を却下します。");
 	/* Determine the character location */
 	if (!new_player_spot()) return FALSE;
 
-	place_quest_monsters();
+	if (!place_quest_monsters()) return FALSE;
 
 	/* Basic "amount" */
 	k = (dun_level / 3);
@@ -1225,7 +1229,7 @@ if (cheat_room) msg_print("小さな宝物庫を却下します。");
 		else if (cheat_hear)
 		{
 #ifdef JP
-msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
+			msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
 #else
 			msg_format("Reduced monsters base from %d to %d", small_tester, i);
 #endif
@@ -1500,7 +1504,7 @@ static bool level_gen(cptr *why)
 {
 	int level_height, level_width;
 
-	if ((always_small_levels || ironman_small_levels ||
+	if ((always_small_levels ||
 	    (one_in_(SMALL_LEVEL) && small_levels) ||
 	    (d_info[dungeon_type].flags1 & DF1_BEGINNER) ||
 	    (d_info[dungeon_type].flags1 & DF1_SMALLEST) ||
@@ -1509,9 +1513,9 @@ static bool level_gen(cptr *why)
 	{
 		if (cheat_room)
 #ifdef JP
-msg_print("小さなフロア");
+		msg_print("小さなフロア");
 #else
-		  msg_print("A 'small' dungeon level.");
+		msg_print("A 'small' dungeon level.");
 #endif
 
 
@@ -1768,7 +1772,7 @@ why = "モンスターが多すぎる";
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		else if ((auto_scum || ironman_autoscum) && (num < 100) &&
+		else if ((auto_scum) && (num < 100) &&
 		         !p_ptr->inside_quest &&
 		         !(d_info[dungeon_type].flags1 & DF1_BEGINNER) &&
 		         !p_ptr->enter_dungeon)
@@ -1803,7 +1807,7 @@ why = "退屈な階";
 
 		/* Message */
 #ifdef JP
-if (why) msg_format("生成やり直し(%s)", why);
+		if (why) msg_format("生成やり直し(%s)", why);
 #else
 		if (why) msg_format("Generation restarted (%s)", why);
 #endif

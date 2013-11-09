@@ -28,7 +28,8 @@
 	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
 	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
 	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
-	  (cave[Y][X].feat == FEAT_MUSEUM))
+	  (cave[Y][X].feat == FEAT_MUSEUM) || \
+	  (cave[Y][X].feat == FEAT_DENEB_SHOP))
 
 static int rakubadam_m;
 static int rakubadam_p;
@@ -651,7 +652,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				if (known && (c_ptr->info & (CAVE_MARK)))
 				{
 #ifdef JP
-msg_print("壁が溶けて泥になった！");
+					msg_print("壁が溶けて泥になった！");
 #else
 					msg_print("The wall turns into mud!");
 #endif
@@ -673,8 +674,8 @@ msg_print("壁が溶けて泥になった！");
 				if (known && (c_ptr->info & (CAVE_MARK)))
 				{
 #ifdef JP
-msg_print("鉱脈が溶けて泥になった！");
-msg_print("何かを発見した！");
+					msg_print("鉱脈が溶けて泥になった！");
+					msg_print("何かを発見した！");
 #else
 					msg_print("The vein turns into mud!");
 					msg_print("You have found something!");
@@ -700,7 +701,7 @@ msg_print("何かを発見した！");
 				if (known && (c_ptr->info & (CAVE_MARK)))
 				{
 #ifdef JP
-msg_print("鉱脈が溶けて泥になった！");
+					msg_print("鉱脈が溶けて泥になった！");
 #else
 					msg_print("The vein turns into mud!");
 #endif
@@ -722,7 +723,7 @@ msg_print("鉱脈が溶けて泥になった！");
 				if (known && (c_ptr->info & (CAVE_MARK)))
 				{
 #ifdef JP
-msg_print("岩石が溶けて泥になった！");
+					msg_print("岩石が溶けて泥になった！");
 #else
 					msg_print("The rubble turns into mud!");
 #endif
@@ -743,7 +744,7 @@ msg_print("岩石が溶けて泥になった！");
 					if (player_can_see_bold(y, x))
 					{
 #ifdef JP
-msg_print("岩石の下に何か隠されていた！");
+						msg_print("岩石の下に何か隠されていた！");
 #else
 						msg_print("There was something buried in the rubble!");
 #endif
@@ -763,7 +764,7 @@ msg_print("岩石の下に何か隠されていた！");
 				if (known && (c_ptr->info & (CAVE_MARK)))
 				{
 #ifdef JP
-msg_print("ドアが溶けて泥になった！");
+					msg_print("ドアが溶けて泥になった！");
 #else
 					msg_print("The door turns into mud!");
 #endif
@@ -802,7 +803,7 @@ msg_print("ドアが溶けて泥になった！");
 				{
 					/* Message */
 #ifdef JP
-msg_print("まばゆい閃光が走った！");
+					msg_print("まばゆい閃光が走った！");
 #else
 					msg_print("There is a bright flash of light!");
 #endif
@@ -854,7 +855,7 @@ msg_print("まばゆい閃光が走った！");
 				if (known)
 				{
 #ifdef JP
-msg_print("まばゆい閃光が走った！");
+					msg_print("まばゆい閃光が走った！");
 #else
 					msg_print("There is a bright flash of light!");
 #endif
@@ -880,7 +881,7 @@ msg_print("まばゆい閃光が走った！");
 				if (known)
 				{
 #ifdef JP
-msg_print("カチッと音がした！");
+					msg_print("カチッと音がした！");
 #else
 					msg_print("Click!");
 #endif
@@ -1122,7 +1123,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ, u32b flg)
 				{
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "融けてしまった！";
+					note_kill = "融けてしまった！";
 #else
 					note_kill = (plural ? " melt!" : " melts!");
 #endif
@@ -1139,7 +1140,7 @@ note_kill = "融けてしまった！";
 				{
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "壊れてしまった！";
+					note_kill = "壊れてしまった！";
 #else
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
@@ -1156,7 +1157,7 @@ note_kill = "壊れてしまった！";
 				{
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "燃えてしまった！";
+					note_kill = "燃えてしまった！";
 #else
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
@@ -1172,7 +1173,7 @@ note_kill = "燃えてしまった！";
 				if (hates_cold(o_ptr))
 				{
 #ifdef JP
-note_kill = "砕け散ってしまった！";
+					note_kill = "砕け散ってしまった！";
 #else
 					note_kill = (plural ? " shatter!" : " shatters!");
 #endif
@@ -1190,7 +1191,7 @@ note_kill = "砕け散ってしまった！";
 				{
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "燃えてしまった！";
+					note_kill = "燃えてしまった！";
 #else
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
@@ -1202,7 +1203,7 @@ note_kill = "燃えてしまった！";
 					ignore = FALSE;
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "壊れてしまった！";
+					note_kill = "壊れてしまった！";
 #else
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
@@ -1221,7 +1222,7 @@ note_kill = "壊れてしまった！";
 				if (hates_cold(o_ptr))
 				{
 #ifdef JP
-note_kill = "砕け散ってしまった！";
+					note_kill = "砕け散ってしまった！";
 #else
 					note_kill = (plural ? " shatter!" : " shatters!");
 #endif
@@ -1235,7 +1236,7 @@ note_kill = "砕け散ってしまった！";
 			{
 				do_kill = TRUE;
 #ifdef JP
-note_kill = "壊れてしまった！";
+				note_kill = "壊れてしまった！";
 #else
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
@@ -1250,7 +1251,7 @@ note_kill = "壊れてしまった！";
 			{
 				do_kill = TRUE;
 #ifdef JP
-note_kill = "壊れてしまった！";
+				note_kill = "壊れてしまった！";
 #else
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
@@ -1265,7 +1266,7 @@ note_kill = "壊れてしまった！";
 				{
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "燃えてしまった！";
+					note_kill = "燃えてしまった！";
 #else
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
@@ -1277,7 +1278,7 @@ note_kill = "燃えてしまった！";
 					ignore = FALSE;
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "砕け散ってしまった！";
+					note_kill = "砕け散ってしまった！";
 #else
 					note_kill = (plural ? " shatter!" : " shatters!");
 #endif
@@ -1291,7 +1292,7 @@ note_kill = "砕け散ってしまった！";
 			{
 				do_kill = TRUE;
 #ifdef JP
-note_kill = "蒸発してしまった！";
+				note_kill = "蒸発してしまった！";
 #else
 				note_kill = (plural ? " evaporate!" : " evaporates!");
 #endif
@@ -1306,7 +1307,7 @@ note_kill = "蒸発してしまった！";
 				{
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "壊れてしまった！";
+					note_kill = "壊れてしまった！";
 #else
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
@@ -1322,7 +1323,7 @@ note_kill = "壊れてしまった！";
 				{
 					do_kill = TRUE;
 #ifdef JP
-note_kill = "壊れてしまった！";
+					note_kill = "壊れてしまった！";
 #else
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
@@ -1399,7 +1400,7 @@ note_kill = "壊れてしまった！";
 						if (known && o_ptr->marked)
 						{
 #ifdef JP
-msg_print("カチッと音がした！");
+							msg_print("カチッと音がした！");
 #else
 							msg_print("Click!");
 #endif
@@ -1448,7 +1449,7 @@ msg_print("カチッと音がした！");
 							if (!note_kill)
 							{
 #ifdef JP
-note_kill = "灰になった。";
+					note_kill = "灰になった。";
 #else
 					note_kill = (plural ? " become dust." : " becomes dust.");
 #endif
@@ -1458,7 +1459,7 @@ note_kill = "灰になった。";
 						else if (summon_named_creature(dummy_who, y, x, o_ptr->pval, mode))
 						{
 #ifdef JP
-note_kill = "生き返った。";
+					note_kill = "生き返った。";
 #else
 					note_kill = "rivived.";
 #endif
@@ -1466,7 +1467,7 @@ note_kill = "生き返った。";
 						else if (!note_kill)
 						{
 #ifdef JP
-note_kill = "灰になった。";
+							note_kill = "灰になった。";
 #else
 							note_kill = (plural ? " become dust." : " becomes dust.");
 #endif
@@ -1497,8 +1498,8 @@ note_kill = "灰になった。";
 				if (known && o_ptr->marked)
 				{
 #ifdef JP
-msg_format("%sは影響を受けない！",
-   o_name);
+					msg_format("%sは影響を受けない！",
+						o_name);
 #else
 					msg_format("The %s %s unaffected!",
 							o_name, (plural ? "are" : "is"));
@@ -1514,7 +1515,7 @@ msg_format("%sは影響を受けない！",
 				if (known && o_ptr->marked && note_kill)
 				{
 #ifdef JP
-msg_format("%sは%s", o_name, note_kill);
+					msg_format("%sは%s", o_name, note_kill);
 #else
 					msg_format("The %s%s", o_name, note_kill);
 #endif
@@ -1710,7 +1711,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			if (r_ptr->flagsr & (RFR_RES_ACID))
 			{
 #ifdef JP
-note = "にはかなり耐性がある！";
+				note = "にはかなり耐性がある！";
 #else
 				note = " resists a lot.";
 #endif
@@ -1721,7 +1722,7 @@ note = "にはかなり耐性がある！";
 			else if (r_ptr->flags3 & (RF3_HURT_ACID))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -1739,7 +1740,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flagsr & (RFR_RES_ELEC))
 			{
 #ifdef JP
-note = "にはかなり耐性がある！";
+				note = "にはかなり耐性がある！";
 #else
 				note = " resists a lot.";
 #endif
@@ -1750,7 +1751,7 @@ note = "にはかなり耐性がある！";
 			else if (r_ptr->flags3 & (RF3_HURT_ELEC))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -1768,7 +1769,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flagsr & (RFR_RES_FIRE))
 			{
 #ifdef JP
-note = "にはかなり耐性がある！";
+				note = "にはかなり耐性がある！";
 #else
 				note = " resists a lot.";
 #endif
@@ -1779,7 +1780,7 @@ note = "にはかなり耐性がある！";
 			else if (r_ptr->flags3 & (RF3_HURT_FIRE))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -1797,7 +1798,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flagsr & (RFR_RES_COLD))
 			{
 #ifdef JP
-note = "にはかなり耐性がある！";
+				note = "にはかなり耐性がある！";
 #else
 				note = " resists a lot.";
 #endif
@@ -1808,7 +1809,7 @@ note = "にはかなり耐性がある！";
 			else if (r_ptr->flags3 & (RF3_HURT_COLD))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -1826,7 +1827,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flagsr & RFR_RES_POIS)
 			{
 #ifdef JP
-note = "にはかなり耐性がある！";
+				note = "にはかなり耐性がある！";
 #else
 				note = " resists a lot.";
 #endif
@@ -1844,7 +1845,7 @@ note = "にはかなり耐性がある！";
 			if (r_ptr->flagsr & (RFR_RES_LITE))
 			{
 #ifdef JP
-note = "には耐性がある！";
+				note = "には耐性がある！";
 #else
 				note = " resists.";
 #endif
@@ -1856,8 +1857,8 @@ note = "には耐性がある！";
 			{
 				if (seen) r_ptr->r_flags3 |= (RF3_HURT_LITE);
 #ifdef JP
-note = "は光に身をすくめた！";
-note_dies = "は光を受けてしぼんでしまった！";
+				note = "は光に身をすくめた！";
+				note_dies = "は光を受けてしぼんでしまった！";
 #else
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
@@ -1887,8 +1888,8 @@ note_dies = "は光を受けてしぼんでしまった！";
 
 				/* Special effect */
 #ifdef JP
-note = "は光に身をすくめた！";
-note_dies = "は光を受けてしぼんでしまった！";
+				note = "は光に身をすくめた！";
+				note_dies = "は光を受けてしぼんでしまった！";
 #else
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
@@ -1913,7 +1914,7 @@ note_dies = "は光を受けてしぼんでしまった！";
 			if (r_ptr->flagsr & (RFR_RES_DARK))
 			{
 #ifdef JP
-note = "には耐性がある！";
+				note = "には耐性がある！";
 #else
 				note = " resists.";
 #endif
@@ -1933,7 +1934,7 @@ note = "には耐性がある！";
 				if (r_ptr->flags3 & RF3_UNDEAD)
 				{
 #ifdef JP
-note = "には完全な耐性がある。";
+					note = "には完全な耐性がある。";
 #else
 					note = " is immune.";
 #endif
@@ -1944,7 +1945,7 @@ note = "には完全な耐性がある。";
 				else
 				{
 #ifdef JP
-note = "には耐性がある。";
+					note = "には耐性がある。";
 #else
 					note = " resists.";
 #endif
@@ -1957,7 +1958,7 @@ note = "には耐性がある。";
 			{
 				dam /= 2;
 #ifdef JP
-note = "はいくらか耐性を示した。";
+				note = "はいくらか耐性を示した。";
 #else
 				note = " resists somewhat.";
 #endif
@@ -1974,7 +1975,7 @@ note = "はいくらか耐性を示した。";
 			if (m_ptr->r_idx == MON_WATER_ELEM)
 			{
 #ifdef JP
-note = "には完全な耐性がある。";
+				note = "には完全な耐性がある。";
 #else
 				note = " is immune.";
 #endif
@@ -1985,7 +1986,7 @@ note = "には完全な耐性がある。";
 			else if (r_ptr->flagsr & RFR_RES_WATE)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2003,7 +2004,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_PLAS)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2021,7 +2022,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_SHAR)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2040,7 +2041,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_SOUN)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2059,7 +2060,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_CONF)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2070,7 +2071,7 @@ note = "には耐性がある。";
 			else if (r_ptr->flags3 & RF3_NO_CONF)
 			{
 #ifdef JP
-note = "はいくらか耐性を示した。";
+				note = "はいくらか耐性を示した。";
 #else
 				note = " resists somewhat.";
 #endif
@@ -2091,7 +2092,7 @@ note = "はいくらか耐性を示した。";
 			    ((r_ptr->flags3 & RF3_DEMON) && one_in_(3)))
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2111,7 +2112,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_STON)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2122,7 +2123,7 @@ note = "には耐性がある。";
 			else if (r_ptr->flags3 & RF3_NO_STONE)
 			{
 #ifdef JP
-note = "はいくらか耐性を示した。";
+				note = "はいくらか耐性を示した。";
 #else
 				note = " resists somewhat.";
 #endif
@@ -2169,7 +2170,7 @@ note = "はいくらか耐性を示した。";
 			if (r_ptr->flagsr & RFR_RES_DISE)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2188,7 +2189,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_WALL)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2206,7 +2207,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & (RFR_RES_INER))
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2228,7 +2229,7 @@ note = "には耐性がある。";
 					if (!m_ptr->slow)
 					{
 #ifdef JP
-note = "の動きが遅くなった。";
+						note = "の動きが遅くなった。";
 #else
 						note = " starts moving slower.";
 #endif
@@ -2248,7 +2249,7 @@ note = "の動きが遅くなった。";
 			if (r_ptr->flagsr & (RFR_RES_TIME))
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2272,7 +2273,7 @@ note = "には耐性がある。";
 				{
 					if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
-note = "には効果がなかった。";
+					note = "には効果がなかった。";
 #else
 					note = " is unaffected!";
 #endif
@@ -2283,7 +2284,7 @@ note = "には効果がなかった。";
 				{
 					if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
-note = "には耐性がある！";
+					note = "には耐性がある！";
 #else
 					note = " resists!";
 #endif
@@ -2299,7 +2300,7 @@ note = "には耐性がある！";
 			if (r_ptr->flagsr & (RFR_RES_GRAV))
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2323,7 +2324,7 @@ note = "には耐性がある。";
 					if (!m_ptr->slow)
 					{
 #ifdef JP
-note = "の動きが遅くなった。";
+						note = "の動きが遅くなった。";
 #else
 						note = " starts moving slower.";
 #endif
@@ -2344,7 +2345,7 @@ note = "の動きが遅くなった。";
 					do_stun = 0;
 					/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった。";
+					note = "には効果がなかった。";
 #else
 					note = " is unaffected!";
 #endif
@@ -2363,7 +2364,7 @@ note = "には効果がなかった。";
 			if (r_ptr->flagsr & RFR_RES_COLD)
 			{
 #ifdef JP
-note = "にはかなり耐性がある。";
+				note = "にはかなり耐性がある。";
 #else
 				note = " resists a lot.";
 #endif
@@ -2374,7 +2375,7 @@ note = "にはかなり耐性がある。";
 			else if (r_ptr->flags3 & (RF3_HURT_COLD))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -2392,7 +2393,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flagsr & RFR_RES_POIS)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2411,7 +2412,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_SHAR)
 			{
 #ifdef JP
-note = "はいくらか耐性を示した。";
+				note = "はいくらか耐性を示した。";
 #else
 				note = " resists somewhat.";
 #endif
@@ -2549,8 +2550,8 @@ note = "はいくらか耐性を示した。";
 			{
 				if (seen) r_ptr->r_flags3 |= (RF3_HURT_ROCK);
 #ifdef JP
-note = "の皮膚がただれた！";
-note_dies = "は蒸発した！";
+				note = "の皮膚がただれた！";
+				note_dies = "は蒸発した！";
 #else
 				note = " loses some skin!";
 				note_dies = " evaporates!";
@@ -2569,7 +2570,7 @@ note_dies = "は蒸発した！";
 			{
 				dam *= 2;
 #ifdef JP
-note = "はひどい痛手を受けた。";
+				note = "はひどい痛手を受けた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -2587,7 +2588,7 @@ note = "はひどい痛手を受けた。";
 			{
 				dam *= 2;
 #ifdef JP
-note = "はひどい痛手を受けた。";
+				note = "はひどい痛手を受けた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -2604,7 +2605,7 @@ note = "はひどい痛手を受けた。";
 			if (r_ptr->flags3 & (RF3_HURT_FIRE))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -2622,7 +2623,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flags3 & (RF3_HURT_COLD))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -2640,7 +2641,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flags3 & (RF3_HURT_ACID))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -2658,7 +2659,7 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flags3 & (RF3_HURT_ELEC))
 			{
 #ifdef JP
-note = "はひどい痛手をうけた。";
+				note = "はひどい痛手をうけた。";
 #else
 				note = " is hit hard.";
 #endif
@@ -2669,8 +2670,8 @@ note = "はひどい痛手をうけた。";
 			if (r_ptr->flags3 & (RF3_HURT_ROCK))
 			{
 #ifdef JP
-note = "の皮膚がただれた！";
-note_dies = "は蒸発した！";
+				note = "の皮膚がただれた！";
+				note_dies = "は蒸発した！";
 #else
 				note = " loses some skin!";
 				note_dies = " evaporates!";
@@ -2692,7 +2693,7 @@ note_dies = "は蒸発した！";
 			{
 
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -2711,7 +2712,7 @@ note = "には効果がなかった。";
 			{
 
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -2730,7 +2731,7 @@ note = "には効果がなかった。";
 			{
 
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -2749,7 +2750,7 @@ note = "には効果がなかった。";
 			{
 
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -2772,7 +2773,7 @@ note = "には効果がなかった。";
 			else
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = "is unaffected!";
 #endif
@@ -2796,7 +2797,7 @@ note = "には効果がなかった！";
 				}
 
 #ifdef JP
-note = "には完全な耐性がある。";
+				note = "には完全な耐性がある。";
 #else
 				note = " is immune.";
 #endif
@@ -2810,7 +2811,7 @@ note = "には完全な耐性がある。";
 				 randint1(100) != 66))
 			{
 #ifdef JP
-note = "には耐性がある！";
+				note = "には耐性がある！";
 #else
 				note = " resists!";
 #endif
@@ -2831,7 +2832,7 @@ note = "には耐性がある！";
 			{
 				dam = 0;
 #ifdef JP
-note = "はあなたが見えないので影響されない！";
+				note = "はあなたが見えないので影響されない！";
 #else
 				note = " can't see you, and isn't affected!";
 #endif
@@ -2842,7 +2843,7 @@ note = "はあなたが見えないので影響されない！";
 			{
 				dam = 0;
 #ifdef JP
-note = "には完全な耐性がある！";
+				note = "には完全な耐性がある！";
 #else
 				note = " is immune!";
 #endif
@@ -2856,7 +2857,7 @@ note = "には完全な耐性がある！";
 			{
 				dam /= 3;
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -2873,8 +2874,8 @@ note = "には耐性がある。";
 				{
 					note = NULL;
 #ifdef JP
-msg_format("%^sの堕落した精神は攻撃を跳ね返した！",
-    m_name);
+					msg_format("%^sの堕落した精神は攻撃を跳ね返した！",
+					    m_name);
 #else
 					msg_format("%^s%s corrupted mind backlashes your attack!",
 					    m_name, (seen ? "'s" : "s"));
@@ -2884,7 +2885,7 @@ msg_format("%^sの堕落した精神は攻撃を跳ね返した！",
 					if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
 					{
 #ifdef JP
-msg_print("しかし効力を跳ね返した！");
+						msg_print("しかし効力を跳ね返した！");
 #else
 						msg_print("You resist the effects!");
 #endif
@@ -2910,7 +2911,7 @@ msg_print("しかし効力を跳ね返した！");
 								{
 									if (r_ptr->flags3 & RF3_NO_FEAR)
 #ifdef JP
-note = "には効果がなかった。";
+										note = "には効果がなかった。";
 #else
 										note = " is unaffected.";
 #endif
@@ -2946,7 +2947,7 @@ note = "には効果がなかった。";
 						break;
 					default:
 #ifdef JP
-note = "は眠り込んでしまった！";
+						note = "は眠り込んでしまった！";
 #else
 						note = " falls asleep!";
 #endif
@@ -2957,7 +2958,7 @@ note = "は眠り込んでしまった！";
 			}
 
 #ifdef JP
-note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
+			note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 #else
 			note_dies = " collapses, a mindless husk.";
 #endif
@@ -2981,7 +2982,7 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 					r_ptr->r_flags3 |= (RF3_NO_CONF);
 				}
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -2990,8 +2991,8 @@ note = "には効果がなかった。";
 			else
 			{
 #ifdef JP
-msg_format("%sは精神攻撃を食らった。",m_name);
-note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
+				msg_format("%sは精神攻撃を食らった。",m_name);
+				note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 #else
 				msg_format("%^s is blasted by psionic energy.", m_name);
 				note_dies = " collapses, a mindless husk.";
@@ -3018,7 +3019,7 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 					r_ptr->r_flags3 |= (RF3_NO_CONF);
 				}
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -3027,8 +3028,8 @@ note = "には効果がなかった。";
 			else
 			{
 #ifdef JP
-msg_format("%sは精神攻撃を食らった。",m_name);
-note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
+				msg_format("%sは精神攻撃を食らった。",m_name);
+				note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 #else
 				msg_format("%^s is blasted by psionic energy.", m_name);
 				note_dies = " collapses, a mindless husk.";
@@ -3057,8 +3058,8 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 
 				/* Cute little message */
 #ifdef JP
-note = "の皮膚がただれた！";
-note_dies = "はドロドロに溶けた！";
+				note = "の皮膚がただれた！";
+				note_dies = "はドロドロに溶けた！";
 #else
 				note = " loses some skin!";
 				note_dies = " dissolves!";
@@ -3084,9 +3085,9 @@ note_dies = "はドロドロに溶けた！";
 			if (is_pet(m_ptr) || (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)))
 			{
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
- note = " is unaffected!";
+				note = " is unaffected!";
 #endif
 			}
 			else
@@ -3098,7 +3099,7 @@ note = "には効果がなかった。";
 				if (multiply_monster(c_ptr->m_idx, TRUE, 0L))
 				{
 #ifdef JP
-note = "が分裂した！";
+					note = "が分裂した！";
 #else
 					note = " spawns!";
 #endif
@@ -3126,7 +3127,7 @@ note = "が分裂した！";
 			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = " is unaffected!";
 #endif
@@ -3154,7 +3155,7 @@ note = "には効果がなかった。";
 			if (m_ptr->maxhp < m_ptr->max_maxhp)
 			{
 #ifdef JP
-msg_format("%^sの強さが戻った。", m_name);
+				msg_format("%^sの強さが戻った。", m_name);
 #else
 				msg_format("%^s recovers %s vitality.", m_name, m_poss);
 #endif
@@ -3185,7 +3186,7 @@ msg_format("%^sの強さが戻った。", m_name);
 			if (m_ptr->stunned)
 			{
 #ifdef JP
-msg_format("%^sは朦朧状態から立ち直った。", m_name);
+				msg_format("%^sは朦朧状態から立ち直った。", m_name);
 #else
 				msg_format("%^s is no longer stunned.", m_name);
 #endif
@@ -3194,7 +3195,7 @@ msg_format("%^sは朦朧状態から立ち直った。", m_name);
 			if (m_ptr->confused)
 			{
 #ifdef JP
-msg_format("%^sは混乱から立ち直った。", m_name);
+				msg_format("%^sは混乱から立ち直った。", m_name);
 #else
 				msg_format("%^s is no longer confused.", m_name);
 #endif
@@ -3203,7 +3204,7 @@ msg_format("%^sは混乱から立ち直った。", m_name);
 			if (m_ptr->monfear)
 			{
 #ifdef JP
-msg_format("%^sは勇気を取り戻した。", m_name);
+				msg_format("%^sは勇気を取り戻した。", m_name);
 #else
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 #endif
@@ -3228,7 +3229,7 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 
 			/* Message */
 #ifdef JP
-note = "は体力を回復したようだ。";
+			note = "は体力を回復したようだ。";
 #else
 			note = " looks healthier.";
 #endif
@@ -3248,7 +3249,7 @@ note = "は体力を回復したようだ。";
 			if (!m_ptr->fast)
 			{
 #ifdef JP
-note = "の動きが速くなった。";
+				note = "の動きが速くなった。";
 #else
 				note = " starts moving faster.";
 #endif
@@ -3273,7 +3274,7 @@ note = "の動きが速くなった。";
 			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3287,7 +3288,7 @@ note = "には効果がなかった！";
 				if (!m_ptr->slow)
 				{
 #ifdef JP
-note = "の動きが遅くなった。";
+					note = "の動きが遅くなった。";
 #else
 					note = " starts moving slower.";
 #endif
@@ -3327,7 +3328,7 @@ note = "の動きが遅くなった。";
 
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3358,7 +3359,7 @@ note = "には効果がなかった！";
 
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3369,7 +3370,7 @@ note = "には効果がなかった！";
 			{
 				/* Go to sleep (much) later */
 #ifdef JP
-note = "は眠り込んでしまった！";
+				note = "は眠り込んでしまった！";
 #else
 				note = " falls asleep!";
 #endif
@@ -3397,7 +3398,7 @@ note = "は眠り込んでしまった！";
 				}
 
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3428,7 +3429,7 @@ note = "には効果がなかった！";
 
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3473,7 +3474,7 @@ note = "には効果がなかった！";
 			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3487,7 +3488,7 @@ note = "には効果がなかった！";
 				if (!m_ptr->slow)
 				{
 #ifdef JP
-note = "の動きが遅くなった。";
+					note = "の動きが遅くなった。";
 #else
 					note = " starts moving slower.";
 #endif
@@ -3521,7 +3522,7 @@ note = "の動きが遅くなった。";
 				}
 
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3548,7 +3549,7 @@ note = "には効果がなかった！";
 			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3559,7 +3560,7 @@ note = "には効果がなかった！";
 			{
 				/* Go to sleep (much) later */
 #ifdef JP
-note = "は動けなくなった！";
+				note = "は動けなくなった！";
 #else
 				note = " is suspended!";
 #endif
@@ -3583,7 +3584,7 @@ note = "は動けなくなった！";
 			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3594,7 +3595,7 @@ note = "には効果がなかった！";
 			{
 				/* Go to sleep (much) later */
 #ifdef JP
-note = "は動けなくなった！";
+				note = "は動けなくなった！";
 #else
 				note = " is suspended!";
 #endif
@@ -3622,7 +3623,7 @@ note = "は動けなくなった！";
 
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3671,7 +3672,7 @@ note = "には効果がなかった！";
 				/* Resist */
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3683,7 +3684,7 @@ note = "には効果がなかった！";
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
 #ifdef JP
-note = "はあなたに敵意を抱いている！";
+				note = "はあなたに敵意を抱いている！";
 #else
 				note = " hates you too much!";
 #endif
@@ -3693,7 +3694,7 @@ note = "はあなたに敵意を抱いている！";
 			else
 			{
 #ifdef JP
-note = "は突然友好的になったようだ！";
+				note = "は突然友好的になったようだ！";
 #else
 				note = " suddenly seems friendly!";
 #endif
@@ -3725,7 +3726,7 @@ note = "は突然友好的になったようだ！";
 
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3803,7 +3804,7 @@ note = "には効果がなかった！";
 				else
 				{
 #ifdef JP
-note = "を支配した。";
+					note = "を支配した。";
 #else
 					note = " is tamed!";
 #endif
@@ -3846,7 +3847,7 @@ note = "を支配した。";
 					{
 						if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
-note = "には効果がなかった！";
+						note = "には効果がなかった！";
 #else
 						note = " is unaffected!";
 #endif
@@ -3857,7 +3858,7 @@ note = "には効果がなかった！";
 					{
 						if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
-note = "には耐性がある！";
+						note = "には耐性がある！";
 #else
 						note = " resists!";
 #endif
@@ -3897,7 +3898,7 @@ note = "には耐性がある！";
 				{
 					if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
-note = "には効果がなかった！";
+					note = "には効果がなかった！";
 #else
 					note = " is unaffected!";
 #endif
@@ -3908,7 +3909,7 @@ note = "には効果がなかった！";
 				{
 					if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
-note = "には耐性がある！";
+					note = "には耐性がある！";
 #else
 					note = " resists!";
 #endif
@@ -3947,7 +3948,7 @@ note = "には耐性がある！";
 			{
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -3975,8 +3976,8 @@ note = "には効果がなかった！";
 
 				/* Message */
 #ifdef JP
-note = "は身震いした。";
-note_dies = "はドロドロに溶けた！";
+				note = "は身震いした。";
+				note_dies = "はドロドロに溶けた！";
 #else
 				note = " shudders.";
 				note_dies = " dissolves!";
@@ -4011,8 +4012,8 @@ note_dies = "はドロドロに溶けた！";
 
 				/* Message */
 #ifdef JP
-note = "は身震いした。";
-note_dies = "はドロドロに溶けた！";
+				note = "は身震いした。";
+				note_dies = "はドロドロに溶けた！";
 #else
 				note = " shudders.";
 				note_dies = " dissolves!";
@@ -4047,8 +4048,8 @@ note_dies = "はドロドロに溶けた！";
 
 				/* Message */
 #ifdef JP
-note = "は身震いした。";
-note_dies = "はドロドロに溶けた！";
+				note = "は身震いした。";
+				note_dies = "はドロドロに溶けた！";
 #else
 				note = " shudders.";
 				note_dies = " dissolves!";
@@ -4077,8 +4078,8 @@ note_dies = "はドロドロに溶けた！";
 
 			/* Message */
 #ifdef JP
-note = "は身震いした。";
-note_dies = "はドロドロに溶けた！";
+			note = "は身震いした。";
+			note_dies = "はドロドロに溶けた！";
 #else
 			note = " shudders.";
 			note_dies = " dissolves!";
@@ -4115,7 +4116,7 @@ note_dies = "はドロドロに溶けた！";
 			{
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -4126,7 +4127,7 @@ note = "には効果がなかった！";
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
 #ifdef JP
-note = "はあなたに敵意を抱いている！";
+				note = "はあなたに敵意を抱いている！";
 #else
 				note = " hates you too much!";
 #endif
@@ -4136,7 +4137,7 @@ note = "はあなたに敵意を抱いている！";
 			else
 			{
 #ifdef JP
-note = "は既にあなたの奴隷だ！";
+				note = "は既にあなたの奴隷だ！";
 #else
 				note = " is in your thrall!";
 #endif
@@ -4184,7 +4185,7 @@ note = "は既にあなたの奴隷だ！";
 				/* Resist */
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -4195,7 +4196,7 @@ note = "には効果がなかった！";
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
 #ifdef JP
-note = "はあなたに敵意を抱いている！";
+				note = "はあなたに敵意を抱いている！";
 #else
 				note = " hates you too much!";
 #endif
@@ -4205,7 +4206,7 @@ note = "はあなたに敵意を抱いている！";
 			else
 			{
 #ifdef JP
-note = "はなついた。";
+				note = "はなついた。";
 #else
 				note = " is tamed!";
 #endif
@@ -4242,7 +4243,7 @@ note = "はなついた。";
 				/* Resist */
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -4253,7 +4254,7 @@ note = "には効果がなかった！";
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
 #ifdef JP
-note = "はあなたに敵意を抱いている！";
+				note = "はあなたに敵意を抱いている！";
 #else
 				note = " hates you too much!";
 #endif
@@ -4263,7 +4264,7 @@ note = "はあなたに敵意を抱いている！";
 			else
 			{
 #ifdef JP
-note = "はなついた。";
+				note = "はなついた。";
 #else
 				note = " is tamed!";
 #endif
@@ -4300,7 +4301,7 @@ note = "はなついた。";
 				/* Resist */
 				/* No obvious effect */
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -4311,7 +4312,7 @@ note = "には効果がなかった！";
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
 #ifdef JP
-note = "はあなたに敵意を抱いている！";
+				note = "はあなたに敵意を抱いている！";
 #else
 				note = " hates you too much!";
 #endif
@@ -4321,7 +4322,7 @@ note = "はあなたに敵意を抱いている！";
 			else
 			{
 #ifdef JP
-note = "はなついた。";
+				note = "はなついた。";
 #else
 				note = " is tamed!";
 #endif
@@ -4381,7 +4382,7 @@ note = "はなついた。";
 			if (angry)
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = "is unaffected!";
 #endif
@@ -4451,7 +4452,7 @@ note = "には効果がなかった！";
 			if (angry)
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = "is unaffected!";
 #endif
@@ -4513,7 +4514,7 @@ note = "には効果がなかった！";
 			else
 			{
 #ifdef JP
-msg_format("%sには効果がなかった。",m_name);
+				msg_format("%sには効果がなかった。",m_name);
 #else
 				msg_format("%s is unaffected.", m_name);
 #endif
@@ -4671,7 +4672,7 @@ msg_format("%sには効果がなかった。",m_name);
 			if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
 			{
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -4700,7 +4701,7 @@ note = "には効果がなかった！";
 				{
 					dam = 0;
 #ifdef JP
-note = "には完全な耐性がある。";
+					note = "には完全な耐性がある。";
 #else
 					note = " is immune.";
 #endif
@@ -4711,7 +4712,7 @@ note = "には完全な耐性がある。";
 				{
 					dam *= 2;
 #ifdef JP
-note = "はひどい痛手を受けた。";
+					note = "はひどい痛手を受けた。";
 #else
 					note = " is hit hard.";
 #endif
@@ -4721,7 +4722,7 @@ note = "はひどい痛手を受けた。";
 				else
 				{
 #ifdef JP
-note = "には耐性がある。";
+					note = "には耐性がある。";
 #else
 					note = " resists.";
 #endif
@@ -4739,7 +4740,7 @@ note = "には耐性がある。";
 			if (r_ptr->flagsr & RFR_RES_STON)
 			{
 #ifdef JP
-note = "には耐性がある。";
+				note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
@@ -4750,7 +4751,7 @@ note = "には耐性がある。";
 			else if (r_ptr->flags3 & RF3_NO_STONE)
 			{
 #ifdef JP
-note = "はいくらか耐性を示した。";
+				note = "はいくらか耐性を示した。";
 #else
 				note = " resists somewhat.";
 #endif
@@ -4812,7 +4813,7 @@ note = "はいくらか耐性を示した。";
 				}
 
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
@@ -4888,7 +4889,7 @@ note = "には効果がなかった！";
 
 			/* Monster polymorphs */
 #ifdef JP
-note = "が変身した！";
+			note = "が変身した！";
 #else
 			note = " changes!";
 #endif
@@ -4907,7 +4908,7 @@ note = "が変身した！";
 		{
 			/* No polymorph */
 #ifdef JP
-note = "には効果がなかった！";
+			note = "には効果がなかった！";
 #else
 			note = " is unaffected!";
 #endif
@@ -4923,7 +4924,7 @@ note = "には効果がなかった！";
 
 		/* Message */
 #ifdef JP
-note = "が消え去った！";
+		note = "が消え去った！";
 #else
 		note = " disappears!";
 #endif
@@ -4952,7 +4953,7 @@ note = "が消え去った！";
 		if (m_ptr->stunned)
 		{
 #ifdef JP
-note = "はひどくもうろうとした。";
+			note = "はひどくもうろうとした。";
 #else
 			note = " is more dazed.";
 #endif
@@ -4962,7 +4963,7 @@ note = "はひどくもうろうとした。";
 		else
 		{
 #ifdef JP
-note = "はもうろうとした。";
+			note = "はもうろうとした。";
 #else
 			note = " is dazed.";
 #endif
@@ -4990,7 +4991,7 @@ note = "はもうろうとした。";
 		if (m_ptr->confused)
 		{
 #ifdef JP
-note = "はさらに混乱したようだ。";
+			note = "はさらに混乱したようだ。";
 #else
 			note = " looks more confused.";
 #endif
@@ -5002,7 +5003,7 @@ note = "はさらに混乱したようだ。";
 		else
 		{
 #ifdef JP
-note = "は混乱したようだ。";
+			note = "は混乱したようだ。";
 #else
 			note = " looks confused.";
 #endif
@@ -5026,7 +5027,7 @@ note = "は混乱したようだ。";
 		if (do_time)
 		{
 #ifdef JP
-note = "は弱くなったようだ。";
+			note = "は弱くなったようだ。";
 #else
 			note = " seems weakened.";
 #endif
@@ -5225,7 +5226,7 @@ note = "は弱くなったようだ。";
 			if (sad)
 			{
 #ifdef JP
-msg_print("少し悲しい気分がした。");
+				msg_print("少し悲しい気分がした。");
 #else
 				msg_print("You feel sad for a moment.");
 #endif
@@ -5257,7 +5258,7 @@ msg_print("少し悲しい気分がした。");
 	else if (heal_leper)
 	{
 #ifdef JP
-msg_print("不潔な病人は病気が治った！");
+		msg_print("不潔な病人は病気が治った！");
 #else
 		msg_print("The Mangy looking leper is healed!");
 #endif
@@ -5287,7 +5288,7 @@ msg_print("不潔な病人は病気が治った！");
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen)
 #ifdef JP
-msg_format("%s%s", m_name, note);
+				msg_format("%s%s", m_name, note);
 #else
 				msg_format("%^s%s", m_name, note);
 #endif
@@ -5311,7 +5312,7 @@ msg_format("%s%s", m_name, note);
 
 				/* Message */
 #ifdef JP
-msg_format("%^sは恐怖して逃げ出した！", m_name);
+				msg_format("%^sは恐怖して逃げ出した！", m_name);
 #else
 				msg_format("%^s flees in terror!", m_name);
 #endif
@@ -5426,7 +5427,6 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 	/* Source monster */
 	monster_type *m_ptr = NULL;
-	object_type *o_ptr;
 
 	/* Monster name (for attacks) */
 	char m_name[80];
@@ -5457,8 +5457,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		int max_attempts = 10;
 
 #ifdef JP
-if (blind) msg_print("何かが跳ね返った！");
-else msg_print("攻撃が跳ね返った！");
+		if (blind) msg_print("何かが跳ね返った！");
+		else msg_print("攻撃が跳ね返った！");
 #else
 		if (blind) msg_print("Something bounces!");
 		else msg_print("The attack bounces!");
@@ -5629,7 +5629,7 @@ else msg_print("攻撃が跳ね返った！");
 			{
 				(void)set_blind(p_ptr->blind + randint1(5) + 2);
 			}
-			if (prace_is_(RACE_GREMLIN))
+			if ((prace_is_(RACE_GREMLIN)) || (p_ptr->pclass == CLASS_VAMPIRE))
 			{
 				dam = dam * 4 / 3;
 			}
@@ -5679,7 +5679,7 @@ else msg_print("攻撃が跳ね返った！");
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
 
-			if (WRAITH_FORM() || p_ptr->evil_equip) break;
+			if (WRAITH_FORM() || p_ptr->evil_equip || (p_ptr->pclass == CLASS_VAMPIRE)) break;
 
 			if (p_ptr->resist_dark)
 			{
@@ -5710,7 +5710,7 @@ else msg_print("攻撃が跳ね返った！");
 
 
 			ACTIVATE_MULTISHADOW();
-			if (prace_is_(RACE_GHOST))
+			if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))
 			{
 				/* Later */
 			}
@@ -5767,6 +5767,14 @@ else msg_print("攻撃が跳ね返った！");
 #endif
 
 				hp_player(dam / 4);
+			}
+			else if (prace_is_(RACE_SKELETON) && !IS_MULTISHADOW(0))
+			{
+#ifdef JP
+				msg_print("しかし効果がなかった！");
+#else
+				msg_print("You are unaffected!");
+#endif
 			}
 			else
 			{
@@ -6528,7 +6536,7 @@ else msg_print("攻撃が跳ね返った！");
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
 
-			if (get_your_alignment_gne() == ALIGN_GNE_EVIL)
+			if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)) || (get_your_alignment_gne() == ALIGN_GNE_EVIL))
 				dam *= 2;
 			ACTIVATE_MULTISHADOW();
 			if (p_ptr->ogre_equip)
@@ -6554,7 +6562,8 @@ else msg_print("攻撃が跳ね返った！");
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
 
-			if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
+			if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON))) dam /= 2;
+			else if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
 				dam *= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
@@ -6597,7 +6606,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_fire)) inven_damage(set_fire_destroy, 3);
 			}
 
-			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->no_elem) dam /= 2;
 			if (p_ptr->weak_aqua) dam = 0;
 			if (p_ptr->weak_fire) dam *= 4 / 3;
 			ACTIVATE_MULTISHADOW();
@@ -6624,7 +6633,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_cold)) inven_damage(set_cold_destroy, 3);
 			}
 
-			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->no_elem) dam /= 2;
 			if (p_ptr->weak_fire) dam = 0;
 			if (p_ptr->weak_aqua) dam *= 4 / 3;
 			if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
@@ -6652,7 +6661,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_acid)) inven_damage(set_acid_destroy, 3);
 			}
 
-			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->no_elem) dam /= 2;
 			if (p_ptr->weak_wind) dam = 0;
 			if (p_ptr->weak_earth) dam *= 4 / 3;
 			ACTIVATE_MULTISHADOW();
@@ -6679,7 +6688,7 @@ else msg_print("攻撃が跳ね返った！");
 				if (!(double_resist && p_ptr->resist_elec)) inven_damage(set_elec_destroy, 3);
 			}
 
-			if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM)) dam /= 2;
+			if (p_ptr->no_elem) dam /= 2;
 			if (p_ptr->weak_earth) dam = 0;
 			if (p_ptr->weak_wind) dam *= 4 / 3;
 			ACTIVATE_MULTISHADOW();
@@ -6696,7 +6705,7 @@ else msg_print("攻撃が跳ね返った！");
 			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
-msg_print("しかし効力を跳ね返した！");
+				msg_print("しかし効力を跳ね返した！");
 #else
 				msg_print("You resist the effects!");
 #endif
@@ -6717,7 +6726,7 @@ msg_print("しかし効力を跳ね返した！");
 			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
-msg_print("しかし効力を跳ね返した！");
+				msg_print("しかし効力を跳ね返した！");
 #else
 				msg_print("You resist the effects!");
 #endif
@@ -6738,7 +6747,7 @@ msg_print("しかし効力を跳ね返した！");
 			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
-msg_print("しかし効力を跳ね返した！");
+				msg_print("しかし効力を跳ね返した！");
 #else
 				msg_print("You resist the effects!");
 #endif
@@ -6759,7 +6768,7 @@ msg_print("しかし効力を跳ね返した！");
 			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
-msg_print("しかし効力を跳ね返した！");
+				msg_print("しかし効力を跳ね返した！");
 #else
 				msg_print("You resist the effects!");
 #endif
@@ -6780,7 +6789,7 @@ msg_print("しかし効力を跳ね返した！");
 			if (dam < p_ptr->skill_sav)
 			{
 #ifdef JP
-msg_format("しかし効力を跳ね返した！");
+				msg_format("しかし効力を跳ね返した！");
 #else
 				msg_format("You resist the effects!");
 #endif
@@ -6788,7 +6797,7 @@ msg_format("しかし効力を跳ね返した！");
 			else
 			{
 #ifdef JP
-msg_print("あなたは命が薄まっていくように感じた！");
+				msg_print("あなたは命が薄まっていくように感じた！");
 #else
 				msg_print("You feel your life fade away!");
 #endif
@@ -6808,7 +6817,7 @@ msg_print("あなたは命が薄まっていくように感じた！");
 		case GF_DEATH_RAY:
 		{
 #ifdef JP
-if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
+			if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by something extremely cold!");
 #endif
@@ -6837,7 +6846,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 			if (randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav)))
 			{
 #ifdef JP
-msg_print("しかし効力を跳ね返した！");
+				msg_print("しかし効力を跳ね返した！");
 #else
 				msg_print("You resist the effects!");
 #endif
@@ -6845,7 +6854,7 @@ msg_print("しかし効力を跳ね返した！");
 			else
 			{
 #ifdef JP
-msg_print("霊的エネルギーで精神が攻撃された。");
+				msg_print("霊的エネルギーで精神が攻撃された。");
 #else
 				msg_print("Your mind is blasted by psyonic energy.");
 #endif
@@ -6884,7 +6893,7 @@ msg_print("霊的エネルギーで精神が攻撃された。");
 			if (randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav)))
 			{
 #ifdef JP
-msg_print("しかし効力を跳ね返した！");
+				msg_print("しかし効力を跳ね返した！");
 #else
 				msg_print("You resist the effects!");
 #endif
@@ -6892,7 +6901,7 @@ msg_print("しかし効力を跳ね返した！");
 			else
 			{
 #ifdef JP
-msg_print("霊的エネルギーで精神が攻撃された。");
+				msg_print("霊的エネルギーで精神が攻撃された。");
 #else
 				msg_print("Your mind is blasted by psionic energy.");
 #endif
@@ -6944,7 +6953,7 @@ msg_print("霊的エネルギーで精神が攻撃された。");
 		case GF_OLD_HEAL:
 		{
 #ifdef JP
-if (fuzzy) msg_print("何らかの攻撃によって気分がよくなった。");
+			if (fuzzy) msg_print("何らかの攻撃によって気分がよくなった。");
 #else
 			if (fuzzy) msg_print("You are hit by something vigorating!");
 #endif
@@ -6957,7 +6966,7 @@ if (fuzzy) msg_print("何らかの攻撃によって気分がよくなった。");
 		case GF_OLD_SPEED:
 		{
 #ifdef JP
-if (fuzzy) msg_print("何かで攻撃された！");
+			if (fuzzy) msg_print("何かで攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
@@ -6971,7 +6980,7 @@ if (fuzzy) msg_print("何かで攻撃された！");
 		case GF_NEW_SLOW:
 		{
 #ifdef JP
-if (fuzzy) msg_print("何か遅いもので攻撃された！");
+			if (fuzzy) msg_print("何か遅いもので攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by something slow!");
 #endif
@@ -6984,30 +6993,11 @@ if (fuzzy) msg_print("何か遅いもので攻撃された！");
 		{
 			if (p_ptr->free_act)  break;
 #ifdef JP
-if (fuzzy) msg_print("眠ってしまった！");
+			if (fuzzy) msg_print("眠ってしまった！");
 #else
 			if (fuzzy) msg_print("You fall asleep!");
 #endif
 
-
-			if (ironman_nightmare)
-			{
-#ifdef JP
-msg_print("恐ろしい光景が頭に浮かんできた。");
-#else
-				msg_print("A horrible vision enters your mind.");
-#endif
-
-
-				/* Pick a nightmare */
-				get_mon_num_prep(get_nightmare, NULL);
-
-				/* Have some nightmares */
-				have_nightmare(get_mon_num(MAX_DEPTH));
-
-				/* Remove the monster restriction */
-				get_mon_num_prep(NULL, NULL);
-			}
 
 			set_paralyzed(p_ptr->paralyzed + dam);
 			dam = 0;
@@ -8410,7 +8400,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 			if (rakuba(rakubadam_m, FALSE))
 			{
 #ifdef JP
-msg_format("%^sに振り落とされた！", m_name);
+				msg_format("%^sに振り落とされた！", m_name);
 #else
 				msg_format("%^s has thrown you off!", m_name);
 #endif
@@ -8421,7 +8411,7 @@ msg_format("%^sに振り落とされた！", m_name);
 			if(rakuba(rakubadam_p, FALSE))
 			{
 #ifdef JP
-msg_format("%^sから落ちてしまった！", m_name);
+				msg_format("%^sから落ちてしまった！", m_name);
 #else
 				msg_format("You have fallen from %s.", m_name);
 #endif

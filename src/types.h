@@ -396,9 +396,9 @@ typedef struct skill_table skill_table;
 
 struct skill_table
 {
-	byte w_eff[17];    /* Weapon skill efficiency */
-	byte m_eff[10];    /* Misc. skill efficiency */
-	byte s_eff[14];    /* Spell. skill efficiency */
+	byte w_eff[MAX_WT];				/* Weapon skill efficiency */
+	byte m_eff[10];					/* Misc. skill efficiency */
+	byte s_eff[MAX_REALM + 1];		/* Spell. skill efficiency */
 };
 
 
@@ -957,7 +957,8 @@ struct player_class
 	s32b x_thn;			/* extra to hit (normal) */
 	s32b x_thb;			/* extra to hit (bows) */
 
-	s16b c_to_a;			/* class to AC */ 
+	s16b c_to_a;		/* class to AC */ 
+	s32b c_mhp;			/* class hit-dice modifier */
 	s32b c_msp;			/* class mana-dice modifier */
 	u16b c_exp;			/* class experience factor */
 };
@@ -1007,7 +1008,7 @@ struct player_type
 	byte oops;			/* Unused */
 
 	u16b expfact;       /* Experience factor */
-	u16b cexpfact;       /* Class Experience factor */
+	u16b cexpfact[MAX_CLASS];       /* Class Experience factor */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1063,6 +1064,7 @@ struct player_type
 	s16b stun;		/* Timed -- Stun */
 	s16b stoning;		/* Timed -- Stoning */
 	s16b opposite_pelem;	/* Timed -- Forced to opposite element */
+	s16b no_elem;	/* Timed -- No element */
 
 	s16b protevil;		/* Timed -- Protection */
 	s16b invuln;		/* Timed -- Invulnerable */
@@ -1119,6 +1121,8 @@ struct player_type
 
 	s16b food;		  /* Current nutrition */
 
+	byte infected;
+
 	u32b special_attack;	  /* Special attack capacity -LM- */
 	byte action;		  /* Currently action */
 
@@ -1135,6 +1139,8 @@ struct player_type
 
 	s32b race_hp[PY_MAX_LEVEL];
 	s32b race_sp[PY_MAX_LEVEL];
+	s32b class_hp[MAX_CLASS][PY_MAX_LEVEL];
+	s32b class_sp[MAX_CLASS][PY_MAX_LEVEL];
 
 	cexp_info_type cexp_info[MAX_CLASS];
 
@@ -1164,7 +1170,6 @@ struct player_type
 	u16b noscore;		  /* Cheating flags */
 
 	u32b is_dead;		  /* Player is dead (stoned or etc...) */
-
 
 	bool wizard;		  /* Player is in wizard mode */
 
@@ -1405,6 +1410,8 @@ struct birther
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s32b race_hp_lv1;
 	s32b race_sp_lv1;
+	s32b class_hp_lv1;
+	s32b class_sp_lv1;
 
 	char history[4][60];
 
@@ -1441,15 +1448,16 @@ struct building_type
 	char owner_race[20];            /* proprietor race */
 
 	char act_names[8][30];          /* action names */
-	s32b member_costs[8];           /* Costs for class members of building */
-	s32b other_costs[8];		    /* Costs for nonguild members */
+	s32b costs[8];           /* Costs for building */
 	char letters[8];                /* action letters */
 	s16b actions[8];                /* action codes */
 	s16b action_restr[8];           /* action restrictions */
 
+#if 0
 	s16b member_class[MAX_CLASS];   /* which classes are part of guild */
 	s16b member_race[MAX_RACES];    /* which classes are part of guild */
 	s16b member_realm[MAX_REALM+1]; /* which realms are part of guild */
+#endif
 
 	bool chaos_frame_restr;         /* Restriction by chaos frame */
 };

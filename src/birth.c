@@ -411,7 +411,7 @@ cptr class_jouhou[MAX_CLASS] =
 "ウォーロックは学者肌の魔法使いです。ウィッチの魔法と魔道の魔法2冊と竜言語魔法を使いこなし、そこそこの打撃攻撃力があり、またゴーレムを召喚することができます。魔法を唱えるのに必要な能力は知能です。",
 "エクソシストは悪魔や悪霊退治のスペシャリストです。破邪の魔法を駆使することで邪悪な悪魔やアンデッドには無類の強さを発揮します。また、そこそこに打撃力もあり、打撃で活路を見出すこともできます。魔法を唱えるのに必要な能力は賢さです。",
 "アマゾネスは女性の基本クラスです。魔法こそ使えませんが、それ以外のことはそつなくなくこなします。しかし、力不足の感は否めないので、アマゾネスのまま最後まで成長させるのは得策ではないでしょう。",
-"ヴァルキリーは槍が得意な魔法戦士です。また、乗馬もこなします。馬上からの槍の一撃は破壊的な力を持つことでしょう。魔法を唱えるのに必要な能力は知能です。",
+"ヴァルキリーは槍が得意な魔法戦士です。また、乗馬もこなします。馬上からの槍の一撃は破壊的な力を持つことでしょう。魔法を唱えるのに必要な能力は賢さです。",
 "アーチャーは弓系武器の専門家です。魔法は使うことができませんが、その射撃能力は絶大です。次々と敵を射ち殺すことができるでしょう。",
 "ドラゴンテイマーはドラゴンと共に自らも剣を取って戦う魔法戦士です。彼女は特別に竜に好かれていて、いつでもドラゴンの力を借りることが出来ます。魔法を唱えるのに必要な能力は賢さです。",
 "ウィッチは補助魔法や魔道具使用を得意とする魔女です。魔法はウィッチ、魔道、それに暗黒魔法の1冊目が行使可能です。魔法を唱えるのに必要な能力は知能です。",
@@ -424,6 +424,13 @@ cptr class_jouhou[MAX_CLASS] =
 "南方の大陸バルバウダで製造された剣に代わる強力な武器『銃』を扱える唯一のクラスです。魔法などの超自然科学に対する信奉を捨てたため魔法に対する耐久力が著しく低下しており、他のクラスにクラスチェンジできなくなります。",
 "テンプルナイトはロスローリアンに忠誠を誓う騎士です。あらゆる武器を扱うことができ、暗黒魔法を唱えることができます。また、このクラスに就いている間は他のクラスへクラスチェンジできなくなります。魔法を唱えるのに必要な能力は賢さです。",
 "ホワイトナイトは新生ゼノビア王国に忠誠を誓う騎士です。あらゆる武器を扱うことができ、神聖魔法を唱えることができます。また、このクラスに就いている間は他のクラスへクラスチェンジできなくなります。魔法を唱えるのに必要な能力は賢さです。",
+"ロードはヴァレリア王国の後継者としてフィラーハ教団が認めた者です。その能力はパラディンをしのぎ、解放軍を束ねる指導者にふさわしい。魔法を唱えるのに必要な能力は賢さです。",
+"一軍を率いる能力と、その資格を高位の騎士。剣技に秀で、音速を超える剣先から衝撃波を放つ。",
+"隠密が高く、剣技に長け、二刀流をすることができ、四属性の魔法も使える優秀な闇の戦士です。魔法を唱えるのに必要な能力は知能です。",
+"飽くなき探求の末に、強大な魔力を手にした者。魔法を唱えるのに必要な能力は知能です。",
+"フレイヤは神に仕え、神の加護を得る女性戦士。強靭な肉体と精神を併せ持ち、槍術と魔法を駆使して戦う。魔法を唱えるのに必要な能力は賢さです。",
+"クレセントは風の領域の魔法が使える女闘士です。周囲に反魔法フィールドをはることができます。魔法を唱えるのに必要な能力は知能です。",
+"ヴァンパイア",
 };
 
 static cptr realm_jouhou[MAX_REALM] =
@@ -496,6 +503,8 @@ static void save_prev_data(birther *birther_ptr)
 	/* Save the hp & mana */
 	birther_ptr->race_hp_lv1 = p_ptr->race_hp[0];
 	birther_ptr->race_sp_lv1 = p_ptr->race_sp[0];
+	birther_ptr->class_hp_lv1 = p_ptr->class_hp[p_ptr->pclass][0];
+	birther_ptr->class_sp_lv1 = p_ptr->class_sp[p_ptr->pclass][0];
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
@@ -544,9 +553,11 @@ static void load_prev_data(bool swap)
 	/* Load the hp & mana */
 	p_ptr->race_hp[0] = previous_char.race_hp_lv1;
 	p_ptr->race_sp[0] = previous_char.race_sp_lv1;
-	p_ptr->mhp = p_ptr->race_hp[0];
+	p_ptr->class_hp[p_ptr->pclass][0] = previous_char.class_hp_lv1;
+	p_ptr->class_sp[p_ptr->pclass][0] = previous_char.class_sp_lv1;
+	p_ptr->mhp = p_ptr->race_hp[0] + p_ptr->class_hp[p_ptr->pclass][0];
 	p_ptr->chp = p_ptr->mhp;
-	p_ptr->msp = p_ptr->race_sp[0];
+	p_ptr->msp = p_ptr->race_sp[0] + p_ptr->class_sp[p_ptr->pclass][0];
 	p_ptr->csp = p_ptr->msp;
 
 	/* Load the history */
@@ -628,7 +639,7 @@ static void get_extra(bool roll_hitdie)
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp;
-	p_ptr->cexpfact = cp_ptr->c_exp;
+	for (i = 0; i < MAX_CLASS; i++) p_ptr->cexpfact[i] = class_info[i].c_exp;
 
 	(void)C_WIPE(p_ptr->cexp_info, MAX_CLASS, cexp_info_type);
 
@@ -638,24 +649,29 @@ static void get_extra(bool roll_hitdie)
 	for (i = 0; i < 10; i++)
 		p_ptr->skill_exp[i] = 0;
 
-	for (i = 0; i < MAX_REALM + 1; i++)
+	for (i = 0; i <= MAX_REALM; i++)
 		p_ptr->magic_exp[i] = p_ptr->s_ptr->s_eff[i];
 
 	/* Roll for hit point unless quick-start */
 	if (roll_hitdie)
 	{
-		p_ptr->race_hp[0] = 0;
+		p_ptr->race_hp[0] = p_ptr->race_sp[0] = p_ptr->class_hp[p_ptr->pclass][0] = p_ptr->class_sp[p_ptr->pclass][0] = 0;
 
-		/* Gain level 1 HP */
+		/* Gain level 1 HP/mana */
 		for (i = 1; i < 4; i++)
 		{
 			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
 			p_ptr->race_hp[0] += MAX(tmp32s, 0);
-		}
 
-		/* Gain level 1 mana */
-		tmp32s = rand_spread(cp_ptr->c_msp, 1);
-		p_ptr->race_sp[0] = MAX(tmp32s, 0);
+			tmp32s = rand_spread(rp_ptr->r_msp, 1);
+			p_ptr->race_sp[0] += MAX(tmp32s, 0);
+
+			tmp32s = rand_spread(cp_ptr->c_mhp, 1);
+			p_ptr->class_hp[p_ptr->pclass][0] += MAX(tmp32s, 0);
+
+			tmp32s = rand_spread(cp_ptr->c_msp, 1);
+			p_ptr->class_sp[p_ptr->pclass][0] += MAX(tmp32s, 0);
+		}
 	}
 
 	/* Paranoia */
@@ -664,11 +680,19 @@ static void get_extra(bool roll_hitdie)
 		p_ptr->race_hp[i] = p_ptr->race_sp[i] = 0;
 	}
 
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		for (j = (i == p_ptr->pclass) ? 1 : 0; j < PY_MAX_LEVEL; j++)
+		{
+			p_ptr->class_hp[i][j] = p_ptr->class_sp[i][j] = 0;
+		}
+	}
+
 	/* Initial hitpoints */
-	p_ptr->mhp = p_ptr->race_hp[0];
+	p_ptr->mhp = p_ptr->race_hp[0] + p_ptr->class_hp[p_ptr->pclass][0];
 
 	/* Initial mana */
-	p_ptr->msp = p_ptr->race_sp[0];
+	p_ptr->msp = p_ptr->race_sp[0] + p_ptr->class_sp[p_ptr->pclass][0];
 
 	/* Initial class */
 	cexp_ptr->max_max_clev = cexp_ptr->max_clev = cexp_ptr->clev = 1;
@@ -949,6 +973,7 @@ static void player_wipe(void)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
+	p_ptr->infected = FALSE;
 
 	/* Clean the mutation count */
 	mutant_regenerate_mod = 100;
@@ -1135,8 +1160,6 @@ static void init_turn(void)
  */
 void player_outfit(void)
 {
-	int i, tv, sv;
-
 	object_type	forge;
 	object_type	*q_ptr;
 
@@ -1826,7 +1849,6 @@ static int number_of_rquests = 0;
  */
 static bool player_birth_aux_1(void)
 {
-	int i;
 	char inp[80];
 
 	/*** Instructions ***/

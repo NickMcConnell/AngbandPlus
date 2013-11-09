@@ -13,60 +13,6 @@
 #include "angband.h"
 
 
-/*
- * Hack -- Rerate Hitpoints
- */
-void do_cmd_rerate(void)
-{
-	int          i, j;
-	s32b         tmp32s;
-
-	/* Wipe the arrays */
-	(void)C_WIPE(p_ptr->race_hp, PY_MAX_LEVEL, s32b);
-	(void)C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s32b);
-
-	/* Except reincarnated player */
-	if (!p_ptr->reincarnate_cnt)
-	{
-		/* Gain level 1 HP */
-		for (i = 1; i < 4; i++)
-		{
-			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
-			p_ptr->race_hp[0] += MAX(tmp32s, 0);
-		}
-
-		/* Gain level 1 mana */
-		if (p_ptr->pclass != CLASS_GUNNER)
-		{
-			tmp32s = rand_spread(cp_ptr->c_msp, 1);
-			p_ptr->race_sp[0] = MAX(tmp32s, 0);
-		}
-	}
-
-	/* Collect values (race) */
-	for (i = 1; i < p_ptr->max_plv; i++)
-	{
-		tmp32s = rand_spread(rp_ptr->r_mhp, 1);
-		p_ptr->race_hp[i] = p_ptr->race_hp[i - 1] + MAX(tmp32s, 0);
-		if (p_ptr->pclass != CLASS_GUNNER)
-		{
-			tmp32s = rand_spread(cp_ptr->c_msp, 1);
-			p_ptr->race_sp[i] = p_ptr->race_sp[i - 1] + MAX(tmp32s, 0);
-		}
-		else p_ptr->race_sp[i] = 0;
-	}
-
-	/* Update and redraw hitpoints */
-	p_ptr->update |= (PU_HP | PU_MANA);
-	p_ptr->redraw |= (PR_HP | PR_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
-
-	/* Handle stuff */
-	handle_stuff();
-}
-
 
 #ifdef ALLOW_WIZARD
 
@@ -84,7 +30,7 @@ static bool wiz_dimension_door(void)
 	if (!teleportable_grid(c_ptr) && (c_ptr->feat != FEAT_AIR))
 	{
 #ifdef JP
-msg_print("精霊界から物質界に戻る時うまくいかなかった！");
+		msg_print("精霊界から物質界に戻る時うまくいかなかった！");
 #else
 		msg_print("You fail to exit the astral plane correctly!");
 #endif
@@ -587,7 +533,6 @@ static void do_cmd_wiz_change(void)
 {
 	char ch;
 	char tmp_val[80];
-	char o_name[MAX_NLEN];
 	int  i;
 
 	change_menu_type menu_list[MAX_CHANGE_ITEM];
@@ -1632,13 +1577,16 @@ static void wiz_statistics(object_type *o_ptr)
  */
 static void wiz_quantity_item(object_type *o_ptr)
 {
-	int         tmp_int;
+	int         tmp_int, tmp_qnt;
 
 	char        tmp_val[100];
 
 
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+
+	/* Store old quantity. -LM- */
+	tmp_qnt = o_ptr->number;
 
 	/* Default */
 	sprintf(tmp_val, "%d", o_ptr->number);
@@ -1655,6 +1603,11 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
+	}
+
+	if (o_ptr->tval == TV_ROD)
+	{
+		o_ptr->pval = o_ptr->pval * o_ptr->number / tmp_qnt;
 	}
 }
 
@@ -1930,6 +1883,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_slow(0, TRUE);
 	(void)set_stoning(0);
 	(void)set_opposite_pelem(0);
+	(void)set_no_elem(0);
 
 	/* No longer hungry */
 	if (p_ptr->no_digest) p_ptr->food = PY_FOOD_FULL - 1;
@@ -2167,7 +2121,7 @@ static void do_cmd_wiz_tele_town(void)
 	int i, x, y;
 	int num = 1;
 
-	if (astral_mode || ironman_forward || dun_level || p_ptr->inside_arena)
+	if (astral_mode || dun_level || p_ptr->inside_arena)
 	{
 #ifdef JP
 		msg_print("このコマンドは現在は使えない！");
@@ -2252,7 +2206,6 @@ static void do_cmd_wiz_snap_dragon_info(void)
 		monster_race    *r_ptr;
 		char            o_name[MAX_NLEN];
 		char            buf[160];
-		byte            tmp_status;
 
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -2524,10 +2477,6 @@ void do_cmd_debug(void)
 			acquirement(py, px, command_arg, FALSE, TRUE);
 			break;
 
-		/* Hitpoint rerating */
-		case 'h':
-			do_cmd_rerate(); break;
-
 #ifdef MONSTER_HORDES
 		case 'H':
 			do_cmd_summon_horde(); break;
@@ -2658,6 +2607,11 @@ void do_cmd_debug(void)
 		wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
 		break;
 
+		/* Wish */
+		case 'W':
+		wish_object(NULL);
+		break;
+
 		/* Increase Experience */
 		case 'x':
 		if (command_arg)
@@ -2671,6 +2625,7 @@ void do_cmd_debug(void)
 		}
 		break;
 
+/* このままではつかえないので後で修正予定
 		case 'y':
 #ifdef JP
 			msg_format("修正なしHP: %d+%d、修正なしMP: %d+%d。",
@@ -2680,6 +2635,7 @@ void do_cmd_debug(void)
 			            p_ptr->race_hp[p_ptr->lev - 1], p_ptr->player_ghp,
 		    	        p_ptr->race_sp[p_ptr->lev - 1], p_ptr->player_gsp);
 			break;
+*/
 
 		/* Zap Monsters (Genocide) */
 		case 'z':
@@ -2693,6 +2649,16 @@ void do_cmd_debug(void)
 		/* Hack -- whatever I desire */
 		case '_':
 		do_cmd_wiz_hack_ben();
+		break;
+
+		/* Mundane object */
+		case ':':
+		mundane_spell(FALSE);
+		break;
+
+		/*  */
+		case ';':
+		ego_creation_scroll();
 		break;
 
 		/* Not a Wizard Command */

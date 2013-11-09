@@ -208,8 +208,19 @@ X:33:6
 W:0:18:0:800
 F:LITE | RES_DARK
 
-# 24 (unused)
-# 25 (unused)
+N:24:知能の
+E:of Intelligence
+X:33:13
+W:0:18:0:500
+C:0:0:0
+F:INT_2 | SUST_INT
+
+N:25:賢明の
+E:of Wisdom
+X:33:13
+W:0:18:0:500
+C:0:0:0
+F:WIS_2 | SUST_WIS
 
 # 無のクローク
 # *元素*の攻撃ダメージを半減、[0, +0]から強化できない。
@@ -404,9 +415,28 @@ W:0:6:0:2500
 C:8:8:0
 F:SHOW_MODS
 
-# 50 (unused)
-# 51 (unused)
-# 52 (unused)
+N:50:白騎士の
+E:of White-Knight
+X:34:22
+W:0:9:0:8000
+C:0:8:0
+F:STR_2 | SUST_STR | SHOW_MODS | FREE_ACT | XTRA_H_RES
+F:ZENOBIAN |
+
+N:51:暗黒騎士の
+E:of Dark-Knight
+X:34:22
+W:0:9:0:8000
+C:5:5:0
+F:CON_2 | SUST_CON | SHOW_MODS
+F:LODIS |
+
+N:52:暗殺者の
+E:of Assasin
+X:34:22
+W:0:9:0:8000
+C:8:0:0
+F:DEX_2 | SUST_DEX | SHOW_MODS | RES_POIS
 
 N:53:魔力支配の
 E:of Magic Mastery
@@ -531,10 +561,9 @@ F:ACTIVATE
 N:68:ローディスの
 E:of Lodis
 X:24:20
-W:0:36:0:25000
+W:0:36:0:5000
 C:5:5:0
 F:LODIS | CON_2 |
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
 F:FREE_ACT | SEE_INVIS
 
 N:69:追加攻撃の
@@ -674,23 +703,23 @@ C:5:5:0
 N:89:エクスターの
 E:of Exeter
 X:24:4
-W:0:0:0:500
+W:0:2:0:500
 C:0:0:0
 F:TUNNEL_2 |
 
 N:90:バルマムッサの
 E:of Barmamutha
 X:24:4
-W:0:0:0:1500
-C:0:0:0
+W:0:4:0:1500
+C:5:5:0
 F:TUNNEL_3 |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:91:バスクの民の
 E:of Basque
 X:24:4
-W:0:0:0:5000
-C:0:0:0
+W:0:10:0:5000
+C:10:10:0
 F:TUNNEL_5 |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -1220,6 +1249,20 @@ F:CURSED | HEAVY_CURSE | CON_3
 
 
 # Ego Amulet
+N:208:知識の
+E:and Lore
+X:29:15
+W:60:0:0:8000
+C:0:0:0:0
+F:ACTIVATE
+
+N:209:魅惑の
+E:and Monster Turning
+X:29:15
+W:40:0:0:2000
+C:0:0:0:0
+F:ACTIVATE
+
 N:210:遅消化の
 E:and Slow Digestion
 X:29:5

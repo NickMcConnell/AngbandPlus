@@ -200,21 +200,21 @@ void init_file_paths(char *path)
 	{
 		cptr next = NULL;
 
-# if defined(m68k)
+#if defined(m68k)
 		next = "m68k";
-# endif
+#endif
 
-# if defined(i386)
+#if defined(i386)
 		next = "i386";
-# endif
+#endif
 
-# if defined(sparc)
+#if defined(sparc)
 		next = "sparc";
 # endif
 
-# if defined(hppa)
+#if defined(hppa)
 		next = "hppa";
-# endif
+#endif
 
 		/* Use special directory */
 		if (next)
@@ -1509,13 +1509,13 @@ errr init_buildings(void)
 		for (j = 0; j < 8; j++)
 		{
 			building[i].act_names[j][0] = '\0';
-			building[i].member_costs[j] = 0;
-			building[i].other_costs[j] = 0;
+			building[i].costs[j] = 0;
 			building[i].letters[j] = 0;
 			building[i].actions[j] = 0;
 			building[i].action_restr[j] = 0;
 		}
 
+#if 0
 		for (j = 0; j < MAX_CLASS; j++)
 		{
 			building[i].member_class[j] = 0;
@@ -1530,6 +1530,7 @@ errr init_buildings(void)
 		{
 			building[i].member_realm[j] = 0;
 		}
+#endif
 	}
 
 	return (0);
@@ -2123,13 +2124,13 @@ void init_angband(void)
 
 	/* Initialize misc. values */
 #ifdef JP
-note("[変数を初期化しています...(その他)");
+	note("[変数を初期化しています...(その他)");
 #else
 	note("[Initializing values... (misc)]");
 #endif
 
 #ifdef JP
-if (init_misc()) quit("その他の変数を初期化できません");
+	if (init_misc()) quit("その他の変数を初期化できません");
 #else
 	if (init_misc()) quit("Cannot initialize misc. values");
 #endif
@@ -2220,13 +2221,13 @@ if (init_misc()) quit("その他の変数を初期化できません");
 
 	/* Initialize wilderness array */
 #ifdef JP
-note("[配列を初期化しています... (荒野)]");
+	note("[配列を初期化しています... (荒野)]");
 #else
 	note("[Initializing arrays... (wilderness)]");
 #endif
 
 #ifdef JP
-if (init_wilderness()) quit("荒野を初期化できません");
+	if (init_wilderness()) quit("荒野を初期化できません");
 #else
 	if (init_wilderness()) quit("Cannot initialize wilderness");
 #endif
@@ -2234,13 +2235,13 @@ if (init_wilderness()) quit("荒野を初期化できません");
 
 	/* Initialize town array */
 #ifdef JP
-note("[配列を初期化しています... (街)]");
+	note("[配列を初期化しています... (街)]");
 #else
 	note("[Initializing arrays... (towns)]");
 #endif
 
 #ifdef JP
-if (init_towns()) quit("街を初期化できません");
+	if (init_towns()) quit("街を初期化できません");
 #else
 	if (init_towns()) quit("Cannot initialize towns");
 #endif
@@ -2248,13 +2249,13 @@ if (init_towns()) quit("街を初期化できません");
 
 	/* Initialize building array */
 #ifdef JP
-note("[配列を初期化しています... (建物)]");
+	note("[配列を初期化しています... (建物)]");
 #else
 	note("[Initializing arrays... (buildings)]");
 #endif
 
 #ifdef JP
-if (init_buildings()) quit("建物を初期化できません");
+	if (init_buildings()) quit("建物を初期化できません");
 #else
 	if (init_buildings()) quit("Cannot initialize buildings");
 #endif
@@ -2262,13 +2263,13 @@ if (init_buildings()) quit("建物を初期化できません");
 
 	/* Initialize quest array */
 #ifdef JP
-note("[配列を初期化しています... (クエスト)]");
+	note("[配列を初期化しています... (クエスト)]");
 #else
 	note("[Initializing arrays... (quests)]");
 #endif
 
 #ifdef JP
-if (init_quests()) quit("クエストを初期化できません");
+	if (init_quests()) quit("クエストを初期化できません");
 #else
 	if (init_quests()) quit("Cannot initialize quests");
 #endif
@@ -2300,7 +2301,7 @@ if (init_quests()) quit("クエストを初期化できません");
 
 	/* Initialize feature info */
 #ifdef JP
-note("[ユーザー設定ファイルを初期化しています...]");
+	note("[ユーザー設定ファイルを初期化しています...]");
 #else
 	note("[Initializing user pref files...]");
 #endif

@@ -1,6 +1,6 @@
 
                   ***************************************
-                  **            TOband2 PR3            **
+                  **            TOband2 PR5            **
                   ***************************************
 
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke

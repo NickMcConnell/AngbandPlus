@@ -5879,13 +5879,13 @@ void main(void)
 
 #else /* ANGBAND_LITE_MAC */
 
-# if defined(powerc) || defined(__powerc)
+#if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
 	
 	/* Assume Color Quickdraw */
 
-# else
+#else
 
 	/* Block */
 	if (TRUE)
@@ -5943,7 +5943,7 @@ void main(void)
 		}
 	}
 
-# endif
+#endif
 
 #endif /* ANGBAND_LITE_MAC */
 

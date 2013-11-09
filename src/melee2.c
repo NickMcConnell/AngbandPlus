@@ -26,6 +26,23 @@ static int t_px;
 static bool do_long_range_move;
 static bool escape_from_amgrid;
 
+int my_replace(char *s, char *key, char *rep)
+{
+	char *p, buf[256];
+
+	p = strstr(s, key);
+	if (p == NULL)
+		return 0;
+	while (p != NULL) {
+		*p = 0;
+		strcpy(buf, p + strlen(key));
+		strcat(s, rep);
+		strcat(s, buf);
+		p = strstr(p + strlen(rep), key);
+	}
+	return 1;
+}
+
 /*
  * Calculate the direction to the next enemy
  */
@@ -222,7 +239,7 @@ void mon_take_hit_mon(bool force_damage, int m_idx, int dam, bool *fear, cptr no
 		if (seen)
 		{
 #ifdef JP
-msg_format("%^sはダメージを受けない。", m_name);
+			msg_format("%^sはダメージを受けない。", m_name);
 #else
 			msg_format("%^s is unharmed.", m_name);
 #endif
@@ -282,7 +299,7 @@ msg_format("%^sはダメージを受けない。", m_name);
 				else if (note)
 				{
 #ifdef JP
-msg_format("%^s%s", m_name, note);
+					msg_format("%^s%s", m_name, note);
 #else
 					msg_format("%^s%s", m_name, note);
 #endif
@@ -292,7 +309,7 @@ msg_format("%^s%s", m_name, note);
 				else if (!monster_living(r_ptr))
 				{
 #ifdef JP
-msg_format("%^sは破壊された。", m_name);
+					msg_format("%^sは破壊された。", m_name);
 #else
 					msg_format("%^s is destroyed.", m_name);
 #endif
@@ -302,7 +319,7 @@ msg_format("%^sは破壊された。", m_name);
 				else
 				{
 #ifdef JP
-msg_format("%^sは殺された。", m_name);
+					msg_format("%^sは殺された。", m_name);
 #else
 					msg_format("%^s is killed.", m_name);
 #endif
@@ -397,7 +414,7 @@ msg_format("%^sは殺された。", m_name);
 		if (rakuba((dam > 200) ? 200 : dam, FALSE))
 		{
 #ifdef JP
-msg_format("%^sに振り落とされた！", m_name);
+				msg_format("%^sに振り落とされた！", m_name);
 #else
 				msg_format("You have thrown off from %s!", m_name);
 #endif
@@ -2263,7 +2280,7 @@ act = "%sを侮辱した。";
 						if (see_m && did_heal)
 						{
 #ifdef JP
-msg_format("%sは体力を回復したようだ。", m_name);
+							msg_format("%sは体力を回復したようだ。", m_name);
 #else
 							msg_format("%^s appears healthier.", m_name);
 #endif
@@ -2282,7 +2299,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 						{
 							blinked = FALSE;
 #ifdef JP
-msg_format("%^sは突然熱くなった！", m_name);
+							msg_format("%^sは突然熱くなった！", m_name);
 #else
 							msg_format("%^s is suddenly very hot!", m_name);
 #endif
@@ -2304,7 +2321,7 @@ msg_format("%^sは突然熱くなった！", m_name);
 						{
 							blinked = FALSE;
 #ifdef JP
-msg_format("%^sは突然寒くなった！", m_name);
+							msg_format("%^sは突然寒くなった！", m_name);
 #else
 							msg_format("%^s is suddenly very cold!", m_name);
 #endif
@@ -2326,7 +2343,7 @@ msg_format("%^sは突然寒くなった！", m_name);
 						{
 							blinked = FALSE;
 #ifdef JP
-msg_format("%^sは電撃を食らった！", m_name);
+							msg_format("%^sは電撃を食らった！", m_name);
 #else
 							msg_format("%^s gets zapped!", m_name);
 #endif
@@ -2371,7 +2388,7 @@ msg_format("%^sは電撃を食らった！", m_name);
 					{
 						/* Message */
 #ifdef JP
-msg_format("%sは%^sの攻撃をかわした。", t_name,m_name);
+						msg_format("%sは%^sの攻撃をかわした。", t_name,m_name);
 #else
 						msg_format("%^s misses %s.", m_name, t_name);
 #endif
@@ -2423,7 +2440,7 @@ msg_format("%sは%^sの攻撃をかわした。", t_name,m_name);
 		if (see_m)
 		{
 #ifdef JP
-msg_print("泥棒は笑って逃げた！");
+			msg_print("泥棒は笑って逃げた！");
 #else
 			msg_print("The thief flees laughing!");
 #endif
@@ -2500,8 +2517,6 @@ static void process_monster(int m_idx)
 	bool            did_kill_wall;
 	bool            gets_angry = FALSE;
 	bool            can_pass_wall;
-
-	bool            fear;
 
 	int             rf1_rand;
 
@@ -2747,7 +2762,7 @@ static void process_monster(int m_idx)
 
 			/* Dump a message */
 #ifdef JP
-msg_format("%^sはもう無敵でない。", m_name);
+			msg_format("%^sはもう無敵でない。", m_name);
 #else
 			msg_format("%^s is no longer invulnerable.", m_name);
 #endif
@@ -2773,7 +2788,7 @@ msg_format("%^sはもう無敵でない。", m_name);
 
 			/* Dump a message */
 #ifdef JP
-msg_format("%^sはもう加速されていない。", m_name);
+			msg_format("%^sはもう加速されていない。", m_name);
 #else
 			msg_format("%^s is no longer fast.", m_name);
 #endif
@@ -2798,7 +2813,7 @@ msg_format("%^sはもう加速されていない。", m_name);
 
 			/* Dump a message */
 #ifdef JP
-msg_format("%^sはもう減速されていない。", m_name);
+			msg_format("%^sはもう減速されていない。", m_name);
 #else
 			msg_format("%^s is no longer slow.", m_name);
 #endif
@@ -2815,9 +2830,6 @@ msg_format("%^sはもう減速されていない。", m_name);
 
 		/* Hack -- handle non-aggravation */
 		if (!(p_ptr->cursed & TRC_AGGRAVATE) && !(p_ptr->smell_equip && !(r_ptr->flagsr & RFR_RES_POIS))) notice = randint0(1024);
-
-		/* Nightmare monsters are more alert */
-		if (ironman_nightmare) notice /= 2;
 
 		/* Hack -- See if monster "notices" player */
 		if ((notice * notice * notice) <= noise)
@@ -2864,7 +2876,7 @@ msg_format("%^sはもう減速されていない。", m_name);
 
 					/* Dump a message */
 #ifdef JP
-msg_format("%^sが目を覚ました。", m_name);
+					msg_format("%^sが目を覚ました。", m_name);
 #else
 					msg_format("%^s wakes up.", m_name);
 #endif
@@ -2926,7 +2938,7 @@ msg_format("%^sが目を覚ました。", m_name);
 
 				/* Dump a message */
 #ifdef JP
-msg_format("%^sは朦朧状態から立ち直った。", m_name);
+				msg_format("%^sは朦朧状態から立ち直った。", m_name);
 #else
 				msg_format("%^s is no longer stunned.", m_name);
 #endif
@@ -2970,7 +2982,7 @@ msg_format("%^sは朦朧状態から立ち直った。", m_name);
 
 				/* Dump a message */
 #ifdef JP
-msg_format("%^sは混乱から立ち直った。", m_name);
+				msg_format("%^sは混乱から立ち直った。", m_name);
 #else
 				msg_format("%^s is no longer confused.", m_name);
 #endif
@@ -3000,7 +3012,7 @@ msg_format("%^sは混乱から立ち直った。", m_name);
 		char m_name[80];
 		monster_desc(m_name, m_ptr, 0);
 #ifdef JP
-msg_format("%^sは突然敵にまわった！", m_name);
+		msg_format("%^sは突然敵にまわった！", m_name);
 #else
 		msg_format("%^s suddenly becomes hostile!", m_name);
 #endif
@@ -3039,7 +3051,7 @@ msg_format("%^sは突然敵にまわった！", m_name);
 
 				/* Dump a message */
 #ifdef JP
-msg_format("%^sは勇気を取り戻した。", m_name);
+				msg_format("%^sは勇気を取り戻した。", m_name);
 #else
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 #endif
@@ -3097,7 +3109,7 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 	{
 		if (disturb_minor) disturb(FALSE, FALSE);
 #ifdef JP
-msg_print("重厚な足音が聞こえた。");
+		msg_print("重厚な足音が聞こえた。");
 #else
 		msg_print("You hear heavy steps.");
 #endif
@@ -3118,7 +3130,7 @@ msg_print("重厚な足音が聞こえた。");
 			monster_desc(m_name, m_ptr, 0);
 		else
 #ifdef JP
-strcpy(m_name, "それ");
+			strcpy(m_name, "それ");
 #else
 			strcpy(m_name, "It");
 #endif
@@ -3127,7 +3139,7 @@ strcpy(m_name, "それ");
 		/* Select the file for monster quotes */
 		if (m_ptr->monfear)
 #ifdef JP
-filename = "monfear_j.txt";
+			filename = "monfear_j.txt";
 #else
 			filename = "monfear.txt";
 #endif
@@ -3159,7 +3171,8 @@ filename = "monfrien_j.txt";
 		{
 			/* Say something */
 #ifdef JP
-msg_format("%^s%s", m_name, monmessage);
+			my_replace(monmessage, "[PNAME]", player_name);
+			msg_format("%^s%s", m_name, monmessage);
 #else
 			msg_format("%^s %s", m_name, monmessage);
 #endif
@@ -3388,7 +3401,7 @@ msg_format("%^s%s", m_name, monmessage);
 			if (one_in_(GRINDNOISE))
 			{
 #ifdef JP
-msg_print("ギシギシいう音が聞こえる。");
+				msg_print("ギシギシいう音が聞こえる。");
 #else
 				msg_print("There is a grinding sound.");
 #endif
@@ -3464,7 +3477,7 @@ msg_print("ギシギシいう音が聞こえる。");
 				{
 					/* Message */
 #ifdef JP
-msg_print("ドアを叩き開ける音がした！");
+					msg_print("ドアを叩き開ける音がした！");
 #else
 					msg_print("You hear a door burst open!");
 #endif
@@ -3519,7 +3532,7 @@ msg_print("ドアを叩き開ける音がした！");
 				if (c_ptr->info & CAVE_MARK)
 				{
 #ifdef JP
-msg_print("守りのルーンが壊れた！");
+					msg_print("守りのルーンが壊れた！");
 #else
 					msg_print("The rune of protection is broken!");
 #endif
@@ -3556,7 +3569,7 @@ msg_print("守りのルーンが壊れた！");
 					if (c_ptr->info & CAVE_MARK)
 					{
 #ifdef JP
-msg_print("ルーンが爆発した！");
+						msg_print("ルーンが爆発した！");
 #else
 						msg_print("The rune explodes!");
 #endif
@@ -3567,7 +3580,7 @@ msg_print("ルーンが爆発した！");
 				else
 				{
 #ifdef JP
-msg_print("爆発のルーンは解除された。");
+					msg_print("爆発のルーンは解除された。");
 #else
 					msg_print("An explosive rune was disarmed.");
 #endif
@@ -3880,9 +3893,9 @@ msg_print("爆発のルーンは解除された。");
 							{
 								/* Dump a message */
 #ifdef JP
-msg_format("%^sは%sを拾おうとしたが、だめだった。", m_name, o_name);
+								msg_format("%^sは%sを拾おうとしたが、だめだった。", m_name, o_name);
 #else
-msg_format("%^s tries to pick up %s, but fails.", m_name, o_name);
+								msg_format("%^s tries to pick up %s, but fails.", m_name, o_name);
 #endif
 							}
 						}
@@ -3899,7 +3912,7 @@ msg_format("%^s tries to pick up %s, but fails.", m_name, o_name);
 						{
 							/* Dump a message */
 #ifdef JP
-msg_format("%^sが%sを拾った。", m_name, o_name);
+							msg_format("%^sが%sを拾った。", m_name, o_name);
 #else
 							msg_format("%^s picks up %s.", m_name, o_name);
 #endif
@@ -3936,7 +3949,7 @@ msg_format("%^sが%sを拾った。", m_name, o_name);
 						{
 							/* Dump a message */
 #ifdef JP
-msg_format("%^sが%sを破壊した。", m_name, o_name);
+							msg_format("%^sが%sを破壊した。", m_name, o_name);
 #else
 							msg_format("%^s destroys %s.", m_name, o_name);
 #endif
@@ -4032,7 +4045,7 @@ msg_format("%^sが%sを破壊した。", m_name, o_name);
 
 			/* Dump a message */
 #ifdef JP
-msg_format("%^sは戦いを決意した！", m_name);
+			msg_format("%^sは戦いを決意した！", m_name);
 #else
 			msg_format("%^s turns to fight!", m_name);
 #endif
@@ -4233,12 +4246,6 @@ void process_monsters(void)
 		{
 			speed = MIN(199, m_ptr->mspeed);
 
-			/* Monsters move quickly in Nightmare mode */
-			if (ironman_nightmare)
-			{
-				speed = MIN(199, m_ptr->mspeed + 5);
-			}
-
 			if (m_ptr->stoning) speed = MAX(0, speed - m_ptr->stoning / 5);
 			if (m_ptr->fast) speed = MIN(199, speed + 10);
 			if (m_ptr->slow) speed = MAX(0, speed - 10);
@@ -4392,7 +4399,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 
 	if (is_pet(m_ptr) || is_pet(n_ptr))
 	{
-		if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_HIGHWITCH)) && one_in_(10))
+		if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_HIGHWITCH) || (p_ptr->pclass == CLASS_LORD)) && one_in_(10))
 		{
 			monster_type exp_mon;
 
@@ -4436,10 +4443,6 @@ void monster_gain_exp(int m_idx, int s_idx)
 		else
 		{
 			m_ptr->max_maxhp = damroll(r_ptr->hdice, r_ptr->hside);
-		}
-		if (ironman_nightmare)
-		{
-			m_ptr->max_maxhp *= 2L;
 		}
 
 		m_ptr->max_maxhp = MIN(MAX_MAX_MAXHP, m_ptr->max_maxhp);

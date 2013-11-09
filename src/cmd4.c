@@ -4901,6 +4901,9 @@ static bool ang_sort_comp_monster_level(vptr u, vptr v, int a, int b)
 	monster_race *r_ptr1 = &r_info[w1];
 	monster_race *r_ptr2 = &r_info[w2];
 
+	/* Unused */
+	(void)v;
+
 	if (r_ptr2->level > r_ptr1->level) return TRUE;
 	if (r_ptr1->level > r_ptr2->level) return FALSE;
 
@@ -5301,14 +5304,14 @@ static errr photo_fgets(FILE *fff, char *buf, huge n)
 				buf[i++] = *s++;
 				buf[i++] = *s;
 			}
-# ifndef EUC
-	/* 半角かなに対応 */
+#ifndef EUC
+			/* 半角かなに対応 */
 			else if ((((int)*s & 0xff) > 0xa1) && (((int)*s & 0xff ) < 0xdf))
 			{
 				buf[i++] = *s;
 				if (i >= n) break;
 			}
-# endif
+#endif
 #endif
 			/* Handle printables */
 			else
@@ -6200,6 +6203,9 @@ static void ang_sort_art_swap(vptr u, vptr v, int a, int b)
 	u16b *who = (u16b*)(u);
 
 	u16b holder;
+
+	/* Unused */
+	(void)v;
 
 	/* Swap */
 	holder = who[a];
@@ -8269,7 +8275,6 @@ static void do_cmd_knowledge_stat(void)
 	FILE *fff;
 
 	char file_name[1024];
-	int percent, v_nr;
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
@@ -9006,20 +9011,20 @@ static void do_cmd_knowledge_classes(void)
 		if (cexp_ptr->max_clev)
 		{
 #ifdef L64
-			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d  %5d  %5d\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d\n", class_info[i].title,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #else
-			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld  %5ld  %5ld\n", class_info[i].title,
+			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld\n", class_info[i].title,
 				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
 #endif
 		}
 		else
 		{
 #ifdef L64
-			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------  -----  -----\n",
+			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------\n",
 				class_info[i].title, cexp_ptr->max_max_clev);
 #else
-			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------  -----  -----\n",
+			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------\n",
 				class_info[i].title, cexp_ptr->max_max_clev);
 #endif
 		}
@@ -9549,7 +9554,7 @@ static int collect_skills(int grp_cur, int skill_idx[])
 		for (i = 0; i < MAX_REALM; i++)
 		{
 			/* Add the skill */
-			skill_idx[skills_cnt++] = i + 1;
+			skill_idx[skills_cnt++] = i+1;
 		}
 	}
 
@@ -9617,13 +9622,16 @@ static char weapon_skill_name[MAX_WT][20] =
 /*
  * Display the skills in a group.
  */
-static void display_skill_list(bool is_misc, bool is_magic, bool is_nanka, int col, int row, int per_page, int skill_idx[],
+static void display_skill_list(bool is_misc, bool is_magic, bool is_weapon, int col, int row, int per_page, int skill_idx[],
 	int skill_cur, int skill_top)
 {
 	int i;
-	int skill_lev, attack_var, skill_eff;
-	bool is_master;
-	byte attr, cursor;
+	int skill_lev, skill_eff;
+	bool is_master = FALSE;
+	byte attr;
+
+	/* unused */
+	(void)skill_cur;
 
 	/* Display lines until done */
 	for (i = 0; i < per_page && (skill_idx[skill_top + i] >= 0); i++)
@@ -9635,13 +9643,10 @@ static void display_skill_list(bool is_misc, bool is_magic, bool is_nanka, int c
 		/* Get the skill index */
 		int idx = skill_idx[skill_top + i];
 
-		/* Access the object */
-		object_kind *k_ptr = &k_info[idx];
 
-		if (is_nanka)
+		if (is_weapon)
 		{
-//			skill_lev = p_ptr->weapon_exp[idx];
-			skill_lev = weapon_exp_level(p_ptr->weapon_exp[idx]/10);
+			skill_lev = skill_exp_level(p_ptr->weapon_exp[idx]/10);
 			skill_eff = p_ptr->s_ptr->w_eff[idx];
 
 			strcpy(o_name, weapon_skill_name[idx]);
@@ -9655,41 +9660,23 @@ static void display_skill_list(bool is_misc, bool is_magic, bool is_nanka, int c
 		}
 		else if (is_misc)
 		{
-//			skill_lev = p_ptr->skill_exp[idx];
 			skill_lev = skill_exp_level(p_ptr->skill_exp[idx]/10);
 			skill_eff = p_ptr->s_ptr->m_eff[idx];
 
 			strcpy(o_name, misc_skill_name[idx]);
 		}
 
-		attack_var = skill_lev_var[skill_lev];
 		if (!is_magic) is_master = (skill_lev == SKILL_LEVEL_MASTER);
 
 		/* Choose a color */
-		attr = (skill_eff && !is_master) ? TERM_WHITE : TERM_SLATE;
-//		cursor = (skill_eff && !is_master) ? TERM_L_BLUE : TERM_BLUE;
-//		attr = ((i + skill_top == skill_cur) ? cursor : attr);
+		if (is_master) attr = TERM_BLUE;
+		else if (skill_eff && !is_master) attr = TERM_WHITE;
+		else attr =  TERM_SLATE;
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
 		if (!is_magic) c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
 		else c_prt(attr, format("%2d", skill_lev), row + i, 43);
-/*		if ((!is_magic) && (!is_nanka))
-		{
-		c_prt(attr, (!is_master) ?
-		            format("%8d", skill_eff) :
-#ifdef JP
-		            (!skill_eff ? "成長不可" : "    ----"),
-#else
-		            (!skill_eff ? " No inc." : "    ----"),
-#endif
-		      row + i, 65);
-		}
-		else 
-		{
-				c_prt(attr, format("%8d", skill_eff), row + i, 65);
-		}
-*/
 		{
 			/* No symbol */
 			a = TERM_DARK;
@@ -9731,8 +9718,6 @@ void do_cmd_skill_level(void)
 
 	int browser_rows;
 	int wid, hgt;
-
-	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -9783,7 +9768,7 @@ void do_cmd_skill_level(void)
 		char ch;
 		bool is_misc = (skill_group_wt[grp_cur] == 255);
 		bool is_magic = (skill_group_wt[grp_cur] == 250);
-		bool is_nanka = (skill_group_wt[grp_cur] == 200);
+		bool is_weapon = (skill_group_wt[grp_cur] == 200);
 
 		if (redraw)
 		{
@@ -9795,12 +9780,10 @@ void do_cmd_skill_level(void)
 			prt("スキル", 4, max + 3);
 			prt("レベル", 4, 43);
 #else
-			prt(format("Skill point distributing menu [Current Skill Point: %5d]", cexp_ptr->skill_point), 2, 0);
+			prt(format("Current Skill"), 2, 0);
 			prt("Group", 4, 0);
 			prt("Skill", 4, max + 3);
 			prt("Level", 4, 43);
-			prt(" need SP", 4, 65);
-			prt("Sym", 4, 75);
 #endif
 
 			for (i = 0; i < 55; i++)
@@ -9838,7 +9821,7 @@ void do_cmd_skill_level(void)
 			skill_top = MIN(skill_cnt - browser_rows, skill_top + browser_rows/2);
 
 		/* Display a list of skills in the current group */
-		display_skill_list(is_misc, is_magic, is_nanka, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
+		display_skill_list(is_misc, is_magic, is_weapon, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
 
 
 		if (!column)
@@ -9874,82 +9857,5 @@ void do_cmd_skill_level(void)
 
 	/* Restore the screen */
 	screen_load();
-}
-
-
-/* Array for determine spells are in books in inventory */
-static bool **spell_skill_okay;
-
-
-/*
- * Return the number of spells in the realm.
- * (note: realm is in (0-10))
- */
-static int count_spells(int realm)
-{
-	int i, spells_cnt = 0;
-
-	/* Check every spell in realm */
-	for (i = 0; i < 32; i++)
-	{
-		if (!spell_names[realm][i][0]) break;
-
-		/* Increase the spell count */
-		spells_cnt++;
-	}
-
-	/* Return the number of spells */
-	return spells_cnt;
-}
-
-
-/*
- * Display the spell skills in a group.
- * (note: realm is in (0-10))
- */
-static void display_spell_skill_list(int col, int row, int per_page, int realm,
-	int spell_skill_cnt, int spell_skill_cur, int spell_skill_top)
-{
-	int i;
-	int skill_lev;
-	bool is_master, skill_okay;
-	byte attr, cursor;
-
-	/* Display lines until done */
-	for (i = 0; (i < per_page) && ((spell_skill_top + i) < spell_skill_cnt); i++)
-	{
-		/* Get the magic skill index */
-		int spell = spell_skill_top + i;
-
-		/* Access the spell */
-		magic_type *s_ptr = &mp_ptr->info[realm][spell];
-
-		skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]/10);
-		skill_okay = spell_skill_okay[realm][spell];
-		is_master = (skill_lev == SKILL_LEVEL_MASTER);
-
-		/* Choose a color */
-		attr = (skill_okay && !is_master) ? TERM_WHITE : TERM_SLATE;
-		cursor = (skill_okay && !is_master) ? TERM_L_BLUE : TERM_BLUE;
-		attr = ((i + spell_skill_top == spell_skill_cur) ? cursor : attr);
-
-		/* Display the name */
-		c_prt(attr, spell_names[realm][spell], row + i, col);
-		c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
-		c_prt(attr, (skill_okay && !is_master) ?
-		            format("%8d", (skill_lev_var[skill_lev] * s_ptr->sfail) / 5) :
-#ifdef JP
-		            (!skill_okay ? "成長不可" : "    ----"),
-#else
-		            (!skill_okay ? " No inc." : "    ----"),
-#endif
-		      row + i, 65);
-	}
-
-	/* Clear remaining lines */
-	for (; i < per_page; i++)
-	{
-		Term_erase(col, row + i, 255);
-	}
 }
 

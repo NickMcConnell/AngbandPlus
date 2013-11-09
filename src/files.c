@@ -34,7 +34,7 @@ void safe_setuid_drop(void)
 	if (setuid(getuid()) != 0)
 	{
 #ifdef JP
-quit("setuid(): 正しく許可が取れません！");
+		quit("setuid(): 正しく許可が取れません！");
 #else
 		quit("setuid(): cannot set permissions correctly!");
 #endif
@@ -43,7 +43,7 @@ quit("setuid(): 正しく許可が取れません！");
 	if (setgid(getgid()) != 0)
 	{
 #ifdef JP
-quit("setgid(): 正しく許可が取れません！");
+		quit("setgid(): 正しく許可が取れません！");
 #else
 		quit("setgid(): cannot set permissions correctly!");
 #endif
@@ -55,7 +55,7 @@ quit("setgid(): 正しく許可が取れません！");
 	if (setreuid(geteuid(), getuid()) != 0)
 	{
 #ifdef JP
-quit("setreuid(): 正しく許可が取れません！");
+		quit("setreuid(): 正しく許可が取れません！");
 #else
 		quit("setreuid(): cannot set permissions correctly!");
 #endif
@@ -64,7 +64,7 @@ quit("setreuid(): 正しく許可が取れません！");
 	if (setregid(getegid(), getgid()) != 0)
 	{
 #ifdef JP
-quit("setregid(): 正しく許可が取れません！");
+		quit("setregid(): 正しく許可が取れません！");
 #else
 		quit("setregid(): cannot set permissions correctly!");
 #endif
@@ -95,7 +95,7 @@ void safe_setuid_grab(void)
 	if (setuid(player_euid) != 0)
 	{
 #ifdef JP
-quit("setuid(): 正しく許可が取れません！");
+		quit("setuid(): 正しく許可が取れません！");
 #else
 		quit("setuid(): cannot set permissions correctly!");
 #endif
@@ -104,7 +104,7 @@ quit("setuid(): 正しく許可が取れません！");
 	if (setgid(player_egid) != 0)
 	{
 #ifdef JP
-quit("setgid(): 正しく許可が取れません！");
+		quit("setgid(): 正しく許可が取れません！");
 #else
 		quit("setgid(): cannot set permissions correctly!");
 #endif
@@ -116,7 +116,7 @@ quit("setgid(): 正しく許可が取れません！");
 	if (setreuid(geteuid(), getuid()) != 0)
 	{
 #ifdef JP
-quit("setreuid(): 正しく許可が取れません！");
+		quit("setreuid(): 正しく許可が取れません！");
 #else
 		quit("setreuid(): cannot set permissions correctly!");
 #endif
@@ -125,7 +125,7 @@ quit("setreuid(): 正しく許可が取れません！");
 	if (setregid(getegid(), getgid()) != 0)
 	{
 #ifdef JP
-quit("setregid(): 正しく許可が取れません！");
+		quit("setregid(): 正しく許可が取れません！");
 #else
 		quit("setregid(): cannot set permissions correctly!");
 #endif
@@ -1882,7 +1882,7 @@ static void display_player_middle(void)
 	if (cexp_ptr->clev >= PY_MAX_LEVEL)
 		display_player_one_line(ENTRY_CLASS_EXP_TO_ADV, "*****", TERM_L_GREEN);
 	else
-		display_player_one_line(ENTRY_CLASS_EXP_TO_ADV, format("%ld", (s32b)(player_exp[cexp_ptr->clev - 1] * p_ptr->cexpfact / 100L)), TERM_L_GREEN);
+		display_player_one_line(ENTRY_CLASS_EXP_TO_ADV, format("%ld", (s32b)(player_exp[cexp_ptr->clev - 1] * p_ptr->cexpfact[p_ptr->pclass] / 100L)), TERM_L_GREEN);
 
 	/* Dump gold */
 	display_player_one_line(ENTRY_GOLD, format("%ld", p_ptr->au_sum), TERM_L_GREEN);
@@ -2278,8 +2278,8 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	/* Class Master get Flag */
 	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34) add_flag(flgs, TR_FEAR_FIELD);
 	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 44) add_flag(flgs, TR_ANTI_MAGIC);
-	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
 	if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49) add_flag(flgs, TR_KILL_DRAGON);
+	else if (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
 	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 39) add_flag(flgs, TR_SLAY_EVIL);
 	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 29) add_flag(flgs, TR_SLAY_DEMON);
 	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
@@ -2311,6 +2311,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		else add_flag(flgs, TR_SLAY_DRAGON);
 		break;
 	case CLASS_NINJA:
+	case CLASS_NINJAMASTER:
 		if (heavy_armor()) add_flag(flgs, TR_SPEED);
 		break;
 	case CLASS_EXORCIST:
@@ -2327,6 +2328,19 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	case CLASS_WITCH:
 		if (cexp_ptr->clev > 9) add_flag(flgs, TR_FEATHER);
 		break;
+	case CLASS_VAMPIRE:
+		add_flag(flgs, TR_SLAY_LIVING);
+		add_flag(flgs, TR_RES_DARK);
+		add_flag(flgs, TR_FEATHER);
+		add_flag(flgs, TR_LITE);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_LITE);
+		if (!is_daytime())
+		{
+			add_flag(flgs, TR_REGEN);
+			add_flag(flgs, TR_RES_FEAR);
+			if (cexp_ptr->clev > 14) add_flag(flgs, TR_FEAR_FIELD);
+			if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_MAGIC);
+		}
 	case CLASS_LICH:
 		add_flag(flgs, TR_RES_COLD);
 		add_flag(flgs, TR_RES_POIS);
@@ -2353,6 +2367,26 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_SOUND);
 		add_flag(flgs, TR_RES_SHARDS);
 		add_flag(flgs, TR_NO_TELE);
+		break;
+	case CLASS_LORD:
+		if (p_ptr->action == ACTION_AURA)
+		{
+			add_flag(flgs, TR_LITE);
+			add_flag(flgs, TR_REGEN);
+			if (cexp_ptr->clev > 29) add_flag(flgs, TR_TELEPATHY);
+			if (cexp_ptr->clev > 34) add_flag(flgs, TR_VORPAL);
+			if (cexp_ptr->clev > 44) add_flag(flgs, TR_EXTRA_VORPAL);
+		}
+		break;
+	case CLASS_FREYA:
+		add_flag(flgs, TR_BLESSED);
+		if (cexp_ptr->clev > 34) add_flag(flgs, TR_SLAY_EVIL);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_DEMON);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
+		break;
+	case CLASS_CRESCENT:
+		if (cexp_ptr->clev > 24) add_flag(flgs, TR_ANTI_MAGIC);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_XTRA_MIGHT);
 		break;
 	default:
 		break; /* Do nothing */
@@ -2382,6 +2416,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	case RACE_SKELETON:
 		add_flag(flgs, TR_RES_POIS);
 		add_flag(flgs, TR_RES_SHARDS);
+		add_flag(flgs, TR_RES_NETHER);
 		add_flag(flgs, TR_SEE_INVIS);
 		add_flag(flgs, TR_HOLD_LIFE);
 		if (p_ptr->lev > 9)
@@ -2491,7 +2526,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_BLIND);
 		add_flag(flgs, TR_RES_CONF);
 		add_flag(flgs, TR_HOLD_LIFE);
-		if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
+		if ((p_ptr->pclass != CLASS_NINJA) && (p_ptr->pclass != CLASS_NINJAMASTER)) add_flag(flgs, TR_LITE);
 	}
 }
 
@@ -2689,11 +2724,17 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (prace_is_(RACE_GHOST))
+	if (p_ptr->pclass == CLASS_VAMPIRE)
+		add_flag(flgs, TR_RES_DARK);
+
+	if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))
 		add_flag(flgs, TR_RES_NETHER);
 
 	if (((p_ptr->pclass == CLASS_DRAGOON) && (p_ptr->cexp_info[CLASS_DRAGOON].clev > 24)) || (p_ptr->cexp_info[CLASS_DRAGOON].clev > 49))
 		add_flag(flgs, TR_SLAY_DRAGON);
+
+	if ((p_ptr->pclass == CLASS_LORD) && (p_ptr->action == ACTION_AURA) && (p_ptr->cexp_info[CLASS_DRAGOON].clev > 44))
+		add_flag(flgs, TR_VORPAL);
 
 	if ((rp_ptr->r_flags & PRF_NO_DIGEST) || (cp_ptr->c_flags & PCF_NO_DIGEST))
 		add_flag(flgs, TR_SLOW_DIGEST);
@@ -2741,7 +2782,7 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_FIRE);
 		add_flag(flgs, TR_RES_COLD);
 	}
-	if (prace_is_(RACE_GREMLIN))
+	if ((prace_is_(RACE_GREMLIN)) || p_ptr->pclass == CLASS_VAMPIRE)
 		add_flag(flgs, TR_RES_LITE);
 	if (prace_is_(RACE_FAIRY))
 		add_flag(flgs, TR_RES_DARK);
@@ -3338,7 +3379,7 @@ static void display_player_stat_info(void)
 	/* Header and Footer */
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row, col);
 #ifdef JP
-c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
+	c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 #else
 	c_put_str(TERM_L_GREEN, "Modification", row - 1, col);
 #endif
@@ -3428,7 +3469,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 		c = '.';
 
 		/* Mutations ... */
-		if (p_ptr->muta3 || p_ptr->chargespell)
+		if (p_ptr->muta3 || p_ptr->chargespell || p_ptr->zoshonel_protect)
 		{
 			int dummy = 0;
 
@@ -3436,6 +3477,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 			{
 				if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
 				if (p_ptr->muta3 & MUT3_PUNY) dummy -= 4;
+				if (p_ptr->zoshonel_protect) dummy += 4;
 			}
 			else if (stat == A_WIS || stat == A_INT)
 			{
@@ -3448,6 +3490,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 				if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
 				if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
 				if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
+				if (p_ptr->zoshonel_protect) dummy += 4;
 			}
 			else if (stat == A_CON)
 			{
@@ -3526,7 +3569,6 @@ void display_player(int mode)
 	int i;
 
 	char	buf[80];
-	char	tmp[64];
 
 
 	/* XXX XXX XXX */
@@ -3560,8 +3602,9 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_WEIGHT, format("%d" ,(int)p_ptr->wt), TERM_L_BLUE);
 		display_player_one_line(ENTRY_SOCIAL, format("%d" ,(int)p_ptr->sc), TERM_L_BLUE);
 #endif
-		if (!p_ptr->opposite_pelem) display_player_one_line(ENTRY_ELEM, format("%s", elem_names[get_cur_pelem()]), TERM_L_BLUE);
-		else display_player_one_line(ENTRY_ELEM, format("%s(%s)", elem_names[get_cur_pelem()], elem_names[p_ptr->pelem]), TERM_L_BLUE);
+		if (p_ptr->no_elem) display_player_one_line (ENTRY_ELEM, "    ", TERM_DARK);
+		else if ((p_ptr->opposite_pelem) && !(p_ptr->no_elem)) display_player_one_line(ENTRY_ELEM, format("%s(%s)", elem_names[get_cur_pelem()], elem_names[p_ptr->pelem]), TERM_L_BLUE);
+		else display_player_one_line(ENTRY_ELEM, format("%s", elem_names[get_cur_pelem()]), TERM_L_BLUE);
 		display_player_one_line(ENTRY_ALIGN, format("%s-%s", your_alignment_gne(), your_alignment_lnc()), TERM_L_BLUE);
 
 
@@ -3816,6 +3859,9 @@ static bool ang_sort_comp_quest_num(vptr u, vptr v, int a, int b)
 	quest_type *qa = &quest[q_num[a]];
 	quest_type *qb = &quest[q_num[b]];
 
+	/* Unused */
+	(void)v;
+
 	if (qa->complev < qb->complev) return TRUE;
 	if (qa->complev > qb->complev) return FALSE;
 	if (qa->level <= qb->level) return TRUE;
@@ -3826,6 +3872,9 @@ static void ang_sort_swap_quest_num(vptr u, vptr v, int a, int b)
 {
 	int *q_num = (int *)u;
 	int tmp;
+
+	/* Unused */
+	(void)v;
 
 	tmp = q_num[a];
 	q_num[a] = q_num[b];
@@ -4004,10 +4053,10 @@ errr make_character_dump(FILE *fff)
 		else
 		{
 #ifdef L64
-			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------  -----  -----\n",
+			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------\n",
 				class_info[i].title, cexp_ptr->max_max_clev);
 #else
-			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------  -----  -----\n",
+			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------\n",
 				class_info[i].title, cexp_ptr->max_max_clev);
 #endif
 		}
@@ -4315,14 +4364,7 @@ errr make_character_dump(FILE *fff)
 #endif
 
 
-	if (ironman_autoscum)
-#ifdef JP
-		fprintf(fff, "\n 自動選り好み:       ALWAYS");
-#else
-		fprintf(fff, "\n Autoscum:           ALWAYS");
-#endif
-
-	else if (auto_scum)
+	if (auto_scum)
 #ifdef JP
 		fprintf(fff, "\n 自動選り好み:       ON");
 #else
@@ -4337,14 +4379,7 @@ errr make_character_dump(FILE *fff)
 #endif
 
 
-	if (ironman_small_levels)
-#ifdef JP
-		fprintf(fff, "\n 小さいダンジョン:   ALWAYS");
-#else
-		fprintf(fff, "\n Small Levels:       ALWAYS");
-#endif
-
-	else if (always_small_levels)
+	if (always_small_levels)
 #ifdef JP
 		fprintf(fff, "\n 小さいダンジョン:   ON");
 #else
@@ -4366,42 +4401,11 @@ errr make_character_dump(FILE *fff)
 #endif
 
 
-	if (ironman_shops)
-#ifdef JP
-		fprintf(fff, "\n 店なし:             ON");
-#else
-		fprintf(fff, "\n No Shops:           ON");
-#endif
-
-
-	if (ironman_forward)
-	{
-#ifdef JP
-		fprintf(fff, "\n 小規模な町:         ON");
-#else
-		fprintf(fff, "\n Lite Town:          ON");
-#endif
-#ifdef JP
-		fprintf(fff, "\n 階段を戻れない:     ON");
-#else
-		fprintf(fff, "\n Forward Stair Only: ON");
-#endif
-	}
-
-
 	if (ironman_rooms)
 #ifdef JP
 		fprintf(fff, "\n 普通でない部屋:     ON");
 #else
 		fprintf(fff, "\n Unusual Rooms:      ON");
-#endif
-
-
-	if (ironman_nightmare)
-#ifdef JP
-		fprintf(fff, "\n 悪夢モード:         ON");
-#else
-		fprintf(fff, "\n Nightmare Mode:     ON");
 #endif
 
 
@@ -4413,14 +4417,7 @@ errr make_character_dump(FILE *fff)
 #endif
 
 
-	if (ironman_empty_levels)
-#ifdef JP
-		fprintf(fff, "\n アリーナ:           ALWAYS");
-#else
-		fprintf(fff, "\n Arena Levels:       ALWAYS");
-#endif
-
-	else if (empty_levels)
+	if (empty_levels)
 #ifdef JP
 		fprintf(fff, "\n アリーナ:           ENABLED");
 #else
@@ -4521,7 +4518,7 @@ errr make_character_dump(FILE *fff)
 
 	if (p_ptr->noscore)
 #ifdef JP
-fprintf(fff, "\n 何か不正なことをしてしまってます。");
+		fprintf(fff, "\n 何か不正なことをしてしまってます。");
 #else
 		fprintf(fff, "\n You have done something illegal.");
 #endif
@@ -4562,21 +4559,21 @@ fprintf(fff, "\n 何か不正なことをしてしまってます。");
 
 		if (Total < 1)
 #ifdef JP
-fprintf(fff,"\n まだ敵を倒していません。\n");
+			fprintf(fff,"\n まだ敵を倒していません。\n");
 #else
 			fprintf(fff,"\n You have defeated no enemies yet.\n");
 #endif
 
 		else if (Total == 1)
 #ifdef JP
-fprintf(fff,"\n 1 体の敵を倒しています。\n");
+			fprintf(fff,"\n 1 体の敵を倒しています。\n");
 #else
 			fprintf(fff,"\n You have defeated one enemy.\n");
 #endif
 
 		else
 #ifdef JP
-fprintf(fff,"\n %lu 体の敵を倒しています。\n", Total);
+			fprintf(fff,"\n %lu 体の敵を倒しています。\n", Total);
 #else
 			fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
 #endif
@@ -4598,7 +4595,7 @@ fprintf(fff,"\n %lu 体の敵を倒しています。\n", Total);
 	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 	{
 #ifdef JP
-fprintf(fff, "\n\n  [突然変異]\n\n");
+		fprintf(fff, "\n\n  [突然変異]\n\n");
 #else
 		fprintf(fff, "\n\n  [Mutations]\n\n");
 #endif
@@ -4617,7 +4614,7 @@ fprintf(fff, "\n\n  [突然変異]\n\n");
 		object_type *o_ptr;
 
 #ifdef JP
-fprintf(fff, "  [武器としての能力]\n\n");
+		fprintf(fff, "  [武器としての能力]\n\n");
 #else
 		fprintf(fff, "  [Character Ability as a Runeweapon]\n\n");
 #endif
@@ -4633,7 +4630,7 @@ fprintf(fff, "  [武器としての能力]\n\n");
 	if (equip_cnt)
 	{
 #ifdef JP
-fprintf(fff, "  [キャラクタの装備]\n\n");
+		fprintf(fff, "  [キャラクタの装備]\n\n");
 #else
 		fprintf(fff, "  [Character Equipment]\n\n");
 #endif
@@ -4655,7 +4652,7 @@ fprintf(fff, "  [キャラクタの装備]\n\n");
 
 	/* Dump the inventory */
 #ifdef JP
-fprintf(fff, "  [キャラクタの持ち物]\n\n");
+	fprintf(fff, "  [キャラクタの持ち物]\n\n");
 #else
 	fprintf(fff, "  [Character Inventory]\n\n");
 #endif
@@ -4813,7 +4810,7 @@ errr file_character(cptr name)
 
 	/* Message */
 #ifdef JP
-msg_print("キャラクタ情報のファイルへの書き出しに成功しました。");
+	msg_print("キャラクタ情報のファイルへの書き出しに成功しました。");
 #else
 	msg_print("Character dump successful.");
 #endif
@@ -4954,7 +4951,7 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	{
 		/* Caption */
 #ifdef JP
-sprintf(caption, "ヘルプ・ファイル'%s'", name);
+		sprintf(caption, "ヘルプ・ファイル'%s'", name);
 #else
 		sprintf(caption, "Help file '%s'", name);
 #endif
@@ -4972,7 +4969,7 @@ sprintf(caption, "ヘルプ・ファイル'%s'", name);
 	{
 		/* Caption */
 #ifdef JP
-sprintf(caption, "スポイラー・ファイル'%s'", name);
+		sprintf(caption, "スポイラー・ファイル'%s'", name);
 #else
 		sprintf(caption, "Info file '%s'", name);
 #endif
@@ -4997,7 +4994,7 @@ sprintf(caption, "スポイラー・ファイル'%s'", name);
 
 		/* Caption */
 #ifdef JP
-sprintf(caption, "スポイラー・ファイル'%s'", name);
+		sprintf(caption, "スポイラー・ファイル'%s'", name);
 #else
 		sprintf(caption, "Info file '%s'", name);
 #endif
@@ -5011,7 +5008,7 @@ sprintf(caption, "スポイラー・ファイル'%s'", name);
 	{
 		/* Message */
 #ifdef JP
-msg_format("'%s'をオープンできません。", name);
+		msg_format("'%s'をオープンできません。", name);
 #else
 		msg_format("Cannot open '%s'.", name);
 #endif
@@ -5254,7 +5251,7 @@ msg_format("'%s'をオープンできません。", name);
 		{
 			/* Wait for it */
 #ifdef JP
-prt("[キー:(?)ヘルプ (ESC)終了]", hgt - 1, 0);
+			prt("[キー:(?)ヘルプ (ESC)終了]", hgt - 1, 0);
 #else
 			prt("[Press ESC to exit.]", hgt - 1, 0);
 #endif
@@ -5298,7 +5295,7 @@ prt("[キー:(?)ヘルプ (ESC)終了]", hgt - 1, 0);
 		{
 			/* Get "shower" */
 #ifdef JP
-prt("強調: ", hgt - 1, 0);
+			prt("強調: ", hgt - 1, 0);
 #else
 			prt("Show: ", hgt - 1, 0);
 #endif
@@ -5311,7 +5308,7 @@ prt("強調: ", hgt - 1, 0);
 		{
 			/* Get "finder" */
 #ifdef JP
-prt("検索: ", hgt - 1, 0);
+			prt("検索: ", hgt - 1, 0);
 #else
 			prt("Find: ", hgt - 1, 0);
 #endif
@@ -5345,7 +5342,7 @@ prt("検索: ", hgt - 1, 0);
 		{
 			char tmp[81];
 #ifdef JP
-prt("行: ", hgt - 1, 0);
+			prt("行: ", hgt - 1, 0);
 #else
 			prt("Goto Line: ", hgt - 1, 0);
 #endif
@@ -5363,8 +5360,8 @@ prt("行: ", hgt - 1, 0);
 		{
 			char tmp[81];
 #ifdef JP
-prt("ファイル・ネーム: ", hgt - 1, 0);
-strcpy(tmp, "jhelp.hlp");
+			prt("ファイル・ネーム: ", hgt - 1, 0);
+			strcpy(tmp, "jhelp.hlp");
 #else
 			prt("Goto File: ", hgt - 1, 0);
 			strcpy(tmp, "help.hlp");
@@ -5460,7 +5457,7 @@ strcpy(tmp, "jhelp.hlp");
 			if (!(fff && ffp))
 			{
 #ifdef JP
-msg_print("ファイルが開けません。");
+				msg_print("ファイルが開けません。");
 #else
 				msg_print("Failed to open file.");
 #endif
@@ -5513,7 +5510,7 @@ void do_cmd_help(void)
 
 	/* Peruse the main help file */
 #ifdef JP
-(void)show_file(TRUE, "jhelp.hlp", NULL, 0, 0);
+	(void)show_file(TRUE, "jhelp.hlp", NULL, 0, 0);
 #else
 	(void)show_file(TRUE, "help.hlp", NULL, 0, 0);
 #endif
@@ -5544,7 +5541,7 @@ void process_player_name(bool sf)
 	{
 		/* Name too long */
 #ifdef JP
-quit_fmt("'%s'という名前は長すぎます！", player_name);
+		quit_fmt("'%s'という名前は長すぎます！", player_name);
 #else
 		quit_fmt("The name '%s' is too long!", player_name);
 #endif
@@ -5566,7 +5563,7 @@ quit_fmt("'%s'という名前は長すぎます！", player_name);
 		{
 			/* Illegal characters */
 #ifdef JP
-quit_fmt("'%s' という名前は不正なコントロールコードを含んでいます。", player_name);
+			quit_fmt("'%s' という名前は不正なコントロールコードを含んでいます。", player_name);
 #else
 			quit_fmt("The name '%s' contains control chars!", player_name);
 #endif
@@ -5755,7 +5752,7 @@ void do_cmd_suicide(void)
 	{
 		/* Verify */
 #ifdef JP
-if (!get_check_strict("引退しますか? ", CHECK_NO_HISTORY)) return;
+		if (!get_check_strict("引退しますか? ", CHECK_NO_HISTORY)) return;
 #else
 		if (!get_check_strict("Do you want to retire? ", CHECK_NO_HISTORY)) return;
 #endif
@@ -5767,7 +5764,7 @@ if (!get_check_strict("引退しますか? ", CHECK_NO_HISTORY)) return;
 	{
 		/* Verify */
 #ifdef JP
-if (!get_check("本当に自殺しますか？")) return;
+		if (!get_check("本当に自殺しますか？")) return;
 #else
 		if (!get_check("Do you really want to commit suicide? ")) return;
 #endif
@@ -5778,7 +5775,7 @@ if (!get_check("本当に自殺しますか？")) return;
 	{
 		/* Special Verification for suicide */
 #ifdef JP
-prt("確認のため '@' を押して下さい。", 0, 0);
+		prt("確認のため '@' を押して下さい。", 0, 0);
 #else
 		prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
 #endif
@@ -5812,7 +5809,7 @@ prt("確認のため '@' を押して下さい。", 0, 0);
 
 	/* Cause of death */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "途中終了");
+	(void)strcpy(p_ptr->died_from, "途中終了");
 #else
 	(void)strcpy(p_ptr->died_from, "Quitting");
 #endif
@@ -5830,7 +5827,7 @@ void do_cmd_save_game(int is_autosave)
 	if (is_autosave)
 	{
 #ifdef JP
-msg_print("自動セーブ中");
+		msg_print("自動セーブ中");
 #else
 		msg_print("Autosaving the game...");
 #endif
@@ -5850,7 +5847,7 @@ msg_print("自動セーブ中");
 
 	/* Message */
 #ifdef JP
-prt("ゲームをセーブしています...", 0, 0);
+	prt("ゲームをセーブしています...", 0, 0);
 #else
 	prt("Saving game...", 0, 0);
 #endif
@@ -5861,7 +5858,7 @@ prt("ゲームをセーブしています...", 0, 0);
 
 	/* The player is not dead */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "(セーブ)");
+	(void)strcpy(p_ptr->died_from, "(セーブ)");
 #else
 	(void)strcpy(p_ptr->died_from, "(saved)");
 #endif
@@ -5874,7 +5871,7 @@ prt("ゲームをセーブしています...", 0, 0);
 	if (save_player())
 	{
 #ifdef JP
-prt("ゲームをセーブしています... 終了", 0, 0);
+		prt("ゲームをセーブしています... 終了", 0, 0);
 #else
 		prt("Saving game... done.", 0, 0);
 #endif
@@ -5885,7 +5882,7 @@ prt("ゲームをセーブしています... 終了", 0, 0);
 	else
 	{
 #ifdef JP
-prt("ゲームをセーブしています... 失敗！", 0, 0);
+		prt("ゲームをセーブしています... 失敗！", 0, 0);
 #else
 		prt("Saving game... failed!", 0, 0);
 #endif
@@ -5900,7 +5897,7 @@ prt("ゲームをセーブしています... 失敗！", 0, 0);
 
 	/* Note that the player is not dead */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "(元気に生きている)");
+	(void)strcpy(p_ptr->died_from, "(元気に生きている)");
 #else
 	(void)strcpy(p_ptr->died_from, "(alive and well)");
 #endif
@@ -5938,12 +5935,8 @@ long total_points(void)
 	if (!preserve_mode) mult += 10;
 	if (!smart_learn) mult -= 20;
 	if (smart_cheat) mult += 30;
-	if (ironman_shops) mult += 50;
-	if (ironman_small_levels) mult += 10;
-	if (ironman_empty_levels) mult += 20;
 	if (!powerup_home) mult += 50;
 	if (ironman_rooms) mult += 100;
-	if (ironman_nightmare) mult += 100;
 
 	if (mult < 5) mult = 5;
 
@@ -5966,8 +5959,6 @@ long total_points(void)
 	point = (point_h << 16) + (point_l);
 	if (p_ptr->arena_number < 99)
 		point += (arena_win * arena_win * (arena_win > 29 ? 1000 : 100));
-
-	if (ironman_forward) point *= 2;
 
 	if (easy_band) point = (0 - point);
 
@@ -6165,7 +6156,7 @@ static void print_tomb(void)
 		put_str(buf, 10, 11);
 
 #ifdef JP
-(void)sprintf(tmp, "レベル: %d", (int)p_ptr->lev);
+		(void)sprintf(tmp, "レベル: %d", (int)p_ptr->lev);
 #else
 		(void)sprintf(tmp, "Level: %d", (int)p_ptr->lev);
 #endif
@@ -6174,7 +6165,7 @@ static void print_tomb(void)
 		put_str(buf, 11, 11);
 
 #ifdef JP
-(void)sprintf(tmp, "経験値: %ld", (long)p_ptr->exp);
+		(void)sprintf(tmp, "経験値: %ld", (long)p_ptr->exp);
 #else
 		(void)sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
 #endif
@@ -6183,7 +6174,7 @@ static void print_tomb(void)
 		put_str(buf, 12, 11);
 
 #ifdef JP
-(void)sprintf(tmp, "所持金: %ld", (long)p_ptr->au_sum);
+		(void)sprintf(tmp, "所持金: %ld", (long)p_ptr->au_sum);
 #else
 		(void)sprintf(tmp, "AU: %ld", (long)p_ptr->au_sum);
 #endif
@@ -6290,7 +6281,7 @@ static void print_tomb(void)
 		put_str(buf, 17, 11);
 
 #ifdef JP
-msg_format("さようなら、%s!", player_name);
+		msg_format("さようなら、%s!", player_name);
 #else
 		msg_format("Goodbye, %s!", player_name);
 #endif
@@ -6354,8 +6345,8 @@ static void show_info(void)
 
 	/* Describe options */
 #ifdef JP
-prt("キャラクターの記録をファイルに書き出すことができます。", 21, 0);
-prt("リターンキーでキャラクターを見ます。ESCで中断します。", 22, 0);
+	prt("キャラクターの記録をファイルに書き出すことができます。", 21, 0);
+	prt("リターンキーでキャラクターを見ます。ESCで中断します。", 22, 0);
 #else
 	prt("You may now dump a character record to one or more files.", 21, 0);
 	prt("Then, hit RETURN to see the character, or ESC to abort.", 22, 0);
@@ -6369,7 +6360,7 @@ prt("リターンキーでキャラクターを見ます。ESCで中断します。", 22, 0);
 
 		/* Prompt */
 #ifdef JP
-put_str("ファイルネーム: ", 23, 0);
+		put_str("ファイルネーム: ", 23, 0);
 #else
 		put_str("Filename: ", 23, 0);
 #endif
@@ -6401,7 +6392,7 @@ put_str("ファイルネーム: ", 23, 0);
 
 	/* Prompt for inventory */
 #ifdef JP
-prt("何かキーを押すとさらに情報が続きます (ESCで中断): ", 23, 0);
+	prt("何かキーを押すとさらに情報が続きます (ESCで中断): ", 23, 0);
 #else
 	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
 #endif
@@ -6420,7 +6411,7 @@ prt("何かキーを押すとさらに情報が続きます (ESCで中断): ", 23, 0);
 		item_tester_full = TRUE;
 		(void)show_equip(0);
 #ifdef JP
-prt("装備していたアイテム: -続く-", 0, 0);
+		prt("装備していたアイテム: -続く-", 0, 0);
 #else
 		prt("You are using: -more-", 0, 0);
 #endif
@@ -6435,7 +6426,7 @@ prt("装備していたアイテム: -続く-", 0, 0);
 		item_tester_full = TRUE;
 		(void)show_inven(0);
 #ifdef JP
-prt("持っていたアイテム: -続く-", 0, 0);
+		prt("持っていたアイテム: -続く-", 0, 0);
 #else
 		prt("You are carrying: -more-", 0, 0);
 #endif
@@ -6477,7 +6468,7 @@ prt("持っていたアイテム: -続く-", 0, 0);
 
 				/* Caption */
 #ifdef JP
-prt(format("我が家に置いてあったアイテム ( %d ページ): -続く-", k+1), 0, 0);
+				prt(format("我が家に置いてあったアイテム ( %d ページ): -続く-", k+1), 0, 0);
 #else
 				prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
 #endif
@@ -6500,7 +6491,7 @@ static bool check_score(void)
 	if (highscore_fd < 0)
 	{
 #ifdef JP
-msg_print("スコア・ファイルが使用できません。");
+		msg_print("スコア・ファイルが使用できません。");
 #else
 		msg_print("Score file unavailable.");
 #endif
@@ -6514,7 +6505,7 @@ msg_print("スコア・ファイルが使用できません。");
 	if (p_ptr->noscore & 0x000F)
 	{
 #ifdef JP
-msg_print("ウィザード・モードではスコアが記録されません。");
+		msg_print("ウィザード・モードではスコアが記録されません。");
 #else
 		msg_print("Score not registered for wizards.");
 #endif
@@ -6529,7 +6520,7 @@ msg_print("ウィザード・モードではスコアが記録されません。");
 	if (p_ptr->noscore & 0x00F0)
 	{
 #ifdef JP
-msg_print("ボーグ・モードではスコアが記録されません。");
+		msg_print("ボーグ・モードではスコアが記録されません。");
 #else
 		msg_print("Score not registered for borgs.");
 #endif
@@ -6544,7 +6535,7 @@ msg_print("ボーグ・モードではスコアが記録されません。");
 	if (p_ptr->noscore & 0xFF00)
 	{
 #ifdef JP
-msg_print("詐欺をやった人はスコアが記録されません。");
+		msg_print("詐欺をやった人はスコアが記録されません。");
 #else
 		msg_print("Score not registered for cheaters.");
 #endif
@@ -6556,14 +6547,14 @@ msg_print("詐欺をやった人はスコアが記録されません。");
 
 	/* Interupted */
 #ifdef JP
-if (!p_ptr->total_winner && streq(p_ptr->died_from, "強制終了"))
+	if (!p_ptr->total_winner && streq(p_ptr->died_from, "強制終了"))
 #else
 	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
 #endif
 
 	{
 #ifdef JP
-msg_print("強制終了のためスコアが記録されません。");
+		msg_print("強制終了のためスコアが記録されません。");
 #else
 		msg_print("Score not registered due to interruption.");
 #endif
@@ -6581,7 +6572,7 @@ if (!p_ptr->total_winner && streq(p_ptr->died_from, "途中終了"))
 
 	{
 #ifdef JP
-msg_print("途中終了のためスコアが記録されません。");
+		msg_print("途中終了のためスコアが記録されません。");
 #else
 		msg_print("Score not registered due to quitting.");
 #endif
@@ -6687,7 +6678,7 @@ if (!save_player()) msg_print("セーブ失敗！");
 
 		/* Prompt for scores XXX XXX XXX */
 #ifdef JP
-prt("リターンキーか ESC キーを押して下さい。", 0, 40);
+		prt("リターンキーか ESC キーを押して下さい。", 0, 40);
 #else
 		prt("Press Return (or Escape).", 0, 40);
 #endif
@@ -6725,7 +6716,7 @@ void exit_game_panic(void)
 {
 	/* If nothing important has happened, just quit */
 #ifdef JP
-if (!character_generated || character_saved) quit("緊急事態");
+	if (!character_generated || character_saved) quit("緊急事態");
 #else
 	if (!character_generated || character_saved) quit("panic");
 #endif
@@ -6752,7 +6743,7 @@ if (!character_generated || character_saved) quit("緊急事態");
 
 	/* Indicate panic save */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "(緊急セーブ)");
+	(void)strcpy(p_ptr->died_from, "(緊急セーブ)");
 #else
 	(void)strcpy(p_ptr->died_from, "(panic save)");
 #endif
@@ -6760,7 +6751,7 @@ if (!character_generated || character_saved) quit("緊急事態");
 
 	/* Panic save, or get worried */
 #ifdef JP
-if (!save_player()) quit("緊急セーブ失敗！");
+	if (!save_player()) quit("緊急セーブ失敗！");
 #else
 	if (!save_player()) quit("panic save failed!");
 #endif
@@ -6768,7 +6759,7 @@ if (!save_player()) quit("緊急セーブ失敗！");
 
 	/* Successful panic save */
 #ifdef JP
-quit("緊急セーブ成功！");
+	quit("緊急セーブ成功！");
 #else
 	quit("panic save succeeded!");
 #endif
@@ -7067,7 +7058,7 @@ static void handle_signal_simple(int sig)
 	{
 		/* Mark the savefile */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "強制終了");
+		(void)strcpy(p_ptr->died_from, "強制終了");
 #else
 		(void)strcpy(p_ptr->died_from, "Abortion");
 #endif
@@ -7081,7 +7072,7 @@ static void handle_signal_simple(int sig)
 
 		/* Quit */
 #ifdef JP
-quit("強制終了");
+		quit("強制終了");
 #else
 		quit("interrupt");
 #endif
@@ -7093,7 +7084,7 @@ quit("強制終了");
 	{
 		/* Cause of "death" */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "強制終了中");
+		(void)strcpy(p_ptr->died_from, "強制終了中");
 #else
 		(void)strcpy(p_ptr->died_from, "Interrupting");
 #endif
@@ -7117,7 +7108,7 @@ quit("強制終了");
 
 		/* Quit */
 #ifdef JP
-quit("強制終了");
+		quit("強制終了");
 #else
 		quit("interrupt");
 #endif
@@ -7135,7 +7126,7 @@ quit("強制終了");
 
 		/* Display the cause */
 #ifdef JP
-Term_putstr(0, 0, -1, TERM_WHITE, "熟慮の上の自殺！");
+		Term_putstr(0, 0, -1, TERM_WHITE, "熟慮の上の自殺！");
 #else
 		Term_putstr(0, 0, -1, TERM_WHITE, "Contemplating suicide!");
 #endif
@@ -7193,7 +7184,7 @@ static void handle_signal_abort(int sig)
 
 	/* Message */
 #ifdef JP
-Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ...");
+	Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ...");
 #else
 	Term_putstr(45, hgt - 1, -1, TERM_RED, "Panic save...");
 #endif
@@ -7207,7 +7198,7 @@ Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ...");
 
 	/* Panic save */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "(緊急セーブ)");
+	(void)strcpy(p_ptr->died_from, "(緊急セーブ)");
 #else
 	(void)strcpy(p_ptr->died_from, "(panic save)");
 #endif
@@ -7220,7 +7211,7 @@ Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ...");
 	if (save_player())
 	{
 #ifdef JP
-Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ成功！");
+		Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ成功！");
 #else
 		Term_putstr(45, hgt - 1, -1, TERM_RED, "Panic save succeeded!");
 #endif
@@ -7231,7 +7222,7 @@ Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ成功！");
 	else
 	{
 #ifdef JP
-Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ失敗！");
+		Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ失敗！");
 #else
 		Term_putstr(45, hgt - 1, -1, TERM_RED, "Panic save failed!");
 #endif
@@ -7243,7 +7234,7 @@ Term_putstr(45, hgt - 1, -1, TERM_RED, "緊急セーブ失敗！");
 
 	/* Quit */
 #ifdef JP
-quit("ソフトのバグ");
+	quit("ソフトのバグ");
 #else
 	quit("software bug");
 #endif

@@ -183,7 +183,7 @@ static cptr r_info_flags2[] =
 	"SHAPECHANGER",
 	"ATTR_ANY",
 	"POWERFUL",
-	"ELDRITCH_HORROR",
+	"VAMPIRE",
 	"AURA_FIRE",
 	"AURA_ELEC",
 	"OPEN_DOOR",
@@ -1492,7 +1492,6 @@ errr parse_k_info(char *buf, header *head)
 	int i;
 
 	char *s, *t;
-	char *zz[16];
 
 	/* Current entry */
 	static object_kind *k_ptr = NULL;
@@ -1770,7 +1769,6 @@ errr parse_a_info(char *buf, header *head)
 	int i;
 
 	char *s, *t;
-	char *zz[16];
 
 	/* Current entry */
 	static artifact_type *a_ptr = NULL;
@@ -2001,7 +1999,6 @@ errr parse_e_info(char *buf, header *head)
 	int i;
 
 	char *s, *t;
-	char *zz[16];
 
 	/* Current entry */
 	static ego_item_type *e_ptr = NULL;
@@ -3411,7 +3408,7 @@ static errr parse_line_building(char *buf)
 		/* Building Action */
 		case 'A':
 		{
-			if (tokenize(s + 2, 8, zz, 0) >= 7)
+			if (tokenize(s + 2, 7, zz, 0) >= 6)
 			{
 				/* Index of the action */
 				int action_index = atoi(zz[0]);
@@ -3419,20 +3416,17 @@ static errr parse_line_building(char *buf)
 				/* Name of the action */
 				strcpy(building[index].act_names[action_index], zz[1]);
 
-				/* Cost of the action for members */
-				building[index].member_costs[action_index] = atoi(zz[2]);
-
-				/* Cost of the action for non-members */
-				building[index].other_costs[action_index] = atoi(zz[3]);
+				/* Cost of the action */
+				building[index].costs[action_index] = atoi(zz[2]);
 
 				/* Letter assigned to the action */
-				building[index].letters[action_index] = zz[4][0];
+				building[index].letters[action_index] = zz[3][0];
 
 				/* Action code */
-				building[index].actions[action_index] = atoi(zz[5]);
+				building[index].actions[action_index] = atoi(zz[4]);
 
 				/* Action restriction */
-				building[index].action_restr[action_index] = atoi(zz[6]);
+				building[index].action_restr[action_index] = atoi(zz[5]);
 
 				break;
 			}
@@ -3440,6 +3434,7 @@ static errr parse_line_building(char *buf)
 			return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
 		}
 
+#if 0
 		/* Building Classes */
 		case 'C':
 		{
@@ -3487,6 +3482,7 @@ static errr parse_line_building(char *buf)
 
 			return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
 		}
+#endif
 
 		case 'Z':
 		{
@@ -3687,6 +3683,14 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 				/* Apply magic (no messages, no artifacts) */
 				apply_magic(o_ptr, base_level, AMF_GOOD);
+
+				/* Paranoia -- proper item can be an artifact */
+				if ((random & RANDOM_ARTIFACT) &&
+				    (o_ptr->tval >= TV_BULLET) &&
+				    (o_ptr->tval <= TV_RING))
+				{
+					create_artifact(o_ptr, FALSE);
+				}
 
 				(void)drop_near(o_ptr, -1, *y, *x);
 			}
@@ -4286,8 +4290,6 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			{
 				if (astral_mode)
 					sprintf(tmp, "NONE");
-				else if (ironman_forward)
-					sprintf(tmp, "LITE");
 				else
 					sprintf(tmp, "NORMAL");
 				v = tmp;
@@ -4395,7 +4397,7 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
 		/* Oops */
 		msg_format("Error %d (%s) at line %d of '%s'.", err, oops, num, name);
 #ifdef JP
-msg_format("'%s'を解析中。", buf);
+		msg_format("'%s'を解析中。", buf);
 #else
 		msg_format("Parsing '%s'.", buf);
 #endif

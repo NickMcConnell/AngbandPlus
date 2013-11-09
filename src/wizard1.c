@@ -1936,6 +1936,9 @@ static void spoil_out(cptr str)
  */
 static void roff_func(byte attr, cptr str)
 {
+	/* Unused */
+	(void)attr;
+
 	spoil_out(str);
 }
 
@@ -1947,7 +1950,6 @@ static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
 	int i, l, n=0;
-	bool breath, magic;
 	u32b flags1;
 
 	u16b why = 2;
@@ -2146,7 +2148,7 @@ void do_cmd_spoilers(void)
 
 		/* Prompt */
 #ifdef JP
-prt("コマンド:", 18, 0);
+		prt("コマンド:", 18, 0);
 #else
 		prt("Command: ", 12, 0);
 #endif

@@ -107,7 +107,7 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 	if (!okay) return (FALSE);
 	if (!can_use_realm(use_realm)) return FALSE;
 	if ((p_ptr->pclass == CLASS_DRAGOON) && ((use_realm) == REALM_WITCH) && (sval > 0)) return FALSE;
-	if ((p_ptr->pclass == CLASS_WITCH) && ((use_realm) == REALM_DEATH) && (sval > 0)) return FALSE;
+	if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_ARCHMAGE)) && ((use_realm) == REALM_DEATH) && (sval > 0)) return FALSE;
 
 	/* Assume cancelled */
 	*sn = (-1);
@@ -322,7 +322,7 @@ static bool item_tester_learn_spell(object_type *o_ptr)
 	if ((o_ptr->tval < TV_MAGERY_BOOK) || (o_ptr->tval > (TV_MAGERY_BOOK + MAX_REALM - 1))) return (FALSE);
 	if ((p_ptr->pclass == CLASS_DRAGOON) && (o_ptr->tval == TV_WITCH_BOOK))
 		return (o_ptr->sval == 0);
-	if ((p_ptr->pclass == CLASS_WITCH) && (o_ptr->tval == TV_DEATH_BOOK))
+	if (((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_ARCHMAGE)) && (o_ptr->tval == TV_DEATH_BOOK))
 		return (o_ptr->sval == 0);
 	if (can_use_realm(tval2realm(o_ptr->tval))) return (TRUE);
 	return (FALSE);
@@ -354,7 +354,7 @@ void do_cmd_browse(void)
 	if (!realm_choices[p_ptr->pclass])
 	{
 #ifdef JP
-msg_print("ËÜ¤òÆÉ¤à¤³¤È¤¬¤Ç¤­¤Ê¤¤¡ª");
+		msg_print("ËÜ¤òÆÉ¤à¤³¤È¤¬¤Ç¤­¤Ê¤¤¡ª");
 #else
 		msg_print("You cannot read books!");
 #endif
@@ -367,13 +367,13 @@ msg_print("ËÜ¤òÆÉ¤à¤³¤È¤¬¤Ç¤­¤Ê¤¤¡ª");
 
 	/* Get an item */
 #ifdef JP
-q = "¤É¤ÎËÜ¤òÆÉ¤ß¤Þ¤¹¤«? ";
+	q = "¤É¤ÎËÜ¤òÆÉ¤ß¤Þ¤¹¤«? ";
 #else
 	q = "Browse which book? ";
 #endif
 
 #ifdef JP
-s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
+	s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 #else
 	s = "You have no books that you can read.";
 #endif
@@ -517,7 +517,7 @@ static bool cast_magery_spell(int spell)
 
 		fire_ball(GF_MISSILE, dir,
 			  (damroll(3, 5) + clev +
-			   (clev / (((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH)) ? 2 : 4))),
+			   (clev / (((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) ||(p_ptr->pclass == CLASS_ARCHMAGE)) ? 2 : 4))),
 			   (clev < 30) ? 2 : 3, FALSE);
 			/* Shouldn't actually use GF_MANA, as it will destroy all
 			 * items on the floor */
@@ -574,7 +574,7 @@ static bool cast_magery_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 #ifdef JP
-msg_print("¥í¥±¥Ã¥ÈÈ¯¼Í¡ª");
+		msg_print("¥í¥±¥Ã¥ÈÈ¯¼Í¡ª");
 #else
 		msg_print("You launch a rocket!");
 #endif
@@ -599,7 +599,7 @@ msg_print("¥í¥±¥Ã¥ÈÈ¯¼Í¡ª");
 			if (summon_specific((pet ? -1 : 0), py, px, (clev * 3) / 2, SUMMON_DEMON, mode))
 			{
 #ifdef JP
-msg_print("Î²²«¤Î°­½­¤¬½¼Ëþ¤·¤¿¡£");
+				msg_print("Î²²«¤Î°­½­¤¬½¼Ëþ¤·¤¿¡£");
 #else
 				msg_print("The area fills with a stench of sulphur and brimstone.");
 #endif
@@ -607,14 +607,14 @@ msg_print("Î²²«¤Î°­½­¤¬½¼Ëþ¤·¤¿¡£");
 
 				if (pet)
 #ifdef JP
-msg_print("¡Ö¤´ÍÑ¤Ç¤´¤¶¤¤¤Þ¤¹¤«¡¢¤´¼ç¿ÍÍÍ¡×");
+					msg_print("¡Ö¤´ÍÑ¤Ç¤´¤¶¤¤¤Þ¤¹¤«¡¢¤´¼ç¿ÍÍÍ¡×");
 #else
 					msg_print("'What is thy bidding... Master?'");
 #endif
 
 				else
 #ifdef JP
-msg_print("¡ÖÈÜ¤·¤­¼Ô¤è¡¢²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª ¤ªÁ°¤Îº²¤òÄº¤¯¤¾¡ª¡×");
+					msg_print("¡ÖÈÜ¤·¤­¼Ô¤è¡¢²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª ¤ªÁ°¤Îº²¤òÄº¤¯¤¾¡ª¡×");
 #else
 					msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
 #endif
@@ -1205,14 +1205,14 @@ static bool cast_holy_spell(int spell)
 			{
 				if (pet)
 #ifdef JP
-msg_print("¡Ö¤´ÍÑ¤Ç¤´¤¶¤¤¤Þ¤¹¤«¡¢¤´¼ç¿ÍÍÍ¡×");
+					msg_print("¡Ö¤´ÍÑ¤Ç¤´¤¶¤¤¤Þ¤¹¤«¡¢¤´¼ç¿ÍÍÍ¡×");
 #else
 					msg_print("'What is thy bidding... Master?'");
 #endif
 
 				else
 #ifdef JP
-msg_print("¡Ö²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª °­¹Ô¼Ô¤è¡¢²ù¤¤²þ¤á¤è¡ª¡×");
+					msg_print("¡Ö²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª °­¹Ô¼Ô¤è¡¢²ù¤¤²þ¤á¤è¡ª¡×");
 #else
 					msg_print("Mortal! Repent of thy impiousness.");
 #endif
@@ -1313,7 +1313,7 @@ static bool cast_death_spell(int spell)
 			if (summon_specific((pet ? -1 : 0), py, px, (clev * 3) / 2, type, mode))
 			{
 #ifdef JP
-msg_print("Îä¤¿¤¤É÷¤¬¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¿á¤­»Ï¤á¤¿¡£¤½¤ì¤ÏÉåÇÔ½­¤ò±¿¤ó¤Ç¤¤¤ë...");
+				msg_print("Îä¤¿¤¤É÷¤¬¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¿á¤­»Ï¤á¤¿¡£¤½¤ì¤ÏÉåÇÔ½­¤ò±¿¤ó¤Ç¤¤¤ë...");
 #else
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 #endif
@@ -1321,14 +1321,14 @@ msg_print("Îä¤¿¤¤É÷¤¬¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¿á¤­»Ï¤á¤¿¡£¤½¤ì¤ÏÉåÇÔ½­¤ò±¿¤ó¤Ç¤¤¤ë...");
 
 				if (pet)
 #ifdef JP
-msg_print("¸Å¤¨¤Î»à¤»¤ë¼Ô¶¦¤¬¤¢¤Ê¤¿¤Ë»Å¤¨¤ë¤¿¤áÅÚ¤«¤éá´¤Ã¤¿¡ª");
+					msg_print("¸Å¤¨¤Î»à¤»¤ë¼Ô¶¦¤¬¤¢¤Ê¤¿¤Ë»Å¤¨¤ë¤¿¤áÅÚ¤«¤éá´¤Ã¤¿¡ª");
 #else
 					msg_print("Ancient, long-dead forms arise from the ground to serve you!");
 #endif
 
 				else
 #ifdef JP
-msg_print("»à¼Ô¤¬á´¤Ã¤¿¡£Ì²¤ê¤òË¸¤²¤ë¤¢¤Ê¤¿¤òÈ³¤¹¤ë¤¿¤á¤Ë¡ª");
+					msg_print("»à¼Ô¤¬á´¤Ã¤¿¡£Ì²¤ê¤òË¸¤²¤ë¤¢¤Ê¤¿¤òÈ³¤¹¤ë¤¿¤á¤Ë¡ª");
 #else
 					msg_print("'The dead arise... to punish you for disturbing them!'");
 #endif
@@ -1486,6 +1486,9 @@ static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 	monster_type *m_ptr2 = &m_list[w2];
 	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
 	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
+
+	/* Unused */
+	(void)v;
 
 	if (m_ptr1->nickname && !m_ptr2->nickname) return TRUE;
 	if (m_ptr2->nickname && !m_ptr1->nickname) return FALSE;
@@ -1906,6 +1909,9 @@ static bool cast_witch_spell(int spell)
 
 			switch (get_cur_pelem())
 			{
+			case NO_ELEM:
+				pure_elem_typ = GF_MANA;
+				break;
 			case ELEM_FIRE:
 				pure_elem_typ = GF_PURE_FIRE;
 				break;
@@ -2525,7 +2531,7 @@ void do_cmd_cast(void)
 	if (!realm_choices[p_ptr->pclass])
 	{
 #ifdef JP
-msg_print("¼öÊ¸¤ò¾§¤¨¤é¤ì¤Ê¤¤¡ª");
+		msg_print("¼öÊ¸¤ò¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 #else
 		msg_print("You cannot cast spells!");
 #endif
@@ -2537,7 +2543,7 @@ msg_print("¼öÊ¸¤ò¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 	if (p_ptr->blind || no_lite())
 	{
 #ifdef JP
-msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¤¡ª");
+		msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¤¡ª");
 #else
 		msg_print("You cannot see!");
 #endif
@@ -2549,7 +2555,7 @@ msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¤¡ª");
 	if (p_ptr->confused)
 	{
 #ifdef JP
-msg_print("º®Íð¤·¤Æ¤¤¤Æ¾§¤¨¤é¤ì¤Ê¤¤¡ª");
+		msg_print("º®Íð¤·¤Æ¤¤¤Æ¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 #else
 		msg_print("You are too confused!");
 #endif
@@ -2564,13 +2570,13 @@ msg_print("º®Íð¤·¤Æ¤¤¤Æ¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 
 	/* Get an item */
 #ifdef JP
-q = "¤É¤Î¼öÊ¸½ñ¤ò»È¤¤¤Þ¤¹¤«? ";
+	q = "¤É¤Î¼öÊ¸½ñ¤ò»È¤¤¤Þ¤¹¤«? ";
 #else
 	q = "Use which book? ";
 #endif
 
 #ifdef JP
-s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
+	s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 #else
 	s = "You have no spell books!";
 #endif
@@ -2639,7 +2645,7 @@ s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 
 		/* Warning */
 #ifdef JP
-msg_format("¤½¤Î%s¤ò%s¤Î¤Ë½½Ê¬¤Ê¥Þ¥¸¥Ã¥¯¥Ý¥¤¥ó¥È¤¬¤Ê¤¤¡£",prayer,
+		msg_format("¤½¤Î%s¤ò%s¤Î¤Ë½½Ê¬¤Ê¥Þ¥¸¥Ã¥¯¥Ý¥¤¥ó¥È¤¬¤Ê¤¤¡£",prayer,
 ((mp_ptr->spell_book == TV_HOLY_BOOK) ? "±Ó¾§¤¹¤ë" : "¾§¤¨¤ë"));
 #else
 		msg_format("You do not have enough mana to %s this %s.",
@@ -2669,7 +2675,7 @@ msg_format("¤½¤Î%s¤ò%s¤Î¤Ë½½Ê¬¤Ê¥Þ¥¸¥Ã¥¯¥Ý¥¤¥ó¥È¤¬¤Ê¤¤¡£",prayer,
 		if (flush_failure) flush();
 
 #ifdef JP
-msg_format("%s¤ò¤¦¤Þ¤¯¾§¤¨¤é¤ì¤Ê¤«¤Ã¤¿¡ª", prayer);
+		msg_format("%s¤ò¤¦¤Þ¤¯¾§¤¨¤é¤ì¤Ê¤«¤Ã¤¿¡ª", prayer);
 #else
 		msg_format("You failed to get the %s off!", prayer);
 #endif
@@ -2680,7 +2686,280 @@ msg_format("%s¤ò¤¦¤Þ¤¯¾§¤¨¤é¤ì¤Ê¤«¤Ã¤¿¡ª", prayer);
 		{
 			if ((sval == 1) && one_in_(2))
 			{
-				sanity_blast(0, TRUE);
+				bool happened = FALSE;
+				int power = 100;
+
+				if (!character_dungeon) return;
+
+				if (one_in_(2))
+				{
+#ifdef JP
+					msg_print("°Å¹õ¤ÎÎÏ¤¬Àº¿À¤ò¿ª¤ó¤À¡ª");
+#else
+					msg_print("Your sanity is shaken by reading the Necronomicon!");
+#endif
+
+					if (!saving_throw(p_ptr->skill_sav - power)) /* Mind blast */
+					{
+						if (!p_ptr->resist_conf)
+						{
+							(void)set_confused(p_ptr->confused + randint0(4) + 4);
+						}
+						if (!p_ptr->resist_chaos && one_in_(3))
+						{
+							(void)set_image(p_ptr->image + randint0(250) + 150);
+						}
+						return;
+					}
+
+					if (!saving_throw(p_ptr->skill_sav - power)) /* Lose int & wis */
+					{
+						do_dec_stat(A_INT);
+						do_dec_stat(A_WIS);
+						return;
+					}
+
+					if (!saving_throw(p_ptr->skill_sav - power)) /* Brain smash */
+					{
+						if (!p_ptr->resist_conf)
+						{
+							(void)set_confused(p_ptr->confused + randint0(4) + 4);
+						}
+						if (!p_ptr->free_act)
+						{
+							(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+						}
+						while (randint0(100) > p_ptr->skill_sav)
+							(void)do_dec_stat(A_INT);
+						while (randint0(100) > p_ptr->skill_sav)
+							(void)do_dec_stat(A_WIS);
+						if (!p_ptr->resist_chaos)
+						{
+							(void)set_image(p_ptr->image + randint0(250) + 150);
+						}
+						return;
+					}
+
+					if (!saving_throw(p_ptr->skill_sav - power)) /* Amnesia */
+					{
+
+						if (lose_all_info())
+#ifdef JP
+							msg_print("¤¢¤Þ¤ê¤Î¶²ÉÝ¤ËÁ´¤Æ¤Î¤³¤È¤òËº¤ì¤Æ¤·¤Þ¤Ã¤¿¡ª");
+#else
+							msg_print("You forget everything in your utmost terror!");
+#endif
+
+						return;
+					}
+
+					if (saving_throw(p_ptr->skill_sav - power))
+					{
+						return;
+					}
+
+					/* Else gain permanent insanity */
+					if ((p_ptr->muta3 & MUT3_MORONIC) && /*(p_ptr->muta2 & MUT2_BERS_RAGE) &&*/
+						((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
+						((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+					{
+						/* The poor bastard already has all possible insanities! */
+						return;
+					}
+
+					while (!happened)
+					{
+						switch (randint1(13))
+						{
+							case 1:
+								if (!(p_ptr->muta3 & MUT3_MORONIC) && one_in_(5))
+								{
+									if ((p_ptr->stat_use[A_INT] < 4) && (p_ptr->stat_use[A_WIS] < 4))
+									{
+#ifdef JP
+										msg_print("¤¢¤Ê¤¿¤Ï´°àú¤ÊÇÏ¼¯¤Ë¤Ê¤Ã¤¿¤è¤¦¤Êµ¤¤¬¤·¤¿¡£¤·¤«¤·¤½¤ì¤Ï¸µ¡¹¤À¤Ã¤¿¡£");
+#else
+										msg_print("You turn into an utter moron!");
+#endif
+									}
+									else
+									{
+#ifdef JP
+										msg_print("¤¢¤Ê¤¿¤Ï´°àú¤ÊÇÏ¼¯¤Ë¤Ê¤Ã¤¿¡ª");
+#else
+										msg_print("You turn into an utter moron!");
+#endif
+									}
+
+									if (p_ptr->muta3 & MUT3_HYPER_INT)
+									{
+#ifdef JP
+										msg_print("¤¢¤Ê¤¿¤ÎÇ¾¤ÏÀ¸ÂÎ¥³¥ó¥Ô¥å¡¼¥¿¤Ç¤Ï¤Ê¤¯¤Ê¤Ã¤¿¡£");
+#else
+										msg_print("Your brain is no longer a living computer.");
+#endif
+
+										p_ptr->muta3 &= ~(MUT3_HYPER_INT);
+									}
+									p_ptr->muta3 |= MUT3_MORONIC;
+									happened = TRUE;
+								}
+								break;
+							case 2:
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+							case 7:
+								if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
+								{
+#ifdef JP
+									msg_print("¤¢¤Ê¤¿¤Ï¥Ñ¥é¥Î¥¤¥¢¤Ë¤Ê¤Ã¤¿¡ª");
+#else
+									msg_print("You become paranoid!");
+#endif
+
+
+									/* Duh, the following should never happen, but anyway... */
+									if (p_ptr->muta3 & MUT3_FEARLESS)
+									{
+#ifdef JP
+										msg_print("¤¢¤Ê¤¿¤Ï¤â¤¦¶²¤ìÃÎ¤é¤º¤Ç¤Ï¤Ê¤¯¤Ê¤Ã¤¿¡£");
+#else
+										msg_print("You are no longer fearless.");
+#endif
+
+										p_ptr->muta3 &= ~(MUT3_FEARLESS);
+									}
+
+									p_ptr->muta2 |= MUT2_COWARDICE;
+									happened = TRUE;
+								}
+								break;
+							default:
+								if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
+								{
+#ifdef JP
+									msg_print("¸¸³Ð¤ò¤Ò¤­µ¯¤³¤¹Àº¿ÀºøÍð¤Ë´Ù¤Ã¤¿¡ª");
+#else
+									msg_print("You are afflicted by a hallucinatory insanity!");
+#endif
+
+									p_ptr->muta2 |= MUT2_HALLU;
+									happened = TRUE;
+								}
+								break;
+						}
+					}
+
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+				else
+				{
+#ifdef JP
+					msg_print("°Å¹õ¤ÎÎÏ¤¬ÆùÂÎ¤ò¿ª¤ó¤À¡ª");
+#else
+					msg_print("Your sanity is shaken by reading the Necronomicon!");
+#endif
+
+					if (!saving_throw(p_ptr->skill_sav - power)) /* Mind blast */
+					{
+						if (!one_in_(7))
+						{
+							(void)set_cut(p_ptr->cut + randint1(power));
+						}
+						if (!one_in_(7))
+						{
+							(void)set_stun(p_ptr->stun + randint1(power));
+						}
+						return;
+					}
+
+					if (!saving_throw(p_ptr->skill_sav - power)) /* Lose int & wis */
+					{
+						do_dec_stat(A_STR);
+						do_dec_stat(A_DEX);
+						do_dec_stat(A_CON);
+						return;
+					}
+
+					if (!saving_throw(p_ptr->skill_sav - power))
+					{
+						if (!p_ptr->free_act)
+						{
+							(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+						}
+						while (randint0(100) > p_ptr->skill_sav)
+							(void)do_dec_stat(A_STR);
+						while (randint0(100) > p_ptr->skill_sav)
+							(void)do_dec_stat(A_DEX);
+						while (randint0(100) > p_ptr->skill_sav)
+							(void)do_dec_stat(A_CON);
+						return;
+					}
+
+					if (saving_throw(p_ptr->skill_sav - power))
+					{
+						return;
+					}
+
+					/* Else gain permanent insanity */
+					if ((p_ptr->muta3 & MUT3_MORONIC) && /*(p_ptr->muta2 & MUT2_BERS_RAGE) &&*/
+						((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
+						((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+					{
+						/* The poor bastard already has all possible insanities! */
+						return;
+					}
+
+					while (!happened)
+					{
+						switch (randint1(3))
+						{
+							case 1:
+								if (!(p_ptr->muta2 & MUT2_WASTING))
+								{
+#ifdef JP
+									msg_print("¤¢¤Ê¤¿¤ÎÆùÂÎ¤Ï¤ª¤¾¤Þ¤·¤¤¿ê¼åÉÂ¤ËËÁ¤µ¤ì¤¿¡ª");
+#else
+									msg_print("You suddenly contract a horrible wasting disease!");
+#endif
+									p_ptr->muta2 |= MUT2_WASTING;
+									happened = TRUE;
+								}
+								break;
+							case 2:
+								if (!(p_ptr->muta3 & MUT3_FLESH_ROT))
+								{
+#ifdef JP
+									msg_print("¤¢¤Ê¤¿¤ÎÆùÂÎ¤ÏÉåÇÔ¤¹¤ëÉÂµ¤¤Ë¿¯¤µ¤ì¤¿¡ª");
+#else
+									msg_print("Your flesh is afflicted by a rotting disease!");
+#endif
+									p_ptr->muta3 |= MUT3_FLESH_ROT;
+									happened = TRUE;
+								}
+								break;
+							default:
+								if (!(p_ptr->muta3 & MUT3_ALBINO))
+								{
+#ifdef JP
+									msg_print("¥¢¥ë¥Ó¥Î¤Ë¤Ê¤Ã¤¿¡ª¼å¤¯¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë...");
+#else
+									msg_print("You turn into an albino! You feel frail...");
+#endif
+
+									p_ptr->muta3 |= MUT3_ALBINO;
+									happened = TRUE;
+								}
+								break;
+						}
+					}
+
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
 			}
 			else
 			{
@@ -2769,7 +3048,7 @@ msg_format("%s¤ò¤¦¤Þ¤¯¾§¤¨¤é¤ì¤Ê¤«¤Ã¤¿¡ª", prayer);
 	/* Take a turn */
 	energy_use = 115 - skill_lev_var[(p_ptr->skill_exp[SKILL_SPELL_CAST]/10)] * 5;
 	if (p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 49) energy_use -= 50;
-	else if ((p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 29) || (p_ptr->cexp_info[CLASS_SIRENE].clev > 44) || (p_ptr->cexp_info[CLASS_WIZARD].clev > 44)) energy_use -= 25;
+	else if ((p_ptr->cexp_info[CLASS_HIGHWITCH].clev > 29) || (p_ptr->cexp_info[CLASS_SIRENE].clev > 44) || (p_ptr->cexp_info[CLASS_WIZARD].clev > 44) || (p_ptr->cexp_info[CLASS_ARCHMAGE].clev > 44)) energy_use -= 25;
 
 	/* Sufficient mana */
 	if (use_mana <= p_ptr->csp)
@@ -2797,7 +3076,7 @@ msg_format("%s¤ò¤¦¤Þ¤¯¾§¤¨¤é¤ì¤Ê¤«¤Ã¤¿¡ª", prayer);
 
 		/* Message */
 #ifdef JP
-msg_print("Àº¿À¤ò½¸Ãæ¤·¤¹¤®¤Æµ¤¤ò¼º¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
+		msg_print("Àº¿À¤ò½¸Ãæ¤·¤¹¤®¤Æµ¤¤ò¼º¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 #else
 		msg_print("You faint from the effort!");
 #endif
@@ -2813,7 +3092,7 @@ msg_print("Àº¿À¤ò½¸Ãæ¤·¤¹¤®¤Æµ¤¤ò¼º¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 
 			/* Message */
 #ifdef JP
-msg_print("ÂÎ¤ò°­¤¯¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
+			msg_print("ÂÎ¤ò°­¤¯¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
 #else
 			msg_print("You have damaged your health!");
 #endif
@@ -2847,6 +3126,7 @@ void do_cmd_pray(void)
 	{
 	case ALIGN_GNE_GOOD:
 		if (!prace_is_(RACE_HUMAN)) break;
+		if (get_cur_pelem() == NO_ELEM) break;
 		if (cp_ptr->c_flags & PCF_REINCARNATE) break;
 
 		switch (randint1(100))
@@ -2933,6 +3213,9 @@ static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
 	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
 	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
 
+	/* Unused */
+	(void)v;
+
 	if (w1 == p_ptr->riding) return TRUE;
 	if (w2 == p_ptr->riding) return FALSE;
 
@@ -2977,7 +3260,19 @@ int calculate_upkeep(void)
 			total_friends++;
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				if (((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) || ((p_ptr->cexp_info[CLASS_BEASTTAMER].clev > 49) || (p_ptr->cexp_info[CLASS_DRAGONTAMER].clev > 49)))
+				if (p_ptr->pclass == CLASS_LORD)
+				{
+					temp_rlev = r_ptr->level;
+				}
+				else if (p_ptr->pclass == CLASS_GENERAL)
+				{
+					if ((p_ptr->riding == m_idx) || !have_a_unique)
+						temp_rlev = (r_ptr->level+5)*2;
+					else
+						temp_rlev = (r_ptr->level+5)*7/2;
+					have_a_unique = TRUE;
+				}
+				else if (((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) || ((p_ptr->cexp_info[CLASS_BEASTTAMER].clev > 49) || (p_ptr->cexp_info[CLASS_DRAGONTAMER].clev > 49)))
 				{
 					if (p_ptr->riding == m_idx)
 						temp_rlev = (r_ptr->level+5)*2;
@@ -2992,6 +3287,8 @@ int calculate_upkeep(void)
 			}
 			else
 				temp_rlev = r_ptr->level;
+
+			if (((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_VAMPIRE)) && (r_ptr->flags3 & RF3_UNDEAD)) temp_rlev /= 2;
 
 			if (r_ptr->flags7 & RF7_EGG_ONLY) temp_rlev /= 3;
 			total_friend_levels += temp_rlev;
@@ -3182,13 +3479,18 @@ void do_cmd_pet_dismiss(void)
 bool rakuba(int dam, bool force)
 {
 	int i, y, x, oy, ox;
-	int sn = 0, sy = 0, sx = 0;
+	int sn = 0, sy = 0, sx = 0, riding_level = 0;
 	char m_name[80];
 	monster_type *m_ptr = &m_list[p_ptr->riding];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	if (!p_ptr->riding) return FALSE;
 	if (p_ptr->wild_mode) return FALSE;
+
+	if (p_ptr->psex == SEX_MALE) riding_level = p_ptr->cexp_info[CLASS_BEASTTAMER].clev + p_ptr->cexp_info[CLASS_GENERAL].clev;
+	else riding_level = p_ptr->cexp_info[CLASS_DRAGONTAMER].clev + p_ptr->cexp_info[CLASS_FREYA].clev;
+
+	if ((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) riding_level += 15;
 
 	if (dam >= 0 || force)
 	{
@@ -3198,7 +3500,7 @@ bool rakuba(int dam, bool force)
 			if (p_ptr->riding_ryoute) level += 20;
 			if (randint0(dam/2 + level*2) < ((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)/30+10))
 			{
-				if ((!p_ptr->riding_ryoute) || !one_in_(p_ptr->cexp_info[p_ptr->psex == SEX_MALE ? CLASS_BEASTTAMER : CLASS_DRAGONTAMER].clev * (p_ptr->riding_ryoute ? 2 : 3)+30))
+				if ((!p_ptr->riding_ryoute) || !one_in_(riding_level * (p_ptr->riding_ryoute ? 2 : 3)+30))
 				{
 					return FALSE;
 				}
@@ -3234,7 +3536,7 @@ bool rakuba(int dam, bool force)
 		{
 			monster_desc(m_name, m_ptr, 0);
 #ifdef JP
-msg_format("%s¤«¤é¿¶¤êÍî¤È¤µ¤ì¤½¤¦¤Ë¤Ê¤Ã¤Æ¡¢ÊÉ¤Ë¤Ö¤Ä¤«¤Ã¤¿¡£",m_name);
+			msg_format("%s¤«¤é¿¶¤êÍî¤È¤µ¤ì¤½¤¦¤Ë¤Ê¤Ã¤Æ¡¢ÊÉ¤Ë¤Ö¤Ä¤«¤Ã¤¿¡£",m_name);
 			take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "ÊÉ¤Ø¤Î¾×ÆÍ");
 #else
 			msg_format("You have nearly fallen from %s, but bumped into wall.",m_name);
@@ -3326,7 +3628,7 @@ bool do_riding(bool force)
 		if (!player_can_enter(c_ptr->feat) || c_ptr->m_idx)
 		{
 #ifdef JP
-msg_print("¤½¤Á¤é¤Ë¤Ï¹ß¤ê¤é¤ì¤Þ¤»¤ó¡£");
+			msg_print("¤½¤Á¤é¤Ë¤Ï¹ß¤ê¤é¤ì¤Þ¤»¤ó¡£");
 #else
 			msg_print("You cannot go to that direction.");
 #endif
@@ -3341,7 +3643,7 @@ msg_print("¤½¤Á¤é¤Ë¤Ï¹ß¤ê¤é¤ì¤Þ¤»¤ó¡£");
 		if (p_ptr->confused)
 		{
 #ifdef JP
-msg_print("º®Íð¤·¤Æ¤¤¤Æ¾è¤ì¤Ê¤¤¡ª");
+			msg_print("º®Íð¤·¤Æ¤¤¤Æ¾è¤ì¤Ê¤¤¡ª");
 #else
 			msg_print("You are too confused!");
 #endif
@@ -3350,7 +3652,7 @@ msg_print("º®Íð¤·¤Æ¤¤¤Æ¾è¤ì¤Ê¤¤¡ª");
 		if (!(c_ptr->m_idx))
 		{
 #ifdef JP
-msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
+			msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 #else
 			msg_print("Here is no pet.");
 #endif
@@ -3363,7 +3665,7 @@ msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 		if (!is_pet(m_ptr) && !force)
 		{
 #ifdef JP
-msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ï¥Ú¥Ã¥È¤Ç¤Ï¤¢¤ê¤Þ¤»¤ó¡£");
+			msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ï¥Ú¥Ã¥È¤Ç¤Ï¤¢¤ê¤Þ¤»¤ó¡£");
 #else
 			msg_print("That monster is no a pet.");
 #endif
@@ -3373,7 +3675,7 @@ msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ï¥Ú¥Ã¥È¤Ç¤Ï¤¢¤ê¤Þ¤»¤ó¡£");
 		if (!(r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
 		{
 #ifdef JP
-msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ë¤Ï¾è¤ì¤Ê¤µ¤½¤¦¤À¡£");
+			msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ë¤Ï¾è¤ì¤Ê¤µ¤½¤¦¤À¡£");
 #else
 			msg_print("This monster doesn't seem suitable for riding.");
 #endif
@@ -3383,7 +3685,7 @@ msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ë¤Ï¾è¤ì¤Ê¤µ¤½¤¦¤À¡£");
 		if (!(p_ptr->pass_wall) && (c_ptr->feat >= FEAT_RUBBLE) && (c_ptr->feat <= FEAT_PERM_SOLID))
 		{
 #ifdef JP
-msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤ÏÊÉ¤ÎÃæ¤Ë¤¤¤ë¡£");
+			msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤ÏÊÉ¤ÎÃæ¤Ë¤¤¤ë¡£");
 #else
 			msg_print("This monster is in the wall.");
 #endif
@@ -3393,7 +3695,7 @@ msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤ÏÊÉ¤ÎÃæ¤Ë¤¤¤ë¡£");
 		if (!m_ptr->ml)
 		{
 #ifdef JP
-msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
+			msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 #else
 			msg_print("Here is no monster.");
 #endif
@@ -3403,7 +3705,7 @@ msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 		if (r_info[m_ptr->r_idx].level > randint1(((skill_lev_var[p_ptr->skill_exp[SKILL_RIDING]/10] * 1000)/50 + p_ptr->lev/2 +20)))
 		{
 #ifdef JP
-msg_print("¤¦¤Þ¤¯¾è¤ì¤Ê¤«¤Ã¤¿¡£");
+			msg_print("¤¦¤Þ¤¯¾è¤ì¤Ê¤«¤Ã¤¿¡£");
 #else
 			msg_print("You failed to ride.");
 #endif
@@ -3418,7 +3720,7 @@ msg_print("¤¦¤Þ¤¯¾è¤ì¤Ê¤«¤Ã¤¿¡£");
 			monster_desc(m_name, m_ptr, 0);
 			m_ptr->csleep = 0;
 #ifdef JP
-msg_format("%s¤òµ¯¤³¤·¤¿¡£", m_name);
+			msg_format("%s¤òµ¯¤³¤·¤¿¡£", m_name);
 #else
 			msg_format("You have waked %s up.", m_name);
 #endif
@@ -3534,6 +3836,14 @@ static void do_name_pet(void)
 			/* Start with the old inscription */
 			strcpy(out_val, quark_str(m_ptr->nickname));
 			old_name = TRUE;
+		}
+		else
+		{
+#ifdef JP
+			(void)get_rnd_line("petnam_j.txt", 0, out_val);
+#else
+			(void)get_rnd_line("petnam.txt", 0, out_val);
+#endif
 		}
 
 		/* Get a new inscription (possibly empty) */
@@ -3870,7 +4180,7 @@ power_desc[num] = "Î¥¤ì¤Æ¤¤¤í";
 	{
 		/* Build a prompt (accept all spells) */
 #ifdef JP
-strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤µ¤¤:",
+		strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤µ¤¤:",
 #else
 		strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
 #endif
@@ -3880,7 +4190,7 @@ strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤
 	else
 	{
 #ifdef JP
-strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤µ¤¤:",
+		strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤µ¤¤:",
 #else
 		strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
 #endif

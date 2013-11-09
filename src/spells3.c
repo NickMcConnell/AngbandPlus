@@ -284,7 +284,7 @@ void teleport_player(int dis)
 	if (p_ptr->anti_tele)
 	{
 #ifdef JP
-msg_print("不思議な力がテレポートを防いだ！");
+		msg_print("不思議な力がテレポートを防いだ！");
 #else
 		msg_print("A mysterious force prevents you from teleporting!");
 #endif
@@ -433,7 +433,7 @@ void teleport_player_to(int ny, int nx, bool no_tele, bool avoid_fall)
 	if (p_ptr->anti_tele && no_tele)
 	{
 #ifdef JP
-msg_print("不思議な力がテレポートを防いだ！");
+		msg_print("不思議な力がテレポートを防いだ！");
 #else
 		msg_print("A mysterious force prevents you from teleporting!");
 #endif
@@ -536,7 +536,7 @@ void teleport_level(int m_idx)
 	/* No effect in arena or quest */
 	if (astral_mode || p_ptr->inside_arena || (p_ptr->inside_quest && !random_quest_number(dun_level)) ||
 	    (dungeon_type == DUNGEON_HEAVEN) ||
-	    ((quest_number(dun_level) || (dun_level >= maxdepth)) && dun_level && (ironman_forward || (d_info[dungeon_type].flags1 & DF1_NO_BACK))))
+	    ((quest_number(dun_level) || (dun_level >= maxdepth)) && dun_level && (d_info[dungeon_type].flags1 & DF1_NO_BACK)))
 	{
 #ifdef JP
 		msg_print("効果がなかった。");
@@ -598,7 +598,7 @@ void teleport_level(int m_idx)
 	}
 
 	/* Forward only */ 
-	if ((ironman_forward || (d_info[dungeon_type].flags1 & DF1_NO_BACK)) || (dun_level <= d_info[dungeon_type].mindepth) || !dun_level)
+	if ((d_info[dungeon_type].flags1 & DF1_NO_BACK) || (dun_level <= d_info[dungeon_type].mindepth) || !dun_level)
 	{
 		if (d_info[dungeon_type].flags1 & DF1_UPWARD)
 		{
@@ -824,11 +824,11 @@ bool recall_player(int turns)
 	 */
 
 	/* Ironman option */
-	if (p_ptr->inside_arena || ironman_forward || astral_mode || (d_info[dungeon_type].flags1 & DF1_CLOSED) ||
+	if (p_ptr->inside_arena || astral_mode || (d_info[dungeon_type].flags1 & DF1_CLOSED) ||
 		(p_ptr->inside_quest && (quest[p_ptr->inside_quest].flags & QUEST_FLAG_NO_RECALL)))
 	{
 #ifdef JP
-msg_print("何も起こらなかった。");
+		msg_print("何も起こらなかった。");
 #else
 		msg_print("Nothing happens.");
 #endif
@@ -839,7 +839,7 @@ msg_print("何も起こらなかった。");
 	if (dun_level && (max_dlv[dungeon_type] > dun_level) && !p_ptr->inside_quest && !p_ptr->word_recall)
 	{
 #ifdef JP
-if (get_check("ここは最深到達階より浅い階です。この階に戻って来ますか？ "))
+		if (get_check("ここは最深到達階より浅い階です。この階に戻って来ますか？ "))
 #else
 		if (get_check("Reset recall depth? "))
 #endif
@@ -869,7 +869,7 @@ if (get_check("ここは最深到達階より浅い階です。この階に戻って来ますか？ "))
 		}
 		p_ptr->word_recall = turns;
 #ifdef JP
-msg_print("回りの大気が張りつめてきた...");
+		msg_print("回りの大気が張りつめてきた...");
 #else
 		msg_print("The air about you becomes charged...");
 #endif
@@ -880,7 +880,7 @@ msg_print("回りの大気が張りつめてきた...");
 	{
 		p_ptr->word_recall = 0;
 #ifdef JP
-msg_print("張りつめた大気が流れ去った...");
+		msg_print("張りつめた大気が流れ去った...");
 #else
 		msg_print("A tension leaves the air around you...");
 #endif
@@ -912,7 +912,7 @@ bool reset_recall(void)
 	if (!select_dungeon) return FALSE;
 	/* Prompt */
 #ifdef JP
-sprintf(ppp, "何階にセットしますか (%d-%d):", d_info[select_dungeon].mindepth, max_dlv[select_dungeon]);
+	sprintf(ppp, "何階にセットしますか (%d-%d):", d_info[select_dungeon].mindepth, max_dlv[select_dungeon]);
 #else
 	sprintf(ppp, "Reset to which level (%d-%d): ", d_info[select_dungeon].mindepth, max_dlv[select_dungeon]);
 #endif
@@ -944,7 +944,7 @@ sprintf(ppp, "何階にセットしますか (%d-%d):", d_info[select_dungeon].mindepth, m
 #endif
 					/* Accept request */
 #ifdef JP
-msg_format("%sの帰還レベルを %d 階にセット。", d_name+d_info[select_dungeon].name, dummy, dummy * 50);
+		msg_format("%sの帰還レベルを %d 階にセット。", d_name+d_info[select_dungeon].name, dummy, dummy * 50);
 #else
 		msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50);
 #endif
@@ -1021,7 +1021,7 @@ bool apply_disenchant(void)
 	{
 		/* Message */
 #ifdef JP
-msg_format("%s(%c)は劣化を跳ね返した！",o_name, index_to_label(t) );
+		msg_format("%s(%c)は劣化を跳ね返した！",o_name, index_to_label(t) );
 #else
 		msg_format("Your %s (%c) resist%s disenchantment!",
 			   o_name, index_to_label(t),
@@ -1115,7 +1115,7 @@ msg_format("%s(%c)は劣化を跳ね返した！",o_name, index_to_label(t) );
 
 void mutate_player(void)
 {
-	int max1, cur1, max2, cur2, ii, jj, i;
+	int max1, cur1, max2, cur2, ii, jj;
 
 	/* Pick a pair of stats */
 	ii = randint0(A_MAX);
@@ -1159,7 +1159,7 @@ void phlogiston(void)
 	else
 	{
 #ifdef JP
-msg_print("燃素を消費するアイテムを装備していません。");
+		msg_print("燃素を消費するアイテムを装備していません。");
 #else
 		msg_print("You are not wielding anything which uses phlogiston.");
 #endif
@@ -1170,7 +1170,7 @@ msg_print("燃素を消費するアイテムを装備していません。");
 	if (o_ptr->xtra4 >= max_flog)
 	{
 #ifdef JP
-msg_print("このアイテムにはこれ以上燃素を補充できません。");
+		msg_print("このアイテムにはこれ以上燃素を補充できません。");
 #else
 		msg_print("No more phlogiston can be put in this item.");
 #endif
@@ -1183,7 +1183,7 @@ msg_print("このアイテムにはこれ以上燃素を補充できません。");
 
 	/* Message */
 #ifdef JP
-msg_print("照明用アイテムに燃素を補充した。");
+	msg_print("照明用アイテムに燃素を補充した。");
 #else
 	msg_print("You add phlogiston to your light item.");
 #endif
@@ -1194,7 +1194,7 @@ msg_print("照明用アイテムに燃素を補充した。");
 	{
 		o_ptr->xtra4 = max_flog;
 #ifdef JP
-msg_print("照明用アイテムは満タンになった。");
+		msg_print("照明用アイテムは満タンになった。");
 #else
 		msg_print("Your light item is full.");
 #endif
@@ -1419,12 +1419,13 @@ act = "は血を求めている！";
 			break;
 		case 3:
 #ifdef JP
-act = "は毒に覆われた。";
+act = "は黒い光に覆われた。";
 #else
 			act = "is coated with poison.";
 #endif
 
-			o_ptr->name2 = EGO_BRAND_POIS;
+			o_ptr->name2 = EGO_ASSASIN_WEAPON;
+			o_ptr->to_misc[OB_STEALTH] = m_bonus(3, dun_level);
 			break;
 		case 2:
 #ifdef JP
@@ -1456,7 +1457,7 @@ act = "は深く冷たいブルーに輝いた！";
 		}
 
 #ifdef JP
-msg_format("あなたの%s%s", o_name, act);
+		msg_format("あなたの%s%s", o_name, act);
 #else
 		msg_format("Your %s %s", o_name, act);
 #endif
@@ -1481,7 +1482,7 @@ msg_format("あなたの%s%s", o_name, act);
 		if (flush_failure) flush();
 
 #ifdef JP
-msg_print("属性付加に失敗した。");
+		msg_print("属性付加に失敗した。");
 #else
 		msg_print("The Branding failed.");
 #endif
@@ -1537,21 +1538,21 @@ void call_the_(void)
 
 		if (destroy_area(py, px, 15 + p_ptr->lev + randint0(11)))
 #ifdef JP
-msg_print("ダンジョンが崩壊した...");
+			msg_print("ダンジョンが崩壊した...");
 #else
 			msg_print("The dungeon collapses...");
 #endif
 
 		else
 #ifdef JP
-msg_print("ダンジョンは大きく揺れた。");
+			msg_print("ダンジョンは大きく揺れた。");
 #else
 			msg_print("The dungeon trembles.");
 #endif
 
 
 #ifdef JP
-take_hit(DAMAGE_NOESCAPE, 100 + randint1(150), "自殺的な虚無招来");
+		take_hit(DAMAGE_NOESCAPE, 100 + randint1(150), "自殺的な虚無招来");
 #else
 		take_hit(DAMAGE_NOESCAPE, 100 + randint1(150), "a suicidal Call the Void");
 #endif
@@ -1574,7 +1575,7 @@ void fetch(int dir, int wgt, bool require_los)
 	if (cave[py][px].o_idx)
 	{
 #ifdef JP
-msg_print("自分の足の下にある物は取れません。");
+		msg_print("自分の足の下にある物は取れません。");
 #else
 		msg_print("You can't fetch when you're already standing on something.");
 #endif
@@ -1591,7 +1592,7 @@ msg_print("自分の足の下にある物は取れません。");
 		if (distance(py, px, ty, tx) > MAX_RANGE)
 		{
 #ifdef JP
-msg_print("そんなに遠くにある物は取れません！");
+			msg_print("そんなに遠くにある物は取れません！");
 #else
 			msg_print("You can't fetch something that far away!");
 #endif
@@ -1605,7 +1606,7 @@ msg_print("そんなに遠くにある物は取れません！");
 		if (!c_ptr->o_idx)
 		{
 #ifdef JP
-msg_print("そこには何もありません。");
+			msg_print("そこには何もありません。");
 #else
 			msg_print("There is no object at this place.");
 #endif
@@ -1617,7 +1618,7 @@ msg_print("そこには何もありません。");
 		if (c_ptr->info & CAVE_ICKY)
 		{
 #ifdef JP
-msg_print("アイテムがコントロールを外れて落ちた。");
+			msg_print("アイテムがコントロールを外れて落ちた。");
 #else
 			msg_print("The item slips from your control.");
 #endif
@@ -1629,7 +1630,7 @@ msg_print("アイテムがコントロールを外れて落ちた。");
 		if (require_los && !player_has_los_bold(ty, tx))
 		{
 #ifdef JP
-msg_print("そこはあなたの視界に入っていません。");
+			msg_print("そこはあなたの視界に入っていません。");
 #else
 			msg_print("You have no direct line of sight to that location.");
 #endif
@@ -1661,7 +1662,7 @@ msg_print("そこはあなたの視界に入っていません。");
 	{
 		/* Too heavy to 'fetch' */
 #ifdef JP
-msg_print("そのアイテムは重過ぎます。");
+		msg_print("そのアイテムは重過ぎます。");
 #else
 		msg_print("The object is too heavy.");
 #endif
@@ -1678,7 +1679,7 @@ msg_print("そのアイテムは重過ぎます。");
 
 	object_desc(o_name, o_ptr, TRUE, 0);
 #ifdef JP
-msg_format("%^sがあなたの足元に飛んできた。", o_name);
+	msg_format("%^sがあなたの足元に飛んできた。", o_name);
 #else
 	msg_format("%^s flies through the air to your feet.", o_name);
 #endif
@@ -1692,7 +1693,7 @@ msg_format("%^sがあなたの足元に飛んできた。", o_name);
 void alter_reality(void)
 {
 	/* Ironman option */
-	if (p_ptr->inside_arena || ironman_forward)
+	if (p_ptr->inside_arena)
 	{
 #ifdef JP
 		msg_print("何も起こらなかった。");
@@ -1733,7 +1734,7 @@ void alter_reality(void)
 extern bool alter_with_flood(void)
 {
 	/* Ironman option */
-	if (p_ptr->inside_arena || ironman_forward)
+	if (p_ptr->inside_arena)
 	{
 #ifdef JP
 		msg_print("何も起こらなかった。");
@@ -2055,7 +2056,7 @@ s = "金に変えられる物がありません。";
 		{
 			/* Make a verification */
 #ifdef JP
-sprintf(out_val, "本当に%sを金に変えますか？", o_name);
+			sprintf(out_val, "本当に%sを金に変えますか？", o_name);
 #else
 			sprintf(out_val, "Really turn %s to gold? ", o_name);
 #endif
@@ -2084,7 +2085,7 @@ sprintf(out_val, "本当に%sを金に変えますか？", o_name);
 	{
 		/* Message */
 #ifdef JP
-msg_format("%sをニセの金に変えた。", o_name);
+		msg_format("%sをニセの金に変えた。", o_name);
 #else
 		msg_format("You turn %s to fool's gold.", o_name);
 #endif
@@ -2098,7 +2099,7 @@ msg_format("%sをニセの金に変えた。", o_name);
 
 		if (price > 30000) price = 30000;
 #ifdef JP
-msg_format("%sを$%d の金に変えた。", o_name, price);
+		msg_format("%sを$%d の金に変えた。", o_name, price);
 #else
 		msg_format("You turn %s to %ld coins worth of gold.", o_name, price);
 #endif
@@ -2323,7 +2324,7 @@ static void break_curse(object_type *o_ptr)
 	if (cursed_p(o_ptr) && !(o_ptr->curse_flags & TRC_PERMA_CURSE) && !(o_ptr->curse_flags & TRC_HEAVY_CURSE) && (randint0(100) < 25))
 	{
 #ifdef JP
-msg_print("かけられていた呪いが打ち破られた！");
+		msg_print("かけられていた呪いが打ち破られた！");
 #else
 		msg_print("The curse is broken!");
 #endif
@@ -2504,8 +2505,7 @@ s = "強化できるアイテムがない。";
 
 	/* Describe */
 #ifdef JP
-msg_format("%s は明るく輝いた！",
-    o_name);
+	msg_format("%s は明るく輝いた！", o_name);
 #else
 	msg_format("%s %s glow%s brightly!",
 		   ((item >= 0) ? "Your" : "The"), o_name,
@@ -2526,7 +2526,7 @@ msg_format("%s は明るく輝いた！",
 
 		/* Message */
 #ifdef JP
-msg_print("強化に失敗した。");
+		msg_print("強化に失敗した。");
 #else
 		msg_print("The enchantment failed.");
 #endif
@@ -2558,8 +2558,8 @@ bool artifact_scroll(void)
 
 	/* Get an item */
 #ifdef JP
-q = "どのアイテムを強化しますか? ";
-s = "強化できるアイテムがない。";
+	q = "どのアイテムを強化しますか? ";
+	s = "強化できるアイテムがない。";
 #else
 	q = "Enchant which item? ";
 	s = "You have nothing to enchant.";
@@ -3253,7 +3253,7 @@ s = "魔力を充填すべきアイテムがない。";
 		{
 			object_desc(o_name, o_ptr, TRUE, 0);
 #ifdef JP
-msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
+			msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 #else
 			msg_format("The recharging backfires - %s is completely drained!", o_name);
 #endif
@@ -3275,7 +3275,7 @@ msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH))
+			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_ARCHMAGE) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -3327,7 +3327,7 @@ msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 				if (o_ptr->tval == TV_ROD)
 				{
 #ifdef JP
-msg_print("魔力が逆噴射して、ロッドからさらに魔力を吸い取ってしまった！");
+					msg_print("魔力が逆噴射して、ロッドからさらに魔力を吸い取ってしまった！");
 #else
 					msg_print("The recharge backfires, draining the rod further!");
 #endif
@@ -3338,7 +3338,7 @@ msg_print("魔力が逆噴射して、ロッドからさらに魔力を吸い取ってしまった！");
 				else if (o_ptr->tval == TV_WAND)
 				{
 #ifdef JP
-msg_format("%sは破損を免れたが、魔力が全て失われた。", o_name);
+					msg_format("%sは破損を免れたが、魔力が全て失われた。", o_name);
 #else
 					msg_format("You save your %s from destruction, but all charges are lost.", o_name);
 #endif
@@ -3353,14 +3353,14 @@ msg_format("%sは破損を免れたが、魔力が全て失われた。", o_name);
 			{
 				if (o_ptr->number > 1)
 #ifdef JP
-msg_format("乱暴な魔法のために%sが一本壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが一本壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes one of your %s!", o_name);
 #endif
 
 				else
 #ifdef JP
-msg_format("乱暴な魔法のために%sが壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes your %s!", o_name);
 #endif
@@ -3392,14 +3392,14 @@ msg_format("乱暴な魔法のために%sが壊れた！", o_name);
 			{
 				if (o_ptr->number > 1)
 #ifdef JP
-msg_format("乱暴な魔法のために%sが全て壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが全て壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes all your %s!", o_name);
 #endif
 
 				else
 #ifdef JP
-msg_format("乱暴な魔法のために%sが壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes your %s!", o_name);
 #endif
@@ -3593,7 +3593,6 @@ bool bless_weapon(void)
 #endif
 
 	add_flag(o_ptr->art_flags, TR_BLESSED);
-	o_ptr->discount = 99;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -3725,7 +3724,6 @@ bool unholy_weapon(void)
 #endif
 
 	add_flag(o_ptr->art_flags, TR_UNHOLY);
-	o_ptr->discount = 99;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -3910,7 +3908,6 @@ void display_spell_list(void)
 	magic_type      *s_ptr;
 	char            name[80];
 	char            out_val[160];
-	cexp_info_type  *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 
 	/* Erase window */
@@ -3944,16 +3941,16 @@ void display_spell_list(void)
 			byte a = TERM_WHITE;
 
 			/* Access the spell */
-			s_ptr = &mp_ptr->info[j - 1][i];
+			s_ptr = &mp_ptr->info[j][i];
 
-			strcpy(name, spell_names[j - 1][i]);
+			strcpy(name, spell_names[j][i]);
 
 			/* Illegible */
 			if (s_ptr->slevel >= 99)
 			{
 				/* Illegible */
 #ifdef JP
-strcpy(name, "(判読不能)");
+				strcpy(name, "(判読不能)");
 #else
 				strcpy(name, "(illegible)");
 #endif
@@ -3965,7 +3962,7 @@ strcpy(name, "(判読不能)");
 
 			/* Unknown */
 
- 			for (j = 0; j < MAX_REALM; j++) if (s_ptr->slevel > p_ptr->magic_exp[j]/10)
+ 			if (s_ptr->slevel > p_ptr->magic_exp[j+1]/10)
 			{
 				/* Unknown */
 				a = TERM_RED;
@@ -3993,7 +3990,6 @@ int calc_use_mana(int spell, int realm)
 	/* Access the spell */
 	magic_type *s_ptr = &mp_ptr->info[realm - 1][spell];
 
- 	int skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]/10);
  	int magic_var = skill_lev_var[p_ptr->skill_exp[SKILL_SPELL_CAST]/10];
 
 	/* Extract mana consumption rate */
@@ -4187,7 +4183,8 @@ static void spell_info(char *p, int spell, int use_realm)
 	/* See below */
 	int burst = plev + (plev / (((p_ptr->pclass == CLASS_WIZARD) ||
 		(p_ptr->pclass == CLASS_SIRENE) ||
-		(p_ptr->pclass == CLASS_LICH)) ? 2 : 4));
+		(p_ptr->pclass == CLASS_LICH) ||
+		(p_ptr->pclass == CLASS_ARCHMAGE)) ? 2 : 4));
 
 	int attacks = 3;
 
@@ -4541,12 +4538,11 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 	int             skill_lev;
 	char            skill_lev_str_short[5];
 	char            buf[256];
-	cexp_info_type  *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 
 	if (((use_realm <= REALM_NONE) || (use_realm > MAX_REALM)) && p_ptr->wizard)
 #ifdef JP
-msg_print("警告！ print_spell が領域なしに呼ばれた");
+		msg_print("警告！ print_spell が領域なしに呼ばれた");
 #else
 		msg_print("Warning! print_spells called with null realm");
 #endif
@@ -4561,8 +4557,8 @@ msg_print("警告！ print_spell が領域なしに呼ばれた");
 #endif
 
 #ifdef JP
-put_str("名前", y, x + 5);
-put_str(buf, y, x + 29);
+	put_str("名前", y, x + 5);
+	put_str(buf, y, x + 29);
 #else
 	put_str("Name", y, x + 5);
 	put_str(buf, y, x + 29);
@@ -4902,16 +4898,16 @@ int inven_damage(inven_func typ, int perc)
 
 				/* Message */
 #ifdef JP
-msg_format("%s(%c)が%s壊れてしまった！",
+				msg_format("%s(%c)が%s壊れてしまった！",
 #else
 				msg_format("%sour %s (%c) %s destroyed!",
 #endif
 
 #ifdef JP
-o_name, index_to_label(i),
-    ((o_ptr->number > 1) ?
-    ((amt == o_ptr->number) ? "全部" :
-    (amt > 1 ? "何個か" : "一個")) : "")    );
+					o_name, index_to_label(i),
+					((o_ptr->number > 1) ?
+					((amt == o_ptr->number) ? "全部" :
+					(amt > 1 ? "何個か" : "一個")) : "")    );
 #else
 				    ((o_ptr->number > 1) ?
 				    ((amt == o_ptr->number) ? "All of y" :
@@ -4989,7 +4985,7 @@ static int minus_ac(void)
 	if (have_flag(flgs, TR_IGNORE_ACID))
 	{
 #ifdef JP
-msg_format("しかし%sには効果がなかった！", o_name);
+		msg_format("しかし%sには効果がなかった！", o_name);
 #else
 		msg_format("Your %s is unaffected!", o_name);
 #endif
@@ -5000,7 +4996,7 @@ msg_format("しかし%sには効果がなかった！", o_name);
 
 	/* Message */
 #ifdef JP
-msg_format("%sがダメージを受けた！", o_name);
+	msg_format("%sがダメージを受けた！", o_name);
 #else
 	msg_format("Your %s is damaged!", o_name);
 #endif
@@ -5201,8 +5197,8 @@ bool curse_armor(void)
 	{
 		/* Cool */
 #ifdef JP
-msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
-"恐怖の暗黒オーラ", "防具", o_name);
+		msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
+				"恐怖の暗黒オーラ", "防具", o_name);
 #else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 		           "terrible black aura", "surround your armor", o_name);
@@ -5215,7 +5211,7 @@ msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
 	{
 		/* Oops */
 #ifdef JP
-msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
+		msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 #else
 		msg_format("A terrible black aura blasts your %s!", o_name);
 #endif
@@ -5282,8 +5278,8 @@ bool curse_weapon(bool force, int slot)
 	{
 		/* Cool */
 #ifdef JP
-msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
-"恐怖の暗黒オーラ", "武器", o_name);
+		msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
+				"恐怖の暗黒オーラ", "武器", o_name);
 #else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 		           "terrible black aura", "surround your weapon", o_name);
@@ -5296,7 +5292,7 @@ msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
 	{
 		/* Oops */
 #ifdef JP
-if (!force) msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
+		if (!force) msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 #else
 		if (!force) msg_format("A terrible black aura blasts your %s!", o_name);
 #endif
@@ -5633,7 +5629,7 @@ s = "魔力を吸収できるアイテムがありません。";
 			if (o_ptr->timeout > (o_ptr->number - 1) * k_ptr->pval)
 			{
 #ifdef JP
-msg_print("充填中のロッドから魔力を吸収することはできません。");
+				msg_print("充填中のロッドから魔力を吸収することはできません。");
 #else
 				msg_print("You can't absorb energy from a discharged rod.");
 #endif
@@ -5702,7 +5698,7 @@ msg_print("充填中のロッドから魔力を吸収することはできません。");
 			else
 			{
 #ifdef JP
-msg_print("吸収できる魔力がありません！");
+				msg_print("吸収できる魔力がありません！");
 #else
 				msg_print("There's no energy there to absorb!");
 #endif
@@ -5720,7 +5716,7 @@ msg_print("吸収できる魔力がありません！");
 		{
 			object_desc(o_name, o_ptr, TRUE, 0);
 #ifdef JP
-msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
+			msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 #else
 			msg_format("The recharging backfires - %s is completely drained!", o_name);
 #endif
@@ -5742,7 +5738,7 @@ msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH))
+			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_ARCHMAGE) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH) || (p_ptr->pclass == CLASS_ARCHMAGE))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -5794,7 +5790,7 @@ msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 				if (o_ptr->tval == TV_ROD)
 				{
 #ifdef JP
-msg_print("ロッドは破損を免れたが、魔力は全て失なわれた。");
+					msg_print("ロッドは破損を免れたが、魔力は全て失なわれた。");
 #else
 					msg_format("You save your rod from destruction, but all charges are lost.", o_name);
 #endif
@@ -5804,7 +5800,7 @@ msg_print("ロッドは破損を免れたが、魔力は全て失なわれた。");
 				else if (o_ptr->tval == TV_WAND)
 				{
 #ifdef JP
-msg_format("%sは破損を免れたが、魔力が全て失われた。", o_name);
+					msg_format("%sは破損を免れたが、魔力が全て失われた。", o_name);
 #else
 					msg_format("You save your %s from destruction, but all charges are lost.", o_name);
 #endif
@@ -5820,7 +5816,7 @@ msg_format("%sは破損を免れたが、魔力が全て失われた。", o_name);
 				if (o_ptr->number > 1)
 				{
 #ifdef JP
-msg_format("乱暴な魔法のために%sが一本壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが一本壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes one of your %s!", o_name);
 #endif
@@ -5832,7 +5828,7 @@ msg_format("乱暴な魔法のために%sが一本壊れた！", o_name);
 				}
 				else
 #ifdef JP
-msg_format("乱暴な魔法のために%sが何本か壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが何本か壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes your %s!", o_name);
 #endif
@@ -5859,14 +5855,14 @@ msg_format("乱暴な魔法のために%sが何本か壊れた！", o_name);
 			{
 				if (o_ptr->number > 1)
 #ifdef JP
-msg_format("乱暴な魔法のために%sが全て壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが全て壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes all your %s!", o_name);
 #endif
 
 				else
 #ifdef JP
-msg_format("乱暴な魔法のために%sが壊れた！", o_name);
+					msg_format("乱暴な魔法のために%sが壊れた！", o_name);
 #else
 					msg_format("Wild magic consumes your %s!", o_name);
 #endif
@@ -5958,11 +5954,39 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 	}
 	switch (p_ptr->pclass)
 	{
+	case CLASS_TEMPLEKNIGHT:
+		return summon_specific((pet ? -1 : 0), y, x, level * 2, SUMMON_TEMPLES, (mode | PM_ALLOW_UNIQUE));
+	case CLASS_WHITEKNIGHT:
+		return summon_specific((pet ? -1 : 0), y, x, level * 2, SUMMON_ZENOBIAN_FORCES, (mode | PM_ALLOW_UNIQUE));
 	case CLASS_LICH:
 		summon_kin_type = 'L';
 		break;
 	case CLASS_ANGELKNIGHT:
 		summon_kin_type = 'A';
+		break;
+	case CLASS_LORD:
+	case CLASS_GENERAL:
+			switch (randint1(13))
+			{
+			case 1: case 2: case 3: case 4:
+				summon_kin_type = 'p';
+				break;
+			case 5: case 6: case 7:
+				summon_kin_type = 'h';
+				break;
+			case 8:case 9: case 10:
+				summon_kin_type = 'F';
+				break;
+			case 11: case 12:
+				summon_kin_type = 'D';
+				break;
+			default:
+				summon_kin_type = 'A';
+				break;
+			}
+		break;
+	case CLASS_VAMPIRE:
+		summon_kin_type = 'V';
 		break;
 	}
 	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, mode);
@@ -5974,7 +5998,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
  */
 void reincarnation(void)
 {
-	int i;
+	int i, j;
 	s32b tmp_hp, tmp_sp;
 	char buf[80];
 	cexp_info_type *cexp_ptr;
@@ -5994,6 +6018,7 @@ void reincarnation(void)
 
 		p_ptr->energy_need += ENERGY_NEED();
 	}
+	p_ptr->infected = FALSE;
 
 	dispel_player();
 	set_action(ACTION_NONE);
@@ -6010,12 +6035,22 @@ void reincarnation(void)
 	}
 
 	/* HP and mana are feedbacked 50% to level 1 */
-	tmp_hp = p_ptr->player_ghp + p_ptr->race_hp[p_ptr->max_plv - 1];
+	tmp_hp = p_ptr->player_ghp;
 	tmp_sp = p_ptr->player_gsp;
+
+	for (i = 0; i < p_ptr->max_plv; i++)
+	{
+		tmp_hp += p_ptr->race_hp[i];
+		tmp_sp += p_ptr->race_sp[i];
+	}
+
 	for (i = 0; i < MAX_CLASS; i++)
 	{
-		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
-		if (cexp_ptr->clev > 0) tmp_sp += p_ptr->race_sp[cexp_ptr->clev - 1];
+		for (j = 0; j < p_ptr->cexp_info[i].max_clev; j++)
+		{
+			tmp_hp += p_ptr->class_hp[i][j];
+			tmp_sp += p_ptr->class_sp[i][j];
+		}
 	}
 
 	if (tmp_hp > 30000) tmp_hp = 30000;
@@ -6047,6 +6082,8 @@ void reincarnation(void)
 		cexp_ptr = &p_ptr->cexp_info[i];
 		cexp_ptr->max_clev = cexp_ptr->clev = 0;
 		cexp_ptr->max_cexp = cexp_ptr->cexp = cexp_ptr->cexp_frac = 0;
+		(void)C_WIPE(p_ptr->class_hp[i], PY_MAX_LEVEL, s32b);
+		(void)C_WIPE(p_ptr->class_sp[i], PY_MAX_LEVEL, s32b);
 	}
 
 	/* Race reset (undeads only) */
@@ -6154,6 +6191,7 @@ void dispel_player(void)
 	set_magical_weapon(0, 0, INVEN_RARM, FALSE);
 	set_evil_weapon(0, TRUE, INVEN_RARM, FALSE);
 	set_opposite_pelem(0);
+	set_no_elem(0);
 	set_chargespell(0, TRUE);
 	set_earth_spike(0, TRUE);
 	set_wind_guard(0, TRUE);
@@ -6229,6 +6267,13 @@ static byte snap_dragon_class_table[][2] =
 	{TV_BOW, SV_RUNEGUN},       /* Gunner */
 	{TV_SWORD, SV_RUNEBLADE},   /* Temple-Knight */
 	{TV_SWORD, SV_RUNEBLADE},   /* White-Knight */
+	{TV_SWORD, SV_RUNEBLADE},   /* Lord */
+	{TV_POLEARM, SV_RUNESPEAR}, /* General */
+	{TV_SWORD, SV_RUNECLAW},    /* Ninjamaster */
+	{TV_HAFTED, SV_RUNESTAFF},  /* Archmage */
+	{TV_POLEARM, SV_RUNESPEAR}, /* Freya */
+	{TV_BOW, SV_RUNEBOW},       /* Crescent */
+	{TV_SWORD, SV_RUNEBLADE},   /* Vampire */
 };
 
 /*
@@ -6408,6 +6453,62 @@ static void snap_dragon_class_flags(object_type *o_ptr)
 		add_flag(o_ptr->art_flags, TR_VORPAL);
 		add_flag(o_ptr->art_flags, TR_SUST_WIS);
 		break;
+
+	case CLASS_LORD:
+		add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
+		add_flag(o_ptr->art_flags, TR_EXTRA_VORPAL);
+		add_flag(o_ptr->art_flags, TR_SUST_WIS);
+		break;
+
+	case CLASS_GENERAL:
+		add_flag(o_ptr->art_flags, TR_SLAY_ORC);
+		add_flag(o_ptr->art_flags, TR_SUST_STR);
+		break;
+
+	case CLASS_NINJAMASTER:
+		add_flag(o_ptr->art_flags, TR_VORPAL);
+		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
+		add_flag(o_ptr->art_flags, TR_BRAND_POIS);
+		add_flag(o_ptr->art_flags, TR_SUST_DEX);
+		add_flag(o_ptr->art_flags, TR_RES_POIS);
+		break;
+
+	case CLASS_ARCHMAGE:
+		add_flag(o_ptr->art_flags, TR_SLAY_TROLL);
+		add_flag(o_ptr->art_flags, TR_SUST_INT);
+		add_flag(o_ptr->art_flags, TR_DEC_MANA);
+		if (one_in_(4)) add_flag(o_ptr->art_flags, TR_EASY_SPELL);
+		if (one_in_(4)) add_flag(o_ptr->art_flags, TR_REGEN_MANA);
+		break;
+
+	case CLASS_FREYA:
+		add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
+		add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
+		add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
+		add_flag(o_ptr->art_flags, TR_SUST_STR);
+		add_flag(o_ptr->art_flags, TR_BLESSED);
+		break;
+
+	case CLASS_CRESCENT:
+		add_flag(o_ptr->art_flags, TR_SUST_DEX);
+		add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
+		add_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
+		o_ptr->to_misc[OB_ANTI_MAGIC] = 3;
+		break;
+
+	case CLASS_VAMPIRE:
+		add_flag(o_ptr->art_flags, TR_FREE_ACT);
+		add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+		add_flag(o_ptr->art_flags, TR_RES_COLD);
+		add_flag(o_ptr->art_flags, TR_RES_POIS);
+		add_flag(o_ptr->art_flags, TR_RES_NETHER);
+		add_flag(o_ptr->art_flags, TR_UNHOLY);
+		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
+		add_flag(o_ptr->art_flags, TR_SEE_INVIS);
+		add_flag(o_ptr->art_flags, TR_VAMPIRIC);
+		add_flag(o_ptr->art_flags, TR_RES_DARK);
+		add_flag(o_ptr->art_flags, TR_FEATHER);
+		break;
 	}
 }
 
@@ -6532,7 +6633,7 @@ void snap_dragon(void)
 {
 	runeweapon_type *runeweapon = &runeweapon_list[0];
 	object_type     *q_ptr;
-	int             i;
+	int             i, j;
 	char            new_name[MAX_NLEN];
 	char            dummy_name[80] = "";
 	bool            old_total_winner = p_ptr->total_winner;
@@ -6551,13 +6652,24 @@ void snap_dragon(void)
 	strcpy(runeweapon->ancestor, player_name);
 	for (i = 0; i < 4; i++) strcpy(runeweapon->history[i], p_ptr->history[i]);
 
-	tmp_hp = p_ptr->player_ghp + p_ptr->race_hp[p_ptr->max_plv - 1];
+	tmp_hp = p_ptr->player_ghp;
 	tmp_sp = p_ptr->player_gsp;
+
+	for (i = 0; i < p_ptr->max_plv; i++)
+	{
+		tmp_hp += p_ptr->race_hp[i];
+		tmp_sp += p_ptr->race_sp[i];
+	}
+
 	for (i = 0; i < MAX_CLASS; i++)
 	{
-		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
-		if (cexp_ptr->clev > 0) tmp_sp += p_ptr->race_sp[cexp_ptr->clev - 1];
+		for (j = 0; j < p_ptr->cexp_info[i].max_clev; j++)
+		{
+			tmp_hp += p_ptr->class_hp[i][j];
+			tmp_sp += p_ptr->class_sp[i][j];
+		}
 	}
+
 	if (tmp_hp > 30000) tmp_hp = 30000;
 	if (tmp_sp > 30000) tmp_sp = 30000;
 
@@ -6930,7 +7042,28 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 		break;
 
 	case TV_DIGGING:
-		if (o_ptr->name2 && ((o_ptr->name2 != EGO_EXETER) || (o_ptr->name2 != EGO_BARMAMUTHA) || (o_ptr->name2 != EGO_BASQUE))) return FALSE;
+
+		o_ptr->to_misc[OB_TUNNEL] += randint0(3);
+
+		switch (o_ptr->name2)
+		{
+		case EGO_EXETER:
+			o_ptr->dd++;
+			break;
+		case EGO_BARMAMUTHA:
+			o_ptr->dd += 2;
+			o_ptr->weight = o_ptr->weight * 6 / 5;
+			break;
+		case EGO_BASQUE:
+			o_ptr->dd += 3;
+			o_ptr->weight = o_ptr->weight * 3 / 2;
+			break;
+		case EGO_BALDAR_WEAPON:
+			o_ptr->weight = o_ptr->weight * 6 / 5;
+			break;
+		default:
+			return FALSE;
+		}
 		break;
 
 	case TV_HAFTED:
@@ -6941,6 +7074,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 		switch (o_ptr->name2)
 		{
 		case EGO_HA:
+			if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) return FALSE;
 			if (one_in_(4) && (level > 40))
 			{
 				o_ptr->to_misc[OB_BLOWS]++;
@@ -6951,6 +7085,13 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_RES_POIS);
 			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_WARNING);
 			break;
+		case EGO_BLESS_BLADE:
+			if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) return FALSE;
+			break;
+		case EGO_ASSASIN_WEAPON:
+			if (!assasin_weapon_generation_okay(o_ptr)) return FALSE;
+			o_ptr->to_misc[OB_STEALTH] = m_bonus(3, level);
+			break;
 		case EGO_SHOOTING_STAR:
 			if (!shooting_star_generation_okay(o_ptr)) return FALSE;
 			break;
@@ -6959,6 +7100,66 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			break;
 		case EGO_LODIS:
 			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_RES_FEAR);
+
+			switch (randint1(3))
+			{
+				case 1:
+					if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD))
+					{
+						add_flag(o_ptr->art_flags, TR_UNHOLY);
+						add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
+					}
+					else
+					{
+						add_flag(o_ptr->art_flags, TR_BLESSED);
+						add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
+					break;
+				case 2:
+					add_flag(o_ptr->art_flags, TR_UNHOLY);
+					add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
+					break;
+				}
+				case 3:
+					{
+						int slay_num = randint1(3);
+
+						while (slay_num)
+						{
+							switch (randint1(9))
+							{
+								case 1:
+									add_flag(o_ptr->art_flags, TR_SLAY_ANIMAL);
+									break;
+								case 2:
+									add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
+									break;
+								case 3:
+									add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
+									break;
+								case 4:
+									add_flag(o_ptr->art_flags, TR_SLAY_ORC);
+									break;
+								case 5:
+									add_flag(o_ptr->art_flags, TR_SLAY_TROLL);
+									break;
+								case 6:
+									add_flag(o_ptr->art_flags, TR_SLAY_GIANT);
+									break;
+								case 7:
+									add_flag(o_ptr->art_flags, TR_SLAY_DRAGON);
+									break;
+								case 8:
+									add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
+									break;
+								case 9:
+									add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
+									break;
+							}
+							slay_num--;
+						}
+						break;
+					}
+			}
 			break;
 		case EGO_SLAYING_WEAPON:
 			if (one_in_(3)) o_ptr->dd *= 2; /* double damage */
@@ -6985,6 +7186,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			if (one_in_(7)) one_ability(o_ptr);
 			break;
 		case EGO_ISHTALLE:
+			if (o_ptr->tval == TV_SWORD && (o_ptr->sval == SV_YOUTOU || o_ptr->sval == SV_DARK_SWORD)) return FALSE;
 			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
 			if (one_in_(5)) add_flag(o_ptr->art_flags, TR_RES_FEAR);
 			break;
@@ -7030,6 +7232,8 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			if (!baldar_generation_okay(o_ptr)) return FALSE;
 			o_ptr->weight = o_ptr->weight * 6 / 5;
 			break;
+		default:
+			return FALSE;
 		}
 
 		if (o_ptr->name2)
@@ -7061,7 +7265,9 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 	if (do_wish)
 	{
 		if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_BOLMARKAN_CLOAK))
-			o_ptr->to_misc[OB_SEARCH] = randint1(4);
+			o_ptr->to_stat[A_DEX] = randint1(2);
+		if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_SHADOW_CLOAK))
+			o_ptr->to_misc[OB_STEALTH] = 2 + randint1(4);
 		if ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_KUROSHOUZOKU))
 			o_ptr->to_misc[OB_STEALTH] = randint1(4);
 	}
@@ -7106,6 +7312,13 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 
 		switch (o_ptr->name2)
 		{
+		case EGO_WHITE_K:
+		case EGO_DARK_K:
+			if ((o_ptr->sval == SV_SET_OF_LEATHER_GLOVES) || (o_ptr->sval == SV_SET_OF_GLOVES)) return FALSE;
+			break;
+		case EGO_ASSASIN:
+			if ((o_ptr->sval != SV_SET_OF_LEATHER_GLOVES) && (o_ptr->sval != SV_SET_OF_GLOVES)) return FALSE;
+			break;
 		case EGO_BALDAR_GLOVES:
 			if (!baldar_generation_okay(o_ptr)) return FALSE;
 			o_ptr->weight = o_ptr->weight * 6 / 5;
@@ -7119,6 +7332,8 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 
 		switch (o_ptr->name2)
 		{
+		case EGO_INTELLIGENCE:
+		case EGO_WISDOM:
 		case EGO_LITE:
 		case EGO_INFRAVISION:
 			break;
@@ -7221,6 +7436,11 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 			if (!baldar_generation_okay(o_ptr)) return FALSE;
 			o_ptr->weight = o_ptr->weight * 6 / 5;
 			break;
+		case EGO_POWER:
+		case EGO_BALANCE:
+			if (!(((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_DRAGON_LEATHER_ARMOR)) ||
+			((o_ptr->tval == TV_HARD_ARMOR) && (o_ptr->sval == SV_DRAGON_SCALE_MAIL)))) return FALSE;
+			break;
 		}
 		break;
 
@@ -7305,48 +7525,28 @@ static bool wish_a_m_aux_3(object_type *o_ptr, int level, bool do_wish)
 					break;
 				}
 
-				/* Weakness */
-				case SV_RING_WEAKNESS:
+				/* Ring of Intelligence */
+				case SV_RING_INTELLIGENCE:
 				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->curse_flags |= TRC_CURSED;
-
-					/* Penalize */
-					o_ptr->to_stat[A_STR] = 0 - (1 + m_bonus(5, level));
+					o_ptr->to_stat[A_INT] = 1 + m_bonus(5, level);
 
 					break;
 				}
 
-				/* Stupidity */
-				case SV_RING_STUPIDITY:
+				/* Ring of Wisdom */
+				case SV_RING_WISDOM:
 				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->curse_flags |= TRC_CURSED;
-
-					/* Penalize */
-					o_ptr->to_stat[A_INT] = 0 - (1 + m_bonus(5, level));
+					o_ptr->to_stat[A_WIS] = 1 + m_bonus(5, level);
 
 					break;
 				}
 
-				/* WOE */
-				case SV_RING_WOE:
+				/* Ring of Muscle */
+				case SV_RING_MUSCLE:
 				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->curse_flags |= TRC_CURSED;
-
-					/* Penalize */
-					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
-					o_ptr->to_stat[A_WIS] = 0 - (5 + m_bonus(10, level));
+					o_ptr->to_stat[A_STR] = 1 + m_bonus(3, level);
+					o_ptr->to_stat[A_DEX] = 1 + m_bonus(3, level);
+					o_ptr->to_stat[A_CON] = 1 + m_bonus(3, level);
 
 					break;
 				}
@@ -7384,17 +7584,6 @@ static bool wish_a_m_aux_3(object_type *o_ptr, int level, bool do_wish)
 					/* Bonus to damage and to hit */
 					o_ptr->to_d = randint1(5) + m_bonus(12, level);
 					o_ptr->to_h = randint1(5) + m_bonus(12, level);
-
-					break;
-				}
-
-				case SV_RING_AGGRAVATION:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->curse_flags |= TRC_CURSED;
 
 					break;
 				}
@@ -7609,25 +7798,20 @@ static bool wish_a_m_aux_3(object_type *o_ptr, int level, bool do_wish)
 					break;
 				}
 
-				/* Amulet of Doom -- always cursed */
-				case SV_AMULET_DOOM:
+				/* Amulet of Brilliance */
+				case SV_AMULET_BRILLIANCE:
 				{
-					int penalty = 0 - (randint1(10) + m_bonus(10, level));
+					o_ptr->to_stat[A_INT] = 1 + m_bonus(3, level);
+					o_ptr->to_stat[A_WIS] = 1 + m_bonus(3, level);
+					o_ptr->to_stat[A_CHR] = 1 + m_bonus(3, level);
 
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
+					break;
+				}
 
-					/* Cursed */
-					o_ptr->curse_flags |= (TRC_CURSED);
-
-					/* Penalize */
-					o_ptr->to_stat[A_STR] = penalty;
-					o_ptr->to_stat[A_INT] = penalty;
-					o_ptr->to_stat[A_WIS] = penalty;
-					o_ptr->to_stat[A_DEX] = penalty;
-					o_ptr->to_stat[A_CON] = penalty;
-					o_ptr->to_stat[A_CHR] = penalty;
-					o_ptr->to_a = 0 - (randint1(5) + m_bonus(5, level));
+				/* Amulet of charisma */
+				case SV_AMULET_CHARISMA:
+				{
+					o_ptr->to_stat[A_CHR] = 1 + m_bonus(5, level);
 
 					break;
 				}
@@ -7769,6 +7953,16 @@ static bool wish_a_m_aux_3(object_type *o_ptr, int level, bool do_wish)
 		case EGO_AMU_DETECTION:
 			if (o_ptr->ident & IDENT_BROKEN) return FALSE;
 			if (o_ptr->sval != SV_AMULET_TELEPATHY) return FALSE;
+			break;
+
+		case EGO_AMU_IDENT:
+			if (o_ptr->ident & IDENT_BROKEN) return FALSE;
+			if (o_ptr->sval != SV_AMULET_BRILLIANCE) return FALSE;
+			break;
+
+		case EGO_AMU_CHARM:
+			if (o_ptr->ident & IDENT_BROKEN) return FALSE;
+			if (o_ptr->sval != SV_AMULET_CHARISMA) return FALSE;
 			break;
 		}
 		break;
@@ -8281,7 +8475,7 @@ bool wish_object(cptr err_msg)
 		}
 	}
 
-cleanup:
+	cleanup:
 	for (cur_w_list0 = w_list_top; cur_w_list0; cur_w_list0 = cur_w_list1)
 	{
 		bool allow_prep = TRUE;
@@ -8293,7 +8487,6 @@ cleanup:
 			if (a_info[q_ptr->name1].cur_num)
 			{
 				object_type *o_ptr;
-				int y, x;
 
 				allow_prep = FALSE;
 
@@ -8468,6 +8661,9 @@ static bool item_tester_hook_ego_creatable(object_type *o_ptr)
 	case TV_RING:
 	case TV_LITE:
 		if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return FALSE;
+		if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_EMPTY)) return FALSE;
+		if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_EMPTY)) return FALSE;
+		if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_EMPTY)) return FALSE;
 
 		if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
 			return FALSE;
@@ -8567,6 +8763,8 @@ s = "強化できるアイテムがない。";
 
 	else
 	{
+		int idx;
+
 		if (o_ptr->number > 1)
 		{
 #ifdef JP
@@ -8627,6 +8825,15 @@ s = "強化できるアイテムがない。";
 				o_ptr->to_d += mw_diff_to_melee;
 			}
 		}
+
+		/* Identify it fully */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+
+		/* Auto-inscription */
+		idx = is_autopick(o_ptr);
+		auto_inscribe_item(item, idx);
 	}
 
 	/* Failure */

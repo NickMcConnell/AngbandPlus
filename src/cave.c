@@ -554,12 +554,6 @@ static cptr image_monster_hack = \
 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*
- * Hack -- Legal monster codes for IBM pseudo-graphics
- */
-static cptr image_monster_hack_ibm = \
-"aaa";
-
-/*
  * Mega-Hack -- Hallucinatory monster
  */
 static void image_monster(byte *ap, char *cp)
@@ -579,9 +573,6 @@ static void image_monster(byte *ap, char *cp)
  */
 static cptr image_object_hack = \
 "?/|\\\"!$()_-=[]{},~";
-
-static cptr image_object_hack_ibm = \
-"aaa";
 
 /*
  * Mega-Hack -- Hallucinatory object
@@ -663,7 +654,6 @@ static byte map_elem_attr(int y, int x)
 {
 	cave_type *c_ptr = &cave[y][x];
 	monster_type *m_ptr = NULL;
-	int i;
 	bool is_visible = FALSE;
 	s16b map_elem = NO_ELEM;
 
@@ -2427,7 +2417,7 @@ void do_cmd_view_map(void)
 
 	/* Note */
 #ifdef JP
-prt("お待ち下さい...", 0, 0);
+	prt("お待ち下さい...", 0, 0);
 #else
 	prt("Please wait...", 0, 0);
 #endif
@@ -5044,7 +5034,8 @@ void glow_floor_feature(void)
 			    (c_ptr->feat <= FEAT_SHOP_TAIL)) ||
 			    (c_ptr->feat == FEAT_MUSEUM) ||
 			   ((c_ptr->feat >= FEAT_BLDG_HEAD) &&
-			    (c_ptr->feat <= FEAT_BLDG_TAIL)))
+			    (c_ptr->feat <= FEAT_BLDG_TAIL)) ||
+				(c_ptr->feat == FEAT_DENEB_SHOP))
 			{
 				for (i = 0; i < 9; i++)
 				{

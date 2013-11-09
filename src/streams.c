@@ -290,7 +290,7 @@ void build_streamer(int feat, int chance)
 			if (cheat_room)
 			{
 #ifdef JP
-msg_print("警告！ストリーマーを配置できません！");
+				msg_print("警告！ストリーマーを配置できません！");
 #else
 				msg_print("Warning! Could not place streamer!");
 #endif
@@ -357,7 +357,7 @@ void place_trees(int x, int y)
 	}
 
 	/* No up stairs in ironman mode */
-	if (!(ironman_forward || (d_info[dungeon_type].flags1 & DF1_NO_BACK)) && !astral_mode && one_in_(3))
+	if (!(d_info[dungeon_type].flags1 & DF1_NO_BACK) && !astral_mode && one_in_(3))
 	{
 		/* up stair */
 		cave[y][x].feat = FEAT_LESS;
@@ -376,7 +376,7 @@ void destroy_level(void)
 
 	/* Note destroyed levels */
 #ifdef JP
-if (cheat_room) msg_print("破壊された階");
+	if (cheat_room) msg_print("破壊された階");
 #else
 	if (cheat_room) msg_print("Destroyed Level");
 #endif

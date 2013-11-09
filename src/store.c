@@ -326,7 +326,7 @@ static void say_comment_1(void)
 	if (one_in_(RUMOR_CHANCE))
 	{
 #ifdef JP
-msg_print("店主は耳うちした:");
+		msg_print("店主は耳うちした:");
 #else
 		msg_print("The shopkeeper whispers something into your ear:");
 #endif
@@ -1092,21 +1092,24 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
  */
 static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 {
+	int max_num = (o_ptr->tval == TV_ROD) ?
+		MIN(99, MAX_SHORT / k_info[o_ptr->k_idx].pval) : 99;
 	int total = o_ptr->number + j_ptr->number;
+	int diff = (total > max_num) ? total - max_num : 0;
 
 	/* Combine quantity, lose excess items */
-	o_ptr->number = (total > 99) ? 99 : total;
+	o_ptr->number = (total > max_num) ? max_num : total;
 
 	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) together. -LM- */
 	if (o_ptr->tval == TV_ROD)
 	{
-		o_ptr->pval += j_ptr->pval;
+		o_ptr->pval += j_ptr->pval * (j_ptr->number - diff) / j_ptr->number;
 	}
 
 	/* Hack -- if wands are stacking, combine the charges. -LM- */
 	if (o_ptr->tval == TV_WAND)
 	{
-		o_ptr->pval += j_ptr->pval;
+		o_ptr->pval += j_ptr->pval * (j_ptr->number - diff) / j_ptr->number;
 	}
 }
 
@@ -1786,10 +1789,10 @@ static void store_create(void)
 	for (tries = 0; tries < 4; tries++)
 	{
 		/* Black Market */
-		if (cur_store_num == STORE_BLACK)
+		if ((cur_store_num == STORE_BLACK) || (p_ptr->town_num == TOWN_BARMAMUTHA) && (quest[QUEST_BARMAMUTHA_C].status == QUEST_STATUS_FINISHED) && (cur_store_num != STORE_BOOK))
 		{
 			/* Pick a level for object/magic */
-			level = 25 + randint0(25);
+			level = 25 + randint0(25) + dun_level;
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1816,7 +1819,7 @@ static void store_create(void)
 		object_prep(q_ptr, i);
 
 		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(q_ptr, level, 0L);
+		apply_magic(q_ptr, level, (p_ptr->town_num != NO_TOWN) ? 0L : AMF_GREAT);
 
 		/* Require valid object */
 		if (!store_will_buy(q_ptr)) continue;
@@ -2040,7 +2043,7 @@ static void display_entry(int pos)
 
 			/* Actually draw the price (not fixed) */
 #ifdef JP
-(void)sprintf(out_val, "%9ld固", (long)x);
+			(void)sprintf(out_val, "%9ld固", (long)x);
 #else
 			(void)sprintf(out_val, "%9ld F", (long)x);
 #endif
@@ -2248,6 +2251,17 @@ static void display_store(void)
 		cptr store_name = f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name;
 		cptr owner_name = ot_ptr->owner_name;
 		cptr race_name = race_info[ot_ptr->owner_race].title;
+
+		if (p_ptr->town_num == NO_TOWN)
+		{
+			store_name = f_name + f_info[FEAT_DENEB_SHOP].name;
+#ifdef JP
+			owner_name = "魔女デネブ";
+#else
+			owner_name = "Deneb, the Witch";
+#endif
+			race_name = race_info[RACE_HUMAN].title;
+		}
 
 		/* Put the owner name and race */
 		sprintf(buf, "%s (%s)", owner_name, race_name);
@@ -2801,7 +2815,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 				allow_inc = TRUE;
 				prt("", 1, 0);
 #ifdef JP
-(void)sprintf(out_val, "前回の提示金額: $%ld",
+				(void)sprintf(out_val, "前回の提示金額: $%ld",
 #else
 				(void)sprintf(out_val, "Your last offer: %ld",
 #endif
@@ -3179,7 +3193,7 @@ static void store_purchase(void)
 	if (!inven_carry_okay(j_ptr))
 	{
 #ifdef JP
-msg_print("そんなにアイテムを持てない。");
+		msg_print("そんなにアイテムを持てない。");
 #else
 		msg_print("You cannot carry that many different items.");
 #endif
@@ -3198,7 +3212,7 @@ msg_print("そんなにアイテムを持てない。");
 		    (o_ptr->ident & IDENT_FIXED))
 		{
 #ifdef JP
-msg_format("一つにつき $%ldです。", (long)(best));
+			msg_format("一つにつき $%ldです。", (long)(best));
 #else
 			msg_format("That costs %ld gold per item.", (long)(best));
 #endif
@@ -3260,7 +3274,7 @@ msg_format("一つにつき $%ldです。", (long)(best));
 
 			/* Message */
 #ifdef JP
-msg_format("%s(%c)を購入する。", o_name, I2A(item));
+			msg_format("%s(%c)を購入する。", o_name, I2A(item));
 #else
 			msg_format("Buying %s (%c).", o_name, I2A(item));
 #endif
@@ -3313,7 +3327,7 @@ msg_format("%s(%c)を購入する。", o_name, I2A(item));
 
 				/* Message */
 #ifdef JP
-msg_format("%sを $%ldで購入しました。", o_name, (long)price);
+				msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 #else
 				msg_format("You bought %s for %ld gold.", o_name, (long)price);
 #endif
@@ -3386,7 +3400,7 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 				if (st_ptr->stock_num == 0)
 				{
 					/* Shuffle */
-					if (one_in_(STORE_SHUFFLE))
+					if ((one_in_(STORE_SHUFFLE)) && (p_ptr->town_num != NO_TOWN))
 					{
 						char buf[80];
 						/* Message */
@@ -3828,7 +3842,7 @@ static void store_sell(void)
 
 			/* Describe the result (in message buffer) */
 #ifdef JP
-msg_format("%sを $%ldで売却しました。", o_name, (long)price);
+			msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 #else
 			msg_format("You sold %s for %ld gold.", o_name, (long)price);
 #endif
@@ -3847,7 +3861,8 @@ msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 			change_chaos_frame(get_object_ethnicity_store(q_ptr), -4);
 
 			/* Show the max price in the store (above prices) */
-			prt(format("%s (%ld)", f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name, max_cost_fix()), 3, 50);
+			if (p_ptr->town_num == NO_TOWN) prt(format("%s (%ld)", f_name + f_info[FEAT_DENEB_SHOP].name, max_cost_fix()), 3, 50);
+			else prt(format("%s (%ld)", f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name, max_cost_fix()), 3, 50);
 
 			if (record_sell) do_cmd_write_nikki(NIKKI_SELL, 0, o_name);
 
@@ -4054,7 +4069,7 @@ static void store_examine(void)
 
 	/* Prompt */
 #ifdef JP
-sprintf(out_val, "どれを調べますか？");
+	sprintf(out_val, "どれを調べますか？");
 #else
 	sprintf(out_val, "Which item do you want to examine? ");
 #endif
@@ -4074,7 +4089,7 @@ sprintf(out_val, "どれを調べますか？");
 	{
 		/* This can only happen in the home */
 #ifdef JP
-msg_print("このアイテムについて特に知っていることはない。");
+		msg_print("このアイテムについて特に知っていることはない。");
 #else
 		msg_print("You have no special knowledge about that item.");
 #endif
@@ -4087,7 +4102,7 @@ msg_print("このアイテムについて特に知っていることはない。");
 
 	/* Describe */
 #ifdef JP
-msg_format("%sを調べている...", o_name);
+	msg_format("%sを調べている...", o_name);
 #else
 	msg_format("Examining %s...", o_name);
 #endif
@@ -4096,7 +4111,7 @@ msg_format("%sを調べている...", o_name);
 	/* Describe it fully */
 	if (!screen_object(o_ptr, NULL, TRUE))
 #ifdef JP
-msg_print("特に変わったところはないようだ。");
+		msg_print("特に変わったところはないようだ。");
 #else
 		msg_print("You see nothing special.");
 #endif
@@ -4393,7 +4408,7 @@ static void change_player_class(void)
 {
 	cc_menu        classes[MAX_CLASS];
 	int            i, hgt;
-	int            num = 0, top = 0, cur = 0;
+	int            num = 0, top = 0, cur = 0, total_max_clev = 0, experienced_classes = 0;
 	char           c;
 	char           buf[80];
 	bool           done = FALSE;
@@ -4404,6 +4419,16 @@ static void change_player_class(void)
 	cexp_info_type *cexp_ptr;
 
 	/*** Instructions ***/
+
+	/* Calculate character total class level */
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		if (p_ptr->cexp_info[i].max_clev > 0)
+		{
+			total_max_clev += p_ptr->cexp_info[i].max_clev;
+			experienced_classes++;
+		}
+	}
 
 	/* Clear screen */
 	Term_clear();
@@ -4449,13 +4474,6 @@ static void change_player_class(void)
 		Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 			"'Class' choice is restricted by sex.");
 #endif
-#ifdef JP
-		Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_ORANGE,
-			"注意: スキルポイント/魔法スキルポイントはこのクラスでのみ有効です。");
-#else
-		Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_ORANGE,
-			"Note: Skill/magic skill points can be used only in this class.");
-#endif
 
 	/* Tabulate classes */
 	for (i = 0; i < MAX_CLASS; i++)
@@ -4471,6 +4489,7 @@ static void change_player_class(void)
 
 		/* Reincarnation classes are must not be chosen now */
 		if (tmp_cp_ptr->c_flags & PCF_REINCARNATE) continue;
+		if ((tmp_cp_ptr->c_flags & PCF_SECRET) && !(can_choose_class(i, CLASS_CHOOSE_MODE_NORMAL))) continue;
 
 		classes[num].real = i;
 		classes[num++].can_choose = can_choose_class(i, CLASS_CHOOSE_MODE_NORMAL);
@@ -4551,11 +4570,22 @@ static void change_player_class(void)
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 		switch (classes[cur].real)
 		{
+		case CLASS_HIGHWITCH:
+			strcpy(s, "★魔女デネブのとんがり帽子が必要        ");
+			break;
 		case CLASS_TEMPLEKNIGHT:
 			strcpy(s, "ローディスのカオスフレームが+100以上必要");
 			break;
 		case CLASS_WHITEKNIGHT:
 			strcpy(s, "ゼノビアのカオスフレームが+100以上必要  ");
+			break;
+		case CLASS_LORD:
+		case CLASS_GENERAL:
+		case CLASS_NINJAMASTER:
+		case CLASS_ARCHMAGE:
+		case CLASS_FREYA:
+		case CLASS_CRESCENT:
+			strcpy(s, "????                                    ");
 			break;
 		default:
 			strcpy(s, "                                        ");
@@ -4588,6 +4618,14 @@ static void change_player_class(void)
 			break;
 		case CLASS_WHITEKNIGHT:
 			strcpy(s, "Chaos Frame of Zenobian is required more than +100");
+			break;
+		case CLASS_LORD:
+		case CLASS_GENERAL:
+		case CLASS_NINJAMASTER:
+		case CLASS_ARCHMAGE:
+		case CLASS_FREYA:
+		case CLASS_CRESCENT:
+			strcpy(s, "????                                              ");
 			break;
 		default:
 			strcpy(s, "                                                  ");
@@ -4734,7 +4772,7 @@ static void change_player_class(void)
 	p_ptr->s_ptr = &s_info[p_ptr->pclass];
 	cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 	
-	for (i = 0; i < MAX_REALM + 1; i++)
+	for (i = 0; i < MAX_REALM+1; i++)
 		if (p_ptr->magic_exp[i] == 0) p_ptr->magic_exp[i] = p_ptr->s_ptr->s_eff[i];
 
 	/* Clear */
@@ -4768,6 +4806,7 @@ static void change_player_class(void)
 	{
 	case CLASS_GUNNER:
 		C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s16b);
+		for (i = 0; i < MAX_CLASS; i++) C_WIPE(p_ptr->class_sp[i], PY_MAX_LEVEL, s16b);
 		p_ptr->player_gsp = 0;
 		break;
 
@@ -4788,6 +4827,7 @@ static void change_player_class(void)
 	{
 		cexp_ptr->max_clev = cexp_ptr->clev = 1;
 		if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
+		p_ptr->cexpfact[p_ptr->pclass] += 30 * experienced_classes + total_max_clev / 5 * 5;
 	}
 
 	/* Update stuff */
@@ -5002,7 +5042,6 @@ static void display_stock_mon_entry(int pos)
 	int          cur_col;
 	monster_type *m_ptr;
 	monster_race *r_ptr;
-	s32b         x;
 
 	char m_name[80];
 	char out_val[160];
@@ -5724,7 +5763,8 @@ void do_cmd_store(void)
 	/* Verify a store */
 	if (!((c_ptr->feat >= FEAT_SHOP_HEAD) &&
 		  (c_ptr->feat <= FEAT_SHOP_TAIL)) &&
-	    (c_ptr->feat != FEAT_MUSEUM))
+	    (c_ptr->feat != FEAT_MUSEUM) &&
+		(c_ptr->feat != FEAT_DENEB_SHOP))
 	{
 #ifdef JP
 		msg_print("ここには店がありません。");
@@ -5737,6 +5777,7 @@ void do_cmd_store(void)
 
 	/* Extract the store code */
 	if (c_ptr->feat == FEAT_MUSEUM) which = STORE_MUSEUM;
+	else if (c_ptr->feat == FEAT_DENEB_SHOP) which = STORE_BLACK;
 	else which = (c_ptr->feat - FEAT_SHOP_HEAD);
 
 	/* Restriction by chaos frame */
@@ -5798,8 +5839,7 @@ void do_cmd_store(void)
 	cur_town_num = p_ptr->town_num;
 
 	/* Hack -- Check the "locked doors" */
-	if ((town[p_ptr->town_num].store[which].store_open >= turn) ||
-	    (ironman_shops))
+	if (town[p_ptr->town_num].store[which].store_open >= turn)
 	{
 #ifdef JP
 		msg_print("ドアに鍵がかかっている。");
