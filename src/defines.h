@@ -16,10 +16,10 @@
 #define VERSION_NAME "PosChengband"
 
 
-#define VER_MAJOR 1
+#define VER_MAJOR 2
 #define VER_MINOR 0
-#define VER_PATCH 37
-#define VER_EXTRA 0
+#define VER_PATCH 0
+#define VER_EXTRA 1
 
 
 /*
@@ -154,7 +154,7 @@
 /* Hallucination stuff */
 #define MAX_SILLY_ATTACK 29
 
-#define MAX_SPELLS            50
+#define MAX_SPELLS            70 /* Possessing a GCAWDL gives 62 spells (and about 25 powers)! */
 
 /* Spellcasters that don't use spell books */
 #define MAX_MIND_POWERS  21
@@ -683,12 +683,13 @@
 #define RACE_MON_SWORD          53
 #define RACE_MON_GOLEM          54
 #define RACE_MON_QUYLTHULG      55
+#define RACE_MON_POSSESSOR      56
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  * Note other races exist, and use constants beginning at MIMIC_MIN
  */
-#define MAX_RACES               56
+#define MAX_RACES               57
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -2859,8 +2860,9 @@
 #define USE_EQUIP        0x01    /* Allow equip items */
 #define USE_INVEN        0x02    /* Allow inven items */
 #define USE_FLOOR        0x04    /* Allow floor items */
-#define USE_QUIVER        0x08
-#define SHOW_FAIL_RATES    0x10
+#define USE_QUIVER       0x08
+#define SHOW_FAIL_RATES  0x10
+#define SHOW_VALUE       0x20    /* For Reforging */
 
 
 /*
@@ -3978,40 +3980,40 @@
 #define RF8_WILD_ALL            0x80000000
 
 /*
- * Monster drop info
+ * Monster Corspe Info, including a bunch of stuff for The Possessor
  */
 #define RF9_DROP_CORPSE         0x00000001
 #define RF9_DROP_SKELETON       0x00000002
-#define RF9_EAT_BLIND           0x00000004
-#define RF9_EAT_CONF            0x00000008
-#define RF9_EAT_MANA            0x00000010
-#define RF9_EAT_NEXUS           0x00000020
-#define RF9_EAT_SLEEP           0x00000040
-#define RF9_EAT_BERSERKER       0x00000080
-#define RF9_EAT_ACIDIC          0x00000100
-#define RF9_EAT_SPEED           0x00000200
-#define RF9_EAT_CURE            0x00000400
-#define RF9_EAT_FIRE_RES        0x00000800
-#define RF9_EAT_COLD_RES        0x00001000
-#define RF9_EAT_ACID_RES        0x00002000
-#define RF9_EAT_ELEC_RES        0x00004000
-#define RF9_EAT_POIS_RES        0x00008000
-#define RF9_EAT_INSANITY        0x00010000
-#define RF9_EAT_DRAIN_EXP       0x00020000
-#define RF9_EAT_POISONOUS       0x00040000
-#define RF9_EAT_GIVE_STR        0x00080000
-#define RF9_EAT_GIVE_INT        0x00100000
-#define RF9_EAT_GIVE_WIS        0x00200000
-#define RF9_EAT_GIVE_DEX        0x00400000
-#define RF9_EAT_GIVE_CON        0x00800000
-#define RF9_EAT_GIVE_CHR        0x01000000
-#define RF9_EAT_LOSE_STR        0x02000000
-#define RF9_EAT_LOSE_INT        0x04000000
-#define RF9_EAT_LOSE_WIS        0x08000000
-#define RF9_EAT_LOSE_DEX        0x01000000
-#define RF9_EAT_LOSE_CON        0x20000000
-#define RF9_EAT_LOSE_CHR        0x40000000
-#define RF9_EAT_DRAIN_MANA      0x80000000
+#define RF9_POS_GAIN_AC         0x00000004
+#define RF9_POS_TELEPATHY       0x00000008
+#define RF9_POS_SEE_INVIS       0x00000010
+#define RF9_POS_HOLD_LIFE       0x00000020
+#define RF9_POS_SUST_STR        0x00000040
+#define RF9_POS_SUST_INT        0x00000080
+#define RF9_POS_SUST_WIS        0x00000100
+#define RF9_POS_SUST_DEX        0x00000200
+#define RF9_POS_SUST_CON        0x00000400
+#define RF9_POS_SUST_CHR        0x00000800
+#define RF9_XXX13               0x00001000
+#define RF9_XXX14               0x00002000
+#define RF9_POS_DETECT_TRAPS    0x00004000
+#define RF9_POS_DETECT_EVIL     0x00008000
+#define RF9_POS_DETECT_MONSTERS 0x00010000
+#define RF9_POS_DETECT_OBJECTS  0x00020000
+#define RF9_POS_MAPPING         0x00040000
+#define RF9_POS_IDENTIFY        0x00080000
+#define RF9_POS_HEROISM         0x00100000
+#define RF9_POS_BLESSING        0x00200000
+#define RF9_POS_BERSERK         0x00400000
+#define RF9_XXX24               0x00800000
+#define RF9_XXX25               0x01000000
+#define RF9_XXX26               0x02000000
+#define RF9_XXX27               0x04000000
+#define RF9_XXX28               0x08000000
+#define RF9_XXX29               0x01000000
+#define RF9_XXX30               0x20000000
+#define RF9_XXX31               0x40000000
+#define RF9_XXX32               0x80000000
 
 /*
  * Monster bit flags of racial resistances
@@ -5013,7 +5015,7 @@ extern int PlayerUID;
 #define MS_SHOOT          4
 #define MS_XXX2           5
 #define MS_XXX3           6
-#define MS_XXX4           7
+#define MS_BR_STORM       7
 #define MS_BR_ACID        8
 #define MS_BR_ELEC        9
 #define MS_BR_FIRE        10
@@ -5262,6 +5264,7 @@ extern int PlayerUID;
 #define MON_NIGHTBLADE    564
 #define MON_BODAK  566
 #define MON_ELDER_THING   569
+#define MON_CHAOS_SPAWN   574
 #define MON_CRYPT_THING   577
 #define MON_MAGMA_ELEMENTAL 584
 #define MON_NEXUS_VOR     587
@@ -5528,6 +5531,8 @@ extern int PlayerUID;
 #define MON_ELDER_FIRE_GIANT    1126
 #define MON_TYPHOEUS            1127
 #define MON_ELDER_STORM_GIANT   1128
+#define MON_POSSESSOR_SOUL      1129
+#define MON_MARILITH            1130
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle 
@@ -6162,4 +6167,24 @@ extern int PlayerUID;
 
 #define MAX_SUMMONS 50
 
+#define EQUIP_BEGIN 24
+#define EQUIP_MAX_SLOTS (INVEN_TOTAL - EQUIP_BEGIN + 1)
+
+enum slot_e {
+    EQUIP_SLOT_NONE,
+    EQUIP_SLOT_GLOVES,
+    EQUIP_SLOT_WEAPON_SHIELD,
+    EQUIP_SLOT_RING,         
+    EQUIP_SLOT_BOW,          
+    EQUIP_SLOT_AMULET,       
+    EQUIP_SLOT_LITE,         
+    EQUIP_SLOT_BODY_ARMOR,   
+    EQUIP_SLOT_CLOAK,        
+    EQUIP_SLOT_BOOTS,        
+    EQUIP_SLOT_HELMET,       
+    EQUIP_SLOT_ANY,             
+    EQUIP_SLOT_WEAPON,
+    EQUIP_SLOT_CAPTURE_BALL,
+    EQUIP_SLOT_MAX,
+};
 

@@ -3984,12 +3984,7 @@ bool place_monster(int y, int x, u32b mode)
 
     /* Pick a monster */
     r_idx = get_mon_num(monster_level);
-#if defined _DEBUG
-    if ((r_info[r_idx].flags2 & RF2_CAMELOT))
-    {
-        msg_print("Camelot!!");
-    }
-#endif
+
     /* Handle failure */
     if (!r_idx) return (FALSE);
 

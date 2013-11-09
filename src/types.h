@@ -235,8 +235,94 @@ struct ego_item_type
     u32b gen_flags;        /* flags for generate */
 };
 
+/*
+ * Object information, for a specific object.
+ *
+ * Note that a "discount" on an item is permanent and never goes away.
+ *
+ * Note that inscriptions are now handled via the "quark_str()" function
+ * applied to the "note" field, which will return NULL if "note" is zero.
+ *
+ * Note that "object" records are "copied" on a fairly regular basis,
+ * and care must be taken when handling such objects.
+ *
+ * Note that "object flags" must now be derived from the object kind,
+ * the artifact and ego-item indexes, and the two "xtra" fields.
+ *
+ * Each cave grid points to one (or zero) objects via the "o_idx"
+ * field (above).  Each object then points to one (or zero) objects
+ * via the "next_o_idx" field, forming a singly linked list, which
+ * in game terms, represents a "stack" of objects in the same grid.
+ *
+ * Each monster points to one (or zero) objects via the "hold_o_idx"
+ * field (below).  Each object then points to one (or zero) objects
+ * via the "next_o_idx" field, forming a singly linked list, which
+ * in game terms, represents a pile of objects held by the monster.
+ *
+ * The "held_m_idx" field is used to indicate which monster, if any,
+ * is holding the object.  Objects being held have "ix=0" and "iy=0".
+ */
 
+typedef struct object_type object_type;
+typedef bool (*object_p)(object_type *o_ptr);
 
+struct object_type
+{
+    s16b k_idx;            /* Kind index (zero if "dead") */
+
+    byte iy;            /* Y-position on map, or zero */
+    byte ix;            /* X-position on map, or zero */
+
+    byte tval;            /* Item type (from kind) */
+    byte sval;            /* Item sub-type (from kind) */
+
+    s16b pval;            /* Item extra-parameter */
+
+    byte discount;        /* Discount (if any) */
+
+    byte number;        /* Number of items */
+
+    s16b weight;        /* Item weight */
+
+    s16b name1;            /* Artifact type, if any */
+    s16b name2;            /* Ego-Item type, if any */
+    s16b name3;         /* Random replacement for a fixed art */
+
+    byte xtra1;            /* Extra info type (now unused) */
+    byte xtra2;            /* Extra info index */
+    byte xtra3;            /* Extra info */
+    s16b xtra4;            /* Extra info */
+    s16b xtra5;            /* Extra info */
+
+    s16b to_h;            /* Plusses to hit */
+    s16b to_d;            /* Plusses to damage */
+    s16b to_a;            /* Plusses to AC */
+
+    s16b ac;            /* Normal AC */
+
+    byte dd, ds;        /* Damage dice/sides */
+
+    s16b timeout;        /* Timeout Counter */
+
+    byte ident;            /* Special flags  */
+
+    byte marked;        /* Object is marked */
+
+    u16b inscription;    /* Inscription index */
+    u16b art_name;      /* Artifact name (random artifacts) */
+
+    byte feeling;          /* Game generated inscription number (eg, pseudo-id) */
+
+    u32b art_flags[TR_FLAG_SIZE];        /* Extra Flags for ego and artifacts */
+
+    u32b curse_flags;        /* Flags for curse */
+    u32b rune;
+
+    s16b next_o_idx;    /* Next object in stack (if any) */
+
+    s16b held_m_idx;    /* Monster holding us (if any) */
+};
+#define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
 
 /*
  * Monster blow structure
@@ -286,6 +372,29 @@ struct mbe_info_type
  * monster recall (no knowledge of spells, etc).  All of the "recall"
  * fields have a special prefix to aid in searching for them.
  */
+
+typedef struct {
+    s16b dis;            /* disarming */
+    s16b dev;            /* magic devices */
+    s16b sav;            /* saving throw */
+    s16b stl;            /* stealth */
+    s16b srh;            /* search ability */
+    s16b fos;            /* search frequency */
+    s16b thn;            /* combat (normal) */
+    s16b thb;            /* combat (shooting) */
+} skills_t;
+
+struct monster_body_s
+{
+    s16b     stats[MAX_STATS];
+    skills_t skills;
+    skills_t extra_skills;
+    s16b     life;
+    s16b     infra;
+    s16b     spell_stat;
+    s16b     body_idx;
+};
+typedef struct monster_body_s monster_body_t;
 
 
 typedef struct monster_race monster_race;
@@ -379,10 +488,12 @@ struct monster_race
     u32b r_flags4;            /* Observed racial flags */
     u32b r_flags5;            /* Observed racial flags */
     u32b r_flags6;            /* Observed racial flags */
-    /* u32b r_flags7; */            /* Observed racial flags */
+    /* u32b r_flags7; */      /* Observed racial flags */
     u32b r_flagsr;            /* Observed racial resistance flags */
 
-    byte stolen_ct;         /* For uniques in this lifetime only. Prevents PickPocket scumming of excellent drop uniques */
+    byte stolen_ct;           /* For uniques in this lifetime only. Prevents PickPocket scumming of excellent drop uniques */
+
+    monster_body_t body;      /* For The Possessor */
 };
 
 
@@ -481,97 +592,6 @@ struct coord
     byte y;
     byte x;
 };
-
-
-
-/*
- * Object information, for a specific object.
- *
- * Note that a "discount" on an item is permanent and never goes away.
- *
- * Note that inscriptions are now handled via the "quark_str()" function
- * applied to the "note" field, which will return NULL if "note" is zero.
- *
- * Note that "object" records are "copied" on a fairly regular basis,
- * and care must be taken when handling such objects.
- *
- * Note that "object flags" must now be derived from the object kind,
- * the artifact and ego-item indexes, and the two "xtra" fields.
- *
- * Each cave grid points to one (or zero) objects via the "o_idx"
- * field (above).  Each object then points to one (or zero) objects
- * via the "next_o_idx" field, forming a singly linked list, which
- * in game terms, represents a "stack" of objects in the same grid.
- *
- * Each monster points to one (or zero) objects via the "hold_o_idx"
- * field (below).  Each object then points to one (or zero) objects
- * via the "next_o_idx" field, forming a singly linked list, which
- * in game terms, represents a pile of objects held by the monster.
- *
- * The "held_m_idx" field is used to indicate which monster, if any,
- * is holding the object.  Objects being held have "ix=0" and "iy=0".
- */
-
-typedef struct object_type object_type;
-
-struct object_type
-{
-    s16b k_idx;            /* Kind index (zero if "dead") */
-
-    byte iy;            /* Y-position on map, or zero */
-    byte ix;            /* X-position on map, or zero */
-
-    byte tval;            /* Item type (from kind) */
-    byte sval;            /* Item sub-type (from kind) */
-
-    s16b pval;            /* Item extra-parameter */
-
-    byte discount;        /* Discount (if any) */
-
-    byte number;        /* Number of items */
-
-    s16b weight;        /* Item weight */
-
-    s16b name1;            /* Artifact type, if any */
-    s16b name2;            /* Ego-Item type, if any */
-    s16b name3;         /* Random replacement for a fixed art */
-
-    byte xtra1;            /* Extra info type (now unused) */
-    byte xtra2;            /* Extra info index */
-    byte xtra3;            /* Extra info */
-    s16b xtra4;            /* Extra info */
-    s16b xtra5;            /* Extra info */
-
-    s16b to_h;            /* Plusses to hit */
-    s16b to_d;            /* Plusses to damage */
-    s16b to_a;            /* Plusses to AC */
-
-    s16b ac;            /* Normal AC */
-
-    byte dd, ds;        /* Damage dice/sides */
-
-    s16b timeout;        /* Timeout Counter */
-
-    byte ident;            /* Special flags  */
-
-    byte marked;        /* Object is marked */
-
-    u16b inscription;    /* Inscription index */
-    u16b art_name;      /* Artifact name (random artifacts) */
-
-    byte feeling;          /* Game generated inscription number (eg, pseudo-id) */
-
-    u32b art_flags[TR_FLAG_SIZE];        /* Extra Flags for ego and artifacts */
-
-    u32b curse_flags;        /* Flags for curse */
-    u32b rune;
-
-    s16b next_o_idx;    /* Next object in stack (if any) */
-
-    s16b held_m_idx;    /* Monster holding us (if any) */
-};
-#define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
-
 
 
 /*
@@ -871,17 +891,6 @@ struct player_pact
     cptr title;
     cptr alliance;
 };
-
-typedef struct {
-    s16b dis;            /* disarming */
-    s16b dev;            /* magic devices */
-    s16b sav;            /* saving throw */
-    s16b stl;            /* stealth */
-    s16b srh;            /* search ability */
-    s16b fos;            /* search frequency */
-    s16b thn;            /* combat (normal) */
-    s16b thb;            /* combat (shooting) */
-} skills_t;
 
 typedef struct player_seikaku player_seikaku;
 struct player_seikaku
@@ -1365,6 +1374,7 @@ struct player_type
     bool sh_elec;
     bool sh_cold;
     bool sh_shards;
+    bool sh_retaliation;
 
     bool no_eldritch;
     bool no_stun;
@@ -1425,6 +1435,7 @@ struct player_type
 
     byte easy_realm1;   /* Magic Stones give realm specific boosts */
 
+    bool move_random;   /* Cyberdemons and Possessors ... */
 
     int           weapon_ct;
     weapon_info_t weapon_info[MAX_HANDS];
@@ -1962,4 +1973,16 @@ typedef struct {
     cptr name;
     cptr desc;
 } demigod_type;
+
+typedef struct {
+    int  type;
+    s16b tag;
+    int  hand; 
+} slot_t;
+
+typedef struct equip_template_s {
+    int        count;
+    u32b       name;
+    slot_t     slots[EQUIP_MAX_SLOTS];
+} equip_template_t, *equip_template_ptr;
 

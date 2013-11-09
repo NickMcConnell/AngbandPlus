@@ -1,7 +1,6 @@
 #include "int-map.h"
 
-#include <assert.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef unsigned int _hash_t;

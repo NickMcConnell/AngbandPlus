@@ -2603,9 +2603,9 @@ static void display_player_stat_info(void)
                         adj += 2;
                     if (o_ptr->rune == RUNE_UNDERSTANDING)
                     {
-                        if (i == slot_type == EQUIP_SLOT_HELMET)
+                        if (slot_type == EQUIP_SLOT_HELMET)
                             adj += 2;
-                        if (i == slot_type == EQUIP_SLOT_LITE)
+                        if (slot_type == EQUIP_SLOT_LITE)
                             adj += 1;
                     }
                     break;

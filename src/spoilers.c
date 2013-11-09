@@ -455,6 +455,35 @@ static void _show_help(cptr helpfile)
     show_file(TRUE, helpfile, NULL, 0, 0);
     screen_load();
 }
+
+static void _possessor_stats_help(FILE* fff)
+{
+    int i;
+    fprintf(fff, "Name,Lvl,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
+    for (i = 0; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+
+        if (r_ptr->flags9 & RF9_DROP_CORPSE)
+        {
+            fprintf(fff, "\"%s\",%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,=\"%d+%d\",=\"%d+%d\"\n", 
+                r_name + r_ptr->name, r_ptr->level, b_name + b_info[r_ptr->body.body_idx].name,
+                r_ptr->body.stats[A_STR], r_ptr->body.stats[A_INT], r_ptr->body.stats[A_WIS],
+                r_ptr->body.stats[A_DEX], r_ptr->body.stats[A_CON], r_ptr->body.stats[A_CHR],
+                r_ptr->body.life,
+                r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis, 
+                r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev, 
+                r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
+                r_ptr->body.skills.stl, r_ptr->body.extra_skills.stl,
+                r_ptr->body.skills.srh, 
+                r_ptr->body.skills.fos,
+                r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn, 
+                r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
+            );
+        }
+    }
+}
+
 void generate_spoilers(void)
 {
     spoiler_hack = TRUE;
@@ -464,6 +493,7 @@ void generate_spoilers(void)
     _text_file("Demigods.txt", _demigods_help);
     _text_file("Classes.txt", _classes_help);
     _text_file("Personalities.txt", _personalities_help);
+    _text_file("PossessorStats.csv", _possessor_stats_help);
 
 /*    _show_help("Personalities.txt"); */
     spoiler_hack = FALSE;

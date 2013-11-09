@@ -35,6 +35,10 @@ rod of acid balls#!s!d!k
 wizardstaff
 ?:1
 
+?:[EQU $RACE Possessor]
+~corpse
+?:1
+
 rod of healing
 staff of healing
 staff of speed

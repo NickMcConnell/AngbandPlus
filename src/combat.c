@@ -362,6 +362,9 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     if (result > blow_info.num) 
         result = blow_info.num;
 
+    if (result < 100)
+        result = 100;
+
     return result;
 }
 
@@ -699,6 +702,7 @@ static cptr _effect_name(int which)
     case GF_OLD_CONF: return "Confuse";
     case GF_STUN: return "Stun";
     case GF_DRAIN_MANA: return "Drain Mana";
+    case GF_TURN_ALL: return "Terrifies";
     }
     return "Unknown";
 }
@@ -820,6 +824,9 @@ int display_innate_attack_info(int which, int row, int col)
             break;
         case GF_STUN:
             c_put_str(TERM_L_BLUE, format("Stuns%s", xtra), r++, c+10);
+            break;
+        case GF_TURN_ALL:
+            c_put_str(TERM_RED, format("Terrifies%s", xtra), r++, c+10);
             break;
         default:
             sprintf(buf, " %-7.7s: %d (%d-%d)",

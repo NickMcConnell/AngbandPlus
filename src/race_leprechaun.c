@@ -188,14 +188,17 @@ static void _calc_bonuses(void)
     switch (p_ptr->current_r_idx)
     {
     case MON_CHEERFUL_LEPRECHAUN:
+        p_ptr->align += 200;
         p_ptr->pspeed += 5;
         break;
     case MON_MALICIOUS_LEPRECHAUN:
+        p_ptr->align -= 200;
         p_ptr->pspeed += 7;
         p_ptr->levitation = TRUE;
         res_add_vuln(RES_LITE);
         break;
     case MON_DEATH_LEPRECHAUN:
+        p_ptr->align -= 200;
         p_ptr->pspeed += 10;
         p_ptr->levitation = TRUE;
         res_add_vuln(RES_LITE);
@@ -215,16 +218,13 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     switch (p_ptr->current_r_idx)
     {
     case MON_CHEERFUL_LEPRECHAUN:
-        p_ptr->align += 200;
         add_flag(flgs, TR_SPEED);
         break;
     case MON_MALICIOUS_LEPRECHAUN:
-        p_ptr->align -= 200;
         add_flag(flgs, TR_SPEED);
         add_flag(flgs, TR_LEVITATION);
         break;
     case MON_DEATH_LEPRECHAUN:
-        p_ptr->align -= 200;
         add_flag(flgs, TR_SPEED);
         add_flag(flgs, TR_LEVITATION);
         add_flag(flgs, TR_RES_NETHER);

@@ -571,6 +571,15 @@ static void rd_extra(savefile_ptr file)
     p_ptr->psubclass = savefile_read_byte(file);
     p_ptr->psubrace = savefile_read_byte(file);
     p_ptr->current_r_idx = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 2, 0, 0, 1))
+    {
+        if ( p_ptr->prace == RACE_MON_DEMON
+          && p_ptr->psubrace == DEMON_MARILITH
+          && p_ptr->current_r_idx == MON_LESSER_BALROG )
+        {
+            p_ptr->current_r_idx = MON_MARILITH;
+        }
+    }
     p_ptr->expfact = savefile_read_u16b(file);
 
     for (i = 0; i < 6; i++) p_ptr->stat_max[i] = savefile_read_s16b(file);
@@ -896,10 +905,8 @@ static void rd_extra(savefile_ptr file)
  */
 static errr rd_inventory(savefile_ptr file)
 {
-    int slot = 0;
-
-    object_type forge;
-    object_type *q_ptr;
+    int           slot = 0;
+    object_type   forge;
 
     p_ptr->total_weight = 0;
     inven_cnt = 0;
@@ -911,17 +918,30 @@ static errr rd_inventory(savefile_ptr file)
 
         if (n == 0xFFFF) break;
 
-        q_ptr = &forge;
-        object_wipe(q_ptr);
-        rd_item(file, q_ptr);
+        object_wipe(&forge);
+        rd_item(file, &forge);
 
-        if (!q_ptr->k_idx) return (53);
+        if (!forge.k_idx) return (53);
 
         if (n >= EQUIP_BEGIN)
         {
-            q_ptr->marked |= OM_TOUCHED;
-            object_copy(&inventory[n], q_ptr);
-            p_ptr->total_weight += (q_ptr->number * q_ptr->weight);
+            /*if (equip_verify_slot(n, &forge))*/
+            if (equip_is_valid_slot(n))
+            {
+                forge.marked |= OM_TOUCHED;
+                object_copy(&inventory[n], &forge);
+                p_ptr->total_weight += (forge.number * forge.weight);
+            }
+            else
+            {
+                /* TODO: We could make an effort at repair. For example, put
+                   all of these objects into a side array. Once finished, try
+                   to wield each of them. If failed, try to place each in pack.
+                   If failed, drop each remaining near player. I'm not sure this
+                   is worth the coding effort! */
+                note("Invalid inventory slot!");
+                return (54);
+            }
         }
         else if (inven_cnt == INVEN_PACK)
         {
@@ -931,9 +951,9 @@ static errr rd_inventory(savefile_ptr file)
         else
         {
             n = slot++;
-            q_ptr->marked |= OM_TOUCHED;
-            object_copy(&inventory[n], q_ptr);
-            p_ptr->total_weight += (q_ptr->number * q_ptr->weight);
+            forge.marked |= OM_TOUCHED;
+            object_copy(&inventory[n], &forge);
+            p_ptr->total_weight += (forge.number * forge.weight);
             inven_cnt++;
         }
     }
@@ -1288,9 +1308,11 @@ static errr rd_savefile_new_aux(savefile_ptr file)
              "Loading a %d.%d.%d savefile...",
              (z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
 
-
     if (savefile_is_older_than(file, 0, 9, 0, 1))
+    {
+        note("Old savefiles are not supported!");
         return 1;
+    }
 
     sf_system = savefile_read_u32b(file);
     sf_when = savefile_read_u32b(file);

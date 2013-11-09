@@ -1,7 +1,5 @@
 #include "angband.h"
 
-#define MON_MARILITH 940 /* TODO: 940 is actually a Lesser Balrog */
-
 static cptr _desc = 
     "Demons are powerful servants of evil and come in many forms. Being monsters, they "
     "may not choose a normal class. Instead, they rely on their devilish powers or their "
@@ -21,50 +19,6 @@ static cptr _desc =
     "powers.\n \n"
     "All demon races cannot eat normal food, but must feast upon the remains of their human "
     "enemies. They are unaffected by the Eldritch Horror.";
-
-static equip_template_t _marilith_template = {12, {
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 0},
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 1},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 1},
-    {EQUIP_SLOT_GLOVES, "Gloves", 0}, 
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 2},
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 3},
-    {EQUIP_SLOT_GLOVES, "Gloves", 2}, 
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 4},
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 5},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_LITE, "Light", 0},
-}};
-
-static equip_template_t _fleshhound_template = {10, { 
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_AMULET, "Amulet", 0},
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-    {EQUIP_SLOT_HELMET, "Helm", 0},
-    {EQUIP_SLOT_BOOTS, "Boots", 0}, /* Back paws only ... */
-}};
-
-static equip_template_t _bloodthirster_template = {12, { 
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 0}, /* Front paws */
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 1},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 1},
-    {EQUIP_SLOT_RING, "Ring", 1},
-    {EQUIP_SLOT_AMULET, "Amulet", 0},
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-    {EQUIP_SLOT_HELMET, "Helm", 0},
-    {EQUIP_SLOT_BOOTS, "Boots", 0}, /* Back paws only */
-}};
-
 
 static caster_info * _caster_info(void)
 {
@@ -90,6 +44,7 @@ static void _khorne_birth(void)
     object_type    forge;
 
     p_ptr->current_r_idx = MON_BLOODLETTER_KHORNE;
+    equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
     forge.to_d = 6;
@@ -372,19 +327,7 @@ static race_t *_khorne_get_race_t(void)
     me.stats[A_CHR] =  rank/3;
     me.life = 100 + 6*rank;
 
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_FLESHHOUND_KHORNE:
-    case MON_JUGGERNAUT_KHORNE:
-        me.equip_template = &_fleshhound_template;
-        break;
-    case MON_BLOODTHIRSTER:
-        me.equip_template = &_bloodthirster_template;
-        break;
-    default:
-        me.equip_template = NULL;
-    }
-
+    me.equip_template = mon_get_equip_template();
     me.boss_r_idx = MON_MEPHISTOPHELES;
 
     return &me;
@@ -416,6 +359,7 @@ static void _marilith_birth(void) {
     object_type    forge;
 
     p_ptr->current_r_idx = MON_MANES;
+    equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
     forge.to_d = 3;
@@ -611,11 +555,7 @@ static race_t *_marilith_get_race_t(void)
     me.stats[A_CHR] =  rank/2;
     me.life = 95 + 2*rank;
 
-    if (p_ptr->current_r_idx == MON_MARILITH)
-        me.equip_template = &_marilith_template;
-    else
-        me.equip_template = NULL;
-
+    me.equip_template = mon_get_equip_template();
     me.boss_r_idx = MON_MEPHISTOPHELES;
 
     return &me;
@@ -844,6 +784,8 @@ static void _cyber_calc_bonuses(void)
 {
     int l = p_ptr->lev;
     int to_a = l/2 + l*l/100 + l*l*l/5000;
+
+    p_ptr->move_random = TRUE;
 
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;

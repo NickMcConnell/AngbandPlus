@@ -5,6 +5,7 @@ static void _birth(void)
     object_type    forge;
 
     p_ptr->current_r_idx = MON_GAZER;
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
     forge.name2 = EGO_SEEING;
@@ -25,42 +26,6 @@ static void _birth(void)
     apply_magic(&forge, 1, AM_AVERAGE);
     add_outfit(&forge);
 }
-
-/**********************************************************************
- * Equipment
- **********************************************************************/
-static equip_template_t _gazer_template = 
-    {2, { {EQUIP_SLOT_HELMET, "Helmet", 0},
-          {EQUIP_SLOT_LITE, "Light", 0} }
-};
-static equip_template_t _spectator_template = 
-    {4, { {EQUIP_SLOT_HELMET, "Helmet", 0},
-          {EQUIP_SLOT_LITE, "Light", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0} }
-};
-static equip_template_t _beholder_template = 
-    {8, { {EQUIP_SLOT_HELMET, "Helmet", 0},
-          {EQUIP_SLOT_LITE, "Light", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0},
-          {EQUIP_SLOT_RING, "Eyestalk", 0} }
-};
-static equip_template_t _ultimate_template = 
-    {10, { {EQUIP_SLOT_HELMET, "Helmet", 0},
-           {EQUIP_SLOT_LITE, "Light", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0},
-           {EQUIP_SLOT_RING, "Eyestalk", 0} }
-};
 
 /**********************************************************************
  * Innate Attacks
@@ -379,20 +344,7 @@ race_t *mon_beholder_get_race_t(void)
     me.stats[A_CHR] =  0 + rank/2;
     me.life = 100;
 
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_ULTIMATE_BEHOLDER:
-        me.equip_template = &_ultimate_template;
-        break;
-    case MON_UNDEAD_BEHOLDER:
-    case MON_BEHOLDER:
-        me.equip_template = &_beholder_template;
-        break;
-    case MON_SPECTATOR:
-        me.equip_template = &_spectator_template;
-        break;
-    default:
-        me.equip_template = &_gazer_template;
-    }
+    me.equip_template = mon_get_equip_template();
+
     return &me;
 }

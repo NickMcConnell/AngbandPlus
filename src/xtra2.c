@@ -818,6 +818,24 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     return TRUE;    
 }
 
+static bool _mon_is_wanted(int m_idx)
+{
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED) && !vanilla_town)
+    {
+        int i;
+        for (i = 0; i < MAX_KUBI; i++)
+        {
+            if (kubi_r_idx[i] == m_ptr->r_idx && !(m_ptr->mflag2 & MFLAG2_CHAMELEON))
+            {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
 /*
  * Handle the "death" of a monster.
  *
@@ -848,6 +866,7 @@ void monster_death(int m_idx, bool drop_item)
     u32b mo_mode = 0L;
 
     bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
+    int corpse_chance = 3;
 
     object_type forge;
     object_type *q_ptr;
@@ -944,9 +963,12 @@ void monster_death(int m_idx, bool drop_item)
     }
 
     /* Drop a dead corpse? */
-    if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 3) &&
-        (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) &&
-        !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
+    if (p_ptr->prace == RACE_MON_POSSESSOR && p_ptr->current_r_idx == MON_POSSESSOR_SOUL)
+        corpse_chance = 2;
+
+    if ( (_mon_is_wanted(m_idx) || one_in_(corpse_chance))
+      && (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) 
+      && !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
     {
         /* Assume skeleton */
         bool corpse = FALSE;
@@ -957,9 +979,14 @@ void monster_death(int m_idx, bool drop_item)
          */
         if (!(r_ptr->flags9 & RF9_DROP_SKELETON))
             corpse = TRUE;
-        else if ((r_ptr->flags9 & RF9_DROP_CORPSE) && (r_ptr->flags1 & RF1_UNIQUE))
+        else if ((r_ptr->flags9 & RF9_DROP_CORPSE) && _mon_is_wanted(m_idx))
             corpse = TRUE;
-
+        else if ( (r_ptr->flags9 & RF9_DROP_CORPSE) 
+               && p_ptr->prace == RACE_MON_POSSESSOR 
+               && p_ptr->current_r_idx == MON_POSSESSOR_SOUL )
+        {
+            corpse = TRUE;
+        }
         /* Else, a corpse is more likely unless we did a "lot" of damage */
         else if (r_ptr->flags9 & RF9_DROP_CORPSE)
         {
@@ -983,6 +1010,13 @@ void monster_death(int m_idx, bool drop_item)
         apply_magic(q_ptr, object_level, AM_NO_FIXED_ART);
 
         q_ptr->pval = m_ptr->r_idx;
+        if (r_ptr->weight && p_ptr->prace == RACE_MON_POSSESSOR)
+        {
+            if (corpse)
+                q_ptr->weight = r_ptr->weight * 10;
+            else
+                q_ptr->weight = r_ptr->weight * 10 / 3;
+        }
 
         /* Drop it in the dungeon */
         (void)drop_near(q_ptr, -1, y, x);
@@ -2101,8 +2135,12 @@ void mon_check_kill_unique(int m_idx)
         {
             r_ptr->max_num = 0;
 
-            if (one_in_(3))
+            if (one_in_(3) || r_ptr->level >= 80)
+            {
                 p_ptr->fame++;
+                if (r_ptr->level >= 90)
+                    p_ptr->fame++;
+            }
 
             /* Mega-Hack -- Banor & Lupart */
             if ((m_ptr->r_idx == MON_BANOR) || (m_ptr->r_idx == MON_LUPART))
@@ -2271,8 +2309,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
                 r_ptr->max_num = 0;
 
-                if (one_in_(3))
+                if (one_in_(3) || r_ptr->level >= 80)
+                {
                     p_ptr->fame++;
+                    if (r_ptr->level >= 90)
+                        p_ptr->fame++;
+                }
 
                 /* Mega-Hack -- Banor & Lupart */
                 if ((m_ptr->r_idx == MON_BANOR) || (m_ptr->r_idx == MON_LUPART))
@@ -2522,16 +2564,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         else
             msg_format("You have slain %s.", m_name);
 
-        if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED) && !vanilla_town)
+        if (_mon_is_wanted(m_idx))
         {
-            for (i = 0; i < MAX_KUBI; i++)
-            {
-                if ((kubi_r_idx[i] == m_ptr->r_idx) && !(m_ptr->mflag2 & MFLAG2_CHAMELEON))
-                {
-                    msg_format("There is a price on %s's head.", m_name);
-                    break;
-                }
-            }
+            msg_format("There is a price on %s's head.", m_name);
         }
 
         /* Generate treasure */
@@ -4753,7 +4788,7 @@ bool get_rep_dir(int *dp, bool under)
             dir = ddd[randint0(8)];
         }
     }
-    else if (demon_is_(DEMON_CYBERDEMON))
+    else if (p_ptr->move_random)
     {
         if (one_in_(66))
         {
@@ -4769,7 +4804,7 @@ bool get_rep_dir(int *dp, bool under)
             /* Warn the user */
             msg_print("You are confused.");
         }
-        else if (demon_is_(DEMON_CYBERDEMON))
+        else if (p_ptr->move_random)
             msg_print("You are moving erratically.");
         else
         {

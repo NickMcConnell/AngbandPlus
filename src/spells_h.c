@@ -113,6 +113,32 @@ void identify_fully_spell(int cmd, variant *res)
 }
 bool cast_identify_fully(void) { return cast_spell(identify_fully_spell); }
 
+void hand_of_doom_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Hand of Doom");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempt to mortally wound a target monster, draining a large proportion of their remaining health.");
+        break;
+    case SPELL_CAST:
+    {
+        int dir = 0;
+        var_set_bool(res, FALSE);
+        if (!get_aim_dir(&dir)) return;
+        msg_print("You invoke the Hand of Doom!");
+        fire_ball_hide(GF_HAND_DOOM, dir, spell_power(p_ptr->lev * 3), 0);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void haste_self_spell(int cmd, variant *res)
 {
     int base = spell_power(p_ptr->lev);
@@ -168,7 +194,7 @@ void healing_II_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "*Healing*");
+        var_set_string(res, "Healing");
         break;
     case SPELL_DESC:
         var_set_string(res, "Powerful healing magic:  heals hitpoints, cuts and stun.");
@@ -432,6 +458,58 @@ void imp_fire_spell(int cmd, variant *res)
             var_set_int(res, 7);
         else
             var_set_int(res, 0);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void invoke_logrus_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Invoke Logrus");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Fires a huge ball of chaos.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(spell_power(10), 10, spell_power(p_ptr->lev*4)));
+        break;
+    case SPELL_CAST:
+    {
+        int dir = 0;
+        var_set_bool(res, FALSE);
+        if (!get_aim_dir(&dir)) return;
+        fire_ball(GF_CHAOS, dir, spell_power(damroll(10, 10) + p_ptr->lev*4), 4);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void invulnerability_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Globe of Invulnerability");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks or duration time is exceeded.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(4, 4));
+        break;
+    case SPELL_CAST:
+        msg_print("You cast a Globe of Invulnerability.");
+        set_invuln(spell_power(randint1(4) + 4), FALSE);
+        var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);

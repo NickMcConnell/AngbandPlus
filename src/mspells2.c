@@ -908,9 +908,9 @@ bool monst_spell_monst(int m_idx)
             sound(SOUND_BREATH);
         }
 
-        dam = MIN(m_ptr->hp / 5, 350);
+        dam = MIN(m_ptr->hp / 5, 300);
         monst_breath_monst(m_idx, y, x, GF_STORM,
-                   dam, 0, TRUE, 0, FALSE);
+                   dam, 0, TRUE, MS_BR_STORM, learnable);
 
         break;
 

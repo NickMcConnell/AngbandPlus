@@ -1,25 +1,5 @@
 #include "angband.h"
 
-void detect_evil_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Detect Evil");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Detects all evil monsters in your vicinity.");
-        break;
-    case SPELL_CAST:
-        detect_monsters_evil(DETECT_RAD_DEFAULT);
-        var_set_bool(res, TRUE);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
 void burning_strike_spell(int cmd, variant *res)
 {
     switch (cmd)

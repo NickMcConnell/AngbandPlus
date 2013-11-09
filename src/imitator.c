@@ -275,7 +275,10 @@ static bool use_mane(int spell)
         break;
     case MS_XXX3:
         break;
-    case MS_XXX4:
+    case MS_BR_STORM:
+        if (!get_aim_dir(&dir)) return FALSE;
+        else msg_print("You breathe storm.");
+        fire_ball(GF_STORM, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_ACID:
         if (!get_aim_dir(&dir)) return FALSE;

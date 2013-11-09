@@ -146,26 +146,6 @@ static void _chain_hook_spell(int cmd, variant *res)
     }
 }
 
-static void _create_darkness_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Create Darkness");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Darken nearby area and inside of a room.");
-        break;
-    case SPELL_CAST:
-        unlite_area(0, 3);
-        var_set_bool(res, TRUE);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
 static void _detect_near_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -491,7 +471,7 @@ static void _syuriken_spreading_spell(int cmd, variant *res)
 static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
-    { 1,   1,  20, _create_darkness_spell},
+    { 1,   1,  20, create_darkness_spell},
     { 2,   2,  25, _detect_near_spell},
     { 3,   3,  25, _hide_in_leaves_spell},
     { 5,   3,  30, _kawarimi_spell},

@@ -1964,6 +1964,10 @@ static bool _get_store_obj2(object_type *o_ptr)
     {
         k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     }
+    else if (cur_store_num == STORE_GENERAL && one_in_(50))
+    {
+        k_idx = lookup_kind(TV_CAPTURE, 0);
+    }
     else
     {    
         if (get_obj_num_hook) get_obj_num_prep();
@@ -3665,6 +3669,9 @@ static void store_sell(void)
 
             /* Get some money */
             p_ptr->au += price;
+
+            if (prace_is_(RACE_MON_LEPRECHAUN))
+                p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
             /* Update the display */
             store_prt_gold();

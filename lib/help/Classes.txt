@@ -620,10 +620,15 @@
 ***** <Necromancer>
 [[[[r|  Necromancer
 
-  A necromancer attempts to gain both power and knowledge through communion
-  with the dead.  A powerful necromancer is truly awe inspiring, and may even
-  kill foes with a single touch! They forever hunt for the legendary Eye and
-  Hand of Vecna in order to complete their power.
+  A Necromancer attempts to gain both power and knowledge through communion
+  with the dead. They use powerful necromancy magic to summon aid from the
+  dead, whether directly in terms of undead servitude, or indirectly through
+  other-worldly knowledge. Necromancy also offers myriad foul offensive spells,
+  but all of these require the Necromancer to physically touch his foe. To do
+  so, the Necromancer may wield neither weapon, nor gloves. But a powerful
+  necromancer is truly awe inspiring, and may even kill foes with a single
+  deadly touch! In addition, they forever hunt for the legendary Eye and Hand
+  of Vecna in order to complete their power.
 
 
 ***** <Psion>
@@ -645,7 +650,21 @@
 
   The Rage Mage is part of a secret sect descending from the Barbarians in
   response to their natural foes, the mages. As time passed, other races have
-  also begun to learn their arts. 
+  also begun to learn their arts. The powers of the Rage Mage are spells
+  learned from books, but they don't work the way normal spells do. First of
+  all, the Rage Mage must perform a special Ritual of Anger to learn a spell,
+  and this ritual destroys the spell book in the process. As a result, it may
+  take a long time for the Rage Mage to learn all of their high level powers.
+  Once learned, the Rage Mage no longers requires the spell book in order to
+  perform the power.
+   
+  Another unique aspect of the Rage Mage concerns their Mana pool. Unlike
+  normal spellcasters, the Rage Mage's mana does not regenerate on its own. In
+  fact, their mana actually decreases rapidly each turn, meaning that they had
+  better use their powers quickly while they still can. The Rage Mage gains
+  mana whenever he is the target of a magical spell. Indeed, magic makes the
+  Rage Mage very angry! The Rage Mage can also fuel their mana by hurting those
+  around them. This can be quite effective in crowded situations.
 
 
 ***** <Scout>
@@ -815,4 +834,4 @@
 
 
 
-[[[[s|  Automatically generated for PosChengband 1.0.37.
+[[[[s|  Automatically generated for PosChengband 2.0.0.

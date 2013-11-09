@@ -877,28 +877,14 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 }
 
 /**********************************************************************
- * Equipment, Birth and Evolution
+ * Birth and Evolution
  **********************************************************************/
-static equip_template_t _equip_template = {12, { 
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_AMULET, "Amulet", 0},
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-    {EQUIP_SLOT_HELMET, "Helm", 0},
-    {EQUIP_SLOT_CAPTURE_BALL, "Capture 1", 0},
-    {EQUIP_SLOT_CAPTURE_BALL, "Capture 2", 0},
-    {EQUIP_SLOT_CAPTURE_BALL, "Capture 3", 0},
-    {EQUIP_SLOT_CAPTURE_BALL, "Capture 4", 0},
-}};
-
 static void _birth(void) 
 { 
     object_type    forge;
 
     p_ptr->current_r_idx = MON_QUYLTHULG;
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_CAPTURE, 0));
     add_outfit(&forge);
@@ -1020,6 +1006,6 @@ race_t *mon_quylthulg_get_race_t(void)
     me.life = 95;
     me.boss_r_idx = MON_EMPEROR_QUYLTHULG;
 
-    me.equip_template = &_equip_template;
+    me.equip_template = mon_get_equip_template();
     return &me;
 }

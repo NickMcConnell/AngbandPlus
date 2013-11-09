@@ -185,6 +185,7 @@
     <ClCompile Include="race_jelly.c" />
     <ClCompile Include="race_leprechaun.c" />
     <ClCompile Include="race_lich.c" />
+    <ClCompile Include="race_possessor.c" />
     <ClCompile Include="race_quylthulg.c" />
     <ClCompile Include="race_spider.c" />
     <ClCompile Include="race_sword.c" />
@@ -302,6 +303,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\lib\edit\a_info.txt" />
+    <None Include="..\lib\edit\b_info.txt" />
     <None Include="..\lib\edit\d_info.txt" />
     <None Include="..\lib\edit\e_info.txt" />
     <None Include="..\lib\edit\f_info.txt" />
@@ -376,6 +378,7 @@
     <None Include="..\lib\file\ring_high.txt" />
     <None Include="..\lib\file\ring_low.txt" />
     <None Include="..\lib\file\ring_med.txt" />
+    <None Include="..\lib\file\rumors.txt" />
     <None Include="..\lib\file\w_cursed.txt" />
     <None Include="..\lib\file\w_high.txt" />
     <None Include="..\lib\file\w_low.txt" />

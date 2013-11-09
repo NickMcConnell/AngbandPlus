@@ -439,11 +439,6 @@ bool win_maximized = FALSE;
 bool game_in_progress = FALSE;
 
 /*
- * note when "open"/"new" become valid
- */
-bool initialized = FALSE;
-
-/*
  * screen paletted, i.e. 256 colors
  */
 bool paletted = FALSE;
@@ -4665,9 +4660,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
     /* Initialize */
     init_angband();
-
-    /* We are now initialized */
-    initialized = TRUE;
 
     /* Did the user double click on a save file? */
     check_for_save_file(lpCmdLine);

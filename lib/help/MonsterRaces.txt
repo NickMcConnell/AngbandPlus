@@ -895,20 +895,52 @@
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Quylthulg              -5   -5   -5   -5   -5   +6   95%   +0  150%
   Nexus quylthulg        -4   -4   -4   -4   -4   +7   95%   +0  150%
-  Rotting quylthulg      -3   -3   -3   -3   -3   +8   95%   +0  150%
-  Greater rotting quylt  -2   -2   -2   -2   -2   +9   95%   +0  150%
+  Demonic quylthulg      -3   -3   -3   -3   -3   +8   95%   +0  150%
+  Greater demonic quylt  -2   -2   -2   -2   -2   +9   95%   +0  150%
   Master quylthulg       -1   -1   -1   -1   -1  +10   95%   +0  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Quylthulg             30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
   Nexus quylthulg       30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
-  Rotting quylthulg     30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
-  Greater rotting quylt 30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
+  Draconic quylthulg    30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
+  Greater draconic quyl 30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
   Master quylthulg      30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
 
 
+***** <Possessor>
+[[[[r|  Possessor
+
+  The Possessor is an odd creature, completely harmless in its natural form.
+  However, they are capable of possessing the corpses of monsters they have
+  slain, and gain powers and abilities based on their current body. As such,
+  they can become quite powerful indeed! Unfortunately, not every type of
+  monster will drop a corpse, and getting suitable corspes to inhabit can be
+  difficult. If the possessor ever leaves their current body (and they must do
+  so to inhabit a new form) then all of their equipment will be removed (except
+  a light source) and they will temporarily be in their native, vulnerable
+  state. Finally, leaving their current body will destroy that corpse most of
+  the time, so the possessor should only do so if they have a better corpse on
+  hand (and also only if there are no monsters nearby!).
+   
+  Possessors are monsters and do not choose a normal class. Their stats,
+  skills, resistances and spells are completely determined by the body they
+  inhabit. Their current body also determines their spell stat (e.g. a novice
+  priest uses wisdom, a novice mage uses intelligence). Their current body may
+  offer innate powers (e.g. breath weapons or rockets) in addition to or in
+  lieu of magical powers (e.g. mana storms and frost bolts). Be sure to check
+  both the racial power command ('U') and the magic command ('m') after
+  possessing a new body.
+
+
+[[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Soul                   -3   -3   -3   -3   -3   -8   16%   +0  250%
+
+[[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Soul                  12+5   15+7   26+9    3+0  12+0   9+0  35+11  15+11
 
 
 
 
-[[[[s|  Automatically generated for PosChengband 1.0.37.
+
+
+[[[[s|  Automatically generated for PosChengband 2.0.0.

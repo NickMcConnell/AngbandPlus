@@ -24,6 +24,7 @@ enum {
 };
 
 extern void res_add(int which);
+extern void res_add_amt(int which, int amt);
 extern void res_add_all(void);
 extern void res_add_immune(int which);
 extern void res_add_vuln(int which);

@@ -10,6 +10,12 @@ bool player_is_monster_king(void)
     return TRUE;
 }
 
+equip_template_ptr mon_get_equip_template(void)
+{
+    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+    return &b_info[r_ptr->body.body_idx];
+}
+
 class_t *monster_get_class_t(void)
 {
     static class_t me = {0};

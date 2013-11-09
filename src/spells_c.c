@@ -291,6 +291,26 @@ void confusing_lights_spell(int cmd, variant *res)
     }
 }
 
+void create_darkness_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Create Darkness");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Darken nearby area and inside of a room.");
+        break;
+    case SPELL_CAST:
+        unlite_area(0, 3);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void create_food_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -320,6 +340,66 @@ void create_food_spell(int cmd, variant *res)
     }
 }
 bool cast_create_food(void) { return cast_spell(create_food_spell); }
+
+void create_major_trap_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Create Major Trap");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Sets a trap under you. This trap will have various effects on a passing monster.");
+        break;
+    case SPELL_CAST:
+        set_trap(py, px, feat_rogue_trap2);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void create_minor_trap_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Create Minor Trap");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Sets a weak trap under you. This trap will have various weak effects on a passing monster.");
+        break;
+    case SPELL_CAST:
+        set_trap(py, px, feat_rogue_trap1);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void create_ultimate_trap_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Create Ultimate Trap");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Sets an extremely powerful trap under you. This trap will have various strong effects on a passing monster.");
+        break;
+    case SPELL_CAST:
+        set_trap(py, px, feat_rogue_trap3);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
 void cure_poison_spell(int cmd, variant *res)
 {
@@ -697,6 +777,26 @@ void detect_doors_stairs_traps_spell(int cmd, variant *res)
     }
 }
 bool cast_detect_doors_stairs_traps(void) { return cast_spell(detect_doors_stairs_traps_spell); }
+
+void detect_evil_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Detect Evil");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Detects nearby evil monsters.");
+        break;
+    case SPELL_CAST:
+        detect_monsters_evil(DETECT_RAD_DEFAULT);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
 void detect_menace_spell(int cmd, variant *res)
 {

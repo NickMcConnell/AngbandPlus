@@ -245,13 +245,6 @@ static int _res_power(int which)
 }
 
 /**********************************************************************
- * Equipment
- **********************************************************************/
-static equip_template_t _template1 =  {1, { 
-    {EQUIP_SLOT_WEAPON, "You", 0},
-}};
-
-/**********************************************************************
  * Attacks and Bonuses
  **********************************************************************/
 typedef struct {
@@ -355,7 +348,6 @@ static void _calc_bonuses(void)
 
     p_ptr->pspeed += 1;
     
-    p_ptr->lite = TRUE;
     p_ptr->no_cut = TRUE;
     res_add(RES_BLIND);
     res_add(RES_POIS);
@@ -375,7 +367,10 @@ static void _calc_bonuses(void)
         p_ptr->pspeed += 2;
 
     if (p_ptr->lev >= 45)
+    {
         p_ptr->pspeed += 2;
+        p_ptr->sh_retaliation = TRUE;
+    }
 
     for (i = 0; i < 6; i++) /* Assume in order */
         p_ptr->stat_add[A_STR + i] += _calc_stat_bonus(TR_STR + i);
@@ -711,6 +706,7 @@ static void _birth(void)
         _essences[i] = 0;
 
     p_ptr->current_r_idx = MON_BROKEN_DEATH_SWORD;
+    equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_BROKEN_SWORD));
     add_flag(forge.art_flags, TR_NO_REMOVE);
@@ -995,7 +991,7 @@ race_t *mon_sword_get_race_t(void)
     me.life = 85 + 5*rank;
     me.boss_r_idx = MON_STORMBRINGER;
 
-    me.equip_template = &_template1;
+    me.equip_template = mon_get_equip_template();
     return &me;
 }
 
@@ -1023,5 +1019,5 @@ bool sword_disenchant(void)
 
 int sword_calc_torch(void)
 {
-    return _calc_amount(_essences[TR_LITE], 1, 1);
+    return 1 + _calc_amount(_essences[TR_LITE], 1, 1);
 }

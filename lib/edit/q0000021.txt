@@ -1,5 +1,6 @@
 # q0000021.txt
 # a quick creation by Jeff Coleburn <vsp@netaxs.com>
+# redone by clouded
 
 # Name
 Q:21:N:Doom Quest 2
@@ -32,14 +33,38 @@ Q:21:T:questing.
 Q:21:T:I've sent out someone else to do the job.  Now leave me alone!
 ?:1
 
-# Floor with Manes
-F:a:FLOOR:8:128
+# Monsters and Terrain
 
-# Floor with Imp
-F:b:FLOOR:8:296
+# Randomise the position of the Maulotaur and Hell Knight
+?:[EQU [MOD $RANDOM21 4] 0]
+# Floor with Maulotaur
+F:h:FLOOR:8:723
+# Floor with Hell Knight
+F:i:FLOOR:8:731
+# Floor with Baron of Hell
+F:j:FLOOR:8:609
+# Floor with Revenant
+F:k:FLOOR:8:555
 
-# Floor with Flying Skull
-F:c:FLOOR:8:273
+?:[EQU [MOD $RANDOM21 4] 1]
+F:i:FLOOR:8:723
+F:j:FLOOR:8:731
+F:k:FLOOR:8:609
+F:h:FLOOR:8:555
+
+?:[EQU [MOD $RANDOM21 4] 2]
+F:j:FLOOR:8:723
+F:k:FLOOR:8:731
+F:h:FLOOR:8:609
+F:i:FLOOR:8:555
+
+?:[EQU [MOD $RANDOM21 4] 3]
+F:k:FLOOR:8:723
+F:h:FLOOR:8:731
+F:i:FLOOR:8:609
+F:j:FLOOR:8:555
+
+?:1
 
 # Floor with Arch-Vile
 F:d:FLOOR:8:357
@@ -53,43 +78,65 @@ F:f:FLOOR:8:609
 # Floor with Iron Lich
 F:g:FLOOR:8:666
 
-# Floor with Maulotaur
-F:h:FLOOR:8:723
+# Deep lava
+F:l:DEEP_LAVA:2
 
-# Floor with Hell Knight
-F:i:FLOOR:8:731
+# Permawalls
+F:x:PERMANENT:8
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XTTTTTTT..f..a..b..c..d..e..d..c..b..a..b..c..d..e..d..c..b..a%.XXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXX
-D:Xb...b.b..b.X.......XX..X......X........X......X..........D.....XXXXX
-D:X%XXXXX..c.cX.......XaXX%..b...D........X......X..b.......D.....XXXXX
-D:XaaaaaX.....X.......X.XXX..c...X........X...d..X..........D.....XXXXX
-D:XXXXXaX.....X.......X.XXX......X...T....D......X.b.c......X%%%%%XXXXX
-D:X...XaX.b.TcX.......XXcXX......X........X......X.......c..XeeeeeXXXXX
-D:X<..%aX.....X........XXcXXXDXXXXXXXXXXXXXXDXXXXX..........XabcdeXXXXX
-D:X...XaX.....X..XXXXXDXXcX......XTT...c.cX......X...b......X%%%%%XXXXX
-D:XXXXXaX.ccb.X..XeXX.XXXbX......X...T.dbaX...e..X.......c..X.....XXXXX
-D:XaaaaaX.....X..XX..XX.X.X......X.T.c.cbaX......X.a........Xf...fXXXXX
-D:XXXXXXXXXDXXX..X.XXX.X.XX.bbb..X..d.caaaX......X....a..b..X.....XXXXX
-D:XTXX.......XX..X.Xb.XXXXXXXXDXXXXXXXXXXXDXXXDXXX....g.....X.....XXXXX
-D:XdXX......XX...X.XX.XXXXX......X........X......X.a.c......XT.f.TXXXXX
-D:XDXX.....XX....XX.X.X.XXX......X..aaa...X......X....a.c...X%%%%%XXXXX
-D:X.......XX.....X.XX..X.XX......X...aaa..X......X.........XX.....XXXXX
-D:X......XXTT....XX.XcdX.XX......D....ccc.D...T..X..b...b..XX.....XXXXX
-D:X.....XXXXXXDXXXX..XX.XXX..T...X........X......XX......d.XXg...gXXXXX
-D:X....XXXXXXDXDXXeXX..XXXXXXXXXXXXXXXXXXXXXXXXXX%XX..a...XX......XXXXX
-D:X...XXXXXXXXDXXXXXXXXXXXXXXT..................XXfX...c..XXT....TXXXXX
-D:X..XXf..........e....T...eX.c.................XDXX......XX%%%%%%XXXXX
-D:X.XXXXX...................X....................XXXXX..a.XX%%%%%%XXiXX
-D:X.XX......................Xg..T................XXXXX....XX......XX.XX
-D:X.XX.....d................Xe...................XXXXX.b..XX......XX.XX
-D:X.XX......................X....................XXXXX...XX........%XXX
-D:XdXX..........d..........TX.c..................XXXX...XXTT........XXX
-D:Xd%%................e.....XT....................D....XXTTT..h...TTTXX
+D:XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxlxxxlllxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxxxxxxxlxxlxxxlxllxlllllllxxxxxxxxxxxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxxxlxlllxlllxlllllllllllllllxxxxlllxxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxlllllllllllllllllllllllllllllllllllllxxxxxxxxxxxxxxxX
+D:Xxxxxxxxxxxxxxxxllllllllllllllllllll..lllllllllllllllllxxxxxxxxxxxxxX
+D:Xxxxxxxxxxlxxxxllll...lll..lllllll.......llllllll....llllxxxxxxxxxxxX
+D:Xxxxxxxxxllxxxllll...........lllll..........ll........lllllxxxxxxxxxX
+D:Xxxxxxxxllllllll............lllll.f....................llllxxxxxxxxxX
+D:Xxxxxxxlllllll......e........l.ll............h..........llllxxxxxxxxX
+D:Xxxxxxxllll...................llll....e.................lllllxxxxxxxX
+D:Xxxxxxxxllll...................llll..................e...lllxxxxxxxxX
+D:Xxxxxxxxxllll......xx.xx........ll...........xx.xx......llllxxxxxxxxX
+D:Xxxxxxxxxllll.....xxx.xxx...e.....l.........xxx.xxx....lllllxxxxxxxxX
+D:Xxxxxxxxllll......xxTTTxx...................xxTTTxx..llllllxxxxxxxxxX
+D:Xxxxxxxxlllll.......TgT......l..l.......e.....TgT...lllllllxxxxxxxxxX
+D:Xxxxxxxxxxlll..i..xxTTTxx.....l.lld.........xxTTTxxlllllllllxxxxxxxxX
+D:Xxxxxxxxxllll.....xxx.xxx.l..l.llllll.....llxxx.xxxllllllllllxxxxxxxX
+D:Xxxxxxxxxxllll.....xx.xx...l.llllllllll..llllxx.xxllllllllllxxxxxxxxX
+D:Xxxxxxxxxlllll............l.lllllllxllllllllllllllllllllllllxxxxxxxxX
+D:Xxxxxxxxxxlll............lllllxllllllxllllllllllllll..lllllxxxxxxxxxX
+D:Xxxxxxxxxxllll............lllxxlxlllxxxlllllllllll.....llllxxxxxxxxxX
+D:Xxxxxxxxxllll.....e......llllxxxl...lxlxlllllll.l.l....llllxxxxxxxxxX
+D:Xxxxxxxxllll.............lllllxl.....lxlllllllll......llllxxxxxxxxxxX
+D:Xxxxxxllllll............lllllxl.......lxllllll.........llllxxxxxxxxxX
+D:Xxxxxxxllllll.f.......dllllllll...<...llllllld........f.llllxxxxxxxxX
+D:Xxxxxxxxllllll.........llllllll.......llllll...e........llllxxxxxxxxX
+D:Xxxxxxxxllllll........lllllllxll.....lxlllll...........llllxxxxxxxxxX
+D:Xxxxxxxxxllll....e..llllllllllxxl...lxlxllll..........lllxxxxxxxxxxxX
+D:Xxxxxxxxxxllll.....llllllllllllxxlllxlxxlll............lllxxxxxxxxxxX
+D:Xxxxxxxxxxxlllllll...llllllllxlxllllllxlll.........e...llllxxxxxxxxxX
+D:Xxxxxxxxxxlllllllll....llll.llllxxlllxlll...............lllxxxxxxxxxX
+D:Xxxxxxxxxxlllllllllxx.xxll....lllllllll......xx.xx.....llllxxxxxxxxxX
+D:Xxxxxxxxxxxlllllllxxx.xxxl...l..lllllll.....xxx.xxx....lllxxxxxxxxxxX
+D:XxxxxxxxxxllllllllxxTTTxx......l.lllllll....xxTTTxx....lllxxxxxxxxxxX
+D:Xxxxxxxxxlllllll....TgT........l.llllllll.....TgT.......lllxxxxxxxxxX
+D:Xxxxxxxxllllllll..xxTTTxx..e..l.lllxlxlxl...xxTTTxx.....lllllxxxxxxxX
+D:Xxxxxxxlllllll....xxx.xxx........llllxxll...xxx.xxx.j....lllllxxxxxxX
+D:Xxxxxllllllll......xx.xx.........ldlxlxll....xx.xx.......llllxxxxxxxX
+D:Xxxxxxllllll....e............e..l..lxlll................llllxxxxxxxxX
+D:Xxxxxxxxllll............k.........llllll..e...........lllllxxxxxxxxxX
+D:Xxxxxxxxxllll....................llllll.............lllllxxxxxxxxxxxX
+D:Xxxxxxxxxxllll.............ll...l.flllll...........llllxxxxxxxxxxxxxX
+D:Xxxxxxxxxxllllll.....llll.lllll..lllllllll....llllllllxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxlllllllllllllllllllllllllxlllllllllllllllllxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxlllllllllllllllxxlxllllxxxlllllllllxxllllxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxlllllllxxllxxxxxlxxxxxxxllxxlllxxxxlxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxxllllxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxxxxlxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX
+D:XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
 # Starting position
-P:8:1
-
+P:26:34

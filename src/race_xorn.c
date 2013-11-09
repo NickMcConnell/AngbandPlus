@@ -1,33 +1,5 @@
 #include "angband.h"
 
-static equip_template_t _umber_hulk_template =  {10, { 
-    {EQUIP_SLOT_WEAPON_SHIELD, "Right Arm", 0},
-    {EQUIP_SLOT_WEAPON_SHIELD, "Left Arm", 1},
-    {EQUIP_SLOT_RING, "Right Ring", 0},
-    {EQUIP_SLOT_RING, "Left Ring", 1},
-    {EQUIP_SLOT_GLOVES, "Gloves", 0}, 
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_BOOTS, "Feet", 0},
-}};
-
-static equip_template_t _xorn_template =  {11, { 
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 0},
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 1},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 1},
-    {EQUIP_SLOT_GLOVES, "Gloves", 0}, 
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 2},
-    {EQUIP_SLOT_WEAPON_SHIELD, "Arm", 3},
-    {EQUIP_SLOT_RING, "Ring", 2},
-    {EQUIP_SLOT_RING, "Ring", 3},
-    {EQUIP_SLOT_GLOVES, "Gloves", 2}, 
-    {EQUIP_SLOT_LITE, "Light", 0},
-}};
-
-
 static void _birth(void) 
 { 
     object_type    forge;
@@ -43,6 +15,8 @@ static void _birth(void)
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS));
     add_outfit(&forge);
+
+    equip_on_change_race();
 }
 
 static void _calc_innate_attacks(void)
@@ -178,15 +152,7 @@ race_t *mon_xorn_get_race_t(void)
     me.stats[A_CHR] = -1;
     me.life = 105 + 5*rank;
 
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_XAREN:
-    case MON_XORN:
-        me.equip_template = &_xorn_template;
-        break;
-    default:
-        me.equip_template = &_umber_hulk_template;
-    }
+    me.equip_template = mon_get_equip_template();
 
     return &me;
 }

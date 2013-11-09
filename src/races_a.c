@@ -426,19 +426,10 @@ race_t *beastman_get_race_t(void)
 /****************************************************************
  * Centaur
  ****************************************************************/
-static equip_template_t _centaur_equip_template = 
-    {11, { {EQUIP_SLOT_WEAPON_SHIELD, "Right Hand", 0},
-           {EQUIP_SLOT_WEAPON_SHIELD, "Left Hand", 1},
-           {EQUIP_SLOT_BOW, "Shooting", 0},
-           {EQUIP_SLOT_RING, "Right Ring", 0},
-           {EQUIP_SLOT_RING, "Left Ring", 1},
-           {EQUIP_SLOT_AMULET, "Neck", 0},
-           {EQUIP_SLOT_LITE, "Light", 0},
-           {EQUIP_SLOT_BODY_ARMOR, "Body", 0}, /* Breast plate holds all the power :) */
-           {EQUIP_SLOT_CLOAK, "Cloak", 0},
-           {EQUIP_SLOT_HELMET, "Head", 0},
-           {EQUIP_SLOT_GLOVES, "Hands", 0} }
-};
+static void _centaur_birth(void) 
+{ 
+    equip_on_change_race();
+}
 
 static void _jump_spell(int cmd, variant *res)
 {
@@ -576,12 +567,13 @@ race_t *centaur_get_race_t(void)
         me.exp = 190;
         me.infra = 0;
 
+        me.birth = _centaur_birth;
         me.calc_innate_attacks = _centaur_calc_innate_attacks;
         me.get_powers = _centaur_get_powers;
         me.calc_bonuses = _centaur_calc_bonuses;
         me.get_flags = _centaur_get_flags;
 
-        me.equip_template = &_centaur_equip_template;
+        me.equip_template = &b_info[46];
 
         init = TRUE;
     }

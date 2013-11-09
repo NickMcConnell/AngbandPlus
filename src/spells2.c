@@ -4519,13 +4519,6 @@ bool fear_monster(int dir, int plev)
 }
 
 
-bool death_ray(int dir, int plev)
-{
-    int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
-    return (project_hook(GF_DEATH_RAY, dir, plev * 200, flg));
-}
-
-
 bool teleport_monster(int dir)
 {
     int flg = PROJECT_BEAM | PROJECT_KILL;

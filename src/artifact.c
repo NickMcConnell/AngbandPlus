@@ -2340,12 +2340,17 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     add_flag(o_ptr->art_flags, TR_SPEED);
                     has_pval = TRUE;
                 }
+                else if ( (artifact_bias == BIAS_MAGE && one_in_(10))
+                       || one_in_(50) )
+                {
+                    add_flag(o_ptr->art_flags, TR_DEC_MANA);
+                }
                 else if (one_in_(100))
                 {
                     add_flag(o_ptr->art_flags, TR_WEAPONMASTERY);
                     has_pval = TRUE;
                 }
-                else if (one_in_(20) && randint1(150) < lev - 50)
+                else if (one_in_(66) && randint1(150) < lev - 50)
                 {
                     add_flag(o_ptr->art_flags, TR_BLOWS);
                     has_pval = TRUE;
@@ -2369,7 +2374,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     add_flag(o_ptr->art_flags, TR_CON);
                     has_pval = TRUE;
                 }
-                else if (one_in_(2))
+                else if (one_in_(3))
                 {
                     add_flag(o_ptr->art_flags, TR_SHOW_MODS);
                     o_ptr->to_h = 4 + (randint1(11));
@@ -2401,7 +2406,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 {
                     add_flag(o_ptr->art_flags, TR_TELEPATHY);
                 }
-                else if (artifact_bias == BIAS_MAGE && one_in_(10))
+                else if ( (artifact_bias == BIAS_MAGE && one_in_(10))
+                       || one_in_(50) )
                 {
                     add_flag(o_ptr->art_flags, TR_DEC_MANA);
                 }
@@ -2417,7 +2423,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     add_flag(o_ptr->art_flags, TR_CON);
                     has_pval = TRUE;
                 }
-                else if (one_in_(2))
+                else if (one_in_(3))
                 {
                     add_flag(o_ptr->art_flags, TR_SHOW_MODS);
                     o_ptr->to_h = 4 + (randint1(11));
@@ -2547,6 +2553,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         if (o_ptr->pval > 6)
             o_ptr->pval = 6;
     }
+
+    if (have_flag(o_ptr->art_flags, TR_WEAPONMASTERY) && o_ptr->pval > 3)
+        o_ptr->pval = 3;
 
     if (have_flag(o_ptr->art_flags, TR_SPELL_POWER))
         o_ptr->pval = -o_ptr->pval;
@@ -3755,7 +3764,7 @@ bool reforge_artifact(object_type *src, object_type *dest)
     base_power = object_value_real(src);
 
     /* Pay a Power Tax! */
-    base_power = base_power/2 + randint1(base_power/2);
+    base_power = base_power/2 + randint1(base_power*p_ptr->fame/500);
 
     /* Setup thresholds. For weak objects, its better to use a generous range ... */
     if (base_power < 1000)
@@ -3784,7 +3793,7 @@ bool reforge_artifact(object_type *src, object_type *dest)
             object_copy(&best, &forge);
             best_power = power;
         }
-        if (power < worst_power)
+        if (power < worst_power && min_power < power)
         {
             object_copy(&worst, &forge);
             worst_power = power;
@@ -3802,7 +3811,7 @@ bool reforge_artifact(object_type *src, object_type *dest)
     if (!result)
     {
         /* Failed! Return best or worst */
-        if (worst_power > base_power)
+        if (worst_power > min_power)
             object_copy(dest, &worst);
         else
             object_copy(dest, &best);

@@ -2402,13 +2402,13 @@ void do_cmd_walk(bool pickup)
     /* Hack again -- Is there a special encounter ??? */
     if (p_ptr->wild_mode && !cave_have_flag_bold(py, px, FF_TOWN))
     {
-        int tmp = 1000 + p_ptr->lev*10 - wilderness[py][px].level + 5;
+        int tmp = 120 + p_ptr->lev*10 - wilderness[py][px].level + 5;
         if (tmp < 1) 
             tmp = 1;
         if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && randint0(tmp) < (21-p_ptr->skills.stl))
         {
             /* Inform the player of his horrible fate :=) */
-            msg_print("You are ambushed !");
+            msg_print("You are ambushed!");
 
             /* Go into large wilderness view */
             p_ptr->oldpy = randint1(MAX_HGT-2);
@@ -2418,7 +2418,7 @@ void do_cmd_walk(bool pickup)
             /* Give first move to monsters */
             energy_use = 100;
 
-            /* HACk -- set the encouter flag for the wilderness generation */
+            /* Hack -- set the encouter flag for the wilderness generation */
             generate_encounter = TRUE;
         }
     }
@@ -3598,24 +3598,6 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                 {
                     armour *= (10 - p_ptr->concent);
                     armour /= 10;
-                }
-
-                if ( (r_ptr->flags2 & RF2_REFLECTING) 
-                  && one_in_((prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS) ? 4 : 2))
-                {
-                    int max_attempts = 10;
-
-                    do
-                    {
-                        ty = py - 2 + randint0(5);
-                        tx = px - 2 + randint0(5);
-                        max_attempts--;
-                    }
-                    while (max_attempts && in_bounds2u(ty, tx) && !projectable(y, x, ty, tx));
-
-                    msg_print("The attack bounces!");
-                    do_cmd_fire_aux2(item, bow, x, y, tx, ty);
-                    return;
                 }
 
                 if ( p_ptr->painted_target 

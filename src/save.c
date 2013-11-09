@@ -1084,6 +1084,8 @@ static bool wr_savefile_new(savefile_ptr file)
         object_type *o_ptr = &inventory[i];
 
         if (!o_ptr->k_idx) continue;
+        if (i >= EQUIP_BEGIN && !equip_is_valid_slot(i)) continue;
+
         savefile_write_u16b(file, (u16b)i);
         wr_item(file, o_ptr);
     }

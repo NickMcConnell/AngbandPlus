@@ -16,94 +16,12 @@ static cptr _desc =
     "capable of breathing fire among other flame based attacks. They resist fire as "
     "well.";
 
-/**********************************************************************
- * Hydra Equipment
- **********************************************************************/
-static equip_template_t _template1 =  {4, { 
-    {EQUIP_SLOT_HELMET, "Head", 0},
-
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-}};
-
-static equip_template_t _template2 =  {6, { 
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-}};
-
-static equip_template_t _template3 =  {8, { 
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-}};
-
-static equip_template_t _template4 =  {10, { 
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-}};
-
-static equip_template_t _template5 =  {12, { 
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-    {EQUIP_SLOT_HELMET, "Head", 0},
-
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-    {EQUIP_SLOT_AMULET, "Neck", 0},
-
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-}};
-
-static equip_template_ptr _equip_template(void)
-{
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_TWO_HEADED_HYDRA: return &_template1;
-    case MON_FOUR_HEADED_HYDRA: return &_template2;
-    case MON_FIVE_HEADED_HYDRA: return &_template3;
-    case MON_SEVEN_HEADED_HYDRA: return &_template4;
-    case MON_NINE_HEADED_HYDRA: return &_template5;
-    case MON_ELEVEN_HEADED_HYDRA: return &_template5;
-    }
-
-    return &_template1; /* paranoia */
-}
-
 static void _birth(void) 
 { 
     object_type    forge;
 
     p_ptr->current_r_idx = MON_TWO_HEADED_HYDRA;
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_AMULET, SV_AMULET_RESIST_ACID));
     add_outfit(&forge);
@@ -434,7 +352,7 @@ race_t *mon_hydra_get_race_t(void)
     me.stats[A_CON] = rank;
     me.stats[A_CHR] =  0;
     me.life = 100 + 5*rank;
-    me.equip_template = _equip_template();
+    me.equip_template = mon_get_equip_template();
 
     return &me;
 }

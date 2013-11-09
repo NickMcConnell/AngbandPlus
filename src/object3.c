@@ -1042,8 +1042,8 @@ s32b armor_cost(object_type *o_ptr)
     /* Extra Attacks */
     if (have_flag(flgs, TR_BLOWS))
     {
-        p += 300 * 1000 * o_ptr->pval; /* Just for show ... Shiva's Jacket and Ares */
-
+        p += 100 * 1000 * o_ptr->pval; /* Just for show ... Shiva's Jacket and Ares */
+                                       /* With Reforging, this is relevant: Biffed! */
         if (cost_calc_hook)
         {
             sprintf(dbg_msg, "  * Blows: p = %d", p);

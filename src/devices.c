@@ -11,6 +11,7 @@ static int _rod_calc_fail_rate(object_type *o_ptr)
     lev = k_info[o_ptr->k_idx].level;
     chance = p_ptr->skills.dev;
     if (p_ptr->confused) chance = chance / 2;
+    if (p_ptr->stun) chance = chance * 2 / 3;
 
     fail = lev+5;
     if (chance > fail) fail -= (chance - fail)*2;
@@ -35,6 +36,7 @@ int device_calc_fail_rate(object_type *o_ptr)
     if (lev > 50) lev = 50 + (lev - 50)/2;
     chance = p_ptr->skills.dev;
     if (p_ptr->confused) chance = chance / 2;
+    if (p_ptr->stun) chance = chance * 2 / 3;
     chance = chance - lev;
     if (chance < USE_DEVICE) 
         fail = 1000 - 1000/(3 * (USE_DEVICE - chance + 1));

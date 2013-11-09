@@ -1,0 +1,680 @@
+# File: b_info.txt
+
+# Body types for player monster races and the possessor.
+# Use the P:Body:<name> line in r_info to indicate which
+# body template to use.
+
+# Warning: Don't monkey with this file while you are 
+# playing a character. You can lose objects this way!
+
+# Note: Currently you may list up to 17 slots for each
+# template, but giving more than the standard 12 is a bit
+# unbalancing!
+
+# Note: See Xorn and Marilith templates for examples on
+# how to correctly specify the hand field. This field
+# is required for multiple arms (2 counts as multiple!)
+
+# Making the Standard body index 0 is a huge win. Since
+# 0 defaults, this means we only need to specify P:Body:<name>
+# in r_info for non-standard body monsters!
+N:0:Standard
+S:WEAPON_SHIELD:Right Hand:0
+S:WEAPON_SHIELD:Left Hand:1
+S:BOW:Shooting
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:GLOVES:Hands
+S:BOOTS:Feet
+
+# The Possessor gets virtually no equipment!
+N:1:Possessor Soul
+S:LITE:Light
+
+# Greater Cyber Wyrm Angel Daemon Liches are fantastically OP!
+N:2:GCWADL
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Head
+
+N:3:Mold
+S:LITE:Light
+S:HELMET:Head
+
+N:4:Snake
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+
+N:5:Icky
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:LITE:Light
+S:CLOAK:Cloak
+
+# Jellies
+N:6:Jelly3
+S:WEAPON_SHIELD:Pseudopod
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+
+N:7:Jelly5
+S:WEAPON_SHIELD:Pseudopod
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+
+N:8:Jelly6
+S:WEAPON_SHIELD:Pseudopod
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+S:ANY:Belly
+
+N:9:Jelly7
+S:WEAPON_SHIELD:Pseudopod
+S:ANY:Any
+S:ANY:Any
+S:ANY:Any
+S:ANY:Any
+S:ANY:Any
+S:ANY:Any
+S:ANY:Any
+
+# Beholders
+N:10:Eye
+S:HELMET:Helmet
+S:LITE:Light
+
+N:11:Eye2
+S:HELMET:Helmet
+S:LITE:Light
+S:RING:Eyestalk
+S:RING:Eyestalk
+
+N:12:Eye6
+S:HELMET:Helmet
+S:LITE:Light
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+
+N:13:Eye8
+S:HELMET:Helmet
+S:LITE:Light
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+S:RING:Eyestalk
+
+# Xorn
+N:14:Umber Hulk
+S:WEAPON_SHIELD:Right Arm:0
+S:WEAPON_SHIELD:Left Arm:1
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:GLOVES:Gloves
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Head
+S:BOOTS:Feet
+
+N:15:Xorn
+S:WEAPON_SHIELD:Arm:0
+S:WEAPON_SHIELD:Arm:1
+S:RING:Ring:0
+S:RING:Ring:1
+S:GLOVES:Gloves:0
+S:WEAPON_SHIELD:Arm:2
+S:WEAPON_SHIELD:Arm:3
+S:RING:Ring:2
+S:RING:Ring:3
+S:GLOVES:Gloves:2
+S:LITE:Light
+
+# Hound
+N:16:Puppy
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+
+N:17:Hound
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:BOOTS:Boots
+
+N:18:Scrawny
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+
+N:19:Jormungand
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:20:Dragon
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+
+N:21:Reptile
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:BODY_ARMOR:Body
+S:HELMET:Helm
+S:BOOTS:Boots
+
+N:22:Crocodile
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:23:Giant Reptile
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+
+# Weir is described as "half human, half beast" but I couldn't find anything on the Web ...
+N:24:Weir
+S:WEAPON_SHIELD:Right Hand:0
+S:WEAPON_SHIELD:Left Hand:1
+S:BOW:Shooting
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:GLOVES:Hands
+
+# 3-Headed Cerberus
+N:25:Cerberus
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:HELMET:Helm
+S:HELMET:Helm
+
+N:26:Ant
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:BOOTS:Boots
+S:BOOTS:Boots
+
+N:27:Bat
+S:RING:Foot
+S:RING:Foot
+S:AMULET:Amulet
+S:LITE:Light
+
+N:28:Giant Bat
+S:RING:Foot
+S:RING:Foot
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+
+# A joke monster ... no damage attacks possible!
+N:29:Greater Hell-Beast 
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:GLOVES:Hands
+S:BOOTS:Feet
+
+N:30:Harpy
+S:RING:Talon
+S:RING:Talon
+S:RING:Talon
+S:RING:Talon
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Head
+
+N:31:Spider
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:BOOTS:Boots
+S:BOOTS:Boots
+
+N:32:Bird
+S:RING:Talon
+S:RING:Talon
+S:AMULET:Neck
+S:LITE:Light
+
+N:33:Giant Bird
+S:RING:Talon
+S:RING:Talon
+S:RING:Talon
+S:RING:Talon
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Head
+
+N:34:Monk
+S:BOW:Shooting
+S:RING:Right Ring
+S:RING:Left Ring
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:GLOVES:Hands
+S:BOOTS:Feet
+
+N:35:Naga
+S:WEAPON_SHIELD:Right Hand:0
+S:WEAPON_SHIELD:Left Hand:1
+S:BOW:Shooting
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:GLOVES:Hands
+
+N:36:Kavlax
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:HELMET:Helm
+S:HELMET:Helm
+S:HELMET:Helm
+
+N:37:Chthonian
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:LITE:Light
+
+N:38:Giant Worm
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:LITE:Light
+
+# What could a gigantic worm with smooth sides
+# and no tentacles possible wear? Unlike the 'Giant Worm'
+# which is not too big to slither amulets about their body ...
+N:39:Dhole
+S:LITE:Light
+
+N:40:Bear
+S:RING:Claw
+S:RING:Claw
+S:RING:Claw
+S:RING:Claw
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Head
+
+N:41:Horse
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+
+N:42:Unicorn
+S:RING:Horn
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+
+N:43:Elephant
+S:RING:Tail
+S:AMULET:Tusk
+S:AMULET:Tusk
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Back
+S:HELMET:Head
+
+N:44:Headless
+S:WEAPON_SHIELD:Right Hand:0
+S:WEAPON_SHIELD:Left Hand:1
+S:BOW:Shooting
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:GLOVES:Hands
+S:BOOTS:Feet
+
+N:45:Gorgimera
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:HELMET:Helm
+S:HELMET:Helm
+
+N:46:Centaur
+S:WEAPON_SHIELD:Right Hand:0
+S:WEAPON_SHIELD:Left Hand:1
+S:BOW:Shooting
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:GLOVES:Hands
+
+N:47:Minotaur
+S:WEAPON_SHIELD:Right Hand:0
+S:WEAPON_SHIELD:Left Hand:1
+S:BOW:Shooting
+S:RING:Right Ring:0
+S:RING:Left Ring:1
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:GLOVES:Hands
+
+N:48:Norsa
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Trunk
+S:AMULET:Trunk
+S:AMULET:Trunk
+S:AMULET:Trunk
+S:AMULET:Trunk
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:49:Tree
+S:ANY:Branch
+S:ANY:Branch
+S:ANY:Branch
+S:ANY:Branch
+S:ANY:Branch
+S:ANY:Branch
+S:ANY:Branch
+S:ANY:Branch
+
+N:50:Beetle
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:BOOTS:Boots
+S:BOOTS:Boots
+
+# Too many slots, I know. But let's throw players an occasional bone ;)
+N:51:Gug
+S:WEAPON_SHIELD:Arm:0
+S:WEAPON_SHIELD:Arm:1
+S:RING:Finger:0
+S:RING:Finger:1
+S:GLOVES:Hands:0
+S:WEAPON_SHIELD:Arm:2
+S:WEAPON_SHIELD:Arm:3
+S:GLOVES:Hands:2
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:BOOTS:Feet
+
+N:52:Ettin
+S:WEAPON_SHIELD:Arm:0
+S:WEAPON_SHIELD:Arm:1
+S:BOW:Shooting
+S:RING:Finger:0
+S:RING:Finger:1
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:HELMET:Head
+S:GLOVES:Hands
+S:BOOTS:Feet
+
+N:53:Hydra1
+S:HELMET:Head
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:54:Hydra2
+S:HELMET:Head
+S:HELMET:Head
+S:AMULET:Neck
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:55:Hydra3
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:56:Hydra4
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:57:Hydra5
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:58:Hydra6
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:HELMET:Head
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:59:Fish
+S:AMULET:Fin
+S:AMULET:Fin
+S:AMULET:Neck?
+S:LITE:Light
+S:CLOAK:Cloak
+S:HELMET:Head
+
+N:60:Quylthulg
+S:RING:Ring
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Helm
+S:CAPTURE_BALL:Capture 1
+S:CAPTURE_BALL:Capture 2
+S:CAPTURE_BALL:Capture 3
+S:CAPTURE_BALL:Capture 4
+
+N:61:Shambler
+S:RING:Claw
+S:RING:Claw
+S:RING:Claw
+S:RING:Claw
+S:AMULET:Neck
+S:LITE:Light
+S:CLOAK:Cloak
+
+N:62:Marilith
+S:WEAPON_SHIELD:Arm:0
+S:WEAPON_SHIELD:Arm:1
+S:RING:Ring:0
+S:RING:Ring:1
+S:GLOVES:Gloves:0
+S:WEAPON_SHIELD:Arm:2
+S:WEAPON_SHIELD:Arm:3
+S:GLOVES:Gloves:2
+S:WEAPON_SHIELD:Arm:4
+S:WEAPON_SHIELD:Arm:5
+S:AMULET:Neck
+S:LITE:Light
+
+N:63:Bloodthirster
+S:WEAPON_SHIELD:Right Paw:0
+S:WEAPON_SHIELD:Left Paw:1
+S:RING:Right Claw:0
+S:RING:Right Claw:0
+S:RING:Left Claw:1
+S:RING:Left Claw:1
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:BOOTS:Back Paws
+
+N:64:Death-Sword
+S:WEAPON:You

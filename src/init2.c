@@ -287,6 +287,7 @@ header r_head;
 header d_head;
 header s_head;
 header m_head;
+header b_head;
 
 #ifdef CHECK_MODIFICATION_TIME
 
@@ -711,7 +712,21 @@ static errr init_e_info(void)
              (void*)&e_info, &e_name, &e_text, NULL);
 }
 
+static errr init_b_info(void)
+{
+    /* Init the header */
+    init_header(&b_head, max_b_idx, sizeof(equip_template_t));
 
+#ifdef ALLOW_TEMPLATES
+
+    /* Save a pointer to the parsing function */
+    b_head.parse_info_txt = parse_b_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+    return init_info("b_info", &b_head,
+             (void*)&b_info, &b_name, NULL, &b_tag);
+}
 
 /*
  * Initialize the "r_info" array
@@ -2341,6 +2356,10 @@ void init_angband(void)
     note("[Initializing arrays... (ego-items)]");
     if (init_e_info()) quit("Cannot initialize ego-items");
 
+    /* Initialize monster info */
+    note("[Initializing arrays... (body-types)]");
+    if (init_b_info()) quit("Cannot initialize body types");
+
 
     /* Initialize monster info */
     note("[Initializing arrays... (monsters)]");
@@ -2425,6 +2444,8 @@ void init_angband(void)
     /* Done */
     note("[Initialization complete]");
 
+    /* We are now initialized */
+    initialized = TRUE;
 }
 
 /*

@@ -18,22 +18,11 @@ static cptr _desc =
 /**********************************************************************
  * Dragon Equipment
  **********************************************************************/
-static equip_template_t _equip_template = {10, { 
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_AMULET, "Amulet", 0},
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-    {EQUIP_SLOT_HELMET, "Helm", 0},
-}};
-
 static void _dragon_birth(void) 
 { 
     object_type    forge;
+
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_RING, SV_RING_STR));
     forge.pval = 1;
@@ -123,6 +112,8 @@ cptr gf_name(int which)
     case GF_PLASMA: return "plasma";
     case GF_FORCE: return "force";
     case GF_NUKE: return "nuke";
+    case GF_DISINTEGRATE: return "disintegration";
+    case GF_STORM: return "storm";
     }
     return "something";
 }
@@ -1716,7 +1707,7 @@ race_t *mon_dragon_get_race_t(int psubrace)
     result->desc = _desc;
     result->flags = RACE_IS_MONSTER;
     result->calc_innate_attacks = _calc_innate_attacks;
-    result->equip_template = &_equip_template;
+    result->equip_template = mon_get_equip_template();
     result->base_hp = 40;
 
     result->boss_r_idx = MON_GLAURUNG;

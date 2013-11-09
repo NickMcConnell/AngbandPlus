@@ -537,57 +537,6 @@ void _psycho_storm_spell(int cmd, variant *res)
     }
 }
 
-
-void _the_world_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "The World");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Spend all of your spell points to stop time. You gain a number of free moves depending on the amount of spell points spent.");
-        break;
-    case SPELL_INFO:
-        var_set_string(res, format("%d acts.", MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/100, 5)));
-        break;
-    case SPELL_CAST:
-    {
-        var_set_bool(res, FALSE);
-        if (world_player)
-        {
-            msg_print("Time is already stopped.");
-            return;
-        }
-
-        world_player = TRUE;
-        msg_print("You yell 'Time!'");
-        msg_print(NULL);
-
-        /* Note: We pay the casting cost up front these days.  So, add back the 150
-           to figure the starting sp, and then bash sp down to 0. We can't use the 
-           SPELL_COST_EXTRA mechanism here ... */
-        p_ptr->energy_need -= 1000 + (100 + (p_ptr->csp + 150) - 50)*TURNS_PER_TICK/10;
-        p_ptr->energy_need = MAX(-1550, p_ptr->energy_need);
-
-        p_ptr->csp = 0;
-        p_ptr->csp_frac = 0;
-
-        p_ptr->redraw |= (PR_MAP | PR_STATUS);
-        p_ptr->update |= (PU_MONSTERS);
-        p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-        handle_stuff();
-
-        var_set_bool(res, TRUE);
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
@@ -608,7 +557,6 @@ static spell_info _spells[] =
     { 28, 10,  40, _psychic_drain_spell},
     { 35, 35,  75, psycho_spear_spell},
     { 45, 50,  80, _psycho_storm_spell},
-    /*{ 45,150,  85, _the_world_spell}, Time manipulation is the province of the Time Lord!!*/
     { -1, -1,  -1, NULL}
 };
 

@@ -5,6 +5,11 @@ void res_add(int which)
     p_ptr->resist[which]++;
 }
 
+void res_add_amt(int which, int amt)
+{
+    p_ptr->resist[which] += amt;
+}
+
 void res_add_all(void)
 {
     int i;

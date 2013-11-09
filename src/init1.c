@@ -575,37 +575,36 @@ static cptr r_info_flags9[] =
 {
     "DROP_CORPSE",
     "DROP_SKELETON",
-    "EAT_BLIND",
-    "EAT_CONF",
-    "EAT_MANA",
-    "EAT_NEXUS",
-    "EAT_BLINK",
-    "EAT_SLEEP",
-    "EAT_BERSERKER",
-    "EAT_ACIDIC",
-    "EAT_SPEED",
-    "EAT_CURE",
-    "EAT_FIRE_RES",
-    "EAT_COLD_RES",
-    "EAT_ACID_RES",
-    "EAT_ELEC_RES",
-    "EAT_POIS_RES",
-    "EAT_INSANITY",
-    "EAT_DRAIN_EXP",
-    "EAT_POISONOUS",
-    "EAT_GIVE_STR",
-    "EAT_GIVE_INT",
-    "EAT_GIVE_WIS",
-    "EAT_GIVE_DEX",
-    "EAT_GIVE_CON",
-    "EAT_GIVE_CHR",
-    "EAT_LOSE_STR",
-    "EAT_LOSE_INT",
-    "EAT_LOSE_WIS",
-    "EAT_LOSE_DEX",
-    "EAT_LOSE_CON",
-    "EAT_LOSE_CHR",
-    "EAT_DRAIN_MANA",
+    "POS_GAIN_AC",
+    "POS_TELEPATHY",
+    "POS_SEE_INVIS",
+    "POS_HOLD_LIFE",
+    "POS_SUST_STR",
+    "POS_SUST_INT",
+    "POS_SUST_WIS",
+    "POS_SUST_DEX",
+    "POS_SUST_CON",
+    "POS_SUST_CHR",
+    "XXX13",
+    "XXX14",
+    "POS_DETECT_TRAPS",
+    "POS_DETECT_EVIL",
+    "POS_DETECT_MONSTERS",
+    "POS_DETECT_OBJECTS",
+    "POS_MAPPING",
+    "POS_IDENTIFY",
+    "POS_HEROISM",
+    "POS_BLESSING",
+    "POS_BERSERK",
+    "XXX24",
+    "XXX25",
+    "XXX26",
+    "XXX27",
+    "XXX28",
+    "XXX29",
+    "XXX30",
+    "XXX31",
+    "XXX32",
 };
 
 
@@ -865,7 +864,6 @@ static cptr d_info_flags1[] =
     "XXX",
     "XXX"
 };
-
 
 /*
  * Add a text to the text-storage and store offset to it.
@@ -2439,8 +2437,117 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
     return (1);
 }
 
+/*
+ * b_info for monster body types
+ */
+static cptr b_info_slots[] =
+{
+    "NONE",
+    "GLOVES",
+    "WEAPON_SHIELD",
+    "RING",         
+    "BOW",          
+    "AMULET",       
+    "LITE",         
+    "BODY_ARMOR",   
+    "CLOAK",        
+    "BOOTS",        
+    "HELMET",       
+    "ANY",             
+    "WEAPON",
+    "CAPTURE_BALL",
+};
+
+errr parse_b_info(char *buf, header *head)
+{
+    int i;
+    char *s, *t;
+
+    /* Current entry */
+    static equip_template_ptr b_ptr = NULL;
 
 
+    /* Process 'N' for "New/Number/Name" */
+    if (buf[0] == 'N')
+    {
+        /* Find the colon before the name */
+        s = my_strchr(buf+2, ':');
+
+        /* Verify that colon */
+        if (!s) return (1);
+
+        /* Nuke the colon, advance to the name */
+        *s++ = '\0';
+
+        /* Paranoia -- require a name */
+        if (!*s) return (1);
+
+        /* Get the index */
+        i = atoi(buf+2);
+
+        /* Verify information */
+        if (i < error_idx) return (4);
+
+        /* Verify information */
+        if (i >= head->info_num) return (2);
+
+        /* Save the index */
+        error_idx = i;
+
+        /* Point at the "info" */
+        b_ptr = &b_info[i];
+
+        /* Store the name */
+        if (!add_name(&b_ptr->name, head, s)) return (7);
+    }
+
+    /* There better be a current r_ptr */
+    else if (!b_ptr) return (3);
+
+    else if (buf[0] == 'S')
+    {
+        int n1;
+
+        i = b_ptr->count++;
+
+        /* Analyze the first field */
+        for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
+
+        /* Terminate the field (if necessary) */
+        if (*t == ':') *t++ = '\0';
+
+        /* Analyze the slot type */
+        for (n1 = 0; n1 < EQUIP_SLOT_MAX; n1++)
+        {
+            if (streq(s, b_info_slots[n1])) 
+            {
+                b_ptr->slots[i].type = n1;
+                break;
+            }
+        }
+
+        /* Invalid slot type */
+        if (!b_ptr->slots[i].type) return (1);
+
+        /* Analyze the second field */
+        for (s = t; *t && (*t != ':'); t++) /* loop */;
+
+        /* Terminate the field (if necessary) */
+        if (*t == ':') *t++ = '\0';
+
+        if (!add_tag(&b_ptr->slots[i].tag, head, s)) return (7);
+
+        /* Analyze the third field */
+        if (*t)
+            b_ptr->slots[i].hand = atoi(t);
+    }
+    /* Oops */
+    else return 6;
+
+
+    /* Success */
+    return 0;
+}
 
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file
@@ -2557,7 +2664,135 @@ errr parse_r_info(char *buf, header *head)
         r_ptr->melee_level = m;
         r_ptr->save_level = s;
     }
+    /* P:<Code>:... for The Possessor */
+    else if (buf[0] == 'P')
+    {
+        char *zz[33];
+        int   num = tokenize(buf + 2, 33, zz, 0);
 
+        if (num < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+
+        if (strcmp(zz[0], "Copy") == 0)
+        {
+            int idx, i;
+            if (num < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+
+            /* P:Copy:<r_idx> */
+            if (num == 2)
+            {
+                idx = atoi(zz[1]);
+                r_ptr->body = r_info[idx].body;
+            }
+            /* P:Copy:Yeek:Tourist */
+            else if (num == 3)
+            {
+                idx = get_race_idx(zz[1]);
+                if (idx >= 0)
+                {
+                    race_t *race_ptr = get_race_t_aux(idx, 0);
+                    for (i = 0; i < MAX_STATS; i++)
+                        r_ptr->body.stats[i] = race_ptr->stats[i];
+                    r_ptr->body.skills = race_ptr->skills;
+                    r_ptr->body.extra_skills = race_ptr->extra_skills;
+                    r_ptr->body.life = race_ptr->life;
+                    r_ptr->body.infra = race_ptr->infra;
+                }
+                else
+                    return PARSE_ERROR_OUT_OF_BOUNDS;
+
+                idx = get_class_idx(zz[2]);
+                if (idx >= 0)
+                {
+                    class_t *class_ptr = get_class_t_aux(idx, 0);
+                    
+                    for (i = 0; i < MAX_STATS; i++)
+                        r_ptr->body.stats[i] += class_ptr->stats[i];
+                    skills_add(&r_ptr->body.skills, &class_ptr->base_skills);
+                    skills_add(&r_ptr->body.extra_skills, &class_ptr->extra_skills);
+                    r_ptr->body.life = r_ptr->body.life * class_ptr->life / 100;
+                    if (class_ptr->caster_info)
+                        r_ptr->body.spell_stat = (s16b)class_ptr->caster_info()->which_stat;
+                    else
+                        r_ptr->body.spell_stat = A_NONE;
+                }
+                else
+                    return PARSE_ERROR_OUT_OF_BOUNDS;
+            }
+            else
+                return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        }
+        /* P:Stats:<Str>:<Int>:<Wis>:<Dex>:<Con>:<Chr> */
+        else if (strcmp(zz[0], "Stats") == 0)
+        {
+            if (num < 7) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            r_ptr->body.stats[A_STR] += atoi(zz[1]);
+            r_ptr->body.stats[A_INT] += atoi(zz[2]);
+            r_ptr->body.stats[A_WIS] += atoi(zz[3]);
+            r_ptr->body.stats[A_DEX] += atoi(zz[4]);
+            r_ptr->body.stats[A_CON] += atoi(zz[5]);
+            r_ptr->body.stats[A_CHR] += atoi(zz[6]);
+        }
+        /* P:Skills:<Dis>:<Dev>:<Sav>:<Stl>:<Srh>:<Fos>:<Thn>:<Thb> */
+        else if (strcmp(zz[0], "Skills") == 0)
+        {
+            if (num < 9) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            r_ptr->body.skills.dis += atoi(zz[1]);
+            r_ptr->body.skills.dev += atoi(zz[2]);
+            r_ptr->body.skills.sav += atoi(zz[3]);
+            r_ptr->body.skills.stl += atoi(zz[4]);
+            r_ptr->body.skills.srh += atoi(zz[5]);
+            r_ptr->body.skills.fos += atoi(zz[6]);
+            r_ptr->body.skills.thn += atoi(zz[7]);
+            r_ptr->body.skills.thb += atoi(zz[8]);
+        }
+        else if (strcmp(zz[0], "ExtraSkills") == 0)
+        {
+            if (num < 9) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            r_ptr->body.extra_skills.dis += atoi(zz[1]);
+            r_ptr->body.extra_skills.dev += atoi(zz[2]);
+            r_ptr->body.extra_skills.sav += atoi(zz[3]);
+            r_ptr->body.extra_skills.stl += atoi(zz[4]);
+            r_ptr->body.extra_skills.srh += atoi(zz[5]);
+            r_ptr->body.extra_skills.fos += atoi(zz[6]);
+            r_ptr->body.extra_skills.thn += atoi(zz[7]);
+            r_ptr->body.extra_skills.thb += atoi(zz[8]);
+        }
+        else if (strcmp(zz[0], "Life") == 0)
+        {
+            int life;
+            if (num < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            life = atoi(zz[1]);
+            if (!r_ptr->body.life)
+                r_ptr->body.life = life;
+            else
+                r_ptr->body.life = r_ptr->body.life * life / 100;
+        }
+        else if (strcmp(zz[0], "Infra") == 0)
+        {
+            if (num < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            r_ptr->body.infra += atoi(zz[1]);
+        }
+        else if (strcmp(zz[0], "Body") == 0)
+        {
+            int i;
+            bool found = FALSE;
+            if (num < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+
+            for (i = 0; i < max_b_idx; i++)
+            {
+                if (streq(b_name + b_info[i].name, zz[1]))
+                {
+                    r_ptr->body.body_idx = i;
+                    found = TRUE;
+                    break;
+                }
+            }
+
+            if (!found) return PARSE_ERROR_OUT_OF_BOUNDS;
+        }
+        else
+            return PARSE_ERROR_UNDEFINED_DIRECTIVE;
+    }
     /* Process 'W' for "More Info" (one line only) */
     else if (buf[0] == 'W')
     {
@@ -3850,6 +4085,10 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
             else if (zz[0][0] == 'R')
             {
                 max_r_idx = atoi(zz[1]);
+            }
+            else if (zz[0][0] == 'B')
+            {
+                max_b_idx = atoi(zz[1]);
             }
 
             /* Maximum k_idx */

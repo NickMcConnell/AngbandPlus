@@ -8,26 +8,6 @@ static cptr _mon_name(int r_idx)
 }
 
 /******************************************************************************
- * Troll Equipment (Ettins have two heads)
- ******************************************************************************/
-static equip_template_t _ettin_template = 
-    {14, { {EQUIP_SLOT_WEAPON_SHIELD, "Right Hand", 0},
-           {EQUIP_SLOT_WEAPON_SHIELD, "Left Hand", 1},
-           {EQUIP_SLOT_BOW, "Shooting", 0},
-           {EQUIP_SLOT_RING, "Right Ring", 0},
-           {EQUIP_SLOT_RING, "Left Ring", 1},
-           {EQUIP_SLOT_AMULET, "Right Neck", 0},
-           {EQUIP_SLOT_AMULET, "Left Neck", 0},
-           {EQUIP_SLOT_LITE, "Light", 0},
-           {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
-           {EQUIP_SLOT_CLOAK, "Cloak", 0},
-           {EQUIP_SLOT_HELMET, "Right Head", 0},
-           {EQUIP_SLOT_HELMET, "Left Head", 0},
-           {EQUIP_SLOT_GLOVES, "Hands", 0},
-           {EQUIP_SLOT_BOOTS, "Feet", 0} }
-};
-
-/******************************************************************************
  * Troll Bite
  ******************************************************************************/
 static void _calc_innate_attacks(void) 
@@ -175,6 +155,7 @@ static void _birth(void)
     object_type    forge;
 
     p_ptr->current_r_idx = MON_FOREST_TROLL;
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
     add_outfit(&forge);
@@ -484,10 +465,6 @@ race_t *mon_troll_get_race_t(void)
     me.stats[A_CHR] =  0;
     me.life = 100 + (p_ptr->lev/10)*4;
 
-    if (p_ptr->current_r_idx == MON_ETTIN)
-        me.equip_template = &_ettin_template;
-    else
-        me.equip_template = NULL;
-
+    me.equip_template = mon_get_equip_template();
     return &me;
 }

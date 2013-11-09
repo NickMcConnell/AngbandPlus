@@ -2028,6 +2028,10 @@ static void wiz_create_item(void)
             return;
         }
     }
+    else if (k_info[k_idx].tval == TV_CORPSE) /* Possessor Testing! */
+    {
+        n = get_quantity("Which monster? ", max_r_idx);
+    }
     else
     {
         n = get_quantity("How many? ", 99);    
@@ -2041,7 +2045,10 @@ static void wiz_create_item(void)
 
     /* Apply magic */
     apply_magic(q_ptr, dun_level, AM_NO_FIXED_ART);
-    q_ptr->number = n;
+    if (k_info[k_idx].tval == TV_CORPSE)
+        q_ptr->pval = n;
+    else
+        q_ptr->number = n;
  
     /* Drop the object from heaven */
     (void)drop_near(q_ptr, -1, py, px);

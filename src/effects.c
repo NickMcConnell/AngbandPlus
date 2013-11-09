@@ -5609,25 +5609,24 @@ bool do_inc_stat(int stat)
  */
 bool restore_level(void)
 {
-    /* Restore experience */
-    if (p_ptr->exp < p_ptr->max_exp)
+    s32b max_exp = p_ptr->max_exp;
+
+    /* Possessor Max Lvl is limited by their current form */
+    if (p_ptr->prace == RACE_MON_POSSESSOR)
     {
-        /* Message */
-        msg_print("You feel your life energies returning.");
-
-
-        /* Restore the experience */
-        p_ptr->exp = p_ptr->max_exp;
-
-        /* Check the experience */
-        check_experience();
-
-        /* Did something */
-        return (TRUE);
+        s32b racial_max = possessor_max_exp();
+        if (max_exp > racial_max)
+            max_exp = racial_max;
     }
 
-    /* No effect */
-    return (FALSE);
+    if (p_ptr->exp < max_exp)
+    {
+        msg_print("You feel your life energies returning.");
+        p_ptr->exp = max_exp;
+        check_experience();
+        return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -6231,6 +6230,8 @@ void gain_exp_64(s32b amount, u32b amount_frac)
     if (p_ptr->is_dead) return;
 
     if (p_ptr->prace == RACE_ANDROID) return;
+
+    if (p_ptr->prace == RACE_MON_POSSESSOR && !possessor_can_gain_exp()) return;
 
     /* Gain some experience */
     s64b_add(&(p_ptr->exp), &(p_ptr->exp_frac), amount, amount_frac);

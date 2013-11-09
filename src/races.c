@@ -9,7 +9,37 @@ int get_race_idx(cptr name)
     int i;
     for (i = 0; i < MAX_RACES; i++)
     {
-        race_t *race_ptr = get_race_t_aux(i, 0);
+        race_t *race_ptr;
+
+        /* r_info.txt contains racial references, but player monster races
+           might try to index r_info as well! */
+        if (!initialized)
+        {
+            switch (i)
+            {
+            case RACE_MON_JELLY:
+            case RACE_MON_SPIDER:
+            case RACE_MON_DRAGON:
+            case RACE_MON_LICH:
+            case RACE_MON_XORN:
+            case RACE_MON_ANGEL:
+            case RACE_MON_HOUND:
+            case RACE_MON_GIANT:
+            case RACE_MON_BEHOLDER:
+            case RACE_MON_DEMON:
+            case RACE_MON_HYDRA:
+            case RACE_MON_LEPRECHAUN:
+            case RACE_MON_TROLL:
+            case RACE_MON_ELEMENTAL:
+            case RACE_MON_SWORD:
+            case RACE_MON_GOLEM:
+            case RACE_MON_QUYLTHULG:
+            case RACE_MON_POSSESSOR:
+                continue;
+            }
+        }
+
+        race_ptr = get_race_t_aux(i, 0);
         if (race_ptr && strcmp(name, race_ptr->name) == 0)
             return i;
     }
@@ -145,6 +175,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
         break;
     case RACE_MON_LICH:
         result = mon_lich_get_race_t();
+        break;
+    case RACE_MON_POSSESSOR:
+        result = mon_possessor_get_race_t();
         break;
     case RACE_MON_QUYLTHULG:
         result = mon_quylthulg_get_race_t();

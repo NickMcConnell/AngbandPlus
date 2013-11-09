@@ -126,15 +126,36 @@ void shoot_arrow_spell(int cmd, variant *res)
         var_set_string(res, "Fires an arrow.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(2, spell_power(7), 0));
+    {
+        int slot = equip_find_first(object_is_melee_weapon);
+        if (slot)
+        {
+            object_type *o_ptr = equip_obj(slot);
+            var_set_string(res, info_damage(o_ptr->dd, o_ptr->ds, o_ptr->to_d));
+        }
+        else
+            var_set_string(res, info_damage(0, 0, 1));
         break;
+    }
     case SPELL_CAST:
     {
         int dir = 0;
+        int dam = 1;
+        int slot;
+        
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         msg_print("You fire an arrow.");
-        fire_bolt(GF_ARROW, dir, spell_power(damroll(2, 7)));
+
+        slot = equip_find_first(object_is_melee_weapon);
+        if (slot)
+        {
+            object_type *o_ptr = equip_obj(slot);
+            dam = damroll(o_ptr->dd, o_ptr->ds)+ o_ptr->to_d;
+            if (dam < 1) dam = 1;
+        }
+
+        fire_bolt(GF_ARROW, dir, spell_power(dam));
         var_set_bool(res, TRUE);
         break;
     }
@@ -193,6 +214,34 @@ void sleeping_dust_spell(int cmd, variant *res)
         msg_print("You throw some magic dust...");
         if (p_ptr->lev < 25) sleep_monsters_touch();
         else sleep_monsters(p_ptr->lev);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void sleep_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Sleep");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempt to sleep one or more monsters.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (p_ptr->lev < 30)
+        {
+            int dir = 0;
+            if (!get_aim_dir(&dir)) return;
+            sleep_monster(dir, p_ptr->lev*2);
+        }
+        else
+            sleep_monsters(p_ptr->lev * 2);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -563,6 +612,83 @@ void stone_to_mud_spell(int cmd, variant *res)
 }
 bool cast_stone_to_mud(void) { return cast_spell(stone_to_mud_spell); }
 
+void stop_time_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "The World");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Spend all of your spell points to stop time. You gain a number of free moves depending on the amount of spell points spent.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, format("%d acts.", MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/100, 5)));
+        break;
+    case SPELL_CAST:
+    {
+        var_set_bool(res, FALSE);
+        if (world_player)
+        {
+            msg_print("Time is already stopped.");
+            return;
+        }
+
+        world_player = TRUE;
+        msg_print("You yell 'Time!'");
+        msg_print(NULL);
+
+        /* Note: We pay the casting cost up front these days.  So, add back the 150
+           to figure the starting sp, and then bash sp down to 0. We can't use the 
+           SPELL_COST_EXTRA mechanism here ... */
+        p_ptr->energy_need -= 1000 + (100 + (p_ptr->csp + 150) - 50)*TURNS_PER_TICK/10;
+        p_ptr->energy_need = MAX(-1550, p_ptr->energy_need);
+
+        p_ptr->csp = 0;
+        p_ptr->csp_frac = 0;
+
+        p_ptr->redraw |= (PR_MAP | PR_STATUS);
+        p_ptr->update |= (PU_MONSTERS);
+        p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+        handle_stuff();
+
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void summon_amberites_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Amberites");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to summon Amberites for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int ct = 0;
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        msg_print("You summon a Lord of Amber!");
+        if (!summon_specific(-1, py, px, l, SUMMON_AMBERITES, PM_FORCE_PET | PM_ALLOW_UNIQUE))
+            msg_print("No Amberites arrives.");
+
+        var_set_bool(res, TRUE);
+        break;
+    } 
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void summon_angel_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -581,6 +707,65 @@ void summon_angel_spell(int cmd, variant *res)
         ct += summon_specific(-1, py, px, l, SUMMON_ANGEL, PM_FORCE_PET);
         if (!ct)
             msg_print("No angel arrives.");
+
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void summon_ants_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Ants");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Summon ants for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int num = randint0(p_ptr->lev/10);
+        int ct = 0, i;
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        for (i = 0; i < num; i++)
+        {
+            ct += summon_specific(-1, py, px, l, SUMMON_ANT, PM_FORCE_PET | PM_ALLOW_GROUP);
+        }
+        if (!ct)
+            msg_print("No ants arrive.");
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void summon_cyberdemon_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Cyberdemon");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to summon a single cyberdemon for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int ct = 0;
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        ct += summon_specific(-1, py, px, l, SUMMON_CYBER, PM_FORCE_PET);
+        if (!ct)
+            msg_print("No cyberdemon arrives.");
 
         var_set_bool(res, TRUE);
         break;
@@ -622,7 +807,24 @@ void summon_demon_spell(int cmd, variant *res)
             msg_print("No demons arrive.");
         break;
     }
-/*    {
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void summon_demon_II_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Demon");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to summon a single demon for assistance.");
+        break;
+    case SPELL_CAST:
+    {
         int ct = 0;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -634,7 +836,7 @@ void summon_demon_spell(int cmd, variant *res)
 
         var_set_bool(res, TRUE);
         break;
-    } */
+    } 
     default:
         default_spell(cmd, res);
         break;
@@ -750,6 +952,68 @@ void summon_hi_undead_spell(int cmd, variant *res)
     }
 }
 
+void summon_hounds_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Hounds");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Summon hounds for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int num = randint0(p_ptr->lev/10);
+        int ct = 0, i;
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        for (i = 0; i < num; i++)
+        {
+            ct += summon_specific(-1, py, px, l, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP);
+        }
+        if (!ct)
+            msg_print("No hounds arrive.");
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void summon_hydras_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Hydras");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Summon hydras for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int num = randint0(p_ptr->lev/10);
+        int ct = 0, i;
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        for (i = 0; i < num; i++)
+        {
+            ct += summon_specific(-1, py, px, l, SUMMON_HYDRA, PM_FORCE_PET | PM_ALLOW_GROUP);
+        }
+        if (!ct)
+            msg_print("No hydras arrive.");
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void summon_kin_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -793,6 +1057,32 @@ void summon_manes_spell(int cmd, variant *res)
     }
 }
 
+void summon_monster_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Monster");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Summon a monster for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int num = randint0(p_ptr->lev/10);
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        if (!summon_specific(-1, py, px, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP))
+            msg_print("No monsters arrive.");
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void summon_monsters_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -811,10 +1101,41 @@ void summon_monsters_spell(int cmd, variant *res)
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
+            ct += summon_specific(-1, py, px, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No monsters arrive.");
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void summon_spiders_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Spiders");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Summon spiders for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int num = randint0(p_ptr->lev/10);
+        int ct = 0, i;
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        for (i = 0; i < num; i++)
+        {
+            ct += summon_specific(-1, py, px, l, SUMMON_SPIDER, PM_FORCE_PET | PM_ALLOW_GROUP);
+        }
+        if (!ct)
+            msg_print("No spiders arrive.");
         var_set_bool(res, TRUE);
         break;
     }
@@ -923,6 +1244,34 @@ void summon_undead_spell(int cmd, variant *res)
         var_set_bool(res, TRUE);
         break;
     }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void summon_uniques_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Summon Uniques");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to summon unique monsters for assistance.");
+        break;
+    case SPELL_CAST:
+    {
+        int ct = 0;
+        int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        msg_print("You summon a special opponent!");
+        if (!summon_specific(-1, py, px, l, SUMMON_UNIQUE, PM_FORCE_PET | PM_ALLOW_UNIQUE))
+            msg_print("Nobody arrives.");
+
+        var_set_bool(res, TRUE);
+        break;
+    } 
     default:
         default_spell(cmd, res);
         break;
@@ -1402,6 +1751,35 @@ void vampirism_spell(int cmd, variant *res)
     }
 }
 bool cast_vampirism(void) { return cast_spell(vampirism_spell); }
+
+void water_ball_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Water Ball");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Fires a ball of water.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev*4 + 50)));
+        break;
+    case SPELL_CAST:
+    {
+        int dir = 0;
+        var_set_bool(res, FALSE);
+        if (!get_aim_dir(&dir)) return;
+        msg_print("You gesture fluidly.");
+        fire_ball(GF_WATER, dir, spell_power(50 + p_ptr->lev*4), 2);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
 void water_bolt_spell(int cmd, variant *res)
 {

@@ -1,23 +1,7 @@
 #include "angband.h"
 #include "equip.h"
 
-static equip_template_t equip_template_std = 
-    {12, { {EQUIP_SLOT_WEAPON_SHIELD, "Right Hand", 0},
-           {EQUIP_SLOT_WEAPON_SHIELD, "Left Hand", 1},
-           {EQUIP_SLOT_BOW, "Shooting", 0},
-           {EQUIP_SLOT_RING, "Right Ring", 0},
-           {EQUIP_SLOT_RING, "Left Ring", 1},
-           {EQUIP_SLOT_AMULET, "Neck", 0},
-           {EQUIP_SLOT_LITE, "Light", 0},
-           {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
-           {EQUIP_SLOT_CLOAK, "Cloak", 0},
-           {EQUIP_SLOT_HELMET, "Head", 0},
-           {EQUIP_SLOT_GLOVES, "Hands", 0},
-           {EQUIP_SLOT_BOOTS, "Feet", 0} }
-};
-
 static equip_template_ptr _template = NULL;
-
 
 bool _object_is_amulet(object_type *o_ptr) 
 {
@@ -185,13 +169,13 @@ static void _slot_menu_fn(int cmd, int which, vptr cookie, variant *res)
             char buf[MAX_NLEN+50];
             char o_name[MAX_NLEN];
             object_desc(o_name, o_ptr, 0);
-            sprintf(buf, "%-14s: %s", _template->slots[idx].name, o_name);
+            sprintf(buf, "%-14s: %s", b_tag + _template->slots[idx].tag, o_name);
             var_set_string(res, buf);
         }
         else
         {
             char buf[MAX_NLEN+50];
-            sprintf(buf, "%-14s:", _template->slots[idx].name);
+            sprintf(buf, "%-14s:", b_tag + _template->slots[idx].tag);
             var_set_string(res, buf);
         }
         break;
@@ -244,7 +228,12 @@ extern cptr equip_describe_slot(int slot)
         if (p_ptr->weapon_info[hand].heavy_wield)
             return "Just Lifting";
         if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS && !prace_is_(RACE_MON_SWORD))
-            return "Both Arms";
+        {
+            if (p_ptr->current_r_idx == MON_BLOODTHIRSTER)
+                return "Both Paws";
+            else
+                return "Both Arms";
+        }
         if (p_ptr->weapon_info[hand].riding)
             return "Riding Reins";
     }
@@ -253,9 +242,8 @@ extern cptr equip_describe_slot(int slot)
         if (p_ptr->shooter_info.heavy_shoot)
             return "Just Holding";
     }
-    return _template->slots[i].name;
+    return b_tag + _template->slots[i].tag;
 }
-
 
 int equip_find_artifact(int which)
 {
@@ -380,6 +368,17 @@ bool equip_is_valid_slot(int slot)
 {
     if (slot >= EQUIP_BEGIN && slot < EQUIP_BEGIN + _template->count)
         return TRUE;
+    return FALSE;
+}
+
+bool equip_verify_slot(int slot, object_type *o_ptr)
+{
+    if (equip_is_valid_slot(slot))
+    {
+        object_p p = _accept[_template->slots[slot - EQUIP_BEGIN].type];
+        if (p(o_ptr))
+            return TRUE;
+    }
     return FALSE;
 }
 
@@ -822,14 +821,24 @@ static void _weaponmastery(int idx, int amt)
             p_ptr->innate_attack_info.to_dd += amt;
         break;
     case EQUIP_SLOT_ANY:
-        p_ptr->weapon_info[hand].to_dd += amt;
+        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+            p_ptr->weapon_info[hand].to_dd += amt;
+        else
+            p_ptr->innate_attack_info.to_dd += amt;
         break;
     default: /* At the moment, this is just the Robe of the Kamikaze Warrior (+2) */
-        for (hand = 0; hand < MAX_HANDS; hand++)
+        if (p_ptr->weapon_ct)
         {
-            if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                p_ptr->weapon_info[hand].to_dd += amt / p_ptr->weapon_ct;
+            for (hand = 0; hand < MAX_HANDS; hand++)
+            {
+                if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+                    p_ptr->weapon_info[hand].to_dd += amt / p_ptr->weapon_ct;
+            }
         }
+        else if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE) /* TODO: I'm not sure martial arts should boost the weapon_ct ... */
+            p_ptr->weapon_info[hand].to_dd += amt;
+        else
+            p_ptr->innate_attack_info.to_dd += amt;
     }
 }
 
@@ -1347,7 +1356,7 @@ void equip_on_init(void)
     if (race_ptr->equip_template)
         _template = race_ptr->equip_template;
     else
-        _template = &equip_template_std;
+        _template = &b_info[0];
 }
 
 void equip_on_change_race(void)
@@ -1356,7 +1365,7 @@ void equip_on_change_race(void)
     equip_template_ptr new_template = get_race_t()->equip_template;
 
     if (!new_template)
-        new_template = &equip_template_std;
+        new_template = &b_info[0];
 
     if (old_template != new_template)
     {

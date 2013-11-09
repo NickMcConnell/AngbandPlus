@@ -5364,7 +5364,7 @@ F:INSTA_ART
 N:716:Clarity:Metallic
 G:!:w
 I:75:70:100
-W:20:0:0:4:300
+W:20:0:0:4:100
 A:20/2
 P:0:1d1:0:0:0
 D:It clears your mind, restoring spell points a bit.
@@ -5421,7 +5421,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:723:Detect Monsters:wascally wabbit
 G:?:w
 I:70:57:0
-W:10:0:50:5:100
+W:10:0:50:5:40
 A:10/2
 F:STACK
 

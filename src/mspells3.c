@@ -32,7 +32,6 @@ static void learned_info(char *p, int power)
         case MS_XXX1:
         case MS_XXX2:
         case MS_XXX3:
-        case MS_XXX4:
         case MS_SCARE:
         case MS_BLIND:
         case MS_CONF:
@@ -86,6 +85,7 @@ static void learned_info(char *p, int power)
                 sprintf(p, " %s1", s_dam);
             break;
         }
+        case MS_BR_STORM:
         case MS_BR_ACID:
         case MS_BR_ELEC:
         case MS_BR_FIRE:
@@ -711,7 +711,11 @@ static bool cast_learned_spell(int spell, bool success)
         break;
     case MS_XXX3:
         break;
-    case MS_XXX4:
+    case MS_BR_STORM:
+        if (!get_aim_dir(&dir)) return FALSE;
+            else msg_print("You breathe storm.");
+        damage = MIN(hp / 3, 300);
+        fire_ball(GF_STORM, dir, spell_power(damage), (plev > 40 ? -3 : -2));
         break;
     case MS_BR_ACID:
         if (!get_aim_dir(&dir)) return FALSE;

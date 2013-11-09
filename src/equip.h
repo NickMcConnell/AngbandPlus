@@ -37,38 +37,6 @@
     NULL predicates are always OK and mean that no restriction should be applied.
 */
 
-#define EQUIP_BEGIN 24
-#define EQUIP_MAX_SLOTS (INVEN_TOTAL - EQUIP_BEGIN + 1)
-
-enum slot_e {
-    EQUIP_SLOT_NONE,            /* Assumptions on number */
-    EQUIP_SLOT_GLOVES,          /* 0-N                   */
-    EQUIP_SLOT_WEAPON_SHIELD,   /* 0-N                   */
-    EQUIP_SLOT_RING,            /* 0-N                   */
-    EQUIP_SLOT_BOW,             /* 0-1                   */
-    EQUIP_SLOT_AMULET,          /* 0-N                   */
-    EQUIP_SLOT_LITE,            /* 0-1                   */
-    EQUIP_SLOT_BODY_ARMOR,      /* 0-1                   */
-    EQUIP_SLOT_CLOAK,           /* 0-1                   */
-    EQUIP_SLOT_BOOTS,           /* 0-N                   */
-    EQUIP_SLOT_HELMET,          /* 0-N                   */
-    EQUIP_SLOT_ANY,             
-    EQUIP_SLOT_WEAPON,
-    EQUIP_SLOT_CAPTURE_BALL,
-    EQUIP_SLOT_MAX,
-};
-
-typedef struct {
-    int  type;
-    cptr name;
-    int  hand; /* For Weapon/Shield, Gloves and Ring slots only */
-} slot_t;
-
-typedef struct equip_template_s {
-    int        count;
-    slot_t    slots[EQUIP_MAX_SLOTS];
-} equip_template_t, *equip_template_ptr;
-
 typedef void (*object_fn)(object_type *o_ptr);
 typedef void (*slot_fn)(int slot);
 
@@ -82,6 +50,7 @@ extern void               equip_for_each_slot(slot_fn f);
 extern int                equip_count(void);
 extern int                equip_count_used(void);
 extern bool               equip_is_valid_slot(int slot);
+extern bool               equip_verify_slot(int slot, object_type *o_ptr);
 extern int                equip_first_slot(object_type *o_ptr);
 extern int                equip_first_empty_slot(object_type *o_ptr);
 extern int                equip_next_slot(object_type *o_ptr, int last);

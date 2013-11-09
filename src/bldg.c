@@ -2816,16 +2816,14 @@ static bool _reforge_artifact(void)
 {
     int src_idx, dest_idx, cost;
     char o_name[MAX_NLEN];
+    char buf[255];
     object_type *src, *dest;
-
-    if (p_ptr->fame < 50)
-    {
-        msg_print("You are not famous enough for this service!");
-        return FALSE;
-    }
+    int src_max_power = p_ptr->fame * p_ptr->fame * 10;
+    int dest_max_power = 0;
 
     item_tester_hook = object_is_artifact;
-    if (!get_item(&src_idx, "Use what artifact for reforging? ", "You have no artifacts to reforge.", USE_INVEN))
+    sprintf(buf, "Use what artifact for reforging (Max Power = %d)? ", src_max_power);
+    if (!get_item(&src_idx, buf, "You have no artifacts to reforge.", USE_INVEN | SHOW_VALUE))
         return FALSE;
 
     src = &inventory[src_idx];
@@ -2834,13 +2832,23 @@ static bool _reforge_artifact(void)
         msg_print("You must choose an artifact for reforging.");
         return FALSE;
     }
+    if (object_value_real(src) > src_max_power)
+    {
+        msg_print("You are not famous enough to reforge that item.");
+        return FALSE;
+    }
 
     cost = object_value_real(src);
+    
+    dest_max_power = cost / 2;
+    if (dest_max_power < 1000) /* Reforging won't try to power match weak stuff ... */
+        dest_max_power = 1000;
+    
     cost *= 10;
     cost -= cost % 1000;
 
-    if (cost < 250000)
-        cost = 250000;
+    if (cost < 100000)
+        cost = 100000;
     if (cost > 25000000)
         cost = 25000000;
 
@@ -2855,7 +2863,9 @@ static bool _reforge_artifact(void)
     if (!get_check(format("Really use %s? (It will be destroyed!) ", o_name))) 
         return FALSE;
 
-    if (!get_item(&dest_idx, "Reforge which object? ", "You have nothing to reforge.", (USE_EQUIP | USE_INVEN)))
+    sprintf(buf, "Reforge which object (Max Power = %d)? ", dest_max_power);
+    item_tester_hook = item_tester_hook_nameless_weapon_armour;
+    if (!get_item(&dest_idx, buf, "You have nothing to reforge.", USE_EQUIP | USE_INVEN | SHOW_VALUE))
         return FALSE;
 
     dest = &inventory[dest_idx];
@@ -2887,6 +2897,12 @@ static bool _reforge_artifact(void)
     if (!equip_first_slot(dest))
     {
         msg_print("This item cannot be reforged.");
+        return FALSE;
+    }
+
+    if (object_value_real(dest) > dest_max_power)
+    {
+        msg_print("This item is too powerful for the source artifact you have chosen.");
         return FALSE;
     }
 

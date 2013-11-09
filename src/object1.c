@@ -1627,6 +1627,29 @@ bool screen_object(object_type *o_ptr, u32b mode)
         for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
         { info[i] = &temp[j]; i++;}
     }
+    if ( p_ptr->prace == RACE_MON_POSSESSOR 
+      && o_ptr->tval == TV_CORPSE 
+      && o_ptr->sval == SV_CORPSE
+      && (o_ptr->ident & IDENT_MENTAL) )
+    {
+        monster_race *r_ptr = &r_info[o_ptr->pval];
+        char          temp2[70*20];
+
+        sprintf(temp2, "Body: %s\n \nStr : %+3d       Disarm : %d+%d\nInt : %+3d       Device : %d+%d\nWis : %+3d       Save   : %d+%d\nDex : %+3d       Stealth: %d+%d\nCon : %+3d       Search : %d/%d\nChr : %+3d       Melee  : %d+%d\nLife: %3d%%      Ranged : %d+%d\n \n \n",
+            b_name + b_info[r_ptr->body.body_idx].name,
+            r_ptr->body.stats[A_STR], r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis,
+            r_ptr->body.stats[A_INT], r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev,
+            r_ptr->body.stats[A_WIS], r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
+            r_ptr->body.stats[A_DEX], r_ptr->body.skills.stl, r_ptr->body.extra_skills.stl,
+            r_ptr->body.stats[A_CON], r_ptr->body.skills.srh, r_ptr->body.skills.fos,
+            r_ptr->body.stats[A_CHR], r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn,
+            r_ptr->body.life, r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
+        );
+            
+        roff_to_buf(temp2, 77-15, temp, sizeof(temp));
+        for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
+        { info[i] = &temp[j]; i++;}
+    }
 
     if (object_is_equipment(o_ptr))
     {
@@ -1727,9 +1750,9 @@ bool screen_object(object_type *o_ptr, u32b mode)
         if (o_ptr->pval == MON_BULLGATES)
             info[i++] = "It is shameful.";
         else if ( r_ptr->flags2 & (RF2_ELDRITCH_HORROR))
-        info[i++] = "It is fearful.";
+            info[i++] = "It is fearful.";
         else
-        info[i++] = "It is cheerful.";
+            info[i++] = "It is cheerful.";
     }
     
     /* Hack -- describe lite's */
@@ -3256,6 +3279,7 @@ int show_inven(int target_item, int mode)
 
         /* Be sure to account for the weight */
         if (mode & SHOW_FAIL_RATES) l += 12;
+        else if (mode & SHOW_VALUE) l += 12;
         else if (show_weights) l += 9;
 
         /* Account for icon if displayed */
@@ -3339,6 +3363,12 @@ int show_inven(int target_item, int mode)
             sprintf(tmp_val, "Fail: %2d.%d%%", fail/10, fail%10);
             prt(tmp_val, j + 1, wid - 12);
         }
+        else if (mode & SHOW_VALUE)
+        {
+            int value = object_value_real(o_ptr);
+            sprintf(tmp_val, "Pow: %7d", value);
+            prt(tmp_val, j + 1, wid - 12);
+        }
         else if (show_weights)
         {
             int wgt = o_ptr->weight * o_ptr->number;
@@ -3408,6 +3438,7 @@ int show_equip(int target_item, int mode)
         l = strlen(out_desc[k]) + (2 + 3);
         if (show_labels) l += (10 + 2);
         if (mode & SHOW_FAIL_RATES) l += 12;
+        else if (mode & SHOW_VALUE) l += 12;
         else if (show_weights) l += 9;
         if (show_item_graph) l += 2;
         if (l > len) len = l;
@@ -3480,6 +3511,12 @@ int show_equip(int target_item, int mode)
         {
             int fail = activation_fail_rate(o_ptr);
             sprintf(tmp_val, "Fail: %2d.%d%%", fail/10, fail%10);
+            prt(tmp_val, j + 1, wid - 12);
+        }
+        else if (mode & SHOW_VALUE)
+        {
+            int value = object_value_real(o_ptr);
+            sprintf(tmp_val, "Pow: %7d", value);
             prt(tmp_val, j + 1, wid - 12);
         }
         else if (show_weights)

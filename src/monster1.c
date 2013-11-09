@@ -654,7 +654,7 @@ static void roff_aux(int r_idx, int mode)
 
     if (flags2 & RF2_REFLECTING)
     {
-        hooked_roff(format("%^s reflects bolt spells and arrows.  ", wd_he[msex]));
+        hooked_roff(format("%^s reflects bolt spells.  ", wd_he[msex]));
 
     }
 

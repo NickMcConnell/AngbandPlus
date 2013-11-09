@@ -80,12 +80,6 @@ static void _jelly_calc_innate_attacks(void)
     }
 }
 
-static equip_template_t _black_ooze_template = 
-    {4, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0} }
-};
 static void _black_ooze_calc_bonuses(void)
 {
     res_add(RES_ACID);
@@ -131,21 +125,12 @@ race_t *_black_ooze_get_race_t(void)
         me.calc_bonuses = _black_ooze_calc_bonuses;
         me.get_flags = _black_ooze_get_flags;
         me.get_immunities = _black_ooze_get_immunities;
-        me.equip_template = &_black_ooze_template;
 
         init = TRUE;
     }
     return &me;
 }
 
-static equip_template_t _gelatinous_cube_template = 
-    {6, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0} }
-};
 static void _gelatinous_cube_calc_bonuses(void)
 {
     p_ptr->to_a += p_ptr->lev/3;
@@ -191,22 +176,11 @@ race_t *_gelatinous_cube_get_race_t(void)
         me.calc_bonuses = _gelatinous_cube_calc_bonuses;
         me.get_flags = _gelatinous_cube_get_flags;
         me.get_immunities = _black_ooze_get_immunities;
-        me.equip_template = &_gelatinous_cube_template;
 
         init = TRUE;
     }
     return &me;
 }
-
-static equip_template_t _acidic_cytoplasm_template = 
-    {7, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0},
-          {EQUIP_SLOT_ANY, "Belly", 0} }
-};
 
 static void _acidic_cytoplasm_calc_bonuses(void)
 {
@@ -265,23 +239,11 @@ race_t *_acidic_cytoplasm_get_race_t(void)
         me.calc_bonuses = _acidic_cytoplasm_calc_bonuses;
         me.get_flags = _acidic_cytoplasm_get_flags;
         me.get_immunities = _acidic_cytoplasm_get_immunities;
-        me.equip_template = &_acidic_cytoplasm_template;
 
         init = TRUE;
     }
     return &me;
 }
-
-static equip_template_t _shoggoth_template = 
-    {8, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-           {EQUIP_SLOT_ANY, "Any", 0},
-           {EQUIP_SLOT_ANY, "Any", 0},
-           {EQUIP_SLOT_ANY, "Any", 0},
-           {EQUIP_SLOT_ANY, "Any", 0},
-           {EQUIP_SLOT_ANY, "Any", 0},
-           {EQUIP_SLOT_ANY, "Any", 0},
-           {EQUIP_SLOT_ANY, "Any", 0} }
-};
 
 static void _shoggoth_calc_bonuses(void)
 {
@@ -332,7 +294,6 @@ race_t *_shoggoth_get_race_t(void)
         me.calc_bonuses = _shoggoth_calc_bonuses;
         me.get_flags = _shoggoth_get_flags;
         me.get_immunities = _shoggoth_get_immunities;
-        me.equip_template = &_shoggoth_template;
 
         init = TRUE;
     }
@@ -373,6 +334,7 @@ static void _birth(void)
     object_type    forge;
 
     p_ptr->current_r_idx = MON_BLACK_OOZE;
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_RING, SV_RING_STR));
     forge.pval = 1;
@@ -417,6 +379,7 @@ race_t *mon_jelly_get_race_t(void)
     result->calc_innate_attacks = _jelly_calc_innate_attacks;
     result->birth = _birth;
     result->base_hp = 40;
+    result->equip_template = mon_get_equip_template();
 
     result->boss_r_idx = MON_UBBO_SATHLA;
     return result;

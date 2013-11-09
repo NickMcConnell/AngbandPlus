@@ -3412,10 +3412,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 obvious = FALSE;
                 dam = 0;
             }
-            else if (((r_ptr->flags1 & RF1_UNIQUE) &&
-                 (randint1(888) != 666)) ||
-                 (((r_ptr->level + randint1(20)) > randint1((caster_lev / 2) + randint1(10))) &&
-                 randint1(100) != 66))
+            else if ( ((r_ptr->flags1 & RF1_UNIQUE) && randint1(888) != 666) 
+                   || (r_ptr->level + randint1(20) > randint1(caster_lev)))
             {
                 note = " resists!";
 
@@ -5157,7 +5155,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             /* Attempt a saving throw */
             if (who == 0)
-                save = mon_save_p(m_ptr->r_idx, A_WIS);
+            {
+                save = p_ptr->current_r_idx != MON_KENSHIROU && mon_save_p(m_ptr->r_idx, A_WIS);
+            }
             else
             {
                 save = ((randint0(100 + (caster_lev / 2)) < (r_ptr->level + 35)) 
@@ -5416,7 +5416,14 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             if (genocide_aux(c_ptr->m_idx, dam, !who, (r_ptr->level + 1) / 2, "Genocide One"))
             {
-                if (seen_msg) msg_format("%^s disappered!", m_name);
+                if (seen_msg) 
+                {
+                    if (dam == 666) /* Hack for Daemon flavored message */
+                        msg_format("%^s is sent directly to hell!", m_name);
+                    else
+                        msg_format("%^s disappeared!", m_name);
+                }
+                
                 virtue_add(VIRTUE_VITALITY, -1);
                 return TRUE;
             }

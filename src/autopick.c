@@ -1444,7 +1444,10 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
                 my_strchr("pht", r_info[o_ptr->pval].d_char))
                 return FALSE;
         }
-
+        if (p_ptr->prace == RACE_MON_POSSESSOR && o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE)
+        {
+            return FALSE;
+        }
         if (p_ptr->pclass == CLASS_ARCHER)
         {
             if (o_ptr->tval == TV_SKELETON ||

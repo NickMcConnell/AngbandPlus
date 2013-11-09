@@ -543,6 +543,9 @@
     <ClCompile Include="race_quylthulg.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="race_possessor.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
@@ -1129,6 +1132,12 @@
       <Filter>Edit\Help</Filter>
     </None>
     <None Include="..\lib\file\mondeath.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\file\rumors.txt">
+      <Filter>Edit\Files</Filter>
+    </None>
+    <None Include="..\lib\edit\b_info.txt">
       <Filter>Edit\Stuff</Filter>
     </None>
   </ItemGroup>

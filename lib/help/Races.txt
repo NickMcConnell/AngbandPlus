@@ -527,4 +527,4 @@
 ***** [a] Demigods.txt
 
 
-[[[[s|  Automatically generated for PosChengband 1.0.37.
+[[[[s|  Automatically generated for PosChengband 2.0.0.

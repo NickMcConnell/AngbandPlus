@@ -15,6 +15,7 @@
  * (z-virt.h, z-util.h, z-form.h, term.h, random.h)
  */
 
+extern bool initialized;
 
 extern bool melee_hack;
 
@@ -473,6 +474,9 @@ extern char *e_text;
 extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
+extern equip_template_ptr b_info;
+extern char *b_name;
+extern char *b_tag;
 extern dungeon_info_type *d_info;
 extern char *d_name;
 extern char *d_text;
@@ -508,6 +512,7 @@ extern building_type building[MAX_BLDG];
 extern u16b max_quests;
 extern byte num_random_quests;
 extern u16b max_r_idx;
+extern u16b max_b_idx;
 extern u16b max_k_idx;
 extern u16b max_v_idx;
 extern u16b max_f_idx;
@@ -1219,7 +1224,6 @@ extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
 extern bool lite_line(int dir);
 extern bool drain_life(int dir, int dam);
-extern bool death_ray(int dir, int plev);
 extern bool wall_to_mud(int dir);
 extern bool destroy_door(int dir);
 extern bool disarm_trap(int dir);
@@ -1310,7 +1314,6 @@ extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr);
 extern bool artifact_scroll(void);
-typedef bool (*object_p)(object_type *o_ptr);
 extern bool ident_spell(object_p p);
 extern bool identify_fully(object_p p);
 extern bool mundane_spell(bool only_equip);
@@ -1943,12 +1946,15 @@ extern race_t *mon_hydra_get_race_t(void);
 extern race_t *mon_jelly_get_race_t(void);
 extern race_t *mon_leprechaun_get_race_t(void);
 extern race_t *mon_lich_get_race_t(void);
+extern race_t *mon_possessor_get_race_t(void);
 extern race_t *mon_quylthulg_get_race_t(void);
 extern race_t *mon_spider_get_race_t(void);
 extern race_t *mon_sword_get_race_t(void);
 extern race_t *mon_troll_get_race_t(void);
 extern race_t *mon_xorn_get_race_t(void);
 
+extern bool    possessor_can_gain_exp(void);
+extern s32b    possessor_max_exp(void);
 extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    jelly_eat_object(object_type *o_ptr);
 extern bool    leprechaun_steal(int m_idx);
@@ -2059,6 +2065,7 @@ extern bool     imitator_cast(bool revenge);
 extern class_t *imitator_get_class_t(void);
 extern void     spellbook_character_dump(FILE *fff);
 extern class_t *mage_get_class_t(void);
+extern equip_template_ptr mon_get_equip_template(void);
 extern class_t *monk_get_class_t(void);
 extern void     monk_posture_calc_bonuses(void);
 extern void     monk_ac_bonus(void);

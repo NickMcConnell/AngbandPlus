@@ -27,19 +27,6 @@ static cptr _desc =
     "any special talents, the cave spider must play carefully if it is to "
     "survive.";
 
-static equip_template_t _spider_template = {10, { 
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_AMULET, "Amulet", 0},
-    {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-    {EQUIP_SLOT_HELMET, "Helm", 0},
-    {EQUIP_SLOT_BOOTS, "Boots", 0},
-    {EQUIP_SLOT_BOOTS, "Boots", 0},
-}};
-
 static void _detect_prey_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -549,6 +536,7 @@ static void _birth(void)
     object_type    forge;
 
     p_ptr->current_r_idx = MON_CAVE_SPIDER;
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_RING, SV_RING_DEX));
     forge.pval = 1;
@@ -595,7 +583,7 @@ race_t *mon_spider_get_race_t(void)
     result->name = "Spider";
     result->desc = _desc;
     result->exp = 200;
-    result->equip_template = &_spider_template;
+    result->equip_template = mon_get_equip_template();
     result->flags = RACE_IS_MONSTER;
     result->gain_level = _gain_level;
     result->birth = _birth;

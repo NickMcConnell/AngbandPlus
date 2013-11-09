@@ -108,7 +108,7 @@ void mana_bolt_II_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "*Mana Bolt*");
+        var_set_string(res, "Mana Bolt");
         break;
     case SPELL_DESC:
         var_set_string(res, "Fires a powerful bolt of pure mana.");
@@ -139,7 +139,7 @@ void mana_storm_I_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Mana Storm I");
+        var_set_string(res, "Mana Storm");
         break;
     case SPELL_DESC:
         var_set_string(res, "Fires a large ball of pure mana.");
@@ -170,7 +170,7 @@ void mana_storm_II_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Mana Storm II");
+        var_set_string(res, "Mana Storm");
         break;
     case SPELL_DESC:
         var_set_string(res, "Fires a large ball of pure mana.");
@@ -855,6 +855,34 @@ void punishment_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         fire_bolt_or_beam(beam_chance() - 10, GF_ELEC, dir, spell_power(damroll(dd, ds)));
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void radiation_ball_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Radiation Ball");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Fires a ball of radiation.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(spell_power(10), 6, spell_power(p_ptr->lev*2)));
+        break;
+    case SPELL_CAST:
+    {
+        int dir = 0;
+        var_set_bool(res, FALSE);
+        if (!get_aim_dir(&dir)) return;
+        fire_ball(GF_NUKE, dir, spell_power(damroll(10, 6) + p_ptr->lev*2), 2);
         var_set_bool(res, TRUE);
         break;
     }

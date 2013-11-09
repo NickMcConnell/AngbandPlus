@@ -12,6 +12,7 @@
 
 #include "angband.h"
 
+bool initialized = FALSE;
 
 /*
  * Hack -- Link a copyright message into the executable
@@ -828,7 +829,6 @@ ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
-
 /*
  * The monster race arrays
  */
@@ -836,6 +836,10 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+/* Body Types for Player Monster Races */
+equip_template_ptr b_info;
+char *b_name;
+char *b_tag;
 
 /*
  * The dungeon arrays
@@ -1062,6 +1066,7 @@ byte num_random_quests;
  * Maximum number of monsters in r_info.txt
  */
 u16b max_r_idx;
+u16b max_b_idx;
 
 /*
  * Maximum number of items in k_info.txt

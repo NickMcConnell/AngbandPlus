@@ -90,24 +90,12 @@ static cptr _mon_name(int r_idx)
 /**********************************************************************
  * Hound Equipment
  **********************************************************************/
-static equip_template_t _equip_template = {10, { 
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_RING, "Ring", 0},
-    {EQUIP_SLOT_AMULET, "Amulet", 0},
-    {EQUIP_SLOT_LITE, "Light", 0},
-    {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
-    {EQUIP_SLOT_CLOAK, "Cloak", 0},
-    {EQUIP_SLOT_HELMET, "Helm", 0},
-    {EQUIP_SLOT_BOOTS, "Boots", 0}, /* Back paws only ... */
-}};
-
 static void _birth(void) 
 { 
     object_type    forge;
 
     p_ptr->current_r_idx = MON_CLEAR_HOUND;
+    equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
     forge.to_d = 3;
@@ -737,7 +725,6 @@ race_t *mon_hound_get_race_t(void)
         me.birth = _birth;
 
         me.flags = RACE_IS_MONSTER; /* | RACE_IS_ILLITERATE? */
-        me.equip_template = &_equip_template;
         me.boss_r_idx = MON_CARCHAROTH;
 
         init = TRUE;
@@ -750,6 +737,7 @@ race_t *mon_hound_get_race_t(void)
     me.stats[A_DEX] =  2 + p_ptr->lev/15;
     me.stats[A_CON] =  1 + p_ptr->lev/15;
     me.stats[A_CHR] =  0 + p_ptr->lev/25;
+    me.equip_template = mon_get_equip_template();
 
     return &me;
 }

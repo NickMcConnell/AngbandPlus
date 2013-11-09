@@ -3563,7 +3563,7 @@ static cptr do_death_spell(int spell, int mode)
 
             if (cast)
             {
-                project(0, rad, py, px, dam, GF_POIS, PROJECT_KILL | PROJECT_ITEM, -1);
+                project(0, rad, py, px, dam, GF_POIS, PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM, -1);
             }
         }
         break;
@@ -3573,7 +3573,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Attempts to vanish a monster.";
     
         {
-            int power = spell_power(plev + 50);
+            int power = spell_power(plev*3);
 
             if (info) return info_power(power);
 
@@ -3660,7 +3660,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Eliminates an entire class of monster, exhausting you.  Powerful or unique monsters may resist.";
     
         {
-            int power = spell_power(plev+50);
+            int power = spell_power(plev*3);
 
             if (info) return info_power(power);
 
@@ -3803,8 +3803,11 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of darkness.";
     
         {
-            int dam = spell_power(100 + plev * 2);
+            int l = p_ptr->lev;
+            int dam = 100 + l + l*l/50 + l*l*l/1250;
             int rad = spell_power(4);
+
+            dam = spell_power(dam);
 
             if (info) return info_damage(0, 0, dam);
 
@@ -3825,8 +3828,8 @@ static cptr do_death_spell(int spell, int mode)
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-
-                death_ray(dir, plev);
+                project_hook(GF_DEATH_RAY, dir, plev * 200, /*  v--- This is mean as it auto kills the player! */
+                                PROJECT_STOP | PROJECT_KILL /*| PROJECT_REFLECTABLE*/);
             }
         }
         break;
@@ -3922,7 +3925,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Eliminates all nearby monsters, exhausting you.  Powerful or unique monsters may be able to resist.";
     
         {
-            int power = spell_power(plev + 50);
+            int power = spell_power(plev*3);
 
             if (info) return info_power(power);
 
@@ -3934,12 +3937,12 @@ static cptr do_death_spell(int spell, int mode)
         break;
 
     case 30:
-        if (name) return "Hellfire";
-        if (desc) return "Fires a powerful ball of evil power. Hurts good monsters greatly.";
+        if (name) return "Nether Storm";
+        if (desc) return "Generate a huge ball of nether.";
     
         {
-            int dam = spell_power(666);
-            int rad = 3;
+            int dam = spell_power(plev * 15);
+            int rad = spell_power(plev / 5);
 
             if (info) return info_damage(0, 0, dam);
 
@@ -3947,8 +3950,7 @@ static cptr do_death_spell(int spell, int mode)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball(GF_HELL_FIRE, dir, dam, rad);
-                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire", -1);
+                fire_ball(GF_NETHER, dir, dam, rad);
             }
         }
         break;
@@ -6283,12 +6285,12 @@ static cptr do_daemon_spell(int spell, int mode)
         break;
 
     case 29:
-        if (name) return "Nether Storm";
-        if (desc) return "Generate a huge ball of nether.";
+        if (name) return "Hellfire";
+        if (desc) return "Fires a powerful ball of evil power. Hurts good monsters greatly.";
     
         {
-            int dam = spell_power(plev * 15);
-            int rad = spell_power(plev / 5);
+            int dam = spell_power(666);
+            int rad = 3;
 
             if (info) return info_damage(0, 0, dam);
 
@@ -6296,27 +6298,26 @@ static cptr do_daemon_spell(int spell, int mode)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball(GF_NETHER, dir, dam, rad);
+                fire_ball(GF_HELL_FIRE, dir, dam, rad);
+                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire", -1);
             }
         }
         break;
 
     case 30:
-        if (name) return "Bloody Curse";
-        if (desc) return "Puts blood curse which damages and causes various effects on a monster. You also take damage.";
+        if (name) return "Send to Hell";
+        if (desc) return "Attempts to send a single monster directly to hell.";
     
         {
-            int dam = spell_power(500);
-            int rad = 0;
+            int power = 666;
 
-            if (info) return info_damage(0, 0, dam);
+            if (info) return info_power(power);
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball_hide(GF_BLOOD_CURSE, dir, dam, rad);
-                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "Blood curse", -1);
+                fire_ball_hide(GF_GENOCIDE, dir, power, 0);
             }
         }
         break;
@@ -6733,8 +6734,11 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of powerful light.";
     
         {
-            int dam = spell_power(100 + plev * 2);
+            int l = p_ptr->lev;
+            int dam = 100 + l + l*l/50 + l*l*l/1250;
             int rad = spell_power(4);
+
+            dam = spell_power(dam);
 
             if (info) return info_damage(0, 0, dam);
 
