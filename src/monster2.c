@@ -805,6 +805,81 @@ static bool summon_specific_aux(int r_idx)
     /* Check our requirements */
     switch (summon_specific_type)
     {
+        case SUMMON_ULTIMATE:
+        {
+            if ( r_idx == 1083 || r_idx == 1087 || r_idx == 1088 || r_idx == 1085 || r_idx == 1084
+              || r_idx == 847 || r_idx == 793 || r_idx == 800 || r_idx == 798 || r_idx == 836
+              || r_idx == 816 )
+            {
+                okay = TRUE;
+            }
+            break;
+        }
+        case SUMMON_BALROG:
+        {
+            if (r_idx == 720 || r_idx == 940)
+                okay = TRUE;
+            break;
+        }
+        case SUMMON_CLUBBER_DEMON:
+        {
+            okay = (r_idx == 648);
+            break;
+        }
+        case SUMMON_DEMON_SUMMONER:
+        {
+            okay = ( !(r_ptr->flags1 & RF1_UNIQUE) 
+                  && (r_ptr->flags6 & RF6_S_DEMON));
+            break;
+        }
+
+        case SUMMON_MATURE_DRAGON:
+        {
+            /* Hack -- all 'd's with 'ature' or 'rake' in name */
+            okay = ((r_ptr->d_char == 'd') &&
+                !(r_ptr->flags1 & (RF1_UNIQUE)) &&
+                (strstr(r_name + r_ptr->name, "ature") ||
+                 strstr(r_name + r_ptr->name, "rake")));
+            break;
+        }
+
+        case SUMMON_DRAGON_SUMMONER:
+        {
+            okay = ( !(r_ptr->flags1 & RF1_UNIQUE) 
+                  && (r_ptr->flags6 & (RF6_S_DRAGON | RF6_S_HI_DRAGON)));
+            break;
+        }
+
+        case SUMMON_UNDEAD_SUMMONER:
+        {
+            okay = ( !(r_ptr->flags1 & RF1_UNIQUE) 
+                  && (r_ptr->flags6 & (RF6_S_UNDEAD | RF6_S_HI_UNDEAD)));
+            break;
+        }
+        case SUMMON_DARK_ELF:
+        {
+            if ( r_idx == 122 || r_idx == 178 || r_idx == 182 || r_idx == 226 || r_idx == 348
+              || r_idx == 375 || r_idx == 400 || r_idx == 564 || r_idx == 657 || r_idx == 886)
+            {
+                okay = TRUE;
+            }
+            break;
+        }
+        case SUMMON_GIANT:
+        {
+            okay = (r_ptr->d_char == 'O' || r_ptr->d_char == 'P');
+            break;
+        }
+        case SUMMON_ORC:
+        {
+            okay = (r_ptr->d_char == 'o') ? TRUE : FALSE;
+            break;
+        }
+        case SUMMON_YEEK:
+        {
+            okay = (r_ptr->d_char == 'y') ? TRUE : FALSE;
+            break;
+        }
         case SUMMON_ANT:
         {
             okay = (r_ptr->d_char == 'a');

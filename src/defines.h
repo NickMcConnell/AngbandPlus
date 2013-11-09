@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 31
+#define VER_PATCH 32
 #define VER_EXTRA 0
 
 
@@ -680,12 +680,13 @@
 #define RACE_MON_ELEMENTAL      52
 #define RACE_MON_SWORD          53
 #define RACE_MON_GOLEM          54
+#define RACE_MON_QUYLTHULG      55
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  * Note other races exist, and use constants beginning at MIMIC_MIN
  */
-#define MAX_RACES               55
+#define MAX_RACES               56
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -1574,6 +1575,7 @@
 #define ART_ARIEL           316
 #define ART_MOIRE           317
 #define ART_LOGE            318
+#define ART_EMPEROR_QUYLTHULG 319
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -3113,6 +3115,17 @@
 #define SUMMON_ENT                  82
 #define SUMMON_CAMELOT              83
 #define SUMMON_NIGHTMARE            84
+#define SUMMON_YEEK                 85
+#define SUMMON_ORC                  86
+#define SUMMON_DARK_ELF             87
+#define SUMMON_GIANT                88
+#define SUMMON_UNDEAD_SUMMONER      89
+#define SUMMON_MATURE_DRAGON        90
+#define SUMMON_DRAGON_SUMMONER      91
+#define SUMMON_CLUBBER_DEMON        92
+#define SUMMON_BALROG               93
+#define SUMMON_DEMON_SUMMONER       94
+#define SUMMON_ULTIMATE             95
 
 
 /*
@@ -5148,6 +5161,7 @@ extern int PlayerUID;
 #define MON_EARTH_HOUND         337
 #define MON_AIR_HOUND           338
 #define MON_WATER_HOUND         340
+#define MON_QUYLTHULG           342
 #define MON_D_ELF_LORD          348
 #define MON_CLOUD_GIANT         349
 #define MON_FIRE_VOR            354
@@ -5189,6 +5203,7 @@ extern int PlayerUID;
 #define MON_SHADOW_DRAKE  471
 #define MON_GHOST         477
 #define MON_OGRE_SHAMAN   479
+#define MON_NEXUS_QUYLTHULG             480
 #define MON_NINJA         485
 #define MON_STORM_GIANT 487
 #define MON_SPECTATOR 488
@@ -5251,6 +5266,7 @@ extern int PlayerUID;
 #define MON_NIGHTMARE     622
 #define MON_VAMPIRE_LORD  623
 #define MON_SPIRIT_TROLL 630
+#define MON_ROTTING_QUYLTHULG           633
 #define MON_LESSER_TITAN 634
 #define MON_NINE_HEADED_HYDRA 635
 #define MON_XAREN       639
@@ -5294,6 +5310,7 @@ extern int PlayerUID;
 #define MON_NETHER_HOUND      724
 #define MON_TIME_HOUND        725
 #define MON_PLASMA_HOUND      726
+#define MON_DEMONIC_QUYLTHULG           727
 #define MON_ULIK         729
 #define MON_BULLGATES     732
 #define MON_SANTACLAUS    733
@@ -5311,6 +5328,7 @@ extern int PlayerUID;
 #define MON_AETHER_VOR    752
 #define MON_LERNEAN_HYDRA 754
 #define MON_BLOODTHIRSTER 758
+#define MON_DRACONIC_QUYLTHULG          759
 #define MON_NYOGTHA       760
 #define MON_FUNDIN        762
 #define MON_DWORKIN       763
@@ -5337,7 +5355,10 @@ extern int PlayerUID;
 #define MON_BLACK_REAVER  798
 #define MON_CAINE         799
 #define MON_MASTER_Q      800
+#define MON_MASTER_QUYLTHULG            800
 #define MON_G_DRACONIC_Q  801
+#define MON_GREATER_DRACONIC_QUYLTHULG  801
+#define MON_GREATER_ROTTING_QUYLTHULG   802
 #define MON_VECNA          804
 #define MON_OMARAX        805
 #define MON_GERARD        807
@@ -5351,6 +5372,7 @@ extern int PlayerUID;
 #define MON_CYBER         816
 #define MON_KLING         819
 #define MON_CORWIN        820
+#define MON_EMPEROR_QUYLTHULG           821
 #define MON_ANGMAR        825
 #define MON_CANTORAS      830
 #define MON_MEPHISTOPHELES 831
@@ -5480,6 +5502,7 @@ extern int PlayerUID;
 #define MON_HERA        1105
 #define MON_DEMETER        1106
 #define MON_APHRODITE    1107
+#define MON_GREATER_DEMONIC_QUYLTHULG   1123
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle 

@@ -1612,6 +1612,9 @@ int calculate_upkeep(void)
         if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)
             div /= 2;
 
+        if (prace_is_(RACE_MON_QUYLTHULG))
+            div = 7;
+
         upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / div));
 
         if (upkeep_factor < 0) upkeep_factor = 0;
@@ -2463,16 +2466,16 @@ void do_cmd_pet(void)
         case PET_TARGET:
         {
             project_length = -1;
-            if (!target_set(TARGET_KILL)) pet_t_m_idx = 0;
+            target_pet = FALSE;
+            if (!target_set(TARGET_MARK)) 
+                pet_t_m_idx = 0;
             else
             {
-                cave_type *c_ptr = &cave[target_row][target_col];
-                if (c_ptr->m_idx && (m_list[c_ptr->m_idx].ml))
-                {
+                msg_flag = FALSE; /* Bug ... we get an extra -more- prompt after target_set() ... */
+                if (target_who > 0)
+                    pet_t_m_idx = target_who;
+                else
                     pet_t_m_idx = cave[target_row][target_col].m_idx;
-                    p_ptr->pet_follow_distance = PET_DESTROY_DIST;
-                }
-                else pet_t_m_idx = 0;
             }
             project_length = 0;
 

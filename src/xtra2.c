@@ -1699,6 +1699,10 @@ void monster_death(int m_idx, bool drop_item)
             a_idx = ART_LOGE;
             chance = 5;
             break;
+        case MON_EMPEROR_QUYLTHULG:
+            a_idx = ART_EMPEROR_QUYLTHULG;
+            chance = 5;
+            break;
         }
 
         if (race_ptr->boss_r_idx == m_ptr->r_idx)
@@ -2076,6 +2080,52 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
     gain_exp_64(new_exp, new_exp_frac);
 }
 
+/* Hack for Quylthulgs. Their pets are allowed to kill uniques! */
+void mon_check_kill_unique(int m_idx)
+{
+    monster_type    *m_ptr = &m_list[m_idx];
+    monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+    if (!(m_ptr->smart & SM_CLONED))
+    {
+        /* When the player kills a Unique, it stays dead */
+        if (r_ptr->flags1 & RF1_UNIQUE)
+        {
+            r_ptr->max_num = 0;
+
+            if (one_in_(3))
+                p_ptr->fame++;
+
+            /* Mega-Hack -- Banor & Lupart */
+            if ((m_ptr->r_idx == MON_BANOR) || (m_ptr->r_idx == MON_LUPART))
+            {
+                r_info[MON_BANORLUPART].max_num = 0;
+                r_info[MON_BANORLUPART].r_pkills++;
+                r_info[MON_BANORLUPART].r_akills++;
+                if (r_info[MON_BANORLUPART].r_tkills < MAX_SHORT) r_info[MON_BANORLUPART].r_tkills++;
+            }
+            else if (m_ptr->r_idx == MON_BANORLUPART)
+            {
+                r_info[MON_BANOR].max_num = 0;
+                r_info[MON_BANOR].r_pkills++;
+                r_info[MON_BANOR].r_akills++;
+                if (r_info[MON_BANOR].r_tkills < MAX_SHORT) r_info[MON_BANOR].r_tkills++;
+                r_info[MON_LUPART].max_num = 0;
+                r_info[MON_LUPART].r_pkills++;
+                r_info[MON_LUPART].r_akills++;
+                if (r_info[MON_LUPART].r_tkills < MAX_SHORT) r_info[MON_LUPART].r_tkills++;
+            }
+        }
+
+        /* When the player kills a Nazgul, it stays dead */
+        else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
+        else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT) 
+        {
+            if (r_ptr->max_num)
+                r_ptr->max_num--;
+        }
+    }
+}
 
 /*
  * Decreases monsters hit points, handling monster death.
@@ -2180,18 +2230,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     if (m_ptr->hp < 0)
     {
         char m_name[80];
-
-        /* Blood Points */
-        if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
-        {
-            if (r_ptr->d_char == 'p' || (r_ptr->flags2 & RF2_HUMAN))
-            {
-            /*    p_ptr->blood_points += r_ptr->level/10;
-                if (p_ptr->blood_points > 1000)
-                    p_ptr->blood_points = 1000;
-                p_ptr->redraw |= PR_BLOOD_POINTS; */
-            }
-        }
 
         if (p_ptr->tim_killing_spree)
             set_fast(p_ptr->fast + 5, FALSE);
@@ -3321,7 +3359,7 @@ static void target_set_prepare(int mode)
             /* Require target_able monsters for "TARGET_KILL" */
             if ((mode & (TARGET_KILL)) && !target_able(c_ptr->m_idx)) continue;
 
-            if ((mode & (TARGET_KILL)) && !target_pet && is_pet(&m_list[c_ptr->m_idx])) continue;
+            if ((mode & (TARGET_KILL | TARGET_MARK)) && !target_pet && is_pet(&m_list[c_ptr->m_idx])) continue;
 
             /* Duelist is attempting to mark a target ... only visible monsters, please! */
             if ( ((mode & TARGET_MARK) || (mode & TARGET_DISI))

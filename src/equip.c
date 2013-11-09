@@ -109,6 +109,16 @@ bool _object_is_weapon_or_shield(object_type *o_ptr)
     return FALSE;
 }
 
+bool _object_is_capture_ball(object_type *o_ptr) 
+{
+    switch (o_ptr->tval)
+    {
+    case TV_CAPTURE:
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static object_p _accept[EQUIP_SLOT_MAX] = {
     NULL,
     _object_is_gloves,
@@ -122,7 +132,8 @@ static object_p _accept[EQUIP_SLOT_MAX] = {
     _object_is_boots,
     _object_is_helmet,
     _object_is_anything,
-    _object_is_weapon
+    _object_is_weapon,
+    _object_is_capture_ball
 };
 
 static int _slot_count(object_type *o_ptr)

@@ -143,6 +143,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
     case RACE_MON_LICH:
         result = mon_lich_get_race_t();
         break;
+    case RACE_MON_QUYLTHULG:
+        result = mon_quylthulg_get_race_t();
+        break;
     case RACE_MON_SPIDER:
         result = mon_spider_get_race_t();
         break;

@@ -5569,7 +5569,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_poly = FALSE;
 
     /* "Unique" and "quest" monsters can only be "killed" by the player. */
-    if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & RF7_NAZGUL)) && !p_ptr->inside_battle)
+    if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & RF7_NAZGUL)) 
+      && !p_ptr->inside_battle 
+      && !prace_is_(RACE_MON_QUYLTHULG))
     {
         if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
     }
@@ -5767,6 +5769,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
 
             if (who > 0) monster_gain_exp(who, m_ptr->r_idx);
+
+            mon_check_kill_unique(c_ptr->m_idx);
 
             /* Generate treasure, etc */
             monster_death(c_ptr->m_idx, who_is_pet);

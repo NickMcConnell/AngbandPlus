@@ -763,10 +763,10 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
         {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT, 
          RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
     { "Monster", "MonsterRaces.txt", 
-        {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_DEMON, RACE_MON_DRAGON, 
-            RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, 
-            RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_SPIDER, 
-            RACE_MON_SWORD, RACE_MON_TROLL, RACE_MON_XORN, -1} },
+        {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_SWORD, RACE_MON_DEMON, 
+            RACE_MON_DRAGON, RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_HOUND, 
+            RACE_MON_HYDRA, RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, 
+            RACE_MON_QUYLTHULG, RACE_MON_SPIDER, RACE_MON_TROLL, RACE_MON_XORN, -1} },
 };
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
@@ -2716,7 +2716,7 @@ void player_outfit(void)
         _birth_object(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 20));
     }
 
-    if(p_ptr->personality == PERS_SEXY && p_ptr->pclass != CLASS_MAULER)
+    if(p_ptr->personality == PERS_SEXY && p_ptr->pclass != CLASS_MAULER && p_ptr->prace != RACE_MON_SWORD)
     {
         player_init[p_ptr->pclass][2][0] = TV_HAFTED;
         player_init[p_ptr->pclass][2][1] = SV_WHIP;

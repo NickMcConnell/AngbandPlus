@@ -3458,7 +3458,7 @@ static void dump_aux_pet(FILE *fff)
         if (!m_ptr->r_idx) continue;
         if (!is_pet(m_ptr)) continue;
         pet_settings = TRUE;
-        if (!m_ptr->nickname && (p_ptr->riding != i)) continue;
+        /*if (!m_ptr->nickname && (p_ptr->riding != i)) continue;*/
         if (!pet)
         {
             fprintf(fff, "\n\n==================================== Pets =====================================\n\n");

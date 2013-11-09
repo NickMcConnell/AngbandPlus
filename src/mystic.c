@@ -387,7 +387,7 @@ static void _stunning_blow_spell(int cmd, variant *res)
     }
 }
 
-void _summon_hounds_spell(int cmd, variant *res)
+static void _summon_hounds_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -418,7 +418,7 @@ void _summon_hounds_spell(int cmd, variant *res)
     }
 }
 
-void _summon_spiders_spell(int cmd, variant *res)
+static void _summon_spiders_spell(int cmd, variant *res)
 {
     switch (cmd)
     {

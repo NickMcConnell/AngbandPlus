@@ -250,7 +250,8 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
     {
         if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ||
             (r_ptr->flags7 & RF7_NAZGUL)) &&
-            !p_ptr->inside_battle)
+            !p_ptr->inside_battle &&
+            !prace_is_(RACE_MON_QUYLTHULG))
         {
             m_ptr->hp = 1;
         }
@@ -292,6 +293,8 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
             }
 
             monster_gain_exp(who, m_ptr->r_idx);
+
+            mon_check_kill_unique(m_idx);
 
             /* Generate treasure */
             monster_death(m_idx, who_is_pet);
@@ -2390,8 +2393,7 @@ static void process_monster(int m_idx)
     /* Paranoia... no pet uniques outside wizard mode -- TY */
     if (is_pet(m_ptr) &&
         ((((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)) &&
-          monster_has_hostile_align(NULL, 10, -10, r_ptr))
-         || (r_ptr->flagsr & RFR_RES_ALL)))
+          monster_has_hostile_align(NULL, 10, -10, r_ptr))))
     {
         gets_angry = TRUE;
     }
@@ -4485,9 +4487,11 @@ void monster_gain_exp(int m_idx, int s_idx)
     /* Experimental: Share the xp with the player */
     if (is_pet(m_ptr))
     {
-        int exp = new_exp / 5;
+        int div = prace_is_(RACE_MON_QUYLTHULG) ? 1 : 5;
+        int exp = new_exp / div;
         gain_exp(exp);
-        new_exp -= exp;
+        if (!prace_is_(RACE_MON_QUYLTHULG))
+            new_exp -= exp;
         if (new_exp < 0) new_exp = 0;
     }
 

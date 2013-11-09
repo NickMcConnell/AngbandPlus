@@ -3821,6 +3821,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
         /* RF6_S_DEMON */
         case 160+25:
         {
+            int type = SUMMON_DEMON;
+
+            if (r_ptr->level >= 70) /* We are completely out of bits in RF6_* */
+                type = SUMMON_HI_DEMON;
+
             disturb(1, 0);
             if (blind) msg_format("%^s mumbles.", m_name);
 
@@ -3828,7 +3833,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
             for (k = 0; k < 1; k++)
             {
-                count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, PM_ALLOW_GROUP);
+                count += summon_specific(m_idx, y, x, rlev, type, PM_ALLOW_GROUP);
             }
             if (blind && count) msg_print("You hear something appear nearby.");
 

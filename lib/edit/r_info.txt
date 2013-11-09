@@ -17388,6 +17388,20 @@ D:noise rumbles from its belly, a barking like "thirty couple
 D:hounds questing."
 #Description help from wikipedia
 
+N:1123:Greater demonic quylthulg
+G:Q:R
+I:120:15d100:20:1:0
+W:71:3:999:10500:0:0
+F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | 
+F:INVISIBLE | EMPTY_MIND | 
+F:ANIMAL | EVIL | STUPID |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_2 | 
+S:BLINK | TPORT | 
+S:S_DEMON
+D:A massive pile of pulsing flesh that glows with an inner hellish fire.
+D:You suddenly feel very uncertain.
+
 # N: serial number : monster name
 # G: symbol : color
 # I: speed : hit points : vision : armor class : alertness

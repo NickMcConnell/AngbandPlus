@@ -3114,6 +3114,15 @@ P:0:5d5:0:0:0
 F:QUESTITEM
 F:VORPAL | BRAND_FIRE | RES_FIRE | STR | DEX
 
+N:319:of the Emperor Quylthulg
+I:33:11:5
+W:40:40:30:125000
+P:0:1d1:0:0:0
+F:QUESTITEM
+F:CHR | SPEED | FREE_ACT | TELEPATHY
+F:RES_BLIND | RES_CONF | RES_CHAOS | SEE_INVIS | REGEN
+F:XTRA_H_RES
+
 
 # N: serial number : item name
 # I: tval : sval : pval
