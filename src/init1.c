@@ -2531,11 +2531,11 @@ errr parse_r_info(char *buf, header *head)
     /* Process 'I' for "Info" (one line only) */
     else if (buf[0] == 'I')
     {
-        int spd, hp1, hp2, aaf, ac, slp;
+        int spd, hp1, hp2, aaf, ac, slp, wgt;
 
         /* Scan for the other values */
-        if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-                &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
+        if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
+                &spd, &hp1, &hp2, &aaf, &ac, &slp, &wgt)) return (1);
 
         /* Save the values */
         r_ptr->speed = spd;
@@ -2544,6 +2544,7 @@ errr parse_r_info(char *buf, header *head)
         r_ptr->aaf = aaf;
         r_ptr->ac = ac;
         r_ptr->sleep = slp;
+        r_ptr->weight = wgt;
     }
     else if (buf[0] == 'M')
     {
@@ -2574,7 +2575,6 @@ errr parse_r_info(char *buf, header *head)
         r_ptr->max_level = max_lev;
 
         r_ptr->rarity = rar;
-        r_ptr->extra = 0;
         r_ptr->mexp = exp;
         r_ptr->next_exp = nextexp;
         r_ptr->next_r_idx = nextmon;

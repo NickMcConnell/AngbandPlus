@@ -309,7 +309,7 @@ struct monster_race
 
     s32b mexp;                /* Exp value for kill */
 
-    s16b extra;                /* Unused (for now) */
+    s16b weight;            
 
     byte freq_spell;        /* Spell frequency */
 

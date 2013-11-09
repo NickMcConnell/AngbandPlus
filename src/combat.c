@@ -209,7 +209,7 @@ static _blow_info_t _get_blow_info(int hand)
             result.mul = 3;
         }
         else if ( prace_is_(RACE_MON_GIANT) 
-               || prace_is_(RACE_MON_TROLL) 
+             /*|| prace_is_(RACE_MON_TROLL) */
                || prace_is_(RACE_MON_JELLY)
                || demon_is_(DEMON_KHORNE) )  
         {

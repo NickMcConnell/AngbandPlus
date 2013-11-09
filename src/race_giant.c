@@ -24,12 +24,366 @@ static void _birth(void)
     add_outfit(&forge);
 }
 
+typedef struct {
+    int m_idx;
+    int wgt;
+    int mult;
+    int tdis;
+    int tx;
+    int ty;
+} _monster_toss_info;
+static void _monster_toss_imp(_monster_toss_info *info);
+
+/* TODO: This should go in r_info.txt */
+static int _mon_get_weight(char c)
+{
+    switch (c)
+    {
+    case 'a': return 20;   case 'A': return 250;
+    case 'b': return 5;    case 'B': return 50;
+    case 'c': return 20;   case 'C': return 100;
+    case 'd': return 300;  case 'D': return 1000;
+    case 'e': return 50;   case 'E': return 300;
+    case 'f': return 75;   case 'F': return 10;
+    case 'g': return 750;  case 'G': return 175;
+    case 'h': return 120;  case 'H': return 500;
+    case 'i': return 70;   case 'I': return 10;
+    case 'J': return 30;   case 'j': return 70;
+    case 'k': return 150;  case 'K': return 300;
+    case 'l': return 10;   case 'L': return 200;
+    case 'm': return 50;   case 'M': return 750;
+    case 'n': return 120;  case 'N': return 100;
+    case 'o': return 200;  case 'O': return 400;
+    case 'p': return 180;  case 'P': return 800;
+    case 'q': return 500;  case 'Q': return 300;
+    case 'r': return 5;    case 'R': return 250;
+    case 's': return 120;  case 'S': return 70;
+    case 't': return 150;  case 'T': return 500;
+    case 'u': return 200;  case 'U': return 666;
+    case 'v': return 100;  case 'V': return 200;
+    case 'w': return 10;   case 'W': return 200;
+                           case 'X': return 300;
+    case 'y': return 90;   case 'Y': return 300;
+    case 'z': return 200;  case 'Z': return 350;
+    case '#': return 500;
+    }
+    return 100;
+}
+
+static bool _monster_toss(int m_idx)
+{
+    int dir, chance;
+    _monster_toss_info info = {0};
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    char m_name[MAX_NLEN];
+
+    monster_desc(m_name, m_ptr, 0);
+
+    if (r_ptr->flags2 & RF2_PASS_WALL)
+    {
+        msg_format("Failed! %^s is incoporeal!", m_name);
+        return TRUE;
+    }
+    if ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->level > p_ptr->lev)
+    {
+        msg_format("Failed! %^s is too powerful!", m_name);
+        return TRUE;
+    }
+    chance = p_ptr->skills.thn + ((p_ptr->lev + p_ptr->to_h_m) * BTH_PLUS_ADJ);
+    if (!test_hit_norm(chance, MON_AC(r_ptr, m_ptr), TRUE))
+    {
+        msg_format("You failed to grab %s.", m_name);
+        return TRUE;
+    }
+
+    info.m_idx = m_idx;
+    info.wgt = r_ptr->weight;
+
+    /* Pick a target */
+    info.mult = 1 + p_ptr->lev / 10;
+    if (p_ptr->mighty_throw) info.mult++;
+    {
+        int mul, div;
+        int wgt = info.wgt * 10;
+        mul = 10 + 2 * (info.mult - 1);
+        div = (wgt > 10) ? wgt : 10;
+        div /= 2;
+        info.tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 250) * mul / div;
+
+        if (info.tdis <= 1) /* Can the giant lift the monster? */
+        {
+            msg_format("Failed! %^s is too heavy!", m_name);
+            return TRUE;
+        }
+
+        info.tdis += info.mult; /* Tossing only 2 squares is pretty lame! */
+        if (info.tdis > mul) info.tdis = mul;
+
+        project_length = info.tdis;
+        command_dir = 0; /* Code is buggy asking for a direction 2x in a single player action! */
+        target_who = 0;  /* TODO: Repeat command is busted ... */
+        if (!get_aim_dir(&dir)) return FALSE;
+
+        info.tx = px + 99 * ddx[dir];
+        info.ty = py + 99 * ddy[dir];
+
+        if ((dir == 5) && target_okay())
+        {
+            info.tx = target_col;
+            info.ty = target_row;
+        }
+
+        project_length = 0;
+
+        if (info.tx == px && info.ty == py) return FALSE;
+    }
+
+    /* Toss */
+    _monster_toss_imp(&info);
+
+    return TRUE;
+}
+
+static void _monster_toss_imp(_monster_toss_info *info)
+{
+    char m_name[MAX_NLEN];
+    u16b path[512];
+    int msec = delay_factor * delay_factor * delay_factor;
+    int y, x, ny, nx, dam = 0;
+    int cur_dis, ct;
+    bool do_stun = FALSE;
+    int chance;
+    monster_type *m_ptr = &m_list[info->m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+    chance = p_ptr->skill_tht + (p_ptr->lev * BTH_PLUS_ADJ);
+    chance *= 2;
+
+    monster_desc(m_name, m_ptr, 0);
+    msg_format("You toss %s", m_name);
+
+    cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
+    lite_spot(m_ptr->fy, m_ptr->fx);
+
+    ct = project_path(path, info->tdis, py, px, info->ty, info->tx, PROJECT_PATH);
+    y = py;
+    x = px;
+
+    for (cur_dis = 0; cur_dis < ct; )
+    {
+        /* Peek ahead at the next square in the path */
+        ny = GRID_Y(path[cur_dis]);
+        nx = GRID_X(path[cur_dis]);
+
+        /* Always draw the visual effect ... Its nice to see
+           monsters bouncing off nearby walls :) */
+        if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
+        {
+            char c = r_ptr->x_char;
+            byte a = r_ptr->x_attr;
+
+            print_rel(c, a, ny, nx);
+            move_cursor_relative(ny, nx);
+            Term_fresh();
+            Term_xtra(TERM_XTRA_DELAY, msec);
+            lite_spot(ny, nx);
+            Term_fresh();
+        }
+        else
+        {
+            Term_xtra(TERM_XTRA_DELAY, msec);
+        }
+
+        /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
+        if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
+         && !cave[ny][nx].m_idx) 
+        {
+            if (cave_have_flag_bold(ny, nx, FF_WALL))
+            {
+                dam = p_ptr->lev * info->mult;
+                do_stun = one_in_(2);
+            }
+            else if (!(r_ptr->flags7 & RF7_CAN_FLY))
+                dam = p_ptr->lev / 5 * info->mult;
+
+            break;
+        }
+
+        /* Advance the distance */
+        cur_dis++;
+
+        /* Monster here, Try to hit it */
+        if (cave[ny][nx].m_idx)
+        {
+            cave_type *c_ptr = &cave[ny][nx];
+            monster_type *m_ptr2 = &m_list[c_ptr->m_idx];
+            monster_race *r_ptr2 = &r_info[m_ptr->r_idx];
+            char m_name2[80];
+            bool visible = m_ptr2->ml;
+
+            monster_desc(m_name2, m_ptr2, 0);
+
+            if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr2, m_ptr2), visible))
+            {
+                bool fear = FALSE;
+                if (!visible)
+                    msg_format("%^s finds a mark.", m_name);
+                else
+                {
+                    msg_format("%^s hits %s.", m_name, m_name2);
+                    if (visible)
+                    {
+                        if (!p_ptr->image) monster_race_track(m_ptr2->ap_r_idx);
+                        health_track(c_ptr->m_idx);
+                    }
+                }
+
+                /***** The Damage Calculation!!! *****/
+                dam = damroll(1 + MIN(10 + p_ptr->lev/3, info->wgt / 25), 5);
+                dam = critical_throw(info->wgt * 10, p_ptr->lev, dam);
+                dam *= info->mult;
+                if (dam < 0) dam = 0;
+                dam = mon_damage_mod(m_ptr, dam, FALSE);
+
+                if (mon_take_hit(c_ptr->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr2))))
+                {
+                    /* Dead monster */
+                    x = nx;
+                    y = ny;
+                }
+                else
+                {
+                    message_pain(c_ptr->m_idx, dam);
+                    if (dam > 0)
+                        anger_monster(m_ptr);
+
+                    if (dam > 0 && m_ptr2->cdis > 1 && allow_ticked_off(r_ptr))
+                    {
+                        if (!(m_ptr->smart & SM_TICKED_OFF))
+                        {
+                            msg_format("%^s is ticked off!", m_name2);
+                            m_ptr2->smart |= SM_TICKED_OFF;
+                        }
+                    }
+
+                    if (fear && visible)
+                    {
+                        sound(SOUND_FLEE);
+                        msg_format("%^s flees in terror!", m_name2);
+                    }
+                }
+            }
+            else
+            {
+                msg_format("%^s misses %s.", m_name, m_name2);
+            }
+
+            /* Stop looking */
+            break;
+        }
+
+        /* Save the new location */
+        x = nx;
+        y = ny;
+
+        if (cur_dis >= ct)
+        {
+            if (!(r_ptr->flags7 & RF7_CAN_FLY))
+                dam = p_ptr->lev / 5 * info->mult;
+            break;
+        }
+    }
+
+    if (cave_empty_bold(y, x))
+    {
+        cave[y][x].m_idx = info->m_idx;
+        m_ptr->fy = y;
+        m_ptr->fx = x;
+        lite_spot(y, x);
+    }
+    else /* oops ... put the monster back where it started! */
+    {
+        cave[m_ptr->fy][m_ptr->fx].m_idx = info->m_idx;
+        lite_spot(m_ptr->fy, m_ptr->fx);
+    }
+    if (dam)
+    {
+        bool fear = FALSE;
+        if (mon_take_hit(info->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+        {
+            /* Dead monster */
+        }
+        else
+        {
+            if ( !do_stun
+              || (r_ptr->flagsr & RFR_RES_ALL)
+              || (r_ptr->flags3 & RF3_NO_STUN)
+              || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_STR)) )
+            {
+            }
+            else
+            {
+                msg_format("%^s is stunned.", m_name);
+                set_monster_stunned(info->m_idx, MAX(MON_STUNNED(m_ptr), 3 + randint1(3)));
+            }
+
+            message_pain(info->m_idx, dam);
+            if (dam > 0)
+                anger_monster(m_ptr);
+
+            if (fear)
+                msg_format("%^s flees in terror!", m_name);
+        }
+    }
+}
+
+static void _monster_toss_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Throw Monster");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Throw an adjacent monster at chosen target, provided it is light enough, of course!");
+        break;
+    case SPELL_CAST:
+    {
+        int x, y;
+        int dir;
+        int m_idx = 0;
+        var_set_bool(res, FALSE);
+        if (!get_rep_dir2(&dir)) return;
+        if (dir == 5) return;
+
+        y = py + ddy[dir];
+        x = px + ddx[dir];
+        m_idx = cave[y][x].m_idx;
+
+        if (!m_idx)
+        {
+            msg_print("There is no monster there.");
+            return;
+        }
+
+        var_set_bool(res, _monster_toss(m_idx));
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+
 /******************************************************************************
  *                 20             30            40
  * Hru: Hill Giant -> Stone Giant -> Rock Giant -> Hru
  ******************************************************************************/
 static power_info _hru_powers[] = {
     { A_STR, {  5,  0, 50, throw_boulder_spell} },
+    { A_STR, {  7,  0,  0, _monster_toss_spell} },
     { A_STR, { 30,  5, 25, stone_to_mud_spell} },
     { A_STR, { 35, 10, 45, earthquake_spell} },
     { A_STR, { 40, 15, 50, stone_skin_spell} },
@@ -110,7 +464,7 @@ static race_t *_hru_get_race_t(void)
     me.stats[A_DEX] = -2 + rank;
     me.stats[A_CON] =  3 + 7*rank/4;
     me.stats[A_CHR] =  0 + rank;
-    me.life = 105 + 7*rank;
+    me.life = 102 + 7*rank;
     me.boss_r_idx = MON_ATLAS;
 
     return &me;
@@ -155,6 +509,7 @@ static void _breathe_plasma_spell(int cmd, variant *res)
 }
 static power_info _fire_powers[] = {
     { A_STR, {  5,  0, 50, throw_boulder_spell} },
+    { A_STR, {  7,  0,  0, _monster_toss_spell} },
     { A_STR, { 30,  5, 25, fire_bolt_spell} },
     { A_STR, { 32, 10, 50, fire_ball_spell} },
     { A_STR, { 35, 15, 60, plasma_bolt_spell} },
@@ -246,7 +601,7 @@ static race_t *_fire_get_race_t(void)
     me.stats[A_DEX] = -2 + rank;
     me.stats[A_CON] =  3 + 7*rank/4;
     me.stats[A_CHR] =  0 + rank;
-    me.life = 105 + 7*rank;
+    me.life = 100 + 7*rank;
     me.boss_r_idx = MON_SURTUR;
 
     return &me;
@@ -285,6 +640,7 @@ static void _ice_storm_spell(int cmd, variant *res)
 }
 static power_info _frost_powers[] = {
     { A_STR, {  5,  0, 50, throw_boulder_spell} },
+    { A_STR, {  7,  0,  0, _monster_toss_spell} },
     { A_STR, { 30,  3, 25, frost_bolt_spell} },
     { A_STR, { 32,  9, 50, frost_ball_spell} },
     { A_STR, { 35, 15, 60, ice_bolt_spell} },
@@ -375,7 +731,7 @@ static race_t *_frost_get_race_t(void)
     me.stats[A_DEX] = -2 + rank;
     me.stats[A_CON] =  3 + 7*rank/4;
     me.stats[A_CHR] =  0 + rank;
-    me.life = 105 + 7*rank;
+    me.life = 100 + 7*rank;
     me.boss_r_idx = MON_YMIR;
 
     return &me;
@@ -447,6 +803,7 @@ static void _lightning_storm_spell(int cmd, variant *res)
 }
 static power_info _storm_powers[] = {
     { A_STR, {  5,  0, 50, throw_boulder_spell} },
+    { A_STR, {  7,  0,  0, _monster_toss_spell} },
     { A_STR, { 30,  3, 25, lightning_bolt_spell} },
     { A_STR, { 35, 10, 50, lightning_ball_spell} },
     { A_DEX, { 40,  2, 10, phase_door_spell} },
@@ -547,7 +904,7 @@ static race_t *_storm_get_race_t(void)
     me.stats[A_DEX] = -2 + rank;
     me.stats[A_CON] =  3 + rank;
     me.stats[A_CHR] =  0 + rank;
-    me.life = 105 + 3*rank;
+    me.life = 100 + 3*rank;
     me.boss_r_idx = MON_TYPHOEUS;
 
     return &me;
@@ -559,6 +916,7 @@ static race_t *_storm_get_race_t(void)
  ******************************************************************************/
 static power_info _titan_powers[] = {
     { A_STR, {  5,   0, 50, throw_boulder_spell} },
+    { A_STR, {  7,   0,  0, _monster_toss_spell} },
     { A_CHR, { 30,  30, 25, summon_monsters_spell} },
     { A_DEX, { 35,  10, 50, teleport_to_spell} },
     { A_CHR, { 40,  30, 50, summon_kin_spell} },
@@ -641,7 +999,7 @@ static race_t *_titan_get_race_t(void)
     me.stats[A_DEX] = -2 + rank;
     me.stats[A_CON] =  3 + rank;
     me.stats[A_CHR] =  3 + rank;
-    me.life = 105 + 5*rank;
+    me.life = 102 + 5*rank;
     me.boss_r_idx = MON_KRONOS;
 
     return &me;
