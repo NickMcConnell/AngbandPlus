@@ -3445,6 +3445,12 @@ static void process_world(void)
 
     /* Involuntary Movement */
     process_world_aux_movement();
+
+    {
+        race_t *race_ptr = get_race_t();
+        if (race_ptr->process_world)
+            race_ptr->process_world();
+    }
 }
 
 

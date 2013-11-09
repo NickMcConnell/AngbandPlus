@@ -1870,6 +1870,7 @@ typedef struct {
 
 typedef void(*process_player_fn)(void);
 typedef void(*move_player_fn)(void);
+typedef void(*process_world_fn)(void);
 typedef void(*move_monster_fn)(int m_idx);
 typedef void(*calc_bonuses_fn)(void);
 typedef void(*calc_innate_attacks_fn)(void);
@@ -1900,17 +1901,17 @@ typedef struct {
     byte                    pets;
 
     birth_fn                birth;
-    process_player_fn        process_player; /* Called from process_player ... but player take 0 or more actions per call */
+    process_player_fn       process_player; /* Called from process_player ... but player take 0 or more actions per call */
     player_action_fn        player_action;  /* Called once per player action, so long as the action consumes energy */
-    move_player_fn            move_player;    /* Called every time the player actually moves */
-    move_monster_fn            move_monster;    /* Called whenever a monster moves */
-    calc_bonuses_fn            calc_bonuses;
-    calc_weapon_bonuses_fn    calc_weapon_bonuses;
+    move_player_fn          move_player;    /* Called every time the player actually moves */
+    move_monster_fn         move_monster;    /* Called whenever a monster moves */
+    calc_bonuses_fn         calc_bonuses;
+    calc_weapon_bonuses_fn  calc_weapon_bonuses;
     calc_shooter_bonuses_fn calc_shooter_bonuses;
-    caster_info_fn            caster_info;
-    get_spells_fn            get_spells;
-    get_spells_fn            get_powers;
-    gain_level_fn            gain_level; /* Only ever called when a new max level is achieved */
+    caster_info_fn          caster_info;
+    get_spells_fn           get_spells;
+    get_spells_fn           get_powers;
+    gain_level_fn           gain_level; /* Only ever called when a new max level is achieved */
     file_dump_fn            character_dump;
     flags_fn                get_flags;
     flags_fn                get_immunities;
@@ -1930,14 +1931,14 @@ typedef struct {
     s16b                    exp;
     s16b                    infra;
     birth_fn                birth;
-    calc_bonuses_fn            calc_bonuses;
-    calc_weapon_bonuses_fn    calc_weapon_bonuses;
+    calc_bonuses_fn         calc_bonuses;
+    calc_weapon_bonuses_fn  calc_weapon_bonuses;
     calc_innate_attacks_fn  calc_innate_attacks;
-    caster_info_fn            caster_info;
-    get_spells_fn            get_spells;
-    get_spells_fn            get_powers;
-    gain_level_fn            gain_level;
-    change_level_fn            change_level;
+    caster_info_fn          caster_info;
+    get_spells_fn           get_spells;
+    get_spells_fn           get_powers;
+    gain_level_fn           gain_level;
+    change_level_fn         change_level;
     file_dump_fn            character_dump;
     flags_fn                get_flags;
     flags_fn                get_immunities;
@@ -1947,7 +1948,8 @@ typedef struct {
     struct equip_template_s *equip_template;
     int                     boss_r_idx;
     player_action_fn        player_action;  /* Called once per player action, so long as the action consumes energy */
-    move_player_fn            move_player;
+    move_player_fn          move_player;
+    process_world_fn        process_world;  /* Called every 10 game turns */
 } race_t;
 
 typedef struct {

@@ -9,16 +9,21 @@ static cptr _desc =
     "For example, Earth Elementals are slow but gain bonuses to AC due "
     "to their tough skins. They are resistant to shards and may even turn "
     "their skins to stone. At home in elemental earth, they may travel "
-    "freely through rocky confines.\n \n"
+    "freely through rocky confines. However, being made of earth, their "
+    "potions frequently turn to mud!\n \n"
     "Air Elementals are shockingly fast, but perhaps that is just the "
     "crackle of their electrified bodies? They may hurl bolts and balls "
     "electricity at their enemies and may even imbue their weapons with "
-    "deadly lightning.\n \n"
+    "deadly lightning.  However, being surrounded by lightning, rings, "
+    "amulets, wands and rods are quickly destroyed!\n \n"
     "Fire Elementals are somewhat fast (They definitely run circles around "
     "their earthen brethren) and are cloaked in fire. Of course, they may attack "
-    "with hell's fury but need to be on the lookout for cold wielding foes.\n \n"
+    "with hell's fury but need to be on the lookout for cold wielding foes. "
+    "However, being surrounded by fire, scrolls and staves are rapidly burned "
+    "to ash!\n \n"
     "Finally, there are the Water Elementals, creatures able to conjure deadly "
-    "water bolts. They are immune to stunning.";
+    "water bolts. They are immune to stunning. Their attacks can be quite corrosive, "
+    "but, alas, sometimes their armor corrodes as well!";
 
 static void _calc_bonuses(void) 
 {
@@ -128,6 +133,53 @@ static void _elemental_rage_spell(int cmd, variant *res)
     default:
         berserk_spell(cmd, res);
     }
+}
+
+static void _elemental_pack_destroy(object_p p, cptr destroy_fmt, int chance)
+{
+    int inven_ct = 0;
+    int equip_ct = 0;
+    int i;
+    for (i = 0; i < INVEN_TOTAL; i++)
+    {
+        object_type *o_ptr = &inventory[i];
+        char         o_name[MAX_NLEN];
+        int          n = chance;
+        int          old_ct = 0;
+
+        if (!o_ptr->k_idx) continue;
+        if (!p(o_ptr)) continue;
+        
+        if (i >= EQUIP_BEGIN) n /= 3;
+        if (randint0(1000) >= MAX(1, n)) continue;
+
+        old_ct = o_ptr->number;
+        o_ptr->number = 1;
+        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+        o_ptr->number = old_ct;
+
+        msg_format(destroy_fmt, o_name);
+        inven_item_increase(i, -1);
+        inven_item_describe(i);
+        inven_item_optimize(i);
+
+        if (i >= EQUIP_BEGIN) ++equip_ct;
+        else ++inven_ct;
+    }
+
+    if (equip_ct)
+    {
+        p_ptr->update |= PU_BONUS;
+        p_ptr->update |= PU_TORCH;
+        p_ptr->update |= PU_MANA;
+        p_ptr->redraw |= PR_EQUIPPY;
+        p_ptr->window |= PW_EQUIP | PW_PLAYER;
+    }
+    if (inven_ct)
+        p_ptr->window |= PW_INVEN;
+
+    if (equip_ct + inven_ct)
+        disturb(1, 0);
 }
 
 /**********************************************************************
@@ -322,6 +374,19 @@ static void _earth_get_flags(u32b flgs[TR_FLAG_SIZE])
     _get_flags(flgs);
 }
 
+static bool _earth_p(object_type *o_ptr)
+{
+    if (object_is_artifact(o_ptr)) return FALSE;
+    if (o_ptr->tval != TV_POTION) return FALSE;
+    return TRUE;
+}
+
+static void _earth_process_world(void)
+{
+    int chance = 40 - p_ptr->lev/2;
+    _elemental_pack_destroy(_earth_p, "Your %s turns to mud.", chance);
+}
+
 static race_t *_earth_get_race_t(void)
 {
     static race_t me = {0};
@@ -347,6 +412,7 @@ static race_t *_earth_get_race_t(void)
         me.calc_bonuses = _earth_calc_bonuses;
         me.get_flags = _earth_get_flags;
         me.gain_level = _earth_gain_level;
+        me.process_world = _earth_process_world;
         init = TRUE;
     }
 
@@ -521,9 +587,11 @@ static void _air_calc_bonuses(void)
 {
     res_add(RES_ELEC);
 
-    p_ptr->pspeed += 2 + p_ptr->lev / 10;
+    p_ptr->pspeed += 2;
     if (p_ptr->lev >= 25)
     {
+        p_ptr->pspeed += 3;
+        p_ptr->pspeed += (p_ptr->lev - 25) / 5; /* up to +10 speed */
         res_add(RES_ELEC);
         res_add(RES_ACID);
         res_add(RES_FIRE);
@@ -558,6 +626,27 @@ static void _air_get_immunities(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_RES_ELEC);
 }
 
+static bool _air_p(object_type *o_ptr)
+{
+    u32b flgs[TR_FLAG_SIZE];
+    if (object_is_artifact(o_ptr)) return FALSE;
+    if ( o_ptr->tval != TV_RING 
+      && o_ptr->tval != TV_AMULET 
+      && o_ptr->tval != TV_WAND 
+      && o_ptr->tval != TV_ROD) 
+    {
+        return FALSE;
+    }
+    object_flags(o_ptr, flgs);
+    if (have_flag(flgs, TR_IGNORE_ELEC)) return FALSE;
+    return TRUE;
+}
+
+static void _air_process_world(void)
+{
+    _elemental_pack_destroy(_air_p, "Your shocking touch destroys your %s.", 40);
+}
+
 static race_t *_air_get_race_t(void)
 {
     static race_t me = {0};
@@ -584,6 +673,7 @@ static race_t *_air_get_race_t(void)
         me.get_flags = _air_get_flags;
         me.get_immunities = _air_get_immunities;
         me.gain_level = _air_gain_level;
+        me.process_world = _air_process_world;
         init = TRUE;
     }
 
@@ -730,9 +820,10 @@ static void _water_calc_bonuses(void)
     {
         p_ptr->pspeed += 3;
         p_ptr->melt_armor = TRUE;
+        res_add(RES_ACID);
     }
 
-    if (p_ptr->lev >= 35)
+    if (p_ptr->lev >= 50)
         res_add_immune(RES_ACID);
 
     _calc_bonuses();
@@ -750,8 +841,48 @@ static void _water_get_flags(u32b flgs[TR_FLAG_SIZE])
 
 static void _water_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
-    if (p_ptr->lev >= 35)
+    if (p_ptr->lev >= 50)
         add_flag(flgs, TR_RES_ACID);
+}
+
+static void _water_process_world(void)
+{
+    int inven_ct = 0;
+    int equip_ct = 0;
+    int chance = 15;
+    int i;
+    for (i = 0; i < INVEN_TOTAL; i++)
+    {
+        object_type *o_ptr = &inventory[i];
+        u32b         flgs[TR_FLAG_SIZE];
+        char         o_name[MAX_NLEN];
+        int          old_ct = 0;
+
+        if (!o_ptr->k_idx) continue;
+        if (!object_is_armour(o_ptr)) continue;
+        if (randint0(1000) >= chance) continue;
+        if (o_ptr->ac + o_ptr->to_a <= 0) continue;
+
+        object_flags(o_ptr, flgs);
+        if (have_flag(flgs, TR_IGNORE_ACID)) continue;
+
+        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+        msg_format("Your watery touch corrodes your %s!", o_name);
+                
+        o_ptr->to_a--;
+
+        if (i >= EQUIP_BEGIN) ++equip_ct;
+        else ++inven_ct;
+    }
+
+    if (equip_ct)
+    {
+        p_ptr->update |= PU_BONUS;
+        p_ptr->window |= PW_EQUIP | PW_PLAYER;
+    }
+
+    if (equip_ct + inven_ct)
+        disturb(1, 0);
 }
 
 static race_t *_water_get_race_t(void)
@@ -780,6 +911,7 @@ static race_t *_water_get_race_t(void)
         me.calc_bonuses = _water_calc_bonuses;
         me.get_flags = _water_get_flags;
         me.gain_level = _water_gain_level;
+        me.process_world = _water_process_world;
         init = TRUE;
     }
 
@@ -965,17 +1097,21 @@ static void _fire_calc_bonuses(void)
     p_ptr->sh_fire = TRUE;
 
     if (p_ptr->lev >= 25)
+    {
         p_ptr->pspeed += 2;
+        res_add(RES_FIRE);
+    }
 
     if (p_ptr->lev >= 40)
     {
         p_ptr->pspeed += 3;
         p_ptr->pass_wall = TRUE;
         p_ptr->no_passwall_dam = TRUE;
+        res_add(RES_FIRE);
         res_add(RES_ELEC);
     }
 
-    if (p_ptr->lev >= 25)
+    if (p_ptr->lev >= 50)
         res_add_immune(RES_FIRE);
 
     _calc_bonuses();
@@ -997,13 +1133,28 @@ static void _fire_get_flags(u32b flgs[TR_FLAG_SIZE])
 
 static void _fire_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
-    if (p_ptr->lev >= 25)
+    if (p_ptr->lev >= 50)
         add_flag(flgs, TR_RES_FIRE);
 }
 
 static void _fire_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_COLD);
+}
+
+static bool _fire_p(object_type *o_ptr)
+{
+    u32b flgs[TR_FLAG_SIZE];
+    if (object_is_artifact(o_ptr)) return FALSE;
+    if (o_ptr->tval != TV_SCROLL && o_ptr->tval != TV_STAFF) return FALSE;
+    object_flags(o_ptr, flgs);
+    if (have_flag(flgs, TR_IGNORE_FIRE)) return FALSE;
+    return TRUE;
+}
+
+static void _fire_process_world(void)
+{
+    _elemental_pack_destroy(_fire_p, "Your fiery touch burns your %s.", 40);
 }
 
 static race_t *_fire_get_race_t(void)
@@ -1034,6 +1185,7 @@ static race_t *_fire_get_race_t(void)
         me.get_immunities = _fire_get_immunities;
         me.get_vulnerabilities = _fire_get_vulnerabilities;
         me.gain_level = _fire_gain_level;
+        me.process_world = _fire_process_world;
         init = TRUE;
     }
 
