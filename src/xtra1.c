@@ -2970,7 +2970,7 @@ static void _calc_torch_imp(object_type *o_ptr)
         {
             p_ptr->cur_lite += 3;
         }
-        if (o_ptr->name2 == EGO_LITE_SHINE) p_ptr->cur_lite++;
+        if (o_ptr->name2 == EGO_LITE_EXTRA_LIGHT) p_ptr->cur_lite++;
         if (o_ptr->sval == SV_LITE_EYE) p_ptr->cur_lite -= 10;
     }
     else
@@ -2979,7 +2979,7 @@ static void _calc_torch_imp(object_type *o_ptr)
         object_flags(o_ptr, flgs);
         if (have_flag(flgs, TR_LITE))
         {
-            if (o_ptr->name2 == EGO_DARK || o_ptr->name1 == ART_NIGHT) p_ptr->cur_lite--;
+            if (o_ptr->name2 == EGO_HELMET_VAMPIRE || o_ptr->name1 == ART_NIGHT) p_ptr->cur_lite--;
             else p_ptr->cur_lite++;
         }
     }
@@ -3918,8 +3918,9 @@ void calc_bonuses(void)
     {
         if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && p_ptr->weapon_info[i].bare_hands)
         {
-            p_ptr->weapon_info[i].to_h += (p_ptr->skill_exp[GINOU_SUDE] - WEAPON_EXP_BEGINNER) / 200;
-            p_ptr->weapon_info[i].dis_to_h += (p_ptr->skill_exp[GINOU_SUDE] - WEAPON_EXP_BEGINNER) / 200;
+            int skill = skills_martial_arts_current();
+            p_ptr->weapon_info[i].to_h += (skill - WEAPON_EXP_BEGINNER) / 200;
+            p_ptr->weapon_info[i].dis_to_h += (skill - WEAPON_EXP_BEGINNER) / 200;
         }
     }
 
@@ -3940,7 +3941,7 @@ void calc_bonuses(void)
         {
             int pct, to_d, w1, w2;
             int w_div = 8;
-            int skill = p_ptr->skill_exp[GINOU_NITOURYU];
+            int skill = skills_dual_wielding_current();
 
             if (p_ptr->tim_genji && skill < 7000)
                 skill = 7000;
@@ -4051,14 +4052,14 @@ void calc_bonuses(void)
 
         if (riding_m_ptr->mspeed > 110)
         {
-            p_ptr->pspeed = 110 + (s16b)((speed - 110) * (p_ptr->skill_exp[GINOU_RIDING] * 3 + p_ptr->lev * 160L - 10000L) / (22000L));
+            p_ptr->pspeed = 110 + (s16b)((speed - 110) * (skills_riding_current() * 3 + p_ptr->lev * 160L - 10000L) / (22000L));
             if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
         }
         else
         {
             p_ptr->pspeed = speed;
         }
-        p_ptr->pspeed += (p_ptr->skill_exp[GINOU_RIDING] + p_ptr->lev *160L)/3200;
+        p_ptr->pspeed += (skills_riding_current() + p_ptr->lev *160L)/3200;
         if (MON_FAST(riding_m_ptr)) p_ptr->pspeed += 10;
         if (MON_SLOW(riding_m_ptr)) p_ptr->pspeed -= 10;
         riding_levitation = (riding_r_ptr->flags7 & RF7_CAN_FLY) ? TRUE : FALSE;
@@ -4067,7 +4068,7 @@ void calc_bonuses(void)
         if (!(riding_r_ptr->flags2 & RF2_PASS_WALL)) p_ptr->pass_wall = FALSE;
         if (riding_r_ptr->flags2 & RF2_KILL_WALL) p_ptr->kill_wall = TRUE;
 
-        if (p_ptr->skill_exp[GINOU_RIDING] < RIDING_EXP_SKILLED) j += (150 * 3 * (RIDING_EXP_SKILLED - p_ptr->skill_exp[GINOU_RIDING])) / RIDING_EXP_SKILLED;
+        if (skills_riding_current() < RIDING_EXP_SKILLED) j += (150 * 3 * (RIDING_EXP_SKILLED - skills_riding_current())) / RIDING_EXP_SKILLED;
 
         /* Extract the "weight limit" */
         i = 1500 + riding_r_ptr->level * 25;
@@ -4344,7 +4345,7 @@ void calc_bonuses(void)
                 }
                 else
                 {
-                    penalty = r_info[m_list[p_ptr->riding].r_idx].level - p_ptr->skill_exp[GINOU_RIDING] / 80;
+                    penalty = r_info[m_list[p_ptr->riding].r_idx].level - skills_riding_current() / 80;
                     penalty += 30;
                     if (penalty < 30) penalty = 30;
                 }
@@ -4374,7 +4375,7 @@ void calc_bonuses(void)
         }
         else
         {
-            penalty = r_info[m_list[p_ptr->riding].r_idx].level - p_ptr->skill_exp[GINOU_RIDING] / 80;
+            penalty = r_info[m_list[p_ptr->riding].r_idx].level - skills_riding_current() / 80;
             penalty += 30;
             if (penalty < 30) penalty = 30;
         }
@@ -4596,7 +4597,7 @@ void calc_bonuses(void)
         p_ptr->redraw |= PR_SPEED;
 
     /* Robe of the Twilight forces AC to 0 */
-    if (equip_find_ego(EGO_YOIYAMI))
+    if (equip_find_ego(EGO_ROBE_TWILIGHT))
     {
         if (p_ptr->to_a > (0 - p_ptr->ac))
             p_ptr->to_a = 0 - p_ptr->ac;
@@ -4660,9 +4661,6 @@ void calc_bonuses(void)
     if (p_ptr->tsubureru) p_ptr->skills.sav = 10;
 
     if ((p_ptr->ult_res || IS_RESIST_MAGIC() || p_ptr->magicdef) && (p_ptr->skills.sav < (95 + p_ptr->lev))) p_ptr->skills.sav = 95 + p_ptr->lev;
-
-    if (equip_find_ego(EGO_AMU_NAIVETY)) 
-        p_ptr->skills.sav /= 2;
 
     if (enable_virtues)
     {

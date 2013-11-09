@@ -125,8 +125,8 @@
 #define MUT_BLACK_MARKETEER 118
 #define MUT_SPEED_READER 119
 #define MUT_FELL_SORCERY 120
-
-#define MAX_MUTATIONS      121   /* see also MUT_FLAG_SIZE in defines.h */
+#define MUT_TREAD_SOFTLY 121
+#define MAX_MUTATIONS      122   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
     MUT_RATING_AWFUL = -2,
@@ -249,6 +249,7 @@ extern void steel_skin_mut(int cmd, variant *res);
 extern void subtle_casting_mut(int cmd, variant *res);
 extern void telepathy_mut(int cmd, variant *res);
 extern void tentacles_mut(int cmd, variant *res);
+extern void tread_softly_mut(int cmd, variant *res);
 extern void trunk_mut(int cmd, variant *res);
 extern void untouchable_mut(int cmd, variant *res);
 extern void unyielding_mut(int cmd, variant *res);

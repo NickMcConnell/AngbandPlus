@@ -159,9 +159,6 @@
     <ClCompile Include="wild_realm.c">
       <Filter>Player\Spells</Filter>
     </ClCompile>
-    <ClCompile Include="skills.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="spells_m.c">
       <Filter>Player\Spells</Filter>
     </ClCompile>
@@ -545,6 +542,9 @@
     </ClCompile>
     <ClCompile Include="race_possessor.c">
       <Filter>Player\Races</Filter>
+    </ClCompile>
+    <ClCompile Include="skills.c">
+      <Filter>Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1125,9 +1125,6 @@
     <None Include="..\lib\file\ring_med.txt">
       <Filter>Edit\Files</Filter>
     </None>
-    <None Include="makefile.linux">
-      <Filter>Edit\Other Makefiles</Filter>
-    </None>
     <None Include="..\lib\help\MonsterRaces.txt">
       <Filter>Edit\Help</Filter>
     </None>
@@ -1148,6 +1145,9 @@
     </None>
     <None Include="Makefile.src">
       <Filter>Edit\Other Makefiles</Filter>
+    </None>
+    <None Include="..\readme.txt">
+      <Filter>Edit</Filter>
     </None>
   </ItemGroup>
 </Project>

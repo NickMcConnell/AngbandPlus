@@ -11,8 +11,8 @@
  */
 
 #include "angband.h"
-
-
+#include "int-map.h"
+#include <assert.h>
 
 /*
  * Display inventory
@@ -1427,4 +1427,246 @@ void do_cmd_query_symbol(void)
     prt(buf, 0, 0);
 }
 
+struct _mon_list_info_s 
+{
+    int r_idx;
+    int ct_total;
+    int ct_awake;
+    int ct_los;
+};
 
+typedef struct _mon_list_info_s _mon_list_info_t;
+typedef _mon_list_info_t *_mon_list_info_ptr;
+
+static bool _compare_r_level(vptr u, vptr v, int a, int b)
+{
+    int *order = (int*)u;
+    int left = order[a];
+    int right = order[b];
+    return r_info[left].level >= r_info[right].level;
+}
+
+static void _swap_int(vptr u, vptr v, int a, int b)
+{
+    int *order = (int*)u;
+    int tmp = order[a];
+    order[a] = order[b];
+    order[b] = tmp;
+}
+
+/* Idea borrowed from Vanilla 3.5, but recoded from scratch ... */
+void do_cmd_list_monsters(void)
+{
+    int         i, ct_types, ct_total = 0;
+    int_map_ptr info = int_map_alloc(free);
+    
+    /* Collect */
+    for (i = 0; i < max_m_idx; i++)
+    {
+        const monster_type *m_ptr = &m_list[i];
+        _mon_list_info_ptr  info_ptr;
+        
+        if (!m_ptr->r_idx) continue;
+        if (!m_ptr->ml) continue;
+
+        info_ptr = int_map_find(info, m_ptr->r_idx);
+        if (!info_ptr)
+        {
+            info_ptr = malloc(sizeof(_mon_list_info_t));
+            info_ptr->r_idx = m_ptr->r_idx;
+            info_ptr->ct_total = 0;
+            info_ptr->ct_awake = 0;
+            info_ptr->ct_los = 0;
+            
+            int_map_add(info, m_ptr->r_idx, info_ptr);
+        }
+
+        assert(info_ptr);
+        info_ptr->ct_total++;
+        ct_total++;
+
+        if (!MON_CSLEEP(m_ptr)) info_ptr->ct_awake++;
+        if (projectable(py, px, m_ptr->fy, m_ptr->fx)) info_ptr->ct_los++;
+    }
+    
+    ct_types = int_map_count(info);
+    if (ct_types)
+    {
+        int_map_iter_ptr  iter;
+        int              *order;
+        int               cx, cy, row = 1, col;
+
+        /* Sort */
+        order = C_MAKE(order, ct_types, int);
+
+        i = 0;
+        for (iter = int_map_iter_alloc(info); 
+                int_map_iter_is_valid(iter); 
+                int_map_iter_next(iter))
+        {
+            _mon_list_info_ptr info_ptr = int_map_iter_current(iter);
+            order[i++] = info_ptr->r_idx;
+        }
+        int_map_iter_free(iter);
+
+        ang_sort_comp = _compare_r_level;
+        ang_sort_swap = _swap_int;
+        ang_sort(order, NULL, ct_types);
+
+        /* Display */
+        Term_get_size(&cx, &cy);
+        col = cx - 52;
+        screen_save();
+        c_prt(TERM_WHITE, format("You see %d monster%s", ct_total, ct_total != 1 ? "s" : ""), 0, col);
+        for (i = 0; i < ct_types; i++)
+        {
+            int                 r_idx = order[i];
+            const monster_race *r_ptr = &r_info[r_idx];
+            byte                attr = TERM_WHITE;
+            _mon_list_info_ptr  info_ptr = int_map_find(info, r_idx);
+            char                buf[100];
+
+            assert(info_ptr);
+
+            Term_erase(col - 1, row, 53);
+
+            if (row >= cy - 2) 
+            {
+                c_prt(TERM_YELLOW, "...", row++, col+2);
+                break;
+            }
+
+            if (r_ptr->flags1 & RF1_UNIQUE)
+                attr = TERM_VIOLET;
+            else if (r_ptr->level > base_level)
+                attr = TERM_RED;                
+            else if (!info_ptr->ct_awake)
+                attr = TERM_L_UMBER;
+
+            if (info_ptr->ct_total == 1)
+                sprintf(buf, "%s", r_name + r_ptr->name);
+            else if (!info_ptr->ct_awake)
+                sprintf(buf, "%s (%d sleeping)", r_name + r_ptr->name, info_ptr->ct_total);
+            else if (info_ptr->ct_awake == info_ptr->ct_total)
+                sprintf(buf, "%s (%d awake)", r_name + r_ptr->name, info_ptr->ct_total);
+            else
+                sprintf(buf, "%s (%d awake, %d sleeping)", r_name + r_ptr->name, 
+                    info_ptr->ct_awake, info_ptr->ct_total - info_ptr->ct_awake);
+
+            Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
+            c_put_str(attr, format(" %-50.50s", buf), row++, col+1);
+        }
+        Term_erase(col - 1, row, 53);
+        c_prt(TERM_YELLOW, "Hit any key.", row, col+2);
+        inkey();
+        prt("", 0, 0);
+
+        screen_load();
+
+        C_KILL(order, ct_types, int);
+    }
+    else
+        msg_print("You see no visible monsters.");
+
+    int_map_free(info);
+}
+
+static bool _compare_obj_list_info(vptr u, vptr v, int a, int b)
+{
+    int         *vec = (int*)u;
+    int          left_idx = vec[a];
+    int          right_idx = vec[b];
+    object_type *left_obj = &o_list[left_idx];
+    object_type *right_obj = &o_list[right_idx];
+
+    /* Hack -- readable books always come first */
+    if (left_obj->tval == REALM1_BOOK && right_obj->tval != REALM1_BOOK) return TRUE;
+    if (right_obj->tval == REALM1_BOOK && left_obj->tval != REALM1_BOOK) return FALSE;
+
+    if (left_obj->tval == REALM2_BOOK && right_obj->tval != REALM2_BOOK) return TRUE;
+    if (right_obj->tval == REALM2_BOOK && left_obj->tval != REALM2_BOOK) return FALSE;
+
+    /* Objects sort by decreasing type */
+    if (left_obj->tval > right_obj->tval) return TRUE;
+    if (left_obj->tval < right_obj->tval) return FALSE;
+
+    /* Objects sort by increasing sval */
+    if (left_obj->sval < right_obj->sval) return TRUE;
+    if (left_obj->sval > right_obj->sval) return FALSE;
+
+    return TRUE;
+}
+
+#define _MAX_OBJ_LIST 100
+
+void do_cmd_list_objects(void)
+{
+    int list[_MAX_OBJ_LIST];
+    int i, ct = 0;
+    int cx, cy, row = 1, col;
+
+    for (i = 0; i < max_o_idx; i++)
+    {
+        object_type *o_ptr = &o_list[i];
+        int          auto_pick_idx;
+
+        if (!o_ptr->k_idx) continue;
+        if (!(o_ptr->marked & OM_FOUND)) continue;
+        if (o_ptr->tval == TV_GOLD) continue;
+        if (ct >= _MAX_OBJ_LIST) break;
+
+        auto_pick_idx = is_autopick(o_ptr);
+
+#if 0
+        if (auto_pick_idx >= 0 && autopick_list[auto_pick_idx].action & DO_AUTODESTROY) continue;
+#else
+        if (auto_pick_idx < 0) continue;
+        if (!(autopick_list[auto_pick_idx].action & DO_DISPLAY)) continue;
+        if (!(autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK))) continue;
+#endif
+        list[ct++] = i;
+    }
+
+    if (!ct)
+    {
+        msg_print("No objects match your pickup preferences.");
+        return;
+    }
+
+    ang_sort_comp = _compare_obj_list_info;
+    ang_sort_swap = _swap_int;
+    ang_sort(list, NULL, ct);
+
+    Term_get_size(&cx, &cy);
+    col = cx - 52;
+    screen_save();
+    c_prt(TERM_WHITE, format("%d object%s match your pickup preferences", ct, ct != 1 ? "s" : ""), 0, col);
+    for (i = 0; i < ct; i++)
+    {
+        char         o_name[MAX_NLEN];
+        object_type *o_ptr = &o_list[list[i]];
+        byte         a = object_attr(o_ptr);
+        char         c = object_char(o_ptr);
+        byte         attr = TERM_WHITE;
+
+        Term_erase(col - 1, row, 53);
+
+        if (row >= cy - 2) 
+        {
+            c_prt(TERM_YELLOW, "...", row++, col+2);
+            break;
+        }
+
+        object_desc(o_name, o_ptr, 0);
+        attr = tval_to_attr[o_ptr->tval % 128];
+
+        Term_queue_bigchar(col, row, a, c, 0, 0);
+        c_put_str(attr, format(" %-50.50s", o_name), row++, col+1);
+    }
+    Term_erase(col - 1, row, 53);
+    c_prt(TERM_YELLOW, "Hit any key.", row, col+2);
+    inkey();
+    prt("", 0, 0);
+
+    screen_load();
+}

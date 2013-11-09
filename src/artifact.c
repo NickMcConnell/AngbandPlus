@@ -38,6 +38,22 @@ static bool has_pval;
  */
 static int artifact_bias;
 
+/*
+ * Cursed arts now pick up bad flags at the end. To avoid idiocy like
+ * arts that give resistance and vulnerability to fire simultaneously, 
+ * we implement the following check:
+ */
+static bool _add_bad_flag(object_type *o_ptr, int bad_flag, int good_flag)
+{
+    u32b flags[TR_FLAG_SIZE];
+    object_flags(o_ptr, flags); /* Careful: Might be a cursed ego! */
+    if (!have_flag(flags, good_flag))
+    {
+        add_flag(o_ptr->art_flags, bad_flag);
+        return TRUE;
+    }
+    return FALSE;
+}
 
 /*
  * Choose one random sustain
@@ -77,6 +93,57 @@ void one_high_resistance(object_type *o_ptr)
         case 11: add_flag(o_ptr->art_flags, TR_RES_FEAR);   break;
     }
 }
+bool one_high_vulnerability(object_type *o_ptr)
+{
+    int attempts = 100;
+    int i;
+    for (i = 0; i < attempts; i++)
+    {
+        int good_flag, bad_flag;
+        switch (randint0(12))
+        {
+            case  0: bad_flag = TR_VULN_POIS; good_flag = TR_RES_POIS; break;
+            case  1: bad_flag = TR_VULN_LITE; good_flag = TR_RES_LITE; break;
+            case  2: bad_flag = TR_VULN_DARK; good_flag = TR_RES_DARK; break;
+            case  3: bad_flag = TR_VULN_SHARDS; good_flag = TR_RES_SHARDS; break;
+            case  4: bad_flag = TR_VULN_BLIND; good_flag = TR_RES_BLIND; break;
+            case  5: bad_flag = TR_VULN_CONF; good_flag = TR_RES_CONF; break;
+            case  6: bad_flag = TR_VULN_SOUND; good_flag = TR_RES_SOUND; break;
+            case  7: bad_flag = TR_VULN_NETHER; good_flag = TR_RES_NETHER; break;
+            case  8: bad_flag = TR_VULN_NEXUS; good_flag = TR_RES_NEXUS; break;
+            case  9: bad_flag = TR_VULN_CHAOS; good_flag = TR_RES_CHAOS; break;
+            case 10: bad_flag = TR_VULN_DISEN; good_flag = TR_RES_DISEN; break;
+            case 11: bad_flag = TR_VULN_FEAR; good_flag = TR_RES_FEAR; break;
+        }
+        if (_add_bad_flag(o_ptr, bad_flag, good_flag))
+            return TRUE;
+    }
+    return FALSE;
+}
+void one_undead_resistance(object_type *o_ptr)
+{
+    switch (randint1(6))
+    {
+        case 1: add_flag(o_ptr->art_flags, TR_RES_COLD);   break;
+        case 2: add_flag(o_ptr->art_flags, TR_RES_POIS);   break;
+        case 3: add_flag(o_ptr->art_flags, TR_RES_DARK);   break;
+        case 4: add_flag(o_ptr->art_flags, TR_RES_NETHER); break;
+        case 5: add_flag(o_ptr->art_flags, TR_RES_DISEN);  break;
+        case 6: add_flag(o_ptr->art_flags, TR_RES_FEAR);   break;
+    }
+}
+void one_demon_resistance(object_type *o_ptr)
+{
+    switch (randint1(6))
+    {
+        case 1: add_flag(o_ptr->art_flags, TR_RES_FIRE);   break;
+        case 2: add_flag(o_ptr->art_flags, TR_RES_CONF);   break;
+        case 3: add_flag(o_ptr->art_flags, TR_RES_NEXUS);  break;
+        case 4: add_flag(o_ptr->art_flags, TR_RES_CHAOS);  break;
+        case 5: add_flag(o_ptr->art_flags, TR_RES_DISEN);  break;
+        case 6: add_flag(o_ptr->art_flags, TR_RES_FEAR);   break;
+    }
+}
 
 
 /*
@@ -99,7 +166,6 @@ void one_lordly_high_resistance(object_type *o_ptr)
     }
 }
 
-
 /*
  * Choose one random element resistance
  */
@@ -112,6 +178,25 @@ void one_ele_resistance(object_type *o_ptr)
         case  2: add_flag(o_ptr->art_flags, TR_RES_COLD); break;
         case  3: add_flag(o_ptr->art_flags, TR_RES_FIRE); break;
     }
+}
+bool one_ele_vulnerability(object_type *o_ptr)
+{
+    int attempts = 100;
+    int i;
+    for (i = 0; i < attempts; i++)
+    {
+        int good_flag, bad_flag;
+        switch (randint0(4))
+        {
+            case  0: bad_flag = TR_VULN_ACID; good_flag = TR_RES_ACID; break;
+            case  1: bad_flag = TR_VULN_ELEC; good_flag = TR_RES_ELEC; break;
+            case  2: bad_flag = TR_VULN_COLD; good_flag = TR_RES_COLD; break;
+            case  3: bad_flag = TR_VULN_FIRE; good_flag = TR_RES_FIRE; break;
+        }
+        if (_add_bad_flag(o_ptr, bad_flag, good_flag))
+            return TRUE;
+    }
+    return FALSE;
 }
 
 void one_ele_slay(object_type *o_ptr)
@@ -141,7 +226,15 @@ void one_dragon_ele_resistance(object_type *o_ptr)
         one_ele_resistance(o_ptr);
     }
 }
-
+bool one_dragon_ele_vulnerability(object_type *o_ptr)
+{
+    if (one_in_(7) && !have_flag(o_ptr->art_flags, TR_RES_POIS))
+    {
+        add_flag(o_ptr->art_flags, TR_VULN_POIS);
+        return TRUE;
+    }
+    return one_ele_vulnerability(o_ptr);
+}
 
 /*
  * Choose one lower rank esp
@@ -178,7 +271,98 @@ void one_resistance(object_type *o_ptr)
         one_high_resistance(o_ptr);
     }
 }
+bool one_vulnerability(object_type *o_ptr)
+{
+    if (one_in_(3))
+        return one_ele_vulnerability(o_ptr);
+    
+    return one_high_vulnerability(o_ptr);
+}
 
+bool one_stat_biff(object_type *o_ptr)
+{
+    int attempts = 100;
+    int i;
+    for (i = 0; i < attempts; i++)
+    {
+        int n = randint0(6);
+        if (_add_bad_flag(o_ptr, TR_DEC_STR + n, TR_STR + n))
+            return TRUE;
+    }
+    return FALSE;
+}
+
+bool one_biff(object_type *o_ptr)
+{
+    int attempts = 100;
+    int i;
+    for (i = 0; i < attempts; i++)
+    {
+        int n = randint0(100);
+        if (n < 10)
+        {
+            if (_add_bad_flag(o_ptr, TR_DEC_STEALTH, TR_STEALTH))
+            {
+                has_pval = TRUE;
+                return TRUE;
+            }
+        }
+        else if (n < 13)
+        {
+            if (_add_bad_flag(o_ptr, TR_DEC_SPEED, TR_SPEED))
+            {
+                has_pval = TRUE;
+                return TRUE;
+            }
+        }
+        else if (n < 17)
+        {
+            if (_add_bad_flag(o_ptr, TR_DEC_LIFE, TR_LIFE))
+            {
+                has_pval = TRUE;
+                return TRUE;
+            }
+        }
+        else if (n < 22)
+        {
+            if (_add_bad_flag(o_ptr, TR_DEC_MAGIC_MASTERY, TR_MAGIC_MASTERY))
+            {
+                has_pval = TRUE;
+                return TRUE;
+            }
+        }
+        else if (n < 30)
+        {
+            if (_add_bad_flag(o_ptr, TR_DEC_SPELL_CAP, TR_SPELL_CAP))
+            {
+                has_pval = TRUE;
+                return TRUE;
+            }
+        }
+        else if (n < 35)
+        {
+            if (_add_bad_flag(o_ptr, TR_DEC_SPELL_POWER, TR_SPELL_POWER))
+            {
+                has_pval = TRUE;
+                return TRUE;
+            }
+        }
+        else if (n < 67) 
+        {
+            if (one_stat_biff(o_ptr))
+            {
+                has_pval = TRUE;
+                return TRUE;
+            }
+        }
+        else
+        {
+            if (one_vulnerability(o_ptr))
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
 
 /*
  * Choose one random ability
@@ -202,33 +386,11 @@ void one_ability(object_type *o_ptr)
     }
 }
 
-
-static void curse_artifact(object_type * o_ptr)
-{
-    if (o_ptr->pval > 0) o_ptr->pval = 0 - (o_ptr->pval + randint1(4));
-    if (o_ptr->to_a > 0) o_ptr->to_a = 0 - (o_ptr->to_a + randint1(4));
-    if (o_ptr->to_h > 0) o_ptr->to_h = 0 - (o_ptr->to_h + randint1(4));
-    if (o_ptr->to_d > 0) o_ptr->to_d = 0 - (o_ptr->to_d + randint1(4));
-
-    o_ptr->curse_flags |= (TRC_HEAVY_CURSE | TRC_CURSED);
-    remove_flag(o_ptr->art_flags, TR_BLESSED);
-
-    if (one_in_(4)) o_ptr->curse_flags |= TRC_PERMA_CURSE;
-    if (one_in_(3)) add_flag(o_ptr->art_flags, TR_TY_CURSE);
-    if (one_in_(2)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
-    if (one_in_(3)) add_flag(o_ptr->art_flags, TR_DRAIN_EXP);
-    if (one_in_(2)) add_flag(o_ptr->art_flags, TR_TELEPORT);
-    else if (one_in_(3)) add_flag(o_ptr->art_flags, TR_NO_TELE);
-
-    if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->pclass != CLASS_ARCHER) && (p_ptr->pclass != CLASS_CAVALRY) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_WEAPONSMITH) && one_in_(3))
-        add_flag(o_ptr->art_flags, TR_NO_MAGIC);
-}
-
-
 static void random_plus(object_type * o_ptr)
 {
     int this_type = (object_is_weapon_ammo(o_ptr) ? 23 : 19);
-
+    
+    has_pval = TRUE;
     switch (artifact_bias)
     {
     case BIAS_WARRIOR:
@@ -1505,283 +1667,6 @@ static void random_slay(object_type *o_ptr)
     random_slay_aux(o_ptr);
 }
 
-
-static void give_activation_power(object_type *o_ptr)
-{
-    int type = 0, chance = 0;
-
-    switch (artifact_bias)
-    {
-        case BIAS_ELEC:
-            if (!one_in_(3))
-            {
-                type = ACT_BO_ELEC_1;
-            }
-            else if (!one_in_(5))
-            {
-                type = ACT_BA_ELEC_2;
-            }
-            else
-            {
-                type = ACT_BA_ELEC_3;
-            }
-            chance = 101;
-            break;
-
-        case BIAS_POIS:
-            type = ACT_BA_POIS_1;
-            chance = 101;
-            break;
-
-        case BIAS_FIRE:
-            if (!one_in_(3))
-            {
-                type = ACT_BO_FIRE_1;
-            }
-            else if (!one_in_(5))
-            {
-                type = ACT_BA_FIRE_1;
-            }
-            else
-            {
-                type = ACT_BA_FIRE_2;
-            }
-            chance = 101;
-            break;
-
-        case BIAS_COLD:
-            chance = 101;
-            if (!one_in_(3))
-                type = ACT_BO_COLD_1;
-            else if (!one_in_(3))
-                type = ACT_BA_COLD_1;
-            else if (!one_in_(3))
-                type = ACT_BA_COLD_2;
-            else
-                type = ACT_BA_COLD_3;
-            break;
-
-        case BIAS_CHAOS:
-            chance = 50;
-            if (one_in_(6))
-                type = ACT_SUMMON_DEMON;
-            else
-                type = ACT_CALL_CHAOS;
-            break;
-
-        case BIAS_PRIESTLY:
-            chance = 101;
-
-            if (one_in_(13))
-                type = ACT_CHARM_UNDEAD;
-            else if (one_in_(12))
-                type = ACT_BANISH_EVIL;
-            else if (one_in_(11))
-                type = ACT_DISP_EVIL;
-            else if (one_in_(10))
-                type = ACT_PROT_EVIL;
-            else if (one_in_(9))
-                type = ACT_CURE_1000;
-            else if (one_in_(8))
-                type = ACT_CURE_700;
-            else if (one_in_(7))
-                type = ACT_REST_ALL;
-            else if (one_in_(6))
-                type = ACT_REST_LIFE;
-            else
-                type = ACT_CURE_MW;
-            break;
-
-        case BIAS_NECROMANTIC:
-            chance = 101;
-            if (one_in_(66))
-                type = ACT_WRAITH;
-            else if (one_in_(13))
-                type = ACT_DISP_GOOD;
-            else if (one_in_(9))
-                type = ACT_MASS_GENO;
-            else if (one_in_(8))
-                type = ACT_GENOCIDE;
-            else if (one_in_(13))
-                type = ACT_SUMMON_UNDEAD;
-            else if (one_in_(9))
-                type = ACT_VAMPIRE_2;
-            else if (one_in_(6))
-                type = ACT_CHARM_UNDEAD;
-            else
-                type = ACT_VAMPIRE_1;
-            break;
-
-        case BIAS_LAW:
-            chance = 101;
-            if (one_in_(8))
-                type = ACT_BANISH_EVIL;
-            else if (one_in_(4))
-                type = ACT_DISP_EVIL;
-            else
-                type = ACT_PROT_EVIL;
-            break;
-
-        case BIAS_ROGUE:
-            chance = 101;
-            if (one_in_(50))
-                type = ACT_SPEED;
-            else if (one_in_(4))
-                type = ACT_SLEEP;
-            else if (one_in_(3))
-                type = ACT_DETECT_ALL;
-            else if (one_in_(8))
-                type = ACT_ID_FULL;
-            else
-                type = ACT_ID_PLAIN;
-            break;
-
-        case BIAS_MAGE:
-            chance = 66;
-            if (one_in_(20))
-                type = ACT_SUMMON_ELEMENTAL;
-            else if (one_in_(10))
-                type = ACT_SUMMON_PHANTOM;
-            else if (one_in_(5))
-                type = ACT_RUNE_EXPLO;
-            else
-                type = ACT_ESP;
-            break;
-
-        case BIAS_WARRIOR:
-            chance = 80;
-            if (one_in_(100))
-                type = ACT_INVULN;
-            else
-                type = ACT_BERSERK;
-            break;
-
-        case BIAS_RANGER:
-            chance = 101;
-            if (one_in_(20))
-                type = ACT_CHARM_ANIMALS;
-            else if (one_in_(7))
-                type = ACT_SUMMON_ANIMAL;
-            else if (one_in_(6))
-                type = ACT_CHARM_ANIMAL;
-            else if (one_in_(4))
-                type = ACT_RESIST_ALL;
-            else if (one_in_(3))
-                type = ACT_SATIATE;
-            else
-                type = ACT_CURE_POISON;
-            break;
-    }
-
-    while (!type || (randint1(100) >= chance))
-    {
-        type = randint1(255);
-        switch (type)
-        {
-            case ACT_SUNLIGHT:
-            case ACT_BO_MISS_1:
-            case ACT_BA_POIS_1:
-            case ACT_BO_ELEC_1:
-            case ACT_BO_ACID_1:
-            case ACT_BO_COLD_1:
-            case ACT_BO_FIRE_1:
-            case ACT_CONFUSE:
-            case ACT_SLEEP:
-            case ACT_QUAKE:
-            case ACT_CURE_LW:
-            case ACT_CURE_MW:
-            case ACT_CURE_POISON:
-            case ACT_BERSERK:
-            case ACT_LIGHT:
-            case ACT_MAP_LIGHT:
-            case ACT_DEST_DOOR:
-            case ACT_STONE_MUD:
-            case ACT_TELEPORT:
-            case ACT_WIZ_LITE:
-                chance = 101;
-                break;
-            case ACT_BA_COLD_1:
-            case ACT_BA_FIRE_1:
-            case ACT_DRAIN_1:
-            case ACT_TELE_AWAY:
-            case ACT_ESP:
-            case ACT_RESIST_ALL:
-            case ACT_DETECT_ALL:
-            case ACT_RECALL:
-            case ACT_SATIATE:
-            case ACT_RECHARGE:
-                chance = 85;
-                break;
-            case ACT_TERROR:
-            case ACT_PROT_EVIL:
-            case ACT_ID_PLAIN:
-                chance = 75;
-                break;
-            case ACT_DRAIN_2:
-            case ACT_VAMPIRE_1:
-            case ACT_BO_MISS_2:
-            case ACT_BA_FIRE_2:
-            case ACT_REST_LIFE:
-                chance = 66;
-                break;
-            case ACT_BA_COLD_3:
-            case ACT_BA_ELEC_3:
-            case ACT_WHIRLWIND:
-            case ACT_VAMPIRE_2:
-            case ACT_CHARM_ANIMAL:
-                chance = 50;
-                break;
-            case ACT_SUMMON_ANIMAL:
-                chance = 40;
-                break;
-            case ACT_DISP_EVIL:
-            case ACT_BA_MISS_3:
-            case ACT_DISP_GOOD:
-            case ACT_BANISH_EVIL:
-            case ACT_GENOCIDE:
-            case ACT_MASS_GENO:
-            case ACT_CHARM_UNDEAD:
-            case ACT_CHARM_OTHER:
-            case ACT_SUMMON_PHANTOM:
-            case ACT_REST_ALL:
-            case ACT_RUNE_EXPLO:
-                chance = 33;
-                break;
-            case ACT_CALL_CHAOS:
-            case ACT_ROCKET:
-            case ACT_CHARM_ANIMALS:
-            case ACT_CHARM_OTHERS:
-            case ACT_SUMMON_ELEMENTAL:
-            case ACT_CURE_700:
-            case ACT_SPEED:
-            case ACT_ID_FULL:
-            case ACT_RUNE_PROT:
-                chance = 25;
-                break;
-            case ACT_CURE_1000:
-            case ACT_XTRA_SPEED:
-            case ACT_DETECT_XTRA:
-            case ACT_DIM_DOOR:
-                chance = 10;
-                break;
-            case ACT_SUMMON_UNDEAD:
-            case ACT_SUMMON_DEMON:
-            case ACT_WRAITH:
-            case ACT_INVULN:
-            case ACT_ALCHEMY:
-                chance = 5;
-                break;
-            default:
-                chance = 0;
-        }
-    }
-
-    /* A type was chosen... */
-    o_ptr->xtra2 = type;
-    add_flag(o_ptr->art_flags, TR_ACTIVATE);
-    o_ptr->timeout = 0;
-}
-
 static void get_random_name_aux(char *return_name, object_type *o_ptr, int power)
 {    
     if (o_ptr->tval == TV_LITE)
@@ -1889,6 +1774,58 @@ void get_random_name(char *return_name, object_type *o_ptr, int power)
         get_random_name_aux(return_name, o_ptr, power);
         if (return_name[0] != '\0') break;
         if (attempt > 100) break;
+    }
+}
+
+void curse_object(object_type *o_ptr)
+{
+    int ct = randint1(2);
+    int v = object_value_real(o_ptr) / 10000;
+    int i;
+    
+    o_ptr->curse_flags |= TRC_CURSED;
+    
+    one_biff(o_ptr);
+    ct--;
+
+    ct += randint1(randint1(v)); /* TODO */
+    
+    for (i = 0; i < ct; i++)
+    {
+        int n = randint0(70 + v*v);
+        if (n < 25)
+        {
+            do { o_ptr->curse_flags |= get_curse(0, o_ptr); } while (one_in_(2));
+        }
+        else if (n < 35)
+            o_ptr->curse_flags |= get_curse(1, o_ptr);
+        else if (n < 40)
+            o_ptr->curse_flags |= TRC_HEAVY_CURSE;
+        else if (n < 45)
+            o_ptr->curse_flags |= get_curse(2, o_ptr);
+        else if (n < 50)
+            add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+        else if (n < 55)
+            add_flag(o_ptr->art_flags, TR_TY_CURSE);
+        else if (n < 60)
+            o_ptr->curse_flags |= TRC_PERMA_CURSE;
+        else if (n < 250)
+            one_biff(o_ptr);
+        else
+        {
+            if (one_in_(2))
+            {
+                o_ptr->curse_flags |= TRC_PERMA_CURSE;
+                if (one_in_(2))
+                    add_flag(o_ptr->art_flags, TR_TY_CURSE);
+                if (one_in_(2))
+                    add_flag(o_ptr->art_flags, TR_NO_TELE);
+                if (one_in_(2))
+                    add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+            }
+            else
+                one_biff(o_ptr);
+        }
     }
 }
 
@@ -2053,28 +1990,23 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     if (mode & CREATE_ART_CURSED)
         a_cursed = TRUE;
 
-    if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
+    if ( (o_ptr->tval == TV_AMULET || o_ptr->tval == TV_RING) 
+      && object_is_cursed(o_ptr) )
+    {
         a_cursed = TRUE;
+    }
 
     powers = randint1(5) + 1;
 
-    while (one_in_(powers) || one_in_(7 * 90/MAX(object_level, 1)) || one_in_(10 * 70/MAX(object_level, 1)))
+    while (one_in_(powers) || one_in_(7 * 90/MAX(MIN(127, object_level), 1)) || one_in_(10 * 70/MAX(MIN(127, object_level), 1)))
         powers++;
 
-    if (!a_cursed)
-    {
-        if (one_in_(WEIRD_LUCK))
-            powers *= 2;
-    }
-
-    if (a_cursed) powers /= 2;
+    if (one_in_(WEIRD_LUCK))
+        powers *= 2;
 
     if ( (o_ptr->tval == TV_LITE && o_ptr->sval != SV_LITE_JUDGE) 
       || o_ptr->tval == TV_AMULET
-      || (o_ptr->tval == TV_RING && o_ptr->sval != SV_RING_NARYA 
-                                 && o_ptr->sval != SV_RING_NENYA
-                                 && o_ptr->sval != SV_RING_VILYA
-                                 && o_ptr->sval != SV_RING_POWER ) ) 
+      || o_ptr->tval == TV_RING ) 
     {
         if (!one_in_(WEIRD_LUCK))
         {
@@ -2199,16 +2131,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 }
                 else if (one_in_(15))
                 {
-                    o_ptr->xtra2 = ACT_WIZ_LITE;
-                    add_flag(o_ptr->art_flags, TR_ACTIVATE);
-                    o_ptr->timeout = 0;
+                    effect_add(o_ptr, EFFECT_CLAIRVOYANCE);
                 }
                 else if (one_in_(77))
                 {
                     add_flag(o_ptr->art_flags, TR_SPELL_POWER);
-                    add_flag(o_ptr->art_flags, TR_STR);
-                    add_flag(o_ptr->art_flags, TR_DEX);
-                    add_flag(o_ptr->art_flags, TR_CON);
+                    add_flag(o_ptr->art_flags, TR_DEC_STR);
+                    add_flag(o_ptr->art_flags, TR_DEC_DEX);
+                    add_flag(o_ptr->art_flags, TR_DEC_CON);
                     has_pval = TRUE;
                 }
                 else
@@ -2246,7 +2176,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 {
                     int odds = o_ptr->dd * o_ptr->ds / 2;
                     if (odds < 3) odds = 3;
-                    if (a_cursed && !one_in_(13)) break;
                     /* spiked code from EGO_SLAYING_WEAPON */
                     if (slaying_hack == 0 && one_in_(odds)) /* double damage */
                     {
@@ -2369,9 +2298,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 else if (one_in_(77))
                 {
                     add_flag(o_ptr->art_flags, TR_SPELL_POWER);
-                    add_flag(o_ptr->art_flags, TR_STR);
-                    add_flag(o_ptr->art_flags, TR_DEX);
-                    add_flag(o_ptr->art_flags, TR_CON);
+                    add_flag(o_ptr->art_flags, TR_DEC_STR);
+                    add_flag(o_ptr->art_flags, TR_DEC_DEX);
+                    add_flag(o_ptr->art_flags, TR_DEC_CON);
                     has_pval = TRUE;
                 }
                 else if (one_in_(3))
@@ -2415,12 +2344,17 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 {
                     add_flag(o_ptr->art_flags, TR_REFLECT);
                 }
+                else if (one_in_(30))
+                {
+                    add_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
+                    has_pval = TRUE;
+                }
                 else if (one_in_(77))
                 {
                     add_flag(o_ptr->art_flags, TR_SPELL_POWER);
-                    add_flag(o_ptr->art_flags, TR_STR);
-                    add_flag(o_ptr->art_flags, TR_DEX);
-                    add_flag(o_ptr->art_flags, TR_CON);
+                    add_flag(o_ptr->art_flags, TR_DEC_STR);
+                    add_flag(o_ptr->art_flags, TR_DEC_DEX);
+                    add_flag(o_ptr->art_flags, TR_DEC_CON);
                     has_pval = TRUE;
                 }
                 else if (one_in_(3))
@@ -2554,11 +2488,21 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             o_ptr->pval = 6;
     }
 
-    if (have_flag(o_ptr->art_flags, TR_WEAPONMASTERY) && o_ptr->pval > 3)
-        o_ptr->pval = 3;
+    if (have_flag(o_ptr->art_flags, TR_WEAPONMASTERY) && o_ptr->pval > 2)
+    {
+        if (one_in_(30))
+            o_ptr->pval = 3;
+        else
+            o_ptr->pval = 2;
+    }
 
-    if (have_flag(o_ptr->art_flags, TR_SPELL_POWER))
-        o_ptr->pval = -o_ptr->pval;
+    if (have_flag(o_ptr->art_flags, TR_MAGIC_MASTERY) && o_ptr->pval > 2)
+    {
+        if (one_in_(30))
+            o_ptr->pval = 3;
+        else
+            o_ptr->pval = 2;
+    }
 
     /* give it some plusses... */
     if (object_is_armour(o_ptr))
@@ -2605,16 +2549,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
     add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
 
-    if (a_cursed) curse_artifact(o_ptr);
-
-    if (!a_cursed &&
-        !have_flag(o_ptr->art_flags, TR_ACTIVATE))
+    if (!have_flag(o_ptr->art_flags, TR_ACTIVATE))
     {
         int odds = object_is_armour(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE;
         if (one_in_(odds))
         {
-            o_ptr->xtra2 = 0;
-            give_activation_power(o_ptr);
+            effect_add_random(o_ptr, artifact_bias);
         }
     }
 
@@ -2686,7 +2626,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
     if (object_is_jewelry(o_ptr))
     {
-        if (a_cursed) power_level = 0;
+        if (total_flags <= 0) power_level = 0;
         else if (total_flags < 15000) power_level = 1;
         else if (total_flags < 60000) power_level = 2;
         else power_level = 3;
@@ -2694,7 +2634,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     else if (!object_is_weapon_ammo(o_ptr))
     {
         /* For armors */
-        if (a_cursed) power_level = 0;
+        if (total_flags <= 0) power_level = 0;
         else if (total_flags < 30000) power_level = 1;
         else if (total_flags < 70000) power_level = 2;
         else 
@@ -2707,7 +2647,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     else
     {
         /* For weapons */
-        if (a_cursed) power_level = 0;
+        if (total_flags <= 0) power_level = 0;
         else if (total_flags <  50000) power_level = 1;
         else if (total_flags < 100000) power_level = 2;
         else 
@@ -2747,6 +2687,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     else
     {
         get_random_name(new_name, o_ptr, power_level);
+        if (a_cursed) /* Curse after naming for flavor. ?Art will never curse */
+        {
+            curse_object(o_ptr);
+            if (has_pval && !o_ptr->pval)
+                o_ptr->pval = randint1(5);
+            total_flags = new_object_cost(o_ptr);
+        }
     }
 
     if (cheat_xtra)
@@ -2763,812 +2710,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
     return total_flags;
 }
-
-
-bool activate_random_artifact(object_type * o_ptr)
-{
-    int plev = p_ptr->lev;
-    int k, dir, dummy = 0;
-
-    if (!o_ptr->art_name) return FALSE; /* oops? */
-
-    /* Activate for attack */
-    switch (o_ptr->xtra2)
-    {
-        case ACT_SUNLIGHT:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            msg_print("A line of sunlight appears.");
-
-            (void)lite_line(dir);
-            o_ptr->timeout = 10;
-            break;
-        }
-
-        case ACT_BO_MISS_1:
-        {
-            msg_print("It glows extremely brightly...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_bolt(GF_MISSILE, dir, device_power(damroll(2, 6)));
-            o_ptr->timeout = 2;
-            break;
-        }
-
-        case ACT_BA_POIS_1:
-        {
-            msg_print("It throbs deep green...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_POIS, dir, device_power(12), 3);
-            o_ptr->timeout = randint0(4) + 4;
-            break;
-        }
-
-        case ACT_BO_ELEC_1:
-        {
-            msg_print("It is covered in sparks...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_bolt(GF_ELEC, dir, device_power(damroll(4, 8)));
-            o_ptr->timeout = randint0(5) + 5;
-            break;
-        }
-
-        case ACT_BO_ACID_1:
-        {
-            msg_print("It is covered in acid...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_bolt(GF_ACID, dir, device_power(damroll(5, 8)));
-            o_ptr->timeout = randint0(6) + 6;
-            break;
-        }
-
-        case ACT_BO_COLD_1:
-        {
-            msg_print("It is covered in frost...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_bolt(GF_COLD, dir, device_power(damroll(6, 8)));
-            o_ptr->timeout = randint0(7) + 7;
-            break;
-        }
-
-        case ACT_BO_FIRE_1:
-        {
-            msg_print("It is covered in fire...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_bolt(GF_FIRE, dir, device_power(damroll(9, 8)));
-            o_ptr->timeout = randint0(8) + 8;
-            break;
-        }
-
-        case ACT_BA_COLD_1:
-        {
-            msg_print("It is covered in frost...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_COLD, dir, device_power(48), 2);
-            o_ptr->timeout = 400;
-            break;
-        }
-
-        case ACT_BA_FIRE_1:
-        {
-            msg_print("It glows an intense red...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_FIRE, dir, device_power(72), 2);
-            o_ptr->timeout = 400;
-            break;
-        }
-
-        case ACT_DRAIN_1:
-        {
-            msg_print("It glows black...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            if (drain_life(dir, device_power(100)))
-                hp_player(device_power(100));
-            o_ptr->timeout = randint0(100) + 100;
-            break;
-        }
-
-        case ACT_BA_COLD_2:
-        {
-            msg_print("It glows an intense blue...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_COLD, dir, device_power(100), 2);
-            o_ptr->timeout = 300;
-            break;
-        }
-
-        case ACT_BA_ELEC_2:
-        {
-            msg_print("It crackles with electricity...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_ELEC, dir, device_power(100), 3);
-            o_ptr->timeout = 500;
-            break;
-        }
-
-        case ACT_DRAIN_2:
-        {
-            msg_print("It glows black...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            if (drain_life(dir, device_power(120)))
-                hp_player(device_power(120));
-            o_ptr->timeout = 400;
-            break;
-        }
-
-        case ACT_VAMPIRE_1:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            for (dummy = 0; dummy < 3; dummy++)
-            {
-                if (drain_life(dir, device_power(50)))
-                    hp_player(device_power(50));
-            }
-            o_ptr->timeout = 400;
-            break;
-        }
-
-        case ACT_BO_MISS_2:
-        {
-            msg_print("It grows magical spikes...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_bolt(GF_ARROW, dir, device_power(150));
-            o_ptr->timeout = randint0(90) + 90;
-            break;
-        }
-
-        case ACT_BA_FIRE_2:
-        {
-            msg_print("It glows deep red...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_FIRE, dir, device_power(120), 3);
-            o_ptr->timeout = randint0(225) + 225;
-            break;
-        }
-
-        case ACT_BA_COLD_3:
-        {
-            msg_print("It glows bright white...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_COLD, dir, device_power(200), 3);
-            o_ptr->timeout = randint0(325) + 325;
-            break;
-        }
-
-        case ACT_BA_ELEC_3:
-        {
-            msg_print("It glows deep blue...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            fire_ball(GF_ELEC, dir, device_power(250), 3);
-            o_ptr->timeout = randint0(425) + 425;
-            break;
-        }
-
-        case ACT_WHIRLWIND:
-        {
-            {
-                int y = 0, x = 0;
-                cave_type       *c_ptr;
-                monster_type    *m_ptr;
-
-                for (dir = 0; dir <= 9; dir++)
-                {
-                    y = py + ddy[dir];
-                    x = px + ddx[dir];
-                    c_ptr = &cave[y][x];
-
-                    /* Get the monster */
-                    m_ptr = &m_list[c_ptr->m_idx];
-
-                    /* Hack -- attack monsters */
-                    if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
-                        py_attack(y, x, 0);
-                }
-            }
-            o_ptr->timeout = 250;
-            break;
-        }
-
-        case ACT_VAMPIRE_2:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            for (dummy = 0; dummy < 3; dummy++)
-            {
-                if (drain_life(dir, device_power(100)))
-                    hp_player(device_power(100));
-            }
-
-            o_ptr->timeout = 400;
-            break;
-        }
-
-
-        case ACT_CALL_CHAOS:
-        {
-            msg_print("It glows in scintillating colours...");
-
-            call_chaos(100);
-            o_ptr->timeout = 350;
-            break;
-        }
-
-        case ACT_ROCKET:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            msg_print("You launch a rocket!");
-
-            fire_ball(GF_ROCKET, dir, device_power(250 + plev*3), 2);
-            o_ptr->timeout = 400;
-            break;
-        }
-
-        case ACT_DISP_EVIL:
-        {
-            msg_print("It floods the area with goodness...");
-
-            dispel_evil(device_power(p_ptr->lev * 5));
-            o_ptr->timeout = randint0(300) + 300;
-            break;
-        }
-
-        case ACT_DISP_GOOD:
-        {
-            msg_print("It floods the area with evil...");
-
-            dispel_good(device_power(p_ptr->lev * 5));
-            o_ptr->timeout = randint0(300) + 300;
-            break;
-        }
-
-        case ACT_BA_MISS_3:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            msg_print("You breathe the elements.");
-
-            fire_ball(GF_MISSILE, dir, device_power(300), 4);
-            o_ptr->timeout = 500;
-            break;
-        }
-
-        /* Activate for other offensive action */
-
-        case ACT_CONFUSE:
-        {
-            msg_print("It glows in scintillating colours...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            confuse_monster(dir, device_power(20));
-            o_ptr->timeout = 15;
-            break;
-        }
-
-        case ACT_SLEEP:
-        {
-            msg_print("It glows deep blue...");
-
-            sleep_monsters_touch();
-            o_ptr->timeout = 55;
-            break;
-        }
-
-        case ACT_QUAKE:
-        {
-            earthquake(py, px, 10);
-            o_ptr->timeout = 50;
-            break;
-        }
-
-        case ACT_TERROR:
-        {
-            turn_monsters(device_power(40 + p_ptr->lev));
-            o_ptr->timeout = 3 * (p_ptr->lev + 10);
-            break;
-        }
-
-        case ACT_TELE_AWAY:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            (void)fire_beam(GF_AWAY_ALL, dir, device_power(plev));
-            o_ptr->timeout = 200;
-            break;
-        }
-
-        case ACT_BANISH_EVIL:
-        {
-            if (banish_evil(device_power(100)))
-            {
-                msg_print("The power of the artifact banishes evil!");
-
-            }
-            o_ptr->timeout = 250 + randint1(250);
-            break;
-        }
-
-        case ACT_GENOCIDE:
-        {
-            msg_print("It glows deep blue...");
-
-            (void)symbol_genocide(device_power(200), TRUE);
-            o_ptr->timeout = 500;
-            break;
-        }
-
-        case ACT_MASS_GENO:
-        {
-            msg_print("It lets out a long, shrill note...");
-
-            (void)mass_genocide(device_power(200), TRUE);
-            o_ptr->timeout = 1000;
-            break;
-        }
-
-        /* Activate for summoning / charming */
-
-        case ACT_CHARM_ANIMAL:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            (void)charm_animal(dir, device_power(plev));
-            o_ptr->timeout = 300;
-            break;
-        }
-
-        case ACT_CHARM_UNDEAD:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            (void)control_one_undead(dir, device_power(plev));
-            o_ptr->timeout = 333;
-            break;
-        }
-
-        case ACT_CHARM_OTHER:
-        {
-            if (!get_aim_dir(&dir)) return FALSE;
-            (void)charm_monster(dir, device_power(plev));
-            o_ptr->timeout = 400;
-            break;
-        }
-
-        case ACT_CHARM_ANIMALS:
-        {
-            (void)charm_animals(device_power(plev * 2));
-            o_ptr->timeout = 500;
-            break;
-        }
-
-        case ACT_CHARM_OTHERS:
-        {
-            charm_monsters(device_power(plev * 2));
-            o_ptr->timeout = 750;
-            break;
-        }
-
-        case ACT_SUMMON_ANIMAL:
-        {
-            (void)summon_specific(-1, py, px, device_power(plev), SUMMON_ANIMAL_RANGER, (PM_ALLOW_GROUP | PM_FORCE_PET));
-            o_ptr->timeout = 200 + randint1(300);
-            break;
-        }
-
-        case ACT_SUMMON_PHANTOM:
-        {
-            msg_print("You summon a phantasmal servant.");
-
-            (void)summon_specific(-1, py, px, device_power(dun_level), SUMMON_PHANTOM, (PM_ALLOW_GROUP | PM_FORCE_PET));
-            o_ptr->timeout = 200 + randint1(200);
-            break;
-        }
-
-        case ACT_SUMMON_ELEMENTAL:
-        {
-            bool pet = one_in_(3);
-            u32b mode = 0L;
-
-            if (!(pet && (plev < 50))) mode |= PM_ALLOW_GROUP;
-            if (pet) mode |= PM_FORCE_PET;
-            else mode |= PM_NO_PET;
-
-            if (summon_specific((pet ? -1 : 0), py, px, device_power((plev * 3) / 2), SUMMON_ELEMENTAL, mode))
-            {
-                msg_print("An elemental materializes...");
-
-
-                if (pet)
-                    msg_print("It seems obedient to you.");
-
-                else
-                    msg_print("You fail to control it!");
-
-            }
-
-            o_ptr->timeout = 750;
-            break;
-        }
-
-        case ACT_SUMMON_DEMON:
-        {
-            bool pet = one_in_(3);
-            u32b mode = 0L;
-
-            if (!(pet && (plev < 50))) mode |= PM_ALLOW_GROUP;
-            if (pet) mode |= PM_FORCE_PET;
-            else mode |= PM_NO_PET;
-
-            if (summon_specific((pet ? -1 : 0), py, px, device_power((plev * 3) / 2), SUMMON_DEMON, mode))
-            {
-                msg_print("The area fills with a stench of sulphur and brimstone.");
-
-                if (pet)
-                    msg_print("'What is thy bidding... Master?'");
-
-                else
-                    msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
-
-            }
-
-            o_ptr->timeout = 666 + randint1(333);
-            break;
-        }
-
-        case ACT_SUMMON_UNDEAD:
-        {
-            bool pet = one_in_(3);
-            int type;
-            u32b mode = 0L;
-
-            type = (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD);
-
-            if (!pet || ((plev > 24) && one_in_(3))) mode |= PM_ALLOW_GROUP;
-            if (pet) mode |= PM_FORCE_PET;
-            else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
-
-            if (summon_specific((pet ? -1 : 0), py, px, device_power((plev * 3) / 2), type, mode))
-            {
-                msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
-
-                if (pet)
-                    msg_print("Ancient, long-dead forms arise from the ground to serve you!");
-
-                else
-                    msg_print("'The dead arise... to punish you for disturbing them!'");
-
-            }
-
-            o_ptr->timeout = 666 + randint1(333);
-            break;
-        }
-
-        /* Activate for healing */
-
-        case ACT_CURE_LW:
-        {
-            (void)hp_player(device_power(30));
-            o_ptr->timeout = 10;
-            break;
-        }
-
-        case ACT_CURE_MW:
-        {
-            msg_print("It radiates deep purple...");
-
-            hp_player(device_power(damroll(4, 8)));
-            (void)set_cut((p_ptr->cut / 2) - 50, TRUE);
-            o_ptr->timeout = randint0(3) + 3;
-            break;
-        }
-
-        case ACT_CURE_POISON:
-        {
-            msg_print("It glows deep blue...");
-
-            (void)set_poisoned(0, TRUE);
-            o_ptr->timeout = 5;
-            break;
-        }
-
-        case ACT_REST_LIFE:
-        {
-            msg_print("It glows a deep red...");
-
-            restore_level();
-            o_ptr->timeout = 450;
-            break;
-        }
-
-        case ACT_REST_ALL:
-        {
-            msg_print("It glows a deep green...");
-
-            (void)do_res_stat(A_STR);
-            (void)do_res_stat(A_INT);
-            (void)do_res_stat(A_WIS);
-            (void)do_res_stat(A_DEX);
-            (void)do_res_stat(A_CON);
-            (void)do_res_stat(A_CHR);
-            (void)restore_level();
-            o_ptr->timeout = 750;
-            break;
-        }
-
-        case ACT_CURE_700:
-        {
-            msg_print("It glows deep blue...");
-
-            msg_print("You feel a warm tingling inside...");
-
-            (void)hp_player(device_power(700));
-            (void)set_cut(0, TRUE);
-            o_ptr->timeout = 250;
-            break;
-        }
-
-        case ACT_CURE_1000:
-        {
-            msg_print("It glows a bright white...");
-
-            msg_print("You feel much better...");
-
-            (void)hp_player(device_power(1000));
-            (void)set_cut(0, TRUE);
-            o_ptr->timeout = 888;
-            break;
-        }
-
-        /* Activate for timed effect */
-
-        case ACT_ESP:
-        {
-            (void)set_tim_esp(device_power(randint1(30) + 25), FALSE);
-            o_ptr->timeout = 200;
-            break;
-        }
-
-        case ACT_BERSERK:
-        {
-            (void)set_hero(device_power(randint1(50) + 50), FALSE);
-            (void)set_blessed(device_power(randint1(50) + 50), FALSE);
-            o_ptr->timeout = 100 + randint1(100);
-            break;
-        }
-
-        case ACT_PROT_EVIL:
-        {
-            msg_print("It lets out a shrill wail...");
-
-            k = 3 * p_ptr->lev;
-            (void)set_protevil(device_power(randint1(25) + k), FALSE);
-            o_ptr->timeout = randint0(225) + 225;
-            break;
-        }
-
-        case ACT_RESIST_ALL:
-        {
-            msg_print("It glows many colours...");
-
-            (void)set_oppose_acid(device_power(randint1(40) + 40), FALSE);
-            (void)set_oppose_elec(device_power(randint1(40) + 40), FALSE);
-            (void)set_oppose_fire(device_power(randint1(40) + 40), FALSE);
-            (void)set_oppose_cold(device_power(randint1(40) + 40), FALSE);
-            (void)set_oppose_pois(device_power(randint1(40) + 40), FALSE);
-            o_ptr->timeout = 200;
-            break;
-        }
-
-        case ACT_SPEED:
-        {
-            msg_print("It glows bright green...");
-
-            (void)set_fast(device_power(randint1(20) + 20), FALSE);
-            o_ptr->timeout = 250;
-            break;
-        }
-
-        case ACT_XTRA_SPEED:
-        {
-            msg_print("It glows brightly...");
-
-            (void)set_fast(device_power(randint1(75) + 75), FALSE);
-            o_ptr->timeout = randint0(200) + 200;
-            break;
-        }
-
-        case ACT_WRAITH:
-        {
-            set_wraith_form(device_power(randint1(plev / 2) + (plev / 2)), FALSE);
-            o_ptr->timeout = 1000;
-            break;
-        }
-
-        case ACT_INVULN:
-        {
-            (void)set_invuln(device_power(randint1(8) + 8), FALSE);
-            o_ptr->timeout = 1000;
-            break;
-        }
-
-        /* Activate for general purpose effect (detection etc.) */
-        case ACT_WIZ_LITE:
-            msg_print("It flashes bright red ...");
-            virtue_add(VIRTUE_KNOWLEDGE, 1);
-            virtue_add(VIRTUE_ENLIGHTENMENT, 1);
-            wiz_lite(p_ptr->tim_superstealth > 0);
-            detect_traps(DETECT_RAD_DEFAULT, TRUE);
-            detect_doors(DETECT_RAD_DEFAULT);
-            detect_stairs(DETECT_RAD_DEFAULT);
-            o_ptr->timeout = randint0(20) + 20;
-            break;
-
-        case ACT_LIGHT:
-        {
-            msg_print("It wells with clear light...");
-
-            lite_area(device_power(damroll(2, 15)), 3);
-            o_ptr->timeout = randint0(10) + 10;
-            break;
-        }
-
-        case ACT_MAP_LIGHT:
-        {
-            msg_print("It shines brightly...");
-
-            map_area(DETECT_RAD_MAP);
-            lite_area(device_power(damroll(2, 15)), 3);
-            o_ptr->timeout = randint0(50) + 50;
-            break;
-        }
-
-        case ACT_DETECT_ALL:
-        {
-            msg_print("It glows bright white...");
-
-            msg_print("An image forms in your mind...");
-
-            detect_all(DETECT_RAD_DEFAULT);
-            o_ptr->timeout = randint0(55) + 55;
-            break;
-        }
-
-        case ACT_DETECT_XTRA:
-        {
-            msg_print("It glows brightly...");
-
-            detect_all(DETECT_RAD_DEFAULT);
-            probing();
-            identify_fully(NULL);
-            o_ptr->timeout = 1000;
-            break;
-        }
-
-        case ACT_ID_FULL:
-        {
-            msg_print("It glows yellow...");
-
-            identify_fully(NULL);
-            o_ptr->timeout = 750;
-            break;
-        }
-
-        case ACT_ID_PLAIN:
-        {
-            if (!ident_spell(NULL)) return FALSE;
-            o_ptr->timeout = 10;
-            break;
-        }
-
-        case ACT_RUNE_EXPLO:
-        {
-            msg_print("It glows bright red...");
-
-            explosive_rune();
-            o_ptr->timeout = 200;
-            break;
-        }
-
-        case ACT_RUNE_PROT:
-        {
-            msg_print("It glows light blue...");
-
-            warding_glyph();
-            o_ptr->timeout = 400;
-            break;
-        }
-
-        case ACT_SATIATE:
-        {
-            (void)set_food(PY_FOOD_MAX - 1);
-            o_ptr->timeout = 200;
-            break;
-        }
-
-        case ACT_DEST_DOOR:
-        {
-            msg_print("It glows bright red...");
-
-            destroy_doors_touch();
-            o_ptr->timeout = 10;
-            break;
-        }
-
-        case ACT_STONE_MUD:
-        {
-            msg_print("It pulsates...");
-
-            if (!get_aim_dir(&dir)) return FALSE;
-            wall_to_mud(dir);
-            o_ptr->timeout = 5;
-            break;
-        }
-
-        case ACT_RECHARGE:
-        {
-            recharge(device_power(130));
-            o_ptr->timeout = 70;
-            break;
-        }
-
-        case ACT_ALCHEMY:
-        {
-            msg_print("It glows bright yellow...");
-
-            (void)alchemy();
-            o_ptr->timeout = 500;
-            break;
-        }
-
-        case ACT_DIM_DOOR:
-        {
-            msg_print("You open a dimensional gate. Choose a destination.");
-
-            if (!dimension_door(device_power(p_ptr->lev / 2 + 10))) return FALSE;
-            o_ptr->timeout = 100;
-            break;
-        }
-
-
-        case ACT_TELEPORT:
-        {
-            msg_print("It twists space around you...");
-
-            teleport_player(100, 0L);
-            if (mut_present(MUT_ASTRAL_GUIDE))
-                energy_use = 30;
-            o_ptr->timeout = 45;
-            break;
-        }
-
-        case ACT_RECALL:
-        {
-            msg_print("It glows soft white...");
-            if (!word_of_recall()) return FALSE;
-            o_ptr->timeout = 200;
-            break;
-        }
-
-        default:
-        {
-            msg_format("Unknown activation effect: %d.", o_ptr->xtra2);
-
-            return FALSE;
-        }
-    }
-
-    return TRUE;
-}
-
 
 void get_bloody_moon_flags(object_type *o_ptr)
 {
@@ -3614,7 +2755,6 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
         }
         else
         {
-            add_flag(o_ptr->art_flags, TR_AGGRAVATE);
             o_ptr->curse_flags |= (TRC_CURSED | TRC_HEAVY_CURSE);
         }
     }
@@ -3864,44 +3004,6 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
     if (object_level < a_ptr->level)
         object_level = a_ptr->level;
 
-/*    for (i = 0; i < 1+m_bonus(2, object_level); i++)
-    {
-        object_prep(&forge2, forge1.k_idx);
-        create_artifact(&forge2, CREATE_ART_GOOD);
-        power = object_value_real(&forge2);
-
-        if (power > best_power)
-        {
-            object_copy(&best, &forge2);
-            best_power = power;
-        }
-        if (power > base_power * 7 / 10)
-            break;
-    }
-
-    if (best_power < base_power * 4 / 10)
-    {
-        for (i = 0; i < 15; i++)
-        {
-            object_prep(&forge2, forge1.k_idx);
-            create_artifact(&forge2, CREATE_ART_GOOD);
-            power = object_value_real(&forge2);
-            if (power > best_power)
-            {
-                object_copy(&keeper, &forge2);
-                best_power = power;
-            }
-            if (power > base_power * 4 / 10)
-                break;
-        }
-    }
-
-    keeper.name3 = a_idx;
-    object_level = old_level;
-    object_copy(o_ptr, &keeper);
-    o_ptr->weight = forge1.weight;
-
-*/
     for (i = 0; i < 10000; i++)
     {
         object_prep(&forge2, forge1.k_idx);

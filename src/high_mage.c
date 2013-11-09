@@ -26,15 +26,15 @@ static int _get_powers(spell_info* spells, int max)
 static void _calc_bonuses(void)
 {
     p_ptr->spell_cap += 3;
-    p_ptr->spell_power += 2; 
-    p_ptr->device_power += 2; 
+/*  p_ptr->spell_power += 2; 
+    p_ptr->device_power += 2; */
 }
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_SPELL_CAP);
-    add_flag(flgs, TR_SPELL_POWER);
-    add_flag(flgs, TR_MAGIC_MASTERY);
+/*  add_flag(flgs, TR_SPELL_POWER);
+    add_flag(flgs, TR_MAGIC_MASTERY); */
 }
 
 static caster_info * _caster_info(void)

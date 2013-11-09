@@ -34,10 +34,9 @@ static void note(cptr msg)
 static void rd_item(savefile_ptr file, object_type *o_ptr)
 {
     object_kind *k_ptr;
-    u32b flags;
-    char buf[128];
+    char         buf[128];
 
-    flags = savefile_read_u32b(file);
+    object_wipe(o_ptr);
 
     o_ptr->k_idx = savefile_read_s16b(file);
     k_ptr = &k_info[o_ptr->k_idx];
@@ -46,200 +45,208 @@ static void rd_item(savefile_ptr file, object_type *o_ptr)
 
     o_ptr->iy = savefile_read_byte(file);
     o_ptr->ix = savefile_read_byte(file);
-
-    if (flags & SAVE_ITEM_PVAL) o_ptr->pval = savefile_read_s16b(file);
-    else o_ptr->pval = 0;
-    
-    if (flags & SAVE_ITEM_DISCOUNT) o_ptr->discount = savefile_read_byte(file);
-    else o_ptr->discount = 0;
-    
-    if (flags & SAVE_ITEM_NUMBER) o_ptr->number = savefile_read_byte(file);
-    else o_ptr->number = 1;
-
     o_ptr->weight = savefile_read_s16b(file);
 
-    if (flags & SAVE_ITEM_NAME1) o_ptr->name1 = savefile_read_s16b(file);
-    else o_ptr->name1 = 0;
+    o_ptr->number = 1;
 
-    if (flags & SAVE_ITEM_NAME2) o_ptr->name2 = savefile_read_s16b(file);
-    else o_ptr->name2 = 0;
-
-    if (flags & SAVE_ITEM_NAME3) o_ptr->name3 = savefile_read_s16b(file);
-    else o_ptr->name3 = 0;
-
-    if (flags & SAVE_ITEM_TIMEOUT) o_ptr->timeout = savefile_read_s16b(file);
-    else o_ptr->timeout = 0;
-
-    if (flags & SAVE_ITEM_TO_H) o_ptr->to_h = savefile_read_s16b(file);
-    else o_ptr->to_h = 0;
-
-    if (flags & SAVE_ITEM_TO_D) o_ptr->to_d = savefile_read_s16b(file);
-    else o_ptr->to_d = 0;
-
-    if (flags & SAVE_ITEM_TO_A) o_ptr->to_a = savefile_read_s16b(file);
-    else o_ptr->to_a = 0;
-
-    if (flags & SAVE_ITEM_AC) o_ptr->ac = savefile_read_s16b(file);
-    else o_ptr->ac = 0;
-
-    if (flags & SAVE_ITEM_DD) o_ptr->dd = savefile_read_byte(file);
-    else o_ptr->dd = 0;
-
-    if (flags & SAVE_ITEM_DS) o_ptr->ds = savefile_read_byte(file);
-    else o_ptr->ds = 0;
-
-    if (flags & SAVE_ITEM_IDENT) o_ptr->ident = savefile_read_byte(file);
-    else o_ptr->ident = 0;
-
-    if (flags & SAVE_ITEM_MARKED) o_ptr->marked = savefile_read_byte(file);
-    else o_ptr->marked = 0;
-
-    if (flags & SAVE_ITEM_ART_FLAGS0) o_ptr->art_flags[0] = savefile_read_u32b(file);
-    else o_ptr->art_flags[0] = 0;
-
-    if (flags & SAVE_ITEM_ART_FLAGS1) o_ptr->art_flags[1] = savefile_read_u32b(file);
-    else o_ptr->art_flags[1] = 0;
-
-    if (flags & SAVE_ITEM_ART_FLAGS2) o_ptr->art_flags[2] = savefile_read_u32b(file);
-    else o_ptr->art_flags[2] = 0;
-
-    if (flags & SAVE_ITEM_ART_FLAGS3) o_ptr->art_flags[3] = savefile_read_u32b(file);
-    else o_ptr->art_flags[3] = 0;
-
-    if (flags & SAVE_ITEM_ART_FLAGS4) o_ptr->art_flags[4] = savefile_read_u32b(file);
-    else o_ptr->art_flags[4] = 0;
-
-    if (flags & SAVE_ITEM_ART_FLAGS5) o_ptr->art_flags[5] = savefile_read_u32b(file);
-    else o_ptr->art_flags[5] = 0;
-
-    if (flags & SAVE_ITEM_CURSE_FLAGS) o_ptr->curse_flags = savefile_read_u32b(file);
-    else o_ptr->curse_flags = 0;
-
-    if (flags & SAVE_ITEM_RUNE_FLAGS) o_ptr->rune = savefile_read_u32b(file);
-    else o_ptr->rune = 0;
-
-    if (flags & SAVE_ITEM_HELD_M_IDX) o_ptr->held_m_idx = savefile_read_s16b(file);
-    else o_ptr->held_m_idx = 0;
-
-    if (flags & SAVE_ITEM_XTRA1) o_ptr->xtra1 = savefile_read_byte(file);
-    else o_ptr->xtra1 = 0;
-
-    if (flags & SAVE_ITEM_XTRA2) o_ptr->xtra2 = savefile_read_byte(file);
-    else o_ptr->xtra2 = 0;
-
-    if (flags & SAVE_ITEM_XTRA3) o_ptr->xtra3 = savefile_read_byte(file);
-    else o_ptr->xtra3 = 0;
-
-    if (flags & SAVE_ITEM_XTRA4) o_ptr->xtra4 = savefile_read_s16b(file);
-    else o_ptr->xtra4 = 0;
-
-    if (flags & SAVE_ITEM_XTRA5) o_ptr->xtra5 = savefile_read_s16b(file);
-    else o_ptr->xtra5 = 0;
-
-    if (flags & SAVE_ITEM_FEELING) o_ptr->feeling = savefile_read_byte(file);
-    else o_ptr->feeling = 0;
-
-    if (flags & SAVE_ITEM_INSCRIPTION)
+    for (;;)
     {
-        savefile_read_string(file, buf, sizeof(buf));
-        o_ptr->inscription = quark_add(buf);
-    }
-    else o_ptr->inscription = 0;
+        byte code = savefile_read_byte(file);
+        if (code == SAVE_ITEM_DONE)
+            break;
 
-    if (flags & SAVE_ITEM_ART_NAME)
-    {
-        savefile_read_string(file, buf, sizeof(buf));
-        /* Hack: Patch up previously un-named artifacts */
-        if (buf[0] == '\0')
-            get_random_name(buf, o_ptr, 2);
-        o_ptr->art_name = quark_add(buf);
+        switch (code)
+        {
+        case SAVE_ITEM_PVAL:
+            o_ptr->pval = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_DISCOUNT:
+            o_ptr->discount = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_NUMBER:
+            o_ptr->number = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_NAME1:
+            o_ptr->name1 = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_NAME2:
+            o_ptr->name2 = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_NAME3:
+            o_ptr->name3 = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_TIMEOUT:
+            o_ptr->timeout = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_COMBAT:
+            o_ptr->to_h = savefile_read_s16b(file);
+            o_ptr->to_d = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_ARMOR:
+            o_ptr->to_a = savefile_read_s16b(file);
+            o_ptr->ac = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_DAMAGE_DICE:
+            o_ptr->dd = savefile_read_byte(file);
+            o_ptr->ds = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_IDENT:
+            o_ptr->ident = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_MARKED:
+            o_ptr->marked = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_ART_FLAGS_0:
+            o_ptr->art_flags[0] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_ART_FLAGS_1:
+            o_ptr->art_flags[1] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_ART_FLAGS_2:
+            o_ptr->art_flags[2] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_ART_FLAGS_3:
+            o_ptr->art_flags[3] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_ART_FLAGS_4:
+            o_ptr->art_flags[4] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_ART_FLAGS_5:
+            o_ptr->art_flags[5] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_CURSE_FLAGS:
+            o_ptr->curse_flags = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_RUNE_FLAGS:
+            o_ptr->rune = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_HELD_M_IDX:
+            o_ptr->held_m_idx = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_XTRA1:
+            o_ptr->xtra1 = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_XTRA2:
+            o_ptr->xtra2 = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_XTRA3:
+            o_ptr->xtra3 = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_XTRA4:
+            o_ptr->xtra4 = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_XTRA5:
+            o_ptr->xtra5 = savefile_read_s16b(file);
+            break;
+        case SAVE_ITEM_FEELING:
+            o_ptr->feeling = savefile_read_byte(file);
+            break;
+        case SAVE_ITEM_INSCRIPTION:
+            savefile_read_string(file, buf, sizeof(buf));
+            o_ptr->inscription = quark_add(buf);
+            break;
+        case SAVE_ITEM_ART_NAME:
+            savefile_read_string(file, buf, sizeof(buf));
+            o_ptr->art_name = quark_add(buf);
+            break;
+        case SAVE_ITEM_ACTIVATION:
+            o_ptr->activation.type = savefile_read_s16b(file);
+            o_ptr->activation.level = savefile_read_byte(file);
+            o_ptr->activation.timeout = savefile_read_s16b(file);
+            o_ptr->activation.extra = savefile_read_s16b(file);
+            break;
+        /* default:
+            TODO: Report an error back to the load routine!!*/
+        }
     }
-    else o_ptr->art_name = 0;
 }
 
 static void rd_monster(savefile_ptr file, monster_type *m_ptr)
 {
-    u32b flags;
     char buf[128];
+    int  which;
 
-    flags = savefile_read_u32b(file);
+    WIPE(m_ptr, monster_type);
 
     m_ptr->r_idx = savefile_read_s16b(file);
+    m_ptr->ap_r_idx = m_ptr->r_idx;
     m_ptr->fy = savefile_read_byte(file);
     m_ptr->fx = savefile_read_byte(file);
     m_ptr->hp = savefile_read_s16b(file);
     m_ptr->maxhp = savefile_read_s16b(file);
     m_ptr->max_maxhp = savefile_read_s16b(file);
-
-    if (flags & SAVE_MON_AP_R_IDX) m_ptr->ap_r_idx = savefile_read_s16b(file);
-    else m_ptr->ap_r_idx = m_ptr->r_idx;
-
-    if (flags & SAVE_MON_SUB_ALIGN) m_ptr->sub_align = savefile_read_byte(file);
-    else m_ptr->sub_align = 0;
-
-    if (flags & SAVE_MON_CSLEEP) m_ptr->mtimed[MTIMED_CSLEEP] = savefile_read_s16b(file);
-    else m_ptr->mtimed[MTIMED_CSLEEP] = 0;
-
     m_ptr->mspeed = savefile_read_byte(file);
     m_ptr->energy_need = savefile_read_s16b(file);
 
-    if (flags & SAVE_MON_FAST) m_ptr->mtimed[MTIMED_FAST] = (s16b)savefile_read_byte(file);
-    else m_ptr->mtimed[MTIMED_FAST] = 0;
-
-    if (flags & SAVE_MON_SLOW) m_ptr->mtimed[MTIMED_SLOW] = (s16b)savefile_read_byte(file);
-    else m_ptr->mtimed[MTIMED_SLOW] = 0;
-
-    if (flags & SAVE_MON_STUNNED) m_ptr->mtimed[MTIMED_STUNNED] = (s16b)savefile_read_byte(file);
-    else m_ptr->mtimed[MTIMED_STUNNED] = 0;
-
-    if (flags & SAVE_MON_CONFUSED) m_ptr->mtimed[MTIMED_CONFUSED] = (s16b)savefile_read_byte(file);
-    else m_ptr->mtimed[MTIMED_CONFUSED] = 0;
-
-    if (flags & SAVE_MON_MONFEAR) m_ptr->mtimed[MTIMED_MONFEAR] = (s16b)savefile_read_byte(file);
-    else m_ptr->mtimed[MTIMED_MONFEAR] = 0;
-
-    if (flags & SAVE_MON_TARGET_Y) m_ptr->target_y = savefile_read_s16b(file);
-    else m_ptr->target_y = 0;
-
-    if (flags & SAVE_MON_TARGET_X) m_ptr->target_x = savefile_read_s16b(file);
-    else m_ptr->target_x = 0;
-
-    if (flags & SAVE_MON_INVULNER) m_ptr->mtimed[MTIMED_INVULNER] = (s16b)savefile_read_byte(file);
-    else m_ptr->mtimed[MTIMED_INVULNER] = 0;
-
-    if (flags & SAVE_MON_SMART) m_ptr->smart = savefile_read_u32b(file);
-    else m_ptr->smart = 0;
-
-    if (flags & SAVE_MON_EXP) m_ptr->exp = savefile_read_u32b(file);
-    else m_ptr->exp = 0;
-
-    m_ptr->mflag = 0; /* Not saved */
-
-    if (flags & SAVE_MON_MFLAG2) m_ptr->mflag2 = savefile_read_u32b(file);
-    else m_ptr->mflag2 = 0;
-
-    if (flags & SAVE_MON_NICKNAME) 
+    for (;;)
     {
-        savefile_read_string(file, buf, sizeof(buf));
-        m_ptr->nickname = quark_add(buf);
+        byte code = savefile_read_byte(file);
+        if (code == SAVE_MON_DONE)
+            break;
+
+        switch (code)
+        {
+        case SAVE_MON_AP_R_IDX:
+            m_ptr->ap_r_idx = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_SUB_ALIGN:
+            m_ptr->sub_align = savefile_read_byte(file);
+            break;
+        case SAVE_MON_TIMER:
+            which = savefile_read_byte(file);
+            m_ptr->mtimed[which] = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_TARGET_Y:
+            m_ptr->target_y = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_TARGET_X:
+            m_ptr->target_x = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_SMART:
+            m_ptr->smart = savefile_read_u32b(file);
+            break;
+        case SAVE_MON_EXP:
+            m_ptr->exp = savefile_read_u32b(file);
+            break;
+        case SAVE_MON_MFLAG2:
+            m_ptr->mflag2 = savefile_read_u32b(file);
+            break;
+        case SAVE_MON_NICKNAME:
+            savefile_read_string(file, buf, sizeof(buf));
+            m_ptr->nickname = quark_add(buf);
+            break;
+        case SAVE_MON_PARENT:
+            m_ptr->parent_m_idx = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_PACK_IDX:
+            m_ptr->pack_idx = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_AC:
+            m_ptr->ac_adj = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_MELEE:
+            m_ptr->melee_adj = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_DROP_CT:
+            m_ptr->drop_ct = savefile_read_byte(file);
+            break;
+        case SAVE_MON_STOLEN_CT:
+            m_ptr->stolen_ct = savefile_read_byte(file);
+            break;
+        case SAVE_MON_SUMMON_CT:
+            m_ptr->summon_ct = savefile_read_u16b(file);
+            break;
+        case SAVE_MON_EGO_WHIP:
+            m_ptr->ego_whip_ct = savefile_read_byte(file);
+            m_ptr->ego_whip_pow = savefile_read_byte(file);
+            break;
+        case SAVE_MON_ANTI_MAGIC:
+            m_ptr->anti_magic_ct = savefile_read_byte(file);
+            break;
+        /* default:
+            TODO: Report an error back to the load routine!!*/
+        }
     }
-    else m_ptr->nickname = 0;
-
-    if (flags & SAVE_MON_PARENT) m_ptr->parent_m_idx = savefile_read_s16b(file);
-    else m_ptr->parent_m_idx = 0;
-
-    if (flags & SAVE_MON_PACK_IDX) m_ptr->pack_idx = savefile_read_s16b(file);
-    else m_ptr->pack_idx = 0;
-
-    if (flags & SAVE_MON_AC) m_ptr->ac_adj = savefile_read_s16b(file);
-    else m_ptr->ac_adj = 0;
-
-    if (flags & SAVE_MON_MELEE) m_ptr->melee_adj = savefile_read_s16b(file);
-    else m_ptr->melee_adj = 0;
-
-    m_ptr->drop_ct = savefile_read_byte(file);
-    m_ptr->stolen_ct = savefile_read_byte(file);
-    m_ptr->summon_ct = savefile_read_u16b(file);
 }
 
 static void rd_lore(savefile_ptr file, int r_idx)
@@ -390,13 +397,8 @@ static errr rd_store(savefile_ptr file, int town_number, int store_number)
         object_type forge;
         object_type *q_ptr;
 
-        /* Get local object */
         q_ptr = &forge;
 
-        /* Wipe the object */
-        object_wipe(q_ptr);
-
-        /* Read the item */
         rd_item(file, q_ptr);
 
         /* Acquire valid items */
@@ -918,7 +920,9 @@ static errr rd_inventory(savefile_ptr file)
 
         if (n == 0xFFFF) break;
 
-        object_wipe(&forge);
+        if (savefile_is_older_than(file, 3, 0, 0, 3) && n > 23)
+            n += 3;
+
         rd_item(file, &forge);
 
         if (!forge.k_idx) return (53);
@@ -1294,7 +1298,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
              "Loading a %d.%d.%d savefile...",
              (z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
 
-    if (savefile_is_older_than(file, 0, 9, 0, 1))
+    if (savefile_is_older_than(file, 3, 0, 0, 2))
     {
         note("Old savefiles are not supported!");
         return 1;
@@ -1458,8 +1462,10 @@ static errr rd_savefile_new_aux(savefile_ptr file)
 
         p_ptr->wilderness_x = savefile_read_s32b(file);
         p_ptr->wilderness_y = savefile_read_s32b(file);
+        p_ptr->wilderness_dx = savefile_read_s16b(file);
+        p_ptr->wilderness_dy = savefile_read_s16b(file);
         p_ptr->wild_mode = savefile_read_byte(file);
-        ambush_flag = savefile_read_byte(file);
+        savefile_read_skip(file, 1);
 
         wild_x_size = savefile_read_s32b(file);
         wild_y_size = savefile_read_s32b(file);

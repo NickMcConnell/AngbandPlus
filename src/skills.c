@@ -1,6 +1,19 @@
 #include "angband.h"
 
+#include <assert.h>
+
 skill_table *s_info;
+
+static int _class_idx(void)
+{
+    int result = p_ptr->pclass;
+    if (result == CLASS_MONSTER)
+    {
+        race_t *race_ptr = get_race_t();
+        result = race_ptr->pseudo_class_idx;
+    }
+    return result;
+}
 
 void skills_add(skills_t *dest, skills_t *src)
 {
@@ -40,7 +53,7 @@ void skills_init(skills_t *dest)
 
 int skills_bow_current(int sval)
 {
-    int max = skills_weapon_max(TV_BOW, sval);
+    int max = skills_bow_max(sval);
     int cur = p_ptr->weapon_exp[0][sval];
 
     if (cur > max)
@@ -54,10 +67,10 @@ int skills_bow_max(int sval)
     if (mut_present(MUT_WEAPON_SKILLS))
         return WEAPON_EXP_MASTER;
 
-    if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS)
+    if (demigod_is_(DEMIGOD_ARTEMIS))
         return WEAPON_EXP_MASTER;
 
-    return s_info[p_ptr->pclass].w_max[0][sval];
+    return s_info[_class_idx()].w_max[0][sval];
 }
 
 void skills_bow_gain(int sval)
@@ -98,14 +111,14 @@ int skills_weapon_current(int tval, int sval)
 
 int skills_weapon_max(int tval, int sval)
 {
-    /* Hack: In case somebody calls this instead of skills_bow_max() */
-    if (tval == TV_BOW && p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS)
-        return WEAPON_EXP_MASTER;
-
     if (mut_present(MUT_WEAPON_SKILLS))
         return WEAPON_EXP_MASTER;
 
-    return s_info[p_ptr->pclass].w_max[tval-TV_WEAPON_BEGIN][sval];
+    /* Hack: In case somebody calls this instead of skills_bow_max() */
+    if (tval == TV_BOW && demigod_is_(DEMIGOD_ARTEMIS))
+        return WEAPON_EXP_MASTER;
+
+    return s_info[_class_idx()].w_max[tval-TV_WEAPON_BEGIN][sval];
 }
 
 void skills_weapon_gain(int tval, int sval)
@@ -155,4 +168,154 @@ bool skills_weapon_is_icky(int tval, int sval)
         break;
     }
     return result;
+}
+
+void skills_on_birth(void)
+{
+    int i, j;
+    int class_idx = _class_idx();
+    for (i = 0; i < 5; i++)
+    {
+        for (j = 0; j < 64; j++)
+        {
+            if (i == TV_BOW-TV_WEAPON_BEGIN && demigod_is_(DEMIGOD_ARTEMIS))
+                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
+            else if (demigod_is_(DEMIGOD_ARES))
+                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
+            else
+                p_ptr->weapon_exp[i][j] = s_info[class_idx].w_start[i][j];
+        }
+    }
+    if (p_ptr->personality == PERS_SEXY)
+        p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = MAX(WEAPON_EXP_BEGINNER, p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP]);
+    for (i = 0; i < 10; i++)
+        p_ptr->skill_exp[i] = s_info[class_idx].s_start[i];
+}
+
+void skills_martial_arts_gain(void)
+{
+    int current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
+    int max = s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
+    
+    if (current < max)
+    {
+        if (current < WEAPON_EXP_BEGINNER)
+            current += 40;
+        else if (current < WEAPON_EXP_SKILLED)
+            current += 5;
+        else if (current < WEAPON_EXP_EXPERT && p_ptr->lev > 19)
+            current += 1;
+        else if (p_ptr->lev > 34 && one_in_(3)) 
+            current += 1;
+
+        p_ptr->skill_exp[SKILL_MARTIAL_ARTS] = MIN(current, max);
+        p_ptr->update |= PU_BONUS;
+    }
+}
+
+int skills_martial_arts_current(void)
+{
+    int current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
+    int max = s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
+    return MIN(current, max);
+}
+
+int skills_martial_arts_max(void)
+{
+    return s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
+}
+
+void skills_dual_wielding_gain(monster_race *r_ptr)
+{
+    int current = p_ptr->skill_exp[SKILL_DUAL_WIELDING];
+    int max = s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
+    
+    if (current < max && (current - 1000) / 200 < r_ptr->level)
+    {
+        if (current < WEAPON_EXP_BEGINNER)
+            current += 80;
+        else if (current < WEAPON_EXP_SKILLED)
+            current += 4;
+        else if (current < WEAPON_EXP_EXPERT)
+            current += 1;
+        else if (current < WEAPON_EXP_MASTER && one_in_(3)) 
+            current += 1;
+
+        p_ptr->skill_exp[SKILL_DUAL_WIELDING] = MIN(current, max);
+        p_ptr->update |= PU_BONUS;
+    }
+}
+
+int skills_dual_wielding_current(void)
+{
+    int current = p_ptr->skill_exp[SKILL_DUAL_WIELDING];
+    int max = s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
+    return MIN(current, max);
+}
+
+int skills_dual_wielding_max(void)
+{
+    return s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
+}
+
+void skills_riding_gain_melee(monster_race *r_ptr)
+{
+    int current = p_ptr->skill_exp[SKILL_RIDING];
+    int max = s_info[_class_idx()].s_max[SKILL_RIDING];
+
+    assert(p_ptr->riding);
+
+    if (current < max)
+    {
+        int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
+        int inc = 0;
+
+        if (current/200 - 5 < r_ptr->level)
+            inc += 1;
+
+        if (current/100 < ridinglevel)
+        {
+            if (current/100 + 15 < ridinglevel)
+                inc += 1 + ridinglevel - (current/100 + 15);
+            else
+                inc += 1;
+        }
+
+        if (inc)
+        {
+            p_ptr->skill_exp[SKILL_RIDING] = MIN(max, current + inc);
+            p_ptr->update |= PU_BONUS;
+        }
+    }
+}
+
+void skills_riding_gain_archery(monster_race *r_ptr)
+{
+    int current = p_ptr->skill_exp[SKILL_RIDING];
+    int max = s_info[_class_idx()].s_max[SKILL_RIDING];
+
+    assert(p_ptr->riding);
+
+    if (current < max)
+    {
+        int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
+        
+        if ((current - RIDING_EXP_BEGINNER*2) / 200 < ridinglevel && one_in_(2))
+        {
+            p_ptr->skill_exp[SKILL_RIDING] += 1;
+            p_ptr->update |= PU_BONUS;
+        }
+    }
+}
+
+int skills_riding_current(void)
+{
+    int current = p_ptr->skill_exp[SKILL_RIDING];
+    int max = s_info[_class_idx()].s_max[SKILL_RIDING];
+    return MIN(current, max);
+}
+
+int skills_riding_max(void)
+{
+    return s_info[_class_idx()].s_max[SKILL_RIDING];
 }

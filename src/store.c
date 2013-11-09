@@ -1815,7 +1815,6 @@ static bool _alchemist_accept(int k_idx)
         case SV_SCROLL_RECHARGING:
         case SV_SCROLL_WORD_OF_RECALL:
         case SV_SCROLL_STAR_IDENTIFY:
-        case SV_SCROLL_ARTIFACT: /* :D */
             return TRUE;
         }
         return FALSE;
@@ -1847,34 +1846,6 @@ static bool _magic_accept(int k_idx)
 
     switch (k_info[k_idx].tval)
     {
-    case TV_RING:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_RING_PROTECTION:
-        case SV_RING_LEVITATION_FALL:
-        case SV_RING_RESIST_FIRE:
-        case SV_RING_RESIST_COLD:
-        case SV_RING_SUSTAIN_INT:
-        case SV_RING_WARNING:
-            return TRUE;
-        }
-        return FALSE;
-        break;
-
-    case TV_AMULET:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_AMULET_ADORNMENT:
-        case SV_AMULET_RESIST_ACID:
-        case SV_AMULET_SEARCHING:
-        case SV_AMULET_RESIST_FIRE:
-        case SV_AMULET_RESIST_COLD:
-        case SV_AMULET_RESIST_ELEC:
-            return TRUE;
-        }
-        return FALSE;
-        break;
-
     case TV_WAND:
     case TV_STAFF:
         if (k_info[k_idx].level < 20)
@@ -1964,6 +1935,10 @@ static bool _get_store_obj2(object_type *o_ptr)
     {
         k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     }
+    else if (cur_store_num == STORE_ALCHEMIST && one_in_(20))
+    {
+        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
+    }
     else if (cur_store_num == STORE_GENERAL && one_in_(50))
     {
         k_idx = lookup_kind(TV_CAPTURE, 0);
@@ -2024,6 +1999,7 @@ static void store_create(void)
 
             /* No "worthless" items */
             /* if (object_value(q_ptr) <= 0) continue; */
+            if (object_is_cursed(&forge)) continue;
         }
 
         /* Prune normal stores */
@@ -2031,6 +2007,7 @@ static void store_create(void)
         {
             /* No "worthless" items */
             if (object_value(&forge) <= 0) continue;
+            if (object_is_cursed(&forge)) continue;
         }
 
         /* Mass produce and/or Apply discount (mass_produce needs to know about the discount) */
@@ -5076,7 +5053,7 @@ static void _buyout(void)
             int auto_pick_idx = is_autopick(j_ptr);
 
             if (auto_pick_idx >= 0 && autopick_list[auto_pick_idx].action & DO_AUTODESTROY)
-                    destroy = TRUE;
+                destroy = TRUE;
             
             if (!destroy && !inven_carry_okay(o_ptr))
             {

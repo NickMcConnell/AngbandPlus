@@ -9,7 +9,7 @@ static int _current_realm_hack = 0;
 
 int spell_power_aux(int pow, int bonus)
 {
-    return pow + pow*bonus/13;
+    return MAX(0, pow + pow*bonus/13);
 }
 
 int spell_power(int pow)
@@ -17,14 +17,14 @@ int spell_power(int pow)
     int tmp = p_ptr->spell_power;
     if (p_ptr->tim_blood_rite)
         tmp += 7;
-    if (_current_realm_hack && _current_realm_hack == p_ptr->easy_realm1)
-        tmp += 2;
+/*  if (_current_realm_hack && _current_realm_hack == p_ptr->easy_realm1)
+        tmp += 2; */
     return spell_power_aux(pow, tmp);
 }
 
 int device_power_aux(int pow, int bonus)
 {
-    return pow + pow*bonus/20;
+    return MAX(0, pow + pow*bonus/20);
 }
 
 int device_power(int pow)
@@ -34,7 +34,7 @@ int device_power(int pow)
 
 int spell_cap_aux(int cap, int bonus)
 {
-    return cap + cap*bonus/13;
+    return MAX(0, cap + cap*bonus/20);
 }
 
 int spell_cap(int cap)
@@ -154,7 +154,7 @@ cptr info_radius(int rad)
 /*
  * Generate weight info string such as "max wgt 15"
  */
-static cptr info_weight(int weight)
+cptr info_weight(int weight)
 {
     return format("max wgt %d", weight/10);
 }
@@ -2688,9 +2688,9 @@ static cptr do_nature_spell(int spell, int mode)
 
             case 5: /* Elemental Storm */
                 msg_print("You unleash the elements!");
-                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_FIRE, PROJECT_KILL | PROJECT_ITEM, -1);
-                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_COLD, PROJECT_KILL | PROJECT_ITEM, -1);
-                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_ELEC, PROJECT_KILL | PROJECT_ITEM, -1);
+                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_FIRE, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_COLD, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_ELEC, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
                 break;
 
             case 6: /* Rock Storm */
@@ -3147,7 +3147,7 @@ static cptr do_chaos_spell(int spell, int mode)
         {
             if (cast)
             {
-                brand_weapon(EGO_CHAOTIC);
+                brand_weapon(EGO_WEAPON_CHAOS);
             }
         }
         break;
@@ -3593,7 +3593,7 @@ static cptr do_death_spell(int spell, int mode)
         {
             if (cast)
             {
-                brand_weapon(EGO_BRAND_POIS);
+                brand_weapon(EGO_WEAPON_VENOM);
             }
         }
         break;
@@ -3750,7 +3750,7 @@ static cptr do_death_spell(int spell, int mode)
         {
             if (cast)
             {
-                brand_weapon(EGO_VAMPIRIC);
+                brand_weapon(EGO_WEAPON_DEATH);
             }
         }
         break;
@@ -4426,7 +4426,7 @@ static cptr do_trump_spell(int spell, int mode)
         {
             if (cast)
             {
-                brand_weapon(EGO_TRUMP);
+                brand_weapon(EGO_WEAPON_TRUMP);
             }
         }
         break;
@@ -5247,7 +5247,8 @@ static cptr do_craft_spell(int spell, int mode)
             {
                 if (flush_failure) flush();
                 msg_print("The enchantment failed.");
-                if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
+                if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100) 
+                    virtue_add(VIRTUE_ENCHANTMENT, -1);
             }
             else
             {
@@ -6004,7 +6005,7 @@ static cptr do_daemon_spell(int spell, int mode)
         {
             if (cast)
             {
-                brand_weapon(EGO_BRAND_FIRE);
+                brand_weapon(EGO_WEAPON_BURNING);
             }
         }
         break;
@@ -6724,7 +6725,7 @@ static cptr do_crusade_spell(int spell, int mode)
         {
             if (cast)
             {
-                brand_weapon(EGO_SLAY_EVIL);
+                brand_weapon(EGO_WEAPON_SLAY_EVIL);
             }
         }
         break;
@@ -6932,7 +6933,7 @@ static cptr do_crusade_spell(int spell, int mode)
                         if (cave_empty_bold2(my, mx)) break;
                     }
                     if (attempt < 0) continue;
-                    summon_specific(-1, my, mx, plev, SUMMON_KNIGHTS, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
+                    summon_specific(-1, my, mx, plev, SUMMON_KNIGHT, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
                 }
                 set_hero(randint1(base) + base, FALSE);
                 set_blessed(randint1(base) + base, FALSE);

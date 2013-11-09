@@ -1674,7 +1674,7 @@ void get_max_stats(void)
         for (j = i = 0; i < 6; i++)
         {
             /* Roll the dice */
-            roll = randint1(5);
+            roll = randint1(7);
 
             dice[i] = roll;
 
@@ -1683,13 +1683,13 @@ void get_max_stats(void)
         }
 
         /* Verify totals */
-        if (j == 18) break;
+        if (j == 24) break;
     }
 
     /* Acquire the stats */
     for (i = 0; i < 6; i++)
     {
-        j = 18 + 70 + dice[i]*10;
+        j = 18 + 60 + dice[i]*10;
 
         /* Save that value */
         p_ptr->stat_max_max[i] = j;
@@ -1731,7 +1731,7 @@ int calc_exp_factor(void)
  */
 static void get_extra(bool roll_hitdie)
 {
-    int i, j;
+    int i;
     race_t *race_ptr = get_race_t();
 
     p_ptr->expfact = calc_exp_factor();
@@ -1749,25 +1749,7 @@ static void get_extra(bool roll_hitdie)
         else p_ptr->spell_exp[i] = SPELL_EXP_UNSKILLED;
     }
 
-    for (i = 0; i < 5; i++)
-    {
-        for (j = 0; j < 64; j++)
-        {
-            if (i == TV_BOW-TV_WEAPON_BEGIN && p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS)
-                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
-            else if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARES)
-                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
-            else
-                p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_start[i][j];
-        }
-    }
-    if ((p_ptr->personality == PERS_SEXY) && (p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] < WEAPON_EXP_BEGINNER))
-    {
-        p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_BEGINNER;
-    }
-
-    for (i = 0; i < 10; i++)
-        p_ptr->skill_exp[i] = s_info[p_ptr->pclass].s_start[i];
+    skills_on_birth();
 
     /* Roll for hit point unless quick-start */
     if (roll_hitdie) do_cmd_rerate_aux();
@@ -2305,7 +2287,7 @@ static byte player_init[MAX_CLASS][3][2] =
 {
     {
         /* Warrior */
-        { TV_RING, SV_RING_STR },
+        { TV_BOW, SV_LIGHT_XBOW },
         { TV_HARD_ARMOR, SV_CHAIN_MAIL },
         { TV_SWORD, SV_BROAD_SWORD }
     },
@@ -2376,8 +2358,8 @@ static byte player_init[MAX_CLASS][3][2] =
     {
         /* High Mage */
         { TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-        { TV_RING, SV_RING_SUSTAIN_INT},
-        { TV_SWORD, SV_DAGGER }
+        { TV_SWORD, SV_DAGGER },
+        { TV_POTION, SV_POTION_RESTORE_MANA }
     },
 
     {
@@ -2403,9 +2385,9 @@ static byte player_init[MAX_CLASS][3][2] =
 
     {
         /* Sorcerer */
-        { TV_HAFTED, SV_WIZSTAFF }, /* Hack: for realm1 book */
-        { TV_RING, SV_RING_SUSTAIN_INT},
-        { TV_WAND, SV_WAND_MAGIC_MISSILE }
+        { TV_HAFTED, SV_WIZSTAFF },
+        { TV_WAND, SV_WAND_MAGIC_MISSILE },
+        { TV_POTION, SV_POTION_RESTORE_MANA }
     },
 
     {
@@ -2473,15 +2455,15 @@ static byte player_init[MAX_CLASS][3][2] =
 
     {
         /* Weaponsmith */
-        { TV_RING, SV_RING_STR },
         { TV_HARD_ARMOR, SV_CHAIN_MAIL },
-        { TV_POLEARM, SV_BROAD_AXE }
+        { TV_POLEARM, SV_BROAD_AXE },
+        { TV_BOW, SV_LIGHT_XBOW }
     },
     {
         /* Mirror-Master */
         { TV_POTION, SV_POTION_SPEED },
-        { TV_RING, SV_RING_SUSTAIN_INT},
-        { TV_SWORD, SV_DAGGER }
+        { TV_SWORD, SV_DAGGER },
+        { TV_POTION, SV_POTION_RESTORE_MANA }
     },
     {
         /* Ninja */
@@ -2521,9 +2503,9 @@ static byte player_init[MAX_CLASS][3][2] =
     },
     {
         /* Duelist */
-        { TV_RING, SV_RING_STR },
         { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
         { TV_SWORD, SV_RAPIER },
+        { TV_GLOVES, SV_SET_OF_GAUNTLETS },
     },
     {
         /* Wild-Talent */
@@ -2554,15 +2536,15 @@ static byte player_init[MAX_CLASS][3][2] =
     {
         /* Necromancer */
         { TV_NECROMANCY_BOOK, 0 },
-        { TV_RING, SV_RING_SUSTAIN_INT},
         { TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+        { TV_WHISTLE, 0 },
     },
 
     {
         /* Psion */
         { TV_SWORD, SV_SMALL_SWORD },
-        { TV_RING, SV_RING_SUSTAIN_INT},
         { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+        { TV_POTION, SV_POTION_RESTORE_MANA }
     },
 
     {
@@ -2581,9 +2563,9 @@ static byte player_init[MAX_CLASS][3][2] =
 
     {
         /* Mauler */
-        { TV_RING, SV_RING_STR },
         { TV_HARD_ARMOR, SV_CHAIN_MAIL },
-        { TV_SWORD, SV_TWO_HANDED_SWORD }
+        { TV_SWORD, SV_TWO_HANDED_SWORD },
+        { TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS },
     },
 
     {
@@ -2818,11 +2800,6 @@ void player_outfit(void)
         /* Hack to initialize spellbooks */
         if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
         else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
-        else if (tv == TV_RING && sv == SV_RING_SUSTAIN_INT && p_ptr->prace == RACE_MIND_FLAYER)
-        {
-            tv = TV_POTION;
-            sv = SV_POTION_RESTORE_MANA;
-        }
 
         k_idx = lookup_kind(tv, sv);
         if (!k_idx) continue;
@@ -2832,7 +2809,7 @@ void player_outfit(void)
         if ((tv == TV_SWORD || tv == TV_HAFTED) && (p_ptr->pclass == CLASS_ROGUE &&
             p_ptr->realm1 == REALM_DEATH)) /* Only assassins get a poisoned weapon */
         {
-            forge.name2 = EGO_BRAND_POIS;
+            forge.name2 = EGO_WEAPON_VENOM;
         }
 
         /* Hack: Rune-Knights begin with an Absorption Rune on their broad sword (or whip if sexy) */
@@ -2846,11 +2823,6 @@ void player_outfit(void)
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
                 rune_add(&forge, RUNE_ABSORPTION, FALSE);
         }
-
-        if (tv == TV_RING && sv == SV_RING_STR)
-            forge.pval = 1;
-        if (tv == TV_RING && sv == SV_RING_DAMAGE)
-            forge.to_d = 5;
 
         add_outfit(&forge);
     }

@@ -3316,21 +3316,6 @@ static cptr do_cmd_feeling_text[11] =
     "What a boring place..."
 };
 
-static cptr do_cmd_feeling_text_combat[11] =
-{
-    "Looks like any other level.",
-    "You feel there is something special about this level.",
-    "You nearly faint as horrible visions of death fill your mind!",
-    "This level looks very dangerous.",
-    "You have a very bad feeling...",
-    "You have a bad feeling...",
-    "You feel nervous.",
-    "You feel your luck is turning...",
-    "You don't like the look of this place.",
-    "This level looks reasonably safe.",
-    "What a boring place..."
-};
-
 static cptr do_cmd_feeling_text_lucky[11] =
 {
     "Looks like any other level.",
@@ -3389,8 +3374,6 @@ void do_cmd_feeling(void)
     /* Display the feeling */
     if (p_ptr->good_luck || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
         msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
-    else if (p_ptr->personality == PERS_COMBAT || equip_find_artifact(ART_CRIMSON))
-        msg_print(do_cmd_feeling_text_combat[p_ptr->feeling]);
     else
         msg_print(do_cmd_feeling_text[p_ptr->feeling]);
 }
@@ -4084,13 +4067,7 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, int *j, by
      * have random resistances.
      */
     if ((object_is_wearable(o_ptr) && object_is_ego(o_ptr))
-        || ((tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_RESISTANCE))
-        || ((tval == TV_RING) && (o_ptr->sval == SV_RING_LORDLY))
-        || ((tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD))
-        || ((tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM))
-        || ((tval == TV_GLOVES) && (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES))
-        || ((tval == TV_BOOTS) && (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE))
-        || ((tval == TV_CLOAK) && (o_ptr->sval == SV_DRAGON_CLOAK))
+        || object_is_dragon_armor(o_ptr)
         || object_is_artifact(o_ptr))
     {
         int i = 0;
@@ -5214,40 +5191,57 @@ static void do_cmd_knowledge_spell_exp(void)
  */
 static void do_cmd_knowledge_skill_exp(void)
 {
-    int i = 0, skill_exp;
-
+    int i = 0, skill_exp, skill_max;
     FILE *fff;
-
     char file_name[1024];
-    char skill_name[3][20]={"Martial Arts    ", "Dual Wielding   ", "Riding          "};
 
-    /* Open a new file */
     fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
+    if (!fff) 
+    {
         msg_format("Failed to create temporary file %s.", file_name);
         msg_print(NULL);
         return;
     }
 
-    for (i = 0; i < 3; i++)
-    {
-        skill_exp = p_ptr->skill_exp[i];
-        fprintf(fff, "%-20s ", skill_name[i]);
-        if (skill_exp >= s_info[p_ptr->pclass].s_max[i]) fprintf(fff, "!");
-        else fprintf(fff, " ");
-        fprintf(fff, "%s", exp_level_str[(i == GINOU_RIDING) ? riding_exp_level(skill_exp) : weapon_exp_level(skill_exp)]);
-        if (cheat_xtra) fprintf(fff, " %d", skill_exp);
-        fprintf(fff, "\n");
-    }
+    fprintf(fff, "%-20s ", "Martial Arts    ");
+    skill_exp = skills_martial_arts_current();
+    skill_max = skills_martial_arts_max();
+    if (skill_exp >= skill_max)
+        fprintf(fff, "!");
+    else 
+        fprintf(fff, " ");
 
-    /* Close the file */
+    fprintf(fff, "%s", exp_level_str[weapon_exp_level(skill_exp)]);
+    if (cheat_xtra) fprintf(fff, " %d", skill_exp);
+    fprintf(fff, "\n");
+
+
+    fprintf(fff, "%-20s ", "Dual Wielding   ");
+    skill_exp = skills_dual_wielding_current();
+    skill_max = skills_dual_wielding_max();
+    if (skill_exp >= skill_max)
+        fprintf(fff, "!");
+    else 
+        fprintf(fff, " ");
+
+    fprintf(fff, "%s", exp_level_str[weapon_exp_level(skill_exp)]);
+    if (cheat_xtra) fprintf(fff, " %d", skill_exp);
+    fprintf(fff, "\n");
+
+    fprintf(fff, "%-20s ", "Riding          ");
+    skill_exp = skills_riding_current();
+    skill_max = skills_riding_max();
+    if (skill_exp >= skill_max)
+        fprintf(fff, "!");
+    else 
+        fprintf(fff, " ");
+
+    fprintf(fff, "%s", exp_level_str[riding_exp_level(skill_exp)]);
+    if (cheat_xtra) fprintf(fff, " %d", skill_exp);
+    fprintf(fff, "\n");
+
     my_fclose(fff);
-
-    /* Display the file contents */
     show_file(TRUE, file_name, "Miscellaneous Proficiency", 0, 0);
-
-
-    /* Remove the file */
     fd_kill(file_name);
 }
 

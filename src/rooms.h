@@ -42,9 +42,29 @@
 #define ROOM_T_TRAP_PIT      12     /* Trapped monster pit */
 #define ROOM_T_TRAP          13     /* Piranha/Armageddon trap room */
 #define ROOM_T_GLASS         14     /* Glass room */
+#define ROOM_T_TEMPLATE      15
 
-#define ROOM_T_MAX 15
+#define ROOM_T_MAX 16
 
+/* Constants for room_template_t types and subtypes. I would use
+   ROOM_T_* above except the code is unable to handle addition of subtypes.
+   Currently, choose_room_template uses these to pick an appropriate
+   template as specified in v_info.txt. */
+enum room_type_e {
+    ROOM_UNKNOWN,
+    ROOM_VAULT,
+    ROOM_NORMAL,
+    ROOM_WILDERNESS,
+    ROOM_AMBUSH,
+};
+
+enum vault_type_e {
+    VAULT_UNKNOWN,
+    VAULT_LESSER,
+    VAULT_GREATER,
+};
+
+/* ROOM_WILDERNESS uses TERRAIN_* values as the subtype */
 
 /*
  * Room type information
@@ -69,4 +89,8 @@ extern void build_cavern(void);
 
 extern bool generate_rooms(void);
 extern void build_maze_vault(int x0, int y0, int xsize, int ysize, bool is_vault);
-
+extern room_template_t *choose_room_template(int type, int subtype);
+extern void build_room_template_aux(const room_template_t *room_ptr, int yval, int xval, int xoffset, int yoffset, int transno);
+extern void coord_trans(int *x, int *y, int xoffset, int yoffset, int transno);
+extern bool vault_aux_chapel_g(int r_idx);
+extern bool vault_aux_chapel_e(int r_idx);

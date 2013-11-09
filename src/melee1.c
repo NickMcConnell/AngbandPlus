@@ -76,15 +76,6 @@ int check_hit(int power, int level, int stun, int m_idx)
         ac += 100;
     }
 
-#ifdef _DEBUG
-    {
-        int odds = 95*(i - ac*3/4)*1000/(i*100);
-        if (stun) odds /= 2;
-        if (odds < 50) odds = 50;
-        msg_format("MonHit?: %d.%d%% (AC=%d, Lvl=%d, Power=%d)", odds/10, odds%10, ac, level, power);
-    }
-#endif
-
     if (stun && one_in_(2)) return FALSE;
 
     /* Hack -- Always miss or hit */

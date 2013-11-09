@@ -451,10 +451,10 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
                 bol_mark = TRUE;
                 break;
 
-            case FEEL_TERRIBLE:
+            /*case FEEL_TERRIBLE:
             case FEEL_WORTHLESS:
                 ADD_FLG(FLG_WORTHLESS);
-                break;
+                break;*/
 
             case FEEL_EXCELLENT:
                 ADD_FLG(FLG_EGO);
@@ -1140,8 +1140,6 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
             {
             case FEEL_AVERAGE:
             case FEEL_GOOD:
-            case FEEL_BROKEN:
-            case FEEL_CURSED:
                 /* It's nameless */
                 break;
 
@@ -1722,13 +1720,13 @@ static byte _get_object_feeling(object_type *o_ptr)
 {
     if (object_is_artifact(o_ptr))
     {
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
         return FEEL_SPECIAL;
     }
 
     if (object_is_ego(o_ptr))
     {
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_WORTHLESS;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
         return FEEL_EXCELLENT;
     }
 
@@ -1994,7 +1992,7 @@ bool autopick_autoregister(object_type *o_ptr)
     /* Known to be an artifact? */
     if ((object_is_known(o_ptr) && object_is_artifact(o_ptr)) ||
         ((o_ptr->ident & IDENT_SENSE) &&
-         (o_ptr->feeling == FEEL_TERRIBLE || o_ptr->feeling == FEEL_SPECIAL)))
+         (o_ptr->feeling == FEEL_SPECIAL)))
     {
         char o_name[MAX_NLEN];
 

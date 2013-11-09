@@ -1590,7 +1590,8 @@ void enchantment_spell(int cmd, variant *res)
         {
             if (flush_failure) flush();
             msg_print("The enchantment failed.");
-            if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
+            if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100) 
+                virtue_add(VIRTUE_ENCHANTMENT, -1);
         }
         else
             virtue_add(VIRTUE_ENCHANTMENT, 1);

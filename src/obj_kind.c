@@ -36,16 +36,30 @@ bool have_pval_flags(u32b flgs[TR_FLAG_SIZE])
       || have_flag(flgs, TR_CON)
       || have_flag(flgs, TR_CHR)
       || have_flag(flgs, TR_MAGIC_MASTERY)
+      || have_flag(flgs, TR_MAGIC_RESISTANCE)
       || have_flag(flgs, TR_STEALTH)
       || have_flag(flgs, TR_SEARCH)
       || have_flag(flgs, TR_INFRA)
       || have_flag(flgs, TR_TUNNEL)
       || have_flag(flgs, TR_SPEED)
       || have_flag(flgs, TR_BLOWS)
+      || have_flag(flgs, TR_XTRA_SHOTS) /* But only for Rings of Archery! */
       || have_flag(flgs, TR_SPELL_POWER)
       || have_flag(flgs, TR_SPELL_CAP) 
       || have_flag(flgs, TR_WEAPONMASTERY) 
-      || have_flag(flgs, TR_LIFE) )
+      || have_flag(flgs, TR_LIFE) 
+      || have_flag(flgs, TR_DEC_STR)
+      || have_flag(flgs, TR_DEC_INT)
+      || have_flag(flgs, TR_DEC_WIS)
+      || have_flag(flgs, TR_DEC_DEX)
+      || have_flag(flgs, TR_DEC_CON)
+      || have_flag(flgs, TR_DEC_CHR)
+      || have_flag(flgs, TR_DEC_STEALTH)
+      || have_flag(flgs, TR_DEC_SPEED)
+      || have_flag(flgs, TR_DEC_LIFE)
+      || have_flag(flgs, TR_DEC_MAGIC_MASTERY)
+      || have_flag(flgs, TR_DEC_SPELL_CAP)
+      || have_flag(flgs, TR_DEC_SPELL_POWER) )
     {
         return TRUE;
     }
@@ -445,6 +459,28 @@ bool object_is_artifact(object_type *o_ptr)
     return FALSE;
 }
 
+bool object_is_dragon_armor(object_type *o_ptr)
+{
+    /* TODO: Better name? This is all the dragon armor that gets bonus resistances
+       and does not include Dragon Scale Mail */
+
+    if (o_ptr->tval == TV_HELM && o_ptr->sval == SV_DRAGON_HELM)
+        return TRUE;
+
+    if (o_ptr->tval == TV_CLOAK && o_ptr->sval == SV_DRAGON_CLOAK)
+        return TRUE;
+
+    if (o_ptr->tval == TV_SHIELD && o_ptr->sval == SV_DRAGON_SHIELD)
+        return TRUE;
+
+    if (o_ptr->tval == TV_GLOVES && o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)
+        return TRUE;
+
+    if (o_ptr->tval == TV_BOOTS && o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)
+        return TRUE;
+
+    return FALSE;
+}
 
 /*
  * Check if an object is neither artifact, ego, nor 'smith' object

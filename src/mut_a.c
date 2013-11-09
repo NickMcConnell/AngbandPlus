@@ -2224,6 +2224,34 @@ void tentacles_mut(int cmd, variant *res)
     }
 }
 
+void tread_softly_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Tread Softly");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your stealth is increased.");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel your stealth increase.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You feel your stealth return to normal.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Your stealth will increase.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->skills.stl += 3;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void trunk_mut(int cmd, variant *res)
 {
     switch (cmd)

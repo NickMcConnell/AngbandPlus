@@ -254,7 +254,6 @@ F:STACK
 D:Twice-cooked for good keeping qualities, this lump of bread is as hard as a 
 D:rock and about as tasty.
 
-#"鹿肉"は誤訳
 N:23:& Strip~ of Venison
 G:,:u
 I:80:33:1500
@@ -270,7 +269,6 @@ A:1/1
 F:STACK
 D:An utterly hideous fungal growth.  It is strangely appealing...
 
-#waybread now fully satisfies the player, instead of increasing the food count.
 N:25:& Piece~ of Elvish Waybread
 G:,:B
 I:80:37:7500
@@ -751,9 +749,6 @@ I:19:24:0
 W:30:0:0:200:500
 A:30/2:40/2:60/2:80/2
 F:SHOW_MODS
-# Not all heavy crossbow is the arbalest with a crank!
-#D:$The arbalest is so powerful it has to be reinforced with metal and 
-#D:$requires a crank to be cocked.
 
 N:77:& Sling~
 G:}:u
@@ -826,8 +821,6 @@ A:3/1
 P:0:1d3:0:0:0
 F:SHOW_MODS
 F:STACK
-#D:$A grapestone-shaped slug of lead, the right heft for hurling from a sling.
-#D:スリングで投げるのに適した重さの、葡萄の粒のような鉛の塊だ。
 
 ##### Shovels and Picks #####
 
@@ -1075,10 +1068,6 @@ P:14:1d4:-5:0:-8
 D:Each link of this suit is brittle with rust, and the corroded rings 
 D:are stiff and weakened.
 
-# "hauberk"は元の意味は(袖無しの)胴鎧を指す言葉。 よく鎖かたびらで作ら
-# れたので後に転じてhauberkと言えば鎖かたびらの胴鎧、さらには鎖かたび
-# ら全般をも指すようになったが、ここでは「鎖かたびらの胴鎧」の意味で使
-# われていると思われる。 Mogami
 N:111:Augmented Chain Mail~
 G:[:s
 I:37:6:0
@@ -1171,18 +1160,13 @@ W:30:0:0:250:1000
 A:30/1
 P:16:1d4:-2:0:0
 
-# This shield does not belong here
-
 N:122:& Mirror Shield~
 G:[:B
 I:34:10:0
 W:70:0:0:100:10000
 A:70/8
 P:10:1d1:0:0:10
-F:IGNORE_ACID | REFLECT
-#D:$A shield of purest white, made of mithril, engraved with runes to keep 
-#D:$all hurt and harm from you.
-#D:傷と危険から守られるようにルーン文字が刻まれたミスリル製の純白の盾だ。
+F:IGNORE_ACID | REFLECT | RES_LITE
 
 ### The Cloaks ###
 
@@ -1265,277 +1249,23 @@ P:8:1d3:0:0:0
 D:An oval shield of wood covered by leather and rimmed with metal.  A large 
 D:iron shield boss offers excellent hand protection.
 
-##### Rings #####
+##### Jewelry #####
 
-N:132:Strength:Alexandrite
+N:132:& Ring~
 G:=:g
-I:45:24:0
-W:30:0:60:2:500
-A:30/1
-F:STR | HIDE_TYPE
+I:45:0:0
+W:10:0:0:2:500
+A:10/1:40/1:60/1
 
-N:133:Dexterity:Amethyst
-G:=:v
-I:45:26:0
-W:30:0:60:2:500
-A:30/1
-F:DEX | HIDE_TYPE
+#sequence gap
 
-N:134:Constitution:Aquamarine
-G:=:B
-I:45:27:0
-W:30:0:70:2:500
-A:30/1
-F:CON | HIDE_TYPE
-
-N:135:Lightning:Azurite
-G:=:B
-I:45:25:0
-W:35:0:0:2:3000
-A:50/1
-P:0:0d0:0:0:15
-F:RES_ELEC | IGNORE_ELEC | ACTIVATE
-
-N:136:Speed:Beryl
-G:=:G
-I:45:31:0
-W:70:0:0:2:50000
-A:70/1
-F:SPEED | HIDE_TYPE
-
-N:137:Searching:Bloodstone
-G:=:r
-I:45:23:0
-W:5:0:40:2:250
-A:5/1
-F:SEARCH | HIDE_TYPE
-
-N:138:Teleportation:Calcite
-G:=:w
-I:45:4:0
-W:5:0:30:2:250
-A:5/1
-F:TELEPORT | CURSED
-
-N:139:Slow Digestion:Carnelian
-G:=:r
-I:45:6:0
-W:5:0:20:2:250
-F:SLOW_DIGEST
-
-N:140:Resist Fire:Corundum
-G:=:s
-I:45:8:0
-W:10:0:30:2:250
-A:10/1
-F:RES_FIRE | IGNORE_FIRE
-
-N:141:Resist Cold:Diamond
-G:=:w
-I:45:9:0
-W:10:0:30:2:250
-A:10/1
-F:RES_COLD | IGNORE_COLD
-
-N:142:Levitation:Emerald
-G:=:g
-I:45:7:0
-W:5:0:30:2:200
-A:5/1
-F:LEVITATION
-
-N:143:Poison Resistance:Fluorite
-G:=:G
-I:45:20:0
-W:40:0:0:2:16000
-A:40/2
-F:RES_POIS
-
-N:144:Free Action:Garnet
-G:=:r
-I:45:21:0
-W:20:0:60:2:1500
-A:20/1
-F:FREE_ACT
-
-N:145:Weakness:Granite
-G:=:D
-I:45:2:-5
-W:5:0:20:2:0
-A:5/1
-F:CURSED | STR | HIDE_TYPE
-
-N:146:Flames:Jade
-G:=:G
-I:45:18:0
-W:35:0:0:2:3000
-A:50/1
-P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE | ACTIVATE
-
-N:147:Acid:Jasper
-G:=:u
-I:45:17:0
-W:35:0:0:2:3000
-A:50/1
-P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID | ACTIVATE
-
-N:148:Ice:Lapis Lazuli
-G:=:b
-I:45:19:0
-W:35:0:0:2:3000
-A:50/1
-P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD | ACTIVATE
-
-N:149:Woe:Malachite
-G:=:g
-I:45:0:-5
-W:50:0:0:2:0
-A:50/1
-F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE
-F:RANDOM_CURSE0
-
-N:150:Stupidity:Marble
-G:=:w
-I:45:3:-5
-W:5:0:30:2:0
-A:5/1
-F:CURSED | INT | HIDE_TYPE
-
-N:151:Damage:Moonstone
-G:=:W
-I:45:29:0
-W:20:0:0:2:500
-P:0:0d0:0:1:0
-A:20/1
-
-N:152:Accuracy:Onyx
-G:=:R
-I:45:28:0
-W:20:0:60:2:500
-P:0:0d0:1:0:0
-A:20/1
-
-N:153:Protection:Opal
-G:=:W
-I:45:16:0
-W:10:0:60:2:500
-A:10/1
-
-N:154:Aggravate Monster:Pearl
-G:=:w
-I:45:1:0
-W:5:0:30:2:0
-A:5/1
-F:CURSED | AGGRAVATE
-
-N:155:See Invisible:Quartz
-G:=:W
-I:45:22:0
-W:30:0:60:2:340
-A:30/1
-F:SEE_INVIS
-
-N:156:Sustain Strength:Quartzite
-G:=:W
-I:45:10:0
-W:30:0:70:2:750
-A:30/1
-F:SUST_STR
-
-N:157:Sustain Intelligence:Rhodonite
-G:=:R
-I:45:11:0
-W:30:0:70:2:600
-A:30/1
-F:SUST_INT
-
-N:158:Sustain Wisdom:Ruby
-G:=:r
-I:45:12:0
-W:30:0:70:2:600
-A:30/1
-F:SUST_WIS
-
-N:159:Sustain Constitution:Sapphire
-G:=:b
-I:45:13:0
-W:30:0:70:2:750
-A:30/1
-F:SUST_CON
-
-N:160:Sustain Dexterity:Tiger Eye
-G:=:y
-I:45:14:0
-W:30:0:70:2:750
-A:30/1
-F:SUST_DEX
-
-N:161:Sustain Charisma:Topaz
-G:=:y
-I:45:15:0
-W:30:0:70:2:500
-A:30/1
-F:SUST_CHR
-
-N:162:Slaying:Turquoise
-G:=:B
-I:45:30:0
-W:40:0:0:2:1000
-P:0:0d0:1:1:0
-A:40/1
-F:SHOW_MODS
-
-##### Amulets #####
-
-N:163:Brilliance:Amber
+N:163:& Amulet~
 G:":y
-I:40:6:0
-W:50:0:0:3:5000
-A:50/4
-F:INT | WIS | CHR | SUST_INT | SUST_WIS | SUST_CHR | HIDE_TYPE
+I:40:0:0
+W:10:0:0:2:500
+A:10/1:40/1:60/1
 
-N:164:Charisma:Driftwood
-G:":U
-I:40:7:0
-W:20:0:60:3:500
-A:20/1
-F:CHR | HIDE_TYPE
-
-N:165:Searching:Coral
-G:":w
-I:40:5:0
-W:30:0:50:3:600
-A:30/4
-F:SEARCH | HIDE_TYPE
-
-N:166:Teleportation:Agate
-G:":W
-I:40:1:0
-W:15:0:30:3:250
-A:15/1
-F:TELEPORT | CURSED
-
-N:167:Slow Digestion:Ivory
-G:":w
-I:40:3:0
-W:15:0:50:3:200
-F:SLOW_DIGEST
-
-N:168:Resist Acid:Obsidian
-G:":D
-I:40:4:0
-W:20:0:50:3:300
-A:20/1
-F:RES_ACID | IGNORE_ACID
-
-N:169:Adornment:Bone
-G:":w
-I:40:2:0
-W:15:0:30:3:20
-A:15/1
+#sequence gap
 
 ##### Extra armor #####
 
@@ -1546,26 +1276,7 @@ W:25:0:0:230:700
 A:25/1
 P:15:1d4:-2:0:0
 
-##### Additional amulets #####
-
-N:171:the Magi:Brass
-G:":U
-I:40:8:0
-W:50:0:0:3:30000
-A:50/4:80/3
-P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH | INFRA |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:172:Destruction:Bronze
-G:":U
-I:40:0:-5
-W:50:0:0:3:0
-A:50/1
-P:0:7d7:-5:-5:5
-F:CURSED | HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR | 
-F:TY_CURSE | NO_TELE | NO_MAGIC | REGEN | 
-F:HIDE_TYPE | RANDOM_CURSE2
+#sequence gap
 
 ##### Scrolls #####
 
@@ -1598,7 +1309,7 @@ N:177:*Identify*:triapp trolpet
 G:?:w
 I:70:13:0
 W:30:0:0:5:1500
-A:30/2:50/2:80/2:100/2
+A:30/1:50/1:80/1
 F:STACK
 
 N:178:Rumour:an gan nagblaa
@@ -1941,7 +1652,7 @@ N:225:Strength:Azure
 G:!:B
 I:75:48:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3:80/2
+A:20/6:30/3:60/3
 P:0:1d1:0:0:0
 
 N:226:Weakness:Blue
@@ -1964,7 +1675,7 @@ N:228:Intelligence:Black
 G:!:D
 I:75:49:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3:80/2
+A:20/6:30/3:60/3
 P:0:1d1:0:0:0
 
 N:229:Stupidity:Brown
@@ -1987,7 +1698,7 @@ N:231:Wisdom:Bubbling
 G:!:W
 I:75:50:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3:80/2
+A:20/6:30/3:60/3
 P:0:1d1:0:0:0
 
 N:232:Naivety:Chartreuse
@@ -2010,7 +1721,7 @@ N:234:Charisma:Copper Speckled
 G:!:U
 I:75:53:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3:80/2
+A:20/6:30/3:60/3
 P:0:1d1:0:0:0
 
 N:235:Ugliness:Crimson
@@ -2078,7 +1789,7 @@ N:243:Constitution:Green
 G:!:g
 I:75:52:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3:80/2
+A:20/6:30/3:60/3
 P:0:1d1:0:0:0
 
 N:244:Experience:Green Speckled
@@ -2140,7 +1851,7 @@ N:251:Dexterity:Metallic Red
 G:!:r
 I:75:51:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3:80/2
+A:20/6:30/3:60/3
 P:0:1d1:0:0:0
 
 N:252:Restore Dexterity:Metallic Green
@@ -2491,7 +2202,7 @@ N:297:Dragon's Breath:Lead-Plated
 G:-:s
 I:65:28:5
 W:50:0:0:10:2400
-A:50/4
+A:50/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2499,7 +2210,7 @@ N:298:Disintegrate:Ivory
 G:-:w
 I:65:25:4
 W:50:0:0:10:3000
-A:50/4
+A:50/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2507,7 +2218,7 @@ N:299:Rockets:Adamantite
 G:-:v
 I:65:29:4
 W:75:0:0:10:9500
-A:75/4
+A:75/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3261,6 +2972,8 @@ A:60/8
 P:40:2d4:-2:0:10
 F:RES_ACID |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ACID:30:30:130
+E:You breathe acid.
 D:A suit of utterly black scales, against which no metal or wood can rest.
 
 N:401:Blue Dragon Scale Mail~
@@ -3271,6 +2984,8 @@ A:40/8
 P:40:2d4:-2:0:10
 F:RES_ELEC |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ELEC:30:30:100
+E:You breathe lightning.
 D:A suit of scales as blue as sapphires, emitting eerie sparks and flashes as 
 D:you move about in it.
 
@@ -3282,6 +2997,8 @@ A:50/8
 P:40:2d4:-2:0:10
 F:RES_COLD |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_COLD:30:30:110
+E:You breathe frost.
 D:A suit of scales, coldly gleaming in frosty white.  A shiver runs down 
 D:through your spine even as you look at it.
 
@@ -3293,6 +3010,8 @@ A:80/8
 P:40:2d4:-2:0:10
 F:RES_FIRE |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_FIRE:30:50:200
+E:You breathe fire.
 D:A suit of scales, with all the reds of every fire ever lit.  The scar 
 D:tissue from an old burn aches as you put this armour on.
 
@@ -3304,9 +3023,8 @@ A:70/8
 P:40:2d4:-2:0:10
 F:RES_POIS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-#D:$A suit of scales, glistening in sickly green, out from which falls the 
-#D:$skeleton of a rat who touched it and died in agony.
-#D:病的な緑に光る鱗鎧で、それに触れたネズミは苦痛に死んで白骨化する。
+E:BREATHE_POIS:30:40:150
+E:You breathe poison gas.
 D:A suit of scales, glistening in sickly green.
 
 N:405:Multi-Hued Dragon Scale Mail~
@@ -3317,6 +3035,7 @@ A:100/16
 P:40:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ONE_MULTIHUED:40:70:250
 D:A suit of scales that throbs with angry energies; it takes all your energy 
 D:to master the Elements fighting an endless war trapped inside.
 
@@ -3328,6 +3047,7 @@ A:65/16
 P:40:2d4:-2:0:10
 F:RES_LITE | RES_DARK |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ONE_SHINING:40:50:200
 
 N:407:Law Dragon Scale Mail~
 G:[:B
@@ -3337,6 +3057,7 @@ A:80/16
 P:40:2d4:-2:0:10
 F:RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ONE_LAW:50:100:230
 D:A suit of scales in stern blue and silver.  You feel the slightest tremor 
 D:as you touch it, like massed trumpets heard and cyclones felt from afar.
 
@@ -3348,6 +3069,8 @@ A:55/8
 P:40:2d4:-2:0:10
 F:RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_CONF:30:40:120
+E:You breathe confusion.
 D:A suit of scales, gleaming in rich engraved bronze.  The more you look at 
 D:the the maze of whorls and lines that close inspection reveal on its 
 D:surface, the less sense you are able to make of them.
@@ -3360,6 +3083,8 @@ A:65/8
 P:40:2d4:-2:0:10
 F:RES_SOUND |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_SOUND:30:40:130
+E:You breathe sound.
 D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
 D:wear this armour, yet your ears ache as though in the midst of a 
 D:cacophony.
@@ -3372,6 +3097,7 @@ A:75/16
 P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ONE_CHAOS:50:100:220
 D:A suit of scales.  Every shape, in every color imaginable, riot and 
 D:contend upon its surface as you stare in fascination.
 
@@ -3383,6 +3109,7 @@ A:90/16
 P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ONE_BALANCE:50:100:250
 D:A suit of scales.  Featureless grey to casual inspection, yet a closer 
 D:look reveals patterns within patterns of iridescence that throb with 
 D:leashed energies bound as though by chains of adamant.
@@ -3397,11 +3124,11 @@ F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+E:BREATHE_ELEMENTS:50:100:300
+E:You breathe the elements!
 D:A suit with scales of every color, surrounded in a nimbus of perfectly 
 D:untramelled yet inextricably intermingled and utterly mastered powers 
 D:elemental and ethereal.
-
-## PDSM has been restored to (almost) its former glory in Zangband
 
 N:413:& Dragon Helm~
 G:]:G
@@ -3494,89 +3221,6 @@ W:90:0:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:425:Fear Resistance:Zircon
-G:=:U
-I:45:38:0
-W:10:0:30:2:300 
-A:10/5
-F:RES_FEAR
-
-N:426:Light and Darkness Resistance:Platinum
-G:=:w
-I:45:39:0
-W:20:0:70:2:3000
-A:20/2
-F:RES_LITE | RES_DARK
-
-N:427:Nether Resistance:Bronze
-G:=:U
-I:45:40:0
-W:34:0:70:2:14500
-A:34/2
-F:RES_NETHER | HOLD_LIFE
-
-N:428:Nexus Resistance:Gold
-G:=:y
-I:45:41:0
-W:24:0:70:2:3000
-A:24/2
-F:RES_NEXUS
-
-N:429:Sound Resistance:Obsidian
-G:=:D
-I:45:42:0
-W:26:0:0:2:3000
-A:26/2
-F:RES_SOUND
-
-N:430:Confusion Resistance:Silver
-G:=:W
-I:45:43:0
-W:22:0:70:2:3000
-A:22/2
-F:RES_CONF
-
-N:431:Shard Resistance:Tortoise Shell
-G:=:g
-I:45:44:0
-W:25:0:0:2:3000
-A:25/2
-F:RES_SHARDS
-
-N:432:Disenchantment Resistance:Mithril
-G:=:B
-I:45:45:0
-W:90:0:0:2:15000
-A:90/10
-F:RES_DISEN
-
-N:433:Chaos Resistance:Jet
-G:=:D
-I:45:46:0
-W:50:0:0:2:13000
-A:50/2
-F:RES_CHAOS | RES_CONF
-
-N:434:Blindness Resistance:Engagement
-G:=:y
-I:45:47:0
-W:60:0:0:2:7500
-A:60/2
-F:RES_BLIND
-
-N:435:Lordly Protection:Adamantite
-G:=:v
-I:45:48:0
-W:100:0:0:2:100000
-A:100/8
-F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
-
-N:436:Extra Attacks:Wire
-G:=:u
-I:45:49:0
-W:70:0:0:2:100000
-F:BLOWS
 
 N:437:Cure Light Wounds:Gold
 G:!:y
@@ -3781,78 +3425,6 @@ W:70:0:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Amulet of Carlammas -- see artifact list
-
-N:503:& Amulet~:Pewter
-G:":s
-I:40:10:0
-W:50:0:0:3:60000
-F:INSTA_ART
-
-# The Amulet of Ingwe -- see artifact list
-
-N:504:& Amulet~:Tortoise Shell
-G:":g
-I:40:11:0
-W:60:0:0:3:90000
-F:INSTA_ART
-
-# The Necklace of the Dwarves -- see artifact list
-
-N:505:& Necklace~:Golden
-G:":y
-I:40:12:0
-W:70:0:0:3:75000
-F:INSTA_ART
-
-# The Ring of Barahir -- see artifact list
-
-N:506:& Ring~:Dilithium
-G:=:W
-I:45:32:0
-W:50:0:0:2:65000
-F:INSTA_ART
-
-# The Ring of Tulkas -- see artifact list
-
-N:507:& Ring~:Wooden
-G:=:u
-I:45:33:0
-W:70:0:0:2:150000
-F:INSTA_ART
-
-# The Ring of Power (Narya) -- see artifact list
-
-N:508:& Ring~:Serpent
-G:=:g
-I:45:34:0
-W:80:0:0:2:100000
-F:INSTA_ART
-
-# The Ring of Power (Nenya) -- see artifact list
-
-N:509:& Ring~:Wedding
-G:=:y
-I:45:35:0
-W:90:0:0:2:200000
-F:INSTA_ART
-
-# The Ring of Power (Vilya) -- see artifact list
-
-N:510:& Ring~:Brass
-G:=:o
-I:45:36:0
-W:100:0:0:2:300000
-F:INSTA_ART
-
-# The Ring of Power (The One Ring) -- see artifact list
-
-N:511:& Ring~:Plain Gold
-G:=:y
-I:45:37:0
-W:110:0:0:2:5000000
-F:INSTA_ART | FIXED_FLAVOR
-
 ### Room for new objects added after 511 (Zangband 2.1.0): 512-575
 
 # Trump Spellbooks
@@ -3918,42 +3490,6 @@ I:96:3:0
 W:25:0:0:30:2500
 A:25/1
 P:0:1d1:0:0:0
-
-N:520:Reflection:Azure
-G:":B
-I:40:9:0
-W:60:0:0:3:30000
-A:60/4
-F:REFLECT
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-#521 and 522 cannot have EASY_KNOW because they may be cursed
-
-N:521:Anti-Magic:Crystal
-G:":B
-I:40:13:0
-W:40:0:0:3:10000
-A:40/4
-F:NO_MAGIC
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:522:Anti-Teleportation:Silver
-G:":W
-I:40:14:0
-W:30:0:0:3:5000
-A:30/4
-F:NO_TELE
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-#523 cannot have EASY_KNOW because it can get random resistances
-
-N:523:Resistance:Copper
-G:":U
-I:40:15:0
-W:50:0:0:3:25000
-A:50/4
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### New arms #####
 
@@ -4291,56 +3827,56 @@ P:0:1d1:0:0:0
 N:568:& Wooden Statue~ of #
 G:`:u
 I:9:0:0
-W:5:0:50:200:75
+W:5:0:0:200:75
 A:5/3
 P:0:1d1:0:0:0
 
 N:569:& Clay Statue~ of #
 G:`:U
 I:9:1:0
-W:10:0:50:500:50
+W:10:0:0:500:50
 A:10/3
 P:0:1d1:0:0:0
 
 N:570:& Stone Statue~ of #
 G:`:s
 I:9:2:0
-W:15:0:50:500:100
+W:15:0:0:500:100
 A:15/3
 P:0:1d1:0:0:0
 
 N:571:& Iron Statue~ of #
 G:`:D
 I:9:3:0
-W:20:0:50:500:200
+W:20:0:0:500:200
 A:20/3
 P:0:1d1:0:0:0
 
 N:572:& Copper Statue~ of #
 G:`:o
 I:9:4:0
-W:25:0:50:500:500
+W:25:0:0:500:500
 A:25/3
 P:0:1d1:0:0:0
 
 N:573:& Silver Statue~ of #
 G:`:W
 I:9:5:0
-W:30:0:50:500:1000
+W:30:0:0:500:1000
 A:30/3
 P:0:1d1:0:0:0
 
 N:574:& Golden Statue~ of #
 G:`:y
 I:9:6:0
-W:40:0:60:500:2500
+W:40:0:0:500:2500
 A:40/3
 P:0:1d1:0:0:0
 
 N:575:& Ivory Statue~ of #
 G:`:w
 I:9:7:0
-W:45:0:60:500:2000
+W:45:0:0:500:2000
 A:45/3
 P:0:1d1:0:0:0
 
@@ -4354,7 +3890,7 @@ P:0:1d1:0:0:0
 N:577:& Ornate Statue~ of #
 G:`:v
 I:9:9:0
-W:50:0:70:500:5000
+W:50:0:0:500:5000
 A:50/3
 P:0:1d1:0:0:0
 
@@ -4418,20 +3954,6 @@ A:60/5
 P:5:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
-N:586:& Ring~:Plain Goldarn
-G:=:y
-I:45:50:0
-W:100:0:0:2:0
-F:INSTA_ART | FIXED_FLAVOR
-
-N:587:Telepathy:Swastika
-G:":v
-I:40:16:0
-W:60:0:0:3:50000
-A:60/4
-F:TELEPATHY
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
 N:588:& Gun~
 G:}:r
 I:19:50:0
@@ -4452,12 +3974,6 @@ W:15:0:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:591:& Amulet~:Platinum
-G:":w
-I:40:17:0
-W:30:0:0:3:25000
-F:INSTA_ART
-
 N:592:& Poison Needle~
 G:|:g
 I:23:32:0
@@ -4474,6 +3990,7 @@ W:15:0:0:120:1000
 A:15/4
 P:0:1d1:0:0:0
 F:ACTIVATE
+E:CAPTURE_PET:15
 
 N:594:& Death Scythe~ 
 G:/:R
@@ -4494,32 +4011,11 @@ W:15:0:50:4:2000
 A:15/6
 P:0:1d1:0:0:0
 
-N:596:Extra Shots:Scarab
-G:=:G
-I:45:51:0
-W:50:0:0:2:20000
-A:50/2
-F:XTRA_SHOTS
-
 N:597:& Card
 G:~:G
 I:50:0:0
 W:1:0:0:2:1000
 F:INSTA_ART
-
-N:598:Sustaining:Rusty
-G:=:r
-I:45:52:0
-W:60:0:0:2:10000
-A:60/5
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
-
-N:599:Mana:Steel
-G:=:W
-I:45:53:0
-W:80:0:0:2:30000
-A:80/8
-F:DEC_MANA
 
 N:600:Spell:nin xuxucre
 G:?:w
@@ -4532,12 +4028,6 @@ G:?:w
 I:70:6:0
 W:30:0:0:5:1000
 A:30/2
-
-N:602:& Torque~:Rusty
-G:":r
-I:40:18:0
-W:30:0:0:3:25000
-F:INSTA_ART
 
 N:603:Tsuyoshi Special:Silver
 G:!:w
@@ -4591,12 +4081,6 @@ W:60:0:0:10:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:610:& Bead~:Curved
-G:":g
-I:40:19:0
-W:60:0:0:3:90000
-F:INSTA_ART
-
 N:611:& Ethereal Cloak~
 G:(:W
 I:35:5:0
@@ -4636,25 +4120,12 @@ W:10:0:0:30:30
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:616:& Inro~:Dragon's claw
-G:":G
-I:40:20:0
-W:50:0:0:3:100000
-F:INSTA_ART
-
 N:617:Polymorph:Bronze
 G:!:r
 I:75:66:0
 W:50:0:0:4:5000
 A:50/16
 P:0:1d1:0:0:0
-
-N:618:Warning:Tanzanite
-G:=:B
-I:45:54:0
-W:10:0:50:2:200
-A:10/2
-F:WARNING
 
 N:619:& Steel Bolt~
 G:{:w
@@ -4690,27 +4161,6 @@ G:(:y
 I:36:63:0
 W:1:0:0:10:1000000
 F:INSTA_ART
-
-N:624:Intelligence:Rosary
-G:":G
-I:40:21:0
-W:20:0:60:3:500
-A:20/1
-F:INT | HIDE_TYPE
-
-N:625:Wisdom:Jade
-G:":g
-I:40:22:0
-W:20:0:60:3:500
-A:20/1
-F:WIS | HIDE_TYPE
-
-N:626:Might:Nephrite
-G:=:g
-I:45:55:0
-W:50:0:0:2:5000
-A:50/4
-F:STR | DEX | CON | HIDE_TYPE
 
 N:627:& Knight's Shield~
 G:):W
@@ -4841,13 +4291,6 @@ W:0:0:0:1:0
 A:0/255
 P:0:1d1:0:0:0
 
-N:644:Magic Device Mastery:Mithril
-G:":B
-I:40:23:0
-W:35:0:0:3:1000
-A:35/8
-F:MAGIC_MASTERY | HIDE_TYPE
-
 N:645:& Robe~
 G:(:D
 I:36:60:0
@@ -4898,12 +4341,7 @@ I:4:1:0
 W:15:0:60:3:1000
 A:15/2
 F:ACTIVATE
-
-N:652:& Amulet~:Ruby
-G:":r
-I:40:24:0
-W:50:0:0:3:25000
-F:INSTA_ART
+E:RETURN_PETS:15:150
 
 N:653:Black Clothes
 G:(:D
@@ -4951,30 +4389,6 @@ W:1:0:0:50:20
 P:0:1d2:0:0:0
 F:FULL_NAME
 
-N:659:& Amulet~:Emerald
-G:":g
-I:40:25:0
-W:50:0:0:2:77777
-F:INSTA_ART
-
-N:660:& Collar Harness~:Sapphire
-G:":b
-I:40:26:0
-W:50:0:0:30:66666
-F:INSTA_ART
-
-N:661:& Pendant~:Garnet
-G:":r
-I:40:27:0
-W:50:0:0:2:100000
-F:INSTA_ART
-
-N:662:& Pendant~:Diamond
-G:":w
-I:40:28:0
-W:50:0:0:2:55555
-F:INSTA_ART
-
 N:663:[Handbook of Hex]
 G:?:v
 I:107:0:0
@@ -5015,26 +4429,14 @@ P:4:0d0:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 F:LEVITATION
 
-N:668:& Ring~:Dilithium
-G:=:W
-I:45:56:0
-W:50:0:0:2:65000
-F:INSTA_ART
-
-N:669:& Wizard Cloak~
-G:(:v
-I:35:8:0
-W:60:0:0:5:10000
-A:60/80
-P:4:0d0:0:0:10
-F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
-F:DEC_MANA | EASY_SPELL
-
-N:670:Spell Power:Steel
-G:=:v
-I:45:57:0
-W:20:0:0:2:1000
-F:SPELL_POWER | STR | DEX | CON
+#N:669:& Wizard Cloak~
+#G:(:v
+#I:35:8:0
+#W:60:0:0:5:10000
+#A:60/80
+#P:4:0d0:0:0:10
+#F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+#F:DEC_MANA | EASY_SPELL
 
 N:671:Blood:Blood Red
 G:!:r
@@ -5058,24 +4460,6 @@ W:0:0:0:4:500
 P:0:1d1:0:0:0
 D:A cryptic rune, of powers incomprehensible.
 
-N:674:Spell Capacity:Opal
-G:=:v
-I:45:58:0
-W:20:0:0:2:1000
-F:SPELL_CAP
-
-N:675:Spell Power:Steel
-G:":y
-I:40:30:0
-W:20:0:0:2:1000
-F:SPELL_POWER | STR | DEX | CON
-
-N:676:Spell Capacity:Opal
-G:":v
-I:40:31:0
-W:20:0:0:2:1000
-F:SPELL_CAP
-
 N:677:Weapon Branding:enchantus maximus
 G:?:w
 I:70:55:0
@@ -5089,18 +4473,6 @@ I:70:56:0
 W:60:0:0:5:100000
 A:60/8
 F:FIXED_FLAVOR
-
-N:679:& Pendant~:Sparkling
-G:":w
-I:40:29:0
-W:90:0:0:2:555555
-F:INSTA_ART | FIXED_FLAVOR
-
-N:680:& Golden Apple~:Alluring
-G:":w
-I:40:32:0
-W:90:0:0:2:555555
-F:INSTA_ART | FIXED_FLAVOR
 
 N:681:& Hand~:Decrepit
 G:]:W
@@ -5190,23 +4562,11 @@ A:90/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:692:& Ring~:Eternal
-G:=:W
-I:45:59:0
-W:50:0:0:2:65000
-F:INSTA_ART | FIXED_FLAVOR
-
 N:693:& Gun~
 G:}:r
 I:19:51:0
 W:15:0:0:100:1000
 F:INSTA_ART
-
-N:694:& Ring~:Pulsating
-G:=:W
-I:45:60:0
-W:50:0:0:2:65000
-F:INSTA_ART | FIXED_FLAVOR
 
 N:695:Giant Strength:Noxious
 G:!:U
@@ -5230,29 +4590,6 @@ W:40:0:0:20:10000
 A:40/15
 P:0:1d8:3:3:0
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
-
-N:698:High Resistance:Translucent
-G:":U
-I:40:33:0
-W:50:0:0:3:25000
-A:50/6
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:699:Trickery:Golden
-G:":U
-I:40:34:3
-W:50:0:0:3:25000
-A:80/32
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:STEALTH | DEX | SPEED | SEARCH | SUST_DEX |
-F:RES_POIS | RES_NEXUS
-
-N:700:Weaponmastery:Gleaming
-G:=:y
-I:45:61:0
-W:50:0:0:2:7000
-A:50/12
-F:WEAPONMASTERY
 
 N:701:[Burglar's Handbook]
 G:?:o
@@ -5355,12 +4692,6 @@ W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:715:& Goblet~:Golden
-G:":y
-I:40:35:0
-W:30:0:0:3:60000
-F:INSTA_ART
-
 N:716:Clarity:Metallic
 G:!:w
 I:75:70:100
@@ -5439,78 +4770,12 @@ W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-N:726:& Ring~:Black
-G:=:W
-I:45:62:0
-W:50:0:0:2:1234
-F:INSTA_ART | FIXED_FLAVOR
-
-N:727:Resistance:Prismatic
-G:=:o
-I:45:63:0
-W:50:0:0:2:25000
-A:50/4
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:728:High Resistance:White
-G:=:w
-I:45:64:0
-W:50:0:0:2:25000
-A:50/6
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:729:& Dog Collar~:Amber
-G:":r
-I:40:36:0
-W:50:0:0:30:66666
-F:INSTA_ART
-
 N:730:& Eye
 G:*:y
 I:39:22:0
 W:20:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
-
-N:731:Resist Fire:Red
-G:":r
-I:40:37:0
-W:15:0:50:3:300
-A:15/1
-F:RES_FIRE | IGNORE_FIRE
-
-N:732:Resist Cold:Blue
-G:":B
-I:40:38:0
-W:15:0:50:3:300
-A:15/1
-F:RES_COLD | IGNORE_COLD
-
-N:733:Resist Lightning:Shocking
-G:":b
-I:40:39:0
-W:20:0:50:3:300
-A:20/1
-F:RES_ELEC | IGNORE_ELEC
-
-N:734:& Dog Collar~:Leather
-G:":u
-I:40:40:0
-W:5:0:0:30:5000
-F:INSTA_ART | FIXED_FLAVOR
-
-N:735:& Dog Collar~:Studded
-G:":U
-I:40:41:0
-W:5:0:0:30:5000
-F:INSTA_ART | FIXED_FLAVOR
-
-N:736:& Dog Collar~:Black
-G:":u
-I:40:42:0
-W:5:0:0:30:5000
-F:INSTA_ART | FIXED_FLAVOR
 
 N:737:Fire:itus whamko
 G:?:w
@@ -5540,27 +4805,12 @@ W:90:0:0:5:10000
 A:90/6
 F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 
-N:741:Anti-Summoning:Obsidian
-G:":o
-I:40:43:0
-W:100:0:0:3:1000000
-A:100/32
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:NO_SUMMON
-
 N:742:Escaping:Translucent
 G:-:s
 I:66:32:12
 W:30:0:0:15:2500
 A:30/4
 P:0:1d1:0:0:0
-
-N:743:Extra Might:Plain
-G:=:G
-I:45:65:0
-W:70:0:0:2:50000
-A:70/6
-F:XTRA_MIGHT
 
 N:744:Mana Balls:Jade
 G:-:B

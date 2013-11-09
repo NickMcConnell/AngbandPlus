@@ -4817,7 +4817,7 @@ int activate_hi_summon(int y, int x, bool can_pet)
                 break;
             case 17:
                 if (can_pet) break;
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_AMBERITES, (mode | PM_ALLOW_UNIQUE));
+                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_AMBERITE, (mode | PM_ALLOW_UNIQUE));
                 break;
             case 18: case 19:
                 if (can_pet) break;
@@ -5089,7 +5089,7 @@ bool rush_attack(bool *mdeath)
     int dir;
     int tx, ty;
     int tm_idx = 0;
-    u16b path_g[32];
+    u16b path_g[100];
     int path_n, i;
     bool tmp_mdeath = FALSE;
     bool moved = FALSE;
@@ -5142,6 +5142,10 @@ bool rush_attack(bool *mdeath)
     /* Use ty and tx as to-move point */
     ty = py;
     tx = px;
+
+    /* Scrolling the cave would invalidate our path! */
+    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+        wilderness_scroll_lock = TRUE;
 
     /* Project along the path */
     for (i = 0; i < path_n; i++)
@@ -5206,6 +5210,11 @@ bool rush_attack(bool *mdeath)
     }
 
     if (!moved && !player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+    {
+        wilderness_scroll_lock = FALSE;
+        wilderness_move_player(px, py);
+    }
 
     if (mdeath) *mdeath = tmp_mdeath;
     return TRUE;

@@ -1045,7 +1045,6 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
     analyze_misc_magic(o_ptr, desc_ptr->misc_magic);
     analyze_addition(o_ptr, desc_ptr->addition);
     analyze_misc(o_ptr, desc_ptr->misc_desc);
-    desc_ptr->activation = item_activation(o_ptr);
 }
 
 
@@ -2122,7 +2121,6 @@ static void random_artifact_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
     analyze_resist(o_ptr, desc_ptr->resistances);
     analyze_sustains(o_ptr, desc_ptr->sustains);
     analyze_misc_magic(o_ptr, desc_ptr->misc_magic);
-    desc_ptr->activation = item_activation(o_ptr);
     sprintf(desc_ptr->misc_desc, "Weight %d.%d lbs",
         o_ptr->weight / 10, o_ptr->weight % 10);
 }

@@ -35,10 +35,10 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Black Ooze             +1   -5   -5   +1   +1   -2   95%  +40  150%
-  Gelatinous Cube        +2  -10  -10   +2   +2   -2  105%  +40  150%
-  Acidic Cytoplasm       +3   -7   -7   +2   +3   -1  110%  +40  150%
-  Shoggoth               +5   -5   -5   +2   +4   +0  115%  +40  150%
+  Black Ooze             +1   -5   -5   +1   +1   -2   90%  +40  150%
+  Gelatinous Cube        +2  -10  -10   +2   +2   -2  100%  +40  150%
+  Acidic Cytoplasm       +3   -7   -7   +2   +3   -1  105%  +40  150%
+  Shoggoth               +5   -5   -5   +2   +4   +0  108%  +40  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Black Ooze            25+12  18+7   37+11   8+0  14+0   7+0  70+30  30+7 
@@ -287,10 +287,10 @@
   Archlich               -5   +6   -6   +4   -2   +3   94%  +20  300%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Lich                  30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
-  Master Lich           30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
-  Demilich              30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
-  Archlich              30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
+  Lich                  30+7   45+15  38+12   7+0  20+0  30+0  34+6   20+7 
+  Master Lich           30+7   45+15  38+12   7+0  20+0  30+0  34+6   20+7 
+  Demilich              30+7   45+15  38+12   7+0  20+0  30+0  34+6   20+7 
+  Archlich              30+7   45+15  38+12   7+0  20+0  30+0  34+6   20+7 
 
 
 ***** <Xorn>
@@ -312,14 +312,14 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Umber Hulk             +2   -4   -2   -3   +1   -1  105%  +30  150%
-  Xorn                   +3   -4   -2   -2   +2   -1  110%  +30  150%
-  Xaren                  +4   -4   -2   -1   +3   -1  115%  +30  150%
+  Umber Hulk             +2   -4   -2   -3   +1   -1  100%  +30  150%
+  Xorn                   +3   -4   -2   -2   +2   -1  104%  +30  150%
+  Xaren                  +4   -4   -2   -1   +3   -1  108%  +30  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Umber Hulk            25+12  20+8   31+10   1+0  14+0   5+0  56+20  30+7 
-  Xorn                  25+12  20+8   31+10   1+0  14+0   5+0  56+20  30+7 
-  Xaren                 25+12  20+8   31+10   1+0  14+0   5+0  56+20  30+7 
+  Umber Hulk            25+12  20+8   31+10   2+0  14+0   5+0  56+20  30+7 
+  Xorn                  25+12  20+8   31+10   2+0  14+0   5+0  56+20  30+7 
+  Xaren                 25+12  20+8   31+10   2+0  14+0   5+0  56+20  30+7 
 
 
 ***** <Angel>
@@ -429,10 +429,10 @@
   Elder Fire Giant       +8   +0   -3   +1   +8   +3  121%  +46  200%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Hill Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Stone Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Fire Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Elder Fire Giant      25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+  Hill Giant            25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Stone Giant           25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Fire Giant            25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Elder Fire Giant      25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Hill Giant             +3   -3   -6   -2   +3   +0  100%  +46  200%
@@ -441,10 +441,10 @@
   Ice Giant              +8   +0   -3   +1   +8   +3  121%  +46  200%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Hill Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Stone Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Frost Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Ice Giant             25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+  Hill Giant            25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Stone Giant           25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Frost Giant           25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Ice Giant             25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Hill Giant             +3   -3   -6   -2   +3   +0  100%  +46  250%
@@ -454,11 +454,11 @@
   Elder Storm Giant      +7   +1   -2   +2   +7   +4  112%  +46  250%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Hill Giant            25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
-  Stone Giant           25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
-  Cloud Giant           25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
-  Storm Giant           25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
-  Elder Storm Giant     25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
+  Hill Giant            25+10  18+7   30+10   0+0  13+0   7+0  70+30  55+30
+  Stone Giant           25+10  18+7   30+10   0+0  13+0   7+0  70+30  55+30
+  Cloud Giant           25+10  18+7   30+10   0+0  13+0   7+0  70+30  55+30
+  Storm Giant           25+10  18+7   30+10   0+0  13+0   7+0  70+30  55+30
+  Elder Storm Giant     25+10  18+7   30+10   0+0  13+0   7+0  70+30  55+30
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Hill Giant             +3   +0   +0   -2   +3   +3  102%  +46  300%
@@ -467,10 +467,10 @@
   Greater Titan          +6   +3   +3   +1   +6   +6  117%  +46  300%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Hill Giant            25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
-  Stone Giant           25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
-  Lesser Titan          25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
-  Greater Titan         25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
+  Hill Giant            25+11  20+8   32+10   0+0  15+0  10+0  75+35  50+30
+  Stone Giant           25+11  20+8   32+10   0+0  15+0  10+0  75+35  50+30
+  Lesser Titan          25+11  20+8   32+10   0+0  15+0  10+0  75+35  50+30
+  Greater Titan         25+11  20+8   32+10   0+0  15+0  10+0  75+35  50+30
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Hill Giant             +3   -3   -6   -2   +3   +0  102%  +46  225%
@@ -479,10 +479,10 @@
   Hru                    +9   +0   -3   +1   +8   +3  123%  +46  225%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Hill Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Stone Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Rock Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-  Hru                   25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+  Hill Giant            25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Stone Giant           25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Rock Giant            25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
+  Hru                   25+10  18+7   30+10   0+0  13+0   7+0  75+34  55+31
 
 
 ***** <Beholder>
@@ -549,8 +549,8 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Lesser Balrog          +4   +3  -10   +2   +4   +2  110%  +45  350%
-  Greater Balrog         +7   +5  -10   +4   +6   +3  125%  +45  350%
+  Lesser Balrog          +4   +1  -10   +1   +4   +2  105%  +45  350%
+  Greater Balrog         +7   +3  -10   +3   +6   +3  115%  +45  350%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Lesser Balrog         20+12  35+11  40+15  -2+0  10+0   7+0  75+35  30+7 
@@ -564,17 +564,17 @@
   Marilith               +4   +2   -5   +4   +4   +2  103%  +30  250%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Manes                 20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
-  Quasit                20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
-  Bodak                 20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
-  Death Quasit          20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
-  Marilith              20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
+  Manes                 20+12  35+11  36+10   3+0  16+0  10+0  56+20  35+11
+  Quasit                20+12  35+11  36+10   3+0  16+0  10+0  56+20  35+11
+  Bodak                 20+12  35+11  36+10   3+0  16+0  10+0  56+20  35+11
+  Death Quasit          20+12  35+11  36+10   3+0  16+0  10+0  56+20  35+11
+  Marilith              20+12  35+11  36+10   3+0  16+0  10+0  56+20  35+11
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Bloodletter of Khorne  +3   -5   -5   +0   +2   +0  100%  +42  275%
-  Fleshhound of Khorne   +4   -5   -5   +0   +3   +0  106%  +42  275%
-  Juggernaut of Khorne   +5   -5   -5   +0   +4   +0  112%  +42  275%
-  Bloodthirster          +6   -5   -5   +1   +5   +1  118%  +42  275%
+  Fleshhound of Khorne   +4   -5   -5   +0   +3   +0  105%  +42  275%
+  Juggernaut of Khorne   +5   -5   -5   +0   +4   +0  110%  +42  275%
+  Bloodthirster          +6   -5   -5   +1   +5   +1  115%  +42  275%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Bloodletter of Khorne 20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
@@ -583,7 +583,7 @@
   Bloodthirster         20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Cyberdemon             +5  -10  -10   -3   +5   +0  135%  +50  300%
+  Cyberdemon             +5  -10  -10   -3   +5   +0  120%  +50  300%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Cyberdemon            20+12  18+6   31+9   -1+0  13+0   7+0  75+35  30+7 
@@ -610,11 +610,11 @@
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   2-headed hydra         +0   -2   -2   +0   +0   +0  100%  +45  130%
-  4-headed hydra         +1   -2   -2   +1   +1   +0  105%  +45  130%
-  5-headed hydra         +2   -2   -2   +1   +2   +0  110%  +45  130%
-  7-headed hydra         +3   -2   -2   +2   +3   +0  115%  +45  130%
-  9-headed hydra         +4   -2   -2   +2   +4   +0  120%  +45  130%
-  11-headed hydra        +5   -2   -2   +3   +5   +0  125%  +45  130%
+  4-headed hydra         +1   -2   -2   +1   +1   +0  103%  +45  130%
+  5-headed hydra         +2   -2   -2   +1   +2   +0  106%  +45  130%
+  7-headed hydra         +3   -2   -2   +2   +3   +0  109%  +45  130%
+  9-headed hydra         +4   -2   -2   +2   +4   +0  112%  +45  130%
+  11-headed hydra        +5   -2   -2   +3   +5   +0  115%  +45  130%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   2-headed hydra        25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
@@ -654,9 +654,9 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Cheerful Leprechaun    -2   +1   +1   +3   -2   -2  100%  +15  150%
-  Malicious Leprechaun   -4   +1   +1   +5   -2   -2  100%  +15  150%
-  Death Leprechaun       -6   +1   +1   +7   -2   -2  100%  +15  150%
+  Cheerful Leprechaun    -2   +1   +1   +3   -2   -2   80%  +15  150%
+  Malicious Leprechaun   -4   +1   +1   +5   -2   -2   80%  +15  150%
+  Death Leprechaun       -6   +1   +1   +7   -2   -2   80%  +15  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Cheerful Leprechaun   30+12  45+18  38+11  10+1  24+0  16+0  48+13  60+28
@@ -681,12 +681,12 @@
   Ettin                  +6   -5   -5   +0   +6   +0  116%  +50  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Ettin                 25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Forest troll          25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Algroth               25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Aklash                25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Ettin                 25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Forest troll           +3   -5   -5   -2   +3   +0  100%  +50  150%
@@ -697,12 +697,12 @@
   Storm troll            +6   -5   -5   +0   +6   +0  116%  +50  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Storm troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Forest troll          25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Algroth               25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Aklash                25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Storm troll           25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Forest troll           +3   -5   -5   -2   +3   +0  100%  +50  150%
@@ -713,12 +713,12 @@
   Spirit troll           +6   -5   -5   +0   +6   +0  116%  +50  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Spirit troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Forest troll          25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Algroth               25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Aklash                25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Spirit troll          25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Forest troll           +3   -5   -5   -2   +3   +0  100%  +50  150%
@@ -729,12 +729,12 @@
   Troll king             +6   -5   -5   +0   +6   +0  116%  +50  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
-  Troll king            25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Forest troll          25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Algroth               25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Aklash                25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
+  Troll king            25+7   18+7   30+10   1+0  13+0   7+0  65+28  30+10
 
 
 ***** <Elemental>
@@ -895,15 +895,15 @@
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Quylthulg              -5   -5   -5   -5   -5   +6   95%   +0  150%
   Nexus quylthulg        -4   -4   -4   -4   -4   +7   95%   +0  150%
-  Demonic quylthulg      -3   -3   -3   -3   -3   +8   95%   +0  150%
-  Greater demonic quylt  -2   -2   -2   -2   -2   +9   95%   +0  150%
+  Rotting quylthulg      -3   -3   -3   -3   -3   +8   95%   +0  150%
+  Greater rotting quylt  -2   -2   -2   -2   -2   +9   95%   +0  150%
   Master quylthulg       -1   -1   -1   -1   -1  +10   95%   +0  150%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Quylthulg             30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
   Nexus quylthulg       30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
-  Draconic quylthulg    30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
-  Greater draconic quyl 30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
+  Rotting quylthulg     30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
+  Greater rotting quylt 30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
   Master quylthulg      30+7   45+15  40+12   7+0  20+0  30+0   0+0    0+0 
 
 
@@ -933,7 +933,7 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Soul                   -3   -3   -3   -3   -3   -8   16%   +0  250%
+  Soul                   -3   -3   -3   -3   -3   -8   56%  +15  250%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Soul                  12+5   15+7   26+9    3+0  12+0   9+0  35+11  15+11
@@ -943,4 +943,4 @@
 
 
 
-[[[[s|  Automatically generated for PosChengband 2.0.0.
+[[[[s|  Automatically generated for PosChengband 3.0.0.

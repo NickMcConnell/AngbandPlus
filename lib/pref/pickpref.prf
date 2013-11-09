@@ -6,12 +6,11 @@ ambrosia#!E
 potion of resist#!k!q
 potion of restore mana#!k!q
 potion of heroism
+potion of curing
+potion of enlightenment
 
-ring of speed
-ring of weaponmastery
-ring of damage
-ring of slaying
-ring of might
+unidentified rings
+unidentified amulets
 
 power dragon
 balance dragon
@@ -39,6 +38,7 @@ rod of healing
 staff of healing
 staff of speed
 staff of destruction
+wand of rockets
 
 diamond edge
 rune sword
@@ -60,7 +60,7 @@ wanted corpses or skeletons#Wanted!k!k!k
 #
 unaware items
 
-~unidentified ego
+#~unidentified ego
 #~ego more than 19
 #~unidentified ego armors
 #~unidentified ego armors:crown
@@ -108,6 +108,7 @@ potion of polymorph#!k
 potion of new life#!*!*
 potion of self knowledge#!k
 potion of giant strength#!k
+potion of stone skin#!k
 potion of life#!k!q
 potion of *healing*#!k!q
 potion of healing#!k!q
@@ -123,6 +124,8 @@ scroll of artifact creation#!*
 scroll of destruction#!*
 scroll of mass genocide#!*
 scroll of genocide#!*
+scroll of forest creation
+scroll of wall of stone
 ?:1
 
 #

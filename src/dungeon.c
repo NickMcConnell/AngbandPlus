@@ -20,6 +20,7 @@ static int wild_regen = 20;
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
+ *
  */
 static byte value_check_aux1(object_type *o_ptr)
 {
@@ -27,7 +28,7 @@ static byte value_check_aux1(object_type *o_ptr)
     if (object_is_artifact(o_ptr))
     {
         /* Cursed/Broken */
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
 
         /* Normal */
         return FEEL_SPECIAL;
@@ -37,7 +38,7 @@ static byte value_check_aux1(object_type *o_ptr)
     if (object_is_ego(o_ptr))
     {
         /* Cursed/Broken */
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_WORTHLESS;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
 
         /* Normal */
         return FEEL_EXCELLENT;
@@ -108,55 +109,6 @@ static void sense_inventory_aux(int slot, bool heavy)
 
     /* Skip non-feelings */
     if (!feel) return;
-
-    /* Bad luck */
-    if (mut_present(MUT_BAD_LUCK) && !randint0(13))
-    {
-        switch (feel)
-        {
-            case FEEL_TERRIBLE:
-            {
-                feel = FEEL_SPECIAL;
-                break;
-            }
-            case FEEL_WORTHLESS:
-            {
-                feel = FEEL_EXCELLENT;
-                break;
-            }
-            case FEEL_CURSED:
-            {
-                if (heavy)
-                    feel = randint0(3) ? FEEL_GOOD : FEEL_AVERAGE;
-                else
-                    feel = FEEL_UNCURSED;
-                break;
-            }
-            case FEEL_AVERAGE:
-            {
-                feel = randint0(2) ? FEEL_CURSED : FEEL_GOOD;
-                break;
-            }
-            case FEEL_GOOD:
-            {
-                if (heavy)
-                    feel = randint0(3) ? FEEL_CURSED : FEEL_AVERAGE;
-                else
-                    feel = FEEL_CURSED;
-                break;
-            }
-            case FEEL_EXCELLENT:
-            {
-                feel = FEEL_WORTHLESS;
-                break;
-            }
-            case FEEL_SPECIAL:
-            {
-                feel = FEEL_TERRIBLE;
-                break;
-            }
-        }
-    }
 
     /* Stop everything */
     if (disturb_minor) disturb(0, 0);
@@ -241,6 +193,17 @@ static int _adj_pseudo_id(int num)
     return result;
 }
 
+static int _class_idx(void)
+{
+    int result = p_ptr->pclass;
+    if (result == CLASS_MONSTER)
+    {
+        race_t *race_ptr = get_race_t();
+        result = race_ptr->pseudo_class_idx;
+    }
+    return result;
+}
+
 static void sense_inventory1(void)
 {
     int         i;
@@ -248,14 +211,9 @@ static void sense_inventory1(void)
     bool        heavy = FALSE;
     object_type *o_ptr;
 
-
-    /*** Check for "sensing" ***/
-
-    /* No sensing when confused */
     if (p_ptr->confused) return;
 
-    /* Analyze the class */
-    switch (p_ptr->pclass)
+    switch (_class_idx())
     {
         case CLASS_WARRIOR:
         case CLASS_ARCHER:
@@ -500,14 +458,9 @@ static void sense_inventory2(void)
     int         plev = p_ptr->lev;
     object_type *o_ptr;
 
-
-    /*** Check for "sensing" ***/
-
-    /* No sensing when confused */
     if (p_ptr->confused) return;
 
-    /* Analyze the class */
-    switch (p_ptr->pclass)
+    switch (_class_idx())
     {
         case CLASS_WARRIOR:
         case CLASS_ARCHER:
@@ -1120,7 +1073,7 @@ void notice_lite_change(object_type *o_ptr)
     }
 
     /* The light is getting dim */
-    else if (o_ptr->name2 == EGO_LITE_LONG)
+    else if (o_ptr->name2 == EGO_LITE_DURATION)
     {
         if ((o_ptr->xtra4 < 50) && (!(o_ptr->xtra4 % 5))
             && (turn % (TURNS_PER_TICK*2)))
@@ -2204,7 +2157,7 @@ static void process_world_aux_light(void)
         if ( !(lite->name1 || lite->name3 || lite->art_name || lite->sval == SV_LITE_FEANOR) 
           && lite->xtra4 > 0 )
         {
-            if (lite->name2 == EGO_LITE_LONG)
+            if (lite->name2 == EGO_LITE_DURATION)
             {
                 if (turn % (TURNS_PER_TICK*2)) lite->xtra4--;
             }
@@ -2651,8 +2604,13 @@ void process_world_aux_movement(void)
 
                 if (p_ptr->wild_mode)
                 {
-                    p_ptr->wilderness_y = py;
-                    p_ptr->wilderness_x = px;
+                    if (py != p_ptr->wilderness_y || px != p_ptr->wilderness_x)
+                    {
+                        p_ptr->wilderness_y = py;
+                        p_ptr->wilderness_x = px;
+                        p_ptr->wilderness_dx = 0;
+                        p_ptr->wilderness_dy = 0;
+                    }
                 }
                 else
                 {
@@ -2855,16 +2813,14 @@ static byte get_dungeon_feeling(void)
         /* Skip pseudo-known objects */
         if (o_ptr->ident & IDENT_SENSE) continue;
 
-        /* Ego objects */
-        if (object_is_ego(o_ptr))
-        {
-            ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-            delta += e_ptr->rating * base;
-        }
-
-        /* Artifacts */
+        /* Experimental Hack: Force Special Feelings for artifacts no matter what. */
         if (object_is_artifact(o_ptr))
+            return 1;
+
+        if ( object_is_artifact(o_ptr) 
+          || object_is_ego(o_ptr) 
+          || o_ptr->tval == TV_DRAG_ARMOR
+          || object_is_dragon_armor(o_ptr) )
         {
             s32b cost = object_value_real(o_ptr);
 
@@ -2873,37 +2829,13 @@ static byte get_dungeon_feeling(void)
             if (cost > 50000L) delta += 10 * base;
             if (cost > 100000L) delta += 10 * base;
 
-            /* Special feeling */
-            /*if (!preserve_mode) return 1;*/
-            return 1;
+            if (!preserve_mode && object_is_artifact(o_ptr))
+                return 1;
         }
 
-        if (o_ptr->tval == TV_DRAG_ARMOR) delta += 30 * base;
-        if (o_ptr->tval == TV_SHIELD &&
-            o_ptr->sval == SV_DRAGON_SHIELD) delta += 5 * base;
-        if (o_ptr->tval == TV_GLOVES &&
-            o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) delta += 5 * base;
-        if (o_ptr->tval == TV_BOOTS &&
-            o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) delta += 5 * base;
-        if (o_ptr->tval == TV_HELM &&
-            o_ptr->sval == SV_DRAGON_HELM) delta += 5 * base;
-        if (o_ptr->tval == TV_CLOAK &&
-            o_ptr->sval == SV_DRAGON_CLOAK) delta += 5 * base;
-        if (o_ptr->tval == TV_RING &&
-            o_ptr->sval == SV_RING_SPEED &&
-            !object_is_cursed(o_ptr)) delta += 25 * base;
-        if (o_ptr->tval == TV_RING &&
-            o_ptr->sval == SV_RING_LORDLY &&
-            !object_is_cursed(o_ptr)) delta += 15 * base;
-        if (o_ptr->tval == TV_AMULET &&
-            o_ptr->sval == SV_AMULET_THE_MAGI &&
-            !object_is_cursed(o_ptr)) delta += 15 * base;
-
         /* Out-of-depth objects */
-        if (!object_is_cursed(o_ptr) && !object_is_broken(o_ptr) &&
-            k_ptr->level > dun_level)
+        if (k_ptr->level > dun_level)
         {
-            /* Rating increase */
             delta += (k_ptr->level - dun_level) * base;
         }
 
@@ -3268,7 +3200,7 @@ static void process_world(void)
     /*** Process the monsters ***/
 
     /* Check for creature generation. */
-    if (!p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
+    if (!p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle && dun_level)
     {
         int chance = d_info[dungeon_type].max_m_alloc_chance;
 
@@ -3834,12 +3766,6 @@ static void process_command(void)
             {
                 if (vanilla_town) break;
 
-                if (ambush_flag)
-                {
-                    msg_print("To flee the ambush you have to reach the edge of the map.");
-                    break;
-                }
-
                 if (p_ptr->food < PY_FOOD_WEAK)
                 {
                     msg_print("You must eat something here.");
@@ -4272,6 +4198,14 @@ static void process_command(void)
             do_cmd_look();
             break;
         }
+
+        case '[':
+            do_cmd_list_monsters();
+            break;
+
+        case ']':
+            do_cmd_list_objects();
+            break;
 
         /* Target monster or location */
         case '*':
@@ -4724,7 +4658,7 @@ static void process_player(void)
         {
             /* Hack -- Recover from stun */
             if (set_monster_stunned(p_ptr->riding,
-                (randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING]) ? 0 : (MON_STUNNED(m_ptr) - 1)))
+                (randint0(r_ptr->level) < skills_riding_current()) ? 0 : (MON_STUNNED(m_ptr) - 1)))
             {
                 char m_name[80];
 
@@ -4740,7 +4674,7 @@ static void process_player(void)
         {
             /* Hack -- Recover from confusion */
             if (set_monster_confused(p_ptr->riding,
-                (randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING]) ? 0 : (MON_CONFUSED(m_ptr) - 1)))
+                (randint0(r_ptr->level) < skills_riding_current()) ? 0 : (MON_CONFUSED(m_ptr) - 1)))
             {
                 char m_name[80];
 
@@ -4756,7 +4690,7 @@ static void process_player(void)
         {
             /* Hack -- Recover from fear */
             if (set_monster_monfear(p_ptr->riding,
-                (randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING]) ? 0 : (MON_MONFEAR(m_ptr) - 1)))
+                (randint0(r_ptr->level) < skills_riding_current()) ? 0 : (MON_MONFEAR(m_ptr) - 1)))
             {
                 char m_name[80];
 
@@ -5152,7 +5086,8 @@ static void dungeon(bool load_game)
     int quest_num = 0;
 
     /* Set the base level */
-    base_level = dun_level;
+    if (dun_level)
+        base_level = dun_level;
 
     /* Reset various flags */
     hack_mind = FALSE;
@@ -5176,7 +5111,6 @@ static void dungeon(bool load_game)
     target_who = 0;
     pet_t_m_idx = 0;
     riding_t_m_idx = 0;
-    ambush_flag = FALSE;
 
     /* Cancel the health bar */
     health_track(0);
@@ -5210,7 +5144,9 @@ static void dungeon(bool load_game)
 
 
     /* Track maximum dungeon level (if not in quest -KMW-) */
-    if ((max_dlv[dungeon_type] < dun_level) && !p_ptr->inside_quest)
+    if ( max_dlv[dungeon_type] < dun_level 
+      && !p_ptr->inside_quest
+      && !(d_info[dungeon_type].flags1 & DF1_RANDOM) )
     {
         max_dlv[dungeon_type] = dun_level;
     }
@@ -5324,7 +5260,7 @@ static void dungeon(bool load_game)
         p_ptr->energy_need = 0;
 
     /* Not leaving dungeon */
-    p_ptr->leaving_dungeon = FALSE;
+    p_ptr->leaving_dungeon = 0;
 
     /* Initialize monster process */
     mproc_init();
@@ -6147,6 +6083,8 @@ void play_game(bool new_game)
                     {
                         p_ptr->wilderness_y = 1;
                         p_ptr->wilderness_x = 1;
+                        p_ptr->wilderness_dx = 0;
+                        p_ptr->wilderness_dy = 0;
                         if (vanilla_town)
                         {
                             p_ptr->oldpy = 10;
@@ -6162,6 +6100,8 @@ void play_game(bool new_game)
                     {
                         p_ptr->wilderness_y = 48;
                         p_ptr->wilderness_x = 5;
+                        p_ptr->wilderness_dx = 0;
+                        p_ptr->wilderness_dy = 0;
                         p_ptr->oldpy = 33;
                         p_ptr->oldpx = 131;
                     }

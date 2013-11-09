@@ -505,12 +505,12 @@ void generate_spoilers(void)
 {
     spoiler_hack = TRUE;
 
-    /*_text_file("Races.txt", _races_help);
+/*    _text_file("Races.txt", _races_help); */
     _text_file("MonsterRaces.txt", _monster_races_help);
-    _text_file("Demigods.txt", _demigods_help);
-    _text_file("Classes.txt", _classes_help);
-    _text_file("Personalities.txt", _personalities_help);*/
-    _text_file("PossessorStats.csv", _possessor_stats_help);
+/*    _text_file("Demigods.txt", _demigods_help); v
+/*    _text_file("Classes.txt", _classes_help); */
+/*    _text_file("Personalities.txt", _personalities_help); */
+/*    _text_file("PossessorStats.csv", _possessor_stats_help); */
 
 /*    _show_help("Personalities.txt"); */
     spoiler_hack = FALSE;

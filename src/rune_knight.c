@@ -316,7 +316,7 @@ static void _rune_default_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->msp);
+        var_set_int(res, MAX(25, p_ptr->msp));
         break;
     /*case SPELL_COLOR:
         var_set_int(res, TERM_L_BLUE);
@@ -358,7 +358,7 @@ static void _rune_of_absorption_spell(int cmd, variant *res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->msp * 3 / 10);
+        var_set_int(res, MAX(1, p_ptr->msp * 3 / 10));
         break;
     default:
         _rune_default_spell(cmd, res);
@@ -393,7 +393,7 @@ static void _rune_of_protection_spell(int cmd, variant *res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->msp * 5 / 10);
+        var_set_int(res, MAX(5, p_ptr->msp * 5 / 10));
         break;
     default:
         _rune_default_spell(cmd, res);
@@ -431,7 +431,7 @@ static void _rune_of_regeneration_spell(int cmd, variant *res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->msp * 5 / 10);
+        var_set_int(res, MAX(10, p_ptr->msp * 5 / 10));
         break;
     default:
         _rune_default_spell(cmd, res);

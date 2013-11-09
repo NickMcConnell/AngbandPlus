@@ -434,6 +434,7 @@ void teleport_player(int dis, u32b mode)
     int ox = px;
 
     if (!teleport_player_aux(dis, mode)) return;
+    if (!dun_level) return; /* Wilderness scrolling ... */
 
     /* Monsters with teleport ability may follow the player */
     for (xx = -2; xx < 3; xx++)
@@ -804,6 +805,7 @@ int choose_dungeon(cptr note, int y, int x)
         bool seiha = FALSE;
 
         if (!d_info[i].maxdepth) continue;
+        if (d_info[i].flags1 & DF1_RANDOM) continue;
         if (!max_dlv[i]) continue;
         if (d_info[i].final_guardian)
         {
@@ -867,7 +869,11 @@ bool recall_player(int turns)
         return TRUE;
     }
 
-    if (dun_level && (max_dlv[dungeon_type] > dun_level) && !p_ptr->inside_quest && !p_ptr->word_recall)
+    if ( dun_level 
+      && !(d_info[dungeon_type].flags1 & DF1_RANDOM)
+      && !p_ptr->inside_quest 
+      && !p_ptr->word_recall
+      && max_dlv[dungeon_type] > dun_level )
     {
         if (get_check("Reset recall depth? "))
         {
@@ -1179,7 +1185,7 @@ bool brand_weapon(int brand_type)
            void ego_init_armor(object_type *o_ptr, int ego_type);
            etc.
         */
-        if (brand_type == EGO_TRUMP)
+        if (brand_type == EGO_WEAPON_TRUMP)
             inventory[item].pval = randint1(2);
         result = TRUE;
     }
@@ -1893,7 +1899,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD)
         return FALSE;
 
-    if (o_ptr->name2 == EGO_BERSERKER)
+    if (o_ptr->name2 == EGO_GLOVES_BERSERKER)
         return FALSE;
 
     /* Missiles are easy to enchant */
@@ -1919,7 +1925,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
                 idx -= 2*(psion_enchant_power() - 1);
             }
 
-            idx -= virtue_current(VIRTUE_ENCHANTMENT)/50;
+            idx -= virtue_current(VIRTUE_ENCHANTMENT)/110;
 
             if (idx < 0) chance = 0;
             else if (idx > 15) chance = 1000;
@@ -1948,7 +1954,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
                 idx -= 2*(psion_enchant_power() - 1);
             }
 
-            idx -= virtue_current(VIRTUE_ENCHANTMENT)/50;
+            idx -= virtue_current(VIRTUE_ENCHANTMENT)/110;
 
             if (idx < 0) chance = 0;
             else if (idx > 15) chance = 1000;
@@ -1978,7 +1984,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
                 idx -= 2*(psion_enchant_power() - 1);
             }
 
-            idx -= virtue_current(VIRTUE_ENCHANTMENT)/50;
+            idx -= virtue_current(VIRTUE_ENCHANTMENT)/110;
 
             if (idx < 0) chance = 0;
             else if (idx > 15) chance = 1000;
@@ -2082,7 +2088,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
         /* Message */
         msg_print("The enchantment failed.");
 
-        if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
+        if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100) 
+            virtue_add(VIRTUE_ENCHANTMENT, -1);
     }
     else
         virtue_add(VIRTUE_ENCHANTMENT, 1);
@@ -3015,7 +3022,7 @@ bool polish_shield(void)
         msg_format("%s %s shine%s!",
             ((item >= 0) ? "Your" : "The"), o_name,
             ((o_ptr->number > 1) ? "" : "s"));
-        o_ptr->name2 = EGO_REFLECTION;
+        o_ptr->name2 = EGO_SHIELD_REFLECTION;
         enchant(o_ptr, randint0(3) + 4, ENCH_TOAC);
 
         o_ptr->discount = 99;
@@ -3335,7 +3342,7 @@ s16b spell_chance(int spell, int use_realm)
     chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
     if (p_ptr->riding)
-        chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level - p_ptr->skill_exp[GINOU_RIDING] / 100 - 10, 0));
+        chance += MAX(r_info[m_list[p_ptr->riding].r_idx].level - skills_riding_current() / 100 - 10, 0);
 
     /* Extract mana consumption rate */
     need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
@@ -4182,7 +4189,7 @@ void blast_object(object_type *o_ptr)
         return;
 
     o_ptr->name1 = 0;
-    o_ptr->name2 = EGO_BLASTED;
+    o_ptr->name2 = EGO_SPECIAL_BLASTED;
     o_ptr->name3 = 0;
     o_ptr->to_a = 0;
     o_ptr->to_h = 0;

@@ -171,6 +171,10 @@ _rush_result _rush_attack(int rng, _rush_type type)
     ty = py;
     tx = px;
 
+    /* Scrolling the cave would invalidate our path! */
+    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+        wilderness_scroll_lock = TRUE;
+
     /* Project along the path */
     for (i = 0; i < path_n; i++)
     {
@@ -248,6 +252,11 @@ _rush_result _rush_attack(int rng, _rush_type type)
     }
 
     if (!moved && !player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+    {
+        wilderness_scroll_lock = FALSE;
+        wilderness_move_player(px, py);
+    }
     return result;
 }
 

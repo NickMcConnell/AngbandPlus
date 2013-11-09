@@ -446,11 +446,22 @@ says, 'Verily, it is too late for thee.'
 
 #N:767:Daoloth, the Render of the Veils
 #N:770:Artsi the Champion of Chaos
-#N:771:Saruman of Many Colours
+
+N:771:Saruman of Many Colours
+says, 'I gave you the chance of aiding me willingly, but you have elected the way of pain.'
+says, 'Against the power of Mordor there can be no victory.'
+says, 'Do you know how the Orcs first came into being? They were elves once ...'
+says, 'Time? What time do you think we have?'
+says, 'The hour is later than you think. Sauron's forces are already moving. The Nine have left Minas Morgul.'
+says, 'Moria... You fear to go into those mines. The dwarves delved too greedily and too deep.'
 
 N:772:Gandalf the Grey
 says, 'I am a Wielder of the Flame of Anor, you cannot pass.'
 says, 'The dark fire will not avail you, Flame of Udun.'
+says, 'Always remember ... the Ring is trying to get back to its master. It wants to be found.'
+says, 'Many that live deserve death. Some that die deserve life.'
+says, 'There is only one Lord of the Ring, only one who can bend it to his will. And he does not share power.'
+says, 'There are older and fouler things than Orcs in the deep places of the world.'
 
 N:773:Brand, Mad Visionary of Amber
 says, 'I don't endure your sabotaging my plan!'

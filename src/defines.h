@@ -16,10 +16,10 @@
 #define VERSION_NAME "PosChengband"
 
 
-#define VER_MAJOR 2
+#define VER_MAJOR 3
 #define VER_MINOR 0
-#define VER_PATCH 3
-#define VER_EXTRA 0
+#define VER_PATCH 0
+#define VER_EXTRA 3
 
 
 /*
@@ -73,6 +73,12 @@
  */
 #define MAX_WID         198
 
+/*
+ * Implement continuous wilderness scrolling (as a huge hack) by dividing
+ * each wilderness square into a 3x3 grid (excluding the boundary sqaures).
+ */
+#define WILD_SCROLL_CY  (MAX_HGT/3)
+#define WILD_SCROLL_CX  (MAX_WID/3)
 
 /*
  * Quest constants
@@ -343,29 +349,6 @@
 #define USE_DEVICE           3       /* x> Harder devices x< Easier devices     */
 
 
-/* "Biases" for random artifact gen */
-
-#define BIAS_ELEC            1
-#define BIAS_POIS            2
-#define BIAS_FIRE            3
-#define BIAS_COLD            4
-#define BIAS_ACID            5
-#define BIAS_STR             6
-#define BIAS_INT             7
-#define BIAS_WIS             8
-#define BIAS_DEX             9
-#define BIAS_CON            10
-#define BIAS_CHR            11
-#define BIAS_CHAOS          12
-#define BIAS_PRIESTLY       13
-#define BIAS_NECROMANTIC    14
-#define BIAS_LAW            15
-#define BIAS_ROGUE          16
-#define BIAS_MAGE           17
-#define BIAS_WARRIOR        18
-#define BIAS_RANGER         19
-
-
 /*** Pet constants ***/
 
 
@@ -571,37 +554,36 @@
 #define SPELL_FAIL            4
 #define SPELL_STOP            5
 #define SPELL_CONT            6
-#define SPELL_ENERGY        7
-#define SPELL_COST_EXTRA    8
-#define SPELL_GAIN_MUT        9        /* For Mutations */
-#define SPELL_LOSE_MUT        10        /* For Mutations */
-#define SPELL_MUT_DESC        11        /* For Mutations */
-#define SPELL_CALC_BONUS    12        /* Mutations, Singing, etc.  Called from calc_bonuses() */
+#define SPELL_ENERGY          7
+#define SPELL_COST_EXTRA      8
+#define SPELL_GAIN_MUT        9      /* For Mutations */
+#define SPELL_LOSE_MUT       10      /* For Mutations */
+#define SPELL_MUT_DESC       11      /* For Mutations */
+#define SPELL_CALC_BONUS     12      /* Mutations, Singing, etc.  Called from calc_bonuses() */
 #define SPELL_PROCESS        13      /* Randomly activating mutations */
-#define SPELL_COLOR            14      /* Terminal Color for display */
-#define SPELL_FAIL_MIN        15
-#define SPELL_SPOIL_NAME    16
-#define SPELL_SPOIL_DESC    17
-#define SPELL_HELP_DESC     18
+#define SPELL_COLOR          14      /* Terminal Color for display */
+#define SPELL_FAIL_MIN       15
+#define SPELL_SPOIL_NAME     16
+#define SPELL_SPOIL_DESC     17
+#define SPELL_HELP_DESC      18
+#define SPELL_VALUE          19      /* For valuing object activations */
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
  * slot, which can hold an item, but only temporarily, since it causes the
- * pack to "overflow", dropping the "last" item onto the ground.  Since this
- * value is used as an actual slot, it must be less than "INVEN_RARM" (below).
- * Note that "INVEN_PACK" is probably hard-coded by its use in savefiles, and
- * by the fact that the screen can only show 23 items plus a one-line prompt.
+ * pack to "overflow", dropping the "last" item onto the ground.
  */
-#define INVEN_PACK              23
+#define INVEN_PACK      26
+#define EQUIP_BEGIN     (INVEN_PACK + 1)
+#define INVEN_TOTAL     50
+#define EQUIP_MAX_SLOTS (INVEN_TOTAL - EQUIP_BEGIN)
 
 /* If you are looking for old INVEN_* crap, look in equip.h instead ... */
-#define INVEN_TOTAL     40
 
 /*
  * Fake inventory slot for selecting force (hard-coded).
  */
-#define INVEN_FORCE                1111
-
+#define INVEN_FORCE               1111
 #define INVEN_UNLIMITED_QUIVER    1112
 
 /*
@@ -990,19 +972,21 @@
 
 /*
  * Wilderness terrains
+ * Note: parse_v_info in init1.c relies on the order below for parsing external files!
+ * Note: room_template_t subtype uses these terrain values for generating appropriate wilderness encounters.
  */
 #define TERRAIN_EDGE             0 /* Edge of the World */
-#define TERRAIN_TOWN             1 /* Town */
-#define TERRAIN_DEEP_WATER       2 /* Deep water */
-#define TERRAIN_SHALLOW_WATER    3 /* Shallow water */
-#define TERRAIN_SWAMP            4 /* Swamp */
-#define TERRAIN_DIRT             5 /* Dirt */
-#define TERRAIN_GRASS            6 /* Grass */
-#define TERRAIN_TREES            7 /* Trees */
-#define TERRAIN_DESERT           8 /* Desert */
-#define TERRAIN_SHALLOW_LAVA     9 /* Shallow lava */
-#define TERRAIN_DEEP_LAVA       10 /* Deep lava */
-#define TERRAIN_MOUNTAIN        11 /* Mountain */
+#define TERRAIN_TOWN             1
+#define TERRAIN_DEEP_WATER       2
+#define TERRAIN_SHALLOW_WATER    3
+#define TERRAIN_SWAMP            4
+#define TERRAIN_DIRT             5
+#define TERRAIN_GRASS            6
+#define TERRAIN_TREES            7
+#define TERRAIN_DESERT           8
+#define TERRAIN_SHALLOW_LAVA     9
+#define TERRAIN_DEEP_LAVA       10
+#define TERRAIN_MOUNTAIN        11
 
 #define MAX_WILDERNESS          12 /* Maximum wilderness index */
 
@@ -1588,329 +1572,6 @@
 #define ART_DESTROYER       320
 #define ART_ATLAS           321
 
-/*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
-
-
-/* Nothing */
-/* xxx */
-/* xxx */
-/* xxx */
-
-/* Body Armor */
-#define EGO_RESIST_ACID         4
-#define EGO_RESIST_ELEC         5
-#define EGO_RESIST_FIRE         6
-#define EGO_RESIST_COLD         7
-#define EGO_RESISTANCE          8
-#define EGO_ELVENKIND           9
-#define EGO_DWARVEN             10
-#define EGO_PERMANENCE          11
-#define EGO_YOIYAMI             12
-#define EGO_ARMOR_HIGH_RESISTANCE 13
-
-/* Shields */
-#define EGO_SHIELD_ELVENKIND    14
-#define EGO_SHIELD_HIGH_RESISTANCE 15
-#define EGO_ENDURE_ACID         16
-#define EGO_ENDURE_ELEC         17
-#define EGO_ENDURE_FIRE         18
-#define EGO_ENDURE_COLD         19
-#define EGO_ENDURANCE           20
-#define EGO_REFLECTION          21
-#define EGO_NIGHT_DAY           22
-
-/* Crowns and Helms */
-#define EGO_DARK                23
-#define EGO_INTELLIGENCE        24
-#define EGO_WISDOM              25
-#define EGO_BEAUTY              26
-#define EGO_MAGI                27
-#define EGO_MIGHT               28
-#define EGO_LORDLINESS          29
-#define EGO_SEEING              30
-#define EGO_INFRAVISION         31
-#define EGO_LITE                32
-#define EGO_TELEPATHY           33
-#define EGO_REGENERATION        34
-#define EGO_TELEPORTATION       35
-#define EGO_STUPIDITY           36
-#define EGO_NAIVETY             37
-#define EGO_UGLINESS            38
-#define EGO_SICKLINESS          39
-
-/* Cloaks */
-#define EGO_PROTECTION          40
-#define EGO_STEALTH             41
-#define EGO_AMAN                42
-#define EGO_AURA_FIRE           43
-#define EGO_ENVELOPING          44
-#define EGO_VULNERABILITY       45
-#define EGO_IRRITATION          46
-#define EGO_AURA_ELEC           47
-#define EGO_AURA_COLD          128
-#define EGO_BAT                129
-#define EGO_CLOAK_THIEVERY     240
-
-/* Gloves */
-#define EGO_FREE_ACTION         48
-#define EGO_SLAYING             49
-#define EGO_AGILITY             50
-#define EGO_POWER               51
-#define EGO_GENJI               52
-#define EGO_MAGIC_MASTERY       53
-#define EGO_WEAKNESS            54
-#define EGO_CLUMSINESS          55
-#define EGO_SNIPER             248
-#define EGO_BERSERKER          249
-
-/* Boots */
-#define EGO_SLOW_DESCENT        56
-#define EGO_QUIET               57
-#define EGO_MOTION              58
-#define EGO_SPEED               59
-#define EGO_JUMP                60
-#define EGO_NOISE               61
-#define EGO_SLOWNESS            62
-#define EGO_ANNOYANCE           63
-#define EGO_BOOTS_THIEVERY     241
-
-/* Weapons */
-#define EGO_HA                  64
-#define EGO_DEFENDER            65
-#define EGO_BLESS_BLADE         66
-/* xxx */
-#define EGO_WEST                68
-#define EGO_ATTACKS             69
-#define EGO_SLAYING_WEAPON      70
-#define EGO_FORCE_WEAPON        71
-#define EGO_BRAND_ACID          72
-#define EGO_BRAND_ELEC          73
-#define EGO_BRAND_FIRE          74
-#define EGO_BRAND_COLD          75
-#define EGO_BRAND_POIS          76
-#define EGO_CHAOTIC             77
-#define EGO_SHARPNESS           78
-#define EGO_EARTHQUAKES         79
-#define EGO_SLAY_ANIMAL         80
-#define EGO_SLAY_EVIL           81
-#define EGO_SLAY_UNDEAD         82
-#define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
-#define EGO_SLAY_GIANT          86
-#define EGO_SLAY_DRAGON         87
-#define EGO_KILL_ANIMAL         88
-#define EGO_KILL_EVIL           89
-#define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          91
-#define EGO_KILL_ORC            92
-#define EGO_KILL_TROLL          93
-#define EGO_KILL_GIANT          94
-#define EGO_KILL_DRAGON         95
-#define EGO_VAMPIRIC            96
-#define EGO_PRISM               97
-#define EGO_TRUMP               98
-#define EGO_PATTERN             99
-#define EGO_DIGGING             100
-#define EGO_SLAY_HUMAN          101
-#define EGO_MORGUL              102
-#define EGO_KILL_HUMAN          103
-#define EGO_WILD                242
-#define EGO_ORDER                243
-#define EGO_LIFE                244
-#define EGO_ARCANE                245
-#define EGO_DAEMON                246
-#define EGO_DISSOLVING          251
-#define EGO_DISRUPTING          252
-
-/* Bows */
-#define EGO_ACCURACY            104
-#define EGO_VELOCITY            105
-/* xxx */
-/* xxx */
-#define EGO_EXTRA_MIGHT         108
-#define EGO_EXTRA_SHOTS         109
-/* xxx */
-/* xxx */
-
-/* Ammo */
-#define EGO_HURT_ANIMAL         112
-#define EGO_HURT_EVIL           113
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-#define EGO_HURT_DRAGON         119
-#define EGO_SLAYING_BOLT        120
-#define EGO_LIGHTNING_BOLT      121
-#define EGO_FLAME               122
-#define EGO_FROST               123
-#define EGO_WOUNDING            124
-#define EGO_BACKBITING          125
-#define EGO_SHATTERED           126
-#define EGO_BLASTED             127
-
-#define EGO_LITE_SHINE          140
-#define EGO_LITE_ILLUMINATION   141
-#define EGO_LITE_AURA_FIRE      142
-#define EGO_LITE_INFRA          143
-#define EGO_LITE_LONG           144
-#define EGO_LITE_DARKNESS       145
-#define EGO_LITE_EYE            146
-
-#define EGO_RING_HERO           150
-#define EGO_RING_SLAY           151
-#define EGO_RING_SUPER_AC       152
-#define EGO_RING_MAGIC_MIS      153
-#define EGO_RING_FIRE_BOLT      154
-#define EGO_RING_COLD_BOLT      155
-#define EGO_RING_ELEC_BOLT      156
-#define EGO_RING_ACID_BOLT      157
-#define EGO_RING_MANA_BOLT      158
-#define EGO_RING_FIRE_BALL      159
-#define EGO_RING_COLD_BALL      160
-#define EGO_RING_ELEC_BALL      161
-#define EGO_RING_ACID_BALL      162
-#define EGO_RING_MANA_BALL      163
-#define EGO_RING_DRAGON_F       164
-#define EGO_RING_DRAGON_C       165
-#define EGO_RING_D_SPEED        166
-#define EGO_RING_BERSERKER      167
-#define EGO_RING_HUNTER         168
-#define EGO_RING_THROW          169
-#define EGO_RING_REGEN          170
-#define EGO_RING_LITE           171
-#define EGO_RING_M_DETECT       172
-#define EGO_RING_STEALTH        173
-#define EGO_RING_TELE_AWAY      174
-#define EGO_RING_TO_H           175
-#define EGO_RING_TO_D           176
-#define EGO_RING_RES_LITE       177
-#define EGO_RING_RES_DARK       178
-#define EGO_RING_WIZARD         179
-#define EGO_RING_TRUE           180
-#define EGO_RING_DRAIN_EXP      181
-#define EGO_RING_NO_MELEE       182
-#define EGO_RING_AGGRAVATE      183
-#define EGO_RING_TY_CURSE       184
-#define EGO_RING_RES_TIME       185
-#define EGO_RING_TELEPORT       186
-#define EGO_RING_ALBINO         187
-
-#define EGO_AMU_SLOW_D          210
-#define EGO_AMU_INFRA           211
-#define EGO_AMU_SEE_INVIS       212
-#define EGO_AMU_HOLD_LIFE       213
-#define EGO_AMU_DRAIN_EXP       214
-#define EGO_AMU_FOOL            215
-#define EGO_AMU_AGGRAVATE       216
-#define EGO_AMU_TY_CURSE        217
-#define EGO_AMU_AC              218
-#define EGO_AMU_IDENT           219
-#define EGO_AMU_CHARM           220
-#define EGO_AMU_STEALTH         221
-#define EGO_AMU_JUMP            222
-#define EGO_AMU_TELEPORT        223
-#define EGO_AMU_D_DOOR          224
-#define EGO_AMU_DEFENDER        225
-#define EGO_AMU_RES_FIRE        226
-#define EGO_AMU_RES_FIRE_       227
-#define EGO_AMU_RES_COLD        228
-#define EGO_AMU_RES_COLD_       229
-#define EGO_AMU_RES_ELEC        230
-#define EGO_AMU_RES_ELEC_       231
-#define EGO_AMU_RES_ACID        232
-#define EGO_AMU_RES_ACID_       233
-#define EGO_AMU_LEVITATION      234
-#define EGO_AMU_GREAT           235
-#define EGO_AMU_DETECTION       236
-#define EGO_AMU_NAIVETY         237
-#define EGO_AMU_RESISTANCE      250
-
-/* Activation effects for random artifacts */
-#define ACT_SUNLIGHT            1
-#define ACT_BO_MISS_1           2
-#define ACT_BA_POIS_1           3
-#define ACT_BO_ELEC_1           4
-#define ACT_BO_ACID_1           5
-#define ACT_BO_COLD_1           6
-#define ACT_BO_FIRE_1           7
-#define ACT_BA_COLD_1           8
-#define ACT_BA_FIRE_1           9
-#define ACT_DRAIN_1             10
-#define ACT_BA_COLD_2           11
-#define ACT_BA_ELEC_2           12
-#define ACT_DRAIN_2             13
-#define ACT_VAMPIRE_1           14
-#define ACT_BO_MISS_2           15
-#define ACT_BA_FIRE_2           16
-#define ACT_BA_COLD_3           17
-#define ACT_BA_ELEC_3           18
-#define ACT_WHIRLWIND           19
-#define ACT_VAMPIRE_2           20
-#define ACT_CALL_CHAOS          21
-#define ACT_ROCKET              22
-#define ACT_DISP_EVIL           23
-#define ACT_BA_MISS_3           24
-#define ACT_DISP_GOOD           25
-/* 26 - 50 unused */
-#define ACT_CONFUSE             51
-#define ACT_SLEEP               52
-#define ACT_QUAKE               53
-#define ACT_TERROR              54
-#define ACT_TELE_AWAY           55
-#define ACT_BANISH_EVIL         56
-#define ACT_GENOCIDE            57
-#define ACT_MASS_GENO           58
-/* 59 - 64 unused */
-#define ACT_CHARM_ANIMAL        65
-#define ACT_CHARM_UNDEAD        66
-#define ACT_CHARM_OTHER         67
-#define ACT_CHARM_ANIMALS       68
-#define ACT_CHARM_OTHERS        69
-#define ACT_SUMMON_ANIMAL       70
-#define ACT_SUMMON_PHANTOM      71
-#define ACT_SUMMON_ELEMENTAL    72
-#define ACT_SUMMON_DEMON        73
-#define ACT_SUMMON_UNDEAD       74
-/* 75 - 80 unused */
-#define ACT_CURE_LW             81
-#define ACT_CURE_MW             82
-#define ACT_CURE_POISON         83
-#define ACT_REST_LIFE           84
-#define ACT_REST_ALL            85
-#define ACT_CURE_700            86
-#define ACT_CURE_1000           87
-/* 88 - 90 unused */
-#define ACT_ESP                 91
-#define ACT_BERSERK             92
-#define ACT_PROT_EVIL           93
-#define ACT_RESIST_ALL          94
-#define ACT_SPEED               95
-#define ACT_XTRA_SPEED          96
-#define ACT_WRAITH              97
-#define ACT_INVULN              98
-/* 99 - 109 unused */
-#define ACT_WIZ_LITE            110
-#define ACT_LIGHT               111
-#define ACT_MAP_LIGHT           112
-#define ACT_DETECT_ALL          113
-#define ACT_DETECT_XTRA         114
-#define ACT_ID_FULL             115
-#define ACT_ID_PLAIN            116
-#define ACT_RUNE_EXPLO          117
-#define ACT_RUNE_PROT           118
-#define ACT_SATIATE             119
-#define ACT_DEST_DOOR           120
-#define ACT_STONE_MUD           121
-#define ACT_RECHARGE            122
-#define ACT_ALCHEMY             123
-#define ACT_DIM_DOOR            124
-#define ACT_TELEPORT            125
-#define ACT_RECALL              126
-/* 127 -> unused */
-
 /*** Object "tval" and "sval" codes ***/
 
 
@@ -1919,46 +1580,39 @@
  *
  * This value is the primary means by which items are sorted in the
  * player inventory, followed by "sval" and "cost".
- *
- * Note that a "BOW" with tval = 19 and sval S = 10*N+P takes a missile
- * weapon with tval = 16+N, and does (xP) damage when so combined.  This
- * fact is not actually used in the source, but it kind of interesting.
- *
- * Note that as of 2.7.8, the "item flags" apply to all items, though
- * only armor and weapons and a few other items use any of these flags.
  */
 
 #define TV_SKELETON      1      /* Skeletons ('s'), not specified */
-#define TV_BOTTLE        2      /* Empty bottles ('!') */
+#define TV_BOTTLE        2
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
-#define TV_WHISTLE       4      /* Whistle ('~') */
-#define TV_SPIKE         5      /* Spikes ('~') */
-#define TV_CHEST         7      /* Chests ('&') */
-#define TV_FIGURINE      8      /* Magical figurines */
-#define TV_STATUE        9      /* Statue, what a silly object... */
+#define TV_WHISTLE       4
+#define TV_SPIKE         5
+#define TV_CHEST         7
+#define TV_FIGURINE      8
+#define TV_STATUE        9
 #define TV_CORPSE       10      /* Corpses and Skeletons, specific */
 #define TV_CAPTURE      11      /* Monster ball */
-#define TV_NO_AMMO      15      /* Ammo for crimson */
-#define TV_SHOT         16      /* Ammo for slings */
-#define TV_ARROW        17      /* Ammo for bows */
-#define TV_BOLT         18      /* Ammo for x-bows */
-#define TV_BOW          19      /* Slings/Bows/Xbows */
-#define TV_DIGGING      20      /* Shovels/Picks */
+#define TV_NO_AMMO      15      /* Ammo for crimson?? */
+#define TV_SHOT         16
+#define TV_ARROW        17
+#define TV_BOLT         18
+#define TV_BOW          19
+#define TV_DIGGING      20
 #define TV_HAFTED       21      /* Priest Weapons */
 #define TV_POLEARM      22      /* Axes and Pikes */
 #define TV_SWORD        23      /* Edged Weapons */
-#define TV_BOOTS        30      /* Boots */
-#define TV_GLOVES       31      /* Gloves */
-#define TV_HELM         32      /* Helms */
-#define TV_CROWN        33      /* Crowns */
-#define TV_SHIELD       34      /* Shields */
-#define TV_CLOAK        35      /* Cloaks */
-#define TV_SOFT_ARMOR   36      /* Soft Armor */
-#define TV_HARD_ARMOR   37      /* Hard Armor */
-#define TV_DRAG_ARMOR   38      /* Dragon Scale Mail */
-#define TV_LITE         39      /* Lites (including Specials) */
-#define TV_AMULET       40      /* Amulets (including Specials) */
-#define TV_RING         45      /* Rings (including Specials) */
+#define TV_BOOTS        30
+#define TV_GLOVES       31
+#define TV_HELM         32
+#define TV_CROWN        33
+#define TV_SHIELD       34
+#define TV_CLOAK        35
+#define TV_SOFT_ARMOR   36
+#define TV_HARD_ARMOR   37
+#define TV_DRAG_ARMOR   38
+#define TV_LITE         39
+#define TV_AMULET       40
+#define TV_RING         45
 #define TV_CARD         50
 #define TV_STAFF        55
 #define TV_WAND         65
@@ -2202,6 +1856,7 @@
 #define SV_LEATHER_SCALE_MAIL           11
 #define SV_LEATHER_JACK                 12
 #define SV_KUROSHOUZOKU                 13  /* Black Clothes */
+#define SV_BLACK_CLOTHES                13
 #define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
 #define SV_ABUNAI_MIZUGI                50  /* Swimsuit */
 #define SV_YOIYAMI_ROBE                 60  /* Robe of Twilight */
@@ -2269,119 +1924,8 @@
 #define SV_LITE_ARMAGEDDON              21
 #define SV_LITE_HYDRA                   22
 
-/* The "sval" codes for TV_AMULET */
-#define SV_AMULET_DOOM                   0
-#define SV_AMULET_TELEPORT               1
-#define SV_AMULET_ADORNMENT              2
-#define SV_AMULET_SLOW_DIGEST            3
-#define SV_AMULET_RESIST_ACID            4
-#define SV_AMULET_SEARCHING              5
-#define SV_AMULET_BRILLIANCE             6
-#define SV_AMULET_CHARISMA               7
-#define SV_AMULET_THE_MAGI               8
-#define SV_AMULET_REFLECTION             9
-#define SV_AMULET_CARLAMMAS             10
-#define SV_AMULET_INGWE                 11
-#define SV_AMULET_DWARVES               12
-#define SV_AMULET_NO_MAGIC              13
-#define SV_AMULET_NO_TELE               14
-#define SV_AMULET_RESISTANCE            15
-#define SV_AMULET_TELEPATHY             16
-#define SV_AMULET_FARAMIR               17
-#define SV_AMULET_BOROMIR               18
-#define SV_AMULET_MAGATAMA              19
-#define SV_AMULET_INROU                 20
-#define SV_AMULET_INTELLIGENCE          21
-#define SV_AMULET_WISDOM                22
-#define SV_AMULET_MAGIC_MASTERY         23
-#define SV_AMULET_NIGHT                 24
-#define SV_AMULET_SACRED_KNIGHTS        25
-#define SV_AMULET_HARNESS_OF_THE_HELL    26
-#define SV_AMULET_CHARMED_PENDANT        27
-#define SV_AMULET_GOGO                    28
-#define SV_AMULET_ZEUS                    29
-#define SV_AMULET_SPELL_POWER           30
-#define SV_AMULET_SPELL_CAP             31
-#define SV_AMULET_APHRODITE                32
-#define SV_AMULET_HIGH_RESISTANCE       33
-#define SV_AMULET_TRICKERY              34
-#define SV_AMULET_HOLY_GRAIL            35
-#define SV_AMULET_CARCHAROTH            36
-#define SV_AMULET_RESIST_FIRE           37
-#define SV_AMULET_RESIST_COLD           38
-#define SV_AMULET_RESIST_ELEC           39
-#define SV_AMULET_FANG                  40
-#define SV_AMULET_WOLF                  41
-#define SV_AMULET_GRIP                  42
-#define SV_AMULET_NO_SUMMON             43
-
-/* The sval codes for TV_RING */
-#define SV_RING_WOE                      0
-#define SV_RING_AGGRAVATION              1
-#define SV_RING_WEAKNESS                 2
-#define SV_RING_STUPIDITY                3
-#define SV_RING_TELEPORTATION            4
-#define SV_RING_SLOW_DIGESTION           6
-#define SV_RING_LEVITATION_FALL          7
-#define SV_RING_RESIST_FIRE              8
-#define SV_RING_RESIST_COLD              9
-#define SV_RING_SUSTAIN_STR             10
-#define SV_RING_SUSTAIN_INT             11
-#define SV_RING_SUSTAIN_WIS             12
-#define SV_RING_SUSTAIN_CON             13
-#define SV_RING_SUSTAIN_DEX             14
-#define SV_RING_SUSTAIN_CHR             15
-#define SV_RING_PROTECTION              16
-#define SV_RING_ACID                    17
-#define SV_RING_FLAMES                  18
-#define SV_RING_ICE                     19
-#define SV_RING_RESIST_POIS             20
-#define SV_RING_FREE_ACTION             21
-#define SV_RING_SEE_INVIS               22
-#define SV_RING_SEARCHING               23
-#define SV_RING_STR                     24
-#define SV_RING_ELEC                    25
-#define SV_RING_DEX                     26
-#define SV_RING_CON                     27
-#define SV_RING_ACCURACY                28
-#define SV_RING_DAMAGE                  29
-#define SV_RING_SLAYING                 30
-#define SV_RING_SPEED                   31
-#define SV_RING_FRAKIR                  32
-#define SV_RING_TULKAS                  33
-#define SV_RING_NARYA                   34
-#define SV_RING_NENYA                   35
-#define SV_RING_VILYA                   36
-#define SV_RING_POWER                   37
-#define SV_RING_RES_FEAR                38
-#define SV_RING_RES_LD                  39
-#define SV_RING_RES_NETHER              40
-#define SV_RING_RES_NEXUS               41
-#define SV_RING_RES_SOUND               42
-#define SV_RING_RES_CONFUSION           43
-#define SV_RING_RES_SHARDS              44
-#define SV_RING_RES_DISENCHANT          45
-#define SV_RING_RES_CHAOS               46
-#define SV_RING_RES_BLINDNESS           47
-#define SV_RING_LORDLY                  48
-#define SV_RING_ATTACKS                 49
-#define SV_RING_AHO                     50
-#define SV_RING_SHOTS                   51
-#define SV_RING_SUSTAIN                 52
-#define SV_RING_DEC_MANA                53
-#define SV_RING_WARNING                 54
-#define SV_RING_MUSCLE                  55
-#define SV_RING_FRODO                   56
-#define SV_RING_SPELL_POWER                57
-#define SV_RING_SPELL_CAP                58
-#define SV_RING_AGES                    59
-#define SV_RING_DESTRUCTION             60
-#define SV_RING_WEAPONMASTERY           61
-#define SV_RING_DEVOURING_DARKNESS      62
-#define SV_RING_RESISTANCE              63
-#define SV_RING_HIGH_RESISTANCE         64
-#define SV_RING_EXTRA_MIGHT             65
-
+#define SV_AMULT                         0
+#define SV_RING                          0
 #define SV_EXPRESS_CARD                  0
 
 /* The "sval" codes for TV_STAFF */
@@ -2998,6 +2542,7 @@
 #define OD_STORE            0x00000020  /* Assume to be aware and known */
 #define OD_NO_FLAVOR        0x00000040  /* Allow to hidden flavor */
 #define OD_FORCE_FLAVOR     0x00000080  /* Get un-shuffled flavor name */
+#define OD_NAME_AND_DICE    0x00000100
 
 
 /*
@@ -3061,84 +2606,88 @@
 
 /*
  * Legal restrictions for "summon_specific()"
+ * Note: _summon_specific_types in init1.c relies on the exact order below for parsing.
+ * Exact numeric values are saved in v_info.raw so don't change/remove/reorder.
  */
-#define SUMMON_ANT                  11
-#define SUMMON_SPIDER               12
-#define SUMMON_HOUND                13
-#define SUMMON_HYDRA                14
-#define SUMMON_ANGEL                15
-#define SUMMON_DEMON                16
-#define SUMMON_UNDEAD               17
-#define SUMMON_DRAGON               18
-#define SUMMON_HI_UNDEAD            21
-#define SUMMON_HI_DRAGON            22
-#define SUMMON_HI_DEMON             23
-#define SUMMON_AMBERITES            31
-#define SUMMON_UNIQUE               32
-#define SUMMON_BIZARRE1             33
-#define SUMMON_BIZARRE2             34
-#define SUMMON_BIZARRE3             35
-#define SUMMON_BIZARRE4             36
-#define SUMMON_BIZARRE5             37
-#define SUMMON_BIZARRE6             38
-#define SUMMON_CYBER                39
-#define SUMMON_KIN                  40
-#define SUMMON_DAWN                 41
-#define SUMMON_ANIMAL               42
-#define SUMMON_ANIMAL_RANGER        43
-/*#define SUMMON_HI_UNDEAD_NO_UNIQUES 44*/
-/*#define SUMMON_HI_DRAGON_NO_UNIQUES 45*/
-/*#define SUMMON_NO_UNIQUES           46*/
-#define SUMMON_PHANTOM              47
-/*#define SUMMON_ELEMENTAL_NO_UNIQUES 48*/
-#define SUMMON_BLUE_HORROR          49
-#define SUMMON_LIVING               50
-#define SUMMON_HI_DRAGON_LIVING     51
-#define SUMMON_GOLEM                52
-#define SUMMON_ELEMENTAL            53
-#define SUMMON_VORTEX               54
-#define SUMMON_HYBRID               55
-#define SUMMON_BIRD                 56
-/*#define SUMMON_AQUATIC_NO_UNIQUES   57*/
-#define SUMMON_KAMIKAZE             58
-#define SUMMON_KAMIKAZE_LIVING      59
-#define SUMMON_MANES                60
-#define SUMMON_LOUSE                61
-#define SUMMON_GUARDIANS            62
-#define SUMMON_KNIGHTS              63
-#define SUMMON_EAGLES               64
-#define SUMMON_PIRANHAS             65
-#define SUMMON_ARMAGE_GOOD          66
-#define SUMMON_ARMAGE_EVIL          67
-#define SUMMON_SOFTWARE_BUG         68
-#define SUMMON_OLYMPIANS            69
-#define SUMMON_RAT                    70
-#define SUMMON_BAT                    71
-#define SUMMON_WOLF                    72
-#define SUMMON_DREAD                73
-#define SUMMON_ZOMBIE                74
-#define SUMMON_SKELETON                75
-#define SUMMON_GHOST                76
-#define SUMMON_VAMPIRE                77
-#define SUMMON_WIGHT                78
-#define SUMMON_LICH                    79
-#define SUMMON_KRAKEN                80
-#define SUMMON_THIEF                81
-#define SUMMON_ENT                  82
-#define SUMMON_CAMELOT              83
-#define SUMMON_NIGHTMARE            84
-#define SUMMON_YEEK                 85
-#define SUMMON_ORC                  86
-#define SUMMON_DARK_ELF             87
-#define SUMMON_GIANT                88
-#define SUMMON_UNDEAD_SUMMONER      89
-#define SUMMON_MATURE_DRAGON        90
-#define SUMMON_DRAGON_SUMMONER      91
-#define SUMMON_CLUBBER_DEMON        92
-#define SUMMON_BALROG               93
-#define SUMMON_DEMON_SUMMONER       94
-#define SUMMON_ULTIMATE             95
-
+enum summon_specific_e {
+    SUMMON_ANT = 1,
+    SUMMON_SPIDER,
+    SUMMON_HOUND,
+    SUMMON_HYDRA,
+    SUMMON_ANGEL,
+    SUMMON_DEMON,
+    SUMMON_UNDEAD,
+    SUMMON_DRAGON,
+    SUMMON_HI_UNDEAD,
+    SUMMON_HI_DRAGON,
+    SUMMON_HI_DEMON,
+    SUMMON_AMBERITE,
+    SUMMON_UNIQUE,
+    SUMMON_BIZARRE1,
+    SUMMON_BIZARRE2,
+    SUMMON_BIZARRE3,
+    SUMMON_BIZARRE4,
+    SUMMON_BIZARRE5,
+    SUMMON_BIZARRE6,
+    SUMMON_CYBER,
+    SUMMON_KIN,
+    SUMMON_DAWN,
+    SUMMON_ANIMAL,
+    SUMMON_ANIMAL_RANGER,
+    SUMMON_PHANTOM,
+    SUMMON_BLUE_HORROR,
+    SUMMON_LIVING,
+    SUMMON_HI_DRAGON_LIVING,
+    SUMMON_GOLEM,
+    SUMMON_ELEMENTAL,
+    SUMMON_VORTEX,
+    SUMMON_HYBRID,
+    SUMMON_BIRD,
+    SUMMON_KAMIKAZE,
+    SUMMON_KAMIKAZE_LIVING,
+    SUMMON_MANES,
+    SUMMON_LOUSE,
+    SUMMON_GUARDIAN,
+    SUMMON_KNIGHT,
+    SUMMON_EAGLE,
+    SUMMON_PIRANHA,
+    SUMMON_ARMAGE_GOOD,
+    SUMMON_ARMAGE_EVIL,
+    SUMMON_SOFTWARE_BUG,
+    SUMMON_OLYMPIAN,
+    SUMMON_RAT,
+    SUMMON_BAT,
+    SUMMON_WOLF,
+    SUMMON_DREAD,
+    SUMMON_ZOMBIE,
+    SUMMON_SKELETON,
+    SUMMON_GHOST,
+    SUMMON_VAMPIRE,
+    SUMMON_WIGHT,
+    SUMMON_LICH,
+    SUMMON_KRAKEN,
+    SUMMON_THIEF,
+    SUMMON_ENT,
+    SUMMON_CAMELOT,
+    SUMMON_NIGHTMARE,
+    SUMMON_YEEK,
+    SUMMON_ORC,
+    SUMMON_DARK_ELF,
+    SUMMON_GIANT,
+    SUMMON_UNDEAD_SUMMONER,
+    SUMMON_MATURE_DRAGON,
+    SUMMON_DRAGON_SUMMONER,
+    SUMMON_CLUBBER_DEMON,
+    SUMMON_BALROG,
+    SUMMON_DEMON_SUMMONER,
+    SUMMON_ULTIMATE,
+    SUMMON_HUMAN,
+    SUMMON_HORSE,
+    SUMMON_MAGICAL,
+    SUMMON_TROLL,
+    SUMMON_CHAPEL_GOOD,
+    SUMMON_CHAPEL_EVIL,
+};
 
 /*
  * Spell types used by project(), and related functions.
@@ -3157,8 +2706,8 @@
 #define GF_WATER        14
 #define GF_LITE         15
 #define GF_DARK         16
-#define GF_LITE_WEAK    17
-#define GF_DARK_WEAK    18
+#define GF_LITE_WEAK    17  /* Only hurts monsters vulnerable to light ... */
+#define GF_DARK_WEAK    18  /* Only hurts monsters vulnerable to dark ... */
 #define GF_SHARDS       20
 #define GF_SOUND        21
 #define GF_CONFUSION    22
@@ -3313,8 +2862,15 @@
 
 #define FEEL_NONE              0
 #define FEEL_BROKEN            1
+/* CTK: Worthless and Terrible may now actually be useful. The problem is, that
+ *      the game often tries to auto destroy all cursed objects, and this is rather
+ *      hard to avoid satisfactorily. One approach is to change the way unidentified
+ *      but sensed objects value. However, this leaks information for weakly sensing 
+ *      classes (or we destroy useful objects). Given a choice between removing the 
+ *      easy destroyer altogether and nerfing heavy sensing of cursed objects, I am
+ *      temporarily choosing the latter pending a more creative solution.
 #define FEEL_TERRIBLE          2
-#define FEEL_WORTHLESS         3
+#define FEEL_WORTHLESS         3 */
 #define FEEL_CURSED            4
 #define FEEL_UNCURSED          5
 #define FEEL_AVERAGE           6
@@ -3571,8 +3127,38 @@
 #define TR_MAGIC_RESISTANCE    127
 
 #define TR_SLAY_GOOD           128
+#define TR_DEC_STR             129
+#define TR_DEC_INT             130
+#define TR_DEC_WIS             131
+#define TR_DEC_DEX             132
+#define TR_DEC_CON             133
+#define TR_DEC_CHR             134
+#define TR_VULN_ACID           135
+#define TR_VULN_ELEC           136
+#define TR_VULN_FIRE           137
+#define TR_VULN_COLD           138
+#define TR_VULN_POIS           139
+#define TR_VULN_FEAR           140
+#define TR_VULN_LITE           141
+#define TR_VULN_DARK           142
+#define TR_VULN_BLIND          143
+#define TR_VULN_CONF           144
+#define TR_VULN_SOUND          145
+#define TR_VULN_SHARDS         146
+#define TR_VULN_NETHER         147
+#define TR_VULN_NEXUS          148
+#define TR_VULN_CHAOS          149
+#define TR_VULN_DISEN          150
+#define TR_DEC_STEALTH         151
+#define TR_DEC_SPEED           152
+#define TR_DEC_LIFE            153
+#define TR_SH_REVENGE          154
+#define TR_VORPAL2             155
+#define TR_DEC_MAGIC_MASTERY   156
+#define TR_DEC_SPELL_CAP       157
+#define TR_DEC_SPELL_POWER     158
 
-#define TR_FLAG_MAX            129
+#define TR_FLAG_MAX            159
 #define TR_FLAG_SIZE           6
 
 #define TRG_INSTA_ART           0x00000001     /* Item must be an artifact */
@@ -4870,7 +4456,7 @@ extern int PlayerUID;
 #define INIT_SHOW_TEXT          0x01
 #define INIT_ASSIGN             0x02
 #define INIT_CREATE_DUNGEON     0x04
-#define INIT_ONLY_FEATURES      0x08
+#define INIT_SCROLL_WILDERNESS  0x08
 #define INIT_ONLY_BUILDINGS     0x10
 
 /*
@@ -4918,11 +4504,8 @@ extern int PlayerUID;
 #define PARSE_ERROR_UNDEFINED_TERRAIN_TAG   10
 #define PARSE_ERROR_MAX                     11
 
-#define GINOU_SUDE          0
 #define SKILL_MARTIAL_ARTS  0
-#define GINOU_NITOURYU      1
 #define SKILL_DUAL_WIELDING 1
-#define GINOU_RIDING        2
 #define SKILL_RIDING        2
 
 /* Proficiency level */
@@ -5214,6 +4797,7 @@ extern int PlayerUID;
 #define MON_SPIRIT_NAGA   436
 #define MON_FIVE_HEADED_HYDRA 440
 #define MON_GACHAPIN      441
+#define MON_BLACK_KNIGHT 442
 #define MON_BASILISK      453
 #define MON_ICE_TROLL    454
 #define MON_ARCHANGEL     456
@@ -5230,6 +4814,7 @@ extern int PlayerUID;
 #define MON_SPECTATOR 488
 #define MON_BICLOPS       490
 #define MON_IVORY_MONK    492
+#define MON_ANTI_PALADIN 497
 #define MON_LOG_MASTER    498
 #define MON_CHAOS_DRAKE           501
 #define MON_LAW_DRAKE             502
@@ -5267,6 +4852,7 @@ extern int PlayerUID;
 #define MON_NIGHTBLADE    564
 #define MON_BODAK  566
 #define MON_ELDER_THING   569
+#define MON_IPSISSIMUS   571
 #define MON_CHAOS_SPAWN   574
 #define MON_CRYPT_THING   577
 #define MON_MAGMA_ELEMENTAL 584
@@ -5276,6 +4862,7 @@ extern int PlayerUID;
 #define MON_MATURE_GOLD_DRAGON    590
 #define MON_CRYSTAL_DRAKE         591
 #define MON_M_MH_DRAGON   593
+#define MON_DEATH_KNIGHT 597
 #define MON_MANDOR        598
 #define MON_SHIM_VOR      600
 #define MON_ANCIENT_BRONZE_DRAGON 602
@@ -5292,13 +4879,16 @@ extern int PlayerUID;
 #define MON_ROTTING_QUYLTHULG           633
 #define MON_LESSER_TITAN 634
 #define MON_NINE_HEADED_HYDRA 635
+#define MON_ARCHPRIEST   637
 #define MON_XAREN       639
 #define MON_JUBJUB        640
 #define MON_DEATH_DRAKE           643
 #define MON_ANCIENT_GOLD_DRAGON   645
 #define MON_GREAT_CRYSTAL_DRAKE   646
+#define MON_WYRD_SISTER  647
 #define MON_CLUB_DEMON          648
 #define MON_DEATH_QUASIT        649
+#define MON_FALLEN_ANGEL 652
 #define MON_UBBO_SATHLA         655
 #define MON_D_ELF_SORC          657
 #define MON_MASTER_LICH         658
@@ -5316,12 +4906,14 @@ extern int PlayerUID;
 #define MON_SHOGGOTH            685
 #define MON_ARIEL               687
 #define MON_ELEVEN_HEADED_HYDRA 688
+#define MON_HIGH_PRIEST         689
 #define MON_DREADMASTER         690
 #define MON_DAWN                693
 #define MON_NAZGUL              696
 #define MON_SMAUG               697
 #define MON_STORMBRINGER        698
 #define MON_ULTRA_PALADIN       699
+#define MON_LEPRECHAUN_FANATIC  700
 #define MON_DRACOLICH           701
 #define MON_G_TITAN             702
 #define MON_GREATER_TITAN       702
@@ -5336,6 +4928,7 @@ extern int PlayerUID;
 #define MON_PLASMA_HOUND        726
 #define MON_DEMONIC_QUYLTHULG   727
 #define MON_ULIK                729
+#define MON_HELL_KNIGHT         731
 #define MON_BULLGATES           732
 #define MON_SANTACLAUS          733
 #define MON_LORD_CHAOS          737
@@ -5720,7 +5313,7 @@ extern int PlayerUID;
 #define DF1_GLASS_DOOR          0x00000200L
 #define DF1_CAVE                0x00000400L
 #define DF1_CAVERN              0x00000800L
-#define DF1_XXX12               0x00001000L
+#define DF1_RANDOM              0x00001000L
 #define DF1_XXX13               0x00002000L
 #define DF1_XXX14               0x00004000L
 #define DF1_XXX15               0x00008000L
@@ -5792,65 +5385,73 @@ extern int PlayerUID;
 
 
 /*
- * Flags for wr_item()/rd_item()
+ * Fields for wr_item()/rd_item() stored in savefiles (byte).
  */
-#define SAVE_ITEM_PVAL         0x00000001
-#define SAVE_ITEM_DISCOUNT     0x00000002
-#define SAVE_ITEM_NUMBER       0x00000004
-#define SAVE_ITEM_NAME1        0x00000008
-#define SAVE_ITEM_NAME2        0x00000010
-#define SAVE_ITEM_TIMEOUT      0x00000020
-#define SAVE_ITEM_TO_H         0x00000040
-#define SAVE_ITEM_TO_D         0x00000080
-#define SAVE_ITEM_TO_A         0x00000100
-#define SAVE_ITEM_AC           0x00000200
-#define SAVE_ITEM_DD           0x00000400
-#define SAVE_ITEM_DS           0x00000800
-#define SAVE_ITEM_IDENT        0x00001000
-#define SAVE_ITEM_MARKED       0x00002000
-#define SAVE_ITEM_ART_FLAGS0   0x00004000
-#define SAVE_ITEM_ART_FLAGS1   0x00008000
-#define SAVE_ITEM_ART_FLAGS2   0x00010000
-#define SAVE_ITEM_ART_FLAGS3   0x00020000
-#define SAVE_ITEM_CURSE_FLAGS  0x00040000
-#define SAVE_ITEM_HELD_M_IDX   0x00080000
-#define SAVE_ITEM_XTRA1        0x00100000
-#define SAVE_ITEM_XTRA2        0x00200000
-#define SAVE_ITEM_XTRA3        0x00400000
-#define SAVE_ITEM_XTRA4        0x00800000
-#define SAVE_ITEM_XTRA5        0x01000000
-#define SAVE_ITEM_FEELING      0x02000000
-#define SAVE_ITEM_INSCRIPTION  0x04000000
-#define SAVE_ITEM_ART_NAME     0x08000000
-#define SAVE_ITEM_RUNE_FLAGS   0x10000000
-#define SAVE_ITEM_NAME3        0x20000000
-#define SAVE_ITEM_ART_FLAGS4   0x40000000
-#define SAVE_ITEM_ART_FLAGS5   0x80000000
-
+enum object_save_fields_e {
+    SAVE_ITEM_DONE = 0,
+    SAVE_ITEM_PVAL,
+    SAVE_ITEM_DISCOUNT,
+    SAVE_ITEM_NUMBER,
+    SAVE_ITEM_NAME1,
+    SAVE_ITEM_NAME2,
+    SAVE_ITEM_NAME3,
+    SAVE_ITEM_ART_NAME,
+    SAVE_ITEM_TIMEOUT,
+    SAVE_ITEM_COMBAT,
+    SAVE_ITEM_ARMOR,
+    SAVE_ITEM_DAMAGE_DICE,
+    SAVE_ITEM_IDENT,
+    SAVE_ITEM_MARKED,
+    SAVE_ITEM_FEELING,
+    SAVE_ITEM_INSCRIPTION,
+    SAVE_ITEM_ART_FLAGS_0,
+    SAVE_ITEM_ART_FLAGS_1,
+    SAVE_ITEM_ART_FLAGS_2,
+    SAVE_ITEM_ART_FLAGS_3,
+    SAVE_ITEM_ART_FLAGS_4,
+    SAVE_ITEM_ART_FLAGS_5,
+    SAVE_ITEM_ART_FLAGS_6,
+    SAVE_ITEM_ART_FLAGS_7,
+    SAVE_ITEM_ART_FLAGS_8,
+    SAVE_ITEM_ART_FLAGS_9,
+    SAVE_ITEM_CURSE_FLAGS,
+    SAVE_ITEM_RUNE_FLAGS,
+    SAVE_ITEM_HELD_M_IDX,
+    SAVE_ITEM_XTRA1,
+    SAVE_ITEM_XTRA2,
+    SAVE_ITEM_XTRA3,
+    SAVE_ITEM_XTRA4,
+    SAVE_ITEM_XTRA5,
+    SAVE_ITEM_ACTIVATION,
+};
 
 /*
- * Flags for wr_monster()/rd_monster()
+ * Fields for wr_monster()/rd_monster() stored in savefiles (byte).
  */
-#define SAVE_MON_AP_R_IDX     0x00000001
-#define SAVE_MON_SUB_ALIGN    0x00000002
-#define SAVE_MON_CSLEEP       0x00000004
-#define SAVE_MON_FAST         0x00000008
-#define SAVE_MON_SLOW         0x00000010
-#define SAVE_MON_STUNNED      0x00000020
-#define SAVE_MON_CONFUSED     0x00000040
-#define SAVE_MON_MONFEAR      0x00000080
-#define SAVE_MON_TARGET_Y     0x00000100
-#define SAVE_MON_TARGET_X     0x00000200
-#define SAVE_MON_INVULNER     0x00000400
-#define SAVE_MON_SMART        0x00000800
-#define SAVE_MON_EXP          0x00001000
-#define SAVE_MON_MFLAG2       0x00002000
-#define SAVE_MON_NICKNAME     0x00004000
-#define SAVE_MON_PARENT       0x00008000
-#define SAVE_MON_PACK_IDX     0x00010000
-#define SAVE_MON_AC              0x00020000
-#define SAVE_MON_MELEE          0x00040000
-
+enum mon_save_fields_e {
+    SAVE_MON_DONE = 0,
+    SAVE_MON_AP_R_IDX, 
+    SAVE_MON_SUB_ALIGN,
+    SAVE_MON_TIMER,
+    SAVE_MON_TARGET_Y,
+    SAVE_MON_TARGET_X,
+    SAVE_MON_SMART,
+    SAVE_MON_EXP,
+    SAVE_MON_MFLAG2,
+    SAVE_MON_NICKNAME,
+    SAVE_MON_PARENT,
+    SAVE_MON_PACK_IDX,
+    SAVE_MON_AC,
+    SAVE_MON_MELEE,
+    SAVE_MON_EGO_WHIP,
+    SAVE_MON_ANTI_MAGIC,
+    SAVE_MON_FORGOT_4,
+    SAVE_MON_FORGOT_5,
+    SAVE_MON_FORGOT_6,
+    SAVE_MON_SUMMON_CT,
+    SAVE_MON_DROP_CT,
+    SAVE_MON_STOLEN_CT,
+};
 
 /* Sub-alignment flags for neutral monsters */
 #define SUB_ALIGN_NEUTRAL 0x0000
@@ -5939,6 +5540,7 @@ extern int PlayerUID;
 #define MTIMED_MONFEAR  5 /* Monster is afraid */
 #define MTIMED_INVULNER 6 /* Monster is temporarily invulnerable */
 
+#define MTIMED_MAX      7
 #define MAX_MTIMED      7
 
 #define MON_CSLEEP(M_PTR)   ((M_PTR)->mtimed[MTIMED_CSLEEP])
@@ -6170,8 +5772,11 @@ extern int PlayerUID;
 
 #define MAX_SUMMONS 50
 
-#define EQUIP_BEGIN 24
-#define EQUIP_MAX_SLOTS (INVEN_TOTAL - EQUIP_BEGIN)
+/* All of the following enumeration values are persisted in
+   savefiles, so should not be changed. Add new options to
+   the bottom of the respective enum (just before the _MAX
+   entry, if present)
+*/
 
 enum slot_e {
     EQUIP_SLOT_NONE,
@@ -6188,6 +5793,491 @@ enum slot_e {
     EQUIP_SLOT_ANY,             
     EQUIP_SLOT_WEAPON,
     EQUIP_SLOT_CAPTURE_BALL,
-    EQUIP_SLOT_MAX,
+    EQUIP_SLOT_MAX
 };
+
+enum ego_e {
+    EGO_TYPE_NONE, 
+    EGO_TYPE_AMMO,
+    EGO_TYPE_WEAPON,
+    EGO_TYPE_SHIELD,
+    EGO_TYPE_BOW,
+    EGO_TYPE_RING,
+    EGO_TYPE_AMULET,
+    EGO_TYPE_LITE,
+    EGO_TYPE_BODY_ARMOR,
+    EGO_TYPE_CLOAK,
+    EGO_TYPE_HELMET,
+    EGO_TYPE_GLOVES,
+    EGO_TYPE_BOOTS,
+    EGO_TYPE_DIGGER,
+    EGO_TYPE_CROWN,
+    EGO_TYPE_HARP,
+    EGO_TYPE_ROBE,
+    EGO_TYPE_SPECIAL,
+    EGO_TYPE_MAX
+};
+
+enum ego_gloves_e {
+    EGO_GLOVES_FREE_ACTION = 1,
+    EGO_GLOVES_SLAYING,
+    EGO_GLOVES_THIEF,
+    EGO_GLOVES_GIANT,
+    EGO_GLOVES_WIZARD,
+    EGO_GLOVES_YEEK,
+    EGO_GLOVES_GENJI,
+    EGO_GLOVES_SNIPER,
+    EGO_GLOVES_BERSERKER,
+};
+
+enum ego_robe_e {
+    EGO_ROBE_PERMANENCE = 17,
+    EGO_ROBE_TWILIGHT,
+    EGO_ROBE_SORCERER,
+};
+
+enum ego_body_e {
+    EGO_BODY_PROTECTION = 20,
+    EGO_BODY_ELEMENTAL_PROTECTION,
+    EGO_BODY_CELESTIAL_PROTECTION,
+    EGO_BODY_ELVENKIND,
+    EGO_BODY_DWARVEN,
+    EGO_BODY_URUK_HAI,
+    EGO_BODY_OLOG_HAI,
+    EGO_BODY_DEMON,
+    EGO_BODY_DEMON_LORD,
+};
+
+enum ego_crown_e {
+    EGO_CROWN_SEEING = 40,
+    EGO_CROWN_TELEPATHY,
+    EGO_CROWN_MAGI,
+    EGO_CROWN_MIGHT,
+    EGO_CROWN_LORDLINESS,
+    EGO_CROWN_ANGMAR,
+    EGO_CROWN_UNBELIEVER,
+    EGO_CROWN_CELESTIAL_PROTECTION,
+};
+
+enum ego_helmet_e {
+    EGO_HELMET_KNOWLEDGE = 60,
+    EGO_HELMET_UNDERSTANDING,
+    EGO_HELMET_DOMINATION,
+    EGO_HELMET_FORTITUDE,
+    EGO_HELMET_KOBOLD,
+    EGO_HELMET_TROLL,
+    EGO_HELMET_VAMPIRE,
+    EGO_HELMET_SUNLIGHT,
+    EGO_HELMET_SEEING,
+    EGO_HELMET_DWARVEN,
+    EGO_HELMET_VALKYRIE,
+    EGO_HELMET_RAGE,
+};
+
+enum ego_shield_e {
+    EGO_SHIELD_PROTECTION = 80,
+    EGO_SHIELD_ELEMENTAL_PROTECTION,
+    EGO_SHIELD_CELESTIAL_PROTECTION,
+    EGO_SHIELD_DWARVEN,
+    EGO_SHIELD_ORCISH,
+    EGO_SHIELD_ELVENKIND,
+    EGO_SHIELD_REFLECTION,
+    EGO_SHIELD_NIGHT_AND_DAY,
+    EGO_SHIELD_ENDURANCE,
+};
+
+enum ego_cloak_e {
+    EGO_CLOAK_PROTECTION = 100,
+    EGO_CLOAK_COWARDICE,
+    EGO_CLOAK_STEALTH,
+    EGO_CLOAK_ELEMENTAL_PROTECTION,
+    EGO_CLOAK_IMMOLATION,
+    EGO_CLOAK_ELECTRICITY,
+    EGO_CLOAK_FREEZING,
+    EGO_CLOAK_RETRIBUTION,
+    EGO_CLOAK_SHADOWS,
+    EGO_CLOAK_AMAN,
+    EGO_CLOAK_BAT,
+    EGO_CLOAK_FAIRY,
+    EGO_CLOAK_NAZGUL,
+};
+
+enum ego_boots_e {
+    EGO_BOOTS_LEVITATION = 120,
+    EGO_BOOTS_STEALTH,
+    EGO_BOOTS_GNOMISH,
+    EGO_BOOTS_DWARVEN,
+    EGO_BOOTS_SPEED,
+    EGO_BOOTS_ELVENKIND,
+    EGO_BOOTS_FEANOR,
+    EGO_BOOTS_FAIRY,
+};
+
+enum ego_harp_e {
+    EGO_HARP_VANYAR = 138,
+    EGO_HARP_EREBOR,
+};
+
+enum ego_bow_e {
+    EGO_BOW_ACCURACY = 140,
+    EGO_BOW_VELOCITY,
+    EGO_BOW_EXTRA_MIGHT,
+    EGO_BOW_EXTRA_SHOTS,
+    EGO_BOW_LOTHLORIEN,
+    EGO_BOW_HARADRIM,
+    EGO_BOW_BUCKLAND,
+};
+
+enum ego_ammo_e {
+    EGO_AMMO_HURT_ANIMAL = 155,
+    EGO_AMMO_HURT_DRAGON,
+    EGO_AMMO_HURT_EVIL,
+    EGO_AMMO_SLAYING,
+    EGO_AMMO_WOUNDING,
+    EGO_AMMO_SHOCKING,
+    EGO_AMMO_FLAME,
+    EGO_AMMO_FROST,
+    EGO_AMMO_PRISM,
+    EGO_AMMO_RETURNING,
+    EGO_AMMO_HOLY_MIGHT,
+};
+
+enum ego_special_e {
+    EGO_SPECIAL_BLASTED = 169,
+};
+
+enum ego_lite_e {
+    EGO_LITE_EXTRA_LIGHT = 175,
+    EGO_LITE_ILLUMINATION,
+    EGO_LITE_DURATION,
+    EGO_LITE_INFRAVISION,
+    EGO_LITE_IMMOLATION,
+    EGO_LITE_DARKNESS,
+    EGO_LITE_IMMORTAL_EYE,
+    EGO_LITE_VALINOR,
+};
+
+enum ego_digger_e {
+    EGO_DIGGER_DIGGING = 190,
+    EGO_DIGGER_DISSOLVING,
+    EGO_DIGGER_DISRUPTION,
+};
+
+enum ego_weapon_e {
+    EGO_WEAPON_BURNING = 200,
+    EGO_WEAPON_FREEZING,
+    EGO_WEAPON_MELTING,
+    EGO_WEAPON_SHOCKING,
+    EGO_WEAPON_VENOM,
+    EGO_WEAPON_FORCE,
+
+    EGO_WEAPON_SLAY_ANIMAL = 206,
+    EGO_WEAPON_SLAY_DEMON,
+    EGO_WEAPON_SLAY_DRAGON,
+    EGO_WEAPON_SLAY_EVIL,
+    EGO_WEAPON_SLAY_GIANT,
+    EGO_WEAPON_SLAY_HUMAN,
+    EGO_WEAPON_SLAY_ORC,
+    EGO_WEAPON_SLAY_TROLL,
+    EGO_WEAPON_SLAY_UNDEAD,
+
+    EGO_WEAPON_KILL_DEMON = 215,
+    EGO_WEAPON_KILL_DRAGON,
+    EGO_WEAPON_KILL_EVIL,
+    EGO_WEAPON_KILL_GIANT,
+    EGO_WEAPON_KILL_HUMAN,
+    EGO_WEAPON_KILL_ORC,
+    EGO_WEAPON_KILL_TROLL,
+    EGO_WEAPON_KILL_UNDEAD,
+
+    EGO_WEAPON_ARCANE = 223,
+    EGO_WEAPON_ARMAGEDDON,
+    EGO_WEAPON_CHAOS,
+    EGO_WEAPON_CRAFT,
+    EGO_WEAPON_CRUSADE,
+    EGO_WEAPON_DAEMON,
+    EGO_WEAPON_DEATH,
+    EGO_WEAPON_LIFE,
+    EGO_WEAPON_NATURE,
+    EGO_WEAPON_TRUMP,
+    EGO_WEAPON_WILD,
+    EGO_WEAPON_ORDER = 234,
+
+    EGO_WEAPON_BLESSED = 240,
+    EGO_WEAPON_DEFENDER,
+    EGO_WEAPON_EARTHQUAKES,
+    EGO_WEAPON_EXTRA_ATTACKS,
+    EGO_WEAPON_MORGUL,
+    EGO_WEAPON_PATTERN,
+    EGO_WEAPON_SHARPNESS,
+    EGO_WEAPON_WESTERNESSE,
+    EGO_WEAPON_NOLDOR,
+    EGO_WEAPON_GONDOLIN = 249,
+};
+
+enum ego_ring_e {
+    EGO_RING_PROTECTION = 300,
+    EGO_RING_ELEMENTAL,
+    EGO_RING_COMBAT,
+    EGO_RING_ARCHERY,
+    EGO_RING_DEFENDER,
+    EGO_RING_WIZARDRY,
+    EGO_RING_SPEED,
+    EGO_RING_NAZGUL,
+};
+
+enum ego_amulet_e {
+    EGO_AMULET_BARBARIAN = 320,
+    EGO_AMULET_ELEMENTAL,
+    EGO_AMULET_DEFENDER,
+    EGO_AMULET_SACRED,
+    EGO_AMULET_HELL,
+    EGO_AMULET_DWARVEN,
+    EGO_AMULET_MAGI,
+    EGO_AMULET_HERO,
+    EGO_AMULET_DEVOTION,
+    EGO_AMULET_TRICKERY,
+};
+
+enum effect_e
+{
+    EFFECT_NONE = 0,
+
+    /* Detection */
+    EFFECT_LITE_AREA = 1,
+    EFFECT_LITE_MAP_AREA,
+    EFFECT_ENLIGHTENMENT,
+    EFFECT_CLAIRVOYANCE,
+
+    EFFECT_DETECT_TRAPS,
+    EFFECT_DETECT_MONSTERS,
+    EFFECT_DETECT_OBJECTS,
+    EFFECT_DETECT_ALL,
+
+    /* Utility */
+    EFFECT_PHASE_DOOR = 50,
+    EFFECT_TELEPORT,
+    EFFECT_TELEPORT_AWAY,
+    EFFECT_STRAFING,
+    EFFECT_DIMENSION_DOOR,
+    EFFECT_ESCAPE,
+    EFFECT_RECALL,
+
+    EFFECT_STONE_TO_MUD,
+    EFFECT_EARTHQUAKE,
+    EFFECT_DESTRUCTION,
+    EFFECT_GENOCIDE,
+    EFFECT_MASS_GENOCIDE,
+
+    EFFECT_RECHARGING,
+    EFFECT_ENCHANTMENT,
+    EFFECT_IDENTIFY,
+    EFFECT_IDENTIFY_FULL,
+    EFFECT_PROBING,
+    EFFECT_RUNE_EXPLOSIVE,
+    EFFECT_RUNE_PROTECTION,
+
+    EFFECT_SATISFY_HUGER,
+    EFFECT_DESTROY_TRAP,
+    EFFECT_DESTROY_TRAPS,
+    EFFECT_WHIRLWIND_ATTACK,
+    EFFECT_LIST_UNIQUES,
+    EFFECT_LIST_ARTIFACTS,
+    EFFECT_BANISH_EVIL,
+    EFFECT_BANISH_ALL,
+    EFFECT_TELEKINESIS,
+    EFFECT_ALCHEMY,
+
+    /* Timed Buffs */
+    EFFECT_STONE_SKIN = 100,
+    EFFECT_RESIST_ACID,
+    EFFECT_RESIST_ELEC,
+    EFFECT_RESIST_FIRE,
+    EFFECT_RESIST_COLD,
+    EFFECT_RESIST_POIS,
+    EFFECT_RESISTANCE,
+    EFFECT_PROT_EVIL,
+    EFFECT_HOLY_GRAIL,
+    EFFECT_BLESS,
+    EFFECT_HEROISM,
+    EFFECT_BERSERK,
+    EFFECT_SPEED,
+    EFFECT_SPEED_HERO,
+    EFFECT_SPEED_HERO_BLESS,
+    EFFECT_SPEED_ESSENTIA,
+    EFFECT_LIGHT_SPEED,
+    EFFECT_ENLARGE_WEAPON,
+    EFFECT_TELEPATHY,
+    EFFECT_WRAITHFORM,
+    EFFECT_INVULNERABILITY,
+
+    /* Pets */
+    EFFECT_SUMMON_MONSTERS = 150,
+    EFFECT_SUMMON_HOUNDS,
+    EFFECT_SUMMON_ANTS,
+    EFFECT_SUMMON_HYDRAS,
+    EFFECT_SUMMON_OCTOPUS,
+    EFFECT_SUMMON_DAWN,
+    EFFECT_SUMMON_PHANTASMAL,
+    EFFECT_SUMMON_ELEMENTAL,
+    EFFECT_SUMMON_DRAGON,
+    EFFECT_SUMMON_UNDEAD,
+    EFFECT_SUMMON_DEMON,
+    EFFECT_SUMMON_CYBERDEMON,
+    EFFECT_SUMMON_ANGEL,
+    EFFECT_SUMMON_KRAKEN,
+
+    EFFECT_CHARM_ANIMAL = 175,
+    EFFECT_CHARM_DEMON,
+    EFFECT_CHARM_UNDEAD,
+
+    EFFECT_RETURN_PETS = 190,
+    EFFECT_CAPTURE_PET,
+
+    /* Healing and Recovery */
+    EFFECT_RESTORE_STATS = 200,
+    EFFECT_RESTORE_EXP,
+    EFFECT_RESTORING,
+    EFFECT_HEAL,
+    EFFECT_CURING,
+    EFFECT_HEAL_CURING,
+    EFFECT_HEAL_CURING_HERO,
+    EFFECT_RESTORE_MANA,
+    EFFECT_CURE_POIS,
+    EFFECT_CURE_FEAR,
+    EFFECT_CURE_FEAR_POIS,
+    EFFECT_REMOVE_CURSE,
+    EFFECT_REMOVE_ALL_CURSE,
+    EFFECT_CLARITY,
+
+    /* Offense: Bolts */
+    EFFECT_BOLT_MISSILE = 300,
+    EFFECT_BOLT_ACID,
+    EFFECT_BOLT_ELEC,
+    EFFECT_BOLT_FIRE,
+    EFFECT_BOLT_COLD,
+    EFFECT_BOLT_POIS,
+    EFFECT_BOLT_LITE,
+    EFFECT_BOLT_DARK,
+    EFFECT_BOLT_CONF,
+    EFFECT_BOLT_NETHER,
+    EFFECT_BOLT_NEXUS,
+    EFFECT_BOLT_SOUND,
+    EFFECT_BOLT_SHARDS,
+    EFFECT_BOLT_CHAOS,
+    EFFECT_BOLT_DISEN,
+    EFFECT_BOLT_TIME,
+    EFFECT_BOLT_WATER,
+    EFFECT_BOLT_MANA,
+
+    /* Offense: Beams */
+    EFFECT_BEAM_LITE_WEAK = 350,
+    EFFECT_BEAM_LITE,
+
+    /* Offense: Balls */
+    EFFECT_BALL_ACID = 400,
+    EFFECT_BALL_ELEC,
+    EFFECT_BALL_FIRE,
+    EFFECT_BALL_COLD,
+    EFFECT_BALL_POIS,
+    EFFECT_BALL_LITE,
+    EFFECT_BALL_DARK,
+    EFFECT_BALL_CONF,
+    EFFECT_BALL_NETHER,
+    EFFECT_BALL_NEXUS,
+    EFFECT_BALL_SOUND,
+    EFFECT_BALL_SHARDS,
+    EFFECT_BALL_CHAOS,
+    EFFECT_BALL_DISEN,
+    EFFECT_BALL_TIME,
+    EFFECT_BALL_WATER,
+    EFFECT_BALL_MANA,
+
+    /* Offense: Breaths */
+    EFFECT_BREATHE_ACID = 450,
+    EFFECT_BREATHE_ELEC,
+    EFFECT_BREATHE_FIRE,
+    EFFECT_BREATHE_COLD,
+    EFFECT_BREATHE_POIS,
+    EFFECT_BREATHE_LITE,
+    EFFECT_BREATHE_DARK,
+    EFFECT_BREATHE_CONF,
+    EFFECT_BREATHE_NETHER,
+    EFFECT_BREATHE_NEXUS,
+    EFFECT_BREATHE_SOUND,
+    EFFECT_BREATHE_SHARDS,
+    EFFECT_BREATHE_CHAOS,
+    EFFECT_BREATHE_DISEN,
+    EFFECT_BREATHE_TIME,
+    EFFECT_BREATHE_ONE_MULTIHUED, /* DSM with random breath types ... */
+    EFFECT_BREATHE_ONE_CHAOS,
+    EFFECT_BREATHE_ONE_LAW,
+    EFFECT_BREATHE_ONE_BALANCE,
+    EFFECT_BREATHE_ONE_SHINING,
+    EFFECT_BREATHE_ELEMENTS,
+
+    /* Offense: Other */
+    EFFECT_DISPEL_EVIL = 550,
+    EFFECT_DISPEL_EVIL_HERO,
+    EFFECT_DISPEL_GOOD,
+    EFFECT_DISPEL_LIFE,
+    EFFECT_DISPEL_DEMON,
+    EFFECT_DISPEL_UNDEAD,
+    EFFECT_DISPEL_MONSTERS,
+    EFFECT_DRAIN_LIFE,
+    EFFECT_STAR_BALL,
+    EFFECT_ROCKET,
+    EFFECT_MANA_STORM,
+    EFFECT_CONFUSING_LITE,
+    EFFECT_ARROW,
+
+    /* Misc */
+    EFFECT_POLY_SELF = 600,
+    EFFECT_ANIMATE_DEAD,
+    EFFECT_SCARE_MONSTERS,
+    EFFECT_SLEEP_MONSTERS,
+    EFFECT_SLOW_MONSTERS,
+    EFFECT_STASIS_MONSTERS,
+    EFFECT_CONFUSE_MONSTERS,
+    EFFECT_FISHING,
+    EFFECT_AGGRAVATE,
+    EFFECT_PIERCING_SHOT,
+
+    /* Specific Artifacts ... Try to minimize! */
+    EFFECT_JEWEL = 1000,
+    EFFECT_HERMES,
+    EFFECT_ARTEMIS,
+    EFFECT_DEMETER,
+    EFFECT_EYE_VECNA,
+    EFFECT_ONE_RING,
+    EFFECT_BLADETURNER,
+    EFFECT_MITO_KOUMON,
+    EFFECT_BLOODY_MOON,
+    EFFECT_SACRED_KNIGHTS,
+    EFFECT_GONG,
+    EFFECT_MURAMASA,
+
+    EFFECT_MAX
+};
+
+/* "Biases" for random artifact generation */
+#define BIAS_ELEC            0x00000001
+#define BIAS_POIS            0x00000002
+#define BIAS_FIRE            0x00000004
+#define BIAS_COLD            0x00000008
+#define BIAS_ACID            0x00000010
+#define BIAS_STR             0x00000020
+#define BIAS_INT             0x00000040
+#define BIAS_WIS             0x00000080
+#define BIAS_DEX             0x00000100
+#define BIAS_CON             0x00000200
+#define BIAS_CHR             0x00000400
+#define BIAS_CHAOS           0x00000800
+#define BIAS_PRIESTLY        0x00001000
+#define BIAS_NECROMANTIC     0x00002000
+#define BIAS_LAW             0x00004000
+#define BIAS_ROGUE           0x00008000
+#define BIAS_MAGE            0x00010000
+#define BIAS_WARRIOR         0x00020000
+#define BIAS_RANGER          0x00040000
 

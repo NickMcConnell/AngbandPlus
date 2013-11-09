@@ -2718,7 +2718,11 @@ static void msg_flush(int x)
     byte a = TERM_L_BLUE;
     bool nagasu = FALSE;
 
-    if ((auto_more && !now_damaged) || num_more < 0){
+    if ((auto_more /*&& !now_damaged*/) || num_more < 0)
+    {
+        nagasu = TRUE;
+    /*  I found this to be both very surprising and extremely annoying when
+        automore mysteriously stopped working one day ... Hmph!
         int i;
         for (i = 0; i < 8; i++)
         {
@@ -2731,7 +2735,7 @@ static void msg_flush(int x)
         else
         {
             nagasu = TRUE;
-        }
+        } */
     }
     now_damaged = FALSE;
 

@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 typedef unsigned int _hash_t;
 
@@ -11,7 +12,7 @@ typedef _node_t* _node_ptr;
 struct _node_s
 {
     _hash_t   hash;
-    cptr      key;
+    char     *key;
     vptr      val;
     _node_ptr next;
 };
@@ -22,6 +23,13 @@ struct str_map_s
     int          prime_idx;
     int          count;
     free_value_f free;
+};
+
+struct str_map_iter_s
+{
+    str_map_ptr map;
+    int bucket;
+    _node_ptr node;
 };
 
 static int _primes[] = {
@@ -118,9 +126,10 @@ void str_map_free(str_map_ptr map)
 void str_map_add(str_map_ptr map, cptr key, vptr val)
 {
     _hash_t      hash = _hash(key);
-    int             prime = _primes[map->prime_idx];
+    int          prime = _primes[map->prime_idx];
     _hash_t      bucket;
     _node_ptr    current;
+    int          len;
 
     if ( !prime 
       || (prime < _MAX_PRIME && map->count > 2*prime/3) ) /* Tweak Me! */
@@ -149,7 +158,11 @@ void str_map_add(str_map_ptr map, cptr key, vptr val)
 
     current = malloc(sizeof(_node_t));
     current->hash = hash;
-    current->key = key;
+    
+    len = strlen(key);
+    current->key = malloc(len + 1);
+    strcpy(current->key, key);
+
     current->val = val;
     current->next = map->buckets[bucket];
     map->buckets[bucket] = current;
@@ -177,6 +190,7 @@ int str_map_delete(str_map_ptr map, cptr key)
                 
                 if (map->free)
                     map->free(current->val);
+                free(current->key);
                 free(current);
                 map->count--;
 
@@ -251,6 +265,7 @@ void str_map_clear(str_map_ptr map)
             next = current->next;
             if (map->free)
                 map->free(current->val);
+            free(current->key);
             free(current);
             current = next;
         }        
@@ -262,3 +277,73 @@ void str_map_clear(str_map_ptr map)
     map->prime_idx = 0;
 }
 
+/* Iteration */
+str_map_iter_ptr str_map_iter_alloc(str_map_ptr map)
+{
+    str_map_iter_ptr result = malloc(sizeof(str_map_iter_t));
+
+    assert(map);
+
+    result->map = map;
+    result->bucket = 0;
+    result->node = 0;
+
+    if (map->count)
+    {
+        int prime = _primes[map->prime_idx];
+        int i;
+
+        for (i = 0; i < prime; i++)
+        {
+            result->bucket = i;
+            result->node = map->buckets[i];
+            if (result->node)
+                break;
+        }
+    }
+    return result;
+}
+
+void str_map_iter_free(str_map_iter_ptr iter)
+{
+    assert(iter);
+    free(iter);
+}
+
+int str_map_iter_is_valid(str_map_iter_ptr iter)
+{
+    assert(iter);
+    return iter->node != 0;
+}
+
+vptr str_map_iter_current(str_map_iter_ptr iter)
+{
+    assert(str_map_iter_is_valid(iter));
+    return iter->node->val;
+}
+
+cptr str_map_iter_current_key(str_map_iter_ptr iter)
+{
+    assert(str_map_iter_is_valid(iter));
+    return iter->node->key;
+}
+
+void str_map_iter_next(str_map_iter_ptr iter)
+{
+    assert(str_map_iter_is_valid(iter));
+
+    iter->node = iter->node->next;
+    if (!iter->node)
+    {
+        int prime = _primes[iter->map->prime_idx];
+        int i;
+
+        for (i = iter->bucket + 1; i < prime; i++)
+        {
+            iter->bucket = i;
+            iter->node = iter->map->buckets[i];
+            if (iter->node)
+                break;
+        }
+    }
+}

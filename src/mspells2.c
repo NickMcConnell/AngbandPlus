@@ -3079,7 +3079,7 @@ bool monst_spell_monst(int m_idx)
                 int num = 4 + randint1(3);
                 for (k = 0; k < num; k++)
                 {
-                    count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+                    count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
                 }
             }
             break;
@@ -3109,7 +3109,7 @@ bool monst_spell_monst(int m_idx)
                 int num = 2 + randint1(3);
                 for (k = 0; k < num; k++)
                 {
-                    count += summon_specific(m_idx, y, x, rlev, SUMMON_GUARDIANS, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+                    count += summon_specific(m_idx, y, x, rlev, SUMMON_GUARDIAN, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
                 }
             }
             break;
@@ -3567,7 +3567,7 @@ bool monst_spell_monst(int m_idx)
 
         for (k = 0; k < s_num_4; k++)
         {
-            count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+            count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
         }
 
         if (known && !see_t && count)

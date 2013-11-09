@@ -544,7 +544,7 @@ cptr do_hissatsu_spell(int spell, int mode)
                 damage = o_ptr->to_d * 100;
                 
                 object_flags(o_ptr, flgs);
-                if (o_ptr->name1 == ART_VORPAL_BLADE || o_ptr->name1 == ART_CHAINSWORD)
+                if (have_flag(flgs, TR_VORPAL2))
                 {
                     basedam *= 5;
                     basedam /= 3;
@@ -823,7 +823,7 @@ cptr do_hissatsu_spell(int spell, int mode)
                 damage = o_ptr->to_d * 100;
                 
                 object_flags(o_ptr, flgs);
-                if (o_ptr->name1 == ART_VORPAL_BLADE || o_ptr->name1 == ART_CHAINSWORD)
+                if (have_flag(flgs, TR_VORPAL2))
                 {
                     basedam *= 5;
                     basedam /= 3;

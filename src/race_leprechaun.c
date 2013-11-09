@@ -129,6 +129,37 @@ void blink_toggle_spell(int cmd, variant *res)
 /**********************************************************************
  * Leprechaun Spells and Abilities
  **********************************************************************/
+void _fanaticism_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fanaticism");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Summon many devoted leprechaun servants at chosen foe.");
+        break;
+    case SPELL_CAST:
+    {
+        int x, y, i;
+
+        var_set_bool(res, FALSE);
+        if (!target_set(TARGET_KILL)) return;
+        x = target_col;
+        y = target_row;
+
+        for (i = 0; i < 8; i++)
+            summon_named_creature(-1, y, x, MON_LEPRECHAUN_FANATIC, PM_FORCE_PET);
+
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 static spell_info _spells[] = 
 {
     {  1,  2, 20, phase_door_spell},
@@ -141,6 +172,7 @@ static spell_info _spells[] =
     { 30, 15, 50, cause_wounds_III_spell}, 
     { 35, 15, 60, animate_dead_spell}, 
     { 40,  0,  0, blink_toggle_spell}, 
+    { 45, 40, 60, _fanaticism_spell},
     { -1, -1, -1, NULL}
 };
 
@@ -383,12 +415,15 @@ race_t *mon_leprechaun_get_race_t(void)
         me.gain_level = _gain_level;
         me.birth = _birth;
         me.player_action = _player_action;
+        me.pseudo_class_idx = CLASS_ROGUE;
 
         me.flags = RACE_IS_MONSTER;
         init = TRUE;
     }
 
-    me.life = 80 + MIN(p_ptr->au / 1000000, 20);
+    me.life = 80;
+    if (!spoiler_hack)
+        me.life += MIN(p_ptr->au / 1000000, 20);
 
     me.subname = titles[rank];
     me.stats[A_STR] = -2 - 2*rank;

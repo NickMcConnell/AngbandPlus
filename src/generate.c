@@ -101,6 +101,7 @@
 #include "angband.h"
 #include "generate.h"
 #include "grid.h"
+#include "str-map.h"
 #include "rooms.h"
 #include "streams.h"
 
@@ -174,7 +175,7 @@ static bool alloc_stairs(int feat, int num, int walls)
         /* No up stairs in town or in ironman mode */
         if (ironman_downward || !dun_level) return TRUE;
         
-        /* No way out!! */
+        /* No way out!! 
         if ( dun_level == d_info[dungeon_type].mindepth
           && (dungeon_flags[dungeon_type] & DUNGEON_NO_ENTRANCE) )
         {
@@ -186,12 +187,15 @@ static bool alloc_stairs(int feat, int num, int walls)
         {
             shaft_num = 0;
         }
-        else if (dun_level > d_info[dungeon_type].mindepth)
+        else */if (dun_level > d_info[dungeon_type].mindepth)
             shaft_num = (randint1(num+1))/2;
     }
     else if (have_flag(f_ptr->flags, FF_MORE))
     {
         int q_idx = quest_number(dun_level);
+
+        /* No downstairs on random wilderness entrances */
+        if (d_info[dungeon_type].flags1 & DF1_RANDOM) return TRUE;
 
         /* No downstairs on quest levels */
         if (dun_level > 1 && q_idx)
@@ -1051,7 +1055,7 @@ static bool cave_gen(void)
     }
 
     /* Place some traps in the dungeon */
-    alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(k));
+    alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(k*3/2));
 
     /* Put some rubble in corridors (except NO_CAVE dungeon (Castle)) */
     if (!(d_info[dungeon_type].flags1 & DF1_NO_CAVE)) alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint1(k));
@@ -1558,7 +1562,8 @@ void generate_cave(void)
             okay = FALSE;
         }
 
-        if (okay) break;
+        if (okay) 
+            break;
         if (why) 
             msg_format("Generation restarted (%s)", why);
         
@@ -1568,11 +1573,31 @@ void generate_cave(void)
     glow_deep_lava_and_bldg();
     p_ptr->enter_dungeon = FALSE;
     wipe_generate_cave_flags();
-
+/*
 #ifdef _DEBUG
+    wiz_lite(FALSE);
+    detect_all(255);
+    if (0)
+    {
+        int i, ct = 0;
+        char buf[MAX_NLEN];
+        for (i = 0; i < max_o_idx; i++)
+        {
+            if (!o_list[i].k_idx) continue;
+            ct++;
+            identify_item(&o_list[i]);
+            o_list[i].ident |= IDENT_MENTAL;
+            if (o_list[i].name1 || o_list[i].name2)
+            {
+                object_desc(buf, &o_list[i], 0);
+                msg_print(buf);
+            }
+        }
+        msg_format("Objects=%d", ct);
+    }
     {
         int i;
-        int lvl = 0, ct = 0, uniques = 0;
+        int lvl = 0, ct = 0, uniques = 0, ct_drops = 0;
         for (i = 1; i < max_m_idx; i++)
         {
         monster_type *m_ptr = &m_list[i];
@@ -1581,12 +1606,41 @@ void generate_cave(void)
             if (!m_ptr->r_idx) continue;
             r_ptr = real_r_ptr(m_ptr);
             ct++;
+            ct_drops += m_ptr->drop_ct;
             lvl += r_ptr->level;
             if (r_ptr->flags1 & RF1_UNIQUE)
                 uniques++;
         }
-        msg_format("DL=%d, Monsters=%d, <ML>= %d, Uniques=%d", dun_level, ct, lvl/MAX(ct, 1), uniques);
+        msg_format("DL=%d, Monsters=%d, Drops=%d, <ML>= %d, Uniques=%d", dun_level, ct, ct_drops, lvl/MAX(ct, 1), uniques);
+    }
+
+    if (0)
+    {
+        str_map_ptr      map = str_map_alloc(0);
+        str_map_iter_ptr iter;
+        const int        max = 1000;
+        int              i;
+
+        for (i = 0; i < max; i++)
+        {
+            room_template_t *room_ptr = choose_room_template(ROOM_NORMAL, 0);
+            cptr             name = room_name + room_ptr->name;
+            int              ct = (int)str_map_find(map, name);
+            
+            ct++;
+            str_map_add(map, name, (vptr)ct);
+        }
+
+        for (iter = str_map_iter_alloc(map); str_map_iter_is_valid(iter); str_map_iter_next(iter))
+        {
+            cptr name = str_map_iter_current_key(iter);
+            int  ct = (int)str_map_iter_current(iter);
+
+            msg_format("%30.30s %d", name, ct);
+        }
+        str_map_iter_free(iter);
+        str_map_free(map);
     }
 #endif
-
+*/
 }

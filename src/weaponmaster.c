@@ -1333,9 +1333,6 @@ static void _dagger_toss_imp(_dagger_toss_info * info)
                 tdam += p_ptr->shooter_info.to_d;
                 if (tdam < 0) tdam = 0;
                 tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-                #ifdef _DEBUG
-                msg_format("You do %d damage.", tdam);
-                #endif
 
                 if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
                 {
@@ -2546,6 +2543,10 @@ static void _circle_kick_spell(int cmd, variant *res)
     ty = py;
     tx = px;
 
+    /* Scrolling the cave would invalidate our path! */
+    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+        wilderness_scroll_lock = TRUE;
+
     for (i = 0; i < path_n; i++)
     {
         monster_type *m_ptr;
@@ -2591,6 +2592,12 @@ static void _circle_kick_spell(int cmd, variant *res)
     }
 
     if (!moved && !player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+
+    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+    {
+        wilderness_scroll_lock = FALSE;
+        wilderness_move_player(px, py);
+    }
     return TRUE;
 }
 

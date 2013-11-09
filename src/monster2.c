@@ -11,6 +11,7 @@
 /* Purpose: misc code for monsters */
 
 #include "angband.h"
+#include "rooms.h"
 
 #define HORDE_NOGOOD 0x01
 #define HORDE_NOEVIL 0x02
@@ -799,473 +800,295 @@ static bool summon_cloned_okay = FALSE;
 
 static bool summon_specific_aux(int r_idx)
 {
+    return mon_is_type(r_idx, summon_specific_type);
+}
+
+bool mon_is_type(int r_idx, int type)
+{
     monster_race *r_ptr = &r_info[r_idx];
-    int okay = FALSE;
 
-    /* Check our requirements */
-    switch (summon_specific_type)
+    switch (type)
     {
-        case SUMMON_ULTIMATE:
-        {
-            if ( r_idx == 1083 || r_idx == 1087 || r_idx == 1088 || r_idx == 1085 || r_idx == 1084
-              || r_idx == 847 || r_idx == 793 || r_idx == 800 || r_idx == 798 || r_idx == 836
-              || r_idx == 816 )
-            {
-                okay = TRUE;
-            }
-            break;
-        }
-        case SUMMON_BALROG:
-        {
-            if (r_idx == 720 || r_idx == 940)
-                okay = TRUE;
-            break;
-        }
-        case SUMMON_CLUBBER_DEMON:
-        {
-            okay = (r_idx == 648);
-            break;
-        }
-        case SUMMON_DEMON_SUMMONER:
-        {
-            okay = ( !(r_ptr->flags1 & RF1_UNIQUE) 
-                  && (r_ptr->flags6 & RF6_S_DEMON));
-            break;
-        }
+    case SUMMON_CHAPEL_GOOD:
+        return vault_aux_chapel_g(r_idx);
 
-        case SUMMON_MATURE_DRAGON:
-        {
-            /* Hack -- all 'd's with 'ature' or 'rake' in name */
-            okay = ((r_ptr->d_char == 'd') &&
-                !(r_ptr->flags1 & (RF1_UNIQUE)) &&
-                (strstr(r_name + r_ptr->name, "ature") ||
-                 strstr(r_name + r_ptr->name, "rake")));
-            break;
-        }
+    case SUMMON_CHAPEL_EVIL:
+        return vault_aux_chapel_e(r_idx);
 
-        case SUMMON_DRAGON_SUMMONER:
-        {
-            okay = ( !(r_ptr->flags1 & RF1_UNIQUE) 
-                  && (r_ptr->flags6 & (RF6_S_DRAGON | RF6_S_HI_DRAGON)));
-            break;
-        }
-
-        case SUMMON_UNDEAD_SUMMONER:
-        {
-            okay = ( !(r_ptr->flags1 & RF1_UNIQUE) 
-                  && (r_ptr->flags6 & (RF6_S_UNDEAD | RF6_S_HI_UNDEAD)));
-            break;
-        }
-        case SUMMON_DARK_ELF:
-        {
-            if ( r_idx == 122 || r_idx == 178 || r_idx == 182 || r_idx == 226 || r_idx == 348
-              || r_idx == 375 || r_idx == 400 || r_idx == 564 || r_idx == 657 || r_idx == 886)
-            {
-                okay = TRUE;
-            }
-            break;
-        }
-        case SUMMON_GIANT:
-        {
-            okay = (r_ptr->d_char == 'O' || r_ptr->d_char == 'P');
-            break;
-        }
-        case SUMMON_ORC:
-        {
-            okay = (r_ptr->d_char == 'o') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_YEEK:
-        {
-            okay = (r_ptr->d_char == 'y') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_ANT:
-        {
-            okay = (r_ptr->d_char == 'a');
-            break;
-        }
-
-        case SUMMON_SPIDER:
-        {
-            okay = (r_ptr->d_char == 'S');
-            break;
-        }
-
-        case SUMMON_HOUND:
-        {
-            okay = ((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z'));
-            break;
-        }
-
-        case SUMMON_HYDRA:
-        {
-            okay = (r_ptr->d_char == 'M');
-            break;
-        }
-
-        case SUMMON_ENT:
-        {
-            okay = (r_idx == MON_ENT);
-            break;
-        }
-
-        case SUMMON_ANGEL:
-        {
-            okay = (r_ptr->d_char == 'A' && ((r_ptr->flags3 & RF3_EVIL) || (r_ptr->flags3 & RF3_GOOD)));
-            break;
-        }
-
-        case SUMMON_DEMON:
-        {
-            okay = (r_ptr->flags3 & RF3_DEMON);
-            break;
-        }
-
-        case SUMMON_UNDEAD:
-        {
-            okay = (r_ptr->flags3 & RF3_UNDEAD);
-            break;
-        }
-
-        case SUMMON_DRAGON:
-        {
-            okay = (r_ptr->flags3 & RF3_DRAGON);
-            break;
-        }
-
-        case SUMMON_HI_UNDEAD:
-        {
-            okay = ((r_ptr->d_char == 'L') ||
-                (r_ptr->d_char == 'V') ||
-                (r_ptr->d_char == 'W'));
-            break;
-        }
-
-        case SUMMON_HI_DRAGON:
-        {
-            okay = (r_ptr->d_char == 'D');
-            break;
-        }
-
-        case SUMMON_HI_DEMON:
-        {
-            okay = (((r_ptr->d_char == 'U') ||
-                 (r_ptr->d_char == 'H') ||
-                 (r_ptr->d_char == 'B')) &&
-                (r_ptr->flags3 & RF3_DEMON)) ? TRUE : FALSE;
-            break;
-        }
-
-        case SUMMON_AMBERITES:
-        {
-            okay = (r_ptr->flags3 & (RF3_AMBERITE)) ? TRUE : FALSE;
-            break;
-        }
-
-        case SUMMON_OLYMPIANS:
-        {
-            okay = (r_ptr->flags3 & (RF3_OLYMPIAN)) ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_CAMELOT:
-        {
-            if ((r_ptr->flags2 & RF2_CAMELOT) && (r_ptr->flags2 & RF2_KNIGHT))
-                okay = TRUE;
-            else
-                okay = FALSE;
-            break;
-        }
-        case SUMMON_NIGHTMARE:
-        {
-            okay = (r_idx == MON_NIGHTMARE) ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_RAT:
-        {
-            okay = (r_ptr->d_char == 'r') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_BAT:
-        {
-            okay = (r_ptr->d_char == 'b') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_WOLF:
-        {
-            okay = (r_ptr->d_char == 'C') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_DREAD:
-        {
-            okay = (r_idx == MON_DREAD) ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_ZOMBIE:
-        {
-            okay = (r_ptr->d_char == 'z') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_SKELETON:
-        {
-            okay = (r_ptr->d_char == 's' || r_idx == MON_BONE_DRAGON) ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_GHOST:
-        {
-            okay = (r_ptr->d_char == 'G' || r_idx == MON_SPECT_WYRM) ? TRUE : FALSE;
-            if (r_idx == MON_SHADOW_DEMON) okay = FALSE;
-            break;
-        }
-        case SUMMON_KRAKEN:
-        {
-            okay = (r_idx == MON_GREATER_KRAKEN 
-                 || r_idx == MON_LESSER_KRAKEN 
-                 || r_idx == MON_SMALL_KRAKEN) ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_VAMPIRE:
-        {
-            okay = (r_ptr->d_char == 'V') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_WIGHT:
-        {
-            okay = (r_ptr->d_char == 'W') ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_LICH:
-        {
-            okay = (r_ptr->d_char == 'L' || r_idx == MON_DRACOLICH) ? TRUE : FALSE;
-            break;
-        }
-        case SUMMON_THIEF:
-        {
-            okay = (r_ptr->flags2 & (RF2_THIEF)) ? TRUE : FALSE;
-            break;
-        }
-
-        case SUMMON_UNIQUE:
-        {
-            okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
-            break;
-        }
-
-        case SUMMON_BIZARRE1:
-        {
-            okay = (r_ptr->d_char == 'm');
-            break;
-        }
-        case SUMMON_BIZARRE2:
-        {
-            okay = (r_ptr->d_char == 'b');
-            break;
-        }
-        case SUMMON_BIZARRE3:
-        {
-            okay = (r_ptr->d_char == 'Q');
-            break;
-        }
-
-        case SUMMON_BIZARRE4:
-        {
-            okay = (r_ptr->d_char == 'v');
-            break;
-        }
-
-        case SUMMON_BIZARRE5:
-        {
-            okay = (r_ptr->d_char == '$');
-            break;
-        }
-
-        case SUMMON_BIZARRE6:
-        {
-            okay = ((r_ptr->d_char == '!') ||
-                 (r_ptr->d_char == '?') ||
-                 (r_ptr->d_char == '=') ||
-                 (r_ptr->d_char == '$') ||
-                 (r_ptr->d_char == '|'));
-            break;
-        }
-
-        case SUMMON_GOLEM:
-        {
-            okay = (r_ptr->d_char == 'g');
-            break;
-        }
-
-        case SUMMON_CYBER:
-        {
-            okay = ((r_ptr->d_char == 'U') &&
-                (r_ptr->flags4 & RF4_ROCKET));
-            break;
-        }
-
-
-        case SUMMON_KIN:
-        {
-            okay = ((r_ptr->d_char == summon_kin_type) && (r_idx != MON_HAGURE));
-            break;
-        }
-
-        case SUMMON_DAWN:
-        {
-            okay = (r_idx == MON_DAWN);
-            break;
-        }
-
-        case SUMMON_ANIMAL:
-        {
-            okay = (r_ptr->flags3 & (RF3_ANIMAL));
-            break;
-        }
-
-        case SUMMON_ANIMAL_RANGER:
-        {
-            okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
-                   (my_strchr("abcflqrwBCHIJKMRS", r_ptr->d_char)) &&
-                   !(r_ptr->flags3 & (RF3_DRAGON)) &&
-                   !(r_ptr->flags3 & (RF3_EVIL)) &&
-                   !(r_ptr->flags3 & (RF3_UNDEAD)) &&
-                   !(r_ptr->flags3 & (RF3_DEMON)) &&
-                   !(r_ptr->flags2 & (RF2_MULTIPLY)) &&
-                   !(r_ptr->flags4 || r_ptr->flags5 || r_ptr->flags6));
-            break;
-        }
-
-        case SUMMON_HI_DRAGON_LIVING:
-        {
-            okay = ((r_ptr->d_char == 'D') && monster_living(r_ptr));
-            break;
-        }
-
-        case SUMMON_LIVING:
-        {
-            okay = monster_living(r_ptr);
-            break;
-        }
-
-        case SUMMON_PHANTOM:
-        {
-            okay = (r_idx == MON_PHANTOM_B || r_idx == MON_PHANTOM_W);
-            break;
-        }
-
-        case SUMMON_BLUE_HORROR:
-        {
-            okay = (r_idx == MON_BLUE_HORROR);
-            break;
-        }
-
-        case SUMMON_ELEMENTAL:
-        {
-            okay = (r_ptr->d_char == 'E');
-            break;
-        }
-
-        case SUMMON_VORTEX:
-        {
-            okay = (r_ptr->d_char == 'v');
-            break;
-        }
-
-        case SUMMON_HYBRID:
-        {
-            okay = (r_ptr->d_char == 'H');
-            break;
-        }
-
-        case SUMMON_BIRD:
-        {
-            okay = (r_ptr->d_char == 'B');
-            break;
-        }
-
-        case SUMMON_KAMIKAZE:
-        {
-            int i;
-            for (i = 0; i < 4; i++)
-                if (r_ptr->blow[i].method == RBM_EXPLODE) okay = TRUE;
-            break;
-        }
-
-        case SUMMON_KAMIKAZE_LIVING:
-        {
-            int i;
-
-            for (i = 0; i < 4; i++)
-                if (r_ptr->blow[i].method == RBM_EXPLODE) okay = TRUE;
-            okay = (okay && monster_living(r_ptr));
-            break;
-        }
-
-        case SUMMON_MANES:
-        {
-            okay = (r_idx == MON_MANES);
-            break;
-        }
-
-        case SUMMON_LOUSE:
-        {
-            okay = (r_idx == MON_LOUSE);
-            break;
-        }
-
-        case SUMMON_SOFTWARE_BUG:
-        {
-            okay = (r_idx == MON_SOFTWARE_BUG);
-            break;
-        }
-
-        case SUMMON_GUARDIANS:
-        {
-            okay = (r_ptr->flags7 & RF7_GUARDIAN);
-            break;
-        }
-
-        case SUMMON_KNIGHTS:
-        {
-            okay = ((r_idx == MON_NOV_PALADIN) ||
-                (r_idx == MON_NOV_PALADIN_G) ||
-                (r_idx == MON_PALADIN) ||
-                (r_idx == MON_W_KNIGHT) ||
-                (r_idx == MON_ULTRA_PALADIN) ||
-                (r_idx == MON_KNI_TEMPLAR));
-            break;
-        }
-
-        case SUMMON_EAGLES:
-        {
-            okay = (r_ptr->d_char == 'B' &&
-                (r_ptr->flags8 & RF8_WILD_MOUNTAIN) &&
-                (r_ptr->flags8 & RF8_WILD_ONLY));
-            break;
-        }
-
-        case SUMMON_PIRANHAS:
-        {
-            okay = (r_idx == MON_PIRANHA || r_idx == MON_GIANT_PIRANHA);
-            break;
-        }
-
-        case SUMMON_ARMAGE_GOOD:
-        {
-            okay = (r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_GOOD));
-            break;
-        }
-
-        case SUMMON_ARMAGE_EVIL:
-        {
-            okay = ((r_ptr->flags3 & RF3_DEMON) ||
-                (r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_EVIL)));
-            break;
-        }
+    case SUMMON_ULTIMATE:
+        if ( r_idx == 1083 || r_idx == 1087 || r_idx == 1088 || r_idx == 1085 || r_idx == 1084
+            || r_idx == 847 || r_idx == 793 || r_idx == 800 || r_idx == 798 || r_idx == 836
+            || r_idx == 816 )
+        {
+            return TRUE;
+        }
+        break;
+    case SUMMON_BALROG:
+        if (r_idx == 720 || r_idx == 940) return TRUE;
+        break;
+    case SUMMON_CLUBBER_DEMON:
+        if (r_idx == 648) return TRUE;
+        break;
+    case SUMMON_DEMON_SUMMONER:
+        if (!(r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->flags6 & RF6_S_DEMON))
+            return TRUE;
+        break;
+    case SUMMON_MATURE_DRAGON:
+        /* Hack -- all non-unique 'd's with 'ature' or 'rake' in name */
+        if ( r_ptr->d_char == 'd'
+          && !(r_ptr->flags1 & RF1_UNIQUE) 
+          && (strstr(r_name + r_ptr->name, "ature") || strstr(r_name + r_ptr->name, "rake")) )
+        {
+            return TRUE;
+        }
+        break;
+    case SUMMON_DRAGON_SUMMONER:
+        if (!(r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->flags6 & (RF6_S_DRAGON | RF6_S_HI_DRAGON)))
+            return TRUE;
+        break;
+    case SUMMON_UNDEAD_SUMMONER:
+        if (!(r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->flags6 & (RF6_S_UNDEAD | RF6_S_HI_UNDEAD)))
+            return TRUE;
+        break;
+    case SUMMON_DARK_ELF:
+        if ( r_idx == 122 || r_idx == 178 || r_idx == 182 || r_idx == 226 || r_idx == 348
+            || r_idx == 375 || r_idx == 400 || r_idx == 564 || r_idx == 657 || r_idx == 886)
+        {
+            return TRUE;
+        }
+        break;
+    case SUMMON_GIANT:
+        if (r_ptr->d_char == 'O' || r_ptr->d_char == 'P') return TRUE;
+        break;
+    case SUMMON_ORC:
+        if (r_ptr->d_char == 'o') return TRUE;
+        break;
+    case SUMMON_TROLL:
+        if (r_ptr->d_char == 'T') return TRUE;
+        break;
+    case SUMMON_YEEK:
+        if (r_ptr->d_char == 'y') return TRUE;
+        break;
+    case SUMMON_ANT:
+        if (r_ptr->d_char == 'a') return TRUE;
+        break;
+    case SUMMON_SPIDER:
+        if (r_ptr->d_char == 'S') return TRUE;
+        break;
+    case SUMMON_HOUND:
+        if (r_ptr->d_char == 'C' || r_ptr->d_char == 'Z') return TRUE;
+        break;
+    case SUMMON_HYDRA:
+        if (r_ptr->d_char == 'M') return TRUE;
+        break;
+    case SUMMON_ENT:
+        if (r_idx == MON_ENT) return TRUE;
+        break;
+    case SUMMON_ANGEL:
+        if (r_ptr->d_char == 'A' && (r_ptr->flags3 & (RF3_EVIL|RF3_GOOD)))
+            return TRUE;
+        break;
+    case SUMMON_DEMON:
+        if (r_ptr->flags3 & RF3_DEMON) return TRUE;
+        break;
+    case SUMMON_UNDEAD:
+        if (r_ptr->flags3 & RF3_UNDEAD) return TRUE;
+        break;
+    case SUMMON_DRAGON:
+        if (r_ptr->flags3 & RF3_DRAGON) return TRUE;
+        break;
+    case SUMMON_HI_UNDEAD:
+        if (strchr("LVW", r_ptr->d_char)) return TRUE;
+        break;
+    case SUMMON_HI_DRAGON:
+        if (r_ptr->d_char == 'D') return TRUE;
+        break;
+    case SUMMON_HI_DEMON:
+        if (strchr("UHB", r_ptr->d_char) && (r_ptr->flags3 & RF3_DEMON)) return TRUE;
+        break;
+    case SUMMON_AMBERITE:
+        if (r_ptr->flags3 & (RF3_AMBERITE)) return TRUE;
+        break;
+    case SUMMON_OLYMPIAN:
+        if (r_ptr->flags3 & (RF3_OLYMPIAN)) return TRUE;
+        break;
+    case SUMMON_HUMAN:
+        if (r_ptr->flags2 & RF2_HUMAN) return TRUE;
+        break;
+    case SUMMON_HORSE:
+        if (r_ptr->d_char == 'q' && (r_ptr->flags7 & RF7_RIDING)) return TRUE;
+        break;
+    case SUMMON_CAMELOT:
+        if ((r_ptr->flags2 & RF2_CAMELOT) && (r_ptr->flags2 & RF2_KNIGHT)) return TRUE;
+        break;
+    case SUMMON_NIGHTMARE:
+        if (r_idx == MON_NIGHTMARE) return TRUE;
+        break;
+    case SUMMON_RAT:
+        if (r_ptr->d_char == 'r') return TRUE;
+        break;
+    case SUMMON_BAT:
+        if (r_ptr->d_char == 'b') return TRUE;
+        break;
+    case SUMMON_WOLF:
+        if (r_ptr->d_char == 'C') return TRUE;
+        break;
+    case SUMMON_DREAD:
+        if (r_idx == MON_DREAD) return TRUE;
+        break;
+    case SUMMON_ZOMBIE:
+        if (r_ptr->d_char == 'z') return TRUE;
+        break;
+    case SUMMON_SKELETON:
+        if (r_ptr->d_char == 's' || r_idx == MON_BONE_DRAGON) return TRUE;
+        break;
+    case SUMMON_GHOST:
+        if (r_idx == MON_SHADOW_DEMON) return FALSE;
+        if (r_ptr->d_char == 'G' || r_idx == MON_SPECT_WYRM) return TRUE;
+        break;
+    case SUMMON_KRAKEN:
+        if (r_idx == MON_GREATER_KRAKEN || r_idx == MON_LESSER_KRAKEN) return TRUE;
+        break;
+    case SUMMON_VAMPIRE:
+        if (r_ptr->d_char == 'V') return TRUE;
+        break;
+    case SUMMON_WIGHT:
+        if (r_ptr->d_char == 'W') return TRUE;
+        break;
+    case SUMMON_LICH:
+        if (r_ptr->d_char == 'L' || r_idx == MON_DRACOLICH) return TRUE;
+        break;
+    case SUMMON_THIEF:
+        if (r_ptr->flags2 & RF2_THIEF) return TRUE;
+        break;
+    case SUMMON_UNIQUE:
+        if (r_ptr->flags1 & RF1_UNIQUE) return TRUE;
+        break;
+    case SUMMON_BIZARRE1:
+        if (r_ptr->d_char == 'm') return TRUE;
+        break;
+    case SUMMON_BIZARRE2:
+        if (r_ptr->d_char == 'b') return TRUE;
+        break;
+    case SUMMON_BIZARRE3:
+        if (r_ptr->d_char == 'Q') return TRUE;
+        break;
+    case SUMMON_BIZARRE4:
+        if (r_ptr->d_char == 'v') return TRUE;
+        break;
+    case SUMMON_BIZARRE5:
+        if (r_ptr->d_char == '$') return TRUE;
+        break;
+    case SUMMON_BIZARRE6:
+        if (strchr("!?=$|", r_ptr->d_char)) return TRUE;
+        break;
+    case SUMMON_GOLEM:
+        if (r_ptr->d_char == 'g') return TRUE;
+        break;
+    case SUMMON_CYBER:
+        if (r_ptr->d_char == 'U' && (r_ptr->flags4 & RF4_ROCKET)) return TRUE;
+        break;
+    case SUMMON_KIN:
+        if (r_ptr->d_char == summon_kin_type && r_idx != MON_HAGURE) return TRUE;
+        break;
+    case SUMMON_DAWN:
+        if (r_idx == MON_DAWN) return TRUE;
+        break;
+    case SUMMON_ANIMAL:
+        if (r_ptr->flags3 & RF3_ANIMAL) return TRUE;
+        break;
+    case SUMMON_ANIMAL_RANGER:
+        if ( (r_ptr->flags3 & RF3_ANIMAL) 
+          && strchr("abcflqrwBCHIJKMRS", r_ptr->d_char) 
+          && !(r_ptr->flags3 & RF3_DRAGON) 
+          && !(r_ptr->flags3 & RF3_EVIL) 
+          && !(r_ptr->flags3 & RF3_UNDEAD) 
+          && !(r_ptr->flags3 & RF3_DEMON) 
+          && !(r_ptr->flags2 & RF2_MULTIPLY) 
+          && !(r_ptr->flags4 || r_ptr->flags5 || r_ptr->flags6) )
+        {
+            return TRUE;
+        }
+        break;
+    case SUMMON_HI_DRAGON_LIVING:
+        if (r_ptr->d_char == 'D' && monster_living(r_ptr)) return TRUE;
+        break;
+    case SUMMON_LIVING:
+        if (monster_living(r_ptr)) return TRUE;
+        break;
+    case SUMMON_PHANTOM:
+        if (r_idx == MON_PHANTOM_B || r_idx == MON_PHANTOM_W) return TRUE;
+        break;
+    case SUMMON_BLUE_HORROR:
+        if (r_idx == MON_BLUE_HORROR) return TRUE;
+        break;
+    case SUMMON_ELEMENTAL:
+        if (r_ptr->d_char == 'E') return TRUE;
+        break;
+    case SUMMON_VORTEX:
+        if (r_ptr->d_char == 'v') return TRUE;
+        break;
+    case SUMMON_HYBRID:
+        if (r_ptr->d_char == 'H') return TRUE;
+        break;
+    case SUMMON_BIRD:
+        if (r_ptr->d_char == 'B') return TRUE;
+        break;
+    case SUMMON_KAMIKAZE:
+    {
+        int i;
+        for (i = 0; i < 4; i++)
+            if (r_ptr->blow[i].method == RBM_EXPLODE) return TRUE;
+        break;
     }
-
-    /* Result */
-    /* Since okay is int, "return (okay);" is not correct. */
-    return (bool)(okay ? TRUE : FALSE);
+    case SUMMON_KAMIKAZE_LIVING:
+        if (monster_living(r_ptr))
+        {
+            int i;
+            for (i = 0; i < 4; i++)
+                if (r_ptr->blow[i].method == RBM_EXPLODE) return TRUE;
+        }
+        break;
+    case SUMMON_MANES:
+        if (r_idx == MON_MANES) return TRUE;
+        break;
+    case SUMMON_LOUSE:
+        if (r_idx == MON_LOUSE) return TRUE;
+        break;
+    case SUMMON_SOFTWARE_BUG:
+        if (r_idx == MON_SOFTWARE_BUG) return TRUE;
+        break;
+    case SUMMON_GUARDIAN:
+        if (r_ptr->flags7 & RF7_GUARDIAN) return TRUE;
+        break;
+    case SUMMON_KNIGHT:
+        if ( r_idx == MON_NOV_PALADIN || r_idx == MON_NOV_PALADIN_G || r_idx == MON_PALADIN 
+          || r_idx == MON_W_KNIGHT || r_idx == MON_ULTRA_PALADIN || r_idx == MON_KNI_TEMPLAR )
+        {
+            return TRUE;
+        }
+        break;
+    case SUMMON_EAGLE:
+        if (r_ptr->d_char == 'B' && (r_ptr->flags8 & RF8_WILD_MOUNTAIN) && (r_ptr->flags8 & RF8_WILD_ONLY))
+            return TRUE;
+        break;
+    case SUMMON_PIRANHA:
+        if (r_idx == MON_PIRANHA || r_idx == MON_GIANT_PIRANHA) return TRUE;
+        break;
+    case SUMMON_ARMAGE_GOOD:
+        if (r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_GOOD)) return TRUE;
+        break;
+    case SUMMON_ARMAGE_EVIL:
+        if ( (r_ptr->flags3 & RF3_DEMON) 
+            || (r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_EVIL)) )
+        {
+            return TRUE;
+        }
+        break;
+    case SUMMON_MAGICAL:
+        return monster_magical(r_ptr);
+    }
+    return FALSE;
 }
 
 
@@ -1496,7 +1319,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
             continue;
 
         if (!p_ptr->inside_battle && !chameleon_change_m_idx &&
-            summon_specific_type != SUMMON_GUARDIANS)
+            summon_specific_type != SUMMON_GUARDIAN)
         {
             /* Hack -- don't create questors */
             if (r_ptr->flags1 & RF1_QUESTOR)
@@ -1628,8 +1451,7 @@ s16b get_mon_num(int level)
     /* Restrict uniques ... except for summoning, of course ;) */
     if ( unique_count 
       && !summon_specific_who 
-      && !one_in_(unique_count)
-      && randint0(250) < virtue_current(VIRTUE_HARMONY) )
+      && !one_in_(unique_count) )
     {
         allow_unique = FALSE;
     }
@@ -2831,7 +2653,6 @@ void update_mon(int m_idx, bool full)
             }
         }
     }
-
 
     /* The monster is now visible */
     if (flag)
@@ -4307,7 +4128,6 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
         if (ct)
         {
             int oy, ox;
-            char buf[MAX_NLEN];
     
             i = monsters[randint0(ct)];
             m_ptr = &m_list[i];
@@ -4326,9 +4146,6 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
             lite_spot(y, x);
             if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
                 p_ptr->update |= (PU_MON_LITE);
-
-            monster_desc(buf, m_ptr, 0);
-            msg_format("%^s returns!", buf);
 
             return TRUE;
         }
@@ -4430,8 +4247,7 @@ bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode)
     {
         for (i = 1; i < max_m_idx; i++)
         {
-        monster_type *m_ptr = &m_list[i];
-        char buf[MAX_NLEN];
+            monster_type *m_ptr = &m_list[i];
 
             if (m_ptr->r_idx != r_idx) continue;
             if (who > 0 && m_ptr->parent_m_idx != who) continue;
@@ -4451,9 +4267,6 @@ bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode)
             lite_spot(y, x);
             if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
                 p_ptr->update |= (PU_MON_LITE);
-
-            monster_desc(buf, m_ptr, 0);
-            msg_format("%^s returns!", buf);
 
             result = TRUE;
             break;

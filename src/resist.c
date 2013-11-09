@@ -62,6 +62,22 @@ static _map_t _immunity_map[] = {
 };
 
 static _map_t _vulnerability_map[] = {
+    { TR_VULN_ACID, RES_ACID },
+    { TR_VULN_ELEC, RES_ELEC },
+    { TR_VULN_FIRE, RES_FIRE },
+    { TR_VULN_COLD, RES_COLD },
+    { TR_VULN_POIS, RES_POIS },
+    { TR_VULN_FEAR, RES_FEAR },
+    { TR_VULN_CONF, RES_CONF },
+    { TR_VULN_SOUND, RES_SOUND },
+    { TR_VULN_LITE, RES_LITE },
+    { TR_VULN_DARK, RES_DARK },
+    { TR_VULN_CHAOS, RES_CHAOS },
+    { TR_VULN_DISEN, RES_DISEN }, 
+    { TR_VULN_SHARDS, RES_SHARDS },
+    { TR_VULN_NEXUS, RES_NEXUS },
+    { TR_VULN_BLIND, RES_BLIND },
+    { TR_VULN_NETHER, RES_NETHER },
     { -1, -1 }
 };
 
@@ -123,10 +139,6 @@ int res_calc_dam(int which, int dam)
     result -= pct2 * dam / 100;
     if (result < 0)
         result = 0;
-
-#ifdef _DEBUG
-    msg_format("%^s (Res %d%%->%d%%) (Dam %d->%d)", res_name(which), pct1, pct2, dam, result);
-#endif
 
     return result;
 }

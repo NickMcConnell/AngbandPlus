@@ -39,88 +39,11 @@ static double _check_flag_and_score(u32b flgs[TR_FLAG_SIZE], u32b flg, u32b scor
 
 static s32b _activation_p(object_type *o_ptr)
 {
-    /* Wouldn't it be nice if we had a system for activations?  (Other than
-       gigantic switch statements, that is) ... Sigh */
     if (o_ptr->art_name && (have_flag(o_ptr->art_flags, TR_ACTIVATE)))
     {
-        switch (o_ptr->xtra2)
-        {
-        case ACT_WIZ_LITE: return 20000;
-        case ACT_SUNLIGHT: return 250;
-        case ACT_BO_MISS_1: return 250;
-        case ACT_BA_POIS_1: return 300;
-        case ACT_BO_ELEC_1: return 250;
-        case ACT_BO_ACID_1: return 250;
-        case ACT_BO_COLD_1: return 250;
-        case ACT_BO_FIRE_1: return 250;
-        case ACT_BA_COLD_1: return 750;
-        case ACT_BA_FIRE_1: return 1000;
-        case ACT_DRAIN_1: return 500;
-        case ACT_BA_COLD_2: return 1250;
-        case ACT_BA_ELEC_2: return 1500;
-        case ACT_DRAIN_2: return 750;
-        case ACT_VAMPIRE_1: return 1000;
-        case ACT_BO_MISS_2: return 1000;
-        case ACT_BA_FIRE_2: return 1750;
-        case ACT_BA_COLD_3: return 2500;
-        case ACT_BA_ELEC_3: return 2500;
-        case ACT_WHIRLWIND: return 7500;
-        case ACT_VAMPIRE_2: return 2500;
-        case ACT_CALL_CHAOS: return 5000;
-        case ACT_ROCKET: return 5000;
-        case ACT_DISP_EVIL: return 4000;
-        case ACT_DISP_GOOD: return 3500;
-        case ACT_BA_MISS_3: return 5000;
-        case ACT_CONFUSE: return 500;
-        case ACT_SLEEP: return 750;
-        case ACT_QUAKE: return 600;
-        case ACT_TERROR: return 2500;
-        case ACT_TELE_AWAY: return 2000;
-        case ACT_BANISH_EVIL: return 2000;
-        case ACT_GENOCIDE: return 10000;
-        case ACT_MASS_GENO: return 10000;
-        case ACT_CHARM_ANIMAL: return 7500;
-        case ACT_CHARM_UNDEAD: return 10000;
-        case ACT_CHARM_OTHER: return 10000;
-        case ACT_CHARM_ANIMALS: return 12500;
-        case ACT_CHARM_OTHERS: return 17500;
-        case ACT_SUMMON_ANIMAL: return 10000;
-        case ACT_SUMMON_PHANTOM: return 12000;
-        case ACT_SUMMON_ELEMENTAL: return 15000;
-        case ACT_SUMMON_DEMON: return 20000;
-        case ACT_SUMMON_UNDEAD: return 20000;
-        case ACT_CURE_LW: return 500;
-        case ACT_CURE_MW: return 750;
-        case ACT_CURE_POISON: return 1000;
-        case ACT_REST_LIFE: return 7500;
-        case ACT_REST_ALL: return 15000;
-        case ACT_CURE_700: return 10000;
-        case ACT_CURE_1000: return 15000;
-        case ACT_ESP: return 1500;
-        case ACT_BERSERK: return 800;
-        case ACT_PROT_EVIL: return 5000;
-        case ACT_RESIST_ALL: return 5000;
-        case ACT_SPEED: return 15000;
-        case ACT_XTRA_SPEED: return 25000;
-        case ACT_WRAITH: return 25000;
-        case ACT_INVULN: return 25000;
-        case ACT_LIGHT: return 150;
-        case ACT_MAP_LIGHT: return 500;
-        case ACT_DETECT_ALL: return 1000;
-        case ACT_DETECT_XTRA: return 12500;
-        case ACT_ID_FULL: return 10000;
-        case ACT_ID_PLAIN: return 1250;
-        case ACT_RUNE_EXPLO: return 4000;
-        case ACT_RUNE_PROT: return 10000;
-        case ACT_SATIATE: return 2000;
-        case ACT_DEST_DOOR: return 100;
-        case ACT_STONE_MUD: return 1000;
-        case ACT_RECHARGE: return 1000;
-        case ACT_ALCHEMY: return 10000;
-        case ACT_DIM_DOOR: return 10000;
-        case ACT_TELEPORT: return 2000;
-        case ACT_RECALL: return 7500;
-        }
+        effect_t effect = obj_get_effect(o_ptr);
+        if (effect.type)
+            return effect_value(&effect);
     }
     else if (object_is_fixed_artifact(o_ptr))
     {
@@ -270,11 +193,11 @@ static s32b _activation_p(object_type *o_ptr)
     
     switch (o_ptr->name2)
     {
-    case EGO_TRUMP: return 1500;
+    case EGO_WEAPON_TRUMP: return 1500;
     case EGO_LITE_ILLUMINATION: return 200;
-    case EGO_EARTHQUAKES: return 700;
-    case EGO_JUMP: return 1000;
-    case EGO_DAEMON: return 8000;
+    case EGO_WEAPON_EARTHQUAKES: return 700;
+    case EGO_BOOTS_GNOMISH: return 1000;
+    case EGO_WEAPON_DAEMON: return 8000;
     }
 
     if (o_ptr->tval == TV_DRAG_ARMOR)
@@ -300,55 +223,12 @@ static s32b _activation_p(object_type *o_ptr)
     {
         if (object_is_ego(o_ptr))
         {
-            switch (o_ptr->name2)
-            {
-            case EGO_RING_HERO: return 1500;
-            case EGO_RING_MAGIC_MIS: return 200;
-            case EGO_RING_FIRE_BOLT: return 500;
-            case EGO_RING_COLD_BOLT: return 500;
-            case EGO_RING_ELEC_BOLT: return 500;
-            case EGO_RING_ACID_BOLT: return 500;
-            case EGO_RING_MANA_BOLT: return 900;
-            case EGO_RING_FIRE_BALL: return 700;
-            case EGO_RING_COLD_BALL: return 700;
-            case EGO_RING_ELEC_BALL: return 700;
-            case EGO_RING_ACID_BALL: return 700;
-            case EGO_RING_MANA_BALL: return 1200;
-            case EGO_RING_DRAGON_F: return 1500;
-            case EGO_RING_DRAGON_C: return 1500;
-            case EGO_RING_M_DETECT: return 2000;
-            case EGO_RING_D_SPEED: return 15000;
-            case EGO_RING_BERSERKER: return 5000;
-            case EGO_RING_TELE_AWAY: return 3000;
-            case EGO_RING_TRUE: return 35000;
-            }
-        }
-        switch (o_ptr->sval)
-        {
-        case SV_RING_ACID:
-        case SV_RING_ICE:
-        case SV_RING_FLAMES:
-        case SV_RING_ELEC: return 7000;
         }
     }
     else if (o_ptr->tval == TV_AMULET)
     {
         if (object_is_ego(o_ptr))
         {
-            switch (o_ptr->name2)
-            {
-            case EGO_AMU_IDENT: return 1500;
-            case EGO_AMU_CHARM: return 600;
-            case EGO_AMU_JUMP: return 2000;
-            case EGO_AMU_TELEPORT: return 1500;
-            case EGO_AMU_D_DOOR: return 7000;
-            case EGO_AMU_RES_FIRE_:
-            case EGO_AMU_RES_COLD_:
-            case EGO_AMU_RES_ELEC_:
-            case EGO_AMU_RES_ACID_: return 7000;
-            case EGO_AMU_DETECTION: return 4000;
-            case EGO_AMU_RESISTANCE: return 50000;
-            }
         }
     }
     return 0;
@@ -362,6 +242,7 @@ static s32b _aura_p(u32b flgs[TR_FLAG_SIZE])
     if (have_flag(flgs, TR_SH_ELEC)) ct++;
     if (have_flag(flgs, TR_SH_COLD)) ct++;
     if (have_flag(flgs, TR_SH_SHARDS)) ct++;
+    if (have_flag(flgs, TR_SH_REVENGE)) ct++;
     switch (ct)
     {
     case 0: p = 0; break;
@@ -381,7 +262,7 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
     pval = MIN(pval, 10); /* Iron Crown of the Serpent is +125 */
 
     if (have_flag(flgs, TR_SPELL_POWER)) 
-        return 5000 * ABS(pval); /* Hack! */
+        return 5000 * pval; /* Hack! */
     else
     {
         if (have_flag(flgs, TR_STR)) {y += 12; ct++;}
@@ -412,7 +293,31 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
 
     if (have_flag(flgs, TR_LIFE))
         q += 5000 * pval;
+    if (have_flag(flgs, TR_DEC_LIFE))
+        q -= 5000 * pval;
 
+    if (have_flag(flgs, TR_DEC_STR))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_INT))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_WIS))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_DEX))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_CON))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_CHR))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_STEALTH))
+        q -= 1000 * pval;
+    if (have_flag(flgs, TR_DEC_SPEED))
+        q -= 10000 * pval;
+    if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_SPELL_CAP))
+        q -= 2000 * pval;
+    if (have_flag(flgs, TR_DEC_SPELL_POWER))
+        q -= 5000 * pval;
     return q;
 }
 
@@ -616,6 +521,23 @@ static s32b _resistances_q(u32b flgs[TR_FLAG_SIZE])
     cost += _check_flag_and_score(flgs, TR_IM_FIRE, 120000, &count);
     cost += _check_flag_and_score(flgs, TR_IM_COLD, 140000, &count);
 
+    count = 0;
+    cost -= _check_flag_and_score(flgs, TR_VULN_ACID, 15000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_ELEC, 16000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_FIRE, 15000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_COLD, 16000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_POIS, 20000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_LITE, 18000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_DARK, 18000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_BLIND, 15000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_CONF, 18000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_NETHER, 20000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_NEXUS, 18000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_CHAOS, 20000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_SOUND, 20000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_SHARDS, 30000, &count);
+    cost -= _check_flag_and_score(flgs, TR_VULN_DISEN, 25000, &count);
+
     return (u32b) cost;
 }
 
@@ -695,7 +617,18 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
         }
     }
 
-    if (!object_is_artifact(o_ptr))
+    /* TODO
+    if (have_flag(flgs, TR_VULN_ACID))
+    {
+        p = p * 8 / 10;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Vuln Acid: p = %d", p);
+            cost_calc_hook(dbg_msg);
+        }
+    }*/
+
+    if (!object_is_artifact(o_ptr) && o_ptr->tval != TV_LITE)
     {
         p = p * 3 / 4;
         if (cost_calc_hook)
@@ -707,8 +640,12 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 
     /* Negative values don't make much sense, and some code
        was using unsigned integers for values (e.g. Androids) */
-    if (p < 0)
+    if (p <= 0)
+    {
         p = 0;
+        if (o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
+            p = 1;
+    }
 
     if (cost_calc_hook)
     {
@@ -908,6 +845,131 @@ s32b jewelry_cost(object_type *o_ptr)
     return p;
 }
 
+s32b lite_cost(object_type *o_ptr)
+{
+    s32b j, y, q, p;
+    u32b flgs[TR_FLAG_SIZE];
+    char dbg_msg[512];
+
+    object_flags(o_ptr, flgs);
+
+    switch (o_ptr->sval)
+    {
+    case SV_LITE_TORCH:
+        j = 1;
+        break;
+    case SV_LITE_LANTERN:
+        j = 30;
+        break;
+    case SV_LITE_FEANOR:
+        j = 250;
+        break;
+    }
+
+    if (cost_calc_hook)
+    {
+        sprintf(dbg_msg, "  * Base Cost: j = %d", j);
+        cost_calc_hook(dbg_msg);
+    }
+
+    /* These egos don't use flags for their effects ... sigh. */
+    if (o_ptr->name2 == EGO_LITE_DURATION) 
+        j += 100;
+    if (o_ptr->name2 == EGO_LITE_EXTRA_LIGHT) 
+        j += 250;
+
+
+    /* Resistances */
+    q = _resistances_q(flgs);
+    p = j + q;
+
+    if (cost_calc_hook)
+    {
+        sprintf(dbg_msg, "  * Resistances: q = %d, p = %d", q, p);
+        cost_calc_hook(dbg_msg);
+    }
+
+    /* Abilities */
+    q = _abilities_q(flgs);
+    if (have_flag(flgs, TR_NO_MAGIC)) q += 7000;
+    if (have_flag(flgs, TR_NO_TELE)) q += 5000;
+    if (have_flag(flgs, TR_NO_SUMMON)) q += 1000000;
+    p += q;
+
+    if (cost_calc_hook)
+    {
+        sprintf(dbg_msg, "  * Abilities: q = %d, p = %d", q, p);
+        cost_calc_hook(dbg_msg);
+    }
+
+    /* Speed */
+    if (have_flag(flgs, TR_SPEED))
+    {
+        p += _speed_p(o_ptr->pval);
+
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Speed: p = %d", p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Stats */
+    q = _stats_q(flgs, o_ptr->pval);
+    if (q != 0)
+    {
+        p += q;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Stats/Stealth: q = %d, p = %d", q, p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Other Bonuses */
+    y = 0;
+    if (have_flag(flgs, TR_SEARCH)) y += 100;
+    if (have_flag(flgs, TR_INFRA)) y += 500;
+
+    if (y != 0)
+    {
+        q = y*o_ptr->pval;
+        p += q;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Other Crap: y = %d, q = %d, p = %d", y, q, p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Stats */
+    q = _stats_q(flgs, o_ptr->pval);
+    if (q != 0)
+    {
+        p += q;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Stats/Stealth: q = %d, p = %d", q, p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Auras */
+    y = _aura_p(flgs);
+    if (y != 0)
+    {
+        p += y;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Auras: p = %d", p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    p = _finalize_p(p, flgs, o_ptr);
+    return p;
+}
+
 s32b armor_cost(object_type *o_ptr)
 {
     s32b a, y, q, p;
@@ -983,8 +1045,6 @@ s32b armor_cost(object_type *o_ptr)
 
     /* Abilities */
     q = _abilities_q(flgs);
-    if (o_ptr->name2 == EGO_SNIPER)
-        q += 20000;
     p += q;
 
     if (cost_calc_hook)
@@ -1052,7 +1112,7 @@ s32b armor_cost(object_type *o_ptr)
     }
 
     /* Genji? This will become TR_2WEAPON someday ... */
-    if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
+    if (o_ptr->name2 == EGO_GLOVES_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
     {
         p += 20000;
         if (cost_calc_hook)
@@ -1153,17 +1213,10 @@ s32b weapon_cost(object_type *o_ptr)
             s = (s * 1.50 + 1.0) * 0.25 + s * 0.75;
         }
 
-        if (have_flag(flgs, TR_VORPAL))
-        {
-            if ( o_ptr->art_name == ART_VORPAL_BLADE 
-              || o_ptr->art_name == ART_CHAINSWORD
-              || o_ptr->art_name == ART_MURAMASA )
-            {
-                s *= 1.67;
-            }
-            else
-                s *= 1.22;
-        }
+        if (have_flag(flgs, TR_VORPAL2))
+            s *= 1.67;
+        else if (have_flag(flgs, TR_VORPAL))
+            s *= 1.22;
 
         d = d*s + (double)o_ptr->to_d;
         if (d < 1.0)
@@ -1317,27 +1370,27 @@ static s32b _avg_dam_bow(int sval, int to_d, bool might)
     switch (sval)
     {
     case SV_SLING:
-        d = m*2 + m*MAX(0, to_d);
+        d = m*2 + m*to_d;
         break;
 
     case SV_SHORT_BOW:
-        d = m*5/2 + m*MAX(0, to_d);
+        d = m*5/2 + m*to_d;
         break;
 
     case SV_LONG_BOW:
-        d = m*5/2 + m*MAX(0, to_d) + m;
+        d = m*5/2 + m*to_d + m;
         break;
 
     case SV_NAMAKE_BOW:
-        d = m*18 + m*MAX(0, to_d);
+        d = m*18 + m*to_d;
         break;
 
     case SV_LIGHT_XBOW:
-        d = m*3 + m*MAX(0, to_d);
+        d = m*3 + m*to_d;
         break;
 
     case SV_HEAVY_XBOW:
-        d = m*3 + m*MAX(0, to_d) + m;
+        d = m*3 + m*to_d + m;
         break;
 
     case SV_HARP:
@@ -1348,7 +1401,7 @@ static s32b _avg_dam_bow(int sval, int to_d, bool might)
         d = 50; /* Gun */
     }
 
-    return d;
+    return MAX(0, d);
 }
 
 s32b bow_cost(object_type *o_ptr)
@@ -1500,5 +1553,6 @@ s32b new_object_cost(object_type *o_ptr)
     else if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr);
     else if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr);
     else if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr);
+    else if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr);
     return 0;
 }

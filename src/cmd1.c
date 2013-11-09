@@ -274,7 +274,7 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
         {
             p_ptr->csp -= (1+(p_ptr->msp / 30));
             p_ptr->redraw |= (PR_MANA);
-            mult = mult * 3 / 2 + 10;
+            mult = mult * 3 / 2 + 15;
         }
 
         k *= mult;
@@ -323,15 +323,6 @@ bool test_hit_fire(int chance, int ac, int vis)
     /* Invisible monsters are harder to hit */
     if (!vis) chance = (chance + 1) / 2;
 
-#ifdef _DEBUG
-    {
-        int odds = 95*(chance - ac*3/4)*1000/(chance*100);
-        if (odds < 50) odds = 50;
-        if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
-        msg_format("Shoot?: %d.%d%% (AC=%d)", odds/10, odds%10, ac);
-    }
-#endif
-
     /* Percentile dice */
     k = randint0(100);
 
@@ -364,15 +355,6 @@ bool test_hit_norm(int chance, int ac, int vis)
 
     /* Penalize invisible targets */
     if (!vis) chance = (chance + 1) / 2;
-
-#ifdef _DEBUG
-    {
-        int odds = 95*(chance - ac*3/4)*1000/(chance*100);
-        if (odds < 50) odds = 50;
-        if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
-        msg_format("Hit?: %d.%d%% (AC=%d)", odds/10, odds%10, ac);
-    }
-#endif
 
     /* Percentile dice */
     k = randint0(100);
@@ -1268,7 +1250,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 {
                     p_ptr->csp -= cost;
                     p_ptr->redraw |= (PR_MANA);
-                    mult = mult * 3 / 2 + 10;
+                    mult = mult * 3 / 2 + 15;
                 }
             }
             if (p_ptr->tim_blood_feast)
@@ -1460,7 +1442,6 @@ void py_pickup_aux(int o_idx)
             quest[i].status = QUEST_STATUS_COMPLETED;
             quest[i].complev = (byte)p_ptr->lev;
             msg_print("You completed your quest!");
-
             msg_print(NULL);
         }
     }
@@ -1998,9 +1979,8 @@ static void hit_trap(bool break_trap)
         case TRAP_OPEN:
         {
             msg_print("Suddenly, surrounding walls are opened!");
-            (void)project(0, 3, y, x, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
-            (void)project(0, 3, y, x - 4, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
-            (void)project(0, 3, y, x + 4, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
+            /*TODO: Fire beams in 4 principle directions that kill adjacent walls ... */
+            project(0, 10, y, x, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
             aggravate_monsters(0);
 
             break;
@@ -2063,7 +2043,7 @@ static void hit_trap(bool break_trap)
             num = 1 + dun_level/20;
             for (i = 0; i < num; i++)
             {
-                (void)summon_specific(0, y, x, dun_level, SUMMON_PIRANHAS, (PM_ALLOW_GROUP | PM_NO_PET));
+                (void)summon_specific(0, y, x, dun_level, SUMMON_PIRANHA, (PM_ALLOW_GROUP | PM_NO_PET));
             }
             break;
         }
@@ -2547,26 +2527,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
     if (o_ptr)
     {
-        if ((r_ptr->level + 10) > p_ptr->lev)
+        if (r_ptr->level + 10 > p_ptr->lev)
             skills_weapon_gain(o_ptr->tval, o_ptr->sval);
     }
     else
     {
-        if ((r_ptr->level + 10) > p_ptr->lev)
-        {
-            if (p_ptr->skill_exp[GINOU_SUDE] < s_info[p_ptr->pclass].s_max[GINOU_SUDE])
-            {
-                if (p_ptr->skill_exp[GINOU_SUDE] < WEAPON_EXP_BEGINNER)
-                    p_ptr->skill_exp[GINOU_SUDE] += 40;
-                else if ((p_ptr->skill_exp[GINOU_SUDE] < WEAPON_EXP_SKILLED))
-                    p_ptr->skill_exp[GINOU_SUDE] += 5;
-                else if ((p_ptr->skill_exp[GINOU_SUDE] < WEAPON_EXP_EXPERT) && (p_ptr->lev > 19))
-                    p_ptr->skill_exp[GINOU_SUDE] += 1;
-                else if ((p_ptr->lev > 34))
-                    if (one_in_(3)) p_ptr->skill_exp[GINOU_SUDE] += 1;
-                p_ptr->update |= (PU_BONUS);
-            }
-        }
+        if (r_ptr->level + 10 > p_ptr->lev)
+            skills_martial_arts_gain();
     }
     
     set_monster_csleep(c_ptr->m_idx, 0);
@@ -2628,11 +2595,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     msg_format ("There is something scary in your way!");
 
                 fear_stop = TRUE;
-
-                energy_use = 0;
-                if (hand)
-                    energy_use += (hand - 1) * 100 / p_ptr->weapon_ct;
-                energy_use += num * (100 / p_ptr->weapon_ct) / num_blow;
                 break;
             }
         }
@@ -2668,17 +2630,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         {
             int vorpal_chance = 4;
 
-            if (o_ptr)
-            {
-                switch (o_ptr->name1)
-                {
-                case ART_VORPAL_BLADE:
-                case ART_CHAINSWORD:
-                case ART_MURAMASA:
-                    vorpal_chance = 2;
-                    break;
-                }
-            }
+            if (have_flag(flgs, TR_VORPAL2))
+                vorpal_chance = 2;
 
             if (eviscerator && !duelist_attack) num_blow++;
 
@@ -2730,7 +2683,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (!zantetsu_mukou) /* No jelly cuts with Zantetsuken */
             {
                 if (have_flag(flgs, TR_VORPAL) && p_ptr->vorpal && vorpal_chance > 3) vorpal_chance = 3;
-                if (have_flag(flgs, TR_VORPAL) || hex_spelling(HEX_RUNESWORD) || p_ptr->vorpal)
+                if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_VORPAL2) || hex_spelling(HEX_RUNESWORD) || p_ptr->vorpal)
                 {
                     if (randint1(vorpal_chance*3/2) == 1)
                         vorpal_cut = TRUE;
@@ -4038,52 +3991,13 @@ bool py_attack(int y, int x, int mode)
 
         if (robj && lobj)
         {
-            if ((p_ptr->skill_exp[GINOU_NITOURYU] < s_info[p_ptr->pclass].s_max[GINOU_NITOURYU]) && ((p_ptr->skill_exp[GINOU_NITOURYU] - 1000) / 200 < r_ptr->level))
-            {
-                if (p_ptr->skill_exp[GINOU_NITOURYU] < WEAPON_EXP_BEGINNER)
-                    p_ptr->skill_exp[GINOU_NITOURYU] += 80;
-                else if(p_ptr->skill_exp[GINOU_NITOURYU] < WEAPON_EXP_SKILLED)
-                    p_ptr->skill_exp[GINOU_NITOURYU] += 4;
-                else if(p_ptr->skill_exp[GINOU_NITOURYU] < WEAPON_EXP_EXPERT)
-                    p_ptr->skill_exp[GINOU_NITOURYU] += 1;
-                else if(p_ptr->skill_exp[GINOU_NITOURYU] < WEAPON_EXP_MASTER)
-                    if (one_in_(3)) p_ptr->skill_exp[GINOU_NITOURYU] += 1;
-                p_ptr->update |= (PU_BONUS);
-            }
+            skills_dual_wielding_gain(r_ptr);
             break;
         }
     }
 
     if (p_ptr->riding)
-    {
-        int cur = p_ptr->skill_exp[GINOU_RIDING];
-        int max = s_info[p_ptr->pclass].s_max[GINOU_RIDING];
-
-        if (cur < max)
-        {
-            int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
-            int targetlevel = r_ptr->level;
-            int inc = 0;
-
-            if ((cur / 200 - 5) < targetlevel)
-                inc += 1;
-
-            /* Extra experience */
-            if ((cur / 100) < ridinglevel)
-            {
-                if ((cur / 100 + 15) < ridinglevel)
-                    inc += 1 + (ridinglevel - (cur / 100 + 15));
-                else
-                    inc += 1;
-            }
-
-            if (inc)
-            {
-                p_ptr->skill_exp[GINOU_RIDING] = MIN(max, cur + inc);
-                p_ptr->update |= PU_BONUS;
-            }
-        }
-    }
+        skills_riding_gain_melee(r_ptr);
 
     riding_t_m_idx = c_ptr->m_idx;
 
@@ -4552,7 +4466,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         /* Redraw new spot */
         lite_spot(ny, nx);
 
-        /* Check for new panel (redraw map) */
+        /* Check for new panel (redraw map) */      
         verify_panel();
 
         if (mpe_mode & MPE_FORGET_FLOW)
@@ -4579,6 +4493,9 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
                 class_ptr->move_player();
             if (race_ptr->move_player)
                 race_ptr->move_player();
+
+            if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+                wilderness_move_player(ox, oy);
         }
 
         /* Window stuff */
@@ -4824,94 +4741,6 @@ void move_player(int dir, bool do_pickup, bool break_trap)
     bool shadow_strike = FALSE;
     bool oktomove = TRUE;
     bool do_past = FALSE;
-
-    /* Exit the area */
-    if (!dun_level && !p_ptr->wild_mode &&
-        ((x == 0) || (x == MAX_WID - 1) ||
-         (y == 0) || (y == MAX_HGT - 1)))
-    {
-        /* Can the player enter the grid? */
-        if (c_ptr->mimic && player_can_enter(c_ptr->mimic, 0))
-        {
-            /* Hack: move to new area */
-            if ((y == 0) && (x == 0))
-            {
-                p_ptr->wilderness_y--;
-                p_ptr->wilderness_x--;
-                p_ptr->oldpy = cur_hgt - 2;
-                p_ptr->oldpx = cur_wid - 2;
-                ambush_flag = FALSE;
-            }
-
-            else if ((y == 0) && (x == MAX_WID - 1))
-            {
-                p_ptr->wilderness_y--;
-                p_ptr->wilderness_x++;
-                p_ptr->oldpy = cur_hgt - 2;
-                p_ptr->oldpx = 1;
-                ambush_flag = FALSE;
-            }
-
-            else if ((y == MAX_HGT - 1) && (x == 0))
-            {
-                p_ptr->wilderness_y++;
-                p_ptr->wilderness_x--;
-                p_ptr->oldpy = 1;
-                p_ptr->oldpx = cur_wid - 2;
-                ambush_flag = FALSE;
-            }
-
-            else if ((y == MAX_HGT - 1) && (x == MAX_WID - 1))
-            {
-                p_ptr->wilderness_y++;
-                p_ptr->wilderness_x++;
-                p_ptr->oldpy = 1;
-                p_ptr->oldpx = 1;
-                ambush_flag = FALSE;
-            }
-
-            else if (y == 0)
-            {
-                p_ptr->wilderness_y--;
-                p_ptr->oldpy = cur_hgt - 2;
-                p_ptr->oldpx = x;
-                ambush_flag = FALSE;
-            }
-
-            else if (y == MAX_HGT - 1)
-            {
-                p_ptr->wilderness_y++;
-                p_ptr->oldpy = 1;
-                p_ptr->oldpx = x;
-                ambush_flag = FALSE;
-            }
-
-            else if (x == 0)
-            {
-                p_ptr->wilderness_x--;
-                p_ptr->oldpx = cur_wid - 2;
-                p_ptr->oldpy = y;
-                ambush_flag = FALSE;
-            }
-
-            else if (x == MAX_WID - 1)
-            {
-                p_ptr->wilderness_x++;
-                p_ptr->oldpx = 1;
-                p_ptr->oldpy = y;
-                ambush_flag = FALSE;
-            }
-
-            p_ptr->leaving = TRUE;
-            energy_use = 100;
-
-            return;
-        }
-
-        /* "Blocked" message appears later */
-        /* oktomove = FALSE; */
-        p_can_enter = FALSE;
-    }
 
     /* Get the monster */
     m_ptr = &m_list[c_ptr->m_idx];
@@ -5292,6 +5121,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             if (ddx[dir] > 0)  p_ptr->oldpx = 1;
             if (ddx[dir] < 0)  p_ptr->oldpx = MAX_WID - 2;
             if (ddx[dir] == 0) p_ptr->oldpx = MAX_WID / 2;
+            p_ptr->wilderness_dx = 0;
+            p_ptr->wilderness_dy = 0;
         }
 
         if (p_can_kill_walls)

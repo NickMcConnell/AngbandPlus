@@ -175,7 +175,7 @@ race_t *demon_get_race_t(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] =  3;
         me.stats[A_CON] =  4;
-        me.stats[A_CHR] = -6;
+        me.stats[A_CHR] =  3;
         
         me.skills.dis = -5;
         me.skills.dev = 18;

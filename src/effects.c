@@ -6285,11 +6285,7 @@ void calc_android_exp(void)
             level = (level + MAX(a_info[o_ptr->name1].level - 8, 5)) / 2;
             level += MIN(20, a_info[o_ptr->name1].rarity/(a_info[o_ptr->name1].gen_flags & TRG_INSTA_ART ? 10 : 3));
         }
-        else if (object_is_ego(o_ptr))
-        {
-            level += MAX(3, (e_info[o_ptr->name2].rating - 5)/2);
-        }
-        else if (o_ptr->art_name)
+        else if (o_ptr->art_name || o_ptr->name2)
         {
             s32b total_flags = flag_cost(o_ptr, o_ptr->pval, FALSE);
             int fake_level;
@@ -6329,11 +6325,7 @@ void calc_android_exp(void)
         if ( object_is_artifact(o_ptr) 
           || object_is_ego(o_ptr) 
           || o_ptr->tval == TV_DRAG_ARMOR 
-          || object_is_(o_ptr, TV_HELM, SV_DRAGON_HELM)
-          || object_is_(o_ptr, TV_CLOAK, SV_DRAGON_CLOAK)
-          || object_is_(o_ptr, TV_SHIELD, SV_DRAGON_SHIELD)
-          || object_is_(o_ptr, TV_GLOVES, SV_SET_OF_DRAGON_GLOVES)
-          || object_is_(o_ptr, TV_BOOTS, SV_PAIR_OF_DRAGON_GREAVE)
+          || object_is_dragon_armor(o_ptr)
           || object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE) )
         {
             if (level > 65) level = 35 + (level - 65) / 5;

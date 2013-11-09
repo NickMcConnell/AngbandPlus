@@ -175,12 +175,11 @@ static void _earth_birth(void)
 { 
     object_type forge;
     
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_STR));
-    forge.pval = 3;
-    add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 6;
+    forge.pval = 3;
+    add_flag(forge.art_flags, TR_STR);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_CLUB));
@@ -448,8 +447,11 @@ static void _air_birth(void)
 { 
     object_type forge;
     
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_ELEC));
-    apply_magic(&forge, 1, AM_AVERAGE);
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_ELEMENTAL;
+    forge.to_a = 15;
+    add_flag(forge.art_flags, TR_RES_ELEC);
+    add_flag(forge.art_flags, TR_SH_ELEC);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
@@ -709,11 +711,14 @@ static void _water_birth(void)
 { 
     object_type forge;
     
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_ACID));
-    apply_magic(&forge, 1, AM_AVERAGE);
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_ELEMENTAL;
+    forge.to_a = 15;
+    add_flag(forge.art_flags, TR_RES_ACID);
     add_outfit(&forge);
 
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 5;
     add_outfit(&forge);
 
@@ -972,8 +977,11 @@ static void _fire_birth(void)
 { 
     object_type forge;
     
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_FLAMES));
-    apply_magic(&forge, 1, AM_AVERAGE);
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_ELEMENTAL;
+    forge.to_a = 15;
+    add_flag(forge.art_flags, TR_RES_FIRE);
+    add_flag(forge.art_flags, TR_SH_FIRE);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
@@ -1295,6 +1303,7 @@ race_t *mon_elemental_get_race_t(int psubrace)
     /* TODO: Nonliving makes sense, but then what will elementals eat?
     result->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;*/
     result->base_hp = 30;
+    result->pseudo_class_idx = CLASS_WARRIOR;
 
     return result;
 }

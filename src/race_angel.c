@@ -230,7 +230,6 @@ static caster_info * _caster_info(void)
         me.magic_desc = "divine power";
         me.which_stat = A_WIS;
         me.weight = 450;
-        me.options = CASTER_ALLOW_DEC_MANA;
         init = TRUE;
     }
     return &me;
@@ -255,6 +254,7 @@ race_t *mon_angel_get_race_t(void)
     result->flags = RACE_IS_MONSTER;
     result->birth = _birth;
     result->caster_info = _caster_info;
+    result->pseudo_class_idx = CLASS_PRIEST;
 
     result->boss_r_idx = MON_RAPHAEL;
     return result;

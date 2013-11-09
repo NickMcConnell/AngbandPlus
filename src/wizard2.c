@@ -247,14 +247,26 @@ static void do_cmd_wiz_hack_chris1(void)
 
 static void do_cmd_wiz_hack_chris2(void)
 {
+    int k_idx = get_quantity("Enter k_idx: ", 1000);
+    int ct = get_quantity("How Many?", 10000);
     int i;
-    for (i = 0; i < INVEN_TOTAL; i++)
+    for (i = 0; i < ct; i++)
     {
-        if (inventory[i].name3)
+        char buf[MAX_NLEN];
+        object_type forge;
+        
+        object_prep(&forge, k_idx);
+        /*create_artifact(&forge, CREATE_ART_CURSED);*/
+        apply_magic(&forge, object_level, 0);
+
+        if (1 || forge.curse_flags)
         {
-            create_replacement_art(inventory[i].name3, &inventory[i]);
-            identify_item(&inventory[i]);
-            inventory[i].ident |= IDENT_MENTAL; 
+            identify_item(&forge);
+            forge.ident |= (IDENT_MENTAL); 
+        
+            object_desc(buf, &forge, 0);
+            msg_format("%s (%d)", buf, object_value_real(&forge));
+            /*drop_near(&forge, -1, py, px);*/
         }
     }
 }
@@ -289,18 +301,17 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
             object_prep(&forge, k_idx);
             apply_magic(&forge, depth, 0);
 
-            #if 1
-            if (forge.name2 == EGO_BERSERKER)
+            if (forge.name2 == EGO_RING_PROTECTION)
             {
                 char buf[MAX_NLEN];
 
                 identify_item(&forge);
                 forge.ident |= (IDENT_MENTAL); 
                 object_desc(buf, &forge, 0);
-                msg_print(buf);
-                drop_near(&forge, -1, py, px); 
+                fprintf(file, "%s\n", buf);
+                /* msg_print(buf); */
+                /*drop_near(&forge, -1, py, px);*/
             }
-            #endif
 
             counts[forge.name2]++;
         }
@@ -469,21 +480,43 @@ static void do_cmd_wiz_hack_chris4(void)
 
 static void do_cmd_wiz_hack_chris5(void)
 {
-    int r_idx = 1102;
     int i;
+    int ct_success = 0, ct_tries = 0, ct_errors = 0;
+    const int max = 10 * 1000;
 
-    for (i = 0; i < 8; i++)
+    for (i = 0; ; i++)
     {
-        monster_race *r_ptr = &r_info[r_idx];
-        if (((r_ptr->flags1 & (RF1_UNIQUE)) ||
-                (r_ptr->flags7 & (RF7_NAZGUL))) &&
-            (r_ptr->cur_num >= r_ptr->max_num))
-        {
-            r_ptr->cur_num = 0;
-            r_ptr->max_num = 1;
-        }
+        object_type forge;
 
-        summon_named_creature(0, py, px, r_idx, PM_ALLOW_SLEEP | PM_ALLOW_GROUP);
+        if (ct_tries >= max)
+        {
+            msg_format("%d success on %d attempts (%.2f%%).", ct_success, max, (double)ct_success / (double)ct_tries * 100.0);
+            if (ct_errors)
+                msg_format("make_object() failed %d times (%.2f%%).", ct_errors, (double)ct_errors/ (double)i * 100.0);
+            break;
+        }
+        object_wipe(&forge);
+        if (!make_object(&forge, AM_GREAT)) 
+        {
+            ct_errors++;
+            continue;
+        }
+        ct_tries++;
+        if (forge.name2 == EGO_RING_COMBAT && forge.to_d >= 17)
+        /*if ((forge.tval == TV_RING || forge.tval == TV_AMULET) && forge.activation.type)*/
+        /*if (forge.k_idx == 133)*/
+        /*if (forge.tval >= TV_LIFE_BOOK && 3 == forge.sval && forge.tval != TV_ARCANE_BOOK)*/
+        /*if (object_is_body_armour(&forge) && forge.name2)*/
+        /*if (object_is_(&forge, TV_POTION, SV_POTION_HEALING))*/
+        {
+            char buf[MAX_NLEN];
+            ct_success++;
+            identify_item(&forge);
+            forge.ident |= (IDENT_MENTAL); 
+            object_desc(buf, &forge, 0);
+            msg_format("%s on Roll #%d", buf, ct_tries);
+            /*drop_near(&forge, -1, py, px);*/
+        }
     }
 }
 
@@ -625,17 +658,69 @@ static void do_cmd_wiz_hack_chris6(void)
     msg_print(NULL);
 }
 
-static void do_cmd_wiz_hack_chris7_imp(FILE* file)
+typedef struct {
+    cptr     name;
+    object_p pred;
+    int      ct1;
+    int      ct2;
+} _obj_alloc_t;
+
+bool _ring_of_speed_p(object_type *o_ptr) { return o_ptr->tval == TV_RING && o_ptr->name2 == EGO_RING_SPEED; }
+bool _boots_of_speed_p(object_type *o_ptr) { return o_ptr->tval == TV_BOOTS && o_ptr->name2 == EGO_BOOTS_SPEED; }
+bool _potion_of_healing_p(object_type *o_ptr) { return object_is_(o_ptr, TV_POTION, SV_POTION_HEALING); }
+bool _potion_of_healing2_p(object_type *o_ptr) { return object_is_(o_ptr, TV_POTION, SV_POTION_STAR_HEALING); }
+bool _stat_potion_p(object_type *o_ptr) { return o_ptr->tval ==  TV_POTION && SV_POTION_INC_STR <= o_ptr->sval && o_ptr->sval <= SV_POTION_INC_CHR; }
+bool _third_book_p(object_type *o_ptr) { return o_ptr->tval >= TV_LIFE_BOOK && 2 == o_ptr->sval && o_ptr->tval != TV_ARCANE_BOOK; }
+bool _fourth_book_p(object_type *o_ptr) { return o_ptr->tval >= TV_LIFE_BOOK && 3 == o_ptr->sval && o_ptr->tval != TV_ARCANE_BOOK; }
+bool _scroll_of_destruction_p(object_type *o_ptr) { return object_is_(o_ptr, TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION); }
+bool _scroll_of_genocide_p(object_type *o_ptr) { return object_is_(o_ptr, TV_SCROLL, SV_SCROLL_GENOCIDE); }
+bool _scroll_of_mass_genocide_p(object_type *o_ptr) { return object_is_(o_ptr, TV_SCROLL, SV_SCROLL_MASS_GENOCIDE); }
+bool _wand_of_rockets_p(object_type *o_ptr) { return object_is_(o_ptr, TV_WAND, SV_WAND_ROCKETS); }
+bool _ego_weapon_p(object_type *o_ptr) { return object_is_melee_weapon(o_ptr) && o_ptr->name2; }
+bool _ego_shooter_p(object_type *o_ptr) { return o_ptr->tval == TV_BOW && o_ptr->name2; }
+bool _ego_body_armor_p(object_type *o_ptr) { return object_is_body_armour(o_ptr) && o_ptr->name2; }
+bool _ego_helm_p(object_type *o_ptr) { return object_is_helmet(o_ptr) && o_ptr->name2; }
+bool _ego_cloak_p(object_type *o_ptr) { return o_ptr->tval == TV_CLOAK && o_ptr->name2; }
+bool _ego_boots_p(object_type *o_ptr) { return o_ptr->tval == TV_BOOTS && o_ptr->name2; }
+bool _ego_gloves_p(object_type *o_ptr) { return o_ptr->tval == TV_GLOVES && o_ptr->name2; }
+bool _mushroom_restoring_p(object_type *o_ptr) { return object_is_(o_ptr, TV_FOOD, SV_FOOD_RESTORING); }
+
+static _obj_alloc_t _hack7_data[] = {
+    { "RoSpeed", _ring_of_speed_p, 0, 0 },
+    { "BoSpeed", _boots_of_speed_p, 0, 0 },
+    { "!Healing", _potion_of_healing_p, 0, 0 },
+    { "!*Healing*", _potion_of_healing2_p, 0, 0 },
+    { "Restore", _mushroom_restoring_p, 0, 0 },
+    { "!Stat", _stat_potion_p, 0, 0 },
+    { "?Third", _third_book_p, 0, 0 },
+    { "?Fourth", _fourth_book_p, 0, 0 },
+    { "?Destruct", _scroll_of_destruction_p, 0, 0 },
+    { "?Geno", _scroll_of_genocide_p, 0, 0 },
+    { "?MassGeno", _scroll_of_mass_genocide_p, 0, 0 },
+    { "-Rockets", _wand_of_rockets_p, 0, 0 },
+    { "EgoWeapon", _ego_weapon_p, 0, 0 },
+    { "EgoBow", _ego_shooter_p, 0, 0 },
+    { "EgoHelm", _ego_helm_p, 0, 0 },
+    { "EgoBody", _ego_body_armor_p, 0, 0 },
+    { "EgoCloak", _ego_cloak_p, 0, 0 },
+    { "EgoBoots", _ego_boots_p, 0, 0 },
+    { "EgoGloves", _ego_gloves_p, 0, 0 },
+    { 0, 0, 0, 0}
+};
+
+static void do_cmd_wiz_hack_chris7_imp(FILE* fff)
 {
     int ct = get_quantity("How Many Thousands?", 1000);
     int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, -1 };
-    /*int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99, 100, 110, 120, -1 };*/
-    /*int depths[] = { 99, 120, -1 };*/
     int i, j;
-    int counts[1024];
-    int good_counts[1024];
 
-    fprintf(file, "||Lv||Obj||Avg||Good||\n");
+    fprintf(fff, "Lvl");
+    for (i = 0; ; i++)
+    {
+        if (!_hack7_data[i].name) break;
+        fprintf(fff, ",=\"%s\"", _hack7_data[i].name);
+    }
+    fprintf(fff, "\n");
 
     for (i = 0; ; i++)
     {
@@ -645,10 +730,11 @@ static void do_cmd_wiz_hack_chris7_imp(FILE* file)
         dun_level = depth;
         object_level = depth;
 
-        for (j = 0; j < 1024; j++)
+        for (j = 0; ; j++)
         {
-            counts[j] = 0;
-            good_counts[j] = 0;
+            if (!_hack7_data[j].name) break;
+            _hack7_data[j].ct1 = 0;
+            _hack7_data[j].ct2 = 0;
         }
 
         for (j = 0; j < ct * 1000; j++)
@@ -658,41 +744,40 @@ static void do_cmd_wiz_hack_chris7_imp(FILE* file)
 
             object_wipe(&forge);
             if (!make_object(&forge, 0)) continue;
-            identify_item(&forge);
-            forge.ident |= (IDENT_MENTAL); 
 
-            k = is_autopick(&forge);
-            if (k >= 0 && k < 1024)
+            for (k = 0; ; k++)
             {
-                counts[k]++;
+                if (!_hack7_data[k].name) break;
+                if (_hack7_data[k].pred(&forge))
+                    _hack7_data[k].ct1++;
             }
 
             if (forge.name1)
                 a_info[forge.name1].cur_num = 0;
 
+            /*
             object_wipe(&forge);
             if (!make_object(&forge, AM_GOOD)) continue;
 
-            identify_item(&forge);
-            forge.ident |= (IDENT_MENTAL); 
-
-            k = is_autopick(&forge);
-            if (k >= 0 && k < 1024)
+            for (k = 0; ; k++)
             {
-                good_counts[k]++;
+                if (!_hack7_data[k].name) break;
+                if (_hack7_data[k].pred(&forge))
+                    _hack7_data[k].ct2++;
             }
 
             if (forge.name1)
                 a_info[forge.name1].cur_num = 0;
+            */
         }
 
-        for (j = 1; j < 1024; j++)
+        fprintf(fff, "%d", depth);
+        for (j = 0; ; j++)
         {
-            if (counts[j] || good_counts[j])
-            {
-                fprintf(file, "||%d||%s||%d||%d||\n", depth, autopick_list[j].name, counts[j], good_counts[j]);
-            }
+            if (!_hack7_data[j].name) break;
+            fprintf(fff, ",%d", _hack7_data[j].ct1);
         }
+        fprintf(fff, "\n");
     }
 }
 
@@ -704,7 +789,7 @@ static void do_cmd_wiz_hack_chris7(void)
     int old_dun_level = dun_level;
     int old_object_level = object_level;
 
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Objects1.txt");
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Objects1.csv");
     fff = my_fopen(buf, "w");
 
     if (!fff)
@@ -1404,7 +1489,10 @@ static int wiz_create_itemtype(void)
                 strip_name(buf, i);
 
                 /* Print it */
-                prt(format("[%c] %s (L%d)", ch, buf, lvl), row, col);
+                if (k_ptr->max_level)
+                    prt(format("[%c] %s (L%d-%d)", ch, buf, lvl, k_ptr->max_level), row, col);
+                else
+                    prt(format("[%c] %s (L%d-*)", ch, buf, lvl), row, col);
 
                 /* Remember the object index */
                 choice[num++] = i;
@@ -2630,6 +2718,26 @@ void do_cmd_debug(void)
         (void)identify_fully(NULL);
         break;
 
+    case 'I':
+    {
+        int i, ct = 0;
+        char buf[MAX_NLEN];
+        for (i = 0; i < max_o_idx; i++)
+        {
+            if (!o_list[i].k_idx) continue;
+            ct++;
+            identify_item(&o_list[i]);
+            o_list[i].ident |= IDENT_MENTAL;
+            if (o_list[i].name1 || o_list[i].name2)
+            {
+                object_desc(buf, &o_list[i], 0);
+                msg_print(buf);
+            }
+        }
+        msg_format("Objects=%d", ct);
+        break;
+    }
+
     /* Go up or down in the dungeon */
     case 'j':
         do_cmd_wiz_jump();
@@ -2722,18 +2830,6 @@ void do_cmd_debug(void)
         }
         break;
     }
-    /* Make every dungeon square "known" to test streamers -KMW- */
-    case 'u':
-        for (y = 0; y < cur_hgt; y++)
-        {
-            for (x = 0; x < cur_wid; x++)
-            {
-                cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
-            }
-        }
-        wiz_lite(FALSE);
-        break;
-
     /* Summon Random Monster(s) */
     case 's':
         if (command_arg <= 0) command_arg = 1;
@@ -2744,6 +2840,36 @@ void do_cmd_debug(void)
     case 't':
         teleport_player(100, 0L);
         break;
+
+    /* Make every dungeon square "known" to test streamers -KMW- */
+    case 'u':
+        for (y = 0; y < cur_hgt; y++)
+        {
+            for (x = 0; x < cur_wid; x++)
+            {
+                cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
+            }
+        }
+        wiz_lite(FALSE);
+        {
+            int i, ct = 0;
+            char buf[MAX_NLEN];
+            for (i = 0; i < max_o_idx; i++)
+            {
+                if (!o_list[i].k_idx) continue;
+                ct++;
+                identify_item(&o_list[i]);
+                o_list[i].ident |= IDENT_MENTAL;
+                if (o_list[i].name1 || o_list[i].name2)
+                {
+                    object_desc(buf, &o_list[i], 0);
+                    msg_print(buf);
+                }
+            }
+            msg_format("Objects=%d", ct);
+        }
+        break;
+
 
     /* Very Good Objects */
     case 'v':

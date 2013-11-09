@@ -814,7 +814,7 @@ static bool use_mane(int spell)
         if (!target_set(TARGET_KILL)) return FALSE;
         msg_print("You summon Lords of Amber!");
         for (k = 0;k < 4; k++)
-            summon_specific(-1, target_row, target_col, plev, SUMMON_AMBERITES, (mode | PM_ALLOW_UNIQUE));
+            summon_specific(-1, target_row, target_col, plev, SUMMON_AMBERITE, (mode | PM_ALLOW_UNIQUE));
         break;
     }
     case MS_S_UNIQUE:

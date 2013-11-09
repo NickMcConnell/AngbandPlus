@@ -34,12 +34,12 @@ static int _spell_stat_idx(void)
 #define _CLARITY      1
 #define _BLENDING     2
 #define _SHIELDING    3
-#define _COMBAT          4
-#define _SPEED          5
-#define _BACKLASH      6
-#define _FORTRESS      7
-#define _MINDSPRING      8
-#define _FORESIGHT      9
+#define _COMBAT       4
+#define _SPEED        5
+#define _BACKLASH     6
+#define _FORTRESS     7
+#define _MINDSPRING   8
+#define _FORESIGHT    9
 #define _ARCHERY     10
 
 bool psion_weapon_graft(void)
@@ -322,7 +322,7 @@ static void _combat_transformation_spell(int power, int cmd, variant *res)
         var_set_string(res, "For a short while, you focus your mental powers on effective combat.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Blows: +%d", (power+1)/2));
+        var_set_string(res, format("Blows: +%d.%d", power/2, (power % 2)*5));
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
@@ -1487,16 +1487,31 @@ static bool _spell_is_known(int idx)
     return FALSE;
 }
 
+typedef struct {
+    int lvl;
+    int color;
+} _spell_rank_t;
+static _spell_rank_t _spell_ranks[] = {
+    {  1, TERM_WHITE },
+    { 10, TERM_L_WHITE },
+    { 15, TERM_L_UMBER },
+    { 20, TERM_YELLOW },
+    { 30, TERM_ORANGE },
+    { 35, TERM_L_RED },
+    { 40, TERM_RED },
+    { 50, TERM_VIOLET },
+    {  0, TERM_WHITE },
+};
+
 static int _num_spells_allowed(void)
 {
-    int ct = 1;
-    if (p_ptr->lev >= 10) ct++;
-    if (p_ptr->lev >= 15) ct++;
-    if (p_ptr->lev >= 20) ct++;
-    if (p_ptr->lev >= 30) ct++;
-    if (p_ptr->lev >= 35) ct++;
-    if (p_ptr->lev >= 40) ct++;
-    if (p_ptr->lev >= 50) ct++;
+    int ct = 0, i;
+    for (i = 0; ; i++)
+    {
+        if (_spell_ranks[i].lvl <= 0) break;
+        if (p_ptr->lev >= _spell_ranks[i].lvl)
+            ct++;
+    }
     return ct;
 }
 
@@ -1518,12 +1533,28 @@ static void _study_menu_fn(int cmd, int which, vptr cookie, variant *res)
     case MENU_HELP:
         var_set_string(res, _spells[idx].desc);
         break;
+    case MENU_COLOR:
+    {
+        int lvl = _spells[idx].level;
+        int i;
+        var_set_int(res, TERM_WHITE);
+        for (i = 0; ; i++)
+        {
+            if (_spell_ranks[i].lvl <= 0) break;
+            if (lvl == _spell_ranks[i].lvl)
+            {
+                var_set_int(res, _spell_ranks[i].color);
+                break;
+            }
+        }
+        break;
+    }
     default:
         default_menu(cmd, which, cookie, res);
     }
 }
 
-static void _study(void)
+static void _study(int level)
 {
     int choices[100];
     int i;
@@ -1535,7 +1566,7 @@ static void _study(void)
     {
         _spell_t *s_ptr = &_spells[i];
         if (!s_ptr->level) break;
-        if (s_ptr->level <= p_ptr->lev && !_spell_is_known(i))
+        if (s_ptr->level <= level && !_spell_is_known(i))
         {
             choices[ct] = i;
             ct++;
@@ -1580,7 +1611,7 @@ static void _study(void)
 static void _gain_level(int new_level)
 {
     while (_can_study())
-        _study();
+        _study(new_level);
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -1933,6 +1964,10 @@ void psion_relearn_powers(void)
     for (i = 0; i < 64; i++) 
         p_ptr->spell_order[i] = 99;
 
-    while (_can_study())
-        _study();
+    for (i = 0; ; i++)
+    {
+        if (_spell_ranks[i].lvl <= 0) break;
+        if (p_ptr->lev >= _spell_ranks[i].lvl)
+            _study(_spell_ranks[i].lvl);
+    }
 }

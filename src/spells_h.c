@@ -234,7 +234,8 @@ void hellfire_spell(int cmd, variant *res)
         if (get_aim_dir(&dir))
         {
             fire_ball(GF_HELL_FIRE, dir, spell_power(666), 3);
-            take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire", -1);
+            if (!demon_is_(DEMON_BALROG))
+                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire", -1);
             var_set_bool(res, TRUE);
         }
         break;

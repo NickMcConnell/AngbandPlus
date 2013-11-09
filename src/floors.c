@@ -981,12 +981,20 @@ void leave_floor(void)
         if (change_floor_mode & CFM_DOWN)
         {
             if (!dun_level)
-                move_num = d_info[dungeon_type].mindepth;
+            {
+                if (d_info[dungeon_type].flags1 & DF1_RANDOM)
+                    move_num = rand_range(d_info[dungeon_type].mindepth, d_info[dungeon_type].maxdepth);
+                else
+                    move_num = d_info[dungeon_type].mindepth;
+            }
         }
         else if (change_floor_mode & CFM_UP)
         {
-            if (dun_level + move_num < d_info[dungeon_type].mindepth)
+            if ( dun_level + move_num < d_info[dungeon_type].mindepth
+              || (d_info[dungeon_type].flags1 & DF1_RANDOM) )
+            {
                 move_num = -dun_level;
+            }
         }
 
         dun_level += move_num;
@@ -995,13 +1003,19 @@ void leave_floor(void)
     /* Leaving the dungeon to town */
     if (!dun_level && dungeon_type)
     {
-        p_ptr->leaving_dungeon = TRUE;
-        if (!vanilla_town && !lite_town)
+        p_ptr->leaving_dungeon = dungeon_type;
+
+        if (!(d_info[dungeon_type].flags1 & DF1_RANDOM))
         {
-            p_ptr->wilderness_y = d_info[dungeon_type].dy;
-            p_ptr->wilderness_x = d_info[dungeon_type].dx;
+            if (!vanilla_town && !lite_town)
+            {
+                p_ptr->wilderness_y = d_info[dungeon_type].dy;
+                p_ptr->wilderness_x = d_info[dungeon_type].dx;
+                p_ptr->wilderness_dx = 0;
+                p_ptr->wilderness_dy = 0;
+            }
+            p_ptr->recall_dungeon = dungeon_type;
         }
-        p_ptr->recall_dungeon = dungeon_type;
         dungeon_type = 0;
 
         /* Reach to the surface -- Clear all saved floors */
@@ -1110,15 +1124,14 @@ void change_floor(void)
     panel_col_min = 0;
     panel_col_max = 0;
 
-    /* Mega-Hack -- not ambushed on the wildness? */
-    ambush_flag = FALSE;
-
     /* No saved floors (On the surface etc.) */
     if (!(change_floor_mode & CFM_SAVE_FLOORS) &&
         !(change_floor_mode & CFM_FIRST_FLOOR))
     {
         /* Create cave */
+        hack_mind = FALSE;
         generate_cave();
+        hack_mind = TRUE;
 
         /* Paranoia -- No new saved floor */
         new_floor_id = 0;
@@ -1318,7 +1331,9 @@ void change_floor(void)
             else
             {
                 /* Newly create cave */
+                hack_mind = FALSE;
                 generate_cave();
+                hack_mind = TRUE;
             }
 
             /* Record last visit turn */

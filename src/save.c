@@ -14,161 +14,280 @@
 
 static void wr_item(savefile_ptr file, object_type *o_ptr)
 {
-    u32b flags = 0x00000000;
-
-    if (o_ptr->pval) flags |= SAVE_ITEM_PVAL;
-    if (o_ptr->discount) flags |= SAVE_ITEM_DISCOUNT;
-    if (o_ptr->number != 1) flags |= SAVE_ITEM_NUMBER;
-    if (o_ptr->name1) flags |= SAVE_ITEM_NAME1;
-    if (o_ptr->name2) flags |= SAVE_ITEM_NAME2;
-    if (o_ptr->name3) flags |= SAVE_ITEM_NAME3;
-    if (o_ptr->timeout) flags |= SAVE_ITEM_TIMEOUT;
-    if (o_ptr->to_h) flags |= SAVE_ITEM_TO_H;
-    if (o_ptr->to_d) flags |= SAVE_ITEM_TO_D;
-    if (o_ptr->to_a) flags |= SAVE_ITEM_TO_A;
-    if (o_ptr->ac) flags |= SAVE_ITEM_AC;
-    if (o_ptr->dd) flags |= SAVE_ITEM_DD;
-    if (o_ptr->ds) flags |= SAVE_ITEM_DS;
-    if (o_ptr->ident) flags |= SAVE_ITEM_IDENT;
-    if (o_ptr->marked) flags |= SAVE_ITEM_MARKED;
-    if (o_ptr->art_flags[0]) flags |= SAVE_ITEM_ART_FLAGS0;
-    if (o_ptr->art_flags[1]) flags |= SAVE_ITEM_ART_FLAGS1;
-    if (o_ptr->art_flags[2]) flags |= SAVE_ITEM_ART_FLAGS2;
-    if (o_ptr->art_flags[3]) flags |= SAVE_ITEM_ART_FLAGS3;
-    if (o_ptr->art_flags[4]) flags |= SAVE_ITEM_ART_FLAGS4;
-    if (o_ptr->art_flags[5]) flags |= SAVE_ITEM_ART_FLAGS5;
-    if (o_ptr->curse_flags) flags |= SAVE_ITEM_CURSE_FLAGS;
-    if (o_ptr->rune) flags |= SAVE_ITEM_RUNE_FLAGS;
-    if (o_ptr->held_m_idx) flags |= SAVE_ITEM_HELD_M_IDX;
-    if (o_ptr->xtra1) flags |= SAVE_ITEM_XTRA1;
-    if (o_ptr->xtra2) flags |= SAVE_ITEM_XTRA2;
-    if (o_ptr->xtra3) flags |= SAVE_ITEM_XTRA3;
-    if (o_ptr->xtra4) flags |= SAVE_ITEM_XTRA4;
-    if (o_ptr->xtra5) flags |= SAVE_ITEM_XTRA5;
-    if (o_ptr->feeling) flags |= SAVE_ITEM_FEELING;
-    if (o_ptr->inscription) flags |= SAVE_ITEM_INSCRIPTION;
-    if (o_ptr->art_name) flags |= SAVE_ITEM_ART_NAME;
-
-    savefile_write_u32b(file, flags);
     savefile_write_s16b(file, o_ptr->k_idx);
     savefile_write_byte(file, o_ptr->iy);
     savefile_write_byte(file, o_ptr->ix);
-
-    if (flags & SAVE_ITEM_PVAL) savefile_write_s16b(file, o_ptr->pval);
-    if (flags & SAVE_ITEM_DISCOUNT) savefile_write_byte(file, o_ptr->discount);
-    if (flags & SAVE_ITEM_NUMBER) savefile_write_byte(file, o_ptr->number);
     savefile_write_s16b(file, o_ptr->weight);
-    if (flags & SAVE_ITEM_NAME1) savefile_write_s16b(file, o_ptr->name1);
-    if (flags & SAVE_ITEM_NAME2) savefile_write_s16b(file, o_ptr->name2);
-    if (flags & SAVE_ITEM_NAME3) savefile_write_s16b(file, o_ptr->name3);
-    if (flags & SAVE_ITEM_TIMEOUT) savefile_write_s16b(file, o_ptr->timeout);
-    if (flags & SAVE_ITEM_TO_H) savefile_write_s16b(file, o_ptr->to_h);
-    if (flags & SAVE_ITEM_TO_D) savefile_write_s16b(file, o_ptr->to_d);
-    if (flags & SAVE_ITEM_TO_A) savefile_write_s16b(file, o_ptr->to_a);
-    if (flags & SAVE_ITEM_AC) savefile_write_s16b(file, o_ptr->ac);
-    if (flags & SAVE_ITEM_DD) savefile_write_byte(file, o_ptr->dd);
-    if (flags & SAVE_ITEM_DS) savefile_write_byte(file, o_ptr->ds);
-    if (flags & SAVE_ITEM_IDENT) savefile_write_byte(file, o_ptr->ident);
-    if (flags & SAVE_ITEM_MARKED) savefile_write_byte(file, o_ptr->marked);
-    if (flags & SAVE_ITEM_ART_FLAGS0) savefile_write_u32b(file, o_ptr->art_flags[0]);
-    if (flags & SAVE_ITEM_ART_FLAGS1) savefile_write_u32b(file, o_ptr->art_flags[1]);
-    if (flags & SAVE_ITEM_ART_FLAGS2) savefile_write_u32b(file, o_ptr->art_flags[2]);
-    if (flags & SAVE_ITEM_ART_FLAGS3) savefile_write_u32b(file, o_ptr->art_flags[3]);
-    if (flags & SAVE_ITEM_ART_FLAGS4) savefile_write_u32b(file, o_ptr->art_flags[4]);
-    if (flags & SAVE_ITEM_ART_FLAGS5) savefile_write_u32b(file, o_ptr->art_flags[5]);
-    if (flags & SAVE_ITEM_CURSE_FLAGS) savefile_write_u32b(file, o_ptr->curse_flags);
-    if (flags & SAVE_ITEM_RUNE_FLAGS) savefile_write_u32b(file, o_ptr->rune);
-    if (flags & SAVE_ITEM_HELD_M_IDX) savefile_write_s16b(file, o_ptr->held_m_idx);
-    if (flags & SAVE_ITEM_XTRA1) savefile_write_byte(file, o_ptr->xtra1);
-    if (flags & SAVE_ITEM_XTRA2) savefile_write_byte(file, o_ptr->xtra2);
-    if (flags & SAVE_ITEM_XTRA3) savefile_write_byte(file, o_ptr->xtra3);
-    if (flags & SAVE_ITEM_XTRA4) savefile_write_s16b(file, o_ptr->xtra4);
-    if (flags & SAVE_ITEM_XTRA5) savefile_write_s16b(file, o_ptr->xtra5);
-    if (flags & SAVE_ITEM_FEELING) savefile_write_byte(file, o_ptr->feeling);
-    if (flags & SAVE_ITEM_INSCRIPTION) savefile_write_string(file, quark_str(o_ptr->inscription));
-    if (flags & SAVE_ITEM_ART_NAME) savefile_write_string(file, quark_str(o_ptr->art_name));
+    if (o_ptr->pval)
+    {
+        savefile_write_byte(file, SAVE_ITEM_PVAL);
+        savefile_write_s16b(file, o_ptr->pval);
+    }
+    if (o_ptr->discount)
+    {
+        savefile_write_byte(file, SAVE_ITEM_DISCOUNT);
+        savefile_write_byte(file, o_ptr->discount);
+    }
+    if (o_ptr->number != 1)
+    { 
+        savefile_write_byte(file, SAVE_ITEM_NUMBER);
+        savefile_write_byte(file, o_ptr->number);
+    }
+    if (o_ptr->name1)
+    {
+        savefile_write_byte(file, SAVE_ITEM_NAME1);
+        savefile_write_s16b(file, o_ptr->name1);
+    }
+    if (o_ptr->name2)
+    {
+        savefile_write_byte(file, SAVE_ITEM_NAME2);
+        savefile_write_s16b(file, o_ptr->name2);
+    }
+    if (o_ptr->name3)
+    {
+        savefile_write_byte(file, SAVE_ITEM_NAME3);
+        savefile_write_s16b(file, o_ptr->name3);
+    }
+    if (o_ptr->timeout)
+    {
+        savefile_write_byte(file, SAVE_ITEM_TIMEOUT);
+        savefile_write_s16b(file, o_ptr->timeout);
+    }
+    if (o_ptr->to_h || o_ptr->to_d)
+    {
+        savefile_write_byte(file, SAVE_ITEM_COMBAT);
+        savefile_write_s16b(file, o_ptr->to_h);
+        savefile_write_s16b(file, o_ptr->to_d);
+    }
+    if (o_ptr->to_a || o_ptr->ac)
+    {
+        savefile_write_byte(file, SAVE_ITEM_ARMOR);
+        savefile_write_s16b(file, o_ptr->to_a);
+        savefile_write_s16b(file, o_ptr->ac);
+    }
+    if (o_ptr->dd || o_ptr->ds)
+    {
+        savefile_write_byte(file, SAVE_ITEM_DAMAGE_DICE);
+        savefile_write_byte(file, o_ptr->dd);
+        savefile_write_byte(file, o_ptr->ds);
+    }
+    if (o_ptr->ident)
+    {
+        savefile_write_byte(file, SAVE_ITEM_IDENT);
+        savefile_write_byte(file, o_ptr->ident);
+    }
+    if (o_ptr->marked)
+    {
+        savefile_write_byte(file, SAVE_ITEM_MARKED);
+        savefile_write_byte(file, o_ptr->marked);
+    }
+    if (o_ptr->art_flags[0])
+    {
+        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_0);
+        savefile_write_u32b(file, o_ptr->art_flags[0]);
+    }
+    if (o_ptr->art_flags[1])
+    {
+        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_1);
+        savefile_write_u32b(file, o_ptr->art_flags[1]);
+    }
+    if (o_ptr->art_flags[2])
+    {
+        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_2);
+        savefile_write_u32b(file, o_ptr->art_flags[2]);
+    }
+    if (o_ptr->art_flags[3])
+    {
+        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_3);
+        savefile_write_u32b(file, o_ptr->art_flags[3]);
+    }
+    if (o_ptr->art_flags[4])
+    {
+        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_4);
+        savefile_write_u32b(file, o_ptr->art_flags[4]);
+    }
+    if (o_ptr->art_flags[5])
+    {
+        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_5);
+        savefile_write_u32b(file, o_ptr->art_flags[5]);
+    }
+    if (o_ptr->curse_flags)
+    {
+        savefile_write_byte(file, SAVE_ITEM_CURSE_FLAGS);
+        savefile_write_u32b(file, o_ptr->curse_flags);
+    }
+    if (o_ptr->rune)
+    {
+        savefile_write_byte(file, SAVE_ITEM_RUNE_FLAGS);
+        savefile_write_u32b(file, o_ptr->rune);
+    }
+    if (o_ptr->held_m_idx)
+    {
+        savefile_write_byte(file, SAVE_ITEM_HELD_M_IDX);
+        savefile_write_s16b(file, o_ptr->held_m_idx);
+    }
+    if (o_ptr->xtra1)
+    {
+        savefile_write_byte(file, SAVE_ITEM_XTRA1);
+        savefile_write_byte(file, o_ptr->xtra1);
+    }
+    if (o_ptr->xtra2)
+    {
+        savefile_write_byte(file, SAVE_ITEM_XTRA2);
+        savefile_write_byte(file, o_ptr->xtra2);
+    }
+    if (o_ptr->xtra3)
+    {
+        savefile_write_byte(file, SAVE_ITEM_XTRA3);
+        savefile_write_byte(file, o_ptr->xtra3);
+    }
+    if (o_ptr->xtra4)
+    {
+        savefile_write_byte(file, SAVE_ITEM_XTRA4);
+        savefile_write_s16b(file, o_ptr->xtra4);
+    }
+    if (o_ptr->xtra5)
+    {
+        savefile_write_byte(file, SAVE_ITEM_XTRA5);
+        savefile_write_s16b(file, o_ptr->xtra5);
+    }
+    if (o_ptr->feeling)
+    {
+        savefile_write_byte(file, SAVE_ITEM_FEELING);
+        savefile_write_byte(file, o_ptr->feeling);
+    }
+    if (o_ptr->inscription)
+    {
+        savefile_write_byte(file, SAVE_ITEM_INSCRIPTION);
+        savefile_write_string(file, quark_str(o_ptr->inscription));
+    }
+    if (o_ptr->art_name)
+    {
+        savefile_write_byte(file, SAVE_ITEM_ART_NAME);
+        savefile_write_string(file, quark_str(o_ptr->art_name));
+    }
+    if (o_ptr->activation.type)
+    {
+        savefile_write_byte(file, SAVE_ITEM_ACTIVATION);
+        savefile_write_s16b(file, o_ptr->activation.type);
+        savefile_write_byte(file, o_ptr->activation.level);
+        savefile_write_s16b(file, o_ptr->activation.timeout);
+        savefile_write_s16b(file, o_ptr->activation.extra);
+    }
+
+    savefile_write_byte(file, SAVE_ITEM_DONE);
 }
 
 static void wr_monster(savefile_ptr file, monster_type *m_ptr)
 {
-    u32b flags = 0x00000000;
-    byte tmp8u;
+    int i;
 
-    if (!is_original_ap(m_ptr)) flags |= SAVE_MON_AP_R_IDX;
-    if (m_ptr->sub_align) flags |= SAVE_MON_SUB_ALIGN;
-    if (MON_CSLEEP(m_ptr)) flags |= SAVE_MON_CSLEEP;
-    if (MON_FAST(m_ptr)) flags |= SAVE_MON_FAST;
-    if (MON_SLOW(m_ptr)) flags |= SAVE_MON_SLOW;
-    if (MON_STUNNED(m_ptr)) flags |= SAVE_MON_STUNNED;
-    if (MON_CONFUSED(m_ptr)) flags |= SAVE_MON_CONFUSED;
-    if (MON_MONFEAR(m_ptr)) flags |= SAVE_MON_MONFEAR;
-    if (m_ptr->target_y) flags |= SAVE_MON_TARGET_Y;
-    if (m_ptr->target_x) flags |= SAVE_MON_TARGET_X;
-    if (MON_INVULNER(m_ptr)) flags |= SAVE_MON_INVULNER;
-    if (m_ptr->smart) flags |= SAVE_MON_SMART;
-    if (m_ptr->exp) flags |= SAVE_MON_EXP;
-    if (m_ptr->mflag2) flags |= SAVE_MON_MFLAG2;
-    if (m_ptr->nickname) flags |= SAVE_MON_NICKNAME;
-    if (m_ptr->parent_m_idx) flags |= SAVE_MON_PARENT;
-    if (m_ptr->pack_idx) flags |= SAVE_MON_PACK_IDX;
-    if (m_ptr->ac_adj) flags |= SAVE_MON_AC;
-    if (m_ptr->melee_adj) flags |= SAVE_MON_MELEE;
-
-    savefile_write_u32b(file, flags);
     savefile_write_s16b(file, m_ptr->r_idx);
     savefile_write_byte(file, m_ptr->fy);
     savefile_write_byte(file, m_ptr->fx);
     savefile_write_s16b(file, m_ptr->hp);
     savefile_write_s16b(file, m_ptr->maxhp);
     savefile_write_s16b(file, m_ptr->max_maxhp);
-    if (flags & SAVE_MON_AP_R_IDX) savefile_write_s16b(file, m_ptr->ap_r_idx);
-    if (flags & SAVE_MON_SUB_ALIGN) savefile_write_byte(file, m_ptr->sub_align);
-    if (flags & SAVE_MON_CSLEEP) savefile_write_s16b(file, m_ptr->mtimed[MTIMED_CSLEEP]);
     savefile_write_byte(file, m_ptr->mspeed);
     savefile_write_s16b(file, m_ptr->energy_need);
-    if (flags & SAVE_MON_FAST)
+
+    if (!is_original_ap(m_ptr))
     {
-        tmp8u = (byte)m_ptr->mtimed[MTIMED_FAST];
-        savefile_write_byte(file, tmp8u);
+        savefile_write_byte(file, SAVE_MON_AP_R_IDX);
+        savefile_write_s16b(file, m_ptr->ap_r_idx);
     }
-    if (flags & SAVE_MON_SLOW)
+    if (m_ptr->sub_align)
     {
-        tmp8u = (byte)m_ptr->mtimed[MTIMED_SLOW];
-        savefile_write_byte(file, tmp8u);
+        savefile_write_byte(file, SAVE_MON_SUB_ALIGN);
+        savefile_write_byte(file, m_ptr->sub_align);
     }
-    if (flags & SAVE_MON_STUNNED)
+    for (i = 0; i < MTIMED_MAX; i++)
     {
-        tmp8u = (byte)m_ptr->mtimed[MTIMED_STUNNED];
-        savefile_write_byte(file, tmp8u);
+        if (m_ptr->mtimed[i])
+        {
+            savefile_write_byte(file, SAVE_MON_TIMER);
+            savefile_write_byte(file, i);
+            savefile_write_s16b(file, m_ptr->mtimed[i]);
+        }
     }
-    if (flags & SAVE_MON_CONFUSED)
+    if (m_ptr->target_y)
     {
-        tmp8u = (byte)m_ptr->mtimed[MTIMED_CONFUSED];
-        savefile_write_byte(file, tmp8u);
+        savefile_write_byte(file, SAVE_MON_TARGET_Y);
+        savefile_write_s16b(file, m_ptr->target_y);
     }
-    if (flags & SAVE_MON_MONFEAR)
+    if (m_ptr->target_x)
     {
-        tmp8u = (byte)m_ptr->mtimed[MTIMED_MONFEAR];
-        savefile_write_byte(file, tmp8u);
+        savefile_write_byte(file, SAVE_MON_TARGET_X);
+        savefile_write_s16b(file, m_ptr->target_x);
     }
-    if (flags & SAVE_MON_TARGET_Y) savefile_write_s16b(file, m_ptr->target_y);
-    if (flags & SAVE_MON_TARGET_X) savefile_write_s16b(file, m_ptr->target_x);
-    if (flags & SAVE_MON_INVULNER)
+    if (m_ptr->smart)
     {
-        tmp8u = (byte)m_ptr->mtimed[MTIMED_INVULNER];
-        savefile_write_byte(file, tmp8u);
+        savefile_write_byte(file, SAVE_MON_SMART);
+        savefile_write_u32b(file, m_ptr->smart);
     }
-    if (flags & SAVE_MON_SMART) savefile_write_u32b(file, m_ptr->smart);
-    if (flags & SAVE_MON_EXP) savefile_write_u32b(file, m_ptr->exp);
-    if (flags & SAVE_MON_MFLAG2) savefile_write_u32b(file, m_ptr->mflag2);
-    if (flags & SAVE_MON_NICKNAME) savefile_write_string(file, quark_str(m_ptr->nickname));
-    if (flags & SAVE_MON_PARENT) savefile_write_s16b(file, m_ptr->parent_m_idx);
-    if (flags & SAVE_MON_PACK_IDX) savefile_write_s16b(file, m_ptr->pack_idx);
-    if (flags & SAVE_MON_AC) savefile_write_s16b(file, m_ptr->ac_adj);
-    if (flags & SAVE_MON_MELEE) savefile_write_s16b(file, m_ptr->melee_adj);
-    savefile_write_byte(file, m_ptr->drop_ct);
-    savefile_write_byte(file, m_ptr->stolen_ct);
-    savefile_write_u16b(file, m_ptr->summon_ct);
+    if (m_ptr->exp)
+    {
+        savefile_write_byte(file, SAVE_MON_EXP);
+        savefile_write_u32b(file, m_ptr->exp);
+    }
+    if (m_ptr->mflag2)
+    {
+        savefile_write_byte(file, SAVE_MON_MFLAG2);
+        savefile_write_u32b(file, m_ptr->mflag2);
+    }
+    if (m_ptr->nickname)
+    {
+        savefile_write_byte(file, SAVE_MON_NICKNAME);
+        savefile_write_string(file, quark_str(m_ptr->nickname));
+    }
+    if (m_ptr->parent_m_idx)
+    {
+        savefile_write_byte(file, SAVE_MON_PARENT);
+        savefile_write_s16b(file, m_ptr->parent_m_idx);
+    }
+    if (m_ptr->pack_idx)
+    {
+        savefile_write_byte(file, SAVE_MON_PACK_IDX);
+        savefile_write_s16b(file, m_ptr->pack_idx);
+    }
+    if (m_ptr->ac_adj)
+    {
+        savefile_write_byte(file, SAVE_MON_AC);
+        savefile_write_s16b(file, m_ptr->ac_adj);
+    }
+    if (m_ptr->melee_adj)
+    {
+        savefile_write_byte(file, SAVE_MON_MELEE);
+        savefile_write_s16b(file, m_ptr->melee_adj);
+    }
+    if (m_ptr->drop_ct)
+    {
+        savefile_write_byte(file, SAVE_MON_DROP_CT);
+        savefile_write_byte(file, m_ptr->drop_ct);
+    }
+    if (m_ptr->stolen_ct)
+    {
+        savefile_write_byte(file, SAVE_MON_STOLEN_CT);
+        savefile_write_byte(file, m_ptr->stolen_ct);
+    }
+    if (m_ptr->summon_ct)
+    {
+        savefile_write_byte(file, SAVE_MON_SUMMON_CT);
+        savefile_write_u16b(file, m_ptr->summon_ct);
+    }
+    if (m_ptr->ego_whip_ct)
+    {
+        savefile_write_byte(file, SAVE_MON_EGO_WHIP);
+        savefile_write_byte(file, m_ptr->ego_whip_ct);
+        savefile_write_byte(file, m_ptr->ego_whip_pow);
+    }
+    if (m_ptr->anti_magic_ct)
+    {
+        savefile_write_byte(file, SAVE_MON_ANTI_MAGIC);
+        savefile_write_byte(file, m_ptr->anti_magic_ct);
+    }
+
+    savefile_write_byte(file, SAVE_MON_DONE);
 }
 
 static void wr_lore(savefile_ptr file, int r_idx)
@@ -1040,8 +1159,10 @@ static bool wr_savefile_new(savefile_ptr file)
 
     savefile_write_s32b(file, p_ptr->wilderness_x);
     savefile_write_s32b(file, p_ptr->wilderness_y);
+    savefile_write_s16b(file, p_ptr->wilderness_dx);
+    savefile_write_s16b(file, p_ptr->wilderness_dy);
     savefile_write_byte(file, p_ptr->wild_mode);
-    savefile_write_byte(file, ambush_flag);
+    savefile_write_byte(file, TRUE);
     savefile_write_s32b(file, max_wild_x);
     savefile_write_s32b(file, max_wild_y);
 

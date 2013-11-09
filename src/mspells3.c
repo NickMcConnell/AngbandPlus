@@ -1406,7 +1406,7 @@ msg_print("Summoned ancient dragons are angry!");
         int k;
             msg_print("You summon a Lord of Amber!");
         for (k = 0;k < 1; k++)
-            if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_AMBERITES, (g_mode | p_mode | u_mode)))
+            if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_AMBERITE, (g_mode | p_mode | u_mode)))
             {
                 if (!pet)
 msg_print("Summoned Lords of Amber are angry!");

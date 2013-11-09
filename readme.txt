@@ -1,32 +1,33 @@
 ----- How to install -----
 
 --- LINUX
-  Apologies in advance but Linux is not my primary OS. If someone more
-  knowledgable would step up to improve building on Linux, I would be
-  much obliged.
-
   Download and unpack the source archive.
 
   Make sure you have the appropriate development packages installed.
   For example, you might run (Ubuntu or Mint):
     $ sudo apt-get install autoconf gcc libc6-dev libncurses5-dev libx11-dev
 
-  Manually compile from makefile.linux:
-    $ cd src
-    $ make install -f makefile.linux
+  From the root of the source archive:
+    $ sh autogen.sh
+    $ ./configure
+    $ make
+
+  To install, you may need to elevate your credentials:
+    $ su
+    $ make install
+    $ exit
 
   Then run poschengband as desired:
-    $ cd ..
-    $ ./poschengband -- -n<number of windows>  ## for normal ASCII graphics
+    $ poschengband -- -n<number of windows>  ## for normal ASCII graphics
   or
-    $ ./poschengband -g -- -n<# of windows>    ## for 8x8 tile graphics 
+    $ poschengband -g -- -n<# of windows>    ## for 8x8 tile graphics 
 
   You can change game windows' font, location, and size, by environment 
   variables.
 
   Ex.
     $ set env ANGBAND_X11_FONT '-*-*-medium-r-normal--24-*-*-*-*-*-iso8859-1'
-    $ ./poschengband -- -n
+    $ poschengband -- -n
 
   Then font size will be changed.
 
@@ -35,6 +36,7 @@
   Location of windows are ANGBAND_X11_AT_X_n, and ANGBAND_X11_AT_Y_n.
   Size of windows are ANGBAND_X11_COLS_n, and ANGBAND_X11_ROWS_n.
 
+  (Thanks to Nick McConnell for implementing and improving building under Linux/MAC!)
 
 --- Windows
 

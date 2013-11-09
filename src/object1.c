@@ -193,15 +193,15 @@ void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
         for (i = 0; i < TR_FLAG_SIZE; i++)
             flgs[i] |= e_ptr->flags[i];
 
-        if ((o_ptr->name2 == EGO_LITE_AURA_FIRE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+        if ((o_ptr->name2 == EGO_LITE_IMMOLATION) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
         {
             remove_flag(flgs, TR_SH_FIRE);
         }
-        else if ((o_ptr->name2 == EGO_LITE_INFRA) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+        else if ((o_ptr->name2 == EGO_LITE_INFRAVISION) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
         {
             remove_flag(flgs, TR_INFRA);
         }
-        else if ((o_ptr->name2 == EGO_LITE_EYE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+        else if ((o_ptr->name2 == EGO_LITE_IMMORTAL_EYE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
         {
             remove_flag(flgs, TR_RES_BLIND);
             remove_flag(flgs, TR_SEE_INVIS);
@@ -302,15 +302,15 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
         for (i = 0; i < TR_FLAG_SIZE; i++)
             flgs[i] |= e_ptr->flags[i];
 
-        if ((o_ptr->name2 == EGO_LITE_AURA_FIRE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+        if (o_ptr->name2 == EGO_LITE_IMMOLATION && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
         {
             remove_flag(flgs, TR_SH_FIRE);
         }
-        else if ((o_ptr->name2 == EGO_LITE_INFRA) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+        else if ((o_ptr->name2 == EGO_LITE_INFRAVISION) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
         {
             remove_flag(flgs, TR_INFRA);
         }
-        else if ((o_ptr->name2 == EGO_LITE_EYE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+        else if ((o_ptr->name2 == EGO_LITE_IMMORTAL_EYE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
         {
             remove_flag(flgs, TR_RES_BLIND);
             remove_flag(flgs, TR_SEE_INVIS);
@@ -394,1201 +394,20 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
     }
 }
 
-
-/*
- * Determine the "Activation" (if any) for an artifact
- * Return a string, or NULL for "no activation"
- */
-cptr item_activation(object_type *o_ptr)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    /* Extract the flags */
-    object_flags(o_ptr, flgs);
-
-    /* Require activation ability */
-    if (!(have_flag(flgs, TR_ACTIVATE))) return ("nothing");
-
-
-
-    /*
-     * We need to deduce somehow that it is a random artifact -- one
-     * problem: It could be a random artifact which has NOT YET received
-     * a name. Thus we eliminate other possibilities instead of checking
-     * for art_name
-     */
-
-    if (!object_is_fixed_artifact(o_ptr) &&
-        !object_is_ego(o_ptr) &&
-        !(o_ptr->xtra1) &&
-        (o_ptr->xtra2))
-    {
-        switch (o_ptr->xtra2)
-        {
-            case ACT_SUNLIGHT:
-            {
-                return "beam of sunlight every 10 turns";
-
-            }
-            case ACT_BO_MISS_1:
-            {
-                return "magic missile (2d6) every 2 turns";
-
-            }
-            case ACT_BA_POIS_1:
-            {
-                return "stinking cloud (12), rad. 3, every 4+d4 turns";
-
-            }
-            case ACT_BO_ELEC_1:
-            {
-                return "lightning bolt (4d8) every 5+d5 turns";
-
-            }
-            case ACT_BO_ACID_1:
-            {
-                return "acid bolt (5d8) every 6+d6 turns";
-
-            }
-            case ACT_BO_COLD_1:
-            {
-                return "frost bolt (6d8) every 7+d7 turns";
-
-            }
-            case ACT_BO_FIRE_1:
-            {
-                return "fire bolt (9d8) every 8+d8 turns";
-
-            }
-            case ACT_BA_COLD_1:
-            {
-                return "ball of cold (48) every 400 turns";
-
-            }
-            case ACT_BA_FIRE_1:
-            {
-                return "ball of fire (72) every 400 turns";
-
-            }
-            case ACT_DRAIN_1:
-            {
-                return "drain life (100) every 100+d100 turns";
-
-            }
-            case ACT_BA_COLD_2:
-            {
-                return "ball of cold (100) every 300 turns";
-
-            }
-            case ACT_BA_ELEC_2:
-            {
-                return "ball of lightning (100) every 500 turns";
-
-            }
-            case ACT_DRAIN_2:
-            {
-                return "drain life (120) every 400 turns";
-
-            }
-            case ACT_VAMPIRE_1:
-            {
-                return "vampiric drain (3*50) every 400 turns";
-
-            }
-            case ACT_BO_MISS_2:
-            {
-                return "arrows (150) every 90+d90 turns";
-
-            }
-            case ACT_BA_FIRE_2:
-            {
-                return "fire ball (120) every 225+d225 turns";
-
-            }
-            case ACT_BA_COLD_3:
-            {
-                return "ball of cold (200) every 325+d325 turns";
-
-            }
-            case ACT_BA_ELEC_3:
-            {
-                return "ball of lightning (250) every 425+d425 turns";
-
-            }
-            case ACT_WHIRLWIND:
-            {
-                return "whirlwind attack every 250 turns";
-
-            }
-            case ACT_VAMPIRE_2:
-            {
-                return "vampiric drain (3*100) every 400 turns";
-
-            }
-            case ACT_CALL_CHAOS:
-            {
-                return "call chaos every 350 turns";
-
-            }
-            case ACT_ROCKET:
-            {
-                return "launch rocket (120+level) every 400 turns";
-
-            }
-            case ACT_DISP_EVIL:
-            {
-                return "dispel evil (level*5) every 300+d300 turns";
-
-            }
-            case ACT_BA_MISS_3:
-            {
-                return "elemental breath (300) every 500 turns";
-
-            }
-            case ACT_DISP_GOOD:
-            {
-                return "dispel good (level*5) every 300+d300 turns";
-
-            }
-            case ACT_CONFUSE:
-            {
-                return "confuse monster every 15 turns";
-
-            }
-            case ACT_SLEEP:
-            {
-                return "sleep nearby monsters every 55 turns";
-
-            }
-            case ACT_QUAKE:
-            {
-                return "earthquake (rad 10) every 50 turns";
-
-            }
-            case ACT_TERROR:
-            {
-                return "terror every 3 * (level+10) turns";
-
-            }
-            case ACT_TELE_AWAY:
-            {
-                return "teleport away every 200 turns";
-
-            }
-            case ACT_BANISH_EVIL:
-            {
-                return "banish evil every 250+d250 turns";
-
-            }
-            case ACT_GENOCIDE:
-            {
-                return "genocide every 500 turns";
-
-            }
-            case ACT_MASS_GENO:
-            {
-                return "mass genocide every 1000 turns";
-
-            }
-            case ACT_CHARM_ANIMAL:
-            {
-                return "charm animal every 300 turns";
-
-            }
-            case ACT_CHARM_UNDEAD:
-            {
-                return "enslave undead every 333 turns";
-
-            }
-            case ACT_CHARM_OTHER:
-            {
-                return "charm monster every 400 turns";
-
-            }
-            case ACT_CHARM_ANIMALS:
-            {
-                return "animal friendship every 500 turns";
-
-            }
-            case ACT_CHARM_OTHERS:
-            {
-                return "mass charm every 750 turns";
-
-            }
-            case ACT_SUMMON_ANIMAL:
-            {
-                return "summon animal every 200+d300 turns";
-
-            }
-            case ACT_SUMMON_PHANTOM:
-            {
-                return "summon phantasmal servant every 200+d200 turns";
-
-            }
-            case ACT_SUMMON_ELEMENTAL:
-            {
-                return "summon elemental every 750 turns";
-
-            }
-            case ACT_SUMMON_DEMON:
-            {
-                return "summon demon every 666+d333 turns";
-
-            }
-            case ACT_SUMMON_UNDEAD:
-            {
-                return "summon undead every 666+d333 turns";
-
-            }
-            case ACT_CURE_LW:
-            {
-                return "heal 30 hp every 10 turns";
-
-            }
-            case ACT_CURE_MW:
-            {
-                return "heal 4d8 & wounds every 3+d3 turns";
-
-            }
-            case ACT_CURE_POISON:
-            {
-                return "cure poison every 5 turns";
-
-            }
-            case ACT_REST_LIFE:
-            {
-                return "restore life levels every 450 turns";
-
-            }
-            case ACT_REST_ALL:
-            {
-                return "restore stats and life levels every 750 turns";
-
-            }
-            case ACT_CURE_700:
-            {
-                return "heal 700 hit points every 250 turns";
-
-            }
-            case ACT_CURE_1000:
-            {
-                return "heal 1000 hit points every 888 turns";
-
-            }
-            case ACT_ESP:
-            {
-                return "telepathy (dur 25+d30) every 200 turns";
-
-            }
-            case ACT_BERSERK:
-            {
-                return "heroism and blessed (dur 50+d50) every 100+d100 turns";
-
-            }
-            case ACT_PROT_EVIL:
-            {
-                return "protect evil (dur level*3 + d25) every 225+d225 turns";
-
-            }
-            case ACT_RESIST_ALL:
-            {
-                return "resist elements (dur 40+d40) every 200 turns";
-
-            }
-            case ACT_SPEED:
-            {
-                return "speed (dur 20+d20) every 250 turns";
-
-            }
-            case ACT_XTRA_SPEED:
-            {
-                return "speed (dur 75+d75) every 200+d200 turns";
-
-            }
-            case ACT_WRAITH:
-            {
-                return "wraith form (dur level/2 + d(level/2)) every 1000 turns";
-
-            }
-            case ACT_INVULN:
-            {
-                return "invulnerability (dur 8+d8) every 1000 turns";
-
-            }
-            case ACT_LIGHT:
-            {
-                return "light area (dam 2d15) every 10+d10 turns";
-
-            }
-            case ACT_WIZ_LITE:
-            {
-                return "enlightenment every 20+d20 turns";
-            }
-            case ACT_MAP_LIGHT:
-            {
-                return "light (dam 2d15) & map area every 50+d50 turns";
-
-            }
-            case ACT_DETECT_ALL:
-            {
-                return "detection every 55+d55 turns";
-
-            }
-            case ACT_DETECT_XTRA:
-            {
-                return "detection, probing and identify true every 1000 turns";
-
-            }
-            case ACT_ID_FULL:
-            {
-                return "identify true every 750 turns";
-
-            }
-            case ACT_ID_PLAIN:
-            {
-                return "identify spell every 10 turns";
-
-            }
-            case ACT_RUNE_EXPLO:
-            {
-                return "explosive rune every 200 turns";
-
-            }
-            case ACT_RUNE_PROT:
-            {
-                return "rune of protection every 400 turns";
-
-            }
-            case ACT_SATIATE:
-            {
-                return "satisfy hunger every 200 turns";
-
-            }
-            case ACT_DEST_DOOR:
-            {
-                return "destroy doors every 10 turns";
-
-            }
-            case ACT_STONE_MUD:
-            {
-                return "stone to mud every 5 turns";
-
-            }
-            case ACT_RECHARGE:
-            {
-                return "recharging every 70 turns";
-
-            }
-            case ACT_ALCHEMY:
-            {
-                return "alchemy every 500 turns";
-
-            }
-            case ACT_DIM_DOOR:
-            {
-                return "dimension door every 100 turns";
-
-            }
-            case ACT_TELEPORT:
-            {
-                return "teleport (range 100) every 45 turns";
-
-            }
-            case ACT_RECALL:
-            {
-                return "word of recall every 200 turns";
-
-            }
-            default:
-            {
-                return "something undefined";
-
-            }
-        }
-    }
-
-    /* Some artifacts can be activated */
-    switch (o_ptr->name1)
-    {
-        case ART_HOLY_GRAIL:
-            return "Heal 50hp and Resist Magic every 12 turns";
-        case ART_ZEUS:
-            return "Lightning Storm (555) every 5 turns";
-        case ART_POSEIDON:
-            return "Earthquake every turn";
-        case ART_HADES:
-            return "Restoration every 500 turns";
-        case ART_ATHENA:
-            return "Recharging every 15 turns";
-        case ART_ARES:
-            return "Berserk every 20 turns";
-        case ART_HERMES:
-            return "Haste and Dimension Door every 100 turns";
-        case ART_APOLLO:
-            return "Clairvoyance every 20 turns";
-        case ART_ARTEMIS:
-            return "Create Arrows every 999 turns";
-        case ART_HEPHAESTUS:
-            return "Enchantment every 200 turns";
-        case ART_HERA:
-            return "Restore Mana every 55 turns";
-        case ART_DEMETER:
-            return "Heal (500) and Satisfy Hunger every 100 turns";
-        case ART_APHRODITE:
-            return "Summon Pet every 25 turns";
-
-        case ART_NARTHANC:
-        {
-            return "fire bolt (9d8) every 8+d8 turns";
-
-        }
-        case ART_GONG:
-            return "a loud bong every 5+d5 turns";
-        case ART_STOMPER:
-            return "earthquake every 35 turns";
-        case ART_RAILGUN:
-            return "beam of light (300) every turn";
-        case ART_KAMIKAZE_ROBE:
-            return "Speed Essentia every 111 turns";
-        case ART_BALLISTA:
-            return "piercing shot every 100 turns";
-        case ART_STONE_OF_NATURE:
-            return "stone skin every 100 turns";
-        case ART_STONE_OF_LIFE:
-            return "restoring every 500 turns";
-        case ART_STONE_OF_SORCERY:
-            return "haste self every 100 turns";
-        case ART_STONE_OF_CHAOS:
-            return "polymorph self every 500 turns";
-        case ART_STONE_OF_DEATH:
-            return "animate dead every 666 turns";
-        case ART_STONE_OF_TRUMP:
-            return "teleport self every turn";
-        case ART_STONE_OF_DAEMON:
-            return "breathe fire every 666 turns";
-        case ART_STONE_OF_CRUSADE:
-            return "protection from evil every 555 turns";
-        case ART_STONE_OF_CRAFT:
-            return "resistance every 100 turns";
-        case ART_STONE_OF_WAR:
-            return "berserk rage every 100 turns";
-        case ART_STONE_OF_ARMAGEDDON:
-            return "destruction every 10 turns";
-        case ART_OMARAX:
-            return "clairvoyance every 20+d20 turns";
-        case ART_LERNEAN:
-            return "heal 700hp every 300 turns";
-        case ART_NIMTHANC:
-        {
-            return "frost bolt (6d8) every 7+d7 turns";
-
-        }
-        case ART_DETHANC:
-        {
-            return "lightning bolt (4d8) every 6+d6 turns";
-
-        }
-        case ART_RILIA:
-        {
-            return "stinking cloud (12) every 4+d4 turns";
-
-        }
-        case ART_FIONA:
-        {
-            return "frost ball (48) every 5+d5 turns";
-
-        }
-        case ART_FLORA:
-        {
-            return "remove fear and cure poison every 5 turns";
-
-        }
-        case ART_RINGIL:
-        {
-            return "frost ball (100) every 200 turns";
-
-        }
-        case ART_DAWN:
-        {
-            return "summon the Legion of the Dawn every 500+d500 turns";
-
-        }
-        case ART_ANDURIL:
-        {
-            return "fire ball (72) every 400 turns";
-
-        }
-        case ART_FIRESTAR:
-        {
-            return "large fire ball (72) every 100 turns";
-
-        }
-        case ART_AEGIR:
-        {
-            return "polymorph colossus every 500 turns";
-        }
-        case ART_DEFENDER_OF_THE_CROWN:
-        {
-            return "stone skin every 300 turns";
-        }
-        case ART_MONKEY_KING:
-        {
-            return "enlarge weapon every 555 turns";
-        }
-        case ART_MAUL_OF_VICE:
-            return "light speed every 888 turns";
-        case ART_GOTHMOG:
-        {
-            return "large fire ball (120) every 15 turns";
-
-        }
-        case ART_FEANOR:
-        {
-            return "haste self (20+d20 turns) every 200 turns";
-
-        }
-        case ART_THEODEN:
-        {
-            return "drain life (120) every 400 turns";
-
-        }
-        case ART_TURMIL:
-        {
-            return "drain life (90) every 70 turns";
-
-        }
-        case ART_CASPANION:
-        {
-            return "door and trap destruction every 10 turns";
-
-        }
-        case ART_AVAVIR:
-        case ART_MAGATAMA:
-        case ART_HEAVENLY_MAIDEN:
-        {
-            return "word of recall every 200 turns";
-
-        }
-        case ART_TARATOL:
-        {
-            return "haste self (20+d20 turns) every 100+d100 turns";
-
-        }
-        case ART_ERIRIL:
-        {
-            return "identify every 10 turns";
-
-        }
-        case ART_GANDALF:
-        {
-            return "probing, detection and full id every 100 turns";
-
-        }
-        case ART_EONWE:
-        {
-            return "mass genocide every 1000 turns";
-
-        }
-        case ART_LOTHARANG:
-        {
-            return "cure wounds (4d8) every 3+d3 turns";
-
-        }
-        case ART_CRIMSON:
-        {
-            return "fire! every 15 turns";
-
-        }
-        case ART_KUSANAGI:
-        case ART_WEREWINDLE:
-        {
-            return "a getaway every 35 turns";
-
-        }
-        case ART_KAMUI:
-        {
-            return "a teleport every 25 turns";
-
-        }
-        case ART_RUNESPEAR:
-        {
-            return "lightning ball (100) every 200 turns";
-
-        }
-        case ART_AEGLOS:
-        {
-            return "frost ball (100) every 200 turns";
-
-        }
-        case ART_DESTINY:
-        {
-            return "stone to mud every 5 turns";
-
-        }
-        case ART_NAIN:
-        {
-            return "stone to mud every 2 turns";
-
-        }
-        case ART_SOULKEEPER:
-        {
-            return "heal (1000) every 888 turns";
-
-        }
-        case ART_DUELIST: return "Strafing every 3 turns";
-        case ART_LOHENGRIN:
-        case ART_DAERON:
-        {
-            return ("heal (777), curing and heroism every 300 turns");
-
-        }
-        case ART_MAGLOR:
-        {
-            return ("restore mana every 777 turns");
-        }
-        case ART_JULIAN:
-        {
-            return "genocide every 500 turns";
-
-        }
-        case ART_LUTHIEN:
-        {
-            return "restore life levels every 450 turns";
-
-        }
-        case ART_ULMO:
-        {
-            return "teleport away every 150 turns";
-
-        }
-        case ART_COLLUIN:
-        case ART_SARUMAN:
-        case ART_SEIRYU:
-        {
-            return "resistance (20+d20 turns) every 111 turns";
-
-        }
-        case ART_BLOODRIP:
-        {
-            return "whirlwind attack every 66 turns";
-        }
-        case ART_HOLCOLLETH:
-        {
-            return "sleep monsters every 55 turns";
-
-        }
-        case ART_THINGOL:
-        {
-            return "recharge item every 70 turns";
-
-        }
-        case ART_COLANNON:
-        {
-            return "teleport every 45 turns";
-
-        }
-        case ART_TOTILA:
-        {
-            return "confuse monster every 15 turns";
-
-        }
-        case ART_CAMMITHRIM:
-        {
-            return "magic missile (2d6) every 2 turns";
-
-        }
-        case ART_FINGOLFIN:
-        {
-            return "a magical arrow (150) every 90+d90 turns";
-
-        }
-        case ART_HOLHENNETH:
-        {
-            return "detection every 55+d55 turns";
-
-        }
-        case ART_AMBER:
-        {
-            return "heal (700) every 250 turns";
-
-        }
-        case ART_RAZORBACK:
-        {
-            return "star ball (150) every 1000 turns";
-
-        }
-        case ART_BLADETURNER:
-        {
-            return "breathe elements (300), hero, bless, and resistance";
-
-        }
-        case ART_GALADRIEL:
-        {
-            return "illumination every 10+d10 turns";
-
-        }
-        case ART_ELENDIL:
-        {
-            return "magic mapping and light every 50+d50 turns";
-
-        }
-        case ART_EYE_OF_VECNA:
-            return "the Vision of Vecna, every 20+d20 turns";
-        case ART_JUDGE:
-        {
-            return "clairvoyance and recall, draining you every 20+d20 turns";
-
-        }
-        case ART_INGWE:
-        case ART_YATA:
-        {
-            return "dispel evil (x5) every 200+d200 turns";
-
-        }
-        case ART_FUNDIN:
-        {
-            return "dispel evil (x5) every 100+d100 turns";
-
-        }
-        case ART_CARLAMMAS:
-        case ART_HERMIT:
-        {
-            return "protection from evil every 225+d225 turns";
-
-        }
-        case ART_FRAKIR:
-        {
-            return "a strangling attack (100) every 100+d100 turns";
-
-        }
-        case ART_TULKAS:
-        {
-            return "haste self (75+d75 turns) every 150+d150 turns";
-
-        }
-        case ART_NARYA:
-        {
-            return "large fire ball (300) every 225+d225 turns";
-
-        }
-        case ART_NENYA:
-        {
-            return "large frost ball (400) every 325+d325 turns";
-
-        }
-        case ART_VILYA:
-        case ART_GOURYU:
-        {
-            return "large lightning ball (500) every 425+d425 turns";
-
-        }
-        case ART_POWER:
-        case ART_AHO:
-        {
-            return "bizarre things every 450+d450 turns";
-
-        }
-        case ART_DOR: case ART_TERROR: case ART_STONEMASK:
-        {
-            return "rays of fear in every direction every 3*(level+10) turns";
-
-        }
-        case ART_PALANTIR:
-        {
-            return "list of the uniques on the level every 200 turns";
-        }
-        case ART_FARAMIR:
-        {
-            return "dispel small life every 55+d55 turns";
-        }
-        case ART_BOROMIR:
-        {
-            return "frighten monsters every 40+d40 turns";
-        }
-        case ART_HIMRING:
-        {
-            return "protection from evil every 200 + d200 turns";
-        }
-        case ART_ICANUS:
-        {
-            return "a mana bolt (120) every 120+d120 turns";
-        }
-        case ART_HURIN:
-        {
-            return "hero and +10 to speed (50) every 100+200d turns";
-        }
-        case ART_GIL_GALAD:
-        {
-            return "blinding light every 250 turns";
-        }
-        case ART_YENDOR:
-        {
-            return "recharge item every 200 turns";
-        }
-        case ART_MURAMASA:
-        {
-            return "increase STR (destroyed 50%)";
-        }
-        case ART_FLY_STONE:
-        {
-            return "a mana storm every 250+d250 turns";
-        }
-        case ART_JONES:
-        {
-            return "a telekinesis (500 lb) every 25+d25 turns";
-        }
-        case ART_ARRYU:
-        {
-            return "summon hound every 300+d150 turns";
-        }
-        case ART_GAEBOLG:
-        {
-            return "large star ball (200) every 200+d200 turns";
-
-        }
-        case ART_INROU:
-        {
-            return "reveal your identity every 150+d150 turns";
-
-        }
-        case ART_HYOUSIGI:
-        {
-            return "beat wooden clappers every turn";
-
-        }
-        case ART_MATOI:
-        case ART_AEGISFANG:
-        {
-            return "heroism every 30+d30 turns";
-
-        }
-
-        case ART_EARENDIL:
-        {
-            return "curing every 100 turns";
-
-        }
-
-        case ART_BOLISHOI:
-        {
-            return "charm animal every 200 turns";
-
-        }
-        case ART_ARUNRUTH:
-        {
-            return "frost bolt (12d8) every 50 turns";
-
-        }
-        case ART_BLOOD:
-        {
-            return "change zokusei every 3333 turns";
-
-        }
-        case ART_NUMAHOKO:
-        {
-            return "water ball (200) every 250 turns";
-
-        }
-        case ART_KESHO:
-        {
-            return "shiko every 100+d100 turns";
-
-        }
-        case ART_MOOK:
-        {
-            return "resist cold every 40+d40 turns";
-
-        }
-        case ART_JIZO:
-        {
-            return "summon octopus every 300+d150 turns";
-        }
-        case ART_NIGHT:
-        case ART_HELL:
-        {
-            return "darkness storm (250) every 150+d150 turns";
-
-        }
-        case ART_SACRED_KNIGHTS:
-        {
-            return "dispel curse and probing every turn";
-
-        }
-        case ART_CHARMED:
-        {
-            return "restore mana every 777 turns";
-
-        }
-        case ART_AESCULAPIUS:
-        {
-            return "restore stats and life levels every 750 turns";
-        }
-    }
-
-
-    if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_TSURIZAO))
-    {
-        return "fishing : every time";
-
-    }
-
-    if (object_is_smith(o_ptr))
-    {
-        switch (o_ptr->xtra3 - 1)
-        {
-        case ESSENCE_TMP_RES_ACID:
-            return "resist acid every 50+d50 turns";
-
-        case ESSENCE_TMP_RES_ELEC:
-            return "resist elec every 50+d50 turns";
-
-        case ESSENCE_TMP_RES_FIRE:
-            return "resist fire every 50+d50 turns";
-
-        case ESSENCE_TMP_RES_COLD:
-            return "resist cold every 50+d50 turns";
-
-        case TR_IMPACT:
-            return "earthquake every 100+d100 turns";
-        }
-    }
-
-    if (o_ptr->name2 == EGO_TRUMP)
-    {
-        return "teleport every 50+d50 turns";
-
-    }
-
-    if (o_ptr->name2 == EGO_LITE_ILLUMINATION)
-    {
-            return "illumination every 10+d10 turns";
-    }
-
-    else if (o_ptr->name2 == EGO_EARTHQUAKES)
-    {
-        return "earthquake every 100+d100 turns";
-
-    }
-
-    else if (o_ptr->name2 == EGO_JUMP)
-    {
-        return "blink every 10+d10 turns";
-
-    }
-
-    else if (o_ptr->name2 == EGO_DAEMON)
-    {
-        return "destruction every 100+d100 turns";
-    }
-
-    if (o_ptr->tval == TV_RING)
-    {
-        if (object_is_ego(o_ptr))
-        {
-            switch (o_ptr->name2)
-            {
-            case EGO_RING_HERO:
-                return "heroism every 100+d100 turns";
-            case EGO_RING_MAGIC_MIS:
-            return "magic missile (2d6) every 2 turns";
-            case EGO_RING_FIRE_BOLT:
-            return "fire bolt (9d8) every 8+d8 turns";
-            case EGO_RING_COLD_BOLT:
-                return "frost bolt (6d8) every 7+d7 turns";
-            case EGO_RING_ELEC_BOLT:
-                return "lightning bolt (4d8) every 5+d5 turns";
-            case EGO_RING_ACID_BOLT:
-                return "acid bolt (5d8) every 6+d6 turns";
-            case EGO_RING_MANA_BOLT:
-            return "a mana bolt (120) every 120+d120 turns";
-            case EGO_RING_FIRE_BALL:
-                return "fire ball (100) every 80+d80 turns";
-            case EGO_RING_COLD_BALL:
-                return "cold ball (100) every 80+d80 turns";
-            case EGO_RING_ELEC_BALL:
-                return "elec ball (100) every 80+d80 turns";
-            case EGO_RING_ACID_BALL:
-                return "acid ball (100) every 80+d80 turns";
-            case EGO_RING_MANA_BALL:
-                return "mana storm (250) every 300 turns";
-            case EGO_RING_DRAGON_F:
-                if (o_ptr->sval == SV_RING_FLAMES)
-                    return "breath of fire (200) and resist fire every 200 turns";
-                else
-                    return "fire breath (200) every 250 turns";
-            case EGO_RING_DRAGON_C:
-                if (o_ptr->sval == SV_RING_ICE)
-                    return "breath of cold (200) and resist cold every 200 turns";
-                else
-                    return "cold breath (200) every 250 turns";
-            case EGO_RING_M_DETECT:
-                return "detect all monsters every 150 turns";
-            case EGO_RING_D_SPEED:
-                return "haste self (15+d30 turns) every 100 turns";
-            case EGO_RING_BERSERKER:
-                return "berserk (25+d25 turns) every 75+d75 turns";
-            case EGO_RING_TELE_AWAY:
-            return "teleport away every 150 turns";
-            case EGO_RING_TRUE:
-            return "hero, bless, and ultimate resistance every 777 turns";
-            }
-        }
-        switch (o_ptr->sval)
-        {
-            case SV_RING_FLAMES:
-                return "ball of fire (100) and resist fire every 50+d50 turns";
-
-            case SV_RING_ICE:
-                return "ball of cold (100) and resist cold every 50+d50 turns";
-
-            case SV_RING_ACID:
-                return "ball of acid (100) and resist acid every 50+d50 turns";
-
-            case SV_RING_ELEC:
-                return "ball of elec (100) and resist elec every 50+d50 turns";
-
-            default:
-                return NULL;
-        }
-    }
-
-    if (o_ptr->tval == TV_AMULET)
-    {
-        if (object_is_ego(o_ptr))
-        {
-            switch (o_ptr->name2)
-            {
-            case EGO_AMU_IDENT:
-                return "identify every 10 turns";
-            case EGO_AMU_CHARM:
-                return "charm monster every 200 turns";
-            case EGO_AMU_JUMP:
-                return "blink every 10+d10 turns";
-            case EGO_AMU_RESISTANCE:
-                return "resist elements every 75+d75 turns";
-
-            case EGO_AMU_TELEPORT:
-                return "teleport every 50+d50 turns";
-            case EGO_AMU_D_DOOR:
-                return "dimension door every 200 turns";
-            case EGO_AMU_RES_FIRE_:
-                return "resist fire every 50+d50 turns";
-            case EGO_AMU_RES_COLD_:
-                return "resist cold every 50+d50 turns";
-            case EGO_AMU_RES_ELEC_:
-                return "resist elec every 50+d50 turns";
-            case EGO_AMU_RES_ACID_:
-                return "resist acid every 50+d50 turns";
-            case EGO_AMU_DETECTION:
-                return "detect all floor every 55+d55 turns";
-            }
-        }
-    }
-
-    if (o_ptr->tval == TV_WHISTLE)
-    {
-        return "call pet every 100+d100 turns";
-    }
-
-    if (o_ptr->tval == TV_CAPTURE)
-    {
-        return "captures or releases a monster.";
-    }
-
-    /* Require dragon scale mail */
-    if (o_ptr->tval != TV_DRAG_ARMOR) return ("a strange glow");
-
-
-    /* Branch on the sub-type */
-    switch (o_ptr->sval)
-    {
-        case SV_DRAGON_BLUE:
-        {
-            return "breathe lightning (100) every 15+d15 turns";
-
-        }
-        case SV_DRAGON_WHITE:
-        {
-            return "breathe frost (110) every 15+d15 turns";
-
-        }
-        case SV_DRAGON_BLACK:
-        {
-            return "breathe acid (130) every 15+d15 turns";
-
-        }
-        case SV_DRAGON_GREEN:
-        {
-            return "breathe poison gas (150) every 18+d18 turns";
-
-        }
-        case SV_DRAGON_RED:
-        {
-            return "breathe fire (200) every 20+d20 turns";
-
-        }
-        case SV_DRAGON_MULTIHUED:
-        {
-            return "breathe multi-hued (250) every 20+d20 turns";
-
-        }
-        case SV_DRAGON_BRONZE:
-        {
-            return "breathe confusion (120) every 18+d18 turns";
-
-        }
-        case SV_DRAGON_GOLD:
-        {
-            return "breathe sound (130) every 18+d18 turns";
-
-        }
-        case SV_DRAGON_CHAOS:
-        {
-            return "breathe chaos/disenchant (220) every 20+d20 turns";
-
-        }
-        case SV_DRAGON_LAW:
-        {
-            return "breathe sound/shards (230) every 20+d20 turns";
-
-        }
-        case SV_DRAGON_BALANCE:
-        {
-            return "breathe balance (250) every 20+d20 turns";
-
-        }
-        case SV_DRAGON_SHINING:
-        {
-            return "breathe light/darkness (200) every 20+d20 turns";
-
-        }
-        case SV_DRAGON_POWER:
-        {
-            return "breathe the elements (300) every 20+d20 turns";
-
-        }
-    }
-
-    /* Oops */
-    return "breathe air";
-
-}
-
-
 /*
  * Describe a "fully identified" item
  */
 bool screen_object(object_type *o_ptr, u32b mode)
 {
-    int                     i = 0, j, k;
-
+    int  i = 0, j, k;
     u32b flgs[TR_FLAG_SIZE];
-
-    char temp[70 * 20];
-    cptr            info[128];
+    char block1[70 * 20]; /* TODO: Rewrite me! */
+    char block2[70 * 20];
+    char block3[70 * 20];
+    cptr info[128]; /* Might point into blockX or be a static string */
     char o_name[MAX_NLEN];
     char replacement_name[MAX_NLEN];
-    int wid, hgt;
+    int  wid, hgt;
 
     int trivial_info = 0;
 
@@ -1598,34 +417,34 @@ bool screen_object(object_type *o_ptr, u32b mode)
     /* Extract the description */
     if (object_is_device(o_ptr))
     {
-        char temp2[70 * 20];
+        char scratch[70 * 20];
         cptr res = do_device(o_ptr->tval, o_ptr->sval, SPELL_DESC);
-        strcpy(temp2, res);
+        strcpy(scratch, res);
         if (o_ptr->ident & IDENT_MENTAL)
         {
             res = do_device(o_ptr->tval, o_ptr->sval, SPELL_INFO);
             if (res && strlen(res))
             {   /* Here is a classic case where calling format() leads to bugs ... sigh */
-                strcat(temp2, "\nInfo: ");
-                strcat(temp2, res);
+                strcat(scratch, "\nInfo: ");
+                strcat(scratch, res);
             }   /* But format() here is fine ... Obvious, huh? */
             if (o_ptr->tval != TV_POTION)
             {
                 int fail = device_calc_fail_rate(o_ptr);
-                strcat(temp2, format("\nFail: %d.%d%%", fail/10, fail%10));    
+                strcat(scratch, format("\nFail: %d.%d%%", fail/10, fail%10));    
             }
         }
-        roff_to_buf(temp2, 77-15, temp, sizeof(temp));
-        for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
-        { info[i] = &temp[j]; i++;}
+        roff_to_buf(scratch, 77-15, block1, sizeof(block1));
+        for (j = 0; block1[j]; j += 1 + strlen(&block1[j]))
+        { info[i] = &block1[j]; i++;}
     }
     else
     {
         roff_to_buf(o_ptr->name1 ? (a_text + a_info[o_ptr->name1].text) :
                 (k_text + k_info[o_ptr->k_idx].text),
-                77 - 15, temp, sizeof(temp));
-        for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
-        { info[i] = &temp[j]; i++;}
+                77 - 15, block1, sizeof(block1));
+        for (j = 0; block1[j]; j += 1 + strlen(&block1[j]))
+        { info[i] = &block1[j]; i++;}
     }
     if ( p_ptr->prace == RACE_MON_POSSESSOR 
       && o_ptr->tval == TV_CORPSE 
@@ -1633,9 +452,9 @@ bool screen_object(object_type *o_ptr, u32b mode)
       && (o_ptr->ident & IDENT_MENTAL) )
     {
         monster_race *r_ptr = &r_info[o_ptr->pval];
-        char          temp2[70*20];
+        char          scratch[70 * 20];
 
-        sprintf(temp2, "Body: %s\n \nStr : %+3d       Disarm : %d+%d\nInt : %+3d       Device : %d+%d\nWis : %+3d       Save   : %d+%d\nDex : %+3d       Stealth: %d+%d\nCon : %+3d       Search : %d/%d\nChr : %+3d       Melee  : %d+%d\nLife: %3d%%      Ranged : %d+%d\n \n \n",
+        sprintf(scratch, "Body: %s\n \nStr : %+3d       Disarm : %d+%d\nInt : %+3d       Device : %d+%d\nWis : %+3d       Save   : %d+%d\nDex : %+3d       Stealth: %d+%d\nCon : %+3d       Search : %d/%d\nChr : %+3d       Melee  : %d+%d\nLife: %3d%%      Ranged : %d+%d\n \n \n",
             b_name + b_info[r_ptr->body.body_idx].name,
             r_ptr->body.stats[A_STR], r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis,
             r_ptr->body.stats[A_INT], r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev,
@@ -1646,25 +465,55 @@ bool screen_object(object_type *o_ptr, u32b mode)
             r_ptr->body.life, r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
         );
             
-        roff_to_buf(temp2, 77-15, temp, sizeof(temp));
-        for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
-        { info[i] = &temp[j]; i++;}
+        roff_to_buf(scratch, 77-15, block2, sizeof(block2));
+        for (j = 0; block2[j]; j += 1 + strlen(&block2[j]))
+        { info[i] = &block2[j]; i++;}
+    }
+    if (have_flag(flgs, TR_ACTIVATE))
+    {
+        char     scratch[70 * 20];
+        effect_t e = obj_get_effect(o_ptr);
+        cptr     res = do_effect(&e, SPELL_NAME, 0);
+
+        strcpy(scratch, " \nActivation: ");
+        strcat(scratch, res);
+
+        if (o_ptr->ident & IDENT_MENTAL)
+        {
+            /*res = do_effect(&e, SPELL_DESC, 0);
+            if (res && strlen(res))
+            {
+                strcat(scratch, " \n      Desc: ");
+                strcat(scratch, res);
+            }*/
+
+            res = do_effect(&e, SPELL_INFO, 0);
+            if (res && strlen(res))
+            {
+                strcat(scratch, "\n      Info: ");
+                strcat(scratch, res);
+            }
+            {
+                int fail = effect_calc_fail_rate(&e);
+                strcat(scratch, format("\n      Fail: %d.%d%%", fail/10, fail%10));    
+            }
+            if (e.timeout)
+            {
+                strcat(scratch, "\n   Timeout: ");
+                strcat(scratch, format("%d", e.timeout));
+            }
+        }
+        strcat(scratch, "\n ");
+
+        roff_to_buf(scratch, 77-15, block3, sizeof(block3));
+        for (j = 0; block3[j]; j += 1 + strlen(&block3[j]))
+        { info[i] = &block3[j]; i++;}
     }
 
     if (object_is_equipment(o_ptr))
     {
         /* Descriptions of a basic equipment is just a flavor */
         trivial_info = i;
-    }
-
-    /* Mega-Hack -- describe activation */
-    if (have_flag(flgs, TR_ACTIVATE))
-    {
-        info[i++] = "It can be activated for...";
-
-        info[i++] = item_activation(o_ptr);
-        info[i++] = "...if it is being worn.";
-
     }
 
     /* Figurines, a hack */
@@ -1714,33 +563,15 @@ bool screen_object(object_type *o_ptr, u32b mode)
         info[i++] = "It always penetrates invulnerability barriers.";
     }
 
-    if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
+    if (o_ptr->name2 == EGO_GLOVES_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
         info[i++] = "It affects your ability to hit when you are wielding two weapons.";
 
     if (have_flag(flgs, TR_WEAPONMASTERY))
         info[i++] = "It increases the damage dice of your melee weapon.";
 
-    if (o_ptr->name2 == EGO_SNIPER)
-        info[i++] = "It increases your shooting speed.";
-
     if (have_flag(flgs, TR_EASY_SPELL))
     {
         info[i++] = "It affects your ability to cast spells.";
-    }
-
-    if (o_ptr->name2 == EGO_AMU_FOOL)
-    {
-        info[i++] = "It interferes with casting spells.";
-    }
-
-    if (o_ptr->name2 == EGO_RING_THROW)
-    {
-        info[i++] = "It provides great strength when you throw an item.";
-    }
-
-    if (o_ptr->name2 == EGO_AMU_NAIVETY)
-    {
-        info[i++] = "It decreases your magic resistance.";
     }
 
     if (o_ptr->tval == TV_STATUE)
@@ -1786,7 +617,7 @@ bool screen_object(object_type *o_ptr, u32b mode)
                 info[i++] = "It provides light (radius 3) forever.";
             }
         }
-        else if (o_ptr->name2 == EGO_LITE_SHINE)
+        else if (o_ptr->name2 == EGO_LITE_EXTRA_LIGHT)
         {
             if (o_ptr->sval == SV_LITE_FEANOR)
             {
@@ -1822,7 +653,7 @@ bool screen_object(object_type *o_ptr, u32b mode)
 
             }
         }
-        if (o_ptr->name2 == EGO_LITE_LONG)
+        if (o_ptr->name2 == EGO_LITE_DURATION)
         {
             info[i++] = "It provides light for much longer time.";
         }
@@ -1844,121 +675,120 @@ bool screen_object(object_type *o_ptr, u32b mode)
     }
     if (have_flag(flgs, TR_STR))
     {
-        info[i++] = "It affects your strength.";
-
+        if (o_ptr->pval > 0)
+            info[i++] = "It increases your strength.";
+        else if (o_ptr->pval < 0)
+            info[i++] = "It decreases your strength.";
     }
+    if (have_flag(flgs, TR_DEC_STR))
+       info[i++] = "It decreases your strength.";
+    
     if (have_flag(flgs, TR_INT))
     {
-        info[i++] = "It affects your intelligence.";
-
+        if (o_ptr->pval > 0)
+            info[i++] = "It increases your intelligence.";
+        else if (o_ptr->pval < 0)
+            info[i++] = "It decreases your intelligence.";
     }
+    if (have_flag(flgs, TR_DEC_INT))
+       info[i++] = "It decreases your intelligence.";
+    
     if (have_flag(flgs, TR_WIS))
     {
-        info[i++] = "It affects your wisdom.";
-
+        if (o_ptr->pval > 0)
+            info[i++] = "It increases your wisdom.";
+        else if (o_ptr->pval < 0)
+            info[i++] = "It decreases your wisdom.";
     }
+    if (have_flag(flgs, TR_DEC_WIS))
+       info[i++] = "It decreases your wisdom.";
+
     if (have_flag(flgs, TR_DEX))
     {
-        info[i++] = "It affects your dexterity.";
-
+        if (o_ptr->pval > 0)
+            info[i++] = "It increases your dexterity.";
+        else if (o_ptr->pval < 0)
+            info[i++] = "It decreases your dexterity.";
     }
+    if (have_flag(flgs, TR_DEC_DEX))
+       info[i++] = "It decreases your dexterity.";
+
     if (have_flag(flgs, TR_CON))
     {
-        info[i++] = "It affects your constitution.";
-
+        if (o_ptr->pval > 0)
+            info[i++] = "It increases your constitution.";
+        else if (o_ptr->pval < 0)
+            info[i++] = "It decreases your constitution.";
     }
+    if (have_flag(flgs, TR_DEC_CON))
+       info[i++] = "It decreases your constitution.";
+
     if (have_flag(flgs, TR_CHR))
     {
-        info[i++] = "It affects your charisma.";
-
+        if (o_ptr->pval > 0)
+            info[i++] = "It increases your charisma.";
+        else if (o_ptr->pval < 0)
+            info[i++] = "It decreases your charisma.";
     }
+    if (have_flag(flgs, TR_DEC_CHR))
+       info[i++] = "It decreases your charisma.";
 
     if (have_flag(flgs, TR_MAGIC_MASTERY))
-    {
         info[i++] = "It affects your ability to use magic devices.";
+    if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
+        info[i++] = "It decreases your ability to use magic devices.";
 
-    }
     if (have_flag(flgs, TR_STEALTH))
     {
-        info[i++] = "It affects your stealth.";
-
+        if (o_ptr->pval > 0)
+            info[i++] = "It increases your stealth.";
+        else if (o_ptr->pval < 0)
+            info[i++] = "It decreases your stealth.";
     }
+    if (have_flag(flgs, TR_DEC_STEALTH))
+       info[i++] = "It decreases your stealth.";
+
+
     if (have_flag(flgs, TR_SEARCH))
-    {
         info[i++] = "It affects your searching.";
-
-    }
     if (have_flag(flgs, TR_INFRA))
-    {
         info[i++] = "It affects your infravision.";
-
-    }
     if (have_flag(flgs, TR_TUNNEL))
-    {
         info[i++] = "It affects your ability to tunnel.";
 
-    }
     if (have_flag(flgs, TR_SPEED))
-    {
         info[i++] = "It affects your speed.";
+    if (have_flag(flgs, TR_DEC_SPEED))
+        info[i++] = "It decreases your speed.";
 
-    }
     if (have_flag(flgs, TR_BLOWS))
-    {
         info[i++] = "It affects your attack speed.";
-
-    }
-
     if (have_flag(flgs, TR_BRAND_ACID))
-    {
         info[i++] = "It does extra damage from acid.";
-
-    }
     if (have_flag(flgs, TR_BRAND_ELEC))
-    {
         info[i++] = "It does extra damage from electricity.";
-
-    }
     if (have_flag(flgs, TR_BRAND_FIRE))
-    {
         info[i++] = "It does extra damage from fire.";
-
-    }
     if (have_flag(flgs, TR_BRAND_COLD))
-    {
         info[i++] = "It does extra damage from frost.";
-
-    }
-
     if (have_flag(flgs, TR_BRAND_POIS))
-    {
         info[i++] = "It poisons your foes.";
 
-    }
-
     if (have_flag(flgs, TR_CHAOTIC))
-    {
         info[i++] = "It produces chaotic effects.";
 
-    }
-
     if (have_flag(flgs, TR_VAMPIRIC))
-    {
         info[i++] = "It drains life from your foes.";
 
-    }
-
     if (have_flag(flgs, TR_IMPACT))
-    {
         info[i++] = "It can cause earthquakes.";
 
-    }
+    if (have_flag(flgs, TR_VORPAL2))
+        info[i++] = "It is extremely sharp and can cut your foes.";
 
-    if (have_flag(flgs, TR_VORPAL))
-    {
+    else if (have_flag(flgs, TR_VORPAL))
         info[i++] = "It is very sharp and can cut your foes.";
 
-    }
 
     if (have_flag(flgs, TR_ORDER))
         info[i++] = "It is a weapon of order.";
@@ -1967,434 +797,253 @@ bool screen_object(object_type *o_ptr, u32b mode)
         info[i++] = "It is a wild weapon.";
 
     if (have_flag(flgs, TR_KILL_DRAGON))
-    {
         info[i++] = "It is a great bane of dragons.";
-
-    }
     else if (have_flag(flgs, TR_SLAY_DRAGON))
-    {
         info[i++] = "It is especially deadly against dragons.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_ORC))
-    {
         info[i++] = "It is a great bane of orcs.";
-
-    }
-    if (have_flag(flgs, TR_SLAY_ORC))
-    {
+    else if (have_flag(flgs, TR_SLAY_ORC))
         info[i++] = "It is especially deadly against orcs.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_TROLL))
-    {
         info[i++] = "It is a great bane of trolls.";
-
-    }
-    if (have_flag(flgs, TR_SLAY_TROLL))
-    {
+    else if (have_flag(flgs, TR_SLAY_TROLL))
         info[i++] = "It is especially deadly against trolls.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_GIANT))
-    {
         info[i++] = "It is a great bane of giants.";
-    }
     else if (have_flag(flgs, TR_SLAY_GIANT))
-    {
         info[i++] = "It is especially deadly against giants.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_DEMON))
-    {
         info[i++] = "It is a great bane of demons.";
-
-    }
-    if (have_flag(flgs, TR_SLAY_DEMON))
-    {
+    else if (have_flag(flgs, TR_SLAY_DEMON))
         info[i++] = "It strikes at demons with holy wrath.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_UNDEAD))
-    {
         info[i++] = "It is a great bane of undead.";
-
-    }
-    if (have_flag(flgs, TR_SLAY_UNDEAD))
-    {
+    else if (have_flag(flgs, TR_SLAY_UNDEAD))
         info[i++] = "It strikes at undead with holy wrath.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_EVIL))
-    {
         info[i++] = "It is a great bane of evil monsters.";
-
-    }
-    if (have_flag(flgs, TR_SLAY_EVIL))
-    {
+    else if (have_flag(flgs, TR_SLAY_EVIL))
         info[i++] = "It fights against evil with holy fury.";
 
-    }
     if (have_flag(flgs, TR_SLAY_GOOD))
-    {
         info[i++] = "It fights against good with hellish glee.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_ANIMAL))
-    {
         info[i++] = "It is a great bane of natural creatures.";
-
-    }
-    if (have_flag(flgs, TR_SLAY_ANIMAL))
-    {
+    else if (have_flag(flgs, TR_SLAY_ANIMAL))
         info[i++] = "It is especially deadly against natural creatures.";
 
-    }
-
     if (have_flag(flgs, TR_KILL_HUMAN))
-    {
         info[i++] = "It is a great bane of humans.";
-
-    }
-    if (have_flag(flgs, TR_SLAY_HUMAN))
-    {
+    else if (have_flag(flgs, TR_SLAY_HUMAN))
         info[i++] = "It is especially deadly against humans.";
 
-    }
-
     if (have_flag(flgs, TR_FORCE_WEAPON))
-    {
         info[i++] = "It powerfully strikes at a monster using your mana.";
 
-    }
     if (have_flag(flgs, TR_DEC_MANA))
-    {
         info[i++] = "It decreases your mana consumption.";
 
-    }
     if (have_flag(flgs, TR_SPELL_POWER))
-    {
         info[i++] = "It increases your spell power.";
-    }
+    if (have_flag(flgs, TR_DEC_SPELL_POWER))
+        info[i++] = "It decreases your spell power.";
+
     if (have_flag(flgs, TR_SPELL_CAP))
-    {
         info[i++] = "It increases your spell capacity.";
-    }
+    if (have_flag(flgs, TR_DEC_SPELL_CAP))
+        info[i++] = "It decreases your spell capacity.";
+
     if (have_flag(flgs, TR_LIFE))
-        info[i++] = "It affects your hitpoints.";
+        info[i++] = "It increases your hitpoints.";
+    if (have_flag(flgs, TR_DEC_LIFE))
+        info[i++] = "It decreases your hitpoints.";
+
     if (have_flag(flgs, TR_SUST_STR))
-    {
         info[i++] = "It sustains your strength.";
-
-    }
     if (have_flag(flgs, TR_SUST_INT))
-    {
         info[i++] = "It sustains your intelligence.";
-
-    }
     if (have_flag(flgs, TR_SUST_WIS))
-    {
         info[i++] = "It sustains your wisdom.";
-
-    }
     if (have_flag(flgs, TR_SUST_DEX))
-    {
         info[i++] = "It sustains your dexterity.";
-
-    }
     if (have_flag(flgs, TR_SUST_CON))
-    {
         info[i++] = "It sustains your constitution.";
-
-    }
     if (have_flag(flgs, TR_SUST_CHR))
-    {
         info[i++] = "It sustains your charisma.";
 
-    }
+    if (have_flag(flgs, TR_THROW))
+        info[i++] = "It is perfectly balanced for throwing.";
+    if (have_flag(flgs, TR_FREE_ACT))
+        info[i++] = "It provides immunity to paralysis.";
+    if (have_flag(flgs, TR_HOLD_LIFE))
+        info[i++] = "It provides resistance to life draining.";
+    
+    if (have_flag(flgs, TR_RES_FEAR))
+        info[i++] = "It provides resistance to fear.";
+    if (have_flag(flgs, TR_VULN_FEAR))
+        info[i++] = "It makes you vulnerable to fear.";
 
     if (have_flag(flgs, TR_IM_ACID))
-    {
         info[i++] = "It provides immunity to acid.";
-
-    }
-    if (have_flag(flgs, TR_IM_ELEC))
-    {
-        info[i++] = "It provides immunity to electricity.";
-
-    }
-    if (have_flag(flgs, TR_IM_FIRE))
-    {
-        info[i++] = "It provides immunity to fire.";
-
-    }
-    if (have_flag(flgs, TR_IM_COLD))
-    {
-        info[i++] = "It provides immunity to cold.";
-
-    }
-
-    if (have_flag(flgs, TR_THROW))
-    {
-        info[i++] = "It is perfectly balanced for throwing.";
-    }
-
-    if (have_flag(flgs, TR_FREE_ACT))
-    {
-        info[i++] = "It provides immunity to paralysis.";
-
-    }
-    if (have_flag(flgs, TR_HOLD_LIFE))
-    {
-        info[i++] = "It provides resistance to life draining.";
-
-    }
-    if (have_flag(flgs, TR_RES_FEAR))
-    {
-        info[i++] = "It provides resistance to fear.";
-
-    }
     if (have_flag(flgs, TR_RES_ACID))
-    {
         info[i++] = "It provides resistance to acid.";
+    if (have_flag(flgs, TR_VULN_ACID))
+        info[i++] = "It makes you vulnerable to acid.";
 
-    }
+    if (have_flag(flgs, TR_IM_ELEC))
+        info[i++] = "It provides immunity to electricity.";
     if (have_flag(flgs, TR_RES_ELEC))
-    {
         info[i++] = "It provides resistance to electricity.";
+    if (have_flag(flgs, TR_VULN_ELEC))
+        info[i++] = "It makes you vulnerable to electricity.";
 
-    }
+    if (have_flag(flgs, TR_IM_FIRE))
+        info[i++] = "It provides immunity to fire.";
     if (have_flag(flgs, TR_RES_FIRE))
-    {
         info[i++] = "It provides resistance to fire.";
+    if (have_flag(flgs, TR_VULN_FIRE))
+        info[i++] = "It makes you vulnerable to fire.";
 
-    }
+    if (have_flag(flgs, TR_IM_COLD))
+        info[i++] = "It provides immunity to cold.";
     if (have_flag(flgs, TR_RES_COLD))
-    {
         info[i++] = "It provides resistance to cold.";
+    if (have_flag(flgs, TR_VULN_COLD))
+        info[i++] = "It makes you vulnerable to cold.";
 
-    }
     if (have_flag(flgs, TR_RES_POIS))
-    {
         info[i++] = "It provides resistance to poison.";
-
-    }
+    if (have_flag(flgs, TR_VULN_POIS))
+        info[i++] = "It makes you vulnerable to poison.";
 
     if (have_flag(flgs, TR_RES_LITE))
-    {
         info[i++] = "It provides resistance to light.";
+    if (have_flag(flgs, TR_VULN_LITE))
+        info[i++] = "It makes you vulnerable to light.";
 
-    }
     if (have_flag(flgs, TR_RES_DARK))
-    {
-        info[i++] = "It provides resistance to dark.";
-
-    }
+        info[i++] = "It provides resistance to darkness.";
+    if (have_flag(flgs, TR_VULN_DARK))
+        info[i++] = "It makes you vulnerable to darkness.";
 
     if (have_flag(flgs, TR_RES_BLIND))
-    {
         info[i++] = "It provides resistance to blindness.";
+    if (have_flag(flgs, TR_VULN_BLIND))
+        info[i++] = "It makes you vulnerable to blindness.";
 
-    }
     if (have_flag(flgs, TR_RES_CONF))
-    {
         info[i++] = "It provides resistance to confusion.";
+    if (have_flag(flgs, TR_VULN_CONF))
+        info[i++] = "It makes you vulnerable to confusion.";
 
-    }
     if (have_flag(flgs, TR_RES_SOUND))
-    {
         info[i++] = "It provides resistance to sound.";
+    if (have_flag(flgs, TR_VULN_SOUND))
+        info[i++] = "It makes you vulnerable to sound.";
 
-    }
     if (have_flag(flgs, TR_RES_SHARDS))
-    {
         info[i++] = "It provides resistance to shards.";
-
-    }
+    if (have_flag(flgs, TR_VULN_SHARDS))
+        info[i++] = "It makes you vulnerable to shards.";
 
     if (have_flag(flgs, TR_RES_NETHER))
-    {
         info[i++] = "It provides resistance to nether.";
+    if (have_flag(flgs, TR_VULN_NETHER))
+        info[i++] = "It makes you vulnerable to nether.";
 
-    }
     if (have_flag(flgs, TR_RES_TIME))
-    {
         info[i++] = "It provides resistance to time.";
 
-    }
     if (have_flag(flgs, TR_RES_NEXUS))
-    {
         info[i++] = "It provides resistance to nexus.";
+    if (have_flag(flgs, TR_VULN_NEXUS))
+        info[i++] = "It makes you vulnerable to nexus.";
 
-    }
     if (have_flag(flgs, TR_RES_CHAOS))
-    {
         info[i++] = "It provides resistance to chaos.";
+    if (have_flag(flgs, TR_VULN_CHAOS))
+        info[i++] = "It makes you vulnerable to chaos.";
 
-    }
     if (have_flag(flgs, TR_RES_DISEN))
-    {
         info[i++] = "It provides resistance to disenchantment.";
-
-    }
+    if (have_flag(flgs, TR_VULN_DISEN))
+        info[i++] = "It makes you vulnerable to disenchantment.";
 
     if (have_flag(flgs, TR_LEVITATION))
-    {
         info[i++] = "It allows you to levitate.";
-
-    }
     if (have_flag(flgs, TR_LITE))
     {
-        if ((o_ptr->name2 == EGO_DARK) || (o_ptr->name1 == ART_NIGHT))
+        if ((o_ptr->name2 == EGO_HELMET_VAMPIRE) || (o_ptr->name1 == ART_NIGHT))
             info[i++] = "It decreases radius of your light source by 1.";
         else
             info[i++] = "It provides permanent light. (radius +1)";
 
     }
     if (have_flag(flgs, TR_SEE_INVIS))
-    {
         info[i++] = "It allows you to see invisible monsters.";
-
-    }
     if (have_flag(flgs, TR_TELEPATHY))
-    {
         info[i++] = "It gives telepathic powers.";
-
-    }
     if (have_flag(flgs, TR_ESP_ANIMAL))
-    {
         info[i++] = "It senses natural creatures.";
-
-    }
     if (have_flag(flgs, TR_ESP_UNDEAD))
-    {
         info[i++] = "It senses undead.";
-
-    }
     if (have_flag(flgs, TR_ESP_DEMON))
-    {
         info[i++] = "It senses demons.";
-
-    }
     if (have_flag(flgs, TR_ESP_ORC))
-    {
         info[i++] = "It senses orcs.";
-
-    }
     if (have_flag(flgs, TR_ESP_TROLL))
-    {
         info[i++] = "It senses trolls.";
-
-    }
     if (have_flag(flgs, TR_ESP_GIANT))
-    {
         info[i++] = "It senses giants.";
-
-    }
     if (have_flag(flgs, TR_ESP_DRAGON))
-    {
         info[i++] = "It senses dragons.";
-
-    }
     if (have_flag(flgs, TR_ESP_HUMAN))
-    {
         info[i++] = "It senses humans.";
-
-    }
     if (have_flag(flgs, TR_ESP_EVIL))
-    {
         info[i++] = "It senses evil creatures.";
-
-    }
     if (have_flag(flgs, TR_ESP_GOOD))
-    {
         info[i++] = "It senses good creatures.";
-
-    }
     if (have_flag(flgs, TR_ESP_NONLIVING))
-    {
         info[i++] = "It senses non-living creatures.";
-
-    }
     if (have_flag(flgs, TR_ESP_UNIQUE))
-    {
         info[i++] = "It senses unique monsters.";
-
-    }
     if (have_flag(flgs, TR_SLOW_DIGEST))
-    {
         info[i++] = "It slows your metabolism.";
-
-    }
     if (have_flag(flgs, TR_REGEN))
-    {
         info[i++] = "It speeds your regenerative powers.";
-
-    }
     if (have_flag(flgs, TR_WARNING))
-    {
         info[i++] = "It warns you of danger";
-
-    }
     if (have_flag(flgs, TR_REFLECT))
-    {
         info[i++] = "It reflects bolts and arrows.";
-
-    }
     if (have_flag(flgs, TR_SH_FIRE))
-    {
         info[i++] = "It produces a fiery sheath.";
-    }
     if (have_flag(flgs, TR_SH_SHARDS))
-    {
         info[i++] = "It produces a shard aura.";
-    }
-
+    if (have_flag(flgs, TR_SH_REVENGE))
+        info[i++] = "It produces an aura of retaliation.";
     if (have_flag(flgs, TR_SH_ELEC))
-    {
         info[i++] = "It produces an electric sheath.";
-
-    }
     if (have_flag(flgs, TR_SH_COLD))
-    {
         info[i++] = "It produces a sheath of coldness.";
-
-    }
     if (have_flag(flgs, TR_NO_MAGIC))
-    {
         info[i++] = "It produces an anti-magic shell.";
-
-    }
     if (have_flag(flgs, TR_NO_SUMMON))
         info[i++] = "It disrupts summoning spells.";
     if (have_flag(flgs, TR_NO_TELE))
-    {
         info[i++] = "It prevents teleportation.";
-
-    }
     if (have_flag(flgs, TR_XTRA_MIGHT))
-    {
         info[i++] = "It fires missiles with extra might.";
-
-    }
     if (have_flag(flgs, TR_XTRA_SHOTS))
-    {
         info[i++] = "It fires missiles excessively fast.";
-
-    }
-
     if (have_flag(flgs, TR_BLESSED))
-    {
         info[i++] = "It has been blessed by the gods.";
-
-    }
 
     if (object_is_cursed(o_ptr))
     {
@@ -2509,33 +1158,6 @@ bool screen_object(object_type *o_ptr, u32b mode)
     /* Describe about this kind of object instead of THIS fake object */
     if (mode & SCROBJ_FAKE_OBJECT)
     {
-        switch (o_ptr->tval)
-        {
-        case TV_RING:
-            switch (o_ptr->sval)
-            {
-            case SV_RING_LORDLY:
-                info[i++] = "It provides some random resistances.";
-                break;
-            case SV_RING_WARNING:
-                info[i++] = "It may provide a low rank ESP.";
-                break;
-            }
-            break;
-
-        case TV_AMULET:
-            switch (o_ptr->sval)
-            {
-            case SV_AMULET_RESISTANCE:
-                info[i++] = "It may provides resistance to poison.";
-                info[i++] = "It may provide a random resistances.";
-                break;
-            case SV_AMULET_THE_MAGI:
-                info[i++] = "It provides up to three low rank ESPs.";
-                break;
-            }
-            break;
-        }
     }
 
     if (have_flag(flgs, TR_IGNORE_ACID) &&
@@ -3205,9 +1827,9 @@ int show_inven(int target_item, int mode)
     object_type     *o_ptr;
     char            o_name[MAX_NLEN];
     char            tmp_val[80];
-    int             out_index[23];
-    byte            out_color[23];
-    char            out_desc[23][MAX_NLEN];
+    int             out_index[INVEN_PACK];
+    byte            out_color[INVEN_PACK];
+    char            out_desc[INVEN_PACK][MAX_NLEN];
     int             target_item_label = 0;
     int             wid, hgt;
     char            inven_label[52 + 1];
@@ -3378,7 +2000,7 @@ int show_inven(int target_item, int mode)
     }
 
     /* Make a "shadow" below the list (only if needed) */
-    if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+    if (j && (j < INVEN_PACK)) prt("", j + 1, col ? col - 2 : col);
 
     /* Save the new column */
     /*command_gap = col;*/
@@ -3397,9 +2019,9 @@ int show_equip(int target_item, int mode)
     int             col, cur_col, len;
     object_type     *o_ptr;
     char            tmp_val[80];
-    int             out_index[23];
-    byte            out_color[23];
-    char            out_desc[23][MAX_NLEN];
+    int             out_index[EQUIP_MAX_SLOTS];
+    byte            out_color[EQUIP_MAX_SLOTS];
+    char            out_desc[EQUIP_MAX_SLOTS][MAX_NLEN];
     int             target_item_label = 0;
     int             wid, hgt;
     char            equip_label[52 + 1];
@@ -3509,7 +2131,8 @@ int show_equip(int target_item, int mode)
         if (!o_ptr) continue;
         if (mode & SHOW_FAIL_RATES)
         {
-            int fail = activation_fail_rate(o_ptr);
+            effect_t e = obj_get_effect(o_ptr);
+            int      fail = effect_calc_fail_rate(&e);
             sprintf(tmp_val, "Fail: %2d.%d%%", fail/10, fail%10);
             prt(tmp_val, j + 1, wid - 12);
         }
@@ -3528,7 +2151,7 @@ int show_equip(int target_item, int mode)
     }
 
     /* Make a "shadow" below the list (only if needed) */
-    if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+    if (j && (j < EQUIP_MAX_SLOTS)) prt("", j + 1, col ? col - 2 : col);
 
     /* Save the new column */
     /*command_gap = col;*/

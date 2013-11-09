@@ -3686,19 +3686,6 @@ void process_monsters(void)
             test = TRUE;
         }
 
-#if 0 /* (cave[py][px].when == cave[fy][fx].when) is always FALSE... */
-        /* Hack -- Monsters can "smell" the player from far away */
-        /* Note that most monsters have "aaf" of "20" or so */
-        else if (!(m_ptr->mflag2 & MFLAG2_NOFLOW) &&
-            cave_have_flag_bold(py, px, FF_MOVE) &&
-            (cave[py][px].when == cave[fy][fx].when) &&
-            (cave[fy][fx].dist < MONSTER_FLOW_DEPTH) &&
-            (cave[fy][fx].dist < r_ptr->aaf))
-        {
-            /* We can "smell" the player */
-            test = TRUE;
-        }
-#endif
         else if (m_ptr->target_y) test = TRUE;
 
         /* Do nothing */

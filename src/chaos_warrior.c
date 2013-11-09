@@ -375,7 +375,7 @@ void chaos_warrior_reward(void)
             forge.to_h = 3 + randint1(dun_level) % 10;
             forge.to_d = 3 + randint1(dun_level) % 10;
             one_resistance(&forge);
-            forge.name2 = EGO_CHAOTIC;
+            forge.name2 = EGO_WEAPON_CHAOS;
 
             drop_near(&forge, -1, py, px);
             break;

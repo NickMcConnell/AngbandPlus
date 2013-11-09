@@ -790,11 +790,11 @@ birther previous_char;
 
 
 /*
- * The vault generation arrays
+ * Room Templates (Vaults, Special Rooms, Wilderness Encounters)
  */
-vault_type *v_info;
-char *v_name;
-char *v_text;
+room_template_t *room_info;
+char *room_name;
+char *room_text;
 
 /*
  * The magic info
@@ -1076,7 +1076,7 @@ u16b max_k_idx;
 /*
  * Maximum number of vaults in v_info.txt
  */
-u16b max_v_idx;
+u16b max_room_idx;
 
 /*
  * Maximum number of terrain features in f_info.txt
@@ -1139,6 +1139,11 @@ s16b gf_color[MAX_GF];
  */
 int init_flags;
 
+/* Parameters for process_dungeon_file to support wilderness scrolling */
+int init_dx = 0;
+int init_dy = 0;
+const rect_t *init_exclude_rect = 0;
+
 
 /*
  * The "highscore" file descriptor, if available.
@@ -1182,7 +1187,6 @@ bool new_mane;
 
 bool mon_fight;
 
-bool ambush_flag;
 bool generate_encounter;
 
 cptr screen_dump = NULL;

@@ -1396,17 +1396,17 @@ msg_print("An infernal sound echoed.");
                     exp_gain += 60;
                 else if (cur_exp < SPELL_EXP_SKILLED)
                 {
-                    if ((dun_level > 4) && ((dun_level + 10) > p_ptr->lev))
+                    if ((MAX(base_level, dun_level) > 4) && ((MAX(base_level, dun_level) + 10) > p_ptr->lev))
                         exp_gain = 8;
                 }
                 else if (cur_exp < SPELL_EXP_EXPERT)
                 {
-                    if (((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel))
+                    if (((MAX(base_level, dun_level) + 5) > p_ptr->lev) && ((MAX(base_level, dun_level) + 5) > s_ptr->slevel))
                         exp_gain = 2;
                 }
                 else if ((cur_exp < SPELL_EXP_MASTER) && !increment)
                 {
-                    if (((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel))
+                    if (((MAX(base_level, dun_level) + 5) > p_ptr->lev) && (MAX(base_level, dun_level) > s_ptr->slevel))
                         exp_gain = 1;
                 }
                 p_ptr->spell_exp[(increment ? 32 : 0) + spell] += exp_gain;
@@ -1804,8 +1804,8 @@ bool rakuba(int dam, bool force)
     {
         if (!force)
         {
-            int cur = p_ptr->skill_exp[GINOU_RIDING];
-            int max = s_info[p_ptr->pclass].s_max[GINOU_RIDING];
+            int cur = skills_riding_current();
+            int max = skills_riding_max();
             int ridinglevel = r_ptr->level;
 
             /* 落馬のしやすさ */
@@ -1822,7 +1822,7 @@ bool rakuba(int dam, bool force)
                 else
                     inc += 1;
 
-                p_ptr->skill_exp[GINOU_RIDING] = MIN(max, cur + inc);
+                p_ptr->skill_exp[SKILL_RIDING] = MIN(max, cur + inc);
             }
 
             /* レベルの低い乗馬からは落馬しにくい */
@@ -2008,7 +2008,7 @@ bool do_riding(bool force)
 
             return FALSE;
         }
-        if (r_info[m_ptr->r_idx].level > randint1((p_ptr->skill_exp[GINOU_RIDING] / 50 + p_ptr->lev / 2 + 20)))
+        if (r_info[m_ptr->r_idx].level > randint1((skills_riding_current() / 50 + p_ptr->lev / 2 + 20)))
         {
             msg_print("You failed to ride.");
 

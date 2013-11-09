@@ -24,7 +24,8 @@ static void _birth(void)
     forge.pval = (byte)rand_range(25, 30);
     add_outfit(&forge);
 
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 3;
     add_outfit(&forge);
 }
@@ -486,13 +487,13 @@ static int _breath_amount(int type)
     switch (type)
     {
     case GF_ACID: case GF_ELEC: case GF_FIRE : case GF_COLD:
-        return MAX(1, MIN(900, p_ptr->chp * (25 + l*l*l/2500) * mul / (100 *div)));
+        return MAX(1, MIN(600, p_ptr->chp * (25 + l*l*l/2500) * mul / (100 *div)));
 
     case GF_POIS: case GF_NUKE:
-        return MAX(1, MIN(700, p_ptr->chp * (20 + l*l*l/2500) * mul / (100 *div)));
+        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l/2500) * mul / (100 *div)));
 
     case GF_NETHER:
-        return MAX(1, MIN(650, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
+        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
 
     case GF_LITE: case GF_DARK:
         return MAX(1, MIN(350, p_ptr->chp * (20 + l*l*l*15/125000) * mul / (100 *div)));
@@ -511,10 +512,10 @@ static int _breath_amount(int type)
         return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*20/125000) * mul / (100 *div)));
 
     case GF_CHAOS: case GF_SHARDS:
-        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
+        return MAX(1, MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
 
     case GF_MANA:
-        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) * mul / (100 *div)));
+        return MAX(1, MIN(350, p_ptr->chp * (20 + l*l*l*25/125000) * mul / (100 *div)));
 
     case GF_DISENCHANT:
         return MAX(1, MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
@@ -1403,6 +1404,7 @@ race_t *mon_possessor_get_race_t(void)
         }
 
         me.infra = r_ptr->body.infra;
+
         me.life = r_ptr->body.life;
         if (!me.life)
             me.life = 100;
@@ -1414,6 +1416,8 @@ race_t *mon_possessor_get_race_t(void)
 
         me.skills = r_ptr->body.skills;
         me.extra_skills = r_ptr->body.extra_skills;
+
+        me.pseudo_class_idx = r_ptr->body.class_idx;
 
         me.subname = _mon_name(r_idx);
     }
@@ -1463,7 +1467,7 @@ void possessor_on_take_hit(void)
                 object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
                 apply_magic(&forge, object_level, AM_NO_FIXED_ART);
                 forge.pval = old_r_idx;
-                forge.weight = MIN(30*1000, MAX(40, old_r_ptr->weight * 10));
+                forge.weight = MIN(500*10, MAX(40, old_r_ptr->weight * 10));
                 drop_near(&forge, -1, py, px);
             }
             else

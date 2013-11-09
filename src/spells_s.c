@@ -703,7 +703,7 @@ void summon_amberites_spell(int cmd, variant *res)
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
         msg_print("You summon a Lord of Amber!");
-        if (!summon_specific(-1, py, px, l, SUMMON_AMBERITES, PM_FORCE_PET | PM_ALLOW_UNIQUE))
+        if (!summon_specific(-1, py, px, l, SUMMON_AMBERITE, PM_FORCE_PET | PM_ALLOW_UNIQUE))
             msg_print("No Amberites arrives.");
 
         var_set_bool(res, TRUE);

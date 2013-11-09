@@ -267,9 +267,7 @@ bool fear_save_p(int ml)
         }    
     }
 
-#ifndef _DEBUG
     if (p_ptr->wizard)
-#endif
     {
         double s = _save_odds(ml, pl);
         if (p_ptr->resist[RES_FEAR])

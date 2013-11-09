@@ -45,8 +45,12 @@
  */
 
 
-
-
+struct rect_s
+{
+    int  x,  y;
+    int cx, cy;
+};
+typedef struct rect_s rect_t;
 
 /*
  * Feature state structure
@@ -94,6 +98,15 @@ struct feature_type
     byte x_char[F_LIT_MAX];   /* Desired feature character */
 };
 
+struct effect_s
+{
+    s16b type;
+    byte level;
+    byte xxx;
+    s16b timeout;
+    s16b extra;
+};
+typedef struct effect_s effect_t;
 
 /*
  * Information about object "kinds", including player knowledge.
@@ -137,6 +150,8 @@ struct object_kind
     byte extra;            /* Something */
     byte max_level;        /* Level */
 
+    effect_t activation;
+    u32b     activation_msg;
 
     byte d_attr;        /* Default object attribute */
     byte d_char;        /* Default object character */
@@ -190,7 +205,9 @@ struct artifact_type
 
     s32b cost;            /* Artifact "cost" */
 
-    u32b flags[TR_FLAG_SIZE];       /* Artifact Flags */
+    u32b     flags[TR_FLAG_SIZE];       /* Artifact Flags */
+    effect_t activation;
+    u32b     activation_msg;
 
     u32b gen_flags;        /* flags for generate */
 
@@ -215,24 +232,22 @@ struct ego_item_type
     u32b name;            /* Name (offset) */
     u32b text;            /* Text (offset) */
 
-    byte slot;            /* Standard slot value */
-    byte rating;        /* Rating boost */
+    byte type;            /* Type of Ego (Bow, Weapon, Gloves, Helmet, Crown, Harp, etc) */
 
     byte level;            /* Minimum level */
     byte rarity;        /* Object rarity */
     byte max_level;     /* Maximum level. 0 => No restriction */
 
-    byte max_to_h;        /* Maximum to-hit bonus */
-    byte max_to_d;        /* Maximum to-dam bonus */
-    byte max_to_a;        /* Maximum to-ac bonus */
+    s16b max_to_h;        /* Maximum to-hit bonus */
+    s16b max_to_d;        /* Maximum to-dam bonus */
+    s16b max_to_a;        /* Maximum to-ac bonus */
 
     byte max_pval;        /* Maximum pval */
-
-    s32b cost;            /* Ego-item "cost" */
 
     u32b flags[TR_FLAG_SIZE];    /* Ego-Item Flags */
 
     u32b gen_flags;        /* flags for generate */
+    effect_t activation;
 };
 
 /*
@@ -290,8 +305,8 @@ struct object_type
 
     byte xtra1;            /* Extra info type (now unused) */
     byte xtra2;            /* Extra info index */
-    byte xtra3;            /* Extra info */
-    s16b xtra4;            /* Extra info */
+    byte xtra3;            /* Extra info: Chests and Weaponsmith */
+    s16b xtra4;            /* Extra info: Lights, Capture, ... */
     s16b xtra5;            /* Extra info */
 
     s16b to_h;            /* Plusses to hit */
@@ -321,6 +336,7 @@ struct object_type
     s16b next_o_idx;    /* Next object in stack (if any) */
 
     s16b held_m_idx;    /* Monster holding us (if any) */
+    effect_t activation;
 };
 #define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
 
@@ -393,6 +409,7 @@ struct monster_body_s
     s16b     infra;
     s16b     spell_stat;
     s16b     body_idx;
+    s16b     class_idx;
 };
 typedef struct monster_body_s monster_body_t;
 
@@ -499,23 +516,105 @@ struct monster_race
 
 
 /*
- * Information about "vault generation"
+ * Generating rooms from templates
+ * This includes support for user defined "letters" in the template file
+ * as well as built in predefined "letters" (for historical reasons).
+ *
+ * Sample syntax for the Parser for room_grid_t:
+ * L:9:FLOOR(ROOM):OBJ(*, 7):MON(*, 9)  i.e., Random object 7 levels OoD and random monster 9 levels OoD
+ * L:9:FLOOR(ROOM):MON(*, 9):OBJ(*, 7)  i.e., order of named directives does not matter
+ * L:D:FLOOR(ROOM | ICKY):MON(DRAGON, 20):OBJ(SWORD, 20):EGO(*)
+ * L:%:GRANITE(ROOM)
+ * L:#:GRANITE
+ * L:=:FLOOR(ROOM | ICKY):OBJ(RING, 50):EGO(306)  i.e., ring of speed on a "vault" tile generated 50 level OoD!!!
  */
 
-typedef struct vault_type vault_type;
+#define ROOM_GRID_MON_TYPE      0x00000001  /* monster is SUMMON_* rather than a specific r_idx */
+#define ROOM_GRID_MON_CHAR      0x00000002  /* monster is a "d_char" rather than a specific r_idx */
+#define ROOM_GRID_MON_RANDOM    0x00000004
+#define ROOM_GRID_MON_NO_GROUP  0x00000008
+#define ROOM_GRID_MON_NO_SLEEP  0x00000010
+#define ROOM_GRID_MON_NO_UNIQUE 0x00000020
+#define ROOM_GRID_MON_FRIENDLY  0x00000040
+#define ROOM_GRID_MON_HASTE     0x00000080
+#define ROOM_GRID_MON_CLONED    0x00000100  /* hack for The Cloning Pits */
 
-struct vault_type
+#define ROOM_GRID_OBJ_TYPE      0x00010000  /* object is TV_* or OBJ_TYPE_* rather than a specific k_idx */
+#define ROOM_GRID_OBJ_ARTIFACT  0x00020000  /* object is a_idx (which implies k_idx) */
+#define ROOM_GRID_OBJ_EGO       0x00040000  /* named ego using extra for type */
+#define ROOM_GRID_OBJ_RANDOM    0x00080000  /* object is completely random */
+#define ROOM_GRID_EGO_RANDOM    0x00100000  /* object is either k_idx or tval, but make it an ego */
+#define ROOM_GRID_ART_RANDOM    0x00200000  /* object is either k_idx or tval, but make it a rand art */
+
+#define ROOM_GRID_TRAP_RANDOM   0x10000000  /* this may override object info */
+#define ROOM_GRID_SPECIAL       0x20000000  /* use extra for cave.special field */
+
+
+#define ROOM_THEME_GOOD        0x0001
+#define ROOM_THEME_EVIL        0x0002
+#define ROOM_THEME_FRIENDLY    0x0004
+#define ROOM_THEME_NIGHT       0x0008  /* Useful for wilderness graveyards where monsters only spawn at night */
+#define ROOM_THEME_DAY         0x0010
+#define ROOM_THEME_FORMATION   0x0020  /* Hack (see source for details): Allows monster formations. */
+#define ROOM_DEBUG             0x4000  /* For debugging ... force this template to always be chosen */
+#define ROOM_NO_ROTATE         0x8000
+
+#define ROOM_MAX_LETTERS       10
+
+enum obj_types_e                           /* OBJ(DEVICE), etc */
 {
-    u32b name;            /* Name (offset) */
-    u32b text;            /* Text (offset) */
-
-    byte typ;            /* Vault type */
-
-    byte rat;            /* Vault rating */
-
-    byte hgt;            /* Vault height */
-    byte wid;            /* Vault width */
+    OBJ_TYPE_TVAL_MAX = 255,
+    OBJ_TYPE_DEVICE,            
+    OBJ_TYPE_JEWELRY,
+    OBJ_TYPE_BOOK,
+    OBJ_TYPE_BODY_ARMOR,
+    OBJ_TYPE_OTHER_ARMOR,
+    OBJ_TYPE_WEAPON,
+    OBJ_TYPE_BOW_AMMO,
+    OBJ_TYPE_MISC,
 };
+
+struct room_grid_s
+{
+    s16b cave_feat;
+    s16b cave_trap;
+    
+    u16b cave_info;
+    s16b monster;
+    
+    s16b object;
+    s16b extra;
+    
+    u32b flags;
+    
+    byte letter;
+    byte monster_level;
+    byte object_level;
+    byte trap_pct;
+};
+
+typedef struct room_grid_s room_grid_t;
+
+struct room_template_s
+{
+    u32b name;
+
+    byte level;
+    byte max_level;
+    byte rarity;
+    byte type;
+
+    u16b subtype;
+    u16b flags;    
+
+    byte height;
+    byte width;
+
+    u32b text;
+    room_grid_t letters[ROOM_MAX_LETTERS];
+};
+
+typedef struct room_template_s room_template_t;
 
 
 /*
@@ -650,15 +749,10 @@ struct monster_type
     byte stolen_ct;
     u16b summon_ct;
 
-    /* Hack below this point ... TODO: Clean up timed monster effects
-       to use a linked list of { type; dur; extra; } or something similar.
-       BTW, none of what follows will survive a save/reload
-    */
     byte ego_whip_ct;
     byte ego_whip_pow;
     byte anti_magic_ct;
 
-    /* TODO: Pending a rewrite of monster effects as a dynamic list ...*/
     u32b forgot4;
     u32b forgot5;
     u32b forgot6;
@@ -1037,6 +1131,8 @@ struct player_type
 
     s32b wilderness_x;    /* Coordinates in the wilderness */
     s32b wilderness_y;
+    s16b wilderness_dx;   /* Offset of 4x4 viewport window */
+    s16b wilderness_dy;
     bool wild_mode;
 
     s32b mhp;            /* Max hit pts */
@@ -1310,7 +1406,7 @@ struct player_type
 
     byte exit_bldg;            /* Goal obtained in arena? -KMW- */
 
-    bool leaving_dungeon;    /* True if player is leaving the dungeon */
+    byte leaving_dungeon;    /* Which dungeon the player is leaving if any */
     bool teleport_town;
     bool enter_dungeon;     /* Just enter the dungeon */
 
@@ -1968,6 +2064,7 @@ typedef struct {
     process_world_fn        process_world;  /* Called every 10 game turns */
     load_fn                 load_player;
     save_fn                 save_player;
+    s16b                    pseudo_class_idx; /* For the "Monster" class ... */
 } race_t;
 
 typedef struct {

@@ -35,10 +35,13 @@ void _rodeo_spell(int cmd, variant *res)
         rlev = r_ptr->level;
         if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
         if (rlev > 60) rlev = 60+(rlev-60)/2;
-        if ((randint1(p_ptr->skill_exp[GINOU_RIDING] / 120 + p_ptr->lev * 2 / 3) > rlev)
-            && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle
-            && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR))
-            && (rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5)))
+        if ( randint1(skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
+          && one_in_(2) 
+          && !p_ptr->inside_arena 
+          && !p_ptr->inside_battle
+          && !(r_ptr->flags7 & RF7_GUARDIAN) 
+          && !(r_ptr->flags1 & RF1_QUESTOR)
+          && rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5) )
         {
             msg_format("You tame %s.", m_name);
             set_pet(m_ptr);

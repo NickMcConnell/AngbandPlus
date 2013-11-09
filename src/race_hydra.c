@@ -23,11 +23,13 @@ static void _birth(void)
     p_ptr->current_r_idx = MON_TWO_HEADED_HYDRA;
     equip_on_change_race();
     
-    object_prep(&forge, lookup_kind(TV_AMULET, SV_AMULET_RESIST_ACID));
+    object_prep(&forge, lookup_kind(TV_AMULET, 0));
+    forge.name2 = EGO_AMULET_ELEMENTAL;
+    add_flag(forge.art_flags, TR_RES_ACID);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
-    forge.name2 = EGO_MIGHT;
+    forge.name2 = EGO_CROWN_MIGHT;
     forge.pval = 1;
     forge.to_a = 5;
     add_outfit(&forge);
@@ -340,6 +342,7 @@ race_t *mon_hydra_get_race_t(void)
 
         me.flags = RACE_IS_MONSTER;
         me.boss_r_idx = MON_LERNEAN_HYDRA;
+        me.pseudo_class_idx = CLASS_WARRIOR;
 
         init = TRUE;
     }
@@ -351,7 +354,7 @@ race_t *mon_hydra_get_race_t(void)
     me.stats[A_DEX] = (rank + 1)/2;
     me.stats[A_CON] = rank;
     me.stats[A_CHR] =  0;
-    me.life = 100 + 5*rank;
+    me.life = 100 + 3*rank;
     me.equip_template = mon_get_equip_template();
 
     return &me;

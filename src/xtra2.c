@@ -336,7 +336,7 @@ static int get_coin_type(int r_idx)
 /*
  * Hack -- determine if a template is Cloak
  */
-static bool kind_is_cloak(int k_idx)
+static bool _kind_is_cloak(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -354,7 +354,7 @@ static bool kind_is_cloak(int k_idx)
 /*
  * Hack -- determine if a template is Polearm
  */
-static bool kind_is_polearm(int k_idx)
+static bool _kind_is_polearm(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -372,7 +372,7 @@ static bool kind_is_polearm(int k_idx)
 /*
  * Hack -- determine if a template is Sword
  */
-static bool kind_is_sword(int k_idx)
+static bool _kind_is_sword(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -390,7 +390,7 @@ static bool kind_is_sword(int k_idx)
 /*
  * Hack -- determine if a template is Book
  */
-static bool kind_is_book(int k_idx)
+static bool _kind_is_book(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -408,7 +408,7 @@ static bool kind_is_book(int k_idx)
 /*
  * Hack -- determine if a template is Good book
  */
-static bool kind_is_good_book(int k_idx)
+static bool _kind_is_good_book(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -426,7 +426,7 @@ static bool kind_is_good_book(int k_idx)
 /*
  * Hack -- determine if a template is Armor
  */
-static bool kind_is_armor(int k_idx)
+static bool _kind_is_armor(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -444,7 +444,7 @@ static bool kind_is_armor(int k_idx)
 /*
  * Hack -- determine if a template is hafted weapon
  */
-static bool kind_is_hafted(int k_idx)
+static bool _kind_is_hafted(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -730,6 +730,15 @@ byte get_monster_drop_ct(monster_type *m_ptr)
     if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);
     if  (r_ptr->flags1 & RF1_DROP_4D2) number += damroll(4, 2);
 
+    /* Hack: There are currently too many objects, IMO. 
+       Please rescale in r_info rather than the following! */
+    if ( number > 2 
+      && !(r_ptr->flags1 & RF1_DROP_GREAT) 
+      && !(r_ptr->flags1 & RF1_UNIQUE) )
+    {
+        number = 2 + (number - 2) / 2;
+    }
+
     if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
         number = 0; /* Pets drop no stuff */
 
@@ -798,7 +807,7 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     }
 
     coin_type = force_coin;
-    object_level = (dun_level + r_ptr->level) / 2;
+    object_level = (MAX(base_level, dun_level) + r_ptr->level) / 2;
     object_wipe(o_ptr);
 
     if (do_gold && (!do_item || (randint0(100) < 50)))
@@ -1016,9 +1025,9 @@ void monster_death(int m_idx, bool drop_item)
                      monster_race.weight is an s16b and stores pounds.
                      Thus, we might overflow on coversion! */
             if (corpse)
-                q_ptr->weight = MIN(30*1000, r_ptr->weight * 10);
+                q_ptr->weight = MIN(500*10, r_ptr->weight * 10);
             else
-                q_ptr->weight = MIN(30*1000, r_ptr->weight * 10 / 3);
+                q_ptr->weight = MIN(500*10, r_ptr->weight * 10 / 3);
         }
 
         /* Drop it in the dungeon */
@@ -1106,9 +1115,9 @@ void monster_death(int m_idx, bool drop_item)
 
             /* Activate restriction */
             if ((dun_level > 49) && one_in_(5))
-                get_obj_num_hook = kind_is_good_book;
+                get_obj_num_hook = _kind_is_good_book;
             else
-                get_obj_num_hook = kind_is_book;
+                get_obj_num_hook = _kind_is_book;
 
             /* Make a book */
             if (make_object(q_ptr, mo_mode))
@@ -1262,7 +1271,7 @@ void monster_death(int m_idx, bool drop_item)
                 object_wipe(q_ptr);
 
                 /* Activate restriction */
-                get_obj_num_hook = kind_is_cloak;
+                get_obj_num_hook = _kind_is_cloak;
 
                 /* Make a cloak */
                 if (make_object(q_ptr, mo_mode))
@@ -1280,7 +1289,7 @@ void monster_death(int m_idx, bool drop_item)
                 object_wipe(q_ptr);
 
                 /* Activate restriction */
-                get_obj_num_hook = kind_is_polearm;
+                get_obj_num_hook = _kind_is_polearm;
 
                 /* Make a poleweapon */
                 if (make_object(q_ptr, mo_mode))
@@ -1298,7 +1307,7 @@ void monster_death(int m_idx, bool drop_item)
                 object_wipe(q_ptr);
 
                 /* Activate restriction */
-                get_obj_num_hook = kind_is_armor;
+                get_obj_num_hook = _kind_is_armor;
 
                 /* Make a hard armor */
                 if (make_object(q_ptr, mo_mode))
@@ -1316,7 +1325,7 @@ void monster_death(int m_idx, bool drop_item)
                 object_wipe(q_ptr);
 
                 /* Activate restriction */
-                get_obj_num_hook = kind_is_hafted;
+                get_obj_num_hook = _kind_is_hafted;
 
                 /* Make a hafted weapon */
                 if (make_object(q_ptr, mo_mode))
@@ -1334,7 +1343,7 @@ void monster_death(int m_idx, bool drop_item)
                 object_wipe(q_ptr);
 
                 /* Activate restriction */
-                get_obj_num_hook = kind_is_sword;
+                get_obj_num_hook = _kind_is_sword;
 
                 /* Make a sword */
                 if (make_object(q_ptr, mo_mode))
@@ -1750,7 +1759,10 @@ void monster_death(int m_idx, bool drop_item)
             break;
         }
 
-        if (race_ptr->boss_r_idx == m_ptr->r_idx)
+        /* I think the bug is Kill Amberite, get Blood Curse, entomb said Amberite,
+           zeroing out the m_ptr while processing monster death, and continuing to call 
+           this routine after m_list[m_idx] has been corrupted. */
+        if (race_ptr->boss_r_idx && race_ptr->boss_r_idx == m_ptr->r_idx)
         {
             msg_print("Congratulations! You have killed the boss of your race!");
             p_ptr->fame += 10;
@@ -1889,7 +1901,7 @@ void monster_death(int m_idx, bool drop_item)
     if (!drop_item && (r_ptr->d_char != '$')) number = 0;
 
     /* Drop some objects */
-    for (j = 0; j < number; j++)
+    for (j = 0; j < number; )
     {
         if (get_monster_drop(m_idx, &forge))
         {
@@ -1899,6 +1911,7 @@ void monster_death(int m_idx, bool drop_item)
                 dump_item++;
 
             drop_near(&forge, -1, y, x);
+            j++;
         }
     }
 
@@ -2077,14 +2090,6 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
             /* Divide by 2 */
             s64b_RSHIFT(new_exp, new_exp_frac, 1);
         }
-    }
-
-    /* Wilderness Penalty */
-    if ( !dun_level 
-      && !p_ptr->inside_quest  /* Paranoia ... but I had dun_level == 0 inside a town quest once. I'm not sure what happened ... */
-      && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE)) )
-    {
-        s64b_RSHIFT(new_exp, new_exp_frac, 3);
     }
 
     /* Farming Summoners for xp is now biffed! */
@@ -2423,7 +2428,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
         if (!(d_info[dungeon_type].flags1 & DF1_BEGINNER))
         {
-            if (!dun_level && !ambush_flag && !p_ptr->inside_arena)
+            if (!dun_level && !p_ptr->inside_arena)
             {
                 virtue_add(VIRTUE_VALOUR, -1);
             }
@@ -2647,7 +2652,6 @@ void panel_bounds_center(void)
 {
     int wid, hgt;
 
-    /* Get size */
     get_screen_size(&wid, &hgt);
 
     panel_row_max = panel_row_min + hgt - 1;
@@ -3934,7 +3938,10 @@ static int target_set_aux(int y, int x, int mode, cptr info)
         }
         else if (have_flag(f_ptr->flags, FF_ENTRANCE))
         {
-            name = format("%s(level %d)", d_text + d_info[c_ptr->special].text, d_info[c_ptr->special].mindepth);
+            if (d_info[c_ptr->special].flags1 & DF1_RANDOM)
+                name = format("%s (level ??)", d_text + d_info[c_ptr->special].text);
+            else
+                name = format("%s (level %d)", d_text + d_info[c_ptr->special].text, d_info[c_ptr->special].mindepth);
         }
         else if (have_flag(f_ptr->flags, FF_TOWN))
         {
@@ -3981,7 +3988,11 @@ static int target_set_aux(int y, int x, int mode, cptr info)
         }
 
         /* Display a message */
-        if (p_ptr->wizard)
+        if (p_ptr->wild_mode && TRUE) /* TODO: I may want to hide this info later ... */
+        {
+            sprintf(out_val, "%s%s%s%s [%s] L%d", s1, s2, s3, name, info, wilderness_level(x, y));
+        }
+        else if (p_ptr->wizard)
         {
             char f_idx_str[32];
             if (c_ptr->mimic) sprintf(f_idx_str, "%d/%d", c_ptr->feat, c_ptr->mimic);

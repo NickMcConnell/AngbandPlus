@@ -150,6 +150,12 @@ void do_cmd_go_up(void)
         /* Get out from current dungeon */
         if (dun_level - up_num < d_info[dungeon_type].mindepth)
             up_num = dun_level;
+
+        if (d_info[dungeon_type].flags1 & DF1_RANDOM)
+        {
+            up_num = dun_level;
+            prepare_change_floor_mode(CFM_NO_RETURN);
+        }
     }
 
     /* Success */
@@ -239,8 +245,11 @@ void do_cmd_go_down(void)
             }
             if (!max_dlv[target_dungeon])
             {
-                msg_format("There is the entrance of %s (Danger level: %d)", d_name+d_info[target_dungeon].name, d_info[target_dungeon].mindepth);
-                if (!get_check("Do you really get in this dungeon? ")) return;
+                if (d_info[target_dungeon].flags1 & DF1_RANDOM)
+                    msg_format("This is the entrance of %s (Danger level: ??)", d_name+d_info[target_dungeon].name);
+                else
+                    msg_format("This is the entrance of %s (Danger level: %d)", d_name+d_info[target_dungeon].name, d_info[target_dungeon].mindepth);
+                if (!get_check("Do you really go into this dungeon? ")) return;
             }
 
             /* Save old player position */
@@ -305,8 +314,11 @@ void do_cmd_go_down(void)
             }
             else
             {
-                /* Create a way back */
-                if (p_ptr->enter_dungeon && down_num >= 20 && one_in_(14))
+                /* Create a way back ... maybe */
+                if ( p_ptr->enter_dungeon 
+                  && down_num >= 20  
+                  && !(d_info[dungeon_type].flags1 & DF1_RANDOM) 
+                  && one_in_(14) )
                 {
                     /* Hack:  No stair scum */
                     msg_print("The stairs collapse behind you! You are trapped!!");
@@ -2402,17 +2414,28 @@ void do_cmd_walk(bool pickup)
     /* Hack again -- Is there a special encounter ??? */
     if (p_ptr->wild_mode && !cave_have_flag_bold(py, px, FF_TOWN))
     {
-        int tmp = 120 + p_ptr->lev*10 - wilderness[py][px].level + 5;
-        if (tmp < 1) 
-            tmp = 1;
-        if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && randint0(tmp) < (21-p_ptr->skills.stl))
+        int lvl = wilderness_level(px, py);
+        int tmp = MAX(1, 120 + p_ptr->lev*10 - lvl + 5);
+
+        if (wilderness[py][px].road)
+            tmp *= 3;
+
+        if (!is_daytime())
+            tmp /= 2;
+
+#if 0
+        msg_format("Ambush=%.2f%%", (double)(21 - p_ptr->skills.stl) * 100.0/(double)tmp);
+#endif
+
+        if ( lvl + 5 > p_ptr->lev / 2 
+          && randint0(tmp) < 21 - p_ptr->skills.stl )
         {
             /* Inform the player of his horrible fate :=) */
             msg_print("You are ambushed!");
 
             /* Go into large wilderness view */
-            p_ptr->oldpy = randint1(MAX_HGT-2);
-            p_ptr->oldpx = randint1(MAX_WID-2);
+            p_ptr->oldpy = rand_range(15, MAX_HGT - 15);
+            p_ptr->oldpx = rand_range(15, MAX_WID - 15);
             change_wild_mode();
 
             /* Give first move to monsters */
@@ -3149,72 +3172,6 @@ bool do_cmd_fire_aux1(int item, object_type *bow)
 
     do_cmd_fire_aux2(item, bow, px, py, tx, ty);
 
-    /* Hack! Snotlings recoil when shooting ... */
-    if (prace_is_(RACE_SNOTLING))
-    {
-        int ny, nx;
-
-        if (dir == 5)
-        {
-            int dx = tx - px;
-            int dy = ty - py;
-            int sx = SIGN(dx);
-            int sy = SIGN(dy);
-            int mx = ABS(dx);
-            int my = ABS(dy);
-                        
-            ny = py;
-            nx = px;
-
-            if (mx == my)
-            {
-                if (player_can_enter(cave[ny-sy][nx-sx].feat, 0))
-                {
-                    nx -= sx;
-                    ny -= sy;
-                }
-                else if (player_can_enter(cave[ny][nx-sx].feat, 0))
-                    nx -= sx;
-                else if (player_can_enter(cave[ny-sy][nx].feat, 0))
-                    ny -= sy;
-            }
-            else if (mx > my)
-            {
-                nx -= sx;
-                if (randint0(mx) < my)
-                {
-                    ny -= sy;
-                    if (!player_can_enter(cave[ny][nx].feat, 0))
-                        ny += sy;
-                }
-            }
-            else
-            {
-                ny -= sy;
-                if (randint0(my) < mx)
-                {
-                    nx -= sx;
-                    if (!player_can_enter(cave[ny][nx].feat, 0))
-                        nx += sx;
-                }                    
-            }
-        }
-        else
-        {
-            ny = py - ddy[dir];
-            nx = px - ddx[dir];
-        }
-        if (player_can_enter(cave[ny][nx].feat, 0))
-        {
-            move_player_effect(ny, nx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
-        }
-        else
-        {
-            msg_print("The recoil hurts!");
-            take_hit(DAMAGE_NOESCAPE, 5 + randint1(5), "the recoil of shooting", -1);
-        }
-    }
-
     return TRUE;
 }
 void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty)
@@ -3406,8 +3363,11 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
         x = sx;
 
         /* Weaponmaster power:  Ammo is not consumed */
-        if (p_ptr->return_ammo && randint1(100) <= 50 + p_ptr->lev/2)
+        if ( (p_ptr->return_ammo || o_ptr->name2 == EGO_AMMO_RETURNING)
+          && randint1(100) <= 50 + p_ptr->lev/2 )
+        {
             return_ammo = TRUE;
+        }
 
         /* Get local object */
         q_ptr = &forge;
@@ -3583,15 +3543,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                     skills_bow_gain(bow->sval);
 
                 if (p_ptr->riding)
-                {
-                    if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING])
-                        && ((p_ptr->skill_exp[GINOU_RIDING] - (RIDING_EXP_BEGINNER * 2)) / 200 < r_info[m_list[p_ptr->riding].r_idx].level)
-                        && one_in_(2))
-                    {
-                        p_ptr->skill_exp[GINOU_RIDING] += 1;
-                        p_ptr->update |= (PU_BONUS);
-                    }
-                }
+                    skills_riding_gain_archery(r_ptr);
 
                  armour = MON_AC(r_ptr, m_ptr);
                 if (p_ptr->concent)

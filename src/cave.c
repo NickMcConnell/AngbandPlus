@@ -1810,6 +1810,14 @@ static cptr simplify_list[][2] =
     {NULL, NULL}
 };
 
+static bool _is_dice_boosted(object_type *o_ptr)
+{
+    object_kind *k_ptr = &k_info[o_ptr->k_idx];
+    if (o_ptr->dd != k_ptr->dd || o_ptr->ds != k_ptr->ds)
+        return TRUE;
+    return FALSE;
+}
+
 static void display_shortened_item_name(object_type *o_ptr, int y)
 {
     char buf[MAX_NLEN];
@@ -1817,6 +1825,14 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
     int len = 0;
     byte attr;
 
+/*  object_desc(buf, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_AND_DICE)); */
+    if (object_is_melee_weapon(o_ptr) && _is_dice_boosted(o_ptr))
+    {
+        char tmp[MAX_NLEN];
+        object_desc(tmp, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_ONLY));
+        sprintf(buf, "%dd%d %s", o_ptr->dd, o_ptr->ds, tmp);
+    }
+    else
     object_desc(buf, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_ONLY));
     attr = tval_to_attr[o_ptr->tval % 128];
 
@@ -2556,21 +2572,6 @@ void update_lite(void)
     int i, x, y, min_x, max_x, min_y, max_y;
     int p = p_ptr->cur_lite;
     cave_type *c_ptr;
-
-    /*** Special case ***/
-
-#if 0
-    /* Hack -- Player has no lite */
-    if (p <= 0)
-    {
-        /* Forget the old lite */
-        /* forget_lite(); Perhaps don't need? */
-
-        /* Add it to later visual update */
-        cave_redraw_later(&cave[py][px], py, px);
-    }
-#endif
-
     /*** Save the old "lite" grids for later ***/
 
     /* Clear them all */
@@ -2782,8 +2783,7 @@ static void mon_lite_hack(int y, int x)
     cave_type *c_ptr;
     int       midpoint, dpf, d;
 
-    /* We trust this grid is in bounds */
-    /* if (!in_bounds2(y, x)) return; */
+    if (!in_bounds2(y, x)) return;
 
     c_ptr = &cave[y][x];
 
@@ -2868,8 +2868,7 @@ static void mon_dark_hack(int y, int x)
     cave_type *c_ptr;
     int       midpoint, dpf, d;
 
-    /* We trust this grid is in bounds */
-    /* if (!in_bounds2(y, x)) return; */
+    if (!in_bounds2(y, x)) return;
 
     c_ptr = &cave[y][x];
 
@@ -3626,6 +3625,7 @@ void update_view(void)
     /* Scan south-east */
     for (d = 1; d <= z; d++)
     {
+        if (!in_bounds(y+d, x+d)) break;
         c_ptr = &cave[y+d][x+d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y+d, x+d);
@@ -3635,6 +3635,7 @@ void update_view(void)
     /* Scan south-west */
     for (d = 1; d <= z; d++)
     {
+        if (!in_bounds(y+d, x-d)) break;
         c_ptr = &cave[y+d][x-d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y+d, x-d);
@@ -3644,6 +3645,7 @@ void update_view(void)
     /* Scan north-east */
     for (d = 1; d <= z; d++)
     {
+        if (!in_bounds(y-d, x+d)) break;
         c_ptr = &cave[y-d][x+d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y-d, x+d);
@@ -3653,6 +3655,7 @@ void update_view(void)
     /* Scan north-west */
     for (d = 1; d <= z; d++)
     {
+        if (!in_bounds(y-d, x-d)) break;
         c_ptr = &cave[y-d][x-d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y-d, x-d);
@@ -3665,6 +3668,7 @@ void update_view(void)
     /* Scan south */
     for (d = 1; d <= full; d++)
     {
+        if (!in_bounds(y+d, x)) break;
         c_ptr = &cave[y+d][x];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y+d, x);
@@ -3677,6 +3681,7 @@ void update_view(void)
     /* Scan north */
     for (d = 1; d <= full; d++)
     {
+        if (!in_bounds(y-d, x)) break;
         c_ptr = &cave[y-d][x];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y-d, x);
@@ -3689,6 +3694,7 @@ void update_view(void)
     /* Scan east */
     for (d = 1; d <= full; d++)
     {
+        if (!in_bounds(y, x+d)) break;
         c_ptr = &cave[y][x+d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y, x+d);
@@ -3701,6 +3707,7 @@ void update_view(void)
     /* Scan west */
     for (d = 1; d <= full; d++)
     {
+        if (!in_bounds(y, x-d)) break;
         c_ptr = &cave[y][x-d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y, x-d);
@@ -4139,6 +4146,7 @@ void update_flow(void)
             x = tx + ddx_ddd[d];
 
             /* Ignore player's grid */
+            if (!in_bounds(y, x)) continue;
             if (player_bold(y, x)) continue;
 
             c_ptr = &cave[y][x];
@@ -4866,7 +4874,7 @@ void hit_mon_trap(int y, int x, int m_idx)
                     num = 1 + p_ptr->lev/10;
                     for (i = 0; i < num; i++)
                     {
-                        summon_specific(0, y, x, p_ptr->lev * 2, SUMMON_PIRANHAS, (PM_ALLOW_GROUP | PM_FORCE_PET));
+                        summon_specific(0, y, x, p_ptr->lev * 2, SUMMON_PIRANHA, (PM_ALLOW_GROUP | PM_FORCE_PET));
                     }
                     break;
                 }

@@ -29,7 +29,6 @@ static caster_info * _caster_info(void)
         me.magic_desc = "devilish power";
         me.which_stat = A_INT;
         me.weight = 750;
-        me.options = CASTER_ALLOW_DEC_MANA;
         init = TRUE;
     }
     return &me;
@@ -46,7 +45,8 @@ static void _khorne_birth(void)
     p_ptr->current_r_idx = MON_BLOODLETTER_KHORNE;
     equip_on_change_race();
 
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 6;
     add_outfit(&forge);
     
@@ -54,7 +54,7 @@ static void _khorne_birth(void)
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
-    forge.name2 = EGO_SHARPNESS;
+    forge.name2 = EGO_WEAPON_SHARPNESS;
     forge.pval = 1;
     forge.to_h = 0;
     forge.to_d = 0;
@@ -275,7 +275,7 @@ static void _khorne_gain_level(int new_level)
         equip_on_change_race();
         p_ptr->redraw |= PR_MAP;
         object_prep(&forge, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
-        forge.name2 = EGO_VAMPIRIC; /* Prevent ?Artifact or ?WeaponBranding */
+        forge.name2 = EGO_WEAPON_DEATH; /* Prevent ?Artifact or ?WeaponBranding */
         forge.dd = 50;
         forge.ds = 1;
         forge.weight = 500;
@@ -315,6 +315,8 @@ static race_t *_khorne_get_race_t(void)
         me.calc_bonuses = _khorne_calc_bonuses;
         me.get_flags = _khorne_get_flags;
         me.gain_level = _khorne_gain_level;
+        me.pseudo_class_idx = CLASS_WARRIOR;
+
         init = TRUE;
     }
 
@@ -325,7 +327,7 @@ static race_t *_khorne_get_race_t(void)
     me.stats[A_DEX] =  0 + rank/3;
     me.stats[A_CON] =  2 + rank;
     me.stats[A_CHR] =  rank/3;
-    me.life = 100 + 6*rank;
+    me.life = 100 + 5*rank;
 
     me.equip_template = mon_get_equip_template();
     me.boss_r_idx = MON_MEPHISTOPHELES;
@@ -361,7 +363,8 @@ static void _marilith_birth(void) {
     p_ptr->current_r_idx = MON_MANES;
     equip_on_change_race();
 
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 3;
     add_outfit(&forge);
     
@@ -369,7 +372,7 @@ static void _marilith_birth(void) {
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-    forge.name2 = EGO_BRAND_FIRE;
+    forge.name2 = EGO_WEAPON_BURNING;
     forge.dd = 1;
     forge.ds = 6;
     forge.to_h = 1;
@@ -525,7 +528,7 @@ static race_t *_marilith_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 20,  35,  36,   1,  16,  10,  56,  35};
+    skills_t bs = { 20,  35,  36,   3,  16,  10,  56,  35};
     skills_t xs = { 12,  11,  10,   0,   0,   0,  20,  11};
 
 
@@ -543,6 +546,7 @@ static race_t *_marilith_get_race_t(void)
         me.get_flags = _marilith_get_flags;
         me.gain_level = _marilith_gain_level;
         me.caster_info = _caster_info;
+        me.pseudo_class_idx = CLASS_CHAOS_WARRIOR;
         init = TRUE;
     }
 
@@ -595,7 +599,8 @@ static void _balrog_birth(void)
 
     p_ptr->current_r_idx = MON_LESSER_BALROG;
 
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 5;
     add_outfit(&forge);
     
@@ -603,7 +608,7 @@ static void _balrog_birth(void)
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-    forge.name2 = EGO_BRAND_FIRE;
+    forge.name2 = EGO_WEAPON_BURNING;
     forge.dd = 2;
     forge.ds = 6;
     forge.to_h = 5;
@@ -693,18 +698,19 @@ static race_t *_balrog_get_race_t(void)
         me.get_immunities = _balrog_get_immunities;
         me.gain_level = _balrog_gain_level;
         me.caster_info = _caster_info;
+        me.pseudo_class_idx = CLASS_CHAOS_WARRIOR;
         init = TRUE;
     }
 
     me.subname = titles[rank];
     me.stats[A_STR] =  4 + 3*rank;
-    me.stats[A_INT] =  3 + 2*rank;
+    me.stats[A_INT] =  1 + 2*rank;
     me.stats[A_WIS] = -10;
-    me.stats[A_DEX] =  2 + 2*rank;
+    me.stats[A_DEX] =  1 + 2*rank;
     me.stats[A_CON] =  4 + 2*rank;
     me.stats[A_CHR] =  2 + rank;
     me.infra = 5 + 10*rank;
-    me.life = 110 + 15*rank;
+    me.life = 105 + 10*rank;
 
     me.boss_r_idx = MON_GOTHMOG;
 
@@ -769,7 +775,8 @@ static void _cyber_birth(void)
 
     p_ptr->current_r_idx = MON_CYBER;
 
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 10;
     add_outfit(&forge);
     
@@ -853,7 +860,7 @@ static race_t *_cyber_get_race_t(void)
         me.extra_skills = xs;
 
         me.infra = 5;
-        me.life = 135;
+        me.life = 120;
 
         me.exp = 300;
         me.base_hp = 50;
@@ -864,6 +871,8 @@ static race_t *_cyber_get_race_t(void)
         me.get_flags = _cyber_get_flags;
         me.get_vulnerabilities = _cyber_get_vulnerabilities;
         me.move_player = _cyber_move_player;
+        me.pseudo_class_idx = CLASS_WARRIOR;
+
         init = TRUE;
     }
 

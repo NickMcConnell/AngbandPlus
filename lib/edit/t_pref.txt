@@ -9,19 +9,19 @@ F:>:ENTRANCE:3:0:0:0:0:NONE:2
 F:<:ENTRANCE:3:0:0:0:0:NONE:1
 
 # Mountain chain
-F:^:MOUNTAIN:3
+F:^:MOUNTAIN:0
 
 # Floor
-F:.:FLOOR:3
+F:.:FLOOR:0
 
 # Trees
-F:T:TREE:3
+F:T:TREE:0
 
 # Deep water
-F:W:DEEP_WATER:3
+F:W:DEEP_WATER:0
 
 # Shallow water
-F:V:SHALLOW_WATER:3
+F:V:SHALLOW_WATER:0
 
 # Deep Lava
 F:L:DEEP_LAVA:3
@@ -30,16 +30,16 @@ F:L:DEEP_LAVA:3
 F:K:SHALLOW_LAVA:3
 
 # Chasm
-F:C:DARK_PIT:3
+F:C:DARK_PIT:0
 
 # Dirt
-F:,:DIRT:3
+F:,:DIRT:0
 
 # Rubble
-F:;:RUBBLE:3
+F:;:RUBBLE:0
 
 # Grass
-F:-:GRASS:3
+F:-:GRASS:0
 
 # Permanent wall
 F:#:PERMANENT:3

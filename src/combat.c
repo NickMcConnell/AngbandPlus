@@ -407,7 +407,7 @@ static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int b
 
     mult = slay_mult;
     if (force)
-        mult = mult * 3/2 + 100;
+        mult = mult * 3/2 + 150;
     mult = mult * base_mult / 100;
 
     min = blows * (mult*dd/100 + to_d) / 100;
@@ -482,17 +482,10 @@ int display_weapon_info(int hand, int row, int col)
     }
 
     mult = 100;
-    switch (o_ptr->name1)
-    {
-    case ART_VORPAL_BLADE:
-    case ART_CHAINSWORD:
-    case ART_MURAMASA:
+    if (have_flag(flgs, TR_VORPAL2))
         mult = mult * 5 / 3;
-        break;
-    default:
-        if (have_flag(flgs, TR_VORPAL))
-            mult = mult * 11 / 9;
-    }
+    else if (have_flag(flgs, TR_VORPAL))
+        mult = mult * 11 / 9;
 
     if (!have_flag(flgs, TR_ORDER))
     {

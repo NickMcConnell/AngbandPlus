@@ -229,7 +229,11 @@ bool dir_exists(const char *path)
 	struct stat buf;
 	if (stat(path, &buf) != 0)
 		return FALSE;
+#ifdef WIN32
 	else if (buf.st_mode & S_IFDIR)
+#else
+    else if (S_ISDIR(buf.st_mode))
+#endif
 		return TRUE;
 	else
 		return FALSE;
@@ -346,7 +350,7 @@ cptr err_str[PARSE_ERROR_MAX] =
 /*
  * File headers
  */
-header v_head;
+header room_head;
 header f_head;
 header k_head;
 header a_head;
@@ -846,17 +850,17 @@ static errr init_d_info(void)
 errr init_v_info(void)
 {
     /* Init the header */
-    init_header(&v_head, max_v_idx, sizeof(vault_type));
+    init_header(&room_head, max_room_idx, sizeof(room_template_t));
 
 #ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
-    v_head.parse_info_txt = parse_v_info;
+    room_head.parse_info_txt = parse_v_info;
 
 #endif /* ALLOW_TEMPLATES */
 
-    return init_info("v_info", &v_head,
-             (void*)&v_info, &v_name, &v_text, NULL);
+    return init_info("v_info", &room_head,
+             (void*)&room_info, &room_name, &room_text, NULL);
 }
 
 
@@ -1232,17 +1236,6 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
     {
         /* Magic-User store */
 
-        { TV_RING, SV_RING_PROTECTION },
-        { TV_RING, SV_RING_LEVITATION_FALL },
-        { TV_RING, SV_RING_PROTECTION },
-        { TV_RING, SV_RING_RESIST_FIRE },
-
-        { TV_RING, SV_RING_RESIST_COLD },
-        { TV_AMULET, SV_AMULET_ADORNMENT },
-        { TV_RING, SV_RING_WARNING },
-        { TV_AMULET, SV_AMULET_RESIST_ACID },
-
-        { TV_AMULET, SV_AMULET_SEARCHING },
         { TV_WAND, SV_WAND_SLOW_MONSTER },
         { TV_WAND, SV_WAND_CONFUSE_MONSTER },
         { TV_WAND, SV_WAND_SLEEP_MONSTER },
@@ -2403,7 +2396,6 @@ void init_angband(void)
 
     if (init_misc()) quit("Cannot initialize misc. values");
 
-
     /* Initialize feature info */
     note("[Initializing arrays... (features)]");
     if (init_f_info()) quit("Cannot initialize features");
@@ -2530,6 +2522,6 @@ cptr get_check_sum(void)
               d_head.v_extra, 
               m_head.v_extra, 
               s_head.v_extra, 
-              v_head.v_extra);
+              room_head.v_extra);
 }
 

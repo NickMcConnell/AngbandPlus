@@ -3430,7 +3430,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                         y, 
                         x, 
                         500 /*rlev - Hack: Olympain Summoning should never fail!*/, 
-                        SUMMON_OLYMPIANS, 
+                        SUMMON_OLYMPIAN, 
                         (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
                     );
                 }
@@ -3453,7 +3453,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                         y, 
                         x, 
                         rlev, 
-                        SUMMON_KNIGHTS, 
+                        SUMMON_KNIGHT, 
                         (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
                     );
                 }
@@ -3489,7 +3489,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                             y, 
                             x, 
                             rlev, 
-                            SUMMON_KNIGHTS, 
+                            SUMMON_KNIGHT, 
                             (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
                         );
                     }
@@ -3551,7 +3551,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                     int num = 4 + randint1(3);
                     for (k = 0; k < num; k++)
                     {
-                        count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+                        count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
                     }
                 }
                 break;
@@ -3579,7 +3579,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
                     for (k = 0; k < num; k++)
                     {
-                        count += summon_specific(m_idx, y, x, rlev, SUMMON_GUARDIANS, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+                        count += summon_specific(m_idx, y, x, rlev, SUMMON_GUARDIAN, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
                     }
                 }
                 break;
@@ -3974,7 +3974,7 @@ msg_format("They say 'The %d meets! We are the Ring-Ranger!'.", count);
 
             for (k = 0; k < s_num_4; k++)
             {
-                count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+                count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
             }
             if (blind && count)
             {

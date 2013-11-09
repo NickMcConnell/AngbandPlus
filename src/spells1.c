@@ -2923,9 +2923,10 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             break;
         }
 
+
+
         /* Pure damage */
         case GF_MANA:
-        case GF_PSI_STORM:
         case GF_SEEKER:
         case GF_SUPER_RAY:
         {
@@ -2965,6 +2966,65 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             break;
         }
 
+        case GF_PSI_STORM:
+            if (r_ptr->flagsr & RFR_RES_ALL)
+            {
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+                break;
+            }
+            if (r_ptr->flags2 & RF2_EMPTY_MIND)
+            {
+                dam = 0;
+                note = " is immune!";
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
+                break;
+
+            }
+            else if (r_ptr->flags2 & (RF2_STUPID | RF2_WEIRD_MIND))
+            {
+                dam /= 3;
+                note = " resists.";
+                break;
+            }
+            if (one_in_(4))
+            {
+                if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_dist = 0;
+                else do_dist = 7;
+            }
+            if (one_in_(2))
+            {
+                int mult = 1;
+
+                do_stun = damroll(caster_lev/20 + 3, dam) + 1;
+                if (r_ptr->flags1 & RF1_UNIQUE)
+                    mult++;
+
+                if (mult*r_ptr->level > 5 + randint1(dam))
+                {
+                    do_stun = 0;
+                    obvious = FALSE;
+                }
+            }
+            if (one_in_(4))
+            {
+                switch (randint1(3))
+                {
+                    case 1:
+                        do_conf = 3 + randint1(dam);
+                        break;
+                    case 2:
+                        do_fear = 3 + randint1(dam);
+                        break;
+                    case 3:
+                        note = " falls asleep!";
+                        do_sleep = 3 + randint1(dam);
+                        break;
+                }
+            }
+            note_dies = " collapses, a mindless husk.";
+            break;
         case GF_PSI:
         {
             if (seen) obvious = TRUE;
@@ -5228,11 +5288,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             else
             {
-                if ((who > 0) ? ((caster_lev + randint1(dam)) > (r_ptr->level + 10 + randint1(20))) :
-                   (((caster_lev / 2) + randint1(dam)) > (r_ptr->level + randint1(200))))
+                if (randint1(caster_lev) >= r_ptr->level + randint1(20))
                 {
                     dam = ((40 + randint1(20)) * m_ptr->hp) / 100;
-
                     if (m_ptr->hp < dam) dam = m_ptr->hp - 1;
                 }
                 else

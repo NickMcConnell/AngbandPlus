@@ -290,12 +290,13 @@ void _character_armor_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        set_shield(spell_power(p_ptr->lev), FALSE);
-        if (p_ptr->lev > 14) set_oppose_acid(spell_power(p_ptr->lev), FALSE);
-        if (p_ptr->lev > 19) set_oppose_fire(spell_power(p_ptr->lev), FALSE);
-        if (p_ptr->lev > 24) set_oppose_cold(spell_power(p_ptr->lev), FALSE);
-        if (p_ptr->lev > 29) set_oppose_elec(spell_power(p_ptr->lev), FALSE);
-        if (p_ptr->lev > 34) set_oppose_pois(spell_power(p_ptr->lev), FALSE);
+        int dur = spell_power(p_ptr->lev + randint1(p_ptr->lev));
+        set_shield(dur, FALSE);
+        if (p_ptr->lev > 14) set_oppose_acid(dur, FALSE);
+        if (p_ptr->lev > 19) set_oppose_fire(dur, FALSE);
+        if (p_ptr->lev > 24) set_oppose_cold(dur, FALSE);
+        if (p_ptr->lev > 29) set_oppose_elec(dur, FALSE);
+        if (p_ptr->lev > 34) set_oppose_pois(dur, FALSE);
         var_set_bool(res, TRUE);
         break;
     }
@@ -390,7 +391,7 @@ void _adrenaline_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int dur = spell_power(10 + randint1((p_ptr->lev * 3) / 2));
+        int dur = spell_power(15 + randint1(p_ptr->lev*3/2));
         bool heal = !IS_FAST() || !IS_HERO(); /* Prevent spamming this as a weak healing spell */
 
         set_stun(0, TRUE);
@@ -518,7 +519,7 @@ void _psycho_storm_spell(int cmd, variant *res)
         var_set_string(res, "Fires a large ball of pure mental energy.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 7)));
+        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 5)));
         break;
     case SPELL_CAST:
     {
@@ -526,7 +527,7 @@ void _psycho_storm_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
 
-        fire_ball(GF_PSI_STORM, dir, spell_power(p_ptr->lev * 7 + damroll(10, 10)), 4);
+        fire_ball(GF_PSI_STORM, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10)), 4);
 
         var_set_bool(res, TRUE);
         break;
@@ -549,8 +550,8 @@ static spell_info _spells[] =
     { 7,   6,  35, _major_displacement_spell},
     { 9,   7,  50, _domination_spell},
     { 11,  7,  30, _pulverise_spell},
-    { 13, 12,  50, _character_armor_spell},
-    { 15, 12,  60, _psychometry_spell},
+    { 13, 12,  50, _psychometry_spell},
+    { 15, 12,  60, _character_armor_spell},
     { 18, 10,  45, _mind_wave_spell},
     { 23, 15,  50, _adrenaline_spell},
     { 26, 28,  60, _telekinesis_spell},

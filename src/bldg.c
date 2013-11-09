@@ -3532,6 +3532,9 @@ bool tele_town(void)
             {
                 p_ptr->wilderness_y = y;
                 p_ptr->wilderness_x = x;
+
+                p_ptr->wilderness_dx = 0;
+                p_ptr->wilderness_dy = 0;
             }
         }
     }

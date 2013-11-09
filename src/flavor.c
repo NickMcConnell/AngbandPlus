@@ -271,12 +271,6 @@ void flavor_init(void)
         k_ptr->flavor = i;
     }
 
-    /* Shuffle Rings */
-    shuffle_flavors(TV_RING);
-
-    /* Shuffle Amulets */
-    shuffle_flavors(TV_AMULET);
-
     /* Shuffle Staves */
     shuffle_flavors(TV_STAFF);
 
@@ -465,6 +459,22 @@ static flag_insc_table flag_insc_plus[] =
     { "Sr", TR_SEARCH, -1 },
     { "If", TR_INFRA, -1 },
     { "Dg", TR_TUNNEL, -1 },
+    { "Lf", TR_LIFE, -1 },
+    { NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_minus[] =
+{
+    { "St", TR_DEC_STR, -1 },
+    { "In", TR_DEC_INT, -1 },
+    { "Wi", TR_DEC_WIS, -1 },
+    { "Dx", TR_DEC_DEX, -1 },
+    { "Cn", TR_DEC_CON, -1 },
+    { "Ch", TR_DEC_CHR, -1 },
+    { "Sl", TR_DEC_STEALTH, -1 },
+    { "Sp", TR_DEC_SPEED, -1 },
+    { "Lf", TR_DEC_LIFE, -1 },
+    { "Md", TR_DEC_MAGIC_MASTERY, -1 },
     { NULL, 0, -1 }
 };
 
@@ -499,6 +509,27 @@ static flag_insc_table flag_insc_resistance[] =
     { NULL, 0, -1 }
 };
 
+static flag_insc_table flag_insc_vulnerability[] =
+{
+    { "Ac", TR_VULN_ACID, -1 },
+    { "El", TR_VULN_ELEC, -1 },
+    { "Fi", TR_VULN_FIRE, -1 },
+    { "Co", TR_VULN_COLD, -1 },
+    { "Po", TR_VULN_POIS, -1 },
+    { "Li", TR_VULN_LITE, -1 },
+    { "Dk", TR_VULN_DARK, -1 },
+    { "Sh", TR_VULN_SHARDS, -1 },
+    { "Bl", TR_VULN_BLIND, -1 },
+    { "Cf", TR_VULN_CONF, -1 },
+    { "So", TR_VULN_SOUND, -1 },
+    { "Nt", TR_VULN_NETHER, -1 },
+    { "Nx", TR_VULN_NEXUS, -1 },
+    { "Ca", TR_VULN_CHAOS, -1 },
+    { "Di", TR_VULN_DISEN, -1 },
+    { "Fe", TR_VULN_FEAR, -1 },
+    { NULL, 0, -1 }
+};
+
 static flag_insc_table flag_insc_misc[] =
 {
     { "Es", TR_EASY_SPELL, -1 },
@@ -530,9 +561,11 @@ static flag_insc_table flag_insc_aura[] =
     { "E", TR_SH_ELEC, -1 },
     { "C", TR_SH_COLD, -1 },
     { "Sh", TR_SH_SHARDS, -1 },
+    { "At", TR_SH_REVENGE, -1 },
     { "M", TR_NO_MAGIC, -1 },
     { "T", TR_NO_TELE, -1 },
     { "Sm", TR_NO_SUMMON, -1 },
+    { "Mr", TR_MAGIC_RESISTANCE, -1 },
     { NULL, 0, -1 }
 };
 
@@ -547,6 +580,7 @@ static flag_insc_table flag_insc_brand[] =
     { "V", TR_VAMPIRIC, -1 },
     { "Q", TR_IMPACT, -1 },
     { "S", TR_VORPAL, -1 },
+    { "S", TR_VORPAL2, -1 },
     { "M", TR_FORCE_WEAPON, -1 },
     { NULL, 0, -1 }
 };
@@ -690,6 +724,18 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
     /* Plusses */
     ptr = inscribe_flags_aux(flag_insc_plus, flgs, ptr);
 
+    /* Minusses */
+    if (have_flag_of(flag_insc_minus, flgs))
+    {
+        if (ptr != prev_ptr)
+        {
+            ADD_INSC(";");
+            prev_ptr = ptr;
+        }
+        ADD_INSC("-");
+    }
+    ptr = inscribe_flags_aux(flag_insc_minus, flgs, ptr);
+
     /* Immunity */
     if (have_flag_of(flag_insc_immune, flgs))
     {
@@ -701,6 +747,18 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
         ADD_INSC("*");
     }
     ptr = inscribe_flags_aux(flag_insc_immune, flgs, ptr);
+
+    /* Vulnerability */
+    if (have_flag_of(flag_insc_vulnerability, flgs))
+    {
+        if (ptr != prev_ptr)
+        {
+            ADD_INSC(";");
+            prev_ptr = ptr;
+        }
+        ADD_INSC("-");
+    }
+    ptr = inscribe_flags_aux(flag_insc_vulnerability, flgs, ptr);
 
     /* Resistance */
     if (have_flag_of(flag_insc_resistance, flgs))
@@ -1090,59 +1148,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             break;
         }
 
-        /* Amulets (including a few "Specials") */
         case TV_AMULET:
-        {
-            /* Known artifacts */
-            if (aware)
-            {
-                if (object_is_fixed_artifact(o_ptr)) break;
-                if (k_ptr->gen_flags & TRG_INSTA_ART) break;
-                if (object_is_artifact(o_ptr))
-                {
-                    basenm = "& Amulet~";
-                    kindname = "";
-                    break;
-                }
-            }
-
-            /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
-
-            if (!flavor)    basenm = "& Amulet~ of %";
-            else if (aware) basenm = "& # Amulet~ of %";
-            else            basenm = "& # Amulet~";
-            break;
-        }
-
-        /* Rings (including a few "Specials") */
         case TV_RING:
-        {
-            /* Known artifacts */
-            if (aware)
-            {
-                if (object_is_fixed_artifact(o_ptr)) break;
-                if (k_ptr->gen_flags & TRG_INSTA_ART) break;
-                if (object_is_artifact(o_ptr))
-                {
-                    basenm = "& Ring~";
-                    kindname = "";
-                    if (o_ptr->to_h || o_ptr->to_d)
-                        show_weapon = TRUE;
-                    break;
-                }
-            }
-
-            /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
-
-            if (!flavor)    basenm = "& Ring~ of %";
-            else if (aware) basenm = "& # Ring~ of %";
-            else            basenm = "& # Ring~";
-            if (!k_ptr->to_h && !k_ptr->to_d && (o_ptr->to_h || o_ptr->to_d)) 
+            if (o_ptr->to_h || o_ptr->to_d)
                 show_weapon = TRUE;
             break;
-        }
 
         case TV_CARD:
         {
@@ -1385,6 +1395,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (aware && have_flag(flgs, TR_FULL_NAME))
     {
         if (known && o_ptr->name1) basenm = a_name + a_info[o_ptr->name1].name;
+        else if (known && o_ptr->name2) basenm = e_name + e_info[o_ptr->name2].name;
         else basenm = kindname;
     }
 
@@ -1768,6 +1779,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         break;
     }
 
+    if (mode & OD_NAME_AND_DICE) goto object_desc_done;
 
     /* Add the weapon bonuses */
     if (known)
@@ -1987,27 +1999,19 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                     /* Display prettily. */
                     t = object_desc_str(t, " (");
                     t = object_desc_num(t, power);
-                    #ifdef _DEBUG
-                    t = object_desc_str(t, format(" charging: %d turns)", o_ptr->timeout - (power - 1)*k_ptr->pval));
-                    #else
                     t = object_desc_str(t, " charging)");
-                    #endif
                 }
 
                 /* "one Rod of Perception (1 charging)" would look tacky. */
                 else
                 {
-                    #ifdef _DEBUG
-                    t = object_desc_str(t, format(" (charging: %d turns)", o_ptr->timeout));
-                    #else
                     t = object_desc_str(t, " (charging)");
-                    #endif
                 }
             }
         }
 
         /* Dump "pval" flags for wearable items */
-        if (have_pval_flags(flgs))
+        if (have_pval_flags(flgs) && o_ptr->pval)
         {
             /* Start the display */
             t = object_desc_chr(t, ' ');
@@ -2072,11 +2076,21 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             else
                 t = object_desc_str(t, format(" <%d%%>", pct));
         }
+        else if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
+        {
+            int pct = device_power_aux(100, -o_ptr->pval) - 100;
+            t = object_desc_str(t, format(" <%d%%>", pct));
+        }
 
         if (have_flag(flgs, TR_SPELL_POWER))
         {
-            int pct = spell_power_aux(100, -o_ptr->pval) - 100;
+            int pct = spell_power_aux(100, o_ptr->pval) - 100;
             t = object_desc_str(t, format(" <+%d%%>", pct));
+        }
+        else if (have_flag(flgs, TR_DEC_SPELL_POWER))
+        {
+            int pct = spell_power_aux(100, -o_ptr->pval) - 100;
+            t = object_desc_str(t, format(" <%d%%>", pct));
         }
 
         if (have_flag(flgs, TR_SPELL_CAP))
@@ -2087,6 +2101,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             else
                 t = object_desc_str(t, format(" [%d%%]", pct));
         }
+        else if (have_flag(flgs, TR_DEC_SPELL_CAP))
+        {
+            int pct = spell_cap_aux(100, -o_ptr->pval) - 100;
+            t = object_desc_str(t, format(" [%d%%]", pct));
+        }
 
         /* Hack -- Process Lanterns/Torches */
         if ((o_ptr->tval == TV_LITE) && (!(o_ptr->name1 || o_ptr->art_name || (o_ptr->sval == SV_LITE_FEANOR))))
@@ -2094,7 +2113,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             /* Hack -- Turns of light for normal lites */
             t = object_desc_str(t, " (with ");
 
-            if (o_ptr->name2 == EGO_LITE_LONG) t = object_desc_num(t, o_ptr->xtra4 * 2);
+            if (o_ptr->name2 == EGO_LITE_DURATION) t = object_desc_num(t, o_ptr->xtra4 * 2);
             else t = object_desc_num(t, o_ptr->xtra4);
             t = object_desc_str(t, " turns of light)");
         }
@@ -2159,10 +2178,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Note "unidentified" if the item is unidentified */
-    else if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)
-           || (o_ptr->tval == TV_LITE) || (o_ptr->tval == TV_FIGURINE))
-         && aware && !known
-         && !(o_ptr->ident & IDENT_SENSE))
+    else if ( (o_ptr->tval == TV_LITE || o_ptr->tval == TV_FIGURINE)
+           && aware 
+           && !known
+           && !(o_ptr->ident & IDENT_SENSE) )
     {
         strcpy(fake_insc_buf, "unidentified");
     }

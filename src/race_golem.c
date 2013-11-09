@@ -568,7 +568,7 @@ race_t *mon_golem_get_race_t(int psubrace)
         me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
         me.base_hp = 50;
         me.boss_r_idx = MON_DESTROYER;
-
+        me.pseudo_class_idx = CLASS_MAULER;
     }
 
     me.subname = _mon_name(p_ptr->current_r_idx);
@@ -610,6 +610,7 @@ race_t *mon_golem_get_race_t(int psubrace)
         me.exp = 200;
         break;
     }
+
 
     return &me;
 }

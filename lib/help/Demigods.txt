@@ -193,8 +193,9 @@
   [[[[r|Black Marketeer    | You will gain favorable pricing in the black market.
   [[[[r|Speed Reader       | You will be able to read scrolls much faster than normal.
   [[[[r|Fell Sorcery       | Your spells will grow more powerful.
+  [[[[r|Tread Softly       | Your stealth will increase.
 
 
 
 
-[[[[s|  Automatically generated for PosChengband 2.0.0.
+[[[[s|  Automatically generated for PosChengband 3.0.0.

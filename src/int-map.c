@@ -1,5 +1,6 @@
 #include "int-map.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,6 +24,14 @@ struct int_map_s
     int          count;
     free_value_f free;
 };
+
+struct int_map_iter_s
+{
+    int_map_ptr map;
+    int bucket;
+    _node_ptr node;
+};
+
 
 static int _primes[] = {
     0,
@@ -259,4 +268,75 @@ void int_map_clear(int_map_ptr map)
 int int_map_count(int_map_ptr map)
 {
     return map->count;
+}
+
+/* Iteration */
+int_map_iter_ptr int_map_iter_alloc(int_map_ptr map)
+{
+    int_map_iter_ptr result = malloc(sizeof(int_map_iter_t));
+
+    assert(map);
+
+    result->map = map;
+    result->bucket = 0;
+    result->node = 0;
+
+    if (map->count)
+    {
+        int prime = _primes[map->prime_idx];
+        int i;
+
+        for (i = 0; i < prime; i++)
+        {
+            result->bucket = i;
+            result->node = map->buckets[i];
+            if (result->node)
+                break;
+        }
+    }
+    return result;
+}
+
+void int_map_iter_free(int_map_iter_ptr iter)
+{
+    assert(iter);
+    free(iter);
+}
+
+int int_map_iter_is_valid(int_map_iter_ptr iter)
+{
+    assert(iter);
+    return iter->node != 0;
+}
+
+vptr int_map_iter_current(int_map_iter_ptr iter)
+{
+    assert(int_map_iter_is_valid(iter));
+    return iter->node->val;
+}
+
+int int_map_iter_current_key(int_map_iter_ptr iter)
+{
+    assert(int_map_iter_is_valid(iter));
+    return iter->node->key;
+}
+
+void int_map_iter_next(int_map_iter_ptr iter)
+{
+    assert(int_map_iter_is_valid(iter));
+
+    iter->node = iter->node->next;
+    if (!iter->node)
+    {
+        int prime = _primes[iter->map->prime_idx];
+        int i;
+
+        for (i = iter->bucket + 1; i < prime; i++)
+        {
+            iter->bucket = i;
+            iter->node = iter->map->buckets[i];
+            if (iter->node)
+                break;
+        }
+    }
 }

@@ -38,8 +38,8 @@ F:u:FLOOR:8:194
 F:j:FLOOR:8:286
 
 # The doors, floors and treasures
-# Floor with amulet of Anti-Teleportation
-F:":FLOOR:8:0:522
+# Floor with a Barbarian Talisman
+F:":FLOOR:8:0:163:320
 
 # Normal floor
 F: :FLOOR:8

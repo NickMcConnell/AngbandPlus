@@ -538,17 +538,12 @@ static void _birth(void)
     p_ptr->current_r_idx = MON_CAVE_SPIDER;
     equip_on_change_race();
     
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DEX));
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
+    forge.to_h = 7;
+    forge.to_d = 2;
     forge.pval = 1;
-    add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
-    forge.to_d = 3;
-    add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_SEARCHING));
-    forge.pval = 1;
-    forge.name2 = EGO_RING_STEALTH;
+    add_flag(forge.art_flags, TR_DEX);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
@@ -588,6 +583,7 @@ race_t *mon_spider_get_race_t(void)
     result->gain_level = _gain_level;
     result->birth = _birth;
     result->base_hp = 25;
+    result->pseudo_class_idx = CLASS_ROGUE;
 
     result->boss_r_idx = MON_UNGOLIANT;
     return result;

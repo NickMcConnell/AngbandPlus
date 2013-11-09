@@ -2022,40 +2022,40 @@ static bool mon_hook_floor(int r_idx)
         return FALSE;
 }
 
+monster_hook_type get_wilderness_monster_hook(int x, int y)
+{
+    switch (wilderness[y][x].terrain)
+    {
+    case TERRAIN_TOWN:
+        return mon_hook_town;
+    case TERRAIN_DEEP_WATER:
+        return mon_hook_ocean;
+    case TERRAIN_SHALLOW_WATER:
+    case TERRAIN_SWAMP:
+        return mon_hook_shore;
+    case TERRAIN_DIRT:
+    case TERRAIN_DESERT:
+        return mon_hook_waste;
+    case TERRAIN_GRASS:
+        return mon_hook_grass;
+    case TERRAIN_TREES:
+        return mon_hook_wood;
+    case TERRAIN_SHALLOW_LAVA:
+    case TERRAIN_DEEP_LAVA:
+        return mon_hook_volcano;
+    case TERRAIN_MOUNTAIN:
+        return mon_hook_mountain;
+    default:
+        return mon_hook_dungeon;
+    }
+}
 
 monster_hook_type get_monster_hook(void)
 {
     if (!dun_level && !p_ptr->inside_quest)
-    {
-        switch (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
-        {
-        case TERRAIN_TOWN:
-            return (monster_hook_type)mon_hook_town;
-        case TERRAIN_DEEP_WATER:
-            return (monster_hook_type)mon_hook_ocean;
-        case TERRAIN_SHALLOW_WATER:
-        case TERRAIN_SWAMP:
-            return (monster_hook_type)mon_hook_shore;
-        case TERRAIN_DIRT:
-        case TERRAIN_DESERT:
-            return (monster_hook_type)mon_hook_waste;
-        case TERRAIN_GRASS:
-            return (monster_hook_type)mon_hook_grass;
-        case TERRAIN_TREES:
-            return (monster_hook_type)mon_hook_wood;
-        case TERRAIN_SHALLOW_LAVA:
-        case TERRAIN_DEEP_LAVA:
-            return (monster_hook_type)mon_hook_volcano;
-        case TERRAIN_MOUNTAIN:
-            return (monster_hook_type)mon_hook_mountain;
-        default:
-            return (monster_hook_type)mon_hook_dungeon;
-        }
-    }
+        return get_wilderness_monster_hook(p_ptr->wilderness_x, p_ptr->wilderness_y);
     else
-    {
         return (monster_hook_type)mon_hook_dungeon;
-    }
 }
 
 
