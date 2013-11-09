@@ -19,53 +19,54 @@
  * Macros for Keywords
  */
 #define FLG_ALL              0 
-#define FLG_UNAWARE         1 
+#define FLG_UNAWARE          1 
 #define FLG_UNIDENTIFIED     2 
-#define FLG_IDENTIFIED         3 
+#define FLG_IDENTIFIED       3 
 #define FLG_STAR_IDENTIFIED  4 
-#define FLG_COLLECTING         5 
+#define FLG_COLLECTING       5 
 #define FLG_ARTIFACT         6 
-#define FLG_EGO             7 
-#define FLG_GOOD         10
-#define FLG_NAMELESS         11
+#define FLG_EGO              7 
+#define FLG_MORE_LEVEL       8
+#define FLG_GOOD            10
+#define FLG_NAMELESS        11
 #define FLG_AVERAGE         12
-#define FLG_WORTHLESS         13
-#define FLG_RARE         14
-#define FLG_COMMON         15
+#define FLG_WORTHLESS       13
+#define FLG_RARE            14
+#define FLG_COMMON          15
 #define FLG_BOOSTED         16
-#define FLG_MORE_DICE         17
-#define FLG_MORE_BONUS         18 
-#define FLG_WANTED         19
-#define FLG_UNIQUE         20
-#define FLG_HUMAN         21
-#define FLG_UNREADABLE         22
-#define FLG_REALM1         23
-#define FLG_REALM2         24
-#define FLG_FIRST         25
-#define FLG_SECOND         26
-#define FLG_THIRD         27
-#define FLG_FOURTH         28
+#define FLG_MORE_DICE       17
+#define FLG_MORE_BONUS      18 
+#define FLG_WANTED          19
+#define FLG_UNIQUE          20
+#define FLG_HUMAN           21
+#define FLG_UNREADABLE      22
+#define FLG_REALM1          23
+#define FLG_REALM2          24
+#define FLG_FIRST           25
+#define FLG_SECOND          26
+#define FLG_THIRD           27
+#define FLG_FOURTH          28
 
-#define FLG_ITEMS         30
+#define FLG_ITEMS           30
 #define FLG_WEAPONS         31
 #define FLG_FAVORITE_WEAPONS 32
-#define FLG_ARMORS         33
-#define FLG_MISSILES         34
+#define FLG_ARMORS          33
+#define FLG_MISSILES        34
 #define FLG_DEVICES         35
-#define FLG_LIGHTS         36
-#define FLG_JUNKS         37
+#define FLG_LIGHTS          36
+#define FLG_JUNKS           37
 #define FLG_CORPSES         38
-#define FLG_SPELLBOOKS         39
-#define FLG_HAFTED         40
+#define FLG_SPELLBOOKS      39
+#define FLG_HAFTED          40
 #define FLG_SHIELDS         41
-#define FLG_BOWS         42
-#define FLG_RINGS         43
+#define FLG_BOWS            42
+#define FLG_RINGS           43
 #define FLG_AMULETS         44
-#define FLG_SUITS         45
-#define FLG_CLOAKS         46
-#define FLG_HELMS         47
-#define FLG_GLOVES         48
-#define FLG_BOOTS            49
+#define FLG_SUITS           45
+#define FLG_CLOAKS          46
+#define FLG_HELMS           47
+#define FLG_GLOVES          48
+#define FLG_BOOTS           49
 
 #define FLG_NOUN_BEGIN      FLG_ITEMS
 #define FLG_NOUN_END        FLG_BOOTS
@@ -90,6 +91,7 @@ static char KEY_MORE_THAN[] =  "more than";
 static char KEY_DICE[] =  " dice";
 static char KEY_MORE_BONUS[] =  "more bonus than";
 static char KEY_MORE_BONUS2[] =  "";
+static char KEY_MORE_LEVEL[] =  "more level than";
 static char KEY_WANTED[] = "wanted";
 static char KEY_UNIQUE[] = "unique monster's";
 static char KEY_HUMAN[] = "human";
@@ -278,6 +280,31 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
             {
                 if (' ' == *ptr) ptr++;
                 ADD_FLG(FLG_MORE_BONUS);
+            }
+            else
+                ptr = prev_ptr;
+        }
+
+        if (MATCH_KEY2(KEY_MORE_LEVEL))
+        {
+            int k = 0;
+            entry->bonus = 0;
+
+            /* Drop leading spaces */
+            while (' ' == *ptr) ptr++;
+
+            /* Read number */
+            while ('0' <= *ptr && *ptr <= '9')
+            {
+                entry->bonus = 10 * entry->bonus + (*ptr - '0');
+                ptr++;
+                k++;
+            }
+
+            if (k > 0 && k <= 2)
+            {
+                if (' ' == *ptr) ptr++;
+                ADD_FLG(FLG_MORE_LEVEL);
             }
             else
                 ptr = prev_ptr;
@@ -824,6 +851,12 @@ cptr autopick_line_from_entry(autopick_type *entry)
         ADD_KEY(KEY_MORE_BONUS2);
     }
 
+    if (IS_FLG(FLG_MORE_LEVEL))
+    {
+        ADD_KEY(KEY_MORE_LEVEL);
+        strcat(ptr, format("%d ", entry->bonus));
+    }
+
     if (IS_FLG(FLG_UNREADABLE)) ADD_KEY(KEY_UNREADABLE);
     if (IS_FLG(FLG_REALM1)) ADD_KEY(KEY_REALM1);
     if (IS_FLG(FLG_REALM2)) ADD_KEY(KEY_REALM2);
@@ -983,29 +1016,47 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Weapons which dd*ds is more than nn ***/
     if (IS_FLG(FLG_MORE_DICE))
     {
-        if (o_ptr->dd * o_ptr->ds < entry->dice)
+        if (o_ptr->dd * o_ptr->ds <= entry->dice)
             return FALSE;
     }
                 
-    /*** Weapons whic dd*ds is more than nn ***/
+    /*** Objects with pval is more than nn ***/
     if (IS_FLG(FLG_MORE_BONUS))
     {
         if (!object_is_known(o_ptr)) return FALSE;
 
         if (o_ptr->pval)
         {
-            if (o_ptr->pval < entry->bonus) return FALSE;
+            if (o_ptr->pval <= entry->bonus) return FALSE;
         }
         else
         {
-            if (o_ptr->to_h < entry->bonus &&
-                o_ptr->to_d < entry->bonus &&
-                o_ptr->to_a < entry->bonus &&
-                o_ptr->pval < entry->bonus)
+            if (o_ptr->to_h <= entry->bonus &&
+                o_ptr->to_d <= entry->bonus &&
+                o_ptr->to_a <= entry->bonus &&
+                o_ptr->pval <= entry->bonus)
                 return FALSE;
         }
     }
-                
+
+    /* I added this for The Possessor, who quickly loses interest in
+       the corpses of weak monsters ... */
+    if (IS_FLG(FLG_MORE_LEVEL))
+    {
+        if (o_ptr->tval == TV_CORPSE)
+        {
+            monster_race *r_ptr = &r_info[o_ptr->pval];
+            if (r_ptr->level <= entry->bonus)
+                return FALSE;
+        }
+        else
+        {
+            object_kind *k_ptr = &k_info[o_ptr->k_idx];
+            if (k_ptr->level <= entry->bonus)
+                return FALSE;
+        }
+    }                
+
     /*** Worthless items ***/
     if (IS_FLG(FLG_WORTHLESS) && object_value(o_ptr) > 0)
         return FALSE;
@@ -2238,6 +2289,13 @@ static void describe_autopick(char *buff, autopick_type *entry)
         sprintf(more_bonus_desc_str + sizeof(more_bonus_desc_str) - 4,
             "%d)", entry->bonus);
         whose_str[whose_n++] = more_bonus_desc_str;
+    }
+
+    if (IS_FLG(FLG_MORE_LEVEL))
+    {
+        static char more_level_desc_str[50];
+        sprintf(more_level_desc_str, "level is bigger than %d", entry->bonus);
+        whose_str[whose_n++] = more_level_desc_str;
     }
 
     /*** Wanted monster's corpse/skeletons ***/

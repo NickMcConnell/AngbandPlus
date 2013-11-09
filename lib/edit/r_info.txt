@@ -6879,10 +6879,10 @@ F:BASH_DOOR | CAN_FLY | WILD_WOOD | RIDING
 F:EVIL
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Warrior
-P:Body:Centaur
+P:Body:Hound
 S:1_IN_5 | 
 S:SHOOT
-D:It is a winged lion's body with a human torso and a tail covered in 
+D:It is a winged lion's body with a human head and a tail covered in 
 D:vicious spikes.
 
 N:473:Giant army ant
@@ -13510,10 +13510,14 @@ B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 F:UNIQUE | MALE | CAN_SPEAK | SMART | AMBERITE | RES_TELE | HAS_LITE_2 |
-F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON
+F:OPEN_DOOR | BASH_DOOR | 
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | HUMAN |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
 F:EVIL | IM_COLD | IM_POIS | IM_ACID | IM_ELEC | IM_FIRE | REGENERATE
+F:DROP_CORPSE | DROP_SKELETON
+P:Copy:Amberite:Paladin
+P:Life:105
+P:Body:Benedict
 S:1_IN_4 |
 S:SCARE | CONF | TPORT | TELE_TO | DRAIN_MANA | TRAPS | BRAIN_SMASH |
 S:TELE_AWAY | CAUSE_4 | S_MONSTERS |
@@ -13526,8 +13530,6 @@ D:Legend of Sleepy Hollow. He had a long, strong jaw and hazel eyes and
 D:brown hair that never curled. He stood beside a tan horse and leaned 
 D:upon a lance about which was twined a rope of flowers. He seldom 
 D:laughed."
-P:Copy:Amberite:Paladin
-P:Life:105
 
 N:825:The Witch-King of Angmar
 G:W:D

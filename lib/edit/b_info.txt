@@ -678,3 +678,14 @@ S:BOOTS:Back Paws
 
 N:64:Death-Sword
 S:WEAPON:You
+
+N:65:Benedict
+S:WEAPON_SHIELD:Right Hand
+S:BOW:Shooting
+S:RING:Right Ring
+S:AMULET:Neck
+S:LITE:Light
+S:BODY_ARMOR:Body
+S:CLOAK:Cloak
+S:HELMET:Head
+S:BOOTS:Feet

@@ -179,7 +179,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:42
 
 # Ring of Damage
-?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Spider] ]
+?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Possessor Spider] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:151
 

@@ -2886,6 +2886,9 @@ static void calc_hitpoints(void)
     mhp += class_ptr->base_hp;
     mhp += race_ptr->base_hp;
 
+    if (mhp < 1)
+        mhp = 1;
+
     if (IS_HERO()) mhp += 10;
     if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;
     if (p_ptr->tsuyoshi) mhp += 50;

@@ -459,15 +459,32 @@ static void _show_help(cptr helpfile)
 static void _possessor_stats_help(FILE* fff)
 {
     int i;
-    fprintf(fff, "Name,Lvl,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
+    fprintf(fff, "Name,Lvl,Speed,AC,Attacks,Dam,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
     for (i = 0; i < max_r_idx; i++)
     {
         monster_race *r_ptr = &r_info[i];
 
         if (r_ptr->flags9 & RF9_DROP_CORPSE)
         {
-            fprintf(fff, "\"%s\",%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,=\"%d+%d\",=\"%d+%d\"\n", 
-                r_name + r_ptr->name, r_ptr->level, b_name + b_info[r_ptr->body.body_idx].name,
+            int ac = 0, dam = 0, attacks = 0, j;
+
+            if (r_ptr->flags9 & RF9_POS_GAIN_AC)
+                ac = r_ptr->ac;
+
+            for (j = 0; j < 4; j++)
+            {
+                if (!r_ptr->blow[j].effect) continue;
+                if (r_ptr->blow[j].method == RBM_EXPLODE) continue;
+                if (r_ptr->blow[j].method == RBM_SHOOT) continue;
+
+                dam += r_ptr->blow[j].d_dice * (r_ptr->blow[j].d_side + 1) / 2;
+                attacks++;
+            }
+
+            fprintf(fff, "\"%s\",%d,%d,%d,%d,%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,=\"%d+%d\",=\"%d+%d\"\n", 
+                r_name + r_ptr->name, r_ptr->level, 
+                r_ptr->speed - 110, ac, attacks, dam,
+                b_name + b_info[r_ptr->body.body_idx].name,
                 r_ptr->body.stats[A_STR], r_ptr->body.stats[A_INT], r_ptr->body.stats[A_WIS],
                 r_ptr->body.stats[A_DEX], r_ptr->body.stats[A_CON], r_ptr->body.stats[A_CHR],
                 r_ptr->body.life,
@@ -488,11 +505,11 @@ void generate_spoilers(void)
 {
     spoiler_hack = TRUE;
 
-    _text_file("Races.txt", _races_help);
+    /*_text_file("Races.txt", _races_help);
     _text_file("MonsterRaces.txt", _monster_races_help);
     _text_file("Demigods.txt", _demigods_help);
     _text_file("Classes.txt", _classes_help);
-    _text_file("Personalities.txt", _personalities_help);
+    _text_file("Personalities.txt", _personalities_help);*/
     _text_file("PossessorStats.csv", _possessor_stats_help);
 
 /*    _show_help("Personalities.txt"); */
