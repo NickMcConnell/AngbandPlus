@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 25
-#define VER_EXTRA 1
+#define VER_PATCH 26
+#define VER_EXTRA 0
 
 
 /*
@@ -677,26 +677,27 @@
 #define RACE_MON_LEPRECHAUN     49
 #define RACE_MON_TROLL          50
 #define RACE_CENTAUR            51
+#define RACE_MON_ELEMENTAL      52
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  * Note other races exist, and use constants beginning at MIMIC_MIN
  */
-#define MAX_RACES               52
+#define MAX_RACES               53
 
-#define DEMIGOD_MINOR            0
+#define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
 #define DEMIGOD_POSEIDON        2
-#define DEMIGOD_HADES            3
-#define DEMIGOD_ATHENA            4
+#define DEMIGOD_HADES           3
+#define DEMIGOD_ATHENA          4
 #define DEMIGOD_ARES            5
-#define DEMIGOD_HERMES            6
-#define DEMIGOD_APOLLO            7
-#define DEMIGOD_ARTEMIS            8
-#define DEMIGOD_HEPHAESTUS        9
+#define DEMIGOD_HERMES          6
+#define DEMIGOD_APOLLO          7
+#define DEMIGOD_ARTEMIS         8
+#define DEMIGOD_HEPHAESTUS      9
 #define DEMIGOD_HERA            10
-#define DEMIGOD_DEMETER            11
-#define DEMIGOD_APHRODITE        12
+#define DEMIGOD_DEMETER         11
+#define DEMIGOD_APHRODITE       12
 
 #define MAX_DEMIGOD_TYPES        13
 #define MAX_DEMIGOD_POWERS        5
@@ -739,6 +740,12 @@
 #define TROLL_KING     3
 #define TROLL_MAX      4
 
+#define ELEMENTAL_EARTH   0
+#define ELEMENTAL_AIR     1
+#define ELEMENTAL_WATER   2
+#define ELEMENTAL_FIRE    3
+#define ELEMENTAL_MAX     4
+
 /* TODO */
 #define RACE_IS_NONLIVING    0x0001
 #define RACE_IS_DEMON        0x0002
@@ -771,6 +778,7 @@
 #define dragon_is_(B) (prace_is_(RACE_MON_DRAGON) && p_ptr->psubrace == (B))
 #define giant_is_(B) (prace_is_(RACE_MON_GIANT) && p_ptr->psubrace == (B))
 #define demon_is_(B) (prace_is_(RACE_MON_DEMON) && p_ptr->psubrace == (B))
+#define elemental_is_(B) (prace_is_(RACE_MON_ELEMENTAL) && p_ptr->psubrace == (B))
 
 
 /*
@@ -1543,23 +1551,27 @@
 
 #define ART_HOLY_GRAIL      293
 
-#define ART_UBBO_SATHLA 298
-#define ART_UNGOLIANT   299
-#define ART_GLAURUNG    300
-#define ART_VECNA       301
-#define ART_CARCHAROTH  302
-#define ART_YMIR        303
-#define ART_RAIJIN      304
-#define ART_KRONOS      305
-#define ART_OMARAX      306
-#define ART_LERNEAN     307
-#define ART_FANG        308
-#define ART_WOLF        309
-#define ART_GRIP        310
-#define ART_OREMORJ     311
-#define ART_KHORNE      312
-#define ART_MEPHISTOPHELES 313
-#define ART_ULIK        314
+#define ART_UBBO_SATHLA     298
+#define ART_UNGOLIANT       299
+#define ART_GLAURUNG        300
+#define ART_VECNA           301
+#define ART_CARCHAROTH      302
+#define ART_YMIR            303
+#define ART_RAIJIN          304
+#define ART_KRONOS          305
+#define ART_OMARAX          306
+#define ART_LERNEAN         307
+#define ART_FANG            308
+#define ART_WOLF            309
+#define ART_GRIP            310
+#define ART_OREMORJ         311
+#define ART_KHORNE          312
+#define ART_MEPHISTOPHELES  313
+#define ART_ULIK            314
+#define ART_QUAKER          315
+#define ART_ARIEL           316
+#define ART_MOIRE           317
+#define ART_LOGE            318
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -3604,6 +3616,7 @@
 #define AM_CURSED       0x00000010 /* Generate cursed/worthless items */
 #define AM_CRAFTING     0x00000020
 #define AM_AVERAGE      0x00000040
+#define AM_TAILORED     0x00000080 /* For player monster races to force a wearable item */
 
 
 /*** Monster blow constants ***/
@@ -5061,101 +5074,105 @@ extern int PlayerUID;
 #define MS_S_HI_DRAGON    93
 #define MS_S_AMBERITE     94
 #define MS_S_UNIQUE       95
-#define MS_THROW        96
+#define MS_THROW          96
 
 
-#define MON_BEGGAR        12
-#define MON_LEPER         13
-#define MON_BLACK_MARKET  14
-#define MON_GHB           39
-#define MON_NOV_PRIEST    45
-#define MON_GRIP          53
-#define MON_WOLF          54
-#define MON_FANG          55
-#define MON_CAVE_SPIDER   60
-#define MON_SMEAGOL       63
-#define MON_LOUSE         69
-#define MON_PIRANHA       70
-#define MON_COPPER_COINS  85
-#define MON_NOV_PALADIN   97
-#define MON_GREEN_G       100
-#define MON_NOV_PRIEST_G  109
-#define MON_SILVER_COINS  117
-#define MON_D_ELF         122
-#define MON_MANES         128
-#define MON_LOST_SOUL     133
-#define MON_ROBIN_HOOD    138
-#define MON_NOV_PALADIN_G 147
-#define MON_PHANTOM_W     152
-#define MON_WOUNDED_BEAR  159
-#define MON_GIANT_SPIDER  175
-#define MON_D_ELF_MAGE    178
-#define MON_D_ELF_WARRIOR 182
-#define MON_GIANT_PIRANHA 187
-#define MON_BLUE_HORROR   189
-#define MON_PSEUDO_DRAGON         193
-#define MON_GOLD_COINS    195
-#define MON_VORPAL_BUNNY  205
-#define MON_GAZER 218
-#define MON_PRIEST        225
-#define MON_D_ELF_PRIEST  226
-#define MON_TIGER         230
-#define MON_MITHRIL_COINS 239
-#define MON_DRUID         241
-#define MON_PINK_HORROR   242
-#define MON_SOFTWARE_BUG  246
-#define MON_HILL_GIANT    255
-#define MON_MAGIC_MUSHROOM 267
-#define MON_WERERAT       270
-#define MON_LIGHT_HOUND       271
-#define MON_SHADOW_HOUND      272
-#define MON_FROST_GIANT 278
-#define MON_CLEAR_HOUND       282
-#define MON_UMBER_HULK    283
-#define MON_ORC_CAPTAIN   285
-#define MON_GELATINOUS_CUBE 286
-#define MON_FIRE_GIANT 288
-#define MON_BERSERKER     293
-#define MON_QUASIT 294
-#define MON_FOREST_TROLL 297
-#define MON_TWO_HEADED_HYDRA 301
-#define MON_FIRE_HOUND        307
-#define MON_COLD_HOUND        308
-#define MON_ENERGY_HOUND      309
-#define MON_SHAGRAT       314
-#define MON_GORBAG        315
-#define MON_STONE_GIANT   321
-#define MON_PHASE_SPIDER  331
-#define MON_EARTH_HOUND       337
-#define MON_AIR_HOUND         338
-#define MON_WATER_HOUND       340
-#define MON_D_ELF_LORD    348
-#define MON_CLOUD_GIANT 349
-#define MON_FIRE_VOR      354
-#define MON_WATER_VOR     355
-#define MON_ARCH_VILE     357
-#define MON_COLD_VOR      358
-#define MON_ENERGY_VOR    359
-#define MON_IRON_GOLEM    367
-#define MON_JADE_MONK     370
-#define MON_BLACK_OOZE    371
-#define MON_FLESHHOUND_KHORNE  374
-#define MON_D_ELF_WARLOCK 375
-#define MON_HAGEN         383
-#define MON_MENELDOR      384
-#define MON_PHANTOM_B     385
-#define MON_FOUR_HEADED_HYDRA 387
-#define MON_C_CRAWLER     395
-#define MON_XICLOTLAN     396
-#define MON_D_ELF_DRUID   400
-#define MON_STONE_TROLL  401
-#define MON_TROLL_PRIEST  403
-#define MON_GWAIHIR       410
-#define MON_ANGEL         417
-#define MON_ADAMANT_COINS 423
-#define MON_ALGROTH      424
-#define MON_VIBRATION_HOUND   428
-#define MON_NEXUS_HOUND       429
+#define MON_BEGGAR              12
+#define MON_LEPER               13
+#define MON_BLACK_MARKET        14
+#define MON_GHB                 39
+#define MON_NOV_PRIEST          45
+#define MON_GRIP                53
+#define MON_WOLF                54
+#define MON_FANG                55
+#define MON_CAVE_SPIDER         60
+#define MON_SMEAGOL             63
+#define MON_LOUSE               69
+#define MON_PIRANHA             70
+#define MON_COPPER_COINS        85
+#define MON_NOV_PALADIN         97
+#define MON_GREEN_G             100
+#define MON_NOV_PRIEST_G        109
+#define MON_SILVER_COINS        117
+#define MON_D_ELF               122
+#define MON_MANES               128
+#define MON_LOST_SOUL           133
+#define MON_ROBIN_HOOD          138
+#define MON_NOV_PALADIN_G       147
+#define MON_PHANTOM_W           152
+#define MON_WOUNDED_BEAR        159
+#define MON_GIANT_SPIDER        175
+#define MON_D_ELF_MAGE          178
+#define MON_D_ELF_WARRIOR       182
+#define MON_GIANT_PIRANHA       187
+#define MON_BLUE_HORROR         189
+#define MON_PSEUDO_DRAGON       193
+#define MON_GOLD_COINS          195
+#define MON_VORPAL_BUNNY        205
+#define MON_GAZER               218
+#define MON_PRIEST              225
+#define MON_D_ELF_PRIEST        226
+#define MON_AIR_SPIRIT          227
+#define MON_TIGER               230
+#define MON_MITHRIL_COINS       239
+#define MON_DRUID               241
+#define MON_PINK_HORROR         242
+#define MON_SOFTWARE_BUG        246
+#define MON_HILL_GIANT          255
+#define MON_MAGIC_MUSHROOM      267
+#define MON_WERERAT             270
+#define MON_LIGHT_HOUND         271
+#define MON_SHADOW_HOUND        272
+#define MON_FROST_GIANT         278
+#define MON_CLEAR_HOUND         282
+#define MON_UMBER_HULK          283
+#define MON_ORC_CAPTAIN         285
+#define MON_GELATINOUS_CUBE     286
+#define MON_FIRE_GIANT          288
+#define MON_BERSERKER           293
+#define MON_QUASIT              294
+#define MON_FOREST_TROLL        297
+#define MON_TWO_HEADED_HYDRA    301
+#define MON_WATER_SPIRIT        303
+#define MON_EARTH_SPIRIT        305
+#define MON_FIRE_SPIRIT         306
+#define MON_FIRE_HOUND          307
+#define MON_COLD_HOUND          308
+#define MON_ENERGY_HOUND        309
+#define MON_SHAGRAT             314
+#define MON_GORBAG              315
+#define MON_STONE_GIANT         321
+#define MON_PHASE_SPIDER        331
+#define MON_EARTH_HOUND         337
+#define MON_AIR_HOUND           338
+#define MON_WATER_HOUND         340
+#define MON_D_ELF_LORD          348
+#define MON_CLOUD_GIANT         349
+#define MON_FIRE_VOR            354
+#define MON_WATER_VOR           355
+#define MON_ARCH_VILE           357
+#define MON_COLD_VOR            358
+#define MON_ENERGY_VOR          359
+#define MON_IRON_GOLEM          367
+#define MON_JADE_MONK           370
+#define MON_BLACK_OOZE          371
+#define MON_FLESHHOUND_KHORNE   374
+#define MON_D_ELF_WARLOCK       375
+#define MON_HAGEN               383
+#define MON_MENELDOR            384
+#define MON_PHANTOM_B           385
+#define MON_FOUR_HEADED_HYDRA   387
+#define MON_C_CRAWLER           395
+#define MON_XICLOTLAN           396
+#define MON_D_ELF_DRUID         400
+#define MON_STONE_TROLL         401
+#define MON_TROLL_PRIEST        403
+#define MON_GWAIHIR             410
+#define MON_ANGEL               417
+#define MON_ADAMANT_COINS       423
+#define MON_ALGROTH             424
+#define MON_VIBRATION_HOUND     428
+#define MON_NEXUS_HOUND         429
 #define MON_SPIRIT_NAGA   436
 #define MON_FIVE_HEADED_HYDRA 440
 #define MON_GACHAPIN      441
@@ -5182,6 +5199,8 @@ extern int PlayerUID;
 #define MON_ETHER_DRAKE   504
 #define MON_GOEMON        505
 #define MON_CHERUB        511
+#define MON_FIRE_ELEMENTAL  510
+#define MON_WATER_ELEMENTAL 512
 #define MON_WATER_ELEM    512
 #define MON_MULTI_HUED_HOUND  513
 #define MON_JURT          517
@@ -5189,6 +5208,8 @@ extern int PlayerUID;
 #define MON_GREATER_MUMMY 522
 #define MON_BLOODLETTER   523
 #define MON_BLOODLETTER_KHORNE 523
+#define MON_EARTH_ELEMENTAL 525
+#define MON_AIR_ELEMENTAL   526
 #define MON_DREAD         534
 #define MON_OLOG         538
 #define MON_HALFLING_S    539
@@ -5207,6 +5228,7 @@ extern int PlayerUID;
 #define MON_BODAK  566
 #define MON_ELDER_THING   569
 #define MON_CRYPT_THING   577
+#define MON_MAGMA_ELEMENTAL 584
 #define MON_NEXUS_VOR     587
 #define MON_PLASMA_VOR    588
 #define MON_TIME_VOR      589
@@ -5218,7 +5240,9 @@ extern int PlayerUID;
 #define MON_ANCIENT_BRONZE_DRAGON 602
 #define MON_BEHOLDER 603
 #define MON_SERAPH        605
+#define MON_LOGE            606
 #define MON_SEVEN_HEADED_HYDRA 614
+#define MON_MOIRE           615
 #define MON_KAVLAX        616
 #define MON_ETTIN         621
 #define MON_NIGHTMARE     622
@@ -5245,8 +5269,10 @@ extern int PlayerUID;
 #define MON_JACK_SHADOWS  670
 #define MON_JUGGERNAUT_KHORNE 672
 #define MON_ETHEREAL_DRAGON       676
+#define MON_QUAKER          679
 #define MON_LLOIGOR       682
 #define MON_SHOGGOTH      685
+#define MON_ARIEL           687
 #define MON_ELEVEN_HEADED_HYDRA 688
 #define MON_DREADMASTER   690
 #define MON_DAWN          693
@@ -5585,6 +5611,8 @@ extern int PlayerUID;
 #define MYSTIC_CONFUSE       62
 #define MYSTIC_KNOCKOUT      63
 #define MYSTIC_KILL          64
+
+#define PY_ATTACK_ACID       65
 
 #define HISSATSU_IAI    100
 

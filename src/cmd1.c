@@ -1039,7 +1039,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             }
 
             /* Brand (Acid) */
-            if (have_flag(flgs, TR_BRAND_ACID) || chaos_slay == TR_BRAND_ACID)
+            if (have_flag(flgs, TR_BRAND_ACID) || mode == PY_ATTACK_ACID || chaos_slay == TR_BRAND_ACID)
             {
                 if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
                 {
@@ -2380,10 +2380,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     is_human = (r_ptr->d_char == 'p');
     is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
 
+    weapon_flags(hand, flgs);
     if (o_ptr)
     {
         object_desc(o_name, o_ptr, OD_NAME_ONLY);
-        object_flags(o_ptr, flgs);
         if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
         {
             dd = 3;
@@ -2803,7 +2803,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     k = k * (5 + randint1(p_ptr->lev/5)) / 3;                    
                 }
 
-                if ( (p_ptr->impact[hand] && (k > 50 || one_in_(7))) 
+                if ( (have_flag(flgs, TR_IMPACT) && (k > 50 || one_in_(7))) 
                   || chaos_effect == 2 
                   || mode == HISSATSU_QUAKE
                   || (mauler_get_toggle() == MAULER_TOGGLE_SHATTER && (k > 50 || one_in_(7))) )
@@ -3560,6 +3560,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     msg_format("%^s appears confused.", m_name);
                     (void)set_monster_confused(c_ptr->m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
                 }
+
+                /* Only try to confuse once */
+                if (mode == HISSATSU_CONF)
+                    mode = 0;
             }
 
             else if (chaos_effect == 4)

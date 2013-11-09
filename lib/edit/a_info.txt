@@ -460,7 +460,7 @@ D:understanding.
 N:38:of Hammerhand
 I:32:6:3
 W:20:2:60:45000
-P:6:1d3:0:0:20
+P:6:1d3:3:4:20
 F:STR | DEX | CON | HIDE_TYPE | RES_ACID | RES_NEXUS
 D:A great helm as steady as the heroes of the Westdike. Mighty were the 
 D:blows of Helm, the Hammerhand!
@@ -3079,6 +3079,38 @@ W:50:50:400:150000
 P:0:5d8:0:25:0
 F:QUESTITEM
 F:STR | CON | KILL_TROLL
+
+N:315:of Quaker, Master of Earth
+I:31:1:2
+W:10:6:5:36000
+P:1:0d0:2:5:19
+F:QUESTITEM
+F:STR | CON | HIDE_TYPE | FREE_ACT | SHOW_MODS | IMPACT | RES_SHARDS
+
+N:316:of Ariel, Queen of Air
+I:35:5:3
+W:50:3:0:45000
+P:0:0d0:0:0:15
+F:QUESTITEM
+F:LEVITATION | SEE_INVIS | FREE_ACT |
+F:RES_COLD | RES_ELEC | SPEED | DEX
+
+N:317:of Moire, Queen of Rebma
+I:33:11:2
+W:40:40:30:125000
+P:0:1d1:0:0:15
+F:QUESTITEM
+F:STR | CON | HIDE_TYPE
+F:RES_ACID  | RES_BLIND  | RES_CONF
+F:SEE_INVIS | REGEN | TELEPATHY
+
+N:318:of Loge, Spirit of Fire
+I:23:17:1
+W:50:240:150:250000
+P:0:5d5:0:0:0
+F:QUESTITEM
+F:VORPAL | BRAND_FIRE | RES_FIRE | STR | DEX
+
 
 # N: serial number : item name
 # I: tval : sval : pval

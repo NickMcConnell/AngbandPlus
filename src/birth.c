@@ -764,9 +764,9 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
          RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
     { "Monster", "MonsterRaces.txt", 
         {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_DEMON, RACE_MON_DRAGON, 
-            RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, RACE_MON_JELLY, 
-            RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_SPIDER, RACE_MON_TROLL, 
-            RACE_MON_XORN, -1} },
+            RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, 
+            RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_SPIDER, 
+            RACE_MON_TROLL, RACE_MON_XORN, -1} },
 };
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
@@ -1074,6 +1074,52 @@ static void _demon_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
 }
 
+static _name_desc_t _elemental_info[ELEMENTAL_MAX] = {
+    { "Earth Elemental", 
+        "Earth Elementals are creatures of rock: Strong, tough and slow. "
+        "They may move freely through the earth and are capable of conjuring "
+        "sharp clods of earth to hurl at their foes. Their skin is very tough, "
+        "and they can even turn their bodies to stone." },
+    { "Air Elemental", 
+        "Air Elementals are creatures of electricity. They are incredibly fast, "
+        "blinking in and out of sight as they shower their enemies with confusing "
+        "and shocking blows. Electricity crackles menacingly about their nimble frames." },
+    { "Water Elemental", 
+        "Water Elementals are creatures of water, able to modify this ubiquitous "
+        "liquid into a deadly and often corrosive weapon of destruction. Fear their "
+        "rage! They cannot be stunned." },
+    { "Fire Elemental", 
+        "Fire Elementals are creatures of flame. They have a vast arsenal of "
+        "flaming attacks with which to singe the fiercest of foes. However, they "
+        "must beware of cold based attacks!" },
+};
+static void _elemental_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, _elemental_info[which].name);
+        break;
+    case MENU_ON_BROWSE:
+    {
+        char buf[100];
+        race_t *race_ptr = get_race_t_aux(RACE_MON_ELEMENTAL, which);
+
+        c_put_str(TERM_L_BLUE, _elemental_info[which].name, 3, 40);
+        put_str(": Race modification", 3, 40+strlen(_elemental_info[which].name));
+        put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
+        sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->exp);
+        c_put_str(TERM_L_BLUE, buf, 5, 40);
+
+        var_set_bool(res, TRUE);
+        break;
+    }
+    }
+}
+
 static int _prompt_race(void)
 {
     for (;;)
@@ -1223,6 +1269,25 @@ static int _prompt_race(void)
                         p_ptr->psubrace = idx;
                         c_put_str(TERM_L_BLUE, format("%-19s", _demon_info[p_ptr->psubrace].name), 5, 14);
                         if (!_confirm_choice(_demon_info[p_ptr->psubrace].desc, menu3.count)) continue;
+                        idx = _prompt_class();
+                        if (idx == _BIRTH_ESCAPE) continue;
+                        return idx;
+                    }
+                }
+                else if (p_ptr->prace == RACE_MON_ELEMENTAL)
+                {
+                    for (;;)
+                    {
+                        menu_t menu3 = { "Subrace", "MonsterRaces.txt#Elemental", "",
+                                            _elemental_menu_fn, 
+                                            NULL, ELEMENTAL_MAX};
+                        c_put_str(TERM_WHITE, "                   ", 5, 14);
+                        idx = _menu_choose(&menu3, p_ptr->psubrace);
+                        if (idx == _BIRTH_ESCAPE) break;
+                        if (idx < 0) return idx;
+                        p_ptr->psubrace = idx;
+                        c_put_str(TERM_L_BLUE, format("%-19s", _elemental_info[p_ptr->psubrace].name), 5, 14);
+                        if (!_confirm_choice(_elemental_info[p_ptr->psubrace].desc, menu3.count)) continue;
                         idx = _prompt_class();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;

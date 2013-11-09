@@ -395,6 +395,7 @@ static void _hermes_get_flags(u32b flgs[TR_FLAG_SIZE])
  ****************************************************************/
 static void _poseidon_calc_bonuses(void)
 {
+    p_ptr->melt_armor = TRUE;
     if (p_ptr->lev >= 5)
         res_add(RES_ACID);
     if (p_ptr->lev >= 10)

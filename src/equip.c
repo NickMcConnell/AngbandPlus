@@ -21,14 +21,6 @@ static equip_template_ptr _template = NULL;
 
 bool _object_is_amulet(object_type *o_ptr) 
 {
-    if ( o_ptr->name1 == ART_WOLF 
-      || o_ptr->name1 == ART_FANG 
-      || o_ptr->name1 == ART_GRIP 
-      || o_ptr->name1 == ART_CARCHAROTH )
-    {
-        return prace_is_(RACE_MON_HOUND);
-    }
-
     if (o_ptr->tval == TV_AMULET || o_ptr->tval == TV_WHISTLE) return TRUE;
     return FALSE;
 }
@@ -331,6 +323,18 @@ int equip_find_empty_hand(void)
         }
     }
     return 0;
+}
+
+bool equip_can_wield_kind(int tval, int sval)
+{
+    object_type forge;
+    int         k_idx = lookup_kind(tval, sval);
+
+    object_prep(&forge, k_idx);
+    if (equip_first_slot(&forge))
+        return TRUE;
+
+    return FALSE;
 }
 
 int equip_first_slot(object_type *o_ptr)
@@ -1094,13 +1098,9 @@ void equip_calc_bonuses(void)
             _weapon_info_flag(i, flgs, TR_BRAND_ELEC);
             _weapon_info_flag(i, flgs, TR_BRAND_ACID);
             _weapon_info_flag(i, flgs, TR_BRAND_POIS);
+            _weapon_info_flag(i, flgs, TR_IMPACT);
         }
 
-        if (have_flag(flgs, TR_IMPACT)) /* Assume weapon slot ... */
-        {
-            int hand = _template->slots[i].hand;
-            p_ptr->impact[hand] = TRUE; /* TODO: p_ptr->weapon_info[hand].impact = TRUE; */
-        }
         if (have_flag(flgs, TR_XTRA_SHOTS)) p_ptr->shooter_info.num_fire += 100;
         if (o_ptr->name2 == EGO_SNIPER) p_ptr->shooter_info.num_fire += 50;
 

@@ -122,6 +122,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
     case RACE_MON_DRAGON:
         result = mon_dragon_get_race_t(psubrace);
         break;
+    case RACE_MON_ELEMENTAL:
+        result = mon_elemental_get_race_t(psubrace);
+        break;
     case RACE_MON_GIANT:
         result = mon_giant_get_race_t(psubrace);
         break;

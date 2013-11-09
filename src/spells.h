@@ -168,6 +168,7 @@ extern void healing_II_spell(int cmd, variant *res);
 extern void hellfire_spell(int cmd, variant *res);
 extern void hell_lance_spell(int cmd, variant *res);
 extern void heroism_spell(int cmd, variant *res);
+extern void hide_in_flame_spell(int cmd, variant *res);
 extern void hide_in_mud_spell(int cmd, variant *res);
 extern void holy_lance_spell(int cmd, variant *res);
 extern void hp_to_sp_spell(int cmd, variant *res);

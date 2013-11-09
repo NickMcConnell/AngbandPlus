@@ -3130,8 +3130,6 @@ void calc_bonuses(void)
     /* Clear all the flags */
     p_ptr->cursed = 0L;
     p_ptr->bless_blade = FALSE;
-    for (i = 0; i < MAX_HANDS; i++)
-        p_ptr->impact[i] = FALSE;
     p_ptr->pass_wall = FALSE;
     p_ptr->kill_wall = FALSE;
     p_ptr->dec_mana = FALSE;
@@ -3193,6 +3191,7 @@ void calc_bonuses(void)
     p_ptr->no_stun = FALSE;
     p_ptr->no_cut = FALSE;
     p_ptr->no_passwall_dam = FALSE;
+    p_ptr->melt_armor = FALSE;
 
     p_ptr->ryoute = FALSE;
     p_ptr->migite = FALSE;
@@ -3291,12 +3290,6 @@ void calc_bonuses(void)
 
     p_ptr->skill_tht = p_ptr->skills.thb;
     p_ptr->skill_dig = 0;
-
-    if (p_ptr->special_defense & KAMAE_MASK)
-    {
-        if (p_ptr->pclass != CLASS_WILD_TALENT && !p_ptr->weapon_info[0].bare_hands)
-            set_action(ACTION_NONE);
-    }
 
     if (p_ptr->tim_superstealth)
         p_ptr->see_nocto = TRUE;
@@ -3473,6 +3466,12 @@ void calc_bonuses(void)
     }
 
     equip_calc_bonuses();
+
+    if (p_ptr->special_defense & KAMAE_MASK)
+    {
+        if (p_ptr->pclass != CLASS_WILD_TALENT && !p_ptr->weapon_info[0].bare_hands)
+            set_action(ACTION_NONE);
+    }
 
     if (old_mighty_throw != p_ptr->mighty_throw)
     {

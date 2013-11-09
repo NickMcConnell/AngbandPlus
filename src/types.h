@@ -1371,6 +1371,7 @@ struct player_type
     bool no_cut;
     bool no_passwall_dam;
     bool no_charge_drain;
+    bool melt_armor;
 
     bool anti_magic;    /* Anti-magic */
     bool anti_tele;     /* Prevent teleportation */
@@ -1410,7 +1411,6 @@ struct player_type
 
     bool slow_digest;    /* Slower digestion */
     bool bless_blade;    /* Blessed blade */
-    bool impact[MAX_HANDS];        /* Earthquake blows */
     bool pass_wall;     /* Permanent wraithform */
     bool kill_wall;
     bool dec_mana;

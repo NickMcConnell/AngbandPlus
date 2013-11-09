@@ -240,7 +240,7 @@ static void _glyph_of_explosion_spell(int cmd, variant *res)
     }
 }
 
-static void _hide_in_flame_spell(int cmd, variant *res)
+void hide_in_flame_spell(int cmd, variant *res)
 {
     int dam = 50 + p_ptr->lev;
     int rad = 2 + p_ptr->lev/10;
@@ -500,7 +500,7 @@ static spell_info _spells[] =
     {10,  10,  40, _bind_monster_spell},
     {12,  12,  70, _ancient_knowledge_spell},
     {15,  10,  50, _floating_spell},
-    {17,  12,  45, _hide_in_flame_spell},
+    {17,  12,  45, hide_in_flame_spell},
     {18,  20,  40, _nyusin_spell},
     {20,   5,  50, _syuriken_spreading_spell},
     {22,   5,  55, _chain_hook_spell},

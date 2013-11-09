@@ -686,7 +686,7 @@ void check_quest_completion(monster_type *m_ptr)
             object_wipe(q_ptr);
 
             /* Make a great object */
-            if (make_object(q_ptr, AM_GOOD | AM_GREAT))
+            if (make_object(q_ptr, AM_GOOD | AM_GREAT | AM_TAILORED))
                 (void)drop_near(q_ptr, -1, y, x);
         }
     }
@@ -779,6 +779,23 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
         mo_mode |= AM_GOOD;
     if (r_ptr->flags1 & RF1_DROP_GREAT) 
         mo_mode |= AM_GREAT;
+
+    if ( (r_ptr->flags1 & RF1_QUESTOR)
+      || (r_ptr->flags7 & RF7_GUARDIAN) )
+    {
+        if (one_in_(2))
+            mo_mode |= AM_TAILORED;
+    }
+    if (r_ptr->flags1 & RF1_UNIQUE)
+    {
+        if (one_in_(5))
+            mo_mode |= AM_TAILORED;
+    }
+    else if (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
+    {
+        if (one_in_(20 - MIN(10, p_ptr->fame/20)))
+            mo_mode |= AM_TAILORED;
+    }
 
     coin_type = force_coin;
     object_level = (dun_level + r_ptr->level) / 2;
@@ -1665,6 +1682,22 @@ void monster_death(int m_idx, bool drop_item)
             a_idx = ART_ULIK;
             chance = 5;
             break;
+        case MON_QUAKER:
+            a_idx = ART_QUAKER;
+            chance = 5;
+            break;
+        case MON_ARIEL:
+            a_idx = ART_ARIEL;
+            chance = 5;
+            break;
+        case MON_MOIRE:
+            a_idx = ART_MOIRE;
+            chance = 5;
+            break;
+        case MON_LOGE:
+            a_idx = ART_LOGE;
+            chance = 5;
+            break;
         }
 
         if (race_ptr->boss_r_idx == m_ptr->r_idx)
@@ -2118,11 +2151,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     if (dam > 0 && (p_ptr->wizard || cheat_xtra))
         msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
 
-    if (prace_is_(RACE_DEMIGOD) && 
-        p_ptr->psubrace == DEMIGOD_POSEIDON &&
-        note == NULL && /* Hack: Trying to just get melee and shooting */
-        (-m_ptr->ac_adj) < r_ptr->ac/2 && 
-        !mon_save_p(m_ptr->r_idx, A_NONE) )
+    if ( p_ptr->melt_armor
+      && note == NULL /* Hack: Trying to just get melee and shooting */
+      && (-m_ptr->ac_adj) < r_ptr->ac/2 
+      && !mon_save_p(m_ptr->r_idx, A_NONE) )
     {
         char m_name[MAX_NLEN];
         monster_desc(m_name, m_ptr, MD_POSSESSIVE);

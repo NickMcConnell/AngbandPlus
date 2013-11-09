@@ -2586,7 +2586,14 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power, int mode)
                     break;
                 case EGO_SHARPNESS:
                     o_ptr->pval = m_bonus(5, level) + 1;
-                    while (one_in_(2)) o_ptr->dd++;
+                    if (one_in_(2))
+                    {
+                        do
+                        {
+                            o_ptr->dd++;
+                        }
+                        while (one_in_(o_ptr->dd));
+                    }
                     break;
                 case EGO_EARTHQUAKES:
                     if (one_in_(3) && (level > 60))
@@ -4857,13 +4864,88 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
     }
 }
 
+static bool _is_favorite(int tval, int sval)
+{
+    object_type forge;
+    int         k_idx = lookup_kind(tval, sval);
 
-/*
- * Hack -- determine if a template is "good"
- */
+    object_prep(&forge, k_idx);
+    return object_is_favorite(&forge);
+}
+
+static bool kind_is_tailored(int k_idx)
+{
+    object_kind *k_ptr = &k_info[k_idx];
+
+    switch (k_ptr->tval)
+    {
+    case TV_SHIELD:
+        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval) 
+            && p_ptr->pclass != CLASS_NINJA;
+
+    case TV_HARD_ARMOR:
+    case TV_SOFT_ARMOR:
+    case TV_DRAG_ARMOR:
+        if ( p_ptr->pclass == CLASS_MONK
+          || p_ptr->pclass == CLASS_FORCETRAINER
+          || p_ptr->pclass == CLASS_MYSTIC )
+        {
+            return k_ptr->weight <= 200;
+        }
+        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
+
+    case TV_CLOAK:
+    case TV_BOOTS:
+    case TV_GLOVES:
+    case TV_HELM:
+    case TV_CROWN:
+    case TV_BOW:
+        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
+
+    case TV_SWORD:
+    case TV_HAFTED:
+    case TV_POLEARM:
+    case TV_DIGGING:
+        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval)
+            && _is_favorite(k_ptr->tval, k_ptr->sval);
+
+    case TV_SHOT:
+        return equip_can_wield_kind(TV_BOW, SV_SLING);
+
+    case TV_BOLT:
+        return equip_can_wield_kind(TV_BOW, SV_LIGHT_XBOW);
+
+    case TV_ARROW:
+        return equip_can_wield_kind(TV_BOW, SV_LONG_BOW);
+
+    case TV_LIFE_BOOK:
+    case TV_SORCERY_BOOK:
+    case TV_NATURE_BOOK:
+    case TV_CHAOS_BOOK:
+    case TV_DEATH_BOOK:
+    case TV_TRUMP_BOOK:
+    case TV_CRAFT_BOOK:
+    case TV_DAEMON_BOOK:
+    case TV_CRUSADE_BOOK:
+    case TV_NECROMANCY_BOOK:
+    case TV_ARMAGEDDON_BOOK:
+    case TV_MUSIC_BOOK:
+    case TV_HISSATSU_BOOK:
+    case TV_HEX_BOOK:
+        return check_book_realm(k_ptr->tval, k_ptr->sval);
+    }
+
+    return TRUE;
+}
+
+static bool _drop_tailored = FALSE;
+
 static bool kind_is_great(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
+
+    if (_drop_tailored && !kind_is_tailored(k_idx))
+        return FALSE;
 
     /* Analyze the item type */
     switch (k_ptr->tval)
@@ -4926,7 +5008,6 @@ static bool kind_is_great(int k_idx)
         {
             if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
             if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
-        /*    if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE); */
             return (FALSE);
         }
         case TV_POTION:
@@ -4949,6 +5030,9 @@ static bool kind_is_great(int k_idx)
 static bool kind_is_good(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
+
+    if (_drop_tailored && !kind_is_tailored(k_idx))
+        return FALSE;
 
     /* Analyze the item type */
     switch (k_ptr->tval)
@@ -5011,7 +5095,10 @@ static bool kind_is_good(int k_idx)
         {
             if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
             if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
-        /*    if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE); */
+            if (k_ptr->sval == SV_RING_RESISTANCE) return (TRUE);
+            if (k_ptr->sval == SV_RING_HIGH_RESISTANCE) return (TRUE);
+            if (k_ptr->sval == SV_RING_MUSCLE) return (TRUE);
+            if (k_ptr->sval == SV_RING_SLAYING) return (TRUE);
             return (FALSE);
         }
         case TV_POTION:
@@ -5096,6 +5183,10 @@ bool make_object(object_type *j_ptr, u32b mode)
     {
         int k_idx;
 
+        _drop_tailored = FALSE;
+        if (mode & AM_TAILORED)
+            _drop_tailored = TRUE;
+
         /* Good objects */
         if ((mode & AM_GREAT) && !get_obj_num_hook)
         {
@@ -5107,6 +5198,9 @@ bool make_object(object_type *j_ptr, u32b mode)
             /* Activate restriction (if already specified, use that) */
             get_obj_num_hook = kind_is_good;
         }
+
+        if (_drop_tailored && !get_obj_num_hook)
+            get_obj_num_hook = kind_is_tailored;
 
         /* Restricted objects - prepare allocation table */
         if (get_obj_num_hook) get_obj_num_prep();
@@ -5733,7 +5827,7 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 {
     object_type *i_ptr;
     object_type object_type_body;
-    u32b mode = AM_GOOD | (great ? AM_GREAT : 0L);
+    u32b mode = AM_GOOD | (great ? (AM_GREAT | AM_TAILORED) : 0L);
 
     /* Acquirement */
     while (num--)

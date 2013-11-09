@@ -98,6 +98,7 @@ extern object_type       *equip_obj(int slot);
 extern int                equip_weight(object_p p);
 extern void               equip_on_init(void);
 extern void               equip_on_change_race(void);
+extern bool               equip_can_wield_kind(int tval, int sval);
 
 extern bool               equip_is_empty_hand(int hand);
 extern bool               equip_is_valid_hand(int hand);

@@ -531,6 +531,9 @@
     <ClCompile Include="virtue.c">
       <Filter>Player</Filter>
     </ClCompile>
+    <ClCompile Include="race_elemental.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

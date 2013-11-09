@@ -177,6 +177,7 @@
     <ClCompile Include="race_beholder.c" />
     <ClCompile Include="race_demon.c" />
     <ClCompile Include="race_dragon.c" />
+    <ClCompile Include="race_elemental.c" />
     <ClCompile Include="race_giant.c" />
     <ClCompile Include="race_hound.c" />
     <ClCompile Include="race_hydra.c" />

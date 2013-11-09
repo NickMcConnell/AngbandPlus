@@ -2836,12 +2836,12 @@ static bool _reforge_artifact(void)
     }
 
     cost = object_value_real(src);
-    cost *= 10;
+    cost *= 20;
 
-    if (cost < 500000)
-        cost = 500000;
-    if (cost > 10000000)
-        cost = 10000000;
+    if (cost < 1000000)
+        cost = 1000000;
+    if (cost > 25000000)
+        cost = 25000000;
 
     msg_format("Reforging will cost you %d gold.", cost);
     if (p_ptr->au < cost)

@@ -1465,7 +1465,7 @@ static void process_world_aux_hp_and_sp(void)
         }
     }
 
-    if (have_flag(f_ptr->flags, FF_LAVA) && !IS_INVULN())
+    if (have_flag(f_ptr->flags, FF_LAVA) && !IS_INVULN() && !elemental_is_(ELEMENTAL_FIRE))
     {
         int damage = 0;
 
@@ -1502,7 +1502,7 @@ static void process_world_aux_hp_and_sp(void)
     }
 
     if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP) &&
-        !p_ptr->levitation && !p_ptr->can_swim)
+        !p_ptr->levitation && !p_ptr->can_swim && !elemental_is_(ELEMENTAL_WATER))
     {
         if (p_ptr->total_weight > weight_limit())
         {

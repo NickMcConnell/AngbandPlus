@@ -2417,8 +2417,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 dam *= 2; dam /= randint1(6) + 6;
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
             }
-            else if (who == 0 &&
-                     (r_ptr->level + randint1(100) > p_ptr->lev*2))
+            else if (who == 0 && randint1(10*r_ptr->level) > dam)
             {
                 note = " resists stunning.";
             }
