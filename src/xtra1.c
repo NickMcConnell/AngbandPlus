@@ -3983,12 +3983,9 @@ void calc_bonuses(void)
     /* Having more than one set of arms for combat is very powerful ... */
     for (i = 2; i < MAX_HANDS; i++)
     {
-        int arm = i /2;
-        int j;
         if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
         {
-            for (j = 0; j < arm; j++)
-                p_ptr->weapon_info[i].dual_wield_pct = p_ptr->weapon_info[i].dual_wield_pct * 75 / 100;
+            p_ptr->weapon_info[i].dual_wield_pct = p_ptr->weapon_info[i].dual_wield_pct * 75 / 100;
             if (p_ptr->weapon_info[i].dual_wield_pct < 100)
                 p_ptr->weapon_info[i].dual_wield_pct = 100;
         }

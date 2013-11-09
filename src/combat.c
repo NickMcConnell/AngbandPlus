@@ -93,8 +93,8 @@ static _blow_info_t _get_blow_info(int hand)
         if (p_ptr->psubclass == PACT_DRAGON) 
         {
             result.mul = 40;
-            if (p_ptr->lev >= 35) result.num = 500;
-            else result.num = 400;
+            if (p_ptr->lev >= 35) result.num = 550;
+            else result.num = 450;
         }
         break;
 
@@ -228,7 +228,7 @@ static _blow_info_t _get_blow_info(int hand)
         }
         else if (prace_is_(RACE_MON_LEPRECHAUN)) 
         {
-            result.num = 300;
+            result.num = 350;
             result.mul = 20;
         }
         else if (prace_is_(RACE_MON_SWORD))
@@ -254,7 +254,8 @@ static _blow_info_t _get_blow_info(int hand)
     }
 
     /* Xorns and Mariliths have multiple sets of arms */
-    result.num -= arm * 75;
+    if (arm > 0)
+        result.num -= 100;
     if (result.num < 100)
         result.num = 100;
 

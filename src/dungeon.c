@@ -4024,7 +4024,7 @@ static void process_command(void)
                 if (p_ptr->pclass == CLASS_IMITATOR)
                     imitator_cast(FALSE);
                 else if (p_ptr->pclass == CLASS_MAGIC_EATER)
-                    magic_eater_cast();
+                    magic_eater_cast(0);
                 else if (p_ptr->pclass == CLASS_SAMURAI)
                     do_cmd_hissatsu();
                 else if (p_ptr->pclass == CLASS_BLUE_MAGE)

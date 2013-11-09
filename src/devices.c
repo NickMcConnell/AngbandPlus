@@ -2344,6 +2344,7 @@ static cptr _do_rod(int sval, int mode)
         break;
     case SV_ROD_PESTICIDE:
         if (desc) return "It does slight damage to all monsters in sight when you zap it.";
+        if (info) return info_damage(0, 0, _rod_power(4));
         if (cast)
         {
             if (dispel_monsters(_rod_power(4))) device_noticed = TRUE;

@@ -1999,7 +1999,7 @@ extern void magic_eater_restore_all(void);
 extern bool magic_eater_can_regen(void);
 
 extern void magic_eater_browse(void);
-extern void magic_eater_cast(void);
+extern void magic_eater_cast(int tval);
 extern void magic_eater_gain(void);
 extern bool magic_eater_hack;
 

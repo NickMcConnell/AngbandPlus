@@ -57,11 +57,16 @@ class_t *necromancer_get_class_t(void)
     skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
         me.name = "Necromancer";
-        me.desc = "A necromancer attempts to gain both power and knowledge through "
-                    "communion with the dead.  A powerful necromancer is truly "
-                    "awe inspiring, and may even kill foes with a single touch! "
-                    "They forever hunt for the legendary Eye and Hand of Vecna in "
-                    "order to complete their power.",
+        me.desc = "A Necromancer attempts to gain both power and knowledge through "
+                  "communion with the dead. They use powerful necromancy magic to "
+                  "summon aid from the dead, whether directly in terms of undead "
+                  "servitude, or indirectly through other-worldly knowledge. Necromancy "
+                  "also offers myriad foul offensive spells, but all of these require "
+                  "the Necromancer to physically touch his foe. To do so, the Necromancer "
+                  "may wield neither weapon, nor gloves. But a powerful necromancer is truly "
+                  "awe inspiring, and may even kill foes with a single deadly touch! "
+                  "In addition, they forever hunt for the legendary Eye and Hand of Vecna in "
+                  "order to complete their power.",
         
         me.stats[A_STR] = -2;
         me.stats[A_INT] =  3;

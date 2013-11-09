@@ -2538,8 +2538,15 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         }
     }
 
-    if ((o_ptr->pval > 4) && !one_in_(WEIRD_LUCK))
+    if (o_ptr->pval > 4 && !one_in_(WEIRD_LUCK))
         o_ptr->pval = 4;
+
+    if (o_ptr->tval == TV_DIGGING && !have_flag(o_ptr->art_flags, TR_BLOWS))
+    {
+        o_ptr->pval += randint1(2);
+        if (o_ptr->pval > 6)
+            o_ptr->pval = 6;
+    }
 
     if (have_flag(o_ptr->art_flags, TR_SPELL_POWER))
         o_ptr->pval = -o_ptr->pval;
@@ -3747,6 +3754,9 @@ bool reforge_artifact(object_type *src, object_type *dest)
     /* Score the Original */
     base_power = object_value_real(src);
 
+    /* Pay a Power Tax! */
+    base_power = base_power/2 + randint1(base_power/2);
+
     /* Setup thresholds. For weak objects, its better to use a generous range ... */
     if (base_power < 1000)
     {
@@ -3761,9 +3771,9 @@ bool reforge_artifact(object_type *src, object_type *dest)
 
     /* Better Fame means better results! */
     old_level = object_level;
-    object_level = MAX(p_ptr->fame, 100);
+    object_level = MIN(p_ptr->fame/2, 75);
 
-    for (i = 0; i < MAX(1, MIN(10000, p_ptr->fame * p_ptr->fame)) && !result; i++)
+    for (i = 0; i < 1000 && !result; i++)
     {
         object_copy(&forge, dest);
         create_artifact(&forge, CREATE_ART_GOOD);

@@ -1,7 +1,7 @@
-=== The Classes ===
+[[[[B|  The Classes
 
 ***** <Warrior>
---- Warrior ---
+[[[[r|  Warrior
 
   A Warrior is a hack-and-slash character, who solves most of his problems by
   cutting them to pieces, but will occasionally fall back on the help of a
@@ -15,7 +15,7 @@
 
 
 ***** <Mage>
---- Mage ---
+[[[[r|  Mage
 
   A Mage is a spell caster that must live by his wits as he cannot hope to
   simply hack his way through the dungeon like a warrior. In addition to his
@@ -35,7 +35,7 @@
 
 
 ***** <Priest>
---- Priest ---
+[[[[r|  Priest
 
   A Priest is a character devoted to serving a higher power. They explore the
   dungeon in the service of their God. They are fairly familiar with magical
@@ -58,7 +58,7 @@
 
 
 ***** <Rogue>
---- Rogue ---
+[[[[r|  Rogue
 
   A Rogue is a character that prefers to live by his cunning, but is capable of
   fighting his way out of a tight spot. Rogues are good at locating hidden
@@ -78,7 +78,7 @@
 
 
 ***** <Ranger>
---- Ranger ---
+[[[[r|  Ranger
 
   A Ranger is a combination of a warrior and a mage who has developed a special
   affinity for the natural world around him. He is a good fighter and also
@@ -96,7 +96,7 @@
 
 
 ***** <Paladin>
---- Paladin ---
+[[[[r|  Paladin
 
   A Paladin is a combination of a warrior and a priest. Paladins are very good
   fighters, but not very good at missile weapons. A paladin lacks much in the
@@ -115,7 +115,7 @@
 
 
 ***** <Warrior-Mage>
---- Warrior-Mage ---
+[[[[r|  Warrior-Mage
 
   A Warrior-Mage is precisely what the name suggests: a cross between the
   warrior and mage classes. While their brothers, the rangers, specialize in
@@ -132,7 +132,7 @@
 
 
 ***** <Chaos-Warrior>
---- Chaos-Warrior ---
+[[[[r|  Chaos-Warrior
 
   Chaos Warriors are the feared servants of the terrible Demon Lords of Chaos.
   Every Chaos Warrior has a Patron Demon and, when gaining a level, may receive
@@ -150,7 +150,7 @@
 
 
 ***** <Monk>
---- Monk ---
+[[[[r|  Monk
 
   The Monk character class is very different from all other classes. Their
   training in martial arts makes them much more powerful with no armor or
@@ -170,7 +170,7 @@
 
 
 ***** <Mindcrafter>
---- Mindcrafter ---
+[[[[r|  Mindcrafter
 
   The Mindcrafter is a unique class that uses the powers of the mind instead of
   magic. These powers are unique to Mindcrafters, and vary from simple
@@ -187,7 +187,7 @@
 
 
 ***** <High-Mage>
---- High-Mage ---
+[[[[r|  High-Mage
 
   High-mages are mages who specialize in one particular field of magic and
   learn it very well - much better than the ordinary mage. A high mage's prime
@@ -202,7 +202,7 @@
 
 
 ***** <Tourist>
---- Tourist ---
+[[[[r|  Tourist
 
   Tourists have visited this world for the purpose of sightseeing. Their
   fighting skills are bad and they cannot cast powerful spells. They are the
@@ -216,7 +216,7 @@
 
 
 ***** <Imitator>
---- Imitator ---
+[[[[r|  Imitator
 
   Imitators have enough fighting skills to survive, but rely on their unique
   technique - 'Imitation' - which imitates monster spells/techniques including
@@ -235,7 +235,7 @@
 
 
 ***** <Beastmaster>
---- Beastmaster ---
+[[[[r|  Beastmaster
 
   Beastmasters are in tune with the minds of the creatures of the world. They
   are very good at riding, and have enough fighting ability. They use monsters
@@ -252,7 +252,7 @@
 
 
 ***** <Sorcerer>
---- Sorcerer ---
+[[[[r|  Sorcerer
 
   Sorcerers are the all-around best magicians, being able to cast any spell
   from most magic realms without having to learn it. On the downside, they are
@@ -265,7 +265,7 @@
 
 
 ***** <Archer>
---- Archer ---
+[[[[r|  Archer
 
   Archers are to bows what warriors are to melee. They are the best class
   around with any bow, crossbow, or sling. They need a lot of ammunition, but
@@ -277,7 +277,7 @@
 
 
 ***** <Magic-Eater>
---- Magic-Eater ---
+[[[[r|  Magic-Eater
 
   Magic-Eaters can absorb magic devices, and use these magics as their spells. 
   They are middling-poor at fighting.  A Magic-Eater's prime statistic is
@@ -296,7 +296,7 @@
 
 
 ***** <Bard>
---- Bard ---
+[[[[r|  Bard
 
   Bards are something like traditional musicians. Their magical attacks are
   sound-based, and last as long as the Bard has mana. Although a bard cannot
@@ -311,7 +311,7 @@
 
 
 ***** <Red-Mage>
---- Red-Mage ---
+[[[[r|  Red-Mage
 
   Red Mages are similar to Warrior-Mage; they are decent fighters and
   spellcasters. Red-Mages can use almost all spells from lower rank spellbooks
@@ -330,7 +330,7 @@
 
 
 ***** <Samurai>
---- Samurai ---
+[[[[r|  Samurai
 
   Samurai, masters of the art of the blade, are the next strongest fighters
   after Warriors, and can use various special combat techniques. Samurai are
@@ -351,7 +351,7 @@
 
 
 ***** <Force-Trainer>
---- Force-Trainer ---
+[[[[r|  Force-Trainer
 
   A ForceTrainer is a master of the spiritual Force. They prefer fighting with
   neither weapon nor armor. They are not as good fighters as are Monks, but
@@ -372,7 +372,7 @@
 
 
 ***** <Blue-Mage>
---- Blue-Mage ---
+[[[[r|  Blue-Mage
 
   A Blue-Mage is a spell caster that must live by his wits, as he cannot hope
   to simply hack his way through the dungeon like a warrior. A major difference
@@ -389,7 +389,7 @@
 
 
 ***** <Cavalry>
---- Cavalry ---
+[[[[r|  Cavalry
 
   Cavalry ride on horses into battle. Although they cannot cast spells, they
   are proud of their overwhelming offensive strength on horseback. They are
@@ -403,7 +403,7 @@
 
 
 ***** <Berserker>
---- Berserker ---
+[[[[r|  Berserker
 
   A Berserker is a fearful fighter indeed, immune to fear and paralysis. At
   high levels, Berserkers can reflect bolt spells with their tough flesh.
@@ -421,7 +421,7 @@
 
 
 ***** <Weaponsmith>
---- Weaponsmith ---
+[[[[r|  Weaponsmith
 
   A Weaponsmith can improve weapons and armors for him or herself. They are
   good at fighting, and they have potential ability to become even better than
@@ -439,7 +439,7 @@
 
 
 ***** <Mirror-Master>
---- Mirror-Master ---
+[[[[r|  Mirror-Master
 
   Mirror-Masters are spell casters; like other mages, they must live by their
   wits. They can create magical mirrors, and employ them in the casting of
@@ -460,7 +460,7 @@
 
 
 ***** <Ninja>
---- Ninja ---
+[[[[r|  Ninja
 
   A Ninja is a fearful assassin lurking in darkness. He or she can navigate
   effectively with no light source, catch enemies by surprise, and kill with a
@@ -477,7 +477,7 @@
 
 
 ***** <Sniper>
---- Sniper ---
+[[[[r|  Sniper
 
   Snipers are specialists in marksmanship, but not like archers who fire off
   arrow after arrow in swift succession. They don't just increase accuracy and
@@ -491,33 +491,75 @@
 
 
 ***** <Time-Lord>
---- Time-Lord ---
+[[[[r|  Time-Lord
 
-  Time-Lords are masters of time.  They are mediocre fighters, but their
-  temporal mastery gives them great speed, as well as the ability to manipulate
-  time.
+  Time-Lords are masters of temporal magic, altering the flow of time to their
+  advantage. They don't learn spells from books, but rather gain new powers as
+  they grow more experienced. They are the only class that can affect monsters
+  with time based attacks. Not only do these damage their foes, but they also
+  inflict a wide variety of possible effects, from slowing to amnesia, from
+  evolution to devolution, from weakening to stasis. In addition to temporal
+  attacks, the Time-Lord gains great powers of speed, and they grow faster with
+  experience. It is said that masters of time can even see the future, avoiding
+  attacks that would otherwise prove fatal! Also, legend has it that the
+  greatest Time-Lords are able to take multiple actions in a single turn.
+   
+  Time-Lords are mediocre fighters and not good at archery at all. They are OK
+  with magical devices, but nowhere near as proficient as are mages. They have
+  midling stealth. At high levels, they become resistant to time. The
+  Time-Lord's primary magic stat is Charisma.
 
 
 ***** <Blood-Knight>
---- Blood-Knight ---
+[[[[r|  Blood-Knight
 
-  A blood knight is a fighter who has delved into the dark arts and can perform
-  a limited number of offense effects using his own health.  In addition to the
-  HP cost, using an ability also causes bleeding/wounds, with an amount
-  proportional to the cost of the ability.
+  A Blood-Knight is a fighter who has delved into the dark arts and can perform
+  a limited number of offensive effects using his own health. In addition to
+  the HP cost, using an ability also causes bleeding/wounds, with an amount
+  proportional to the cost of the ability. Their primary stat for abilities is
+  Con.
+   
+  Blood-Knights are strong in melee, but are very unusual in the fact that the
+  more wounded they are, the stronger they become. When damaged, they gain
+  additional melee attacks and damage, and moreso the more wounded and cut they
+  become. Indeed, when on the brink of death they are the strongest fighters
+  imaginable, and stories of their legendary feats abound. Of course, with
+  great power comes great risk of death, and you don't recall ever meeting one
+  of these heroes of legend in person!
+   
+  Since the Blood-Knight relies on their own blood for their power, they are
+  restricted to only certain races. No non-living race may walk the red path.
 
 
 ***** <Warlock>
---- Warlock ---
+[[[[r|  Warlock
 
-  A warlock, unlike typical mages, derives his powers from pacts with arcane
-  creatures, rather than through careful study.  They can cast all magic they
-  know at will without requiring any SP, and depending on the type of Warlock,
-  have different abilities.
+  A Warlock, unlike typical mages, derives his powers from pacts with arcane
+  creatures, rather than through careful study. Warlocks possess the unique
+  offensive power of the Eldritch Blast, and they use this without paying any
+  sort of mana or hitpoint costs (though they still have fail rates). The
+  Warlock's primary spell stat is Charisma, and this directly influences the
+  damage of their Eldritch Blast.
+   
+  Each Warlock makes a pact with a single type of creature: Undead, Dragons,
+  Angels, Demons or Aberrations. This pact confers both advantages and
+  disadvantages. For one thing, Warlocks are very ineffective when fighting
+  monsters with whom they have formed an alliance. Every form of damage is
+  actually reduced by a substantial amount, and this makes killing pact
+  monsters extremely difficult. Probably, the Warlock should avoid fighting
+  these monsters altogether. Indeed, at high levels pact monsters are often
+  friendly to the warlock, but some fights cannot be avoided it seems. That's
+  the bad news. The good news is that each pact confers unique abilities and
+  powers to the warlock. These benefits reflect the nature of the pact monster.
+  For example, a pact with Undead confers resistance to Poison and Nether as
+  well as Hold Life, among other things. A pact with Dragons confers the power
+  to resist the elements as well as strong melee (Warlocks are generally poor
+  fighters otherwise). In addition, each pact gives a unique high level
+  offensive power when using their Eldritch Blast.
 
 
 ***** <Archaeologist>
---- Archaeologist ---
+[[[[r|  Archaeologist
 
   The Archaeologist is an erudite treasure hunter, seeking out the most
   valuable prizes that the dungeon has to offer. At home in subterranean
@@ -528,14 +570,14 @@
 
 
 ***** <Duelist>
---- Duelist ---
+[[[[r|  Duelist
 
   The duelist is the ultimate one-on-one fighter, but finds himself at a severe
   disadvantage when facing numerous strong foes.
 
 
 ***** <Wild-Talent>
---- Wild-Talent ---
+[[[[r|  Wild-Talent
 
   The Wild-Talent gains random talents and abilities as they level up.  They
   are good fighters, and decent with magical devices, but their true forte is
@@ -544,7 +586,7 @@
 
 
 ***** <Rune-Knight>
---- Rune-Knight ---
+[[[[r|  Rune-Knight
 
   The Rune Knight is a mythical warrior-mage who is dedicated to the power of
   ancient Runes that hold immense power.  By affixing these Runes to his
@@ -557,7 +599,7 @@
 
 
 ***** <Weaponmaster>
---- Weaponmaster ---
+[[[[r|  Weaponmaster
 
   The weaponmaster is great with a single class of weapons. The character gets
   combat bonuses and special powers depending on the type of specialization.
@@ -566,7 +608,7 @@
 
 
 ***** <Blood-Mage>
---- Blood-Mage ---
+[[[[r|  Blood-Mage
 
   A blood mage is similar to a normal mage in his selection and variety of
   spells, but differs in that he has no separate Spell Point pool.  Instead,
@@ -576,7 +618,7 @@
 
 
 ***** <Necromancer>
---- Necromancer ---
+[[[[r|  Necromancer
 
   A necromancer attempts to gain both power and knowledge through communion
   with the dead.  A powerful necromancer is truly awe inspiring, and may even
@@ -585,7 +627,7 @@
 
 
 ***** <Psion>
---- Psion ---
+[[[[r|  Psion
 
   The Psion is like a Mindcrafter, and uses innate mental powers. Unlike the
   Mindcrafter, however, Psions have the freedom to learn powers that enforce
@@ -599,7 +641,7 @@
 
 
 ***** <Rage-Mage>
---- Rage-Mage ---
+[[[[r|  Rage-Mage
 
   The Rage Mage is part of a secret sect descending from the Barbarians in
   response to their natural foes, the mages. As time passed, other races have
@@ -607,7 +649,7 @@
 
 
 ***** <Scout>
---- Scout ---
+[[[[r|  Scout
 
   The scout is the vanguard of any attack, and excels at stealth and
   observation skills. The scout is not the best at one-on-one combat, but is
@@ -618,7 +660,7 @@
 
 
 ***** <Mauler>
---- Mauler ---
+[[[[r|  Mauler
 
   The Mauler favors extremely heavy weapons, and possesses powerful abilities
   whose effectiveness depends on the weight of the weapon. While they only gain
@@ -628,13 +670,8 @@
   wish their talents to function properly.
 
 
-***** <Monster>
---- Monster ---
-
-
-
 ***** <Mystic>
---- Mystic ---
+[[[[r|  Mystic
 
   Mystics are masters of bare handed fighting, like Monks. However, they do not
   learn normal spells. Instead, they gain mystical powers with experience, and
@@ -650,7 +687,7 @@
 
 
 ***** <Devicemaster>
---- Devicemaster ---
+[[[[r|  Devicemaster
 
   Devicemasters are excellent with magical devices, but poor in most other
   skills. They may shoot or use melee in a pinch, but this will never be their
@@ -675,103 +712,107 @@
 
 
 ***** <Tables>
---- Table 1 - Class Statistic Bonus Table ---
+[[[[y|  Table 1 - Class Statistic Bonus Table ---
 
-               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-Warrior         +4   -2   -2   +2   +2   +1  117%  +18  100%
-Mage            -4   +3   +0   +1   -2   -2   95%   +0  130%
-Priest          -1   -3   +3   -1   +0   +2  100%   +4  120%
-Rogue           +2   +1   -1   +3   +1   +1  110%  +12  125%
-Ranger          +2   +0   +2   +1   +1   +0  106%   +8  140%
-Paladin         +3   -3   +1   +0   +2   +2  111%  +12  135%
-Warrior-Mage    +2   +2   +0   +1   +0   +1  106%   +8  140%
-Chaos-Warrior   +2   +1   -1   +0   +2   +1  111%  +12  125%
-Monk            +2   -1   +1   +3   +2   +1  110%  +12  130%
-Mindcrafter     -1   +0   +3   -1   -1   +2  100%   +4  125%
-High-Mage       -4   +4   +0   +0   -2   -2   94%   +0  130%
-Tourist         -1   -1   -1   -1   -1   -3   95%   +0   70%
-Imitator        +0   +1   -1   +2   +0   -1  108%  +10  110%
-Beastmaster     +1   -1   -1   +1   +0   +2  103%   +6  120%
-Sorcerer        -5   +0   -2   +2   +0   +6   65%   +0  160%
-Archer          +2   -1   -1   +2   +1   +0  111%  +12  110%
-Magic-Eater     -1   +2   +1   +2   -2   -2  103%   +6  130%
-Bard            -2   +1   +2   -1   -2   +4  100%   +4  140%
-Red-Mage        +2   +2   -1   +1   +0   -1  106%   +8  140%
-Samurai         +3   -2   +1   +2   +1   +1  111%  +12  130%
-Force-Trainer   +0   -1   +3   +2   +1   +0  100%   +4  135%
-Blue-Mage       -4   +4   -1   +1   -2   -2  100%   +4  130%
-Cavalry         +2   -2   -2   +2   +2   +1  111%  +10  120%
-Berserker       +8  -20  -20   +4   +4  -20  200%  +22  160%
-Weaponsmith     +3   -1   -1   +1   +0   +0  111%  +12  130%
-Mirror-Master   -2   +3   +1   -1   -2   -2  100%   +4  130%
-Ninja           +0   -1   -1   +3   +2   +2  100%   +4  120%
-Sniper          +2   -1   -1   +2   +1   +0  100%   +4  110%
-Time-Lord       -1   +0   +0   -1   -1   +3   96%   +0  125%
-Blood-Knight    +2   -2   -2   +0   +3   +2  120%  +20  150%
-Warlock         -2   +1   +2   -1   -2   +4  100%   +4  125%
-Archaeologist   -1   +1   +2   +1   -1   +0  106%   +8  120%
-Duelist         +2   +1   -2   +2   -3   +2  100%   +4  150%
-Wild-Talent     -1   +2   -1   +2   -2   +1  100%   +4  110%
-Rune-Knight     +2   +2   +0   +1   +0   +1  107%   +6  150%
-Weaponmaster    +3   -1   -1   +1   +1   +1  109%  +12  135%
-Blood-Mage      -4   +3   -2   +1   +2   -2  108%  +10  150%
-Necromancer     -2   +3   -4   +1   -1   -2   95%   +2  125%
-Psion           -1   +2   +2   -1   -1   +2  100%   +4  150%
-Rage-Mage       +3   -2   -2   -2   +2   +1  106%   +6  150%
-Scout           +1   -1   +2   +3   +0   +0  104%   +8  130%
-Mauler          +5   -2   -2   -1   +3   +2  119%  +18  120%
-Mystic          +2   -1   -2   +3   +1   +2  100%   +4  130%
-Devicemaster    -1   +2   +1   +2   -2   -2  101%   +6  130%
-
-
---- Table 2 - Class Skill Bonus Table ---
-
-               Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-Warrior        25+12  18+7   31+10     1    14     2  70+30  55+30
-Mage           30+7   40+15  38+11     3    16    20  34+6   20+7 
-Priest         25+7   35+11  40+12     2    16     8  48+13  35+11
-Rogue          45+15  37+12  36+10     5    32    24  60+21  66+18
-Ranger         30+8   37+11  36+10     3    24    16  56+18  72+28
-Paladin        20+7   24+10  34+11     1    12     2  68+21  40+18
-Warrior-Mage   30+7   35+10  36+10     2    18    16  50+15  25+11
-Chaos-Warrior  20+7   25+11  34+10     1    14    12  65+20  40+17
-Monk           45+15  34+11  36+10     5    32    24  64+18  60+18
-Mindcrafter    30+10  33+11  38+10     3    22    16  50+14  40+18
-High-Mage      30+7   40+15  38+11     3    16    20  34+6   20+7 
-Tourist        15+5   18+7   28+9      1    12     2  40+11  20+11
-Imitator       25+7   30+10  36+10     2    18    16  60+18  50+20
-Beastmaster    20+7   25+10  32+10     2    18    16  52+14  63+25
-Sorcerer       30+7   48+18  75+13     2    12    22   0+0    0+0 
-Archer         38+12  24+10  35+10     4    24    16  56+18  82+36
-Magic-Eater    25+7   42+16  36+10     2    20    16  48+13  35+11
-Bard           20+8   33+13  34+11    -5    16    20  34+10  20+8 
-Red-Mage       20+7   34+11  34+11     1    16    10  56+18  25+11
-Samurai        25+12  18+7   32+10     2    16     6  70+23  40+18
-Force-Trainer  30+10  34+11  38+11     4    32    24  50+14  40+15
-Blue-Mage      30+7   40+16  36+11     3    20    16  40+6   25+7 
-Cavalry        20+10  18+7   32+10     1    16    10  60+22  66+26
-Weaponsmith    30+10  28+10  28+10     1    20    10  60+21  45+15
-Mirror-Master  30+10  33+11  40+12     3    14    16  34+6   30+10
-Ninja          45+15  24+10  36+10     8    48    32  70+25  66+18
-Sniper         25+12  24+10  28+10     5    32    18  35+12  72+28
-Time-Lord      25+7   35+11  35+10     2    16     8  48+13  20+13
-Blood-Knight   25+12  18+7   32+10     2    16     6  70+23  20+15
-Warlock        20+8   24+10  34+11     1    16    20  34+10  20+8 
-Archaeologist  45+15  50+12  36+10     4    50    32  48+13  35+11
-Duelist        30+10  33+11  23+10     3    22    16  50+14   0+0 
-Wild-Talent    30+8   40+15  31+10     1    24    16  68+18  50+20
-Rune-Knight    30+7   35+10  36+10     2    18    16  50+15  25+11
-Weaponmaster   30+10  28+10  28+10     1    20    10  60+21  45+15
-Blood-Mage     30+7   40+15  38+11     3    16    20  34+6   20+7 
-Necromancer    30+7   40+15  38+11     4    16    20  34+6   20+7 
-Psion          25+7   35+11  40+12     2    16     8  48+13  35+11
-Rage-Mage      20+7   24+10  40+15    -1    12     2  50+15  30+15
-Scout          30+15  33+11  34+10     6    50    24  50+20  50+20
-Mauler         25+12  25+11  35+12     0    14     2  70+30  20+7 
-Mystic         45+15  34+11  36+10     5    32    24  64+18  60+18
-Devicemaster   25+7   50+20  36+10     2    20    16  48+13  35+11
+[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Warrior         +4   -2   -2   +2   +2   +1  117%  +18  100%
+  Mage            -4 [[[[G|  +3 |  +0   +1   -2   -2   95%   +0  130%
+  Priest          -1   -3 [[[[G|  +3 |  -1   +0   +2  100%   +4  120%
+  Rogue           +2 [[[[G|  +1 |  -1   +3   +1   +1  110%  +12  125%
+  Ranger          +2   +0 [[[[G|  +2 |  +1   +1   +0  106%   +8  140%
+  Paladin         +3   -3 [[[[G|  +1 |  +0   +2   +2  111%  +12  135%
+  Warrior-Mage    +2 [[[[G|  +2 |  +0   +1   +0   +1  106%   +8  140%
+  Chaos-Warrior   +2 [[[[G|  +1 |  -1   +0   +2   +1  111%  +12  125%
+  Monk            +2   -1 [[[[G|  +1 |  +3   +2   +1  110%  +12  130%
+  Mindcrafter     -1   +0 [[[[G|  +3 |  -1   -1   +2  100%   +4  125%
+  High-Mage       -4 [[[[G|  +4 |  +0   +0   -2   -2   94%   +0  130%
+  Tourist         -1 [[[[G|  -1 |  -1   -1   -1   -3   95%   +0   70%
+  Imitator        +0   +1   -1   +2   +0   -1  108%  +10  110%
+  Beastmaster     +1   -1   -1   +1   +0 [[[[G|  +2 | 103%   +6  120%
+  Sorcerer        -5   +0   -2   +2   +0 [[[[G|  +6 |  65%   +0  160%
+  Archer          +2   -1   -1   +2   +1   +0  111%  +12  110%
+  Magic-Eater     -1   +2   +1   +2   -2   -2  103%   +6  130%
+  Bard            -2   +1   +2   -1   -2 [[[[G|  +4 | 100%   +4  140%
+  Red-Mage        +2 [[[[G|  +2 |  -1   +1   +0   -1  106%   +8  140%
+  Samurai         +3   -2 [[[[G|  +1 |  +2   +1   +1  111%  +12  130%
+[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Force-Trainer   +0   -1 [[[[G|  +3 |  +2   +1   +0  100%   +4  135%
+  Blue-Mage       -4 [[[[G|  +4 |  -1   +1   -2   -2  100%   +4  130%
+  Cavalry         +2   -2   -2   +2   +2   +1  111%  +10  120%
+  Berserker     [[[[G|  +8 | -20  -20   +4   +4  -20  200%  +22  160%
+  Weaponsmith     +3   -1   -1   +1   +0   +0  111%  +12  130%
+  Mirror-Master   -2   +3 [[[[G|  +1 |  -1   -2   -2  100%   +4  130%
+  Ninja           +0   -1   -1 [[[[G|  +3 |  +2   +2  100%   +4  120%
+  Sniper          +2   -1   -1   +2   +1   +0  100%   +4  110%
+  Time-Lord       -1   +0   +0   -1   -1 [[[[G|  +3 |  96%   +0  125%
+  Blood-Knight    +2   -2   -2   +0 [[[[G|  +3 |  +2  120%  +20  150%
+  Warlock         -2   +1   +2   -1   -2 [[[[G|  +4 | 100%   +4  125%
+  Archaeologist   -1   +1 [[[[G|  +2 |  +1   -1   +0  106%   +8  120%
+  Duelist       [[[[G|  +2 |  +1   -2   +2   -3   +2  100%   +4  150%
+  Wild-Talent     -1 [[[[G|  +2 |  -1   +2   -2   +1  100%   +4  110%
+  Rune-Knight     +2 [[[[G|  +2 |  +0   +1   +0   +1  107%   +6  150%
+  Weaponmaster  [[[[G|  +3 |  -1   -1   +1   +1   +1  109%  +12  135%
+  Blood-Mage      -4 [[[[G|  +3 |  -2   +1   +2   -2  108%  +10  150%
+  Necromancer     -2 [[[[G|  +3 |  -4   +1   -1   -2   95%   +2  125%
+  Psion           -1   +2   +2   -1   -1   +2  100%   +4  150%
+  Rage-Mage     [[[[G|  +3 |  -2   -2   -2   +2   +1  106%   +6  150%
+[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Scout           +1   -1 [[[[G|  +2 |  +3   +0   +0  104%   +8  130%
+  Mauler        [[[[G|  +5 |  -2   -2   -1   +3   +2  119%  +18  120%
+  Mystic          +2   -1   -2   +3   +1 [[[[G|  +2 | 100%   +4  130%
+  Devicemaster    -1 [[[[G|  +2 |  +1   +2   -2   -2  101%   +6  130%
 
 
+[[[[y|  Table 2 - Class Skill Bonus Table
+
+[[[[r|                 Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Warrior        25+12  18+7   31+10     1    14     2  70+30  55+30
+  Mage           30+7   40+15  38+11     3    16    20  34+6   20+7 
+  Priest         25+7   35+11  40+12     2    16     8  48+13  35+11
+  Rogue          45+15  37+12  36+10     5    32    24  60+21  66+18
+  Ranger         30+8   37+11  36+10     3    24    16  56+18  72+28
+  Paladin        20+7   24+10  34+11     1    12     2  68+21  40+18
+  Warrior-Mage   30+7   35+10  36+10     2    18    16  50+15  25+11
+  Chaos-Warrior  20+7   25+11  34+10     1    14    12  65+20  40+17
+  Monk           45+15  34+11  36+10     5    32    24  64+18  60+18
+  Mindcrafter    30+10  33+11  38+10     3    22    16  50+14  40+18
+  High-Mage      30+7   40+15  38+11     3    16    20  34+6   20+7 
+  Tourist        15+5   18+7   28+9      1    12     2  40+11  20+11
+  Imitator       25+7   30+10  36+10     2    18    16  60+18  50+20
+  Beastmaster    20+7   25+10  32+10     2    18    16  52+14  63+25
+  Sorcerer       30+7   48+18  75+13     2    12    22   0+0    0+0 
+  Archer         38+12  24+10  35+10     4    24    16  56+18  82+36
+  Magic-Eater    25+7   42+16  36+10     2    20    16  48+13  35+11
+  Bard           20+8   33+13  34+11    -5    16    20  34+10  20+8 
+  Red-Mage       20+7   34+11  34+11     1    16    10  56+18  25+11
+  Samurai        25+12  18+7   32+10     2    16     6  70+23  40+18
+[[[[r|                 Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Force-Trainer  30+10  34+11  38+11     4    32    24  50+14  40+15
+  Blue-Mage      30+7   40+16  36+11     3    20    16  40+6   25+7 
+  Cavalry        20+10  18+7   32+10     1    16    10  60+22  66+26
+  Weaponsmith    30+10  28+10  28+10     1    20    10  60+21  45+15
+  Mirror-Master  30+10  33+11  40+12     3    14    16  34+6   30+10
+  Ninja          45+15  24+10  36+10     8    48    32  70+25  66+18
+  Sniper         25+12  24+10  28+10     5    32    18  35+12  72+28
+  Time-Lord      25+7   35+11  35+10     2    16     8  48+13  20+13
+  Blood-Knight   25+12  18+7   32+10     2    16     6  70+23  20+15
+  Warlock        20+8   24+10  34+11     1    16    20  34+10  20+8 
+  Archaeologist  45+15  50+12  36+10     4    50    32  48+13  35+11
+  Duelist        30+10  33+11  23+10     3    22    16  50+14   0+0 
+  Wild-Talent    30+8   40+15  31+10     1    24    16  68+18  50+20
+  Rune-Knight    30+7   35+10  36+10     2    18    16  50+15  25+11
+  Weaponmaster   30+10  28+10  28+10     1    20    10  60+21  45+15
+  Blood-Mage     30+7   40+15  38+11     3    16    20  34+6   20+7 
+  Necromancer    30+7   40+15  38+11     4    16    20  34+6   20+7 
+  Psion          25+7   35+11  40+12     2    16     8  48+13  35+11
+  Rage-Mage      20+7   24+10  40+15    -1    12     2  50+15  30+15
+  Scout          30+15  33+11  34+10     6    50    24  50+20  50+20
+[[[[r|                 Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Mauler         25+12  25+11  35+12     0    14     2  70+30  20+7 
+  Mystic         45+15  34+11  36+10     5    32    24  64+18  60+18
+  Devicemaster   25+7   50+20  36+10     2    20    16  48+13  35+11
 
 
-Automatically generated for PosChengband 1.0.24.
+
+
+[[[[s|  Automatically generated for PosChengband 1.0.37.

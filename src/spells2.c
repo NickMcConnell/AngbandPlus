@@ -3627,7 +3627,7 @@ void discharge_minion(void)
         {
             char m_name[80];
             monster_desc(m_name, m_ptr, 0x00);
-            msg_format("%^s resists to be blasted, and run away.", m_name);
+            msg_format("%^s resists being blasted, and runs away.", m_name);
             delete_monster_idx(i);
             continue;
         }

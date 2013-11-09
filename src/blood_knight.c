@@ -537,10 +537,18 @@ class_t *blood_knight_get_class_t(void)
     skills_t xs = { 12,   7,  10,   0,   0,   0,  23,  15};
 
         me.name = "Blood-Knight";
-        me.desc = "A blood knight is a fighter who has delved into the dark arts and can perform "
-                  "a limited number of offense effects using his own health.  In addition to the "
+        me.desc = "A Blood-Knight is a fighter who has delved into the dark arts and can perform "
+                  "a limited number of offensive effects using his own health. In addition to the "
                   "HP cost, using an ability also causes bleeding/wounds, with an amount proportional "
-                  "to the cost of the ability.";
+                  "to the cost of the ability. Their primary stat for abilities is Con.\n \n"
+                  "Blood-Knights are strong in melee, but are very unusual in the fact that the more "
+                  "wounded they are, the stronger they become. When damaged, they gain additional "
+                  "melee attacks and damage, and moreso the more wounded and cut they become. Indeed, when on the "
+                  "brink of death they are the strongest fighters imaginable, and stories of their "
+                  "legendary feats abound. Of course, with great power comes great risk of death, "
+                  "and you don't recall ever meeting one of these heroes of legend in person!\n \n"
+                  "Since the Blood-Knight relies on their own blood for their power, they are restricted "
+                  "to only certain races. No non-living race may walk the red path.";
 
         me.stats[A_STR] =  2;
         me.stats[A_INT] = -2;

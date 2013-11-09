@@ -4021,21 +4021,21 @@ static void bldg_process_command(building_type *bldg, int i)
         break;
     case BACT_REPUTATION:
         if (p_ptr->fame <= 0)
-            msg_print("Who the hell are you?");
+            msg_format("Who the hell are you? (Fame = %d)", p_ptr->fame);
         else if (p_ptr->fame < 5)
-            msg_print("I've never even heard of you!");
+            msg_format("I've never even heard of you! (Fame = %d)", p_ptr->fame);
         else if (p_ptr->fame < 10)
-            msg_print("Hmmm ... You've done a few minor notable deeds, but hardly anything worth bragging about!");
+            msg_format("Hmmm ... You've done a few minor notable deeds, but hardly anything worth bragging about! (Fame = %d)", p_ptr->fame);
         else if (p_ptr->fame < 15)
-            msg_print("Yes, I've heard of you. The townfolk are talking!");
+            msg_format("Yes, I've heard of you. The townfolk are talking! (Fame = %d)", p_ptr->fame);
         else if (p_ptr->fame < 20)
-            msg_print("Ah, good sir. 'Tis an honor to see you again!");
+            msg_format("Ah, good sir. 'Tis an honor to see you again! (Fame = %d)", p_ptr->fame);
         else if (p_ptr->fame < 50)
-            msg_print("You are a true hero!");
+            msg_format("You are a true hero! (Fame = %d)", p_ptr->fame);
         else if (p_ptr->fame < 75)
-            msg_print("You are the stuff of legends!");
+            msg_format("You are the stuff of legends! (Fame = %d)", p_ptr->fame);
         else
-            msg_print("The bards doth sing of ye: Heroic ballads both far 'n wide!");
+            msg_format("The bards doth sing of ye: Heroic ballads both far 'n wide! (Fame = %d)", p_ptr->fame);
         paid = TRUE;
         break;
     }

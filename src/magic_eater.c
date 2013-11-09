@@ -366,13 +366,26 @@ static void _tval_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
 }
 
-static int _prompt_tval(void)
+static int _prompt_tval(int tval)
 {
     int idx = -1;
     int ct = 0;
     menu_t menu = { "Use which type of device?", NULL, NULL,
                         _tval_menu_fn, 
                         NULL, 3};
+
+    if (tval)
+    {
+        int i;
+        for (i = 0; i < 3; i++)
+        {
+            if (_tval_choices[i].tval == tval)
+            {
+                _tval_choice = _tval_choices[i].name;
+                return tval;
+            }
+        }
+    }
 
     idx = menu_choose(&menu);
     if (idx < 0) return 0;
@@ -511,21 +524,32 @@ static _spell_t *_prompt_spell(_spell_t *spells)
     return NULL;
 }
 
-/* Menu Code: Putting it all together */
-static _spell_t *_prompt(void)
+/* Menu Code: Putting it all together
+   Hack: To address complaints about adding a single (!) extra keystroke,
+   I've added code to bypass the tval selection. Simply use normal zap,
+   aim or use commands and you end up here, provided that your inventory
+   does not have a qualifying object. It is unlikely that a magic-eater
+   would not eat a given object, but they can just use the normal 'm' 
+   command if necessary.
+*/
+static _spell_t *_prompt(int tval)
 {
-    int tval;
+    int tval2;
     _group_ptr group;
     _spell_ptr spell;
 
     for (;;)
     {
-        tval = _prompt_tval();
-        if (tval <= 0) break;
+        tval2 = _prompt_tval(tval); /* _tval_choice needs to be set for submenus! */
+        if (tval2 <= 0) break;
         for (;;)
         {
-            group = _prompt_group(tval);
-            if (!group) return NULL/*break*/;
+            group = _prompt_group(tval2);
+            if (!group)
+            {
+                if (tval) return NULL;
+                else return NULL/*break*/;
+            }
             spell = _prompt_spell(group->spells);
             if (spell)
                 return spell;
@@ -544,7 +568,7 @@ static void _browse(void)
 
     for (;;)
     {
-        tval = _prompt_tval();
+        tval = _prompt_tval(0);
         if (tval <= 0) break;
         for (;;)
         {
@@ -618,7 +642,7 @@ void magic_eater_browse(void)
     _browse();
 }
 
-void magic_eater_cast(void)
+void magic_eater_cast(int tval)
 {
     int chance;
     _spell_t *spell;
@@ -630,7 +654,7 @@ void magic_eater_cast(void)
         return;
     }
 
-    spell = _prompt();
+    spell = _prompt(tval);
     if (!spell)
         return;
     if (!_calc_charges(spell))

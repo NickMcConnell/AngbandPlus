@@ -1040,8 +1040,21 @@ class_t *time_lord_get_class_t(void)
     skills_t xs = {  7,  11,  10,   0,   0,   0,  13,  13 };
 
         me.name = "Time-Lord";
-        me.desc = "Time-Lords are masters of time.  They are mediocre fighters, but their temporal "
-                    "mastery gives them great speed, as well as the ability to manipulate time.";
+        me.desc = "Time-Lords are masters of temporal magic, altering the flow of time "
+                  "to their advantage. They don't learn spells from books, but rather "
+                  "gain new powers as they grow more experienced. They are the only class "
+                  "that can affect monsters with time based attacks. Not only do these damage "
+                  "their foes, but they also inflict a wide variety of possible effects, from "
+                  "slowing to amnesia, from evolution to devolution, from weakening to stasis. "
+                  "In addition to temporal attacks, the Time-Lord gains great powers of speed, and "
+                  "they grow faster with experience. It is said that masters of time can even see "
+                  "the future, avoiding attacks that would otherwise prove fatal! Also, legend "
+                  "has it that the greatest Time-Lords are able to take multiple actions in a single "
+                  "turn.\n \n"
+                  "Time-Lords are mediocre fighters and not good at archery at all. They are OK with "
+                  "magical devices, but nowhere near as proficient as are mages. They have midling "
+                  "stealth. At high levels, they become resistant to time. The Time-Lord's primary "
+                  "magic stat is Charisma.";
 
         me.stats[A_STR] = -1;
         me.stats[A_INT] =  0;

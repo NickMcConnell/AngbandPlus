@@ -2159,8 +2159,8 @@ static bool build_type5(void)
     }
 
     /* Find and reserve some space in the dungeon.  Get center of room. */
-    cy = 2 + randint1(4);
-    cx = 6 + randint1(10);
+    cy = 4 /*2 + randint1(4)*/;
+    cx = 11 /*6 + randint1(10)*/;
 
     if (!find_space(&yval, &xval, 2*cy+3, 2*cx+3)) return FALSE;
     y1 = yval - cy;

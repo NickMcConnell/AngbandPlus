@@ -33,6 +33,8 @@ static int _count(int list[])
 
 static int _random(int list[])
 {
+    if (spoiler_hack)
+        return list[0];
     return list[randint0(_count(list))];
 }
 

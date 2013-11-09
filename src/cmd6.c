@@ -59,6 +59,18 @@ static int _device_power_hack(int pow, bool magic)
     return device_power(pow);
 }
 
+static bool _pack_find_tval(int tval)
+{
+    int i;
+    for (i = 0; i < EQUIP_BEGIN; i++)
+    {
+        if (inventory[i].tval == tval)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+
 bool restore_mana(void)
 {
     bool result = FALSE;
@@ -1257,6 +1269,12 @@ void do_cmd_use_staff(void)
         set_action(ACTION_NONE);
     }
 
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !_pack_find_tval(TV_STAFF))
+    {
+        magic_eater_cast(TV_STAFF);
+        return;
+    }
+
     /* Restrict choices to wands */
     item_tester_tval = TV_STAFF;
 
@@ -1427,13 +1445,19 @@ void do_cmd_aim_wand(void)
     int     item;
     cptr    q, s;
 
-    /* Restrict choices to wands */
-    item_tester_tval = TV_WAND;
-
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
     {
         set_action(ACTION_NONE);
     }
+
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !_pack_find_tval(TV_WAND))
+    {
+        magic_eater_cast(TV_WAND);
+        return;
+    }
+
+    /* Restrict choices to wands */
+    item_tester_tval = TV_WAND;
 
     /* Get an item */
     q = "Aim which wand? ";
@@ -1595,7 +1619,6 @@ static void do_cmd_zap_rod_aux(int item)
     p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
 
-
 void do_cmd_zap_rod(void)
 {
     int item;
@@ -1604,6 +1627,12 @@ void do_cmd_zap_rod(void)
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
     {
         set_action(ACTION_NONE);
+    }
+
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !_pack_find_tval(TV_ROD))
+    {
+        magic_eater_cast(TV_ROD);
+        return;
     }
 
     /* Restrict choices to rods */

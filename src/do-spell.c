@@ -8848,7 +8848,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
     bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     int plev = p_ptr->lev;
 
@@ -8858,7 +8857,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 0:
         if (name) return "Cold Touch";
         if (desc) return "Damage an adjacent monster with a chilling touch.";
-        if (spoil) return "Touches an adjacent monster for 2d6+L cold damage.";
         if (info) return _necro_info_damage(2, 6, plev);
         if (cast && !_necro_do_touch(GF_COLD, 2, 6, plev)) return NULL;
         break;
@@ -8866,7 +8864,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 1:
         if (name) return "Summon Rat";
         if (desc) return "Summons a rat to feast on the dead!";
-        if (spoil) return "Summons a single rat.";
         if (cast || fail) _necro_do_summon(SUMMON_RAT, 1, fail);
         break;
 
@@ -8887,7 +8884,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 4:
         if (name) return "Poison Touch";
         if (desc) return "Damage an adjacent monster with a venomous touch.";
-        if (spoil) return "Touches an adjacent monster for 4d6+L poison damage.";
         if (info) return _necro_info_damage(4, 6, plev);
         if (cast && !_necro_do_touch(GF_POIS, 4, 6, plev)) return NULL;
         break;
@@ -8895,21 +8891,18 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 5:
         if (name) return "Summon Bats";
         if (desc) return "Summons bats to feast on the living!";
-        if (spoil) return "Summons 3 + (1d3-1) bats.";
-        if (cast || fail) _necro_do_summon(SUMMON_BAT, 3 + randint0(3), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_BAT, 1 + randint1(2), fail);
         break;
 
     case 6:
         if (name) return "Eldritch Howl";
         if (desc) return "Emit a terrifying howl.";
-        if (spoil) return "Emits a terrifying howl.  All monsters in line of sight are stricken with fear if they miss a saving throw. If they miss two saving throws, they are frozen with terror.";
         if (cast) project_hack(GF_ELDRITCH_HOWL, spell_power(plev * 3));
         break;
 
     case 7:
         if (name) return "Black Touch";
         if (desc) return "Damage an adjacent monster with a dark touch.";
-        if (spoil) return "Touches an adjacent monster for 6d6+3L/2 darkness damage.";
         if (info) return _necro_info_damage(6, 6, plev * 3 / 2);
         if (cast && !_necro_do_touch(GF_DARK, 6, 6, plev * 3 / 2)) return NULL;
         break;
@@ -8918,8 +8911,7 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 8:
         if (name) return "Summon Wolves";
         if (desc) return "Summons wolves to feast on the living!";
-        if (spoil) return "Summons 3 + (1d3-1) wolves.";
-        if (cast || fail) _necro_do_summon(SUMMON_WOLF, 3 + randint0(3), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_WOLF, 1 + randint1(2), fail);
         break;
 
     case 9:
@@ -8934,7 +8926,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 10:
         if (name) return "Undead Sight";
         if (desc) return "Learn about your nearby surroundings by communing with the dead.";
-        if (spoil) return "Maps nearby area.";
         if (info) return info_radius(DETECT_RAD_MAP);
         if (cast)
         {
@@ -8948,14 +8939,12 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 11:
         if (name) return "Undead Lore";
         if (desc) return "Ask the dead to examine an object for you.";
-        if (spoil) return "Identifies a chosen object.";
         if (cast) ident_spell(NULL);
         break;
 
     case 12:
         if (name) return "Repelling Touch";
         if (desc) return "Conjure a foul wind to blow an adjacent monster away.";
-        if (spoil) return "An adjacent monster is blown back by up to 10 squares, but takes no physical damage.";
     
         if (cast)
         {
@@ -9018,7 +9007,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 13:
         if (name) return "Vampiric Touch";
         if (desc) return "Steal life from an adjacent foe.";
-        if (spoil) return "Touches an adjacent monster for 4L damage. Player regains an equal amount of hp, but non-living monsters resist.";
         if (info) return _necro_info_damage(0, 0, plev * 4);
         if (cast && !_necro_do_touch(GF_OLD_DRAIN, 0, 0, plev * 4)) return NULL;
         break;
@@ -9026,14 +9014,12 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 14:
         if (name) return "Dread of Night";
         if (desc) return "Summons Dread to do your bidding.  Beware of failure!";
-        if (spoil) return "Summons 5 + (1d5-1) Dread.";
-        if (cast || fail) _necro_do_summon(SUMMON_DREAD, 5 + randint0(5), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_DREAD, 1 + randint0(3), fail);
         break;
 
     case 15:
         if (name) return "Entomb";
         if (desc) return "Entombs chosen foe.";
-        if (spoil) return "Targetted monster is surrounded by rubble or walls.";
         if (cast)
         {
             int dir; 
@@ -9048,56 +9034,48 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 16:
         if (name) return "Summon Zombies";
         if (desc) return "The dead are back and hungry for brains!";
-        if (spoil) return "Summons 10 + (1d10-1) zombies.";
-        if (cast || fail) _necro_do_summon(SUMMON_ZOMBIE, 10 + randint0(10), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_ZOMBIE, 2 + randint1(3), fail);
         break;
 
     case 17:
         if (name) return "Summon Skeletons";
         if (desc) return "Summon skeletal assistance.";
-        if (spoil) return "Summons 2 + (1d2-1) skeletons.";
-        if (cast || fail) _necro_do_summon(SUMMON_SKELETON, 2 + randint0(2), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_SKELETON, 1 + randint0(3), fail);
         break;
 
     case 18:
         if (name) return "Summon Ghosts";
         if (desc) return "Recall the spirits of slain warriors for unholy servitude.";
-        if (spoil) return "Summons 2 + (1d2-1) ghosts.";
-        if (cast || fail) _necro_do_summon(SUMMON_GHOST, 2 + randint0(2), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_GHOST, 1 + randint0(3), fail);
         break;
 
     case 19:
         if (name) return "Summon Vampires";
         if (desc) return "Its time to command the commanders!";
-        if (spoil) return "Summons 2 + (1d2-1) vampires.";
-        if (cast || fail) _necro_do_summon(SUMMON_VAMPIRE, 2 + randint0(2), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_VAMPIRE, 1 + randint0(2), fail);
         break;
 
     case 20:
         if (name) return "Summon Wraiths";
         if (desc) return "Summon wights and wraiths to do your bidding.";
-        if (spoil) return "Summons 2 + (1d2-1) wights.";
-        if (cast || fail) _necro_do_summon(SUMMON_WIGHT, 2 + randint0(2), fail);
+        if (cast || fail) _necro_do_summon(SUMMON_WIGHT, 1 + randint0(2), fail);
         break;
 
     case 21:
         if (name) return "Summon Liches";
         if (desc) return "Call forth former necromancers.";
-        if (spoil) return "Summons 1 + (1d2-1) liches.";
         if (cast || fail) _necro_do_summon(SUMMON_LICH, 1 + randint0(2), fail);
         break;
 
     case 22:
         if (name) return "Unholy Word";
         if (desc) return "Utter an unspeakable word.  The morale of your visible evil pets is temporarily boosted and they will serve you with renewed enthusiasm.";
-        if (spoil) return "All evil pets in the player's line of sight are no longer stunned, confused or afraid, get healed by 6L hp, and get temporarily hasted for 100 rounds.";
         if (cast) project_hack(GF_UNHOLY_WORD, p_ptr->lev * 6);
         break;
 
     case 23:
         if (name) return "Lost Cause";
         if (desc) return "Make a last ditch Kamikaze effort for victory!";
-        if (spoil) return "All of the player's pets are exploded damaging any nearby monsters, including the player.";
         if (cast) discharge_minion();
         break;
 
@@ -9105,7 +9083,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 24:
         if (name) return "Draining Touch";
         if (desc) return "Steal mana from an adjacent foe.";
-        if (spoil) return "Touches an adjacent monster for 5d5+L/2 damage. Player regains an equal amount of sp, but non-magical monsters resist.";
         if (info) return _necro_info_damage(5, 5, plev/2);
         if (cast && !_necro_do_touch(GF_DRAINING_TOUCH, 5, 5, plev/2)) return NULL;
         break;
@@ -9113,7 +9090,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 25:
         if (name) return "Unhallow Ground";
         if (desc) return "Makes the current square unholy.";
-        if (spoil) return "Creates an unholy glyph which monsters may not pass. Monsters may not attack the player who stands on the glyph, though there is a small chance that monsters may break the glyph every round.";
         if (cast) warding_glyph(); /* TODO: Add new cave feature! */
         break;
 
@@ -9122,7 +9098,6 @@ static cptr do_necromancy_spell(int spell, int mode)
         int base = spell_power(20);
         if (name) return "Shield of the Dead";
         if (desc) return "Grants temporary protection";
-        if (spoil) return "Player gains nether, cold and poison resistance for L+dL rounds.";
         if (info) return info_duration(base, base);
         if (cast)
         {
@@ -9136,7 +9111,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 27:
         if (name) return "Rending Touch";
         if (desc) return "Damage an adjacent monster with a disintegrating touch.";
-        if (spoil) return "Touches an adjacent monster for 20d20+L disintegration damage.";
         if (info) return _necro_info_damage(20, 20, p_ptr->lev);
         if (cast && !_necro_do_touch(GF_DISINTEGRATE, 20, 20, p_ptr->lev)) return NULL;
         break;
@@ -9144,7 +9118,6 @@ static cptr do_necromancy_spell(int spell, int mode)
     case 28:
         if (name) return "Repose of the Dead";
         if (desc) return "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death.  When (if?) you wake up, you will be thoroughly refreshed!";
-        if (spoil) return "Player is paralyzed for 4 + 1d4 rounds. Upon awakening, stats and life are restored.";
         if (cast)
         {
             if (!get_check("You will enter a deep slumber. Are you sure?")) return NULL;

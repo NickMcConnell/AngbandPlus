@@ -201,7 +201,10 @@ static void _gain_level(int new_level)
     }
     if (p_ptr->current_r_idx == MON_STONE_TROLL && new_level >= 20)
     {
-        switch (randint0(3))
+        int r = randint0(3);
+        if (spoiler_hack)
+            r = 2;
+        switch (r)
         {
         case 0:
             p_ptr->current_r_idx = MON_ICE_TROLL;

@@ -13,11 +13,31 @@
 /* TODO: These don't belong here ... */
 static cptr pact_desc[MAX_PACTS] = 
 {
-"Undead are tough creatures, each having survived death at least once. Warlocks who make a pact with Undead will find themselves with a slew of additional resistances, along with significantly higher hit points and constitution. Eventually, Undead Warlocks attain the ability to become partially incorporeal for brief periods at will. Making a pact with Undead will reduce damage done to all undead by half.",
-"Dragons are powerful melee combatants, having tough hides and resistances to many common elemental types. Warlocks who make a pact with Dragons will find themselves with significantly strong melee abilities (both offensive and defensive), one extra maximum blow in combat, and eventually a powerful breath weapon. Making a pact with Dragons will reduce damage done to all dragons by half.",
-"Angels are heavenly beings who use a variety of techniques to smite those they view as evil. Warlocks who make pacts with Angels will find their saving throws significantly improved, and their body immune to bolt-like effects. Eventually Angel Warlocks attain the ability to become invulnerable for brief periods at will. Since Angels are strongly aligned with the forces of good, making a pact with Angels will reduce damage done to all good monsters by half.",
-"Demons are crafty creatures of the netherworld, using whatever means at their disposal to bring down their enemies. Warlocks who make pacts with Demons will find their abilities to use all magical devices improved, and gains the ability to Recharge these devices at will. Eventually, Demon Warlocks attain the ability to crush walls beneath their footsteps. Making a pact with Demons will reduce damage done to all demons by half.",
-"Aberrations are the mishmash of demihumanoid races in the world of PosChengband. Warlocks who make pacts with Aberrations will find themselves sprouting strange body parts that can be used for various attacks. The demented mind of aberrations also eventually grants Warlocks the power of telepathy and dimension door. Making a pact with Aberrations will reduce damage done to all humanoids (h) and people (p) by half.",
+    "Undead are tough creatures, each having survived death at least once. Warlocks who make a pact "
+        "with Undead will find themselves with a slew of additional resistances, along with "
+        "significantly higher hit points and constitution. Eventually, Undead Warlocks attain "
+        "the ability to become partially incorporeal for brief periods at will. Making a pact "
+        "with Undead will reduce damage done to all undead by a substantial amount.",
+    "Dragons are powerful melee combatants, having tough hides and resistances to many common "
+        "elemental types. Warlocks who make a pact with Dragons will find themselves with "
+        "significantly strong melee abilities (both offensive and defensive), extra maximum blows "
+        "in combat, and eventually powerful melee abilities like massacre and stone skin. "
+        "Making a pact with Dragons will reduce damage done to all dragons by a substantial amount.",
+    "Angels are heavenly beings who use a variety of techniques to smite those they view as evil. "
+        "Warlocks who make pacts with Angels will find their saving throws significantly improved, "
+        "and their body immune to bolt-like effects. Eventually Angel Warlocks attain the ability "
+        "to become invulnerable for brief periods at will. Since Angels are strongly aligned with "
+        "the forces of good, making a pact with Angels will reduce damage done to all good monsters "
+        "by a substantial amount.",
+    "Demons are crafty creatures of the netherworld, using whatever means at their disposal to bring "
+        "down their enemies. Warlocks who make pacts with Demons will find their abilities to use "
+        "all magical devices improved, and gain the ability to Recharge these devices at will. "
+        "Eventually, Demon Warlocks attain the ability to crush walls beneath their footsteps. "
+        "Making a pact with Demons will reduce damage done to all demons by a substantial amount.",
+    "Aberrations are the mishmash of demihumanoid races in the world of PosChengband. Warlocks who "
+        "make pacts with Aberrations will gain great skills with shooting and may even create their "
+        "own ammo. At high levels, they gain the power of Dimension Door. Making a pact with Aberrations "
+        "will reduce damage done to all humanoids (h) and people (p) by a substantial amount.",
 };
 static cptr seikaku_jouhou[MAX_SEIKAKU] =
 {
@@ -509,9 +529,9 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_PALADIN, CLASS_RANGER, CLASS_RED_MAGE, 
                     CLASS_WARRIOR_MAGE, -1} },
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
-    { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION, CLASS_RAGE_MAGE, 
+    { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION, 
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
-    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, 
+    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, CLASS_RAGE_MAGE, 
                     CLASS_TOURIST, CLASS_WILD_TALENT, -1} },
 };
 

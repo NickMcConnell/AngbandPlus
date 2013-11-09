@@ -1,7 +1,7 @@
 === Creating a Character ===
 
 PosChengband is a role playing game, in which you, the player, control a
-character in a dangerous world of myth and magic. The most imporatant
+character in a dangerous world of myth and magic. The most important
 decision you make on your quest to the Kill the Serpent of Chaos is
 what kind of character to play: Spell-wielding magician or sword-waving
 warrior? Stealthy rogue or muscial bard? Holy priest or evil spawn of
@@ -16,7 +16,9 @@ Patient, etc). Each of these choices are described in the help
 files.
 
 You may start the entire process over at any time by pressing 'S' at
-any prompt.
+any prompt. Also, you can press 'Esc' to back up to the previous option.
+Finally, you can press 'Q' to quit at any time, but this is highly
+discouraged!
 
 
 ***** <CharAttributes>
@@ -93,7 +95,7 @@ of magical means.
 
 --- Spell Points (Mana) ---
 
-Each character has spell points, or mana, which represents how many
+Many characters have spell points, or mana, which represents how many
 spells a character can cast.  Your spell points (sometimes called
 mana) are derived from your class, level, a primary stat of your
 class, and race modifier of that stat.  Spell points may be regained

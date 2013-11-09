@@ -974,10 +974,27 @@ class_t *warlock_get_class_t(int psubclass)
     skills_t xs = {  8,  10,  11,   0,   0,   0,  10,   8};
 
         me.name = "Warlock";
-        me.desc = "A warlock, unlike typical mages, derives his powers from pacts with "
-                  "arcane creatures, rather than through careful study.  They can cast "
-                  "all magic they know at will without requiring any SP, and depending on "
-                  "the type of Warlock, have different abilities.";
+        me.desc = "A Warlock, unlike typical mages, derives his powers from pacts with "
+                  "arcane creatures, rather than through careful study. Warlocks possess "
+                  "the unique offensive power of the Eldritch Blast, and they use this "
+                  "without paying any sort of mana or hitpoint costs (though they still have "
+                  "fail rates). The Warlock's primary spell stat is Charisma, and this "
+                  "directly influences the damage of their Eldritch Blast.\n \n"
+                  "Each Warlock makes a pact with a single type of creature: "
+                  "Undead, Dragons, Angels, Demons or Aberrations. This pact confers both "
+                  "advantages and disadvantages. For one thing, Warlocks are very ineffective "
+                  "when fighting monsters with whom they have formed an alliance. Every form "
+                  "of damage is actually reduced by a substantial amount, and this makes killing "
+                  "pact monsters extremely difficult. Probably, the Warlock should avoid fighting "
+                  "these monsters altogether. Indeed, at high levels pact monsters are often friendly to the "
+                  "warlock, but some fights cannot be avoided it seems. That's the bad news. "
+                  "The good news is that each pact confers unique abilities and powers to the warlock. "
+                  "These benefits reflect the nature of the pact monster. For example, a pact with "
+                  "Undead confers resistance to Poison and Nether as well as Hold Life, among other "
+                  "things. A pact with Dragons confers the power to resist the elements as well as "
+                  "strong melee (Warlocks are generally poor fighters otherwise). In addition, each "
+                  "pact gives a unique high level offensive power when using their Eldritch Blast.";
+
 
         me.stats[A_STR] = -2;
         me.stats[A_INT] =  1;

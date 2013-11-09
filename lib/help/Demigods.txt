@@ -1,13 +1,13 @@
-=== Demigod Parentage ===
+[[[[B|  Demigod Parentage
 
 ***** <Minor God>
---- Minor God ---
+[[[[r|  Minor God
 
   Fathered by a minor god, you gain no starting powers.
 
 
 ***** <Zeus>
---- Zeus ---
+[[[[r|  Zeus
 
   Zeus, King of the gods and ruler of Mount Olympus, is god of the Sky and
   Thunder, and nominal husband of Hera.  You inherit increased stature and your
@@ -16,21 +16,21 @@
 
 
 ***** <Poseidon>
---- Poseidon ---
+[[[[r|  Poseidon
 
   Poseidon, Brother of Zeus, is Lord of the Seas and Storm.  You inherit
   elemental protection and corrosive attacks that melt the armor of your foes.
 
 
 ***** <Hades>
---- Hades ---
+[[[[r|  Hades
 
   Hades is Ruler of the Underworld.  You gain resistance to nether forces,
   increased fortitude and have a firm grasp on your life and health.
 
 
 ***** <Athena>
---- Athena ---
+[[[[r|  Athena
 
   Athena is the great goddess of wisdom and the protector of Athens. She was
   born of Zeus and the Titan Metis, and her cunning far surpasses that of the
@@ -41,7 +41,7 @@
 
 
 ***** <Ares>
---- Ares ---
+[[[[r|  Ares
 
   Ares is the bold son of Zeus and Hera, whose very name is feared and
   respected by warriors and citizens alike. His legendary combat prowess
@@ -54,7 +54,7 @@
 
 
 ***** <Hermes>
---- Hermes ---
+[[[[r|  Hermes
 
   Hermes, the Messenger, is the extremely cunning diplomat used by the
   Olympians to negotiate truces. With his Winged Sandals and his powerful
@@ -64,7 +64,7 @@
 
 
 ***** <Apollo>
---- Apollo ---
+[[[[r|  Apollo
 
   Apollo has been variously recognized as a god of light and the sun, truth and
   prophecy, medicine, healing, plague, music, poetry, arts, archery, and more. 
@@ -73,7 +73,7 @@
 
 
 ***** <Artemis>
---- Artemis ---
+[[[[r|  Artemis
 
   Artemis was often described as the daughter of Zeus and Leto, and the twin
   sister of Apollo. She was the Hellenic goddess of the hunt, wild animals,
@@ -85,7 +85,7 @@
 
 
 ***** <Hephaestus>
---- Hephaestus ---
+[[[[r|  Hephaestus
 
   Hephaestus was the god of technology, blacksmiths, craftsmen, artisans,
   sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths
@@ -96,7 +96,7 @@
 
 
 ***** <Hera>
---- Hera ---
+[[[[r|  Hera
 
   Hera was the wife and one of three sisters of Zeus.  Her chief function was
   as the goddess of women and marriage.  You inherit great clarity of mind and
@@ -105,7 +105,7 @@
 
 
 ***** <Demeter>
---- Demeter ---
+[[[[r|  Demeter
 
   Demeter is the goddess of the harvest, who presided over grains, the
   fertility of the earth, and the seasons.  You gain powers of regeneration,
@@ -114,7 +114,7 @@
 
 
 ***** <Aphrodite>
---- Aphrodite ---
+[[[[r|  Aphrodite
 
   Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation. 
   You inherit her sex appeal. As such, your pets are more obedient and
@@ -124,43 +124,43 @@
 
 
 ***** <Tables>
---- Table 1 - Race Statistic Bonus Table ---
+[[[[y|  Table 1 - Race Statistic Bonus Table ---
 
-               STR  INT  WIS  DEX  CON  CHR  Life  Exp
-Minor God       +1   +1   +1   +1   +1   +1  100%  180%
-Zeus            +2   +2   +2   +2   +2   +2  100%  250%
-Poseidon        +2   +1   +1   +2   +1   +1  100%  240%
-Hades           +1   +1   +1   +1   +3   +1  107%  240%
-Athena          +1   +3   +1   +1   +1   +1  100%  240%
-Ares            +3   +1   +1   +1   +1   +1  100%  240%
-Hermes          +1   +1   +1   +1   +1   +1  100%  240%
-Apollo          +1   +1   +1   +1   +1   +1  100%  230%
-Artemis         +1   +1   +1   +3   +1   +1  100%  230%
-Hephaestus      +1   +1   +1   +1   +1   +1  100%  230%
-Hera            +1   +1   +3   +1   +1   +1  100%  220%
-Demeter         +1   +1   +1   +1   +1   +1  100%  220%
-Aphrodite       +1   +1   +1   +1   +1   +3  100%  220%
-
-
---- Table 2 - Race Skill Bonus Table ---
-
-               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra
-Minor God        +2    +3    +1    +0    +0    +7    +10    +5     0'
-Zeus             +2    +3    +1    +0    +0    +7    +10    +5     0'
-Poseidon         +2    +3    +1    +0    +0    +7    +10    +5     0'
-Hades            +2    +3    +8    +0    +0    +7    +10    +5     0'
-Athena           +2    +3    +1    +0    +0    +7    +10    +5     0'
-Ares             +2    +3    -4    -1    +0    +7    +25    +5     0'
-Hermes           +2    +3    +1    +2    +0    +7    +10    +5     0'
-Apollo           +2    +3    +1    +0    +0    +7    +10    +5     0'
-Artemis          +2    +3    +1    +0    +0    +7    +10   +20     0'
-Hephaestus       +2    +3    +1    +0    +0    +7    +10    +5     0'
-Hera             +2    +3    +1    +0    +0    +7    +10    +5     0'
-Demeter          +2    +3    +1    +0    +0    +7    +10    +5     0'
-Aphrodite        +2    +3    +1    +0    +0    +7    +10    +5     0'
+[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  Exp
+  Minor God       +1   +1   +1   +1   +1   +1  100%  180%
+  Zeus            +2   +2   +2   +2   +2   +2  100%  250%
+  Poseidon        +2   +1   +1   +2   +1   +1  100%  240%
+  Hades           +1   +1   +1   +1   +3   +1  107%  240%
+  Athena          +1   +3   +1   +1   +1   +1  100%  240%
+  Ares            +3   +1   +1   +1   +1   +1  100%  240%
+  Hermes          +1   +1   +1   +1   +1   +1  100%  240%
+  Apollo          +1   +1   +1   +1   +1   +1  100%  230%
+  Artemis         +1   +1   +1   +3   +1   +1  100%  230%
+  Hephaestus      +1   +1   +1   +1   +1   +1  100%  230%
+  Hera            +1   +1   +3   +1   +1   +1  100%  220%
+  Demeter         +1   +1   +1   +1   +1   +1  100%  220%
+  Aphrodite       +1   +1   +1   +1   +1   +3  100%  220%
 
 
---- Table 3 - Demigod Special Powers ---
+[[[[y|  Table 2 - Race Skill Bonus Table
+
+[[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra
+  Minor God        +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Zeus             +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Poseidon         +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Hades            +2    +3    +8    +0    +0    +7    +10    +5     0'
+  Athena           +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Ares             +2    +3    -4    -1    +0    +7    +25    +5     0'
+  Hermes           +2    +3    +1    +2    +0    +7    +10    +5     0'
+  Apollo           +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Artemis          +2    +3    +1    +0    +0    +7    +10   +20     0'
+  Hephaestus       +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Hera             +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Demeter          +2    +3    +1    +0    +0    +7    +10    +5     0'
+  Aphrodite        +2    +3    +1    +0    +0    +7    +10    +5     0'
+
+
+[[[[y|  Table 3 - Demigod Special Powers
 
   All demigods have access to special powers. When they reach level 20, they
   may choose a single power from the following list. When they reach level, 40,
@@ -168,33 +168,33 @@ Aphrodite        +2    +3    +1    +0    +0    +7    +10    +5     0'
   might want to study this list to decide which powers you will choose for your
   character.
 
-Fast Learner        You will gain a bonus to experience for each monster slain.
-Weapon Versatility  You will be able to master any weapon.
-Subtle Casting      Damaging a monster with distance magic no longer provokes a retaliation.
-Peerless Sniper     Damaging a monster with a missile weapon no longer provokes a retaliation.
-Unyielding          You will gain a bonus to hitpoints.
-Ambidexterity       You will be able to dual wield more effectively.
-Untouchable         You will gain a bonus to armor class.
-Loremaster          Items will automatically identify as you pick them up.
-Arcane Mastery      Your spells will fail less often.
-Evasion             You will dodge enemy breath attacks and have better odds for avoiding earthquakes.
-Potion Chugger      You will be able to chug potions much faster than normal.
-One with Magic      You will have a chance of resisting Dispel Magic.
-Peerless Tracker    You will gain the ability to map your surroundings.
-Infernal Deal       You will regain hp and sp whenever a nearby monster is slain.
-Merchant's Friend   You will gain new powers of shopping.
-Sacred Vitality     You will gain a bonus to all healing effects.
-Cult of Personality Summoned monsters may sometimes switch alliances.
-Fleet of Foot       Movement costs less energy.
-Astral Guide        Teleportation costs less energy.
-Demonic Grasp       You resist charge draining.
-Weird Mind          You resist the Eldritch Horror.
-Fantastic Frenzy    You kill weak monsters more efficiently.
-Black Marketeer     You will gain favorable pricing in the black market.
-Speed Reader        You will be able to read scrolls much faster than normal.
-Fell Sorcery        Your spells will grow more powerful.
+  [[[[r|Fast Learner       | You will gain a bonus to experience for each monster slain.
+  [[[[r|Weapon Versatility | You will be able to master any weapon.
+  [[[[r|Subtle Casting     | Damaging a monster with distance magic no longer provokes a retaliation.
+  [[[[r|Peerless Sniper    | Damaging a monster with a missile weapon no longer provokes a retaliation.
+  [[[[r|Unyielding         | You will gain a bonus to hitpoints.
+  [[[[r|Ambidexterity      | You will be able to dual wield more effectively.
+  [[[[r|Untouchable        | You will gain a bonus to armor class.
+  [[[[r|Loremaster         | Items will automatically identify as you pick them up.
+  [[[[r|Arcane Mastery     | Your spells will fail less often.
+  [[[[r|Evasion            | You will dodge enemy breath attacks and have better odds for avoiding earthquakes.
+  [[[[r|Potion Chugger     | You will be able to chug potions much faster than normal.
+  [[[[r|One with Magic     | You will have a chance of resisting Dispel Magic.
+  [[[[r|Peerless Tracker   | You will gain the ability to map your surroundings.
+  [[[[r|Infernal Deal      | You will regain hp and sp whenever a nearby monster is slain.
+  [[[[r|Merchant's Friend  | You will gain new powers of shopping.
+  [[[[r|Sacred Vitality    | You will gain a bonus to all healing effects.
+  [[[[r|Cult of Personality| Summoned monsters may sometimes switch alliances.
+  [[[[r|Fleet of Foot      | Movement costs less energy.
+  [[[[r|Astral Guide       | Teleportation costs less energy.
+  [[[[r|Demonic Grasp      | You resist charge draining.
+  [[[[r|Weird Mind         | You resist the Eldritch Horror.
+  [[[[r|Fantastic Frenzy   | You kill weak monsters more efficiently.
+  [[[[r|Black Marketeer    | You will gain favorable pricing in the black market.
+  [[[[r|Speed Reader       | You will be able to read scrolls much faster than normal.
+  [[[[r|Fell Sorcery       | Your spells will grow more powerful.
 
 
 
 
-Automatically generated for PosChengband 1.0.24.
+[[[[s|  Automatically generated for PosChengband 1.0.37.

@@ -1170,7 +1170,7 @@ s32b weapon_cost(object_type *o_ptr)
             d = 1.0;
 
         if (have_flag(flgs, TR_BLOWS))
-            d += (d + 15.0)*o_ptr->pval/6.0;
+            d += (d + 15.0)*o_ptr->pval/5.0;
 
         if (have_flag(flgs, TR_VAMPIRIC)) 
             d *= 1.1;
@@ -1377,7 +1377,7 @@ s32b bow_cost(object_type *o_ptr)
     if (have_flag(flgs, TR_BRAND_FIRE)) t *= 1.25;
     if (have_flag(flgs, TR_BRAND_COLD)) t *= 1.25;
 
-    w = t * t * 5;
+    w = t * t * 3;
     if (have_flag(flgs, TR_XTRA_SHOTS))
         w = w * 3 / 2;
 
@@ -1392,7 +1392,10 @@ s32b bow_cost(object_type *o_ptr)
     else if (o_ptr->to_h <= 10)
         w += 100 * o_ptr->to_h;
     else
-        w += 10 * o_ptr->to_h * o_ptr->to_h;
+    {
+        w += 100 * o_ptr->to_h;
+        /*w += 10 * o_ptr->to_h * o_ptr->to_h;*/
+    }
 
     if (cost_calc_hook)
     {
