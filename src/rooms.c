@@ -2634,6 +2634,11 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 			case 'C':
 				cave_set_feat(y, x, FEAT_BLDG_TAIL - 2);
 				break;
+
+				 /* Home */
+			case 'H':
+				cave_set_feat(y, x, 81);
+				break;
 			}
 		}
 	}

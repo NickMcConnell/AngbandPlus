@@ -1,0 +1,12 @@
+N:1:Armor
+1
+合成
+
+N:2:Weapon
+1
+合成
+
+
+N:*:Default
+1
+合成

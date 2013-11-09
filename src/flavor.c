@@ -542,7 +542,7 @@ static flag_insc_table flag_insc_misc[] =
 	{ "ÃÙ", "Sd", TR_SLOW_DIGEST, -1 },
 	{ "³è", "Rg", TR_REGEN, -1 },
 	{ "Àº", "Rm", TR_REGEN_MANA, -1 },
-	{ "Éâ", "Lv", TR_FEATHER, -1 },
+	{ "Éâ", "Lv", TR_LEVITATION, -1 },
 	{ "ÌÀ", "Lu", TR_LITE, -1 },
 	{ "·Ù", "Wr", TR_WARNING, -1 },
 	{ "ÇÜ", "Xm", TR_XTRA_MIGHT, -1 },
@@ -679,7 +679,7 @@ static flag_insc_table flag_insc_misc[] =
 	{ "Sd", TR_SLOW_DIGEST, -1 },
 	{ "Rg", TR_REGEN, -1 },
 	{ "Rm", TR_REGEN_MANA, -1 },
-	{ "Lv", TR_FEATHER, -1 },
+	{ "Lv", TR_LEVITATION, -1 },
 	{ "Lu", TR_LITE, -1 },
 	{ "Wr", TR_WARNING, -1 },
 	{ "Xm", TR_XTRA_MIGHT, -1 },
@@ -772,6 +772,10 @@ static flag_insc_table flag_insc_sust[] =
  */
 static char *inscribe_flags_aux(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE], bool kanji, char *ptr)
 {
+#ifndef JP
+	(void)kanji;
+#endif
+
 	while (fi_ptr->english)
 	{
 		if (have_flag(flgs, fi_ptr->flag) &&
@@ -1022,7 +1026,7 @@ void construct_bonus_list(object_type *o_ptr, bonus_list_type bonus_list[A_MAX +
 	{
 		cur_bonus = &bonus_list[bonus_num];
 		cur_bonus->to_bonus = to_stat_0;
-		cur_bonus->desc[desc_num[bonus_num++]++] = to_all_stats_desc;
+		cur_bonus->desc[desc_num[bonus_num++]++] = 	(o_ptr->ident & IDENT_MENTAL) ? to_all_stats_desc : "?";
 	}
 	else
 	{
@@ -1036,7 +1040,7 @@ void construct_bonus_list(object_type *o_ptr, bonus_list_type bonus_list[A_MAX +
 					if (bonus_list[j].to_bonus == o_ptr->to_stat[i]) break;
 				}
 				cur_bonus = &bonus_list[j];
-				cur_bonus->desc[desc_num[j]++] = to_stat_desc[i];
+				cur_bonus->desc[desc_num[j]++] = (o_ptr->ident & IDENT_MENTAL) ? to_stat_desc[i] : "?";
 				if (j == bonus_num)
 				{
 					cur_bonus->to_bonus = o_ptr->to_stat[i];
@@ -1056,7 +1060,7 @@ void construct_bonus_list(object_type *o_ptr, bonus_list_type bonus_list[A_MAX +
 				if (bonus_list[j].to_bonus == o_ptr->to_misc[i]) break;
 			}
 			cur_bonus = &bonus_list[j];
-			cur_bonus->desc[desc_num[j]++] = to_misc_desc[i];
+			cur_bonus->desc[desc_num[j]++] = (o_ptr->ident & IDENT_MENTAL) ? to_misc_desc[i] : "?";
 			if (j == bonus_num)
 			{
 				cur_bonus->to_bonus = o_ptr->to_misc[i];
@@ -1853,6 +1857,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
+		case TV_CHUNK:
 		{
 			strcpy(buf, basenm);
 			return;

@@ -1193,6 +1193,12 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 			if (object_is_metal(o_ptr))
 				return FALSE;
 		}
+
+		else if ((p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_VAMPIRE))
+		{
+			if ((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_UNHOLY_WEAPON))
+				return FALSE;
+		}
 	}
 
 	if (leave_junk)
@@ -1396,22 +1402,80 @@ void auto_pickup_items(cave_type *c_ptr)
 	/* Scan the pile of objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		int idx;
+		int idx, old_idx;
 
 		/* Acquire object */
 		object_type *o_ptr = &o_list[this_o_idx];
 
-		/* Sense the object */
-		sense_floor_object(this_o_idx);
-
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
-		idx = is_autopick(o_ptr);
+		old_idx = is_autopick(o_ptr);
 
 		/* Item index for floor -1,-2,-3,...  */
-		auto_inscribe_item((-this_o_idx), idx);
+		auto_inscribe_item((-this_o_idx), old_idx);
 
+		/* Sense the object */
+		sense_floor_object(this_o_idx);
+
+		idx = is_autopick(o_ptr);
+
+		if (old_idx >= 0 &&
+			(autopick_list[old_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)))
+		{
+			disturb(0,0);
+
+			if (!inven_carry_okay(o_ptr))
+			{
+				char o_name[MAX_NLEN];
+
+				/* Describe the object */
+				object_desc(o_name, o_ptr, 0);
+
+				/* Message */
+#ifdef JP
+				msg_format("ザックには%sを入れる隙間がない。", o_name);
+#else
+				msg_format("You have no room for %s.", o_name);
+#endif
+				/* Hack - remember that the item has given a message here. */
+				o_ptr->marked |= OM_NOMSG;
+
+				continue;
+			}
+			else if (autopick_list[old_idx].action & DO_QUERY_AUTOPICK)
+			{
+				char out_val[MAX_NLEN+20];
+				char o_name[MAX_NLEN];
+
+				if (o_ptr->marked & OM_NO_QUERY)
+				{
+					/* Already answered as 'No' */
+					continue;
+				}
+
+				/* Describe the object */
+				object_desc(o_name, o_ptr, 0);
+
+#ifdef JP
+				sprintf(out_val, "%sを拾いますか? ", o_name);
+#else
+				sprintf(out_val, "Pick up %s? ", o_name);
+#endif
+
+				if (!get_check(out_val))
+				{
+					/* Hack - remember that the item has given a message here. */
+					o_ptr->marked |= (OM_NOMSG | OM_NO_QUERY);
+					continue;
+				}
+
+			}
+			py_pickup_aux(this_o_idx);
+
+			continue;
+		}
+		
 		if (idx >= 0 &&
 			(autopick_list[idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)))
 		{

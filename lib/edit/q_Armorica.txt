@@ -2,7 +2,7 @@
 
 # Name
 Q:$14:N:Warg problem
-Q:14:N:アルモニカ城の解放
+Q:14:N:アルモリカ城の解放
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
 Q:$14:Q:1:0:0:1:6:112:0:2

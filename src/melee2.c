@@ -2462,12 +2462,6 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
 
 /*
- * Hack -- local "player stealth" value (see below)
- */
-static u32b noise = 0L;
-
-
-/*
  * Process a monster
  *
  * The monster is known to be within 100 grids of the player
@@ -2829,8 +2823,8 @@ static void process_monster(int m_idx)
 		if (get_rnd_line(filename, m_ptr->ap_r_idx, monmessage) == 0)
 		{
 			/* Say something */
-#ifdef JP
 			my_replace(monmessage, "[PNAME]", player_name);
+#ifdef JP
 			msg_format("%^s%s", m_name, monmessage);
 #else
 			msg_format("%^s %s", m_name, monmessage);
@@ -2931,10 +2925,6 @@ static void process_monster(int m_idx)
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 
-		/* Look for an enemy */
-#if 0  /* Hack - Too slow.  Mimic pits are horrible with this on. */
-		get_enemy_dir(m_idx, mm);
-#endif /* 0 */
 	}
 
 	/* Pets will follow the player */
@@ -3861,13 +3851,6 @@ void process_monsters(void)
 		/* Memorize castings */
 		old_r_cast_spell = r_ptr->r_cast_spell;
 	}
-
-
-	/* Hack -- calculate the "player noise" */
-	if (p_ptr->skill_stl < 0) noise = (1L << 30);
-	else if (p_ptr->skill_stl > 30) noise = 0;
-	else noise = (1L << (30 - p_ptr->skill_stl));
-	if (p_ptr->use_decoy) noise = (1L << 28);
 
 
 	/* Process the monsters (backwards) */
@@ -4889,7 +4872,15 @@ void process_monsters_mtimed(int mtimed_idx)
 	s16b *cur_mproc_list = mproc_list[mtimed_idx];
 
 	/* Hack -- calculate the "player noise" */
-	if (mtimed_idx == MTIMED_CSLEEP) csleep_noise = (1L << (30 - p_ptr->skill_stl));
+	if (mtimed_idx == MTIMED_CSLEEP)
+	{
+		if (p_ptr->skill_stl < 0) csleep_noise = (1L << 30);
+		else if (p_ptr->skill_stl > 30) csleep_noise = 0;
+		else csleep_noise = (1L << (30 - p_ptr->skill_stl));
+		if (p_ptr->use_decoy) csleep_noise = (1L << 28);
+	}
+
+
 
 	/* Process the monsters (backwards) */
 	for (i = mproc_max[mtimed_idx] - 1; i >= 0; i--)

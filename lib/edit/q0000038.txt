@@ -5,8 +5,8 @@ Q:$38:N:Holy Knights Hideout
 Q:38:N:¿ªµ≥ªŒ√£§Œ±£§Ï≤»
 
 # Definition
-Q:$38:Q:6:0:0:0:40:0:0:0:6
-Q:38:Q:6:0:0:0:40:0:0:0:6
+Q:$38:Q:6:0:0:0:40:0:0:0:166
+Q:38:Q:6:0:0:0:40:0:0:0:166
 
 # Description for quest
 ?:[LEQ $QUEST38 2]

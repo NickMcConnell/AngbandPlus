@@ -310,7 +310,7 @@ static void say_comment_1(void)
 
 #ifdef JP
 	/* ブラックマーケットのときは別のメッセージを出す */
-	if (cur_store_num == STORE_BLACK)
+	if ((cur_store_num == STORE_BLACK) && !dun_level)
 	{
 		msg_print(comment_1_B[randint0(MAX_COMMENT_1)]);
 	}
@@ -333,7 +333,7 @@ static void say_comment_1(void)
 
 
 #ifdef JP
-if (!get_rnd_line_jonly("rumors_j.txt", 0, rumour, 10))
+		if (!get_rnd_line_jonly("rumors_j.txt", 0, rumour, 10))
 #else
 		if (!get_rnd_line("rumors.txt", 0, rumour))
 #endif
@@ -366,7 +366,8 @@ static void say_comment_2(s32b value, int annoyed)
 		/* Formatted message */
 #ifdef JP
 		/* ブラックマーケットの時は別のメッセージを出す */
-		if ( cur_store_num == STORE_BLACK ){
+		if ((cur_store_num == STORE_BLACK) && !dun_level)
+		{
 			msg_format(comment_2b_B[randint0(MAX_COMMENT_2B)], tmp_val);
 		}
 		else{
@@ -403,7 +404,8 @@ static void say_comment_3(s32b value, int annoyed)
 		/* Formatted message */
 #ifdef JP
 		/* ブラックマーケットの時は別のメッセージを出す */
-		if ( cur_store_num == STORE_BLACK ){
+		if ((cur_store_num == STORE_BLACK) && !dun_level)
+		{
 			msg_format(comment_3b_B[randint0(MAX_COMMENT_3B)], tmp_val);
 		}
 		else{
@@ -424,7 +426,7 @@ static void say_comment_4(void)
 {
 #ifdef JP
 	/* ブラックマーケットの時は別のメッセージを出す */
-	if (cur_store_num == STORE_BLACK)
+	if ((cur_store_num == STORE_BLACK) && !dun_level)
 	{
 		msg_print(comment_4a_B[randint0(MAX_COMMENT_4A)]);
 		msg_print(comment_4b_B[randint0(MAX_COMMENT_4B)]);
@@ -449,7 +451,7 @@ static void say_comment_5(void)
 {
 #ifdef JP
 	/* ブラックマーケットの時は別のメッセージを出す */
-	if (cur_store_num == STORE_BLACK)
+	if ((cur_store_num == STORE_BLACK) && !dun_level)
 	{
 		msg_print(comment_5_B[randint0(MAX_COMMENT_5)]);
 	}
@@ -913,6 +915,7 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_STATUE:
+		case TV_CHUNK:
 		case TV_CARD:
 		case TV_TRUMP:
 		{
@@ -1256,6 +1259,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_BOTTLE: /* 'Green', recycling Angband */
 				case TV_FIGURINE:
 				case TV_STATUE:
+				case TV_CHUNK:
 				case TV_CARD:
 				case TV_TRUMP:
 				case TV_SCRATCH_CARD:
@@ -1446,6 +1450,166 @@ static bool store_will_buy(object_type *o_ptr)
 
 
 /*
+ * Combine and reorder items in the home
+ */
+bool combine_and_reorder_home(int store_num)
+{
+	int         i, j, k;
+	s32b        o_value;
+	object_type forge, *o_ptr, *j_ptr;
+	bool        flag = FALSE, combined;
+	store_type  *old_st_ptr = st_ptr;
+	bool        old_stack_force_notes = stack_force_notes;
+	bool        old_stack_force_costs = stack_force_costs;
+
+	st_ptr = &town[1].store[store_num];
+	if (store_num != STORE_HOME)
+	{
+		stack_force_notes = FALSE;
+		stack_force_costs = FALSE;
+	}
+
+	do
+	{
+		combined = FALSE;
+
+		/* Combine the items in the home (backwards) */
+		for (i = st_ptr->stock_num - 1; i > 0; i--)
+		{
+			/* Get the item */
+			o_ptr = &st_ptr->stock[i];
+
+			/* Skip empty items */
+			if (!o_ptr->k_idx) continue;
+
+			/* Scan the items above that item */
+			for (j = 0; j < i; j++)
+			{
+				int max_num;
+
+				/* Get the item */
+				j_ptr = &st_ptr->stock[j];
+
+				/* Skip empty items */
+				if (!j_ptr->k_idx) continue;
+
+				/*
+				 * Get maximum number of the stack if these
+				 * are similar, get zero otherwise.
+				 */
+				max_num = object_similar_part(j_ptr, o_ptr);
+
+				/* Can we (partialy) drop "o_ptr" onto "j_ptr"? */
+				if (max_num && j_ptr->number < max_num)
+				{
+					if (o_ptr->number + j_ptr->number <= max_num)
+					{
+						/* Add together the item counts */
+						object_absorb(j_ptr, o_ptr);
+
+						/* One object is gone */
+						st_ptr->stock_num--;
+
+						/* Slide everything down */
+						for (k = i; k < st_ptr->stock_num; k++)
+						{
+							/* Structure copy */
+							st_ptr->stock[k] = st_ptr->stock[k + 1];
+						}
+
+						/* Erase the "final" slot */
+						object_wipe(&st_ptr->stock[k]);
+					}
+					else
+					{
+						int old_num = o_ptr->number;
+						int remain = j_ptr->number + o_ptr->number - max_num;
+
+						/* Add together the item counts */
+						object_absorb(j_ptr, o_ptr);
+
+						o_ptr->number = remain;
+
+						/* Hack -- if rods are stacking, add the pvals (maximum timeouts) and current timeouts together. -LM- */
+						if (o_ptr->tval == TV_ROD)
+						{
+							o_ptr->pval =  o_ptr->pval * remain / old_num;
+							o_ptr->timeout = o_ptr->timeout * remain / old_num;
+						}
+
+						/* Hack -- if wands are stacking, combine the charges. -LM- */
+						else if (o_ptr->tval == TV_WAND)
+						{
+							o_ptr->pval = o_ptr->pval * remain / old_num;
+						}
+					}
+
+					/* Take note */
+					combined = TRUE;
+
+					/* Done */
+					break;
+				}
+			}
+		}
+
+		flag |= combined;
+	}
+	while (combined);
+
+	/* Re-order the items in the home (forwards) */
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+		/* Get the item */
+		o_ptr = &st_ptr->stock[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		/* Get the "value" of the item */
+		o_value = object_value(o_ptr);
+
+		/* Scan every occupied slot */
+		for (j = 0; j < st_ptr->stock_num; j++)
+		{
+			if (object_sort_comp(o_ptr, o_value, &st_ptr->stock[j])) break;
+		}
+
+		/* Never move down */
+		if (j >= i) continue;
+
+		/* Take note */
+		flag = TRUE;
+
+		/* Get local object */
+		j_ptr = &forge;
+
+		/* Save a copy of the moving item */
+		object_copy(j_ptr, &st_ptr->stock[i]);
+
+		/* Slide the objects */
+		for (k = i; k > j; k--)
+		{
+			/* Slide the item */
+			object_copy(&st_ptr->stock[k], &st_ptr->stock[k - 1]);
+		}
+
+		/* Insert the moving item */
+		object_copy(&st_ptr->stock[j], j_ptr);
+	}
+
+	st_ptr = old_st_ptr;
+	if (store_num != STORE_HOME)
+	{
+		stack_force_notes = old_stack_force_notes;
+		stack_force_costs = old_stack_force_costs;
+	}
+
+	return flag;
+}
+
+
+/*
  * Add the item "o_ptr" to the inventory of the "Home"
  *
  * In all cases, return the slot (or -1) where the object was placed
@@ -1580,6 +1744,8 @@ static int home_carry(object_type *o_ptr)
 
 	/* Insert the new item */
 	st_ptr->stock[slot] = *o_ptr;
+
+	(void)combine_and_reorder_home(cur_store_num);
 
 	/* Return the location */
 	return (slot);
@@ -2247,23 +2413,26 @@ static void display_store(void)
 #endif
 
 
-		/* Label the item descriptions */
-#ifdef JP
-		put_str("アイテムの一覧", 5, 4);
-#else
-		put_str("Item Description", 5, 3);
-#endif
-
-
-		/* If showing weights, show label */
-		if (show_weights)
+		if (old_town_num != NO_TOWN)
 		{
+			/* Label the item descriptions */
 #ifdef JP
-			put_str("重さ", 5, 72);
+			put_str("アイテムの一覧", 5, 4);
 #else
-			put_str("Weight", 5, 70);
+			put_str("Item Description", 5, 3);
 #endif
 
+
+			/* If showing weights, show label */
+			if (show_weights)
+			{
+#ifdef JP
+				put_str("重さ", 5, 72);
+#else
+				put_str("Weight", 5, 70);
+#endif
+
+			}
 		}
 	}
 
@@ -2355,8 +2524,11 @@ static void display_store(void)
 	/* Display the current gold */
 	store_prt_gold();
 
-	/* Draw in the inventory */
-	display_inventory();
+	if ((cur_store_num != STORE_HOME) || (old_town_num != NO_TOWN))
+	{
+		/* Draw in the inventory */
+		display_inventory();
+	}
 }
 
 
@@ -3529,6 +3701,8 @@ static void store_purchase(void)
 	/* Home is much easier */
 	else
 	{
+		bool combined_or_reordered;
+
 		/* Distribute charges of wands/rods */
 		distribute_charges(o_ptr, j_ptr, amt);
 
@@ -3540,7 +3714,7 @@ static void store_purchase(void)
 
 		/* Message */
 #ifdef JP
-				msg_format("%s(%c)を取った。",
+		msg_format("%s(%c)を取った。",
 #else
 		msg_format("You have %s (%c).",
 #endif
@@ -3552,6 +3726,8 @@ static void store_purchase(void)
 		/* Take note if we take the last one */
 		i = st_ptr->stock_num;
 
+		combined_or_reordered = combine_and_reorder_home(STORE_HOME);
+
 		/* Remove the items from the home */
 		store_item_increase(item, -amt);
 		store_item_optimize(item);
@@ -3559,8 +3735,11 @@ static void store_purchase(void)
 		/* Hack -- Item is still here */
 		if (i == st_ptr->stock_num)
 		{
+			/* Redraw everything */
+			if (combined_or_reordered) display_inventory();
+
 			/* Redraw the item */
-			display_entry(item);
+			else display_entry(item);
 		}
 
 		/* The item is gone */
@@ -4378,7 +4557,7 @@ static void change_player_class(void)
 		prt("", TABLE_ROW + A_MAX + 2, CLASS_AUX_COL);
 		strcpy(s, "アラインメント:");
 		if (tmp_cp_ptr->c_flags & PCF_ALIGN_LAWFUL) strcat(s, " 秩序");
-		if (tmp_cp_ptr->c_flags & PCF_ALIGN_NEUTRAL) strcat(s, " 中立");
+		if (tmp_cp_ptr->c_flags & PCF_ALIGN_NEUTRAL) strcat(s, " 中庸");
 		if (tmp_cp_ptr->c_flags & PCF_ALIGN_CHAOTIC) strcat(s, " 混沌");
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 		switch (classes[cur].real)
@@ -4625,12 +4804,6 @@ static void change_player_class(void)
 		p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
 	}
 
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-	/* Combine / Reorder the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Notice stuff */
 	notice_stuff();
 
@@ -4645,7 +4818,7 @@ static void change_player_class(void)
 	init_realm_table();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_HP | PU_MANA | PU_LITE);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_LITE | PU_SPELLS);
 
 	/* Redraw stuff */
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -4653,8 +4826,11 @@ static void change_player_class(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_SPELL | PW_PLAYER);
 
-	/* Reorder the pack (later) */
-	p_ptr->notice |= (PN_REORDER);
+	/* Combine / Reorder the pack */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	(void)combine_and_reorder_home(STORE_HOME);
+	(void)combine_and_reorder_home(STORE_MUSEUM);
 
 	/* Load the "pref" files */
 	load_all_pref_files();
@@ -4733,6 +4909,8 @@ static void museum_remove_object(void)
 	/* Remove the items from the home */
 	store_item_increase(item, -o_ptr->number);
 	store_item_optimize(item);
+
+	(void)combine_and_reorder_home(STORE_MUSEUM);
 
 	/* The item is gone */
 
@@ -5176,7 +5354,11 @@ static void store_process_command(void)
 		/* 1 ページ戻るコマンド: 我が家のページ数が多いので重宝するはず By BUG */
 		case '-':
 		{
-			if (st_ptr->stock_num <= 12) {
+			if ((cur_store_num == STORE_HOME) && (old_town_num == NO_TOWN))
+			{
+				/* Do nothing */
+			}
+			else if (st_ptr->stock_num <= 12) {
 #ifdef JP
 				msg_print("これで全部です。");
 #else
@@ -5197,7 +5379,11 @@ static void store_process_command(void)
 		/* Browse */
 		case ' ':
 		{
-			if (st_ptr->stock_num <= 12)
+			if ((cur_store_num == STORE_HOME) && (old_town_num == NO_TOWN))
+			{
+				/* Do nothing */
+			}
+			else if (st_ptr->stock_num <= 12)
 			{
 #ifdef JP
 				msg_print("これで全部です。");
@@ -5243,21 +5429,21 @@ static void store_process_command(void)
 		/* Get (purchase) */
 		case 'g':
 		{
-			store_purchase();
+			if ((cur_store_num != STORE_HOME) || (old_town_num != NO_TOWN)) store_purchase();
 			break;
 		}
 
 		/* Drop (Sell) */
 		case 'd':
 		{
-			store_sell();
+			if ((cur_store_num != STORE_HOME) || (old_town_num != NO_TOWN)) store_sell();
 			break;
 		}
 
 		/* Examine */
 		case 'x':
 		{
-			store_examine();
+			if ((cur_store_num != STORE_HOME) || (old_town_num != NO_TOWN)) store_examine();
 			break;
 		}
 
@@ -5418,6 +5604,7 @@ static void store_process_command(void)
 		case '=':
 		{
 			do_cmd_options();
+			(void)combine_and_reorder_home(STORE_HOME);
 			do_cmd_redraw();
 			display_store();
 			break;
@@ -5502,11 +5689,11 @@ static void store_process_command(void)
 				change_player_class();
 				display_store();
 			}
-			else if ((cur_store_num == STORE_HOME) && (command_cmd == 'G'))
+			else if ((cur_store_num == STORE_HOME) && (command_cmd == 'G') && (old_town_num != NO_TOWN))
 			{
 				take_pet_home();
 			}
-			else if ((cur_store_num == STORE_HOME) && (command_cmd == 'D'))
+			else if ((cur_store_num == STORE_HOME) && (command_cmd == 'D') && (old_town_num != NO_TOWN))
 			{
 				leave_pet_home();
 			}
@@ -5650,7 +5837,7 @@ void do_cmd_store(void)
 
 	old_town_num = p_ptr->town_num;
 	if ((which == STORE_HOME) || (which == STORE_MUSEUM)) p_ptr->town_num = 1;
-	if (dun_level) p_ptr->town_num = NO_TOWN;
+	if (dun_level) p_ptr->town_num = old_town_num = NO_TOWN;
 	cur_town_num = p_ptr->town_num;
 
 	/* Hack -- Check the "locked doors" */
@@ -5758,19 +5945,22 @@ void do_cmd_store(void)
 		if (cur_store_num == STORE_HOME)
 		{
 #ifdef JP
-			prt("D) ペットを預ける", 20, 1);
-			prt("G) ペットを連れ出す", 20, 27);
-			prt("g) アイテムを取る", 21, 27);
-			prt("d) アイテムを置く", 22, 27);
-			prt("x) 家のアイテムを調べる", 23,27);
-			prt(" c) クラスチェンジ", 23, 57);
+			if (old_town_num != NO_TOWN) prt("D) ペットを預ける", 20, 1);
+			if (old_town_num != NO_TOWN) prt("G) ペットを連れ出す", 20, 27);
+			if (old_town_num != NO_TOWN) prt("g) アイテムを取る", 21, 27);
+			if (old_town_num != NO_TOWN) prt("d) アイテムを置く", 22, 27);
+			if (old_town_num != NO_TOWN) prt("x) 家のアイテムを調べる", 23,27);
+			if (old_town_num != NO_TOWN) prt(" c) クラスチェンジ", 23, 57);
+			else prt("c) クラスチェンジ", 21, 27);
 #else
-			prt("D) Leave a pet.", 20, 0);
-			prt("G) Take a pet.", 20, 27);
-			prt("g) Get an item.", 21, 27);
-			prt("d) Drop an item.", 22, 27);
-			prt("x) eXamine an item in the home.", 23,27);
-			prt(" c) Change your class.", 23, 57);
+			if (old_town_num != NO_TOWN) prt("D) Leave a pet.", 20, 0);
+			if (old_town_num != NO_TOWN) prt("G) Take a pet.", 20, 27);
+			if (old_town_num != NO_TOWN) prt("g) Get an item.", 21, 27);
+			if (old_town_num != NO_TOWN) prt("d) Drop an item.", 22, 27);
+			if (old_town_num != NO_TOWN) prt("x) eXamine an item in the home.", 23,27);
+			if (old_town_num != NO_TOWN) prt(" c) Change your class.", 23, 57);
+			else prt("c) Change your class.", 21, 27);
+
 #endif
 
 		}

@@ -924,6 +924,7 @@ static tval_desc tvals[] =
 	{ TV_FIGURINE,          "Magical Figurine"    },
 	{ TV_STATUE,            "Statue"              },
 	{ TV_CORPSE,            "Corpse"              },
+	{ TV_CHUNK,             "Chunk"              },
 	{ TV_FOOD,              "Food"                },
 	{ TV_FLASK,             "Flask"               },
 	{ TV_JUNK,              "Junk"                },
@@ -1083,7 +1084,7 @@ tweak_menu_type;
 static void display_tweak_menu_line(int cur, int menu_per_col, tweak_menu_type *cur_item, byte attr)
 {
 	char buf[80];
-	int  tmp_int;
+	int  tmp_int = 0;
 
 	if (cur_item->digit == 6) tmp_int = *((s16b *)cur_item->var);
 	else if (cur_item->digit == 3) tmp_int = *((byte *)cur_item->var);
@@ -1098,7 +1099,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	char ch;
 	char tmp_val[80];
 	char o_name[MAX_NLEN];
-	int  i, tmp_int;
+	int  i, tmp_int = 0;
 
 	tweak_menu_type menu_list[] =
 	{

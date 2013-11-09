@@ -2497,7 +2497,7 @@ D:%%%%%%%%%%%%%
 D:%...........%
 D:%.XXXXXXXXX.%
 D:%.XXXXXXXXX.%
-D:%.......SXX.%
+D:%...SXXXH...%
 D:%.XXXXXXXXX.%
 D:%.XXXXXXXXX.%
 D:%...........%

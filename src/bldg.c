@@ -28,6 +28,8 @@ static bool can_eat_food(void)
 		return FALSE;
 	}
 
+	if (p_ptr->pclass == CLASS_VAMPIRE) return FALSE;
+
 	return TRUE;
 }
 
@@ -66,7 +68,7 @@ static void show_building(building_type* bldg)
 {
 	char buff[20];
 	int i;
-	byte action_color;
+	byte action_color = TERM_DARK;
 	char tmp_str[80];
 
 	Term_clear();
@@ -1610,7 +1612,6 @@ static bool gamble_comm(int cmd)
 #else
 				msg_print("You came out a winner! We'll win next time, I'm sure.");
 #endif
-				change_your_alignment(ALI_LNC, -3);
 			}
 			else
 			{
@@ -1619,7 +1620,6 @@ static bool gamble_comm(int cmd)
 #else
 				msg_print("You lost gold! Haha, better head home.");
 #endif
-				change_your_alignment(ALI_LNC, 3);
 			}
 		}
 		msg_print(NULL);
@@ -2147,7 +2147,7 @@ static void castle_quest(void)
 			break;
 
 		default:
-			if (!dun_level && p_ptr->town_num)
+			if (!dun_level && p_ptr->town_num && !(q_ptr->flags & QUEST_FLAG_NO_ETHNICITY))
 				change_chaos_frame(town[p_ptr->town_num].ethnic, 60);
 			break;
 		}
@@ -2161,6 +2161,8 @@ static void castle_quest(void)
 		q_ptr->status = QUEST_STATUS_FAILED_DONE;
 
 		reinit_wilderness = TRUE;
+
+		if (!(q_ptr->flags & QUEST_FLAG_NO_ETHNICITY)) change_chaos_frame(town[p_ptr->town_num].ethnic, -60);
 	}
 	/* Quest is still unfinished */
 	else if (q_ptr->status == QUEST_STATUS_TAKEN)
@@ -2946,6 +2948,11 @@ static void building_recharge(void)
 			/* Identify it */
 			identify_item(o_ptr);
 
+			{
+				int idx = is_autopick(o_ptr);
+				(void)auto_inscribe_object(o_ptr, idx);
+			}
+
 			/* Description */
 			object_desc(tmp_str, o_ptr, 0);
 
@@ -2954,7 +2961,6 @@ static void building_recharge(void)
 #else
 			msg_format("You have: %s.", tmp_str);
 #endif
-
 
 			/* Update the gold display */
 			building_prt_gold();
@@ -3251,7 +3257,14 @@ static void building_recharge_all(void)
 		if (o_ptr->tval < TV_STAFF || o_ptr->tval > TV_ROD) continue;
 
 		/* Identify it */
-		if (!object_is_known(o_ptr)) identify_item(o_ptr);
+		if (!object_is_known(o_ptr))
+		{
+			int idx;
+			identify_item(o_ptr);
+
+			idx = is_autopick(o_ptr);
+			(void)auto_inscribe_object(o_ptr, idx);
+		}
 
 		/* Recharge */
 		switch (o_ptr->tval)
@@ -3410,7 +3423,7 @@ static void get_temple_blow(void)
 			if (weapon_type_bit(i) & sb_ptr->weapon_type)
 			{
 				strcat(s, " ");
-				strcat(s, wt_desc[i]);
+				strcat(s, weapon_skill_name[i]);
 			}
 		}
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW, -1, TERM_WHITE, s);
@@ -3574,7 +3587,8 @@ static void get_temple_blow(void)
 
 static bool change_class(int cmd)
 {
-	int i, new_class, total_max_clev = 0, experienced_classes = 0;
+	int i, total_max_clev = 0, experienced_classes = 0;
+	byte new_class = 0;
 	byte old_pclass = p_ptr->pclass;
 	cexp_info_type *cexp_ptr;
 	char buf[80];
@@ -3611,7 +3625,7 @@ static bool change_class(int cmd)
 #endif
 		return FALSE;
 	}
-	else if (!(can_choose_class(new_class, CLASS_CHOOSE_MODE_NORMAL)))
+	else if (!(can_choose_class(new_class, CLASS_CHOOSE_MODE_BLDGS)))
 	{
 #ifdef JP
 		msg_print("¥¯¥é¥¹¥Á¥§¥ó¥¸¤Ç¤­¤Ê¤¤¡£");
@@ -3698,12 +3712,6 @@ static bool change_class(int cmd)
 		p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
 	}
 
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-	/* Combine / Reorder the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Notice stuff */
 	notice_stuff();
 
@@ -3718,7 +3726,7 @@ static bool change_class(int cmd)
 	init_realm_table();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_HP | PU_MANA | PU_LITE);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_LITE | PU_SPELLS);
 
 	/* Redraw stuff */
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -3726,8 +3734,11 @@ static bool change_class(int cmd)
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_SPELL | PW_PLAYER);
 
-	/* Reorder the pack (later) */
-	p_ptr->notice |= (PN_REORDER);
+	/* Combine / Reorder the pack */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	(void)combine_and_reorder_home(STORE_HOME);
+	(void)combine_and_reorder_home(STORE_MUSEUM);
 
 	/* Load the "pref" files */
 	load_all_pref_files();
@@ -4342,7 +4353,7 @@ static void merge_flags3(object_type * dest_ptr, object_type * src_ptr)
 	if (have_flag(mflgs, TR_WARNING)) add_flag(src_ptr->art_flags, TR_WARNING);
 	if (have_flag(mflgs, TR_SLOW_DIGEST)) add_flag(src_ptr->art_flags, TR_SLOW_DIGEST);
 	if (have_flag(mflgs, TR_REGEN)) add_flag(src_ptr->art_flags, TR_REGEN);
-	if (have_flag(mflgs, TR_FEATHER)) add_flag(src_ptr->art_flags, TR_FEATHER);
+	if (have_flag(mflgs, TR_LEVITATION)) add_flag(src_ptr->art_flags, TR_LEVITATION);
 	if (have_flag(mflgs, TR_LITE)) add_flag(src_ptr->art_flags, TR_LITE);
 
 	if (have_flag(mflgs, TR_TELEPATHY)) add_flag(src_ptr->art_flags, TR_TELEPATHY);
@@ -4364,6 +4375,118 @@ static void merge_flags3(object_type * dest_ptr, object_type * src_ptr)
 	if (dest_ptr->curse_flags & TRC_PERMA_CURSE) src_ptr->curse_flags |= TRC_PERMA_CURSE;
 }
 
+
+static cptr compose_name(int dest_name, int src_name)
+{
+	cptr new_name;
+
+	switch (dest_name)
+	{
+		/* Body Armor */
+		case EGO_PERMANENCE:
+			if (src_name == EGO_POWER) new_name = "±ÊÂ³¤Î¥Ñ¥ï¡¼";
+			else if (src_name == EGO_BALANCE) new_name = "±ÊÂ³¤Î¥Ð¥é¥ó¥¹";
+			else new_name = "±ÊÂ³¤Î";
+			break;
+		case EGO_ARCH_MAGI:
+			if (src_name == EGO_POWER) new_name = "ÂçËâ½Ñ»Õ¤Î¥Ñ¥ï¡¼";
+			else if (src_name == EGO_BALANCE) new_name = "ÂçËâ½Ñ»Õ¤Î¥Ð¥é¥ó¥¹";
+			else new_name = "ÂçËâ½Ñ»Õ¤Î";
+			break;
+		case EGO_BALANCE:
+			if (src_name == EGO_PERMANENCE) new_name = "¶Ñ¹Õ¤Î±ÊÂ³¤Î";
+			else if (src_name == EGO_ARCH_MAGI) new_name = "¶Ñ¹Õ¤ÎÂç";
+			else new_name = "¶Ñ¹Õ¤Î";
+			break;
+		case EGO_POWER:
+			if (src_name == EGO_PERMANENCE) new_name = "´°Á´ÂÑÀ­¤Î±ÊÂ³¤Î";
+			else if (src_name == EGO_ARCH_MAGI) new_name = "´°Á´ÂÑÀ­¤ÎÂç";
+			else new_name = "´°Á´ÂÑÀ­¤Î";
+			break;
+
+		/* Weapon */
+		case EGO_HA:
+			switch (src_name)
+			{
+				case EGO_DF:
+					new_name = "(À»ËÉ±Ò¼Ô)";
+					break;
+				case EGO_KILL_GOOD:
+				case EGO_ASMODE:
+				case EGO_MORGUL:
+				case EGO_NETHERWORLD:
+					new_name = "À»Ëâ¤Î";
+					break;
+				default:
+					new_name = "(*À»Àï¼Ô*)";
+					break;
+			}
+			break;
+		case EGO_DF:
+			switch (src_name)
+			{
+				case EGO_HA:
+				case EGO_KILL_EVIL:
+				case EGO_ISHTALLE:
+					new_name = "(À»ËÉ±Ò¼Ô)";
+					break;
+				case EGO_KILL_GOOD:
+				case EGO_ASMODE:
+				case EGO_MORGUL:
+				case EGO_NETHERWORLD:
+					new_name = "(ËâËÉ±Ò¼Ô)";
+					break;
+				default:
+					new_name = "(*ËÉ±Ò¼Ô*)";
+					break;
+			}
+			break;
+		case EGO_ISHTALLE:
+		case EGO_KILL_EVIL:
+			switch (src_name)
+			{
+				case EGO_HA:
+					new_name = "(*À»Àï¼Ô*)";
+					break;
+				case EGO_DF:
+					new_name = "(À»ËÉ±Ò¼Ô)";
+					break;
+				case EGO_ASMODE:
+				case EGO_MORGUL:
+				case EGO_NETHERWORLD:
+					new_name = "À»Ëâ¤Î";
+					break;
+				default:
+					new_name = "¹çÀ®";
+					break;
+			}
+			break;
+		case EGO_KILL_GOOD:
+		case EGO_ASMODE:
+		case EGO_MORGUL:
+		case EGO_NETHERWORLD:
+			switch (src_name)
+			{
+				case EGO_HA:
+				case EGO_ISHTALLE:
+				case EGO_KILL_EVIL:
+					new_name = "À»Ëâ¤Î";
+					break;
+				case EGO_DF:
+					new_name = "(ËâËÉ±Ò¼Ô)";
+					break;
+				default:
+					new_name = "(ËâÀï»Î)";
+					break;
+			}
+			break;
+		default:
+			new_name = "¹çÀ®";
+			break;
+	}
+
+	return new_name;
+}
 
 static bool item_tester_composite(object_type *o_ptr)
 {
@@ -4393,7 +4516,6 @@ static bool composite_item(void)
 {
 	int src_item, dest_item;
 	bool is_armor = FALSE;
-	char new_name[1024];
 
 	object_type *src_ptr, *dest_ptr;
 	object_type tmp_obj;
@@ -4471,16 +4593,11 @@ static bool composite_item(void)
 	add_flag(src_ptr->art_flags, TR_IGNORE_ELEC);
 	add_flag(src_ptr->art_flags, TR_IGNORE_COLD);
 
+	src_ptr->art_name = quark_add(compose_name(dest_ptr->name2, src_ptr->name2));
+
 	/* Nuke enchantments */
 	src_ptr->name1 = 0;
 	src_ptr->name2 = 0;
-
-#ifdef JP
-	strcpy(new_name, "¹çÀ®");
-#else
-	strcpy(new_name, "of Composed");
-#endif
-	src_ptr->art_name = quark_add(new_name);
 
 	/* Paranoia. This should never be needed. If it is, the weight
 	 * gets screwed up. */
@@ -5222,11 +5339,19 @@ void do_cmd_bldg(void)
 		{
 			if ((p_ptr->au_sum - old_au) >= 100)
 			{
-				if (!dun_level && p_ptr->town_num) change_chaos_frame(town[p_ptr->town_num].ethnic, -1);
+				if (!dun_level && p_ptr->town_num)
+				{
+					change_chaos_frame(town[p_ptr->town_num].ethnic, -1);
+					change_your_alignment(ALI_LNC, -1);
+				}
 			}
 			else if ((old_au - p_ptr->au_sum) >= 100)
 			{
-				if (!dun_level && p_ptr->town_num) change_chaos_frame(town[p_ptr->town_num].ethnic, 1);
+				if (!dun_level && p_ptr->town_num)
+				{
+					change_chaos_frame(town[p_ptr->town_num].ethnic, 1);
+					change_your_alignment(ALI_LNC, 1);
+				}
 			}
 		}
 	}

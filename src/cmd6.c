@@ -5006,10 +5006,75 @@ static void do_cmd_activate_aux(int item)
 	}
 
 
+	if (o_ptr->name2 == EGO_BERTHA)
+	{
+		inc_area_elem(0, ELEM_EARTH, 5, -2, TRUE);
+		o_ptr->timeout = 50;
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return;
+	}
+
+
+	if (o_ptr->name2 == EGO_HAHNELA)
+	{
+		inc_area_elem(0, ELEM_WIND, 5, -2, TRUE);
+		o_ptr->timeout = 50;
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return;
+	}
+
+
+	if (o_ptr->name2 == EGO_ZOSHONELL)
+	{
+		inc_area_elem(0, ELEM_FIRE, 5, -2, TRUE);
+		o_ptr->timeout = 50;
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return;
+	}
+
+
+	if (o_ptr->name2 == EGO_GRUZA)
+	{
+		inc_area_elem(0, ELEM_AQUA, 5, -2, TRUE);
+		o_ptr->timeout = 50;
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return;
+	}
+
+
 	if (o_ptr->name2 == EGO_WARP)
 	{
 		if (!dimension_door(p_ptr->lev)) return;
 		o_ptr->timeout = 50 + randint1(25);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return;
+	}
+
+
+	if (o_ptr->name2 == EGO_CLAIRVOYANCE)
+	{
+		map_area(DETECT_RAD_MAP);
+		o_ptr->timeout = randint1(25);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);

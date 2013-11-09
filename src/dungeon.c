@@ -99,7 +99,7 @@ static byte value_check_aux2(object_type *o_ptr)
 
 static void sense_object_aux(int item, int sense_type)
 {
-	byte        feel;
+	byte        feel = FEEL_NONE;
 	bool        old_known;
 	object_type *o_ptr;
 	char        o_name[MAX_NLEN];
@@ -850,7 +850,7 @@ void leave_quest_check(void)
 			if (quest_is_fixed(leaving_quest)) change_your_alignment(ALI_LNC, -10);
 		}
 
-		if (leaving_quest == QUEST_DEATH) p_ptr->death_regen = 999;
+		if (leaving_quest == QUEST_DEATH) p_ptr->death_regen = 5000;
 	}
 }
 
@@ -1383,9 +1383,6 @@ static void process_world_aux_hp_and_sp(void)
 
 	upkeep_factor = calculate_upkeep();
 
-	/* No regeneration while special action */
-	if (p_ptr->action == ACTION_AURA) upkeep_factor += 100;
-
 	/* Regenerate the mana */
 	if (upkeep_factor)
 	{
@@ -1527,6 +1524,12 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_sh_holy)
 	{
 		(void)set_tim_sh_holy(p_ptr->tim_sh_holy - 1, TRUE);
+	}
+
+	/* Timed sh_aura */
+	if (p_ptr->tim_sh_aura)
+	{
+		(void)set_tim_sh_aura(p_ptr->tim_sh_aura - 1, TRUE);
 	}
 
 	/* Timed eyeeye */
@@ -1956,6 +1959,8 @@ static void process_world_aux_mutation(void)
 			init_realm_table();
 			p_ptr->update |= (PU_BONUS);
 			p_ptr->notice |= (PN_REORDER);
+			(void)combine_and_reorder_home(STORE_HOME);
+			(void)combine_and_reorder_home(STORE_MUSEUM);
 			load_all_pref_files();
 			if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(py, px);
 		}
@@ -4106,16 +4111,6 @@ static void process_command(void)
 			if(!p_ptr->wild_mode && !dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
 			{
 				if (cave[py][px].feat == FEAT_ENTRANCE_UPWARD) do_cmd_go_up();
-#if 0
-				else if (ambush_flag)
-				{
-#ifdef JP
-					msg_print("襲撃から逃げるにはマップの端まで移動しなければならない。");
-#else
-					msg_print("To flee the ambush you have to reach the edge of the map.");
-#endif
-				}
-#endif
 				else if (!p_ptr->no_digest && (p_ptr->food < PY_FOOD_WEAK))
 				{
 #ifdef JP
@@ -4201,6 +4196,7 @@ static void process_command(void)
 		case 'b':
 		{
 			if (p_ptr->pclass == CLASS_GUNNER) do_cmd_gunner(TRUE);
+			else if (p_ptr->pclass == CLASS_ELEMENTALER) do_cmd_element_browse();
 			else do_cmd_browse();
 			break;
 		}
@@ -4211,7 +4207,7 @@ static void process_command(void)
 			/* -KMW- */
 			if (!p_ptr->wild_mode)
 			{
-				if (!class_info[p_ptr->pclass].realm_choices && (p_ptr->pclass != CLASS_GUNNER))
+				if (!class_info[p_ptr->pclass].realm_choices && (p_ptr->pclass != CLASS_GUNNER) && (p_ptr->pclass != CLASS_ELEMENTALER))
 				{
 #ifdef JP
 					msg_print("呪文を唱えられない！");
@@ -4271,6 +4267,7 @@ static void process_command(void)
 					energy_use = 0;
 				}
 				else if (p_ptr->pclass == CLASS_GUNNER) do_cmd_gunner(FALSE);
+				else if (p_ptr->pclass == CLASS_ELEMENTALER) do_cmd_element();
 				else do_cmd_cast();
 			}
 			break;
@@ -4586,6 +4583,7 @@ static void process_command(void)
 		case '=':
 		{
 			do_cmd_options();
+			(void)combine_and_reorder_home(STORE_HOME);
 			do_cmd_redraw();
 			break;
 		}
@@ -4987,36 +4985,6 @@ static void process_player(void)
 
 	load = FALSE;
 
-	/* Aura of Lord */
-	if (p_ptr->action == ACTION_AURA)
-	{
-		s32b use_mana = 10;
-
-		use_mana *= 0x8000;
-		if ((u16b)(p_ptr->csp) < (use_mana / 0x10000))
-		{
-			/* Mana run out */
-			p_ptr->csp = 0;
-			p_ptr->csp_frac = 0;
-			set_action(ACTION_NONE);
-		}
-		else
-		{
-			p_ptr->csp -= (u16b) (use_mana / 0x10000);
-			use_mana = (use_mana & 0x0000ffff);
-			if (p_ptr->csp_frac < (u32b)use_mana)
-			{
-				p_ptr->csp--;
-				p_ptr->csp_frac += (u16b)(0x10000L - use_mana);
-			}
-			else
-			{
-				p_ptr->csp_frac -= (u16b)use_mana;
-			}
-		}
-		p_ptr->redraw |= PR_MANA;
-	}
-
 	/*** Handle actual user input ***/
 
 	/* Repeat until out of energy */
@@ -5360,6 +5328,11 @@ static void dungeon(void)
 	if ((max_dlv[dungeon_type] < dun_level) && !p_ptr->inside_quest)
 	{
 		max_dlv[dungeon_type] = dun_level;
+		if ((dungeon_type == DUNGEON_PALACE) && (p_ptr->max_max_dlv < dun_level))
+		{
+			p_ptr->max_max_dlv = dun_level;
+			p_ptr->max_dlv_mult = 50 + dun_level - p_ptr->max_max_plv;
+		}
 		if (record_maxdeapth) do_cmd_write_nikki(NIKKI_MAXDEAPTH, dun_level, NULL);
 	}
 
@@ -5819,14 +5792,14 @@ void play_game(bool new_game)
 		Rand_quick = TRUE;
 
 		/* Initialize the saved floors data */
-		init_saved_floors();
+		init_saved_floors(FALSE);
 	}
 
 	/* Old game is loaded.  But new game is requested. */
 	else if (new_game)
 	{
 		/* Delete expanded temporal files */
-		clear_saved_floor_files();
+		init_saved_floors(TRUE);
 	}
 
 	/* Process old character */
@@ -6098,6 +6071,9 @@ void play_game(bool new_game)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->stoning >= 250) p_ptr->is_dead |= DEATH_STONED;
 	if ((p_ptr->chp < 0) || p_ptr->is_dead) p_ptr->is_dead |= DEATH_DEAD;
+
+	(void)combine_and_reorder_home(STORE_HOME);
+	(void)combine_and_reorder_home(STORE_MUSEUM);
 
 	/* Process */
 	while (TRUE)

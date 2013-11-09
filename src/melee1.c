@@ -1976,7 +1976,8 @@ bool make_attack_normal(int m_idx)
 					if (explode) break;
 
 					ACTIVATE_MULTISHADOW();
-					if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip || (prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))
+					if (p_ptr->immune_holy) damage = 0;
+					else if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip || (prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)))
 					{
 #ifdef JP
 						if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
@@ -2001,7 +2002,8 @@ bool make_attack_normal(int m_idx)
 					if (explode) break;
 
 					ACTIVATE_MULTISHADOW();
-					if ((get_your_alignment_gne() == ALIGN_GNE_GOOD) && !(prace_is_(RACE_GHOST)) && !(prace_is_(RACE_SKELETON)))
+					if (p_ptr->immune_evil) damage = 0;
+					else if ((get_your_alignment_gne() == ALIGN_GNE_GOOD) && !(prace_is_(RACE_GHOST)) && !(prace_is_(RACE_SKELETON)))
 					{
 #ifdef JP
 						if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
@@ -2109,8 +2111,13 @@ bool make_attack_normal(int m_idx)
 						msg_format("傷口が焼けるように熱い！");
 #else
 #endif
-						p_ptr->infected = TRUE;
+						p_ptr->infected = 1;
 					}
+				}
+
+				if ((r_ptr->flags2 & RF2_VAMPIRE) && p_ptr->infected && one_in_(13))
+				{
+					if (p_ptr->infected < 128) p_ptr->infected++;
 				}
 
 				if (p_ptr->sh_fire && alive && !p_ptr->is_dead)

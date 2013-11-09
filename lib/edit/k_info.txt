@@ -335,13 +335,7 @@ W:45:0:500:2000
 A:45/3
 P:0:1d1:0:0:0
 
-N:28:#のミスリル像
-E:& Mithril Statue~ of #
-G:`:B
-I:9:8:0
-W:80:0:500:10000
-A:80/3
-P:0:1d1:0:0:0
+#N:28:(unused)
 
 N:29:#の装飾された像
 E:& Ornate Statue~ of #
@@ -351,13 +345,7 @@ W:50:0:500:5000
 A:50/3
 P:0:1d1:0:0:0
 
-N:30:#のアダマンタイト像
-E:& Adamantite Statue~ of #
-G:`:G
-I:9:10:0
-W:90:0:500:20000
-A:90/3
-P:0:1d1:0:0:0
+#N:30:(unused)
 
 N:31:#の写真
 E:& Photograph~ of #
@@ -1220,7 +1208,7 @@ D:十字の形に2本の柄が付いた長い両刃の直刀だ。
 
 N:113:妖刀
 E:& Youtou~
-G:|:d
+G:|:D
 I:23:8:0
 W:60:0:120:2000
 A:60/1
@@ -1264,7 +1252,7 @@ F:SHOW_MODS | RIDING
 
 N:118:ダーク・ソード
 E:& Dark Sword~
-G:|:d
+G:|:D
 I:23:12:0
 W:40:0:140:4000
 A:40/2
@@ -2386,7 +2374,7 @@ G:=:w
 I:45:7:0
 W:25:0:2:6000
 A:25/2
-F:FEATHER | SH_ELEC
+F:LEVITATION | SH_ELEC
 
 N:251:耐火:赤めのうの
 E:Resist Fire:Carnelian
@@ -2584,35 +2572,35 @@ W:80:0:2:50000
 A:80/1
 F:SPEED_0
 
-N:275:リング:ジルコンの
+N:275:ビビッドリング:ジルコンの
 E:& Ring~:Zircon
 G:=:U
 I:45:32:0
 W:50:0:2:65000
 F:INSTA_ART
 
-N:276:指輪:プラチナの
+N:276:勇猛なるタルカスの指輪:プラチナの
 E:& Ring~:Platinum
 G:=:w
 I:45:33:0
 W:70:0:2:150000
 F:INSTA_ART
 
-N:277:指輪:青銅の
+N:277:聖なる指輪:青銅の
 E:& Ring~:Bronze
 G:=:U
 I:45:34:0
 W:80:0:2:100000
 F:INSTA_ART
 
-N:278:指輪:金の
+N:278:死霊の指輪:金の
 E:& Ring~:Gold
 G:=:y
 I:45:35:0
 W:90:0:2:200000
 F:INSTA_ART
 
-N:279:リング:黒曜石の
+N:279:ルシファーリング:黒曜石の
 E:& Ring~:Obsidian
 G:=:D
 I:45:36:0
@@ -2701,7 +2689,7 @@ F:RES_DISEN
 
 #JZ#
 N:289:耐カオス:蛇の
-E:Chaos Resistance:蛇の
+E:Chaos Resistance:Serpent
 G:=:g
 I:45:46:0
 W:50:0:2:13000
@@ -2718,8 +2706,8 @@ A:60/2
 F:RES_BLIND
 
 #JZ#
-N:291:王者の加護:Wedding
-E:Lordly Protection:Wedding
+N:291:王者の加護:輝く
+E:Lordly Protection:Shining
 G:=:o
 I:45:48:0
 W:100:0:2:100000
@@ -2735,7 +2723,7 @@ W:50:0:2:100000
 A:50/2
 F:BLOWS_0
 
-N:293:指輪:錆びた
+N:293:死者の指輪:錆びた
 E:& Ring~:Rusty
 G:=:r
 I:45:50:0
@@ -3490,7 +3478,7 @@ D:それは使うと地形の地のエレメントを活性化させる。
 
 N:365:風のエレメント:炭素の
 E:Wind Element:Carbonized
-G:-:d
+G:-:D
 I:65:35:18
 W:25:0:10:3000
 A:25/4
@@ -3513,7 +3501,7 @@ D:それは振ると自分の周辺のトラップを感知する。
 
 N:367:ドア/階段感知:鋳鉄の
 E:Door/Stair Location:Cast Iron
-G:-:d
+G:-:D
 I:66:1:70
 W:15:0:15:1000
 A:7/4:15/1
@@ -4449,11 +4437,33 @@ D:$element of earth is made to inactivate.
 D:それは読むと地形の風のエレメントを活性化させ、
 D:地のエレメントを不活性化させる。
 
-##### Potions #####
+##### Chunks #####
 
-#N:462:(unused)
-#N:463:(unused)
-#N:464:(unused)
+N:462:鉄塊
+E:& Chunk~ of Iron
+G:`:D
+I:11:0:0
+W:20:0:500:200
+A:20/3
+P:0:1d1:0:0:0
+
+N:463:ミスリルの塊
+E:& Chunk~ of Mithril
+G:`:B
+I:11:1:0
+W:80:0:500:10000
+A:80/3
+P:0:1d1:0:0:0
+
+N:464:アダマンタイトの塊
+E:& Chunk~ of Adamantite
+G:`:G
+I:11:2:0
+W:90:0:500:20000
+A:90/3
+P:0:1d1:0:0:0
+
+##### Potions #####
 
 N:465:のろま:透明な
 E:Slowness:Clear
@@ -4519,7 +4529,7 @@ D:それは飲むと麻痺する。
 
 N:471:記憶喪失:黒い
 E:Lose Memories:Black
-G:!:d
+G:!:D
 I:75:9:0
 W:10:0:4:0
 A:10/1
@@ -4903,7 +4913,7 @@ D:それは飲むと自分についての情報を得る。
 
 N:508:経験:煙った
 E:Experience:Smoky
-G:!:d
+G:!:D
 I:75:46:0
 W:65:0:4:25000
 A:65/1

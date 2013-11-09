@@ -480,30 +480,6 @@ says, 'Feel my wrath, idle rascal!'
 「ついに見つけたぞ！愚かな泥棒め！」
 「怖くないというのか？！恐れた方が身の為だぞ！」
 
-N:655:Ubbo-Sathla, the Unbegotten Source
-N:857:Great Cthulhu
-15
-「ウジュウジュウジュ」
-は気持悪い音を発している。
-は叫んで死者を甦らせようとしている。
-は不潔にてかった粘液をダンジョン中に垂れ流している。
-は頭がぼんやりするような悪臭を放っている。
-は「テキリ=リ、テキリ=リ」と吠えている。
-は背筋の凍るような音を立てて這いずっている。
-「おまえはティンダロスの猟犬の餌になるのだ。」
-「ランドルフ・カーターは簡単だったがお前はちがうようだ。」
-seethes and fumes sickeningly.
-hisses, 'I'll send you beyond Known Space to Azathoth!'
-の気持ち悪い触腕が蠕いている。
-picks its teeth with the bones of former players.
-があなたの精神を名状しがたい宇宙的恐怖に陥れた。
-snorts and slobbers with glee.
-
-N:685:Shoggoth
-2
-があなたに向かって恐ろしげに突進してくる。
-「テキリ・リ！ テキリ・リ！」
-
 N:697:Smaug the Golden
 8
 「におうぞ、きさまの空気が分かるわい。息づかいも聞こえるな。こっちへ来い！」

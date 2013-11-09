@@ -74,7 +74,7 @@ OBJ = \
 	report.obj rooms.obj save.obj scores.obj spells1.obj \
 	spells2.obj spells3.obj store.obj streams.obj tables.obj util.obj \
 	variable.obj wild.obj wizard1.obj wizard2.obj xtra1.obj xtra2.obj \
-	z-form.obj z-rand.obj z-term.obj z-util.obj z-virt.obj
+	z-form.obj z-rand.obj z-term.obj z-util.obj z-virt.obj do-spell.obj element.obj
 
 all : $(EXE_FILE)
 

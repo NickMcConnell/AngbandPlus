@@ -68,16 +68,6 @@ void set_action(int typ)
 				p_ptr->redraw |= (PR_MAP);
 				break;
 			}
-			case ACTION_AURA:
-			{
-#ifdef JP
-				msg_print("もう闘気に包まれていない。");
-#else
-				msg_print("You stopped feeling elements.");
-#endif
-				p_ptr->redraw |= (PR_SPEED | PR_STATUS | PR_ARMOR | PR_HP);
-				break;
-			}
 		}
 	}
 
@@ -118,19 +108,6 @@ void set_action(int typ)
 			p_ptr->redraw |= (PR_SPEED);
 			break;
 		}
-		case ACTION_AURA:
-		{
-#ifdef JP
-			msg_print("闘気に包まれた。");
-#else
-			msg_print("You begin to walk silently.");
-#endif
-			p_ptr->redraw |= (PR_SPEED | PR_STATUS | PR_ARMOR | PR_HP);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER);
-			break;
-		}
 		default:
 		{
 			break;
@@ -159,7 +136,7 @@ void reset_tim_flags(void)
 	p_ptr->stun = 0;            /* Timed -- Stun */
 	p_ptr->stoning = 0;         /* Timed -- Stoning */
 	p_ptr->opposite_pelem = 0;  /* Timed -- Forced to opposite element */
-	p_ptr->no_elem = 0;  /* Timed -- Forced to no element */
+	p_ptr->no_elem = 0;         /* Timed -- Forced to no element */
 
 	p_ptr->protevil = 0;        /* Timed -- Protection */
 	p_ptr->invuln = 0;          /* Timed -- Invulnerable */
@@ -242,6 +219,17 @@ void reset_tim_flags(void)
 	{
 		p_ptr->oppose_elec = 1;
 	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM))
+	{
+		p_ptr->no_elem = 1;
+	}
+
+	if (inventory[INVEN_FEET].k_idx && (inventory[INVEN_FEET].name2 == EGO_SPIKE))
+	{
+		p_ptr->earth_spike = 1;
+	}
+
 
 	if (p_ptr->riding)
 	{
@@ -2198,6 +2186,76 @@ bool set_tim_sh_holy(int v, bool do_dec)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sh_aura", notice observable changes
+ */
+bool set_tim_sh_aura(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sh_aura && !do_dec)
+		{
+			if (p_ptr->tim_sh_aura > v) return FALSE;
+		}
+		else if (!p_ptr->tim_sh_aura)
+		{
+#ifdef JP
+			msg_print("闘気に包まれた。");
+#else
+			msg_print("You begin to walk silently.");
+#endif
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sh_aura)
+		{
+#ifdef JP
+			msg_print("もう闘気に包まれていない。");
+#else
+			msg_print("You stopped feeling elements.");
+#endif
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sh_aura = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_SPEED | PR_STATUS | PR_ARMOR | PR_HP);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_VIEW | PU_LITE | PU_MON_LITE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -4673,7 +4731,7 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 
 		change_level99_quest(FALSE);
 
-		p_ptr->infected = FALSE;
+		p_ptr->infected = 0;
 
 		if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
@@ -4694,9 +4752,6 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 			p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
 		}
 
-		/* Update stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
 		/* Combine / Reorder the pack */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -4707,7 +4762,7 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 		update_stuff();
 
 		/* Update stuff */
-		p_ptr->update |= (PU_HP | PU_MANA);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw stuff */
 		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -4725,6 +4780,10 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 #else
 		sprintf(buf, "once killed, but reincarnated as %s.", c_name + cp_ptr->name);
 #endif
+
+		(void)combine_and_reorder_home(STORE_HOME);
+		(void)combine_and_reorder_home(STORE_MUSEUM);
+
 		/* Load the "pref" files */
 		load_all_pref_files();
 	}
@@ -4829,6 +4888,7 @@ int take_hit(u32b damage_type, int damage, cptr hit_from)
 	char tmp[80];
 
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
+	int increase_infect_level = (p_ptr->mhp * 3 / 10);
 
 	/* Paranoia */
 	if (p_ptr->is_dead & DEATH_DEAD) return 0;
@@ -4936,6 +4996,16 @@ int take_hit(u32b damage_type, int damage, cptr hit_from)
 	{
 		damage += p_ptr->chp;
 		p_ptr->chp = 0;
+	}
+
+	if (p_ptr->infected)
+	{
+		if (p_ptr->chp < increase_infect_level) p_ptr->infected++;
+		if (p_ptr->infected > 49)
+		{
+			p_ptr->chp -= 5000;
+			hit_from = "感染のショック";
+		}
 	}
 
 	/* Display the hitpoints */
@@ -5488,6 +5558,8 @@ bool set_earth_spike(int v, bool do_dec)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+
+	if (inventory[INVEN_FEET].k_idx && (inventory[INVEN_FEET].name2 == EGO_SPIKE)) v = 1;
 
 	/* Open */
 	if (v)

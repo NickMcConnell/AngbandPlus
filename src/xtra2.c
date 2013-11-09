@@ -671,7 +671,11 @@ void check_quest_completion(monster_type *m_ptr)
 					}
 
 					quest[i].cur_num = 0;
-					if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
+					if (quest_is_fixed(i) && !(quest[i].flags & QUEST_FLAG_ALI_CHAOS)) change_your_alignment(ALI_LNC, 10);
+					else change_your_alignment(ALI_LNC, -10);
+
+					if (quest[i].flags & QUEST_FLAG_ALI_EVIL) change_your_alignment(ALI_GNE, -10);
+					else change_your_alignment(ALI_GNE, 10);
 				}
 				break;
 			}
@@ -714,7 +718,11 @@ void check_quest_completion(monster_type *m_ptr)
 
 							msg_print(NULL);
 						}
-						if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
+						if (quest_is_fixed(i) && !(quest[i].flags & QUEST_FLAG_ALI_CHAOS)) change_your_alignment(ALI_LNC, 10);
+						else change_your_alignment(ALI_LNC, -10);
+
+						if (quest[i].flags & QUEST_FLAG_ALI_EVIL) change_your_alignment(ALI_GNE, -10);
+						else change_your_alignment(ALI_GNE, 10);
 					}
 
 					/* Finish the two "genocide" quests without rewarding */
@@ -843,7 +851,11 @@ void check_quest_completion(monster_type *m_ptr)
 						msg_print(NULL);
 					}
 					quest[i].cur_num = 0;
-					if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
+					if (quest_is_fixed(i) && !(quest[i].flags & QUEST_FLAG_ALI_CHAOS)) change_your_alignment(ALI_LNC, 10);
+					else change_your_alignment(ALI_LNC, -10);
+
+					if (quest[i].flags & QUEST_FLAG_ALI_EVIL) change_your_alignment(ALI_GNE, -10);
+					else change_your_alignment(ALI_GNE, 10);
 				}
 				break;
 			}
@@ -1332,7 +1344,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 
 	else if ((m_ptr->r_idx == MON_DEATH) && !p_ptr->inside_arena)
 	{
-		p_ptr->death_regen = 999;
+		p_ptr->death_regen = 5000;
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -2221,7 +2233,7 @@ void get_exp_from_mon(int dam, monster_type *m_ptr)
 	if (is_pet(m_ptr)) return;
 	else
 	{
-		cexp_info_type *cexp_ptr;
+		cexp_info_type *cexp_ptr = NULL;
 		int total_max_clev = 0;
 		int i;
 
@@ -2242,7 +2254,7 @@ static void expire_current_class(void)
 {
 	char buf[80];
 	byte old_pclass = p_ptr->pclass;
-	cexp_info_type *cexp_ptr;
+	cexp_info_type *cexp_ptr = NULL;
 
 	switch (old_pclass)
 	{
@@ -2437,6 +2449,23 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 			{
 				/* Make screen dump */
 				screen_dump = make_screen_dump();
+				{
+					int mult = 100;
+					mult += (50 - p_ptr->max_max_plv) * 10;
+					mult -= p_ptr->reincarnate_cnt * 10;
+					mult -= (p_ptr->max_max_exp - (5625000L * 100 / p_ptr->expfact)) / 100000L * 10;
+					if (mult < 0) mult = 0;
+					p_ptr->winner_mult = mult;
+				}
+			}
+
+			if (m_ptr->r_idx == MON_FILARHH)
+			{
+				int mult = 200;
+				mult -= p_ptr->reincarnate_cnt * 10;
+				mult -= (p_ptr->max_max_exp - (5625000L * 100 / p_ptr->expfact)) / 100000L * 10;
+				if (mult < 0) mult = 0;
+				p_ptr->ogre_mult = mult;
 			}
 		}
 
@@ -2541,7 +2570,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 			}
 		}
 
-		if (!dun_level && !ambush_flag && !p_ptr->inside_arena)
+		if (!dun_level && !ambush_flag && !p_ptr->inside_arena && one_in_(5))
 		{
 			change_your_alignment(ALI_GNE, -1);
 		}
@@ -2554,7 +2583,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 			/* Alignment change */
 			if (r_ptr->d_char == 't')
 			{
-				if (!dun_level && p_ptr->town_num) change_chaos_frame(town[p_ptr->town_num].ethnic, -1);
+				if (!dun_level && p_ptr->town_num)
+				{
+					change_chaos_frame(town[p_ptr->town_num].ethnic, -1);
+					if (one_in_(2)) change_your_alignment(ALI_GNE, -1);
+				}
 			}
 			if (r_ptr->flags3 & RF3_GOOD)
 			{
@@ -2705,7 +2738,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 					change_chaos_frame(ETHNICITY_BACRUM, -600);
 					change_chaos_frame(ETHNICITY_ZENOBIAN, -600);
 					change_chaos_frame(ETHNICITY_LODIS, -600);
-					change_your_alignment(ALI_GNE, -300);
+					change_your_alignment(ALI_GNE, -600);
 					break;
 				}
 			}
@@ -2785,26 +2818,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 		}
 	}
 
-#endif
-
-#if 0
-	if (p_ptr->riding && (p_ptr->riding == m_idx) && (dam > 0))
-	{
-		char m_name[80];
-
-		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
-
-		if (m_ptr->hp > m_ptr->maxhp/3) dam = (dam + 1) / 2;
-		if (rakuba((dam > 200) ? 200 : dam, FALSE))
-		{
-#ifdef JP
-				msg_format("%^sに振り落とされた！", m_name);
-#else
-				msg_format("%^s has thrown you off!", m_name);
-#endif
-		}
-	}
 #endif
 
 	/* Not dead yet */
@@ -6697,8 +6710,10 @@ int get_your_alignment_gne(void)
 	if (cp_ptr->c_flags & PCF_ALIGN_GOOD) return ALIGN_GNE_GOOD;
 	if (cp_ptr->c_flags & PCF_ALIGN_EVIL) return ALIGN_GNE_EVIL;
 
-	if (p_ptr->align[ALI_GNE] > 299) return ALIGN_GNE_GOOD;
-	else if (p_ptr->align[ALI_GNE] > -300) return ALIGN_GNE_NEUTRAL;
+	if (!r_info[MON_FILARHH].max_num) return ALIGN_GNE_EVIL;
+
+	if (p_ptr->align[ALI_GNE] > 49) return ALIGN_GNE_GOOD;
+	else if (p_ptr->align[ALI_GNE] > -50) return ALIGN_GNE_NEUTRAL;
 	else return ALIGN_GNE_EVIL;
 }
 
@@ -6718,7 +6733,7 @@ cptr your_alignment_lnc(void)
 
 	case ALIGN_LNC_NEUTRAL:
 #ifdef JP
-		return "中立";
+		return "中庸";
 #else
 		return "Neutral";
 #endif
@@ -6938,6 +6953,7 @@ s16b get_elem_type(int typ)
 	case GF_FIRE:
 	case GF_PLASMA:
 	case GF_PURE_FIRE:
+	case GF_VOLCANIC_BOMB:
 	case GF_STRIKE_NOVA:
 		return ELEM_FIRE;
 
@@ -7085,8 +7101,8 @@ void change_grid_elem(cave_type *c_ptr, s16b elem, s16b amount)
  */
 int modify_dam_by_elem(int a_who, int d_who, int dam, int typ, int mode)
 {
-	cave_type *ac_ptr;
-	cave_type *dc_ptr;
+	cave_type *ac_ptr = NULL;
+	cave_type *dc_ptr = NULL;
 
 	int ret_dam;
 	bool see_a = TRUE, see_d;
@@ -7311,6 +7327,9 @@ int modify_dam_by_elem(int a_who, int d_who, int dam, int typ, int mode)
 	}
 
 	ret_dam = dam * (((100 + ra - rd) > 0) ? (100 + ra - rd) : 0) / 100;
+
+	if (p_ptr->resist_all && !d_who) ret_dam = ret_dam * 4 / 7;
+
 	if (p_ptr->wizard && show_damage && see_a && see_d)
 	{
 		msg_format("(Ra: %d、Rd: %d、補正前の耐性軽減なし威力: %d) ", ra, rd, dam);
@@ -7448,83 +7467,71 @@ bool can_choose_class(byte new_class, byte mode)
 		/* Several classes cannot change more */
 		if (cp_ptr->c_flags & PCF_NO_CHANGE) return FALSE;
 
-		if (new_class == CLASS_TERRORKNIGHT)
+		switch (new_class)
 		{
+		case CLASS_TERRORKNIGHT:
 			if (p_ptr->cexp_info[CLASS_SWORDMASTER].clev > 0) return FALSE;
-		}
-		else if (new_class == CLASS_SWORDMASTER)
-		{
+			break;
+
+		case CLASS_SWORDMASTER:
 			if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 0) return FALSE;
-		}
-		else if (new_class == CLASS_HIGHWITCH)
-		{
+			break;
+
+		case CLASS_GUNNER:
+			if (quest[QUEST_GUNNER].status < QUEST_STATUS_FINISHED) return FALSE;
+			break;
+
+		case CLASS_HIGHWITCH:
 			if (p_ptr->cexp_info[CLASS_WITCH].clev < 39) return FALSE;
 			if (!(inventory[INVEN_HEAD].k_idx && (inventory[INVEN_HEAD].name1 == ART_DENEB))) return FALSE;
-		}
-		else if (new_class == CLASS_TEMPLEKNIGHT)
-		{
-			if (misc_event_flags & EVENT_CANNOT_BE_TEMPLEKNIGHT) return FALSE;
-			if (!r_info[MON_OZ].max_num) return FALSE;
-			if (!r_info[MON_OZMA].max_num) return FALSE;
-			if (!r_info[MON_VOLAC].max_num) return FALSE;
-			if (!r_info[MON_MARTYM].max_num) return FALSE;
-			if (!r_info[MON_BARBAS].max_num) return FALSE;
-			if (!r_info[MON_BALZEPHO].max_num) return FALSE;
-			if (!r_info[MON_ANDORAS].max_num) return FALSE;
-			if (!r_info[MON_LANCELOT].max_num) return FALSE;
-			if (chaos_frame[ETHNICITY_LODIS] < 100) return FALSE;
-		}
-		else if (new_class == CLASS_WHITEKNIGHT)
-		{
-			if (misc_event_flags & EVENT_CANNOT_BE_WHITEKNIGHT) return FALSE;
-			if (!r_info[MON_MAN_LOOK_SEA].max_num) return FALSE;
-			if (!r_info[MON_WARREN].max_num) return FALSE;
-			if (chaos_frame[ETHNICITY_ZENOBIAN] < 100) return FALSE;
-		}
-		else if (new_class == CLASS_LORD)
-		{
+			break;
+
+		case CLASS_LORD:
 			if (chaos_frame[ETHNICITY_WALSTANIAN] < 100) return FALSE;
 			if (chaos_frame[ETHNICITY_GARGASTAN] < 100) return FALSE;
 			if (chaos_frame[ETHNICITY_BACRUM] < 100) return FALSE;
 			if (p_ptr->cexp_info[CLASS_SOLDIER].clev < 29) return FALSE;
 			if (p_ptr->cexp_info[CLASS_SOLDIER].max_clev != total_max_clev) return FALSE;
-		}
-		else if (new_class == CLASS_GENERAL)
-		{
+			break;
+
+		case CLASS_GENERAL:
 			if (p_ptr->cexp_info[CLASS_KNIGHT].clev < 29) return FALSE;
 			if ((total_max_clev - p_ptr->cexp_info[CLASS_KNIGHT].clev - p_ptr->cexp_info[CLASS_GENERAL].clev) > 14) return FALSE;
-		}
-		else if (new_class == CLASS_NINJAMASTER)
-		{
+			break;
+
+		case CLASS_NINJAMASTER:
 			if (p_ptr->cexp_info[CLASS_NINJA].clev < 34) return FALSE;
 			if ((total_max_clev - p_ptr->cexp_info[CLASS_NINJA].clev - p_ptr->cexp_info[CLASS_NINJAMASTER].clev) > 9) return FALSE;
-		}
-		else if (new_class == CLASS_ARCHMAGE)
-		{
+			break;
+
+		case CLASS_ARCHMAGE:
 			if (p_ptr->cexp_info[CLASS_WIZARD].clev < 34) return FALSE;
 			if ((total_max_clev - p_ptr->cexp_info[CLASS_WIZARD].clev - p_ptr->cexp_info[CLASS_ARCHMAGE].clev) > 19) return FALSE;
-		}
-		else if (new_class == CLASS_FREYA)
-		{
+			break;
+
+		case CLASS_FREYA:
 			if (p_ptr->cexp_info[CLASS_VALKYRIE].clev < 34) return FALSE;
 			if (total_max_clev - p_ptr->cexp_info[CLASS_VALKYRIE].clev > 9) return FALSE;
-		}
-		else if (new_class == CLASS_CRESCENT)
-		{
+			break;
+
+		case CLASS_CRESCENT:
 			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 34) return FALSE;
 			if (total_max_clev - p_ptr->cexp_info[CLASS_ARCHER].clev > 9) return FALSE;
-		}
-		else if (new_class == CLASS_MEDIUM)
-		{
+			break;
+
+		case CLASS_MEDIUM:
 			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 19) return FALSE;
-			if ((p_ptr->cexp_info[CLASS_CLERIC].clev + p_ptr->cexp_info[CLASS_PRIEST].clev) < 44) return FALSE;
+			if ((p_ptr->cexp_info[CLASS_CLERIC].clev + p_ptr->cexp_info[CLASS_PRIEST].clev) < 34) return FALSE;
 			if (p_ptr->cexp_info[CLASS_NINJA].max_clev > 0) return FALSE;
 			if (p_ptr->cexp_info[CLASS_WITCH].max_clev > 0) return FALSE;
-		}
-		else if (new_class == CLASS_SUCCUBUS)
-		{
-			if (p_ptr->pclass != CLASS_WITCH) return FALSE;
-			if (rp_ptr->r_flags & PRF_UNDEAD) return FALSE;
+			break;
+
+		case CLASS_GRAPPLER:
+			if (chaos_frame[ETHNICITY_LODIS] > -50) return FALSE;
+			break;
+		case CLASS_ELEMENTALER:
+			if (total_max_clev > 75) return FALSE;
+			break;
 		}
 		break;
 
@@ -7568,8 +7575,47 @@ bool can_choose_class(byte new_class, byte mode)
 		case CLASS_VAMPIRE:
 			if (!p_ptr->infected) return FALSE;
 
+			/* Evil player only */
+			if (get_your_alignment_gne() != ALIGN_GNE_EVIL) return FALSE;
+
 			/* Chance is dependent on CON (Min 40%) */
 			if (randint1(100) > ((MAX(p_ptr->stat_use[A_CON] - 100, 0) / 2) + 40)) return FALSE;
+			break;
+		}
+		break;
+
+	case CLASS_CHOOSE_MODE_BLDGS:
+		/* Reincarnated classes are no more reincarnated */
+		if (cp_ptr->c_flags & PCF_REINCARNATE) return FALSE;
+
+		/* Several classes cannot change more */
+		if (cp_ptr->c_flags & PCF_NO_CHANGE) return FALSE;
+
+		switch (new_class)
+		{
+		case CLASS_TEMPLEKNIGHT:
+			if (misc_event_flags & EVENT_CANNOT_BE_TEMPLEKNIGHT) return FALSE;
+			if (!r_info[MON_OZ].max_num) return FALSE;
+			if (!r_info[MON_OZMA].max_num) return FALSE;
+			if (!r_info[MON_VOLAC].max_num) return FALSE;
+			if (!r_info[MON_MARTYM].max_num) return FALSE;
+			if (!r_info[MON_BARBAS].max_num) return FALSE;
+			if (!r_info[MON_BALZEPHO].max_num) return FALSE;
+			if (!r_info[MON_ANDORAS].max_num) return FALSE;
+			if (!r_info[MON_LANCELOT].max_num) return FALSE;
+			if (chaos_frame[ETHNICITY_LODIS] < 100) return FALSE;
+			break;
+
+		case CLASS_WHITEKNIGHT:
+			if (misc_event_flags & EVENT_CANNOT_BE_WHITEKNIGHT) return FALSE;
+			if (!r_info[MON_MAN_LOOK_SEA].max_num) return FALSE;
+			if (!r_info[MON_WARREN].max_num) return FALSE;
+			if (chaos_frame[ETHNICITY_ZENOBIAN] < 100) return FALSE;
+			break;
+
+		case CLASS_SUCCUBUS:
+			if (p_ptr->pclass != CLASS_WITCH) return FALSE;
+			if (rp_ptr->r_flags & PRF_UNDEAD) return FALSE;
 			break;
 		}
 		break;

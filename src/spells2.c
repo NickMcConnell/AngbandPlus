@@ -89,6 +89,9 @@ void self_knowledge(void)
 	info[i++] = buf;
 	info[i++] = "";
 	
+	if (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD)))
+	{
+
 	/* Racial powers... */
 	switch (p_ptr->prace)
 	{
@@ -218,12 +221,14 @@ void self_knowledge(void)
 		default:
 			break;
 	}
+	}
 
 	if ((p_ptr->pclass != CLASS_TERRORKNIGHT)
 		&& (p_ptr->pclass != CLASS_SWORDMASTER)
 		&& (p_ptr->pclass != CLASS_NINJA)
 		&& (p_ptr->pclass != CLASS_NINJAMASTER)
-		&& (p_ptr->pclass != CLASS_VAMPIRE))
+		&& (p_ptr->pclass != CLASS_VAMPIRE)
+		&& (p_ptr->pclass != CLASS_SUCCUBUS))
 	{
 #ifdef JP
 		info[i++] = "あなたは小石を投げることができる。(コスト: 0)";
@@ -549,6 +554,33 @@ void self_knowledge(void)
 				info[i++] = "あなたは敵を貫通する聖なる矢を放つことができる。";
 #else
 				info[i++] = "You can fire a holy arrow.";
+#endif
+			}
+			break;
+		case CLASS_SUCCUBUS:
+			info[i++] = "弱い魔力のボールを放つ事が出来る。(コスト: 10)";
+			if (clev > 14)
+			{
+				info[i++] = "あなたは敵から精気を吸い取る事が出来る。(コスト: 1)";
+			}
+			if (clev > 29)
+			{
+				info[i++] = "あなたは通常の2倍の攻撃を行うことができる。(コスト: 30)";
+			}
+			break;
+		case CLASS_GRAPPLER:
+			if (clev > 23)
+			{
+				info[i++] = "あなたは素早く相手に近寄ることができる。(コスト: 30)";
+			}
+			break;
+		case CLASS_ELEMENTALER:
+			if (plev > 14)
+			{
+#ifdef JP
+				info[i++] = "あなたは精神を集中してＭＰを回復させることができる。(0 MP)";
+#else
+				info[i++] = "You can concentrate to regenerate your mana (cost 0).";
 #endif
 			}
 			break;
@@ -1918,6 +1950,15 @@ void self_knowledge(void)
 		info[i++] = "あなたは聖なるオーラに包まれている。";
 #else
 		info[i++] = "You are surrounded with a holy aura.";
+#endif
+
+	}
+	if (p_ptr->tim_sh_aura)
+	{
+#ifdef JP
+		info[i++] = "あなたは闘気の鎧に包まれている。";
+#else
+		info[i++] = "You are surrounded with a aura shield.";
 #endif
 
 	}
@@ -4497,6 +4538,117 @@ void aggravate_monsters(int who)
 
 
 /*
+ * Delete a non-unique/non-quest monster
+ */
+bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spell_name)
+{
+	int          msec = delay_factor * delay_factor * delay_factor;
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	bool         resist = FALSE;
+
+	if (is_pet(m_ptr) && !player_cast) return FALSE;
+
+	/* Hack -- Skip Unique Monsters or Quest Monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) resist = TRUE;
+
+	else if (r_ptr->flags7 & RF7_UNIQUE2) resist = TRUE;
+
+	else if (m_idx == p_ptr->riding) resist = TRUE;
+
+	else if (p_ptr->inside_quest || p_ptr->inside_arena) resist = TRUE;
+
+	else if (player_cast && (r_ptr->level > randint0(power))) resist = TRUE;
+
+	else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) resist = TRUE;
+
+	/* Delete the monster */
+	else
+	{
+		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+		{
+			char m_name[80];
+
+			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+		}
+
+		delete_monster_idx(m_idx);
+	}
+
+	if (resist && player_cast)
+	{
+		char m_name[80];
+
+		monster_desc(m_name, m_ptr, 0);
+		if (m_ptr->ml && !p_ptr->blind)
+		{
+#ifdef JP
+			msg_format("%^sには効果がなかった。", m_name);
+#else
+			msg_format("%^s is unaffected.", m_name);
+#endif
+		}
+		if (MON_CSLEEP(m_ptr))
+		{
+			(void)set_monster_csleep(m_idx, 0);
+			if (m_ptr->ml && !p_ptr->blind)
+			{
+#ifdef JP
+				msg_format("%^sが目を覚ました。", m_name);
+#else
+				msg_format("%^s wakes up.", m_name);
+#endif
+			}
+		}
+		if (is_friendly(m_ptr) && !is_pet(m_ptr))
+		{
+			if (m_ptr->ml && !p_ptr->blind)
+			{
+#ifdef JP
+				msg_format("%sは怒った！", m_name);
+#else
+				msg_format("%^s gets angry!", m_name);
+#endif
+			}
+			set_hostile(m_ptr);
+		}
+		if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
+	}
+
+	if (player_cast)
+	{
+		/* Take damage */
+#ifdef JP
+		take_hit(DAMAGE_GENO, randint1(dam_side), format("%^sの呪文を唱えた疲労", spell_name));
+#else
+		take_hit(DAMAGE_GENO, randint1(dam_side), format("the strain of casting %^s", spell_name));
+#endif
+	}
+
+	/* Visual feedback */
+	move_cursor_relative(py, px);
+
+	/* Redraw */
+	p_ptr->redraw |= (PR_HP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+
+	/* Handle */
+	handle_stuff();
+
+	/* Fresh */
+	Term_fresh();
+
+	/* Delay */
+	Term_xtra(TERM_XTRA_DELAY, msec);
+
+	return !resist;
+}
+
+
+/*
  * Delete all non-unique/non-quest monsters of a given "type" from the level
  */
 bool symbol_genocide(int power, int player_cast)
@@ -4504,12 +4656,11 @@ bool symbol_genocide(int power, int player_cast)
 	int     i;
 	char    typ;
 	bool    result = FALSE;
-	int     msec = delay_factor * delay_factor * delay_factor;
 
 	/* Prevent genocide in quest levels */
 	if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena)
 	{
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* Mega-Hack -- Get a monster symbol */
@@ -4525,8 +4676,6 @@ bool symbol_genocide(int power, int player_cast)
 	{
 		monster_type    *m_ptr = &m_list[i];
 		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-		bool angry = FALSE;
-		char m_name[80];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -4534,111 +4683,17 @@ bool symbol_genocide(int power, int player_cast)
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
-		if (is_pet(m_ptr) && !player_cast) continue;
-
-		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
-
-		/* Hack -- Skip Quest Monsters */
-		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
-
-		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
-
-		else if (i == p_ptr->riding) angry = TRUE;
-
-		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
-
-		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
-
-		/* Delete the monster */
-		else
-		{
-			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
-			}
-
-			delete_monster_idx(i);
-		}
-
-		if (angry && player_cast)
-		{
-			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->ml && !p_ptr->blind)
-			{
-#ifdef JP
-				msg_format("%^sには効果がなかった。", m_name);
-#else
-				msg_format("%^s is unaffected.", m_name);
-#endif
-			}
-			if (MON_CSLEEP(m_ptr))
-			{
-				(void)set_monster_csleep(i, 0);
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%^sが目を覚ました。", m_name);
-#else
-					msg_format("%^s wakes up.", m_name);
-#endif
-				}
-			}
-			if (is_friendly(m_ptr) && !is_pet(m_ptr))
-			{
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%sは怒った！", m_name);
-#else
-					msg_format("%^s gets angry!", m_name);
-#endif
-				}
-				set_hostile(m_ptr);
-			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
-		}
-
-		if (player_cast)
-		{
-			/* Take damage */
-#ifdef JP
-			take_hit(DAMAGE_GENO, randint1(4), "抹殺の呪文を唱えた疲労");
-#else
-			take_hit(DAMAGE_GENO, randint1(4), "the strain of casting Genocide");
-#endif
-
-		}
-
-		/* Visual feedback */
-		move_cursor_relative(py, px);
-
-		/* Redraw */
-		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
-
-		/* Handle */
-		handle_stuff();
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
 		/* Take note */
-		result = TRUE;
+#ifdef JP
+		result |= genocide_aux(i, power, player_cast, 4, "抹殺");
+#else
+		result |= genocide_aux(i, power, player_cast, 4, "Genocide");
+#endif
 	}
 
-	if (result)
-		change_your_alignment(ALI_GNE, -1);
+	if (result) change_your_alignment(ALI_GNE, -1);
 
-	return (result);
+	return result;
 }
 
 
@@ -4649,22 +4704,17 @@ bool mass_genocide(int power, int player_cast)
 {
 	int     i;
 	bool    result = FALSE;
-	int     msec = delay_factor * delay_factor * delay_factor;
-
 
 	/* Prevent mass genocide in quest levels */
 	if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena)
 	{
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-		bool angry = FALSE;
-		char m_name[80];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -4672,109 +4722,17 @@ bool mass_genocide(int power, int player_cast)
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
-		if (is_pet(m_ptr) && !player_cast) continue;
-
-		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
-
-		/* Hack -- Skip Quest Monsters */
-		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
-
-		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
-
-		else if (i == p_ptr->riding) angry = TRUE;
-
-		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
-
-		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
-
-		/* Delete the monster */
-		{
-			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
-			}
-
-			delete_monster_idx(i);
-		}
-
-		if (angry && player_cast)
-		{
-			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->ml && !p_ptr->blind)
-			{
-#ifdef JP
-				msg_format("%^sには効果がなかった。", m_name);
-#else
-				msg_format("%^s is unaffected.", m_name);
-#endif
-			}
-			if (MON_CSLEEP(m_ptr))
-			{
-				(void)set_monster_csleep(i, 0);
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%^sが目を覚ました。", m_name);
-#else
-					msg_format("%^s wakes up.", m_name);
-#endif
-				}
-			}
-			if (is_friendly(m_ptr) && !is_pet(m_ptr))
-			{
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%sは怒った！", m_name);
-#else
-					msg_format("%^s gets angry!", m_name);
-#endif
-				}
-				set_hostile(m_ptr);
-			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
-		}
-
-		if (player_cast)
-		{
-			/* Hack -- visual feedback */
-#ifdef JP
-			take_hit(DAMAGE_GENO, randint1(3), "周辺抹殺の呪文を唱えた疲労");
-#else
-			take_hit(DAMAGE_GENO, randint1(3), "the strain of casting Mass Genocide");
-#endif
-
-		}
-
-		move_cursor_relative(py, px);
-
-		/* Redraw */
-		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
-
-		/* Handle */
-		handle_stuff();
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
 		/* Note effect */
-		result = TRUE;
+#ifdef JP
+		result |= genocide_aux(i, power, player_cast, 3, "周辺抹殺");
+#else
+		result |= genocide_aux(i, power, player_cast, 3, "Mass Genocide");
+#endif
 	}
 
-	if (result)
-		change_your_alignment(ALI_GNE, -1);
+	if (result) change_your_alignment(ALI_GNE, -1);
 
-	return (result);
+	return result;
 }
 
 
@@ -4786,13 +4744,11 @@ bool mass_genocide_undead(int power, int player_cast)
 {
 	int     i;
 	bool    result = FALSE;
-	int     msec = delay_factor * delay_factor * delay_factor;
-
 
 	/* Prevent mass genocide in quest levels */
 	if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena)
 	{
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* Delete the (nearby) monsters */
@@ -4800,8 +4756,6 @@ bool mass_genocide_undead(int power, int player_cast)
 	{
 		monster_type    *m_ptr = &m_list[i];
 		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-		bool angry = FALSE;
-		char m_name[80];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -4811,109 +4765,17 @@ bool mass_genocide_undead(int power, int player_cast)
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
-		if (is_pet(m_ptr) && !player_cast) continue;
-
-		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
-
-		/* Hack -- Skip Quest Monsters */
-		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
-
-		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
-
-		else if (i == p_ptr->riding) angry = TRUE;
-
-		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
-
-		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
-
-		/* Delete the monster */
-		{
-			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
-			}
-
-			delete_monster_idx(i);
-		}
-
-		if (angry && player_cast)
-		{
-			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->ml && !p_ptr->blind)
-			{
-#ifdef JP
-				msg_format("%^sには効果がなかった。", m_name);
-#else
-				msg_format("%^s is unaffected.", m_name);
-#endif
-			}
-			if (MON_CSLEEP(m_ptr))
-			{
-				(void)set_monster_csleep(i, 0);
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%^sが目を覚ました。", m_name);
-#else
-					msg_format("%^s wakes up.", m_name);
-#endif
-				}
-			}
-			if (is_friendly(m_ptr) && !is_pet(m_ptr))
-			{
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%sは怒った！", m_name);
-#else
-					msg_format("%^s gets angry!", m_name);
-#endif
-				}
-				set_hostile(m_ptr);
-			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
-		}
-
-		if (player_cast)
-		{
-			/* Hack -- visual feedback */
-#ifdef JP
-			take_hit(DAMAGE_GENO, randint1(3), "アンデッド消滅の呪文を唱えた疲労");
-#else
-			take_hit(DAMAGE_GENO, randint1(3), "the strain of casting Mass Genocide");
-#endif
-
-		}
-
-		move_cursor_relative(py, px);
-
-		/* Redraw */
-		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
-
-		/* Handle */
-		handle_stuff();
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
 		/* Note effect */
-		result = TRUE;
+#ifdef JP
+		result |= genocide_aux(i, power, player_cast, 3, "アンデッド消滅");
+#else
+		result |= genocide_aux(i, power, player_cast, 3, "Annihilate Undead");
+#endif
 	}
 
-	if (result)
-		change_your_alignment(ALI_GNE, 1);
+	if (result) change_your_alignment(ALI_GNE, 1);
 
-	return (result);
+	return result;
 }
 
 
@@ -4994,9 +4856,9 @@ bool probing(void)
 			else if (r_ptr->flags7 & RF7_LAWFUL) align_lnc = "秩序";
 			else if (r_ptr->flags7 & RF7_CHAOTIC) align_lnc = "混沌";
 			else if ((m_ptr->sub_align & SUB_ALIGN_LAWFUL) && (m_ptr->sub_align & SUB_ALIGN_CHAOTIC)) align_lnc = "中立(秩沌)";
-			else if (m_ptr->sub_align & SUB_ALIGN_LAWFUL) align_lnc = "中立(秩序)";
-			else if (m_ptr->sub_align & SUB_ALIGN_CHAOTIC) align_lnc = "中立(混沌)";
-			else align_lnc = "中立";
+			else if (m_ptr->sub_align & SUB_ALIGN_LAWFUL) align_lnc = "中庸(秩序)";
+			else if (m_ptr->sub_align & SUB_ALIGN_CHAOTIC) align_lnc = "中庸(混沌)";
+			else align_lnc = "中庸";
 #else
 			if ((r_ptr->flags3 & RF3_EVIL) && (r_ptr->flags3 & RF3_GOOD)) align_gne = "g.&e.";
 			else if (r_ptr->flags3 & RF3_EVIL) align_gne = "evil";
@@ -6905,7 +6767,7 @@ void call_chaos(int plev)
 		GF_PHYSICAL,    GF_BLUNT,        GF_EDGED,     GF_MANA,
 		GF_METEOR,      GF_DISINTEGRATE, GF_HOLY_FIRE, GF_HELL_FIRE,
 		GF_GODLY_SPEAR, GF_PURE_FIRE,    GF_PURE_AQUA, GF_PURE_EARTH,
-		GF_PURE_WIND
+		GF_PURE_WIND,   GF_VOLCANIC_BOMB
 	};
 
 	Chaos_type = hurt_types[randint0((sizeof hurt_types) / (sizeof (int)))];
@@ -7472,7 +7334,7 @@ static bool call_the_elemental(int who, int y, int x, int dam_base, int dam_dice
 	int  targets_array[CALL_THE_ELEMENTAL_ARRAY_SIZE];
 	int  targets_num = 0;
 	int  cur_target;
-	int  ty, tx, tdam;
+	int  ty = 0, tx = 0, tdam;
 	bool target_dead;
 	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM;
 
@@ -8507,3 +8369,100 @@ void knock_back(int who, int y, int x, int base_dam)
 		take_hit(DAMAGE_NOESCAPE, randint1(dam1), killer);
 	}
 }
+
+
+int mod_element_damage(int dam, int rad, u32b use_element, u32b weather_effect)
+{
+	int tmp_dam = dam;
+
+	if (use_element)
+	{
+		s32b elem_mod = 0;
+		u32b flg = PROJECT_GRID | PROJECT_HIDE;
+		int i, x, y;
+		int cx = px, cy = py;
+		cave_type *c_ptr;
+		bool effect_oppose_elem = (use_element & ELEM_EFFECT_OPPOSE) ? TRUE : FALSE;
+
+		/* Add the initial grid */
+		cave_temp_room_aux(cy, cx, cy, cx, TRUE);
+
+		/* While grids are in the queue, add their neighbors */
+		for (i = 0; i < temp_n; i++)
+		{
+			x = temp_x[i], y = temp_y[i];
+
+			/* Walls get increased, but stop increasing */
+			if (!cave_floor_bold(y, x)) continue;
+
+			/* Spread adjacent */
+			cave_temp_room_aux(cy, cx, y + 1, x, TRUE);
+			cave_temp_room_aux(cy, cx, y - 1, x, TRUE);
+			cave_temp_room_aux(cy, cx, y, x + 1, TRUE);
+			cave_temp_room_aux(cy, cx, y, x - 1, TRUE);
+
+			/* Spread diagonal */
+			cave_temp_room_aux(cy, cx, y + 1, x + 1, TRUE);
+			cave_temp_room_aux(cy, cx, y - 1, x - 1, TRUE);
+			cave_temp_room_aux(cy, cx, y - 1, x + 1, TRUE);
+			cave_temp_room_aux(cy, cx, y + 1, x - 1, TRUE);
+		}
+
+		/* Hook into the "project()" function */
+		(void)project(0, rad, cy, cx, 0, GF_CAVE_TEMP, flg, MODIFY_ELEM_MODE_NONE);
+
+		/* Clear them all */
+		for (i = 0; i < temp_n; i++)
+		{
+			y = temp_y[i];
+			x = temp_x[i];
+
+			c_ptr = &cave[y][x];
+
+			/* No longer in the array */
+			c_ptr->info &= ~(CAVE_TEMP);
+
+			if (use_element & ELEM_USE_SELF) elem_mod += c_ptr->elem[get_cur_pelem()];
+			if (use_element & ELEM_USE_FIRE) elem_mod += c_ptr->elem[ELEM_FIRE];
+			if (use_element & ELEM_USE_AQUA) elem_mod += c_ptr->elem[ELEM_AQUA];
+			if (use_element & ELEM_USE_EARTH) elem_mod += c_ptr->elem[ELEM_EARTH];
+			if (use_element & ELEM_USE_WIND) elem_mod += c_ptr->elem[ELEM_WIND];
+
+			if (effect_oppose_elem)
+			{
+				if (use_element & ELEM_USE_SELF) elem_mod -= c_ptr->elem[get_opposite_elem(get_cur_pelem())] / 2;
+				if (use_element & ELEM_USE_FIRE) elem_mod -= c_ptr->elem[ELEM_AQUA] / 2;
+				if (use_element & ELEM_USE_AQUA) elem_mod -= c_ptr->elem[ELEM_FIRE] / 2;
+				if (use_element & ELEM_USE_EARTH) elem_mod -= c_ptr->elem[ELEM_WIND] / 2;
+				if (use_element & ELEM_USE_WIND) elem_mod -= c_ptr->elem[ELEM_EARTH] / 2;
+			}
+		}
+
+		/* None left */
+		temp_n = 0;
+
+		if (elem_mod < 0) tmp_dam = tmp_dam * rad / 1 + ((0 - elem_mod) / 50);
+		else
+		{
+			tmp_dam += tmp_dam * elem_mod / (200 * rad);
+		}
+	}
+
+	if (weather_effect)
+	{
+		s16b weather_mod = 0;
+
+		if (weather_effect & EFFECT_SUNNY) weather_mod += 7 - weather[WEATHER_RAIN];
+		if (weather_effect & EFFECT_RAINY) weather_mod += weather[WEATHER_RAIN] - 7;
+		if (weather_effect & EFFECT_CALM) weather_mod += 7 - weather[WEATHER_WIND];
+		if (weather_effect & EFFECT_WIND) weather_mod += weather[WEATHER_WIND] - 7;
+		if (weather_effect & EFFECT_COLD) weather_mod += 7 - weather[WEATHER_TEMP];
+		if (weather_effect & EFFECT_HOT) weather_mod += weather[WEATHER_TEMP] - 7;
+
+		tmp_dam += tmp_dam * weather_mod / 10;
+	}
+
+	if (tmp_dam < 0) tmp_dam = 0;
+	return (tmp_dam);
+}
+

@@ -1003,7 +1003,7 @@ s32b flag_cost(object_type *o_ptr)
 	if (have_flag(flgs, TR_NO_TELE)) total -= 10000;
 	if (have_flag(flgs, TR_NO_MAGIC)) total += 2500;
 	if (have_flag(flgs, TR_TY_CURSE)) total -= 15000;
-	if (have_flag(flgs, TR_FEATHER)) total += 1250;
+	if (have_flag(flgs, TR_LEVITATION)) total += 1250;
 	if (have_flag(flgs, TR_LITE)) total += 1250;
 	if (have_flag(flgs, TR_SEE_INVIS)) total += 2000;
 	if (have_flag(flgs, TR_TELEPATHY)) total += 20000;
@@ -1589,7 +1589,7 @@ void reduce_charges(object_type *o_ptr, int amt)
  *  Determine if an item can partly absorb a second item.
  *  Return maximum number of stack.
  */
-static int object_similar_part(object_type *o_ptr, object_type *j_ptr)
+int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 {
 	int i;
 
@@ -1933,16 +1933,6 @@ s16b lookup_kind(int tval, int sval)
 	{
 		return bk;
 	}
-
-#if 0
-	/* Oops */
-#ifdef JP
-	msg_format("¥¢¥¤¥Æ¥à¤¬¤Ê¤¤ (%d,%d)", tval, sval);
-#else
-	msg_format("No object (%d,%d)", tval, sval);
-#endif
-#endif
-
 
 	/* Oops */
 	return (0);
@@ -2843,6 +2833,14 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				case EGO_BALDAR_WEAPON:
 					o_ptr->weight = o_ptr->weight * 6 / 5;
 					break;
+				case EGO_BERTHA:
+				case EGO_HAHNELA:
+				case EGO_ZOSHONELL:
+				case EGO_GRUZA:
+					if (get_weapon_type(&k_info[o_ptr->k_idx]) == WT_STAFF)
+						add_flag(o_ptr->art_flags, TR_ACTIVATE);
+					break;
+
 				}
 
 				if (!o_ptr->art_name)
@@ -2958,17 +2956,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				/* Hack -- restrict the damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
 			}
-
-			/* Very cursed */
-			else if (power < -1)
-			{
-				/* Roll for ego-item */
-				if (randint0(MAX_DEPTH) < level)
-				{
-					o_ptr->name2 = get_random_ego(INVEN_AMMO, FALSE);
-				}
-			}
-
 			break;
 		}
 	}
@@ -3228,6 +3215,9 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						case EGO_ASSASIN:
 							if ((o_ptr->sval != SV_SET_OF_LEATHER_GLOVES) && (o_ptr->sval != SV_SET_OF_GLOVES)) okay_flag = FALSE;
 							break;
+						case EGO_HERMIT:
+							if (one_in_(3)) add_flag(o_ptr->art_flags, TR_DEC_MANA);
+							break;
 						case EGO_BALDAR_GLOVES:
 							if (!baldar_generation_okay(o_ptr)) okay_flag = FALSE;
 							else o_ptr->weight = o_ptr->weight * 6 / 5;
@@ -3238,13 +3228,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				}
 				break;
 			}
-			
-			/* Very cursed */
-			else if (power < -1)
-			{
-				o_ptr->name2 = get_random_ego(INVEN_HANDS, FALSE);
-			}
-
 			break;
 		}
 
@@ -3272,6 +3255,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					{
 						if (!baldar_generation_okay(o_ptr)) continue;
 					}
+					if ((o_ptr->name2 == EGO_ICARUS) && (o_ptr->sval != SV_PAIR_OF_SANDALS)) continue;
 					break;
 				}
 
@@ -3288,12 +3272,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					break;
 				}
 			}
-			/* Very cursed */
-			else if (power < -1)
-			{
-				o_ptr->name2 = get_random_ego(INVEN_FEET, FALSE);
-			}
-
 			break;
 		}
 
@@ -3319,6 +3297,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case EGO_TELEPATHY:
 					case EGO_REGENERATION:
 					case EGO_LORDLINESS:
+					case EGO_CLAIRVOYANCE:
 						break;
 					case EGO_SEEING:
 						if (one_in_(3)) add_flag(o_ptr->art_flags, TR_TELEPATHY);
@@ -3331,13 +3310,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				}
 				break;
 			}
-
-			/* Very cursed */
-			else if (power < -1)
-			{
-				o_ptr->name2 = get_random_ego(INVEN_HEAD, FALSE);
-			}
-
 			break;
 		}
 
@@ -3387,11 +3359,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				}
 				break;
 			}
-			/* Very cursed */
-			else if (power < -1)
-			{
-				o_ptr->name2 = get_random_ego(INVEN_HEAD, FALSE);
-			}
 			break;
 		}
 
@@ -3435,13 +3402,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				}
 
 			}
-
-			/* Very cursed */
-			else if (power < -1)
-			{
-				o_ptr->name2 = get_random_ego(INVEN_OUTER, FALSE);
-			}
-
 			break;
 		}
 	}
@@ -4110,7 +4070,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_AMU_HOLD_LIFE;
 						break;
 					case 9:
-						if (have_flag(k_ptr->flags, TR_FEATHER)) break;
+						if (have_flag(k_ptr->flags, TR_LEVITATION)) break;
 						o_ptr->name2 = EGO_AMU_LEVITATION;
 						break;
 					case 10: case 11: case 21:
@@ -4274,6 +4234,12 @@ static void a_m_aux_4(object_type *o_ptr, int power)
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
 	{
+		case TV_CHUNK:
+		{
+			object_aware(o_ptr);
+			object_known(o_ptr);
+			break;
+		}
 		case TV_FLASK:
 		{
 			o_ptr->xtra4 = o_ptr->pval;
@@ -4905,6 +4871,10 @@ void apply_magic(object_type *o_ptr, int lev, u32b am_flags)
 				break;
 			case EGO_ARCADIA:
 				if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_CLOAK_OF_IVORY_TOWER)) o_ptr->to_align[ALI_LNC] = -10;
+				break;
+			case EGO_SAINT:
+			case EGO_SATAN:
+				for (i = 0; i < 2; i++) one_high_resistance(o_ptr);
 				break;
 			}
 		}
@@ -6237,6 +6207,126 @@ bool inven_carry_okay(object_type *o_ptr)
 }
 
 
+bool object_sort_comp(object_type *o_ptr, s32b o_value, object_type *j_ptr)
+{
+	int k;
+	int o_type, j_type;
+	int break_type = 0;
+
+
+	/* Use empty slots */
+	if (!j_ptr->k_idx) return TRUE;
+
+	/* Hack -- readable books always come first */
+	if (mp_ptr->spell_book != TV_MAGERY_BOOK)
+		for (k = MAX_REALM -1; k >= 0; k--)
+	{
+		if (can_use_realm(k + 1))
+		{
+			if ((o_ptr->tval == (TV_MAGERY_BOOK + k)) &&
+			    (j_ptr->tval != (TV_MAGERY_BOOK + k)))
+			{
+				break_type = 1;
+				break;
+			}
+			if ((j_ptr->tval == (TV_MAGERY_BOOK + k)) &&
+			    (o_ptr->tval != (TV_MAGERY_BOOK + k)))
+			{
+				break_type = 2;
+				break;
+			}
+		}
+	}
+	else for (k = 0; k < MAX_REALM; k++)
+	{
+		if (can_use_realm(k + 1))
+		{
+			if ((o_ptr->tval == (TV_MAGERY_BOOK + k)) &&
+			    (j_ptr->tval != (TV_MAGERY_BOOK + k)))
+			{
+				break_type = 1;
+				break;
+			}
+			if ((j_ptr->tval == (TV_MAGERY_BOOK + k)) &&
+			    (o_ptr->tval != (TV_MAGERY_BOOK + k)))
+			{
+				break_type = 2;
+				break;
+			}
+		}
+	}
+	if (break_type == 1) return TRUE;
+	if (break_type == 2) return FALSE;
+
+	/* Objects sort by decreasing type */
+	if (o_ptr->tval > j_ptr->tval) return TRUE;
+	if (o_ptr->tval < j_ptr->tval) return FALSE;
+
+	/* Non-aware (flavored) items always come last */
+	if (!object_is_aware(o_ptr)) return FALSE;
+	if (!object_is_aware(j_ptr)) return TRUE;
+
+	/* Objects sort by increasing sval */
+	if (o_ptr->sval < j_ptr->sval) return TRUE;
+	if (o_ptr->sval > j_ptr->sval) return FALSE;
+
+	/* Unidentified objects always come last */
+	if (!object_is_known(o_ptr)) return FALSE;
+	if (!object_is_known(j_ptr)) return TRUE;
+
+	/* Fixed artifacts, random artifacts and ego items */
+	if (object_is_fixed_artifact(o_ptr)) o_type = 3;
+	else if (o_ptr->art_name) o_type = 2;
+	else if (object_is_ego(o_ptr)) o_type = 1;
+	else o_type = 0;
+
+	if (object_is_fixed_artifact(j_ptr)) j_type = 3;
+	else if (j_ptr->art_name) j_type = 2;
+	else if (object_is_ego(j_ptr)) j_type = 1;
+	else j_type = 0;
+
+	if (o_type < j_type) return TRUE;
+	if (o_type > j_type) return FALSE;
+
+	switch (o_ptr->tval)
+	{
+	case TV_TAROT:
+		if (o_ptr->pval < j_ptr->pval) return TRUE;
+		if (o_ptr->pval > j_ptr->pval) return FALSE;
+		break;
+
+	case TV_FIGURINE:
+	case TV_STATUE:
+	case TV_CORPSE:
+	case TV_TRUMP:
+		if (r_info[o_ptr->pval].level < r_info[j_ptr->pval].level) return TRUE;
+		if ((r_info[o_ptr->pval].level == r_info[j_ptr->pval].level) && (o_ptr->pval < j_ptr->pval)) return TRUE;
+		return FALSE;
+
+	case TV_BULLET:
+	case TV_ROUND:
+	case TV_SHELL:
+	case TV_ROCKET:
+	case TV_ARROW:
+	case TV_BOLT:
+		/* Objects sort by increasing hit/damage bonuses */
+		if (o_ptr->to_h + o_ptr->to_d < j_ptr->to_h + j_ptr->to_d) return TRUE;
+		if (o_ptr->to_h + o_ptr->to_d > j_ptr->to_h + j_ptr->to_d) return FALSE;
+		break;
+
+	/* Hack:  otherwise identical rods sort by
+	increasing recharge time --dsb */
+	case TV_ROD:
+		if (o_ptr->pval < j_ptr->pval) return TRUE;
+		if (o_ptr->pval > j_ptr->pval) return FALSE;
+		break;
+	}
+
+	/* Objects sort by decreasing value */
+	return o_value > object_value(j_ptr);
+}
+
+
 /*
  * Add an item to the players inventory, and return the slot used.
  *
@@ -6256,7 +6346,7 @@ bool inven_carry_okay(object_type *o_ptr)
  */
 s16b inven_carry(object_type *o_ptr)
 {
-	int i, j, k, break_type;
+	int i, j, k;
 	int n = -1;
 
 	object_type *j_ptr;
@@ -6313,72 +6403,13 @@ s16b inven_carry(object_type *o_ptr)
 	/* Reorder the pack */
 	if (i < INVEN_PACK)
 	{
-		s32b o_value, j_value;
-
 		/* Get the "value" of the item */
-		o_value = object_value(o_ptr);
+		s32b o_value = object_value(o_ptr);
 
 		/* Scan every occupied slot */
 		for (j = 0; j < INVEN_PACK; j++)
 		{
-			j_ptr = &inventory[j];
-
-			/* Use empty slots */
-			if (!j_ptr->k_idx) break;
-
-			/* Hack -- readable books always come first */
-			break_type = 0;
-			for (k = 0; k < MAX_REALM; k++)
-			{
-				if (can_use_realm(k + 1))
-				{
-					if ((o_ptr->tval == (TV_MAGERY_BOOK + k)) &&
-					    (j_ptr->tval != (TV_MAGERY_BOOK + k)))
-					{
-						break_type = 1;
-						break;
-					}
-					if ((j_ptr->tval == (TV_MAGERY_BOOK + k)) &&
-					    (o_ptr->tval != (TV_MAGERY_BOOK + k)))
-					{
-						break_type = 2;
-						break;
-					}
-				}
-			}
-			if (break_type == 1) break;
-			if (break_type == 2) continue;
-
-			/* Objects sort by decreasing type */
-			if (o_ptr->tval > j_ptr->tval) break;
-			if (o_ptr->tval < j_ptr->tval) continue;
-
-			/* Non-aware (flavored) items always come last */
-			if (!object_is_aware(o_ptr)) continue;
-			if (!object_is_aware(j_ptr)) break;
-
-			/* Objects sort by increasing sval */
-			if (o_ptr->sval < j_ptr->sval) break;
-			if (o_ptr->sval > j_ptr->sval) continue;
-
-			/* Unidentified objects always come last */
-			if (!object_is_known(o_ptr)) continue;
-			if (!object_is_known(j_ptr)) break;
-
-			/* Hack:  otherwise identical rods sort by
-			increasing recharge time --dsb */
-			if (o_ptr->tval == TV_ROD)
-			{
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
-			}
-
-			/* Determine the "value" of the pack item */
-			j_value = object_value(j_ptr);
-
-			/* Objects sort by decreasing value */
-			if (o_value > j_value) break;
-			if (o_value < j_value) continue;
+			if (object_sort_comp(o_ptr, o_value, &inventory[j])) break;
 		}
 
 		/* Use that slot */
@@ -6628,95 +6659,99 @@ void combine_pack(void)
 	int             i, j, k;
 	object_type     *o_ptr;
 	object_type     *j_ptr;
-	bool            flag = FALSE;
+	bool            flag = FALSE, combined;
 
-
-	/* Combine the pack (backwards) */
-	for (i = INVEN_PACK; i > 0; i--)
+	do
 	{
-		/* Get the item */
-		o_ptr = &inventory[i];
+		combined = FALSE;
 
-		/* Skip empty items */
-		if (!o_ptr->k_idx) continue;
-
-		/* Scan the items above that item */
-		for (j = 0; j < i; j++)
+		/* Combine the pack (backwards) */
+		for (i = INVEN_PACK; i > 0; i--)
 		{
-			int max_num;
-
 			/* Get the item */
-			j_ptr = &inventory[j];
+			o_ptr = &inventory[i];
 
 			/* Skip empty items */
-			if (!j_ptr->k_idx) continue;
+			if (!o_ptr->k_idx) continue;
 
-			/*
-			 * Get maximum number of the stack if these
-			 * are similar, get zero otherwise.
-			 */
-			max_num = object_similar_part(j_ptr, o_ptr);
-
-			/* Can we (partialy) drop "o_ptr" onto "j_ptr"? */
-			if (max_num && j_ptr->number < max_num)
+			/* Scan the items above that item */
+			for (j = 0; j < i; j++)
 			{
-				if (o_ptr->number + j_ptr->number <= max_num)
+				int max_num;
+
+				/* Get the item */
+				j_ptr = &inventory[j];
+
+				/* Skip empty items */
+				if (!j_ptr->k_idx) continue;
+
+				/*
+				 * Get maximum number of the stack if these
+				 * are similar, get zero otherwise.
+				 */
+				max_num = object_similar_part(j_ptr, o_ptr);
+
+				/* Can we (partialy) drop "o_ptr" onto "j_ptr"? */
+				if (max_num && j_ptr->number < max_num)
 				{
+					if (o_ptr->number + j_ptr->number <= max_num)
+					{
+						/* Take note */
+						flag = TRUE;
+
+						/* Add together the item counts */
+						object_absorb(j_ptr, o_ptr);
+
+						/* One object is gone */
+						inven_cnt--;
+
+						/* Slide everything down */
+						for (k = i; k < INVEN_PACK; k++)
+						{
+							/* Structure copy */
+							inventory[k] = inventory[k+1];
+						}
+
+						/* Erase the "final" slot */
+						object_wipe(&inventory[k]);
+					}
+					else
+					{
+						int old_num = o_ptr->number;
+						int remain = j_ptr->number + o_ptr->number - max_num;
+
+						/* Add together the item counts */
+						object_absorb(j_ptr, o_ptr);
+
+						o_ptr->number = remain;
+
+						/* Hack -- if rods are stacking, add the pvals (maximum timeouts) and current timeouts together. -LM- */
+						if (o_ptr->tval == TV_ROD)
+						{
+							o_ptr->pval =  o_ptr->pval * remain / old_num;
+							o_ptr->timeout = o_ptr->timeout * remain / old_num;
+						}
+
+						/* Hack -- if wands are stacking, combine the charges. -LM- */
+						if (o_ptr->tval == TV_WAND)
+						{
+							o_ptr->pval = o_ptr->pval * remain / old_num;
+						}
+					}
+
+					/* Window stuff */
+					p_ptr->window |= (PW_INVEN);
+
 					/* Take note */
-					flag = TRUE;
+					combined = TRUE;
 
-					/* Add together the item counts */
-					object_absorb(j_ptr, o_ptr);
-
-					/* One object is gone */
-					inven_cnt--;
-
-					/* Slide everything down */
-					for (k = i; k < INVEN_PACK; k++)
-					{
-						/* Structure copy */
-						inventory[k] = inventory[k+1];
-					}
-
-					/* Erase the "final" slot */
-					object_wipe(&inventory[k]);
+					/* Done */
+					break;
 				}
-				else
-				{
-					int old_num = o_ptr->number;
-					int remain = j_ptr->number + o_ptr->number - max_num;
-
-#if 0
-					o_ptr->number -= remain;
-#endif
-
-					/* Add together the item counts */
-					object_absorb(j_ptr, o_ptr);
-
-					o_ptr->number = remain;
-
-					/* Hack -- if rods are stacking, add the pvals (maximum timeouts) and current timeouts together. -LM- */
-					if (o_ptr->tval == TV_ROD)
-					{
-						o_ptr->pval =  o_ptr->pval * remain / old_num;
-						o_ptr->timeout = o_ptr->timeout * remain / old_num;
-					}
-
-					/* Hack -- if wands are stacking, combine the charges. -LM- */
-					if (o_ptr->tval == TV_WAND)
-					{
-						o_ptr->pval = o_ptr->pval * remain / old_num;
-					}
-				}
-
-				/* Window stuff */
-				p_ptr->window |= (PW_INVEN);
-
-				/* Done */
-				break;
 			}
 		}
 	}
+	while (combined);
 
 	/* Message */
 #ifdef JP
@@ -6735,12 +6770,10 @@ void combine_pack(void)
  */
 void reorder_pack(void)
 {
-	int             i, j, k, break_type;
+	int             i, j, k;
 	s32b            o_value;
-	s32b            j_value;
 	object_type     forge;
 	object_type     *q_ptr;
-	object_type     *j_ptr;
 	object_type     *o_ptr;
 	bool            flag = FALSE;
 
@@ -6763,67 +6796,7 @@ void reorder_pack(void)
 		/* Scan every occupied slot */
 		for (j = 0; j < INVEN_PACK; j++)
 		{
-			/* Get the item already there */
-			j_ptr = &inventory[j];
-
-			/* Use empty slots */
-			if (!j_ptr->k_idx) break;
-
-			/* Hack -- readable books always come first */
-			break_type = 0;
-			for (k = 0; k < MAX_REALM; k++)
-			{
-				if (can_use_realm(k + 1))
-				{
-					if ((o_ptr->tval == (TV_MAGERY_BOOK + k)) &&
-					    (j_ptr->tval != (TV_MAGERY_BOOK + k)))
-					{
-						break_type = 1;
-						break;
-					}
-					if ((j_ptr->tval == (TV_MAGERY_BOOK + k)) &&
-					    (o_ptr->tval != (TV_MAGERY_BOOK + k)))
-					{
-						break_type = 2;
-						break;
-					}
-				}
-			}
-			if (break_type == 1) break;
-			if (break_type == 2) continue;
-
-			/* Objects sort by decreasing type */
-			if (o_ptr->tval > j_ptr->tval) break;
-			if (o_ptr->tval < j_ptr->tval) continue;
-
-			/* Non-aware (flavored) items always come last */
-			if (!object_is_aware(o_ptr)) continue;
-			if (!object_is_aware(j_ptr)) break;
-
-			/* Objects sort by increasing sval */
-			if (o_ptr->sval < j_ptr->sval) break;
-			if (o_ptr->sval > j_ptr->sval) continue;
-
-			/* Unidentified objects always come last */
-			if (!object_is_known(o_ptr)) continue;
-			if (!object_is_known(j_ptr)) break;
-
-			/* Hack:  otherwise identical rods sort by
-			increasing recharge time --dsb */
-			if (o_ptr->tval == TV_ROD)
-			{
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
-			}
-
-			/* Determine the "value" of the pack item */
-			j_value = object_value(j_ptr);
-
-
-
-			/* Objects sort by decreasing value */
-			if (o_value > j_value) break;
-			if (o_value < j_value) continue;
+			if (object_sort_comp(o_ptr, o_value, &inventory[j])) break;
 		}
 
 		/* Never move down */
@@ -7037,6 +7010,7 @@ static void damcalc(int typ, int dam, int limit, int *max)
 	case GF_MISSILE:
 	case GF_MANA:
 	case GF_METEOR:
+	case GF_VOLCANIC_BOMB:
 	case GF_DISINTEGRATE:
 		break;
 
@@ -7085,11 +7059,13 @@ static void damcalc(int typ, int dam, int limit, int *max)
 		if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON)) || (get_your_alignment_gne() == ALIGN_GNE_EVIL))
 			dam *= 2;
 		if (p_ptr->ogre_equip) dam *= 3;
+		if (p_ptr->immune_holy) dam = 0;
 		break;
 
 	case GF_HELL_FIRE:
 		if ((prace_is_(RACE_GHOST)) || (prace_is_(RACE_SKELETON))) dam /= 2;
 		else if (get_your_alignment_gne() == ALIGN_GNE_GOOD) dam *= 2;
+		if (p_ptr->immune_evil) dam = 0;
 		break;
 
 	case GF_PURE_FIRE:
@@ -7338,12 +7314,12 @@ static essence_type essence_info[] =
 	{"¾Æ´þ", "¾Æ´þ", "²Ð±ê", TR_BRAND_FIRE, 10, ESSENCE_TYPE_NORMAL | ESSENCE_TYPE_ROCKET},
 	{"Åà·ë", "Åà·ë", "Îäµ¤", TR_BRAND_COLD, 10, ESSENCE_TYPE_NORMAL | ESSENCE_TYPE_ROCKET},
 
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"Á±ÎÉÇÜÂÇ", "Á±ÎÉÇÜÂÇ", "¼Ù°­", TR_SLAY_GOOD, 10, ESSENCE_TYPE_NORMAL | ESSENCE_TYPE_ROCKET},
 	{"", "", "", TR_BRAND_ACID, 20, ESSENCE_TYPE_NONE},
@@ -7352,7 +7328,7 @@ static essence_type essence_info[] =
 	{"", "", "", TR_BRAND_COLD, 20, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_VAMPIRIC, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_BRAND_ACID, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_BRAND_ELEC, 5, ESSENCE_TYPE_NONE},
@@ -7379,13 +7355,13 @@ static essence_type essence_info[] =
 	{"", "", "", TR_FORCE_WEAPON, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"ÉÔ¾ô", "ÉÔ¾ô", "", TR_UNHOLY, 10, ESSENCE_TYPE_NORMAL},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"À¸Ì¿ÇÜÂÇ", "À¸Ì¿ÇÜÂÇ", "", TR_SLAY_LIVING, 10, ESSENCE_TYPE_NORMAL},
-	{"ÉâÍ·", "", "", TR_FEATHER, 10, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"ÉâÍ·", "", "", TR_LEVITATION, 10, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_FORCE_WEAPON, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_IMPACT, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_IMPACT, 5, ESSENCE_TYPE_NONE},
@@ -7463,12 +7439,12 @@ static essence_type essence_info[] =
 	{"fire brand", "fire brand", "fire", TR_BRAND_FIRE, 10, ESSENCE_TYPE_NORMAL | ESSENCE_TYPE_ROCKET},
 	{"cold brand", "cold brand", "frost", TR_BRAND_COLD, 10, ESSENCE_TYPE_NORMAL | ESSENCE_TYPE_ROCKET},
 
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"slay good", "slay good", "evil", TR_SLAY_GOOD, 10, ESSENCE_TYPE_NORMAL | ESSENCE_TYPE_ROCKET},
 	{"", "", "", TR_BRAND_ACID, 20, ESSENCE_TYPE_NONE},
@@ -7477,7 +7453,7 @@ static essence_type essence_info[] =
 	{"", "", "", TR_BRAND_COLD, 20, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_VAMPIRIC, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_BRAND_ACID, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_BRAND_ELEC, 5, ESSENCE_TYPE_NONE},
@@ -7504,13 +7480,13 @@ static essence_type essence_info[] =
 	{"", "", "", TR_FORCE_WEAPON, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"unholy", "unholy", "", TR_UNHOLY, 10, ESSENCE_TYPE_NORMAL},
 	{"", "", "", -1, 0, ESSENCE_TYPE_NONE},
 	{"slay living", "slay living", "", TR_SLAY_LIVING, 10, ESSENCE_TYPE_NORMAL},
-	{"levitate", "", "", TR_FEATHER, 10, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
-	{"", "", "", TR_FEATHER, 5, ESSENCE_TYPE_NONE},
+	{"levitate", "", "", TR_LEVITATION, 10, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
+	{"", "", "", TR_LEVITATION, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_FORCE_WEAPON, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_IMPACT, 5, ESSENCE_TYPE_NONE},
 	{"", "", "", TR_IMPACT, 5, ESSENCE_TYPE_NONE},
@@ -7964,21 +7940,23 @@ static void make_ammo_from_item(void)
 	{
 		switch (q_ptr->tval)
 		{
-		case TV_STATUE:
+		case TV_CHUNK:
 			switch (q_ptr->sval)
 			{
-			case SV_MITHRIL_STATUE:
-				ammo_material_sval = AMMO_MATERIAL_SV_MITHRIL;
-				break;
-
-			case SV_ADAMANTITE_STATUE:
-				ammo_material_sval = AMMO_MATERIAL_SV_ADAMANTITE;
-				break;
-
-			default:
-				ammo_material_sval = AMMO_MATERIAL_SV_NORMAL;
-				break;
+				case SV_CHUNK_IRON:
+					ammo_material_sval = AMMO_MATERIAL_SV_NORMAL;
+					break;
+				case SV_CHUNK_MITHRIL:
+					ammo_material_sval = AMMO_MATERIAL_SV_MITHRIL;
+					break;
+				case SV_CHUNK_ADAMANTITE:
+					ammo_material_sval = AMMO_MATERIAL_SV_ADAMANTITE;
+					break;
 			}
+			break;
+
+		case TV_STATUE:
+			ammo_material_sval = AMMO_MATERIAL_SV_NORMAL;
 			break;
 
 		case TV_BULLET:
@@ -9219,7 +9197,7 @@ static void make_rocket(void)
 		(rocket_material == ROCKET_ANTIGRAV) ? "levitate" : "earthquake");
 #endif
 
-	if ((rocket_material == ROCKET_ANTIGRAV) && (p_ptr->essence_box[TR_FEATHER] < amt))
+	if ((rocket_material == ROCKET_ANTIGRAV) && (p_ptr->essence_box[TR_LEVITATION] < amt))
 	{
 #ifdef JP
 		msg_print("ÉâÍ·¤Î¥¨¥Ã¥»¥ó¥¹¤¬Â­¤ê¤Ê¤¤¡£");
@@ -9245,7 +9223,7 @@ static void make_rocket(void)
 	if (!get_check(format("Really make from %s? ", o_name))) return;
 #endif
 
-	if (rocket_material == ROCKET_ANTIGRAV) p_ptr->essence_box[TR_FEATHER] -= amt;
+	if (rocket_material == ROCKET_ANTIGRAV) p_ptr->essence_box[TR_LEVITATION] -= amt;
 	else p_ptr->essence_box[TR_IMPACT] -= amt;
 	drain_essence_from_pack_or_floor(item, amt, DE_MODE_FORCE_DESTROY | DE_MODE_DISP_MSG);
 

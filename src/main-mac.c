@@ -225,45 +225,6 @@
 
 
 
-#if 0
-
-/*
- * The Angband Color Set (0 to 15):
- *   Black, White, Slate, Orange,    Red, Blue, Green, Umber
- *   D-Gray, L-Gray, Violet, Yellow, L-Red, L-Blue, L-Green, L-Umber
- *
- * Colors 8 to 15 are basically "enhanced" versions of Colors 0 to 7.
- *
- * On the Macintosh, we use color quickdraw, and we use actual "RGB"
- * values below to choose the 16 colors.
- *
- * If we are compiled for ancient machines, we bypass color and simply
- * draw everything in white (letting "z-term.c" automatically convert
- * "black" into "wipe" calls).
- */
-static RGBColor foo[16] =
-{
-	{0x0000, 0x0000, 0x0000},	/* TERM_DARK */
-	{0xFFFF, 0xFFFF, 0xFFFF},	/* TERM_WHITE */
-	{0x8080, 0x8080, 0x8080},	/* TERM_SLATE */
-	{0xFFFF, 0x8080, 0x0000},	/* TERM_ORANGE */
-	{0xC0C0, 0x0000, 0x0000},	/* TERM_RED */
-	{0x0000, 0x8080, 0x4040},	/* TERM_GREEN */
-	{0x0000, 0x0000, 0xFFFF},	/* TERM_BLUE */
-	{0x8080, 0x4040, 0x0000},	/* TERM_UMBER */
-	{0x4040, 0x4040, 0x4040},	/* TERM_L_DARK */
-	{0xC0C0, 0xC0C0, 0xC0C0},	/* TERM_L_WHITE */
-	{0xFFFF, 0x0000, 0xFFFF},	/* TERM_VIOLET */
-	{0xFFFF, 0xFFFF, 0x0000},	/* TERM_YELLOW */
-	{0xFFFF, 0x0000, 0x0000},	/* TERM_L_RED */
-	{0x0000, 0xFFFF, 0x0000},	/* TERM_L_GREEN */
-	{0x0000, 0xFFFF, 0xFFFF},	/* TERM_L_BLUE */
-	{0xC0C0, 0x8080, 0x4040}	/* TERM_L_UMBER */
-};
-
-#endif
-
-
 /*
  * Forward declare
  */
@@ -1043,82 +1004,6 @@ static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
 	for (j = 0, i++; res[i]; j++, i++) buf[j] = res[i];
 	buf[j] = 0;
 }
-#endif
-
-#if 0
-pascal OSErr FSpLocationFromFullPath(short fullPathLength,
-									 const void *fullPath,
-									 FSSpec *spec)
-{
-	AliasHandle	alias;
-	OSErr		result;
-	Boolean		wasChanged;
-	Str32		nullString;
-	
-	/* Create a minimal alias from the full pathname */
-	nullString[0] = 0;	/* null string to indicate no zone or server name */
-	result = NewAliasMinimalFromFullPath(fullPathLength, fullPath, nullString, nullString, &alias);
-	if ( result == noErr )
-	{
-		/* Let the Alias Manager resolve the alias. */
-		result = ResolveAlias(NULL, alias, spec, &wasChanged);
-		
-		/* work around Alias Mgr sloppy volume matching bug */
-		if ( spec->vRefNum == 0 )
-		{
-			/* invalidate wrong FSSpec */
-			spec->parID = 0;
-			spec->name[0] =  0;
-			result = nsvErr;
-		}
-		DisposeHandle((Handle)alias);	/* Free up memory used */
-	}
-	return ( result );
-}
-#endif
-
-#if 0
-
-/*
- * XXX XXX XXX Allow the system to ask us for a filename
- */
-static bool askfor_file(char *buf, int len)
-{
-	SFReply reply;
-	Str255 dflt;
-	Point topleft;
-	short vrefnum;
-	long drefnum, junk;
-
-	/* Default file name */
-	sprintf((char*)dflt + 1, "%s's description", buf);
-	dflt[0] = strlen((char*)dflt + 1);
-
-	/* Ask for a file name */
-	topleft.h=(qd.screenBits.bounds.left+qd.screenBits.bounds.right)/2-344/2;
-	topleft.v=(2*qd.screenBits.bounds.top+qd.screenBits.bounds.bottom)/3-188/2;
-	SFPutFile(topleft, "\pSelect a filename:", dflt, NULL, &reply);
-	/* StandardPutFile("\pSelect a filename:", dflt, &reply); */
-
-	/* Process */
-	if (reply.good)
-	{
-		int fc;
-
-		/* Get info */
-		GetWDInfo(reply.vRefNum, &vrefnum, &drefnum, &junk);
-
-		/* Extract the name */
-		refnum_to_name(buf, drefnum, vrefnum, (char*)reply.fName);
-
-		/* Success */
-		return (TRUE);
-	}
-
-	/* Failure */
-	return (FALSE);
-}
-
 #endif
 
 
@@ -2598,16 +2483,19 @@ static void cf_save_prefs()
 
 	/* Version stamp */
 	save_pref_short("version.major", FAKE_VERSION);
-	save_pref_short("version.minor", T_VER_MAJOR);
-	save_pref_short("version.patch", T_VER_MINOR);
-	save_pref_short("version.extra", T_VER_PATCH);
+	save_pref_short("version.minor", FAKE_VER_MAJOR);
+	save_pref_short("version.patch", FAKE_VER_MINOR);
+	save_pref_short("version.extra", FAKE_VER_PATCH);
 
 	/* Gfx settings */
 	save_pref_short("arg.arg_sound", arg_sound);
+	save_pref_short("arg.arg_bigtile", arg_bigtile);
 
+#ifndef MACH_O_CARBON
 	/* SoundMode */
 	for( i = 0 ; i < 7 ; i++ )
 		save_pref_short(format("sound%d.on", i), soundmode[i]);
+#endif /* MACH_O_CARBON */
 	
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -2647,8 +2535,6 @@ static void cf_load_prefs()
 	short pref_major, pref_minor, pref_patch, pref_extra;
 	int i;
 
-	MenuHandle m;
-
 	/* Assume nothing is wrong, yet */
 	ok = TRUE;
 
@@ -2672,24 +2558,21 @@ static void cf_load_prefs()
 		return;
 	}
 
-#if 0
-
-	/* Check version */
-	if ((pref_major != PREF_VER_MAJOR) ||
-		(pref_minor != PREF_VER_MINOR) ||
-		(pref_patch != PREF_VER_PATCH) ||
-		(pref_extra != PREF_VER_EXTRA))
+	/* Hack -- Verify or ignore */
+	if ((pref_major != FAKE_VERSION) ||
+	    (pref_minor != FAKE_VER_MAJOR) ||
+	    (pref_patch != FAKE_VER_MINOR) ||
+	    (pref_extra != FAKE_VER_PATCH))
 	{
 		/* Message */
-		mac_warning(
-			format("Ignoring %d.%d.%d.%d preferences.",
-				pref_major, pref_minor, pref_patch, pref_extra));
-
+#ifdef JP
+		mac_warning("古い初期設定ファイルを無視します.");
+#else
+		mac_warning("Ignoring old preferences.");
+#endif
 		/* Ignore */
 		return;
 	}
-
-#endif
 
 	/* Gfx settings */
 	{
@@ -2699,19 +2582,20 @@ static void cf_load_prefs()
 		if (query_load_pref_short("arg.arg_sound", &pref_tmp))
 			arg_sound = pref_tmp;
 
+		/* double-width tiles */
+		if (query_load_pref_short("arg.arg_bigtile", &pref_tmp))
+		{
+			arg_bigtile = use_bigtile = pref_tmp;
+		}
 	}
 
+#ifndef MACH_O_CARBON
 	/* SoundMode */
 	for( i = 0 ; i < 7 ; i++ )
 	{
 		query_load_pref_short(format("sound%d.on", i), &soundmode[i]);
 	}
-
-	/* Special menu */
-	m = GetMenuHandle(134);
-
-	/* Item "arg_sound" */
-	CheckMenuItem(m, 1, arg_sound);
+#endif /* MACH_O_CARBON */
 
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -2774,12 +2658,13 @@ static void save_prefs(void)
 	/*** The current version ***/
 
 	putshort(FAKE_VERSION);
-	putshort(T_VER_MAJOR);
-	putshort(T_VER_MINOR);
-	putshort(T_VER_PATCH);
+	putshort(FAKE_VER_MAJOR);
+	putshort(FAKE_VER_MINOR);
+	putshort(FAKE_VER_PATCH);
 
 	putshort(arg_sound);
-	
+	putshort(arg_bigtile);
+
 	/* SoundMode */
 	for( i = 0 ; i < 7 ; i++ )
 		putshort(soundmode[i]);
@@ -2833,9 +2718,9 @@ static void load_prefs(void)
 
 	/* Hack -- Verify or ignore */
 	if ((old_version != FAKE_VERSION) ||
-	    (old_major != T_VER_MAJOR) ||
-	    (old_minor != T_VER_MINOR) ||
-	    (old_patch != T_VER_PATCH))
+	    (old_major != FAKE_VER_MAJOR) ||
+	    (old_minor != FAKE_VER_MINOR) ||
+	    (old_patch != FAKE_VER_PATCH))
 	{
 		/* Message */
 #ifdef JP
@@ -2848,17 +2733,13 @@ static void load_prefs(void)
 	}
 
 	arg_sound = getshort();
-	
+	arg_bigtile = getshort();
+	use_bigtile = arg_bigtile;
+
 	/* SoundMode */
 	for( i = 0 ; i < 7 ; i++ )
 		soundmode[i] = getshort();
 	
-	/* Special menu */
-	m = GetMenuHandle(134);
-
-	/* Item "arg_sound" */
-	CheckItem(m, 1, arg_sound);
-
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -3727,11 +3608,6 @@ static void handle_open_when_ready(void)
 /*
  * Initialize the menus
  *
- * Verify menus 128, 129, 130
- * Create menus 131, 132, 133, 134
- *
- * The standard menus are:
- *
  *   Apple (128) =   { About, -, ... }
  *   File (129) =    { New,Open,Import,Close,Save,-,Exit,Quit }
  *   Edit (130) =    { Cut, Copy, Paste, Clear }   (?)
@@ -3739,9 +3615,70 @@ static void handle_open_when_ready(void)
  *   Size (132) =    { ... }
  *   Window (133) =  { Angband, Mirror, Recall, Choice,
  *                     Term-4, Term-5, Term-6, Term-7 }
- *   Special (134) = { arg_sound, arg_graphics, -,
- *                     arg_fiddle, arg_wizard }
+ *   Special (134) = { Sound, Graphics, TileWidth, TileHeight, -,
+ *                     Fiddle, Wizard }
  */
+
+/* Apple menu */
+#define MENU_APPLE	128
+#define ITEM_ABOUT	1
+
+/* File menu */
+#define MENU_FILE	129
+# define ITEM_NEW	1
+# define ITEM_OPEN	2
+# define ITEM_IMPORT	3
+# define ITEM_CLOSE	4
+# define ITEM_SAVE	5
+#  define ITEM_QUIT	7
+
+/* Edit menu */
+#define MENU_EDIT	130
+# define ITEM_UNDO	1
+# define ITEM_CUT	3
+# define ITEM_COPY	4
+# define ITEM_PASTE	5
+# define ITEM_CLEAR	6
+
+/* Font menu */
+#define MENU_FONT	131
+# define ITEM_BOLD	1
+# define ITEM_WIDE	2
+
+/* Size menu */
+#define MENU_SIZE	132
+
+/* Windows menu */
+#define MENU_WINDOWS	133
+
+/* Special menu */
+#define MENU_SPECIAL	134
+# define ITEM_SOUND	1
+# define ITEM_GRAPH	2
+# define ITEM_TILEWIDTH 3
+# define ITEM_TILEHEIGHT 4
+# define ITEM_FIDDLE	6
+# define ITEM_WIZARD	7
+
+/* Sounds submenu */
+#define SUBMENU_SOUND	143
+# define ITEM_USE_SOUND	1
+# define ITEM_SOUND_SETTING	2
+
+/* Graphics submenu */
+#define SUBMENU_GRAPH	144
+# define ITEM_NONE	1
+# define ITEM_8X8	2
+# define ITEM_16X16	3
+# define ITEM_BIGTILE 5	
+
+/* TileWidth submenu */
+#define SUBMENU_TILEWIDTH	145
+
+/* TileHeight submenu */
+#define SUBMENU_TILEHEIGHT	146
+
+
 static void init_menubar(void)
 {
 	int i, n;
@@ -3751,61 +3688,55 @@ static void init_menubar(void)
 	WindowPtr tmpw;
 
 	MenuHandle m;
-	OSErr		err;
-	long		response;
+
+	Handle mbar;
+
+#if TARGET_API_MAC_CARBON
+	OSErr err;
+	long response;
+#endif
 
 	/* Get the "apple" menu */
-	m = GetMenu(128);
+	mbar = GetNewMBar(128);
 
-	/* Insert the menu */
-	InsertMenu(m, 0);
+	/* Whoops! */
+#ifdef JP
+	if (mbar == nil) quit("メニューバー ID 128を見つける事ができません!");
+#else
+	if (mbar == nil) quit("Cannot find menubar('MBAR') id 128!");
+#endif
+
+	/* Insert them into the current menu list */
+	SetMenuBar(mbar);
+
+	/* Free handle */
+	DisposeHandle(mbar);
+
+#if !TARGET_API_MAC_CARBON
+	/* Apple menu (id 128) */
+	m = GetMenuHandle(MENU_APPLE);
 
 	/* Add the DA's to the "apple" menu */
-#if !TARGET_API_MAC_CARBON
 	AppendResMenu	(m, 'DRVR');
 #endif
 
 	/* Get the "File" menu */
 #if TARGET_API_MAC_CARBON
-	m = GetMenu(129);
+		m = GetMenuHandle(MENU_FILE);
 	err = Gestalt( gestaltSystemVersion, &response );
 	if ( (err == noErr) && (response >= 0x00000A00) )
 	{
-		DeleteMenuItem( m, 7 );
+		DeleteMenuItem(m, ITEM_QUIT);
 	}
-#else
-	m = GetMenu(129);
 #endif
 
-	/* Insert the menu */
-	InsertMenu(m, 0);
+	/* Edit menu (id 130) - we don't have to do anything */
 
-
-	/* Get the "Edit" menu */
-	m = GetMenu(130);
-
-	/* Insert the menu */
-	InsertMenu(m, 0);
-
-
-	/* Make the "Font" menu */
-#ifdef JP
-	m = NewMenu(131, "\pフォント");
-#else
-	m = NewMenu(131, "\pFont");
-#endif
-	
-	/* Insert the menu */
-	InsertMenu(m, 0);
-
-	/* Add "bold" */
-	AppendMenu(m, "\pBold");
-
-	/* Add "wide" */
-	AppendMenu(m, "\pWide");
-
-	/* Add a separator */
-	AppendMenu(m, "\p-");
+	/*
+	 * Font menu (id 131) - append names of mono-spaced fonts
+	 * followed by all available ones
+	 */
+	m = GetMenuHandle(MENU_FONT);
 
 	/* Fake window */
 	r.left = r.right = r.top = r.bottom = 0;
@@ -3873,15 +3804,8 @@ static void init_menubar(void)
 	AppendResMenu	(m, 'FONT');
 
 
-	/* Make the "Size" menu */
-#ifdef JP
-	m = NewMenu(132, "\pサイズ");
-#else
-	m = NewMenu(132, "\pSize");
-#endif
-	
-	/* Insert the menu */
-	InsertMenu(m, 0);
+	/* Size menu (id 132) */
+	m = GetMenuHandle(MENU_SIZE);
 
 	/* Add some sizes (stagger choices) */
 	for (i = 8; i <= 32; i += ((i / 16) + 1))
@@ -3897,15 +3821,8 @@ static void init_menubar(void)
 	}
 
 
-	/* Make the "Windows" menu */
-#ifdef JP
-	m = NewMenu(133, "\pウインドウ");
-#else
-	m = NewMenu(133, "\pWindows");
-#endif
-	
-	/* Insert the menu */
-	InsertMenu(m, 0);
+	/* Windows menu (id 133) */
+	m = GetMenuHandle(MENU_WINDOWS);
 
 	/* Default choices */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -3924,41 +3841,104 @@ static void init_menubar(void)
 	}
 
 
-	/* Make the "Special" menu */
-#ifdef JP
-	m = NewMenu(134, "\p特別");
-#else
-	m = NewMenu(134, "\pSpecial");
-#endif
-	
-	/* Insert the menu */
-	InsertMenu(m, 0);
+#if TARGET_API_MAC_CARBON && !defined(MAC_MPW)
 
-	/* Append the choices */
-#ifdef JP
-	AppendMenu(m, "\pサウンド使用");
-	AppendMenu(m, "\pサウンド設定...");
-	AppendMenu(m, "\p二倍幅表示");
-	AppendMenu(m, "\p-");
-	AppendMenu(m, "\parg_fiddle");
-	AppendMenu(m, "\parg_wizard");
-#else
-	AppendMenu(m, "\parg_sound");
-	AppendMenu(m, "\pSound config");
-	AppendMenu(m, "\p-");
-	AppendMenu(m, "\parg_fiddle");
-	AppendMenu(m, "\parg_wizard");
-#endif
+	/* CW or gcc -- Use recommended interface for hierarchical menus */
 
-	/* Make the "TileWidth" menu */
-#ifdef JP
-	m = NewMenu(135, "\pタイル幅");
-#else
-	m = NewMenu(135, "\pTileWidth");
-#endif
+	/* Special menu (id 134) */
+	m = GetMenuHandle(MENU_SPECIAL);
 
-	/* Insert the menu */
-	InsertMenu(m, 0);
+	/* Insert Graphics submenu (id 143) */
+	{
+		MenuHandle submenu;
+
+		/* Get the submenu */
+		submenu = GetMenu(SUBMENU_SOUND);
+
+		/* Insert it */
+		SetMenuItemHierarchicalMenu(m, ITEM_SOUND, submenu);
+	}
+
+	/* Insert Graphics submenu (id 144) */
+	{
+		MenuHandle submenu;
+
+		/* Get the submenu */
+		submenu = GetMenu(SUBMENU_GRAPH);
+
+		/* Insert it */
+		SetMenuItemHierarchicalMenu(m, ITEM_GRAPH, submenu);
+	}
+
+	/* Insert TileWidth submenu (id 145) */
+	{
+		MenuHandle submenu;
+
+		/* Get the submenu */
+		submenu = GetMenu(SUBMENU_TILEWIDTH);
+
+		/* Add some sizes */
+		for (i = 4, n = 1; i <= 32; i++, n++)
+		{
+			Str15 buf;
+
+			/* Textual size */
+			strnfmt((char*)buf + 1, 15, "%d", i);
+			buf[0] = strlen((char*)buf + 1);
+
+			/* Append item */
+			AppendMenu(submenu, buf);
+		}
+
+		/* Insert it */
+		SetMenuItemHierarchicalMenu(m, ITEM_TILEWIDTH, submenu);
+	}
+
+	/* Insert TileHeight submenu (id 146) */
+	{
+		MenuHandle submenu;
+
+		/* Get the submenu */
+		submenu = GetMenu(SUBMENU_TILEHEIGHT);
+
+
+		/* Add some sizes */
+		for (i = 4, n = 1; i <= 32; i++, n++)
+		{
+			Str15 buf;
+
+			/* Textual size */
+			strnfmt((char*)buf + 1, 15, "%d", i);
+			buf[0] = strlen((char*)buf + 1);
+
+			/* Append item */
+			AppendMenu(submenu, buf);
+		}
+
+		/* Insert it */
+		SetMenuItemHierarchicalMenu(m, ITEM_TILEHEIGHT, submenu);
+	}
+
+#else
+
+	/* Special menu (id 134) */
+
+	/* Get graphics (sub)menu (id 143) */
+	m = GetMenu(SUBMENU_SOUND);
+
+	/* Insert it as a submenu */		
+	InsertMenu(m, hierMenu);
+
+
+	/* Get graphics (sub)menu (id 144) */
+	m = GetMenu(SUBMENU_GRAPH);
+
+	/* Insert it as a submenu */		
+	InsertMenu(m, hierMenu);
+
+
+	/* Get TileWidth (sub)menu (id 145) */
+	m = GetMenu(SUBMENU_TILEWIDTH);
 
 	/* Add some sizes */
 	for (i = 4; i <= 32; i++)
@@ -3974,15 +3954,11 @@ static void init_menubar(void)
 	}
 
 
-	/* Make the "TileHeight" menu */
-#ifdef JP
-	m = NewMenu(136, "\pタイル高");
-#else
-	m = NewMenu(136, "\pTileHeight");
-#endif
+	/* Insert it as a submenu */
+	InsertMenu(m, hierMenu);
 
-	/* Insert the menu */
-	InsertMenu(m, 255);
+	/* Get TileHeight (sub)menu (id 146) */
+	m = GetMenu(SUBMENU_TILEHEIGHT);
 
 	/* Add some sizes */
 	for (i = 4; i <= 32; i++)
@@ -3998,6 +3974,10 @@ static void init_menubar(void)
 	}
 
 
+	/* Insert the menu */
+	InsertMenu(m, hierMenu);
+
+#endif
 	/* Update the menu bar */
 	DrawMenuBar();
 }
@@ -4031,7 +4011,7 @@ static void setup_menus(void)
 
 
 	/* File menu */
-	m = GetMenuHandle(129);
+	m = GetMenuHandle(MENU_FILE);
 
 	/* Get menu size */
 #if TARGET_API_MAC_CARBON
@@ -4057,13 +4037,13 @@ static void setup_menus(void)
 	if (initialized && !game_in_progress)
 	{
 #if TARGET_API_MAC_CARBON
-		EnableMenuItem(m, 1);
-		EnableMenuItem(m, 2);
-		EnableMenuItem(m, 3);
+		EnableMenuItem(m, ITEM_NEW);
+		EnableMenuItem(m, ITEM_OPEN);
+		EnableMenuItem(m, ITEM_IMPORT);
 #else
-		EnableItem(m, 1);
-		EnableItem(m, 2);
-		EnableItem(m, 3);
+		EnableItem(m, ITEM_NEW);
+		EnableItem(m, ITEM_OPEN);
+		EnableItem(m, ITEM_IMPORT);
 #endif
 	}
 
@@ -4071,9 +4051,9 @@ static void setup_menus(void)
 	if (initialized)
 	{
 #if TARGET_API_MAC_CARBON
-		EnableMenuItem(m, 4);
+		EnableMenuItem(m, ITEM_CLOSE);
 #else
-		EnableItem(m, 4);
+		EnableItem(m, ITEM_CLOSE);
 #endif
 	}
 
@@ -4081,9 +4061,9 @@ static void setup_menus(void)
 	if (initialized && character_generated)
 	{
 #if TARGET_API_MAC_CARBON
-		EnableMenuItem(m, 5);
+		EnableMenuItem(m, ITEM_SAVE);
 #else
-		EnableItem(m, 5);
+		EnableItem(m, ITEM_SAVE);
 #endif
 	}
 
@@ -4091,15 +4071,15 @@ static void setup_menus(void)
 	if (TRUE)
 	{
 #if TARGET_API_MAC_CARBON
-		EnableMenuItem(m, 7);
+		EnableMenuItem(m, ITEM_QUIT);
 #else
-		EnableItem(m, 7);
+		EnableItem(m, ITEM_QUIT);
 #endif
 	}
 
 
 	/* Edit menu */
-	m = GetMenuHandle(130);
+	m = GetMenuHandle(MENU_EDIT);
 
 	/* Get menu size */
 #if TARGET_API_MAC_CARBON
@@ -4125,23 +4105,23 @@ static void setup_menus(void)
 	if (!td)
 	{
 #if TARGET_API_MAC_CARBON
-		EnableMenuItem(m, 1);
-		EnableMenuItem(m, 3);
-		EnableMenuItem(m, 4);
-		EnableMenuItem(m, 5);
-		EnableMenuItem(m, 6);
+		EnableMenuItem(m, ITEM_UNDO);
+		EnableMenuItem(m, ITEM_CUT);
+		EnableMenuItem(m, ITEM_COPY);
+		EnableMenuItem(m, ITEM_PASTE);
+		EnableMenuItem(m, ITEM_CLEAR);
 #else
-		EnableItem(m, 1);
-		EnableItem(m, 3);
-		EnableItem(m, 4);
-		EnableItem(m, 5);
-		EnableItem(m, 6);
+		EnableItem(m, ITEM_UNDO);
+		EnableItem(m, ITEM_CUT);
+		EnableItem(m, ITEM_COPY);
+		EnableItem(m, ITEM_PASTE);
+		EnableItem(m, ITEM_CLEAR);
 #endif
 	}
 
 
 	/* Font menu */
-	m = GetMenuHandle(131);
+	m = GetMenuHandle(MENU_FONT);
 
 	/* Get menu size */
 #if TARGET_API_MAC_CARBON
@@ -4174,16 +4154,16 @@ static void setup_menus(void)
 	{
 #if TARGET_API_MAC_CARBON
 		/* Enable "bold" */
-		EnableMenuItem(m, 1);
+		EnableMenuItem(m, ITEM_BOLD);
 
 		/* Enable "extend" */
-		EnableMenuItem(m, 2);
+		EnableMenuItem(m, ITEM_WIDE);
 
 		/* Check the appropriate "bold-ness" */
-		if (td->font_face & bold) CheckMenuItem(m, 1, TRUE);
+		if (td->font_face & bold) CheckMenuItem(m, ITEM_BOLD, TRUE);
 
 		/* Check the appropriate "wide-ness" */
-		if (td->font_face & extend) CheckMenuItem(m, 2, TRUE);
+		if (td->font_face & extend) CheckMenuItem(m, ITEM_WIDE, TRUE);
 
 		/* Analyze fonts */
 		for (i = 4; i <= n; i++)
@@ -4200,16 +4180,16 @@ static void setup_menus(void)
 		}
 #else
 		/* Enable "bold" */
-		EnableItem(m, 1);
+		EnableItem(m, ITEM_BOLD);
 
 		/* Enable "extend" */
-		EnableItem(m, 2);
+		EnableItem(m, ITEM_WIDE);
 
 		/* Check the appropriate "bold-ness" */
-		if (td->font_face & bold) CheckItem(m, 1, TRUE);
+		if (td->font_face & bold) CheckItem(m, ITEM_BOLD, TRUE);
 
 		/* Check the appropriate "wide-ness" */
-		if (td->font_face & extend) CheckItem(m, 2, TRUE);
+		if (td->font_face & extend) CheckItem(m, ITEM_WIDE, TRUE);
 
 		/* Analyze fonts */
 		for (i = 4; i <= n; i++)
@@ -4229,7 +4209,7 @@ static void setup_menus(void)
 
 
 	/* Size menu */
-	m = GetMenuHandle(132);
+	m = GetMenuHandle(MENU_SIZE);
 
 	/* Get menu size */
 #if TARGET_API_MAC_CARBON
@@ -4257,23 +4237,18 @@ static void setup_menus(void)
 		/* Analyze sizes */
 		for (i = 1; i <= n; i++)
 		{
-#if TARGET_API_MAC_CARBON
 			/* Analyze size */
 			GetMenuItemText(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
+#if TARGET_API_MAC_CARBON
 			/* Enable the "real" sizes */
 			if (RealFont(td->font_id, value)) EnableMenuItem(m, i);
 
 			/* Check the current size */
 			if (td->font_size == value) CheckMenuItem(m, i, TRUE);
 #else
-			/* Analyze size */
-			GetMenuItemText(m, i, s);
-			s[s[0]+1] = '\0';
-			value = atoi((char*)(s+1));
-
 			/* Enable the "real" sizes */
 			if (RealFont(td->font_id, value)) EnableItem(m, i);
 
@@ -4285,7 +4260,7 @@ static void setup_menus(void)
 
 
 	/* Windows menu */
-	m = GetMenuHandle(133);
+	m = GetMenuHandle(MENU_WINDOWS);
 
 	/* Get menu size */
 #if TARGET_API_MAC_CARBON
@@ -4307,7 +4282,7 @@ static void setup_menus(void)
 
 
 	/* Special menu */
-	m = GetMenuHandle(134);
+	m = GetMenuHandle(MENU_SPECIAL);
 
 	/* Get menu size */
 #if TARGET_API_MAC_CARBON
@@ -4322,66 +4297,306 @@ static void setup_menus(void)
 		/* Reset */
 #if TARGET_API_MAC_CARBON
 		DisableMenuItem(m, i);
+
+#ifdef MAC_MPW
+		/* XXX Oh no, this removes submenu... */
+		if ((i != ITEM_SOUND) &&
+		    (i != ITEM_GRAPH) &&
+		    (i != ITEM_TILEWIDTH) &&
+		    (i != ITEM_TILEHEIGHT)) CheckMenuItem(m, i, FALSE);
+#else
+
 		CheckMenuItem(m, i, FALSE);
+#endif
+
 #else
 		DisableItem(m, i);
-		CheckItem(m, i, FALSE);
+
+		/* XXX Oh no, this removes submenu... */
+		if ((i != ITEM_SOUND) &&
+		    (i != ITEM_GRAPH) &&
+		    (i != ITEM_TILEWIDTH) &&
+		    (i != ITEM_TILEHEIGHT)) CheckItem(m, i, FALSE);
 #endif
 	}
 
 #if TARGET_API_MAC_CARBON
 	/* Item "arg_sound" */
-	EnableMenuItem(m, 1);
-	CheckMenuItem(m, 1, arg_sound);
+	EnableMenuItem(m, ITEM_SOUND);
+	{
+		MenuRef submenu;
 
-	/* Item "SoundSetting" */
-	EnableMenuItem(m, 2);
+#ifdef MAC_MPW
+
+		/* MPW's Universal Interface is a bit out of date */
+
+		/* Graphics submenu */
+		submenu = GetMenuHandle(SUBMENU_SOUND);
+
+#else
+
+		/* Graphics submenu */
+		(void)GetMenuItemHierarchicalMenu(m, ITEM_SOUND, &submenu);
+
+#endif
+
+		/* Get menu size */
+		n = CountMenuItems(submenu);
+
+		/* Reset menu */
+		for (i = 1; i <= n; i++)
+		{
+			/* Reset */
+			DisableMenuItem(submenu, i);
+			CheckMenuItem(submenu, i, FALSE);
+		}
+
+		/* Item "Sound On/Off" */
+		EnableMenuItem(submenu, ITEM_USE_SOUND);
+		CheckMenuItem(submenu, ITEM_USE_SOUND, arg_sound);
+
+		/* Item "Sounf Config" */
+#ifndef MACH_O_CARBON
+		EnableMenuItem(submenu, ITEM_SOUND_SETTING);
+#endif
+	}
+
+	/* Item "Graphics" */
+	EnableMenuItem(m, ITEM_GRAPH);
+	{
+		MenuRef submenu;
+
+#ifdef MAC_MPW
+
+		/* MPW's Universal Interface is a bit out of date */
+
+		/* Graphics submenu */
+		submenu = GetMenuHandle(SUBMENU_GRAPH);
+
+#else
+
+		/* Graphics submenu */
+		(void)GetMenuItemHierarchicalMenu(m, ITEM_GRAPH, &submenu);
+
+#endif
+
+		/* Get menu size */
+		n = CountMenuItems(submenu);
+
+		/* Reset menu */
+		for (i = 1; i <= n; i++)
+		{
+			/* Reset */
+			DisableMenuItem(submenu, i);
+			CheckMenuItem(submenu, i, FALSE);
+		}
+
+		/* Item "None" */
+		DisableMenuItem(submenu, ITEM_NONE);
+
+		/* Item "8x8" */
+		DisableMenuItem(submenu, ITEM_8X8);
+
+		/* Item "16x16" */
+		DisableMenuItem(submenu, ITEM_16X16);
+
+		/* Item "Big tiles" */
+		EnableMenuItem(submenu, ITEM_BIGTILE);
+		CheckMenuItem(submenu, ITEM_BIGTILE, arg_bigtile);
+	}
+
+	/* Item "TileWidth" */
+	EnableMenuItem(m, ITEM_TILEWIDTH);
+	{
+		MenuRef submenu;
+
+#ifdef MAC_MPW
+
+		/* MPW's Universal Interface is a bit out of date */
+
+		/* TIleWidth submenu */
+		submenu = GetMenuHandle(SUBMENU_TILEWIDTH);
+
+#else
+
+		/* TileWidth submenu */
+		(void)GetMenuItemHierarchicalMenu(m, ITEM_TILEWIDTH, &submenu);
+
+#endif
+
+		/* Get menu size */
+		n = CountMenuItems(submenu);
+
+		/* Reset menu */
+		for (i = 1; i <= n; i++)
+		{
+			/* Reset */
+			DisableMenuItem(submenu, i);
+			CheckMenuItem(submenu, i, FALSE);
+		}
+
+		/* Active window */
+		if (td)
+		{
+			/* Analyze sizes */
+			for (i = 1; i <= n; i++)
+			{
+				/* Analyze size */
+				/* GetMenuItemText(m,i,s); */
+				GetMenuItemText(submenu, i, s);
+				s[s[0]+1] = '\0';
+				value = atoi((char*)(s+1));
+
+				/* Enable */
+				if (value >= td->font_wid) EnableMenuItem(submenu, i);
+
+				/* Check the current size */
+				if (td->tile_wid == value) CheckMenuItem(submenu, i, TRUE);
+			}
+		}
+	}
+
+	/* Item "TileHeight" */
+	EnableMenuItem(m, ITEM_TILEHEIGHT);
+	{
+		MenuRef submenu;
+
+#ifdef MAC_MPW
+
+		/* MPW's Universal Interface is a bit out of date */
+
+		/* TileHeight submenu */
+		submenu = GetMenuHandle(SUBMENU_TILEHEIGHT);
+
+#else
+
+		/* TileWidth submenu */
+		(void)GetMenuItemHierarchicalMenu(m, ITEM_TILEHEIGHT, &submenu);
+
+#endif
+
+		/* Get menu size */
+		n = CountMenuItems(submenu);
+
+		/* Reset menu */
+		for (i = 1; i <= n; i++)
+		{
+			/* Reset */
+			DisableMenuItem(submenu, i);
+			CheckMenuItem(submenu, i, FALSE);
+		}
+
+		/* Active window */
+		if (td)
+		{
+			/* Analyze sizes */
+			for (i = 1; i <= n; i++)
+			{
+				/* Analyze size */
+				/* GetMenuItemText(m,i,s); */
+				GetMenuItemText(submenu, i, s);
+				s[s[0]+1] = '\0';
+				value = atoi((char*)(s+1));
+
+				/* Enable */
+				if (value >= td->font_hgt) EnableMenuItem(submenu, i);
+
+				/* Check the current size */
+				if (td->tile_hgt == value) CheckMenuItem(submenu, i, TRUE);
+			}
+		}
+	}
 
 	/* Item "arg_fiddle" */
-	EnableMenuItem(m, 4);
-	CheckMenuItem(m, 4, arg_fiddle);
+	EnableMenuItem(m, ITEM_FIDDLE);
+	CheckMenuItem(m, ITEM_FIDDLE, arg_fiddle);
 
 	/* Item "arg_wizard" */
-	EnableMenuItem(m, 5);
-	CheckMenuItem(m, 5, arg_wizard);
+	EnableMenuItem(m, ITEM_WIZARD);
+	CheckMenuItem(m, ITEM_WIZARD, arg_wizard);
+
 #else
 	/* Item "arg_sound" */
-	EnableItem(m, 1);
-	CheckItem(m, 1, arg_sound);
+	EnableItem(m, ITEM_SOUND);
 
-	/* Item "SoundSetting" */
-	EnableItem(m, 2);
+	/* Item "arg_graphics" */
+	EnableItem(m, ITEM_GRAPH);
+
+	/* Item "TileWidth" */
+	EnableItem(m, ITEM_TILEWIDTH);
+
+	/* Item "TileHeight" */
+	EnableItem(m, ITEM_TILEHEIGHT);
 
 	/* Item "arg_fiddle" */
-	EnableItem(m, 4);
-	CheckItem(m, 4, arg_fiddle);
+	EnableItem(m, ITEM_FIDDLE);
+	CheckItem(m, ITEM_FIDDLE, arg_fiddle);
 
 	/* Item "arg_wizard" */
-	EnableItem(m, 5);
-	CheckItem(m, 5, arg_wizard);
-#endif
+	EnableItem(m, ITEM_WIZARD);
+	CheckItem(m, ITEM_WIZARD, arg_wizard);
 
-	/* TileWidth menu */
-	m = GetMenuHandle(135);
+	/* Sounds submenu */
+	m = GetMenuHandle(SUBMENU_SOUND);
 
 	/* Get menu size */
-#if TARGET_API_MAC_CARBON
-	n = CountMenuItems(m);
-#else
 	n = CountMItems(m);
-#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
-#if TARGET_API_MAC_CARBON
-		DisableMenuItem(m, i);
-		CheckMenuItem(m, i, FALSE);
-#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
-#endif
+	}
+	
+	/* Item "Sound On/Off" */
+	EnableItem(m, ITEM_USE_SOUND);
+	CheckItem(m, ITEM_USE_SOUND, arg_sound);
+
+	/* Item "Sound Config" */
+	EnableItem(m, ITEM_SOUND_SETTING);
+
+	/* Graphics submenu */
+	m = GetMenuHandle(SUBMENU_GRAPH);
+
+	/* Get menu size */
+	n = CountMItems(m);
+
+	/* Reset menu */
+	for (i = 1; i <= n; i++)
+	{
+		/* Reset */
+		DisableItem(m, i);
+		CheckItem(m, i, FALSE);
+	}
+	
+	/* Item "None" */
+	DisableItem(m, ITEM_NONE);
+
+	/* Item "8x8" */
+	DisableItem(m, ITEM_8X8);
+
+	/* Item "16x16" */
+	DisableItem(m, ITEM_16X16);
+
+	/* Item "Bigtile" */
+	EnableItem(m, ITEM_BIGTILE);
+	CheckItem(m, ITEM_BIGTILE, arg_bigtile);
+
+
+	/* TIleWidth submenu */
+	m = GetMenuHandle(SUBMENU_TILEWIDTH);
+
+	/* Get menu size */
+	n = CountMItems(m);
+
+	/* Reset menu */
+	for (i = 1; i <= n; i++)
+	{
+		/* Reset */
+		DisableItem(m, i);
+		CheckItem(m, i, FALSE);
 	}
 
 	/* Active window */
@@ -4391,48 +4606,32 @@ static void setup_menus(void)
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
+			/* GetMenuItemText(m,i,s); */
 			GetMenuItemText(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
-#if TARGET_API_MAC_CARBON
 			/* Enable */
-			EnableMenuItem(m, i);
-
-			/* Check the current size */
-			if (td->tile_wid == value) CheckMenuItem(m, i, TRUE);
-#else
-			/* Enable */
-			EnableItem(m, i);
+			if (value >= td->font_wid) EnableItem(m, i);
 
 			/* Check the current size */
 			if (td->tile_wid == value) CheckItem(m, i, TRUE);
-#endif
 		}
 	}
 
 
-	/* TileHeight menu */
-	m = GetMenuHandle(136);
+	/* TileHeight submenu */
+	m = GetMenuHandle(SUBMENU_TILEHEIGHT);
 
 	/* Get menu size */
-#if TARGET_API_MAC_CARBON
-	n = CountMenuItems(m);
-#else
 	n = CountMItems(m);
-#endif
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)
 	{
 		/* Reset */
-#if TARGET_API_MAC_CARBON
-		DisableMenuItem(m, i);
-		CheckMenuItem(m, i, FALSE);
-#else
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
-#endif
 	}
 
 	/* Active window */
@@ -4446,21 +4645,15 @@ static void setup_menus(void)
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
-#if TARGET_API_MAC_CARBON
 			/* Enable */
-			EnableMenuItem(m, i);
-
-			/* Check the current size */
-			if (td->tile_hgt == value) CheckMenuItem(m, i, TRUE);
-#else
-			/* Enable */
-			EnableItem(m, i);
+			if (value >= td->font_hgt) EnableItem(m, i);
 
 			/* Check the current size */
 			if (td->tile_hgt == value) CheckItem(m, i, TRUE);
-#endif
 		}
 	}
+#endif
+
 }
 
 
@@ -4505,11 +4698,11 @@ static void menu(long mc)
 	switch (menuid)
 	{
 		/* Apple Menu */
-		case 128:
+		case MENU_APPLE:
 		{
 			/* About Angband... */
 #if TARGET_API_MAC_CARBON
-			if (selection == 1)
+			if (selection == ITEM_ABOUT)
 			{
 				DialogPtr dialog;
 				short item_hit;
@@ -4537,7 +4730,7 @@ static void menu(long mc)
 				break;
 			}
 #else
-			if (selection == 1)
+			if (selection == ITEM_ABOUT)
 			{
 				DialogPtr dialog;
 				Rect r;
@@ -4555,41 +4748,40 @@ static void menu(long mc)
 			}
 
 			/* Desk accessory */
-			/* GetMenuItemText(GetMHandle(128),selection,s); */
-			GetMenuItemText(GetMenuHandle(128), selection, s);
+			GetMenuItemText(GetMenuHandle(MENU_APPLE), selection, s);
 			OpenDeskAcc(s);
 			break;
 #endif
 		}
 
 		/* File Menu */
-		case 129:
+		case MENU_FILE:
 		{
 			switch (selection)
 			{
 				/* New */
-				case 1:
+				case ITEM_NEW:
 				{
 					do_menu_file_new();
 					break;
 				}
 
 				/* Open... */
-				case 2:
+				case ITEM_OPEN:
 				{
 					do_menu_file_open(FALSE);
 					break;
 				}
 
 				/* Import... */
-				case 3:
+				case ITEM_IMPORT:
 				{
 					do_menu_file_open(TRUE);
 					break;
 				}
 
 				/* Close */
-				case 4:
+				case ITEM_CLOSE:
 				{
 					/* No window */
 					if (!td) break;
@@ -4607,7 +4799,7 @@ static void menu(long mc)
 				}
 
 				/* Save */
-				case 5:
+				case ITEM_SAVE:
 				{
 					if (!can_save){
 #ifdef JP
@@ -4628,7 +4820,7 @@ static void menu(long mc)
 				}
 
 				/* Quit (with save) */
-				case 7:
+				case ITEM_QUIT:
 				{
 					/* Save the game (if necessary) */
 					if (game_in_progress && character_generated)
@@ -4661,14 +4853,14 @@ static void menu(long mc)
 		}
 
 		/* Edit menu */
-		case 130:
+		case MENU_EDIT:
 		{
 			/* Unused */
 			break;
 		}
 
 		/* Font menu */
-		case 131:
+		case MENU_FONT:
 		{
 			/* Require a window */
 			if (!td) break;
@@ -4680,7 +4872,7 @@ static void menu(long mc)
 			activate(td->w);
 
 			/* Toggle the "bold" setting */
-			if (selection == 1)
+			if (selection == ITEM_BOLD)
 			{
 				/* Toggle the setting */
 				if (td->font_face & bold)
@@ -4707,7 +4899,7 @@ static void menu(long mc)
 			}
 
 			/* Toggle the "wide" setting */
-			if (selection == 2)
+			if (selection == ITEM_WIDE)
 			{
 				/* Toggle the setting */
 				if (td->font_face & extend)
@@ -4734,7 +4926,7 @@ static void menu(long mc)
 			}
 
 			/* Get a new font name */
-			GetMenuItemText(GetMenuHandle(131), selection, s);
+			GetMenuItemText(GetMenuHandle(MENU_FONT), selection, s);
 			GetFNum(s, &fid);
 
 			/* Save the new font id */
@@ -4786,7 +4978,7 @@ static void menu(long mc)
 		}
 
 		/* Size menu */
-		case 132:
+		case MENU_SIZE:
 		{
 			if (!td) break;
 
@@ -4796,7 +4988,7 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			GetMenuItemText(GetMenuHandle(132), selection, s);
+			GetMenuItemText(GetMenuHandle(MENU_SIZE), selection, s);
 			s[s[0]+1]=0;
 			td->font_size = atoi((char*)(s+1));
 
@@ -4818,7 +5010,7 @@ static void menu(long mc)
 		}
 
 		/* Window menu */
-		case 133:
+		case MENU_WINDOWS:
 		{
 			/* Parse */
 			i = selection - 1;
@@ -4848,11 +5040,32 @@ static void menu(long mc)
 		}
 
 		/* Special menu */
-		case 134:
+		case MENU_SPECIAL:
 		{
 			switch (selection)
 			{
-				case 1:
+				case ITEM_FIDDLE:
+				{
+					arg_fiddle = !arg_fiddle;
+					break;
+				}
+
+				case ITEM_WIZARD:
+				{
+					arg_wizard = !arg_wizard;
+					break;
+				}
+			}
+
+			break;
+		}
+
+		/* Sounds submenu */
+		case SUBMENU_SOUND:
+		{
+			switch (selection)
+			{
+				case ITEM_USE_SOUND:
 				{
 					/* Toggle arg_sound */
 					arg_sound = !arg_sound;
@@ -4863,32 +5076,58 @@ static void menu(long mc)
 					break;
 				}
 
-				case 2:
+				case ITEM_SOUND_SETTING:
 				{
 					SoundConfigDLog();
+
 					break;
 				}
-
-				case 4:
-				{
-					arg_fiddle = !arg_fiddle;
-					break;
-				}
-
-				case 5:
-				{
-					arg_wizard = !arg_wizard;
-					break;
-				}
-
-
 			}
 
 			break;
 		}
 
-		/* TileWidth menu */
-		case 135:
+		/* Graphics submenu */
+		case SUBMENU_GRAPH:
+		{
+			switch (selection)
+			{
+				case ITEM_NONE:
+				case ITEM_8X8:
+				case ITEM_16X16:
+				{
+					break;
+				}
+
+				case ITEM_BIGTILE:
+				{
+					term *old = Term;
+					term_data *td = &data[0];
+
+					/* Toggle "arg_bigtile" */
+					arg_bigtile = !arg_bigtile;
+
+					/* Activate */
+					Term_activate(td->t);
+
+					/* Resize the term */
+					Term_resize(td->cols, td->rows);
+
+					/* Activate old */
+					Term_activate(old);
+
+					break;
+				}
+			}
+
+			/* Hack -- Force redraw */
+			Term_key_push(KTRL('R'));
+
+			break;
+		}
+
+		/* TileWidth submenu */
+		case SUBMENU_TILEWIDTH:
 		{
 			if (!td) break;
 
@@ -4898,7 +5137,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			GetMenuItemText(GetMenuHandle(135), selection, s);
+			/* Analyse value */
+			GetMenuItemText(GetMenuHandle(SUBMENU_TILEWIDTH), selection, s);
 			s[s[0]+1]=0;
 			td->tile_wid = atoi((char*)(s+1));
 
@@ -4915,8 +5155,8 @@ static void menu(long mc)
 			break;
 		}
 
-		/* TileHeight menu */
-		case 136:
+		/* TileHeight submenu */
+		case SUBMENU_TILEHEIGHT:
 		{
 			if (!td) break;
 
@@ -4926,7 +5166,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			GetMenuItemText(GetMenuHandle(136), selection, s);
+			/* Analyse value */
+			GetMenuItemText(GetMenuHandle(SUBMENU_TILEHEIGHT), selection, s);
 			s[s[0]+1]=0;
 			td->tile_hgt = atoi((char*)(s+1));
 

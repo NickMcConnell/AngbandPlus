@@ -1579,23 +1579,6 @@ errr init_buildings(void)
 			building[i].actions[j] = 0;
 			building[i].action_restr[j] = 0;
 		}
-
-#if 0
-		for (j = 0; j < max_c_idx; j++)
-		{
-			building[i].member_class[j] = 0;
-		}
-
-		for (j = 0; j < max_p_idx; j++)
-		{
-			building[i].member_race[j] = 0;
-		}
-
-		for (j = 0; j < MAX_REALM+1; j++)
-		{
-			building[i].member_realm[j] = 0;
-		}
-#endif
 	}
 
 	return (0);

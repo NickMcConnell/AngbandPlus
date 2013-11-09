@@ -588,7 +588,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_s16b(p_ptr->pelem);
-	tmp8u = max_c_idx;
+	tmp8u = MAX_CLASS;
 	wr_byte(tmp8u);
 
 	wr_u16b(p_ptr->expfact);
@@ -617,7 +617,7 @@ static void wr_extra(void)
 	for (i = 0; i < 10; i++) wr_s16b(p_ptr->skill_exp[i]);
 	for (i = 0; i < MAX_REALM+1; i++) wr_s16b(p_ptr->magic_exp[i]);
 
-	tmp16u = max_c_idx;
+	tmp16u = MAX_CLASS;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -739,6 +739,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_sh_elec);
 	wr_s16b(p_ptr->tim_sh_cold);
 	wr_s16b(p_ptr->tim_sh_holy);
+	wr_s16b(p_ptr->tim_sh_aura);
 	wr_s16b(p_ptr->tim_eyeeye);
 
 	wr_s16b(p_ptr->tim_inc_blow);
@@ -843,6 +844,11 @@ static void wr_extra(void)
 	{
 		wr_monster(&stock_mon[i]);
 	}
+
+	wr_byte(p_ptr->max_max_dlv);
+	wr_byte(p_ptr->max_dlv_mult);
+	wr_byte(p_ptr->winner_mult);
+	wr_byte(p_ptr->ogre_mult);
 }
 
 
@@ -1498,7 +1504,7 @@ static bool wr_savefile_new(void)
 		wr_s32b(p_ptr->race_sp[i]);
 	}
 
-	tmp8u = max_c_idx;
+	tmp8u = MAX_CLASS;
 	tmp16u = PY_MAX_LEVEL;
 	wr_byte(tmp8u);
 	wr_u16b(tmp16u);

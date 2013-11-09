@@ -263,6 +263,7 @@ static named_num gf_desc[] =
 	{"GF_EDGED",				GF_EDGED			},
 	{"GF_MANA",					GF_MANA				},
 	{"GF_METEOR",				GF_METEOR			},
+	{"GF_VOLCANIC_BOMB",		GF_VOLCANIC_BOMB	},
 	{"GF_DISINTEGRATE",			GF_DISINTEGRATE		},
 	{"GF_HOLY_FIRE",			GF_HOLY_FIRE		},
 	{"GF_HELL_FIRE",			GF_HELL_FIRE		},
@@ -321,16 +322,17 @@ static named_num gf_desc[] =
 	{"GF_ANIM_DEAD",			GF_ANIM_DEAD		},
 	{"GF_ATTACK",				GF_ATTACK			},
 	{"GF_PHOTO",				GF_PHOTO			},
+	{"GF_CAPTURE",				GF_CAPTURE			},
 	{"GF_STRIKE_NOVA",			GF_STRIKE_NOVA		},
 	{"GF_WORD_OF_PAIN",			GF_WORD_OF_PAIN		},
 	{"GF_SHINING",				GF_SHINING			},
 	{"GF_SPECIAL_STONE",		GF_SPECIAL_STONE	},
 	{"GF_DUAL_DRAIN",			GF_DUAL_DRAIN		},
+	{"GF_DRAIN_SOUL",			GF_DRAIN_SOUL		},
 	{"GF_ERASE_ELEM",			GF_ERASE_ELEM		},
 	{"GF_CAVE_TEMP",			GF_CAVE_TEMP		},
 	{"GF_WATER_FLOW",			GF_WATER_FLOW		},
-	{"GF_CAPTURE",				GF_CAPTURE			},
-	{"GF_DRAIN_SOUL",			GF_DRAIN_SOUL		},
+	{"GF_LAVA_FLOW",			GF_LAVA_FLOW		},
 	{NULL, 						0					}
 };
 
@@ -1501,48 +1503,49 @@ errr check_load_init(void)
 #define ENTRY_TWO_HANDS          1
 #define ENTRY_RIGHT_HAND1        2
 #define ENTRY_LEFT_HAND1         3
-#define ENTRY_LEFT_HAND2         4
-#define ENTRY_RIGHT_HAND2        5
-#define ENTRY_SHOOT_HIT_DAM      6
-#define ENTRY_SHOOT_POWER        7
-#define ENTRY_SPEED              8
-#define ENTRY_BASE_AC            9
-#define ENTRY_RACIAL_LEVEL      10
-#define ENTRY_CUR_RACIAL_EXP    11
-#define ENTRY_MAX_RACIAL_EXP    12
-#define ENTRY_RACIAL_EXP_TO_ADV 13
-#define ENTRY_CLASS_LEVEL       14
-#define ENTRY_CUR_CLASS_EXP     15
-#define ENTRY_MAX_CLASS_EXP     16
-#define ENTRY_CLASS_EXP_TO_ADV  17
-#define ENTRY_GOLD              18
-#define ENTRY_DAY               19
-#define ENTRY_HP                20
-#define ENTRY_SP                21
-#define ENTRY_PLAY_TIME         22
-#define ENTRY_SKILL_FIGHT       23
-#define ENTRY_SKILL_SHOOT       24
-#define ENTRY_SKILL_SAVING      25
-#define ENTRY_SKILL_STEALTH     26
-#define ENTRY_SKILL_PERCEP      27
-#define ENTRY_SKILL_SEARCH      28
-#define ENTRY_SKILL_DISARM      29
-#define ENTRY_SKILL_DEVICE      30
-#define ENTRY_BLOWS             31
-#define ENTRY_SHOTS             32
-#define ENTRY_AVG_DMG           33
-#define ENTRY_INFRA             34
-#define ENTRY_ANTI_MAGIC        35
-#define ENTRY_NAME              36
-#define ENTRY_SEX               37
-#define ENTRY_RACE              38
-#define ENTRY_CLASS             39
-#define ENTRY_ALIGN             40
-#define ENTRY_AGE               41
-#define ENTRY_SOCIAL            42
-#define ENTRY_HEIGHT            43
-#define ENTRY_WEIGHT            44
-#define ENTRY_ELEM              45
+#define ENTRY_BARE_HAND2         4
+#define ENTRY_LEFT_HAND2         5
+#define ENTRY_RIGHT_HAND2        6
+#define ENTRY_SHOOT_HIT_DAM      7
+#define ENTRY_SHOOT_POWER        8
+#define ENTRY_SPEED              9
+#define ENTRY_BASE_AC           10
+#define ENTRY_RACIAL_LEVEL      11
+#define ENTRY_CUR_RACIAL_EXP    12
+#define ENTRY_MAX_RACIAL_EXP    13
+#define ENTRY_RACIAL_EXP_TO_ADV 14
+#define ENTRY_CLASS_LEVEL       15
+#define ENTRY_CUR_CLASS_EXP     16
+#define ENTRY_MAX_CLASS_EXP     17
+#define ENTRY_CLASS_EXP_TO_ADV  18
+#define ENTRY_GOLD              19
+#define ENTRY_DAY               20
+#define ENTRY_HP                21
+#define ENTRY_SP                22
+#define ENTRY_PLAY_TIME         23
+#define ENTRY_SKILL_FIGHT       24
+#define ENTRY_SKILL_SHOOT       25
+#define ENTRY_SKILL_SAVING      26
+#define ENTRY_SKILL_STEALTH     27
+#define ENTRY_SKILL_PERCEP      28
+#define ENTRY_SKILL_SEARCH      29
+#define ENTRY_SKILL_DISARM      30
+#define ENTRY_SKILL_DEVICE      31
+#define ENTRY_BLOWS             32
+#define ENTRY_SHOTS             33
+#define ENTRY_AVG_DMG           34
+#define ENTRY_INFRA             35
+#define ENTRY_ANTI_MAGIC        36
+#define ENTRY_NAME              37
+#define ENTRY_SEX               38
+#define ENTRY_RACE              39
+#define ENTRY_CLASS             40
+#define ENTRY_ALIGN             41
+#define ENTRY_AGE               42
+#define ENTRY_SOCIAL            43
+#define ENTRY_HEIGHT            44
+#define ENTRY_WEIGHT            45
+#define ENTRY_ELEM              46
 
 
 static struct
@@ -1558,6 +1561,7 @@ static struct
 	{ 1, 10, 25, "ÂÇ·â½¤Àµ(Î¾¼ê)"},
 	{ 1, 10, 25, "ÂÇ·â½¤Àµ(±¦¼ê)"},
 	{ 1, 10, 25, "ÂÇ·â½¤Àµ(º¸¼ê)"},
+	{ 1, 11, 25, "ÂÇ·â½¤Àµ(³ÊÆ®)"},
 	{ 1, 11, 25, "ÂÇ·â½¤Àµ(º¸¼ê)"},
 	{ 1, 11, 25, "ÂÇ·â½¤Àµ(±¦¼ê)"},
 	{ 1, 15, 25, "¼Í·â¹¶·â½¤Àµ"},
@@ -1736,6 +1740,8 @@ static void display_player_middle(void)
 		/* Dump the bonuses to hit/dam */
 		if (left_hander)
 			display_player_one_line(ENTRY_RIGHT_HAND2, buf, TERM_L_BLUE);
+		else if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
+			display_player_one_line(ENTRY_BARE_HAND2, buf, TERM_L_BLUE);
 		else
 			display_player_one_line(ENTRY_LEFT_HAND2, buf, TERM_L_BLUE);
 	}
@@ -2317,7 +2323,7 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_CONF);
 		add_flag(flgs, TR_REFLECT);
 		add_flag(flgs, TR_FREE_ACT);
-		add_flag(flgs, TR_FEATHER);
+		add_flag(flgs, TR_LEVITATION);
 		add_flag(flgs, TR_RES_MAGIC);
 	}
 	if (p_ptr->shield)
@@ -2480,6 +2486,11 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 
 	/* Extract flags and store */
 	player_flags(p_ptr->flags);
+
+	if (have_flag(p_ptr->flags, TR_IM_ACID)) add_flag(flgs, TR_RES_ACID);
+	if (have_flag(p_ptr->flags, TR_IM_ELEC)) add_flag(flgs, TR_RES_ELEC);
+	if (have_flag(p_ptr->flags, TR_IM_FIRE)) add_flag(flgs, TR_RES_FIRE);
+	if (have_flag(p_ptr->flags, TR_IM_COLD)) add_flag(flgs, TR_RES_COLD);
 
 	if (have_flag(p_ptr->flags, TR_KILL_EVIL)) add_flag(flgs, TR_SLAY_EVIL);
 	if (have_flag(p_ptr->flags, TR_KILL_GOOD)) add_flag(flgs, TR_SLAY_GOOD);
@@ -2774,7 +2785,7 @@ static void display_player_flag_info(void)
 	display_flag_aux(row+4, col, "·Ù¹ð      :", TR_WARNING, &f, 0);
 	display_flag_aux(row+5, col, "ÃÙ¾Ã²½    :", TR_SLOW_DIGEST, &f, 0);
 	display_flag_aux(row+6, col, "µÞ²óÉü    :", TR_REGEN, &f, 0);
-	display_flag_aux(row+7, col, "ÉâÍ·      :", TR_FEATHER, &f, 0);
+	display_flag_aux(row+7, col, "ÉâÍ·      :", TR_LEVITATION, &f, 0);
 	display_flag_aux(row+8, col, "±Ê±ó¸÷¸»  :", TR_LITE, &f, 0);
 	display_flag_aux(row+9, col, "¼ö¤¤      :", 0, &f, DP_CURSE);
 #else
@@ -2785,7 +2796,7 @@ static void display_player_flag_info(void)
 	display_flag_aux(row+4, col, "Warning   :", TR_WARNING, &f, 0);
 	display_flag_aux(row+5, col, "SlowDigest:", TR_SLOW_DIGEST, &f, 0);
 	display_flag_aux(row+6, col, "Regene.   :", TR_REGEN, &f, 0);
-	display_flag_aux(row+7, col, "Levitation:", TR_FEATHER, &f, 0);
+	display_flag_aux(row+7, col, "Levitation:", TR_LEVITATION, &f, 0);
 	display_flag_aux(row+8, col, "Perm Lite :", TR_LITE, &f, 0);
 	display_flag_aux(row+9, col, "Cursed    :", 0, &f, DP_CURSE);
 #endif
@@ -3097,7 +3108,7 @@ static void display_player_stat_info(void)
 	/* Display the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		int r_adj = rp_ptr->r_adj[i];
+		int r_adj = (cp_ptr->c_flags & PCF_REINCARNATE) ? cp_ptr->c_bonus[i] : rp_ptr->r_adj[i];
 
 		/* Calculate equipment adjustment */
 		e_adj = 0;
@@ -3363,7 +3374,7 @@ void display_player(int mode)
 		/* Name, Sex, Race, Class */
 		display_player_one_line(ENTRY_NAME, player_name, TERM_L_BLUE);
 		display_player_one_line(ENTRY_SEX, sp_ptr->title, TERM_L_BLUE);
-		if (!(cp_ptr->c_flags & PCF_REINCARNATE) && (p_ptr->pclass != CLASS_SUCCUBUS)) display_player_one_line(ENTRY_RACE, p_name + rp_ptr->name, TERM_L_BLUE);
+		if (!(cp_ptr->c_flags & PCF_REINCARNATE)) display_player_one_line(ENTRY_RACE, p_name + rp_ptr->name, TERM_L_BLUE);
 		display_player_one_line(ENTRY_CLASS, c_name + cp_ptr->name, TERM_L_BLUE);
 
 		/* Age, Height, Weight, Social */
@@ -5780,10 +5791,9 @@ void do_cmd_save_and_exit(void)
  */
 long total_points(void)
 {
-	int i, mult = 100;
-	s16b max_dl = 0;
+	int mult = 100;
 	u32b point, point_h, point_l;
-	int arena_win = MIN(p_ptr->arena_number, MAX_ARENA_MONS);
+	u32b point_exp, point_dlv, point_winner, point_ogre;
 
 	if (!preserve_mode) mult += 10;
 	if (!smart_learn) mult -= 20;
@@ -5793,11 +5803,15 @@ long total_points(void)
 
 	if (mult < 5) mult = 5;
 
-	for (i = 0; i < max_d_idx; i++)
-		if (max_dlv[i] > max_dl)
-			max_dl = max_dlv[i];
+	point_exp = p_ptr->max_max_exp * 100 / p_ptr->expfact;
+	if (point_exp > 99999L) point_exp = 99999L;
 
-	point_l = (p_ptr->max_exp + (100 * max_dl));
+	point_dlv = p_ptr->max_max_dlv * p_ptr->max_dlv_mult;
+
+	point_winner = 1000L * p_ptr->winner_mult;
+	point_ogre = 1000L * p_ptr->ogre_mult;
+
+	point_l = point_exp + point_dlv + point_winner;
 	point_h = point_l / 0x10000L;
 	point_l = point_l % 0x10000L;
 	point_h *= mult;
@@ -5809,11 +5823,14 @@ long total_points(void)
 	point_h /= 100;
 	point_l /= 100;
 
-	point = (point_h << 16) + (point_l);
-	if (p_ptr->arena_number < 99)
-		point += (arena_win * arena_win * (arena_win > 29 ? 1000 : 100));
+	point = (point_h << 16) + (point_l) + point_ogre;
 
-	if (easy_band) point = (0 - point);
+	if (easy_band)
+	{
+		point = 1;
+		if (p_ptr->total_winner) point++;
+		if (!r_info[MON_FILARHH].max_num) point++;
+	}
 
 	return point;
 }
@@ -5837,68 +5854,6 @@ static void center_string(char *buf, cptr str)
 	/* Mega-Hack */
 	(void)sprintf(buf, "%*s%s%*s", j, "", str, GRAVE_LINE_WIDTH - i - j, "");
 }
-
-
-#if 0
-/*
- * Save a "bones" file for a dead character
- *
- * Note that we will not use these files until Angband 2.8.0, and
- * then we will only use the name and level on which death occured.
- *
- * Should probably attempt some form of locking...
- */
-static void make_bones(void)
-{
-	FILE                *fp;
-
-	char                str[1024];
-
-
-	/* Ignore wizards and borgs */
-	if (!(p_ptr->noscore & 0x00FF))
-	{
-		/* Ignore people who die in town */
-		if (dun_level)
-		{
-			char tmp[128];
-
-			/* XXX XXX XXX "Bones" name */
-			sprintf(tmp, "bone.%03d", dun_level);
-
-			/* Build the filename */
-			path_build(str, sizeof(str), ANGBAND_DIR_BONE, tmp);
-
-			/* Attempt to open the bones file */
-			fp = my_fopen(str, "r");
-
-			/* Close it right away */
-			if (fp) my_fclose(fp);
-
-			/* Do not over-write a previous ghost */
-			if (fp) return;
-
-			/* File type is "TEXT" */
-			FILE_TYPE(FILE_TYPE_TEXT);
-
-			/* Try to write a new "Bones File" */
-			fp = my_fopen(str, "w");
-
-			/* Not allowed to write it?  Weird. */
-			if (!fp) return;
-
-			/* Save the info */
-			fprintf(fp, "%s\n", player_name);
-			fprintf(fp, "%d\n", p_ptr->mhp);
-			fprintf(fp, "%d\n", p_ptr->prace);
-			fprintf(fp, "%d\n", p_ptr->pclass);
-
-			/* Close and save the Bones file */
-			my_fclose(fp);
-		}
-	}
-}
-#endif
 
 
 /*
@@ -6518,7 +6473,7 @@ void close_game(void)
 		{
 
 #ifdef JP
-if (!save_player()) msg_print("¥»¡¼¥Ö¼ºÇÔ¡ª");
+			if (!save_player()) msg_print("¥»¡¼¥Ö¼ºÇÔ¡ª");
 #else
 			if (!save_player()) msg_print("death save failed!");
 #endif
@@ -6544,10 +6499,6 @@ if (!save_player()) msg_print("¥»¡¼¥Ö¼ºÇÔ¡ª");
 		{
 			display_scores_aux(0, 10, -1, NULL);
 		}
-#if 0
-		/* Dump bones file */
-		make_bones();
-#endif
 	}
 
 	/* Still alive */

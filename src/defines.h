@@ -37,14 +37,33 @@
  */
 #define VERSION_NAME "TOband2"
 
-/* Savefile version for TOband 0.0.0 and later */
+/*
+ * "Program Version Number" of the game
+ *
+ * FAKE_VER_MAJOR=1,2 were reserved for ZAngband version 1.x.x/2.x.x .
+ *
+ * Program Version of Hengband version is
+ *   "(FAKE_VER_MAJOR-10).(FAKE_VER_MINOR).(FAKE_VER_PATCH)".
+ */
+#define FAKE_VERSION   0
+#define FAKE_VER_MAJOR 2
+#define FAKE_VER_MINOR 7
+#define FAKE_VER_PATCH 0
+
+
+/* Savefile version for TOband2 0.0.0 and later
+ *
+ * First three digits may be same as the Program Version.  But not
+ * always same.  It means that newer version may preserves lower
+ * compatibility with the older version.
+ *
+ * Upper compatibility is always guaranteed.
+ */
 #define T_VER_MAJOR 0
-#define T_VER_MINOR 7
+#define T_VER_MINOR 8
 #define T_VER_PATCH 0
 #define T_VER_EXTRA 0
 
-/* Added for ZAngband (now used for TOband) */
-#define FAKE_VERSION   0
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -112,6 +131,7 @@
 
 #define quest_is_fixed(Q_IDX) (((Q_IDX) < MIN_RANDOM_QUEST) || ((Q_IDX) > MAX_RANDOM_QUEST_ASTRAL))
 
+#define QUEST_GUNNER         3
 #define QUEST_LANCELOT       8
 #define QUEST_DOLGARUA       9
 #define QUEST_DEATH         13
@@ -172,11 +192,6 @@
  * Maximum number of player "sex" types (see "table.c", etc)
  */
 #define MAX_SEXES            2
-
-/*
- * Maximum number of player "class" types (see "table.c", etc)
- */
-#define MAX_CLASS            34
 
 /*
  * Maximum amount of starting equipment
@@ -657,6 +672,18 @@
 
 
 /*
+ * Mode constant for do_spell()
+ */
+#define SPELL_NAME   0
+#define SPELL_DESC   1
+#define SPELL_INFO   2
+#define SPELL_CAST   3
+#define SPELL_FAIL   4
+#define SPELL_STOP   5
+#define SPELL_CONT   6
+
+
+/*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
  * slot, which can hold an item, but only temporarily, since it causes the
  * pack to "overflow", dropping the "last" item onto the ground.  Since this
@@ -746,11 +773,6 @@
 #define RACE_TYPE_MALE           1
 #define RACE_TYPE_FEMALE         2
 
-/*
- * Maximum number of player "race" types (see "table.c", etc)
- */
-#define MAX_RACES               11
-
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -789,10 +811,17 @@
 #define CLASS_VAMPIRE           31
 #define CLASS_MEDIUM            32
 #define CLASS_SUCCUBUS          33
+#define CLASS_GRAPPLER          34
+#define CLASS_ELEMENTALER       35
+
+#define MAX_CLASS               36
+
+
 
 #define CLASS_CHOOSE_MODE_NORMAL 0
 #define CLASS_CHOOSE_MODE_BIRTH  1
 #define CLASS_CHOOSE_MODE_DEATH  2
+#define CLASS_CHOOSE_MODE_BLDGS  3
 
 /*
  * Player race flags
@@ -827,10 +856,8 @@
 #define PCF_ALIEN         0x00004000
 #define PCF_SEE_DARK_GRID 0x00008000
 #define PCF_REALM_ELEM_1  0x00010000
+#define PCF_MONK_ARMOUR   0x00020000
 
-
-#define PCF_ALIGN_ANY     (PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC)
-#define PCF_SEX_ANY       (PCF_SEX_MALE | PCF_SEX_FEMALE)
 
 /*** Screen Locations ***/
 
@@ -1323,14 +1350,14 @@
 #define EGO_LITE                32
 #define EGO_TELEPATHY           33
 #define EGO_REGENERATION        34
-#define EGO_TELEPORTATION       35
-#define EGO_STUPIDITY           36
-#define EGO_NAIVETY             37
-#define EGO_UGLINESS            38
+#define EGO_CLAIRVOYANCE        35
 #define EGO_BALDAR_HELM        244
 
 /* Cloaks */
 #define EGO_NO_ELEM             26
+#define EGO_SAINT               36
+#define EGO_SATAN               37
+#define EGO_GUARDIAN            38
 #define EGO_OPPOSE_ACID         39
 #define EGO_PROTECTION          40
 #define EGO_STEALTH             41
@@ -1351,8 +1378,8 @@
 #define EGO_DARK_K              51
 #define EGO_ASSASIN             52
 #define EGO_MAGIC_MASTERY       53
-#define EGO_WEAKNESS            54
-#define EGO_CLUMSINESS          55
+#define EGO_HERMIT              54
+#define EGO_TEMPERANCE          55
 #define EGO_BALDAR_GLOVES      245
 
 /* Boots */
@@ -1361,9 +1388,9 @@
 #define EGO_MOTION              58
 #define EGO_SPEED               59
 #define EGO_WARP                60
-#define EGO_NOISE               61
-#define EGO_SLOWNESS            62
-#define EGO_ANNOYANCE           63
+#define EGO_SPIKE               61
+#define EGO_RELICS              62
+#define EGO_ICARUS              63
 #define EGO_BALDAR_BOOTS       246
 
 /* Weapons */
@@ -1375,10 +1402,10 @@
 #define EGO_ATTACKS             69
 #define EGO_SLAYING_WEAPON      70
 #define EGO_FORCE_WEAPON        71
-#define EGO_BRAND_ACID          72
-#define EGO_BRAND_ELEC          73
-#define EGO_BRAND_FIRE          74
-#define EGO_BRAND_COLD          75
+#define EGO_BERTHA              72
+#define EGO_HAHNELA             73
+#define EGO_ZOSHONELL           74
+#define EGO_GRUZA               75
 #define EGO_ASSASIN_WEAPON      76
 #define EGO_CHAOTIC             77
 #define EGO_SHARPNESS           78
@@ -1423,7 +1450,8 @@
 #define EGO_FLAME               122
 #define EGO_FROST               123
 #define EGO_WOUNDING            124
-#define EGO_BACKBITING          125
+
+/* Special Broken Items */
 #define EGO_SHATTERED           126
 #define EGO_BLASTED             127
 
@@ -1631,6 +1659,7 @@
 #define TV_FIGURINE      8      /* Magical figurines */
 #define TV_STATUE        9      /* Statue, what a silly object... */
 #define TV_CORPSE       10      /* Corpses and Skeletons, specific */
+#define TV_CHUNK        11      /* Chunks ('`') */
 #define TV_BULLET       13      /* Ammo for pistols */
 #define TV_ROUND        14      /* Ammo for rifles */
 #define TV_SHELL        15      /* Ammo for shotguns */
@@ -1691,14 +1720,17 @@
 #define SV_SILVER_STATUE        5
 #define SV_GOLDEN_STATUE        6
 #define SV_IVORY_STATUE         7
-#define SV_MITHRIL_STATUE       8
 #define SV_ORNATE_STATUE        9
-#define SV_ADAMANTITE_STATUE   10
 #define SV_PHOTO               50
 
 /* The "sval" codes for TV_CORPSE */
 #define SV_SKELETON         0
 #define SV_CORPSE           1
+
+/* The "sval" codes for TV_CHUNK */
+#define SV_CHUNK_IRON           0
+#define SV_CHUNK_MITHRIL        1
+#define SV_CHUNK_ADAMANTITE     2
 
 /* The "sval" codes for TV_BULLET/TV_ROUND/TV_SHELL/TV_ROCKET/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT                    0	/* pebbles */
@@ -2612,7 +2644,6 @@
 #define ACTION_SING     3
 #define ACTION_STEALTH  4
 #define ACTION_ELEMSCOPE 5
-#define ACTION_AURA     6
 
 /*** General index values ***/
 
@@ -2693,76 +2724,78 @@
 #define GF_EDGED            29
 #define GF_MANA             30
 #define GF_METEOR           31
-#define GF_DISINTEGRATE     32
-#define GF_HOLY_FIRE        33
-#define GF_HELL_FIRE        34
-#define GF_GODLY_SPEAR      35
-#define GF_PURE_FIRE        36
-#define GF_PURE_AQUA        37
-#define GF_PURE_EARTH       38
-#define GF_PURE_WIND        39
-#define GF_CAUSE_1          40
-#define GF_CAUSE_2          41
-#define GF_CAUSE_3          42
-#define GF_CAUSE_4          43
-#define GF_HAND_DOOM        44
-#define GF_DEATH_RAY        45
-#define GF_PSI              46
-#define GF_MIND_BLAST       47
-#define GF_BRAIN_SMASH      48
-#define GF_KILL_WALL        49
-#define GF_KILL_DOOR        50
-#define GF_KILL_TRAP        51
-#define GF_MAKE_TRAP        52
-#define GF_MAKE_TREE        53
-#define GF_MAKE_GLYPH       54
-#define GF_OLD_CLONE        55
-#define GF_OLD_POLY         56
-#define GF_OLD_HEAL         57
-#define GF_OLD_SPEED        58
-#define GF_OLD_SLOW         59
-#define GF_OLD_CONF         60
-#define GF_OLD_SLEEP        61
-#define GF_OLD_DRAIN        62
-#define GF_OLD_STONE        63
-#define GF_STAR_HEAL        64
-#define GF_NEW_SLOW         65
-#define GF_NEW_DRAIN        66
-#define GF_STASIS           67
-#define GF_STASIS_EVIL      68
-#define GF_STUN             69
-#define GF_CHARM            70
-#define GF_SILENT           71
-#define GF_CRUSADE          72
-#define GF_AWAY_EVIL        73
-#define GF_AWAY_ALL         74
-#define GF_TURN_ALL         75
-#define GF_DISP_UNDEAD      76
-#define GF_DISP_EVIL        77
-#define GF_DISP_GOOD        78
-#define GF_DISP_ALL         79
-#define GF_CONTROL_UNDEAD   80
-#define GF_CONTROL_ANIMAL   81
-#define GF_CONTROL_BEAST    82
-#define GF_CONTROL_DRAGON   83
-#define GF_GENOCIDE         84
-#define GF_GENOCIDE_UNDEAD  85
-#define GF_DRAIN_MANA       86
-#define GF_ANIM_DEAD        87
-#define GF_ATTACK           88
-#define GF_PHOTO            89
-#define GF_STRIKE_NOVA      90
-#define GF_WORD_OF_PAIN     91
-#define GF_SHINING          92
-#define GF_SPECIAL_STONE    93
-#define GF_DUAL_DRAIN       94
-#define GF_ERASE_ELEM       95
-#define GF_CAVE_TEMP        96
-#define GF_WATER_FLOW       97
-#define GF_CAPTURE          98
-#define GF_DRAIN_SOUL       99
+#define GF_VOLCANIC_BOMB    32
+#define GF_DISINTEGRATE     33
+#define GF_HOLY_FIRE        34
+#define GF_HELL_FIRE        35
+#define GF_GODLY_SPEAR      36
+#define GF_PURE_FIRE        37
+#define GF_PURE_AQUA        38
+#define GF_PURE_EARTH       39
+#define GF_PURE_WIND        40
+#define GF_CAUSE_1          41
+#define GF_CAUSE_2          42
+#define GF_CAUSE_3          43
+#define GF_CAUSE_4          44
+#define GF_HAND_DOOM        45
+#define GF_DEATH_RAY        46
+#define GF_PSI              47
+#define GF_MIND_BLAST       48
+#define GF_BRAIN_SMASH      49
+#define GF_KILL_WALL        50
+#define GF_KILL_DOOR        51
+#define GF_KILL_TRAP        52
+#define GF_MAKE_TRAP        53
+#define GF_MAKE_TREE        54
+#define GF_MAKE_GLYPH       55
+#define GF_OLD_CLONE        56
+#define GF_OLD_POLY         57
+#define GF_OLD_HEAL         58
+#define GF_OLD_SPEED        59
+#define GF_OLD_SLOW         60
+#define GF_OLD_CONF         61
+#define GF_OLD_SLEEP        62
+#define GF_OLD_DRAIN        63
+#define GF_OLD_STONE        64
+#define GF_STAR_HEAL        65
+#define GF_NEW_SLOW         66
+#define GF_NEW_DRAIN        67
+#define GF_STASIS           68
+#define GF_STASIS_EVIL      69
+#define GF_STUN             70
+#define GF_CHARM            71
+#define GF_SILENT           72
+#define GF_CRUSADE          73
+#define GF_AWAY_EVIL        74
+#define GF_AWAY_ALL         75
+#define GF_TURN_ALL         76
+#define GF_DISP_UNDEAD      77
+#define GF_DISP_EVIL        78
+#define GF_DISP_GOOD        79
+#define GF_DISP_ALL         80
+#define GF_CONTROL_UNDEAD   81
+#define GF_CONTROL_ANIMAL   82
+#define GF_CONTROL_BEAST    83
+#define GF_CONTROL_DRAGON   84
+#define GF_GENOCIDE         85
+#define GF_GENOCIDE_UNDEAD  86
+#define GF_DRAIN_MANA       87
+#define GF_ANIM_DEAD        88
+#define GF_ATTACK           89
+#define GF_PHOTO            90
+#define GF_CAPTURE          91
+#define GF_STRIKE_NOVA      92
+#define GF_WORD_OF_PAIN     93
+#define GF_SHINING          94
+#define GF_SPECIAL_STONE    95
+#define GF_DUAL_DRAIN       96
+#define GF_DRAIN_SOUL       97
+#define GF_ERASE_ELEM       98
+#define GF_CAVE_TEMP        99
+#define GF_WATER_FLOW      100
+#define GF_LAVA_FLOW       101
 
-#define MAX_GF              100
+#define MAX_GF             102
 
 /*
  * Some things which induce learning
@@ -3021,7 +3054,7 @@
 #define TR_UNHOLY              73     /* Item is Unholy */
 #define TR_SHOW_MODS           74     /* Always show Tohit/Todam */
 #define TR_SLAY_LIVING         75     /* Slay living */
-#define TR_FEATHER             76     /* Feather Falling */
+#define TR_LEVITATION          76     /* Levitation */
 #define TR_LITE                77     /* Permanent Light */
 #define TR_SEE_INVIS           78     /* See Invisible */
 #define TR_TELEPATHY           79     /* Telepathy */
@@ -4462,11 +4495,14 @@ extern int PlayerUID;
 /*
  * Quest flags
  */
-#define QUEST_FLAG_SILENT    0x01 /* no messages from completion */
-#define QUEST_FLAG_PRESET    0x02 /* quest is outside the main dungeon */
-#define QUEST_FLAG_ONCE      0x04 /* quest is marked finished after leaving */
-#define QUEST_FLAG_NO_RECALL 0x08 /* no "recall" spells are allowed */
-#define QUEST_FLAG_GUARDIAN  0x10 /* quest is "guardian" type (without rewarding) */
+#define QUEST_FLAG_SILENT        0x01 /* no messages from completion */
+#define QUEST_FLAG_PRESET        0x02 /* quest is outside the main dungeon */
+#define QUEST_FLAG_ONCE          0x04 /* quest is marked finished after leaving */
+#define QUEST_FLAG_NO_RECALL     0x08 /* no "recall" spells are allowed */
+#define QUEST_FLAG_GUARDIAN      0x10 /* quest is "guardian" type (without rewarding) */
+#define QUEST_FLAG_NO_ETHNICITY  0x20 /* quest is no effect to chaos frame */
+#define QUEST_FLAG_ALI_CHAOS     0x40 /* change alignment to chaos */
+#define QUEST_FLAG_ALI_EVIL      0x80 /* change alignment to evil */
 
 /*
  * Available graphic modes
@@ -4770,9 +4806,6 @@ extern int PlayerUID;
 
 #define MAGIC_GLOVE_REDUCE_MANA 0x0001
 #define MAGIC_FAIL_5PERCENT     0x0002
-
-#define SPELL_DD_WIND    8
-#define SPELL_DD_WITCH  24
 
 /*
  * Music songs
@@ -5203,4 +5236,24 @@ extern int PlayerUID;
 #define MON_OPPOSITE_ELEM(M_PTR) ((M_PTR)->mtimed[MTIMED_OPPOSITE_ELEM])
 #define MON_SILENT(M_PTR)  ((M_PTR)->mtimed[MTIMED_SILENT])
 #define MON_INVULNER(M_PTR) ((M_PTR)->mtimed[MTIMED_INVULNER])
+
+
+#define MAX_ELEMENT_POWERS 13
+
+#define ELEM_USE_NONE      0x0000
+#define ELEM_USE_SELF      0x0001
+#define ELEM_USE_FIRE      0x0002
+#define ELEM_USE_AQUA      0x0004
+#define ELEM_USE_EARTH     0x0008
+#define ELEM_USE_WIND      0x0010
+#define ELEM_EFFECT_OPPOSE 0x0020
+
+#define EFFECT_NONE        0x0000
+#define EFFECT_SUNNY       0x0001
+#define EFFECT_RAINY       0x0002
+#define EFFECT_CALM        0x0004
+#define EFFECT_WIND        0x0008
+#define EFFECT_COLD        0x0010
+#define EFFECT_HOT         0x0020
+
 

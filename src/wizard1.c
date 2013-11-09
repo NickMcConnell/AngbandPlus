@@ -238,6 +238,7 @@ static grouper group_item[] =
 	{ TV_FIGURINE,      "Magical Figurines" },
 	{ TV_STATUE,        "Statues" },
 	{ TV_CORPSE,        "Corpses" },
+	{ TV_CHUNK,         "Chunks" },
 
 #ifdef JP
 	{ TV_SPIKE,         "くさび" },
@@ -851,7 +852,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR_SH_COLD,            "冷気オーラ" },
 	{ TR_NO_TELE,            "反テレポート" },
 	{ TR_NO_MAGIC,           "反魔法バリア" },
-	{ TR_FEATHER,            "浮遊" },
+	{ TR_LEVITATION,         "浮遊" },
 	{ TR_SEE_INVIS,          "可視透明" },
 	{ TR_TELEPATHY,          "テレパシー" },
 	{ TR_SLOW_DIGEST,        "遅消化" },
@@ -876,7 +877,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR_SH_COLD,            "Coldly Aura" },
 	{ TR_NO_TELE,            "Prevent Teleportation" },
 	{ TR_NO_MAGIC,           "Anti-Magic" },
-	{ TR_FEATHER,            "Levitation" },
+	{ TR_LEVITATION,         "Levitation" },
 	{ TR_SEE_INVIS,          "See Invisible" },
 	{ TR_TELEPATHY,          "ESP" },
 	{ TR_SLOW_DIGEST,        "Slow Digestion" },

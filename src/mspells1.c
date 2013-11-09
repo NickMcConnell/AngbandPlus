@@ -1712,6 +1712,8 @@ bool make_attack_spell(int m_idx)
 
 	bool mon_anti_magic = (MON_SILENT(m_ptr) || m_ptr->silent_song);
 
+	bool can_use_lite_area = FALSE;
+
 	/* Cannot cast spells when confused */
 	if (MON_CONFUSED(m_ptr))
 	{
@@ -1764,9 +1766,17 @@ bool make_attack_spell(int m_idx)
 	{
 		f5 &= ~(RF5_DRAIN_MANA);
 	}
-	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
+
+	if (f6 & RF6_DARKNESS)
 	{
-		f6 &= ~(RF6_DARKNESS);
+		if ((p_ptr->pclass == CLASS_VAMPIRE) &&
+		    !(r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
+			can_use_lite_area = TRUE;
+
+		if (!(r_ptr->flags2 & RF2_STUPID))
+		{
+			if ((p_ptr->pclass == CLASS_VAMPIRE) && !can_use_lite_area) f6 &= ~(RF6_DARKNESS);
+		}
 	}
 
 	if (mon_anti_magic && !(r_ptr->flags2 & RF2_STUPID))
@@ -4159,18 +4169,15 @@ bool make_attack_spell(int m_idx)
 #endif
 
 #ifdef JP
-			else if ((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) msg_format("%^sが辺りを明るく照らした。", m_name);
+			else if (can_use_lite_area) msg_format("%^sが辺りを明るく照らした。", m_name);
 			else msg_format("%^sが暗闇の中で手を振った。", m_name);
 #else
-			else if ((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER))
-				msg_format("%^s cast a spell to light up.", m_name);
+			else if (can_use_lite_area) msg_format("%^s cast a spell to light up.", m_name);
 			else msg_format("%^s gestures in shadow.", m_name);
 #endif
 
-			if ((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER))
-				(void)lite_area(0, 3);
-			else
-				(void)unlite_area(0, 3);
+			if (can_use_lite_area) (void)lite_area(0, 3);
+			else (void)unlite_area(0, 3);
 			break;
 		}
 
@@ -4256,7 +4263,7 @@ bool make_attack_spell(int m_idx)
 			else
 				msg_format("%^sは魔法で%sを召喚した。",
 				m_name,
-				((r_ptr->flags1) & RF1_UNIQUE ?
+				((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) ?
 				"手下" : "仲間"));
 #else
 			if (blind)
@@ -4264,7 +4271,7 @@ bool make_attack_spell(int m_idx)
 			else
 				msg_format("%^s magically summons %s %s.",
 				m_name, m_poss,
-				((r_ptr->flags1) & RF1_UNIQUE ?
+				((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) ?
 				"minions" : "kin"));
 #endif
 

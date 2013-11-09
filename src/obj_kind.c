@@ -463,6 +463,7 @@ bool object_is_metal(object_type *o_ptr)
 
 	switch (o_ptr->tval)
 	{
+	case TV_CHUNK:
 	case TV_SPIKE:
 	case TV_BULLET:
 	case TV_ROUND:
@@ -506,8 +507,6 @@ bool object_is_metal(object_type *o_ptr)
 		case SV_COPPER_STATUE:
 		case SV_SILVER_STATUE:
 		case SV_GOLDEN_STATUE:
-		case SV_MITHRIL_STATUE:
-		case SV_ADAMANTITE_STATUE:
 			return TRUE;
 		}
 		break;

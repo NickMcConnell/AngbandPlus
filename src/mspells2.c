@@ -236,6 +236,8 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 	int  do_disi_type = DO_DISI_TYPE_NONE;
 
+	bool can_use_lite_area = FALSE;
+
 	bool resists_tele = FALSE;
 
 	/* Prepare flags for summoning */
@@ -534,6 +536,19 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 				}
 			}
 		} /* if (pet) */
+
+		if (f6 & RF6_DARKNESS)
+		{
+			bool vs_vampire = (p_ptr->pclass == CLASS_VAMPIRE) && !is_hostile(t_ptr);
+		
+			if (vs_vampire && !(r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
+				can_use_lite_area = TRUE;
+
+			if (!(r_ptr->flags2 & RF2_STUPID))
+			{
+				if (vs_vampire && !can_use_lite_area) f6 &= ~(RF6_DARKNESS);
+			}
+		}
 
 		if (mon_anti_magic && !(r_ptr->flags2 & RF2_STUPID))
 		{
@@ -3890,73 +3905,46 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			case 160+12:
 			{
 				if ((x != fx) || (y != fy)) return FALSE;
-				if (!target_is_decoy || ((p_ptr->pclass != CLASS_NINJA) && (p_ptr->pclass != CLASS_NINJAMASTER)))
+				if (known)
 				{
-					if (known)
+					if (see_m)
 					{
-						if (see_m)
-						{
 #ifdef JP
-							msg_format("%^sが暗闇の中で手を振った。", m_name);
+						if (!target_is_decoy || !can_use_lite_area) msg_format("%^sが暗闇の中で手を振った。", m_name);
+						else msg_format("%^sが辺りを明るく照らした。", m_name);
 #else
-							msg_format("%^s gestures in shadow.", m_name);
+						if (!target_is_decoy || !can_use_lite_area) msg_format("%^s gestures in shadow.", m_name);
+						else msg_format("%^s cast a spell to light up.", m_name);
 #endif
 
-
-							if (see_t)
-							{
+						if (see_t)
+						{
 #ifdef JP
-								msg_format("%^sは暗闇に包まれた。", t_name);
+							if (!target_is_decoy || !can_use_lite_area) msg_format("%^sは暗闇に包まれた。", t_name);
+							else msg_format("%^sは白い光に包まれた。", t_name);
 #else
-								msg_format("%^s is surrounded by darkness.", t_name);
+							if (!target_is_decoy || !can_use_lite_area) msg_format("%^s is surrounded by darkness.", t_name);
+							else msg_format("%^s is surrounded by a white light.", t_name);
 #endif
 
-							}
-						}
-						else
-						{
-							mon_fight = TRUE;
 						}
 					}
+					else
+					{
+						mon_fight = TRUE;
+					}
+				}
 
+				if (!target_is_decoy || !can_use_lite_area)
+				{
 					(void)project(m_idx, 3, y, x, 0, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL | PROJECT_MONSTER, MODIFY_ELEM_MODE_MAGIC);
-
 					unlite_room(y, x);
 				}
-				else /* Decoy of Ninja */
+				else
 				{
-					if (known)
-					{
-						if (see_m)
-						{
-#ifdef JP
-							msg_format("%^sが辺りを明るく照らした。", m_name);
-#else
-							msg_format("%^s cast a spell to light up.", m_name);
-#endif
-
-
-							if (see_t)
-							{
-#ifdef JP
-								msg_format("%^sは光に包まれた。", t_name);
-#else
-								msg_format("%^s is surrounded by light.", t_name);
-#endif
-
-							}
-						}
-						else
-						{
-							mon_fight = TRUE;
-						}
-					}
-
 					(void)project(m_idx, 3, y, x, 0, GF_LITE_WEAK, PROJECT_GRID | PROJECT_KILL | PROJECT_MONSTER, MODIFY_ELEM_MODE_MAGIC);
-
 					lite_room(y, x);
 				}
-
 				break;
 			}
 
@@ -4039,10 +4027,10 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 #ifdef JP
 						msg_format("%sが魔法で%sを召喚した。", m_name,
-								  ((r_ptr->flags1 & RF1_UNIQUE) ? "手下" : "仲間"));
+						((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) ? "手下" : "仲間"));
 #else
 						msg_format("%^s magically summons %s %s.", m_name, m_poss,
-								  ((r_ptr->flags1 & RF1_UNIQUE) ? "minions" : "kin"));
+						((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) ? "minions" : "kin"));
 #endif
 
 					}

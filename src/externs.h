@@ -98,7 +98,6 @@ extern weather_type weather_table[WEATHER_TYPE_NUM][WEATHER_LEVEL_NUM];
 extern cptr ethnicity_names[ETHNICITY_NUM];
 extern special_blow_type special_blow_info[MAX_SB];
 extern special_blow_type temple_blow_info[MAX_TEMPLE_SB];
-extern cptr wt_desc[];
 extern tarot_type tarot_info[];
 extern scratch_card_type scratch_card_info[];
 extern int a_to_tr[A_MAX];
@@ -730,7 +729,6 @@ extern void do_cmd_give_money(void);
 /* cmd5.c */
 extern cptr spell_categoly_name(int tval);
 extern void do_cmd_browse(void);
-extern void stop_singing(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern bool rakuba(int dam, bool force);
@@ -750,6 +748,10 @@ extern void do_cmd_zap_rod(void);
 extern void do_cmd_activate(void);
 extern void ring_of_power(int dir);
 extern void do_cmd_use(void);
+
+/* do-spell.c */
+extern void stop_singing(void);
+extern cptr do_spell(int realm, int spell, int mode);
 
 /* dungeon.c */
 extern void sense_floor_object(int o_idx);
@@ -807,7 +809,7 @@ extern void construct_bonus_list(object_type *o_ptr, bonus_list_type bonus_list[
 extern void object_desc(char *buf, object_type *o_ptr, u32b mode);
 
 /* floors.c */
-extern void init_saved_floors(void);
+extern void init_saved_floors(bool force);
 extern void clear_saved_floor_files(void);
 extern saved_floor_type *get_sf_ptr(s16b floor_id);
 extern s16b get_new_floor_id(void);
@@ -966,6 +968,7 @@ extern s32b object_value_real(object_type *o_ptr);
 extern bool can_player_destroy_object(object_type *o_ptr);
 extern void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt);
 extern void reduce_charges(object_type *o_ptr, int amt);
+extern int object_similar_part(object_type *o_ptr, object_type *j_ptr);
 extern bool object_similar(object_type *o_ptr, object_type *j_ptr);
 extern void object_absorb(object_type *o_ptr, object_type *j_ptr);
 extern s16b lookup_kind(int tval, int sval);
@@ -995,6 +998,7 @@ extern void floor_item_describe(int item);
 extern void floor_item_increase(int item, int num);
 extern void floor_item_optimize(int item);
 extern bool inven_carry_okay(object_type *o_ptr);
+extern bool object_sort_comp(object_type *o_ptr, s32b o_value, object_type *j_ptr);
 extern s16b inven_carry(object_type *o_ptr);
 extern s16b inven_takeoff(int item, int amt);
 extern void inven_drop(int item, int amt);
@@ -1048,6 +1052,7 @@ extern bool speed_monsters(int plev);
 extern bool slow_monsters(int plev);
 extern bool sleep_monsters(int plev);
 extern void aggravate_monsters(int who);
+extern bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spell_name);
 extern bool symbol_genocide(int power, int player_cast);
 extern bool mass_genocide(int power, int player_cast);
 extern bool mass_genocide_undead(int power, int player_cast);
@@ -1133,6 +1138,7 @@ extern bool mermaid_water_flow(void);
 extern void song_of_silence(int dam);
 extern void song_of_temptation(void);
 extern void knock_back(int who, int y, int x, int base_dam);
+extern int mod_element_damage(int dam, int rad, u32b use_element, u32b weather_effect);
 
 /* spells3.c */
 extern bool teleport_away(int m_idx, int dis);
@@ -1205,6 +1211,7 @@ extern bool ego_creation_scroll(void);
 extern bool get_energy_from_corpse(void);
 
 /* store.c */
+extern bool combine_and_reorder_home(int store_num);
 extern void do_cmd_store(void);
 extern void store_shuffle(int which);
 extern void store_maint(int town_num, int store_num);
@@ -1340,6 +1347,7 @@ extern bool set_tim_sh_fire(int v, bool do_dec);
 extern bool set_tim_sh_elec(int v, bool do_dec);
 extern bool set_tim_sh_cold(int v, bool do_dec);
 extern bool set_tim_sh_holy(int v, bool do_dec);
+extern bool set_tim_sh_aura(int v, bool do_dec);
 extern bool set_tim_eyeeye(int v, bool do_dec);
 extern bool set_tim_inc_blow(int v, bool do_dec);
 extern bool set_tim_dec_blow(int v, bool do_dec);
@@ -1490,13 +1498,6 @@ extern bool mutation_power_aux(u32b power);
 extern void user_name(char *buf, int id);
 #endif
 
-#if 0
-#ifndef HAS_STRICMP
-/* util.c */
-extern int stricmp(cptr a, cptr b);
-#endif
-#endif
-
 #ifndef HAVE_USLEEP
 /* util.c */
 extern int usleep(huge usecs);
@@ -1594,4 +1595,8 @@ extern bool iskanji2(cptr s, int x);
 
 /* report.c */
 extern cptr make_screen_dump(void);
+
+/* element.c */
+extern void do_cmd_element(void);
+extern void do_cmd_element_browse(void);
 

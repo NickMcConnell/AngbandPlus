@@ -1528,7 +1528,7 @@ static void roff_aux(int r_idx, int mode)
 
 	if (flags6 & (RF6_DARKNESS))
 	{
-		if (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE))
+		if ((p_ptr->pclass != CLASS_VAMPIRE) || (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
 		{
 #ifdef JP
 			vp[vn] =  "°Å°Ç"; color[vn++] = TERM_L_DARK;

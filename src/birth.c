@@ -527,7 +527,7 @@ static void player_wipe(void)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
-	p_ptr->infected = FALSE;
+	p_ptr->infected = 0;
 
 	/* Clean the mutation count */
 	mutant_regenerate_mod = 100;
@@ -578,6 +578,12 @@ static void player_wipe(void)
 	misc_event_flags = 0L;
 
 	ambush_flag = FALSE;
+
+	p_ptr->max_max_dlv = 0;
+	p_ptr->max_dlv_mult = 0;
+	p_ptr->winner_mult = 0;
+	p_ptr->ogre_mult = 0;
+
 }
 
 
@@ -1064,9 +1070,9 @@ static void race_aux_hook(int race)
 	sprintf(s, "ÀÖ³°Àþ»ëÎÏ: %d ft ", race_info[race].infra * 10);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
 #else
-	sprintf(s, "Hit die: %d ", race_info[race].r_mhp);
+	sprintf(s, "Hit die: %ld ", race_info[race].r_mhp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "Mana die: %d ", race_info[race].r_msp);
+	sprintf(s, "Mana die: %ld ", race_info[race].r_msp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 	sprintf(s, "Experience: %d%% ", race_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
@@ -2194,20 +2200,24 @@ void dump_yourself(FILE *fff)
 
 	if (!fff) return;
 
-	roff_to_buf(p_text + race_info[p_ptr->prace].text, 78, temp, sizeof temp);
-	fprintf(fff, "\n\n");
-#ifdef JP
-	fprintf(fff, "¼ïÂ²: %s\n", p_name + race_info[p_ptr->prace].name);
-#else
-	fprintf(fff, "Race: %s\n", p_name + race_info[p_ptr->prace].name);
-#endif
-	t = temp;
-	for (i = 0; i < 10; i++)
+	if (!(cp_ptr->c_flags & PCF_REINCARNATE))
 	{
-		if (t[0] == 0) break;
-		fprintf(fff, "%s\n",t);
-		t += strlen(t) + 1;
+		roff_to_buf(p_text + race_info[p_ptr->prace].text, 78, temp, sizeof temp);
+		fprintf(fff, "\n\n");
+#ifdef JP
+		fprintf(fff, "¼ïÂ²: %s\n", p_name + race_info[p_ptr->prace].name);
+#else
+		fprintf(fff, "Race: %s\n", p_name + race_info[p_ptr->prace].name);
+#endif
+		t = temp;
+		for (i = 0; i < 10; i++)
+		{
+			if (t[0] == 0) break;
+			fprintf(fff, "%s\n",t);
+			t += strlen(t) + 1;
+		}
 	}
+
 	roff_to_buf(c_text + class_info[p_ptr->pclass].text, 78, temp, sizeof temp);
 	fprintf(fff, "\n");
 #ifdef JP
@@ -2273,7 +2283,7 @@ void dump_yourself(FILE *fff)
 				fprintf(fff, "ÂÐ¾ÝÉð´ï:");
 				for (j = 1; j <= MAX_WT; j++)
 				{
-					if (weapon_type_bit(j) & sb_ptr->weapon_type) fprintf(fff, " %s", wt_desc[j]);
+					if (weapon_type_bit(j) & sb_ptr->weapon_type) fprintf(fff, " %s", weapon_skill_name[j]);
 				}
 				fprintf(fff, "\n");
 				t = temp;

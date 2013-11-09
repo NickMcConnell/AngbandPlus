@@ -1078,7 +1078,11 @@ void py_pickup_aux(int o_idx)
 #endif
 
 			msg_print(NULL);
-			if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
+			if (quest_is_fixed(i) && !(quest[i].flags & QUEST_FLAG_ALI_CHAOS)) change_your_alignment(ALI_LNC, 10);
+			else change_your_alignment(ALI_LNC, -10);
+
+			if (quest[i].flags & QUEST_FLAG_ALI_EVIL) change_your_alignment(ALI_GNE, -10);
+			else change_your_alignment(ALI_GNE, 10);
 		}
 	}
 
@@ -2339,7 +2343,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			object_flags(o_ptr, flgs);
 
-			if ((p_ptr->action == ACTION_AURA) && (o_ptr->tval == TV_SWORD))
+			if ((p_ptr->tim_sh_aura) && (o_ptr->tval == TV_SWORD))
 			{
 				/* Extract flags and store */
 				player_flags(p_ptr->flags);
@@ -2350,14 +2354,14 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			vorpal_chance = have_flag(flgs, TR_EXTRA_VORPAL) ? 2 : 4;
 
-			if (have_flag(flgs, TR_BLESSED) && (r_ptr->flags3 & RF3_EVIL))
+			if (have_flag(flgs, TR_BLESSED) && (r_ptr->flags3 & RF3_EVIL) && one_in_(2))
 				change_your_alignment(ALI_GNE, 1);
-			else if (have_flag(flgs, TR_BLESSED) && one_in_(3))
+			else if (have_flag(flgs, TR_BLESSED) && one_in_(7))
 				change_your_alignment(ALI_GNE, 1);
 
-			if (have_flag(flgs, TR_UNHOLY) && (r_ptr->flags3 & RF3_GOOD))
+			if (have_flag(flgs, TR_UNHOLY) && (r_ptr->flags3 & RF3_GOOD) && one_in_(2))
 				change_your_alignment(ALI_GNE, -1);
-			else if (have_flag(flgs, TR_UNHOLY) && one_in_(3))
+			else if (have_flag(flgs, TR_UNHOLY) && one_in_(7))
 				change_your_alignment(ALI_GNE, -1);
 
 			/* Select a chaotic effect (50% chance) */
@@ -4170,7 +4174,11 @@ void move_player(int dir, int do_pickup)
 #endif
 
 				msg_print(NULL);
-				if (quest_is_fixed(p_ptr->inside_quest)) change_your_alignment(ALI_LNC, 10);
+				if (quest_is_fixed(p_ptr->inside_quest) && !(quest[p_ptr->inside_quest].flags & QUEST_FLAG_ALI_CHAOS)) change_your_alignment(ALI_LNC, 10);
+				else change_your_alignment(ALI_LNC, -10);
+
+				if (quest[p_ptr->inside_quest].flags & QUEST_FLAG_ALI_EVIL) change_your_alignment(ALI_GNE, -10);
+				else change_your_alignment(ALI_GNE, 10);
 			}
 
 			leave_quest_check();

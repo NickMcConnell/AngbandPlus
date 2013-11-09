@@ -5,8 +5,8 @@ Q:$16:N:Assault on Montsalvat
 Q:16:N:¥â¥ó¥µ¥ë¥ô¥¡¥È¾ë¤Ø¤Î¿¯¹¶
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:$16:Q:6:0:0:0:50:0:0:0:6
-Q:16:Q:6:0:0:0:50:0:0:0:6
+Q:$16:Q:6:0:0:0:50:0:0:0:166
+Q:16:Q:6:0:0:0:50:0:0:0:166
 
 # Description for quest
 ?:[LEQ $QUEST16 2]

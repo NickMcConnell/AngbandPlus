@@ -279,32 +279,33 @@ static void prt_stat(int stat)
 #define BAR_SHELEC        32
 #define BAR_SHCOLD        33
 #define BAR_SHHOLY        34
-#define BAR_EYEEYE        35
-#define BAR_BLESSED       36
-#define BAR_HEROISM       37
-#define BAR_BERSERK       38
-#define BAR_ATTKEVIL      39
-#define BAR_ATTKFIRE      40
-#define BAR_ATTKCOLD      41
-#define BAR_ATTKELEC      42
-#define BAR_ATTKACID      43
-#define BAR_ATTKPOIS      44
-#define BAR_ATTKCONF      45
-#define BAR_SENSEUNSEEN   46
-#define BAR_TELEPATHY     47
-#define BAR_INFRAVISION   48
-#define BAR_RECALL        49
-#define BAR_ALTER         50
-#define BAR_INH_FLOOD     51
-#define BAR_REVERTED      52
-#define BAR_CHARGESPELL   53
-#define BAR_EARTHSPIKE    54
-#define BAR_WINDGUARD     55
-#define BAR_RESURRECTION  56
-#define BAR_INC_BLOW      57
-#define BAR_DEC_BLOW      58
-#define BAR_ZOSHONEL      59
-#define BAR_MERMAID       60
+#define BAR_SHAURA        35
+#define BAR_EYEEYE        36
+#define BAR_BLESSED       37
+#define BAR_HEROISM       38
+#define BAR_BERSERK       39
+#define BAR_ATTKEVIL      40
+#define BAR_ATTKFIRE      41
+#define BAR_ATTKCOLD      42
+#define BAR_ATTKELEC      43
+#define BAR_ATTKACID      44
+#define BAR_ATTKPOIS      45
+#define BAR_ATTKCONF      46
+#define BAR_SENSEUNSEEN   47
+#define BAR_TELEPATHY     48
+#define BAR_INFRAVISION   49
+#define BAR_RECALL        50
+#define BAR_ALTER         51
+#define BAR_INH_FLOOD     52
+#define BAR_REVERTED      53
+#define BAR_CHARGESPELL   54
+#define BAR_EARTHSPIKE    55
+#define BAR_WINDGUARD     56
+#define BAR_RESURRECTION  57
+#define BAR_INC_BLOW      58
+#define BAR_DEC_BLOW      59
+#define BAR_ZOSHONEL      60
+#define BAR_MERMAID       61
 
 
 static struct {
@@ -349,6 +350,7 @@ static struct {
 	{TERM_L_BLUE, "¥ª", "ÅÅ¥ª¡¼¥é"},
 	{TERM_WHITE, "¥ª", "Îä¥ª¡¼¥é"},
 	{TERM_WHITE, "À»", "À»¥ª¡¼¥é"},
+	{TERM_WHITE, "Æ®", "Æ®µ¤"},
 	{TERM_VIOLET, "ÌÜ", "ÌÜ¤Ë¤ÏÌÜ"},
 	{TERM_WHITE, "½Ë", "½ËÊ¡"},
 	{TERM_WHITE, "Í¦", "Í¦"},
@@ -414,6 +416,7 @@ static struct {
 	{TERM_L_BLUE, "SEl", "SElec"},
 	{TERM_WHITE, "SCo", "SCold"},
 	{TERM_WHITE, "Ho", "Holy"},
+	{TERM_WHITE, "SAu", "SAura"},
 	{TERM_VIOLET, "Ee", "EyeEye"},
 	{TERM_WHITE, "Bs", "Bless"},
 	{TERM_WHITE, "He", "Hero"},
@@ -579,6 +582,9 @@ static void prt_status(void)
 
 	/* Holy aura */
 	if (p_ptr->tim_sh_holy) ADD_FLG(BAR_SHHOLY);
+
+	/* Holy aura */
+	if (p_ptr->tim_sh_aura) ADD_FLG(BAR_SHAURA);
 
 	/* An Eye for an Eye */
 	if (p_ptr->tim_eyeeye) ADD_FLG(BAR_EYEEYE);
@@ -1321,15 +1327,6 @@ static void prt_state(void)
 #endif
 				break;
 			}
-			case ACTION_AURA:
-			{
-#ifdef JP
-				strcpy(text, "Æ®µ¤");
-#else
-				strcpy(text, "Aura");
-#endif
-				break;
-			}
 			default:
 			{
 				strcpy(text, "    ");
@@ -1591,7 +1588,7 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	if (!(cp_ptr->c_flags & PCF_REINCARNATE) && (p_ptr->pclass != CLASS_SUCCUBUS))
+	if (!(cp_ptr->c_flags & PCF_REINCARNATE))
 	{
 		char str[14];
 		my_strcpy(str, p_name + rp_ptr->name, sizeof(str));
@@ -2216,7 +2213,7 @@ static void calc_hitpoints(void)
 
 	if (p_ptr->ogre_equip) mhp *= 5;
 	if (p_ptr->zoshonel_protect) mhp = mhp * 6 / 5;
-	if (p_ptr->action == ACTION_AURA) mhp = mhp * 6 / 5;
+	if (p_ptr->tim_sh_aura) mhp = mhp * 6 / 5;
 
 	mhp += bonus;
 
@@ -2477,17 +2474,13 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
 	case CLASS_DRAGOON:
 		if (cexp_ptr->clev > 24) add_flag(flgs, TR_KILL_DRAGON);
 		break;
-	case CLASS_NINJA:
-	case CLASS_NINJAMASTER:
-		if (heavy_armor()) add_flag(flgs, TR_SPEED);
-		break;
 	case CLASS_EXORCIST:
 		if (cexp_ptr->clev > 9) add_flag(flgs, TR_SLAY_DEMON);
 		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SLAY_EVIL);
 		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_FEAR);
 		break;
 	case CLASS_WITCH:
-		if (cexp_ptr->clev > 9) add_flag(flgs, TR_FEATHER);
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_LEVITATION);
 		break;
 	case CLASS_ANGELKNIGHT:
 		if (cexp_ptr->clev > 9) add_flag(flgs, TR_RES_FEAR);
@@ -2500,7 +2493,7 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
 		if (cexp_ptr->clev > 39) add_flag(flgs, TR_DEC_MANA);
 		break;
 	case CLASS_LORD:
-		if (p_ptr->action == ACTION_AURA)
+		if (p_ptr->tim_sh_aura)
 		{
 			add_flag(flgs, TR_LITE);
 			add_flag(flgs, TR_REGEN);
@@ -2533,9 +2526,38 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
 		}
 		else if (cexp_ptr->clev < 40) add_flag(flgs, TR_SPEED);
 		break;
+	case CLASS_ELEMENTALER:
+	{
+		switch (get_cur_pelem())
+		{
+			case ELEM_FIRE:
+				add_flag(flgs, TR_RES_FIRE);
+				if (cexp_ptr->clev > 14) add_flag(flgs, TR_BRAND_FIRE);
+				if (cexp_ptr->clev > 29) add_flag(flgs, TR_IM_FIRE);
+				break;
+			case ELEM_AQUA:
+				add_flag(flgs, TR_RES_COLD);
+				if (cexp_ptr->clev > 14) add_flag(flgs, TR_BRAND_COLD);
+				if (cexp_ptr->clev > 29) add_flag(flgs, TR_IM_COLD);
+				break;
+			case ELEM_EARTH:
+				add_flag(flgs, TR_RES_ACID);
+				if (cexp_ptr->clev > 14) add_flag(flgs, TR_BRAND_ACID);
+				if (cexp_ptr->clev > 29) add_flag(flgs, TR_IM_ACID);
+				break;
+			case ELEM_WIND:
+				add_flag(flgs, TR_RES_ELEC);
+				if (cexp_ptr->clev > 14) add_flag(flgs, TR_BRAND_ELEC);
+				if (cexp_ptr->clev > 29) add_flag(flgs, TR_IM_ELEC);
+				break;
+		}
+		break;
+	}
 	default:
 		break; /* Do nothing */
 	}
+
+	if ((cp_ptr->c_flags & PCF_MONK_ARMOUR) && heavy_armor()) add_flag(flgs, TR_SPEED);
 
 	/* Class Master get Flag - Terror-Knight */
 	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].clev > 34)
@@ -2560,7 +2582,7 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (p_ptr->cexp_info[CLASS_EXORCIST].clev > 19) add_flag(flgs, TR_SLAY_UNDEAD);
 
 	/* Class Master get Flag - Witch */
-	if (p_ptr->cexp_info[CLASS_WITCH].clev > 29) add_flag(flgs, TR_FEATHER);
+	if (p_ptr->cexp_info[CLASS_WITCH].clev > 29) add_flag(flgs, TR_LEVITATION);
 
 	/* Races */
 	switch (p_ptr->prace)
@@ -2619,7 +2641,7 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
 
 		if (p_ptr->muta3 & MUT3_WINGS)
 		{
-			add_flag(flgs, TR_FEATHER);
+			add_flag(flgs, TR_LEVITATION);
 		}
 
 		if (p_ptr->muta3 & MUT3_FEARLESS)
@@ -2685,7 +2707,7 @@ void calc_bonuses(void)
 	int             old_dis_to_a;
 	int             extra_blows[2];
 	int             extra_shots;
-	object_type     *o_ptr;
+	object_type     *o_ptr = NULL;
 	object_kind     *k_ptr;
 	u32b            flgs[TR_FLAG_SIZE];
 	bool            omoi = FALSE;
@@ -2829,6 +2851,10 @@ void calc_bonuses(void)
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
 
+	p_ptr->immune_holy = FALSE;
+	p_ptr->immune_evil = FALSE;
+	p_ptr->resist_all = FALSE;
+
 	p_ptr->ryoute = FALSE;
 	p_ptr->migite = FALSE;
 	p_ptr->hidarite = FALSE;
@@ -2839,7 +2865,6 @@ void calc_bonuses(void)
 
 	/* Initialize alignment (GNE) */
 	p_ptr->align[ALI_GNE] = p_ptr->align_self[ALI_GNE] + friend_align_gne;
-	for (i = 0; i < ETHNICITY_NUM; i++) p_ptr->align[ALI_GNE] += chaos_frame[i];
 
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = rp_ptr->infra;
@@ -2881,13 +2906,86 @@ void calc_bonuses(void)
 		(!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
 	if (buki_motteruka(INVEN_RARM) || !buki_motteruka(INVEN_LARM)) p_ptr->migite = TRUE;
 	if (buki_motteruka(INVEN_LARM)) p_ptr->hidarite = TRUE;
+	if ((!buki_motteruka(INVEN_RARM) && (empty_hands_status & EMPTY_HAND_LARM)) && (p_ptr->pclass == CLASS_GRAPPLER)) p_ptr->hidarite = TRUE;
 
 	if (cp_ptr->c_flags & PCF_SEE_DARK_GRID) p_ptr->see_dark_grid = TRUE;
 
-	/* Extract flags and store */
-	player_flags(p_ptr->flags);
+	{
+		player_flags(p_ptr->flags);
 
-	if (have_flag(p_ptr->flags, TR_LITE)) p_ptr->lite = TRUE;
+		if (have_flag(p_ptr->flags, TR_LITE)) p_ptr->lite = TRUE;
+
+		/* Hack -- cause earthquakes */
+		if (have_flag(p_ptr->flags, TR_IMPACT)) p_ptr->impact[(i == INVEN_RARM) ? 0 : 1] = TRUE;
+
+		/* Boost shots */
+		if (have_flag(p_ptr->flags, TR_XTRA_SHOTS)) extra_shots++;
+
+		/* Various flags */
+		if (have_flag(p_ptr->flags, TR_AGGRAVATE))   p_ptr->cursed |= TRC_AGGRAVATE;
+		if (have_flag(p_ptr->flags, TR_DRAIN_EXP))   p_ptr->cursed |= TRC_DRAIN_EXP;
+		if (have_flag(p_ptr->flags, TR_TY_CURSE))    p_ptr->cursed |= TRC_TY_CURSE;
+		if (have_flag(p_ptr->flags, TR_DEC_MANA))    p_ptr->dec_mana = TRUE;
+		if (have_flag(p_ptr->flags, TR_XTRA_MIGHT))
+		{
+			p_ptr->xtra_might = TRUE;
+			p_ptr->dis_xtra_might = TRUE;
+		}
+		if (have_flag(p_ptr->flags, TR_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+		if (have_flag(p_ptr->flags, TR_REGEN))       p_ptr->regenerate = TRUE;
+		if (have_flag(p_ptr->flags, TR_REGEN_MANA))  p_ptr->regenerate_mana = TRUE;
+		if (have_flag(p_ptr->flags, TR_TELEPATHY))   p_ptr->telepathy = TRUE;
+		if (have_flag(p_ptr->flags, TR_SEE_INVIS))   p_ptr->see_inv = TRUE;
+		if (have_flag(p_ptr->flags, TR_LEVITATION))     p_ptr->ffall = TRUE;
+		if (have_flag(p_ptr->flags, TR_FREE_ACT))    p_ptr->free_act = TRUE;
+		if (have_flag(p_ptr->flags, TR_HOLD_LIFE))   p_ptr->hold_life = TRUE;
+		if (have_flag(p_ptr->flags, TR_FEAR_FIELD))  p_ptr->fear_field = TRUE;
+		if (have_flag(p_ptr->flags, TR_WRAITH))      p_ptr->wraith_form_perm = TRUE;
+		if (have_flag(p_ptr->flags, TR_WARNING))     p_ptr->warning = TRUE;
+
+		/* Immunity flags */
+		if (have_flag(p_ptr->flags, TR_IM_FIRE)) p_ptr->immune_fire = TRUE;
+		if (have_flag(p_ptr->flags, TR_IM_ACID)) p_ptr->immune_acid = TRUE;
+		if (have_flag(p_ptr->flags, TR_IM_COLD)) p_ptr->immune_cold = TRUE;
+		if (have_flag(p_ptr->flags, TR_IM_ELEC)) p_ptr->immune_elec = TRUE;
+
+		/* Resistance flags */
+		if (have_flag(p_ptr->flags, TR_RES_ACID))   p_ptr->resist_acid = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_ELEC))   p_ptr->resist_elec = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_FIRE))   p_ptr->resist_fire = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_COLD))   p_ptr->resist_cold = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_POIS))   p_ptr->resist_pois = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_FEAR))   p_ptr->resist_fear = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_CONF))   p_ptr->resist_conf = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_SOUND))  p_ptr->resist_sound = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_LITE))   p_ptr->resist_lite = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_DARK))   p_ptr->resist_dark = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_CHAOS))  p_ptr->resist_chaos = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_DISEN))  p_ptr->resist_disen = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_SHARDS)) p_ptr->resist_shard = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_STONE))  p_ptr->resist_stone = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_BLIND))  p_ptr->resist_blind = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_NETHER)) p_ptr->resist_neth = TRUE;
+
+		if (have_flag(p_ptr->flags, TR_REFLECT))   p_ptr->reflect = TRUE;
+		if (have_flag(p_ptr->flags, TR_SH_FIRE))   p_ptr->sh_fire = TRUE;
+		if (have_flag(p_ptr->flags, TR_SH_ELEC))   p_ptr->sh_elec = TRUE;
+		if (have_flag(p_ptr->flags, TR_SH_COLD))   p_ptr->sh_cold = TRUE;
+		if (have_flag(p_ptr->flags, TR_NO_MAGIC))  p_ptr->anti_magic = TRUE;
+		if (have_flag(p_ptr->flags, TR_NO_TELE))   p_ptr->anti_tele = TRUE;
+		if (have_flag(p_ptr->flags, TR_RES_MAGIC)) resist_magic = TRUE;
+
+		/* Sustain flags */
+		if (have_flag(p_ptr->flags, TR_SUST_STR)) p_ptr->sustain_str = TRUE;
+		if (have_flag(p_ptr->flags, TR_SUST_INT)) p_ptr->sustain_int = TRUE;
+		if (have_flag(p_ptr->flags, TR_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+		if (have_flag(p_ptr->flags, TR_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+		if (have_flag(p_ptr->flags, TR_SUST_CON)) p_ptr->sustain_con = TRUE;
+		if (have_flag(p_ptr->flags, TR_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+
+		if (have_flag(p_ptr->flags, TR_EASY_SPELL)) p_ptr->easy_spell = TRUE;
+
+	}
 
 	switch (p_ptr->pclass)
 	{
@@ -2911,19 +3009,11 @@ void calc_bonuses(void)
 		case CLASS_DRAGOON:
 			if (cexp_ptr->clev > 24) p_ptr->esp_dragon = TRUE;
 			break;
-		case CLASS_NINJA:
-		case CLASS_NINJAMASTER:
-			if (heavy_armor())
-			{
-				p_ptr->pspeed -= cexp_ptr->clev / 10;
-				p_ptr->skill_stl -= cexp_ptr->clev / 10;
-			}
-			break;
 		case CLASS_GUNNER:
 			p_ptr->skill_dig += (cexp_ptr->clev / 8);
 			break;
 		case CLASS_LORD:
-			if (p_ptr->action == ACTION_AURA)
+			if (p_ptr->tim_sh_aura)
 			{
 				p_ptr->pspeed += 5 + cexp_ptr->clev / 10;
 				p_ptr->skill_sav += cexp_ptr->clev;
@@ -2956,9 +3046,22 @@ void calc_bonuses(void)
 				p_ptr->skill_stl -= 20 - cexp_ptr->clev / 10;
 			}
 			break;
+		case CLASS_GRAPPLER:
+			if (!heavy_armor())
+			{
+				p_ptr->to_a += cexp_ptr->clev * 2;
+				p_ptr->dis_to_a += cexp_ptr->clev * 2;
+			}
+			break;
 		default:
 			/* Nothing */
 			break;
+	}
+
+	if ((cp_ptr->c_flags & PCF_MONK_ARMOUR) && heavy_armor())
+	{
+		p_ptr->pspeed -= cexp_ptr->clev / 5;
+		p_ptr->skill_stl -= cexp_ptr->clev / 5;
 	}
 
 	/* Class Master get Flag - Terror-Knight */
@@ -3067,7 +3170,7 @@ void calc_bonuses(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Modify the stats for "race" */
-		p_ptr->stat_add[i] += rp_ptr->r_adj[i];
+		p_ptr->stat_add[i] += (cp_ptr->c_flags & PCF_REINCARNATE) ? cp_ptr->c_bonus[i] : rp_ptr->r_adj[i];
 	}
 
 
@@ -3237,9 +3340,6 @@ void calc_bonuses(void)
 		/* Extract the item flags */
 		object_flags(o_ptr, flgs);
 
-		if (i == INVEN_RARM)
-			for (j = 0; j < TR_FLAG_SIZE; j++) flgs[j] |= p_ptr->flags[j];
-
 		p_ptr->cursed |= (o_ptr->curse_flags & (0xFFFFFFF0L));
 
 		/* Affect stats */
@@ -3305,7 +3405,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_REGEN_MANA))  p_ptr->regenerate_mana = TRUE;
 		if (have_flag(flgs, TR_TELEPATHY))   p_ptr->telepathy = TRUE;
 		if (have_flag(flgs, TR_SEE_INVIS))   p_ptr->see_inv = TRUE;
-		if (have_flag(flgs, TR_FEATHER))     p_ptr->ffall = TRUE;
+		if (have_flag(flgs, TR_LEVITATION))     p_ptr->ffall = TRUE;
 		if (have_flag(flgs, TR_FREE_ACT))    p_ptr->free_act = TRUE;
 		if (have_flag(flgs, TR_HOLD_LIFE))   p_ptr->hold_life = TRUE;
 		if (have_flag(flgs, TR_FEAR_FIELD))  p_ptr->fear_field = TRUE;
@@ -3539,26 +3639,22 @@ void calc_bonuses(void)
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ACID))
 	{
-		p_ptr->oppose_acid = 1;
-		status_change = TRUE;
+		set_oppose_acid(1, FALSE);
 	}
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_FIRE))
 	{
-		p_ptr->oppose_fire = 1;
-		status_change = TRUE;
+		set_oppose_fire(1, FALSE);
 	}
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_COLD))
 	{
-		p_ptr->oppose_cold = 1;
-		status_change = TRUE;
+		set_oppose_cold(1, FALSE);
 	}
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_OPPOSE_ELEC))
 	{
-		p_ptr->oppose_elec = 1;
-		status_change = TRUE;
+		set_oppose_elec(1, FALSE);
 	}
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_BAT))
@@ -3569,10 +3665,27 @@ void calc_bonuses(void)
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM))
 	{
-		p_ptr->no_elem = TRUE;
-		init_realm_table();
-		p_ptr->notice |= (PN_REORDER);
+		set_no_elem(1);
+	}
 
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_SAINT))
+	{
+		p_ptr->immune_holy = TRUE;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_SATAN))
+	{
+		p_ptr->immune_evil = TRUE;
+	}
+
+	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_GUARDIAN))
+	{
+		p_ptr->resist_all = TRUE;
+	}
+
+	if (inventory[INVEN_FEET].k_idx && (inventory[INVEN_FEET].name2 == EGO_SPIKE))
+	{
+		set_earth_spike(1, FALSE);
 	}
 
 	if (inventory[INVEN_BODY].k_idx && (inventory[INVEN_BODY].tval == TV_HARD_ARMOR) && 
@@ -3651,8 +3764,7 @@ void calc_bonuses(void)
 	if ((inventory[INVEN_RARM].k_idx && (inventory[INVEN_RARM].name1 == ART_BERSERK)) ||
 	    (inventory[INVEN_LARM].k_idx && (inventory[INVEN_LARM].name1 == ART_BERSERK)))
 	{
-		p_ptr->shero = 1;
-		status_change = TRUE;
+		set_shero(1, FALSE);
 	}
 
 	if (((inventory[INVEN_RARM].tval == TV_SWORD) && (inventory[INVEN_RARM].sval == SV_DARK_SWORD)) || 
@@ -3982,6 +4094,15 @@ void calc_bonuses(void)
 		p_ptr->dis_to_d[0] += attack_var * 2 - 2;
 	}
 
+	if (p_ptr->hidarite && !buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
+	{
+		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]/10];
+		p_ptr->to_h[1] += attack_var * 4 - 8;
+		p_ptr->dis_to_h[1] += attack_var * 4 - 8;
+		p_ptr->to_d[1] += attack_var * 2 - 2;
+		p_ptr->dis_to_d[1] += attack_var * 2 - 2;
+	}
+
 	if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
 		int attack_var = skill_lev_var[p_ptr->skill_exp[SKILL_NITOURYU]/10];
@@ -4264,6 +4385,12 @@ void calc_bonuses(void)
 			{
 			case SKILL_LEVEL_BEGINNER:
 				if (cp_ptr->max_attacks > 1) max_attacks--;
+				str_index /= 2;
+				dex_index /= 2;
+				break;
+			case SKILL_LEVEL_NOVICE:
+				str_index--;
+				dex_index--;
 				break;
 			case SKILL_LEVEL_MASTER:
 				max_attacks++;
@@ -4284,8 +4411,9 @@ void calc_bonuses(void)
 			p_ptr->num_blow[i] += extra_blows[i];
 
 
-			if ((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_GENERAL))
+			if ((p_ptr->pclass == CLASS_KNIGHT) || (p_ptr->pclass == CLASS_BERSERKER))
 				p_ptr->num_blow[i] += (cexp_ptr->clev / 40);
+			else if (p_ptr->pclass == CLASS_GENERAL) p_ptr->num_blow[i] += (cexp_ptr->clev / 30);
 			else if (p_ptr->pclass == CLASS_TERRORKNIGHT)
 			{
 				p_ptr->num_blow[i] += (cexp_ptr->clev / 23);
@@ -4396,6 +4524,7 @@ void calc_bonuses(void)
 		case CLASS_SIRENE:
 		case CLASS_LICH:
 		case CLASS_HIGHWITCH:
+		case CLASS_ELEMENTALER:
 			if ((!p_ptr->s_ptr->w_eff[get_weapon_type(k_ptr)]) && (p_ptr->weapon_exp[get_weapon_type(k_ptr)]/10 < SKILL_EXP_SKILLED))
 			{
 				/* Icky weapon */
@@ -4528,6 +4657,7 @@ void calc_bonuses(void)
 			break;
 
 		case CLASS_SUCCUBUS:
+		case CLASS_GRAPPLER:
 			if (get_weapon_type(k_ptr) != WT_CLAW)
 				/* Icky weapon */
 				p_ptr->icky_wield[i] = -1;
@@ -4648,7 +4778,7 @@ void calc_bonuses(void)
 	else if (empty_hands_status & EMPTY_HAND_RARM)
 	{
 		/* Different calculation for Terror-Knights with empty hands */
-		if (p_ptr->pclass == CLASS_TERRORKNIGHT)
+		if (p_ptr->pclass == CLASS_SUCCUBUS)
 		{
 			int blow_base = cexp_ptr->clev / 3 + adj_dex_blow_bare_hand[p_ptr->stat_ind[A_DEX]];
 
@@ -4669,7 +4799,16 @@ void calc_bonuses(void)
 		p_ptr->num_blow[0] += extra_blows[0];
 
 		p_ptr->num_blow[0] += skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]/10] - 1;
-		if (empty_hands_status & EMPTY_HAND_LARM) dual_bare_hand = TRUE;
+		if (empty_hands_status & EMPTY_HAND_LARM)
+		{
+			dual_bare_hand = TRUE;
+
+			if (p_ptr->pclass == CLASS_GRAPPLER)
+			{
+				p_ptr->num_blow[1] += extra_blows[1];
+				p_ptr->num_blow[1] += skill_lev_var[p_ptr->skill_exp[SKILL_MARTIAL_ARTS]/10] - 1;
+			}
+		}
 	}
 
 	monk_armour_aux = FALSE;
@@ -4686,7 +4825,8 @@ void calc_bonuses(void)
 		if (inventory[INVEN_RARM+i].tval == TV_SHIELD)
 		{
 			if (p_ptr->pclass == CLASS_MEDIUM ||
-			    p_ptr->pclass == CLASS_NINJA)
+			    p_ptr->pclass == CLASS_NINJA ||
+				p_ptr->pclass == CLASS_NINJAMASTER)
 			{
 				p_ptr->cumber_shield = TRUE;
 			}
@@ -4714,6 +4854,7 @@ void calc_bonuses(void)
 			case CLASS_GUNNER:
 			case CLASS_CRESCENT:
 			case CLASS_SUCCUBUS:
+			case CLASS_GRAPPLER:
 				if (o_ptr->k_idx && (o_ptr->tval == TV_SHIELD) && (o_ptr->weight >= 70))
 				{
 					p_ptr->to_h_b -= 40;
@@ -4728,7 +4869,7 @@ void calc_bonuses(void)
 
 		if (p_ptr->tim_inc_blow) p_ptr->num_blow[i]++;
 		if (p_ptr->tim_dec_blow && (p_ptr->num_blow[i] > 1)) p_ptr->num_blow[i]--;
-		if ((p_ptr->action == ACTION_AURA) && (p_ptr->cexp_info[CLASS_LORD].clev > 40)) p_ptr->num_blow[i]++;
+		if (p_ptr->tim_sh_aura && (p_ptr->cexp_info[CLASS_LORD].clev > 40)) p_ptr->num_blow[i]++;
 
 		/* Hack - If SP bonus < 0, mark as "icky" with no failrate penalty */
 		if ((p_ptr->inc_msp[i] < 0) && !p_ptr->icky_wield[i])
@@ -4773,10 +4914,23 @@ void calc_bonuses(void)
 		bonus_to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128)/2;
 		bonus_to_h = ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 
-		p_ptr->to_h[0] += MAX(bonus_to_h,1);
-		p_ptr->dis_to_h[0] += MAX(bonus_to_h,1);
-		p_ptr->to_d[0] += MAX(bonus_to_d,1);
-		p_ptr->dis_to_d[0] += MAX(bonus_to_d,1);
+		if (p_ptr->pclass == CLASS_GRAPPLER)
+		{
+			for (i = 0; i < 2; i++)
+			{
+				p_ptr->to_h[i] += MAX(bonus_to_h,1) + cexp_ptr->clev;
+				p_ptr->dis_to_h[i] += MAX(bonus_to_h,1) + cexp_ptr->clev;
+				p_ptr->to_d[i] += MAX(bonus_to_d,1) + cexp_ptr->clev / 2;
+				p_ptr->dis_to_d[i] += MAX(bonus_to_d,1) + cexp_ptr->clev / 2;
+			}
+		}
+		else
+		{
+			p_ptr->to_h[0] += MAX(bonus_to_h,1);
+			p_ptr->dis_to_h[0] += MAX(bonus_to_h,1);
+			p_ptr->to_d[0] += MAX(bonus_to_d,1);
+			p_ptr->dis_to_d[0] += MAX(bonus_to_d,1);
+		}
 	}
 
 	if (empty_hands_status == (EMPTY_HAND_RARM | EMPTY_HAND_LARM)) p_ptr->ryoute = FALSE;
@@ -5121,7 +5275,7 @@ void calc_bonuses(void)
 		p_ptr->old_bow_ryoute = p_ptr->bow_ryoute;
 	}
 
-	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && (monk_armour_aux != monk_notify_aux))
+	if ((cp_ptr->c_flags & PCF_MONK_ARMOUR) && (monk_armour_aux != monk_notify_aux))
 	{
 		if (heavy_armor())
 		{
@@ -5622,6 +5776,8 @@ bool heavy_armor(void)
 {
 	int ninja_level = p_ptr->cexp_info[CLASS_NINJA].clev + p_ptr->cexp_info[CLASS_NINJAMASTER].clev / 2;
 	u16b monk_arm_wgt = 0;
+
+	if (p_ptr->pclass == CLASS_GRAPPLER) ninja_level = p_ptr->cexp_info[CLASS_GRAPPLER].clev * 2 / 3;
 
 	/* Weight the armor */
 	if(inventory[INVEN_RARM].tval > TV_SWORD) monk_arm_wgt += inventory[INVEN_RARM].weight;

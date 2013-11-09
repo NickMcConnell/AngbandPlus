@@ -7,8 +7,8 @@ Q:$12:N:Node of Nature
 Q:12:N:自然魔術の特異点
 
 # Definition
-Q:$12:Q:6:0:0:0:65:0:0:0:6
-Q:12:Q:6:0:0:0:65:0:0:0:6
+Q:$12:Q:6:0:0:0:65:0:0:0:38
+Q:12:Q:6:0:0:0:65:0:0:0:38
 
 # Description for quest
 ?:[LEQ $QUEST12 2]

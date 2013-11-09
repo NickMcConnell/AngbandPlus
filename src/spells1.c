@@ -543,6 +543,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		case GF_ROCKET:
 		case GF_MANA:
 		case GF_METEOR:
+		case GF_VOLCANIC_BOMB:
 		case GF_PURE_WIND:
 #ifdef JP
 			message = "粉砕された";break;
@@ -1011,6 +1012,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 
 				/* Place a shallow water */
 				cave_set_feat(y, x, FEAT_SHAL_WATER);
+
+				/* Change the element */
+				change_grid_elem(&cave[y][x], ELEM_FIRE, -99);
+				change_grid_elem(&cave[y][x], ELEM_AQUA, 99);
 			}
 			/* Deep Water */
 			else
@@ -1021,9 +1026,52 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				/* Place a deep water */
 				cave_set_feat(y, x, FEAT_DEEP_WATER);
 
+				/* Change the element */
+				change_grid_elem(&cave[y][x], ELEM_FIRE, -99);
+				change_grid_elem(&cave[y][x], ELEM_AQUA, 99);
+
 				/* Dam is used as a counter for the number of grid to convert */
 				dam--;
 			}
+			break;
+		}
+
+		/* Make Lava flow */
+		case GF_LAVA_FLOW:
+		{
+			/* Shallow Water */
+			if (dam == 1)
+			{
+				/* Require a "naked" floor grid */
+				if (!cave_naked_bold(y, x)) break;
+
+				/* Place a shallow water */
+				cave_set_feat(y, x, FEAT_SHAL_LAVA);
+
+				/* Change the element */
+				change_grid_elem(&cave[y][x], ELEM_FIRE, 99);
+				change_grid_elem(&cave[y][x], ELEM_AQUA, -99);
+			}
+			/* Deep Water */
+			else
+			{
+				/* Require a "naked" floor grid */
+				if (cave_perma_bold(y, x) || !dam) break;
+
+				/* Place a deep water */
+				cave_set_feat(y, x, FEAT_DEEP_LAVA);
+
+				/* Change the element */
+				change_grid_elem(&cave[y][x], ELEM_FIRE, 99);
+				change_grid_elem(&cave[y][x], ELEM_AQUA, -99);
+
+				/* Dam is used as a counter for the number of grid to convert */
+				dam--;
+			}
+
+			/* Update some things */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
+
 			break;
 		}
 
@@ -1284,6 +1332,32 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ, u32b flg)
 #endif
 
 					if (have_flag(flgs, TR_IGNORE_COLD)) ignore = TRUE;
+				}
+				break;
+			}
+
+			case GF_VOLCANIC_BOMB:
+			{
+				if (hates_fire(o_ptr))
+				{
+					do_kill = TRUE;
+#ifdef JP
+					note_kill = "燃えてしまった！";
+#else
+					note_kill = (plural ? " burn up!" : " burns up!");
+#endif
+
+					if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
+				}
+				if (hates_cold(o_ptr))
+				{
+#ifdef JP
+					note_kill = "砕け散ってしまった！";
+#else
+					note_kill = (plural ? " shatter!" : " shatters!");
+#endif
+
+					do_kill = TRUE;
 				}
 				break;
 			}
@@ -2426,6 +2500,54 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		case GF_GODLY_SPEAR:
 		{
 			if (seen) obvious = TRUE;
+			break;
+		}
+
+		case GF_VOLCANIC_BOMB:
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flagsr & (RFR_IM_BLUNT))
+			{
+#ifdef JP
+				note = "にはかなり耐性がある！";
+#else
+				note = " resists a lot!";
+#endif
+
+				dam /= 6;
+				if (seen)
+				{
+					r_ptr->r_flagsr |= (RFR_IM_BLUNT);
+					if (r_ptr->flagsr & (RFR_RES_BLUNT)) r_ptr->r_flagsr |= (RFR_RES_BLUNT);
+				}
+			}
+			else if (r_ptr->flagsr & (RFR_RES_BLUNT))
+			{
+#ifdef JP
+				note = "には耐性がある。";
+#else
+				note = " resists.";
+#endif
+
+				dam /= 2;
+				if (seen) r_ptr->r_flagsr |= (RFR_RES_BLUNT);
+			}
+
+			if (r_ptr->flags3 & (RF3_HURT_FIRE))
+			{
+#ifdef JP
+				note = "はひどい痛手をうけた。";
+#else
+				note = " is hit hard.";
+#endif
+
+				dam *= 4;
+				if (seen) r_ptr->r_flags3 |= (RF3_HURT_FIRE);
+			}
+			else if (!(r_ptr->flagsr & (RFR_RES_FIRE)))
+			{
+				dam = dam * 5 / 2;
+			}
 			break;
 		}
 
@@ -4312,74 +4434,31 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 		/* GENOCIDE */
 		case GF_GENOCIDE:
 		{
-			bool angry = FALSE;
 			if (seen) obvious = TRUE;
 
 			if (one_in_(3)) change_your_alignment(ALI_GNE, -1);
 
-			if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_UNIQUE2)) || (c_ptr->m_idx == p_ptr->riding)) || p_ptr->inside_arena || p_ptr->inside_quest)
-			{
-				dam = 0;
-				angry = TRUE;
-			}
-			else
-			{
-				if ((r_ptr->level > randint0(dam)) || (m_ptr->mflag2 & MFLAG2_NOGENO))
-				{
-					dam = 0;
-					angry = TRUE;
-				}
-				else
-				{
-					if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-					{
-						char m2_name[80];
-
-						monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
-						do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m2_name);
-					}
-
-					delete_monster_idx(c_ptr->m_idx);
 #ifdef JP
-					msg_format("%sは消滅した！",m_name);
+			if (genocide_aux(c_ptr->m_idx, dam, !who, (r_ptr->level + 1) / 2, "モンスター消滅"))
 #else
-					msg_format("%^s disappered!",m_name);
+			if (genocide_aux(c_ptr->m_idx, dam, !who, (r_ptr->level + 1) / 2, "Genocide One"))
 #endif
-
-#ifdef JP
-					take_hit(DAMAGE_GENO, randint1((r_ptr->level+1)/2), "モンスター消滅の呪文を唱えた疲労");
-#else
-					take_hit(DAMAGE_GENO, randint1((r_ptr->level+1)/2), "the strain of casting Genocide One");
-#endif
-					dam = 0;
-
-					skipped = TRUE;
-
-					/* Redraw */
-					p_ptr->redraw |= (PR_HP);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_PLAYER);
-					return TRUE;
-				}
-			}
-			if (angry)
 			{
 #ifdef JP
-				note = "には効果がなかった！";
+				msg_format("%sは消滅した！", m_name);
 #else
-				note = "is unaffected!";
+				msg_format("%^s disappered!", m_name);
 #endif
-				get_angry = TRUE;
-				if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
+				return TRUE;
 			}
+
+			skipped = TRUE;
 			break;
 		}
 
 		/* GENOCIDE_UNDEAD */
 		case GF_GENOCIDE_UNDEAD:
 		{
-			bool angry = FALSE;
 			if (seen) obvious = TRUE;
 
 			if (one_in_(3)) change_your_alignment(ALI_GNE, 1);
@@ -4397,54 +4476,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 
 			if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
 
-			if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_UNIQUE2)) || (c_ptr->m_idx == p_ptr->riding)) || p_ptr->inside_arena || p_ptr->inside_quest)
-			{
-				dam = 0;
-				angry = TRUE;
-			}
-			else
-			{
-				if ((r_ptr->level > randint0(dam)) || (m_ptr->mflag2 & MFLAG2_NOGENO))
-				{
-					dam = 0;
-					angry = TRUE;
-				}
-				else
-				{
-					delete_monster_idx(c_ptr->m_idx);
 #ifdef JP
-					msg_format("%sは消滅した！",m_name);
+			if (genocide_aux(c_ptr->m_idx, dam, !who, (r_ptr->level + 1) / 2, "アンデッド消滅"))
 #else
-					msg_format("%^s disappered!",m_name);
+			if (genocide_aux(c_ptr->m_idx, dam, !who, (r_ptr->level + 1) / 2, "Genocide Undead"))
 #endif
-
-#ifdef JP
-					take_hit(DAMAGE_GENO, randint1((r_ptr->level+1)/2), "アンデッドを消滅させた疲労");
-#else
-					take_hit(DAMAGE_GENO, randint1((r_ptr->level+1)/2), "the strain of Genocide Undead");
-#endif
-					dam = 0;
-
-					skipped = TRUE;
-
-					/* Redraw */
-					p_ptr->redraw |= (PR_HP);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_PLAYER);
-					return TRUE;
-				}
-			}
-			if (angry)
 			{
 #ifdef JP
-				note = "には効果がなかった！";
+				msg_format("%sは消滅した！", m_name);
 #else
-				note = "is unaffected!";
+				msg_format("%^s disappered!", m_name);
 #endif
-				get_angry = TRUE;
-				if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
+				return TRUE;
 			}
+
+			skipped = TRUE;
 			break;
 		}
 
@@ -5613,6 +5659,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by acid!");
 #endif
 
+			if (p_ptr->weak_wind) hp_player(dam);
 			if (p_ptr->weak_earth) dam *= 4 / 3;
 
 			get_damage = acid_dam(dam, killer);
@@ -5628,6 +5675,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by lightning!");
 #endif
 
+			if (p_ptr->weak_earth) hp_player(dam);
 			if (p_ptr->weak_wind) dam *= 4 / 3;
 
 			get_damage = elec_dam(dam, killer);
@@ -5643,6 +5691,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by fire!");
 #endif
 
+			if (p_ptr->weak_aqua) hp_player(dam);
 			if (p_ptr->weak_fire) dam *= 4 / 3;
 
 			if (prace_is_(RACE_PUMPKINHEAD))
@@ -5662,6 +5711,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by cold!");
 #endif
 
+			if (p_ptr->weak_fire) hp_player(dam);
 			if (p_ptr->weak_aqua) dam *= 4 / 3;
 
 			get_damage = cold_dam(dam, killer);
@@ -6564,6 +6614,28 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			break;
 		}
 
+		/* Pure damage */
+		case GF_VOLCANIC_BOMB:
+		{
+#ifdef JP
+			if (fuzzy) msg_print("何かが空からあなたの頭上に落ちてきた！");
+#else
+			if (fuzzy) msg_print("Something falls from the sky on you!");
+#endif
+
+			ACTIVATE_MULTISHADOW();
+			if (p_ptr->weak_aqua) dam *= 4; dam /= (randint1(4) + 7);
+			if (p_ptr->weak_fire) dam *= 4 / 3;
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
+			STOP_MULTISHADOW();
+			if (!p_ptr->resist_shard || one_in_(13))
+			{
+				if (!p_ptr->immune_fire) inven_damage(set_fire_destroy, 2);
+			}
+
+			break;
+		}
+
 		/* Standard damage */
 		case GF_DISINTEGRATE:
 		{
@@ -6601,6 +6673,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 				dam *= 3;
 			}
+			if (p_ptr->immune_holy) dam = 0;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			break;
@@ -6618,6 +6691,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			else if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
 				dam *= 2;
 			ACTIVATE_MULTISHADOW();
+			if (p_ptr->immune_evil) dam = 0;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
 			STOP_MULTISHADOW();
 			break;
@@ -6658,9 +6732,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				if (!(double_resist && p_ptr->resist_fire)) inven_damage(set_fire_destroy, 3);
 			}
 
-			if (p_ptr->no_elem) dam /= 2;
-			if (p_ptr->weak_aqua) dam = 0;
+			if (p_ptr->weak_aqua)
+			{
+				 hp_player(dam);
+				dam = 0;
+			}
 			if (p_ptr->weak_fire) dam *= 4 / 3;
+			if (p_ptr->no_elem) dam /= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6685,10 +6763,14 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				if (!(double_resist && p_ptr->resist_cold)) inven_damage(set_cold_destroy, 3);
 			}
 
-			if (p_ptr->no_elem) dam /= 2;
-			if (p_ptr->weak_fire) dam = 0;
+			if (p_ptr->weak_fire)
+			{
+				 hp_player(dam);
+				dam = 0;
+			}
 			if (p_ptr->weak_aqua) dam *= 4 / 3;
 			if (p_ptr->zoshonel_protect) dam = dam * 3 / 2;
+			if (p_ptr->no_elem) dam /= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6713,9 +6795,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				if (!(double_resist && p_ptr->resist_acid)) inven_damage(set_acid_destroy, 3);
 			}
 
-			if (p_ptr->no_elem) dam /= 2;
-			if (p_ptr->weak_wind) dam = 0;
+			if (p_ptr->weak_wind)
+			{
+				 hp_player(dam);
+				dam = 0;
+			}
 			if (p_ptr->weak_earth) dam *= 4 / 3;
+			if (p_ptr->no_elem) dam /= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -6740,9 +6826,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				if (!(double_resist && p_ptr->resist_elec)) inven_damage(set_elec_destroy, 3);
 			}
 
-			if (p_ptr->no_elem) dam /= 2;
-			if (p_ptr->weak_earth) dam = 0;
+			if (p_ptr->weak_earth)
+			{
+				 hp_player(dam);
+				dam = 0;
+			}
 			if (p_ptr->weak_wind) dam *= 4 / 3;
+			if (p_ptr->no_elem) dam /= 2;
 			ACTIVATE_MULTISHADOW();
 			get_damage = take_hit(DAMAGE_FORCE, dam, killer);
 			STOP_MULTISHADOW();
@@ -8410,6 +8500,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 					case GF_EDGED:
 					case GF_MANA:
 					case GF_METEOR:
+					case GF_VOLCANIC_BOMB:
 					case GF_DISINTEGRATE:
 					case GF_HOLY_FIRE:
 					case GF_HELL_FIRE:

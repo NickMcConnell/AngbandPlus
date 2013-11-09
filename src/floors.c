@@ -23,13 +23,12 @@ static u32b latest_visit_mark;  /* Max number of visit_mark */
  * Initialize saved_floors array.  Make sure that old temporal files
  * are not remaining as gurbages.
  */
-void init_saved_floors(void)
+void init_saved_floors(bool force)
 {
 	char floor_savefile[1024];
 	int i;
 	int fd = -1;
 	int mode = 0644;
-	bool force = FALSE;
 
 #ifdef SET_UID
 # ifdef SECURE
@@ -107,8 +106,7 @@ void init_saved_floors(void)
 
 /*
  * Kill temporal files
- * Should be called just before the game quit
- * and before new game discarding saved game.
+ * Should be called just before the game quit.
  */
 void clear_saved_floor_files(void)
 {

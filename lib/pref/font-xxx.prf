@@ -451,6 +451,9 @@ E:9:0x02
 # CORPSE
 E:10:0x02
 
+# CHUNK
+E:11:0x03
+
 # CARD
 E:50:0x0D
 

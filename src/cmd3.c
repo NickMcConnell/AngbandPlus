@@ -414,7 +414,11 @@ s = "おっと。";
 #endif
 
 			msg_print(NULL);
-			if (quest_is_fixed(i)) change_your_alignment(ALI_LNC, 10);
+			if (quest_is_fixed(i) && !(quest[i].flags & QUEST_FLAG_ALI_CHAOS)) change_your_alignment(ALI_LNC, 10);
+			else change_your_alignment(ALI_LNC, -10);
+
+			if (quest[i].flags & QUEST_FLAG_ALI_EVIL) change_your_alignment(ALI_GNE, -10);
+			else change_your_alignment(ALI_GNE, 10);
 		}
 	}
 

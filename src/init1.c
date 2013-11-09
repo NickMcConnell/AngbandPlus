@@ -639,7 +639,7 @@ static cptr k_info_flags[] =
 	"UNHOLY",
 	"SHOW_MODS",
 	"SLAY_LIVING",
-	"FEATHER",
+	"LEVITATION",
 	"LITE",
 	"SEE_INVIS",
 	"TELEPATHY",
@@ -825,7 +825,7 @@ static cptr c_info_flags[] =
 	"ALIEN",
 	"SEE_DARK",
 	"REALM_ELEM_1",
-	"XXX18",
+	"MONK_ARMOUR",
 	"XXX19",
 	"XXX20",
 	"XXX21",
@@ -1291,7 +1291,7 @@ errr parse_m_info(char *buf, header *head)
 	else if (buf[0] == 'I')
 	{
 		char *book, *stat;
-		int xtra, type, weight, gain_msp_rate;
+		int xtra, weight;
 
 		/* Find the colon before the name */
 		s = my_strchr(buf+2, ':');
@@ -1330,13 +1330,11 @@ errr parse_m_info(char *buf, header *head)
 
 
 		/* Scan for the values */
-		if (4 != sscanf(s, "%x:%d:%d:%d",
-				(uint *)&xtra, &type, &weight, &gain_msp_rate))	return (1);
+		if (2 != sscanf(s, "%x:%d",
+				(uint *)&xtra, &weight))	return (1);
 
 		m_ptr->spell_xtra = xtra;
-		m_ptr->spell_type = type;
 		m_ptr->spell_weight = weight;
-		m_ptr->gain_msp_rate = gain_msp_rate;
 	}
 
 
@@ -5251,6 +5249,40 @@ errr parse_c_info(char *buf, header *head)
 
 			/* Save the value */
 			pc_ptr->c_gain[j] = adj;
+
+			/* Next... */
+			continue;
+		}
+	}
+
+	/* Process 'B' for "Reincarnate Bonus Stats" (one line only) */
+	else if (buf[0] == 'B')
+	{
+		s16b adj;
+
+		/* There better be a current pc_ptr */
+		if (!pc_ptr) return (2);
+
+		/* Start the string */
+		s = buf+1;
+
+		/* For each stat */
+		for (j = 0; j < A_MAX; j++)
+		{
+			/* Find the colon before the subindex */
+			s = my_strchr(s, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the subindex */
+			*s++ = '\0';
+
+			/* Get the value */
+			adj = atoi(s);
+
+			/* Save the value */
+			pc_ptr->c_bonus[j] = adj;
 
 			/* Next... */
 			continue;

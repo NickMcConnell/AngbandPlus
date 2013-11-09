@@ -6832,7 +6832,19 @@ D:小さな腰巻きを身につけた下級の天使だ。その鋼鉄のような肌はどんなものでも
 D:はじき返す。
 
 
-#N:418:海の修道士
+N:418:海の修道士
+E:Sea Monk
+G:h:G
+I:110:15d10:20:40:10
+W:26:1:0:175:2000:554
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | NONLIVING | CHAOTIC |
+F:DEMON | RES_POIS | RES_ACID | NO_CONF | NO_SLEEP | RES_TELE |
+F:WILD_OCEAN | ELEM_AQUA | AQUATIC
+S:1_IN_4 |
+S:SCARE | TELE_AWAY | CAUSE_3 | BA_POIS |
+S:CONF | S_DEMON | S_UNDEAD
 
 
 #JZ#
@@ -7754,7 +7766,7 @@ D:愛らしさを振りまくだけのマスコット、とはもはや言えない。
 
 N:468:『マルファス』
 E:Malphas
-G:B:d
+G:B:s
 I:142:30d100:20:65:20
 W:55:1:0:22222:0:0
 B:CLAW:HURT:16d5
@@ -9691,7 +9703,7 @@ B:CRUSH:HURT:4d6
 B:TOUCH:LOSE_WIS
 F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | NONLIVING | CHAOTIC |
 F:DEMON | RES_POIS | RES_ACID | NO_CONF | NO_SLEEP | RES_TELE |
-F:CAN_SWIM | ELEM_AQUA |
+F:WILD_OCEAN | ELEM_AQUA | AQUATIC
 S:1_IN_4 |
 S:SCARE | TELE_AWAY | BA_NUKE | CAUSE_3 | BA_POIS |
 S:CONF | S_DEMON | S_UNDEAD
@@ -10188,7 +10200,7 @@ B:BITE:POISON:8d4
 B:CRUSH:HURT:8d8
 F:ESCORT_lJ
 F:DROP_60 | DROP_90 | DROP_1D2 | DROP_GOOD | ONLY_ITEM | DROP_CORPSE
-F:CAN_SWIM | BASH_DOOR | RES_TELE | ELEM_AQUA |
+F:AQUATIC | BASH_DOOR | RES_TELE | ELEM_AQUA |
 F:EVIL | DEMON | RES_FIRE | RES_COLD | RES_POIS | RES_WATE |
 F:UNIQUE | FORCE_SLEEP | FORCE_MAXHP | CHAOTIC |
 F:NO_CONF | NO_SLEEP |
@@ -10768,10 +10780,9 @@ S:BR_CHAO | BR_STON | BR_NUKE
 D:$A swirling spiral of mist, constantly changing its appearance.
 D:渦巻く螺旋状の霧で、常に形を変えている。
 
-#JZ#
-#JZ#by 久留さん
-N:626:ウボ=サスラの落とし子
-E:Spawn of Ubbo-Sathla
+
+N:626:カオス・プリン
+E:Chaotic pudding
 G:j:v
 I:115:30d10:100:40:50
 W:40:9:0:150:0:0
@@ -11239,13 +11250,13 @@ W:38:6:0:7750:0:0
 B:CRUSH:HURT:33d2
 B:CRUSH:HURT:33d2
 B:CRUSH:SUPERHURT:8d8
-F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM | RES_FIRE | ELEM_AQUA |
+F:FORCE_SLEEP | FORCE_MAXHP | AQUATIC | RES_FIRE | ELEM_AQUA |
 F:DROP_60 | DROP_90 | DROP_2D2 | UNIQUE | EVIL |
 F:BASH_DOOR | SMART | EVIL | RES_COLD | DROP_CORPSE
 F:NO_CONF | NO_SLEEP | RES_WATE | WILD_OCEAN | RIDING |
 S:1_IN_9 | 
 S:BA_WATE
-D:ソロモンの悪魔七十二柱30番目の悪魔。29軍団の悪霊が従う侯爵であり、巨大なギンザメ
+D:ソロモンの悪魔七十二柱の一体。29軍団の悪霊が従う侯爵であり、巨大なギンザメ
 D:の姿をとる。かつては座天使の位にいたとされる。
 
 #TO#
@@ -11327,12 +11338,9 @@ S:HEAL | S_ANGEL | ANIM_DEAD | TPORT | SHRIEK
 D:屍術師ニバスの娘。兄デボルドまで屍術の実験台にしたニバスを
 D:討つべく、死者の宮殿に赴く。
 
-#JZ#
-#JZ#自存する源ウボ＝サスラ
-#JZ#クラーク・アシュトン・スミスの「ウボ＝サスラ」に登場した原初の
-#JZ#生命体です。 by 久留さん
-N:655:自存する源『ウボ=サスラ』
-E:Ubbo-Sathla, the Unbegotten Source
+
+N:655:『エンペラー・プリン』
+E:The Emperor Pudding
 G:j:W
 I:120:20d100:90:80:10
 W:41:3:0:13500:0:0
@@ -11340,33 +11348,13 @@ B:CRUSH:ACID:5d5
 B:HIT:POISON:5d5
 B:CRUSH:ACID:5d5
 B:HIT:POISON:5d5
-F:UNIQUE | CAN_SPEAK | NO_STUN | NO_SLEEP | NO_CONF | CHAOTIC | ELEM_EARTH |
+F:UNIQUE | NO_STUN | NO_SLEEP | NO_CONF | CHAOTIC | ELEM_EARTH |
 F:FORCE_SLEEP | FORCE_MAXHP | ESCORT_j |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | REGENERATE |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | KILL_BODY |
-F:EVIL | HURT_FIRE | RES_COLD | RES_POIS
-D:$"There, in the gray beginning of Earth, the formless mass that was 
-D:$Ubbo-Sathla reposed amid the slime and the vapors. Headless, 
-D:$without organs or members..."
-D:冷たくじめじめした洞窟の中に住む「異形の神々」の一柱。
-D:外見は泡立つ不定形の固まりで、何百もの偽足がそこから伸びている。
-D:ウボ＝サスラの偽足は絶え間なく形成されては振り回され、
-D:エサに触れるとそれを掴んで自分の中に取り込んでいる。
-D:また、ウボ＝サスラからは絶え間なく「落し子」が生産されつづけており、
-D:ウボ＝サスラ本体はそれをエサとして再び自分の中に吸収している。
-D:希に親の偽足から逃れたものは、
-D:魂の無い親の気まぐれの代行者となるが、洞窟から出ることはないようだ。
-D:ウボ＝サスラに遭遇した場合に最も注意するべき点は、
-D:彼に触れられた部分は完全に死んでしまうという点である。
-D:ウボ＝サスラは人類を含めた全ての生命の源と言われているが、
-D:これは「古きものども」の作り出した「ショゴス」が、ウボ＝サスラから作られ
-D:たという事に由来する。
-D:遥かな未来には、全ての生命は再びウボ＝サスラに帰するという。
-D:「そこ、灰色につつまれる原初の地球において、粘着物と蒸気のただな
-D:かに無定形の塊であるウボ＝サスラがその身を横たえていた。頭も臓器
-D:も四肢もないままに...」
-D:(クラーク・アシュトン・スミス、若林玲子訳「ウボ・サスラ」
-D:『クトゥルー４』、青心社文庫、p.54)
+F:EVIL | HURT_FIRE | RES_COLD | RES_POIS |
+S:1_IN_3 |
+S:S_KIN |
 
 #TO#
 N:656:灰白の『ルロッツァ』
@@ -16060,7 +16048,7 @@ D:ゴリアテで育てられた。弟デニムを深く愛するがゆえに、弟を激しく憎んだ。
 N:860:暗黒騎士『ランスロット』
 E:Lancelot, the Dark Knight
 G:p:v
-I:145:199d111:100:165:0
+I:145:200d100:100:165:0
 W:99:1:0:105000:0:0
 B:HIT:UN_BONUS:12d17
 B:HIT:UN_POWER:12d17
@@ -16096,7 +16084,7 @@ D:(タクティクス・オウガ　第四章『手をとりあって』二人のランスロット)
 N:861:ロード『デニム・モウン』
 E:Denim Mown, the Lord
 G:P:s
-I:150:200d150:100:150:0
+I:150:200d100:100:150:0
 W:99:1:0:120000:0:0
 B:SHOOT:HURT:14d30
 B:HIT:SHATTER:20d15
@@ -16127,7 +16115,7 @@ D:以後、ロードを名乗り、ヴァレリアの王となる。
 N:862:覇王『ドルガルア』
 E:Dolgarua, the King
 G:E:D
-I:155:200d250:111:175:0
+I:155:200d150:111:175:0
 W:100:1:0:166666:0:0
 B:CRUSH:SHATTER:22d15
 B:CRUSH:SHATTER:22d15

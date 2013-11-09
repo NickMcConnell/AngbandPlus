@@ -527,7 +527,7 @@ void teleport_level(int m_idx)
 	bool go_up;
 	int maxdepth = d_info[dungeon_type].maxdepth - ((dungeon_type == DUNGEON_HEAVEN_WAY) ? 1 : 0);
 
-	monster_type *m_ptr;
+	monster_type *m_ptr = NULL;
 	char         m_name[160];
 	bool         see_m = TRUE;
 	bool         do_delete = FALSE;
@@ -1268,7 +1268,7 @@ void brand_weapon(int brand_type)
 
 		switch (brand_type)
 		{
-		case EGO_BRAND_ACID:
+		case EGO_BERTHA:
 #ifdef JP
 			act = "は酸に覆われた！";
 #else
@@ -1276,9 +1276,9 @@ void brand_weapon(int brand_type)
 #endif
 
 			one_ability(o_ptr);
-			o_ptr->name2 = EGO_BRAND_ACID;
+			o_ptr->name2 = brand_type;
 			break;
-		case EGO_BRAND_ELEC:
+		case EGO_HAHNELA:
 #ifdef JP
 			act = "は電撃に覆われた！";
 #else
@@ -1286,9 +1286,9 @@ void brand_weapon(int brand_type)
 #endif
 
 			one_ability(o_ptr);
-			o_ptr->name2 = EGO_BRAND_ELEC;
+			o_ptr->name2 = brand_type;
 			break;
-		case EGO_BRAND_FIRE:
+		case EGO_ZOSHONELL:
 #ifdef JP
 			act = "は炎のシールドに覆われた！";
 #else
@@ -1296,9 +1296,9 @@ void brand_weapon(int brand_type)
 #endif
 
 			one_ability(o_ptr);
-			o_ptr->name2 = EGO_BRAND_FIRE;
+			o_ptr->name2 = brand_type;
 			break;
-		case EGO_BRAND_COLD:
+		case EGO_GRUZA:
 #ifdef JP
 			act = "は深く冷たいブルーに輝いた！";
 #else
@@ -1306,7 +1306,7 @@ void brand_weapon(int brand_type)
 #endif
 
 			one_ability(o_ptr);
-			o_ptr->name2 = EGO_BRAND_COLD;
+			o_ptr->name2 = brand_type;
 			break;
 		case EGO_ASSASIN_WEAPON:
 #ifdef JP
@@ -1315,7 +1315,7 @@ void brand_weapon(int brand_type)
 			act = "is coated with poison.";
 #endif
 
-			o_ptr->name2 = EGO_ASSASIN_WEAPON;
+			o_ptr->name2 = brand_type;
 			o_ptr->to_misc[OB_STEALTH] = m_bonus(3, dun_level);
 			break;
 		case EGO_CHAOTIC:
@@ -1325,7 +1325,7 @@ void brand_weapon(int brand_type)
 			act = "is engulfed in raw chaos!";
 #endif
 
-			o_ptr->name2 = EGO_CHAOTIC;
+			o_ptr->name2 = brand_type;
 			break;
 		case EGO_KILL_EVIL:
 #ifdef JP
@@ -1335,7 +1335,7 @@ void brand_weapon(int brand_type)
 #endif
 
 			o_ptr->to_stat[A_WIS] = m_bonus(2, dun_level);
-			o_ptr->name2 = EGO_KILL_EVIL;
+			o_ptr->name2 = brand_type;
 			break;
 		case EGO_KILL_GOOD:
 #ifdef JP
@@ -1345,7 +1345,7 @@ void brand_weapon(int brand_type)
 #endif
 
 			o_ptr->to_stat[A_INT] = m_bonus(2, dun_level);
-			o_ptr->name2 = EGO_KILL_GOOD;
+			o_ptr->name2 = brand_type;
 			break;
 		case EGO_VAMPIRIC:
 #ifdef JP
@@ -1354,7 +1354,7 @@ void brand_weapon(int brand_type)
 			act = "thirsts for blood!";
 #endif
 
-			o_ptr->name2 = EGO_VAMPIRIC;
+			o_ptr->name2 = brand_type;
 			break;
 		case EGO_PRISM:
 #ifdef JP
@@ -1363,7 +1363,7 @@ void brand_weapon(int brand_type)
 			act = "glows prism!.";
 #endif
 
-			o_ptr->name2 = EGO_PRISM;
+			o_ptr->name2 = brand_type;
 			break;
 		case EGO_ASMODE:
 #ifdef JP
@@ -1372,7 +1372,7 @@ void brand_weapon(int brand_type)
 			act = "seems very evil now.";
 #endif
 
-			o_ptr->name2 = EGO_ASMODE;
+			o_ptr->name2 = brand_type;
 			o_ptr->to_misc[OB_SEARCH] = randint1(2);
 			break;
 		default:
@@ -3768,7 +3768,7 @@ void display_spell_list(void)
 			/* Access the spell */
 			s_ptr = &mp_ptr->info[j][i];
 
-			strcpy(name, spell_names[j][i]);
+			strcpy(name, do_spell(j+1, i, SPELL_NAME));
 
 			/* Illegible */
 			if (s_ptr->slevel >= 99)
@@ -3847,22 +3847,6 @@ static int mod_spell_chance_1(int chance)
 	return chance;
 }
 
-
-#if 0
-/*
- * Modify spell fail rate (as "suffix" process)
- * Using p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
- * Note: variable "chance" cannot be negative.
- */
-static int mod_spell_chance_2(int chance)
-{
-	if (p_ptr->dec_mana) chance--;
-
-	if (p_ptr->heavy_spell) chance += 5;
-
-	return MAX(chance, 0);
-}
-#endif
 
 /*
  * Returns spell chance of failure for spell -RAK-
@@ -3992,364 +3976,6 @@ bool spell_okay(int spell, int use_realm)
 
 
 /*
- * Extra information on a spell -DRS-
- *
- * We can use up to 14 characters of the buffer 'p'
- *
- * The strings in this function were extracted from the code in the
- * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
- */
-static void spell_info(char *p, int spell, int use_realm)
-{
-	int plev = p_ptr->magic_exp[use_realm]/10;
-	int pstat;
-	int dummy;
-	char dummy_buf[16];
-
-	/* See below */
-	int burst = plev + (plev / (((p_ptr->pclass == CLASS_WIZARD) ||
-		(p_ptr->pclass == CLASS_SIRENE) ||
-		(p_ptr->pclass == CLASS_LICH) ||
-		(p_ptr->pclass == CLASS_ARCHMAGE)) ? 2 : 4));
-
-	int attacks = 3;
-
-#ifdef JP
-	cptr s_dam = "損傷:";
-	cptr s_dur = "期間:";
-	cptr s_range = "範囲:";
-	cptr s_heal = "回復:";
-	cptr s_delay = "遅延:";
-#else
-	cptr s_dam = "dam ";
-	cptr s_dur = "dur ";
-	cptr s_range = "range ";
-	cptr s_heal = "heal ";
-	cptr s_delay = "delay ";
-#endif
-	/* Default */
-	strcpy(p, "");
-
-	/* Call the elemental attack number (base = 3) */
-	pstat = p_ptr->stat_use[A_INT];
-	if (pstat >= (18 + 100)) attacks++;
-	if (pstat >= (18 + 150)) attacks++;
-	if (pstat >= (18 + 180)) attacks++;
-	if (pstat >= (18 + 200)) attacks++;
-	if (pstat >= (18 + 220)) attacks++;
-
-	/* Analyze the spell */
-	switch (use_realm)
-	{
-	case REALM_MAGERY:
-		switch (spell)
-		{
-		case  0: sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5)); break;
-		case  2: sprintf(p, " %s10", s_range); break;
-		case  4: sprintf(p, " %s2d%d", s_dam, plev / 2); break;
-		case  6: sprintf(p, " %s%d", s_range, plev * 5); break;
-		case  7: sprintf(p, " %s3d5+%d", s_dam, burst); break;
-		case  8: sprintf(p, " %s%dd8", s_dam, (3 + ((plev - 5) / 4))); break;
-		case 11: sprintf(p, " %s25+d30", s_dur); break;
-		case 12: sprintf(p, " %s%dd8", s_dam, (11 + ((plev - 5) / 4))); break;
-		case 14: sprintf(p, " %s15+d21", s_delay); break;
-		case 20: sprintf(p, " %s%d", s_dam, 120 + plev); break;
-		case 25: sprintf(p, " %s%d", s_dam, 300 + (plev * 4)); break;
-		}
-		break;
-
-	case REALM_FIRE:
-		switch (spell)
-		{
-		case  0: sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5)); break;
-		case  2: sprintf(p, " %s%dd8", s_dam, (8 + ((plev - 5) / 4))); break;
-		case  4: sprintf(p, " %s%d+d%d", s_dam, plev * 2 + 10, plev); break;
-		case  7: sprintf(p, " %s20+d20", s_dur); break;
-#ifdef JP
-		case  8: sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks); break;
-#else
-		case  8: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
-#endif
-		case  9: sprintf(p, " %s%ld", s_dam, MIN(p_ptr->chp / 2, 350)); break;
-#ifdef JP
-		case 10: sprintf(p, " %s各%d", s_dam, plev * 3 + 25); break;
-#else
-		case 10: sprintf(p, " %s%d each", s_dam, plev * 3 + 25); break;
-#endif
-		case 11: sprintf(p, " %s999", s_dam); break;
-		case 12: sprintf(p, " %s10+d10", s_dur); break;
-#ifdef JP
-		case 13: sprintf(p, " %s各%d+d%d", s_dam, plev * 8, plev * 5); break;
-#else
-		case 13: sprintf(p, " %s%d+d%d each", s_dam, plev * 8, plev * 5); break;
-#endif
-		}
-		break;
-
-	case REALM_AQUA:
-		switch (spell)
-		{
-		case  1: sprintf(p, " %s%dd8", s_dam, (6 + ((plev - 5) / 4))); break;
-		case  2: sprintf(p, " %s%d+d%d", s_dam, plev * 2 + 10, plev); break;
-		case  3: sprintf(p, " %s4d8", s_heal); break;
-		case  5: sprintf(p, " %s%d+d%d", s_dur, plev, plev + 25); break;
-		case  6: sprintf(p, " %s%d", s_dam, 100 + plev * 3 / 2); break;
-		case  7:
-			pstat = p_ptr->stat_use[A_INT];
-			dummy = 3;
-			if (pstat >= (18 + 150)) dummy++;
-			if (pstat >= (18 + 200)) dummy++;
-			sprintf(p, " %s%d*%d", s_dam, 15 + plev / 2, dummy);
-			break;
-		case  8: sprintf(p, " %s%d", s_range, (prace_is_(RACE_MERMAID) ? (plev + 20) : (plev / 2 + 10))); break;
-#ifdef JP
-		case  9: sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks); break;
-#else
-		case  9: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
-#endif
-		case 10: sprintf(p, " %s500", s_heal); break;
-		case 12: sprintf(p, " %s10d%d", s_dam, plev); break;
-#ifdef JP
-		case 13: sprintf(p, " %s各%d+d%d", s_dam, plev * 8, plev * 5); break;
-#else
-		case 13: sprintf(p, " %s%d+d%d each", s_dam, plev * 8, plev * 5); break;
-#endif
-		}
-		break;
-
-	case REALM_EARTH:
-		switch (spell)
-		{
-		case  0: sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5)); break;
-		case  2: sprintf(p, " %s%dd8", s_dam, (8 + ((plev - 5) / 4))); break;
-		case  4: sprintf(p, " %s%d+d%d", s_dam, plev * 2 + 10, plev); break;
-		case  6: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2); break;
-		case  7:
-			if (p_ptr->stat_use[A_INT] >= (18 + 200)) sprintf(dummy_buf, "+2d%d", plev);
-			else dummy_buf[0] = '\0';
-#ifdef JP
-			sprintf(p, " 損:10d%d*2%s", plev / 3, dummy_buf); break;
-#else
-			sprintf(p, " d 10d%d*2%s", plev / 3, dummy_buf); break;
-#endif
-		case  8: sprintf(p, " %s6+d6", s_dur); break;
-#ifdef JP
-		case  9: sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks); break;
-#else
-		case  9: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
-#endif
-		case 10: sprintf(p, " %s%d+d%d", s_dam, 100 + plev, plev * 2); break;
-		case 11: sprintf(p, " %s%ld", s_dam, MIN(p_ptr->chp / 2, 350)); break;
-#ifdef JP
-		case 12: sprintf(p, " %s各%d+d%d", s_dam, plev * 8, plev * 5); break;
-#else
-		case 12: sprintf(p, " %s%d+d%d each", s_dam, plev * 8, plev * 5); break;
-#endif
-		}
-		break;
-
-	case REALM_WIND:
-		switch (spell)
-		{
-		case  0: sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5)); break;
-		case  2: sprintf(p, " %s20+d%d", s_dur, plev); break;
-		case  3: sprintf(p, " %s%dd8", s_dam, (8 + ((plev - 5) / 4))); break;
-		case  4: sprintf(p, " %s%d+d%d", s_dam, plev * 2 + 10, plev); break;
-		case  5: sprintf(p, " %s%d+d%d", s_dur, plev, plev + 25); break;
-		case  7: sprintf(p, " %s%d+%d*2", s_dam, (40 + plev / 2) / 2, (20 + plev / 2) / 2); break;
-#ifdef JP
-		case  8: sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks); break;
-#else
-		case  8: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
-#endif
-		case  9: sprintf(p, " %s%ld", s_dam, MIN(p_ptr->chp / 2, 350)); break;
-		case 10: sprintf(p, " %s%d", s_range, plev / 2 + 10); break;
-#ifdef JP
-		case 11: sprintf(p, " %s各%d+d%d", s_dam, plev * 8, plev * 5); break;
-#else
-		case 11: sprintf(p, " %s%d+d%d each", s_dam, plev * 8, plev * 5); break;
-#endif
-		}
-		break;
-
-	case REALM_HOLY:
-		switch (spell)
-		{
-		case  1: sprintf(p, " %s12+d12", s_dur); break;
-		case  2: sprintf(p, " %s2d%d", s_dam, plev / 2); break;
-		case  3: sprintf(p, " %s8d10", s_heal); break;
-		case  9: sprintf(p, " %s100+d%d", s_dam, plev * 2); break;
-		case 11: sprintf(p, " %s1000", s_heal); break;
-		case 13: sprintf(p, " %s%d+d25", s_dur, plev * 3); break;
-		case 14: sprintf(p, " %s300", s_heal); break;
-		case 15: sprintf(p, " %s20+d20", s_dur); break;
-		case 19:
-			pstat = p_ptr->stat_use[A_WIS];
-			attacks = 1;
-			if (pstat >= (18 + 100)) attacks++;
-			if (pstat >= (18 + 150)) attacks++;
-			if (pstat >= (18 + 180)) attacks++;
-			if (pstat >= (18 + 200)) attacks++;
-			if (pstat >= (18 + 220)) attacks++;
-#ifdef JP
-			sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks); break;
-#else
-			sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
-#endif
-		case 22: sprintf(p, " %s5000", s_heal); break;
-		case 23: sprintf(p, " %s6+d6", s_dur); break;
-		}
-		break;
-
-	case REALM_DEATH:
-		switch (spell)
-		{
-		case  3: sprintf(p, " %s3d6+%d", s_dam, plev + plev / 2); break;
-		case  4: sprintf(p, " %s%d+d%d", s_dur, plev, plev + 25); break;
-		case  5: sprintf(p, " %s%d+%dd4", s_dam, plev + 30, 4 + ((plev - 10) / 5)); break;
-#ifdef JP
-		case  6: sprintf(p, " %s各%dd10", s_dam, plev / 5 + 10); break;
-#else
-		case  6: sprintf(p, " %s%dd10 each", s_dam, plev / 10 + 5); break;
-#endif
-		case  9: sprintf(p, " %s%ld", s_dam, MAX(p_ptr->mhp - p_ptr->chp, 0)); break;
-		case 15: sprintf(p, " %s100*3", s_dam); break;
-#ifdef JP
-		case 16: sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks - 2); break;
-#else
-		case 16: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks - 2); break;
-#endif
-#ifdef JP
-		case 17: sprintf(p, " %s各%d", s_dam, plev * 4); break;
-#else
-		case 17: sprintf(p, " %s%d each", s_dam, plev * 4); break;
-#endif
-		case 19: sprintf(p, " %s%d", s_dam, 100 + plev * 4); break;
-		case 20: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2); break;
-		case 22: sprintf(p, " %s666", s_dam); break;
-		case 23: sprintf(p, " %s4+2d2", s_dur); break;
-#ifdef JP
-		case 24: sprintf(p, " %s各%d+d%d", s_dam, plev * 8, plev * 5); break;
-#else
-		case 24: sprintf(p, " %s%d+d%d each", s_dam, plev * 8, plev * 5); break;
-#endif
-		}
-		break;
-
-	case REALM_SYMBIOTIC:
-		switch (spell)
-		{
-		case  2: sprintf(p, " %s4d6", s_heal); break;
-#ifdef JP
-		case 12: sprintf(p, " %s各200", s_heal); break;
-#else
-		case 12: sprintf(p, " %s%200 each", s_heal); break;
-#endif
-		case 14: sprintf(p, " %s1000", s_heal); break;
-		}
-		break;
-
-	case REALM_WITCH:
-		switch (spell)
-		{
-		case  0: sprintf(p, " %s100+d100", s_dur); break;
-		case  3: sprintf(p, " %s25+d25", s_dur); break;
-		case  5: sprintf(p, " %s20+d%d", s_dur, plev); break;
-		case  6: sprintf(p, " %s4d8", s_heal); break;
-		case  7: sprintf(p, " %s%d+d%d", s_dur, plev, plev + 25); break;
-		case  9: sprintf(p, " %s3d5+%d", s_dam, plev + plev / 2); break;
-		case 13: sprintf(p, " %s%d+d%d", s_dam, plev * 2 + 10, plev); break;
-		case 15: sprintf(p, " %s20+d20", s_dur); break;
-		case 16: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2); break;
-		case 20: sprintf(p, " %s100+d%d", s_dam, plev * 2); break;
-		case 21: sprintf(p, " %s20+d20", s_dur); break;
-		case 26: sprintf(p, " %s500", s_heal); break;
-		case 27: sprintf(p, " %s%d", s_dam, 200 + plev * 3); break;
-		case 28: sprintf(p, " %s%d", s_range, plev / 2 + 10); break;
-		case 30: sprintf(p, " %s%d+d%d", s_dur, (plev / 2), (plev / 2)); break;
-		}
-		break;
-
-	case REALM_DRAKONITE:
-		switch (spell)
-		{
-#ifdef JP
-		case  2: sprintf(p, " %s各%d+d%d", s_dam, plev * 6, plev * 5); break;
-#else
-		case  2: sprintf(p, " %s%d+d%d each", s_dam, plev * 6, plev * 5); break;
-#endif
-#ifdef JP
-		case  3: sprintf(p, " %s各%d+d%d", s_dam, plev * 6, plev * 5); break;
-#else
-		case  3: sprintf(p, " %s%d+d%d each", s_dam, plev * 6, plev * 5); break;
-#endif
-#ifdef JP
-		case  4: sprintf(p, " %s各%d+d%d", s_dam, plev * 6, plev * 5); break;
-#else
-		case  4: sprintf(p, " %s%d+d%d each", s_dam, plev * 6, plev * 5); break;
-#endif
-#ifdef JP
-		case  5: sprintf(p, " %s各%d+d%d", s_dam, plev * 6, plev * 5); break;
-#else
-		case  5: sprintf(p, " %s%d+d%d each", s_dam, plev * 6, plev * 5); break;
-#endif
-		}
-		break;
-
-	case REALM_CRUSADE:
-		switch (spell)
-		{
-		case  1: sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5)); break;
-		case  4: sprintf(p, " %s24+d24", s_dur); break;
-#ifdef JP
-		case  5: sprintf(p, " %s各%dd2", s_dam, 3 + ((plev - 1) / 9)); break;
-#else
-		case  5: sprintf(p, " %s%dd2 each", s_dam, 3 + ((plev - 1) / 9)); break;
-#endif
-		case  7: sprintf(p, " %s3d6+%d", s_dam, plev + plev / 2); break;
-#ifdef JP
-		case  8: sprintf(p, " %s各d%d", s_dam, plev * 4); break;
-#else
-		case  8: sprintf(p, " %sd%d each", s_dam, plev * 4); break;
-#endif
-		case  9: sprintf(p, " %s%d", s_dam, plev * 5); break;
-#ifdef JP
-		case 10: sprintf(p, " %s各%d", s_dam, plev * 3 + 25); break;
-#else
-		case 10: sprintf(p, " %s%d each", s_dam, plev * 3 + 25); break;
-#endif
-		case 11: sprintf(p, " %s%ld", s_dam, p_ptr->chp); break;
-		case 12: sprintf(p, " %s25+d25", s_dur); break;
-		case 14: sprintf(p, " %s25+d25", s_dur); break;
-		case 15: sprintf(p, " %s20+d20", s_dur); break;
-		case 17: sprintf(p, " %s%ld", s_dam, p_ptr->chp / 3); break;
-#ifdef JP
-		case 18: sprintf(p, " 損:d%d/回:100", 6 * plev); break;
-#else
-		case 18: sprintf(p, " dam:d%d/h100", 6 * plev); break;
-#endif
-		case 19: sprintf(p, " %s%d", s_dam, 2 * plev + 100); break;
-		case 21: sprintf(p, " %s10+d10", s_dur); break;
-		case 22: sprintf(p, " %s%d", s_dam, 200 + plev * 2); break;
-#ifdef JP
-		case 23: sprintf(p, " 回100/損%d+%d", plev * 4, plev*11/2); break;
-#else
-		case 23: sprintf(p, " h100/dm%d+%d", plev * 4, plev*11/2); break;
-#endif
-		}
-		break;
-
-	default:
-#ifdef JP
-		sprintf(p, "未知のタイプ: %d", use_realm);
-#else
-		sprintf(p, "Unknown type: %d.", use_realm);
-#endif
-	}
-}
-
-
-/*
  * Print a list of spells (for browsing or casting or viewing)
  */
 void print_spells(int target_spell, byte *spells, int num, int y, int x, int use_realm)
@@ -4435,7 +4061,7 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 		/* XXX XXX Could label spells above the players level */
 
 		/* Get extra info */
-		spell_info(info, spell, use_realm);
+		strcpy(info, do_spell(use_realm, spell, SPELL_INFO));
 
 		/* Use that info */
 		comment = info;
@@ -4457,7 +4083,7 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 
 		/* Dump the spell --(-- */
 		strcat(out_val, format("%-25s %-4s %2d %4d %3d%%%s",
-		    spell_names[use_realm-1][spell], /* realm, spell */
+		    do_spell(use_realm, spell, SPELL_NAME), /* realm, spell */
 		    skill_lev_str_short,
 		    s_ptr->slevel, use_mana, spell_chance(spell, use_realm), comment));
 		c_prt(line_attr, out_val, y + i + 1, x);
@@ -5611,7 +5237,7 @@ s = "魔力を吸収できるアイテムがありません。";
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_ARCHMAGE) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH) || (p_ptr->pclass == CLASS_ARCHMAGE))
+			if ((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_WARLOCK) || (p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HIGHWITCH) || (p_ptr->pclass == CLASS_ARCHMAGE))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -5864,6 +5490,10 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 	case CLASS_VAMPIRE:
 		summon_kin_type = 'V';
 		break;
+	case CLASS_SUCCUBUS:
+		if (one_in_(5)) summon_kin_type = 'U';
+		else summon_kin_type = 'u';
+		break;
 	}
 	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, mode);
 }
@@ -5895,7 +5525,7 @@ void reincarnation(void)
 		p_ptr->energy_need += ENERGY_NEED();
 	}
 
-	p_ptr->infected = FALSE;
+	p_ptr->infected = 0;
 
 	dispel_player();
 	set_action(ACTION_NONE);
@@ -6065,6 +5695,7 @@ void dispel_player(void)
 	set_tim_sh_elec(0, TRUE);
 	set_tim_sh_cold(0, TRUE);
 	set_tim_sh_holy(0, TRUE);
+	set_tim_sh_aura(0, TRUE);
 	set_tim_eyeeye(0, TRUE);
 	set_tim_inc_blow(0, TRUE);
 	set_tim_dec_blow(0, TRUE);
@@ -6174,6 +5805,8 @@ static void snap_dragon_class_flags(object_type *o_ptr)
 		o_ptr->to_misc[OB_ANTI_MAGIC] = 3;
 		break;
 
+	case CLASS_GRAPPLER:
+		o_ptr->to_misc[OB_BLOWS] = 2;
 	default:
 		break;
 	}
@@ -6330,6 +5963,13 @@ void snap_dragon(void)
 	case ALIGN_LNC_CHAOTIC:
 		runeweapon->align |= (SUB_ALIGN_CHAOTIC);
 		break;
+	}
+
+	for (i = 0; i < ALI_MAX; i++)
+	{
+		q_ptr->to_align[i] = p_ptr->align_self[i]/30;
+
+		if (q_ptr->to_align[i] != 0) add_flag(q_ptr->art_flags, ali_to_tr[i]);
 	}
 
 	/* Flags determined by element */
@@ -6839,6 +6479,13 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			if (!baldar_generation_okay(o_ptr)) return FALSE;
 			o_ptr->weight = o_ptr->weight * 6 / 5;
 			break;
+		case EGO_BERTHA:
+		case EGO_HAHNELA:
+		case EGO_ZOSHONELL:
+		case EGO_GRUZA:
+			if (get_weapon_type(&k_info[o_ptr->k_idx]) == WT_STAFF)
+				add_flag(o_ptr->art_flags, TR_ACTIVATE);
+			break;
 		default:
 			return FALSE;
 		}
@@ -6910,6 +6557,9 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 			if (!baldar_generation_okay(o_ptr)) return FALSE;
 			o_ptr->weight = o_ptr->weight * 6 / 5;
 			break;
+		case EGO_ICARUS:
+			if (o_ptr->sval != SV_PAIR_OF_SANDALS) return FALSE;
+			break;
 		}
 		break;
 
@@ -6925,6 +6575,9 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 			break;
 		case EGO_ASSASIN:
 			if ((o_ptr->sval != SV_SET_OF_LEATHER_GLOVES) && (o_ptr->sval != SV_SET_OF_GLOVES)) return FALSE;
+			break;
+		case EGO_HERMIT:
+			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_DEC_MANA);
 			break;
 		case EGO_BALDAR_GLOVES:
 			if (!baldar_generation_okay(o_ptr)) return FALSE;
@@ -6965,6 +6618,7 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 		case EGO_TELEPATHY:
 		case EGO_REGENERATION:
 		case EGO_LORDLINESS:
+		case EGO_CLAIRVOYANCE:
 			break;
 		case EGO_SEEING:
 			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_TELEPATHY);
@@ -7550,7 +7204,7 @@ static bool wish_a_m_aux_3(object_type *o_ptr, int level, bool do_wish)
 
 		case EGO_AMU_LEVITATION:
 			if (o_ptr->ident & IDENT_BROKEN) return FALSE;
-			if (have_flag(k_ptr->flags, TR_FEATHER)) return FALSE;
+			if (have_flag(k_ptr->flags, TR_LEVITATION)) return FALSE;
 			break;
 
 		case EGO_AMU_GREAT:
@@ -7647,6 +7301,9 @@ static bool wish_a_m_aux_4(object_type *o_ptr, bool do_wish)
 		o_ptr->xtra4 = o_ptr->pval;
 		o_ptr->pval = 0;
 		break;
+
+	default:
+		break;
 	}
 
 	return TRUE;
@@ -7674,6 +7331,7 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 		o_ptr->ds = a_ptr->ds;
 		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = a_ptr->to_stat[i];
 		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = a_ptr->to_misc[i];
+		for (i = 0; i < ALI_MAX; i++) o_ptr->to_align[i] = a_ptr->to_align[i];
 		o_ptr->to_a = a_ptr->to_a;
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
@@ -7766,6 +7424,10 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 			{
 				if (e_ptr->max_to_misc[i]) o_ptr->to_misc[i] -= randint1(e_ptr->max_to_misc[i]);
 			}
+			for (i = 0; i < ALI_MAX; i++)
+			{
+				if (e_ptr->to_align[i]) o_ptr->to_align[i] += e_ptr->to_align[i];
+			}
 			if (e_ptr->max_to_h) o_ptr->to_h -= randint1(e_ptr->max_to_h);
 			if (e_ptr->max_to_d) o_ptr->to_d -= randint1(e_ptr->max_to_d);
 			if (e_ptr->max_to_a) o_ptr->to_a -= randint1(e_ptr->max_to_a);
@@ -7791,6 +7453,13 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 					if (e_ptr->max_to_misc[i] > 127)
 						o_ptr->to_misc[i] -= randint1(256-e_ptr->max_to_misc[i]);
 					else o_ptr->to_misc[i] += randint1(e_ptr->max_to_misc[i]);
+				}
+			}
+			for (i = 0; i < ALI_MAX; i++)
+			{
+				if (e_ptr->to_align[i])
+				{
+					o_ptr->to_align[i] += e_ptr->to_align[i];
 				}
 			}
 			if (e_ptr->max_to_h)
@@ -7830,6 +7499,10 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 				break;
 			case EGO_ARCADIA:
 				if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_CLOAK_OF_IVORY_TOWER)) o_ptr->to_align[ALI_LNC] = -10;
+				break;
+			case EGO_SAINT:
+			case EGO_SATAN:
+				for (i = 0; i < 2; i++) one_high_resistance(o_ptr);
 				break;
 			}
 		}
@@ -7927,7 +7600,7 @@ bool wish_object(cptr err_msg)
 			q_ptr->name1 = i;
 
 			/* Describe the artifact */
-			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			object_desc(o_name, q_ptr, (OD_NAME_ONLY | OD_STORE));
 
 			if (streq(w_o_name, o_name + (only_artifact ? 0 : 2))) add_wish_result(&w_list_top, q_ptr);
 		}
@@ -8012,7 +7685,7 @@ bool wish_object(cptr err_msg)
 
 			object_prep(q_ptr, i);
 			q_ptr->pval = r_idx_found;
-			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			object_desc(o_name, q_ptr, (OD_NAME_ONLY | OD_STORE));
 			if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			break;
 
@@ -8048,7 +7721,7 @@ bool wish_object(cptr err_msg)
 				object_prep(q_ptr, i);
 				q_ptr->name2 = e_found[j];
 				if (!wish_apply_magic(q_ptr, TRUE)) continue;
-				object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+				object_desc(o_name, q_ptr, (OD_NAME_ONLY | OD_STORE));
 				if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			}
 			break;
@@ -8065,7 +7738,7 @@ bool wish_object(cptr err_msg)
 		case TV_DRAKONITE_BOOK:
 		case TV_CRUSADE_BOOK:
 			object_prep(q_ptr, i);
-			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			object_desc(o_name, q_ptr, (OD_NAME_ONLY | OD_STORE));
 			if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			else if (streq(w_o_name, k_name + k_info[q_ptr->k_idx].name)) add_wish_result(&w_list_top, q_ptr);
 			else
@@ -8080,7 +7753,7 @@ bool wish_object(cptr err_msg)
 		default:
 			object_prep(q_ptr, i);
 			wish_apply_magic(q_ptr, TRUE);
-			object_desc(o_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			object_desc(o_name, q_ptr, (OD_NAME_ONLY | OD_STORE));
 			if (streq(w_o_name, o_name)) add_wish_result(&w_list_top, q_ptr);
 			break;
 		}

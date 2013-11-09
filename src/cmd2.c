@@ -3221,6 +3221,11 @@ void do_cmd_stay(int pickup)
 
 			msg_print(NULL);
 			if (quest_is_fixed(q_index)) change_your_alignment(ALI_LNC, 10);
+			if (quest_is_fixed(q_index) && !(quest[q_index].flags & QUEST_FLAG_ALI_CHAOS)) change_your_alignment(ALI_LNC, 10);
+			else change_your_alignment(ALI_LNC, -10);
+
+			if (quest[q_index].flags & QUEST_FLAG_ALI_EVIL) change_your_alignment(ALI_GNE, -10);
+			else change_your_alignment(ALI_GNE, 10);
 		}
 
 		leave_quest_check();

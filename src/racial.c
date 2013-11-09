@@ -12,10 +12,7 @@
 
 #include "angband.h"
 
-/*
- * do_cmd_cast calls this function if the player's class
- * is 'archer'.
- */
+
 static bool do_cmd_archer(void)
 {
 	int ext=0;
@@ -87,8 +84,8 @@ static bool do_cmd_archer(void)
 	if (ext == 2)
 	{
 		int item;
-
 		cptr q, s;
+		int idx;
 
 		item_tester_hook = object_is_convertible;
 
@@ -145,14 +142,19 @@ static bool do_cmd_archer(void)
 			floor_item_describe(0 - item);
 			floor_item_optimize(0 - item);
 		}
+
+		/* Auto-inscription */
+		idx = is_autopick(q_ptr);
+		(void)auto_inscribe_object(q_ptr, idx);
+
 		(void)inven_carry(q_ptr);
 	}
 	/**********Create bolts*********/
 	else if (ext == 3)
 	{
 		int item;
-
 		cptr q, s;
+		int idx;
 
 		item_tester_hook = object_is_convertible;
 
@@ -209,6 +211,10 @@ static bool do_cmd_archer(void)
 			floor_item_describe(0 - item);
 			floor_item_optimize(0 - item);
 		}
+
+		/* Auto-inscription */
+		idx = is_autopick(q_ptr);
+		(void)auto_inscribe_object(q_ptr, idx);
 
 		(void)inven_carry(q_ptr);
 	}
@@ -742,10 +748,7 @@ static bool do_cmd_penetration(void)
 	return TRUE;
 }
 
-/*
- * do_cmd_cast calls this function if the player's class
- * is 'Medium'.
- */
+
 static bool do_cmd_hamaya(void)
 {
 	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
@@ -1126,7 +1129,7 @@ static int racial_aux(power_desc_type *pd_ptr)
 		return 0;
 	}
 
-	else if ((p_ptr->pclass == CLASS_FREYA) && ((pd_ptr->number <= -5) || (pd_ptr->number >= -7)) && (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx])) & (WT_BIT_SPEAR | WT_BIT_LANCE))))
+	else if ((p_ptr->pclass == CLASS_FREYA) && ((pd_ptr->number <= -5) && (pd_ptr->number >= -7)) && (!(weapon_type_bit(get_weapon_type(&k_info[inventory[INVEN_RARM].k_idx])) & (WT_BIT_SPEAR | WT_BIT_LANCE))))
 	{
 #ifdef JP
 		msg_print("この技を使うには槍を利き腕に装備しないといけない！");
@@ -2189,15 +2192,12 @@ static bool cmd_racial_power_aux(s32b command)
 				}
 				break;
 			case -8:
-				if (p_ptr->action == ACTION_AURA)
+				if (!p_ptr->tim_sh_aura)
 				{
-					set_action(ACTION_NONE);
+					int dice = (p_ptr->csp - 50) / 5;
+					set_tim_sh_aura(10 + randint1(dice), FALSE);
+					p_ptr->csp = 0;
 				}
-				else
-				{
-					set_action(ACTION_AURA);
-				}
-				energy_use = 0;
 				break;
 			}
 			break;
@@ -2475,9 +2475,9 @@ static bool cmd_racial_power_aux(s32b command)
 			case -6:
 				{
 					int x, y;
-					int attack = randint1(3);
+					int ext_attack = randint0(plev/13);
 
-					if (!(empty_hands() & EMPTY_HAND_RARM))
+					if (!(empty_hands() & EMPTY_HAND_RARM) && !(empty_hands() & EMPTY_HAND_LARM))
 					{
 #ifdef JP
 						msg_print("素手じゃないとできません。");
@@ -2510,14 +2510,14 @@ static bool cmd_racial_power_aux(s32b command)
 #endif
 
 						py_attack(y, x, 0);
-						while (attack)
+						while (ext_attack)
 						{
 							if (cave[y][x].m_idx)
 							{
 								handle_stuff();
 								py_attack(y, x, 0);
 							}
-							attack--;
+							ext_attack--;
 						}
 						p_ptr->energy_need += ENERGY_NEED();
 					}
@@ -2535,10 +2535,53 @@ static bool cmd_racial_power_aux(s32b command)
 			}
 			break;
 		}
+		case CLASS_GRAPPLER:
+		{
+			switch (command)
+			{
+			case -5:
+				project_length = 5;
+				if (!get_aim_dir(&dir)) return FALSE;
+				project_hook(GF_ATTACK, dir, PY_ATTACK_NYUSIN, PROJECT_STOP | PROJECT_KILL);
+				break;
+			}
+		}
+		case CLASS_ELEMENTALER:
+		{
+			switch (command)
+			{
+			case -5:
+				if (total_friends)
+				{
+#ifdef JP
+					msg_print("今はペットを操ることに集中していないと。");
+#else
+					msg_print("You need concentration on the pets now.");
+#endif
+					return FALSE;
+				}
+#ifdef JP
+				msg_print("少し頭がハッキリした。");
+#else
+				msg_print("You feel your head clear a little.");
+#endif
+
+				p_ptr->csp += (3 + p_ptr->lev/20);
+				if (p_ptr->csp >= p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+				}
+
+				/* Redraw mana */
+				p_ptr->redraw |= (PR_MANA);
+				break;
+			}
+		}
 		}
 	}
 
-	else 
+	else if (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD)))
 	{
 
 	switch (p_ptr->prace)
@@ -2844,7 +2887,7 @@ static bool special_blow_aux(s32b command)
 {
 	special_blow_type *sb_ptr;
 	cave_type *c_ptr = NULL;
-	monster_type *m_ptr;
+	monster_type *m_ptr = NULL;
 	monster_race *r_ptr = NULL;
 	char m_name[80];
 	int dir = 0;
@@ -2884,7 +2927,7 @@ static bool special_blow_aux(s32b command)
 			{
 				if (weapon_type_bit(i) & (sb_ptr->weapon_type & ~(WT_BIT_GUN | WT_BIT_BOW)))
 				{
-					strcat(buf, wt_desc[i]);
+					strcat(buf, weapon_skill_name[i]);
 					strcat(buf, "か");
 				}
 			}
@@ -3744,17 +3787,20 @@ void do_cmd_racial_power(void)
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 60;
 		power_desc[num++].number = -7;
+		if (!p_ptr->tim_sh_aura)
+		{
 #ifdef JP
-		strcpy(power_desc[num].name, "闘気の鎧");
+			strcpy(power_desc[num].name, "闘気の鎧");
 #else
-		strcpy(power_desc[num].name, "Aura shield");
+			strcpy(power_desc[num].name, "Aura shield");
 #endif
 
-		power_desc[num].level = 25;
-		power_desc[num].cost = (p_ptr->action == ACTION_AURA) ? 0 : 50;
-		power_desc[num].stat = A_STR;
-		power_desc[num].fail = (p_ptr->action == ACTION_AURA) ? 0 : 60;
-		power_desc[num++].number = -8;
+			power_desc[num].level = 25;
+			power_desc[num].cost = 50;
+			power_desc[num].stat = A_STR;
+			power_desc[num].fail = 60;
+			power_desc[num++].number = -8;
+		}
 		break;
 	}
 	case CLASS_GENERAL:
@@ -4026,6 +4072,36 @@ void do_cmd_racial_power(void)
 		power_desc[num++].number = -6;
 		break;
 	}
+	case CLASS_GRAPPLER:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "入身");
+#else
+		strcpy(power_desc[num].name, "Rush Attack");
+#endif
+
+		power_desc[num].level = 24;
+		power_desc[num].cost = 30;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 60;
+		power_desc[num++].number = -5;
+		break;
+	}
+	case CLASS_ELEMENTALER:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "明鏡止水");
+#else
+		strcpy(power_desc[num].name, "Clear Mind");
+#endif
+
+		power_desc[num].level = 15;
+		power_desc[num].cost = 0;
+		power_desc[num].stat = A_WIS;
+		power_desc[num].fail = 10;
+		power_desc[num++].number = -5;
+		break;
+	}
 #if 0
 	default:
 #ifdef JP
@@ -4036,6 +4112,9 @@ void do_cmd_racial_power(void)
 #endif
 
 	}
+
+	if (!(cp_ptr->c_flags & (PCF_REINCARNATE | PCF_DEMON | PCF_UNDEAD)))
+	{
 
 	switch (p_ptr->prace)
 	{
@@ -4229,6 +4308,7 @@ void do_cmd_racial_power(void)
 		{
 			break;
 		}
+	}
 	}
 
 	if (p_ptr->special_blow)

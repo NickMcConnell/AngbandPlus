@@ -12,6 +12,7 @@
 
 #include "angband.h"
 
+static char T_BUILD[] = "build:2004-10-21";
 
 /*
  *  mark strings for auto dump
@@ -4608,13 +4609,8 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-#ifdef JP
-	msg_format("TOband2 %d.%d.%d",
-	            T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
-#else
-	msg_format("You are playing TOband2 %d.%d.%d.",
-	            T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
-#endif
+	msg_format("TOband2 %d.%d.%d(%s)",
+	            T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH, T_BUILD);
 }
 
 
@@ -5102,6 +5098,7 @@ static cptr object_group_text[] =
 	"È¢",
 	"¿Í·Á",
 	"Áü",
+	"¹ÛÀÐ",
 	"¥´¥ß",
 	"¶õ¤Î¥Ó¥ó",
 	"¹ü",
@@ -5146,6 +5143,7 @@ static cptr object_group_text[] =
 	"Boxs",
 	"Figurines",
 	"Statues",
+	"Chunks",
 	"Junks",
 	"Bottles",
 	"Skeletons",
@@ -5199,6 +5197,7 @@ static byte object_group_tval[] =
 	TV_CHEST,
 	TV_FIGURINE,
 	TV_STATUE,
+	TV_CHUNK,
 	TV_JUNK,
 	TV_BOTTLE,
 	TV_SKELETON,
@@ -5321,47 +5320,6 @@ static int collect_features(int *feat_idx)
 	/* Return the number of races */
 	return feat_cnt;
 }
-
-
-#if 0
-/*
- * Build a list of monster indexes in the given group. Return the number
- * of monsters in the group.
- */
-static int collect_artifacts(int grp_cur, int object_idx[])
-{
-	int i, object_cnt = 0;
-
-	/* Get a list of x_char in this group */
-	byte group_tval = object_group_tval[grp_cur];
-
-	/* Check every object */
-	for (i = 0; i < max_a_idx; i++)
-	{
-		/* Access the artifact */
-		artifact_type *a_ptr = &a_info[i];
-
-		/* Skip empty artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Check for race in the group */
-		if (a_ptr->tval == group_tval)
-		{
-			/* Add the race */
-			object_idx[object_cnt++] = i;
-		}
-	}
-
-	/* Terminate the list */
-	object_idx[object_cnt] = 0;
-
-	/* Return the number of races */
-	return object_cnt;
-}
-#endif /* 0 */
 
 
 /*
@@ -5696,7 +5654,7 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 			else if (have_flag(flgs, TR_REGEN_MANA)) fprintf(fff,"£Í");
 			else fprintf(fff,"¡¦");
 
-			if (have_flag(flgs, TR_FEATHER)) fprintf(fff,"¡Ü");
+			if (have_flag(flgs, TR_LEVITATION)) fprintf(fff,"¡Ü");
 			else fprintf(fff,"¡¦");
 #else
 			if (have_flag(flgs, TR_IM_ACID)) fprintf(fff,"* ");
@@ -5773,7 +5731,7 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 			else if (have_flag(flgs, TR_REGEN_MANA)) fprintf(fff,"M ");
 			else fprintf(fff,". ");
 
-			if (have_flag(flgs, TR_FEATHER)) fprintf(fff,"+ ");
+			if (have_flag(flgs, TR_LEVITATION)) fprintf(fff,"+ ");
 			else fprintf(fff,". ");
 #endif
 			fprintf(fff,"\n");
@@ -8553,7 +8511,7 @@ static void display_skill_list(bool is_weapon, bool is_misc, bool is_magic, int 
 	int skill_cur, int skill_top)
 {
 	int i;
-	int skill_lev, skill_eff;
+	int skill_lev = 0, skill_eff = 0;
 	bool is_master = FALSE;
 	byte attr;
 

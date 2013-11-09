@@ -292,34 +292,36 @@ X:33:10
 W:0:36:0:1500
 F:REGEN
 
-N:35:テレポートの
-E:of Teleportation
-X:33:0
-W:0:36:0:0
-F:TELEPORT
-
-N:36:無知の
-E:of Stupidity
-X:33:0
-C:0:0:0
-W:0:18:0:0
-F:INT_5
-
-N:37:愚鈍の
-E:of Naivety
-X:33:0
-C:0:0:0
-W:0:18:0:0
-F:WIS_5
-
-N:38:醜悪の
-E:of Ugliness
-X:33:0
-C:0:0:0
-W:0:36:0:0
-F:CHR_5
+N:35:千里眼の
+E:of Clairvoyance
+X:33:6
+W:0:18:0:2000
+F:ACTIVATE
 
 ### Cloaks ###
+
+N:36:聖者の
+E:of Saint
+X:32:50
+C:0:0:10
+W:0:36:0:15000
+F:WIS_2 | XTRA_H_RES | ALIGN_GNE_15 |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:37:魔王の
+E:of Satan
+X:32:50
+C:0:0:10
+W:0:36:0:15000
+F:INT_2 | XTRA_H_RES | ALIGN_GNE_-15 |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:38:守護者の
+E:of Guardian
+X:32:127
+C:0:0:0
+W:0:36:0:35000
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:39:*耐酸*の
 E:of *Resist* Acid
@@ -401,8 +403,8 @@ F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
 N:48:麻痺知らずの
 E:of Free Action
 X:34:9
-F:FREE_ACT
 W:0:2:0:1000
+F:FREE_ACT
 
 N:49:殺戮の
 E:of Slaying
@@ -441,19 +443,19 @@ W:0:7:0:2000
 C:0:0:0
 F:MAGIC_MASTERY_4
 
-N:54:脆弱の
-E:of Weakness
-X:34:0
-W:0:36:0:0
-C:0:0:0
-F:STR_10
+N:54:隠者の
+E:of Hermit
+X:34:22
+W:0:9:0:6500
+C:-5:-5:0
+F:INT_2 | WIS_2 | FREE_ACT
 
-N:55:不器用の
-E:of Clumsiness
-X:34:0
-W:0:36:0:0
+N:55:節制の
+E:of Temperance
+X:34:12
+W:0:9:0:5000
 C:0:0:0
-F:DEX_10
+F:RES_CONF | RES_CHAOS | FREE_ACT | HOLD_LIFE | 
 
 
 ### Boots ###
@@ -463,7 +465,7 @@ N:56:浮遊の
 E:of Levitation
 X:35:7
 W:0:4:0:250
-F:FEATHER
+F:LEVITATION
 
 #J0#
 #J0# 岸さんの訳です
@@ -494,26 +496,27 @@ X:35:20
 W:0:29:0:10000
 F:ACTIVATE
 
-N:61:騒音の
-E:of Noise
-X:35:0
-W:0:36:0:0
-F:AGGRAVATE
+N:61:楔の
+E:of Spike
+X:35:12
+W:0:8:0:8000
+F:CON_2 | SUST_CON | IGNORE_ACID
 
-N:62:のろまの
-E:of Slowness
-X:35:0
-W:0:36:0:0
+N:62:レリクスの
+E:of Relics
+X:35:16
+W:0:6:0:6000
+C:8:8:0
+F:RES_FEAR | REGEN | FEAR_FIELD |
+F:SHOW_MODS
+
+N:63:イカロスの
+E:of Icarus
+X:35:36
+W:0:36:0:100000
 C:0:0:0
-F:SPEED_5
-
-N:63:厄介者の
-E:of Annoyance
-X:35:0
-W:0:36:0:0
-C:0:0:0
-F:AGGRAVATE | SPEED_10
-
+F:LEVITATION | SPEED_10 | STEALTH_5 |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD
 
 ### Weapons ###
 
@@ -534,7 +537,7 @@ E:(Defender)
 X:24:25
 W:0:36:0:10000
 C:4:4:8
-F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | STEALTH_3 |
+F:FREE_ACT | SEE_INVIS | LEVITATION | REGEN | STEALTH_3 |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ONE_SUSTAIN | XTRA_H_RES |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -911,11 +914,7 @@ X:23:5
 W:0:12:0:20
 C:5:5:0
 
-N:125:陰口の
-E:of Backbiting
-X:23:0
-W:0:36:0:0
-C:50:50:0
+#N:125:unused
 
 
 ### Special Broken Items ###
@@ -951,7 +950,7 @@ E:of the Bat
 X:32:10
 W:10:6:0:5000
 C:-3:-3:-2
-F:FEATHER | RES_DARK | SEE_INVIS | STEALTH_7 |
+F:LEVITATION | RES_DARK | SEE_INVIS | STEALTH_7 |
 
 
 # Ego Lite
@@ -1377,7 +1376,7 @@ E:(Defender)
 X:29:25
 W:0:0:0:20000
 C:0:0:8
-F:FEATHER | REGEN | FREE_ACT | SEE_INVIS | STEALTH_4
+F:LEVITATION | REGEN | FREE_ACT | SEE_INVIS | STEALTH_4
 
 N:226:耐火の
 E:and Resist Fire
@@ -1440,7 +1439,7 @@ E:and Levitation
 X:29:5
 W:0:0:0:1000
 C:0:0:0
-F:FEATHER
+F:LEVITATION
 
 N:235:大
 E:of High Rank

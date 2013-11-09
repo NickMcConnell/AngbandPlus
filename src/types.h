@@ -809,11 +809,8 @@ struct player_magic
 	int spell_xtra;		/* Something for later */
 
 	int spell_stat;		/* Stat for spells (if any)  */
-	int spell_type;		/* Spell type (mage/priest) */
 
 	int spell_weight;		/* Weight that hurts spells */
-
-	byte gain_msp_rate;	/* Rate for gain magic skill points */
 
 	magic_type info[MAX_REALM][32];    /* The available spells */
 };
@@ -928,6 +925,7 @@ struct player_class
 	s16b c_need[A_MAX];		/* Class stats which are need on changing class */
 
 	s16b c_gain[A_MAX];		/* Class stats which are gained per level */
+	s16b c_bonus[A_MAX];	/* Class stats which are reincarnate class bonus */
 
 	s32b c_dis;			/* class disarming */
 	s32b c_dev;			/* class magic devices */
@@ -1102,6 +1100,7 @@ struct player_type
 	s16b tim_sh_elec;
 	s16b tim_sh_cold;
 	s16b tim_sh_holy;
+	s16b tim_sh_aura;
 	s16b tim_eyeeye;
 	s16b tim_inc_blow;
 	s16b tim_dec_blow;
@@ -1203,6 +1202,10 @@ struct player_type
 	byte feeling;		/* Most recent dungeon feeling */
 	s32b feeling_turn;	/* The turn of the last dungeon feeling */
 
+	byte max_max_dlv;
+	byte max_dlv_mult;
+	byte winner_mult;
+	byte ogre_mult;
 
 	/*** Temporary fields ***/
 
@@ -1356,6 +1359,10 @@ struct player_type
 	bool smell_equip;	/* Full equipments of Smell */
 	bool evil_equip;	/* Full equipments of Evil */
 	bool hurt_lite;
+
+	bool immune_holy;	/* Immunity to holy */
+	bool immune_evil;	/* Immunity to evil */
+	bool resist_all;	/* Resist all */
 
 	s16b to_dd[2];		/* Extra dice/sides */
 	s16b to_ds[2];

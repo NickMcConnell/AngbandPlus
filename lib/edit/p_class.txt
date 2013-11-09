@@ -8,12 +8,15 @@
 # F:class flags
 # S:need stats
 # G:gain stats
+# B:reincarnate stats
 # C:dis:dev:sav:stl:srh:fos:spd:thn:thb
 # X:x_dis:x_dev:x_sav:x_stl:x_srh:x_fos:x_spd:x_thn:x_thb
-# I:ac:hitdie:manadie:expbase
+# I:ac:hitdie:manadie:expbase:w_limit:t_limit
 # A:max_attacks:min_weight:att_multiply
 # R:tval:sva
+# Z:runeweapon flags
 # M:choise realm
+# O:Starting Equipment tval:sval:min:max
 # D:class text
 # T:title
 
@@ -231,7 +234,8 @@ T:竜王殺し
 
 N:7:ニンジャ
 E:Ninja
-F:LAWFUL | NEUTRAL | CHAOS | MALE | FEMALE | BIRTH | SEE_DARK | REALM_ELEM_1
+F:LAWFUL | NEUTRAL | CHAOS | MALE | FEMALE | BIRTH | SEE_DARK |
+F:REALM_ELEM_1 | MONK_ARMOUR |
 S:15:0:0:16:14:0
 G:02:02:01:05:02:01
 C:45:24:19:8:28:22:0:65:66
@@ -556,7 +560,7 @@ X:8:9:11:0:0:0:0:6:9
 I:-10:1:2:75:10:6
 A:3:100:2
 R:21:62
-Z:SLAY_UNDEAD | SLAY_DEMON | SUST_WIS | BLESSED |
+Z:KILL_UNDEAD | KILL_DEMON | SUST_WIS | BLESSED |
 M:FIRE | AQUA | EARTH | WIND | HOLY | CRUSADE
 D:プリーストは攻撃魔法と回復魔法の両方を駆使する僧侶です。
 D:神聖と破邪と自属性の魔法が行使できます。クレリックの上級クラスと考えてよいでしょう。
@@ -579,6 +583,7 @@ F:LAWFUL | NEUTRAL | CHAOS | EVIL |MALE | FEMALE | REINCARNATE | NO_CHANGE | UND
 F:RES_COLD | RES_POIS | RES_NETHER | FREE_ACT | SEE_INVIS | HOLD_LIFE | UNHOLY |
 S:0:118:98:0:0:0
 G:00:05:04:01:03:00
+B:-2:3:0:0:2:-4
 C:29:28:31:1:4:13:0:8:10
 X:7:8:12:0:0:0:0:6:4
 I:5:2:3:135:10:6
@@ -607,15 +612,16 @@ T:永遠を識る者
 N:20:エンジェルナイト
 E:Angel-Knight
 F:LAWFUL | GOOD | FEMALE | REINCARNATE | NO_CHANGE | NO_DIGEST | REALM_ELEM_1
-F:FEATHER | BLESSED |
+F:LEVITATION | BLESSED |
 S:88:98:58:78:78:118
 G:04:03:04:03:03:03
+B:1:0:2:1:0:2
 C:30:30:28:1:18:16:0:72:55
 X:10:10:12:0:0:0:2:30:30
 I:30:2:2:135:0:12
 A:6:70:5
 R:22:62
-Z:SLAY_UNDEAD | SLAY_DEMON | SUST_WIS | RES_FEAR | RES_CONF | FEATHER |
+Z:SLAY_UNDEAD | SLAY_DEMON | SUST_WIS | RES_FEAR | RES_CONF | LEVITATION |
 Z:SEE_INVIS | BLESSED |
 M:FIRE | AQUA | EARTH | WIND | CRUSADE
 D:エンジェルナイトは心清き女性ユニットが死亡後に転生できる場合がある転生クラスです。
@@ -637,7 +643,7 @@ T:熾天使
 N:21:うぃっち
 E:High-Witch
 F:NEUTRAL | CHAOS | FEMALE | NO_CHANGE
-F:FEATHER |
+F:LEVITATION |
 S:0:0:0:0:0:138
 G:00:05:04:02:00:05
 C:32:49:29:1:18:19:0:4:6
@@ -645,7 +651,7 @@ X:16:16:12:0:0:0:0:2:3
 I:-20:0:4:150:10:6
 A:3:100:2
 R:21:62
-Z:SUST_INT | SUST_WIS | SUST_CHR | DEC_MANA | RES_MAGIC | FEATHER |
+Z:SUST_INT | SUST_WIS | SUST_CHR | DEC_MANA | RES_MAGIC | LEVITATION |
 M:MAGERY | FIRE | AQUA | EARTH | WIND | HOLY | DEATH |
 M:SYMBIOTIC | WITCH | DRAKONITE | CRUSADE
 D:うぃっちは「ウィッチと同じ？失礼ね。一緒にしないでよ。アタシの方が美人だしグラマーだし（中略）
@@ -693,7 +699,7 @@ T:神を撃つ者
 N:23:テンプルナイト
 E:Temple-Knight
 F:LAWFUL | NEUTRAL | CHAOS | MALE | FEMALE | NO_CHANGE | ALIEN
-S:18+70:18+40:18+60:18+50:18+50:0
+S:88:58:78:68:68:0
 G:04:03:03:04:03:01
 C:15:23:18:-4:14:4:0:62:52
 X:7:8:10:-1:0:0:0:26:20
@@ -721,7 +727,7 @@ T:騎士総長
 N:24:ホワイトナイト
 E:White-Knight
 F:LAWFUL | NEUTRAL | CHAOS | MALE | FEMALE | NO_CHANGE | ALIEN
-S:18+70:18+40:18+60:18+50:18+50:0
+S:88:58:78:68:68:0
 G:04:02:03:04:03:03
 C:25:21:22:-2:11:15:0:70:44
 X:10:7:10:0:0:0:0:27:14
@@ -802,7 +808,8 @@ T:騎士総長
 
 N:27:ニンジャマスター
 E:Ninjamaster
-F:LAWFUL | NEUTRAL | CHAOS | MALE | FEMALE | NO_CHANGE | SECRET | SEE_DARK
+F:LAWFUL | NEUTRAL | CHAOS | MALE | FEMALE | NO_CHANGE | SECRET |
+F:SEE_DARK | MONK_ARMOUR |
 S:0:0:0:0:0:0
 G:02:02:01:05:02:01
 C:45:24:19:8:28:22:0:65:66
@@ -910,19 +917,21 @@ N:31:ヴァンパイア
 E:Vampire
 F:CHAOS | EVIL | MALE | REINCARNATE | NO_CHANGE | UNDEAD | SEE_DARK
 F:RES_COLD | RES_POIS | RES_NETHER | FREE_ACT | SEE_INVIS | HOLD_LIFE | UNHOLY |
-F:SLAY_LIVING | RES_DARK | FEATHER |
+F:SLAY_LIVING | RES_DARK | LEVITATION |
 S:88:98:58:78:78:58
 G:05:04:03:05:05:04
+B:0:0:0:0:0:0
 C:25:28:28:6:14:20:0:80:35
 X:12:10:8:4:0:0:3:35:18
 I:10:5:1:150:50:12
 A:6:70:5
-R:23:62
+R:23:63
 Z:FREE_ACT | HOLD_LIFE | RES_COLD | RES_POIS | RES_DARK | RES_NETHER |
-Z:UNHOLY | SLAY_LIVING | SEE_INVIS | VAMPIRIC | FEATHER | FEAR_FIELD |
+Z:UNHOLY | SLAY_LIVING | SEE_INVIS | VAMPIRIC | LEVITATION | FEAR_FIELD |
 M:DEATH
 D:ヴァンパイアは夜の闇の中で真の力を発揮する事が出来ます。
-D:武器による直接攻撃と暗黒魔法を駆使して戦うことができます。魔法に必要な能力は知能です。
+D:武器による直接攻撃と暗黒魔法を駆使して戦うことができますが、もはやクラスチェンジできません。
+D:魔法に必要な能力は知能です。
 T:吸血生物
 T:吸血生物
 T:吸血生物
@@ -968,27 +977,82 @@ T:常乙女
 
 N:33:サキュバス
 E:Succubus
-F:CHAOS | EVIL | FEMALE | NO_CHANGE | DEMON | NO_DIGEST | ALIEN |
-F:RES_CHAOS | RES_NETHER | FEATHER |
+F:CHAOS | EVIL | FEMALE | NO_CHANGE | DEMON | NO_DIGEST | REINCARNATE | MONK_ARMOUR |
+F:RES_CHAOS | RES_NETHER | LEVITATION |
 S:0:0:0:0:0:0
 G:01:05:03:03:02:05
+B:0:2:0:2:1:4
 C:32:41:29:2:18:19:0:65:51
 X:16:16:12:1:0:0:3:33:20
 I:5:2:3:95:15:8
 A:5:100:3
-R:21:62
-Z:SLAY_HUMAN | SUST_CHR | FEATHER |
+R:23:63
+Z:SLAY_HUMAN | SUST_CHR | LEVITATION |
 M:WITCH | DEATH
 D:サキュバスは悪魔との契約により魔界の生物と化した魔女です。
 D:ウィッチと暗黒の領域の魔法が行使可能です。
 D:このクラスはクラスチェンジできなくなります。魔法を唱えるのに必要な能力は知能です。
+T:見習い淫魔
+T:駆け出し淫魔
 T:下級淫魔
 T:下級淫魔
-T:下級淫魔
-T:下級淫魔
 T:上級淫魔
 T:上級淫魔
-T:上級淫魔
-T:上級淫魔
-T:上級淫魔
-T:上級淫魔
+T:夢魔
+T:夢魔
+T:妖姫
+T:魔界の女王
+
+
+N:34:グラップラー
+E:Grappler
+F:MALE | NEUTRAL | NO_CHANGE | SECRET | MONK_ARMOUR |
+F:RES_FEAR | FREE_ACT
+S:98:0:0:118:98:0
+G:04:00:00:05:04:00
+C:35:24:15:0:28:22:0:90:11
+X:10:10:8:3:0:0:6:38:2
+I:0:4:0:110:20:6
+A:6:20:1
+R:23:63
+Z:IMPACT | SUST_DEX
+D:古くから伝わるニルダムの体術を体得した戦士。高い運動能力を活かした、連続攻撃を繰り出す。
+D:このクラスはクラスチェンジできなくなります。
+T:入門者
+T:弟子
+T:直弟子
+T:師範代
+T:師範
+T:道場主
+T:名人
+T:大名人
+T:拳聖
+T:拳神
+
+N:35:風水士
+E:Elementaler
+F:NEUTRAL | MALE | FEMALE | SECRET | 
+S:0:18:58:38:0:0
+G:01:03:05:03:02:02
+C:30:32:33:1:16:9:0:27:27
+X:8:9:11:0:0:0:0:6:9
+I:0:1:2:75:10:6
+A:3:100:2
+R:21:62
+Z:SUST_WIS | BLESSED |
+D:風水士はエレメントの力を使った魔法を唱えることが出来るクラスです。
+D:攻撃と回復を行う事ができますが、感知、移動系の魔法はありません。
+D:魔法の威力は地形のエレメントや天候に大きく左右されるためそれぞれの
+D:操作が必要になるでしょう。魔法を唱えるのに必要な能力は賢さです。
+T:見習い
+T:占い師
+T:下級風水士
+T:上級風水士
+T:導師
+T:元素使い
+T:精霊の友
+T:精霊使い
+T:精霊の主人
+T:精霊王
+
+

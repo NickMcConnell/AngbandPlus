@@ -38,14 +38,14 @@ D:また、特別な修正や特性は持っていません。
 
 N:1:ホークマン
 E:Hawkman
-F:FEATHER |
+F:LEVITATION |
 S:1:-1:-1:2:0:0
 R:0:0:0:1:0:10:0:8:10
 X:3
 I:14:0:160:42:22:12:1
 H:75:7:67:5
 W:185:27:134:20
-Z:SUST_DEX | RES_FEAR | FEATHER |
+Z:SUST_DEX | RES_FEAR | LEVITATION |
 D:ホークマンは気性が荒く、戦闘を好む有翼の種族です。
 D:彼らは長命で人の3倍の寿命を誇ります。また翼を使うことで
 D:落とし穴や危険な地形を避けることができます。
@@ -69,14 +69,14 @@ D:罠の解除や魔道具使用もそれなりにこなします。
 
 N:3:フェアリー
 E:Fairy
-F:RES_LITE | FEATHER |
+F:RES_LITE | LEVITATION |
 S:-2:1:1:1:-2:1
 R:10:8:6:4:10:10:0:-12:8
 X:5
 I:12:1:155:50:35:24:4
 H:32:2:29:2
 W:75:2:65:2
-Z:SLAY_UNDEAD | SUST_CHR | RES_LITE | FEATHER | LITE |
+Z:SLAY_UNDEAD | SUST_CHR | RES_LITE | LEVITATION | LITE |
 D:フェアリーは非常に小さいです。彼らは小さな翼を持ち、
 D:罠や危険な地形を飛び越えることができます。
 D:彼らは日光を大変好み、光に対する耐性を持っていますが、
@@ -87,14 +87,14 @@ D:高レベルではより速く飛ぶことができるようになります。
 N:4:グレムリン
 E:Gremlin
 F:DEMON |
-F:RES_DARK | RES_NETHER | FEATHER |
+F:RES_DARK | RES_NETHER | LEVITATION |
 S:-2:1:-1:1:-1:-1
 R:4:7:9:2:5:12:0:-5:15
 X:5
 I:12:1:170:65:35:29:4
 H:22:2:19:2
 W:55:2:45:2
-Z:VAMPIRIC | SUST_DEX | RES_DARK | RES_NETHER | SLAY_LIVING | FEATHER |
+Z:VAMPIRIC | SUST_DEX | RES_DARK | RES_NETHER | SLAY_LIVING | LEVITATION |
 D:グレムリンはフェアリーの対極です。
 D:翼を持ち、罠や危険な地形を飛び越えることができます。
 D:彼らは暗闇を大変好み、暗黒と地獄に対する耐性を持っていますが、
@@ -124,7 +124,7 @@ D:スケルトンは食料を必要としません。
 N:6:ゴースト
 E:Ghost
 F:UNDEAD | NO_DIGEST
-F:RES_COLD | RES_POIS | RES_NETHER | FREE_ACT | SEE_INVIS | HOLD_LIFE | FEATHER |
+F:RES_COLD | RES_POIS | RES_NETHER | FREE_ACT | SEE_INVIS | HOLD_LIFE | LEVITATION |
 S:-3:1:-1:-1:0:-2
 R:10:15:12:6:5:14:-1:-15:-10
 X:0
@@ -132,7 +132,7 @@ I:10:0:190:120:35:41:5
 H:70:6:66:4
 W:20:5:20:5
 Z:SUST_INT | FREE_ACT | HOLD_LIFE | RES_COLD | RES_POIS | RES_NETHER | SLAY_LIVING |
-Z:FEATHER | SEE_INVIS |
+Z:LEVITATION | SEE_INVIS |
 D:ゴーストは強力なアンデッドの一種です。半物質的な存在である彼らは、
 D:壁を通り抜けることができますが、そのときには壁の密度によって傷つけられてしまいます。
 D:他のアンデッド同様、彼らも生命力を吸収されることがなく、見えないものを見ることができ、
@@ -216,7 +216,7 @@ E:Mad-Halloween
 F:MALE | DEMON | EVOLUTION |
 F:RES_COLD | RES_ELEC | RES_DARK |
 F:RES_CHAOS | RES_DISEN | FREE_ACT | HOLD_LIFE | SLOW_DIGEST | AGGRAVATE |
-F:RES_CONF | RES_POIS | FEATHER | TELEPATHY | LITE |
+F:RES_CONF | RES_POIS | LEVITATION | TELEPATHY | LITE |
 S:4:2:4:2:5:0
 R:0:0:10:0:10:18:0:-10:-5
 X:4
@@ -233,14 +233,14 @@ D:パンプキンヘッドよりも肉体的に優れています。。
 N:12:バルタン
 E:Vultan
 F:GOOD | EVOLUTION |
-F:FEATHER | RES_ELEC | RES_FEAR |
+F:LEVITATION | RES_ELEC | RES_SOUND | RES_FEAR |
 S:1:0:-1:2:0:2
 R:0:0:0:1:0:10:0:8:10
 X:3
 I:14:0:160:42:22:12:1
 H:75:7:67:5
 W:185:27:134:20
-Z:SUST_DEX | RES_ELEC | RES_FEAR | FEATHER |
+Z:SUST_DEX | RES_ELEC | RES_FEAR | LEVITATION |
 D:天界を支配したと云われる古代有翼人の末裔。
 D:燃えるような赤い髪が、その高貴な血の証である。
 
@@ -248,14 +248,14 @@ D:燃えるような赤い髪が、その高貴な血の証である。
 N:13:レイブン
 E:Raven
 F:EVIL | EVOLUTION |
-F:FEATHER | RES_FIRE | RES_FEAR |
+F:LEVITATION | RES_FIRE | REGEN | RES_FEAR |
 S:2:0:-1:3:0:-3
 R:0:0:0:1:0:10:0:8:10
 X:3
 I:16:0:160:42:22:12:1
 H:75:7:67:5
 W:185:27:134:20
-Z:SUST_DEX | RES_FEAR | FEATHER |
+Z:SUST_DEX | RES_FEAR | LEVITATION |
 D:漆黒の羽で空を舞う、暗黒道に堕ちた有翼人。
 D:争いそのものよりも血を好む、極めて凶暴な種族。
 

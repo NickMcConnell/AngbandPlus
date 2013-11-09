@@ -272,7 +272,26 @@ static void convert_object(object_type *o_ptr)
 			o_ptr->weight = k_ptr->weight;
 		}
 	}
+
 	if (o_ptr->ac < 0) o_ptr->ac = 0;
+
+	if (t_older_than(0, 8, 0, 0))
+	{
+		switch (o_ptr->name2)
+		{
+			case EGO_CLAIRVOYANCE:
+			case EGO_HERMIT:
+			case EGO_TEMPERANCE:
+			case EGO_SPIKE:
+			case EGO_RELICS:
+			case EGO_ICARUS:
+			case EGO_SAINT:
+			case EGO_SATAN:
+			case EGO_GUARDIAN:
+				if (o_ptr->curse_flags) o_ptr->name2 = 0;
+				break;
+		}
+	}
 }
 
 
@@ -695,7 +714,7 @@ static void rd_lore(int r_idx)
 static void home_carry(store_type *st_ptr, object_type *o_ptr)
 {
 	int 				slot;
-	s32b			   value, j_value;
+	s32b			   value;
 	int 	i;
 	object_type *j_ptr;
 
@@ -728,45 +747,7 @@ static void home_carry(store_type *st_ptr, object_type *o_ptr)
 	/* Check existing slots to see if we must "slide" */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
 	{
-		/* Get that item */
-		j_ptr = &st_ptr->stock[slot];
-
-		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == mp_ptr->spell_book) &&
-			(j_ptr->tval != mp_ptr->spell_book)) break;
-		if ((j_ptr->tval == mp_ptr->spell_book) &&
-			(o_ptr->tval != mp_ptr->spell_book)) continue;
-
-		/* Objects sort by decreasing type */
-		if (o_ptr->tval > j_ptr->tval) break;
-		if (o_ptr->tval < j_ptr->tval) continue;
-
-		/* Can happen in the home */
-		if (!object_is_aware(o_ptr)) continue;
-		if (!object_is_aware(j_ptr)) break;
-
-		/* Objects sort by increasing sval */
-		if (o_ptr->sval < j_ptr->sval) break;
-		if (o_ptr->sval > j_ptr->sval) continue;
-
-		/* Objects in the home can be unknown */
-		if (!object_is_known(o_ptr)) continue;
-		if (!object_is_known(j_ptr)) break;
-
-		/*
-		 * Hack:  otherwise identical rods sort by
-		 * increasing recharge time --dsb
-		 */
-		if (o_ptr->tval == TV_ROD)
-		{
-			if (o_ptr->pval < j_ptr->pval) break;
-			if (o_ptr->pval > j_ptr->pval) continue;
-		}
-
-		/* Objects sort by decreasing value */
-		j_value = object_value(j_ptr);
-		if (value > j_value) break;
-		if (value < j_value) continue;
+		if (object_sort_comp(o_ptr, value, &st_ptr->stock[slot])) break;
 	}
 
 	/* Slide the others up */
@@ -1424,6 +1405,9 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->tim_sh_cold);
 
 	rd_s16b(&p_ptr->tim_sh_holy);
+
+	if (!t_older_than(0, 7, 0, 2))
+		rd_s16b(&p_ptr->tim_sh_aura);
 	rd_s16b(&p_ptr->tim_eyeeye);
 
 	rd_s16b(&p_ptr->tim_inc_blow);
@@ -1461,7 +1445,7 @@ static errr rd_extra(void)
 	rd_u32b(&p_ptr->special_attack);
 	rd_s16b(&p_ptr->death_regen);
 
-	if (t_older_than(0, 5, 0, 4)) p_ptr->death_regen = 999;
+	if (t_older_than(0, 5, 0, 4)) p_ptr->death_regen = 5000;
 
 	rd_byte(&p_ptr->action);
 	rd_byte(&tmp8u);
@@ -1559,6 +1543,22 @@ static errr rd_extra(void)
 		/* Count */
 		real_r_ptr(&stock_mon[i])->cur_num++;
 	}
+
+	if (t_older_than(0, 7, 0, 1))
+	{
+		p_ptr->max_max_dlv = 0;
+		p_ptr->max_dlv_mult = 0;
+		p_ptr->winner_mult = 0;
+		p_ptr->ogre_mult = 0;
+	}
+	else
+	{
+		rd_byte(&p_ptr->max_max_dlv);
+		rd_byte(&p_ptr->max_dlv_mult);
+		rd_byte(&p_ptr->winner_mult);
+		rd_byte(&p_ptr->ogre_mult);
+	}
+
 
 	/* Success */
 	return 0;
@@ -1978,7 +1978,7 @@ static errr rd_dungeon(void)
 	int i;
 
 	/* Initialize saved_floors array and temporal files */
-	init_saved_floors();
+	init_saved_floors(FALSE);
 
 	/*** Meta info ***/
 
