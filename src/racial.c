@@ -399,6 +399,201 @@ static bool do_cmd_make_golem(void)
 	return TRUE;
 }
 
+/*
+ * do_cmd_cast calls this function if the player's class
+ * is 'Medium'.
+ */
+static bool do_cmd_hamaya(void)
+{
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
+	int item;
+	object_type *j_ptr;
+	cptr q, s;
+
+	/* Get the "bow" (if any) */
+	j_ptr = &inventory[INVEN_BOW];
+
+	/* Require a launcher */
+	if (p_ptr->tval_ammo != TV_ARROW)
+	{
+#ifdef JP
+		msg_print("矢を使う射撃武器が必要です。");
+#else
+		msg_print("You need a bow which use arrows.");
+#endif
+		return FALSE;
+	}
+
+
+	/* Require proper missile */
+	item_tester_tval = p_ptr->tval_ammo;
+
+	/* Get an item */
+#ifdef JP
+	q = "どれを撃ちますか? ";
+	s = "発射されるアイテムがありません。";
+#else
+	q = "Fire which item? ";
+	s = "You have nothing to fire.";
+#endif
+
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+	{
+		flush();
+		return FALSE;
+	}
+
+	/* Fire the item */
+	{
+		char o_name[MAX_NLEN];
+
+		object_desc(o_name, &inventory[item], FALSE, 3);
+#ifdef JP
+		msg_format("祈りをこめて%sを放つ！", o_name);
+#else
+		msg_format("You pray and shoot the %s!", o_name);
+#endif
+	}
+
+	{
+		int xh = cexp_ptr->clev / 3;
+		int xd = cexp_ptr->clev / 5;
+		int power = 0;
+		if (cexp_ptr->clev >= 30) power = (cexp_ptr->clev - 30) * 10 / 3 + 35;
+		if (do_cmd_fire_aux(item, j_ptr, DCFA_HAMAYA, xh, xd, power, FALSE))
+		{
+			if (one_in_(3))
+			{
+#ifdef JP
+				msg_print("反動で眩暈を感じた。");
+#else
+				msg_print("Since you concentrated too much, you got giddy.");
+#endif
+				(void)set_stun(p_ptr->stun + randint1(5) + 1);
+			}
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+}
+
+/* みそぎを行う
+ * 効果
+ * 　祝福される,装備が解呪される,状態異常が治る,装備が*解呪*される,
+ * 　対邪悪結界
+ * 　ランダムで周囲のモンスターを魅了し、怒らせる
+ */
+static bool do_cmd_ablution(void)
+{
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
+	int eff;
+	int clev = cexp_ptr->clev;
+	int term = randint1(clev) + clev * 2;
+
+	if ((cave[py][px].feat != FEAT_SHAL_WATER) && (cave[py][px].feat != FEAT_DEEP_WATER))
+	{
+#ifdef JP
+		msg_print("ここには体を清める水が無い。");
+#else
+		msg_print("No spring water around here.");
+#endif
+
+		return FALSE;
+	}
+
+	/* inside 'The Sewer' quest */
+	if (p_ptr->inside_quest == 2)
+	{
+#ifdef JP
+		msg_print("この水は大変汚れている。");
+#else
+		msg_print("This water is very dirty.");
+#endif
+
+		return FALSE;
+	}
+
+#ifdef JP
+	msg_print("清水に体をひたして穢れを落とした。");
+#else
+	msg_print("Impurity of the body was dropped on spring water.");
+#endif
+
+	eff = clev;
+	
+	set_blessed(term, FALSE);
+
+	if (eff >= 10)
+	{
+		if (remove_curse())
+		{
+#ifdef JP
+			msg_print("誰かに見守られているような気がする。");
+#else
+			msg_print("You feel as if someone is watching over you.");
+#endif
+		}
+	}
+
+	if (eff >= 15)
+	{
+		bool affect = FALSE;
+		affect |= set_poisoned(0);
+		affect |= set_image(0);
+		affect |= set_stun(0);
+		affect |= set_cut(0);
+		affect |= set_blind(0);
+		affect |= set_afraid(0);
+		affect |= set_confused(0);
+		affect |= set_shero(0,TRUE);
+		affect |= set_stoning(0);
+		if (affect)
+		{
+#ifdef JP
+			msg_print("体が癒された気がする。");
+#else
+			msg_print("You feel cured.");
+#endif
+		}
+	}
+
+	if (eff >= 20)
+	{
+		if (remove_all_curse())
+		{
+#ifdef JP
+			msg_print("誰かに見守られているような気がする。");
+#else
+			msg_print("You feel as if someone is watching over you.");
+#endif
+		}
+	}
+
+	if (eff >= 25)
+	{
+		(void)set_protevil(term, FALSE);
+	}
+
+	if (randint1(100) >= p_ptr->skill_stl * 3 + 5)
+	{
+		int rol = randint1(20);
+		if (rol <= 1)
+		{
+			charm_animals(clev * 2);
+		}
+		else
+		{
+			aggravate_monsters(0);
+		}
+	}
+	return TRUE;
+}
+
 
 typedef struct power_desc_type power_desc_type;
 
@@ -471,7 +666,6 @@ static int racial_chance(power_desc_type *pd_ptr)
 
 
 static int  racial_cost;
-static bool racial_use_hp;
 
 /*
  * Note: return value indicates that we have succesfully used the power
@@ -484,12 +678,12 @@ static int racial_aux(power_desc_type *pd_ptr)
 	int use_stat   = pd_ptr->stat;
 	int difficulty = pd_ptr->fail;
 	int plev;
+	int use_hp = 0;
 
 	racial_cost   = pd_ptr->cost;
-	racial_use_hp = FALSE;
 
 	/* Not enough mana - use hp */
-	if (p_ptr->csp < racial_cost) racial_use_hp = TRUE;
+	if (p_ptr->csp < racial_cost) use_hp = racial_cost - p_ptr->csp;
 
 	if ((pd_ptr->number >= -10) && (pd_ptr->number <= -4))
 	{
@@ -591,7 +785,7 @@ static int racial_aux(power_desc_type *pd_ptr)
 	}
 		
 	/* Risk death? */
-	else if (racial_use_hp && (p_ptr->chp < racial_cost))
+	else if (p_ptr->chp < use_hp)
 	{
 #ifdef JP
 		if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
@@ -792,7 +986,7 @@ static bool do_cmd_racial_throwing(int fake_item)
 	}
 
 	/* Fire with fake bow, fake ammo and fake status */
-	done = do_cmd_fire_aux(fake_item, j_ptr, 0, FALSE);
+	done = do_cmd_fire_aux(fake_item, j_ptr, DCFA_NONE, 0, 0, 0, FALSE);
 
 	/* Restore player's status rerating shooting */
 	p_ptr->to_h_b = old_to_h_b;
@@ -819,6 +1013,7 @@ static bool cmd_racial_power_aux(s32b command)
 		&& (p_ptr->pclass != CLASS_SWORDMASTER)
 		&& (p_ptr->pclass != CLASS_NINJA)
 		&& (p_ptr->pclass != CLASS_NINJAMASTER)
+		&& (p_ptr->pclass != CLASS_VAMPIRE)
 		&& (command == -4))
 	{
 		if (!do_cmd_racial_throwing(INVEN_PEBBLE)) return FALSE;
@@ -1492,22 +1687,18 @@ static bool cmd_racial_power_aux(s32b command)
 					return FALSE;
 				}
 				energy_use = 0;
-				if (!do_cmd_fire(0, TRUE)) return FALSE;
+				if (!do_cmd_fire(DCFA_NONE, 0, 0, 0, TRUE)) return FALSE;
 				break;
 			case -7:
 				energy_use = 0;
-				p_ptr->to_h_b += 30;
-				done = do_cmd_fire(0, FALSE);
-				p_ptr->to_h_b -= 30;
+				done = do_cmd_fire(DCFA_NONE, 30, 0, 0, FALSE);
 				if (!done) return FALSE;
 				break;
 			case -8:
 				energy_use = 0;
-				p_ptr->to_h_b -= 30;
 				p_ptr->num_fire *= 2;
-				done = do_cmd_fire(0, FALSE);
+				done = do_cmd_fire(DCFA_NONE, -30, 0, 0, FALSE);
 
-				p_ptr->to_h_b += 30;
 				p_ptr->num_fire /= 2;
 				if (!done) return FALSE;
 				break;
@@ -1802,9 +1993,7 @@ static bool cmd_racial_power_aux(s32b command)
 				break;
 			case -9:
 				energy_use = 0;
-				p_ptr->to_h_b += 30;
-				done = do_cmd_fire(0, FALSE);
-				p_ptr->to_h_b -= 30;
+				done = do_cmd_fire(DCFA_NONE, 30, 0, 0, FALSE);
 				if (!done) return FALSE;
 				break;
 			case -10:
@@ -2168,7 +2357,7 @@ static bool cmd_racial_power_aux(s32b command)
 				break;
 			case -6:
 				energy_use = 0;
-				done = do_cmd_fire(1, FALSE);
+				done = do_cmd_fire(DCFA_STORM, 0, 0, (p_ptr->cexp_info[CLASS_CRESCENT].clev - 30) * 10 / 3 + 35, FALSE);
 				if (!done) return FALSE;
 				break;
 			case -7:
@@ -2182,7 +2371,7 @@ static bool cmd_racial_power_aux(s32b command)
 					return FALSE;
 				}
 				energy_use = 0;
-				if (!do_cmd_fire(2, TRUE)) return FALSE;
+				if (!do_cmd_fire(DCFA_PURE_WIND, 215, 0, 0, TRUE)) return FALSE;
 				break;
 			}
 			break;
@@ -2192,6 +2381,16 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
+			case -4:
+				if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
+				msg_print("影の矢を放った。");
+#else
+				msg_print("You cast a shadow missile.");
+#endif
+
+				fire_bolt_or_beam(10, GF_DARK, dir, damroll(3 + ((plev - 1) / 5), 4));
+				break;
 			case -5:
 				{
 					int y, x, dummy = 0;
@@ -2266,7 +2465,18 @@ static bool cmd_racial_power_aux(s32b command)
 				msg_print("You open a dimensional gate. Choose a destination.");
 #endif
 				return dimension_door(plev);
-				break;
+			}
+			break;
+		}
+		case CLASS_MEDIUM:
+		{
+			if (command == -5)
+			{
+				if (!do_cmd_hamaya()) return FALSE;
+			}
+			else if (command == -6)
+			{
+				if (!do_cmd_ablution()) return FALSE;
 			}
 			break;
 		}
@@ -2806,7 +3016,8 @@ void do_cmd_racial_power(void)
 	if ((p_ptr->pclass != CLASS_TERRORKNIGHT)
 		&& (p_ptr->pclass != CLASS_SWORDMASTER)
 		&& (p_ptr->pclass != CLASS_NINJA)
-		&& (p_ptr->pclass != CLASS_NINJAMASTER))
+		&& (p_ptr->pclass != CLASS_NINJAMASTER)
+		&& (p_ptr->pclass != CLASS_VAMPIRE))
 	{
 #ifdef JP
 		strcpy(power_desc[num].name, "投石");
@@ -3469,9 +3680,9 @@ void do_cmd_racial_power(void)
 #endif
 
 		power_desc[num].level = 25;
-		power_desc[num].cost = 50;
+		power_desc[num].cost = (p_ptr->action == ACTION_AURA) ? 0 : 50;
 		power_desc[num].stat = A_STR;
-		power_desc[num].fail = 60;
+		power_desc[num].fail = (p_ptr->action == ACTION_AURA) ? 0 : 60;
 		power_desc[num++].number = -8;
 		break;
 	}
@@ -3627,6 +3838,17 @@ void do_cmd_racial_power(void)
 	case CLASS_VAMPIRE:
 	{
 #ifdef JP
+		strcpy(power_desc[num].name, "影の矢");
+#else
+		strcpy(power_desc[num].name, "Shadow Missile");
+#endif
+
+		power_desc[num].level = 2;
+		power_desc[num].cost = 2;
+		power_desc[num].stat = A_INT;
+		power_desc[num].fail = 9;
+		power_desc[num++].number = -4;
+#ifdef JP
 		strcpy(power_desc[num].name, "生命力吸収");
 #else
 		strcpy(power_desc[num].name, "Drain Life");
@@ -3659,6 +3881,30 @@ void do_cmd_racial_power(void)
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 65;
 		power_desc[num++].number = -7;
+		break;
+	}
+	case CLASS_MEDIUM:
+	{
+#ifdef JP
+		strcpy(power_desc[num].name, "破魔矢");
+#else
+		strcpy(power_desc[num].name, "Evil Blast Arrow");
+#endif
+		power_desc[num].level = 20;
+		power_desc[num].cost = (p_ptr->lev + 100) / 3;
+		power_desc[num].stat = A_WIS;
+		power_desc[num].fail = 10;
+		power_desc[num++].number = -5;
+#ifdef JP
+		strcpy(power_desc[num].name, "みそぎ");
+#else
+		strcpy(power_desc[num].name, "Ablution");
+#endif
+		power_desc[num].level = 5;
+		power_desc[num].cost = 10;
+		power_desc[num].stat = A_WIS;
+		power_desc[num].fail = 5;
+		power_desc[num++].number = -6;
 		break;
 	}
 #if 0
@@ -4356,9 +4602,8 @@ void do_cmd_racial_power(void)
 
 		I2A(0), (num <= 26) ? I2A(num - 1) : '0' + num - 27);
 
-#ifdef ALLOW_REPEAT
 	if (!repeat_pull(&i) || i<0 || i>=num) {
-#endif /* ALLOW_REPEAT */
+
 	if (use_menu) screen_save();
 	 /* Get a spell from the user */
 
@@ -4565,10 +4810,8 @@ void do_cmd_racial_power(void)
 		energy_use = 0;
 		return;
 	}
-#ifdef ALLOW_REPEAT
 	repeat_push(i);
 	} /*if (!repeat_pull(&i) || ...)*/
-#endif /* ALLOW_REPEAT */
 	switch (racial_aux(&power_desc[i]))
 	{
 	case 1:
@@ -4591,20 +4834,20 @@ void do_cmd_racial_power(void)
 	{
 		if (racial_cost)
 		{
-			if (racial_use_hp)
+			int actual_racial_cost = racial_cost / 2 + randint1(racial_cost / 2);
+
+			/* If mana is not enough, player consumes hit point! */
+			if (p_ptr->csp < actual_racial_cost)
 			{
+				actual_racial_cost -= p_ptr->csp;
+				p_ptr->csp = 0;
 #ifdef JP
-				take_hit(DAMAGE_USELIFE, (racial_cost / 2) + randint1(racial_cost / 2),
-					 "過度の集中");
+				take_hit(DAMAGE_USELIFE, actual_racial_cost, "過度の集中");
 #else
-				take_hit(DAMAGE_USELIFE, (racial_cost / 2) + randint1(racial_cost / 2),
-					 "concentrating too hard");
+				take_hit(DAMAGE_USELIFE, actual_racial_cost, "concentrating too hard");
 #endif
 			}
-			else
-			{
-				p_ptr->csp -= (racial_cost / 2) + randint1(racial_cost / 2);
-			}
+			else p_ptr->csp -= actual_racial_cost;
 
 			/* Redraw mana and hp */
 			p_ptr->redraw |= (PR_HP | PR_MANA);

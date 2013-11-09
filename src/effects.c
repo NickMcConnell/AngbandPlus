@@ -772,6 +772,9 @@ bool set_opposite_pelem(int v)
 	/* Redraw the state */
 	p_ptr->redraw |= (PR_STATE);
 
+	/* Reorder the pack (later) */
+	p_ptr->notice |= (PN_REORDER);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -841,6 +844,9 @@ bool set_no_elem(int v)
 
 	/* Redraw the state */
 	p_ptr->redraw |= (PR_STATE);
+
+	/* Reorder the pack (later) */
+	p_ptr->notice |= (PN_REORDER);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -4623,6 +4629,7 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 	/* Reincarnate class-change */
 	if (reincarnate > -1)
 	{
+		int i, total_max_clev = 0, experienced_classes = 0;
 		cexp_info_type *cexp_ptr;
 
 		p_ptr->pclass = (byte)reincarnate;
@@ -4637,10 +4644,21 @@ static bool resurrect_player(int item, int percent, int reincarnate)
 
 		if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
+		/* Calculate character total class level */
+		for (i = 0; i < MAX_CLASS; i++)
+		{
+			if (p_ptr->cexp_info[i].max_clev > 0)
+			{
+				total_max_clev += p_ptr->cexp_info[i].max_clev;
+				experienced_classes++;
+			}
+		}
+
 		if (!cexp_ptr->max_clev)
 		{
 			cexp_ptr->max_clev = cexp_ptr->clev = 1;
 			if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
+			p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
 		}
 
 		/* Update stuff */
@@ -4942,7 +4960,7 @@ int take_hit(u32b damage_type, int damage, cptr hit_from)
 
 		if (p_ptr->inside_arena && !(p_ptr->is_dead & DEATH_SNAP_DRAGON))
 		{
-			cptr m_name = r_name+r_info[arena_monsters[p_ptr->arena_number]].name;
+			cptr m_name = r_name+r_info[arena_info[p_ptr->arena_number].r_idx].name;
 #ifdef JP
 			msg_format("あなたは%sの前に敗れ去った。", m_name);
 #else
@@ -5072,7 +5090,7 @@ int take_hit(u32b damage_type, int damage, cptr hit_from)
 	if (p_ptr->chp < warning)
 	{
 		/* Hack -- bell on first notice */
-		if (alert_hitpoint && (old_chp > warning)) bell();
+		if (old_chp > warning) bell();
 
 		sound(SOUND_WARN);
 
@@ -5219,6 +5237,50 @@ void lose_exp(s32b amount)
 {
 	lose_class_exp(amount);
 	lose_racial_exp(amount);
+}
+
+
+/*
+ * Drain experience
+ * If resisted to draining, return FALSE
+ */
+bool drain_exp(s32b rdrain, s32b cdrain, s32b rslip, s32b cslip, int hold_life_prob)
+{
+
+	if (p_ptr->hold_life && (randint0(100) < hold_life_prob))
+	{
+		/* Hold experience */
+#ifdef JP
+		msg_print("しかし自己の生命力を守りきった！");
+#else
+		msg_print("You keep hold of your life force!");
+#endif
+		return FALSE;
+	}
+
+	/* Hold experience failed */
+	if (p_ptr->hold_life)
+	{
+#ifdef JP
+		msg_print("生命力を少し吸い取られた気がする！");
+#else
+		msg_print("You feel your life slipping away!");
+#endif
+		lose_class_exp(cslip);
+		lose_racial_exp(rslip);
+	}
+	else
+	{
+#ifdef JP
+		msg_print("生命力が体から吸い取られた気がする！");
+#else
+		msg_print("You feel your life draining away!");
+#endif
+		lose_class_exp(cdrain);
+		lose_racial_exp(rdrain);
+	}
+
+	return TRUE;
 }
 
 

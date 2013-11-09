@@ -15,8 +15,9 @@ Q:$14:T:We don't know who set them on guard at 250 feet, but we
 Q:$14:T:think their task is to hinder resupply of our outposts
 Q:$14:T:in the dungeon. We offer you a small reward if you clear
 Q:$14:T:the path for the supplies.
-Q:14:T:アルモニカ城の騎士アガレスの手から
-Q:14:T:この街を解放して下さい。
+Q:14:T:･･･アルモリカ城に囚われたロンウェー公爵を助けなければ･･･。
+Q:14:T:ガルガスタンのやつらに捕まっている。処刑が近いってウワサなんだ。
+Q:14:T:なんとかしなくちゃいけない･･･。
 ?:1
 
 # Description for quest reward

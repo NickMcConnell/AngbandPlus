@@ -12,7 +12,7 @@
 
 #include "angband.h"
 
-#ifdef MACINTOSH
+#if defined(MACINTOSH) || defined(MACH_O_CARBON)
 #ifdef verify
 #undef verify
 #endif
@@ -370,6 +370,7 @@ byte get_weapon_type(object_kind *k_ptr)
 
 		case SV_SCYTHE:
 		case SV_SCYTHE_OF_SLICING:
+		case SV_DEATH_SCYTHE:
 			return WT_SCYTHE;
 
 		case SV_LANCE:
@@ -1903,6 +1904,42 @@ return "暗黒の嵐(250) : 150+d150 ターン毎";
 #endif
 
 		}
+		case ART_AMU_FIRE:
+		{
+#ifdef JP
+			return "プレイ／サモンゾショネル : 300 ターン毎";
+#else
+			return "Pray / Summon  300 turns";
+#endif
+
+		}
+		case ART_AMU_AQUA:
+		{
+#ifdef JP
+			return "プレイ／サモングルーザ : 300 ターン毎";
+#else
+			return "Pray / Summon  300 turns";
+#endif
+
+		}
+		case ART_AMU_EARTH:
+		{
+#ifdef JP
+			return "プレイ／サモンバーサ : 300 ターン毎";
+#else
+			return "Pray / Summon  300 turns";
+#endif
+
+		}
+		case ART_AMU_WIND:
+		{
+#ifdef JP
+			return "プレイ／サモンハーネラ : 300 ターン毎";
+#else
+			return "Pray / Summon  300 turns";
+#endif
+
+		}
 	}
 
 	/* Branch on the ego-item type */
@@ -2191,6 +2228,12 @@ return "暗黒の嵐(250) : 150+d150 ターン毎";
 #endif
 		}
 		break;
+	case TV_TRUMP:
+#ifdef JP
+		return "モンスターを捕える、又は解放する。";
+#else
+		return "captures or releases a monster.";
+#endif
 	}
 
 #ifdef JP
@@ -2255,16 +2298,18 @@ static char *print_affect(char *buf, char *text, int val)
  */
 bool screen_object(object_type *o_ptr, FILE *fff, bool real)
 {
-	int                     i = 0, j, k;
+	int i = 0, j, k;
+	int trivial_info = 0;
 
 	u32b flgs[TR_FLAG_SIZE];
 
-	cptr            info[128];
+	cptr info[128];
 	char o_name[MAX_NLEN];
 	int wid, hgt;
 
 	char affect_stat_buf[A_MAX][128];
 	char affect_misc_buf[OB_MAX][128];
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
@@ -2304,6 +2349,12 @@ bool screen_object(object_type *o_ptr, FILE *fff, bool real)
 		roff_to_buf(text_ptr, 77 - 15, temp, sizeof temp);
 		for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
 		{ info[i] = &temp[j]; i++;}
+	}
+
+	if (object_is_equipment(o_ptr))
+	{
+		/* Descriptions of a basic equipment is just a flavor */
+		trivial_info = i;
 	}
 
 	/* Mega-Hack -- describe activation */
@@ -2372,6 +2423,21 @@ bool screen_object(object_type *o_ptr, FILE *fff, bool real)
 		info[i++] = "It will transform into a pet when thrown.";
 #endif
 
+	}
+
+	if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE))
+	{
+#ifdef JP
+info[i++] = "それは自分自身に攻撃が返ってくることがある。";
+#else
+		info[i++] = "It causes you to strike yourself sometimes.";
+#endif
+
+#ifdef JP
+info[i++] = "それは無敵のバリアを切り裂く。";
+#else
+		info[i++] = "It always penetrates invulnerability barriers.";
+#endif
 	}
 
 	if (have_flag(flgs, TR_EASY_SPELL))
@@ -2709,7 +2775,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_ORC))
+
+	if (have_flag(flgs, TR_KILL_ORC))
+	{
+#ifdef JP
+		info[i++] = "それはオークにとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of orcs.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_ORC))
 	{
 #ifdef JP
 		info[i++] = "それはオークに対して特に恐るべき力を発揮する。";
@@ -2718,7 +2794,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_TROLL))
+
+	if (have_flag(flgs, TR_KILL_TROLL))
+	{
+#ifdef JP
+		info[i++] = "それはトロルにとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of trolls.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_TROLL))
 	{
 #ifdef JP
 		info[i++] = "それはトロルに対して特に恐るべき力を発揮する。";
@@ -2727,7 +2813,16 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_GIANT))
+
+	if (have_flag(flgs, TR_KILL_GIANT))
+	{
+#ifdef JP
+		info[i++] = "それは巨人にとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of giants.";
+#endif
+	}
+	else if (have_flag(flgs, TR_SLAY_GIANT))
 	{
 #ifdef JP
 		info[i++] = "それはジャイアントに対して特に恐るべき力を発揮する。";
@@ -2736,7 +2831,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_DEMON))
+
+	if (have_flag(flgs, TR_KILL_DEMON))
+	{
+#ifdef JP
+		info[i++] = "それはデーモンにとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of demons.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_DEMON))
 	{
 #ifdef JP
 		info[i++] = "それはデーモンに対して聖なる力を発揮する。";
@@ -2745,7 +2850,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_UNDEAD))
+
+	if (have_flag(flgs, TR_KILL_UNDEAD))
+	{
+#ifdef JP
+		info[i++] = "それはアンデッドにとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of undead.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_UNDEAD))
 	{
 #ifdef JP
 		info[i++] = "それはアンデッドに対して聖なる力を発揮する。";
@@ -2754,7 +2869,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_LIVING))
+
+	if (have_flag(flgs, TR_KILL_LIVING))
+	{
+#ifdef JP
+		info[i++] = "それは生命のある者にとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of living creatures.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_LIVING))
 	{
 #ifdef JP
 		info[i++] = "それは生命のある者に対して特に恐るべき力を発揮する。";
@@ -2763,7 +2888,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_GOOD))
+
+	if (have_flag(flgs, TR_KILL_GOOD))
+	{
+#ifdef JP
+		info[i++] = "それは善良な存在にとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of good monsters.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_GOOD))
 	{
 #ifdef JP
 		info[i++] = "それは善良な存在に対して邪悪な力で攻撃する。";
@@ -2772,7 +2907,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_EVIL))
+
+	if (have_flag(flgs, TR_KILL_EVIL))
+	{
+#ifdef JP
+		info[i++] = "それは邪悪なる存在にとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of evil monsters.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_EVIL))
 	{
 #ifdef JP
 		info[i++] = "それは邪悪なる存在に対して聖なる力で攻撃する。";
@@ -2781,7 +2926,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_ANIMAL))
+
+	if (have_flag(flgs, TR_KILL_ANIMAL))
+	{
+#ifdef JP
+		info[i++] = "それは自然界の動物にとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of natural creatures.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_ANIMAL))
 	{
 #ifdef JP
 		info[i++] = "それは自然界の動物に対して特に恐るべき力を発揮する。";
@@ -2790,7 +2945,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_SLAY_HUMAN))
+
+	if (have_flag(flgs, TR_KILL_HUMAN))
+	{
+#ifdef JP
+		info[i++] = "それは人間にとっての天敵である。";
+#else
+		info[i++] = "It is a great bane of humans.";
+#endif
+
+	}
+	else if (have_flag(flgs, TR_SLAY_HUMAN))
 	{
 #ifdef JP
 		info[i++] = "それは人間に対して特に恐るべき力を発揮する。";
@@ -3664,6 +3829,17 @@ info[i++] = "それは敵からヒットポイントを吸収する。";
 		}
 	}
 
+	if ((o_ptr->tval >= TV_BOW) && (o_ptr->tval <= TV_SWORD))
+	{
+		char weapon_type[80];
+#ifdef JP
+		sprintf(weapon_type, "武器タイプ: %s", weapon_skill_name[get_weapon_type(k_ptr)]);
+#else
+		sprintf(weapon_type, "Weapon Type: %s", weapon_skill_name[get_weapon_type(k_ptr)]);
+#endif
+		info[i++] = weapon_type;
+	}
+
 	/* No special effects */
 	if (!i) return (FALSE);
 
@@ -3826,6 +4002,7 @@ s16b wield_slot(object_type *o_ptr)
 		}
 
 		case TV_CARD:
+		case TV_TRUMP:
 		case TV_SHIELD:
 		{
 			if (!inventory[INVEN_LARM].k_idx) return (INVEN_LARM);
@@ -4399,6 +4576,107 @@ void display_equip(void)
 
 
 
+/*
+ * Find the "first" inventory object with the given "tag".
+ *
+ * A "tag" is a numeral "n" appearing as "@n" anywhere in the
+ * inscription of an object.  Alphabetical characters don't work as a
+ * tag in this form.
+ *
+ * Also, the tag "@xn" will work as well, where "n" is a any tag-char,
+ * and "x" is the "current" command_cmd code.
+ */
+static int get_tag(int *cp, char tag)
+{
+	int i;
+	cptr s;
+
+
+	/**** Find a tag in the form of {@x#} (allow alphabet tag) ***/
+
+	/* Check every object */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Skip non-choice */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Find a '@' */
+		s = strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the special tags */
+			if ((s[1] == command_cmd) && (s[2] == tag))
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = strchr(s + 1, '@');
+		}
+	}
+
+
+	/**** Find a tag in the form of {@#} (allows only numerals)  ***/
+
+	/* Don't allow {@#} with '#' being alphabet */
+	if (tag < '0' || '9' < tag)
+	{
+		/* No such tag */
+		return FALSE;
+	}
+
+	/* Check every object */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Skip non-choice */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Find a '@' */
+		s = strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the normal tags */
+			if (s[1] == tag)
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = strchr(s + 1, '@');
+		}
+	}
+
+	/* No such tag */
+	return (FALSE);
+}
 
 
 
@@ -4409,6 +4687,7 @@ void display_equip(void)
  */
 int show_inven(int target_item)
 {
+	cptr alphabet_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	int             i, j, k, l, z = 0;
 	int             col, cur_col, len;
 	object_type     *o_ptr;
@@ -4420,9 +4699,6 @@ int show_inven(int target_item)
 	int             target_item_label = 0;
 	int             wid, hgt;
 	char inven_spellbook_label[52+1];
-
-	/* See cmd5.c */
-	extern bool select_spellbook;
 
 	/* Starting column */
 	col = command_gap;
@@ -4446,23 +4722,26 @@ int show_inven(int target_item)
 		z = i + 1;
 	}
 
-	if (select_spellbook)
+	/*** Move around label characters with correspond tags ***/
+
+	/* Prepare normal labels */
+	strcpy(inven_spellbook_label, alphabet_chars);
+
+	/* Move each label */
+	for (i = 0; i < 52; i++)
 	{
 		int index;
+		char c = alphabet_chars[i];
 
-		strcpy(inven_spellbook_label, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		for (i = 0; i < 52; i++)
+		/* Find a tag with this label */
+		if (get_tag(&index, c))
 		{
-			char c;
-			if (i < 26) c = (char)('a' + i);
-			else c = (char)('A' + i - 26);
+			/* Delete the over writen label */
+			if (inven_spellbook_label[i] == c)
+				inven_spellbook_label[i] = ' ';
 
-			if (get_tag(&index, c))
-			{
-				if (inven_spellbook_label[i] == c)
-					inven_spellbook_label[i] = ' ';
-				inven_spellbook_label[index] = c;
-			}
+			/* Move the label to the place of correspond tag */
+			inven_spellbook_label[index] = c;
 		}
 	}
 
@@ -4537,7 +4816,7 @@ int show_inven(int target_item)
 			}
 			else strcpy(tmp_val, "  ");
 		}
-		else if (i <= INVEN_PACK && select_spellbook)
+		else if (i <= INVEN_PACK)
 		{
 			sprintf(tmp_val, "%c)", inven_spellbook_label[i]);
 		}
@@ -4961,94 +5240,6 @@ static bool get_item_okay(int i)
 
 
 /*
- * Find the "first" inventory object with the given "tag".
- *
- * A "tag" is a char "n" appearing as "@n" anywhere in the
- * inscription of an object.
- *
- * Also, the tag "@xn" will work as well, where "n" is a tag-char,
- * and "x" is the "current" command_cmd code.
- */
-int get_tag(int *cp, char tag)
-{
-	int i;
-	cptr s;
-
-	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip empty inscriptions */
-		if (!o_ptr->inscription) continue;
-
-		/* Skip non-choice */
-		if (!item_tester_okay(o_ptr)) continue;
-
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->inscription), '@');
-
-		/* Process all tags */
-		while (s)
-		{
-			/* Check the special tags */
-			if ((s[1] == command_cmd) && (s[2] == tag))
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
-	}
-
-	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip empty inscriptions */
-		if (!o_ptr->inscription) continue;
-
-		/* Skip non-choice */
-		if (!item_tester_okay(o_ptr)) continue;
-
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->inscription), '@');
-
-		/* Process all tags */
-		while (s)
-		{
-			/* Check the normal tags */
-			if (s[1] == tag && !((s[2] >= '0' && s[2] <= '9') || (s[2] >= 'a' && s[2] <= 'z') || (s[2] >= 'A' && s[2] <= 'Z')))
-		{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
-	}
-
-	/* No such tag */
-	return (FALSE);
-}
-
-/*
  * Determine whether get_item() can get some item or not
  * assuming mode = (USE_EQUIP | USE_INVEN | USE_FLOOR).
  */
@@ -5140,26 +5331,22 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char tmp_val[160];
 	char out_val[160];
 
-	/* See cmd5.c */
-	extern bool select_spellbook;
-
 	int menu_line = (use_menu ? 1 : 0);
 	int max_inven = 0;
 	int max_equip = 0;
 
-#ifdef ALLOW_EASY_FLOOR /* TNB */
-
 	if (easy_floor || use_menu) return get_item_floor(cp, pmt, str, mode);
 
-#endif /* ALLOW_EASY_FLOOR -- TNB */
-
-#ifdef ALLOW_REPEAT
+	/* Extract args */
+	if (mode & (USE_EQUIP)) equip = TRUE;
+	if (mode & (USE_INVEN)) inven = TRUE;
+	if (mode & (USE_FLOOR)) floor = TRUE;
 
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
 		/* Floor item? */
-		if (*cp < 0)
+		if (floor && (*cp < 0))
 		{
 			object_type *o_ptr;
 
@@ -5178,32 +5365,32 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
 
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
 				/* Success */
 				return (TRUE);
 			}
 		}
 
-		/* Verify the item */
-		else if (get_item_okay(*cp))
+		else if ((inven && (*cp >= 0) && (*cp < INVEN_PACK)) ||
+		         (equip && (*cp >= INVEN_RARM) && (*cp < INVEN_TOTAL)))
 		{
-			/* Forget the item_tester_tval restriction */
-			item_tester_tval = 0;
+		/* Verify the item */
+			if (get_item_okay(*cp))
+			{
+				/* Forget the item_tester_tval restriction */
+				item_tester_tval = 0;
 
-			/* Forget the item_tester_hook restriction */
-			item_tester_hook = NULL;
+				/* Forget the item_tester_hook restriction */
+				item_tester_hook = NULL;
 
-			/* Success */
-			return (TRUE);
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+				/* Success */
+				return (TRUE);
+			}
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
-
-	/* Extract args */
-	if (mode & (USE_EQUIP)) equip = TRUE;
-	if (mode & (USE_INVEN)) inven = TRUE;
-	if (mode & (USE_FLOOR)) floor = TRUE;
-
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -5333,41 +5520,38 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		int get_item_label = 0;
 
 		/* Show choices */
-		if (show_choices)
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < 8; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < 8; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if ((command_wrk && ni && !ne) ||
-			    (!command_wrk && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if ((command_wrk && ni && !ne) ||
+		    (!command_wrk && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Inventory screen */
 		if (!command_wrk)
@@ -5785,35 +5969,33 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			default:
 			{
 				int ver;
-				if (select_spellbook)
+				bool not_found = FALSE;
+
+				/* Look up the alphabetical tag */
+				if (!get_tag(&k, which))
 				{
-					bool not_found = FALSE;
-					/* Look up the tag */
-					if (!get_tag(&k, which))
-					{
-						not_found = TRUE;
-					}
+					not_found = TRUE;
+				}
 
-					/* Hack -- Validate the item */
-					if ((k < INVEN_RARM) ? !inven : !equip)
-					{
-						not_found = TRUE;
-					}
+				/* Hack -- Validate the item */
+				if ((k < INVEN_RARM) ? !inven : !equip)
+				{
+					not_found = TRUE;
+				}
 
-					/* Validate the item */
-					if (!get_item_okay(k))
-					{
-						not_found = TRUE;
-					}
+				/* Validate the item */
+				if (!get_item_okay(k))
+				{
+					not_found = TRUE;
+				}
 
-					if (!not_found)
-					{
-						/* Accept that choice */
-						(*cp) = k;
-						item = TRUE;
-						done = TRUE;
-						break;
-					}
+				if (!not_found)
+				{
+					/* Accept that choice */
+					(*cp) = k;
+					item = TRUE;
+					done = TRUE;
+					break;
 				}
 
 				/* Extract "query" setting */
@@ -5893,19 +6075,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	item_tester_hook = NULL;
 
 
-	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
+	/* Clean up  'show choices' */
+	/* Toggle again if needed */
+	if (toggle) toggle_inven_equip();
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Window stuff */
-		window_stuff();
-	}
-
+	/* Window stuff */
+	window_stuff();
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
@@ -5913,16 +6091,17 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
-#ifdef ALLOW_REPEAT
-	if (item) repeat_push(*cp);
-#endif /* ALLOW_REPEAT */
+	if (item)
+	{
+		repeat_push(*cp);
+		command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+	}
 
 	/* Result */
 	return (item);
 }
 
 
-#ifdef ALLOW_EASY_FLOOR
 
 /*
  * scan_floor --
@@ -6112,9 +6291,10 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 	bool oops = FALSE;
 
-	bool equip = FALSE;
-	bool inven = FALSE;
-	bool floor = FALSE;
+	/* Extract args */
+	bool equip = (mode & USE_EQUIP) ? TRUE : FALSE;
+	bool inven = (mode & USE_INVEN) ? TRUE : FALSE;
+	bool floor = (mode & USE_FLOOR) ? TRUE : FALSE;
 
 	bool allow_equip = FALSE;
 	bool allow_inven = FALSE;
@@ -6128,19 +6308,15 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	int floor_num, floor_list[23], floor_top = 0;
 	int min_width = 0;
 
-	extern bool select_spellbook;
-
 	int menu_line = (use_menu ? 1 : 0);
 	int max_inven = 0;
 	int max_equip = 0;
-
-#ifdef ALLOW_REPEAT
 
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
 		/* Floor item? */
-		if (*cp < 0)
+		if (floor && (*cp < 0))
 		{
 			object_type *o_ptr;
 
@@ -6159,32 +6335,32 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
 
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
 				/* Success */
 				return (TRUE);
 			}
 		}
 
-		/* Verify the item */
-		else if (get_item_okay(*cp))
+		else if ((inven && (*cp >= 0) && (*cp < INVEN_PACK)) ||
+		         (equip && (*cp >= INVEN_RARM) && (*cp < INVEN_TOTAL)))
 		{
-			/* Forget the item_tester_tval restriction */
-			item_tester_tval = 0;
+			/* Verify the item */
+			if (get_item_okay(*cp))
+			{
+				/* Forget the item_tester_tval restriction */
+				item_tester_tval = 0;
 
-			/* Forget the item_tester_hook restriction */
-			item_tester_hook = NULL;
+				/* Forget the item_tester_hook restriction */
+				item_tester_hook = NULL;
 
-			/* Success */
-			return (TRUE);
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+				/* Success */
+				return (TRUE);
+			}
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
-
-	/* Extract args */
-	if (mode & (USE_EQUIP)) equip = TRUE;
-	if (mode & (USE_INVEN)) inven = TRUE;
-	if (mode & (USE_FLOOR)) floor = TRUE;
-
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -6311,41 +6487,38 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 		int get_item_label = 0;
 
 		/* Show choices */
-		if (show_choices)
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < 8; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < 8; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if ((command_wrk == (USE_EQUIP) && ni && !ne) ||
-				(command_wrk == (USE_INVEN) && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if ((command_wrk == (USE_EQUIP) && ni && !ne) ||
+			(command_wrk == (USE_INVEN) && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Inventory screen */
 		if (command_wrk == (USE_INVEN))
@@ -7122,36 +7295,33 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 			default:
 			{
 				int ver;
+				bool not_found = FALSE;
 
-				if (select_spellbook)
+				/* Look up the alphabetical tag */
+				if (!get_tag(&k, which))
 				{
-					bool not_found = FALSE;
-					/* Look up the tag */
-					if (!get_tag(&k, which))
-					{
-						not_found = TRUE;
-					}
+					not_found = TRUE;
+				}
 
-					/* Hack -- Validate the item */
-					if ((k < INVEN_RARM) ? !inven : !equip)
-					{
-						not_found = TRUE;
-					}
+				/* Hack -- Validate the item */
+				if ((k < INVEN_RARM) ? !inven : !equip)
+				{
+					not_found = TRUE;
+				}
 
-					/* Validate the item */
-					if (!get_item_okay(k))
-					{
-						not_found = TRUE;
-					}
+				/* Validate the item */
+				if (!get_item_okay(k))
+				{
+					not_found = TRUE;
+				}
 
-					if (!not_found)
-					{
-						/* Accept that choice */
-						(*cp) = k;
-						item = TRUE;
-						done = TRUE;
-						break;
-					}
+				if (!not_found)
+				{
+					/* Accept that choice */
+					(*cp) = k;
+					item = TRUE;
+					done = TRUE;
+					break;
 				}
 
 				/* Extract "query" setting */
@@ -7244,18 +7414,15 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	item_tester_hook = NULL;
 
 
-	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
+	/* Clean up  'show choices' */
+	/* Toggle again if needed */
+	if (toggle) toggle_inven_equip();
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Window stuff */
+	window_stuff();
 
 
 	/* Clear the prompt line */
@@ -7264,9 +7431,12 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
-#ifdef ALLOW_REPEAT
-	if (item) repeat_push(*cp);
-#endif /* ALLOW_REPEAT */
+	if (item)
+	{
+		repeat_push(*cp);
+		command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+	}
+
 
 	/* Result */
 	return (item);
@@ -7545,5 +7715,3 @@ void py_pickup_floor(int pickup)
 		}
 	}
 }
-
-#endif /* ALLOW_EASY_FLOOR */

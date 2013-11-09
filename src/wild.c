@@ -1090,7 +1090,6 @@ void wilderness_gen(void)
 	}
 
 	player_place(p_ptr->oldpy, p_ptr->oldpx);
-	p_ptr->leftbldg = FALSE;
 	/* p_ptr->leaving_dungeon = FALSE;*/
 
 	lim = generate_encounter ? 40 : MIN_M_ALLOC_TN;
@@ -1462,6 +1461,7 @@ bool change_wild_mode(void)
 		energy_use = 1000;
 	}
 
+	stop_singing();
 	set_action(ACTION_NONE);
 
 	p_ptr->wild_mode = !p_ptr->wild_mode;

@@ -632,14 +632,14 @@ void teleport_level(int m_idx)
 			if (!dun_level)
 			{
 				dun_level = d_info[dungeon_type].mindepth;
-				prepare_change_floor_mode(CFM_RAND_PLACE | CFM_CLEAR_ALL);
+				prepare_change_floor_mode(CFM_RAND_PLACE);
 			}
 			else
 			{
 				if (d_info[dungeon_type].flags1 & DF1_UPWARD)
-					prepare_change_floor_mode(CFM_UP | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 				else
-					prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 			}
 
 			/* Leaving */
@@ -675,9 +675,9 @@ void teleport_level(int m_idx)
 			if (autosave_l) do_cmd_save_game(TRUE);
 
 			if (d_info[dungeon_type].flags1 & DF1_UPWARD)
-				prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+				prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 			else
-				prepare_change_floor_mode(CFM_UP | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+				prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
 			leave_quest_check();
 
@@ -701,7 +701,7 @@ void teleport_level(int m_idx)
 
 			if (autosave_l) do_cmd_save_game(TRUE);
 
-			prepare_change_floor_mode(CFM_UP | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -725,7 +725,7 @@ void teleport_level(int m_idx)
 
 			if (autosave_l) do_cmd_save_game(TRUE);
 
-			prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -737,6 +737,14 @@ void teleport_level(int m_idx)
 	{
 		/* Check for quest completion */
 		check_quest_completion(m_ptr);
+
+		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+		{
+			char m2_name[80];
+
+			monster_desc(m2_name, m_ptr, 0x08);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, 8, m2_name);
+		}
 
 		delete_monster_idx(m_idx);
 	}
@@ -1238,8 +1246,8 @@ void brand_weapon(int brand_type)
 
 	/* Get an item */
 #ifdef JP
-q = "どの武器を強化しますか? ";
-s = "強化できる武器がない。";
+	q = "どの武器を強化しますか? ";
+	s = "強化できる武器がない。";
 #else
 	q = "Enchant which weapon? ";
 	s = "You have nothing to enchant.";
@@ -1265,6 +1273,7 @@ s = "強化できる武器がない。";
 	/* TY: You _can_ modify broken items (if you're silly enough) */
 	if (o_ptr->k_idx && !artifact_p(o_ptr) && !ego_item_p(o_ptr) &&
 	    !o_ptr->art_name && !cursed_p(o_ptr) &&
+	    !((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) &&
 	    !((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)))
 	{
 		cptr act = NULL;
@@ -1275,11 +1284,118 @@ s = "強化できる武器がない。";
 
 		switch (brand_type)
 		{
-		case 17:
+		case EGO_BRAND_ACID:
+#ifdef JP
+			act = "は酸に覆われた！";
+#else
+			act = "coated with acid!";
+#endif
+
+			one_ability(o_ptr);
+			o_ptr->name2 = EGO_BRAND_ACID;
+			break;
+		case EGO_BRAND_ELEC:
+#ifdef JP
+			act = "は電撃に覆われた！";
+#else
+			act = "covered with lightning!";
+#endif
+
+			one_ability(o_ptr);
+			o_ptr->name2 = EGO_BRAND_ELEC;
+			break;
+		case EGO_BRAND_FIRE:
+#ifdef JP
+			act = "は炎のシールドに覆われた！";
+#else
+			act = "is covered in a fiery shield!";
+#endif
+
+			one_ability(o_ptr);
+			o_ptr->name2 = EGO_BRAND_FIRE;
+			break;
+		case EGO_BRAND_COLD:
+#ifdef JP
+			act = "は深く冷たいブルーに輝いた！";
+#else
+			act = "glows deep, icy blue!";
+#endif
+
+			one_ability(o_ptr);
+			o_ptr->name2 = EGO_BRAND_COLD;
+			break;
+		case EGO_ASSASIN_WEAPON:
+#ifdef JP
+			act = "は黒い光に覆われた。";
+#else
+			act = "is coated with poison.";
+#endif
+
+			o_ptr->name2 = EGO_ASSASIN_WEAPON;
+			o_ptr->to_misc[OB_STEALTH] = m_bonus(3, dun_level);
+			break;
+		case EGO_CHAOTIC:
+#ifdef JP
+			act = "は純粋なカオスに飲み込まれた。";
+#else
+			act = "is engulfed in raw chaos!";
+#endif
+
+			o_ptr->name2 = EGO_CHAOTIC;
+			break;
+		case EGO_KILL_EVIL:
+#ifdef JP
+			act = "は邪悪なる怪物を求めている！";
+#else
+			act = "seems to be looking for evil monsters!";
+#endif
+
+			o_ptr->to_stat[A_WIS] = m_bonus(2, dun_level);
+			o_ptr->name2 = EGO_KILL_EVIL;
+			break;
+		case EGO_KILL_GOOD:
+#ifdef JP
+			act = "は善良なる怪物を求めている！";
+#else
+			act = "seems to be looking for good monsters!";
+#endif
+
+			o_ptr->to_stat[A_INT] = m_bonus(2, dun_level);
+			o_ptr->name2 = EGO_KILL_GOOD;
+			break;
+		case EGO_VAMPIRIC:
+#ifdef JP
+			act = "は血を求めている！";
+#else
+			act = "thirsts for blood!";
+#endif
+
+			o_ptr->name2 = EGO_VAMPIRIC;
+			break;
+		case EGO_PRISM:
+#ifdef JP
+			act = "は虹色の光に包まれた。";
+#else
+			act = "glows prism!.";
+#endif
+
+			o_ptr->name2 = EGO_PRISM;
+			break;
+		case EGO_ASMODE:
+#ifdef JP
+			act = "は非常に邪悪になったようだ。";
+#else
+			act = "seems very evil now.";
+#endif
+
+			o_ptr->name2 = EGO_ASMODE;
+			o_ptr->to_misc[OB_SEARCH] = randint1(2);
+			break;
+		default:
 			if (o_ptr->tval == TV_SWORD)
 			{
 #ifdef JP
-act = "は鋭さを増した！";
+				act = "は鋭さを増した！";
 #else
 				act = "becomes very sharp!";
 #endif
@@ -1290,7 +1406,7 @@ act = "は鋭さを増した！";
 			else
 			{
 #ifdef JP
-act = "は破壊力を増した！";
+				act = "は破壊力を増した！";
 #else
 				act = "seems very powerful.";
 #endif
@@ -1298,161 +1414,6 @@ act = "は破壊力を増した！";
 				o_ptr->name2 = EGO_EARTHQUAKES;
 				o_ptr->to_misc[OB_TUNNEL] = m_bonus(3, dun_level);
 			}
-			break;
-		case 16:
-#ifdef JP
-act = "は人間の血を求めている！";
-#else
-			act = "seems to be looking for humans!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_HUMAN;
-			break;
-		case 15:
-#ifdef JP
-act = "は電撃に覆われた！";
-#else
-			act = "covered with lightning!";
-#endif
-
-			o_ptr->name2 = EGO_BRAND_ELEC;
-			break;
-		case 14:
-#ifdef JP
-act = "は酸に覆われた！";
-#else
-			act = "coated with acid!";
-#endif
-
-			o_ptr->name2 = EGO_BRAND_ACID;
-			break;
-		case 13:
-#ifdef JP
-act = "は邪悪なる怪物を求めている！";
-#else
-			act = "seems to be looking for evil monsters!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_EVIL;
-			break;
-		case 12:
-#ifdef JP
-act = "は異世界の住人の肉体を求めている！";
-#else
-			act = "seems to be looking for demons!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_DEMON;
-			break;
-		case 11:
-#ifdef JP
-act = "は屍を求めている！";
-#else
-			act = "seems to be looking for undead!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_UNDEAD;
-			break;
-		case 10:
-#ifdef JP
-act = "は動物の血を求めている！";
-#else
-			act = "seems to be looking for animals!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_ANIMAL;
-			break;
-		case 9:
-#ifdef JP
-act = "はドラゴンの血を求めている！";
-#else
-			act = "seems to be looking for dragons!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_DRAGON;
-			break;
-		case 8:
-#ifdef JP
-act = "はトロルの血を求めている！";
-#else
-			act = "seems to be looking for trolls!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_TROLL;
-			break;
-		case 7:
-#ifdef JP
-act = "はオークの血を求めている！";
-#else
-			act = "seems to be looking for orcs!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_ORC;
-			break;
-		case 6:
-#ifdef JP
-act = "は巨人の血を求めている！";
-#else
-			act = "seems to be looking for giants!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_GIANT;
-			break;
-		case 5:
-#ifdef JP
-act = "は非常に邪悪になったようだ。";
-#else
-			act = "seems very evil now.";
-#endif
-
-			o_ptr->name2 = EGO_ASMODE;
-			o_ptr->to_misc[OB_SEARCH] = randint1(2);
-			break;
-		case 4:
-#ifdef JP
-act = "は血を求めている！";
-#else
-			act = "thirsts for blood!";
-#endif
-
-			o_ptr->name2 = EGO_VAMPIRIC;
-			break;
-		case 3:
-#ifdef JP
-act = "は黒い光に覆われた。";
-#else
-			act = "is coated with poison.";
-#endif
-
-			o_ptr->name2 = EGO_ASSASIN_WEAPON;
-			o_ptr->to_misc[OB_STEALTH] = m_bonus(3, dun_level);
-			break;
-		case 2:
-#ifdef JP
-act = "は純粋なカオスに飲み込まれた。";
-#else
-			act = "is engulfed in raw chaos!";
-#endif
-
-			o_ptr->name2 = EGO_CHAOTIC;
-			break;
-		case 1:
-#ifdef JP
-act = "は炎のシールドに覆われた！";
-#else
-			act = "is covered in a fiery shield!";
-#endif
-
-			o_ptr->name2 = EGO_BRAND_FIRE;
-			break;
-		default:
-#ifdef JP
-act = "は深く冷たいブルーに輝いた！";
-#else
-			act = "glows deep, icy blue!";
-#endif
-
-			o_ptr->name2 = EGO_BRAND_COLD;
 			break;
 		}
 
@@ -1754,8 +1715,6 @@ extern bool alter_with_flood(void)
 		else
 		{
 			msg_print("洪水が全てを流し尽くす！");
-
-			prepare_change_floor_mode(CFM_CLEAR_ALL);
 
 			alter_reality_water_flow = TRUE;
 			p_ptr->alter_reality = 0;
@@ -3765,7 +3724,6 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 	switch (k_ptr->sval)
 	{
 		case SV_POTION_SALT_WATER:
-		case SV_POTION_SLIME_MOLD:
 		case SV_POTION_LOSE_MEMORIES:
 		case SV_POTION_DEC_STR:
 		case SV_POTION_DEC_INT:
@@ -3773,8 +3731,6 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		case SV_POTION_DEC_DEX:
 		case SV_POTION_DEC_CON:
 		case SV_POTION_DEC_CHR:
-		case SV_POTION_WATER:   /* perhaps a 'water' attack? */
-		case SV_POTION_APPLE_JUICE:
 			return TRUE;
 
 		case SV_POTION_INFRAVISION:
@@ -4244,7 +4200,7 @@ static void spell_info(char *p, int spell, int use_realm)
 #else
 		case  8: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
 #endif
-		case  9: sprintf(p, " %s%d", s_dam, MIN(p_ptr->chp / 2, 350)); break;
+		case  9: sprintf(p, " %s%ld", s_dam, MIN(p_ptr->chp / 2, 350)); break;
 #ifdef JP
 		case 10: sprintf(p, " %s各%d", s_dam, plev * 3 + 25); break;
 #else
@@ -4313,7 +4269,7 @@ static void spell_info(char *p, int spell, int use_realm)
 		case  9: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
 #endif
 		case 10: sprintf(p, " %s%d+d%d", s_dam, 100 + plev, plev * 2); break;
-		case 11: sprintf(p, " %s%d", s_dam, MIN(p_ptr->chp / 2, 350)); break;
+		case 11: sprintf(p, " %s%ld", s_dam, MIN(p_ptr->chp / 2, 350)); break;
 #ifdef JP
 		case 12: sprintf(p, " %s各%d+d%d", s_dam, plev * 8, plev * 5); break;
 #else
@@ -4336,7 +4292,7 @@ static void spell_info(char *p, int spell, int use_realm)
 #else
 		case  8: sprintf(p, " d (%d+d%d)*%d", plev, plev, attacks); break;
 #endif
-		case  9: sprintf(p, " %s%d", s_dam, MIN(p_ptr->chp / 2, 350)); break;
+		case  9: sprintf(p, " %s%ld", s_dam, MIN(p_ptr->chp / 2, 350)); break;
 		case 10: sprintf(p, " %s%d", s_range, plev / 2 + 10); break;
 #ifdef JP
 		case 11: sprintf(p, " %s各%d+d%d", s_dam, plev * 8, plev * 5); break;
@@ -4386,7 +4342,7 @@ static void spell_info(char *p, int spell, int use_realm)
 #else
 		case  6: sprintf(p, " %s%dd10 each", s_dam, plev / 10 + 5); break;
 #endif
-		case  9: sprintf(p, " %s%d", s_dam, MAX(p_ptr->mhp - p_ptr->chp, 0)); break;
+		case  9: sprintf(p, " %s%ld", s_dam, MAX(p_ptr->mhp - p_ptr->chp, 0)); break;
 		case 15: sprintf(p, " %s100*3", s_dam); break;
 #ifdef JP
 		case 16: sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks - 2); break;
@@ -4492,11 +4448,11 @@ static void spell_info(char *p, int spell, int use_realm)
 #else
 		case 10: sprintf(p, " %s%d each", s_dam, plev * 3 + 25); break;
 #endif
-		case 11: sprintf(p, " %s%d", s_dam, p_ptr->chp); break;
+		case 11: sprintf(p, " %s%ld", s_dam, p_ptr->chp); break;
 		case 12: sprintf(p, " %s25+d25", s_dur); break;
 		case 14: sprintf(p, " %s25+d25", s_dur); break;
 		case 15: sprintf(p, " %s20+d20", s_dur); break;
-		case 17: sprintf(p, " %s%d", s_dam, p_ptr->chp / 3); break;
+		case 17: sprintf(p, " %s%ld", s_dam, p_ptr->chp / 3); break;
 #ifdef JP
 		case 18: sprintf(p, " 損:d%d/回:100", 6 * plev); break;
 #else
@@ -5417,7 +5373,7 @@ bool polymorph_monster(int y, int x, bool change_lnc)
 		/* Get the monsters attitude */
 		if (is_friendly(m_ptr)) mode |= PM_FORCE_FRIENDLY;
 		if (is_pet(m_ptr)) mode |= PM_FORCE_PET;
-		if (m_ptr->mflag2 & MFLAG_NOPET) mode |= PM_NO_PET;
+		if (m_ptr->mflag2 & MFLAG2_NOPET) mode |= PM_NO_PET;
 
 		/* "Kill" the "old" monster */
 		delete_monster_idx(c_ptr->m_idx);
@@ -6018,6 +5974,7 @@ void reincarnation(void)
 
 		p_ptr->energy_need += ENERGY_NEED();
 	}
+
 	p_ptr->infected = FALSE;
 
 	dispel_player();
@@ -6108,6 +6065,9 @@ void reincarnation(void)
 	if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
 
 	if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
+
+	/* Alignment change */
+	change_alignment();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -6274,6 +6234,7 @@ static byte snap_dragon_class_table[][2] =
 	{TV_POLEARM, SV_RUNESPEAR}, /* Freya */
 	{TV_BOW, SV_RUNEBOW},       /* Crescent */
 	{TV_SWORD, SV_RUNEBLADE},   /* Vampire */
+	{TV_BOW, SV_RUNEBOW},       /* Medium */
 };
 
 /*
@@ -6368,6 +6329,7 @@ static void snap_dragon_class_flags(object_type *o_ptr)
 		break;
 
 	case CLASS_ARCHER:
+		add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
 		add_flag(o_ptr->art_flags, TR_SUST_DEX);
 		add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
 		break;
@@ -6490,6 +6452,8 @@ static void snap_dragon_class_flags(object_type *o_ptr)
 		break;
 
 	case CLASS_CRESCENT:
+		add_flag(o_ptr->art_flags, TR_BRAND_ELEC);
+		add_flag(o_ptr->art_flags, TR_KILL_LIVING);
 		add_flag(o_ptr->art_flags, TR_SUST_DEX);
 		add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
 		add_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
@@ -6508,6 +6472,13 @@ static void snap_dragon_class_flags(object_type *o_ptr)
 		add_flag(o_ptr->art_flags, TR_VAMPIRIC);
 		add_flag(o_ptr->art_flags, TR_RES_DARK);
 		add_flag(o_ptr->art_flags, TR_FEATHER);
+		break;
+
+	case CLASS_MEDIUM:
+		add_flag(o_ptr->art_flags, TR_KILL_EVIL);
+		add_flag(o_ptr->art_flags, TR_SUST_WIS);
+		add_flag(o_ptr->art_flags, TR_BLESSED);
+		add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
 		break;
 	}
 }
@@ -6774,10 +6745,6 @@ void snap_dragon(void)
 		break;
 	}
 
-	/* Flags determined by class */
-	snap_dragon_class_flags(q_ptr);
-	if (cp_ptr->c_to_a > 0) q_ptr->to_a = cp_ptr->c_to_a;
-
 	/* Flags determined by race */
 	snap_dragon_race_flags(q_ptr);
 
@@ -6812,7 +6779,21 @@ void snap_dragon(void)
 		remove_flag(q_ptr->art_flags, TR_SLAY_GOOD);
 		remove_flag(q_ptr->art_flags, TR_SLAY_HUMAN);
 		remove_flag(q_ptr->art_flags, TR_SLAY_LIVING);
+		remove_flag(q_ptr->art_flags, TR_KILL_ANIMAL);
+		remove_flag(q_ptr->art_flags, TR_KILL_EVIL);
+		remove_flag(q_ptr->art_flags, TR_KILL_UNDEAD);
+		remove_flag(q_ptr->art_flags, TR_KILL_DEMON);
+		remove_flag(q_ptr->art_flags, TR_KILL_ORC);
+		remove_flag(q_ptr->art_flags, TR_KILL_TROLL);
+		remove_flag(q_ptr->art_flags, TR_KILL_GIANT);
+		remove_flag(q_ptr->art_flags, TR_KILL_HUMAN);
+		remove_flag(q_ptr->art_flags, TR_KILL_GOOD);
+		remove_flag(q_ptr->art_flags, TR_KILL_LIVING);
 	}
+
+	/* Flags determined by class */
+	snap_dragon_class_flags(q_ptr);
+	if (cp_ptr->c_to_a > 0) q_ptr->to_a = cp_ptr->c_to_a;
 
 	object_aware(q_ptr);
 	object_known(q_ptr);
@@ -7070,6 +7051,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 	case TV_POLEARM:
 	case TV_SWORD:
 		if (o_ptr->name2 && (o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return FALSE;
+		if (o_ptr->name2 && (o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) return FALSE;
 
 		switch (o_ptr->name2)
 		{
@@ -7204,6 +7186,10 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			if (one_in_(5)) add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
 			break;
 		case EGO_MORGUL:
+			o_ptr->dd *= 2;
+			o_ptr->to_h = 15 - o_ptr->to_h;
+			o_ptr->to_d = 15 - o_ptr->to_d;
+
 			if (one_in_(6)) add_flag(o_ptr->art_flags, TR_TY_CURSE);
 			if (one_in_(500)) add_flag(o_ptr->art_flags, TR_WRAITH);
 			if (one_in_(100)) add_flag(o_ptr->art_flags, TR_RES_MAGIC);
@@ -8661,6 +8647,7 @@ static bool item_tester_hook_ego_creatable(object_type *o_ptr)
 	case TV_RING:
 	case TV_LITE:
 		if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return FALSE;
+		if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) return FALSE;
 		if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_EMPTY)) return FALSE;
 		if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_EMPTY)) return FALSE;
 		if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_EMPTY)) return FALSE;

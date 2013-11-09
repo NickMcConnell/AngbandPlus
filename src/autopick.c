@@ -18,219 +18,205 @@
  * Macros for Keywords
  */
 #define FLG_ALL              0
-#define FLG_COLLECTING       1
-#define FLG_UNIDENTIFIED     2
-#define FLG_IDENTIFIED       3
-#define FLG_STAR_IDENTIFIED  4
+#define FLG_UNIDENTIFIED     1
+#define FLG_IDENTIFIED       2
+#define FLG_STAR_IDENTIFIED  3
+#define FLG_COLLECTING       4
 #define FLG_BOOSTED          5
 #define FLG_MORE_THAN        6
 #define FLG_DICE             7
 #define FLG_MORE_BONUS       8
 #define FLG_MORE_BONUS2      9
-#define FLG_WORTHLESS       10
-#define FLG_ARTIFACT        11
-#define FLG_EGO             12
+#define FLG_ARTIFACT        10
+#define FLG_EGO             11
+#define FLG_GOOD            12
 #define FLG_NAMELESS        13
-#define FLG_UNAWARE         14
-#define FLG_WANTED          15
-#define FLG_UNIQUE          16
-#define FLG_WALSTANIAN      17
-#define FLG_GARGASTAN       18
-#define FLG_BACRUM          19
-#define FLG_ZENOBIAN        20
-#define FLG_LODIS           21
-#define FLG_METAL           22
-#define FLG_ARCHER          23
-#define FLG_UNREADABLE      24
-#define FLG_FIRST           25
-#define FLG_SECOND          26
-#define FLG_THIRD           27
+#define FLG_AVERAGE         14
+#define FLG_WORTHLESS       15
+#define FLG_RARE            16
+#define FLG_COMMON          17
+#define FLG_UNAWARE         18
+#define FLG_WANTED          19
+#define FLG_UNIQUE          20
+#define FLG_WALSTANIAN      21
+#define FLG_GARGASTAN       22
+#define FLG_BACRUM          23
+#define FLG_ZENOBIAN        24
+#define FLG_LODIS           25
+#define FLG_METAL           26
+#define FLG_ARCHER          27
 
-#define FLG_ITEMS           28
-#define FLG_WEAPONS         29
-#define FLG_ARMORS          30
-#define FLG_MISSILES        31
-#define FLG_SHOTS           32
-#define FLG_DEVICES         33
-#define FLG_LIGHTS          34
-#define FLG_JUNKS           35
-#define FLG_SPELLBOOKS      36
-#define FLG_HAFTED          37
+#define FLG_ITEMS           30
+#define FLG_WEAPONS         31
+#define FLG_ARMORS          32
+#define FLG_MISSILES        33
+#define FLG_SHOTS           34
+#define FLG_DEVICES         35
+#define FLG_LIGHTS          36
+#define FLG_JUNKS           37
+#define FLG_SPELLBOOKS      38
+#define FLG_HAFTED          39
+#define FLG_SHIELDS         40
+#define FLG_LAUNCHERS       41
+#define FLG_RINGS           42
+#define FLG_AMULETS         43
+#define FLG_SUITS           44
+#define FLG_CLOAKS          45
+#define FLG_HELMS           46
+#define FLG_GLOVES          47
+#define FLG_BOOTS           48
 
-#define FLG_SMALL_SWORDS    38
-#define FLG_KATANAS         39
-#define FLG_SWORDS          40
-#define FLG_GREAT_SWORDS    41
-#define FLG_AXES            42
-#define FLG_SPEARS          43
-#define FLG_LANCES          44
-#define FLG_CLAWS           45
-#define FLG_SCYTHES         46
-#define FLG_WHIPS           47
-#define FLG_HAMMERS         48
-#define FLG_STAFFS          49
-#define FLG_FANS            50
-#define FLG_BOWS            51
-#define FLG_GUNS            52
-#define FLG_DIGGERS         53
+#define FLG_SMALL_SWORDS    49
+#define FLG_KATANAS         50
+#define FLG_SWORDS          51
+#define FLG_GREAT_SWORDS    52
+#define FLG_AXES            53
+#define FLG_SPEARS          54
+#define FLG_LANCES          55
+#define FLG_CLAWS           56
+#define FLG_SCYTHES         57
+#define FLG_WHIPS           58
+#define FLG_HAMMERS         59
+#define FLG_STAFFS          60
+#define FLG_FANS            61
+#define FLG_BOWS            62
+#define FLG_GUNS            63
 
-#define FLG_SHIELDS         54
-#define FLG_LAUNCHERS       55
-#define FLG_RINGS           56
-#define FLG_AMULETS         57
-#define FLG_SUITS           58
-#define FLG_CLOAKS          59
-#define FLG_HELMS           60
-#define FLG_GLOVES          61
-#define FLG_BOOTS           62
 
 #ifdef JP
 
-#define KEY_ALL "すべての"
+static char KEY_ALL[] = "すべての";
+static char KEY_UNIDENTIFIED[] = "未鑑定の";
+static char KEY_IDENTIFIED[] = "鑑定済みの";
+static char KEY_STAR_IDENTIFIED[] = "*鑑定*済みの";
+static char KEY_COLLECTING[] = "収集中の";
+static char KEY_BOOSTED[] = "ダイス目の違う";
+static char KEY_MORE_THAN[] = "ダイス目";
+static char KEY_DICE[] = "以上の";
+static char KEY_MORE_BONUS[] = "修正値";
+static char KEY_MORE_BONUS2[] = "以上の";
+static char KEY_ARTIFACT[] = "アーティファクト";
+static char KEY_EGO[] = "エゴ";
+static char KEY_GOOD[] = "上質の";
+static char KEY_NAMELESS[] = "無銘の";
+static char KEY_AVERAGE[] = "並の";
+static char KEY_WORTHLESS[] = "無価値の";
+static char KEY_RARE[] = "レアな";
+static char KEY_COMMON[] = "ありふれた";
+static char KEY_UNAWARE[] = "未判明の";
+static char KEY_WANTED[] = "賞金首の";
+static char KEY_UNIQUE[] = "ユニーク・モンスターの";
+static char KEY_WALSTANIAN[] = "ウォルスタ人の";
+static char KEY_GARGASTAN[] = "ガルガスタン人の";
+static char KEY_BACRUM[] = "バクラム人の";
+static char KEY_ZENOBIAN[] = "ゼノビア人の";
+static char KEY_LODIS[] = "ローディス人の";
+static char KEY_METAL[] = "金属製の";
+static char KEY_ARCHER[] = "矢の材料の";
 
-#ifdef MAC_MPW
-/*
- * MEGA HACK -- MPWのバグ除け。
- * pre-process中に「収」の字の2バイト目が勝手に消えてしまう。
- */
-#define KEY_COLLECTING "\x8e\xfb集中の"
-#else
-#define KEY_COLLECTING "収集中の"
-#endif
+static char KEY_ITEMS[] = "アイテム";
+static char KEY_WEAPONS[] = "武器";
+static char KEY_ARMORS[] = "防具";
+static char KEY_MISSILES[] = "矢";
+static char KEY_SHOTS[] = "弾丸";
+static char KEY_DEVICES[] = "魔法アイテム";
+static char KEY_LIGHTS[] = "光源";
+static char KEY_JUNKS[] = "がらくた";
+static char KEY_SPELLBOOKS[] = "魔法書";
+static char KEY_HAFTED[] = "鈍器";
+static char KEY_SHIELDS[] = "盾";
+static char KEY_LAUNCHERS[] = "射撃武器";
+static char KEY_RINGS[] = "指輪";
+static char KEY_AMULETS[] = "アミュレット";
+static char KEY_SUITS[] = "鎧";
+static char KEY_CLOAKS[] = "クローク";
+static char KEY_HELMS[] = "兜";
+static char KEY_GLOVES[] = "籠手";
+static char KEY_BOOTS[] = "靴";
 
-#define KEY_UNIDENTIFIED "未鑑定の"
-#define KEY_IDENTIFIED "鑑定済みの"
-#define KEY_STAR_IDENTIFIED "*鑑定*済みの"
-#define KEY_BOOSTED "ダイス目の違う"
-#define KEY_MORE_THAN  "ダイス目"
-#define KEY_DICE  "以上の"
-#define KEY_MORE_BONUS  "修正値"
-#define KEY_MORE_BONUS2  "以上の"
-#define KEY_WORTHLESS "無価値の"
-#define KEY_ARTIFACT "アーティファクト"
-#define KEY_EGO "エゴ"
-#define KEY_NAMELESS "無銘の"
-#define KEY_UNAWARE "未判明の"
-#define KEY_WANTED "賞金首の"
-#define KEY_UNIQUE "ユニーク・モンスターの"
-#define KEY_WALSTANIAN "ウォルスタ人の"
-#define KEY_GARGASTAN "ガルガスタン人の"
-#define KEY_BACRUM "バクラム人の"
-#define KEY_ZENOBIAN "ゼノビア人の"
-#define KEY_LODIS "ローディス人の"
-#define KEY_METAL "金属製の"
-#define KEY_ARCHER "矢の材料の"
-#define KEY_UNREADABLE "読めない"
-#define KEY_FIRST "1冊目の"
-#define KEY_SECOND "2冊目の"
-#define KEY_THIRD "3冊目の"
-#define KEY_ITEMS "アイテム"
-#define KEY_WEAPONS "武器"
-#define KEY_ARMORS "防具"
-#define KEY_MISSILES "矢"
-#define KEY_SHOTS "弾丸"
-#define KEY_DEVICES "魔法アイテム"
-#define KEY_LIGHTS "光源"
-#define KEY_JUNKS "がらくた"
-#define KEY_SPELLBOOKS "魔法書"
-#define KEY_HAFTED "鈍器"
-
-#define KEY_SMALL_SWORDS "小剣"
-#define KEY_KATANAS      "カタナ"
-#define KEY_SWORDS       "剣"
-#define KEY_GREAT_SWORDS "大剣"
-#define KEY_AXES         "斧"
-#define KEY_SPEARS       "槍"
-#define KEY_LANCES       "乗馬槍"
-#define KEY_CLAWS        "爪"
-#define KEY_SCYTHES      "鎌"
-#define KEY_WHIPS        "鞭"
-#define KEY_HAMMERS      "ハンマー"
-#define KEY_STAFFS       "杖"
-#define KEY_FANS         "扇"
-#define KEY_NUNCHAKUS    "ヌンチャク"
-#define KEY_BOWS         "弓"
-#define KEY_GUNS         "銃"
-#define KEY_DIGGERS      "掘削道具"
-
-#define KEY_SHIELDS "盾"
-#define KEY_LAUNCHERS "射撃武器"
-#define KEY_RINGS "指輪"
-#define KEY_AMULETS "アミュレット"
-#define KEY_SUITS "鎧"
-#define KEY_CLOAKS "クローク"
-#define KEY_HELMS "兜"
-#define KEY_GLOVES "籠手"
-#define KEY_BOOTS "靴"
+static char KEY_SMALL_SWORDS[] = "小剣";
+static char KEY_KATANAS[] = "カタナ";
+static char KEY_SWORDS[] = "剣";
+static char KEY_GREAT_SWORDS[] = "大剣";
+static char KEY_AXES[] = "斧";
+static char KEY_SPEARS[] = "槍";
+static char KEY_LANCES[] = "乗馬槍";
+static char KEY_CLAWS[] = "爪";
+static char KEY_SCYTHES[] = "鎌";
+static char KEY_WHIPS[] = "鞭";
+static char KEY_HAMMERS[] = "ハンマー";
+static char KEY_STAFFS[] = "杖";
+static char KEY_FANS[] = "扇";
+static char KEY_BOWS[] = "弓";
+static char KEY_GUNS[] = "銃";
 
 #else 
 
-#define KEY_ALL "all"
-#define KEY_COLLECTING "collecting"
-#define KEY_UNIDENTIFIED "unidentified"
-#define KEY_IDENTIFIED "identified"
-#define KEY_STAR_IDENTIFIED "*identified*"
-#define KEY_BOOSTED "dice boosted"
-#define KEY_MORE_THAN  "more than"
-#define KEY_DICE  " dice"
-#define KEY_MORE_BONUS  "more bonus than"
-#define KEY_MORE_BONUS2  ""
-#define KEY_WORTHLESS "worthless"
-#define KEY_ARTIFACT "artifact"
-#define KEY_EGO "ego"
-#define KEY_NAMELESS "nameless"
-#define KEY_UNAWARE "unaware"
-#define KEY_WANTED "wanted"
-#define KEY_UNIQUE "unique monster's"
-#define KEY_WALSTANIAN "walstanian"
-#define KEY_GARGASTAN "gargastan"
-#define KEY_BACRUM "bacrum"
-#define KEY_ZENOBIAN "zenobian"
-#define KEY_LODIS "lodis"
-#define KEY_METAL "metal"
-#define KEY_ARCHER "ammo-material"
-#define KEY_UNREADABLE "unreadable"
-#define KEY_FIRST "first"
-#define KEY_SECOND "second"
-#define KEY_THIRD "third"
-#define KEY_ITEMS "items"
-#define KEY_WEAPONS "weapons"
-#define KEY_ARMORS "armors"
-#define KEY_MISSILES "missiles"
-#define KEY_SHOTS "shots"
-#define KEY_DEVICES "magical devices"
-#define KEY_LIGHTS "lights"
-#define KEY_JUNKS "junks"
-#define KEY_SPELLBOOKS "spellbooks"
-#define KEY_HAFTED "hafted weapons"
+static char KEY_ALL[] = "all";
+static char KEY_UNIDENTIFIED[] = "unidentified";
+static char KEY_IDENTIFIED[] = "identified";
+static char KEY_STAR_IDENTIFIED[] = "*identified*";
+static char KEY_COLLECTING[] = "collecting";
+static char KEY_BOOSTED[] = "dice boosted";
+static char KEY_MORE_THAN[] = "more than";
+static char KEY_DICE[] = " dice";
+static char KEY_MORE_BONUS[] = "more bonus than";
+static char KEY_MORE_BONUS2[] = "";
+static char KEY_ARTIFACT[] = "artifact";
+static char KEY_EGO[] = "ego";
+static char KEY_GOOD[] = "good";
+static char KEY_NAMELESS[] = "nameless";
+static char KEY_AVERAGE[] = "average";
+static char KEY_WORTHLESS[] = "worthless";
+static char KEY_RARE[] = "rare";
+static char KEY_COMMON[] = "common";
+static char KEY_UNAWARE[] = "unaware";
+static char KEY_WANTED[] = "wanted";
+static char KEY_UNIQUE[] = "unique monster's";
+static char KEY_WALSTANIAN[] = "walstanian";
+static char KEY_GARGASTAN[] = "gargastan";
+static char KEY_BACRUM[] = "bacrum";
+static char KEY_ZENOBIAN[] = "zenobian";
+static char KEY_LODIS[] = "lodis";
+static char KEY_METAL[] = "metal";
+static char KEY_ARCHER[] = "ammo-material";
 
-#define KEY_SMALL_SWORDS "small swords"
-#define KEY_KATANAS      "katanas"
-#define KEY_SWORDS       "swords"
-#define KEY_GREAT_SWORDS "great swords"
-#define KEY_AXES         "axes"
-#define KEY_SPEARS       "spears"
-#define KEY_LANCES       "lances"
-#define KEY_CLAWS        "claws"
-#define KEY_SCYTHES      "scythes"
-#define KEY_WHIPS        "whips"
-#define KEY_HAMMERS      "hammers"
-#define KEY_STAFFS       "staffs"
-#define KEY_FANS         "fans"
-#define KEY_NUNCHAKUS    "nunchakus"
-#define KEY_BOWS         "bows"
-#define KEY_GUNS         "guns"
-#define KEY_DIGGERS      "diggers"
+static char KEY_ITEMS[] = "items";
+static char KEY_WEAPONS[] = "weapons";
+static char KEY_ARMORS[] = "armors";
+static char KEY_MISSILES[] = "missiles";
+static char KEY_SHOTS[] = "shots";
+static char KEY_DEVICES[] = "magical devices";
+static char KEY_LIGHTS[] = "lights";
+static char KEY_JUNKS[] = "junks";
+static char KEY_SPELLBOOKS[] = "spellbooks";
+static char KEY_HAFTED[] = "hafted weapons";
+static char KEY_SHIELDS[] = "shields";
+static char KEY_LAUNCHERS[] = "launchers";
+static char KEY_RINGS[] = "rings";
+static char KEY_AMULETS[] = "amulets";
+static char KEY_SUITS[] = "suits";
+static char KEY_CLOAKS[] = "cloaks";
+static char KEY_HELMS[] = "helms";
+static char KEY_GLOVES[] = "gloves";
+static char KEY_BOOTS[] = "boots";
 
-#define KEY_SHIELDS "shields"
-#define KEY_LAUNCHERS "launchers"
-#define KEY_RINGS "rings"
-#define KEY_AMULETS "amulets"
-#define KEY_SUITS "suits"
-#define KEY_CLOAKS "cloaks"
-#define KEY_HELMS "helms"
-#define KEY_GLOVES "gloves"
-#define KEY_BOOTS "boots"
+static char KEY_SMALL_SWORDS[] = "small swords";
+static char KEY_KATANAS[] = "katanas";
+static char KEY_SWORDS[] = "swords";
+static char KEY_GREAT_SWORDS[] = "great swords";
+static char KEY_AXES[] = "axes";
+static char KEY_SPEARS[] = "spears";
+static char KEY_LANCES[] = "lances";
+static char KEY_CLAWS[] = "claws";
+static char KEY_SCYTHES[] = "scythes";
+static char KEY_WHIPS[] = "whips";
+static char KEY_HAMMERS[] = "hammers";
+static char KEY_STAFFS[] = "staffs";
+static char KEY_FANS[] = "fans";
+static char KEY_BOWS[] = "bows";
+static char KEY_GUNS[] = "guns";
+
 
 #endif /* JP */
 
@@ -246,12 +232,10 @@
 #endif
 #define ADD_KEY2(KEY) strcat(ptr, KEY)
 
-/* Hack -- dividing by 32 is into 5-bit shift */
-/* Hack -- MOD by 32 is into 5-bit mask */
-#define ADD_FLG(FLG) (entry->flag[((FLG) >> 5)] |= (1L << ((FLG) & 0x1f)))
-#define REM_FLG(FLG) (entry->flag[((FLG) >> 5)] &= ~(1L << ((FLG) & 0x1f)))
-#define ADD_FLG_NOUN(FLG) (ADD_FLG(FLG), prev_flg = (FLG))
-#define IS_FLG(FLG) (entry->flag[((FLG) >> 5)] & (1L << ((FLG) & 0x1f)))
+#define ADD_FLG(FLG) (entry->flag[FLG / 32] |= (1L << (FLG % 32)))
+#define REM_FLG(FLG) (entry->flag[FLG / 32] &= ~(1L << (FLG % 32)))
+#define ADD_FLG_NOUN(FLG) (ADD_FLG(FLG), prev_flg = FLG)
+#define IS_FLG(FLG) (entry->flag[FLG / 32] & (1L << (FLG % 32)))
 
 #ifdef JP
 	static char kanji_colon[] = "：";
@@ -297,10 +281,6 @@ cptr autopick_line_from_entry(autopick_type *entry)
 		ADD_KEY(KEY_MORE_BONUS2);
 	}
 
-	if (IS_FLG(FLG_UNREADABLE)) ADD_KEY(KEY_UNREADABLE);
-	if (IS_FLG(FLG_FIRST)) ADD_KEY(KEY_FIRST);
-	if (IS_FLG(FLG_SECOND)) ADD_KEY(KEY_SECOND);
-	if (IS_FLG(FLG_THIRD)) ADD_KEY(KEY_THIRD);
 	if (IS_FLG(FLG_WANTED)) ADD_KEY(KEY_WANTED);
 	if (IS_FLG(FLG_UNIQUE)) ADD_KEY(KEY_UNIQUE);
 	if (IS_FLG(FLG_WALSTANIAN)) ADD_KEY(KEY_WALSTANIAN);
@@ -311,7 +291,11 @@ cptr autopick_line_from_entry(autopick_type *entry)
 	if (IS_FLG(FLG_METAL)) ADD_KEY(KEY_METAL);
 	if (IS_FLG(FLG_ARCHER)) ADD_KEY(KEY_ARCHER);
 	if (IS_FLG(FLG_WORTHLESS)) ADD_KEY(KEY_WORTHLESS);
+	if (IS_FLG(FLG_GOOD)) ADD_KEY(KEY_GOOD);
 	if (IS_FLG(FLG_NAMELESS)) ADD_KEY(KEY_NAMELESS);
+	if (IS_FLG(FLG_AVERAGE)) ADD_KEY(KEY_AVERAGE);
+	if (IS_FLG(FLG_RARE)) ADD_KEY(KEY_RARE);
+	if (IS_FLG(FLG_COMMON)) ADD_KEY(KEY_COMMON);
 	if (IS_FLG(FLG_EGO)) ADD_KEY(KEY_EGO);
 
 	if (IS_FLG(FLG_ARTIFACT)) ADD_KEY(KEY_ARTIFACT);
@@ -341,7 +325,6 @@ cptr autopick_line_from_entry(autopick_type *entry)
 	else if (IS_FLG(FLG_FANS)) ADD_KEY2(KEY_FANS);
 	else if (IS_FLG(FLG_BOWS)) ADD_KEY2(KEY_BOWS);
 	else if (IS_FLG(FLG_GUNS)) ADD_KEY2(KEY_GUNS);
-	else if (IS_FLG(FLG_DIGGERS)) ADD_KEY2(KEY_DIGGERS);
 	else if (IS_FLG(FLG_SHIELDS)) ADD_KEY2(KEY_SHIELDS);
 	else if (IS_FLG(FLG_LAUNCHERS)) ADD_KEY2(KEY_LAUNCHERS);
 	else if (IS_FLG(FLG_RINGS)) ADD_KEY2(KEY_RINGS);
@@ -547,7 +530,11 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 
 		if (MATCH_KEY(KEY_WORTHLESS)) ADD_FLG(FLG_WORTHLESS);
 		if (MATCH_KEY(KEY_EGO)) ADD_FLG(FLG_EGO);
+		if (MATCH_KEY(KEY_GOOD)) ADD_FLG(FLG_GOOD);
 		if (MATCH_KEY(KEY_NAMELESS)) ADD_FLG(FLG_NAMELESS);
+		if (MATCH_KEY(KEY_AVERAGE)) ADD_FLG(FLG_AVERAGE);
+		if (MATCH_KEY(KEY_RARE)) ADD_FLG(FLG_RARE);
+		if (MATCH_KEY(KEY_COMMON)) ADD_FLG(FLG_COMMON);
 		if (MATCH_KEY(KEY_UNAWARE)) ADD_FLG(FLG_UNAWARE);
 		if (MATCH_KEY(KEY_WANTED)) ADD_FLG(FLG_WANTED);
 		if (MATCH_KEY(KEY_UNIQUE)) ADD_FLG(FLG_UNIQUE);
@@ -558,10 +545,6 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 		if (MATCH_KEY(KEY_LODIS)) ADD_FLG(FLG_LODIS);
 		if (MATCH_KEY(KEY_METAL)) ADD_FLG(FLG_METAL);
 		if (MATCH_KEY(KEY_ARCHER)) ADD_FLG(FLG_ARCHER);
-		if (MATCH_KEY(KEY_UNREADABLE)) ADD_FLG(FLG_UNREADABLE);
-		if (MATCH_KEY(KEY_FIRST)) ADD_FLG(FLG_FIRST);
-		if (MATCH_KEY(KEY_SECOND)) ADD_FLG(FLG_SECOND);
-		if (MATCH_KEY(KEY_THIRD)) ADD_FLG(FLG_THIRD);
 	}
 
 	/* Not yet found any noun */
@@ -594,7 +577,6 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 	else if (MATCH_KEY2(KEY_FANS)) ADD_FLG_NOUN(FLG_FANS);
 	else if (MATCH_KEY2(KEY_BOWS)) ADD_FLG_NOUN(FLG_BOWS);
 	else if (MATCH_KEY2(KEY_GUNS)) ADD_FLG_NOUN(FLG_GUNS);
-	else if (MATCH_KEY2(KEY_DIGGERS)) ADD_FLG_NOUN(FLG_DIGGERS);
 	else if (MATCH_KEY2(KEY_SHIELDS)) ADD_FLG_NOUN(FLG_SHIELDS);
 	else if (MATCH_KEY2(KEY_LAUNCHERS)) ADD_FLG_NOUN(FLG_LAUNCHERS);
 	else if (MATCH_KEY2(KEY_RINGS)) ADD_FLG_NOUN(FLG_RINGS);
@@ -619,10 +601,7 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 		/* Noun type? */
 		if (prev_flg != -1)
 		{
-			/* A noun type keyword didn't end correctly */
-			/* Hack -- dividing by 32 is into 5-bit shift */
-			/* Hack -- MOD by 32 is into 5-bit mask */
-			entry->flag[(prev_flg >> 5)] &= ~(1L << (prev_flg & 0x1f));
+			entry->flag[(prev_flg / 32)] &= ~(1L << (prev_flg % 32));
 			ptr = prev_ptr;
 		}
 	}
@@ -744,31 +723,140 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 			return FALSE;
 	}
 
+	/*** Good ***/
+	if (IS_FLG(FLG_GOOD))
+	{
+		if (!object_is_equipment(o_ptr)) return FALSE;
+
+		/* Identified */
+		if (object_known_p(o_ptr))
+		{
+			/* Artifacts and Ego objects are not okay */
+			if (o_ptr->inscription || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
+				return FALSE;
+
+			/* Average are not okay */
+			if (o_ptr->to_a <= 0 && (o_ptr->to_h + o_ptr->to_d) <= 0)
+				return FALSE;
+		}
+
+		/* Pseudo-identified */
+		else if (o_ptr->ident & IDENT_SENSE)
+		{
+			switch (o_ptr->feeling)
+			{
+			case FEEL_GOOD:
+				/* It's good */
+				break;
+
+			default:
+				/* It's not good */
+				return FALSE;
+			}
+		}
+
+		/* Unidentified */
+		else
+		{
+			/* Not known to be good */
+			return FALSE;
+		}
+	}
+
 	/*** Nameless ***/
 	if (IS_FLG(FLG_NAMELESS))
 	{
-		switch (o_ptr->tval)
+		if (!object_is_equipment(o_ptr)) return FALSE;
+
+		/* Identified */
+		if (object_known_p(o_ptr))
 		{
-		case TV_STONE: case TV_TAROT: case TV_SCRATCH_CARD:
-		case TV_BULLET: case TV_ROUND: case TV_SHELL: case TV_ROCKET:
-		case TV_ARROW: case TV_BOLT: case TV_BOW:
-		case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD: 
-		case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_CROWN:
-		case TV_SHIELD: case TV_CLOAK:
-		case TV_SOFT_ARMOR: case TV_HARD_ARMOR:
-		case TV_LITE: case TV_AMULET: case TV_RING: case TV_CARD:
-			if ((!object_known_p(o_ptr) || o_ptr->inscription
-			     || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name))
+			/* Artifacts and Ego objects are not okay */
+			if (o_ptr->inscription || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
 				return FALSE;
-			break;
-		default:
-			/* don't match */
+
+		}
+
+		/* Pseudo-identified */
+		else if (o_ptr->ident & IDENT_SENSE)
+		{
+			switch (o_ptr->feeling)
+			{
+			case FEEL_AVERAGE:
+			case FEEL_GOOD:
+			case FEEL_BROKEN:
+			case FEEL_CURSED:
+				/* It's nameless */
+				break;
+
+			default:
+				/* It's not nameless */
+				return FALSE;
+			}
+		}
+
+		/* Unidentified */
+		else
+		{
+			/* Not known to be nameless */
 			return FALSE;
 		}
 	}
 
 	/*** Unaware items ***/
 	if (IS_FLG(FLG_UNAWARE) && object_aware_p(o_ptr))
+		return FALSE;
+
+	/*** Average ***/
+	if (IS_FLG(FLG_AVERAGE))
+	{
+		if (!object_is_equipment(o_ptr)) return FALSE;
+
+		/* Identified */
+		if (object_known_p(o_ptr))
+		{
+			/* Artifacts and Ego objects are not okay */
+			if (o_ptr->inscription || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
+				return FALSE;
+
+			/* Cursed or broken objects are not okay */
+			if (cursed_p(o_ptr) || broken_p(o_ptr))
+				return FALSE;
+
+			/* Good are not okay */
+			if (o_ptr->to_a > 0 || (o_ptr->to_h + o_ptr->to_d) > 0)
+				return FALSE;
+		}
+
+		/* Pseudo-identified */
+		else if (o_ptr->ident & IDENT_SENSE)
+		{
+			switch (o_ptr->feeling)
+			{
+			case FEEL_AVERAGE:
+				/* It's average */
+				break;
+
+			default:
+				/* It's not average */
+				return FALSE;
+			}
+		}
+
+		/* Unidentified */
+		else
+		{
+			/* Not known to be average */
+			return FALSE;
+		}
+	}
+
+	/*** Rere equpiments ***/
+	if (IS_FLG(FLG_RARE) && !object_is_rare(o_ptr))
+		return FALSE;
+
+	/*** Common equpiments ***/
+	if (IS_FLG(FLG_COMMON) && object_is_rare(o_ptr))
 		return FALSE;
 
 	/*** Wanted monster's corpse/skeletons ***/
@@ -782,34 +870,39 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	     !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
 		return FALSE;
 
-	/*** Walstanian monster's corpse/skeletons/statues ***/
+	/*** Walstanian Unique's statues ***/
 	if (IS_FLG(FLG_WALSTANIAN) &&
-	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
-	     !(r_info[o_ptr->pval].flags2 & RF2_WALSTANIAN)))
+	    ((o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_WALSTANIAN) ||
+	     !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
 		return FALSE;
 
-	/*** Gargastan monster's corpse/skeletons/statues ***/
+	/*** Gargastan Unique's statues ***/
 	if (IS_FLG(FLG_GARGASTAN) &&
-	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
-	     !(r_info[o_ptr->pval].flags2 & RF2_GARGASTAN)))
+	    ((o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_GARGASTAN) ||
+	     !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
 		return FALSE;
 
-	/*** Bacrum monster's corpse/skeletons/statues ***/
+	/*** Bacrum Unique's statues ***/
 	if (IS_FLG(FLG_BACRUM) &&
-	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
-	     !(r_info[o_ptr->pval].flags2 & RF2_BACRUM)))
+	    ((o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_BACRUM) ||
+	     !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
 		return FALSE;
 
-	/*** Zenobian monster's corpse/skeletons/statues ***/
+	/*** Zenobian Unique's statues ***/
 	if (IS_FLG(FLG_ZENOBIAN) &&
-	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
-	     !(r_info[o_ptr->pval].flags2 & RF2_ZENOBIAN)))
+	    ((o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_ZENOBIAN) ||
+	     !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
 		return FALSE;
 
-	/*** Lodis monster's corpse/skeletons/statues ***/
+	/*** Lodis Unique's statues ***/
 	if (IS_FLG(FLG_LODIS) &&
-	    ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
-	     !(r_info[o_ptr->pval].flags2 & RF2_LODIS)))
+	    ((o_ptr->tval != TV_STATUE) ||
+	     !(r_info[o_ptr->pval].flags2 & RF2_LODIS) ||
+	     !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
 		return FALSE;
 
 	/*** Metal items ***/
@@ -818,27 +911,6 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 
 	/*** Ammo materials ***/
 	if (IS_FLG(FLG_ARCHER) && !item_tester_hook_convertible(o_ptr))
-		return FALSE;
-
-	/*** Unreadable spellbooks ***/
-	if (IS_FLG(FLG_UNREADABLE) &&
-	    (o_ptr->tval < TV_MAGERY_BOOK ||
-	     check_book_realm(o_ptr->tval, o_ptr->sval)))
-		return FALSE;
-
-	/*** First rank spellbooks ***/
-	if (IS_FLG(FLG_FIRST) &&
-	    (o_ptr->tval < TV_MAGERY_BOOK || 0 != o_ptr->sval))
-		return FALSE;
-
-	/*** Second rank spellbooks ***/
-	if (IS_FLG(FLG_SECOND) &&
-	    (o_ptr->tval < TV_MAGERY_BOOK || 1 != o_ptr->sval))
-		return FALSE;
-
-	/*** Third rank spellbooks ***/
-	if (IS_FLG(FLG_THIRD) && 
-	    (o_ptr->tval < TV_MAGERY_BOOK || 2 != o_ptr->sval))
 		return FALSE;
 
 	/*** Items ***/

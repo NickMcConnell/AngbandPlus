@@ -1036,7 +1036,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (!cave_floor_grid(c_ptr)) continue;
 
 			/* Check for "availability" (if monsters can flow) */
-			if (!(m_ptr->mflag2 & MFLAG_NOFLOW))
+			if (!(m_ptr->mflag2 & MFLAG2_NOFLOW))
 			{
 				if (is_pet(m_ptr))
 				{
@@ -1183,7 +1183,7 @@ static bool get_moves(int m_idx, int *mm)
 	bool         done = FALSE;
 	bool         will_run = mon_will_run(m_idx);
 	cave_type    *c_ptr;
-	bool         no_flow = ((m_ptr->mflag2 & MFLAG_NOFLOW) && ((is_pet(m_ptr) ? cave[m_ptr->fy][m_ptr->fx].cost : cave[m_ptr->fy][m_ptr->fx].dcost) > 2));
+	bool         no_flow = ((m_ptr->mflag2 & MFLAG2_NOFLOW) && ((is_pet(m_ptr) ? cave[m_ptr->fy][m_ptr->fx].cost : cave[m_ptr->fy][m_ptr->fx].dcost) > 2));
 	bool         can_pass_wall;
 
 	/* Flow towards the player */
@@ -1195,7 +1195,23 @@ static bool get_moves(int m_idx, int *mm)
 	y = m_ptr->fy - y2;
 	x = m_ptr->fx - x2;
 
-	if (!will_run && is_hostile(m_ptr) &&
+	/* Counter attack to an enemy monster */
+	if (!will_run && m_ptr->target_y)
+	{
+		int t_m_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
+
+		/* The monster must be an enemy, and in LOS */
+		if (t_m_idx &&
+		    are_enemies(m_ptr, &m_list[t_m_idx]) &&
+		    los(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x))
+		{
+			y = m_ptr->target_y;
+			x = m_ptr->target_x;
+			done = TRUE;
+		}
+	}
+
+	if (!done && !will_run && is_hostile(m_ptr) &&
 	    (r_ptr->flags1 & RF1_FRIENDS) &&
 	    (los(m_ptr->fy, m_ptr->fx, t_py, t_px) ||
 	    (cave[m_ptr->fy][m_ptr->fx].ddist < MAX_SIGHT / 2)))
@@ -2041,7 +2057,11 @@ act = "%sを侮辱した。";
 			{
 				if (do_silly_attack)
 				{
+#ifdef JP
 					act = silly_attacks_other[randint0(MAX_SILLY_ATTACK)];
+#else
+					act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
+#endif
 				}
 				strfmt(temp, act, t_name);
 #ifdef JP
@@ -2189,7 +2209,7 @@ act = "%sを侮辱した。";
 					damage -= (damage * ((ac < 200) ? ac : 200) / 250);
 					if (damage > 23)
 					{
-						earthquake(m_ptr->fy, m_ptr->fx, 8);
+						earthquake_aux(m_ptr->fy, m_ptr->fx, 8, m_idx);
 					}
 					break;
 				}
@@ -2542,6 +2562,31 @@ static void process_monster(int m_idx)
 			msg_format("You have fallen from %s.", m_name);
 #endif
 		}
+	}
+
+	/* Are there its parent? */
+	if (m_ptr->parent_m_idx && !m_list[m_ptr->parent_m_idx].r_idx)
+	{
+		/* Its parent have gone, it also goes away. */
+
+		if (m_ptr->ml)
+		{
+			char m_name[80];
+
+			/* Acquire the monster name */
+			monster_desc(m_name, m_ptr, 0);
+
+#ifdef JP
+			msg_format("%sは消え去った！", m_name);
+#else
+			msg_format("%^s disappears!", m_name);
+#endif
+		}
+
+		/* Delete the monster */
+		delete_monster_idx(m_idx);
+
+		return;
 	}
 
 	if ((is_pet(m_ptr) || is_friendly(m_ptr)) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)))
@@ -3180,21 +3225,58 @@ filename = "monfrien_j.txt";
 		}
 	}
 
-	/* Attempt to cast a spell */
-	if (p_ptr->use_decoy)
+	/* Try to cast spell occasionally */
+	if (r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell)
 	{
-		if (monst_spell_monst(m_idx, TRUE)) return;
-	}
-	else
-	{
-		if (make_attack_spell(m_idx)) return;
-	}
+		bool counterattack = FALSE;
 
-	/*
-	 * Attempt to cast a spell at an enemy other than the player
-	 * (may slow the game a smidgeon, but I haven't noticed.)
-	 */
-	if (monst_spell_monst(m_idx, FALSE)) return;
+		/* Give priority to counter attack? */
+		if (m_ptr->target_y)
+		{
+			int t_m_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
+
+			/* The monster must be an enemy, and projectable */
+			if (t_m_idx &&
+			    are_enemies(m_ptr, &m_list[t_m_idx]) &&
+			    projectable(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x))
+			{
+				counterattack = TRUE;
+			}
+		}
+
+		if (!counterattack)
+		{
+			/* Attempt to cast a spell */
+			if (p_ptr->use_decoy)
+			{
+				if (monst_spell_monst(m_idx, TRUE)) return;
+			}
+			else
+			{
+				if (make_attack_spell(m_idx)) return;
+			}
+
+			/*
+			 * Attempt to cast a spell at an enemy other than the player
+			 * (may slow the game a smidgeon, but I haven't noticed.)
+			 */
+			if (monst_spell_monst(m_idx, FALSE)) return;
+		}
+		else
+		{
+			/* Attempt to do counter attack at first */
+			if (monst_spell_monst(m_idx, FALSE)) return;
+
+			if (p_ptr->use_decoy)
+			{
+				if (monst_spell_monst(m_idx, TRUE)) return;
+			}
+			else
+			{
+				if (make_attack_spell(m_idx)) return;
+			}
+		}
+	}
 
 	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
@@ -3867,20 +3949,29 @@ filename = "monfrien_j.txt";
 					/* React to objects that hurt the monster */
 					if (have_flag(flgs, TR_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
 					if (have_flag(flgs, TR_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (have_flag(flgs, TR_KILL_TROLL))  flg3 |= (RF3_TROLL);
 					if (have_flag(flgs, TR_SLAY_TROLL))  flg3 |= (RF3_TROLL);
+					if (have_flag(flgs, TR_KILL_GIANT))  flg3 |= (RF3_GIANT);
 					if (have_flag(flgs, TR_SLAY_GIANT))  flg3 |= (RF3_GIANT);
+					if (have_flag(flgs, TR_KILL_ORC))    flg3 |= (RF3_ORC);
 					if (have_flag(flgs, TR_SLAY_ORC))    flg3 |= (RF3_ORC);
+					if (have_flag(flgs, TR_KILL_DEMON))  flg3 |= (RF3_DEMON);
 					if (have_flag(flgs, TR_SLAY_DEMON))  flg3 |= (RF3_DEMON);
+					if (have_flag(flgs, TR_KILL_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (have_flag(flgs, TR_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
+					if (have_flag(flgs, TR_KILL_ANIMAL)) flg3 |= (RF3_ANIMAL);
 					if (have_flag(flgs, TR_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
+					if (have_flag(flgs, TR_KILL_GOOD))   flg3 |= (RF3_GOOD);
 					if (have_flag(flgs, TR_SLAY_GOOD))   flg3 |= (RF3_GOOD);
+					if (have_flag(flgs, TR_KILL_EVIL))   flg3 |= (RF3_EVIL);
 					if (have_flag(flgs, TR_SLAY_EVIL))   flg3 |= (RF3_EVIL);
+					if (have_flag(flgs, TR_KILL_HUMAN))  flg2 |= (RF2_HUMAN);
 					if (have_flag(flgs, TR_SLAY_HUMAN))  flg2 |= (RF2_HUMAN);
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) || (r_ptr->flags2 & flg2) ||
 						(o_ptr->art_name)
-						|| ((have_flag(flgs, TR_SLAY_LIVING)) && monster_living(r_ptr)))
+						|| ((have_flag(flgs, TR_KILL_LIVING) || have_flag(flgs, TR_SLAY_LIVING)) && monster_living(r_ptr)))
 					{
 						/* Only give a message for "take_item" */
 						if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) && (r_ptr->flags2 & (RF2_STUPID)))
@@ -3972,19 +4063,22 @@ filename = "monfrien_j.txt";
 	 *  Try to flow by smell.
 	 */
 	if (p_ptr->no_flowed && i > 2 &&  m_ptr->target_y)
-		m_ptr->mflag2 &= ~MFLAG_NOFLOW;
+		m_ptr->mflag2 &= ~MFLAG2_NOFLOW;
 
 	/* If we haven't done anything, try casting a spell again */
 	if (!do_turn && !do_move && !m_ptr->monfear && !(p_ptr->riding == m_idx))
 	{
-		/* Cast spell */
-		if (p_ptr->use_decoy)
+		/* Try to cast spell again */
+		if (r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell)
 		{
-			if (monst_spell_monst(m_idx, TRUE)) return;
-		}
-		else
-		{
-			if (make_attack_spell(m_idx)) return;
+			if (p_ptr->use_decoy)
+			{
+				if (monst_spell_monst(m_idx, TRUE)) return;
+			}
+			else
+			{
+				if (make_attack_spell(m_idx)) return;
+			}
 		}
 	}
 
@@ -4116,7 +4210,6 @@ void process_monsters(void)
 	byte    old_r_blows2 = 0;
 	byte    old_r_blows3 = 0;
 
-	byte    old_r_cast_inate = 0;
 	byte    old_r_cast_spell = 0;
 
 	int speed;
@@ -4150,7 +4243,6 @@ void process_monsters(void)
 		old_r_blows3 = r_ptr->r_blows[3];
 
 		/* Memorize castings */
-		old_r_cast_inate = r_ptr->r_cast_inate;
 		old_r_cast_spell = r_ptr->r_cast_spell;
 	}
 
@@ -4199,7 +4291,7 @@ void process_monsters(void)
 		/* Flow by smell is allowed */
 		if (!p_ptr->no_flowed || (p_ptr->use_decoy && !is_pet(m_ptr)))
 		{
-			m_ptr->mflag2 &= ~MFLAG_NOFLOW;
+			m_ptr->mflag2 &= ~MFLAG2_NOFLOW;
 		}
 
 		if (p_ptr->use_decoy)
@@ -4252,7 +4344,7 @@ void process_monsters(void)
 		}
 
 		/* Give this monster some energy */
-		m_ptr->energy_need -= extract_energy[speed];
+		m_ptr->energy_need -= SPEED_TO_ENERGY(speed);
 
 		/* Not enough energy to move */
 		if (m_ptr->energy_need > 0) continue;
@@ -4272,7 +4364,7 @@ void process_monsters(void)
 		/* Give up flow_by_smell when it might useless */
 		if (p_ptr->no_flowed && one_in_(3))
 		{
-			if (!p_ptr->use_decoy || is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG_NOFLOW;
+			if (!p_ptr->use_decoy || is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG2_NOFLOW;
 		}
 
 		/* Hack -- notice death or departure */
@@ -4305,7 +4397,6 @@ void process_monsters(void)
 			(old_r_blows1 != r_ptr->r_blows[1]) ||
 			(old_r_blows2 != r_ptr->r_blows[2]) ||
 			(old_r_blows3 != r_ptr->r_blows[3]) ||
-			(old_r_cast_inate != r_ptr->r_cast_inate) ||
 			(old_r_cast_spell != r_ptr->r_cast_spell))
 		{
 			/* Window stuff */
@@ -4459,12 +4550,12 @@ void monster_gain_exp(int m_idx, int s_idx)
 			/* Allow some small variation per monster */
 			if (one_in_(4))
 			{
-				i = extract_energy[r_ptr->speed] / 3;
+				i = SPEED_TO_ENERGY(r_ptr->speed) / 3;
 				if (i) m_ptr->mspeed += rand_spread(0, i);
 			}
 			else
 			{
-				i = extract_energy[r_ptr->speed] / 10;
+				i = SPEED_TO_ENERGY(r_ptr->speed) / 10;
 				if (i) m_ptr->mspeed += rand_spread(0, i);
 			}
 		}
@@ -4518,6 +4609,9 @@ void monster_gain_exp(int m_idx, int s_idx)
 			msg_format("%^s evolved into %s.", m_name, r_name + r_ptr->name);
 #endif
 			r_info[old_r_idx].r_xtra1 |= MR1_SINKA;
+
+			/* Now you feel very close to this pet. */
+			m_ptr->parent_m_idx = 0;
 		}
 		update_mon(m_idx, FALSE);
 		lite_spot(m_ptr->fy, m_ptr->fx);

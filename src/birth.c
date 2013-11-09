@@ -430,7 +430,8 @@ cptr class_jouhou[MAX_CLASS] =
 "飽くなき探求の末に、強大な魔力を手にした者。魔法を唱えるのに必要な能力は知能です。",
 "フレイヤは神に仕え、神の加護を得る女性戦士。強靭な肉体と精神を併せ持ち、槍術と魔法を駆使して戦う。魔法を唱えるのに必要な能力は賢さです。",
 "クレセントは風の領域の魔法が使える女闘士です。周囲に反魔法フィールドをはることができます。魔法を唱えるのに必要な能力は知能です。",
-"ヴァンパイア",
+"ヴァンパイアは夜の闇の中で真の力を発揮する事が出来ます。武器による直接攻撃と暗黒魔法を駆使して戦うことができます。魔法に必要な能力は知能です。",
+"巫女は神にその身を捧げた乙女です。非力な彼女達は武器で直接敵と戦うことは苦手ですが、弓を構え心を研ぎすまして放つ矢は、敵をはずすことがありません。また、レベルが上がると、木をなぎ倒し敵を射貫く聖なる力を矢にこめて放つことができるようになります。また、水の上で身を清めることにより、邪悪な穢れを払うこともできます。神に仕える彼女達は祈りを唱えることができます。巫女は神に祝福された武器以外を身に付けることを好まず、弓を引くのに邪魔になる盾を持つことも好みません。これらを装備すると祈りの集中が乱れて失敗しやすくなり、また、矢もうまく撃てなくなってしまいます。巫女に必要な能力は器用さと賢さです。",
 };
 
 static cptr realm_jouhou[MAX_REALM] =
@@ -710,6 +711,8 @@ static void get_extra(bool roll_hitdie)
 	p_ptr->gx_spd = rp_ptr->rx_spd + cp_ptr->x_spd;
 	p_ptr->gx_thn = cp_ptr->x_thn;
 	p_ptr->gx_thb = cp_ptr->x_thb;
+
+	p_ptr->death_regen = 999;
 }
 
 
@@ -956,6 +959,9 @@ static void player_wipe(void)
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
 		if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = 8;
 
+		/* Hack -- Ronwe is dead */
+		if (i == MON_RONWE) r_ptr->max_num = 0;
+
 		/* Clear player kills */
 		r_ptr->r_pkills = 0;
 
@@ -1002,6 +1008,10 @@ static void player_wipe(void)
 	/* Level one */
 	p_ptr->max_max_plv = p_ptr->max_plv = p_ptr->lev = 1;
 
+	/* Initialize arena and rewards information -KMW- */
+	p_ptr->arena_number = 0;
+	p_ptr->inside_arena = FALSE;
+	p_ptr->inside_quest = 0;
 	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
 
 	/* Set the recall dungeon accordingly */
@@ -1049,11 +1059,12 @@ static bool mon_hook_quest(int r_idx)
 /*
  *  Initialize random quests and final quests
  */
-static void init_dungeon_quests(int number_of_quests)
+static void init_dungeon_quests(void)
 {
 	int i;
 	monster_race    *r_ptr;
 	int min_random_quest = astral_mode ? MIN_RANDOM_QUEST_ASTRAL : MIN_RANDOM_QUEST;
+	int number_of_quests = astral_mode ? MAX_RANDOM_QUEST_ASTRAL - MIN_RANDOM_QUEST_ASTRAL + 1 : MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1;
 
 	/* Init the random quests */
 	init_flags = INIT_ASSIGN;
@@ -1138,6 +1149,12 @@ static void init_dungeon_quests(int number_of_quests)
 		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 		quest[QUEST_DOLGARUA].status = QUEST_STATUS_TAKEN;
+
+		p_ptr->inside_quest = QUEST_ARMORICA;
+
+		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+		quest[QUEST_ARMORICA].status = QUEST_STATUS_TAKEN;
 	}
 
 	p_ptr->inside_quest = 0;
@@ -1149,7 +1166,10 @@ static void init_dungeon_quests(int number_of_quests)
 static void init_turn(void)
 {
 	turn = 1;
+	turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
+
 	dungeon_turn = 1;
+	dungeon_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
 }
 
 
@@ -1379,9 +1399,6 @@ void player_outfit(void)
 
 		object_flags(q_ptr, flgs);
 	}
-
-	/* Hack -- make aware of the water */
-	k_info[lookup_kind(TV_POTION, SV_POTION_WATER)].aware = TRUE;
 }
 
 
@@ -1615,9 +1632,9 @@ static void race_aux_hook(int race)
 	}
 
 #ifdef JP
-	sprintf(s, "ヒットダイス: %d ", race_info[race].r_mhp);
+	sprintf(s, "ヒットダイス: %ld ", race_info[race].r_mhp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "マジックダイス: %d ", race_info[race].r_msp);
+	sprintf(s, "マジックダイス: %ld ", race_info[race].r_msp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 	sprintf(s, "経験値: %d%% ", race_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
@@ -1839,8 +1856,6 @@ static bool get_player_element(void)
 	return (TRUE);
 }
 
-static int number_of_rquests = 0;
-
 /*
  * Helper function for 'player_birth()'.
  *
@@ -1849,8 +1864,6 @@ static int number_of_rquests = 0;
  */
 static bool player_birth_aux_1(void)
 {
-	char inp[80];
-
 	/*** Instructions ***/
 
 	/* Clear screen */
@@ -1919,90 +1932,13 @@ static bool player_birth_aux_1(void)
 	/* Clear */
 	Term_clear();
 
-	/* Extra info */
+	screen_save();
 #ifdef JP
-	put_str("必須のクエスト(ランスロット及びドルガルア)に加えて、追加のクエストの", 10, 5);
-	put_str("数を設定することが出来ます。", 11, 5);
-	put_str("追加クエストを行ないたくない場合は '0'を入力して下さい。", 12, 5);
-	put_str("ランダムに決定するには'*'を入力して下さい。", 13, 5);
+	do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-	put_str("You can enter the number of quests you'd like to perform in addition", 10, 5);
-	put_str("to the two obligatory ones ( Lancelot and Dolgarua )", 11, 5);
-	put_str("In case you do not want any additional quests, just enter 0", 12, 5);
-	put_str("If you want a random number of random quests, just enter *", 13, 5);
+	do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
 #endif
-
-	/* Ask the number of additional quests */
-	while (TRUE)
-	{
-		if (astral_mode)
-		{
-#ifdef JP
-			put_str(format("追加クエストの数 (%u以下) ", MAX_RANDOM_QUEST_ASTRAL - MIN_RANDOM_QUEST_ASTRAL + 1), 15, 5);
-#else
-			put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST_ASTRAL - MIN_RANDOM_QUEST_ASTRAL + 2), 15, 5);
-#endif
-		}
-		else
-		{
-#ifdef JP
-			put_str(format("追加クエストの数 (%u以下) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1), 15, 5);
-#else
-			put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 15, 5);
-#endif
-		}
-
-
-		/* Get a the number of additional quest */
-		while (TRUE)
-		{
-			/* Move the cursor */
-			put_str("", 15, 40);
-
-			/* Default */
-			strcpy(inp, "10");
-
-			/* Get a response (or escape) */
-			if (!askfor_aux(inp, 2)) strcpy(inp, "10");
-
-			/* Quit */
-			if (inp[0] == 'Q') birth_quit();
-
-			/* Start over */
-			if (inp[0] == 'S') return (FALSE);
-
-			/* Check for random number of quests */
-			if (inp[0] == '*')
-			{
-				/* 0 to 10 random quests */
-				number_of_rquests = randint0(11);
-			}
-			else if (inp[0] == '?')
-			{
-#ifdef JP
-				show_help("jbirth.txt#RandomQuests");
-#else
-				show_help("birth.txt#RandomQuests");
-#endif
-				continue;
-			}
-			else
-			{
-				number_of_rquests = atoi(inp);
-			}
-
-			/* Break on valid input */
-			if (astral_mode)
-			{
-				if ((number_of_rquests <= MAX_RANDOM_QUEST_ASTRAL - MIN_RANDOM_QUEST_ASTRAL + 1) && (number_of_rquests >= 0)) break;
-			}
-			else
-			{
-				if ((number_of_rquests <= MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1) && (number_of_rquests >= 0)) break;
-			}
-		}
-		break;
-	}
+	screen_load();
 
 	/* Clear */
 	Term_clear();
@@ -2348,7 +2284,7 @@ static void edit_history(void)
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
 		}
-		else if (c == '\r')
+		else if (c == '\r' || c == '\n')
 		{
 			break;
 		}
@@ -2467,11 +2403,12 @@ static bool player_birth_full(void)
 	/* Start over */
 	if (c == 'S') return (FALSE);
 
-	init_dungeon_quests(number_of_rquests);
+
+	/* Initialize random quests */
+	init_dungeon_quests();
 
 	/* Save character data for quick start */
 	save_prev_data(&previous_char);
-	previous_char.quests = number_of_rquests;
 	previous_char.quick_ok = TRUE;
 
 	/* Process the player name */
@@ -2555,7 +2492,7 @@ static bool player_birth_quick(bool prepare_astral)
 				get_history();
 			}
 
-			init_dungeon_quests(previous_char.quests);
+			init_dungeon_quests();
 			init_turn();
 
 			sp_ptr = &sex_info[p_ptr->psex];
@@ -2955,9 +2892,9 @@ void dump_yourself(FILE *fff)
 #endif
 #else
 #ifdef L64
-		fprintf(fff,"\nReincarnation count: %d times (Maximum level: %d)\n", p_ptr->reincarnate_cntt, p_ptr->max_max_plv);
+		fprintf(fff,"\nReincarnation count: %d times (Maximum level: %d)\n", p_ptr->reincarnate_cnt, p_ptr->max_max_plv);
 #else
-		fprintf(fff,"\nReincarnation count: %d times (Maximum level: %ld)\n", p_ptr->reincarnate_cntt, p_ptr->max_max_plv);
+		fprintf(fff,"\nReincarnation count: %d times (Maximum level: %ld)\n", p_ptr->reincarnate_cnt, p_ptr->max_max_plv);
 #endif
 #endif
 	}

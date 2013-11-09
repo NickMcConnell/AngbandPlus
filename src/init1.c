@@ -162,7 +162,7 @@ static cptr r_info_flags1[] =
 	"DROP_GOOD",
 	"DROP_GREAT",
 	"DROP_SPECIAL",
-	"XXX3"
+	"XXX2"
 };
 
 /*
@@ -673,6 +673,17 @@ static cptr k_info_flags[] =
 	"FEAR_FIELD",
 	"FEMALE_ONLY",
 	"MALE_ONLY",
+
+	"KILL_ANIMAL",
+	"KILL_EVIL",
+	"KILL_UNDEAD",
+	"KILL_DEMON",
+	"KILL_ORC",
+	"KILL_TROLL",
+	"KILL_GIANT",
+	"KILL_HUMAN",
+	"KILL_GOOD",
+	"KILL_LIVING",
 };
 
 
@@ -730,7 +741,7 @@ static cptr d_info_flags1[] =
 	"CLOSED",
 	"CAVE",
 	"CAVERN",
-	"XXX",
+	"VAULT",
 	"XXX",
 	"XXX",
 	"NO_BACK",
@@ -2447,8 +2458,8 @@ errr parse_r_info(char *buf, header *head)
 
 		/* Save the values */
 		r_ptr->speed = spd;
-		r_ptr->hdice = hp1;
-		r_ptr->hside = hp2;
+		r_ptr->hdice = MAX(hp1, 1);
+		r_ptr->hside = MAX(hp2, 1);
 		r_ptr->aaf = aaf;
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
@@ -2596,7 +2607,7 @@ errr parse_r_info(char *buf, header *head)
 			if (1 == sscanf(s, "1_IN_%d", &i))
 			{
 				/* Extract a "frequency" */
-				r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
+				r_ptr->freq_spell = 100 / i;
 
 				/* Start at next entry */
 				s = t;
@@ -3350,7 +3361,6 @@ static errr parse_line_feature(char *buf)
  */
 static errr parse_line_building(char *buf)
 {
-	int i;
 	char *zz[37];
 	int index;
 	char *s;
@@ -3965,7 +3975,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 
 static char tmp[8];
-static cptr variant = "TOband";
+static cptr variant = "TOband2";
 
 
 /*
@@ -4198,7 +4208,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Racial level */
 			else if (streq(b+1, "LEVEL"))
 			{
-				sprintf(tmp, "%d", p_ptr->lev);
+				sprintf(tmp, "%ld", p_ptr->lev);
 				v = tmp;
 			}
 
@@ -4211,7 +4221,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 				/* Current class level */
 				if (!*pp)
 				{
-					sprintf(tmp, "%d", p_ptr->cexp_info[p_ptr->pclass].clev);
+					sprintf(tmp, "%ld", p_ptr->cexp_info[p_ptr->pclass].clev);
 					v = tmp;
 				}
 
@@ -4240,7 +4250,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 							if (streq(class_info[i].title, class_name))
 #endif
 							{
-								sprintf(tmp, "%d", p_ptr->cexp_info[i].clev);
+								sprintf(tmp, "%ld", p_ptr->cexp_info[i].clev);
 								v = tmp;
 								break;
 							}

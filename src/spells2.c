@@ -98,7 +98,7 @@ void self_knowledge(void)
 			if (get_cur_pelem() == ELEM_WIND)
 			{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÉ÷¤ÎÎÏ¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(8 MP)";
+				info[i++] = "¤¢¤Ê¤¿¤ÏÉ÷¤ÎÎÏ¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(8 MP)";
 #else
 				info[i++] = "You can attack using wind force (cost 8).";
 #endif
@@ -118,7 +118,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÉ÷¤ÎÎÏ¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(8 MP)";
 		case RACE_FAIRY:
 			if (plev > 11)
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤òÌ²¤é¤»¤ëËâË¡¤ÎÊ´¤òÅê¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(12 MP)";
+				info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤òÌ²¤é¤»¤ëËâË¡¤ÎÊ´¤òÅê¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(12 MP)";
 #else
 				info[i++] = "You can throw magical dust which induces sleep (cost 12).";
 #endif
@@ -127,7 +127,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤òÌ²¤é¤»¤ëËâË¡¤ÎÊ´¤òÅê¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(12 MP)";
 		case RACE_SKELETON:
 			if (plev > 29)
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼º¤Ã¤¿À¸Ì¿ÎÏ¤ò²óÉü¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(30 MP)";
+				info[i++] = "¤¢¤Ê¤¿¤Ï¼º¤Ã¤¿À¸Ì¿ÎÏ¤ò²óÉü¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(30 MP)";
 #else
 				info[i++] = "You can restore lost life forces (cost 30).";
 #endif
@@ -136,7 +136,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼º¤Ã¤¿À¸Ì¿ÎÏ¤ò²óÉü¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(30 MP)";
 		case RACE_GHOST:
 			if (plev > 3)
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ïµã¤­¶«¤ó¤ÇÅ¨¤ò¶²ÉÝ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
+				info[i++] = "¤¢¤Ê¤¿¤Ïµã¤­¶«¤ó¤ÇÅ¨¤ò¶²ÉÝ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 #else
 				info[i++] = "You can wail to terrify your enemies (cost 3).";
 #endif
@@ -145,7 +145,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ïµã¤­¶«¤ó¤ÇÅ¨¤ò¶²ÉÝ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 		case RACE_GREMLIN:
 			if (plev > 3)
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ïµã¤­¶«¤ó¤ÇÅ¨¤ò¶²ÉÝ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
+				info[i++] = "¤¢¤Ê¤¿¤Ïµã¤­¶«¤ó¤ÇÅ¨¤ò¶²ÉÝ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 #else
 				info[i++] = "You can wail to terrify your enemies (cost 3).";
 #endif
@@ -154,7 +154,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ïµã¤­¶«¤ó¤ÇÅ¨¤ò¶²ÉÝ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 		case RACE_PUMPKINHEAD:
 			if (plev > 1)
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÉå¤Ã¤¿ËâË¡¤Î¥«¥Ü¥Á¥ã¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
+				info[i++] = "¤¢¤Ê¤¿¤ÏÉå¤Ã¤¿ËâË¡¤Î¥«¥Ü¥Á¥ã¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 #else
 				info[i++] = "You can attack using rotten magical pumpkin (cost 3).";
 #endif
@@ -203,7 +203,8 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÉå¤Ã¤¿ËâË¡¤Î¥«¥Ü¥Á¥ã¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 	if ((p_ptr->pclass != CLASS_TERRORKNIGHT)
 		&& (p_ptr->pclass != CLASS_SWORDMASTER)
 		&& (p_ptr->pclass != CLASS_NINJA)
-		&& (p_ptr->pclass != CLASS_NINJAMASTER))
+		&& (p_ptr->pclass != CLASS_NINJAMASTER)
+		&& (p_ptr->pclass != CLASS_VAMPIRE))
 	{
 #ifdef JP
 		info[i++] = "¤¢¤Ê¤¿¤Ï¾®ÀÐ¤òÅê¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥³¥¹¥È: 0)";
@@ -497,6 +498,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÉå¤Ã¤¿ËâË¡¤Î¥«¥Ü¥Á¥ã¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 			if (clev > 34) info[i++] = "¤¢¤Ê¤¿¤Ï*É÷*Â°À­¤òÂÓ¤Ó¤¿¼Í·â¤ò¹Ô¤¨¤ë¡£(¥³¥¹¥È: 50)";
 			break;
 		case CLASS_VAMPIRE:
+			if (clev > 1) info[i++] = "¤¢¤Ê¤¿¤Î±Æ¤òÌð¤Ë¤·¤ÆÈô¤Ð¤¹»ö¤¬½ÐÍè¤ë¡£(¥³¥¹¥È: 2)";
 			sprintf(Dummy,
 #ifdef JP
 				"¤¢¤Ê¤¿¤ÏÅ¨¤«¤é %d-%d HP ¤ÎÀ¸Ì¿ÎÏ¤òµÛ¼ý¤Ç¤­¤ë¡£(%d MP)",
@@ -504,7 +506,32 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÉå¤Ã¤¿ËâË¡¤Î¥«¥Ü¥Á¥ã¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 				"You can steal life from a foe, dam. %d-%d (cost %d).",
 #endif
 					plev + MAX(1, plev / 10), plev + plev * MAX(1, plev / 10), 1 + (plev / 3));
-					info[i++] = Dummy;
+			if (clev > 1) info[i++] = Dummy;
+			if (clev > 11) info[i++] = "¤¢¤Ê¤¿¤ÎâË¤ß¤ÏºÅÌ²¸ú²Ì¤ò¤â¤Ä¡£(¥³¥¹¥È: 12)";
+			if (clev > 41) info[i++] = "¤¢¤Ê¤¿¤Ï±Æ¤ÎÈâ¤ò¤¯¤°¤êÈ´¤±¤ë»ö¤¬½ÐÍè¤ë¡£(¥³¥¹¥È: 30)";
+			break;
+		case CLASS_MEDIUM:
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤Ï¿À¤Î½ËÊ¡¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+#else
+			info[i++] = "You have been blessed by the gods.";
+#endif
+			if (clev > 4)
+			{
+#ifdef JP
+				info[i++] = "¤¢¤Ê¤¿¤Ï¿å¤Î¾å¤ÇÂÎ¤ÎãÒ¤ì¤òÍî¤È¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
+#else
+				info[i++] = "You can drop impurity of the body on water. ";
+#endif
+			}
+			if (clev > 19)
+			{
+#ifdef JP
+				info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤ò´ÓÄÌ¤¹¤ëÀ»¤Ê¤ëÌð¤òÊü¤Ä¤³¤È¤¬¤Ç¤­¤ë¡£";
+#else
+				info[i++] = "You can fire a holy arrow.";
+#endif
+			}
 			break;
 	}
 
@@ -513,7 +540,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÉå¤Ã¤¿ËâË¡¤Î¥«¥Ü¥Á¥ã¤Ç¹¶·â¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(3 MP)";
 		if (p_ptr->muta1 & MUT1_SPIT_ACID)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»À¤ò¿á¤­¤«¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX1)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï»À¤ò¿á¤­¤«¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX1)";
 #else
 			info[i++] = "You can spit acid (dam lvl).";
 #endif
@@ -522,7 +549,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»À¤ò¿á¤­¤«¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX1)";
 		if (p_ptr->muta1 & MUT1_BR_FIRE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï±ê¤Î¥Ö¥ì¥¹¤òÅÇ¤¯¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï±ê¤Î¥Ö¥ì¥¹¤òÅÇ¤¯¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
 #else
 			info[i++] = "You can breathe fire (dam lvl * 2).";
 #endif
@@ -531,7 +558,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï±ê¤Î¥Ö¥ì¥¹¤òÅÇ¤¯¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
 		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎâË¤ß¤ÏºÅÌ²¸ú²Ì¤ò¤â¤Ä¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎâË¤ß¤ÏºÅÌ²¸ú²Ì¤ò¤â¤Ä¡£";
 #else
 			info[i++] = "Your gaze is hypnotic.";
 #endif
@@ -540,7 +567,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎâË¤ß¤ÏºÅÌ²¸ú²Ì¤ò¤â¤Ä¡£";
 		if (p_ptr->muta1 & MUT1_TELEKINES)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÇ°Æ°ÎÏ¤ò¤â¤Ã¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÇ°Æ°ÎÏ¤ò¤â¤Ã¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You are telekinetic.";
 #endif
@@ -549,7 +576,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÇ°Æ°ÎÏ¤ò¤â¤Ã¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta1 & MUT1_VTELEPORT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can teleport at will.";
 #endif
@@ -558,7 +585,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_MIND_BLST)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀº¿À¹¶·â¤ò¹Ô¤¨¤ë¡£(¥À¥á¡¼¥¸ 3¡Á12d3)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÀº¿À¹¶·â¤ò¹Ô¤¨¤ë¡£(¥À¥á¡¼¥¸ 3¡Á12d3)";
 #else
 			info[i++] = "You can Mind Blast your enemies (3 to 12d3 dam).";
 #endif
@@ -567,7 +594,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀº¿À¹¶·â¤ò¹Ô¤¨¤ë¡£(¥À¥á¡¼¥¸ 3¡Á12d3)";
 		if (p_ptr->muta1 & MUT1_RADIATION)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¶¯¤¤Êü¼ÍÀþ¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¶¯¤¤Êü¼ÍÀþ¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
 #else
 			info[i++] = "You can emit hard radiation at will (dam lvl * 2).";
 #endif
@@ -576,7 +603,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¶¯¤¤Êü¼ÍÀþ¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥
 		if (p_ptr->muta1 & MUT1_VAMPIRISM)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏµÛ·ìµ´¤Î¤è¤¦¤ËÅ¨¤«¤éÀ¸Ì¿ÎÏ¤òµÛ¼ý¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏµÛ·ìµ´¤Î¤è¤¦¤ËÅ¨¤«¤éÀ¸Ì¿ÎÏ¤òµÛ¼ý¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
 #else
 			info[i++] = "You can drain life from a foe like a vampire (dam lvl * 2).";
 #endif
@@ -585,7 +612,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏµÛ·ìµ´¤Î¤è¤¦¤ËÅ¨¤«¤éÀ¸Ì¿ÎÏ¤òµÛ¼ý¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸
 		if (p_ptr->muta1 & MUT1_SMELL_MET)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶á¤¯¤Ë¤¢¤ëµ®¶âÂ°¤ò¤«¤®Ê¬¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¶á¤¯¤Ë¤¢¤ëµ®¶âÂ°¤ò¤«¤®Ê¬¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can smell nearby precious metal.";
 #endif
@@ -594,7 +621,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶á¤¯¤Ë¤¢¤ëµ®¶âÂ°¤ò¤«¤®Ê¬¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_SMELL_MON)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶á¤¯¤Î¥â¥ó¥¹¥¿¡¼¤ÎÂ¸ºß¤ò¤«¤®Ê¬¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¶á¤¯¤Î¥â¥ó¥¹¥¿¡¼¤ÎÂ¸ºß¤ò¤«¤®Ê¬¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can smell nearby monsters.";
 #endif
@@ -603,7 +630,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶á¤¯¤Î¥â¥ó¥¹¥¿¡¼¤ÎÂ¸ºß¤ò¤«¤®Ê¬¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_BLINK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÃ»¤¤µ÷Î¥¤ò¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÃ»¤¤µ÷Î¥¤ò¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can teleport yourself short distances.";
 #endif
@@ -612,7 +639,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÃ»¤¤µ÷Î¥¤ò¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_EAT_ROCK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¹Å¤¤´ä¤ò¿©¤Ù¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¹Å¤¤´ä¤ò¿©¤Ù¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can consume solid rock.";
 #endif
@@ -621,7 +648,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¹Å¤¤´ä¤ò¿©¤Ù¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_SWAP_POS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÂ¾¤Î¼Ô¤È¾ì½ê¤òÆþ¤ìÂØ¤ï¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÂ¾¤Î¼Ô¤È¾ì½ê¤òÆþ¤ìÂØ¤ï¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can switch locations with another being.";
 #endif
@@ -630,7 +657,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÂ¾¤Î¼Ô¤È¾ì½ê¤òÆþ¤ìÂØ¤ï¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_SHRIEK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¿È¤ÎÌÓ¤â¤è¤À¤Ä¶«¤ÓÀ¼¤òÈ¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¿È¤ÎÌÓ¤â¤è¤À¤Ä¶«¤ÓÀ¼¤òÈ¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
 #else
 			info[i++] = "You can emit a horrible shriek (dam 2 * lvl).";
 #endif
@@ -639,7 +666,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¿È¤ÎÌÓ¤â¤è¤À¤Ä¶«¤ÓÀ¼¤òÈ¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX
 		if (p_ptr->muta1 & MUT1_ILLUMINE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÌÀ¤ë¤¤¸÷¤òÊü¤Ä¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÌÀ¤ë¤¤¸÷¤òÊü¤Ä¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can emit bright light.";
 #endif
@@ -648,7 +675,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÌÀ¤ë¤¤¸÷¤òÊü¤Ä¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_DET_CURSE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤ÊËâË¡¤Î´í¸±¤ò´¶¤¸¤È¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤ÊËâË¡¤Î´í¸±¤ò´¶¤¸¤È¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can feel the danger of evil magic.";
 #endif
@@ -657,7 +684,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤ÊËâË¡¤Î´í¸±¤ò´¶¤¸¤È¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_BERSERK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¶¸ÍðÀïÆ®¾õÂÖ¤Ë¤Ê¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¶¸ÍðÀïÆ®¾õÂÖ¤Ë¤Ê¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can drive yourself into a berserk frenzy.";
 #endif
@@ -666,7 +693,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»×¤Ç¶¸ÍðÀïÆ®¾õÂÖ¤Ë¤Ê¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_POLYMORPH)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»Ö¤ÇÊÑ²½¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»Ö¤ÇÊÑ²½¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can polymorph yourself at will.";
 #endif
@@ -675,7 +702,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»Ö¤ÇÊÑ²½¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÄÌ¾ï¥¢¥¤¥Æ¥à¤ò¶â¤ËÊÑ¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÄÌ¾ï¥¢¥¤¥Æ¥à¤ò¶â¤ËÊÑ¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can turn ordinary items to gold.";
 #endif
@@ -684,7 +711,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÄÌ¾ï¥¢¥¤¥Æ¥à¤ò¶â¤ËÊÑ¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_GROW_MOLD)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼þ°Ï¤Ë¥­¥Î¥³¤òÀ¸¤ä¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼þ°Ï¤Ë¥­¥Î¥³¤òÀ¸¤ä¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can cause mold to grow near you.";
 #endif
@@ -693,7 +720,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼þ°Ï¤Ë¥­¥Î¥³¤òÀ¸¤ä¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_RESIST)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸µÁÇ¤Î¹¶·â¤ËÂÐ¤·¤Æ¿È¤ò¹Å¤¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¸µÁÇ¤Î¹¶·â¤ËÂÐ¤·¤Æ¿È¤ò¹Å¤¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can harden yourself to the ravages of the elements.";
 #endif
@@ -702,7 +729,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸µÁÇ¤Î¹¶·â¤ËÂÐ¤·¤Æ¿È¤ò¹Å¤¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼þ°Ï¤Î¥À¥ó¥¸¥ç¥ó¤òÊø²õ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼þ°Ï¤Î¥À¥ó¥¸¥ç¥ó¤òÊø²õ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can bring down the dungeon around your ears.";
 #endif
@@ -711,7 +738,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼þ°Ï¤Î¥À¥ó¥¸¥ç¥ó¤òÊø²õ¤µ¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤ò¼«Ê¬¤ÎÊª¤È¤·¤Æ»ÈÍÑ¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤ò¼«Ê¬¤ÎÊª¤È¤·¤Æ»ÈÍÑ¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can consume magic energy for your own use.";
 #endif
@@ -720,7 +747,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤ò¼«Ê¬¤ÎÊª¤È¤·¤Æ»ÈÍÑ¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Ë±Æ¶Á¤òÍ¿¤¨¤ëËâË¡¤ÎÎÏ¤ò´¶¤¸¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Ë±Æ¶Á¤òÍ¿¤¨¤ëËâË¡¤ÎÎÏ¤ò´¶¤¸¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can feel the strength of the magics affecting you.";
 #endif
@@ -729,7 +756,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Ë±Æ¶Á¤òÍ¿¤¨¤ëËâË¡¤ÎÎÏ¤ò´¶¤¸¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_STERILITY)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï½¸ÃÄÅªÀ¸¿£ÉÔÇ½¤òµ¯¤³¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï½¸ÃÄÅªÀ¸¿£ÉÔÇ½¤òµ¯¤³¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can cause mass impotence.";
 #endif
@@ -738,7 +765,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï½¸ÃÄÅªÀ¸¿£ÉÔÇ½¤òµ¯¤³¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_PANIC_HIT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¹¶·â¤·¤¿¸å¿È¤ò¼é¤ë¤¿¤áÆ¨¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¹¶·â¤·¤¿¸å¿È¤ò¼é¤ë¤¿¤áÆ¨¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can run for your life after hitting something.";
 #endif
@@ -747,7 +774,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¹¶·â¤·¤¿¸å¿È¤ò¼é¤ë¤¿¤áÆ¨¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_DAZZLE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤ÈÌÕÌÜ¤ò°ú¤­µ¯¤³¤¹Êü¼ÍÇ½¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£ ";
+			info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤ÈÌÕÌÜ¤ò°ú¤­µ¯¤³¤¹Êü¼ÍÇ½¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£ ";
 #else
 			info[i++] = "You can emit confusing, blinding radiation.";
 #endif
@@ -756,7 +783,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤ÈÌÕÌÜ¤ò°ú¤­µ¯¤³¤¹Êü¼ÍÇ½¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£ ";
 		if (p_ptr->muta1 & MUT1_LASER_EYE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤«¤é¥ì¡¼¥¶¡¼¸÷Àþ¤òÈ¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤«¤é¥ì¡¼¥¶¡¼¸÷Àþ¤òÈ¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)";
 #else
 			info[i++] = "Your eyes can fire laser beams (dam 2 * lvl).";
 #endif
@@ -765,7 +792,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤«¤é¥ì¡¼¥¶¡¼¸÷Àþ¤òÈ¯¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX2)
 		if (p_ptr->muta1 & MUT1_RECALL)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï³¹¤È¥À¥ó¥¸¥ç¥ó¤Î´Ö¤ò¹Ô¤­Íè¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï³¹¤È¥À¥ó¥¸¥ç¥ó¤Î´Ö¤ò¹Ô¤­Íè¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can travel between town and the depths.";
 #endif
@@ -774,7 +801,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï³¹¤È¥À¥ó¥¸¥ç¥ó¤Î´Ö¤ò¹Ô¤­Íè¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_BANISH)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¥â¥ó¥¹¥¿¡¼¤òÃÏ¹ö¤ËÍî¤È¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¥â¥ó¥¹¥¿¡¼¤òÃÏ¹ö¤ËÍî¤È¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can send evil creatures directly to Hell.";
 #endif
@@ -783,7 +810,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¥â¥ó¥¹¥¿¡¼¤òÃÏ¹ö¤ËÍî¤È¤¹¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤ò¿¨¤Ã¤ÆÅà¤é¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX3)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤ò¿¨¤Ã¤ÆÅà¤é¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX3)";
 #else
 			info[i++] = "You can freeze things with a touch (dam 3 * lvl).";
 #endif
@@ -792,7 +819,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤ò¿¨¤Ã¤ÆÅà¤é¤»¤ë¤³¤È¤¬¤Ç¤­¤ë¡£(¥À¥á¡¼¥¸ ¥ì¥Ù¥ëX3)";
 		if (p_ptr->muta1 & MUT1_LAUNCHER)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥¢¥¤¥Æ¥à¤òÎÏ¶¯¤¯Åê¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥¢¥¤¥Æ¥à¤òÎÏ¶¯¤¯Åê¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "You can hurl objects with great force.";
 #endif
@@ -805,7 +832,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥¢¥¤¥Æ¥à¤òÎÏ¶¯¤¯Åê¤²¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (p_ptr->muta2 & MUT2_BERS_RAGE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶¸Àï»Î²½¤ÎÈ¯ºî¤òµ¯¤³¤¹¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¶¸Àï»Î²½¤ÎÈ¯ºî¤òµ¯¤³¤¹¡£";
 #else
 			info[i++] = "You are subject to berserker fits.";
 #endif
@@ -814,7 +841,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶¸Àï»Î²½¤ÎÈ¯ºî¤òµ¯¤³¤¹¡£";
 		if (p_ptr->muta2 & MUT2_COWARDICE)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹²²ÉÂ¤Ë¤Ê¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹²²ÉÂ¤Ë¤Ê¤ë¡£";
 #else
 			info[i++] = "You are subject to cowardice.";
 #endif
@@ -823,7 +850,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹²²ÉÂ¤Ë¤Ê¤ë¡£";
 		if (p_ptr->muta2 & MUT2_RTELEPORT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥é¥ó¥À¥à¤Ë¥Æ¥ì¥Ý¡¼¥È¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥é¥ó¥À¥à¤Ë¥Æ¥ì¥Ý¡¼¥È¤¹¤ë¡£";
 #else
 			info[i++] = "You are teleporting randomly.";
 #endif
@@ -832,7 +859,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥é¥ó¥À¥à¤Ë¥Æ¥ì¥Ý¡¼¥È¤¹¤ë¡£";
 		if (p_ptr->muta2 & MUT2_ALCOHOL)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤Ï¥¢¥ë¥³¡¼¥ë¤òÊ¬Èç¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤Ï¥¢¥ë¥³¡¼¥ë¤òÊ¬Èç¤¹¤ë¡£";
 #else
 			info[i++] = "Your body produces alcohol.";
 #endif
@@ -841,7 +868,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤Ï¥¢¥ë¥³¡¼¥ë¤òÊ¬Èç¤¹¤ë¡£";
 		if (p_ptr->muta2 & MUT2_HALLU)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò°ú¤­µ¯¤³¤¹Àº¿ÀºøÍð¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò°ú¤­µ¯¤³¤¹Àº¿ÀºøÍð¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You have a hallucinatory insanity.";
 #endif
@@ -850,7 +877,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò°ú¤­µ¯¤³¤¹Àº¿ÀºøÍð¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta2 & MUT2_ELEM_MULTI)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¸ÇÍ­¥¨¥ì¥á¥ó¥È¤ÏÀä¤¨¤ºÊÑ²½¤·¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Î¸ÇÍ­¥¨¥ì¥á¥ó¥È¤ÏÀä¤¨¤ºÊÑ²½¤·¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "Your fixed element is constantly changing.";
 #endif
@@ -859,7 +886,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¸ÇÍ­¥¨¥ì¥á¥ó¥È¤ÏÀä¤¨¤ºÊÑ²½¤·¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta2 & MUT2_PROD_MANA)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀ©¸æÉÔÇ½¤ÊËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤òÈ¯¤·¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÀ©¸æÉÔÇ½¤ÊËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤òÈ¯¤·¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You are producing magical energy uncontrollably.";
 #endif
@@ -868,7 +895,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀ©¸æÉÔÇ½¤ÊËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤òÈ¯¤·¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta2 & MUT2_ATT_DEMON)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤ò°ú¤­¤Ä¤±¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤ò°ú¤­¤Ä¤±¤ë¡£";
 #else
 			info[i++] = "You attract demons.";
 #endif
@@ -877,7 +904,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤ò°ú¤­¤Ä¤±¤ë¡£";
 		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥µ¥½¥ê¤Î¿¬Èø¤¬À¸¤¨¤Æ¤¤¤ë¡£(ÆÇ¡¢¥À¥á¡¼¥¸ 3d7)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥µ¥½¥ê¤Î¿¬Èø¤¬À¸¤¨¤Æ¤¤¤ë¡£(ÆÇ¡¢¥À¥á¡¼¥¸ 3d7)";
 #else
 			info[i++] = "You have a scorpion tail (poison, 3d7).";
 #endif
@@ -886,7 +913,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥µ¥½¥ê¤Î¿¬Èø¤¬À¸¤¨¤Æ¤¤¤ë¡£(ÆÇ¡¢¥À¥á¡¼¥¸ 3d7)";
 		if (p_ptr->muta2 & MUT2_HORNS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï³Ñ¤¬À¸¤¨¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d6)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï³Ñ¤¬À¸¤¨¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d6)";
 #else
 			info[i++] = "You have horns (dam. 2d6).";
 #endif
@@ -895,7 +922,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï³Ñ¤¬À¸¤¨¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d6)";
 		if (p_ptr->muta2 & MUT2_BEAK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥¯¥Á¥Ð¥·¤¬À¸¤¨¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d4)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥¯¥Á¥Ð¥·¤¬À¸¤¨¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d4)";
 #else
 			info[i++] = "You have a beak (dam. 2d4).";
 #endif
@@ -904,7 +931,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥¯¥Á¥Ð¥·¤¬À¸¤¨¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d4)";
 		if (p_ptr->muta2 & MUT2_SPEED_FLUX)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥é¥ó¥À¥à¤ËÁá¤¯Æ°¤¤¤¿¤êÃÙ¤¯Æ°¤¤¤¿¤ê¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥é¥ó¥À¥à¤ËÁá¤¯Æ°¤¤¤¿¤êÃÙ¤¯Æ°¤¤¤¿¤ê¤¹¤ë¡£";
 #else
 			info[i++] = "You move faster or slower randomly.";
 #endif
@@ -913,7 +940,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥é¥ó¥À¥à¤ËÁá¤¯Æ°¤¤¤¿¤êÃÙ¤¯Æ°¤¤¤¿¤ê¤¹¤ë¡£";
 		if (p_ptr->muta2 & MUT2_BANISH_ALL)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹¶á¤¯¤Î¥â¥ó¥¹¥¿¡¼¤ò¾ÃÌÇ¤µ¤»¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹¶á¤¯¤Î¥â¥ó¥¹¥¿¡¼¤ò¾ÃÌÇ¤µ¤»¤ë¡£";
 #else
 			info[i++] = "You sometimes cause nearby creatures to vanish.";
 #endif
@@ -922,7 +949,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹¶á¤¯¤Î¥â¥ó¥¹¥¿¡¼¤ò¾ÃÌÇ¤µ¤»¤ë¡£";
 		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹¼þ°Ï¤Î¸÷¤òµÛ¼ý¤·¤Æ±ÉÍÜ¤Ë¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹¼þ°Ï¤Î¸÷¤òµÛ¼ý¤·¤Æ±ÉÍÜ¤Ë¤¹¤ë¡£";
 #else
 			info[i++] = "You sometimes feed off of the light around you.";
 #endif
@@ -931,7 +958,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹¼þ°Ï¤Î¸÷¤òµÛ¼ý¤·¤Æ±ÉÍÜ¤Ë¤¹¤ë¡£";
 		if (p_ptr->muta2 & MUT2_TRUNK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¾Ý¤Î¤è¤¦¤ÊÉ¡¤ò»ý¤Ã¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 1d4)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¾Ý¤Î¤è¤¦¤ÊÉ¡¤ò»ý¤Ã¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 1d4)";
 #else
 			info[i++] = "You have an elephantine trunk (dam 1d4).";
 #endif
@@ -940,7 +967,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¾Ý¤Î¤è¤¦¤ÊÉ¡¤ò»ý¤Ã¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 1d4)";
 		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆ°Êª¤ò°ú¤­¤Ä¤±¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÆ°Êª¤ò°ú¤­¤Ä¤±¤ë¡£";
 #else
 			info[i++] = "You attract animals.";
 #endif
@@ -949,7 +976,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÆ°Êª¤ò°ú¤­¤Ä¤±¤ë¡£";
 		if (p_ptr->muta2 & MUT2_TENTACLES)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¿¨¼ê¤ò»ý¤Ã¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d5)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¿¨¼ê¤ò»ý¤Ã¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d5)";
 #else
 			info[i++] = "You have evil looking tentacles (dam 2d5).";
 #endif
@@ -958,7 +985,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¿¨¼ê¤ò»ý¤Ã¤Æ¤¤¤ë¡£(¥À¥á¡¼¥¸ 2d5)";
 		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤·¤Ð¤·¤Ð½ã¥«¥ª¥¹¤ËÊñ¤Þ¤ì¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¤·¤Ð¤·¤Ð½ã¥«¥ª¥¹¤ËÊñ¤Þ¤ì¤ë¡£";
 #else
 			info[i++] = "You occasionally are surrounded with raw chaos.";
 #endif
@@ -967,7 +994,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤·¤Ð¤·¤Ð½ã¥«¥ª¥¹¤ËÊñ¤Þ¤ì¤ë¡£";
 		if (p_ptr->muta2 & MUT2_NORMALITY)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÊÑ°Û¤·¤Æ¤¤¤¿¤¬¡¢²óÉü¤·¤Æ¤­¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÊÑ°Û¤·¤Æ¤¤¤¿¤¬¡¢²óÉü¤·¤Æ¤­¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You may be mutated, but you're recovering.";
 #endif
@@ -976,7 +1003,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÊÑ°Û¤·¤Æ¤¤¤¿¤¬¡¢²óÉü¤·¤Æ¤­¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta2 & MUT2_WRAITH)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÆùÂÎ¤ÏÍ©ÂÎ²½¤·¤¿¤ê¼ÂÂÎ²½¤·¤¿¤ê¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÆùÂÎ¤ÏÍ©ÂÎ²½¤·¤¿¤ê¼ÂÂÎ²½¤·¤¿¤ê¤¹¤ë¡£";
 #else
 			info[i++] = "You fade in and out of physical reality.";
 #endif
@@ -985,7 +1012,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÆùÂÎ¤ÏÍ©ÂÎ²½¤·¤¿¤ê¼ÂÂÎ²½¤·¤¿¤ê¤¹¤ë¡£";
 		if (p_ptr->muta2 & MUT2_POLY_WOUND)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î·ò¹¯¤Ï¥«¥ª¥¹¤ÎÎÏ¤Ë±Æ¶Á¤ò¼õ¤±¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Î·ò¹¯¤Ï¥«¥ª¥¹¤ÎÎÏ¤Ë±Æ¶Á¤ò¼õ¤±¤ë¡£";
 #else
 			info[i++] = "Your health is subject to chaotic forces.";
 #endif
@@ -994,7 +1021,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î·ò¹¯¤Ï¥«¥ª¥¹¤ÎÎÏ¤Ë±Æ¶Á¤ò¼õ¤±¤ë¡£";
 		if (p_ptr->muta2 & MUT2_WASTING)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¿ê¼å¤¹¤ë¶²¤í¤·¤¤ÉÂµ¤¤Ë¤«¤«¤Ã¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¿ê¼å¤¹¤ë¶²¤í¤·¤¤ÉÂµ¤¤Ë¤«¤«¤Ã¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You have a horrible wasting disease.";
 #endif
@@ -1003,7 +1030,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¿ê¼å¤¹¤ë¶²¤í¤·¤¤ÉÂµ¤¤Ë¤«¤«¤Ã¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ò°ú¤­¤Ä¤±¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ò°ú¤­¤Ä¤±¤ë¡£";
 #else
 			info[i++] = "You attract dragons.";
 #endif
@@ -1012,7 +1039,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ò°ú¤­¤Ä¤±¤ë¡£";
 		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÀº¿À¤Ï¥é¥ó¥À¥à¤Ë³ÈÂç¤·¤¿¤ê½Ì¾®¤·¤¿¤ê¤·¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÀº¿À¤Ï¥é¥ó¥À¥à¤Ë³ÈÂç¤·¤¿¤ê½Ì¾®¤·¤¿¤ê¤·¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "Your mind randomly expands and contracts.";
 #endif
@@ -1021,7 +1048,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÀº¿À¤Ï¥é¥ó¥À¥à¤Ë³ÈÂç¤·¤¿¤ê½Ì¾®¤·¤¿¤ê¤·¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta2 & MUT2_NAUSEA)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î°ß¤ÏÈó¾ï¤ËÍî¤ÁÃå¤­¤¬¤Ê¤¤¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Î°ß¤ÏÈó¾ï¤ËÍî¤ÁÃå¤­¤¬¤Ê¤¤¡£";
 #else
 			info[i++] = "You have a seriously upset stomach.";
 #endif
@@ -1030,7 +1057,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î°ß¤ÏÈó¾ï¤ËÍî¤ÁÃå¤­¤¬¤Ê¤¤¡£";
 		if (p_ptr->muta2 & MUT2_TAROT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥¿¥í¥Ã¥È¥«¡¼¥É¤ÎÎÏ¤ò´¶¤¸¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥¿¥í¥Ã¥È¥«¡¼¥É¤ÎÎÏ¤ò´¶¤¸¤ë¡£";
 #else
 			info[i++] = "You feel the power of tarot cards.";
 #endif
@@ -1039,7 +1066,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥¿¥í¥Ã¥È¥«¡¼¥É¤ÎÎÏ¤ò´¶¤¸¤ë¡£";
 		if (p_ptr->muta2 & MUT2_ALTER_REALITY)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¼þ¤ê¤Î¸½¼Â¤ÏÏÄ¤ó¤Ç¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Î¼þ¤ê¤Î¸½¼Â¤ÏÏÄ¤ó¤Ç¤¤¤ë¡£";
 #else
 			info[i++] = "Reality around you is distorted.";
 #endif
@@ -1048,7 +1075,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¼þ¤ê¤Î¸½¼Â¤ÏÏÄ¤ó¤Ç¤¤¤ë¡£";
 		if (p_ptr->muta2 & MUT2_WARNING)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤Ë´Ø¤¹¤ë·Ù¹ð¤ò´¶¤¸¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤Ë´Ø¤¹¤ë·Ù¹ð¤ò´¶¤¸¤ë¡£";
 #else
 			info[i++] = "You receive warnings about your foes.";
 #endif
@@ -1057,7 +1084,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅ¨¤Ë´Ø¤¹¤ë·Ù¹ð¤ò´¶¤¸¤ë¡£";
 		if (p_ptr->muta2 & MUT2_INVULN)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹Éé¤±ÃÎ¤é¤º¤Êµ¤Ê¬¤Ë¤Ê¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹Éé¤±ÃÎ¤é¤º¤Êµ¤Ê¬¤Ë¤Ê¤ë¡£";
 #else
 			info[i++] = "You occasionally feel invincible.";
 #endif
@@ -1066,7 +1093,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹Éé¤±ÃÎ¤é¤º¤Êµ¤Ê¬¤Ë¤Ê¤ë¡£";
 		if (p_ptr->muta2 & MUT2_SP_TO_HP)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹·ì¤¬¶ÚÆù¤Ë¤É¤Ã¤ÈÎ®¤ì¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹·ì¤¬¶ÚÆù¤Ë¤É¤Ã¤ÈÎ®¤ì¤ë¡£";
 #else
 			info[i++] = "Your blood sometimes rushes to your muscles.";
 #endif
@@ -1075,7 +1102,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹·ì¤¬¶ÚÆù¤Ë¤É¤Ã¤ÈÎ®¤ì¤ë¡£";
 		if (p_ptr->muta2 & MUT2_HP_TO_SP)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹Æ¬¤Ë·ì¤¬¤É¤Ã¤ÈÎ®¤ì¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹Æ¬¤Ë·ì¤¬¤É¤Ã¤ÈÎ®¤ì¤ë¡£";
 #else
 			info[i++] = "Your blood sometimes rushes to your head.";
 #endif
@@ -1084,7 +1111,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹Æ¬¤Ë·ì¤¬¤É¤Ã¤ÈÎ®¤ì¤ë¡£";
 		if (p_ptr->muta2 & MUT2_DISARM)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤è¤¯¤Ä¤Þ¤Å¤¤¤ÆÊª¤òÍî¤È¤¹¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¤è¤¯¤Ä¤Þ¤Å¤¤¤ÆÊª¤òÍî¤È¤¹¡£";
 #else
 			info[i++] = "You occasionally stumble and drop things.";
 #endif
@@ -1097,7 +1124,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤è¤¯¤Ä¤Þ¤Å¤¤¤ÆÊª¤òÍî¤È¤¹¡£";
 		if (p_ptr->muta3 & MUT3_HYPER_STR)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÄ¶¿ÍÅª¤Ë¶¯¤¤¡£(ÏÓÎÏ+4)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÄ¶¿ÍÅª¤Ë¶¯¤¤¡£(ÏÓÎÏ+4)";
 #else
 			info[i++] = "You are superhumanly strong (+4 STR).";
 #endif
@@ -1106,7 +1133,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÄ¶¿ÍÅª¤Ë¶¯¤¤¡£(ÏÓÎÏ+4)";
 		if (p_ptr->muta3 & MUT3_PUNY)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ïµõ¼å¤À¡£(ÏÓÎÏ-4)";
+			info[i++] = "¤¢¤Ê¤¿¤Ïµõ¼å¤À¡£(ÏÓÎÏ-4)";
 #else
 			info[i++] = "You are puny (-4 STR).";
 #endif
@@ -1115,7 +1142,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ïµõ¼å¤À¡£(ÏÓÎÏ-4)";
 		if (p_ptr->muta3 & MUT3_HYPER_INT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÇ¾¤ÏÀ¸ÂÎ¥³¥ó¥Ô¥å¡¼¥¿¤À¡£(ÃÎÇ½¡õ¸­¤µ+4)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÇ¾¤ÏÀ¸ÂÎ¥³¥ó¥Ô¥å¡¼¥¿¤À¡£(ÃÎÇ½¡õ¸­¤µ+4)";
 #else
 			info[i++] = "Your brain is a living computer (+4 INT/WIS).";
 #endif
@@ -1124,7 +1151,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÇ¾¤ÏÀ¸ÂÎ¥³¥ó¥Ô¥å¡¼¥¿¤À¡£(ÃÎÇ½¡õ¸­¤µ+4)";
 		if (p_ptr->muta3 & MUT3_MORONIC)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀº¿ÀÇö¼å¤À¡£(ÃÎÇ½¡õ¸­¤µ-4)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÀº¿ÀÇö¼å¤À¡£(ÃÎÇ½¡õ¸­¤µ-4)";
 #else
 			info[i++] = "You are moronic (-4 INT/WIS).";
 #endif
@@ -1133,7 +1160,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀº¿ÀÇö¼å¤À¡£(ÃÎÇ½¡õ¸­¤µ-4)";
 		if (p_ptr->muta3 & MUT3_RESILIENT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÈó¾ï¤Ë¥¿¥Õ¤À¡£(ÂÑµ×+4)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÈó¾ï¤Ë¥¿¥Õ¤À¡£(ÂÑµ×+4)";
 #else
 			info[i++] = "You are very resilient (+4 CON).";
 #endif
@@ -1142,7 +1169,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÈó¾ï¤Ë¥¿¥Õ¤À¡£(ÂÑµ×+4)";
 		if (p_ptr->muta3 & MUT3_XTRA_FAT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶ËÃ¼¤ËÂÀ¤Ã¤Æ¤¤¤ë¡£(ÂÑµ×+2,¥¹¥Ô¡¼¥É-2)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¶ËÃ¼¤ËÂÀ¤Ã¤Æ¤¤¤ë¡£(ÂÑµ×+2,¥¹¥Ô¡¼¥É-2)";
 #else
 			info[i++] = "You are extremely fat (+2 CON, -2 speed).";
 #endif
@@ -1151,7 +1178,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶ËÃ¼¤ËÂÀ¤Ã¤Æ¤¤¤ë¡£(ÂÑµ×+2,¥¹¥Ô¡¼¥É-2)";
 		if (p_ptr->muta3 & MUT3_ALBINO)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥¢¥ë¥Ó¥Î¤À¡£(ÂÑµ×-4)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¥¢¥ë¥Ó¥Î¤À¡£(ÂÑµ×-4)";
 #else
 			info[i++] = "You are albino (-4 CON).";
 #endif
@@ -1160,7 +1187,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥¢¥ë¥Ó¥Î¤À¡£(ÂÑµ×-4)";
 		if (p_ptr->muta3 & MUT3_FLESH_ROT)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÆùÂÎ¤ÏÉåÇÔ¤·¤Æ¤¤¤ë¡£(ÂÑµ×-2,Ì¥ÎÏ-1)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÆùÂÎ¤ÏÉåÇÔ¤·¤Æ¤¤¤ë¡£(ÂÑµ×-2,Ì¥ÎÏ-1)";
 #else
 			info[i++] = "Your flesh is rotting (-2 CON, -1 CHR).";
 #endif
@@ -1169,7 +1196,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÆùÂÎ¤ÏÉåÇÔ¤·¤Æ¤¤¤ë¡£(ÂÑµ×-2,Ì¥ÎÏ-1)";
 		if (p_ptr->muta3 & MUT3_SILLY_VOI)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÀ¼¤Ï´ÖÈ´¤±¤Ê¥­¡¼¥­¡¼À¼¤À¡£(Ì¥ÎÏ-4)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÀ¼¤Ï´ÖÈ´¤±¤Ê¥­¡¼¥­¡¼À¼¤À¡£(Ì¥ÎÏ-4)";
 #else
 			info[i++] = "Your voice is a silly squeak (-4 CHR).";
 #endif
@@ -1178,7 +1205,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÀ¼¤Ï´ÖÈ´¤±¤Ê¥­¡¼¥­¡¼À¼¤À¡£(Ì¥ÎÏ-4)";
 		if (p_ptr->muta3 & MUT3_BLANK_FAC)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤Î¤Ã¤Ú¤é¤Ü¤¦¤À¡£(Ì¥ÎÏ-1)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¤Î¤Ã¤Ú¤é¤Ü¤¦¤À¡£(Ì¥ÎÏ-1)";
 #else
 			info[i++] = "Your face is featureless (-1 CHR).";
 #endif
@@ -1187,7 +1214,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤Î¤Ã¤Ú¤é¤Ü¤¦¤À¡£(Ì¥ÎÏ-1)";
 		if (p_ptr->muta3 & MUT3_ILL_NORM)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸¸±Æ¤ËÊ¤¤ï¤ì¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¸¸±Æ¤ËÊ¤¤ï¤ì¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "Your appearance is masked with illusion.";
 #endif
@@ -1196,7 +1223,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸¸±Æ¤ËÊ¤¤ï¤ì¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta3 & MUT3_XTRA_EYES)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÍ¾Ê¬¤ËÆó¤Ä¤ÎÌÜ¤ò»ý¤Ã¤Æ¤¤¤ë¡£(Ãµº÷+15)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÍ¾Ê¬¤ËÆó¤Ä¤ÎÌÜ¤ò»ý¤Ã¤Æ¤¤¤ë¡£(Ãµº÷+15)";
 #else
 			info[i++] = "You have an extra pair of eyes (+15 search).";
 #endif
@@ -1205,7 +1232,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÍ¾Ê¬¤ËÆó¤Ä¤ÎÌÜ¤ò»ý¤Ã¤Æ¤¤¤ë¡£(Ãµº÷+15)";
 		if (p_ptr->muta3 & MUT3_MAGIC_RES)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤Ø¤ÎÂÑÀ­¤ò¤â¤Ã¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤Ø¤ÎÂÑÀ­¤ò¤â¤Ã¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You are resistant to magic.";
 #endif
@@ -1214,7 +1241,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤Ø¤ÎÂÑÀ­¤ò¤â¤Ã¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÊÑ¤Ê²»¤òÈ¯¤·¤Æ¤¤¤ë¡£(±£Ì©-3)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÊÑ¤Ê²»¤òÈ¯¤·¤Æ¤¤¤ë¡£(±£Ì©-3)";
 #else
 			info[i++] = "You make a lot of strange noise (-3 stealth).";
 #endif
@@ -1223,7 +1250,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÊÑ¤Ê²»¤òÈ¯¤·¤Æ¤¤¤ë¡£(±£Ì©-3)";
 		if (p_ptr->muta3 & MUT3_INFRAVIS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÀ²¤é¤·¤¤ÀÖ³°Àþ»ëÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£(+3)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÀ²¤é¤·¤¤ÀÖ³°Àþ»ëÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£(+3)";
 #else
 			info[i++] = "You have remarkable infravision (+3).";
 #endif
@@ -1232,7 +1259,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÀ²¤é¤·¤¤ÀÖ³°Àþ»ëÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£(+3)";
 		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÍ¾Ê¬¤ËÆóËÜ¤ÎÂ­¤¬À¸¤¨¤Æ¤¤¤ë¡£(²ÃÂ®+3)";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÍ¾Ê¬¤ËÆóËÜ¤ÎÂ­¤¬À¸¤¨¤Æ¤¤¤ë¡£(²ÃÂ®+3)";
 #else
 			info[i++] = "You have an extra pair of legs (+3 speed).";
 #endif
@@ -1241,7 +1268,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÍ¾Ê¬¤ËÆóËÜ¤ÎÂ­¤¬À¸¤¨¤Æ¤¤¤ë¡£(²ÃÂ®+3)";
 		if (p_ptr->muta3 & MUT3_SHORT_LEG)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÂ­¤ÏÃ»¤¤ÆÍµ¯¤À¡£(²ÃÂ®-3)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÂ­¤ÏÃ»¤¤ÆÍµ¯¤À¡£(²ÃÂ®-3)";
 #else
 			info[i++] = "Your legs are short stubs (-3 speed).";
 #endif
@@ -1250,7 +1277,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÂ­¤ÏÃ»¤¤ÆÍµ¯¤À¡£(²ÃÂ®-3)";
 		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î·ì´É¤Ë¤ÏÅÅÎ®¤¬Î®¤ì¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Î·ì´É¤Ë¤ÏÅÅÎ®¤¬Î®¤ì¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "Electricity is running through your veins.";
 #endif
@@ -1259,7 +1286,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î·ì´É¤Ë¤ÏÅÅÎ®¤¬Î®¤ì¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤Ï±ê¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤Ï±ê¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "Your body is enveloped in flames.";
 #endif
@@ -1267,7 +1294,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤Ï±ê¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta3 & MUT3_WART_SKIN)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤Ï¥¤¥Ü¤ËÈï¤ï¤ì¤Æ¤¤¤ë¡£(Ì¥ÎÏ-2, AC+5)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤Ï¥¤¥Ü¤ËÈï¤ï¤ì¤Æ¤¤¤ë¡£(Ì¥ÎÏ-2, AC+5)";
 #else
 			info[i++] = "Your skin is covered with warts (-2 CHR, +5 AC).";
 #endif
@@ -1276,7 +1303,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤Ï¥¤¥Ü¤ËÈï¤ï¤ì¤Æ¤¤¤ë¡£(Ì¥ÎÏ-2, AC+5)";
 		if (p_ptr->muta3 & MUT3_SCALES)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤ÏÎÚ¤Ë¤Ê¤Ã¤Æ¤¤¤ë¡£(Ì¥ÎÏ-1, AC+10)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤ÏÎÚ¤Ë¤Ê¤Ã¤Æ¤¤¤ë¡£(Ì¥ÎÏ-1, AC+10)";
 #else
 			info[i++] = "Your skin has turned into scales (-1 CHR, +10 AC).";
 #endif
@@ -1285,7 +1312,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤ÏÎÚ¤Ë¤Ê¤Ã¤Æ¤¤¤ë¡£(Ì¥ÎÏ-1, AC+10)";
 		if (p_ptr->muta3 & MUT3_IRON_SKIN)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤ÏÅ´¤Ç¤Ç¤­¤Æ¤¤¤ë¡£(´ïÍÑ-1, AC+25)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤ÏÅ´¤Ç¤Ç¤­¤Æ¤¤¤ë¡£(´ïÍÑ-1, AC+25)";
 #else
 			info[i++] = "Your skin is made of steel (-1 DEX, +25 AC).";
 #endif
@@ -1294,7 +1321,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÈ©¤ÏÅ´¤Ç¤Ç¤­¤Æ¤¤¤ë¡£(´ïÍÑ-1, AC+25)";
 		if (p_ptr->muta3 & MUT3_WINGS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï±©¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï±©¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You have wings.";
 #endif
@@ -1315,7 +1342,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï±©¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta3 & MUT3_LIMBER)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤ÏÈó¾ï¤Ë¤·¤Ê¤ä¤«¤À¡£(´ïÍÑ+3)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤ÏÈó¾ï¤Ë¤·¤Ê¤ä¤«¤À¡£(´ïÍÑ+3)";
 #else
 			info[i++] = "Your body is very limber (+3 DEX).";
 #endif
@@ -1324,7 +1351,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÂÎ¤ÏÈó¾ï¤Ë¤·¤Ê¤ä¤«¤À¡£(´ïÍÑ+3)";
 		if (p_ptr->muta3 & MUT3_ARTHRITIS)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤¤¤Ä¤â´ØÀá¤ËÄË¤ß¤ò´¶¤¸¤Æ¤¤¤ë¡£(´ïÍÑ-3)";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¤¤¤Ä¤â´ØÀá¤ËÄË¤ß¤ò´¶¤¸¤Æ¤¤¤ë¡£(´ïÍÑ-3)";
 #else
 			info[i++] = "Your joints ache constantly (-3 DEX).";
 #endif
@@ -1333,7 +1360,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤¤¤Ä¤â´ØÀá¤ËÄË¤ß¤ò´¶¤¸¤Æ¤¤¤ë¡£(´ïÍÑ-3)";
 		if (p_ptr->muta3 & MUT3_VULN_ELEM)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸µÁÇ¤Î¹¶·â¤Ë¼å¤¤¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¸µÁÇ¤Î¹¶·â¤Ë¼å¤¤¡£";
 #else
 			info[i++] = "You are susceptible to damage from the elements.";
 #endif
@@ -1342,7 +1369,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸µÁÇ¤Î¹¶·â¤Ë¼å¤¤¡£";
 		if (p_ptr->muta3 & MUT3_MOTION)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÆ°ºî¤ÏÀµ³Î¤ÇÎÏ¶¯¤¤¡£(±£Ì©+1)";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÆ°ºî¤ÏÀµ³Î¤ÇÎÏ¶¯¤¤¡£(±£Ì©+1)";
 #else
 			info[i++] = "Your movements are precise and forceful (+1 STL).";
 #endif
@@ -1351,7 +1378,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÆ°ºî¤ÏÀµ³Î¤ÇÎÏ¶¯¤¤¡£(±£Ì©+1)";
 		if (p_ptr->muta3 & MUT3_GOOD_LUCK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÇò¤¤¥ª¡¼¥é¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÏÇò¤¤¥ª¡¼¥é¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "There is a white aura surrounding you.";
 #endif
@@ -1359,7 +1386,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÇò¤¤¥ª¡¼¥é¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
 		if (p_ptr->muta3 & MUT3_BAD_LUCK)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¹õ¤¤¥ª¡¼¥é¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¹õ¤¤¥ª¡¼¥é¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "There is a black aura surrounding you.";
 #endif
@@ -1369,7 +1396,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¹õ¤¤¥ª¡¼¥é¤Ë¤Ä¤Ä¤Þ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->blind)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤¬¸«¤¨¤Ê¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤¬¸«¤¨¤Ê¤¤¡£";
 #else
 		info[i++] = "You cannot see.";
 #endif
@@ -1378,7 +1405,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤¬¸«¤¨¤Ê¤¤¡£";
 	if (p_ptr->confused)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are confused.";
 #endif
@@ -1387,7 +1414,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤·¤Æ¤¤¤ë¡£";
 	if (p_ptr->afraid)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are terrified.";
 #endif
@@ -1396,7 +1423,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->cut)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï½Ð·ì¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï½Ð·ì¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are bleeding.";
 #endif
@@ -1405,7 +1432,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï½Ð·ì¤·¤Æ¤¤¤ë¡£";
 	if (p_ptr->stun)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤â¤¦¤í¤¦¤È¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¤â¤¦¤í¤¦¤È¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are stunned.";
 #endif
@@ -1414,7 +1441,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤â¤¦¤í¤¦¤È¤·¤Æ¤¤¤ë¡£";
 	if (p_ptr->poisoned)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are poisoned.";
 #endif
@@ -1423,7 +1450,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->image)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò¸«¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò¸«¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are hallucinating.";
 #endif
@@ -1432,7 +1459,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò¸«¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_TY_CURSE)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê±åÇ°¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê±åÇ°¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You carry an ancient foul curse.";
 #endif
@@ -1441,7 +1468,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê±åÇ°¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_AGGRAVATE)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥â¥ó¥¹¥¿¡¼¤òÅÜ¤é¤»¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥â¥ó¥¹¥¿¡¼¤òÅÜ¤é¤»¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You aggravate monsters.";
 #endif
@@ -1450,7 +1477,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥â¥ó¥¹¥¿¡¼¤òÅÜ¤é¤»¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_DRAIN_EXP)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï·Ð¸³ÃÍ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï·Ð¸³ÃÍ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are drained.";
 #endif
@@ -1459,7 +1486,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï·Ð¸³ÃÍ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_SLOW_REGEN)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î²óÉüÎÏ¤ÏÈó¾ï¤ËÃÙ¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î²óÉüÎÏ¤ÏÈó¾ï¤ËÃÙ¤¤¡£";
 #else
 		info[i++] = "You regenerate slowly.";
 #endif
@@ -1468,7 +1495,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î²óÉüÎÏ¤ÏÈó¾ï¤ËÃÙ¤¤¡£";
 	if (p_ptr->cursed & TRC_ADD_L_CURSE)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¼å¤¤¼ö¤¤¤ÏÁý¤¨¤ë¡£"; /* »ÃÄêÅª -- henkma */
+		info[i++] = "¤¢¤Ê¤¿¤Î¼å¤¤¼ö¤¤¤ÏÁý¤¨¤ë¡£"; /* »ÃÄêÅª -- henkma */
 #else
 		info[i++] = "Your weak curses multiply.";
 #endif
@@ -1477,7 +1504,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¼å¤¤¼ö¤¤¤ÏÁý¤¨¤ë¡£"; /* »ÃÄêÅª -- henkma */
 	if (p_ptr->cursed & TRC_ADD_H_CURSE)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¶¯¤¤¼ö¤¤¤ÏÁý¤¨¤ë¡£"; /* »ÃÄêÅª -- henkma */
+		info[i++] = "¤¢¤Ê¤¿¤Î¶¯¤¤¼ö¤¤¤ÏÁý¤¨¤ë¡£"; /* »ÃÄêÅª -- henkma */
 #else
 		info[i++] = "Your heavy curses multiply.";
 #endif
@@ -1486,7 +1513,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¶¯¤¤¼ö¤¤¤ÏÁý¤¨¤ë¡£"; /* »ÃÄêÅª -- henkma */
 	if (p_ptr->cursed & TRC_CALL_ANIMAL)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆ°Êª¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÆ°Êª¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You attract animals.";
 #endif
@@ -1495,7 +1522,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÆ°Êª¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_CALL_DEMON)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï°­Ëâ¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï°­Ëâ¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You attract demons.";
 #endif
@@ -1504,7 +1531,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï°­Ëâ¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_CALL_DRAGON)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You attract dragons.";
 #endif
@@ -1513,7 +1540,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ËÁÀ¤ï¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_COWARDICE)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹²²ÉÂ¤Ë¤Ê¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹²²ÉÂ¤Ë¤Ê¤ë¡£";
 #else
 		info[i++] = "You are subject to cowardice.";
 #endif
@@ -1522,7 +1549,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ¡¹²²ÉÂ¤Ë¤Ê¤ë¡£";
 	if (p_ptr->cursed & TRC_TELEPORT)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î°ÌÃÖ¤Ï¤Ò¤¸¤ç¤¦¤ËÉÔ°ÂÄê¤À¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î°ÌÃÖ¤Ï¤Ò¤¸¤ç¤¦¤ËÉÔ°ÂÄê¤À¡£";
 #else
 		info[i++] = "Your position is very uncertain.";
 #endif
@@ -1531,7 +1558,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î°ÌÃÖ¤Ï¤Ò¤¸¤ç¤¦¤ËÉÔ°ÂÄê¤À¡£";
 	if (p_ptr->cursed & TRC_LOW_MELEE)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¹¶·â¤ò³°¤·¤ä¤¹¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¹¶·â¤ò³°¤·¤ä¤¹¤¤¡£";
 #else
 		info[i++] = "Your weapon causes you to miss blows.";
 #endif
@@ -1540,7 +1567,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¹¶·â¤ò³°¤·¤ä¤¹¤¤¡£";
 	if (p_ptr->cursed & TRC_LOW_AC)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¹¶·â¤ò¼õ¤±¤ä¤¹¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¹¶·â¤ò¼õ¤±¤ä¤¹¤¤¡£";
 #else
 		info[i++] = "You are subject to be hit.";
 #endif
@@ -1549,7 +1576,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¹¶·â¤ò¼õ¤±¤ä¤¹¤¤¡£";
 	if (p_ptr->cursed & TRC_LOW_MAGIC)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤ò¼ºÇÔ¤·¤ä¤¹¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤ò¼ºÇÔ¤·¤ä¤¹¤¤¡£";
 #else
 		info[i++] = "You are subject to fail spellcasting.";
 #endif
@@ -1558,7 +1585,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏËâË¡¤ò¼ºÇÔ¤·¤ä¤¹¤¤¡£";
 	if (p_ptr->cursed & TRC_FAST_DIGEST)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤¹¤°¤ªÊ¢¤¬¤Ø¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¤¹¤°¤ªÊ¢¤¬¤Ø¤ë¡£";
 #else
 		info[i++] = "You have a good appetite.";
 #endif
@@ -1567,7 +1594,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤¹¤°¤ªÊ¢¤¬¤Ø¤ë¡£";
 	if (p_ptr->cursed & TRC_DRAIN_HP)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÂÎÎÏ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÂÎÎÏ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are drained.";
 #endif
@@ -1576,7 +1603,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÂÎÎÏ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->cursed & TRC_DRAIN_MANA)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏËâÎÏ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏËâÎÏ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You brain is drained.";
 #endif
@@ -1585,7 +1612,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏËâÎÏ¤òµÛ¤ï¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->blessed)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸øÀµ¤µ¤ò´¶¤¸¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¸øÀµ¤µ¤ò´¶¤¸¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You feel rightous.";
 #endif
@@ -1594,7 +1621,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸øÀµ¤µ¤ò´¶¤¸¤Æ¤¤¤ë¡£";
 	if (p_ptr->hero)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥Ò¡¼¥í¡¼µ¤Ê¬¤À¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥Ò¡¼¥í¡¼µ¤Ê¬¤À¡£";
 #else
 		info[i++] = "You feel heroic.";
 #endif
@@ -1603,7 +1630,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥Ò¡¼¥í¡¼µ¤Ê¬¤À¡£";
 	if (p_ptr->shero)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀïÆ®¶¸¤À¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÀïÆ®¶¸¤À¡£";
 #else
 		info[i++] = "You are in a battle rage.";
 #endif
@@ -1612,7 +1639,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀïÆ®¶¸¤À¡£";
 	if (p_ptr->protevil)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are protected from evil.";
 #endif
@@ -1621,7 +1648,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->shield)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¿ÀÈë¤Î¥·¡¼¥ë¥É¤Ç¼é¤é¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¿ÀÈë¤Î¥·¡¼¥ë¥É¤Ç¼é¤é¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are protected by a mystic shield.";
 #endif
@@ -1630,7 +1657,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¿ÀÈë¤Î¥·¡¼¥ë¥É¤Ç¼é¤é¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->invuln)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸½ºß½ý¤Ä¤«¤Ê¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¸½ºß½ý¤Ä¤«¤Ê¤¤¡£";
 #else
 		info[i++] = "You are temporarily invulnerable.";
 #endif
@@ -1639,7 +1666,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸½ºß½ý¤Ä¤«¤Ê¤¤¡£";
 	if (p_ptr->wraith_form_perm)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï±ÊÂ³Åª¤ËÍ©ÂÎ²½¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï±ÊÂ³Åª¤ËÍ©ÂÎ²½¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are permanently incorporeal.";
 #endif
@@ -1648,7 +1675,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï±ÊÂ³Åª¤ËÍ©ÂÎ²½¤·¤Æ¤¤¤ë¡£";
 	else if (p_ptr->wraith_form)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï°ì»þÅª¤ËÍ©ÂÎ²½¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï°ì»þÅª¤ËÍ©ÂÎ²½¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are temporarily incorporeal.";
 #endif
@@ -1657,7 +1684,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï°ì»þÅª¤ËÍ©ÂÎ²½¤·¤Æ¤¤¤ë¡£";
 	if (p_ptr->special_attack & ATTACK_CONFUSE)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¼ê¤ÏÀÖ¤¯µ±¤¤¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î¼ê¤ÏÀÖ¤¯µ±¤¤¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your hands are glowing dull red.";
 #endif
@@ -1667,7 +1694,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¼ê¤ÏÀÖ¤¯µ±¤¤¤Æ¤¤¤ë¡£";
 	{
 		case ACTION_SEARCH:
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤Ò¤¸¤ç¤¦¤ËÃí°Õ¿¼¤¯¼þ°Ï¤ò¸«ÅÏ¤·¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï¤Ò¤¸¤ç¤¦¤ËÃí°Õ¿¼¤¯¼þ°Ï¤ò¸«ÅÏ¤·¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You are looking around very carefully.";
 #endif
@@ -1676,7 +1703,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤Ò¤¸¤ç¤¦¤ËÃí°Õ¿¼¤¯¼þ°Ï¤ò¸«ÅÏ¤·¤Æ¤¤¤ë¡£";
 	if (p_ptr->word_recall)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¤¹¤°¤Ëµ¢´Ô¤¹¤ë¤À¤í¤¦¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¤¹¤°¤Ëµ¢´Ô¤¹¤ë¤À¤í¤¦¡£";
 #else
 		info[i++] = "You will soon be recalled.";
 #endif
@@ -1703,7 +1730,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¤¹¤°¤Ëµ¢´Ô¤¹¤ë¤À¤í¤¦¡£";
 	if (p_ptr->tim_resurrection)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»à¤ó¤Ç¤â1ÅÙ¤À¤±Éü³è¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï»à¤ó¤Ç¤â1ÅÙ¤À¤±Éü³è¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You can revive only once.";
 #endif
@@ -1712,7 +1739,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»à¤ó¤Ç¤â1ÅÙ¤À¤±Éü³è¤Ç¤­¤ë¡£";
 	if (p_ptr->see_infra)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÆ·¤ÏÀÖ³°Àþ¤ËÉÒ´¶¤Ç¤¢¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÆ·¤ÏÀÖ³°Àþ¤ËÉÒ´¶¤Ç¤¢¤ë¡£";
 #else
 		info[i++] = "Your eyes are sensitive to infrared light.";
 #endif
@@ -1721,7 +1748,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÆ·¤ÏÀÖ³°Àþ¤ËÉÒ´¶¤Ç¤¢¤ë¡£";
 	if (p_ptr->see_inv)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆ©ÌÀ¤Ê¥â¥ó¥¹¥¿¡¼¤ò¸«¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÆ©ÌÀ¤Ê¥â¥ó¥¹¥¿¡¼¤ò¸«¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You can see invisible creatures.";
 #endif
@@ -1730,7 +1757,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÆ©ÌÀ¤Ê¥â¥ó¥¹¥¿¡¼¤ò¸«¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 	if (p_ptr->ffall)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÈô¤Ö¤³¤È¤¬¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÈô¤Ö¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You can fly.";
 #endif
@@ -1739,7 +1766,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÈô¤Ö¤³¤È¤¬¤Ç¤­¤ë¡£";
 	if (p_ptr->free_act)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏËãáãÃÎ¤é¤º¤Î¸ú²Ì¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏËãáãÃÎ¤é¤º¤Î¸ú²Ì¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You have free action.";
 #endif
@@ -1748,7 +1775,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏËãáãÃÎ¤é¤º¤Î¸ú²Ì¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->regenerate)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÁá¤¯ÂÎÎÏ¤ò²óÉü¤¹¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÁá¤¯ÂÎÎÏ¤ò²óÉü¤¹¤ë¡£";
 #else
 		info[i++] = "You regenerate quickly.";
 #endif
@@ -1757,7 +1784,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÁá¤¯ÂÎÎÏ¤ò²óÉü¤¹¤ë¡£";
 	if (p_ptr->regenerate_mana)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÁá¤¯ËâÎÏ¤ò²óÉü¤¹¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÁá¤¯ËâÎÏ¤ò²óÉü¤¹¤ë¡£";
 #else
 		info[i++] = "You regenerate mana quickly.";
 #endif
@@ -1786,7 +1813,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÁÇÁá¤¯ËâÎÏ¤ò²óÉü¤¹¤ë¡£";
 	if (p_ptr->telepathy)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥Æ¥ì¥Ñ¥·¡¼Ç½ÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥Æ¥ì¥Ñ¥·¡¼Ç½ÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You have ESP.";
 #endif
@@ -1795,7 +1822,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥Æ¥ì¥Ñ¥·¡¼Ç½ÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->esp_dragon)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ÎÂ¸ºß¤ò´¶¤¸¤ëÇ½ÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ÎÂ¸ºß¤ò´¶¤¸¤ëÇ½ÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You sense dragons.";
 #endif
@@ -1804,7 +1831,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤ÎÂ¸ºß¤ò´¶¤¸¤ëÇ½ÎÏ¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->hold_life)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼«¸Ê¤ÎÀ¸Ì¿ÎÏ¤ò¤·¤Ã¤«¤ê¤È°Ý»ý¤¹¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¼«¸Ê¤ÎÀ¸Ì¿ÎÏ¤ò¤·¤Ã¤«¤ê¤È°Ý»ý¤¹¤ë¡£";
 #else
 		info[i++] = "You have a firm hold on your life force.";
 #endif
@@ -1813,7 +1840,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼«¸Ê¤ÎÀ¸Ì¿ÎÏ¤ò¤·¤Ã¤«¤ê¤È°Ý»ý¤¹¤ë¡£";
 	if (p_ptr->reflect)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÌð¤ä¥Ü¥ë¥È¤òÈ¿¼Í¤¹¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÌð¤ä¥Ü¥ë¥È¤òÈ¿¼Í¤¹¤ë¡£";
 #else
 		info[i++] = "You reflect arrows and bolts.";
 #endif
@@ -1824,7 +1851,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÌð¤ä¥Ü¥ë¥È¤òÈ¿¼Í¤¹¤ë¡£";
 		if (p_ptr->stat_use[A_INT] >= (18 + 150))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÌð¤ä¥Ü¥ë¥È¤ò²óÈò¤¹¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÌð¤ä¥Ü¥ë¥È¤ò²óÈò¤¹¤ë¡£";
 #else
 		info[i++] = "You avoid arrows and bolts.";
 #endif
@@ -1832,7 +1859,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÌð¤ä¥Ü¥ë¥È¤ò²óÈò¤¹¤ë¡£";
 		else
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÊªÍýÅª¤ÊÌð¤ä¥Ü¥ë¥È¤ò²óÈò¤¹¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÊªÍýÅª¤ÊÌð¤ä¥Ü¥ë¥È¤ò²óÈò¤¹¤ë¡£";
 #else
 		info[i++] = "You avoid physical arrows and bolts.";
 #endif
@@ -1842,7 +1869,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÊªÍýÅª¤ÊÌð¤ä¥Ü¥ë¥È¤ò²óÈò¤¹¤ë¡£";
 	if (p_ptr->sh_fire)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï±ê¤Î¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï±ê¤Î¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are surrounded with a fiery aura.";
 #endif
@@ -1851,7 +1878,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï±ê¤Î¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->sh_elec)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅÅµ¤¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÅÅµ¤¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are surrounded with electricity.";
 #endif
@@ -1860,7 +1887,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅÅµ¤¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->sh_cold)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Î¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Î¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are surrounded with an aura of coldness.";
 #endif
@@ -1869,7 +1896,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Î¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->tim_sh_holy)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀ»¤Ê¤ë¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÀ»¤Ê¤ë¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are surrounded with a holy aura.";
 #endif
@@ -1878,7 +1905,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀ»¤Ê¤ë¥ª¡¼¥é¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->anti_magic)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÈ¿ËâË¡¥·¡¼¥ë¥É¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÈ¿ËâË¡¥·¡¼¥ë¥É¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are surrounded by an anti-magic shell.";
 #endif
@@ -1897,7 +1924,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÈ¿ËâË¡¥·¡¼¥ë¥É¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->anti_tele)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤Ê¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤Ê¤¤¡£";
 #else
 		info[i++] = "You cannot teleport.";
 #endif
@@ -1906,7 +1933,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤Ê¤¤¡£";
 	if (p_ptr->fear_field)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¥Õ¥£¡¼¥ë¥É¤òÄ¥¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¥Õ¥£¡¼¥ë¥É¤òÄ¥¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are surrounded by a fear field.";
 #endif
@@ -1915,7 +1942,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¥Õ¥£¡¼¥ë¥É¤òÄ¥¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->earth_spike)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»Ö¤Ç¤Î¤ß¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»Ö¤Ç¤Î¤ß¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You can teleport only by yourself.";
 #endif
@@ -1924,7 +1951,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼«Ê¬¤Î°Õ»Ö¤Ç¤Î¤ß¥Æ¥ì¥Ý¡¼¥È¤Ç¤­¤ë¡£";
 	if (p_ptr->lite)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¿ÈÂÎ¤Ï¸÷¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î¿ÈÂÎ¤Ï¸÷¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are carrying a permanent light.";
 #endif
@@ -1933,7 +1960,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¿ÈÂÎ¤Ï¸÷¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->warning)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¹ÔÆ°¤ÎÁ°¤Ë´í¸±¤ò»¡ÃÎ¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¹ÔÆ°¤ÎÁ°¤Ë´í¸±¤ò»¡ÃÎ¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You will be warned before dangerous action.";
 #endif
@@ -1942,7 +1969,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¹ÔÆ°¤ÎÁ°¤Ë´í¸±¤ò»¡ÃÎ¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 	if (p_ptr->dec_mana)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¾¯¤Ê¤¤¾ÃÈñËâÎÏ¤ÇËâË¡¤ò¾§¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¾¯¤Ê¤¤¾ÃÈñËâÎÏ¤ÇËâË¡¤ò¾§¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You can cast spells with fewer mana points.";
 #endif
@@ -1951,7 +1978,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¾¯¤Ê¤¤¾ÃÈñËâÎÏ¤ÇËâË¡¤ò¾§¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 	if (p_ptr->easy_spell)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÄã¤¤¼ºÇÔÎ¨¤ÇËâË¡¤ò¾§¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÄã¤¤¼ºÇÔÎ¨¤ÇËâË¡¤ò¾§¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "Fail rate of your magic is decreased.";
 #endif
@@ -1960,7 +1987,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÄã¤¤¼ºÇÔÎ¨¤ÇËâË¡¤ò¾§¤¨¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 	if (p_ptr->heavy_spell)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¹â¤¤¼ºÇÔÎ¨¤ÇËâË¡¤ò¾§¤¨¤Ê¤±¤ì¤Ð¤¤¤±¤Ê¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¹â¤¤¼ºÇÔÎ¨¤ÇËâË¡¤ò¾§¤¨¤Ê¤±¤ì¤Ð¤¤¤±¤Ê¤¤¡£";
 #else
 		info[i++] = "Fail rate of your magic is increased.";
 #endif
@@ -1969,7 +1996,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¹â¤¤¼ºÇÔÎ¨¤ÇËâË¡¤ò¾§¤¨¤Ê¤±¤ì¤Ð¤¤¤±¤Ê¤¤¡£";
 	if (p_ptr->mighty_throw)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶¯¤¯Êª¤òÅê¤²¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¶¯¤¯Êª¤òÅê¤²¤ë¡£";
 #else
 		info[i++] = "You can throw objects powerfully.";
 #endif
@@ -1979,7 +2006,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶¯¤¯Êª¤òÅê¤²¤ë¡£";
 	if (p_ptr->immune_acid)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»À¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï»À¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are completely immune to acid.";
 #endif
@@ -1988,7 +2015,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»À¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You resist acid exceptionally well.";
 #endif
@@ -1997,7 +2024,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to acid.";
 #endif
@@ -2007,7 +2034,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->immune_elec)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are completely immune to lightning.";
 #endif
@@ -2016,7 +2043,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You resist lightning exceptionally well.";
 #endif
@@ -2025,7 +2052,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to lightning.";
 #endif
@@ -2035,7 +2062,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->immune_fire)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are completely immune to fire.";
 #endif
@@ -2044,7 +2071,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You resist fire exceptionally well.";
 #endif
@@ -2053,7 +2080,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to fire.";
 #endif
@@ -2063,7 +2090,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->immune_cold)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are completely immune to cold.";
 #endif
@@ -2072,7 +2099,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You resist cold exceptionally well.";
 #endif
@@ -2081,7 +2108,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to cold.";
 #endif
@@ -2091,7 +2118,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->zoshonel_protect && !p_ptr->immune_cold)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ë¼å¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ë¼å¤¤¡£";
 #else
 		info[i++] = "You are susceptible to damage from cold.";
 #endif
@@ -2100,7 +2127,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ë¼å¤¤¡£";
 	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You resist poison exceptionally well.";
 #endif
@@ -2109,7 +2136,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤Î¶¯ÎÏ¤ÊÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to poison.";
 #endif
@@ -2119,17 +2146,17 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_lite)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÁ®¸÷¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÁ®¸÷¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to bright light.";
 #endif
 
 	}
 
-	if (prace_is_(RACE_GREMLIN) || p_ptr->ogre_equip || (p_ptr->pclass == CLASS_VAMPIRE))
+	if (p_ptr->ogre_equip || p_ptr->hurt_lite)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÁ®¸÷¤Ë¼å¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÁ®¸÷¤Ë¼å¤¤¡£";
 #else
 		info[i++] = "You are susceptible to damage from bright light.";
 #endif
@@ -2139,7 +2166,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÁ®¸÷¤Ë¼å¤¤¡£";
 	if (WRAITH_FORM() || p_ptr->evil_equip || (p_ptr->pclass == CLASS_VAMPIRE))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are completely immune to darkness.";
 #endif
@@ -2149,7 +2176,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 		if (p_ptr->resist_dark)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "You are resistant to darkness.";
 #endif
@@ -2159,7 +2186,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 		if (prace_is_(RACE_FAIRY))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤Ë¼å¤¤¡£";
+			info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤Ë¼å¤¤¡£";
 #else
 			info[i++] = "You are susceptible to damage from darkness.";
 #endif
@@ -2170,7 +2197,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï°Å¹õ¤Ë¼å¤¤¡£";
 	if (p_ptr->resist_conf)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to confusion.";
 #endif
@@ -2179,7 +2206,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_sound)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï²»ÇÈ¤Î¾×·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï²»ÇÈ¤Î¾×·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to sonic attacks.";
 #endif
@@ -2188,7 +2215,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï²»ÇÈ¤Î¾×·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_disen)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÎô²½¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÎô²½¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to disenchantment.";
 #endif
@@ -2197,7 +2224,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÎô²½¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_chaos)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥«¥ª¥¹¤ÎÎÏ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥«¥ª¥¹¤ÎÎÏ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to chaos.";
 #endif
@@ -2206,7 +2233,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥«¥ª¥¹¤ÎÎÏ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_shard)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÇËÊÒ¤Î¹¶·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÇËÊÒ¤Î¹¶·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to blasts of shards.";
 #endif
@@ -2215,7 +2242,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÇËÊÒ¤Î¹¶·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_stone)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀÐ²½¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÀÐ²½¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to stone.";
 #endif
@@ -2225,7 +2252,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀÐ²½¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (prace_is_(RACE_GHOST))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤òµÛ¼ý¤Ç¤­¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤òµÛ¼ý¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You can drain nether forces.";
 #endif
@@ -2234,7 +2261,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤òµÛ¼ý¤Ç¤­¤ë¡£";
 	else if (p_ptr->evil_equip)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are completely immune to nether forces.";
 #endif
@@ -2242,7 +2269,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	else if (p_ptr->resist_neth)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to nether forces.";
 #endif
@@ -2251,7 +2278,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÃÏ¹ö¤ÎÎÏ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_fear)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÁ´¤¯¶²ÉÝ¤ò´¶¤¸¤Ê¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÁ´¤¯¶²ÉÝ¤ò´¶¤¸¤Ê¤¤¡£";
 #else
 		info[i++] = "You are completely fearless.";
 #endif
@@ -2260,7 +2287,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÁ´¤¯¶²ÉÝ¤ò´¶¤¸¤Ê¤¤¡£";
 	if (p_ptr->resist_blind)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÌÜ¤ÏÌÕÌÜ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÌÜ¤ÏÌÕÌÜ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your eyes are resistant to blindness.";
 #endif
@@ -2269,7 +2296,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÌÜ¤ÏÌÕÌÜ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_time)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»þ´ÖµÕÅ¾¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï»þ´ÖµÕÅ¾¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to time.";
 #endif
@@ -2278,7 +2305,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»þ´ÖµÕÅ¾¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->resist_water)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¿å¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¿å¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to water.";
 #endif
@@ -2287,17 +2314,17 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¿å¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->zoshonel_protect)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¿å¤Ë¼å¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¿å¤Ë¼å¤¤¡£";
 #else
 		info[i++] = "You are susceptible to damage from water.";
 #endif
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï*¿å*¤Ë¼å¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï*¿å*¤Ë¼å¤¤¡£";
 #else
 		info[i++] = "You are susceptible to damage from *aqua*.";
 #endif
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥×¥é¥º¥Þ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥×¥é¥º¥Þ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are completely immune to plasma.";
 #endif
@@ -2306,7 +2333,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥×¥é¥º¥Þ¤ËÂÐ¤¹¤ë´°Á´¤Ê¤ëÌÈ±Ö¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	if (p_ptr->ogre_equip)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀ»¤Ê¤ëÎÏ¤Ë¼å¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÀ»¤Ê¤ëÎÏ¤Ë¼å¤¤¡£";
 #else
 		info[i++] = "You are susceptible to damage from holy force.";
 #endif
@@ -2316,7 +2343,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀ»¤Ê¤ëÎÏ¤Ë¼å¤¤¡£";
 	if (p_ptr->smell_equip)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼þ¤ê¤Î¥â¥ó¥¹¥¿¡¼¤ò°­½­¤Çµ¯¤³¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¼þ¤ê¤Î¥â¥ó¥¹¥¿¡¼¤ò°­½­¤Çµ¯¤³¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your smell wakes monsters up.";
 #endif
@@ -2326,7 +2353,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼þ¤ê¤Î¥â¥ó¥¹¥¿¡¼¤ò°­½­¤Çµ¯¤³¤·¤Æ¤¤¤ë¡£";
 	if (p_ptr->infected)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï´¶À÷¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï´¶À÷¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are infected.";
 #endif
@@ -2336,7 +2363,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï´¶À÷¤·¤Æ¤¤¤ë¡£";
 	if (p_ptr->sustain_str)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÏÓÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÏÓÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your strength is sustained.";
 #endif
@@ -2345,7 +2372,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÏÓÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->sustain_int)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÃÎÇ½¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÃÎÇ½¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your intelligence is sustained.";
 #endif
@@ -2354,7 +2381,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÃÎÇ½¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->sustain_wis)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¸­¤µ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î¸­¤µ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your wisdom is sustained.";
 #endif
@@ -2363,7 +2390,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¸­¤µ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->sustain_con)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÂÑµ×ÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÂÑµ×ÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your constitution is sustained.";
 #endif
@@ -2372,7 +2399,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÂÑµ×ÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->sustain_dex)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î´ïÍÑ¤µ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î´ïÍÑ¤µ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your dexterity is sustained.";
 #endif
@@ -2381,7 +2408,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î´ïÍÑ¤µ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (p_ptr->sustain_chr)
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÌ¥ÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÌ¥ÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your charisma is sustained.";
 #endif
@@ -2391,7 +2418,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÌ¥ÎÏ¤Ï°Ý»ý¤µ¤ì¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_STR))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÏÓÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÏÓÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your strength is affected by your equipment.";
 #endif
@@ -2400,7 +2427,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÏÓÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_INT))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÃÎÇ½¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÃÎÇ½¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your intelligence is affected by your equipment.";
 #endif
@@ -2409,7 +2436,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÃÎÇ½¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_WIS))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¸­¤µ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î¸­¤µ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your wisdom is affected by your equipment.";
 #endif
@@ -2418,7 +2445,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¸­¤µ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_DEX))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î´ïÍÑ¤µ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î´ïÍÑ¤µ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your dexterity is affected by your equipment.";
 #endif
@@ -2427,7 +2454,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î´ïÍÑ¤µ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_CON))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÂÑµ×ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÂÑµ×ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your constitution is affected by your equipment.";
 #endif
@@ -2436,7 +2463,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÂÑµ×ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_CHR))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÌ¥ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÌ¥ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your charisma is affected by your equipment.";
 #endif
@@ -2446,7 +2473,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÌ¥ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_STEALTH))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î±£Ì©¹ÔÆ°Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î±£Ì©¹ÔÆ°Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your stealth is affected by your equipment.";
 #endif
@@ -2455,7 +2482,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î±£Ì©¹ÔÆ°Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_SEARCH))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÃµº÷Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÃµº÷Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your searching ability is affected by your equipment.";
 #endif
@@ -2464,7 +2491,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÃµº÷Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_INFRA))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÀÖ³°Àþ»ëÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎÀÖ³°Àþ»ëÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your infravision is affected by your equipment.";
 #endif
@@ -2473,7 +2500,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÀÖ³°Àþ»ëÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_TUNNEL))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎºÎ·¡Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÎºÎ·¡Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your digging ability is affected by your equipment.";
 #endif
@@ -2482,7 +2509,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎºÎ·¡Ç½ÎÏ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_SPEED))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¥¹¥Ô¡¼¥É¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î¥¹¥Ô¡¼¥É¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your speed is affected by your equipment.";
 #endif
@@ -2491,7 +2518,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¥¹¥Ô¡¼¥É¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 	if (have_flag(flgs, TR_BLOWS))
 	{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Î¹¶·âÂ®ÅÙ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Î¹¶·âÂ®ÅÙ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "Your attack speed is affected by your equipment.";
 #endif
@@ -2509,7 +2536,7 @@ info[i++] = "¤¢¤Ê¤¿¤Î¹¶·âÂ®ÅÙ¤ÏÁõÈ÷¤Ë¤è¤Ã¤Æ±Æ¶Á¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 		if (have_flag(flgs, TR_BLESSED))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¿À¤Î½ËÊ¡¤ò¼õ¤±¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¿À¤Î½ËÊ¡¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "Your weapon has been blessed by the gods.";
 #endif
@@ -2519,7 +2546,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¿À¤Î½ËÊ¡¤ò¼õ¤±¤Æ¤¤¤ë¡£";
 		if (have_flag(flgs, TR_UNHOLY))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¼Ù°­¤ÇãÒ¤ì¤Æ¤¤¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¼Ù°­¤ÇãÒ¤ì¤Æ¤¤¤ë¡£";
 #else
 			info[i++] = "Your weapon has been poluted by evil.";
 #endif
@@ -2529,7 +2556,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¼Ù°­¤ÇãÒ¤ì¤Æ¤¤¤ë¡£";
 		if (have_flag(flgs, TR_CHAOTIC))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥«¥ª¥¹¤ÎÂ°À­¤ò¤â¤Ä¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥«¥ª¥¹¤ÎÂ°À­¤ò¤â¤Ä¡£";
 #else
 			info[i++] = "Your weapon is branded with Chaos.";
 #endif
@@ -2540,7 +2567,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥«¥ª¥¹¤ÎÂ°À­¤ò¤â¤Ä¡£";
 		if (have_flag(flgs, TR_IMPACT))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÂÇ·â¤ÇÃÏ¿Ì¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÂÇ·â¤ÇÃÏ¿Ì¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 #else
 			info[i++] = "The impact of your weapon can cause earthquakes.";
 #endif
@@ -2550,7 +2577,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÂÇ·â¤ÇÃÏ¿Ì¤òÈ¯À¸¤¹¤ë¤³¤È¤¬¤Ç¤­¤ë¡£";
 		if (o_ptr->name2 == EGO_EARTHQUAKES)
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÛ¯Û°¤È¤µ¤»¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÛ¯Û°¤È¤µ¤»¤ë¡£";
 #else
 			info[i++] = "Your weapon stuns your foes.";
 #endif
@@ -2560,7 +2587,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÛ¯Û°¤È¤µ¤»¤ë¡£";
 		if (have_flag(flgs, TR_EXTRA_VORPAL))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅÁÀâÅª¤Ë±Ô¤¤¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅÁÀâÅª¤Ë±Ô¤¤¡£";
 #else
 			info[i++] = "Your weapon is legendary sharp.";
 #endif
@@ -2569,7 +2596,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅÁÀâÅª¤Ë±Ô¤¤¡£";
 		else if (have_flag(flgs, TR_VORPAL))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÈó¾ï¤Ë±Ô¤¤¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÈó¾ï¤Ë±Ô¤¤¡£";
 #else
 			info[i++] = "Your weapon is very sharp.";
 #endif
@@ -2579,7 +2606,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÈó¾ï¤Ë±Ô¤¤¡£";
 		if (have_flag(flgs, TR_VAMPIRIC))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤«¤éÀ¸Ì¿ÎÏ¤òµÛ¼ý¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤«¤éÀ¸Ì¿ÎÏ¤òµÛ¼ý¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon drains life from your foes.";
 #endif
@@ -2590,7 +2617,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤«¤éÀ¸Ì¿ÎÏ¤òµÛ¼ý¤¹¤ë¡£";
 		if ((have_flag(flgs, TR_BRAND_ACID)) || (p_ptr->special_attack & ATTACK_ACID))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÍÏ¤«¤¹¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÍÏ¤«¤¹¡£";
 #else
 			info[i++] = "Your weapon melts your foes.";
 #endif
@@ -2599,7 +2626,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÍÏ¤«¤¹¡£";
 		if ((have_flag(flgs, TR_BRAND_ELEC)) || (p_ptr->special_attack & ATTACK_ELEC))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤ò´¶ÅÅ¤µ¤»¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤ò´¶ÅÅ¤µ¤»¤ë¡£";
 #else
 			info[i++] = "Your weapon shocks your foes.";
 #endif
@@ -2608,7 +2635,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤ò´¶ÅÅ¤µ¤»¤ë¡£";
 		if ((have_flag(flgs, TR_BRAND_FIRE)) || (p_ptr->special_attack & ATTACK_FIRE))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÇ³¤ä¤¹¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÇ³¤ä¤¹¡£";
 #else
 			info[i++] = "Your weapon burns your foes.";
 #endif
@@ -2617,7 +2644,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÇ³¤ä¤¹¡£";
 		if ((have_flag(flgs, TR_BRAND_COLD)) || (p_ptr->special_attack & ATTACK_COLD))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÅà¤é¤»¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÅà¤é¤»¤ë¡£";
 #else
 			info[i++] = "Your weapon freezes your foes.";
 #endif
@@ -2626,7 +2653,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÅà¤é¤»¤ë¡£";
 		if ((have_flag(flgs, TR_BRAND_POIS)) || (p_ptr->special_attack & ATTACK_POIS))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÆÇ¤Ç¿¯¤¹¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÆÇ¤Ç¿¯¤¹¡£";
 #else
 			info[i++] = "Your weapon poisons your foes.";
 #endif
@@ -2634,101 +2661,200 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅ¨¤òÆÇ¤Ç¿¯¤¹¡£";
 		}
 
 		/* Special "slay" flags */
-		if (have_flag(flgs, TR_SLAY_ANIMAL))
+		if (have_flag(flgs, TR_KILL_ANIMAL))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÆ°Êª¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÆ°Êª¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of animals.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_ANIMAL))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÆ°Êª¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon strikes at animals with extra force.";
 #endif
 
 		}
-		if (have_flag(flgs, TR_SLAY_EVIL))
+
+		if (have_flag(flgs, TR_KILL_EVIL))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of evil.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_EVIL))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon strikes at evil with extra force.";
 #endif
 
 		}
-		if ((have_flag(flgs, TR_SLAY_GOOD)) || (p_ptr->special_attack & ATTACK_EVIL))
+
+		if (have_flag(flgs, TR_KILL_GOOD))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÁ±ÎÉ¤ÊÂ¸ºß¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÁ±ÎÉ¤Ê¤ëÂ¸ºß¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of good.";
+#endif
+
+		}
+		else if ((have_flag(flgs, TR_SLAY_GOOD)) || (p_ptr->special_attack & ATTACK_EVIL))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÁ±ÎÉ¤ÊÂ¸ºß¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon strikes at good with extra force.";
 #endif
 
 		}
-		if ((have_flag(flgs, TR_SLAY_LIVING)) || (p_ptr->special_attack & ATTACK_EVIL))
+
+		if (have_flag(flgs, TR_KILL_LIVING))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÀ¸Ì¿¤Î¤¢¤ëÂ¸ºß¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÀ¸Ì¿¤Î¤¢¤ëÂ¸ºß¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of livings.";
+#endif
+
+		}
+		else if ((have_flag(flgs, TR_SLAY_LIVING)) || (p_ptr->special_attack & ATTACK_EVIL))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÀ¸Ì¿¤Î¤¢¤ëÂ¸ºß¤ËÂÐ¤·¤Æ¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon strikes at livings with extra force.";
 #endif
 
 		}
-		if (have_flag(flgs, TR_SLAY_HUMAN))
+
+		if (have_flag(flgs, TR_KILL_HUMAN))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¿Í´Ö¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¿Í´Ö¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of humans.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_HUMAN))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¿Í´Ö¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon is especially deadly against humans.";
 #endif
 
 		}
-		if (have_flag(flgs, TR_SLAY_UNDEAD))
+
+		if (have_flag(flgs, TR_KILL_UNDEAD))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥¢¥ó¥Ç¥Ã¥É¤ËÂÐ¤·¤Æ¿ÀÀ»¤Ê¤ëÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥¢¥ó¥Ç¥Ã¥É¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of undead.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_UNDEAD))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥¢¥ó¥Ç¥Ã¥É¤ËÂÐ¤·¤Æ¿ÀÀ»¤Ê¤ëÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
 #endif
 
 		}
-		if (have_flag(flgs, TR_SLAY_DEMON))
+
+		if (have_flag(flgs, TR_KILL_DEMON))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥Ç¡¼¥â¥ó¤ËÂÐ¤·¤Æ¿ÀÀ»¤Ê¤ëÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥Ç¡¼¥â¥ó¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of demons.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_DEMON))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥Ç¡¼¥â¥ó¤ËÂÐ¤·¤Æ¿ÀÀ»¤Ê¤ëÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 #endif
 
 		}
-		if (have_flag(flgs, TR_SLAY_ORC))
+
+		if (have_flag(flgs, TR_KILL_ORC))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥ª¡¼¥¯¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥ª¡¼¥¯¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of orcs.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_ORC))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥ª¡¼¥¯¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon is especially deadly against orcs.";
 #endif
 
 		}
-		if (have_flag(flgs, TR_SLAY_TROLL))
+
+		if (have_flag(flgs, TR_KILL_TROLL))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥È¥í¥ë¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥È¥í¥ë¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of trolls.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_TROLL))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥È¥í¥ë¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon is especially deadly against trolls.";
 #endif
 
 		}
-		if (have_flag(flgs, TR_SLAY_GIANT))
+
+		if (have_flag(flgs, TR_KILL_GIANT))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥¸¥ã¥¤¥¢¥ó¥È¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥¸¥ã¥¤¥¢¥ó¥È¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+#else
+			info[i++] = "Your weapon is a great bane of giants.";
+#endif
+
+		}
+		else if (have_flag(flgs, TR_SLAY_GIANT))
+		{
+#ifdef JP
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥¸¥ã¥¤¥¢¥ó¥È¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon is especially deadly against giants.";
 #endif
 
 		}
-		/* Special "kill" flags */
+
 		if (have_flag(flgs, TR_KILL_DRAGON))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥É¥é¥´¥ó¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥É¥é¥´¥ó¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
 #else
 			info[i++] = "Your weapon is a great bane of dragons.";
 #endif
@@ -2737,7 +2863,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥É¥é¥´¥ó¤ÎÅ·Å¨¤Ç¤¢¤ë¡£";
 		else if (have_flag(flgs, TR_SLAY_DRAGON))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥É¥é¥´¥ó¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥É¥é¥´¥ó¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon is especially deadly against dragons.";
 #endif
@@ -2747,7 +2873,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤Ï¥É¥é¥´¥ó¤ËÂÐ¤·¤ÆÆÃ¤Ë¶¯¤¤ÎÏ¤òÈ¯´ø¤¹¤ë¡£";
 		if (have_flag(flgs, TR_FORCE_WEAPON))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏMP¤ò»È¤Ã¤Æ¹¶·â¤¹¤ë¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏMP¤ò»È¤Ã¤Æ¹¶·â¤¹¤ë¡£";
 #else
 			info[i++] = "Your weapon causes greate damages using your MP.";
 #endif
@@ -2756,7 +2882,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏMP¤ò»È¤Ã¤Æ¹¶·â¤¹¤ë¡£";
 		if (have_flag(flgs, TR_THROW))
 		{
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅê¤²¤ä¤¹¤¤¡£";
+			info[i++] = "¤¢¤Ê¤¿¤ÎÉð´ï¤ÏÅê¤²¤ä¤¹¤¤¡£";
 #else
 			info[i++] = "Your weapon can be thrown well.";
 #endif
@@ -2884,7 +3010,7 @@ void report_magics(void)
 	{
 		info2[i]  = report_magics_aux(p_ptr->blind);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤¬¸«¤¨¤Ê¤¤¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤¬¸«¤¨¤Ê¤¤¡£";
 #else
 		info[i++] = "You cannot see";
 #endif
@@ -2894,7 +3020,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÌÜ¤¬¸«¤¨¤Ê¤¤¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->confused);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤·¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤·¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are confused";
 #endif
@@ -2904,7 +3030,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ïº®Íð¤·¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->afraid);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are terrified";
 #endif
@@ -2914,7 +3040,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¶²ÉÝ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->poisoned);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are poisoned";
 #endif
@@ -2924,7 +3050,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ë¿¯¤µ¤ì¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->image);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò¸«¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò¸«¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are hallucinating";
 #endif
@@ -2934,7 +3060,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸¸³Ð¤ò¸«¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->blessed);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¸øÀµ¤µ¤ò´¶¤¸¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¸øÀµ¤µ¤ò´¶¤¸¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You feel rightous";
 #endif
@@ -2944,7 +3070,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¸øÀµ¤µ¤ò´¶¤¸¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->hero);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¥Ò¡¼¥í¡¼µ¤Ê¬¤À¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¥Ò¡¼¥í¡¼µ¤Ê¬¤À¡£";
 #else
 		info[i++] = "You feel heroic";
 #endif
@@ -2954,7 +3080,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¥Ò¡¼¥í¡¼µ¤Ê¬¤À¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->shero);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÀïÆ®¶¸¤À¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÀïÆ®¶¸¤À¡£";
 #else
 		info[i++] = "You are in a battle rage";
 #endif
@@ -2964,7 +3090,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÀïÆ®¶¸¤À¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->protevil);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are protected from evil";
 #endif
@@ -2974,7 +3100,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¼Ù°­¤Ê¤ëÂ¸ºß¤«¤é¼é¤é¤ì¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->shield);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï¿ÀÈë¤Î¥·¡¼¥ë¥É¤Ç¼é¤é¤ì¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï¿ÀÈë¤Î¥·¡¼¥ë¥É¤Ç¼é¤é¤ì¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are protected by a mystic shield";
 #endif
@@ -2984,7 +3110,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï¿ÀÈë¤Î¥·¡¼¥ë¥É¤Ç¼é¤é¤ì¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->invuln);
 #ifdef JP
-info[i++] = "ÌµÅ¨¤Ç¤¤¤é¤ì¤ë¡£";
+		info[i++] = "ÌµÅ¨¤Ç¤¤¤é¤ì¤ë¡£";
 #else
 		info[i++] = "You are invulnerable";
 #endif
@@ -2995,7 +3121,7 @@ info[i++] = "ÌµÅ¨¤Ç¤¤¤é¤ì¤ë¡£";
 		info2[i]  = report_magics_aux(p_ptr->wraith_form);
 		if (p_ptr->wraith_form_perm) info2[i] = 6;
 #ifdef JP
-info[i++] = "Í©ÂÎ²½¤Ç¤­¤ë¡£";
+		info[i++] = "Í©ÂÎ²½¤Ç¤­¤ë¡£";
 #else
 		info[i++] = "You are incorporeal";
 #endif
@@ -3045,7 +3171,7 @@ info[i++] = "Í©ÂÎ²½¤Ç¤­¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_acid);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to acid";
 #endif
@@ -3055,7 +3181,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï»À¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_elec);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to lightning";
 #endif
@@ -3065,7 +3191,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÅÅ·â¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_fire);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to fire";
 #endif
@@ -3075,7 +3201,7 @@ info[i++] = "¤¢¤Ê¤¿¤Ï²Ð¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_cold);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to cold";
 #endif
@@ -3085,7 +3211,7 @@ info[i++] = "¤¢¤Ê¤¿¤ÏÎäµ¤¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_pois);
 #ifdef JP
-info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
+		info[i++] = "¤¢¤Ê¤¿¤ÏÆÇ¤Ø¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£";
 #else
 		info[i++] = "You are resistant to poison";
 #endif
@@ -3645,7 +3771,7 @@ bool detect_monsters_normal(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -3710,7 +3836,7 @@ bool detect_monsters_invis(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -3779,7 +3905,7 @@ bool detect_monsters_evil(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -3846,7 +3972,7 @@ bool detect_monsters_nonliving(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -3911,7 +4037,7 @@ bool detect_monsters_living(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -3978,7 +4104,7 @@ bool detect_monsters_thermal(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4043,7 +4169,7 @@ bool detect_monsters_mind(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4108,7 +4234,7 @@ bool detect_monsters_string(int range, cptr Match)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4305,7 +4431,7 @@ void aggravate_monsters(int who)
 				if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				sleep = TRUE;
 			}
-			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG_NOPET;
+			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG2_NOPET;
 		}
 
 		/* Speed up monsters in line of sight */
@@ -4384,7 +4510,7 @@ bool symbol_genocide(int power, int player_cast)
 
 		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
 
-		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
 		else delete_monster_idx(i);
@@ -4425,7 +4551,7 @@ bool symbol_genocide(int power, int player_cast)
 				}
 				set_hostile(m_ptr);
 			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 		}
 
 		if (player_cast)
@@ -4509,7 +4635,7 @@ bool mass_genocide(int power, int player_cast)
 
 		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
 
-		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
 		else delete_monster_idx(i);
@@ -4550,7 +4676,7 @@ bool mass_genocide(int power, int player_cast)
 				}
 				set_hostile(m_ptr);
 			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 		}
 
 		if (player_cast)
@@ -4636,7 +4762,7 @@ bool mass_genocide_undead(int power, int player_cast)
 
 		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
 
-		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
 		else delete_monster_idx(i);
@@ -4677,7 +4803,7 @@ bool mass_genocide_undead(int power, int player_cast)
 				}
 				set_hostile(m_ptr);
 			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 		}
 
 		if (player_cast)
@@ -4752,11 +4878,16 @@ bool probing(void)
 			char m_name[80];
 
 			/* Start the message */
+			if (!probe)
+			{
 #ifdef JP
-			if (!probe) {msg_print("Ä´ººÃæ...");msg_print(NULL);}
+				msg_print("Ä´ººÃæ...");
 #else
-			if (!probe) {msg_print("Probing...");msg_print(NULL);}
+				msg_print("Probing...");
 #endif
+			}
+
+			msg_print(NULL);
 
 			if (m_ptr->ap_r_idx != m_ptr->r_idx)
 			{
@@ -4857,13 +4988,32 @@ bool probing(void)
 			p_ptr->window |= (PW_MESSAGE);
 			window_stuff();
 
-			/* Learn all of the non-spell, non-treasure flags */
-			lore_do_probe(i);
-
 			if (m_ptr->ml) move_cursor_relative(m_ptr->fy, m_ptr->fx);
 			inkey();
 
 			Term_erase(0, 0, 255);
+
+			/* Learn everything about this monster */
+			if (lore_do_probe(m_ptr->r_idx))
+			{
+				char buf[80];
+
+				/* Get base name of monster */
+				strcpy(buf, (r_name + r_ptr->name));
+
+#ifdef JP
+				/* Note that we learnt some new flags  -Mogami- */
+				msg_format("%s¤Ë¤Ä¤¤¤Æ¤µ¤é¤Ë¾Ü¤·¤¯¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£", buf);
+#else
+				/* Pluralize it */
+				plural_aux(buf);
+
+				/* Note that we learnt some new flags  -Mogami- */
+				msg_format("You now know more about %s.", buf);
+#endif
+				/* Clear -more- prompt */
+				msg_print(NULL);
+			}
 
 			/* Probe worked */
 			probe = TRUE;
@@ -5148,7 +5298,7 @@ bool mon_fall_into_air(int m_idx)
  * for a single turn, unless that monster can pass_walls or kill_walls.
  * This has allowed massive simplification of the "monster" code.
  */
-bool earthquake(int cy, int cx, int r)
+bool earthquake_aux(int cy, int cx, int r, int m_idx)
 {
 	int             i, t, y, x, yy, xx, dy, dx, oy, ox;
 	int             damage = 0;
@@ -5252,7 +5402,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 				msg_print("The cave ceiling collapses!");
 #endif
-
 				break;
 			}
 			case 2:
@@ -5262,7 +5411,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 				msg_print("The cave floor twists in an unnatural way!");
 #endif
-
 				break;
 			}
 			default:
@@ -5272,7 +5420,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 				msg_print("The cave quakes!  You are pummeled with debris!");
 #endif
-
 				break;
 			}
 		}
@@ -5286,7 +5433,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 			msg_print("You are severely crushed!");
 #endif
-
 			damage = 200;
 		}
 
@@ -5303,7 +5449,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 					msg_print("You nimbly dodge the blast!");
 #endif
-
 					damage = 0;
 					break;
 				}
@@ -5314,7 +5459,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 					msg_print("You are bashed by rubble!");
 #endif
-
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
@@ -5326,7 +5470,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 					msg_print("You are crushed between the floor and ceiling!");
 #endif
-
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
@@ -5367,13 +5510,37 @@ bool earthquake(int cy, int cx, int r)
 
 		/* Take some damage */
 		ACTIVATE_MULTISHADOW();
-#ifdef JP
-		if (damage) take_hit(DAMAGE_ATTACK, damage, "ÃÏ¿Ì");
-#else
-		if (damage) take_hit(DAMAGE_ATTACK, damage, "an earthquake");
-#endif
-		STOP_MULTISHADOW();
 
+		if (damage)
+		{
+			char *killer;
+
+			if (m_idx)
+			{
+				char m_name[80];
+				monster_type *m_ptr = &m_list[m_idx];
+
+				/* Get the monster's real name */
+				monster_desc(m_name, m_ptr, 0x288);
+
+#ifdef JP
+				killer = format("%s¤Îµ¯¤³¤·¤¿ÃÏ¿Ì", m_name);
+#else
+				killer = format("an earthquake caused by %s", m_name);
+#endif
+			}
+			else
+			{
+#ifdef JP
+				killer = "ÃÏ¿Ì";
+#else
+				killer = "an earthquake";
+#endif
+			}
+			take_hit(DAMAGE_ATTACK, damage, killer);
+		}
+
+		STOP_MULTISHADOW();
 	}
 
 
@@ -5461,7 +5628,6 @@ bool earthquake(int cy, int cx, int r)
 #else
 					msg_format("%^s wails out in pain!", m_name);
 #endif
-
 
 					/* Take damage from the quake */
 					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
@@ -5630,6 +5796,11 @@ bool earthquake(int cy, int cx, int r)
 
 	/* Success */
 	return (TRUE);
+}
+
+bool earthquake(int cy, int cx, int r)
+{
+	return earthquake_aux(cy, cx, r, 0);
 }
 
 

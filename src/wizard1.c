@@ -218,6 +218,12 @@ static grouper group_item[] =
 #endif
 
 #ifdef JP
+	{ TV_TRUMP,         "魔法のカード" },
+#else
+	{ TV_TRUMP,         "Magic Card" },
+#endif
+
+#ifdef JP
 	{ TV_TAROT,         "タロットカード" },
 #else
 	{ TV_TAROT,         "Tarot Card" },
@@ -389,7 +395,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (TOband %d.%d.%d)\n\n\n",
+	fprintf(fff, "Spoiler File -- Basic Items (TOband2 %d.%d.%d)\n\n\n",
 		T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 
 	/* More Header */
@@ -638,28 +644,48 @@ static flag_desc slay_flags_desc[] =
 {
 #ifdef JP
 	{ TR_SLAY_ANIMAL,        "動物" },
+	{ TR_KILL_ANIMAL,        "*動物*" },
 	{ TR_SLAY_EVIL,          "邪悪" },
+	{ TR_KILL_EVIL,          "*邪悪*" },
 	{ TR_SLAY_GOOD,          "善良" },
+	{ TR_KILL_GOOD,          "*善良*" },
 	{ TR_SLAY_HUMAN,         "人間" },
+	{ TR_KILL_HUMAN,         "*人間*" },
 	{ TR_SLAY_UNDEAD,        "アンデッド" },
+	{ TR_KILL_UNDEAD,        "*アンデッド*" },
 	{ TR_SLAY_LIVING,        "生命" },
+	{ TR_KILL_LIVING,        "*生命*" },
 	{ TR_SLAY_DEMON,         "悪魔" },
+	{ TR_KILL_DEMON,         "*悪魔*" },
 	{ TR_SLAY_ORC,           "オーク" },
+	{ TR_KILL_ORC,           "*オーク*" },
 	{ TR_SLAY_TROLL,         "トロル" },
+	{ TR_KILL_TROLL,         "*トロル*" },
 	{ TR_SLAY_GIANT,         "巨人" },
+	{ TR_KILL_GIANT,         "*巨人*" },
 	{ TR_SLAY_DRAGON,        "ドラゴン" },
 	{ TR_KILL_DRAGON,        "*ドラゴン*" },
 #else
 	{ TR_SLAY_ANIMAL,        "Animal" },
+	{ TR_KILL_ANIMAL,        "XAnimal" },
 	{ TR_SLAY_EVIL,          "Evil" },
+	{ TR_KILL_EVIL,          "XEvil" },
 	{ TR_SLAY_GOOD,          "Good" },
+	{ TR_KILL_GOOD,          "XGood" },
 	{ TR_SLAY_HUMAN,         "Human" },
+	{ TR_KILL_HUMAN,         "XHuman" },
 	{ TR_SLAY_UNDEAD,        "Undead" },
+	{ TR_KILL_UNDEAD,        "XUndead" },
 	{ TR_SLAY_LIVING,        "Living" },
+	{ TR_KILL_LIVING,        "XLiving" },
 	{ TR_SLAY_DEMON,         "Demon" },
+	{ TR_KILL_DEMON,         "XDemon" },
 	{ TR_SLAY_ORC,           "Orc" },
+	{ TR_KILL_ORC,           "XOrc*" },
 	{ TR_SLAY_TROLL,         "Troll" },
+	{ TR_KILL_TROLL,         "XTroll" },
 	{ TR_SLAY_GIANT,         "Giant" },
+	{ TR_KILL_GIANT,         "XGiant" },
 	{ TR_SLAY_DRAGON,        "Dragon" },
 	{ TR_KILL_DRAGON,        "Xdragon" }
 #endif
@@ -1322,7 +1348,7 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for TOband Version %d.%d.%d",
+	sprintf(buf, "Artifact Spoilers for TOband2 Version %d.%d.%d",
 	        T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 	spoiler_underline(buf);
 }
@@ -1697,7 +1723,7 @@ static void spoil_mon_desc(cptr fname)
 
 	/* Dump the header */
 
-	fprintf(fff, "Monster Spoilers for TOband Version %d.%d.%d\n",
+	fprintf(fff, "Monster Spoilers for TOband2 Version %d.%d.%d\n",
 	        T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
@@ -1973,7 +1999,7 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for TOband Version %d.%d.%d\n",
+	sprintf(buf, "Monster Spoilers for TOband2 Version %d.%d.%d\n",
 	     T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 
 	spoil_out(buf);

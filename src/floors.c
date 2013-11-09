@@ -55,8 +55,8 @@ void init_saved_floors(void)
 			{
 #ifdef JP
 				msg_print("エラー：古いテンポラリ・ファイルが残っています。");
-				msg_print("TObandを二重に起動していないか確認してください。");
-				msg_print("過去にTObandがクラッシュした場合は一時ファイルを");
+				msg_print("TOband2を二重に起動していないか確認してください。");
+				msg_print("過去にTOband2がクラッシュした場合は一時ファイルを");
 				msg_print("強制的に削除して実行を続けられます。");
 				if (!get_check("強制的に削除してもよろしいですか？")) quit("実行中止");
 #else
@@ -285,6 +285,9 @@ static void build_dead_end(void)
 	/* Clear and empty the cave */
 	clear_cave();
 
+	/* Fill the arrays of floors and walls in the good proportions */
+	set_floor_and_wall(0);
+
 	/* Smallest area */
 	cur_hgt = SCREEN_HGT;
 	cur_wid = SCREEN_WID;
@@ -315,57 +318,83 @@ static void preserve_pet(void)
 {
 	int num, i;
 
-	for(num = 0; num < 21; num++)
+	for (num = 0; num < MAX_PARTY_MON; num++)
 	{
 		party_mon[num].r_idx = 0;
 	}
 
 	if (p_ptr->riding)
 	{
-		COPY(&party_mon[0], &m_list[p_ptr->riding], monster_type);
+		monster_type *m_ptr = &m_list[p_ptr->riding];
 
-		/* Delete from this floor */
-		delete_monster_idx(p_ptr->riding);
-	}
-
-	for(i = m_max - 1, num = 1; (i >= 1 && num < 21); i--)
-	{
-		monster_type *m_ptr = &m_list[i];
-			
-		if (!m_ptr->r_idx) continue;
-		if (!is_pet(m_ptr)) continue;
-		if (i == p_ptr->riding) continue;
-
-		if (reinit_wilderness)
+		/* Pet of other pet don't follow. */
+		if (m_ptr->parent_m_idx)
 		{
-			/* Don't lose sight of pets when getting a Quest */
+			p_ptr->riding = 0;
+			p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
+			p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
 		}
 		else
 		{
-			int dis = distance(py, px, m_ptr->fy, m_ptr->fx);
+			/* Preserve the mount */
+			COPY(&party_mon[0], m_ptr, monster_type);
 
-			/*
-			 * Pets with nickname will follow even from 3 blocks away
-			 * when you or the pet can see the other.
-			 */
-			if (m_ptr->nickname && 
-			    (player_has_los_bold(m_ptr->fy, m_ptr->fx) ||
-			     los(m_ptr->fy, m_ptr->fx, py, px)))
+			/* Delete from this floor */
+			delete_monster_idx(p_ptr->riding);
+		}
+	}
+
+	/*
+	 * If player is in wild mode, no pets are preserved
+	 * except a monster whom player riding
+	 */
+	if (!p_ptr->wild_mode && !p_ptr->inside_arena)
+	{
+		for (i = m_max - 1, num = 1; (i >= 1 && num < MAX_PARTY_MON); i--)
+		{
+			monster_type *m_ptr = &m_list[i];
+
+			if (!m_ptr->r_idx) continue;
+			if (!is_pet(m_ptr)) continue;
+			if (i == p_ptr->riding) continue;
+
+			if (reinit_wilderness)
 			{
-				if (dis > 3) continue;
+				/* Don't lose sight of pets when getting a Quest */
 			}
 			else
 			{
-				if (dis > 1) continue;
+				int dis = distance(py, px, m_ptr->fy, m_ptr->fx);
+
+				/* Confused (etc.) monsters don't follow. */
+				if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+
+				/* Pet of other pet don't follow. */
+				if (m_ptr->parent_m_idx) continue;
+
+				/*
+				 * Pets with nickname will follow even from 3 blocks away
+				 * when you or the pet can see the other.
+				 */
+				if (m_ptr->nickname && 
+				    (player_has_los_bold(m_ptr->fy, m_ptr->fx) ||
+				     los(m_ptr->fy, m_ptr->fx, py, px)))
+				{
+					if (dis > 3) continue;
+				}
+				else
+				{
+					if (dis > 1) continue;
+				}
 			}
-			if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep || m_ptr->stoning) continue;
+
+			COPY(&party_mon[num], &m_list[i], monster_type);
+
+			num++;
+
+			/* Delete from this floor */
+			delete_monster_idx(i);
 		}
-
-		COPY(&party_mon[num], &m_list[i], monster_type);
-		num++;
-
-		/* Delete from this floor */
-		delete_monster_idx(i);
 	}
 
 	if (record_named_pet)
@@ -384,6 +413,59 @@ static void preserve_pet(void)
 			do_cmd_write_nikki(NIKKI_NAMED_PET, 4, m_name);
 		}
 	}
+
+
+	/* Pet of other pet may disappear. */
+	for (i = m_max - 1; i >=1; i--)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Are there its parent? */
+		if (m_ptr->parent_m_idx && !m_list[m_ptr->parent_m_idx].r_idx)
+		{
+			/* Its parent have gone, it also goes away. */
+
+			if (m_ptr->ml)
+			{
+				char m_name[80];
+			
+				/* Acquire the monster name */
+				monster_desc(m_name, m_ptr, 0);
+
+#ifdef JP
+				msg_format("%sは消え去った！", m_name);
+#else
+				msg_format("%^s disappears!", m_name);
+#endif
+			}
+
+			/* Delete the monster */
+			delete_monster_idx(i);
+		}
+	}
+}
+
+
+/*
+ * Pre-calculate the racial counters of preserved pets
+ * To prevent multiple generation of unique monster who is the minion of player
+ */
+void precalc_cur_num_of_pet(void)
+{
+	monster_type *m_ptr;
+	int i;
+	int max_num = p_ptr->wild_mode ? 1 : MAX_PARTY_MON;
+
+	for (i = 0; i < max_num; i++)
+	{
+		m_ptr = &party_mon[i];
+
+		/* Skip empty monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Hack -- Increase the racial counter */
+		real_r_ptr(m_ptr)->cur_num++;
+	}
 }
 
 
@@ -392,12 +474,8 @@ static void preserve_pet(void)
  */
 static void place_pet(void)
 {
-	int i, max_num;
-
-	if (p_ptr->wild_mode)
-		max_num = 1;
-	else
-		max_num = 21;
+	int i;
+	int max_num = p_ptr->wild_mode ? 1 : MAX_PARTY_MON;
 
 	for (i = 0; i < max_num; i++)
 	{
@@ -420,19 +498,16 @@ static void place_pet(void)
 		{
 			int j, d;
 
-			for(d = 1; d < 6; d++)
+			for (d = 1; d < 6; d++)
 			{
-				for(j = 1000; j > 0; j--)
+				for (j = 1000; j > 0; j--)
 				{
 					scatter(&cy, &cx, py, px, d, 0);
 					if ((cave_floor_bold(cy, cx) || (cave[cy][cx].feat == FEAT_TREES)) && !cave[cy][cx].m_idx && !((cy == py) && (cx == px))) break;
 				}
 				if (j) break;
 			}
-			if (d == 6 || p_ptr->inside_arena)
-				m_idx = 0;
-			else
-				m_idx = m_pop();
+			m_idx = (d == 6) ? 0 : m_pop();
 		}
 
 		if (m_idx)
@@ -452,7 +527,10 @@ static void place_pet(void)
 			m_ptr->fx = cx;
 			m_ptr->ml = TRUE;
 			m_ptr->csleep = 0;
-			set_pet(m_ptr);
+
+			/* Paranoia */
+			m_ptr->hold_o_idx = 0;
+			m_ptr->target_y = 0;
 
 			if (r_ptr->flags1 & RF1_FORCE_SLEEP)
 			{
@@ -467,7 +545,8 @@ static void place_pet(void)
 			update_mon(m_idx, TRUE);
 			lite_spot(cy, cx);
 
-			r_ptr->cur_num++;
+			/* Pre-calculated in precalc_cur_num_of_pet() */
+			/* r_ptr->cur_num++; */
 
 			/* Hack -- Count the number of "reproducers" */
 			if (r_ptr->flags2 & RF2_MULTIPLY) num_repro++;
@@ -485,21 +564,29 @@ static void place_pet(void)
 		}
 		else
 		{
+			monster_type *m_ptr = &party_mon[i];
+			monster_race *r_ptr = real_r_ptr(m_ptr);
 			char m_name[80];
 
-			monster_desc(m_name, &party_mon[i], 0);
+			monster_desc(m_name, m_ptr, 0);
 #ifdef JP
 			msg_format("%sとはぐれてしまった。", m_name);
 #else
 			msg_format("You have lost sight of %s.", m_name);
 #endif
-			if (record_named_pet && party_mon[i].nickname)
+			if (record_named_pet && m_ptr->nickname)
 			{
-				monster_desc(m_name, &party_mon[i], 0x08);
+				monster_desc(m_name, m_ptr, 0x08);
 				do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
 			}
+
+			/* Pre-calculated in precalc_cur_num_of_pet(), but need to decrease */
+			if (r_ptr->cur_num) r_ptr->cur_num--;
 		}
 	}
+
+	/* For accuracy of precalc_cur_num_of_pet() */
+	C_WIPE(party_mon, MAX_PARTY_MON, monster_type);
 }
 
 
@@ -550,6 +637,169 @@ static void update_unique_artifact(s16b cur_floor_id)
 	}
 }
 
+/*
+ * Virtually teleport onto the stairs that is connecting between two
+ * floors.
+ *
+ * Teleport level spell and trap doors will always lead the player to
+ * the one of the floors connected by the one of the stairs in the
+ * current floor.
+ */
+static void locate_connected_stairs(saved_floor_type *sf_ptr)
+{
+	int x, y, sx = 0, sy = 0;
+	int x_table[20];
+	int y_table[20];
+	int num = 0;
+	int i;
+
+	/* Search usable stairs */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			cave_type *c_ptr = &cave[y][x];
+			bool ok = FALSE;
+
+			if (change_floor_mode & CFM_UP)
+			{
+				/* Found fixed stairs */
+				if (c_ptr->special &&
+				    c_ptr->special == sf_ptr->upper_floor_id)
+				{
+					sx = x;
+					sy = y;
+				}
+
+				if (((c_ptr->feat == FEAT_LESS) && !(change_floor_mode & CFM_FORCE2L)) ||
+				    ((c_ptr->feat == FEAT_LESS_LESS) && !(change_floor_mode & CFM_FORCE1L)))
+					ok = TRUE;
+			}
+
+			else if (change_floor_mode & CFM_DOWN)
+			{
+				/* Found fixed stairs */
+				if (c_ptr->special &&
+				    c_ptr->special == sf_ptr->lower_floor_id)
+				{
+					sx = x;
+					sy = y;
+				}
+
+				if (((c_ptr->feat == FEAT_MORE) && !(change_floor_mode & CFM_FORCE2L)) ||
+				    ((c_ptr->feat == FEAT_MORE_MORE) && !(change_floor_mode & CFM_FORCE1L)))
+					ok = TRUE;
+			}
+
+			else
+			{
+				if (FEAT_BLDG_HEAD <= c_ptr->feat &&
+				    c_ptr->feat <= FEAT_BLDG_TAIL)
+				{
+					ok = TRUE;
+				}
+			}
+
+			if (ok && num < 20)
+			{
+				x_table[num] = x;
+				y_table[num] = y;
+				num++;
+			}
+		}
+	}
+
+	if (sx)
+	{
+		/* Already fixed */
+		py = sy;
+		px = sx;
+	}
+	else if (!num)
+	{
+		/* No stairs found! -- No return */
+		prepare_change_floor_mode(CFM_RAND_PLACE | CFM_NO_RETURN);
+
+		/* Mega Hack -- It's not the stairs you enter.  Disable it.  */
+		cave[py][px].special = 0;
+	}
+	else
+	{
+		/* Choose random one */
+		i = randint0(num);
+
+		/* Point stair location */
+		py = y_table[i];
+		px = x_table[i];
+	}
+}
+
+/*
+ * When a monster is at a place where player will return,
+ * Get out of the my way!
+ */
+static void get_out_monster()
+{
+	int tries = 0;
+	int dis = 1;
+	int oy = py;
+	int ox = px;
+	int m_idx = cave[oy][ox].m_idx;
+
+	/* Nothing to do if no monster */
+	if (!m_idx) return;
+
+	/* Look until done */
+	while (TRUE)
+	{
+		monster_type *m_ptr;
+
+		/* Pick a (possibly illegal) location */
+		int ny = rand_spread(oy, dis);
+		int nx = rand_spread(ox, dis);
+
+		tries++;
+
+		/* Stop after 1000 tries */
+		if (tries > 10000) return;
+
+		/*
+		 * Increase distance after doing enough tries
+		 * compared to area of possible space
+		 */
+		if (tries > 20 * dis * dis) dis++;
+
+		/* Ignore illegal locations */
+		if (!in_bounds(ny, nx)) continue;
+
+		/* Require "empty" floor space */
+		if (!cave_empty_bold(ny, nx)) continue;
+
+		/* Hack -- no teleport onto glyph of warding */
+		if (is_glyph_grid(&cave[ny][nx])) continue;
+		if (is_explosive_rune_grid(&cave[ny][nx])) continue;
+
+		/*** It's a good place ***/
+
+		m_ptr = &m_list[m_idx];
+
+		/* Update the new location */
+		cave[ny][nx].m_idx = m_idx;
+
+		/* Update the old location */
+		cave[oy][ox].m_idx = 0;
+
+		/* Move the monster */
+		m_ptr->fy = ny;
+		m_ptr->fx = nx; 
+
+		/* No need to do update_mon() */
+
+		/* Success */
+		return;
+	}
+}
+
 
 /*
  * Maintain quest monsters, mark next floor_id at stairs, save current
@@ -571,12 +821,13 @@ void leave_floor(void)
 	/* New floor is not yet prepared */
 	new_floor_id = 0;
 
-
-	/* From somewhere of the surface to somewhere of the surface */
-	if (!dungeon_type)
+	/* Temporary get a floor_id (for Arena) */
+	if (!p_ptr->floor_id &&
+	    (change_floor_mode & CFM_SAVE_FLOORS) &&
+	    !(change_floor_mode & CFM_NO_RETURN))
 	{
-		/* No need to save current floor */
-		return;
+	    /* Get temporal floor_id */
+	    p_ptr->floor_id = get_new_floor_id();
 	}
 
 	/* Search the quest monster index */
@@ -637,85 +888,11 @@ void leave_floor(void)
 	/* Choose random stairs */
 	if ((change_floor_mode & CFM_RAND_CONNECT) && p_ptr->floor_id)
 	{
-		int x, y;
-		int x_table[20];
-		int y_table[20];
-		int num = 0;
-		int i;
-
-		/* Search usable stairs */
-		for (y = 0; y < cur_hgt; y++)
-		{
-			for (x = 0; x < cur_wid; x++)
-			{
-				cave_type *c_ptr = &cave[y][x];
-				bool ok = FALSE;
-
-				if (change_floor_mode & CFM_UP)
-				{
-					/* Found fixed stairs */
-					if (c_ptr->special &&
-					    c_ptr->special == sf_ptr->upper_floor_id)
-					{
-						sx = x;
-						sy = y;
-					}
-
-					if (((c_ptr->feat == FEAT_LESS) && !(change_floor_mode & CFM_FORCE2L)) ||
-					    ((c_ptr->feat == FEAT_LESS_LESS) && !(change_floor_mode & CFM_FORCE1L)))
-						ok = TRUE;
-				}
-				else if (change_floor_mode & CFM_DOWN)
-				{
-					/* Found fixed stairs */
-					if (c_ptr->special &&
-					    c_ptr->special == sf_ptr->lower_floor_id)
-					{
-						sx = x;
-						sy = y;
-					}
-
-					if (((c_ptr->feat == FEAT_MORE) && !(change_floor_mode & CFM_FORCE2L)) ||
-					    ((c_ptr->feat == FEAT_MORE_MORE) && !(change_floor_mode & CFM_FORCE1L)))
-						ok = TRUE;
-				}
-
-				if (ok && num < 20)
-				{
-					x_table[num] = x;
-					y_table[num] = y;
-					num++;
-				}
-			}
-		}
-
-		if (sx)
-		{
-			/* Already fixed */
-			py = sy;
-			px = sx;
-		}
-		else if (!num)
-		{
-			/* No stairs found! -- No return */
-			prepare_change_floor_mode(CFM_RAND_PLACE | CFM_NO_RETURN);
-
-			/* Mega Hack -- It's not the stairs you enter.  Disable it.  */
-			cave[py][px].special = 0;
-		}
-		else
-		{
-			/* Choose random one */
-			i = randint0(num);
-
-			/* Point stair location */
-			py = y_table[i];
-			px = x_table[i];
-		}
+		locate_connected_stairs(sf_ptr);
 	}
 
 	/* Extract new dungeon level */
-	if (!(change_floor_mode & CFM_CLEAR_ALL))
+	if (change_floor_mode & CFM_SAVE_FLOORS)
 	{
 		int move_num = 0;
 
@@ -723,7 +900,7 @@ void leave_floor(void)
 		c_ptr = &cave[py][px];
 
 		/* Get back to old saved floor? */
-		if (dun_level && c_ptr->special && get_sf_ptr(c_ptr->special))
+		if (c_ptr->special && get_sf_ptr(c_ptr->special))
 		{
 			/* Saved floor is exist.  Use it. */
 			new_floor_id = c_ptr->special;
@@ -761,10 +938,11 @@ void leave_floor(void)
 		dungeon_type = 0;
 
 		/* Reach to the surface -- Clear all saved floors */
-		prepare_change_floor_mode(CFM_CLEAR_ALL);
+		change_floor_mode &= ~CFM_SAVE_FLOORS;
 	}
 
-	if (change_floor_mode & CFM_CLEAR_ALL)
+	/* Kill some old saved floors */
+	if (!(change_floor_mode & CFM_SAVE_FLOORS))
 	{
 		int i;
 
@@ -815,8 +993,12 @@ void leave_floor(void)
 	}
 
 	/* If you can return, you need to save previous floor */
-	if (!(change_floor_mode & (CFM_NO_RETURN | CFM_CLEAR_ALL)))
+	if ((change_floor_mode & CFM_SAVE_FLOORS) &&
+	    !(change_floor_mode & CFM_NO_RETURN))
 	{
+		/* Get out of the my way! */
+		get_out_monster();
+
 		/* Record the last visit turn of current floor */
 		sf_ptr->last_visit = turn;
 
@@ -884,13 +1066,14 @@ void change_floor(void)
 	/* Mega-Hack -- not ambushed on the wildness? */
 	ambush_flag = FALSE;
 
-	/* On the surface */
-	if (!dungeon_type)
+	/* No saved floors (On the surface etc.) */
+	if (!(change_floor_mode & CFM_SAVE_FLOORS) &&
+	    !(change_floor_mode & CFM_FIRST_FLOOR))
 	{
 		/* Create cave */
 		generate_cave();
 
-		/* Paranoia -- Now on the surface */
+		/* Paranoia -- No new saved floor */
 		new_floor_id = 0;
 	}
 
@@ -921,7 +1104,12 @@ void change_floor(void)
 					cave_type *c_ptr = &cave[py][px];
 
 					/* Reset to floor */
-					place_floor_grid(c_ptr);
+					if (change_floor_mode & (CFM_DOWN | CFM_UP))
+					{
+						/* Reset to floor */
+						c_ptr->feat = floor_type[randint0(100)];
+					}
+					
 					c_ptr->special = 0;
 				}
 			}
@@ -955,10 +1143,15 @@ void change_floor(void)
 		/* Maintain monsters and artifacts */
 		if (loaded)
 		{
-			int i;
-			s32b absence_ticks = (turn - sf_ptr->last_visit) / TURNS_PER_TICK;
+			int i, x, y;
+			s32b tmp_last_visit = sf_ptr->last_visit;
+			s32b absence_ticks;
 			int alloc_chance = d_info[dungeon_type].max_m_alloc_chance;
 			int alloc_times;
+			cave_type *c_ptr;
+
+			while (tmp_last_visit > turn) tmp_last_visit -= TURNS_PER_TICK * TOWN_DAWN;
+			absence_ticks = (turn - tmp_last_visit) / TURNS_PER_TICK;
 
 			/* Maintain monsters */
 			for (i = 1; i < m_max; i++)
@@ -1045,6 +1238,76 @@ void change_floor(void)
 				}
 			}
 
+			/* Maintain WILD_LITE dungeon */
+			if (d_info[dungeon_type].flags1 & DF1_WILD_LITE)
+			{
+				if (is_daytime())
+				{
+					/* Hack -- Scan the town */
+					for (y = 0; y < cur_hgt; y++)
+					{
+						for (x = 0; x < cur_wid; x++)
+						{
+							/* Get the cave grid */
+							c_ptr = &cave[y][x];
+
+							/* Assume lit */
+							c_ptr->info |= (CAVE_GLOW);
+
+							if ((player_has_los_bold(y, x)) && !p_ptr->blind)
+							{
+								/* Hack -- Memorize lit grids if allowed */
+								if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
+
+								/* Hack -- Notice spot */
+								note_spot(y, x);
+							}
+						}
+					}
+				}
+				else
+				{
+					/* Hack -- Scan the town */
+					for (y = 0; y < cur_hgt; y++)
+					{
+						for (x = 0; x < cur_wid; x++)
+						{
+							/* Get the cave grid */
+							c_ptr = &cave[y][x];
+
+							/* Assume dark */
+							c_ptr->info &= ~(CAVE_GLOW);
+
+							/* Darken "boring" features */
+							if ((c_ptr->feat <= FEAT_INVIS) ||
+							    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
+							    (c_ptr->feat <= FEAT_MOUNTAIN)) ||
+							    (x == 0) || (x == cur_wid-1) ||
+							    (y == 0) || (y == cur_hgt-1))
+							{
+								byte feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+
+								if ((feat <= FEAT_INVIS) ||
+								    (feat == FEAT_DIRT) ||
+								    (feat == FEAT_GRASS) ||
+								    (feat == FEAT_SWAMP) ||
+								    (feat == FEAT_TUNDRA))
+								{
+									/* Forget the grid */
+									c_ptr->info &= ~(CAVE_MARK);
+								}
+
+								/* Hack -- Notice spot */
+								note_spot(y, x);
+							}
+						}
+					}
+
+					/* Glow some feature */
+					glow_floor_feature();
+				}
+			}
+
 			(void)place_quest_monsters();
 
 			/* Place some random monsters */
@@ -1098,7 +1361,9 @@ void change_floor(void)
 			sf_ptr->dun_level = dun_level;
 
 			/* Create connected stairs */
-			if (!(change_floor_mode & (CFM_NO_RETURN | CFM_CLEAR_ALL)) && dun_level)
+			if (dun_level &&
+				(change_floor_mode & CFM_SAVE_FLOORS) &&
+				!(change_floor_mode & CFM_NO_RETURN))
 			{
 				bool ok = FALSE;
 
@@ -1118,7 +1383,6 @@ void change_floor(void)
 						{
 							c_ptr->feat = (change_floor_mode & CFM_SHAFT) ? FEAT_MORE_MORE : FEAT_MORE;
 							apply_grid_effect(py, px, prev_feat, FALSE);
-							ok = TRUE;
 						}
 					}
 					else
@@ -1127,7 +1391,6 @@ void change_floor(void)
 						{
 							c_ptr->feat = (change_floor_mode & CFM_SHAFT) ? FEAT_MORE_MORE : FEAT_MORE;
 							apply_grid_effect(py, px, prev_feat, FALSE);
-							ok = TRUE;
 						}
 					}
 				}
@@ -1140,7 +1403,6 @@ void change_floor(void)
 						{
 							c_ptr->feat = (change_floor_mode & CFM_SHAFT) ? FEAT_LESS_LESS : FEAT_LESS;
 							apply_grid_effect(py, px, prev_feat, FALSE);
-							ok = TRUE;
 						}
 					}
 					else
@@ -1149,41 +1411,37 @@ void change_floor(void)
 						{
 							c_ptr->feat = (change_floor_mode & CFM_SHAFT) ? FEAT_LESS_LESS : FEAT_LESS;
 							apply_grid_effect(py, px, prev_feat, FALSE);
-							ok = TRUE;
 						}
 					}
 				}
 
-				if (ok)
+				/* Paranoia -- Clear mimic */
+				c_ptr->mimic = 0;
+
+				/* Connect to previous floor */
+				c_ptr->special = p_ptr->floor_id;
+
+				/* Mega-Hack - If back from the Heaven Gate, remove other upstairs. */
+				if ((change_floor_mode & CFM_DOWN) && (dungeon_type == DUNGEON_HEAVEN_WAY) &&
+				    (dun_level == (d_info[dungeon_type].maxdepth - 1)))
 				{
-					/* Paranoia -- Clear mimic */
-					c_ptr->mimic = 0;
+					int x, y;
 
-					/* Connect to previous floor */
-					c_ptr->special = p_ptr->floor_id;
-
-					/* Mega-Hack - If back from the Heaven Gate, remove other upstairs. */
-					if ((change_floor_mode & CFM_DOWN) && (dungeon_type == DUNGEON_HEAVEN_WAY) &&
-					    (dun_level == (d_info[dungeon_type].maxdepth - 1)))
+					for (y = 0; y < cur_hgt; y++)
 					{
-						int x, y;
-
-						for (y = 0; y < cur_hgt; y++)
+						for (x = 0; x < cur_wid; x++)
 						{
-							for (x = 0; x < cur_wid; x++)
-							{
-								cave_type *cc_ptr = &cave[y][x];
+							cave_type *cc_ptr = &cave[y][x];
 
-								if (cc_ptr->feat != FEAT_LESS) continue;
+							if (cc_ptr->feat != FEAT_LESS) continue;
 
-								/* Don't remove new upstair */
-								if (cc_ptr == c_ptr) continue;
+							/* Don't remove new upstair */
+							if (cc_ptr == c_ptr) continue;
 
-								/* Remove other upstairs */
-								cc_ptr->special = 0;
-								cc_ptr->feat = floor_type[randint0(100)];
-								apply_grid_effect(y, x, prev_feat, FALSE);
-							}
+							/* Remove other upstairs */
+							cc_ptr->special = 0;
+							cc_ptr->feat = floor_type[randint0(100)];
+							apply_grid_effect(y, x, prev_feat, FALSE);
 						}
 					}
 				}
@@ -1197,7 +1455,8 @@ void change_floor(void)
 		}
 
 		/* You see stairs blocked */
-		else if (change_floor_mode & CFM_NO_RETURN)
+		else if ((change_floor_mode & CFM_NO_RETURN) &&
+			 (change_floor_mode & (CFM_DOWN | CFM_UP)))
 		{
 			if (!p_ptr->blind)
 			{
@@ -1243,7 +1502,9 @@ void change_floor(void)
 	/* Town guards attack you if chaos frame is too low! */
 	if (!dun_level && p_ptr->town_num)
 	{
-		if (town[p_ptr->town_num].ethnic != NO_ETHNICITY)
+		int ethnic = town[p_ptr->town_num].ethnic;
+
+		if (ethnic != NO_ETHNICITY)
 		{
 			if (chaos_frame[(int)(town[p_ptr->town_num].ethnic)] <= CFRAME_SUMMON_GUARD)
 				summon_named_creature(0, py, px, MON_GUARD, PM_NO_PET | PM_ALLOW_GROUP | PM_IGNORE_AMGRID);
@@ -1257,6 +1518,10 @@ void change_floor(void)
 
 	/* Remember when this level was "created" */
 	old_turn = turn;
+
+	/* No dungeon feeling yet */
+	p_ptr->feeling_turn = old_turn;
+	p_ptr->feeling = 0;
 
 	/* Clear all flags */
 	change_floor_mode = 0L;

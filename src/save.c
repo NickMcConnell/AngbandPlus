@@ -221,6 +221,7 @@ static void wr_monster(monster_type *m_ptr)
 	if (m_ptr->exp) flags |= SAVE_MON_EXP;
 	if (m_ptr->mflag2) flags |= SAVE_MON_MFLAG2;
 	if (m_ptr->nickname) flags |= SAVE_MON_NICKNAME;
+	if (m_ptr->parent_m_idx) flags |= SAVE_MON_PARENT;
 
 	/*** Monster save flags ***/
 	wr_u32b(flags);
@@ -261,6 +262,7 @@ static void wr_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_EXP) wr_u32b(m_ptr->exp);
 	if (flags & SAVE_MON_MFLAG2) wr_byte(m_ptr->mflag2);
 	if (flags & SAVE_MON_NICKNAME) wr_string(quark_str(m_ptr->nickname));
+	if (flags & SAVE_MON_PARENT) wr_s16b(m_ptr->parent_m_idx);
 }
 
 
@@ -290,7 +292,7 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->r_drop_item);
 
 	/* Count spells */
-	wr_byte(r_ptr->r_cast_inate);
+	wr_byte(0); /* unused now */
 	wr_byte(r_ptr->r_cast_spell);
 
 	/* Count blows of each type */
@@ -543,7 +545,8 @@ static void save_quick_start(void)
 
 	for (i = 0; i < 4; i++) wr_string(previous_char.history[i]);
 
-	wr_byte(previous_char.quests);
+	/* UNUSED : Was number of random quests */
+	wr_byte(0);
 
 	/* No quick start after using debug mode or cheat options */
 	if (p_ptr->noscore || easy_band) previous_char.quick_ok = FALSE;
@@ -576,10 +579,11 @@ static void wr_extra(void)
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_s16b(p_ptr->pelem);
-	wr_byte(0);	/* oops */
+	tmp8u = MAX_CLASS;
+	wr_byte(tmp8u);
 
 	wr_u16b(p_ptr->expfact);
-	for (i = 0; i < MAX_CLASS; ++i) wr_u16b(p_ptr->cexpfact[i]);
+	for (i = 0; i < tmp8u; ++i) wr_u16b(p_ptr->cexpfact[i]);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -597,7 +601,7 @@ static void wr_extra(void)
 	wr_s32b(p_ptr->max_max_exp);
 	wr_s32b(p_ptr->max_exp);
 	wr_s32b(p_ptr->exp);
-	wr_u16b(p_ptr->exp_frac);
+	wr_u32b(p_ptr->exp_frac);
 	wr_s32b(p_ptr->lev);
 
 	for (i = 0; i < MAX_WT; i++) wr_s16b(p_ptr->weapon_exp[i]);
@@ -613,7 +617,7 @@ static void wr_extra(void)
 		wr_s32b(cexp_ptr->max_max_cexp);
 		wr_s32b(cexp_ptr->max_cexp);
 		wr_s32b(cexp_ptr->cexp);
-		wr_u16b(cexp_ptr->cexp_frac);
+		wr_u32b(cexp_ptr->cexp_frac);
 		wr_s32b(cexp_ptr->clev);
 		wr_s32b(cexp_ptr->max_clev);
 		wr_s32b(cexp_ptr->max_max_clev);
@@ -647,7 +651,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->inside_arena);
 	wr_s16b(p_ptr->inside_quest);
 	wr_byte(p_ptr->exit_bldg);
-	wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
+	wr_byte(0); /* Unused */
 
 	wr_s16b(p_ptr->oldpx);
 	wr_s16b(p_ptr->oldpy);
@@ -657,11 +661,11 @@ static void wr_extra(void)
 
 	wr_s32b(p_ptr->mhp);
 	wr_s32b(p_ptr->chp);
-	wr_u16b(p_ptr->chp_frac);
+	wr_u32b(p_ptr->chp_frac);
 
 	wr_s32b(p_ptr->msp);
 	wr_s32b(p_ptr->csp);
-	wr_u16b(p_ptr->csp_frac);
+	wr_u32b(p_ptr->csp_frac);
 
 	/* Max Player and Dungeon Levels */
 	wr_s32b(p_ptr->max_plv);
@@ -749,8 +753,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->magical_weapon);
 	wr_s16b(p_ptr->evil_weapon);
 	wr_u32b(p_ptr->special_attack);
-	wr_byte(0);     /* oops */
-	wr_byte(0);     /* oops */
+	wr_s16b(p_ptr->death_regen);
 	wr_byte(p_ptr->action);
 	wr_byte(0);
 	wr_byte(preserve_mode);
@@ -758,8 +761,9 @@ static void wr_extra(void)
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);
 
+	wr_s32b(p_ptr->realm_medium);
+
 	/* Ignore some flags */
-	wr_u32b(0L);    /* oops */
 	wr_u32b(0L);    /* oops */
 	wr_u32b(0L);    /* oops */
 
@@ -783,10 +787,13 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->is_dead);
 
 	/* Write feeling */
-	wr_byte(feeling);
+	wr_byte(p_ptr->feeling);
+
+	/* Turn when level began */
+	wr_s32b(old_turn);
 
 	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
+	wr_s32b(p_ptr->feeling_turn);
 
 	/* Current turn */
 	wr_s32b(turn);
@@ -912,7 +919,7 @@ static void wr_saved_floor(saved_floor_type *sf_ptr)
 	wr_u16b((u16b)px);
 	wr_u16b(cur_hgt);
 	wr_u16b(cur_wid);
-	wr_byte(feeling);
+	wr_byte(p_ptr->feeling);
 
 
 
@@ -1179,7 +1186,7 @@ static bool wr_dungeon(void)
 	wr_byte(dungeon_type);
 
 
-	/*** On the surface  ***/
+	/*** No saved floor (On the surface etc.) ***/
 	if (!p_ptr->floor_id)
 	{
 		/* No array elements */
@@ -2006,9 +2013,6 @@ bool load_player(void)
 
 			/* Count lives */
 			sf_lives++;
-
-			/* Forget turns */
-			turn = old_turn = 0;
 
 			/* Done */
 			return (TRUE);

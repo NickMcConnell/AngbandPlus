@@ -1305,98 +1305,50 @@ byte blows_table[12][12] =
 
 };
 
-s16b arena_monsters[MAX_ARENA_MONS + 4] =
+arena_type arena_info[MAX_ARENA_MONS + 4] =
 {
-	MON_SIMON,
-	MON_SOLDIER,
-	MON_AMAZONESS,
-	MON_ARCHER,
-	MON_KNIGHT,
-	MON_PRIEST,
-	MON_BEASTTAMER,
-	MON_BERSERKER,
-	MON_FAIRY,
-	MON_HAWKMAN,
-	MON_DRAGOON,
-	MON_SWORDMASTER,
-	MON_TERROR_KNIGHT,
-	MON_PIXY,
-	MON_WARLOCK,
-	MON_NINJA,
-	MON_BEASTMASTER,
-	MON_PUMPKIN_HEAD,
-	MON_LIZARDMAN,
-	MON_GORGON,
-	MON_GUNNER,
-	MON_COCKATRICE,
-	MON_VALKYRIE,
-	MON_SIRENE,
-	MON_DRAGONTAMER,
-	MON_DARK_PRIEST,
-	MON_SORCERER,
-	MON_VENEFIK,
-	MON_CENTAUR,
-	MON_LADY_CENTAUR,
-	MON_HIGH_PRIEST,
-	MON_NECROMANCER,
-	MON_MAD_HALLOWEEN,
-	MON_GABIAR,
-	MON_ANGEL_KNIGHT,
-	MON_BALANCE_WYRM,
-	MON_FIRE_BRASS,
-	MON_MOLDOUX,
-	0,
-	MON_CANOPUS,
-	0,
-	MON_DENEB
-};
-
-
-
-byte arena_object[MAX_ARENA_MONS + 4][2] =
-{
-	{TV_BOOTS, SV_PAIR_OF_SANDALS},
-	{TV_POTION, SV_POTION_CURE_CRITICAL},
-	{TV_POTION, SV_POTION_CURE_CRITICAL},
-	{TV_POTION, SV_POTION_SPEED},
-	{TV_POTION, SV_POTION_HEROISM},
-	{TV_POTION, SV_POTION_CURING},
-	{TV_POTION, SV_POTION_CURE_CRITICAL},
-	{TV_POTION, SV_POTION_HEROISM},
-	{TV_POTION, SV_POTION_CURING},
-	{TV_POTION, SV_POTION_HEALING},
-	{TV_POTION, SV_POTION_HEROISM},
-	{TV_POTION, SV_POTION_SPEED},
-	{TV_POTION, SV_POTION_BERSERK_STRENGTH},
-	{TV_POTION, SV_POTION_SPEED},
-	{TV_POTION, SV_POTION_RESTORING},
-	{TV_POTION, SV_POTION_SPEED},
-	{TV_ROD, SV_ROD_STONE_TO_MUD},
-	{TV_ROD, SV_ROD_MAPPING},
-	{TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION},
-	{TV_POTION, SV_POTION_RESTORE_MANA},
-	{TV_BOW, SV_ROCKET_LAUNCHER},
-	{TV_POTION, SV_POTION_CURE_STONING},
-	{TV_POTION, SV_POTION_STAR_HEALING},
-	{TV_SCROLL, SV_SCROLL_ACQUIREMENT},
-	{TV_SCROLL, SV_SCROLL_STAR_ENCHANT_WEAPON},
-	{TV_POTION, SV_POTION_RESTORE_MANA},
-	{TV_SCROLL, SV_SCROLL_GENOCIDE},
-	{TV_POTION, SV_POTION_DEATH},
-	{TV_RING, SV_RING_SHOTS},
-	{TV_RING, SV_RING_DEC_MANA},
-	{TV_POTION, SV_POTION_LIFE},
-	{TV_SCROLL, SV_SCROLL_MASS_GENOCIDE},
-	{TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT},
-	{TV_ROD, SV_ROD_HEALING},
-	{TV_ROD, SV_ROD_SPEED},
-	{TV_ROD, SV_ROD_IDENTIFY},
-	{TV_WAND, SV_WAND_DRAGON_FIRE},
-	{TV_STAFF, SV_STAFF_THE_MAGI},
-	{0, 0},
-	{0, 0},
-	{0, 0},
-	{0, 0},
+	{ MON_SIMON,            TV_BOOTS,  SV_PAIR_OF_SANDALS            },
+	{ MON_SOLDIER,          TV_POTION, SV_POTION_CURE_CRITICAL       },
+	{ MON_AMAZONESS,        TV_POTION, SV_POTION_CURE_CRITICAL       },
+	{ MON_ARCHER,           TV_POTION, SV_POTION_SPEED               },
+	{ MON_KNIGHT,           TV_POTION, SV_POTION_HEROISM             },
+	{ MON_PRIEST,           TV_POTION, SV_POTION_CURING              },
+	{ MON_BEASTTAMER,       TV_TRUMP,  SV_MONSTER_CARD               },
+	{ MON_BERSERKER,        TV_POTION, SV_POTION_HEROISM             },
+	{ MON_FAIRY,            TV_POTION, SV_POTION_CURING              },
+	{ MON_HAWKMAN,          TV_POTION, SV_POTION_HEALING             },
+	{ MON_DRAGOON,          TV_POTION, SV_POTION_HEROISM             },
+	{ MON_SWORDMASTER,      TV_POTION, SV_POTION_SPEED               },
+	{ MON_TERROR_KNIGHT,    TV_POTION, SV_POTION_BERSERK_STRENGTH    },
+	{ MON_PIXY,             TV_POTION, SV_POTION_SPEED               },
+	{ MON_WARLOCK,          TV_POTION, SV_POTION_RESTORING           },
+	{ MON_NINJA,            TV_POTION, SV_POTION_SPEED               },
+	{ MON_BEASTMASTER,      TV_ROD,    SV_ROD_STONE_TO_MUD           },
+	{ MON_PUMPKIN_HEAD,     TV_ROD,    SV_ROD_MAPPING                },
+	{ MON_LIZARDMAN,        TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION    },
+	{ MON_GORGON,           TV_POTION, SV_POTION_RESTORE_MANA        },
+	{ MON_GUNNER,           TV_BOW,    SV_ROCKET_LAUNCHER            },
+	{ MON_COCKATRICE,       TV_POTION, SV_POTION_CURE_STONING        },
+	{ MON_VALKYRIE,         TV_POTION, SV_POTION_STAR_HEALING        },
+	{ MON_SIRENE,           TV_SCROLL, SV_SCROLL_ACQUIREMENT         },
+	{ MON_DRAGONTAMER,      TV_TRUMP,  SV_MONSTER_CARD               },
+	{ MON_DARK_PRIEST,      TV_POTION, SV_POTION_RESTORE_MANA        },
+	{ MON_SORCERER,         TV_SCROLL, SV_SCROLL_GENOCIDE            },
+	{ MON_VENEFIK,          TV_POTION, SV_POTION_DEATH               },
+	{ MON_CENTAUR,          TV_RING,   SV_RING_SHOTS                 },
+	{ MON_LADY_CENTAUR,     TV_RING,   SV_RING_DEC_MANA              },
+	{ MON_HIGH_PRIEST,      TV_POTION, SV_POTION_LIFE                },
+	{ MON_NECROMANCER,      TV_SCROLL, SV_SCROLL_MASS_GENOCIDE       },
+	{ MON_MAD_HALLOWEEN,    TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT    },
+	{ MON_GABIAR,           TV_ROD,    SV_ROD_HEALING                },
+	{ MON_ANGEL_KNIGHT,     TV_ROD,    SV_ROD_SPEED                  },
+	{ MON_BALANCE_WYRM,     TV_ROD,    SV_ROD_IDENTIFY               },
+	{ MON_FIRE_BRASS,       TV_WAND,   SV_WAND_DRAGON_FIRE           },
+	{ MON_MOLDOUX,          TV_STAFF,  SV_STAFF_THE_MAGI             },
+	{ 0,                    0,         0                             },
+	{ MON_CANOPUS,          0,         0                             },
+	{ 0,                    0,         0                             },
+	{ MON_DENEB,            0,         0                             },
 };
 
 
@@ -2540,7 +2492,7 @@ player_class class_info[MAX_CLASS] =
 #endif
 		"Temple-Knight",
 
-		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE,
+		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE | PCF_ALIEN,
 		{18 + 70, 18 + 40, 18 + 60, 18 + 50, 18 + 50, 0},
 		{04, 03, 03, 04, 03, 01},
 		15, 23, 18, -4, 14, 4, 0, 62, 52,
@@ -2554,7 +2506,7 @@ player_class class_info[MAX_CLASS] =
 #endif
 		"White-Knight",
 
-		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE,
+		PCF_ALIGN_ANY | PCF_SEX_ANY | PCF_NO_CHANGE | PCF_ALIEN,
 		{18 + 70, 18 + 40, 18 + 60, 18 + 50, 18 + 50, 0},
 		{04, 02, 03, 04, 03, 03},
 		25, 21, 22, -2, 11, 15, 0, 70, 44,
@@ -2661,6 +2613,19 @@ player_class class_info[MAX_CLASS] =
 		10, 5, 1, 150,
 	},
 
+	{
+#ifdef JP
+		"巫女",
+#endif
+		"Medium",
+
+		PCF_ALIGN_LAWFUL | PCF_SEX_FEMALE | PCF_NO_CHANGE | PCF_SECRET,
+		{0, 0, 0, 0, 0, 0},
+		{02, 04, 05, 03, 02, 02},
+		30, 32, 33, 5, 16, 10, 0, 34, 65,
+		 8,  9, 11, 0,  0, 0, 0,  6,  35,
+		0, 0, 2, 160
+	},
 };
 
 
@@ -2775,6 +2740,8 @@ s32b realm_choices[] =
 	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_CRUSADE), /* Freya */
 	(CH_WIND), /* Crescent */
 	(CH_DEATH), /* Vampire */
+	(CH_NONE), /* Medium */
+//	(CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND | CH_HOLY | CH_CRUSADE), /* Medium */
 };
 
 
@@ -3737,6 +3704,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"闇の支配者",
 		"真祖",
 	},
+	/* Medium */
+	{
+		"無垢な少女",
+		"御神馬の少女",
+		"聖少女",
+		"朝霧の巫女",
+		"夕月の巫女",
+		"姫巫女",
+		"山神の巫女",
+		"龍神の巫女",
+		"神子",
+		"常乙女",
+	},
 };
 
 
@@ -4047,7 +4027,6 @@ option_type option_info[] =
 #endif
 
 
-#ifdef ALLOW_EASY_OPEN
 #ifdef JP
 	{ &easy_open,                   TRUE,  1, 5, 7,
 	"easy_open",                    "自動的にドアを開ける" },
@@ -4055,10 +4034,8 @@ option_type option_info[] =
 	{ &easy_open,                   TRUE,  1, 5, 7,
 	"easy_open",                    "Automatically open doors" },
 #endif
-#endif /* ALLOW_EASY_OPEN */
 
 
-#ifdef ALLOW_EASY_DISARM
 #ifdef JP
 	{ &easy_disarm,                 TRUE,  1, 5, 8,
 	"easy_disarm",                  "自動的に罠を解除する" },
@@ -4066,10 +4043,8 @@ option_type option_info[] =
 	{ &easy_disarm,                 TRUE,  1, 5, 8,
 	"easy_disarm",                  "Automatically disarm traps" },
 #endif
-#endif /* ALLOW_EASY_DISARM */
 
 
-#ifdef ALLOW_EASY_FLOOR /* TNB */
 #ifdef JP
 	{ &easy_floor,                  FALSE, 1, 5, 9,
 	"easy_floor",                   "床上で重なったアイテムをリストする" },
@@ -4077,7 +4052,6 @@ option_type option_info[] =
 	{ &easy_floor,                  FALSE, 1, 5, 9,
 	"easy_floor",                   "Display floor stacks in a list" },
 #endif
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
 
 #ifdef JP
@@ -4135,31 +4109,12 @@ option_type option_info[] =
 	"show_item_graph",              "Show items graphics" },
 #endif
 
-
-#ifdef JP
-	{ &show_choices,                TRUE,  2, 0, 12,
-	"show_choices",                 "持ち物/装備ウィンドウに選択アイテム表示" },
-#else
-	{ &show_choices,                TRUE,  2, 0, 12,
-	"show_choices",                 "Show choices in certain sub-windows" },
-#endif
-
-
 #ifdef JP
 	{ &plain_pickup,                FALSE, 2, 6, 6,
 	"plain_pickup",                 "「拾った」メッセージを簡略化する" },
 #else
 	{ &plain_pickup,                FALSE,99, 6, 6,
 	"plain_pickup",                 "Plain pickup messages(japanese only)" },
-#endif
-
-
-#ifdef JP
-	{ &player_symbols,              FALSE, 2, 1, 13,
-	"player_symbols",               "プレイヤーを特別な記号で表示する"},
-#else
-	{ &player_symbols,              FALSE, 2, 1, 13,
-	"player_symbols",               "Use special symbols for the player char"},
 #endif
 
 
@@ -4178,15 +4133,6 @@ option_type option_info[] =
 #else
 	{ &display_mutations,              FALSE, 2, 5, 0,
 	"display_mutations",               "Display mutations in 'C'haracter Display" },
-#endif
-
-
-#ifdef JP
-	{ &plain_descriptions,          TRUE, 2, 5, 1,
-	"plain_descriptions",           "アイテムの記述を簡略にする" },
-#else
-	{ &plain_descriptions,          TRUE, 2, 5, 1,
-	"plain_descriptions",           "Plain object descriptions" },
 #endif
 
 
@@ -4277,25 +4223,7 @@ option_type option_info[] =
 #endif
 
 
-#ifdef JP
-	{ &change_numeral,              TRUE,  2, 4, 5,
-	"change_numeral",               "アイテムの種類によって数え方を変える" },
-#else
-	{ &change_numeral,              TRUE,  99, 4, 5,
-	"change_numeral",               "Change a way to counting (japanese only)" },
-#endif
-
-
 	/*** Game-Play ***/
-
-#ifdef JP
-	{ &auto_scum,                   FALSE, 3, 1, 1,
-	"auto_scum",                    "階の雰囲気自動選り好み" },
-#else
-	{ &auto_scum,                   FALSE, 3, 1, 1,
-	"auto_scum",                    "Auto-scum for good levels" },
-#endif
-
 
 #ifdef JP
 	{ &stack_force_notes,           TRUE,  3, 0, 8,
@@ -4312,24 +4240,6 @@ option_type option_info[] =
 #else
 	{ &stack_force_costs,           FALSE, 3, 0, 9,
 	"stack_force_costs",            "Merge discounts when stacking" },
-#endif
-
-
-#ifdef JP
-	{ &stack_allow_items,           TRUE,  3, 1, 2,
-	"stack_allow_items",            "同種の武器や防具をまとめる" },
-#else
-	{ &stack_allow_items,           TRUE,  3, 1, 2,
-	"stack_allow_items",            "Allow weapons and armor to stack" },
-#endif
-
-
-#ifdef JP
-	{ &expand_look,                 TRUE,  3, 1, 4,
-	"expand_look",                  "「回りを調べる」コマンドを拡張する" },
-#else
-	{ &expand_look,                 TRUE,  3, 1, 4,
-	"expand_look",                  "Expand the power of the look command" },
 #endif
 
 
@@ -4453,15 +4363,6 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &find_examine,                TRUE,  4, 0, 19,
-	"find_examine",                 "通路が暗い時になるべく曲り角と仮定して通過する" },
-#else
-	{ &find_examine,                TRUE,  4, 0, 19,
-	"find_examine",                 "Run into potential corners" },
-#endif
-
-
-#ifdef JP
 	{ &disturb_move,                FALSE,  4, 0, 20,
 	"disturb_move",                 "どこのモンスターが動いても行動を中止する" },
 #else
@@ -4534,15 +4435,6 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &alert_hitpoint,              TRUE, 4, 0, 26,
-	"alert_hitpoint",               "低ヒットポイントの警告時にビープを鳴らす" },
-#else
-	{ &alert_hitpoint,              TRUE, 4, 0, 26,
-	"alert_hitpoint",               "Alert user to critical hitpoints" },
-#endif
-
-
-#ifdef JP
 	{ &disturb_trap_detect,         TRUE, 4, 0, 27,
 	"disturb_trap_detect",          "トラップ感知範囲外に出る直前に行動を中止する" },
 #else
@@ -4560,15 +4452,6 @@ option_type option_info[] =
 
 
 	/*** Efficiency ***/
-
-#ifdef JP
-	{ &view_reduce_lite,            FALSE, 5, 1, 16,
-	"view_reduce_lite",             "走っているときは明かりの半径を減少する" },
-#else
-	{ &view_reduce_lite,            FALSE, 5, 1, 16,
-	"view_reduce_lite",             "Reduce lite-radius when running" },
-#endif
-
 
 #ifdef JP
 	{ &view_reduce_view,            FALSE, 5, 1, 17,
@@ -5123,7 +5006,7 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
   "はあなたに卍固めをかけて「1、2、3、ダーッ！」と叫んだ。",
   "は「いくじなし！ばかばかばか！」といって駆け出した。",
   "が「ごらん、ルーベンスの絵だよ」と言って静かに目を閉じた。",
-  "は言った。「TOband、絶賛公開中！」",
+  "は言った。「TOband2、絶賛公開中！」",
 };
 
 /* Formatted style for strfmt() */
@@ -5169,7 +5052,7 @@ cptr silly_attacks_other[MAX_SILLY_ATTACK] =
   "%sに卍固めをかけて「1、2、3、ダーッ！」と叫んだ。",
   "「いくじなし！ばかばかばか！」といって駆け出した。",
   "「ごらん、ルーベンスの絵だよ」と言って静かに目を閉じた。",
-  "言った。「TOband、絶賛公開中！」",
+  "言った。「TOband2、絶賛公開中！」",
 };
 #else
 
@@ -6169,3 +6052,247 @@ int ob_to_tr[OB_MAX] =
 	TR_BLOWS,
 	TR_ANTI_MAGIC,
 };
+
+cptr weapon_skill_name[MAX_WT] =
+{
+#ifdef JP
+	"なし",
+	"小剣・突剣",
+	"カタナ    ",
+	"剣        ",
+	"大剣      ",
+	"斧        ",
+	"槍        ",
+	"乗馬槍    ",
+	"爪        ",
+	"鎌        ",
+	"鞭        ",
+	"ハンマー  ",
+	"杖        ",
+	"扇        ",
+	"弓        ",
+	"銃        ",
+#else
+	"none       ",
+	"Small sword",
+	"Katana     ",
+	"Sword      ",
+	"Great sword",
+	"Axe        ",
+	"Spear      ",
+	"Lance      ",
+	"Craw       ",
+	"Scythe     ",
+	"Whip       ",
+	"Hammer     ",
+	"Staff      ",
+	"Fan        ",
+	"Bow        ",
+	"Gun        ",
+#endif
+};
+
+/*
+ * The table of "symbol info" -- each entry is a string of the form
+ * "X:desc" where "X" is the trigger, and "desc" is the "info".
+ */
+cptr ident_info[] =
+{
+#ifdef JP
+	" :暗闇",
+	"!:薬, オイル",
+	"\":アミュレット, 頸飾り",
+	"#:壁(隠しドア)/植物/気体",
+	"$:財宝(金か宝石)",
+	"%:鉱脈(溶岩か石英)",
+	"&:箱",
+	"':開いたドア",
+	"(:軟らかい防具",
+	"):盾",
+	"*:財宝を含んだ鉱脈または球形の怪物",
+	"+:閉じたドア",
+	",:食べ物, おばけキノコ",
+	"-:魔法棒, ロッド",
+	".:床",
+	"/:竿状武器(アックス/パイク/等)",
+	"0:博物館の入口",
+	"1:雑貨屋の入口",
+	"2:防具屋の入口",
+	"3:武器専門店の入口",
+	"4:寺院の入口",
+	"5:錬金術の店の入口",
+	"6:魔法の店の入口",
+	"7:ブラックマーケットの入口",
+	"8:我が家の入口",
+	"9:書店の入口",
+	"::岩石",
+	";:回避の彫像/爆発のルーン",
+	"<:上り階段",
+	"=:指輪",
+	">:下り階段",
+	"?:巻物",
+	"@:プレイヤー",
+	"A:天使",
+	"B:鳥",
+	"C:犬",
+	"D:古代ドラゴン/ワイアーム",
+	"E:エレメンタル",
+	"F:有翼の亜人",
+	"G:ゴースト",
+	"H:雑種",
+	"I:昆虫",
+	"J:ヘビ",
+	"K:キラー・ビートル",
+	"L:リッチ",
+	"M:多首の爬虫類",
+	/* "N:unused", */
+	"O:オーガ",
+	"P:巨大人間型生物",
+	"Q:クイルスルグ(脈打つ肉塊)",
+	"R:爬虫類/両生類",
+	"S:蜘蛛/サソリ/ダニ",
+	"T:トロル",
+	"U:上級デーモン",
+	"V:ヴァンパイア",
+	"W:ワイト/レイス/等",
+	"X:ゾーン/ザレン/等",
+	"Y:イエティ",
+	"Z:ハウンド",
+	"[:堅いアーマー",
+	"\\:鈍器(メイス/ムチ/等)",
+	"]:種々の防具",
+	"^:トラップ",
+	"_:杖",
+	"`:人形，彫像",
+	"a:アリ",
+	"b:コウモリ",
+	"c:ムカデ",
+	"d:ドラゴン",
+	"e:目玉",
+	"f:ネコ",
+	"g:ゴーレム",
+	"h:エルフ/ホビット/リザードマン",
+	"i:ベトベト",
+	"j:ゼリー",
+	"k:コボルド",
+	"l:水棲生物",
+	"m:モルド",
+	"n:ナーガ",
+	"o:オーク",
+	"p:人間",
+	"q:四足獣",
+	"r:ネズミ",
+	"s:スケルトン",
+	"t:町の人",
+	"u:下級デーモン",
+	"v:ボルテックス",
+	"w:イモムシ/大群",
+	/* "x:unused", */
+	"y:イーク",
+	"z:ゾンビ/ミイラ",
+	"{:飛び道具の弾(矢/弾)",
+	"|:刀剣類(ソード/ダガー/等)",
+	"}:飛び道具(弓/クロスボウ/銃)",
+	"~:水/溶岩流(種々のアイテム)",
+#else
+	" :A dark grid",
+	"!:A potion (or oil)",
+	"\":An amulet (or necklace)",
+	"#:A wall (, secret door or plant)",
+	"$:Treasure (gold or gems)",
+	"%:A vein (magma or quartz)",
+	"&:A chest",
+	"':An open door",
+	"(:Soft armor",
+	"):A shield",
+	"*:A vein with treasure or a ball monster",
+	"+:A closed door",
+	",:Food (or mushroom patch)",
+	"-:A wand (or rod)",
+	".:Floor",
+	"/:A polearm (Axe/Pike/etc)",
+	"0:Entrance to Museum",
+	"1:Entrance to General Store",
+	"2:Entrance to Armory",
+	"3:Entrance to Weaponsmith",
+	"4:Entrance to Temple",
+	"5:Entrance to Alchemy shop",
+	"6:Entrance to Magic store",
+	"7:Entrance to Black Market",
+	"8:Entrance to your home",
+	"9:Entrance to the bookstore",
+	"::Rubble",
+	";:A glyph of warding / an explosive rune",
+	"<:An up staircase",
+	"=:A ring",
+	">:A down staircase",
+	"?:A scroll",
+	"@:You",
+	"A:Angel",
+	"B:Bird",
+	"C:Canine",
+	"D:Ancient Dragon/Wyrm",
+	"E:Elemental",
+	"F:Winged Demihuman",
+	"G:Ghost",
+	"H:Hybrid",
+	"I:Insect",
+	"J:Snake",
+	"K:Killer Beetle",
+	"L:Lich",
+	"M:Multi-Headed Reptile",
+	/* "N:unused", */
+	"O:Ogre",
+	"P:Giant Humanoid",
+	"Q:Quylthulg (Pulsing Flesh Mound)",
+	"R:Reptile/Amphibian",
+	"S:Spider/Scorpion/Tick",
+	"T:Troll",
+	"U:Major Demon",
+	"V:Vampire",
+	"W:Wight/Wraith/etc",
+	"X:Xorn/Xaren/etc",
+	"Y:Yeti",
+	"Z:Zephyr Hound",
+	"[:Hard armor",
+	"\\:A hafted weapon (mace/whip/etc)",
+	"]:Misc. armor",
+	"^:A trap",
+	"_:A staff",
+	"`:A figurine or statue",
+	"a:Ant",
+	"b:Bat",
+	"c:Centipede",
+	"d:Dragon",
+	"e:Floating Eye",
+	"f:Feline",
+	"g:Golem",
+	"h:Hobbit/Elf/Dwarf",
+	"i:Icky Thing",
+	"j:Jelly",
+	"k:Kobold",
+	"l:Aquatic monster",
+	"m:Mold",
+	"n:Naga",
+	"o:Orc",
+	"p:Person/Human",
+	"q:Quadruped",
+	"r:Rodent",
+	"s:Skeleton",
+	"t:Townsperson",
+	"u:Minor Demon",
+	"v:Vortex",
+	"w:Worm/Worm-Mass",
+	/* "x:unused", */
+	"y:Yeek",
+	"z:Zombie/Mummy",
+	"{:A missile (arrow/bolt/shot)",
+	"|:An edged weapon (sword/dagger/etc)",
+	"}:A launcher (bow/crossbow/gun)",
+	"~:Fluid terrain (or miscellaneous item)",
+#endif
+
+	NULL
+};
+
+

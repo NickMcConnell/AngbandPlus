@@ -195,12 +195,12 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 	int y = 0, x = 0;
 	int fy = 0, fx = 0;
 	int i, k, t_idx = 0;
-	int chance, thrown_spell, count = 0;
+	int thrown_spell, count = 0;
 	int rlev;
 	int dam = 0;
 	int start;
 	int plus = 1;
-	u32b p_mode = 0L, u_mode = 0L;
+	u32b u_mode = 0L;
 	int s_num_6 = (easy_band ? 2 : 6);
 	int s_num_4 = (easy_band ? 1 : 4);
 
@@ -239,19 +239,10 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 	bool resists_tele = FALSE;
 
 	/* Prepare flags for summoning */
-	if (pet) p_mode |= PM_FORCE_PET;
 	if (!pet) u_mode |= PM_ALLOW_UNIQUE;
 
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
-
-	/* Hack -- Extract the spell probability */
-	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
-
-	/* Not allowed to cast spells */
-	if (!chance) return (FALSE);
-
-	if (randint0(100) >= chance) return (FALSE);
 
 	start = m_max + 1;
 
@@ -294,51 +285,90 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 	}
 	else
 	{
-		/* Scan thru all monsters */
-		for (i = start; ((i < start + m_max) && (i > start - m_max)); i+=plus, fy = fx = 0)
+		/* Target is given for pet? */
+		if (pet_t_m_idx && pet)
 		{
-			int t_dist;
-
-			/* The monster itself isn't a target */
-			int dummy = (i % m_max);
-			if (!dummy) continue;
-
-			t_idx = dummy;
+			t_idx = pet_t_m_idx;
 			t_ptr = &m_list[t_idx];
-			tr_ptr = &r_info[t_ptr->r_idx];
-			y = fy = t_ptr->fy;
-			x = fx = t_ptr->fx;
 
-			/* Paranoia -- Skip dead monsters */
-			if (!t_ptr->r_idx) continue;
-
-			if (pet)
+			/* Cancel if not projectable (for now) */
+			if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
 			{
-				if (pet_t_m_idx && (dummy != pet_t_m_idx) && !los(m_ptr->fy, m_ptr->fx, fy, fx)) continue;
+				t_idx = 0;
 			}
+		}
 
-			/* Monster must be 'an enemy' */
-			if (!are_enemies(m_ptr, t_ptr)) continue;
+		/* Is there counter attack target? */
+		if (!t_idx && m_ptr->target_y)
+		{
+			t_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
 
-			t_dist = distance(m_ptr->fy, m_ptr->fx, y, x);
+			if (t_idx)
+			{
+				t_ptr = &m_list[t_idx];
 
-			/* Check range */
-			if ((t_dist > MAX_RANGE) && !m_ptr->target_y) continue;
+				/* Cancel if neither enemy nor a given target */
+				if (t_idx != pet_t_m_idx &&
+				    !are_enemies(m_ptr, t_ptr))
+				{
+					t_idx = 0;
+				}
 
-			do_disi_type = DO_DISI_TYPE_NONE;
-			if (!mspell_check_path(m_ptr, &y, &x, t_dist, &do_disi_type, &f4, &f5, &f6, &fa)) continue;
+				/* Allow only summoning etc.. if not projectable */
+				else if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
+				{
+					f4 &= (RF4_INDIRECT_MASK);
+					f5 &= (RF5_INDIRECT_MASK);
+					f6 &= (RF6_INDIRECT_MASK);
+					fa &= (RFA_INDIRECT_MASK);
+				}
+			}
+		}
 
-			reset_target(m_ptr);
+		/* Look for enemies normally */
+		if (!t_idx)
+		{
+			/* Scan thru all monsters */
+			for (i = start; ((i < start + m_max) && (i > start - m_max)); i+=plus, fy = fx = 0)
+			{
+				int t_dist;
 
-			/* Get the target's name (or "it") */
-			monster_desc(t_name, t_ptr, 0x00);
+				/* The monster itself isn't a target */
+				int dummy = (i % m_max);
+				if (!dummy) continue;
 
-			see_t = t_ptr->ml;
+				t_idx = dummy;
+				t_ptr = &m_list[t_idx];
+				tr_ptr = &r_info[t_ptr->r_idx];
+				y = fy = t_ptr->fy;
+				x = fx = t_ptr->fx;
 
-			/* Can the player be aware of this attack? */
-			known = (m_ptr->cdis <= MAX_SIGHT) || (t_ptr->cdis <= MAX_SIGHT);
+				/* Skip dead monsters */
+				if (!t_ptr->r_idx) continue;
 
-			break;
+				/* Monster must be 'an enemy' */
+				if (!are_enemies(m_ptr, t_ptr)) continue;
+
+				t_dist = distance(m_ptr->fy, m_ptr->fx, y, x);
+
+				/* Check range */
+				if ((t_dist > MAX_RANGE) && !m_ptr->target_y) continue;
+
+				do_disi_type = DO_DISI_TYPE_NONE;
+				if (!mspell_check_path(m_ptr, &y, &x, t_dist, &do_disi_type, &f4, &f5, &f6, &fa)) continue;
+
+				reset_target(m_ptr);
+
+				/* Get the target's name (or "it") */
+				monster_desc(t_name, t_ptr, 0x00);
+
+				see_t = t_ptr->ml;
+
+				/* Can the player be aware of this attack? */
+				known = (m_ptr->cdis <= MAX_SIGHT) || (t_ptr->cdis <= MAX_SIGHT);
+
+				break;
+			}
 		}
 	}
 
@@ -2249,9 +2279,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			/* RF5_DRAIN_MANA */
 			case 128+9:
 			{
-				/* Attack power */
-				int power = (randint1(rlev) / 2) + 1;
-
 				if ((x != fx) || (y != fy)) return FALSE;
 				if (see_m)
 				{
@@ -2283,6 +2310,9 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 						}
 						else
 						{
+							/* Attack power */
+							int power = (randint1(rlev) / 2) + 1;
+
 							/* Heal */
 							m_ptr->hp += 6 * power;
 							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
@@ -3263,13 +3293,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			/* RF6_TPORT */
 			case 160+5:
 			{
-				int i, oldfy, oldfx;
-				u32b flgs[TR_FLAG_SIZE];
-				object_type *o_ptr;
-
-				oldfy = m_ptr->fy;
-				oldfx = m_ptr->fx;
-
 				if (see_m)
 				{
 #ifdef JP
@@ -3282,37 +3305,38 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 
-				if (los(py, px, oldfy, oldfx) && !stop_the_time_monster && see_m)
+				if (los(py, px, m_ptr->fy, m_ptr->fx) && !stop_the_time_monster && see_m)
 				{
 					for (i=INVEN_RARM;i<INVEN_TOTAL;i++)
 					{
-						o_ptr = &inventory[i];
-						if (!cursed_p(o_ptr))
-						{
-							object_flags(o_ptr, flgs);
+						u32b flgs[TR_FLAG_SIZE];
+						object_type *o_ptr = &inventory[i];
 
-							if (have_flag(flgs, TR_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT))
+						if (cursed_p(o_ptr)) continue;
+						object_flags(o_ptr, flgs);
+
+						if (have_flag(flgs, TR_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT))
+						{
+#ifdef JP
+							cptr msg = "ついていきますか？";
+#else
+							cptr msg = "Do you follow it? ";
+#endif
+							if(get_check_strict(msg, CHECK_OKAY_CANCEL))
 							{
-#ifdef JP
-								if(get_check_strict("ついていきますか？", CHECK_OKAY_CANCEL))
-#else
-								if(get_check_strict("Do you follow it? ", CHECK_OKAY_CANCEL))
-#endif
+								if (one_in_(3))
 								{
-									if (one_in_(3))
-									{
-										teleport_player(200);
+									teleport_player(200);
 #ifdef JP
-										msg_print("失敗！");
+									msg_print("失敗！");
 #else
-										msg_print("Failed!");
+									msg_print("Failed!");
 #endif
-									}
-									else teleport_player_to(m_ptr->fy, m_ptr->fx, TRUE, TRUE);
-									p_ptr->energy_need = ENERGY_NEED();
 								}
-								break;
+								else teleport_player_to(m_ptr->fy, m_ptr->fx, TRUE, TRUE);
+								p_ptr->energy_need = ENERGY_NEED();
 							}
+							break;
 						}
 					}
 				}
@@ -3328,7 +3352,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			/* RF6_SPECIAL */
 			case 160+7:
 			{
-				int k;
 				cave_type *c_ptr = &cave[y][x];
 
 				/* if (p_ptr->inside_arena) return FALSE; */
@@ -4043,24 +4066,65 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				if (m_ptr->r_idx == MON_THORONDOR ||
-				    m_ptr->r_idx == MON_GWAIHIR ||
-				    m_ptr->r_idx == MON_MENELDOR)
+				switch (m_ptr->r_idx)
 				{
-					int num = 4 + randint1(3);
-					for (k = 0; k < num; k++)
+				case MON_THORONDOR:
+				case MON_GWAIHIR:
+				case MON_MENELDOR:
 					{
-						count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | p_mode));
+						int num = 4 + randint1(3);
+						for (k = 0; k < num; k++)
+						{
+							count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+						}
 					}
-				}
-				else
-				{
-					summon_kin_type = r_ptr->d_char;
+					break;
+				case MON_ELEM_L_FIRE:
+					{
+						int num = 4 + randint1(3);
+						for (k = 0; k < num; k++)
+						{
+							count += summon_specific(m_idx, y, x, rlev, SUMMON_FIRE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+						}
+					}
+					break;
+				case MON_ELEM_L_AQUA:
+					{
+						int num = 4 + randint1(3);
+						for (k = 0; k < num; k++)
+						{
+							count += summon_specific(m_idx, y, x, rlev, SUMMON_AQUA, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+						}
+					}
+					break;
+				case MON_ELEM_L_EARTH:
+					{
+						int num = 4 + randint1(3);
+						for (k = 0; k < num; k++)
+						{
+							count += summon_specific(m_idx, y, x, rlev, SUMMON_EARTH, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+						}
+					}
+					break;
+				case MON_ELEM_L_WIND:
+					{
+						int num = 4 + randint1(3);
+						for (k = 0; k < num; k++)
+						{
+							count += summon_specific(m_idx, y, x, rlev, SUMMON_WIND, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+						}
+					}
+					break;
+				default:
+					{
+						summon_kin_type = r_ptr->d_char;
 
-					for (k = 0; k < 4; k++)
-					{
-						count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, (PM_ALLOW_GROUP | p_mode));
+						for (k = 0; k < 4; k++)
+						{
+							count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, (PM_ALLOW_GROUP));
+						}
 					}
+					break;
 				}
 
 				if (known && !see_t && count)
@@ -4095,7 +4159,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				if (is_friendly(m_ptr))
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_CYBER, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_CYBER, (PM_ALLOW_GROUP));
 				}
 				else
 				{
@@ -4132,7 +4196,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 					}
 				}
 
-				count += summon_specific(m_idx, y, x, rlev, 0, (p_mode | u_mode));
+				count += summon_specific(m_idx, y, x, rlev, 0, (u_mode));
 
 				if (known && !see_t && count)
 				{
@@ -4166,7 +4230,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, 0, (PM_ALLOW_GROUP | p_mode | u_mode));
+					count += summon_specific(m_idx, y, x, rlev, 0, (PM_ALLOW_GROUP | u_mode));
 				}
 
 				if (known && !see_t && count)
@@ -4201,7 +4265,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANT, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANT, (PM_ALLOW_GROUP));
 				}
 
 				if (known && !see_t && count)
@@ -4236,7 +4300,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_SPIDER, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_SPIDER, (PM_ALLOW_GROUP));
 				}
 
 				if (known && !see_t && count)
@@ -4271,7 +4335,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_HOUND, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HOUND, (PM_ALLOW_GROUP));
 				}
 
 				if (known && !see_t && count)
@@ -4325,7 +4389,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 						attempt = 5000;
 						while (attempt)
 						{
-							if (summon_named_creature(m_idx, y, x, friend_beasts_r_idx[randint0((sizeof friend_beasts_r_idx) / (sizeof (s16b)))], p_mode))
+							if (summon_named_creature(m_idx, y, x, friend_beasts_r_idx[randint0((sizeof friend_beasts_r_idx) / (sizeof (s16b)))], 0))
 							{
 								count++;
 								break;
@@ -4338,7 +4402,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 				{
 					for (k = 0; k < s_num_4; k++)
 					{
-						count += summon_specific(m_idx, y, x, rlev, SUMMON_BEAST, (PM_ALLOW_GROUP | p_mode));
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_BEAST, (PM_ALLOW_GROUP));
 					}
 				}
 
@@ -4380,7 +4444,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < num; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANGEL, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANGEL, (PM_ALLOW_GROUP));
 				}
 
 				if (known && !see_t && count)
@@ -4415,7 +4479,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, (PM_ALLOW_GROUP));
 				}
 
 				if (known && !see_t && count)
@@ -4450,7 +4514,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNDEAD, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNDEAD, (PM_ALLOW_GROUP));
 				}
 
 				if (known && !see_t && count)
@@ -4485,7 +4549,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_DRAGON, (PM_ALLOW_GROUP | p_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_DRAGON, (PM_ALLOW_GROUP));
 				}
 
 				if (known && !see_t && count)
@@ -4520,7 +4584,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_UNDEAD, (PM_ALLOW_GROUP | p_mode | u_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_UNDEAD, (PM_ALLOW_GROUP | u_mode));
 				}
 
 				if (known && !see_t && count)
@@ -4555,7 +4619,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DRAGON, (PM_ALLOW_GROUP | p_mode | u_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DRAGON, (PM_ALLOW_GROUP | u_mode));
 				}
 
 				if (known && !see_t && count)
@@ -4590,7 +4654,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_TEMPLES, (PM_ALLOW_GROUP | p_mode | PM_ALLOW_UNIQUE));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_TEMPLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 				}
 
 				if (known && !see_t && count)
@@ -4625,11 +4689,11 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, (PM_ALLOW_GROUP | p_mode | PM_ALLOW_UNIQUE));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 				}
 				for (k = count; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, 0, (PM_ALLOW_GROUP | p_mode | PM_ALLOW_UNIQUE));
+					count += summon_specific(m_idx, y, x, rlev, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 				}
 
 				if (known && !see_t && count)
@@ -5427,7 +5491,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_ZENOBIAN_FORCES, (PM_ALLOW_GROUP | p_mode | PM_ALLOW_UNIQUE));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_ZENOBIAN_FORCES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 				}
 
 				if (known && !see_t && count)
@@ -5462,7 +5526,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 
 				for (k = 0; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DEMON, (PM_ALLOW_GROUP | p_mode | u_mode));
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DEMON, (PM_ALLOW_GROUP | u_mode));
 				}
 
 				if (known && !see_t && count)
@@ -5606,7 +5670,7 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 			if (thrown_spell < 32*4)
 			{
 				r_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
-				if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
+				if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 			}
 
 			/* Bolt or Ball */
@@ -5640,9 +5704,6 @@ bool monst_spell_monst(int m_idx, bool target_is_decoy)
 		if (p_ptr->action == ACTION_ELEMSCOPE) p_ptr->redraw |= (PR_MAP);
 
 		/* A spell was cast */
-		return (TRUE);
+		return TRUE;
 	}
-
-	/* No enemy found */
-	return (FALSE);
 }

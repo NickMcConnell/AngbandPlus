@@ -763,6 +763,13 @@ void check_quest_completion(monster_type *m_ptr)
 						msg_print(NULL);
 					}
 
+
+					if (i == QUEST_ARMORICA)
+					{
+						misc_event_flags |= EVENT_LIBERATION_OF_ARMORICA;
+						r_info[MON_RONWE].max_num = 1;
+					}
+
 					/* Finish the main quests without rewarding */
 					if (quest[i].flags & QUEST_FLAG_GUARDIAN)
 					{
@@ -1094,13 +1101,13 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 #endif
 		}
 
-		if (arena_object[p_ptr->arena_number][0] && arena_object[p_ptr->arena_number][1])
+		if (arena_info[p_ptr->arena_number].tval)
 		{
 			/* Get local object */
 			q_ptr = &forge;
 
 			/* Prepare to make a reward */
-			object_prep(q_ptr, lookup_kind(arena_object[p_ptr->arena_number][0], arena_object[p_ptr->arena_number][1]));
+			object_prep(q_ptr, lookup_kind(arena_info[p_ptr->arena_number].tval, arena_info[p_ptr->arena_number].sval));
 
 			apply_magic(q_ptr, object_level, AMF_OKAY | AMF_GOOD);
 
@@ -1302,6 +1309,36 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 		(void)drop_near(q_ptr, -1, y, x);
 	}
 
+	else if ((m_ptr->r_idx == MON_DEATH) && !p_ptr->inside_arena)
+	{
+		p_ptr->death_regen = 999;
+
+		/* Get local object */
+		q_ptr = &forge;
+
+		if (one_in_(2))
+		{
+			/* Prepare to make a Blade of Chaos */
+			object_prep(q_ptr, lookup_kind(TV_POLEARM, SV_DEATH_SCYTHE));
+
+			/* Drop it in the dungeon */
+			(void)drop_near(q_ptr, -1, y, x);
+		}
+		else
+		{
+			int effect = one_in_(7) ? 26 : 25;
+
+			/* Prepare a random tarot card */
+			if (!activate_tarot_power(effect))
+			{
+				/* Prepare a tarot card */
+				prepare_tarot_card(q_ptr, effect);
+
+				(void)inven_carry(q_ptr);
+			}
+		}
+	}
+
 	else if ((r_ptr->d_char == '\\') &&
 	    !monster_is_runeweapon(m_ptr->r_idx) && !p_ptr->inside_arena)
 	{
@@ -1413,7 +1450,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 	}
 
 	/* Mega-Hack -- drop "winner" treasures */
-	else
+	else if (!cloned)
 	{
 		if (m_ptr->r_idx == MON_DOLGARUA)
 		{
@@ -1842,7 +1879,7 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 			}
 		}
 	}
-	if ((r_ptr->flags7 & RF7_GUARDIAN) && (d_info[dungeon_type].final_guardian == m_ptr->r_idx))
+	if ((r_ptr->flags7 & RF7_GUARDIAN) && (d_info[dungeon_type].final_guardian == m_ptr->r_idx) && !cloned)
 	{
 		int k_idx = 447; /* Acquirement */;
 
@@ -1852,7 +1889,11 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 		if (d_info[dungeon_type].final_artifact)
 		{
 			int a_idx = d_info[dungeon_type].final_artifact;
+
 			artifact_type *a_ptr = &a_info[a_idx];
+
+			/* Hack */
+			if (a_idx == 199) a_idx += p_ptr->pelem;
 
 			if (a_ptr->cur_num == 0)
 			{
@@ -1989,9 +2030,9 @@ void monster_death(int m_idx, bool drop_item, bool is_stoned)
 		p_ptr->redraw |= (PR_TITLE);
 
 #ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "見事にTObandの勝利者となった！");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "見事にTOband2の勝利者となった！");
 #else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "become *WINNER* of TOband finely!");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "become *WINNER* of TOband2 finely!");
 #endif
 
 		/* Congratulations */
@@ -2048,11 +2089,12 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool force_damage)
 	return (dam);
 }
 
-static s32b get_exp_from_mon_aux(int dam, monster_type *m_ptr, s32b max_lev, u16b *exp_frac_ptr)
+static s32b get_exp_from_mon_aux(int dam, monster_type *m_ptr, s32b max_lev, u32b *exp_frac_ptr)
 {
-	s32b         div, new_exp, new_exp_frac;
+	s32b div, new_exp;
+	u32b new_exp_frac;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	int          monnum_penarty = 0;
+	int monnum_penarty = 0;
 
 	u32b m_exp;
 	u32b m_exp_h, m_exp_l;
@@ -3551,9 +3593,6 @@ static void target_set_prepare(int mode)
 		{
 			cave_type *c_ptr;
 
-			/* Require line of sight, unless "look" is "expanded" */
-			if (!expand_look && !player_has_los_bold(y, x)) continue;
-
 			/* Require "interesting" contents */
 			if (!target_set_accept(y, x)) continue;
 
@@ -3729,7 +3768,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 	char out_val[MAX_NLEN+80];
 	int tmp_len;
 
-#ifdef ALLOW_EASY_FLOOR
 	int floor_list[23], floor_num = 0;
 
 	/* Scan all objects in the grid */
@@ -3746,8 +3784,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 #endif
 		}
 	}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 	/* Hack -- under the player */
 	if ((y == py) && (x == px))
@@ -4032,8 +4068,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		}
 	}
 
-
-#ifdef ALLOW_EASY_FLOOR
 	if (floor_num)
 	{
 		int min_width = 0;
@@ -4156,8 +4190,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		/* End this grid */
 		/* return query; */
 	}
-#endif /* ALLOW_EASY_FLOOR */
-
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -4941,8 +4973,6 @@ bool get_aim_dir(int *dp)
 	/* Hack -- auto-target if requested */
 	if (use_old_target && target_okay()) dir = 5;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	if (repeat_pull(dp))
 	{
 		/* Confusion? */
@@ -4954,8 +4984,6 @@ bool get_aim_dir(int *dp)
 			dir = *dp;
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Ask until satisfied */
 	while (!dir)
@@ -5061,12 +5089,8 @@ p = "方向 ('5'でターゲットへ, '*'でターゲット再選択, ESCで中断)? ";
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 /*	repeat_push(dir); */
 	repeat_push(command_dir);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* A "valid" direction was entered */
 	return (TRUE);
@@ -5100,15 +5124,11 @@ bool get_rep_dir(int *dp, bool under)
 	/* Global direction */
 	dir = command_dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	if (repeat_pull(dp))
 	{
 		dir = *dp;
 /*		return (TRUE); */
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Get a direction */
 	while (!dir)
@@ -5218,12 +5238,8 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 /*	repeat_push(dir); */
 	repeat_push(command_dir);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -5240,15 +5256,11 @@ bool get_rep_dir2(int *dp)
 	/* Global direction */
 	dir = command_dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	if (repeat_pull(dp))
 	{
 		dir = *dp;
 /*		return (TRUE); */
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Get a direction */
 	while (!dir)
@@ -5305,12 +5317,8 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 /*	repeat_push(dir); */
 	repeat_push(command_dir);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -5675,7 +5683,7 @@ bool activate_tarot_power(int effect)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				/* Skip dead monsters */
-				if (!m_ptr->r_idx) continue;
+				if ((!m_ptr->r_idx) || (m_ptr->r_idx = MON_DEATH)) continue;
 
 				fear = FALSE;
 				mon_take_hit_mon(FALSE, i, dam, &fear, extract_note_dies(r_ptr), -1);
@@ -7193,10 +7201,10 @@ int modify_dam_by_elem(int a_who, int d_who, int dam, int typ, int mode)
 
 			if (!is_gun)
 			{
-				ra += fire_effect_table[is_bow][0][weather_level(WEATHER_RAIN)];
+				ra += fire_effect_table[(int)is_bow][0][weather_level(WEATHER_RAIN)];
 				if (ra > 200) ra = 200; else if (ra < 0) ra = 0;
 
-				ra += fire_effect_table[is_bow][1][weather_level(WEATHER_WIND)];
+				ra += fire_effect_table[(int)is_bow][1][weather_level(WEATHER_WIND)];
 				if (ra > 200) ra = 200; else if (ra < 0) ra = 0;
 			}
 		}
@@ -7255,10 +7263,8 @@ s16b choose_elem(void)
 {
 	int chosen_elem;
 
-#ifdef ALLOW_REPEAT
 	if (!(repeat_pull(&chosen_elem) && (chosen_elem >= MIN_ELEM) && (chosen_elem < ELEM_NUM)))
 	{
-#endif /* ALLOW_REPEAT */
 
 		/* Save screen */
 		screen_save();
@@ -7330,10 +7336,8 @@ s16b choose_elem(void)
 		/* Load screen */
 		screen_load();
 
-#ifdef ALLOW_REPEAT
 		repeat_push(chosen_elem);
 	}
-#endif /* ALLOW_REPEAT */
 
 	return (s16b)chosen_elem;
 }
@@ -7423,7 +7427,7 @@ bool can_choose_class(byte new_class, byte mode)
 			if (chaos_frame[ETHNICITY_GARGASTAN] < 100) return FALSE;
 			if (chaos_frame[ETHNICITY_BACRUM] < 100) return FALSE;
 			if (p_ptr->cexp_info[CLASS_SOLDIER].clev < 29) return FALSE;
-			if (p_ptr->cexp_info[CLASS_SOLDIER].clev < total_max_clev) return FALSE;
+			if (p_ptr->cexp_info[CLASS_SOLDIER].max_clev != total_max_clev) return FALSE;
 		}
 		else if (new_class == CLASS_GENERAL)
 		{
@@ -7449,6 +7453,13 @@ bool can_choose_class(byte new_class, byte mode)
 		{
 			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 34) return FALSE;
 			if (total_max_clev - p_ptr->cexp_info[CLASS_ARCHER].clev > 9) return FALSE;
+		}
+		else if (new_class == CLASS_MEDIUM)
+		{
+			if (p_ptr->cexp_info[CLASS_ARCHER].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_PRIEST].clev < 34) return FALSE;
+			if (p_ptr->cexp_info[CLASS_NINJA].max_clev > 0) return FALSE;
+			if (p_ptr->cexp_info[CLASS_WITCH].max_clev > 0) return FALSE;
 		}
 		break;
 

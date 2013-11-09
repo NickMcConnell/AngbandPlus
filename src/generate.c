@@ -1378,7 +1378,7 @@ static void build_arena(void)
 	j = xval;
 	cave[i][j].feat = FEAT_BLDG_HEAD + 2;
 	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-	player_place(i + 1, j);
+	player_place(i, j);
 }
 
 
@@ -1420,7 +1420,7 @@ static void arena_gen(void)
 
 	build_arena();
 
-	place_monster_aux(0, py + 5, px, arena_monsters[p_ptr->arena_number],
+	place_monster_aux(0, py + 5, px, arena_info[p_ptr->arena_number].r_idx,
 	    PM_NO_PET);
 }
 
@@ -1580,27 +1580,6 @@ static bool level_gen(cptr *why)
 	else return TRUE;
 }
 
-static byte extract_feeling(void)
-{
-	/* Hack -- no feeling in the town */
-	if (!dun_level) return 0;
-
-	/* Hack -- Have a special feeling sometimes */
-	if (good_item_flag && !preserve_mode) return 1;
-
-	if (rating > 100) return 2;
-	if (rating > 80) return 3;
-	if (rating > 60) return 4;
-	if (rating > 40) return 5;
-	if (rating > 30) return 6;
-	if (rating > 20) return 7;
-	if (rating > 10) return 8;
-	if (rating > 0) return 9;
-
-	return 10;
-}
-
-
 /*
  * Wipe all unnecessary flags after cave generation
  */
@@ -1651,6 +1630,9 @@ void clear_cave(void)
 	m_cnt = 0;
 
 
+	/* Pre-calc cur_num of pets in party_mon[] */
+	precalc_cur_num_of_pet();
+
 	/* Start with a blank cave */
 	for (i = 0; i < MAX_HGT; i++)
 	{
@@ -1668,15 +1650,6 @@ void clear_cave(void)
 
 	/* Reset the object generation level */
 	object_level = base_level;
-
-	/* Nothing special here yet */
-	good_item_flag = FALSE;
-
-	/* Nothing good here yet */
-	rating = 0;
-
-	/* Fill the arrays of floors and walls in the good proportions */
-	set_floor_and_wall(0);
 }
 
 
@@ -1706,8 +1679,6 @@ void generate_cave(void)
 
 		/* Clear and empty the cave */
 		clear_cave();
-
-		if ((d_info[dungeon_type].fill_type1 == FEAT_MAGMA_K) || (d_info[dungeon_type].fill_type2 == FEAT_MAGMA_K) || (d_info[dungeon_type].fill_type3 == FEAT_MAGMA_K)) rating += 40;
 
 		/* Build the arena -KMW- */
 		if (p_ptr->inside_arena)
@@ -1739,9 +1710,6 @@ void generate_cave(void)
 			okay = level_gen(&why);
 		}
 
-		/* Extract the feeling */
-		feeling = extract_feeling();
-
 		/* Prevent object over-flow */
 		if (o_max >= max_o_idx)
 		{
@@ -1769,37 +1737,6 @@ why = "モンスターが多すぎる";
 
 			/* Message */
 			okay = FALSE;
-		}
-
-		/* Mega-Hack -- "auto-scum" */
-		else if ((auto_scum) && (num < 100) &&
-		         !p_ptr->inside_quest &&
-		         !(d_info[dungeon_type].flags1 & DF1_BEGINNER) &&
-		         !p_ptr->enter_dungeon)
-		{
-			/* Require "goodness" */
-			if ((feeling > 9) ||
-			    ((dun_level >= 7) && (feeling > 8)) ||
-			    ((dun_level >= 15) && (feeling > 7)) ||
-			    ((dun_level >= 35) && (feeling > 6)) ||
-			    ((dun_level >= 70) && (feeling > 5)))
-			{
-				/* Give message to cheaters */
-				if (cheat_room || cheat_hear ||
-				    cheat_peek || cheat_xtra)
-				{
-					/* Message */
-#ifdef JP
-why = "退屈な階";
-#else
-					why = "boring level";
-#endif
-
-				}
-
-				/* Try again */
-				okay = FALSE;
-			}
 		}
 
 		/* Accept */

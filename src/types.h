@@ -292,8 +292,7 @@ struct monster_race
 
 	s16b extra;				/* Unused (for now) */
 
-	byte freq_inate;		/* Inate spell frequency */
-	byte freq_spell;		/* Other spell frequency */
+	byte freq_spell;		/* Spell frequency */
 
 	u32b flags1;			/* Flags 1 (general) */
 	u32b flags2;			/* Flags 2 (abilities) */
@@ -348,7 +347,6 @@ struct monster_race
 	byte r_drop_gold;		/* Max number of gold dropped at once */
 	byte r_drop_item;		/* Max number of item dropped at once */
 
-	byte r_cast_inate;		/* Max number of inate spells seen */
 	byte r_cast_spell;		/* Max number of other spells seen */
 
 	byte r_blows[4];		/* Number of times each blow type was seen */
@@ -642,24 +640,10 @@ struct monster_type
 
 	u32b exp;
 
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif /* WDT_TRACK_OPTIONS */
-
-#ifdef DRS_SMART_OPTIONS
-
 	u32b smart1;			/* Field for "smart_learn" */
 	u32b smart2;			/* Field for "smart_learn" */
 
-#endif /* DRS_SMART_OPTIONS */
-
+	s16b parent_m_idx;
 };
 
 
@@ -971,7 +955,7 @@ struct cexp_info_type
 	s32b max_max_cexp;	/* Max-Max class experience (Perm.) */
 	s32b max_cexp;		/* Max class experience */
 	s32b cexp;			/* Cur class experience */
-	u16b cexp_frac;		/* Cur class exp frac (times 2^16) */
+	u32b cexp_frac;		/* Cur class exp frac (times 2^16) */
 
 	s32b clev;			/* Class Level */
 	s32b max_clev;		/* Max Class Level */
@@ -1023,7 +1007,7 @@ struct player_type
 	s32b max_max_exp;	/* Max-Max experience (Perm.) */
 	s32b max_exp;		/* Max experience */
 	s32b exp;			/* Cur experience */
-	u16b exp_frac;		/* Cur exp frac (times 2^16) */
+	u32b exp_frac;		/* Cur exp frac (times 2^16) */
 
 	s32b lev;			/* Level */
 
@@ -1040,11 +1024,11 @@ struct player_type
 
 	s32b mhp;			/* Max hit pts */
 	s32b chp;			/* Cur hit pts */
-	u16b chp_frac;		/* Cur hit frac (times 2^16) */
+	u32b chp_frac;		/* Cur hit frac (times 2^16) */
 
 	s32b msp;			/* Max mana pts */
 	s32b csp;			/* Cur mana pts */
-	u16b csp_frac;		/* Cur mana frac (times 2^16) */
+	u32b csp_frac;		/* Cur mana frac (times 2^16) */
 
 	s32b max_plv;		/* Max Player Level */
 	s32b max_max_plv;	/* Max-Max Player Level (Perm.) */
@@ -1112,9 +1096,12 @@ struct player_type
 
 	u32b special_blow;	/* Learned special blow flags */
 
+	s32b realm_medium;
+
 	s16b word_recall;	  /* Word of recall counter */
 	s16b alter_reality;	  /* Alter reality counter */
 	s16b inhibit_flood;	  /* Counter inhibiting flood */
+	s16b death_regen;	  /* Death regenerate counter */
 	byte recall_dungeon;      /* Dungeon set to be recalled */
 
 	s16b energy_need;	  /* Energy needed for next move */
@@ -1187,6 +1174,9 @@ struct player_type
 	s16b decoy_y;             /* Decoy location on dungeon */
 	s16b decoy_x;
 
+	byte feeling;		/* Most recent dungeon feeling */
+	s32b feeling_turn;	/* The turn of the last dungeon feeling */
+
 
 	/*** Temporary fields ***/
 
@@ -1194,7 +1184,6 @@ struct player_type
 	bool leaving;			/* True if player is leaving */
 
 	byte exit_bldg;			/* Goal obtained in arena? -KMW- */
-	byte leftbldg;			/* did we just leave a special area? -KMW- */
 
 	bool leaving_dungeon;	/* True if player is leaving the dungeon */
 	bool teleport_town;
@@ -1210,11 +1199,13 @@ struct player_type
 
 	bool old_cumber_armor;
 	bool old_cumber_glove;
+	bool old_cumber_shield;
 	bool old_heavy_wield[2];
 	bool old_heavy_shoot;
 	s16b old_icky_wield[2];
 	bool old_riding_wield[2];
 	bool old_riding_ryoute;
+	bool old_bow_ryoute;
 	bool old_monlite;
 	bool old_skull_mask_hates;
 
@@ -1222,11 +1213,13 @@ struct player_type
 
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
+	bool cumber_shield;	/* Icky shield */
 	bool heavy_wield[2];	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
 	s16b icky_wield[2];	/* Icky weapon */
 	bool riding_wield[2];	/* Riding weapon */
 	bool riding_ryoute;	/* Riding weapon */
+	bool bow_ryoute;	/* Can't use hand for shoot */
 	bool monlite;
 	bool skull_mask_hates;
 
@@ -1336,6 +1329,7 @@ struct player_type
 	bool ogre_equip;	/* Full equipments of Ogre */
 	bool smell_equip;	/* Full equipments of Smell */
 	bool evil_equip;	/* Full equipments of Evil */
+	bool hurt_lite;
 
 	s16b to_dd[2];		/* Extra dice/sides */
 	s16b to_ds[2];
@@ -1415,7 +1409,6 @@ struct birther
 
 	char history[4][60];
 
-	byte quests;
 	bool quick_ok;
 };
 
@@ -1757,3 +1750,15 @@ typedef struct bonus_list_type
 	cptr desc[(A_MAX - 1) + OB_MAX + 1];
 }
 bonus_list_type;
+
+/*
+ * A structure type for arena entry
+ */
+typedef struct
+{
+	s16b r_idx; /* Monster (0 means victory prizing) */
+	byte tval;  /* tval of prize (0 means no prize) */
+	byte sval;  /* sval of prize */
+} arena_type;
+
+

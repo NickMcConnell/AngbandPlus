@@ -101,6 +101,8 @@ P:^_S27\r
 A:\e\e\\.9
 P:^_S28\r
 
+A:|
+P:^_S29\r
 
 #
 # Control-Keypad -- Directed tunneling

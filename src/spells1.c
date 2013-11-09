@@ -3660,7 +3660,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_QUESTOR) ||
 			    (r_ptr->flags3 & RF3_NO_CONF) ||
-			    (m_ptr->mflag2 & MFLAG_NOPET) ||
+			    (m_ptr->mflag2 & MFLAG2_NOPET) ||
 			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 5))
 			{
 				/* Memorize a flag */
@@ -3679,7 +3679,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 
 				obvious = FALSE;
 
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
@@ -3689,7 +3689,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = " hates you too much!";
 #endif
 
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else
 			{
@@ -3794,12 +3794,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				/* Attempt a saving throw */
 				else if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
 				    (r_ptr->flags1 & (RF1_UNIQUE)) ||
-				    (m_ptr->mflag2 & MFLAG_NOPET) ||
+				    (m_ptr->mflag2 & MFLAG2_NOPET) ||
 				    (p_ptr->cursed & TRC_AGGRAVATE) ||
 					 ((r_ptr->level+10) > randint1(dam)))
 				{
 					/* Resist */
-					if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+					if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 				}
 				else
 				{
@@ -4111,7 +4111,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_QUESTOR) ||
 			  (!(r_ptr->flags3 & RF3_UNDEAD)) ||
-			    (m_ptr->mflag2 & MFLAG_NOPET) ||
+			    (m_ptr->mflag2 & MFLAG2_NOPET) ||
 				 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 				/* No obvious effect */
@@ -4122,7 +4122,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 #endif
 
 				obvious = FALSE;
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
@@ -4132,7 +4132,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = " hates you too much!";
 #endif
 
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else
 			{
@@ -4172,7 +4172,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
 			  (!(r_ptr->flags3 & (RF3_ANIMAL))) ||
-			    (m_ptr->mflag2 & MFLAG_NOPET) ||
+			    (m_ptr->mflag2 & MFLAG2_NOPET) ||
 				 (r_ptr->flags3 & (RF3_NO_CONF)) ||
 				 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
@@ -4191,7 +4191,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 #endif
 
 				obvious = FALSE;
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
@@ -4201,7 +4201,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = " hates you too much!";
 #endif
 
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else
 			{
@@ -4230,7 +4230,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
 			  (!(r_ptr->d_char == 'H')) ||
-			    (m_ptr->mflag2 & MFLAG_NOPET) ||
+			    (m_ptr->mflag2 & MFLAG2_NOPET) ||
 				 (r_ptr->flags3 & (RF3_NO_CONF)) ||
 				 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
@@ -4249,7 +4249,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 #endif
 
 				obvious = FALSE;
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
@@ -4259,7 +4259,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = " hates you too much!";
 #endif
 
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else
 			{
@@ -4288,7 +4288,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
 			  (!(r_ptr->flags3 & (RF3_DRAGON))) ||
-			    (m_ptr->mflag2 & MFLAG_NOPET) ||
+			    (m_ptr->mflag2 & MFLAG2_NOPET) ||
 				 (r_ptr->flags3 & (RF3_NO_CONF)) ||
 				 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
@@ -4307,7 +4307,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 #endif
 
 				obvious = FALSE;
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else if (p_ptr->cursed & TRC_AGGRAVATE)
 			{
@@ -4317,7 +4317,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = " hates you too much!";
 #endif
 
-				if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
 			}
 			else
 			{
@@ -4348,7 +4348,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 			else
 			{
-				if ((r_ptr->level > randint0(dam)) || (m_ptr->mflag2 & MFLAG_NOGENO))
+				if ((r_ptr->level > randint0(dam)) || (m_ptr->mflag2 & MFLAG2_NOGENO))
 				{
 					dam = 0;
 					angry = TRUE;
@@ -4387,7 +4387,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = "is unaffected!";
 #endif
 				get_angry = TRUE;
-				if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+				if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 			}
 			break;
 		}
@@ -4418,7 +4418,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 			}
 			else
 			{
-				if ((r_ptr->level > randint0(dam)) || (m_ptr->mflag2 & MFLAG_NOGENO))
+				if ((r_ptr->level > randint0(dam)) || (m_ptr->mflag2 & MFLAG2_NOGENO))
 				{
 					dam = 0;
 					angry = TRUE;
@@ -4457,7 +4457,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				note = "is unaffected!";
 #endif
 				get_angry = TRUE;
-				if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+				if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 			}
 			break;
 		}
@@ -4827,6 +4827,50 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 				dual_drain = TRUE;
 			}
 
+			break;
+		}
+
+		/* Capture monster */
+		case GF_CAPTURE:
+		{
+			if (is_pet(m_ptr) && !m_ptr->parent_m_idx &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)) && !(r_ptr->flags7 & (RF7_NAZGUL)) && !(r_ptr->flags7 & (RF7_UNIQUE2)))
+			{
+#ifdef JP
+				msg_format("%sをカードにした！",m_name);
+#else
+				msg_format("You capture %^s!", m_name);
+#endif
+				cap_mon = m_ptr->r_idx;
+				cap_mspeed = m_ptr->mspeed;
+				cap_hp = m_ptr->hp;
+				cap_maxhp = m_ptr->max_maxhp;
+				cap_nickname = m_ptr->nickname; /* Quark transfer */
+				if (c_ptr->m_idx == p_ptr->riding)
+				{
+					if (rakuba(-1, FALSE))
+					{
+#ifdef JP
+						msg_print("地面に落とされた。");
+#else
+						msg_format("You have fallen from %s.", m_name);
+#endif
+					}
+				}
+
+				delete_monster_idx(c_ptr->m_idx);
+
+				return (TRUE);
+			}
+			else
+			{
+#ifdef JP
+				msg_format("%sには効果がなかった。",m_name);
+#else
+				msg_format("%^s is unaffected.", m_name);
+#endif
+				skipped = TRUE;
+			}
 			break;
 		}
 
@@ -5629,7 +5673,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				(void)set_blind(p_ptr->blind + randint1(5) + 2);
 			}
-			if ((prace_is_(RACE_GREMLIN)) || (p_ptr->pclass == CLASS_VAMPIRE))
+			if (p_ptr->hurt_lite)
 			{
 				dam = dam * 4 / 3;
 			}
@@ -5723,40 +5767,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				dam *= 6; dam /= (randint1(4) + 7);
 			}
-			else if (!IS_MULTISHADOW(0))
-			{
-				if (p_ptr->hold_life && (randint0(100) < 75))
-				{
-#ifdef JP
-					msg_print("しかし自己の生命力を守りきった！");
-#else
-					msg_print("You keep hold of your life force!");
-#endif
-
-				}
-				else if (p_ptr->hold_life)
-				{
-#ifdef JP
-					msg_print("生命力が少し体から抜け落ちた気がする！");
-#else
-					msg_print("You feel your life slipping away!");
-#endif
-
-					lose_class_exp(200 + (cexp_ptr->cexp / 1000) * MON_DRAIN_LIFE);
-					lose_racial_exp(200 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
-				}
-				else
-				{
-#ifdef JP
-					msg_print("生命力が体から吸い取られた気がする！");
-#else
-					msg_print("You feel your life draining away!");
-#endif
-
-					lose_class_exp(200 + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE);
-					lose_racial_exp(200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
-				}
-			}
+			else if (!IS_MULTISHADOW(0)) drain_exp(200 + (p_ptr->exp / 100), 200 + (cexp_ptr->cexp / 100), 200 + (p_ptr->exp / 1000), 200 + (cexp_ptr->cexp / 1000), 75);
 
 			if (prace_is_(RACE_GHOST) && !IS_MULTISHADOW(0))
 			{
@@ -7433,23 +7444,38 @@ static bool do_disintegration(int by, int bx, int y, int x)
  */ 
 void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, u16b *gm, int *pgm_rad, int rad, int y1, int x1, int y2, int x2, bool disint_ball, bool real_breath)
 {
-	int by, bx;
+	int by = y1;
+	int bx = x1;
 	int brad = 0;
+	int brev = rad * rad / dist;
 	int bdis = 0;
 	int cdis;
-	
-	/* Not done yet */
-	bool done = FALSE;
-	
-	by = y1;
-	bx = x1;
-	
-	while (bdis <= distance(y1, x1, y2, x2) + rad)
+	int path_n = 0;
+	int tdis = distance(y1, x1, y2, x2);
+	int mdis = tdis + rad;
+
+	while (bdis <= mdis)
 	{
+		int x, y;
+
+		if ((0 < dist) && (path_n < dist))
+		{
+			int ny = GRID_Y(path_g[path_n]);
+			int nx = GRID_X(path_g[path_n]);
+			int nd = distance(ny, nx, y1, x1);
+
+			/* Get next base point */
+			if (bdis >= nd)
+			{
+				by = ny;
+				bx = nx;
+				path_n++;
+			}
+		}
+
 		/* Travel from center outward */
 		for (cdis = 0; cdis <= brad; cdis++)
 		{
-			int y,x;
 			/* Scan the maximal blast area of radius "cdis" */
 			for (y = by - cdis; y <= by + cdis; y++)
 			{
@@ -7495,27 +7521,11 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, u16b 
 		/* Encode some more "radius" info */
 		gm[bdis + 1] = *pgrids;
 
-		/* Stop moving */
-		if ((by == y2) && (bx == x2)) done = TRUE;
-
-		/* Finish */
-		if (done)
-		{
-			bdis++;
-			continue;
-		}
-
-		/* Ripple outwards */
-/*		mmove2(&by, &bx, y1, x1, y2, x2); */
-
-		by = GRID_Y(path_g[bdis]);
-		bx = GRID_X(path_g[bdis]);
+		/* Increase the size */
+		brad = rad * (path_n + brev) / (dist + brev);
 
 		/* Find the next ripple */
 		bdis++;
-
-		/* Increase the size */
-		brad = (rad * bdis) / dist;
 	}
 
 	/* Store the effect size */

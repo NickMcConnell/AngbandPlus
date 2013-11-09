@@ -27,11 +27,11 @@ cptr copyright[5] =
 
 
 int max_macrotrigger = 0;
-char *macro_template = NULL;
-char *macro_modifier_chr;
-char *macro_modifier_name[MAX_MACRO_MOD];
-char *macro_trigger_name[MAX_MACRO_TRIG];
-char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
+cptr macro_template = NULL;
+cptr macro_modifier_chr;
+cptr macro_modifier_name[MAX_MACRO_MOD];
+cptr macro_trigger_name[MAX_MACRO_TRIG];
+cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 /* 
  *  List for auto-picker/destroyer entries
@@ -116,8 +116,10 @@ s16b monster_level;		/* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
 
 s32b turn;				/* Current game turn */
+s32b turn_limit;		/* Limit of game turn */
 s32b dungeon_turn;			/* Game turn in dungeon */
-s32b old_turn;			/* Turn when level began (feelings) */
+s32b dungeon_turn_limit;	/* Limit of game turn in dungeon */
+s32b old_turn;			/* Turn when level began */
 s32b old_battle;
 
 bool use_sound;			/* The "sound" mode is enabled */
@@ -189,7 +191,6 @@ bool stack_force_costs;		/* Merge discounts when stacking */
 
 bool show_labels;			/* Show labels in object listings */
 bool show_weights;			/* Show weights in object listings */
-bool show_choices;			/* Show choices in certain sub-windows */
 
 bool ring_bell;				/* Ring the bell (on errors, etc) */
 
@@ -201,7 +202,6 @@ bool show_item_graph;
 bool find_ignore_stairs;	/* Run past stairs */
 bool find_ignore_doors;		/* Run through open doors */
 bool find_cut;				/* Run past known corners */
-bool find_examine;			/* Run into potential corners */
 
 bool disturb_move;			/* Disturb whenever any monster moves */
 bool disturb_near;			/* Disturb whenever viewable monster moves */
@@ -210,7 +210,6 @@ bool disturb_panel;			/* Disturb whenever map panel changes */
 bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
 
-bool alert_hitpoint;		/* Alert user to critical hitpoints */
 bool disturb_trap_detect;       /* Disturb when leaving trap detected area */
 bool alert_trap_detect;         /* Alert when leaving trap detected area */
 bool last_words;		/* Get last words upon dying */
@@ -218,10 +217,8 @@ bool over_exert;
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
-bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
 bool display_mutations;		/* Skip mutations screen even if we have it */
-bool plain_descriptions;	/* Plain object descriptions */
 bool confirm_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_quest;		/* Prompt before staircases... */
 bool confirm_wear;		/* Confirm before putting on known cursed items */
@@ -233,11 +230,6 @@ bool disturb_pets;		/* Pets moving nearby disturb us */
 
 bool manual_haggle;			/* Auto-haggle in stores */
 
-bool auto_scum;				/* Auto-scum for good levels */
-
-bool stack_allow_items;		/* Allow weapons and armor to stack */
-
-bool expand_look;			/* Expand the power of the look command */
 bool expand_list;			/* Expand the power of the list commands */
 
 bool view_perma_grids;		/* Map remembers all perma-lit grids */
@@ -257,7 +249,6 @@ bool smart_cheat;			/* Monsters exploit player weaknesses */
 
 /* Option Set 4 -- Efficiency */
 
-bool view_reduce_lite;		/* Reduce lite-radius when running */
 bool view_reduce_view;		/* Reduce view-radius in town */
 
 bool check_abort;			/* Avoid checking for user abort */
@@ -286,7 +277,6 @@ bool plain_pickup;
 
 bool always_show_list;
 bool powerup_home;
-bool change_numeral;
 bool allow_debug_opts;   /* Allow use of debug/cheat options */
 
 /* Cheating options */
@@ -314,11 +304,6 @@ s16b autosave_freq;     /* Autosave frequency */
 /*
  * Dungeon variables
  */
-
-byte feeling;			/* Most recent feeling */
-s16b rating;			/* Level's current rating */
-
-bool good_item_flag;		/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
@@ -492,7 +477,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"TOband",
+	"TOband2",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -951,17 +936,11 @@ bool (*get_obj_num_hook)(int k_idx);
 bool monk_armour_aux;
 bool monk_notify_aux;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
 bool easy_open;
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
 bool easy_disarm;
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
-#ifdef ALLOW_EASY_FLOOR /* TNB */
 bool easy_floor;
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
 bool use_command;
 bool center_player;
@@ -1111,13 +1090,19 @@ bool can_save = FALSE;        /* Game can be saved */
 bool stop_the_time_monster;
 bool stop_the_time_player;
 
+int cap_mon;
+int cap_mspeed;
+int cap_hp;
+int cap_maxhp;
+u16b cap_nickname;
+
 int pet_t_m_idx;
 int riding_t_m_idx;
 
 s16b kubi_r_idx[MAX_KUBI];
 s16b today_mon;
 
-monster_type party_mon[21];
+monster_type party_mon[MAX_PARTY_MON];
 
 bool write_level;
 

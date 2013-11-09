@@ -53,7 +53,9 @@
 ?:[EQU $QUEST_NUMBER 12]
 %:q000natu.txt
 
-# Quest #13 is still unfinished
+# Death challenge
+?:[EQU $QUEST_NUMBER 13]
+%:q_Death13.txt
 
 # Warg problem
 ?:[EQU $QUEST_NUMBER 14]

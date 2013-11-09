@@ -559,35 +559,6 @@ static void do_cmd_quaff_potion_aux(int item)
 	{
 		switch (q_ptr->sval)
 		{
-#ifdef JP
-		/* 飲みごたえをオリジナルより細かく表現 */
-		case SV_POTION_WATER:
-			msg_print("口の中がさっぱりした。");
-			msg_print("のどの渇きが少しおさまった。");
-			ident = TRUE;
-			break;
-
-		case SV_POTION_APPLE_JUICE:
-			msg_print("甘くてサッパリとしていて、とてもおいしい。");
-			msg_print("のどの渇きが少しおさまった。");
-			ident = TRUE;
-			break;
-
-		case SV_POTION_SLIME_MOLD:
-			msg_print("なんとも不気味な味だ。");
-			msg_print("のどの渇きが少しおさまった。");
-			ident = TRUE;
-			break;
-
-#else
-		case SV_POTION_WATER:
-		case SV_POTION_APPLE_JUICE:
-		case SV_POTION_SLIME_MOLD:
-			msg_print("You feel less thirsty.");
-			ident = TRUE;
-			break;
-#endif
-
 		case SV_POTION_SLOWNESS:
 			if (set_slow(randint1(25) + 15, FALSE)) ident = TRUE;
 			break;
@@ -3643,6 +3614,7 @@ static void activate_bladeturner(int dir)
 static void do_cmd_activate_aux(int item)
 {
 	int         k, dir, lev, chance, fail;
+	int vit = p_ptr->stat_use[A_CON];
 	object_type *o_ptr;
 	bool success;
 
@@ -4501,8 +4473,6 @@ static void do_cmd_activate_aux(int item)
 							do_cmd_write_nikki(NIKKI_RECALL, 0, buf);
 						}
 
-						prepare_change_floor_mode(CFM_CLEAR_ALL);
-
 						back_from_heaven = TRUE;
 						p_ptr->leaving = TRUE;
 					}
@@ -4553,7 +4523,7 @@ static void do_cmd_activate_aux(int item)
 						do_cmd_write_nikki(NIKKI_RECALL, 0, buf);
 					}
 
-					prepare_change_floor_mode(CFM_RAND_PLACE | CFM_CLEAR_ALL);
+					prepare_change_floor_mode(CFM_RAND_PLACE);
 
 					p_ptr->leaving = TRUE;
 				}
@@ -4993,6 +4963,67 @@ static void do_cmd_activate_aux(int item)
 				o_ptr->timeout = 200;
 				break;
 			}
+
+			case ART_AMU_FIRE:
+			{
+#ifdef JP
+				msg_print("アミュレットが赤い光に包まれた...");
+#else
+				msg_print("Your amulet is coverd in red light...");
+#endif
+
+				inc_area_elem(0, ELEM_FIRE, 99, 5, FALSE);
+
+				(void)summon_god(GF_PURE_FIRE, randint1(vit * 2) + vit * 5);
+				o_ptr->timeout = 300;
+				break;
+			}
+
+			case ART_AMU_AQUA:
+			{
+#ifdef JP
+				msg_print("アミュレットが青い光に包まれた...");
+#else
+				msg_print("Your amulet is coverd in blue light...");
+#endif
+
+				inc_area_elem(0, ELEM_AQUA, 99, 5, FALSE);
+
+				(void)summon_god(GF_PURE_AQUA, randint1(vit * 2) + vit * 5);
+				o_ptr->timeout = 300;
+				break;
+			}
+
+			case ART_AMU_EARTH:
+			{
+#ifdef JP
+				msg_print("アミュレットが黄色い光に包まれた...");
+#else
+				msg_print("Your amulet is coverd in yellow light...");
+#endif
+
+				inc_area_elem(0, ELEM_EARTH, 99, 5, FALSE);
+
+				(void)summon_god(GF_PURE_EARTH, randint1(vit * 2) + vit * 5);
+				o_ptr->timeout = 300;
+				break;
+			}
+
+			case ART_AMU_WIND:
+			{
+#ifdef JP
+				msg_print("アミュレットが緑の光に包まれた...");
+#else
+				msg_print("Your amulet is coverd in green light...");
+#endif
+
+				inc_area_elem(0, ELEM_WIND, 99, 5, FALSE);
+
+				(void)summon_god(GF_PURE_WIND, randint1(vit * 2) + vit * 5);
+				o_ptr->timeout = 300;
+				break;
+			}
+
 		}
 
 		/* Window stuff */
@@ -5101,7 +5132,7 @@ static void do_cmd_activate_aux(int item)
 				break;
 			case EGO_RING_ACID_BOLT:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(5, 8));
+				fire_bolt(GF_ACID, dir, damroll(5, 8));
 				o_ptr->timeout = randint0(6) + 6;
 				break;
 			case EGO_RING_MANA_BOLT:
@@ -5482,6 +5513,147 @@ static void do_cmd_activate_aux(int item)
 		return;
 	}
 
+	else if (o_ptr->tval == TV_TRUMP)
+	{
+		if(!o_ptr->pval)
+		{
+			bool old_target_pet = target_pet;
+			target_pet = TRUE;
+			if (!get_aim_dir(&dir))
+			{
+				target_pet = old_target_pet;
+				return;
+			}
+			target_pet = old_target_pet;
+
+			if(fire_ball(GF_CAPTURE, dir, 0, 0, FALSE))
+			{
+				o_ptr->pval = cap_mon;
+				o_ptr->xtra3 = cap_mspeed;
+				o_ptr->xtra4 = cap_hp;
+				o_ptr->xtra5 = cap_maxhp;
+				if (cap_nickname)
+				{
+					cptr t;
+					char *s;
+					char buf[80] = "";
+
+					if (o_ptr->inscription)
+						strcpy(buf, quark_str(o_ptr->inscription));
+					s = buf;
+					for (s = buf;*s && (*s != '#'); s++)
+					{
+#ifdef JP
+						if (iskanji(*s)) s++;
+#endif
+					}
+					*s = '#';
+					s++;
+#ifdef JP
+ /*nothing*/
+#else
+					*s++ = '\'';
+#endif
+					t = quark_str(cap_nickname);
+					while (*t)
+					{
+						*s = *t;
+						s++;
+						t++;
+					}
+#ifdef JP
+ /*nothing*/
+#else
+					*s++ = '\'';
+#endif
+					*s = '\0';
+					o_ptr->inscription = quark_add(buf);
+				}
+			}
+		}
+		else
+		{
+			bool success = FALSE;
+			if (!get_rep_dir2(&dir)) return;
+			if (monster_can_enter(py + ddy[dir], px + ddx[dir], &r_info[o_ptr->pval]))
+			{
+				if (place_monster_aux(0, py + ddy[dir], px + ddx[dir], o_ptr->pval, (PM_FORCE_PET)))
+				{
+					if (o_ptr->xtra3) m_list[hack_m_idx_ii].mspeed = o_ptr->xtra3;
+					if (o_ptr->xtra5) m_list[hack_m_idx_ii].max_maxhp = o_ptr->xtra5;
+					if (o_ptr->xtra4) m_list[hack_m_idx_ii].hp = o_ptr->xtra4;
+					m_list[hack_m_idx_ii].maxhp = m_list[hack_m_idx_ii].max_maxhp;
+					if (o_ptr->inscription)
+					{
+						char buf[80];
+						cptr t;
+#ifndef JP
+						bool quote = FALSE;
+#endif
+
+						t = quark_str(o_ptr->inscription);
+						for (t = quark_str(o_ptr->inscription);*t && (*t != '#'); t++)
+						{
+#ifdef JP
+							if (iskanji(*t)) t++;
+#endif
+						}
+						if (*t)
+						{
+							char *s = buf;
+							t++;
+#ifdef JP
+							/* nothing */
+#else
+							if (*t =='\'')
+							{
+								t++;
+								quote = TRUE;
+							}
+#endif
+							while(*t)
+							{
+								*s = *t;
+								t++;
+								s++;
+							}
+#ifdef JP
+							/* nothing */
+#else
+							if (quote && *(s-1) =='\'')
+								s--;
+#endif
+							*s = '\0';
+							m_list[hack_m_idx_ii].nickname = quark_add(buf);
+							t = quark_str(o_ptr->inscription);
+							s = buf;
+							while(*t && (*t != '#'))
+							{
+								*s = *t;
+								t++;
+								s++;
+							}
+							*s = '\0';
+							o_ptr->inscription = quark_add(buf);
+						}
+					}
+					o_ptr->pval = 0;
+					o_ptr->xtra3 = 0;
+					o_ptr->xtra4 = 0;
+					o_ptr->xtra5 = 0;
+					success = TRUE;
+				}
+			}
+			if (!success)
+#ifdef JP
+				msg_print("おっと、解放に失敗した。");
+#else
+				msg_print("Oops.  You failed to release your pet.");
+#endif
+		}
+		return;
+	}
+
 	/* Mistake */
 #ifdef JP
 	msg_print("おっと、このアイテムは始動できない。");
@@ -5699,7 +5871,7 @@ s = "使えるものがありません。";
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			(void)do_cmd_fire_aux(item, &inventory[INVEN_BOW], 0, FALSE);
+			(void)do_cmd_fire_aux(item, &inventory[INVEN_BOW], DCFA_NONE, 0, 0, 0, FALSE);
 			break;
 		}
 

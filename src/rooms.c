@@ -1843,7 +1843,7 @@ static cptr get_prep_func_result(vault_aux_type *n_ptr)
  * "appropriate" non-unique monsters for the nest.
  *
  * Note that the "get_mon_num()" function may (rarely) fail, in which
- * case the nest will be empty, and will not affect the level rating.
+ * case the nest will be empty.
  *
  * Note that "monster nests" will never contain "unique" monsters.
  */
@@ -2001,15 +2001,6 @@ static void build_type5(int by0, int bx0, bool pit)
 	}
 
 
-	/* Increase the level rating */
-	rating += 10;
-
-	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
-	if ((dun_level <= 40) && (randint1(dun_level * dun_level + 50) < 300))
-	{
-		good_item_flag = TRUE;
-	}
-
 	/* Place some monsters */
 	for (y = yval - 2; y <= yval + 2; y++)
 	{
@@ -2084,7 +2075,7 @@ static vault_aux_type pit_types[] =
  * "appropriate" non-unique monsters for the pit.
  *
  * Note that the "get_mon_num()" function may (rarely) fail, in which case
- * the pit will be empty, and will not effect the level rating.
+ * the pit will be empty.
  *
  * Note that "monster pits" will never contain "unique" monsters.
  */
@@ -2271,15 +2262,6 @@ static void build_type6(int by0, int bx0, bool nest)
 			/* Message */
 			msg_print(r_name + r_info[what[i]].name);
 		}
-	}
-
-	/* Increase the level rating */
-	rating += 10;
-
-	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-	if ((dun_level <= 40) && (randint1(dun_level * dun_level + 50) < 300))
-	{
-		good_item_flag = TRUE;
 	}
 
 	/* Top and bottom rows */
@@ -2673,16 +2655,6 @@ static void build_type7(int by0, int bx0)
 	/* Message */
 	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
 
-	/* Boost the rating */
-	rating += v_ptr->rat;
-
-	/* (Sometimes) Cause a special feeling */
-	if ((dun_level <= 50) ||
-		(randint1((dun_level - 40) * (dun_level - 40) + 50) < 400))
-	{
-		good_item_flag = TRUE;
-	}
-
 	/* Hack -- Build the vault */
 	build_vault(yval, xval, v_ptr->hgt, v_ptr->wid,
 	            v_text + v_ptr->text, xoffset, yoffset, transno);
@@ -2772,16 +2744,6 @@ static void build_type8(int by0, int bx0)
 
 	/* Message */
 	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
-
-	/* Boost the rating */
-	rating += v_ptr->rat;
-
-	/* (Sometimes) Cause a special feeling */
-	if ((dun_level <= 50) ||
-	    (randint1((dun_level - 40) * (dun_level - 40) + 50) < 400))
-	{
-		good_item_flag = TRUE;
-	}
 
 	/* Hack -- Build the vault */
 	build_vault(yval, xval, v_ptr->hgt, v_ptr->wid,
@@ -5074,16 +5036,6 @@ static void build_type10(int by0, int bx0)
 	/* Allocate in room_map.  If will not fit, exit */
 	if (!room_alloc(xsize + 1, ysize + 1, FALSE, by0, bx0, &x0, &y0)) return;
 
-	/* Boost the rating- higher than lesser vaults and lower than greater vaults */
-	rating += 10;
-
-	/* (Sometimes) Cause a special feeling */
-	if ((dun_level <= 50) ||
-	    (randint1((dun_level - 40) * (dun_level - 40) + 1) < 400))
-	{
-		good_item_flag = TRUE;
-	}
-
 	/* Select type of vault */
 #ifdef ALLOW_CAVERNS_AND_LAKES
 	vtype = randint1(15);
@@ -5307,7 +5259,7 @@ static bool vault_aux_trapped_pit(int r_idx)
  * "appropriate" non-unique monsters for the pit.
  *
  * Note that the "get_mon_num()" function may (rarely) fail, in which case
- * the pit will be empty, and will not effect the level rating.
+ * the pit will be empty.
  *
  * Note that "monster pits" will never contain "unique" monsters.
  */
@@ -5552,16 +5504,6 @@ static void build_type13(int by0, int bx0)
 		}
 	}
 
-	/* Increase the level rating */
-	rating += 20;
-
-	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-	if ((dun_level <= 40) && (randint1(dun_level * dun_level + 50) < 300))
-	{
-		good_item_flag = TRUE;
-	}
-
-
 	for (i = 0; placing[i][2] >= 0; i++)
 	{
 		y = yval + placing[i][0];
@@ -5643,8 +5585,9 @@ static void build_type14(int by0, int bx0)
 		trap = FEAT_TRAP_ARMAGEDDON;
 
 	/* Place a special trap */
-	cave[yval][xval].mimic = cave[yval][xval].feat;
-	cave[yval][xval].feat = trap;
+	c_ptr = &cave[rand_spread(yval, ysize/4)][rand_spread(xval, xsize/4)];
+	c_ptr->mimic = c_ptr->feat;
+	c_ptr->feat = trap;
 
 	/* Message */
 	if (cheat_room)

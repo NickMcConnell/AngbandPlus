@@ -13,8 +13,6 @@
 #include "angband.h"
 
 
-#ifdef DRS_SMART_OPTIONS
-
 /*
  * And now for Intelligent monster attacks (including spells).
  *
@@ -459,8 +457,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 	(*f6p) = f6;
 	(*fap) = fa;
 }
-
-#endif /* DRS_SMART_OPTIONS */
 
 
 /*
@@ -1685,7 +1681,7 @@ bool mspell_check_path(monster_type *m_ptr, int *yp, int *xp, int dist,
  */
 bool make_attack_spell(int m_idx)
 {
-	int             k, chance, thrown_spell = 0, rlev, failrate;
+	int             k, thrown_spell = 0, rlev, failrate;
 	u16b            spell[96], num = 0;
 	u32b            f4, f5, f6, fa;
 	monster_type    *m_ptr = &m_list[m_idx];
@@ -1726,18 +1722,9 @@ bool make_attack_spell(int m_idx)
 	if (m_ptr->mflag & MFLAG_NICE) return (FALSE);
 	if (!is_hostile(m_ptr)) return (FALSE);
 
-	/* Hack -- Extract the spell probability */
-	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
-
-	/* Not allowed to cast spells */
-	if (!chance) return (FALSE);
-
-
-	/* Only do spells occasionally */
-	if (randint0(100) >= chance) return (FALSE);
 
 	/* Sometimes forbid inate attacks (breaths) */
-	if (randint0(100) >= (chance * 2)) no_inate = TRUE;
+	if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
 
 	/* XXX XXX XXX Handle "track_target" option (?) */
 
@@ -3819,8 +3806,6 @@ bool make_attack_spell(int m_idx)
 		/* RF6_SPECIAL */
 		case 160+7:
 		{
-			int k;
-
 			disturb(1, 0);
 			switch (m_ptr->r_idx)
 			{
@@ -4302,25 +4287,67 @@ bool make_attack_spell(int m_idx)
 				"minions" : "kin"));
 #endif
 
-			if (m_ptr->r_idx == MON_THORONDOR ||
-				m_ptr->r_idx == MON_GWAIHIR ||
-				m_ptr->r_idx == MON_MENELDOR)
+			switch (m_ptr->r_idx)
 			{
-				int num = 4 + randint1(3);
-				for (k = 0; k < num; k++)
+			case MON_THORONDOR:
+			case MON_GWAIHIR:
+			case MON_MENELDOR:
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					int num = 4 + randint1(3);
+					for (k = 0; k < num; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					}
 				}
-			}
-			else
-			{
-				summon_kin_type = r_ptr->d_char; /* Big hack */
+				break;
+			case MON_ELEM_L_FIRE:
+				{
+					int num = 4 + randint1(3);
+					for (k = 0; k < num; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_FIRE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					}
+				}
+				break;
+			case MON_ELEM_L_AQUA:
+				{
+					int num = 4 + randint1(3);
+					for (k = 0; k < num; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_AQUA, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					}
+				}
+				break;
+			case MON_ELEM_L_EARTH:
+				{
+					int num = 4 + randint1(3);
+					for (k = 0; k < num; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_EARTH, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					}
+				}
+				break;
+			case MON_ELEM_L_WIND:
+				{
+					int num = 4 + randint1(3);
+					for (k = 0; k < num; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_WIND, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					}
+				}
+				break;
+			default:
+				{
+					summon_kin_type = r_ptr->d_char;
 
-				for (k = 0; k < 4; k++)
-				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, PM_ALLOW_GROUP);
+					for (k = 0; k < 4; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, (PM_ALLOW_GROUP));
+					}
 				}
+				break;
 			}
+
 #ifdef JP
 			if (blind && count) msg_print("多くのものが間近に現れた音がする。");
 #else
@@ -5460,7 +5487,7 @@ bool make_attack_spell(int m_idx)
 		if (thrown_spell < 32 * 4)
 		{
 			r_ptr->r_flags4 |= (1L << (thrown_spell - 32 * 3));
-			if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
+			if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 		}
 
 		/* Bolt or Ball */

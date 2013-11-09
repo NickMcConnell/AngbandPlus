@@ -7,8 +7,8 @@ Q:$18:N:Water Cave
 Q:18:N:¸Ð¤ÎÆ¶·¢
 
 # type:num_mon:cur_num:max_num:level:r_index:k_idx
-Q:$18:Q:4:0:0:0:50:0:0:0:2
-Q:18:Q:4:0:0:0:50:0:0:0:2
+Q:$18:Q:4:0:0:0:50:0:0:0:10
+Q:18:Q:4:0:0:0:50:0:0:0:10
 
 # Description for quest
 ?:[LEQ $QUEST18 2]

@@ -225,6 +225,8 @@ B:$12:A:1:See Healers:100:h:28:0
 B:12:A:1:治療家に会う:100:h:28:0
 B:$12:A:2:Donate money:0:d:55:0
 B:12:A:2:お金を寄付する:0:d:55:0
+B:$12:A:3:Join White Knghts:0:j:57:0
+B:12:A:3:ゼノビア騎士団に入団する:0:j:57:0
 
 B:$13:N:Transportation Tower:Colleuse:Ghost:1
 B:13:N:転送術の塔:コレウス:ゴースト:1

@@ -269,7 +269,7 @@
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(MACINTOSH)
+#if defined(MACINTOSH) || defined(MACH_O_CARBON)
 # define FILE_TYPE_TEXT 'TEXT'
 # define FILE_TYPE_DATA 'DATA'
 # define FILE_TYPE_SAVE 'SAVE'
@@ -325,11 +325,11 @@
 
 #ifdef JP
 # if defined(EUC)
-#  define iskanji(x) ((((int)(x) & 0xff) >= 0xa1 && ((int)(x) & 0xff) <= 0xfe) || ((int)(x) & 0xff) == 0x8e)
+#  define iskanji(x) (((unsigned char)(x) >= 0xa1 && (unsigned char)(x) <= 0xfe) || (unsigned char)(x) == 0x8e)
 #  define iskana(x)  (0)
 # elif defined(SJIS)
-#  define iskanji(x)  ((0x81<=((int)(x) & 0xff) && ((int)(x) & 0xff)<=0x9f)|| (0xe0<=((int)(x) & 0xff) && ((int)(x) & 0xff)<=0xfc))
-#  define iskana(x)  ((((int)(x) & 0xff) >= 0xA0) && (((int)(x) & 0xff)<= 0xDF))
+#  define iskanji(x) ((0x81 <= (unsigned char)(x) && (unsigned char)(x) <= 0x9f) || (0xe0 <= (unsigned char)(x) && (unsigned char)(x) <= 0xfc))
+#  define iskana(x)  (((unsigned char)(x) >= 0xA0) && ((unsigned char)(x) <= 0xDF))
 # elif defined(MSDOS)
 #  include <jctype.h>
 # else

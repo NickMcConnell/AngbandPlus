@@ -178,9 +178,9 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 		/* Title */
 #ifdef JP
-		put_str("                TOband: 勇者の殿堂", 0, 0);
+		put_str("                TOband2: 勇者の殿堂", 0, 0);
 #else
-		put_str("                TOband Hall of Fame", 0, 0);
+		put_str("                TOband2 Hall of Fame", 0, 0);
 #endif
 
 
@@ -536,9 +536,9 @@ errr top_twenty(void)
 	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
+	sprintf(the_score.cur_lev, "%3ld", p_ptr->lev);
 	sprintf(the_score.cur_dun, "%3d", dun_level);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
+	sprintf(the_score.max_lev, "%3ld", p_ptr->max_plv);
 	sprintf(the_score.max_dun, "%3d", max_dlv[dungeon_type]);
 
 	/* Save death type */
@@ -645,9 +645,9 @@ errr predict_score(void)
 	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
+	sprintf(the_score.cur_lev, "%3ld", p_ptr->lev);
 	sprintf(the_score.cur_dun, "%3d", dun_level);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
+	sprintf(the_score.max_lev, "%3ld", p_ptr->max_plv);
 	sprintf(the_score.max_dun, "%3d", max_dlv[dungeon_type]);
 
 	/* Save death type */
@@ -748,10 +748,10 @@ void show_highclass(void)
 	}
 
 #ifdef JP
-	sprintf(out_val, "あなた) %sの%s (レベル %2d)",
+	sprintf(out_val, "あなた) %sの%s (レベル %2ld)",
 	    race_info[p_ptr->prace].title,player_name, p_ptr->lev);
 #else
-	sprintf(out_val, "You) %s the %s (Level %2d)",
+	sprintf(out_val, "You) %s the %s (Level %2ld)",
 	    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
 #endif
 
@@ -851,10 +851,10 @@ void race_score(int race_num)
 	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
 	{
 #ifdef JP
-	sprintf(out_val, "あなた) %sの%s (レベル %2d)",
+	sprintf(out_val, "あなた) %sの%s (レベル %2ld)",
 		     race_info[p_ptr->prace].title,player_name, p_ptr->lev);
 #else
-		sprintf(out_val, "You) %s the %s (Level %3d)",
+		sprintf(out_val, "You) %s the %s (Level %3ld)",
 		    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
 #endif
 

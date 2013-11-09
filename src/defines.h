@@ -39,9 +39,9 @@
 
 /* Savefile version for TOband 0.0.0 and later */
 #define T_VER_MAJOR 0
-#define T_VER_MINOR 1
+#define T_VER_MINOR 6
 #define T_VER_PATCH 0
-#define T_VER_EXTRA 10
+#define T_VER_EXTRA 0
 
 /* Added for ZAngband (now used for TOband) */
 #define FAKE_VERSION   0
@@ -114,6 +114,7 @@
 
 #define QUEST_LANCELOT       8
 #define QUEST_DOLGARUA       9
+#define QUEST_DEATH         13
 #define QUEST_ARMORICA      14
 #define QUEST_MONTSALVAT    16
 #define QUEST_RUNEWEAPON    17
@@ -175,7 +176,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            32
+#define MAX_CLASS            33
 
 /* Number of entries in the sanity-blast descriptions */
 #define MAX_SAN_HORROR 20
@@ -455,10 +456,18 @@
 #define ENERGY_NEED() (randnor(100, 31))
 
 /*
+ * Extract energy from speed (Assumes that SPEED is unsigned)
+ */
+#define SPEED_TO_ENERGY(SPEED) \
+	(((SPEED) > 199) ? 49 : extract_energy[(SPEED)])
+
+
+/*
  * Misc constants
  */
 #define TOWN_DAWN         10000    /* Number of ticks from dawn to dawn XXX */
 #define TURNS_PER_TICK    10L      /* Number of energy-gain-turns per ticks */
+#define MAX_DAYS          20000    /* Maximum days */
 #define BREAK_GLYPH       550      /* Rune of protection resistance */
 #define BREAK_MINOR_GLYPH 299      /* For explosive runes */
 #define BTH_PLUS_ADJ       3       /* Adjust BTH per plus-to-hit */
@@ -522,12 +531,16 @@
 #define PF_DISI_SPELL   0x0080
 
 
+/* Maximum number of preservable pets */
+#define MAX_PARTY_MON 21
+
+
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ       20
+#define GREAT_OBJ       10
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
@@ -769,6 +782,7 @@
 #define CLASS_FREYA				29
 #define CLASS_CRESCENT			30
 #define CLASS_VAMPIRE			31
+#define CLASS_MEDIUM            32
 
 #define CLASS_CHOOSE_MODE_NORMAL 0
 #define CLASS_CHOOSE_MODE_BIRTH  1
@@ -794,6 +808,7 @@
 #define PCF_UNDEAD        0x00000100
 #define PCF_NO_DIGEST     0x00000200
 #define PCF_SECRET        0x00000400
+#define PCF_ALIEN         0x00000800
 
 
 #define PCF_ALIGN_ANY     (PCF_ALIGN_LAWFUL | PCF_ALIGN_NEUTRAL | PCF_ALIGN_CHAOTIC)
@@ -1052,8 +1067,8 @@
 #define ART_CAMERA               192
 #define ART_AMU_FIRE             199
 #define ART_AMU_AQUA             200
-#define ART_AMU_WIND             201
-#define ART_AMU_EARTH            202
+#define ART_AMU_EARTH            201
+#define ART_AMU_WIND             202
 
 /* Rings */
 #define ART_VIVID                8
@@ -1350,24 +1365,25 @@
 #define EGO_CHAOTIC             77
 #define EGO_SHARPNESS           78
 #define EGO_EARTHQUAKES         79
-#define EGO_SLAY_ANIMAL         80
-#define EGO_SLAY_EVIL           81
-#define EGO_SLAY_UNDEAD         82
-#define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
-#define EGO_SLAY_GIANT          86
-#define EGO_SLAY_DRAGON         87
+#define EGO_KILL_ANIMAL         80
+#define EGO_KILL_EVIL           81
+#define EGO_KILL_UNDEAD         82
+#define EGO_KILL_DEMON          83
+#define EGO_KILL_ORC            84
+#define EGO_KILL_TROLL          85
+#define EGO_KILL_GIANT          86
+#define EGO_KILL_GOOD           87
 #define EGO_BROKEN              88
 #define EGO_EXETER              89
 #define EGO_BARMAMUTHA          90
 #define EGO_BASQUE              91
+#define EGO_KILL_LIVING         94
 #define EGO_DRAGOON             95
 #define EGO_VAMPIRIC            96
 #define EGO_PRISM               97
 #define EGO_ASMODE              98
 #define EGO_ISHTALLE            99
-#define EGO_SLAY_HUMAN          101
+#define EGO_KILL_HUMAN          101
 #define EGO_MORGUL              102
 #define EGO_RIPPER              103
 #define EGO_NETHERWORLD         239
@@ -1590,7 +1606,7 @@
 #define TV_SKELETON      1      /* Skeletons ('s'), not specified */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
-#define TV_TAROT        4
+#define TV_TAROT         4
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_STONE         6      /* Stones ('*') */
 #define TV_CHEST         7      /* Chests ('&') */
@@ -1620,6 +1636,7 @@
 #define TV_AMULET       40      /* Amulets (including Specials) */
 #define TV_RING         45      /* Rings (including Specials) */
 #define TV_CARD         50
+#define TV_TRUMP        51
 #define TV_SCRATCH_CARD 52
 #define TV_STAFF        55
 #define TV_WAND         65
@@ -1747,6 +1764,7 @@
 #define SV_HEAVY_AXE                    12	/* 3d11 */
 #define SV_HEAVY_LANCE                  13  /* 4d8 */
 #define SV_SCYTHE_OF_SLICING            14	/* 8d4 */
+#define SV_DEATH_SCYTHE                 15	/* 8d8 */
 #define SV_RUNESPEAR                    62  /* 0d0 */
 #define SV_RUNEAXE                      63  /* 0d0 */
 
@@ -1898,8 +1916,8 @@
 #define SV_AMULET_VAN                   28
 #define SV_AMULET_FIRE                  29
 #define SV_AMULET_AQUA                  30
-#define SV_AMULET_WIND                  31
-#define SV_AMULET_EARTH                 32
+#define SV_AMULET_EARTH                 31
+#define SV_AMULET_WIND                  32
 
 /* The sval codes for TV_RING */
 #define SV_RING_MUSCLE                      0
@@ -1955,6 +1973,8 @@
 #define SV_RING_LICH                    50
 
 #define SV_EXPRESS_CARD                  0
+
+#define SV_MONSTER_CARD                  0
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS                0
@@ -2132,9 +2152,9 @@
 #define SV_SCROLL_ELEM_WIND             60
 
 /* The "sval" codes for TV_POTION */
-#define SV_POTION_WATER                  0
-#define SV_POTION_APPLE_JUICE            1
-#define SV_POTION_SLIME_MOLD             2
+/* #define SV_POTION_WATER                  0 */
+/* #define SV_POTION_APPLE_JUICE            1 */
+/* #define SV_POTION_SLIME_MOLD             2 */
 #define SV_POTION_SLOWNESS               3
 #define SV_POTION_SALT_WATER             4
 #define SV_POTION_POISON                 5
@@ -2586,6 +2606,12 @@
 #define SUMMON_EAGLES               30
 #define SUMMON_ZENOBIAN_FORCES      31
 #define SUMMON_PIRANHAS             32
+#define SUMMON_FIRE                 33
+#define SUMMON_AQUA                 34
+#define SUMMON_EARTH                35
+#define SUMMON_WIND                 36
+#define SUMMON_ARMAGE_GOOD          66
+#define SUMMON_ARMAGE_EVIL          67
 
 
 /*
@@ -2688,8 +2714,9 @@
 #define GF_ERASE_ELEM       95
 #define GF_CAVE_TEMP        96
 #define GF_WATER_FLOW       97
+#define GF_CAPTURE          98
 
-#define MAX_GF              98
+#define MAX_GF              99
 
 /*
  * Some things which induce learning
@@ -2809,12 +2836,12 @@
 #define MFLAG_XXX3      0x08    /* (unused) */
 #define MFLAG_BORN      0x10    /* Monster is still being born */
 #define MFLAG_NICE      0x20    /* Monster is still being nice */
-#define MFLAG_SHOW      0x40    /* Monster is recently memorized */
-#define MFLAG_MARK      0x80    /* Monster is currently memorized */
 
-#define MFLAG_NOPET     0x02    /* Cannot make monster pet */
-#define MFLAG_NOGENO    0x04    /* Cannot genocide */
-#define MFLAG_NOFLOW    0x10    /* Monster is in no_flow_by_smell mode */
+#define MFLAG2_NOPET     0x02    /* Cannot make monster pet */
+#define MFLAG2_NOGENO    0x04    /* Cannot genocide */
+#define MFLAG2_NOFLOW    0x10    /* Monster is in no_flow_by_smell mode */
+#define MFLAG2_SHOW      0x20    /* Monster is recently memorized */
+#define MFLAG2_MARK      0x40    /* Monster is currently memorized */
 
 
 /*
@@ -2975,7 +3002,18 @@
 #define TR_FEMALE_ONLY        103     /* Ladies only */
 #define TR_MALE_ONLY          104     /* Mens only */
 
-#define TR_FLAG_MAX           105
+#define TR_KILL_ANIMAL        105
+#define TR_KILL_EVIL          106
+#define TR_KILL_UNDEAD        107
+#define TR_KILL_DEMON         108
+#define TR_KILL_ORC           109
+#define TR_KILL_TROLL         110
+#define TR_KILL_GIANT         111
+#define TR_KILL_HUMAN         112
+#define TR_KILL_GOOD          113
+#define TR_KILL_LIVING        114
+
+#define TR_FLAG_MAX           115
 #define TR_FLAG_SIZE            4
 
 
@@ -3154,7 +3192,7 @@
 #define RF1_DROP_GOOD           0x10000000  /* Drop good items */
 #define RF1_DROP_GREAT          0x20000000  /* Drop great items */
 #define RF1_DROP_SPECIAL        0x40000000  /* Drop special items */
-#define RF1_XXX3                0x80000000  /* XXX */
+#define RF1_XXX2                0x80000000  /* XXX */
 
 /*
  * New monster race bit flags
@@ -4365,7 +4403,9 @@ extern int PlayerUID;
 #define BACT_DONATION_LODIS         53
 #define BACT_EVAL_AC                54
 #define BACT_DONATION_ZENOBIAN      55
-#define MAX_BACT                    56
+#define BACT_JOIN_LODIS_KNIGHTS     56
+#define BACT_JOIN_ZENOBIAN_KNIGHTS  57
+#define MAX_BACT                    58
 
 /*
  * Quest status
@@ -4668,6 +4708,13 @@ extern int PlayerUID;
 #define MON_FOOD_BIRD     959
 #define MON_FOOD_COOK     960
 #define MON_FOOD_MAEMAID  961
+#define MON_ELEM_L_FIRE   962
+#define MON_ELEM_L_AQUA   963
+#define MON_ELEM_L_EARTH  964
+#define MON_ELEM_L_WIND   965
+#define MON_ELEM_KING     966
+#define MON_DEATH         967
+
 
 #define MON_EGG_BASE        933
 #define MON_ROTTEN_EGG_BASE (MON_EGG_BASE + 5 * (SV_FOOD_ROTTEN_EGG - SV_FOOD_EGG))
@@ -4707,9 +4754,10 @@ extern int PlayerUID;
 #define PY_THROW_BOOMERANG     0x0002
 #define PY_THROW_SHOOTING_STAR 0x0004
 
-#define PY_SHOT_NORMAL		0
-#define PY_SHOT_CRESCENT_1	1
-#define PY_SHOT_CRESCENT_2	2
+#define DCFA_NONE			0
+#define DCFA_STORM			0x01
+#define DCFA_PURE_WIND		0x02
+#define DCFA_HAMAYA			0x04
 
 
 #define ROCKET_MATERIAL_ORIGINAL   0
@@ -4739,7 +4787,7 @@ extern int PlayerUID;
 #define DF1_CLOSED              0x00000200L
 #define DF1_CAVE                0x00000400L
 #define DF1_CAVERN              0x00000800L
-#define DF1_XXX12               0x00001000L
+#define DF1_VAULT               0x00001000L
 #define DF1_XXX13               0x00002000L
 #define DF1_XXX14               0x00004000L
 #define DF1_NO_BACK             0x00008000L
@@ -4792,10 +4840,11 @@ extern int PlayerUID;
 #define CFM_SHAFT     	 0x0010  /* Shaft */
 #define CFM_RAND_PLACE   0x0020  /* Arrive at random grid */
 #define CFM_RAND_CONNECT 0x0040  /* Connect with random stairs */
-#define CFM_CLEAR_ALL    0x0080  /* Reach to the surface/Recall/Alter reality */
+#define CFM_SAVE_FLOORS  0x0080  /* Reach to the surface/Recall/Alter reality */
 #define CFM_NO_RETURN    0x0100  /* Flee from random quest etc... */
 #define CFM_FORCE1L      0x0200  /* Force move up/down 1 level only */
 #define CFM_FORCE2L      0x0400  /* Force move up/down 2 level only */
+#define CFM_FIRST_FLOOR  0x0800  /* Create exit from the dungeon */
 
 
 /*
@@ -4862,6 +4911,7 @@ extern int PlayerUID;
 #define SAVE_MON_MFLAG2        0x00040000
 #define SAVE_MON_NICKNAME      0x00080000
 #define SAVE_MON_SMART2        0x00100000
+#define SAVE_MON_PARENT        0x00200000
 
 
 #define prace_is_(A) (p_ptr->prace == (A))
@@ -5075,8 +5125,8 @@ extern int PlayerUID;
 #define EVENT_CLOSE_BARMAMUTHA           0x00000001
 #define EVENT_CANNOT_BE_TEMPLEKNIGHT     0x00000002
 #define EVENT_CANNOT_BE_WHITEKNIGHT      0x00000004
-#define EVENT_INC_SKILL_MELEE_REGISTERED 0x00000008
-#define EVENT_INC_SKILL_BOW_REGISTERED   0x00000010
+#define EVENT_LIBERATION_OF_ARMORICA     0x00000008
+
 
 #define IN_HEAVEN_GATE() ((dungeon_type == DUNGEON_HEAVEN_WAY) && (dun_level == d_info[dungeon_type].maxdepth))
 

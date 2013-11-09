@@ -122,6 +122,25 @@ static cptr desc_insult[] =
 };
 
 
+static bool is_infectable(void)
+{
+	if (p_ptr->infected) return FALSE;
+	else if (p_ptr->psex == SEX_FEMALE) return FALSE;
+	else if (rp_ptr->r_flags & PRF_UNDEAD) return FALSE;
+	else if (cp_ptr->c_flags & PCF_UNDEAD) return FALSE;
+
+	switch (p_ptr->prace)
+	{
+		case RACE_FAIRY:
+		case RACE_GREMLIN:
+		case RACE_PUMPKINHEAD:
+			return FALSE;
+			break;
+		default:
+			return TRUE;
+			break;
+	}
+}
 
 /*
  * Attack the player via physical attacks.
@@ -754,7 +773,12 @@ bool make_attack_normal(int m_idx)
 					if (!p_ptr->resist_disen && !IS_MULTISHADOW(0))
 					{
 						/* Apply disenchantment */
-						if (apply_disenchant()) obvious = TRUE;
+						if (apply_disenchant())
+						{
+							/* Hack -- Update AC */
+							update_stuff();
+							obvious = TRUE;
+						}
 					}
 
 					/* Take some damage */
@@ -1171,6 +1195,9 @@ bool make_attack_normal(int m_idx)
 					/* Special damage */
 					get_damage += acid_dam(damage, ddesc);
 
+					/* Hack -- Update AC */
+					update_stuff();
+
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_ACID);
 
@@ -1568,7 +1595,7 @@ bool make_attack_normal(int m_idx)
 					/* Radius 8 earthquake centered at the monster */
 					if (damage > 23 || explode)
 					{
-						earthquake(m_ptr->fy, m_ptr->fx, 8);
+						earthquake_aux(m_ptr->fy, m_ptr->fx, 8, m_idx);
 					}
 
 					break;
@@ -1576,6 +1603,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_10:
 				{
+					s32b rd = damroll(10, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+					s32b cd = damroll(10, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1590,47 +1620,15 @@ bool make_attack_normal(int m_idx)
 					}
 					STOP_MULTISHADOW();
 
-					if (p_ptr->hold_life && (randint0(100) < 95))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b cd = damroll(10, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
-						s32b rd = damroll(10, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_class_exp(cd / 10);
-							lose_racial_exp(rd / 10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_class_exp(cd);
-							lose_racial_exp(rd);
-						}
-					}
+					(void)drain_exp(rd, cd, rd / 10, cd / 10, 95);
 					break;
 				}
 
 				case RBE_EXP_20:
 				{
+					s32b rd = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+					s32b cd = damroll(20, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1645,47 +1643,15 @@ bool make_attack_normal(int m_idx)
 					}
 					STOP_MULTISHADOW();
 
-					if (p_ptr->hold_life && (randint0(100) < 90))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b cd = damroll(20, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
-						s32b rd = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_class_exp(cd / 10);
-							lose_racial_exp(rd / 10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_class_exp(cd);
-							lose_racial_exp(rd);
-						}
-					}
+					(void)drain_exp(rd, cd, rd / 10, cd / 10, 90);
 					break;
 				}
 
 				case RBE_EXP_40:
 				{
+					s32b rd = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+					s32b cd = damroll(40, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1700,47 +1666,15 @@ bool make_attack_normal(int m_idx)
 					}
 					STOP_MULTISHADOW();
 
-					if (p_ptr->hold_life && (randint0(100) < 75))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b cd = damroll(40, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
-						s32b rd = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_class_exp(cd / 10);
-							lose_racial_exp(rd / 10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_class_exp(cd);
-							lose_racial_exp(rd);
-						}
-					}
+					(void)drain_exp(rd, cd, rd / 10, cd / 10, 75);
 					break;
 				}
 
 				case RBE_EXP_80:
 				{
+					s32b rd = damroll(60, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+					s32b cd = damroll(60, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1755,42 +1689,7 @@ bool make_attack_normal(int m_idx)
 					}
 					STOP_MULTISHADOW();
 
-					if (p_ptr->hold_life && (randint0(100) < 50))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b cd = damroll(80, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
-						s32b rd = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_class_exp(cd / 10);
-							lose_racial_exp(rd / 10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_class_exp(cd);
-							lose_racial_exp(rd);
-						}
-					}
+					(void)drain_exp(rd, cd, rd / 10, cd / 10, 50);
 					break;
 				}
 
@@ -1924,6 +1823,9 @@ bool make_attack_normal(int m_idx)
 				}
 				case RBE_EXP_VAMP:
 				{
+					s32b rd = damroll(60, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+					s32b cd = damroll(60, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1938,47 +1840,16 @@ bool make_attack_normal(int m_idx)
 					}
 					STOP_MULTISHADOW();
 
-					if (p_ptr->hold_life && (randint0(100) < 50))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-						resist_drain = TRUE;
-					}
-					else
-					{
-						s32b cd = damroll(60, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
-						s32b rd = damroll(60, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力が少し体から抜け落ちた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_class_exp(cd / 10);
-							lose_racial_exp(rd / 10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_class_exp(cd);
-							lose_racial_exp(rd);
-						}
-					}
+					resist_drain = !drain_exp(rd, cd, rd / 10, cd / 10, 50);
 
 					/* Heal the attacker? */
-					if (!(rp_ptr->r_flags & PRF_UNDEAD) && !(cp_ptr->c_flags & PCF_UNDEAD) &&
-					    (damage > 5) && !resist_drain)
+					if ((rp_ptr->r_flags & PRF_UNDEAD) && (cp_ptr->c_flags & PCF_UNDEAD))
+					{
+						resist_drain = TRUE;
+						break;
+					}
+
+					if ((damage > 5) && !resist_drain)
 					{
 						bool did_heal = FALSE;
 
@@ -2223,10 +2094,7 @@ bool make_attack_normal(int m_idx)
 
 			if (touched)
 			{
-				if ((r_ptr->flags2 & RF2_VAMPIRE) && !p_ptr->infected && 
-					(p_ptr->psex == SEX_MALE) && (!(rp_ptr->r_flags & PRF_UNDEAD)) && (!(cp_ptr->c_flags & PCF_UNDEAD)) && 
-					(!prace_is_(RACE_FAIRY)) && (!prace_is_(RACE_GREMLIN)) && (!prace_is_(RACE_PUMPKINHEAD)))
-					
+				if ((r_ptr->flags2 & RF2_VAMPIRE) && is_infectable())
 				{
 					if (p_ptr->lev < randint1(damage + r_ptr->level))
 					{

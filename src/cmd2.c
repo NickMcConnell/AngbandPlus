@@ -26,6 +26,18 @@ void do_cmd_go_up(void)
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
+	/* Verify stairs */
+	if ((c_ptr->feat != FEAT_LESS) && (c_ptr->feat != FEAT_LESS_LESS) && (c_ptr->feat != FEAT_ENTRANCE_UPWARD))
+	{
+#ifdef JP
+		msg_print("ここには上り階段が見当たらない。");
+#else
+		msg_print("I see no up staircase here.");
+#endif
+
+		return;
+	}
+
 	/* Quest up stairs */
 	if (c_ptr->feat == FEAT_QUEST_UP)
 	{
@@ -54,24 +66,11 @@ void do_cmd_go_up(void)
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
-		p_ptr->leftbldg = TRUE;
 
 		p_ptr->oldpx = 0;
 		p_ptr->oldpy = 0;
 
 		/* End the command */
-		return;
-	}
-
-	/* Verify stairs */
-	if ((c_ptr->feat != FEAT_LESS) && (c_ptr->feat != FEAT_LESS_LESS) && (c_ptr->feat != FEAT_ENTRANCE_UPWARD))
-	{
-#ifdef JP
-		msg_print("ここには上り階段が見当たらない。");
-#else
-		msg_print("I see no up staircase here.");
-#endif
-
 		return;
 	}
 
@@ -135,44 +134,53 @@ void do_cmd_go_up(void)
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
-	if (p_ptr->inside_quest)
+	/* For a random quest */
+	if (p_ptr->inside_quest &&
+	    quest[p_ptr->inside_quest].type == QUEST_TYPE_RANDOM)
 	{
 		leave_quest_check();
 
-		if (quest[leaving_quest].type != QUEST_TYPE_RANDOM)
+		p_ptr->inside_quest = 0;
+	}
+
+	/* For a fixed quest */
+	if (p_ptr->inside_quest &&
+	    quest[p_ptr->inside_quest].type != QUEST_TYPE_RANDOM)
+	{
+		leave_quest_check();
+
+		p_ptr->inside_quest = c_ptr->special;
+		dun_level = 0;
+		up_num = 0;
+	}
+
+	/* For normal dungeon and random quest */
+	else
+	{
+		/* New depth */
+		if (c_ptr->feat == FEAT_LESS_LESS)
 		{
-			p_ptr->inside_quest = c_ptr->special;
-			dun_level = 0;
+			/* Create a way back */
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_SHAFT);
+			up_num = 2;
 		}
 		else
 		{
-			p_ptr->inside_quest = 0;
+			/* Create a way back */
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP);
+			up_num = 1;
 		}
-	}
 
-	/* New depth */
-	if (c_ptr->feat == FEAT_LESS_LESS)
-	{
-		/* Create a way back */
-		prepare_change_floor_mode(CFM_UP | CFM_SHAFT);
-		up_num = 2;
-	}
-	else
-	{
-		/* Create a way back */
-		prepare_change_floor_mode(CFM_UP);
-		up_num = 1;
-	}
+		if (!dun_level)
+		{
+			/* Enter the dungeon just now */
+			p_ptr->enter_dungeon = TRUE;
+			up_num = d_info[c_ptr->special].mindepth;
+		}
 
-	if (!dun_level)
-	{
-		/* Enter the dungeon just now */
-		p_ptr->enter_dungeon = TRUE;
-		up_num = d_info[c_ptr->special].mindepth;
+		if (!upward_dun && (dun_level - up_num < d_info[dungeon_type].mindepth))
+			up_num = dun_level;
 	}
-
-	if (!upward_dun && (dun_level - up_num < d_info[dungeon_type].mindepth))
-		up_num = dun_level;
 
 #ifdef JP
 	if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "階段を上った");
@@ -280,6 +288,18 @@ void do_cmd_go_down(void)
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
+	/* Verify stairs */
+	if ((c_ptr->feat != FEAT_MORE) && (c_ptr->feat != FEAT_MORE_MORE) && (c_ptr->feat != FEAT_ENTRANCE) && !fall_type)
+	{
+#ifdef JP
+		msg_print("ここには下り階段が見当たらない。");
+#else
+		msg_print("I see no down staircase here.");
+#endif
+
+		return;
+	}
+
 	/* MUST be actived now */
 	if (between_effect(c_ptr)) return;
 
@@ -300,8 +320,14 @@ void do_cmd_go_down(void)
 		fall_type = 2;
 	}
 
+	/* Quest entrance */
+	if (c_ptr->feat == FEAT_QUEST_ENTER)
+	{
+		do_cmd_quest();
+	}
+
 	/* Quest down stairs */
-	if (c_ptr->feat == FEAT_QUEST_DOWN)
+	else if (c_ptr->feat == FEAT_QUEST_DOWN)
 	{
 #ifdef JP
 		msg_print("下の階に降りた。");
@@ -327,24 +353,11 @@ void do_cmd_go_down(void)
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
-		p_ptr->leftbldg = TRUE;
 
 		p_ptr->oldpx = 0;
 		p_ptr->oldpy = 0;
 
 		/* End the command */
-		return;
-	}
-
-	/* Verify stairs */
-	if ((c_ptr->feat != FEAT_MORE) && (c_ptr->feat != FEAT_MORE_MORE) && (c_ptr->feat != FEAT_ENTRANCE) && !fall_type)
-	{
-#ifdef JP
-		msg_print("ここには下り階段が見当たらない。");
-#else
-		msg_print("I see no down staircase here.");
-#endif
-
 		return;
 	}
 
@@ -381,6 +394,12 @@ void do_cmd_go_down(void)
 		p_ptr->oldpx = px;
 		p_ptr->oldpy = py;
 		dungeon_type = (byte)c_ptr->special;
+
+		/*
+		 * Clear all saved floors
+		 * and create a first saved floor
+		 */
+		prepare_change_floor_mode(CFM_FIRST_FLOOR);
 	}
 	else
 	{
@@ -475,14 +494,14 @@ void do_cmd_go_down(void)
 		switch (down_num)
 		{
 		case 1:
-			prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 			break;
 		case 2:
-			prepare_change_floor_mode(CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 			break;
 		default:
 			dun_level += upward_dun ? (0 - down_num + 2) : (down_num - 2);
-			prepare_change_floor_mode(CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 			break;
 		}
 		break;
@@ -495,7 +514,7 @@ void do_cmd_go_down(void)
 		if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, down_num, "dive into air");
 		msg_print("You deliberately dive into air.");
 #endif
-		prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+		prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 		break;
 
 	default:
@@ -530,12 +549,12 @@ void do_cmd_go_down(void)
 		if (c_ptr->feat == FEAT_MORE_MORE)
 		{
 			/* Create a way back */
-			prepare_change_floor_mode(CFM_DOWN | CFM_SHAFT);
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_SHAFT);
 		}
 		else if (!dive_into_astral)
 		{
 			/* Create a way back */
-			prepare_change_floor_mode(CFM_DOWN);
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN);
 		}
 
 		break;
@@ -1080,8 +1099,6 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 }
 
 
-#if defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) /* TNB */
-
 /*
  * Return TRUE if the given feature is an open door
  */
@@ -1202,7 +1219,6 @@ static int coords_to_dir(int y, int x)
 	return d[dx + 1][dy + 1];
 }
 
-#endif /* defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) -- TNB */
 
 
 /*
@@ -1337,8 +1353,6 @@ void do_cmd_open(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
-
 	/* Option: Pick a direction */
 	if (easy_open)
 	{
@@ -1358,8 +1372,6 @@ void do_cmd_open(void)
 			if (!too_many) command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1505,8 +1517,6 @@ void do_cmd_close(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
-
 	/* Option: Pick a direction */
 	if (easy_open)
 	{
@@ -1516,8 +1526,6 @@ void do_cmd_close(void)
 			command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -2110,7 +2118,6 @@ void do_cmd_tunnel(void)
 }
 
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
 
 /*
  * easy_open_door --
@@ -2224,7 +2231,6 @@ bool easy_open_door(int y, int x)
 	return (TRUE);
 }
 
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 
 /*
@@ -2348,15 +2354,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 bool do_cmd_disarm_aux(int y, int x, int dir)
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-static bool do_cmd_disarm_aux(int y, int x, int dir)
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 {
 	int i, j, power;
 
@@ -2425,17 +2423,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		/* Remove the trap */
 		cave_force_set_floor(y, x);
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		/* Move the player onto the trap */
 		move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* move the player onto the trap grid */
-		move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 	}
 
 	/* Failure -- Keep trying */
@@ -2466,18 +2455,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		msg_format("You set off the %s!", name);
 #endif
 
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		/* Move the player onto the trap */
 		move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* Move the player onto the trap */
-		move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 	}
 
 	/* Result */
@@ -2495,8 +2474,6 @@ void do_cmd_disarm(void)
 	s16b o_idx;
 
 	bool more = FALSE;
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
 
 	/* Option: Pick a direction */
 	if (easy_disarm)
@@ -2517,8 +2494,6 @@ void do_cmd_disarm(void)
 			if (!too_many) command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -3254,6 +3229,7 @@ void do_cmd_stay(int pickup)
 		dun_level = 0;
 		p_ptr->oldpx = 0;
 		p_ptr->oldpy = 0;
+
 		p_ptr->leaving = TRUE;
 	}
 }
@@ -3394,7 +3370,7 @@ static int breakage_chance(object_type *o_ptr)
 }
 
 
-static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
+static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr, int xtra_slay)
 {
 	int mult = 10;
 
@@ -3408,7 +3384,9 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
 
-	if (inventory[INVEN_BOW].k_idx && inventory[INVEN_BOW].name1)
+	if (xtra_slay) add_flag(flgs, xtra_slay);
+
+	if (inventory[INVEN_BOW].k_idx && (inventory[INVEN_BOW].name1) || object_is_runeweapon(&inventory[INVEN_BOW]))
 	{
 		u32b flgs_g[TR_FLAG_SIZE];
 		int i;
@@ -3438,6 +3416,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (mult < 17) mult = 17;
 			}
 
+			/* Kill Animal */
+			if ((have_flag(flgs, TR_KILL_ANIMAL)) &&
+			    (r_ptr->flags3 & RF3_ANIMAL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_ANIMAL;
+				}
+
+				if (mult < 27) mult = 27;
+			}
+
 			/* Slay Evil */
 			if ((have_flag(flgs, TR_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & RF3_EVIL))
@@ -3448,6 +3438,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 15) mult = 15;
+			}
+
+			/* Kill Evil */
+			if ((have_flag(flgs, TR_KILL_EVIL)) &&
+			    (r_ptr->flags3 & RF3_EVIL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_EVIL;
+				}
+
+				if (mult < 25) mult = 25;
 			}
 
 			/* Slay Good */
@@ -3462,10 +3464,28 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (mult < 15) mult = 15;
 			}
 
+			/* Kill Good */
+			if ((have_flag(flgs, TR_KILL_GOOD)) &&
+			    (r_ptr->flags3 & RF3_GOOD))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_GOOD;
+				}
+
+				if (mult < 25) mult = 25;
+			}
+
 			/* Slay Living */
 			if ((have_flag(flgs, TR_SLAY_LIVING)) && monster_living(r_ptr))
 			{
 				if (mult < 20) mult = 20;
+			}
+
+			/* Kill Living */
+			if ((have_flag(flgs, TR_KILL_LIVING)) && monster_living(r_ptr))
+			{
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Human */
@@ -3480,6 +3500,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (mult < 17) mult = 17;
 			}
 
+			/* Kill Human */
+			if ((have_flag(flgs, TR_KILL_HUMAN)) &&
+			    (r_ptr->flags2 & RF2_HUMAN))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags2 |= RF2_HUMAN;
+				}
+
+				if (mult < 27) mult = 27;
+			}
+
 			/* Slay Undead */
 			if ((have_flag(flgs, TR_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
@@ -3490,6 +3522,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 20) mult = 20;
+			}
+
+			/* Kill Undead */
+			if ((have_flag(flgs, TR_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & RF3_UNDEAD))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_UNDEAD;
+				}
+
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Demon */
@@ -3504,6 +3548,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (mult < 20) mult = 20;
 			}
 
+			/* Kill Demon */
+			if ((have_flag(flgs, TR_KILL_DEMON)) &&
+			    (r_ptr->flags3 & RF3_DEMON))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_DEMON;
+				}
+
+				if (mult < 30) mult = 30;
+			}
+
 			/* Slay Orc */
 			if ((have_flag(flgs, TR_SLAY_ORC)) &&
 			    (r_ptr->flags3 & RF3_ORC))
@@ -3514,6 +3570,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 20) mult = 20;
+			}
+
+			/* Kill Orc */
+			if ((have_flag(flgs, TR_KILL_ORC)) &&
+			    (r_ptr->flags3 & RF3_ORC))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_ORC;
+				}
+
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Troll */
@@ -3528,6 +3596,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (mult < 20) mult = 20;
 			}
 
+			/* Kill Troll */
+			if ((have_flag(flgs, TR_KILL_TROLL)) &&
+			    (r_ptr->flags3 & RF3_TROLL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_TROLL;
+				}
+
+				if (mult < 30) mult = 30;
+			}
+
 			/* Slay Giant */
 			if ((have_flag(flgs, TR_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & RF3_GIANT))
@@ -3538,6 +3618,18 @@ static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 20) mult = 20;
+			}
+
+			/* Kill Giant */
+			if ((have_flag(flgs, TR_KILL_GIANT)) &&
+			    (r_ptr->flags3 & RF3_GIANT))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_GIANT;
+				}
+
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Dragon  */
@@ -3854,8 +3946,12 @@ static bool hit_rocket(int y, int x, object_type *o_ptr, object_type *launcher_p
  * for the damage multiplier.
  *
  * Note that Bows of "Extra Shots" give an extra shot.
+ *
+ * shot_flgs are applied for various cases. see defines.h(DCFA_*)
+ * x_to_h will be added to bonus
+ * x_to_d will be added to damage
  */
-bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
+bool do_cmd_fire_aux(int item, object_type *j_ptr, int shot_flgs, int x_to_h, int x_to_d, int penetrate, bool direct)
 {
 	int dir;
 	int j, y, x, ny, nx, ty, tx, t_ty, t_tx;
@@ -3864,12 +3960,12 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 	int cur_dis, visible;
 	int count, n_fire = 1;
 	int typ = GF_MISSILE;
+	int xtra_slay = 0;
 	bool used_up = FALSE;
 	bool explode_rocket = FALSE;
 	bool as_beam = FALSE;
 	bool force_damege = FALSE;
-	bool crescent_shot_storm = (shot_typ & PY_SHOT_CRESCENT_1) ? TRUE : FALSE;
-	bool crescent_shot_pure_wind = (shot_typ & PY_SHOT_CRESCENT_2) ? TRUE : FALSE;
+	bool dcfa_thru = FALSE;
 
 	object_type forge;
 	object_type thrown;
@@ -3889,6 +3985,12 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 	int modify_dam_mode = MODIFY_ELEM_MODE_FIRE;
 	int attack_var, skill_to_d = 0;
 	cptr base_name = NULL;
+
+	if (p_ptr->pclass == CLASS_MEDIUM) xtra_slay = TR_SLAY_EVIL;
+
+	if (shot_flgs & DCFA_STORM) xtra_slay = TR_BRAND_ELEC;
+	if (shot_flgs & DCFA_HAMAYA) xtra_slay = TR_KILL_EVIL;
+	if ((shot_flgs & DCFA_STORM) || (shot_flgs & DCFA_HAMAYA)) dcfa_thru = TRUE;
 
 	/* XXX Hack - Make a fake item and copy a fake name */
 	if ((item == INVEN_PEBBLE) || (item == INVEN_GRAVE))
@@ -3987,7 +4089,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 	tdis = 10;
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h);
+	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h) + x_to_h;
 	chance = (p_ptr->skill_thb + (attack_var * 4 - 8 + bonus) * BTH_PLUS_ADJ);
 	if (chance > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB)) chance = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB;
 
@@ -4106,7 +4208,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 		for (cur_dis = 0; cur_dis <= tdis; )
 		{
 			/* Hack -- Stop at the target */
-			if ((!crescent_shot_storm) && (y == t_ty) && (x == t_tx))
+			if (!(dcfa_thru) && (y == t_ty) && (x == t_tx))
 			{
 				if (p_ptr->tval_ammo == TV_ROCKET) explode_rocket = hit_rocket(y, x, q_ptr, j_ptr, skill_to_d);
 				break;
@@ -4117,24 +4219,49 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 			nx = x;
 			mmove2(&ny, &nx, py, px, t_ty, t_tx);
 
+
+			if ((cave[ny][nx].feat == FEAT_TREES) && (dcfa_thru))
+			{
+#ifdef JP
+				msg_print("木は粉砕された。");
+#else
+				msg_print("A tree was crushed.");
+#endif
+				cave_set_feat(ny, nx, (one_in_(3) ? FEAT_DEEP_GRASS : FEAT_GRASS));
+
+				/* Update some things */
+				p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
+
+				/* Reduce duration */
+				penetrate -= 7;
+				if ((penetrate <= 0) && (!cave[ny][nx].m_idx))
+				{
+					x = nx;
+					y = ny;
+					break;
+				}
+			}
+
 			/* Stopped by walls/doors */
 			if (!cave_floor_bold(ny, nx) && !cave[ny][nx].m_idx)
 			{
-				int yy = ny;
-				int xx = nx;
-
-				if (crescent_shot_storm)
+				if (shot_flgs & DCFA_STORM)
 				{
-					if (cave_perma_bold(yy, xx)) break;
+					if (cave_perma_bold(ny, nx)) break;
 
-					cave_force_set_floor(yy, xx);
-
-					/* Notice */
-					note_spot(yy, xx);
+					cave_force_set_floor(ny, nx);
 
 					/* Update some things */
 					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
-					update_stuff();
+
+					/* Reduce duration */
+					penetrate -= 21;
+					if ((penetrate <= 0) && (!cave[ny][nx].m_idx))
+					{
+						x = nx;
+						y = ny;
+						break;
+					}
 				}
 				else if (p_ptr->tval_ammo == TV_ROCKET)
 				{
@@ -4143,6 +4270,8 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 				}
 				else
 				{
+					penetrate = 0;
+
 					break;
 				}
 			}
@@ -4196,6 +4325,36 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 				/* Note the collision */
 				hit_body = TRUE;
 
+				/* Hit effect */
+				if (penetrate > 0)
+				{
+					/* The player can see the (on screen) missile */
+					if (panel_contains(y, x) && player_can_see_bold(y, x))
+					{
+						u16b p = bolt_pict(y, x, y, x, GF_LITE);
+						byte a = PICT_A(p);
+						char c = PICT_C(p);
+	
+						/* Draw, Hilite, Fresh, Pause, Erase */
+						print_rel(c, a, y, x);
+						move_cursor_relative(y, x);
+						Term_fresh();
+						Term_xtra(TERM_XTRA_DELAY, msec);
+						lite_spot(y, x);
+						Term_fresh();
+					}
+	
+					/* The player cannot see the missile */
+					else
+					{
+						/* Pause anyway, for consistancy */
+						Term_xtra(TERM_XTRA_DELAY, msec);
+					}
+				}
+	
+				/* Reduce duration */
+				penetrate -= 5;
+	
 				/* Did we hit it (penalize range) */
 				if (test_hit_fire(chance - cur_dis, ac, m_ptr->ml))
 				{
@@ -4239,22 +4398,21 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 					if (p_ptr->tval_ammo != TV_ROCKET)
 					{
 						/* Base damage from thrown object plus launcher bonus */
-						tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + j_ptr->to_d + skill_to_d;
+						tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + j_ptr->to_d + skill_to_d + x_to_d;
 
 						/* Boost the damage */
 						tdam *= tmul;
 						tdam /= 100;
 
 						/* Apply special damage XXX XXX XXX */
-						tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
+						tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr, xtra_slay);
 						tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 						/* No negative damage */
 						if (tdam < 0) tdam = 0;
 
 						/* Modify the damage */
-						if (crescent_shot_storm) typ = GF_ELEC;
-						if (crescent_shot_pure_wind)
+						if (shot_flgs & DCFA_PURE_WIND)
 						{
 							force_damege = TRUE;
 							typ = GF_PURE_WIND;
@@ -4267,6 +4425,9 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 						if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(r_ptr), FALSE))
 						{
 							/* Dead monster */
+
+							/* Reduce duration */
+							penetrate -= 1;
 						}
 
 						/* No death */
@@ -4285,6 +4446,13 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 #else
 								msg_format("%^s have stuck into %s!",o_name, m_name);
 #endif
+								/* Reduce duration */
+								penetrate -= 2;
+							}
+							else
+							{
+								/* Reduce duration */
+								penetrate -= 5;
 							}
 
 							/* Message */
@@ -4341,7 +4509,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 				}
 
 				/* Stop looking */
-  				if (!as_beam || !cave_floor_bold(y, x) || !crescent_shot_storm) break;
+  				if (!as_beam || !cave_floor_bold(y, x) || penetrate <= 0) break;
 
 			}
 		}
@@ -4352,7 +4520,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 
 		/* Chance of breakage (during attacks) */
 		j = (hit_body ? breakage_chance(q_ptr) : 0);
-		if ((crescent_shot_storm) || (crescent_shot_pure_wind)) j = 100;
+		if (shot_flgs & DCFA_PURE_WIND) j = 100;
 
 		if(stick_to)
 		{
@@ -4423,7 +4591,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, u16b shot_typ, bool direct)
 }
 
 
-bool do_cmd_fire(u16b shot_typ, bool direct)
+bool do_cmd_fire(int shot_flgs, int x_to_h, int x_to_d, int penetrate, bool direct)
 {
 	int item;
 	object_type *j_ptr;
@@ -4463,7 +4631,7 @@ bool do_cmd_fire(u16b shot_typ, bool direct)
 	}
 
 	/* Fire the item */
-	return do_cmd_fire_aux(item, j_ptr, shot_typ, direct);
+	return do_cmd_fire_aux(item, j_ptr, shot_flgs, x_to_h, x_to_d, penetrate, direct);
 }
 
 

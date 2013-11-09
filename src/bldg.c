@@ -16,22 +16,19 @@
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
 
-/* remember building location */
-static int building_loc = 0;
-
-static bool can_eat_food(building_type *bldg)
+static bool can_eat_food(void)
 {
 	if (rp_ptr->r_flags & PRF_NO_DIGEST)
 	{
-		return (FALSE);
+		return FALSE;
 	}
 
 	if (cp_ptr->c_flags & PCF_NO_DIGEST)
 	{
-		return (FALSE);
+		return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -100,7 +97,7 @@ static void show_building(building_type* bldg)
 			}
 			else if (bldg->action_restr[i] == 1)
 			{
-				if (!can_eat_food(bldg))
+				if (!can_eat_food())
 				{
 					action_color = TERM_L_DARK;
 #ifdef JP
@@ -110,7 +107,7 @@ static void show_building(building_type* bldg)
 #endif
 
 				}
-				else if (can_eat_food(bldg) && (bldg->costs[i] == 0))
+				else if (can_eat_food() && (bldg->costs[i] == 0))
 				{
 					action_color = TERM_WHITE;
 					buff[0] = '\0';
@@ -196,10 +193,13 @@ static void arena_comm(int cmd)
 					if (get_check("Do you fight? "))
 #endif
 					{
-						p_ptr->leftbldg = TRUE;
-						p_ptr->inside_arena = TRUE;
 						p_ptr->exit_bldg = FALSE;
 						reset_tim_flags();
+
+						/* Save the surface floor as saved floor */
+						prepare_change_floor_mode(CFM_SAVE_FLOORS);
+
+						p_ptr->inside_arena = TRUE;
 						p_ptr->leaving = TRUE;
 						leave_bldg = TRUE;
 					}
@@ -227,10 +227,13 @@ static void arena_comm(int cmd)
 					if (get_check("Do you fight me? "))
 #endif
 					{
-						p_ptr->leftbldg = TRUE;
-						p_ptr->inside_arena = TRUE;
 						p_ptr->exit_bldg = FALSE;
 						reset_tim_flags();
+
+						/* Save the surface floor as saved floor */
+						prepare_change_floor_mode(CFM_SAVE_FLOORS);
+
+						p_ptr->inside_arena = TRUE;
 						p_ptr->leaving = TRUE;
 						leave_bldg = TRUE;
 					}
@@ -266,10 +269,13 @@ static void arena_comm(int cmd)
 			}
 			else
 			{
-				p_ptr->leftbldg = TRUE;
-				p_ptr->inside_arena = TRUE;
 				p_ptr->exit_bldg = FALSE;
 				reset_tim_flags();
+
+				/* Save the surface floor as saved floor */
+				prepare_change_floor_mode(CFM_SAVE_FLOORS);
+
+				p_ptr->inside_arena = TRUE;
 				p_ptr->leaving = TRUE;
 				leave_bldg = TRUE;
 			}
@@ -292,7 +298,7 @@ static void arena_comm(int cmd)
 			}
 			else
 			{
-				r_ptr = &r_info[arena_monsters[p_ptr->arena_number]];
+				r_ptr = &r_info[arena_info[p_ptr->arena_number].r_idx];
 				name = (r_name + r_ptr->name);
 #ifdef JP
 				msg_format("%s に挑戦する勇者はいませんかぁ〜？", name);
@@ -1969,17 +1975,25 @@ static bool inn_comm(int cmd)
 				}
 				else
 				{
-					int oldturn = turn;
+					s32b oldturn = turn;
 #ifdef JP
 					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "宿屋に泊まった。");
 #else
 					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over night at the inn");
 #endif
 					turn = (turn / (TURNS_PER_TICK*TOWN_DAWN/2) + 1) * (TURNS_PER_TICK*TOWN_DAWN/2);
+
+					if (dungeon_turn < dungeon_turn_limit)
+					{
+						dungeon_turn += MIN(turn - oldturn, TURNS_PER_TICK*250);
+						if (dungeon_turn > dungeon_turn_limit) dungeon_turn = dungeon_turn_limit;
+					}
+
+					prevent_turn_overflow();
+
 					if (((oldturn + TURNS_PER_TICK * TOWN_DAWN / 4) % (TURNS_PER_TICK * TOWN_DAWN)) > TURNS_PER_TICK * TOWN_DAWN/4) do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
 					p_ptr->chp = p_ptr->mhp;
 
-					dungeon_turn += MIN(turn - oldturn, TURNS_PER_TICK*250);
 					change_your_alignment_lnc(-1);
 
 					set_blind(0);
@@ -1999,8 +2013,6 @@ static bool inn_comm(int cmd)
 #else
 					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "awake refreshed.");
 #endif
-
-					p_ptr->leftbldg = TRUE;
 				}
 			}
 			else
@@ -2227,6 +2239,21 @@ static void castle_quest(void)
 
 		q_ptr->status = QUEST_STATUS_TAKEN;
 
+		switch (q_index)
+		{
+		case QUEST_MONTSALVAT:
+		case QUEST_HOLY_KNIGHTS:
+			misc_event_flags |= EVENT_CANNOT_BE_WHITEKNIGHT;
+			break;
+
+		case QUEST_RAMZEN:
+			misc_event_flags |= EVENT_CANNOT_BE_TEMPLEKNIGHT;
+			break;
+
+		default:
+			break;
+		}
+
 		reinit_wilderness = TRUE;
 	}
 }
@@ -2333,44 +2360,64 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 
 	/* Print the relevant lines */
 #ifdef JP
-	if (have_flag(flgs, TR_FORCE_WEAPON))     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "理力:", TERM_L_BLUE);
-	if (have_flag(flgs, TR_SLAY_ANIMAL))      compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "動物:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_EVIL))        compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "邪悪:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_GOOD))        compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "善良:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_LIVING))      compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "生命:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_HUMAN))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "人間:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_UNDEAD))      compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "不死:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_DEMON))       compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "悪魔:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_ORC))         compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "オーク:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_TROLL))       compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "トロル:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_GIANT))       compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "巨人:", TERM_YELLOW);
-	if (have_flag(flgs, TR_KILL_DRAGON))      compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "竜:", TERM_YELLOW);
+	if (have_flag(flgs, TR_FORCE_WEAPON)) compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "理力:", TERM_L_BLUE);
+	if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "動物:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "動物:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "邪悪:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_EVIL)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "邪悪:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "善良:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "善良:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "生命:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "生命:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_HUMAN)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "人間:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_HUMAN)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "人間:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "不死:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "不死:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DEMON)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "悪魔:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_DEMON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "悪魔:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "オーク:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "オーク:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "トロル:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "トロル:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "巨人:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "巨人:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "竜:", TERM_YELLOW);
 	else if (have_flag(flgs, TR_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "竜:", TERM_YELLOW);
-	if (have_flag(flgs, TR_BRAND_ACID))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "酸属性:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_ELEC))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "電属性:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_FIRE))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "炎属性:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_COLD))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "冷属性:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_POIS))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "毒属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_ACID)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "酸属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_ELEC)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "電属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_FIRE)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "炎属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_COLD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "冷属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_POIS)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "毒属性:", TERM_RED);
 	if (have_flag(flgs, TR_TUNNEL) && (o_ptr->to_misc[OB_TUNNEL] > 0)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "掘削:", TERM_RED);
 #else
-	if (have_flag(flgs, TR_FORCE_WEAPON))     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "Force  :", TERM_L_BLUE);
-	if (have_flag(flgs, TR_SLAY_ANIMAL))      compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Animals:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_EVIL))        compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Evil:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_GOOD))        compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Good:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_LIVING))      compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Living:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_HUMAN))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Human:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_UNDEAD))      compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Undead:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_DEMON))       compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Demons:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_ORC))         compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Orcs:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_TROLL))       compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Trolls:", TERM_YELLOW);
-	if (have_flag(flgs, TR_SLAY_GIANT))       compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Giants:", TERM_YELLOW);
-	if (have_flag(flgs, TR_KILL_DRAGON))      compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Dragons:", TERM_YELLOW);
-	else if (have_flag(flgs, TR_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Dragons:", TERM_YELLOW);
-	if (have_flag(flgs, TR_BRAND_ACID))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Acid:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_ELEC))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Elec:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_FIRE))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Fire:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_COLD))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Cold:", TERM_RED);
-	if (have_flag(flgs, TR_BRAND_POIS))       compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Poison:", TERM_RED);
+	if (have_flag(flgs, TR_FORCE_WEAPON)) compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "Force  :", TERM_L_BLUE);
+	if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "Animals:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Animals:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "Evil:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Evil:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "Good:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_GOOD)) compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Good:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Living:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_LIVING)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Living:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "Human:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Human:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Undead:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Undead:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Demons:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Demons:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Orcs:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Orcs:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Trolls:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Trolls:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Giants:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Giants:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Dragons:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Dragons:", TERM_YELLOW);
+	if (have_flag(flgs, TR_BRAND_ACID)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Acid:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_ELEC)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Elec:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_FIRE)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Fire:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_COLD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Cold:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_POIS)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Poison:", TERM_RED);
 	if (have_flag(flgs, TR_TUNNEL) && (o_ptr->to_misc[OB_TUNNEL] > 0)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Digging:", TERM_RED);
 #endif
 
@@ -3336,6 +3383,280 @@ static void building_recharge_all(void)
 }
 
 
+/* Locations of the tables on the screen */
+#define HEADER_ROW		1
+#define INSTRUCT_ROW	3
+#define QUESTION_ROW	7
+#define TABLE_ROW		10
+
+#define QUESTION_COL	2
+#define CLASS_COL		2
+#define CLASS_AUX_COL   22
+
+#define CLASS_WID		20
+
+
+typedef struct cc_menu cc_menu;
+
+struct cc_menu
+{
+	int  real;
+	bool can_choose;
+};
+
+/*
+ * Get the special blow of Temple-Knight
+ */
+static void get_temple_blow(void)
+{
+	cc_menu           blows[MAX_TEMPLE_SB];
+	int               i, hgt;
+	int               num = 0, top = 0, cur = 0;
+	char              c;
+	char              buf[80];
+	bool              done = FALSE;
+	byte              attr;
+	char              s[80];
+	special_blow_type *sb_ptr;
+
+	/* Tabulate special blows */
+	for (i = 0; i < MAX_TEMPLE_SB; i++)
+	{
+		if (p_ptr->special_blow & ((0x00000001L << MAX_SB) << i)) return;
+
+		blows[num].real = i;
+		blows[num++].can_choose = ((i != 1) || (p_ptr->psex == SEX_FEMALE));
+	}
+
+	/*** Instructions ***/
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Display some helpful information */
+#ifdef JP
+	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
+	            "以下のメニューから覚えたい必殺技を選んでください。");
+	Term_putstr(QUESTION_COL, INSTRUCT_ROW, -1, TERM_WHITE,
+	            "移動キーで項目をスクロールさせ、Enterで決定します。");
+
+	/* Hack - highlight the key names */
+	Term_putstr(QUESTION_COL + 0, INSTRUCT_ROW, -1, TERM_L_GREEN, "移動キー");
+	Term_putstr(QUESTION_COL + 32, INSTRUCT_ROW, -1, TERM_L_GREEN, "Enter");
+#else
+	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
+	            "Please select new special blow from the menu below:");
+	Term_putstr(QUESTION_COL, INSTRUCT_ROW, -1, TERM_WHITE,
+ 	            "Use the movement keys to scroll the menu, Enter to select the current");
+	Term_putstr(QUESTION_COL, INSTRUCT_ROW + 1, -1, TERM_WHITE,
+	            "menu item.");
+
+	/* Hack - highlight the key names */
+	Term_putstr(QUESTION_COL + 8, INSTRUCT_ROW, -1, TERM_L_GREEN, "movement keys");
+	Term_putstr(QUESTION_COL + 42, INSTRUCT_ROW, -1, TERM_L_GREEN, "Enter");
+#endif
+
+	/* Choose */
+	while (TRUE)
+	{
+		hgt = Term->hgt - TABLE_ROW - 1;
+
+		/* Redraw the list */
+		for (i = 0; ((i + top < num) && (i <= hgt)); i++)
+		{
+			sb_ptr = &temple_blow_info[blows[i + top].real];
+			if (i + top < 26)
+			{
+				sprintf(buf, "%c) %s", I2A(i + top), sb_ptr->name);
+			}
+			else
+			{
+				/* ToDo: Fix the ASCII dependency */
+				sprintf(buf, "%c) %s", 'A' + (i + top - 26), sb_ptr->name);
+			}
+
+			/* Clear */
+			Term_erase(CLASS_COL, i + TABLE_ROW, CLASS_WID);
+
+			/* Display */
+			/* Highlight the current selection */
+			if (i == (cur - top)) attr = blows[i + top].can_choose ? TERM_L_BLUE : TERM_BLUE;
+			else attr = blows[i + top].can_choose ? TERM_WHITE : TERM_SLATE;
+
+			Term_putstr(CLASS_COL, i + TABLE_ROW, CLASS_WID, attr, buf);
+		}
+
+		sb_ptr = &temple_blow_info[blows[cur].real];
+
+		prt("", TABLE_ROW, CLASS_AUX_COL);
+		strcpy(s, "対象武器:");
+		for (i = 1; i <= MAX_WT; i++)
+		{
+			if (weapon_type_bit(i) & sb_ptr->weapon_type)
+			{
+				strcat(s, " ");
+				strcat(s, wt_desc[i]);
+			}
+		}
+		Term_putstr(CLASS_AUX_COL, TABLE_ROW, -1, TERM_WHITE, s);
+		prt("", TABLE_ROW + 1, CLASS_AUX_COL);
+		sprintf(s, "レベル: %2d, コスト: %2d", sb_ptr->level, sb_ptr->cost);
+		Term_putstr(CLASS_AUX_COL, TABLE_ROW + 1, -1, TERM_WHITE, s);
+
+		if (blows[cur].can_choose)
+		{
+			strcpy(s, "                                  ");
+			Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, s);
+		}
+		else
+		{
+			strcpy(s, "この必殺技は女性のみ習得可能です。");
+			Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_L_RED, s);
+		}
+
+		if (done)
+		{
+			char temp[80 * 9];
+			cptr t;
+
+			clear_from(TABLE_ROW);
+			Term_putstr(CLASS_COL, TABLE_ROW, -1, TERM_L_BLUE, sb_ptr->name);
+
+			roff_to_buf(sb_ptr->text, 74, temp, sizeof temp);
+			t = temp;
+
+			for (i = 0; i < 9; i++)
+			{
+				if (t[0] == 0)
+					break; 
+				else
+				{
+					prt(t, TABLE_ROW + 2 + i, CLASS_COL);
+					t += strlen(t) + 1;
+				}
+			}
+
+#ifdef JP
+			if (get_check("よろしいですか？"))
+#else
+			if (get_check("Are you sure? "))
+#endif
+				break;
+
+			clear_from(TABLE_ROW);
+			done = FALSE;
+			continue;
+		}
+
+		/* Move the cursor */
+		put_str("", TABLE_ROW + cur - top, CLASS_COL);
+
+		c = inkey();
+
+		switch (c)
+		{
+		case '\n':
+		case '\r':
+		case ' ':
+			/* Done */
+			if (blows[cur].can_choose) done = TRUE;
+			break;
+
+		case '8':
+			if (cur != 0)
+			{
+				/* Move selection */
+				cur--;
+			}
+
+			if ((top > 0) && ((cur - top) < 4))
+			{
+				/* Scroll up */
+				top--;
+			}
+			break;
+
+		case '2':
+			if (cur != (num - 1))
+			{
+				/* Move selection */
+				cur++;
+			}
+
+			if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
+			{
+				/* Scroll down */
+				top++;
+			}
+			break;
+
+		default:
+			if (isalpha(c))
+			{
+				int choice;
+
+				if (islower(c))
+				{
+					choice = A2I(c);
+				}
+				else
+				{
+					choice = c - 'A' + 26;
+				}
+
+				/* Validate input */
+				if ((choice > -1) && (choice < num))
+				{
+					cur = choice;
+
+					/* Move it onto the screen */
+					if ((cur < top) || (cur > top + hgt))
+					{
+						top = cur;
+					}
+
+					/* Done */
+					if (blows[cur].can_choose) done = TRUE;
+				}
+				else
+				{
+					bell();
+				}
+			}
+
+			/* Invalid input */
+			else bell();
+			break;
+		}
+	}
+
+	sb_ptr = &temple_blow_info[blows[cur].real];
+
+	/* Clear */
+	clear_from(TABLE_ROW);
+
+#ifdef JP
+	sprintf(buf, "%sを習得した！", sb_ptr->name);
+#else
+	sprintf(buf, "You learned %s!", sb_ptr->name);
+#endif
+
+	p_ptr->special_blow |= ((0x00000001L << MAX_SB) << blows[cur].real);
+
+	Term_putstr(QUESTION_COL, TABLE_ROW, -1, TERM_WHITE, buf);
+	message_add(buf);
+#ifdef JP
+	Term_putstr(QUESTION_COL, TABLE_ROW + 2, -1, TERM_WHITE,
+		"[ 何かキーを押してください ]");
+#else
+	Term_putstr(QUESTION_COL, TABLE_ROW + 2, -1, TERM_WHITE,
+		"[Press any key to continue]");
+#endif
+	inkey();
+
+	return;
+}
+
 bool tele_town(bool magic)
 {
 	int i, x, y;
@@ -3369,7 +3690,7 @@ bool tele_town(bool magic)
 		char buf[80];
 
 		if ((!magic && ((i == TOWN_BARMAMUTHA) || (i == TOWN_LOST_ISLAND))) ||
-			(i == p_ptr->town_num) ||
+			(i == p_ptr->town_num) || ((i == TOWN_ARMORICA) && (quest[QUEST_ARMORICA].status < QUEST_STATUS_COMPLETED)) ||
 			!(p_ptr->visit & (1L << (i-1)))) continue;
 
 		sprintf(buf,"%c) %-20s", I2A(i-1), town[i].name);
@@ -3422,12 +3743,301 @@ bool tele_town(bool magic)
 			}
 		}
 	}
-	p_ptr->leftbldg = TRUE;
+
 	p_ptr->leaving = TRUE;
 	leave_bldg = TRUE;
 	p_ptr->teleport_town = TRUE;
 	screen_load();
 	return TRUE;
+}
+
+
+/*
+ *  research_mon
+ *  -KMW-
+ */
+static bool research_mon(void)
+{
+	int i, n, r_idx;
+	char sym, query;
+	char buf[128];
+
+	bool notpicked;
+
+	bool recall = FALSE;
+
+	u16b why = 0;
+
+	u16b	*who;
+
+	/* XTRA HACK WHATSEARCH */
+	bool    all = FALSE;
+	bool    uniq = FALSE;
+	bool    norm = FALSE;
+	char temp[80] = "";
+
+	/* XTRA HACK REMEMBER_IDX */
+	static int old_sym = '\0';
+	static int old_i = 0;
+
+
+	/* Save the screen */
+	screen_save();
+
+	/* Get a character, or abort */
+#ifdef JP
+if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
+#else
+	if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE))
+#endif
+
+	{
+		/* Restore */
+		screen_load();
+
+		return (FALSE);
+	}
+
+	/* Find that character info, and describe it */
+	for (i = 0; ident_info[i]; ++i)
+	{
+		if (sym == ident_info[i][0]) break;
+	}
+
+		/* XTRA HACK WHATSEARCH */
+	if (sym == KTRL('A'))
+	{
+		all = TRUE;
+#ifdef JP
+		strcpy(buf, "全モンスターのリスト");
+#else
+		strcpy(buf, "Full monster list.");
+#endif
+	}
+	else if (sym == KTRL('U'))
+	{
+		all = uniq = TRUE;
+#ifdef JP
+		strcpy(buf, "ユニーク・モンスターのリスト");
+#else
+		strcpy(buf, "Unique monster list.");
+#endif
+	}
+	else if (sym == KTRL('N'))
+	{
+		all = norm = TRUE;
+#ifdef JP
+		strcpy(buf, "ユニーク外モンスターのリスト");
+#else
+		strcpy(buf, "Non-unique monster list.");
+#endif
+	}
+	else if (sym == KTRL('M'))
+	{
+		all = TRUE;
+#ifdef JP
+		if (!get_string("名前(英語の場合小文字で可)",temp, 70))
+#else
+		if (!get_string("Enter name:",temp, 70))
+#endif
+		{
+			temp[0]=0;
+
+			/* Restore */
+			screen_load();
+
+			return FALSE;
+		}
+#ifdef JP
+		sprintf(buf, "名前:%sにマッチ",temp);
+#else
+		sprintf(buf, "Monsters with a name \"%s\"",temp);
+#endif
+	}
+	else if (ident_info[i])
+	{
+		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
+	}
+	else
+	{
+#ifdef JP
+sprintf(buf, "%c - %s", sym, "無効な文字");
+#else
+		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+#endif
+
+	}
+
+	/* Display the result */
+	prt(buf, 16, 10);
+
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
+
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* XTRA HACK WHATSEARCH */
+		/* Require non-unique monsters if needed */
+		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* Require unique monsters if needed */
+		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* 名前検索 */
+		if (temp[0]){
+		  int xx;
+		  char temp2[80];
+  
+		  for (xx=0; temp[xx] && xx<80; xx++){
+#ifdef JP
+		    if (iskanji( temp[xx])) { xx++; continue; }
+#endif
+		    if (isupper(temp[xx])) temp[xx]=tolower(temp[xx]);
+		  }
+  
+#ifdef JP
+		  strcpy(temp2, r_name+r_ptr->E_name);
+#else
+		  strcpy(temp2, r_name+r_ptr->name);
+#endif
+		  for (xx=0; temp2[xx] && xx<80; xx++)
+		    if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
+  
+#ifdef JP
+		  if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) )
+#else
+		  if (strstr(temp2, temp))
+#endif
+			  who[n++]=i;
+		}
+		else if (all || (r_ptr->d_char == sym)) who[n++] = i;
+	}
+
+	/* Nothing to recall */
+	if (!n)
+	{
+		/* Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
+		/* Restore */
+		screen_load();
+
+		return (FALSE);
+	}
+
+	/* Sort by level */
+	why = 2;
+	query = 'y';
+
+	/* Sort if needed */
+	if (why)
+	{
+		/* Select the sort method */
+		ang_sort_comp = ang_sort_comp_hook;
+		ang_sort_swap = ang_sort_swap_hook;
+
+		/* Sort the array */
+		ang_sort(who, &why, n);
+	}
+
+
+	/* Start at the end */
+	/* XTRA HACK REMEMBER_IDX */
+	if (old_sym == sym && old_i < n) i = old_i;
+	else i = n - 1;
+
+	notpicked = TRUE;
+
+	/* Scan the monster memory */
+	while (notpicked)
+	{
+		/* Extract a race */
+		r_idx = who[i];
+
+		/* Save this monster ID */
+		p_ptr->monster_race_idx = r_idx;
+
+		/* Hack -- Handle stuff */
+		handle_stuff();
+
+		/* Hack -- Begin the prompt */
+		roff_top(r_idx);
+
+		/* Hack -- Complete the prompt */
+#ifdef JP
+Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
+#else
+		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC, space to continue]");
+#endif
+
+
+		/* Interact */
+		while (1)
+		{
+			/* Recall */
+			if (recall)
+			{
+				/* Get maximal info about this monster */
+				lore_do_probe(r_idx);
+			
+				/* know every thing mode */
+				screen_roff(r_idx, 0x01);
+				notpicked = FALSE;
+
+				/* XTRA HACK REMEMBER_IDX */
+				old_sym = sym;
+				old_i = i;
+			}
+
+			/* Command */
+			query = inkey();
+
+			/* Normal commands */
+			if (query != 'r') break;
+
+			/* Toggle recall */
+			recall = !recall;
+		}
+
+		/* Stop scanning */
+		if (query == ESCAPE) break;
+
+		/* Move to "prev" monster */
+		if (query == '-')
+		{
+			if (++i == n)
+			{
+				i = 0;
+				if (!expand_list) break;
+			}
+		}
+
+		/* Move to "next" monster */
+		else
+		{
+			if (i-- == 0)
+			{
+				i = n - 1;
+				if (!expand_list) break;
+			}
+		}
+	}
+
+
+	/* Re-display the identity */
+	/* prt(buf, 5, 5);*/
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, u16b);
+
+	/* Restore */
+	screen_load();
+
+	return (!notpicked);
 }
 
 
@@ -3446,7 +4056,7 @@ static void bldg_process_command(building_type *bldg, int i)
 	msg_print(NULL);
 
 	/* action restrictions */
-	if ((bldg->action_restr[i] == 1) && !can_eat_food(bldg))
+	if ((bldg->action_restr[i] == 1) && !can_eat_food())
 	{
 #ifdef JP
 		msg_print("それを選択することはできません！");
@@ -3457,7 +4067,7 @@ static void bldg_process_command(building_type *bldg, int i)
 	}
 
 	/* check gold (HACK - Recharge uses variable costs) */
-	if ((bact != BACT_RECHARGE) && ((bldg->costs[i] > p_ptr->au_sum) && can_eat_food(bldg)))
+	if ((bact != BACT_RECHARGE) && ((bldg->costs[i] > p_ptr->au_sum) && can_eat_food()))
 	{
 #ifdef JP
 		msg_print("お金が足りません！");
@@ -3906,7 +4516,7 @@ static void bldg_process_command(building_type *bldg, int i)
 			}
 			else if (!dun_level && p_ptr->town_num)
 			{
-				if (chaos_frame[town[p_ptr->town_num].ethnic] <= CFRAME_LOWER_LIMIT) reject = TRUE;
+				if (chaos_frame[(int)town[p_ptr->town_num].ethnic] <= CFRAME_LOWER_LIMIT) reject = TRUE;
 			}
 
 			if (reject)
@@ -3955,6 +4565,123 @@ static void bldg_process_command(building_type *bldg, int i)
 	case BACT_EVAL_AC:
 		paid = eval_ac(p_ptr->dis_ac + p_ptr->dis_to_a);
 		break;
+	case BACT_JOIN_LODIS_KNIGHTS:
+	case BACT_JOIN_ZENOBIAN_KNIGHTS:
+		{
+			int i, new_class, total_max_clev = 0, experienced_classes = 0;
+			cexp_info_type *cexp_ptr;
+
+			/* Calculate character total class level */
+			for (i = 0; i < MAX_CLASS; i++)
+			{
+				if (p_ptr->cexp_info[i].max_clev > 0)
+				{
+					total_max_clev += p_ptr->cexp_info[i].max_clev;
+					experienced_classes++;
+				}
+			}
+
+			switch (bact)
+			{
+			case BACT_JOIN_LODIS_KNIGHTS:
+				new_class = CLASS_TEMPLEKNIGHT;
+
+				if (!(can_choose_class(new_class, CLASS_CHOOSE_MODE_NORMAL)))
+				{
+#ifdef JP
+					msg_print("お前はまだ暗黒騎士団への入団資格を持っていない。");
+#else
+					msg_print("You cannot choose this class now.");
+#endif
+					return;
+				}
+
+#ifdef JP
+				msg_print("暗黒騎士団への入団を認める。");
+#else
+				msg_print("changed class to Temple-Knight.");
+#endif
+
+				change_level99_quest(TRUE);
+				get_temple_blow();
+				misc_event_flags |= EVENT_CANNOT_BE_WHITEKNIGHT;
+				break;
+			case BACT_JOIN_ZENOBIAN_KNIGHTS:
+				new_class = CLASS_WHITEKNIGHT;
+
+				if (!(can_choose_class(new_class, CLASS_CHOOSE_MODE_NORMAL)))
+				{
+#ifdef JP
+					msg_print("お前はまだゼノビア騎士団への入団資格を持っていない。");
+#else
+					msg_print("You cannot choose this class now.");
+#endif
+					return;
+				}
+
+#ifdef JP
+				msg_print("ゼノビア騎士団への入団を認める。");
+#else
+				msg_print("changed class to White-Knight.");
+#endif
+
+				misc_event_flags |= EVENT_CANNOT_BE_TEMPLEKNIGHT;
+				break;
+			}
+
+			/* Set class */
+			p_ptr->pclass = new_class;
+			cp_ptr = &class_info[p_ptr->pclass];
+			mp_ptr = &m_info[p_ptr->pclass];
+			p_ptr->s_ptr = &s_info[p_ptr->pclass];
+			cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
+			for (i = 0; i < MAX_REALM+1; i++)
+				if (p_ptr->magic_exp[i] == 0) p_ptr->magic_exp[i] = p_ptr->s_ptr->s_eff[i];
+
+			if (!cexp_ptr->max_clev)
+			{
+				cexp_ptr->max_clev = cexp_ptr->clev = 1;
+				if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
+				p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
+			}
+
+			/* Update stuff */
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+			/* Combine / Reorder the pack */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+			/* Notice stuff */
+			notice_stuff();
+
+			/* Update stuff */
+			update_stuff();
+
+			if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+			if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+
+			dispel_player();
+			set_action(ACTION_NONE);
+			init_realm_table();
+
+			/* Update stuff */
+			p_ptr->update |= (PU_HP | PU_MANA | PU_LITE);
+
+			/* Redraw stuff */
+			p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_MESSAGE | PW_SPELL | PW_PLAYER);
+
+			/* Reorder the pack (later) */
+			p_ptr->notice |= (PN_REORDER);
+
+			/* Load the "pref" files */
+			load_all_pref_files();
+
+		}
+		break;
 	}
 
 	if (paid)
@@ -3999,9 +4726,9 @@ void do_cmd_quest(void)
 
 		leave_quest_check();
 
+		if (quest[p_ptr->inside_quest].type != QUEST_TYPE_RANDOM) dun_level = 1;
 		p_ptr->inside_quest = cave[py][px].special;
-		if(quest[leaving_quest].type != QUEST_TYPE_RANDOM) dun_level = 1;
-		p_ptr->leftbldg = TRUE;
+
 		p_ptr->leaving = TRUE;
 	}
 }
@@ -4035,7 +4762,6 @@ void do_cmd_bldg(void)
 	}
 
 	which = (cave[py][px].feat - FEAT_BLDG_HEAD);
-	building_loc = which;
 
 	bldg = &building[which];
 
@@ -4052,6 +4778,19 @@ void do_cmd_bldg(void)
 			if (p_ptr->town_num == TOWN_BARMAMUTHA)
 			{
 				if (misc_event_flags & EVENT_CLOSE_BARMAMUTHA)
+				{
+#ifdef JP
+					msg_print("ドアに鍵がかかっている。");
+#else
+					msg_print("The doors are locked.");
+#endif
+					return;
+				}
+			}
+
+			if (p_ptr->town_num == TOWN_ARMORICA)
+			{
+				if (!(misc_event_flags & EVENT_LIBERATION_OF_ARMORICA))
 				{
 #ifdef JP
 					msg_print("ドアに鍵がかかっている。");
@@ -4095,7 +4834,7 @@ void do_cmd_bldg(void)
 		}
 	}
 
-	if ((which == 2) && (p_ptr->arena_number == 99))
+	if ((which == 2) && (p_ptr->arena_number < 0))
 	{
 #ifdef JP
 		msg_print("「敗者に用はない。」");
@@ -4104,20 +4843,32 @@ void do_cmd_bldg(void)
 #endif
 		return;
 	}
-	else if ((which == 2) && p_ptr->inside_arena && !p_ptr->exit_bldg)
-	{
-#ifdef JP
-		prt("ゲートは閉まっている。モンスターがあなたを待っている！",0,0);
-#else
-		prt("The gates are closed.  The monster awaits!", 0, 0);
-#endif
-
-		return;
-	}
 	else if ((which == 2) && p_ptr->inside_arena)
 	{
-		p_ptr->leaving = TRUE;
-		p_ptr->inside_arena = FALSE;
+		if (!p_ptr->exit_bldg)
+		{
+#ifdef JP
+			prt("ゲートは閉まっている。モンスターがあなたを待っている！",0,0);
+#else
+			prt("The gates are closed.  The monster awaits!", 0, 0);
+#endif
+		}
+		else
+		{
+			/* Don't save the arena as saved floor */
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_NO_RETURN);
+
+			p_ptr->inside_arena = FALSE;
+			p_ptr->leaving = TRUE;
+
+			/* Re-enter the arena */
+			command_new = SPECIAL_KEY_BUILDING;
+
+			/* No energy needed to re-enter the arena */
+			energy_use = 0;
+		}
+
+		return;
 	}
 	else
 	{
@@ -4202,7 +4953,9 @@ void do_cmd_bldg(void)
 
 	/* Reinit wilderness to activate quests ... */
 	if (reinit_wilderness)
+	{
 		p_ptr->leaving = TRUE;
+	}
 
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;

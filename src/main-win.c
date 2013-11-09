@@ -2483,7 +2483,7 @@ static void init_windows(void)
 	td = &data[0];
 	WIPE(td, term_data);
 #ifdef JP
-	td->s = "TOband";
+	td->s = "TOband2";
 #else
 	td->s = angband_term_name[0];
 #endif

@@ -258,51 +258,6 @@
 
 
 /*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-#define DELAY_LOAD_F_TEXT
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
- */
-#define DELAY_LOAD_K_TEXT
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
- */
-#ifndef JP
-#define DELAY_LOAD_A_TEXT
-#endif
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
- */
-#define DELAY_LOAD_E_TEXT
-
-/*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ~60K, but "simplifying" the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
-
-/*
- * OPTION: Delay the loading of the "d_text" array until it is actually
- * needed, saving ~1K, since "dungeon" descriptions are unused.
- */
-/* #define DELAY_LOAD_D_TEXT */
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ~1K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
-
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
@@ -330,48 +285,6 @@
  */
 #define MONSTER_FLOW_DEPTH 32
 
-
-
-/*
- * OPTION: Allow use of extended spell info	-DRS-
- */
-#define DRS_SHOW_SPELL_INFO
-
-/*
- * OPTION: Allow use of the monster health bar	-DRS-
- */
-#define DRS_SHOW_HEALTH_BAR
-
-
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- *
- * SPECIAL NOTE: In Z, the "smart" field is also used to store such
- * monster information as "friendly" and "cloned". Therefore this
- * option should always be defined when compiling Zangband 2.1.0
- * or later.
- */
-#define DRS_SMART_OPTIONS
-
-
-
-/*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
 
 #ifdef USE_SPECIAL
 
@@ -589,6 +502,19 @@
 #define SUPPORT_GAMMA
 
 /*
+ * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
+ * but has Mac OS/Windows-like user interface
+ */
+#ifdef MACH_O_CARBON
+# ifdef PRIVATE_USER_PATH
+#  undef PRIVATE_USER_PATH
+# endif
+# ifdef SAVEFILE_USE_UID
+#  undef SAVEFILE_USE_UID
+# endif
+#endif
+
+/*
  * Hack -- Special "ancient machine" versions
  */
 #if defined(USE_286) || defined(ANGBAND_LITE_MAC)
@@ -611,8 +537,6 @@
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
-# undef WDT_TRACK_OPTIONS
-# undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_WIZARD
@@ -640,12 +564,6 @@
 #endif
 
 /* Zangband options: */
-
-/* (see above) */
-#ifndef DRS_SMART_OPTIONS
- #define DRS_SMART_OPTIONS
-#endif
-
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
 
@@ -658,32 +576,10 @@
 /* # define TRACK_FRIENDS */
 
 /*
- * OPTION: Repeat last command -- TNB
- */
-#define ALLOW_REPEAT
-
-/*
- * OPTION: Make opening and closing things easy -- TNB
- */
-#define ALLOW_EASY_OPEN
-
-/*
- * OPTION: Make disarming traps easy -- TNB
- */
-#define ALLOW_EASY_DISARM
-
-/*
- * OPTION: Make floor stacks easy -- TNB
- */
-#define ALLOW_EASY_FLOOR
-
-/*
  * Check the modification time of *_info.raw files
  * (by Keldon Jones)
  */
-#ifndef MAC_MPW
 #define CHECK_MODIFICATION_TIME
-#endif
 
 /*
  * Use the new sorting routines for creation

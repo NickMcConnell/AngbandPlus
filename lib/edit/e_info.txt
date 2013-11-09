@@ -641,57 +641,56 @@ W:0:18:0:4000
 C:0:0:0
 F:IMPACT | ACTIVATE | TUNNEL_2
 
-# The "Slay" brands (8)
+# The "Kill" brands (8)
 
-N:80:アニマルスレイヤーの
-E:of Slay Animal
-X:24:18
-W:0:23:0:3500
+N:80:*アニマルスレイヤー*の
+E:of *Slay* Animal
+X:24:20
+W:0:90:0:6000
 F:SLAY_ANIMAL
+F:INT_2 | KILL_ANIMAL | REGEN |
 
-N:81:滅邪の
-E:of Slay Evil
-X:24:18
-W:0:23:0:3500
-F:SLAY_EVIL | BLESSED
+N:81:*滅邪*の
+E:of *Slay* Evil
+X:24:20
+W:0:90:0:8000
+F:KILL_EVIL | RES_FEAR | BLESSED | WIS_2
 
-N:82:アンデッドスレイヤーの
-E:of Slay Undead
-X:24:18
-W:0:23:0:3500
-F:SLAY_UNDEAD | HOLD_LIFE | BLESSED
+N:82:*アンデッドスレイヤー*の
+E:of *Slay* Undead
+X:24:24
+W:0:90:0:8000
+F:KILL_UNDEAD | HOLD_LIFE | SEE_INVIS | RES_NETHER | BLESSED | WIS_2 |
 
-N:83:デーモンスレイヤーの
-E:of Slay Demon
+N:83:*デーモンスレイヤー*の
+E:of *Slay* Demon
+X:24:16
+W:0:90:0:4000
+F:KILL_DEMON | BLESSED | INT_2 |
+
+N:84:*オークスレイヤー*の
+E:of *Slay* Orc
 X:24:14
-W:0:23:0:2500
-F:SLAY_DEMON | BLESSED
+W:0:60:0:4000
+F:KILL_ORC | DEX_2 |
 
-N:84:オークスレイヤーの
-E:of Slay Orc
-X:24:10
-W:0:15:0:2500
-F:SLAY_ORC
-
-N:85:トロルスレイヤーの
-E:of Slay Troll
-X:24:10
-W:0:15:0:2500
-F:SLAY_TROLL
-
-N:86:ジャイアントスレイヤーの
-E:of Slay Giant
+N:85:*トロルスレイヤー*の
+E:of *Slay* Troll
 X:24:14
-W:0:15:0:2500
-F:SLAY_GIANT
+W:0:60:0:4000
+F:KILL_TROLL | STR_2 |
 
-N:87:ドラゴンスレイヤーの
-E:of Slay Dragon
-X:24:18
-W:0:23:0:3500
-F:SLAY_DRAGON | XTRA_E_RES
+N:86:*ジャイアントスレイヤー*の
+E:of *Slay* Giant
+X:24:16
+W:0:60:0:4000
+F:KILL_GIANT | STR_2 |
 
-# The "Kill" brands (1)
+N:87:*滅善*の
+E:of *Slay* Good
+X:24:20
+W:0:90:0:5000
+F:KILL_GOOD | UNHOLY | RES_FEAR | INT_2 |
 
 # Destroyed Weapon
 N:88:折れた
@@ -726,7 +725,13 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # 91 (unused)
 # 92 (unused)
 # 93 (unused)
-# 94 (unused)
+
+N:94:*滅生命*の
+E:of *Slay* Living
+X:24:24
+W:0:35:0:6000
+C:0:0:0
+F:KILL_LIVING | UNHOLY | CON_2 |
 
 N:95:(ドラグーン)
 E:(Dragoon)
@@ -769,13 +774,13 @@ F:FREE_ACT | SEE_INVIS | XTRA_H_RES
 
 #N:100:unused
 
-N:101:人喰いの
-E:of Slay Human
-X:24:10
-W:0:23:0:2500
-F:SLAY_HUMAN
+N:101:*人喰い*の
+E:of *Slay* Human
+X:24:16
+W:0:60:0:4000
+F:KILL_HUMAN | DEX_2 |
 
-N:102:モルグルの
+N:102:血塗られた
 E:of Morgul
 X:24:0
 W:0:36:0:0

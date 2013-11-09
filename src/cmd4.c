@@ -325,9 +325,11 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		case NIKKI_HIGAWARI:
 		{
 #ifdef JP
-			fprintf(fff, "%d日目\n",day);
+			if (day < MAX_DAYS) fprintf(fff, "%d日目\n", day);
+			else fputs("*****日目\n", fff);
 #else
-			fprintf(fff, "Day %d\n",day);
+			if (day < MAX_DAYS) fprintf(fff, "Day %d\n", day);
+			else fputs("Day *****\n", fff);
 #endif
 			do_level = FALSE;
 			break;
@@ -4496,10 +4498,10 @@ void do_cmd_version(void)
 {
 	/* Silly message */
 #ifdef JP
-	msg_format("TOband %d.%d.%d",
+	msg_format("TOband2 %d.%d.%d",
 	            T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 #else
-	msg_format("You are playing TOband %d.%d.%d.",
+	msg_format("You are playing TOband2 %d.%d.%d.",
 	            T_VER_MAJOR, T_VER_MINOR, T_VER_PATCH);
 #endif
 }
@@ -4615,8 +4617,7 @@ static cptr do_cmd_feeling_text_lucky[11] =
  */
 void do_cmd_feeling(void)
 {
-	/* Verify the feeling */
-	if (feeling > 10) feeling = 10;
+	int ethnic = town[p_ptr->town_num].ethnic;
 
 	/* No useful feeling in quests */
 	if (p_ptr->inside_quest && !random_quest_number(dun_level))
@@ -4647,13 +4648,13 @@ void do_cmd_feeling(void)
 
 			return;
 		}
-		else if (town[p_ptr->town_num].ethnic != NO_ETHNICITY)
+		else if (ethnic != NO_ETHNICITY)
 		{
-			if (chaos_frame[(int)(town[p_ptr->town_num].ethnic)] >= CFRAME_GOOD_FEELING)
+			if (chaos_frame[ethnic] >= CFRAME_GOOD_FEELING)
 			{
 				msg_print("この町の人々はあなたを歓迎しているようだ。");
 			}
-			else if (chaos_frame[(int)(town[p_ptr->town_num].ethnic)] > CFRAME_BAD_FEELING)
+			else if (chaos_frame[ethnic] > CFRAME_BAD_FEELING)
 			{
 				msg_print("この町の人々はあなたに対して無関心だ。");
 			}
@@ -4685,15 +4686,10 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	if (turn - old_turn >= (150 - dun_level)*TURNS_PER_TICK || cheat_xtra)
-	{
-		if (p_ptr->muta3 & MUT3_GOOD_LUCK) msg_print(do_cmd_feeling_text_lucky[feeling]);
-		else msg_print(do_cmd_feeling_text[feeling]);
-	}
+	if (p_ptr->muta3 & MUT3_GOOD_LUCK)
+		msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
 	else
-	{
-		msg_print(do_cmd_feeling_text[0]);
-	}
+		msg_print(do_cmd_feeling_text[p_ptr->feeling]);
 }
 
 
@@ -4988,6 +4984,7 @@ static cptr object_group_text[] =
 	"杖",		/* "Staffs" */
 	"ロッド",	/* "Rods" */
 	"カード",	/* "Cards" */
+	"トランプ",
 	"タロットカード",
 	"スピードくじ",
 	"くさび",
@@ -5031,6 +5028,7 @@ static cptr object_group_text[] =
 	"Staves",
 	"Rods",
 	"Cards",
+	"Trumps",
 	"Tarot Cards",
 	"Scratch Cards",
 	"Spikes",
@@ -5083,6 +5081,7 @@ static byte object_group_tval[] =
 	TV_STAFF,
 	TV_ROD,
 	TV_CARD,
+	TV_TRUMP,
 	TV_TAROT,
 	TV_SCRATCH_CARD,
 	TV_SPIKE,
@@ -6515,6 +6514,7 @@ static void do_cmd_knowledge_uniques(void)
 static void do_cmd_knowledge_chaos_frame(void)
 {
 	int i;
+	int ethnic = town[p_ptr->town_num].ethnic;
 
 	FILE *fff;
 
@@ -6540,7 +6540,7 @@ static void do_cmd_knowledge_chaos_frame(void)
 
 	if (!dun_level && p_ptr->town_num)
 	{
-		if (town[p_ptr->town_num].ethnic != NO_ETHNICITY)
+		if (ethnic != NO_ETHNICITY)
 		{
 #ifdef JP
 			fprintf(fff, "\nこの街は%sに支配されています。\n", ethnicity_names[(int)(town[p_ptr->town_num].ethnic)]);
@@ -8308,32 +8308,17 @@ static void do_cmd_knowledge_stat(void)
 
 
 /*
- * Print quest status of all active quests
+ * Print all active quests
  */
-static void do_cmd_knowledge_quests(void)
+static void do_cmd_knowledge_quests_current(FILE *fff)
 {
-	FILE *fff;
-	char file_name[1024];
 	char tmp_str[120];
 	char rand_tmp_str[120] = "\0";
 	char name[80];
 	monster_race *r_ptr;
 	int i;
-	int rand_level = astral_mode ? 0 : 100;
+	int rand_level = 100;
 	int total = 0;
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff)
-	{
-#ifdef JP
-		msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-		msg_format("Failed to create temporary file %s.", file_name);
-#endif
-		msg_print(NULL);
-		return;
-	}
 
 #ifdef JP
 	fprintf(fff, "《遂行中のクエスト》\n");
@@ -8516,6 +8501,17 @@ static void do_cmd_knowledge_quests(void)
 #else
 	if (!total) fprintf(fff, "Nothing.\n");
 #endif
+}
+
+
+/*
+ * Print all finished quests
+ */
+void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
+{
+	char tmp_str[120];
+	int i;
+	int total = 0;
 
 #ifdef JP
 	fprintf(fff, "\n《達成したクエスト》\n");
@@ -8597,6 +8593,17 @@ static void do_cmd_knowledge_quests(void)
 #else
 	if (!total) fprintf(fff, "Nothing.\n");
 #endif
+}
+
+
+/*
+ * Print all failed quests
+ */
+void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
+{
+	char tmp_str[120];
+	int i;
+	int total = 0;
 
 #ifdef JP
 	fprintf(fff, "\n《失敗したクエスト》\n");
@@ -8660,14 +8667,23 @@ static void do_cmd_knowledge_quests(void)
 #else
 	if (!total) fprintf(fff, "Nothing.\n");
 #endif
+}
 
-	if (p_ptr->wizard) {
+
+/*
+ * Print all random quests
+ */
+static void do_cmd_knowledge_quests_wiz_random(FILE *fff)
+{
+	char tmp_str[120];
+	int i;
+	int total = 0;
+
 #ifdef JP
 	fprintf(fff, "\n《残りのランダムクエスト》\n");
 #else
 	fprintf(fff, "\n< Remaining Random Quest >\n");
 #endif
-	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{
 		/* No info from "silent" quests */
@@ -8693,6 +8709,79 @@ static void do_cmd_knowledge_quests(void)
 #else
 	if (!total) fprintf(fff, "Nothing.\n");
 #endif
+}
+
+
+bool ang_sort_comp_quest_num(vptr u, vptr v, int a, int b)
+{
+	int *q_num = (int *)u;
+	quest_type *qa = &quest[q_num[a]];
+	quest_type *qb = &quest[q_num[b]];
+
+	/* Unused */
+	(void)v;
+
+	if (qa->complev < qb->complev) return TRUE;
+	if (qa->complev > qb->complev) return FALSE;
+	if (qa->level <= qb->level) return TRUE;
+	return FALSE;
+}
+
+void ang_sort_swap_quest_num(vptr u, vptr v, int a, int b)
+{
+	int *q_num = (int *)u;
+	int tmp;
+
+	/* Unused */
+	(void)v;
+
+	tmp = q_num[a];
+	q_num[a] = q_num[b];
+	q_num[b] = tmp;
+}
+
+
+/*
+ * Print quest status of all active quests
+ */
+static void do_cmd_knowledge_quests(void)
+{
+	FILE *fff;
+	char file_name[1024];
+	int *quest_num, dummy, i;
+
+	/* Open a new file */
+	fff = my_fopen_temp(file_name, 1024);
+	if (!fff)
+	{
+#ifdef JP
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
+#else
+		msg_format("Failed to create temporary file %s.", file_name);
+#endif
+		msg_print(NULL);
+		return;
+	}
+
+	/* Allocate Memory */
+	C_MAKE(quest_num, max_quests, int);
+
+	/* Sort by compete level */
+	for (i = 1; i < max_quests; i++) quest_num[i] = i;
+	ang_sort_comp = ang_sort_comp_quest_num;
+	ang_sort_swap = ang_sort_swap_quest_num;
+	ang_sort(quest_num, &dummy, max_quests);
+
+	/* Dump Quest Information */
+	do_cmd_knowledge_quests_current(fff);
+	fputc('\n', fff);
+	do_cmd_knowledge_quests_completed(fff, quest_num);
+	fputc('\n', fff);
+	do_cmd_knowledge_quests_failed(fff, quest_num);
+	if (p_ptr->wizard)
+	{
+		fputc('\n', fff);
+		do_cmd_knowledge_quests_wiz_random(fff);
 	}
 
 	/* Close the file */
@@ -8705,11 +8794,12 @@ static void do_cmd_knowledge_quests(void)
 	show_file(TRUE, file_name, "Quest status", 0, 0);
 #endif
 
-
 	/* Remove the file */
 	fd_kill(file_name);
-}
 
+	/* Free Memory */
+	C_KILL(quest_num, max_quests, int);
+}
 
 
 /*
@@ -9252,6 +9342,7 @@ void do_cmd_time(void)
 	char desc[1024];
 
 	char buf[1024];
+	char day_buf[10];
 
 	FILE *fff;
 
@@ -9271,14 +9362,17 @@ void do_cmd_time(void)
 #endif
 
 
+	if (day < MAX_DAYS) sprintf(day_buf, "%d", day);
+	else strcpy(day_buf, "*****");
+
 	/* Message */
 #ifdef JP
 	msg_format("%d 日目,時刻は%d:%02d %sです。",
-		   day, (hour % 12 == 0) ? 12 : (hour % 12),
+		   day_buf, (hour % 12 == 0) ? 12 : (hour % 12),
 		   min, (hour < 12) ? "AM" : "PM");
 #else
 	msg_format("This is day %d. The time is %d:%02d %s.",
-		   day, (hour % 12 == 0) ? 12 : (hour % 12),
+		   day_buf, (hour % 12 == 0) ? 12 : (hour % 12),
 		   min, (hour < 12) ? "AM" : "PM");
 #endif
 
@@ -9577,36 +9671,6 @@ static char misc_skill_name[MAX_SKILL][20] =
 	"武器防具鑑定    ",
 	"装飾品鑑定      ",
 	"魔法の詠唱      ",
-#else
-	"Martial Arts    ",
-	"Dual Wielding   ",
-	"Riding          ",
-	"Throwing        ",
-	"Pet Upkeep      ",
-	"Arms Identify   ",
-	"Acc. Identify   ",
-#endif
-};
-
-static char weapon_skill_name[MAX_WT][20] =
-{
-#ifdef JP
-	"なし",
-	"小剣・突剣",
-	"カタナ    ",
-	"剣        ",
-	"大剣      ",
-	"斧        ",
-	"槍        ",
-	"乗馬槍    ",
-	"爪        ",
-	"鎌        ",
-	"鞭        ",
-	"ハンマー  ",
-	"杖        ",
-	"扇        ",
-	"弓        ",
-	"銃        ",
 #else
 	"Martial Arts    ",
 	"Dual Wielding   ",

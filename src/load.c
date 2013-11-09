@@ -496,6 +496,9 @@ static void rd_monster(monster_type *m_ptr)
 	}
 
 	else m_ptr->nickname = 0;
+
+	if (flags & SAVE_MON_PARENT) rd_s16b(&m_ptr->parent_m_idx);
+	else m_ptr->parent_m_idx = 0;
 }
 
 
@@ -528,7 +531,7 @@ static void rd_lore(int r_idx)
 	rd_byte(&r_ptr->r_drop_item);
 
 	/* Count spells */
-	rd_byte(&r_ptr->r_cast_inate);
+	rd_byte(&tmp8u);
 	rd_byte(&r_ptr->r_cast_spell);
 
 	/* Count blows of each type */
@@ -1017,7 +1020,8 @@ static void load_quick_start(void)
 
 	for (i = 0; i < 4; i++) rd_string(previous_char.history[i], sizeof(previous_char.history[i]));
 
-	rd_byte(&previous_char.quests);
+	/* UNUSED : Was number of random quests */
+	rd_byte(&tmp8u);
 
 	rd_byte(&tmp8u);
 	previous_char.quick_ok = (bool)tmp8u;
@@ -1033,6 +1037,7 @@ static errr rd_extra(void)
 	byte tmp8u;
 	s16b tmp16s;
 	u16b tmp16u;
+	u16b temp16u;
 
 	rd_string(player_name, sizeof(player_name));
 
@@ -1062,19 +1067,22 @@ static errr rd_extra(void)
 	mp_ptr = &m_info[p_ptr->pclass];
 
 	rd_s16b(&p_ptr->pelem);
-	rd_byte(&tmp8u); /* oops */
+	rd_byte(&tmp8u);
 
 	rd_u16b(&p_ptr->expfact);
-	if (t_older_than(0, 1, 0, 10))
+	if (t_older_than(0, 5, 0, 0))
 	{
 		if (t_older_than(0, 1, 0, 8)) rd_u16b(&p_ptr->cexpfact[p_ptr->pclass]);
+		else if (t_older_than(0, 1, 0, 10))
+		{
+			for (i = 0; i < MAX_CLASS - 2; i++) rd_u16b(&p_ptr->cexpfact[i]);
+		}
 		else
 		{
 			for (i = 0; i < MAX_CLASS - 1; i++) rd_u16b(&p_ptr->cexpfact[i]);
-			p_ptr->cexpfact[CLASS_VAMPIRE] = class_info[CLASS_VAMPIRE].c_exp;
 		}
 	}
-	else for (i = 0; i < MAX_CLASS; i++) rd_u16b(&p_ptr->cexpfact[i]);
+	else for (i = 0; i < tmp8u; i++) rd_u16b(&p_ptr->cexpfact[i]);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -1092,7 +1100,16 @@ static errr rd_extra(void)
 	rd_s32b(&p_ptr->max_max_exp);
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
-	rd_u16b(&p_ptr->exp_frac);
+
+	if (t_older_than(0, 5, 0, 1))
+	{
+		rd_u16b(&temp16u);
+		p_ptr->exp_frac = (u32b)temp16u;
+	}
+	else
+	{
+		rd_u32b(&p_ptr->exp_frac);
+	}
 
 	rd_s32b(&p_ptr->lev);
 
@@ -1133,7 +1150,17 @@ static errr rd_extra(void)
 		rd_s32b(&cexp_ptr->max_max_cexp);
 		rd_s32b(&cexp_ptr->max_cexp);
 		rd_s32b(&cexp_ptr->cexp);
-		rd_u16b(&cexp_ptr->cexp_frac);
+
+		if (t_older_than(0, 5, 0, 1))
+		{
+			rd_u16b(&temp16u);
+			cexp_ptr->cexp_frac = (u32b)temp16u;
+		}
+		else
+		{
+			rd_u32b(&cexp_ptr->cexp_frac);
+		}
+
 		rd_s32b(&cexp_ptr->clev);
 		rd_s32b(&cexp_ptr->max_clev);
 		rd_s32b(&cexp_ptr->max_max_clev);
@@ -1193,7 +1220,7 @@ static errr rd_extra(void)
 	p_ptr->inside_arena = (bool)tmp16s;
 	rd_s16b(&p_ptr->inside_quest);
 	rd_byte(&p_ptr->exit_bldg);
-	rd_byte(&p_ptr->leftbldg);
+	rd_byte(&tmp8u);
 
 	rd_s16b(&p_ptr->oldpx);
 	rd_s16b(&p_ptr->oldpy);
@@ -1204,11 +1231,27 @@ static errr rd_extra(void)
 
 	rd_s32b(&p_ptr->mhp);
 	rd_s32b(&p_ptr->chp);
-	rd_u16b(&p_ptr->chp_frac);
+	if (t_older_than(0, 5, 0, 1))
+	{
+		rd_u16b(&tmp16u);
+		p_ptr->chp_frac = (u32b)tmp16u;
+	}
+	else
+	{
+		rd_u32b(&p_ptr->chp_frac);
+	}
 
 	rd_s32b(&p_ptr->msp);
 	rd_s32b(&p_ptr->csp);
-	rd_u16b(&p_ptr->csp_frac);
+	if (t_older_than(0, 5, 0, 1))
+	{
+		rd_u16b(&tmp16u);
+		p_ptr->csp_frac = (u32b)tmp16u;
+	}
+	else
+	{
+		rd_u32b(&p_ptr->csp_frac);
+	}
 
 	rd_s32b(&p_ptr->max_plv);
 	rd_s32b(&p_ptr->max_max_plv);
@@ -1314,8 +1357,10 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->magical_weapon);
 	rd_s16b(&p_ptr->evil_weapon);
 	rd_u32b(&p_ptr->special_attack);
-	rd_byte(&tmp8u); /* oops */
-	rd_byte(&tmp8u); /* oops */
+	rd_s16b(&p_ptr->death_regen);
+
+	if (t_older_than(0, 5, 0, 4)) p_ptr->death_regen = 999;
+
 	rd_byte(&p_ptr->action);
 	rd_byte(&tmp8u);
 	rd_byte((byte *)&preserve_mode);
@@ -1323,8 +1368,10 @@ static errr rd_extra(void)
 	/* Future use */
 	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
 
+	rd_s32b(&p_ptr->realm_medium);
+
 	/* Skip the flags */
-	strip_bytes(12);
+	strip_bytes(8);
 
 
 	/* Hack -- the two "special seeds" */
@@ -1346,11 +1393,24 @@ static errr rd_extra(void)
 	rd_u32b(&p_ptr->is_dead);
 
 	/* Read "feeling" */
-	rd_byte(&tmp8u);
-	feeling = tmp8u;
+	rd_byte(&p_ptr->feeling);
 
-	/* Turn of last "feeling" */
+	turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
+
+	dungeon_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
+
+	/* Turn when level began */
 	rd_s32b(&old_turn);
+
+	if (t_older_than(0, 5, 0, 2))
+	{
+		p_ptr->feeling_turn = old_turn;
+	}
+	else
+	{
+		/* Turn of last "feeling" */
+		rd_s32b(&p_ptr->feeling_turn);
+	}
 
 	/* Current turn */
 	rd_s32b(&turn);
@@ -1386,6 +1446,9 @@ static errr rd_extra(void)
 
 	/* Misc. event flags */
 	rd_u32b(&misc_event_flags);
+
+	if (!(misc_event_flags & EVENT_LIBERATION_OF_ARMORICA) && (quest[QUEST_ARMORICA].status > QUEST_STATUS_TAKEN))
+		misc_event_flags |= EVENT_LIBERATION_OF_ARMORICA;
 
 	for (i = 0; i < MAX_STOCK_MON; i++)
 	{
@@ -1607,7 +1670,7 @@ static errr rd_saved_floor(saved_floor_type *sf_ptr)
 	rd_s16b(&cur_hgt);
 	rd_s16b(&cur_wid);
 
-	rd_byte(&feeling);
+	rd_byte(&p_ptr->feeling);
 
 
 
@@ -1788,9 +1851,6 @@ static errr rd_saved_floor(saved_floor_type *sf_ptr)
 		real_r_ptr(m_ptr)->cur_num++;
 	}
 
-
-	/* Fill the arrays of floors and walls in the good proportions */
-	set_floor_and_wall(dungeon_type);
 
 	/* Success */
 	return 0;
@@ -2190,25 +2250,6 @@ static errr rd_savefile_new_aux(void)
 	if (arg_fiddle) note("Loaded Object Memory");
 #endif
 
-
-#if 0
-	/*
-	 * Initialize arena and rewards information
-	 */
-	p_ptr->arena_number = 0;
-	p_ptr->inside_arena = 0;
-	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
-	p_ptr->exit_bldg = TRUE;
-
-	/* Start in town 1 */
-	p_ptr->town_num = TOWN_ARMORICA;
-
-	p_ptr->wilderness_x = 4;
-	p_ptr->wilderness_y = 4;
-
-#endif
-
 	/* Init the wilderness seeds */
 	for (i = 0; i < max_wild_x; i++)
 	{
@@ -2312,6 +2353,8 @@ static errr rd_savefile_new_aux(void)
 
 						quest[i].r_idx = r_idx;
 					}
+
+					if (quest[QUEST_ARMORICA].status == QUEST_STATUS_UNTAKEN) quest[QUEST_ARMORICA].status = QUEST_STATUS_TAKEN;
 
 					/* Load quest item index */
 					rd_s16b(&quest[i].k_idx);

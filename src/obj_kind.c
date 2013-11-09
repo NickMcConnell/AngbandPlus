@@ -308,3 +308,149 @@ bool object_is_astral_runeweapon(object_type *o_ptr)
 {
 	return (astral_mode && object_is_runeweapon(o_ptr) && o_ptr->art_name && (o_ptr->xtra3 == 1));
 }
+
+/*
+ * Equipment including all wearable objects and ammo
+ */
+bool object_is_equipment(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+	case TV_STONE: case TV_TAROT: case TV_SCRATCH_CARD:
+	case TV_BULLET: case TV_ROUND: case TV_SHELL: case TV_ROCKET:
+	case TV_ARROW: case TV_BOLT: case TV_BOW:
+	case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD: 
+	case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_CROWN:
+	case TV_SHIELD: case TV_CLOAK:
+	case TV_SOFT_ARMOR: case TV_HARD_ARMOR:
+	case TV_LITE: case TV_AMULET: case TV_RING: case TV_CARD: case TV_TRUMP:
+		return TRUE;
+
+	default:
+		return FALSE;
+	}
+}
+
+/*
+ * Rare weapons/aromors
+ * including Blade of Chaos, Dragon armors, etc.
+ */
+bool object_is_rare(object_type *o_ptr)
+{
+	switch(o_ptr->tval)
+	{
+	case TV_TAROT:
+		return TRUE;
+		break;
+
+/*	case TV_ARROW:
+	case TV_BOLT:
+		if (o_ptr->sval == SV_AMMO_HEAVY) return TRUE;
+		break;
+*/
+	case TV_BOW:
+		if (o_ptr->sval == SV_SNIPER_RIFLE ||
+			o_ptr->sval == SV_SHOTGUN ||
+			o_ptr->sval == SV_ROCKET_LAUNCHER) return TRUE;
+		break;
+
+	case TV_HAFTED:
+		if (o_ptr->sval == SV_MACE_OF_DISRUPTION ||
+		    o_ptr->sval == SV_WIZSTAFF) return TRUE;
+		break;
+
+	case TV_POLEARM:
+		if (o_ptr->sval == SV_DEATH_SCYTHE) return TRUE;
+		break;
+
+	case TV_SWORD:
+		if (o_ptr->sval == SV_YOUTOU ||
+		    o_ptr->sval == SV_DARK_SWORD ||
+		    o_ptr->sval == SV_DIAMOND_EDGE ||
+		    o_ptr->sval == SV_MITHRIL_SWORD) return TRUE;
+		break;
+
+	case TV_SHIELD:
+		if (o_ptr->sval == SV_DRAGON_SHIELD ||
+		    o_ptr->sval == SV_MIRROR_SHIELD) return TRUE;
+		break;
+
+	case TV_HELM:
+		if (o_ptr->sval == SV_DRAGON_HELM) return TRUE;
+		break;
+
+	case TV_BOOTS:
+		if (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) return TRUE;
+		break;
+
+	case TV_CLOAK:
+		if (o_ptr->sval == SV_BOLMARKAN_CLOAK ||
+		    o_ptr->sval == SV_CLOAK_OF_IVORY_TOWER ||
+		    o_ptr->sval == SV_SHADOW_CLOAK ||
+		    o_ptr->sval == SV_SIR_COAT) return TRUE;
+		break;
+
+	case TV_GLOVES:
+		if (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) return TRUE;
+		break;
+
+	case TV_SOFT_ARMOR:
+		if (o_ptr->sval == SV_DRAGON_LEATHER_ARMOR ||
+		    o_ptr->sval == SV_KUROSHOUZOKU ||
+		    o_ptr->sval == SV_ROBE_DECOLLETE ||
+		    o_ptr->sval == SV_ROBE_MONTANTE ||
+		    o_ptr->sval == SV_SWALLOW_TAILED_COAT ||
+		    o_ptr->sval == SV_FROCK_COAT) return TRUE;
+		break;
+
+	case TV_HARD_ARMOR:
+		if (o_ptr->sval == SV_DRAGON_SCALE_MAIL) return TRUE;
+		break;
+
+	case TV_AMULET:
+		if (o_ptr->sval == SV_AMULET_ALIGNMENT ||
+		    o_ptr->sval == SV_AMULET_THE_MAGI ||
+		    o_ptr->sval == SV_AMULET_REFLECTION ||
+		    o_ptr->sval == SV_AMULET_RESISTANCE ||
+		    o_ptr->sval == SV_AMULET_TELEPATHY ||
+		    o_ptr->sval == SV_AMULET_FOL ||
+		    o_ptr->sval == SV_AMULET_OHN ||
+		    o_ptr->sval == SV_AMULET_SOL ||
+		    o_ptr->sval == SV_AMULET_VAN) return TRUE;
+		break;
+
+	case TV_RING:
+		if (o_ptr->sval == SV_RING_SHOTS ||
+		    o_ptr->sval == SV_RING_SUSTAIN ||
+		    o_ptr->sval == SV_RING_SPEED ||
+		    o_ptr->sval == SV_RING_DEC_MANA ||
+		    o_ptr->sval == SV_RING_RES_DISENCHANT ||
+		    o_ptr->sval == SV_RING_LORDLY ||
+		    o_ptr->sval == SV_RING_ATTACKS) return TRUE;
+		break;
+
+	case TV_CARD:
+		return TRUE;
+		break;
+
+	case TV_TRUMP:
+		return TRUE;
+		break;
+
+	case TV_FOOD:
+		if (o_ptr->sval == SV_FOOD_INC_STR ||
+		    o_ptr->sval == SV_FOOD_INC_INT ||
+		    o_ptr->sval == SV_FOOD_INC_WIS ||
+		    o_ptr->sval == SV_FOOD_INC_DEX ||
+		    o_ptr->sval == SV_FOOD_INC_CON ||
+		    o_ptr->sval == SV_FOOD_INC_CHR ||
+		    o_ptr->sval == SV_FOOD_AUGMENTATION) return TRUE;
+		break;
+
+	default:
+		break;
+	}
+
+	/* Any others are not "rare" objects. */
+	return FALSE;
+}

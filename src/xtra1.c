@@ -150,14 +150,14 @@ void prt_time(void)
 	extract_day_hour_min(&day, &hour, &min);
 
 	/* Dump the info itself */
-	c_put_str(TERM_WHITE, format(
 #ifdef JP
-		"%2d日目",
+	if (day < 1000) c_put_str(TERM_WHITE, format("%2d日目", day), ROW_DAY, COL_DAY);
+	else c_put_str(TERM_WHITE, "***日目", ROW_DAY, COL_DAY);
 #else
-		"Day %-2d",
+	if (day < 1000) c_put_str(TERM_WHITE, format("Day%3d", day), ROW_DAY, COL_DAY);
+	else c_put_str(TERM_WHITE, "Day***", ROW_DAY, COL_DAY);
 #endif
-		day), ROW_DAY, COL_DAY);
-	
+
 	c_put_str(TERM_WHITE, format("%2d:%02d", hour, min), ROW_DAY, COL_DAY+7);
 }
 
@@ -719,6 +719,17 @@ static void prt_title(void)
 		}
 	}
 
+	/* Hack -- Vampire at daytime */
+	else if ((p_ptr->pclass == CLASS_VAMPIRE) && (p_ptr->cexp_info[CLASS_VAMPIRE].clev < 40) && is_daytime())
+	{
+#ifdef JP
+		/* 英日切り替え */
+		p = "[棺桶]";
+#else
+		p = "[Casket]";
+#endif
+	}
+
 	/* Normal */
 	else
 	{
@@ -737,7 +748,7 @@ static void prt_level(void)
 {
 	char tmp[32];
 
-	sprintf(tmp, "%5d", p_ptr->lev);
+	sprintf(tmp, "%5ld", p_ptr->lev);
 
 
 	if (p_ptr->lev >= p_ptr->max_plv)
@@ -796,7 +807,7 @@ static void prt_clevel(void)
 	char tmp[32];
 	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
-	sprintf(tmp, "%5d", cexp_ptr->clev);
+	sprintf(tmp, "%5ld", cexp_ptr->clev);
 
 
 	if (cexp_ptr->clev >= cexp_ptr->max_clev)
@@ -901,7 +912,7 @@ static void prt_hp(void)
 	put_str("HP", ROW_CURHP, COL_CURHP);
 
 	/* 現在のヒットポイント */
-	sprintf(tmp, "%5d", p_ptr->chp);
+	sprintf(tmp, "%5ld", p_ptr->chp);
 
 	if (p_ptr->chp >= p_ptr->mhp)
 	{
@@ -922,7 +933,7 @@ static void prt_hp(void)
 	put_str( "/", ROW_CURHP, COL_CURHP + 7 );
 
 	/* 最大ヒットポイント */
-	sprintf(tmp, "%4d", p_ptr->mhp);
+	sprintf(tmp, "%4ld", p_ptr->mhp);
 	color = TERM_L_GREEN;
 
 	c_put_str(color, " ", ROW_CURHP, COL_CURHP + 12);
@@ -948,13 +959,13 @@ static void prt_sp(void)
 #endif
 
 	/* 現在のマジックポイント */
-	sprintf(tmp, "%5d", p_ptr->csp);
+	sprintf(tmp, "%5ld", p_ptr->csp);
 
 	if (p_ptr->csp >= p_ptr->msp)
 	{
 		color = TERM_L_GREEN;
 	}
-	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10)
+	else if (p_ptr->csp > p_ptr->msp / 5)
 	{
 		color = TERM_YELLOW;
 	}
@@ -969,7 +980,7 @@ static void prt_sp(void)
 	put_str( "/", ROW_CURSP, COL_CURSP + 7 );
 
 	/* 最大マジックポイント */
-	sprintf(tmp, "%4d", p_ptr->msp);
+	sprintf(tmp, "%4ld", p_ptr->msp);
 	color = TERM_L_GREEN;
 
 	c_put_str(color, " ", ROW_CURSP, COL_CURSP + 12);
@@ -984,6 +995,7 @@ static void prt_depth(void)
 {
 	char depths[32];
 	int wid, hgt, row_depth, col_depth;
+	byte attr = TERM_SLATE;
 
 	Term_get_size(&wid, &hgt);
 	col_depth = wid + COL_DEPTH;
@@ -1023,10 +1035,25 @@ static void prt_depth(void)
 		(void)sprintf(depths, "Lev %d", dun_level);
 #endif
 
+		/* Get color of level based on feeling  -JSV- */
+		switch (p_ptr->feeling)
+		{
+		case  0: attr = TERM_SLATE;   break; /* Unknown */
+		case  1: attr = TERM_L_BLUE;  break; /* Special */
+		case  2: attr = TERM_VIOLET;  break; /* Horrible visions */
+		case  3: attr = TERM_RED;     break; /* Very dangerous */
+		case  4: attr = TERM_L_RED;   break; /* Very bad feeling */
+		case  5: attr = TERM_ORANGE;  break; /* Bad feeling */
+		case  6: attr = TERM_YELLOW;  break; /* Nervous */
+		case  7: attr = TERM_L_UMBER; break; /* Luck is turning */
+		case  8: attr = TERM_L_WHITE; break; /* Don't like */
+		case  9: attr = TERM_WHITE;   break; /* Reasonably safe */
+		case 10: attr = TERM_WHITE;   break; /* Boring place */
+		}
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%8s", depths), row_depth, col_depth);
+	c_prt(attr, format("%7s", depths), row_depth, col_depth);
 }
 
 
@@ -1404,9 +1431,6 @@ static void prt_speed(void)
  */
 static void health_redraw(void)
 {
-
-#ifdef DRS_SHOW_HEALTH_BAR
-
 	/* Not tracking */
 	if (!p_ptr->health_who)
 	{
@@ -1482,18 +1506,12 @@ static void health_redraw(void)
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
 	}
-
-#endif
-
 }
 
 
 
 static void riding_health_redraw(void)
 {
-
-#ifdef DRS_SHOW_HEALTH_BAR
-
 	/* Not tracking */
 	if (!p_ptr->riding)
 	{
@@ -1559,9 +1577,6 @@ static void riding_health_redraw(void)
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_RIDING_INFO + 1, ROW_RIDING_INFO, len, attr, "**********");
 	}
-
-#endif
-
 }
 
 
@@ -2068,6 +2083,7 @@ static void calc_mana(void)
 		case CLASS_LICH:
 		case CLASS_HIGHWITCH:
 		case CLASS_ARCHMAGE:
+		case CLASS_MEDIUM:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight;
 			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight;
@@ -2147,6 +2163,7 @@ static void calc_mana(void)
 			case CLASS_HIGHWITCH:
 			case CLASS_ARCHMAGE:
 			case CLASS_NINJAMASTER:
+			case CLASS_MEDIUM:
 			{
 				msp -= msp * (cur_wgt - max_wgt) / 600;
 				break;
@@ -2465,13 +2482,6 @@ static void calc_torch(void)
 
 	/* end experimental mods */
 
-	/* Reduce lite when running if requested */
-	if (running && view_reduce_lite)
-	{
-		/* Reduce the lite radius if needed */
-		if (p_ptr->cur_lite > 1) p_ptr->cur_lite = 1;
-	}
-
 	/* Notice changes in the "lite radius" */
 	if (p_ptr->old_lite != p_ptr->cur_lite)
 	{
@@ -2732,6 +2742,7 @@ void calc_bonuses(void)
 	p_ptr->warning = FALSE;
 	p_ptr->dis_mighty_throw = p_ptr->mighty_throw = FALSE;
 	p_ptr->see_dark_grid = FALSE;
+	p_ptr->hurt_lite = FALSE;
 
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
@@ -2849,7 +2860,8 @@ void calc_bonuses(void)
 		case CLASS_VAMPIRE:
 			p_ptr->resist_dark = TRUE;
 			p_ptr->ffall = TRUE;
-			p_ptr->lite = TRUE;
+			p_ptr->see_dark_grid = TRUE;
+			p_ptr->hurt_lite = TRUE;
 			if (cexp_ptr->clev > 39) p_ptr->resist_lite = TRUE;
 			if (!is_daytime())
 			{
@@ -2989,6 +3001,7 @@ void calc_bonuses(void)
 			p_ptr->resist_dark = TRUE;
 			p_ptr->resist_neth = TRUE;
 			p_ptr->ffall = TRUE;
+			p_ptr->hurt_lite = TRUE;
 			break;
 		case RACE_SKELETON:
 			p_ptr->resist_pois = TRUE;
@@ -3586,13 +3599,22 @@ void calc_bonuses(void)
 		p_ptr->resist_water = TRUE;
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_BAT))
+	{
 		p_ptr->see_dark_grid = TRUE;
+		p_ptr->hurt_lite = TRUE;
+	}
 
 	if (inventory[INVEN_OUTER].k_idx && (inventory[INVEN_OUTER].name2 == EGO_NO_ELEM))
 	{
 		p_ptr->no_elem = TRUE;
 		init_realm_table();
+		p_ptr->notice |= (PN_REORDER);
+
 	}
+
+	if (inventory[INVEN_BODY].k_idx && (inventory[INVEN_BODY].tval == TV_HARD_ARMOR) && 
+		((inventory[INVEN_BODY].sval == SV_MITHRIL_SCALE_MAIL) || (inventory[INVEN_BODY].sval == SV_MITHRIL_CHAIN_MAIL) || (inventory[INVEN_BODY].sval == SV_MITHRIL_PLATE_MAIL)))
+			p_ptr->skill_sav += 50;
 
 	if (inventory[INVEN_NECK].k_idx && (inventory[INVEN_NECK].name1 == ART_AMU_FIRE))
 		p_ptr->weak_aqua = TRUE;
@@ -4307,6 +4329,7 @@ void calc_bonuses(void)
 				case CLASS_HIGHWITCH:
 				case CLASS_GUNNER:
 				case CLASS_ARCHMAGE:
+				case CLASS_MEDIUM:
 					num = 3; wgt = 100; mul = 2; break;
 
 				case CLASS_WARLOCK:
@@ -4456,7 +4479,6 @@ void calc_bonuses(void)
 					p_ptr->to_ds[i]++;
 				}
 			}
-			else p_ptr->icky_wield[i] = -1;
 			break;
 
 		case CLASS_NINJA:
@@ -4518,6 +4540,7 @@ void calc_bonuses(void)
 		case CLASS_CLERIC:
 		case CLASS_PRIEST:
 		case CLASS_ANGELKNIGHT:
+		case CLASS_MEDIUM:
 			/* Priest weapon penalty for non-blessed edged weapons */
 			if ((p_ptr->pclass != CLASS_ANGELKNIGHT) && !have_flag(flgs, TR_BLESSED) &&
 			    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
@@ -4719,6 +4742,10 @@ void calc_bonuses(void)
 		p_ptr->dis_to_h_b -= penalty;
 	}
 
+	/* Even one hand cannot be used for shoot? */
+	p_ptr->bow_ryoute = FALSE;
+	if (!empty_hands()) p_ptr->bow_ryoute = TRUE;
+
 	/* Non-riding players only */
 	else if (empty_hands_status & EMPTY_HAND_RARM)
 	{
@@ -4754,6 +4781,20 @@ void calc_bonuses(void)
 		monk_armour_aux = TRUE;
 	}
 
+	/* Assume player not encumbered by shield */
+	p_ptr->cumber_shield = FALSE;
+	for (i = 0 ; i < 2 ; i++)
+	{
+		if (inventory[INVEN_RARM+i].tval == TV_SHIELD)
+		{
+			if (p_ptr->pclass == CLASS_MEDIUM ||
+			    p_ptr->pclass == CLASS_NINJA)
+			{
+				p_ptr->cumber_shield = TRUE;
+			}
+		}
+	}
+	
 	for (i = 0; i < 2; i++)
 	{
 		o_ptr = &inventory[INVEN_RARM + i];
@@ -4916,9 +4957,42 @@ void calc_bonuses(void)
 
 	if (down_saving) p_ptr->skill_sav /= 2;
 
+	/* Hack -- Each elemental immunity includes resistance */
+	if (p_ptr->immune_acid) p_ptr->resist_acid = TRUE;
+	if (p_ptr->immune_elec) p_ptr->resist_elec = TRUE;
+	if (p_ptr->immune_fire) p_ptr->resist_fire = TRUE;
+	if (p_ptr->immune_cold) p_ptr->resist_cold = TRUE;
+
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
+	/* Take note when "shield state" changes */
+	if (p_ptr->old_cumber_shield != p_ptr->cumber_shield)
+	{
+		/* Message */
+		if (p_ptr->cumber_shield)
+		{
+#ifdef JP
+			msg_print("盾がとても邪魔に感じる。");
+#else
+			msg_print("You feel ill at ease with a shield.");
+#endif
+
+		}
+		else
+		{
+#ifdef JP
+			msg_print("盾をはずして身軽になった。");
+#else
+			msg_print("You feel relieved of cumbersomeness.");
+#endif
+
+		}
+
+		/* Save it */
+		p_ptr->old_cumber_shield = p_ptr->cumber_shield;
+	}
+	
 	/* Take note when "skull_mask_hates" changes */
 	if (p_ptr->old_skull_mask_hates != p_ptr->skull_mask_hates)
 	{
@@ -5122,6 +5196,30 @@ void calc_bonuses(void)
 		}
 
 		p_ptr->old_riding_ryoute = p_ptr->riding_ryoute;
+	}
+
+	if (p_ptr->pclass == CLASS_MEDIUM &&
+	    (p_ptr->old_bow_ryoute != p_ptr->bow_ryoute))
+	{
+		/* Message */
+		if (p_ptr->bow_ryoute)
+		{
+#ifdef JP
+			msg_print("両手がふさがっていてうまく矢を撃てない。");
+#else
+			msg_print("You are using both hand for fighting, and you can't shoot well.");
+#endif
+		}
+		else
+		{
+#ifdef JP
+			msg_print("手が空いてうまく矢を撃てるようになった。");
+#else
+			msg_print("You began to shoot well with one hand.");
+#endif
+		}
+
+		p_ptr->old_bow_ryoute = p_ptr->bow_ryoute;
 	}
 
 	if (((p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_NINJAMASTER)) && (monk_armour_aux != monk_notify_aux))
@@ -5659,22 +5757,27 @@ bool heavy_armor(void)
 	return (monk_arm_wgt > (100 + (ninja_level * 4)));
 }
 
-int number_of_quests(void)
+void change_alignment(void)
 {
-	int i, j;
-
-	/* Clear the counter */
-	i = 0;
-
-	for (j = MIN_RANDOM_QUEST; j <= MAX_RANDOM_QUEST_ASTRAL; j++)
+	switch(randint1(19))
 	{
-		if (quest[j].status != QUEST_STATUS_UNTAKEN)
-		{
-			/* Increment count of quests taken. */
-			i++;
-		}
+		case 1: case 2: case 3: case 4: case 5:
+			change_your_alignment_lnc(randint1(50));
+			break;
+		case 6: case 7: case 8: case 9: case 10:
+			change_your_alignment_lnc(-randint1(50));
+			break;
+		case 11: case 12: case 13:
+			change_your_alignment_lnc(100 + randint1(50));
+			break;
+		case 14: case 15: case 16:
+			change_your_alignment_lnc(-(100 + randint1(50)));
+			break;
+		case 17: case 18:
+			p_ptr->align_self = 0;
+			break;
+		default:
+			p_ptr->align_self = 0 - p_ptr->align_self;
+			break;
 	}
-
-	/* Return the number of quests taken */
-	return (i);
 }

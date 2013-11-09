@@ -538,8 +538,9 @@ void sense_floor_object(int o_idx)
  */
 static void regenhp(int percent)
 {
-	s32b    new_chp, new_chp_frac;
-	int     old_chp;
+	s32b new_chp;
+	u32b new_chp_frac;
+	s32b old_chp;
 
 	/* Save the old hitpoints */
 	old_chp = p_ptr->chp;
@@ -553,12 +554,12 @@ static void regenhp(int percent)
 	new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;	/* mod 65536 */
 	if (new_chp_frac >= 0x10000L)
 	{
-		p_ptr->chp_frac = (u16b)(new_chp_frac - 0x10000L);
+		p_ptr->chp_frac = new_chp_frac - 0x10000L;
 		p_ptr->chp++;
 	}
 	else
 	{
-		p_ptr->chp_frac = (u16b)new_chp_frac;
+		p_ptr->chp_frac = new_chp_frac;
 	}
 
 	/* Fully healed */
@@ -587,8 +588,9 @@ static void regenhp(int percent)
  */
 static void regenmana(int percent)
 {
-	s32b        new_mana, new_mana_frac;
-	int                   old_csp;
+	s32b new_mana;
+	u32b new_mana_frac;
+	s32b old_csp;
 	bool    old_csp_msp = (p_ptr->csp > p_ptr->msp);
 
 	if (p_ptr->regenerate_mana) percent *= 2;
@@ -610,12 +612,12 @@ static void regenmana(int percent)
 	}
 	if (new_mana_frac >= 0x10000L)
 	{
-		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
+		p_ptr->csp_frac = new_mana_frac - 0x10000L;
 		p_ptr->csp++;
 	}
 	else
 	{
-		p_ptr->csp_frac = (u16b)(new_mana_frac);
+		p_ptr->csp_frac = new_mana_frac;
 	}
 
 	/* check for overflow */
@@ -698,6 +700,63 @@ static void regen_monsters(void)
 }
 
 
+/*
+ * Regenerate the captured monsters (once per 30 game turns)
+ *
+ * XXX XXX XXX Should probably be done during monster turns.
+ */
+static void regen_captured_monsters(void)
+{
+	int i, frac;
+	bool heal = FALSE;
+
+	/* Regenerate everyone */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		monster_race *r_ptr;
+		object_type *o_ptr = &inventory[i];
+
+		if (!o_ptr->k_idx) continue;
+		if ((o_ptr->tval != TV_CARD) && (o_ptr->tval != SV_MONSTER_CARD)) continue;
+		if (!o_ptr->pval) continue;
+
+		heal = TRUE;
+
+		r_ptr = &r_info[o_ptr->pval];
+
+		/* Allow regeneration (if needed) */
+		if (o_ptr->xtra4 < o_ptr->xtra5)
+		{
+			/* Hack -- Base regeneration */
+			frac = o_ptr->xtra5 / 100;
+
+			/* Hack -- Minimal regeneration rate */
+			if (!frac) if (one_in_(2)) frac = 1;
+
+			/* Hack -- Some monsters regenerate quickly */
+			if (r_ptr->flags2 & RF2_REGENERATE) frac *= 2;
+
+			/* Hack -- Regenerate */
+			o_ptr->xtra4 += frac;
+
+			/* Do not over-regenerate */
+			if (o_ptr->xtra4 > o_ptr->xtra5) o_ptr->xtra4 = o_ptr->xtra5;
+		}
+	}
+
+	if (heal)
+	{
+		/* Combine pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN);
+		p_ptr->window |= (PW_EQUIP);
+		wild_regen = 20;
+	}
+}
+
+
 static void notice_lite_change(object_type *o_ptr)
 {
 	/* Hack -- notice interesting fuel steps */
@@ -723,6 +782,11 @@ static void notice_lite_change(object_type *o_ptr)
 #else
 		msg_print("Your light has gone out!");
 #endif
+
+		/* Calculate torch radius */
+		p_ptr->update |= (PU_TORCH);
+
+		/* Some ego light lose its effects without fuel */
 		p_ptr->update |= (PU_BONUS);
 	}
 
@@ -955,237 +1019,16 @@ static object_type *choose_cursed_obj_name(u32b flag)
 
 
 /*
- * Handle certain things once every 10 game turns
+ * Handle timed damage and regeneration every 10 game turns
  */
-static void process_world(void)
+static void process_world_aux_hp_and_sp(void)
 {
-	int x, y, i, j;
-	int regen_amount = PY_REGEN_NORMAL; /* Default regeneration */
 	bool cave_no_regen = FALSE;
 	int upkeep_factor = 0;
-	cave_type *c_ptr;
-	object_type *o_ptr;
-	int temp;
-	object_kind *k_ptr;
-	const int dec_count = (easy_band ? 2 : 1);
+	int i;
 
-	int day, hour, min, prev_min;
-
-	s32b len = TURNS_PER_TICK * TOWN_DAWN;
-	s32b tick = turn % len + len / 4;
-
-	int q_idx = quest_number(dun_level);
-
-	extract_day_hour_min(&day, &hour, &min);
-	prev_min = (1440 * (tick - TURNS_PER_TICK) / len) % 60;
-
-	if ((turn - old_turn == (150 - dun_level) * TURNS_PER_TICK)
-	    && dun_level &&
-	    !(q_idx && (quest_is_fixed(q_idx) &&
-	    !((quest[q_idx].flags & QUEST_FLAG_GUARDIAN) ||
-	     !(quest[q_idx].flags & QUEST_FLAG_PRESET)))))
-		do_cmd_feeling();
-
-	/* Every 10 game turns */
-	if (turn % TURNS_PER_TICK) return;
-
-	/*** Check the Time and Load ***/
-
-	if (!(turn % (50*TURNS_PER_TICK)))
-	{
-		/* Check time and load */
-		if ((0 != check_time()) || (0 != check_load()))
-		{
-			/* Warning */
-			if (closing_flag <= 2)
-			{
-				/* Disturb */
-				disturb(0, 0);
-
-				/* Count warnings */
-				closing_flag++;
-
-				/* Message */
-#ifdef JP
-				msg_print("アングバンドへの門が閉じかかっています...");
-				msg_print("ゲームを終了するかセーブするかして下さい。");
-#else
-				msg_print("The gates to ANGBAND are closing...");
-				msg_print("Please finish up and/or save your game.");
-#endif
-
-			}
-
-			/* Slam the gate */
-			else
-			{
-				/* Message */
-#ifdef JP
-				msg_print("今、アングバンドへの門が閉ざされました。");
-#else
-				msg_print("The gates to ANGBAND are now closed.");
-#endif
-
-
-				/* Stop playing */
-				p_ptr->playing = FALSE;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-		}
-	}
-
-	/*** Attempt timed autosave ***/
-	if (autosave_t && autosave_freq)
-	{
-		if (!(turn % ((s32b)autosave_freq * TURNS_PER_TICK)))
-			do_cmd_save_game(TRUE);
-	}
-
-	if (mon_fight)
-	{
-#ifdef JP
-		msg_print("何かが聞こえた。");
-#else
-		msg_print("You hear noise.");
-#endif
-	}
-
-	/*** Handle the wilderness/town (sunshine) ***/
-
-	/* While in town/wilderness */
-	if ((!dun_level && !p_ptr->inside_quest && !p_ptr->inside_arena) ||
-		(d_info[dungeon_type].flags1 & DF1_WILD_LITE))
-	{
-		/* Hack -- Daybreak/Nighfall in town */
-		if (!(turn % ((TURNS_PER_TICK * TOWN_DAWN) / 2)))
-		{
-			bool dawn;
-			bool in_dungeon = FALSE;
-
-			/* Check for dawn */
-			dawn = (!(turn % (TURNS_PER_TICK * TOWN_DAWN)));
-
-			if (d_info[dungeon_type].flags1 & DF1_WILD_LITE) in_dungeon = TRUE;
-
-			/* Day breaks */
-			if (dawn)
-			{
-				/* Message */
-#ifdef JP
-				msg_print("夜が明けた。");
-#else
-				msg_print("The sun has risen.");
-#endif
-
-				if (!p_ptr->wild_mode)
-				{
-					/* Hack -- Scan the town */
-					for (y = 0; y < cur_hgt; y++)
-					{
-						for (x = 0; x < cur_wid; x++)
-						{
-							/* Get the cave grid */
-							c_ptr = &cave[y][x];
-
-							/* Assume lit */
-							c_ptr->info |= (CAVE_GLOW);
-
-							if ((!in_dungeon || player_has_los_bold(y, x)) && !p_ptr->blind)
-							{
-								/* Hack -- Memorize lit grids if allowed */
-								if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
-
-								/* Hack -- Notice spot */
-								note_spot(y, x);
-							}
-						}
-					}
-				}
-			}
-
-			/* Night falls */
-			else
-			{
-				/* Message */
-#ifdef JP
-				msg_print("日が沈んだ。");
-#else
-				msg_print("The sun has fallen.");
-#endif
-
-
-				if (!p_ptr->wild_mode)
-				{
-					/* Hack -- Scan the town */
-					for (y = 0; y < cur_hgt; y++)
-					{
-						for (x = 0; x < cur_wid; x++)
-						{
-							/* Get the cave grid */
-							c_ptr = &cave[y][x];
-
-							/* Assume dark */
-							c_ptr->info &= ~(CAVE_GLOW);
-
-							/* Darken "boring" features */
-							if (in_dungeon ||
-							    (c_ptr->feat <= FEAT_INVIS) ||
-							    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-							    (c_ptr->feat <= FEAT_MOUNTAIN) &&
-							     (c_ptr->feat != FEAT_MUSEUM)) ||
-							    (x == 0) || (x == cur_wid-1) ||
-							    (y == 0) || (y == cur_hgt-1))
-							{
-								byte feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
-
-								if ((feat <= FEAT_INVIS) ||
-								    (feat == FEAT_DIRT) ||
-								    (feat == FEAT_GRASS) ||
-								    (feat == FEAT_SWAMP) ||
-								    (feat == FEAT_TUNDRA))
-								{
-									/* Forget the grid */
-									c_ptr->info &= ~(CAVE_MARK);
-								}
-
-								/* Hack -- Notice spot */
-								note_spot(y, x);
-							}
-						}
-					}
-
-					/* Glow some feature */
-					glow_floor_feature();
-				}
-			}
-
-			/* Update the monsters */
-			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-
-	/*** Process the monsters ***/
-
-	/* Check for creature generation. */
-	if (one_in_(d_info[dungeon_type].max_m_alloc_chance) &&
-	    !p_ptr->inside_arena && !p_ptr->inside_quest)
-	{
-		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, 0);
-	}
-
-	/* Hack -- Check for creature regeneration */
-	if (!(turn % (TURNS_PER_TICK*10))) regen_monsters();
-
+	/* Default regeneration */
+	int regen_amount = PY_REGEN_NORMAL;
 
 	/*** Damage over Time ***/
 
@@ -1460,48 +1303,6 @@ static void process_world(void)
 		}
 	}
 
-	if (!hour && !min)
-	{
-		monster_race *r_ptr;
-
-		if (min != prev_min)
-		{
-			int max_dl = 3;
-			byte old_dungeon_type = dungeon_type;
-
-			do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
-
-			/* Hack -- Player is temporarily in main dungeon */
-			dungeon_type = DUNGEON_PALACE;
-			get_mon_num_prep(NULL, NULL);
-
-			for (i = 0; i < max_d_idx; i++)
-			{
-				if (max_dlv[i] < d_info[i].mindepth) continue;
-				if (max_dl < max_dlv[i]) max_dl = max_dlv[i];
-			}
-			while (1)
-			{
-				today_mon = get_mon_num(max_dl);
-				r_ptr = &r_info[today_mon];
-
-				if (r_ptr->flags1 & RF1_UNIQUE) continue;
-				if (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)) continue;
-				if (r_ptr->flags2 & (RF2_MULTIPLY)) continue;
-				if (!(r_ptr->flags9 & RF9_DROP_CORPSE) || !(r_ptr->flags9 & RF9_DROP_SKELETON)) continue;
-				if (r_ptr->level < MIN(max_dl/2, 40)) continue;
-				if (r_ptr->rarity > 10) continue;
-				if (r_ptr->level == 0) continue;
-				break;
-			}
-			p_ptr->today_mon = 0;
-
-			/* Hack -- Restore the player to current dungeon */
-			dungeon_type = old_dungeon_type;
-			get_mon_num_prep(NULL, NULL);
-		}
-	}
-
 	/* Take damage from cuts */
 	if (p_ptr->cut && !p_ptr->invuln)
 	{
@@ -1545,97 +1346,24 @@ static void process_world(void)
 	}
 
 
-	/*** Check the Food, and Regenerate ***/
+	/*** handle regeneration ***/
 
-	if (!p_ptr->no_digest)
+
+	/* Getting Weak */
+	if (p_ptr->food < PY_FOOD_WEAK)
 	{
-		/* Digest normally */
-		if (p_ptr->food < PY_FOOD_MAX)
-		{
-			/* Every 100 game turns */
-			if (!(turn % (TURNS_PER_TICK*5)))
-			{
-				/* Basic digestion rate based on speed */
-				i = /* extract_energy[p_ptr->pspeed] * 2;*/
-				    ((p_ptr->pspeed > 199) ? 49 : ((p_ptr->pspeed < 0) ?
-				     1 : extract_energy[p_ptr->pspeed]));
-
-				/* Regeneration takes more food */
-				if (p_ptr->regenerate) i += 20;
-				if (p_ptr->regenerate_mana) i += 20;
-				if (p_ptr->cursed & TRC_FAST_DIGEST) i += 30;
-
-				/* Slow digestion takes less food */
-				if (p_ptr->slow_digest) i -= 5;
-
-				/* Minimal digestion */
-				if (i < 1) i = 1;
-				/* Maximal digestion */
-				if (i > 100) i = 100;
-
-				/* Digest some food */
-				(void)set_food(p_ptr->food - i);
-			}
-		}
-
-		/* Digest quickly when gorged */
-		else
-		{
-			/* Digest a lot of food */
-			(void)set_food(p_ptr->food - 100);
-		}
-
-		/* Starve to death (slowly) */
+		/* Lower regeneration */
 		if (p_ptr->food < PY_FOOD_STARVE)
 		{
-			/* Calculate damage */
-			i = (PY_FOOD_STARVE - p_ptr->food) / 10;
-
-			/* Take damage */
-#ifdef JP
-			if (!p_ptr->invuln) take_hit(DAMAGE_LOSELIFE, i, "空腹");
-#else
-			if (!p_ptr->invuln) take_hit(DAMAGE_LOSELIFE, i, "starvation");
-#endif
-
+			regen_amount = 0;
 		}
-
-		/* Getting Weak */
-		if (p_ptr->food < PY_FOOD_WEAK)
+		else if (p_ptr->food < PY_FOOD_FAINT)
 		{
-			/* Lower regeneration */
-			if (p_ptr->food < PY_FOOD_STARVE)
-			{
-				regen_amount = 0;
-			}
-			else if (p_ptr->food < PY_FOOD_FAINT)
-			{
-				regen_amount = PY_REGEN_FAINT;
-			}
-			else
-			{
-				regen_amount = PY_REGEN_WEAK;
-			}
-
-			/* Getting Faint */
-			if (p_ptr->food < PY_FOOD_FAINT)
-			{
-				/* Faint occasionally */
-				if (!p_ptr->paralyzed && (randint0(100) < 10))
-				{
-					/* Message */
-#ifdef JP
-					msg_print("あまりにも空腹で気絶してしまった。");
-#else
-					msg_print("You faint from the lack of food.");
-#endif
-
-					disturb(1, 0);
-
-					/* Hack -- faint (bypass free action) */
-					(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5));
-				}
-			}
+			regen_amount = PY_REGEN_FAINT;
+		}
+		else
+		{
+			regen_amount = PY_REGEN_WEAK;
 		}
 	}
 
@@ -1650,17 +1378,16 @@ static void process_world(void)
 		regen_amount /= 5;
 	}
 
-
 	/* Searching or Resting */
 	if ((p_ptr->action == ACTION_SEARCH) || (p_ptr->action == ACTION_REST))
 	{
 		regen_amount = regen_amount * 2;
 	}
 
-	/* No regeneration while special action */
-	if (p_ptr->action == ACTION_AURA) regen_amount += 100;
-
 	upkeep_factor = calculate_upkeep();
+
+	/* No regeneration while special action */
+	if (p_ptr->action == ACTION_AURA) upkeep_factor += 100;
 
 	/* Regenerate the mana */
 	if (upkeep_factor)
@@ -1672,7 +1399,7 @@ static void process_world(void)
 		if (p_ptr->wizard)
 		{
 #ifdef JP
-			msg_format("MP回復: %d/%d", upkeep_regen, regen_amount);
+			msg_format("ＭＰ回復: %d/%d", upkeep_regen, regen_amount);
 #else
 			msg_format("Regen: %d/%d", upkeep_regen, regen_amount);
 #endif
@@ -1719,7 +1446,15 @@ static void process_world(void)
 	{
 		regenhp(regen_amount);
 	}
+}
 
+
+/*
+ * Handle timeout every 10 game turns
+ */
+static void process_world_aux_timeout(void)
+{
+	const int dec_count = (easy_band ? 2 : 1);
 
 	/*** Timeout Various Things ***/
 
@@ -1997,6 +1732,45 @@ static void process_world(void)
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1, TRUE);
 	}
 
+	/* Inhibit flood */
+	if (p_ptr->inhibit_flood)
+	{
+		p_ptr->inhibit_flood--;
+
+		if (!p_ptr->inhibit_flood)
+		{
+#ifdef JP
+			msg_print("大洪水が使えるようになった。");
+#else
+			msg_print("You can use great flood now.");
+#endif
+
+			p_ptr->redraw |= (PR_STATUS);
+		}
+	}
+
+	/* Death regenerate */
+	if (p_ptr->death_regen)
+	{
+		int old_quest = p_ptr->inside_quest;
+
+		p_ptr->death_regen--;
+
+		if (!p_ptr->death_regen)
+		{
+			r_info[MON_DEATH].max_num = 1;
+			if (!astral_mode)
+			{
+				init_flags = INIT_ASSIGN;
+				p_ptr->inside_quest = QUEST_DEATH;
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+				quest[QUEST_DEATH].status = QUEST_STATUS_TAKEN;
+			}
+			p_ptr->inside_quest = old_quest;
+		}
+	}
+
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */
@@ -2028,13 +1802,18 @@ static void process_world(void)
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
+}
 
 
-
+/*
+ * Handle burning fuel every 10 game turns
+ */
+static void process_world_aux_light(void)
+{
 	/*** Process Light ***/
 
 	/* Check for light being wielded */
-	o_ptr = &inventory[INVEN_LITE];
+	object_type *o_ptr = &inventory[INVEN_LITE];
 
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LITE)
@@ -2053,11 +1832,14 @@ static void process_world(void)
 			notice_lite_change(o_ptr);
 		}
 	}
-
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
+}
 
 
+/*
+ * Handle mutation effects once every 10 game turns
+ */
+static void process_world_aux_mutation(void)
+{
 	/*** Process mutation effects ***/
 	if (p_ptr->muta2 && !p_ptr->wild_mode)
 	{
@@ -2176,6 +1958,7 @@ static void process_world(void)
 			p_ptr->pelem = randint0(ELEM_NUM);
 			init_realm_table();
 			p_ptr->update |= (PU_BONUS);
+			p_ptr->notice |= (PN_REORDER);
 			load_all_pref_files();
 			if (p_ptr->action == ACTION_ELEMSCOPE) lite_spot(py, px);
 		}
@@ -2656,8 +2439,14 @@ static void process_world(void)
 			}
 		}
 	}
+}
 
 
+/*
+ * Handle curse effects once every 10 game turns
+ */
+static void process_world_aux_curse(void)
+{
 	/*** Process Inventory ***/
 
 	if ((p_ptr->cursed & TRC_P_FLAG_MASK) && !p_ptr->wild_mode)
@@ -2846,7 +2635,7 @@ static void process_world(void)
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev*2, 100), o_name);
 		}
 		/* Handle mana draining */
-		if ((p_ptr->cursed & TRC_DRAIN_MANA) && one_in_(666))
+		if ((p_ptr->cursed & TRC_DRAIN_MANA) && p_ptr->csp && one_in_(666))
 		{
 			char o_name[MAX_NLEN];
 
@@ -2869,19 +2658,39 @@ static void process_world(void)
 	/* Rarely, take damage from the Lost Eye */
 	if (one_in_(999) && !p_ptr->anti_magic)
 	{
-		if ((inventory[INVEN_LITE].tval) &&
-		    (inventory[INVEN_LITE].sval == SV_LITE_LOST_EYE))
+		object_type *o_ptr = &inventory[INVEN_LITE];
+
+		if (o_ptr->name1 == ART_HABORYM_EYE)
 		{
-			msg_print("その剥製はあなたの体力を吸収した！");
+#ifdef JP
+			if (object_known_p(o_ptr))
+				msg_print("その剥製はあなたの体力を吸収した！");
+			else
+				msg_print("なにかがあなたの体力を吸収した！");
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "剣聖ハボリムの失われた眼");
-
+#else
+			if (object_known_p(o_ptr))
+				msg_print("The Lost Eye of of Haborym drains life from you!");
+			else
+				msg_print("Something drains life from you!");
+			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "The Lost Eye of of Haborym");
+#endif
 		}
-		else if ((inventory[INVEN_LITE].tval) &&
-		    (inventory[INVEN_LITE].sval == SV_LITE_FAKE))
+		else if (o_ptr->name1 == ART_FAKE)
 		{
-			msg_print("その剥製はあなたの体力を吸収した！");
+#ifdef JP
+			if (object_known_p(o_ptr))
+				msg_print("その剥製はあなたの体力を吸収した！");
+			else
+				msg_print("なにかがあなたの体力を吸収した！");
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "暗黒騎士ランスロットの失われた眼");
-
+#else
+			if (object_known_p(o_ptr))
+				msg_print("The Lost Eye of Lancelot the Dark Knight drains life from you!");
+			else
+				msg_print("Something drains life from you!");
+			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "The Lost Eye of Lancelot the Dark Knight");
+#endif
 		}
 	}
 
@@ -2896,11 +2705,22 @@ static void process_world(void)
 
 	}
 
+}
+
+
+/*
+ * Handle recharging objects once every 10 game turns
+ */
+static void process_world_aux_recharge(void)
+{
+	int i;
+	bool changed;
+
 	/* Process equipment */
-	for (j = 0, i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	for (changed = FALSE, i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
 		/* Get the object */
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2915,13 +2735,13 @@ static void process_world(void)
 			if (!o_ptr->timeout)
 			{
 				recharged_notice(o_ptr);
-				j++;
+				changed = TRUE;
 			}
 		}
 	}
 
 	/* Notice changes */
-	if (j)
+	if (changed)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
@@ -2933,10 +2753,10 @@ static void process_world(void)
 	 * and each charging rod in a stack decreases the stack's timeout by
 	 * one per turn. -LM-
 	 */
-	for (j = 0, i = 0; i < INVEN_PACK; i++)
+	for (changed = FALSE, i = 0; i < INVEN_PACK; i++)
 	{
-		o_ptr = &inventory[i];
-		k_ptr = &k_info[o_ptr->k_idx];
+		object_type *o_ptr = &inventory[i];
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2945,7 +2765,7 @@ static void process_world(void)
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
 			/* Determine how many rods are charging. */
-			temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+			int temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 			if (temp > o_ptr->number) temp = o_ptr->number;
 
 			/* Decrease timeout by that number. */
@@ -2958,13 +2778,19 @@ static void process_world(void)
 			if (!(o_ptr->timeout))
 			{
 				recharged_notice(o_ptr);
-				j++;
+				changed = TRUE;
+			}
+
+			/* One of the stack of rod is charged */
+			else if (o_ptr->timeout % k_ptr->pval)
+			{
+				changed = TRUE;
 			}
 		}
 	}
 
 	/* Notice changes */
-	if (j)
+	if (changed)
 	{
 		/* Combine pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -2974,18 +2800,11 @@ static void process_world(void)
 		wild_regen = 20;
 	}
 
-	/* Feel the inventory */
-	sense_inventory1();
-	sense_inventory2();
-
-
-	/*** Process Objects ***/
-
-	/* Process objects */
+	/* Process objects on floor */
 	for (i = 1; i < o_max; i++)
 	{
 		/* Access object */
-		o_ptr = &o_list[i];
+		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
@@ -3000,8 +2819,14 @@ static void process_world(void)
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 		}
 	}
+}
 
 
+/*
+ * Handle involuntary movement once every 10 game turns
+ */
+static void process_world_aux_movement(void)
+{
 	/*** Involuntary Movement ***/
 
 	/* Delayed Word-of-Recall */
@@ -3042,17 +2867,17 @@ static void process_world(void)
 					msg_print("You feel yourself yanked upwards!");
 #endif
 
-				p_ptr->recall_dungeon = dungeon_type;
+				if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
 				if (record_stair)
 					do_cmd_write_nikki(NIKKI_RECALL, dun_level, NULL);
 
 				dun_level = 0;
 				dungeon_type = 0;
-				prepare_change_floor_mode(CFM_CLEAR_ALL);
 
 				leave_quest_check();
 
 				p_ptr->inside_quest = 0;
+
 				p_ptr->leaving = TRUE;
 			}
 			else
@@ -3106,13 +2931,19 @@ static void process_world(void)
 				}
 				p_ptr->wild_mode = FALSE;
 
-				prepare_change_floor_mode(CFM_CLEAR_ALL);
+				/*
+				 * Clear all saved floors
+				 * and create a first saved floor
+				 */
+				prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 
 				if (dungeon_type == DUNGEON_PALACE)
 				{
+					int i;
+
 					for (i = MIN_RANDOM_QUEST; i <= MAX_RANDOM_QUEST_ASTRAL; i++)
 					{
 						if ((quest[i].type == QUEST_TYPE_RANDOM) &&
@@ -3158,7 +2989,11 @@ static void process_world(void)
 				msg_print("The world changes!");
 #endif
 
-				prepare_change_floor_mode(CFM_CLEAR_ALL);
+				/*
+				 * Clear all saved floors
+				 * and create a first saved floor
+				 */
+				prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -3176,22 +3011,602 @@ static void process_world(void)
 			sound(SOUND_TPLEVEL);
 		}
 	}
+}
 
-	if (p_ptr->inhibit_flood)
+
+/*
+ * Count number of adjacent monsters
+ */
+static int get_monster_crowd_number(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	int my = m_ptr->fy;
+	int mx = m_ptr->fx;
+	int i;
+	int count = 0;
+
+	for (i = 0; i < 7; i++)
 	{
-		p_ptr->inhibit_flood--;
+		int ay = my + ddy_ddd[i];
+		int ax = mx + ddx_ddd[i];
 
-		if (!p_ptr->inhibit_flood)
+		if (!in_bounds(ay, ax)) continue;
+
+		/* Count number of monsters */
+		if (cave[ay][ax].m_idx > 0) count++;
+ 	}
+
+	return count;
+}
+
+
+
+/*
+ * Dungeon rating is no longer linear
+ */
+#define RATING_BOOST(delta) (delta * delta + 50 * delta)
+
+/*
+ * Examine all monsters and unidentified objects,
+ * and get the feeling of current dungeon floor
+ */
+static byte get_dungeon_feeling(void)
+{
+	const int base = 10;
+	int rating = 0;
+	int i;
+
+	/* Hack -- no feeling in the town */
+	if (!dun_level) return 0;
+
+	/* Examine each monster */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr;
+		int delta = 0;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Ignore pet */
+		if (is_pet(m_ptr)) continue;
+
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Unique monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
+			/* Nearly out-of-depth unique monsters */
+			if (r_ptr->level + 10 > dun_level)
+			{
+				/* Boost rating by twice delta-depth */
+				delta += (r_ptr->level + 10 - dun_level) * 2 * base;
+			}
+		}
+		else
+		{
+			/* Out-of-depth monsters */
+			if (r_ptr->level > dun_level)
+			{
+				/* Boost rating by delta-depth */
+				delta += (r_ptr->level - dun_level) * base;
+			}
+		}
+
+		/* Unusually crowded monsters get a little bit of rating boost */
+		if (r_ptr->flags1 & RF1_FRIENDS)
+		{
+			if (5 <= get_monster_crowd_number(i)) delta += 1;
+		}
+		else
+		{
+			if (2 <= get_monster_crowd_number(i)) delta += 1;
+		}
+
+
+		rating += RATING_BOOST(delta);
+	}
+
+	/* Examine each unidentified object */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		int delta = 0;
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip known objects */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Skip pseudo-known objects */
+		if (o_ptr->ident & IDENT_SENSE) continue;
+
+		/* Ego objects */
+		if (ego_item_p(o_ptr))
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+			delta += e_ptr->rating * base;
+		}
+
+		/* Artifacts */
+		if (o_ptr->art_name || o_ptr->name1)
+		{
+			s32b cost = object_value_real(o_ptr);
+
+			delta += 10 * base;
+			if (cost > 10000L) delta += 10 * base;
+			if (cost > 50000L) delta += 10 * base;
+			if (cost > 100000L) delta += 10 * base;
+
+			/* Special feeling */
+			if (!preserve_mode) return 1;
+		}
+
+		if (o_ptr->tval == TV_SOFT_ARMOR &&
+		    o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) delta += 5 * base;
+		if (o_ptr->tval == TV_HARD_ARMOR &&
+		    o_ptr->sval == SV_DRAGON_SCALE_MAIL) delta += 5 * base;
+		if (o_ptr->tval == TV_SHIELD &&
+		    o_ptr->sval == SV_DRAGON_SHIELD) delta += 5 * base;
+		if (o_ptr->tval == TV_GLOVES &&
+		    o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) delta += 5 * base;
+		if (o_ptr->tval == TV_BOOTS &&
+		    o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) delta += 5 * base;
+		if (o_ptr->tval == TV_HELM &&
+		    o_ptr->sval == SV_DRAGON_HELM) delta += 5 * base;
+		if (o_ptr->tval == TV_RING &&
+		    o_ptr->sval == SV_RING_SPEED &&
+		    !cursed_p(o_ptr)) delta += 25 * base;
+		if (o_ptr->tval == TV_RING &&
+		    o_ptr->sval == SV_RING_LORDLY &&
+		    !cursed_p(o_ptr)) delta += 15 * base;
+		if (o_ptr->tval == TV_AMULET &&
+		    o_ptr->sval == SV_AMULET_THE_MAGI &&
+		    !cursed_p(o_ptr)) delta += 15 * base;
+
+		/* Out-of-depth objects */
+		if (!cursed_p(o_ptr) && !broken_p(o_ptr) &&
+		    k_ptr->level > dun_level)
+		{
+			/* Rating increase */
+			delta += (k_ptr->level - dun_level) * base;
+		}
+
+		rating += RATING_BOOST(delta);
+	}
+
+
+	if (rating > RATING_BOOST(1000)) return 2;
+	if (rating > RATING_BOOST(800)) return 3;
+	if (rating > RATING_BOOST(600)) return 4;
+	if (rating > RATING_BOOST(400)) return 5;
+	if (rating > RATING_BOOST(300)) return 6;
+	if (rating > RATING_BOOST(200)) return 7;
+	if (rating > RATING_BOOST(100)) return 8;
+	if (rating > RATING_BOOST(0)) return 9;
+
+	return 10;
+}
+
+
+/*
+ * Update dungeon feeling, and announce it if changed
+ */
+static void update_dungeon_feeling(void)
+{
+	byte new_feeling;
+	int quest_num;
+	int delay;
+
+	/* No feeling on the surface */
+	if (!dun_level) return;
+
+	/* Extract delay time */
+	delay = MAX(10, 150 - p_ptr->skill_fos) * (150 - dun_level) * TURNS_PER_TICK / 100;
+
+ 	/* Not yet felt anything */
+	if (turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
+
+	/* Extract quest number (if any) */
+	quest_num = quest_number(dun_level);
+
+	/* No feeling in a quest */
+	if (quest_num &&
+	    (!quest_is_fixed(quest_num) &&
+	     !((quest[quest_num].flags & QUEST_FLAG_GUARDIAN) ||
+	       !(quest[quest_num].flags & QUEST_FLAG_PRESET)))) return;
+
+
+	/* Get new dungeon feeling */
+	new_feeling = get_dungeon_feeling();
+
+	/* Remember last time updated */
+	p_ptr->feeling_turn = turn;
+
+	/* No change */
+	if (p_ptr->feeling == new_feeling) return;
+
+	/* Dungeon feeling is changed */
+	p_ptr->feeling = new_feeling;
+
+	/* Announce feeling */
+	do_cmd_feeling();
+
+	/* Update the level indicator */
+	p_ptr->redraw |= (PR_DEPTH);
+
+	/* Disturb */
+	if (disturb_minor) disturb(0, 0);
+}
+
+
+/*
+ * Handle certain things once every 10 game turns
+ */
+static void process_world(void)
+{
+	int day, hour, min, prev_min;
+	int x, y, i;
+
+	cave_type *c_ptr;
+
+	s32b len = TURNS_PER_TICK * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
+
+	extract_day_hour_min(&day, &hour, &min);
+	prev_min = (1440 * (tick - TURNS_PER_TICK) / len) % 60;
+
+	/* Update dungeon feeling, and announce it if changed */
+	update_dungeon_feeling();
+
+	/* Every 10 game turns */
+	if (turn % TURNS_PER_TICK) return;
+
+	/*** Check the Time and Load ***/
+
+	if (!(turn % (50*TURNS_PER_TICK)))
+	{
+		/* Check time and load */
+		if ((0 != check_time()) || (0 != check_load()))
+		{
+			/* Warning */
+			if (closing_flag <= 2)
+			{
+				/* Disturb */
+				disturb(0, 0);
+
+				/* Count warnings */
+				closing_flag++;
+
+				/* Message */
 #ifdef JP
-			msg_print("大洪水が使えるようになった。");
+				msg_print("アングバンドへの門が閉じかかっています...");
+				msg_print("ゲームを終了するかセーブするかして下さい。");
 #else
-			msg_print("You can use great flood now.");
+				msg_print("The gates to ANGBAND are closing...");
+				msg_print("Please finish up and/or save your game.");
 #endif
 
-			p_ptr->redraw |= (PR_STATUS);
+			}
+
+			/* Slam the gate */
+			else
+			{
+				/* Message */
+#ifdef JP
+				msg_print("今、アングバンドへの門が閉ざされました。");
+#else
+				msg_print("The gates to ANGBAND are now closed.");
+#endif
+
+
+				/* Stop playing */
+				p_ptr->playing = FALSE;
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+			}
 		}
 	}
+
+	/*** Attempt timed autosave ***/
+	if (autosave_t && autosave_freq)
+	{
+		if (!(turn % ((s32b)autosave_freq * TURNS_PER_TICK)))
+			do_cmd_save_game(TRUE);
+	}
+
+	if (mon_fight)
+	{
+#ifdef JP
+		msg_print("何かが聞こえた。");
+#else
+		msg_print("You hear noise.");
+#endif
+	}
+
+	/*** Handle the wilderness/town (sunshine) ***/
+
+	/* While in town/wilderness */
+	if ((!dun_level && !p_ptr->inside_quest && !p_ptr->inside_arena) ||
+		(d_info[dungeon_type].flags1 & DF1_WILD_LITE))
+	{
+		/* Hack -- Daybreak/Nighfall in town */
+		if (!(turn % ((TURNS_PER_TICK * TOWN_DAWN) / 2)))
+		{
+			bool dawn;
+			bool in_dungeon = FALSE;
+
+			/* Check for dawn */
+			dawn = (!(turn % (TURNS_PER_TICK * TOWN_DAWN)));
+
+			if (d_info[dungeon_type].flags1 & DF1_WILD_LITE) in_dungeon = TRUE;
+
+			/* Day breaks */
+			if (dawn)
+			{
+				/* Message */
+#ifdef JP
+				msg_print("夜が明けた。");
+#else
+				msg_print("The sun has risen.");
+#endif
+
+				if (!p_ptr->wild_mode)
+				{
+					/* Hack -- Scan the town */
+					for (y = 0; y < cur_hgt; y++)
+					{
+						for (x = 0; x < cur_wid; x++)
+						{
+							/* Get the cave grid */
+							c_ptr = &cave[y][x];
+
+							/* Assume lit */
+							c_ptr->info |= (CAVE_GLOW);
+
+							if ((!in_dungeon || player_has_los_bold(y, x)) && !p_ptr->blind)
+							{
+								/* Hack -- Memorize lit grids if allowed */
+								if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
+
+								/* Hack -- Notice spot */
+								note_spot(y, x);
+							}
+						}
+					}
+				}
+			}
+
+			/* Night falls */
+			else
+			{
+				/* Message */
+#ifdef JP
+				msg_print("日が沈んだ。");
+#else
+				msg_print("The sun has fallen.");
+#endif
+
+
+				if (!p_ptr->wild_mode)
+				{
+					/* Hack -- Scan the town */
+					for (y = 0; y < cur_hgt; y++)
+					{
+						for (x = 0; x < cur_wid; x++)
+						{
+							/* Get the cave grid */
+							c_ptr = &cave[y][x];
+
+							/* Assume dark */
+							c_ptr->info &= ~(CAVE_GLOW);
+
+							/* Darken "boring" features */
+							if (in_dungeon ||
+							    (c_ptr->feat <= FEAT_INVIS) ||
+							    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
+							    (c_ptr->feat <= FEAT_MOUNTAIN) &&
+							     (c_ptr->feat != FEAT_MUSEUM)) ||
+							    (x == 0) || (x == cur_wid-1) ||
+							    (y == 0) || (y == cur_hgt-1))
+							{
+								byte feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+
+								if ((feat <= FEAT_INVIS) ||
+								    (feat == FEAT_DIRT) ||
+								    (feat == FEAT_GRASS) ||
+								    (feat == FEAT_SWAMP) ||
+								    (feat == FEAT_TUNDRA))
+								{
+									/* Forget the grid */
+									c_ptr->info &= ~(CAVE_MARK);
+								}
+
+								/* Hack -- Notice spot */
+								note_spot(y, x);
+							}
+						}
+					}
+
+					/* Glow some feature */
+					glow_floor_feature();
+				}
+			}
+
+			/* Update the monsters */
+			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP | PR_TITLE);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+		}
+	}
+
+
+	/*** Process the monsters ***/
+
+	/* Check for creature generation. */
+	if (one_in_(d_info[dungeon_type].max_m_alloc_chance) &&
+	    !p_ptr->inside_arena && !p_ptr->inside_quest)
+	{
+		/* Make a new monster */
+		(void)alloc_monster(MAX_SIGHT + 5, 0);
+	}
+
+	/* Hack -- Check for creature regeneration */
+	if (!(turn % (TURNS_PER_TICK*10))) regen_monsters();
+	if (!(turn % (TURNS_PER_TICK*3))) regen_captured_monsters();
+
+	/* Date changes */
+	if (!hour && !min)
+	{
+		monster_race *r_ptr;
+
+		if (min != prev_min)
+		{
+			int max_dl = 3;
+			byte old_dungeon_type = dungeon_type;
+
+			do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
+
+			/* Hack -- Player is temporarily in main dungeon */
+			dungeon_type = DUNGEON_PALACE;
+			get_mon_num_prep(NULL, NULL);
+
+			for (i = 0; i < max_d_idx; i++)
+			{
+				if (max_dlv[i] < d_info[i].mindepth) continue;
+				if (max_dl < max_dlv[i]) max_dl = max_dlv[i];
+			}
+			while (1)
+			{
+				today_mon = get_mon_num(max_dl);
+				r_ptr = &r_info[today_mon];
+
+				if (r_ptr->flags1 & RF1_UNIQUE) continue;
+				if (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)) continue;
+				if (r_ptr->flags2 & (RF2_MULTIPLY)) continue;
+				if (!(r_ptr->flags9 & RF9_DROP_CORPSE) || !(r_ptr->flags9 & RF9_DROP_SKELETON)) continue;
+				if (r_ptr->level < MIN(max_dl/2, 40)) continue;
+				if (r_ptr->rarity > 10) continue;
+				if (r_ptr->level == 0) continue;
+				break;
+			}
+			p_ptr->today_mon = 0;
+
+			/* Hack -- Restore the player to current dungeon */
+			dungeon_type = old_dungeon_type;
+			get_mon_num_prep(NULL, NULL);
+		}
+	}
+
+
+	/*** Check the Food, and Regenerate ***/
+
+	if (!p_ptr->no_digest)
+	{
+		/* Digest normally */
+		if (p_ptr->food < PY_FOOD_MAX)
+		{
+			/* Every 100 game turns */
+			if (!(turn % (TURNS_PER_TICK*5)))
+			{
+				/* Basic digestion rate based on speed */
+				i = SPEED_TO_ENERGY(p_ptr->pspeed);
+
+				/* Regeneration takes more food */
+				if (p_ptr->regenerate) i += 20;
+				if (p_ptr->regenerate_mana) i += 20;
+				if (p_ptr->cursed & TRC_FAST_DIGEST) i += 30;
+
+				/* Slow digestion takes less food */
+				if (p_ptr->slow_digest) i -= 5;
+
+				/* Minimal digestion */
+				if (i < 1) i = 1;
+				/* Maximal digestion */
+				if (i > 100) i = 100;
+
+				/* Digest some food */
+				(void)set_food(p_ptr->food - i);
+			}
+		}
+
+		/* Digest quickly when gorged */
+		else
+		{
+			/* Digest a lot of food */
+			(void)set_food(p_ptr->food - 100);
+		}
+
+
+		/* Getting Faint */
+		if (p_ptr->food < PY_FOOD_FAINT)
+		{
+			/* Faint occasionally */
+			if (!p_ptr->paralyzed && (randint0(100) < 10))
+			{
+				/* Message */
+#ifdef JP
+				msg_print("あまりにも空腹で気絶してしまった。");
+#else
+				msg_print("You faint from the lack of food.");
+#endif
+
+				disturb(1, 0);
+
+				/* Hack -- faint (bypass free action) */
+				(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5));
+			}
+		}
+
+		/* Starve to death (slowly) */
+		if (p_ptr->food < PY_FOOD_STARVE)
+		{
+			/* Calculate damage */
+			i = (PY_FOOD_STARVE - p_ptr->food) / 10;
+
+			/* Take damage */
+#ifdef JP
+			if (!p_ptr->invuln) take_hit(DAMAGE_LOSELIFE, i, "空腹");
+#else
+			if (!p_ptr->invuln) take_hit(DAMAGE_LOSELIFE, i, "starvation");
+#endif
+
+		}
+	}
+
+	/* Process timed damage and regeneration */
+	process_world_aux_hp_and_sp();
+
+	/* Process timeout */
+	process_world_aux_timeout();
+
+	/* Process light */
+	process_world_aux_light();
+
+	/* Process mutation effects */
+	process_world_aux_mutation();
+
+	/* Process curse effects */
+	process_world_aux_curse();
+
+	/* Process recharging */
+	process_world_aux_recharge();
+
+	/* Feel the inventory */
+	sense_inventory1();
+	sense_inventory2();
+
+	/* Involuntary Movement */
+	process_world_aux_movement();
 
 	/*** Weather ***/
 	weather_time_to_change--;
@@ -3413,12 +3828,8 @@ static void process_command(void)
 {
 	int old_now_message = now_message;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	now_message = 0;
 
@@ -3592,15 +4003,7 @@ static void process_command(void)
 		/* Move (usually pick up things) */
 		case ';':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 			break;
 		}
@@ -3608,15 +4011,7 @@ static void process_command(void)
 		/* Move (usually do not pick up) */
 		case '-':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(TRUE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(!always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 			break;
 		}
@@ -3936,7 +4331,7 @@ static void process_command(void)
 		/* Fire an item */
 		case 'f':
 		{
-			if (!p_ptr->wild_mode) (void)do_cmd_fire(0, FALSE);
+			if (!p_ptr->wild_mode) (void)do_cmd_fire(DCFA_NONE, 0, 0, 0, FALSE);
 			break;
 		}
 
@@ -4346,6 +4741,65 @@ static void process_command(void)
 
 
 
+/* Hack -- Pack Overflow */
+static void pack_overflow(void)
+{
+	if (inventory[INVEN_PACK].k_idx)
+	{
+		int item = INVEN_PACK;
+
+		char o_name[MAX_NLEN];
+
+		object_type *o_ptr;
+
+		/* Access the slot to be dropped */
+		o_ptr = &inventory[item];
+
+		/* Disturbing */
+		disturb(0, 0);
+
+		/* Warning */
+#ifdef JP
+		msg_print("ザックからアイテムがあふれた！");
+#else
+		msg_print("Your pack overflows!");
+#endif
+
+
+		/* Describe */
+		object_desc(o_name, o_ptr, TRUE, 3);
+
+		/* Message */
+#ifdef JP
+		msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
+#else
+		msg_format("You drop %s (%c).", o_name, index_to_label(item));
+#endif
+
+
+		/* Drop it (carefully) near the player */
+		(void)drop_near(o_ptr, 0, py, px);
+
+		/* Modify, Describe, Optimize */
+		inven_item_increase(item, -255);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+
+		/* Notice stuff (if needed) */
+		if (p_ptr->notice) notice_stuff();
+
+		/* Update stuff (if needed) */
+		if (p_ptr->update) update_stuff();
+
+		/* Redraw stuff (if needed) */
+		if (p_ptr->redraw) redraw_stuff();
+
+		/* Redraw stuff (if needed) */
+		if (p_ptr->window) window_stuff();
+	}
+}
+
+
 /*
  * Process the player
  *
@@ -4645,59 +5099,7 @@ static void process_player(void)
 
 
 		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
-		{
-			int item = INVEN_PACK;
-
-			char o_name[MAX_NLEN];
-
-			object_type *o_ptr;
-
-			/* Access the slot to be dropped */
-			o_ptr = &inventory[item];
-
-			/* Disturbing */
-			disturb(0, 0);
-
-			/* Warning */
-#ifdef JP
-			msg_print("ザックからアイテムがあふれた！");
-#else
-			msg_print("Your pack overflows!");
-#endif
-
-
-			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
-
-			/* Message */
-#ifdef JP
-			msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
-#else
-			msg_format("You drop %s (%c).", o_name, index_to_label(item));
-#endif
-
-
-			/* Drop it (carefully) near the player */
-			(void)drop_near(o_ptr, 0, py, px);
-
-			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-
-			/* Notice stuff (if needed) */
-			if (p_ptr->notice) notice_stuff();
-
-			/* Update stuff (if needed) */
-			if (p_ptr->update) update_stuff();
-
-			/* Redraw stuff (if needed) */
-			if (p_ptr->redraw) redraw_stuff();
-
-			/* Redraw stuff (if needed) */
-			if (p_ptr->window) window_stuff();
-		}
+		pack_overflow();
 
 
 		/* Hack -- cancel "lurking browse mode" */
@@ -4779,6 +5181,10 @@ static void process_player(void)
 		}
 
 
+		/* Hack -- Pack Overflow */
+		pack_overflow();
+
+
 		/*** Clean up ***/
 
 		/* Significant */
@@ -4858,13 +5264,13 @@ static void process_player(void)
 					}
 
 					/* Handle memorized monsters */
-					if (m_ptr->mflag & MFLAG_MARK)
+					if (m_ptr->mflag2 & MFLAG2_MARK)
 					{
 						/* Maintain detection */
-						if (m_ptr->mflag & MFLAG_SHOW)
+						if (m_ptr->mflag2 & MFLAG2_SHOW)
 						{
 							/* Forget flag */
-							m_ptr->mflag &= ~(MFLAG_SHOW);
+							m_ptr->mflag2 &= ~(MFLAG2_SHOW);
 
 							/* Still need repairs */
 							repair_monsters = TRUE;
@@ -4874,7 +5280,7 @@ static void process_player(void)
 						else
 						{
 							/* Forget flag */
-							m_ptr->mflag &= ~(MFLAG_MARK);
+							m_ptr->mflag2 &= ~(MFLAG2_MARK);
 
 							/* Assume invisible */
 							m_ptr->ml = FALSE;
@@ -4954,7 +5360,11 @@ static void dungeon(void)
 
 	/* Reset the "command" vars */
 	command_cmd = 0;
+
+#if 0 /* Don't reset here --- It's used for Arena */
 	command_new = 0;
+#endif
+
 	command_rep = 0;
 	command_arg = 0;
 	command_dir = 0;
@@ -5212,8 +5622,15 @@ static void dungeon(void)
 
 		/* Count game turns */
 		turn++;
-		if (!p_ptr->wild_mode || wild_regen) dungeon_turn++;
-		else if (p_ptr->wild_mode && !(turn % ((MAX_HGT + MAX_WID) / 2))) dungeon_turn++;
+
+		if (dungeon_turn < dungeon_turn_limit)
+		{
+			if (!p_ptr->wild_mode || wild_regen) dungeon_turn++;
+			else if (p_ptr->wild_mode && !(turn % ((MAX_HGT + MAX_WID) / 2))) dungeon_turn++;
+		}
+
+		prevent_turn_overflow();
+
 		if (wild_regen) wild_regen--;
 	}
 
@@ -5338,6 +5755,8 @@ void init_realm_table(void)
 	realm_choices[CLASS_ANGELKNIGHT] |= mask;
 	realm_choices[CLASS_LORD] |= mask;
 	realm_choices[CLASS_FREYA] |= mask;
+	if (p_ptr->realm_medium == (CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND))
+		realm_choices[CLASS_MEDIUM] |= mask;
 
 	mask &= ~(CH_FIRE << get_cur_pelem());
 
@@ -5351,6 +5770,9 @@ void init_realm_table(void)
 	realm_choices[CLASS_ANGELKNIGHT] &= ~mask;
 	realm_choices[CLASS_LORD] &= ~mask;
 	realm_choices[CLASS_FREYA] &= ~mask;
+	if (p_ptr->realm_medium == (CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND))
+		realm_choices[CLASS_MEDIUM] &= ~mask;
+	else realm_choices[CLASS_MEDIUM] = p_ptr->realm_medium;
 }
 
 
@@ -5643,7 +6065,7 @@ void play_game(bool new_game)
 
 	/* Initialize vault info */
 #ifdef JP
-if (init_v_info()) quit("建築物初期化不能");
+	if (init_v_info()) quit("建築物初期化不能");
 #else
 	if (init_v_info()) quit("Cannot initialize vaults");
 #endif
@@ -5789,12 +6211,18 @@ if (init_v_info()) quit("建築物初期化不能");
 				if(p_ptr->arena_number > MAX_ARENA_MONS)
 					p_ptr->arena_number++;
 				else
-					p_ptr->arena_number = 99;
+					p_ptr->arena_number = -1 - p_ptr->arena_number;
 				p_ptr->is_dead = 0L;
 				p_ptr->chp = 0;
 				p_ptr->chp_frac = 0;
 				p_ptr->exit_bldg = TRUE;
 				reset_tim_flags();
+
+				/* Leave through the exit */
+				prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_RAND_CONNECT);
+
+				/* prepare next floor */
+				leave_floor();
 			}
 			else
 			{
@@ -5906,7 +6334,7 @@ if (init_v_info()) quit("建築物初期化不能");
 					p_ptr->inside_arena = FALSE;
 					leaving_quest = 0;
 					p_ptr->inside_quest = 0;
-					p_ptr->recall_dungeon = dungeon_type;
+					if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
 					dungeon_type = 0;
 					if (astral_mode)
 					{
@@ -5946,6 +6374,7 @@ if (init_v_info()) quit("建築物初期化不能");
 
 					/* Leaving */
 					p_ptr->wild_mode = FALSE;
+
 					p_ptr->leaving = TRUE;
 
 #ifdef JP
@@ -5986,4 +6415,48 @@ if (init_v_info()) quit("建築物初期化不能");
 s32b turn_real(s32b hoge)
 {
 	return hoge;
+}
+
+/*
+ * ターンのオーバーフローに対する対処
+ * ターン及びターンを記録する変数をターンの限界の1日前まで巻き戻す.
+ */
+void prevent_turn_overflow(void)
+{
+	int rollback_days, i, j;
+	s32b rollback_turns;
+
+	if (turn < turn_limit) return;
+
+	rollback_days = 1 + (turn - turn_limit) / (TURNS_PER_TICK * TOWN_DAWN);
+	rollback_turns = TURNS_PER_TICK * TOWN_DAWN * rollback_days;
+
+	if (turn > rollback_turns) turn -= rollback_turns;
+	else turn = 1; /* Paranoia */
+	if (old_turn > rollback_turns) old_turn -= rollback_turns;
+	else old_turn = 1;
+	if (old_battle > rollback_turns) old_battle -= rollback_turns;
+	else old_battle = 1;
+	if (p_ptr->feeling_turn > rollback_turns) p_ptr->feeling_turn -= rollback_turns;
+	else p_ptr->feeling_turn = 1;
+
+	for (i = 1; i < max_towns; i++)
+	{
+		for (j = 0; j < MAX_STORES; j++)
+		{
+			store_type *st_ptr = &town[i].store[j];
+
+			if (st_ptr->last_visit > -200L * STORE_TURNS)
+			{
+				st_ptr->last_visit -= rollback_turns;
+				if (st_ptr->last_visit < -200L * STORE_TURNS) st_ptr->last_visit = -200L * STORE_TURNS;
+			}
+
+			if (st_ptr->store_open)
+			{
+				st_ptr->store_open -= rollback_turns;
+				if (st_ptr->store_open < 1) st_ptr->store_open = 1;
+			}
+		}
+	}
 }

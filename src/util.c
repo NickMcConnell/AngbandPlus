@@ -207,7 +207,7 @@ errr path_parse(char *buf, int max, cptr file)
 	u = file+1;
 
 	/* Look for non-user portion of the file */
-	s = strstr(u, PATH_SEP);
+	s = strstr_j(u, PATH_SEP);
 
 	/* Hack -- no long user names */
 	if (s && (s >= u + sizeof(user))) return (1);
@@ -349,26 +349,23 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 FILE *my_fopen(cptr file, cptr mode)
 {
 	char buf[1024];
-
-#if defined(MACINTOSH) && defined(MAC_MPW)
-	FILE *tempfff;
-#endif
+	FILE *fff;
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (NULL);
-
-#if defined(MACINTOSH) && defined(MAC_MPW)
-	if (strchr(mode, 'w'))
-	{
-		/* setting file type/creator */
-		tempfff = fopen(buf, mode);
-		fsetfileinfo(file, _fcreator, _ftype);
-		fclose(tempfff);
-	}
-#endif
+	if (path_parse(buf, sizeof(buf), file)) return (NULL);
 
 	/* Attempt to fopen the file anyway */
-	return (fopen(buf, mode));
+	fff = fopen(buf, mode);
+
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+
+	/* Set file creator and type */
+	if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif
+
+	/* Return open file or NULL */
+	return (fff);
 }
 
 
@@ -476,7 +473,7 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				buf[i++] = ' ';
 
 				/* Append some more spaces */
-				while (!(i % 8)) buf[i++] = ' ';
+				while (0 != (i % 8)) buf[i++] = ' ';
 			}
 
 #ifdef JP
@@ -486,14 +483,13 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				buf[i++] = *s++;
 				buf[i++] = *s;
 			}
-# ifndef EUC
-	/* 半角かなに対応 */
-			else if ((((int)*s & 0xff) > 0xa1) && (((int)*s & 0xff ) < 0xdf))
+
+			/* 半角かなに対応 */
+			else if (iskana(*s))
 			{
 				buf[i++] = *s;
 				if (i >= n) break;
 			}
-# endif
 #endif
 			/* Handle printables */
 			else if (isprint(*s))
@@ -697,7 +693,7 @@ int fd_make(cptr file, int mode)
 
 #else /* BEN_HACK */
 
-# if defined(MACINTOSH) && defined(MAC_MPW)
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
 
 	/* setting file type and creator -- AR */
 	{
@@ -3236,7 +3232,7 @@ bool askfor_aux(char *buf, int len)
                                                 bell();
                                 } else {
 #ifdef SJIS
-                    if(k<len && (isprint(i) || (0xa0<=i && i<=0xdf))){
+                    if(k<len && (isprint(i) || (iskana(i)))){
 #else
                     if(k<len && isprint(i)){
 #endif
@@ -3470,8 +3466,6 @@ s16b get_quantity(cptr prompt, int max)
 		return (amt);
 	}
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the item index */
 	if ((max != 1) && repeat_pull(&amt))
 	{
@@ -3484,8 +3478,6 @@ s16b get_quantity(cptr prompt, int max)
 		/* Use it */
 		return (amt);
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Build a prompt if needed */
 	if (!prompt)
@@ -3524,11 +3516,7 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	if (amt) repeat_push(amt);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Return the result */
 	return (amt);
@@ -4627,8 +4615,6 @@ int get_keymap_dir(char ch)
 }
 
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 #define REPEAT_MAX		20
 
 /* Number of chars saved */
@@ -4703,8 +4689,6 @@ void repeat_check(void)
 		repeat_push(what);
 	}
 }
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 
 #ifdef SORT_R_INFO

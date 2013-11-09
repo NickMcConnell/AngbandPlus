@@ -5,13 +5,12 @@
     (a) キャラクターの作成                (jbirth.txt)
     (b) キャラクタの個性(基本的な特性値)  (jbirth.txt#CharAttributes)
     (c) 初期オプション                    (jbirth.txt#StartupOptions)
-    (d) ランダムクエスト数決定            (jbirth.txt#RandomQuests)
-    (e) ポイント振り分け                  (jbirth.txt#PointConfig)
-    (f) ６つの主要能力値                  (jbirth.txt#PrimaryStats)
-    (g) 生い立ちエディタ                  (jbirth.txt#BackgroundEditor)
-    (h) クイック・スタート                (jbirth.txt#QuickStart)
-    (i) 主要技能                          (jbirth.txt#PrimarySkills)
-    (j) スキルレベル                      (jbirth.txt#SkillLevel)
+    (d) ポイント振り分け                  (jbirth.txt#PointConfig)
+    (e) ６つの主要能力値                  (jbirth.txt#PrimaryStats)
+    (f) 生い立ちエディタ                  (jbirth.txt#BackgroundEditor)
+    (g) クイック・スタート                (jbirth.txt#QuickStart)
+    (h) 主要技能                          (jbirth.txt#PrimarySkills)
+    (i) スキルレベル                      (jbirth.txt#SkillLevel)
 
     (?) ヘルプシステムの使用法            (jhelpinfo.txt)
 
@@ -19,10 +18,9 @@
 ***** [a] jbirth.txt
 ***** [b] jbirth.txt#CharAttributes
 ***** [c] jbirth.txt#StartupOptions
-***** [d] jbirth.txt#RandomQuests
-***** [e] jbirth.txt#PointConfig
-***** [f] jbirth.txt#PrimaryStats
-***** [g] jbirth.txt#BackgroundEditor
-***** [h] jbirth.txt#QuickStart
-***** [i] jbirth.txt#PrimarySkills
-***** [j] jbirth.txt#SkillLevel
+***** [d] jbirth.txt#PointConfig
+***** [e] jbirth.txt#PrimaryStats
+***** [f] jbirth.txt#BackgroundEditor
+***** [g] jbirth.txt#QuickStart
+***** [h] jbirth.txt#PrimarySkills
+***** [i] jbirth.txt#SkillLevel

@@ -267,8 +267,10 @@ void delete_monster_idx(int i)
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
-		/* Hack -- efficiency */
-		o_ptr->held_m_idx = 0;
+		/*
+		 * o_ptr->held_m_idx is needed in delete_object_idx()
+		 * to prevent calling lite_spot()
+		 */
 
 		/* Delete the object */
 		delete_object_idx(this_o_idx);
@@ -313,7 +315,7 @@ void delete_monster(int y, int x)
  */
 static void compact_monsters_aux(int i1, int i2)
 {
-	int y, x;
+	int y, x, i;
 
 	cave_type *c_ptr;
 
@@ -366,6 +368,18 @@ static void compact_monsters_aux(int i1, int i2)
 
 	/* Hack -- Update the health bar */
 	if (p_ptr->health_who == i1) health_track(i2);
+
+	/* Hack -- Update parent index */
+	if (is_pet(m_ptr))
+	{
+		for (i = 1; i < m_max; i++)
+		{
+			monster_type *m2_ptr = &m_list[i];
+
+			if (m2_ptr->parent_m_idx == i1)
+				m2_ptr->parent_m_idx = i2;
+		}
+	}
 
 	/* Structure copy */
 	COPY(&m_list[i2], &m_list[i1], monster_type);
@@ -471,29 +485,6 @@ void compact_monsters(int size)
 
 
 /*
-* Pre-calculate the racial counters of preserved pets
-* To prevent multiple generation of unique monster who is the minion of player
-*/
-static void precalc_cur_num_of_pet(void)
-{
-	monster_type *m_ptr;
-	int i;
-	int max_num = p_ptr->wild_mode ? 1 : 21;
-
-	for (i = 0; i < max_num; i++)
-	{
-		m_ptr = &party_mon[i];
-
-		/* Skip empty monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Hack -- Increase the racial counter */
-		r_info[m_ptr->r_idx].cur_num++;
-	}
-}
-
-
-/*
  * Delete/Remove all the monsters when the player leaves the level
  *
  * This is an efficient method of simulating multiple calls to the
@@ -550,9 +541,6 @@ void wipe_m_list(void)
 
 	/* Hack -- Wipe the racial counter of all monster races */
 	for (i = 1; i < max_r_idx; i++) r_info[i].cur_num = 0;
-
-	/* Hack -- Increase the racial counters of pets */
-	precalc_cur_num_of_pet();
 
 	/* Reset "m_max" */
 	m_max = 1;
@@ -659,11 +647,6 @@ static int summon_specific_type = 0;
  */
 static int summon_specific_who = -1;
 
-
-/*
- * Hack -- the hostility of the summoned monster
- */
-static bool summon_specific_hostile = TRUE;
 
 static bool summon_unique_okay = FALSE;
 
@@ -876,6 +859,56 @@ static bool summon_specific_aux(int r_idx)
 		case SUMMON_PIRANHAS:
 		{
 			okay = (r_idx == MON_PIRANHA);
+			break;
+		}
+
+		case SUMMON_FIRE:
+		{
+			okay = ((r_ptr->flags3 & RF3_ELEM_FIRE)  &&
+						 ((r_ptr->d_char == 'E') ||
+						 (r_ptr->d_char == 'v') ||
+						 (r_ptr->d_char == 'Z')));
+
+			break;
+		}
+
+		case SUMMON_AQUA:
+		{
+			okay = ((r_ptr->flags3 & RF3_ELEM_AQUA)  &&
+						 ((r_ptr->d_char == 'E') ||
+						 (r_ptr->d_char == 'v') ||
+						 (r_ptr->d_char == 'Z')));
+			break;
+		}
+
+		case SUMMON_EARTH:
+		{
+			okay = ((r_ptr->flags3 & RF3_ELEM_EARTH)  &&
+						 ((r_ptr->d_char == 'E') ||
+						 (r_ptr->d_char == 'v') ||
+						 (r_ptr->d_char == 'Z')));
+			break;
+		}
+
+		case SUMMON_WIND:
+		{
+			okay = ((r_ptr->flags3 & RF3_ELEM_WIND)  &&
+						 ((r_ptr->d_char == 'E') ||
+						 (r_ptr->d_char == 'v') ||
+						 (r_ptr->d_char == 'Z')));
+			break;
+		}
+
+		case SUMMON_ARMAGE_GOOD:
+		{
+			okay = (r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_GOOD));
+			break;
+		}
+
+		case SUMMON_ARMAGE_EVIL:
+		{
+			okay = ((r_ptr->flags3 & RF3_DEMON) ||
+				(r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_EVIL)));
 			break;
 		}
 	}
@@ -1294,32 +1327,24 @@ s16b get_mon_num(int level)
 	/* Boost the level */
 	if ((level > 0) && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
 	{
+		/* Occasional "nasty" monster */
 		if (!randint0(pls_kakuritu))
 		{
-			/* What a bizarre calculation */
-			level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
+			/* Pick a level bonus */
+			int d = MIN(5, level/10) + pls_level;
+
+			/* Boost the level */
+			level += d;
 		}
-		else
+
+		/* Occasional "nasty" monster */
+		if (!randint0(pls_kakuritu))
 		{
-			/* Occasional "nasty" monster */
-			if (!randint0(pls_kakuritu))
-			{
-				/* Pick a level bonus */
-				int d = MIN(5, level/10) + pls_level;
+			/* Pick a level bonus */
+			int d = MIN(5, level/10) + pls_level;
 
-				/* Boost the level */
-				level += d;
-			}
-
-			/* Occasional "nasty" monster */
-			if (!randint0(pls_kakuritu))
-			{
-				/* Pick a level bonus */
-				int d = MIN(5, level/10) + pls_level;
-
-				/* Boost the level */
-				level += d;
-			}
+			/* Boost the level */
+			level += d;
 		}
 	}
 
@@ -1763,25 +1788,104 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
 /*
  * Learn about a monster (by "probing" it)
+ *
+ * Return the number of new flags learnt.  -Mogami-
  */
-void lore_do_probe(int m_idx)
+int lore_do_probe(int r_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[r_idx];
+	int i, n = 0;
+	byte tmp_byte;
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	/* Maximal info about awareness */
+	if (r_ptr->r_wake != MAX_UCHAR) n++;
+	if (r_ptr->r_ignore != MAX_UCHAR) n++;
+	r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
+				
+	/* Observe "maximal" attacks */
+	for (i = 0; i < 4; i++)
+	{
+		/* Examine "actual" blows */
+		if (r_ptr->blow[i].effect || r_ptr->blow[i].method)
+		{
+			/* Maximal observations */
+			if (r_ptr->r_blows[i] != MAX_UCHAR) n++;
+			r_ptr->r_blows[i] = MAX_UCHAR;
+		}
+	}
+				
+	/* Maximal drops */
+	tmp_byte = 
+		(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_90)  ? 1 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_60)  ? 1 : 0));
 
-	/* Hack -- Memorize some flags */
+	/* Only "valid" drops */
+	if (!(r_ptr->flags1 & RF1_ONLY_GOLD))
+	{
+		if (r_ptr->r_drop_item != tmp_byte) n++;
+		r_ptr->r_drop_item = tmp_byte;
+	}
+	if (!(r_ptr->flags1 & RF1_ONLY_ITEM))
+	{
+		if (r_ptr->r_drop_gold != tmp_byte) n++;
+		r_ptr->r_drop_gold = tmp_byte;
+	}
+				
+	/* Observe many spells */
+	if (r_ptr->r_cast_spell != MAX_UCHAR) n++;
+	r_ptr->r_cast_spell = MAX_UCHAR;
+				
+	/* Count unknown flags */
+	for (i = 0; i < 32; i++)
+	{
+		if (!(r_ptr->r_flags1 & (1L << i)) &&
+		    (r_ptr->flags1 & (1L << i))) n++;
+		if (!(r_ptr->r_flags2 & (1L << i)) &&
+		    (r_ptr->flags2 & (1L << i))) n++;
+		if (!(r_ptr->r_flags3 & (1L << i)) &&
+		    (r_ptr->flags3 & (1L << i))) n++;
+		if (!(r_ptr->r_flags4 & (1L << i)) &&
+		    (r_ptr->flags4 & (1L << i))) n++;
+		if (!(r_ptr->r_flags5 & (1L << i)) &&
+		    (r_ptr->flags5 & (1L << i))) n++;
+		if (!(r_ptr->r_flags6 & (1L << i)) &&
+		    (r_ptr->flags6 & (1L << i))) n++;
+		if (!(r_ptr->r_flags7 & (1L << i)) &&
+		    (r_ptr->flags7 & (1L << i))) n++;
+		if (!(r_ptr->r_flagsa & (1L << i)) &&
+		    (r_ptr->flagsa & (1L << i))) n++;
+		if (!(r_ptr->r_flagsr & (1L << i)) &&
+		    (r_ptr->flagsr & (1L << i))) n++;
+	}
+
+	/* Hack -- know all the flags */
 	r_ptr->r_flags1 = r_ptr->flags1;
 	r_ptr->r_flags2 = r_ptr->flags2;
 	r_ptr->r_flags3 = r_ptr->flags3;
+	r_ptr->r_flags4 = r_ptr->flags4;
+	r_ptr->r_flags5 = r_ptr->flags5;
+	r_ptr->r_flags6 = r_ptr->flags6;
+	r_ptr->r_flags7 = r_ptr->flags7;
+	r_ptr->r_flagsa = r_ptr->flagsa;
 	r_ptr->r_flagsr = r_ptr->flagsr;
 
+	/* Know about evolution */
+	if (!(r_ptr->r_xtra1 & MR1_SINKA)) n++;
+	r_ptr->r_xtra1 |= MR1_SINKA;
+
 	/* Update monster recall window */
-	if (p_ptr->monster_race_idx == m_ptr->r_idx)
+	if (p_ptr->monster_race_idx == r_idx)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_MONSTER);
 	}
+
+	/* Return the number of new flags learnt */
+	return n;
 }
 
 
@@ -1967,7 +2071,7 @@ void update_mon(int m_idx, bool full)
 
 
 	/* Detected */
-	if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
+	if (m_ptr->mflag2 & (MFLAG2_MARK)) flag = TRUE;
 
 
 	/* Nearby */
@@ -2222,7 +2326,7 @@ static int initial_r_appearance(int r_idx)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
+static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 {
 	int			i;
 
@@ -2378,10 +2482,6 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 #else
 			if (cheat_hear) msg_format("Deep Unique (%s).", name);
 #endif
-
-
-			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - dun_level) * 2;
 		}
 
 		/* Normal monsters */
@@ -2393,10 +2493,6 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 #else
 			if (cheat_hear) msg_format("Deep Monster (%s).", name);
 #endif
-
-
-			/* Boost rating by delta-depth */
-			rating += (r_ptr->level - dun_level);
 		}
 	}
 
@@ -2487,7 +2583,19 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	m_ptr->mflag = 0;
 	m_ptr->mflag2 = 0;
 
-	if (mode & PM_NO_PET) m_ptr->mflag2 |= MFLAG_NOPET;
+
+	/* Your pet summons its pet. */
+	if (who > 0 && is_pet(&m_list[who]))
+	{
+		mode |= PM_FORCE_PET;
+		m_ptr->parent_m_idx = who;
+	}
+	else
+	{
+		m_ptr->parent_m_idx = 0;
+	}
+
+	if (mode & PM_NO_PET) m_ptr->mflag2 |= MFLAG2_NOPET;
 
 	/* Not visible */
 	m_ptr->ml = FALSE;
@@ -2502,6 +2610,16 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	else if ((r_ptr->flags7 & RF7_FRIENDLY) ||
 		 (mode & PM_FORCE_FRIENDLY) || is_friendly_idx(who))
 	{
+		if (!monster_has_hostile_alignment(NULL, r_ptr)) set_friendly(m_ptr);
+	}
+	else if((p_ptr->pclass == CLASS_MEDIUM) &&
+		 (r_ptr->d_char == 'q') &&
+		 !(r_ptr->flags3 & RF3_EVIL) &&
+		 !(r_ptr->flags1 & RF1_UNIQUE) &&
+		 !(r_ptr->flags7 & RF7_NAZGUL) &&
+		 !(r_ptr->flags7 & RF7_UNIQUE2))
+	{
+		/* symbol 'q' monsters are friendly to Medium */
 		if (!monster_has_hostile_alignment(NULL, r_ptr)) set_friendly(m_ptr);
 	}
 
@@ -2546,8 +2664,8 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	/* あとでホワイト／テンプルの調整 */
 
 	m_ptr->max_maxhp = MIN(MAX_MAX_MAXHP, m_ptr->max_maxhp);
-
 	m_ptr->maxhp = m_ptr->max_maxhp;
+	if (m_ptr->maxhp < 1) m_ptr->maxhp = 1;
 
 	/* And start out fully healthy */
 	if (m_ptr->r_idx == MON_WOUNDED_BEAR)
@@ -2563,11 +2681,11 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	{
 		/* Allow some small variation per monster */
 	  if(one_in_(4)){
-		i = extract_energy[r_ptr->speed] / 3;
+		i = SPEED_TO_ENERGY(r_ptr->speed) / 3;
 		if (i) m_ptr->mspeed += rand_spread(0, i);
 	  }
 	  else{
-		i = extract_energy[r_ptr->speed] / 10;
+		i = SPEED_TO_ENERGY(r_ptr->speed) / 10;
 		if (i) m_ptr->mspeed += rand_spread(0, i);
 	  }
 	}
@@ -2580,7 +2698,7 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(100);
 
 	/* Force monster to wait for player */
-	if (r_ptr->flags1 & RF1_FORCE_SLEEP)
+	if ((r_ptr->flags1 & RF1_FORCE_SLEEP) || (d_info[dungeon_type].flags1 & DF1_VAULT))
 	{
 		/* Monster is still being nice */
 		m_ptr->mflag |= (MFLAG_NICE);
@@ -2800,7 +2918,7 @@ static bool place_monster_group(int who, int y, int x, int r_idx, u32b mode)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	int old, n, i;
+	int n, i;
 	int total = 0, extra = 0;
 
 	int hack_n = 0;
@@ -2838,10 +2956,6 @@ static bool place_monster_group(int who, int y, int x, int r_idx, u32b mode)
 	/* Maximum size */
 	if (total > GROUP_MAX) total = GROUP_MAX;
 
-
-	/* Save the rating */
-	old = rating;
-
 	/* Start on the monster */
 	hack_n = 1;
 	hack_x[0] = x;
@@ -2874,10 +2988,6 @@ static bool place_monster_group(int who, int y, int x, int r_idx, u32b mode)
 			}
 		}
 	}
-
-	/* Hack -- restore the rating */
-	rating = old;
-
 
 	/* Success */
 	return (TRUE);
@@ -3275,12 +3385,6 @@ static bool summon_specific_okay(int r_idx)
 		{
 			return FALSE;
 		}
-
-		/* Hostile vs. non-hostile */
-		if (is_hostile(m_ptr) != summon_specific_hostile)
-		{
-			return FALSE;
-		}
 	}
 	/* Use the player's alignment */
 	else if (summon_specific_who < 0)
@@ -3337,9 +3441,6 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 	summon_specific_type = type;
 
 	summon_unique_okay = (mode & PM_ALLOW_UNIQUE) ? TRUE : FALSE;
-
-	/* Save the hostility */
-	summon_specific_hostile = (!(mode & PM_FORCE_FRIENDLY) && !(is_friendly_idx(who)) && !(mode & PM_FORCE_PET));
 
 	/* Prepare allocation table */
 	get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
@@ -3400,7 +3501,7 @@ bool multiply_monster(int m_idx, bool clone, u32b mode)
 	if (!mon_scatter(&y, &x, m_ptr->fy, m_ptr->fx, 1))
 		return FALSE;
 
-	if (m_ptr->mflag2 & MFLAG_NOPET) mode |= PM_NO_PET;
+	if (m_ptr->mflag2 & MFLAG2_NOPET) mode |= PM_NO_PET;
 
 	/* Create a new monster (awake, no groups) */
 	if (!place_monster_aux(m_idx, y, x, m_ptr->r_idx, mode))
@@ -3409,7 +3510,7 @@ bool multiply_monster(int m_idx, bool clone, u32b mode)
 	if (clone)
 	{
 		m_list[hack_m_idx_ii].smart1 |= SM1_CLONED;
-		m_list[hack_m_idx_ii].mflag2 |= MFLAG_NOPET;
+		m_list[hack_m_idx_ii].mflag2 |= MFLAG2_NOPET;
 	}
 
 	m_list[hack_m_idx_ii].elem = m_ptr->elem;
@@ -4137,8 +4238,6 @@ void message_pain(int m_idx, int dam)
  */
 void update_smart_learn(int m_idx, int what)
 {
-#ifdef DRS_SMART_OPTIONS
-
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -4278,9 +4377,6 @@ void update_smart_learn(int m_idx, int what)
 		if (p_ptr->reflect) m_ptr->smart1 |= (SM1_IMM_REFLECT);
 		break;
 	}
-
-#endif /* DRS_SMART_OPTIONS */
-
 }
 
 
@@ -4321,14 +4417,14 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
-		/* Paranoia */
-		o_ptr->held_m_idx = 0;
-
 		/* Get local object */
 		q_ptr = &forge;
 
 		/* Copy the object */
 		object_copy(q_ptr, o_ptr);
+
+		/* Forget monster */
+		q_ptr->held_m_idx = 0;
 
 		/* Delete the object */
 		delete_object_idx(this_o_idx);
@@ -4633,7 +4729,7 @@ bool create_runeweapon(int specific)
 #endif
 			runeweapon_blow(r_ptr, 0, 0, RBM_SHOOT, RBE_HURT, (20000 - runeweapon->bow_energy) / 500, runeweapon->bow_tmul * 4);
 			runeweapon_blow(r_ptr, 1, 2, RBM_HIT, RBE_HURT, (20000 - runeweapon->bow_energy) / 500, runeweapon->bow_tmul * 4);
-			r_ptr->freq_spell = r_ptr->freq_inate = 100 / 1;
+			r_ptr->freq_spell = 100 / 1;
 			r_ptr->flags4 |= (RF4_SHOOT);
 			r_ptr->flags6 |= (RF6_BLINK);
 			r_ptr->ac = 145;
@@ -4648,7 +4744,7 @@ bool create_runeweapon(int specific)
 #endif
 			runeweapon_blow(r_ptr, 0, 0, RBM_SHOOT, RBE_HURT, (20000 - runeweapon->bow_energy) / 500, runeweapon->bow_tmul * 4);
 			runeweapon_blow(r_ptr, 1, 2, RBM_HIT, RBE_HURT, (20000 - runeweapon->bow_energy) / 500, runeweapon->bow_tmul * 4);
-			r_ptr->freq_spell = r_ptr->freq_inate = 100 / 2;
+			r_ptr->freq_spell = 100 / 2;
 			r_ptr->flags4 |= (RF4_ROCKET | RF4_SHOOT_GUN);
 			r_ptr->ac = 145;
 			break;
@@ -4678,7 +4774,7 @@ bool create_runeweapon(int specific)
 			base_name = "Runewhip";
 #endif
 			runeweapon_blow(r_ptr, 0, 2, RBM_HIT, RBE_HURT, o_ptr->dd, o_ptr->ds);
-			r_ptr->freq_spell = r_ptr->freq_inate = 100 / 4;
+			r_ptr->freq_spell = 100 / 4;
 			r_ptr->flags6 |= (RF6_S_ANT | RF6_S_SPIDER | RF6_S_BEAST | RF6_S_HOUND | RF6_S_HI_DRAGON);
 			r_ptr->ac = 160;
 			break;
@@ -4691,7 +4787,7 @@ bool create_runeweapon(int specific)
 			base_name = "Runestaff";
 #endif
 			runeweapon_blow(r_ptr, 0, 2, RBM_HIT, RBE_UN_POWER, o_ptr->dd, o_ptr->ds);
-			r_ptr->freq_spell = r_ptr->freq_inate = 100 / 3;
+			r_ptr->freq_spell = 100 / 3;
 			r_ptr->flags5 |= (RF5_BA_MANA | RF5_BA_DARK | RF5_BA_LITE | RF5_BO_MANA);
 			r_ptr->flags6 |= (RF6_S_HI_DRAGON);
 			r_ptr->flagsa |= (RFA_PETRO_CLOUD | RFA_SAND_STORM | RFA_PURE_ELEM_BEAM);
@@ -4707,7 +4803,7 @@ bool create_runeweapon(int specific)
 			base_name = "Runefan";
 #endif
 			runeweapon_blow(r_ptr, 0, 2, RBM_HIT, RBE_DR_MANA, o_ptr->dd, o_ptr->ds);
-			r_ptr->freq_spell = r_ptr->freq_inate = 100 / 2;
+			r_ptr->freq_spell = 100 / 2;
 			r_ptr->flags4 |= (RF4_DISPEL);
 			r_ptr->flagsa |= (RFA_SALAMANDER | RFA_FENRER | RFA_GNOME | RFA_THUNDERBIRD | RFA_IGNIS_FATUUS | RFA_DARK_LORE);
 			r_ptr->ac = 110;
@@ -4755,7 +4851,7 @@ bool create_runeweapon(int specific)
 			base_name = "Runeblade";
 #endif
 			runeweapon_blow(r_ptr, 0, 2, RBM_SLASH, RBE_SUPERHURT, o_ptr->dd, o_ptr->ds);
-			r_ptr->freq_spell = r_ptr->freq_inate = 100 / 5;
+			r_ptr->freq_spell = 100 / 5;
 			r_ptr->flags6 |= (RF6_BLINK | RF6_TPORT | RF6_TELE_TO);
 			r_ptr->ac = 160;
 			break;
@@ -4768,7 +4864,7 @@ bool create_runeweapon(int specific)
 			base_name = "Runeclaw";
 #endif
 			runeweapon_blow(r_ptr, 0, 2, RBM_SLASH, RBE_SUPERHURT, o_ptr->dd, o_ptr->ds);
-			r_ptr->freq_spell = r_ptr->freq_inate = 100 / 5;
+			r_ptr->freq_spell = 100 / 5;
 			r_ptr->flags6 |= (RF6_BLINK | RF6_TPORT | RF6_TELE_TO);
 			r_ptr->ac = 145;
 			break;

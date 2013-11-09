@@ -244,6 +244,7 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 		case CLASS_CLERIC:
 		case CLASS_PRIEST:
 		case CLASS_ANGELKNIGHT:
+		case CLASS_MEDIUM:
 			add_flag(flgs, TR_BLESSED);
 			break;
 		case CLASS_VAMPIRE:
@@ -252,10 +253,9 @@ s32b tot_dam_div(object_type *o_ptr, monster_type *m_ptr, bool in_hand)
 			add_flag(flgs, TR_UNHOLY);
 			break;
 		case CLASS_LORD:
-			if (p_ptr->action == ACTION_AURA)
+			if ((p_ptr->action == ACTION_AURA) && (o_ptr->tval == TV_SWORD) && (cexp_ptr->clev > 34))
 			{
-				if (cexp_ptr->clev > 34) add_flag(flgs, TR_VORPAL);
-				if (cexp_ptr->clev > 44) add_flag(flgs, TR_EXTRA_VORPAL);
+				add_flag(flgs, TR_VORPAL);
 			}
 			break;
 		}
@@ -477,6 +477,7 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 		case CLASS_CLERIC:
 		case CLASS_PRIEST:
 		case CLASS_ANGELKNIGHT:
+		case CLASS_MEDIUM:
 			add_flag(flgs, TR_BLESSED);
 			break;
 		case CLASS_LICH:
@@ -511,6 +512,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				if (mult < 25) mult = 25;
 			}
 
+			/* Execute Animal */
+			if ((have_flag(flgs, TR_KILL_ANIMAL)) &&
+			    (r_ptr->flags3 & RF3_ANIMAL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_ANIMAL;
+				}
+
+				if (mult < 40) mult = 40;
+			}
+
 			/* Slay Evil */
 			if ((have_flag(flgs, TR_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & RF3_EVIL))
@@ -521,6 +534,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				}
 
 				if (mult < 20) mult = 20;
+			}
+
+			/* Execute Evil */
+			if ((have_flag(flgs, TR_KILL_EVIL)) &&
+			    (r_ptr->flags3 & RF3_EVIL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_EVIL;
+				}
+
+				if (mult < 35) mult = 35;
 			}
 
 			/* Slay Good */
@@ -535,11 +560,30 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				if (mult < 20) mult = 20;
 			}
 
+			/* Execute Good */
+			if (((have_flag(flgs, TR_KILL_GOOD)) || (p_ptr->special_attack & (ATTACK_EVIL))) &&
+			    (r_ptr->flags3 & RF3_GOOD))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_GOOD;
+				}
+
+				if (mult < 35) mult = 35;
+			}
+
 			/* Slay Living */
 			if (((have_flag(flgs, TR_SLAY_LIVING)) || (p_ptr->special_attack & (ATTACK_EVIL))) &&
 			    monster_living(r_ptr))
 			{
 				if (mult < 30) mult = 30;
+			}
+
+			/* Execute Living */
+			if (((have_flag(flgs, TR_SLAY_LIVING)) || (p_ptr->special_attack & (ATTACK_EVIL))) &&
+			    monster_living(r_ptr))
+			{
+				if (mult < 50) mult = 50;
 			}
 
 			/* Slay Human */
@@ -554,6 +598,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				if (mult < 25) mult = 25;
 			}
 
+			/* Execute Human */
+			if ((have_flag(flgs, TR_KILL_HUMAN)) &&
+			    (r_ptr->flags2 & RF2_HUMAN))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags2 |= RF2_HUMAN;
+				}
+
+				if (mult < 40) mult = 40;
+			}
+
 			/* Slay Undead */
 			if (have_flag(flgs, TR_SLAY_UNDEAD) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
@@ -564,6 +620,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				}
 
 				if (mult < 30) mult = 30;
+			}
+
+			/* Execute Undead */
+			if ((have_flag(flgs, TR_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & RF3_UNDEAD))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_UNDEAD;
+				}
+
+				if (mult < 50) mult = 50;
 			}
 
 			/* Slay Demon */
@@ -578,6 +646,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				if (mult < 30) mult = 30;
 			}
 
+			/* Execute Demon */
+			if ((have_flag(flgs, TR_KILL_DEMON)) &&
+			    (r_ptr->flags3 & RF3_DEMON))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_DEMON;
+				}
+
+				if (mult < 50) mult = 50;
+			}
+
 			/* Slay Orc */
 			if ((have_flag(flgs, TR_SLAY_ORC)) &&
 			    (r_ptr->flags3 & RF3_ORC))
@@ -588,6 +668,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				}
 
 				if (mult < 30) mult = 30;
+			}
+
+			/* Execute Orc */
+			if ((have_flag(flgs, TR_KILL_ORC)) &&
+			    (r_ptr->flags3 & RF3_ORC))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_ORC;
+				}
+
+				if (mult < 50) mult = 50;
 			}
 
 			/* Slay Troll */
@@ -602,6 +694,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				if (mult < 30) mult = 30;
 			}
 
+			/* Execute Troll */
+			if ((have_flag(flgs, TR_KILL_TROLL)) &&
+			    (r_ptr->flags3 & RF3_TROLL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_TROLL;
+				}
+
+				if (mult < 50) mult = 50;
+			}
+
 			/* Slay Giant */
 			if ((have_flag(flgs, TR_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & RF3_GIANT))
@@ -612,6 +716,18 @@ s32b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, bool in_hand
 				}
 
 				if (mult < 30) mult = 30;
+			}
+
+			/* Execute Giant */
+			if ((have_flag(flgs, TR_KILL_GIANT)) &&
+			    (r_ptr->flags3 & RF3_GIANT))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_GIANT;
+				}
+
+				if (mult < 50) mult = 50;
 			}
 
 			/* Slay Dragon  */
@@ -1085,16 +1201,11 @@ void carry(int pickup)
 	/* Automatically pickup/destroy/inscribe items */
 	auto_pickup_items(c_ptr);
 
-
-#ifdef ALLOW_EASY_FLOOR
-
 	if (easy_floor)
 	{
 		py_pickup_floor(pickup);
 		return;
 	}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 	/* Scan the pile of objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1328,14 +1439,14 @@ static void hit_trap(void)
 				switch (down_num)
 				{
 				case 1:
-					prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 					break;
 				case 2:
-					prepare_change_floor_mode(CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 					break;
 				default:
 					dun_level += upward_dun ? (0 - down_num + 2) : (down_num - 2);
-					prepare_change_floor_mode(CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE2L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 					break;
 				}
 
@@ -1828,6 +1939,7 @@ static void hit_trap(void)
 		case FEAT_TRAP_ARMAGEDDON:
 		{
 			static int levs[10] = {0, 0, 20, 10, 5, 3, 2, 1, 1, 1};
+			int evil_idx = 0, good_idx = 0;
 
 			int lev;
 #ifdef JP
@@ -1854,8 +1966,22 @@ static void hit_trap(void)
 					/* Require line of sight */
 					if (!player_has_los_bold(y1, x1)) continue;
 
-					(void)summon_specific(0, y1, x1, lev, SUMMON_DEMON, (PM_NO_PET));
-					(void)summon_specific(0, y1, x1, lev, SUMMON_ANGEL, (PM_NO_PET));
+					if (summon_specific(0, y1, x1, lev, SUMMON_ARMAGE_EVIL, (PM_NO_PET)))
+						evil_idx = hack_m_idx_ii;
+
+					if (summon_specific(0, y1, x1, lev, SUMMON_ARMAGE_GOOD, (PM_NO_PET)))
+						good_idx = hack_m_idx_ii;
+
+					/* Let them fight each other */
+					if (evil_idx && good_idx)
+					{
+						monster_type *evil_ptr = &m_list[evil_idx];
+						monster_type *good_ptr = &m_list[good_idx];
+						evil_ptr->target_y = good_ptr->fy;
+						evil_ptr->target_x = good_ptr->fx;
+						good_ptr->target_y = evil_ptr->fy;
+						good_ptr->target_x = evil_ptr->fx;
+					}
 				}
 			}
 			break;
@@ -2180,6 +2306,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	u32b            flgs[TR_FLAG_SIZE]; /* A massive hack -- life-draining weapons */
 	bool            dragoon_hit = ((p_ptr->pclass == CLASS_DRAGOON) && (r_ptr->flags3 & RF3_DRAGON));
+	bool            lord_vorpal = FALSE;
 
 
 
@@ -2274,13 +2401,13 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			object_flags(o_ptr, flgs);
 
-			vorpal_chance = have_flag(flgs, TR_EXTRA_VORPAL) ? 2 : 4;
-
-			if ((p_ptr->pclass == CLASS_LORD) && (p_ptr->action == ACTION_AURA))
+			if ((p_ptr->pclass == CLASS_LORD) && (p_ptr->action == ACTION_AURA) && (o_ptr->tval == TV_SWORD) && (cexp_ptr->clev > 34))
 			{
-				if (cexp_ptr->clev > 44) vorpal_chance = 2;
-				else if (cexp_ptr->clev > 34) vorpal_chance = 4;
+				lord_vorpal = TRUE;
+				if (have_flag(flgs, TR_EXTRA_VORPAL) || (cexp_ptr->clev > 44)) vorpal_chance = 2;
+				else vorpal_chance = 4;
 			}
+			else vorpal_chance = have_flag(flgs, TR_EXTRA_VORPAL) ? 2 : 4;
 
 			/* Select a chaotic effect (50% chance) */
 			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(2))
@@ -2325,7 +2452,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			vorpal_cut = FALSE;
-			if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_EXTRA_VORPAL) || ((p_ptr->pclass == CLASS_LORD) && (p_ptr->action == ACTION_AURA) && (cexp_ptr->clev > 34)))
+			if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_EXTRA_VORPAL) || lord_vorpal)
 			{
 				if (randint1(vorpal_chance * 3 / 2) == 1) vorpal_cut = TRUE;
 			}
@@ -2674,7 +2801,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			/* Modify the damage */
-			k = mon_damage_mod(m_ptr, k, (bool)((p_ptr->pclass == CLASS_TERRORKNIGHT) && one_in_(2)));
+			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_TERRORKNIGHT) && one_in_(2))));
 
 			if (o_ptr->k_idx)
 			{
@@ -2807,6 +2934,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					}
 				m_ptr->maxhp -= (k+7)/8;
 				if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+				if (m_ptr->maxhp < 1) m_ptr->maxhp = 1;
 				weak = TRUE;
 			}
 			can_drain = FALSE;
@@ -2954,15 +3082,116 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			backstab = FALSE; /* Clumsy! */
 
-			/* Sound */
-			sound(SOUND_MISS);
+			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
+			{
+				u32b flgs[TR_FLAG_SIZE];
 
-			/* Message */
+				/* Sound */
+				sound(SOUND_HIT);
+
+				/* Message */
 #ifdef JP
-			msg_format("ミス！ %sにかわされた。", m_name);
+				msg_format("ミス！ %sにかわされた。", m_name);
 #else
-			msg_format("You miss %s.", m_name);
+				msg_format("You miss %s.", m_name);
 #endif
+				/* Message */
+#ifdef JP
+				msg_print("振り回した大鎌が自分自身に返ってきた！");
+#else
+				msg_print("Your scythe returns to you!");
+#endif
+
+				/* Extract the flags */
+				object_flags(o_ptr, flgs);
+
+				k = damroll(o_ptr->dd + p_ptr->to_dd[hand], o_ptr->ds + p_ptr->to_ds[hand]);
+				{
+					int mult;
+
+					switch (p_ptr->pclass)
+					{
+						case CLASS_LICH:
+						case CLASS_ANGELKNIGHT:
+						case CLASS_VAMPIRE:
+							mult = 10;break;
+						default:
+							switch (p_ptr->prace)
+							{
+								case RACE_SKELETON:
+								case RACE_GHOST:
+									mult = 10;break;
+								default:
+									mult = 25;break;
+							}
+							break;
+					}
+					break;
+
+					if (p_ptr->align < 0 && mult < 20)
+						mult = 20;
+					if (!(p_ptr->resist_acid || p_ptr->oppose_acid || p_ptr->immune_acid) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_elec || p_ptr->oppose_elec || p_ptr->immune_elec) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_fire || p_ptr->oppose_fire || p_ptr->immune_fire) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_cold || p_ptr->oppose_cold || p_ptr->immune_cold) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 25))
+						mult = 25;
+
+					if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (p_ptr->msp / 30)))
+					{
+						p_ptr->csp -= (1+(p_ptr->msp / 30));
+						p_ptr->redraw |= (PR_MANA);
+						mult = mult * 3 / 2 + 20;
+					}
+					k *= mult;
+					k /= 10;
+				}
+
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
+				if (one_in_(6))
+				{
+					int mult = 2;
+#ifdef JP
+					msg_format("グッサリ切り裂かれた！");
+#else
+					msg_format("Your weapon cuts deep into yourself!");
+#endif
+					/* Try to increase the damage */
+					while (one_in_(4))
+					{
+						mult++;
+					}
+
+					k *= mult;
+				}
+				k += (p_ptr->to_d[hand] + o_ptr->to_d);
+
+				if (k < 0) k = 0;
+
+#ifdef JP
+				take_hit(DAMAGE_FORCE, k, "死の大鎌");
+#else
+				take_hit(DAMAGE_FORCE, k, "Death scythe");
+#endif
+
+				redraw_stuff();
+			}
+			else
+			{
+				/* Sound */
+				sound(SOUND_MISS);
+
+				/* Message */
+#ifdef JP
+				msg_format("ミス！ %sにかわされた。", m_name);
+#else
+				msg_format("You miss %s.", m_name);
+#endif
+			}
 		}
 		backstab = FALSE;
 	}
@@ -3212,7 +3441,7 @@ void fall_into_air(void)
 #else
 		do_cmd_write_nikki(NIKKI_STAIR, 1, "You have fallen into air!");
 #endif
-		prepare_change_floor_mode(CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+		prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_FORCE1L | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 	}
 
 	/* Leaving */
@@ -3340,7 +3569,6 @@ void move_player(int dir, int do_pickup)
 			if ((p_ptr->wilderness_y > 0) && (p_ptr->wilderness_y < (max_wild_y - 1)) &&
 				(p_ptr->wilderness_x > 0) && (p_ptr->wilderness_x < (max_wild_x - 1)))
 			{
-				p_ptr->leftbldg = TRUE;
 				p_ptr->leaving = TRUE;
 				energy_use = 100;
 
@@ -3515,8 +3743,6 @@ void move_player(int dir, int do_pickup)
 		oktomove = TRUE;
 	}
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 	/* Disarm a visible trap */
 	else if ((do_pickup != easy_disarm) && is_known_trap(c_ptr))
 	{
@@ -3559,7 +3785,6 @@ void move_player(int dir, int do_pickup)
 		}
 	}
 
-#endif /* ALLOW_EASY_DISARM -- TNB */
 	else if (p_ptr->riding && (riding_r_ptr->flags1 & RF1_NEVER_MOVE))
 	{
 #ifdef JP
@@ -3754,11 +3979,8 @@ void move_player(int dir, int do_pickup)
 			/* Closed doors */
 			else if (is_closed_door(feat))
 			{
-#ifdef ALLOW_EASY_OPEN
 
 				if (easy_open && easy_open_door(y, x)) return;
-
-#endif /* ALLOW_EASY_OPEN */
 
 #ifdef JP
 				msg_print("ドアが行く手をはばんでいる。");
@@ -3949,16 +4171,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		carry(do_pickup != always_pickup);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		carry(do_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Handle "store doors" */
 		if (((c_ptr->feat >= FEAT_SHOP_HEAD) &&
@@ -4024,6 +4237,7 @@ void move_player(int dir, int do_pickup)
 			dun_level = 0;
 			p_ptr->oldpx = 0;
 			p_ptr->oldpy = 0;
+
 			p_ptr->leaving = TRUE;
 		}
 
@@ -4384,7 +4598,7 @@ static int see_nothing(int dir, int y, int x)
  * two spaces straight ahead, and the space marked with 's' are both
  * unknown space, then it is a potential corner and enter if
  * find_examine is set, otherwise must stop because it is not a
- * corner.
+ * corner. (find_examine option is removed and always is TRUE.)
  */
 
 
@@ -4882,7 +5096,7 @@ static bool run_test(void)
 		}
 
 		/* Two options, examining corners */
-		else if (find_examine && !find_cut)
+		else if (!find_cut)
 		{
 			/* Primary option */
 			find_current = option;
@@ -4905,8 +5119,7 @@ static bool run_test(void)
 			{
 				/* Can not see anything ahead and in the direction we */
 				/* are turning, assume that it is a potential corner. */
-				if (find_examine &&
-				    see_nothing(option, row, col) &&
+				if (see_nothing(option, row, col) &&
 				    see_nothing(option2, row, col))
 				{
 					find_current = option;
@@ -4977,9 +5190,6 @@ void run_step(int dir)
 			return;
 		}
 
-		/* Calculate torch radius */
-		p_ptr->update |= (PU_TORCH);
-
 		/* Initialize */
 		run_init(dir);
 	}
@@ -5005,15 +5215,7 @@ void run_step(int dir)
 	energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 	move_player(find_current, FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-	move_player(find_current, always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 	if ((py == p_ptr->run_py) && (px == p_ptr->run_px))
 	{

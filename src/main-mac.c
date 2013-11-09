@@ -134,6 +134,17 @@
 
 #include "angband.h"
 
+#ifdef MACH_O_CARBON
+
+#include <Carbon/Carbon.h>
+#include <QuickTime/QuickTime.h>
+#include <CoreServices/CoreServices.h>
+#include <CoreFoundation/CoreFoundation.h>
+
+#define TARGET_API_MAC_CARBON 1
+
+#else /* MACH_O_CARBON */
+
 #include <Types.h>
 #include <Gestalt.h>
 #include <QuickDraw.h>
@@ -167,10 +178,10 @@
 #endif
 
 #ifdef JP
-
 #include <Script.h>
-
 #endif
+
+#endif /* MACH_O_CARBON */
 
 /*
  * Cleaning up a couple of things to make these easier to change --AR
@@ -185,29 +196,15 @@
 #define ANGBAND_CREATOR 'TOB '
 
 /*
+ * Use rewritten asynchronous sound player
+ */
+#define USE_ASYNC_SOUND
+
+/*
  * Use "malloc()" instead of "NewPtr()"
  */
 /* #define USE_MALLOC */
 
-
-#if defined(powerc) || defined(__powerc)
-
-/*
- * Disable "LITE" version
- */
-# undef ANGBAND_LITE_MAC
-
-#endif
-
-
-#ifdef ANGBAND_LITE_MAC
-
-/*
- * Maximum number of windows
- */
-# define MAX_TERM_DATA 1
-
-#else /* ANGBAND_LITE_MAC */
 
 /*
  * Maximum number of windows
@@ -217,9 +214,6 @@
 /*
  * Activate some special code
  */
-
-#endif /* ANGBAND_LITE_MAC */
-
 
 
 /*
@@ -286,37 +280,21 @@ typedef struct term_data term_data;
 struct term_data
 {
 	term		*t;
-
 	Rect		r;
-
 	WindowPtr	w;
 
-#ifdef ANGBAND_LITE_MAC
-
-	/* Nothing */
-
-#else /* ANGBAND_LITE_MAC */
-
 	short padding;
-
 	short pixelDepth;
 
 	GWorldPtr theGWorld;
-
 	GDHandle theGDH;
-
 	GDHandle mainSWGDH;
-
-#endif /* ANGBAND_LITE_MAC */
 
 	Str15		title;
 
 	s16b		oops;
-
 	s16b		keys;
-
 	s16b		last;
-
 	s16b		mapped;
 
 	s16b		rows;
@@ -354,12 +332,15 @@ struct term_data
  */
 static bool CheckEvents(bool wait);
 
+#ifndef MACH_O_CARBON
 
 /*
  * Hack -- location of the main directory
  */
 static short app_vol;
 static long  app_dir;
+
+#endif /* !MACH_O_CARBON */
 
 
 /*
@@ -404,11 +385,13 @@ static bool initialized = FALSE;
 static long mac_os_version;
 
 
+#if defined(__MWERKS__)
 /*
  * CodeWarrior uses Universal Procedure Pointers
  */
 static ModalFilterUPP ynfilterUPP;
 
+#endif /* __MWERKS__ */
 
 /*
  * Apple Event Hooks
@@ -418,6 +401,507 @@ AEEventHandlerUPP AEH_Quit_UPP;
 AEEventHandlerUPP AEH_Print_UPP;
 AEEventHandlerUPP AEH_Open_UPP;
 
+
+# ifdef USE_ASYNC_SOUND
+
+/*
+ * Asynchronous sound player revised
+ */
+#if defined(USE_QT_SOUND) && !defined(MACH_O_CARBON)
+# undef USE_QT_SOUND
+#endif /* USE_QT_SOUND && !MACH_O_CARBON */
+
+
+/*
+ * Number of channels in the channel pool
+ */
+#if TARGET_API_MAC_CARBON
+#define MAX_CHANNELS		8
+#else
+#define MAX_CHANNELS		4
+#endif
+
+/*
+ * A pool of sound channels
+ */
+static SndChannelPtr channels[MAX_CHANNELS];
+
+/*
+ * Status of the channel pool
+ */
+static Boolean channel_initialised = FALSE;
+
+/*
+ * Data handles containing sound samples
+ */
+static SndListHandle samples[SOUND_MAX];
+
+/*
+ * Reference counts of sound samples
+ */
+static SInt16 sample_refs[SOUND_MAX];
+
+
+/*
+ * Sound effects
+ *
+ * These constants aren't used by the program at the moment.
+ */
+#define SOUND_VOLUME_MIN	0	/* Default minimum sound volume */
+#define SOUND_VOLUME_MAX	255	/* Default maximum sound volume */
+#define VOLUME_MIN			0	/* Minimum sound volume in % */
+#define VOLUME_MAX			100	/* Maximum sound volume in % */
+#define VOLUME_INC			5	/* Increment sound volume in % */
+
+/* I'm just too lazy to write a panel for this XXX XXX */
+static SInt16 sound_volume = SOUND_VOLUME_MAX;
+
+#ifdef USE_QT_SOUND
+
+/*
+ * Moving graphics resources into data fork -- pelpel
+ *
+ * (Carbon, Bundle)
+ * Given base and type names of a resource, find a file in the
+ * current application bundle and return its FSSpec in the third argument.
+ * Returns true on success, false otherwise.
+ * e.g. get_resource_spec(CFSTR("8x8"), CFSTR("png"), &spec);
+ */
+static Boolean get_resource_spec(
+	CFStringRef base_name, CFStringRef type_name, FSSpec *spec)
+{
+	CFURLRef res_url;
+	FSRef ref;
+
+	/* Find resource (=file) in the current bundle */
+	res_url = CFBundleCopyResourceURL(
+		CFBundleGetMainBundle(), base_name, type_name, NULL);
+
+	/* Oops */
+	if (res_url == NULL) return (false);
+
+	/* Convert CFURL to FSRef */
+	(void)CFURLGetFSRef(res_url, &ref);
+
+	/* Convert FSRef to FSSpec */
+	(void)FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, spec, NULL);
+
+	/* Free allocated CF data */
+	CFRelease(res_url);
+
+	/* Success */
+	return (true);
+}
+
+/*
+ * QuickTime sound, by Ron Anderson
+ *
+ * I didn't choose to use Windows-style .ini files (Ron wrote a parser
+ * for it, but...), nor did I use lib/xtra directory, hoping someone
+ * would code plist-based configuration code in the future -- pelpel
+ */
+
+/*
+ * (QuickTime)
+ * Load sound effects from data-fork resources.  They are wav files
+ * with the same names as angband_sound_name[] (variable.c)
+ *
+ * Globals referenced: angband_sound_name[]
+ * Globals updated: samples[] (they can be *huge*)
+ */
+static void load_sounds(void)
+{
+	OSErr err;
+	int i;
+
+	/* Start QuickTime */
+	err = EnterMovies();
+
+	/* Error */
+	if (err != noErr) return;
+
+	/*
+	 * This loop may take a while depending on the count and size of samples
+	 * to load.
+	 *
+	 * We should use a progress dialog for this.
+	 */
+	for (i = 1; i < SOUND_MAX; i++)
+	{
+		/* Apple APIs always give me headacke :( */
+		CFStringRef name;
+		FSSpec spec;
+		SInt16 file_id;
+		SInt16 res_id;
+		Str255 movie_name;
+		Movie movie;
+		Track track;
+		Handle h;
+		Boolean res;
+
+		/* Allocate CFString with the name of sound event to be processed */
+		name = CFStringCreateWithCString(NULL, angband_sound_name[i],
+			kTextEncodingUS_ASCII);
+
+		/* Error */
+		if (name == NULL) continue;
+
+		/* Find sound sample resource with the same name */
+		res = get_resource_spec(name, CFSTR("wav"), &spec);
+
+		/* Free the reference to CFString */
+		CFRelease(name);
+
+		/* Error */
+		if (!res) continue;
+
+		/* Open the sound file */
+		err = OpenMovieFile(&spec, &file_id, fsRdPerm);
+
+		/* Error */
+		if (err != noErr) continue;
+
+		/* Create Movie from the file */
+		err = NewMovieFromFile(&movie, file_id, &res_id, movie_name,
+			newMovieActive, NULL);
+
+		/* Error */
+		if (err != noErr) goto close_file;
+
+		/* Get the first track of the movie */
+		track = GetMovieIndTrackType(movie, 1, AudioMediaCharacteristic,
+			movieTrackCharacteristic | movieTrackEnabledOnly );
+
+		/* Error */
+		if (track == NULL) goto close_movie;
+
+		/* Allocate a handle to store sample */
+		h = NewHandle(0);
+
+		/* Error */
+		if (h == NULL) goto close_track;
+
+		/* Dump the sample into the handle */
+		err = PutMovieIntoTypedHandle(movie, track, soundListRsrc, h, 0,
+			GetTrackDuration(track), 0L, NULL);
+
+		/* Success */
+		if (err == noErr)
+		{
+			/* Store the handle in the sample list */
+			samples[i] = (SndListHandle)h;
+		}
+
+		/* Failure */
+		else
+		{
+			/* Free unused handle */
+			DisposeHandle(h);
+		}
+
+		/* Free the track */
+		close_track: DisposeMovieTrack(track);
+
+		/* Free the movie */
+		close_movie: DisposeMovie(movie);
+
+		/* Close the movie file */
+		close_file: CloseMovieFile(file_id);
+	}
+
+	/* Stop QuickTime */
+	ExitMovies();
+}
+
+#else /* USE_QT_SOUND */
+
+/*
+ * Return a handle of 'snd ' resource given Angband sound event number,
+ * or NULL if it isn't found.
+ *
+ * Globals referenced: angband_sound_name[] (variable.c)
+ */
+static SndListHandle find_sound(int num)
+{
+	Str255 sound;
+
+	/* Get the proper sound name */
+	strnfmt((char*)sound + 1, 255, "%.16s.wav", angband_sound_name[num]);
+	sound[0] = strlen((char*)sound + 1);
+
+	/* Obtain resource XXX XXX XXX */
+	return ((SndListHandle)GetNamedResource('snd ', sound));
+}
+
+#endif /* USE_QT_SOUND */
+
+
+/*
+ * Clean up sound support - to be called when the game exits.
+ *
+ * Globals referenced: channels[], samples[], sample_refs[].
+ */
+static void cleanup_sound(void)
+{
+	int i;
+
+	/* No need to clean it up */
+	if (!channel_initialised) return;
+
+	/* Dispose channels */
+	for (i = 0; i < MAX_CHANNELS; i++)
+	{
+		/* Drain sound commands and free the channel */
+		SndDisposeChannel(channels[i], TRUE);
+	}
+
+	/* Free sound data */
+	for (i = 1; i < SOUND_MAX; i++)
+	{
+		/* Still locked */
+		if ((sample_refs[i] > 0) && (samples[i] != NULL))
+		{
+			/* Unlock it */
+			HUnlock((Handle)samples[i]);
+		}
+
+#ifndef USE_QT_SOUND
+
+		/* Release it */
+		if (samples[i]) ReleaseResource((Handle)samples[i]);
+#else
+
+		/* Free handle */
+		if (samples[i]) DisposeHandle((Handle)samples[i]);
+#endif /* !USE_QT_SOUND */
+	}
+}
+
+
+/*
+ * Play sound effects asynchronously -- pelpel
+ *
+ * I don't believe those who first started using the previous implementations
+ * imagined this is *much* more complicated as it may seem.  Anyway, 
+ * introduced round-robin scheduling of channels and made it much more
+ * paranoid about HLock/HUnlock.
+ *
+ * XXX XXX de-refcounting, HUnlock and ReleaseResource should be done
+ * using channel's callback procedures, which set global flags, and
+ * a procedure hooked into CheckEvents does housekeeping.  On the other
+ * hand, this lazy reclaiming strategy keeps things simple (no interrupt
+ * time code) and provides a sort of cache for sound data.
+ *
+ * Globals referenced: channel_initialised, channels[], samples[],
+ *   sample_refs[].
+ * Globals updated: ditto.
+ */
+static void play_sound(int num, SInt16 vol)
+{
+	OSErr err;
+	int i;
+	int prev_num;
+	SndListHandle h;
+	SndChannelPtr chan;
+	SCStatus status;
+
+	static int next_chan;
+	static SInt16 channel_occupants[MAX_CHANNELS];
+	static SndCommand volume_cmd, quiet_cmd;
+
+
+	/* Initialise sound channels */
+	if (!channel_initialised)
+	{
+		for (i = 0; i < MAX_CHANNELS; i++)
+		{
+			/* Paranoia - Clear occupant table */
+			/* channel_occupants[i] = 0; */
+
+			/* Create sound channel for all sounds to play from */
+			err = SndNewChannel(&channels[i], sampledSynth, initMono, 0L);
+
+			/* Error */
+			if (err != noErr)
+			{
+				/* Free channels */
+				while (--i >= 0)
+				{
+					SndDisposeChannel(channels[i], TRUE);
+				}
+
+				/* Notify error */
+#ifdef JP
+				plog("サウンドチャンネルを初期化出来ません!");
+#else
+				plog("Cannot initialise sound channels!");
+#endif
+
+				/* Cancel request */
+				use_sound = arg_sound = FALSE;
+
+				/* Failure */
+				return;
+			}
+		}
+
+		/* First channel to use */
+		next_chan = 0;
+
+		/* Prepare volume command */
+		volume_cmd.cmd = volumeCmd;
+		volume_cmd.param1 = 0;
+		volume_cmd.param2 = 0;
+
+		/* Prepare quiet command */
+		quiet_cmd.cmd = quietCmd;
+		quiet_cmd.param1 = 0;
+		quiet_cmd.param2 = 0;
+
+		/* Initialisation complete */
+		channel_initialised = TRUE;
+	}
+
+	/* Paranoia */
+	if ((num <= 0) || (num >= SOUND_MAX)) return;
+
+	/* Prepare volume command */
+	volume_cmd.param2 = ((SInt32)vol << 16) | vol;
+
+	/* Channel to use (round robin) */
+	chan = channels[next_chan];
+
+	/* See if the resource is already in use */
+	if (sample_refs[num] > 0)
+	{
+		/* Resource in use */
+		h = samples[num];
+
+		/* Increase the refcount */
+		sample_refs[num]++;
+	}
+
+	/* Sound is not currently in use */
+	else
+	{
+		/* Get handle for the sound */
+#ifdef USE_QT_SOUND
+		h = samples[num];
+#else
+		h = find_sound(num);
+#endif /* USE_QT_SOUND */
+
+		/* Sample not available */
+		if (h == NULL) return;
+
+#ifndef USE_QT_SOUND
+
+		/* Load resource */
+		LoadResource((Handle)h);
+
+		/* Remember it */
+		samples[num] = h;
+
+#endif /* !USE_QT_SOUND */
+
+		/* Lock the handle */
+		HLockHi((Handle)h);
+
+		/* Initialise refcount */
+		sample_refs[num] = 1;
+	}
+
+	/* Poll the channel */
+	err = SndChannelStatus(chan, sizeof(SCStatus), &status);
+
+	/* It isn't available */
+	if ((err != noErr) || status.scChannelBusy)
+	{
+		/* Shut it down */
+		SndDoImmediate(chan, &quiet_cmd);
+	}
+
+	/* Previously played sound on this channel */
+	prev_num = channel_occupants[next_chan];
+
+	/* Process previously played sound */
+	if (prev_num != 0)
+	{
+		/* Decrease refcount */
+		sample_refs[prev_num]--;
+
+		/* We can free it now */
+		if (sample_refs[prev_num] <= 0)
+		{
+			/* Unlock */
+			HUnlock((Handle)samples[prev_num]);
+
+#ifndef USE_QT_SOUND
+
+			/* Release */
+			ReleaseResource((Handle)samples[prev_num]);
+
+			/* Forget handle */
+			samples[prev_num] = NULL;
+
+#endif /* !USE_QT_SOUND */
+
+			/* Paranoia */
+			sample_refs[prev_num] = 0;
+		}
+	}
+
+	/* Remember this sound as the current occupant of the channel */
+	channel_occupants[next_chan] = num;
+
+	/* Set up volume for channel */
+	SndDoImmediate(chan, &volume_cmd);
+
+	/* Play new sound asynchronously */
+	SndPlay(chan, h, TRUE);
+
+	/* Schedule next channel (round robin) */
+	next_chan++;
+	if (next_chan >= MAX_CHANNELS) next_chan = 0;
+}
+
+# else /* USE_ASYNC_SOUND */
+
+/*
+ * Play sound synchronously
+ *
+ * This may not be your choice, but much safer and much less resource hungry.
+ */
+static void play_sound(int num, SInt16 vol)
+{
+	Handle handle;
+	Str255 sound;
+
+	/* Get the proper sound name */
+	strnfmt((char*)sound + 1, 255, "%.16s.wav", angband_sound_name[num]);
+	sound[0] = strlen((char*)sound + 1);
+
+	/* Obtain resource XXX XXX XXX */
+	handle = GetNamedResource('snd ', sound);
+
+	/* Oops */
+	if (handle == NULL) return;
+
+	/* Load and Lock */
+	LoadResource(handle);
+	HLockHi(handle);
+
+	/* Play sound (wait for completion) */
+	SndPlay(NULL, (SndListHandle)handle, FALSE);
+
+	/* Unlock and release */
+	HUnlock(handle);
+	ReleaseResource(handle);
+}
+
+# endif /* USE_ASYNC_SOUND */
+
+#ifndef MACH_O_CARBON
 
 /*
 	Extra Sound Mode
@@ -501,10 +985,9 @@ static int soundchoice[] = {
 	SND_TRAP,
 };
 
+#endif /* !MACH_O_CARBON */
+
 static short			soundmode[8];
-
-static int ext_graf = 0;
-
 
 
 /*
@@ -516,7 +999,6 @@ static int ext_graf = 0;
 static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
 {
 	CInfoPBRec pb;
-	Str255 name;
 	int err;
 	int i, j;
 
@@ -681,6 +1163,8 @@ static bool askfor_file(char *buf, int len)
 
 #endif
 
+
+#if !TARGET_API_MAC_CARBON
 static void local_to_global( Rect *r )
 {
 	Point		temp;
@@ -701,6 +1185,8 @@ static void local_to_global( Rect *r )
 	r->right = temp.h;
 	r->bottom = temp.v;
 }
+#endif /* !TARGET_API_MAC_CARBON */
+
 
 static void global_to_local( Rect *r )
 {
@@ -802,8 +1288,10 @@ errr check_modification_date(int fd, cptr template_file)
 	/* Build the file name */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
 
+#ifdef CARBON
 	/* XXX XXX XXX */
 	convert_pathname(buf);
+#endif
 
 	/* Obtain modification time */
 	if (get_modification_time(buf, &txt_stat)) return (-1);
@@ -823,8 +1311,10 @@ errr check_modification_date(int fd, cptr template_file)
 	/* Build the file name of the raw file */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, fname);
 
+#ifdef CARBON
 	/* XXX XXX XXX */
 	convert_pathname(buf);
+#endif
 
 	/* Obtain modification time */
 	if (get_modification_time(buf, &raw_stat)) return (-1);
@@ -854,6 +1344,85 @@ static void center_rect(Rect *r, Rect *s)
 	r->top += dy;
 	r->bottom += dy;
 }
+
+
+#ifdef MACH_O_CARBON
+
+/* Carbon File Manager utilities by pelpel */
+
+/*
+ * (Carbon)
+ * Convert a pathname to a corresponding FSSpec.
+ * Returns noErr on success.
+ */
+static OSErr path_to_spec(const char *path, FSSpec *spec)
+{
+	OSErr err;
+	FSRef ref;
+
+	/* Convert pathname to FSRef ... */
+	err = FSPathMakeRef(path, &ref, NULL);
+	if (err != noErr) return (err);
+
+	/* ... then FSRef to FSSpec */
+	err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, spec, NULL);
+	
+	/* Inform caller of success or failure */
+	return (err);
+}
+
+
+/*
+ * (Carbon)
+ * Convert a FSSpec to a corresponding pathname.
+ * Returns noErr on success.
+ */
+static OSErr spec_to_path(const FSSpec *spec, char *buf, size_t size)
+{
+	OSErr err;
+	FSRef ref;
+
+	/* Convert FSSpec to FSRef ... */
+	err = FSpMakeFSRef(spec, &ref);
+	if (err != noErr) return (err);
+
+	/* ... then FSRef to pathname */
+	err = FSRefMakePath(&ref, buf, size);
+
+	/* Inform caller of success or failure */
+	return (err);
+}
+
+
+/*
+ * (Carbon) [via path_to_spec]
+ * Set creator and filetype of a file specified by POSIX-style pathname.
+ * Returns 0 on success, -1 in case of errors.
+ */
+void fsetfileinfo(cptr pathname, OSType fcreator, OSType ftype)
+{
+	OSErr err;
+	FSSpec spec;
+	FInfo info;
+
+	/* Convert pathname to FSSpec */
+	if (path_to_spec(pathname, &spec) != noErr) return;
+
+	/* Obtain current finder info of the file */
+	if (FSpGetFInfo(&spec, &info) != noErr) return;
+
+	/* Overwrite creator and type */
+	info.fdCreator = fcreator;
+	info.fdType = ftype;
+	err = FSpSetFInfo(&spec, &info);
+
+	/* Done */
+	return;
+}
+
+
+#else /* MACH_O_CARBON */
+
 
 
 /*
@@ -937,55 +1506,9 @@ static void PathNameFromDirID(long dirID, short vRefNum, StringPtr fullPathName)
 	}
 }
 
+#endif /* MACH_O_CARBON */
 
-#if TARGET_API_MAC_CARBON
 
-static OSErr ChooseFile( StringPtr filename, FSSpec selfld )
-{
-	NavReplyRecord		reply;
-	NavDialogOptions	dialogOptions;
-	NavTypeListHandle	navTypeList = NULL;
-	OSErr				err;
-	AEDesc	deffld;
-	
-	AECreateDesc( typeFSS, &selfld, sizeof(FSSpec), &deffld );
-	
-	err = NavGetDefaultDialogOptions( &dialogOptions );
-	
-	if( err == noErr ){
-		
-		err = NavChooseFile( &deffld, &reply, &dialogOptions, NULL, NULL, NULL, navTypeList, NULL );
-		
-		if ( reply.validRecord && err == noErr ){
-			// grab the target FSSpec from the AEDesc:
-			FSSpec		finalFSSpec;
-			AEKeyword 	keyWord;
-			DescType 	typeCode;
-			Size 		actualSize = 0;
-
-			// retrieve the returned selection:
-			// there is only one selection here we get only the first AEDescList:
-			if (( err = AEGetNthPtr( &(reply.selection), 1, typeFSS, &keyWord, &typeCode, &finalFSSpec, sizeof( FSSpec ), &actualSize )) == noErr )
-			{
-				refnum_to_name( (char *)filename, finalFSSpec.parID, finalFSSpec.vRefNum, (char *)finalFSSpec.name );
-				// 'finalFSSpec' is the chosen fileノ
-			}
-			
-			err = NavDisposeReply( &reply );
-		}
-		if( navTypeList != NULL )
-		{
-			DisposeHandle( (Handle)navTypeList );
-			navTypeList = NULL;
-		}
-	}
-	
-	AEDisposeDesc( &deffld );
-	
-	return err;
-}
-
-#endif
 
 /*
  * Activate a given window, if necessary
@@ -1035,16 +1558,6 @@ static void mac_warning(cptr warning)
 
 /*** Some generic functions ***/
 
-
-#ifdef ANGBAND_LITE_MAC
-
-/*
- * Hack -- activate a color (0 to 255)
- */
-#define term_data_color(TD,A) /* Nothing */
-
-#else /* ANGBAND_LITE_MAC */
-
 /*
  * Hack -- activate a color (0 to 255)
  */
@@ -1071,7 +1584,6 @@ static void term_data_color(term_data *td, int a)
 	td->last = a;
 }
 
-#endif /* ANGBAND_LITE_MAC */
 
 
 /*
@@ -1274,242 +1786,7 @@ static void term_data_redraw(term_data *td)
 }
 
 
-
-
-#ifdef ANGBAND_LITE_MAC
-
 /* No graphics */
-
-#else /* ANGBAND_LITE_MAC */
-
-
-/*
- * Constants
- */
-
-static int pictID = 1001;	/* 8x8 tiles; 16x16 tiles are 1002 */
-
-static int grafWidth = 8;	/* Always equal to grafHeight */
-static int grafHeight = 8;	/* Either 8 or 16 */
-
-static bool arg_newstyle_graphics;
-static bool use_newstyle_graphics;
-
-/*
- * Forward Declare
- */
-typedef struct FrameRec FrameRec;
-
-/*
- * Frame
- *
- *	- GWorld for the frame image
- *	- Handle to pix map (saved for unlocking/locking)
- *	- Pointer to color pix map (valid only while locked)
- */
-struct FrameRec
-{
-	GWorldPtr 		framePort;
-	PixMapHandle 	framePixHndl;
-	PixMapPtr 		framePix;
-	
-};
-
-
-/*
- * The global picture data
- */
-static FrameRec *frameP = NULL;
-
-
-/*
- * Lock a frame
- */
-static void BenSWLockFrame(FrameRec *srcFrameP)
-{
-	PixMapHandle 		pixMapH;
-
-	pixMapH = GetGWorldPixMap(srcFrameP->framePort);
-	(void)LockPixels(pixMapH);
-	HLockHi((Handle)pixMapH);
-	srcFrameP->framePixHndl = pixMapH;
-#if TARGET_API_MAC_CARBON
-	srcFrameP->framePix = (PixMapPtr)*(Handle)pixMapH;
-#else
-	srcFrameP->framePix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
-#endif
-	
-}
-
-
-/*
- * Unlock a frame
- */
-static void BenSWUnlockFrame(FrameRec *srcFrameP)
-{
-	if (srcFrameP->framePort != NULL)
-	{
-		HUnlock((Handle)srcFrameP->framePixHndl);
-		UnlockPixels(srcFrameP->framePixHndl);
-	}
-
-	srcFrameP->framePix = NULL;
-	
-}
-
-static OSErr BenSWCreateGWorldFromPict(
-	GWorldPtr *pictGWorld,
-	PicHandle pictH)
-{
-	OSErr err;
-	GWorldPtr saveGWorld;
-	GDHandle saveGDevice;
-	GWorldPtr tempGWorld;
-	Rect pictRect;
-	short depth;
-	GDHandle theGDH;
-
-	/* Reset */
-	*pictGWorld = NULL;
-
-	/* Get depth */
-	depth = data[0].pixelDepth;
-
-	/* Get GDH */
-	theGDH = data[0].theGDH;
-
-	/* Obtain size rectangle */
-	pictRect = (**pictH).picFrame;
-	OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
-
-	/* Create a GWorld */
-	err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
-					theGDH, noNewDevice);
-
-	/* Success */
-	if (err != noErr)
-	{
-		return (err);
-	}
-
-	/* Save pointer */
-	*pictGWorld = tempGWorld;
-
-	/* Save GWorld */
-	GetGWorld(&saveGWorld, &saveGDevice);
-
-	/* Activate */
-	SetGWorld(tempGWorld, nil);
-
-	/* Dump the pict into the GWorld */
-	(void)LockPixels(GetGWorldPixMap(tempGWorld));
-	EraseRect(&pictRect);
-	DrawPicture(pictH, &pictRect);
-	UnlockPixels(GetGWorldPixMap(tempGWorld));
-
-	/* Restore GWorld */
-	SetGWorld(saveGWorld, saveGDevice);
-	
-	/* Success */
-	return (0);
-}
-
-
-
-
-/*
- * Init the global "frameP"
- */
-
-static errr globe_init(void)
-{
-	OSErr err;
-	
-	GWorldPtr tempPictGWorldP;
-
-	PicHandle newPictH;
-
-	/* Use window XXX XXX XXX */
-#if TARGET_API_MAC_CARBON
-	SetPortWindowPort(data[0].w);
-#else
-	SetPort(data[0].w);
-#endif
-
-
-	/* Get the pict resource */
-	newPictH = GetPicture(pictID);
-
-	/* Analyze result */
-	err = (newPictH ? 0 : -1);
-
-	/* Oops */
-	if (err == noErr)
-	{
-
-		/* Create GWorld */
-		err = BenSWCreateGWorldFromPict(&tempPictGWorldP, newPictH);
-		
-		/* Release resource */
-		ReleaseResource((Handle)newPictH);
-
-		/* Error */
-		if (err == noErr)
-		{
-			/* Create the frame */
-			frameP = (FrameRec*)NewPtrClear((Size)sizeof(FrameRec));
-
-			/* Analyze result */
-			err = (frameP ? 0 : -1);
-
-			/* Oops */
-			if (err == noErr)
-			{
-				/* Save GWorld */
-				frameP->framePort = tempPictGWorldP;
-
-				/* Lock it */
-				BenSWLockFrame(frameP);
-			}
-		}
-	}
-
-	/* Result */
-	return (err);
-}
-
-
-/*
- * Nuke the global "frameP"
- */
-static errr globe_nuke(void)
-{
-	/* Dispose */
-	if (frameP)
-	{
-		/* Unlock */
-		BenSWUnlockFrame(frameP);
-
-		/* Dispose of the GWorld */
-		DisposeGWorld(frameP->framePort);
-
-		/* Dispose of the memory */
-		DisposePtr((Ptr)frameP);
-
-		/* Forget */
-		frameP = NULL;
-	}
-
-	/* Flush events */	
-	FlushEvents(everyEvent, 0);
-
-	/* Success */
-	return (0);
-}
-
-
-#endif /* ANGBAND_LITE_MAC */
-
 
 
 /*** Support for the "z-term.c" package ***/
@@ -1530,17 +1807,10 @@ static void Term_init_mac(term *t)
 	static RGBColor black = {0x0000,0x0000,0x0000};
 	static RGBColor white = {0xFFFF,0xFFFF,0xFFFF};
 
-#ifdef ANGBAND_LITE_MAC
-
-	/* Make the window */
-	td->w = NewWindow(0, &td->r, td->title, 0, noGrowDocProc, (WindowPtr)-1, 1, 0L);
-
-#else /* ANGBAND_LITE_MAC */
 
 	/* Make the window */
 	td->w = NewCWindow(0, &td->r, td->title, 0, documentProc, (WindowPtr)-1, 1, 0L);
 
-#endif /* ANGBAND_LITE_MAC */
 
 	/* Activate the window */
 	activate(td->w);
@@ -1555,21 +1825,12 @@ static void Term_init_mac(term *t)
 	/* Resize the window */
 	term_data_resize(td);
 
-#ifdef ANGBAND_LITE_MAC
-
-	/* Prepare the colors (base colors) */
-	BackColor(blackColor);
-	ForeColor(whiteColor);
-
-#else /* ANGBAND_LITE_MAC */
-
 	/* Prepare the colors (real colors) */
 	RGBBackColor(&black);
 	RGBForeColor(&white);
 
 	/* Block */
 	{
-		Rect tempRect;
 		Rect globalRect;
 		GDHandle mainGDH;
 		GDHandle currentGDH;
@@ -1607,7 +1868,6 @@ static void Term_init_mac(term *t)
 		td->mainSWGDH = mainGDH;
 	}
 
-#endif /* ANGBAND_LITE_MAC */
 
 	{
 		Rect		portRect;
@@ -1687,11 +1947,6 @@ static errr Term_xtra_mac_react(void)
 	/* Reset color */
 	td->last = -1;
 
-#ifdef ANGBAND_LITE_MAC
-
-	/* Nothing */
-	
-#else /* ANGBAND_LITE_MAC */
 
 	/* Handle sound */
 	if (use_sound != arg_sound)
@@ -1701,9 +1956,6 @@ static errr Term_xtra_mac_react(void)
 	}
 
 	
-
-#endif /* ANGBAND_LITE_MAC */
-
 	/* Success */
 	return (0);
 }
@@ -1731,60 +1983,15 @@ static errr Term_xtra_mac(int n, int v)
 			return (0);
 		}
 
-#ifdef ANGBAND_LITE_MAC
-
-		/* Nothing */
-
-#else /* ANGBAND_LITE_MAC */
-
 		/* Make a sound */
 		case TERM_XTRA_SOUND:
 		{
-			Handle handle;
+			/* Play sound */
+			play_sound(v, sound_volume);
 
-			Str255 sound;
-
-#if 0
-			short oldResFile;
-			short newResFile;
-
-			/* Open the resource file */
-			oldResFile = CurResFile();
-			newResFile = OpenResFile(sound);
-
-			/* Close the resource file */
-			CloseResFile(newResFile);
-			UseResFile(oldResFile);
-#endif
-
-			/* Get the proper sound name */
-			sprintf((char*)sound + 1, "%.16s.wav", angband_sound_name[v]);
-			sound[0] = strlen((char*)sound + 1);
-
-			/* Obtain resource XXX XXX XXX */
-			handle = Get1NamedResource('snd ', sound);
-			if( handle == NULL || ext_sound )
-				handle = GetNamedResource('snd ', sound);
-			
-			/* Oops */
-			if (handle && soundmode[soundchoice[v]] == true)
-			{
-				/* Load and Lock */
-				LoadResource(handle);
-				HLock(handle);
-
-				/* Play sound (wait for completion) */
-				SndPlay(nil, (SndListHandle)handle, true);
-
-				/* Unlock and release */
-				HUnlock(handle);
-				ReleaseResource(handle);
-			}
 			/* Success */
 			return (0);
 		}
-
-#endif /* ANGBAND_LITE_MAC */
 
 		/* Process random events */
 		case TERM_XTRA_BORED:
@@ -1891,7 +2098,7 @@ static errr Term_xtra_mac(int n, int v)
 				 * Even if ticks are 0, it's worth calling for
 				 * the above mentioned reasons.
 				 */
-				WaitNextEvent(~everyEvent, &tmp, ticks, nil);
+				WaitNextEvent((EventMask)~everyEvent, &tmp, ticks, nil);
 #else
 				long m = TickCount() + (v * 60L) / 1000;
 
@@ -2035,9 +2242,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
 	term_data *td = (term_data*)(Term->data);
 	GDHandle saveGDevice;
 	GWorldPtr saveGWorld;
-	
-	PixMapHandle PortPix;
-	
+
 	/* Save GWorld */
 	GetGWorld(&saveGWorld, &saveGDevice);
 	
@@ -2195,6 +2400,73 @@ static void term_data_link(int i)
 
 
 
+#ifdef MACH_O_CARBON
+
+/*
+ * (Carbon, Bundle)
+ * Return a POSIX pathname of the lib directory, or NULL if it can't be
+ * located.  Caller must supply a buffer along with its size in bytes,
+ * where returned pathname will be stored.
+ * I prefer use of goto's to several nested if's, if they involve error
+ * handling.  Sorry if you are offended by their presence.  Modern
+ * languages have neater constructs for this kind of jobs -- pelpel
+ */
+static char *locate_lib(char *buf, size_t size)
+{
+	CFURLRef main_url = NULL;
+	CFStringRef main_str = NULL;
+	char *p;
+	char *res = NULL;
+
+	/* Obtain the URL of the main bundle */
+	main_url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+
+	/* Oops */
+	if (main_url == NULL) goto ret;
+
+	/* Convert it to POSIX pathname */
+	main_str = CFURLCopyFileSystemPath(main_url, kCFURLPOSIXPathStyle);
+
+	/* Oops */
+	if (main_str == NULL) goto ret;
+
+	/* Convert it again from darn unisomething encoding to ASCII */
+	if (CFStringGetCString(main_str, buf, size, kTextEncodingUS_ASCII) == FALSE)
+		goto ret;
+
+	/* Find the last '/' in the pathname */
+	p = strrchr(buf, '/');
+
+	/* Paranoia - cannot happen */
+	if (p == NULL) goto ret;
+
+	/* Remove the trailing path */
+	*p = '\0';
+
+	/*
+	 * Paranoia - bounds check, with 5 being the length of "/lib/"
+	 * and 1 for terminating '\0'.
+	 */
+	if (strlen(buf) + 5 + 1 > size) goto ret;
+
+	/* Append "/lib/" */
+	strcat(buf, "/lib/");
+
+	/* Set result */
+	res = buf;
+
+ret:
+
+	/* Release objects allocated and implicitly retained by the program */
+	if (main_str) CFRelease(main_str);
+	if (main_url) CFRelease(main_url);
+
+	/* pathname of the lib folder or NULL */
+	return (res);
+}
+
+
+#else /* MACH_O_CARBON */
 
 /*
  * Set the "current working directory" (also known as the "default"
@@ -2246,6 +2518,7 @@ static void SetupAppDir(void)
 	}
 }
 
+#endif
 
 
 
@@ -2730,11 +3003,15 @@ static void init_windows(void)
 
 	term_data *td;
 
+#if !TARGET_API_MAC_CARBON
+
 	SysEnvRec env;
 	short savev;
 	long saved;
 
 	bool oops;
+
+#endif /* !TARGET_API_MAC_CARBON */
 
 
 	/*** Default values ***/
@@ -2875,6 +3152,8 @@ static void init_windows(void)
 	Term_activate(td->t);
 }
 
+#ifndef MACH_O_CARBON
+
 static void init_sound( void )
 {
 	int err, i;
@@ -2951,73 +3230,9 @@ static void init_sound( void )
 	}
 }
 
-static void init_graf( void )
-{
-	int err, i;
-	CInfoPBRec pb;
-	SignedByte		permission = fsRdPerm;
-	pascal short	ret;
-	
-	Handle handle;
-	Str255 graf;
+#endif /* MACH_O_CARBON */
 
-	/* Descend into "lib" folder */
-	pb.dirInfo.ioCompletion = NULL;
-	pb.dirInfo.ioNamePtr = "\plib";
-	pb.dirInfo.ioVRefNum = app_vol;
-	pb.dirInfo.ioDrDirID = app_dir;
-	pb.dirInfo.ioFDirIndex = 0;
 
-	/* Check for errors */
-	err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
-
-	/* Success */
-	if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
-	{
-		/* Descend into "lib/xtra" folder */
-		pb.dirInfo.ioCompletion = NULL;
-		pb.dirInfo.ioNamePtr = "\pxtra";
-		pb.dirInfo.ioVRefNum = app_vol;
-		pb.dirInfo.ioDrDirID = pb.dirInfo.ioDrDirID;
-		pb.dirInfo.ioFDirIndex = 0;
-
-		/* Check for errors */
-		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
-			
-		/* Success */
-		if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
-		{
-			/* Descend into "lib/xtra/graf" folder */
-			pb.dirInfo.ioCompletion = NULL;
-			pb.dirInfo.ioNamePtr = "\pgraf";
-			pb.dirInfo.ioVRefNum = app_vol;
-			pb.dirInfo.ioDrDirID = pb.dirInfo.ioDrDirID;
-			pb.dirInfo.ioFDirIndex = 0;
-
-			/* Check for errors */
-			err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
-
-			/* Success */
-			if ((err == noErr) && (pb.dirInfo.ioFlAttrib & 0x10))
-			{
-				ret = HOpenResFile( app_vol , pb.dirInfo.ioDrDirID , "\pgraf.rsrc" , permission );
-				if (ret != -1)
-				{
-					ext_graf = 1;
-
-					/* Obtain resource XXX XXX XXX */
-					handle = Get1NamedResource('PICT', graf);
-					if ( handle == NULL || ext_graf )
-						handle = GetNamedResource('PICT', "\pgraf.rsrc");
-				}
-			}
-		}
-	}
-}
-
-/*
-
-*/
 short InevrtCheck( DialogPtr targetDlg, short check )
 {
 	Handle 	checkH;
@@ -3066,7 +3281,6 @@ short GetCheck( DialogPtr targetDlg, short check )
 void SoundConfigDLog(void)
 {
 	DialogPtr dialog;
-	Rect r;
 	short item_hit;
 	int	i;
 
@@ -3191,6 +3405,8 @@ static void save_pref_file(void)
 
 
 
+#if defined(__MWERKS__)
+
 /*
  * A simple "Yes/No" filter to parse "key press" events in dialog windows
  */
@@ -3236,58 +3452,10 @@ static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
 	return (0);
 }
 
+#endif /* __MWERKS__ */
+
 
 #if TARGET_API_MAC_CARBON
-#ifdef MACH_O_CARBON
-
-/* Carbon File Manager utilities by pelpel */
-
-/*
- * (Carbon)
- * Convert a pathname to a corresponding FSSpec.
- * Returns noErr on success.
- */
-static OSErr path_to_spec(const char *path, FSSpec *spec)
-{
-	OSErr err;
-	FSRef ref;
-
-	/* Convert pathname to FSRef ... */
-	err = FSPathMakeRef(path, &ref, NULL);
-	if (err != noErr) return (err);
-
-	/* ... then FSRef to FSSpec */
-	err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, spec, NULL);
-	
-	/* Inform caller of success or failure */
-	return (err);
-}
-
-
-/*
- * (Carbon)
- * Convert a FSSpec to a corresponding pathname.
- * Returns noErr on success.
- */
-static OSErr spec_to_path(const FSSpec *spec, char *buf, size_t size)
-{
-	OSErr err;
-	FSRef ref;
-
-	/* Convert FSSpec to FSRef ... */
-	err = FSpMakeFSRef(spec, &ref);
-	if (err != noErr) return (err);
-
-	/* ... then FSRef to pathname */
-	err = FSRefMakePath(&ref, buf, size);
-
-	/* Inform caller of success or failure */
-	return (err);
-}
-
-
-#endif /* MACH_O_CARBON */
-
 
 /*
  * Prepare savefile dialogue and set the variable
@@ -4865,24 +5033,25 @@ static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
 	/* Save the game (if necessary) */
 	if (game_in_progress && character_generated)
 	{
-			if (!can_save){
+		if (!can_save)
+		{
 #ifdef JP
-				plog("今はセーブすることは出来ません。");
+			plog("今はセーブすることは出来ません。");
 #else
-				plog("You may not do that right now.");
+			plog("You may not do that right now.");
 #endif
-				return;
-			}
-			/* Hack -- Forget messages */
-			msg_flag = FALSE;
-
-			/* Save the game */
-#if 0
-			do_cmd_save_game(FALSE);
-#endif
-			Term_key_push(SPECIAL_KEY_QUIT);
 			return;
 		}
+		/* Hack -- Forget messages */
+		msg_flag = FALSE;
+
+		/* Save the game */
+#if 0
+		do_cmd_save_game(FALSE);
+#endif
+		Term_key_push(SPECIAL_KEY_QUIT);
+		return;
+	}
 
 		/* Quit */
 		quit(NULL);
@@ -4961,12 +5130,21 @@ static pascal OSErr AEH_Open(const AppleEvent *theAppleEvent,
 	/* Ignore non 'SAVE' files */
 	if (myFileInfo.fdType != 'SAVE') return noErr;
 
+#ifdef MACH_O_CARBON
+
+	/* Extract a file name */
+	(void)spec_to_path(&myFSS, savefile, sizeof(savefile));
+
+#else
+
 	/* XXX XXX XXX Extract a file name */
 	PathNameFromDirID(myFSS.parID, myFSS.vRefNum, (StringPtr)savefile);
 	pstrcat((StringPtr)savefile, (StringPtr)&myFSS.name);
 
 	/* Convert the string */
 	ptocstr((StringPtr)savefile);
+
+#endif /* MACH_O_CARBON */
 
 	/* Delay actual open */
 	open_when_ready = TRUE;
@@ -5542,7 +5720,7 @@ static vptr hook_rpanic(huge size)
 
 #pragma unused (size)
 
-	vptr mem = NULL;
+	/* vptr mem = NULL; */
 
 	/* Free the lifeboat */
 	if (lifeboat)
@@ -5585,6 +5763,13 @@ static void hook_quit(cptr str)
 {
 	/* Warning if needed */
 	if (str) mac_warning(str);
+
+#ifdef USE_ASYNC_SOUND
+
+	/* Clean up sound support */
+	cleanup_sound();
+
+#endif /* USE_ASYNC_SOUND */
 
 	/* Write a preference file */
 	save_pref_file();
@@ -5645,12 +5830,14 @@ static void init_stuff(void)
 {
 	int i;
 
+#if !TARGET_API_MAC_CARBON
 	short vrefnum;
 	long drefnum;
 	long junk;
 
 	SFTypeList types;
 	SFReply reply;
+#endif
 
 	Rect r;
 	Point topleft;
@@ -5686,7 +5873,11 @@ static void init_stuff(void)
 
 
 	/* Default to the "lib" folder with the application */
+#ifdef MACH_O_CARBON
+	if (locate_lib(path, sizeof(path)) == NULL) quit(NULL);
+#else
 	refnum_to_name(path, app_dir, app_vol, (char*)("\plib:"));
+#endif
 
 
 	/* Check until done */
@@ -5714,9 +5905,9 @@ static void init_stuff(void)
 
 		/* Warning */
 #ifdef JP
-		plog("TObandの'lib'フォルダが存在しないか正しく無い可能性があります.");
+		plog("TOband2の'lib'フォルダが存在しないか正しく無い可能性があります.");
 #else
-		plog("The TOband 'lib' folder is probably missing or misplaced.");
+		plog("The TOband2 'lib' folder is probably missing or misplaced.");
 #endif
 
 		/* Warning */
@@ -5833,7 +6024,7 @@ static void init_stuff(void)
 /*
  * Macintosh Main loop
  */
-void main(void)
+int main(void)
 {
 	EventRecord tempEvent;
 	int numberOfMasters = 10;
@@ -5873,12 +6064,6 @@ void main(void)
 	(void)EventAvail(everyEvent, &tempEvent);
 
 
-#ifdef ANGBAND_LITE_MAC
-
-	/* Nothing */
-
-#else /* ANGBAND_LITE_MAC */
-
 #if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
@@ -5887,6 +6072,19 @@ void main(void)
 
 #else
 
+#if TARGET_API_MAC_CARBON
+
+	{
+		OSErr err;
+		long response;
+
+		/* Check for existence of Carbon */
+		err = Gestalt(gestaltCarbonVersion, &response);
+
+		if (err != noErr) quit("This program requires Carbon API");
+	}
+
+#else
 	/* Block */
 	if (TRUE)
 	{
@@ -5945,7 +6143,7 @@ void main(void)
 
 #endif
 
-#endif /* ANGBAND_LITE_MAC */
+#endif /* CARBON */
 
 	/* 
 	 * Remember Mac OS version, in case we have to cope with version-specific
@@ -5977,9 +6175,12 @@ void main(void)
 	AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments, AEH_Open_UPP,
 			      0L, FALSE);
 
+#ifndef MACH_O_CARBON
+
 	/* Find the current application */
 	SetupAppDir();
 
+#endif
 
 	/* Mark ourself as the file creator */
 	_fcreator = ANGBAND_CREATOR;
@@ -6022,9 +6223,12 @@ void main(void)
 	/* Prepare the windows */
 	init_windows();
 
+#ifndef MACH_O_CARBON
+
 	init_sound();
 
-	init_graf();
+#endif
+
 	
 	/* Hack -- process all events */
 	while (CheckEvents(TRUE)) /* loop */;
@@ -6043,6 +6247,13 @@ void main(void)
 
 	/* Mega-Hack -- Allocate a "lifeboat" */
 	lifeboat = NewPtr(16384);
+
+#ifdef USE_QT_SOUND
+
+	/* Load sound effect resources */
+	load_sounds();
+
+#endif /* USE_QT_SOUND */
 
 	/* Note the "system" */
 	ANGBAND_SYS = "mac";

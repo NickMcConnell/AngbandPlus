@@ -589,7 +589,7 @@ static void do_cmd_wiz_change(void)
 
 		case '\n':
 		case '\r':
-			sprintf(tmp_val, "%-*d", cur_item->digit, cur_item->var);
+			sprintf(tmp_val, "%-*ld", cur_item->digit, cur_item->var);
 			if (get_string("Enter new setting: ", tmp_val, cur_item->digit))
 			{
 				cur_item->var = atol(tmp_val);
@@ -899,6 +899,7 @@ static tval_desc tvals[] =
 	{ TV_DIGGING,           "Digger"              },
 	{ TV_CHEST,             "Chest"               },
 	{ TV_CARD,              "Express Card"        },
+	{ TV_TRUMP,             "Trump"               },
 	{ TV_TAROT,             "Tarot Card"          },
 	{ TV_SCRATCH_CARD,      "Scratch Card"        },
 	{ TV_FIGURINE,          "Magical Figurine"    },
@@ -1948,8 +1949,7 @@ static void do_cmd_wiz_jump(void)
 	/* Change level */
 	dun_level = command_arg;
 
-	if (IN_HEAVEN_GATE()) prepare_change_floor_mode(CFM_CLEAR_ALL);
-	else prepare_change_floor_mode(CFM_RAND_PLACE | CFM_CLEAR_ALL);
+	if (!IN_HEAVEN_GATE()) prepare_change_floor_mode(CFM_RAND_PLACE);
 
 	if (!dun_level) dungeon_type = 0;
 	p_ptr->inside_arena = FALSE;
@@ -1960,11 +1960,16 @@ static void do_cmd_wiz_jump(void)
 	if (record_stair) do_cmd_write_nikki(NIKKI_WIZ_TELE,0,NULL);
 
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 	energy_use = 0;
 
 	/* Prevent energy_need from being too lower than 0 */
 	p_ptr->energy_need = 0;
+
+	/*
+	 * Clear all saved floors
+	 * and create a first saved floor
+	 */
+	prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;

@@ -19,9 +19,9 @@ static int cur_store_num = 0;
 static int store_top = 0;
 static store_type *st_ptr = NULL;
 static owner_type *ot_ptr = NULL;
+#endif
 static s16b old_town_num;
 static s16b cur_town_num;
-#endif
 #define RUMOR_CHANCE 8
 
 #define MAX_COMMENT_1	6
@@ -906,6 +906,7 @@ static void mass_produce(object_type *o_ptr)
 
 		case TV_STATUE:
 		case TV_CARD:
+		case TV_TRUMP:
 		{
 			size = 1;
 			break;
@@ -1065,6 +1066,7 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- Never stack chests */
 	if (o_ptr->tval == TV_CHEST) return FALSE;
 	if (o_ptr->tval == TV_STATUE) return FALSE;
+	if (o_ptr->tval == TV_TRUMP) return FALSE;
 
 	/* Hack -- Never stack eggs */
 	if (o_ptr->tval == TV_FOOD)
@@ -1207,9 +1209,6 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_POTION:
-				if (o_ptr->sval != SV_POTION_WATER) return FALSE;
-				break;
 				case TV_FOOD:
 				case TV_LITE:
 				case TV_FLASK:
@@ -1226,6 +1225,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_FIGURINE:
 				case TV_STATUE:
 				case TV_CARD:
+				case TV_TRUMP:
 				case TV_SCRATCH_CARD:
 				break;
 				default:
@@ -1367,6 +1367,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_POTION:
 				case TV_FIGURINE:
 				case TV_TAROT:
+				case TV_TRUMP:
 				break;
 				case TV_HAFTED:
 				{
@@ -2317,8 +2318,6 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 
 	char	out_val[160];
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the item index */
 	if (repeat_pull(com_val))
 	{
@@ -2329,8 +2328,6 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -2378,11 +2375,7 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 	/* Cancel */
 	if (command == ESCAPE) return (FALSE);
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*com_val);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -4149,28 +4142,23 @@ struct cc_menu
 };
 
 /*
- * Get the special blow of Temple-Knight
+ *
  */
-static void get_temple_blow(void)
+static cptr realm_jouhou[] =
 {
-	cc_menu           blows[MAX_TEMPLE_SB];
-	int               i, hgt;
-	int               num = 0, top = 0, cur = 0;
-	char              c;
-	char              buf[80];
-	bool              done = FALSE;
-	byte              attr;
-	char              s[80];
-	special_blow_type *sb_ptr;
+"自分の属性と同じエレメントの魔法です。各属性の魔法は対応するエレメントの影響を受けます。",
+"神聖は回復能力に優れた魔法です。治療や防御、感知魔法が多く含まれていますが、攻撃呪文もわずかに持っています。特に高レベルの呪文にはアンデッドを塵に帰す力があると言われています。",
+"破邪は「正義」の魔法です。直接敵を傷つける魔法が多く含まれ、特に邪悪な敵に対する力は恐るべきものがあります。しかし、善良な敵にはあまり効果がありません。",
+};
 
-	/* Tabulate special blows */
-	for (i = 0; i < MAX_TEMPLE_SB; i++)
-	{
-		if (p_ptr->special_blow & ((0x00000001L << MAX_SB) << i)) return;
+static void choose_realm(void)
+{
+	int i, select = 0;
+	char ch;
+	char buf[80];
+	bool done = FALSE;
 
-		blows[num].real = i;
-		blows[num++].can_choose = ((i != 1) || (p_ptr->psex == SEX_FEMALE));
-	}
+	if (p_ptr->realm_medium) return;
 
 	/*** Instructions ***/
 
@@ -4180,83 +4168,19 @@ static void get_temple_blow(void)
 	/* Display some helpful information */
 #ifdef JP
 	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
-	            "以下のメニューから覚えたい必殺技を選んでください。");
-	Term_putstr(QUESTION_COL, INSTRUCT_ROW, -1, TERM_WHITE,
-	            "移動キーで項目をスクロールさせ、Enterで決定します。");
-
-	/* Hack - highlight the key names */
-	Term_putstr(QUESTION_COL + 0, INSTRUCT_ROW, -1, TERM_L_GREEN, "移動キー");
-	Term_putstr(QUESTION_COL + 32, INSTRUCT_ROW, -1, TERM_L_GREEN, "Enter");
+	            "以下のメニューから魔法の領域を選んでください。");
 #else
 	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
-	            "Please select new special blow from the menu below:");
-	Term_putstr(QUESTION_COL, INSTRUCT_ROW, -1, TERM_WHITE,
- 	            "Use the movement keys to scroll the menu, Enter to select the current");
-	Term_putstr(QUESTION_COL, INSTRUCT_ROW + 1, -1, TERM_WHITE,
-	            "menu item.");
-
-	/* Hack - highlight the key names */
-	Term_putstr(QUESTION_COL + 8, INSTRUCT_ROW, -1, TERM_L_GREEN, "movement keys");
-	Term_putstr(QUESTION_COL + 42, INSTRUCT_ROW, -1, TERM_L_GREEN, "Enter");
+	            "Please select realm from the menu below:");
 #endif
+
+	prt("a) 元素", QUESTION_ROW, 2);
+	prt("b) 神聖", QUESTION_ROW, 17);
+	prt("c) 破邪", QUESTION_ROW, 32);
 
 	/* Choose */
 	while (TRUE)
 	{
-		hgt = Term->hgt - TABLE_ROW - 1;
-
-		/* Redraw the list */
-		for (i = 0; ((i + top < num) && (i <= hgt)); i++)
-		{
-			sb_ptr = &temple_blow_info[blows[i + top].real];
-			if (i + top < 26)
-			{
-				sprintf(buf, "%c) %s", I2A(i + top), sb_ptr->name);
-			}
-			else
-			{
-				/* ToDo: Fix the ASCII dependency */
-				sprintf(buf, "%c) %s", 'A' + (i + top - 26), sb_ptr->name);
-			}
-
-			/* Clear */
-			Term_erase(CLASS_COL, i + TABLE_ROW, CLASS_WID);
-
-			/* Display */
-			/* Highlight the current selection */
-			if (i == (cur - top)) attr = blows[i + top].can_choose ? TERM_L_BLUE : TERM_BLUE;
-			else attr = blows[i + top].can_choose ? TERM_WHITE : TERM_SLATE;
-
-			Term_putstr(CLASS_COL, i + TABLE_ROW, CLASS_WID, attr, buf);
-		}
-
-		sb_ptr = &temple_blow_info[blows[cur].real];
-
-		prt("", TABLE_ROW, CLASS_AUX_COL);
-		strcpy(s, "対象武器:");
-		for (i = 1; i <= MAX_WT; i++)
-		{
-			if (weapon_type_bit(i) & sb_ptr->weapon_type)
-			{
-				strcat(s, " ");
-				strcat(s, wt_desc[i]);
-			}
-		}
-		Term_putstr(CLASS_AUX_COL, TABLE_ROW, -1, TERM_WHITE, s);
-		prt("", TABLE_ROW + 1, CLASS_AUX_COL);
-		sprintf(s, "レベル: %2d, コスト: %2d", sb_ptr->level, sb_ptr->cost);
-		Term_putstr(CLASS_AUX_COL, TABLE_ROW + 1, -1, TERM_WHITE, s);
-
-		if (blows[cur].can_choose)
-		{
-			strcpy(s, "                                  ");
-			Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, s);
-		}
-		else
-		{
-			strcpy(s, "この必殺技は女性のみ習得可能です。");
-			Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_L_RED, s);
-		}
 
 		if (done)
 		{
@@ -4264,9 +4188,7 @@ static void get_temple_blow(void)
 			cptr t;
 
 			clear_from(TABLE_ROW);
-			Term_putstr(CLASS_COL, TABLE_ROW, -1, TERM_L_BLUE, sb_ptr->name);
-
-			roff_to_buf(sb_ptr->text, 74, temp, sizeof temp);
+			roff_to_buf(realm_jouhou[select], 74, temp, sizeof temp);
 			t = temp;
 
 			for (i = 0; i < 9; i++)
@@ -4292,100 +4214,70 @@ static void get_temple_blow(void)
 			continue;
 		}
 
-		/* Move the cursor */
-		put_str("", TABLE_ROW + cur - top, CLASS_COL);
+		ch = inkey();
 
-		c = inkey();
-
-		switch (c)
+		switch (ch)
 		{
-		case '\n':
-		case '\r':
-		case ' ':
-			/* Done */
-			if (blows[cur].can_choose) done = TRUE;
-			break;
-
-		case '8':
-			if (cur != 0)
+		case 'a':
+		case 'A':
 			{
-				/* Move selection */
-				cur--;
+				select = 0;
+				done = TRUE;
+				break;
 			}
-
-			if ((top > 0) && ((cur - top) < 4))
+		case 'b':
+		case 'B':
 			{
-				/* Scroll up */
-				top--;
+				select = 1;
+				done = TRUE;
+				break;
 			}
-			break;
-
-		case '2':
-			if (cur != (num - 1))
+		case 'c':
+		case 'C':
 			{
-				/* Move selection */
-				cur++;
+				select = 2;
+				done = TRUE;
+				break;
 			}
-
-			if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
-			{
-				/* Scroll down */
-				top++;
-			}
-			break;
-
 		default:
-			if (isalpha(c))
-			{
-				int choice;
-
-				if (islower(c))
-				{
-					choice = A2I(c);
-				}
-				else
-				{
-					choice = c - 'A' + 26;
-				}
-
-				/* Validate input */
-				if ((choice > -1) && (choice < num))
-				{
-					cur = choice;
-
-					/* Move it onto the screen */
-					if ((cur < top) || (cur > top + hgt))
-					{
-						top = cur;
-					}
-
-					/* Done */
-					if (blows[cur].can_choose) done = TRUE;
-				}
-				else
-				{
-					bell();
-				}
-			}
-
-			/* Invalid input */
-			else bell();
+			bell();
 			break;
 		}
 	}
 
-	sb_ptr = &temple_blow_info[blows[cur].real];
-
 	/* Clear */
 	clear_from(TABLE_ROW);
 
+	switch(select)
+	{
+	case 0:
 #ifdef JP
-	sprintf(buf, "%sを習得した！", sb_ptr->name);
+		sprintf(buf, "元素魔法を領域に選んだ。");
 #else
-	sprintf(buf, "You learned %s!", sb_ptr->name);
+		sprintf(buf, "You selected realm.");
 #endif
 
-	p_ptr->special_blow |= ((0x00000001L << MAX_SB) << blows[cur].real);
+		p_ptr->realm_medium |= (CH_FIRE | CH_AQUA | CH_EARTH | CH_WIND);
+		break;
+	case 1:
+#ifdef JP
+		sprintf(buf, "神聖魔法を領域に選んだ。");
+#else
+		sprintf(buf, "You selected realm.");
+#endif
+
+		p_ptr->realm_medium |= (CH_HOLY);
+		break;
+	case 2:
+#ifdef JP
+		sprintf(buf, "破邪魔法を領域に選んだ。");
+#else
+		sprintf(buf, "You selected realm.");
+#endif
+
+		p_ptr->realm_medium |= (CH_CRUSADE);
+		break;
+	}
 
 	Term_putstr(QUESTION_COL, TABLE_ROW, -1, TERM_WHITE, buf);
 	message_add(buf);
@@ -4489,6 +4381,7 @@ static void change_player_class(void)
 
 		/* Reincarnation classes are must not be chosen now */
 		if (tmp_cp_ptr->c_flags & PCF_REINCARNATE) continue;
+		if (tmp_cp_ptr->c_flags & PCF_ALIEN) continue;
 		if ((tmp_cp_ptr->c_flags & PCF_SECRET) && !(can_choose_class(i, CLASS_CHOOSE_MODE_NORMAL))) continue;
 
 		classes[num].real = i;
@@ -4573,12 +4466,6 @@ static void change_player_class(void)
 		case CLASS_HIGHWITCH:
 			strcpy(s, "★魔女デネブのとんがり帽子が必要        ");
 			break;
-		case CLASS_TEMPLEKNIGHT:
-			strcpy(s, "ローディスのカオスフレームが+100以上必要");
-			break;
-		case CLASS_WHITEKNIGHT:
-			strcpy(s, "ゼノビアのカオスフレームが+100以上必要  ");
-			break;
 		case CLASS_LORD:
 		case CLASS_GENERAL:
 		case CLASS_NINJAMASTER:
@@ -4613,12 +4500,6 @@ static void change_player_class(void)
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 		switch (classes[cur].real)
 		{
-		case CLASS_TEMPLEKNIGHT:
-			strcpy(s, "Chaos Frame of Lodis is required more than +100   ");
-			break;
-		case CLASS_WHITEKNIGHT:
-			strcpy(s, "Chaos Frame of Zenobian is required more than +100");
-			break;
 		case CLASS_LORD:
 		case CLASS_GENERAL:
 		case CLASS_NINJAMASTER:
@@ -4810,14 +4691,8 @@ static void change_player_class(void)
 		p_ptr->player_gsp = 0;
 		break;
 
-	case CLASS_TEMPLEKNIGHT:
-		change_level99_quest(TRUE);
-		get_temple_blow();
-		misc_event_flags |= EVENT_CANNOT_BE_WHITEKNIGHT;
-		break;
-
-	case CLASS_WHITEKNIGHT:
-		misc_event_flags |= EVENT_CANNOT_BE_TEMPLEKNIGHT;
+	case CLASS_MEDIUM:
+		choose_realm();
 		break;
 	}
 
@@ -4827,7 +4702,7 @@ static void change_player_class(void)
 	{
 		cexp_ptr->max_clev = cexp_ptr->clev = 1;
 		if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
-		p_ptr->cexpfact[p_ptr->pclass] += 30 * experienced_classes + total_max_clev / 5 * 5;
+		p_ptr->cexpfact[p_ptr->pclass] = class_info[p_ptr->pclass].c_exp + 50 * experienced_classes + total_max_clev / 5 * 10;
 	}
 
 	/* Update stuff */
@@ -4847,6 +4722,7 @@ static void change_player_class(void)
 
 	dispel_player();
 	set_action(ACTION_NONE);
+	init_realm_table();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_HP | PU_MANA | PU_LITE);
@@ -4856,6 +4732,9 @@ static void change_player_class(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_SPELL | PW_PLAYER);
+
+	/* Reorder the pack (later) */
+	p_ptr->notice |= (PN_REORDER);
 
 	/* Load the "pref" files */
 	load_all_pref_files();
@@ -4966,8 +4845,6 @@ static int get_stock_mon(int *com_val, int i, int j)
 
 	char	out_val[160];
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the item index */
 	if (repeat_pull(com_val))
 	{
@@ -4978,8 +4855,6 @@ static int get_stock_mon(int *com_val, int i, int j)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -5026,11 +4901,7 @@ static int get_stock_mon(int *com_val, int i, int j)
 	/* Cancel */
 	if (command == ESCAPE) return (FALSE);
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*com_val);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -5362,12 +5233,9 @@ static void leave_pet_home(void)
  */
 static void store_process_command(void)
 {
-#ifdef ALLOW_REPEAT /* TNB */
 
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	if (rogue_like_commands && command_cmd == 'l')
 	{
@@ -5540,7 +5408,8 @@ static void store_process_command(void)
 		/* Browse a book */
 		case 'b':
 		{
-			do_cmd_browse();
+			if (p_ptr->pclass == CLASS_GUNNER) do_cmd_gunner(TRUE);
+			else do_cmd_browse();
 			break;
 		}
 
@@ -5812,6 +5681,30 @@ void do_cmd_store(void)
 				}
 			}
 
+			if ((p_ptr->town_num == TOWN_ARMORICA) && !astral_mode)
+			{
+				if (!(misc_event_flags & EVENT_LIBERATION_OF_ARMORICA))
+				{
+					if (which != STORE_HOME)
+					{
+#ifdef JP
+						msg_print("ドアに鍵がかかっている。");
+#else
+						msg_print("The doors are locked.");
+#endif
+						return;
+					}
+					else
+					{
+#ifdef JP
+						msg_print("ドアはがっちりと閉じられているようだ。");
+#else
+						msg_print("The door appears to be stuck.");
+#endif
+						return;
+					}
+				}
+			}
 			if ((which != STORE_HOME) && (chaos_frame[ethnic] <= CFRAME_CLOSE_BLDG))
 			{
 #ifdef JP
@@ -6262,8 +6155,6 @@ void store_maint(int town_num, int store_num)
 {
 	int 		j;
 
-	int 	old_rating = rating;
-
 	cur_store_num = store_num;
 
 	/* Ignore home */
@@ -6334,10 +6225,6 @@ void store_maint(int town_num, int store_num)
 
 	/* Acquire some new items */
 	while (st_ptr->stock_num < j) store_create();
-
-
-	/* Hack -- Restore the rating */
-	rating = old_rating;
 }
 
 

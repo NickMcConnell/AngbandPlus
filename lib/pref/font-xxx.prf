@@ -454,6 +454,9 @@ E:10:0x02
 # CARD
 E:50:0x0D
 
+# TRUMP
+E:51:0x03
+
 # TAROT
 E:4:0x0D
 

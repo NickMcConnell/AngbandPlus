@@ -1,0 +1,29 @@
+# q_Death.txt
+
+# Name
+Q:$13:N:The Death Callenge
+Q:13:N:死神への挑戦
+
+# Definition
+Q:$13:Q:1:0:0:1:50:967:0:0:16
+Q:13:Q:1:0:0:1:50:967:0:0:16
+
+# Floor with Death
+F:a:1:8:967
+
+# Dungeon
+D:XXXXXXXXXXXXXXX
+D:X......<......X
+D:X.XX.......XX.X
+D:X.XX.......XX.X
+D:X.............X
+D:X......a......X
+D:X.............X
+D:X.............X
+D:X.XX.......XX.X
+D:X.XX.......XX.X
+D:X.............X
+D:XXXXXXXXXXXXXXX
+
+# Starting position
+P:10:7

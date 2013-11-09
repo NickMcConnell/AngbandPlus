@@ -43,7 +43,6 @@ cptr spell_categoly_name(int tval)
  * The "known" should be TRUE for cast/pray, FALSE for study
  */
 
-bool select_spellbook=FALSE;
 
 static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 {
@@ -62,8 +61,6 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 #endif
 	int menu_line = (use_menu ? 1 : 0);
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
@@ -74,8 +71,6 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	p = spell_categoly_name(mp_ptr->spell_book);
 
@@ -118,15 +113,11 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 	/* No redraw yet */
 	redraw = FALSE;
 
-	/* Show choices */
-	if (show_choices)
-	{
-		/* Update */
-		p_ptr->window |= (PW_SPELL);
+	/* Update */
+	p_ptr->window |= (PW_SPELL);
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Window stuff */
+	window_stuff();
 
 	/* Build a prompt (accept all spells) */
 #ifdef JP
@@ -289,15 +280,11 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 	if (redraw) screen_load();
 
 
-	/* Show choices */
-	if (show_choices)
-	{
-		/* Update */
-		p_ptr->window |= (PW_SPELL);
+	/* Update */
+	p_ptr->window |= (PW_SPELL);
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Window stuff */
+	window_stuff();
 
 
 	/* Abort if needed */
@@ -306,11 +293,7 @@ static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 	/* Save the choice */
 	(*sn) = spell;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -378,13 +361,10 @@ void do_cmd_browse(void)
 	s = "You have no books that you can read.";
 #endif
 
-	select_spellbook = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
 	{
-		select_spellbook = FALSE;
 		return;
 	}
-	select_spellbook = FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -696,7 +676,7 @@ static bool cast_fire_spell(int spell)
 		set_weather(k, k, k);
 		break;
 	case 6:
-		brand_weapon(1);
+		brand_weapon(EGO_BRAND_FIRE);
 		break;
 	case 7:
 		(void)set_tim_res_time(randint1(20)+20, FALSE);
@@ -1352,7 +1332,7 @@ static bool cast_death_spell(int spell)
 		discharge_minion();
 		break;
 	case 13: /* Vampiric Branding */
-		brand_weapon(4);
+		brand_weapon(EGO_VAMPIRIC);
 		break;
 	case 14:
 		k = -4;
@@ -1492,6 +1472,9 @@ static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 
 	if (m_ptr1->nickname && !m_ptr2->nickname) return TRUE;
 	if (m_ptr2->nickname && !m_ptr1->nickname) return FALSE;
+
+	if (!m_ptr1->parent_m_idx && m_ptr2->parent_m_idx) return TRUE;
+	if (!m_ptr2->parent_m_idx && m_ptr1->parent_m_idx) return FALSE;
 
 	if ((r_ptr1->flags1 & RF1_UNIQUE) && !(r_ptr2->flags1 & RF1_UNIQUE)) return TRUE;
 	if ((r_ptr2->flags1 & RF1_UNIQUE) && !(r_ptr1->flags1 & RF1_UNIQUE)) return FALSE;
@@ -2172,9 +2155,9 @@ static bool cast_drakonite_spell(int spell)
 			}
 
 			/* Scan the arena */
-			for (i = 0; i < ((sizeof arena_monsters) / sizeof (s16b)); i++)
+			for (i = 0; i < MAX_ARENA_MONS + 4; i++)
 			{
-				no_revive[arena_monsters[i]] = TRUE;
+				no_revive[arena_info[i].r_idx] = TRUE;
 			}
 
 			/* Scan the monster races */
@@ -2397,7 +2380,7 @@ static bool cast_crusade_spell(int spell)
 		set_tim_sh_holy(randint1(20)+20, FALSE);
 		break;
 	case 16:
-		brand_weapon(13);
+		brand_weapon(EGO_KILL_EVIL);
 		break;
 	case 17:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -2581,13 +2564,10 @@ void do_cmd_cast(void)
 	s = "You have no spell books!";
 #endif
 
-	select_spellbook = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
 	{
-		select_spellbook = FALSE;
 		return;
 	}
-	select_spellbook = FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)

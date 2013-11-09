@@ -88,7 +88,7 @@ extern s32b randnor(int mean, int stand);
 extern s32b damroll(int num, int sides);
 extern s32b maxroll(int num, int sides);
 extern u32b Rand_simple(u32b m);
-
+extern s32b div_round(s32b n, s32b d);
 
 #endif
 
