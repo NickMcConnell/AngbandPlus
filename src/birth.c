@@ -1079,19 +1079,23 @@ static _name_desc_t _elemental_info[ELEMENTAL_MAX] = {
         "Earth Elementals are creatures of rock: Strong, tough and slow. "
         "They may move freely through the earth and are capable of conjuring "
         "sharp clods of earth to hurl at their foes. Their skin is very tough, "
-        "and they can even turn their bodies to stone." },
+        "and they can even turn their bodies to stone. However, being made of "
+        "earth, their potions frequently turn to mud." },
     { "Air Elemental", 
         "Air Elementals are creatures of electricity. They are incredibly fast, "
         "blinking in and out of sight as they shower their enemies with confusing "
-        "and shocking blows. Electricity crackles menacingly about their nimble frames." },
+        "and shocking blows. Electricity crackles menacingly about their nimble frames, "
+        "tending to destroy rings, amulets, wands and rods." },
     { "Water Elemental", 
         "Water Elementals are creatures of water, able to modify this ubiquitous "
         "liquid into a deadly and often corrosive weapon of destruction. Fear their "
-        "rage! They cannot be stunned." },
+        "rage! They cannot be stunned. Their corrosive nature erodes any armor that "
+        "gets too close." },
     { "Fire Elemental", 
         "Fire Elementals are creatures of flame. They have a vast arsenal of "
         "flaming attacks with which to singe the fiercest of foes. However, they "
-        "must beware of cold based attacks!" },
+        "must beware of cold based attacks! Being wreathed in flames, scrolls and "
+        "staves are quickly burned to ash." },
 };
 static void _elemental_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {

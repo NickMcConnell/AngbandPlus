@@ -472,7 +472,7 @@ void virtue_add(int which, int amount)
     if (amount > 0)
     {
         p_ptr->update |= PU_BONUS;
-        if (disturb_minor)
+        if (disturb_minor && !p_ptr->wild_mode)
             msg_print(_good_msg[which]);
 
         if (amount + p_ptr->virtues[idx] > 50 && one_in_(2))
@@ -497,7 +497,7 @@ void virtue_add(int which, int amount)
     }
     else
     {
-        if (disturb_minor)
+        if (disturb_minor && !p_ptr->wild_mode)
             msg_print(_bad_msg[which]);
 
         if (amount + p_ptr->virtues[idx] < -50 && one_in_(2))

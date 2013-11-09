@@ -745,6 +745,44 @@ static void do_cmd_wiz_hack_chris8(void)
     }
 }
 
+static bool do_cmd_wiz_hack_chris9(void)
+{
+    int src_idx, dest_idx, cost, ct, i;
+    object_type *src, *dest;
+
+    item_tester_hook = object_is_artifact;
+    if (!get_item(&src_idx, "Use what artifact for reforging? ", "You have no artifacts to reforge.", USE_INVEN))
+        return FALSE;
+
+    src = &inventory[src_idx];
+
+    cost = object_value_real(src);
+    cost *= 10;
+
+    msg_format("Reforging will cost you %d gold.", cost);
+
+    if (!get_item(&dest_idx, "Reforge which object? ", "You have nothing to reforge.", (USE_EQUIP | USE_INVEN)))
+        return FALSE;
+
+    dest = &inventory[dest_idx];
+    ct = get_quantity("How Many?", 10000);
+
+    for (i = 0; i < ct; i++)
+    {
+        object_type forge;
+        char buf[MAX_NLEN];
+
+        object_copy(&forge, dest);
+        reforge_artifact(src, &forge);
+        identify_item(&forge);
+        forge.ident |= (IDENT_MENTAL); 
+        object_desc(buf, &forge, 0);
+        msg_format(" %d) %s", i+1, buf);
+    }
+
+    return TRUE;
+}
+
 #ifdef MONSTER_HORDES
 
 /* Summon a horde of monsters */
@@ -2757,6 +2795,10 @@ void do_cmd_debug(void)
 
     case '8':
         do_cmd_wiz_hack_chris8();
+        break;
+
+    case '9':
+        do_cmd_wiz_hack_chris9();
         break;
 
     case 'S':

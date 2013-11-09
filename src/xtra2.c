@@ -920,6 +920,7 @@ void monster_death(int m_idx, bool drop_item)
         else
         {
             msg_print("Victorious! You're on your way to becoming Champion.");
+            p_ptr->fame++;
         }
 
         if (arena_info[p_ptr->arena_number].tval)

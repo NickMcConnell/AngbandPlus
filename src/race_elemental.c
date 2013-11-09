@@ -123,6 +123,36 @@ static bool _elemental_travel(int flag)
     return TRUE;
 }
 
+static bool _elemental_healing(int flag)
+{
+    int dir, ct = 0;
+
+    if (!cave_have_flag_bold(py, px, flag))
+    {
+        msg_print("Failed! You are out of your element!");
+        return FALSE;
+    }
+
+    for (dir = 0; dir < 8; dir++)
+    {
+        int x = px + ddx_ddd[dir];
+        int y = py + ddy_ddd[dir];
+        
+        if (!in_bounds(y, x)) continue;
+        if (cave_have_flag_bold(y, x, flag)) ct++;
+    }
+
+    if (ct < 4)
+    {
+        msg_print("Failed! You need to be surrounded by your element!");
+        return FALSE;
+    }
+
+    msg_print("You bask in your element and slowly feel your life returning ... ");
+    hp_player(100 + p_ptr->lev * 3);
+    return TRUE;
+}
+
 static void _elemental_rage_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -248,6 +278,31 @@ static void _shard_bolt_spell(int cmd, variant *res)
     }
 }
 
+static void _earthen_healing_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Earthen Healing");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "If you are surrounded by rock, you may heal yourself at the cost of several acts.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_heal(0, 0, 100 + p_ptr->lev * 3));
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, _elemental_healing(FF_WALL));
+        break;
+    case SPELL_ENERGY:
+        var_set_int(res, 300);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 static void _earthen_portal_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -329,7 +384,8 @@ static power_info _earth_powers[] =
     { A_CON, { 15, 10, 40, sense_surroundings_spell}},
     { A_STR, { 20, 15, 40, earthquake_spell}},
     { A_STR, { 25,  0, 50, _shard_ball_spell}},
-    { A_CON, { 35, 50, 60, _wall_of_earth_spell}},
+    { A_CON, { 30, 50, 60, _wall_of_earth_spell}},
+    { A_CON, { 35,  0, 65, _earthen_healing_spell}},
     { A_DEX, { 42, 75, 70, _earthen_portal_spell}},
     {    -1, { -1, -1, -1, NULL} }
 };
@@ -437,8 +493,8 @@ static void _air_birth(void)
 { 
     object_type forge;
     
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DEX));
-    forge.pval = 3;
+    object_prep(&forge, lookup_kind(TV_RING, SV_RING_ELEC));
+    apply_magic(&forge, 1, AM_AVERAGE);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
@@ -698,14 +754,15 @@ static void _water_birth(void)
 { 
     object_type forge;
     
+    object_prep(&forge, lookup_kind(TV_RING, SV_RING_ACID));
+    apply_magic(&forge, 1, AM_AVERAGE);
+    add_outfit(&forge);
+
     object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
-    forge.to_d = 4;
+    forge.to_d = 5;
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_POLEARM, SV_TRIDENT));
-    add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
     add_outfit(&forge);
 
     p_ptr->current_r_idx = MON_WATER_SPIRIT; 
@@ -761,9 +818,9 @@ static void _water_ball_spell(int cmd, variant *res)
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball(GF_WATER, dir, dam, 4);
         if (p_ptr->lev >= 35)
             fire_ball_hide(GF_WATER_FLOW, dir, 1, 4);
+        fire_ball(GF_WATER, dir, dam, 4);
         var_set_bool(res, TRUE);
         break;
     }
@@ -795,6 +852,31 @@ static void _water_gate_spell(int cmd, variant *res)
     }
 }
 
+static void _water_healing_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Healing Bath");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "If you are surrounded by water, you may heal yourself at the cost of several acts.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_heal(0, 0, 100 + p_ptr->lev * 3));
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, _elemental_healing(FF_WATER));
+        break;
+    case SPELL_ENERGY:
+        var_set_int(res, 200);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 static power_info _water_powers[] = 
 {
     { A_DEX, {  5,  5,  0, _acid_strike_spell}},
@@ -802,6 +884,7 @@ static power_info _water_powers[] =
     { A_STR, { 17, 10, 40, _elemental_rage_spell}},
     { A_STR, { 23, 15, 65, water_bolt_spell}},
     { A_STR, { 32,  0, 65, _water_ball_spell}},
+    { A_CON, { 35,  0, 65, _water_healing_spell}},
     { A_DEX, { 40, 50, 75, _water_gate_spell}},
     {    -1, { -1, -1, -1, NULL} }
 };
@@ -936,8 +1019,8 @@ static void _fire_birth(void)
 { 
     object_type forge;
     
-    object_prep(&forge, lookup_kind(TV_RING, SV_RING_DAMAGE));
-    forge.to_d = 5;
+    object_prep(&forge, lookup_kind(TV_RING, SV_RING_FLAMES));
+    apply_magic(&forge, 1, AM_AVERAGE);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
@@ -1070,6 +1153,31 @@ static void _fire_door_spell(int cmd, variant *res)
     }
 }
 
+static void _fire_healing_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Healing Flames");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "If you are surrounded by lava, you may heal yourself at the cost of several acts.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_heal(0, 0, 100 + p_ptr->lev * 3));
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, _elemental_healing(FF_LAVA));
+        break;
+    case SPELL_ENERGY:
+        var_set_int(res, 250);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 static power_info _fire_powers[] = 
 {
     { A_STR, {  2,  3, 25, _fire_whip_spell}},
@@ -1080,6 +1188,7 @@ static power_info _fire_powers[] =
     { A_STR, { 22, 15, 45, plasma_bolt_spell}},
     { A_DEX, { 25, 20, 55, flow_of_lava_spell}},
     { A_STR, { 27, 25, 65, plasma_ball_spell}},
+    { A_CON, { 35,  0, 65, _fire_healing_spell}},
     { A_STR, { 37,  0, 55, _fire_storm_spell}},
     { A_DEX, { 42, 50, 60, _fire_door_spell}},
     {    -1, { -1, -1, -1, NULL} }

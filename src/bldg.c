@@ -2836,10 +2836,11 @@ static bool _reforge_artifact(void)
     }
 
     cost = object_value_real(src);
-    cost *= 20;
+    cost *= 10;
+    cost -= cost % 1000;
 
-    if (cost < 1000000)
-        cost = 1000000;
+    if (cost < 250000)
+        cost = 250000;
     if (cost > 25000000)
         cost = 25000000;
 
@@ -2868,6 +2869,12 @@ static bool _reforge_artifact(void)
     if (object_is_artifact(dest))
     {
         msg_print("This item is already an artifact!");
+        return FALSE;
+    }
+
+    if (object_is_ego(dest))
+    {
+        msg_print("This item is already an ego item!");
         return FALSE;
     }
 

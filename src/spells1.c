@@ -2263,11 +2263,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 }
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_WATE);
             }
-            else
+            else if (who == 0 && randint1(10*r_ptr->level) > dam)
             {
-                if (who || !mon_save_p(m_ptr->r_idx, A_NONE))
-                    do_stun = (randint1(15) + 1) / (r + 1);
+                note = " resists stunning.";
             }
+            else do_stun = (10 + randint1(15) + r) / (r + 1);
             break;
         }
 

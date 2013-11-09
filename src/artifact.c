@@ -3710,10 +3710,23 @@ bool reforge_artifact(object_type *src, object_type *dest)
     object_type forge = {0};    
     object_type best = {0}, worst = {0};
     int         base_power, best_power = -10000000, power = 0, worst_power = 10000000;
+    int         min_power, max_power;
     int         old_level, i;
 
     /* Score the Original */
     base_power = object_value_real(src);
+
+    /* Setup thresholds. For weak objects, its better to use a generous range ... */
+    if (base_power < 1000)
+    {
+        min_power = 0;
+        max_power = base_power + 5000;
+    }
+    else
+    {
+        min_power = 7 * base_power / 10;
+        max_power = 3 * base_power / 2;
+    }
 
     /* Better Fame means better results! */
     old_level = object_level;
@@ -3736,8 +3749,7 @@ bool reforge_artifact(object_type *src, object_type *dest)
             worst_power = power;
         }
 
-        /* Success if 70% to 200% of original source power */
-        if (power > base_power * 7 / 10 && power < base_power * 2)
+        if (power >= min_power && power <= max_power)
         {
             object_copy(dest, &forge);
             result = TRUE;
