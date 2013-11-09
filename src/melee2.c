@@ -213,6 +213,8 @@ void mon_take_hit_mon(bool force_damage, int m_idx, int dam, bool *fear, cptr no
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
+	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 	if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
 	if (m_ptr->invulner && !force_damage && !one_in_(PENETRATE_INVULNERABILITY))
@@ -1541,6 +1543,11 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		see_t = t_ptr->ml;
 		known = (m_ptr->cdis <= MAX_SIGHT) || (t_ptr->cdis <= MAX_SIGHT);
 
+		/* Wake it up */
+		t_ptr->csleep = 0;
+
+		if (tr_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 		/* Total armor */
 		ac = tr_ptr->ac;
 		if (t_ptr->stoning) ac += t_ptr->stoning / 5;
@@ -2221,19 +2228,19 @@ act = "%sを侮辱した。";
 				if (!explode)
 				{
 					project(m_idx, 0, fy, fx,
-						damage, pt, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
+						damage, pt, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
 				}
 
 				if (fear_effect)
 				{
 					project(m_idx, 0, fy, fx,
-						r_ptr->level, GF_TURN_ALL, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
+						r_ptr->level, GF_TURN_ALL, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
 				}
 
 				if (sleep_effect)
 				{
 					project(m_idx, 0, fy, fx,
-						r_ptr->level, GF_OLD_SLEEP, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
+						r_ptr->level, GF_OLD_SLEEP, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
 				}
 
 				if (heal_effect && !target_is_decoy)
@@ -2286,7 +2293,7 @@ msg_format("%^sは突然熱くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
+							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
 					}
 
 					/* Aura cold */
@@ -2308,7 +2315,7 @@ msg_format("%^sは突然寒くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
+							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
 					}
 
 					/* Aura elec */
@@ -2330,7 +2337,7 @@ msg_format("%^sは電撃を食らった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, MODIFY_ELEM_MODE_MELEE);
+							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, MODIFY_ELEM_MODE_MELEE);
 					}
 
 				}
@@ -3554,7 +3561,7 @@ msg_print("ルーンが爆発した！");
 						msg_print("The rune explodes!");
 #endif
 
-						project(0, 2, ny, nx, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), MODIFY_ELEM_MODE_NONE);
+						project(0, 2, ny, nx, 2 * (c_ptr->special + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), MODIFY_ELEM_MODE_NONE);
 					}
 				}
 				else
@@ -3572,6 +3579,7 @@ msg_print("爆発のルーンは解除された。");
 				/* Break the rune */
 				c_ptr->info &= ~(CAVE_OBJECT);
 				c_ptr->mimic = 0;
+				c_ptr->special = 0;
 
 				note_spot(ny, nx);
 				lite_spot(ny, nx);
@@ -3733,7 +3741,10 @@ msg_print("爆発のルーンは解除された。");
 				update_mon(c_ptr->m_idx, TRUE);
 
 				/* Wake up the moved monster */
-				m_list[c_ptr->m_idx].csleep = 0;
+				y_ptr->csleep = 0;
+
+				if (r_info[y_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+					p_ptr->update |= (PU_MON_LITE);
 			}
 
 			/* Hack -- Update the new location */

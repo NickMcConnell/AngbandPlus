@@ -65,7 +65,14 @@ static u32b	v_check = 0L;
  */
 static u32b	x_check = 0L;
 
-
+/*
+ * Hack -- Japanese Kanji code
+ * 0: Unknown
+ * 1: ASCII
+ * 2: EUC
+ * 3: SJIS
+ */
+static byte kanji_code = 0;
 
 /*
  * The above function, adapted for TOband
@@ -189,8 +196,40 @@ static void rd_string(char *str, int max)
 
 	/* Terminate */
 	str[max-1] = '\0';
+
+
 #ifdef JP
-	codeconv(str);
+	/* Convert Kanji code */
+	switch (kanji_code)
+	{
+#ifdef SJIS
+	case 2:
+		/* EUC to SJIS */
+		euc2sjis(str);
+		break;
+#endif
+
+#ifdef EUC
+	case 3:
+		/* SJIS to EUC */
+		sjis2euc(str);
+		break;
+#endif
+
+	case 0:
+	{
+		/* 不明の漢字コードからシステムの漢字コードに変換 */
+		byte code = codeconv(str);
+
+		/* 漢字コードが判明したら、それを記録 */
+		if (code) kanji_code = code;
+
+		break;
+	}
+	default:
+		/* No conversion needed */
+		break;
+	}
 #endif
 }
 
@@ -206,217 +245,6 @@ static void strip_bytes(int n)
 	while (n--) rd_byte(&tmp8u);
 }
 
-
-/*
- * Giga-Hack: Convert "pval" to "to-bonus"
- */
-static void convert_pval_to_bonus(object_type *o_ptr)
-{
-	int i;
-
-	if (o_ptr->name1 && (o_ptr->name1 != ART_BLOOD))
-	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = a_ptr->to_stat[i];
-		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = a_ptr->to_misc[i];
-		o_ptr->pval = 0;
-	}
-	else
-	{
-		s16b old_xtra4 = o_ptr->xtra4;
-		bool converted = FALSE;
-		u32b flgs[TR_FLAG_SIZE];
-
-		/* For lanterns & torches */
-		o_ptr->xtra4 = 1;
-
-		object_flags(o_ptr, flgs);
-
-		for (i = 0; i < A_MAX; i++)
-		{
-			if (have_flag(flgs, a_to_tr[i]))
-			{
-				o_ptr->to_stat[i] = o_ptr->pval;
-				remove_flag(o_ptr->art_flags, a_to_tr[i]);
-				converted = TRUE;
-			}
-		}
-		for (i = 0; i < OB_MAX; i++)
-		{
-			if (have_flag(flgs, ob_to_tr[i]))
-			{
-				o_ptr->to_misc[i] = o_ptr->pval;
-				remove_flag(o_ptr->art_flags, ob_to_tr[i]);
-				converted = TRUE;
-			}
-		}
-
-		if (converted)
-		{
-			if (o_ptr->name1 != ART_BLOOD) o_ptr->pval = 0;
-		}
-
-		o_ptr->xtra4 = old_xtra4;
-	}
-}
-
-/*
- * Object conversion
- */
-static void convert_object(object_type *o_ptr)
-{
-	if (t_older_than(0, 0, 2, 4))
-	{
-		if (t_older_than(0, 0, 0, 7))
-		{
-			if (o_ptr->name1 == ART_SKULL_MASK)
-			{
-				remove_flag(o_ptr->art_flags, TR_AGGRAVATE);
-				remove_flag(o_ptr->art_flags, TR_TY_CURSE);
-			}
-		}
-
-		if (t_older_than(0, 0, 2, 0))
-		{
-			switch (o_ptr->name1)
-			{
-			case ART_FIRECREST:
-			case ART_GRINCER_COAT:
-			case ART_FREUDE_HELM:
-			case ART_HOLY_BOOTS:
-			case ART_TATHLUM:
-				{
-					artifact_type *a_ptr = &a_info[o_ptr->name1];
-					int i;
-
-					switch (o_ptr->name1)
-					{
-					case ART_FIRECREST:
-						o_ptr->k_idx = lookup_kind(TV_LITE, SV_LITE_FIRECREST);
-						o_ptr->tval = TV_LITE;
-						o_ptr->sval = SV_LITE_FIRECREST;
-						o_ptr->curse_flags = 0L;
-						break;
-					case ART_GRINCER_COAT:
-						o_ptr->k_idx = lookup_kind(TV_CLOAK, SV_SIR_COAT);
-						o_ptr->sval = SV_SIR_COAT;
-						break;
-					case ART_FREUDE_HELM:
-						o_ptr->k_idx = lookup_kind(TV_HELM, SV_STEEL_HELM);
-						o_ptr->tval = TV_HELM;
-						o_ptr->sval = SV_STEEL_HELM;
-						one_high_resistance(o_ptr);
-						break;
-					case ART_HOLY_BOOTS:
-						o_ptr->k_idx = lookup_kind(TV_BOOTS, SV_PAIR_OF_BATTLE_BOOTS);
-						o_ptr->tval = TV_BOOTS;
-						o_ptr->sval = SV_PAIR_OF_BATTLE_BOOTS;
-						break;
-					case ART_TATHLUM:
-						o_ptr->k_idx = lookup_kind(TV_BOW, SV_BOWGUN);
-						o_ptr->tval = TV_BOW;
-						o_ptr->sval = SV_BOWGUN;
-						for (i = 0; i < TR_FLAG_SIZE; i++) o_ptr->art_flags[i] = 0L;
-						break;
-					}
-					o_ptr->pval = a_ptr->pval;
-					o_ptr->ac = a_ptr->ac;
-					o_ptr->dd = a_ptr->dd;
-					o_ptr->ds = a_ptr->ds;
-					for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = a_ptr->to_stat[i];
-					for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = a_ptr->to_misc[i];
-					o_ptr->to_a = a_ptr->to_a;
-					o_ptr->to_h = a_ptr->to_h;
-					o_ptr->to_d = a_ptr->to_d;
-					o_ptr->weight = a_ptr->weight;
-				}
-				break;
-			}
-		}
-
-		if (t_older_than(0, 0, 2, 1))
-		{
-			if (o_ptr->name1 == ART_ANGELIC_ARMOR)
-			{
-				o_ptr->k_idx = lookup_kind(TV_SOFT_ARMOR, SV_FEATHER_ARMOUR);
-				o_ptr->sval = SV_FEATHER_ARMOUR;
-				o_ptr->ac = a_info[o_ptr->name1].ac;
-				o_ptr->weight = a_info[o_ptr->name1].weight;
-			}
-		}
-
-		/* Older than 0.0.2.4 */
-		if (o_ptr->name1 == ART_PERSEUS)
-		{
-			o_ptr->k_idx = lookup_kind(TV_SHIELD, SV_MIRROR_SHIELD);
-			o_ptr->sval = SV_MIRROR_SHIELD;
-			o_ptr->ac = a_info[o_ptr->name1].ac;
-			o_ptr->weight = a_info[o_ptr->name1].weight;
-		}
-		else if (o_ptr->k_idx == 210) /* Scroll of Satisfy Hunger */
-		{
-			object_kind *k_ptr;
-
-			o_ptr->k_idx = lookup_kind(TV_FOOD, SV_FOOD_WAYBREAD);
-			k_ptr = &k_info[o_ptr->k_idx];
-			o_ptr->tval = TV_FOOD;
-			o_ptr->sval = SV_FOOD_WAYBREAD;
-			o_ptr->pval = k_ptr->pval;
-			o_ptr->weight = k_ptr->weight;
-		}
-	}
-
-	if (t_older_than(0, 0, 2, 5)) convert_pval_to_bonus(o_ptr);
-
-	if (t_older_than(0, 0, 3, 2))
-	{
-		if (o_ptr->name1 == ART_ALOSER_ARROW)
-		{
-			o_ptr->k_idx = lookup_kind(TV_ARROW, 10);
-			o_ptr->sval = 10; /* Black Arrow */
-		}
-	}
-
-	if (t_older_than(0, 0, 3, 3))
-	{
-		if (o_ptr->k_idx == 657) /* Staff of Nothing */
-		{
-			object_kind *k_ptr;
-
-			o_ptr->k_idx = lookup_kind(TV_JUNK, 6);
-			k_ptr = &k_info[o_ptr->k_idx];
-			o_ptr->tval = TV_JUNK;
-			o_ptr->sval = 6; /* Broken Stick */
-			o_ptr->pval = k_ptr->pval;
-			o_ptr->weight = k_ptr->weight;
-			o_ptr->ds = k_ptr->ds;
-		}
-	}
-
-	if (t_older_than(0, 0, 3, 5))
-	{
-		u32b flgs[TR_FLAG_SIZE];
-
-		object_flags(o_ptr, flgs);
-
-		if (have_flag(flgs, TR_ANTI_MAGIC))
-		{
-			o_ptr->to_misc[TR_ANTI_MAGIC] = 3;
-			remove_flag(o_ptr->art_flags, TR_ANTI_MAGIC);
-		}
-	}
-
-	if (t_older_than(0, 0, 3, 9))
-	{
-		if (o_ptr->name1)
-		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
-			o_ptr->dd = a_ptr->dd;
-			o_ptr->ds = a_ptr->ds;
-		}
-	}
-}
 
 /*
  * Read an object (Old method)
@@ -479,8 +307,7 @@ static void rd_item_old(object_type *o_ptr)
 	rd_u32b(&o_ptr->art_flags[0]);
 	rd_u32b(&o_ptr->art_flags[1]);
 	rd_u32b(&o_ptr->art_flags[2]);
-	if (t_older_than(0, 0, 2, 0)) o_ptr->art_flags[3] = 0L;
-	else rd_u32b(&o_ptr->art_flags[3]);
+	rd_u32b(&o_ptr->art_flags[3]);
 	rd_u32b(&o_ptr->curse_flags);
 
 	/* Monster holding object */
@@ -512,8 +339,6 @@ static void rd_item_old(object_type *o_ptr)
 		rd_s32b(&tmp32s);
 		strip_bytes(tmp32s);
 	}
-
-	 convert_object(o_ptr);
 
 	/* Paranoia */
 	if (o_ptr->name1)
@@ -553,16 +378,9 @@ static void rd_item(object_type *o_ptr)
 	int i;
 	char buf[128];
 
-	if (t_older_than(0, 0, 2, 4))
-	{
-		rd_item_old(o_ptr);
-		return;
-	}
-
 	/*** Item save flags ***/
 	rd_u32b(&flags);
-	if (t_older_than(0, 0, 2, 5)) bonus_flags = 0L;
-	else rd_u32b(&bonus_flags);
+	rd_u32b(&bonus_flags);
 
 	/*** Read un-obvious elements ***/
 	/* Kind */
@@ -672,8 +490,6 @@ static void rd_item(object_type *o_ptr)
 		if (bonus_flags & (1UL << (i + A_MAX))) rd_s16b(&o_ptr->to_misc[i]);
 		else o_ptr->to_misc[i] = 0;
 	}
-
-	 convert_object(o_ptr);
 }
 
 
@@ -691,23 +507,11 @@ static void rd_monster_old(monster_type *m_ptr)
 	rd_s16b(&m_ptr->ap_r_idx);
 
 	rd_byte(&m_ptr->sub_align);
-	if (t_older_than(0, 0, 3, 0))
-	{
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		if (r_ptr->flags3 & RF3_TEMPLE) m_ptr->sub_align |= SUB_ALIGN_TEMPLE;
-		if (r_ptr->flags7 & RF7_ZENOBIAN_FORCES) m_ptr->sub_align |= SUB_ALIGN_WHITE;
-	}
 
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
 	rd_byte(&m_ptr->fx);
-	if (t_older_than(0, 0, 0, 2))
-	{
-		rd_byte(&tmp8u);
-		m_ptr->elem = (s16b)tmp8u;
-	}
-	else rd_s16b(&m_ptr->elem);
+	rd_s16b(&m_ptr->elem);
 	rd_s32b(&m_ptr->hp);
 	rd_s32b(&m_ptr->maxhp);
 	rd_s32b(&m_ptr->max_maxhp);
@@ -755,12 +559,6 @@ static void rd_monster(monster_type *m_ptr)
 	u32b flags;
 	char buf[128];
 
-	if (t_older_than(0, 0, 2, 4))
-	{
-		rd_monster_old(m_ptr);
-		return;
-	}
-
 	/*** Monster save flags ***/
 	rd_u32b(&flags);
 
@@ -785,13 +583,6 @@ static void rd_monster(monster_type *m_ptr)
 
 	if (flags & SAVE_MON_SUB_ALIGN) rd_byte(&m_ptr->sub_align);
 	else m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
-	if (t_older_than(0, 0, 3, 0))
-	{
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		if (r_ptr->flags3 & RF3_TEMPLE) m_ptr->sub_align |= SUB_ALIGN_TEMPLE;
-		if (r_ptr->flags7 & RF7_ZENOBIAN_FORCES) m_ptr->sub_align |= SUB_ALIGN_WHITE;
-	}
 
 	if (flags & SAVE_MON_CSLEEP) rd_s16b(&m_ptr->csleep);
 	else m_ptr->csleep = 0;
@@ -906,13 +697,7 @@ static void rd_lore(int r_idx)
 	rd_byte(&r_ptr->max_num);
 
 	/* Memorize default element */
-	if (t_older_than(0, 0, 0, 8))
-	{
-		/* Default elements */
-		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->r_elem = randint0(ELEM_NUM);
-		else r_ptr->r_elem = NO_ELEM;
-	}
-	else rd_s16b(&r_ptr->r_elem);
+	rd_s16b(&r_ptr->r_elem);
 
 	/* Location in saved floor */
 	rd_s16b(&r_ptr->floor_id);
@@ -1080,10 +865,6 @@ static errr rd_store(int town_number, int store_number)
 
 	/* Read last visit */
 	rd_s32b(&st_ptr->last_visit);
-	if(t_older_than(0, 0, 0, 1))
-	{
-		p_ptr->visit &= ~(1L << (TOWN_BARMAMUTHA - 1));
-	}
 
 	/* Extract the owner (see above) */
 	st_ptr->owner = own;
@@ -1254,6 +1035,10 @@ static void rd_options(void)
 	}
 
 
+	/* Extract the options */
+	extract_option_vars();
+
+
 	/*** Window Options ***/
 
 	/* Read the window flags */
@@ -1317,15 +1102,8 @@ static void rd_options(void)
 		}
 	}
 
-	if (t_older_than(0, 0, 0, 6))
-	{
-		astral_mode = FALSE;
-	}
-	else
-	{
-		rd_byte(&tmp8u);
-		astral_mode = (bool)tmp8u;
-	}
+	rd_byte(&tmp8u);
+	astral_mode = (bool)tmp8u;
 }
 
 
@@ -1355,17 +1133,13 @@ static void rd_ghost(void)
 static void load_quick_start(void)
 {
 	byte tmp8u;
+	s16b tmp16s;
 	int i;
 
 	rd_byte(&previous_char.psex);
 	rd_byte(&previous_char.prace);
 	rd_byte(&previous_char.pclass);
-	if (t_older_than(0, 0, 0, 2))
-	{
-		rd_byte(&tmp8u);
-		previous_char.pelem = (s16b)((char)tmp8u);
-	}
-	else rd_s16b(&previous_char.pelem);
+	rd_s16b(&previous_char.pelem);
 
 	rd_s16b(&previous_char.age);
 	rd_s16b(&previous_char.ht);
@@ -1376,8 +1150,8 @@ static void load_quick_start(void)
 
 	for (i = 0; i < A_MAX; i++) rd_s16b(&previous_char.stat_max[i]);
 
-	rd_s16b(&previous_char.player_hp_lv1);
-	rd_s16b(&previous_char.player_sp_lv1);
+	rd_s32b(&previous_char.race_hp_lv1);
+	rd_s32b(&previous_char.race_sp_lv1);
 
 	for (i = 0; i < 4; i++) rd_string(previous_char.history[i], sizeof(previous_char.history[i]));
 
@@ -1390,12 +1164,14 @@ static void load_quick_start(void)
 /*
  * Read the "extra" information
  */
-static void rd_extra(void)
+static errr rd_extra(void)
 {
 	int i, j;
 
 	byte tmp8u;
 	s16b tmp16s;
+	u16b tmp16u;
+	s32b tmp32s;
 
 	rd_string(player_name, sizeof(player_name));
 
@@ -1424,25 +1200,11 @@ static void rd_extra(void)
 	/* Important -- Initialize the magic */
 	mp_ptr = &m_info[p_ptr->pclass];
 
-	if (t_older_than(0, 0, 0, 2))
-	{
-		rd_byte(&tmp8u);
-		p_ptr->pelem = (s16b)((char)tmp8u);
-	}
-	else rd_s16b(&p_ptr->pelem);
+	rd_s16b(&p_ptr->pelem);
 	rd_byte(&tmp8u); /* oops */
 
-	if (t_older_than(0, 0, 0, 8))
-	{
-		/* Default elements of Denim & Vice are dependent on player's element*/
-		r_info[MON_VICE].r_elem = get_opposite_elem(p_ptr->pelem);
-		r_info[MON_DENIM].r_elem = p_ptr->pelem;
-	}
-
-	/* Special Race/Class info */
-	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->manadie);
 	rd_u16b(&p_ptr->expfact);
+	rd_u16b(&p_ptr->cexpfact);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -1457,94 +1219,63 @@ static void rd_extra(void)
 
 	for (i = 0; i <= MAX_GOLD; i++) rd_s32b(&p_ptr->au[i]);
 
-	if (t_older_than(0, 0, 3, 5))
-	{
-		rd_s32b(&p_ptr->max_exp);
-		p_ptr->max_max_exp = p_ptr->max_exp;
-	}
-	else
-	{
-		rd_s32b(&p_ptr->max_max_exp);
-		rd_s32b(&p_ptr->max_exp);
-	}
+	rd_s32b(&p_ptr->max_max_exp);
+	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
 	rd_u16b(&p_ptr->exp_frac);
 
-	if (!t_older_than(0, 0, 3, 0))
+	rd_s32b(&p_ptr->lev);
+
+	for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) rd_s16b(&p_ptr->weapon_exp[i][j]);
+	for (i = 0; i < 10; i++) rd_s16b(&p_ptr->skill_exp[i]);
+	for (i = 0; i < MAX_REALM + 1; i++) rd_s16b(&p_ptr->magic_exp[i]);
+
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > MAX_CLASS)
 	{
-		rd_s32b(&p_ptr->skill_point);
-		if (t_older_than(0, 0, 4, 0))
-		{
-			s32b magic_skill_point;
-			rd_s32b(&magic_skill_point);
-			p_ptr->skill_point += magic_skill_point / 2;
-		}
-		rd_s32b(&p_ptr->exp_for_sp);
+#ifdef JP
+		note(format("クラス経験情報配列が大きすぎる(%u)！", tmp16u));
+#else
+		note(format("Too many (%u) class exp entries!", tmp16u));
+#endif
+		return 25;
 	}
 
-	rd_s16b(&p_ptr->lev);
+	for (i = 0; i < tmp16u; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
 
-	if (t_older_than(0, 0, 3, 0))
-	{
-		for (i = 0; i < MAX_REALM; i++) for (j = 0; j < 32; j++) p_ptr->spell_skill_lev[i][j] = SKILL_LEVEL_BEGINNER;
-		for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) p_ptr->weapon_skill_lev[i][j] = SKILL_LEVEL_BEGINNER;
-		for (i = 0; i < 10; i++) p_ptr->misc_skill_lev[i] = SKILL_LEVEL_BEGINNER;
-	}
-	else
-	{
-		for (i = 0; i < MAX_REALM; i++) for (j = 0; j < 32; j++) rd_byte(&p_ptr->spell_skill_lev[i][j]);
-		for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) rd_byte(&p_ptr->weapon_skill_lev[i][j]);
-		for (i = 0; i < 10; i++) rd_byte(&p_ptr->misc_skill_lev[i]);
-	}
-
-	if (t_older_than(0, 0, 4, 0))
-	{
-		p_ptr->mindcraft_skill_lev = SKILL_LEVEL_BEGINNER;
-		for (i = 0; i < MAX_SKILL_LEVEL - 1; i++) p_ptr->mindcraft_eff[i] = damroll(5, 70);
-		p_ptr->mindcraft_learned = 0L;
-	}
-	else
-	{
-		rd_byte(&p_ptr->mindcraft_skill_lev);
-		for (i = 0; i < MAX_SKILL_LEVEL - 1; i++) rd_s16b(&p_ptr->mindcraft_eff[i]);
-		rd_u32b(&p_ptr->mindcraft_learned);
+		rd_s32b(&cexp_ptr->max_max_cexp);
+		rd_s32b(&cexp_ptr->max_cexp);
+		rd_s32b(&cexp_ptr->cexp);
+		rd_u16b(&cexp_ptr->cexp_frac);
+		rd_s32b(&cexp_ptr->clev);
+		rd_s32b(&cexp_ptr->max_clev);
+		rd_s32b(&cexp_ptr->max_max_clev);
 	}
 
 	for (i = 0; i < 108; i++) rd_s32b(&p_ptr->essence_box[i]);
-	if (t_older_than(0, 0, 2, 5))
-	{
-		rd_byte(&p_ptr->song_start); /* Was p_ptr->magic_num2[0] */
-		for (i = 1; i < 108; i++) rd_byte(&tmp8u);
-		if (p_ptr->pclass == CLASS_ANGELKNIGHT)
-		{
-			p_ptr->singing = (byte)p_ptr->essence_box[0];
-			p_ptr->essence_box[0] = 0;
-			p_ptr->restart_singing = (byte)p_ptr->essence_box[1];
-			p_ptr->essence_box[1] = 0;
-			if (p_ptr->singing) p_ptr->action = ACTION_SING;
-		}
-	}
-	else
-	{
-		rd_byte(&p_ptr->singing);
-		rd_byte(&p_ptr->restart_singing);
-		rd_byte(&p_ptr->song_start);
-	}
+
+	rd_byte(&p_ptr->singing);
+	rd_byte(&p_ptr->restart_singing);
+	rd_byte(&p_ptr->song_start);
 
 	for (i = 0; i < MAX_KUBI; i++)
 	{
 		rd_s16b(&kubi_r_idx[i]);
 	}
 
-	rd_s16b(&p_ptr->gx_dis);
-	rd_s16b(&p_ptr->gx_dev);
-	rd_s16b(&p_ptr->gx_sav);
-	rd_s16b(&p_ptr->gx_stl);
-	rd_s16b(&p_ptr->gx_srh);
-	rd_s16b(&p_ptr->gx_fos);
-	rd_s16b(&p_ptr->gx_spd);
-	rd_s16b(&p_ptr->gx_thn);
-	rd_s16b(&p_ptr->gx_thb);
+	rd_s32b(&p_ptr->gx_dis);
+	rd_s32b(&p_ptr->gx_dev);
+	rd_s32b(&p_ptr->gx_sav);
+	rd_s32b(&p_ptr->gx_stl);
+	rd_s32b(&p_ptr->gx_srh);
+	rd_s32b(&p_ptr->gx_fos);
+	rd_s32b(&p_ptr->gx_spd);
+	rd_s32b(&p_ptr->gx_thn);
+	rd_s32b(&p_ptr->gx_thb);
 
 	rd_s16b(&p_ptr->town_num);
 
@@ -1563,17 +1294,16 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->decoy_x);
 	if (p_ptr->decoy_y && p_ptr->decoy_x) p_ptr->use_decoy = TRUE;
 
-	rd_s16b(&p_ptr->mhp);
-	rd_s16b(&p_ptr->chp);
+	rd_s32b(&p_ptr->mhp);
+	rd_s32b(&p_ptr->chp);
 	rd_u16b(&p_ptr->chp_frac);
 
-	rd_s16b(&p_ptr->msp);
-	rd_s16b(&p_ptr->csp);
+	rd_s32b(&p_ptr->msp);
+	rd_s32b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 
-	rd_s16b(&p_ptr->max_plv);
-	if (t_older_than(0, 0, 3, 5)) p_ptr->max_max_plv = p_ptr->max_plv;
-	else rd_s16b(&p_ptr->max_max_plv);
+	rd_s32b(&p_ptr->max_plv);
+	rd_s32b(&p_ptr->max_max_plv);
 
 	{
 		byte max = (byte)max_d_idx;
@@ -1601,13 +1331,6 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
-	if (t_older_than(0, 0, 3, 3))
-	{
-		if ((rp_ptr->r_flags & PRF_NO_DIGEST) || (cp_ptr->c_flags & PCF_NO_DIGEST))
-		{
-			p_ptr->food = PY_FOOD_FULL - 1;
-		}
-	}
 	strip_bytes(4); /* Old "food_digested" / "protection" */
 
 	rd_s16b(&p_ptr->energy_need);
@@ -1632,16 +1355,8 @@ static void rd_extra(void)
 	rd_s16b(&tmp16s);
 	p_ptr->recall_dungeon = (byte)tmp16s;
 
-	if (t_older_than(0, 0, 2, 4))
-	{
-		p_ptr->alter_reality = 0;
-		p_ptr->inhibit_flood = 0;
-	}
-	else
-	{
-		rd_s16b(&p_ptr->alter_reality);
-		rd_s16b(&p_ptr->inhibit_flood);
-	}
+	rd_s16b(&p_ptr->alter_reality);
+	rd_s16b(&p_ptr->inhibit_flood);
 
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
@@ -1665,19 +1380,13 @@ static void rd_extra(void)
 
 	rd_s16b(&p_ptr->tim_inc_blow);
 	rd_s16b(&p_ptr->tim_dec_blow);
-	if (t_older_than(0, 0, 0, 4)) p_ptr->zoshonel_protect = 0;
-	else rd_s16b(&p_ptr->zoshonel_protect);
-	if (t_older_than(0, 0, 4, 2)) p_ptr->tim_octopus_immunity = 0;
-	else rd_s16b(&p_ptr->tim_octopus_immunity);
+	rd_s16b(&p_ptr->zoshonel_protect);
 
 	rd_s16b(&p_ptr->earth_spike);
 	rd_s16b(&p_ptr->wind_guard);
 	rd_s16b(&p_ptr->tim_resurrection);
-	if (t_older_than(0, 0, 4, 0)) p_ptr->tim_immune_magic = 0;
-	else rd_s16b(&p_ptr->tim_immune_magic);
 
-	if (t_older_than(0, 0, 3, 0)) p_ptr->multishadow = 0;
-	else rd_s16b(&p_ptr->multishadow);
+	rd_s16b(&p_ptr->multishadow);
 	rd_s16b(&p_ptr->dustrobe);
 
 	rd_u32b(&p_ptr->muta1);
@@ -1692,19 +1401,8 @@ static void rd_extra(void)
 	mutant_regenerate_mod = calc_mutant_regenerate_mod();
 
 	rd_s16b(&p_ptr->magical_weapon);
-	if (t_older_than(0, 0, 0, 4)) p_ptr->evil_weapon = 0;
-	else rd_s16b(&p_ptr->evil_weapon);
+	rd_s16b(&p_ptr->evil_weapon);
 	rd_u32b(&p_ptr->special_attack);
-	if (t_older_than(0, 0, 4, 0))
-	{
-		p_ptr->the_immunity = 0;
-		p_ptr->special_defense = 0;
-	}
-	else
-	{
-		rd_s16b(&p_ptr->the_immunity);
-		rd_u32b(&p_ptr->special_defense);
-	}
 	rd_byte(&tmp8u); /* oops */
 	rd_byte(&tmp8u); /* oops */
 	rd_byte(&p_ptr->action);
@@ -1746,15 +1444,6 @@ static void rd_extra(void)
 	/* Current turn */
 	rd_s32b(&turn);
 
-	if (t_older_than(0, 0, 0, 2))
-	{
-		if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_GHOST))
-		{
-			old_turn -= TURNS_PER_TICK * TOWN_DAWN;
-			turn -= TURNS_PER_TICK * TOWN_DAWN;
-		}
-	}
-
 	rd_s32b(&dungeon_turn);
 
 	rd_s32b(&old_battle);
@@ -1765,14 +1454,7 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->riding);
 
 	/* Current floor_id */
-	if (t_older_than(0, 0, 2, 4))
-	{
-		p_ptr->floor_id = 0;
-	}
-	else
-	{
-		rd_s16b(&p_ptr->floor_id);
-	}
+	rd_s16b(&p_ptr->floor_id);
 
 	rd_u32b(&playtime);
 
@@ -1781,12 +1463,7 @@ static void rd_extra(void)
 	/* Weather */
 	for (i = MIN_WEATHER_TYPE; i < WEATHER_TYPE_NUM; i++)
 	{
-		if (t_older_than(0, 0, 0, 2))
-		{
-			rd_byte(&tmp8u);
-			weather[i] = (s16b)((char)tmp8u);
-		}
-		else rd_s16b(&weather[i]);
+		rd_s16b(&weather[i]);
 	}
 	rd_s16b(&weather_time_to_change);
 
@@ -1797,51 +1474,18 @@ static void rd_extra(void)
 	rd_byte(&fool_effect_status);
 
 	/* Misc. event flags */
-	if (t_older_than(0, 0, 3, 0))
+	rd_u32b(&misc_event_flags);
+
+	for (i = 0; i < MAX_STOCK_MON; i++)
 	{
-		misc_event_flags = 0L;
+		rd_monster(&stock_mon[i]);
 
-		if (t_older_than(0, 0, 0, 2))
-		{
-			if ((quest[QUEST_BARMAMUTHA_L].status == QUEST_STATUS_FINISHED) && (chaos_frame[ETHNICITY_GARGASTAN] < CFRAME_UPPER_LIMIT))
-				misc_event_flags |= EVENT_CLOSE_BARMAMUTHA;
-		}
-		else
-		{
-			rd_byte(&tmp8u);
-			if (tmp8u) misc_event_flags |= EVENT_CLOSE_BARMAMUTHA;
-		}
-
-		if (!t_older_than(0, 0, 0, 10))
-		{
-			rd_byte(&tmp8u);
-			if (tmp8u) misc_event_flags |= EVENT_CANNOT_BE_TEMPLEKNIGHT;
-		}
-
-		for (i = 0; i < MAX_TEMPLE_SB; i++)
-		{
-			if (p_ptr->special_blow & ((0x00000001L << MAX_SB) << i))
-			{
-				misc_event_flags |= EVENT_CANNOT_BE_WHITEKNIGHT;
-				break;
-			}
-		}
-	}
-	else
-	{
-		rd_u32b(&misc_event_flags);
+		/* Count */
+		real_r_ptr(&stock_mon[i])->cur_num++;
 	}
 
-	if (!t_older_than(0, 0, 0, 5))
-	{
-		for (i = 0; i < MAX_STOCK_MON; i++)
-		{
-			rd_monster(&stock_mon[i]);
-
-			/* Count */
-			real_r_ptr(&stock_mon[i])->cur_num++;
-		}
-	}
+	/* Success */
+	return 0;
 }
 
 
@@ -2077,14 +1721,6 @@ static errr rd_dungeon_old(void)
 
 			/* Extract "feat" */
 			c_ptr->feat = tmp8u;
-			if (t_older_than(0, 0, 0, 6))
-			{
-				/* Pattern (Obsoleted) */
-				if ((c_ptr->feat <= 0x49) && (c_ptr->feat >= 0x41))
-				{
-					c_ptr->feat = FEAT_FLOOR;
-				}
-			}
 
 			/* Advance/Wrap */
 			if (++x >= xmax)
@@ -2167,12 +1803,7 @@ static errr rd_dungeon_old(void)
 		{
 			/* Grab RLE info */
 			rd_byte(&count);
-			if (t_older_than(0, 0, 0, 2))
-			{
-				rd_byte(&tmp8u);
-				tmp16s = (s16b)((char)tmp8u);
-			}
-			else rd_s16b(&tmp16s);
+			rd_s16b(&tmp16s);
 
 			/* Apply the RLE info */
 			for (i = count; i > 0; i--)
@@ -2192,46 +1823,6 @@ static errr rd_dungeon_old(void)
 					/* Advance/Wrap */
 					if (++y >= ymax) break;
 				}
-			}
-		}
-	}
-
-	if (t_older_than(0, 0, 2, 3))
-	{
-		for (y = 0; y < ymax; y++) for (x = 0; x < xmax; x++)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Runes will be mimics and flags */
-			if ((c_ptr->feat == FEAT_MINOR_GLYPH) ||
-				(c_ptr->feat == FEAT_GLYPH))
-			{
-				c_ptr->info |= CAVE_OBJECT;
-				c_ptr->mimic = c_ptr->feat;
-				c_ptr->feat = FEAT_FLOOR;
-			}
-
-			/* Hidden traps will be trap terrains mimicing floor */
-			else if (c_ptr->info & CAVE_TRAP)
-			{
-				c_ptr->info &= ~(CAVE_TRAP);
-				c_ptr->mimic = c_ptr->feat;
-				c_ptr->feat = choose_random_trap();
-			}
-
-			/* Another hidden trap */
-			else if (c_ptr->feat == FEAT_INVIS)
-			{
-				c_ptr->mimic = FEAT_FLOOR;
-				c_ptr->feat = FEAT_TRAP_OPEN;
-			}
-
-			/* Hidden doors will be closed doors mimicing wall */
-			else if (c_ptr->feat == FEAT_SECRET)
-			{
-				place_closed_door(y, x);
-				c_ptr->mimic = FEAT_WALL_EXTRA;
 			}
 		}
 	}
@@ -2460,9 +2051,6 @@ static errr rd_saved_floor(saved_floor_type *sf_ptr)
 
 		rd_s16b(&tmp16s);
 		if (tmp16s != sf_ptr->lower_floor_id) return 171;
-
-		rd_u32b(&tmp32u);
-		if (tmp32u != sf_ptr->flags) return 171;
 	}
 
 	rd_s16b(&base_level);
@@ -2682,22 +2270,6 @@ static errr rd_dungeon(void)
 	/* Initialize saved_floors array and temporal files */
 	init_saved_floors();
 
-	/* Older method */
-	if (t_older_than(0, 0, 2, 4))
-	{
-		err = rd_dungeon_old();
-
-		/* Prepare floor_id of current floor */
-		if (dungeon_type)
-		{
-			p_ptr->floor_id = get_new_floor_id();
-			get_sf_ptr(p_ptr->floor_id)->dun_level = dun_level;
-		}
-
-		return err;
-	}
-
-
 	/*** Meta info ***/
 
 	/* Number of floor_id used from birth */
@@ -2738,8 +2310,6 @@ static errr rd_dungeon(void)
 			rd_u32b(&sf_ptr->visit_mark);
 			rd_s16b(&sf_ptr->upper_floor_id);
 			rd_s16b(&sf_ptr->lower_floor_id);
-			if (t_older_than(0, 0, 4, 0)) sf_ptr->flags = 0L;
-			else rd_u32b(&sf_ptr->flags);
 		}
 
 
@@ -2865,10 +2435,13 @@ static errr rd_savefile_new_aux(void)
 	s32b wild_y_size;
 
 	byte tmp8u;
+	s16b tmp16s;
 	u16b tmp16u;
 	u32b tmp32u;
 
 	byte tmp_runeweapon_num;
+
+	byte level_gained_class[50]; /* Note: 50 is PY_MAX_LEVEL on 0.0.3.3 or older */
 
 #ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
@@ -2920,8 +2493,13 @@ static errr rd_savefile_new_aux(void)
 	rd_u32b(&tmp32u);
 
 	/* Later use (always zero) */
-	rd_u32b(&tmp32u);
+	rd_u16b(&tmp16u);
 
+	/* Later use (always zero) */
+	rd_byte(&tmp8u);
+
+	/* Kanji code */
+	rd_byte(&kanji_code);
 
 	/* Read RNG state */
 	rd_randomizer();
@@ -2976,43 +2554,14 @@ if (arg_fiddle) note("メッセージをロードしました");
 		runeweapon->weapon.xtra3 = (byte)i; /* Repair */
 		rd_string(runeweapon->ancestor, sizeof(runeweapon->ancestor));
 		for (j = 0; j < 4; j++) rd_string(runeweapon->history[j], sizeof(runeweapon->history[j]));
-		if (t_older_than(0, 0, 0, 5))
-		{
-			runeweapon->hp = 1230;
-			runeweapon->sp = 1;
-			runeweapon->level = 50;
-			runeweapon->reincarnate_cnt = 1;
-		}
-		else
-		{
-			rd_s16b(&runeweapon->hp);
-			rd_s16b(&runeweapon->sp);
-			rd_s16b(&runeweapon->level);
-			rd_u16b(&runeweapon->reincarnate_cnt);
-		}
-		if (t_older_than(0, 0, 0, 6))
-		{
-			runeweapon->race = RACE_HUMAN;
-		}
-		else
-		{
-			rd_byte(&runeweapon->race);
-		}
-		if (t_older_than(0, 0, 0, 2))
-		{
-			rd_byte(&tmp8u);
-			runeweapon->elem = (s16b)((char)tmp8u);
-		}
-		else rd_s16b(&runeweapon->elem);
+		rd_s32b(&runeweapon->hp);
+		rd_s32b(&runeweapon->sp);
+		rd_s32b(&runeweapon->level);
+		rd_u16b(&runeweapon->reincarnate_cnt);
+		rd_byte(&runeweapon->race);
+		rd_s16b(&runeweapon->elem);
 		rd_byte(&runeweapon->align);
-		if (t_older_than(0, 0, 2, 0))
-		{
-			object_type *o_ptr = &runeweapon->weapon;
-			rd_u32b(&tmp32u);
-			if (tmp32u & 0x00000001L) add_flag(o_ptr->art_flags, TR_WRAITH);
-			if (tmp32u & 0x00000002L) add_flag(o_ptr->art_flags, TR_RES_MAGIC);
-		}
-		rd_s16b(&runeweapon->bow_energy);
+		rd_s32b(&runeweapon->bow_energy);
 		rd_byte(&runeweapon->bow_tmul);
 		rd_byte(&runeweapon->status);
 
@@ -3317,18 +2866,7 @@ note(format("伝説のアイテムが多すぎる(%u)！", tmp16u));
 		rd_byte(&tmp8u);
 		a_ptr->cur_num = tmp8u;
 
-		if (t_older_than(0, 0, 2, 4))
-		{
-			a_ptr->floor_id = 0;
-
-			rd_byte(&tmp8u);
-			rd_byte(&tmp8u);
-			rd_byte(&tmp8u);
-		}
-		else
-		{
-			rd_s16b(&a_ptr->floor_id);
-		}
+		rd_s16b(&a_ptr->floor_id);
 	}
 #ifdef JP
 if (arg_fiddle) note("伝説のアイテムをロードしました");
@@ -3339,7 +2877,17 @@ if (arg_fiddle) note("伝説のアイテムをロードしました");
 
 
 	/* Read the extra stuff */
-	rd_extra();
+	if (rd_extra())
+	{
+#ifdef JP
+		note("特別情報を読み込むことができません");
+#else
+		note("Unable to read extra infomation");
+#endif
+
+		return 25;
+	}
+
 	if (p_ptr->energy_need < -999) stop_the_time_player = TRUE;
 
 #ifdef JP
@@ -3349,45 +2897,30 @@ if (arg_fiddle) note("特別情報をロードしました");
 #endif
 
 
-	/* Read the player_hp array */
+	/* Read the race_hp array */
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
 	if (tmp16u > PY_MAX_LEVEL)
 	{
 #ifdef JP
-note(format("ヒットポイント配列が大きすぎる(%u)！", tmp16u));
+		note(format("種族HP/MP配列が大きすぎる(%u)！", tmp16u));
 #else
-		note(format("Too many (%u) hitpoint entries!", tmp16u));
+		note(format("Too many (%u) racial HP/mana entries!", tmp16u));
 #endif
 
 		return (25);
 	}
 
-	/* Read the player_hp array */
+	/* Read the race_hp array */
 	for (i = 0; i < tmp16u; i++)
 	{
-		rd_s16b(&p_ptr->player_hp[i]);
-		rd_s16b(&p_ptr->player_sp[i]);
-		rd_byte(&p_ptr->level_gained_class[i]);
-	}
-	rd_s16b(&p_ptr->player_ghp);
-	rd_s16b(&p_ptr->player_gsp);
-
-
-	if (t_older_than(0, 0, 3, 0))
-	{
-		p_ptr->skill_point = (p_ptr->max_exp / EXP_PER_SKILL_POINT) * 3;
-		p_ptr->exp_for_sp = p_ptr->max_exp % EXP_PER_SKILL_POINT;
-
-		for (i = 0; i < p_ptr->max_plv; i++)
-		{
-			byte lg_class = p_ptr->level_gained_class[i];
-
-			p_ptr->skill_point += s_info[lg_class].gain_sp_rate * ((i + 1) / 10 + 1);
-		}
+		rd_s32b(&p_ptr->race_hp[i]);
+		rd_s32b(&p_ptr->race_sp[i]);
 	}
 
+	rd_s32b(&p_ptr->player_ghp);
+	rd_s32b(&p_ptr->player_gsp);
 
 	/* Read the inventory */
 	if (rd_inventory())
@@ -3417,7 +2950,6 @@ note("持ち物情報を読み込むことができません");
 
 	rd_s16b(&p_ptr->pet_follow_distance);
 	rd_s16b(&p_ptr->pet_extra_flags);
-	if (t_older_than(0, 0, 3, 5)) p_ptr->pet_extra_flags |= PF_DISI_SPELL;
 
 	{
 		char buf[SCREEN_BUF_SIZE];

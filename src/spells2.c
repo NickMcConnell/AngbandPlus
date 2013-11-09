@@ -34,7 +34,6 @@ void self_knowledge(void)
 	u32b flgs[TR_FLAG_SIZE];
 
 	object_type *o_ptr;
-	object_type dummy_for_octopus;
 
 	char Dummy[80];
 	char buf[80];
@@ -43,6 +42,7 @@ void self_knowledge(void)
 	cptr info[220];
 
 	int plev = p_ptr->lev;
+	int clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int mhp = p_ptr->mhp;
 	int chp = p_ptr->chp;
 
@@ -97,7 +97,7 @@ void self_knowledge(void)
 			if (p_ptr->pelem == ELEM_WIND)
 			{
 #ifdef JP
-info[i++] = "あなたは風の力で攻撃することができる。(コスト: 8)";
+info[i++] = "あなたは風の力で攻撃することができる。(8 MP)";
 #else
 				info[i++] = "You can attack using wind force (cost 8).";
 #endif
@@ -106,7 +106,7 @@ info[i++] = "あなたは風の力で攻撃することができる。(コスト: 8)";
 		case RACE_LIZARDMAN:
 			sprintf(Dummy,
 #ifdef JP
-			        "あなたは %d+d%d ダメージのブレスを吐ける。(コスト: %d)",
+			        "あなたは %d+d%d ダメージのブレスを吐ける。(%d MP)",
 #else
 			        "You can breathe, dam. %d+d%d (cost %d).",
 #endif
@@ -117,25 +117,16 @@ info[i++] = "あなたは風の力で攻撃することができる。(コスト: 8)";
 		case RACE_FAIRY:
 			if (plev > 11)
 #ifdef JP
-				info[i++] = "あなたは敵を眠らせる魔法の粉を投げることができる。(コスト: 12)";
+info[i++] = "あなたは敵を眠らせる魔法の粉を投げることができる。(12 MP)";
 #else
 				info[i++] = "You can throw magical dust which induces sleep (cost 12).";
-#endif
-
-			break;
-		case RACE_GREMLIN:
-			if (plev > 39)
-#ifdef JP
-				info[i++] = "あなたは敵から生命力を吸収できる。(コスト: 20)";
-#else
-				info[i++] = "You can steal life from a foe (cost 20).";
 #endif
 
 			break;
 		case RACE_SKELETON:
 			if (plev > 29)
 #ifdef JP
-				info[i++] = "あなたは失った生命力を回復することができる。(コスト: 30)";
+info[i++] = "あなたは失った生命力を回復することができる。(30 MP)";
 #else
 				info[i++] = "You can restore lost life forces (cost 30).";
 #endif
@@ -144,7 +135,16 @@ info[i++] = "あなたは風の力で攻撃することができる。(コスト: 8)";
 		case RACE_GHOST:
 			if (plev > 3)
 #ifdef JP
-				info[i++] = "あなたは泣き叫んで敵を恐怖させることができる。(コスト: 3)";
+info[i++] = "あなたは泣き叫んで敵を恐怖させることができる。(3 MP)";
+#else
+				info[i++] = "You can wail to terrify your enemies (cost 3).";
+#endif
+
+			break;
+		case RACE_GREMLIN:
+			if (plev > 3)
+#ifdef JP
+info[i++] = "あなたは泣き叫んで敵を恐怖させることができる。(3 MP)";
 #else
 				info[i++] = "You can wail to terrify your enemies (cost 3).";
 #endif
@@ -153,21 +153,21 @@ info[i++] = "あなたは風の力で攻撃することができる。(コスト: 8)";
 		case RACE_PUMPKINHEAD:
 			if (plev > 1)
 #ifdef JP
-				info[i++] = "あなたは腐った魔法のカボチャで攻撃することができる。(コスト: 3)";
+info[i++] = "あなたは腐った魔法のカボチャで攻撃することができる。(3 MP)";
 #else
 				info[i++] = "You can attack using rotten magical pumpkin (cost 3).";
 #endif
 
 			if (plev > 39)
 #ifdef JP
-				info[i++] = "あなたは破滅の手と同等の攻撃を繰り出すことができる。(コスト: 80)";
+info[i++] = "あなたは破滅の手と同等の攻撃を繰り出すことができる。(80 MP)";
 #else
 				info[i++] = "You can invoke the Hand of Doom (cost 80).";
 #endif
 
 			if (plev > 44)
 #ifdef JP
-				info[i++] = "あなたは自爆的な攻撃をすることができる。(コスト: 90)";
+info[i++] = "あなたは自爆的な攻撃をすることができる。(90 MP)";
 #else
 				info[i++] = "nanka (cost 90).";
 #endif
@@ -176,13 +176,15 @@ info[i++] = "あなたは風の力で攻撃することができる。(コスト: 8)";
 		case RACE_GORGON:
 			if (plev > 24)
 #ifdef JP
-				info[i++] = "あなたは邪眼で周囲の敵を石化させることができる。(コスト: 30)";
+info[i++] = "あなたは邪眼で周囲の敵を石化させることができる。(30 MP)";
 #else
 				info[i++] = "You can gaze to stone your enemies (cost 30).";
 #endif
 
 			break;
 		case RACE_MERMAID:
+			info[i++] = "あなたは水の中で加速を得る。";
+			info[i++] = "あなたは水の中で電撃に弱くなり、それ以外のダメージが軽減される。";
 			info[i++] = "あなたは足元を水溜まりにすることができる。(コスト: 1)";
 			if (plev > 13)
 			{
@@ -193,53 +195,8 @@ info[i++] = "あなたは風の力で攻撃することができる。(コスト: 8)";
 				info[i++] = "あなたは周囲を水浸しにすることができる。(コスト: 40)";
 			}
 			break;
-		case RACE_OCTOPUS:
-			info[i++] = "あなたは足元を水溜まりにすることができる。(コスト: 1)";
-			if (plev > 1)
-			{
-				info[i++] = "あなたは墨を吐いて混乱攻撃することができる。(コスト: 4)";
-			}
-			if (plev > 4)
-			{
-#ifdef JP
-				info[i++] = "あなたは街とダンジョンの間を行き来することができる。(コスト: 10)";
-#else
-				info[i++] = "You can travel between town and the depths. (cost 10)";
-#endif
-			}
-			if (plev > 25)
-			{
-				info[i++] = "あなたは水から水へと移動することができる。(コスト: 30)";
-			}
-			if (plev > 31)
-			{
-				info[i++] = "あなたは一定時間タコ壺に入ることができる。(コスト: 70)";
-			}
-			if (plev > 33)
-			{
-#ifdef JP
-				info[i++] = "あなたは敵から生命力を吸収できる。(コスト: 25)";
-#else
-				info[i++] = "You can steal life from a foe (cost 25).";
-#endif
-			}
-			if (plev > 37)
-			{
-				info[i++] = "あなたは水浸しの階を作り出すことができる。(コスト: 100)";
-			}
-			if (plev > 46)
-			{
-				info[i++] = "あなたは1ターンに2度攻撃することができる。(コスト: 200)";
-			}
-			break;
 		default:
 			break;
-	}
-
-	if (rp_ptr->r_flags & PRF_AQUATIC)
-	{
-		info[i++] = "あなたは水の中で加速を得る。";
-		info[i++] = "あなたは水の中で電撃に弱くなり、それ以外のダメージが軽減される。";
 	}
 
 	if ((p_ptr->pclass != CLASS_TERRORKNIGHT)
@@ -255,7 +212,7 @@ info[i++] = "あなたは小石を投げることができる。(コスト: 0)";
 
 	if (((p_ptr->pclass == CLASS_KNIGHT)
 		|| (p_ptr->pclass == CLASS_VALKYRIE))
-		&& (plev > 9))
+		&& (clev > 9))
 	{
 #ifdef JP
 info[i++] = "あなたはモンスターに乗って無理矢理ペットにすることができる。";
@@ -268,7 +225,7 @@ info[i++] = "あなたはモンスターに乗って無理矢理ペットにすることができる。";
 		|| (p_ptr->pclass == CLASS_SIRENE)
 		|| (p_ptr->pclass == CLASS_LICH)
 		|| (p_ptr->pclass == CLASS_HIGHWITCH))
-		&& (plev > 24))
+		&& (clev > 24))
 	{
 #ifdef JP
 info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
@@ -280,65 +237,65 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
 	switch(p_ptr->pclass)
 	{
 		case CLASS_KNIGHT:
-			if (plev > 9)
+			if (clev > 9)
 			{
 				info[i++] = "あなたは邪悪なる存在を感知できる。(コスト: 5)";
 			}
-			if (plev > 19)
+			if (clev > 19)
 			{
 				info[i++] = "あなたは直線距離を突撃できる。(コスト: 20)";
 			}
-			if (plev > 44)
+			if (clev > 44)
 			{
 				info[i++] = "あなたは武器・防具を完全に鑑定できる。(コスト: 20)";
 			}
-			else if (plev > 29)
+			else if (clev > 29)
 			{
 				info[i++] = "あなたは武器・防具を鑑定できる。(コスト: 20)";
 			}
 			break;
 		case CLASS_BERSERKER:
-			if (plev > 9)
+			if (clev > 9)
 			{
 				info[i++] = "あなたは短い距離をテレポートできる。(コスト: 5)";
 			}
 			break;
 		case CLASS_TERRORKNIGHT:
-			if (plev > 4)
+			if (clev > 4)
 			{
 				info[i++] = "あなたは生命のあるモンスターを感知できる。(コスト: 1)";
 			}
-			if (plev > 9)
+			if (clev > 9)
 			{
 				info[i++] = "あなたは大きな石を投げつけることができる。(コスト: 2)";
 			}
-			if (plev > 24)
+			if (clev > 24)
 			{
 				info[i++] = "あなたは複数の敵対する幽霊を召喚できる。(コスト: 20)";
 			}
-			if (plev > 29)
+			if (clev > 29)
 			{
 				info[i++] = "あなたは地震を起こすことができる。(コスト: 10)";
 			}
-			if (plev > 39)
+			if (clev > 39)
 			{
 				info[i++] = "あなたは隣接する全方向に攻撃することができる。(コスト: 20)";
 			}
-			if (plev > 44)
+			if (clev > 44)
 			{
 				info[i++] = "あなたは空腹を満たすことができる。(コスト: 6)";
 			}
 			break;
 		case CLASS_BEASTTAMER:
-			if (plev > 9)
+			if (clev > 9)
 			{
 				info[i++] = "あなたはクモを召喚できる。(コスト: 10)";
 			}
-			if (plev > 14)
+			if (clev > 14)
 			{
 				info[i++] = "あなたは魔獣を魅了することができる。(コスト: 8)";
 			}
-			if (plev > 34)
+			if (clev > 34)
 			{
 				info[i++] = "あなたは複数の魔獣を召喚できる。(コスト: 30)";
 			}
@@ -346,23 +303,23 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
 		case CLASS_SWORDMASTER:
 			info[i++] = "あなたは指弾を使うことができる。(コスト: 0)";
 			info[i++] = "あなたは思考できるモンスターを感知できる。(コスト: 1)";
-			if (plev > 5)
+			if (clev > 5)
 			{
 				info[i++] = "あなたは武器を手元に戻るように投げることができる。(コスト: 15)";
 			}
-			if (plev > 11)
+			if (clev > 11)
 			{
 				info[i++] = "あなたはモンスターを朦朧とさせることができる。(コスト: 10)";
 			}
-			if (plev > 16)
+			if (clev > 16)
 			{
 				info[i++] = "あなたは攻撃した相手の背後に抜けることができる。(コスト: 20)";
 			}
-			if (plev > 23)
+			if (clev > 23)
 			{
 				info[i++] = "あなたは素早く相手に近寄ることができる。(コスト: 30)";
 			}
-			if (plev > 38)
+			if (clev > 38)
 			{
 				info[i++] = "あなたは強力な三段攻撃を行うことができる。(コスト: 80)";
 			}
@@ -376,7 +333,7 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
 			break;
 		case CLASS_NINJA:
 			info[i++] = "あなたは手裏剣を投げることができる。(コスト: 0)";
-			if (plev > 4)
+			if (clev > 4)
 			{
 #ifdef JP
 				info[i++] = "あなたは速度と引き替えに隠密を高めることができる。(コスト: 7)";
@@ -384,7 +341,7 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
 				info[i++] = "You can increase stealth with speed penalty (cost 7).";
 #endif
 			}
-			if (plev > 7)
+			if (clev > 7)
 			{
 #ifdef JP
 				info[i++] = "あなたは攻撃して即座に逃げることができる。(コスト: 10)";
@@ -394,10 +351,10 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
 			}
 			break;
 		case CLASS_WARLOCK:
-			if (plev > 29)
+			if (clev > 29)
 			{
 #ifdef JP
-				info[i++] = "あなたはアイテムを完全に鑑定することができる。(コスト: 20)";
+				info[i++] = "あなたはアイテムを完全に鑑定することができる。(20 MP)";
 #else
 				info[i++] = "You can *identify* an item (cost 20).";
 #endif
@@ -425,41 +382,41 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
 #endif
 			break;
 		case CLASS_VALKYRIE:
-			if (plev > 8)
+			if (clev > 8)
 			{
 				info[i++] = "あなたは2体までの敵を串刺しにできる。(コスト: 16)";
 			}
 			break;
 		case CLASS_ARCHER:
-			if (plev > 9)
+			if (clev > 9)
 			{
 				info[i++] = "あなたはモンスターを飛び越える射撃を行える。(コスト: 10)";
 			}
-			if (plev > 27)
+			if (clev > 27)
 			{
 				info[i++] = "あなたは命中しやすい射撃を行える。(コスト: 30)";
 			}
-			if (plev > 34)
+			if (clev > 34)
 			{
 				info[i++] = "あなたは非常に素早い射撃を行える。(コスト: 40)";
 			}
 			break;
 		case CLASS_DRAGONTAMER:
-			if (plev > 24)
+			if (clev > 24)
 			{
 				info[i++] = "あなたはドラゴンを魅了することができる。(コスト: 15)";
 			}
-			if (plev > 29)
+			if (clev > 29)
 			{
 				info[i++] = "あなたはドラゴンを召喚できる。(コスト: 25)";
 			}
-			if (plev > 39)
+			if (clev > 39)
 			{
 				info[i++] = "あなたは古代ドラゴンを召喚できる。(コスト: 40)";
 			}
 			break;
 		case CLASS_LICH:
-			if (plev > 39)
+			if (clev > 39)
 			{
 				info[i++] = "あなたは上級アンデッドを召喚できる。(コスト: 40)";
 			}
@@ -470,40 +427,40 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(コスト: 1)";
 #else
 			info[i++] = "You have been blessed by the gods.";
 #endif
-			if (plev > 27)
+			if (clev > 27)
 			{
 				info[i++] = "あなたはアンデッドを浄化する歌を歌うことができる。(コスト: 20)";
 			}
-			if (plev > 43)
+			if (clev > 43)
 			{
 				info[i++] = "あなたは魔法を封じる歌を歌うことができる。(コスト: 30)";
 			}
 			break;
 		case CLASS_HIGHWITCH:
-			if (plev > 29)
+			if (clev > 29)
 			{
 				info[i++] = "あなたは複数のパンプキンヘッドを召喚できる。(コスト: 30)";
 			}
 			break;
 		case CLASS_GUNNER:
 			info[i++] = "あなたは体温のあるモンスターを感知できる。(コスト: 1)";
-			if (plev > 9)
+			if (clev > 9)
 			{
 				info[i++] = "あなたは自分の周囲の地形を感知できる。(コスト: 25)";
 			}
-			if (plev > 19)
+			if (clev > 19)
 			{
 				info[i++] = "あなたは短い直線距離を一瞬で走れる。(コスト: 30)";
 			}
-			if (plev > 24)
+			if (clev > 24)
 			{
 				info[i++] = "あなたは周囲のモンスターを調査できる。(コスト: 20)";
 			}
-			if (plev > 27)
+			if (clev > 27)
 			{
 				info[i++] = "あなたは命中しやすい射撃を行える。(コスト: 30)";
 			}
-			if (plev > 39)
+			if (clev > 39)
 			{
 				info[i++] = "あなたは壁を飛び越えられる。(コスト: 35)";
 			}
@@ -1711,15 +1668,6 @@ info[i++] = "あなたは死んでも1度だけ復活できる。";
 #endif
 
 	}
-	if (p_ptr->tim_immune_magic)
-	{
-#ifdef JP
-		info[i++] = "あなたは強運で魔法を回避できる。";
-#else
-		info[i++] = "You can avoid magic with very good luck.";
-#endif
-
-	}
 	if (p_ptr->see_infra)
 	{
 #ifdef JP
@@ -2108,16 +2056,7 @@ info[i++] = "あなたは冷気に弱い。";
 #endif
 	}
 
-	if (p_ptr->tim_octopus_immunity)
-	{
-#ifdef JP
-info[i++] = "あなたは毒に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to poison.";
-#endif
-
-	}
-	else if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
+	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
 	{
 #ifdef JP
 info[i++] = "あなたは毒への強力な耐性を持っている。";
@@ -2323,41 +2262,12 @@ info[i++] = "あなたはプラズマに対する完全なる免疫を持っている。";
 #endif
 
 	}
-
-	if (p_ptr->immune_holy)
-	{
-#ifdef JP
-info[i++] = "あなたは聖なる力に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to holy forces.";
-#endif
-
-	}
-	else if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip)
+	if (p_ptr->ogre_equip)
 	{
 #ifdef JP
 info[i++] = "あなたは聖なる力に弱い。";
 #else
-		info[i++] = "You are susceptible to damage from holy forces.";
-#endif
-
-	}
-
-	if (p_ptr->immune_hell)
-	{
-#ifdef JP
-info[i++] = "あなたは邪悪な力に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to hell forces.";
-#endif
-
-	}
-	else if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
-	{
-#ifdef JP
-info[i++] = "あなたは邪悪な力に弱い。";
-#else
-		info[i++] = "You are susceptible to damage from hell forces.";
+		info[i++] = "You are susceptible to damage from holy force.";
 #endif
 
 	}
@@ -2540,11 +2450,6 @@ info[i++] = "あなたの攻撃速度は装備によって影響を受けている。";
 
 	/* Access the current weapon */
 	o_ptr = &inventory[INVEN_RARM];
-	if (prace_is_(RACE_OCTOPUS))
-	{
-		o_ptr = &dummy_for_octopus;
-		object_wipe(o_ptr);
-	}
 
 	/* Analyze the weapon */
 	if (o_ptr->k_idx)
@@ -4243,25 +4148,25 @@ bool project_hack(int typ, int dam)
 /*
  * Speed monsters
  */
-bool speed_monsters(void)
+bool speed_monsters(int plev)
 {
-	return (project_hack(GF_OLD_SPEED, p_ptr->lev));
+	return (project_hack(GF_OLD_SPEED, plev));
 }
 
 /*
  * Slow monsters
  */
-bool slow_monsters(void)
+bool slow_monsters(int plev)
 {
-	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
+	return (project_hack(GF_OLD_SLOW, plev));
 }
 
 /*
  * Sleep monsters
  */
-bool sleep_monsters(void)
+bool sleep_monsters(int plev)
 {
-	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
+	return (project_hack(GF_OLD_SLEEP, plev));
 }
 
 
@@ -4310,9 +4215,9 @@ bool dispel_monsters(int dam)
 /*
  * Crusade
  */
-bool crusade(void)
+bool crusade(int plev)
 {
-	return (project_hack(GF_CRUSADE, p_ptr->lev*4));
+	return (project_hack(GF_CRUSADE, plev));
 }
 
 
@@ -4346,6 +4251,7 @@ void aggravate_monsters(int who)
 			{
 				/* Wake up */
 				m_ptr->csleep = 0;
+				if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				sleep = TRUE;
 			}
 			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG_NOPET;
@@ -4446,6 +4352,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4570,6 +4477,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4696,6 +4604,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -5383,13 +5292,11 @@ msg_print("あなたは床と壁との間に挟まれてしまった！");
 
 			if (p_ptr->riding)
 			{
-				int tmp;
-				tmp = cave[py][px].m_idx;
-				cave[py][px].m_idx = cave[oy][ox].m_idx;
-				cave[oy][ox].m_idx = tmp;
+				cave[oy][ox].m_idx = cave[py][px].m_idx;
+				cave[py][px].m_idx = p_ptr->riding;
 				m_list[p_ptr->riding].fy = py;
 				m_list[p_ptr->riding].fx = px;
-				update_mon(cave[py][px].m_idx, TRUE);
+				update_mon(p_ptr->riding, TRUE);
 			}
 
 			/* Redraw the old spot */
@@ -5401,7 +5308,7 @@ msg_print("あなたは床と壁との間に挟まれてしまった！");
 			/* Check for new panel */
 			verify_panel();
 
-			set_aquatic_in_water();
+			set_mermaid_in_water();
 		}
 
 		/* Important -- no wall on player */
@@ -5724,7 +5631,7 @@ void discharge_minion(void)
 		fx = m_ptr->fx;
 		delete_monster_idx(i);
 		project(0, 2+(r_ptr->level/20), fy, fx, dam, GF_PLASMA,
-			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER | PROJECT_JUMP, MODIFY_ELEM_MODE_MAGIC);
+			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP, MODIFY_ELEM_MODE_MAGIC);
 	}
 }
 
@@ -5788,6 +5695,8 @@ static void cave_temp_room_lite(void)
 			{
 				/* Wake up! */
 				m_ptr->csleep = 0;
+
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
@@ -6308,7 +6217,7 @@ bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
 /*
  * Switch position with a monster.
  */
-bool teleport_swap(int dir)
+bool teleport_swap(int dir, int plev)
 {
 	int tx, ty;
 	cave_type * c_ptr;
@@ -6351,7 +6260,7 @@ msg_print("それとは場所を交換できません。");
 		return FALSE;
 	}
 
-	if ((c_ptr->info & CAVE_ICKY) || (distance(ty, tx, py, px) > p_ptr->lev * 3 / 2 + 10))
+	if ((c_ptr->info & CAVE_ICKY) || (distance(ty, tx, py, px) > plev * 3 / 2 + 10))
 	{
 #ifdef JP
 msg_print("失敗した。");
@@ -6376,6 +6285,8 @@ msg_print("テレポートを邪魔された！");
 #endif
 
 		m_ptr->csleep = 0;
+		if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 		/* Failure */
 		return FALSE;
 	}
@@ -6401,7 +6312,7 @@ msg_print("テレポートを邪魔された！");
 		m_list[p_ptr->riding].fx = tx;
 
 		/* Update the monster (new location) */
-		update_mon(cave[ty][tx].m_idx, TRUE);
+		update_mon(p_ptr->riding, TRUE);
 	}
 
 	tx = m_ptr->fx;
@@ -6421,7 +6332,7 @@ msg_print("テレポートを邪魔された！");
 	/* Check for new panel (redraw map) */
 	verify_panel();
 
-	set_aquatic_in_water();
+	set_mermaid_in_water();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_BONUS);
@@ -6569,36 +6480,30 @@ bool heal_monster(int dir, int dam)
 }
 
 
-bool speed_monster(int dir)
+bool speed_monster(int dir, int plev)
 {
 	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
-	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SPEED, dir, plev, flg));
 }
 
 
-bool slow_monster(int dir)
+bool slow_monster(int dir, int plev)
 {
 	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
-	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLOW, dir, plev, flg));
 }
 
 
-bool sleep_monster(int dir)
+bool sleep_monster(int dir, int plev)
 {
 	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, plev, flg));
 }
 
 
-bool stasis_monster(int dir)
+bool stasis_evil(int dir, int plev)
 {
-	return (fire_ball_hide(GF_STASIS, dir, p_ptr->lev*2, 0, FALSE));
-}
-
-
-bool stasis_evil(int dir)
-{
-	return (fire_ball_hide(GF_STASIS_EVIL, dir, p_ptr->lev*2, 0, FALSE));
+	return (fire_ball_hide(GF_STASIS_EVIL, dir, plev, 0, FALSE));
 }
 
 
@@ -6616,10 +6521,10 @@ bool stun_monster(int dir, int plev)
 }
 
 
-bool poly_monster(int dir)
+bool poly_monster(int dir, int plev)
 {
 	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
-	return project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg);
+	return project_hook(GF_OLD_POLY, dir, plev, flg);
 }
 
 
@@ -6674,10 +6579,10 @@ bool destroy_doors_touch(void)
 }
 
 
-bool sleep_monsters_touch(void)
+bool sleep_monsters_touch(int plev)
 {
 	u32b flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(0, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg, MODIFY_ELEM_MODE_MAGIC));
+	return (project(0, 1, py, px, plev, GF_OLD_SLEEP, flg, MODIFY_ELEM_MODE_MAGIC));
 }
 
 
@@ -6688,10 +6593,9 @@ bool animate_dead(int who, int y, int x)
 }
 
 
-void call_chaos(void)
+void call_chaos(int plev)
 {
 	int Chaos_type, dummy, dir;
-	int plev = p_ptr->lev;
 	bool line_chaos = FALSE;
 
 	int hurt_types[] =
@@ -6735,6 +6639,50 @@ void call_chaos(void)
 			fire_beam(Chaos_type, dir, 250);
 		else
 			fire_ball(Chaos_type, dir, 250, 3 + (plev / 35), FALSE);
+	}
+}
+
+
+static void wall_breaker(void)
+{
+	int i;
+	int y, x;
+	int attempts = 1000;
+
+	if (randint1(80 + p_ptr->lev) < 70)
+	{
+		while(attempts--)
+		{
+			scatter(&y, &x, py, px, 4, 0);
+
+			if (!cave_floor_bold(y, x)) continue;
+
+			if ((y != py) || (x != px)) break;
+		}
+
+		project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
+				  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), MODIFY_ELEM_MODE_NONE);
+	}
+	else if (randint1(100) > 30)
+	{
+		earthquake(py, px, 1);
+	}
+	else
+	{
+		int num = damroll(5, 3);
+
+		for (i = 0; i < num; i++)
+		{
+			while(1)
+			{
+				scatter(&y, &x, py, px, 10, 0);
+
+				if ((y != py) && (x != px)) break;
+			}
+
+			project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
+					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), MODIFY_ELEM_MODE_NONE);
+		}
 	}
 }
 
@@ -6794,7 +6742,7 @@ msg_print("周囲の空間が歪んだ！");
 #endif
 
 				teleport_player(damroll(10, 10));
-				if (randint0(13)) (*count) += activate_hi_summon(py, px, FALSE);
+				if (randint0(13)) (*count) += activate_hi_summon(py, px);
 				if (!one_in_(6)) break;
 			}
 		case 34:
@@ -6819,22 +6767,27 @@ msg_print("エネルギーのうねりを感じた！");
 			aggravate_monsters(0);
 			if (!one_in_(6)) break;
 		case 4: case 5: case 6:
-			(*count) += activate_hi_summon(py, px, FALSE);
+			(*count) += activate_hi_summon(py, px);
 			if (!one_in_(6)) break;
 		case 7: case 8: case 9: case 18:
 			(*count) += summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			if (!one_in_(6)) break;
 		case 10: case 11: case 12:
+			{
+				cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
 #ifdef JP
-msg_print("生命力が体から吸い取られた気がする！");
+				msg_print("生命力が体から吸い取られた気がする！");
 #else
-			msg_print("You feel your life draining away...");
+				msg_print("You feel your life draining away...");
 #endif
 
-			lose_exp(p_ptr->exp / 16);
+				lose_class_exp(cexp_ptr->cexp / 16);
+				lose_racial_exp(p_ptr->exp / 16);
+			}
 			if (!one_in_(6)) break;
 		case 13: case 14: case 15: case 19: case 20:
-			if (stop_ty || (p_ptr->free_act && ((randint1(125) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)))
+			if (stop_ty || (p_ptr->free_act && (randint1(125) < p_ptr->skill_sav)))
 			{
 				/* Do nothing */ ;
 			}
@@ -6895,77 +6848,57 @@ msg_print("ほえ？私は誰？ここで何してる？");
 }
 
 
-int activate_hi_summon(int y, int x, bool can_pet)
+int activate_hi_summon(int y, int x)
 {
 	int i;
 	int count = 0;
 	int summon_lev;
-	u32b mode = PM_ALLOW_GROUP;
-	bool pet = FALSE;
+	u32b mode = PM_ALLOW_GROUP | PM_NO_PET;
 
-	if (can_pet)
-	{
-		if (one_in_(4))
-		{
-			mode |= PM_FORCE_FRIENDLY;
-		}
-		else
-		{
-			mode |= PM_FORCE_PET;
-			pet = TRUE;
-		}
-	}
-
-	if (!pet) mode |= PM_NO_PET;
-
-	summon_lev = (pet ? p_ptr->lev * 2 / 3 + randint1(p_ptr->lev / 2) : dun_level);
+	summon_lev = dun_level;
 
 	for (i = 0; i < (randint1(7) + (dun_level / 40)); i++)
 	{
 		switch (randint1(25) + (dun_level / 20))
 		{
 			case 1: case 2:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANT, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_ANT, mode);
 				break;
 			case 3: case 4:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_SPIDER, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_SPIDER, mode);
 				break;
 			case 5: case 6:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HOUND, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_HOUND, mode);
 				break;
 			case 7: case 8:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_BEAST, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_BEAST, mode);
 				break;
 			case 9: case 10:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANGEL, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_ANGEL, mode);
 				break;
 			case 11: case 12:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNDEAD, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_UNDEAD, mode);
 				break;
 			case 13: case 14:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DRAGON, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_DRAGON, mode);
 				break;
 			case 15: case 16:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DEMON, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_DEMON, mode);
 				break;
 			case 17: case 18: case 19:
-				if (can_pet) break;
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNIQUE, (mode | PM_ALLOW_UNIQUE));
+				count += summon_specific(0, y, x, summon_lev, SUMMON_UNIQUE, (mode | PM_ALLOW_UNIQUE));
 				break;
 			case 20: case 21:
-				if (!can_pet) mode |= PM_ALLOW_UNIQUE;
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_UNDEAD, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_HI_UNDEAD, (mode | PM_ALLOW_UNIQUE));
 				break;
 			case 22: case 23:
-				if (!can_pet) mode |= PM_ALLOW_UNIQUE;
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_DRAGON, mode);
+				count += summon_specific(0, y, x, summon_lev, SUMMON_HI_DRAGON, (mode | PM_ALLOW_UNIQUE));
 				break;
 			case 24:
-				count += summon_specific((pet ? -1 : 0), y, x, 100, SUMMON_CYBER, mode);
+				count += summon_specific(0, y, x, 100, SUMMON_CYBER, mode);
 				break;
 			default:
-				if (!can_pet) mode |= PM_ALLOW_UNIQUE;
-				count += summon_specific((pet ? -1 : 0), y, x,pet ? summon_lev : (((summon_lev * 3) / 2) + 5), 0, mode);
+				count += summon_specific(0, y, x, (((summon_lev * 3) / 2) + 5), 0, (mode | PM_ALLOW_UNIQUE));
 		}
 	}
 
@@ -6996,50 +6929,6 @@ int summon_cyber(int who, int y, int x)
 	}
 
 	return count;
-}
-
-
-void wall_breaker(void)
-{
-	int i;
-	int y, x;
-	int attempts = 1000;
-
-	if (randint1(80 + p_ptr->lev) < 70)
-	{
-		while(attempts--)
-		{
-			scatter(&y, &x, py, px, 4, 0);
-
-			if (!cave_floor_bold(y, x)) continue;
-
-			if ((y != py) || (x != px)) break;
-		}
-
-		project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
-				  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), MODIFY_ELEM_MODE_NONE);
-	}
-	else if (randint1(100) > 30)
-	{
-		earthquake(py, px, 1);
-	}
-	else
-	{
-		int num = damroll(5, 3);
-
-		for (i = 0; i < num; i++)
-		{
-			while(1)
-			{
-				scatter(&y, &x, py, px, 10, 0);
-
-				if ((y != py) && (x != px)) break;
-			}
-
-			project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
-					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), MODIFY_ELEM_MODE_NONE);
-		}
-	}
 }
 
 
@@ -7844,13 +7733,13 @@ bool mermaid_water_flow(void)
 
 				c_ptr->mimic = FEAT_SHAL_WATER;
 
-				apply_grid_effect(y, x, prev_feat, TRUE);
-
 				/* Notice */
 				note_spot(y, x);
 
 				/* Redraw */
 				lite_spot(y, x);
+
+				apply_grid_effect(y, x, prev_feat, TRUE);
 			}
 			else cave_set_feat(y, x, FEAT_SHAL_WATER);
 			if (c_ptr->m_idx)
@@ -7881,7 +7770,7 @@ bool mermaid_water_flow(void)
 	if (done)
 	{
 		msg_print("周囲が水浸しになった。");
-		set_aquatic_in_water();
+		set_mermaid_in_water();
 	}
 	else msg_print("何も起きなかった。");
 
@@ -8285,10 +8174,10 @@ void knock_back(int who, int y, int x, int base_dam)
 			/* Redraw the new spot */
 			lite_spot(py, px);
 
+			set_mermaid_in_water();
+
 			/* Check for new panel (redraw map) */
 			verify_panel();
-
-			set_aquatic_in_water();
 		}
 
 		/* Update stuff */

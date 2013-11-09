@@ -162,7 +162,7 @@
 #    
 #    ● 条件分岐の使い方
 #    
-#      自動拾いの設定は種族やクラス、レベル等に条件を付けて設定すること
+#      自動拾いの設定は種族やクラス、種族レベル等に条件を付けて設定すること
 #      が出来ます。
 #    
 #      ☆ Tips
@@ -205,7 +205,7 @@
 #        $RACE
 #          種族を英語名で返す。
 #          Human, Hawkman, Lizardman, Fairy, Gremlin, Skeleton,
-#          Ghost, Pumpkin-Head, Goblin, Gorgon, Mermaid, Octopus
+#          Ghost, Pumpkin-Head, Goblin, Gorgon, Mermaid
 #          のどれか
 #        $CLASS
 #          クラスを英語名で返す。
@@ -213,16 +213,24 @@
 #          Sword-Master, Dragoon, Ninja, Wizard, Warlock, Exorcist,
 #          Amazoness, Valkyrie, Archer, DragonTamer, Witch, Sirene,
 #          Cleric, Priest, Lich, Angel-Knight, High-Witch, Gunner,
-#          Temple-Knight, White-Knight, none
+#          Temple-Knight, White-Knight
 #          のどれか
 #        $PLAYER
 #          プレイヤーの名前を返す。
 #        $SEX
-#          性別を英語名で返す。
-#          Male, Female
+#          プレイヤーの性別を返す。
+#          Female, Male
 #        $LEVEL
-#          プレイヤーのレベルを２桁の文字列で返す。
+#          プレイヤーの種族レベルを２桁の文字列で返す。
 #          "01","09","10","50" 等
+#        $CLEVEL
+#          プレイヤーの現在のクラスのレベルを２桁の文字列で返す。
+#          "01","09","10","50" 等
+#        $CLEVEL(ClassStr)
+#          指定したクラスのレベルを２桁の文字列で返す。ClassStrには
+#          $CLASSで使えるクラス名を入れる。
+#          "01","09","10","50" 等
+#          無効なクラス名の場合は"00"を返す。
 #
 #------------------------------------------------------------------
 #
@@ -294,18 +302,15 @@
 金属製のアイテム
 ?:1
 
-# レベルが10以上なら破壊する例
-#   条件分岐の判定は自動拾いファイルを読み込むときだけ行うので
-#   レベルが10以上に上がった直後はまだ登録されていません。
-#   '$'コマンドで読み込むかゲームを再開するとちゃんと読み込まれます。
-#
+# 種族レベルが10以上なら破壊する例
+# 種族レベルが10以上に上がった直後にも登録されます。
 ?:[GEQ $LEVEL 10]
 (!リンゴジュースの薬
 (!空のビン
 (!水の薬
 ?:1
 
-# レベルが20以下なら自動破壊禁止で床に放置する例
+# 種族レベルが20以下なら自動破壊禁止で床に放置する例
 # '('を指定する事で、マップ'M'コマンドで表示しないように指示します。
 ?:[LEQ $LEVEL 20]
 (~のろまの薬

@@ -41,23 +41,23 @@
 ?:[EQU $QUEST_NUMBER 9]
 %:q_dolgarua.txt
 
-# The wind ordeal
+# Node of Sorcery
 ?:[EQU $QUEST_NUMBER 10]
-%:q_wind.txt
+%:q000sorc.txt
 
-# The fire ordeal
+# Node of Chaos
 ?:[EQU $QUEST_NUMBER 11]
-%:q_fire.txt
+%:q000chao.txt
 
-# The dragon ordeal
+# Node of Nature
 ?:[EQU $QUEST_NUMBER 12]
-%:q_dragon.txt
+%:q000natu.txt
 
 # Quest #13 is still unfinished
 
 # Warg problem
 ?:[EQU $QUEST_NUMBER 14]
-%:q_warg.txt
+%:q_Armorica.txt
 
 # Castle Bernicia
 ?:[EQU $QUEST_NUMBER 15]

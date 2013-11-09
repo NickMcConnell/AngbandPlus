@@ -399,6 +399,7 @@ struct skill_table
 	byte gain_sp_rate; /* Rate for gain skill points */
 	byte w_eff[5][64]; /* Weapon skill efficiency */
 	byte m_eff[10];    /* Misc. skill efficiency */
+	byte s_eff[14];    /* Misc. skill efficiency */
 };
 
 
@@ -839,6 +840,8 @@ struct player_magic
 
 	int spell_weight;		/* Weight that hurts spells */
 
+	byte gain_msp_rate;	/* Rate for gain magic skill points */
+
 	magic_type info[MAX_REALM][32];    /* The available spells */
 };
 
@@ -878,34 +881,34 @@ struct player_race
 	u32b r_flags;			/* Racial flags */
 	s16b r_adj[A_MAX];		/* Racial stat bonuses */
 
-	s16b r_dis;			/* disarming */
-	s16b r_dev;			/* magic devices */
-	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
-	s16b r_srh;			/* search ability */
-	s16b r_fos;			/* search frequency */
-	s16b r_spd;			/* speed */
-	s16b r_thn;			/* combat (normal) */
-	s16b r_thb;			/* combat (shooting) */
+	s32b r_dis;			/* disarming */
+	s32b r_dev;			/* magic devices */
+	s32b r_sav;			/* saving throw */
+	s32b r_stl;			/* stealth */
+	s32b r_srh;			/* search ability */
+	s32b r_fos;			/* search frequency */
+	s32b r_spd;			/* speed */
+	s32b r_thn;			/* combat (normal) */
+	s32b r_thb;			/* combat (shooting) */
 
-	s16b rx_spd;		/* extra speed */
+	s32b rx_spd;		/* extra speed */
 
-	byte r_mhp;			/* Race hit-dice modifier */
-	byte r_msp;			/* Race mana-dice modifier */
-	byte r_exp;			/* Race experience factor */
+	s32b r_mhp;			/* Race hit-dice modifier */
+	s32b r_msp;			/* Race mana-dice modifier */
+	u16b r_exp;			/* Race experience factor */
 
-	s16b b_age;			/* base age */
-	s16b m_age;			/* mod age */
+	byte b_age;			/* base age */
+	byte m_age;			/* mod age */
 
-	s16b m_b_ht;		/* base height (males) */
-	s16b m_m_ht;		/* mod height (males) */
-	s16b m_b_wt;		/* base weight (males) */
-	s16b m_m_wt;		/* mod weight (males) */
+	byte m_b_ht;		/* base height (males) */
+	byte m_m_ht;		/* mod height (males) */
+	byte m_b_wt;		/* base weight (males) */
+	byte m_m_wt;		/* mod weight (males) */
 
-	s16b f_b_ht;		/* base height (females) */
-	s16b f_m_ht;		/* mod height (females)	  */
-	s16b f_b_wt;		/* base weight (females) */
-	s16b f_m_wt;		/* mod weight (females) */
+	byte f_b_ht;		/* base height (females) */
+	byte f_m_ht;		/* mod height (females)	  */
+	byte f_b_wt;		/* base weight (females) */
+	byte f_m_wt;		/* mod weight (females) */
 
 	byte infra;			/* Infra-vision	range */
 
@@ -935,30 +938,44 @@ struct player_class
 
 	s16b c_gain[A_MAX];		/* Class stats which are gained per level */
 
-	s16b c_dis;			/* class disarming */
-	s16b c_dev;			/* class magic devices */
-	s16b c_sav;			/* class saving throws */
-	s16b c_stl;			/* class stealth */
-	s16b c_srh;			/* class searching ability */
-	s16b c_fos;			/* class searching frequency */
-	s16b c_spd;			/* class speed */
-	s16b c_thn;			/* class to hit (normal) */
-	s16b c_thb;			/* class to hit (bows) */
+	s32b c_dis;			/* class disarming */
+	s32b c_dev;			/* class magic devices */
+	s32b c_sav;			/* class saving throws */
+	s32b c_stl;			/* class stealth */
+	s32b c_srh;			/* class searching ability */
+	s32b c_fos;			/* class searching frequency */
+	s32b c_spd;			/* class speed */
+	s32b c_thn;			/* class to hit (normal) */
+	s32b c_thb;			/* class to hit (bows) */
 
-	s16b x_dis;			/* extra disarming */
-	s16b x_dev;			/* extra magic devices */
-	s16b x_sav;			/* extra saving throws */
-	s16b x_stl;			/* extra stealth */
-	s16b x_srh;			/* extra searching ability */
-	s16b x_fos;			/* extra searching frequency */
-	s16b x_spd;			/* extra speed */
-	s16b x_thn;			/* extra to hit (normal) */
-	s16b x_thb;			/* extra to hit (bows) */
+	s32b x_dis;			/* extra disarming */
+	s32b x_dev;			/* extra magic devices */
+	s32b x_sav;			/* extra saving throws */
+	s32b x_stl;			/* extra stealth */
+	s32b x_srh;			/* extra searching ability */
+	s32b x_fos;			/* extra searching frequency */
+	s32b x_spd;			/* extra speed */
+	s32b x_thn;			/* extra to hit (normal) */
+	s32b x_thb;			/* extra to hit (bows) */
 
-	s16b c_mhp;			/* Class hit-dice adjustment */
-	s16b c_msp;			/* Class mana-dice adjustment */
+	s16b c_to_a;			/* class to AC */ 
+	s32b c_msp;			/* class mana-dice modifier */
+	u16b c_exp;			/* class experience factor */
+};
 
-	s16b c_to_a;		/* class to AC */ 
+
+typedef struct cexp_info_type cexp_info_type;
+
+struct cexp_info_type
+{
+	s32b max_max_cexp;	/* Max-Max class experience (Perm.) */
+	s32b max_cexp;		/* Max class experience */
+	s32b cexp;			/* Cur class experience */
+	u16b cexp_frac;		/* Cur class exp frac (times 2^16) */
+
+	s32b clev;			/* Class Level */
+	s32b max_clev;		/* Max Class Level */
+	s32b max_max_clev;	/* Max-Max Class Level (Perm.) */
 };
 
 
@@ -990,12 +1007,8 @@ struct player_type
 	s16b pelem;			/* Element index */
 	byte oops;			/* Unused */
 
-	byte hitdie;		/* Hit dice (sides) */
-	byte manadie;		/* Mana dice (sides) */
-	u16b expfact;       /* Experience factor
-	                     * Note: was byte, causing overflow for Amberite
-	                     * characters (such as Amberite Paladins)
-	                     */
+	u16b expfact;       /* Experience factor */
+	u16b cexpfact;       /* Class Experience factor */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1012,11 +1025,7 @@ struct player_type
 	s32b exp;			/* Cur experience */
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
 
-	s32b skill_point;	/* Skill point */
-	s32b exp_for_sp;	/* Experience for skill point */
-						/* (1SP = 25000EXP, 2MSP = 25000EXP) */
-
-	s16b lev;			/* Level */
+	s32b lev;			/* Level */
 
 	s16b town_num;			/* Current town number */
 	s16b arena_number;		/* monster number in arena -KMW- */
@@ -1029,16 +1038,16 @@ struct player_type
 	s32b wilderness_y;
 	bool wild_mode;
 
-	s16b mhp;			/* Max hit pts */
-	s16b chp;			/* Cur hit pts */
+	s32b mhp;			/* Max hit pts */
+	s32b chp;			/* Cur hit pts */
 	u16b chp_frac;		/* Cur hit frac (times 2^16) */
 
-	s16b msp;			/* Max mana pts */
-	s16b csp;			/* Cur mana pts */
+	s32b msp;			/* Max mana pts */
+	s32b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
-	s16b max_plv;		/* Max Player Level */
-	s16b max_max_plv;	/* Max-Max Player Level (Perm.) */
+	s32b max_plv;		/* Max Player Level */
+	s32b max_max_plv;	/* Max-Max Player Level (Perm.) */
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
@@ -1066,7 +1075,6 @@ struct player_type
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b magical_weapon;	/* Timed -- Magical Weapon */
 	s16b evil_weapon;	/* Timed -- Evil Weapon */
-	s16b the_immunity;	/* Timed -- The Immunity */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -1089,12 +1097,10 @@ struct player_type
 	s16b tim_inc_blow;
 	s16b tim_dec_blow;
 	s16b zoshonel_protect;
-	s16b tim_octopus_immunity;
 
-	s16b earth_spike; /* Timed -- Immunity to teleport by others */
+	s16b earth_spike; /* Timed -- Immune to teleport by others */
 	s16b wind_guard;  /* Timed -- Avoidance to arrows */
 	s16b tim_resurrection; /* Timed -- Avoidance to death (!!) */
-	s16b tim_immune_magic; /* Timed -- Immunity to magic */
 
 	s16b multishadow;       /* Timed -- Multi-shadow */
 	s16b dustrobe;          /* Timed -- Robe of dust */
@@ -1115,41 +1121,39 @@ struct player_type
 	s16b food;		  /* Current nutrition */
 
 	u32b special_attack;	  /* Special attack capacity -LM- */
-	u32b special_defense;	  /* Special block capacity -LM- */
 	byte action;		  /* Currently action */
 
 	skill_table *s_ptr;		/* Skill of weapons & misc. */
 
-	byte spell_skill_lev[MAX_REALM][32]; /* Skill level of spells */
-	byte weapon_skill_lev[5][64];        /* Skill level of weapons */
-	byte misc_skill_lev[10];             /* Skill level of misc. */
-	byte mindcraft_skill_lev;
-
-	s16b mindcraft_eff[MAX_SKILL_LEVEL - 1];
-	u32b mindcraft_learned;
+	s16b weapon_exp[5][64];   /* Proficiency of weapons */
+	s16b skill_exp[10];       /* Proficiency of misc. skill */
+	s16b magic_exp[MAX_REALM];       /* Proficiency of misc. skill */
 
 	s32b essence_box[108];     /* Array for essences of gunner */
 	byte singing;              /* For Angel-Knight's singing */
 	byte restart_singing;
 	byte song_start;
 
-	s16b player_hp[PY_MAX_LEVEL];
-	s16b player_sp[PY_MAX_LEVEL];
-	s16b player_ghp;		/* HP feedback by reincarnation */
-	s16b player_gsp;		/* Mana feedback by reincarnation */
-	byte level_gained_class[PY_MAX_LEVEL];
+	s32b race_hp[PY_MAX_LEVEL];
+	s32b race_sp[PY_MAX_LEVEL];
+
+	cexp_info_type cexp_info[MAX_CLASS];
+
+	s32b player_ghp;		/* HP feedback by reincarnation */
+	s32b player_gsp;		/* Mana feedback by reincarnation */
+
 	char died_from[80];   	  /* What killed the player */
 	char history[4][60];  	  /* Textual "history" for the Player */
 
-	s16b gx_dis;		/* Gained extra disarming */
-	s16b gx_dev;		/* Gained extra magic devices */
-	s16b gx_sav;		/* Gained extra saving throws */
-	s16b gx_stl;		/* Gained extra stealth */
-	s16b gx_srh;		/* Gained extra searching ability */
-	s16b gx_fos;		/* Gained extra searching frequency */
-	s16b gx_spd;		/* Gained extra speed */
-	s16b gx_thn;		/* Gained extra to hit (normal) */
-	s16b gx_thb;		/* Gained extra to hit (bows) */
+	s32b gx_dis;		/* Gained extra disarming */
+	s32b gx_dev;		/* Gained extra magic devices */
+	s32b gx_sav;		/* Gained extra saving throws */
+	s32b gx_stl;		/* Gained extra stealth */
+	s32b gx_srh;		/* Gained extra searching ability */
+	s32b gx_fos;		/* Gained extra searching frequency */
+	s32b gx_spd;		/* Gained extra speed */
+	s32b gx_thn;		/* Gained extra to hit (normal) */
+	s32b gx_thb;		/* Gained extra to hit (bows) */
 
 	u16b total_winner;	  /* Total winner */
 	u16b panic_save;	  /* Panic save */
@@ -1192,10 +1196,6 @@ struct player_type
 	bool teleport_town;
 	bool enter_dungeon;     /* Just enter the dungeon */
 
-	bool alter_reality_water_flow;
-	bool alter_reality_to_fate;
-	bool back_from_heaven;  /* Flag of returning from heaven */
-
 	s16b health_who;	/* Health bar trackee */
 
 	s16b monster_race_idx;	/* Monster race trackee */
@@ -1206,10 +1206,10 @@ struct player_type
 
 	bool old_cumber_armor;
 	bool old_cumber_glove;
-	bool old_heavy_wield[MAX_OCTOPUS_HANDS];
+	bool old_heavy_wield[2];
 	bool old_heavy_shoot;
-	s16b old_icky_wield[MAX_OCTOPUS_HANDS];
-	bool old_riding_wield[MAX_OCTOPUS_HANDS];
+	s16b old_icky_wield[2];
+	bool old_riding_wield[2];
 	bool old_riding_ryoute;
 	bool old_monlite;
 	bool old_skull_mask_hates;
@@ -1218,17 +1218,17 @@ struct player_type
 
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
-	bool heavy_wield[MAX_OCTOPUS_HANDS]; /* Heavy weapon */
+	bool heavy_wield[2];	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
-	s16b icky_wield[MAX_OCTOPUS_HANDS]; /* Icky weapon */
-	bool riding_wield[MAX_OCTOPUS_HANDS]; /* Riding weapon */
+	s16b icky_wield[2];	/* Icky weapon */
+	bool riding_wield[2];	/* Riding weapon */
 	bool riding_ryoute;	/* Riding weapon */
 	bool monlite;
 	bool skull_mask_hates;
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 	s16b anti_magic_field; /* Anti-magic field radius */
-	s16b inc_msp[MAX_OCTOPUS_HANDS]; /* Bonus % to max SP */
+	s16b inc_msp[2];	/* Bonus % to max SP */
 
 
 	u32b notice;		/* Special Updates (bit flags) */
@@ -1257,8 +1257,6 @@ struct player_type
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
 	bool immune_cold;	/* Immunity to cold */
-	bool immune_holy;	/* Immunity to holy */
-	bool immune_hell;	/* Immunity to hell */
 
 	bool resist_acid;	/* Resist acid */
 	bool resist_elec;	/* Resist lightning */
@@ -1307,7 +1305,7 @@ struct player_type
 	bool regenerate_mana;	/* Regenerate mana pts */
 	bool hold_life;		/* Resist life draining */
 
-	bool aquatic_in_water;
+	bool mermaid_in_water;
 
 	bool telepathy;		/* Telepathy */
 	bool esp_dragon;
@@ -1316,7 +1314,7 @@ struct player_type
 	bool no_digest;		/* No digestion */
 	bool xtra_might;	/* Extra might bow */
 	bool dis_xtra_might;	/* Known extra might bow */
-	bool impact[MAX_OCTOPUS_HANDS]; /* Earthquake blows */
+	bool impact[2];		/* Earthquake blows */
 	bool pass_wall;     /* Permanent wraithform */
 	bool wraith_form_perm; /* Permanent wraithform */
 	bool kill_wall;
@@ -1331,20 +1329,20 @@ struct player_type
 	bool smell_equip;	/* Full equipments of Smell */
 	bool evil_equip;	/* Full equipments of Evil */
 
-	s16b to_dd[MAX_OCTOPUS_HANDS]; /* Extra dice/sides */
-	s16b to_ds[MAX_OCTOPUS_HANDS];
+	s16b to_dd[2];		/* Extra dice/sides */
+	s16b to_ds[2];
 
-	s16b dis_to_h[MAX_OCTOPUS_HANDS]; /* Known bonus to hit (wield) */
+	s16b dis_to_h[2];	/* Known bonus to hit (wield) */
 	s16b dis_to_h_b;	/* Known bonus to hit (bow) */
-	s16b dis_to_d[MAX_OCTOPUS_HANDS]; /* Known bonus to dam (wield) */
+	s16b dis_to_d[2];	/* Known bonus to dam (wield) */
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
 
-	s16b to_h[MAX_OCTOPUS_HANDS]; /* Bonus to hit (wield) */
+	s16b to_h[2];			/* Bonus to hit (wield) */
 	s16b to_h_b;			/* Bonus to hit (bow) */
 	s16b to_h_m;			/* Bonus to hit (misc) */
-	s16b to_d[MAX_OCTOPUS_HANDS]; /* Bonus to dam (wield) */
+	s16b to_d[2];			/* Bonus to dam (wield) */
 	s16b to_d_m;			/* Bonus to dam (misc) */
 	s16b to_a;			/* Bonus to ac */
 
@@ -1360,25 +1358,25 @@ struct player_type
 
 	s16b see_infra;		/* Infravision range */
 
-	s16b skill_dis;		/* Skill: Disarming */
-	s16b skill_dev;		/* Skill: Magic Devices */
-	s16b skill_sav;		/* Skill: Saving throw */
-	s16b skill_stl;		/* Skill: Stealth factor */
-	s16b skill_srh;		/* Skill: Searching ability */
-	s16b skill_fos;		/* Skill: Searching frequency */
-	s16b skill_thn;		/* Skill: To hit (normal) */
-	s16b skill_thb;		/* Skill: To hit (shooting) */
-	s16b skill_tht;		/* Skill: To hit (throwing) */
-	s16b skill_dig;		/* Skill: Digging */
+	s32b skill_dis;		/* Skill: Disarming */
+	s32b skill_dev;		/* Skill: Magic Devices */
+	s32b skill_sav;		/* Skill: Saving throw */
+	s32b skill_stl;		/* Skill: Stealth factor */
+	s32b skill_srh;		/* Skill: Searching ability */
+	s32b skill_fos;		/* Skill: Searching frequency */
+	s32b skill_thn;		/* Skill: To hit (normal) */
+	s32b skill_thb;		/* Skill: To hit (shooting) */
+	s32b skill_tht;		/* Skill: To hit (throwing) */
+	s32b skill_dig;		/* Skill: Digging */
 
-	s16b num_blow[MAX_OCTOPUS_HANDS];	/* Number of blows */
+	s16b num_blow[2];	/* Number of blows */
 	s16b num_fire;		/* Number of shots */
 
 	byte tval_xtra;		/* Correct xtra tval */
 
 	byte tval_ammo;		/* Correct ammo tval */
 
-	s16b pspeed;		/* Current speed */
+	s32b pspeed;		/* Current speed */
 };
 
 
@@ -1402,8 +1400,8 @@ struct birther
 	s32b au[MAX_GOLD + 1];
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
-	s16b player_hp_lv1;
-	s16b player_sp_lv1;
+	s32b race_hp_lv1;
+	s32b race_sp_lv1;
 
 	char history[4][60];
 
@@ -1418,12 +1416,12 @@ typedef struct martial_arts martial_arts;
 
 struct martial_arts
 {
-	cptr    desc;    /* A verbose attack description */
-	int     min_lev; /* Minimum level / skill level to use */
-	int     chance;  /* Chance of 'success' */
-	int     dd;      /* Damage dice */
-	int     ds;      /* Damage sides */
-	int     effect;  /* Special effects */
+	cptr    desc;          /* A verbose attack description */
+	byte    min_skill_lev; /* Minimum skill level to use */
+	int     chance;        /* Chance of 'success' */
+	int     dd;            /* Damage dice */
+	int     ds;            /* Damage sides */
+	int     effect;        /* Special effects */
 };
 
 
@@ -1648,7 +1646,6 @@ typedef struct
 	u32b visit_mark;      /* Older has always smaller mark. */
 	s16b upper_floor_id;  /* a floor connected with level teleportation */
 	s16b lower_floor_id;  /* a floor connected with level tel. and trap door */
-	u32b flags;
 } saved_floor_type;
 
 
@@ -1686,14 +1683,14 @@ struct runeweapon_type
 	object_type weapon;
 	char ancestor[32];
 	char history[4][60];
-	s16b hp;
-	s16b sp;
-	s16b level;
+	s32b hp;
+	s32b sp;
+	s32b level;
 	u16b reincarnate_cnt;
 	byte race;
 	s16b elem;
 	byte align;
-	s16b bow_energy;
+	s32b bow_energy;
 	byte bow_tmul;
 	byte status;
 };

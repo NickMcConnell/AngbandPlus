@@ -1273,8 +1273,7 @@ byte adj_throwing[] =
  * High-Witch    num = 1; mul = 1; div = MAX(1, weapon_weight)
  * Gunner        num = 3; mul = 2; div = MAX(100, weapon_weight)
  * Temple-Knight num = 5; mul = 4; div = MAX(70, weapon_weight)
- * White-Knight  num = 5; mul = 4; div = MAX(70, weapon_weight)
- * Octopus       (undefined)
+ * White-Knight num = 5; mul = 4; div = MAX(70, weapon_weight)
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div".
@@ -1910,7 +1909,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	175,
 	250,
 	350,
-	475,
+	475, /* 10 */
 	625,
 	812,
 	1062,
@@ -1920,7 +1919,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	2875,
 	3625,
 	4500,
-	5500,
+	5500, /* 20 */
 	6750,
 	8500,
 	10500,
@@ -1930,7 +1929,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	31250,
 	43750L,
 	62500L,
-	93750L,
+	93750L, /* 30 */
 	125000L,
 	187500L,
 	250000L,
@@ -1940,7 +1939,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	687500L,
 	875000L,
 	1062500L,
-	1250000L,
+	1250000L, /* 40 */
 	1562500L,
 	1875000L,
 	2250000L,
@@ -1950,7 +1949,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	3750000L,
 	4375000L,
 	5000000L,
-	5625000L,
+	5625000L, /* 50 */
 	6250000L
 };
 
@@ -2009,7 +2008,7 @@ player_race race_info[MAX_RACES] =
 		{  0,  0,  0,  0,  0,  0 },
 		0,  0,  0,  0,  0,  10,  0,  0,  0,
 		                         0,
-		5, 0, 100,
+		14, 0, 100,
 		14,  6,
 		70,  6, 154, 25,
 		63,  5, 124, 20,
@@ -2027,7 +2026,7 @@ player_race race_info[MAX_RACES] =
 		{  1,  -1,  -1,  2,  0,  0 },
 		0,  0,  0,  1,  0,  10,  0,  8,  10,
 		                         3,
-		5, 0, 160,
+		14, 0, 160,
 		42,  22,
 		75,  7, 185, 27,
 		67,  5, 134, 20,
@@ -2045,7 +2044,7 @@ player_race race_info[MAX_RACES] =
 		{  2,  -1,  -1,  1,  2,  -1 },
 		10,  5,  3,  0,  -1,  10,  0, 10,  5,
 		                           1,
-		6, 0, 145,
+		15, 0, 145,
 		95,  65,
 		76,  1, 160, 5,
 		72,  1, 130, 5,
@@ -2063,7 +2062,7 @@ player_race race_info[MAX_RACES] =
 		{ -2, 1, 1, 1, -2, 1 },
 		10, 8, 6, 4, 10, 10, 0, -12, 8,
 		                     5,
-		3, 1, 155,
+		12, 1, 155,
 		50, 35,
 		32,  2, 75,  2,
 		29,  2, 65,  2,
@@ -2081,7 +2080,7 @@ player_race race_info[MAX_RACES] =
 		{ -2, 1, -1, 1, -1, -1 },
 		4, 7, 9, 2, 5, 12,  0, -5, 15,
 		                    5,
-		3, 1, 170,
+		12, 1, 170,
 		65, 35,
 		22,  2,  55,  2,
 		19,  2,  45,  2,
@@ -2099,7 +2098,7 @@ player_race race_info[MAX_RACES] =
 		{ 0, 0, -2, 0, 1, -2 },
 		-5, 0, 3, -1, -1, 8, 0, 10, 0,
 		                     1,
-		5, 0, 135,
+		14, 0, 135,
 		120, 35,
 		70,  6, 50, 5,
 		66,  4, 50, 5,
@@ -2117,7 +2116,7 @@ player_race race_info[MAX_RACES] =
 		{ -3, 1, -1, -1, 0, -2 },
 		10, 15, 12, 6, 5, 14, -1, -15, -10,
 		                       0,
-		1, 0, 190,
+		10, 0, 190,
 		120, 35,
 		70, 6, 20, 5,
 		66, 4, 20, 5,
@@ -2135,7 +2134,7 @@ player_race race_info[MAX_RACES] =
 		{ -2, -2, 3, 0, 3, 0 },
 		0, 0, 10, 0, 10, 18, 0, -10, -5,
 		                     0,
-		4, 1, 105,
+		13, 1, 105,
 		11, 9,
 		55, 5, 190, 30,
 		55, 5, 190, 30,
@@ -2153,7 +2152,7 @@ player_race race_info[MAX_RACES] =
 		{ 2, -1, 0, 0, 1, -2 },
 		-3, -3, -2, -1, 0, 7, 0, 14, -5,
 		                      1,
-		5, 0, 120,
+		14, 0, 120,
 		11, 4,
 		66, 1, 150, 5,
 		62, 1, 120, 5,
@@ -2171,7 +2170,7 @@ player_race race_info[MAX_RACES] =
 		{ 1, 2, -2, 2, -1, 2 },
 		8, 10, 8, 2, 8, 12, 0, 8, 25,
 		                    3,
-		5, 0, 200,
+		14, 0, 200,
 		100, 30,
 		78, 10, 180, 15,
 		78, 10, 180, 15,
@@ -2185,33 +2184,15 @@ player_race race_info[MAX_RACES] =
 #endif
 		"Mermaid",
 
-		PRF_AQUATIC,
+		0L,
 		{ -1, 0, 1, 1, -1, 1 },
 		12, 14, 7, 1, 0, 10, -5, -5, 2,
-		                      0,
-		4, 0, 140,
+		                      3,
+		13, 0, 140,
 		46, 33,
 		72, 6, 156, 25,
 		64, 5, 126, 20,
 		2,
-		0x7FFFFFFF,
-		RACE_TYPE_NORMAL,
-	},
-	{
-#ifdef JP
-		"オクトパス",
-#endif
-		"Octopus",
-
-		PRF_AQUATIC | PRF_LARGE,
-		{ 3, -2, 2, 3, 2, -3 },
-		15, 0, 10, 0, 0, 0, -10, 20, 0,
-		                      0,
-		49, 0, 180,
-		13, 264,
-		226, 166, 356, 225,
-		226, 166, 356, 225,
-		0,
 		0x7FFFFFFF,
 		RACE_TYPE_NORMAL,
 	},
@@ -2227,7 +2208,7 @@ player_race race_info[MAX_RACES] =
  *      {gainSTR,gainINT,gainWIS,gainDEX,gainCON,gainCHR},
  *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_spd, c_thn, c_thb,
  *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_spd, x_thn, x_thb,
- *      HD, MD, c_to_a
+ *      c_to_a, manadie, exp base
  */
 player_class class_info[MAX_CLASS] =
 {
@@ -2242,7 +2223,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 03, 03, 03, 02},
 		25, 28, 20,  3, 18, 14, 0, 60, 50,
 		12,  8,  9,  2,  0,  0, 2, 18, 20,
-		13, 3, 0,
+		0, 0, 100,
 	},
 
 	{
@@ -2256,7 +2237,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 03, 04, 03, 02},
 		17, 18, 17, -1, 14, 13, 0, 68, 52,
 		 9,  7,  8,  0,  0,  0, 1, 28, 23,
-		17, 1, 15,
+		15, 0, 110,
 	},
 
 	{
@@ -2270,7 +2251,7 @@ player_class class_info[MAX_CLASS] =
 		{05, 01, 02, 03, 04, 01},
 		26, 11, 18,  1, 19, 15, 0, 70, 49,
 		12,  6,  9,  0,  0,  0, 1, 30, 17,
-		18, 1, 15,
+		15, 0, 130,
 	},
 
 	{
@@ -2284,7 +2265,7 @@ player_class class_info[MAX_CLASS] =
 		{05, 00, 00, 02, 05, 00},
 		 1,  0, 2, -10, 1, 4, 0, 90, 11,
 		-6, -6, 0, -10, 0, 0, 0, 38,  2,
-		27, 0, 30,
+		30, 0, 180,
 	},
 
 	{
@@ -2298,7 +2279,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 01, 02, 02, 04, 03},
 		28, 27, 25, 1, 12, 16, 0, 62, 56,
 		10,  9,  9, 2,  0,  0, 1, 20, 19,
-		14, 3, 10,
+		10, 3, 130, 
 	},
 
 	{
@@ -2312,7 +2293,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 02, 05, 02, 03},
 		29, 27, 25, 4, 24, 16, 0, 70, 40,
 		10,  9, 10, 4,  0,  0, 3, 23, 18,
-		12, 4, 0,
+		0, 1, 160,
 	},
 
 	{
@@ -2326,7 +2307,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 01, 04, 04, 02},
 		24, 14, 24, 1, 18, 16, 0, 68, 23,
 		 8,  6,  9, 0,  0,  0, 0, 33, 12,
-		16, 1, 10,
+		10, 2, 120,
 	},
 
 	{
@@ -2340,7 +2321,7 @@ player_class class_info[MAX_CLASS] =
 		{02, 02, 01, 05, 02, 01},
 		45, 24, 19, 8, 28, 22, 0, 65, 66,
 		15, 10,  8, 5,  0,  0, 6, 19, 18,
-		10, 2, -5,
+		-5, 1, 150,
 	},
 
 	{
@@ -2354,7 +2335,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 03, 02, 01, 02},
 		30, 36, 30, 2, 16, 20, 0, 34, 20,
 		 7, 13, 13, 0,  0,  0, 1,  6,  7,
-		10, 10, -10,
+		-10, 5, 160,
 	},
 
 	{
@@ -2368,7 +2349,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 04, 01, 01, 04},
 		32, 38, 28, 2, 18, 16, 0, 52, 21,
 		14, 14, 14, 0,  0,  0, 0, 18, 11,
-		11, 9, -5,
+		-5, 4, 180,
 	},
 
 	{
@@ -2382,7 +2363,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 02, 04, 02, 03, 02},
 		25, 30, 32, 1, 16, 8, 0, 60, 28,
 		 9,  8,  9, 0,  0, 0, 0, 21,  7,
-		13, 7, 0,
+		0, 4, 130,
 	},
 
 	{
@@ -2396,7 +2377,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 03, 03, 03, 03},
 		26, 26, 20, 2, 17, 12, 0, 58, 52,
 		11,  9,  9, 2,  0,  0, 2, 16, 22,
-		13, 3, 0,
+		0, 0, 100,
 	},
 
 	{
@@ -2410,7 +2391,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 03, 02, 03, 04, 01},
 		30, 28, 28, -1, 18, 16, 0, 64, 48,
 		10, 10,  9,  0,  0,  0, 1, 23, 14,
-		14, 4, 15,
+		15, 2, 130,
 	},
 
 	{
@@ -2424,7 +2405,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 02, 02, 05, 03, 02},
 		38, 24, 23, 3, 24, 16, 0, 56, 82,
 		12, 10,  8, 1,  0,  0, 3, 13, 36,
-		16, 1, 0,
+		0, 0, 120,
 	},
 
 	{
@@ -2438,7 +2419,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 03, 03, 03, 03},
 		31, 29, 26, 1, 13, 17, 0, 52, 63,
 		13, 10, 10, 2,  0,  0, 2, 17, 25,
-		13, 4, 10,
+		10, 3, 140,
 	},
 
 	{
@@ -2452,7 +2433,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 03, 03, 01, 04},
 		32, 41, 29, 2, 18, 19, 0, 45, 51,
 		16, 16, 12, 1,  0,  0, 1, 13, 20,
-		11, 8, -5,
+		-5, 4, 130,
 	},
 
 	{
@@ -2466,7 +2447,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 05, 03, 02, 01, 02},
 		28, 35, 32, 2, 13, 20, 0, 15, 17,
 		 7, 13, 13, 0,  0,  0, 0,  5,  7,
-		9, 11, -10,
+		-10, 5, 150,
 	},
 
 	{
@@ -2480,7 +2461,7 @@ player_class class_info[MAX_CLASS] =
 		{02, 03, 04, 03, 02, 02},
 		25, 34, 30, 2, 12, 12, 0, 40, 50,
 		 8, 11,  9, 0,  0,  0, 1,  9, 18,
-		13, 9, -5,
+		-5, 4, 130,
 	},
 
 	{
@@ -2494,7 +2475,7 @@ player_class class_info[MAX_CLASS] =
 		{01, 04, 05, 02, 01, 02},
 		30, 32, 33, 1, 16, 9, 0, 27, 27,
 		 8,  9, 11, 0,  0, 0, 0,  6,  9,
-		12, 10, -10,
+		-10, 4, 120,
 	},
 
 	{
@@ -2508,7 +2489,7 @@ player_class class_info[MAX_CLASS] =
 		{00, 05, 04, 01, 03, 00},
 		29, 28, 31, 1, 4, 13, 0, 8, 10,
 		 7,  8, 12, 0, 0,  0, 0, 6,  4,
-		7, 11, 5,
+		5, 6, 160,
 	},
 
 	{
@@ -2522,7 +2503,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 03, 04, 03, 03, 03},
 		30, 30, 28, 1, 18, 16, 0, 72, 55,
 		10, 10, 12, 0,  0,  0, 2, 30, 30,
-		13, 7, 30,
+		30, 4, 140,
 	},
 
 	{
@@ -2536,7 +2517,7 @@ player_class class_info[MAX_CLASS] =
 		{00, 05, 04, 02, 00, 05},
 		32, 49, 29, 1, 18, 19, 0, 4, 6,
 		16, 16, 12, 0,  0,  0, 0, 2, 3,
-		4, 16, -50,
+		-50, 6, 220,
 	},
 
 	{
@@ -2550,7 +2531,7 @@ player_class class_info[MAX_CLASS] =
 		{03, 03, 02, 04, 02, 02},
 		38, 0, 10, 2, 24, 24, 0, 56, 76,
 		12, 0,  2, 4,  0,  0, 1, 18, 32,
-		17, 0, -10,
+		-10, 0, 160,
 	},
 
 	{
@@ -2564,7 +2545,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 03, 03, 04, 03, 01},
 		15, 23, 18, -4, 14, 4, 0, 62, 52,
 		 7,  8, 10, -1,  0, 0, 0, 26, 20,
-		13, 7, 10,
+		10, 0, 180,
 	},
 
 	{
@@ -2578,21 +2559,7 @@ player_class class_info[MAX_CLASS] =
 		{04, 02, 03, 04, 03, 03},
 		25, 21, 22, -2, 11, 15, 0, 70, 44,
 		10,  7, 10,  0,  0,  0, 0, 27, 14,
-		14, 4, 10,
-	},
-
-	{
-#ifdef JP
-		"オクトパス",
-#endif
-		"Octopus",
-
-		PCF_LARGE,
-		{0, 0, 0, 0, 0, 0},
-		{04, 00, 01, 04, 04, 00},
-		 0, 0, 0, 0, 0, 0, 0,  0, 0,
-		10, 0, 7, 0, 0, 0, 0, 45, 0,
-		 0, 0, 0,
+		10, 0, 160,
 	},
 };
 
@@ -2701,7 +2668,6 @@ s32b realm_choices[] =
 	(CH_NONE), /* Gunner */
 	(CH_DEATH), /* Temple-Knight */
 	(CH_HOLY), /* White-Knight */
-	(CH_NONE), /* Octopus */
 };
 
 
@@ -3572,19 +3538,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"副団長",
 		"騎士団長",
 		"騎士総長",
-	},
-	/* Octopus */
-	{
-		"小タコ",
-		"中タコ",
-		"大タコ",
-		"小オクトパス",
-		"小オクトパス",
-		"中オクトパス",
-		"中オクトパス",
-		"大オクトパス",
-		"大オクトパス",
-		"オクトパス王",
 	},
 };
 
@@ -4848,47 +4801,23 @@ martial_arts ma_blows[MAX_MA] =
 	{ "%sに半月蹴をくらわした。",     SKILL_LEVEL_MASTER,   35,  9, 12, 16 },
 	{ "%sに覇王流星脚をくらわした。", SKILL_LEVEL_MASTER,   40, 10, 13, 18 },
 #else
-	{ "You punch %s.",                                SKILL_LEVEL_BEGINNER,  0,  1,  5,  0 },
-	{ "You kick %s.",                                 SKILL_LEVEL_BEGINNER,  0,  1,  7,  0 },
-	{ "You strike %s.",                               SKILL_LEVEL_NOVICE,    0,  1,  9,  0 },
-	{ "You hit %s with your knee.",                   SKILL_LEVEL_NOVICE,    5,  2,  4, MA_KNEE },
-	{ "You hit %s with your elbow.",                  SKILL_LEVEL_NOVICE,    5,  1, 12,  0 },
-	{ "You butt %s.",                                 SKILL_LEVEL_AVERAGE,  10,  2,  6,  0 },
-	{ "You kick %s.",                                 SKILL_LEVEL_AVERAGE,  10,  3,  6, MA_SLOW },
-	{ "You uppercut %s.",                             SKILL_LEVEL_AVERAGE,  12,  5,  5,  6 },
-	{ "You double-kick %s.",                          SKILL_LEVEL_SKILLED,  15,  5,  6,  8 },
-	{ "You hit %s with a Cat's Claw.",                SKILL_LEVEL_SKILLED,  20,  5,  8,  0 },
-	{ "You hit %s with a jump kick.",                 SKILL_LEVEL_SKILLED,  25,  6,  8, 10 },
-	{ "You hit %s with an Eagle's Claw.",             SKILL_LEVEL_EXPERT,   25,  7,  9,  0 },
-	{ "You hit %s with a circle kick.",               SKILL_LEVEL_EXPERT,   30,  8, 10, 10 },
-	{ "You hit %s with an Iron Fist.",                SKILL_LEVEL_EXPERT,   35,  8, 11, 10 },
-	{ "You hit %s with a flying kick.",               SKILL_LEVEL_MASTER,   35,  8, 12, 12 },
-	{ "You hit %s with a Half-moon Kick.",            SKILL_LEVEL_MASTER,   35,  9, 12, 16 },
-	{ "You hit %s with a Kingly Shooting Star Kick.", SKILL_LEVEL_MASTER,   40, 10, 13, 18 },
-#endif
-
-};
-
-martial_arts octopus_ma_blows[MAX_OCTOPUS_MA] =
-{
-#ifdef JP
-	{ "%sを殴った。",          0,  0, 1,  5,  0 },
-	{ "%sを叩いた。",          7,  0, 2,  6,  0 },
-	{ "%sをひっぱたいた。",   14, 10, 3,  7,  2 },
-	{ "%sをぶん殴った。",     21, 15, 4,  8,  8 },
-	{ "%sを巻き付いた。",     28, 20, 5,  9,  9 },
-	{ "%sを締め付けた。",     35, 25, 6, 10, 11 },
-	{ "%sを掴んで投げた。",   42, 30, 7, 11,  2 },
-	{ "%sをタコ殴りにした。", 49, 35, 8, 12, 15 },
-#else
-	{ "You hit %s.",  0, 0, 1,  1,  0 },
-	{ "You hit %s.",  7, 0, 1,  2,  0 },
-	{ "You hit %s.", 14, 0, 1,  3,  2 },
-	{ "You hit %s.", 21, 0, 1,  4,  8 },
-	{ "You hit %s.", 28, 0, 2,  5,  9 },
-	{ "You hit %s.", 35, 0, 3,  6, 11 },
-	{ "You hit %s.", 42, 0, 4,  7,  2 },
-	{ "You hit %s.", 49, 0, 8, 10, 15 },
+	{ "You punch %s.",                               SKILL_LEVEL_BEGINNER,  0,  1,  5,  0 },
+	{ "You kick %s.",                                SKILL_LEVEL_BEGINNER,  0,  1,  7,  0 },
+	{ "You strike %s.",                              SKILL_LEVEL_NOVICE,    0,  1,  9,  0 },
+	{ "You hit %s with your knee.",                  SKILL_LEVEL_NOVICE,    5,  2,  4, MA_KNEE },
+	{ "You hit %s with your elbow.",                 SKILL_LEVEL_NOVICE,    5,  1, 12,  0 },
+	{ "You butt %s.",                                SKILL_LEVEL_AVERAGE,  10,  2,  6,  0 },
+	{ "You kick %s.",                                SKILL_LEVEL_AVERAGE,  10,  3,  6, MA_SLOW },
+	{ "You uppercut %s.",                            SKILL_LEVEL_AVERAGE,  12,  5,  5,  6 },
+	{ "You double-kick %s.",                         SKILL_LEVEL_SKILLED,  15,  5,  6,  8 },
+	{ "You hit %s with a Cat's Claw.",               SKILL_LEVEL_SKILLED,  20,  5,  8,  0 },
+	{ "You hit %s with a jump kick.",                SKILL_LEVEL_SKILLED,  25,  6,  8, 10 },
+	{ "You hit %s with an Eagle's Claw.",            SKILL_LEVEL_EXPERT,   25,  7,  9,  0 },
+	{ "You hit %s with a circle kick.",              SKILL_LEVEL_EXPERT,   30,  8, 10, 10 },
+	{ "You hit %s with an Iron Fist.",               SKILL_LEVEL_EXPERT,   35,  8, 11, 10 },
+	{ "You hit %s with a flying kick.",              SKILL_LEVEL_MASTER,   35,  8, 12, 12 },
+	{ "You hit %s with a Half-moon Kick.",           SKILL_LEVEL_MASTER,   35,  9, 12, 16 },
+	{ "You hit %s with a Kingly Shooting Star Kick.",SKILL_LEVEL_MASTER,   40, 10, 13, 18 },
 #endif
 
 };
@@ -4931,12 +4860,6 @@ cptr skill_lev_str[MAX_SKILL_LEVEL] =
 {"[初心者]", "[入門者]", "[中級者]", "[熟練者]", "[エキスパート]", "[達人]"};
 #else
 {"[Beginner]", "[Novice]", "[Average]", "[Skilled]", "[Expert]", "[Master]"};
-#endif
-
-#ifdef JP
-cptr skill_unlearned_str = "[未学習]";
-#else
-cptr skill_unlearned_str = "[Unlearned]";
 #endif
 
 s16b skill_lev_var[MAX_SKILL_LEVEL] =
@@ -5091,7 +5014,7 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 	"falsifies",
 	"disbelieves",
 	"molests",
-	"pusupusu"
+	"pusupusu",
 };
 #endif
 
@@ -5200,7 +5123,7 @@ special_blow_type special_blow_info[MAX_SB] =
 	{
 		"鬼哭血散斬",
 		"モンスター1体に現在のHPを攻撃力とする攻撃を行い、自分も現在HPの1/4を失う。",
-		WT_BIT_AXE | WT_BIT_CLAW | WT_BIT_DIGGING,
+		WT_BIT_AXE | WT_BIT_CLAW,
 		30, 60, 50, A_STR,
 	},
 	{
@@ -5212,7 +5135,7 @@ special_blow_type special_blow_info[MAX_SB] =
 	{
 		"神鳴明王剣",
 		"モンスター1体に攻撃を行う。",
-		WT_BIT_SMALL_SWORD | WT_BIT_SWORD | WT_BIT_NUNCHAKU,
+		WT_BIT_SMALL_SWORD | WT_BIT_SWORD | WT_BIT_KATANA,
 		30, 40, 50, A_DEX,
 	},
 	{
@@ -5230,19 +5153,19 @@ special_blow_type special_blow_info[MAX_SB] =
 	{
 		"竜牙烈風剣",
 		"モンスター1体に攻撃を行う。装備している武器によって強さが変わる。",
-		WT_BIT_SWORD | WT_BIT_GREAT_SWORD,
+		WT_BIT_SWORD | WT_BIT_GREAT_SWORD | WT_BIT_KATANA,
 		45, 75, 70, A_STR,
 	},
 	{
 		"月花地霊斬",
 		"モンスター1体に石化攻撃を行い、石化耐性がなければ必ず石化させる。",
-		WT_BIT_SPEAR | WT_BIT_HAMMER | WT_BIT_NUNCHAKU,
+		WT_BIT_SPEAR | WT_BIT_HAMMER,
 		30, 45, 70, A_STR,
 	},
 	{
 		"風烈天破斬",
 		"モンスター1体に攻撃を行い、ノックバックさせる。",
-		WT_BIT_KATANA | WT_BIT_STAFF | WT_BIT_HAMMER | WT_BIT_DIGGING,
+		WT_BIT_KATANA | WT_BIT_STAFF | WT_BIT_HAMMER,
 		30, 40, 50, A_CON,
 	},
 	{
@@ -5264,13 +5187,13 @@ special_blow_type temple_blow_info[MAX_TEMPLE_SB] =
 	{
 		"ブラックプリズン",
 		"モンスター1体に暗黒攻撃を行い、麻痺させる。",
-		WT_BIT_AXE | WT_BIT_CLAW | WT_BIT_WHIP | WT_BIT_DIGGING,
+		WT_BIT_AXE | WT_BIT_CLAW | WT_BIT_WHIP,
 		30, 45, 50, A_STR,
 	},
 	{
 		"デーモンローズ",
 		"モンスター1体に*火炎*攻撃を行い、魅了する。",
-		WT_BIT_WHIP | WT_BIT_SCYTHE | WT_BIT_NUNCHAKU,
+		WT_BIT_WHIP | WT_BIT_SCYTHE,
 		35, 45, 55, A_CHR,
 	},
 	{
@@ -5282,7 +5205,7 @@ special_blow_type temple_blow_info[MAX_TEMPLE_SB] =
 	{
 		"フローヴェノム",
 		"モンスター1体に水攻撃を行う。",
-		WT_BIT_SWORD | WT_BIT_SPEAR | WT_BIT_NUNCHAKU,
+		WT_BIT_SWORD | WT_BIT_SPEAR,
 		30, 45, 50, A_DEX,
 	},
 	{
@@ -5300,7 +5223,7 @@ special_blow_type temple_blow_info[MAX_TEMPLE_SB] =
 	{
 		"ライアットバーン",
 		"モンスター1体に聖なる攻撃を行い、ユニークでないアンデッドならば確実に消滅させる。",
-		WT_BIT_SMALL_SWORD | WT_BIT_STAFF | WT_BIT_DIGGING,
+		WT_BIT_SMALL_SWORD | WT_BIT_STAFF,
 		40, 65, 70, A_WIS,
 	},
 	{
@@ -5331,7 +5254,6 @@ cptr wt_desc[] =
 	"ヌンチャク",
 	"弓",
 	"銃",
-	"掘削道具",
 #else
 	"None",
 	"Small Sword",
@@ -6051,36 +5973,4 @@ int ob_to_tr[OB_MAX] =
 	TR_SPEED,
 	TR_BLOWS,
 	TR_ANTI_MAGIC,
-};
-
-int octopus_equip_order[INVEN_TOTAL - INVEN_RARM] = 
-{
-	INVEN_RARM,  /* Ring #1 */
-	INVEN_LARM,  /* Ring #2 */
-	INVEN_BOW,   /* Ring #3 */
-	INVEN_RIGHT, /* Ring #4 */
-	INVEN_LEFT,  /* Ring #5 */
-	INVEN_BODY,  /* Ring #6 */
-	INVEN_HANDS, /* Ring #7 */
-	INVEN_FEET,  /* Ring #8 */
-	INVEN_NECK,
-	INVEN_LITE,
-	INVEN_OUTER,
-	INVEN_HEAD,
-};
-
-int octopus_equip_label_offset[INVEN_TOTAL - INVEN_RARM] = 
-{
-	0,
-	0,
-	0,
-	0,
-	0,
-	3,
-	3,
-	-2,
-	2,
-	2,
-	-4,
-	-4,
 };

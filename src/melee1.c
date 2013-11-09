@@ -194,6 +194,8 @@ bool make_attack_normal(int m_idx)
 		/* Total armor */
 		int ac = p_ptr->ac + p_ptr->to_a;
 
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
 
 		if (!m_ptr->r_idx) break;
 
@@ -721,23 +723,20 @@ bool make_attack_normal(int m_idx)
 				{
 					if (explode) break;
 
-					if (!p_ptr->tim_octopus_immunity)
+					ACTIVATE_MULTISHADOW();
+
+					/* Take "poison" effect */
+					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && !IS_MULTISHADOW(0))
 					{
-						ACTIVATE_MULTISHADOW();
-
-						/* Take "poison" effect */
-						if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && !IS_MULTISHADOW(0))
+						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
 						{
-							if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
-							{
-								obvious = TRUE;
-							}
+							obvious = TRUE;
 						}
-
-						/* Take some damage */
-						get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
-						STOP_MULTISHADOW();
 					}
+
+					/* Take some damage */
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_POIS);
@@ -989,12 +988,12 @@ bool make_attack_normal(int m_idx)
 						/* Message */
 #ifdef JP
 						msg_format("%s(%c)を%s盗まれた！",
-						           o_name, index_to_label(i, FALSE),
+						           o_name, index_to_label(i),
 						           ((o_ptr->number > 1) ? "一つ" : ""));
 #else
 						msg_format("%sour %s (%c) was stolen!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(i, FALSE));
+						           o_name, index_to_label(i));
 #endif
 
 
@@ -1089,12 +1088,12 @@ bool make_attack_normal(int m_idx)
 						/* Message */
 #ifdef JP
 						msg_format("%s(%c)を%s食べられてしまった！",
-						          o_name, index_to_label(i, FALSE),
+						          o_name, index_to_label(i),
 						          ((o_ptr->number > 1) ? "一つ" : ""));
 #else
 						msg_format("%sour %s (%c) was eaten!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(i, FALSE));
+						           o_name, index_to_label(i));
 #endif
 
 
@@ -1335,7 +1334,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if ((randint0(100 + r_ptr->level/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
 					{
 #ifdef JP
 						msg_print("しかし恐怖に侵されなかった！");
@@ -1387,7 +1386,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if ((randint0(100 + r_ptr->level/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
 					{
 #ifdef JP
 						msg_print("しかし効力を跳ね返した！");
@@ -1602,7 +1601,8 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+						s32b cd = damroll(10, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+						s32b rd = damroll(10, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
@@ -1611,7 +1611,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life slipping away!");
 #endif
 
-							lose_exp(d/10);
+							lose_class_exp(cd / 10);
+							lose_racial_exp(rd / 10);
 						}
 						else
 						{
@@ -1621,7 +1622,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life draining away!");
 #endif
 
-							lose_exp(d);
+							lose_class_exp(cd);
+							lose_racial_exp(rd);
 						}
 					}
 					break;
@@ -1654,7 +1656,8 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(20, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+						s32b cd = damroll(20, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+						s32b rd = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
@@ -1663,7 +1666,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life slipping away!");
 #endif
 
-							lose_exp(d/10);
+							lose_class_exp(cd / 10);
+							lose_racial_exp(rd / 10);
 						}
 						else
 						{
@@ -1673,7 +1677,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life draining away!");
 #endif
 
-							lose_exp(d);
+							lose_class_exp(cd);
+							lose_racial_exp(rd);
 						}
 					}
 					break;
@@ -1706,7 +1711,8 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(40, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+						s32b cd = damroll(40, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+						s32b rd = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
@@ -1715,7 +1721,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life slipping away!");
 #endif
 
-							lose_exp(d/10);
+							lose_class_exp(cd / 10);
+							lose_racial_exp(rd / 10);
 						}
 						else
 						{
@@ -1725,7 +1732,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life draining away!");
 #endif
 
-							lose_exp(d);
+							lose_class_exp(cd);
+							lose_racial_exp(rd);
 						}
 					}
 					break;
@@ -1758,7 +1766,8 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(80, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+						s32b cd = damroll(80, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+						s32b rd = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
@@ -1767,7 +1776,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life slipping away!");
 #endif
 
-							lose_exp(d/10);
+							lose_class_exp(cd / 10);
+							lose_racial_exp(rd / 10);
 						}
 						else
 						{
@@ -1777,7 +1787,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life draining away!");
 #endif
 
-							lose_exp(d);
+							lose_class_exp(cd);
+							lose_racial_exp(rd);
 						}
 					}
 					break;
@@ -1841,7 +1852,8 @@ bool make_attack_normal(int m_idx)
 								msg_print("You feel life has clocked back.");
 #endif
 
-								lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+								lose_class_exp(100 + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE);
+								lose_racial_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 								break;
 							}
 
@@ -1938,7 +1950,8 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(60, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+						s32b cd = damroll(60, 6) + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE;
+						s32b rd = damroll(60, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 #ifdef JP
@@ -1947,7 +1960,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life slipping away!");
 #endif
 
-							lose_exp(d / 10);
+							lose_class_exp(cd / 10);
+							lose_racial_exp(rd / 10);
 						}
 						else
 						{
@@ -1957,7 +1971,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("You feel your life draining away!");
 #endif
 
-							lose_exp(d);
+							lose_class_exp(cd);
+							lose_racial_exp(rd);
 						}
 					}
 
@@ -2045,7 +2060,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if ((randint0(100 + r_ptr->level/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
 					{
 #ifdef JP
 						msg_print("しかし効力を跳ね返した！");
@@ -2082,33 +2097,24 @@ bool make_attack_normal(int m_idx)
 				{
 					if (explode) break;
 
-					if (!p_ptr->immune_holy)
+					ACTIVATE_MULTISHADOW();
+					if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip)
 					{
-						ACTIVATE_MULTISHADOW();
-						if ((get_your_alignment_gne() == ALIGN_GNE_EVIL) || p_ptr->ogre_equip)
-						{
 #ifdef JP
-							if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
+						if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
 #else
-							if (!IS_MULTISHADOW(0)) msg_print("You are hit hard!");
+						if (!IS_MULTISHADOW(0)) msg_print("You are hit hard!");
 #endif
-							if (get_your_alignment_gne() == ALIGN_GNE_EVIL) damage = damage * 7 / 5;
-							if (p_ptr->ogre_equip) damage *= 2;
-						}
+						if (get_your_alignment_gne() == ALIGN_GNE_EVIL) damage = damage * 7 / 5;
+						if (p_ptr->ogre_equip) damage *= 2;
 					}
 
 					/* Hack -- Player armor reduces total damage */
 					damage -= (damage * ((ac < 200) ? ac : 200) / 250);
 
-					if (!p_ptr->immune_holy)
-					{
-						/* Take some damage */
-						get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
-						STOP_MULTISHADOW();
-					}
-
-					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_HOLY);
+					/* Take some damage */
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
 
 					break;
 				}
@@ -2116,32 +2122,23 @@ bool make_attack_normal(int m_idx)
 				{
 					if (explode) break;
 
-					if (!p_ptr->immune_hell)
+					ACTIVATE_MULTISHADOW();
+					if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
 					{
-						ACTIVATE_MULTISHADOW();
-						if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
-						{
 #ifdef JP
-							if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
+						if (!IS_MULTISHADOW(0)) msg_print("ひどい痛手を受けた！");
 #else
-							if (!IS_MULTISHADOW(0)) msg_print("You are hit hard!");
+						if (!IS_MULTISHADOW(0)) msg_print("You are hit hard!");
 #endif
-							damage = damage * 7 / 5;
-						}
+						damage = damage * 7 / 5;
 					}
 
 					/* Hack -- Player armor reduces total damage */
 					damage -= (damage * ((ac < 200) ? ac : 200) / 250);
 
-					if (!p_ptr->immune_hell)
-					{
-						/* Take some damage */
-						get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
-						STOP_MULTISHADOW();
-					}
-
-					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_HELL);
+					/* Take some damage */
+					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc);
+					STOP_MULTISHADOW();
 
 					break;
 				}

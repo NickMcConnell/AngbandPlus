@@ -1244,7 +1244,6 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_CLOAK:
 				case TV_SOFT_ARMOR:
 				case TV_HARD_ARMOR:
-				case TV_DRAG_ARMOR:
 				break;
 				default:
 				return (FALSE);
@@ -3356,10 +3355,10 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 
 				/* Message */
 #ifdef JP
-		msg_format("%s(%c)を手に入れた。", o_name, index_to_label(item_new, FALSE));
+		msg_format("%s(%c)を手に入れた。", o_name, index_to_label(item_new));
 #else
 				msg_format("You have %s (%c).",
-						   o_name, index_to_label(item_new, FALSE));
+						   o_name, index_to_label(item_new));
 #endif
 
 				/* Auto-inscription */
@@ -3485,7 +3484,7 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 #else
 		msg_format("You have %s (%c).",
 #endif
- o_name, index_to_label(item_new, FALSE));
+ o_name, index_to_label(item_new));
 
 		/* Handle stuff */
 		handle_stuff();
@@ -3749,9 +3748,9 @@ static void store_sell(void)
 	{
 		/* Describe the transaction */
 #ifdef JP
-		msg_format("%s(%c)を売却する。", o_name, index_to_label(item, TRUE));
+		msg_format("%s(%c)を売却する。", o_name, index_to_label(item));
 #else
-		msg_format("Selling %s (%c).", o_name, index_to_label(item, TRUE));
+		msg_format("Selling %s (%c).", o_name, index_to_label(item));
 #endif
 
 		msg_print(NULL);
@@ -3929,9 +3928,9 @@ msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 
 		/* Describe */
 #ifdef JP
-		msg_format("%sを置いた。(%c)", o_name, index_to_label(item, TRUE));
+		msg_format("%sを置いた。(%c)", o_name, index_to_label(item));
 #else
-		msg_format("You drop %s (%c).", o_name, index_to_label(item, TRUE));
+		msg_format("You drop %s (%c).", o_name, index_to_label(item));
 #endif
 
 		/* Chaos frame change */
@@ -3971,9 +3970,9 @@ msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 
 		/* Describe */
 #ifdef JP
-		msg_format("%sを置いた。(%c)", o_name, index_to_label(item, TRUE));
+		msg_format("%sを置いた。(%c)", o_name, index_to_label(item));
 #else
-		msg_format("You drop %s (%c).", o_name, index_to_label(item, TRUE));
+		msg_format("You drop %s (%c).", o_name, index_to_label(item));
 #endif
 
 		choice = 0;
@@ -4391,16 +4390,17 @@ static void get_temple_blow(void)
  */
 static void change_player_class(void)
 {
-	cc_menu      classes[MAX_CLASS];
-	int          i, hgt;
-	int          num = 0, top = 0, cur = 0;
-	char         c;
-	char         buf[80];
-	bool         done = FALSE;
-	byte         attr;
-	char         s[80], stat_buf[8];
-	player_class *tmp_cp_ptr;
-	byte         old_pclass = p_ptr->pclass;
+	cc_menu        classes[MAX_CLASS];
+	int            i, hgt;
+	int            num = 0, top = 0, cur = 0;
+	char           c;
+	char           buf[80];
+	bool           done = FALSE;
+	byte           attr;
+	char           s[80], stat_buf[8];
+	player_class   *tmp_cp_ptr;
+	byte           old_pclass = p_ptr->pclass;
+	cexp_info_type *cexp_ptr;
 
 	/*** Instructions ***/
 
@@ -4449,11 +4449,11 @@ static void change_player_class(void)
 			"'Class' choice is restricted by sex.");
 #endif
 #ifdef JP
-		Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_L_RED,
-			"注意: クラスチェンジするとスキルポイントは失われます!!");
+		Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_ORANGE,
+			"注意: スキルポイント/魔法スキルポイントはこのクラスでのみ有効です。");
 #else
-		Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_L_RED,
-			"Note: Remain skill points will be lost when your class is changed!!");
+		Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_ORANGE,
+			"Note: Skill/magic skill points can be used only in this class.");
 #endif
 
 	/* Tabulate classes */
@@ -4542,10 +4542,6 @@ static void change_player_class(void)
 		}
 
 #ifdef JP
-		sprintf(s, "ヒットダイス: %d ", tmp_cp_ptr->c_mhp);
-		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-		sprintf(s, "マジックダイス: %d ", tmp_cp_ptr->c_msp);
-		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 		prt("", TABLE_ROW + A_MAX + 2, CLASS_AUX_COL);
 		strcpy(s, "アラインメント:");
 		if (tmp_cp_ptr->c_flags & PCF_ALIGN_LAWFUL) strcat(s, " 秩序");
@@ -4577,10 +4573,6 @@ static void change_player_class(void)
 			Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_L_RED, s);
 		}
 #else
-		sprintf(s, "Hit die: %d ", tmp_cp_ptr->c_mhp);
-		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-		sprintf(s, "Mana die: %d ", tmp_cp_ptr->c_msp);
-		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 		strcpy(s, "                                 ");
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 		strcpy(s, "Alignment:");
@@ -4739,15 +4731,10 @@ static void change_player_class(void)
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &m_info[p_ptr->pclass];
 	p_ptr->s_ptr = &s_info[p_ptr->pclass];
-
-	/* Skill point reset */
-	p_ptr->skill_point = 0;
-
-	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
-
-	/* Manadice */
-	p_ptr->manadie = rp_ptr->r_msp + cp_ptr->c_msp;
+	cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+	
+	for (i = 0; i < MAX_REALM + 1; i++)
+		if (p_ptr->magic_exp[i] == 0) p_ptr->magic_exp[i] = p_ptr->s_ptr->s_eff[i];
 
 	/* Clear */
 	clear_from(TABLE_ROW);
@@ -4779,7 +4766,7 @@ static void change_player_class(void)
 	switch (p_ptr->pclass)
 	{
 	case CLASS_GUNNER:
-		for (i = 0; i < p_ptr->max_plv; i++) p_ptr->player_sp[i] = 0;
+		C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s16b);
 		p_ptr->player_gsp = 0;
 		break;
 
@@ -4796,6 +4783,12 @@ static void change_player_class(void)
 
 	if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
+	if (!cexp_ptr->max_clev)
+	{
+		cexp_ptr->max_clev = cexp_ptr->clev = 1;
+		if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
+	}
+
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -4811,7 +4804,7 @@ static void change_player_class(void)
 	if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
 	if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
 
-	dispel_player(TRUE);
+	dispel_player();
 	set_action(ACTION_NONE);
 
 	/* Update stuff */
@@ -5673,7 +5666,7 @@ static void store_process_command(void)
 		default:
 		{
 			/* Giga-Hack: Class change */
-			if ((cur_store_num == STORE_HOME) && (command_cmd == 'c') && !(rp_ptr->r_flags & PRF_LARGE))
+			if ((cur_store_num == STORE_HOME) && (command_cmd == 'c'))
 			{
 				change_player_class();
 				display_store();
@@ -5913,15 +5906,15 @@ void do_cmd_store(void)
 			prt("G) ペットを連れ出す", 20, 27);
 			prt("g) アイテムを取る", 21, 27);
 			prt("d) アイテムを置く", 22, 27);
-			prt("x) 家のアイテムを調べる", 23, 27);
-			if (!(rp_ptr->r_flags & PRF_LARGE)) prt(" c) クラスチェンジ", 23, 57);
+			prt("x) 家のアイテムを調べる", 23,27);
+			prt(" c) クラスチェンジ", 23, 57);
 #else
 			prt("D) Leave a pet.", 20, 0);
 			prt("G) Take a pet.", 20, 27);
 			prt("g) Get an item.", 21, 27);
 			prt("d) Drop an item.", 22, 27);
-			prt("x) eXamine an item in the home.", 23, 27);
-			if (!(rp_ptr->r_flags & PRF_LARGE)) prt(" c) Change your class.", 23, 57);
+			prt("x) eXamine an item in the home.", 23,27);
+			prt(" c) Change your class.", 23, 57);
 #endif
 
 		}
@@ -6077,9 +6070,9 @@ void do_cmd_store(void)
 
 				/* Message */
 #ifdef JP
-				msg_format("%sが落ちた。(%c)", o_name, index_to_label(item, FALSE));
+				msg_format("%sが落ちた。(%c)", o_name, index_to_label(item));
 #else
-				msg_format("You drop %s (%c).", o_name, index_to_label(item, FALSE));
+				msg_format("You drop %s (%c).", o_name, index_to_label(item));
 #endif
 
 

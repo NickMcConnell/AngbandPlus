@@ -841,7 +841,6 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
 		break;
 	case TV_SOFT_ARMOR:
 	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
 	case TV_CLOAK:
 		t = object_desc_str(t, "着");
 		break;
@@ -1476,6 +1475,11 @@ static void get_inscription(char *buff, object_type *o_ptr)
 }
 
 
+#ifdef JP
+#undef strchr
+#define strchr strchr_j
+#endif
+
 
 /*
  * Variables and functions to print bonuses
@@ -1985,7 +1989,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_SHIELD:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
 		{
 			show_armour = TRUE;
 			break;
@@ -2983,7 +2986,7 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 	bow_ptr = &inventory[INVEN_BOW];
 
 	/* if have a firing weapon + ammo matches bow*/
-	if (bow_ptr->k_idx && (bow_ptr->tval == TV_BOW) &&
+	if (bow_ptr->k_idx &&
 	    (((bow_ptr->sval == SV_PISTOL) && (o_ptr->tval == TV_BULLET)) ||
 	     (((bow_ptr->sval == SV_ASSAULT_RIFLE) || (bow_ptr->sval == SV_SNIPER_RIFLE) ||
 	       (bow_ptr->sval == SV_RUNEGUN)) && (o_ptr->tval == TV_ROUND)) ||
@@ -2996,8 +2999,8 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 	{
 		int avgdam = 10;
 		int tmul;
-		s16b energy_fire;
-		int skill_to_d = skill_lev_var[p_ptr->weapon_skill_lev[0][bow_ptr->sval]] - 1;
+		s32b energy_fire;
+		int skill_to_d = skill_lev_var[weapon_exp_level(p_ptr->weapon_exp[0][bow_ptr->sval])] - 1;
 
 		if (bow_ptr->sval != SV_ROCKET_LAUNCHER)
 		{
@@ -3183,7 +3186,7 @@ t = object_desc_str(t, "(充填中)");
 	if (known && (have_bonus_flags(flgs))) t = object_desc_bonus(t, o_ptr);
 
 	/* Hack -- Process Lanterns/Torches */
-	if (known && (o_ptr->tval == TV_LITE) && (!(artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_FEANOR) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP))))
+	if (known && (o_ptr->tval == TV_LITE) && (!(artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_FEANOR) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP) || (o_ptr->sval == SV_LITE_EMPTY))))
 	{
 		/* Hack -- Turns of light for normal lites */
 #ifdef JP

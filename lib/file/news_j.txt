@@ -1,6 +1,6 @@
 
                   ***************************************
-                  **            TOband 0.0.4           **
+                  **            TOband2 PR2            **
                   ***************************************
 
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -16,6 +16,6 @@
                 変愚蛮怒:    Mr.hoge (echizen@s5.xrea.com) & 多くの方々
 
 
-               TOband: TOband検討委員会<TOband@egroups.co.jp>
-                     http://macband.s15.xrea.com/TOband/
+               TOband2: TOband検討委員会
+                     http://toband.sourceforge.jp/
              バグ情報などは上記 URL にある掲示板へお願いします。

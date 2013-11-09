@@ -1801,7 +1801,7 @@ static bool kankin(void)
 	char o_name[MAX_NLEN];
 	object_type *o_ptr;
 
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0;i <= INVEN_LARM; i++)
 	{
 		o_ptr = &inventory[i];
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == MON_ZEBRA))
@@ -1816,7 +1816,7 @@ static bool kankin(void)
 			if (get_check(buf))
 			{
 #ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", 1000000L * o_ptr->number);
+				msg_format("賞金 %ld$を手に入れた。", 1000000L * o_ptr->number);
 #else
 				msg_format("You get %ldgp.", 1000000L * o_ptr->number);
 #endif
@@ -1832,7 +1832,7 @@ static bool kankin(void)
 			change = TRUE;
 		}
 	}
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0;i <= INVEN_LARM; i++)
 	{
 		o_ptr = &inventory[i];
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == MON_ZEBRA))
@@ -1847,7 +1847,7 @@ static bool kankin(void)
 			if (get_check(buf))
 			{
 #ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", 100000L * o_ptr->number);
+				msg_format("賞金 %ld$を手に入れた。", 100000L * o_ptr->number);
 #else
 				msg_format("You get %ldgp.", 100000L * o_ptr->number);
 #endif
@@ -1864,7 +1864,7 @@ static bool kankin(void)
 		}
 	}
 
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0;i <= INVEN_LARM; i++)
 	{
 		o_ptr = &inventory[i];
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == today_mon))
@@ -1879,7 +1879,7 @@ static bool kankin(void)
 			if (get_check(buf))
 			{
 #ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", (r_info[today_mon].level * 50 + 100) * o_ptr->number);
+				msg_format("賞金 %ld$を手に入れた。", (r_info[today_mon].level * 50 + 100) * o_ptr->number);
 #else
 				msg_format("You get %ldgp.", (r_info[today_mon].level * 50 + 100) * o_ptr->number);
 #endif
@@ -1895,7 +1895,7 @@ static bool kankin(void)
 			change = TRUE;
 		}
 	}
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0;i <= INVEN_LARM; i++)
 	{
 		o_ptr = &inventory[i];
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == today_mon))
@@ -1910,7 +1910,7 @@ static bool kankin(void)
 			if (get_check(buf))
 			{
 #ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", (r_info[today_mon].level * 30 + 60) * o_ptr->number);
+				msg_format("賞金 %ld$を手に入れた。", (r_info[today_mon].level * 30 + 60) * o_ptr->number);
 #else
 				msg_format("You get %ldgp.", (r_info[today_mon].level * 30 + 60) * o_ptr->number);
 #endif
@@ -1929,7 +1929,7 @@ static bool kankin(void)
 
 	for (j = 0; j < MAX_KUBI; j++)
 	{
-		for (i = 0; i < INVEN_PACK; i++)
+		for (i = 0;i <= INVEN_LARM; i++)
 		{
 			o_ptr = &inventory[i];
 			if ((o_ptr->tval == TV_CORPSE) &&
@@ -1946,7 +1946,7 @@ static bool kankin(void)
 				if (get_check(buf))
 				{
 #ifdef JP
-					msg_format("賞金 %ld＄を手に入れた。", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
+					msg_format("賞金 %ld$を手に入れた。", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
 #else
 					msg_format("You get %ldgp.", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
 #endif
@@ -2300,7 +2300,6 @@ static bool inn_comm(int cmd)
 			msg_print("The barkeep gives you some gruel and a beer.");
 #endif
 
-			if (p_ptr->food < PY_FOOD_FULL) change_your_alignment_lnc(-1);
 			(void)set_food(PY_FOOD_MAX - 1);
 			break;
 
@@ -2519,18 +2518,18 @@ put_str("今のところクエストはありません。", 8, 0);
 		{
 		case QUEST_MONTSALVAT:
 		case QUEST_HOLY_KNIGHTS:
-			change_chaos_frame(ETHNICITY_ZENOBIAN, -10);
-			change_chaos_frame(ETHNICITY_LODIS, 40);
+			change_chaos_frame(ETHNICITY_ZENOBIAN, -25);
+			change_chaos_frame(ETHNICITY_LODIS, 80);
 			break;
 
 		case QUEST_RAMZEN:
-			change_chaos_frame(ETHNICITY_ZENOBIAN, 40);
-			change_chaos_frame(ETHNICITY_LODIS, -10);
+			change_chaos_frame(ETHNICITY_ZENOBIAN, 80);
+			change_chaos_frame(ETHNICITY_LODIS, -25);
 			break;
 
 		default:
 			if (!dun_level && p_ptr->town_num)
-				change_chaos_frame(town[p_ptr->town_num].ethnic, 40);
+				change_chaos_frame(town[p_ptr->town_num].ethnic, 60);
 			break;
 		}
 	}
@@ -2694,7 +2693,16 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 
 	/* Get the flags of the weapon */
 	object_flags(o_ptr, flgs);
-	class_weapon_flags(flgs);
+	switch (p_ptr->pclass)
+	{
+	case CLASS_DRAGOON:
+		add_flag(flgs, TR_KILL_DRAGON);
+		break;
+	case CLASS_EXORCIST:
+		add_flag(flgs, TR_SLAY_UNDEAD);
+		add_flag(flgs, TR_SLAY_DEMON);
+		break;
+	}
 
 	if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5))) mult = mult * 7 / 2;
 
@@ -2908,16 +2916,6 @@ static bool compare_weapons(void)
 	cptr q, s;
 	int row = 2;
 
-	if (prace_is_(RACE_OCTOPUS))
-	{
-#ifdef JP
-		msg_print("あなたは武器を装備できないので意味がありません。");
-#else
-		msg_print("You cannot wield weapons, so no means.");
-#endif
-		return FALSE;
-	}
-
 	screen_save();
 	/* Clear the screen */
 	clear_bldg(0, 22);
@@ -3042,7 +3040,7 @@ static bool eval_ac(int iAC)
 		"ダメージ軽減率とは、敵の攻撃が当たった時そのダメージを\n"
 		"何パーセント軽減するかを示します。\n"
 		"ダメージ軽減は通常の直接攻撃(種類が「攻撃する」と「粉砕する」の物)\n"
-		"と聖なる力、邪悪な力の直接攻撃に対して効果があります。\n \n"
+		"に対してのみ効果があります。\n \n"
 		"敵のレベルとは、その敵が通常何階に現れるかを示します。\n \n"
 		"回避率は敵の直接攻撃を何パーセントの確率で避けるかを示し、\n"
 		"敵のレベルとあなたのACによって決定されます。\n \n"
@@ -3103,6 +3101,7 @@ static bool eval_ac(int iAC)
 
 		/* 回避率を計算 */
 		dodge = 5 + (MIN(100, 100 * (iAC * 3 / 4) / quality) * 9 + 5) / 10;
+
 		put_str(format("%3d%%", dodge), row + 1, col);
 
 		/* 100点の攻撃に対してのダメージ期待値を計算 */
@@ -3146,8 +3145,8 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 
 	clear_bldg(4, 18);
 #ifdef JP
-prt(format("現在のあなたの技量だと、+%d まで改良できます。", maxenchant), 5, 0);
-prt(format(" 改良の料金は一個につき＄%d です。", cost), 7, 0);
+	prt(format("現在のあなたの技量だと、+%d まで改良できます。", maxenchant), 5, 0);
+	prt(format(" 改良の料金は一個につき$%d です。", cost), 7, 0);
 #else
 	prt(format("  Based on your skill, we can improve up to +%d.", maxenchant), 5, 0);
 	prt(format("  The price for the service is %d gold per item.", cost), 7, 0);
@@ -3253,7 +3252,7 @@ msg_print("改良に失敗した。");
 	{
 		object_desc(tmp_str, o_ptr, TRUE, 1);
 #ifdef JP
-msg_format("＄%d で%sを改良しました。", cost * o_ptr->number, tmp_str );
+msg_format("$%d で%sを改良しました。", cost * o_ptr->number, tmp_str );
 #else
 		msg_format("Improved %s for %d gold.", tmp_str, cost * o_ptr->number);
 #endif
@@ -3346,7 +3345,7 @@ msg_format("充填する前に鑑定されている必要があります！");
 
 		if ((p_ptr->au_sum >= 50) &&
 #ifdef JP
-get_check("＄50で鑑定しますか？ "))
+			get_check("$50で鑑定しますか？ "))
 #else
 			get_check("Identify for 50 gold? "))
 #endif
@@ -3468,7 +3467,7 @@ msg_print("この杖はもう充分に充填されています。");
 	{
 		object_desc(tmp_str, o_ptr, TRUE, 0);
 #ifdef JP
-msg_format("%sを再充填するには＄%d 必要です！", tmp_str,price );
+msg_format("%sを再充填するには$%d 必要です！", tmp_str,price );
 #else
 		msg_format("You need %d gold to recharge %s!", price, tmp_str);
 #endif
@@ -3479,7 +3478,7 @@ msg_format("%sを再充填するには＄%d 必要です！", tmp_str,price );
 	if (o_ptr->tval == TV_ROD)
 	{
 #ifdef JP
-if (get_check(format("そのロッドを＄%d で再充填しますか？",
+if (get_check(format("そのロッドを$%d で再充填しますか？",
  price)))
 #else
 		if (get_check(format("Recharge the %s for %d gold? ",
@@ -3504,7 +3503,7 @@ if (get_check(format("そのロッドを＄%d で再充填しますか？",
 
 		/* Get the quantity for staves and wands */
 #ifdef JP
-		charges = get_quantity(format("一回分＄%d で何回分充填しますか？",
+		charges = get_quantity(format("一回分$%d で何回分充填しますか？",
 #else
 		charges = get_quantity(format("Add how many charges for %d gold? ",
 #endif
@@ -3527,7 +3526,7 @@ if (get_check(format("そのロッドを＄%d で再充填しますか？",
 	/* Give feedback */
 	object_desc(tmp_str, o_ptr, TRUE, 3);
 #ifdef JP
-msg_format("%sを＄%d で再充填しました。", tmp_str, price);
+	msg_format("%sを$%d で再充填しました。", tmp_str, price);
 #else
 	msg_format("%^s %s recharged for %d gold.", tmp_str, ((o_ptr->number > 1) ? "were" : "was"), price);
 #endif
@@ -3581,7 +3580,7 @@ static void building_recharge_all(void)
 	for ( i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
-
+				
 		/* skip non magic device */
 		if (o_ptr->tval < TV_STAFF || o_ptr->tval > TV_ROD) continue;
 
@@ -3642,7 +3641,7 @@ static void building_recharge_all(void)
 	if (p_ptr->au_sum < total_cost)
 	{
 #ifdef JP
-		msg_format("すべてのアイテムを再充填するには＄%d 必要です！", total_cost );
+		msg_format("すべてのアイテムを再充填するには$%d 必要です！", total_cost );
 #else
 		msg_format("You need %d gold to recharge all items!",total_cost);
 #endif
@@ -3652,7 +3651,7 @@ static void building_recharge_all(void)
 	}
 
 #ifdef JP
-	if (!get_check(format("すべてのアイテムを ＄%d で再充填しますか？",  total_cost))) return;
+	if (!get_check(format("すべてのアイテムを $%d で再充填しますか？",  total_cost))) return;
 #else
 	if (!get_check(format("Recharge all items for %d gold? ", total_cost))) return;
 #endif
@@ -3661,7 +3660,7 @@ static void building_recharge_all(void)
 	{
 		o_ptr = &inventory[i];
 		k_ptr = &k_info[o_ptr->k_idx];
-
+				
 		/* skip non magic device */
 		if (o_ptr->tval < TV_STAFF || o_ptr->tval > TV_ROD) continue;
 
@@ -3690,7 +3689,7 @@ static void building_recharge_all(void)
 
 	/* Give feedback */
 #ifdef JP
-	msg_format("＄%d で再充填しました。", total_cost);
+	msg_format("$%d で再充填しました。", total_cost);
 #else
 	msg_format("You pay %d gold.", total_cost);
 #endif
@@ -3807,11 +3806,11 @@ bool tele_town(bool magic)
 	return TRUE;
 }
 
-
+#if 0
 static bool do_inc_skill(int *bcost, bool is_bow)
 {
 	object_type *o_ptr = &inventory[is_bow ? INVEN_BOW : INVEN_RARM];
-	int         skill_level = p_ptr->weapon_skill_lev[o_ptr->tval - TV_BOW][o_ptr->sval];
+	int         skill_level = weapon_exp_level(p_ptr->weapon_exp[o_ptr->tval - TV_BOW][o_ptr->sval]);
 	int         attack_var;
 	char        o_name[80];
 
@@ -3824,7 +3823,6 @@ static bool do_inc_skill(int *bcost, bool is_bow)
 		msg_print("You are not a training member.");
 #endif
 		if (p_ptr->au_sum < *bcost) return FALSE;
-		if (prace_is_(RACE_OCTOPUS)) return FALSE;
 
 #ifdef JP
 		if (!get_check(format("$%dで訓練会員登録しますか？", *bcost))) return FALSE;
@@ -3916,14 +3914,14 @@ static bool do_inc_skill(int *bcost, bool is_bow)
 	msg_format("Skill level of %s is increased to %s.", o_name, skill_lev_str[skill_level + 1]);
 #endif
 
-	p_ptr->weapon_skill_lev[o_ptr->tval - TV_BOW][o_ptr->sval]++;
+	weapon_exp_level(p_ptr->weapon_exp[o_ptr->tval - TV_BOW][o_ptr->sval])++;
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS);
 
 	return TRUE;
 }
-
+#endif
 
 /*
  * Execute a building command
@@ -4032,11 +4030,11 @@ static void bldg_process_command(building_type *bldg, int i)
 	case BACT_IDENTS: /* needs work */
 #ifdef JP
 		if (!get_check("持ち物を全て鑑定してよろしいですか？")) break;
-		identify_pack(FALSE);
+		identify_pack();
 		msg_print("持ち物全てが鑑定されました。");
 #else
 		if (!get_check("Do you pay for identify all your possession? ")) break;
-		identify_pack(FALSE);
+		identify_pack();
 		msg_print("Your possessions have been identified.");
 #endif
 
@@ -4453,12 +4451,14 @@ static void bldg_process_command(building_type *bldg, int i)
 	case BACT_EVAL_AC:
 		paid = eval_ac(p_ptr->dis_ac + p_ptr->dis_to_a);
 		break;
+#if 0
 	case BACT_INC_SKILL_MELEE:
 		paid = do_inc_skill(&bcost, FALSE);
 		break;
 	case BACT_INC_SKILL_BOW:
 		paid = do_inc_skill(&bcost, TRUE);
 		break;
+#endif
 	}
 
 	if (paid)

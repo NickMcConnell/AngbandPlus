@@ -184,7 +184,7 @@
 
 # Version stamp (required)
 
-V:0.0.4
+V:0.0.3
 
 ##### The Player #####
 
@@ -5807,7 +5807,7 @@ B:CLAW:HURT:3d9
 B:CLAW:HURT:3d9
 F:RAND_50 | EVIL | DEMON | FORCE_SLEEP | FORCE_MAXHP | LAWFUL |
 F:OPEN_DOOR | BASH_DOOR | COLD_BLOOD | ELEM_AQUA | HURT_FIRE |
-F:RES_COLD | RES_NETH | NO_CONF | NO_SLEEP | NONLIVING | NO_STUN | LONG_RANGE |
+F:RES_FIRE | RES_NETH | NO_CONF | NO_SLEEP | NONLIVING | NO_STUN | LONG_RANGE |
 S:1_IN_3 |
 S:BA_COLD | ANIM_DEAD
 D:ユキダルマの下級悪魔で、非常に素早く動き回り、
@@ -16466,7 +16466,17 @@ S:BLINK | TPORT | ERASE_ELEM | BR_MANA | BA_DARK | PURE_ELEM_BEAM | BR_DISI
 S:CHANGE_ELEM | BR_PURE_FIRE | BR_PURE_AQUA | BR_PURE_EARTH | BR_PURE_WIND |
 D:わざと事務的な名前にしてあります。名前募集してます。
 
-# 864 (unused)
+N:864:発光クラゲ
+E:Light jelly fish
+G:j:w
+I:110:5d5:20:10:0
+W:5:1:0:30:0:0
+B:TOUCH:HURT:1d7
+F:FORCE_SLEEP | ANIMAL | AQUATIC | WILD_OCEAN | ELEM_AQUA
+F:RAND_50 | RAND_25 | EMPTY_MIND | SELF_LITE_1 
+D:$A strange water creature, whose touch can be deadly.
+D:発光する奇妙な水棲生物で、大した害はない。
+
 
 #TO#
 N:865:光の渦
@@ -16498,7 +16508,16 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
 S:1_IN_6 | 
 S:BR_DARK
 
-# 867 (unused)
+N:867:幽霊クラゲ
+E:Clear jelly fish
+G:j:B
+I:110:5d5:20:10:0
+W:5:1:0:55:0:0
+B:TOUCH:HURT:1d7
+F:FORCE_SLEEP | ANIMAL | AQUATIC | WILD_OCEAN | ELEM_AQUA
+F:RAND_50 | RAND_25 | EMPTY_MIND | INVISIBLE 
+D:$A strange water creature, whose touch can be deadly.
+D:非常に透き通った体を持つ水棲生物で、大した害はない。
 
 N:868:反魔力ハウンド
 E:Anti-magic hound
@@ -16519,7 +16538,16 @@ D:$to dampen all other energies...
 D:劣化のエネルギーに包まれたハウンドだ。その存在はあらゆる
 D:魔力を鈍らせるようだ。
 
-# 869 (unused)
+N:869:ミズクラゲ
+E:Jelly fish
+G:j:w
+I:110:5d5:20:10:0
+W:5:1:0:15:0:0
+B:TOUCH:HURT:1d3
+F:FORCE_SLEEP | ANIMAL | AQUATIC | WILD_OCEAN | ELEM_AQUA | FRIENDS
+F:RAND_50 | RAND_25 | EMPTY_MIND 
+D:$A strange water creature, whose touch can be deadly.
+D:奇妙な水棲生物で、大量に発生する。
 
 #TO#
 N:870:コカトリス

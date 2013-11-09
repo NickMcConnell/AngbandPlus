@@ -362,8 +362,9 @@ picktype.prf の先頭から順番に優先的に評価するので、不要なものの破壊の
 ***** <Condition>
 === 条件付きの設定ファイル ===
 
-全てのユーザー設定ファイルは、種族やクラス、レベル等に条件を付けて設定
-することが出来ます。特に自動拾いやマクロの設定に利用すると便利です。
+全てのユーザー設定ファイルは、種族やクラス、種族レベル等に条件を付け
+て設定することが出来ます。特に自動拾いやマクロの設定に利用すると便利
+です。
 
 
 ---  条件分岐の書式  ---
@@ -412,7 +413,7 @@ $ELEM
 $RACE
    種族を英語名で返す。
    Human, Hawkman, Lizardman, Fairy, Gremlin, Skeleton,
-   Ghost, Pumpkin-Head, Goblin, Gorgon, Mermaid, Octopus
+   Ghost, Pumpkin-Head, Goblin, Gorgon, Mermaid
    のどれか
 
 $CLASS
@@ -421,15 +422,29 @@ $CLASS
    Sword-Master, Dragoon, Ninja, Wizard, Warlock, Exorcist,
    Amazoness, Valkyrie, Archer, DragonTamer, Witch, Sirene,
    Cleric, Priest, Lich, Angel-Knight, High-Witch, Gunner,
-   Temple-Knight, White-Knight, none
+   Temple-Knight, White-Knight
    のどれか
 
 $PLAYER
    プレイヤーの名前を返す。
 
+$SEX
+   プレイヤーの性別を返す。
+   Female, Male
+
 $LEVEL
-   プレイヤーのレベルを２桁の文字列で返す。
+   プレイヤーの種族レベルを２桁の文字列で返す。
    "01","09","10","50" 等
+
+$CLEVEL
+   プレイヤーの現在のクラスのレベルを２桁の文字列で返す。
+   "01","09","10","50" 等
+
+$CLEVEL(ClassStr)
+   指定したクラスのレベルを２桁の文字列で返す。ClassStrには
+   $CLASSで使えるクラス名を入れる。
+   "01","09","10","50" 等
+   無効なクラス名の場合は"00"を返す。
 
 
 ---  ファイルの挿入の書式  ---

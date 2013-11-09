@@ -61,7 +61,7 @@ F:R:1:12:734
 F:,:1:12
 
 # Deep Water + Dread Master
-F:G:83:12:690
+F:G:83:12:670
 
 # Deep Water
 F:W:83:12

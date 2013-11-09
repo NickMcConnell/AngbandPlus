@@ -313,7 +313,7 @@ byte get_weapon_type(object_kind *k_ptr)
 		break;
 
 	case TV_DIGGING:
-		return WT_DIGGING;
+		return WT_AXE;
 
 	case TV_HAFTED:
 		switch (k_ptr->sval)
@@ -331,11 +331,7 @@ byte get_weapon_type(object_kind *k_ptr)
 
 		case SV_QUARTERSTAFF:
 		case SV_SCIPPLAYS_STAFF:
-		case SV_BALL_AND_CHAIN:
-		case SV_JO_STAFF:
-		case SV_MORNING_STAR:
 		case SV_FLAIL:
-		case SV_BO_STAFF:
 		case SV_LEAD_FILLED_MACE:
 		case SV_MACE_OF_DISRUPTION:
 		case SV_WIZSTAFF:
@@ -344,10 +340,6 @@ byte get_weapon_type(object_kind *k_ptr)
 		case SV_GROND:
 		case SV_RUNESTAFF:
 			return WT_STAFF;
-
-		case SV_NUNCHAKU:
-		case SV_TETSUBO:
-			return WT_NUNCHAKU;
 
 		case SV_FAN:
 		case SV_RUNEFAN:
@@ -361,27 +353,19 @@ byte get_weapon_type(object_kind *k_ptr)
 	case TV_POLEARM:
 		switch (k_ptr->sval)
 		{
-		case SV_HATCHET:
 		case SV_FRANCISCA:
 		case SV_BROAD_AXE:
 		case SV_BATTLE_AXE:
 		case SV_GREAT_AXE:
 		case SV_HEAVY_AXE:
-		case SV_LOCHABER_AXE:
 		case SV_RUNEAXE:
 			return WT_AXE;
 
 		case SV_SPEAR:
 		case SV_SLENDER_SPEAR:
-		case SV_TRIDENT:
-		case SV_FAUCHARD:
 		case SV_BROAD_SPEAR:
-		case SV_PIKE:
-		case SV_NAGINATA:
-		case SV_LUCERNE_HAMMER:
 		case SV_GLAIVE:
 		case SV_HALBERD:
-		case SV_GUISARME:
 			return WT_SPEAR;
 
 		case SV_SCYTHE:
@@ -398,42 +382,28 @@ byte get_weapon_type(object_kind *k_ptr)
 	case TV_SWORD:
 		switch (k_ptr->sval)
 		{
-		case SV_BROKEN_DAGGER:
-		case SV_BROKEN_SWORD:
 		case SV_DAGGER:
 		case SV_MAIN_GAUCHE:
 		case SV_RAPIER:
-		case SV_SMALL_SWORD:
 		case SV_SHORT_SWORD:
-		case SV_SABRE:
-		case SV_CUTLASS:
 		case SV_MINIMUM_DAGGER:
 			return WT_SMALL_SWORD;
 
-		case SV_WAKIZASHI:
-		case SV_NINJATO:
+		case SV_YOUTOU:
 		case SV_KATANA:
-		case SV_GREAT_SCIMITAR:
-		case SV_NO_DACHI:
 			return WT_KATANA;
 
-		case SV_TULWAR:
 		case SV_BROAD_SWORD:
 		case SV_LONG_SWORD:
-		case SV_SCIMITAR:
 		case SV_BASTARD_SWORD:
 		case SV_DIAMOND_EDGE:
 		case SV_MITHRIL_SWORD:
 		case SV_RUNEBLADE:
 			return WT_SWORD;
 
-		case SV_CLAYMORE:
-		case SV_ESPADON:
 		case SV_TWO_HANDED_SWORD:
-		case SV_FLAMBERGE:
-		case SV_EXECUTIONERS_SWORD:
-		case SV_ZWEIHANDER:
-		case SV_BLADE_OF_CHAOS:
+		case SV_DARK_SWORD:
+		case SV_FALCHION:
 			return WT_GREAT_SWORD;
 
 		case SV_MADU:
@@ -1748,14 +1718,6 @@ return "信じ難いこと : 450+d450 ターン毎";
 #endif
 
 		}
-		case ART_MURAMASA:
-		{
-#ifdef JP
-			return "腕力上昇(確率 50% で壊れる)";
-#else
-			return "Increase STR (destroyed 50%)";
-#endif
-		}
 		case ART_EUROS:
 		{
 #ifdef JP
@@ -1895,24 +1857,6 @@ return "よくないこと :  20+d20 ターン毎";
 #else
 			return "bad things every 20+d20 turns";
 #endif
-		}
-		case ART_KAMUI:
-		{
-#ifdef JP
-return "テレポート : 25 ターン毎";
-#else
-			return "a teleport every 25 turns";
-#endif
-
-		}
-		case ART_BLOOD:
-		{
-#ifdef JP
-return "属性変更 : 3333 ターン毎";
-#else
-			return "change attribute every 3333 turns";
-#endif
-
 		}
 		case ART_NIGHT:
 		{
@@ -2169,94 +2113,6 @@ return "暗黒の嵐(250) : 150+d150 ターン毎";
 #else
 		return "escape only once";
 #endif
-	case TV_DRAG_ARMOR:
-		switch (o_ptr->sval)
-		{
-		case SV_DRAGON_BLUE:
-#ifdef JP
-			return "稲妻のブレス(100) : 150+d150 ターン毎";
-#else
-			return "breathe lightning (100) every 150+d150 turns";
-#endif
-		case SV_DRAGON_WHITE:
-#ifdef JP
-			return "冷気のブレス(110) : 150+d150 ターン毎";
-#else
-			return "breathe frost (110) every 150+d150 turns";
-#endif
-		case SV_DRAGON_BLACK:
-#ifdef JP
-			return "酸のブレス(130) : 150+d150 ターン毎";
-#else
-			return "breathe acid (130) every 150+d150 turns";
-#endif
-		case SV_DRAGON_GREEN:
-#ifdef JP
-			return "毒のガスのブレス(150) : 180+d180 ターン毎";
-#else
-			return "breathe poison gas (150) every 180+d180 turns";
-#endif
-		case SV_DRAGON_RED:
-#ifdef JP
-			return "火炎のブレス(200) : 200+d200 ターン毎";
-#else
-			return "breathe fire (200) every 200+d200 turns";
-#endif
-		case SV_DRAGON_MULTIHUED:
-#ifdef JP
-			return "万色のブレス(250) : 200+d200 ターン毎";
-#else
-			return "breathe multi-hued (250) every 200+d200 turns";
-#endif
-		case SV_DRAGON_BRONZE:
-#ifdef JP
-			return "混乱のブレス(120) : 180+d180 ターン毎";
-#else
-			return "breathe confusion (120) every 180+d180 turns";
-#endif
-		case SV_DRAGON_GOLD:
-#ifdef JP
-			return "轟音のブレス(130) : 180+d180 ターン毎";
-#else
-			return "breathe sound (130) every 180+d180 turns";
-#endif
-		case SV_DRAGON_CHAOS:
-#ifdef JP
-			return "カオス/劣化のブレス(220) : 200+d200 ターン毎";
-#else
-			return "breathe chaos/disenchant (220) every 200+d200 turns";
-#endif
-		case SV_DRAGON_LAW:
-#ifdef JP
-			return "轟音/破片のブレス(230) : 200+d200 ターン毎";
-#else
-			return "breathe sound/shards (230) every 200+d200 turns";
-#endif
-		case SV_DRAGON_BALANCE:
-#ifdef JP
-			return "バランスのブレス (250) 200+d200 ターン毎";
-#else
-			return "breathe balance (250) every 200+d200 turns";
-#endif
-		case SV_DRAGON_SHINING:
-#ifdef JP
-			return "閃光/暗黒のブレス(200) : 200+d200 ターン毎";
-#else
-			return "breathe light/darkness (200) every 200+d200 turns";
-#endif
-		case SV_DRAGON_POWER:
-#ifdef JP
-			return "エレメントのブレス(300) : 200+d200 ターン毎";
-#else
-			return "breathe the elements (300) every 200+d200 turns";
-#endif
-		default:
-#ifdef JP
-			return "空気の息";
-#else
-			return "breathe air";
-#endif
-		}
 	case TV_LITE:
 		if (o_ptr->sval == SV_LITE_MAGICAL_LAMP)
 #ifdef JP
@@ -2649,6 +2505,17 @@ info[i++] = "それは燃料補給によって明かり(半径 2)を授ける。";
 #endif
 
 			}
+			else if (o_ptr->sval == SV_LITE_EMPTY)
+			{
+				if (have_flag(o_ptr->art_flags, TR_LITE))
+				{
+					info[i++] = "それは永遠なる明かり(半径 2)を授ける。";
+				}
+				else
+				{
+					info[i++] = "それは光らない。";
+				}
+			}
 			else
 			{
 #ifdef JP
@@ -2702,7 +2569,7 @@ info[i++] = "それは乗馬中でも使いやすい。";
 	{
 		if (have_flag(flgs, a_to_tr[j]))
 		{
-			if (real || o_ptr->name1 || object_is_snapdragon_runeweapon(o_ptr)) info[i++] = print_affect(affect_stat_buf[j], affect_stat_text[j], o_ptr->to_stat[j]);
+			if (real) info[i++] = print_affect(affect_stat_buf[j], affect_stat_text[j], o_ptr->to_stat[j]);
 			else info[i++] = affect_stat_text[j];
 		}
 	}
@@ -2710,7 +2577,7 @@ info[i++] = "それは乗馬中でも使いやすい。";
 	{
 		if (have_flag(flgs, ob_to_tr[j]))
 		{
-			if (real || o_ptr->name1 || object_is_snapdragon_runeweapon(o_ptr)) info[i++] = print_affect(affect_misc_buf[j], affect_misc_text[j], o_ptr->to_misc[j]);
+			if (real) info[i++] = print_affect(affect_misc_buf[j], affect_misc_text[j], o_ptr->to_misc[j]);
 			else info[i++] = affect_misc_text[j];
 		}
 	}
@@ -3242,7 +3109,7 @@ info[i++] = "それは宙に浮くことを可能にする。";
 #endif
 
 	}
-	if (have_flag(flgs, TR_LITE))
+	if (have_flag(flgs, TR_LITE) && !(o_ptr->sval == SV_LITE_EMPTY))
 	{
 		if ((o_ptr->name2 == EGO_DARK) || (o_ptr->name1 == ART_NIGHT))
 #ifdef JP
@@ -3702,93 +3569,38 @@ info[i++] = "それはあなたの魔力を吸い取る。";
 	/* Describe about this kind of object instead of THIS fake object */
 	if (!real)
 	{
-		if (o_ptr->name1)
+		switch (o_ptr->tval)
 		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
-			if ((a_ptr->gen_flags & TRG_XTRA_POWER) && (a_ptr->gen_flags & TRG_XTRA_H_RES))
+		case TV_RING:
+			switch (o_ptr->sval)
 			{
+			case SV_RING_LORDLY:
 #ifdef JP
-				info[i++] = "それはランダムな能力と耐性を授ける。";
+				info[i++] = "それは幾つかのランダムな耐性を授ける。";
 #else
-				info[i++] = "It provides a random ability and resistance.";
+				info[i++] = "It provides some random resistances.";
 #endif
-			}
-			else if (a_ptr->gen_flags & TRG_XTRA_POWER)
-			{
-#ifdef JP
-				info[i++] = "それはランダムな能力を授ける。";
-#else
-				info[i++] = "It provides a random ability.";
-#endif
-				if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
-				{
-#ifdef JP
-					info[i++] = "それはランダムな耐性を授ける事がある。";
-#else
-					info[i++] = "It may provide a random resistance.";
-#endif
-				}
-			}
-			else if (a_ptr->gen_flags & TRG_XTRA_H_RES)
-			{
-#ifdef JP
-				info[i++] = "それはランダムな耐性を授ける。";
-#else
-				info[i++] = "It provides a random resistance.";
-#endif
-				if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
-				{
-#ifdef JP
-					info[i++] = "それはランダムな能力を授ける事がある。";
-#else
-					info[i++] = "It may provide a random ability.";
-#endif
-				}
-			}
-			else if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER)
-			{
-#ifdef JP
-				info[i++] = "それはランダムな能力または耐性を授ける。";
-#else
-				info[i++] = "It provides a random ability or resistance.";
-#endif
-			}
-		}
-		else
-		{
-			switch (o_ptr->tval)
-			{
-			case TV_RING:
-				switch (o_ptr->sval)
-				{
-				case SV_RING_LORDLY:
-#ifdef JP
-					info[i++] = "それは幾つかのランダムな耐性を授ける。";
-#else
-					info[i++] = "It provides some random resistances.";
-#endif
-					break;
-				}
 				break;
+			}
+			break;
 
-			case TV_AMULET:
-				switch (o_ptr->sval)
-				{
-				case SV_AMULET_RESISTANCE:
+		case TV_AMULET:
+			switch (o_ptr->sval)
+			{
+			case SV_AMULET_RESISTANCE:
 #ifdef JP
-					info[i++] = "それは毒への耐性を授ける事がある。";
+				info[i++] = "それは毒への耐性を授ける事がある。";
 #else
-					info[i++] = "It may provide resistance to poison.";
+				info[i++] = "It may provide resistance to poison.";
 #endif
 #ifdef JP
-					info[i++] = "それはランダムな耐性を授ける事がある。";
+				info[i++] = "それはランダムな耐性を授ける事がある。";
 #else
-					info[i++] = "It may provide a random resistance.";
+				info[i++] = "It may provide a random resistances.";
 #endif
-					break;
-				}
 				break;
 			}
+			break;
 		}
 	}
 
@@ -3859,7 +3671,7 @@ info[i++] = "それはあなたの魔力を吸い取る。";
 		Term_get_size(&wid, &hgt);
 
 		/* Display Item name */
-		if (real || o_ptr->name1 || object_is_snapdragon_runeweapon(o_ptr))
+		if (real)
 			object_desc(o_name, o_ptr, TRUE, 3);
 		else
 			object_desc_store(o_name, o_ptr, TRUE, 0);
@@ -3927,21 +3739,10 @@ info[i++] = "それはあなたの魔力を吸い取る。";
  * Convert an inventory index into a one character label
  * Note that the label does NOT distinguish inven/equip.
  */
-char index_to_label(int i, bool use_offset)
+char index_to_label(int i)
 {
 	/* Indexes for "inven" are easy */
 	if (i < INVEN_RARM) return (I2A(i));
-
-	if (use_offset)
-	{
-		if (rp_ptr->r_flags & PRF_LARGE)
-		{
-			if (prace_is_(RACE_OCTOPUS) && (i < INVEN_TOTAL))
-			{
-				i += octopus_equip_label_offset[i - INVEN_RARM];
-			}
-		}
-	}
 
 	/* Indexes for "equip" are offset */
 	return (I2A(i - INVEN_RARM));
@@ -3970,86 +3771,25 @@ s16b label_to_inven(int c)
 }
 
 
-/* See cmd5.c */
-extern bool select_octopus_ring;
-
-
-static bool is_ring_slot(int i)
-{
-	if (prace_is_(RACE_OCTOPUS))
-	{
-		switch (i)
-		{
-		case INVEN_RARM:
-		case INVEN_LARM:
-		case INVEN_BOW:
-		case INVEN_RIGHT:
-		case INVEN_LEFT:
-		case INVEN_BODY:
-		case INVEN_HANDS:
-		case INVEN_FEET:
-			return TRUE;
-		}
-	}
-	else
-	{
-		switch (i)
-		{
-		case INVEN_RIGHT:
-		case INVEN_LEFT:
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-
-int real_inventory_slot(int slot)
-{
-	/* Indexes for "inven" are easy */
-	if (slot < INVEN_RARM) return slot;
-
-	if (rp_ptr->r_flags & PRF_LARGE)
-	{
-		if (prace_is_(RACE_OCTOPUS) && (slot < INVEN_TOTAL))
-		{
-			return octopus_equip_order[slot - INVEN_RARM];
-		}
-		else return slot;
-	}
-
-	return slot;
-}
-
-
 /*
  * Convert a label into the index of a item in the "equip"
  * Return "-1" if the label does not indicate a real item
  */
 s16b label_to_equip(int c)
 {
-	int i, real;
+	int i;
 
 	/* Convert */
 	i = (islower(c) ? A2I(c) : -1) + INVEN_RARM;
 
 	/* Verify the index */
-	if ((i < INVEN_RARM) || (i >= INVEN_TOTAL)) return -1;
-
-	real = real_inventory_slot(i);
-
-	if (select_octopus_ring)
-	{
-		if (is_ring_slot(real)) return real;
-		else return -1;
-	}
+	if ((i < INVEN_RARM) || (i >= INVEN_TOTAL)) return (-1);
 
 	/* Empty slots can never be chosen */
-	if (!inventory[real].k_idx) return -1;
+	if (!inventory[i].k_idx) return (-1);
 
 	/* Return the index */
-	return real;
+	return (i);
 }
 
 
@@ -4105,7 +3845,6 @@ s16b wield_slot(object_type *o_ptr)
 			return (INVEN_LITE);
 		}
 
-		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		{
@@ -4150,183 +3889,126 @@ cptr mention_use(int i)
 	switch (i)
 	{
 #ifdef JP
-		case INVEN_RARM:  p = p_ptr->ryoute ? " 両手" : (left_hander ? " 左手" : " 右手"); break;
+case INVEN_RARM: p = p_ptr->ryoute ? " 両手" : (left_hander ? " 左手" : " 右手"); break;
 #else
-		case INVEN_RARM:  p = "Wielding"; break;
+		case INVEN_RARM: p = "Wielding"; break;
 #endif
 
 #ifdef JP
-		case INVEN_LARM:  p = (left_hander ? " 右手" : " 左手"); break;
+case INVEN_LARM:   p = (left_hander ? " 右手" : " 左手"); break;
 #else
-		case INVEN_LARM:  p = "On arm"; break;
+		case INVEN_LARM:   p = "On arm"; break;
 #endif
 
 #ifdef JP
-		case INVEN_BOW:   p = "射撃用"; break;
+case INVEN_BOW:   p = "射撃用"; break;
 #else
 		case INVEN_BOW:   p = "Shooting"; break;
 #endif
 
 #ifdef JP
-		case INVEN_RIGHT: p = (left_hander ? "左手指" : "右手指"); break;
-#else
-		case INVEN_RIGHT: p = "On right hand"; break;
-#endif
-
-#ifdef JP
-		case INVEN_LEFT:  p = (left_hander ? "右手指" : "左手指"); break;
+case INVEN_LEFT:  p = (left_hander ? "右手指" : "左手指"); break;
 #else
 		case INVEN_LEFT:  p = "On left hand"; break;
 #endif
 
 #ifdef JP
-		case INVEN_NECK:  p = "  首"; break;
+case INVEN_RIGHT: p = (left_hander ? "左手指" : "右手指"); break;
+#else
+		case INVEN_RIGHT: p = "On right hand"; break;
+#endif
+
+#ifdef JP
+case INVEN_NECK:  p = "  首"; break;
 #else
 		case INVEN_NECK:  p = "Around neck"; break;
 #endif
 
 #ifdef JP
-		case INVEN_LITE:  p = " 光源"; break;
+case INVEN_LITE:  p = " 光源"; break;
 #else
 		case INVEN_LITE:  p = "Light source"; break;
 #endif
 
 #ifdef JP
-		case INVEN_BODY:  p = "  体"; break;
+case INVEN_BODY:  p = "  体"; break;
 #else
 		case INVEN_BODY:  p = "On body"; break;
 #endif
 
 #ifdef JP
-		case INVEN_OUTER: p = "体の上"; break;
+case INVEN_OUTER: p = "体の上"; break;
 #else
 		case INVEN_OUTER: p = "About body"; break;
 #endif
 
 #ifdef JP
-		case INVEN_HEAD:  p = "  頭"; break;
+case INVEN_HEAD:  p = "  頭"; break;
 #else
 		case INVEN_HEAD:  p = "On head"; break;
 #endif
 
 #ifdef JP
-		case INVEN_HANDS: p = "  手"; break;
+case INVEN_HANDS: p = "  手"; break;
 #else
 		case INVEN_HANDS: p = "On hands"; break;
 #endif
 
 #ifdef JP
-		case INVEN_FEET:  p = "  足"; break;
+case INVEN_FEET:  p = "  足"; break;
 #else
 		case INVEN_FEET:  p = "On feet"; break;
 #endif
 
 #ifdef JP
-		default:          p = "ザック"; break;
+default:          p = "ザック"; break;
 #else
 		default:          p = "In pack"; break;
 #endif
 
 	}
 
-	if (prace_is_(RACE_OCTOPUS))
+	/* Hack -- Heavy weapon */
+	if (i == INVEN_RARM)
 	{
-		/* Examine the location */
-		switch (i)
+		if (p_ptr->heavy_wield[0])
 		{
 #ifdef JP
-			case INVEN_RARM:  p = "指(1)"; break;
+p = "運搬中";
 #else
-			case INVEN_RARM:  p = "On hand #1"; break;
+			p = "Just lifting";
 #endif
 
-#ifdef JP
-			case INVEN_LARM:  p = "指(2)"; break;
-#else
-			case INVEN_LARM:  p = "On hand #2"; break;
-#endif
-
-#ifdef JP
-			case INVEN_BOW:   p = "指(3)"; break;
-#else
-			case INVEN_BOW:   p = "On hand #3"; break;
-#endif
-
-#ifdef JP
-			case INVEN_RIGHT: p = "指(4)"; break;
-#else
-			case INVEN_RIGHT: p = "On hand #4"; break;
-#endif
-
-#ifdef JP
-			case INVEN_LEFT:  p = "指(5)"; break;
-#else
-			case INVEN_LEFT:  p = "On hand #5"; break;
-#endif
-
-#ifdef JP
-			case INVEN_BODY:  p = "指(6)"; break;
-#else
-			case INVEN_BODY:  p = "On hand #6"; break;
-#endif
-
-#ifdef JP
-			case INVEN_HANDS: p = "指(7)"; break;
-#else
-			case INVEN_HANDS: p = "On hand #7"; break;
-#endif
-
-#ifdef JP
-			case INVEN_FEET:  p = "指(8)"; break;
-#else
-			case INVEN_FEET:  p = "On hand #8"; break;
-#endif
 		}
 	}
-	else
+
+	/* Hack -- Heavy weapon */
+	if (i == INVEN_LARM)
 	{
-		/* Hack -- Heavy weapon */
-		if (i == INVEN_RARM)
+		if (p_ptr->heavy_wield[1])
 		{
-			if (p_ptr->heavy_wield[0])
-			{
 #ifdef JP
-				p = "運搬中";
+p = "運搬中";
 #else
-				p = "Just lifting";
+			p = "Just lifting";
 #endif
 
-			}
 		}
+	}
 
-		/* Hack -- Heavy weapon */
-		if (i == INVEN_LARM)
+	/* Hack -- Heavy bow */
+	if (i == INVEN_BOW)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
-			if (p_ptr->heavy_wield[1])
-			{
 #ifdef JP
-				p = "運搬中";
+p = "運搬中";
 #else
-				p = "Just lifting";
+			p = "Just holding";
 #endif
 
-			}
-		}
-
-		/* Hack -- Heavy bow */
-		if (i == INVEN_BOW)
-		{
-			object_type *o_ptr;
-			o_ptr = &inventory[i];
-			if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-			{
-#ifdef JP
-				p = "運搬中";
-#else
-				p = "Just holding";
-#endif
-
-			}
 		}
 	}
 
@@ -4346,174 +4028,117 @@ cptr describe_use(int i)
 	switch (i)
 	{
 #ifdef JP
-		case INVEN_RARM: p = p_ptr->ryoute ? " 両手に装備している" : (left_hander ? " 左手に装備している" : " 右手に装備している"); break;
+case INVEN_RARM: p = p_ptr->ryoute ? "両手に装備している" : (left_hander ? "左手に装備している" : "右手に装備している"); break;
 #else
 		case INVEN_RARM: p = "attacking monsters with"; break;
 #endif
 
 #ifdef JP
-		case INVEN_LARM:   p = (left_hander ? " 右手に装備している" : " 左手に装備している"); break;
+case INVEN_LARM:   p = (left_hander ? "右手に装備している" : "左手に装備している"); break;
 #else
 		case INVEN_LARM:   p = "wearing on your arm"; break;
 #endif
 
 #ifdef JP
-		case INVEN_BOW:   p = "射撃用に装備している"; break;
+case INVEN_BOW:   p = "射撃用に装備している"; break;
 #else
 		case INVEN_BOW:   p = "shooting missiles with"; break;
 #endif
 
 #ifdef JP
-		case INVEN_RIGHT: p = (left_hander ? "左手の指にはめている" : "右手の指にはめている"); break;
-#else
-		case INVEN_RIGHT: p = "wearing on your right hand"; break;
-#endif
-
-#ifdef JP
-		case INVEN_LEFT:  p = (left_hander ? "右手の指にはめている" : "左手の指にはめている"); break;
+case INVEN_LEFT:  p = (left_hander ? "右手の指にはめている" : "左手の指にはめている"); break;
 #else
 		case INVEN_LEFT:  p = "wearing on your left hand"; break;
 #endif
 
 #ifdef JP
-		case INVEN_NECK:  p = "首にかけている"; break;
+case INVEN_RIGHT: p = (left_hander ? "左手の指にはめている" : "右手の指にはめている"); break;
+#else
+		case INVEN_RIGHT: p = "wearing on your right hand"; break;
+#endif
+
+#ifdef JP
+case INVEN_NECK:  p = "首にかけている"; break;
 #else
 		case INVEN_NECK:  p = "wearing around your neck"; break;
 #endif
 
 #ifdef JP
-		case INVEN_LITE:  p = "光源にしている"; break;
+case INVEN_LITE:  p = "光源にしている"; break;
 #else
 		case INVEN_LITE:  p = "using to light the way"; break;
 #endif
 
 #ifdef JP
-		case INVEN_BODY:  p = "体に着ている"; break;
+case INVEN_BODY:  p = "体に着ている"; break;
 #else
 		case INVEN_BODY:  p = "wearing on your body"; break;
 #endif
 
 #ifdef JP
-		case INVEN_OUTER: p = "身にまとっている"; break;
+case INVEN_OUTER: p = "身にまとっている"; break;
 #else
 		case INVEN_OUTER: p = "wearing on your back"; break;
 #endif
 
 #ifdef JP
-		case INVEN_HEAD:  p = "頭にかぶっている"; break;
+case INVEN_HEAD:  p = "頭にかぶっている"; break;
 #else
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 #endif
 
 #ifdef JP
-		case INVEN_HANDS: p = "手につけている"; break;
+case INVEN_HANDS: p = "手につけている"; break;
 #else
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 #endif
 
 #ifdef JP
-		case INVEN_FEET:  p = "足にはいている"; break;
+case INVEN_FEET:  p = "足にはいている"; break;
 #else
 		case INVEN_FEET:  p = "wearing on your feet"; break;
 #endif
 
 #ifdef JP
-		default:          p = "ザックに入っている"; break;
+default:          p = "ザックに入っている"; break;
 #else
 		default:          p = "carrying in your pack"; break;
 #endif
 
 	}
 
-	if (prace_is_(RACE_OCTOPUS))
+	/* Hack -- Heavy weapon */
+	if (i == INVEN_RARM)
 	{
-		/* Examine the location */
-		switch (i)
+		object_type *o_ptr;
+		int hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
+
+		if (p_ptr->ryoute) hold *= 2;
+		o_ptr = &inventory[i];
+		if (hold < o_ptr->weight / 10)
 		{
 #ifdef JP
-			case INVEN_RARM:  p = "指(1)にはめている"; break;
+p = "運搬中の";
 #else
-			case INVEN_RARM:  p = "wearing on your hand #1"; break;
+			p = "just lifting";
 #endif
 
-#ifdef JP
-			case INVEN_LARM:  p = "指(2)にはめている"; break;
-#else
-			case INVEN_LARM:  p = "wearing on your hand #2"; break;
-#endif
-
-#ifdef JP
-			case INVEN_BOW:   p = "指(3)にはめている"; break;
-#else
-			case INVEN_BOW:   p = "wearing on your hand #3"; break;
-#endif
-
-#ifdef JP
-			case INVEN_RIGHT: p = "指(4)にはめている"; break;
-#else
-			case INVEN_RIGHT: p = "wearing on your hand #4"; break;
-#endif
-
-#ifdef JP
-			case INVEN_LEFT:  p = "指(5)にはめている"; break;
-#else
-			case INVEN_LEFT:  p = "wearing on your hand #5"; break;
-#endif
-
-#ifdef JP
-			case INVEN_BODY:  p = "指(6)にはめている"; break;
-#else
-			case INVEN_BODY:  p = "wearing on your hand #6"; break;
-#endif
-
-#ifdef JP
-			case INVEN_HANDS: p = "指(7)にはめている"; break;
-#else
-			case INVEN_HANDS: p = "wearing on your hand #7"; break;
-#endif
-
-#ifdef JP
-			case INVEN_FEET:  p = "指(8)にはめている"; break;
-#else
-			case INVEN_FEET:  p = "wearing on your hand #8"; break;
-#endif
 		}
 	}
-	else
+
+	/* Hack -- Heavy bow */
+	if (i == INVEN_BOW)
 	{
-		/* Hack -- Heavy weapon */
-		if (i == INVEN_RARM)
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
-			object_type *o_ptr;
-			int hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
-
-			if (p_ptr->ryoute) hold *= 2;
-			o_ptr = &inventory[i];
-			if (hold < o_ptr->weight / 10)
-			{
 #ifdef JP
-				p = "運搬中の";
+p = "持つだけで精一杯の";
 #else
-				p = "just lifting";
+			p = "just holding";
 #endif
 
-			}
-		}
-
-		/* Hack -- Heavy bow */
-		if (i == INVEN_BOW)
-		{
-			object_type *o_ptr;
-			o_ptr = &inventory[i];
-			if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-			{
-#ifdef JP
-				p = "持つだけで精一杯の";
-#else
-				p = "just holding";
-#endif
-
-			}
 		}
 	}
 
@@ -4610,7 +4235,7 @@ void display_inven(void)
 		if (item_tester_okay(o_ptr))
 		{
 			/* Prepare an "index" */
-			tmp_val[0] = index_to_label(i, FALSE);
+			tmp_val[0] = index_to_label(i);
 
 			/* Bracket the "index" --(-- */
 			tmp_val[1] = ')';
@@ -4679,10 +4304,8 @@ void display_equip(void)
 	/* Display the equipment */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
-		int real = real_inventory_slot(i);
-
 		/* Examine the item */
-		o_ptr = &inventory[real];
+		o_ptr = &inventory[i];
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -4691,7 +4314,7 @@ void display_equip(void)
 		if (item_tester_okay(o_ptr))
 		{
 			/* Prepare an "index" */
-			tmp_val[0] = index_to_label(i, FALSE);
+			tmp_val[0] = index_to_label(i);
 
 			/* Bracket the "index" --(-- */
 			tmp_val[1] = ')';
@@ -4701,7 +4324,7 @@ void display_equip(void)
 		Term_putstr(0, i - INVEN_RARM, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		if (!prace_is_(RACE_OCTOPUS) && (i == INVEN_LARM) && p_ptr->ryoute)
+		if ((i == INVEN_LARM) && p_ptr->ryoute)
 		{
 #ifdef JP
 			strcpy(o_name, "(武器を両手持ち)");
@@ -4735,7 +4358,7 @@ void display_equip(void)
 		if (show_labels)
 		{
 			Term_putstr(61, i - INVEN_RARM, -1, TERM_WHITE, "<--");
-			Term_putstr(65, i - INVEN_RARM, -1, TERM_WHITE, mention_use(real));
+			Term_putstr(65, i - INVEN_RARM, -1, TERM_WHITE, mention_use(i));
 		}
 
 		/* Display the weight (if needed) */
@@ -4908,7 +4531,7 @@ int show_inven(int target_item)
 		else
 		{
 			/* Prepare an index --(-- */
-			sprintf(tmp_val, "%c)", index_to_label(i, FALSE));
+			sprintf(tmp_val, "%c)", index_to_label(i));
 		}
 
 		/* Clear the line with the (possibly indented) index */
@@ -4970,7 +4593,7 @@ int show_inven(int target_item)
  */
 int show_equip(int target_item)
 {
-	int             i, j, k, l, real;
+	int             i, j, k, l;
 	int             col, cur_col, len;
 	object_type     *o_ptr;
 	char            tmp_val[80];
@@ -4995,24 +4618,15 @@ int show_equip(int target_item)
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
-		real = real_inventory_slot(i);
-
-		o_ptr = &inventory[real];
+		o_ptr = &inventory[i];
 
 		/* Is this item acceptable? */
-		if (select_octopus_ring)
-		{
-			if (!is_ring_slot(real)) continue;
-		}
-		else
-		{
-			if (!item_tester_okay(o_ptr) && (!(!prace_is_(RACE_OCTOPUS) && (i == INVEN_LARM) && p_ptr->ryoute) || item_tester_no_ryoute)) continue;
-		}
+		if (!item_tester_okay(o_ptr) && (!((i == INVEN_LARM) && p_ptr->ryoute) || item_tester_no_ryoute)) continue;
 
 		/* Description */
 		object_desc(o_name, o_ptr, TRUE, 3);
 
-		if (!prace_is_(RACE_OCTOPUS) && (i == INVEN_LARM) && p_ptr->ryoute)
+		if ((i == INVEN_LARM) && p_ptr->ryoute)
 		{
 #ifdef JP
 			(void)strcpy(out_desc[k],"(武器を両手持ち)");
@@ -5076,10 +4690,8 @@ int show_equip(int target_item)
 		/* Get the index */
 		i = out_index[j];
 
-		real = real_inventory_slot(i);
-
 		/* Get the item */
-		o_ptr = &inventory[real];
+		o_ptr = &inventory[i];
 
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
@@ -5093,13 +4705,13 @@ int show_equip(int target_item)
 #else
 				strcpy(tmp_val, "> ");
 #endif
-				target_item_label = real;
+				target_item_label = i;
 			}
 			else strcpy(tmp_val, "  ");
 		}
 		else
 			/* Prepare an index --(-- */
-			sprintf(tmp_val, "%c)", index_to_label(i, FALSE));
+			sprintf(tmp_val, "%c)", index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
@@ -5131,9 +4743,9 @@ int show_equip(int target_item)
 		{
 			/* Mention the use */
 #ifdef JP
-			(void)sprintf(tmp_val, "%-7s: ", mention_use(real));
+			(void)sprintf(tmp_val, "%-7s: ", mention_use(i));
 #else
-			(void)sprintf(tmp_val, "%-14s: ", mention_use(real));
+			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
 #endif
 
 			put_str(tmp_val, j+1, cur_col);
@@ -5258,6 +4870,12 @@ static bool verify(cptr prompt, int item)
 }
 
 
+#ifdef JP
+#undef strchr
+#define strchr strchr_j
+#endif
+
+
 /*
  * Hack -- allow user to "prevent" certain choices
  *
@@ -5319,8 +4937,6 @@ static bool get_item_okay(int i)
 {
 	/* Illegal items */
 	if ((i < 0) || (i >= INVEN_TOTAL)) return (FALSE);
-
-	if (select_octopus_ring) return is_ring_slot(i);
 
 	/* Verify the item */
 	if (!item_tester_okay(&inventory[i])) return (FALSE);
@@ -5431,12 +5047,6 @@ bool can_get_item(void)
 		if (item_tester_okay(&inventory[j]))
 			return TRUE;
 
-	if (select_octopus_ring)
-	{
-		for (j = INVEN_RARM; j < INVEN_TOTAL; j++)
-			if (is_ring_slot(j)) return TRUE;
-	}
-
 	floor_num = scan_floor(floor_list, py, px, 0x01);
 	if (floor_num)
 		return TRUE;
@@ -5515,11 +5125,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool toggle = FALSE;
 
 	char tmp_val[160];
-	char out_val[160] = "";
+	char out_val[160];
 
 	/* See cmd5.c */
 	extern bool select_spellbook;
-	extern bool select_mindcraft;
 
 	int menu_line = (use_menu ? 1 : 0);
 	int max_inven = 0;
@@ -5536,20 +5145,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
-		if (select_mindcraft && (*cp == INVEN_MINDCRAFT))
-		{
-			/* Forget the item_tester_tval restriction */
-			item_tester_tval = 0;
-
-			/* Forget the item_tester_hook restriction */
-			item_tester_hook = NULL;
-
-			/* Success */
-			return (TRUE);
-		}
-
 		/* Floor item? */
-		else if (*cp < 0)
+		if (*cp < 0)
 		{
 			object_type *o_ptr;
 
@@ -5632,22 +5229,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	else if (use_menu)
 	{
 		for (j = INVEN_RARM; j < INVEN_TOTAL; j++)
-		{
-			if (select_octopus_ring)
-			{
-				if (is_ring_slot(j)) max_equip++;
-			}
-			else
-			{
-				if (item_tester_okay(&inventory[j])) max_equip++;
-			}
-		}
+			if (item_tester_okay(&inventory[j])) max_equip++;
 		if (p_ptr->ryoute && !item_tester_no_ryoute) max_equip++;
 	}
 
 	/* Restrict equipment indexes */
-	while ((e1 <= e2) && !get_item_okay(real_inventory_slot(e1))) e1++;
-	while ((e1 <= e2) && !get_item_okay(real_inventory_slot(e2))) e2--;
+	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
+	while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
 
 
 
@@ -5673,21 +5261,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Require at least one legal choice */
 	if (!allow_floor && (i1 > i2) && (e1 > e2))
 	{
-		if (select_mindcraft)
-		{
-			command_wrk = FALSE;
-		}
-		else
-		{
-			/* Cancel p_ptr->command_see */
-			command_see = FALSE;
+		/* Cancel p_ptr->command_see */
+		command_see = FALSE;
 
-			/* Oops */
-			oops = TRUE;
+		/* Oops */
+		oops = TRUE;
 
-			/* Done */
-			done = TRUE;
-		}
+		/* Done */
+		done = TRUE;
 	}
 
 	/* Analyze choices */
@@ -5695,6 +5276,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	{
 		/* Hack -- Start on equipment if requested */
 		if (command_see && command_wrk && equip)
+
 		{
 			command_wrk = TRUE;
 		}
@@ -5809,7 +5391,7 @@ sprintf(tmp_val, "%c-%c,'(',')',",
 				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
-				index_to_label(i1, FALSE), index_to_label(i2, FALSE));
+				index_to_label(i1), index_to_label(i2));
 
 				/* Append */
 				strcat(out_val, tmp_val);
@@ -5827,7 +5409,7 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 #ifdef JP
 if (equip) strcat(out_val, format(" %s 装備品,", use_menu ? "'4'or'6'" : "'/'"));
 #else
-			if (equip) strcat(out_val, format(" %s for Equip,", use_menu ? "4 or 6" : "/"));
+if (equip) strcat(out_val, format(" %s for Equip,", use_menu ? "4 or 6" : "/"));
 #endif
 
 		}
@@ -5853,7 +5435,7 @@ sprintf(tmp_val, "%c-%c,'(',')',",
 				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
-				index_to_label(e1, FALSE), index_to_label(e2, FALSE));
+				index_to_label(e1), index_to_label(e2));
 
 				/* Append */
 				strcat(out_val, tmp_val);
@@ -5879,10 +5461,8 @@ if (inven) strcat(out_val, format(" %s for Inven,", use_menu ? "4 or 6" : "'/'")
 		/* Indicate legality of the "floor" item */
 #ifdef JP
 if (allow_floor) strcat(out_val, " '-'床上,");
-if (select_mindcraft) strcat(out_val, " 'x'超能力,");
 #else
 		if (allow_floor) strcat(out_val, " - for floor,");
-		if (select_mindcraft) strcat(out_val, " x for the Mindcraft,");
 #endif
 
 
@@ -5967,11 +5547,7 @@ if (select_mindcraft) strcat(out_val, " 'x'超能力,");
 			case '\r':
 			case '\n':
 			{
-				if (select_mindcraft && (which == 'x'))
-				{
-					*cp = INVEN_MINDCRAFT;
-				}
-				else if (command_wrk == USE_FLOOR)
+				if (command_wrk == USE_FLOOR)
 				{
 					/* Special index */
 					(*cp) = -get_item_label;
@@ -6192,17 +5768,6 @@ if (other_query_flag && !verify("本当に", k)) continue;
 				break;
 			}
 #endif
-
-			case 'x':
-			{
-				if (select_mindcraft)
-				{
-					*cp = INVEN_MINDCRAFT;
-					item = TRUE;
-					done = TRUE;
-					break;
-				}
-			}
 
 			default:
 			{
@@ -6492,7 +6057,7 @@ int show_floor(int target_item, int y, int x, int *min_width)
 		}
 		else
 			/* Prepare an index --(-- */
-			sprintf(tmp_val, "%c)", index_to_label(j, FALSE));
+			sprintf(tmp_val, "%c)", index_to_label(j));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
@@ -6545,13 +6110,12 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	bool toggle = FALSE;
 
 	char tmp_val[160];
-	char out_val[160] = "";
+	char out_val[160];
 
 	int floor_num, floor_list[23], floor_top = 0;
 	int min_width = 0;
 
 	extern bool select_spellbook;
-	extern bool select_mindcraft;
 
 	int menu_line = (use_menu ? 1 : 0);
 	int max_inven = 0;
@@ -6562,20 +6126,8 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
-		if (select_mindcraft && (*cp == INVEN_MINDCRAFT))
-		{
-			/* Forget the item_tester_tval restriction */
-			item_tester_tval = 0;
-
-			/* Forget the item_tester_hook restriction */
-			item_tester_hook = NULL;
-
-			/* Success */
-			return (TRUE);
-		}
-
 		/* Floor item? */
-		else if (*cp < 0)
+		if (*cp < 0)
 		{
 			object_type *o_ptr;
 
@@ -6658,22 +6210,13 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	else if (use_menu)
 	{
 		for (j = INVEN_RARM; j < INVEN_TOTAL; j++)
-		{
-			if (select_octopus_ring)
-			{
-				if (is_ring_slot(j)) max_equip++;
-			}
-			else
-			{
-				if (item_tester_okay(&inventory[j])) max_equip++;
-			}
-		}
+			if (item_tester_okay(&inventory[j])) max_equip++;
 		if (p_ptr->ryoute && !item_tester_no_ryoute) max_equip++;
 	}
 
 	/* Restrict equipment indexes */
-	while ((e1 <= e2) && !get_item_okay(real_inventory_slot(e1))) e1++;
-	while ((e1 <= e2) && !get_item_okay(real_inventory_slot(e2))) e2--;
+	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
+	while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
 
 
 	/* Count "okay" floor items */
@@ -6698,21 +6241,14 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor)
 	{
-		if (select_mindcraft)
-		{
-			command_wrk = (USE_INVEN);
-		}
-		else
-		{
-			/* Cancel p_ptr->command_see */
-			command_see = FALSE;
+		/* Cancel p_ptr->command_see */
+		command_see = FALSE;
 
-			/* Oops */
-			oops = TRUE;
+		/* Oops */
+		oops = TRUE;
 
-			/* Done */
-			done = TRUE;
-		}
+		/* Done */
+		done = TRUE;
 	}
 
 	/* Analyze choices */
@@ -6844,8 +6380,7 @@ sprintf(out_val, "持ち物:");
 			sprintf(out_val, "Inven:");
 #endif
 
-			/* Some legal items */
-			if ((i1 <= i2) && !use_menu)
+			if (!use_menu)
 			{
 				/* Build the prompt */
 #ifdef JP
@@ -6854,7 +6389,7 @@ sprintf(tmp_val, "%c-%c,'(',')',",
 				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
-				index_to_label(i1, FALSE), index_to_label(i2, FALSE));
+				index_to_label(i1), index_to_label(i2));
 
 				/* Append */
 				strcat(out_val, tmp_val);
@@ -6924,8 +6459,7 @@ sprintf(out_val, "装備品:");
 #endif
 
 
-			/* Some legal items */
-			if ((e1 <= e2) && !use_menu)
+			if (!use_menu)
 			{
 				/* Build the prompt */
 #ifdef JP
@@ -6934,7 +6468,7 @@ sprintf(tmp_val, "%c-%c,'(',')',",
 				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
-				index_to_label(e1, FALSE), index_to_label(e2, FALSE));
+				index_to_label(e1), index_to_label(e2));
 
 				/* Append */
 				strcat(out_val, tmp_val);
@@ -7001,8 +6535,7 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 #endif
 
 
-			/* Some legal items */
-			if ((n1 <= n2) && !use_menu)
+			if (!use_menu)
 			{
 				/* Build the prompt */
 #ifdef JP
@@ -7084,12 +6617,6 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 #endif
 			}
 		}
-
-#ifdef JP
-		if (select_mindcraft) strcat(out_val, " 'x'超能力,");
-#else
-		if (select_mindcraft) strcat(out_val, " x for the Mindcraft,");
-#endif
 
 		/* Finish the prompt */
 		strcat(out_val, " ESC");
@@ -7263,11 +6790,7 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 			case '\r':
 			case '\n':
 			{
-				if (select_mindcraft && (which == 'x'))
-				{
-					*cp = INVEN_MINDCRAFT;
-				}
-				else if (command_wrk == USE_FLOOR)
+				if (command_wrk == USE_FLOOR)
 				{
 					/* Special index */
 					(*cp) = -get_item_label;
@@ -7582,17 +7105,6 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 				break;
 			}
 #endif
-
-			case 'x':
-			{
-				if (select_mindcraft)
-				{
-					*cp = INVEN_MINDCRAFT;
-					item = TRUE;
-					done = TRUE;
-					break;
-				}
-			}
 
 			default:
 			{

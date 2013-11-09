@@ -282,11 +282,6 @@
      そして呪文書を読むためには何らかの明かりが存在していなければなり
      ません。
 
-     超能力を使える場合は、呪文書選択で'x'を押すことにより選択できま
-     す。ガンナー以外の魔法書が使えないクラスの場合は'm'がそのまま超
-     能力コマンドになります。MPが足りなければHPを使用して超能力を使用
-     できます。超能力は盲目であっても光源がなくても使用可能です。
-
      ガンナーでは、呪文ではなくガンナーの各種能力を使用します。
 
 
@@ -712,7 +707,7 @@ Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.0.11
-Updated    : TOband 0.0.4
+Updated    : TOband 0.0.3
 
 
 ***** Begin Hyperlinks

@@ -20,7 +20,7 @@
  */
 static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int rad, bool breath, bool no_reduce)
 {
-	u32b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER;
+	u32b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 	int mod_elem_mode = MODIFY_ELEM_MODE_MAGIC;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -32,14 +32,22 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
 	/* Handle breath attacks */
 	if (breath) rad = 0 - rad;
 
-	if (typ == GF_ROCKET)
+	switch (typ)
 	{
+	case GF_ROCKET:
 		flg |= (PROJECT_STOP | PROJECT_AVOIDABLE);
 		mod_elem_mode = MODIFY_ELEM_MODE_FIRE;
+		break;
+	case GF_MIND_BLAST:
+	case GF_BRAIN_SMASH:
+	case GF_CAUSE_1:
+	case GF_CAUSE_2:
+	case GF_CAUSE_3:
+	case GF_CAUSE_4:
+	case GF_HAND_DOOM:
+		flg |= (PROJECT_HIDE | PROJECT_AIMED);
+		break;
 	}
-	if (typ == GF_MIND_BLAST || typ == GF_BRAIN_SMASH ||
-	    typ == GF_CAUSE_1 || typ == GF_CAUSE_2 || typ == GF_CAUSE_3 ||
-	    typ == GF_CAUSE_4 || typ == GF_HAND_DOOM) flg |= PROJECT_HIDE;
 	if (no_reduce) flg |= PROJECT_NO_REDUCE;
 
 	(void)project(m_idx, rad, y, x, dam_hp, typ, flg, mod_elem_mode);
@@ -53,7 +61,7 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
  */
 static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
 {
-	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_MONSTER | PROJECT_REFLECTABLE | PROJECT_AVOIDABLE;
+	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE | PROJECT_AVOIDABLE;
 	int mod_elem_mode = MODIFY_ELEM_MODE_MAGIC;
 
 	switch (typ)
@@ -71,7 +79,7 @@ static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
 
 static void monst_beam_monst(int m_idx, int y, int x, int typ, int dam_hp)
 {
-	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_THRU | PROJECT_MONSTER;
+	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_THRU;
 	int mod_elem_mode = MODIFY_ELEM_MODE_MAGIC;
 
 	switch (typ)
@@ -88,7 +96,7 @@ static void monst_beam_monst(int m_idx, int y, int x, int typ, int dam_hp)
 
 static void monst_special_blow_monst(int y, int x, int m_idx, int typ, int dam_hp)
 {
-	u32b flg = PROJECT_HIDE | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_MONSTER;
+	u32b flg = PROJECT_HIDE | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_AIMED;
 
 	project_length = 2;
 
@@ -3495,7 +3503,7 @@ msg_format("%^sがテレポートした。", m_name);
 #endif
 							}
 							teleport_away(m_idx, 10);
-							p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+							p_ptr->update |= (PU_MONSTERS);
 						}
 						else
 						{
@@ -3892,7 +3900,7 @@ msg_format("%^sは暗闇に包まれた。", t_name);
 						}
 					}
 
-					(void)project(m_idx, 3, y, x, 0, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL | PROJECT_MONSTER, MODIFY_ELEM_MODE_MAGIC);
+					(void)project(m_idx, 3, y, x, 0, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
 
 					unlite_room(y, x);
 				}
@@ -3925,7 +3933,7 @@ msg_format("%^sは光に包まれた。", t_name);
 						}
 					}
 
-					(void)project(m_idx, 3, y, x, 0, GF_LITE_WEAK, PROJECT_GRID | PROJECT_KILL | PROJECT_MONSTER, MODIFY_ELEM_MODE_MAGIC);
+					(void)project(m_idx, 3, y, x, 0, GF_LITE_WEAK, PROJECT_GRID | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
 
 					lite_room(y, x);
 				}
@@ -5565,6 +5573,7 @@ msg_format("%^sが%sに向かって%sのビームを放った。", m_name, t_name, pure_elem_de
 		if (wake_up)
 		{
 			t_ptr->csleep = 0;
+			if (tr_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 		}
 
 		if (fear && see_t)

@@ -1159,6 +1159,8 @@ s16b weather_time_to_change;
 s16b hack_elem_amount = 0; /* Change amount of elements */
 int hack_elem_mod_mode = -1;
 
+bool alter_reality_water_flow = FALSE;
+
 /*
  * Anti-magic monsters array
  */
@@ -1209,3 +1211,8 @@ u32b misc_event_flags = 0L;
  */
 object_type *ancestor_inventory;
 s16b ancestor_inven_cnt = 0;
+
+/*
+ * Flag of returning from heaven
+ */
+bool back_from_heaven = FALSE;

@@ -3506,27 +3506,7 @@ void output_monster_spoiler(int r_idx, void (*roff_func)(byte attr, cptr str))
 }
 
 
-bool monster_quest(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Random quests are in the dungeon */
-	if (r_ptr->flags8 & RF8_WILD_ONLY) return FALSE;
-
-	/* No random quests for aquatic monsters */
-	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
-
-	/* No random quests for multiplying monsters */
-	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
-
-	/* No quests to kill friendly monsters */
-	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
-
-	return TRUE;
-}
-
-
-bool monster_dungeon(int r_idx)
+bool mon_hook_dungeon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3545,7 +3525,7 @@ bool monster_dungeon(int r_idx)
 }
 
 
-bool monster_ocean(int r_idx)
+static bool mon_hook_ocean(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3556,7 +3536,7 @@ bool monster_ocean(int r_idx)
 }
 
 
-bool monster_shore(int r_idx)
+static bool mon_hook_shore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3567,7 +3547,7 @@ bool monster_shore(int r_idx)
 }
 
 
-static bool monster_waste(int r_idx)
+static bool mon_hook_waste(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3578,7 +3558,7 @@ static bool monster_waste(int r_idx)
 }
 
 
-bool monster_town(int r_idx)
+static bool mon_hook_town(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3589,7 +3569,7 @@ bool monster_town(int r_idx)
 }
 
 
-bool monster_wood(int r_idx)
+static bool mon_hook_wood(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3600,7 +3580,7 @@ bool monster_wood(int r_idx)
 }
 
 
-bool monster_volcano(int r_idx)
+static bool mon_hook_volcano(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3611,7 +3591,7 @@ bool monster_volcano(int r_idx)
 }
 
 
-bool monster_mountain(int r_idx)
+static bool mon_hook_mountain(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3622,7 +3602,7 @@ bool monster_mountain(int r_idx)
 }
 
 
-bool monster_grass(int r_idx)
+static bool mon_hook_grass(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3633,7 +3613,7 @@ bool monster_grass(int r_idx)
 }
 
 
-bool monster_tundra(int r_idx)
+static bool mon_hook_tundra(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3650,11 +3630,11 @@ bool monster_tundra(int r_idx)
 }
 
 
-bool monster_deep_sea(int r_idx)
+static bool mon_hook_deep_sea(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if (((r_ptr->flags7 & RF7_AQUATIC) || (r_ptr->flags7 & RF7_CAN_FLY)) &&
 		(r_ptr->level >= 40))
@@ -3664,11 +3644,11 @@ bool monster_deep_sea(int r_idx)
 }
 
 
-bool monster_deep_water(int r_idx)
+static bool mon_hook_deep_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if ((r_ptr->flags7 & RF7_AQUATIC) || (r_ptr->flags7 & RF7_CAN_FLY))
 		return TRUE;
@@ -3677,11 +3657,11 @@ bool monster_deep_water(int r_idx)
 }
 
 
-bool monster_shallow_water(int r_idx)
+static bool mon_hook_shallow_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if (r_ptr->flags2 & RF2_AURA_FIRE)
 		return FALSE;
@@ -3690,11 +3670,11 @@ bool monster_shallow_water(int r_idx)
 }
 
 
-bool monster_lava(int r_idx)
+static bool mon_hook_lava(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if (((r_ptr->flagsr & RFR_RES_FIRE) ||
 	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
@@ -3705,13 +3685,25 @@ bool monster_lava(int r_idx)
 }
 
 
-bool monster_flying(int r_idx)
+static bool mon_hook_flying(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if (r_ptr->flags7 & RF7_CAN_FLY)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+static bool mon_hook_floor(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!(r_ptr->flags7 & RF7_AQUATIC) ||
+	    (r_ptr->flags7 & RF7_CAN_FLY))
 		return TRUE;
 	else
 		return FALSE;
@@ -3725,35 +3717,35 @@ monster_hook_type get_monster_hook(void)
 		switch (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
 		{
 		case TERRAIN_TOWN:
-			return (monster_hook_type)monster_town;
+			return (monster_hook_type)mon_hook_town;
 		case TERRAIN_DEEP_WATER:
-			return (monster_hook_type)monster_ocean;
+			return (monster_hook_type)mon_hook_ocean;
 		case TERRAIN_SHALLOW_WATER:
 		case TERRAIN_SWAMP:
-			return (monster_hook_type)monster_shore;
+			return (monster_hook_type)mon_hook_shore;
 		case TERRAIN_DIRT:
 		case TERRAIN_DESERT:
-			return (monster_hook_type)monster_waste;
+			return (monster_hook_type)mon_hook_waste;
 		case TERRAIN_GRASS:
-			return (monster_hook_type)monster_grass;
+			return (monster_hook_type)mon_hook_grass;
 		case TERRAIN_TREES:
-			return (monster_hook_type)monster_wood;
+			return (monster_hook_type)mon_hook_wood;
 		case TERRAIN_SHALLOW_LAVA:
 		case TERRAIN_DEEP_LAVA:
-			return (monster_hook_type)monster_volcano;
+			return (monster_hook_type)mon_hook_volcano;
 		case TERRAIN_MOUNTAIN:
-			return (monster_hook_type)monster_mountain;
+			return (monster_hook_type)mon_hook_mountain;
 		case TERRAIN_TUNDRA:
-			return (monster_hook_type)monster_tundra;
+			return (monster_hook_type)mon_hook_tundra;
 		case TERRAIN_DEEP_SEA:
-			return (monster_hook_type)monster_deep_sea;
+			return (monster_hook_type)mon_hook_deep_sea;
 		default:
-			return (monster_hook_type)monster_dungeon;
+			return (monster_hook_type)mon_hook_dungeon;
 		}
 	}
 	else
 	{
-		return (monster_hook_type)monster_dungeon;
+		return (monster_hook_type)mon_hook_dungeon;
 	}
 }
 
@@ -3765,15 +3757,15 @@ monster_hook_type get_monster_hook2(int y, int x)
 	{
 	case FEAT_SHAL_WATER:
 	case FEAT_SWAMP:
-		return (monster_hook_type)monster_shallow_water;
+		return (monster_hook_type)mon_hook_shallow_water;
 	case FEAT_DEEP_WATER:
-		return (monster_hook_type)monster_deep_water;
+		return (monster_hook_type)mon_hook_deep_water;
 	case FEAT_DEEP_LAVA:
 	case FEAT_SHAL_LAVA:
-		return (monster_hook_type)monster_lava;
+		return (monster_hook_type)mon_hook_lava;
 	case FEAT_DARK_PIT:
 	case FEAT_AIR:
-		return (monster_hook_type)monster_flying;
+		return (monster_hook_type)mon_hook_flying;
 	default:
 		return NULL;
 	}

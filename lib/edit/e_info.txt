@@ -54,7 +54,7 @@
 
 # Version stamp (required)
 
-V:0.0.4
+V:0.0.3
 
 
 ### Body Armor ###
@@ -130,9 +130,21 @@ F:SUST_INT | INT_2 |
 F:RES_CONF | RES_BLIND | FREE_ACT |
 F:XTRA_H_RES | XTRA_POWER | DEC_MANA | EASY_SPELL
 
-# 13 (unused)
+N:13:バランス
+E:Balance
+X:31:30
+W:0:0:0:30000
+F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 14 (unused)
+N:14:パワー
+E:Power
+X:31:30
+W:0:0:0:100000
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_NETHER | RES_STONE | RES_CHAOS | RES_LITE | RES_DARK |
+F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 15 (unused)
 
@@ -539,36 +551,36 @@ F:FORCE_WEAPON | SEE_INVIS | INT_2
 
 # The "Elemental" brands (4) (6)
 
-N:72:溶解の
+N:72:(バーサ)
 E:of Melting
 X:24:15
 W:0:36:0:8000
-F:BRAND_ACID | RES_ACID | IGNORE_ACID
+F:BRAND_ACID | RES_ACID | IGNORE_ACID | XTRA_POWER
 
-N:73:電撃の
+N:73:(ハーネラ)
 E:of Shocking
 X:24:20
 W:0:36:0:4500
-F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | XTRA_POWER
 
-N:74:焼棄の
+N:74:(ゾショネル)
 E:of Burning
 X:24:20
 W:0:36:0:3000
-F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE | XTRA_POWER
 
-N:75:凍結の
+N:75:(グルーザ)
 E:of Freezing
 X:24:15
 W:0:36:0:2500
-F:BRAND_COLD | RES_COLD | IGNORE_COLD
+F:BRAND_COLD | RES_COLD | IGNORE_COLD | XTRA_POWER
 
 #JZ#
-N:76:毒殺の
+N:76:暗殺者の
 E:of Venom
 X:24:20
 W:0:36:0:4500
-F:BRAND_POIS | RES_POIS
+F:BRAND_POIS | STEALTH_3 | VORPAL
 
 #JZ#
 N:77:(混沌)
@@ -604,19 +616,19 @@ N:81:滅邪の
 E:of Slay Evil
 X:24:18
 W:0:23:0:3500
-F:SLAY_EVIL
+F:SLAY_EVIL | BLESSED
 
 N:82:アンデッドスレイヤーの
 E:of Slay Undead
 X:24:18
 W:0:23:0:3500
-F:SLAY_UNDEAD | HOLD_LIFE
+F:SLAY_UNDEAD | HOLD_LIFE | BLESSED
 
 N:83:デーモンスレイヤーの
 E:of Slay Demon
 X:24:14
 W:0:23:0:2500
-F:SLAY_DEMON
+F:SLAY_DEMON | BLESSED
 
 N:84:オークスレイヤーの
 E:of Slay Orc
@@ -644,9 +656,36 @@ F:SLAY_DRAGON | XTRA_E_RES
 
 # The "Kill" brands (1)
 
-# 88 (unused)
-# 89 (unused)
-# 90 (unused)
+# Destroyed Weapon
+N:88:折れた
+E:of Broken
+X:24:0
+W:0:0:0:0
+C:5:5:0
+
+N:89:エクスターの
+E:of Exeter
+X:24:4
+W:0:0:0:500
+C:0:0:0
+F:TUNNEL_2 |
+
+N:90:バルマムッサの
+E:of Barmamutha
+X:24:4
+W:0:0:0:1500
+C:0:0:0
+F:TUNNEL_3 |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:91:バスクの民の
+E:of Basque
+X:24:4
+W:0:0:0:5000
+C:0:0:0
+F:TUNNEL_5 |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 # 91 (unused)
 # 92 (unused)
 # 93 (unused)
@@ -691,16 +730,7 @@ C:6:6:0
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | STR_2 |
 F:FREE_ACT | SEE_INVIS | XTRA_H_RES
 
-#J0#
-#J0# 岸さんの訳です
-#J0#
-N:100:穴掘りの
-E:of Digging
-X:24:4
-W:0:0:0:500
-C:0:0:0
-F:BRAND_ACID | TUNNEL_5 |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+#N:100:unused
 
 N:101:人喰いの
 E:of Slay Human
@@ -854,7 +884,7 @@ C:5:5:0
 
 N:127:(粗悪品)
 E:(Blasted)
-X:31:0
+X:32:0
 W:0:0:0:0
 C:0:0:10
 

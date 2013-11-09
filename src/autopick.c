@@ -64,20 +64,19 @@
 #define FLG_HAMMERS         42
 #define FLG_STAFFS          43
 #define FLG_FANS            44
-#define FLG_NUNCHAKUS       45
-#define FLG_BOWS            46
-#define FLG_GUNS            47
-#define FLG_DIGGERS         48
+#define FLG_BOWS            45
+#define FLG_GUNS            46
+#define FLG_DIGGERS         47
 
-#define FLG_SHIELDS         49
-#define FLG_LAUNCHERS       50
-#define FLG_RINGS           51
-#define FLG_AMULETS         52
-#define FLG_SUITS           53
-#define FLG_CLOAKS          54
-#define FLG_HELMS           55
-#define FLG_GLOVES          56
-#define FLG_BOOTS           57
+#define FLG_SHIELDS         48
+#define FLG_LAUNCHERS       49
+#define FLG_RINGS           50
+#define FLG_AMULETS         51
+#define FLG_SUITS           52
+#define FLG_CLOAKS          53
+#define FLG_HELMS           54
+#define FLG_GLOVES          55
+#define FLG_BOOTS           56
 
 #ifdef JP
 
@@ -316,7 +315,6 @@ cptr autopick_line_from_entry(autopick_type *entry)
 	else if (IS_FLG(FLG_HAMMERS)) ADD_KEY2(KEY_HAMMERS);
 	else if (IS_FLG(FLG_STAFFS)) ADD_KEY2(KEY_STAFFS);
 	else if (IS_FLG(FLG_FANS)) ADD_KEY2(KEY_FANS);
-	else if (IS_FLG(FLG_NUNCHAKUS)) ADD_KEY2(KEY_NUNCHAKUS);
 	else if (IS_FLG(FLG_BOWS)) ADD_KEY2(KEY_BOWS);
 	else if (IS_FLG(FLG_GUNS)) ADD_KEY2(KEY_GUNS);
 	else if (IS_FLG(FLG_DIGGERS)) ADD_KEY2(KEY_DIGGERS);
@@ -564,7 +562,6 @@ static bool autopick_new_entry(autopick_type *entry, cptr str)
 	else if (MATCH_KEY2(KEY_HAMMERS)) ADD_FLG_NOUN(FLG_HAMMERS);
 	else if (MATCH_KEY2(KEY_STAFFS)) ADD_FLG_NOUN(FLG_STAFFS);
 	else if (MATCH_KEY2(KEY_FANS)) ADD_FLG_NOUN(FLG_FANS);
-	else if (MATCH_KEY2(KEY_NUNCHAKUS)) ADD_FLG_NOUN(FLG_NUNCHAKUS);
 	else if (MATCH_KEY2(KEY_BOWS)) ADD_FLG_NOUN(FLG_BOWS);
 	else if (MATCH_KEY2(KEY_GUNS)) ADD_FLG_NOUN(FLG_GUNS);
 	else if (MATCH_KEY2(KEY_DIGGERS)) ADD_FLG_NOUN(FLG_DIGGERS);
@@ -728,7 +725,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD: 
 		case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_CROWN:
 		case TV_SHIELD: case TV_CLOAK:
-		case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
+		case TV_SOFT_ARMOR: case TV_HARD_ARMOR:
 		case TV_LITE: case TV_AMULET: case TV_RING: case TV_CARD:
 			if ((!object_known_p(o_ptr) || o_ptr->inscription
 			     || o_ptr->name1 || o_ptr->name2 || o_ptr->art_name))
@@ -797,7 +794,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		{
 		case TV_BOOTS: case TV_GLOVES: case TV_CLOAK: case TV_CROWN:
 		case TV_HELM: case TV_SHIELD: case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
+		case TV_HARD_ARMOR:
 			break;
 		default: return FALSE;
 		}
@@ -906,10 +903,6 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	{
 		if (get_weapon_type(k_ptr) != WT_FAN) return FALSE;
 	}
-	else if (IS_FLG(FLG_NUNCHAKUS))
-	{
-		if (get_weapon_type(k_ptr) != WT_NUNCHAKU) return FALSE;
-	}
 	else if (IS_FLG(FLG_BOWS))
 	{
 		if (get_weapon_type(k_ptr) != WT_BOW) return FALSE;
@@ -917,10 +910,6 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	else if (IS_FLG(FLG_GUNS))
 	{
 		if (get_weapon_type(k_ptr) != WT_GUN) return FALSE;
-	}
-	else if (IS_FLG(FLG_DIGGERS))
-	{
-		if (get_weapon_type(k_ptr) != WT_DIGGING) return FALSE;
 	}
 	else if (IS_FLG(FLG_SHIELDS))
 	{
@@ -944,8 +933,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 	}
 	else if (IS_FLG(FLG_SUITS))
 	{
-		if (!(o_ptr->tval == TV_DRAG_ARMOR ||
-		      o_ptr->tval == TV_HARD_ARMOR ||
+		if (!(o_ptr->tval == TV_HARD_ARMOR ||
 		      o_ptr->tval == TV_SOFT_ARMOR))
 			return FALSE;
 	}
@@ -1055,7 +1043,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 		if (object_value(o_ptr) > 0) return FALSE;
 
 	if (leave_equip)
-		if ((o_ptr->tval >= TV_BULLET) && (o_ptr->tval <= TV_DRAG_ARMOR)) return FALSE;
+		if ((o_ptr->tval >= TV_BULLET) && (o_ptr->tval <= TV_HARD_ARMOR)) return FALSE;
 
 	if (leave_chest)
 		if ((o_ptr->tval == TV_CHEST) && o_ptr->pval) return FALSE;
@@ -1142,11 +1130,21 @@ void auto_inscribe_item(int item, int idx)
 
 
 /*
- * Hack - AUX of auto-destroy
+ * Automatically destroy an item if it is to be destroyed
  */
-bool auto_destroy_object(object_type *o_ptr, int autopick_idx)
+bool auto_destroy_item(int item, int autopick_idx)
 {
 	bool destroy = FALSE;
+	object_type *o_ptr;
+
+	/* Don't destroy equipped items */
+	if (item > INVEN_PACK) return FALSE;
+
+	/* Get the item (in the pack) */
+	if (item >= 0) o_ptr = &inventory[item];
+
+	/* Get the item (on the floor) */
+	else o_ptr = &o_list[0 - item];
 
 	/* Easy-Auto-Destroyer */
 	if (is_opt_confirm_destroy(o_ptr)) destroy = TRUE;
@@ -1195,26 +1193,6 @@ bool auto_destroy_object(object_type *o_ptr, int autopick_idx)
 	p_ptr->notice |= PN_AUTODESTROY;
 
 	return TRUE;
-}
-
-
-/*
- * Automatically destroy an item if it is to be destroyed
- */
-bool auto_destroy_item(int item, int autopick_idx)
-{
-	object_type *o_ptr;
-
-	/* Don't destroy equipped items */
-	if (item > INVEN_PACK) return FALSE;
-
-	/* Get the item (in the pack) */
-	if (item >= 0) o_ptr = &inventory[item];
-
-	/* Get the item (on the floor) */
-	else o_ptr = &o_list[0 - item];
-
-	return auto_destroy_object(o_ptr, autopick_idx);
 }
 
 

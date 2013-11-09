@@ -49,7 +49,7 @@
 
 # Version stamp (required)
 
-V:0.0.4
+V:0.0.3
 
 N:1:形見の
 E:of Legacy
@@ -207,7 +207,7 @@ D:持つものに至福と遠望を与える。
 
 N:16:リュングヴィドラゴン・スケイルメイル
 E:Rungvie Dragon Scale Mail~
-I:38:6:0
+I:37:30:0
 W:90:9:500:400000
 P:30:2d4:-4:0:25
 F:RES_FIRE | RES_COLD | RES_POIS | RES_LITE | RES_DARK | FULL_NAME |
@@ -219,7 +219,7 @@ D:荒々しい稲光のエネルギーを直に感じる。
 
 N:17:『刀返し』
 E:'Bladeturner'
-I:38:30:0
+I:37:30:0
 W:95:3:600:500000
 P:50:2d4:-8:0:35
 F:HOLD_LIFE | REGEN |
@@ -254,18 +254,19 @@ D:着用者の生命力を守ることにかけては何物にも優る。
 
 N:20:汗くさい甲冑
 E:Warrior Armor~
-I:37:18:0
+I:37:15:0
 W:100:1:300:50000
 P:25:2d4:0:0:1
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FULL_NAME
 D:幾多の戦士に愛用された甲冑。ちょっとくさいけど…。
 
-N:21:『タイタニアメイル』
+N:21:タイタニアメイル
 E:'Titania Mail'
-I:37:9:0
+I:37:12:0
 W:30:13:200:30000
 P:19:1d4:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONF | RES_SOUND | FEATHER
+F:FULL_NAME
 D:妖精王タイタニアの神殿から盗まれた幻の甲冑。
 
 N:22:聖騎士ランスロットの
@@ -294,7 +295,7 @@ D:除名された者たちの怨念がこもっている。
 
 N:24:暗黒騎士ランスロットの
 E:of Lancelot the Dark Knight
-I:37:13:0
+I:37:15:0
 W:40:40:350:150000
 P:23:2d4:-3:0:40
 F:LODIS | INT_2 |
@@ -307,18 +308,18 @@ D:鎧のひとつで、暗黒騎士団長ランスロット・タルタロスに下賜
 D:されたもの。教会の権力の象徴たるこの鎧は、纏う者にも
 D:相応の実力を要求する。
 
-N:25:『フウェイルメイル』
+N:25:フウェイルメイル
 E:'Leviathan Mail'
 I:37:10:0
 W:25:9:270:40000
 P:16:1d4:-2:0:20
-F:RES_COLD | XTRA_H_RES | CON_3 |
+F:RES_COLD | XTRA_H_RES | CON_3 | FULL_NAME
 F:RES_ACID | RES_POIS | RES_CONF | ACTIVATE
 D:オベロの海を回遊する巨大な幻獣フウェイルをかたどった鎧。
 
 N:26:教皇の手シビュラの
 E:of Cybil
-I:36:12:0
+I:36:27:0
 W:30:30:120:150000
 P:12:1d2:3:4:20
 F:RES_SHARDS | HOLD_LIFE | SLOW_DIGEST | LODIS | INT_2 | STEALTH_2 |
@@ -437,7 +438,7 @@ D:ガルガスタン騎士団長ザエボス・ローゼンバッハのヘルムだ。
 N:39:光の巨人ガリンガの
 E:of Garinga
 I:32:7:0
-W:40:22:75:200000
+W:40:30:75:200000
 P:8:1d3:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | STR_6 |
 F:LITE | SEE_INVIS | TELEPATHY | ACTIVATE
@@ -454,7 +455,7 @@ F:RES_ACID | RES_LITE | RES_SOUND
 D:銃士レンドルが愛用した帽子だ。大きなつばは光や雨から目を守り、
 D:耳あては銃声から耳を守る。
 
-N:41:『スカルマスク』
+N:41:スカルマスク
 E:'Skull Mask'
 I:32:5:0
 W:20:5:75:0
@@ -462,7 +463,7 @@ P:5:1d3:25:25:10
 F:SHOW_MODS | XTRA_H_RES | XTRA_POWER | WIS_-2 | SEARCH_-4 |
 F:SEE_INVIS | NO_MAGIC | IM_COLD | ACTIVATE |
 F:RES_DISEN | RES_FEAR | FREE_ACT | RES_ACID | RES_COLD | RES_POIS |
-F:TELEPORT
+F:TELEPORT | FULL_NAME
 D:悪魔のしゃれこうべで造られた兜。暗黒魔道器のひとつ。
 D:この仮面は力による殺戮を好み、魔力を嫌うと言われる。
 
@@ -497,7 +498,7 @@ F:ACTIVATE | XTRA_H_RES | INT_2
 
 N:45:少女クレアの
 E:of Clare
-I:35:12:0
+I:36:9:0
 W:5:45:12:10000
 P:1:0d0:0:0:1
 F:INSTA_ART | BACRUM | CHR_4
@@ -564,7 +565,7 @@ D:ほとんど居なかった。
 
 N:53:ヌメヌメする兜
 E:Warrior Helm~
-I:32:4:0
+I:32:3:0
 W:100:1:130:4000
 P:4:0d0:0:0:1
 F:FREE_ACT | RES_STONE | RES_NETHER | FULL_NAME
@@ -590,7 +591,7 @@ D:屍術師ニバスの実子デボルドが使用していたミスリル・グラブだ。
 N:56:魔女デネブの
 E:of Deneb
 I:33:12:0
-W:50:99:10:190000
+W:50:111:10:190000
 P:2:1d1:0:0:15
 F:TELEPATHY | DEC_MANA |
 F:RES_LITE | RES_DARK | RES_BLIND | RES_DISEN | ZENOBIAN | INT_6 | SPEED_2 |
@@ -611,8 +612,8 @@ E:'Balmung'
 I:23:25:0
 W:30:90:250:100000
 P:0:4d6:13:21:0
-F:VORPAL | SLAY_DRAGON | SLAY_GIANT | STR_1 |
-F:FREE_ACT | LITE | FEATHER | SHOW_MODS
+F:VORPAL | KILL_DRAGON | RES_FEAR | STR_2 |
+F:FREE_ACT | RES_POIS | FEATHER | SHOW_MODS
 D:悪竜ファフニールの鋭い爪から作り出された大剣。
 
 N:59:海賊船長エルリグの
@@ -741,7 +742,7 @@ D:暗黒司祭ベルサリア・オヴェリスが護身用に持っていたバルダーダガーだ。
 
 N:71:竜騎士ジュヌーンの
 E:of Genaunes
-I:23:29:0
+I:23:25:0
 W:30:60:140:100000
 P:0:4d6:-20:20:0
 F:GARGASTAN | BALDAR | STR_3 |
@@ -751,23 +752,23 @@ D:元ガルガスタン王国軍竜騎兵団長のドラグーン、ジュヌーン・アパタイザ
 D:が王国竜騎士団所属時に使用していた大剣。その刃は竜族以外に対しても
 D:充分な殺傷力を誇る。
 
-N:72:『グレイスワンダー』
-E:'Grayswandir'
-I:23:11:0
-W:20:45:50:175000
-P:0:2d7:20:12:0
-F:SUST_CON | SUST_STR | DEX_3 |
-F:REGEN | FREE_ACT | SEE_INVIS |
-F:RES_CHAOS | RES_NETHER | HOLD_LIFE | RES_FEAR |
-F:RES_COLD | BRAND_COLD | RIDING |
-F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD |
-F:SLOW_DIGEST | SHOW_MODS | BLESSED
-D:アンバーの王子コーウィンが使っていた、月の光により
-D:鍛えられた銀のサーベル。持ち主と同じく黒と銀のコントラスト
-D:を見せる。
-D:「グレイスワンダーには<パターン>の一部が複製されてると
-D:思ってたんだけど。」「それは多分、逆だな。」
-D:（ロジャー・ゼラズニイ、アンバー１０「混沌の王子」）
+#N:72:『グレイスワンダー』
+#E:'Grayswandir'
+#I:23:11:0
+#W:20:45:50:175000
+#P:0:2d7:20:12:0
+#F:SUST_CON | SUST_STR | DEX_3 |
+#F:REGEN | FREE_ACT | SEE_INVIS |
+#F:RES_CHAOS | RES_NETHER | HOLD_LIFE | RES_FEAR |
+#F:RES_COLD | BRAND_COLD | RIDING |
+#F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD |
+#F:SLOW_DIGEST | SHOW_MODS | BLESSED
+#D:アンバーの王子コーウィンが使っていた、月の光により
+#D:鍛えられた銀のサーベル。持ち主と同じく黒と銀のコントラスト
+#D:を見せる。
+#D:「グレイスワンダーには<パターン>の一部が複製されてると
+#D:思ってたんだけど。」「それは多分、逆だな。」
+#D:（ロジャー・ゼラズニイ、アンバー１０「混沌の王子」）
 
 N:73:『デゼールブレード』
 E:'Desert Sword'
@@ -779,21 +780,7 @@ F:SLAY_EVIL | BRAND_ELEC | RES_ELEC | RES_STONE | LITE |
 F:SLOW_DIGEST | SHOW_MODS | RIDING
 D:ダルムード砂漠に埋もれた古代王国の廃墟から発見された剛剣。
 
-N:74:『ファフニール』
-E:'Fafnir'
-I:23:16:0
-W:20:110:150:95000
-P:0:3d5:12:16:0
-F:BRAND_ELEC | SLAY_ORC | KILL_DRAGON | RES_FEAR | STR_2 |
-F:RES_ELEC | LITE | RES_FIRE | RES_POIS |
-F:SLOW_DIGEST | SHOW_MODS | RIDING
-D:「ノートゥングさ、その名は。ヴォータンがとねりこの幹
-D:に突き立てた剣だ。それを引き抜くことのでき
-D:た者だけが、わがものとしうるわけだ。」
-D:(リヒャルト・ワーグナー、高橋康也・高橋迪訳「ジーグフリード」,新書館)
-D:「見よ、これがジーグフリードの剣の切れ味だ！」そういって彼は
-D:ミーメの鍛冶場の金床を真っ二つに叩き切った。その剣で彼は
-D:龍ファフナーを屠ったのだった。
+#N:74:unused
 
 N:75:『ノトス』
 E:'Notos'
@@ -804,12 +791,12 @@ F:SLAY_ANIMAL | SLAY_GIANT | BRAND_ELEC | RES_ELEC | LITE | STR_2 |
 F:SHOW_MODS | XTRA_RES_OR_POWER | RIDING
 D:南風神ノトスの力を宿した両刃の剣。四風神器のひとつ。
 
-N:76:『黒竜の大剣』
+N:76:黒竜の大剣
 E:'Sword of Tiamat'
 I:23:25:0
 W:30:30:200:100000
 P:0:3d6:13:17:0
-F:XTRA_RES_OR_POWER | STR_2 |
+F:XTRA_RES_OR_POWER | STR_2 | FULL_NAME
 F:KILL_DRAGON | SLAY_TROLL | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
 D:ティアマットの鋭い爪から作り出されたドラゴンスレイヤー。
 
@@ -837,18 +824,18 @@ D:巨人スルトの剣。終末の戦いで世界を焼き尽くすといわれる。
 
 N:79:レモニカ王の
 E:of Remonica
-I:23:12:0
+I:23:10:0
 W:20:8:110:28000
 P:0:1d7:10:11:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | GARGASTAN |
 F:SEE_INVIS | REGEN | SHOW_MODS
 D:統一戦争前のヴァレリア島でフィダック国を治めていた君主、レモニカ王の
-D:カットラスだ。ガルガスタン人であるレモニカ王はバクラム人とウォルスタ人を
+D:ショートソードだ。ガルガスタン人であるレモニカ王はバクラム人とウォルスタ人を
 D:弾圧し、今日まで続く民族紛争の発端を開いた。
 
 N:80:『ペニテンス』
 E:'Penitence'
-I:23:28:0
+I:23:25:0
 W:40:15:260:111000
 P:0:4d5:18:19:0
 F:SLAY_LIVING | SLAY_EVIL | SLAY_UNDEAD | SLAY_GOOD | SLAY_HUMAN | STR_2 |
@@ -875,17 +862,7 @@ F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL |
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST |
 D:ディバインドラゴンのウロコを削り出して作られた長剣。
 
-N:83:『プリュンヒルド』
-E:'Prunhild'
-I:23:17:0
-W:50:4:130:80000
-P:0:5d5:32:32:0
-F:RIDING | STR_-12 | SPEED_-12 |
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT |
-F:RES_FIRE | SUST_DEX | SEE_INVIS | SHOW_MODS | LITE | UNHOLY |
-F:AGGRAVATE | CURSED | HEAVY_CURSE | PERMA_CURSE
-D:天界と下界を結ぶ『カギ』の役割を果たす神聖剣……を模して悪魔が鍛えた剣。
-D:似ているのは外見だけで、愚かな者が喜び勇んで手に取るのを待っている。
+#N:83:unused
 
 N:84:『ロンバルディア』
 E:'Zenobia Sword'
@@ -894,7 +871,7 @@ W:20:60:130:150000
 P:0:3d5:10:13:0
 F:REGEN | SLOW_DIGEST | RIDING | ZENOBIAN | WIS_2 | SPEED_2 |
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC |
-F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS | ACTIVATE |
+F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS | ACTIVATE | BLESSED
 F:SUST_CON | SUST_STR | SUST_INT | SUST_WIS | RES_ELEC | RES_DARK |
 F:RES_DISEN | RES_FEAR | XTRA_POWER
 D:聖騎士のための長剣。ゼノビア王国騎士団長の証でもある。
@@ -904,7 +881,7 @@ E:'Anbicion'
 I:23:16:0
 W:50:80:150:166666
 P:0:4d5:24:28:0
-F:VORPAL | RIDING | LODIS | EXTRA_VORPAL | STEALTH_4 |
+F:VORPAL | RIDING | LODIS | EXTRA_VORPAL | STEALTH_4 | BLESSED
 F:SLAY_EVIL | SLAY_DRAGON | SEE_INVIS | SHOW_MODS
 D:乱世の時代、アンビシオン王が神との契約によって授かった神聖剣。
 
@@ -956,29 +933,29 @@ F:KILL_DRAGON | SLOW_DIGEST | REGEN | SHOW_MODS | SEE_INVIS | RES_DISEN |
 F:RES_COLD | BRAND_FIRE | STR_2
 D:炎竜のウロコより作られたドラゴンキラー。
 
-N:91:『災いを招く者』
+N:91:闇の剣
 E:'Doomcaller'
-I:23:30:0
-W:70:25:180:250000
-P:0:6d5:18:28:-50
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL |
-F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
-F:RES_CONF | RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS |
-F:CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE
+I:23:23:0
+W:70:55:180:250000
+P:0:8d5:32:32:-20
+F:KILL_DRAGON | SLAY_UNDEAD | SLAY_EVIL | SLAY_GOOD | SLAY_DEMON
+F:SLAY_LIVING | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
+F:RES_CONF | RES_CHAOS | SEE_INVIS | TELEPATHY | SHOW_MODS | FULL_NAME
+F:CHAOTIC | VORPAL | BRAND_FIRE | BRAND_COLD | BRAND_POIS
 D:$This weapon of wrath, cursed with a violent anger, dives hungrily 
 D:$into the flesh of its enemies. It gathers shadows of death into its 
 D:$owner as they inflict wounds that will never heal.
 D:血に飢えた戦闘狂により鍛えられたこの怒りの剣は
 D:敵の肉体に貪欲に食い込む。
 
-N:92:『ブリュンヒルド』
+N:92:ブリュンヒルド
 E:'Brunhild'
 I:23:17:0
 W:50:185:150:250000
 P:0:5d5:32:32:0
 F:VORPAL | SLAY_LIVING | ACTIVATE | RIDING | WARNING | ZENOBIAN | STR_4 |
 F:FREE_ACT | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED_2 |
-F:EXTRA_VORPAL | SHOW_MODS
+F:EXTRA_VORPAL | SHOW_MODS | FULL_NAME |
 D:下界と天界を結ぶ『カギ』の役割を果たす神聖剣。
 
 N:93:『ボレアス』
@@ -1106,7 +1083,7 @@ D:天空の火山ムスペルムで作られた炎の斧。
 
 N:105:デステンプラーの
 E:of Death Templer
-I:22:28:0
+I:22:22:0
 W:30:8:250:80000
 P:0:3d8:12:17:0
 F:SLAY_EVIL | SLAY_GIANT | LODIS | SEARCH_8 |
@@ -1134,9 +1111,9 @@ D:伝説の聖獣ユニコーンの角に数々の神聖文字が書かれた槍。
 
 N:108:『ベンティスカ』
 E:'Bentisca'
-I:22:5:0
+I:22:20:0
 W:30:90:70:120000
-P:0:3d7:15:19:0
+P:0:3d8:15:19:0
 F:RIDING |
 F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE | IM_ACID | DEX_1 |
 F:RES_NETHER | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE |
@@ -1171,12 +1148,13 @@ D:あらゆる物を粉砕する暗黒魔法により黒く輝く
 D:冥界の大鉄杖で、これを手にする者は冥界のすべての力を
 D:手中に収める。
 
-N:112:『凍土の弓』
+N:112:凍土の弓
 E:'Tundra Bow'
 I:19:13:0
 W:30:15:40:35000
 P:0:0d0:14:20:0
 F:RES_COLD | RES_DARK | SHOW_MODS | BRAND_COLD | INFRA_3
+F:FULL_NAME
 D:巨大な氷塊から発見された弓。射られた者は即座に凍りつく。
 
 N:113:嘆きのヴェルドレの
@@ -1187,14 +1165,14 @@ P:0:0d0:17:16:0
 F:XTRA_RES_OR_POWER | BACRUM |
 F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS
 
-N:114:『ブラッドウィップ』
+N:114:ブラッドウィップ
 E:'Blood Whip'
 I:21:2:0
 W:20:15:50:30000
 P:0:3d6:8:11:0
 F:ACTIVATE | SLAY_LIVING | CHR_1 |
 F:SLAY_HUMAN | RES_NETHER | SEE_INVIS |
-F:SHOW_MODS
+F:SHOW_MODS | FULL_NAME
 D:大陸より現れたヴァンパイアが処女を狩るために用いるムチ。
 
 N:115:『ラプチャーローズ』
@@ -1234,7 +1212,7 @@ D:暗黒神ダグザの血液からできたとされる伝説のハンマー。暗黒魔道器のひとつ。
 N:118:『ロンギコルニス』
 E:'Longicolnis'
 I:22:29:0
-W:70:40:440:234567
+W:70:110:440:234567
 P:0:5d8:16:22:10
 F:RES_NETHER | RES_DISEN | RES_FEAR | STR_2 | TUNNEL_4 |
 F:XTRA_RES_OR_POWER | RIDING |
@@ -1244,9 +1222,9 @@ D:堕天使の角から作り出された聖魔の障壁を貫く漆黒の槍。
 
 N:119:魔術師バイアンの
 E:of Baian
-I:21:3:0
+I:21:5:0
 W:15:18:150:20000
-P:0:1d9:3:5:0
+P:0:2d4:3:5:0
 F:BACRUM | EASY_SPELL | INT_2 |
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:旧ヴァレリア魔法アカデミーの魔術指導師バイアン・ローゼン・オーンの杖だ。
@@ -1296,23 +1274,24 @@ D:$physically.
 D:バスク教の高僧が使っていた大鎚で、月の光のように冷たく輝いている。
 D:その打撃は敵の肉体だけでなく精神をも打ち砕くことができる。
 
-N:123:『ニフリートソード』
+N:123:ニフリートソード
 E:'Nephrite Sword'
 I:23:17:0
 W:80:60:150:200000
 P:0:4d5:15:15:0
 F:VAMPIRIC | HOLD_LIFE | SLAY_LIVING | BRAND_COLD | SLAY_GOOD | UNHOLY |
 F:REGEN | RES_FEAR | RES_BLIND | SLOW_DIGEST | SHOW_MODS | BLOWS_1
+F:FULL_NAME
 D:汚れた水の力を封じたヒスイの剣。
 
-N:124:『ジィルガの魔弓』
+N:124:ジィルガの魔弓
 E:'Ji'ygla's Bow'
 I:19:13:0
 W:60:175:160:80000
 P:0:0d0:8:26:0
 F:RES_DISEN | TY_CURSE | SHOW_MODS | STR_2 |
 F:SLAY_GOOD | SLAY_LIVING | DRAIN_EXP | TELEPORT | AGGRAVATE |
-F:CURSED | HEAVY_CURSE |
+F:CURSED | HEAVY_CURSE | FULL_NAME
 D:魂と引き換えに快楽を約束されたジィルガの骨の大弓。
 
 N:125:射手アロセールの
@@ -1336,18 +1315,18 @@ D:星に恋心を抱いた乙女が恋文をつけ撃ったといわれる弓。
 
 # 127 (unused)
 
-N:128:『村正』
-E:'Muramasa'
-I:23:20:0
-W:60:100:50:1000000
-P:0:10d5:0:0:-20
-F:VORPAL | VAMPIRIC | NO_TELE | UNHOLY | SPEED_2 |
-F:SHOW_MODS | ACTIVATE | NO_MAGIC | RES_DISEN |
-F:DRAIN_EXP | AGGRAVATE | RES_DARK | RES_NETHER | CURSED | HEAVY_CURSE
-D:「魔物に遭うては魔物を斬り、神に遭うては神を斬る。」
-D:伝説の刀匠村正が全身全霊を込めて鍛えたこの妖刀は
-D:数え切れない人間の血を啜ってきた。その刃は
-D:血に飢え、常に獲物を求めている。
+#N:128:『村正』
+#E:'Muramasa'
+#I:23:20:0
+#W:60:100:50:1000000
+#P:0:10d5:0:0:-20
+#F:VORPAL | VAMPIRIC | NO_TELE | UNHOLY | SPEED_2 |
+#F:SHOW_MODS | ACTIVATE | NO_MAGIC | RES_DISEN |
+#F:DRAIN_EXP | AGGRAVATE | RES_DARK | RES_NETHER 
+#D:「魔物に遭うては魔物を斬り、神に遭うては神を斬る。」
+#D:伝説の刀匠村正が全身全霊を込めて鍛えたこの妖刀は
+#D:数え切れない人間の血を啜ってきた。その刃は
+#D:血に飢え、常に獲物を求めている。
 
 N:129:風のシスティーナの園服風
 E:of Windy Sisteena
@@ -1359,19 +1338,19 @@ F:SUST_DEX | SUST_CHR | XTRA_RES_OR_POWER |
 F:RES_ACID | RES_COLD |
 D:風のシスティーナがいつも着ている園服風のローブ。
 
-N:130:『龍争虎鬪』
-E:of Xiaolong
-I:21:4:0
-W:45:12:60:100000
-P:0:8d3:25:10:10
-F:SUST_DEX | SUST_CON | SUST_STR | SPEED_5 |
-F:RES_FIRE | BRAND_FIRE |
-F:SLAY_ANIMAL | SLAY_DRAGON | RES_FEAR | FREE_ACT |
-F:REGEN | SHOW_MODS
-D:伝説の格闘家の霊力が宿った強力なヌンチャクだ。
-D:拳法を操る者が手にすれば自らの体の一部のように
-D:操ることができ、素手の時と同じくらい素早い攻撃が
-D:可能だ。
+#N:130:『龍争虎鬪』
+#E:of Xiaolong
+#I:21:4:0
+#W:45:12:60:100000
+#P:0:8d3:25:10:10
+#F:SUST_DEX | SUST_CON | SUST_STR | SPEED_5 |
+#F:RES_FIRE | BRAND_FIRE |
+#F:SLAY_ANIMAL | SLAY_DRAGON | RES_FEAR | FREE_ACT |
+#F:REGEN | SHOW_MODS
+#D:伝説の格闘家の霊力が宿った強力なヌンチャクだ。
+#D:拳法を操る者が手にすれば自らの体の一部のように
+#D:操ることができ、素手の時と同じくらい素早い攻撃が
+#D:可能だ。
 
 N:131:射手アロセールの黒い
 E:of Aloser
@@ -1381,12 +1360,13 @@ P:0:8d6:40:10:0
 F:KILL_DRAGON | SLAY_EVIL | SHOW_MODS | WALSTANIAN | INSTA_ART
 D:弓の名手アロセールの怒りと悲しみに染まった黒い矢。
 
-N:132:『砂塵の弓』
+N:132:砂塵の弓
 E:'Sandstorm Bow'
 I:19:13:0
 W:30:15:40:22000
 P:0:0d0:15:17:0
 F:RES_ACID | RES_LITE | SHOW_MODS | BRAND_ACID | STEALTH_3
+F:FULL_NAME
 D:砂漠の中に埋没した古代王国ハビラムより伝わる弓。
 
 N:133:『エクスカリバー』
@@ -1515,49 +1495,49 @@ F:SLAY_ANIMAL | SLAY_LIVING | SLAY_GOOD | RIDING |
 F:ACTIVATE | SHOW_MODS
 D:冥府の炎で鍛えられた槍。
 
-N:145:『天使の鎧』
+N:145:天使の鎧
 E:'Angelic Armor'
 I:36:19:0
 W:25:15:30:135000
 P:6:0d0:0:0:25
 F:RES_LITE | LITE | TELEPATHY | XTRA_RES_OR_POWER | FEATHER | SPEED_2 |
-F:RES_CHAOS | RES_COLD | RES_CONF | SH_COLD | ACTIVATE
+F:RES_CHAOS | RES_COLD | RES_CONF | SH_COLD | ACTIVATE | FULL_NAME
 D:天から舞い降りたエンジェルナイトが身に付けた伝説の鎧。
 
-N:146:『カマンダスガン』
+N:146:カマンダスガン
 E:'Shotgun'
 I:19:1:0
 W:40:35:80:100000
 P:0:2d1:8:22:0
 F:XTRA_MIGHT | NO_TELE | NO_MAGIC | WIS_-2 |
-F:RES_SHARDS | SHOW_MODS
+F:RES_SHARDS | SHOW_MODS | FULL_NAME
 D:「強力な長身銃だ。薄い盾ならいとも容易につらぬくだろう」
 D:無神論者フィリニオンが使用していた強力な銃。その威力は神竜騎士団の団員に
 D:とって大きな脅威だった。
 
-N:147:『リプルズスタッフ』
+N:147:リプルズスタッフ
 E:'Ripple's Staff'
 I:21:5:0
 W:20:128:20:270000
 P:0:3d4:10:20:0
 F:RES_CONF | RES_SOUND | RES_STONE | INT_4 | INFRA_6 |
 F:SLAY_UNDEAD | BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE | DEC_MANA |
-F:ACTIVATE | FORCE_WEAPON
+F:ACTIVATE | FORCE_WEAPON | FULL_NAME
 D:偉大なる魔女リプルが愛用した杖。
 
-N:148:『ストームブリンガー』
-E:'Stormbringer'
-I:23:30:0
-W:45:1:180:100000
-P:0:6d6:16:16:0
-F:VAMPIRIC | FREE_ACT | HOLD_LIFE | RES_NETHER | RES_CONF |
-F:RES_CHAOS | RES_STONE | QUESTITEM |
-F:CURSED | HEAVY_CURSE | DRAIN_EXP | NO_TELE
-D:一万年の長きにわたり、栄華を誇りしメルニボネの光の帝国の末期、大いなる
-D:異変天地にありて、人と神々の運命は〈宿命〉のかなてこの上に鍛へられ、
-D:恐ろしき戦あり、もろもろの勲し行なはれたり。このときあまたの勇者
-D:輩出せり。なれど衆に優れたるはメルニボネ最後の王エルリック、ルーンの
-D:刻まれし黒き剣のになひ手なりき。
+#N:148:『ストームブリンガー』
+#E:'Stormbringer'
+#I:23:30:0
+#W:45:1:180:100000
+#P:0:6d6:16:16:0
+#F:VAMPIRIC | FREE_ACT | HOLD_LIFE | RES_NETHER | RES_CONF |
+#F:RES_CHAOS | RES_STONE | QUESTITEM |
+#F:CURSED | HEAVY_CURSE | DRAIN_EXP | NO_TELE
+#D:一万年の長きにわたり、栄華を誇りしメルニボネの光の帝国の末期、大いなる
+#D:異変天地にありて、人と神々の運命は〈宿命〉のかなてこの上に鍛へられ、
+#D:恐ろしき戦あり、もろもろの勲し行なはれたり。このときあまたの勇者
+#D:輩出せり。なれど衆に優れたるはメルニボネ最後の王エルリック、ルーンの
+#D:刻まれし黒き剣のになひ手なりき。
 
 N:149:竜使いオクシオーヌの
 E:of Oxyones
@@ -1622,7 +1602,7 @@ D:一振りするたびに白い光を放つ聖なるムチ。
 
 N:155:『ヴォルケイトス』
 E:'Volcaetus'
-I:22:9:0
+I:22:20:0
 W:15:45:150:40000
 P:0:2d8:15:25:10
 F:RIDING | STR_1 |
@@ -1643,7 +1623,7 @@ D:振り回すと光と熱を発する魔法のチェーンフレイル。
 
 N:157:『イセベルグ』
 E:'Isleberg Blade'
-I:23:23:0
+I:23:25:0
 W:40:10:200:51600
 P:0:2d8:11:16:0
 F:REGEN | FREE_ACT | ZENOBIAN | CON_2 | BLOWS_1 |
@@ -1681,46 +1661,45 @@ F:DRAIN_EXP | TELEPORT | CURSED | HEAVY_CURSE
 D:まとう者の精気を吸い取る闇の鎧。暗黒魔導器のひとつ。
 
 #オウガシリーズ#
-N:161:『オウガヘルム』
+N:161:オウガヘルム
 E:'Ogre Helm'
 I:32:6:0
 W:40:150:360:400000
 P:10:1d3:0:10:20
 F:RES_FEAR | RES_DARK | RES_NETHER | SUST_STR | SUST_CON | QUESTITEM |
-F:SHOW_MODS | SH_FIRE | TELEPATHY |
+F:SHOW_MODS | SH_FIRE | TELEPATHY | FULL_NAME
 F:CURSED | HEAVY_CURSE | AGGRAVATE |
 D:悪魔の代名詞とされるオウガが鍛えた兜。かなり重いが防御力は高い。
 
-N:162:『オウガアーマー』
+N:162:オウガアーマー
 E:'Ogre Armor'
 I:37:15:0
 W:45:160:580:435000
 P:25:2d4:-3:0:40
 F:HOLD_LIFE | RES_LITE | RES_SOUND | RES_DISEN | RES_STONE | QUESTITEM |
 F:SH_COLD | NO_MAGIC | DRAIN_EXP | AGGRAVATE | CURSED | HEAVY_CURSE |
-F:SUST_INT | SUST_WIS | RES_CHAOS | RES_SHARDS |
+F:SUST_INT | SUST_WIS | RES_CHAOS | RES_SHARDS | FULL_NAME
 D:悪魔の代名詞とされるオウガが鍛えた重厚な甲冑。
 
-N:163:『オウガシールド』
+N:163:オウガシールド
 E:'Ogre Shield'
 I:34:3:0
 W:10:170:365:500000
 P:15:1d3:0:0:20
 F:SH_ELEC | RES_POIS | SUST_DEX | SUST_CHR | QUESTITEM |
 F:REFLECT | RES_BLIND | RES_CONF | SEE_INVIS | SLOW_DIGEST |
-F:REGEN | FREE_ACT |
+F:REGEN | FREE_ACT | FULL_NAME
 F:CURSED | HEAVY_CURSE | AGGRAVATE |
 D:悪魔の代名詞とされるオウガが造った盾。かなり重いが防御力は高い。
 
-N:164:『オウガブレード』
+N:164:オウガブレード
 E:'Ogre Blade'
-I:23:28:0
+I:23:23:0
 W:40:180:460:850000
-P:0:5d8:20:30:0
+P:0:9d9:20:30:0
 F:VAMPIRIC | VORPAL | SLAY_GOOD | QUESTITEM |
-F:NO_TELE | TY_CURSE | ACTIVATE | SLAY_LIVING |
-F:CURSED | HEAVY_CURSE | AGGRAVATE | PERMA_CURSE |
-F:SHOW_MODS
+F:NO_TELE | ACTIVATE | SLAY_LIVING | BLOWS_2
+F:SHOW_MODS | FULL_NAME | PERMA_CURSE |
 D:悪魔の代名詞とされるオウガが鍛えた巨大な剣。
 
 N:165:死者の
@@ -1758,15 +1737,15 @@ F:INSTA_ART | TY_CURSE | LODIS | SPEED_3
 
 # 変愚蛮怒より
 
-N:169:『神罰の鉄球』
-E:'Iron ball'
-I:21:6:0
-W:45:40:1666:66666
-P:0:25d4:-30:0:20
-F:IMPACT | SHOW_MODS | WIS_-6 | STEALTH_-6 |
-F:CURSED | HEAVY_CURSE
-D:不信心者の足にくくりつけられ、その動きを阻害する。
-D:重いが武器としても使えない事はない。
+#N:169:『神罰の鉄球』
+#E:'Iron ball'
+#I:21:6:0
+#W:45:40:1666:66666
+#P:0:25d4:-30:0:20
+#F:IMPACT | SHOW_MODS | WIS_-6 | STEALTH_-6 |
+#F:CURSED | HEAVY_CURSE
+#D:不信心者の足にくくりつけられ、その動きを阻害する。
+#D:重いが武器としても使えない事はない。
 
 # 170 (unused)
 
@@ -1780,20 +1759,20 @@ F:REFLECT | SUST_STR |
 D:蛇の髪を持つメドゥーサの石化の睨みも、この反射の盾の前には
 D:効果がなかった。
 
-N:172:抜け忍カムイの
-E:of Kamui the Escapee
-I:23:19:0
-W:20:20:100:60000
-P:0:2d9:15:2:0
-F:RES_FIRE | BRAND_POIS | DEX_4 | STEALTH_6 |
-F:ACTIVATE | SEE_INVIS | SHOW_MODS | WARNING |
+#N:172:抜け忍カムイの
+#E:of Kamui the Escapee
+#I:23:19:0
+#W:20:20:100:60000
+#P:0:2d9:15:2:0
+#F:RES_FIRE | BRAND_POIS | DEX_4 | STEALTH_6 |
+#F:ACTIVATE | SEE_INVIS | SHOW_MODS | WARNING |
 
-N:173:『ブラッディ・ムーン』
-E:'Bloody Moon'
-I:22:30:2
-W:70:12:250:180000
-P:0:8d4:8:8:8
-F:ACTIVATE | SHOW_MODS
+#N:173:『ブラッディ・ムーン』
+#E:'Bloody Moon'
+#I:22:30:2
+#W:70:12:250:180000
+#P:0:8d4:8:8:8
+#F:ACTIVATE | SHOW_MODS
 
 N:174:宵闇の
 E:of The Pitch Dark Night
@@ -1808,23 +1787,23 @@ D:身に付けると自分が暗闇の中にいるのを感じる。
 
 # TOBand Artifacts #
 
-N:175:『リムファイアー』
+N:175:リムファイアー
 E:'Rimfire'
 I:19:0:0
 W:30:5:20:20000
 P:0:2d1:14:18:0
 F:XTRA_MIGHT | SHOW_MODS |
-F:RES_SHARDS
+F:RES_SHARDS | FULL_NAME
 D:南の大陸で作られたと思われる銃。リムファイアーは最も小型のもので、
 D:手の中におさまる大きさのため暗殺に用いられた。
 
-N:176:『アッサルト』
+N:176:アッサルト
 E:'Assault'
 I:19:2:0
 W:90:170:150:500000
 P:0:2d2:17:21:0
 F:SHOW_MODS | XTRA_MIGHT | XTRA_SHOTS | QUESTITEM |
-F:RES_SHARDS
+F:RES_SHARDS | FULL_NAME
 D:もっとも強力な長身銃。
 D:ドラゴンのウロコすらつらぬくといわれる。
 
@@ -1837,13 +1816,13 @@ F:BRAND_ELEC | XTRA_RES_OR_POWER |
 F:SHOW_MODS | RES_ELEC | SUST_DEX |
 D:雷竜の爪から作られた武器。雷をまとっている。
 
-N:178:『青竜の爪』
+N:178:青竜の爪
 E:'Cyanic Claw'
 I:23:40:0
 W:30:40:40:30000
 P:0:3d2:16:19:0
 F:SLAY_DRAGON | KILL_DRAGON | TUNNEL_4 |
-F:SHOW_MODS | SUST_STR | RES_COLD |
+F:SHOW_MODS | SUST_STR | RES_COLD | FULL_NAME
 D:青竜の爪を何枚も重ねて作られたドラゴンキラー。
 
 N:179:『プロクス』
@@ -1868,95 +1847,98 @@ F:NO_MAGIC | NO_TELE | XTRA_H_RES |
 D:東方の大陸から伝わる黒真珠で作られた盾。
 D:魔法の効果を打ち消す。
 
-N:181:『ペレグリンメイル』
+N:181:ペレグリンメイル
 E:'Peregrine Mail'
 I:36:19:0
 W:45:30:30:130000
 P:6:1d1:0:0:16
 F:RES_SHARDS | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | INFRA_4 |
-F:RES_STONE | FEATHER | SEE_INVIS | SH_COLD | XTRA_H_RES |
+F:RES_STONE | FEATHER | SEE_INVIS | SH_COLD | XTRA_H_RES | FULL_NAME
 D:大空を飛ぶ幻獣ペレグリンの羽根から作られた鎧。
 
-N:182:『ナサロークメイル』
+N:182:ナサロークメイル
 E:'Nathalork Mail'
 I:36:11:0
 W:55:30:180:65000
 P:18:1d1:-1:0:18
 F:SUST_CON | CON_2 |
 F:IM_ACID | RES_FIRE | RES_COLD | RES_POIS |
-F:RES_SHARDS | RES_STONE |
+F:RES_SHARDS | RES_STONE | FULL_NAME
 D:猛獣ナサロークの岩のように固い皮膚を使った鎧。
 
-N:183:『ポイニクスメイル』
+N:183:ポイニクスメイル
 E:'Phoenix Mail'
 I:36:19:0
 W:45:60:30:60000
 P:6:1d1:0:0:20
 F:IM_FIRE | RES_NETHER | RES_SOUND | RES_CONF | INFRA_6 |
 F:FEATHER | SH_FIRE | SLOW_DIGEST | REGEN |
-F:XTRA_H_RES | HOLD_LIFE | FREE_ACT |
+F:XTRA_H_RES | HOLD_LIFE | FREE_ACT | FULL_NAME
 D:伝説の鳥フェニックスがもらたしたとされる鎧。
 
-N:184:『風の法衣』
+N:184:風の法衣
 E:'Wind Garb'
 I:36:2:0
 W:10:20:20:25000
 P:2:0d0:0:0:12
-F:FEATHER | INT_2 |
+F:FEATHER | INT_2 | FULL_NAME
 F:IM_ELEC | RES_SOUND | RES_DISEN | RES_ACID | RES_COLD |
 D:太古のレリーフに描かれた『空飛ぶ者』が着ているローブ
 D:を模して作られたローブ。
 
-N:185:『炎の法衣』
+N:185:炎の法衣
 E:'Fire Garb'
 I:36:2:0
 W:20:20:20:25000
 P:2:0d0:0:0:12
 F:IM_FIRE | RES_COLD | RES_ACID | FREE_ACT | HOLD_LIFE | INT_2
+F:FULL_NAME
 D:ファイアドレイクのウロコを編みこんだマント。
 
-N:186:『大地の法衣』
+N:186:大地の法衣
 E:'Earth Garb'
 I:36:2:0
 W:30:20:20:25000
 P:2:0d0:0:0:12
 F:IM_ACID | RES_STONE | RES_SHARDS | RES_ELEC | RES_FIRE | INT_2
+F:FULL_NAME
 D:地脈の力をまとった者に集めるという魔法のローブ。
 
-N:187:『水の法衣』
+N:187:水の法衣
 E:'Water Garb'
 I:36:2:0
 W:40:20:20:25000
 P:2:0d0:0:0:12
 F:IM_COLD | RES_POIS | RES_CONF | RES_FIRE | RES_ACID | INT_2
+F:FULL_NAME
 D:妖精王タイタニアに仕えた神官たちの着衣。水の精霊の加護を得る。
 
-N:188:『賢者の衣』
+N:188:賢者の衣
 E:'Robe of the Wise'
 I:36:18:0
 W:50:40:60:148000
 P:6:1d4:0:0:20
 F:DEC_MANA | WIS_4 |
 F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC |
-F:RES_POIS | XTRA_H_RES |
+F:RES_POIS | XTRA_H_RES | FULL_NAME
 D:クリスタルを編み込んだそのローブは魔力を高めるという。
 
-N:189:『白の魔導衣』
+N:189:白の魔導衣
 E:'Purified Robe'
 I:36:18:0
 W:60:40:60:48000
 P:6:1d4:0:0:22
-F:REGEN_MANA | WIS_3 |
+F:REGEN_MANA | WIS_3 | FULL_NAME
 F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC |
 F:RES_LITE | RES_DARK | RES_BLIND | RES_CONF |
 D:聖職者が身にまとう着衣。神の加護によって闇の力を防ぐ。
 
-N:190:『黒の魔導衣』
+N:190:黒の魔導衣
 E:'Bloodstained Robe'
 I:36:18:0
 W:70:40:60:48000
 P:6:1d4:0:0:28
-F:REGEN_MANA | INT_3 |
+F:REGEN_MANA | INT_3 | FULL_NAME
 F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | RES_POIS |
 F:RES_LITE | RES_DARK | RES_NETHER | RES_CHAOS |
 D:悪魔の血で染められたローブ。その闇の力はすべての光を吸い取る。
@@ -2004,15 +1986,16 @@ W:80:255:2:5000000
 F:FEATHER | QUESTITEM | ZENOBIAN | SPEED_20
 D:天界に住んでいた古代有翼人バルタンに伝わる秘宝の指輪だ。
 
-N:196:『烈火の弓』
+N:196:烈火の弓
 E:'Flame Bow'
 I:19:13:0
 W:30:25:40:18000
 P:0:0d0:12:16:0
 F:RES_FIRE | RES_SOUND | SHOW_MODS | BRAND_FIRE | INFRA_4
+F:FULL_NAME
 D:矢尻に火薬が仕掛けられ、命中すると爆発する弓。
 
-N:197:『地竜の戦斧』
+N:197:地竜の戦斧
 E:'Earth Dragon Axe'
 I:22:11:0
 W:40:15:230:30000
@@ -2020,13 +2003,14 @@ P:0:4d4:8:16:0
 F:SUST_STR | REGEN | STR_2 | TUNNEL_5 |
 F:SLAY_HUMAN | SLAY_DRAGON |
 F:RES_ACID | RES_SHARDS |
-F:SHOW_MODS
+F:SHOW_MODS | FULL_NAME
 D:幅広の刃を持ち、戦場での処刑にも用いられたドラゴンキラー。
 
-N:198:『雷神の弓』
+N:198:雷神の弓
 E:'Thunder Bow'
 I:19:13:0
 W:55:35:50:90000
 P:0:0d0:17:15:0
 F:RES_ELEC | SHOW_MODS | BRAND_ELEC | ACTIVATE | SPEED_3
+F:FULL_NAME
 D:雷神トールの弓。強力なイカズチをまとい敵を打ちのめす。

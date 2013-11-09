@@ -43,8 +43,7 @@ cptr spell_categoly_name(int tval)
  * The "known" should be TRUE for cast/pray, FALSE for study
  */
 
-bool select_spellbook = FALSE;
-bool select_mindcraft = FALSE;
+bool select_spellbook=FALSE;
 
 static int get_spell(int *sn, cptr prompt, int sval, int use_realm)
 {
@@ -354,11 +353,10 @@ void do_cmd_browse(void)
 	/* Warriors are illiterate */
 	if (!realm_choices[p_ptr->pclass])
 	{
-		if (CAN_USE_MINDCRAFT()) do_cmd_mind_browse();
 #ifdef JP
-		else msg_print("ËÜ¤òÆÉ¤à¤³¤È¤¬¤Ç¤­¤Ê¤¤¡ª");
+msg_print("ËÜ¤òÆÉ¤à¤³¤È¤¬¤Ç¤­¤Ê¤¤¡ª");
 #else
-		else msg_print("You cannot read books!");
+		msg_print("You cannot read books!");
 #endif
 
 		return;
@@ -381,25 +379,15 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 #endif
 
 	select_spellbook = TRUE;
-	if (CAN_USE_MINDCRAFT()) select_mindcraft = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
 	{
 		select_spellbook = FALSE;
-		select_mindcraft = FALSE;
 		return;
 	}
 	select_spellbook = FALSE;
-	select_mindcraft = FALSE;
-
-	/* The mindcraft */
-	if (item == INVEN_MINDCRAFT)
-	{
-		do_cmd_mind_browse();
-		return;
-	}
 
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -463,13 +451,13 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 			prt("No spells to browse.", 0, 0);
 #endif
 			(void)inkey();
-
+			
 
 			/* Restore the screen */
 			screen_load();
 
 			return;
-		}
+		}				  
 
 		/* Clear lines, position cursor  (really should use strlen here) */
 		Term_erase(14, 21, 255);
@@ -493,14 +481,14 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 static bool cast_magery_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 
 	switch (spell)
 	{
 	case 0: /* Magic Missile */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt(GF_MISSILE, dir, damroll(3 + ((plev - 1) / 5), 4));
+		fire_bolt(GF_MISSILE, dir, damroll(3 + ((clev - 1) / 5), 4));
 		break;
 	case 1: /* Detect Monsters */
 		(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
@@ -514,7 +502,7 @@ static bool cast_magery_spell(int spell)
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
 	case 4: /* Light Area */
-		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+		(void)lite_area(damroll(2, (clev / 2)), (clev / 10) + 1);
 		break;
 	case 5: /* Trap & Door Destruction */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -522,15 +510,15 @@ static bool cast_magery_spell(int spell)
 		(void)destroy_door(dir);
 		break;
 	case 6: /* Teleport Self */
-		teleport_player(plev * 5);
+		teleport_player(clev * 5);
 		break;
 	case 7: /* Manaburst */
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_ball(GF_MISSILE, dir,
-			  (damroll(3, 5) + plev +
-			   (plev / (((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH)) ? 2 : 4))),
-			   (plev < 30) ? 2 : 3, FALSE);
+			  (damroll(3, 5) + clev +
+			   (clev / (((p_ptr->pclass == CLASS_WIZARD) || (p_ptr->pclass == CLASS_SIRENE) || (p_ptr->pclass == CLASS_LICH)) ? 2 : 4))),
+			   (clev < 30) ? 2 : 3, FALSE);
 			/* Shouldn't actually use GF_MANA, as it will destroy all
 			 * items on the floor */
 		break;
@@ -543,7 +531,7 @@ static bool cast_magery_spell(int spell)
 		map_area(DETECT_RAD_MAP);
 		break;
 	case 10: /* Identify */
-		if (plev < 35)
+		if (clev < 35)
 		{
 			return ident_spell(FALSE);
 		}
@@ -557,10 +545,9 @@ static bool cast_magery_spell(int spell)
 	case 12: /* Mana Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt(GF_MANA, dir, damroll(11 + ((plev - 5) / 4), 8));
+		fire_bolt(GF_MANA, dir, damroll(11 + ((clev - 5) / 4), 8));
 		break;
 	case 13: /* Satisfy Hunger */
-		if (!p_ptr->no_digest && (p_ptr->food < PY_FOOD_FULL)) change_your_alignment_lnc(1);
 		(void)set_food(PY_FOOD_MAX - 1);
 		break;
 	case 14: /* Word of Recall */
@@ -570,15 +557,15 @@ static bool cast_magery_spell(int spell)
 		probing();
 		break;
 	case 16: /* Recharging */
-		if ((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_HIGHWITCH)) return recharge(plev * 8);
-		else return recharge(plev * 4);
+		if ((p_ptr->pclass == CLASS_WITCH) || (p_ptr->pclass == CLASS_HIGHWITCH)) return recharge(clev * 8);
+		else return recharge(clev * 4);
 	case 17: /* Teleport Level */
 		(void)teleport_level(0);
 		break;
 	case 18: /* Teleport Other */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		(void)fire_beam(GF_AWAY_ALL, dir, plev);
+		(void)fire_beam(GF_AWAY_ALL, dir, clev);
 		break;
 	case 19: /* Detection */
 		(void)detect_all(DETECT_RAD_DEFAULT);
@@ -592,7 +579,7 @@ msg_print("¥í¥±¥Ã¥ÈÈ¯¼Í¡ª");
 		msg_print("You launch a rocket!");
 #endif
 
-		fire_rocket(GF_ROCKET, dir, 120 + plev, 2, FALSE);
+		fire_rocket(GF_ROCKET, dir, 120 + clev, 2, FALSE);
 		break;
 	case 21: /* Clairvoyance */
 		wiz_lite(FALSE);
@@ -609,7 +596,7 @@ msg_print("¥í¥±¥Ã¥ÈÈ¯¼Í¡ª");
 			if (pet) mode |= PM_FORCE_PET;
 			else mode |= (PM_NO_PET | PM_IGNORE_AMGRID);
 
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, mode))
+			if (summon_specific((pet ? -1 : 0), py, px, (clev * 3) / 2, SUMMON_DEMON, mode))
 			{
 #ifdef JP
 msg_print("Î²²«¤Î°­½­¤¬½¼Ëþ¤·¤¿¡£");
@@ -638,7 +625,7 @@ msg_print("¡ÖÈÜ¤·¤­¼Ô¤è¡¢²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª ¤ªÁ°¤Îº²¤òÄº¤¯¤¾¡ª¡×");
 	case 23: /* Teleport to town */
 		return tele_town(TRUE);
 	case 24: /* Summon Ancient Dragon */
-		if (!summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_HI_DRAGON, PM_FORCE_PET))
+		if (!summon_specific(-1, py, px, clev * 2 / 3 + randint1(clev/2), SUMMON_HI_DRAGON, PM_FORCE_PET))
 		{
 #ifdef JP
 			msg_print("¸ÅÂå¥É¥é¥´¥ó¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
@@ -650,7 +637,7 @@ msg_print("¡ÖÈÜ¤·¤­¼Ô¤è¡¢²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª ¤ªÁ°¤Îº²¤òÄº¤¯¤¾¡ª¡×");
 	case 25: /* Mana Storm */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_MANA, dir, 300 + (plev * 4), 4, FALSE);
+		fire_ball(GF_MANA, dir, 300 + (clev * 4), 4, FALSE);
 		break;
 	default:
 #ifdef JP
@@ -669,7 +656,7 @@ msg_print("¡ÖÈÜ¤·¤­¼Ô¤è¡¢²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª ¤ªÁ°¤Îº²¤òÄº¤¯¤¾¡ª¡×");
 static bool cast_fire_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -677,28 +664,28 @@ static bool cast_fire_spell(int spell)
 	{
 	case 0:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_beam(GF_PLASMA, dir, damroll(3 + ((plev - 1) / 5), 4));
+		fire_beam(GF_PLASMA, dir, damroll(3 + ((clev - 1) / 5), 4));
 		break;
 	case 1:
 		k = 2;
 		if (pstat >= (18 + 100)) k++;
 		if (pstat >= (18 + 150)) k++;
 		if (pstat >= (18 + 200)) k++;
-		inc_area_elem(0, ELEM_FIRE, k, (plev / 10) + 1, TRUE);
+		inc_area_elem(0, ELEM_FIRE, k, (clev / 10) + 1, TRUE);
 		break;
 	case 2:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_bolt(GF_FIRE, dir, damroll(8 + ((plev - 5) / 4), 8));
+		fire_bolt(GF_FIRE, dir, damroll(8 + ((clev - 5) / 4), 8));
 		break;
 	case 3:
 		if (!get_aim_dir(&dir)) return FALSE;
-		if (pstat >= (18 + 150)) fire_ball(GF_STASIS, dir, plev + 70, 3, FALSE);
-		else if (pstat >= (18 + 100)) fire_ball(GF_STASIS, dir, plev + 60, 2, FALSE);
-		else fire_ball(GF_STASIS, dir, plev + 50, 1, FALSE);
+		if (pstat >= (18 + 150)) fire_ball(GF_STASIS, dir, clev + 70, 3, FALSE);
+		else if (pstat >= (18 + 100)) fire_ball(GF_STASIS, dir, clev + 60, 2, FALSE);
+		else fire_ball(GF_STASIS, dir, clev + 50, 1, FALSE);
 		break;
 	case 4:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_FIRE, dir, 10 + plev * 2 + randint1(plev),
+		fire_ball(GF_FIRE, dir, 10 + clev * 2 + randint1(clev),
 			(pstat >= (18 + 150)) ? 3 : 2, TRUE);
 		break;
 	case 5:
@@ -721,7 +708,7 @@ static bool cast_fire_spell(int spell)
 #else
 		msg_format("You called the Salamander.");
 #endif
-		cast_call_the_elemental(GF_FIRE, dir, plev, 1, plev, 3, A_INT);
+		cast_call_the_elemental(GF_FIRE, dir, clev, 1, clev, 3, A_INT);
 		break;
 	case 9:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -730,7 +717,7 @@ static bool cast_fire_spell(int spell)
 	case 10:
 		{
 			int x, y, tx, ty;
-			int i;
+			int dir, i;
 			int b = 5 + randint1(10);
 
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -761,7 +748,7 @@ static bool cast_fire_spell(int spell)
 				/* Cannot penetrate walls */
 				if (!in_bounds(y, x) || !los(ty, tx, y, x)) continue;
 
-				project(0, 2, y, x, plev * 3 + 25, GF_PURE_FIRE, PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
+				project(0, 2, y, x, clev * 3 + 25, GF_PURE_FIRE, PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
 			}
 		}
 		break;
@@ -770,14 +757,14 @@ static bool cast_fire_spell(int spell)
 		fire_ball(GF_STRIKE_NOVA, dir, 999, 0, FALSE);
 		break;
 	case 12:
-		(void)set_zoshonel_protect(randint1(10) + 10, FALSE);
+		set_zoshonel_protect(randint1(10) + 10, FALSE);
 		break;
 	case 13:
-		project(0, MAX_SIGHT, py, px, plev * 8 + randint1(plev * 5), GF_PLASMA, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, MAX_SIGHT, py, px, clev * 8 + randint1(clev * 5), GF_PLASMA, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 #ifdef JP
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "¥¹¡¼¥Ñ¡¼¥Î¥ô¥¡¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "¥¹¡¼¥Ñ¡¼¥Î¥ô¥¡¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
 #else
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "the strain of casting Super Nova");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "the strain of casting Super Nova");
 #endif
 		set_weather(-15, 0, -15);
 		change_chaos_frame(ETHNICITY_WALSTANIAN, -1);
@@ -801,7 +788,7 @@ static bool cast_fire_spell(int spell)
 static bool cast_aqua_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -812,15 +799,15 @@ static bool cast_aqua_spell(int spell)
 		if (pstat >= (18 + 100)) k++;
 		if (pstat >= (18 + 150)) k++;
 		if (pstat >= (18 + 200)) k++;
-		inc_area_elem(0, ELEM_AQUA, k, (plev / 10) + 1, TRUE);
+		inc_area_elem(0, ELEM_AQUA, k, (clev / 10) + 1, TRUE);
 		break;
 	case 1:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_bolt(GF_ICE, dir, damroll(6 + ((plev - 5) / 4), 8));
+		fire_bolt(GF_ICE, dir, damroll(6 + ((clev - 5) / 4), 8));
 		break;
 	case 2:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_COLD, dir, 10 + plev * 2 + randint1(plev),
+		fire_ball(GF_COLD, dir, 10 + clev * 2 + randint1(clev),
 			(pstat >= (18 + 150)) ? 3 : 2, TRUE);
 		break;
 	case 3:
@@ -830,26 +817,26 @@ static bool cast_aqua_spell(int spell)
 		break;
 	case 4:
 		if (!get_aim_dir(&dir)) return FALSE;
-		(void)slow_monster(dir);
+		(void)slow_monster(dir, clev);
 		break;
 	case 5:
-		(void)set_tim_sh_cold(randint1(25 + plev) + plev, FALSE);
+		(void)set_tim_sh_cold(randint1(25 + clev) + clev, FALSE);
 		break;
 	case 6:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_WATER, dir, 100 + plev * 3 / 2, (plev / 12) + 1, FALSE);
+		fire_ball(GF_WATER, dir, 100 + clev * 3 / 2, (clev / 12) + 1, FALSE);
 		break;
 	case 7:
-		project(0, plev / 10, py, px, 15 + plev / 2, GF_WATER, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
-		project(0, plev / 10, py, px, 15 + plev / 2, GF_POIS, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
-		project(0, plev / 10, py, px, 15 + plev / 2, GF_CONFUSION, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, clev / 10, py, px, 15 + clev / 2, GF_WATER, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, clev / 10, py, px, 15 + clev / 2, GF_POIS, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, clev / 10, py, px, 15 + clev / 2, GF_CONFUSION, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 		if (pstat >= (18 + 150))
-			project(0, plev / 10, py, px, 15 + plev / 2, GF_DISENCHANT, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+			project(0, clev / 10, py, px, 15 + clev / 2, GF_DISENCHANT, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 		if (pstat >= (18 + 200))
-			project(0, plev / 10, py, px, 15 + plev / 2, GF_OLD_DRAIN, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+			project(0, clev / 10, py, px, 15 + clev / 2, GF_OLD_DRAIN, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 		break;
 	case 8:
-		return aqua_diving();
+		return aqua_diving(clev);
 	case 9:
 		if (!get_aim_dir(&dir)) return FALSE;
 #ifdef JP
@@ -857,7 +844,7 @@ static bool cast_aqua_spell(int spell)
 #else
 		msg_format("You called the Fenrer.");
 #endif
-		cast_call_the_elemental(GF_COLD, dir, plev, 1, plev, 3, A_INT);
+		cast_call_the_elemental(GF_COLD, dir, clev, 1, clev, 3, A_INT);
 		break;
 	case 10:
 		(void)hp_player(500);
@@ -871,15 +858,15 @@ static bool cast_aqua_spell(int spell)
 		return alter_with_flood();
 	case 12:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_WATER, dir, damroll(10, plev), 0, FALSE);
-		fire_ball(GF_DRAIN_MANA, dir, damroll(2, plev), 0, FALSE);
+		fire_ball(GF_WATER, dir, damroll(10, clev), 0, FALSE);
+		fire_ball(GF_DRAIN_MANA, dir, damroll(2, clev), 0, FALSE);
 		break;
 	case 13:
-		project(0, MAX_SIGHT, py, px, plev * 8 + randint1(plev * 5), GF_ICE, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, MAX_SIGHT, py, px, clev * 8 + randint1(clev * 5), GF_ICE, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 #ifdef JP
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "¥¢¥¤¥¹¥ì¥¯¥¤¥¨¥à¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "¥¢¥¤¥¹¥ì¥¯¥¤¥¨¥à¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
 #else
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "the strain of casting Ice Requiem");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "the strain of casting Ice Requiem");
 #endif
 		set_weather(15, 0, 15);
 		change_chaos_frame(ETHNICITY_WALSTANIAN, -1);
@@ -903,7 +890,7 @@ static bool cast_aqua_spell(int spell)
 static bool cast_earth_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -911,41 +898,41 @@ static bool cast_earth_spell(int spell)
 	{
 	case 0:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_ACID, dir, damroll(3 + ((plev - 1) / 5), 4), 0, FALSE);
-		if (one_in_(3)) fire_ball(GF_STASIS, dir, 50 + plev, 0, FALSE);
+		fire_ball(GF_ACID, dir, damroll(3 + ((clev - 1) / 5), 4), 0, FALSE);
+		if (one_in_(3)) fire_ball(GF_STASIS, dir, 50 + clev, 0, FALSE);
 		break;
 	case 1:
 		k = 2;
 		if (pstat >= (18 + 100)) k++;
 		if (pstat >= (18 + 150)) k++;
 		if (pstat >= (18 + 200)) k++;
-		inc_area_elem(0, ELEM_EARTH, k, (plev / 10) + 1, TRUE);
+		inc_area_elem(0, ELEM_EARTH, k, (clev / 10) + 1, TRUE);
 		break;
 	case 2:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_bolt(GF_ACID, dir, damroll(8 + ((plev - 5) / 4), 8));
+		fire_bolt(GF_ACID, dir, damroll(8 + ((clev - 5) / 4), 8));
 		break;
 	case 3:
 		(void)tree_creation();
 		break;
 	case 4:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_ACID, dir, 10 + plev * 2 + randint1(plev),
+		fire_ball(GF_ACID, dir, 10 + clev * 2 + randint1(clev),
 			(pstat >= (18 + 150)) ? 3 : 2, TRUE);
 		break;
 	case 5:
 		return jump_wall();
 	case 6:
-		(void)set_shield(plev / 2 + randint1(plev / 2), FALSE);
+		(void)set_shield(clev / 2 + randint1(clev / 2), FALSE);
 		break;
 	case 7:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_beam(GF_ACID, dir, damroll(10, plev / 3));
-		fire_beam(GF_SHARDS, dir, damroll(10, plev / 3));
-		if (pstat >= (18 + 200)) fire_beam(GF_NEW_DRAIN, dir, damroll(2, plev));
+		fire_beam(GF_ACID, dir, damroll(10, clev / 3));
+		fire_beam(GF_SHARDS, dir, damroll(10, clev / 3));
+		if (pstat >= (18 + 200)) fire_beam(GF_NEW_DRAIN, dir, damroll(2, clev));
 		break;
 	case 8:
-		(void)set_earth_spike(6 + randint1(6), FALSE);
+		set_earth_spike(6 + randint1(6), FALSE);
 		break;
 	case 9:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -954,22 +941,22 @@ static bool cast_earth_spell(int spell)
 #else
 		msg_format("You called the Gnome.");
 #endif
-		cast_call_the_elemental(GF_ACID, dir, plev, 1, plev, 3, A_INT);
+		cast_call_the_elemental(GF_ACID, dir, clev, 1, clev, 3, A_INT);
 		break;
 	case 10:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_METEOR, dir, 100 + plev + randint1(plev * 2), 2, TRUE);
+		fire_ball(GF_METEOR, dir, 100 + clev + randint1(clev * 2), 2, TRUE);
 		break;
 	case 11:
 		if (!get_aim_dir(&dir)) return FALSE;
 		fire_ball(GF_STONE, dir, MIN(p_ptr->chp / 2, 350), -2, FALSE);
 		break;
 	case 12:
-		project(0, MAX_SIGHT, py, px, plev * 8 + randint1(plev * 5), GF_SHARDS, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, MAX_SIGHT, py, px, clev * 8 + randint1(clev * 5), GF_SHARDS, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 #ifdef JP
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "¥¢¡¼¥¹¥¯¥§¥¤¥¯¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "¥¢¡¼¥¹¥¯¥§¥¤¥¯¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
 #else
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "the strain of casting Earthquake");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "the strain of casting Earthquake");
 #endif
 		change_chaos_frame(ETHNICITY_WALSTANIAN, -1);
 		change_chaos_frame(ETHNICITY_GARGASTAN, -1);
@@ -992,7 +979,7 @@ static bool cast_earth_spell(int spell)
 static bool cast_wind_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int pstat = p_ptr->stat_use[A_INT];
 	int k;
 
@@ -1000,29 +987,29 @@ static bool cast_wind_spell(int spell)
 	{
 	case 0:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_beam(GF_SOUND, dir, damroll(3 + ((plev - 1) / 5), 4));
+		fire_beam(GF_SOUND, dir, damroll(3 + ((clev - 1) / 5), 4));
 		break;
 	case 1:
 		k = 2;
 		if (pstat >= (18 + 100)) k++;
 		if (pstat >= (18 + 150)) k++;
 		if (pstat >= (18 + 200)) k++;
-		inc_area_elem(0, ELEM_WIND, k, (plev / 10) + 1, TRUE);
+		inc_area_elem(0, ELEM_WIND, k, (clev / 10) + 1, TRUE);
 		break;
 	case 2:
-		(void)set_wind_guard(randint1(plev) + 20, FALSE);
+		set_wind_guard(randint1(clev) + 20, FALSE);
 		break;
 	case 3:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_bolt(GF_ELEC, dir, damroll(8 + ((plev - 5) / 4), 8));
+		fire_bolt(GF_ELEC, dir, damroll(8 + ((clev - 5) / 4), 8));
 		break;
 	case 4:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_ELEC, dir, 10 + plev * 2 + randint1(plev),
+		fire_ball(GF_ELEC, dir, 10 + clev * 2 + randint1(clev),
 			(pstat >= (18 + 150)) ? 3 : 2, TRUE);
 		break;
 	case 5:
-		(void)set_fast(randint1(25 + plev) + plev, FALSE);
+		(void)set_fast(randint1(25 + clev) + clev, FALSE);
 		break;
 	case 6:
 		msg_print("Å·¸õ¤¬¹Ó¤ì¤Æ¤¤¤¯...");
@@ -1032,9 +1019,9 @@ static bool cast_wind_spell(int spell)
 		set_weather(k, k, k);
 		break;
 	case 7:
-		project(0, plev / 10, py, px, 40 + plev / 2, GF_PURE_WIND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, MODIFY_ELEM_MODE_MAGIC);
-		project(0, plev / 10, py, px, 20 + plev / 2, GF_SOUND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, MODIFY_ELEM_MODE_MAGIC);
-		project(0, plev / 10, py, px, 20 + plev / 2, GF_GRAVITY, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, MODIFY_ELEM_MODE_MAGIC);
+		project(0, clev / 10, py, px, 40 + clev / 2, GF_PURE_WIND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, MODIFY_ELEM_MODE_MAGIC);
+		project(0, clev / 10, py, px, 20 + clev / 2, GF_SOUND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, MODIFY_ELEM_MODE_MAGIC);
+		project(0, clev / 10, py, px, 20 + clev / 2, GF_GRAVITY, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, MODIFY_ELEM_MODE_MAGIC);
 		break;
 	case 8:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1043,7 +1030,7 @@ static bool cast_wind_spell(int spell)
 #else
 		msg_format("You called the Thunderbird.");
 #endif
-		cast_call_the_elemental(GF_ELEC, dir, plev, 1, plev, 3, A_INT);
+		cast_call_the_elemental(GF_ELEC, dir, clev, 1, clev, 3, A_INT);
 		break;
 	case 9:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1055,13 +1042,13 @@ static bool cast_wind_spell(int spell)
 #else
 		msg_print("You open a dimensional gate. Choose a destination.");
 #endif
-		return dimension_door();
+		return dimension_door(clev);
 	case 11:
-		project(0, MAX_SIGHT, py, px, plev * 8 + randint1(plev * 5), GF_SOUND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, MAX_SIGHT, py, px, clev * 8 + randint1(clev * 5), GF_SOUND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 #ifdef JP
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "¥¨¥¢¥ê¥¢¥ë¥¯¥é¥¤¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "¥¨¥¢¥ê¥¢¥ë¥¯¥é¥¤¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
 #else
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "the strain of casting Aerial Cry");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "the strain of casting Aerial Cry");
 #endif
 		set_weather(0, 15, 0);
 		change_chaos_frame(ETHNICITY_WALSTANIAN, -1);
@@ -1085,7 +1072,7 @@ static bool cast_wind_spell(int spell)
 static bool cast_holy_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 
 	switch (spell)
 	{
@@ -1096,7 +1083,7 @@ static bool cast_holy_spell(int spell)
 		(void)set_blessed(randint1(12) + 12, FALSE);
 		break;
 	case 2: /* Call Light */
-		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+		(void)lite_area(damroll(2, (clev / 2)), (clev / 10) + 1);
 		break;
 	case 3: /* Cure Critical Wounds */
 		(void)hp_player(damroll(8, 10));
@@ -1109,14 +1096,13 @@ static bool cast_holy_spell(int spell)
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
 	case 5: /* Satisfy Hunger */
-		if (!p_ptr->no_digest && (p_ptr->food < PY_FOOD_FULL)) change_your_alignment_lnc(1);
 		(void)set_food(PY_FOOD_MAX - 1);
 		break;
 	case 6: /* Cure Poison */
 		(void)set_poisoned(0);
 		break;
 	case 7: /* Remove Curse */
-		if (plev < 40)
+		if (clev < 40)
 		{
 			if (remove_curse())
 			{
@@ -1148,7 +1134,7 @@ static bool cast_holy_spell(int spell)
 		break;
 	case 9:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_beam(GF_GODLY_SPEAR, dir, 100 + randint1(plev * 2));
+		fire_beam(GF_GODLY_SPEAR, dir, 100 + randint1(clev * 2));
 		break;
 	case 10: /* Glyph of Warding */
 		warding_glyph();
@@ -1167,7 +1153,7 @@ static bool cast_holy_spell(int spell)
 		(void)set_stoning(0);
 		break;
 	case 13: /* Protection from Evil */
-		(void)set_protevil(randint1(25) + 3 * p_ptr->lev, FALSE);
+		(void)set_protevil(randint1(25) + 3 * clev, FALSE);
 		break;
 	case 14:
 		(void)hp_player(300);
@@ -1183,7 +1169,7 @@ static bool cast_holy_spell(int spell)
 		(void)set_oppose_pois(randint1(20) + 20, FALSE);
 		break;
 	case 16: /* Charm Monsters */
-		charm_monsters(plev + 50);
+		charm_monsters(clev + 50);
 		break;
 	case 17: /* Restoration */
 		(void)do_res_stat(A_STR);
@@ -1204,7 +1190,7 @@ static bool cast_holy_spell(int spell)
 #else
 		msg_format("You called the Ignis Fatuus.");
 #endif
-		cast_call_the_elemental(GF_HOLY_FIRE, dir, plev, 1, plev, 1, A_WIS);
+		cast_call_the_elemental(GF_HOLY_FIRE, dir, clev, 1, clev, 1, A_WIS);
 		break;
 	case 20: /* Summon monster, angel */
 		{
@@ -1213,9 +1199,9 @@ static bool cast_holy_spell(int spell)
 
 			if (pet) mode |= PM_FORCE_PET;
 			else mode |= (PM_NO_PET | PM_IGNORE_AMGRID);
-			if (!(pet && (plev < 50))) mode |= PM_ALLOW_GROUP;
+			if (!(pet && (clev < 50))) mode |= PM_ALLOW_GROUP;
 
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_ANGEL, mode))
+			if (summon_specific((pet ? -1 : 0), py, px, (clev * 3) / 2, SUMMON_ANGEL, mode))
 			{
 				if (pet)
 #ifdef JP
@@ -1248,7 +1234,7 @@ msg_print("¡Ö²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª °­¹Ô¼Ô¤è¡¢²ù¤¤²þ¤á¤è¡ª¡×");
 		(void)set_stoning(0);
 		break;
 	case 23:
-		(void)set_tim_resurrection(6 + randint1(6), FALSE);
+		set_tim_resurrection(6 + randint1(6), FALSE);
 		break;
 	default:
 #ifdef JP
@@ -1267,7 +1253,7 @@ msg_print("¡Ö²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª °­¹Ô¼Ô¤è¡¢²ù¤¤²þ¤á¤è¡ª¡×");
 static bool cast_death_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int	dummy = 0;
 	int pstat;
 	int k;
@@ -1277,7 +1263,7 @@ static bool cast_death_spell(int spell)
 	case 0: /* Enslave Undead */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		(void)control_one_undead(dir, plev + 50);
+		(void)control_one_undead(dir, clev + 50);
 		break;
 	case 1:
 		(void)set_blind(0);
@@ -1291,24 +1277,24 @@ static bool cast_death_spell(int spell)
 		return get_energy_from_corpse();
 	case 3: /* Evil Orb */
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_HELL_FIRE, dir, damroll(3, 6) + plev + plev / 2,
-			(plev < 30) ? 2 : 3, FALSE);
+		fire_ball(GF_HELL_FIRE, dir, damroll(3, 6) + clev + clev / 2,
+			(clev < 30) ? 2 : 3, FALSE);
 		break;
 	case 4:
-		(void)set_chargespell(randint1(plev + 25) + plev, FALSE);
+		(void)set_chargespell(randint1(clev + 25) + clev, FALSE);
 		break;
 	case 5:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_DARK, dir, 30 + plev + damroll(4 + ((plev - 10) / 5), 4), 0, FALSE);
-		if (!one_in_(3)) fire_ball_hide(GF_OLD_SLEEP, dir, plev + 50, 0, FALSE);
+		fire_ball(GF_DARK, dir, 30 + clev + damroll(4 + ((clev - 10) / 5), 4), 0, FALSE);
+		if (!one_in_(3)) fire_ball_hide(GF_OLD_SLEEP, dir, clev + 50, 0, FALSE);
 		break;
 	case 6:
-		project_hack(GF_GRAVITY, damroll(plev / 5 + 10, 10));
+		project_hack(GF_GRAVITY, damroll(clev / 5 + 10, 10));
 		break;
 	case 7: /* Genocide One */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball_hide(GF_GENOCIDE, dir, plev + 50, 0, FALSE);
+		fire_ball_hide(GF_GENOCIDE, dir, clev + 50, 0, FALSE);
 		break;
 	case 8: /* Raise the Dead */
 		{
@@ -1316,15 +1302,15 @@ static bool cast_death_spell(int spell)
 			bool pet = one_in_(3);
 			u32b mode = 0L;
 
-			type = (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD);
+			type = (clev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD);
 
-			if (!pet || (pet && (plev >= 24) && one_in_(3)))
+			if (!pet || (pet && (clev >= 24) && one_in_(3)))
 				mode |= PM_ALLOW_GROUP;
 
 			if (pet) mode |= PM_FORCE_PET;
 			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET | PM_IGNORE_AMGRID);
 
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, mode))
+			if (summon_specific((pet ? -1 : 0), py, px, (clev * 3) / 2, type, mode))
 			{
 #ifdef JP
 msg_print("Îä¤¿¤¤É÷¤¬¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¿á¤­»Ï¤á¤¿¡£¤½¤ì¤ÏÉåÇÔ½­¤ò±¿¤ó¤Ç¤¤¤ë...");
@@ -1377,7 +1363,7 @@ msg_print("»à¼Ô¤¬á´¤Ã¤¿¡£Ì²¤ê¤òË¸¤²¤ë¤¢¤Ê¤¿¤òÈ³¤¹¤ë¤¿¤á¤Ë¡ª");
 		for (dummy = MIN_ELEM; dummy < ELEM_NUM; dummy++)
 		{
 			if (dummy == get_cur_pelem()) continue;
-			inc_area_elem(0, dummy, k, -((plev / 10) + 1), FALSE);
+			inc_area_elem(0, dummy, k, -((clev / 10) + 1), FALSE);
 		}
 		break;
 	case 15: /* Vampirism True */
@@ -1393,19 +1379,19 @@ msg_print("»à¼Ô¤¬á´¤Ã¤¿¡£Ì²¤ê¤òË¸¤²¤ë¤¢¤Ê¤¿¤òÈ³¤¹¤ë¤¿¤á¤Ë¡ª");
 #else
 		msg_format("You called the Phantom.");
 #endif
-		cast_call_the_elemental(GF_HELL_FIRE, dir, plev, 1, plev, 1, A_WIS);
+		cast_call_the_elemental(GF_HELL_FIRE, dir, clev, 1, clev, 1, A_WIS);
 		break;
 	case 17:
-		project_hack_living(GF_HELL_FIRE, plev * 4);
-		project_hack_living(GF_OLD_SLEEP, plev + 50);
+		project_hack_living(GF_HELL_FIRE, clev * 4);
+		project_hack_living(GF_OLD_SLEEP, clev + 50);
 		break;
 	case 18: /* Genocide */
-		(void)symbol_genocide(plev+50, TRUE);
+		(void)symbol_genocide(clev+50, TRUE);
 		break;
 	case 19: /* Darkness Storm */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_DARK, dir, 100 + plev * 4, 4, FALSE);
+		fire_ball(GF_DARK, dir, 100 + clev * 4, 4, FALSE);
 		break;
 	case 20:
 		if (!buki_motteruka(INVEN_RARM))
@@ -1417,10 +1403,10 @@ msg_print("»à¼Ô¤¬á´¤Ã¤¿¡£Ì²¤ê¤òË¸¤²¤ë¤¢¤Ê¤¿¤òÈ³¤¹¤ë¤¿¤á¤Ë¡ª");
 #endif
 			return FALSE;
 		}
-		(void)set_evil_weapon(randint1(plev / 2) + (plev / 2), FALSE, INVEN_RARM, FALSE);
+		(void)set_evil_weapon(randint1(clev / 2) + (clev / 2), FALSE, INVEN_RARM, FALSE);
 		break;
 	case 21: /* Mass Genocide */
-		(void)mass_genocide(plev+50, TRUE);
+		(void)mass_genocide(clev+50, TRUE);
 		break;
 	case 22: /* Hellfire */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1466,11 +1452,11 @@ take_hit(DAMAGE_USELIFE, 20 + randint1(30), "ÃÏ¹ö¤Î¹å²Ð¤Î¼öÊ¸¤ò¾§¤¨¤¿ÈèÏ«");
 		handle_stuff();
 		break;
 	case 24:
-		project(0, MAX_SIGHT, py, px, plev * 8 + randint1(plev * 5), GF_DARK, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, MAX_SIGHT, py, px, clev * 8 + randint1(clev * 5), GF_DARK, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 #ifdef JP
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "¥Ç¥Ã¥É¥¹¥¯¥ê¡¼¥à¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "¥Ç¥Ã¥É¥¹¥¯¥ê¡¼¥à¤Î¼öÊ¸¤Î´¬¤­Åº¤¨");
 #else
-		take_hit(DAMAGE_NOESCAPE, plev + randint1(plev), "the strain of casting Dead Scream");
+		take_hit(DAMAGE_NOESCAPE, clev + randint1(clev), "the strain of casting Dead Scream");
 #endif
 		change_chaos_frame(ETHNICITY_WALSTANIAN, -1);
 		change_chaos_frame(ETHNICITY_GARGASTAN, -1);
@@ -1520,7 +1506,7 @@ static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 static bool cast_symbiotic_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 
 	switch (spell)
 	{
@@ -1530,7 +1516,7 @@ static bool cast_symbiotic_spell(int spell)
 	case 1: /* Animal Taming */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		(void)charm_animal(dir, plev);
+		(void)charm_animal(dir, clev);
 		break;
 	case 2:
 		{
@@ -1545,7 +1531,7 @@ static bool cast_symbiotic_spell(int spell)
 		}
 		break;
 	case 3:
-		slow_monsters();
+		slow_monsters(clev);
 		break;
 	case 4:
 		{
@@ -1603,7 +1589,7 @@ static bool cast_symbiotic_spell(int spell)
 		break;
 	case 6:
 		summon_kin_type = 'q';
-		if (!summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_KIN, PM_FORCE_PET))
+		if (!summon_specific(-1, py, px, clev * 2 / 3 + randint1(clev/2), SUMMON_KIN, PM_FORCE_PET))
 		{
 #ifdef JP
 			msg_print("Æ°Êª¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
@@ -1626,11 +1612,11 @@ static bool cast_symbiotic_spell(int spell)
 				return FALSE;
 			}
 			target_pet = old_target_pet;
-			(void)speed_monster(dir);
+			(void)speed_monster(dir, clev);
 		}
 		break;
 	case 9: /* Animal Friendship */
-		(void)charm_animals(plev + 50);
+		(void)charm_animals(clev + 50);
 		break;
 	case 10:
 		num_repro += MAX_REPRO;
@@ -1638,7 +1624,7 @@ static bool cast_symbiotic_spell(int spell)
 	case 11:
 		{
 			u32b mode = PM_ALLOW_GROUP | PM_FORCE_PET;
-			if (!summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_HOUND, mode))
+			if (!summon_specific(-1, py, px, clev * 2 / 3 + randint1(clev/2), SUMMON_HOUND, mode))
 			{
 #ifdef JP
 				msg_print("¥Ï¥¦¥ó¥É¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
@@ -1685,9 +1671,9 @@ static bool cast_symbiotic_spell(int spell)
 			int  dummy;
 			bool no_trump = TRUE;
 
-			for (dummy = 0; dummy < 1 + ((plev - 15)/ 10); dummy++)
+			for (dummy = 0; dummy < 1 + ((clev - 15)/ 10); dummy++)
 			{
-				if (summon_specific(-1, py, px, plev, SUMMON_ANIMAL, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+				if (summon_specific(-1, py, px, clev, SUMMON_ANIMAL, (PM_ALLOW_GROUP | PM_FORCE_PET)))
 					no_trump = FALSE;
 			}
 
@@ -1728,7 +1714,7 @@ static bool cast_symbiotic_spell(int spell)
 static bool cast_witch_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int pstat;
 	int k;
 	s16b chosen_elem;
@@ -1736,21 +1722,21 @@ static bool cast_witch_spell(int spell)
 	switch (spell)
 	{
 	case 0: /* Infravision */
-		(void)set_tim_infra(100 + randint1(100), FALSE);
+		set_tim_infra(100 + randint1(100), FALSE);
 		break;
 	case 1:
 		pstat = p_ptr->stat_use[A_CHR];
 		if (pstat < (18 + 180))
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
-			if (pstat >= (18 + 150)) fire_ball(GF_CHARM, dir, plev + 70, 4, FALSE);
-			else if (pstat >= (18 + 100)) fire_ball(GF_CHARM, dir, plev + 60, 3, FALSE);
-			else fire_ball(GF_CHARM, dir, plev + 50, 2, FALSE);
+			if (pstat >= (18 + 150)) fire_ball(GF_CHARM, dir, clev + 70, 4, FALSE);
+			else if (pstat >= (18 + 100)) fire_ball(GF_CHARM, dir, clev + 60, 3, FALSE);
+			else fire_ball(GF_CHARM, dir, clev + 50, 2, FALSE);
 		}
-		else charm_monsters(plev + 50);
+		else charm_monsters(clev + 50);
 		break;
 	case 2:
-		confuse_monsters(plev + 50);
+		confuse_monsters(clev + 50);
 		break;
 	case 3: /* Heroism */
 		(void)set_hero(randint1(25) + 25, FALSE);
@@ -1773,10 +1759,10 @@ static bool cast_witch_spell(int spell)
 		if (pstat >= (18 + 100)) k++;
 		if (pstat >= (18 + 150)) k++;
 		if (pstat >= (18 + 200)) k++;
-		inc_area_elem(0, chosen_elem, k, (plev / 10) + 1, TRUE);
+		inc_area_elem(0, chosen_elem, k, (clev / 10) + 1, TRUE);
 		break;
 	case 5:
-		(void)set_wind_guard(randint1(plev) + 20, FALSE);
+		set_wind_guard(randint1(clev) + 20, FALSE);
 		break;
 	case 6:
 		(void)set_poisoned(0);
@@ -1784,37 +1770,37 @@ static bool cast_witch_spell(int spell)
 		(void)hp_player(damroll(4, 8));
 		break;
 	case 7: /* Haste */
-		(void)set_fast(randint1(25 + plev) + plev, FALSE);
+		(void)set_fast(randint1(25 + clev) + clev, FALSE);
 		break;
 	case 8: /* Slow Monster */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		(void)slow_monster(dir);
+		(void)slow_monster(dir, clev);
 		break;
 	case 9:
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		if (fire_ball(GF_OLD_DRAIN, dir, damroll(3, 5) + plev + plev / 2, 0, FALSE))
+		if (fire_ball(GF_OLD_DRAIN, dir, damroll(3, 5) + clev + clev / 2, 0, FALSE))
 		{
-			if (!one_in_(3)) fire_ball(GF_SILENT, dir, plev + 50, 0, FALSE);
+			if (!one_in_(3)) fire_ball(GF_SILENT, dir, clev + 50, 0, FALSE);
 		}
 		break;
 	case 10:
 		if (!get_aim_dir(&dir)) return FALSE;
 		pstat = p_ptr->stat_use[A_INT];
-		if (pstat >= (18 + 150)) fire_ball(GF_STASIS, dir, plev + 70, 3, FALSE);
-		else if (pstat >= (18 + 100)) fire_ball(GF_STASIS, dir, plev + 60, 2, FALSE);
-		else fire_ball(GF_STASIS, dir, plev + 50, 1, FALSE);
+		if (pstat >= (18 + 150)) fire_ball(GF_STASIS, dir, clev + 70, 3, FALSE);
+		else if (pstat >= (18 + 100)) fire_ball(GF_STASIS, dir, clev + 60, 2, FALSE);
+		else fire_ball(GF_STASIS, dir, clev + 50, 1, FALSE);
 		break;
 	case 11: /* Explosive Rune */
-		explosive_rune();
+		explosive_rune(clev);
 		break;
 	case 12:
 		return jump_wall();
 	case 13:
 		if (!get_aim_dir(&dir)) return FALSE;
 		pstat = p_ptr->stat_use[A_INT];
-		fire_ball(GF_POIS, dir, 10 + plev * 2 + randint1(plev),
+		fire_ball(GF_POIS, dir, 10 + clev * 2 + randint1(clev),
 			(pstat >= (18 + 150)) ? 3 : 2, TRUE);
 		break;
 	case 14: /* Decoy */
@@ -1831,7 +1817,7 @@ static bool cast_witch_spell(int spell)
 	case 17:
 		{
 			int tx, ty;
-			int power = plev * 2;
+			int power = clev * 2;
 
 #ifdef JP
 			msg_print("Ã¯¤Î¹¶·âÎÏ¤ò¼å¤á¤ë¤«»ØÄê¤·¤Æ²¼¤µ¤¤¡£");
@@ -1902,7 +1888,7 @@ static bool cast_witch_spell(int spell)
 		if (pstat >= (18 + 100)) k += 2;
 		if (pstat >= (18 + 150)) k += 2;
 		if (pstat >= (18 + 200)) k += 2;
-		inc_area_elem(0, chosen_elem, k, (plev / 10) + 1, FALSE);
+		inc_area_elem(0, chosen_elem, k, (clev / 10) + 1, FALSE);
 		break;
 	case 19:
 #ifdef JP
@@ -1910,7 +1896,7 @@ static bool cast_witch_spell(int spell)
 #else
 		msg_print("You summon minions.");
 #endif
-		summon_kin_player(plev * 2 / 3 + randint1(plev/2), py, px, PM_FORCE_PET);
+		summon_kin_player(clev * 2 / 3 + randint1(clev/2), py, px, PM_FORCE_PET);
 		break;
 	case 20:
 		{
@@ -1934,7 +1920,7 @@ static bool cast_witch_spell(int spell)
 				break;
 			}
 
-			fire_beam(pure_elem_typ, dir, 100 + randint1(plev * 2));
+			fire_beam(pure_elem_typ, dir, 100 + randint1(clev * 2));
 		}
 		break;
 	case 21: /* Magic armor */
@@ -1947,9 +1933,9 @@ static bool cast_witch_spell(int spell)
 			int  dummy;
 			bool no_trump = TRUE;
 
-			for (dummy = 0; dummy < 1 + ((plev - 15)/ 10); dummy++)
+			for (dummy = 0; dummy < 1 + ((clev - 15)/ 10); dummy++)
 			{
-				if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_MOLD, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+				if (summon_specific(-1, py, px, clev * 2 / 3 + randint1(clev/2), SUMMON_MOLD, (PM_ALLOW_GROUP | PM_FORCE_PET)))
 					no_trump = FALSE;
 			}
 
@@ -1993,7 +1979,7 @@ static bool cast_witch_spell(int spell)
 
 			if ((ty == py) && (tx == px))
 			{
-				dispel_player(FALSE);
+				dispel_player();
 
 				if (p_ptr->riding)
 				{
@@ -2076,7 +2062,7 @@ static bool cast_witch_spell(int spell)
 	case 27:
 		if (!get_aim_dir(&dir)) return FALSE;
 		pstat = p_ptr->stat_use[A_INT];
-		fire_ball(GF_STONE, dir, 200 + plev * 3, (pstat >= (18 + 150)) ? 3 : 2, TRUE);
+		fire_ball(GF_STONE, dir, 200 + clev * 3, (pstat >= (18 + 150)) ? 3 : 2, TRUE);
 		break;
 	case 28: /* Dimension Door */
 #ifdef JP
@@ -2084,11 +2070,11 @@ static bool cast_witch_spell(int spell)
 #else
 		msg_print("You open a dimensional gate. Choose a destination.");
 #endif
-		return dimension_door();
+		return dimension_door(clev);
 	case 29:
 		{
 			int tx, ty;
-			int power = plev * 2;
+			int power = clev * 2;
 
 #ifdef JP
 			msg_print("Ã¯¤Î¥¨¥ì¥á¥ó¥È¤òÈ¿Å¾¤µ¤»¤ë¤«»ØÄê¤·¤Æ²¼¤µ¤¤¡£");
@@ -2110,7 +2096,7 @@ static bool cast_witch_spell(int spell)
 
 			if ((ty == py) && (tx == px))
 			{
-				if (!p_ptr->opposite_pelem) (void)set_opposite_pelem(power);
+				if (!p_ptr->opposite_pelem) set_opposite_pelem(power);
 			}
 			else if (cave[ty][tx].m_idx)
 			{
@@ -2141,7 +2127,7 @@ static bool cast_witch_spell(int spell)
 		}
 		break;
 	case 30: /* Wraithform */
-		(void)set_wraith_form(randint1(plev / 2) + (plev / 2), FALSE);
+		set_wraith_form(randint1(clev / 2) + (clev / 2), FALSE);
 		break;
 	default:
 #ifdef JP
@@ -2159,7 +2145,7 @@ static bool cast_witch_spell(int spell)
 
 static bool cast_drakonite_spell(int spell)
 {
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int i;
 
 	switch (spell)
@@ -2227,23 +2213,23 @@ static bool cast_drakonite_spell(int spell)
 		}
 		break;
 	case 1:
-		project_hack(GF_NEW_SLOW, randint1(plev + 25) + plev);
+		project_hack(GF_NEW_SLOW, randint1(clev + 25) + clev);
 		break;
 	case 2:
-		project(0, MAX_SIGHT, py, px, plev * 6 + randint1(plev * 5), GF_PURE_WIND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, MAX_SIGHT, py, px, clev * 6 + randint1(clev * 5), GF_PURE_WIND, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 		set_weather(8, 8, 8);
 		break;
 	case 3:
-		project(0, MAX_SIGHT, py, px, plev * 6 + randint1(plev * 5), GF_PURE_FIRE, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		project(0, MAX_SIGHT, py, px, clev * 6 + randint1(clev * 5), GF_PURE_FIRE, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
 		set_weather(-8, -8, -8);
 		break;
 	case 4:
-		project(0, MAX_SIGHT, py, px, plev * 6 + randint1(plev * 5), GF_PURE_EARTH, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
-		confuse_monsters(plev + 50);
+		project(0, MAX_SIGHT, py, px, clev * 6 + randint1(clev * 5), GF_PURE_EARTH, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		confuse_monsters(clev + 50);
 		break;
 	case 5:
-		project(0, MAX_SIGHT, py, px, plev * 6 + randint1(plev * 5), GF_PURE_AQUA, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
-		stasis_monsters(plev + 50);
+		project(0, MAX_SIGHT, py, px, clev * 6 + randint1(clev * 5), GF_PURE_AQUA, PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_NO_REDUCE, MODIFY_ELEM_MODE_MAGIC);
+		stasis_monsters(clev + 50);
 		break;
 	case 6:
 #ifdef JP
@@ -2290,7 +2276,7 @@ static bool cast_drakonite_spell(int spell)
 static bool cast_crusade_spell(int spell)
 {
 	int	dir;
-	int	plev = p_ptr->lev;
+	int	clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int pstat;
 
 	switch (spell)
@@ -2300,10 +2286,10 @@ static bool cast_crusade_spell(int spell)
 		break;
 	case 1:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_beam(GF_LITE, dir, damroll(3 + ((plev - 1) / 5), 4));
+		fire_beam(GF_LITE, dir, damroll(3 + ((clev - 1) / 5), 4));
 		break;
 	case 2:
-		(void)sleep_monsters_touch();
+		(void)sleep_monsters_touch(clev);
 		break;
 	case 3:
 		(void)set_cut(0);
@@ -2315,29 +2301,29 @@ static bool cast_crusade_spell(int spell)
 		break;
 	case 5:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_blast(GF_LITE, dir, 3+((plev-1)/9), 2, 10, 3);
+		fire_blast(GF_LITE, dir, 3+((clev-1)/9), 2, 10, 3);
 		break;
 	case 6:
 		if (!get_aim_dir(&dir)) return FALSE;
-		(void)stasis_evil(dir);
+		(void)stasis_evil(dir, clev * 2);
 		break;
 	case 7: /* Holy Orb */
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_HOLY_FIRE, dir, damroll(3, 6) + plev + plev / 2,
-			(plev < 30) ? 2 : 3, FALSE);
+		fire_ball(GF_HOLY_FIRE, dir, damroll(3, 6) + clev + clev / 2,
+			(clev < 30) ? 2 : 3, FALSE);
 		break;
 	case 8:
-		dispel_undead(randint1(plev * 4));
-		project_hack_undead(GF_AWAY_ALL, plev * 4);
+		dispel_undead(randint1(clev * 4));
+		project_hack_undead(GF_AWAY_ALL, clev * 4);
 		break;
 	case 9:
 		if (!get_aim_dir(&dir)) return FALSE;
-		(void)fire_bolt(GF_ELEC, dir, plev * 5);
+		(void)fire_bolt(GF_ELEC, dir, clev * 5);
 		break;
 	case 10:
 		{
 			int x, y, tx, ty;
-			int i;
+			int dir, i;
 			int b = 10 + randint1(10);
 
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -2371,7 +2357,7 @@ static bool cast_crusade_spell(int spell)
 				    !in_disintegration_range(ty, tx, y, x))
 					continue;
 
-				project(0, 2, y, x, plev * 3 + 25, GF_DISINTEGRATE, PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
+				project(0, 2, y, x, clev * 3 + 25, GF_DISINTEGRATE, PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
 			}
 		}
 		break;
@@ -2393,7 +2379,7 @@ static bool cast_crusade_spell(int spell)
 		pstat = p_ptr->stat_use[A_WIS];
 		{
 			int dummy = (pstat >= (18 + 150)) ? 3 : 2;
-			fire_ball(GF_GENOCIDE_UNDEAD, dir, plev * dummy, dummy, FALSE);
+			fire_ball(GF_GENOCIDE_UNDEAD, dir, clev * dummy, dummy, FALSE);
 		}
 		break;
 	case 14: /* Berserk */
@@ -2402,17 +2388,17 @@ static bool cast_crusade_spell(int spell)
 		(void)set_afraid(0);
 		break;
 	case 15:
-		(void)set_tim_sh_holy(randint1(20)+20, FALSE);
+		set_tim_sh_holy(randint1(20)+20, FALSE);
 		break;
 	case 16:
 		brand_weapon(13);
 		break;
 	case 17:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_SHINING, dir, plev + 60, 0, FALSE);
+		fire_ball(GF_SHINING, dir, clev + 60, 0, FALSE);
 		break;
 	case 18: /* Holy Word */
-		(void)dispel_evil(randint1(plev * 6));
+		(void)dispel_evil(randint1(clev * 6));
 		(void)hp_player(100);
 		(void)set_afraid(0);
 		(void)set_poisoned(0);
@@ -2422,32 +2408,32 @@ static bool cast_crusade_spell(int spell)
 	case 19: /* Star Burst */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_LITE, dir, 100+plev*2, 4, FALSE);
+		fire_ball(GF_LITE, dir, 100+clev*2, 4, FALSE);
 		break;
 	case 20: /* Word of Destruction */
 		destroy_area(py, px, 13+randint0(5));
 		break;
 	case 21: /* Eye for an Eye */
-		(void)set_tim_eyeeye(randint1(10)+10, FALSE);
+		set_tim_eyeeye(randint1(10)+10, FALSE);
 		break;
 	case 22:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_beam(GF_HOLY_FIRE, dir, 200 + plev * 2);
+		fire_beam(GF_HOLY_FIRE, dir, 200 + clev * 2);
 		break;
 	case 23: /* Divine Intervention */
-		project(0, 1, py, px, plev*11, GF_HOLY_FIRE, PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
-		dispel_monsters(plev * 4);
-		slow_monsters();
-		stun_monsters(plev * 4);
-		confuse_monsters(plev * 4);
-		turn_monsters(plev * 4);
-		stasis_monsters(plev * 4);
+		project(0, 1, py, px, clev*11, GF_HOLY_FIRE, PROJECT_KILL, MODIFY_ELEM_MODE_MAGIC);
+		dispel_monsters(clev * 4);
+		slow_monsters(clev);
+		stun_monsters(clev * 4);
+		confuse_monsters(clev * 4);
+		turn_monsters(clev * 4);
+		stasis_monsters(clev * 4);
 		(void)hp_player(100);
 		break;
 	case 24:
 		{
 			int i;
-			(void)crusade();
+			(void)crusade(clev * 4);
 			for (i = 0; i < 12; i++)
 			{
 				int attempt = 10;
@@ -2461,11 +2447,11 @@ static bool cast_crusade_spell(int spell)
 					if (cave_empty_bold2(my, mx)) break;
 				}
 				if (attempt < 0) continue;
-				summon_specific(-1, my, mx, plev, SUMMON_HUMANS, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE | PM_ALLOW_UNIQUE));
+				summon_specific(-1, my, mx, clev, SUMMON_HUMANS, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE | PM_ALLOW_UNIQUE));
 			}
 			(void)set_hero(randint1(25) + 25, FALSE);
 			(void)set_blessed(randint1(25) + 25, FALSE);
-			(void)set_fast(randint1(20 + plev) + plev, FALSE);
+			(void)set_fast(randint1(20 + clev) + clev, FALSE);
 			(void)set_protevil(randint1(25) + 25, FALSE);
 			(void)set_afraid(0);
 		}
@@ -2537,21 +2523,20 @@ void do_cmd_cast(void)
 	/* Require spell ability */
 	if (!realm_choices[p_ptr->pclass])
 	{
-		if (CAN_USE_MINDCRAFT()) do_cmd_mind();
 #ifdef JP
-		else msg_print("¼öÊ¸¤ò¾§¤¨¤é¤ì¤Ê¤¤¡ª");
+msg_print("¼öÊ¸¤ò¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 #else
-		else msg_print("You cannot cast spells!");
+		msg_print("You cannot cast spells!");
 #endif
 
 		return;
 	}
 
 	/* Require lite */
-	if ((p_ptr->blind || no_lite()) && !CAN_USE_MINDCRAFT())
+	if (p_ptr->blind || no_lite())
 	{
 #ifdef JP
-		msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¤¡ª");
+msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¤¡ª");
 #else
 		msg_print("You cannot see!");
 #endif
@@ -2563,7 +2548,7 @@ void do_cmd_cast(void)
 	if (p_ptr->confused)
 	{
 #ifdef JP
-		msg_print("º®Íð¤·¤Æ¤¤¤Æ¾§¤¨¤é¤ì¤Ê¤¤¡ª");
+msg_print("º®Íð¤·¤Æ¤¤¤Æ¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 #else
 		msg_print("You are too confused!");
 #endif
@@ -2575,9 +2560,6 @@ void do_cmd_cast(void)
 
 	/* Restrict choices to spell books */
 	item_tester_tval = mp_ptr->spell_book;
-
-	/* XXX Hack for blind mindcraft */
-	if ((p_ptr->blind || no_lite()) && CAN_USE_MINDCRAFT()) item_tester_tval = TV_GOLD;
 
 	/* Get an item */
 #ifdef JP
@@ -2593,25 +2575,15 @@ s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 #endif
 
 	select_spellbook = TRUE;
-	if (CAN_USE_MINDCRAFT()) select_mindcraft = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
 	{
 		select_spellbook = FALSE;
-		select_mindcraft = FALSE;
 		return;
 	}
 	select_spellbook = FALSE;
-	select_mindcraft = FALSE;
-
-	/* The mindcraft */
-	if (item == INVEN_MINDCRAFT)
-	{
-		do_cmd_mind();
-		return;
-	}
 
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -2652,51 +2624,6 @@ s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 	}
 #endif
 
-
-	if (p_ptr->anti_magic)
-	{
-#ifdef JP
-		cptr which_power = "ËâË¡";
-#else
-		cptr which_power = "magic";
-#endif
-		if (mp_ptr->spell_book == TV_HOLY_BOOK)
-#ifdef JP
-			which_power = "µ§¤ê";
-#else
-			which_power = "prayer";
-#endif
-
-#ifdef JP
-		msg_format("È¿ËâË¡¥Ð¥ê¥¢¤¬%s¤ò¼ÙËâ¤·¤¿¡ª", which_power);
-#else
-		msg_format("An anti-magic shell disrupts your %s!", which_power);
-#endif
-		energy_use = 0;
-		return;
-	}
-	else if (is_anti_magic_grid(-1, py, px))
-	{
-#ifdef JP
-		cptr which_power = "ËâË¡";
-#else
-		cptr which_power = "magic";
-#endif
-		if (mp_ptr->spell_book == TV_HOLY_BOOK)
-#ifdef JP
-			which_power = "µ§¤ê";
-#else
-			which_power = "prayer";
-#endif
-
-#ifdef JP
-		msg_format("È¿ËâË¡¥Õ¥£¡¼¥ë¥É¤¬%s¤ò¼ÙËâ¤·¤¿¡ª", which_power);
-#else
-		msg_format("An anti-magic field disrupts your %s!", which_power);
-#endif
-		energy_use = 100;
-		return;
-	}
 
 	use_realm = tval2realm(o_ptr->tval);
 
@@ -2839,7 +2766,8 @@ msg_format("%s¤ò¤¦¤Þ¤¯¾§¤¨¤é¤ì¤Ê¤«¤Ã¤¿¡ª", prayer);
 	}
 
 	/* Take a turn */
-	energy_use = 115 - skill_lev_var[p_ptr->spell_skill_lev[realm - 1][spell]] * 5;
+	energy_use = 115 - skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST])] * 5;
+	if (p_ptr->cexp_info[CLASS_HIGHWITCH].max_clev > 49) energy_use = 50;
 
 	/* Sufficient mana */
 	if (use_mana <= p_ptr->csp)
@@ -2963,19 +2891,16 @@ void do_cmd_pray(void)
 			int pdam = dam * 2;
 
 			msg_print("Å·È³¤¬²¼¤Ã¤¿!");
-			if (!p_ptr->immune_holy)
+			if (p_ptr->ogre_equip)
 			{
-				if (p_ptr->ogre_equip)
-				{
 #ifdef JP
-					msg_print("¤Ò¤É¤¤ÄË¼ê¤ò¼õ¤±¤¿¡ª");
+				msg_print("¤Ò¤É¤¤ÄË¼ê¤ò¼õ¤±¤¿¡ª");
 #else
-					msg_print("You are hit hard!");
+				msg_print("You are hit hard!");
 #endif
-					pdam *= 3;
-				}
-				(void)take_hit(DAMAGE_NOESCAPE, pdam, "Å·È³");
+				pdam *= 3;
 			}
+			(void)take_hit(DAMAGE_NOESCAPE, pdam, "Å·È³");
 			project_hack(GF_ELEC, dam);
 			no_effect = FALSE;
 		}
@@ -3050,7 +2975,7 @@ int calculate_upkeep(void)
 			total_friends++;
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				if ((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER))
+				if (((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) || ((p_ptr->cexp_info[CLASS_BEASTTAMER].clev > 49) || (p_ptr->cexp_info[CLASS_DRAGONTAMER].clev > 49)))
 				{
 					if (p_ptr->riding == m_idx)
 						temp_rlev = (r_ptr->level+5)*2;
@@ -3080,7 +3005,7 @@ int calculate_upkeep(void)
 	if (total_friends)
 	{
 		int upkeep_factor;
-		upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / ((6 - (int)p_ptr->misc_skill_lev[SKILL_PET_UPKEEP]) * 10)));
+		upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / ((6 - (int)skill_exp_level(p_ptr->skill_exp[SKILL_PET_UPKEEP])) * 10)));
 		if (upkeep_factor < 0) upkeep_factor = 0;
 		if (upkeep_factor > 1000) upkeep_factor = 1000;
 		return upkeep_factor;
@@ -3269,10 +3194,9 @@ bool rakuba(int dam, bool force)
 		{
 			int level = r_ptr->level;
 			if (p_ptr->riding_ryoute) level += 20;
-			if (randint0(dam/2 + level*2) < ((skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000)/30+10))
+			if (randint0(dam/2 + level*2) < ((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/30+10))
 			{
-				if ((((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER)) &&
-				    !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3)+30))
+				if ((!p_ptr->riding_ryoute) || !one_in_(p_ptr->cexp_info[p_ptr->psex == SEX_MALE ? CLASS_BEASTTAMER : CLASS_DRAGONTAMER].clev * (p_ptr->riding_ryoute ? 2 : 3)+30))
 				{
 					return FALSE;
 				}
@@ -3337,7 +3261,7 @@ msg_format("%s¤«¤é¿¶¤êÍî¤È¤µ¤ì¤½¤¦¤Ë¤Ê¤Ã¤Æ¡¢ÊÉ¤Ë¤Ö¤Ä¤«¤Ã¤¿¡£",m_name);
 	p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
 	p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
 
-	set_aquatic_in_water();
+	set_mermaid_in_water();
 
 	calc_bonuses();
 
@@ -3388,16 +3312,6 @@ bool do_riding(bool force)
 	int oy, ox, x, y, dir = 0;
 	cave_type *c_ptr;
 	monster_type *m_ptr;
-
-	if (rp_ptr->r_flags & PRF_LARGE)
-	{
-#ifdef JP
-		msg_print("¤³¤Î¼ïÂ²¤Ï¾èÇÏ¤¬¤Ç¤­¤Ê¤¤¡£");
-#else
-		msg_print("Your race cannot ride.");
-#endif
-		return FALSE;
-	}
 
 	if (!get_rep_dir2(&dir)) return FALSE;
 	y = py + ddy[dir];
@@ -3484,7 +3398,7 @@ msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 
 			return FALSE;
 		}
-		if (r_info[m_ptr->r_idx].level > randint1(((skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000)/50 + p_ptr->lev/2 +20)))
+		if (r_info[m_ptr->r_idx].level > randint1(((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/50 + p_ptr->lev/2 +20)))
 		{
 #ifdef JP
 msg_print("¤¦¤Þ¤¯¾è¤ì¤Ê¤«¤Ã¤¿¡£");
@@ -3531,7 +3445,7 @@ msg_format("%s¤òµ¯¤³¤·¤¿¡£", m_name);
 	/* Check for new panel */
 	verify_panel();
 
-	set_aquatic_in_water();
+	set_mermaid_in_water();
 
 	energy_use = 100;
 
@@ -4023,13 +3937,13 @@ strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤
 					ctr++;
 				}
 
-				if (ctr < PET_RYOUTE)
+				if (ctr <= PET_RYOUTE)
 				{
 					prt("", y + ctr, x);
 				}
 				else
 				{
-					prt("", y + PET_RYOUTE, x);
+					prt("", y + PET_RYOUTE + 1, x);
 				}
 			}
 

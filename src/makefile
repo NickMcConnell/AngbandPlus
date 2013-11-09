@@ -66,7 +66,7 @@ OBJ = \
 	cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
 	dungeon.obj effects.obj files.obj flavor.obj floors.obj generate.obj \
 	grid.obj init1.obj init2.obj japanese.obj \
-	load.obj main-win.obj melee1.obj melee2.obj mind.obj \
+	load.obj main-win.obj melee1.obj melee2.obj \
 	monster1.obj monster2.obj mspells1.obj mspells2.obj \
 	mutation.obj \
 	obj_kind.obj object1.obj object2.obj racial.obj \

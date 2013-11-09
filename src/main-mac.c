@@ -165,9 +165,9 @@
  * Cleaning up a couple of things to make these easier to change --AR
  */
 #ifdef JP
-#define PREF_FILE_NAME "TOband Preferences"
+#define PREF_FILE_NAME "TOband2 Preferences"
 #else
-#define PREF_FILE_NAME "TOband-E Preferences"
+#define PREF_FILE_NAME "TOband2-E Preferences"
 #endif
 
 /*
@@ -2270,7 +2270,7 @@ static void term_data_hack(term_data *td)
 	short fid;
 
 	#ifdef JP
-	GetFNum( "\p等幅明朝", &fid);     /* フォント名からID番号を調べる  */
+	GetFNum( "\pOsaka-等幅", &fid);     /* フォント名からID番号を調べる  */
 	SetFScaleDisable( true );
 	#else
 	/* Default to Monaco font */

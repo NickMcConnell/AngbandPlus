@@ -6,7 +6,7 @@
 
 ### Soldier ###
 N:0
-I:NONE:STR:0x00:0:400
+I:NONE:STR:0x00:0:400:0
 # Magery
 R:0:0
 
@@ -43,7 +43,7 @@ R:10:0
 
 ### Knight ###
 N:1
-I:NONE:STR:0x00:0:400
+I:NONE:STR:0x00:0:400:0
 # Magery
 R:0:0
 
@@ -80,7 +80,7 @@ R:10:0
 
 ### Berserker ###
 N:2
-I:NONE:STR:0x00:0:400
+I:NONE:STR:0x00:0:400:0
 # Magery
 R:0:0
 
@@ -117,7 +117,7 @@ R:10:0
 
 ### Terror-Knight ###
 N:3
-I:NONE:STR:0x00:0:400
+I:NONE:STR:0x00:0:400:0
 # Magery
 R:0:0
 
@@ -154,7 +154,7 @@ R:10:0
 
 ### BeastTamer ###
 N:4
-I:MAGERY:WIS:0x00:0:400
+I:MAGERY:WIS:0x00:0:400:5
 # Magery
 R:0:0
 
@@ -206,7 +206,7 @@ R:10:0
 
 ### Sword-Master ###
 N:5
-I:MAGERY:INT:0x03:0:400
+I:MAGERY:INT:0x03:0:400:6
 # Magery
 R:0:0
 
@@ -296,7 +296,7 @@ R:10:0
 
 ### Dragoon ###
 N:6
-I:MAGERY:INT:0x03:0:400
+I:MAGERY:INT:0x03:0:400:2
 # Magery
 R:0:0
 
@@ -364,7 +364,7 @@ R:10:0
 
 ### Ninja ###
 N:7
-I:MAGERY:INT:0x03:0:200
+I:MAGERY:INT:0x03:0:200:4
 # Magery
 R:0:0
 
@@ -454,7 +454,7 @@ R:10:0
 
 ### Wizard ###
 N:8
-I:MAGERY:INT:0x01:0:400
+I:MAGERY:INT:0x01:0:400:30
 # Magery
 R:0:1
 T:1:1:20  #0
@@ -570,7 +570,7 @@ R:10:0
 
 ### Warlock ###
 N:9
-I:MAGERY:INT:0x01:0:400
+I:MAGERY:INT:0x01:0:400:27
 # Magery
 R:0:1
 T:1:1:20  #0
@@ -672,7 +672,7 @@ R:10:0
 
 ### Exorcist ###
 N:10
-I:HOLY:WIS:0x00:1:400
+I:HOLY:WIS:0x00:1:400:21
 # Magery
 R:0:0
 
@@ -787,7 +787,7 @@ T:50:100:80
 
 ### Amazoness ###
 N:11
-I:NONE:STR:0x00:0:400
+I:NONE:STR:0x00:0:400:0
 # Magery
 R:0:0
 
@@ -824,7 +824,7 @@ R:10:0
 
 ### Valkyrie ###
 N:12
-I:MAGERY:INT:0x03:0:400
+I:MAGERY:INT:0x03:0:400:7
 # Magery
 R:0:0
 
@@ -914,7 +914,7 @@ R:10:0
 
 ### Archer ###
 N:13
-I:NONE:STR:0x00:0:400
+I:NONE:STR:0x00:0:400:0
 # Magery
 R:0:0
 
@@ -951,7 +951,7 @@ R:10:0
 
 ### DragonTamer ###
 N:14
-I:MAGERY:WIS:0x00:0:400
+I:MAGERY:WIS:0x00:0:400:6
 # Magery
 R:0:0
 
@@ -1003,7 +1003,7 @@ R:10:0
 
 ### Witch ###
 N:15
-I:MAGERY:INT:0x01:0:400
+I:MAGERY:INT:0x01:0:400:29
 # Magery
 R:0:1
 T:1:1:20  #0
@@ -1122,7 +1122,7 @@ R:10:0
 
 ### Sirene ###
 N:16
-I:MAGERY:INT:0x01:0:400
+I:MAGERY:INT:0x01:0:400:32
 # Magery
 R:0:1
 T:1:1:20  #0
@@ -1238,7 +1238,7 @@ R:10:0
 
 ### Cleric ###
 N:17
-I:HOLY:WIS:0x00:1:400
+I:HOLY:WIS:0x00:1:400:26
 # Magery
 R:0:0
 
@@ -1352,7 +1352,7 @@ R:10:0
 
 ### Priest ###
 N:18
-I:HOLY:WIS:0x00:1:400
+I:HOLY:WIS:0x00:1:400:30
 # Magery
 R:0:0
 
@@ -1491,7 +1491,7 @@ T:50:150:90
 
 ### Lich ###
 N:19
-I:MAGERY:INT:0x01:0:400
+I:MAGERY:INT:0x01:0:400:44
 # Magery
 R:0:1
 T:1:1:20  #0
@@ -1663,7 +1663,7 @@ R:10:0
 
 ### Angel-Knight ###
 N:20
-I:HOLY:WIS:0x00:1:400
+I:HOLY:WIS:0x00:1:400:24
 # Magery
 R:0:0
 
@@ -1778,7 +1778,7 @@ T:50:110:80
 
 ### High-Witch ###
 N:21
-I:MAGERY:INT:0x01:0:400
+I:MAGERY:INT:0x01:0:400:58
 # Magery
 R:0:1
 T:1:1:20  #0
@@ -2022,7 +2022,7 @@ T:50:100:90
 
 ### Gunner ###
 N:22
-I:NONE:STR:0x00:0:400
+I:NONE:STR:0x00:0:400:0
 # Magery
 R:0:0
 
@@ -2059,7 +2059,7 @@ R:10:0
 
 ### Temple-Knight ###
 N:23
-I:HOLY:WIS:0x02:1:400
+I:HOLY:WIS:0x02:1:400:23
 # Magery
 R:0:0
 
@@ -2121,7 +2121,7 @@ R:10:0
 
 ### White-Knight ###
 N:24
-I:HOLY:WIS:0x02:1:400
+I:HOLY:WIS:0x02:1:400:16
 # Magery
 R:0:0
 
@@ -2163,43 +2163,6 @@ T:43:80:75
 T:44:55:90
 T:49:100:85
 T:99:0:0
-
-# Death
-R:6:0
-
-# Symbiotic
-R:7:0
-
-# Witch
-R:8:0
-
-# Drakonite
-R:9:0
-
-# Crusade
-R:10:0
-
-
-### Octopus ###
-N:25
-I:NONE:STR:0x00:0:400
-# Magery
-R:0:0
-
-# Fire
-R:1:0
-
-# Aqua
-R:2:0
-
-# Earth
-R:3:0
-
-# Wind
-R:4:0
-
-# Holy
-R:5:0
 
 # Death
 R:6:0

@@ -380,20 +380,6 @@ static hist_type bg[] =
 	{"下半身は水色の鱗に覆われた魚の尾をしています。" ,   25, 68, 0, 50 },
 	{"下半身は深緑色の鱗に覆われた魚の尾をしています。",  75, 68, 0, 50 },
 	{"下半身は金色の鱗に覆われた魚の尾をしています。",   100, 68, 0, 60 },
-
-	/* Octopus */
-	{"あなたはオベロの海で生まれた", 100, 69, 70, 50 },
-
-	{"ピンクのタコです。" ,    25, 70, 71, 50 },
-	{"グリーンのタコです。" ,  50, 70, 71, 50 },
-	{"イエローのタコです。" ,  75, 70, 71, 50 },
-	{"グレイのタコです。" ,   100, 70, 71, 50 },
-
-	{"あなたは八本の手足と墨を吐く丸い口を持ち、", 100, 71, 72, 50 },
-
-	{"邪な目をしています。" ,      25, 72, 0, 50 },
-	{"つぶらな目をしています。" ,  50, 72, 0, 50 },
-	{"眠たげな目をしています。" , 100, 72, 0, 50 },
 };
 
 static cptr race_jouhou[MAX_RACES] =
@@ -409,7 +395,6 @@ static cptr race_jouhou[MAX_RACES] =
 "ゴブリンはよい戦士になれますが、魔法は期待できません。彼らは隠密行動が悪く、また探索や解除, 知覚もひどいです。ゴブリンは醜く、店での買い物ではより高い金額を要求されがちです。彼らは地下に住むことを好むため、ゴブリンは暗闇に対する耐性を備えています。",
 "ゴーゴンは頭髪の代わりに無数のヘビが生え、人魚ならぬヘビの下肢を持つモンスターです。彼女らはあらゆるスキルをそつなくこなし、中でも弓は他種族より格段に優れています。彼女らは石化の耐性を持ち、レベルが上がれば酸や冷気や毒や地獄やカオスの耐性も得ることができます。それらに加えて、見た者を石に変えてしまう“邪眼”も行使可能になるので、非常に強力な種族です。",
 "マーメイドは上半身が人間で下半身が魚の、海に住む種族です。彼らは水中を好み、水の中では高い戦闘能力を期待できます。反面陸上は苦手で、移動に手間がかかります。また彼らは優秀な歌い手であり、モンスターを魅惑する歌を歌うことができます。",
-"オクトパスは水上を好むL型種族です。彼らは水上であれば俊敏に動くことができますが、反面陸上での行動力は極端に少ないです。また、彼らは武器を持ったり鎧を着たりすることはできませんが、代わりにたくさんの指輪を着けることができます。彼らの八本の腕により繰り出される攻撃はかなり強力で、また彼らは高いHPを誇ります。",
 };
 
 cptr class_jouhou[MAX_CLASS] =
@@ -439,7 +424,6 @@ cptr class_jouhou[MAX_CLASS] =
 "南方の大陸バルバウダで製造された剣に代わる強力な武器『銃』を扱える唯一のクラスです。魔法などの超自然科学に対する信奉を捨てたため魔法に対する耐久力が著しく低下しており、他のクラスにクラスチェンジできなくなります。",
 "テンプルナイトはロスローリアンに忠誠を誓う騎士です。あらゆる武器を扱うことができ、暗黒魔法を唱えることができます。また、このクラスに就いている間は他のクラスへクラスチェンジできなくなります。魔法を唱えるのに必要な能力は賢さです。",
 "ホワイトナイトは新生ゼノビア王国に忠誠を誓う騎士です。あらゆる武器を扱うことができ、神聖魔法を唱えることができます。また、このクラスに就いている間は他のクラスへクラスチェンジできなくなります。魔法を唱えるのに必要な能力は賢さです。",
-NULL,
 };
 
 static cptr realm_jouhou[MAX_REALM] =
@@ -509,9 +493,9 @@ static void save_prev_data(birther *birther_ptr)
 		birther_ptr->stat_max[i] = p_ptr->stat_max[i];
 	}
 
-	/* Save the hp */
-	birther_ptr->player_hp_lv1 = p_ptr->player_hp[0];
-	birther_ptr->player_sp_lv1 = p_ptr->player_sp[0];
+	/* Save the hp & mana */
+	birther_ptr->race_hp_lv1 = p_ptr->race_hp[0];
+	birther_ptr->race_sp_lv1 = p_ptr->race_sp[0];
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
@@ -558,12 +542,12 @@ static void load_prev_data(bool swap)
 	}
 
 	/* Load the hp & mana */
-	p_ptr->player_hp[0] = previous_char.player_hp_lv1;
-	p_ptr->player_sp[0] = previous_char.player_sp_lv1;
-	p_ptr->mhp = p_ptr->player_hp[0];
-	p_ptr->chp = p_ptr->player_hp[0];
-	p_ptr->msp = p_ptr->player_sp[0];
-	p_ptr->csp = p_ptr->player_sp[0];
+	p_ptr->race_hp[0] = previous_char.race_hp_lv1;
+	p_ptr->race_sp[0] = previous_char.race_sp_lv1;
+	p_ptr->mhp = p_ptr->race_hp[0];
+	p_ptr->chp = p_ptr->mhp;
+	p_ptr->msp = p_ptr->race_sp[0];
+	p_ptr->csp = p_ptr->msp;
 
 	/* Load the history */
 	for (i = 0; i < 4; i++)
@@ -638,72 +622,57 @@ int adjust_stat(int value, int amount)
  */
 static void get_extra(bool roll_hitdie)
 {
-	int  i, j;
-	s16b tmp16s;
+	int            i, j;
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+	s32b           tmp32s;
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp;
+	p_ptr->cexpfact = cp_ptr->c_exp;
 
-	for (i = 0; i < MAX_REALM; i++)
-		for (j = 0; j < 32; j++)
-			p_ptr->spell_skill_lev[i][j] = SKILL_LEVEL_BEGINNER;
+	(void)C_WIPE(p_ptr->cexp_info, MAX_CLASS, cexp_info_type);
 
 	for (i = 0; i < 5; i++)
 		for (j = 0; j < 64; j++)
-			p_ptr->weapon_skill_lev[i][j] = SKILL_LEVEL_BEGINNER;
+			p_ptr->weapon_exp[i][j] = 0;
 
 	for (i = 0; i < 10; i++)
-		p_ptr->misc_skill_lev[i] = SKILL_LEVEL_BEGINNER;
+		p_ptr->skill_exp[i] = 0;
 
-	p_ptr->mindcraft_skill_lev = SKILL_LEVEL_BEGINNER;
-
-	if (p_ptr->prace == RACE_OCTOPUS)
-	{
-		p_ptr->misc_skill_lev[SKILL_SENSE_ARMS] = SKILL_LEVEL_NOVICE;
-		p_ptr->misc_skill_lev[SKILL_SENSE_ACC] = SKILL_LEVEL_NOVICE;
-	}
-
-	for (i = 0; i < MAX_SKILL_LEVEL - 1; i++) p_ptr->mindcraft_eff[i] = damroll(5, 70);
-
-	p_ptr->skill_point = p_ptr->s_ptr->gain_sp_rate;
-
-	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
-
-	/* Manadice */
-	p_ptr->manadie = rp_ptr->r_msp + cp_ptr->c_msp;
+	for (i = 0; i < MAX_REALM + 1; i++)
+		p_ptr->magic_exp[i] = p_ptr->s_ptr->s_eff[i];
 
 	/* Roll for hit point unless quick-start */
 	if (roll_hitdie)
 	{
-		p_ptr->player_hp[0] = 0;
+		p_ptr->race_hp[0] = 0;
+
 		/* Gain level 1 HP */
 		for (i = 1; i < 4; i++)
 		{
-			tmp16s = rand_spread((s16b)p_ptr->hitdie, 2);
-			p_ptr->player_hp[0] += MAX(tmp16s, 0);
+			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+			p_ptr->race_hp[0] += MAX(tmp32s, 0);
 		}
 
 		/* Gain level 1 mana */
-		tmp16s = rand_spread((s16b)p_ptr->manadie, 1);
-		p_ptr->player_sp[0] = MAX(tmp16s, 0);
+		tmp32s = rand_spread(cp_ptr->c_msp, 1);
+		p_ptr->race_sp[0] = MAX(tmp32s, 0);
 	}
 
 	/* Paranoia */
 	for (i = 1; i < PY_MAX_LEVEL; i++)
 	{
-		p_ptr->player_hp[i] = p_ptr->player_sp[i] = 0;
-		p_ptr->level_gained_class[i] = 0;
+		p_ptr->race_hp[i] = p_ptr->race_sp[i] = 0;
 	}
 
 	/* Initial hitpoints */
-	p_ptr->mhp = p_ptr->player_hp[0];
+	p_ptr->mhp = p_ptr->race_hp[0];
 
 	/* Initial mana */
-	p_ptr->msp = p_ptr->player_sp[0];
+	p_ptr->msp = p_ptr->race_sp[0];
 
 	/* Initial class */
-	p_ptr->level_gained_class[0] = p_ptr->pclass;
+	cexp_ptr->max_max_clev = cexp_ptr->max_clev = cexp_ptr->clev = 1;
 
 	/* No feedback HP & mana */
 	p_ptr->player_ghp = p_ptr->player_gsp = 0;
@@ -804,11 +773,6 @@ static void get_history(void)
 			case RACE_MERMAID:
 			{
 				chart = 66;
-				break;
-			}
-			case RACE_OCTOPUS:
-			{
-				chart = 69;
 				break;
 			}
 			default:
@@ -920,15 +884,8 @@ static void player_wipe(void)
 {
 	int i;
 
-
 	/* Hack -- zero the struct */
 	(void)WIPE(p_ptr, player_type);
-
-	/* Wipe the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(p_ptr->history[i], "");
-	}
 
 	/* Wipe the quests */
 	for (i = MIN_RANDOM_QUEST; i <= MAX_RANDOM_QUEST_ASTRAL; i++)
@@ -946,9 +903,6 @@ static void player_wipe(void)
 		quest[i].r_idx = 0;
 		quest[i].complev = 0;
 	}
-
-	/* No weight */
-	p_ptr->total_weight = 0;
 
 	/* No items */
 	inven_cnt = 0;
@@ -1009,21 +963,7 @@ static void player_wipe(void)
 	cheat_live = FALSE;
 	cheat_save = FALSE;
 
-	/* Assume no winning game */
-	p_ptr->total_winner = FALSE;
-
 	stop_the_time_player = FALSE;
-
-	p_ptr->resurrection_cnt = 0;
-	p_ptr->materialize_cnt = 0;
-	p_ptr->reincarnate_cnt = 0;
-
-	/* Assume no panic save */
-	p_ptr->panic_save = 0;
-
-	/* Assume no cheating */
-	p_ptr->noscore = 0;
-	p_ptr->wizard = FALSE;
 
 	/* Default pet command settings */
 	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
@@ -1035,47 +975,10 @@ static void player_wipe(void)
 		max_dlv[i] = 0;
 	}
 
-	p_ptr->visit = 1;
-
-	/* Reset wild_mode to FALSE */
-	p_ptr->wild_mode = FALSE;
-
-	for (i = 0; i < 108; i++)
-	{
-		p_ptr->essence_box[i] = 0;
-	}
-	p_ptr->singing = 0;
-	p_ptr->restart_singing = 0;
-	p_ptr->song_start = 0;
-
 	/* Level one */
 	p_ptr->max_max_plv = p_ptr->max_plv = p_ptr->lev = 1;
 
-	/* Initialize arena and rewards information -KMW- */
-	p_ptr->arena_number = 0;
-	p_ptr->inside_arena = FALSE;
-	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
-
-	/* Bounty */
-	p_ptr->today_mon = 0;
-
-	/* Reset decoy */
-	p_ptr->decoy_y = 0;
-	p_ptr->decoy_x = 0;
-	p_ptr->use_decoy = FALSE;
-
-	/* Reset mutations */
-	p_ptr->muta1 = 0;
-	p_ptr->muta2 = 0;
-	p_ptr->muta3 = 0;
-
-	/* Reset special blow */
-	p_ptr->special_blow = 0L;
-
-	/* Reset alignment */
-	p_ptr->align_self = 0;
 
 	/* Set the recall dungeon accordingly */
 	dungeon_type = 0;
@@ -1095,6 +998,30 @@ static void player_wipe(void)
 	ambush_flag = FALSE;
 }
 
+
+/*
+ *  Hook function for quest monsters
+ */
+static bool mon_hook_quest(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Random quests are in the dungeon */
+	if (r_ptr->flags8 & RF8_WILD_ONLY) return FALSE;
+
+	/* No random quests for aquatic monsters */
+	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
+
+	/* No random quests for multiplying monsters */
+	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
+
+	/* No quests to kill friendly monsters */
+	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
+
+	return TRUE;
+}
+
+
 /*
  *  Initialize random quests and final quests
  */
@@ -1113,7 +1040,7 @@ static void init_dungeon_quests(int number_of_quests)
 	p_ptr->inside_quest = 0;
 
 	/* Prepare allocation table */
-	get_mon_num_prep(monster_quest, NULL);
+	get_mon_num_prep(mon_hook_quest, NULL);
 
 	/* Generate quests */
 	for (i = min_random_quest + number_of_quests - 1; i >= min_random_quest; i--)
@@ -1225,20 +1152,6 @@ void player_outfit(void)
 	case RACE_GHOST:
 		/* Nothing */
 		break;
-
-	case RACE_OCTOPUS:
-		/* Food rations */
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-		q_ptr->number = (byte)rand_range(3, 6);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_RING, SV_RING_SUSTAIN_STR));
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
-		break;
-
 	default:
 		/* Food rations */
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
@@ -1306,7 +1219,7 @@ void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER));
+		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR));
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
@@ -1317,7 +1230,7 @@ void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER));
+		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR));
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
@@ -1339,7 +1252,7 @@ void player_outfit(void)
 		break;
 
 	case CLASS_EXORCIST:
-		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_MORNING_STAR));
+		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_FLAIL));
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
@@ -1358,7 +1271,7 @@ void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER));
+		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
@@ -1374,7 +1287,7 @@ void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER));
+		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR));
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
@@ -1767,18 +1680,6 @@ static void class_aux_hook(int class_idx)
 		sprintf(s, "%s%s", stat_names[i], buf);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
-
-#ifdef JP
-	sprintf(s, "ヒットダイス: %d ", class_info[class_idx].c_mhp);
-	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "マジックダイス: %d ", class_info[class_idx].c_msp);
-	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-#else
-	sprintf(s, "Hit die: %d ", class_info[class_idx].c_mhp);
-	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "Mana die: %d ", class_info[class_idx].c_msp);
-	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-#endif
 }
 
 
@@ -1790,59 +1691,37 @@ static bool get_player_class(void)
 	int  i, num = 0;
 	birth_menu classes[MAX_CLASS];
 
-	if (rp_ptr->r_flags & PRF_LARGE)
+#ifdef JP
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"《クラス》によってキャラクターの技能や魔法などが変化します。");
+#else
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Your 'class' determines skill, magic realm, etc.");
+#endif
+
+	/* Tabulate classes */
+	for (i = 0; i < MAX_CLASS; i++)
 	{
-		switch (p_ptr->prace)
+		if (can_choose_class(i, CLASS_CHOOSE_MODE_BIRTH))
 		{
-		case RACE_OCTOPUS:
-			p_ptr->pclass = CLASS_OCTOPUS;
-			break;
-
-		default:
-			return FALSE;
-		}
-
-		/* Clear */
-		for (i = TABLE_ROW; i < Term->hgt; i++)
-		{
-			/* Clear */
-			Term_erase(CLASS_COL, i, Term->wid - 20);
+			/* Save the string */
+			classes[num].name = class_info[i].title;
+			classes[num++].real = i;
 		}
 	}
-	else
+
+#ifdef JP
+	p_ptr->pclass = get_player_choice(classes, num, CLASS_COL, 20, "jraceclas.txt#TheClasses", class_aux_hook);
+#else
+	p_ptr->pclass = get_player_choice(classes, num, CLASS_COL, 20, "raceclas.txt#TheClasses", class_aux_hook);
+#endif
+
+	/* No selection? */
+	if (p_ptr->pclass == INVALID_CHOICE)
 	{
-#ifdef JP
-		Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-			"《クラス》によってキャラクターの技能や魔法などが変化します。");
-#else
-		Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-			"Your 'class' determines skill, magic realm, etc.");
-#endif
+		p_ptr->pclass = 0;
 
-		/* Tabulate classes */
-		for (i = 0; i < MAX_CLASS; i++)
-		{
-			if (can_choose_class(i, CLASS_CHOOSE_MODE_BIRTH))
-			{
-				/* Save the string */
-				classes[num].name = class_info[i].title;
-				classes[num++].real = i;
-			}
-		}
-
-#ifdef JP
-		p_ptr->pclass = get_player_choice(classes, num, CLASS_COL, 20, "jraceclas.txt#TheClasses", class_aux_hook);
-#else
-		p_ptr->pclass = get_player_choice(classes, num, CLASS_COL, 20, "raceclas.txt#TheClasses", class_aux_hook);
-#endif
-
-		/* No selection? */
-		if (p_ptr->pclass == INVALID_CHOICE)
-		{
-			p_ptr->pclass = 0;
-
-			return (FALSE);
-		}
+		return (FALSE);
 	}
 
 	/* Set class */
@@ -2180,29 +2059,23 @@ static bool player_birth_aux_2(void)
 	            "キャラクタの能力値を設定してください。");
 	put_str("性別   : ", INSTRUCT_ROW, QUESTION_COL - 1);
 	put_str("種族   : ", INSTRUCT_ROW + 1, QUESTION_COL - 1);
-	if (!(rp_ptr->r_flags & PRF_LARGE))
-	{
-		put_str("クラス : ", INSTRUCT_ROW + 2, QUESTION_COL - 1);
-		Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-			"選択したクラスによって必要なコストがかかった状態での設定となっています。");
-	}
+	put_str("クラス : ", INSTRUCT_ROW + 2, QUESTION_COL - 1);
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"選択したクラスによって必要なコストがかかった状態での設定となっています。");
 	put_str("        基本値  最小値  最大値  (コスト)  種族     合計値", POINT_ROW - 1, POINT_COL);
 #else
 	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
 	            "Configure stats of character.");
 	put_str("Sex    : ", INSTRUCT_ROW, QUESTION_COL - 1);
 	put_str("Race   : ", INSTRUCT_ROW + 1, QUESTION_COL - 1);
-	if (!(rp_ptr->r_flags & PRF_LARGE))
-	{
-		put_str("Class  : ", INSTRUCT_ROW + 2, QUESTION_COL - 1);
-		Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-			"Points are already reduced by chosen class.");
-	}
+	put_str("Class  : ", INSTRUCT_ROW + 2, QUESTION_COL - 1);
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Points are already reduced by chosen class.");
 	put_str("          Base     Min     Max    (Cost)  Race      Total", POINT_ROW - 1, POINT_COL);
 #endif
 	c_put_str(TERM_L_BLUE, sp_ptr->title, INSTRUCT_ROW, QUESTION_COL + 8);
 	c_put_str(TERM_L_BLUE, rp_ptr->title, INSTRUCT_ROW + 1, QUESTION_COL + 8);
-	if (!(rp_ptr->r_flags & PRF_LARGE)) c_put_str(TERM_L_BLUE, cp_ptr->title, INSTRUCT_ROW + 2, QUESTION_COL + 8);
+	c_put_str(TERM_L_BLUE, cp_ptr->title, INSTRUCT_ROW + 2, QUESTION_COL + 8);
 
 	for (i = 0; i < A_MAX; i++)
 	{
@@ -2855,15 +2728,12 @@ void player_birth(void)
 #endif
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
 
-	if (!(rp_ptr->r_flags & PRF_LARGE))
-	{
 #ifdef JP
-		sprintf(buf,"                            クラスに%sを選択した。", class_info[p_ptr->pclass].title);
+	sprintf(buf,"                            クラスに%sを選択した。", class_info[p_ptr->pclass].title);
 #else
-		sprintf(buf,"                            choose %s class.", class_info[p_ptr->pclass].title);
+	sprintf(buf,"                            choose %s class.", class_info[p_ptr->pclass].title);
 #endif
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
-	}
+	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
 
 #ifdef JP
 	sprintf(buf,"                            エレメントに%sを選択した。", elem_names[p_ptr->pelem]);
@@ -2957,22 +2827,19 @@ void dump_yourself(FILE *fff)
 		fprintf(fff, "%s\n",t);
 		t += strlen(t) + 1;
 	}
-	if (!(race_info[p_ptr->prace].r_flags & PRF_LARGE))
-	{
-		roff_to_buf(class_jouhou[p_ptr->pclass], 78, temp, sizeof temp);
-		fprintf(fff, "\n");
+	roff_to_buf(class_jouhou[p_ptr->pclass], 78, temp, sizeof temp);
+	fprintf(fff, "\n");
 #ifdef JP
-		fprintf(fff, "クラス: %s\n", class_info[p_ptr->pclass].title);
+	fprintf(fff, "クラス: %s\n", class_info[p_ptr->pclass].title);
 #else
-		fprintf(fff, "Class: %s\n", class_info[p_ptr->pclass].title);
+	fprintf(fff, "Class: %s\n", class_info[p_ptr->pclass].title);
 #endif
-		t = temp;
-		for (i = 0; i < 10; i++)
-		{
-			if (t[0] == 0) break; 
-			fprintf(fff, "%s\n",t);
-			t += strlen(t) + 1;
-		}
+	t = temp;
+	for (i = 0; i < 10; i++)
+	{
+		if (t[0] == 0) break; 
+		fprintf(fff, "%s\n",t);
+		t += strlen(t) + 1;
 	}
 	for (i = 1; i <= MAX_REALM; i++)
 	{
@@ -3008,11 +2875,20 @@ void dump_yourself(FILE *fff)
 
 				fprintf(fff, "\n");
 				roff_to_buf(sb_ptr->text, 78, temp, sizeof temp);
+
+				if (i >= MAX_SB)
 #ifdef JP
-				fprintf(fff, "必殺技: %s (レベル: %2d, コスト: %2d)\n", sb_ptr->name, sb_ptr->level, sb_ptr->cost);
+					fprintf(fff, "必殺技: %s (テンプルナイトレベル: %2d, コスト: %2d)\n", sb_ptr->name, sb_ptr->level, sb_ptr->cost);
 #else
-				fprintf(fff, "Special Blow: %s (Level: %2d, Cost: %2d)\n", sb_ptr->name, sb_ptr->level, sb_ptr->cost);
+					fprintf(fff, "Special Blow: %s (Level: %2d, Cost: %2d)\n", sb_ptr->name, sb_ptr->level, sb_ptr->cost);
 #endif
+				else
+#ifdef JP
+					fprintf(fff, "必殺技: %s (レベル: %2d, コスト: %2d)\n", sb_ptr->name, sb_ptr->level, sb_ptr->cost);
+#else
+					fprintf(fff, "Special Blow: %s (Level: %2d, Cost: %2d)\n", sb_ptr->name, sb_ptr->level, sb_ptr->cost);
+#endif
+
 				fprintf(fff, "対象武器:");
 				for (j = 1; j <= MAX_WT; j++)
 				{

@@ -1164,7 +1164,7 @@ void wilderness_gen_small()
 	for (i = 0; i < max_wild_x; i++)
 		for (j = 0; j < max_wild_y; j++)
 		{
-			if (wilderness[j][i].town && (wilderness[j][i].town != TOWN_LOST_ISLAND))
+			if (wilderness[j][i].town && ((wilderness[j][i].town != TOWN_LOST_ISLAND) && (wilderness[j][i].town != TOWN_SEASIDE)))
 			{
 				cave[j][i].feat = FEAT_TOWN;
 				cave[j][i].special = wilderness[j][i].town;
@@ -1458,11 +1458,10 @@ bool change_wild_mode(void)
 				return FALSE;
 			}
 		}
-
+			
 		energy_use = 1000;
 	}
 
-	if (p_ptr->singing || p_ptr->restart_singing) stop_singing();
 	set_action(ACTION_NONE);
 
 	p_ptr->wild_mode = !p_ptr->wild_mode;

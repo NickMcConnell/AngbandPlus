@@ -208,10 +208,10 @@ static void sense_object_aux(int item, int sense_type)
 			{
 #ifdef JP
 				msg_format("%s%s(%c)は%sという感じがする...",
-				           describe_use(item), o_name, index_to_label(item, TRUE), game_inscriptions[feel]);
+				           describe_use(item),o_name, index_to_label(item),game_inscriptions[feel]);
 #else
 				msg_format("You feel the %s (%c) you are %s %s %s...",
-					   o_name, index_to_label(item, TRUE), describe_use(item),
+					   o_name, index_to_label(item), describe_use(item),
 					   ((o_ptr->number == 1) ? "is" : "are"),
 						   game_inscriptions[feel]);
 #endif
@@ -223,10 +223,10 @@ static void sense_object_aux(int item, int sense_type)
 			{
 #ifdef JP
 				msg_format("ザックの中の%s(%c)は%sという感じがする...",
-				           o_name, index_to_label(item, FALSE), game_inscriptions[feel]);
+				           o_name, index_to_label(item),game_inscriptions[feel]);
 #else
 				msg_format("You feel the %s (%c) in your pack %s %s...",
-					   o_name, index_to_label(item, FALSE),
+					   o_name, index_to_label(item),
 					   ((o_ptr->number == 1) ? "is" : "are"),
 						   game_inscriptions[feel]);
 #endif
@@ -279,17 +279,17 @@ static void sense_object_aux(int item, int sense_type)
 		if (item >= INVEN_RARM)
 		{
 #ifdef JP
-			msg_format("%^s%s: %s(%c)。", (sense_type == SENSE_TYPE_MENTAL) ? "(*鑑定*)" : "", describe_use(item), o_name, index_to_label(item, TRUE));
+			msg_format("%^s%s: %s(%c)。", (sense_type == SENSE_TYPE_MENTAL) ? "(*鑑定*)" : "", describe_use(item), o_name, index_to_label(item));
 #else
-			msg_format("%^s%s: %s (%c).", (sense_type == SENSE_TYPE_MENTAL) ? " (*Identify*)" : "", describe_use(item), o_name, index_to_label(item, TRUE));
+			msg_format("%^s%s: %s (%c).", (sense_type == SENSE_TYPE_MENTAL) ? " (*Identify*)" : "", describe_use(item), o_name, index_to_label(item));
 #endif
 		}
 		else if (item >= 0)
 		{
 #ifdef JP
-			msg_format("ザック中%s: %s(%c)。", (sense_type == SENSE_TYPE_MENTAL) ? "(*鑑定*)" : "", o_name, index_to_label(item, FALSE));
+			msg_format("ザック中%s: %s(%c)。", (sense_type == SENSE_TYPE_MENTAL) ? "(*鑑定*)" : "", o_name, index_to_label(item));
 #else
-			msg_format("In your pack%s: %s (%c).", (sense_type == SENSE_TYPE_MENTAL) ? " (*Identify*)" : "", o_name, index_to_label(item, FALSE));
+			msg_format("In your pack%s: %s (%c).", (sense_type == SENSE_TYPE_MENTAL) ? " (*Identify*)" : "", o_name, index_to_label(item));
 #endif
 		}
 
@@ -312,7 +312,7 @@ static int get_sense_type_arms(void)
 	int pstat = p_ptr->stat_use[A_WIS];
 
 	/* Analyze the skill level */
-	switch (p_ptr->misc_skill_lev[SKILL_SENSE_ARMS])
+	switch (skill_exp_level(p_ptr->skill_exp[SKILL_SENSE_ARMS]))
 	{
 	case SKILL_LEVEL_BEGINNER:
 		if (randint0(200) < pstat) return SENSE_TYPE_LIGHT;
@@ -345,7 +345,7 @@ static int get_sense_type_acc(void)
 	int pstat = p_ptr->stat_use[A_WIS];
 
 	/* Analyze the skill level */
-	switch (p_ptr->misc_skill_lev[SKILL_SENSE_ACC])
+	switch (skill_exp_level(p_ptr->skill_exp[SKILL_SENSE_ACC]))
 	{
 	case SKILL_LEVEL_BEGINNER:
 		return SENSE_TYPE_NONE;
@@ -423,7 +423,6 @@ static void sense_inventory1(void)
 			case TV_CLOAK:
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
 			case TV_CARD:
 			{
 				okay = TRUE;
@@ -520,7 +519,6 @@ void sense_floor_object(int o_idx)
 	case TV_CLOAK:
 	case TV_SOFT_ARMOR:
 	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
 	case TV_CARD:
 		sense_object_aux(0 - o_idx, get_sense_type_arms());
 		break;
@@ -548,7 +546,7 @@ static void regenhp(int percent)
 
 	/* Extract the new hitpoints */
 	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
-	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
+	p_ptr->chp += (new_chp >> 16);   /* div 65536 */
 
 	/* check for overflow */
 	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
@@ -600,13 +598,13 @@ static void regenmana(int percent)
 	{
 		new_mana *= 32;
 		p_ptr->csp--;
-		p_ptr->csp -= (s16b)(new_mana >> 16);	/* div 65536 */
+		p_ptr->csp -= (new_mana >> 16);	/* div 65536 */
 		new_mana_frac = p_ptr->csp_frac + 0x10000L - (new_mana & 0xFFFF);
 	}
 	else
 	{
 		if (old_csp_msp) new_mana += ((((long)p_ptr->msp) * percent + PY_REGEN_MNBASE) * 32);
-		p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
+		p_ptr->csp += (new_mana >> 16);	/* div 65536 */
 
 		new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
 	}
@@ -790,13 +788,15 @@ void leave_quest_check(void)
 
 static void gere_music(s32b music)
 {
+	int plev = p_ptr->cexp_info[p_ptr->pclass].clev;
+
 	switch (music)
 	{
 	case MUSIC_SAD:
-		project_hack_undead(GF_SOUND, damroll(10 + p_ptr->lev / 5, 7));
+		project_hack_undead(GF_SOUND, damroll(10 + plev / 5, 7));
 		break;
 	case MUSIC_SILENT:
-		song_of_silence(20 + p_ptr->lev * 2);
+		song_of_silence(20 + plev * 2);
 		break;
 	case MUSIC_TEMPTATION:
 		song_of_temptation();
@@ -818,7 +818,11 @@ static void recharged_notice(object_type *o_ptr)
 	if (!o_ptr->inscription) return;
 
 	/* Find a '!' */
+#ifdef JP
+	s = strchr_j(quark_str(o_ptr->inscription), '!');
+#else
 	s = strchr(quark_str(o_ptr->inscription), '!');
+#endif
 
 	/* Process notification request. */
 	while (s)
@@ -839,14 +843,18 @@ static void recharged_notice(object_type *o_ptr)
 				msg_format("Your %s is recharged.", o_name);
 #endif
 
-			disturb(1, 0);
+			disturb(0, 0);
 
 			/* Done. */
 			return;
 		}
 
 		/* Keep looking for '!'s */
+#ifdef JP
+		s = strchr_j(s + 1, '!');
+#else
 		s = strchr(s + 1, '!');
+#endif
 	}
 }
 
@@ -1267,12 +1275,12 @@ hit_from = "深い溶岩流";
 
 	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall && !p_ptr->can_swim)
 	{
-		if (p_ptr->total_weight > WEIGHT_LIMIT())
+		if (p_ptr->total_weight > (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) / 2))
 		{
 			/* Take damage */
 #ifdef JP
-msg_print("溺れている！");
-take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "溺れ");
+			msg_print("溺れている！");
+			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "溺れ");
 #else
 			msg_print("You are drowning!");
 			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "drowning");
@@ -1284,7 +1292,7 @@ take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "溺れ");
 
 	if (p_ptr->riding)
 	{
-		if ((p_ptr->pclass != CLASS_BEASTTAMER) && (p_ptr->pclass != CLASS_DRAGONTAMER))
+		if (((p_ptr->pclass != CLASS_BEASTTAMER) && (p_ptr->pclass != CLASS_DRAGONTAMER) && ((p_ptr->cexp_info[CLASS_BEASTTAMER].max_clev > 49) || (p_ptr->cexp_info[CLASS_DRAGONTAMER].max_clev > 49))) || ((p_ptr->pclass != CLASS_BEASTTAMER) && (p_ptr->cexp_info[CLASS_BEASTTAMER].clev > 34)) || ((p_ptr->pclass != CLASS_DRAGONTAMER) && (p_ptr->cexp_info[CLASS_DRAGONTAMER].clev > 34)))
 		{
 			int damage;
 			if ((r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_FIRE) && !p_ptr->immune_fire)
@@ -1496,51 +1504,43 @@ msg_print("遠くで鐘が何回も鳴り、死んだような静けさの中へ消えていった。");
 	/* Take damage from cuts */
 	if (p_ptr->cut && !p_ptr->invuln)
 	{
-		/* Mortal wound or Deep Gash */
-		if (p_ptr->cut > 1000)
+		switch (cut_level(p_ptr->cut))
 		{
-			i = 200;
-		}
-
-		else if (p_ptr->cut > 200)
-		{
-			i = 80;
-		}
-
-		/* Severe cut */
-		else if (p_ptr->cut > 100)
-		{
-			i = 32;
-		}
-
-		else if (p_ptr->cut > 50)
-		{
-			i = 16;
-		}
-
-		else if (p_ptr->cut > 25)
-		{
-			i = 7;
-		}
-
-		else if (p_ptr->cut > 10)
-		{
-			i = 3;
-		}
-
-		/* Other cuts */
-		else
-		{
+		case 1:
 			i = 1;
+			break;
+
+		case 2:
+			i = 3;
+			break;
+
+		case 3:
+			i = 7;
+			break;
+
+		case 4:
+			i = 16;
+			break;
+
+		case 5:
+			i = 32;
+			break;
+
+		case 6:
+			i = 80;
+			break;
+
+		default:
+			i = 200;
+			break;
 		}
 
 		/* Take damage */
 #ifdef JP
-take_hit(DAMAGE_NOESCAPE, i, "致命傷");
+		take_hit(DAMAGE_NOESCAPE, i, "致命傷");
 #else
 		take_hit(DAMAGE_NOESCAPE, i, "a fatal wound");
 #endif
-
 	}
 
 
@@ -1668,7 +1668,7 @@ take_hit(DAMAGE_NOESCAPE, i, "致命傷");
 		if (p_ptr->wizard)
 		{
 #ifdef JP
-			msg_format("ＭＰ回復: %d/%d", upkeep_regen, regen_amount);
+			msg_format("MP回復: %d/%d", upkeep_regen, regen_amount);
 #else
 			msg_format("Regen: %d/%d", upkeep_regen, regen_amount);
 #endif
@@ -1693,7 +1693,7 @@ msg_print("こんなに多くのペットを制御できない！");
 			upkeep_factor = calculate_upkeep();
 
 #ifdef JP
-			msg_format("維持ＭＰは %d%%", upkeep_factor);
+			msg_format("維持MPは %d%%", upkeep_factor);
 #else
 			msg_format("Upkeep: %d%% mana.", upkeep_factor);
 #endif
@@ -1763,15 +1763,6 @@ msg_print("こんなに多くのペットを制御できない！");
 		(void)set_evil_weapon(p_ptr->evil_weapon - 1, TRUE, INVEN_RARM, FALSE);
 	}
 
-	/* Timed temporary holy/hell immunity. -LM- */
-	if (p_ptr->the_immunity)
-	{
-		p_ptr->the_immunity--;
-
-		/* Clear all temporary holy/hell immunity. */
-		if (!p_ptr->the_immunity) set_the_immunity(0, 0);
-	}
-
 	/* Timed infra-vision */
 	if (p_ptr->tim_infra)
 	{
@@ -1826,12 +1817,6 @@ msg_print("こんなに多くのペットを制御できない！");
 		(void)set_zoshonel_protect(p_ptr->zoshonel_protect - 1, TRUE);
 	}
 
-	/* Timed immunity of Octopus */
-	if (p_ptr->tim_octopus_immunity)
-	{
-		(void)set_tim_octopus_immunity(p_ptr->tim_octopus_immunity - 1, TRUE);
-	}
-
 	/* Timed Chargespell */
 	if (p_ptr->chargespell)
 	{
@@ -1872,12 +1857,6 @@ msg_print("こんなに多くのペットを制御できない！");
 	if (p_ptr->tim_resurrection)
 	{
 		(void)set_tim_resurrection(p_ptr->tim_resurrection - 1, TRUE);
-	}
-
-	/* Timed immunity to magic */
-	if (p_ptr->tim_immune_magic)
-	{
-		(void)set_tim_immune_magic(p_ptr->tim_immune_magic - 1, TRUE);
 	}
 
 	/* Paralysis */
@@ -2034,7 +2013,7 @@ msg_print("こんなに多くのペットを制御できない！");
 		int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
 
 		/* Hack -- Truly "mortal" wound */
-		if (p_ptr->cut > 1000) adjust = 0;
+		if (cut_level(p_ptr->cut) >= 7) adjust = 0;
 
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
@@ -2051,7 +2030,7 @@ msg_print("こんなに多くのペットを制御できない！");
 	if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
-		if (!(artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_FEANOR) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP)) && (o_ptr->xtra4 > 0))
+		if (!(artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_FEANOR) || (o_ptr->sval == SV_LITE_MAGICAL_LAMP) || (o_ptr->sval == SV_LITE_EMPTY)) && (o_ptr->xtra4 > 0))
 		{
 			/* Decrease life-span */
 			if (o_ptr->name2 == EGO_LITE_LONG)
@@ -2690,7 +2669,7 @@ if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
 			}
 		}
 		/* TY Curse */
-		if ((p_ptr->cursed & TRC_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
+		if ((p_ptr->cursed & TRC_TY_CURSE) && one_in_(((inventory[INVEN_RARM].sval == SV_DARK_SWORD) || (inventory[INVEN_LARM].sval == SV_DARK_SWORD)) ? 20 + weapon_exp_level(p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU]) * weapon_exp_level(p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU]) : TY_CURSE_CHANCE))
 		{
 			int count = 0;
 			(void)activate_ty_curse(FALSE, &count);
@@ -2698,10 +2677,20 @@ if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
 		/* Handle experience draining */
 		if ((p_ptr->cursed & TRC_DRAIN_EXP) && one_in_(4))
 		{
-			p_ptr->exp -= (p_ptr->lev+1)/2;
+			cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+
+			/* Racial */
+			p_ptr->exp -= (p_ptr->lev + 1) / 2;
 			if (p_ptr->exp < 0) p_ptr->exp = 0;
-			p_ptr->max_exp -= (p_ptr->lev+1)/2;
+			p_ptr->max_exp -= (p_ptr->lev + 1) / 2;
 			if (p_ptr->max_exp < 0) p_ptr->max_exp = 0;
+
+			/* Class */
+			cexp_ptr->cexp -= (cexp_ptr->clev + 1) / 2;
+			if (cexp_ptr->cexp < 0) cexp_ptr->cexp = 0;
+			cexp_ptr->max_cexp -= (cexp_ptr->clev + 1) / 2;
+			if (cexp_ptr->max_cexp < 0) cexp_ptr->max_cexp = 0;
+
 			check_experience();
 		}
 		/* Add light curse (Later) */
@@ -2867,7 +2856,7 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 		}
 	}
 
-	/* Rarely, take damage from the Jewel of Judgement */
+	/* Rarely, take damage from the Lost Eye */
 	if (one_in_(999) && !p_ptr->anti_magic)
 	{
 		if ((inventory[INVEN_LITE].tval) &&
@@ -2884,6 +2873,15 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "暗黒騎士ランスロットの失われた眼");
 
 		}
+	}
+
+
+	/* Take damage from Youtou */
+	if (((inventory[INVEN_RARM].sval == SV_YOUTOU) ||
+	    (inventory[INVEN_LARM].sval == SV_YOUTOU)) && (p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU] < 8000))
+	{
+		take_hit(DAMAGE_LOSELIFE, (5 - weapon_exp_level(p_ptr->weapon_exp[TV_SWORD - TV_BOW][SV_YOUTOU])) * 10, "妖刀");
+
 	}
 
 
@@ -3303,7 +3301,27 @@ static bool enter_debug_mode(void)
 			return FALSE;
 		}
 
+		/* Mention effects */
+#ifdef JP
+msg_print("デバッグ・コマンドはデバッグと実験のためのコマンドです。 ");
+msg_print("デバッグ・コマンドを使うとスコアは記録されません。");
+#else
+		msg_print("The debug commands are for debugging and experimenting.");
+		msg_print("The game will not be scored if you use debug commands.");
+#endif
+
 		msg_print(NULL);
+
+		/* Verify request */
+#ifdef JP
+if (!get_check("本当にデバッグ・コマンドを使いますか? "))
+#else
+		if (!get_check("Are you sure you want to use debug commands? "))
+#endif
+
+		{
+			return (FALSE);
+		}
 
 #ifdef JP
 		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "デバッグモードに突入してスコアを残せなくなった。");
@@ -3650,8 +3668,6 @@ msg_print("ウィザードモード突入。");
 		/* Switch search mode / element scope mode */
 		case 'S':
 		{
-			if (p_ptr->singing || p_ptr->restart_singing) stop_singing();
-
 			if (p_ptr->action == ACTION_SEARCH) set_action(ACTION_ELEMSCOPE);
 			else if (p_ptr->action == ACTION_ELEMSCOPE) set_action(ACTION_NONE);
 			else set_action(ACTION_SEARCH);
@@ -3793,7 +3809,57 @@ msg_print("ウィザードモード突入。");
 			/* -KMW- */
 			if (!p_ptr->wild_mode)
 			{
-				if (p_ptr->shero)
+				if (!realm_choices[p_ptr->pclass] && (p_ptr->pclass != CLASS_GUNNER))
+				{
+#ifdef JP
+					msg_print("呪文を唱えられない！");
+#else
+					msg_print("You cannot cast spells!");
+#endif
+				}
+				else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_GUNNER))
+				{
+#ifdef JP
+					cptr which_power = "魔法";
+#else
+					cptr which_power = "magic";
+#endif
+					if (mp_ptr->spell_book == TV_HOLY_BOOK)
+#ifdef JP
+						which_power = "祈り";
+#else
+						which_power = "prayer";
+#endif
+
+#ifdef JP
+					msg_format("反魔法バリアが%sを邪魔した！", which_power);
+#else
+					msg_format("An anti-magic shell disrupts your %s!", which_power);
+#endif
+					energy_use = 0;
+				}
+				else if (is_anti_magic_grid(-1, py, px) && (p_ptr->pclass != CLASS_GUNNER))
+				{
+#ifdef JP
+					cptr which_power = "魔法";
+#else
+					cptr which_power = "magic";
+#endif
+					if (mp_ptr->spell_book == TV_HOLY_BOOK)
+#ifdef JP
+						which_power = "祈り";
+#else
+						which_power = "prayer";
+#endif
+
+#ifdef JP
+					msg_format("反魔法フィールドが%sを邪魔した！", which_power);
+#else
+					msg_format("An anti-magic field disrupts your %s!", which_power);
+#endif
+					energy_use = 100;
+				}
+				else if (p_ptr->shero)
 				{
 #ifdef JP
 					msg_format("狂戦士化していて頭が回らない！");
@@ -4249,7 +4315,7 @@ msg_print("アリーナが魔法を吸収した！");
 
 		case '_':
 		{
-			do_cmd_skill_level();
+			do_cmd_weapon_skill_level();
 			break;
 		}
 
@@ -4376,6 +4442,7 @@ msg_print("中断しました。");
 	if (p_ptr->riding && !p_ptr->confused && !p_ptr->blind)
 	{
 		monster_type *m_ptr = &m_list[p_ptr->riding];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		if (m_ptr->csleep)
 		{
@@ -4383,6 +4450,8 @@ msg_print("中断しました。");
 
 			/* Recover fully */
 			m_ptr->csleep = 0;
+
+			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 			/* Acquire the monster name */
 			monster_desc(m_name, m_ptr, 0);
@@ -4400,7 +4469,7 @@ msg_format("%^sを起こした。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < (skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->stunned;
@@ -4440,7 +4509,7 @@ msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < (skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->confused;
@@ -4480,7 +4549,7 @@ msg_format("%^sを混乱状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < (skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000))
+			if (randint0(r_ptr->level) < (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000))
 			{
 				/* Recover fully */
 				d = m_ptr->monfear;
@@ -4579,9 +4648,9 @@ msg_print("ザックからアイテムがあふれた！");
 
 			/* Message */
 #ifdef JP
-msg_format("%s(%c)を落とした。", o_name, index_to_label(item, FALSE));
+msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 #else
-			msg_format("You drop %s (%c).", o_name, index_to_label(item, FALSE));
+			msg_format("You drop %s (%c).", o_name, index_to_label(item));
 #endif
 
 
@@ -4616,7 +4685,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item, FALSE));
 
 
 		/* Paralyzed or Knocked Out */
-		if (p_ptr->paralyzed || (p_ptr->stun > 300))
+		if (p_ptr->paralyzed || (stun_level(p_ptr->stun) >= 4))
 		{
 			/* Take a turn */
 			energy_use = 100;
@@ -4848,6 +4917,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item, FALSE));
 static void dungeon(void)
 {
 	int quest_num = 0;
+	int i;
 
 	/* Set the base level */
 	base_level = dun_level;
@@ -4897,6 +4967,12 @@ static void dungeon(void)
 	/* Track maximum player level */
 	if (p_ptr->max_plv < p_ptr->lev) p_ptr->max_plv = p_ptr->lev;
 	if (p_ptr->max_max_plv < p_ptr->max_plv) p_ptr->max_max_plv = p_ptr->max_plv;
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+		if (cexp_ptr->max_clev < cexp_ptr->clev) cexp_ptr->max_clev = cexp_ptr->clev;
+		if (cexp_ptr->max_max_clev < cexp_ptr->max_clev) cexp_ptr->max_max_clev = cexp_ptr->max_clev;
+	}
 
 
 	/* Track maximum dungeon level (if not in quest -KMW-) */
@@ -4949,7 +5025,7 @@ static void dungeon(void)
 	/* Leave "xtra" mode */
 	character_xtra = FALSE;
 
-	if (rp_ptr->r_flags & PRF_AQUATIC) set_aquatic_in_water();
+	if (p_ptr->prace == RACE_MERMAID) set_mermaid_in_water();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -4975,7 +5051,7 @@ static void dungeon(void)
 	if ((quest_num && (quest_is_fixed(quest_num) &&
 	   !((quest[quest_num].flags & QUEST_FLAG_GUARDIAN) ||
 	    !(quest[quest_num].flags & QUEST_FLAG_PRESET))))
-	   || (!dun_level && p_ptr->town_num && !p_ptr->inside_arena)) do_cmd_feeling();
+	   || (!dun_level && p_ptr->town_num && (p_ptr->town_num != TOWN_LOST_ISLAND) && !p_ptr->inside_arena)) do_cmd_feeling();
 
 	/* Hack -- notice death or departure */
 	if (!p_ptr->playing || p_ptr->is_dead) return;
@@ -5174,14 +5250,11 @@ void load_all_pref_files(void)
 	/* Process that file */
 	process_pref_file(buf);
 
-	if (!(rp_ptr->r_flags & PRF_LARGE))
-	{
-		/* Access the "class" pref file */
-		sprintf(buf, "%s.prf", cp_ptr->title);
+	/* Access the "class" pref file */
+	sprintf(buf, "%s.prf", cp_ptr->title);
 
-		/* Process that file */
-		process_pref_file(buf);
-	}
+	/* Process that file */
+	process_pref_file(buf);
 
 	/* Access the "character" pref file */
 	sprintf(buf, "%s.prf", player_base);
@@ -5254,6 +5327,39 @@ void init_realm_table(void)
 
 
 /*
+ * Extract option variables from bit sets
+ */
+void extract_option_vars(void)
+{
+	int i;
+
+	for (i = 0; option_info[i].o_desc; i++)
+	{
+		int os = option_info[i].o_set;
+		int ob = option_info[i].o_bit;
+
+		/* Set the "default" options */
+		if (option_info[i].o_var)
+		{
+			/* Set */
+			if (option_flag[os] & (1L << ob))
+			{
+				/* Set */
+				(*option_info[i].o_var) = TRUE;
+			}
+
+			/* Clear */
+			else
+			{
+				/* Clear */
+				(*option_info[i].o_var) = FALSE;
+			}
+		}
+	}
+}
+
+
+/*
  * Actually play a game
  *
  * If the "new_game" parameter is true, then, after loading the
@@ -5272,7 +5378,7 @@ void play_game(bool new_game)
 
 	/* Initialise the resize hooks */
 	angband_term[0]->resize_hook = resize_map;
-	
+
 	for (i = 1; i < 8; i++)
 	{
 		/* Does the term exist? */
@@ -5300,29 +5406,7 @@ quit("セーブファイルが壊れています");
 	}
 
 	/* Extract the options */
-	for (i = 0; option_info[i].o_desc; i++)
-	{
-		int os = option_info[i].o_set;
-		int ob = option_info[i].o_bit;
-
-		/* Set the "default" options */
-		if (option_info[i].o_var)
-		{
-			/* Set */
-			if (option_flag[os] & (1L << ob))
-			{
-				/* Set */
-				(*option_info[i].o_var) = TRUE;
-			}
-
-			/* Clear */
-			else
-			{
-				/* Clear */
-				(*option_info[i].o_var) = FALSE;
-			}
-		}
-	}
+	extract_option_vars();
 
 	/* Nothing loaded */
 	if (!character_loaded)
@@ -5768,6 +5852,19 @@ msg_print("張りつめた大気が流れ去った...");
 #else
 					(void)strcpy(p_ptr->died_from, "Cheating death");
 #endif
+
+
+	if (new_game)
+	{
+		char buf[80];
+
+#ifdef JP
+		sprintf(buf, "%sに降り立った。", map_name());
+#else
+		sprintf(buf, "You are standing in the %s.", map_name());
+#endif
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
+	}
 
 
 					/* Do not die */

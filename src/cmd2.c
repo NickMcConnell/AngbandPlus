@@ -798,7 +798,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		for (i = 0; i < num; i++)
 		{
 			if (randint1(100)<dun_level)
-				activate_hi_summon(py, px, FALSE);
+				activate_hi_summon(py, px);
 			else
 				(void)summon_specific(0, y, x, mon_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 		}
@@ -918,7 +918,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		for (; nasty_tricks_count > 0; nasty_tricks_count--)
 		{
 			/* ...but a high saving throw does help a little. */
-			if ((randint1(100+o_ptr->pval*2) > p_ptr->skill_sav) && !p_ptr->tim_immune_magic)
+			if (randint1(100+o_ptr->pval*2) > p_ptr->skill_sav)
 			{
 #ifdef JP
 				if (one_in_(6)) take_hit(DAMAGE_NOESCAPE, damroll(5, 20), "破滅のトラップの宝箱");
@@ -2182,7 +2182,7 @@ bool easy_open_door(int y, int x)
 			cave_set_feat(y, x, FEAT_OPEN);
 
 			/* Update some things */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 			/* Sound */
 			sound(SOUND_OPENDOOR);
@@ -2214,7 +2214,7 @@ bool easy_open_door(int y, int x)
 		cave_set_feat(y, x, FEAT_OPEN);
 
 		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 		/* Sound */
 		sound(SOUND_OPENDOOR);
@@ -2674,7 +2674,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		move_player(dir, FALSE);
 
 		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE);
 		p_ptr->update |= (PU_DISTANCE);
 	}
 
@@ -3352,7 +3352,7 @@ void do_cmd_rest(void)
  */
 static int breakage_chance(object_type *o_ptr)
 {
-	int archer_bonus = ((p_ptr->pclass == CLASS_ARCHER) ? ((p_ptr->lev-1)/7 + 4) : 0);
+	int archer_bonus = ((p_ptr->pclass == CLASS_ARCHER) ? ((p_ptr->cexp_info[CLASS_ARCHER].clev - 1) / 7 + 4) : 0);
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -3391,7 +3391,7 @@ static int breakage_chance(object_type *o_ptr)
 }
 
 
-static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
+static s32b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 10;
 
@@ -3405,7 +3405,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
 
-	if (inventory[INVEN_BOW].k_idx && (inventory[INVEN_BOW].tval == TV_BOW))
+	if (inventory[INVEN_BOW].k_idx && inventory[INVEN_BOW].name1)
 	{
 		u32b flgs_g[TR_FLAG_SIZE];
 		int i;
@@ -3889,7 +3889,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 	{
 		int avgdam, turnavg;
 
-		attack_var = skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]];
+		attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
 		skill_to_d = attack_var - 1;
 
 		o_ptr = &thrown;
@@ -3969,7 +3969,7 @@ bool do_cmd_fire_aux(int item, object_type *j_ptr, bool direct)
 
 		if ((j_ptr->sval == SV_PISTOL) && (o_ptr->sval == SV_MAGNUM_BULLET)) as_beam = TRUE;
 
-		attack_var = skill_lev_var[p_ptr->weapon_skill_lev[0][j_ptr->sval]];
+		attack_var = skill_lev_var[weapon_exp_level(p_ptr->weapon_exp[0][j_ptr->sval])];
 		skill_to_d = attack_var - 1;
 	}
 
@@ -4396,7 +4396,7 @@ bool do_cmd_fire(bool direct)
 	j_ptr = &inventory[INVEN_BOW];
 
 	/* Require a launcher */
-	if (j_ptr->tval != TV_BOW)
+	if (!j_ptr->tval)
 	{
 #ifdef JP
 		msg_print("射撃用の武器を持っていない。");
@@ -4481,8 +4481,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 
 	int ac = 0;
 
-	int attack_var = skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]];
-	bool use_throwing_skill = FALSE;
+	int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
 
 
 	if (mode & PY_THROW_CHOSEN)
@@ -4565,7 +4564,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 		return FALSE;
 	}
 
-	if (p_ptr->inside_arena)
+	if (p_ptr->inside_arena && !boomerang)
 	{
 #ifdef JP
 		msg_print("アリーナではアイテムを使えない！");
@@ -4596,19 +4595,9 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	/* Description */
 	object_desc(o_name, q_ptr, FALSE, 3);
 
-	switch (q_ptr->tval)
-	{
-	case TV_DIGGING:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-		if (!(rp_ptr->r_flags & PRF_LARGE)) use_throwing_skill = TRUE;
-		break;
-	}
-
 	if (p_ptr->mighty_throw) mult += 3;
 	if (shooting_star) mult += 3;
-	if (use_throwing_skill) mult += attack_var - 1;
+	mult += attack_var - 1;
 
 	/* Extract a "distance multiplier" */
 	/* Changed for 'launcher' mutation */
@@ -4669,7 +4658,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	}
 
 	/* Take partial turn */
-	energy_use = 100 - (use_throwing_skill ? (attack_var * attack_var) : 0);
+	energy_use = 100 - attack_var * attack_var;
 
 	/* Start at the player */
 	y = py;
@@ -4686,7 +4675,7 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 	if (shooting_star || have_flag(flgs, TR_THROW))
 		chance = ((p_ptr->skill_tht) + ((p_ptr->to_h_b + q_ptr->to_h) * BTH_PLUS_ADJ));
 	else chance = (p_ptr->skill_tht + (p_ptr->to_h_b * BTH_PLUS_ADJ));
-	if (use_throwing_skill) chance += (attack_var - 1) * 6;
+	chance += (attack_var - 1) * 6;
 
 	if (shuriken) chance *= 2;
 	if (chance > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB)) chance = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB;
@@ -4823,9 +4812,9 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 					int hack_dd = q_ptr->dd;
 
 					if ((p_ptr->pclass == CLASS_BERSERKER) && (q_ptr->tval == TV_POLEARM)
-						&& ((q_ptr->sval == SV_HATCHET) || (q_ptr->sval == SV_FRANCISCA) || (q_ptr->sval == SV_RUNEAXE)))
+						&& ((q_ptr->sval == SV_FRANCISCA) || (q_ptr->sval == SV_RUNEAXE)))
 					{
-						hack_dd += (1 + p_ptr->lev / 25);
+						hack_dd += (1 + p_ptr->cexp_info[CLASS_BERSERKER].clev / 25);
 					}
 
 					/* Hack -- Base damage from thrown object */
@@ -4855,7 +4844,8 @@ bool do_cmd_throw_aux(int mult, u16b mode, int chosen_item)
 				}
 				if (shuriken)
 				{
-					tdam += ((p_ptr->lev+30)*(p_ptr->lev+30)-900)/55;
+					int clev = p_ptr->cexp_info[CLASS_NINJA].clev;
+					tdam += ((clev+30)*(clev+30)-900)/55;
 				}
 
 				/* No negative damage */
@@ -5057,7 +5047,7 @@ msg_print("これはあまり良くない気がする。");
 
 	if (come_back)
 	{
-		if (!prace_is_(RACE_OCTOPUS) && (item == INVEN_RARM || item == INVEN_LARM))
+		if (item == INVEN_RARM || item == INVEN_LARM)
 		{
 			/* Access the wield slot */
 			o_ptr = &inventory[item];

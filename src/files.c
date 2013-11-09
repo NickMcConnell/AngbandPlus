@@ -278,7 +278,6 @@ static named_num gf_desc[] =
 	{"GF_HAND_DOOM",			GF_HAND_DOOM		},
 	{"GF_DEATH_RAY",			GF_DEATH_RAY		},
 	{"GF_PSI",					GF_PSI				},
-	{"GF_TELEKINESIS",			GF_TELEKINESIS		},
 	{"GF_MIND_BLAST",			GF_MIND_BLAST		},
 	{"GF_BRAIN_SMASH",			GF_BRAIN_SMASH		},
 	{"GF_KILL_WALL",			GF_KILL_WALL		},
@@ -330,7 +329,6 @@ static named_num gf_desc[] =
 	{"GF_ERASE_ELEM",			GF_ERASE_ELEM		},
 	{"GF_CAVE_TEMP",			GF_CAVE_TEMP		},
 	{"GF_WATER_FLOW",			GF_WATER_FLOW		},
-	{"GF_STAR_IDENTIFY",		GF_STAR_IDENTIFY	},
 	{NULL, 						0					}
 };
 
@@ -989,13 +987,10 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-				if (rp_ptr->r_flags & PRF_LARGE)
-					v = "none";
-				else
 #ifdef JP
-					v = cp_ptr->E_title;
+				v = cp_ptr->E_title;
 #else
-					v = cp_ptr->title;
+				v = cp_ptr->title;
 #endif
 			}
 
@@ -1015,11 +1010,58 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 #endif
 			}
 
-			/* Level */
+			/* Racial level */
 			else if (streq(b+1, "LEVEL"))
 			{
 				sprintf(tmp, "%02d", p_ptr->lev);
 				v = tmp;
+			}
+
+			/* Class level */
+			else if (!strncmp(b+1, "CLEVEL", 6))
+			{
+				char *pp = b + 1 + 6;
+				char p1 = '(', p2 = ')';
+
+				/* Current class level */
+				if (!*pp)
+				{
+					sprintf(tmp, "%02d", p_ptr->cexp_info[p_ptr->pclass].clev);
+					v = tmp;
+				}
+
+				/* Specified class level */
+				else if (*pp == p1)
+				{
+					char class_name[40];
+					char *rp = strchr(pp + 2, p2);
+
+					/* Default */
+					v = "00";
+
+					pp++;
+					if (rp && !*(rp + 1) && (((int)(rp - pp) + 1) < (sizeof class_name)))
+					{
+						int i;
+
+						strcpy(class_name, pp);
+						class_name[(int)(rp - pp)] = '\0'; /* Terminate right parentheses */
+
+						for (i = 0; i < MAX_CLASS; i++)
+						{
+#ifdef JP
+							if (streq(class_info[i].E_title, class_name))
+#else
+							if (streq(class_info[i].title, class_name))
+#endif
+							{
+								sprintf(tmp, "%02d", p_ptr->cexp_info[i].clev);
+								v = tmp;
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -1448,50 +1490,52 @@ errr check_load_init(void)
 }
 
 
-#define ENTRY_BARE_HAND      0
-#define ENTRY_TWO_HANDS      1
-#define ENTRY_RIGHT_HAND1    2
-#define ENTRY_LEFT_HAND1     3
-#define ENTRY_LEFT_HAND2     4
-#define ENTRY_RIGHT_HAND2    5
-#define ENTRY_MELEE_SUM      6
-#define ENTRY_SHOOT_HIT_DAM  7
-#define ENTRY_SHOOT_POWER    8
-#define ENTRY_SPEED          9
-#define ENTRY_BASE_AC       10
-#define ENTRY_LEVEL         11
-#define ENTRY_CUR_EXP       12
-#define ENTRY_MAX_EXP       13
-#define ENTRY_EXP_TO_ADV    14
-#define ENTRY_GOLD          15
-#define ENTRY_DAY           16
-#define ENTRY_HP            17
-#define ENTRY_SP            18
-#define ENTRY_PLAY_TIME     19
-#define ENTRY_SKILL_FIGHT   20
-#define ENTRY_SKILL_SHOOT   21
-#define ENTRY_SKILL_SAVING  22
-#define ENTRY_SKILL_STEALTH 23
-#define ENTRY_SKILL_PERCEP  24
-#define ENTRY_SKILL_SEARCH  25
-#define ENTRY_SKILL_DISARM  26
-#define ENTRY_SKILL_DEVICE  27
-#define ENTRY_BLOWS         28
-#define ENTRY_SHOTS         29
-#define ENTRY_AVG_DMG       30
-#define ENTRY_INFRA         31
-#define ENTRY_ANTI_MAGIC    32
-#define ENTRY_NAME          33
-#define ENTRY_SEX           34
-#define ENTRY_RACE          35
-#define ENTRY_CLASS         36
-#define ENTRY_ALIGN         37
-#define ENTRY_AGE           38
-#define ENTRY_HEIGHT        39
-#define ENTRY_HEIGHT2       40
-#define ENTRY_WEIGHT        41
-#define ENTRY_SOCIAL        42
-#define ENTRY_ELEM          43
+#define ENTRY_BARE_HAND          0
+#define ENTRY_TWO_HANDS          1
+#define ENTRY_RIGHT_HAND1        2
+#define ENTRY_LEFT_HAND1         3
+#define ENTRY_LEFT_HAND2         4
+#define ENTRY_RIGHT_HAND2        5
+#define ENTRY_SHOOT_HIT_DAM      6
+#define ENTRY_SHOOT_POWER        7
+#define ENTRY_SPEED              8
+#define ENTRY_BASE_AC            9
+#define ENTRY_RACIAL_LEVEL      10
+#define ENTRY_CUR_RACIAL_EXP    11
+#define ENTRY_MAX_RACIAL_EXP    12
+#define ENTRY_RACIAL_EXP_TO_ADV 13
+#define ENTRY_CLASS_LEVEL       14
+#define ENTRY_CUR_CLASS_EXP     15
+#define ENTRY_MAX_CLASS_EXP     16
+#define ENTRY_CLASS_EXP_TO_ADV  17
+#define ENTRY_GOLD              18
+#define ENTRY_DAY               19
+#define ENTRY_HP                20
+#define ENTRY_SP                21
+#define ENTRY_PLAY_TIME         22
+#define ENTRY_SKILL_FIGHT       23
+#define ENTRY_SKILL_SHOOT       24
+#define ENTRY_SKILL_SAVING      25
+#define ENTRY_SKILL_STEALTH     26
+#define ENTRY_SKILL_PERCEP      27
+#define ENTRY_SKILL_SEARCH      28
+#define ENTRY_SKILL_DISARM      29
+#define ENTRY_SKILL_DEVICE      30
+#define ENTRY_BLOWS             31
+#define ENTRY_SHOTS             32
+#define ENTRY_AVG_DMG           33
+#define ENTRY_INFRA             34
+#define ENTRY_ANTI_MAGIC        35
+#define ENTRY_NAME              36
+#define ENTRY_SEX               37
+#define ENTRY_RACE              38
+#define ENTRY_CLASS             39
+#define ENTRY_ALIGN             40
+#define ENTRY_AGE               41
+#define ENTRY_SOCIAL            42
+#define ENTRY_HEIGHT            43
+#define ENTRY_WEIGHT            44
+#define ENTRY_ELEM              45
 
 
 static struct
@@ -1509,20 +1553,23 @@ static struct
 	{ 1, 10, 25, "打撃修正(左手)"},
 	{ 1, 11, 25, "打撃修正(左手)"},
 	{ 1, 11, 25, "打撃修正(右手)"},
-	{ 1, 10, 25, "打撃修正(合計)"},
 	{ 1, 15, 25, "射撃攻撃修正"},
 	{ 1, 16, 25, "射撃武器倍率"},
-	{01, 20, 25, "加速"},
-	{ 1, 19, 25, "ＡＣ"},
-	{29, 13, 21, "レベル"},
-	{29, 14, 21, "経験値"},
-	{29, 15, 21, "最大経験"},
-	{29, 16, 21, "次レベル"},
-	{29, 17, 21, "所持金"},
-	{29, 19, 21, "日付"},
-	{29, 10, 21, "ＨＰ"},
-	{29, 11, 21, "ＭＰ"},
-	{29, 20, 21, "プレイ時間"},
+	{ 1, 20, 25, "加速"},
+	{ 1, 19, 25, "AC"},
+	{29, 10, 21, "種族レベル"},
+	{29, 11, 21, "種族経験値"},
+	{29, 12, 21, "最大種族経験"},
+	{29, 13, 21, "次種族レベル"},
+	{29, 15, 21, "クラスレベル"},
+	{29, 16, 21, "クラス経験値"},
+	{29, 17, 21, "最大C.経験"},
+	{29, 18, 21, "次C.レベル"},
+	{29, 20, 21, "所持金"},
+	{29,  7, 21, "日付"},
+	{29,  5, 21, "HP"},
+	{29,  6, 21, "MP"},
+	{29,  8, 21, "プレイ時間"},
 	{54, 10, -1, "打撃攻撃  :"},
 	{54, 11, -1, "射撃攻撃  :"},
 	{54, 12, -1, "魔法防御  :"},
@@ -1531,22 +1578,21 @@ static struct
 	{54, 15, -1, "探索      :"},
 	{54, 16, -1, "解除      :"},
 	{54, 17, -1, "魔法道具  :"},
-	{01, 12, 25, "打撃回数"},
-	{01, 17, 25, "射撃回数"},
-	{01, 13, 25, "平均ダメージ"},
+	{ 1, 12, 25, "打撃回数"},
+	{ 1, 17, 25, "射撃回数"},
+	{ 1, 13, 25, "平均ダメージ"},
 	{54, 19, -1, "赤外線視力:"},
 	{54, 20, -1, "封魔空間  :"},
 	{26,  1, -1, "名前  : "},
 	{ 1,  3, -1, "性別   : "},
 	{ 1,  4, -1, "種族   : "},
 	{ 1,  5, -1, "クラス : "},
-	{ 1,  7, -1, "アラインメント: "},
-	{29,  3, 21, "年齢"},
-	{29,  4, 21, "身長"},
-	{29,  4, 21, "体長"},
-	{29,  5, 21, "体重"},
-	{29,  6, 21, "社会的地位"},
-	{29,  7, 21, "エレメント"},
+	{ 1,  6, -1, "アラインメント: "},
+	{ 1,  7, 12, "年齢"},
+	{ 14,  7, 12, "地位"},
+	{ 1,  8, 12, "身長"},
+	{ 14,  8, 12, "体重"},
+	{29,  3, -1, "エレメント : "},
 };
 #else
 = {
@@ -1556,20 +1602,23 @@ static struct
 	{ 1, 10, 25, "Left hand"},
 	{ 1, 11, 25, "Left hand"},
 	{ 1, 11, 25, "Right hand"},
-	{ 1, 10, 25, "Melee sum"},
 	{ 1, 15, 25, "Shooting"},
 	{ 1, 16, 25, "Multiplier"},
-	{01, 20, 25, "Speed"},
+	{ 1, 20, 25, "Speed"},
 	{ 1, 19, 25, "AC"},
-	{29, 13, 21, "Level"},
-	{29, 14, 21, "Experience"},
-	{29, 15, 21, "Max Exp"},
-	{29, 16, 21, "Exp to Adv"},
-	{29, 17, 21, "Gold"},
-	{29, 19, 21, "Time"},
-	{29, 10, 21, "Hit point"},
-	{29, 11, 21, "SP (Mana)"},
-	{29, 20, 21, "Play time"},
+	{29, 10, 21, "Racial Level"},
+	{29, 11, 21, "R.Experience"},
+	{29, 12, 21, "Max R.Exp"},
+	{29, 13, 21, "R.Exp to Adv"},
+	{29, 15, 21, "Class Level"},
+	{29, 16, 21, "C.Experience"},
+	{29, 17, 21, "Max C.Exp"},
+	{29, 18, 21, "C.Exp to Adv"},
+	{29, 20, 21, "Gold"},
+	{29,  7, 21, "Time"},
+	{29,  5, 21, "Hit point"},
+	{29,  6, 21, "SP (Mana)"},
+	{29,  8, 21, "Play time"},
 	{54, 10, -1, "Fighting    : "},
 	{54, 11, -1, "Bows/Throw  : "},
 	{54, 12, -1, "Saving Throw: "},
@@ -1578,22 +1627,21 @@ static struct
 	{54, 15, -1, "Searching   : "},
 	{54, 16, -1, "Disarming   : "},
 	{54, 17, -1, "Magic Device: "},
-	{01, 12, 25, "Blows/Round"},
-	{01, 17, 25, "Shots/Round"},
-	{01, 13, 25, "AverageDmg/Rnd"},
+	{ 1, 12, 25, "Blows/Round"},
+	{ 1, 17, 25, "Shots/Round"},
+	{ 1, 13, 25, "AverageDmg/Rnd"},
 	{54, 19, -1, "Infra-Vision: "},
 	{54, 20, -1, "AM Field    : "},
 	{26,  1, -1, "Name  : "},
 	{ 1,  3, -1, "Sex    : "},
 	{ 1,  4, -1, "Race   : "},
 	{ 1,  5, -1, "Class  : "},
-	{ 1,  7, -1, "Align  : "},
-	{29,  3, 21, "Age"},
-	{29,  4, 21, "Height"},
-	{29,  4, 21, "Height"},
-	{29,  5, 21, "Weight"},
-	{29,  6, 21, "Social Class"},
-	{29,  7, 21, "Element"},
+	{ 1,  6, -1, "Align  : "},
+	{ 1,  7, 12, "Age"},
+	{ 1,  7, 12, "S.Class"},
+	{ 1,  8, 12, "Height"},
+	{ 1,  8, 12, "Weight"},
+	{29,  3, -1, "Element : "},
 };
 #endif
 
@@ -1637,72 +1685,52 @@ static void display_player_middle(void)
 	int show_tohit, show_todam;
 	object_type *o_ptr;
 	int tmul = 0;
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
-	if (prace_is_(RACE_OCTOPUS))
+	if (p_ptr->migite)
 	{
-		int i;
+		show_tohit = p_ptr->dis_to_h[0];
+		show_todam = p_ptr->dis_to_d[0];
 
-		show_tohit = 0;
-		show_todam = 0;
-		for (i = 0; i < MAX_OCTOPUS_HANDS; i++)
-		{
-			show_tohit += p_ptr->dis_to_h[i];
-			show_todam += p_ptr->dis_to_d[i];
-		}
+		o_ptr = &inventory[INVEN_RARM];
+
+		/* Hack -- add in weapon info if known */
+		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
+		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
 
 		/* Melee attacks */
 		sprintf(buf, "(%+d,%+d)", show_tohit, show_todam);
 
 		/* Dump the bonuses to hit/dam */
-		display_player_one_line(ENTRY_MELEE_SUM, buf, TERM_L_BLUE);
+		if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
+			display_player_one_line(ENTRY_BARE_HAND, buf, TERM_L_BLUE);
+		else if (p_ptr->ryoute)
+			display_player_one_line(ENTRY_TWO_HANDS, buf, TERM_L_BLUE);
+		else if (left_hander)
+			display_player_one_line(ENTRY_LEFT_HAND1, buf, TERM_L_BLUE);
+		else
+			display_player_one_line(ENTRY_RIGHT_HAND1, buf, TERM_L_BLUE);
 	}
-	else
+
+	if (p_ptr->hidarite)
 	{
-		if (p_ptr->migite)
-		{
-			show_tohit = p_ptr->dis_to_h[0];
-			show_todam = p_ptr->dis_to_d[0];
+		show_tohit = p_ptr->dis_to_h[1];
+		show_todam = p_ptr->dis_to_d[1];
 
-			o_ptr = &inventory[INVEN_RARM];
+		o_ptr = &inventory[INVEN_LARM];
 
-			/* Hack -- add in weapon info if known */
-			if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
-			if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
+		/* Hack -- add in weapon info if known */
+		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
+		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
 
-			/* Melee attacks */
-			sprintf(buf, "(%+d,%+d)", show_tohit, show_todam);
+		/* Melee attacks */
+		sprintf(buf, "(%+d,%+d)", show_tohit, show_todam);
 
-			/* Dump the bonuses to hit/dam */
-			if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
-				display_player_one_line(ENTRY_BARE_HAND, buf, TERM_L_BLUE);
-			else if (p_ptr->ryoute)
-				display_player_one_line(ENTRY_TWO_HANDS, buf, TERM_L_BLUE);
-			else if (left_hander)
-				display_player_one_line(ENTRY_LEFT_HAND1, buf, TERM_L_BLUE);
-			else
-				display_player_one_line(ENTRY_RIGHT_HAND1, buf, TERM_L_BLUE);
-		}
-
-		if (p_ptr->hidarite)
-		{
-			show_tohit = p_ptr->dis_to_h[1];
-			show_todam = p_ptr->dis_to_d[1];
-
-			o_ptr = &inventory[INVEN_LARM];
-
-			/* Hack -- add in weapon info if known */
-			if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
-			if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
-
-			/* Melee attacks */
-			sprintf(buf, "(%+d,%+d)", show_tohit, show_todam);
-
-			/* Dump the bonuses to hit/dam */
-			if (left_hander)
-				display_player_one_line(ENTRY_RIGHT_HAND2, buf, TERM_L_BLUE);
-			else
-				display_player_one_line(ENTRY_LEFT_HAND2, buf, TERM_L_BLUE);
-		}
+		/* Dump the bonuses to hit/dam */
+		if (left_hander)
+			display_player_one_line(ENTRY_RIGHT_HAND2, buf, TERM_L_BLUE);
+		else
+			display_player_one_line(ENTRY_LEFT_HAND2, buf, TERM_L_BLUE);
 	}
 
 	/* Range weapon */
@@ -1713,9 +1741,9 @@ static void display_player_middle(void)
 	show_todam = 0;
 
 	/* Apply weapon bonuses */
-	if (o_ptr->k_idx && (o_ptr->tval == TV_BOW))
+	if (o_ptr->k_idx)
 	{
-		int attack_var = skill_lev_var[p_ptr->weapon_skill_lev[0][o_ptr->sval]];
+		int attack_var = skill_lev_var[weapon_exp_level(p_ptr->weapon_exp[0][o_ptr->sval])];
 
 		if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
 		if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
@@ -1820,23 +1848,41 @@ static void display_player_middle(void)
 		display_player_one_line(ENTRY_SPEED, buf, attr);
 	}
 
-	/* Dump character level */
-	display_player_one_line(ENTRY_LEVEL, format("%d", p_ptr->lev), TERM_L_GREEN);
+	/* Dump character racial level */
+	display_player_one_line(ENTRY_RACIAL_LEVEL, format("%d", p_ptr->lev), TERM_L_GREEN);
 
-	/* Dump experience */
+	/* Dump racial experience */
 	if (p_ptr->exp >= p_ptr->max_exp)
-		display_player_one_line(ENTRY_CUR_EXP, format("%ld", p_ptr->exp), TERM_L_GREEN);
+		display_player_one_line(ENTRY_CUR_RACIAL_EXP, format("%ld", p_ptr->exp), TERM_L_GREEN);
 	else
-		display_player_one_line(ENTRY_CUR_EXP, format("%ld", p_ptr->exp), TERM_YELLOW);
+		display_player_one_line(ENTRY_CUR_RACIAL_EXP, format("%ld", p_ptr->exp), TERM_YELLOW);
 
-	/* Dump max experience */
-	display_player_one_line(ENTRY_MAX_EXP, format("%ld", p_ptr->max_exp), TERM_L_GREEN);
+	/* Dump max racial experience */
+	display_player_one_line(ENTRY_MAX_RACIAL_EXP, format("%ld", p_ptr->max_exp), TERM_L_GREEN);
 
-	/* Dump exp to advance */
+	/* Dump racial exp to advance */
 	if (p_ptr->lev >= PY_MAX_LEVEL)
-		display_player_one_line(ENTRY_EXP_TO_ADV, "*****", TERM_L_GREEN);
+		display_player_one_line(ENTRY_RACIAL_EXP_TO_ADV, "*****", TERM_L_GREEN);
 	else
-		display_player_one_line(ENTRY_EXP_TO_ADV, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
+		display_player_one_line(ENTRY_RACIAL_EXP_TO_ADV, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
+
+	/* Dump character class level */
+	display_player_one_line(ENTRY_CLASS_LEVEL, format("%d", cexp_ptr->clev), TERM_L_GREEN);
+
+	/* Dump class experience */
+	if (cexp_ptr->cexp >= cexp_ptr->max_cexp)
+		display_player_one_line(ENTRY_CUR_CLASS_EXP, format("%ld", cexp_ptr->cexp), TERM_L_GREEN);
+	else
+		display_player_one_line(ENTRY_CUR_CLASS_EXP, format("%ld", cexp_ptr->cexp), TERM_YELLOW);
+
+	/* Dump max class experience */
+	display_player_one_line(ENTRY_MAX_CLASS_EXP, format("%ld", cexp_ptr->max_cexp), TERM_L_GREEN);
+
+	/* Dump class exp to advance */
+	if (cexp_ptr->clev >= PY_MAX_LEVEL)
+		display_player_one_line(ENTRY_CLASS_EXP_TO_ADV, "*****", TERM_L_GREEN);
+	else
+		display_player_one_line(ENTRY_CLASS_EXP_TO_ADV, format("%ld", (s32b)(player_exp[cexp_ptr->clev - 1] * p_ptr->cexpfact / 100L)), TERM_L_GREEN);
 
 	/* Dump gold */
 	display_player_one_line(ENTRY_GOLD, format("%ld", p_ptr->au_sum), TERM_L_GREEN);
@@ -1858,19 +1904,19 @@ static void display_player_middle(void)
 
 	/* Dump hit point */
 	if (p_ptr->chp >= p_ptr->mhp) 
-		display_player_one_line(ENTRY_HP, format("%4d/%4d", p_ptr->chp , p_ptr->mhp), TERM_L_GREEN);
+		display_player_one_line(ENTRY_HP, format("%5d/%5d", p_ptr->chp , p_ptr->mhp), TERM_L_GREEN);
 	else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10) 
-		display_player_one_line(ENTRY_HP, format("%4d/%4d", p_ptr->chp , p_ptr->mhp), TERM_YELLOW);
+		display_player_one_line(ENTRY_HP, format("%5d/%5d", p_ptr->chp , p_ptr->mhp), TERM_YELLOW);
 	else
-		display_player_one_line(ENTRY_HP, format("%4d/%4d", p_ptr->chp , p_ptr->mhp), TERM_RED);
+		display_player_one_line(ENTRY_HP, format("%5d/%5d", p_ptr->chp , p_ptr->mhp), TERM_RED);
 
 	/* Dump mana power */
 	if (p_ptr->csp >= p_ptr->msp) 
-		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_L_GREEN);
+		display_player_one_line(ENTRY_SP, format("%5d/%5d", p_ptr->csp , p_ptr->msp), TERM_L_GREEN);
 	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10) 
-		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_YELLOW);
+		display_player_one_line(ENTRY_SP, format("%5d/%5d", p_ptr->csp , p_ptr->msp), TERM_YELLOW);
 	else
-		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_RED);
+		display_player_one_line(ENTRY_SP, format("%5d/%5d", p_ptr->csp , p_ptr->msp), TERM_RED);
 
 	/* Dump play time */
 	display_player_one_line(ENTRY_PLAY_TIME, format("%.2lu:%.2lu:%.2lu", playtime/(60*60), (playtime/60)%60, playtime%60), TERM_L_GREEN);
@@ -2035,15 +2081,14 @@ static cptr likert(int x, int y)
  */
 static void display_player_various(void)
 {
-	int         tmp = p_ptr->to_h_b, damage[MAX_HANDS], blows1, blows2, i, basedam;
+	int         tmp, damage[2], blows1, blows2, i, basedam;
 	int			xthn, xthb, xfos, xsrh;
 	int			xdis, xdev, xsav, xstl;
 	cptr		desc;
 	char		raw_desc[10];
 	int         muta_att = 0;
 	u32b flgs[TR_FLAG_SIZE];
-	int		shots = 0, shot_frac = 0;
-	int         max_hands = prace_is_(RACE_OCTOPUS) ? MAX_OCTOPUS_HANDS : MAX_HANDS;
+	int		shots, shot_frac;
 
 	object_type		*o_ptr;
 
@@ -2056,83 +2101,67 @@ static void display_player_various(void)
 	xthn = p_ptr->skill_thn + (p_ptr->to_h_m * BTH_PLUS_ADJ);
 	if (xthn > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN)) xthn = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHN;
 
-	if (prace_is_(RACE_OCTOPUS))
-	{
-		damage[0] = 0;
-		for (i = 0; i < max_hands; i++)
-		{
-			basedam = p_ptr->dis_to_d[i] * 100;
-			basedam += (1 + 5) * 50;
-			damage[0] += basedam * p_ptr->num_blow[i];
-		}
-		damage[0] /= 100;
+	/* Shooting Skill (with current bow and normal missile) */
+	o_ptr = &inventory[INVEN_BOW];
+	tmp = p_ptr->to_h_b + o_ptr->to_h;
+	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
+	if (xthb > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB)) xthb = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB;
 
-		blows1 = 0;
-		for (i = 0; i < MAX_OCTOPUS_HANDS; i++) blows1 += p_ptr->num_blow[i];
+	/* If the player is wielding one? */
+	if (o_ptr->k_idx)
+	{
+		s32b energy_fire = bow_energy(o_ptr);
+
+		/* Calculate shots per round */
+		shots = p_ptr->num_fire * 100;
+		shot_frac = (shots * 100 / energy_fire) % 100;
+		shots = shots / energy_fire;
 	}
 	else
 	{
-		/* Shooting Skill (with current bow and normal missile) */
-		o_ptr = &inventory[INVEN_BOW];
-		tmp += o_ptr->to_h;
-
-		/* If the player is wielding one? */
-		if (o_ptr->k_idx && (o_ptr->tval == TV_BOW))
-		{
-			s16b energy_fire = bow_energy(o_ptr);
-
-			/* Calculate shots per round */
-			shots = p_ptr->num_fire * 100;
-			shot_frac = (shots * 100 / energy_fire) % 100;
-			shots = shots / energy_fire;
-		}
-
-		for (i = 0; i < max_hands; i++)
-		{
-			int slot = hand_to_inventory(i);
-
-			damage[i] = p_ptr->dis_to_d[i] * 100;
-
-			/* Average damage per round */
-			o_ptr = &inventory[slot];
-
-			if (o_ptr->k_idx)
-			{
-				object_kind *k_ptr = &k_info[o_ptr->k_idx];
-				bool known = object_known_p(o_ptr);
-				int known_dd = known ? o_ptr->dd : k_ptr->dd;
-				int known_ds = known ? o_ptr->ds : k_ptr->ds;
-
-				if (known) damage[i] += o_ptr->to_d * 100;
-				basedam = ((known_dd + p_ptr->to_dd[i]) * (known_ds + p_ptr->to_ds[i] + 1)) * 50;
-				object_flags_known(o_ptr, flgs);
-				if (have_flag(flgs, TR_EXTRA_VORPAL))
-				{
-					/* vorpal blade */
-					basedam *= 5;
-					basedam /= 3;
-				}
-				else if (have_flag(flgs, TR_VORPAL))
-				{
-					/* vorpal flag only */
-					basedam *= 11;
-					basedam /= 9;
-				}
-				if (have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (known_dd * known_ds / 5)))
-					basedam = basedam * 7 / 2;
-
-				damage[i] += basedam;
-			}
-
-			if (damage[i] < 0) damage[i] = 0;
-		}
-
-		blows1 = p_ptr->migite ? p_ptr->num_blow[0]: 0;
-		blows2 = p_ptr->hidarite ? p_ptr->num_blow[1] : 0;
+		shots = 0;
+		shot_frac = 0;
 	}
 
-	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
-	if (xthb > (SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB)) xthb = SKILL_LIKERT_MYTHICAL_MAX * SKILL_DIV_XTHB;
+	for(i = 0; i < 2; i++)
+	{
+		damage[i] = p_ptr->dis_to_d[i]*100;
+
+		/* Average damage per round */
+		o_ptr = &inventory[INVEN_RARM+i];
+
+		if (o_ptr->k_idx)
+		{
+			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+			bool known = object_known_p(o_ptr);
+			int known_dd = known ? o_ptr->dd : k_ptr->dd;
+			int known_ds = known ? o_ptr->ds : k_ptr->ds;
+
+			if (known) damage[i] += o_ptr->to_d * 100;
+			basedam = ((known_dd + p_ptr->to_dd[i]) * (known_ds + p_ptr->to_ds[i] + 1)) * 50;
+			object_flags_known(o_ptr, flgs);
+			if (have_flag(flgs, TR_EXTRA_VORPAL))
+			{
+				/* vorpal blade */
+				basedam *= 5;
+				basedam /= 3;
+			}
+			else if (have_flag(flgs, TR_VORPAL))
+			{
+				/* vorpal flag only */
+				basedam *= 11;
+				basedam /= 9;
+			}
+			if (have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (known_dd * known_ds / 5)))
+				basedam = basedam * 7 / 2;
+
+			damage[i] += basedam;
+		}
+
+		if (damage[i] < 0) damage[i] = 0;
+	}
+	blows1 = p_ptr->migite ? p_ptr->num_blow[0]: 0;
+	blows2 = p_ptr->hidarite ? p_ptr->num_blow[1] : 0;
 
 	/* Basic abilities */
 
@@ -2209,33 +2238,17 @@ static void display_player_various(void)
 	display_player_one_line(ENTRY_SKILL_DEVICE, desc, likert_color);
 
 	if (!muta_att)
-	{
-		if (prace_is_(RACE_OCTOPUS)) display_player_one_line(ENTRY_BLOWS, format("%d", blows1), TERM_L_BLUE);
-		else display_player_one_line(ENTRY_BLOWS, format("%d+%d", blows1, blows2), TERM_L_BLUE);
-	}
+		display_player_one_line(ENTRY_BLOWS, format("%d+%d", blows1, blows2), TERM_L_BLUE);
 	else
-	{
-		if (prace_is_(RACE_OCTOPUS)) display_player_one_line(ENTRY_BLOWS, format("%d+%d", blows1, muta_att), TERM_L_BLUE);
-		else display_player_one_line(ENTRY_BLOWS, format("%d+%d+%d", blows1, blows2, muta_att), TERM_L_BLUE);
-	}
+		display_player_one_line(ENTRY_BLOWS, format("%d+%d+%d", blows1, blows2, muta_att), TERM_L_BLUE);
 
 	display_player_one_line(ENTRY_SHOTS, format("%d.%02d", shots, shot_frac), TERM_L_BLUE);
 
 
-	if (prace_is_(RACE_OCTOPUS))
-	{
-		if (damage[0] == 0)
-			desc = "nil!";
-		else
-			desc = format("%d", damage[0]);
-	}
+	if ((damage[0]+damage[1]) == 0)
+		desc = "nil!";
 	else
-	{
-		if ((damage[0]+damage[1]) == 0)
-			desc = "nil!";
-		else
-			desc = format("%d+%d", blows1 * damage[0] / 100, blows2 * damage[1] / 100);
-	}
+		desc = format("%d+%d", blows1 * damage[0] / 100, blows2 * damage[1] / 100);
 
 	display_player_one_line(ENTRY_AVG_DMG, desc, TERM_L_BLUE);
 
@@ -2252,14 +2265,23 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	int to_speed;
 	int i;
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	/* Clear */
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
 	to_speed = rp_ptr->r_spd + cp_ptr->c_spd;
-	to_speed += ((p_ptr->gx_spd * p_ptr->lev) / p_ptr->max_plv) / 50;
+	to_speed += ((p_ptr->gx_spd * (p_ptr->lev + cexp_ptr->clev)) / (p_ptr->max_plv + cexp_ptr->max_clev)) / 50;
 	if (to_speed) add_flag(flgs, TR_SPEED);
+
+	/* Class Master get Flag */
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 24) add_flag(flgs, TR_FEAR_FIELD);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 49) add_flag(flgs, TR_ANTI_MAGIC);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 24) add_flag(flgs, TR_SLAY_DRAGON);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 49) add_flag(flgs, TR_KILL_DRAGON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_DEMON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(flgs, TR_SLAY_UNDEAD);
 
 	/* Classes */
 	switch (p_ptr->pclass)
@@ -2269,19 +2291,19 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_SUST_DEX);
 		add_flag(flgs, TR_SUST_CON);
 		add_flag(flgs, TR_HOLD_LIFE);
-		if (p_ptr->lev > 19)
+		if (cexp_ptr->clev > 19)
 		{
 			add_flag(flgs, TR_REGEN);
 			add_flag(flgs, TR_FREE_ACT);
 			add_flag(flgs, TR_FEAR_FIELD);
 		}
-		if (p_ptr->lev > 29)
+		if (cexp_ptr->clev > 29)
 		{
 			add_flag(flgs, TR_RES_FEAR);
 			add_flag(flgs, TR_ANTI_MAGIC);
 		}
-		if (p_ptr->lev > 39) add_flag(flgs, TR_RES_CONF);
-		if (p_ptr->lev > 44) add_flag(flgs, TR_RES_NETHER);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_CONF);
+		if (cexp_ptr->clev > 44) add_flag(flgs, TR_RES_NETHER);
 		break;
 	case CLASS_DRAGOON:
 		add_flag(flgs, TR_KILL_DRAGON);
@@ -2293,14 +2315,14 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_SLAY_DEMON);
 		add_flag(flgs, TR_SLAY_UNDEAD);
 		add_flag(flgs, TR_BLESSED);
-		if (p_ptr->lev > 39) add_flag(flgs, TR_RES_FEAR);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_RES_FEAR);
 		/* Fall through */
 	case CLASS_CLERIC:
 	case CLASS_PRIEST:
 		add_flag(flgs, TR_BLESSED);
 		break;
 	case CLASS_WITCH:
-		if (p_ptr->lev > 9) add_flag(flgs, TR_FEATHER);
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_FEATHER);
 		break;
 	case CLASS_LICH:
 		add_flag(flgs, TR_RES_COLD);
@@ -2314,13 +2336,15 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	case CLASS_ANGELKNIGHT:
 		add_flag(flgs, TR_FEATHER);
 		add_flag(flgs, TR_BLESSED);
-		if (p_ptr->lev > 9) add_flag(flgs, TR_RES_FEAR);
-		if (p_ptr->lev > 19) add_flag(flgs, TR_SUST_WIS);
-		if (p_ptr->lev > 29) add_flag(flgs, TR_RES_CONF);
-		if (p_ptr->lev > 39) add_flag(flgs, TR_TELEPATHY);
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_RES_FEAR);
+		if (cexp_ptr->clev > 19) add_flag(flgs, TR_SUST_WIS);
+		if (cexp_ptr->clev > 29) add_flag(flgs, TR_RES_CONF);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_TELEPATHY);
 		break;
 	case CLASS_HIGHWITCH:
-		if (p_ptr->lev > 9) add_flag(flgs, TR_FEATHER);
+		if (cexp_ptr->clev > 9) add_flag(flgs, TR_FEATHER);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_EASY_SPELL);
+		if (cexp_ptr->clev > 39) add_flag(flgs, TR_DEC_MANA);
 		break;
 	case CLASS_GUNNER:
 		add_flag(flgs, TR_RES_SOUND);
@@ -2559,14 +2583,7 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_IM_FIRE);
 		add_flag(flgs, TR_SH_FIRE);
 	}
-	if (p_ptr->tim_octopus_immunity)
-	{
-		add_flag(flgs, TR_SPEED);
-		add_flag(flgs, TR_IM_ACID);
-		add_flag(flgs, TR_IM_COLD);
-		add_flag(flgs, TR_REFLECT);
-	}
-	if (p_ptr->aquatic_in_water)
+	if (p_ptr->mermaid_in_water)
 	{
 		add_flag(flgs, TR_SPEED);
 	}
@@ -2593,15 +2610,15 @@ static void display_player_equippy(int y, int x, u16b mode)
 	object_type *o_ptr;
 
 	/* Weapon flags need only two column */
-	if (mode & DP_WP) max_i = prace_is_(RACE_OCTOPUS) ? INVEN_RARM : (INVEN_LARM + 1);
-	else if (mode & DP_WP_B) max_i = prace_is_(RACE_OCTOPUS) ? INVEN_RARM : (INVEN_BOW + 1);
+	if (mode & DP_WP) max_i = INVEN_LARM + 1;
+	else if (mode & DP_WP_B) max_i = INVEN_BOW + 1;
 	else max_i = INVEN_TOTAL;
 
 	/* Dump equippy chars */
 	for (i = INVEN_RARM; i < max_i; i++)
 	{
 		/* Object */
-		o_ptr = &inventory[real_inventory_slot(i)];
+		o_ptr = &inventory[i];
 
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
@@ -2704,16 +2721,6 @@ static void tim_player_immunity(u32b flgs[TR_FLAG_SIZE])
 
 	if (p_ptr->zoshonel_protect)
 		add_flag(flgs, TR_RES_FIRE);
-
-	if (p_ptr->tim_octopus_immunity)
-	{
-		add_flag(flgs, TR_RES_ACID);
-		add_flag(flgs, TR_RES_COLD);
-		add_flag(flgs, TR_RES_POIS);
-	}
-
-	if (p_ptr->tim_immune_magic)
-		add_flag(flgs, TR_RES_MAGIC);
 }
 
 static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
@@ -2750,7 +2757,7 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_COLD);
 	}
 
-	if (p_ptr->aquatic_in_water)
+	if (p_ptr->mermaid_in_water)
 	{
 		add_flag(flgs, TR_RES_ELEC);
 	}
@@ -2794,8 +2801,8 @@ static void display_flag_aux(int row, int col, cptr header,
 	col += strlen(header) + 1;
 
 	/* Weapon flags need only two column */
-	if (mode & DP_WP) max_i = prace_is_(RACE_OCTOPUS) ? INVEN_RARM : (INVEN_LARM + 1);
-	else if (mode & DP_WP_B) max_i = prace_is_(RACE_OCTOPUS) ? INVEN_RARM : (INVEN_BOW + 1);
+	if (mode & DP_WP) max_i = INVEN_LARM + 1;
+	else if (mode & DP_WP_B) max_i = INVEN_BOW + 1;
 	else max_i = INVEN_TOTAL;
 
 	/* Check equipment */
@@ -2805,7 +2812,7 @@ static void display_flag_aux(int row, int col, cptr header,
 		object_type *o_ptr;
 
 		/* Object */
-		o_ptr = &inventory[real_inventory_slot(i)];
+		o_ptr = &inventory[i];
 
 		/* Known flags */
 		object_flags_known(o_ptr, flgs);
@@ -3006,7 +3013,7 @@ static void display_player_other_flag_info(void)
 	col = 1;
 
 	display_player_equippy(row-2, col+12, DP_WP_B);
-	c_put_str(TERM_WHITE, prace_is_(RACE_OCTOPUS) ? "@" : "abc@", row-1, col+12);
+	c_put_str(TERM_WHITE, "abc@", row-1, col+12);
 
 #ifdef JP
 	display_flag_aux(row+ 0, col, "邪悪 倍打 :", TR_SLAY_EVIL, &f, DP_WP_B);
@@ -3059,7 +3066,7 @@ static void display_player_other_flag_info(void)
 	col = col + 12 + 8;
 
 	display_player_equippy(row-2, col+12, DP_WP);
-	c_put_str(TERM_WHITE, prace_is_(RACE_OCTOPUS) ? "@" : "ab@", row-1, col+12);
+	c_put_str(TERM_WHITE, "ab@", row-1, col+12);
 
 #ifdef JP
 	display_flag_aux(row+ 0, col, "切れ味    :", TR_VORPAL, &f, DP_WP);
@@ -3177,37 +3184,41 @@ static void display_player_misc_info(void)
 	put_str("名前  :", 1, 26);
 	put_str("性別  :", 3, 1);
 	if (!(cp_ptr->c_flags & PCF_REINCARNATE)) put_str("種族  :", 4, 1);
-	if (!(rp_ptr->r_flags & PRF_LARGE)) put_str("クラス:", 5, 1);
+	put_str("クラス:", 5, 1);
 #else
 	put_str("Name  :", 1, 26);
 	put_str("Sex   :", 3, 1);
 	if (!(cp_ptr->c_flags & PCF_REINCARNATE)) put_str("Race  :", 4, 1);
-	if (!(rp_ptr->r_flags & PRF_LARGE)) put_str("Class :", 5, 1);
+	put_str("Class :", 5, 1);
 #endif
 
 	c_put_str(TERM_L_BLUE, player_name, 1, 34);
 	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
 	if (!(cp_ptr->c_flags & PCF_REINCARNATE)) c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 9);
-	if (!(rp_ptr->r_flags & PRF_LARGE)) c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
+	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
 
 	/* Display extras */
 #ifdef JP
-put_str("レベル:", 6, 1);
-put_str("ＨＰ  :", 7, 1);
-put_str("ＭＰ  :", 8, 1);
+	put_str("レベル:", 6, 1);
+	put_str("C-Lv. :", 7, 1);
+	put_str("HP    :", 8, 1);
+	put_str("MP    :", 9, 1);
 #else
 	put_str("Level :", 6, 1);
-	put_str("Hits  :", 7, 1);
-	put_str("Mana  :", 8, 1);
+	put_str("CLevel:", 7, 1);
+	put_str("Hits  :", 8, 1);
+	put_str("Mana  :", 9, 1);
 #endif
 
 
 	(void)sprintf(buf, "%d", (int)p_ptr->lev);
 	c_put_str(TERM_L_BLUE, buf, 6, 9);
-	(void)sprintf(buf, "%d/%d", (int)p_ptr->chp, (int)p_ptr->mhp);
+	(void)sprintf(buf, "%d", (int)p_ptr->cexp_info[p_ptr->pclass].clev);
 	c_put_str(TERM_L_BLUE, buf, 7, 9);
-	(void)sprintf(buf, "%d/%d", (int)p_ptr->csp, (int)p_ptr->msp);
+	(void)sprintf(buf, "%d/%d", (int)p_ptr->chp, (int)p_ptr->mhp);
 	c_put_str(TERM_L_BLUE, buf, 8, 9);
+	(void)sprintf(buf, "%d/%d", (int)p_ptr->csp, (int)p_ptr->msp);
+	c_put_str(TERM_L_BLUE, buf, 9, 9);
 }
 
 
@@ -3531,24 +3542,24 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_NAME, player_name, TERM_L_BLUE);
 		display_player_one_line(ENTRY_SEX, sp_ptr->title, TERM_L_BLUE);
 		if (!(cp_ptr->c_flags & PCF_REINCARNATE)) display_player_one_line(ENTRY_RACE, rp_ptr->title, TERM_L_BLUE);
-		if (!(rp_ptr->r_flags & PRF_LARGE)) display_player_one_line(ENTRY_CLASS, cp_ptr->title, TERM_L_BLUE);
+		display_player_one_line(ENTRY_CLASS, cp_ptr->title, TERM_L_BLUE);
 
 		/* Age, Height, Weight, Social */
 		/* 身長はセンチメートルに、体重はキログラムに変更してあります */
 #ifdef JP
 		display_player_one_line(ENTRY_AGE, format("%d才" ,(int)p_ptr->age), TERM_L_BLUE);
-		display_player_one_line((rp_ptr->r_flags & PRF_LARGE) ? ENTRY_HEIGHT2 : ENTRY_HEIGHT, format("%dcm" ,(int)((p_ptr->ht*254)/100)), TERM_L_BLUE);
+		display_player_one_line(ENTRY_HEIGHT, format("%dcm" ,(int)((p_ptr->ht*254)/100)), TERM_L_BLUE);
 		display_player_one_line(ENTRY_WEIGHT, format("%dkg" ,(int)((p_ptr->wt*4536)/10000)), TERM_L_BLUE);
 		display_player_one_line(ENTRY_SOCIAL, format("%d  " ,(int)p_ptr->sc), TERM_L_BLUE);
 #else
 		display_player_one_line(ENTRY_AGE, format("%d" ,(int)p_ptr->age), TERM_L_BLUE);
-		display_player_one_line((rp_ptr->r_flags & PRF_LARGE) ? ENTRY_HEIGHT2 : ENTRY_HEIGHT, format("%d" ,(int)p_ptr->ht), TERM_L_BLUE);
+		display_player_one_line(ENTRY_HEIGHT, format("%d" ,(int)p_ptr->ht), TERM_L_BLUE);
 		display_player_one_line(ENTRY_WEIGHT, format("%d" ,(int)p_ptr->wt), TERM_L_BLUE);
 		display_player_one_line(ENTRY_SOCIAL, format("%d" ,(int)p_ptr->sc), TERM_L_BLUE);
 #endif
-		display_player_one_line(ENTRY_ALIGN, format("%s-%s", your_alignment_gne(), your_alignment_lnc()), TERM_L_BLUE);
 		if (!p_ptr->opposite_pelem) display_player_one_line(ENTRY_ELEM, format("%s", elem_names[get_cur_pelem()]), TERM_L_BLUE);
 		else display_player_one_line(ENTRY_ELEM, format("%s(%s)", elem_names[get_cur_pelem()], elem_names[p_ptr->pelem]), TERM_L_BLUE);
+		display_player_one_line(ENTRY_ALIGN, format("%s-%s", your_alignment_gne(), your_alignment_lnc()), TERM_L_BLUE);
 
 
 		/* Display the stats */
@@ -3962,6 +3973,45 @@ errr make_character_dump(FILE *fff)
 
 	fprintf(fff, "\n");
 
+#ifdef JP
+	fprintf(fff, "\n  [経験してきたクラス]\n\n");
+	fprintf(fff, "クラス                 レベル             経験値     SP    MSP\n");
+#else
+	fprintf(fff, "\n  [Experienced Classes]\n\n");
+	fprintf(fff, "Class                  Level                 Exp     SP    MSP\n");
+#endif
+	fprintf(fff, "--------------------------------------------------------------\n");
+
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+
+		if (!cexp_ptr->max_max_clev) continue;
+
+		if (cexp_ptr->max_clev)
+		{
+#ifdef L64
+			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d  %5d  %5d\n", class_info[i].title,
+				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
+#else
+			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld  %5ld  %5ld\n", class_info[i].title,
+				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
+#endif
+		}
+		else
+		{
+#ifdef L64
+			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------  -----  -----\n",
+				class_info[i].title, cexp_ptr->max_max_clev);
+#else
+			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------  -----  -----\n",
+				class_info[i].title, cexp_ptr->max_max_clev);
+#endif
+		}
+	}
+
+	fprintf(fff, "\n");
+
 	{
 		bool pet = FALSE;
 
@@ -3983,14 +4033,7 @@ errr make_character_dump(FILE *fff)
 				pet = TRUE;
 			}
 			monster_desc(pet_name, m_ptr, 0x88);
-			fprintf(fff, "%s", pet_name);
-			if (p_ptr->riding == i)
-#ifdef JP
-				fprintf(fff, " 乗馬中");
-#else
-				fprintf(fff, " (riding)");
-#endif
-			fprintf(fff, "\n");
+			fprintf(fff, "%s\n", pet_name);
 		}
 		if (pet) fprintf(fff, "\n");
 	}
@@ -4223,31 +4266,28 @@ errr make_character_dump(FILE *fff)
 	fprintf(fff, "\n  [Miscellaneous Information]\n");
 #endif
 
-	if (!astral_mode)
+#ifdef JP
+	fprintf(fff, "\n 帰還場所:\n");
+#else
+	fprintf(fff, "\n Recall Depth:\n");
+#endif
+	for (y = 1; y < max_d_idx; y++)
 	{
-#ifdef JP
-		fprintf(fff, "\n 帰還場所:\n");
-#else
-		fprintf(fff, "\n Recall Depth:\n");
-#endif
-		for (y = 1; y < max_d_idx; y++)
+		bool seiha = FALSE;
+
+		if (!d_info[y].maxdepth) continue;
+		if (!max_dlv[y]) continue;
+		if (d_info[y].final_guardian)
 		{
-			bool seiha = FALSE;
-
-			if (!d_info[y].maxdepth) continue;
-			if (!max_dlv[y]) continue;
-			if (d_info[y].final_guardian)
-			{
-				if (!r_info[d_info[y].final_guardian].max_num) seiha = TRUE;
-			}
-			else if (max_dlv[y] == d_info[y].maxdepth) seiha = TRUE;
+			if (!r_info[d_info[y].final_guardian].max_num) seiha = TRUE;
+		}
+		else if (max_dlv[y] == d_info[y].maxdepth) seiha = TRUE;
 
 #ifdef JP
-			fprintf(fff, "   %c%-12s: %3d 階\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+		fprintf(fff, "   %c%-12s: %3d 階\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
 #else
-			fprintf(fff, "   %c%-16s: level %3d\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+		fprintf(fff, "   %c%-16s: level %3d\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
 #endif
-		}
 	}
 
 	if (easy_band)
@@ -4274,21 +4314,21 @@ errr make_character_dump(FILE *fff)
 
 	if (ironman_autoscum)
 #ifdef JP
-		fprintf(fff, "\n 自動選り好み  :     ALWAYS");
+		fprintf(fff, "\n 自動選り好み:       ALWAYS");
 #else
 		fprintf(fff, "\n Autoscum:           ALWAYS");
 #endif
 
 	else if (auto_scum)
 #ifdef JP
-		fprintf(fff, "\n 自動選り好み  :     ON");
+		fprintf(fff, "\n 自動選り好み:       ON");
 #else
 		fprintf(fff, "\n Autoscum:           ON");
 #endif
 
 	else
 #ifdef JP
-		fprintf(fff, "\n 自動選り好み  :     OFF");
+		fprintf(fff, "\n 自動選り好み:       OFF");
 #else
 		fprintf(fff, "\n Autoscum:           OFF");
 #endif
@@ -4348,7 +4388,7 @@ errr make_character_dump(FILE *fff)
 
 	if (ironman_rooms)
 #ifdef JP
-		fprintf(fff, "\n 普通でない部屋を生成:         ON");
+		fprintf(fff, "\n 普通でない部屋:     ON");
 #else
 		fprintf(fff, "\n Unusual Rooms:      ON");
 #endif
@@ -4379,7 +4419,7 @@ errr make_character_dump(FILE *fff)
 
 	else if (empty_levels)
 #ifdef JP
-		fprintf(fff, "\n アリーナ:           ON");
+		fprintf(fff, "\n アリーナ:           ENABLED");
 #else
 		fprintf(fff, "\n Arena Levels:       ENABLED");
 #endif
@@ -4397,6 +4437,8 @@ errr make_character_dump(FILE *fff)
 #else
 	fprintf(fff, "\n Num. Random Quests: %d", number_of_quests());
 #endif
+
+	fprintf(fff, "\n");
 
 	if (p_ptr->arena_number == 99)
 	{
@@ -4433,9 +4475,9 @@ errr make_character_dump(FILE *fff)
 	else
 	{
 #ifdef JP
-		fprintf(fff, "\n 闘技場:   %2d勝\n", (p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number));
+		fprintf(fff, "\n 闘技場: %2d勝\n", (p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number));
 #else
-		fprintf(fff, "\n Arena:   %2d Victor%s\n", (p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number), (p_ptr->arena_number>1) ? "ies" : "y");
+		fprintf(fff, "\n Arena: %2d Victor%s\n", (p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number), (p_ptr->arena_number>1) ? "ies" : "y");
 #endif
 	}
 
@@ -4595,15 +4637,15 @@ fprintf(fff, "  [キャラクタの装備]\n\n");
 
 		for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 		{
-			object_desc(o_name, &inventory[real_inventory_slot(i)], TRUE, 3);
-			if (!prace_is_(RACE_OCTOPUS) && (i == INVEN_LARM) && p_ptr->ryoute)
+			object_desc(o_name, &inventory[i], TRUE, 3);
+			if ((i == INVEN_LARM) && p_ptr->ryoute)
 #ifdef JP
 				strcpy(o_name, "(武器を両手持ち)");
 #else
 				strcpy(o_name, "(wielding with two-hands)");
 #endif
 			fprintf(fff, "%c%s %s\n",
-				index_to_label(i, FALSE), paren, o_name);
+				index_to_label(i), paren, o_name);
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -4622,7 +4664,7 @@ fprintf(fff, "  [キャラクタの持ち物]\n\n");
 
 		/* Dump the inventory slots */
 		object_desc(o_name, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", index_to_label(i, FALSE), paren, o_name);
+		fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
 	}
 
 	/* Add an empty line */
@@ -6028,6 +6070,7 @@ static void print_tomb(void)
 #else
 	cptr die_verb = (p_ptr->is_dead & DEATH_STONED) ? "Stoned" : "Killed";
 #endif
+	int clev = p_ptr->cexp_info[p_ptr->pclass].clev;
 
 	/* Do we use a special tombstone ? */
 	if (tombstone_aux)
@@ -6099,7 +6142,7 @@ static void print_tomb(void)
 		/* Normal */
 		else
 		{
-			p =  player_title[p_ptr->pclass][(p_ptr->lev - 1) / 5];
+			p =  player_title[p_ptr->pclass][(clev - 1) / 5];
 		}
 
 		center_string(buf, player_name);

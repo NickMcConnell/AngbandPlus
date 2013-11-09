@@ -1864,6 +1864,9 @@ void lite_spot(int y, int x)
 		{
 			/* Term_queue_chars は全角ASCII地形を正しくupdateする。 */
 			Term_queue_chars(panel_col_of(x), y-panel_row_prt, 2, a, &ascii_to_zenkaku[2*(c-' ')]);
+
+			/* Update sub-windows */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 			return;
 		}
 #endif
@@ -2051,10 +2054,10 @@ void prt_path(int y, int x)
 			/* Hack -- Queue it */
 #ifdef USE_TRANSPARENCY
 			Term_queue_char(panel_col_of(nx), ny-panel_row_prt, a, c, ta, tc);
-			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a, c2, 0, 0);
+			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a2, c2, 0, 0);
 #else
 			Term_queue_char(panel_col_of(nx), ny-panel_row_prt, a, c);
-			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a, c2);
+			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a2, c2);
 #endif
 		}
 
@@ -4763,13 +4766,13 @@ void cave_set_feat(int y, int x, int feat)
 	/* Change the feature */
 	c_ptr->feat = feat;
 
-	apply_grid_effect(y, x, prev_feat, TRUE);
-
 	/* Notice */
 	note_spot(y, x);
 
 	/* Redraw */
 	lite_spot(y, x);
+
+	apply_grid_effect(y, x, prev_feat, TRUE);
 }
 
 
@@ -4818,13 +4821,13 @@ void cave_force_set_floor(int y, int x)
 		break;
 	}
 
-	apply_grid_effect(y, x, prev_feat, TRUE);
-
 	/* Notice */
 	note_spot(y, x);
 
 	/* Redraw */
 	lite_spot(y, x);
+
+	apply_grid_effect(y, x, prev_feat, TRUE);
 }
 
 

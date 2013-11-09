@@ -252,7 +252,6 @@ s16b get_new_floor_id(void)
 	sf_ptr->upper_floor_id = 0;
 	sf_ptr->lower_floor_id = 0;
 	sf_ptr->visit_mark = latest_visit_mark++;
-	sf_ptr->flags = 0L;
 
 	/* sf_ptr->dun_level is not yet decided */
 
@@ -1228,20 +1227,6 @@ void change_floor(void)
 		 * oldest saved floor.
 		 */
 		sf_ptr->visit_mark = latest_visit_mark++;
-	}
-
-	if (p_ptr->enter_dungeon)
-	{
-		sf_ptr->flags |= (SFF_ENTER_DUNGEON);
-
-		/* Reset flag (delayed) */
-		p_ptr->enter_dungeon = FALSE;
-	}
-
-	if (p_ptr->alter_reality_to_fate)
-	{
-		sf_ptr->flags |= (SFF_CREATED_BY_FATE);
-		p_ptr->alter_reality_to_fate = FALSE;
 	}
 
 	/* Place preserved pet monsters */

@@ -18,18 +18,12 @@
  */
 void do_cmd_rerate(void)
 {
-	int           i, j;
-	player_class *tmp_cp_ptr;
-	byte          tmp_hitdie;
-	byte          tmp_manadie;
-	s16b          tmp16s;
+	int          i, j;
+	s32b         tmp32s;
 
-	tmp_cp_ptr = &class_info[p_ptr->level_gained_class[0]];
-	tmp_hitdie = rp_ptr->r_mhp + tmp_cp_ptr->c_mhp;
-	tmp_manadie = rp_ptr->r_msp + tmp_cp_ptr->c_msp;
-
-	p_ptr->player_hp[0] = 0;
-	p_ptr->player_sp[0] = 0;
+	/* Wipe the arrays */
+	(void)C_WIPE(p_ptr->race_hp, PY_MAX_LEVEL, s32b);
+	(void)C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s32b);
 
 	/* Except reincarnated player */
 	if (!p_ptr->reincarnate_cnt)
@@ -37,33 +31,29 @@ void do_cmd_rerate(void)
 		/* Gain level 1 HP */
 		for (i = 1; i < 4; i++)
 		{
-			tmp16s = rand_spread((s16b)tmp_hitdie, 2);
-			p_ptr->player_hp[0] += MAX(tmp16s, 0);
+			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+			p_ptr->race_hp[0] += MAX(tmp32s, 0);
 		}
 
 		/* Gain level 1 mana */
 		if (p_ptr->pclass != CLASS_GUNNER)
 		{
-			tmp16s = rand_spread((s16b)tmp_manadie, 1);
-			p_ptr->player_sp[0] = MAX(tmp16s, 0);
+			tmp32s = rand_spread(cp_ptr->c_msp, 1);
+			p_ptr->race_sp[0] = MAX(tmp32s, 0);
 		}
 	}
 
-	/* Collect values */
+	/* Collect values (race) */
 	for (i = 1; i < p_ptr->max_plv; i++)
 	{
-		tmp_cp_ptr = &class_info[p_ptr->level_gained_class[i]];
-		tmp_hitdie = rp_ptr->r_mhp + tmp_cp_ptr->c_mhp;
-		tmp_manadie = rp_ptr->r_msp + tmp_cp_ptr->c_msp;
-
-		tmp16s = rand_spread((s16b)tmp_hitdie, 2);
-		p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + MAX(tmp16s, 0);
+		tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+		p_ptr->race_hp[i] = p_ptr->race_hp[i - 1] + MAX(tmp32s, 0);
 		if (p_ptr->pclass != CLASS_GUNNER)
 		{
-			tmp16s = rand_spread((s16b)tmp_manadie, 1);
-			p_ptr->player_sp[i] = p_ptr->player_sp[i - 1] + MAX(tmp16s, 0);
+			tmp32s = rand_spread(cp_ptr->c_msp, 1);
+			p_ptr->race_sp[i] = p_ptr->race_sp[i - 1] + MAX(tmp32s, 0);
 		}
-		else p_ptr->player_sp[i] = 0;
+		else p_ptr->race_sp[i] = 0;
 	}
 
 	/* Update and redraw hitpoints */
@@ -358,11 +348,12 @@ change_menu_type;
 #define CHANGE_ITEM_GOLD_NOTE        6
 #define CHANGE_ITEM_GOLD_MITHRIL     7
 #define CHANGE_ITEM_GOLD_ADAMANTITE  8
-#define CHANGE_ITEM_EXP              9
-#define CHANGE_ITEM_LNC             10
-#define CHANGE_ITEM_CF_BASE         11
-#define CHANGE_ITEM_CF_MAX          15
-#define MAX_CHANGE_ITEM             16
+#define CHANGE_ITEM_EXP_CLASS        9
+#define CHANGE_ITEM_EXP_RACE        10
+#define CHANGE_ITEM_LNC             11
+#define CHANGE_ITEM_CF_BASE         12
+#define CHANGE_ITEM_CF_MAX          16
+#define MAX_CHANGE_ITEM             17
 
 static void display_change_menu_line(int cur, int max_desc_len, change_menu_type *cur_item, byte attr)
 {
@@ -454,12 +445,21 @@ static void construct_change_menu(change_menu_type menu_list[MAX_CHANGE_ITEM], i
 	desc_len = strlen(cur_item->desc);
 	if (desc_len > *max_desc_len) *max_desc_len = desc_len;
 
-	cur_item = &menu_list[CHANGE_ITEM_EXP];
+	cur_item = &menu_list[CHANGE_ITEM_EXP_CLASS];
+	cur_item->var = p_ptr->cexp_info[p_ptr->pclass].max_cexp;
+	cur_item->lower_limit = 0;
+	cur_item->upper_limit = PY_MAX_EXP;
+	cur_item->digit = get_digit(cur_item);
+	sprintf(cur_item->desc, "クラス経験値 (%s) %s", cp_ptr->title, range_string(cur_item));
+	desc_len = strlen(cur_item->desc);
+	if (desc_len > *max_desc_len) *max_desc_len = desc_len;
+
+	cur_item = &menu_list[CHANGE_ITEM_EXP_RACE];
 	cur_item->var = p_ptr->max_exp;
 	cur_item->lower_limit = 0;
 	cur_item->upper_limit = PY_MAX_EXP;
 	cur_item->digit = get_digit(cur_item);
-	sprintf(cur_item->desc, "経験値 %s", range_string(cur_item));
+	sprintf(cur_item->desc, "種族経験値 %s", range_string(cur_item));
 	desc_len = strlen(cur_item->desc);
 	if (desc_len > *max_desc_len) *max_desc_len = desc_len;
 
@@ -535,25 +535,28 @@ static void do_cmd_wiz_change_commit(change_menu_type menu_list[MAX_CHANGE_ITEM]
 		update_stuff();
 	}
 
-	cur_item = &menu_list[CHANGE_ITEM_EXP];
+	cur_item = &menu_list[CHANGE_ITEM_EXP_CLASS];
 	if (cur_item->changed)
 	{
-		if (cur_item->var > p_ptr->max_exp)
-		{
-			p_ptr->exp_for_sp += cur_item->var - p_ptr->max_exp;
-			while (p_ptr->exp_for_sp >= EXP_PER_SKILL_POINT)
-			{
-				p_ptr->exp_for_sp -= EXP_PER_SKILL_POINT;
-				if (!(rp_ptr->r_flags & PRF_LARGE)) p_ptr->skill_point += 3;
-			}
-		}
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
+		/* Save */
+		cexp_ptr->max_cexp = cur_item->var;
+		cexp_ptr->cexp = cur_item->var;
+
+		/* Update */
+		check_class_experience();
+	}
+
+	cur_item = &menu_list[CHANGE_ITEM_EXP_RACE];
+	if (cur_item->changed)
+	{
 		/* Save */
 		p_ptr->max_exp = cur_item->var;
 		p_ptr->exp = cur_item->var;
 
 		/* Update */
-		check_experience();
+		check_racial_experience();
 	}
 
 	cur_item = &menu_list[CHANGE_ITEM_LNC];
@@ -925,7 +928,6 @@ static tval_desc tvals[] =
 	{ TV_GLOVES,            "Gloves"              },
 	{ TV_BOOTS,             "Boots"               },
 	{ TV_CLOAK,             "Cloak"               },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"   },
 	{ TV_HARD_ARMOR,        "Hard Armor"          },
 	{ TV_SOFT_ARMOR,        "Soft Armor"          },
 	{ TV_RING,              "Ring"                },
@@ -2653,20 +2655,21 @@ void do_cmd_debug(void)
 
 		/* Wizard Light the Level */
 		case 'w':
-			wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
-			break;
+		wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
+		break;
 
 		/* Increase Experience */
 		case 'x':
-			if (command_arg)
-			{
-				gain_exp(command_arg);
-			}
-			else
-			{
-				gain_exp(p_ptr->exp + 1);
-			}
-			break;
+		if (command_arg)
+		{
+			gain_exp(command_arg);
+		}
+		else
+		{
+			gain_class_exp(p_ptr->cexp_info[p_ptr->pclass].cexp + 1);
+			gain_racial_exp(p_ptr->exp + 1);
+		}
+		break;
 
 		case 'y':
 #ifdef JP
@@ -2674,28 +2677,28 @@ void do_cmd_debug(void)
 #else
 			msg_format("Pure HP: %d+%d, Pure Mana: %d+%d.",
 #endif
-			            p_ptr->player_hp[p_ptr->lev - 1], p_ptr->player_ghp,
-			            p_ptr->player_sp[p_ptr->lev - 1], p_ptr->player_gsp);
+			            p_ptr->race_hp[p_ptr->lev - 1], p_ptr->player_ghp,
+		    	        p_ptr->race_sp[p_ptr->lev - 1], p_ptr->player_gsp);
 			break;
 
 		/* Zap Monsters (Genocide) */
 		case 'z':
-			do_cmd_wiz_zap();
-			break;
+		do_cmd_wiz_zap();
+		break;
 
 		case 'Z':
-			do_cmd_wiz_zap_all();
-			break;
+		do_cmd_wiz_zap_all();
+		break;
 
 		/* Hack -- whatever I desire */
 		case '_':
-			do_cmd_wiz_hack_ben();
-			break;
+		do_cmd_wiz_hack_ben();
+		break;
 
 		/* Not a Wizard Command */
 		default:
-			msg_print("That is not a valid debug command.");
-			break;
+		msg_print("That is not a valid debug command.");
+		break;
 	}
 }
 

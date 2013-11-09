@@ -185,7 +185,7 @@ static void curse_artifact(object_type * o_ptr)
 	if (one_in_(2)) add_flag(o_ptr->art_flags, TR_TELEPORT);
 	else if (one_in_(3)) add_flag(o_ptr->art_flags, TR_NO_TELE);
 
-	if (realm_choices[p_ptr->pclass] && one_in_(3))
+	if (!realm_choices[p_ptr->pclass] && one_in_(3))
 		add_flag(o_ptr->art_flags, TR_NO_MAGIC);
 }
 
@@ -681,7 +681,7 @@ static void random_misc(object_type * o_ptr)
 		case 24:
 		case 25:
 		case 26:
-			if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_DRAG_ARMOR)
+			if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR)
 				random_misc(o_ptr);
 			else
 			{
@@ -1716,13 +1716,33 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			break;
 		}
 	}
-	if (have_flag(o_ptr->art_flags, TR_FEMALE_ONLY) || have_flag(o_ptr->art_flags, TR_MALE_ONLY))
+	if (have_flag(o_ptr->art_flags, TR_FEMALE_ONLY) || have_flag(o_ptr->art_flags, TR_MALE_ONLY) || a_scroll)
 	{
 		powers *= 2;
 	}
 
 	if (a_cursed) powers /= 2;
 
+	/* add extra ignore_flag*/
+	if (powers > 6)
+	{
+	add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
+	}
+	if (powers > 5)
+	{
+	add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
+	}
+	if (powers > 4)
+	{
+	add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
+	}
+	if (powers > 3)
+	{
+	add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
+	}
+	
+	if (o_ptr->tval == TV_LITE) add_flag(o_ptr->art_flags, TR_LITE);
+	
 	randart_stat_bonus = FALSE;
 	randart_misc_bonus_cur = 0;
 	switch (o_ptr->tval)
@@ -1735,7 +1755,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	case TV_CLOAK:
 	case TV_SOFT_ARMOR:
 	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
 	case TV_LITE:
 	case TV_AMULET:
 	case TV_RING:
@@ -1821,7 +1840,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		o_ptr->to_misc[OB_BLOWS] = misc_bonus_limit[OB_BLOWS].max;
 
 	/* give it some plusses... */
-	if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_DRAG_ARMOR)
+	if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR)
 		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
 	else if (o_ptr->tval <= TV_SWORD)
 	{
@@ -1835,18 +1854,24 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 	case BIAS_FIRE:
 		add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
+		if (o_ptr->tval <= TV_SWORD) o_ptr->to_d += 5;
 		break;
 
 	case BIAS_AQUA:
 		add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
+		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 10;
 		break;
 
 	case BIAS_EARTH:
 		add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
+		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_a += 20;
+		o_ptr->weight = o_ptr->weight * 5 / 4;
 		break;
 
 	case BIAS_WIND:
 		add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
+		if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_HARD_ARMOR) o_ptr->to_h += 5;
+		o_ptr->weight = o_ptr->weight * 4 / 5;
 		break;
 	}
 
@@ -1863,7 +1888,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		give_activation_power(o_ptr);
 	}
 
-	if ((o_ptr->tval >= TV_BOOTS) && (o_ptr->tval <= TV_DRAG_ARMOR))
+	if ((o_ptr->tval >= TV_BOOTS) && (o_ptr->tval <= TV_HARD_ARMOR))
 	{
 		while ((o_ptr->to_d+o_ptr->to_h) > 20)
 		{
@@ -2262,7 +2287,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows in scintillating colours...");
 #endif
 
-			call_chaos();
+			call_chaos(p_ptr->lev);
 			o_ptr->timeout = 350;
 			break;
 		}
@@ -2469,7 +2494,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows deep blue...");
 #endif
 
-			sleep_monsters_touch();
+			sleep_monsters_touch(p_ptr->lev);
 			o_ptr->timeout = 55;
 			break;
 		}
@@ -3001,7 +3026,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows bright red...");
 #endif
 
-			explosive_rune();
+			explosive_rune(p_ptr->lev);
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -3021,7 +3046,6 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_SATIATE:
 		{
-			if (!p_ptr->no_digest && (p_ptr->food < PY_FOOD_FULL)) change_your_alignment_lnc(1);
 			(void)set_food(PY_FOOD_MAX - 1);
 			o_ptr->timeout = 200;
 			break;
@@ -3082,7 +3106,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You open a dimensional gate. Choose a destination.");
 #endif
 
-			if (!dimension_door()) return FALSE;
+			if (!dimension_door(p_ptr->lev)) return FALSE;
 			o_ptr->timeout = 100;
 			break;
 		}
@@ -3133,40 +3157,6 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 {
 	bool give_resistance = FALSE, give_power = FALSE;
 
-	if (o_ptr->name1 == ART_BLOOD)
-	{
-		int dummy, i;
-		dummy = randint1(2)+randint1(2);
-		for (i = 0; i < dummy; i++)
-		{
-			int flag = randint0(21);
-			switch (flag)
-			{
-			case 20:
-				add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
-				break;
-			case 19:
-				add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
-				break;
-			case 18:
-				add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
-				break;
-			default:
-				add_flag(o_ptr->art_flags, TR_CHAOTIC + flag);
-				break;
-			}
-		}
-		dummy = randint1(2);
-		for (i = 0; i < dummy; i++)
-			one_resistance(o_ptr);
-		dummy = 2;
-		for (i = 0; i < dummy; i++)
-		{
-			int tmp = randint0(11);
-			if (tmp < A_MAX) o_ptr->to_stat[tmp] = a_ptr->pval;
-			else o_ptr->to_misc[OB_STEALTH + tmp - A_MAX] = a_ptr->pval;
-		}
-	}
 
 	if (a_ptr->gen_flags & (TRG_XTRA_POWER)) give_power = TRUE;
 	if (a_ptr->gen_flags & (TRG_XTRA_H_RES)) give_resistance = TRUE;

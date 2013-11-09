@@ -129,6 +129,9 @@ bool teleport_away(int m_idx, int dis)
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
 
+	if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+		p_ptr->update |= (PU_MON_LITE);
+
 	return (TRUE);
 }
 
@@ -243,7 +246,8 @@ void teleport_to(int m_idx, int ty, int tx, int dis, int power, bool avoid_fall)
 
 	if (cave[ny][nx].feat == FEAT_AIR) (void)mon_fall_into_air(m_idx);
 
-	p_ptr->update |= (PU_MON_LITE);
+	if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+		p_ptr->update |= (PU_MON_LITE);
 }
 
 
@@ -265,7 +269,7 @@ void teleport_player(int dis)
 	int d, i, min, ox, oy;
 	int tries = 0;
 
-	int xx = -1, yy = -1;
+	int xx, yy;
 
 	/* Initialize */
 	int y = py;
@@ -354,48 +358,40 @@ msg_print("不思議な力がテレポートを防いだ！");
 
 	if (p_ptr->riding)
 	{
-		int tmp;
-		tmp = cave[py][px].m_idx;
-		cave[py][px].m_idx = cave[oy][ox].m_idx;
-		cave[oy][ox].m_idx = tmp;
+		cave[oy][ox].m_idx = cave[py][px].m_idx;
+		cave[py][px].m_idx = p_ptr->riding;
 		m_list[p_ptr->riding].fy = py;
 		m_list[p_ptr->riding].fx = px;
-		update_mon(cave[py][px].m_idx, TRUE);
+		update_mon(p_ptr->riding, TRUE);
 	}
 
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
 
 	/* Monsters with teleport ability may follow the player */
-	while (xx < 2)
+	for (xx = -1; xx < 2; xx++)
 	{
-		yy = -1;
-
-		while (yy < 2)
+		for (yy = -1; yy < 2; yy++)
 		{
-			if (xx == 0 && yy == 0)
+			int tmp_m_idx = cave[oy+yy][ox+xx].m_idx;
+
+			/* A monster except your mount may follow */
+			if (tmp_m_idx && p_ptr->riding != tmp_m_idx)
 			{
-				/* Do nothing */
-			}
-			else
-			{
-				if (cave[oy+yy][ox+xx].m_idx)
+				monster_type *m_ptr = &m_list[tmp_m_idx];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+				/*
+				 * The latter limitation is to avoid
+				 * totally unkillable suckers...
+				 */
+				if ((r_ptr->flags6 & RF6_TPORT) &&
+				    !(r_ptr->flags3 & RF3_RES_TELE))
 				{
-					if ((r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags6 & RF6_TPORT) &&
-					    !(r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags3 & RF3_RES_TELE))
-						/*
-						 * The latter limitation is to avoid
-						 * totally unkillable suckers...
-						 */
-					{
-						if (!(m_list[cave[oy+yy][ox+xx].m_idx].csleep))
-							teleport_to(cave[oy+yy][ox+xx].m_idx, py, px, 2, r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].level, TRUE);
-					}
+					if (!m_ptr->csleep) teleport_to(tmp_m_idx, py, px, 2, r_ptr->level, TRUE);
 				}
 			}
-			yy++;
 		}
-		xx++;
 	}
 
 	forget_flow();
@@ -406,7 +402,7 @@ msg_print("不思議な力がテレポートを防いだ！");
 	/* Check for new panel (redraw map) */
 	verify_panel();
 
-	set_aquatic_in_water();
+	set_mermaid_in_water();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
@@ -487,13 +483,11 @@ msg_print("不思議な力がテレポートを防いだ！");
 
 	if (p_ptr->riding)
 	{
-		int tmp;
-		tmp = cave[py][px].m_idx;
-		cave[py][px].m_idx = cave[oy][ox].m_idx;
-		cave[oy][ox].m_idx = tmp;
+		cave[oy][ox].m_idx = cave[py][px].m_idx;
+		cave[py][px].m_idx = p_ptr->riding;
 		m_list[p_ptr->riding].fy = py;
 		m_list[p_ptr->riding].fx = px;
-		update_mon(cave[py][px].m_idx, TRUE);
+		update_mon(p_ptr->riding, TRUE);
 	}
 
 	forget_flow();
@@ -507,7 +501,7 @@ msg_print("不思議な力がテレポートを防いだ！");
 	/* Check for new panel (redraw map) */
 	verify_panel();
 
-	set_aquatic_in_water();
+	set_mermaid_in_water();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_BONUS);
@@ -909,17 +903,6 @@ bool reset_recall(void)
 	char ppp[80];
 	char tmp_val[160];
 
-	if (astral_mode)
-	{
-#ifdef JP
-		msg_print("何も起こらなかった。");
-#else
-		msg_print("Nothing happens.");
-#endif
-
-		return TRUE;
-	}
-
 #ifdef JP
 	select_dungeon = choose_dungeon("をセット");
 #else
@@ -992,27 +975,16 @@ bool apply_disenchant(void)
 	int             i;
 
 	/* Pick a random slot */
-	if (prace_is_(RACE_OCTOPUS))
+	switch (randint1(8))
 	{
-		switch (randint1(2))
-		{
-			case 1: t = INVEN_OUTER; break;
-			case 2: t = INVEN_HEAD; break;
-		}
-	}
-	else
-	{
-		switch (randint1(8))
-		{
-			case 1: t = INVEN_RARM; break;
-			case 2: t = INVEN_LARM; break;
-			case 3: t = INVEN_BOW; break;
-			case 4: t = INVEN_BODY; break;
-			case 5: t = INVEN_OUTER; break;
-			case 6: t = INVEN_HEAD; break;
-			case 7: t = INVEN_HANDS; break;
-			case 8: t = INVEN_FEET; break;
-		}
+		case 1: t = INVEN_RARM; break;
+		case 2: t = INVEN_LARM; break;
+		case 3: t = INVEN_BOW; break;
+		case 4: t = INVEN_BODY; break;
+		case 5: t = INVEN_OUTER; break;
+		case 6: t = INVEN_HEAD; break;
+		case 7: t = INVEN_HANDS; break;
+		case 8: t = INVEN_FEET; break;
 	}
 
 	/* Get the item */
@@ -1049,10 +1021,10 @@ bool apply_disenchant(void)
 	{
 		/* Message */
 #ifdef JP
-		msg_format("%s(%c)は劣化を跳ね返した！",o_name, index_to_label(t, TRUE));
+msg_format("%s(%c)は劣化を跳ね返した！",o_name, index_to_label(t) );
 #else
 		msg_format("Your %s (%c) resist%s disenchantment!",
-			   o_name, index_to_label(t, TRUE),
+			   o_name, index_to_label(t),
 			   ((o_ptr->number != 1) ? "" : "s"));
 #endif
 
@@ -1119,10 +1091,10 @@ bool apply_disenchant(void)
 		/* Message */
 #ifdef JP
 		msg_format("%s(%c)は劣化してしまった！",
-			   o_name, index_to_label(t, TRUE) );
+			   o_name, index_to_label(t) );
 #else
 		msg_format("Your %s (%c) %s disenchanted!",
-			   o_name, index_to_label(t, TRUE),
+			   o_name, index_to_label(t),
 			   ((o_ptr->number != 1) ? "were" : "was"));
 #endif
 
@@ -1160,6 +1132,77 @@ void mutate_player(void)
 	p_ptr->stat_cur[jj] = cur1;
 
 	p_ptr->update |= (PU_BONUS);
+}
+
+
+/*
+ * Charge a lite (torch or latern)
+ */
+void phlogiston(void)
+{
+	int max_flog = 0;
+	object_type * o_ptr = &inventory[INVEN_LITE];
+
+	/* It's a lamp */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
+	{
+		max_flog = FUEL_LAMP;
+	}
+
+	/* It's a torch */
+	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+	{
+		max_flog = FUEL_TORCH;
+	}
+
+	/* No torch to refill */
+	else
+	{
+#ifdef JP
+msg_print("燃素を消費するアイテムを装備していません。");
+#else
+		msg_print("You are not wielding anything which uses phlogiston.");
+#endif
+
+		return;
+	}
+
+	if (o_ptr->xtra4 >= max_flog)
+	{
+#ifdef JP
+msg_print("このアイテムにはこれ以上燃素を補充できません。");
+#else
+		msg_print("No more phlogiston can be put in this item.");
+#endif
+
+		return;
+	}
+
+	/* Refuel */
+	o_ptr->xtra4 += (max_flog / 2);
+
+	/* Message */
+#ifdef JP
+msg_print("照明用アイテムに燃素を補充した。");
+#else
+	msg_print("You add phlogiston to your light item.");
+#endif
+
+
+	/* Comment */
+	if (o_ptr->xtra4 >= max_flog)
+	{
+		o_ptr->xtra4 = max_flog;
+#ifdef JP
+msg_print("照明用アイテムは満タンになった。");
+#else
+		msg_print("Your light item is full.");
+#endif
+
+	}
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
 }
 
 
@@ -1687,7 +1730,7 @@ void alter_reality(void)
 }
 
 
-bool alter_with_flood(void)
+extern bool alter_with_flood(void)
 {
 	/* Ironman option */
 	if (p_ptr->inside_arena || ironman_forward)
@@ -1713,7 +1756,7 @@ bool alter_with_flood(void)
 
 			prepare_change_floor_mode(CFM_CLEAR_ALL);
 
-			p_ptr->alter_reality_water_flow = TRUE;
+			alter_reality_water_flow = TRUE;
 			p_ptr->alter_reality = 0;
 			p_ptr->inhibit_flood = 100;
 			p_ptr->redraw |= (PR_STATUS);
@@ -1723,66 +1766,6 @@ bool alter_with_flood(void)
 		}
 	}
 	else msg_print("洪水は起きなかった。");
-
-	return TRUE;
-}
-
-
-bool alter_to_fate(void)
-{
-	saved_floor_type *sf_ptr = get_sf_ptr(p_ptr->floor_id);
-
-	/* Ironman option */
-	if (p_ptr->inside_arena || ironman_forward || quest_number(dun_level))
-	{
-#ifdef JP
-		msg_print("何も起こらなかった。");
-#else
-		msg_print("Nothing happens.");
-#endif
-		return TRUE;
-	}
-
-	if (!dun_level)
-	{
-		msg_print("地上では使用できない。");
-		return FALSE;
-	}
-
-	if (dun_level < 50)
-	{
-		msg_print("50階未満では使用できない。");
-		return FALSE;
-	}
-
-	if (d_info[dungeon_type].flags1 & DF1_BEGINNER)
-	{
-		msg_print("このダンジョンでは運命を作り出せない。");
-		return FALSE;
-	}
-
-	if (sf_ptr->flags & SFF_ENTER_DUNGEON)
-	{
-		msg_print("地上の入り口から入った直後の階では使用できない。");
-		return FALSE;
-	}
-
-	if (sf_ptr->flags & SFF_CREATED_BY_FATE)
-	{
-		msg_print("この階は既に運命で作られた階だ。");
-		return FALSE;
-	}
-
-	msg_print("運命を作り出す！");
-
-	prepare_change_floor_mode(CFM_CLEAR_ALL);
-
-	p_ptr->alter_reality_to_fate = TRUE;
-	p_ptr->alter_reality = 0;
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Leaving */
-	p_ptr->leaving = TRUE;
 
 	return TRUE;
 }
@@ -1855,7 +1838,7 @@ bool warding_glyph(void)
 /*
  * Leave an "explosive rune" which prevents monster movement
  */
-bool explosive_rune(void)
+bool explosive_rune(int plev)
 {
 	/* XXX XXX XXX */
 	if (!can_create_glyph_bold(py, px))
@@ -1872,10 +1855,11 @@ bool explosive_rune(void)
 	/* Create a glyph */
 	cave[py][px].info |= CAVE_OBJECT;
 	cave[py][px].mimic = FEAT_MINOR_GLYPH;
+	cave[py][px].special = plev;
 
 	/* Notice */
 	note_spot(py, px);
-	
+
 	/* Redraw */
 	lite_spot(py, px);
 
@@ -1886,7 +1870,7 @@ bool explosive_rune(void)
 /*
  * Identify everything being carried.
  */
-void identify_pack(bool mental)
+void identify_pack(void)
 {
 	int i;
 	bool old_known;
@@ -1902,9 +1886,6 @@ void identify_pack(bool mental)
 
 		/* Identify it */
 		old_known = identify_item(o_ptr);
-
-		/* Mark the item as fully known */
-		if (mental) o_ptr->ident |= (IDENT_MENTAL);
 
 		/* Auto-inscription/destroy */
 		idx = is_autopick(o_ptr);
@@ -2117,7 +2098,7 @@ msg_format("%sをニセの金に変えた。", o_name);
 
 		if (price > 30000) price = 30000;
 #ifdef JP
-msg_format("%sを＄%d の金に変えた。", o_name, price);
+msg_format("%sを$%d の金に変えた。", o_name, price);
 #else
 		msg_format("You turn %s to %ld coins worth of gold.", o_name, price);
 #endif
@@ -2213,7 +2194,6 @@ bool item_tester_hook_armour(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
@@ -2258,7 +2238,6 @@ bool item_tester_hook_weapon_armour(object_type *o_ptr)
 		case TV_SHELL:
 		case TV_ROUND:
 		case TV_BULLET:
-		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
@@ -2294,7 +2273,6 @@ static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 		case TV_SHELL:
 		case TV_ROUND:
 		case TV_BULLET:
-		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
@@ -2306,6 +2284,30 @@ static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 			if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
 				return FALSE;
 			else return TRUE;
+		case TV_LITE:
+			if (o_ptr->sval == SV_LITE_EMPTY)
+			{
+				if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
+					return FALSE;
+				else return TRUE;
+			}
+			else return FALSE;
+		case TV_AMULET:
+			if (o_ptr->sval == SV_AMULET_EMPTY)
+			{
+				if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
+					return FALSE;
+				else return TRUE;
+			}
+			else return FALSE;
+		case TV_RING:
+			if (o_ptr->sval == SV_RING_EMPTY)
+			{
+				if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3))
+					return FALSE;
+				else return TRUE;
+			}
+			else return FALSE;
 	}
 
 	return FALSE;
@@ -2820,17 +2822,17 @@ s = "鑑定するべきアイテムがない。";
 	if (item >= INVEN_RARM)
 	{
 #ifdef JP
-		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item, TRUE));
+		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item));
 #else
-		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item, TRUE));
+		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item));
 #endif
 	}
 	else if (item >= 0)
 	{
 #ifdef JP
-		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item, FALSE));
+		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item));
 #else
-		msg_format("In your pack: %s (%c).", o_name, index_to_label(item, FALSE));
+		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
 #endif
 	}
 	else
@@ -2916,7 +2918,7 @@ s = "使えるものがありません。";
 		byte ix = o_ptr->ix;                /* X-position on map, or zero */
 		s16b next_o_idx = o_ptr->next_o_idx; /* Next object in stack (if any) */
 		byte marked = o_ptr->marked;          /* Object is marked */
-		s16b weight = (o_ptr->number * o_ptr->weight);
+		int  weight = (o_ptr->number * o_ptr->weight);
 		u16b inscription = o_ptr->inscription;
 
 		/* Wipe it clean */
@@ -3029,9 +3031,9 @@ s = "鑑定するべきアイテムがない。";
 	if (item >= INVEN_RARM)
 	{
 #ifdef JP
-		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item, TRUE));
+		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item));
 #else
-		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item, TRUE));
+		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item));
 #endif
 
 
@@ -3039,9 +3041,9 @@ s = "鑑定するべきアイテムがない。";
 	else if (item >= 0)
 	{
 #ifdef JP
-		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item, FALSE));
+		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item));
 #else
-		msg_format("In your pack: %s (%c).", o_name, index_to_label(item, FALSE));
+		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
 #endif
 	}
 	else
@@ -3907,6 +3909,7 @@ void display_spell_list(void)
 	magic_type      *s_ptr;
 	char            name[80];
 	char            out_val[160];
+	cexp_info_type  *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 
 	/* Erase window */
@@ -3937,14 +3940,12 @@ void display_spell_list(void)
 		/* Scan spells */
 		for (i = 0; i < 32; i++)
 		{
-			int  skill_lev = p_ptr->spell_skill_lev[j][i];
-
 			byte a = TERM_WHITE;
 
 			/* Access the spell */
-			s_ptr = &mp_ptr->info[j][i];
+			s_ptr = &mp_ptr->info[j - 1][i];
 
-			strcpy(name, spell_names[j][i]);
+			strcpy(name, spell_names[j - 1][i]);
 
 			/* Illegible */
 			if (s_ptr->slevel >= 99)
@@ -3962,17 +3963,11 @@ strcpy(name, "(判読不能)");
 			}
 
 			/* Unknown */
-			if ((s_ptr->slevel > p_ptr->max_plv) || (skill_lev == SKILL_LEVEL_BEGINNER))
+
+ 			for (j = 0; j < MAX_REALM; j++) if (s_ptr->slevel > p_ptr->magic_exp[j]/10)
 			{
 				/* Unknown */
 				a = TERM_RED;
-			}
-
-			/* Forgotten */
-			else if (s_ptr->slevel > p_ptr->lev)
-			{
-				/* Forgotten */
-				a = TERM_ORANGE;
 			}
 
 			/* Dump the spell --(-- */
@@ -3997,8 +3992,8 @@ int calc_use_mana(int spell, int realm)
 	/* Access the spell */
 	magic_type *s_ptr = &mp_ptr->info[realm - 1][spell];
 
-	int skill_lev = p_ptr->spell_skill_lev[realm - 1][spell];
-	int magic_var = skill_lev_var[skill_lev];
+ 	int skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
+ 	int magic_var = skill_lev_var[skill_lev];
 
 	/* Extract mana consumption rate */
 	int use_mana = s_ptr->smana * 200 * (19 - magic_var) + 2399;
@@ -4010,6 +4005,39 @@ int calc_use_mana(int spell, int realm)
 	if (use_mana < 1) use_mana = 1;
 
 	return use_mana;
+}
+
+
+/*
+ * Modify spell fail rate
+ * Using p_ptr->to_m_chance, p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
+ */
+int mod_spell_chance_1(int chance)
+{
+	chance += p_ptr->to_m_chance;
+
+	if (p_ptr->heavy_spell) chance += 20;
+
+	if (p_ptr->dec_mana && p_ptr->easy_spell) chance -= 4;
+	else if (p_ptr->easy_spell) chance -= 3;
+	else if (p_ptr->dec_mana) chance -= 2;
+
+	return chance;
+}
+
+
+/*
+ * Modify spell fail rate (as "suffix" process)
+ * Using p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
+ * Note: variable "chance" cannot be negative.
+ */
+int mod_spell_chance_2(int chance)
+{
+	if (p_ptr->dec_mana) chance--;
+
+	if (p_ptr->heavy_spell) chance += 5;
+
+	return MAX(chance, 0);
 }
 
 
@@ -4037,15 +4065,15 @@ s16b spell_chance(int spell, int use_realm)
 	if (use_realm == (REALM_FIRE + get_opposite_elem(get_cur_pelem()))) chance += 5;
 
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
+	chance -= 3 * ((p_ptr->cexp_info[p_ptr->pclass].clev + p_ptr->magic_exp[use_realm - 1] / 10) / 2 - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
 	if (p_ptr->riding)
-		chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level-(skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000)/100-10,0));
+		chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level-(skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/100-10,0));
 
-	skill_lev = p_ptr->spell_skill_lev[use_realm - 1][spell];
+	skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
 
 	use_mana = calc_use_mana(spell, use_realm);
 
@@ -4073,10 +4101,7 @@ s16b spell_chance(int spell, int use_realm)
 	if (p_ptr->icky_wield[0] > 0) chance += p_ptr->icky_wield[0];
 	if (p_ptr->icky_wield[1] > 0) chance += p_ptr->icky_wield[1];
 
-	if (p_ptr->heavy_spell) chance += 20;
-	if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-	else if (p_ptr->easy_spell) chance-=3;
-	else if (p_ptr->dec_mana) chance-=2;
+	chance = mod_spell_chance_1(chance);
 
 	if (fool_effect_status & FOOL_STATUS_PLAYER) chance += 10;
 
@@ -4087,9 +4112,19 @@ s16b spell_chance(int spell, int use_realm)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 200) chance += 40;
-	else if (p_ptr->stun > 100) chance += 25;
-	else if (p_ptr->stun) chance += 15;
+	switch (stun_level(p_ptr->stun))
+	{
+	case 1:
+		chance += 15;
+		break;
+	case 2:
+		chance += 25;
+		break;
+	case 3:
+	case 4:
+		chance += 40;
+		break;
+	}
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -4125,10 +4160,8 @@ bool spell_okay(int spell, int use_realm)
 	/* Access the spell */
 	magic_type *s_ptr = &mp_ptr->info[use_realm - 1][spell];
 
-	int skill_lev = p_ptr->spell_skill_lev[use_realm - 1][spell];
-
 	/* Spell is illegal */
-	if ((s_ptr->slevel > p_ptr->lev) || (skill_lev == SKILL_LEVEL_BEGINNER)) return FALSE;
+	if (s_ptr->slevel > p_ptr->magic_exp[use_realm]/10) return FALSE;
 
 	return TRUE;
 }
@@ -4145,7 +4178,7 @@ bool spell_okay(int spell, int use_realm)
  */
 static void spell_info(char *p, int spell, int use_realm)
 {
-	int plev = p_ptr->lev;
+	int plev = p_ptr->cexp_info[p_ptr->pclass].clev;
 	int pstat;
 	int dummy;
 	char dummy_buf[16];
@@ -4244,7 +4277,7 @@ static void spell_info(char *p, int spell, int use_realm)
 			if (pstat >= (18 + 200)) dummy++;
 			sprintf(p, " %s%d*%d", s_dam, 15 + plev / 2, dummy);
 			break;
-		case  8: sprintf(p, " %s%d", s_range, ((rp_ptr->r_flags & PRF_AQUATIC) ? (plev + 20) : (plev / 2 + 10))); break;
+		case  8: sprintf(p, " %s%d", s_range, (prace_is_(RACE_MERMAID) ? (plev + 20) : (plev / 2 + 10))); break;
 #ifdef JP
 		case  9: sprintf(p, " 損:(%d+d%d)*%d", plev, plev, attacks); break;
 #else
@@ -4507,7 +4540,7 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 	int             skill_lev;
 	char            skill_lev_str_short[5];
 	char            buf[256];
-	bool            unlearned;
+	cexp_info_type  *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 
 	if (((use_realm <= REALM_NONE) || (use_realm > MAX_REALM)) && p_ptr->wizard)
@@ -4543,13 +4576,11 @@ put_str(buf, y, x + 29);
 		/* Access the spell */
 		s_ptr = &mp_ptr->info[use_realm - 1][spell];
 
-		skill_lev = p_ptr->spell_skill_lev[use_realm - 1][spell];
-		unlearned = (skill_lev == SKILL_LEVEL_BEGINNER);
+		skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
 
 		use_mana = calc_use_mana(spell, use_realm);
 
-		if (unlearned) strncpy(skill_lev_str_short, skill_unlearned_str, 4);
-		else strncpy(skill_lev_str_short, skill_lev_str[skill_lev], 4);
+		strncpy(skill_lev_str_short, skill_lev_str[skill_lev], 4);
 		skill_lev_str_short[3] = ']';
 		skill_lev_str_short[4] = '\0';
 
@@ -4590,7 +4621,7 @@ put_str(buf, y, x + 29);
 		line_attr = TERM_WHITE;
 
 		/* Analyze the spell */
-		if ((s_ptr->slevel > p_ptr->max_plv) || unlearned)
+		if (s_ptr->slevel > p_ptr->magic_exp[use_realm]/10)
 		{
 #ifdef JP
 			comment = " 未知";
@@ -4599,16 +4630,6 @@ put_str(buf, y, x + 29);
 #endif
 
 			line_attr = TERM_L_BLUE;
-		}
-		else if (s_ptr->slevel > p_ptr->lev)
-		{
-#ifdef JP
-			comment = " 忘却";
-#else
-			comment = " forgotten";
-#endif
-
-			line_attr = TERM_YELLOW;
 		}
 
 		/* Dump the spell --(-- */
@@ -4654,7 +4675,6 @@ bool hates_acid(object_type *o_ptr)
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
 		{
 			return (TRUE);
 		}
@@ -4881,21 +4901,21 @@ int inven_damage(inven_func typ, int perc)
 
 				/* Message */
 #ifdef JP
-				msg_format("%s(%c)が%s壊れてしまった！",
+msg_format("%s(%c)が%s壊れてしまった！",
 #else
 				msg_format("%sour %s (%c) %s destroyed!",
 #endif
 
 #ifdef JP
-				    o_name, index_to_label(i, FALSE),
-				    ((o_ptr->number > 1) ?
-				    ((amt == o_ptr->number) ? "全部" :
-				    (amt > 1 ? "何個か" : "一個")) : "")    );
+o_name, index_to_label(i),
+    ((o_ptr->number > 1) ?
+    ((amt == o_ptr->number) ? "全部" :
+    (amt > 1 ? "何個か" : "一個")) : "")    );
 #else
 				    ((o_ptr->number > 1) ?
 				    ((amt == o_ptr->number) ? "All of y" :
 				    (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-				    o_name, index_to_label(i, FALSE),
+				    o_name, index_to_label(i),
 				    ((amt > 1) ? "were" : "was"));
 #endif
 
@@ -4952,7 +4972,7 @@ static int minus_ac(void)
 	/* Nothing to damage */
 	if (!o_ptr->k_idx) return (FALSE);
 
-	if ((o_ptr->tval < TV_BOOTS) || (o_ptr->tval == TV_RING)) return (FALSE);
+	if (o_ptr->tval < TV_BOOTS) return (FALSE);
 
 	/* No damage left to be done */
 	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
@@ -5165,9 +5185,6 @@ bool curse_armor(void)
 	char o_name[MAX_NLEN];
 
 
-	/* Nothing to curse */
-	if (prace_is_(RACE_OCTOPUS)) return FALSE;
-
 	/* Curse the body armor */
 	o_ptr = &inventory[INVEN_BODY];
 
@@ -5212,9 +5229,8 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
 
-		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = 0;
-		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = 0;
-		for (i = 0; i < TR_FLAG_SIZE; i++) o_ptr->art_flags[i] = 0;
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			o_ptr->art_flags[i] = 0;
 
 		/* Curse it */
 		o_ptr->curse_flags = TRC_CURSED;
@@ -5247,9 +5263,6 @@ bool curse_weapon(bool force, int slot)
 
 	char o_name[MAX_NLEN];
 
-
-	/* Nothing to curse */
-	if (prace_is_(RACE_OCTOPUS)) return FALSE;
 
 	/* Curse the weapon */
 	o_ptr = &inventory[slot];
@@ -5297,9 +5310,8 @@ if (!force) msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
 
-		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = 0;
-		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = 0;
-		for (i = 0; i < TR_FLAG_SIZE; i++) o_ptr->art_flags[i] = 0;
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			o_ptr->art_flags[i] = 0;
 
 		if ((slot == INVEN_RARM) && mw_diff_to_melee)
 		{
@@ -5438,9 +5450,8 @@ bool polymorph_monster(int y, int x, bool change_lnc)
 /*
  * Dimension Door
  */
-bool dimension_door(void)
+bool dimension_door(int plev)
 {
-	int	plev = p_ptr->lev;
 	int	x = 0, y = 0;
 	cave_type *c_ptr;
 	bool allow_air = FALSE;
@@ -5478,34 +5489,29 @@ bool dimension_door(void)
 /*
  * Aqua Diving
  */
-bool aqua_diving(void)
+bool aqua_diving(int plev)
 {
-	int	plev = p_ptr->lev;
 	int	x = 0, y = 0;
 	int	dist_diff;
 
-	if ((cave[py][px].feat != FEAT_DEEP_WATER) &&
-	    (cave[py][px].feat != FEAT_SHAL_WATER) &&
-	    (cave[py][px].feat != FEAT_SWAMP))
+	if (cave[py][px].feat != FEAT_DEEP_WATER)
 	{
 #ifdef JP
-		msg_print("足元に水、もしくは沼地がありません。");
+		msg_print("足元に深い水がありません。");
 #else
-		msg_print("You are not on water or swamp.");
+		msg_print("You are not on deep water.");
 #endif
 		return FALSE;
 	}
 
 	if (!tgt_pt(&x, &y, FALSE)) return FALSE;
 
-	if ((cave[y][x].feat != FEAT_DEEP_WATER) &&
-	    (cave[y][x].feat != FEAT_SHAL_WATER) &&
-	    (cave[y][x].feat != FEAT_SWAMP))
+	if (cave[y][x].feat != FEAT_DEEP_WATER)
 	{
 #ifdef JP
-		msg_print("そこは水または沼地ではありません。");
+		msg_print("そこは深い水ではありません。");
 #else
-		msg_print("There is neither water nor swamp.");
+		msg_print("There is not deep water.");
 #endif
 		return FALSE;
 	}
@@ -5522,7 +5528,7 @@ bool aqua_diving(void)
 
 	p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
 
-	dist_diff = distance(y, x, py, px) - ((rp_ptr->r_flags & PRF_AQUATIC) ? (plev + 20) : (plev / 2 + 10));
+	dist_diff = distance(y, x, py, px) - (prace_is_(RACE_MERMAID) ? (plev + 20) : (plev / 2 + 10));
 	if (dist_diff > 0)
 	{
 #ifdef JP
@@ -5943,7 +5949,6 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			summon_kin_type = 'n';
 			break;
 		case RACE_MERMAID:
-		case RACE_OCTOPUS:
 			summon_kin_type = 'l';
 			break;
 		default:
@@ -5969,10 +5974,27 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 void reincarnation(void)
 {
 	int i;
-	s32b tmp_long;
+	s32b tmp_hp, tmp_sp;
 	char buf[80];
+	cexp_info_type *cexp_ptr;
 
-	dispel_player(TRUE);
+	if (p_ptr->singing)
+	{
+		if (p_ptr->singing == MUSIC_SILENT) song_of_silence(0);
+		p_ptr->singing = MUSIC_NONE;
+		p_ptr->restart_singing = 0;
+		p_ptr->song_start = 0;
+#ifdef JP
+		msg_print("歌が止まった。");
+#else
+		msg_print("Your singing is stopped.");
+#endif
+		p_ptr->action = ACTION_NONE;
+
+		p_ptr->energy_need += ENERGY_NEED();
+	}
+
+	dispel_player();
 	set_action(ACTION_NONE);
 
 	for (i = 0; i < A_MAX; i++)
@@ -5987,15 +6009,21 @@ void reincarnation(void)
 	}
 
 	/* HP and mana are feedbacked 50% to level 1 */
-	tmp_long = (s32b)p_ptr->player_ghp + (s32b)p_ptr->player_hp[p_ptr->max_plv - 1];
-	if (tmp_long > 30000) tmp_long = 30000;
-	tmp_long -= MIN(400, tmp_long / 2);
-	p_ptr->player_ghp = tmp_long;
+	tmp_hp = p_ptr->player_ghp + p_ptr->race_hp[p_ptr->max_plv - 1];
+	tmp_sp = p_ptr->player_gsp;
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+		if (cexp_ptr->clev > 0) tmp_sp += p_ptr->race_sp[cexp_ptr->clev - 1];
+	}
 
-	tmp_long = (s32b)p_ptr->player_gsp + (s32b)p_ptr->player_sp[p_ptr->max_plv - 1];
-	if (tmp_long > 30000) tmp_long = 30000;
-	tmp_long -= MIN(200, tmp_long / 2);
-	p_ptr->player_gsp = tmp_long;
+	if (tmp_hp > 30000) tmp_hp = 30000;
+	tmp_hp -= MIN(400, tmp_hp / 2);
+	p_ptr->player_ghp = tmp_hp;
+
+	if (tmp_sp > 30000) tmp_sp = 30000;
+	tmp_sp -= MIN(200, tmp_sp / 2);
+	p_ptr->player_gsp = tmp_sp;
 
 	/* Skills are 20% cut */
 	p_ptr->gx_dis = p_ptr->gx_dis * 80 / 100;
@@ -6011,7 +6039,14 @@ void reincarnation(void)
 	/* Level reset! */
 	p_ptr->max_plv = p_ptr->lev = 1;
 	p_ptr->max_exp = p_ptr->exp = p_ptr->exp_frac = 0;
-	p_ptr->skill_point = p_ptr->exp_for_sp = 0;
+	(void)C_WIPE(p_ptr->race_hp, PY_MAX_LEVEL, s32b);
+	(void)C_WIPE(p_ptr->race_sp, PY_MAX_LEVEL, s32b);
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_ptr = &p_ptr->cexp_info[i];
+		cexp_ptr->max_clev = cexp_ptr->clev = 0;
+		cexp_ptr->max_cexp = cexp_ptr->cexp = cexp_ptr->cexp_frac = 0;
+	}
 
 	/* Race reset (undeads only) */
 	if (rp_ptr->r_flags & PRF_UNDEAD)
@@ -6023,40 +6058,16 @@ void reincarnation(void)
 	}
 
 	/* Class reset */
-	if (rp_ptr->r_flags & PRF_LARGE)
-	{
-		switch (p_ptr->prace)
-		{
-		case RACE_OCTOPUS:
-			p_ptr->pclass = CLASS_OCTOPUS;
-			break;
-		}
-	}
-	else
-	{
-		p_ptr->pclass = (p_ptr->psex == SEX_MALE) ? CLASS_SOLDIER : CLASS_AMAZONESS;
-	}
+	p_ptr->pclass = (p_ptr->psex == SEX_MALE) ? CLASS_SOLDIER : CLASS_AMAZONESS;
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &m_info[p_ptr->pclass];
 	p_ptr->s_ptr = &s_info[p_ptr->pclass];
-
-	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
-
-	/* Manadice */
-	p_ptr->manadie = rp_ptr->r_msp + cp_ptr->c_msp;
+	cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	change_level99_quest(FALSE);
 
-	p_ptr->player_hp[0] = p_ptr->player_sp[0] = 0;
-	p_ptr->level_gained_class[0] = p_ptr->pclass;
-
-	/* Paranoia */
-	for (i = 1; i < PY_MAX_LEVEL; i++)
-	{
-		p_ptr->player_hp[i] = p_ptr->player_sp[i] = 0;
-		p_ptr->level_gained_class[i] = 0;
-	}
+	cexp_ptr->max_clev = cexp_ptr->clev = 1;
+	if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
 
 	if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
@@ -6106,7 +6117,7 @@ void reincarnation(void)
 /*
  * Erase magical effects on player
  */
-void dispel_player(bool kill_sing)
+void dispel_player(void)
 {
 	set_fast(0, TRUE);
 	set_slow(0, TRUE);
@@ -6133,7 +6144,6 @@ void dispel_player(bool kill_sing)
 	set_tim_inc_blow(0, TRUE);
 	set_tim_dec_blow(0, TRUE);
 	set_zoshonel_protect(0, TRUE);
-	set_tim_octopus_immunity(0, TRUE);
 	set_magicdef(0, TRUE);
 	set_oppose_acid(0, TRUE);
 	set_oppose_elec(0, TRUE);
@@ -6142,13 +6152,11 @@ void dispel_player(bool kill_sing)
 	set_oppose_pois(0, TRUE);
 	set_magical_weapon(0, 0, INVEN_RARM, FALSE);
 	set_evil_weapon(0, TRUE, INVEN_RARM, FALSE);
-	set_the_immunity(0, 0);
 	set_opposite_pelem(0);
 	set_chargespell(0, TRUE);
 	set_earth_spike(0, TRUE);
 	set_wind_guard(0, TRUE);
 	set_tim_resurrection(0, TRUE);
-	set_tim_immune_magic(0, TRUE);
 
 	/* Cancel glowing hands */
 	if (p_ptr->special_attack & ATTACK_CONFUSE)
@@ -6163,28 +6171,15 @@ void dispel_player(bool kill_sing)
 	}
 	if (p_ptr->singing)
 	{
-		if (kill_sing)
-		{
-			p_ptr->restart_singing = 0;
-			p_ptr->song_start = 0;
+		if (p_ptr->singing == MUSIC_SILENT)
+			song_of_silence(0);
+		p_ptr->restart_singing = p_ptr->singing;
+		p_ptr->singing = 0;
 #ifdef JP
-			msg_print("歌が止まった。");
+		msg_print("歌が途切れた。");
 #else
-			msg_print("Your singing is stopped.");
+		msg_print("Your singing is interrupted.");
 #endif
-		}
-		else
-		{
-			p_ptr->restart_singing = p_ptr->singing;
-#ifdef JP
-			msg_print("歌が途切れた。");
-#else
-			msg_print("Your singing is interrupted.");
-#endif
-		}
-
-		if (p_ptr->singing == MUSIC_SILENT) song_of_silence(0);
-		p_ptr->singing = MUSIC_NONE;
 		p_ptr->action = ACTION_NONE;
 
 		/* Recalculate bonuses */
@@ -6233,7 +6228,6 @@ static byte snap_dragon_class_table[][2] =
 	{TV_BOW, SV_RUNEGUN},       /* Gunner */
 	{TV_SWORD, SV_RUNEBLADE},   /* Temple-Knight */
 	{TV_SWORD, SV_RUNEBLADE},   /* White-Knight */
-	{0, 0},                     /* Octopus */
 };
 
 /*
@@ -6241,6 +6235,13 @@ static byte snap_dragon_class_table[][2] =
  */
 static void snap_dragon_class_flags(object_type *o_ptr)
 {
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 24) add_flag(o_ptr->art_flags, TR_FEAR_FIELD);
+	if (p_ptr->cexp_info[CLASS_TERRORKNIGHT].max_clev > 49) add_flag(o_ptr->art_flags, TR_ANTI_MAGIC);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 24) add_flag(o_ptr->art_flags, TR_SLAY_DRAGON);
+	if (p_ptr->cexp_info[CLASS_DRAGOON].max_clev > 49) add_flag(o_ptr->art_flags, TR_KILL_DRAGON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
+	if (p_ptr->cexp_info[CLASS_EXORCIST].max_clev > 49) add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
+
 	/* Analyze the class */
 	switch (p_ptr->pclass)
 	{
@@ -6535,17 +6536,7 @@ void snap_dragon(void)
 	char            dummy_name[80] = "";
 	bool            old_total_winner = p_ptr->total_winner;
 	bool            string_input;
-	s16b            tmp_hp, tmp_sp;
-
-	if (rp_ptr->r_flags & PRF_LARGE)
-	{
-#ifdef JP
-		msg_print("何も起こらなかった。");
-#else
-		msg_print("Nothing happens.");
-#endif
-		return;
-	}
+	s32b            tmp_hp, tmp_sp;
 
 #ifdef JP
 	msg_print("あなたは生きたまま武器に変化する...");
@@ -6559,8 +6550,15 @@ void snap_dragon(void)
 	strcpy(runeweapon->ancestor, player_name);
 	for (i = 0; i < 4; i++) strcpy(runeweapon->history[i], p_ptr->history[i]);
 
-	tmp_hp = (s16b)MIN((s32b)p_ptr->player_hp[p_ptr->max_plv - 1] + (s32b)p_ptr->player_ghp, 30000);
-	tmp_sp = (s16b)MIN((s32b)p_ptr->player_sp[p_ptr->max_plv - 1] + (s32b)p_ptr->player_gsp, 30000);
+	tmp_hp = p_ptr->player_ghp + p_ptr->race_hp[p_ptr->max_plv - 1];
+	tmp_sp = p_ptr->player_gsp;
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+		if (cexp_ptr->clev > 0) tmp_sp += p_ptr->race_sp[cexp_ptr->clev - 1];
+	}
+	if (tmp_hp > 30000) tmp_hp = 30000;
+	if (tmp_sp > 30000) tmp_sp = 30000;
 
 	runeweapon->hp = tmp_hp;
 	runeweapon->sp = tmp_sp;
@@ -6903,7 +6901,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			break;
 		}
 
-		if (o_ptr->name2 && e_info[o_ptr->name2].cost)
+		if (o_ptr->name2)
 		{
 			/* Hack -- super-charge the damage dice */
 			while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
@@ -6931,24 +6929,13 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 		break;
 
 	case TV_DIGGING:
-		switch (o_ptr->name2)
-		{
-		case 0:
-		case EGO_DIGGING:
-		case EGO_SHATTERED:
-			break;
-		default:
-			return FALSE;
-		}
+		if (o_ptr->name2 && ((o_ptr->name2 != EGO_EXETER) || (o_ptr->name2 != EGO_BARMAMUTHA) || (o_ptr->name2 != EGO_BASQUE))) return FALSE;
 		break;
 
 	case TV_HAFTED:
 	case TV_POLEARM:
 	case TV_SWORD:
-		if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE))
-		{
-			if (o_ptr->name2 && (o_ptr->name2 != EGO_SHATTERED)) return FALSE;
-		}
+		if (o_ptr->name2 && (o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return FALSE;
 
 		switch (o_ptr->name2)
 		{
@@ -7000,8 +6987,6 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			if (one_in_(3)) add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
 			if (one_in_(5)) add_flag(o_ptr->art_flags, TR_RES_FEAR);
 			break;
-		case EGO_DIGGING:
-			return FALSE;
 		case EGO_SHARPNESS:
 			if (o_ptr->tval != TV_SWORD) return FALSE;
 			o_ptr->to_misc[OB_TUNNEL] = m_bonus(5, level) + 1;
@@ -7046,7 +7031,7 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			break;
 		}
 
-		if (o_ptr->name2 && e_info[o_ptr->name2].cost)
+		if (o_ptr->name2)
 		{
 			/* Hack -- Super-charge the damage dice */
 			while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
@@ -7055,23 +7040,6 @@ static bool wish_a_m_aux_1(object_type *o_ptr, int level, bool do_wish)
 			if (o_ptr->dd > 9) o_ptr->dd = 9;
 		}
 		break;
-	}
-
-	if (o_ptr->name2 == EGO_SHATTERED)
-	{
-		int i;
-
-		o_ptr->to_h = 0 - randint1(5) - randint1(5);
-		o_ptr->to_d = 0 - randint1(5) - randint1(5);
-		o_ptr->to_a = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
-		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = 0;
-		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = 0;
-		for (i = 0; i < TR_FLAG_SIZE; i++) o_ptr->art_flags[i] = 0;
-		o_ptr->curse_flags = TRC_CURSED;
-		o_ptr->ident |= (IDENT_BROKEN);
 	}
 
 	return TRUE;
@@ -7110,11 +7078,6 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 		/* Enchant */
 		if (do_wish) o_ptr->to_a += toac1;
 
-		if (o_ptr->name2 || (o_ptr->tval == TV_DRAG_ARMOR))
-		{
-			/* Enchant again */
-			o_ptr->to_a += toac2;
-		}
 	}
 
 	/* Analyze type */
@@ -7226,6 +7189,9 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 
 	case TV_SOFT_ARMOR:
 	case TV_HARD_ARMOR:
+		if (((o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) || (o_ptr->sval == SV_DRAGON_SCALE_MAIL)) && do_wish)
+			dragon_resist(o_ptr);
+
 		switch (o_ptr->name2)
 		{
 		case EGO_RESISTANCE:
@@ -7249,28 +7215,6 @@ static bool wish_a_m_aux_2(object_type *o_ptr, int level, bool do_wish)
 		}
 		break;
 
-	case TV_DRAG_ARMOR:
-		if (o_ptr->name2 && (o_ptr->name2 != EGO_BLASTED)) return FALSE;
-		break;
-	}
-
-	if (o_ptr->name2 == EGO_BLASTED)
-	{
-		int i;
-
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_BLASTED;
-		o_ptr->to_a = 0 - randint1(5) - randint1(5);
-		o_ptr->to_h = 0;
-		o_ptr->to_d = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
-		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = 0;
-		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = 0;
-		for (i = 0; i < TR_FLAG_SIZE; i++) o_ptr->art_flags[i] = 0;
-		o_ptr->curse_flags = TRC_CURSED;
-		o_ptr->ident |= (IDENT_BROKEN);
 	}
 
 	return TRUE;
@@ -7962,7 +7906,6 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 	case TV_CLOAK:
 	case TV_SOFT_ARMOR:
 	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
 		if (!wish_a_m_aux_2(o_ptr, level, do_wish)) return FALSE;
 		break;
 
@@ -8003,26 +7946,18 @@ static bool wish_apply_magic(object_type *o_ptr, bool do_wish)
 		/* Hack -- apply extra penalties if needed */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
 		{
-			switch (o_ptr->name2)
+			/* Hack -- obtain bonuses */
+			for (i = 0; i < A_MAX; i++)
 			{
-			case EGO_SHATTERED:
-			case EGO_BLASTED:
-				break;
-			default:
-				/* Hack -- obtain bonuses */
-				for (i = 0; i < A_MAX; i++)
-				{
-					if (e_ptr->max_to_stat[i]) o_ptr->to_stat[i] -= randint1(e_ptr->max_to_stat[i]);
-				}
-				for (i = 0; i < OB_MAX; i++)
-				{
-					if (e_ptr->max_to_misc[i]) o_ptr->to_misc[i] -= randint1(e_ptr->max_to_misc[i]);
-				}
-				if (e_ptr->max_to_h) o_ptr->to_h -= randint1(e_ptr->max_to_h);
-				if (e_ptr->max_to_d) o_ptr->to_d -= randint1(e_ptr->max_to_d);
-				if (e_ptr->max_to_a) o_ptr->to_a -= randint1(e_ptr->max_to_a);
-				break;
+				if (e_ptr->max_to_stat[i]) o_ptr->to_stat[i] -= randint1(e_ptr->max_to_stat[i]);
 			}
+			for (i = 0; i < OB_MAX; i++)
+			{
+				if (e_ptr->max_to_misc[i]) o_ptr->to_misc[i] -= randint1(e_ptr->max_to_misc[i]);
+			}
+			if (e_ptr->max_to_h) o_ptr->to_h -= randint1(e_ptr->max_to_h);
+			if (e_ptr->max_to_d) o_ptr->to_d -= randint1(e_ptr->max_to_d);
+			if (e_ptr->max_to_a) o_ptr->to_a -= randint1(e_ptr->max_to_a);
 		}
 
 		/* Hack -- apply extra bonuses if needed */
@@ -8326,8 +8261,6 @@ bool wish_object(cptr err_msg)
 			}
 			break;
 
-		case TV_DRAG_ARMOR:
-			if (k_ptr->sval == SV_DRAGON_POWER) continue;
 			/* Fall through */
 		default:
 			object_prep(q_ptr, i);
@@ -8657,7 +8590,7 @@ s = "強化できるアイテムがない。";
 		}
 
 		object_copy(q_ptr, o_ptr);
-		for (attempt = 10000; attempt; attempt--)
+		for (attempt = 5000; attempt; attempt--)
 		{
 			o_ptr->name2 = randint1(max_e_idx - 1);
 			if (e_info[o_ptr->name2].slot != tval_to_slot(o_ptr->tval)) continue;

@@ -40,9 +40,11 @@ static bool do_cmd_archer(void)
 	char com[80];
 	char o_name[MAX_NLEN];
 
+	int clev = p_ptr->cexp_info[CLASS_ARCHER].clev;
+
 	q_ptr = &forge;
 
-	if(p_ptr->lev >= 20)
+	if (clev >= 20)
 #ifdef JP
 		sprintf(com, "[A]矢, [B]クロスボウの矢 :");
 #else
@@ -81,12 +83,12 @@ static bool do_cmd_archer(void)
 		{
 			return FALSE;
 		}
-		if ((ch == 'A' || ch == 'a')&&(p_ptr->lev >= 10))
+		if ((ch == 'A' || ch == 'a') && (clev >= 10))
 		{
 			ext = 2;
 			break;
 		}
-		if ((ch == 'B' || ch == 'b')&&(p_ptr->lev >= 20))
+		if ((ch == 'B' || ch == 'b') && (clev >= 20))
 		{
 			ext = 3;
 			break;
@@ -128,11 +130,11 @@ static bool do_cmd_archer(void)
 		q_ptr = &forge;
 
 		/* Hack -- Give the player some small firestones */
-		object_prep(q_ptr, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
+		object_prep(q_ptr, lookup_kind(TV_ARROW, m_bonus(1, clev)+ 1));
 		q_ptr->number = (byte)rand_range(5,10);
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, 0L);
+		apply_magic(q_ptr, clev, 0L);
 
 		q_ptr->discount = 99;
 
@@ -192,11 +194,11 @@ static bool do_cmd_archer(void)
 		q_ptr = &forge;
 
 		/* Hack -- Give the player some small firestones */
-		object_prep(q_ptr, lookup_kind(TV_BOLT, m_bonus(1, p_ptr->lev)+1));
+		object_prep(q_ptr, lookup_kind(TV_BOLT, m_bonus(1, clev)+1));
 		q_ptr->number = (byte)rand_range(4,8);
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, 0L);
+		apply_magic(q_ptr, clev, 0L);
 
 		q_ptr->discount = 99;
 
@@ -231,7 +233,7 @@ static bool do_cmd_make_golem(void)
 	int ext=0;
 	char ch;
 	int dir, item, i;
-	int plev = p_ptr->lev;
+	int clev = p_ptr->cexp_info[CLASS_WARLOCK].clev;
 	int summon_lev = 0;
 	u32b mode = PM_FORCE_PET;
 	int count = 0;
@@ -297,7 +299,7 @@ static bool do_cmd_make_golem(void)
 		c_ptr = &cave[y][x];
 		if (c_ptr->feat == FEAT_RUBBLE)
 		{
-			summon_lev = plev * 2 / 3 + randint1(plev / 2);
+			summon_lev = clev * 2 / 3 + randint1(clev / 2);
 		}
 		else
 		{
@@ -338,13 +340,13 @@ static bool do_cmd_make_golem(void)
 			o_ptr = &o_list[0 - item];
 		}
 
-		summon_lev = plev * 2 / 3 + r_info[o_ptr->pval].level;
+		summon_lev = clev * 2 / 3 + r_info[o_ptr->pval].level;
 	}
 
-	if (plev > 39)
+	if (clev > 39)
 	{
 		mode |=  PM_ALLOW_GROUP;
-		num = (plev / 25) + randint1(2);
+		num = (clev / 25) + randint1(2);
 	}
 
 	for (i = 0; i < num; i++)
@@ -415,17 +417,21 @@ struct power_desc_type
  */
 static int racial_chance(power_desc_type *pd_ptr)
 {
-	s16b min_level  = pd_ptr->level;
-	int  use_stat   = pd_ptr->stat;
-	int  difficulty = pd_ptr->fail;
+	int min_level  = pd_ptr->level;
+	int use_stat   = pd_ptr->stat;
+	int difficulty = pd_ptr->fail;
 
 	int i;
 	int val;
 	int sum = 0;
 	int stat = p_ptr->stat_cur[use_stat];
+	int plev;
+
+	if ((pd_ptr->number >= -10) && (pd_ptr->number <= -4)) plev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	else plev = p_ptr->lev;
 
 	/* No chance for success */
-	if ((p_ptr->lev < min_level) || p_ptr->confused)
+	if ((plev < min_level) || p_ptr->confused)
 	{
 		return (0);
 	}
@@ -437,9 +443,9 @@ static int racial_chance(power_desc_type *pd_ptr)
 	{
 		difficulty += p_ptr->stun / 3;
 	}
-	else if (p_ptr->lev > min_level)
+	else if (plev > min_level)
 	{
-		int lev_adj = ((p_ptr->lev - min_level) / 3);
+		int lev_adj = ((plev - min_level) / 3);
 		if (lev_adj > 10) lev_adj = 10;
 		difficulty -= lev_adj;
 	}
@@ -473,9 +479,10 @@ static bool racial_use_hp;
 
 static int racial_aux(power_desc_type *pd_ptr)
 {
-	s16b min_level  = pd_ptr->level;
-	int  use_stat   = pd_ptr->stat;
-	int  difficulty = pd_ptr->fail;
+	int min_level  = pd_ptr->level;
+	int use_stat   = pd_ptr->stat;
+	int difficulty = pd_ptr->fail;
+	int plev;
 
 	racial_cost   = pd_ptr->cost;
 	racial_use_hp = FALSE;
@@ -483,21 +490,56 @@ static int racial_aux(power_desc_type *pd_ptr)
 	/* Not enough mana - use hp */
 	if (p_ptr->csp < racial_cost) racial_use_hp = TRUE;
 
-	/* Power is not available yet */
-	if (p_ptr->lev < min_level)
+	if ((pd_ptr->number >= -10) && (pd_ptr->number <= -4))
 	{
+		plev = p_ptr->cexp_info[p_ptr->pclass].clev;
+
+		/* Swordmaster is not wield weapon */
+		if ((p_ptr->pclass == CLASS_SWORDMASTER) && (!buki_motteruka(INVEN_RARM)) && ((pd_ptr->number >= -10) && (pd_ptr->number <= -6)))
+		{
 #ifdef JP
-msg_format("この能力を使用するにはレベル %d に達していなければなりません。", min_level);
+			msg_print("武器を持たないと必殺技は使えない！");
 #else
-		msg_format("You need to attain level %d to use this power.", min_level);
+			msg_print("You need to wield a weapon!");
 #endif
 
-		energy_use = 0;
-		return 0;
+			energy_use = 0;
+			return 0;
+		}
+
+		/* Power is not available yet */
+		if (plev < min_level)
+		{
+#ifdef JP
+			msg_format("この能力を使用するにはクラスレベル %d に達していなければなりません。", min_level);
+#else
+			msg_format("You need to attain class level %d to use this power.", min_level);
+#endif
+
+			energy_use = 0;
+			return 0;
+		}
+	}
+	else
+	{
+		plev = p_ptr->lev;
+
+		/* Power is not available yet */
+		if (plev < min_level)
+		{
+#ifdef JP
+			msg_format("この能力を使用するにはレベル %d に達していなければなりません。", min_level);
+#else
+			msg_format("You need to attain level %d to use this power.", min_level);
+#endif
+
+			energy_use = 0;
+			return 0;
+		}
 	}
 
 	/* Too confused */
-	else if (p_ptr->confused)
+	if (p_ptr->confused)
 	{
 #ifdef JP
 		msg_print("混乱していてその能力は使えない。");
@@ -532,9 +574,9 @@ msg_format("この能力を使用するにはレベル %d に達していなければなりません。", min
 		{
 			difficulty += p_ptr->stun;
 		}
-		else if (p_ptr->lev > min_level)
+		else if (plev > min_level)
 		{
-			int lev_adj = ((p_ptr->lev - min_level) / 3);
+			int lev_adj = ((plev - min_level) / 3);
 			if (lev_adj > 10) lev_adj = 10;
 			difficulty -= lev_adj;
 		}
@@ -656,8 +698,19 @@ static bool do_cmd_racial_throwing(int fake_item)
 	}
 
 	/* Apply temporary status */
-	if (p_ptr->stun > 100) p_ptr->to_h_b -= 20;
-	else if (p_ptr->stun) p_ptr->to_h_b -= 5;
+	switch (stun_level(p_ptr->stun))
+	{
+	case 0:
+		break;
+
+	case 1:
+		p_ptr->to_h_b -= 5;
+		break;
+
+	default:
+		p_ptr->to_h_b  -= 20;
+		break;
+	}
 	if (p_ptr->blessed) p_ptr->to_h_b  += 10;
 	if (p_ptr->hero) p_ptr->to_h_b  += 12;
 	if (p_ptr->shero) p_ptr->to_h_b  -= 12;
@@ -678,20 +731,20 @@ static bool do_cmd_racial_throwing(int fake_item)
 	{
 		/* Extra shots */
 		p_ptr->num_fire += (extra_shots * 100);
-		p_ptr->num_fire += skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]] * 50;
+		p_ptr->num_fire += skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])] * 50;
 	}
 
 	if (p_ptr->riding)
 	{
 		int penalty = 0;
 
-		if ((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER))
+		if ((p_ptr->pclass == CLASS_BEASTTAMER) || (p_ptr->pclass == CLASS_DRAGONTAMER) || (p_ptr->cexp_info[CLASS_BEASTTAMER].clev > 49) || (p_ptr->cexp_info[CLASS_DRAGONTAMER].clev > 49))
 		{
 			if (p_ptr->tval_ammo != TV_ARROW) penalty = 5;
 		}
 		else
 		{
-			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000) / 80;
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - (skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000) / 80;
 			penalty += 30;
 			if (penalty < 30) penalty = 30;
 		}
@@ -715,22 +768,24 @@ static bool do_cmd_racial_throwing(int fake_item)
 
 static bool cmd_racial_power_aux(s32b command)
 {
-	s16b        plev = p_ptr->lev;
-	s16b        chp = p_ptr->chp;
-	int         dir = 0;
-	bool        done;
+	int  plev;
+	int  chp = p_ptr->chp;
+	int  dir = 0;
+	bool done;
 
-	if (!(rp_ptr->r_flags & PRF_LARGE)
-		&& (p_ptr->pclass != CLASS_TERRORKNIGHT)
+	if ((command >= -10) && (command <= -4)) plev = p_ptr->cexp_info[p_ptr->pclass].clev;
+	else plev = p_ptr->lev;
+
+	if ((p_ptr->pclass != CLASS_TERRORKNIGHT)
 		&& (p_ptr->pclass != CLASS_SWORDMASTER)
 		&& (p_ptr->pclass != CLASS_NINJA)
-		&& (command == -9))
+		&& (command == -4))
 	{
 		if (!do_cmd_racial_throwing(INVEN_PEBBLE)) return FALSE;
 	}
 	else if (((p_ptr->pclass == CLASS_KNIGHT)
 		|| (p_ptr->pclass == CLASS_VALKYRIE))
-		&& (command == -10))
+		&& (command == -5))
 	{
 		char m_name[80];
 		monster_type *m_ptr;
@@ -759,7 +814,7 @@ static bool cmd_racial_power_aux(s32b command)
 		rlev = r_ptr->level;
 		if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
 		if (rlev > 60) rlev = 60+(rlev-60)/2;
-		if ((randint1((skill_lev_var[p_ptr->misc_skill_lev[SKILL_RIDING]] * 1000)/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+randint0(p_ptr->lev/5)))
+		if ((randint1((skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_RIDING])] * 1000)/120+plev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < plev*3/2+randint0(plev/5)))
 		{
 #ifdef JP
 			msg_format("%sを手なずけた。",m_name);
@@ -782,11 +837,11 @@ static bool cmd_racial_power_aux(s32b command)
 		|| (p_ptr->pclass == CLASS_SIRENE)
 		|| (p_ptr->pclass == CLASS_LICH)
 		|| (p_ptr->pclass == CLASS_HIGHWITCH))
-		&& (command == -10))
+		&& (command == -5))
 	{
-		if (!eat_magic(p_ptr->lev * 2)) return FALSE;
+		if (!eat_magic(plev * 2)) return FALSE;
 	}
-	else if (command <= -9)
+	else if (command <= -4)
 	{
 		switch (p_ptr->pclass)
 		{
@@ -794,10 +849,10 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -11:
+			case -6:
 				(void)detect_monsters_evil(DETECT_RAD_DEFAULT);
 				break;
-			case -12:
+			case -7:
 				{
 					int tx, ty, nx, ny;
 					int over_1 = 0, over_2 = 0;
@@ -872,8 +927,8 @@ static bool cmd_racial_power_aux(s32b command)
 					teleport_player_to(ty, tx, FALSE, FALSE);
 				}
 				break;
-			case -13:
-				if (p_ptr->lev > 44)
+			case -8:
+				if (plev > 44)
 				{
 					if (!identify_fully(TRUE)) return FALSE;
 				}
@@ -887,7 +942,7 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_BERSERKER:
 		{
-			if (command == -10)
+			if (command == -5)
 			{
 				teleport_player(50 + plev * 2);
 			}
@@ -897,13 +952,13 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -9:
+			case -4:
 				(void)detect_monsters_living(DETECT_RAD_DEFAULT);
 				break;
-			case -10:
+			case -5:
 				if (!do_cmd_racial_throwing(INVEN_GRAVE)) return FALSE;
 				break;
-			case -11:
+			case -6:
 				{
 					int i, count = 0;
 					u32b mode = PM_NO_PET | PM_ALLOW_GROUP | PM_IGNORE_AMGRID;
@@ -933,10 +988,10 @@ static bool cmd_racial_power_aux(s32b command)
 					}
 				}
 				break;
-			case -12:
+			case -7:
 				earthquake(py, px, 8 + randint0(5));
 				break;
-			case -13:
+			case -8:
 				{
 					int              y, x;
 					cave_type       *c_ptr;
@@ -957,7 +1012,7 @@ static bool cmd_racial_power_aux(s32b command)
 					}
 				}
 				break;
-			case -14:
+			case -9:
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
@@ -967,7 +1022,7 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -10:
+			case -5:
 				{
 					u32b mode = PM_ALLOW_GROUP | PM_FORCE_PET;
 					if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_SPIDER, mode))
@@ -988,11 +1043,11 @@ static bool cmd_racial_power_aux(s32b command)
 					}
 				}
 				break;
-			case -11:
+			case -6:
 				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_CONTROL_BEAST, dir, plev * 2, 0, FALSE);
 				break;
-			case -12:
+			case -7:
 				{
 					int i, count = 0;
 					u32b mode = PM_ALLOW_GROUP | PM_FORCE_PET;
@@ -1026,10 +1081,10 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -9:
+			case -4:
 				{
 					int pstat = p_ptr->stat_use[A_STR];
-					int attack_var = skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]];
+					int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
 
 					if (!get_aim_dir(&dir)) return FALSE;
 					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;
@@ -1041,23 +1096,13 @@ static bool cmd_racial_power_aux(s32b command)
 					energy_use = 100 - attack_var * attack_var;
 				}
 				break;
-			case -10:
+			case -5:
 				detect_monsters_mind(DETECT_RAD_DEFAULT);
 				break;
-			case -11:
-				if (!buki_motteruka(INVEN_RARM))
-				{
-					if (flush_failure) flush();
-#ifdef JP
-					msg_print("武器を持たないと必殺技は使えない！");
-#else
-					msg_print("You need to wield a weapon!");
-#endif
-					return;
-				}
+			case -6:
 				if (!do_cmd_throw_aux(1, PY_THROW_BOOMERANG, 0)) return FALSE;
 				break;
-			case -12:
+			case -7:
 				{
 					int y, x;
 
@@ -1078,7 +1123,7 @@ static bool cmd_racial_power_aux(s32b command)
 					}
 				}
 				break;
-			case -13:
+			case -8:
 				{
 					int y, x;
 
@@ -1141,7 +1186,7 @@ static bool cmd_racial_power_aux(s32b command)
 						/* Check for new panel (redraw map) */
 						verify_panel();
 
-						set_aquatic_in_water();
+						set_mermaid_in_water();
 
 						/* Update stuff */
 						p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_BONUS);
@@ -1157,12 +1202,12 @@ static bool cmd_racial_power_aux(s32b command)
 					}
 				}
 				break;
-			case -14:
+			case -9:
 				project_length = 5;
 				if (!get_aim_dir(&dir)) return FALSE;
 				project_hook(GF_ATTACK, dir, PY_ATTACK_NYUSIN, PROJECT_STOP | PROJECT_KILL);
 				break;
-			case -15:
+			case -10:
 				{
 					int y, x, i;
 					if (!get_rep_dir2(&dir)) return FALSE;
@@ -1218,15 +1263,14 @@ static bool cmd_racial_power_aux(s32b command)
 							py = y;
 							px = x;
 
-							if (p_ptr->riding)
-							{
-								int tmp;
-								tmp = cave[py][px].m_idx;
-								cave[py][px].m_idx = cave[oy][ox].m_idx;
-								cave[oy][ox].m_idx = tmp;
-								m_list[p_ptr->riding].fy = py;
-								m_list[p_ptr->riding].fx = px;
-							}
+						if (p_ptr->riding)
+						{
+							cave[oy][ox].m_idx = cave[py][px].m_idx;
+							cave[py][px].m_idx = p_ptr->riding;
+							m_list[p_ptr->riding].fy = py;
+							m_list[p_ptr->riding].fx = px;
+							update_mon(p_ptr->riding, TRUE);
+						}
 
 							forget_flow();
 
@@ -1246,7 +1290,7 @@ static bool cmd_racial_power_aux(s32b command)
 						/* Check for new panel (redraw map) */
 						verify_panel();
 
-						set_aquatic_in_water();
+						set_mermaid_in_water();
 
 						/* Update stuff */
 						p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
@@ -1272,10 +1316,10 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -9:
+			case -4:
 				{
 					int pstat = p_ptr->stat_use[A_STR];
-					int attack_var = skill_lev_var[p_ptr->misc_skill_lev[SKILL_THROWING]];
+					int attack_var = skill_lev_var[skill_exp_level(p_ptr->skill_exp[SKILL_THROWING])];
 
 					if (!get_aim_dir(&dir)) return FALSE;
 					hack_elem_mod_mode = MODIFY_ELEM_MODE_THROW;
@@ -1287,14 +1331,12 @@ static bool cmd_racial_power_aux(s32b command)
 					energy_use = 100 - attack_var * attack_var;
 				}
 				break;
-			case -10:
-				if (p_ptr->singing || p_ptr->restart_singing) stop_singing();
-
+			case -5:
 				if (p_ptr->action == ACTION_STEALTH) set_action(ACTION_NONE);
 				else set_action(ACTION_STEALTH);
 				energy_use = 0;
 				break;
-			case -11:
+			case -6:
 				{
 					int y, x;
 
@@ -1334,10 +1376,10 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -10:
+			case -5:
 				if (!identify_fully(FALSE)) return FALSE;
 				break;
-			case -11:
+			case -6:
 				if (!do_cmd_make_golem()) return FALSE;
 				break;
 			}
@@ -1345,7 +1387,7 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_VALKYRIE:
 		{
-			if (command == -11)
+			if (command == -6)
 			{
 				{
 					int y, x;
@@ -1389,10 +1431,10 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -10:
+			case -5:
 				if (!do_cmd_archer()) return FALSE;
 				break;
-			case -11:
+			case -6:
 				if (p_ptr->tval_ammo != TV_ARROW)
 				{
 #ifdef JP
@@ -1405,14 +1447,14 @@ static bool cmd_racial_power_aux(s32b command)
 				energy_use = 0;
 				if (!do_cmd_fire(TRUE)) return FALSE;
 				break;
-			case -12:
+			case -7:
 				energy_use = 0;
 				p_ptr->to_h_b += 30;
 				done = do_cmd_fire(FALSE);
 				p_ptr->to_h_b -= 30;
 				if (!done) return FALSE;
 				break;
-			case -13:
+			case -8:
 				energy_use = 0;
 				p_ptr->to_h_b -= 30;
 				p_ptr->num_fire *= 2;
@@ -1429,11 +1471,11 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -10:
+			case -5:
 				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_CONTROL_DRAGON, dir, plev * 2, 0, FALSE);
 				break;
-			case -11:
+			case -6:
 				if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_DRAGON, PM_FORCE_PET))
 				{
 #ifdef JP
@@ -1451,7 +1493,7 @@ static bool cmd_racial_power_aux(s32b command)
 #endif
 				}
 				break;
-			case -12:
+			case -7:
 				if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_HI_DRAGON, PM_FORCE_PET))
 				{
 #ifdef JP
@@ -1474,7 +1516,7 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_LICH:
 		{
-			if (command == -11)
+			if (command == -6)
 			{
 				if (summon_specific(-1, py, px, plev * 2 / 3 + randint1(plev/2), SUMMON_HI_UNDEAD, PM_FORCE_PET))
 				{
@@ -1497,7 +1539,7 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_ANGELKNIGHT:
 		{
-			if ((command == -11) || (command == -12))
+			if ((command == -5) || (command == -6))
 			{
 				if (p_ptr->anti_magic)
 				{
@@ -1529,11 +1571,11 @@ static bool cmd_racial_power_aux(s32b command)
 			}
 			switch (command)
 			{
-			case -10:
+			case -5:
 				stop_singing();
 				energy_use = 10;
 				break;
-			case -11:
+			case -6:
 				if (p_ptr->singing) stop_singing();
 #ifdef JP
 				msg_print("悲しげで安らかなメロディを奏で始めた...");
@@ -1544,7 +1586,7 @@ static bool cmd_racial_power_aux(s32b command)
 				p_ptr->song_start = MUSIC_SAD;
 				set_action(ACTION_SING);
 				break;
-			case -12:
+			case -7:
 				if (p_ptr->singing) stop_singing();
 #ifdef JP
 				msg_print("静かな音楽が辺りの者をも静まり返らせる...");
@@ -1560,7 +1602,7 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_HIGHWITCH:
 		{
-			if (command == -11)
+			if (command == -6)
 			{
 				{
 					int i, count = 0;
@@ -1593,10 +1635,10 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			switch (command)
 			{
-			case -10:
+			case -5:
 				detect_monsters_thermal(DETECT_RAD_DEFAULT);
 				break;
-			case -11:
+			case -6:
 				map_area(DETECT_RAD_MAP);
 				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 				(void)detect_doors(DETECT_RAD_DEFAULT);
@@ -1605,7 +1647,7 @@ static bool cmd_racial_power_aux(s32b command)
 				(void)detect_treasure(DETECT_RAD_DEFAULT);
 				(void)detect_objects_gold(DETECT_RAD_DEFAULT);
 				break;
-			case -12:
+			case -7:
 				{
 					int tx, ty, nx, ny;
 					int over_1 = 0, over_2 = 0;
@@ -1708,17 +1750,17 @@ static bool cmd_racial_power_aux(s32b command)
 					teleport_player_to(ty, tx, FALSE, FALSE);
 				}
 				break;
-			case -13:
+			case -8:
 				probing();
 				break;
-			case -14:
+			case -9:
 				energy_use = 0;
 				p_ptr->to_h_b += 30;
 				done = do_cmd_fire(FALSE);
 				p_ptr->to_h_b -= 30;
 				if (!done) return FALSE;
 				break;
-			case -15:
+			case -10:
 				if (!jump_wall()) return FALSE;
 				break;
 			}
@@ -1826,9 +1868,9 @@ msg_print("あなたは魔法の粉を投げつけた...");
 #endif
 
 			if (plev < 25)
-				sleep_monsters_touch();
+				sleep_monsters_touch(plev);
 			else
-				(void)sleep_monsters();
+				(void)sleep_monsters(plev);
 			break;
 
 		case RACE_GREMLIN:
@@ -1937,11 +1979,6 @@ msg_print("あなたはおどろおどろしい叫び声をあげた！");
 			switch (command)
 			{
 			case -1:
-				stop_singing();
-				energy_use = 10;
-				break;
-
-			case -2:
 				switch (cave[py][px].feat)
 				{
 				case FEAT_FLOOR:
@@ -1953,7 +1990,7 @@ msg_print("あなたはおどろおどろしい叫び声をあげた！");
 				case FEAT_SWAMP:
 				case FEAT_TUNDRA:
 					cave_set_feat(py, px, FEAT_SHAL_WATER);
-					set_aquatic_in_water();
+					set_mermaid_in_water();
 					break;
 				default:
 					msg_print("ここは水溜まりに変えられない。");
@@ -1961,7 +1998,7 @@ msg_print("あなたはおどろおどろしい叫び声をあげた！");
 				}
 				break;
 
-			case -3:
+			case -2:
 				if (p_ptr->anti_magic)
 				{
 #ifdef JP
@@ -1997,112 +2034,8 @@ msg_print("あなたはおどろおどろしい叫び声をあげた！");
 				set_action(ACTION_SING);
 				break;
 
-			case -4:
-				mermaid_water_flow();
-				break;
-			}
-			break;
-
-		case RACE_OCTOPUS:
-			switch (command)
-			{
-			case -1:
-				switch (cave[py][px].feat)
-				{
-				case FEAT_FLOOR:
-				case FEAT_DARK_PIT:
-				case FEAT_DIRT:
-				case FEAT_GRASS:
-				case FEAT_FLOWER:
-				case FEAT_DEEP_GRASS:
-				case FEAT_SWAMP:
-				case FEAT_TUNDRA:
-					cave_set_feat(py, px, FEAT_SHAL_WATER);
-					set_aquatic_in_water();
-					break;
-				default:
-					msg_print("ここは水溜まりに変えられない。");
-					return FALSE;
-				}
-				break;
-
-			case -2:
-				if (!get_aim_dir(&dir)) return FALSE;
-				msg_print("墨を吐いた。");
-				fire_ball(GF_CONFUSION, dir, damroll(2 + plev / 8, 8),
-					(p_ptr->stat_use[A_CON] >= (18 + 150)) ? -3 : -2, FALSE);
-				break;
-
 			case -3:
-				if (!word_of_recall()) return FALSE;
-				break;
-
-			case -4:
-				if (!aqua_diving()) return FALSE;
-				break;
-
-			case -5:
-				(void)set_tim_octopus_immunity(randint1(25) + 50, FALSE);
-				break;
-
-			case -6:
-				{
-					int y, x;
-					cave_type *c_ptr;
-
-					/* Only works on adjacent monsters */
-					if (!get_rep_dir(&dir, FALSE)) return FALSE;
-					y = py + ddy[dir];
-					x = px + ddx[dir];
-					c_ptr = &cave[y][x];
-
-					if (!c_ptr->m_idx)
-					{
-#ifdef JP
-						msg_print("そこには誰もいません。");
-#else
-						msg_print("You see no one there.");
-#endif
-						break;
-					}
-
-					msg_print("吸盤のような口で吸い付いた。");
-
-					project_length = 1;
-					(void)fire_ball(GF_NEW_DRAIN, dir, plev * 3, 0, FALSE);
-				}
-				break;
-
-			case -7:
-				if (!alter_with_flood()) return FALSE;
-				break;
-
-			case -8:
-				{
-					int x, y;
-
-					if (!get_rep_dir(&dir, FALSE)) return FALSE;
-					y = py + ddy[dir];
-					x = px + ddx[dir];
-					if (cave[y][x].m_idx)
-					{
-						py_attack(y, x, 0);
-						if (cave[y][x].m_idx)
-						{
-							handle_stuff();
-							py_attack(y, x, 0);
-						}
-					}
-					else
-					{
-#ifdef JP
-						msg_print("その方向にはモンスターはいません。");
-#else
-						msg_print("You don't see any monster in this direction");
-#endif
-						return FALSE;
-					}
-				}
+				mermaid_water_flow();
 				break;
 			}
 			break;
@@ -2134,12 +2067,16 @@ static bool special_blow_aux(s32b command)
 	u32b flg = PROJECT_HIDE | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID;
 	bool fear; /* Dummy */
 	cptr note_dies;
+	int temple_lev = p_ptr->cexp_info[CLASS_TEMPLEKNIGHT].max_max_clev;
 
 	command = -32 - command;
 	if ((command < 0) || (command >= (MAX_SB + MAX_TEMPLE_SB))) return FALSE;
 
 	if (command >= MAX_SB) sb_ptr = &temple_blow_info[command - MAX_SB];
 	else sb_ptr = &special_blow_info[command];
+
+	/* Paranoia */
+	if (temple_lev < 0) temple_lev = 0;
 
 	if (sb_ptr->weapon_type & WT_BIT_BOW)
 	{
@@ -2186,8 +2123,6 @@ static bool special_blow_aux(s32b command)
 
 		if (!in_bounds(ty, tx)) break;
 
-		if (!cave_floor_bold(ty, tx)) break;
-
 		c_ptr = &cave[ty][tx];
 
 		/* Found target */
@@ -2200,6 +2135,8 @@ static bool special_blow_aux(s32b command)
 			monster_desc(m_name, m_ptr, 0);
 			break;
 		}
+
+		if (!cave_floor_bold(ty, tx)) break;
 	}
 
 	/*
@@ -2267,13 +2204,13 @@ static bool special_blow_aux(s32b command)
 	case 10:
 		msg_print("貴様のツラは見飽きたよ…。終わりにしようぜ！ブラックプリズン！");
 		project(0, 0, ty, tx, p_ptr->stat_use[A_STR] * 2, GF_DARK, flg, MODIFY_ELEM_MODE_MAGIC);
-		if (c_ptr->m_idx) project(0, 0, ty, tx, p_ptr->lev + 100, GF_STASIS, flg, MODIFY_ELEM_MODE_MAGIC);
+		if (c_ptr->m_idx) project(0, 0, ty, tx, temple_lev + 100, GF_STASIS, flg, MODIFY_ELEM_MODE_MAGIC);
 		break;
 
 	case 11:
 		msg_print("根性だけは認めてあげるわ…。でも、そこまでよ、デーモンローズ！");
 		project(0, 0, ty, tx, p_ptr->stat_use[A_CHR] * 2, GF_PURE_FIRE, flg, MODIFY_ELEM_MODE_MAGIC);
-		if (c_ptr->m_idx) project(0, 0, ty, tx, p_ptr->lev + 100, GF_CHARM, flg, MODIFY_ELEM_MODE_MAGIC);
+		if (c_ptr->m_idx) project(0, 0, ty, tx, temple_lev + 100, GF_CHARM, flg, MODIFY_ELEM_MODE_MAGIC);
 		break;
 
 	case 12:
@@ -2364,8 +2301,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		return;
 	}
 
-	if (!(rp_ptr->r_flags & PRF_LARGE)
-		&&(p_ptr->pclass != CLASS_TERRORKNIGHT)
+	if ((p_ptr->pclass != CLASS_TERRORKNIGHT)
 		&& (p_ptr->pclass != CLASS_SWORDMASTER)
 		&& (p_ptr->pclass != CLASS_NINJA))
 	{
@@ -2379,7 +2315,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 0;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 0;
-		power_desc[num++].number = -9;
+		power_desc[num++].number = -4;
 	}
 
 	if ((p_ptr->pclass == CLASS_KNIGHT)
@@ -2395,7 +2331,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 0;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 10;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 	}
 
 	if ((p_ptr->pclass == CLASS_WIZARD)
@@ -2413,7 +2349,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 1;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 25;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 	}
 
 	switch (p_ptr->pclass)
@@ -2430,7 +2366,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 5;
 		power_desc[num].stat = A_WIS;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "突撃");
 #else
@@ -2441,7 +2377,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 40;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 60;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 #ifdef JP
 		strcpy(power_desc[num].name, "戦士の目");
 #else
@@ -2452,7 +2388,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 20;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 60;
-		power_desc[num++].number = -13;
+		power_desc[num++].number = -8;
 		break;
 	}
 	case CLASS_BERSERKER:
@@ -2467,7 +2403,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 5;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 30;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 		break;
 	}
 	case CLASS_TERRORKNIGHT:
@@ -2482,7 +2418,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 1;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -9;
+		power_desc[num++].number = -4;
 #ifdef JP
 		strcpy(power_desc[num].name, "墓石投げ");
 #else
@@ -2493,7 +2429,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 2;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "殺しの勲章");
 #else
@@ -2504,7 +2440,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 20;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 50;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "地震");
 #else
@@ -2515,7 +2451,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 10;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 60;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 #ifdef JP
 		strcpy(power_desc[num].name, "殺人ショー");
 #else
@@ -2526,7 +2462,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 20;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 70;
-		power_desc[num++].number = -13;
+		power_desc[num++].number = -8;
 #ifdef JP
 		strcpy(power_desc[num].name, "亡霊喰い");
 #else
@@ -2537,7 +2473,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 6;
 		power_desc[num].stat = A_CON;
 		power_desc[num].fail = 30;
-		power_desc[num++].number = -14;
+		power_desc[num++].number = -9;
 		break;
 	}
 	case CLASS_BEASTTAMER:
@@ -2552,7 +2488,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 10;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 30;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "餌付け");
 #else
@@ -2563,7 +2499,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 8;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 40;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "魔獣召喚");
 #else
@@ -2574,7 +2510,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 50;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 		break;
 	}
 	case CLASS_SWORDMASTER:
@@ -2589,7 +2525,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 0;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 0;
-		power_desc[num++].number = -9;
+		power_desc[num++].number = -4;
 #ifdef JP
 		strcpy(power_desc[num].name, "殺気感知");
 #else
@@ -2600,7 +2536,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 1;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 10;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "ブーメラン");
 #else
@@ -2611,7 +2547,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 15;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 30;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "みね打ち");
 #else
@@ -2622,7 +2558,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 10;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 40;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 #ifdef JP
 		strcpy(power_desc[num].name, "払い抜け");
 #else
@@ -2633,7 +2569,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 20;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 50;
-		power_desc[num++].number = -13;
+		power_desc[num++].number = -8;
 #ifdef JP
 		strcpy(power_desc[num].name, "入身");
 #else
@@ -2644,7 +2580,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 60;
-		power_desc[num++].number = -14;
+		power_desc[num++].number = -9;
 #ifdef JP
 		strcpy(power_desc[num].name, "無双三段");
 #else
@@ -2655,7 +2591,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 80;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 80;
-		power_desc[num++].number = -15;
+		power_desc[num++].number = -10;
 		break;
 	}
 	case CLASS_NINJA:
@@ -2670,7 +2606,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 0;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 0;
-		power_desc[num++].number = -9;
+		power_desc[num++].number = -4;
 #ifdef JP
 		strcpy(power_desc[num].name, "忍び足");
 #else
@@ -2681,7 +2617,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 7;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 10;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "ヒット&アウェイ");
 #else
@@ -2692,7 +2628,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 12;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 14;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 		break;
 	}
 	case CLASS_WARLOCK:
@@ -2707,7 +2643,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 20;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 60;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "ゴーレム創造");
 #else
@@ -2718,7 +2654,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 80;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 		break;
 	}
 	case CLASS_VALKYRIE:
@@ -2733,7 +2669,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 16;
 		power_desc[num].stat = A_STR;
 		power_desc[num].fail = 30;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 		break;
 	}
 	case CLASS_ARCHER:
@@ -2748,7 +2684,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 0;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 0;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "狙い撃ち");
 #else
@@ -2759,7 +2695,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 5;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "狙撃");
 #else
@@ -2770,7 +2706,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 #ifdef JP
 		strcpy(power_desc[num].name, "連射");
 #else
@@ -2781,7 +2717,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 50;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 50;
-		power_desc[num++].number = -13;
+		power_desc[num++].number = -8;
 		break;
 	}
 	case CLASS_DRAGONTAMER:
@@ -2796,7 +2732,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 15;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 40;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "ドラゴン召喚");
 #else
@@ -2807,7 +2743,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 25;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 50;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "古代ドラゴン召喚");
 #else
@@ -2818,7 +2754,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 40;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 60;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 		break;
 	}
 	case CLASS_LICH:
@@ -2833,7 +2769,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 40;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 70;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 		break;
 	}
 	case CLASS_ANGELKNIGHT:
@@ -2848,7 +2784,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 0;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 0;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "サッドソング");
 #else
@@ -2859,7 +2795,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 20;
 		power_desc[num].stat = A_WIS;
 		power_desc[num].fail = 50;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "サイレントソング");
 #else
@@ -2870,7 +2806,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_WIS;
 		power_desc[num].fail = 70;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 		break;
 	}
 	case CLASS_HIGHWITCH:
@@ -2885,7 +2821,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_CHR;
 		power_desc[num].fail = 60;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 		break;
 	}
 	case CLASS_GUNNER:
@@ -2900,7 +2836,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 1;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 10;
-		power_desc[num++].number = -10;
+		power_desc[num++].number = -5;
 #ifdef JP
 		strcpy(power_desc[num].name, "地形データ取得");
 #else
@@ -2911,7 +2847,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 25;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 40;
-		power_desc[num++].number = -11;
+		power_desc[num++].number = -6;
 #ifdef JP
 		strcpy(power_desc[num].name, "高速移動");
 #else
@@ -2922,7 +2858,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 0;
-		power_desc[num++].number = -12;
+		power_desc[num++].number = -7;
 #ifdef JP
 		strcpy(power_desc[num].name, "調査");
 #else
@@ -2933,7 +2869,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 20;
 		power_desc[num].stat = A_INT;
 		power_desc[num].fail = 50;
-		power_desc[num++].number = -13;
+		power_desc[num++].number = -8;
 #ifdef JP
 		strcpy(power_desc[num].name, "狙撃");
 #else
@@ -2944,7 +2880,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 30;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -14;
+		power_desc[num++].number = -9;
 #ifdef JP
 		strcpy(power_desc[num].name, "ジャンプウォール");
 #else
@@ -2955,7 +2891,7 @@ msg_print("混乱していて特殊能力を使えません！");
 		power_desc[num].cost = 35;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 40;
-		power_desc[num++].number = -15;
+		power_desc[num++].number = -10;
 	}
 #if 0
 	default:
@@ -3101,24 +3037,13 @@ strcpy(power_desc[num].name, "邪眼");
 			power_desc[num++].number = -1;
 			break;
 		case RACE_MERMAID:
-#ifdef JP
-			strcpy(power_desc[num].name, "歌を止める");
-#else
-			strcpy(power_desc[num].name, "Stop Singing");
-#endif
-
-			power_desc[num].level = 1;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -1;
 			strcpy(power_desc[num].name, "水溜まり");
 
 			power_desc[num].level = 1;
 			power_desc[num].cost = 1;
 			power_desc[num].stat = A_WIS;
 			power_desc[num].fail = 0;
-			power_desc[num++].number = -2;
+			power_desc[num++].number = -1;
 
 			strcpy(power_desc[num].name, "魅惑の歌");
 
@@ -3126,7 +3051,7 @@ strcpy(power_desc[num].name, "邪眼");
 			power_desc[num].cost = 28;
 			power_desc[num].stat = A_CHR;
 			power_desc[num].fail = 25;
-			power_desc[num++].number = -3;
+			power_desc[num++].number = -2;
 
 			strcpy(power_desc[num].name, "浸水");
 
@@ -3134,69 +3059,7 @@ strcpy(power_desc[num].name, "邪眼");
 			power_desc[num].cost = 40;
 			power_desc[num].stat = A_WIS;
 			power_desc[num].fail = 50;
-			power_desc[num++].number = -4;
-			break;
-		case RACE_OCTOPUS:
-			strcpy(power_desc[num].name, "水溜まり");
-
-			power_desc[num].level = 1;
-			power_desc[num].cost = 1;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -1;
-			strcpy(power_desc[num].name, "墨を吐く");
-
-			power_desc[num].level = 2;
-			power_desc[num].cost = 4;
-			power_desc[num].stat = A_STR;
-			power_desc[num].fail = 5;
-			power_desc[num++].number = -2;
-#ifdef JP
-			strcpy(power_desc[num].name, "帰還");
-#else
-			strcpy(power_desc[num].name, "Recall");
-#endif
-
-			power_desc[num].level = 5;
-			power_desc[num].cost = 10;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 10;
 			power_desc[num++].number = -3;
-			strcpy(power_desc[num].name, "潜水");
-
-			power_desc[num].level = 26;
-			power_desc[num].cost = 30;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 45;
-			power_desc[num++].number = -4;
-			strcpy(power_desc[num].name, "タコ壺");
-
-			power_desc[num].level = 32;
-			power_desc[num].cost = 70;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 55;
-			power_desc[num++].number = -5;
-			strcpy(power_desc[num].name, "タコちゅー");
-
-			power_desc[num].level = 34;
-			power_desc[num].cost = 25;
-			power_desc[num].stat = A_CON;
-			power_desc[num].fail = 60;
-			power_desc[num++].number = -6;
-			strcpy(power_desc[num].name, "大洪水");
-
-			power_desc[num].level = 38;
-			power_desc[num].cost = 100;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 60;
-			power_desc[num++].number = -7;
-			strcpy(power_desc[num].name, "タコ足千手");
-
-			power_desc[num].level = 47;
-			power_desc[num].cost = 200;
-			power_desc[num].stat = A_STR;
-			power_desc[num].fail = 70;
-			power_desc[num++].number = -8;
 			break;
 		default:
 		{

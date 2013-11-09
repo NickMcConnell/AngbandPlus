@@ -7,17 +7,7 @@
 
 #ifdef JP
 #undef strchr
-static char *_strchr(const char *ptr, char ch)
-{
-	for ( ; *ptr != '\0'; ++ptr)
-	{
-		if (*ptr == ch)	return (char *)ptr;
-		if (iskanji(*ptr)) ++ptr;
-	}
-
-	return NULL;
-}
-#define strchr _strchr
+#define strchr strchr_j
 #endif
 /*
  * This file is used to initialize various variables and arrays for the
@@ -1046,19 +1036,7 @@ errr parse_s_info(char *buf, header *head)
 	/* There better be a current s_ptr */
 	else if (!s_ptr) return (3);
 
-	/* Process 'R' for "Skill point gain rate" */
-	else if (buf[0] == 'R')
-	{
-		int gain_sp_rate;
-
-		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d", &gain_sp_rate)) return (1);
-
-		/* Save the values */
-		s_ptr->gain_sp_rate = gain_sp_rate;
-	}
-
-	/* Process 'W' for "Weapon skill efficiency" */
+	/* Process 'W' for "Weapon skill gain rate" */
 	else if (buf[0] == 'W')
 	{
 		int tval, sval, eff;
@@ -1067,7 +1045,8 @@ errr parse_s_info(char *buf, header *head)
 		if (3 != sscanf(buf+2, "%d:%d:%d",
 				&tval, &sval, &eff)) return (1);
 
-		if ((eff < 0) || (eff > 63)) return (8);
+		if (eff > 200) return (200);
+		if (eff < 0) return (8);
 		if ((eff > 0) && (eff < 4)) return (8);
 
 		/* Save the values */
@@ -1083,11 +1062,28 @@ errr parse_s_info(char *buf, header *head)
 		if (2 != sscanf(buf+2, "%d:%d",
 				&num, &eff)) return (1);
 
-		if ((eff < 0) || (eff > 63)) return (8);
+		if (eff > 200) return (200);
+		if (eff < 0) return (8);
 		if ((eff > 0) && (eff < 4)) return (8);
 
 		/* Save the values */
 		s_ptr->m_eff[num] = eff;
+	}
+
+	/* Process 'S' for "Magic skill efficiency" */
+	else if (buf[0] == 'S')
+	{
+		int realm, eff;
+
+		/* Scan for the values */
+		if (2 != sscanf(buf+2, "%d:%d",
+				&realm, &eff)) return (1);
+
+		if ((eff < 0) || (eff > 64)) return (8);
+		if ((eff > 0) && (eff < 4)) return (8);
+
+		/* Save the values */
+		s_ptr->s_eff[realm] = eff;
 	}
 
 
@@ -1141,7 +1137,7 @@ errr parse_m_info(char *buf, header *head)
 	else if (buf[0] == 'I')
 	{
 		char *book, *stat;
-		int xtra, type, weight;
+		int xtra, type, weight, gain_msp_rate;
 
 		/* Find the colon before the name */
 		s = strchr(buf+2, ':');
@@ -1180,12 +1176,13 @@ errr parse_m_info(char *buf, header *head)
 
 
 		/* Scan for the values */
-		if (3 != sscanf(s, "%x:%d:%d",
-				(uint *)&xtra, &type, &weight))	return (1);
+		if (4 != sscanf(s, "%x:%d:%d:%d",
+				(uint *)&xtra, &type, &weight, &gain_msp_rate))	return (1);
 
 		m_ptr->spell_xtra = xtra;
 		m_ptr->spell_type = type;
 		m_ptr->spell_weight = weight;
+		m_ptr->gain_msp_rate = gain_msp_rate;
 	}
 
 
@@ -3678,8 +3675,6 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			}
 			else if (object_index)
 			{
-				int old_base_level = base_level;
-
 				/* Get local object */
 				object_type *o_ptr = &object_type_body;
 
@@ -3693,26 +3688,10 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 					coin_type = 0;
 				}
 
-				if (o_ptr->tval == TV_RING)
-				{
-					if (o_ptr->sval == SV_RING_SPEED)
-					{
-						if (!dun_level && !p_ptr->inside_quest)
-						{
-							if (p_ptr->town_num)
-							{
-								if (base_level < 40) base_level = 40;
-							}
-						}
-					}
-				}
-
 				/* Apply magic (no messages, no artifacts) */
 				apply_magic(o_ptr, base_level, AMF_GOOD);
 
 				(void)drop_near(o_ptr, -1, *y, *x);
-
-				base_level = old_base_level;
 			}
 
 			/* Artifact */
@@ -4185,13 +4164,10 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-				if (rp_ptr->r_flags & PRF_LARGE)
-					v = "none";
-				else
 #ifdef JP
-					v = cp_ptr->E_title;
+				v = cp_ptr->E_title;
 #else
-					v = cp_ptr->title;
+				v = cp_ptr->title;
 #endif
 			}
 
@@ -4218,11 +4194,58 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 				v = tmp;
 			}
 
-			/* Level */
+			/* Racial level */
 			else if (streq(b+1, "LEVEL"))
 			{
 				sprintf(tmp, "%d", p_ptr->lev);
 				v = tmp;
+			}
+
+			/* Class level */
+			else if (!strncmp(b+1, "CLEVEL", 6))
+			{
+				char *pp = b + 1 + 6;
+				char p1 = '(', p2 = ')';
+
+				/* Current class level */
+				if (!*pp)
+				{
+					sprintf(tmp, "%d", p_ptr->cexp_info[p_ptr->pclass].clev);
+					v = tmp;
+				}
+
+				/* Specified class level */
+				else if (*pp == p1)
+				{
+					char class_name[40];
+					char *rp = strchr(pp + 2, p2);
+
+					/* Default */
+					v = "0";
+
+					pp++;
+					if (rp && !*(rp + 1) && (((int)(rp - pp) + 1) < (sizeof class_name)))
+					{
+						int i;
+
+						strcpy(class_name, pp);
+						class_name[(int)(rp - pp)] = '\0'; /* Terminate right parentheses */
+
+						for (i = 0; i < MAX_CLASS; i++)
+						{
+#ifdef JP
+							if (streq(class_info[i].E_title, class_name))
+#else
+							if (streq(class_info[i].title, class_name))
+#endif
+							{
+								sprintf(tmp, "%d", p_ptr->cexp_info[i].clev);
+								v = tmp;
+								break;
+							}
+						}
+					}
+				}
 			}
 
 			/* Current quest number */

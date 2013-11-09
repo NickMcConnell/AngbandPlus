@@ -128,7 +128,6 @@ static grouper group_item[] =
 #endif
 
 	{ TV_HARD_ARMOR,    NULL },
-	{ TV_DRAG_ARMOR,    NULL },
 
 #ifdef JP
 	{ TV_CLOAK,         "防具（その他）" },
@@ -345,7 +344,6 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SHIELD:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
 		{
 			sprintf(dam, "%d", q_ptr->ac);
 			break;
@@ -530,7 +528,6 @@ static grouper group_artifact[] =
 
 	{ TV_SOFT_ARMOR,        "鎧" },
 	{ TV_HARD_ARMOR,        NULL },
-	{ TV_DRAG_ARMOR,        NULL },
 
 	{ TV_CLOAK,             "クローク" },
 	{ TV_SHIELD,            "盾" },
@@ -553,7 +550,6 @@ static grouper group_artifact[] =
 
 	{ TV_SOFT_ARMOR,        "Body Armor" },
 	{ TV_HARD_ARMOR,        NULL },
-	{ TV_DRAG_ARMOR,        NULL },
 
 	{ TV_CLOAK,             "Cloaks" },
 	{ TV_SHIELD,            "Shields" },

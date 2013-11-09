@@ -283,6 +283,10 @@ void delete_monster_idx(int i)
 
 	/* Visual update */
 	if (!character_icky) lite_spot(y, x);
+
+	/* Update some things */
+	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+		p_ptr->update |= (PU_MON_LITE);
 }
 
 
@@ -687,10 +691,7 @@ static bool summon_specific_aux(int r_idx)
 
 		case SUMMON_HI_DEMON:
 		{
-			okay = (((r_ptr->d_char == 'U') ||
-				     (r_ptr->d_char == 'H') ||
-				     (r_ptr->d_char == 'B')) &&
-				    (r_ptr->flags3 & RF3_DEMON)) ? TRUE : FALSE;
+			okay = (r_ptr->d_char == 'U');
 			break;
 		}
 
@@ -1911,9 +1912,9 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 		{
 			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
 		}
-		while ((randint0(100) > p_ptr->skill_sav) && !p_ptr->tim_immune_magic)
+		while (randint0(100) > p_ptr->skill_sav)
 			(void)do_dec_stat(A_INT);
-		while ((randint0(100) > p_ptr->skill_sav) && !p_ptr->tim_immune_magic)
+		while (randint0(100) > p_ptr->skill_sav)
 			(void)do_dec_stat(A_WIS);
 		if (!p_ptr->resist_chaos)
 		{
@@ -2958,7 +2959,7 @@ msg_print("ルーンが爆発した！");
 				msg_print("The rune explodes!");
 #endif
 
-				project(0, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), MODIFY_ELEM_MODE_NONE);
+				project(0, 2, y, x, 2 * (c_ptr->special + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), MODIFY_ELEM_MODE_NONE);
 			}
 		}
 		else
@@ -2976,6 +2977,7 @@ msg_print("爆発のルーンは解除された。");
 		/* Break the rune */
 		c_ptr->info &= ~(CAVE_OBJECT);
 		c_ptr->mimic = 0;
+		c_ptr->special = 0;
 
 		note_spot(y, x);
 		lite_spot(y, x);
@@ -3160,7 +3162,7 @@ static bool place_monster_okay(int r_idx)
 	monster_race *z_ptr = &r_info[r_idx];
 
 	/* Hack - Escorts have to have the same dungeon flag */
-	if (monster_dungeon(place_monster_idx) != monster_dungeon(r_idx)) return (FALSE);
+	if (mon_hook_dungeon(place_monster_idx) != mon_hook_dungeon(r_idx)) return (FALSE);
 
 	/* Require specified "race" */
 	if ((z_ptr->d_char != r_ptr->escort_char[0]) &&
@@ -3517,7 +3519,7 @@ static bool summon_specific_okay(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Hack - Only summon dungeon monsters */
-	if (!monster_dungeon(r_idx)) return (FALSE);
+	if (!mon_hook_dungeon(r_idx)) return (FALSE);
 
 	/* Hack -- identify the summoning monster */
 	if (summon_specific_who > 0)
@@ -4445,7 +4447,6 @@ void update_smart_learn(int m_idx, int what)
 	case DRS_POIS:
 		if (p_ptr->resist_pois) m_ptr->smart1 |= (SM1_RES_POIS);
 		if (p_ptr->oppose_pois) m_ptr->smart1 |= (SM1_OPP_POIS);
-		if (p_ptr->tim_octopus_immunity) m_ptr->smart2 |= (SM2_IMM_POIS);
 		break;
 
 	case DRS_NETH:
@@ -4514,14 +4515,6 @@ void update_smart_learn(int m_idx, int what)
 		if ((rp_ptr->r_flags & PRF_UNDEAD) || (cp_ptr->c_flags & PCF_UNDEAD)) m_ptr->smart2 |= (SM2_IMM_DRAIN);
 		break;
 
-	case DRS_HOLY:
-		if (p_ptr->immune_holy) m_ptr->smart2 |= (SM2_IMM_HOLY);
-		break;
-
-	case DRS_HELL:
-		if (p_ptr->immune_hell) m_ptr->smart2 |= (SM2_IMM_HELL);
-		break;
-
 	case DRS_AVOID0:
 		if (p_ptr->wind_guard) m_ptr->smart2 |= (SM2_IMM_AVOID0);
 		break;
@@ -4544,10 +4537,6 @@ void update_smart_learn(int m_idx, int what)
 
 	case DRS_REFLECT:
 		if (p_ptr->reflect) m_ptr->smart1 |= (SM1_IMM_REFLECT);
-		break;
-
-	case DRS_MAGIC:
-		if (p_ptr->tim_immune_magic) m_ptr->smart2 |= (SM2_IMM_MAGIC);
 		break;
 	}
 
@@ -5099,10 +5088,6 @@ bool create_runeweapon(int specific)
 
 		case RACE_GOBLIN:
 			r_ptr->flags3 |= (RF3_ORC);
-			break;
-
-		case RACE_MERMAID:
-			r_ptr->flags7 |= (RF7_CAN_SWIM);
 			break;
 		}
 

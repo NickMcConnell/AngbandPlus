@@ -1235,7 +1235,6 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
@@ -1321,7 +1320,6 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_SHIELD:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
 		{
 			/* Hack -- negative armor bonus */
 			if (o_ptr->to_a < 0) return (0L);
@@ -1684,7 +1682,6 @@ static bool object_similar_part(object_type *o_ptr, object_type *j_ptr)
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
 		{
 			/* Require permission */
 			if (!stack_allow_items) return FALSE;
@@ -2295,91 +2292,52 @@ static byte baldar_okay_table[][2] =
 	{TV_BOW,        SV_BOWGUN                 },
 	{TV_BOW,        SV_CROSSBOW               },
 	{TV_DIGGING,    SV_SHOVEL                 },
-	{TV_DIGGING,    SV_SHOVEL_OF_BARMAMUTHA   },
-	{TV_DIGGING,    SV_SHOVEL_OF_BASQUE       },
 	{TV_DIGGING,    SV_PICK                   },
-	{TV_DIGGING,    SV_PICK_OF_EXETER         },
-	{TV_DIGGING,    SV_PICK_OF_BARMAMUTHA     },
 	{TV_DIGGING,    SV_MATTOCK                },
-	{TV_HAFTED,     SV_NUNCHAKU               },
-	{TV_HAFTED,     SV_BALL_AND_CHAIN         },
 	{TV_HAFTED,     SV_HALT_HAMMER            },
 	{TV_HAFTED,     SV_PAUA_HAMMER            },
-	{TV_HAFTED,     SV_MORNING_STAR           },
 	{TV_HAFTED,     SV_FLAIL                  },
 	{TV_HAFTED,     SV_FAN                    },
 	{TV_HAFTED,     SV_GREAT_HAMMER           },
 	{TV_HAFTED,     SV_MACE_OF_DISRUPTION     },
-	{TV_POLEARM,    SV_HATCHET                },
 	{TV_POLEARM,    SV_SPEAR                  },
 	{TV_POLEARM,    SV_SLENDER_SPEAR          },
-	{TV_POLEARM,    SV_TRIDENT                },
-	{TV_POLEARM,    SV_FAUCHARD               },
 	{TV_POLEARM,    SV_BROAD_SPEAR            },
-	{TV_POLEARM,    SV_PIKE                   },
-	{TV_POLEARM,    SV_NAGINATA               },
 	{TV_POLEARM,    SV_FRANCISCA              },
 	{TV_POLEARM,    SV_BROAD_AXE              },
-	{TV_POLEARM,    SV_LUCERNE_HAMMER         },
 	{TV_POLEARM,    SV_GLAIVE                 },
 	{TV_POLEARM,    SV_HALBERD                },
-	{TV_POLEARM,    SV_GUISARME               },
 	{TV_POLEARM,    SV_SCYTHE                 },
 	{TV_POLEARM,    SV_LANCE                  },
 	{TV_POLEARM,    SV_BATTLE_AXE             },
 	{TV_POLEARM,    SV_GREAT_AXE              },
 	{TV_POLEARM,    SV_HEAVY_AXE              },
-	{TV_POLEARM,    SV_LOCHABER_AXE           },
 	{TV_POLEARM,    SV_HEAVY_LANCE            },
 	{TV_POLEARM,    SV_SCYTHE_OF_SLICING      },
-	{TV_SWORD,      SV_BROKEN_DAGGER          },
-	{TV_SWORD,      SV_BROKEN_SWORD           },
 	{TV_SWORD,      SV_DAGGER                 },
 	{TV_SWORD,      SV_MAIN_GAUCHE            },
 	{TV_SWORD,      SV_RAPIER                 },
-	{TV_SWORD,      SV_SMALL_SWORD            },
 	{TV_SWORD,      SV_SHORT_SWORD            },
-	{TV_SWORD,      SV_SABRE                  },
-	{TV_SWORD,      SV_CUTLASS                },
-	{TV_SWORD,      SV_WAKIZASHI              },
-	{TV_SWORD,      SV_TULWAR                 },
 	{TV_SWORD,      SV_BROAD_SWORD            },
 	{TV_SWORD,      SV_LONG_SWORD             },
-	{TV_SWORD,      SV_SCIMITAR               },
-	{TV_SWORD,      SV_NINJATO                },
 	{TV_SWORD,      SV_KATANA                 },
 	{TV_SWORD,      SV_BASTARD_SWORD          },
-	{TV_SWORD,      SV_GREAT_SCIMITAR         },
-	{TV_SWORD,      SV_CLAYMORE               },
-	{TV_SWORD,      SV_ESPADON                },
+	{TV_SWORD,      SV_FALCHION               },
 	{TV_SWORD,      SV_TWO_HANDED_SWORD       },
-	{TV_SWORD,      SV_FLAMBERGE              },
-	{TV_SWORD,      SV_NO_DACHI               },
-	{TV_SWORD,      SV_EXECUTIONERS_SWORD     },
-	{TV_SWORD,      SV_ZWEIHANDER             },
 	{TV_SWORD,      SV_MINIMUM_DAGGER         },
 	{TV_SWORD,      SV_MADU                   },
 	{TV_GLOVES,     SV_SET_OF_GAUNTLETS       },
 	{TV_GLOVES,     SV_SET_OF_CESTI           },
 	{TV_GLOVES,     SV_SET_OF_POWER_GLOVES    },
 	{TV_HELM,       SV_METAL_CAP              },
-	{TV_HELM,       SV_KABUTO                 },
-	{TV_HELM,       SV_HOSHI_KABUTO           },
 	{TV_SHIELD,     SV_TOWER_SHIELD           },
 	{TV_SHIELD,     SV_KITE_SHIELD            },
 	{TV_SHIELD,     SV_KNIGHT_SHIELD          },
-	{TV_HARD_ARMOR, SV_RING_MAIL              },
 	{TV_HARD_ARMOR, SV_METAL_SCALE_MAIL       },
 	{TV_HARD_ARMOR, SV_CHAIN_MAIL             },
-	{TV_HARD_ARMOR, SV_DOUBLE_RING_MAIL       },
-	{TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL   },
 	{TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL      },
-	{TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR},
 	{TV_HARD_ARMOR, SV_SPLINT_MAIL            },
-	{TV_HARD_ARMOR, SV_PARTIAL_PLATE_ARMOUR   },
-	{TV_HARD_ARMOR, SV_METAL_LAMELLAR_ARMOUR  },
 	{TV_HARD_ARMOR, SV_FULL_PLATE_ARMOUR      },
-	{TV_HARD_ARMOR, SV_RIBBED_PLATE_ARMOUR    },
 	{0,             0                         }, /* Delimiter */
 };
 
@@ -2527,11 +2485,32 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				if (one_in_(30) || (power > 2))
+				{
 					create_artifact(o_ptr, FALSE);
-				else
-					/* Special Ego-item */
-					o_ptr->name2 = EGO_DIGGING;
-			}
+					break;
+				}
+
+				if (randint0(100) > 51)
+				{
+					o_ptr->name2 = EGO_EXETER;
+					o_ptr->dd++;
+					break;
+				}
+				if ((randint0(100) > 21) && (randint0(100) < 50))
+				{
+					o_ptr->name2 = EGO_BARMAMUTHA;
+					o_ptr->dd += 2;
+					o_ptr->weight = o_ptr->weight * 6 / 5;
+					break;
+				}
+				if (randint0(100) < 20)
+				{
+					o_ptr->name2 = EGO_BASQUE;
+					o_ptr->dd += 3;
+					o_ptr->weight = o_ptr->weight * 3 / 2;
+					break;
+				}
+ 			}
 
 			/* Very bad */
 			else if (power < -1)
@@ -2555,9 +2534,31 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_POLEARM:
 		case TV_SWORD:
 		{
+			/* Good */
+			if (power > 0)
+			{
+				if (one_in_(5)) 
+				{
+					do
+					{
+					o_ptr->ds++;
+					}
+					while (one_in_(o_ptr->ds));
+				}
+			}
+
 			/* Very Good */
 			if (power > 1)
 			{
+				if (one_in_(5)) 
+				{
+					do
+					{
+					o_ptr->dd++;
+					}
+					while (one_in_(o_ptr->dd));
+				}
+								
 				if (one_in_(40) || (power > 2))
 				{
 					create_artifact(o_ptr, FALSE);
@@ -2703,6 +2704,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					o_ptr->name2 = get_random_ego(INVEN_RARM, FALSE);
 					switch (o_ptr->name2)
 					{
+					case EGO_BROKEN:
+						o_ptr->dd *= 1/2;
+						o_ptr->ds *= 1/2;
+						break;
 					case EGO_MORGUL:
 						if (one_in_(6)) add_flag(o_ptr->art_flags, TR_TY_CURSE);
 						if (one_in_(500)) add_flag(o_ptr->art_flags, TR_WRAITH);
@@ -2831,6 +2836,11 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 		{
 			/* Enchant again */
 			o_ptr->to_a += toac2;
+			do
+			{
+				o_ptr->ac++;
+			}
+			while (one_in_(10));
 		}
 	}
 
@@ -2855,7 +2865,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 	/* Analyze type */
 	switch (o_ptr->tval)
 	{
-		case TV_DRAG_ARMOR:
 		{
 			/* Rating boost */
 			rating += 30;
@@ -2871,9 +2880,33 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		{
+			if ((o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) || (o_ptr->sval == SV_DRAGON_SCALE_MAIL))
+			{
+				/* Rating boost */
+				rating += 5;
+
+				/* Mention the item */
+				if (cheat_peek) object_mention(o_ptr);
+				dragon_resist(o_ptr);
+				if (!one_in_(3)) break;
+			}
+
 			/* Very good */
 			if (power > 1)
 			{
+				if ((power == 2) && ((o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) || (o_ptr->sval == SV_DRAGON_SCALE_MAIL)))
+				{
+					if (randint0(100) < 2)
+					{
+						o_ptr->name2 = EGO_POWER;
+						break;
+					}
+					else if (randint0(100) < 15)
+					{
+						o_ptr->name2 = EGO_BALANCE;
+						break;
+					}
+				}
 				if ((power == 2) && (o_ptr->tval == TV_SOFT_ARMOR) && (randint0(100) < 15))
 				{
 					/* Hack -- Try for "Robes of the Magi" */
@@ -2888,6 +2921,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_ARCH_MAGI;
 						break;
 					}
+
 				}
 				if (one_in_(20) || (power > 2))
 				{
@@ -3505,7 +3539,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					if (power > 0) power = 0 - power;
 					break;
 				}
+				
+				case SV_RING_EMPTY:
+				{
+					return;
+				}
 			}
+
 			if ((one_in_(1000) && (power > 0) && !cursed_p(o_ptr) && (level > 79))
 				|| (power > 2))
 			{
@@ -3817,6 +3857,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_OHN:
 				case SV_AMULET_SOL:
 				case SV_AMULET_VAN:
+				case SV_AMULET_EMPTY:
 				{
 					return;
 				}
@@ -4018,7 +4059,7 @@ static void a_m_aux_4(object_type *o_ptr, int power)
 		}
 		case TV_LITE:
 		{
-			if (o_ptr->sval == SV_LITE_MAGICAL_LAMP)
+			if ((o_ptr->sval == SV_LITE_MAGICAL_LAMP) || (o_ptr->sval == SV_LITE_EMPTY))
 			{
 				object_aware(o_ptr);
 				object_known(o_ptr);
@@ -4471,7 +4512,6 @@ void apply_magic(object_type *o_ptr, int lev, u32b am_flags)
 			break;
 		}
 
-		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
@@ -4492,7 +4532,9 @@ void apply_magic(object_type *o_ptr, int lev, u32b am_flags)
 			     ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
 			     ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
 			     ((o_ptr->tval == TV_GLOVES) && (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)) ||
-			     ((o_ptr->tval == TV_BOOTS) && (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)))
+			     ((o_ptr->tval == TV_BOOTS) && (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)) ||
+			     ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_DRAGON_LEATHER_ARMOR)) ||
+			     ((o_ptr->tval == TV_HARD_ARMOR) && (o_ptr->sval == SV_DRAGON_SCALE_MAIL)))
 				a_m_aux_2(o_ptr, lev, power);
 #else
 			if (power) a_m_aux_2(o_ptr, lev, power);
@@ -4661,7 +4703,6 @@ static bool kind_is_good(int k_idx)
 		/* Armor -- Good unless damaged */
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
-		case TV_DRAG_ARMOR:
 		case TV_SHIELD:
 		case TV_CLOAK:
 		case TV_BOOTS:
@@ -4765,7 +4806,6 @@ static bool kind_is_special(int k_idx)
 	case TV_CLOAK:
 	case TV_SOFT_ARMOR:
 	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
 		if (k_ptr->to_a < 0) return FALSE;
 		return TRUE;
 
@@ -6200,7 +6240,7 @@ s16b inven_takeoff(int item, int amt)
 	object_desc(o_name, q_ptr, TRUE, 3);
 
 	/* Took off weapon */
-	if (!prace_is_(RACE_OCTOPUS) && (item == INVEN_RARM))
+	if (item == INVEN_RARM)
 	{
 #ifdef JP
 		act = "を装備からはずした";
@@ -6211,7 +6251,7 @@ s16b inven_takeoff(int item, int amt)
 	}
 
 	/* Took off bow */
-	else if (!prace_is_(RACE_OCTOPUS) && (item == INVEN_BOW))
+	else if (item == INVEN_BOW)
 	{
 #ifdef JP
 		act = "を装備からはずした";
@@ -6252,9 +6292,9 @@ s16b inven_takeoff(int item, int amt)
 
 	/* Message */
 #ifdef JP
-	msg_format("%s(%c)%s。", o_name, index_to_label(slot, FALSE), act);
+	msg_format("%s(%c)%s。", o_name, index_to_label(slot), act);
 #else
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot, FALSE));
+	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 #endif
 
 	if (item == INVEN_RARM)
@@ -6322,9 +6362,9 @@ void inven_drop(int item, int amt)
 
 	/* Message */
 #ifdef JP
-	msg_format("%s(%c)を落とした。", o_name, index_to_label(item, FALSE));
+	msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 #else
-	msg_format("You drop %s (%c).", o_name, index_to_label(item, FALSE));
+	msg_format("You drop %s (%c).", o_name, index_to_label(item));
 #endif
 
 
@@ -6657,7 +6697,7 @@ object_type *choose_warning_item(void)
 
 static void damcalc(int typ, int dam, int limit, int *max)
 {
-	bool mermaid_dec = p_ptr->aquatic_in_water;
+	bool mermaid_dec = p_ptr->mermaid_in_water;
 
 	if (limit) dam = (dam > limit) ? limit : dam;
 
@@ -6675,7 +6715,7 @@ static void damcalc(int typ, int dam, int limit, int *max)
 		if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
 		if (p_ptr->resist_elec) dam = (dam + 2) / 3;
 		if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
-		if (p_ptr->aquatic_in_water) dam = dam * 4 / 3;
+		if (p_ptr->mermaid_in_water) dam = dam * 4 / 3;
 		if (p_ptr->immune_elec) dam = 0;
 		mermaid_dec = FALSE;
 		break;
@@ -6699,7 +6739,6 @@ static void damcalc(int typ, int dam, int limit, int *max)
 	case GF_POIS:
 		if (p_ptr->resist_pois) dam = (dam + 2) / 3;
 		if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
-		if (p_ptr->tim_octopus_immunity) dam = 0;
 		break;
 
 	case GF_LITE:
@@ -6772,7 +6811,6 @@ static void damcalc(int typ, int dam, int limit, int *max)
 	case GF_NUKE:
 		if (p_ptr->resist_pois) dam = (2 * dam + 2) / 5;
 		if (p_ptr->oppose_pois) dam = (2 * dam + 2) / 5;
-		if (p_ptr->tim_octopus_immunity) dam = 0;
 		break;
 
 	case GF_ROCKET:
@@ -6782,12 +6820,10 @@ static void damcalc(int typ, int dam, int limit, int *max)
 	case GF_HOLY_FIRE:
 		if (get_your_alignment_gne() == ALIGN_GNE_EVIL) dam *= 2;
 		if (p_ptr->ogre_equip) dam *= 3;
-		if (p_ptr->immune_holy) dam = 0;
 		break;
 
 	case GF_HELL_FIRE:
 		if (get_your_alignment_gne() == ALIGN_GNE_GOOD) dam *= 2;
-		if (p_ptr->immune_hell) dam = 0;
 		break;
 
 	case GF_PURE_FIRE:
@@ -7331,14 +7367,10 @@ bool item_tester_hook_metal(object_type *o_ptr)
 	case TV_HAFTED:
 		switch (o_ptr->sval)
 		{
-		case SV_BALL_AND_CHAIN:
-		case SV_JO_STAFF:
 		case SV_HALT_HAMMER:
 		case SV_PAUA_HAMMER:
-		case SV_MORNING_STAR:
 		case SV_FLAIL:
 		case SV_LEAD_FILLED_MACE:
-		case SV_TETSUBO:
 		case SV_FAN:
 		case SV_GREAT_HAMMER:
 		case SV_MACE_OF_DISRUPTION:
@@ -7373,10 +7405,8 @@ bool item_tester_hook_metal(object_type *o_ptr)
 		switch (o_ptr->sval)
 		{
 		case SV_METAL_CAP:
-		case SV_KABUTO:
 		case SV_IRON_HELM:
 		case SV_STEEL_HELM:
-		case SV_HOSHI_KABUTO:
 			return TRUE;
 		}
 		break;
@@ -7664,16 +7694,15 @@ static void drain_essence_from_pack_or_floor(int item, int amt, u32b mode)
 	if (!(mode & DE_MODE_FORCE_DESTROY))
 	{
 		int tmp_item;
-		bool destroy_okay = TRUE;
 
-		if ((item >= 0) && inven_carry_okay(q_ptr)) tmp_item = inven_carry(q_ptr);
-		else
+		if (item >= 0)
 		{
-			tmp_item = 0 - drop_near(q_ptr, (item >= 0) ? -1 : 0, py, px);
-			if (!tmp_item) destroy_okay = FALSE;
+			if (inven_carry_okay(q_ptr)) tmp_item = inven_carry(q_ptr);
+			else tmp_item = 0 - drop_near(q_ptr, -1, py, px);
 		}
+		else tmp_item = 0 - drop_near(q_ptr, 0, py, px);
 
-		if ((mode & DE_MODE_AUTO_DESTROY) && destroy_okay)
+		if (mode & DE_MODE_AUTO_DESTROY)
 		{
 			/* Auto-destroy */
 			int idx = is_autopick(q_ptr);
@@ -7953,9 +7982,6 @@ static void make_ammo_from_item(void)
 				ammo_material_sval = AMMO_MATERIAL_SV_MITHRIL;
 				break;
 
-			case SV_ADAMANTITE_PLATE_MAIL:
-				ammo_material_sval = AMMO_MATERIAL_SV_ADAMANTITE;
-				break;
 
 			default:
 				ammo_material_sval = AMMO_MATERIAL_SV_NORMAL;
@@ -8834,7 +8860,7 @@ static void add_attack_essence(bool limit)
 	object_type *q_ptr;
 	char        o_name[MAX_NLEN];
 	int         use_essence;
-	int         bonus_limit = p_ptr->lev / 5 + 5;
+	int         bonus_limit = p_ptr->cexp_info[CLASS_GUNNER].clev / 5 + 5;
 	int         diff_to_h, diff_to_d;
 
 	item_tester_hook = item_tester_hook_attack_ammo;
@@ -9148,6 +9174,7 @@ static void enchant_gun(void)
 	int         sel = 0;
 	char        ch;
 	u32b        flgs[TR_FLAG_SIZE];
+	int         clev = p_ptr->cexp_info[CLASS_GUNNER].clev;
 
 	item_tester_no_ryoute = TRUE;
 
@@ -9251,7 +9278,7 @@ static void enchant_gun(void)
 		if (!get_check("Really? ")) return;
 #endif
 
-		if ((o_ptr->to_h >= p_ptr->lev/5+5) && (o_ptr->to_d >= p_ptr->lev/5+5))
+		if ((o_ptr->to_h >= clev/5+5) && (o_ptr->to_d >= clev/5+5))
 		{
 #ifdef JP
 			msg_print("改良に失敗した。");
@@ -9262,8 +9289,8 @@ static void enchant_gun(void)
 		else
 		{
 			p_ptr->essence_box[TR_ES_ATTACK] -= o_ptr->number * 1000;
-			if (o_ptr->to_h < p_ptr->lev/5+5) o_ptr->to_h++;
-			if (o_ptr->to_d < p_ptr->lev/5+5) o_ptr->to_d++;
+			if (o_ptr->to_h < clev/5+5) o_ptr->to_h++;
+			if (o_ptr->to_d < clev/5+5) o_ptr->to_d++;
 
 			object_desc(o_name, o_ptr, TRUE, 1);
 #ifdef JP

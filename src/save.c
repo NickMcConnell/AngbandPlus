@@ -536,8 +536,8 @@ static void save_quick_start(void)
 
 	for (i = 0; i < A_MAX; i++) wr_s16b(previous_char.stat_max[i]);
 
-	wr_s16b(previous_char.player_hp_lv1);
-	wr_s16b(previous_char.player_sp_lv1);
+	wr_s32b(previous_char.race_hp_lv1);
+	wr_s32b(previous_char.race_sp_lv1);
 
 	for (i = 0; i < 4; i++) wr_string(previous_char.history[i]);
 
@@ -556,6 +556,7 @@ static void wr_extra(void)
 {
 	int i, j;
 	byte tmp8u;
+	u16b tmp16u;
 
 	wr_string(player_name);
 
@@ -575,9 +576,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->pelem);
 	wr_byte(0);	/* oops */
 
-	wr_byte(p_ptr->hitdie);
-	wr_byte(p_ptr->manadie);
 	wr_u16b(p_ptr->expfact);
+	wr_u16b(p_ptr->cexpfact);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -592,21 +592,31 @@ static void wr_extra(void)
 
 	for (i = 0; i <= MAX_GOLD; i++) wr_u32b(p_ptr->au[i]);
 
-	wr_u32b(p_ptr->max_max_exp);
-	wr_u32b(p_ptr->max_exp);
-	wr_u32b(p_ptr->exp);
+	wr_s32b(p_ptr->max_max_exp);
+	wr_s32b(p_ptr->max_exp);
+	wr_s32b(p_ptr->exp);
 	wr_u16b(p_ptr->exp_frac);
-	wr_u32b(p_ptr->skill_point);
-	wr_u32b(p_ptr->exp_for_sp);
-	wr_s16b(p_ptr->lev);
+	wr_s32b(p_ptr->lev);
 
-	for (i = 0; i < MAX_REALM; i++) for (j = 0; j < 32; j++) wr_byte(p_ptr->spell_skill_lev[i][j]);
-	for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) wr_byte(p_ptr->weapon_skill_lev[i][j]);
-	for (i = 0; i < 10; i++) wr_byte(p_ptr->misc_skill_lev[i]);
+	for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) wr_s16b(p_ptr->weapon_exp[i][j]);
+	for (i = 0; i < 10; i++) wr_s16b(p_ptr->skill_exp[i]);
+	for (i = 0; i < MAX_REALM + 1; i++) wr_s16b(p_ptr->magic_exp[i]);
 
-	wr_byte(p_ptr->mindcraft_skill_lev);
-	for (i = 0; i < MAX_SKILL_LEVEL - 1; i++) wr_s16b(p_ptr->mindcraft_eff[i]);
-	wr_u32b(p_ptr->mindcraft_learned);
+	tmp16u = MAX_CLASS;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+
+		wr_s32b(cexp_ptr->max_max_cexp);
+		wr_s32b(cexp_ptr->max_cexp);
+		wr_s32b(cexp_ptr->cexp);
+		wr_u16b(cexp_ptr->cexp_frac);
+		wr_s32b(cexp_ptr->clev);
+		wr_s32b(cexp_ptr->max_clev);
+		wr_s32b(cexp_ptr->max_max_clev);
+	}
+
 
 	for (i = 0; i < 108; i++) wr_s32b(p_ptr->essence_box[i]);
 	wr_byte(p_ptr->singing);
@@ -618,15 +628,15 @@ static void wr_extra(void)
 		wr_s16b(kubi_r_idx[i]);
 	}
 
-	wr_s16b(p_ptr->gx_dis);
-	wr_s16b(p_ptr->gx_dev);
-	wr_s16b(p_ptr->gx_sav);
-	wr_s16b(p_ptr->gx_stl);
-	wr_s16b(p_ptr->gx_srh);
-	wr_s16b(p_ptr->gx_fos);
-	wr_s16b(p_ptr->gx_spd);
-	wr_s16b(p_ptr->gx_thn);
-	wr_s16b(p_ptr->gx_thb);
+	wr_s32b(p_ptr->gx_dis);
+	wr_s32b(p_ptr->gx_dev);
+	wr_s32b(p_ptr->gx_sav);
+	wr_s32b(p_ptr->gx_stl);
+	wr_s32b(p_ptr->gx_srh);
+	wr_s32b(p_ptr->gx_fos);
+	wr_s32b(p_ptr->gx_spd);
+	wr_s32b(p_ptr->gx_thn);
+	wr_s32b(p_ptr->gx_thb);
 
 	wr_s16b(p_ptr->town_num); /* -KMW- */
 
@@ -643,17 +653,17 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->decoy_y);
 	wr_s16b(p_ptr->decoy_x);
 
-	wr_s16b(p_ptr->mhp);
-	wr_s16b(p_ptr->chp);
+	wr_s32b(p_ptr->mhp);
+	wr_s32b(p_ptr->chp);
 	wr_u16b(p_ptr->chp_frac);
 
-	wr_s16b(p_ptr->msp);
-	wr_s16b(p_ptr->csp);
+	wr_s32b(p_ptr->msp);
+	wr_s32b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
 
 	/* Max Player and Dungeon Levels */
-	wr_s16b(p_ptr->max_plv);
-	wr_s16b(p_ptr->max_max_plv);
+	wr_s32b(p_ptr->max_plv);
+	wr_s32b(p_ptr->max_max_plv);
 	tmp8u = (byte)max_d_idx;
 	wr_byte(tmp8u);
 	for (i = 0; i < tmp8u; i++)
@@ -716,12 +726,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_inc_blow);
 	wr_s16b(p_ptr->tim_dec_blow);
 	wr_s16b(p_ptr->zoshonel_protect);
-	wr_s16b(p_ptr->tim_octopus_immunity);
 
 	wr_s16b(p_ptr->earth_spike);
 	wr_s16b(p_ptr->wind_guard);
 	wr_s16b(p_ptr->tim_resurrection);
-	wr_s16b(p_ptr->tim_immune_magic);
 
 	wr_s16b(p_ptr->multishadow);
 	wr_s16b(p_ptr->dustrobe);
@@ -737,8 +745,6 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->magical_weapon);
 	wr_s16b(p_ptr->evil_weapon);
 	wr_u32b(p_ptr->special_attack);
-	wr_s16b(p_ptr->the_immunity);
-	wr_u32b(p_ptr->special_defense);
 	wr_byte(0);     /* oops */
 	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->action);
@@ -888,7 +894,6 @@ static void wr_saved_floor(saved_floor_type *sf_ptr)
 		wr_u32b(sf_ptr->visit_mark);
 		wr_s16b(sf_ptr->upper_floor_id);
 		wr_s16b(sf_ptr->lower_floor_id);
-		wr_u32b(sf_ptr->flags);
 	}
 
 	wr_u16b(base_level);
@@ -1195,7 +1200,6 @@ static bool wr_dungeon(void)
 		wr_u32b(sf_ptr->visit_mark);
 		wr_s16b(sf_ptr->upper_floor_id);
 		wr_s16b(sf_ptr->lower_floor_id);
-		wr_u32b(sf_ptr->flags);
 	}
 
 	/* Extract pointer to current floor */
@@ -1314,8 +1318,22 @@ static bool wr_savefile_new(void)
 
 	/* Space */
 	wr_u32b(0L);
-	wr_u32b(0L);
+	wr_u16b(0);
+	wr_byte(0);
 
+#ifdef JP
+# ifdef EUC
+	/* EUC kanji code */
+	wr_byte(2);
+# endif
+# ifdef SJIS
+	/* SJIS kanji code */
+	wr_byte(3);
+# endif
+#else
+	/* ASCII */
+	wr_byte(1);
+#endif
 
 	/* Write the RNG state */
 	wr_randomizer();
@@ -1346,14 +1364,14 @@ static bool wr_savefile_new(void)
 		wr_item(&runeweapon->weapon);
 		wr_string(runeweapon->ancestor);
 		for (j = 0; j < 4; j++) wr_string(runeweapon->history[j]);
-		wr_s16b(runeweapon->hp);
-		wr_s16b(runeweapon->sp);
-		wr_s16b(runeweapon->level);
+		wr_s32b(runeweapon->hp);
+		wr_s32b(runeweapon->sp);
+		wr_s32b(runeweapon->level);
 		wr_u16b(runeweapon->reincarnate_cnt);
 		wr_byte(runeweapon->race);
 		wr_s16b(runeweapon->elem);
 		wr_byte(runeweapon->align);
-		wr_s16b(runeweapon->bow_energy);
+		wr_s32b(runeweapon->bow_energy);
 		wr_byte(runeweapon->bow_tmul);
 		wr_byte(runeweapon->status);
 	}
@@ -1446,12 +1464,11 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_s16b(p_ptr->player_hp[i]);
-		wr_s16b(p_ptr->player_sp[i]);
-		wr_byte(p_ptr->level_gained_class[i]);
+		wr_s32b(p_ptr->race_hp[i]);
+		wr_s32b(p_ptr->race_sp[i]);
 	}
-	wr_s16b(p_ptr->player_ghp);
-	wr_s16b(p_ptr->player_gsp);
+	wr_s32b(p_ptr->player_ghp);
+	wr_s32b(p_ptr->player_gsp);
 
 
 	/* Write the inventory */

@@ -14,14 +14,191 @@
 
 
 /*
- * Advance experience levels and print experience
+ * Advance class experience levels and print class experience
  */
-void check_experience(void)
+void check_class_experience(void)
+{
+	int  prev_lev;
+	bool level_inc_stat = FALSE;
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
+	s32b tmp32s;
+
+
+	/* Note current level */
+	prev_lev = cexp_ptr->clev;
+
+	/* Hack -- lower limit */
+	if (cexp_ptr->cexp < 0) cexp_ptr->cexp = 0;
+
+	/* Hack -- lower limit */
+	if (cexp_ptr->max_cexp < 0) cexp_ptr->max_cexp = 0;
+
+	/* Hack -- upper limit */
+	if (cexp_ptr->cexp > PY_MAX_EXP) cexp_ptr->cexp = PY_MAX_EXP;
+
+	/* Hack -- upper limit */
+	if (cexp_ptr->max_cexp > PY_MAX_EXP) cexp_ptr->max_cexp = PY_MAX_EXP;
+
+	/* Hack -- maintain "max" experience */
+	if (cexp_ptr->cexp > cexp_ptr->max_cexp) cexp_ptr->max_cexp = cexp_ptr->cexp;
+
+	/* Hack -- maintain "max-max" experience */
+	if (cexp_ptr->max_cexp > cexp_ptr->max_max_cexp) cexp_ptr->max_max_cexp = cexp_ptr->max_cexp;
+
+	/* Redraw experience */
+	p_ptr->redraw |= (PR_CEXP);
+
+	/* Handle stuff */
+	handle_stuff();
+
+
+	/* Lose levels while possible */
+	while ((cexp_ptr->clev > 1) &&
+	       (cexp_ptr->cexp < (player_exp[cexp_ptr->clev - 2] * p_ptr->cexpfact / 100L)))
+	{
+		/* Lose a level */
+		cexp_ptr->clev--;
+
+		/* Update some stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+		/* Redraw some stuff */
+		p_ptr->redraw |= (PR_CLEV | PR_TITLE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+
+
+	/* Gain levels while possible */
+	while ((cexp_ptr->clev < PY_MAX_LEVEL) &&
+	       (cexp_ptr->cexp >= (player_exp[cexp_ptr->clev - 1] * p_ptr->cexpfact / 100L)))
+	{
+		/* Gain a level */
+		cexp_ptr->clev++;
+
+		/* Save the highest level */
+		if (cexp_ptr->clev > cexp_ptr->max_clev)
+		{
+			int i, j;
+
+			cexp_ptr->max_clev = cexp_ptr->clev;
+			if (cexp_ptr->max_clev > cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = cexp_ptr->max_clev;
+
+			/* Gain skills */
+			p_ptr->gx_dis += cp_ptr->x_dis;
+			p_ptr->gx_dev += cp_ptr->x_dev;
+			p_ptr->gx_sav += cp_ptr->x_sav;
+			p_ptr->gx_stl += cp_ptr->x_stl;
+			p_ptr->gx_srh += cp_ptr->x_srh;
+			p_ptr->gx_fos += cp_ptr->x_fos;
+			p_ptr->gx_spd += cp_ptr->x_spd;
+			p_ptr->gx_thn += cp_ptr->x_thn;
+			p_ptr->gx_thb += cp_ptr->x_thb;
+
+			/* Limit skills */
+			if (p_ptr->gx_dis > 30000) p_ptr->gx_dis = 30000;
+			if (p_ptr->gx_dev > 30000) p_ptr->gx_dev = 30000;
+			if (p_ptr->gx_sav > 30000) p_ptr->gx_sav = 30000;
+			if (p_ptr->gx_stl > 30000) p_ptr->gx_stl = 30000;
+			if (p_ptr->gx_srh > 30000) p_ptr->gx_srh = 30000;
+			if (p_ptr->gx_fos > 30000) p_ptr->gx_fos = 30000;
+			if (p_ptr->gx_spd > 30000) p_ptr->gx_spd = 30000;
+			if (p_ptr->gx_thn > 30000) p_ptr->gx_thn = 30000;
+			if (p_ptr->gx_thb > 30000) p_ptr->gx_thb = 30000;
+
+
+			for (i = 0; i < 5; i++) for (j = 0; j < 64; j++)
+				{
+				p_ptr->weapon_exp[i][j] += p_ptr->s_ptr->w_eff[i][j];
+				if (p_ptr->weapon_exp[i][j] > 8000) p_ptr->weapon_exp[i][j] = 8000;
+				}
+
+			for (i = 0; i < 10; i++)
+				{
+				p_ptr->skill_exp[i] += p_ptr->s_ptr->m_eff[i];
+				if (p_ptr->skill_exp[i] > 8000) p_ptr->skill_exp[i] = 8000;
+				}
+
+			for (i = 0; i < MAX_REALM + 1; i++)
+				{
+				p_ptr->magic_exp[i] += p_ptr->s_ptr->s_eff[i];
+				if (p_ptr->magic_exp[i] > 500) p_ptr->magic_exp[i] = 500;
+				}
+
+			level_inc_stat = TRUE;
+
+			if (p_ptr->pclass != CLASS_GUNNER)
+			{
+				tmp32s = rand_spread(cp_ptr->c_msp, 1);
+				p_ptr->race_sp[cexp_ptr->max_clev - 1] = p_ptr->race_sp[cexp_ptr->max_clev - 2] + MAX(tmp32s, 0);
+			}
+			else p_ptr->race_sp[cexp_ptr->max_clev - 1] = 0;
+
+		}
+
+		/* Update some stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+		/* Redraw some stuff */
+		p_ptr->redraw |= (PR_CLEV | PR_TITLE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER | PW_SPELL);
+
+		/* Handle stuff */
+		handle_stuff();
+
+		if (level_inc_stat)
+		{
+			int stat, max_value, inc_value;
+
+			for (stat = 0; stat < A_MAX; stat++)
+			{
+				max_value = p_ptr->stat_max[stat];
+				inc_value = cp_ptr->c_gain[stat];
+				if (!inc_value) continue;
+				if (max_value < 18) max_value++;
+				else
+				{
+					max_value += inc_value;
+					if (max_value > STAT_MAX_MAX) max_value = STAT_MAX_MAX;
+				}
+				p_ptr->stat_max[stat] = max_value;
+				p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+			}
+		}
+
+		/* Update some stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+		/* Redraw some stuff */
+		p_ptr->redraw |= (PR_CLEV | PR_TITLE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER | PW_SPELL);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+
+	/* Load the "pref" files */
+	if (prev_lev != cexp_ptr->clev) load_all_pref_files();
+}
+
+
+/*
+ * Advance racial experience levels and print racial experience
+ */
+void check_racial_experience(void)
 {
 	int  prev_lev;
 	bool level_reward = FALSE;
-	bool level_inc_stat = FALSE;
-	s16b tmp16s;
+//	bool level_inc_stat = FALSE;
+	s32b tmp32s;
 
 
 	/* Note current level */
@@ -40,16 +217,7 @@ void check_experience(void)
 	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
 
 	/* Hack -- maintain "max" experience */
-	if (p_ptr->exp > p_ptr->max_exp)
-	{
-		p_ptr->exp_for_sp += p_ptr->exp - p_ptr->max_exp;
-		while (p_ptr->exp_for_sp >= EXP_PER_SKILL_POINT)
-		{
-			p_ptr->exp_for_sp -= EXP_PER_SKILL_POINT;
-			if (!(rp_ptr->r_flags & PRF_LARGE)) p_ptr->skill_point += 3;
-		}
-		p_ptr->max_exp = p_ptr->exp;
-	}
+	if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
 
 	/* Hack -- maintain "max-max" experience */
 	if (p_ptr->max_exp > p_ptr->max_max_exp) p_ptr->max_max_exp = p_ptr->max_exp;
@@ -95,46 +263,20 @@ void check_experience(void)
 			p_ptr->max_plv = p_ptr->lev;
 			if (p_ptr->max_plv > p_ptr->max_max_plv) p_ptr->max_max_plv = p_ptr->max_plv;
 
-			p_ptr->skill_point += p_ptr->s_ptr->gain_sp_rate * (p_ptr->max_plv / 10 + 1);
+			tmp32s = rand_spread(rp_ptr->r_mhp, 1);
+			p_ptr->race_hp[p_ptr->max_plv - 1] = p_ptr->race_hp[p_ptr->max_plv - 2] + MAX(tmp32s, 0);
 
-			p_ptr->level_gained_class[p_ptr->max_plv - 1] = p_ptr->pclass;
-
-			tmp16s = rand_spread((s16b)p_ptr->hitdie, 2);
-			p_ptr->player_hp[p_ptr->max_plv - 1] = p_ptr->player_hp[p_ptr->max_plv - 2] + MAX(tmp16s, 0);
-			if (p_ptr->pclass != CLASS_GUNNER)
-			{
-				tmp16s = rand_spread((s16b)p_ptr->manadie, 1);
-				p_ptr->player_sp[p_ptr->max_plv - 1] = p_ptr->player_sp[p_ptr->max_plv - 2] + MAX(tmp16s, 0);
-			}
-			else p_ptr->player_sp[p_ptr->max_plv - 1] = 0;
-
-			/* Gain skills */
-			p_ptr->gx_dis += cp_ptr->x_dis;
-			p_ptr->gx_dev += cp_ptr->x_dev;
-			p_ptr->gx_sav += cp_ptr->x_sav;
-			p_ptr->gx_stl += cp_ptr->x_stl;
-			p_ptr->gx_srh += cp_ptr->x_srh;
-			p_ptr->gx_fos += cp_ptr->x_fos;
-			p_ptr->gx_spd += (rp_ptr->rx_spd + cp_ptr->x_spd);
-			p_ptr->gx_thn += cp_ptr->x_thn;
-			p_ptr->gx_thb += cp_ptr->x_thb;
+			/* Gain speed */
+			p_ptr->gx_spd += rp_ptr->rx_spd;
 
 			/* Limit skills */
-			if (p_ptr->gx_dis > 30000) p_ptr->gx_dis = 30000;
-			if (p_ptr->gx_dev > 30000) p_ptr->gx_dev = 30000;
-			if (p_ptr->gx_sav > 30000) p_ptr->gx_sav = 30000;
-			if (p_ptr->gx_stl > 30000) p_ptr->gx_stl = 30000;
-			if (p_ptr->gx_srh > 30000) p_ptr->gx_srh = 30000;
-			if (p_ptr->gx_fos > 30000) p_ptr->gx_fos = 30000;
 			if (p_ptr->gx_spd > 30000) p_ptr->gx_spd = 30000;
-			if (p_ptr->gx_thn > 30000) p_ptr->gx_thn = 30000;
-			if (p_ptr->gx_thb > 30000) p_ptr->gx_thb = 30000;
 
 			if (p_ptr->muta2 & MUT2_TAROT)
 			{
 				level_reward = TRUE;
 			}
-			level_inc_stat = TRUE;
+//			level_inc_stat = TRUE;
 
 			do_cmd_write_nikki(NIKKI_LEVELUP, p_ptr->lev, NULL);
 		}
@@ -144,11 +286,68 @@ void check_experience(void)
 
 		/* Message */
 #ifdef JP
-msg_format("レベル %d にようこそ。", p_ptr->lev);
+		msg_format("レベル %d にようこそ。", p_ptr->lev);
 #else
 		msg_format("Welcome to level %d.", p_ptr->lev);
 #endif
 
+		if (!(p_ptr->max_plv % 5))
+		{
+			int choice;
+			screen_save();
+			while(1)
+			{
+				int n;
+				char tmp[32];
+
+#ifdef JP
+				cnv_stat(p_ptr->stat_max[A_STR], tmp);
+				prt(format("        a) 腕力 (現在値 %s)", tmp), 2, 14);
+				cnv_stat(p_ptr->stat_max[A_INT], tmp);
+				prt(format("        b) 知能 (現在値 %s)", tmp), 3, 14);
+				cnv_stat(p_ptr->stat_max[A_WIS], tmp);
+				prt(format("        c) 賢さ (現在値 %s)", tmp), 4, 14);
+				cnv_stat(p_ptr->stat_max[A_DEX], tmp);
+				prt(format("        d) 器用 (現在値 %s)", tmp), 5, 14);
+				cnv_stat(p_ptr->stat_max[A_CON], tmp);
+				prt(format("        e) 耐久 (現在値 %s)", tmp), 6, 14);
+				cnv_stat(p_ptr->stat_max[A_CHR], tmp);
+				prt(format("        f) 魅力 (現在値 %s)", tmp), 7, 14);
+				prt("", 8, 14);
+				prt("        どの能力値を上げますか？", 1, 14);
+#else
+				cnv_stat(p_ptr->stat_max[A_STR], tmp);
+				prt(format("        a) Str (cur %s)", tmp), 2, 14);
+				cnv_stat(p_ptr->stat_max[A_INT], tmp);
+				prt(format("        b) Int (cur %s)", tmp), 3, 14);
+				cnv_stat(p_ptr->stat_max[A_WIS], tmp);
+				prt(format("        c) Wis (cur %s)", tmp), 4, 14);
+				cnv_stat(p_ptr->stat_max[A_DEX], tmp);
+				prt(format("        d) Dex (cur %s)", tmp), 5, 14);
+				cnv_stat(p_ptr->stat_max[A_CON], tmp);
+				prt(format("        e) Con (cur %s)", tmp), 6, 14);
+				cnv_stat(p_ptr->stat_max[A_CHR], tmp);
+				prt(format("        f) Chr (cur %s)", tmp), 7, 14);
+				prt("", 8, 14);
+				prt("        Which stat do you want to raise?", 1, 14);
+#endif
+				while(1)
+				{
+					choice = inkey();
+					if ((choice >= 'a') && (choice <= 'f')) break;
+				}
+				for (n = 0; n < A_MAX; n++)
+					if (n != choice - 'a')
+						prt("", n + 2, 14);
+#ifdef JP
+				if (get_check("よろしいですか？")) break;
+#else
+				if (get_check("Are you sure? ")) break;
+#endif
+			}
+			do_inc_stat(choice - 'a');
+			screen_load();
+		}
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -161,88 +360,9 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 		/* Handle stuff */
 		handle_stuff();
 
-		if (level_inc_stat)
-		{
-			if(!(p_ptr->max_plv % 5))
-			{
-				int choice;
-				screen_save();
-				while(1)
-				{
-					int n;
-					char tmp[32];
-
-#ifdef JP
-					cnv_stat(p_ptr->stat_max[A_STR], tmp);
-					prt(format("        a) 腕力 (現在値 %s)", tmp), 2, 14);
-					cnv_stat(p_ptr->stat_max[A_INT], tmp);
-					prt(format("        b) 知能 (現在値 %s)", tmp), 3, 14);
-					cnv_stat(p_ptr->stat_max[A_WIS], tmp);
-					prt(format("        c) 賢さ (現在値 %s)", tmp), 4, 14);
-					cnv_stat(p_ptr->stat_max[A_DEX], tmp);
-					prt(format("        d) 器用 (現在値 %s)", tmp), 5, 14);
-					cnv_stat(p_ptr->stat_max[A_CON], tmp);
-					prt(format("        e) 耐久 (現在値 %s)", tmp), 6, 14);
-					cnv_stat(p_ptr->stat_max[A_CHR], tmp);
-					prt(format("        f) 魅力 (現在値 %s)", tmp), 7, 14);
-					prt("", 8, 14);
-					prt("        どの能力値を上げますか？", 1, 14);
-#else
-					cnv_stat(p_ptr->stat_max[A_STR], tmp);
-					prt(format("        a) Str (cur %s)", tmp), 2, 14);
-					cnv_stat(p_ptr->stat_max[A_INT], tmp);
-					prt(format("        b) Int (cur %s)", tmp), 3, 14);
-					cnv_stat(p_ptr->stat_max[A_WIS], tmp);
-					prt(format("        c) Wis (cur %s)", tmp), 4, 14);
-					cnv_stat(p_ptr->stat_max[A_DEX], tmp);
-					prt(format("        d) Dex (cur %s)", tmp), 5, 14);
-					cnv_stat(p_ptr->stat_max[A_CON], tmp);
-					prt(format("        e) Con (cur %s)", tmp), 6, 14);
-					cnv_stat(p_ptr->stat_max[A_CHR], tmp);
-					prt(format("        f) Chr (cur %s)", tmp), 7, 14);
-					prt("", 8, 14);
-					prt("        Which stat do you want to raise?", 1, 14);
-#endif
-					while(1)
-					{
-						choice = inkey();
-						if ((choice >= 'a') && (choice <= 'f')) break;
-					}
-					for(n = 0; n < A_MAX; n++)
-						if (n != choice - 'a')
-							prt("",n+2,14);
-#ifdef JP
-					if (get_check("よろしいですか？")) break;
-#else
-					if (get_check("Are you sure? ")) break;
-#endif
-				}
-				do_inc_stat(choice - 'a');
-				screen_load();
-			}
-			else
-			{
-				int stat, max_value, inc_value;
-
-				for (stat = 0; stat < A_MAX; stat++)
-				{
-					max_value = p_ptr->stat_max[stat];
-					inc_value = cp_ptr->c_gain[stat];
-					if (!inc_value) continue;
-					if (max_value < 18) max_value++;
-					else
-					{
-						max_value += inc_value;
-						if (max_value > STAT_MAX_MAX) max_value = STAT_MAX_MAX;
-					}
-					p_ptr->stat_max[stat] = max_value;
-					p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
-				}
-			}
-		}
 
 		/*
-		 * 報酬でレベルが上ると再帰的に check_experience() が
+		 * 報酬でレベルが上ると再帰的に check_racial_experience() が
 		 * 呼ばれるので順番を最後にする。
 		 */
 		if (level_reward)
@@ -266,6 +386,13 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 
 	/* Load the "pref" files */
 	if (prev_lev != p_ptr->lev) load_all_pref_files();
+}
+
+
+void check_experience(void)
+{
+	check_class_experience();
+	check_racial_experience();
 }
 
 
@@ -523,7 +650,6 @@ msg_print("クエストを達成した！");
 
 						/* Force change to wild mode */
 						energy_use = 1000;
-						if (p_ptr->singing || p_ptr->restart_singing) stop_singing();
 						set_action(ACTION_NONE);
 						p_ptr->wild_mode = TRUE;
 
@@ -555,7 +681,7 @@ msg_print("クエストを達成した！");
 					quest[i].complev = (byte)p_ptr->lev;
 					if (!(quest[i].flags & QUEST_FLAG_PRESET))
 					{
-						create_stairs = TRUE;
+						create_stairs = (!(i == QUEST_ARMORICA) ? TRUE : FALSE);
 						p_ptr->inside_quest = 0;
 					}
 
@@ -657,7 +783,7 @@ msg_print("魔法の階段が現れた...");
 		cave_set_feat(y, x, (((d_info[dungeon_type].flags1 & DF1_UPWARD) ? TRUE : FALSE) ^ astral_mode) ? FEAT_LESS : FEAT_MORE);
 
 		/* Remember to update everything */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
 	}
 
 	/*
@@ -1267,11 +1393,6 @@ msg_print("地面に落とされた。");
 				chance = 20;
 				break;
 
-			case MON_STORMBRINGER:
-				a_idx = ART_STORMBRINGER;
-				chance = 100;
-				break;
-
 			case MON_RENDAL:
 				a_idx = ART_RENDAL;
 				chance = 30;
@@ -1352,15 +1473,11 @@ msg_print("地面に落とされた。");
 				break;
 
 			case MON_BARBAS:
-				switch (randint1(3))
+				switch (randint1(2))
 				{
 				case 1:
 					a_idx = ART_SANSCION;
 					chance = 15;
-					break;
-				case 2:
-					a_idx = ART_PRUNHILD;
-					chance = 50;
 					break;
 				default:
 					a_idx = ART_RIMFIRE;
@@ -1765,112 +1882,129 @@ msg_print("バリアを切り裂いた！");
 	return (dam);
 }
 
-void get_exp_from_mon(int dam, monster_type *m_ptr)
+static s32b get_exp_from_mon_aux(int dam, monster_type *m_ptr, s32b max_lev, u16b *exp_frac_ptr)
 {
 	s32b         div, new_exp, new_exp_frac;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	int          monnum_penarty = 0;
 
-	if (!m_ptr->r_idx) return;
-	if (is_pet(m_ptr)) return;
+	u32b m_exp;
+	u32b m_exp_h, m_exp_l;
+	u32b div_h, div_l;
+
+	if (r_ptr->flags2 & RF2_MULTIPLY)
+	{
+		monnum_penarty = r_ptr->r_pkills / 400;
+		if (monnum_penarty > 8) monnum_penarty = 8;
+	}
+	if (r_ptr->flags1 & RF1_UNIQUE)
+	{
+		m_exp = (long)r_ptr->mexp * r_ptr->level;
+		div = (max_lev + 2);
+	}
 	else
 	{
-		u32b m_exp;
-		u32b m_exp_h, m_exp_l;
-		u32b div_h, div_l;
-		if (r_ptr->flags2 & RF2_MULTIPLY)
-		{
-			monnum_penarty = r_ptr->r_pkills / 400;
-			if (monnum_penarty > 8) monnum_penarty = 8;
-		}
-		if (r_ptr->flags1 & RF1_UNIQUE)
-		{
-			m_exp = (long)r_ptr->mexp * r_ptr->level;
-			div = (p_ptr->max_plv+2);
-		}
-		else
-		{
-			m_exp = (long)r_ptr->mexp * r_ptr->level * extract_energy[m_ptr->mspeed];
-			div = (p_ptr->max_plv+2) * extract_energy[r_ptr->speed];
-		}
-		m_exp_h = m_exp/0x10000L;
-		m_exp_l = m_exp%0x10000L;
-		m_exp_h *= dam;
-		m_exp_l *= dam;
-		m_exp_h += m_exp_l / 0x10000L;
-		m_exp_l %= 0x10000L;
+		m_exp = (long)r_ptr->mexp * r_ptr->level * extract_energy[m_ptr->mspeed];
+		div = (max_lev + 2) * extract_energy[r_ptr->speed];
+	}
+	m_exp_h = m_exp/0x10000L;
+	m_exp_l = m_exp%0x10000L;
+	m_exp_h *= dam;
+	m_exp_l *= dam;
+	m_exp_h += m_exp_l / 0x10000L;
+	m_exp_l %= 0x10000L;
 
-		/* real monster maxhp have effect on EXP */
-		if(!(r_ptr->flags1 & RF1_FORCE_MAXHP))
-		{
-		  u32b maxhp = m_ptr->max_maxhp*2;
-		  m_exp_h *= maxhp;
-		  m_exp_l *= maxhp;
-		  m_exp_h += m_exp_l / 0x10000L;
-		  m_exp_l %= 0x10000L;
+	/* real monster maxhp have effect on EXP */
+	if(!(r_ptr->flags1 & RF1_FORCE_MAXHP))
+	{
+	  u32b maxhp = m_ptr->max_maxhp*2;
+	  m_exp_h *= maxhp;
+	  m_exp_l *= maxhp;
+	  m_exp_h += m_exp_l / 0x10000L;
+	  m_exp_l %= 0x10000L;
 
-		  div *= r_ptr->hdice * (r_ptr->hside + 1);
-		}
-		if (!dun_level && !ambush_flag && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE))) div *= 4;
-		div_h = div/0x10000L;
-		div_l = div%0x10000L;
-		div_h *= (m_ptr->max_maxhp*2);
-		div_l *= (m_ptr->max_maxhp*2);
+	  div *= r_ptr->hdice * (r_ptr->hside + 1);
+	}
+	if (!dun_level && !ambush_flag && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE))) div *= 4;
+	div_h = div/0x10000L;
+	div_l = div%0x10000L;
+	div_h *= (m_ptr->max_maxhp*2);
+	div_l *= (m_ptr->max_maxhp*2);
+	div_h += div_l / 0x10000L;
+	div_l %= 0x10000L;
+
+	while (monnum_penarty)
+	{
+		div_h *= 4;
+		div_l *= 4;
 		div_h += div_l / 0x10000L;
 		div_l %= 0x10000L;
+		monnum_penarty--;
+	}
 
-		while (monnum_penarty)
-		{
-			div_h *= 4;
-			div_l *= 4;
-			div_h += div_l / 0x10000L;
-			div_l %= 0x10000L;
-			monnum_penarty--;
-		}
-
-		m_exp_l = (0x7fffffff & (m_exp_h << 16)) | m_exp_l;
-		m_exp_h = m_exp_h >> 15;
-		div_l = (0x7fffffff & (div_h << 16)) | div_l;
-		div_h = div_h >> 15;
+	m_exp_l = (0x7fffffff & (m_exp_h << 16)) | m_exp_l;
+	m_exp_h = m_exp_h >> 15;
+	div_l = (0x7fffffff & (div_h << 16)) | div_l;
+	div_h = div_h >> 15;
 
 #define M_INT_GREATER63(h1,l1,h2,l2)  ( (h1>h2)||( (h1==h2)&&(l1>=l2)))
 #define M_INT_SUB63(h1,l1, h2,l2) {h1-=h2;if(l1<l2){l1+=0x80000000;h1--;}l1-=l2;}
 #define M_INT_LSHIFT63(h1,l1) {h1=(h1<<1)|(l1>>30);l1=(l1<<1)&0x7fffffff;}
 #define M_INT_RSHIFT63(h1,l1) {l1=(l1>>1)|(h1<<30);h1>>=1;}
 #define M_INT_DIV63(h1,l1,h2,l2,result) \
-		do { \
-			int bit = 1; \
-			result = 0; \
-			while (M_INT_GREATER63(h1,l1, h2, l2)) { M_INT_LSHIFT63(h2, l2); bit <<= 1; } \
-			for (bit >>= 1; bit >= 1; bit >>= 1) { \
-				M_INT_RSHIFT63(h2, l2); \
-				if (M_INT_GREATER63(h1, l1, h2, l2)) \
-				{ result |= bit; M_INT_SUB63(h1, l1, h2, l2); } \
-			} \
-		} while (0);
+	do { \
+		int bit = 1; \
+		result = 0; \
+		while (M_INT_GREATER63(h1,l1, h2, l2)) { M_INT_LSHIFT63(h2, l2); bit <<= 1; } \
+		for (bit >>= 1; bit >= 1; bit >>= 1) { \
+			M_INT_RSHIFT63(h2, l2); \
+			if (M_INT_GREATER63(h1, l1, h2, l2)) \
+			{ result |= bit; M_INT_SUB63(h1, l1, h2, l2); } \
+		} \
+	} while (0);
 
-		/* Give some experience for the kill */
-		M_INT_DIV63(m_exp_h, m_exp_l, div_h, div_l, new_exp);
+	/* Give some experience for the kill */
+	M_INT_DIV63(m_exp_h, m_exp_l, div_h, div_l, new_exp);
 
-		/* Handle fractional experience */
-		/* multiply 0x10000L to remainder */
-		m_exp_h = (m_exp_h<<16) | (m_exp_l>>15);
-		m_exp_l <<= 16;
-		M_INT_DIV63(m_exp_h, m_exp_l, div_h, div_l, new_exp_frac);
-		new_exp_frac += p_ptr->exp_frac;
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
+	/* Handle fractional experience */
+	/* multiply 0x10000L to remainder */
+	m_exp_h = (m_exp_h<<16) | (m_exp_l>>15);
+	m_exp_l <<= 16;
+	M_INT_DIV63(m_exp_h, m_exp_l, div_h, div_l, new_exp_frac);
+	new_exp_frac += *exp_frac_ptr;
+	/* Keep track of experience */
+	if (new_exp_frac >= 0x10000L)
+	{
+		new_exp++;
+		*exp_frac_ptr = (u16b)(new_exp_frac - 0x10000L);
+	}
+	else
+	{
+		*exp_frac_ptr = (u16b)new_exp_frac;
+	}
+
+	return new_exp;
+}
+
+void get_exp_from_mon(int dam, monster_type *m_ptr)
+{
+	if (!m_ptr->r_idx) return;
+	if (is_pet(m_ptr)) return;
+	else
+	{
+		cexp_info_type *cexp_ptr;
+		int total_max_clev = 0;
+		int i;
+
+		for (i = 0; i < MAX_CLASS; i++)
 		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-		}
-		else
-		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
+			cexp_ptr = &p_ptr->cexp_info[i];
+			if (cexp_ptr->max_clev > 0) total_max_clev += cexp_ptr->max_clev;
 		}
 
 		/* Gain experience */
-		gain_exp(new_exp);
+		gain_class_exp(get_exp_from_mon_aux(dam, m_ptr, total_max_clev, &cexp_ptr->cexp_frac));
+		gain_racial_exp(get_exp_from_mon_aux(dam, m_ptr, p_ptr->max_plv, &p_ptr->exp_frac));
 	}
 }
 
@@ -1879,6 +2013,7 @@ static void expire_current_class(void)
 {
 	char buf[80];
 	byte old_pclass = p_ptr->pclass;
+	cexp_info_type *cexp_ptr;
 
 	switch (old_pclass)
 	{
@@ -1898,7 +2033,7 @@ static void expire_current_class(void)
 		return;
 	}
 
-	dispel_player(TRUE);
+	dispel_player();
 	set_action(ACTION_NONE);
 
 	/* Class reset */
@@ -1906,15 +2041,7 @@ static void expire_current_class(void)
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &m_info[p_ptr->pclass];
 	p_ptr->s_ptr = &s_info[p_ptr->pclass];
-
-	/* Skill point reset */
-	p_ptr->skill_point = 0;
-
-	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
-
-	/* Manadice */
-	p_ptr->manadie = rp_ptr->r_msp + cp_ptr->c_msp;
+	cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	if (old_pclass == CLASS_TEMPLEKNIGHT) change_level99_quest(FALSE);
 
@@ -1922,6 +2049,14 @@ static void expire_current_class(void)
 	msg_print(buf);
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
 	msg_print(NULL);
+
+	if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
+
+	if (!cexp_ptr->max_clev)
+	{
+		cexp_ptr->max_clev = cexp_ptr->clev = 1;
+		if (!cexp_ptr->max_max_clev) cexp_ptr->max_max_clev = 1;
+	}
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -1937,8 +2072,6 @@ static void expire_current_class(void)
 
 	if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
 	if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
-
-	if (cp_ptr->c_flags & PCF_NO_DIGEST) p_ptr->food = PY_FOOD_FULL - 1;
 
 	/* Update stuff */
 	p_ptr->update |= (PU_HP | PU_MANA);
@@ -2015,6 +2148,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool is_stoned)
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
+
+	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 	if (p_ptr->action == ACTION_STEALTH)
 	{
@@ -3340,14 +3475,14 @@ static void evaluate_monster_exp(char *buf, monster_type *m_ptr)
 
 	monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
 
-	u32b tmp_h,tmp_l;
-	int bit,result;
-	u32b exp_mon= (ap_r_ptr->mexp)*(ap_r_ptr->level);
-	u32b exp_mon_h= exp_mon / (p_ptr->max_plv+2);
-	u32b exp_mon_l= ((exp_mon % (p_ptr->max_plv+2))*0x10000/(p_ptr->max_plv+2))&0xFFFF;
+	u32b tmp_h, tmp_l;
+	int bit, result;
+	u32b exp_mon = (ap_r_ptr->mexp) * (ap_r_ptr->level);
+	u32b exp_mon_h = exp_mon / (p_ptr->max_plv + 2);
+	u32b exp_mon_l = ((exp_mon % (p_ptr->max_plv + 2)) * 0x10000 / (p_ptr->max_plv + 2)) & 0xFFFF;
 
-	u32b exp_adv_h = player_exp[p_ptr->lev -1] * p_ptr->expfact /100;
-	u32b exp_adv_l = ((player_exp[p_ptr->lev -1]%100) * p_ptr->expfact *0x10000/100)&0xFFFF;
+	u32b exp_adv_h = player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100;
+	u32b exp_adv_l = ((player_exp[p_ptr->lev - 1] % 100) * p_ptr->expfact * 0x10000 / 100) & 0xFFFF;
 
 	M_INT_SUB(exp_adv_h, exp_adv_l, p_ptr->exp, p_ptr->exp_frac);
 	if (p_ptr->lev >= PY_MAX_LEVEL)
@@ -5012,6 +5147,7 @@ bool activate_tarot_power(int effect)
 	int i;
 	int s_num_6 = (easy_band ? 2 : 6);
 	int summon_lev = MAX(p_ptr->lev * 2 / 3 + randint1(p_ptr->lev / 2), dun_level);
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	switch (effect)
 	{
@@ -5089,9 +5225,15 @@ bool activate_tarot_power(int effect)
 		i = randint0(20) + 10;
 		if (!p_ptr->hold_life && (p_ptr->exp > 0))
 		{
-			s32b ee = (p_ptr->exp / 2) + 10;
+			s32b ee;
+
+			ee = (cexp_ptr->cexp / 2) + 10;
 			if (ee > 100000L) ee = 100000L;
-			lose_exp(ee);
+			lose_class_exp(ee);
+
+			ee = (p_ptr->exp / 2) + 10;
+			if (ee > 100000L) ee = 100000L;
+			lose_racial_exp(ee);
 		}
 		if (!p_ptr->resist_pois && !p_ptr->oppose_pois) (void)set_poisoned(p_ptr->poisoned + i);
 		if (!p_ptr->resist_blind) (void)set_blind(p_ptr->blind + i);
@@ -5394,31 +5536,51 @@ bool activate_tarot_power(int effect)
 	case 27: /* The Temperance */
 		if (p_ptr->exp < PY_MAX_EXP)
 		{
-			s32b ee = (p_ptr->exp / 2) + 10;
-			if (ee > 100000L) ee = 100000L;
+			s32b ee;
+
 #ifdef JP
 			msg_print("更に経験を積んだような気がする。");
 #else
 			msg_print("You feel more experienced.");
 #endif
-			gain_exp(ee);
+			/* Class */
+			ee = (cexp_ptr->cexp / 2) + 10;
+			if (ee > 100000L) ee = 100000L;
+			gain_class_exp(ee);
+
+			/* Racial */
+			ee = (p_ptr->exp / 2) + 10;
+			if (ee > 100000L) ee = 100000L;
+			gain_racial_exp(ee);
 		}
 		break;
 
 	case 28: /* Reverted position of the Temperance */
 		if (p_ptr->exp > 0)
 		{
-			s32b ee = (p_ptr->exp / 2) + 10;
-			if (ee > 100000L) ee = 100000L;
+			s32b ee;
+
 #ifdef JP
 			msg_print("経験が失われていく気がする。");
 #else
 			msg_print("You feel less experienced.");
 #endif
+			/* Class */
+			ee = (cexp_ptr->cexp / 2) + 10;
+			if (ee > 100000L) ee = 100000L;
+			cexp_ptr->cexp -= ee;
+			if (cexp_ptr->cexp < 0) cexp_ptr->cexp = 0;
+			cexp_ptr->max_cexp -= ee;
+			if (cexp_ptr->max_cexp < 0) cexp_ptr->max_cexp = 0;
+
+			/* Racial */
+			ee = (p_ptr->exp / 2) + 10;
+			if (ee > 100000L) ee = 100000L;
 			p_ptr->exp -= ee;
 			if (p_ptr->exp < 0) p_ptr->exp = 0;
 			p_ptr->max_exp -= ee;
 			if (p_ptr->max_exp < 0) p_ptr->max_exp = 0;
+
 			check_experience();
 		}
 		break;
@@ -6040,34 +6202,11 @@ p = "方向 ('5'でターゲットへ, '*'でターゲット再選択, ESCで中断)? ";
 
 
 /*
- * エネルギーの増加量10d5を速く計算するための関数
- */
-
-#define Go_no_JuuJou 5*5*5*5*5*5*5*5*5*5
-
-s16b gain_energy(void)
-{
-	int i;
-	s32b energy_result = 10;
-	s32b tmp;
-
-	tmp = randint0(Go_no_JuuJou);
-
-	for (i = 0; i < 9; i ++){
-		energy_result += tmp % 5;
-		tmp /= 5;
-	}
-
-	return (s16b)(energy_result + tmp);
-}
-
-
-/*
  * Return bow energy 
  */
-s16b bow_energy(object_type *o_ptr)
+s32b bow_energy(object_type *o_ptr)
 {
-	int energy = 100;
+	s32b energy = 100;
 
 	/* Analyze the launcher */
 	switch (o_ptr->sval)
@@ -6150,7 +6289,7 @@ s16b bow_energy(object_type *o_ptr)
 		}
 	}
 
-	return (energy);
+	return energy;
 }
 
 
@@ -6159,7 +6298,7 @@ s16b bow_energy(object_type *o_ptr)
  */
 int bow_tmul(object_type *o_ptr)
 {
-	int tmul = 0;
+	s32b tmul = 0;
 
 	/* Analyze the launcher */
 	switch (o_ptr->sval)
@@ -6242,16 +6381,16 @@ int bow_tmul(object_type *o_ptr)
 		}
 	}
 
-	return (tmul);
+	return tmul;
 }
 
 
 /*
  * Return rocket damage
  */
-int rocket_damage(object_type *o_ptr, int to_d)
+s32b rocket_damage(object_type *o_ptr, int to_d)
 {
-	int dam = 0;
+	s32b dam = 0;
 
 	switch (o_ptr->xtra4)
 	{
@@ -6507,6 +6646,32 @@ void change_chaos_frame(int ethnic, int amt)
 
 	process_chaos_frame(ethnic);
 };
+
+/*
+ * Return proficiency level of weapons and misc. skills (except riding)
+ */
+int weapon_exp_level(int weapon_exp)
+{
+	if (weapon_exp < SKILL_EXP_NOVICE) return SKILL_LEVEL_BEGINNER;
+	else if (weapon_exp < SKILL_EXP_AVERAGE) return SKILL_LEVEL_NOVICE;
+	else if (weapon_exp < SKILL_EXP_SKILLED) return SKILL_LEVEL_AVERAGE;
+	else if (weapon_exp < SKILL_EXP_EXPERT) return SKILL_LEVEL_SKILLED;
+	else if (weapon_exp < SKILL_EXP_MASTER) return SKILL_LEVEL_EXPERT;
+	else return SKILL_LEVEL_MASTER;
+}
+
+/*
+ * Return proficiency level of weapons and misc. skills (except riding)
+ */
+int skill_exp_level(int skill_exp)
+{
+	if (skill_exp < SKILL_EXP_NOVICE) return SKILL_LEVEL_BEGINNER;
+	else if (skill_exp < SKILL_EXP_AVERAGE) return SKILL_LEVEL_NOVICE;
+	else if (skill_exp < SKILL_EXP_SKILLED) return SKILL_LEVEL_AVERAGE;
+	else if (skill_exp < SKILL_EXP_EXPERT) return SKILL_LEVEL_SKILLED;
+	else if (skill_exp < SKILL_EXP_MASTER) return SKILL_LEVEL_EXPERT;
+	else return SKILL_LEVEL_MASTER;
+}
 
 /*
  * Get current element of player
@@ -7016,10 +7181,6 @@ bool can_choose_class(byte new_class, byte mode)
 	player_class *new_cp_ptr = &class_info[new_class];
 	int i;
 
-	/* Inhibit large races */
-	if (rp_ptr->r_flags & PRF_LARGE) return FALSE;
-	if (new_cp_ptr->c_flags & PCF_LARGE) return FALSE;
-
 	/* Gender restriction */
 	switch (p_ptr->psex)
 	{
@@ -7137,4 +7298,49 @@ bool can_choose_class(byte new_class, byte mode)
 
 	/* Assume okay */
 	return TRUE;
+}
+
+int cut_level(int cut)
+{
+	/* Mortal wound */
+	if (cut > 1000) return 7;
+
+	/* Deep gash */
+	else if (cut > 200) return 6;
+
+	/* Severe cut */
+	else if (cut > 100) return 5;
+
+	/* Nasty cut */
+	else if (cut > 50) return 4;
+
+	/* Bad cut */
+	else if (cut > 25) return 3;
+
+	/* Light cut */
+	else if (cut > 10) return 2;
+
+	/* Graze */
+	else if (cut > 0) return 1;
+
+	/* None */
+	else return 0;
+}
+
+int stun_level(int stun)
+{
+	/* Knocked out */
+	if (stun > 300) return 4;
+
+	/* Nearly faint */
+	else if (stun > 200) return 3;
+
+	/* Heavy stun */
+	else if (stun > 100) return 2;
+
+	/* Stun */
+	else if (stun > 0) return 1;
+
+	/* None */
+	else return 0;
 }

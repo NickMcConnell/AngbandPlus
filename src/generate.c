@@ -512,7 +512,7 @@ static void heaven_gate_gen(void)
 		}
 	}
 
-	if (p_ptr->back_from_heaven)
+	if (back_from_heaven)
 	{
 		for (y = 0; y < cur_hgt; y++)
 		{
@@ -530,7 +530,7 @@ static void heaven_gate_gen(void)
 			if (flag) break; /* Double break */
 		}
 
-		p_ptr->back_from_heaven = FALSE;
+		back_from_heaven = FALSE;
 	}
 	else
 	{
@@ -1764,26 +1764,6 @@ why = "モンスターが多すぎる";
 			okay = FALSE;
 		}
 
-		/* Mega-Hack -- "Fate" */
-		else if (p_ptr->alter_reality_to_fate && (feeling > 2))
-		{
-			/* Give message to cheaters */
-			if (cheat_room || cheat_hear ||
-			    cheat_peek || cheat_xtra)
-			{
-				/* Message */
-#ifdef JP
-				why = "運命の基準に達しない";
-#else
-				why = "not fate level";
-#endif
-
-			}
-
-			/* Try again */
-			okay = FALSE;
-		}
-
 		/* Mega-Hack -- "auto-scum" */
 		else if ((auto_scum || ironman_autoscum) && (num < 100) &&
 		         !p_ptr->inside_quest &&
@@ -1833,7 +1813,7 @@ if (why) msg_format("生成やり直し(%s)", why);
 		wipe_m_list();
 	}
 
-	if (p_ptr->alter_reality_water_flow)
+	if (alter_reality_water_flow)
 	{
 		for (y = 0; y < cur_hgt; y++)
 		{
@@ -1861,7 +1841,7 @@ if (why) msg_format("生成やり直し(%s)", why);
 			}
 		}
 
-		p_ptr->alter_reality_water_flow = FALSE;
+		alter_reality_water_flow = FALSE;
 	}
 
 	/* Glow some feature */
@@ -1874,7 +1854,7 @@ if (why) msg_format("生成やり直し(%s)", why);
 	apply_weather_effect(TRUE);
 
 	/* Reset flag */
-	/* p_ptr->enter_dungeon = FALSE; */
+	p_ptr->enter_dungeon = FALSE;
 
 	wipe_generate_cave_flags();
 }

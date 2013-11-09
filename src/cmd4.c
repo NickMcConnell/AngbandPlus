@@ -213,9 +213,8 @@ static void close_auto_dump(FILE *fff, cptr mark, int line_num)
 
 
 /*
- *   Take note to the dialy.
+ *   Take note to the diary.
  */
-
 errr do_cmd_write_nikki(int type, int num, cptr note)
 {
 	int day, hour, min;
@@ -349,7 +348,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s %sを発見した。\n", hour, min, note_level, note);
 #else
-			fprintf(fff, " %2d:%02d %20s discover %s.\n", hour, min, note_level, note);
+			fprintf(fff, " %2d:%02d %20s discovered %s.\n", hour, min, note_level, note);
 #endif
 			break;
 		}
@@ -465,13 +464,13 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 				fprintf(fff, " %2d:%02d %20s 帰還を使って%sの%d階に来た。\n", hour, min, note_level, d_name+d_info[dungeon_type].name, max_dlv[dungeon_type]);
 #else
-				fprintf(fff, " %2d:%02d %20s recall to dungeon level %d of %s.\n", hour, min, note_level, max_dlv[dungeon_type], d_name+d_info[dungeon_type].name);
+				fprintf(fff, " %2d:%02d %20s recalled to dungeon level %d of %s.\n", hour, min, note_level, max_dlv[dungeon_type], d_name+d_info[dungeon_type].name);
 #endif
 			else
 #ifdef JP
 				fprintf(fff, " %2d:%02d %20s 帰還を使って地上へと戻った。\n", hour, min, note_level);
 #else
-				fprintf(fff, " %2d:%02d %20s recall from dungeon to surface.\n", hour, min, note_level);
+				fprintf(fff, " %2d:%02d %20s recalled from dungeon to surface.\n", hour, min, note_level);
 #endif
 			break;
 		}
@@ -481,7 +480,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s クエスト「%s」へと突入した。\n", hour, min, note_level, quest[num].name);
 #else
-			fprintf(fff, " %2d:%02d %20s enter quest '%s'.\n", hour, min, note_level, quest[num].name);
+			fprintf(fff, " %2d:%02d %20s entered the quest '%s'.\n", hour, min, note_level, quest[num].name);
 #endif
 			break;
 		}
@@ -499,7 +498,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s %sを購入した。\n", hour, min, note_level, note);
 #else
-			fprintf(fff, " %2d:%02d %20s buy %s.\n", hour, min, note_level, note);
+			fprintf(fff, " %2d:%02d %20s bought %s.\n", hour, min, note_level, note);
 #endif
 			break;
 		}
@@ -508,7 +507,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s %sを売却した。\n", hour, min, note_level, note);
 #else
-			fprintf(fff, " %2d:%02d %20s sell %s.\n", hour, min, note_level, note);
+			fprintf(fff, " %2d:%02d %20s sold %s.\n", hour, min, note_level, note);
 #endif
 			break;
 		}
@@ -530,14 +529,14 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦(%s)に勝利した。\n", hour, min, note_level, num, note);
 #else
-			fprintf(fff, " %2d:%02d %20s win the %d%s fight (%s).\n", hour, min, note_level, num, (num%10==1?"st":num%10==2?"nd":num%10==3?"rd":"th"), note);
+			fprintf(fff, " %2d:%02d %20s won the %d%s fight (%s).\n", hour, min, note_level, num, (num%10==1?"st":num%10==2?"nd":num%10==3?"rd":"th"), note);
 #endif
 			if (num == MAX_ARENA_MONS)
 			{
 #ifdef JP
 				fprintf(fff, "                 闘技場のすべての敵に勝利し、チャンピオンとなった。\n");
 #else
-				fprintf(fff, "                 win all fight to become a Chanpion.\n");
+				fprintf(fff, "                 won all fight to become a Chanpion.\n");
 #endif
 				do_level = FALSE;
 			}
@@ -548,7 +547,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s %sを識別した。\n", hour, min, note_level, note);
 #else
-			fprintf(fff, " %2d:%02d %20s identify %s.\n", hour, min, note_level, note);
+			fprintf(fff, " %2d:%02d %20s identified %s.\n", hour, min, note_level, note);
 #endif
 			break;
 		}
@@ -580,7 +579,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s レベルが%dに上がった。\n", hour, min, note_level, num);
 #else
-			fprintf(fff, " %2d:%02d %20s reach player level %d.\n", hour, min, note_level, num);
+			fprintf(fff, " %2d:%02d %20s reached player level %d.\n", hour, min, note_level, num);
 #endif
 			break;
 		}
@@ -605,56 +604,56 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 					fprintf(fff, "%sを旅の友にすることに決めた。\n", note);
 #else
-					fprintf(fff, "decide to travel together with %s.\n", note);
+					fprintf(fff, "decided to travel together with %s.\n", note);
 #endif
 					break;
 				case 1:
 #ifdef JP
 					fprintf(fff, "%sの名前を消した。\n", note);
 #else
-					fprintf(fff, "unname %s.\n", note);
+					fprintf(fff, "unnamed %s.\n", note);
 #endif
 					break;
 				case 2:
 #ifdef JP
 					fprintf(fff, "%sを解放した。\n", note);
 #else
-					fprintf(fff, "dismiss %s.\n", note);
+					fprintf(fff, "dismissed %s.\n", note);
 #endif
 					break;
 				case 3:
 #ifdef JP
 					fprintf(fff, "%sが死んでしまった。\n", note);
 #else
-					fprintf(fff, "%s die.\n", note);
+					fprintf(fff, "%s died.\n", note);
 #endif
 					break;
 				case 4:
 #ifdef JP
 					fprintf(fff, "%sをおいて別のマップへ移動した。\n", note);
 #else
-					fprintf(fff, "move to other map leaving %s behind.\n", note);
+					fprintf(fff, "moved to another map leaving %s behind.\n", note);
 #endif
 					break;
 				case 5:
 #ifdef JP
 					fprintf(fff, "%sとはぐれてしまった。\n", note);
 #else
-					fprintf(fff, "lose sight of %s.\n", note);
+					fprintf(fff, "lost sight of %s.\n", note);
 #endif
 					break;
 				case 6:
 #ifdef JP
 					fprintf(fff, "%sが*破壊*によって消え去った。\n", note);
 #else
-					fprintf(fff, "%s is made disappeared by *destruction*.\n", note);
+					fprintf(fff, "%s was made disappeared by *destruction*.\n", note);
 #endif
 					break;
 				case 7:
 #ifdef JP
 					fprintf(fff, "%sが岩石に押し潰された。\n", note);
 #else
-					fprintf(fff, "%s is crushed by falling rocks.\n", note);
+					fprintf(fff, "%s was crushed by falling rocks.\n", note);
 #endif
 					break;
 				case 8:
@@ -4706,11 +4705,6 @@ static cptr monster_group_text[] =
 {
 #ifdef JP
 	"ユニーク",	/* "Uniques" */
-	"ウォルスタ",
-	"ガルガスタン",
-	"バクラム",
-	"ゼノビア",
-	"ローディス",
 	"アリ",
 	"コウモリ",
 	"ムカデ",
@@ -4768,11 +4762,6 @@ static cptr monster_group_text[] =
 	"おばけキノコ",
 #else
 	"Uniques",
-	"Walstanian",
-	"Gargastan",
-	"Bacrum",
-	"Zenobian",
-	"Lodis",
 	"Ant",
 	"Bat",
 	"Centipede",
@@ -4840,11 +4829,6 @@ static cptr monster_group_text[] =
 static cptr monster_group_char[] = 
 {
 	(char *) -1L,
-	(char *) -2L,
-	(char *) -3L,
-	(char *) -4L,
-	(char *) -5L,
-	(char *) -6L,
 	"a",
 	"b",
 	"c",
@@ -4925,14 +4909,6 @@ static bool ang_sort_comp_monster_level(vptr u, vptr v, int a, int b)
 	return w1 <= w2;
 }
 
-#define GROUP_TYPE_NONE       0
-#define GROUP_TYPE_UNIQUE     1
-#define GROUP_TYPE_WALSTANIAN 2
-#define GROUP_TYPE_GARGASTAN  3
-#define GROUP_TYPE_BACRUM     4
-#define GROUP_TYPE_ZENOBIAN   5
-#define GROUP_TYPE_LODIS      6
-
 /*
  * Build a list of monster indexes in the given group. Return the number
  * of monsters in the group.
@@ -4949,14 +4925,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 	cptr group_char = monster_group_char[grp_cur];
 
 	/* XXX Hack -- Check if this is the "Uniques" group */
-	int group_type = GROUP_TYPE_NONE;
-
-	if (group_char == (cptr)-1L) group_type = GROUP_TYPE_UNIQUE;
-	else if (group_char == (cptr)-2L) group_type = GROUP_TYPE_WALSTANIAN;
-	else if (group_char == (cptr)-3L) group_type = GROUP_TYPE_GARGASTAN;
-	else if (group_char == (cptr)-4L) group_type = GROUP_TYPE_BACRUM;
-	else if (group_char == (cptr)-5L) group_type = GROUP_TYPE_ZENOBIAN;
-	else if (group_char == (cptr)-6L) group_type = GROUP_TYPE_LODIS;
+	bool grp_unique = (monster_group_char[grp_cur] == (char *) -1L);
 
 	/* Check every race */
 	for (i = 0; i < (max_r_idx + runeweapon_num); i++)
@@ -4970,30 +4939,10 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 		/* Require known monsters */
 		if (!(mode & 0x02) && !cheat_know && !r_ptr->r_sights) continue;
 
-		switch (group_type)
-		{
-		case GROUP_TYPE_UNIQUE:
-			if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-			break;
-		case GROUP_TYPE_WALSTANIAN:
-			if (!(r_ptr->flags2 & RF2_WALSTANIAN)) continue;
-			break;
-		case GROUP_TYPE_GARGASTAN:
-			if (!(r_ptr->flags2 & RF2_GARGASTAN)) continue;
-			break;
-		case GROUP_TYPE_BACRUM:
-			if (!(r_ptr->flags2 & RF2_BACRUM)) continue;
-			break;
-		case GROUP_TYPE_ZENOBIAN:
-			if (!(r_ptr->flags2 & RF2_ZENOBIAN)) continue;
-			break;
-		case GROUP_TYPE_LODIS:
-			if (!(r_ptr->flags2 & RF2_LODIS)) continue;
-			break;
-		}
+		if (grp_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
 
 		/* Check for race in the group */
-		if ((group_type != GROUP_TYPE_NONE) || strchr(group_char, r_ptr->d_char))
+		if (grp_unique || strchr(group_char, r_ptr->d_char))
 		{
 			/* Add the race */
 			mon_idx[mon_cnt++] = i;
@@ -5045,23 +4994,11 @@ static cptr object_group_text[] =
 	"ゴミ",
 	"空のビン",
 	"骨",
-	"小剣・突剣",
-	"カタナ",
-	"剣",
-	"大剣",
-	"斧",
-	"槍",
-	"乗馬槍",
-	"爪",
-	"鎌",
-	"鞭",
-	"ハンマー",
-	"杖",
-	"扇",
-	"ヌンチャク",
-	"弓",
-	"銃",
-	"掘削道具",
+	"刀剣類",	/* "Swords" */
+	"鈍器",		/* "Blunt Weapons" */
+	"長柄武器",	/* "Polearms" */
+	"採掘道具",	/* "Diggers" */
+	"飛び道具",	/* "Bows" */
 	"通常弾",
 	"ライフル弾",
 	"散弾",
@@ -5100,23 +5037,11 @@ static cptr object_group_text[] =
 	"Junks",
 	"Bottles",
 	"Skeletons",
-	"Small Swords",
-	"Katanas",
 	"Swords",
-	"Great Swords",
-	"Axes",
-	"Spears",
-	"Lances",
-	"Claws",
-	"Scythes",
-	"Whips",
-	"Hammers",
-	"Staffs",
-	"Fans",
-	"Nunchakus",
-	"Bows",
-	"Guns",
+	"Blunt Weapons",
+	"Polearms",
 	"Diggers",
+	"Bows",
 	"Bullets",
 	"Rifle Rounds",
 	"Shot Shells",
@@ -5164,23 +5089,11 @@ static byte object_group_tval[] =
 	TV_JUNK,
 	TV_BOTTLE,
 	TV_SKELETON,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
+	TV_SWORD,
+	TV_HAFTED,
+	TV_POLEARM,
+	TV_DIGGING,
+	TV_BOW,
 	TV_BULLET,
 	TV_ROUND,
 	TV_SHELL,
@@ -5189,7 +5102,6 @@ static byte object_group_tval[] =
 	TV_BOLT,
 	TV_SOFT_ARMOR,
 	TV_HARD_ARMOR,
-	TV_DRAG_ARMOR,
 	TV_SHIELD,
 	TV_CLOAK,
 	TV_GLOVES,
@@ -5197,69 +5109,6 @@ static byte object_group_tval[] =
 	TV_CROWN,
 	TV_BOOTS,
 	TV_MAGERY_BOOK, /* Hack -- all spellbooks */
-	0
-};
-
-
-/*
- * WTs of items in each group
- */
-static byte object_group_wt[] =
-{
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	WT_SMALL_SWORD,
-	WT_KATANA,
-	WT_SWORD,
-	WT_GREAT_SWORD,
-	WT_AXE,
-	WT_SPEAR,
-	WT_LANCE,
-	WT_CLAW,
-	WT_SCYTHE,
-	WT_WHIP,
-	WT_HAMMER,
-	WT_STAFF,
-	WT_FAN,
-	WT_NUNCHAKU,
-	WT_BOW,
-	WT_GUN,
-	WT_DIGGING,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
 	0
 };
 
@@ -5274,12 +5123,11 @@ static int collect_objects(int grp_cur, int object_idx[])
 
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group_tval[grp_cur];
-	byte group_wt = object_group_wt[grp_cur];
 
 	/* Check every object */
 	for (i = 0; i < max_k_idx; i++)
 	{
-		/* Access the object */
+		/* Access the race */
 		object_kind *k_ptr = &k_info[i];
 
 		/* Skip empty objects */
@@ -5295,38 +5143,27 @@ static int collect_objects(int grp_cur, int object_idx[])
 		/* Require objects ever seen*/
 		if (!k_ptr->aware && !p_ptr->wizard) continue;
 
-		if (group_tval)
+		/* Check for race in the group */
+		if (TV_MAGERY_BOOK == group_tval)
 		{
-			/* Check for object in the group */
-			if (TV_MAGERY_BOOK == group_tval)
+			/* Hack -- All spell books */
+			if (TV_MAGERY_BOOK <= k_ptr->tval && k_ptr->tval <= TV_CRUSADE_BOOK)
 			{
-				/* Hack -- All spell books */
-				if (TV_MAGERY_BOOK <= k_ptr->tval && k_ptr->tval <= TV_CRUSADE_BOOK)
-				{
-					/* Add the object */
-					object_idx[object_cnt++] = i;
-				}
-			}
-			else if (k_ptr->tval == group_tval)
-			{
-				/* Add the object */
+				/* Add the race */
 				object_idx[object_cnt++] = i;
 			}
 		}
-		else if (group_wt)
+		else if (k_ptr->tval == group_tval)
 		{
-			if (get_weapon_type(k_ptr) == group_wt)
-			{
-				/* Add the object */
-				object_idx[object_cnt++] = i;
-			}
+			/* Add the race */
+			object_idx[object_cnt++] = i;
 		}
 	}
 
 	/* Terminate the list */
 	object_idx[object_cnt] = 0;
 
-	/* Return the number of objects */
+	/* Return the number of races */
 	return object_cnt;
 }
 
@@ -5373,164 +5210,45 @@ static int collect_features(int *feat_idx)
 }
 
 
-static bool *artifact_okay = NULL;
-static bool *artifact_desc_okay = NULL;
-
-
-#define runeweapon_a_idx_from(specific) (max_a_idx + (specific) - 1)
-#define runeweapon_list_idx_from(a_idx) ((a_idx) - max_a_idx + 1)
-
-
-/*
- * Sorting hook -- Comp function -- see below
- *
- * We use "u" to point to array of artifact indexes,
- * and "v" to select the type of sorting to perform on "u".
- */
-static bool ang_sort_art_comp(vptr u, vptr v, int a, int b)
-{
-	int *artifact_idx = (int *)(u);
-
-	int w1 = artifact_idx[a];
-	int w2 = artifact_idx[b];
-
-	int z1, z2;
-
-
-	/* Sort by tvals */
-	/* Extract tvals */
-	z1 = (w1 < max_a_idx) ? a_info[w1].tval : runeweapon_list[runeweapon_list_idx_from(w1)].weapon.tval;
-	z2 = (w2 < max_a_idx) ? a_info[w2].tval : runeweapon_list[runeweapon_list_idx_from(w2)].weapon.tval;
-
-	/* Compare tvals */
-	if (z1 < z2) return TRUE;
-	if (z1 > z2) return FALSE;
-
-
-	/* Sort by svals */
-	/* Extract svals */
-	z1 = (w1 < max_a_idx) ? a_info[w1].sval : runeweapon_list[runeweapon_list_idx_from(w1)].weapon.sval;
-	z2 = (w2 < max_a_idx) ? a_info[w2].sval : runeweapon_list[runeweapon_list_idx_from(w2)].weapon.sval;
-
-	/* Compare svals */
-	if (z1 < z2) return TRUE;
-	if (z1 > z2) return FALSE;
-
-
-	/* Sort by artifact level */
-	/* Extract artifact levels */
-	z1 = (w1 < max_a_idx) ? a_info[w1].level : k_info[runeweapon_list[runeweapon_list_idx_from(w1)].weapon.k_idx].level;
-	z2 = (w2 < max_a_idx) ? a_info[w2].level : k_info[runeweapon_list[runeweapon_list_idx_from(w2)].weapon.k_idx].level;
-
-	/* Compare artifact level */
-	if (z1 < z2) return TRUE;
-	if (z1 > z2) return FALSE;
-
-
-	/* Compare indexes */
-	return w1 <= w2;
-}
-
-
-/*
- * Sorting hook -- Swap function -- see below
- *
- * We use "u" to point to array of artifact indexes,
- * and "v" to select the type of sorting to perform.
- */
-static void ang_sort_art_swap(vptr u, vptr v, int a, int b)
-{
-	int *artifact_idx = (int *)(u);
-
-	int holder;
-
-	/* Swap */
-	holder = artifact_idx[a];
-	artifact_idx[a] = artifact_idx[b];
-	artifact_idx[b] = holder;
-}
-
-
+#if 0
 /*
  * Build a list of monster indexes in the given group. Return the number
  * of monsters in the group.
  */
-static int collect_artifacts(int grp_cur, int artifact_idx[])
+static int collect_artifacts(int grp_cur, int object_idx[])
 {
-	int i, artifact_cnt = 0;
-	int dummy_why;
+	int i, object_cnt = 0;
 
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group_tval[grp_cur];
-	byte group_wt = object_group_wt[grp_cur];
 
-	/* Check every artifact */
-	for (i = 0; i < max_a_idx + runeweapon_num; i++)
+	/* Check every object */
+	for (i = 0; i < max_a_idx; i++)
 	{
-		byte tval, sval;
+		/* Access the artifact */
+		artifact_type *a_ptr = &a_info[i];
 
-		if (p_ptr->wizard)
-		{
-			if (i < max_a_idx)
-			{
-				artifact_type *a_ptr = &a_info[i];
-				if (!a_ptr->name) continue;
-				if (!lookup_kind(a_ptr->tval, a_ptr->sval)) continue;
-			}
-			else
-			{
-				runeweapon_type *runeweapon = &runeweapon_list[runeweapon_list_idx_from(i)];
-				if (!lookup_kind(runeweapon->weapon.tval, runeweapon->weapon.sval)) continue;
-			}
-		}
-		else
-		{
-			if (!artifact_okay[i]) continue;
-		}
+		/* Skip empty artifacts */
+		if (!a_ptr->name) continue;
 
-		if (i < max_a_idx)
-		{
-			tval = a_info[i].tval;
-			sval = a_info[i].sval;
-		}
-		else
-		{
-			tval = runeweapon_list[runeweapon_list_idx_from(i)].weapon.tval;
-			sval = runeweapon_list[runeweapon_list_idx_from(i)].weapon.sval;
-		}
+		/* Skip "uncreated" artifacts */
+		if (!a_ptr->cur_num) continue;
 
-		/* Check for artifact in the group */
-		if (group_tval)
+		/* Check for race in the group */
+		if (a_ptr->tval == group_tval)
 		{
-			if (tval == group_tval)
-			{
-				/* Add the artifact */
-				artifact_idx[artifact_cnt++] = i;
-			}
-		}
-		else if (group_wt)
-		{
-			if (get_weapon_type(&k_info[lookup_kind(tval, sval)]) == group_wt)
-			{
-				/* Add the artifact */
-				artifact_idx[artifact_cnt++] = i;
-			}
+			/* Add the race */
+			object_idx[object_cnt++] = i;
 		}
 	}
 
 	/* Terminate the list */
-	artifact_idx[artifact_cnt] = 0;
+	object_idx[object_cnt] = 0;
 
-	/* Select the sort method */
-	ang_sort_comp = ang_sort_art_comp;
-	ang_sort_swap = ang_sort_art_swap;
-
-	/* Sort the array by tvals, svals, levels */
-	ang_sort(artifact_idx, &dummy_why, artifact_cnt);
-
-	/* Return the number of artifacts */
-	return artifact_cnt;
+	/* Return the number of races */
+	return object_cnt;
 }
+#endif /* 0 */
 
 
 /*
@@ -5753,12 +5471,14 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 	 * HACK:Ring of Lordly protection and Dragon shield/helm
 	 * have random resistances.
 	 */
-	if ( ((o_ptr->tval >= TV_BOW && o_ptr->tval<= TV_DRAG_ARMOR && o_ptr->name2)
+	if ( ((o_ptr->tval >= TV_BOW && o_ptr->tval<= TV_HARD_ARMOR && o_ptr->name2)
 	     || (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_LORDLY) 
 	     || (o_ptr->tval == TV_SHIELD && o_ptr->sval == SV_DRAGON_SHIELD) 
 	     || (o_ptr->tval == TV_HELM && o_ptr->sval == SV_DRAGON_HELM) 
 	     || (o_ptr->tval == TV_GLOVES && o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) 
 	     || (o_ptr->tval == TV_BOOTS && o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) 
+	     || (o_ptr->tval == TV_SOFT_ARMOR && o_ptr->sval == SV_DRAGON_LEATHER_ARMOR) 
+	     || (o_ptr->tval == TV_HARD_ARMOR && o_ptr->sval == SV_DRAGON_SCALE_MAIL) 
 	     || o_ptr->art_name || o_ptr->name1) && object_known_p(o_ptr))
 	{
 		int i = 0;
@@ -6404,6 +6124,285 @@ void do_cmd_save_screen(void)
 		/* Restore the screen */
 		screen_load();
 	}
+}
+
+
+/*
+ * Sorting hook -- Comp function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform on "u".
+ */
+static bool ang_sort_art_comp(vptr u, vptr v, int a, int b)
+{
+	u16b *who = (u16b*)(u);
+
+	u16b *why = (u16b*)(v);
+
+	int w1 = who[a];
+	int w2 = who[b];
+
+	int z1, z2;
+
+
+	/* Sort by total kills */
+	if (*why >= 3)
+	{
+		/* Extract total kills */
+		z1 = a_info[w1].tval;
+		z2 = a_info[w2].tval;
+
+		/* Compare total kills */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+
+	/* Sort by monster level */
+	if (*why >= 2)
+	{
+		/* Extract levels */
+		z1 = a_info[w1].sval;
+		z2 = a_info[w2].sval;
+
+		/* Compare levels */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+
+	/* Sort by monster experience */
+	if (*why >= 1)
+	{
+		/* Extract experience */
+		z1 = a_info[w1].level;
+		z2 = a_info[w2].level;
+
+		/* Compare experience */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+
+	/* Compare indexes */
+	return (w1 <= w2);
+}
+
+
+/*
+ * Sorting hook -- Swap function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform.
+ */
+static void ang_sort_art_swap(vptr u, vptr v, int a, int b)
+{
+	u16b *who = (u16b*)(u);
+
+	u16b holder;
+
+	/* Swap */
+	holder = who[a];
+	who[a] = who[b];
+	who[b] = holder;
+}
+
+
+/*
+ * Check the status of "artifacts"
+ */
+static void do_cmd_knowledge_artifacts(void)
+{
+	int i, k, z, x, y, n = 0;
+	u16b why = 3;
+	s16b *who;
+
+	FILE *fff;
+
+	char file_name[1024];
+
+	char base_name[MAX_NLEN];
+
+	bool *okay;
+
+	/* Open a new file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	if (!fff)
+	{
+#ifdef JP
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
+#else
+		msg_format("Failed to create temporary file %s.", file_name);
+#endif
+		msg_print(NULL);
+		return;
+	}
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_a_idx, s16b);
+
+	/* Allocate the "okay" array */
+	C_MAKE(okay, max_a_idx, bool);
+
+	/* Scan the artifacts */
+	for (k = 0; k < max_a_idx; k++)
+	{
+		artifact_type *a_ptr = &a_info[k];
+
+		/* Default */
+		okay[k] = FALSE;
+
+		/* Skip "empty" artifacts */
+		if (!a_ptr->name) continue;
+
+		/* Skip "uncreated" artifacts */
+		if (!a_ptr->cur_num) continue;
+
+		/* Assume okay */
+		okay[k] = TRUE;
+	}
+
+	/* Check the dungeon */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			cave_type *c_ptr = &cave[y][x];
+
+			s16b this_o_idx, next_o_idx = 0;
+
+			/* Scan all objects in the grid */
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
+
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Ignore non-artifacts */
+				if (!artifact_p(o_ptr)) continue;
+
+				/* Ignore known items */
+				if (object_known_p(o_ptr)) continue;
+
+				/* Note the artifact */
+				okay[o_ptr->name1] = FALSE;
+			}
+		}
+	}
+
+	/* Check the inventory and equipment */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Ignore non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore non-artifacts */
+		if (!artifact_p(o_ptr)) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Note the artifact */
+		okay[o_ptr->name1] = FALSE;
+	}
+
+	for (k = 0; k < max_a_idx; k++)
+	{
+		if (okay[k]) who[n++] = k;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_art_comp;
+	ang_sort_swap = ang_sort_art_swap;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
+
+	/* Scan the artifacts */
+	for (k = 0; k < n; k++)
+	{
+		artifact_type *a_ptr = &a_info[who[k]];
+
+		/* Paranoia */
+#ifdef JP
+		strcpy(base_name, "未知の伝説のアイテム");
+#else
+		strcpy(base_name, "Unknown Artifact");
+#endif
+
+
+		/* Obtain the base object type */
+		z = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		/* Real object */
+		if (z)
+		{
+			object_type forge;
+			object_type *q_ptr;
+
+			/* Get local object */
+			q_ptr = &forge;
+
+			/* Create fake object */
+			object_prep(q_ptr, z);
+
+			/* Make it an artifact */
+			q_ptr->name1 = (byte)who[k];
+
+			/* Describe the artifact */
+			object_desc_store(base_name, q_ptr, FALSE, 0);
+		}
+
+		/* Hack -- Build the artifact name */
+#ifdef JP
+		fprintf(fff, "     %s\n", base_name);
+#else
+		fprintf(fff, "     The %s\n", base_name);
+#endif
+
+	}
+	for (k = 1; k <= runeweapon_num; k++)
+	{
+		runeweapon_type *runeweapon = &runeweapon_list[k];
+
+		if (runeweapon->status & RW_STATUS_FOUND)
+		{
+			/* Print a message */
+			object_desc(base_name, &runeweapon->weapon, TRUE, 0);
+#ifdef JP
+			fprintf(fff, "     %s\n", base_name);
+#else
+			fprintf(fff, "     The %s\n", base_name);
+#endif
+		}
+	}
+
+	/* Free the "who" array */
+	C_KILL(who, max_a_idx, s16b);
+
+	/* Free the "okay" array */
+	C_KILL(okay, max_a_idx, bool);
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+#ifdef JP
+	show_file(TRUE, file_name, "既知の伝説のアイテム", 0, 0);
+#else
+	show_file(TRUE, file_name, "Artifacts Seen", 0, 0);
+#endif
+
+
+	/* Remove the file */
+	fd_kill(file_name);
 }
 
 
@@ -7270,7 +7269,7 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 
 			if (use_bigtile) eff_width = width / 2;
 			else eff_width = width;
-
+					
 			/* Restrict direction */
 			if ((a == 0) && (ddy[d] < 0)) d = 0;
 			if ((c == 0) && (ddx[d] < 0)) d = 0;
@@ -7295,7 +7294,7 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 			if ((ddy[d] > 0) && *attr_top_ptr + height < MIN(0x7f, (a & 0x7f) + 4)) (*attr_top_ptr)++;
 			return TRUE;
 		}
-
+				
 		break;
 	}
 
@@ -7366,7 +7365,7 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
 #else
 		else c_put_str((dead ? TERM_L_DARK : TERM_WHITE), (dead ? "dead" : "alive"), row + i, 73);
 #endif
-
+	
 	}
 
 	/* Clear remaining lines */
@@ -7388,7 +7387,7 @@ static void do_cmd_knowledge_monsters(void)
 	int grp_cnt, grp_idx[100];
 	int mon_cnt;
 	s16b *mon_idx;
-
+	
 	int column = 0;
 	bool flag;
 	bool redraw;
@@ -7629,7 +7628,7 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
 		c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
 
-		/* Symbol is unknown */
+		/* Symbol is unknown */	
 		if (!k_ptr->aware && !p_ptr->wizard)
 		{
 			c = ' ';
@@ -7903,510 +7902,6 @@ static void do_cmd_knowledge_objects(void)
 	C_KILL(object_idx, max_k_idx, int);
 }
 
-
-/*
- * Display the artifacts in a group.
- */
-static void display_artifact_list(int col, int row, int per_page, int artifact_idx[],
-	int artifact_cur, int artifact_top)
-{
-	int i;
-
-	/* Display lines until done */
-	for (i = 0; i < per_page && artifact_idx[artifact_top + i]; i++)
-	{
-		char o_name[MAX_NLEN];
-		byte a, a2;
-		char c, c2;
-
-		object_kind *k_ptr;
-		object_type forge;
-		object_type *q_ptr = &forge;
-
-		/* Get the artifact index */
-		int a_idx = artifact_idx[artifact_top + i];
-		bool okay = artifact_okay[a_idx];
-
-		/* Choose a color */
-		byte attr = (okay ? TERM_WHITE : TERM_SLATE);
-		byte cursor = (okay ? TERM_L_BLUE : TERM_BLUE);
-
-		if (a_idx < max_a_idx)
-		{
-			/* Access the artifact */
-			artifact_type *a_ptr = &a_info[a_idx];
-
-			/* Get the object index */
-			int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-			/* Access the object */
-			k_ptr = &k_info[k_idx];
-
-			/* Create fake artifact */
-			object_prep(q_ptr, k_idx);
-			q_ptr->name1 = (byte)a_idx;
-		}
-		else
-		{
-			runeweapon_type *runeweapon = &runeweapon_list[runeweapon_list_idx_from(a_idx)];
-			q_ptr = &runeweapon->weapon;
-
-			/* Access the object */
-			k_ptr = &k_info[lookup_kind(q_ptr->tval, q_ptr->sval)];
-		}
-
-		/* Describe the artifact */
-		object_desc_store(o_name, q_ptr, FALSE, 0);
-
-		attr = ((i + artifact_top == artifact_cur) ? cursor : attr);
-
-		/* Display the name */
-#ifdef JP
-		c_prt(attr, o_name, row + i, col);
-#else
-		c_prt(attr, format("The %s", o_name), row + i, col);
-#endif
-
-		if (p_ptr->wizard)
-		{
-			if (a_idx < max_a_idx)
-			{
-				c_prt(attr, format("%d", a_idx), row + i, 70);
-			}
-			else
-			{
-				c_prt(attr, format("(%d)", runeweapon_list_idx_from(a_idx)), row + i, 70);
-			}
-		}
-
-		a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
-		c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
-
-		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
-
-		/* Display symbol */
-		Term_putch(76, row + i, a, c);
-
-		/* Second byte */
-		if (use_bigtile) Term_putch(76 + 1, row + i, a2, c2);
-	}
-
-	/* Clear remaining lines */
-	for (; i < per_page; i++)
-	{
-		Term_erase(col, row + i, 255);
-	}
-}
-
-/*
- * Describe fake artifact
- */
-static void desc_artifact_fake(int a_idx)
-{
-	object_type *o_ptr;
-	object_type object_type_body;
-
-	if (!p_ptr->wizard && !artifact_desc_okay[a_idx])
-	{
-#ifdef JP
-		msg_print("このアイテムの詳細は参照できない。");
-#else
-		msg_print("You cannot browse detail about that item.");
-#endif
-		msg_print(NULL);
-		return;
-	}
-
-	if (a_idx < max_a_idx)
-	{
-		artifact_type *a_ptr = &a_info[a_idx];
-		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-		int i;
-
-		/* Get local object */
-		o_ptr = &object_type_body;
-
-		/* Wipe the object */
-		object_wipe(o_ptr);
-
-		/* Create the artifact */
-		object_prep(o_ptr, k_idx);
-		o_ptr->name1 = (byte)a_idx;
-
-		/* Extract the fields */
-		o_ptr->pval = a_ptr->pval;
-		o_ptr->ac = a_ptr->ac;
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->ds = a_ptr->ds;
-		for (i = 0; i < A_MAX; i++) o_ptr->to_stat[i] = a_ptr->to_stat[i];
-		for (i = 0; i < OB_MAX; i++) o_ptr->to_misc[i] = a_ptr->to_misc[i];
-		o_ptr->to_a = a_ptr->to_a;
-		o_ptr->to_h = a_ptr->to_h;
-		o_ptr->to_d = a_ptr->to_d;
-		o_ptr->weight = a_ptr->weight;
-
-		/* Hack -- extract the "cursed" flag */
-		if (a_ptr->gen_flags & TRG_CURSED) o_ptr->curse_flags |= (TRC_CURSED);
-		if (a_ptr->gen_flags & TRG_HEAVY_CURSE) o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
-		if (a_ptr->gen_flags & TRG_PERMA_CURSE) o_ptr->curse_flags |= (TRC_PERMA_CURSE);
-
-		/* It's fully know */
-		o_ptr->ident |= (IDENT_KNOWN | IDENT_MENTAL);
-	}
-	else
-	{
-		/* Get global object */
-		o_ptr = &runeweapon_list[runeweapon_list_idx_from(a_idx)].weapon;
-	}
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-	if (!screen_object(o_ptr, NULL, FALSE))
-	{
-#ifdef JP
-		msg_print("特に変わったところはないようだ。");
-#else
-		msg_print("You see nothing special.");
-#endif
-		msg_print(NULL);
-	}
-}
-
-
-static void build_artifact_okay_list(void)
-{
-	int         i, y, x;
-	object_type *o_ptr;
-	store_type  *st_ptr;
-
-	/* Scan the artifacts */
-	for (i = 0; i < max_a_idx; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-
-		/* Default */
-		artifact_okay[i] = FALSE;
-		artifact_desc_okay[i] = FALSE;
-
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-		if (!lookup_kind(a_ptr->tval, a_ptr->sval)) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		artifact_okay[i] = TRUE;
-	}
-
-	/* Check the dungeon */
-	for (y = 0; y < cur_hgt; y++)
-	{
-		for (x = 0; x < cur_wid; x++)
-		{
-			cave_type *c_ptr = &cave[y][x];
-
-			s16b this_o_idx, next_o_idx = 0;
-
-			/* Scan all objects in the grid */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-			{
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
-
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
-
-				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
-
-				/* Ignore known items */
-				if (object_known_p(o_ptr))
-				{
-					if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
-					continue;
-				}
-
-				/* Note the artifact */
-				artifact_okay[o_ptr->name1] = FALSE;
-			}
-		}
-	}
-
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr))
-		{
-			if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
-			continue;
-		}
-
-		/* Note the artifact */
-		artifact_okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Check the home */
-	st_ptr = &town[1].store[STORE_HOME];
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		o_ptr = &st_ptr->stock[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr))
-		{
-			if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
-			continue;
-		}
-
-		/* Note the artifact */
-		artifact_okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Check the museum */
-	st_ptr = &town[1].store[STORE_MUSEUM];
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		o_ptr = &st_ptr->stock[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr))
-		{
-			if (o_ptr->ident & IDENT_MENTAL) artifact_desc_okay[o_ptr->name1] = TRUE;
-			continue;
-		}
-
-		/* Note the artifact */
-		artifact_okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Check the "Runeweapon" */
-	for (i = 1; i <= runeweapon_num; i++)
-	{
-		runeweapon_type *runeweapon = &runeweapon_list[i];
-		artifact_okay[runeweapon_a_idx_from(i)] = FALSE;
-		artifact_desc_okay[runeweapon_a_idx_from(i)] = FALSE;
-		if (!lookup_kind(runeweapon->weapon.tval, runeweapon->weapon.sval)) continue;
-		if (!(runeweapon->status & RW_STATUS_FOUND)) continue;
-		artifact_okay[runeweapon_a_idx_from(i)] = TRUE;
-		artifact_desc_okay[runeweapon_a_idx_from(i)] = TRUE;
-	}
-}
-
-
-/*
- * Display known artifacts
- */
-static void do_cmd_knowledge_artifacts(void)
-{
-	int i, len, max;
-	int grp_cur, grp_top, old_grp_cur;
-	int artifact_old, artifact_cur, artifact_top;
-	int grp_cnt, grp_idx[100];
-	int artifact_cnt;
-	int *artifact_idx;
-
-	int column = 0;
-	bool flag;
-	bool redraw;
-
-	int browser_rows;
-	int wid, hgt;
-
-	/* Get size */
-	Term_get_size(&wid, &hgt);
-
-	browser_rows = hgt - 8;
-
-	/* Allocate the "artifact_idx" array */
-	C_MAKE(artifact_idx, max_a_idx + runeweapon_num, int);
-
-	/* Allocate the "artifact_okay" array */
-	C_MAKE(artifact_okay, max_a_idx + runeweapon_num, bool);
-
-	/* Allocate the "artifact_desc_okay" array */
-	C_MAKE(artifact_desc_okay, max_a_idx + runeweapon_num, bool);
-
-	build_artifact_okay_list();
-
-	max = 0;
-	grp_cnt = 0;
-
-	/* Check every group */
-	for (i = 0; object_group_text[i] != NULL; i++)
-	{
-		/* Measure the label */
-		len = strlen(object_group_text[i]);
-
-		/* Save the maximum length */
-		if (len > max) max = len;
-
-		/* See if any monsters are known */
-		if (collect_artifacts(i, artifact_idx))
-		{
-			/* Build a list of groups with known monsters */
-			grp_idx[grp_cnt++] = i;
-		}
-	}
-
-	/* Terminate the list */
-	grp_idx[grp_cnt] = -1;
-
-	old_grp_cur = -1;
-	grp_cur = grp_top = 0;
-	artifact_cur = artifact_top = 0;
-	artifact_old = -1;
-	artifact_cnt = 0;
-
-	flag = FALSE;
-	redraw = TRUE;
-
-	while (!flag)
-	{
-		char ch;
-
-		if (redraw)
-		{
-			clear_from(0);
-
-#ifdef JP
-			prt("知識 - 伝説のアイテム", 2, 0);
-			prt("グループ", 4, 0);
-			prt("名前", 4, max + 3);
-			if (p_ptr->wizard) prt("Idx", 4, 70);
-			prt("文字", 4, 75);
-#else
-			prt("Knowledge - artifacts", 2, 0);
-			prt("Group", 4, 0);
-			prt("Name", 4, max + 3);
-			if (p_ptr->wizard) prt("Idx", 4, 70);
-			prt("Sym", 4, 75);
-#endif
-
-			for (i = 0; i < 78; i++)
-			{
-				Term_putch(i, 5, TERM_WHITE, '=');
-			}
-
-			for (i = 0; i < browser_rows; i++)
-			{
-				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
-			}
-
-			redraw = FALSE;
-		}
-
-		/* Scroll group list */
-		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
-
-		/* Display a list of artifact groups */
-		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
-
-		if (old_grp_cur != grp_cur)
-		{
-			old_grp_cur = grp_cur;
-
-			/* Get a list of artifacts in the current group */
-			artifact_cnt = collect_artifacts(grp_idx[grp_cur], artifact_idx);
-		}
-
-		/* Scroll artifact list */
-		while (artifact_cur < artifact_top)
-			artifact_top = MAX(0, artifact_top - browser_rows/2);
-		while (artifact_cur >= artifact_top + browser_rows)
-			artifact_top = MIN(artifact_cnt - browser_rows, artifact_top + browser_rows/2);
-
-		/* Display a list of artifacts in the current group */
-		display_artifact_list(max + 3, 6, browser_rows, artifact_idx, artifact_cur, artifact_top);
-
-		/* Prompt */
-#ifdef JP
-		prt("<方向>, 'd'で詳細を見る, ESC", hgt - 1, 0);
-#else
-		prt("<dir>, 'd' to detail, ESC", hgt - 1, 0);
-#endif
-
-		/* The "current" artifact changed */
-		if (artifact_old != artifact_idx[artifact_cur])
-		{
-			/* Hack -- handle stuff */
-			handle_stuff();
-
-			/* Remember the "current" artifact */
-			artifact_old = artifact_idx[artifact_cur];
-		}
-
-		if (!column)
-		{
-			Term_gotoxy(0, 6 + (grp_cur - grp_top));
-		}
-		else
-		{
-			Term_gotoxy(max + 3, 6 + (artifact_cur - artifact_top));
-		}
-
-		ch = inkey();
-
-		switch (ch)
-		{
-			case ESCAPE:
-			{
-				flag = TRUE;
-				break;
-			}
-
-			case 'D':
-			case 'd':
-			{
-				/* Detail on screen */
-				if (grp_cnt > 0)
-					desc_artifact_fake(artifact_idx[artifact_cur]);
-
-				redraw = TRUE;
-				break;
-			}
-
-			default:
-			{
-				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &artifact_cur, artifact_cnt);
-				break;
-			}
-		}
-	}
-
-	/* Free the "artifact_desc_okay" array */
-	C_KILL(artifact_desc_okay, max_a_idx + runeweapon_num, bool);
-
-	/* Free the "artifact_okay" array */
-	C_KILL(artifact_okay, max_a_idx + runeweapon_num, bool);
-
-	/* Free the "artifact_idx" array */
-	C_KILL(artifact_idx, max_a_idx + runeweapon_num, int);
-}
 
 
 /*
@@ -9472,6 +8967,98 @@ static void do_cmd_knowledge_money_composition(void)
 
 
 /*
+ * List classes player has experienced
+ */
+static void do_cmd_knowledge_classes(void)
+{
+	int i;
+	FILE *fff;
+	char file_name[1024];
+	s32b total_clev = 0, total_max_clev = 0, total_max_max_clev = 0;
+
+	/* Open a new file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	if (!fff)
+	{
+#ifdef JP
+		msg_format("一時ファイル %s を作成できませんでした。", file_name);
+#else
+		msg_format("Failed to create temporary file %s.", file_name);
+#endif
+		msg_print(NULL);
+		return;
+	}
+
+#ifdef JP
+	fprintf(fff, "クラス                 レベル             経験値              \n");
+#else
+	fprintf(fff, "Class                  Level                 Exp              \n");
+#endif
+	fprintf(fff, "--------------------------------------------------------------\n");
+
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+
+		if (!cexp_ptr->max_max_clev) continue;
+
+		if (cexp_ptr->max_clev)
+		{
+#ifdef L64
+			fprintf(fff, "%-16s   %2d/%2d(/%2d)  %8d/%8d  %5d  %5d\n", class_info[i].title,
+				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
+#else
+			fprintf(fff, "%-16s   %2ld/%2ld(/%2ld)  %8ld/%8ld  %5ld  %5ld\n", class_info[i].title,
+				cexp_ptr->clev, cexp_ptr->max_clev, cexp_ptr->max_max_clev, cexp_ptr->cexp, cexp_ptr->max_cexp);
+#endif
+		}
+		else
+		{
+#ifdef L64
+			fprintf(fff, "%-16s   --/--(/%2d)  --------/--------  -----  -----\n",
+				class_info[i].title, cexp_ptr->max_max_clev);
+#else
+			fprintf(fff, "%-16s   --/--(/%2ld)  --------/--------  -----  -----\n",
+				class_info[i].title, cexp_ptr->max_max_clev);
+#endif
+		}
+
+		total_clev += cexp_ptr->clev;
+		total_max_clev += cexp_ptr->max_clev;
+		total_max_max_clev += cexp_ptr->max_max_clev;
+	}
+
+	fprintf(fff, "\n");
+#ifdef JP
+#ifdef L64
+	fprintf(fff, "合計クラスレベル: %d/%d (生涯最大レベルの合計: %d)\n", total_clev, total_max_clev, total_max_max_clev);
+#else
+	fprintf(fff, "合計クラスレベル: %ld/%ld (生涯最大レベルの合計: %ld)\n", total_clev, total_max_clev, total_max_max_clev);
+#endif
+#else
+#ifdef L64
+	fprintf(fff, "Total Class Level: %d/%d (Total in Life: %d)\n", total_clev, total_max_clev, total_max_max_clev);
+#else
+	fprintf(fff, "Total Class Level: %ld/%ld (Total in Life: %ld)\n", total_clev, total_max_clev, total_max_max_clev);
+#endif
+#endif
+
+	/* Close the file */
+	my_fclose(fff);
+	/* Display the file contents */
+#ifdef JP
+	show_file(TRUE, file_name, "経験してきたクラス", 0, 0);
+#else
+	show_file(TRUE, file_name, "Experienced Class", 0, 0);
+#endif
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
  * Interact with "knowledge"
  */
 void do_cmd_knowledge(void)
@@ -9502,7 +9089,7 @@ void do_cmd_knowledge(void)
 			prt("(2) 既知のアイテム                       の一覧", 7, 5);
 			prt("(3) 既知の生きているユニーク・モンスター の一覧", 8, 5);
 			prt("(4) 既知のモンスター                     の一覧", 9, 5);
-			prt("(5) 倒した敵の数                         の一覧", 10, 5);
+			prt("(5) 経験してきたクラス                   の一覧", 10, 5);
 			if (!astral_mode) prt("(6) 賞金首                               の一覧", 11, 5);
 			prt("(7) 現在のペット                         の一覧", 12, 5);
 			prt("(8) 我が家のアイテム                     の一覧", 13, 5);
@@ -9516,6 +9103,7 @@ void do_cmd_knowledge(void)
 			prt("(e) 実行中のクエスト                     の一覧", 10, 5);
 			prt("(f) 現在の自動拾い/破壊設定              の一覧", 11, 5);
 			prt("(g) 所持金の構成                         の一覧", 12, 5);
+			prt("(h) 倒した敵の数                         の一覧", 13, 5);
 		}
 #else
 		if (p == 0) {
@@ -9523,7 +9111,7 @@ void do_cmd_knowledge(void)
 			prt("(2) Display known objects", 7, 5);
 			prt("(3) Display remaining uniques", 8, 5);
 			prt("(4) Display known monster", 9, 5);
-			prt("(5) Display kill count", 10, 5);
+			prt("(5) Display experienced classes", 10, 5);
 			if (!astral_mode) prt("(6) Display wanted monsters", 11, 5);
 			prt("(7) Display current pets", 12, 5);
 			prt("(8) Display home inventory", 13, 5);
@@ -9537,6 +9125,7 @@ void do_cmd_knowledge(void)
 			prt("(e) Display current quests", 10, 5);
 			prt("(f) Display auto pick/destroy", 11, 5);
 			prt("(g) Display composition of money", 12, 5);
+			prt("(h) Display kill count", 13, 5);
 		}
 #endif
 		/* Prompt */
@@ -9576,8 +9165,8 @@ void do_cmd_knowledge(void)
 		case '4': /* Monsters */
 			do_cmd_knowledge_monsters();
 			break;
-		case '5': /* Kill count  */
-			do_cmd_knowledge_kill_count();
+		case '5': /* Experienced classes */
+			do_cmd_knowledge_classes();
 			break;
 		case '6': /* wanted */
 			if (!astral_mode) do_cmd_knowledge_kubi();
@@ -9615,6 +9204,9 @@ void do_cmd_knowledge(void)
 			break;
 		case 'g': /* Money composition */
 			do_cmd_knowledge_money_composition();
+			break;
+		case 'h': /* Kill count */
+			do_cmd_knowledge_kill_count();
 			break;
 		default: /* Unknown option */
 			bell();
@@ -9898,29 +9490,27 @@ static cptr skill_group_text[] =
 	"ハンマー",
 	"杖",
 	"扇",
-	"ヌンチャク",
 	"弓",
 	"銃",
-	"掘削道具",
 	"その他",
+	"魔法",
 #else
-	"Small Swords",
-	"Katanas",
-	"Swords",
-	"Great Swords",
-	"Axes",
-	"Spears",
-	"Lances",
-	"Claws",
-	"Scythes",
-	"Whips",
-	"Hammers",
-	"Staffs",
-	"Fans",
-	"Nunchakus",
-	"Bows",
-	"Guns",
-	"Diggers",
+	"Small Sword",
+	"Katana",
+	"Sword",
+	"Great Sword",
+	"Axe",
+	"Spear",
+	"Lance",
+	"Claw",
+	"Scythe",
+	"Whip",
+	"Hammer",
+	"Staff",
+	"Fan",
+	"Bow",
+	"Gun",
+	"Digging",
 	"Others",
 #endif
 	NULL
@@ -9945,11 +9535,10 @@ static byte skill_group_wt[] =
 	WT_HAMMER,
 	WT_STAFF,
 	WT_FAN,
-	WT_NUNCHAKU,
 	WT_BOW,
 	WT_GUN,
-	WT_DIGGING,
 	255,
+	250,
 	0,
 };
 
@@ -9964,7 +9553,7 @@ static int collect_skills(int grp_cur, int skill_idx[])
 
 	byte group_wt = skill_group_wt[grp_cur];
 
-	if (group_wt != 255)
+	if ((group_wt != 250) && (group_wt != 255))
 	{
 		/* Check every object */
 		for (i = 0; i < max_k_idx; i++)
@@ -9983,13 +9572,22 @@ static int collect_skills(int grp_cur, int skill_idx[])
 			}
 		}
 	}
-	else
+	else if (group_wt != 250)
 	{
 		/* Misc. skills */
 		for (i = 0; i < MAX_SKILL; i++)
 		{
 			/* Add the skill */
 			skill_idx[skills_cnt++] = i;
+		}
+	}
+	else
+	{
+		/* Magic skills */
+		for (i = 0; i < MAX_REALM; i++)
+		{
+			/* Add the skill */
+			skill_idx[skills_cnt++] = i + 1;
 		}
 	}
 
@@ -10011,6 +9609,7 @@ static char misc_skill_name[MAX_SKILL][20] =
 	"ペット維持      ",
 	"武器防具鑑定    ",
 	"装飾品鑑定      ",
+	"魔法の詠唱      ",
 #else
 	"Martial Arts    ",
 	"Dual Wielding   ",
@@ -10026,7 +9625,7 @@ static char misc_skill_name[MAX_SKILL][20] =
 /*
  * Display the skills in a group.
  */
-static void display_skill_list(bool is_misc, int col, int row, int per_page, int skill_idx[],
+static void display_skill_list(bool is_misc, bool is_magic, int col, int row, int per_page, int skill_idx[],
 	int skill_cur, int skill_top)
 {
 	int i;
@@ -10047,24 +9646,31 @@ static void display_skill_list(bool is_misc, int col, int row, int per_page, int
 		/* Access the object */
 		object_kind *k_ptr = &k_info[idx];
 
-		if (!is_misc)
+		if ((!is_misc) && (!is_magic))
 		{
-			skill_lev = p_ptr->weapon_skill_lev[k_ptr->tval - TV_BOW][k_ptr->sval];
+			skill_lev = weapon_exp_level(p_ptr->weapon_exp[k_ptr->tval - TV_BOW][k_ptr->sval]);
 			skill_eff = p_ptr->s_ptr->w_eff[k_ptr->tval - TV_BOW][k_ptr->sval];
 
 			/* Tidy name */
 			strip_name(o_name, idx);
 		}
+		else if (!is_misc)
+		{
+			skill_lev = (p_ptr->magic_exp[idx] / 10);
+			skill_eff = p_ptr->s_ptr->s_eff[idx];
+
+			strcpy(o_name, realm_names[idx]);
+		}
 		else
 		{
-			skill_lev = p_ptr->misc_skill_lev[idx];
+			skill_lev = skill_exp_level(p_ptr->skill_exp[idx]);
 			skill_eff = p_ptr->s_ptr->m_eff[idx];
 
 			strcpy(o_name, misc_skill_name[idx]);
 		}
 
 		attack_var = skill_lev_var[skill_lev];
-		is_master = (skill_lev == SKILL_LEVEL_MASTER);
+		if (!is_magic) is_master = (skill_lev == SKILL_LEVEL_MASTER);
 
 		/* Choose a color */
 		attr = (skill_eff && !is_master) ? TERM_WHITE : TERM_SLATE;
@@ -10073,17 +9679,25 @@ static void display_skill_list(bool is_misc, int col, int row, int per_page, int
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
-		c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
-		c_prt(attr, (skill_eff && !is_master) ?
-		            format("%8d", attack_var * attack_var * skill_eff) :
+		if (!is_magic) c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
+		if (is_magic) c_prt(attr, format("%2d", skill_lev), row + i, 43);
+		if (!is_magic)
+		{
+		c_prt(attr, (!is_master) ?
+		            format("%8d", skill_eff) :
 #ifdef JP
 		            (!skill_eff ? "成長不可" : "    ----"),
 #else
 		            (!skill_eff ? " No inc." : "    ----"),
 #endif
 		      row + i, 65);
+		}
+		else
+		{
+				c_prt(attr, format("%8d", skill_eff), row + i, 65);
+		}
 
-		if (!is_misc)
+		if ((!is_misc) && (!is_magic))
 		{
 			a = k_ptr->flavor ? misc_to_attr[k_ptr->flavor] : k_ptr->x_attr;
 			c = k_ptr->flavor ? misc_to_char[k_ptr->flavor] : k_ptr->x_char;
@@ -10111,20 +9725,22 @@ static void display_skill_list(bool is_misc, int col, int row, int per_page, int
 	}
 }
 
-
+#if 0
 /*
  * Confirm to increase skill levels
  */
 static bool increase_skill_level(bool is_misc, int s_idx)
 {
-	int  skill_lev, attack_var, skill_eff, need_sp;
+	int skill_lev, attack_var, skill_eff, need_sp;
+
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	/* Access the object */
 	object_kind *k_ptr = &k_info[s_idx];
 
 	if (!is_misc)
 	{
-		skill_lev = p_ptr->weapon_skill_lev[k_ptr->tval - TV_BOW][k_ptr->sval];
+		skill_lev = weapon_exp_level(p_ptr->weapon_exp[k_ptr->tval - TV_BOW][k_ptr->sval]);
 		skill_eff = p_ptr->s_ptr->w_eff[k_ptr->tval - TV_BOW][k_ptr->sval];
 	}
 	else
@@ -10139,7 +9755,7 @@ static bool increase_skill_level(bool is_misc, int s_idx)
 
 	need_sp = attack_var * attack_var * skill_eff;
 
-	if (need_sp > p_ptr->skill_point)
+	if (need_sp > cexp_ptr->skill_point)
 	{
 #ifdef JP
 		msg_print("スキルポイントが足りません。");
@@ -10156,9 +9772,9 @@ static bool increase_skill_level(bool is_misc, int s_idx)
 	if (!get_check("Increase skill level of this? ")) return FALSE;
 #endif
 
-	p_ptr->skill_point -= need_sp;
+	cexp_ptr->skill_point -= need_sp;
 
-	if (!is_misc) p_ptr->weapon_skill_lev[k_ptr->tval - TV_BOW][k_ptr->sval]++;
+	if (!is_misc) weapon_exp_level(p_ptr->weapon_exp[k_ptr->tval - TV_BOW][k_ptr->sval])++;
 	else p_ptr->misc_skill_lev[s_idx]++;
 
 	/* Update stuff */
@@ -10167,11 +9783,11 @@ static bool increase_skill_level(bool is_misc, int s_idx)
 	return TRUE;
 }
 
-
+#endif
 /*
  * Display and increase weapon & misc. skill levels
  */
-static void do_cmd_weapon_skill_level(void)
+void do_cmd_weapon_skill_level(void)
 {
 	int i, len, max;
 	int grp_cur, grp_top, old_grp_cur;
@@ -10186,6 +9802,8 @@ static void do_cmd_weapon_skill_level(void)
 
 	int browser_rows;
 	int wid, hgt;
+
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -10235,20 +9853,21 @@ static void do_cmd_weapon_skill_level(void)
 	{
 		char ch;
 		bool is_misc = (skill_group_wt[grp_cur] == 255);
+		bool is_magic = (skill_group_wt[grp_cur] == 250);
 
 		if (redraw)
 		{
 			clear_from(0);
 
 #ifdef JP
-			prt(format("スキルポイント割り振りメニュー [現在のスキルポイント: %5d]", p_ptr->skill_point), 2, 0);
+			prt(format("スキルポイント割り振りメニュー "), 2, 0);
 			prt("グループ", 4, 0);
 			prt("スキル", 4, max + 3);
 			prt("レベル", 4, 43);
-			prt("  必要SP", 4, 65);
+			prt("成長率", 4, 65);
 			prt("文字", 4, 75);
 #else
-			prt(format("Skill point distributing menu [Current Skill Point: %5d]", p_ptr->skill_point), 2, 0);
+			prt(format("Skill point distributing menu [Current Skill Point: %5d]", cexp_ptr->skill_point), 2, 0);
 			prt("Group", 4, 0);
 			prt("Skill", 4, max + 3);
 			prt("Level", 4, 43);
@@ -10291,13 +9910,13 @@ static void do_cmd_weapon_skill_level(void)
 			skill_top = MIN(skill_cnt - browser_rows, skill_top + browser_rows/2);
 
 		/* Display a list of skills in the current group */
-		display_skill_list(is_misc, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
+		display_skill_list(is_misc, is_magic, max + 3, 6, browser_rows, skill_idx, skill_cur, skill_top);
 
 		/* Prompt */
 #ifdef JP
-		prt("<方向>, Enterで成長スキルの選択, ESC", hgt - 1, 0);
+		prt("<方向>, Enterで成長スキルの選択, ESC", 23, 0);
 #else
-		prt("<dir>, Enter to increase skill level, ESC", hgt - 1, 0);
+		prt("<dir>, Enter to increase skill level, ESC", 23, 0);
 #endif
 
 		if (!column)
@@ -10318,14 +9937,14 @@ static void do_cmd_weapon_skill_level(void)
 				flag = TRUE;
 				break;
 			}
-
+#if 0
 			case '\n':
 			case '\r':
 			{
 				redraw = increase_skill_level(is_misc, skill_idx[skill_cur]);
 				break;
 			}
-
+#endif
 			default:
 			{
 				/* Move the cursor */
@@ -10346,12 +9965,12 @@ static void do_cmd_weapon_skill_level(void)
 /* Array for determine spells are in books in inventory */
 static bool **spell_skill_okay;
 
-
+#if 0
 /*
  * Construct "spell okay list" from books in inventory.
  * (note: realm is in (1-11))
  */
-static void build_spell_okay_list(void)
+void build_spell_okay_list(void)
 {
 	int spell;
 	int realm;
@@ -10377,10 +9996,8 @@ static void build_spell_okay_list(void)
 			/* Check for this spell */
 			if ((fake_spell_flags[realm - 1][o_ptr->sval] & (1L << spell)))
 			{
-				magic_type *s_ptr = &mp_ptr->info[realm - 1][spell];
-
 				/* Collect this spell */
-				if (s_ptr->slevel <= p_ptr->lev)
+				if (spell_okay(spell, realm))
 				{
 					spell_skill_okay[realm - 1][spell] = TRUE;
 				}
@@ -10388,7 +10005,7 @@ static void build_spell_okay_list(void)
 		}
 	}
 }
-
+#endif
 
 /*
  * Return the number of spells in the realm.
@@ -10398,20 +10015,13 @@ static int count_spells(int realm)
 {
 	int i, spells_cnt = 0;
 
-	if (realm < MAX_REALM)
+	/* Check every spell in realm */
+	for (i = 0; i < 32; i++)
 	{
-		/* Check every spell in realm */
-		for (i = 0; i < 32; i++)
-		{
-			if (!spell_names[realm][i][0]) break;
+		if (!spell_names[realm][i][0]) break;
 
-			/* Increase the spell count */
-			spells_cnt++;
-		}
-	}
-	else
-	{
-		spells_cnt = 1;
+		/* Increase the spell count */
+		spells_cnt++;
 	}
 
 	/* Return the number of spells */
@@ -10427,9 +10037,8 @@ static void display_spell_skill_list(int col, int row, int per_page, int realm,
 	int spell_skill_cnt, int spell_skill_cur, int spell_skill_top)
 {
 	int i;
-	int skill_lev, need_sp;
-	bool is_master, skill_okay, unlearned;
-	bool is_mindcraft = (realm >= MAX_REALM);
+	int skill_lev;
+	bool is_master, skill_okay;
 	byte attr, cursor;
 
 	/* Display lines until done */
@@ -10438,24 +10047,12 @@ static void display_spell_skill_list(int col, int row, int per_page, int realm,
 		/* Get the magic skill index */
 		int spell = spell_skill_top + i;
 
-		if (is_mindcraft)
-		{
-			skill_lev = p_ptr->mindcraft_skill_lev;
-			skill_okay = (p_ptr->pclass != CLASS_GUNNER);
-			need_sp = skill_lev_var[skill_lev] * p_ptr->mindcraft_eff[skill_lev];
-		}
-		else
-		{
-			/* Access the spell */
-			magic_type *s_ptr = &mp_ptr->info[realm][spell];
+		/* Access the spell */
+		magic_type *s_ptr = &mp_ptr->info[realm][spell];
 
-			skill_lev = p_ptr->spell_skill_lev[realm][spell];
-			skill_okay = spell_skill_okay[realm][spell];
-			need_sp = (skill_lev_var[skill_lev] * s_ptr->sfail) / 5;
-		}
-
+		skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
+		skill_okay = spell_skill_okay[realm][spell];
 		is_master = (skill_lev == SKILL_LEVEL_MASTER);
-		unlearned = (skill_lev == SKILL_LEVEL_BEGINNER);
 
 		/* Choose a color */
 		attr = (skill_okay && !is_master) ? TERM_WHITE : TERM_SLATE;
@@ -10463,16 +10060,10 @@ static void display_spell_skill_list(int col, int row, int per_page, int realm,
 		attr = ((i + spell_skill_top == spell_skill_cur) ? cursor : attr);
 
 		/* Display the name */
-#ifdef JP
-		if (is_mindcraft) c_prt(attr, "超能力", row + i, col);
-#else
-		if (is_mindcraft) c_prt(attr, "Mindcraft", row + i, col);
-#endif
-		else c_prt(attr, spell_names[realm][spell], row + i, col);
-		if (unlearned) c_prt(attr, format("%s", skill_unlearned_str), row + i, 43);
-		else c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
+		c_prt(attr, spell_names[realm][spell], row + i, col);
+		c_prt(attr, format("%s", skill_lev_str[skill_lev]), row + i, 43);
 		c_prt(attr, (skill_okay && !is_master) ?
-		            format("%8d", need_sp) :
+		            format("%8d", (skill_lev_var[skill_lev] * s_ptr->sfail) / 5) :
 #ifdef JP
 		            (!skill_okay ? "成長不可" : "    ----"),
 #else
@@ -10489,43 +10080,29 @@ static void display_spell_skill_list(int col, int row, int per_page, int realm,
 }
 
 
+#if 0
 /*
  * Confirm to increase spell skill levels
  * (note: realm is in (0-10))
  */
 static bool increase_spell_skill_level(int realm, int spell)
 {
-	int skill_lev, magic_var, need_sp;
-	bool is_mindcraft = (realm >= MAX_REALM);
+	/* Access the spell */
+	magic_type *s_ptr = &mp_ptr->info[realm][spell];
 
-	if (is_mindcraft)
-	{
-		skill_lev = p_ptr->mindcraft_skill_lev;
-		magic_var = skill_lev_var[skill_lev];
+	int skill_lev = skill_exp_level(p_ptr->skill_exp[SKILL_SPELL_CAST]);
+	int need_msp = (s_ptr->sfail * skill_lev_var[skill_lev]) / 5;
 
-		if ((p_ptr->pclass == CLASS_GUNNER) || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
-		need_sp = magic_var * p_ptr->mindcraft_eff[skill_lev];
-	}
-	else
-	{
-		/* Access the spell */
-		magic_type *s_ptr = &mp_ptr->info[realm][spell];
+	if (!spell_skill_okay[realm][spell] || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
 
-		skill_lev = p_ptr->spell_skill_lev[realm][spell];
-		magic_var = skill_lev_var[skill_lev];
-
-		if (!spell_skill_okay[realm][spell] || (skill_lev == SKILL_LEVEL_MASTER)) return FALSE;
-
-		need_sp = (s_ptr->sfail * magic_var) / 5;
-	}
-
-	if (need_sp > p_ptr->skill_point)
+	if (need_msp > cexp_ptr->magic_skill_point)
 	{
 #ifdef JP
-		msg_print("スキルポイントが足りません。");
+		msg_print("魔法スキルポイントが足りません。");
 #else
-		msg_print("You don't have enough skill point.");
+		msg_print("You don't have enough magic skill point.");
 #endif
 		msg_print(NULL);
 		return FALSE;
@@ -10537,21 +10114,12 @@ static bool increase_spell_skill_level(int realm, int spell)
 	if (!get_check("Increase skill level of this spell? ")) return FALSE;
 #endif
 
-	p_ptr->skill_point -= need_sp;
-
-	if (is_mindcraft)
-	{
-		learn_mindcraft_power(skill_lev == SKILL_LEVEL_BEGINNER);
-		p_ptr->mindcraft_skill_lev++;
-	}
-	else
-	{
-		p_ptr->spell_skill_lev[realm][spell]++;
-	}
+	cexp_ptr->magic_skill_point -= need_msp;
+	p_ptr->spell_skill_lev[realm][spell]++;
 
 	return TRUE;
 }
-
+#endif
 
 /*
  * Display and increase magic skill levels
@@ -10561,7 +10129,7 @@ static void do_cmd_magic_skill_level(void)
 	int i, len, max;
 	int grp_cur, grp_top, old_grp_cur;
 	int spell_skill_cur, spell_skill_top;
-	int grp_cnt, grp_idx[MAX_REALM + 2];
+	int grp_cnt, grp_idx[MAX_REALM + 1];
 	int spell_skill_cnt;
 
 	int column = 0;
@@ -10571,22 +10139,21 @@ static void do_cmd_magic_skill_level(void)
 	int browser_rows;
 	int wid, hgt;
 
-	static cptr realm_text[MAX_REALM + 2];
+	static cptr realm_text[MAX_REALM + 1];
+
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 	for (i = 0; i < MAX_REALM; i++)
 		realm_text[i] = realm_names[i + 1];
-#ifdef JP
-	realm_text[i++] = "その他";
-#else
-	realm_text[i++] = "Others";
-#endif
 	realm_text[i] = NULL;
 
 	C_MAKE(spell_skill_okay, MAX_REALM, bool *);
 	C_MAKE(spell_skill_okay[0], MAX_REALM * 32, bool);
 	for (i = 1; i < MAX_REALM; i++) spell_skill_okay[i] = spell_skill_okay[0] + i * 32;
 
+#if 0
 	build_spell_okay_list();
+#endif
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -10603,7 +10170,7 @@ static void do_cmd_magic_skill_level(void)
 	grp_cnt = 0;
 
 	/* Check every group */
-	for (i = 0; realm_text[i]; i++)
+	for (i = 0; i < MAX_REALM; i++)
 	{
 		/* Measure the label */
 		len = strlen(realm_text[i]);
@@ -10638,13 +10205,13 @@ static void do_cmd_magic_skill_level(void)
 			clear_from(0);
 
 #ifdef JP
-			prt(format("スキルポイント割り振りメニュー [現在のスキルポイント: %5d]", p_ptr->skill_point), 2, 0);
+			prt(format("魔法スキルポイント割り振りメニュー"), 2, 0);
 			prt("領域", 4, 0);
 			prt("スキル", 4, max + 3);
 			prt("レベル", 4, 43);
 			prt(" 必要MSP", 4, 65);
 #else
-			prt(format("Skill point distributing menu [Current Skill Point: %5d]", p_ptr->skill_point), 2, 0);
+			prt(format("Magic skill point distributing menu [Current Magic Skill Point: %5d]", cexp_ptr->magic_skill_point), 2, 0);
 			prt("Realm", 4, 0);
 			prt("Skill", 4, max + 3);
 			prt("Level", 4, 43);
@@ -10690,9 +10257,9 @@ static void do_cmd_magic_skill_level(void)
 
 		/* Prompt */
 #ifdef JP
-		prt("<方向>, Enterで成長スキルの選択, ESC", hgt - 1, 0);
+		prt("<方向>, Enterで成長スキルの選択, ESC", 23, 0);
 #else
-		prt("<dir>, Enter to increase spell skill level, ESC", hgt - 1, 0);
+		prt("<dir>, Enter to increase spell skill level, ESC", 23, 0);
 #endif
 
 		if (!column)
@@ -10713,14 +10280,14 @@ static void do_cmd_magic_skill_level(void)
 				flag = TRUE;
 				break;
 			}
-
+#if 0
 			case '\n':
 			case '\r':
 			{
 				redraw = increase_spell_skill_level(grp_idx[grp_cur], spell_skill_cur);
 				break;
 			}
-
+#endif
 			default:
 			{
 				/* Move the cursor */
@@ -10742,16 +10309,6 @@ void do_cmd_skill_level(void)
 {
 	char ch;
 	char com[80];
-
-	if (rp_ptr->r_flags & PRF_LARGE)
-	{
-#ifdef JP
-		msg_print("この種族にはスキルの概念がない。");
-#else
-		msg_print("Your race do not use skills.");
-#endif
-		return;
-	}
 
 #ifdef JP
 	sprintf(com, "[W]武器/その他, [M]魔法 :");

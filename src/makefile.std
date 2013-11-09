@@ -48,7 +48,7 @@
 #	variable.c tables.c util.c cave.c \
 #	object1.c object2.c monster1.c monster2.c \
 #	xtra1.c xtra2.c spells1.c spells2.c \
-#	melee1.c melee2.c mind.c save.c files.c floors.c \
+#	melee1.c melee2.c save.c files.c floors.c \
 #	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
 #	store.c birth.c load.c \
 #	wizard1.c wizard2.c grid.c streams.c rooms.c \
@@ -64,7 +64,7 @@ SRCS = \
 	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
 	dungeon.c effects.c files.c flavor.c floors.c generate.c \
 	grid.c init1.c init2.c japanese.c \
-	load.c melee1.c melee2.c mind.c \
+	load.c melee1.c melee2.c \
 	monster1.c monster2.c mspells1.c mspells2.c \
 	mutation.c \
 	obj_kind.c object1.c object2.c racial.c \
@@ -79,7 +79,7 @@ SRCS = \
 #	variable.o tables.o util.o cave.o \
 #	object1.o object2.o monster1.o monster2.o \
 #	xtra1.o xtra2.o spells1.o spells2.o \
-#	melee1.o melee2.o mind.o save.o files.o floors.o \
+#	melee1.o melee2.o save.o files.o floors.o \
 #	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
 #	store.o birth.o load.o \
 #	wizard1.o wizard2.o grid.o streams.o rooms.o \
@@ -95,7 +95,7 @@ OBJS = \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
 	dungeon.o effects.o files.o flavor.o floors.o generate.o \
 	grid.o init1.o init2.o japanese.o \
-	load.o melee1.o melee2.o mind.o \
+	load.o melee1.o melee2.o \
 	monster1.o monster2.o mspells1.o mspells2.o \
 	mutation.o \
 	obj_kind.o object1.o object2.o racial.o \
@@ -361,7 +361,6 @@ main.o: main.c $(INCS)
 mane.o: mane.c $(INCS)
 melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
-mind.o: mind.c $(INCS)
 monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 mspells1.o: mspells1.c $(INCS)

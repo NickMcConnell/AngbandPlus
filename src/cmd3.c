@@ -47,11 +47,12 @@ void do_cmd_inven(void)
 #ifdef JP
 	sprintf(out_val, "持ち物： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
 	        lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
-	        (p_ptr->total_weight * 100) / WEIGHT_LIMIT());
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) 
+	        / 2));
 #else
 	sprintf(out_val, "Inventory: carrying %d.%d pounds (%ld%% of capacity). Command: ",
 	        (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-	        (p_ptr->total_weight * 100) / WEIGHT_LIMIT());
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) / 2));
 #endif
 
 
@@ -121,11 +122,12 @@ void do_cmd_equip(void)
 #ifdef JP
 	sprintf(out_val, "装備： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
 	        lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
-	        (p_ptr->total_weight * 100) / WEIGHT_LIMIT());
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) 
+	        / 2));
 #else
 	sprintf(out_val, "Equipment: carrying %d.%d pounds (%ld%% of capacity). Command: ",
 	        (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-	        (p_ptr->total_weight * 100) / WEIGHT_LIMIT());
+	        (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_TERRORKNIGHT ? 150 : 100)) / 2));
 #endif
 
 
@@ -167,7 +169,6 @@ void do_cmd_equip(void)
 static bool item_tester_hook_wear(object_type *o_ptr)
 {
 	u32b flgs[TR_FLAG_SIZE];
-	int  slot;
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
@@ -183,28 +184,10 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 	}
 
 	/* Check for a usable slot */
-	slot = wield_slot(o_ptr);
-	if (slot >= INVEN_RARM)
-	{
-		if (prace_is_(RACE_OCTOPUS))
-		{
-			switch (slot)
-			{
-			case INVEN_RARM:
-			case INVEN_LARM:
-			case INVEN_BOW:
-			case INVEN_BODY:
-			case INVEN_HANDS:
-			case INVEN_FEET:
-				return FALSE;
-			}
-		}
-
-		return TRUE;
-	}
+	if (wield_slot(o_ptr) >= INVEN_RARM) return (TRUE);
 
 	/* Assume not wearable */
-	return FALSE;
+	return (FALSE);
 }
 
 
@@ -228,8 +211,6 @@ static bool item_tester_hook_melee_weapon(object_type *o_ptr)
 	return (FALSE);
 }
 
-
-bool select_octopus_ring = FALSE;
 
 /*
  * Wield or wear a single item from the pack or floor
@@ -278,146 +259,117 @@ void do_cmd_wield(void)
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
-	if (prace_is_(RACE_OCTOPUS))
-	{
-		if (o_ptr->tval == TV_RING)
-		{
-			/* Choose a ring from the equipment only */
-#ifdef JP
-			q = "どの指に装備しますか?";
-#else
-			q = "Equip on which hand? ";
-#endif
-
-#ifdef JP
-			s = "おっと。";
-#else
-			s = "Oops.";
-#endif
-
-			select_octopus_ring = TRUE;
-			if (!get_item(&slot, q, s, (USE_EQUIP)))
-			{
-				select_octopus_ring = FALSE;
-				return;
-			}
-			select_octopus_ring = FALSE;
-		}
-	}
-	else
-	{
 #if 1 /* EASY_RING -- TNB */
 
-		if ((o_ptr->tval == TV_RING) && inventory[INVEN_LEFT].k_idx &&
-			inventory[INVEN_RIGHT].k_idx)
-		{
-			/* Restrict the choices */
-			item_tester_tval = TV_RING;
-			item_tester_no_ryoute = TRUE;
+	if ((o_ptr->tval == TV_RING) && inventory[INVEN_LEFT].k_idx &&
+		inventory[INVEN_RIGHT].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_tval = TV_RING;
+		item_tester_no_ryoute = TRUE;
 
-			/* Choose a ring from the equipment only */
+		/* Choose a ring from the equipment only */
 #ifdef JP
-			q = "どちらの指輪と取り替えますか?";
+q = "どちらの指輪と取り替えますか?";
 #else
-			q = "Replace which ring? ";
+		q = "Replace which ring? ";
 #endif
 
 #ifdef JP
-			s = "おっと。";
+s = "おっと。";
 #else
-			s = "Oops.";
+		s = "Oops.";
 #endif
 
-			if (!get_item(&slot, q, s, (USE_EQUIP)))
-				return;
-		}
+		if (!get_item(&slot, q, s, (USE_EQUIP)))
+			return;
+	}
 
 #endif /* EASY_RING -- TNB */
 
-		if (((o_ptr->tval == TV_SHIELD) || (o_ptr->tval == TV_CARD)) &&
-			buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
+	if (((o_ptr->tval == TV_SHIELD) || (o_ptr->tval == TV_CARD)) &&
+		buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
+	{
+		/* Restrict the choices */
+		item_tester_hook = item_tester_hook_melee_weapon;
+		item_tester_no_ryoute = TRUE;
+
+		/* Choose a weapon from the equipment only */
+#ifdef JP
+q = "どちらの武器と取り替えますか?";
+#else
+		q = "Replace which weapon? ";
+#endif
+
+#ifdef JP
+s = "おっと。";
+#else
+		s = "Oops.";
+#endif
+
+		if (!get_item(&slot, q, s, (USE_EQUIP)))
+			return;
+		if ((slot == INVEN_RARM) && !cursed_p(&inventory[INVEN_RARM]))
 		{
-			/* Restrict the choices */
-			item_tester_hook = item_tester_hook_melee_weapon;
-			item_tester_no_ryoute = TRUE;
+			object_type *or_ptr = &inventory[INVEN_RARM];
+			object_type *ol_ptr = &inventory[INVEN_LARM];
+			object_type *otmp_ptr;
+			object_type object_tmp;
+			char ol_name[MAX_NLEN];
 
-			/* Choose a weapon from the equipment only */
+			otmp_ptr = &object_tmp;
+
+			object_desc(ol_name, ol_ptr, FALSE, 0);
+
+			object_copy(otmp_ptr, ol_ptr);
+			object_copy(ol_ptr, or_ptr);
+			object_copy(or_ptr, otmp_ptr);
 #ifdef JP
-			q = "どちらの武器と取り替えますか?";
+			msg_format("%sを%sに構えなおした。", ol_name, left_hander ? "左手" : "右手");
 #else
-			q = "Replace which weapon? ";
+			msg_format("You wield %s at %s hand.", ol_name, left_hander ? "left" : "right");
 #endif
 
-#ifdef JP
-			s = "おっと。";
-#else
-			s = "Oops.";
-#endif
-
-			if (!get_item(&slot, q, s, (USE_EQUIP)))
-				return;
-			if (slot == INVEN_RARM)
-			{
-				object_type *or_ptr = &inventory[INVEN_RARM];
-				object_type *ol_ptr = &inventory[INVEN_LARM];
-				object_type *otmp_ptr;
-				object_type object_tmp;
-				char ol_name[MAX_NLEN];
-
-				otmp_ptr = &object_tmp;
-
-				object_desc(ol_name, ol_ptr, FALSE, 0);
-
-				object_copy(otmp_ptr, ol_ptr);
-				object_copy(ol_ptr, or_ptr);
-				object_copy(or_ptr, otmp_ptr);
-#ifdef JP
-				msg_format("%sを%sに構えなおした。", ol_name, left_hander ? "左手" : "右手");
-#else
-				msg_format("You wield %s at %s hand.", ol_name, left_hander ? "left" : "right");
-#endif
-
-				if (p_ptr->magical_weapon) set_magical_weapon(0, 0, slot, FALSE);
-				slot = INVEN_LARM;
-			}
+			if (p_ptr->magical_weapon) set_magical_weapon(0, 0, slot, FALSE);
+			slot = INVEN_LARM;
 		}
+	}
 
-		/* 二刀流にするかどうか */
-		if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) && (slot == INVEN_LARM))
+	/* 二刀流にするかどうか */
+	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) && (slot == INVEN_LARM))
+	{
+#ifdef JP
+		if (!get_check("二刀流で戦いますか？"))
+#else
+		if (!get_check("Dual wielding? "))
+#endif
 		{
-#ifdef JP
-			if (!get_check("二刀流で戦いますか？"))
-#else
-			if (!get_check("Dual wielding? "))
-#endif
-			{
-				slot = INVEN_RARM;
-			}
+			slot = INVEN_RARM;
 		}
+	}
 
-		if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) &&
-		    inventory[INVEN_LARM].k_idx &&
-			inventory[INVEN_RARM].k_idx)
-		{
-			/* Restrict the choices */
-			item_tester_hook = item_tester_hook_mochikae;
+	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) &&
+	    inventory[INVEN_LARM].k_idx &&
+		inventory[INVEN_RARM].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_hook = item_tester_hook_mochikae;
 
-			/* Choose a ring from the equipment only */
+		/* Choose a ring from the equipment only */
 #ifdef JP
-			q = "どちらの手に装備しますか?";
+q = "どちらの手に装備しますか?";
 #else
-			q = "Equip which hand? ";
+		q = "Equip which hand? ";
 #endif
 
 #ifdef JP
-			s = "おっと。";
+s = "おっと。";
 #else
-			s = "Oops.";
+		s = "Oops.";
 #endif
 
-			if (!get_item(&slot, q, s, (USE_EQUIP)))
-				return;
-		}
+		if (!get_item(&slot, q, s, (USE_EQUIP)))
+			return;
 	}
 
 	/* Prevent wielding into a cursed slot */
@@ -562,7 +514,7 @@ msg_print("クエストを達成した！");
 	equip_cnt++;
 
 	/* Where is the item now */
-	if ((slot == INVEN_RARM) && !prace_is_(RACE_OCTOPUS))
+	if (slot == INVEN_RARM)
 	{
 		if ((o_ptr->tval != TV_SHIELD) && (o_ptr->tval != TV_CARD) && (empty_hands() & EMPTY_HAND_LARM) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
 #ifdef JP
@@ -578,7 +530,7 @@ msg_print("クエストを達成した！");
 #endif
 
 	}
-	else if ((slot == INVEN_LARM) && !prace_is_(RACE_OCTOPUS))
+	else if (slot == INVEN_LARM)
 	{
 #ifdef JP
 		act = (left_hander ? "を右手に装備した" : "を左手に装備した");
@@ -587,7 +539,7 @@ msg_print("クエストを達成した！");
 #endif
 
 	}
-	else if ((slot == INVEN_BOW) && !prace_is_(RACE_OCTOPUS))
+	else if (slot == INVEN_BOW)
 	{
 #ifdef JP
 		act = "を射撃用に装備した";
@@ -621,9 +573,9 @@ msg_print("クエストを達成した！");
 
 	/* Message */
 #ifdef JP
-	msg_format("%s(%c)%s。", o_name, index_to_label(slot, TRUE), act);
+	msg_format("%s(%c)%s。", o_name, index_to_label(slot), act );
 #else
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot, TRUE));
+	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 #endif
 
 
@@ -662,8 +614,6 @@ void kamaenaoshi(int item)
 {
 	object_type *o_ptr, *o2_ptr;
 	char o_name[MAX_NLEN];
-
-	if (prace_is_(RACE_OCTOPUS)) return;
 
 	if ((item == INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
@@ -768,7 +718,7 @@ void do_cmd_takeoff(void)
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
 	{
-		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || ((p_ptr->pclass != CLASS_TERRORKNIGHT) && !prace_is_(RACE_OCTOPUS)))
+		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || (p_ptr->pclass != CLASS_TERRORKNIGHT))
 		{
 			/* Oops */
 #ifdef JP
@@ -2367,65 +2317,6 @@ void do_cmd_query_symbol(void)
 }
 
 
-void research_mon_aux(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-	int m;
-
-	/* Hack -- Maximal info */
-	r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
-
-	/* Observe "maximal" attacks */
-	for (m = 0; m < 4; m++)
-	{
-		/* Examine "actual" blows */
-		if (r_ptr->blow[m].effect || r_ptr->blow[m].method)
-		{
-			/* Hack -- maximal observations */
-			r_ptr->r_blows[m] = MAX_UCHAR;
-		}
-	}
-
-	/* Hack -- maximal drops */
-	r_ptr->r_drop_gold = r_ptr->r_drop_item =
-		(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
-		 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
-		 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
-		 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
-		 ((r_ptr->flags1 & RF1_DROP_90)  ? 1 : 0) +
-		 ((r_ptr->flags1 & RF1_DROP_60)  ? 1 : 0));
-
-	/* Hack -- but only "valid" drops */
-	if (r_ptr->flags1 & RF1_ONLY_GOLD) r_ptr->r_drop_item = 0;
-	if (r_ptr->flags1 & RF1_ONLY_ITEM) r_ptr->r_drop_gold = 0;
-
-	/* Hack -- observe many spells */
-	r_ptr->r_cast_inate = MAX_UCHAR;
-	r_ptr->r_cast_spell = MAX_UCHAR;
-
-	/* Hack -- know all the flags */
-	r_ptr->r_flags1 = r_ptr->flags1;
-	r_ptr->r_flags2 = r_ptr->flags2;
-	r_ptr->r_flags3 = r_ptr->flags3;
-	r_ptr->r_flags4 = r_ptr->flags4;
-	r_ptr->r_flags5 = r_ptr->flags5;
-	r_ptr->r_flags6 = r_ptr->flags6;
-	r_ptr->r_flags7 = r_ptr->flags7;
-	r_ptr->r_flagsa = r_ptr->flagsa;
-	r_ptr->r_flagsr = r_ptr->flagsr;
-
-	r_ptr->r_xtra1 |= MR1_SINKA;
-
-	/* know every thing mode */
-	screen_roff(r_idx, 0x01);
-
-	/* Hack -- Auto-recall */
-	monster_race_track(r_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-}
-
 /*
  *  research_mon
  *  -KMW-
@@ -2658,13 +2549,66 @@ Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 			if (recall)
 			{
 				/* Recall on screen */
-				research_mon_aux(r_idx);
+				monster_race *r_ptr = &r_info[r_idx];
+				int m;
 
+				/* Hack -- Maximal info */
+				r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
+
+				/* Observe "maximal" attacks */
+				for (m = 0; m < 4; m++)
+				{
+					/* Examine "actual" blows */
+					if (r_ptr->blow[m].effect || r_ptr->blow[m].method)
+					{
+						/* Hack -- maximal observations */
+						r_ptr->r_blows[m] = MAX_UCHAR;
+					}
+				}
+
+				/* Hack -- maximal drops */
+				r_ptr->r_drop_gold = r_ptr->r_drop_item =
+					(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_90)  ? 1 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_60)  ? 1 : 0));
+
+				/* Hack -- but only "valid" drops */
+				if (r_ptr->flags1 & RF1_ONLY_GOLD) r_ptr->r_drop_item = 0;
+				if (r_ptr->flags1 & RF1_ONLY_ITEM) r_ptr->r_drop_gold = 0;
+
+				/* Hack -- observe many spells */
+				r_ptr->r_cast_inate = MAX_UCHAR;
+				r_ptr->r_cast_spell = MAX_UCHAR;
+
+				/* Hack -- know all the flags */
+				r_ptr->r_flags1 = r_ptr->flags1;
+				r_ptr->r_flags2 = r_ptr->flags2;
+				r_ptr->r_flags3 = r_ptr->flags3;
+				r_ptr->r_flags4 = r_ptr->flags4;
+				r_ptr->r_flags5 = r_ptr->flags5;
+				r_ptr->r_flags6 = r_ptr->flags6;
+				r_ptr->r_flags7 = r_ptr->flags7;
+				r_ptr->r_flagsa = r_ptr->flagsa;
+				r_ptr->r_flagsr = r_ptr->flagsr;
+
+				r_ptr->r_xtra1 |= MR1_SINKA;
+
+				/* know every thing mode */
+				screen_roff(r_idx, 0x01);
 				notpicked = FALSE;
 
 				/* XTRA HACK REMEMBER_IDX */
 				old_sym = sym;
 				old_i = i;
+
+				/* Hack -- Auto-recall */
+				monster_race_track(r_idx);
+
+				/* Hack -- Handle stuff */
+				handle_stuff();
 			}
 
 			/* Command */

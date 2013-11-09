@@ -6,7 +6,6 @@ TObandの魔法システム
     (b) 魔法の領域                        (jmagic.txt#MagicRealms)
     (c) 呪文の使用                        (jmagic.txt#CastingSpells)
     (d) 呪文の種類                        (jmagic.txt#SpellTypes)
-    (e) 超能力                            (jmagic.txt#Mindcraft)
 
     (?) ヘルプシステムの使用法            (jhelpinfo.txt)
 
@@ -15,4 +14,3 @@ TObandの魔法システム
 ***** [b] jmagic.txt#MagicRealms
 ***** [c] jmagic.txt#CastingSpells
 ***** [d] jmagic.txt#SpellTypes
-***** [e] jmagic.txt#Mindcraft

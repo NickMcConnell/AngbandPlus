@@ -3454,7 +3454,7 @@ msg_print("あなたはニヤリとして牙をむいた...");
 					m_list[p_ptr->riding].fx = px;
 					cave[py][px].m_idx = p_ptr->riding;
 					cave[oy][ox].m_idx = 0;
-					update_mon(cave[py][px].m_idx, TRUE);
+					update_mon(p_ptr->riding, TRUE);
 				}
 
 				lite_spot(py, px);
@@ -3462,7 +3462,7 @@ msg_print("あなたはニヤリとして牙をむいた...");
 
 				verify_panel();
 
-				set_aquatic_in_water();
+				set_mermaid_in_water();
 
 				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 				p_ptr->update |= (PU_DISTANCE);
@@ -3473,7 +3473,7 @@ msg_print("あなたはニヤリとして牙をむいた...");
 		case MUT1_SWAP_POS:
 			project_length = -1;
 			if (!get_aim_dir(&dir)) return FALSE;
-			(void)teleport_swap(dir);
+			(void)teleport_swap(dir, lvl);
 			project_length = 0;
 			break;
 
@@ -3570,7 +3570,7 @@ msg_print("あなたはニヤリとして牙をむいた...");
 			break;
 
 		case MUT1_EAT_MAGIC:
-			if (!eat_magic(p_ptr->lev * 2)) return FALSE;
+			if (!eat_magic(lvl * 2)) return FALSE;
 			break;
 
 		case MUT1_WEIGH_MAG:
@@ -3666,7 +3666,7 @@ msg_print("邪悪な存在を感じとれません！");
 				    !(r_ptr->flags1 & RF1_QUESTOR) &&
 				    !(r_ptr->flags1 & RF1_UNIQUE) &&
 				    !p_ptr->inside_arena && !p_ptr->inside_quest &&
-					(r_ptr->level < randint1(p_ptr->lev+50)) &&
+					(r_ptr->level < randint1(lvl+50)) &&
 					!(m_ptr->mflag2 & MFLAG_NOGENO))
 				{
 					/* Delete the monster, rather than killing it. */

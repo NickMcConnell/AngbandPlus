@@ -278,37 +278,20 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			}
 
 			/* Dump some info */
-			if (race_info[pr].r_flags & PRF_LARGE)
-			{
 #ifdef JP
-				sprintf(out_val, "%3d.%9s  %s - %s (レベル %d)",
-				        place, the_score.pts,
-					the_score.who,
-					race_info[pr].title, clev);
+			/* sprintf(out_val, "%3d.%9s  %s%s%sという名の%sの%s (レベル %d)", */
+			sprintf(out_val, "%3d.%9s  %s - %s%s (レベル %d)",
+			        place, the_score.pts,
+				the_score.who,
+				race_info[pr].title, class_info[pc].title,
+			        clev);
 
 #else
-				sprintf(out_val, "%3d.%9s  %s the %s, Level %d",
-				        place, the_score.pts,
-					the_score.who, race_info[pr].title, clev);
+			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
+			        place, the_score.pts,
+				the_score.who, race_info[pr].title, class_info[pc].title,
+			        clev);
 #endif
-			}
-			else
-			{
-#ifdef JP
-				/* sprintf(out_val, "%3d.%9s  %s%s%sという名の%sの%s (レベル %d)", */
-				sprintf(out_val, "%3d.%9s  %s - %s%s (レベル %d)",
-				        place, the_score.pts,
-					the_score.who,
-					race_info[pr].title, class_info[pc].title,
-				        clev);
-
-#else
-				sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
-				        place, the_score.pts,
-					the_score.who, race_info[pr].title, class_info[pc].title,
-				        clev);
-#endif
-			}
 
 
 			/* Append a "maximum level" */
@@ -1176,6 +1159,17 @@ void kingly(void)
 	/* Restore the level */
 	p_ptr->lev = p_ptr->max_plv;
 
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+
+		/* Restore the class experience */
+		cexp_ptr->cexp = cexp_ptr->max_cexp;
+
+		/* Restore the class level */
+		cexp_ptr->clev = cexp_ptr->max_clev;
+	}
+
 	/* Hack -- Instant Gold */
 	p_ptr->au[SV_GOLD_GOLD_3] += 10000000L;
 	p_ptr->update |= (PU_GOLD);
@@ -1257,6 +1251,17 @@ void survived_finish(void)
 
 	/* Restore the level */
 	p_ptr->lev = p_ptr->max_plv;
+
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		cexp_info_type *cexp_ptr = &p_ptr->cexp_info[i];
+
+		/* Restore the class experience */
+		cexp_ptr->cexp = cexp_ptr->max_cexp;
+
+		/* Restore the class level */
+		cexp_ptr->clev = cexp_ptr->max_clev;
+	}
 
 	/* Hack -- Break Runeweapon */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)

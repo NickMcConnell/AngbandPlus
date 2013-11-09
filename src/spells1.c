@@ -808,14 +808,14 @@ msg_print("まばゆい閃光が走った！");
 #endif
 
 					obvious = TRUE;
+				}
 
-					/* Visibility change */
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-						 (c_ptr->feat <= FEAT_DOOR_TAIL))
-					{
-						/* Update some things */
-						p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
-					}
+				/* Visibility change */
+				if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+					 (c_ptr->feat <= FEAT_DOOR_TAIL))
+				{
+					/* Update some things */
+					p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 				}
 
 				/* Forget the door */
@@ -1477,25 +1477,6 @@ note_kill = "灰になった。";
 				}
 				break;
 			}
-
-			case GF_STAR_IDENTIFY:
-			{
-				bool old_known = identify_item(o_ptr);
-
-				/* Mark the item as fully known */
-				o_ptr->ident |= (IDENT_MENTAL);
-
-				if ((y == py) && (x == px))
-				{
-					/* Auto-inscription/destroy */
-					int idx = is_autopick(o_ptr);
-					(void)auto_inscribe_object(o_ptr, idx);
-					if (destroy_identify && !old_known)
-						(void)auto_destroy_object(o_ptr, idx);
-				}
-
-				break;
-			}
 		}
 
 
@@ -1688,8 +1669,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, u32b flg, 
 	char m_poss[10];
 
 	int photo = 0;
-
-	int use_old_csleep = 0;
 
 	/* Assume no note */
 	cptr note = NULL;
@@ -2856,9 +2835,9 @@ note = "はあなたが見えないので影響されない！";
 				note = " can't see you, and isn't affected!";
 #endif
 
-				use_old_csleep = m_ptr->csleep;
 			}
-			else if (r_ptr->flags2 & RF2_EMPTY_MIND)
+
+			if (r_ptr->flags2 & RF2_EMPTY_MIND)
 			{
 				dam = 0;
 #ifdef JP
@@ -2901,7 +2880,7 @@ msg_format("%^sの堕落した精神は攻撃を跳ね返した！",
 #endif
 
 					/* Saving throw */
-					if ((randint0(100 + r_ptr->level/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+					if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
 					{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -2982,30 +2961,6 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 			note_dies = " collapses, a mindless husk.";
 #endif
 
-			break;
-		}
-
-		case GF_TELEKINESIS:
-		{
-			if (seen) obvious = TRUE;
-			if (one_in_(4))
-			{
-				if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_dist = 0;
-				else do_dist = 7;
-			}
-
-			/* 1. stun */
-			do_stun = damroll((p_ptr->lev / 10) + 3 , dam) + 1;
-
-			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			    (r_ptr->level > 5 + randint1(dam)))
-			{
-				/* Resist */
-				do_stun = 0;
-				/* No obvious effect */
-				obvious = FALSE;
-			}
 			break;
 		}
 
@@ -3193,6 +3148,8 @@ note = "には効果がなかった。";
 			/* Wake up */
 			m_ptr->csleep = 0;
 
+			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 			if (m_ptr->maxhp < m_ptr->max_maxhp)
 			{
 #ifdef JP
@@ -3221,6 +3178,8 @@ msg_format("%^sの強さが戻った。", m_name);
 
 			/* Wake up */
 			m_ptr->csleep = 0;
+
+			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 			if (m_ptr->stunned)
 			{
@@ -4511,11 +4470,39 @@ note = "には効果がなかった！";
 
 			if ((r_ptr->flags4 & ~(RF4_NOMAGIC_MASK)) || (r_ptr->flags5 & ~(RF5_NOMAGIC_MASK)) || (r_ptr->flags6 & ~(RF6_NOMAGIC_MASK)) || (r_ptr->flagsa & ~(RFA_NOMAGIC_MASK)))
 			{
-				if (!who)
+				if (who > 0)
+				{
+					monster_type *caster_ptr = &m_list[who];
+
+					/* Heal the monster */
+					if (caster_ptr->hp < caster_ptr->maxhp)
+					{
+						/* Heal */
+						caster_ptr->hp += 6 * dam;
+						if (caster_ptr->hp > caster_ptr->maxhp) caster_ptr->hp = caster_ptr->maxhp;
+
+						/* Redraw (later) if needed */
+						if (p_ptr->health_who == who) p_ptr->redraw |= (PR_HEALTH);
+						if (p_ptr->riding == who) p_ptr->redraw |= (PR_UHEALTH);
+
+						/* Special message */
+						if (caster_ptr->ml)
+						{
+							/* Get the monster name */
+							monster_desc(killer, caster_ptr, 0);
+#ifdef JP
+							msg_format("%^sは気分が良さそうだ。", killer);
+#else
+							msg_format("%^s appears healthier.", killer);
+#endif
+						}
+					}
+				}
+				else
 				{
 					/* Message */
 #ifdef JP
-					msg_format("%sから精神エネルギーを吸いとった。",m_name);
+ 					msg_format("%sから精神エネルギーを吸いとった。",m_name);
 #else
 					msg_format("You draw psychic energy from %s.", m_name);
 #endif
@@ -4597,9 +4584,9 @@ msg_format("%sには効果がなかった。",m_name);
 		case GF_PHOTO:
 		{
 #ifdef JP
-			msg_format("%sを写真に撮った。",m_name);
+			if (!who) msg_format("%sを写真に撮った。", m_name);
 #else
-			msg_format("You take a photograph of %s.",m_name);
+			if (!who) msg_format("You take a photograph of %s.", m_name);
 #endif
 			/* Hurt by light */
 			if (r_ptr->flags3 & (RF3_HURT_LITE))
@@ -4612,8 +4599,8 @@ msg_format("%sには効果がなかった。",m_name);
 
 				/* Special effect */
 #ifdef JP
-note = "は光に身をすくめた！";
-note_dies = "は光を受けてしぼんでしまった！";
+				note = "は光に身をすくめた！";
+				note_dies = "は光を受けてしぼんでしまった！";
 #else
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
@@ -5177,7 +5164,8 @@ note = "は弱くなったようだ。";
 
 		/* Wake the monster up */
 		m_ptr->csleep = 0;
-		if (use_old_csleep) m_ptr->csleep = use_old_csleep;
+
+		if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 		/* Hurt the monster */
 		m_ptr->hp -= dam;
@@ -5264,7 +5252,7 @@ msg_print("少し悲しい気分がした。");
 			}
 
 			/* Hack -- handle sleep */
-			if (do_sleep && !use_old_csleep) m_ptr->csleep = do_sleep;
+			if (do_sleep) m_ptr->csleep = do_sleep;
 		}
 	}
 
@@ -5295,12 +5283,8 @@ msg_print("不潔な病人は病気が治った！");
 		/* Damaged monster */
 		else
 		{
-			if (use_old_csleep) m_ptr->csleep = use_old_csleep;
-			else
-			{
-				/* HACK - anger the monster before showing the sleep message */
-				if (do_sleep) anger_monster(m_ptr);
-			}
+			/* HACK - anger the monster before showing the sleep message */
+			if (do_sleep) anger_monster(m_ptr);
 
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen)
@@ -5318,7 +5302,7 @@ msg_format("%s%s", m_name, note);
 			}
 
 			/* Anger monsters */
-			if (((dam > 0) || get_angry) && !do_sleep && !use_old_csleep)
+			if (((dam > 0) || get_angry) && !do_sleep)
 				anger_monster(m_ptr);
 
 			/* Take note */
@@ -5337,7 +5321,7 @@ msg_format("%^sは恐怖して逃げ出した！", m_name);
 			}
 
 			/* Hack -- handle sleep */
-			if (do_sleep && !use_old_csleep) m_ptr->csleep = do_sleep;
+			if (do_sleep) m_ptr->csleep = do_sleep;
 		}
 	}
 
@@ -5455,6 +5439,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	cptr act = NULL;
 
 	int get_damage = 0;
+
+	cexp_info_type *cexp_ptr = &p_ptr->cexp_info[p_ptr->pclass];
 
 
 	/* Player is not here */
@@ -5598,8 +5584,6 @@ else msg_print("攻撃が跳ね返った！");
 #else
 			if (fuzzy) msg_print("You are hit by poison!");
 #endif
-
-			if (p_ptr->tim_octopus_immunity) break;
 
 			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
 			if (double_resist) dam = (dam + 2) / 3;
@@ -5751,7 +5735,8 @@ else msg_print("攻撃が跳ね返った！");
 					msg_print("You feel your life slipping away!");
 #endif
 
-					lose_exp(200 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
+					lose_class_exp(200 + (cexp_ptr->cexp / 1000) * MON_DRAIN_LIFE);
+					lose_racial_exp(200 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
 				}
 				else
 				{
@@ -5761,7 +5746,8 @@ else msg_print("攻撃が跳ね返った！");
 					msg_print("You feel your life draining away!");
 #endif
 
-					lose_exp(200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+					lose_class_exp(200 + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE);
+					lose_racial_exp(200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 				}
 			}
 
@@ -5826,7 +5812,7 @@ else msg_print("攻撃が跳ね返った！");
 		case GF_PLASMA:
 		{
 #ifdef JP
-			if (fuzzy) msg_print("何かとても熱いもので攻撃された！");
+			if (fuzzy) msg_print("何かとても熱いものでで攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by something *HOT*!");
 #endif
@@ -5988,7 +5974,8 @@ else msg_print("攻撃が跳ね返った！");
 						msg_print("You feel your life slipping away!");
 #endif
 
-						lose_exp(500 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
+						lose_class_exp(500 + (cexp_ptr->cexp / 1000) * MON_DRAIN_LIFE);
+						lose_racial_exp(500 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
 					}
 					else
 					{
@@ -5998,7 +5985,8 @@ else msg_print("攻撃が跳ね返った！");
 						msg_print("You feel your life draining away!");
 #endif
 
-						lose_exp(5000 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+						lose_class_exp(5000 + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE);
+						lose_racial_exp(5000 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 					}
 				}
 			}
@@ -6030,7 +6018,7 @@ else msg_print("攻撃が跳ね返った！");
 			{
 				/* Nothing */
 			}
-			else if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 				msg_print("しかし石化を跳ね返した！");
@@ -6060,7 +6048,7 @@ else msg_print("攻撃が跳ね返った！");
 		case GF_DISENCHANT:
 		{
 #ifdef JP
-			if (fuzzy) msg_print("何かさえないもので攻撃された！");
+			if (fuzzy) msg_print("何かさえないものでで攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by something static!");
 #endif
@@ -6147,7 +6135,8 @@ else msg_print("攻撃が跳ね返った！");
 						msg_print("You feel life has clocked back.");
 #endif
 
-						lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+						lose_class_exp(100 + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE);
+						lose_racial_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 						break;
 					}
 
@@ -6215,7 +6204,7 @@ else msg_print("攻撃が跳ね返った！");
 		case GF_GRAVITY:
 		{
 #ifdef JP
-			if (fuzzy) msg_print("何か重いもので攻撃された！");
+			if (fuzzy) msg_print("何か重いものでで攻撃された！");
 			msg_print("周辺の重力がゆがんだ。");
 #else
 			if (fuzzy) msg_print("You are hit by something heavy!");
@@ -6288,8 +6277,6 @@ else msg_print("攻撃が跳ね返った！");
 #else
 			if (fuzzy) msg_print("You are hit by radiation!");
 #endif
-
-			if (p_ptr->tim_octopus_immunity) break;
 
 			if (p_ptr->resist_pois) dam = (2 * dam + 2) / 5;
 			if (double_resist) dam = (2 * dam + 2) / 5;
@@ -6520,8 +6507,6 @@ else msg_print("攻撃が跳ね返った！");
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
 
-			if (p_ptr->immune_holy) break;
-
 			if (get_your_alignment_gne() == ALIGN_GNE_EVIL)
 				dam *= 2;
 			ACTIVATE_MULTISHADOW();
@@ -6547,8 +6532,6 @@ else msg_print("攻撃が跳ね返った！");
 #else
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
-
-			if (p_ptr->immune_hell) break;
 
 			if (get_your_alignment_gne() == ALIGN_GNE_GOOD)
 				dam *= 2;
@@ -6677,7 +6660,7 @@ else msg_print("攻撃が跳ね返った！");
 		/* Cause 1 */
 		case GF_CAUSE_1:
 		{
-			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -6698,7 +6681,7 @@ msg_print("しかし効力を跳ね返した！");
 		/* Cause 2 */
 		case GF_CAUSE_2:
 		{
-			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -6719,7 +6702,7 @@ msg_print("しかし効力を跳ね返した！");
 		/* Cause 3 */
 		case GF_CAUSE_3:
 		{
-			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -6740,7 +6723,7 @@ msg_print("しかし効力を跳ね返した！");
 		/* Cause 4 */
 		case GF_CAUSE_4:
 		{
-			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -6761,7 +6744,7 @@ msg_print("しかし効力を跳ね返した！");
 		/* Hand of Doom (Use "dam" as "power") */
 		case GF_HAND_DOOM:
 		{
-			if ((dam < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			if (dam < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_format("しかし効力を跳ね返した！");
@@ -6774,10 +6757,10 @@ msg_format("しかし効力を跳ね返した！");
 #ifdef JP
 msg_print("あなたは命が薄まっていくように感じた！");
 #else
-				msg_print("Your feel your life fade away!");
+				msg_print("You feel your life fade away!");
 #endif
 
-				dam = (((s32b)((40 + randint1(20)) * p_ptr->chp)) / 100);
+				dam = ((40 + randint1(20)) * p_ptr->chp) / 100;
 				ACTIVATE_MULTISHADOW();
 				get_damage = take_hit(DAMAGE_ATTACK, dam, m_name);
 				if (!IS_MULTISHADOW(0)) curse_equipment(40, 20);
@@ -6818,7 +6801,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 		/* Mind blast */
 		case GF_MIND_BLAST:
 		{
-			if ((randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav))) || p_ptr->tim_immune_magic)
+			if (randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav)))
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -6865,7 +6848,7 @@ msg_print("霊的エネルギーで精神が攻撃された。");
 		/* Brain smash */
 		case GF_BRAIN_SMASH:
 		{
-			if ((randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav))) || p_ptr->tim_immune_magic)
+			if (randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav)))
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -6910,9 +6893,9 @@ msg_print("霊的エネルギーで精神が攻撃された。");
 					}
 					(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
 
-					while ((randint0(100 + rlev/2) > (MAX(5, p_ptr->skill_sav))) && !p_ptr->tim_immune_magic)
+					while (randint0(100 + rlev/2) > (MAX(5, p_ptr->skill_sav)))
 						(void)do_dec_stat(A_INT);
-					while ((randint0(100 + rlev/2) > (MAX(5, p_ptr->skill_sav))) && !p_ptr->tim_immune_magic)
+					while (randint0(100 + rlev/2) > (MAX(5, p_ptr->skill_sav)))
 						(void)do_dec_stat(A_WIS);
 
 					if (!p_ptr->resist_chaos)
@@ -7037,7 +7020,8 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 						msg_print("You feel your life slipping away!");
 #endif
 
-						lose_exp(200 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
+						lose_class_exp(200 + (cexp_ptr->cexp / 1000) * MON_DRAIN_LIFE);
+						lose_racial_exp(200 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
 					}
 					else
 					{
@@ -7047,7 +7031,8 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 						msg_print("You feel your life draining away!");
 #endif
 
-						lose_exp(200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+						lose_class_exp(200 + (cexp_ptr->cexp / 100) * MON_DRAIN_LIFE);
+						lose_racial_exp(200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 					}
 				}
 				get_damage = take_hit(DAMAGE_ATTACK, dam, killer);
@@ -7066,7 +7051,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 #endif
 
 			if (p_ptr->resist_stone) break;
-			else if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 				msg_print("しかし石化を跳ね返した！");
@@ -7878,7 +7863,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 		}
 
 		/* Only do visuals if requested */
-		if (!blind && !(flg & (PROJECT_HIDE)) && !(flg & PROJECT_FAST))
+		if (!blind && !(flg & (PROJECT_HIDE | PROJECT_FAST)))
 		{
 			/* Only do visuals if the player can "see" the bolt */
 			if (panel_contains(y, x) && player_has_los_bold(y, x))
@@ -8254,7 +8239,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 
 						ref_ptr->r_flags2 |= RF2_REFLECTING;
 					}
-					flg &= ~(PROJECT_MONSTER);
+					flg &= ~(PROJECT_AIMED);
 					flg |= (PROJECT_THRU | PROJECT_PLAYER | PROJECT_REFLECTABLE);
 
 					project(cave[y][x].m_idx, 0, t_y, t_x, dam, typ, flg, mod_elem_mode);
@@ -8266,9 +8251,84 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 					}
 					else if (project_m(who, dist, y, x, dam, typ, flg, mod_elem_mode)) notice = TRUE;
 				}
+
+				/* There is the riding player on this monster */
+				if (p_ptr->riding && (y == py) && (x == px))
+				{
+					/* Aimed on the player */
+					if (flg & PROJECT_PLAYER)
+					{
+						if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE | PROJECT_AIMED))
+						{
+							/*
+							 * A beam or bolt is well aimed
+							 * at the PLAYER!
+							 * So don't affects the mount.
+							 */
+							continue;
+						}
+						else
+						{
+							/*
+							 * The spell is not well aimed, 
+							 * So partly affect the mount too.
+							 */
+							dist++;
+						}
+					}
+
+					/*
+					 * This grid is the original target.
+					 * Or aimed on your horse.
+					 */
+					else if (((y == y2) && (x == x2)) || (flg & PROJECT_AIMED))
+					{
+						/* Hit the mount with full damage */
+					}
+
+					/*
+					 * Otherwise this grid is not the
+					 * original target, it means that line
+					 * of fire is obstructed by this
+					 * monster.
+					 */
+					/*
+					 * A beam or bolt will hit either
+					 * player or mount.  Choose randomly.
+					 */
+					else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE))
+					{
+						if (one_in_(2))
+						{
+							/* Hit the mount with full damage */
+						}
+						else
+						{
+							/* Hit the player later */
+							flg |= PROJECT_PLAYER;
+
+							/* Don't affect the mount */
+							continue;
+						}
+					}
+
+					/*
+					 * The spell is not well aimed, so
+					 * partly affect both player and
+					 * mount.
+					 */
+					else
+					{
+						dist++;
+					}
+				}
+			
+				/* Affect the monster in the grid */
+				if (project_m(who, dist, y, x, dam, typ, flg, mod_elem_mode)) notice = TRUE;
 			}
 		}
-
+		
+	
 		/* Player affected one monster (without "jumping") */
 		if (!who && (project_m_n == 1) && !jump)
 		{
@@ -8372,7 +8432,46 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u32b flg, int mod
 			if (breath) d = dist_to_line(y, x, y1, x1, y2, x2);
 			else d = dist;
 
-			if ((y == y2) && (x == x2) && (y == py) && (x == px) && (flg & PROJECT_MONSTER)) d++;
+			if ((y == y2) && (x == x2) && (y == py) && (x == px) && (!flg & PROJECT_AIMED)) d++;
+
+			/* Target may be your horse */
+			if (p_ptr->riding)
+			{
+				/* Aimed on the player */
+				if (flg & PROJECT_PLAYER)
+				{
+					/* Hit the player with full damage */
+				}
+
+				/*
+				 * Hack -- When this grid was not the
+				 * original target, a beam or bolt
+				 * would hit either player or mount,
+				 * and should be choosen randomly.
+				 *
+				 * But already choosen to hit the
+				 * mount at this point.
+				 *
+				 * Or aimed on your horse.
+				 */
+				else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE | PROJECT_AIMED))
+				{
+					/*
+					 * A beam or bolt is well aimed
+					 * at the mount!
+					 * So don't affects the player.
+					 */
+					continue;
+				}
+				else
+				{
+					/*
+					 * The spell is not well aimed, 
+					 * So partly affect the player too.
+					 */
+					d++;
+				}
+			}
 
 			/* Affect the player */
 			if (project_p(who, who_name, d, y, x, dam, typ, flg, mod_elem_mode)) notice = TRUE;

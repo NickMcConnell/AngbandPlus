@@ -122,7 +122,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 		/* Know poison info */
 		if (p_ptr->resist_pois) smart1 |= (SM1_RES_POIS);
 		if (p_ptr->oppose_pois) smart1 |= (SM1_OPP_POIS);
-		if (p_ptr->tim_octopus_immunity) m_ptr->smart2 |= (SM2_IMM_POIS);
 
 		/* Know special resistances */
 		if (p_ptr->resist_neth) smart1 |= (SM1_RES_NETH);
@@ -143,8 +142,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 		if (p_ptr->resist_time) smart2 |= (SM2_RES_TIME);
 		if (p_ptr->anti_tele || p_ptr->earth_spike) smart2 |= (SM2_IMM_TELE);
 		if ((rp_ptr->r_flags & PRF_UNDEAD) || (cp_ptr->c_flags & PCF_UNDEAD)) smart2 |= (SM2_IMM_DRAIN);
-		if (p_ptr->immune_holy) m_ptr->smart2 |= (SM2_IMM_HOLY);
-		if (p_ptr->immune_hell) m_ptr->smart2 |= (SM2_IMM_HELL);
 		if (p_ptr->wind_guard)
 		{
 			smart2 |= (SM2_IMM_AVOID0);
@@ -152,7 +149,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 			if (p_ptr->stat_use[A_INT] >= (18 + 200)) smart2 |= (SM2_IMM_AVOID2);
 		}
 		if (p_ptr->reflect) smart1 |= (SM1_IMM_REFLECT);
-		if (p_ptr->tim_immune_magic) m_ptr->smart2 |= (SM2_IMM_MAGIC);
 
 		/* Know bizarre "resistances" */
 		if (p_ptr->free_act) smart1 |= (SM1_IMM_FREE);
@@ -254,14 +250,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 	}
 
 
-	if (smart2 & (SM2_IMM_POIS))
-	{
-		f4 &= ~(RF4_BR_POIS);
-		f5 &= ~(RF5_BA_POIS);
-		f4 &= ~(RF4_BA_NUKE);
-		f4 &= ~(RF4_BR_NUKE);
-	}
-	else if ((smart1 & (SM1_OPP_POIS)) && (smart1 & (SM1_RES_POIS)))
+	if ((smart1 & (SM1_OPP_POIS)) && (smart1 & (SM1_RES_POIS)))
 	{
 		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_POIS);
 		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_POIS);
@@ -375,16 +364,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 	/* Lancelot Only */
 	/* if (smart2 & (SM2_IMM_DRAIN)) {} */
 
-	if (smart2 & (SM2_IMM_HOLY))
-	{
-		fa &= ~(RFA_IGNIS_FATUUS | RFA_HOLY_ORB);
-	}
-
-	if (smart2 & (SM2_IMM_HELL))
-	{
-		fa &= ~(RFA_DARK_LORE | RFA_DARK_FIRE);
-	}
-
 	if (smart2 & (SM2_IMM_AVOID2))
 	{
 		f4 &= ~(RF4_ROCKET | RF4_SHOOT);
@@ -419,14 +398,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 		if (int_outof(r_ptr, 150)) f5 &= ~(RF5_MISSILE);
 	}
 
-	if (smart2 & (SM2_IMM_MAGIC))
-	{
-		f5 &= ~(RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_CAUSE_1 | RF5_CAUSE_2 |
-		        RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_SCARE | RF5_BLIND |
-		        RF5_CONF | RF5_SLOW | RF5_HOLD);
-		f6 &= ~(RF6_HAND_DOOM | RF6_TELE_LEVEL | RF6_FORGET);
-	}
-
 	if (smart1 & (SM1_IMM_FREE))
 	{
 		f5 &= ~(RF5_HOLD | RF5_SLOW);
@@ -449,12 +420,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *
 			else if (smart1 & (SM1_RES_DARK))
 			{
 				if (int_outof(r_ptr, 50)) f6 &= ~(RF6_SPECIAL);
-			}
-			break;
-		case MON_VOLAC:
-			if (smart2 & (SM2_IMM_HOLY))
-			{
-				f6 &= ~(RF6_SPECIAL);
 			}
 			break;
 		case MON_MARTYM:
@@ -655,7 +620,7 @@ static void bolt(int y, int x, int m_idx, int typ, int dam_hp)
 
 static void beam(int y, int x, int m_idx, int typ, int dam_hp)
 {
-	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_THRU | PROJECT_PLAYER;
+	u32b flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU | PROJECT_PLAYER;
 	int mod_elem_mode = MODIFY_ELEM_MODE_MAGIC;
 
 	switch (typ)
@@ -691,14 +656,23 @@ static void breath(int y, int x, int m_idx, int typ, int dam_hp, int rad, bool b
 	/* Handle breath attacks */
 	if (breath) rad = 0 - rad;
 
-	if (typ == GF_ROCKET)
+	switch (typ)
 	{
+	case GF_ROCKET:
 		flg |= (PROJECT_STOP | PROJECT_AVOIDABLE);
 		mod_elem_mode = MODIFY_ELEM_MODE_FIRE;
+		break;
+	case GF_MIND_BLAST:
+	case GF_BRAIN_SMASH:
+	case GF_CAUSE_1:
+	case GF_CAUSE_2:
+	case GF_CAUSE_3:
+	case GF_CAUSE_4:
+	case GF_HAND_DOOM:
+		flg |= (PROJECT_HIDE | PROJECT_AIMED);
+		break;
 	}
-	if (typ == GF_MIND_BLAST || typ == GF_BRAIN_SMASH ||
-	    typ == GF_CAUSE_1 || typ == GF_CAUSE_2 || typ == GF_CAUSE_3 ||
-	    typ == GF_CAUSE_4 || typ == GF_HAND_DOOM) flg |= PROJECT_HIDE;
+
 	if (no_reduce) flg |= PROJECT_NO_REDUCE;
 
 	/* Target the player with a ball attack */
@@ -737,7 +711,7 @@ u32b get_curse(int power, object_type *o_ptr)
 			if (new_curse & TRC_HEAVY_MASK) continue;
 		}
 		if (((o_ptr->tval < TV_BOW) || (o_ptr->tval > TV_SWORD)) && (new_curse == TRC_LOW_MELEE)) continue;
-		if (((o_ptr->tval < TV_BOOTS) || (o_ptr->tval > TV_DRAG_ARMOR)) && (new_curse == TRC_LOW_AC)) continue;
+		if (((o_ptr->tval < TV_BOOTS) || (o_ptr->tval > TV_HARD_ARMOR)) && (new_curse == TRC_LOW_AC)) continue;
 		break;
 	}
 	return new_curse;
@@ -1087,144 +1061,111 @@ static bool dispel_check(int m_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Invulnabilty */
-	if (p_ptr->invuln) return TRUE;
+	if (p_ptr->invuln) return (TRUE);
 
 	/* Wraith form */
 	if (p_ptr->wraith_form)
 	{
-		if (!p_ptr->wraith_form_perm) return TRUE;
+		if (!p_ptr->wraith_form_perm) return (TRUE);
 	}
 
 	/* Shield */
-	if (p_ptr->shield) return TRUE;
+	if (p_ptr->shield) return (TRUE);
 
 	/* Magic defence */
-	if (p_ptr->magicdef) return TRUE;
+	if (p_ptr->magicdef) return (TRUE);
 
 	/* Multi Shadow */
-	if (p_ptr->multishadow) return TRUE;
+	if (p_ptr->multishadow) return (TRUE);
 
 	/* Berserk Strength */
 	if (p_ptr->shero)
 	{
 		if (!((inventory[INVEN_RARM].k_idx && (inventory[INVEN_RARM].name1 == ART_BERSERK)) ||
 		      (inventory[INVEN_LARM].k_idx && (inventory[INVEN_LARM].name1 == ART_BERSERK))))
-			return TRUE;
+			return (TRUE);
 	}
 
 	/* Elemental resistances */
 	if (r_ptr->flags4 & RF4_BR_ACID)
 	{
-		if (!p_ptr->immune_acid && p_ptr->oppose_acid) return TRUE;
-		if (p_ptr->tim_octopus_immunity) return TRUE;
+		if (!p_ptr->immune_acid && p_ptr->oppose_acid) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_FIRE)
 	{
-		if (!p_ptr->immune_fire && p_ptr->oppose_fire) return TRUE;
+		if (!p_ptr->immune_fire && p_ptr->oppose_fire) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_ELEC)
 	{
-		if (!p_ptr->immune_elec && p_ptr->oppose_elec) return TRUE;
+		if (!p_ptr->immune_elec && p_ptr->oppose_elec) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_COLD)
 	{
-		if (!p_ptr->immune_cold && p_ptr->oppose_cold) return TRUE;
-		if (p_ptr->tim_octopus_immunity) return TRUE;
+		if (!p_ptr->immune_cold && p_ptr->oppose_cold) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & (RF4_BR_POIS | RF4_BR_NUKE))
 	{
-		if (p_ptr->oppose_pois) return TRUE;
-		if (p_ptr->tim_octopus_immunity) return TRUE;
-	}
-
-	/* Immunity to holy forces */
-	if (r_ptr->flagsa & (RFA_IGNIS_FATUUS | RFA_HOLY_ORB))
-	{
-		if (p_ptr->special_defense & DEFENSE_HOLY) return TRUE;
-	}
-
-	/* Immunity to hell forces */
-	if (r_ptr->flagsa & (RFA_DARK_LORE | RFA_DARK_FIRE))
-	{
-		if (p_ptr->special_defense & DEFENSE_HELL) return TRUE;
+		if (p_ptr->oppose_pois) return (TRUE);
 	}
 
 	/* Teleportation resistance */
 	if (r_ptr->flags6 & (RF6_TELE_TO | RF6_TELE_AWAY | RF6_TELE_LEVEL))
 	{
-		if (p_ptr->earth_spike) return TRUE;
-	}
-
-	if (p_ptr->tim_octopus_immunity)
-	{
-		if ((r_ptr->flags4 & (RF4_BOLT_MASK & ~(RF4_ROCKET | RF4_SHOOT | RF4_SHOOT_GUN))) ||
-		    (r_ptr->flags5 & RF5_BOLT_MASK) ||
-		    (r_ptr->flags6 & RF6_BOLT_MASK) ||
-		    (r_ptr->flagsa & RFA_BOLT_MASK))
-		{
-			return TRUE;
-		}
+		if (p_ptr->earth_spike) return (TRUE);
 	}
 
 	/* Avoidance to arrows */
 	if (p_ptr->wind_guard)
 	{
-		if (r_ptr->flags4 & RF4_SHOOT) return TRUE;
+		if (r_ptr->flags4 & RF4_SHOOT) return (TRUE);
 		if (((r_ptr->flags4 & (RF4_BOLT_MASK & ~(RF4_ROCKET | RF4_SHOOT_GUN))) ||
 		     (r_ptr->flags5 & RF5_BOLT_MASK) ||
 		     (r_ptr->flags6 & RF6_BOLT_MASK) ||
 		     (r_ptr->flagsa & RFA_BOLT_MASK)) &&
 		     (p_ptr->stat_use[A_INT] >= (18 + 150)))
 		{
-			return TRUE;
+			return (TRUE);
 		}
 		if ((r_ptr->flags4 & RF4_ROCKET) &&
 		    (p_ptr->stat_use[A_INT] >= (18 + 200)))
 		{
-			return TRUE;
+			return (TRUE);
 		}
 	}
 
-	/* Immunity to magic */
-	if (p_ptr->tim_immune_magic)
-	{
-		if (r_ptr->flags5 & (RF5_CAUSE_1 | RF5_CAUSE_2 | RF5_CAUSE_3 | RF5_CAUSE_4)) return TRUE;
-		if (r_ptr->flags6 & RF6_HAND_DOOM) return TRUE;
-	}
-
 	/* Elemental Brands */
-	if ((p_ptr->special_attack & ATTACK_ACID) && !(r_ptr->flagsr & RFR_RES_ACID)) return TRUE;
-	if ((p_ptr->special_attack & ATTACK_FIRE) && !(r_ptr->flagsr & RFR_RES_FIRE)) return TRUE;
-	if ((p_ptr->special_attack & ATTACK_ELEC) && !(r_ptr->flagsr & RFR_RES_ELEC)) return TRUE;
-	if ((p_ptr->special_attack & ATTACK_COLD) && !(r_ptr->flagsr & RFR_RES_COLD)) return TRUE;
-	if ((p_ptr->special_attack & ATTACK_POIS) && !(r_ptr->flagsr & RFR_RES_POIS)) return TRUE;
+	if ((p_ptr->special_attack & ATTACK_ACID) && !(r_ptr->flagsr & RFR_RES_ACID)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_FIRE) && !(r_ptr->flagsr & RFR_RES_FIRE)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_ELEC) && !(r_ptr->flagsr & RFR_RES_ELEC)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_COLD) && !(r_ptr->flagsr & RFR_RES_COLD)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_POIS) && !(r_ptr->flagsr & RFR_RES_POIS)) return (TRUE);
 
 	/* Speed */
 	if (p_ptr->pspeed < 145)
 	{
-		if (p_ptr->fast) return TRUE;
+		if (p_ptr->fast) return (TRUE);
 	}
 
 	if (p_ptr->riding && (m_list[p_ptr->riding].mspeed < 135))
 	{
-		if (m_list[p_ptr->riding].fast) return TRUE;
+		if (m_list[p_ptr->riding].fast) return (TRUE);
 	}
 
 	/* Opposite element */
 	if (p_ptr->opposite_pelem)
 	{
-		if (get_cur_pelem() == get_dominant_feature_elem(&cave[py][px])) return TRUE;
+		if (get_cur_pelem() == get_dominant_feature_elem(&cave[py][px])) return (TRUE);
 	}
 
 	/* Aura of resurrection */
-	if (p_ptr->tim_resurrection) return TRUE;
+	if (p_ptr->tim_resurrection) return (TRUE);
 
 	/* Protection of Zoshonel */
-	if (p_ptr->zoshonel_protect) return TRUE;
+	if (p_ptr->zoshonel_protect) return (TRUE);
 
 	/* No need to cast dispel spell */
 	return (FALSE);
@@ -1978,9 +1919,6 @@ bool make_attack_spell(int m_idx)
 		break;
 	}
 
-	/* Abort if no spell was chosen */
-	if (!thrown_spell) return (FALSE);
-
 	/* Calculate spell failure rate */
 	failrate = 25 - (rlev + 3) / 4;
 
@@ -2064,7 +2002,7 @@ msg_format("%sはシフト・エレメントの呪文を唱えた。", m_name);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a dispel magic.", m_name);
 #endif
-			dispel_player(FALSE);
+			dispel_player();
 
 			if (p_ptr->riding)
 			{
@@ -3010,7 +2948,6 @@ msg_format("%^sがあなたの瞳をじっとにらんでいる。", m_name);
 
 			dam = damroll(7, 7);
 			breath(y, x, m_idx, GF_MIND_BLAST, dam, 0, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3040,7 +2977,6 @@ msg_format("%^sがあなたの瞳をじっと見ている。", m_name);
 
 			dam = damroll(12, 12);
 			breath(y, x, m_idx, GF_BRAIN_SMASH, dam, 0, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3063,7 +2999,6 @@ else msg_format("%^sがあなたを指さして呪った。", m_name);
 
 			dam = damroll(3, 8);
 			breath(y, x, m_idx, GF_CAUSE_1, dam, 0, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3086,7 +3021,6 @@ else msg_format("%^sがあなたを指さして恐ろしげに呪った。", m_name);
 
 			dam = damroll(8, 8);
 			breath(y, x, m_idx, GF_CAUSE_2, dam, 0, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3109,7 +3043,6 @@ else msg_format("%^sがあなたを指さして恐ろしげに呪文を唱えた！", m_name);
 
 			dam = damroll(10, 15);
 			breath(y, x, m_idx, GF_CAUSE_3, dam, 0, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3132,7 +3065,6 @@ else msg_format("%^sがあなたを指さして「死ね！」と叫んだ。", m_name);
 
 			dam = damroll(15, 15);
 			breath(y, x, m_idx, GF_CAUSE_4, dam, 0, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3432,7 +3364,7 @@ msg_print("しかし恐怖に侵されなかった。");
 #endif
 
 			}
-			else if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし恐怖に侵されなかった。");
@@ -3446,7 +3378,6 @@ msg_print("しかし恐怖に侵されなかった。");
 				(void)set_afraid(p_ptr->afraid + randint0(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_FEAR);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3476,7 +3407,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 			}
-			else if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -3490,7 +3421,6 @@ msg_print("しかし効力を跳ね返した！");
 				(void)set_blind(12 + randint0(4));
 			}
 			update_smart_learn(m_idx, DRS_BLIND);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3520,7 +3450,7 @@ msg_print("しかし幻覚にはだまされなかった。");
 #endif
 
 			}
-			else if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし幻覚にはだまされなかった。");
@@ -3534,7 +3464,6 @@ msg_print("しかし幻覚にはだまされなかった。");
 				(void)set_confused(p_ptr->confused + randint0(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_CONF);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3558,7 +3487,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 			}
-			else if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -3572,7 +3501,6 @@ msg_print("しかし効力を跳ね返した！");
 				(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
 			}
 			update_smart_learn(m_idx, DRS_FREE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3602,7 +3530,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 			}
-			else if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_format("しかし効力を跳ね返した！");
@@ -3616,7 +3544,6 @@ msg_format("しかし効力を跳ね返した！");
 				(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_FREE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3669,7 +3596,6 @@ msg_format("%^sが<破滅の手>を放った！", m_name);
 #endif
 			dam = randint0(100 + rlev / 2);
 			breath(y, x, m_idx, GF_HAND_DOOM, dam, 0, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -3817,7 +3743,7 @@ msg_format("%^sが瞬時に消えた。", m_name);
 #endif
 
 			teleport_away(m_idx, 10);
-			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+			p_ptr->update |= (PU_MONSTERS);
 			break;
 		}
 
@@ -3908,10 +3834,9 @@ if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
 				dam = 3 * rlev + 100;
 				special_blow(y, x, m_idx, GF_DARK, dam);
 				update_smart_learn(m_idx, DRS_DARK);
-				if (!p_ptr->free_act && (randint0(100 + rlev/2) >= p_ptr->skill_sav) && !p_ptr->tim_immune_magic)
+				if (p_ptr->free_act) update_smart_learn(m_idx, DRS_FREE);
+				else if (randint0(100 + rlev/2) >= p_ptr->skill_sav)
 					(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
-				update_smart_learn(m_idx, DRS_FREE);
-				update_smart_learn(m_idx, DRS_MAGIC);
 				break;
 
 			case MON_SISTEENA:
@@ -3952,10 +3877,9 @@ if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
 
 				dam = 3 * rlev + 100;
 				special_blow(y, x, m_idx, GF_PURE_FIRE, dam);
-				if (!p_ptr->resist_conf && (randint0(100 + rlev/2) >= p_ptr->skill_sav) && !p_ptr->tim_immune_magic)
+				if (p_ptr->resist_conf) update_smart_learn(m_idx, DRS_CONF);
+				else if (randint0(100 + rlev/2) >= p_ptr->skill_sav)
 					(void)set_confused(p_ptr->confused + randint0(4) + 4);
-				update_smart_learn(m_idx, DRS_CONF);
-				update_smart_learn(m_idx, DRS_MAGIC);
 				break;
 
 			case MON_SHELLEY:
@@ -3984,7 +3908,6 @@ if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
 
 				dam = 3 * rlev + 100;
 				special_blow(y, x, m_idx, GF_HOLY_FIRE, dam);
-				update_smart_learn(m_idx, DRS_HOLY);
 				break;
 
 			case MON_MARTYM:
@@ -4111,7 +4034,7 @@ if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
 						if (seen) msg_format("%^s suddenly go out of your sight!", m_name);
 #endif
 						teleport_away(m_idx, 10);
-						p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+						p_ptr->update |= (PU_MONSTERS);
 					}
 					else
 					{
@@ -4243,7 +4166,7 @@ else msg_format("%^sがあなたの足を指さした。", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
 #endif
 
-			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->earth_spike || p_ptr->tim_immune_magic)
+			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->earth_spike)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -4254,7 +4177,6 @@ msg_print("しかし効力を跳ね返した！");
 			}
 			else teleport_level(0);
 			update_smart_learn(m_idx, DRS_TELE);
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -4339,7 +4261,7 @@ msg_format("%^sがあなたの記憶を消去しようとしている。", m_name);
 #endif
 
 
-			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) || p_ptr->tim_immune_magic)
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -4357,7 +4279,6 @@ msg_print("記憶が薄れてしまった。");
 #endif
 
 			}
-			update_smart_learn(m_idx, DRS_MAGIC);
 			break;
 		}
 
@@ -5335,8 +5256,7 @@ else msg_format("%^sはあなたを神聖な力で消し去るように精霊イグニスファタスに命じ
 			else msg_format("%^s orders the Ignis Fatuus to erase you by holy force!.", m_name);
 #endif
 
-			if (mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HOLY_FIRE))
-				update_smart_learn(m_idx, DRS_HOLY);
+			(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HOLY_FIRE);
 			break;
 		}
 
@@ -5356,8 +5276,7 @@ else msg_format("%^sはあなたを邪悪な力で葬り去るように精霊ファントムに命じた！",
 			else msg_format("%^s orders the Phantom to slay you by evil force!.", m_name);
 #endif
 
-			if (mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HELL_FIRE))
-				update_smart_learn(m_idx, DRS_HELL);
+			(void)mon_cast_call_the_elemental(m_idx, y, x, 0, (r_ptr->flags2 & (RF2_POWERFUL)) ? 5 : 4, rlev / 4, 3, GF_HELL_FIRE);
 			break;
 		}
 
@@ -5401,7 +5320,6 @@ else msg_format("%^sが聖なる光球の呪文を唱えた。", m_name);
 
 			dam = damroll(3, 6) + rlev + rlev / 2;
 			breath(y, x, m_idx, GF_HOLY_FIRE, dam, (rlev > 29) ? 3 : 2, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_HOLY);
 			break;
 		}
 
@@ -5424,7 +5342,6 @@ else msg_format("%^sが闇の焔の呪文を唱えた。", m_name);
 
 			dam = damroll(3, 6) + rlev + rlev / 2;
 			breath(y, x, m_idx, GF_HELL_FIRE, dam, (rlev > 29) ? 3 : 2, FALSE, FALSE);
-			update_smart_learn(m_idx, DRS_HELL);
 			break;
 		}
 
