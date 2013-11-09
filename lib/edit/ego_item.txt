@@ -98,7 +98,7 @@ T:37:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:9:of Elvenkind
+N:9:of Mayohiga
 X:25:2
 W:0:4:0:15000
 C:0:0:10:3
@@ -118,18 +118,22 @@ F:AGGRAVATE | LIGHT_CURSE
 
 ### Robes only ###
 
-N:11:of Permanence
+# Incredibly overpowered.  But then again you'll never see one of these in all likelihood.
+# Perfect for a miko character.
+
+N:11:of Shion
 X:30:2
 W:0:4:0:30000
-C:0:0:20:0
+C:0:0:20:20
 T:36:2:2
+F:CHR | WIS | SPEED |
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
 F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ### Heavy metal armor only, not rusty ###
 
-N:12:(Dwarven)
+N:12:(Lunatic)
 X:18:0
 W:0:2:0:5000
 C:0:0:15:2
@@ -179,7 +183,7 @@ T:34:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:21:of Elvenkind
+N:21:of Mayohiga
 X:25:2
 W:0:4:0:18000
 C:0:0:10:3
@@ -220,7 +224,7 @@ C:0:0:0:2
 T:32:0:99
 F:WIS | SUST_WIS
 
-N:26:of Beauty
+N:26:of Kaiii (Omochikaeri)
 X:8:0
 W:0:2:0:1000
 C:0:0:0:4
@@ -321,7 +325,7 @@ T:33:0:99
 F:STR | DEX | CON | LIGHT_CURSE
 
 
-### Cloaks ###
+### Wings ###
 
 N:40:of Protection
 X:10:0
@@ -337,7 +341,7 @@ C:0:0:0:3
 T:35:0:99
 F:STEALTH
 
-N:42:of Aman
+N:42:of Flight
 X:20:2
 W:0:6:0:4000
 C:0:0:20:3
@@ -345,7 +349,7 @@ T:35:0:99
 F:STEALTH |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:43:of the Magi
+N:43:of Magic
 X:15:3
 W:30:3:0:2000
 C:0:0:4:2
@@ -366,14 +370,19 @@ C:0:0:50:0
 T:35:0:99
 F:AGGRAVATE | LIGHT_CURSE
 
-N:46:of Irritation
+N:46:of Shedding
 X:0:0
 W:0:1:0:0
 C:15:15:0:0
 T:35:0:99
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
-# 47 (unused)
+N:47:of Flame
+X:10:3
+W:30:3:0:2000
+C:0:0:15:2
+T:35:0:99
+F:IM_FIRE | INT | HIDE_TYPE | IGNORE_ACID
 
 ### Gloves ###
 
@@ -412,12 +421,12 @@ C:8:3:0:5
 T:31:1:1
 F:DEX | SEARCH | SHOW_MODS | FEATHER | FREE_ACT | HIDE_TYPE
 
-N:53:of Combat
+N:53:of Magic
 X:22:0
 W:50:12:0:7000
 C:3:8:0:2
 T:31:2:99
-F:STR | CON | SHOW_MODS | AGGRAVATE | HIDE_TYPE
+F:INT | DEX | FREE_ACT | SHOW_MODS | HIDE_TYPE
 
 N:54:of Weakness
 X:0:0
@@ -468,7 +477,7 @@ W:0:10:0:5000
 T:30:0:99
 F:RES_NEXUS | FEATHER
 
-N:61:of Elvenkind
+N:61:of the Moon
 X:30:0
 W:60:30:0:200000
 C:0:0:0:5
@@ -503,7 +512,7 @@ F:WIS |
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
 F:SEE_INVIS | BLESSED | RES_FEAR
 
-N:65:(Defender)
+N:65:of Hourai
 X:25:1
 W:0:12:0:15000
 C:4:4:8:4
@@ -514,7 +523,7 @@ F:STEALTH | FREE_ACT | SEE_INVIS | FEATHER | REGEN |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:66:(Blessed)
+N:66:of Hakurei
 X:20:3
 W:0:10:0:5000
 C:0:0:0:3
@@ -523,7 +532,7 @@ T:22:0:99
 T:23:0:99
 F:WIS | BLESSED
 
-N:67:of Gondolin
+N:67:of Izayoi
 X:30:3
 W:30:20:0:25000
 C:7:7:0:0
@@ -534,7 +543,7 @@ F:SLAY_DEMON | SLAY_ORC | SLAY_TROLL | SLAY_DRAGON |
 F:LITE | RES_DARK | SEE_INVIS | FREE_ACT |
 F:IGNORE_ACID | IGNORE_FIRE
 
-N:68:of Westernesse
+N:68:of Meiling
 X:20:0
 W:0:10:0:20000
 C:5:5:0:2
@@ -545,16 +554,16 @@ F:STR | DEX | CON |
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
 F:FREE_ACT | SEE_INVIS
 
-N:69:of Extra Attacks
+N:69:of Konpaku
 X:20:0
-W:0:10:0:10000
+W:0:10:0:30000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BLOWS | HIDE_TYPE
+F:BLOWS | SPEED | HIDE_TYPE
 
-N:70:of Fury
+N:70:of Kirisame
 X:30:0
 W:40:20:0:20000
 T:21:12:99
@@ -568,7 +577,7 @@ F:IGNORE_ACID | IGNORE_FIRE
 
 # The "Branded" weapons (5)
 
-N:72:of Acid
+N:72:of Rumia
 X:20:0
 W:0:10:0:5000
 T:21:0:99
@@ -576,7 +585,9 @@ T:22:0:99
 T:23:0:99
 F:BRAND_ACID | RES_ACID | IGNORE_ACID
 
-N:73:of Lightning
+# kekeke D:
+
+N:73:of Laser (Not Difficult)
 X:20:0
 W:0:10:0:4500
 T:21:0:99
@@ -584,7 +595,7 @@ T:22:0:99
 T:23:0:99
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
-N:74:of Flame
+N:74:of Scarlet
 X:15:0
 W:0:8:0:3500
 T:21:0:99
@@ -592,7 +603,7 @@ T:22:0:99
 T:23:0:99
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
 
-N:75:of Frost
+N:75:of Whiterock
 X:15:0
 W:0:8:0:3000
 T:21:0:99
@@ -600,7 +611,7 @@ T:22:0:99
 T:23:0:99
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
-N:76:of Venom
+N:76:of Melancholy
 X:15:0
 W:0:8:0:4000
 T:21:0:99
@@ -754,9 +765,8 @@ T:22:0:99
 T:23:0:99
 F:CON | KILL_DRAGON | RES_FEAR
 
-
 ### Lanterns/torches
-
+ 
 # Not for now -- need to figure out how ID applies
 #N:96:of Shadows
 #X:10:0
@@ -776,7 +786,7 @@ N:98:(Everburning)
 X:10:0
 W:0:3:0:2500
 C:0:0:0:0
-T:39:1:1 (lanterns only)
+T:39:1:1
 F:NO_FUEL
 
 #N:99:of True Sight
@@ -786,7 +796,6 @@ F:NO_FUEL
 #C:0:0:0:0
 #T:39:0:1
 #F:RES_BLIND | SEE_INVIS
-
 
 ### Digging Tools
 
@@ -837,14 +846,14 @@ T:19:0:99
 D:It has no special abilities, but its to-dam value may be unusually
 D: high.
 
-N:106:of Lothlorien
+N:106:of Yagokoro
 X:30:3
 W:50:4:0:20000
 C:10:10:0:2
 T:19:12:13
 F:DEX | MIGHT | FREE_ACT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
-N:107:of the Haradrim
+N:107:(Full Power)
 X:30:0
 W:50:4:0:20000
 C:5:5:0:1
@@ -865,7 +874,7 @@ C:10:5:0:1
 F:SHOTS | HIDE_TYPE
 T:19:0:99
 
-N:110:of Buckland
+N:110:of Flandre
 X:25:0
 W:40:4:0:20000
 C:8:8:0:2

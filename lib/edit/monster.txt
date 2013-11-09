@@ -107,18 +107,20 @@ G:@:w
 
 ##### Town monsters #####
 
-N:1:Filthy street urchin
+N:1:Filthy emo kid
 G:t:D
 I:110:1d4:4:1:40
 W:0:2:0:0
 B:BEG
+B:MOAN
 B:TOUCH:EAT_GOLD
+F:DROP_90 | DROP_2D2
 F:MALE
 F:RAND_25 | FRIENDS
 F:TAKE_ITEM | OPEN_DOOR
 D:He looks squalid and thoroughly revolting.
 
-N:2:Scrawny cat
+N:2:Scrawny nekomata
 G:f:U
 I:110:1d2:30:1:10
 W:0:3:0:0
@@ -136,126 +138,132 @@ F:RAND_25
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
-N:4:Farmer Maggot
-G:h:w
+N:4:Cirno
+G:t:w
 I:110:35d10:40:10:3
 W:0:4:0:0
-B:MOAN
-B:MOAN
-F:UNIQUE | MALE
+B:DROOL
+B:GAZE:LOSE_INT
+B:TOUCH:EAT_FOOD
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
-F:ONLY_ITEM | DROP_90 | DROP_GOOD
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT
 F:OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP
-D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy
-D: hobbit!
+D:(9)
 
-N:5:Blubbering idiot
-G:t:W
-I:110:1d2:6:1:0
-W:0:1:0:0
-B:DROOL
+N:5:Rinnosuke
+G:t:b
+I:110:100d100:6:1:0
+W:0:1:20000:0
+B:MOAN
+B:DROOL:HURT:1d1
 F:MALE
 F:RAND_25
-F:TAKE_ITEM
+F:TAKE_ITEM | GIANT | EVIL | HURT_LITE |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT
 D:He tends to blubber a lot.
 
-N:6:Boil-covered wretch
-G:t:g
+N:6:100-yen miko
+G:t:r
 I:110:1d2:6:1:0
 W:0:1:0:0
+B:BEG
 B:DROOL
-F:MALE
-F:RAND_25
+F:ONLY_GOLD | DROP_60
+F:FEMALE
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:Ugly doesn't begin to describe him.
+D:She looks cheap.
 
-N:7:Village idiot
+N:7:Touhou fanboy
 G:t:G
-I:120:4d4:6:1:0
+I:90:4d4:6:1:0
 W:0:1:0:0
 B:DROOL
-F:MALE
+F:MALE | HURT_LITE | FRIENDS | MULTIPLY |
 F:RAND_25
 F:TAKE_ITEM
-D:Drooling and comical, but then, what do you expect?
+D:Drooling and comical, but then, what do you expect?  He chats on #shrinemaiden frequently.
 
-N:8:Pitiful-looking beggar
+N:8:Mischievous fairy
 G:t:U
 I:110:1d4:10:1:40
 W:0:1:0:0
-B:BEG
-F:MALE
+B:INSULT
+F:FEMALE | INVISIBLE
 F:RAND_25
-F:TAKE_ITEM | OPEN_DOOR
-D:You just can't help feeling sorry for him.
+F:TAKE_ITEM | OPEN_DOOR | DROP_4D2
+D:A fairy who just wants to cause trouble.
 
-N:9:Mangy-looking leper
+N:9:Mangy-looking hikikomori
 G:t:u
 I:110:1d1:10:1:50
 W:0:1:0:0
 B:BEG
 F:MALE
 F:RAND_25
-F:TAKE_ITEM | OPEN_DOOR
+F:TAKE_ITEM | OPEN_DOOR | HURT_LITE
 D:You feel it isn't safe to touch him.
 
-N:10:Squint-eyed rogue
-G:t:b
+N:10:Thieving witch
+G:t:W
 I:110:2d8:10:8:99
 W:0:1:0:0
 B:HIT:HURT:1d6
 B:TOUCH:EAT_ITEM
+B:TOUCH:EAT_FOOD
 B:INSULT
-F:MALE
+F:FEMALE
 F:DROP_60
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-F:EVIL
-D:A hardy, street-wise crook that knows an easy catch when it sees one.
+D:A hardy, street-wise witch who enjoys stealing books from the helpless.
 
-N:11:Singing, happy drunk
-G:t:y
-I:110:2d3:10:1:0
+N:11:Sleeping youkai
+G:t:v
+I:100:2d300:10:1:255
 W:0:1:0:0
-B:BEG
-F:MALE
-F:RAND_50
+B:DROOL
+F:FEMALE | FORCE_SLEEP | NEVER_MOVE
 F:ONLY_GOLD | DROP_60
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:He makes you glad to be sober.
+D:This sleeping youkai wears a purple dress and cradles a large purple umbrella in her 
+D:arms.  She won't budge no matter what you try...
 
-N:12:Aimless-looking merchant
-G:t:o
+N:12:Aimless-looking fairy
+G:t:R
 I:110:3d3:10:1:255
 W:0:1:0:0
 B:HIT:HURT:1d3
-F:MALE
+F:FEMALE
 F:RAND_50
 F:ONLY_GOLD | DROP_60
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:The typical ponce around town, with purse jingling, and looking for more
-D: amulets of adornment to buy.
+D:This aimless youkai flies about, occasionally scattering small round danmaku
+D: about the screen.  If you shoot her, maybe she'll drop a power-up?
 
-N:13:Mean-looking mercenary
+N:13:Mischievous-looking rabbit
 G:t:r
 I:110:5d8:10:20:250
 W:0:1:0:0
 B:HIT:HURT:1d10
-F:MALE
+F:FEMALE | ANIMAL
 F:RAND_50 | DROP_90
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL
-D:No job is too low for him.
+D:A sneaky mallet-wielding rabbit who is up to no good.
 
-N:14:Battle-scarred veteran
-G:t:B
+N:14:10,000-yen miko
+G:t:R
 I:110:7d8:10:30:250
-W:0:1:0:0
-B:HIT:HURT:2d6
-F:MALE
-F:RAND_50 | DROP_90
+W:0:50:0:0
+B:TOUCH::
+B:CRAWL::
+B:DROOL::
+B:CLAW::
+F:FEMALE
+F:RAND_50 | DROP_90 | DROP_GREAT
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:He doesn't take to strangers kindly.
+D:She's looking for some donations.
 
 
 ##### Normal monsters #####
@@ -390,6 +398,7 @@ G:e:o
 I:110:3d6:2:6:10
 W:1:1:0:1
 B:GAZE:PARALYZE
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT
 F:NEVER_MOVE
 F:HURT_LITE | NO_FEAR
 D:A disembodied eye, floating a few feet above the ground.
@@ -461,54 +470,55 @@ F:WEIRD_MIND | BASH_DOOR
 F:ANIMAL
 D:It is about four feet long and carnivorous.
 
-N:35:Novice warrior
+N:35:Fairy swordsman
 G:p:u
 I:110:9d4:20:16:5
 W:2:1:0:6
 B:HIT:HURT:1d7
 B:HIT:HURT:1d7
-F:MALE
+F:FEMALE
 F:DROP_60
 F:OPEN_DOOR | BASH_DOOR
-D:He looks inexperienced but tough.
+D:She looks inexperienced but tough.
 
-N:36:Novice rogue
+N:36:Fairy inaba
 G:p:b
 I:110:8d4:20:12:5
 W:2:1:0:6
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
-F:MALE
+F:FEMALE
 F:DROP_60
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL
 D:A rather shifty individual.
 
-N:37:Novice priest
+N:37:Fairy miko
 G:p:g
 I:110:7d4:20:10:10
 W:2:1:0:6
 B:HIT:HURT:1d5
-F:MALE
+B:BEG
+F:FEMALE
 F:FORCE_SLEEP
 F:DROP_60
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12
 S:HEAL | SCARE | CAUSE_1
-D:He is tripping over his priestly robes.
+D:A fairy in a chihaya, soliciting donations.
 
-N:38:Novice mage
+N:38:Fairy magician
 G:p:r
 I:110:6d4:20:6:5
 W:2:1:0:6
 B:HIT:HURT:1d4
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:DROP_60
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12
 S:BLINK | BLIND | CONF | MISSILE
-D:He is leaving behind a trail of dropped spell components.
+D:She is leaving behind a trail of dropped spell components.
 
 N:39:Yellow mushroom patch
 G:,:y
@@ -574,7 +584,7 @@ F:RAND_50
 F:ANIMAL | EVIL
 D:A flying, screeching bird with a woman's face.
 
-N:45:Blue yeek
+N:45:Blue-haired fairy
 G:y:b
 I:110:2d6:18:14:10
 W:2:1:0:4
@@ -584,7 +594,7 @@ F:OPEN_DOOR | BASH_DOOR
 F:ANIMAL | IM_ACID
 D:A small humanoid figure.
 
-N:46:Grip, Farmer Maggot's dog
+N:46:Reimu, Rinnosuke's dog
 G:C:U
 I:120:5d5:30:30:0
 W:2:1:0:30
@@ -593,10 +603,10 @@ F:UNIQUE
 F:FORCE_MAXHP | RAND_25
 F:BASH_DOOR
 F:ANIMAL | NO_CONF | NO_SLEEP
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are
+D:A rather vicious dog belonging to Rinnosuke. It thinks you are
 D: stealing mushrooms.
 
-N:47:Fang, Farmer Maggot's dog
+N:47:Marisa, Rinnosuke's dog
 G:C:U
 I:120:5d5:30:30:0
 W:2:1:0:30
@@ -605,7 +615,7 @@ F:UNIQUE
 F:FORCE_MAXHP | RAND_25
 F:BASH_DOOR
 F:ANIMAL | NO_CONF | NO_SLEEP
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are
+D:A rather vicious dog belonging to Rinnosuke.  It thinks you are
 D: stealing mushrooms.
 
 N:48:Green worm mass
@@ -699,7 +709,7 @@ F:WEIRD_MIND | BASH_DOOR
 F:ANIMAL
 D:It is about four feet long and carnivorous.
 
-N:56:Giant white louse
+N:56:White flower fairy
 G:l:w
 I:120:1d1:6:5:10
 W:3:1:0:1
@@ -707,7 +717,7 @@ B:BITE:HURT:1d1
 F:RAND_50 | RAND_25
 F:MULTIPLY | WEIRD_MIND
 F:ANIMAL
-D:It is six inches long.
+D:It is six inches tall and dies to a single shot.
 
 N:57:Black naga
 G:n:D
@@ -830,6 +840,7 @@ I:110:3d6:2:6:10
 W:3:1:0:6
 B:GAZE:LOSE_STR:1d6
 F:NEVER_MOVE
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT
 F:HURT_LITE | NO_FEAR
 S:1_IN_11
 S:DRAIN_MANA
@@ -843,27 +854,27 @@ B:BITE:HURT:1d5
 F:ANIMAL
 D:It is an armoured lizard with a powerful bite.
 
-N:69:Novice ranger
+N:69:Fairy alchemist
 G:p:W
 I:110:6d8:20:8:5
 W:4:1:0:18
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:DROP_60
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9
 S:ARROW_1 | MISSILE
-D:An agile hunter, ready and relaxed.
+D:A wielder of both bow and magic, prepared for anything.
 
-N:70:Novice paladin
+N:70:Fairy paladin
 G:p:w
 I:110:6d8:20:16:5
 W:4:1:0:18
 B:HIT:HURT:1d7
 B:HIT:HURT:1d7
-F:MALE | FORCE_SLEEP | DROP_60
+F:FEMALE | FORCE_SLEEP | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9
 S:SCARE | CAUSE_1
@@ -935,18 +946,18 @@ F:OPEN_DOOR | BASH_DOOR
 D:He is a sturdy hobbit who is renowned for his unusual strength and
 D: vigour.  He can prove a troublesome opponent.
 
-N:77:Novice mage
+N:77:Fairy magician
 G:p:r
 I:110:6d4:20:6:10
 W:6:2:0:6
 B:HIT:HURT:1d4
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12
 S:BLINK | BLIND | CONF | MISSILE
-D:He is leaving behind a trail of dropped spell components.
+D:She is leaving behind a trail of dropped spell components.
 
 N:78:Green naga
 G:n:g
@@ -1031,6 +1042,7 @@ B:GAZE:UN_BONUS
 F:ATTR_MULTI
 F:NEVER_MOVE
 F:HURT_LITE | NO_FEAR | RES_DISE
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT
 S:1_IN_9
 S:DRAIN_MANA
 D:A disembodied eye, crackling with magic.
@@ -1068,37 +1080,38 @@ F:STUPID | EMPTY_MIND
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:Yum!  It looks quite tasty.
 
-N:89:Novice priest
+N:89:Fairy miko
 G:p:g
 I:110:7d4:20:10:5
 W:6:2:0:6
 B:HIT:HURT:1d5
-F:MALE
+B:BEG
+F:FEMALE
 F:FORCE_SLEEP
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12
 S:HEAL | SCARE | CAUSE_1
-D:He is tripping over his priestly robes.
+D:A fairy in a chihaya, soliciting donations.
 
-N:90:Novice warrior
+N:90:Fairy swordsman
 G:p:u
 I:110:9d4:20:16:5
 W:6:2:0:6
 B:HIT:HURT:1d7
 B:HIT:HURT:1d7
-F:MALE
+F:FEMALE
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
-D:He looks inexperienced but tough.
+D:She looks inexperienced but tough.
 
-N:91:Novice rogue
+N:91:Fairy inaba
 G:p:b
 I:110:8d4:20:12:5
 W:6:2:0:6
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
-F:MALE
+F:FEMALE
 F:FRIENDS | DROP_60
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL
@@ -1146,17 +1159,16 @@ F:COLD_BLOOD | BASH_DOOR
 F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 D:It appears to be a pile of silver coins.
 
-N:96:Snaga
+N:96:Lesser youkai
 G:o:U
 I:110:8d8:20:32:30
 W:6:1:0:15
 B:HIT:HURT:1d8
-F:MALE
-F:FRIENDS | DROP_60
+F:FEMALE
+F:FRIENDS | DROP_60 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | HURT_LITE
-D:He is one of the many weaker 'slave' orcs, often mistakenly known as a
-D: goblin.
+D:A weak youkai, often used as a shikigami or 1st stage boss.
 
 N:97:Rattlesnake
 G:J:r
@@ -1169,16 +1181,16 @@ F:ANIMAL | IM_POIS
 D:It is recognized by the hard-scaled end of its body that is often rattled
 D: to frighten its prey.
 
-N:98:Cave orc
-G:o:G
+N:98:Cave youkai
+G:o:D
 I:110:11d9:20:32:30
 W:7:1:0:20
 B:HIT:HURT:1d8
-F:MALE
+F:FEMALE
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | HURT_LITE
-D:He is often found in huge numbers in deep caves.
+D:She is often found in huge numbers in deep caves.
 
 N:99:Wood spider
 G:S:U
@@ -1208,6 +1220,7 @@ W:7:3:0:15
 B:GAZE:BLIND:2d6
 F:NEVER_MOVE
 F:HURT_LITE | NO_FEAR
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT
 S:1_IN_7
 S:DRAIN_MANA
 D:A disembodied eye, bloodshot and nasty.
@@ -1321,43 +1334,42 @@ F:OPEN_DOOR | BASH_DOOR
 F:EVIL | IM_POIS
 D:Strong and powerful, for a kobold.
 
-N:111:Wormtongue, Agent of Saruman
+N:111:That Annoying Fairy
 G:p:B
 I:110:25d10:20:30:20
 W:8:1:0:150
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
-B:TOUCH:EAT_GOLD
 B:INSULT
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL
 S:1_IN_5
 S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
-D:He's been spying for Saruman.  He is a snivelling wretch with no morals
-D: and disgusting habits.
+D:It's that stupid fairy that appears just before the boss and takes forever to kill!
+D: But now you can put an end to her for good.
 
-N:112:Lagduf, the Snaga
+N:112:Rumia, the Youkai
 G:o:y
 I:110:19d10:20:32:30
 W:8:2:0:80
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC
-D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order
+S:1_IN_9
+S:DARKNESS
+D:A captain of a regiment of weaker youkai, Rumia keeps her troop in order
 D: with displays of excessive violence.
 
-N:113:Brown yeek
-G:y:u
+N:113:Green-haired fairy
+G:y:G
 I:110:4d8:18:18:10
 W:8:1:0:11
 B:HIT:HURT:1d6
@@ -1366,7 +1378,7 @@ F:OPEN_DOOR | BASH_DOOR
 F:ANIMAL | IM_ACID
 D:It is a strange small humanoid.
 
-N:114:Novice ranger
+N:114:Fairy alchemist
 G:p:W
 I:110:6d8:20:8:5
 W:8:2:0:18
@@ -1377,7 +1389,7 @@ F:FORCE_SLEEP | FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9
 S:ARROW_1 | MISSILE
-D:An agile hunter, ready and relaxed.
+D:A wielder of both bow and magic, prepared for anything.
 
 N:115:Giant salamander
 G:R:y
@@ -1402,7 +1414,7 @@ F:IM_ACID | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a strange growth on the dungeon floor.
 
-N:117:Skeleton orc
+N:117:Skeleton youkai
 G:s:w
 I:110:10d8:20:36:40
 W:8:1:0:26
@@ -1411,15 +1423,15 @@ F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | UNDEAD
 F:IM_COLD | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is an animated orc skeleton.
+D:It is an animated youkai skeleton.
 
-N:118:Novice paladin
+N:118:Fairy paladin
 G:p:w
 I:110:6d8:20:16:5
 W:8:2:0:18
 B:HIT:HURT:1d7
 B:HIT:HURT:1d7
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
@@ -1437,16 +1449,16 @@ F:OPEN_DOOR | BASH_DOOR
 F:EVIL | DEMON | IM_FIRE | NO_FEAR
 D:It is the larval form of a major demon.
 
-N:120:Hill orc
+N:120:Youkai
 G:o:u
 I:110:13d9:20:32:30
 W:8:1:0:25
 B:HIT:HURT:1d10
-F:MALE
+F:FEMALE
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC
-D:He is a hardy well-weathered survivor.
+D:She is a hardy well-weathered survivor.
 
 N:121:Bandit
 G:p:b
@@ -1506,7 +1518,7 @@ F:RAND_25
 F:ANIMAL | EVIL
 D:A woman's face on the body of a vicious black bird.
 
-N:126:Orc shaman
+N:126:Youkai shaman
 G:o:r
 I:110:9d8:20:15:20
 W:9:1:0:30
@@ -1518,7 +1530,7 @@ F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | HURT_LITE
 S:1_IN_8
 S:BLINK | CAUSE_1 | MISSILE
-D:An orc dressed in skins who gestures wildly.
+D:A youkai dressed in skins who gestures wildly.
 
 N:127:Baby blue dragon
 G:d:b
@@ -1647,30 +1659,28 @@ F:WEIRD_MIND | BASH_DOOR
 F:ANIMAL | IM_POIS
 D:It is a vast black spider whose bulbous body is bloated with poison.
 
-N:136:Dark elven mage
+N:136:Youkai magician
 G:h:r
 I:120:7d10:20:16:20
 W:10:1:0:50
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:ONLY_ITEM | DROP_1D2
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | IM_POIS | HURT_LITE
 S:1_IN_5
 S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
-D:A dark elven figure, dressed all in black, hurling spells at you.
+D:A youkai figure, dressed all in black, hurling spells at you.
 
-N:137:Orfax, Son of Boldor
+N:137:Shoyousei
 G:y:B
 I:120:12d10:18:20:10
 W:10:3:0:80
 B:HIT:HURT:1d9
 B:HIT:HURT:1d8
-B:INSULT
-B:INSULT
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_90 | DROP_GOOD
@@ -1679,20 +1689,20 @@ F:ANIMAL | EVIL | IM_ACID
 S:1_IN_4
 S:HEAL | BLINK | TELE_TO | SLOW | CONF
 S:S_MONSTER
-D:He's just like his daddy!  He knows mighty spells, but fortunately he is a
-D: yeek.
+D:She's just like her mommy Daiyousei!  She knows mighty spells,
+D:but fortunately she is a fairy.
 
-N:138:Dark elven warrior
+N:138:Youkai warrior
 G:h:u
 I:110:10d11:20:16:20
 W:10:1:0:50
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
-F:MALE
+F:FEMALE
 F:DROP_1D2
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | HURT_LITE
-D:A dark elven figure in armour and ready with his sword.
+D:A youkai figure in armour and ready with her sword.
 
 N:139:Clear mushroom patch
 G:,:w
@@ -1705,21 +1715,22 @@ F:STUPID | EMPTY_MIND
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:Yum!  It looks quite tasty.
 
-N:140:Grishnakh, the Hill Orc
-G:o:y
-I:110:23d10:20:20:20
+N:140:Chen, the Nekomata
+G:f:y
+I:220:23d10:20:20:20
 W:10:3:0:160
-B:HIT:HURT:1d12
 B:HIT:HURT:1d10
-B:HIT:HURT:1d12
 B:HIT:HURT:1d10
-F:UNIQUE | MALE
+B:BITE:POISON:2d6
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | IM_POIS
-D:He is a cunning and devious orc with a chaotic nature.
+S:1_IN_11
+S:BLINK | SCARE
+D:She is a cunning and devious youkai with a chaotic nature.
 
 N:141:Giant white tick
 G:S:w
@@ -1750,6 +1761,7 @@ F:NEVER_MOVE | ATTR_MULTI
 F:STUPID | EMPTY_MIND
 F:IM_POIS | RES_DISE
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT
 S:1_IN_11
 S:DRAIN_MANA
 D:It is a strange glowing growth on the dungeon floor.
@@ -1826,17 +1838,17 @@ F:ANIMAL
 D:A large black cat, stalking you with intent.  It thinks you're its next
 D: meal.
 
-N:150:Brigand
+N:150:Inaba
 G:p:b
 I:110:9d8:20:32:10
 W:10:2:0:35
 B:HIT:HURT:2d4
 B:TOUCH:EAT_ITEM
-F:MALE
+F:FEMALE
 F:DROP_1D2
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL
-D:He is eyeing your backpack.
+D:She is eyeing your backpack.
 
 N:151:Baby multi-hued dragon
 G:d:v
@@ -1866,7 +1878,7 @@ F:BASH_DOOR
 F:ANIMAL
 D:A strange hybrid of eagle and horse.  It looks weird.
 
-N:153:Zombified orc
+N:153:Zombified youkai
 G:z:s
 I:110:11d8:20:24:25
 W:11:1:0:30
@@ -1877,21 +1889,21 @@ F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | UNDEAD
 F:IM_COLD | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is a shambling orcish corpse leaving behind a trail of flesh.
+D:It is a shambling youkai corpse leaving behind a trail of flesh.
 
-N:154:Gnome mage
+N:154:Hakutaku mage
 G:h:r
 I:110:7d8:18:20:10
 W:11:2:0:38
 B:HIT:HURT:1d5
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP | DROP_1D2
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL
 S:1_IN_4
 S:BLINK | DARKNESS | BO_COLD
 S:S_MONSTER
-D:A mage of short stature.
+D:A mage who fights like a cow.
 
 N:155:Black mamba
 G:J:D
@@ -1940,23 +1952,24 @@ F:ANIMAL | HURT_LITE | NO_FEAR
 D:It is a disgusting mass of dark worms, eating each other, the floor,
 D: the air, you....
 
-N:159:Golfimbul, the Hill Orc Chief
+N:159:Mystia, the Night Sparrow
 G:o:y
 I:110:24d10:20:60:20
 W:12:3:0:230
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
-F:UNIQUE | MALE
+B:CLAW:HURT:1d12
+B:CLAW:HURT:1d12
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-D:A leader of a band of raiding orcs, he picks on hobbits.
+S:1_IN_9
+S:BLIND | CONF | SCARE | DARKNESS
+D:A youkai that lurks in the darkness, blinding and confusing
+D: humans with her song.
 
-N:160:Master yeek
+N:160:Master fairy
 G:y:U
 I:110:12d9:18:24:10
 W:12:2:0:28
@@ -1970,13 +1983,13 @@ S:BLINK | TPORT | BLIND | SLOW | BA_POIS
 S:S_MONSTER
 D:A small humanoid that radiates some power.
 
-N:161:Priest
+N:161:Miko
 G:p:g
 I:110:12d8:20:22:40
 W:12:1:0:36
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:DROP_1D2
 F:SMART | OPEN_DOOR | BASH_DOOR
@@ -1984,22 +1997,22 @@ F:EVIL
 S:1_IN_3
 S:HEAL | SCARE | CAUSE_2
 S:S_MONSTER
-D:A robed man, dedicated to his god.
+D:A shrine maiden, dedicated to her god.
 
-N:162:Dark elven priest
+N:162:Youkai miko
 G:h:g
 I:120:7d10:20:30:30
 W:12:1:0:50
 B:HIT:HURT:1d9
 B:HIT:HURT:1d10
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:ONLY_ITEM | DROP_1D2
 F:SMART | OPEN_DOOR | BASH_DOOR
 F:EVIL | HURT_LITE
 S:1_IN_5
 S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS
-D:A dark elven figure, dressed all in black, chanting curses and waiting to
+D:A youkai figure, dressed all in black, chanting curses and waiting to
 D: deliver your soul to hell.
 
 N:163:Air spirit
@@ -2119,14 +2132,14 @@ F:WEIRD_MIND | BASH_DOOR
 F:ANIMAL
 D:It is a vicious insect with a tough carapace.
 
-N:173:Boldor, King of the Yeeks
+N:173:Daiyousei, Chief of the Fairies
 G:y:v
 I:120:18d10:18:24:10
 W:13:3:0:200
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
 B:HIT:HURT:1d8
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD
@@ -2135,9 +2148,9 @@ F:ANIMAL | EVIL | IM_ACID
 S:1_IN_3
 S:HEAL | BLINK | TPORT | BLIND | SLOW
 S:S_MONSTER | S_KIN
-D:A great yeek, powerful in magic and sorcery, but a yeek all the same.
+D:A powerful fairy, chieftain of the fairies around the Shoals of Mist.
 
-N:174:Ogre
+N:174:Oni
 G:O:U
 I:110:13d9:20:33:30
 W:13:2:0:50
@@ -2188,8 +2201,8 @@ S:S_ANIMAL
 S:HASTE | BLINK | BLIND | HOLD | SLOW | BO_FIRE | BO_ELEC
 D:A priest devoted to Nature.
 
-N:178:Black orc
-G:o:D
+N:178:Forest youkai
+G:o:G
 I:110:12d10:20:36:20
 W:13:1:0:45
 B:HIT:HURT:3d4
@@ -2199,7 +2212,7 @@ F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | HURT_LITE
 S:1_IN_9 | ARROW_2
-D:He is a large orc with powerful arms and deep black skin.
+D:A powerful youkai that dwells amongst the trees.
 
 N:179:Ochre jelly
 G:j:U
@@ -2225,22 +2238,21 @@ F:MULTIPLY | WEIRD_MIND | BASH_DOOR
 F:ANIMAL
 D:It makes you itch just to look at it.
 
-N:181:Ufthak of Cirith Ungol
+N:181:Kurumi of the Lake of Blood
 G:o:g
 I:110:32d10:20:50:20
 W:14:3:0:250
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-F:UNIQUE | MALE
+B:BITE:EXP_40:1d4
+B:BITE:EXP_40:1d4
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
-F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_COLD | IM_POIS
-D:A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid of
-D: spiders.
+F:COLD_BLOOD | ONLY_ITEM | DROP_1D2 | DROP_GOOD
+F:OPEN_DOOR | BASH_DOOR | REGENERATE
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_9
+S:SCARE | DARKNESS | MISSILE
+D:A vampire that guards the lake of blood.
 
 N:182:Giant white dragon fly
 G:F:w
@@ -2258,7 +2270,7 @@ D:It is a large fly that drips frost.
 N:183:Blue icky thing
 G:i:b
 I:100:10d6:15:20:20
-W:14:4:0:20
+W:14:4:0:200000
 B:CRAWL:POISON:1d4
 B:CRAWL:EAT_FOOD
 B:HIT:HURT:1d4
@@ -2307,7 +2319,7 @@ F:BASH_DOOR
 F:ANIMAL | EVIL
 D:It is a large wolf with eyes full of cunning.
 
-N:187:Giant black louse
+N:187:Black flower fairy
 G:l:D
 I:120:1d2:6:7:10
 W:14:1:0:3
@@ -2315,7 +2327,7 @@ B:BITE:HURT:1d2
 F:RAND_50
 F:WEIRD_MIND | MULTIPLY
 F:ANIMAL
-D:It makes you itch just to look at it.
+D:It is six inches tall and easily dispatched with a single shot.
 
 N:188:Lurker
 G:.:w
@@ -2346,7 +2358,7 @@ S:BLINK | CAUSE_2 | BO_COLD | BA_POIS
 D:A large rat with glowing red eyes.  The wererat is a disgusting creature,
 D: relishing in filth and disease.
 
-N:190:Black ogre
+N:190:Black oni
 G:O:D
 I:110:20d9:20:33:30
 W:15:2:0:75
@@ -2356,7 +2368,7 @@ F:RAND_25
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | GIANT
-D:A massive orc-like figure with black skin and powerful arms.
+D:A massive youkai-like figure with black skin and powerful arms.
 
 N:191:Magic mushroom patch
 G:,:B
@@ -2417,19 +2429,18 @@ S:BR_DARK
 D:A hole in the air in the shape of a huge hound.  No light falls upon its
 D: form.
 
-N:195:Half-orc
+N:195:Han'you
 G:o:s
 I:110:16d10:20:40:20
 W:15:2:0:50
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-F:MALE
+F:FEMALE
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC
-D:He is a hideous deformed cross-breed with man and orc, combining man's
-D: strength and cunning with orcish evil.  The traitorous wizard Saruman is
-D: generally believed to be responsible for this abomination.
+D:She is a hideous deformed cross-breed of human and youkai, combining
+D: man's strength and cunning with youkai evil.
 
 N:196:Giant tarantula
 G:S:o
@@ -2500,19 +2511,19 @@ F:OPEN_DOOR | BASH_DOOR
 F:EVIL | DEMON | IM_FIRE | NO_FEAR
 D:It is a small demonic spirit full of malevolence.
 
-N:202:Gnome mage
+N:202:Hakutaku mage
 G:h:r
 I:110:7d8:20:20:20
 W:15:2:0:40
 B:HIT:HURT:1d5
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP | FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL
 S:1_IN_4
 S:BLINK | DARKNESS | BO_COLD
 S:S_MONSTER
-D:A mage of short stature.
+D:A mage who fights like a cow.
 
 N:203:Clear hound
 G:Z:w
@@ -2555,18 +2566,18 @@ F:HURT_ROCK | NO_CONF | NO_SLEEP
 D:This bizarre creature has glaring eyes and large mandibles capable of
 D: slicing through rock.
 
-N:206:Orc captain
+N:206:Youkai captain
 G:o:o
 I:110:20d10:20:59:20
 W:18:3:0:80
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:MALE | ESCORT | DROP_90
+F:FEMALE | ESCORT | DROP_90
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | IM_POIS
 S:1_IN_9 | ARROW_2
-D:An armoured orc with an air of authority.
+D:An armoured youkai with an air of authority.
 
 N:207:Gelatinous cube
 G:j:G
@@ -2702,7 +2713,7 @@ D: grief after Thror's death at the hands of Azog the Orc.  With torn beard
 D: and ragged clothes, he seems to have fixed on you as a convenient target
 D: to vent his anger.
 
-N:216:2-headed hydra
+N:216:2-tailed kitsune
 G:M:u
 I:110:100d3:20:60:20
 W:17:2:0:80
@@ -2714,7 +2725,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 F:ANIMAL
 S:1_IN_11
 S:SCARE
-D:A strange reptilian hybrid with two heads, guarding its hoard.
+D:A mighty fox youkai with two tails.
 
 N:217:Water spirit
 G:E:b
@@ -2841,51 +2852,52 @@ S:BLINK | TELE_TO
 D:A strange magical member of the canine race, its form seems to shimmer and
 D: fade in front of your very eyes.
 
-N:226:Uruk
+N:226:Greater youkai
 G:o:B
 I:110:8d10:20:50:20
 W:16:1:0:60
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:MALE
+F:FEMALE
 F:FORCE_MAXHP | FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | IM_POIS
 S:1_IN_9 | ARROW_2
-D:A cunning orc of power, as tall as a man, and stronger.  It fears
+D:A cunning youkai of power, as tall as a man, and stronger.  She fears
 D: little.
 
-N:227:Shagrat, the Orc Captain
+N:227:Hina, the Curse God
 G:o:g
 I:110:40d10:20:60:20
 W:19:2:0:400
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS
-D:He is an orc of power and great cunning, leader of the garrison at Cirith Ungol.
+F:ORC | IM_POIS
+S:1_IN_5
+S:BLINK | SCARE | SLOW | CAUSE_1 | CAUSE_2 | TRAPS
+D:One of the Eight Million Gods, she tries to prevent adventurers from
+D: journeying further for their own sake.
 
-N:228:Gorbag, the Orc Captain
-G:o:g
+N:228:Nitori, the Kappa
+G:o:B
 I:110:40d10:20:60:20
 W:19:2:0:400
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS
-D:He is an orc of power and great cunning, leader of the garrison at Minas Morgul.
+F:ORC | IM_POIS
+S:1_IN_9
+S:BLIND | CONF | HOLD | MISSILE
+D:A curious, friendly kappa who seeks to test your skills.
 
 N:229:Shambling mound
 G:,:g
@@ -2964,22 +2976,21 @@ S:BR_SOUN
 D:Large beating wings support this dazzling insect.  A loud buzzing noise
 D: pervades the air.
 
-N:235:Bolg, Son of Azog
-G:o:v
+N:235:Koakuma
+G:u:v
 I:120:50d10:20:50:20
 W:20:4:0:800
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
-F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS
-D:A large and powerful orc, he looks just like his father.  He is tall and
-D: fast, but fortunately blessed with orcish brains.
+F:OPEN_DOOR | BASH_DOOR | RAND_25
+F:EVIL | DEMON | IM_FIRE | NO_FEAR
+S:1_IN_5
+S:BLINK | BLIND | CONF | SCARE | CAUSE_2 | BO_FIRE
+D:The demonic retainer of Patchouli. Fortunately, she is on the clumsy side.
 
 N:236:Phase spider
 G:S:B
@@ -2996,7 +3007,7 @@ S:BLINK | TELE_TO
 D:A spider that never seems quite there.  Everywhere you look it is just
 D: half-seen in the corner of one eye.
 
-N:237:3-headed hydra
+N:237:3-tailed kitsune
 G:M:o
 I:120:100d5:20:65:20
 W:20:2:0:350
@@ -3009,7 +3020,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 F:ANIMAL
 S:1_IN_9
 S:SCARE
-D:A strange reptilian hybrid with three heads, guarding its hoard.
+D:A mighty fox youkai with three tails.
 
 N:238:Earth hound
 G:Z:u
@@ -3153,23 +3164,23 @@ S:1_IN_8
 S:BOULDER
 D:It is a twenty foot tall giant wreathed in clouds.
 
-N:248:Lugdush, the Uruk
-G:o:b
+N:248:Luize, the Tourist
+G:o:w
 I:110:64d10:20:90:20
 W:21:4:0:550
 B:HIT:HURT:3d7
 B:HIT:HURT:3d7
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | IM_POIS
-D:A large and powerful orc, captain of one of Saruman's orcish regiments.
+D:She's just passing through.
 
-N:249:Ugluk, the Uruk
+N:249:Meira, the Samurai
 G:o:b
 I:110:72d10:20:95:20
 W:22:3:0:600
@@ -3177,13 +3188,13 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
-D:A strong and cunning orc warrior, the commander of Saruman's orcish horde.
+F:EVIL |  IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+D:A mighty samurai who seeks the Hakurei family's power.
 
 N:250:Blue dragon bat
 G:b:b
@@ -3264,7 +3275,7 @@ S:1_IN_6
 S:BR_ELEC
 D:A shimmering tornado of air, sparks crackle along its length.
 
-N:256:Mummified orc
+N:256:Mummified youkai
 G:z:w
 I:110:15d8:20:28:75
 W:21:1:0:56
@@ -3275,7 +3286,7 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | UNDEAD
 F:IM_COLD | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is an orcish figure covered in wrappings.
+D:It is a youkai figure covered in wrappings.
 
 N:257:Killer stag beetle
 G:K:g
@@ -3336,21 +3347,24 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL
 D:A scarred warrior who moves with confidence.
 
-N:262:Azog, King of the Uruk-Hai
+N:262:Patchouli, the Magician
 G:o:v
 I:120:90d10:20:80:20
 W:23:5:0:1111
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP
 F:ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
-F:OPEN_DOOR | BASH_DOOR
+F:SMART | OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | IM_POIS
-D:He is also known as the King of Khazad-dum.  His ego is renowned to be
-D: bigger than his head.
+S:1_IN_3
+S:HASTE | TPORT | TELE_TO | BLIND | CONF | SLOW | SCARE
+S:BO_ACID | BO_FIRE | BO_COLD | BO_ELEC
+D:A mighty magician who usually resides in the library of the
+D: Scarlet Devil Mansion. What is she doing down here?
 
 N:263:Master rogue
 G:p:b
@@ -3451,7 +3465,7 @@ S:HEAL | SLOW | BO_FIRE
 D:One of the last of the Petty-Dwarves.  Khim is a tricky sorcerous little
 D: being, full of mischief.
 
-N:270:4-headed hydra
+N:270:4-tailed kitsune
 G:M:y
 I:120:100d6:20:70:20
 W:24:2:0:450
@@ -3465,7 +3479,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 F:ANIMAL
 S:1_IN_7
 S:SCARE
-D:A strange reptilian hybrid with four heads, guarding its hoard.
+D:A mighty fox youkai with four tails.
 
 N:271:Mummified human
 G:z:w
@@ -3680,7 +3694,7 @@ F:WEIRD_MIND | BASH_DOOR
 F:ANIMAL | IM_FIRE
 D:It is smoking and burning with great heat.
 
-N:287:Cave ogre
+N:287:Cave oni
 G:O:u
 I:110:30d9:20:33:30
 W:26:2:0:80
@@ -3689,7 +3703,7 @@ B:HIT:HURT:3d8
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | GIANT
-D:A giant orc-like figure with an awesomely muscled frame.
+D:A giant youkai-like figure with an awesomely muscled frame.
 
 N:288:White wraith
 G:W:w
@@ -3816,7 +3830,7 @@ S:BR_NEXU
 D:A locus of conflicting points coalesce to form the vague shape of a huge
 D: hound.  Or is it just your imagination?
 
-N:296:Ogre mage
+N:296:Oni mage
 G:O:r
 I:110:25d12:20:40:30
 W:27:2:0:300
@@ -3831,9 +3845,9 @@ F:EVIL | GIANT
 S:1_IN_4
 S:HEAL | HOLD | TRAPS | BA_COLD
 S:S_MONSTER
-D:A hideous ogre wrapped in black sorcerous robes.
+D:A hideous oni wrapped in black sorcerous robes.
 
-N:297:Lokkak, the Ogre Chieftain
+N:297:Lokkak, the Oni Chieftain
 G:O:v
 I:120:15d100:20:100:20
 W:32:2:0:1500
@@ -3846,8 +3860,8 @@ F:ESCORT
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | GIANT | IM_POIS
-D:An ogre renowned for acts of surpassing cruelty, Lokkak quickly became the
-D: leader of a large band of violent ogres.
+D:An oni renowned for acts of surpassing cruelty, Lokkak quickly became the
+D: leader of a large band of violent oni.
 
 N:298:Vampire
 G:V:W
@@ -3915,7 +3929,7 @@ S:HEAL | BLIND | MIND_BLAST | DARKNESS
 D:A wraithly snake-like form with the torso of a beautiful woman, it is the
 D: most powerful of its kind.
 
-N:302:5-headed hydra
+N:302:5-tailed kitsune
 G:M:g
 I:120:100d8:20:80:20
 W:28:2:0:650
@@ -3929,7 +3943,7 @@ F:BASH_DOOR | MOVE_BODY
 F:ANIMAL | IM_POIS
 S:1_IN_5
 S:SCARE | BA_POIS
-D:A strange reptilian hybrid with five heads dripping venom.
+D:A mighty fox youkai with five tails.
 
 N:303:Black knight
 G:p:s
@@ -3965,13 +3979,13 @@ D:An evil and cunning man from the East.  Having once sworn allegiance to the
 D: sons of Feanor, it was Uldor's treachery that turned the tide of the Battle
 D: of Unnumbered Tears in Morgoth's favour.
 
-N:305:Mage
+N:305:Witch
 G:p:r
 I:110:15d8:20:40:10
 W:28:1:0:150
 B:HIT:HURT:2d5
 B:HIT:HURT:2d5
-F:MALE
+F:FEMALE
 F:FORCE_SLEEP
 F:ONLY_ITEM | DROP_1D2
 F:SMART | OPEN_DOOR | BASH_DOOR
@@ -3980,7 +3994,7 @@ S:1_IN_3
 S:HASTE | TPORT | TELE_TO | BLIND | CONF
 S:BO_FIRE | BO_COLD | BO_ELEC
 S:S_MONSTER
-D:A mage of some power - you can tell by the size of his hat.
+D:A mage of some power - you can tell by the size of her hat.
 
 N:306:Mind flayer
 G:h:v
@@ -4311,7 +4325,7 @@ F:WEIRD_MIND | BASH_DOOR
 F:ANIMAL
 D:It is a giant beetle that produces a chilling sound.
 
-N:328:Ogre shaman
+N:328:Oni shaman
 G:O:G
 I:110:25d12:20:55:30
 W:27:2:0:300
@@ -4325,7 +4339,7 @@ F:EVIL | GIANT
 S:1_IN_5
 S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE
 S:S_MONSTER
-D:It is an ogre wrapped in furs and covered in grotesque body paints.
+D:It is an oni wrapped in furs and covered in grotesque body paints.
 
 N:329:Nexus quylthulg
 G:Q:v
@@ -5681,6 +5695,7 @@ B:BITE:HURT:6d6
 F:FORCE_SLEEP | FORCE_MAXHP
 F:BASH_DOOR
 F:EVIL | IM_POIS | NO_CONF | NO_SLEEP
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT
 S:1_IN_2
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST
 S:FORGET | DARKNESS | BO_ACID | BO_FIRE | BO_COLD | BO_ELEC
@@ -5891,7 +5906,7 @@ S:BLIND | CONF | SCARE
 S:BR_POIS
 D:A huge draconic form enveloped in clouds of poisonous vapour.
 
-N:426:7-headed hydra
+N:426:7-tailed kitsune
 G:M:G
 I:120:100d10:20:90:20
 W:39:2:0:2000
@@ -5906,7 +5921,7 @@ F:ANIMAL | IM_POIS
 S:1_IN_5
 S:SCARE | BA_POIS
 S:BR_POIS
-D:A strange reptilian hybrid with seven heads dripping venom.
+D:A mighty fox youkai with seven tails, its maw frothing with poison.
 
 N:427:Night mare
 G:q:G
@@ -6011,7 +6026,7 @@ S:BOULDER | HEAL | TELE_TO | S_MONSTERS
 D:It is a humanoid figure thirty feet tall that gives off an aura of power
 D: and hate.
 
-N:434:9-headed hydra
+N:434:9-tailed kitsune.
 G:M:r
 I:120:100d12:20:95:20
 W:40:2:0:3000
@@ -6026,7 +6041,7 @@ F:ANIMAL | IM_FIRE
 S:1_IN_4
 S:SCARE | BO_FIRE
 S:BR_FIRE
-D:A strange reptilian hybrid with nine smouldering heads.
+D:A mighty fox youkai with nine tails, its entire body enveloped in flames.
 
 N:435:Enchantress
 G:p:R
@@ -6279,7 +6294,7 @@ F:INVISIBLE | COLD_BLOOD | PASS_WALL | MOVE_BODY
 F:EVIL | UNDEAD | IM_COLD | IM_POIS
 F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3
-S:BLIND | HOLD | SCARE | CAUSE_3 | FORGET
+S:BLIND | HOLD | SCARE | CAUSE_3
 S:BO_ACID | BO_FIRE | BO_COLD | BO_NETH
 S:S_MONSTER
 D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the
@@ -6465,6 +6480,7 @@ B:BITE:EXP_40:7d6
 F:FORCE_SLEEP | FORCE_MAXHP
 F:COLD_BLOOD | BASH_DOOR
 F:EVIL | UNDEAD
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP
 S:1_IN_2
@@ -6642,7 +6658,7 @@ S:BO_ELEC | BA_COLD | BA_ELEC
 D:A towering air elemental, Ariel, the sorceress, avoids your blows
 D: with her extreme speed.
 
-N:469:11-headed hydra
+N:469:Fire kitsune
 G:M:R
 I:120:100d18:20:100:20
 W:44:2:0:6000
@@ -6657,7 +6673,7 @@ F:ANIMAL | IM_FIRE
 S:1_IN_4
 S:SCARE | BO_FIRE | BO_PLAS | BA_FIRE
 S:BR_FIRE
-D:A strange reptilian hybrid with eleven smouldering heads.
+D:An awesome fox-shaped visage with nine tails composed of raging fire.
 
 N:470:Patriarch
 G:p:G
@@ -7386,7 +7402,7 @@ F:OPEN_DOOR | BASH_DOOR
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_4
 S:HEAL | BLIND | CONF | SCARE | CAUSE_3 | CAUSE_4 | BRAIN_SMASH
-S:S_MONSTERS | S_ANIMAL
+S:FORGET | S_MONSTERS | S_ANIMAL
 D:He is one of the greatest dwarven priests to walk the earth.  Fundin has
 D: earned a high position in the church, and his skill with both weapon and
 D: spell only justify his position further.  His combination of both dwarven
@@ -7804,6 +7820,7 @@ F:FORCE_SLEEP | FORCE_MAXHP
 F:SMART | BASH_DOOR
 F:EVIL | IM_POIS | IM_FIRE | IM_COLD | IM_ACID
 F:NO_CONF | NO_SLEEP
+F:ONLY_ITEM | DROP_90 | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT
 S:1_IN_2
 S:BLIND | CONF | FORGET | SCARE | DRAIN_MANA | BRAIN_SMASH
 S:BA_DARK | BO_MANA | BA_NETH | BA_ACID | BA_FIRE | BA_COLD
@@ -8144,7 +8161,7 @@ D: fiery breath he saved his master from Ungoliant's rage.
 # Sauron is the basic "Quest" (thus the QUESTOR flag).
 # You must kill him to gain access to Morgoth's level.
 
-N:546:Sauron, the Sorcerer
+N:546:Lily White, Fairy of Springtime
 G:p:v
 I:130:105d100:100:160:0
 W:99:1:0:50000
@@ -8152,7 +8169,7 @@ B:HIT:UN_BONUS:10d12
 B:HIT:UN_BONUS:10d12
 B:HIT:UN_POWER:8d12
 B:HIT:UN_POWER:8d12
-F:UNIQUE | QUESTOR | MALE
+F:UNIQUE | QUESTOR | FEMALE
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE
@@ -8164,14 +8181,12 @@ S:BO_ICEE | BO_MANA | BO_PLAS | BRAIN_SMASH
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK
 S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON
 S:S_WRAITH | S_UNIQUE
-D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments,
-D: he created the One Ring.  His eyes glow with power and his gaze seeks to
-D: destroy your soul.  He has many servants, and rarely fights without them.
+D:Lily White is here to announce that springtime has come!
 
-# Morgoth is the final "Quest" (thus the QUESTOR flag).
+# Morgoth, er, that is, Lily, is the final "Quest" (thus the QUESTOR flag).
 # You must kill him to complete the final quest, and win the game.
 
-N:547:Morgoth, Lord of Darkness
+N:547:Lily Black, Dark Lord of Springtime
 G:P:D
 I:140:200d100:100:150:0
 W:100:1:0:60000
@@ -8179,7 +8194,7 @@ B:HIT:SHATTER:20d10
 B:HIT:SHATTER:20d10
 B:HIT:LOSE_ALL:10d12
 B:TOUCH:UN_POWER
-F:UNIQUE | QUESTOR | MALE
+F:UNIQUE | QUESTOR | FEMALE
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2
 F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN
@@ -8190,17 +8205,15 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3
 S:BA_MANA | BO_MANA | BA_NETH | BRAIN_SMASH
 S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON
-D:He is the Master of the Pits of Angband.  His figure is like a black
-D: mountain crowned with lightning.  He rages with everlasting anger, his
-D: body scarred by Fingolfin's eight mighty wounds.  He can never rest from
-D: his pain, but seeks forever to dominate all that is light and good in the
-D: world.  He is the origin of man's fear of darkness and created many foul
-D: creatures with his evil powers.  Orcs, Dragons, and Trolls are his most
+D:The Master of the Pits of Angband, she rages with everlasting anger, her
+D: body scarred by Shikieiki's mighty curse.  She can never rest from her 
+D: pain, but seeks forever to dominate all that is light and good in the
+D: world.  She is the origin of man's fear of darkness and created many foul
+D: creatures with her evil powers.  Orcs, Dragons, and Trolls are her most
 D: foul corruptions, causing much pain and suffering in the world to please
-D: him.  His disgusting visage, twisted with evil, is crowned with iron, the
-D: two remaining Silmarils forever burning him.  Grond, the mighty Hammer of
-D: the Underworld, cries defiance as he strides towards you to crush you to a
-D: pulp!
+D: her.  Her beautiful visage, twisted with evil, is crowned with lilies, the
+D: cherry blossoms of springtime forever burning her.  BFG 9000, the mighty Hammer of
+D: the Underworld, cries defiance as she strides towards you to crush you to a pulp!
 
 N:548:Silver mouse
 G:r:W
@@ -8220,6 +8233,7 @@ W:5:1:0:15
 B:TOUCH:EAT_FOOD:2d3
 B:TOUCH:LOSE_CHR:2d3
 F:NEVER_MOVE
+F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:STUPID | EMPTY_MIND
 F:HURT_LITE | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
@@ -8840,6 +8854,7 @@ B:GAZE:EXP_10
 B:GAZE:EXP_10
 F:NEVER_MOVE | EVIL
 F:HURT_LITE | NO_FEAR
+F:ONLY_ITEM | DROP_90 | DROP_4D2 | DROP_GOOD | DROP_GREAT
 S:1_IN_7
 S:HOLD | TELE_TO
 D:A huge disembodied eye.  As you stare into the black nothingness of its pupil,
@@ -8853,6 +8868,7 @@ W:28:2:0:150
 B:GAZE:PARALYZE:1d4
 B:GAZE:CONFUSE:1d4
 B:BITE:HURT:1d8
+F:ONLY_ITEM | DROP_90 | DROP_3D2 | DROP_GOOD | DROP_GREAT
 F:FORCE_SLEEP | FORCE_MAXHP
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6
@@ -8871,6 +8887,7 @@ B:GAZE:UN_POWER:5d2
 B:GAZE:UN_POWER:5d2
 F:FORCE_SLEEP | FORCE_MAXHP
 F:BASH_DOOR | EVIL
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT
 S:1_IN_5
 S:CAUSE_2 | TELE_AWAY | BA_COLD | BO_ELEC | HOLD | DRAIN_MANA
 D:Another lesser relative of the beholder, this six-eyed creature feeds on magic.
@@ -8883,6 +8900,7 @@ B:BITE:EXP_80:6d6
 B:GAZE:PARALYZE:5d5
 B:GAZE:LOSE_INT:5d5
 B:GAZE:UN_POWER:5d5
+F:ONLY_ITEM | DROP_90 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT
 F:FORCE_SLEEP | FORCE_MAXHP
 F:FEMALE | EVIL
 F:SMART | BASH_DOOR
@@ -9173,7 +9191,7 @@ S:BO_PLAS | BA_FIRE | BR_FIRE | BA_ELEC | S_DEMON | TELE_TO
 D:A gigantic four-armed animated bronze statue of demonic shape, glowing with
 D: great heat.
 
-N:610:Ogre chieftain
+N:610:Oni chieftain
 G:O:b
 I:120:30d15:20:55:30
 W:30:5:0:600
@@ -9184,9 +9202,9 @@ B:HIT:HURT:3d8
 F:FORCE_SLEEP
 F:ONLY_ITEM | DROP_90 | MOVE_BODY
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | MALE | GIANT | ESCORT
-D:This ogre is leader of his tribe.  He sneers at you as he advances towards you,
-D: wielding a huge club and pushing his own followers rudely aside.
+F:EVIL | FEMALE | GIANT | ESCORT
+D:This oni is leader of hes tribe.  She sneers at you as she advances towards you,
+D: wielding a huge club and pushing her own followers rudely aside.
 
 N:611:Ar-Pharazon the Golden
 G:p:y
@@ -9283,4 +9301,3 @@ F:IM_ELEC | IM_POIS | IM_ACID | IM_FIRE | IM_COLD
 S:1_IN_5
 S:BR_ACID | BR_POIS | BR_COLD | BR_FIRE | BR_ELEC
 D:Shimmering in rainbow hues, this hound is beautiful and deadly.
-
