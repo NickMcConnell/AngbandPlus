@@ -464,7 +464,10 @@
     <None Include="..\lib\pref\xtra-gcu.prf" />
     <None Include="..\lib\pref\xtra-new.prf" />
     <None Include="..\lib\pref\xtra-xxx.prf" />
+    <None Include="Makefile.inc" />
     <None Include="makefile.linux" />
+    <None Include="Makefile.osx" />
+    <None Include="Makefile.src" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

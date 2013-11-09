@@ -3069,7 +3069,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             }
             case MON_ATHENA:
             {
-                int num = randint1(4);
+                int num = randint1(2);
                 msg_format("%^s summons friends!", m_name);
                 if (one_in_(3) && r_info[MON_ZEUS].max_num == 1)
                 {
@@ -3423,7 +3423,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 if (blind) msg_format("%^s mumbles.", m_name);
                 else msg_format("%^s magically summons Olympians!", m_name);
 
-                for (k = 0; k < s_num_4; k++)
+                for (k = 0; k < 2; k++)
                 {
                     count += summon_specific(
                         m_idx, 
@@ -3446,7 +3446,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 if (blind) msg_format("%^s mumbles.", m_name);
                 else msg_format("%^s magically summons Knights!", m_name);
 
-                for (k = 0; k < s_num_4; k++)
+                for (k = 0; k < 2; k++)
                 {
                     count += summon_specific(
                         m_idx, 
@@ -3469,7 +3469,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 if (blind) msg_format("%^s mumbles.", m_name);
                 else msg_format("%^s magically summons Knights of the Round Table!", m_name);
 
-                for (k = 0; k < s_num_4; k++)
+                for (k = 0; k < 2; k++)
                 {
                     count += summon_specific(
                         m_idx, 
@@ -3482,7 +3482,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 }
                 if (!count) /* In case they are all dead ... */
                 {
-                    for (k = 0; k < s_num_4; k++)
+                    for (k = 0; k < 2; k++)
                     {
                         count += summon_specific(
                             m_idx, 

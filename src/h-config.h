@@ -206,7 +206,7 @@
  * or for the "Atari" platform which is Unix-like, apparently
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
-    !defined(MSDOS) && !defined(USE_EMX) && \
+  !defined(MSDOS) && !defined(USE_EMX) && !defined(MACH_O_CARBON) &&	\
     !defined(AMIGA) && !defined(ACORN) && !defined(VM)
 # define SET_UID
 #endif
@@ -269,14 +269,15 @@
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(MACINTOSH) || defined(MACH_O_CARBON)
-# define FILE_TYPE_TEXT 'TEXT'
-# define FILE_TYPE_DATA 'DATA'
-# define FILE_TYPE_SAVE 'SAVE'
-# define FILE_TYPE(X) (_ftype = (X))
-#else
+//#if defined(MACH_O_CARBON)
+//# define FILE_TYPE_TEXT 'TEXT'
+//# define FILE_TYPE_DATA 'DATA'
+//# define FILE_TYPE_SAVE 'SAVE'
+//# define FILE_TYPE(X) (_ftype = (X))
+//#else
 # define FILE_TYPE(X) ((void)0)
-#endif
+#define HAVE_USLEEP
+//#endif
 
 
 /*
@@ -300,7 +301,7 @@
  * Note that this is only relevant for "SET_UID" machines.
  * Note that new "SOLARIS" and "SGI" machines have "usleep()".
  */
-#if defined(SET_UID) && !defined(HAVE_CONFIG_H)
+#if defined(SET_UID)
 # if !defined(HPUX) && !defined(ULTRIX) && !defined(ISC)
 #  define HAVE_USLEEP
 # endif
@@ -311,6 +312,7 @@
 #  define HAVE_USLEEP /* Set for gcc (djgpp-v2), TY */
 # endif
 #endif
+
 
 
 #endif /* INCLUDED_H_CONFIG_H */

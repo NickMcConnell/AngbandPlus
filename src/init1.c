@@ -289,7 +289,7 @@ static cptr r_info_flags1[] =
     "DROP_4D2",
     "DROP_GOOD",
     "DROP_GREAT",
-    "XXX2",
+    "TRUMP",
     "XXX3"
 };
 
@@ -596,7 +596,7 @@ static cptr r_info_flags9[] =
     "POS_HEROISM",
     "POS_BLESSING",
     "POS_BERSERK",
-    "XXX24",
+    "POS_CLAIRVOYANCE",
     "XXX25",
     "XXX26",
     "XXX27",
@@ -635,16 +635,16 @@ static cptr r_info_flagsr[] =
     "RES_ALL",
     "RES_TELE",
     "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
-    "XXX",
+    "RES_ACID",
+    "RES_ELEC",
+    "RES_FIRE",
+    "RES_COLD",
+    "RES_POIS",
+    "XXX27",
+    "XXX28",
+    "XXX29",
+    "XXX30",
+    "XXX31",
 };
 
 

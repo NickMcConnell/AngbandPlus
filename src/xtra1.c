@@ -911,6 +911,15 @@ static void prt_status(void)
             break;
         }
     }
+    if (p_ptr->prace == RACE_MON_POSSESSOR)
+    {
+        switch(possessor_get_toggle())
+        {
+        case LEPRECHAUN_TOGGLE_BLINK:
+            ADD_FLG(BAR_BLINK);
+            break;
+        }
+    }
     if (p_ptr->pclass == CLASS_MAULER)
     {
         switch (mauler_get_toggle())

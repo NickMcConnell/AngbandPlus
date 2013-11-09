@@ -740,3 +740,26 @@ S:AMULET:Amulet
 S:LITE:Light
 S:CLOAK:Cloak
 S:HELMET:Head
+
+N:70:Kraken
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:LITE:Light
+S:HELMET:Head
+
+N:71:Small Kraken
+S:RING:Tentacle
+S:RING:Tentacle
+S:RING:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:AMULET:Tentacle
+S:LITE:Light

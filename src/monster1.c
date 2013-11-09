@@ -189,6 +189,9 @@ static void roff_aux(int r_idx, int mode)
     if (r_idx == MON_MONKEY_CLONE)
         know_everything = TRUE;
 
+    if (p_ptr->wizard)
+        know_everything = TRUE;
+
     /* Cheat -- Know everything */
     if (know_everything)
     {
@@ -1175,8 +1178,45 @@ static void roff_aux(int r_idx, int mode)
 
     if (flagsr & RFR_IM_POIS) {vp[vn] = "poison";color[vn++] = TERM_L_GREEN;}
 
+    /* Describe resistances */
+    if (vn)
+    {
+        /* Intro */
+        hooked_roff(format("%^s", wd_he[msex]));
+
+
+        /* Scan */
+        for (n = 0; n < vn; n++)
+        {
+            /* Intro */
+            if (n == 0) hooked_roff(" is immune to ");
+            else if (n < vn-1) hooked_roff(", ");
+            else hooked_roff(" and ");
+
+
+            /* Dump */
+            hook_c_roff(color[n], vp[n]);
+        }
+
+        /* End */
+        hooked_roff(".  ");
+
+    }
+
+
 
     /* Collect resistances */
+    vn = 0;
+    if (flagsr & RFR_RES_ACID) {vp[vn] = "acid";color[vn++] = TERM_GREEN;}
+
+    if (flagsr & RFR_RES_ELEC) {vp[vn] = "lightning";color[vn++] = TERM_BLUE;}
+
+    if (flagsr & RFR_RES_FIRE) {vp[vn] = "fire";color[vn++] = TERM_RED;}
+
+    if (flagsr & RFR_RES_COLD) {vp[vn] = "cold";color[vn++] = TERM_L_WHITE;}
+
+    if (flagsr & RFR_RES_POIS) {vp[vn] = "poison";color[vn++] = TERM_L_GREEN;}
+
     if (flagsr & RFR_RES_LITE) {vp[vn] = "light";color[vn++] = TERM_YELLOW;}
 
     if (flagsr & RFR_RES_DARK) {vp[vn] = "dark";color[vn++] = TERM_L_DARK;}
@@ -1210,7 +1250,7 @@ static void roff_aux(int r_idx, int mode)
     if ((flagsr & RFR_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "teleportation";color[vn++] = TERM_ORANGE;}
 
 
-    /* Describe immunities and resistances */
+    /* Describe resistances */
     if (vn)
     {
         /* Intro */

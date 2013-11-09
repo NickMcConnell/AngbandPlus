@@ -153,6 +153,8 @@ race_t *android_get_race_t(void)
         me.get_powers = _android_get_powers;
         me.get_flags = _android_get_flags;
         me.get_vulnerabilities = _android_get_vulnerabilities;
+        me.flags = RACE_IS_NONLIVING;
+
         init = TRUE;
     }
 

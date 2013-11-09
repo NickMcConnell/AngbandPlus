@@ -25,6 +25,9 @@
 ?:[EQU $SYS gcu]
 %:graf-gcu.prf
 
+?:[EQU $SYS sdl]
+%:graf-sdl.prf
+
 ?:[EQU $SYS ami]
 %:graf-ami.prf
 

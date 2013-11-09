@@ -2192,10 +2192,10 @@ static void process_monster(int m_idx)
        Note, if you move this code below, the Magus actually spawns???  Probably,
        he is just in N places at once.
     */
-    if (m_ptr->r_idx == MON_ULT_MAGUS || m_ptr->r_idx == MON_ATHENA)
+    if ((r_ptr->flags1 & RF1_TRUMP) && one_in_(2))
     {
         if (!MON_CSLEEP(m_ptr))
-            teleport_away(m_idx, 7, 0L);
+            teleport_away(m_idx, 5, 0L);
     }
 
     if (p_ptr->pclass == CLASS_PSION)

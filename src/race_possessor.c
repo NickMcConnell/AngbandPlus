@@ -29,6 +29,40 @@ static void _birth(void)
     add_outfit(&forge);
 }
 
+static int _get_toggle(void)
+{
+    return p_ptr->magic_num1[0];
+}
+
+static int _set_toggle(s32b toggle)
+{
+    int result = p_ptr->magic_num1[0];
+
+    if (toggle == result) return result;
+
+    p_ptr->magic_num1[0] = toggle;
+
+    p_ptr->redraw |= PR_STATUS;
+    p_ptr->update |= PU_BONUS;
+    handle_stuff();
+
+    return result;
+}
+
+int possessor_get_toggle(void)
+{
+    int result = TOGGLE_NONE;
+    if (p_ptr->prace == RACE_MON_POSSESSOR)
+        result = _get_toggle();
+    return result;
+}
+
+static void _player_action(int energy_use)
+{
+    if (_get_toggle() == LEPRECHAUN_TOGGLE_BLINK)
+        teleport_player(10, TELEPORT_LINE_OF_SIGHT);
+}
+
 /**********************************************************************
  * Attacks
  * We could either write new attack code, or translate to existing innate
@@ -276,7 +310,7 @@ static void _calc_innate_attacks(void)
             a.dd = (a.dd + 1)/2;
             break;
         case RBE_POISON:
-            a.effect[0] = GF_POIS;
+            a.effect[1] = GF_POIS;
             a.dd = (a.dd + 1)/2;
             break;
         case RBE_DISEASE:
@@ -438,42 +472,52 @@ static void _possess_spell(int cmd, variant *res)
  **********************************************************************/
 static int _breath_amount(int type)
 {
-    int l = p_ptr->lev;
+    int           l = p_ptr->lev;
+    int           mul = 1, div = 1;
+    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+        
+    switch (r_ptr->d_char)
+    {
+    case 'D': mul = 1; div = 1; break;
+    case 'd': mul = 2; div = 3; break;
+    case 'Z': mul = 1; div = 2; break;
+    }
+
     switch (type)
     {
     case GF_ACID: case GF_ELEC: case GF_FIRE : case GF_COLD:
-        return MAX(1, MIN(900, p_ptr->chp * (25 + l*l*l/2500) / 100));
+        return MAX(1, MIN(900, p_ptr->chp * (25 + l*l*l/2500) * mul / (100 *div)));
 
     case GF_POIS: case GF_NUKE:
-        return MAX(1, MIN(700, p_ptr->chp * (20 + l*l*l/2500) / 100));
+        return MAX(1, MIN(700, p_ptr->chp * (20 + l*l*l/2500) * mul / (100 *div)));
 
     case GF_NETHER:
-        return MAX(1, MIN(650, p_ptr->chp * (20 + l*l*l*30/125000) / 100));
+        return MAX(1, MIN(650, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
 
     case GF_LITE: case GF_DARK:
-        return MAX(1, MIN(350, p_ptr->chp * (20 + l*l*l*15/125000) / 100));
+        return MAX(1, MIN(350, p_ptr->chp * (20 + l*l*l*15/125000) * mul / (100 *div)));
 
     case GF_CONFUSION: case GF_NEXUS: 
-        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*15/125000) / 100));
+        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*15/125000) * mul / (100 *div)));
 
     case GF_TIME: case GF_INERT: case GF_GRAVITY: case GF_DISINTEGRATE:
     case GF_PLASMA: case GF_FORCE:
-        return MAX(1, MIN(250, p_ptr->chp * (20 + l*l*l*15/125000) / 100));
+        return MAX(1, MIN(250, p_ptr->chp * (20 + l*l*l*15/125000) * mul / (100 *div)));
 
     case GF_SOUND:
-        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) / 100));
+        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) * mul / (100 *div)));
 
     case GF_STORM:
-        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*20/125000) / 100));
+        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*20/125000) * mul / (100 *div)));
 
     case GF_CHAOS: case GF_SHARDS:
-        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l*30/125000) / 100));
+        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
 
     case GF_MANA:
-        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) / 100));
+        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) * mul / (100 *div)));
 
     case GF_DISENCHANT:
-        return MAX(1, MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) / 100));
+        return MAX(1, MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
     }
     return 0;
 }
@@ -504,6 +548,22 @@ static void _breathe_spell(int what, int cmd, variant *res)
             fire_ball(what, dir, _breath_amount(what), -1 - (p_ptr->lev / 20));
             var_set_bool(res, TRUE);
         }
+        break;
+    }
+    case SPELL_COST_EXTRA:
+    {
+        int           div = 7;
+        monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+        
+        switch (r_ptr->d_char)
+        {
+        case 'b': div = 6; break;
+        case 'D': div = 15; break;
+        case 'd': div = 12; break;
+        case 'Z': div = 8; break;
+        }
+        
+        var_set_int(res, (_breath_amount(what) + div - 1) / div);
         break;
     }
     default:
@@ -625,6 +685,8 @@ static int _get_powers(spell_info* spells, int max)
 
     if (ct < max)
         _add_power(&spells[ct++], 1, 0, 0, _possess_spell, p_ptr->stat_ind[A_DEX]);
+    if (ct < max && (r_ptr->flags1 & RF1_TRUMP))
+        _add_power(&spells[ct++], 1, 0, 0, blink_toggle_spell, p_ptr->stat_ind[A_DEX]);
     if (ct < max && (r_ptr->flags2 & RF2_MULTIPLY))
         _add_power(&spells[ct++], 1, 5, 40, _multiply_spell, p_ptr->stat_ind[A_CHR]);
     if (ct < max && (r_ptr->flags4 & RF4_SHRIEK))
@@ -636,51 +698,51 @@ static int _get_powers(spell_info* spells, int max)
     if (ct < max && (r_ptr->flags9 & RF9_POS_BERSERK))
         _add_power(&spells[ct++], 13, 9, 50, berserk_spell, p_ptr->stat_ind[A_STR]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_ACID))
-        _add_power(&spells[ct++], 20, 25, 55, _breathe_acid_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 0, 55, _breathe_acid_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_ELEC))
-        _add_power(&spells[ct++], 20, 25, 55, _breathe_elec_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 0, 55, _breathe_elec_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_FIRE))
-        _add_power(&spells[ct++], 20, 25, 55, _breathe_fire_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 0, 55, _breathe_fire_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_COLD))
-        _add_power(&spells[ct++], 20, 25, 55, _breathe_cold_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 0, 55, _breathe_cold_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_POIS))
-        _add_power(&spells[ct++], 20, 25, 55, _breathe_poison_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 0, 55, _breathe_poison_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_NETH))
-        _add_power(&spells[ct++], 20, 25, 70, _breathe_nether_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 0, 70, _breathe_nether_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_LITE))
-        _add_power(&spells[ct++], 20, 26, 70, _breathe_light_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 5, 70, _breathe_light_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_DARK))
-        _add_power(&spells[ct++], 20, 26, 70, _breathe_dark_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 5, 70, _breathe_dark_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_CONF))
-        _add_power(&spells[ct++], 20, 30, 70, _breathe_confusion_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 10, 70, _breathe_confusion_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_SOUN))
-        _add_power(&spells[ct++], 20, 30, 70, _breathe_sound_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 15, 70, _breathe_sound_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_CHAO))
-        _add_power(&spells[ct++], 20, 30, 70, _breathe_chaos_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 15, 70, _breathe_chaos_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_DISE))
-        _add_power(&spells[ct++], 20, 30, 70, _breathe_disenchantment_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 20, 5, 70, _breathe_disenchantment_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_NUKE))
-        _add_power(&spells[ct++], 25, 30, 70, _breathe_nuke_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 25, 0, 70, _breathe_nuke_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_SHAR))
-        _add_power(&spells[ct++], 25, 35, 70, _breathe_shards_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 25, 10, 70, _breathe_shards_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_NEXU))
-        _add_power(&spells[ct++], 30, 35, 80, _breathe_nexus_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 30, 15, 80, _breathe_nexus_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_INER))
-        _add_power(&spells[ct++], 30, 35, 80, _breathe_inertia_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 30, 20, 80, _breathe_inertia_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_GRAV))
-        _add_power(&spells[ct++], 30, 38, 90, _breathe_gravity_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 30, 20, 90, _breathe_gravity_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_WALL))
-        _add_power(&spells[ct++], 30, 28, 80, _breathe_force_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 30, 15, 80, _breathe_force_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_MANA))
-        _add_power(&spells[ct++], 30, 38, 80, _breathe_mana_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 30, 15, 80, _breathe_mana_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_PLAS))
-        _add_power(&spells[ct++], 35, 35, 80, _breathe_plasma_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 35, 15, 80, _breathe_plasma_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_STORM))
-        _add_power(&spells[ct++], 35, 40, 80, _breathe_storm_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 35, 20, 80, _breathe_storm_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_TIME))
-        _add_power(&spells[ct++], 35, 30, 80, _breathe_time_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 35, 15, 80, _breathe_time_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_DISI))
-        _add_power(&spells[ct++], 35, 50, 95, _breathe_disintegration_spell, p_ptr->stat_ind[A_CON]);
+        _add_power(&spells[ct++], 35, 25, 95, _breathe_disintegration_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_ROCKET))
         _add_power(&spells[ct++], 35, 30, 80, _rocket_spell, p_ptr->stat_ind[A_STR]);
 
@@ -783,11 +845,15 @@ static int _get_spells(spell_info* spells, int max)
         _add_spell(&spells[ct++], 14, 10, 45, lightning_ball_spell, stat_idx);
     if (ct < max && (r_ptr->flags9 & RF9_POS_MAPPING))
         _add_spell(&spells[ct++], 15, 10, 50, magic_mapping_spell, stat_idx);
+    if (ct < max && (r_ptr->flags9 & RF9_POS_CLAIRVOYANCE)) /* Leprechauns */
+        _add_spell(&spells[ct++], 15, 20, 50, clairvoyance_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_FORGET))
         _add_spell(&spells[ct++], 15, 3, 40, amnesia_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_HEAL) && r_ptr->level < 20)
         _add_spell(&spells[ct++], 15, 8, 50, cure_wounds_III_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_TPORT))
+        _add_spell(&spells[ct++], 15, 8, 40, teleport_spell, stat_idx);
+    if (ct < max && (r_ptr->flags6 & RF6_SPECIAL) && r_ptr->d_char == 'B') /* Birds ... */
         _add_spell(&spells[ct++], 15, 8, 40, teleport_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_TELE_TO))
         _add_spell(&spells[ct++], 15, 8, 50, teleport_to_spell, stat_idx);
@@ -873,6 +939,8 @@ static int _get_spells(spell_info* spells, int max)
         _add_spell(&spells[ct++], 30, 23, 70, summon_hydras_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_S_UNDEAD))
         _add_spell(&spells[ct++], 30, 30, 75, summon_undead_spell, stat_idx);
+    if (ct < max && (r_ptr->flags6 & RF6_S_KIN)) /* Birds ... */
+        _add_spell(&spells[ct++], 30, 40, 85, summon_kin_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_S_HOUND))
         _add_spell(&spells[ct++], 35, 26, 75, summon_hounds_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_S_MONSTERS))
@@ -883,8 +951,6 @@ static int _get_spells(spell_info* spells, int max)
         _add_spell(&spells[ct++], 39, 70, 80, summon_dragon_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_S_ANGEL))
         _add_spell(&spells[ct++], 40, 50, 85, summon_angel_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_KIN))
-        _add_spell(&spells[ct++], 40, 70, 85, summon_kin_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_S_HI_UNDEAD))
         _add_spell(&spells[ct++], 43, 85, 85, summon_hi_undead_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_S_CYBER))
@@ -1017,10 +1083,12 @@ static void _calc_bonuses(void)
             p_ptr->pspeed += sp;
         else
         {
-        int bonus;
+            int bonus;
 
-            if (strchr("hkoOpPTVWz", r_ptr->d_char))
+            if (strchr("ghknoOpPTVWz", r_ptr->d_char))
                 sp /= 3;
+            if (strchr("H", r_ptr->d_char))
+                sp = sp * 2/3;
 
             bonus = sp * MIN(p_lvl, r_lvl) / r_lvl;
 
@@ -1098,15 +1166,26 @@ static void _calc_bonuses(void)
         p_ptr->levitation = TRUE;
 
     if (r_ptr->flagsr & RFR_IM_ACID)
-        res_add_amt(RES_ACID, 3);
+        res_add_immune(RES_ACID);
     if (r_ptr->flagsr & RFR_IM_ELEC)
-        res_add_amt(RES_ELEC, 3);
+        res_add_immune(RES_ELEC);
     if (r_ptr->flagsr & RFR_IM_FIRE)
-        res_add_amt(RES_FIRE, 3);
+        res_add_immune(RES_FIRE);
     if (r_ptr->flagsr & RFR_IM_COLD)
-        res_add_amt(RES_COLD, 3);
+        res_add_immune(RES_COLD);
     if (r_ptr->flagsr & RFR_IM_POIS)
-        res_add_amt(RES_POIS, 3);
+        res_add_immune(RES_POIS);
+
+    if (r_ptr->flagsr & RFR_RES_ACID)
+        res_add(RES_ACID);
+    if (r_ptr->flagsr & RFR_RES_ELEC)
+        res_add(RES_ELEC);
+    if (r_ptr->flagsr & RFR_RES_FIRE)
+        res_add(RES_FIRE);
+    if (r_ptr->flagsr & RFR_RES_COLD)
+        res_add(RES_COLD);
+    if (r_ptr->flagsr & RFR_RES_POIS)
+        res_add(RES_POIS);
     if (r_ptr->flagsr & RFR_RES_LITE)
         res_add(RES_LITE);
     if (r_ptr->flagsr & RFR_RES_DARK)
@@ -1178,15 +1257,15 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     if (r_ptr->flags7 & RF7_CAN_FLY)
         add_flag(flgs, TR_LEVITATION);
 
-    if (r_ptr->flagsr & RFR_IM_ACID)
+    if (r_ptr->flagsr & RFR_RES_ACID)
         add_flag(flgs, TR_RES_ACID);
-    if (r_ptr->flagsr & RFR_IM_ELEC)
+    if (r_ptr->flagsr & RFR_RES_ELEC)
         add_flag(flgs, TR_RES_ELEC);
-    if (r_ptr->flagsr & RFR_IM_FIRE)
+    if (r_ptr->flagsr & RFR_RES_FIRE)
         add_flag(flgs, TR_RES_FIRE);
-    if (r_ptr->flagsr & RFR_IM_COLD)
+    if (r_ptr->flagsr & RFR_RES_COLD)
         add_flag(flgs, TR_RES_COLD);
-    if (r_ptr->flagsr & RFR_IM_POIS)
+    if (r_ptr->flagsr & RFR_RES_POIS)
         add_flag(flgs, TR_RES_POIS);
     if (r_ptr->flagsr & RFR_RES_LITE)
         add_flag(flgs, TR_RES_LITE);
@@ -1229,7 +1308,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 static void _get_immunities(u32b flgs[TR_FLAG_SIZE]) 
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-    /*if (r_ptr->flagsr & RFR_IM_ACID)
+    if (r_ptr->flagsr & RFR_IM_ACID)
         add_flag(flgs, TR_RES_ACID);
     if (r_ptr->flagsr & RFR_IM_ELEC)
         add_flag(flgs, TR_RES_ELEC);
@@ -1238,7 +1317,7 @@ static void _get_immunities(u32b flgs[TR_FLAG_SIZE])
     if (r_ptr->flagsr & RFR_IM_COLD)
         add_flag(flgs, TR_RES_COLD);
     if (r_ptr->flagsr & RFR_IM_POIS)
-        add_flag(flgs, TR_RES_POIS);*/
+        add_flag(flgs, TR_RES_POIS);
 }
 
 static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
@@ -1293,6 +1372,7 @@ race_t *mon_possessor_get_race_t(void)
         me.get_flags = _get_flags;
         me.get_immunities = _get_immunities;
         me.get_vulnerabilities = _get_vulnerabilities;
+        me.player_action = _player_action;
         
         me.calc_innate_attacks = _calc_innate_attacks;
 

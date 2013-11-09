@@ -116,33 +116,39 @@ static void create_user_dir(void)
  */
 static void init_stuff(void)
 {
-	char path[1024];
+	char configpath[512];
+	char libpath[512];
+	char datapath[512];
 
 #if defined(AMIGA) || defined(VM)
 
 	/* Hack -- prepare "path" */
-	strcpy(path, "Angband:");
+	strcpy(configpath, "Angband:");
+	strcpy(libpath, "Angband:");
+	strcpy(datapath, "Angband:");
 
 #else /* AMIGA / VM */
 
-	cptr tail;
-
-	/* Get the environment variable */
-	tail = getenv("ANGBAND_PATH");
-
 	/* Use the angband_path, or a default */
-	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+	my_strcpy(configpath, DEFAULT_CONFIG_PATH, sizeof(configpath));
+	my_strcpy(libpath, DEFAULT_LIB_PATH, sizeof(libpath));
+	my_strcpy(datapath, DEFAULT_DATA_PATH, sizeof(datapath));
 
-	/* Make sure it's terminated */
-	path[511] = '\0';
+	/* Make sure they're terminated */
+	configpath[511] = '\0';
+	libpath[511] = '\0';
+	datapath[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+	if (!suffix(configpath, PATH_SEP)) my_strcat(configpath, PATH_SEP, sizeof(configpath));
+	if (!suffix(libpath, PATH_SEP)) my_strcat(libpath, PATH_SEP, sizeof(libpath));
+	if (!suffix(datapath, PATH_SEP)) my_strcat(datapath, PATH_SEP, sizeof(datapath));
+
 
 #endif /* AMIGA / VM */
 
 	/* Initialize */
-	init_file_paths(path);
+	init_file_paths(configpath, libpath, datapath);
 }
 
 
@@ -516,6 +522,10 @@ int main(int argc, char *argv[])
 				puts("  -d<def>  Define a 'lib' dir sub-path");
 				puts("");
 
+#ifdef USE_SDL
+				puts("  -msdl    To use SDL");
+#endif /* USE_SDL */
+
 #ifdef USE_X11
 				puts("  -mx11    To use X11");
 				puts("  --       Sub options");
@@ -577,7 +587,8 @@ int main(int argc, char *argv[])
 	/* Process the player name */
 	process_player_name(TRUE);
 
-
+	/* Create any missing directories */
+	create_needed_dirs();
 
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
@@ -592,6 +603,19 @@ int main(int argc, char *argv[])
 		if (0 == init_xaw(argc, argv))
 		{
 			ANGBAND_SYS = "xaw";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_SDL
+	/* Attempt to use the "main-sdl.c" support */
+	if (!done && (!mstr || (streq(mstr, "sdl"))))
+	{
+		extern errr init_sdl(int, char**);
+		if (0 == init_sdl(argc, argv))
+		{
+			ANGBAND_SYS = "sdl";
 			done = TRUE;
 		}
 	}

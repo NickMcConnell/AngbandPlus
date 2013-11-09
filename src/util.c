@@ -299,6 +299,120 @@ static errr path_temp(char *buf, int max)
 #endif
 
 /*
+ * Add a formatted string to the end of a string
+ */
+void strnfcat(char *str, size_t max, size_t *end, const char *fmt, ...)
+{
+	size_t len;
+
+	va_list vp;
+
+	/* Paranoia */
+	if (*end >= max) return;
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Build the string */
+	len = vstrnfmt(&str[*end], max - *end, fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Change the end value */
+	*end += len;
+}
+
+static void path_process(char *buf, size_t len, size_t *cur_len, const char *path)
+{
+#if defined(SET_UID)
+
+	/* Home directory on Unixes */
+	if (path[0] == '~')
+	{
+		const char *s;
+		const char *username = path + 1;
+
+		struct passwd *pw;
+		char user[128];
+
+		/* Look for non-user portion of the file */
+		s = strstr(username, PATH_SEP);
+		if (s)
+		{
+			int i;
+
+			/* Keep username a decent length */
+			if (s >= username + sizeof(user)) return;
+
+			for (i = 0; username < s; ++i) user[i] = *username++;
+			user[i] = '\0';
+			username = user;
+		}
+
+		/* Look up a user (or "current" user) */
+		pw = username[0] ? getpwnam(username) : getpwuid(getuid());
+		if (!pw) return;
+
+		/* Copy across */
+		strnfcat(buf, len, cur_len, "%s%s", pw->pw_dir, PATH_SEP);
+		if (s) strnfcat(buf, len, cur_len, "%s", s);
+	}
+	else
+
+#endif /* defined(SET_UID) */
+
+	strnfcat(buf, len, cur_len, "%s", path);
+}
+
+/*
+ * Create a new path string by appending a 'leaf' to 'base'.
+ *
+ * On Unixes, we convert a tidle at the beginning of a basename to mean the
+ * directory, complicating things a little, but better now than later.
+ *
+ * Remember to free the return value.
+ */
+size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
+{
+	size_t cur_len = 0;
+	buf[0] = '\0';
+
+	if (!leaf || !leaf[0])
+	{
+		if (base && base[0])
+			path_process(buf, len, &cur_len, base);
+
+		return cur_len;
+	}
+
+
+	/*
+	 * If the leafname starts with the seperator,
+	 *   or with the tilde (on Unix),
+	 *   or there's no base path,
+	 * We use the leafname only.
+	 */
+#if defined(UNIX)
+	if ((!base || !base[0]) || prefix(leaf, PATH_SEP) || leaf[0] == '~')
+#else
+	if ((!base || !base[0]) || prefix(leaf, PATH_SEP))
+#endif
+	{
+		path_process(buf, len, &cur_len, leaf);
+		return cur_len;
+	}
+
+
+	/* There is both a relative leafname and a base path from which it is relative */
+	path_process(buf, len, &cur_len, base);
+	strnfcat(buf, len, &cur_len, "%s", PATH_SEP);
+	path_process(buf, len, &cur_len, leaf);
+
+	return cur_len;
+}
+#if 0
+/*
  * Create a new path by appending a file (or directory) to a path.
  *
  * This requires no special processing on simple machines, except
@@ -344,7 +458,7 @@ errr path_build(char *buf, int max, cptr path, cptr file)
     /* Success */
     return (0);
 }
-
+#endif
 
 /*
  * Hack -- replacement for "fopen()"
@@ -360,7 +474,8 @@ FILE *my_fopen(cptr file, cptr mode)
     /* Hack -- Try to parse the path */
     if (path_parse(buf, 1024, file)) return (NULL);
 
-#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+    //#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+#if 0
     if (my_strchr(mode, 'w'))
     {
         /* setting file type/creator */
@@ -684,7 +799,8 @@ int fd_make(cptr file, int mode)
 
 #else /* BEN_HACK */
 
-#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+#if 0
+    //#if defined(MAC_MPW) || defined(MACH_O_CARBON)
     {
         int fdes;
         /* Create the file, fail if exists, write-only, binary */

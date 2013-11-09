@@ -110,7 +110,7 @@ static void _toggle_spell(int which, int cmd, variant *res)
     }
 }
 
-static void _blink_toggle_spell(int cmd, variant *res)
+void blink_toggle_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -140,7 +140,7 @@ static spell_info _spells[] =
     { 20, 12, 40, telekinesis_spell}, 
     { 30, 15, 50, cause_wounds_III_spell}, 
     { 35, 15, 60, animate_dead_spell}, 
-    { 40,  0,  0, _blink_toggle_spell}, 
+    { 40,  0,  0, blink_toggle_spell}, 
     { -1, -1, -1, NULL}
 };
 

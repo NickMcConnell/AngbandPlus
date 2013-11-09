@@ -15,10 +15,10 @@
 #include "init.h"
 
 #ifndef MACINTOSH
-#ifdef CHECK_MODIFICATION_TIME
+//#ifdef CHECK_MODIFICATION_TIME
 #include <sys/types.h>
 #include <sys/stat.h>
-#endif /* CHECK_MODIFICATION_TIME */
+//#endif /* CHECK_MODIFICATION_TIME */
 #endif
 
 /*
@@ -79,7 +79,7 @@
  * this function to be called multiple times, for example, to
  * try several base "path" values until a good one is found.
  */
-void init_file_paths(char *path)
+void init_file_paths(const char *configpath, const char *libpath, const char *datapath)
 {
     char *tail;
 
@@ -109,10 +109,11 @@ void init_file_paths(char *path)
     /*** Prepare the "path" ***/
 
     /* Hack -- save the main directory */
-    ANGBAND_DIR = string_make(path);
+    ANGBAND_DIR = string_make(libpath);
 
     /* Prepare to append to the Base Path */
-    tail = path + strlen(path);
+    /* This is really suspicious code as we might sprintf to this buffer below! */
+    tail = (char*)(libpath + strlen(libpath));
 
 
 #ifdef VM
@@ -136,47 +137,15 @@ void init_file_paths(char *path)
 #else /* VM */
 
 
+    /* Build path names */
+    ANGBAND_DIR_EDIT = string_make(format("%sedit", configpath));
+    ANGBAND_DIR_FILE = string_make(format("%sfile", libpath));
+    ANGBAND_DIR_HELP = string_make(format("%shelp", libpath));
+    ANGBAND_DIR_INFO = string_make(format("%sinfo", libpath));
+    ANGBAND_DIR_PREF = string_make(format("%spref", configpath));
+    ANGBAND_DIR_XTRA = string_make(format("%sxtra", libpath));
+
     /*** Build the sub-directory names ***/
-
-    /* Build a path name */
-    strcpy(tail, "apex");
-    ANGBAND_DIR_APEX = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "bone");
-    ANGBAND_DIR_BONE = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "data");
-    ANGBAND_DIR_DATA = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "edit");
-    ANGBAND_DIR_EDIT = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "script");
-    ANGBAND_DIR_SCRIPT = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "file");
-    ANGBAND_DIR_FILE = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "help");
-    ANGBAND_DIR_HELP = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "info");
-    ANGBAND_DIR_INFO = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "pref");
-    ANGBAND_DIR_PREF = string_make(path);
-
-    /* Build a path name */
-    strcpy(tail, "save");
-    ANGBAND_DIR_SAVE = string_make(path);
 
 #ifdef PRIVATE_USER_PATH
 
@@ -186,17 +155,32 @@ void init_file_paths(char *path)
     /* Build a relative path name */
     ANGBAND_DIR_USER = string_make(buf);
 
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
+    ANGBAND_DIR_APEX = string_make(buf);
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
+    ANGBAND_DIR_BONE = string_make(buf);
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
+    ANGBAND_DIR_DATA = string_make(buf);
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "script");
+    ANGBAND_DIR_SCRIPT = string_make(buf);
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
+    ANGBAND_DIR_SAVE = string_make(buf);
+
 #else /* PRIVATE_USER_PATH */
 
-    /* Build a path name */
-    strcpy(tail, "user");
-    ANGBAND_DIR_USER = string_make(path);
+    /* Build pathnames */
+    ANGBAND_DIR_USER = string_make(format("%suser", datapath));
+    ANGBAND_DIR_APEX = string_make(format("%sapex", datapath));
+    ANGBAND_DIR_BONE = string_make(format("%sbone", datapath));
+    ANGBAND_DIR_DATA = string_make(format("%sdata", datapath));
+    ANGBAND_DIR_SCRIPT = string_make(format("%sscript", datapath));
+    ANGBAND_DIR_SAVE = string_make(format("%ssave", datapath));
 
 #endif /* PRIVATE_USER_PATH */
-
-    /* Build a path name */
-    strcpy(tail, "xtra");
-    ANGBAND_DIR_XTRA = string_make(path);
 
 #endif /* VM */
 
@@ -232,13 +216,97 @@ void init_file_paths(char *path)
 
             /* Build a new path name */
             sprintf(tail, "data-%s", next);
-            ANGBAND_DIR_DATA = string_make(path);
+            ANGBAND_DIR_DATA = string_make(libpath);
         }
     }
 
 #endif /* NeXT */
 
 }
+
+bool dir_exists(const char *path)
+{
+	struct stat buf;
+	if (stat(path, &buf) != 0)
+		return FALSE;
+	else if (buf.st_mode & S_IFDIR)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+#define PATH_SEPC '/'
+bool dir_create(const char *path)
+{
+#ifdef WIN32
+	/* If the directory already exists then we're done */
+	if (dir_exists(path)) return TRUE;
+    return FALSE;
+#else
+	const char *ptr;
+	char buf[512];
+
+	/* If the directory already exists then we're done */
+	if (dir_exists(path)) return TRUE;
+	/* Iterate through the path looking for path segements. At each step,
+	 * create the path segment if it doesn't already exist. */
+	for (ptr = path; *ptr; ptr++)
+	{
+		if (*ptr == PATH_SEPC)
+		{
+			/* Find the length of the parent path string */
+			size_t len = (size_t)(ptr - path);
+
+			/* Skip the initial slash */
+			if (len == 0) continue;
+
+			/* If this is a duplicate path separator, continue */
+			if (*(ptr - 1) == PATH_SEPC) continue;
+
+			/* We can't handle really big filenames */
+			if (len - 1 > 512) return FALSE;
+
+			/* Create the parent path string, plus null-padding */
+			my_strcpy(buf, path, len + 1);
+
+			/* Skip if the parent exists */
+			if (dir_exists(buf)) continue;
+
+			/* The parent doesn't exist, so create it or fail */
+			if (mkdir(buf, 0755) != 0) return FALSE;
+		}
+	}
+	return mkdir(path, 0755) == 0 ? TRUE : FALSE;
+#endif
+}
+/*
+ * Create any missing directories. We create only those dirs which may be
+ * empty (user/, save/, apex/, info/, help/). The others are assumed 
+ * to contain required files and therefore must exist at startup 
+ * (edit/, pref/, file/, xtra/).
+ *
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_needed_dirs(void)
+{
+    char dirpath[512];
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_USER, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_SAVE, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_APEX, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_DATA, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_HELP, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+}
+
 
 
 

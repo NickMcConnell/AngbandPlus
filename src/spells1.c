@@ -1989,10 +1989,16 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             if (r_ptr->flagsr & RFR_IM_ACID)
             {
-                note = " resists a lot.";
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_IM_ACID;
+            }
+            else if (r_ptr->flagsr & RFR_RES_ACID)
+            {
+                note = " resists.";
 
-                dam /= 9;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_ACID);
+                dam /= 2;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ACID;
             }
             break;
         }
@@ -2011,10 +2017,16 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             if (r_ptr->flagsr & RFR_IM_ELEC)
             {
-                note = " resists a lot.";
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_IM_ELEC;
+            }
+            else if (r_ptr->flagsr & RFR_RES_ELEC)
+            {
+                note = " resists.";
 
-                dam /= 9;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_ELEC);
+                dam /= 2;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ELEC;
             }
             break;
         }
@@ -2033,17 +2045,23 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             if (r_ptr->flagsr & RFR_IM_FIRE)
             {
-                note = " resists a lot.";
-
-                dam /= 9;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_FIRE);
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_IM_FIRE;
             }
-            else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+            else if (r_ptr->flagsr & RFR_RES_FIRE)
+            {
+                note = " resists.";
+
+                dam /= 2;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_FIRE;
+            }
+            else if (r_ptr->flags3 & RF3_HURT_FIRE)
             {
                 note = " is hit hard.";
 
                 dam *= 2;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_HURT_FIRE);
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_FIRE;
             }
             break;
         }
@@ -2062,17 +2080,23 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             if (r_ptr->flagsr & RFR_IM_COLD)
             {
-                note = " resists a lot.";
-
-                dam /= 9;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_COLD);
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_IM_COLD;
             }
-            else if (r_ptr->flags3 & (RF3_HURT_COLD))
+            else if (r_ptr->flagsr & RFR_RES_COLD)
+            {
+                note = " resists.";
+
+                dam /= 2;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_COLD;
+            }
+            else if (r_ptr->flags3 & RF3_HURT_COLD)
             {
                 note = " is hit hard.";
 
                 dam *= 2;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_HURT_COLD);
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_COLD;
             }
             break;
         }
@@ -2091,10 +2115,16 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             if (r_ptr->flagsr & RFR_IM_POIS)
             {
-                note = " resists a lot.";
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_IM_POIS;
+            }
+            else if (r_ptr->flagsr & RFR_RES_POIS)
+            {
+                note = " resists.";
 
-                dam /= 9;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_POIS);
+                dam /= 2;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_POIS;
             }
             break;
         }
@@ -2113,10 +2143,16 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             if (r_ptr->flagsr & RFR_IM_POIS)
             {
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_IM_POIS;
+            }
+            else if (r_ptr->flagsr & RFR_RES_POIS)
+            {
                 note = " resists.";
 
-                dam *= 3; dam /= randint1(6) + 6;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_POIS);
+                dam /= 2;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_POIS;
             }
             else if (one_in_(3)) do_poly = TRUE;
             break;

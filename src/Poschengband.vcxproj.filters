@@ -1140,5 +1140,14 @@
     <None Include="..\lib\edit\b_info.txt">
       <Filter>Edit\Stuff</Filter>
     </None>
+    <None Include="Makefile.inc">
+      <Filter>Edit\Other Makefiles</Filter>
+    </None>
+    <None Include="Makefile.osx">
+      <Filter>Edit\Other Makefiles</Filter>
+    </None>
+    <None Include="Makefile.src">
+      <Filter>Edit\Other Makefiles</Filter>
+    </None>
   </ItemGroup>
 </Project>

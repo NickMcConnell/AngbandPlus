@@ -943,7 +943,8 @@ extern void drop_here(object_type *j_ptr, int y, int x);
 extern errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax);
 
 /* init2.c */
-extern void init_file_paths(char *path);
+extern void init_file_paths(const char *configpath, const char *libpath, const char *datapath);
+extern void create_needed_dirs(void);
 extern cptr err_str[PARSE_ERROR_MAX];
 extern errr init_v_info(void);
 extern errr init_buildings(void);
@@ -1380,7 +1381,7 @@ extern int calculate_base_blows(int hand, int str_idx, int dex_idx);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
-extern errr path_build(char *buf, int max, cptr path, cptr file);
+size_t path_build(char *buf, size_t len, const char *base, const char *leaf);
 extern FILE *my_fopen(cptr file, cptr mode);
 extern FILE *my_fopen_temp(char *buf, int max);
 extern errr my_fgets(FILE *fff, char *buf, huge n);
@@ -1954,10 +1955,12 @@ extern race_t *mon_troll_get_race_t(void);
 extern race_t *mon_xorn_get_race_t(void);
 
 extern bool    possessor_can_gain_exp(void);
+extern int     possessor_get_toggle(void);
 extern s32b    possessor_max_exp(void);
 extern void    possessor_on_take_hit(void);
 extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    jelly_eat_object(object_type *o_ptr);
+extern void    blink_toggle_spell(int cmd, variant *res);
 extern bool    leprechaun_steal(int m_idx);
 extern int     leprechaun_get_toggle(void);
 extern void    sword_absorb_object(object_type *o_ptr);
