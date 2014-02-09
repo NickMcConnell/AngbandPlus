@@ -854,7 +854,7 @@ static void _demigod_menu_fn(int cmd, int which, vptr cookie, variant *res)
 static _name_desc_t _troll_info[TROLL_MAX] = {
     { "Ettin", "Ettins are large, two-headed trolls. They lack much in the way of "
                 "powers and abilities, but make up for this with the ability to "
-                "wield an extra helmet and amulet. " },
+                "wield an extra helmet." },
     { "Storm Troll", "Storm Trolls are fast trolls with elemental powers. They may call "
                         "forth elemental balls and bolts. Their weapons are wreathed in "
                         "electricity as their fury rains down on all they meet." },

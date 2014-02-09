@@ -21,6 +21,12 @@ static int wild_regen = 20;
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  *
+ * For strong sensing, we have now have (3.0.3 and later):
+ *
+ *                    egos         artifacts
+ *                    =========    =========
+ * average -> good -> excellent -> special
+ *         -> bad  -> awful     -> terrible
  */
 static byte value_check_aux1(object_type *o_ptr)
 {
@@ -28,7 +34,7 @@ static byte value_check_aux1(object_type *o_ptr)
     if (object_is_artifact(o_ptr))
     {
         /* Cursed/Broken */
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
 
         /* Normal */
         return FEEL_SPECIAL;
@@ -38,19 +44,19 @@ static byte value_check_aux1(object_type *o_ptr)
     if (object_is_ego(o_ptr))
     {
         /* Cursed/Broken */
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_AWFUL;
 
         /* Normal */
         return FEEL_EXCELLENT;
     }
 
     /* Cursed items */
-    if (object_is_cursed(o_ptr)) return FEEL_CURSED;
+    if (object_is_cursed(o_ptr)) return FEEL_BAD;
 
     /* Broken items */
     if (object_is_broken(o_ptr)) return FEEL_BROKEN;
 
-    if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) return FEEL_AVERAGE;
+    if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) return FEEL_AVERAGE;
 
     /* Good "armor" bonus */
     if (o_ptr->to_a > 0) return FEEL_GOOD;
@@ -65,6 +71,11 @@ static byte value_check_aux1(object_type *o_ptr)
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
+ *
+ * For weak sensing, we have:
+ *
+ * FEEL_NONE -> enchanted
+ *           -> cursed
  */
 static byte value_check_aux2(object_type *o_ptr)
 {
@@ -75,16 +86,16 @@ static byte value_check_aux2(object_type *o_ptr)
     if (object_is_broken(o_ptr)) return FEEL_BROKEN;
 
     /* Artifacts -- except cursed/broken ones */
-    if (object_is_artifact(o_ptr)) return FEEL_UNCURSED;
+    if (object_is_artifact(o_ptr)) return FEEL_ENCHANTED;
 
     /* Ego-Items -- except cursed/broken ones */
-    if (object_is_ego(o_ptr)) return FEEL_UNCURSED;
+    if (object_is_ego(o_ptr)) return FEEL_ENCHANTED;
 
     /* Good armor bonus */
-    if (o_ptr->to_a > 0) return FEEL_UNCURSED;
+    if (o_ptr->to_a > 0) return FEEL_ENCHANTED;
 
     /* Good weapon bonuses */
-    if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_UNCURSED;
+    if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_ENCHANTED;
 
     /* No feeling */
     return FEEL_NONE;

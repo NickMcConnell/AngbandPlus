@@ -1803,11 +1803,13 @@ void curse_object(object_type *o_ptr)
             o_ptr->curse_flags |= TRC_HEAVY_CURSE;
         else if (n < 45)
             o_ptr->curse_flags |= get_curse(2, o_ptr);
-        else if (n < 50)
+        else if (n < 100)
+            one_biff(o_ptr);
+        else if (n < 105)
             add_flag(o_ptr->art_flags, TR_AGGRAVATE);
-        else if (n < 55)
+        else if (n < 107)
             add_flag(o_ptr->art_flags, TR_TY_CURSE);
-        else if (n < 60)
+        else if (n < 108)
             o_ptr->curse_flags |= TRC_PERMA_CURSE;
         else if (n < 250)
             one_biff(o_ptr);

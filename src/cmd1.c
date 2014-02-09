@@ -1386,7 +1386,6 @@ void py_pickup_aux(int o_idx)
     delete_object_idx(o_idx);
 
     if ( p_ptr->personality == PERS_MUNCHKIN 
-      || mut_present(MUT_LOREMASTER) 
       || randint0(1000) < virtue_current(VIRTUE_KNOWLEDGE) )
     {
         bool old_known = identify_item(o_ptr);

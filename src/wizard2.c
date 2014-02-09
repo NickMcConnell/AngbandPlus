@@ -2675,9 +2675,23 @@ void do_cmd_debug(void)
 
     /* Good Objects */
     case 'g':
-        if (command_arg <= 0) command_arg = 1;
-        acquirement(py, px, command_arg, FALSE, TRUE);
-        break;
+#if 1
+	{
+		object_type forge;
+		int num = 10;
+
+		while (num--)
+		{
+			object_wipe(&forge);
+			if (!make_object(&forge, AM_CURSED)) continue;
+			drop_near(&forge, -1, py, px);
+		}
+	}
+#else
+        if (command_arg <= 0) command_arg = 10;
+        acquirement(py, px, command_arg, FALSE, TRUE); 
+#endif
+		break;
 
     /* Hitpoint rerating */
     case 'h':

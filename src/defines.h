@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 0
-#define VER_PATCH 2
+#define VER_PATCH 3
 #define VER_EXTRA 0
 
 
@@ -2858,28 +2858,36 @@ enum summon_specific_e {
 
 /*
  * Game generated inscription indices. These are stored in the object,
- * and are used to index the string array from tables.c.
+ * and are used to index the string array from tables.c (game_inscriptions).
+ *
+ * For strong sensing, we have now have (3.0.3 and later):
+ *
+ *                    egos         artifacts
+ *                    =========    =========
+ * average -> good -> excellent -> special
+ *         -> bad  -> awful     -> terrible
+ *
+ * For weak sensing, we have:
+ *
+ * FEEL_NONE -> enchanted
+ *           -> cursed
+ *
+ * This means that FEEL_CURSED items might be egos or artifacts, and should
+ * never be automatically destroyed, whereas FEEL_BAD items are known to be
+ * cursed non-egos/arts and can be autodestroyed with impunity. See autopick.c
+ * for details. Is "broken" still used?
  */
-
 #define FEEL_NONE              0
-#define FEEL_BROKEN            1
-/* CTK: Worthless and Terrible may now actually be useful. The problem is, that
- *      the game often tries to auto destroy all cursed objects, and this is rather
- *      hard to avoid satisfactorily. One approach is to change the way unidentified
- *      but sensed objects value. However, this leaks information for weakly sensing 
- *      classes (or we destroy useful objects). Given a choice between removing the 
- *      easy destroyer altogether and nerfing heavy sensing of cursed objects, I am
- *      temporarily choosing the latter pending a more creative solution.
+#define FEEL_BROKEN            1   /* ?? */
 #define FEEL_TERRIBLE          2
-#define FEEL_WORTHLESS         3 */
+#define FEEL_AWFUL             3
 #define FEEL_CURSED            4
-#define FEEL_UNCURSED          5
+#define FEEL_ENCHANTED         5
 #define FEEL_AVERAGE           6
 #define FEEL_GOOD              7
 #define FEEL_EXCELLENT         8
 #define FEEL_SPECIAL           9
-
-#define FEEL_MAX               9
+#define FEEL_BAD               10
 
 /*
  * Hack -- special "xtra" object powers

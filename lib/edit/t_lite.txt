@@ -4,48 +4,56 @@
 
 ############### Additional default terrain settings ###############
 
-# Default for reward
+# Default for reward 1
 F:!:FLOOR:3 
 
-# Default sorcery tower reward = floor
+# Default for reward 2
+F:?:FLOOR:3 
+
+# Default sorcery tower reward
 F:(:FLOOR:3
 
-# Default chaos tower reward = floor
-F:$:GRASS:3
+# Default chaos tower reward
+F:$:FLOOR:3
 
-# Default nature tower reward = floor
-F:":GRASS:3
+# Default nature tower reward
+F:":FLOOR:3
 
-# Default for Quest 1 = entrance is tree
-F:z:TREE:3
+# Default for Quest 1, 32
+F:z:PERMANENT:3
 
-# Default for quest 12 = grass
-F:x:GRASS:3
+# Default for Quest 29, 30
+F:y:PERMANENT:3
 
-# Default for quest 11 = grass
-F:w:GRASS:3
+# Default for Quest 4
+F:w:PERMANENT:3
 
-# Default for quest 10 = grass
-F:v:GRASS:3
+# Default for Quest 33
+F:C:PERMANENT:3
 
-# Default for Quest 5 = entrance is stone
-F:u:PERMANENT:3
+# Default for Quest 27
+F:O:PERMANENT:3
 
-# Default for Quest 4 = entrance is stone
-F:t:PERMANENT:3
+# Default for Quest 5
+F:u:GRASS:3
 
-# Default for Quest 3 = entrance is stone
+# Default for Quest 22
+F:v:TREE:3
+
+# Default for Quest 19, 21
+F:D:TREE:3
+
+# Default for Quest 10
 F:s:PERMANENT:3
 
-# Default for Quest 2 = entrance is floor
-F:r:FLOOR:3
+# Default for Quest 11
+F:t:PERMANENT:3
 
-# Default for Quest 27 = entrance is stone
-F:q:GRASS:3
+# Default for Quest 12
+F:N:PERMANENT:3
 
-# Default for Quest 15 = entrance is stone
-F:):PERMANENT:3
 
+############### Quest Chain 1 ###########################
 
 ############### Quest 1 - Thieves Hideout ###############
 
@@ -62,116 +70,182 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:1
 ?:[EQU $QUEST1 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:1
 
-# Quest 1 rewarding, reward is a Longsword, continue with quest 14
+# Quest 1 rewarding, reward is a Longsword, continue with quest 32
 ?:[EQU $QUEST1 3]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:42
+
+# Ring of Combat
+?:[AND [EQU $QUEST1 3] [EQU $RACE Beholder Dragon Hound Possessor Spider] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:132:302
+
+# Steel Helm
+?:[AND [EQU $QUEST1 3] [EQU $RACE Hydra] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:97
+
+# Steel Helm
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Monster] [EQU $RACE Golem] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:97
+
+# Two-handed Sword
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Monster] [EQU $RACE Giant] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:37
+
+# Ring of Protection
+?:[AND [EQU $QUEST1 3] [EQU $RACE Lich Quylthulg] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:132:300
+
+# Rapier
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Duelist] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:44
+
+# Sling
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Rogue] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:77
+
+# Whip
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Archaeologist] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:49
 
 # Broad Spear
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Beastmaster Cavalry] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:543
 
 # Set of Gauntlets
-?:[AND [EQU $QUEST1 3] [EQU $CLASS Monk Force-Trainer] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Monk Force-Trainer Mystic] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:126
 
 # War Hammer
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Priest] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:55
 
 # Short Bow
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Archer] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:73
 
 # Broad Axe
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponsmith] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:70
 
-# Ring of Warning
-?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
-F:!:FLOOR:3:0:618
+# Ring of Protection
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:132:300
 
 # Dagger
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Ninja] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:43
 
-# Quest 1 finished, continue with quest 14
+# Light Crossbow
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Sniper] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:75
+
+#Two-handed Flail
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Mauler] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:51
+
+# Weaponmasters
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:70
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:73
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:55
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:75
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:43
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:87
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:63
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:128
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Slings] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:77
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:54
+
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
+F:!:FLOOR:3:0:42
+
+# Quest 1 finished, continue with quest 32
 ?:[EQU $QUEST1 4]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 
 # Quest 1 failed
 ?:[EQU $QUEST1 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:1
 
-# Quest 1 failed but done, continue with quest 14
+# Quest 1 failed but done, continue with quest 32
 ?:[EQU $QUEST1 6]
 F:b:BUILDING_1:3
 
 ?:1
 
-############### Quest 2 - The Sewer ###############
+############### Quest 32 - Dark Elven Lords Quest ###############
 
-# Quest 2 assigned, entrance is quest entrance
-?:[EQU $QUEST2 1]
-F:r:QUEST_ENTER:3:0:0:0:0:NONE:2
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+# Quest 32 taken, entrance is quest entrance
+?:[EQU $QUEST32 1]
+F:z:QUEST_ENTER:3:0:0:0:0:NONE:32
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 
-# Quest 2 completed
-?:[EQU $QUEST2 2]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
+# Quest 32 completed
+?:[EQU $QUEST32 2]
+F:b:BUILDING_1:3:0:0:0:0:NONE:32
 
-# Quest 2 rewarding, reward is ring of light and darkness resistance
-?:[EQU $QUEST2 3]
-F:b:BUILDING_1:3:0:0:0:0:NONE:3
-F:!:FLOOR:3:0:582
-
-# Quest 2 finished
-?:[EQU $QUEST2 4]
-F:b:BUILDING_1:3:0:0:0:0:NONE:3
-
-# Quest 2 failed
-?:[EQU $QUEST2 5]
-F:b:BUILDING_1:3:0:0:0:0:NONE:2
-
-# Quest 2 failed but done, continue with quest 3
-?:[EQU $QUEST2 6]
-F:b:BUILDING_1:3
-
-?:1
-
-############### Quest 3 - Logrus Master ###############
-
-# Quest 3 assigned, entrance is quest entrance
-?:[EQU $QUEST3 1]
-F:s:QUEST_ENTER:3:0:0:0:0:NONE:3
-F:b:BUILDING_1:3:0:0:0:0:NONE:3
-
-# Quest 3 completed
-?:[EQU $QUEST3 2]
-F:b:BUILDING_1:3:0:0:0:0:NONE:3
-
-# Quest 3 rewarding, reward is Staff of Teleportation
-?:[EQU $QUEST3 3]
+# Quest 32 rewarding, The Phial of Galadriel
+# continue with quest 4
+?:[EQU $QUEST32 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:4
-F:!:FLOOR:3:0:365
+F:!:FLOOR:3:0:0:0:1
 
-# Quest 3 finished
-?:[EQU $QUEST3 4]
+# Quest 32 finished, continue with quest 33
+?:[EQU $QUEST32 4]
 F:b:BUILDING_1:3:0:0:0:0:NONE:4
 
-# Quest 3 failed
-?:[EQU $QUEST3 5]
-F:b:BUILDING_1:3:0:0:0:0:NONE:3
+# Quest 32 failed, wait for the player to enter the Inn
+?:[EQU $QUEST32 5]
+F:b:BUILDING_1:3:0:0:0:0:NONE:4
 
-# Quest 3 failed but done, continue with quest 4
-?:[EQU $QUEST3 6]
+# Quest 32 failed
+?:[EQU $QUEST32 6]
 F:b:BUILDING_1:3
 
 ?:1
@@ -180,7 +254,7 @@ F:b:BUILDING_1:3
 
 # Quest 4 assigned, entrance is quest entrance
 ?:[EQU $QUEST4 1]
-F:t:QUEST_ENTER:3:0:0:0:0:NONE:4
+F:w:QUEST_ENTER:3:0:0:0:0:NONE:4
 F:b:BUILDING_1:3:0:0:0:0:NONE:4
 
 # Quest 4 completed
@@ -205,7 +279,7 @@ F:b:BUILDING_1:3
 
 ?:1
 
-#################### Quest 5 - The Tower ####################
+#################### Quest 5 - The Barrow Downs ####################
 
 # Quest 5 assigned, entrance is quest entrance
 ?:[EQU $QUEST5 1]
@@ -216,14 +290,120 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:5
 ?:[EQU $QUEST5 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:5
 
-# Quest 5 rewarding, continue with quest 27
+# Quest 5 rewarding, continue with quest 33
 # reward is cheaper *Identify* at the Library (see buildings)
 ?:[EQU $QUEST5 3]
+F:b:BUILDING_1:3:0:0:0:0:NONE:33
+
+# Quest 5 finished, continue with quest 33
+?:[EQU $QUEST5 4]
+F:b:BUILDING_1:3:0:0:0:0:NONE:33
+
+?:1
+
+############### Quest 33 - The Cloning Pits ###############
+
+# Quest 33 taken, entrance is quest entrance
+?:[EQU $QUEST33 1]
+F:C:QUEST_ENTER:3:0:0:0:0:NONE:33
+F:b:BUILDING_1:3:0:0:0:0:NONE:33
+
+# Quest 33 completed
+?:[EQU $QUEST33 2]
+F:b:BUILDING_1:3:0:0:0:0:NONE:33
+
+# Quest 33 rewarding
+# Shiva's Avatar
+?:[AND [EQU $QUEST33 3] [EQU [MOD $RANDOM33 6] 0] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:63
+
+# Thror
+?:[AND [EQU $QUEST33 3] [EQU [MOD $RANDOM33 6] 1] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:62
+
+# Stomper
+?:[AND [EQU $QUEST33 3] [EQU [MOD $RANDOM33 6] 2] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:277
+
+# Aragorn
+?:[AND [EQU $QUEST33 3] [EQU [MOD $RANDOM33 6] 3] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:238
+
+# Bard
+?:[AND [EQU $QUEST33 3] [EQU [MOD $RANDOM33 6] 4] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:276
+
+# Flora
+?:[AND [EQU $QUEST33 3] [EQU [MOD $RANDOM33 6] 5] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:61
+
+##########################################################################
+# Dragon/Hydra
+# Hammerhand
+?:[AND [EQU $QUEST33 3] [EQU $RACE Dragon Hydra Centaur] [EQU [MOD $RANDOM33 5] 0] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:38
+
+# Thranduil
+?:[AND [EQU $QUEST33 3] [EQU $RACE Dragon Hydra Centaur] [GEQ [MOD $RANDOM33 5] 1] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:36
+
+##########################################################################
+# Death-Sword
+# Werewindle
+?:[AND [EQU $QUEST33 3] [EQU $RACE Death-Sword] [EQU [MOD $RANDOM33 5] 0] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:84
+
+# Grayswandir
+?:[AND [EQU $QUEST33 3] [EQU $RACE Death-Sword] [GEQ [MOD $RANDOM33 5] 1] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:72
+
+##########################################################################
+# Beholder
+# Ring of the Ages
+?:[AND [EQU $QUEST33 3] [EQU $RACE Beholder Quylthulg] [EQU [MOD $RANDOM33 5] 0] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:274
+
+# Frakir
+?:[AND [EQU $QUEST33 3] [EQU $RACE Beholder Quylthulg] [GEQ [MOD $RANDOM33 5] 1] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:8
+
+##########################################################################
+# Xorn
+# Thorin
+?:[AND [EQU $QUEST33 3] [EQU $RACE Xorn] [EQU [MOD $RANDOM33 5] 0] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:30
+
+# Perseus
+?:[AND [EQU $QUEST33 3] [EQU $RACE Xorn] [GEQ [MOD $RANDOM33 5] 1] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:27
+F:!:FLOOR:3:0:0:0:197
+
+##########################################################################
+
+# Quest 33 finished, continue with quest 27
+?:[EQU $QUEST33 4]
 F:b:BUILDING_1:3:0:0:0:0:NONE:27
 
-# Quest 5 finished, continue with quest 27
-?:[EQU $QUEST5 4]
-F:b:BUILDING_1:3:0:0:0:0:NONE:27
+# Quest 33 failed, wait for the player to enter the Inn
+?:[EQU $QUEST33 5]
+F:b:BUILDING_1:3:0:0:0:0:NONE:33
+
+# Quest 33 failed
+?:[EQU $QUEST33 6]
+F:b:BUILDING_1:3
 
 ?:1
 
@@ -231,7 +411,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:27
 
 # Quest 27 assigned, entrance is quest entrance
 ?:[EQU $QUEST27 1]
-F:q:QUEST_ENTER:3:0:0:0:0:NONE:27
+F:O:QUEST_ENTER:3:0:0:0:0:NONE:27
 F:b:BUILDING_1:3:0:0:0:0:NONE:27
 
 # Quest 27 completed
@@ -241,145 +421,745 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:27
 # Quest 27 rewarding (default reward if not given one from below)
 # the Executioner's Sword 'Crisdurian'
 ?:[EQU $QUEST27 3]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+F:b:BUILDING_1:3
 F:!:FLOOR:3:0:0:0:80
 
-# Quest 27 rewarding (Weaponsmith gets Multi-Hued Dragon Scale Mail)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponsmith] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:405
+##########################################################################
+# Beholder
+# Amber
+?:[AND [EQU $QUEST27 3] [EQU $RACE Beholder Quylthulg] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:42
 
-# Quest 27 rewarding (Tourist gets The Platinum Yendorian Express Card)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Tourist] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:141
+# Tulkas
+?:[AND [EQU $QUEST27 3] [EQU $RACE Beholder Quylthulg] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:9
 
-# Quest 27 rewarding (Ranger and Archer get The Long Bow of Bard)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Ranger Archer] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:125
+##########################################################################
+# Dragon
+# Colluin
+?:[AND [EQU $QUEST27 3] [EQU $RACE Dragon] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:44
 
-# Quest 27 rewarding (Warrior and Berserker get The Glaive of Pain)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior Berserker] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:94
+# Stone of War
+?:[AND [EQU $QUEST27 3] [EQU $RACE Dragon] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:291
 
-# Quest 27 rewarding (Beastmaster gets The Lance of Eorlingas)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:100
+##########################################################################
+# Hound
+# Jack of Shadows
+?:[AND [EQU $QUEST27 3] [EQU $RACE Hound] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:43
 
-# Quest 27 rewarding (Cavalry gets GaeBolg)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Cavalry] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:163
-
-# Quest 27 rewarding (Chaos-Warrior gets Zarcuthra)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Chaos-Warrior] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:77
-
-# Quest 27 rewarding (Rogue gets The Sling of Buckland)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Rogue] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:134
-
-# Quest 27 rewarding (Monk gets The Leather Jacket of Shiva's Avatar)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:26
-
-# Quest 27 rewarding (Ninja gets The Amulet of the Pitch Dark Night)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Ninja] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:215
-
-# Quest 27 rewarding (Mage, High-Mage, Sorcerer and Blue-Mage
-# get The Hard Leather Cap of Indra)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:33
-
-# Quest 27 rewarding (Priest, Bard and Force-Trainer
-# get The Palantir of Westernesse)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Priest Bard Force-Trainer Mindcrafter] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:15
-
-# Quest 27 rewarding (Mirror-Master gets The Jewel Encrusted Crown of Numenor)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mirror-Master] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:132
-
-# Quest 27 rewarding (Samurai gets The Katana 'Aglarang')
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Samurai] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:81
-
-# Quest 27 rewarding (Crusade Paladin gets the Amulet of Sacred Knights)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Crusade] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
-F:!:FLOOR:3:0:0:0:217
-
-# Quest 27 rewarding (Death Paladin gets the Collar Harness of the Hell)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Death] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+# Harness of the Hell
+?:[AND [EQU $QUEST27 3] [EQU $RACE Hound] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
 F:!:FLOOR:3:0:0:0:218
 
-# Quest 27 rewarding (Warrior-Mage, Red-Mage and Magic-Eater
-# get The Charmed Pendant)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior-Mage Red-Mage Magic-Eater] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+##########################################################################
+# Hydra
+# Dor-Lomin
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monster] [EQU $RACE Hydra Golem] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:39
+
+# Colluin
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monster] [EQU $RACE Hydra Golem] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:44
+
+##########################################################################
+# Lich
+# Kaschei
+?:[AND [EQU $QUEST27 3] [EQU $RACE Lich] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:250
+
+# Indra
+?:[AND [EQU $QUEST27 3] [EQU $RACE Lich] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:33
+
+##########################################################################
+# Spider
+# Luthien
+?:[AND [EQU $QUEST27 3] [EQU $RACE Spider] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:49
+
+# Pitch Dark Night
+?:[AND [EQU $QUEST27 3] [EQU $RACE Spider] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:215
+
+##########################################################################
+# Archaeologist
+# Jewel?  Help me out here ... I'm thinking Claurvoiyance is a fit.
+# And it is a rare treasure :)
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:3
+
+# Whip of Dr. Jones ... note this class gets a buffed version!
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:162
+
+##########################################################################
+# Duelist
+# Rapier of the Duelist
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Duelist] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:248
+
+# Quickthorn
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Duelist] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:174
+
+##########################################################################
+# Mauler
+# Nyoi-bou
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [EQU [MOD $RANDOM27 9] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:157
+
+# Benkei
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [GEQ [MOD $RANDOM27 9] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:152
+
+##########################################################################
+# Weaponsmith
+# Balance Dragon Scale Mail
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponsmith] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:411
+
+# Multi-Hued Dragon Scale Mail
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponsmith] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:405
+
+##########################################################################
+# Tourist
+# Tourists *always* get the PYEC.  Don't change this :)
+# The Platinum Yendorian Express Card
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Tourist] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:141
+
+##########################################################################
+# Archer
+# Brand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Archer] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:126
+
+# Bard
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Archer] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:125
+
+##########################################################################
+# Ranger
+# Belthronding
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Ranger] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:124
+
+# Yoichi
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Ranger] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:148
+
+##########################################################################
+# Blood-Knight
+# Bloodrip
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Blood-Knight] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:243
+
+# Crisdurian
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Blood-Knight] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:80
+
+##########################################################################
+# Warrior, Beserker
+# Slayer
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior Berserker] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:123
+
+# The Glaive of Pain
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior Berserker] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:94
+
+##########################################################################
+# Beastmaster
+# TODO
+# Eorlingas
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:100
+
+# TODO
+# Eorlingas
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:100
+
+##########################################################################
+# Cavalry
+# TODO
+# GaeBolg
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Cavalry] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:163
+
+# TODO
+# GaeBolg
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Cavalry] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:163
+
+##########################################################################
+# Chaos-Warrior
+# Zarcuthra
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Chaos-Warrior Rune-Knight] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:77
+
+# Crisdurian
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Chaos-Warrior Rune-Knight] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:80
+
+##########################################################################
+# Devicemaster
+
+# Wand of Rockets
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Wands] ]
+F:!:FLOOR:3:0:299
+
+# Staff of Mana Storm
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Staves] ]
+F:!:FLOOR:3:0:629
+
+# Rod of Havoc
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Rods] ]
+F:!:FLOOR:3:0:350
+
+##########################################################################
+# Weaponmaster
+
+# Hurin
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:133
+
+# Balli Stonehand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:103
+
+# Bard
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:125
+
+# Yoichi
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:148
+
+# Aegir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:251
+
+# Aegis Fang
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:208
+
+# Brand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:126
+
+# Wilhelm Tell
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:223
+
+# Silver Chariot
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:140
+
+# Fiona
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:70
+
+# Nain
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:211
+
+# Undertaker
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:296
+
+# Glaive of Pain
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:94
+
+# Avavir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:109
+
+# Thorin
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:30
+
+# Gil-Galad
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:138
+
+# Buckland
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Slings] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:134
+
+# Monkey King's Cudgel
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:255
+
+# Nar-i-vagil
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:118
+
+# Werewindle
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:84
+
+# Anduril
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:83
+
+##########################################################################
+# Warlock
+# Indra
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warlock] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:33
+
+# Arvedui
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warlock] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:24
+
+##########################################################################
+# Rogue
+# Aglarang
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Rogue Scout] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:81
+
+# Buckland
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Rogue Scout] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:134
+
+##########################################################################
+# Monk, Force-Trainer
+# The Leather Jacket of Shiva's Avatar
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk Force-Trainer Mystic] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:26
+
+# Palantir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk Force-Trainer Mystic] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:15
+
+##########################################################################
+# Ninja
+# Silver Chariot
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Ninja] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:140
+
+# Pitch Dark Night
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Ninja] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:215
+
+##########################################################################
+# Mage, High-Mage, Sorcerer, Blue-Mage, Blood-Mage
+
+# Gandalf
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [EQU [MOD $RANDOM27 10] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:120
+
+# Saruman
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [EQU [MOD $RANDOM27 10] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:249
+
+# Thranduil
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:36
+
+##########################################################################
+# Priest
+# Aule
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Priest] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:117
+
+# Palantir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Priest] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:15
+
+##########################################################################
+# Bard
+# Harp of Maglor
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [EQU [MOD $RANDOM27 10] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:245
+
+# Harp of Daeron
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [EQU [MOD $RANDOM27 10] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:246
+
+# Palantir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [GEQ [MOD $RANDOM27 10] 2] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:15
+
+##########################################################################
+# Mindcrafter, Psion
+# The Robe of Eternity
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mindcrafter Psion] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:244
+
+# Palantir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mindcrafter Psion] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:15
+
+##########################################################################
+# Mirror-Master
+# Yata-no-Kagami
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mirror-Master] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:151
+
+# Numenor
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mirror-Master] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:132
+
+##########################################################################
+# Time-Lord
+# TODO
+# The Ring of Ages
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Time-Lord] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:274
+
+# TODO
+# Numenor
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Time-Lord] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:132
+
+##########################################################################
+# Samurai
+# Aglarang
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Samurai] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:81
+
+# Taro Dachi
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Samurai] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:229
+
+##########################################################################
+# Good Paladin
+# Excalibur
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Crusade Life] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:176
+
+# Sacred Knights
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Crusade Life] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:217
+
+##########################################################################
+# Evil Paladin
+# Doomcaller
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:91
+
+# Harness of the Hell
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:218
+
+##########################################################################
+# Warrior-Mage, Red-Mage, Magic-Eater
+# Lohengrin
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior-Mage Red-Mage Magic-Eater Wild-Talent] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:22
+
+# The Charmed Pendant
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior-Mage Red-Mage Magic-Eater Wild-Talent] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
 F:!:FLOOR:3:0:0:0:219
 
-# Quest 27 rewarding (Imitator gets the Pendant of Gogo)
+##########################################################################
+# Imitator
+# TODO
+# Pendant of Gogo
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Imitator] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+F:b:BUILDING_1:3
 F:!:FLOOR:3:0:0:0:220
 
-# Quest 27 finished, continue with quest 15
+##########################################################################
+# Necromancer
+# Special :)
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Necromancer] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:269
+
+##########################################################################
+# Sniper
+# Brand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Sniper] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:126
+
+# Cloak of Tuor
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Sniper] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:50
+
+##########################################################################
+# Rage-Mage
+# Falis
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Rage-Mage] [EQU [MOD $RANDOM27 5] 0] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:155
+
+# Balli Stonehand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Rage-Mage] [GEQ [MOD $RANDOM27 5] 1] ]
+F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:103
+
+# End of Class specific random Old Castle rewards ... phew!
+##########################################################################
+
+# Quest 27 finished, no new quest is available
 ?:[EQU $QUEST27 4]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+F:b:BUILDING_1:3
 
 # Quest 27 failed, wait for the player to enter the inn
 ?:[EQU $QUEST27 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:27
 
-# Quest 27 failed but done, continue with quest 15
+# Quest 27 failed but done, no new quest is available
 ?:[EQU $QUEST27 6]
 F:b:BUILDING_1:3
 
 ?:1
 
+############### Quest Chain 2 #########################
+############### Quest 22 - Orc Camp ###################
 
-#################### Quest 15 - Eric's Stronghold ####################
+# Quest 22 untaken
+?:[EQU $QUEST22 0]
+F:a:BUILDING_0:3:0:0:0:0:NONE:22
 
-# Quest 15 assigned, entrance is quest entrance
-?:[EQU $QUEST15 1]
-F:):QUEST_ENTER:3:0:0:0:0:NONE:15
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+# Quest 22 assigned, entrance is quest entrance
+?:[EQU $QUEST22 1]
+F:v:QUEST_ENTER:3:0:0:0:0:NONE:22
+F:a:BUILDING_0:3:0:0:0:0:NONE:22
 
-# Quest 15 completed
-?:[EQU $QUEST15 2]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+# Quest 22 completed
+?:[EQU $QUEST22 2]
+F:a:BUILDING_0:3:0:0:0:0:NONE:22
 
-# Quest 15 rewarding, no new quest available,
-# Reward is potion of augmentation
-?:[EQU $QUEST15 3]
-F:b:BUILDING_1:3
-F:!:FLOOR:3:0:418
+# Quest 22 rewarding, reward is Elven Cloak, continue with quest 19
+?:[EQU $QUEST22 3]
+F:a:BUILDING_0:3:0:0:0:0:NONE:19
+F:?:FLOOR:3:0:90
 
-# Quest 15 finished, no new quest available,
-?:[EQU $QUEST15 4]
-F:b:BUILDING_1:3
+# Quest 22 finished, continue with quest 19
+?:[EQU $QUEST22 4]
+F:a:BUILDING_0:3:0:0:0:0:NONE:19
 
-# Quest 15 failed
-?:[EQU $QUEST15 5]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+# Quest 22 failed
+?:[EQU $QUEST22 5]
+F:a:BUILDING_0:3:0:0:0:0:NONE:22
 
-# Quest 15 failed but done, no new quest available,
-?:[EQU $QUEST15 6]
-F:b:BUILDING_1:3
+# Quest 22 failed
+?:[EQU $QUEST22 6]
+F:a:BUILDING_0:3
+
+?:1
+
+############### Quest 19 - Doom Quest 1 ###############
+
+# Quest 19 assigned, entrance is quest entrance
+?:[EQU $QUEST19 1]
+F:D:QUEST_ENTER:3:0:0:0:0:NONE:19
+F:a:BUILDING_0:3:0:0:0:0:NONE:19
+
+# Quest 19 completed
+?:[EQU $QUEST19 2]
+F:a:BUILDING_0:3:0:0:0:0:NONE:19
+
+# Quest 19 rewarding, reward is an Elemental Ring, continue with quest 29
+?:[EQU $QUEST19 3]
+F:a:BUILDING_0:3:0:0:0:0:NONE:29
+F:?:FLOOR:3:0:132:301
+
+# Quest 19 finished, continue with quest 29
+?:[EQU $QUEST19 4]
+F:a:BUILDING_0:3:0:0:0:0:NONE:29
+
+# Quest 19 failed
+?:[EQU $QUEST19 5]
+F:a:BUILDING_0:3:0:0:0:0:NONE:19
+
+# Quest 19 failed
+?:[EQU $QUEST19 6]
+F:a:BUILDING_0:3
+
+?:1
+
+############### Quest 29 - Thieves Quest 1 ###############
+
+# Quest 29 taken, entrance is quest entrance
+?:[EQU $QUEST29 1]
+F:y:QUEST_ENTER:3:0:0:0:0:NONE:29
+F:a:BUILDING_0:3:0:0:0:0:NONE:29
+
+# Quest 29 completed
+?:[EQU $QUEST29 2]
+F:a:BUILDING_0:3:0:0:0:0:NONE:29
+
+# Quest 29 rewarding, reward is Ring of Protection
+# continue with quest 30
+?:[EQU $QUEST29 3]
+F:a:BUILDING_0:3:0:0:0:0:NONE:30
+F:?:FLOOR:3:0:132:300
+
+# Dagger of Westernesse
+?:[AND [EQU $QUEST29 3] [EQU $RACE Death-Sword] ]
+F:a:BUILDING_0:3:0:0:0:0:NONE:30
+F:!:FLOOR:3:0:43:247
+
+# Quest 29 finished, continue with quest 30
+?:[EQU $QUEST29 4]
+F:a:BUILDING_0:3:0:0:0:0:NONE:30
+
+# Quest 29 failed, wait for the player to enter the Thieves Guild
+?:[EQU $QUEST29 5]
+F:a:BUILDING_0:3:0:0:0:0:NONE:29
+
+# Quest 29 failed
+?:[EQU $QUEST29 6]
+F:a:BUILDING_0:3
+
+?:1
+
+############### Quest 30 - Thieves Quest 2 ###############
+
+# Quest 30 taken, entrance is quest entrance
+?:[EQU $QUEST30 1]
+F:y:QUEST_ENTER:3:0:0:0:0:NONE:30
+F:a:BUILDING_0:3:0:0:0:0:NONE:30
+
+# Quest 30 completed
+?:[EQU $QUEST30 2]
+F:a:BUILDING_0:3:0:0:0:0:NONE:30
+
+# Quest 30 rewarding, reward is a Rod of Detection
+# continue to quest 21
+?:[EQU $QUEST30 3]
+F:a:BUILDING_0:3:0:0:0:0:NONE:21
+F:?:FLOOR:3:0:375
+
+# Quest 30 finished, continue to quest 21
+?:[EQU $QUEST30 4]
+F:a:BUILDING_0:3:0:0:0:0:NONE:21
+
+# Quest 30 failed, wait for the player to enter the Thieves Guild
+?:[EQU $QUEST30 5]
+F:a:BUILDING_0:3:0:0:0:0:NONE:30
+
+# Quest 30 failed but done, no new quest available
+?:[EQU $QUEST30 6]
+F:a:BUILDING_0:3
+
+?:1
+
+############### Quest 21 - Doom Quest 2 ###############
+
+# Quest 21 assigned, entrance is quest entrance
+?:[EQU $QUEST21 1]
+F:D:QUEST_ENTER:3:0:0:0:0:NONE:21
+F:a:BUILDING_0:3:0:0:0:0:NONE:21
+
+# Quest 21 completed 
+?:[EQU $QUEST21 2]
+F:a:BUILDING_0:3:0:0:0:0:NONE:21
+
+# Quest 21 rewarding (?Artifact)
+?:[EQU $QUEST21 3]
+F:a:BUILDING_0:3
+F:?:FLOOR:3:0:205
+
+# Quest 21 finished, no new quest available
+?:[EQU $QUEST21 4]
+F:a:BUILDING_0:3
+
+# Quest 21 failed
+?:[EQU $QUEST21 5]
+F:a:BUILDING_0:3:0:0:0:0:NONE:21
+
+# Quest 21 failed but done, no new quest available
+?:[EQU $QUEST21 6]
+F:a:BUILDING_0:3
 
 ?:1
 
@@ -387,106 +1167,103 @@ F:b:BUILDING_1:3
 
 # Quest 10 not started
 ?:[EQU $QUEST10 0]
-F:l:BUILDING_11:3:0:0:0:0:NONE:10
+F:i:BUILDING_8:3:0:0:0:0:NONE:10
 
 # Quest 10 assigned, entrance is quest entrance
 ?:[EQU $QUEST10 1]
-F:v:QUEST_ENTER:3:0:0:0:0:NONE:10
-F:l:BUILDING_11:3:0:0:0:0:NONE:10
+F:s:QUEST_ENTER:3:0:0:0:0:NONE:10
+F:i:BUILDING_8:3:0:0:0:0:NONE:10
 
 # Quest 10 completed
 ?:[EQU $QUEST10 2]
-F:l:BUILDING_11:3:0:0:0:0:NONE:10
+F:i:BUILDING_8:3:0:0:0:0:NONE:10
 
 # Quest 10 rewarding, reward is the Grimoire of Power
 ?:[EQU $QUEST10 3]
-F:l:BUILDING_11:3
+F:i:BUILDING_8:3
 F:(:FLOOR:3:0:337
 
 # Quest 10 finished, no new quest available
 ?:[EQU $QUEST10 4]
-F:l:BUILDING_11:3
+F:i:BUILDING_8:3
 
 # Quest 10 failed
 ?:[EQU $QUEST10 5]
-F:l:BUILDING_11:3:0:0:0:0:NONE:10
+F:i:BUILDING_8:3:0:0:0:0:NONE:10
 
 # Quest 10 failed but done, no new quest available
 ?:[EQU $QUEST10 6]
-F:l:BUILDING_11:3
+F:i:BUILDING_8:3
 
 ?:1
-
 
 #################### Quest 11 - Node of Chaos ####################
 
 # Quest 11 not yet assigned
 ?:[EQU $QUEST11 0]
-F:n:BUILDING_13:3:0:0:0:0:NONE:11
+F:e:BUILDING_4:3:0:0:0:0:NONE:11
 
 # Quest 11 assigned, entrance is quest entrance
 ?:[EQU $QUEST11 1]
-F:w:QUEST_ENTER:3:0:0:0:0:NONE:11
-F:n:BUILDING_13:3:0:0:0:0:NONE:11
+F:t:QUEST_ENTER:3:0:0:0:0:NONE:11
+F:e:BUILDING_4:3:0:0:0:0:NONE:11
 
 # Quest 11 completed
 ?:[EQU $QUEST11 2]
-F:n:BUILDING_13:3:0:0:0:0:NONE:11
+F:e:BUILDING_4:3:0:0:0:0:NONE:11
 
 # Quest 11 rewarding, reward is Armageddon Tome, no new quest available
 ?:[EQU $QUEST11 3]
-F:n:BUILDING_13:3
+F:e:BUILDING_4:3
 F:$:GRASS:3:0:386
 
 # Quest 11 finished, no new quest available
 ?:[EQU $QUEST11 4]
-F:n:BUILDING_13:3
+F:e:BUILDING_4:3
 
 # Quest 11 failed
 ?:[EQU $QUEST11 5]
-F:n:BUILDING_13:3:0:0:0:0:NONE:11
+F:e:BUILDING_4:3:0:0:0:0:NONE:11
 
 # Quest 11 failed but done, no new quest available
 ?:[EQU $QUEST11 6]
-F:n:BUILDING_13:3
+F:e:BUILDING_4:3
 
 ?:1
-
 
 #################### Quest 12 - Node of Nature ####################
 
 # Quest 12 not yet assigned
 ?:[EQU $QUEST12 0]
-F:o:BUILDING_14:3:0:0:0:0:NONE:12
+F:f:BUILDING_5:3:0:0:0:0:NONE:12
 
 # Quest 12 assigned, entrance is quest entrance
 ?:[EQU $QUEST12 1]
-F:x:QUEST_ENTER:3:0:0:0:0:NONE:12
-F:o:BUILDING_14:3:0:0:0:0:NONE:12
+F:N:QUEST_ENTER:3:0:0:0:0:NONE:12
+F:f:BUILDING_5:3:0:0:0:0:NONE:12
 
 # Quest 12 completed
 ?:[EQU $QUEST12 2]
-F:o:BUILDING_14:3:0:0:0:0:NONE:12
+F:f:BUILDING_5:3:0:0:0:0:NONE:12
 
 # Quest 12 rewarding, reward is Nature's wrath, no new quest available
 ?:[EQU $QUEST12 3]
-F:o:BUILDING_14:3
+F:f:BUILDING_5:3
 F:":GRASS:3:0:382
 
 # Quest 12 finished, no new quest available
 ?:[EQU $QUEST12 4]
-F:o:BUILDING_14:3
+F:f:BUILDING_5:3
 
 # Quest 12 failed
 ?:[EQU $QUEST12 5]
-F:o:BUILDING_14:3:0:0:0:0:NONE:12
+F:f:BUILDING_5:3:0:0:0:0:NONE:12
 
 # Quest 12 failed but done, no new quest available
 ?:[EQU $QUEST12 6]
-F:o:BUILDING_14:3
+F:f:BUILDING_5:3
 
 ?:1
-
 
 ############### Buildings ###############
 
@@ -495,6 +1272,7 @@ B:0:A:0:Rest for the night:20:20:r:17:0
 B:0:A:1:Buy food and drink:1:1:f:18:1
 B:0:A:2:Listen for rumors:5:5:u:19:0
 B:0:A:3:Ask about your reputation:1:1:a:55:0
+B:0:A:4:Request quest:0:0:q:6:0
 B:0:R:*:Member
 B:0:R:Golem:None
 B:0:R:Skeleton:None
@@ -509,99 +1287,113 @@ B:1:N:Mayor:Uldrik:Human
 B:1:A:0:Request quest:0:0:q:6:0
 B:1:A:1:Identify item:100:100:i:44:0
 
-B:2:N:Library:Astinus:Human?
-B:2:A:0:Research item:2000:2000:a:1:0
+B:2:N:Arena:Hideshi:Human
+#B:9:A:0:RULES:0:0:a:9:0
+B:2:A:0:Enter in arena:0:0:e:10:0
+B:2:A:1:Look at poster:0:0:p:8:0
+B:2:A:2:Palace of heros:0:0:s:11:0
+
+B:3:N:Library:Astinus:Human?
+B:3:A:0:Research item:1500:1500:a:1:0
 ?:[EQU $QUEST5 3 4]
-B:2:A:0:Research item:1000:1000:a:1:0
+B:3:A:0:Research item:750:750:a:1:0
 ?:1
-B:2:A:1:Town Overview:0:0:h:2:0
-
-B:3:N:Casino:Materim:Human
-B:3:A:0:In-Between:0:0:b:12:0
-B:3:A:2:Play craps:0:0:c:14:0
-B:3:A:3:Spin the wheel:0:0:s:15:0
-B:3:A:4:Play dice slots:0:0:d:16:0
-B:3:A:4:Monster arena:0:0:m:36:0
-B:3:A:5:Poker:0:0:p:43:0
-B:3:A:1:Game rules:0:0:r:13:0
-
-B:4:N:Beastmaster:Lorien:Elf
-B:4:A:0:Research monster:10000:10000:r:20:0
+B:3:A:1:Town Overview:0:0:h:2:0
+B:3:A:2:Research monster:10000:10000:r:20:0
 ?:[EQU $QUEST5 3 4]
-B:4:A:0:Research monster:1200:1200:r:20:0
+B:3:A:2:Research monster:1200:1200:r:20:0
 ?:1
 
-B:5:N:Weaponmaster:Suiyan:Human
-B:5:A:0:Compare weapons:1000:1000:c:21:0
-B:6:A:1:Evaluate AC:1000:1000:a:46:0
+B:4:N:Chaos Tower:Xeno:Beastman
+B:4:A:0:Request quest:0:0:q:6:1
+B:4:A:1:Cure mutation:1000:5000:m:35:0
+B:4:R:*:None
+B:4:R:Beastman:Member
+B:4:M:*:None
+B:4:M:Chaos:Owner
+
+B:5:N:Nature Tower:Josh:Elf
+B:5:A:0:Request quest:0:0:q:6:2
+B:5:A:1:Ritual of balance:2000:10000:n:41:0
+B:5:M:*:None
+B:5:M:Nature:Owner
+
+B:6:N:Casino:Materim:Human
+B:6:A:0:In-Between:0:0:b:12:0
+B:6:A:2:Play craps:0:0:c:14:0
+B:6:A:3:Spin the wheel:0:0:s:15:0
+B:6:A:4:Play dice slots:0:0:d:16:0
+B:6:A:4:Monster arena:0:0:m:36:0
+B:6:A:5:Poker:0:0:p:43:0
+B:6:A:1:Game rules:0:0:r:13:0
+
+B:7:N:Fighters Hall:Barak:Human
+B:7:A:0:Enchant weapon:400:800:w:23:0
+B:7:A:1:Enchant armor:300:600:a:24:0
+B:7:A:2:Reforge artifact:0:0:r:56:0
+B:7:A:3:Compare weapons:1000:1000:c:21:0
+B:7:A:4:Evaluate AC:1000:1000:a:46:0
 ?:[EQU $QUEST5 3 4]
-B:5:A:0:Compare weapons:150:150:c:21:0
-B:6:A:1:Evaluate AC:150:150:a:46:0
+B:7:A:3:Compare weapons:150:150:c:21:0
+B:7:A:4:Evaluate AC:150:150:a:46:0
 ?:1
+B:7:C:*:None
+B:7:C:Warrior:Owner
+B:7:C:Samurai:Owner
+B:7:C:Cavalry:Owner
+B:7:C:Berserker:Owner
+B:7:C:Blood-Knight:Owner
+B:7:C:Mauler:Owner
 
-B:6:N:Fighters Hall:Barak:Human
-B:6:A:0:Enchant weapon:400:800:w:23:0
-B:6:A:1:Enchant armor:300:600:a:24:0
-B:6:C:*:None
-B:6:C:Warrior:Owner
-B:6:C:Samurai:Owner
-B:6:C:Cavalry:Owner
-B:6:C:Berserker:Owner
-B:6:C:Blood-Knight:Owner
-B:6:C:Mauler:Owner
+B:8:N:Tower of Sorcery:Tanistil:Elf
+B:8:A:0:Recharge item:0:0:r:25:0
+B:8:A:1:Recharge all items:0:0:a:45:0
+B:8:A:2:Identify possessions:100:800:i:26:0
+B:8:A:3:Request quest:0:0:q:6:2
+B:8:M:*:None
+B:8:M:Sorcery:Owner
 
-B:7:N:Temple of Life:Crysania:Human
-B:7:A:0:Healing prayer:0:200:h:28:0
-B:7:A:1:Restoration:300:1500:r:29:0
-B:7:M:*:None
-B:7:M:Life:Owner
+B:9:N:Temple of Life:Crysania:Human
+B:9:A:0:Healing prayer:0:200:h:28:0
+B:9:A:1:Restoration:300:1000:r:29:0
+B:9:M:*:None
+B:9:M:Life:Owner
 
-B:8:N:Thieves Guild:Lardbottom:Hobbit
-B:8:A:1:Rest for the night:0:100:r:17:0
-B:8:A:2:Identify possessions:100:2000:i:26:0
-B:8:C:*:None
-B:8:C:Rogue:Owner
-
-B:9:N:Archers Guild:Trallin:Half-elf
-B:9:A:0:Enchant missiles:20:40:a:30:0
-B:9:A:1:Enchant bow:400:800:b:31:0
-B:9:C:*:None
-B:9:C:Ranger:Owner
-B:9:C:Archer:Owner
-B:9:C:Sniper:Owner
-
-B:10:N:Paladins Guild:Langordathur:Human
-B:10:A:0:Enchant armor:300:600:a:24:0
-B:10:A:1:See Healers:0:200:h:28:0
+B:10:N:Thieves Guild:Lardbottom:Hobbit
+B:10:A:1:Rest for the night:0:100:r:17:0
+B:10:A:2:Identify possessions:100:600:i:26:0
 B:10:C:*:None
-B:10:C:Paladin:Owner
+B:10:C:Rogue:Owner
 
-B:11:N:Tower of Sorcery:Tanistil:Elf
-B:11:A:0:Recharge item:0:0:r:25:0
-B:11:A:1:Identify possessions:100:800:i:26:0
-B:11:A:2:Request quest:0:0:q:6:2
-B:11:M:*:None
-B:11:M:Sorcery:Owner
+B:11:N:Archers Guild:Trallin:Half-elf
+B:11:A:0:Enchant missiles:20:40:a:30:0
+B:11:A:1:Enchant bow:400:800:b:31:0
+B:11:C:*:None
+B:11:C:Ranger:Owner
+B:11:C:Archer:Owner
+B:11:C:Sniper:Owner
 
-B:12:N:Trump Tower:Pelloi:Amberite
-B:12:A:0:Recall to dungeon:100:200:r:33:0
-B:12:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
-B:12:M:*:None
-B:12:M:Trump:Owner
+B:12:N:Paladins Guild:Langordathur:Human
+B:12:A:0:Enchant armor:300:600:a:24:0
+B:12:A:1:See Healers:0:200:h:28:0
+B:12:C:*:None
+B:12:C:Paladin:Owner
 
-B:13:N:Chaos Tower:Xeno:Beastman
-B:13:A:0:Request quest:0:0:q:6:1
-B:13:A:1:Cure mutation:1000:5000:m:35:0
-B:13:R:*:None
-B:13:R:Beastman:Member
+B:13:N:Trump Tower:Pelloi:Amberite
+B:13:A:0:Recall to dungeon:100:200:r:33:0
+B:13:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
 B:13:M:*:None
-B:13:M:Chaos:Owner
+B:13:M:Trump:Owner
 
-B:14:N:Nature Tower:Josh:Elf
-B:14:A:0:Request quest:0:0:q:6:2
-B:14:A:1:Ritual of balance:2000:10000:n:41:0
-B:14:M:*:None
-B:14:M:Nature:Owner
+B:14:N:Gamble Shop:Hector:Half-giant
+B:14:A:0:Random Potion:10000:10000:a:47:0
+B:14:A:1:Random Scroll:12000:12000:b:48:0
+B:14:A:2:Random Staff:15000:15000:c:49:0
+B:14:A:3:Random Wand:15000:15000:d:50:0
+B:14:A:4:Random Rod:20000:20000:e:51:0
+B:14:A:5:Random Armor:150000:150000:f:52:0
+B:14:A:6:Random Weapon:150000:150000:g:53:0
+B:14:A:7:Random Artifact:10000000:10000000:h:54:0
 
 B:15:N:Hunter's office:Kopei:Human
 B:15:A:0:Today's wanted:0:0:a:38:0
@@ -614,126 +1406,127 @@ B:15:A:3:Recieve prize:0:0:c:40:0
 D:######################################################################################################################################################################################################
 D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
 D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTT#)####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTT######TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTT######TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#m#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------TTT--------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#WWWWTTTTTWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT----------------------------------------------.-----------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------------------------------------------.-----------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.............................................................................----TTTTTTTTTTTT.............TTTTTTTT------TTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.-----TTTTTT.....TTTTTTTTTTTT......T---------T####TTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTTT---.-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.------.....TTTTTTTTTTTTTTTTTTTTTT-----------T####TTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWWTTTTTTTTTTTTTTTTTTTTT---.-W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.----...TTTTTTTTTTTTTTTTTTTTTTTTTT------q-----t###TTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTT---.-W#######################################################################W,......TTTTTTTTTTTTTTTTTTTTTTTTTTTT-----------T####TTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTT---.-W#######################################################################W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--------TT####TTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTT---.-W###.............................................#####...............###W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..-----TTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTT---.-WW##..########....#####.......#############......#####.....#######...##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTT---.-WW##..########....e###f.......#############......s####.....#######...##WW,.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..TTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTT----.-WW##..###p####....#####.......#############................###g###...##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTT--.-WW##..###.........#####.......######b######..........................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTT---.-WW##..#c#...........................!................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTT---.-WW##.......####h####.....#########...................................##WW,.---TTTTTTTTT^^^^^TTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTT----.-WW##.......#########.....#########..r..#########.....#########.......##WW,.---TTTTTTTT^^^^^^^TTTTTTTTTTTTTTT..TTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTT------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWW-----WW.WWW##.......#########.....#########.....#########.....#########.......##WW,.----TTTTTT^^^^^^^^TTTTTTTTTTTTTT..TTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTT--u###--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTVWV-WW--.-W####......####4####.....####3####.....#########.....####1####......####W,.-----TTTTTT^^<^^^TTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTT--####--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWW----.-W####..................................####2####....................####W,.------TTTTTT,.,TTTTT...............TTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTT--####--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTV..........................................................................................................TTTTTTTTTTTTT..TTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTT------TTTTTTTTTTTTTTTTTTTTTTTTTTWWWWW---------.-W####...............................................................####W,.------TTTTTTTTTTTTTTTTTTTTTTTTTTTTT......TTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWVTTTTT--------.-W####.......########................................................####W,.-----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTzTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTT------.-WW##........########.................................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTT-----.-WW##........########.....####5####..................#####a######.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTT---.-WW##........#######9.....#########......####6####...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTT----.-WW##........########.....#########......#########...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTT---.,WW##........########.....#########......#########...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTTTTTT--.,WW##........########.....#########......#########....................##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTT----.,WW##....................................#########....................##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##.............###########.........................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....##k##....###########....###0###.....###d###.......####.......##WW,.----TTTTTTTTTTTTTTTTTT..................TTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....#####....#####7#####....#######.....#######.......###8.......##WW,.----TTTTT.............TTTTT-$-TTTTTTTTTT.TTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....#####...................###j###.....###i###.......####.......##WW,..........TTTTTTTTTTTTTTTTTT#n#TTTTTTTTTTT.TTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,W###.................................................................###W,.----TTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTT.TTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT----.,W#######################################################################W,.---TTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTT.TTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--.,W#######################################################################W,.---TTTTTTTTTTTTTTTTTTTTTTTT###TTTTTTTTTTTTTT.TTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTT#
-D:#TTTTTTTTTTVVWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT------.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTT#
-D:#TTTTTTTTTVWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------.............................................................................----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT#
-D:#TTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTT...............---------------------------------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT#
-D:#TTTTTTTTWWWWWWTTTTTTT..................TTTTTTTTTTTTTTTT----------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTTTTTTTTT-----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT#
-D:#TTTTTTTVWWWWWWWW......TTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT#
-D:#TTTTTTVWWWWWWWWWWV---TTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-T###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTw^^^^TTTTT#
-D:#TTTTTTWWWWWWWWWWWWv-TTTTTTTTTTT(TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-#####TTTTTTTTTTTTTTTTTTTTTTTTTT########TTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^TTT#
-D:#TTTTWWWWWWWWWWWWWWWWTTTTTTTTTT#l#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-#####TTTTTTTTTTTTTTTTTTTTTTTTTT########TTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^TT#
-D:#TTTTTTWWWWWWWWWWWWWTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---TTTTTTTTTTTTTT--#o#TTTTTTTTTTTTTTTTTTTTTTTTTTT########TTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^TTT#
-D:#TTTTTTVWWWWWWWWWWVTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-x-TTTTTTTTTTTTTTT--"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^TTTT#
-D:#TTTTTTTTVWWWWWWWVTTTTTTTTTTTTT###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^TTTTT#
-D:#TTTTTTTTTTTVVVWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^TTTTTTT#
-D:#TTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTvTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###TTTTTTTTTTTTTT.TTTTTTTTTT..TTTTTTTT.TTTTTTTTT.TTTTTTT.TTT##C##TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#N#TTT..T..TT.......T...T..........T.....T............T.....TT..TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T.T.T........................................................T...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT......................................................................TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T......................................................................T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.....################################.################################.....T..TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..T.T...#################################.#################################......T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT;;;TTTTTTTTTTT.T......#######.......................................................#######.........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-;u;-;TTTTTTT.T........######l.......................................................p######........T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT;T---TTTTTTTT.TT........#######.......................................................#######........T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-;--;TTTTTTTTT.........######.........###0###..####h####...####g####..###j###.........######.........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTTTT..........###f#...#####..#######..#########...#########..#######..#####...#n###.........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...........##."....#####..#######..#########...#########..#######..#####......##........TT###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..........##......##a##..###9###..####3####...####6####..###4###..##b##......##..........z##TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT........##........?...............................................!........##..........###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...........##.................................................................##..........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.........##.................................................................##...........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.............................................<...........................................TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###.T.........##.................................................................##..........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###T..........##.................................................................##...........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT##w...........##.................................................................##..........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###...........##......##1##..###7###..####2####...####5####..###8###..##d##......##...........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###T..........##.$....#####..#######..#########...#########..#######..#####....(.##..........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T.........###e#...#####..######y..#########...#########..#######..#####...#i###.........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..........######.........###k###..####m####...####o####..#######.........######........TT###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T.........#######.......................................................#######..........t##TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.........#######.......................................................c######......T..T###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T.......#######.......................................................#######.......TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.........#################################.#################################.......TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T..T.....################################.################################....TT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T..T.........................................................................TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.T.T.................................................................T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..T.....T....................................................T..T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TT..T.T....T..TTTT........T..T......T...T..........T..TT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT##O##TTTTTTTT.TTTTTTTTTTTTTT.TTTTTTTT.T.T#s#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTDTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
 D:######################################################################################################################################################################################################
 
 
 ############### Starting positions ###############
 
-# Standard starting position for normal races
-?:[AND [EQU $LEAVING_QUEST 0] [NOT [EQU $RACE Vampire] ] ]
-P:33:131
-
-# Standard starting position for vampires (at the dungeon entrance)
-?:[AND [EQU $LEAVING_QUEST 0] [EQU $RACE Vampire] ]
-P:31:150
+# Standard starting position
+?:[AND [EQU $LEAVING_QUEST 0] ]
+P:32:99
 
 # Starting position when coming from quest 1
 ?:[EQU $LEAVING_QUEST 1]
-P:34:177
+P:28:142
+# And quest 32
+?:[EQU $LEAVING_QUEST 32]
+P:28:142
 
-# Starting position when coming from quest 2
-?:[EQU $LEAVING_QUEST 2]
-P:29:98
-
-# Starting position when coming from quest 3
-?:[EQU $LEAVING_QUEST 3]
-P:25:111
+# Starting position when coming from quest 29
+?:[EQU $LEAVING_QUEST 29]
+P:38:86
+# And quest 30
+?:[EQU $LEAVING_QUEST 30]
+P:38:86
 
 # Starting position when coming from quest 4
 ?:[EQU $LEAVING_QUEST 4]
-P:19:181
+P:35:53
 
-# Starting position when coming from quest 5
-?:[EQU $LEAVING_QUEST 5]
-P:30:15
-
-# Starting position when coming from quest 6
-?:[EQU $LEAVING_QUEST 6]
-P:30:15
-
-# Starting position when coming from quest 7
-?:[EQU $LEAVING_QUEST 7]
-P:30:15
-
-# Starting position when coming from quest 10
-?:[EQU $LEAVING_QUEST 10]
-P:58:19
-
-# Starting position when coming from quest 11
-?:[EQU $LEAVING_QUEST 11]
-P:57:187
-
-# Starting position when coming from quest 12
-?:[EQU $LEAVING_QUEST 12]
-P:61:104
+# Starting position when coming from quest 33
+?:[EQU $LEAVING_QUEST 33]
+P:16:126
 
 # Starting position when coming from quest 27
 ?:[EQU $LEAVING_QUEST 27]
-P:19:176
+P:48:80
 
-# Starting position when coming from quest 15
-?:[EQU $LEAVING_QUEST 15]
-P:3:7
+# Starting position when coming from quest 5
+?:[EQU $LEAVING_QUEST 5]
+P:23:43
+
+# Starting position when coming from quest 22
+?:[EQU $LEAVING_QUEST 22]
+P:9:75
+
+# Starting position when coming from quest 19
+?:[EQU $LEAVING_QUEST 19]
+P:49:153
+# And quest 21
+?:[EQU $LEAVING_QUEST 21]
+P:49:153
+
+# Starting position when coming from quest 10
+?:[EQU $LEAVING_QUEST 10]
+P:48:120
+
+# Starting position when coming from quest 11
+?:[EQU $LEAVING_QUEST 11]
+P:40:142
+
+# Starting position when coming from quest 12
+?:[EQU $LEAVING_QUEST 12]
+P:17:65
 

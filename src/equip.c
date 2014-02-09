@@ -555,16 +555,35 @@ void equip_wield(void)
         msg_format("The %s you are wearing appears to be cursed.", o_name);
         return;
     }
-    if (confirm_wear &&
-        ((object_is_cursed(o_ptr) && object_is_known(o_ptr)) ||
-        ((o_ptr->ident & IDENT_SENSE) &&
-            (FEEL_BROKEN <= o_ptr->feeling) && (o_ptr->feeling <= FEEL_CURSED))))
-    {
-        char dummy[MAX_NLEN+80];
-        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        sprintf(dummy, "Really use the %s {cursed}? ", o_name);
-        if (!get_check(dummy)) return;
-    }
+	if (confirm_wear)
+	{
+		bool do_prompt = FALSE;
+
+		if (object_is_known(o_ptr) && object_is_cursed(o_ptr))
+		{
+			do_prompt = TRUE;
+		}
+		else if (o_ptr->ident & IDENT_SENSE)
+		{
+			switch (o_ptr->feeling)
+			{
+			case FEEL_BROKEN:
+			case FEEL_BAD:
+			case FEEL_TERRIBLE:
+			case FEEL_AWFUL:
+			case FEEL_CURSED:
+				do_prompt = TRUE;
+				break;
+			}
+		}
+		if (do_prompt)
+		{
+			char dummy[MAX_NLEN+80];
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			sprintf(dummy, "Really use the %s {cursed}? ", o_name);
+			if (!get_check(dummy)) return;
+		}
+	}
     if ( o_ptr->name1 == ART_STONEMASK 
       && object_is_known(o_ptr) 
       && p_ptr->prace != RACE_VAMPIRE 

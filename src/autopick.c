@@ -46,6 +46,7 @@
 #define FLG_SECOND          26
 #define FLG_THIRD           27
 #define FLG_FOURTH          28
+#define FLG_CURSED          29
 
 #define FLG_ITEMS           30
 #define FLG_WEAPONS         31
@@ -67,6 +68,7 @@
 #define FLG_HELMS           47
 #define FLG_GLOVES          48
 #define FLG_BOOTS           49
+#define FLG_SKELETONS       50
 
 #define FLG_NOUN_BEGIN      FLG_ITEMS
 #define FLG_NOUN_END        FLG_BOOTS
@@ -81,6 +83,7 @@ static char KEY_COLLECTING[] = "collecting";
 static char KEY_ARTIFACT[] = "artifact";
 static char KEY_EGO[] = "ego";
 static char KEY_GOOD[] = "good";
+static char KEY_CURSED[] = "cursed";
 static char KEY_NAMELESS[] = "nameless";
 static char KEY_AVERAGE[] = "average";
 static char KEY_WORTHLESS[] = "worthless";
@@ -110,7 +113,8 @@ static char KEY_MISSILES[] = "missiles";
 static char KEY_DEVICES[] = "magical devices";
 static char KEY_LIGHTS[] = "lights";
 static char KEY_JUNKS[] = "junks";
-static char KEY_CORPSES[] = "corpses or skeletons";
+static char KEY_CORPSES[] = "corpses";
+static char KEY_SKELETONS[] = "skeletons";
 static char KEY_SPELLBOOKS[] = "spellbooks";
 static char KEY_HAFTED[] = "hafted weapons";
 static char KEY_SHIELDS[] = "shields";
@@ -233,86 +237,10 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
         if (MATCH_KEY(KEY_STAR_IDENTIFIED)) ADD_FLG(FLG_STAR_IDENTIFIED);
         if (MATCH_KEY(KEY_BOOSTED)) ADD_FLG(FLG_BOOSTED);
 
-        /*** Weapons whose dd*ds is more than nn ***/
-        if (MATCH_KEY2(KEY_MORE_THAN))
-        {
-            int k = 0;
-            entry->dice = 0;
-
-            /* Drop leading spaces */
-            while (' ' == *ptr) ptr++;
-
-            /* Read number */
-            while ('0' <= *ptr && *ptr <= '9')
-            {
-                entry->dice = 10 * entry->dice + (*ptr - '0');
-                ptr++;
-                k++;
-            }
-
-            if (k > 0 && k <= 2)
-            {
-                (void)MATCH_KEY(KEY_DICE);
-                ADD_FLG(FLG_MORE_DICE);
-            }
-            else
-                ptr = prev_ptr;
-        }
-
-        /*** Items whose magical bonus is more than n ***/
-        if (MATCH_KEY2(KEY_MORE_BONUS))
-        {
-            int k = 0;
-            entry->bonus = 0;
-
-            /* Drop leading spaces */
-            while (' ' == *ptr) ptr++;
-
-            /* Read number */
-            while ('0' <= *ptr && *ptr <= '9')
-            {
-                entry->bonus = 10 * entry->bonus + (*ptr - '0');
-                ptr++;
-                k++;
-            }
-
-            if (k > 0 && k <= 2)
-            {
-                if (' ' == *ptr) ptr++;
-                ADD_FLG(FLG_MORE_BONUS);
-            }
-            else
-                ptr = prev_ptr;
-        }
-
-        if (MATCH_KEY2(KEY_MORE_LEVEL))
-        {
-            int k = 0;
-            entry->bonus = 0;
-
-            /* Drop leading spaces */
-            while (' ' == *ptr) ptr++;
-
-            /* Read number */
-            while ('0' <= *ptr && *ptr <= '9')
-            {
-                entry->bonus = 10 * entry->bonus + (*ptr - '0');
-                ptr++;
-                k++;
-            }
-
-            if (k > 0 && k <= 2)
-            {
-                if (' ' == *ptr) ptr++;
-                ADD_FLG(FLG_MORE_LEVEL);
-            }
-            else
-                ptr = prev_ptr;
-        }
-
         if (MATCH_KEY(KEY_WORTHLESS)) ADD_FLG(FLG_WORTHLESS);
         if (MATCH_KEY(KEY_EGO)) ADD_FLG(FLG_EGO);
         if (MATCH_KEY(KEY_GOOD)) ADD_FLG(FLG_GOOD);
+		if (MATCH_KEY(KEY_CURSED)) ADD_FLG(FLG_CURSED);
         if (MATCH_KEY(KEY_NAMELESS)) ADD_FLG(FLG_NAMELESS);
         if (MATCH_KEY(KEY_AVERAGE)) ADD_FLG(FLG_AVERAGE);
         if (MATCH_KEY(KEY_RARE)) ADD_FLG(FLG_RARE);
@@ -343,6 +271,7 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
     else if (MATCH_KEY2(KEY_LIGHTS)) ADD_FLG_NOUN(FLG_LIGHTS);
     else if (MATCH_KEY2(KEY_JUNKS)) ADD_FLG_NOUN(FLG_JUNKS);
     else if (MATCH_KEY2(KEY_CORPSES)) ADD_FLG_NOUN(FLG_CORPSES);
+    else if (MATCH_KEY2(KEY_SKELETONS)) ADD_FLG_NOUN(FLG_SKELETONS);
     else if (MATCH_KEY2(KEY_SPELLBOOKS)) ADD_FLG_NOUN(FLG_SPELLBOOKS);
     else if (MATCH_KEY2(KEY_HAFTED)) ADD_FLG_NOUN(FLG_HAFTED);
     else if (MATCH_KEY2(KEY_SHIELDS)) ADD_FLG_NOUN(FLG_SHIELDS);
@@ -354,6 +283,84 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
     else if (MATCH_KEY2(KEY_HELMS)) ADD_FLG_NOUN(FLG_HELMS);
     else if (MATCH_KEY2(KEY_GLOVES)) ADD_FLG_NOUN(FLG_GLOVES);
     else if (MATCH_KEY2(KEY_BOOTS)) ADD_FLG_NOUN(FLG_BOOTS);
+
+    /*** Weapons whose dd*ds is more than nn ***/
+    if (MATCH_KEY2(KEY_MORE_THAN))
+    {
+        int k = 0;
+        entry->dice = 0;
+
+        /* Drop leading spaces */
+        while (' ' == *ptr) ptr++;
+
+        /* Read number */
+        while ('0' <= *ptr && *ptr <= '9')
+        {
+            entry->dice = 10 * entry->dice + (*ptr - '0');
+            ptr++;
+            k++;
+        }
+
+        if (k > 0 && k <= 2)
+        {
+            (void)MATCH_KEY(KEY_DICE);
+            ADD_FLG(FLG_MORE_DICE);
+        }
+        else
+            ptr = prev_ptr;
+    }
+
+    /*** Items whose magical bonus is more than n ***/
+    if (MATCH_KEY2(KEY_MORE_BONUS))
+    {
+        int k = 0;
+        entry->bonus = 0;
+
+        /* Drop leading spaces */
+        while (' ' == *ptr) ptr++;
+
+        /* Read number */
+        while ('0' <= *ptr && *ptr <= '9')
+        {
+            entry->bonus = 10 * entry->bonus + (*ptr - '0');
+            ptr++;
+            k++;
+        }
+
+        if (k > 0 && k <= 2)
+        {
+            if (' ' == *ptr) ptr++;
+            ADD_FLG(FLG_MORE_BONUS);
+        }
+        else
+            ptr = prev_ptr;
+    }
+
+    if (MATCH_KEY2(KEY_MORE_LEVEL))
+    {
+        int k = 0;
+        entry->bonus = 0;
+
+        /* Drop leading spaces */
+        while (' ' == *ptr) ptr++;
+
+        /* Read number */
+        while ('0' <= *ptr && *ptr <= '9')
+        {
+            entry->bonus = 10 * entry->bonus + (*ptr - '0');
+            ptr++;
+            k++;
+        }
+
+        if (k > 0 && k <= 2)
+        {
+            if (' ' == *ptr) ptr++;
+            ADD_FLG(FLG_MORE_LEVEL);
+        }
+        else
+            ptr = prev_ptr;
+    }
+
 
     /* Last 'keyword' must be at the correct location */
     if (*ptr == ':')
@@ -394,9 +401,6 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
     /* Assume that object name is to be added */
     bool name = TRUE;
 
-    /* We can always use the ^ mark in English */
-    bool bol_mark = TRUE;
-
     char name_str[MAX_NLEN];
 
     /* Initialize name string */
@@ -411,58 +415,63 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
     if (!object_is_aware(o_ptr))
     {
         ADD_FLG(FLG_UNAWARE);
-        bol_mark = TRUE;
     }
-    /* Hack: Artifact Rings are visually identifiable, but can't currently
-             be noticed by the autopicker. Pretend they are unaware items
-             as a workaround. */
-    else if ( !(o_ptr->ident & IDENT_SENSE)
-           && !(o_ptr->ident & IDENT_KNOWN)
-           && (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
-           && o_ptr->art_name )
-    {
-        ADD_FLG(FLG_UNAWARE);
-        bol_mark = TRUE;
-    }
-
     /* Not really identified */
     else if (!object_is_known(o_ptr))
     {
         if (!(o_ptr->ident & IDENT_SENSE))
         {
             ADD_FLG(FLG_UNIDENTIFIED);
-            bol_mark = TRUE;
         }
         else
         {
             /* Pseudo-identified */
             switch (o_ptr->feeling)
             {
-            case FEEL_AVERAGE:
-            case FEEL_GOOD:
-                ADD_FLG(FLG_NAMELESS);
-                bol_mark = TRUE;
-                break;
-
-            case FEEL_BROKEN:
             case FEEL_CURSED:
-                ADD_FLG(FLG_NAMELESS);
-                ADD_FLG(FLG_WORTHLESS);
-                bol_mark = TRUE;
+				ADD_FLG(FLG_CURSED);
+				break;
+
+            case FEEL_ENCHANTED:
+                /* XXX No appropriate flag */
+                /* ADD_FLG(); */
                 break;
 
-            /*case FEEL_TERRIBLE:
-            case FEEL_WORTHLESS:
-                ADD_FLG(FLG_WORTHLESS);
-                break;*/
+            case FEEL_AVERAGE:
+                ADD_FLG(FLG_NAMELESS);
+                break;
+
+            case FEEL_GOOD:
+				ADD_FLG(FLG_GOOD);
+                ADD_FLG(FLG_NAMELESS);
+                break;
+
+			case FEEL_BAD:
+				ADD_FLG(FLG_CURSED);
+				ADD_FLG(FLG_NAMELESS);
+				break;
 
             case FEEL_EXCELLENT:
                 ADD_FLG(FLG_EGO);
                 break;
 
-            case FEEL_UNCURSED:
-                /* XXX No appropriate flag */
-                /* ADD_FLG(); */
+			case FEEL_AWFUL:
+				ADD_FLG(FLG_CURSED);
+				ADD_FLG(FLG_EGO);
+				break;
+
+			case FEEL_SPECIAL:
+				ADD_FLG(FLG_ARTIFACT);
+				break;
+
+			case FEEL_TERRIBLE:
+				ADD_FLG(FLG_CURSED);
+				ADD_FLG(FLG_ARTIFACT);
+				break;
+
+            case FEEL_BROKEN:
+                ADD_FLG(FLG_NAMELESS);
+                ADD_FLG(FLG_WORTHLESS);
                 break;
 
             default:
@@ -509,8 +518,6 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
             /* Wearable nameless object */
             if (object_is_equipment(o_ptr))
                 ADD_FLG(FLG_NAMELESS);
-
-            bol_mark = TRUE;
         }
 
     }
@@ -584,8 +591,10 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
     else if (o_ptr->tval == TV_SKELETON || o_ptr->tval == TV_BOTTLE
          || o_ptr->tval == TV_JUNK || o_ptr->tval == TV_STATUE)
         ADD_FLG(FLG_JUNKS);
-    else if (o_ptr->tval == TV_CORPSE)
+    else if (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE)
         ADD_FLG(FLG_CORPSES);
+    else if (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_SKELETON)
+        ADD_FLG(FLG_SKELETONS);
     else if (o_ptr->tval >= TV_LIFE_BOOK)
         ADD_FLG(FLG_SPELLBOOKS);
     else if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_SWORD
@@ -617,12 +626,7 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
         char o_name[MAX_NLEN];
 
         object_desc(o_name, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NO_PLURAL | OD_NAME_ONLY));
-
-        /*
-         * If necessary, add a '^' which indicates the
-         * beginning of line.
-         */
-        sprintf(name_str, "%s%s", bol_mark ? "^" : "", o_name);
+        sprintf(name_str, "^%s", o_name);
     }
 
     /* Register the name in lowercase */
@@ -837,6 +841,51 @@ cptr autopick_line_from_entry(autopick_type *entry)
     if (IS_FLG(FLG_STAR_IDENTIFIED)) ADD_KEY(KEY_STAR_IDENTIFIED);
     if (IS_FLG(FLG_BOOSTED)) ADD_KEY(KEY_BOOSTED);
 
+    if (IS_FLG(FLG_UNREADABLE)) ADD_KEY(KEY_UNREADABLE);
+    if (IS_FLG(FLG_REALM1)) ADD_KEY(KEY_REALM1);
+    if (IS_FLG(FLG_REALM2)) ADD_KEY(KEY_REALM2);
+    if (IS_FLG(FLG_FIRST)) ADD_KEY(KEY_FIRST);
+    if (IS_FLG(FLG_SECOND)) ADD_KEY(KEY_SECOND);
+    if (IS_FLG(FLG_THIRD)) ADD_KEY(KEY_THIRD);
+    if (IS_FLG(FLG_FOURTH)) ADD_KEY(KEY_FOURTH);
+    if (IS_FLG(FLG_WANTED)) ADD_KEY(KEY_WANTED);
+    if (IS_FLG(FLG_UNIQUE)) ADD_KEY(KEY_UNIQUE);
+    if (IS_FLG(FLG_HUMAN)) ADD_KEY(KEY_HUMAN);
+    if (IS_FLG(FLG_WORTHLESS)) ADD_KEY(KEY_WORTHLESS);
+    if (IS_FLG(FLG_GOOD)) ADD_KEY(KEY_GOOD);
+	if (IS_FLG(FLG_CURSED)) ADD_KEY(KEY_CURSED);
+    if (IS_FLG(FLG_NAMELESS)) ADD_KEY(KEY_NAMELESS);
+    if (IS_FLG(FLG_AVERAGE)) ADD_KEY(KEY_AVERAGE);
+    if (IS_FLG(FLG_RARE)) ADD_KEY(KEY_RARE);
+    if (IS_FLG(FLG_COMMON)) ADD_KEY(KEY_COMMON);
+    if (IS_FLG(FLG_EGO)) ADD_KEY(KEY_EGO);
+
+    if (IS_FLG(FLG_ARTIFACT)) ADD_KEY(KEY_ARTIFACT);
+
+    if (IS_FLG(FLG_ITEMS)) ADD_KEY2(KEY_ITEMS);
+    else if (IS_FLG(FLG_WEAPONS)) ADD_KEY2(KEY_WEAPONS);
+    else if (IS_FLG(FLG_FAVORITE_WEAPONS)) ADD_KEY2(KEY_FAVORITE_WEAPONS);
+    else if (IS_FLG(FLG_ARMORS)) ADD_KEY2(KEY_ARMORS);
+    else if (IS_FLG(FLG_MISSILES)) ADD_KEY2(KEY_MISSILES);
+    else if (IS_FLG(FLG_DEVICES)) ADD_KEY2(KEY_DEVICES);
+    else if (IS_FLG(FLG_LIGHTS)) ADD_KEY2(KEY_LIGHTS);
+    else if (IS_FLG(FLG_JUNKS)) ADD_KEY2(KEY_JUNKS);
+    else if (IS_FLG(FLG_CORPSES)) ADD_KEY2(KEY_CORPSES);
+    else if (IS_FLG(FLG_SKELETONS)) ADD_KEY2(KEY_SKELETONS);
+    else if (IS_FLG(FLG_SPELLBOOKS)) ADD_KEY2(KEY_SPELLBOOKS);
+    else if (IS_FLG(FLG_HAFTED)) ADD_KEY2(KEY_HAFTED);
+    else if (IS_FLG(FLG_SHIELDS)) ADD_KEY2(KEY_SHIELDS);
+    else if (IS_FLG(FLG_BOWS)) ADD_KEY2(KEY_BOWS);
+    else if (IS_FLG(FLG_RINGS)) ADD_KEY2(KEY_RINGS);
+    else if (IS_FLG(FLG_AMULETS)) ADD_KEY2(KEY_AMULETS);
+    else if (IS_FLG(FLG_SUITS)) ADD_KEY2(KEY_SUITS);
+    else if (IS_FLG(FLG_CLOAKS)) ADD_KEY2(KEY_CLOAKS);
+    else if (IS_FLG(FLG_HELMS)) ADD_KEY2(KEY_HELMS);
+    else if (IS_FLG(FLG_GLOVES)) ADD_KEY2(KEY_GLOVES);
+    else if (IS_FLG(FLG_BOOTS)) ADD_KEY2(KEY_BOOTS);
+    else if (!IS_FLG(FLG_ARTIFACT))
+        sepa_flag = FALSE;
+
     if (IS_FLG(FLG_MORE_DICE))
     {
         ADD_KEY(KEY_MORE_THAN);
@@ -856,52 +905,6 @@ cptr autopick_line_from_entry(autopick_type *entry)
         ADD_KEY(KEY_MORE_LEVEL);
         strcat(ptr, format("%d ", entry->bonus));
     }
-
-    if (IS_FLG(FLG_UNREADABLE)) ADD_KEY(KEY_UNREADABLE);
-    if (IS_FLG(FLG_REALM1)) ADD_KEY(KEY_REALM1);
-    if (IS_FLG(FLG_REALM2)) ADD_KEY(KEY_REALM2);
-    if (IS_FLG(FLG_FIRST)) ADD_KEY(KEY_FIRST);
-    if (IS_FLG(FLG_SECOND)) ADD_KEY(KEY_SECOND);
-    if (IS_FLG(FLG_THIRD)) ADD_KEY(KEY_THIRD);
-    if (IS_FLG(FLG_FOURTH)) ADD_KEY(KEY_FOURTH);
-    if (IS_FLG(FLG_WANTED)) ADD_KEY(KEY_WANTED);
-    if (IS_FLG(FLG_UNIQUE)) ADD_KEY(KEY_UNIQUE);
-    if (IS_FLG(FLG_HUMAN)) ADD_KEY(KEY_HUMAN);
-    if (IS_FLG(FLG_WORTHLESS)) ADD_KEY(KEY_WORTHLESS);
-    if (IS_FLG(FLG_GOOD)) ADD_KEY(KEY_GOOD);
-    if (IS_FLG(FLG_NAMELESS)) ADD_KEY(KEY_NAMELESS);
-    if (IS_FLG(FLG_AVERAGE)) ADD_KEY(KEY_AVERAGE);
-    if (IS_FLG(FLG_RARE)) ADD_KEY(KEY_RARE);
-    if (IS_FLG(FLG_COMMON)) ADD_KEY(KEY_COMMON);
-    if (IS_FLG(FLG_EGO)) ADD_KEY(KEY_EGO);
-
-    if (IS_FLG(FLG_ARTIFACT)) ADD_KEY(KEY_ARTIFACT);
-
-    if (IS_FLG(FLG_ITEMS)) ADD_KEY2(KEY_ITEMS);
-    else if (IS_FLG(FLG_WEAPONS)) ADD_KEY2(KEY_WEAPONS);
-    else if (IS_FLG(FLG_FAVORITE_WEAPONS)) ADD_KEY2(KEY_FAVORITE_WEAPONS);
-    else if (IS_FLG(FLG_ARMORS)) ADD_KEY2(KEY_ARMORS);
-    else if (IS_FLG(FLG_MISSILES)) ADD_KEY2(KEY_MISSILES);
-    else if (IS_FLG(FLG_DEVICES)) ADD_KEY2(KEY_DEVICES);
-    else if (IS_FLG(FLG_LIGHTS)) ADD_KEY2(KEY_LIGHTS);
-    else if (IS_FLG(FLG_JUNKS)) ADD_KEY2(KEY_JUNKS);
-    else if (IS_FLG(FLG_CORPSES)) ADD_KEY2(KEY_CORPSES);
-    else if (IS_FLG(FLG_SPELLBOOKS)) ADD_KEY2(KEY_SPELLBOOKS);
-    else if (IS_FLG(FLG_HAFTED)) ADD_KEY2(KEY_HAFTED);
-    else if (IS_FLG(FLG_SHIELDS)) ADD_KEY2(KEY_SHIELDS);
-    else if (IS_FLG(FLG_BOWS)) ADD_KEY2(KEY_BOWS);
-    else if (IS_FLG(FLG_RINGS)) ADD_KEY2(KEY_RINGS);
-    else if (IS_FLG(FLG_AMULETS)) ADD_KEY2(KEY_AMULETS);
-    else if (IS_FLG(FLG_SUITS)) ADD_KEY2(KEY_SUITS);
-    else if (IS_FLG(FLG_CLOAKS)) ADD_KEY2(KEY_CLOAKS);
-    else if (IS_FLG(FLG_HELMS)) ADD_KEY2(KEY_HELMS);
-    else if (IS_FLG(FLG_GLOVES)) ADD_KEY2(KEY_GLOVES);
-    else if (IS_FLG(FLG_BOOTS)) ADD_KEY2(KEY_BOOTS);
-
-    /* You don't need sepalator after adjective */
-    /* 'artifact' is not true adjective */
-    else if (!IS_FLG(FLG_ARTIFACT))
-        sepa_flag = FALSE;
 
     if (entry->name && entry->name[0])
     {
@@ -961,16 +964,6 @@ static bool _collecting(object_type *o1, object_type *o2)
  */
 static bool _is_aware(object_type *o_ptr)
 {
-    /* Hack: Artifact Rings are visually identifiable, but can't currently
-             be noticed by the autopicker. Pretend they are unaware items
-             as a workaround. */
-    if ( !(o_ptr->ident & IDENT_SENSE)
-      && !(o_ptr->ident & IDENT_KNOWN)
-      && (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
-      && o_ptr->art_name )
-    {
-        return FALSE;
-    }
     return object_is_aware(o_ptr);
 }
 static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_name)
@@ -1064,21 +1057,72 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Artifact object ***/
     if (IS_FLG(FLG_ARTIFACT))
     {
-        if (!object_is_known(o_ptr) || !object_is_artifact(o_ptr))
-            return FALSE;
+		if (object_is_known(o_ptr))
+		{ 
+			if (!object_is_artifact(o_ptr)) return FALSE;
+		}
+		else if (o_ptr->ident & IDENT_SENSE) 
+		{
+			switch (o_ptr->feeling)
+			{
+			case FEEL_SPECIAL:
+			case FEEL_TERRIBLE:
+				break;
+			default:
+				return FALSE;
+			}
+		}
+		else
+			return FALSE;
     }
 
     /*** Ego object ***/
     if (IS_FLG(FLG_EGO))
     {
-        /* Need to be an ego item */
-        if (!object_is_ego(o_ptr)) return FALSE;
-
-        /* Need to be known to be an ego */
-        if (!object_is_known(o_ptr) &&
-            !((o_ptr->ident & IDENT_SENSE) && o_ptr->feeling == FEEL_EXCELLENT))
-            return FALSE;
+		if (object_is_known(o_ptr))
+		{ 
+			if (!object_is_ego(o_ptr)) return FALSE;
+		}
+		else if (o_ptr->ident & IDENT_SENSE) 
+		{
+			switch (o_ptr->feeling)
+			{
+			case FEEL_AWFUL:
+			case FEEL_EXCELLENT:
+				break;
+			default:
+				return FALSE;
+			}
+		}
+		else
+			return FALSE;
     }
+
+    /*** Cursed ***/
+    if (IS_FLG(FLG_CURSED))
+    {
+        if (!object_is_equipment(o_ptr)) return FALSE;
+		if (object_is_known(o_ptr))
+		{ 
+			if (!object_is_cursed(o_ptr)) return FALSE;
+		}
+		else if (o_ptr->ident & IDENT_SENSE) 
+		{
+			switch (o_ptr->feeling)
+			{
+			case FEEL_BROKEN:
+			case FEEL_BAD:
+			case FEEL_AWFUL:
+			case FEEL_TERRIBLE:
+			case FEEL_CURSED:
+				break;
+			default:
+				return FALSE;
+			}
+		}
+		else
+			return FALSE;
+	}
 
     /*** Good ***/
     if (IS_FLG(FLG_GOOD))
@@ -1140,6 +1184,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
             {
             case FEEL_AVERAGE:
             case FEEL_GOOD:
+			case FEEL_BAD:
                 /* It's nameless */
                 break;
 
@@ -1311,8 +1356,16 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     }
     else if (IS_FLG(FLG_CORPSES))
     {
-        if (o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_SKELETON)
+        if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE))
             return FALSE;
+    }
+    else if (IS_FLG(FLG_SKELETONS))
+    {
+        if ( !object_is_(o_ptr, TV_CORPSE, SV_SKELETON)
+          && o_ptr->tval != TV_SKELETON )
+        {
+            return FALSE;
+        }
     }
     else if (IS_FLG(FLG_SPELLBOOKS))
     {
@@ -1462,9 +1515,20 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 {
     if (!destroy_items) return FALSE;
 
-    /* Known to be worthless? */
-    if (leave_worth)
-        if (object_value(o_ptr) > 0) return FALSE;
+    if (leave_worth) /* leave worthy items ... worth could also stand for worthless, no? Sigh ... */
+	{
+		if ( !object_is_known(o_ptr)
+		  && !object_is_rare(o_ptr)
+		  && (o_ptr->ident & IDENT_SENSE)
+		  && o_ptr->feeling == FEEL_BAD )
+		{
+			/* Bad items should generally be destroyed (even if they have
+			   non-zero values). However, a subsequent option may keep them
+			   around (e.g. leave_special or leave_equip) */
+		}
+		else if (object_value(o_ptr) > 0) 
+			return FALSE;
+	}
 
     if (leave_equip)
         if (object_is_weapon_armour_ammo(o_ptr)) return FALSE;
@@ -1720,19 +1784,19 @@ static byte _get_object_feeling(object_type *o_ptr)
 {
     if (object_is_artifact(o_ptr))
     {
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
         return FEEL_SPECIAL;
     }
 
     if (object_is_ego(o_ptr))
     {
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_CURSED;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_AWFUL;
         return FEEL_EXCELLENT;
     }
 
-    if (object_is_cursed(o_ptr)) return FEEL_CURSED;
+    if (object_is_cursed(o_ptr)) return FEEL_BAD;
     if (object_is_broken(o_ptr)) return FEEL_BROKEN;
-    if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) return FEEL_AVERAGE;
+    if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) return FEEL_AVERAGE;
 
     if (o_ptr->to_a > 0) return FEEL_GOOD;
     if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
@@ -1756,7 +1820,7 @@ static void _sense_object_floor(object_type *o_ptr)
 void autopick_pickup_items(cave_type *c_ptr)
 {
     s16b this_o_idx, next_o_idx = 0;
-    bool auto_lore = equip_find_artifact(ART_STONE_LORE);
+    bool auto_lore = equip_find_artifact(ART_STONE_LORE) || mut_present(MUT_LOREMASTER);
     bool auto_sense = p_ptr->lev >= 35;
     
     /* Scan the pile of objects */
@@ -2245,6 +2309,12 @@ static void describe_autopick(char *buff, autopick_type *entry)
         which_str[which_n++] = "have good quality";
     }
 
+    if (IS_FLG(FLG_CURSED))
+    {
+        body_str = "equipment";
+        which_str[which_n++] = "is cursed";
+    }
+
     /*** Nameless ***/
     if (IS_FLG(FLG_NAMELESS))
     {
@@ -2385,7 +2455,9 @@ static void describe_autopick(char *buff, autopick_type *entry)
     else if (IS_FLG(FLG_JUNKS))
         body_str = "junk such as broken sticks";
     else if (IS_FLG(FLG_CORPSES))
-        body_str = "corpses or skeletons";
+        body_str = "corpses";
+    else if (IS_FLG(FLG_SKELETONS))
+        body_str = "skeletons";
     else if (IS_FLG(FLG_SPELLBOOKS))
         body_str = "spellbooks";
     else if (IS_FLG(FLG_HAFTED))
@@ -3600,14 +3672,16 @@ static void search_for_string(text_body_type *tb, cptr search_str, bool forward)
 #define EC_KK_CORPSES           71
 #define EC_KK_SPELLBOOKS       72
 #define EC_KK_SHIELDS           73
-#define EC_KK_BOWS           74
+#define EC_KK_BOWS            74
 #define EC_KK_RINGS           75
-#define EC_KK_AMULETS           76
+#define EC_KK_AMULETS         76
 #define EC_KK_SUITS           77
-#define EC_KK_CLOAKS           78
+#define EC_KK_CLOAKS          78
 #define EC_KK_HELMS           79
-#define EC_KK_GLOVES           80
+#define EC_KK_GLOVES          80
 #define EC_KK_BOOTS           81
+#define EC_KK_SKELETONS       82
+#define EC_OK_CURSED          83
 
 
 /* Manu names */
@@ -3744,6 +3818,7 @@ command_menu_type menu_data[] =
     {KEY_ARTIFACT, 1, -1, EC_OK_ARTIFACT},
     {KEY_EGO, 1, -1, EC_OK_EGO},
     {KEY_GOOD, 1, -1, EC_OK_GOOD},
+	{KEY_CURSED, 1, -1, EC_OK_CURSED},
     {KEY_NAMELESS, 1, -1, EC_OK_NAMELESS},
     {KEY_AVERAGE, 1, -1, EC_OK_AVERAGE},
     {KEY_WORTHLESS, 1, -1, EC_OK_WORTHLESS},
@@ -3774,6 +3849,7 @@ command_menu_type menu_data[] =
     {KEY_LIGHTS, 1, -1, EC_KK_LIGHTS},
     {KEY_JUNKS, 1, -1, EC_KK_JUNKS},
     {KEY_CORPSES, 1, -1, EC_KK_CORPSES},
+    {KEY_SKELETONS, 1, -1, EC_KK_SKELETONS},
     {KEY_SPELLBOOKS, 1, -1, EC_KK_SPELLBOOKS},
     {KEY_SHIELDS, 1, -1, EC_KK_SHIELDS},
     {KEY_BOWS, 1, -1, EC_KK_BOWS},
@@ -5397,6 +5473,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
     case EC_KK_LIGHTS: toggle_keyword(tb, FLG_LIGHTS); break;
     case EC_KK_JUNKS: toggle_keyword(tb, FLG_JUNKS); break;
     case EC_KK_CORPSES: toggle_keyword(tb, FLG_CORPSES); break;
+    case EC_KK_SKELETONS: toggle_keyword(tb, FLG_SKELETONS); break;
     case EC_KK_SPELLBOOKS: toggle_keyword(tb, FLG_SPELLBOOKS); break;
     case EC_KK_SHIELDS: toggle_keyword(tb, FLG_SHIELDS); break;
     case EC_KK_BOWS: toggle_keyword(tb, FLG_BOWS); break;
@@ -5415,6 +5492,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
     case EC_OK_ARTIFACT: toggle_keyword(tb, FLG_ARTIFACT); break;
     case EC_OK_EGO: toggle_keyword(tb, FLG_EGO); break;
     case EC_OK_GOOD: toggle_keyword(tb, FLG_GOOD); break;
+	case EC_OK_CURSED: toggle_keyword(tb, FLG_CURSED); break;
     case EC_OK_NAMELESS: toggle_keyword(tb, FLG_NAMELESS); break;
     case EC_OK_AVERAGE: toggle_keyword(tb, FLG_AVERAGE); break;
     case EC_OK_RARE: toggle_keyword(tb, FLG_RARE); break;

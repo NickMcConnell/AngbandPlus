@@ -49,7 +49,8 @@ unidentified dice boosted weapons
 # Pick up all wanted corpses for bounty hunting.
 # And inscribe {Wanted} on it.
 #
-wanted corpses or skeletons#Wanted!k!k!k
+wanted corpses#Wanted!k!k!k
+wanted skeletons#Wanted!k!k!k
 
 ?:[EQU $RACE Possessor]
 ~corpse
@@ -137,7 +138,7 @@ scroll of wall of stone
 # Archers pick up all bones to create arrows from it.
 junks:^broken skull
 junks:^broken bone
-corpses or skeletons:skeleton
+skeletons
 
 ?:[EQU $CLASS Magic-Eater]
 # Magic-Eaters pick up magical devices to absorb its magical power.

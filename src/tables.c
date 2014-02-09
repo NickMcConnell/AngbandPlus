@@ -1410,7 +1410,7 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_ELDER_THING,   TV_ROD,    SV_ROD_DRAIN_LIFE             },
     { MON_M_MH_DRAGON,   0,         0                             },
     { MON_ETTIN,         TV_SCROLL, SV_SCROLL_STAR_ENCHANT_WEAPON },
-    { MON_VAMPIRE_LORD,  0,         0                             },
+    { MON_VAMPIRE_LORD,  TV_SCROLL, SV_SCROLL_MUNDANITY           },
     { MON_BARNEY,        TV_SCROLL, SV_SCROLL_GENOCIDE            },
     { MON_GROO,          0,         0                             },
     { MON_D_ELF_SORC,    TV_WAND,   SV_WAND_STRIKING              },
@@ -3792,13 +3792,14 @@ cptr game_inscriptions[] =
     NULL,            /* FEEL_NONE */
     "broken",        /* FEEL_BROKEN */
     "terrible",      /* FEEL_TERRIBLE */
-    "worthless",     /* FEEL_WORTHLESS */
+    "awful",         /* FEEL_AWFUL */
     "cursed",        /* FEEL_CURSED */
-    "uncursed",      /* FEEL_UNCURSED */
+    "enchanted",     /* FEEL_ENCHANTED */
     "average",       /* FEEL_AVERAGE */
     "good",          /* FEEL_GOOD */
     "excellent",     /* FEEL_EXCELLENT */
     "special",       /* FEEL_SPECIAL */
+	"bad",           /* FEEL_BAD */
 };
 
 kamae kamae_shurui[MAX_KAMAE] =

@@ -1338,7 +1338,7 @@ bool can_player_destroy_object(object_type *o_ptr)
         byte feel = FEEL_SPECIAL;
 
         /* Hack -- Handle icky artifacts */
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) feel = FEEL_CURSED;
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) feel = FEEL_TERRIBLE;
 
         /* Hack -- inscribe the artifact */
         o_ptr->feeling = feel;

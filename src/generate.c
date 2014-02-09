@@ -1573,11 +1573,11 @@ void generate_cave(void)
     glow_deep_lava_and_bldg();
     p_ptr->enter_dungeon = FALSE;
     wipe_generate_cave_flags();
-/*
-#ifdef _DEBUG
+
+#if 0
     wiz_lite(FALSE);
     detect_all(255);
-    if (0)
+    if (1)
     {
         int i, ct = 0;
         char buf[MAX_NLEN];
@@ -1612,35 +1612,21 @@ void generate_cave(void)
                 uniques++;
         }
         msg_format("DL=%d, Monsters=%d, Drops=%d, <ML>= %d, Uniques=%d", dun_level, ct, ct_drops, lvl/MAX(ct, 1), uniques);
-    }
+		for (i = 0; i < ct_drops; i++)
+		{
+			object_type forge;
+			char        buf[MAX_NLEN];
 
-    if (0)
-    {
-        str_map_ptr      map = str_map_alloc(0);
-        str_map_iter_ptr iter;
-        const int        max = 1000;
-        int              i;
-
-        for (i = 0; i < max; i++)
-        {
-            room_template_t *room_ptr = choose_room_template(ROOM_NORMAL, 0);
-            cptr             name = room_name + room_ptr->name;
-            int              ct = (int)str_map_find(map, name);
-            
-            ct++;
-            str_map_add(map, name, (vptr)ct);
-        }
-
-        for (iter = str_map_iter_alloc(map); str_map_iter_is_valid(iter); str_map_iter_next(iter))
-        {
-            cptr name = str_map_iter_current_key(iter);
-            int  ct = (int)str_map_iter_current(iter);
-
-            msg_format("%30.30s %d", name, ct);
-        }
-        str_map_iter_free(iter);
-        str_map_free(map);
+			make_object(&forge, 0); /* TODO: DROP_GOOD? */
+            /*if (forge.name1 || forge.name2)*/
+			if (forge.curse_flags)
+            {
+				identify_item(&forge);
+				forge.ident |= IDENT_MENTAL;
+                object_desc(buf, &forge, 0);
+                msg_print(buf);
+            }
+		}
     }
 #endif
-*/
 }

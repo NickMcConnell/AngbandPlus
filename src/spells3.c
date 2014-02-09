@@ -281,8 +281,8 @@ bool cave_player_teleportable_bold(int y, int x, u32b mode)
 
         if (have_flag(f_ptr->flags, FF_LAVA) && res_pct(RES_FIRE) < 100 && !IS_INVULN())
         {
-            /* Always forbid deep lava */
-            if (have_flag(f_ptr->flags, FF_DEEP)) return FALSE;
+            /* (Almost) always forbid deep lava */
+            if (have_flag(f_ptr->flags, FF_DEEP) && !elemental_is_(ELEMENTAL_FIRE)) return FALSE;
 
             /* Forbid shallow lava when the player don't have levitation */
             if (!p_ptr->levitation) return FALSE;

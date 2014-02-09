@@ -77,10 +77,12 @@
 #      dice boosted      : Weapons with boosted damage dice match.
 #      more than N dice  : Weapons with dice (dd * ds) better than +N match.
 #      more bonus than N : Items which has more magical bonus than (+N) match.
+#      more level than N :
 #      worthless         : Items which you cannot sell match.
 #      artifacts         : Artifact items match.
 #      ego               : Ego items match.
 #      good              : {good} items match.
+#      cursed            : item is cursed
 #      nameless          : Non ego/non artifact items match.
 #      average           : {average} items match.
 #      rare              : Rare equipment such as Dragon armors etc. match.
@@ -181,15 +183,17 @@
 #      [! ~ ; (]
 #      [[all] [collecting]
 #       [unaware] [unidentified] [identified] [*identified*] 
-#       [artifact] [ego] [good] [nameless] [average]
+#       [artifact] [ego] [good] [nameless] [average] [cursed]
 #       [worthless] [rare] [common]
-#       [dice boosted] [more than N dice] [more bonus than N] 
+#       [dice boosted]
 #       [wanted] [unique monster's] [human] [unreadable] 
 #       [first realm's] [second realm's] [first] [second] [third] [fourth] 
 #       [items | weapons | favorite weapons | armors | missiles |
 #        magical devices | lights | junks | corpses or skeletons | spellbooks |
 #        hafted weapons | shields | bows | rings | amulets | suits | cloaks |
-#        helms | gloves | boots] :]
+#        helms | gloves | boots]
+#       [more than N dice] [more bonus than N] 
+#       [more level than N] :]
 #      [[^]part-of-item-name] [#auto-inscription-string]
 #    
 #    
